@@ -1,101 +1,107 @@
-Received: from mail-pf1-f193.google.com (mail-pf1-f193.google.com [209.85.210.193])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 344692E62C8;
-	Mon,  8 Sep 2025 07:19:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.193
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4A9E30ACFF;
+	Mon,  8 Sep 2025 13:12:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.181.97.72
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757315981; cv=none; b=YCv7b2swAt9peJPMuMbWfroBOx9wMKB7SFob6RppnfwMct0JVtJhOONcmkquAObx6NdGJnGW+VwcLU6FT1tubkyjHpq25x/9XfEkBdcQeuz701RRBoUg/tyivVWd1DQQseEOfffWp9Ze7QNJc/wui1s2pHlAywYaPxnv9bsBbj0=
+	t=1757337161; cv=none; b=sg9PGKsCucCuoxrhwuoge7nZlboSXPf2uGkitgRZ6l7l1mCmtukI0Z9iUqgwGaOgjVYLsYK1jyzFiXOM2eIZjcu2/dVKXQJ9FU4vUt3P+pJtgf0hiIukKrJDFMKgD5nniC3L2FydXLtfujg36WqByM22qn/4lmQo49gsducR2uc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757315981; c=relaxed/simple;
-	bh=UhcDRmH8ZVlg+Evip09+ssNhAPTrYqoMlqk/l3FeugU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=m+Wv78zxNAXWplUUTOwzbYigrw+9TphWdDL0jVK1KyN3Y670DSvfeTcHpu2m3OHSKmu0FkXaPcZJD3oiZA9QoasoINZWlkaabbaQuuZIotmXGl2QzT5SyHcdxHan5pjFv018wRUtmmMXJDPM5ZW4Go39SrNPoa7pRVMa1y7hgNU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gYzGPntm; arc=none smtp.client-ip=209.85.210.193
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gYzGPntm"
-Received: by mail-pf1-f193.google.com with SMTP id d2e1a72fcca58-7722c8d2694so3474549b3a.3;
-        Mon, 08 Sep 2025 00:19:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757315978; x=1757920778; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=UhcDRmH8ZVlg+Evip09+ssNhAPTrYqoMlqk/l3FeugU=;
-        b=gYzGPntml6XvaAbNFLAa302qxlIMSoyUrU5Qav1xpoNDQFP9FeRONwUiyNo2Lx195K
-         b3oNAwTh3wwGkABa09kS/UmpEz24hfHiZLGy36Xt5zU+0gqCJdL89O6t0YmWrYHQZtWn
-         nje14hxL5jNdrYNFy5iVvQnvuEkb2h9SKMtSWKriizr0eYlZ7n9vkSa935e26EUIPXKe
-         JAo8rA8gTv2PF+xfn0sNgyNu11HojQ2SflKEWjtcbNefTnCaDZLCH1lVKxU7LA4GZUsO
-         lap5qJDmfxC71PIXKc11iL6FSN/OkSuOy/UNxu0QehUvq3s8QXOcY3D4DBPcAossdOND
-         aevQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757315978; x=1757920778;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=UhcDRmH8ZVlg+Evip09+ssNhAPTrYqoMlqk/l3FeugU=;
-        b=pac16HJX6dRlF1aog0pryfeUK4MqSPQbCwj8uudeM3gw3GvL/YLxHVGfRsP0BYsMbP
-         fKtoA0YikYLcrHXqynOPMkMhVZq5zcKbrCyN97N5rbnfK7DLEoJ5wT7TCNxPYWd2MKQa
-         crvY3+obgbNbVPXYMjmyfwpjd8GeNIZ4MfKH1/RxWFG4PS9XO6qW343jbTrsU4S6kkOu
-         PbSuwkALehd+ORjK67VPhr9QgJNeFO+HPQGCTxLdaqb6sjVn+h+SypVl6xzTUSwCV7LK
-         YRdFfXeYTU0iTxvbfLrXhpC9bycQ+ag69sSFkSaSp//4TAcPexbsrk/jq9DOzeINbXwr
-         DgJQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWZIhSJNAEctUk5xGYyjoJCMoOGe3pbV+4N7Tk93DYaLgoT+K7OpCeuGlMMcHBRdyu7tTg4K0+/@vger.kernel.org
-X-Gm-Message-State: AOJu0YyK6gpR1vmnqslv9QOedWEglaAqfvdwzqvjSVQS4334pIukyzpa
-	XTHP0UZKEw1gNalGtmL64hEHeNDThmO/9Ml3qXT2U18o6vPzSjVN9bVO
-X-Gm-Gg: ASbGncvGcQVeFBaSrhcYAvfzjqeU2Jcx0WdkLVEfR+4k+tE+bZpX1P2n7x5nAcHuXZ8
-	maOkogDHjNwdZwuGTw8ulCl1tLR67uF4dpgE7aKxY1f5Dz7Ealeq8ilx0R3A1HCCXem7qH+gCNI
-	sgYp9hZZSRCZZc3RsTIPBaonwKeLmb1/6BjhWwlGG5qSgZ/Lv7jj+4/SkRrQuvbof6IV1Y7m3Wo
-	94nfZgMKKItEWvPG7lllHya8dju1QCWjr079Y7vyunrGZMPfIxBuzEt1GEUNZigEW7CUrilDuqM
-	tcIXGyvlof9B9ia8tDHawR87i5jXc/8Bh2hiCpQOqhXqOUONNN0lj1PHxuRI1EmVH2tqSbl3Di1
-	ekqKQ49diBcz1c02SNKGxJSZvwhQEfcBpJPRCHzeu6r7wh4yDT8WAzPE=
-X-Google-Smtp-Source: AGHT+IE/LhwcY3G2UrWPSLBxBEy/834kFowCIFQddipKGcG/qLZGkfRNUXLRizohVB+NEmAxc9jpkg==
-X-Received: by 2002:a05:6a20:4320:b0:24c:cb06:f0db with SMTP id adf61e73a8af0-253430ae888mr9895534637.35.1757315978448;
-        Mon, 08 Sep 2025 00:19:38 -0700 (PDT)
-Received: from zhr-ThinkStation-K.mioffice.cn ([43.224.245.231])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-b4cd0e1cfbbsm25587173a12.23.2025.09.08.00.19.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Sep 2025 00:19:38 -0700 (PDT)
-From: Hongru Zhang <zhanghongru06@gmail.com>
-X-Google-Original-From: Hongru Zhang <zhanghongru@xiaomi.com>
-To: paul@paul-moore.com
-Cc: linux-kernel@vger.kernel.org,
-	omosnace@redhat.com,
-	selinux@vger.kernel.org,
-	stephen.smalley.work@gmail.com,
-	zhanghongru06@gmail.com,
-	zhanghongru@xiaomi.com
-Subject: Re: [PATCH] selinux: Make avc cache slot size configurable during boot
-Date: Mon,  8 Sep 2025 15:19:22 +0800
-Message-ID: <20250908071925.294803-1-zhanghongru@xiaomi.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <CAHC9VhSW69hmvduJK1cKt_XffiDwEeHUKAtJ3YLbohKWff0+bQ@mail.gmail.com>
-References: <CAHC9VhSW69hmvduJK1cKt_XffiDwEeHUKAtJ3YLbohKWff0+bQ@mail.gmail.com>
+	s=arc-20240116; t=1757337161; c=relaxed/simple;
+	bh=BppaAQ4jD6WEzrdgKqVOPdodNLx/+Zk2oqkAZPgmM2Y=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=b0dL7jdH5RXgZKx/7uKNmQmwuG2tJZm8LJwSFVSTNMF1WHvW87tK+w35wr579sn6o6q+QWZTEbirbOBoIPvmRuzkEsDfgn5mQATIaONOrxA2nWV1cJy7AfVrykzR+XQo11177Sk4wkjSjC8D5UumC8NNtgREXLtW3HbL8nxrvI4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=I-love.SAKURA.ne.jp; spf=pass smtp.mailfrom=I-love.SAKURA.ne.jp; arc=none smtp.client-ip=202.181.97.72
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=I-love.SAKURA.ne.jp
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=I-love.SAKURA.ne.jp
+Received: from www262.sakura.ne.jp (localhost [127.0.0.1])
+	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 588D5kOL069269;
+	Mon, 8 Sep 2025 22:05:46 +0900 (JST)
+	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Received: from [192.168.1.10] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
+	(authenticated bits=0)
+	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 588D5kwe069266
+	(version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
+	Mon, 8 Sep 2025 22:05:46 +0900 (JST)
+	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Message-ID: <91e6cbd4-9811-4890-84e6-4d58c22a02b0@I-love.SAKURA.ne.jp>
+Date: Mon, 8 Sep 2025 22:05:43 +0900
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 11/34] lsm: get rid of the lsm_names list and do some
+ cleanup
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+To: Paul Moore <paul@paul-moore.com>,
+        John Johansen <john.johansen@canonical.com>
+Cc: Roberto Sassu <roberto.sassu@huaweicloud.com>,
+        linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>,
+        Roberto Sassu <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>,
+        =?UTF-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>,
+        =?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>,
+        Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>,
+        Xiu Jianfeng <xiujianfeng@huawei.com>
+References: <20250814225159.275901-36-paul@paul-moore.com>
+ <20250814225159.275901-47-paul@paul-moore.com>
+ <06a68323-b297-4be7-92eb-c2091207b9f0@canonical.com>
+ <dd03266930a7b219c590c54bb2c210366f8d89a1.camel@huaweicloud.com>
+ <e92064a4-06c5-4913-917c-f9aca02378f3@canonical.com>
+ <CAHC9VhQPmF-RCSUjZo-pe1+sWyw5ZGdnD7P0CWb7yXQQoo+92g@mail.gmail.com>
+ <CAHC9VhRjQrjvsn65A-TGKKGrVFjZdnPBu+1vp=7w86SOjoyiUw@mail.gmail.com>
+ <6e4bb79d-ba8f-47fa-ad12-0bb79d4442e0@I-love.SAKURA.ne.jp>
+Content-Language: en-US
+In-Reply-To: <6e4bb79d-ba8f-47fa-ad12-0bb79d4442e0@I-love.SAKURA.ne.jp>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+X-Anti-Virus-Server: fsav101.rs.sakura.ne.jp
+X-Virus-Status: clean
 
-Apologies for the late reply, I sent the patch before leaving work on
-Friday, and didn't check email all weekend.
+On 2025/09/07 16:35, Tetsuo Handa wrote:
+> On 2025/09/05 2:52, Paul Moore wrote:
+>> +               if (!str) {
+>> +                       str = str_tmp;
+>> +                       len = len_tmp - 1;
+> 
+> This needs to be
+> 
+> 			len = len_tmp - 1;
+> 			mb();
+> 			str = str_tmp;
+> 
+> , or concurrent access might reach simple_read_from_buffer()
+> with str != 0 and len == 0. (If you don't want mb(), you can use
+> 
+> -	if (unlikely(!str)) {
+> +	if (unlikely(!str || !len)) {
+> 
+> instead).
 
-> On Fri, Sep 5, 2025 at 6:05 AM Hongru Zhang <zhanghongru06@gmail.com> wrote:
-> >
-> > From: Hongru Zhang <zhanghongru@xiaomi.com>
-> >
-> > On mobile device high-load situations ...
->
-> What are you using for a SELinux policy?
+Well, memory barrier is more complicated; it will be
 
-Android app smoothness test, testing metrics can quantify app smoothness
-from the user's perspective. The problem is also reproducible in
-cold-start test scenarios. These two are widely used testing model.
+	len = len_tmp - 1;
+	wmb();
+	str = str_tmp;
 
-I generate a flamegraph to record the sources of permission check:
-url: https://gist.github.com/zhr250/9f4415bfdefc8ff0d64e78d96351fffb
+and
+
+	}
+	rmb();
+	return simple_read_from_buffer(buf, count, ppos, str, len);
+
+pair.
+
+Just splitting the whole { } block that follows "if (unlikely(!str))"
+out as an initcall function is much simpler; no need to use spinlock
+(because the userspace threads has not started yet), no need to worry
+about kmalloc() failure (because the allocation failure will panic()
+because the userspace threads has not started yet), and the memory size
+saved by use of __init function will be larger than the memory size
+wasted by /sys/kernel/security/lsm being never accessed...
+
