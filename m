@@ -1,338 +1,388 @@
-Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
+Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15C58309DC5;
-	Mon,  8 Sep 2025 13:45:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E46841946AA
+	for <selinux@vger.kernel.org>; Mon,  8 Sep 2025 16:23:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757339119; cv=none; b=MHC3W4GStCAXSoIy7hXfFvRHAt4xB//utBWNr37joZpGiwu7OLB87k0swlRrWknJ3Wu9DaNpzKweMhByEWpVQLGUWXQY2zYfYzAS2m/06ZILvsA908gxgS4SPNQMZYEUMhFo5Ej6VyJ7AjV6dHGMAH8FsGX0Hkfw0efkB3CcrJA=
+	t=1757348633; cv=none; b=WWrYRqpHlzoU3cnYzuTt4s2Ft/VDZL+uuSDZYqi3MpRNbSbflSm7sOCxSFGb67st+jZEWsHZuCEL+EoNaoRU1Vfy+StHc52kWraPHUrye+cMSeWHihc6hSTBrQzNr5n/O0rYj4x+YPvf7bgAsyPydNw4ZmK7iOQUYx36PZJknp4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757339119; c=relaxed/simple;
-	bh=g/E/D7UA/19tK0saJr4gVfAQIrSTcsDc1iWgp6pOgYM=;
+	s=arc-20240116; t=1757348633; c=relaxed/simple;
+	bh=FRY7hK/GSlg69u3w8zHEU+szFkPb+3bnRFUjkrJD5e0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=A0L7M4E0KxN4L64RDY5HTzax5r9zPUFwQruT8yGOk4l/iVk4N5YMK7aw4yVMDsurxSn8+H52wQsyb878axlKEBasfjx0iHBI5F9uPCVB3ckWrJF5kFT76eLWc9oUCVXlGgxNte3gW5w+O6VU6M6gqAm6+Ku5jGIxi6lXoRsD7a0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iV6qSQrb; arc=none smtp.client-ip=209.85.216.52
+	 To:Cc:Content-Type; b=b8jeFKa4pg+WC2gghjn05mEjy0fD0ido1nx3Rwy5C0/IQVctoHinfjQ36Zkr17XXLUuPmib+LLGqMVyEfdys4P1rfcX3RZWJVE6aQaLNQEk2m/bmP91OThI+c17J0WgQ7V9lIEBjVAr6NceCCys6ybtqop5/fxA1B0nkg+rIPHU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YXHfXJWg; arc=none smtp.client-ip=209.85.216.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iV6qSQrb"
-Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-327f87275d4so4333576a91.1;
-        Mon, 08 Sep 2025 06:45:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YXHfXJWg"
+Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-32d9086276eso753831a91.0
+        for <selinux@vger.kernel.org>; Mon, 08 Sep 2025 09:23:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757339115; x=1757943915; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1757348631; x=1757953431; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ZZAZxrD6sAjPSbMbYfAECPp+2SY/6ZH3NwCQ8sQ9hQw=;
-        b=iV6qSQrbLZ49fUGZo9ikMENovSEbRSLtiDepJED9lW054Gk6PrX2nI/6HM0pGlq/LO
-         pIQynO5EVaUuP/c5J2OK4V/DKkN05ulEd/1eITF7GSGyx8GzglZee48KS9vSu4SbyuaN
-         f8+NtYtHUFDpoR82P4+kt6wPARRKPtZSBxYJrPjGjatpbwJU0NHnSNMLF1rOh8W0YP7x
-         nsZO+hAYbyfMHYEj7hlew56rdkvM9w8gn9rwhEQuThyg8LqsHA89wIaBfIz4d9AMUbE1
-         +lE2sP1lfCQh5jau+gbHPl2W6oEeHMCqZBZI47Q2c/D1zOd8UUKVDXDnS0sotHiqBPL/
-         NGEQ==
+        bh=jmLErVkpZ0Hfb56s2plZdBlW6nqlUNKkSjvYf92TYX8=;
+        b=YXHfXJWg+/8d7L1hUkS9ipRxrK6w4HhCAV71l+j0zL1SCkDkGyZEfHvZC8jiRJAU2v
+         2Y6sKQQe01M+dXfUAkcLkpGTEeeERZCj+62Ev/yymqHjV37zHHTyIPLmG114ObL33yCx
+         22ZL/JVpSYDPEvtdN27itRwqgJdvgEfIzsmKFeuI6ps2UGBtvtkmoWmn66jK85T5W+0X
+         fT+PCrGPWYSe2OJgDEopvEY1uqmejkamVmn/RLpcgI88b/V2NXEQRzO5qQ7o00y38PyO
+         1d/c48F/2DHIJ4K5yRv5zOnL089v4lK1DIX7FKYCVzLF81t7qoXJWMWEAQgOrVNuiY9w
+         wWtg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757339115; x=1757943915;
+        d=1e100.net; s=20230601; t=1757348631; x=1757953431;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ZZAZxrD6sAjPSbMbYfAECPp+2SY/6ZH3NwCQ8sQ9hQw=;
-        b=hTxpwIdu6LmVeuPQOgRxGfpHDxCWLRDoDVG/zA8XG7ZBjsTdu7HeT5bnuUZCUTt9Z0
-         ov4ctwDR/+Na+zx8NdFDvnEkLQxJTPeQrEW8FOvMkszwRMNR4QakJSoqXRU35mtmY0uR
-         CsygigqwnBnsURoYfBmGce1be8HF1aitBdiXaRhIKYjLWACUw3weKu9NTdt5hglbKZ/r
-         xQml3UOwsDhKYq3+IfRBr6KR4Vs2im4wUg5W5ZyAQW2JKj28NhhMr3VRuKojJpGkmocR
-         Pbbr6V9hxn1/Y7O5mPc5j5BRX8JNhxIH6eZQOqo/nER0RqM5uHk1roG0FqPd460jiM08
-         /iPQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU7f6JN8d6Tr1aA4C6ELU3g2kpjR8RIIDA9qsO5iV3+CtzEDiXe34s4hqIyUICnf8sSqRwOTfBl3g==@vger.kernel.org, AJvYcCXc1HuQlyJXzetvqv3QPNZqwolGhkr0md7/udhpPJQz+sybiY/D5ZoOVmAZPkWTjgoBPvDrIVHPco9hmDg=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzzSVccPff7Wm2GCRmLuOynytTjsNLOUO+oc3sDxPK+vdOQMsTb
-	LHQOO9jYk9mL2uEZqQbpAUZAAc47WhapNWRyT7OuP7qGHNGwtg5KX3rNIlVzQbRVCQ0YoO4Yur9
-	rX6Nq84k5J21/PizCwEyXg+zQ7s3IrhE=
-X-Gm-Gg: ASbGncvhTwk6dpVDadUzhHN/aTIb1RWuP8hgw2/uyKJ65sMswu34r+s33DINrPF/fDH
-	YWMkOKNQ3bMnMgvNmhY+4hQw9nzegSbMXr0Mu2qGpCv7+aZxT4uaOcrsspcxpQq0bCm58HdPaYJ
-	O6xSaU6bfp4513UfHc8tO1c3p2TsY48bJDuNmF/ZTDNfqdYYU304mnfEWOqH3+Vv3LfAr7QCTXx
-	gvuo4w=
-X-Google-Smtp-Source: AGHT+IH+hMql/UROYfh6RyYC0bmB17kjL8kJS5jMdgerNaQxC2AHEq5Qr9n4+TUxzW5bhUtSnvEtQgJ7cA8zl4BtIOs=
-X-Received: by 2002:a17:90a:c2c7:b0:32b:df87:1ede with SMTP id
- 98e67ed59e1d1-32d43f18a2bmr11351380a91.12.1757339114938; Mon, 08 Sep 2025
- 06:45:14 -0700 (PDT)
+        bh=jmLErVkpZ0Hfb56s2plZdBlW6nqlUNKkSjvYf92TYX8=;
+        b=HcBC8amXwUEC+S0sE40bQO4xQiwzeNoLf+z/VV7SRJRuFM62p3iiG/1XqRRmAcXjul
+         SyYu1XCaRFouCrnkkXR8nNpIE8pktgKY56WiS8QvPQZN0fpR9l1DpQwsBgxAXj8BmjvP
+         8qGyRbtkieIpQWL+ckWBLxasdydx19U8E3GJKUcP2C5nllPGsBjXSnI6b1ncAooRMAsJ
+         N0Wc2V17wGmbRDePPCQTPhnMiSbK5u5c+BBUhH+nutG/7idDnb4vxNyeYFRSoR+/q0qu
+         kDOPYo0U4IEgi0w0qxuG+nNEV/KUd3tisO5DfVTau7c6gYualeCBIe0lAvDp/U1NQorQ
+         RaSw==
+X-Forwarded-Encrypted: i=1; AJvYcCUex30e9V2a0Dw/llL7ApHMt7y1tLSBI+MGnCJFBYqWnrt6gMOs9rtsCm1vgTWjfRXwk826WcmZ@vger.kernel.org
+X-Gm-Message-State: AOJu0YwahscjYNGl8pZf6UPxF5r+o5q0IJ5G5fQLwtERUVVAyf5TsCck
+	nUlMCvOlN2v1NEsfrFHiYEb4vg+j/PSVLQsA6QsmEu2yKSTdiSJ1YmEFNkvSES7dZN9ligJpdwY
+	+pG8oqOP8X7dd9+GS2SXcGnIUmZhPeRpW9A==
+X-Gm-Gg: ASbGncvcJwOH19gGaTIpRs2zi0AUw6vY3w6wia4XNYc54QroXDBF4Gyld1JwBZINdY8
+	uC+E07isZ4gwcxYXUgy6vUJziVZislItRmQ7jq+rDzI9ZN1h1EYLhmT/osYOX0Gumgs1Er7sMhL
+	mkVn567dxMso43D/qRjlLl4AANRWoUr6U0Axv6QHBpnPByghBa1PzMZEEorf4zOJHLXww8ylu7m
+	YV7OHs=
+X-Google-Smtp-Source: AGHT+IFoTZ9Sea22HUZ+xz5byBd++Xf2N9cCM718UnbAci5fWjFpsWOm37HoIHUIdU/A9vemBmJBoWBRPdvAQk5DQ1M=
+X-Received: by 2002:a17:90a:c2c7:b0:32b:dbf1:31b7 with SMTP id
+ 98e67ed59e1d1-32d43f03db6mr10023663a91.2.1757348630816; Mon, 08 Sep 2025
+ 09:23:50 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250905100454.685866-1-zhanghongru@xiaomi.com>
-In-Reply-To: <20250905100454.685866-1-zhanghongru@xiaomi.com>
+References: <20250908013542.4187488-1-tweek@google.com>
+In-Reply-To: <20250908013542.4187488-1-tweek@google.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 8 Sep 2025 09:45:03 -0400
-X-Gm-Features: Ac12FXzmU9fZyrBddmZZsSEsnNkADcHfkm6gdk7SXf8AP5uLIoTt9u6xvhWk38k
-Message-ID: <CAEjxPJ4-+WfGPLev5QU_+_NgBx68zdBBQ6x_+aonzbk4f9BNEw@mail.gmail.com>
-Subject: Re: [PATCH] selinux: Make avc cache slot size configurable during boot
-To: Hongru Zhang <zhanghongru06@gmail.com>
-Cc: paul@paul-moore.com, omosnace@redhat.com, linux-kernel@vger.kernel.org, 
-	selinux@vger.kernel.org, Hongru Zhang <zhanghongru@xiaomi.com>
+Date: Mon, 8 Sep 2025 12:23:39 -0400
+X-Gm-Features: Ac12FXwXRZHojQfKT9n6VC1V26d9S57qf0o1cW0bGnUpdkbHUqdWeIezVPosrs4
+Message-ID: <CAEjxPJ5L2hQdE6M7hkTXwqNJ3a9OQoqB9i5KL5iU00B3saxOrQ@mail.gmail.com>
+Subject: Re: [PATCH v2] policy,tests: add tests for memfd_file class
+To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	James Morris <jmorris@namei.org>, Jeff Vander Stoep <jeffv@google.com>, Nick Kralevich <nnk@google.com>, 
+	Jeff Xu <jeffxu@google.com>, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 5, 2025 at 6:05=E2=80=AFAM Hongru Zhang <zhanghongru06@gmail.co=
-m> wrote:
+On Sun, Sep 7, 2025 at 9:35=E2=80=AFPM Thi=C3=A9baud Weksteen <tweek@google=
+.com> wrote:
 >
-> From: Hongru Zhang <zhanghongru@xiaomi.com>
+> A new class "memfd_file" is introduced to the kernel in [1]. This class
+> is only used when the policy capability "memfd_class" is set. Add tests
+> to validate this new class:
 >
-> On mobile device high-load situations, permission check can happen
-> more than 90,000/s (8 core system). With default 512 cache nodes
-> configuration, avc cache miss happens more often and occasionally
-> leads to long time (>2ms) irqs off on both big and little cores,
-> which decreases system real-time capability.
+>   1. Validate that memfd_create() requires the "create" permission.
+>   2. Validate that fexecve() on a memfd requires the "execute_no_trans"
+>      permission.
 >
-> An actual call stack is as follows:
->  =3D> avc_compute_av
->  =3D> avc_perm_nonode
->  =3D> avc_has_perm_noaudit
->  =3D> selinux_capable
->  =3D> security_capable
->  =3D> capable
->  =3D> __sched_setscheduler
->  =3D> do_sched_setscheduler
->  =3D> __arm64_sys_sched_setscheduler
->  =3D> invoke_syscall
->  =3D> el0_svc_common
->  =3D> do_el0_svc
->  =3D> el0_svc
->  =3D> el0t_64_sync_handler
->  =3D> el0t_64_sync
+> This can be tested by modifying the policy with:
 >
-> Although we can expand avc nodes through /sys/fs/selinux/cache_threshold
-> to mitigate long time irqs off, hash conflicts make the bucket average
-> length longer because of the fixed size of cache slots, leading to
-> avc_search_node latency increase.
+>   semodule -c -E base
+>   sed -i \
+>     -e 's/\((class user_namespace (create ))\)/\1\n(class memfd_file (exe=
+cute_no_trans entrypoint ))\n(classcommon memfd_file file)/' \
+>     -e 's/\(anon_inode socket\)/memfd_file \1/' \
+>     base.cil
+>   echo "(policycap memfd_class)" >>base.cil
+>   semodule -X 456 -i base.cil
+
+No need to re-spin just for this, but for future reference, I'd just
+do the echo to a separate file (e.g. memfdclass.cil) and append -i
+memfdclass.cil to the semodule command line,
+and I wouldn't bother specifying a priority (just let it use the
+default 400). The reason is that I usually do these via sudo and an
+echo with file redirect won't work as is when
+appending to the root-owned base.cil file created by the earlier
+semodule -c -E base.
+
+>   rm -f base.cil
 >
-> Make avc cache slot size also configurable, and with fine tuning, we can
-> mitigate long time irqs off with slightly avc_search_node performance
-> regression.
+>   sed -i.orig \
+>     -e 's/\(define(`all_file_perms'\'',\)\(.*\)$/\1\2\ndefine(`all_memfd_=
+file_perms'\'',\2/' \
+>     -e 's/\(class file all_file_perms;\)/\1\nclass memfd_file all_memfd_f=
+ile_perms;/' \
+>     /usr/share/selinux/devel/include/support/all_perms.spt
+
+Likewise, no need to re-spin just for this, but I'd then say to run
+"semodule -r base memfdclass" and
+restore the all_perms.spt.org file to all_perms.spt.
+
 >
-> Theoretically=E2=80=8C, the main overhead is memory consumption.
+> [1] https://lore.kernel.org/selinux/20250826031824.1227551-1-tweek@google=
+.com/
 >
-> avc_search_node avg latency test results (about 100,000,000 times) on
-> Qcom SM8750, 6.6.30-android15-8:
->
-> Case 1:
-> +---------+---------------------+------------------------+
-> |         | no-patch (512/512)  | with-patch (512/512)   |
-> +---------+---------------------+------------------------+
-> | latency |        85 ns        |         87 ns          |
-> +---------+---------------------+------------------------+
->
-> Case 2:
-> +---------+---------------------+------------------------+
-> |         | no-patch (8192/512) | with-patch (8192/8192) |
-> +---------+---------------------+------------------------+
-> | latency |        277 ns       |         106 ns         |
-> +---------+---------------------+------------------------+
->
-> Case 1 shows 512 nodes configuration has ~2% performance regression
-> with patch.
-> Case 2 shows 8192 nodes configuration has ~61% latency benifit with
-> patch.
->
-> Signed-off-by: Hongru Zhang <zhanghongru@xiaomi.com>
+> Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+
+Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Tested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+
 > ---
->  .../admin-guide/kernel-parameters.txt         |  4 ++
->  security/selinux/avc.c                        | 68 +++++++++++++------
->  2 files changed, 50 insertions(+), 22 deletions(-)
+> Changelog since v1:
+> - Add commands to test the policy to the commit message.
+> - Only check for class and capability to include the new tests.
+> - Ran check-syntax.
 >
-> diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentat=
-ion/admin-guide/kernel-parameters.txt
-> index 747a55abf494..70dc6d659117 100644
-> --- a/Documentation/admin-guide/kernel-parameters.txt
-> +++ b/Documentation/admin-guide/kernel-parameters.txt
-> @@ -6620,6 +6620,10 @@
->                         1 -- enable.
->                         Default value is 1.
+>  policy/Makefile             |  5 ++++
+>  policy/test_memfd.te        | 25 +++++++++++++++++
+>  tests/Makefile              |  5 ++++
+>  tests/memfd/Makefile        |  5 ++++
+>  tests/memfd/memfd.c         | 24 +++++++++++++++++
+>  tests/memfd/memfd_fexecve.c | 53 +++++++++++++++++++++++++++++++++++++
+>  tests/memfd/nothing.c       |  6 +++++
+>  tests/memfd/test            | 41 ++++++++++++++++++++++++++++
+>  8 files changed, 164 insertions(+)
+>  create mode 100644 policy/test_memfd.te
+>  create mode 100644 tests/memfd/Makefile
+>  create mode 100644 tests/memfd/memfd.c
+>  create mode 100644 tests/memfd/memfd_fexecve.c
+>  create mode 100644 tests/memfd/nothing.c
+>  create mode 100755 tests/memfd/test
 >
-> +       selinux_avc_cache_slots=3D [SELINUX] Set the avc cache slot size.
-> +                       Format: <int> (must be >0, power of 2)
-> +                       Default: 512
+> diff --git a/policy/Makefile b/policy/Makefile
+> index ffd774d..520f891 100644
+> --- a/policy/Makefile
+> +++ b/policy/Makefile
+> @@ -163,6 +163,11 @@ ifeq ($(shell [ $(MOD_POL_VERS) -ge 18 -a $(MAX_KERN=
+EL_POLICY) -ge 30 ] && [ -f
+>  TARGETS +=3D test_nlmsg.te
+>  endif
+>
+> +# memfd_file test dependencies: memfd_file class, memfd_class capability
+> +ifeq ($(shell [ -d /sys/fs/selinux/class/memfd_file ] && grep -q 1 $(SEL=
+INUXFS)/policy_capabilities/memfd_class && echo true),true)
+> +TARGETS +=3D test_memfd.te
+> +endif
 > +
->         serialnumber    [BUGS=3DX86-32]
->
->         sev=3Doption[,option...] [X86-64]
-> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-> index 430b0e23ee00..35f5436f5da0 100644
-> --- a/security/selinux/avc.c
-> +++ b/security/selinux/avc.c
-> @@ -34,7 +34,7 @@
->  #define CREATE_TRACE_POINTS
->  #include <trace/events/avc.h>
->
-> -#define AVC_CACHE_SLOTS                        512
-> +int avc_cache_slots __ro_after_init =3D 512;
->  #define AVC_DEF_CACHE_THRESHOLD                512
->  #define AVC_CACHE_RECLAIM              16
->
-> @@ -68,9 +68,13 @@ struct avc_xperms_node {
->         struct list_head xpd_head; /* list head of extended_perms_decisio=
-n */
->  };
->
-> +struct avc_slot {
-> +       struct hlist_head       slot;           /* head for avc_node->lis=
-t */
-> +       spinlock_t              slot_lock;      /* lock for writes */
-> +};
+>  ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
+>  TARGETS:=3D$(filter-out test_overlayfs.te test_mqueue.te test_ibpkey.te,=
+ $(TARGETS))
+>  endif
+> diff --git a/policy/test_memfd.te b/policy/test_memfd.te
+> new file mode 100644
+> index 0000000..5ca1348
+> --- /dev/null
+> +++ b/policy/test_memfd.te
+> @@ -0,0 +1,25 @@
+> +########################################
+> +#
+> +# Policy for testing memfd_file.
 > +
->  struct avc_cache {
-> -       struct hlist_head       slots[AVC_CACHE_SLOTS]; /* head for avc_n=
-ode->list */
-> -       spinlock_t              slots_lock[AVC_CACHE_SLOTS]; /* lock for =
-writes */
-> +       struct avc_slot         *slots;
->         atomic_t                lru_hint;       /* LRU hint for reclaim s=
-can */
->         atomic_t                active_nodes;
->         u32                     latest_notif;   /* latest revocation noti=
-fication */
-> @@ -93,14 +97,34 @@ struct selinux_avc {
+> +attribute memfdtestdomain;
+> +
+> +type test_memfd_t;
+> +typeattribute test_memfd_t memfdtestdomain;
+> +testsuite_domain_type(test_memfd_t);
+> +allow test_memfd_t self:memfd_file { create mmap_rw_file_perms };
+> +
+> +type test_memfd_nocreate_t;
+> +typeattribute test_memfd_nocreate_t memfdtestdomain;
+> +testsuite_domain_type(test_memfd_nocreate_t);
+> +allow test_memfd_nocreate_t self:memfd_file mmap_rw_file_perms;
+> +
+> +type test_memfd_with_exec_t;
+> +typeattribute test_memfd_with_exec_t memfdtestdomain;
+> +testsuite_domain_type(test_memfd_with_exec_t);
+> +allow test_memfd_with_exec_t self:memfd_file { create mmap_rw_file_perms=
+ execute execute_no_trans };
+> +
+> +type test_memfd_with_noexec_t;
+> +typeattribute test_memfd_with_noexec_t memfdtestdomain;
+> +testsuite_domain_type(test_memfd_with_noexec_t);
+> +allow test_memfd_with_noexec_t self:memfd_file { create mmap_rw_file_per=
+ms execute };
+> diff --git a/tests/Makefile b/tests/Makefile
+> index 7a6aace..903ab11 100644
+> --- a/tests/Makefile
+> +++ b/tests/Makefile
+> @@ -158,6 +158,11 @@ ifeq ($(shell [ $(MOD_POL_VERS) -ge 18 -a $(MAX_KERN=
+EL_POLICY) -ge 30 ] && [ -f
+>  SUBDIRS +=3D nlmsg
+>  endif
 >
->  static struct selinux_avc selinux_avc;
->
-> +static int __init set_selinux_avc_cache_slots(char *str)
+> +# memfd_file test dependencies: memfd_file class, memfd_class capability
+> +ifeq ($(shell [ -d /sys/fs/selinux/class/memfd_file ] && grep -q 1 $(SEL=
+INUXFS)/policy_capabilities/memfd_class && echo true),true)
+> +SUBDIRS +=3D memfd
+> +endif
+> +
+>  ifeq ($(DISTRO),RHEL4)
+>      SUBDIRS:=3D$(filter-out bounds dyntrace dyntrans inet_socket mmap nn=
+p_nosuid overlay unix_socket, $(SUBDIRS))
+>  endif
+> diff --git a/tests/memfd/Makefile b/tests/memfd/Makefile
+> new file mode 100644
+> index 0000000..471900f
+> --- /dev/null
+> +++ b/tests/memfd/Makefile
+> @@ -0,0 +1,5 @@
+> +TARGETS=3Dmemfd nothing memfd_fexecve
+> +
+> +all: $(TARGETS)
+> +clean:
+> +       rm -f $(TARGETS)
+> diff --git a/tests/memfd/memfd.c b/tests/memfd/memfd.c
+> new file mode 100644
+> index 0000000..0d6f838
+> --- /dev/null
+> +++ b/tests/memfd/memfd.c
+> @@ -0,0 +1,24 @@
+> +#ifndef _GNU_SOURCE
+> +#define _GNU_SOURCE
+> +#endif
+> +#include <stdlib.h>
+> +#include <stdio.h>
+> +#include <string.h>
+> +#include <errno.h>
+> +#include <sys/mman.h>
+> +#include <unistd.h>
+> +
+> +int main(int argc, char *argv[])
 > +{
-> +       int val;
+> +       int fd;
+> +       char *name =3D "mymemfd";
 > +
-> +       if ((kstrtoint(str, 0, &val)) || !is_power_of_2(val)) {
-> +               pr_warn("Unable to set selinux_avc_cache_slots, use defau=
-lt value\n");
-> +               return 1;
+> +       fd =3D memfd_create(name, 0);
+> +       if (fd < 0) {
+> +               perror("memfd_create");
+> +               exit(-1);
 > +       }
 > +
-> +       avc_cache_slots =3D val;
-> +
-> +       return 1;
+> +       close(fd);
+> +       exit(0);
 > +}
-> +__setup("selinux_avc_cache_slots=3D", set_selinux_avc_cache_slots);
+> diff --git a/tests/memfd/memfd_fexecve.c b/tests/memfd/memfd_fexecve.c
+> new file mode 100644
+> index 0000000..977081e
+> --- /dev/null
+> +++ b/tests/memfd/memfd_fexecve.c
+> @@ -0,0 +1,53 @@
+> +#ifndef _GNU_SOURCE
+> +#define _GNU_SOURCE
+> +#endif
+> +#include <errno.h>
+> +#include <fcntl.h>
+> +#include <stdint.h>
+> +#include <stdio.h>
+> +#include <stdlib.h>
+> +#include <string.h>
+> +#include <sys/mman.h>
+> +#include <unistd.h>
 > +
->  void selinux_avc_init(void)
->  {
->         int i;
->
-> +       selinux_avc.avc_cache.slots =3D
-> +               kmalloc_array(avc_cache_slots, sizeof(struct avc_slot), G=
-FP_KERNEL);
-> +       if (!selinux_avc.avc_cache.slots)
-> +               panic("SELinux: No memory to alloc avc cache slots\n");
+> +int main(int argc, char *argv[])
+> +{
+> +       int memfd_fd, exec_fd;
+> +       int len, written, rc;
+> +       char *name =3D "mymemfd";
 > +
->         selinux_avc.avc_cache_threshold =3D AVC_DEF_CACHE_THRESHOLD;
-> -       for (i =3D 0; i < AVC_CACHE_SLOTS; i++) {
-> -               INIT_HLIST_HEAD(&selinux_avc.avc_cache.slots[i]);
-> -               spin_lock_init(&selinux_avc.avc_cache.slots_lock[i]);
-> +       for (i =3D 0; i < avc_cache_slots; i++) {
-> +               INIT_HLIST_HEAD(&selinux_avc.avc_cache.slots[i].slot);
-> +               spin_lock_init(&selinux_avc.avc_cache.slots[i].slot_lock)=
-;
->         }
->         atomic_set(&selinux_avc.avc_cache.active_nodes, 0);
->         atomic_set(&selinux_avc.avc_cache.lru_hint, 0);
-> @@ -124,7 +148,7 @@ static struct kmem_cache *avc_xperms_cachep __ro_afte=
-r_init;
->
->  static inline u32 avc_hash(u32 ssid, u32 tsid, u16 tclass)
->  {
-> -       return (ssid ^ (tsid<<2) ^ (tclass<<4)) & (AVC_CACHE_SLOTS - 1);
-> +       return (ssid ^ (tsid<<2) ^ (tclass<<4)) & (avc_cache_slots - 1);
-
-If you are making the number of buckets adjustable, you should also
-change the hash function to better deal with multiple numbers of
-slots.
-
->  }
->
->  /**
-> @@ -150,8 +174,8 @@ int avc_get_hash_stats(char *page)
->
->         slots_used =3D 0;
->         max_chain_len =3D 0;
-> -       for (i =3D 0; i < AVC_CACHE_SLOTS; i++) {
-> -               head =3D &selinux_avc.avc_cache.slots[i];
-> +       for (i =3D 0; i < avc_cache_slots; i++) {
-> +               head =3D &selinux_avc.avc_cache.slots[i].slot;
->                 if (!hlist_empty(head)) {
->                         slots_used++;
->                         chain_len =3D 0;
-> @@ -167,7 +191,7 @@ int avc_get_hash_stats(char *page)
->         return scnprintf(page, PAGE_SIZE, "entries: %d\nbuckets used: %d/=
-%d\n"
->                          "longest chain: %d\n",
->                          atomic_read(&selinux_avc.avc_cache.active_nodes)=
-,
-> -                        slots_used, AVC_CACHE_SLOTS, max_chain_len);
-> +                        slots_used, avc_cache_slots, max_chain_len);
->  }
->
->  /*
-> @@ -463,11 +487,11 @@ static inline int avc_reclaim_node(void)
->         struct hlist_head *head;
->         spinlock_t *lock;
->
-> -       for (try =3D 0, ecx =3D 0; try < AVC_CACHE_SLOTS; try++) {
-> +       for (try =3D 0, ecx =3D 0; try < avc_cache_slots; try++) {
->                 hvalue =3D atomic_inc_return(&selinux_avc.avc_cache.lru_h=
-int) &
-> -                       (AVC_CACHE_SLOTS - 1);
-> -               head =3D &selinux_avc.avc_cache.slots[hvalue];
-> -               lock =3D &selinux_avc.avc_cache.slots_lock[hvalue];
-> +                       (avc_cache_slots - 1);
-> +               head =3D &selinux_avc.avc_cache.slots[hvalue].slot;
-> +               lock =3D &selinux_avc.avc_cache.slots[hvalue].slot_lock;
->
->                 if (!spin_trylock_irqsave(lock, flags))
->                         continue;
-> @@ -524,7 +548,7 @@ static inline struct avc_node *avc_search_node(u32 ss=
-id, u32 tsid, u16 tclass)
->         struct hlist_head *head;
->
->         hvalue =3D avc_hash(ssid, tsid, tclass);
-> -       head =3D &selinux_avc.avc_cache.slots[hvalue];
-> +       head =3D &selinux_avc.avc_cache.slots[hvalue].slot;
->         hlist_for_each_entry_rcu(node, head, list) {
->                 if (ssid =3D=3D node->ae.ssid &&
->                     tclass =3D=3D node->ae.tclass &&
-> @@ -625,8 +649,8 @@ static void avc_insert(u32 ssid, u32 tsid, u16 tclass=
-,
->         }
->
->         hvalue =3D avc_hash(ssid, tsid, tclass);
-> -       head =3D &selinux_avc.avc_cache.slots[hvalue];
-> -       lock =3D &selinux_avc.avc_cache.slots_lock[hvalue];
-> +       head =3D &selinux_avc.avc_cache.slots[hvalue].slot;
-> +       lock =3D &selinux_avc.avc_cache.slots[hvalue].slot_lock;
->         spin_lock_irqsave(lock, flag);
->         hlist_for_each_entry(pos, head, list) {
->                 if (pos->ae.ssid =3D=3D ssid &&
-> @@ -846,8 +870,8 @@ static int avc_update_node(u32 event, u32 perms, u8 d=
-river, u8 base_perm,
->         /* Lock the target slot */
->         hvalue =3D avc_hash(ssid, tsid, tclass);
->
-> -       head =3D &selinux_avc.avc_cache.slots[hvalue];
-> -       lock =3D &selinux_avc.avc_cache.slots_lock[hvalue];
-> +       head =3D &selinux_avc.avc_cache.slots[hvalue].slot;
-> +       lock =3D &selinux_avc.avc_cache.slots[hvalue].slot_lock;
->
->         spin_lock_irqsave(lock, flag);
->
-> @@ -929,9 +953,9 @@ static void avc_flush(void)
->         unsigned long flag;
->         int i;
->
-> -       for (i =3D 0; i < AVC_CACHE_SLOTS; i++) {
-> -               head =3D &selinux_avc.avc_cache.slots[i];
-> -               lock =3D &selinux_avc.avc_cache.slots_lock[i];
-> +       for (i =3D 0; i < avc_cache_slots; i++) {
-> +               head =3D &selinux_avc.avc_cache.slots[i].slot;
-> +               lock =3D &selinux_avc.avc_cache.slots[i].slot_lock;
->
->                 spin_lock_irqsave(lock, flag);
->                 /*
+> +       if (argc !=3D 2) {
+> +               printf("Usage: %s <fexec_binary>\n", argv[0]);
+> +               exit(-1);
+> +       }
+> +
+> +       memfd_fd =3D memfd_create(name, 0);
+> +       if (memfd_fd < 0) {
+> +               perror("memfd_create");
+> +               exit(-1);
+> +       }
+> +
+> +       exec_fd =3D open(argv[1], O_RDONLY);
+> +       if (exec_fd < 0) {
+> +               perror("open");
+> +               exit(-1);
+> +       }
+> +
+> +       char buf[8192];
+> +       while ((len =3D read(exec_fd, buf, sizeof(buf))) > 0) {
+> +               written =3D write(memfd_fd, buf, len);
+> +               if (len !=3D written) {
+> +                       perror("read/write");
+> +                       exit(-1);
+> +               }
+> +       }
+> +       close(exec_fd);
+> +
+> +       char *empty_env[] =3D {NULL};
+> +       char *nothing_argv[] =3D {argv[1], NULL};
+> +
+> +       rc =3D fexecve(memfd_fd, nothing_argv, empty_env);
+> +
+> +       perror("fexecve");
+> +       exit(rc);
+> +}
+> diff --git a/tests/memfd/nothing.c b/tests/memfd/nothing.c
+> new file mode 100644
+> index 0000000..fc53d37
+> --- /dev/null
+> +++ b/tests/memfd/nothing.c
+> @@ -0,0 +1,6 @@
+> +#include <stdlib.h>
+> +
+> +int main(int argc, char *argv[])
+> +{
+> +       return 0;
+> +}
+> diff --git a/tests/memfd/test b/tests/memfd/test
+> new file mode 100755
+> index 0000000..1b1e75f
+> --- /dev/null
+> +++ b/tests/memfd/test
+> @@ -0,0 +1,41 @@
+> +#!/usr/bin/perl
+> +#
+> +# This test exercises the memfd_class support
+> +#
+> +
+> +use Test;
+> +
+> +BEGIN {
+> +    $test_count =3D 4;
+> +    plan tests =3D> $test_count;
+> +}
+> +
+> +$basedir =3D $0;
+> +$basedir =3D~ s|(.*)/[^/]*|$1|;
+> +
+> +#
+> +# Attempt to call memfd_create() from the allowed domain.
+> +#
+> +$result =3D system "runcon -t test_memfd_t -- $basedir/memfd 2>&1";
+> +ok( $result, 0 );
+> +
+> +#
+> +# Attempt to call memfd_create() from the not-allowed domain.
+> +#
+> +$result =3D system "runcon -t test_memfd_nocreate_t -- $basedir/memfd 2>=
+&1";
+> +ok($result);
+> +
+> +#
+> +# Attempt to fexecve() on a memfd_create() fd from the allowed domain.
+> +#
+> +$result =3D system
+> +"runcon -t test_memfd_with_exec_t -- $basedir/memfd_fexecve $basedir/not=
+hing 2>&1";
+> +ok( $result, 0 );
+> +
+> +#
+> +# Attempt to fexecve() on a memfd_create() fd from the not-allowed domai=
+n.
+> +#
+> +$result =3D system
+> +"runcon -t test_memfd_with_noexec_t -- $basedir/memfd_fexecve $basedir/n=
+othing 2>&1";
+> +ok($result);
+> +exit;
 > --
-> 2.43.0
+> 2.51.0.384.g4c02a37b29-goog
 >
