@@ -1,135 +1,123 @@
-Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 588F41946AA
-	for <selinux@vger.kernel.org>; Mon,  8 Sep 2025 01:05:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BB1F79DA
+	for <selinux@vger.kernel.org>; Mon,  8 Sep 2025 01:08:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757293554; cv=none; b=F9sahmi2lpAZPzec8CDbSG0LjpASAFw+RE5DBDQ6WDDUOYiYh0xoL0NIQ/VwZVahYcXOJi4jV5gwBIwgV96+1+g/rLQnTJsMCHRSqgYxQgsL6pWelhpZU11KjPlKOXpARapxklf82U7Wewl1Rw8NPWSxYAPe1NIPBtIwx/yljGc=
+	t=1757293714; cv=none; b=RjxMOgjLqgr0c55fmaWMF6k0faHanFOwcW7XM08x5PXXK7nhXUHH8/mOxqV1L6sseIicf8p8sZ/xe03af6UJbU2LEa3mPoYkWy2ya1BmfTX0ngYWrJyd08ZjApzvUKZPWTbEy0qK0VquwaAnJ5ao6h9h7PZz9h5FUIWbyStBR4E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757293554; c=relaxed/simple;
-	bh=Sd95bGVJ2LCjq37iOwuj1kTAjMK/OSkpeyNFM77tCGA=;
+	s=arc-20240116; t=1757293714; c=relaxed/simple;
+	bh=dcTHWeC8QncDPL2EeofbWQ4zwx90vxy57HeJd1rlNc8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=R3nXKmqlTY7lVTzxVKOIVo2jYiGgH3ziy0CU8zeV83uzB9T/zf2adkG974//vNaGDqdmuo1EbMRuPxBggi0THyjNpwX1Nfmh2ld9Qn4o2HSobXpWvuCgot0Px0kU/u2iRR+bhJeGfmdb0qOus0xCRXhla0Ft3r770tD0tQ3h5w4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Z/hhYEyk; arc=none smtp.client-ip=209.85.215.169
+	 To:Cc:Content-Type; b=ntemmwRj64UjB7N4CgvE/YzZzYBlhpkhhTXRmD80oSGYOok1qgtqNXDWoECnCFYfxawiikzd5E9MdJzZZJUcedDR00AgwaxWE9Pc7VxlZfRVxrvTOEQ7Y/DznJ2wtc5TBucngKxNx76FeKGyY5o1HjWizWjqt4Rhom+pDm/yR6c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=M03Jwoh6; arc=none smtp.client-ip=209.85.214.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Z/hhYEyk"
-Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-b4ee87cc81eso3552972a12.1
-        for <selinux@vger.kernel.org>; Sun, 07 Sep 2025 18:05:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="M03Jwoh6"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-24c89867a17so36382825ad.1
+        for <selinux@vger.kernel.org>; Sun, 07 Sep 2025 18:08:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1757293552; x=1757898352; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1757293711; x=1757898511; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=MA/mHb5FEXGBYyWzdg/cHL2BkU3EdtpScaeOnQVTYug=;
-        b=Z/hhYEykrl7L3ideEihKwJUW3fSuA2qnOdXMYR7ow5/mUfPfXGiGqWUc62dmsR5HeR
-         LPRyKUsp9ZQHX56DxGOhBfcKir4Frlj3Ql14g6NbXjHvTkxlg4URDoWp4GZL6jAqotI4
-         3GBoX6uKvDsZVyU49GTLpFp/+MiVu8fjByx1aNuiBWIkOqPnJ2Nd3hg0wcLeu7Te6sIg
-         gscha/zkw2toEm96w0EcyPFM4srYRjxn0Ldv9vkNOK2c3xSN0fMgC6Xv5P13wunfL/PJ
-         dMkN5TineK7QE1xGU5cBEAhH18Ky+AYJvh79XzwCOnYjH3PYDRo/7cFCc5f868guOFii
-         zacQ==
+        bh=jCby98fuHykeF9/gIJ4wJ1zBkioxK2Pnyqoe8ZEv4HM=;
+        b=M03Jwoh6NfEc12jdGDdv0x80hRkJj/wAzmveuZBSqXf7fBoIjMSrtYttOLP5pqRw23
+         CkJEQwxwPIZKr+H2KDMnewAItDIt+UU/YFRvJESQPtY6rt+pyAVvCFE9aGy3fpjK/CEs
+         1UPHW3JKrbmn6IWmfLp/nwpd8fUgvZIlLBXetLMVEx2N9WlTCoq7dsNFMBgf9NHaoks6
+         c9CK6C1DzV0V+30YiEINEZo8h/B5Lno6v7vmRlJ+6vFxJB9puWYtrFyjKKqbaTxAS6yd
+         ciVRgVuLZsIKeXiGiEVsoKkL15d5ZKNvTTkh6sdeZxTA96ytjPVZVzcuTmQoj/99g0px
+         PgPA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757293552; x=1757898352;
+        d=1e100.net; s=20230601; t=1757293711; x=1757898511;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=MA/mHb5FEXGBYyWzdg/cHL2BkU3EdtpScaeOnQVTYug=;
-        b=nbTeVQHFWp52uADSe+Q8RYwIvQVdShuh9VlbsuyG2+PPOh6gCNPh4K+eSOdmYHnDPW
-         wHH0okDLfTGQNMgnUT9LUko7DxZ7tg3+y/zaOjEHEw5E/MPlH0BNQ3RylZdSTlN7+5Wg
-         5IAytjEJhLeBQ8pQK3QjBAF9rwhcAU1v+Ck92TUCujUwE7EhYRjfe15YksxJxNOdP6Du
-         EeDhkX9eAGKB/fFf9ytJmvtieebv4NR5Mk4x/GKXMd8iC4ADOd4KW5bJ3zhwUkhFAkQG
-         Rjha68tgpyaO39PXPrkIIwVhw1LwcQWjNBYvi0PhPZ0DebvUmZnLAn6pdnb1ziwb5RFv
-         96Kg==
-X-Forwarded-Encrypted: i=1; AJvYcCUpXfDALoL6FZtgvUbbBIIbjDc5PihKshPcKxlwswO7NMCCb5Um1RD/nh/lbNudR5n+L9w9EAD0@vger.kernel.org
-X-Gm-Message-State: AOJu0YwTOx9lWotMuAaDTbNMupZpr0yxIAdLthhgYTXcGDW7yhfjIiQQ
-	rh6Fd2+UhkUzvkDUKwIqvGiSsiKOR8DKLaToWcssm3PXo69oB5yzfWOQizQPcGvADYrdA0j+Pg1
-	hq/82/UYqhRrLyzFcWzIjlIbxqDv25OQXqpyonTkc
-X-Gm-Gg: ASbGncvdbIrTpSFrHTZRMp/SH43gAtBM0iH703KRSJxbphYznUE1aa2FUunR+9KMkBH
-	jSGK/U43qiems7G7es8G6+9WHSgtR4S/6fLlnxccWhxj1VrubDZJmzXKRbPGEFgwsJbxFLHy8xl
-	xKF0or33CUO8RHUizrq/yNLf+hqUIzrEJCsYpitciDSTJelwJKPCQl2X80d2BgvbKI21me6bVM7
-	9Lmiik=
-X-Google-Smtp-Source: AGHT+IG+aeOfJIJg7q6C1HPAGnnZmf8Jq1DbPyXZdBJyagmM1kTQfUSAlMxoQvlmZG+P0sAC54ZqoQ4RlJkaLRQcLG8=
-X-Received: by 2002:a05:6a20:3d86:b0:24a:b9e:4a6c with SMTP id
- adf61e73a8af0-2534557cb5fmr9050598637.44.1757293552578; Sun, 07 Sep 2025
- 18:05:52 -0700 (PDT)
+        bh=jCby98fuHykeF9/gIJ4wJ1zBkioxK2Pnyqoe8ZEv4HM=;
+        b=FosGwz4biV9QGALAQRAoEJSlviJVgRgPY3IXpcisETTxwsnlPRqxp5vMAKuePCafL5
+         d/g+O1CoTM1I1gamCV3cVbxKLUsWbih46kNVidOUg6fUAmOMha0NJUEWhHGtChS66D89
+         MuMurpofqhxOlVBpg6/iMmCStW3UFr7wRPOMYA8CsY88jgjxMrL7544b+OUNu1WVdmKQ
+         ffr/67TbVIeySlsiJ/LidR2y5YIjy6VmkQE/yP7hhfWO2M6KO8Y5IatJAGCm50GX/Sfo
+         7QgQjXtvhOg0HbgGwLUJybjvOdErrWJ7uVhz9A6m852xHqrowMpjA+TI8XeCro9/30c1
+         lFtg==
+X-Forwarded-Encrypted: i=1; AJvYcCV/u8ip/oSEQQ+x/FRqQOiH6rXtKrZtDPM+9szAWO2YXpMoeZ0ffQIQPx1CM9xSl6n8mypkJWcn@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx+auw0PhTRBF4v+Y1UMrr4mFsqUOvthZ2EHYZ7sH4jByblc5to
+	z43QZpJOB95RZ/qpt4/YRsYh2wcmQbY0Icf1k9Tq0xIkG/IpeOB+HiekWJqwPKWwy6+VIXAaoIv
+	r/wJe6jKPrnBdIf9bgdp3oAj1qH//hk+70LKP5NdK
+X-Gm-Gg: ASbGncuFZjvYLTQsCry85B7aKvOuEg2RKtVEZpTgAC5Wec11F3/UTTM4WI+bib1fFZc
+	NWTvGazCS2f4+T8EacSTDenje03wkGTPqJ1sboImJXvk5WAKkZD85p/6VpyHq5/3lt31PoNklZ2
+	fxYsD/NnetjXk2BxkuVaOYSal7vCHu1/g/bPlsSWVhIAEfhot5ud2uyhmH1PWmgI6knhfBNsgAI
+	TOz+fNbYMqnKNDhruFgYhCTjtp3
+X-Google-Smtp-Source: AGHT+IHOMpUmUGvARznOaHD6cjYr8eVlW646Pw9KSgkliNtnjdUIH/ScSsfYujUC7X5+4fGLUufMT9jln/j7XHfC6WI=
+X-Received: by 2002:a17:902:e802:b0:24b:1625:5fa5 with SMTP id
+ d9443c01a7336-2516d33edd9mr102319205ad.11.1757293711530; Sun, 07 Sep 2025
+ 18:08:31 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250814225159.275901-36-paul@paul-moore.com> <20250814225159.275901-67-paul@paul-moore.com>
- <CAHC9VhS3KdVO9n-dgk1qFzTae0i+Oab8atMmt0CAsMEm1D4v5w@mail.gmail.com> <bd46c63ebb9eddfcdc8df92fe9f85473416ea8a0.camel@linux.ibm.com>
-In-Reply-To: <bd46c63ebb9eddfcdc8df92fe9f85473416ea8a0.camel@linux.ibm.com>
+References: <9f35539de7188c6b853c55b76958a286131f5928.camel@huaweicloud.com>
+ <20250902125457.2689519-1-roberto.sassu@huaweicloud.com> <82f22f97486622408bec772a9b025e301c8fa2f4.camel@linux.ibm.com>
+In-Reply-To: <82f22f97486622408bec772a9b025e301c8fa2f4.camel@linux.ibm.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Sun, 7 Sep 2025 21:05:41 -0400
-X-Gm-Features: Ac12FXzlaCoP5e2lQTx9u2iYMRLRExgUQtlxACtm-Ptm7fDXbrkhCv7k2Om7sR0
-Message-ID: <CAHC9VhTJnQ3EggEXwbW5D8xOnb+Z_02yz-Dgb7QiAoArhw1ETg@mail.gmail.com>
-Subject: Re: [PATCH v3 31/34] ima,evm: move initcalls to the LSM framework
+Date: Sun, 7 Sep 2025 21:08:19 -0400
+X-Gm-Features: Ac12FXwoV7fb06gH8Z5E4U6UlqLB13nK6Eu7J_q-p88Bs4R0h8-YzVl3W09F4Js
+Message-ID: <CAHC9VhTGAcMTXHReinybpLzer7seCN+NUTHcFte+aU2oRNtNNg@mail.gmail.com>
+Subject: Re: [PATCH] ima,evm: move initcalls to the LSM framework
 To: Mimi Zohar <zohar@linux.ibm.com>
-Cc: Roberto Sassu <roberto.sassu@huawei.com>, linux-security-module@vger.kernel.org, 
-	linux-integrity@vger.kernel.org, selinux@vger.kernel.org, 
-	John Johansen <john.johansen@canonical.com>, Fan Wu <wufan@kernel.org>, 
-	=?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
-	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
-	Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>, 
-	Casey Schaufler <casey@schaufler-ca.com>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, 
-	Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>, Xiu Jianfeng <xiujianfeng@huawei.com>
+Cc: Roberto Sassu <roberto.sassu@huaweicloud.com>, roberto.sassu@huawei.com, 
+	linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, 
+	selinux@vger.kernel.org, john.johansen@canonical.com, wufan@kernel.org, 
+	mic@digikod.net, kees@kernel.org, mortonm@chromium.org, 
+	casey@schaufler-ca.com, penguin-kernel@i-love.sakura.ne.jp, 
+	nicolas.bouchinet@oss.cyber.gouv.fr, xiujianfeng@huawei.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Sep 7, 2025 at 5:13=E2=80=AFPM Mimi Zohar <zohar@linux.ibm.com> wro=
+On Sun, Sep 7, 2025 at 5:18=E2=80=AFPM Mimi Zohar <zohar@linux.ibm.com> wro=
 te:
 >
-> On Fri, 2025-08-22 at 16:45 -0400, Paul Moore wrote:
-> > On Thu, Aug 14, 2025 at 6:55=E2=80=AFPM Paul Moore <paul@paul-moore.com=
-> wrote:
-> > >
-> > > This patch converts IMA and EVM to use the LSM frameworks's initcall
-> > > mechanism.  There was a minor challenge in this conversion that wasn'=
-t
-> > > seen when converting the other LSMs brought about by the resource
-> > > sharing between the two related, yes independent IMA and EVM LSMs.
-> > > This was resolved by registering the same initcalls for each LSM and
-> > > including code in each registered initcall to ensure it only executes
-> > > once during each boot.
-> > >
-> > > It is worth mentioning that this patch does not touch any of the
-> > > "platform certs" code that lives in the security/integrity/platform_c=
-erts
-> > > directory as the IMA/EVM maintainers have assured me that this code i=
-s
-> > > unrelated to IMA/EVM, despite the location, and will be moved to a mo=
-re
-> > > relevant subsystem in the future.
+> On Tue, 2025-09-02 at 14:54 +0200, Roberto Sassu wrote:
+> > From: Paul Moore <paul@paul-moore.com>
 >
-> The "unrelated to IMA/EVM" wording misses the point.  An exception was ma=
-de to
-> load the pre-boot keys onto the .platform keyring in order for IMA/EVM to=
- verify
-> the kexec kernel image appended signature.  This exception was subsequent=
-ly
-> extended to verifying the pesigned kexec kernel image signature.  (Other
-> subsystems are abusing the keys on the .platform keyring to verify other
-> signatures.)
+> Remove above ...
 >
-> Instead of saying "unrelated to IMA/EVM", how about saying something alon=
-g the
-> lines of "IMA has a dependency on the platform and machine keyrings, but =
-this
-> dependency isn't limited to IMA/EVM."
+> >
+> > This patch converts IMA and EVM to use the LSM frameworks's initcall
+> > mechanism. It moved the integrity_fs_init() call to ima_fs_init() and
+> > evm_init_secfs(), to work around the fact that there is no "integrity" =
+LSM,
+> > and introduced integrity_fs_fini() to remove the integrity directory, i=
+f
+> > empty. Both integrity_fs_init() and integrity_fs_fini() support the
+> > scenario of being called by both the IMA and EVM LSMs.
+> >
+> > It is worth mentioning that this patch does not touch any of the
+> > "platform certs" code that lives in the security/integrity/platform_cer=
+ts
+> > directory as the IMA/EVM maintainers have assured me that this code is
+> > unrelated to IMA/EVM, despite the location, and will be moved to a more
 >
-> Paul, this patch set doesn't apply to cleanly to Linus's tree.  What is t=
-he base
-> commit?
+> This wording "unrelated to IMA/EVM" was taken from Paul's patch descripti=
+on, but
+> needs to be tweaked.  Please refer to my comment on Paul's patch.
 
-It would have been based on the lsm/dev branch since the LSM tree is
-the target, however, given the scope of the patchset and the fact that
-it has been several weeks since it was originally posted, I wouldn't
-be surprised it if needs some fuzzing when applied on top of lsm/dev
-too.
+Minim, Roberto, would both of you be okay if I changed the second
+paragraph to read as follows:
+
+"This patch does not touch any of the platform certificate code that
+lives under the security/integrity/platform_certs directory as the
+IMA/EVM developers would prefer to address that in a future patchset."
+
+> > relevant subsystem in the future.
+> >
+> > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+>
+> Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>, but not yet tested.
 
 --=20
 paul-moore.com
