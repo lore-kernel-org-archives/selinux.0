@@ -1,96 +1,119 @@
-Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
+Received: from mail-pg1-f178.google.com (mail-pg1-f178.google.com [209.85.215.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB4E611187
-	for <selinux@vger.kernel.org>; Tue,  9 Sep 2025 21:32:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD2E022157F
+	for <selinux@vger.kernel.org>; Tue,  9 Sep 2025 21:33:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757453556; cv=none; b=MMcKO9mEpGPJ9peujpOeseeZsoq025Gp9BxwU2OUPoK33MLxVniyd8UKcuDomTpE/diMrpSOL3sv/1H/IAL0KV0c9fNk8ow+HoV9APbTunaLROsmqp3QT5yfxPm+xdIuO8W1Ra43vU/MS4JLchTcAk94wduXhGPRHomv6f+NLZE=
+	t=1757453597; cv=none; b=mVYlC6h9xgCzzG3Ll4iJz381PMC2rEP666rk2hx2aQYasKt9PTuD1/8FBrf37rUSvPtuUH1RYeyaRD37F2MJ+YVc/XTD4+NjEzSoHopWkWuwG5XWvQXsAtgG8R5wQAi6x2vt+5c4IPA5VXlcXSno3fKnPTreka4+Pcrar0iHLLk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757453556; c=relaxed/simple;
-	bh=asYCnis4mSt6CdqmJGzu+Uw5kUXiEII09UvJhb2qu+8=;
+	s=arc-20240116; t=1757453597; c=relaxed/simple;
+	bh=AFqkDPxCV2dkTCfqd556isZVIGNAWATevSXO04uOddc=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=oLcjXsye1u8B/eWUTKz6IE9xpJPy9Rk2vGsynQZHXWo+UMWgKQQaLa5pdhDo2s/nQRtz+hyMWWv4SiBSfSKSDR+tlYAu/zwjAnDwrZpkDIh3/H34cZ43Rj89W7PdCloosUvhNgEazvR5pg1pD13cS6WasifRxS2CQkx2p5mj0Ts=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=MmZD3hM7; arc=none smtp.client-ip=209.85.215.177
+	 To:Cc:Content-Type; b=qpf8MX2YMtCzsewm9674WRe8ludV5brLCCdKUyv53A1wTPJJXMWd9YUSOEiJB3z/woc3EyAIHqKZoFM6P4rTaZOr00b9LS1wm9agsuzKZjGIdw61pgG1dQaF6gajfzLA6btFmpwtBri1J7bhQMptsYEVNqLr7ihLNgv8bGSUdzo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=RHWfBWWx; arc=none smtp.client-ip=209.85.215.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="MmZD3hM7"
-Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-b5241e51764so1715373a12.1
-        for <selinux@vger.kernel.org>; Tue, 09 Sep 2025 14:32:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="RHWfBWWx"
+Received: by mail-pg1-f178.google.com with SMTP id 41be03b00d2f7-b4c738ee2fbso4831662a12.3
+        for <selinux@vger.kernel.org>; Tue, 09 Sep 2025 14:33:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1757453554; x=1758058354; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1757453593; x=1758058393; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=asYCnis4mSt6CdqmJGzu+Uw5kUXiEII09UvJhb2qu+8=;
-        b=MmZD3hM7QvY841CrjUftBYyB9mXbysv2R531wqu8iH24LaP4HsvpCdpwNeUKZ55Dd6
-         WFys/ST4OSFUEQ0DR4vWNsnMU8CZXnv826qNVf/7WgNH9IGIDsdQ+5ul/MwBGRootB9A
-         injXW0rv6Mj4jEPEWt6rV6sJbrsuiBffZK5ztdFX9f3bMBwcwimTgo9Fhxl5vnHU+mxr
-         9jgtUCaxOFKaKMTJ+5hK3NHNGM0/2neGHzCnzMLKk66ShgpGg1RbXrkBjcSLBjXSyB1k
-         2uZiV1b1SAKyw76NJubiiPrPDezSVNs4S1NpPWcKL5wc3VfmRVXCbvbGbdBAGJffXubd
-         NMTw==
+        bh=/RlRKmKYmNbwLMJ9ul6Y0tMfWepJe70yo4pyBWisz3s=;
+        b=RHWfBWWxUPXpz48G/vKAbttbiDVFN2Af+f1tjP6/VhD6rMl2vt5r++FpeOk33giYtU
+         93AFGYIEsCAwrpD41lkN/TWmTUcvWVniOCl6FfiAOLKt0e/+363XAVk8iSE3fqKfDsbV
+         n5wLkvQixkP/Ba6mzf1WVfSO15kwSpCxjKC+xZVT/FFe1hgaleWJZs/DHT/Xi1BwHW3L
+         yuF0nIg4UpzM28HgaeIrzdm6HY2iFJ0m//qmMQEXWhXx2KxvdTKIlo3ySBmiAzOE4IR4
+         a1NnXiJqAxVAS5aw5abCd07lxh//YvgfLd3r9Ij9msN1FyvmUfZO/MHItuNinN0eIJ0Z
+         Jbfg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757453554; x=1758058354;
+        d=1e100.net; s=20230601; t=1757453593; x=1758058393;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=asYCnis4mSt6CdqmJGzu+Uw5kUXiEII09UvJhb2qu+8=;
-        b=O0hkQd5wKmXLp8Z6ZKXQJ4915eFZR0CHtzJnBtoDS9zqwXSkAlRt9OKRDfQ3xQegoo
-         /HRBmO1tZgu0G0oyb2DACwWPXythGwp6Kf2MLnQ0MmtqZ3a7DzUoVqBpmZ73X7q6FKVE
-         Sg6U7IFIm0YO+FX05Gil6ZltNPxQjGldZ/68c2Vau/dNJHUPQSXb2Op1/lcODfpO7AF0
-         yHbhbSIykQ7FT+o9zsmJgFtHpg93Db7cp0Yl+Gy4ccnnYmOpfRQ2TnLCUcOiWiE9/Uun
-         q1Wgpg2hDFZFxscKalEcO3QWuozU3WDCUOMSVZPSx/9U0pjqla0tqFShnSOyvF62p+CV
-         uUDA==
-X-Forwarded-Encrypted: i=1; AJvYcCVI3zYjRGmqs9bK0j8LUZLp0Ke34/dvxBstk9ZYMWF/9EYtUSZJIzXXhl1p339Ju7TkNnCCY/GO@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzl0YWqq398nkY87rn0JPS62j/7IUlPG4Gs3HPvfqabEqs0DYQX
-	gUQBZ8Dn1kdQhTaSyQZ61LG1BE33OrP4qcPLX7ZKLaxNTfE177uKwVW3z0fCCejboOxnGlH3Y5I
-	pdHOYoC4P9HL5KoP4W2CPS68WtcV3WMmfwlr6A4Bf
-X-Gm-Gg: ASbGncv72LtLwxwP8gzqrL7waXTDr5tzKW29d4rFCyB20DjWKhV+8KbjRpqN7MJjDb1
-	BIeVC5tCC/irs3lFRe7HxUIUNhld7/YfTdtXbgxjpcqwM8YAdRh03Ij78e4+RRsGNGJfrRNIyRk
-	8I+woVVSH5EIeCDCq0ZoUFCd7hEZhesawCzrODOG3NT0gGbE183bfsLcreinliMK3TABd/lt8RW
-	SjRDcoagrL21ffTaQ==
-X-Google-Smtp-Source: AGHT+IFpFxNo6dxCBm0dGcRZj8ObBT0pFbtG/sSiVCHxphai4thKxc4JU3AVtrF10UeYjdGdH9PqFYTQ3Uv4NlDmlp8=
-X-Received: by 2002:a17:90b:1d0b:b0:32b:df0e:9284 with SMTP id
- 98e67ed59e1d1-32d43f45856mr17772256a91.10.1757453554206; Tue, 09 Sep 2025
- 14:32:34 -0700 (PDT)
+        bh=/RlRKmKYmNbwLMJ9ul6Y0tMfWepJe70yo4pyBWisz3s=;
+        b=mpkex9UtZLixvwN+9OZMtY4ZVHPyeajsQ3EpwJ+tJO19mtyeZY3Mj+5dypDVnNfYzV
+         NfJ2Gx4YcUa/exggRaVlFX4qe7Gnu3WscD5OCZgV3cCvYc21U/mQvxNkSKCqzRHH3b6W
+         BMYmix5xt57y3bd/zCsPXkBIETW9Q7cgrtdnZ4omdanE+3muDjM6q4WhGQWnjlVQRWlS
+         s1nAzIsEk7lOD+r1BuYPaBmDVIUgB+BoFOw1NXez0ww0ZrXg8Vzjc1IkJKXy3P/PwgoB
+         dp3bRU/V16QoN0NshZZIdmuf1424euY1m6BHoAIZc8Oi0MSs2LnvTpV3pU+27pfCJpPB
+         q2oQ==
+X-Gm-Message-State: AOJu0YwjVeVy1dmPo6/wPR6opeVMd2Gy71Xn4d+qa9FjkrlYeTCybol9
+	rJYZB0KInMLHviSe/Z6eM8Pm7ei2oOEc2twKweVD/Y6RxX0WYwFTODc2zmnXcOOU2hred46H0sq
+	epOLZ6ny/hpmjmSn8J9ctk2i+3kbmzylyRoeZD0Ukg5l5YOMPYUs=
+X-Gm-Gg: ASbGncuLy0VOGLdNrjy3kgncSvoqueaxvtW56wIepWmhwezFraD51qxWBroSiubb0vK
+	FWgJHIMeXl8VA+XP1Zh481bkpfZaQN2j+o0Wg4wFS6Iq3jU60+KBDVRZwsSoS2XcFkGcSAdA77a
+	FsI0AZBaKyKEVd36BDk0j0SGQ3USR/zbzc+pJ+vwi+9598eNJ0PFwf1yaPWFYRESuwJFgnVVUDY
+	Drgz0ySz4enJC3mMQ==
+X-Google-Smtp-Source: AGHT+IEEKzdnhseqUlhhsGkzUHsPiuLe3oenwgE9ZHtqfAEP2qAYIPgyYuOPnuZ2tjAl1cLtWNtxDmRiGPQ76VUTDFs=
+X-Received: by 2002:a17:902:cec7:b0:249:3781:38f0 with SMTP id
+ d9443c01a7336-2516ef54ce1mr216409145ad.12.1757453593196; Tue, 09 Sep 2025
+ 14:33:13 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250908013419.4186627-1-tweek@google.com> <CAEjxPJ5q0eriGjo1tdfN+pzBBN5OeyfMaYp_sNQcOg-rDaXVCA@mail.gmail.com>
- <CAHC9VhR1pEFYzSFaqqWsU8C6vDaH_E8uZZ5g=KyK6TJvA7a8MQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhR1pEFYzSFaqqWsU8C6vDaH_E8uZZ5g=KyK6TJvA7a8MQ@mail.gmail.com>
+References: <20250909213020.343501-2-paul@paul-moore.com>
+In-Reply-To: <20250909213020.343501-2-paul@paul-moore.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 9 Sep 2025 17:32:22 -0400
-X-Gm-Features: Ac12FXyL7eL3X_jCKFwoxMjKs2tue0NW6-1wqyMzPYDoAVXjw8OY2Gb7ih30uV4
-Message-ID: <CAHC9VhQLZ+mWS77OG6cDddXYfJy+eTqkKSZ28PJNEjLigsNGhg@mail.gmail.com>
-Subject: Re: [PATCH v2] memfd,selinux: call security_inode_init_security_anon
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Tue, 9 Sep 2025 17:33:00 -0400
+X-Gm-Features: Ac12FXyINjeBWeyUKquxHWM3OVkrbprFFgsn3bIsl_Re-FlzkC4zrSohxezBEJ4
+Message-ID: <CAHC9VhR+5+B4Kx0zxFvZaiTM8Uw55fdA5d63+D7PV7Bj3tKPdw@mail.gmail.com>
+Subject: Re: [PATCH] selinux: adjust the !file/memfd_file error handling on execute
+To: selinux@vger.kernel.org
 Cc: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
-	James Morris <jmorris@namei.org>, Hugh Dickins <hughd@google.com>, 
-	Jeff Vander Stoep <jeffv@google.com>, Nick Kralevich <nnk@google.com>, Jeff Xu <jeffxu@google.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Isaac Manjarres <isaacmanjarres@google.com>, 
-	linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org, linux-mm@kvack.org
+	Stephen Smalley <stephen.smalley.work@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Sep 9, 2025 at 5:10=E2=80=AFPM Paul Moore <paul@paul-moore.com> wro=
+On Tue, Sep 9, 2025 at 5:30=E2=80=AFPM Paul Moore <paul@paul-moore.com> wro=
 te:
 >
-> Considering that we are at -rc5 right now, we only have a few more
-> days left in the current dev cycle, I'm going to merge this now (with
-> a subject line tweak and some unnecessary vertical whitespace
-> removed), and I'll put together a quick little patch to do the
-> WARN_ON()/EACCES conversion which you'll see on list shortly ...
+> A prior commit, see the 'Fixes:' tag below, added support for a new
+> object class, memfd_file.  As part of that change, support for the
+> new object class was added to selinux_bprm_creds_for_exec() to
+> facilitate execution of memfd_file objects using fexecvc(2), or
+> similar.  This patch adjusts some of the sanity checking added in that
+> commit to avoid a "silent denial" in the case of a kernel bug as well
+> as return -EACCES instead of -EPERM so that we can more easily
+> distinguish between a permission denial and a fault in the code.
+>
+> Fixes: 084f547bd8e3 ("memfd,selinux: call security_inode_init_security_an=
+on()")
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> ---
+>  security/selinux/hooks.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
 
-The patch can be found at the link below.
+FYI, as of right now this is untested, but a test kernel is building
+as I write this ...
 
-https://lore.kernel.org/selinux/20250909213020.343501-2-paul@paul-moore.com=
-/
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index b2ad83353c17..2b685f9dd61d 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -2320,8 +2320,9 @@ static int selinux_bprm_creds_for_exec(struct linux=
+_binprm *bprm)
+>         new_tsec =3D selinux_cred(bprm->cred);
+>         isec =3D inode_security(inode);
+>
+> -       if (isec->sclass !=3D SECCLASS_FILE && isec->sclass !=3D SECCLASS=
+_MEMFD_FILE)
+> -               return -EPERM;
+> +       if (WARN_ON(isec->sclass !=3D SECCLASS_FILE &&
+> +                   isec->sclass !=3D SECCLASS_MEMFD_FILE))
+> +               return -EACCES;
+>
+>         /* Default to the current task SID. */
+>         new_tsec->sid =3D old_tsec->sid;
+> --
+> 2.51.0
 
 --=20
 paul-moore.com
