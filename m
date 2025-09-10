@@ -1,156 +1,103 @@
-Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C4D7276052
-	for <selinux@vger.kernel.org>; Wed, 10 Sep 2025 16:29:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4190027B4FA
+	for <selinux@vger.kernel.org>; Wed, 10 Sep 2025 16:44:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757521781; cv=none; b=Bwah9XavtgoECqZABPEYE2qdJGMgwvtv1wCdv6Gj90H8v7sJyibBZ8Q79b+5/cWII+6N7fDP6SVv+Rs5afhKTU8F3C7ps3vSAWnHNc/IyA9uKUWk/s2X35WxpmAZxrz8lBxOENivcnRvW4pvFFOwIrWwxLwaSsLoItd3531RC4c=
+	t=1757522687; cv=none; b=fPDWMEAK6f6NpFZito0oxCi53rgxoKs3U6d1oSwvR0DDmpI02OpY8ilIw2DjjWAdM/CO/NyaUblo0izytBSR6NfEXvl2ZWUdnHBCMkr/5obvOTCn5DqoqgBWDbHlKqnz35vs1CiThvneeOcoJzVoychjim0MTeKBVI7gMPH4QRs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757521781; c=relaxed/simple;
-	bh=br5Q3ZOORUvzLvVUeC2V0x60iWj/aHykRZ2wfb+cZpg=;
+	s=arc-20240116; t=1757522687; c=relaxed/simple;
+	bh=HO+yFygP+gfnE8vYnDVGthKQSrWG3KBwTnxPTHvYEjI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HU1AdrFweUgiOghEFMMyy5yoYPJ2xZ007Blu6niLfj1aWEmZ4Na5foL7vIcae4P7Pxn4Ml4cx98Ktf1PgUB7ouRqw7Gnc+GzdBXcIZsLYkY74YVXyCVsRUQF8j8e51AiJSPMXz/vSFm68VJ4phtjk70sP4D5oFbm8VQ7IdO0Ibw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NBmE1Vk5; arc=none smtp.client-ip=209.85.214.180
+	 To:Cc:Content-Type; b=JLpUUffZ9+IUL4jWhCcJ8to1kxlniGUbvQjNyhZVgXl7v9VYsvWHSmRxU7jaqxcpdRM2llCyDZOgJZfVIYcbEiMifGdIrXl8tlVcITLTP88qSl7ddGPFv935rFDQZIXctjkyCGn/4ml4V2CflWGbM/qVE+1Daps6cZDWYpR9Vkc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G0e7d24t; arc=none smtp.client-ip=209.85.214.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NBmE1Vk5"
-Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2570bf605b1so38789805ad.2
-        for <selinux@vger.kernel.org>; Wed, 10 Sep 2025 09:29:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G0e7d24t"
+Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-24b21006804so78432755ad.3
+        for <selinux@vger.kernel.org>; Wed, 10 Sep 2025 09:44:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757521779; x=1758126579; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1757522685; x=1758127485; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=KUVEMaBunBmRUf/lZq79XJYgto9ifDRdsFnQDHK57io=;
-        b=NBmE1Vk5Elvmt9zCO11NUlQ1m3NP3XR9d+giRksez+sT3cHAJ8onq5xVIvjojXO3xi
-         7MYNaO95QNSHGflv+uN5uz0nEwHH3SCzkbpHu5yyx7ZdqVyjA0I8T2aMg4k9g9N9AGH8
-         tQSI3tov2l85lAgkagmkC3tGhCqB1VTi71up50yENaQg/Sct9ExRB5+BUeUO7ljQ7Fzx
-         HusPDompHo9NjIbHW3UZHCylLeoMD3if+KQDtA/ibE6iX7VrnNpRrcyZu5spY+4+sS5z
-         7ZlkdmiZKsDam69HyZYvvB4IkqiCAvl0MlqQpWIlbMwBWHeL1dJaFoftgyKVWTHp2tFo
-         ObEA==
+        bh=HO+yFygP+gfnE8vYnDVGthKQSrWG3KBwTnxPTHvYEjI=;
+        b=G0e7d24tNuLR0IfykXbaE+0GFmm9zfqN5nXut+SOk6xT+NqfTo7ZeSF4tRMfKnv/yv
+         sQpYzag5WkIOZybODNxCTdoQBYFLvQZT6hn8LFCDAZmV9E3XY3HWb+83Hkot0RuPDJyP
+         gTZcgy7jJP30AAdM8yTBfWOc/cL/f4NYhD3VZlM8pIHbF5FxrO+2VLlj3c09kYrlikKZ
+         ukSqnuVYS5JRpC2z+PxMnS/eo+518LFb2qRKKAOn9S+mrrTbuPA8QHfSlK06y78AIrlj
+         iGeHeYpTlElFyc9m2N6TxmfN081u8U2B3OM3xoi8+d1Q43lEZOc23NemS1fpDBPt2XG2
+         WPRA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757521779; x=1758126579;
+        d=1e100.net; s=20230601; t=1757522685; x=1758127485;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=KUVEMaBunBmRUf/lZq79XJYgto9ifDRdsFnQDHK57io=;
-        b=UWjAB73m0gZksnLhBCmUj6Ky0uDc8XOS3kLUjCTsW8bEHmZI1Szb1qa87J3BInnfnf
-         lrw7oW2zCyrJBPWJULRQcww+FcxEjfHZB05+arNqF8FvCe1jEnN6YWW0XclTfMnr/pL7
-         EpPkgFlrrrw+4C8Dw4sVPoe7ALe32CjHjgXZL6WCRY0Ls9jhlCEkeiRjyDtrVgaUJ973
-         NWhBphEPYxQybtiWXieyp/3JAEl+rqwuHDl0jfcjPYz+fApQGysp2b4KoVz0qWMQORAY
-         0IcFvu5Puu19uP6c5Ht8vriJ4OGHjC5GknaaSWdCW+MjAukYiO+LmCekit7nWiAamD7W
-         EcJw==
-X-Forwarded-Encrypted: i=1; AJvYcCVCZomQx4DZ/59719V6OIkgAKGFGVUaZPJ2z7NZxetwm4Yiwuh4Dk39P83pD1tCd29fzYFvcNcE@vger.kernel.org
-X-Gm-Message-State: AOJu0YwugOxw/9zaHDQ3cvwbYXPy8w5Bfh8lOwYcBMyYMy6v6kqGPj/e
-	WuOgpHwsSHGjkP9Qk6lgF5uCLHZrtHrTNoRlZMja/l4EeQZmLS6+pyYJPSwp++vPRQ4Z3tGJDB0
-	H8kIn3rNbyU0kHYY3ydQFZa4GC/5M6QPUlg==
-X-Gm-Gg: ASbGncsoWsOcquLn/S52Gp9gnmrBJf42CpOzSZ3ijvbGmvDoFefLfX3edokiNDCbut0
-	Ru2Ka/QFZoidDl9GOFA+Mix0XssK4s1IyXzbqB5hnwDHkPUnp5GQBzGaJW03uwcNnrOibzPJ7wG
-	yHRqrWmiMJaiY/R2YkoCnD6eMCGx/A1+0mgATfdQDC07dwdDtAgT2drZrbT7FijGHqthwGbIp79
-	5pU4QHZxti1FuaoRQ==
-X-Google-Smtp-Source: AGHT+IGdZ+53fC3kIjZ1n2iQh8QNTRg3vp5Pi5wR7q3tq/+vY82c65HKDA7dQ8O6AwIWLsQ8olPoATLSATet8/2VQCg=
-X-Received: by 2002:a17:902:e806:b0:24c:d6c6:c656 with SMTP id
- d9443c01a7336-2516ce60e49mr201741735ad.4.1757521778798; Wed, 10 Sep 2025
- 09:29:38 -0700 (PDT)
+        bh=HO+yFygP+gfnE8vYnDVGthKQSrWG3KBwTnxPTHvYEjI=;
+        b=f90bPNR/aWi3BsbFrLILTjoUd6UPmA2Bbd5f08Fe7XvKVyC3Qw9D0bon6hpxXUs2H4
+         iw+3/CHrkU8K2fIL4PM2rZgqJdgnvofLYZoLyZd0pREs0bn5aVsmnRfVB67h0fnMsPD1
+         HHsyZZL3c29ob73k0M+4HRC3uUAZpGhe2Zj3gL0KmDFwsrIHOoyqEucxJWGrlsspCdpG
+         /9ZcnsXVC6hKSkTCBVoo6NTKBBK82IOHjh52PNbOB3sURkNyxPbZaWWAJisNMl5LCqqB
+         1lUtlkHXDrT7AJ6/uFZebJKXpw0hDjUATzpgMl82MT1KcUi0QbORAOo9ptM3tHMdCmSG
+         9Jzg==
+X-Forwarded-Encrypted: i=1; AJvYcCXReZfv3mB3EQMkm8ULggo7K8pLtoBfcJe/gD+bhll0RerNFUoNNFpAB9iasMjVvTUfh++1qYT9@vger.kernel.org
+X-Gm-Message-State: AOJu0YxDBvOww1RkEpIulDvJT18vuSPBF3eszVPfDyh/1NTR/hLbFGu2
+	LnJJeQT+9aLvH8gR/3qiGtNz26uIVD7lqT7vJue/UxCjC9iH5RS9dak//u73z8QqFn3EIt/RNYy
+	wwWZ7m4e3GQsLtL4mj1R9ntCOUsyFc9E=
+X-Gm-Gg: ASbGncsizAzTsyraW3nOeD8K5L9e9SLA4gHxIlS10wnE0LoThLSXl62OlZ26eIwPCjK
+	rmyognN4RsIc1rocyMUbycPb4lP4DoqjKeE06/df9uO8kb6NyGSnty2jt1LmMC7YREmaAiJWGc7
+	DUkXEaxkeFdfK++eL9PrJmcV8BtyAI5fcftMKJoFRAp3AZGaiy91mtN3YMN4UuzMuDn9SM7CT9C
+	LXFt4Dro5bN+OQ0Jg==
+X-Google-Smtp-Source: AGHT+IHY1xD7+JRivAYEsI7VLxD1MsXmLP0UGbaNvbQSc2IpX1EkwpWezgvvG3JT42EjEq7KqNX6a9IyGj2+WFlDPHA=
+X-Received: by 2002:a17:903:234a:b0:251:493c:43e3 with SMTP id
+ d9443c01a7336-2517330a5f2mr275480755ad.31.1757522685530; Wed, 10 Sep 2025
+ 09:44:45 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250909213020.343501-2-paul@paul-moore.com> <CAEjxPJ73qtdeTcv40gdj2tPJOSRC0VzGqEmHCZv6CwNz4AZdTQ@mail.gmail.com>
- <CAHC9VhSg6jsO8kET1qMUNUkHuWJ9e8UJb=Q75VmCv0kEzwk0Fg@mail.gmail.com>
- <CAEjxPJ7-1MdtcXaeTwH7Z-uPV2Mt++5NTGRWx6u58xKieH-G4w@mail.gmail.com>
- <CAEjxPJ72F9PsdWo_XBL5XDABYwZFJh5-TSt1bp3toLwgoLchkQ@mail.gmail.com> <CAHC9VhTXR42Ogr-aS6OLHTZfW2vwBLtAcSqW7hJ4-0FMZfC2Kg@mail.gmail.com>
-In-Reply-To: <CAHC9VhTXR42Ogr-aS6OLHTZfW2vwBLtAcSqW7hJ4-0FMZfC2Kg@mail.gmail.com>
+References: <20250902055026.617170-1-tweek@google.com> <CAEjxPJ6HmLe5c-iosTvfDYy5EVz8xNRq0=A-jDKTKXvCNWMypA@mail.gmail.com>
+ <CAEjxPJ61HCx3xz5HQwVKD+-9ctOL9WjuQ1mXu435eg9k+JRsTg@mail.gmail.com>
+In-Reply-To: <CAEjxPJ61HCx3xz5HQwVKD+-9ctOL9WjuQ1mXu435eg9k+JRsTg@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 10 Sep 2025 12:29:27 -0400
-X-Gm-Features: Ac12FXzFOUPBZyRikXVT--RGNxMaydiBTqeUfmMKrT-EZRr7C1DPATm_TzLHkVQ
-Message-ID: <CAEjxPJ4387JPN+JOQ7g=Z6CCXYR-mk+6tr_VeyprxNJtCy1TWw@mail.gmail.com>
-Subject: Re: [PATCH] selinux: adjust the !file/memfd_file error handling on execute
-To: Paul Moore <paul@paul-moore.com>
-Cc: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
+Date: Wed, 10 Sep 2025 12:44:34 -0400
+X-Gm-Features: Ac12FXxeSNJipmVTsBeTqYkKmRUCPXFoU7q_FmIS05lOUUHwGMc6D-AljigtYvs
+Message-ID: <CAEjxPJ5qJBpK+gioHBWcju3KdrSStZ9RAWL9XVuguQ90DSvYAg@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: add memfd_class capability
+To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Cc: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
+	Jeff Vander Stoep <jeffv@google.com>, Nick Kralevich <nnk@google.com>, Jeff Xu <jeffxu@google.com>, 
 	selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 10, 2025 at 12:07=E2=80=AFPM Paul Moore <paul@paul-moore.com> w=
-rote:
+On Wed, Sep 10, 2025 at 10:35=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> On Wed, Sep 10, 2025 at 12:06=E2=80=AFPM Stephen Smalley
+> On Wed, Sep 10, 2025 at 10:20=E2=80=AFAM Stephen Smalley
 > <stephen.smalley.work@gmail.com> wrote:
-> > On Wed, Sep 10, 2025 at 12:03=E2=80=AFPM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > >
-> > > On Wed, Sep 10, 2025 at 11:57=E2=80=AFAM Paul Moore <paul@paul-moore.=
-com> wrote:
-> > > >
-> > > > On Wed, Sep 10, 2025 at 10:05=E2=80=AFAM Stephen Smalley
-> > > > <stephen.smalley.work@gmail.com> wrote:
-> > > > > On Tue, Sep 9, 2025 at 5:30=E2=80=AFPM Paul Moore <paul@paul-moor=
-e.com> wrote:
-> > > > > >
-> > > > > > A prior commit, see the 'Fixes:' tag below, added support for a=
- new
-> > > > > > object class, memfd_file.  As part of that change, support for =
-the
-> > > > > > new object class was added to selinux_bprm_creds_for_exec() to
-> > > > > > facilitate execution of memfd_file objects using fexecvc(2), or
-> > > > > > similar.  This patch adjusts some of the sanity checking added =
-in that
-> > > > > > commit to avoid a "silent denial" in the case of a kernel bug a=
-s well
-> > > > > > as return -EACCES instead of -EPERM so that we can more easily
-> > > > > > distinguish between a permission denial and a fault in the code=
-.
-> > > > >
-> > > > > Technically, this doesn't make it easier to distinguish because w=
-e
-> > > > > usually return -EACCES from avc_has_perm() and friends, but retur=
-n
-> > > > > -EPERM for capability denials and in certain other cases (not alw=
-ays
-> > > > > clear why, arguably a bug unless we were just replicating the err=
-or
-> > > > > number for some existing check that also returned -EPERM).
-> > > >
-> > > > It's awfully fuzzy from my perspective.
-> > > >
-> > > > > My
-> > > > > suggestion to use -EACCES was because that is more consistent wit=
-h how
-> > > > > we report denials outside of capability checks.
-> > > > > To actually test this, would need an updated libsepol patch that =
-deals
-> > > > > with the fact that the policy capability number changed on merge,=
- or
-> > > > > re-basing the original patch on top. Otherwise,
-> > > > > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > > >
-> > > > To be honest, this isn't the sort of discussion I like to see for
-> > > > patches that are merged in the -rc5 time frame, if we're merging st=
-uff
-> > > > at this point in the dev cycle we should be past uncertainty like
-> > > > this.  I'm obviously not going to merge this patch and I'm going to
-> > > > drop Thi=C3=A9baud's patch from selinux/dev too so we can sort this=
- out.
-> > >
-> > > Not sure it warrants reverting Thiebaud's patch. I was fine ack'ing
-> > > that as is. I just thought we might want to follow up with something
-> > > to improve the error handling here, which can be done anytime IMHO.
 > >
-> > And if we revert his kernel patch, I'll have to likewise revert the
-> > libsepol patch, and the policy capability number might change yet
-> > again before it lands.
+> > On Tue, Sep 2, 2025 at 1:50=E2=80=AFAM Thi=C3=A9baud Weksteen <tweek@go=
+ogle.com> wrote:
+> > >
+> > > memfd_class was declared upstream in [1]. Add it to the list of known
+> > > capabilities.
+> > >
+> > > [1] https://lore.kernel.org/selinux/20250826031824.1227551-1-tweek@go=
+ogle.com/
+> > >
+> > > Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+> >
+> > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> >
+> > Will re-base on merge.
 >
-> Yep.
+> Thanks, now merged - note that the policy capability number changed
+> due to the previous merge of the functionfs_seclabel polcap.
 
-Bummer. Me and my big mouth. Apologies to all.
-Revert coming up...
-On a different note, taking a quick look at POSIX.1 definitions of
-EPERM and EACCES makes me think we got it all wrong originally and
-should have been returning EPERM most places (except for file access
-checks, maybe). But changing the existing ones now could create havoc
-for userspace.
+With apologies, this has now been reverted due to the kernel revert.
+Happy to re-base on top when/if the kernel patch lands.
