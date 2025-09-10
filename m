@@ -1,130 +1,170 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+Received: from mail-oa1-f52.google.com (mail-oa1-f52.google.com [209.85.160.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66B0A2D1911;
-	Wed, 10 Sep 2025 14:11:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35ABA322DAB
+	for <selinux@vger.kernel.org>; Wed, 10 Sep 2025 14:14:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757513518; cv=none; b=WABNhgaUaiM/qKU8jJBXg/Xh9uio0XoMZScsYLjq9TkulWagG+f+ClYx/n6VW+iuOd9qXhFulGRXe2lUBNseI8kFl6Ddp5+bxW1ixtVKNd3JvaGfJ1Kczqh/T9yJ6EkCrXxZBKN9W+NfMXgEwKU56ntA4fUIsy09FQB0essqpzU=
+	t=1757513683; cv=none; b=J21wPetEtmOKhhqYuSaU8SFSTPB9TCMuq1EqK14asQTUoRh1al4kZbVEF5QMlMJN+4MzeDUe51CT3eTQ8o2YXZq/xiNcu31p3STUn8BKCqDWLJLLheEkeWFarhMKbbnMmOOjV01Y2PFNon2rkSpreFeo2rcx9gnZt+8TZ6+lBS0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757513518; c=relaxed/simple;
-	bh=Tjx19ie3EbA6JXX4PPjcm4OpioyY9LLMZLfe89/rjQM=;
+	s=arc-20240116; t=1757513683; c=relaxed/simple;
+	bh=hXzOqtySqaRCqPIsBJsmWCzIGRal5L0pSYyYsjeChxY=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=dFovjTiLve8wd+NURr06vya2H+IDQtxN0KLY74PK5QlMIAYnkuVYqZglf5a/2JGJmyDtdoydxt5jEXC4bzLm8bQq/WRwMEfvlxOAycNAN0fCyCbdyBhCPGx3Kcz2AtrmSwJBZuqWMyrDebLQvt9etJxpwjkofOkKR4ECcurlreU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VxFLj6Tv; arc=none smtp.client-ip=209.85.216.46
+	 To:Cc:Content-Type; b=QgVTrEXmsIAF5BYf8C7qmlyVwEtzZQw6odCw6vNVcgNqoC4/HDx9vSfLvmJd5XVDxUMVWE7IUr7RbYMBOgEMRXrE+gIMsxxcj7g7ojdGzeCmEhfI4EU5ne0gw+jzwS4Y7NcWzU517uhzg83DMs7Rh0Kf4RKpopM05MGeE6HiwgM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PsafEsiJ; arc=none smtp.client-ip=209.85.160.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VxFLj6Tv"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-329b760080fso6795963a91.1;
-        Wed, 10 Sep 2025 07:11:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PsafEsiJ"
+Received: by mail-oa1-f52.google.com with SMTP id 586e51a60fabf-30ccea8f43cso589641fac.1
+        for <selinux@vger.kernel.org>; Wed, 10 Sep 2025 07:14:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757513516; x=1758118316; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1757513681; x=1758118481; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=BlRKv4Ffw1WSJlEgW2U45BRnwP3DdRL++Z1Dtw1fySY=;
-        b=VxFLj6TvWyvNyrjZiuaAWvaPRn4zKpcq/086Tv3Fyihupgy+ckpalFEzmZ8utIRRpH
-         aZhywfYeess5ezkwDcf5HrtfWgsH/u+e1fVE82ZFLEy//N9iqzK4PhCrTH5nuRvlch5w
-         pjblRICosmFhKbB2CmixJ4GpmShd09Lf2u2GSAlN3Rg0tf0O3BTqOsMK0sBJCF2H2Q5s
-         ZllRAa20RHPPgL8dnobroRC2a/PvBIOaIwWktU/Iu4YwEh43ieXCyFwlAWq8ewVAhKxY
-         csGYNRMQsiaetPVTVn8pRjVjBO04aWcuLeyLyw00nfSWwMuBn9dO5WygurCdxx1o0DGe
-         kJDw==
+        bh=LtFd/EREJDAyoOQ4j4U4pIx20JcwlzEPJvEqbmq0f14=;
+        b=PsafEsiJcy0Jks3Ll3Vynk8rlxuqhDDuHrw0wiELeAY0DKEYMEl/OEYUPZmCsE7gig
+         ntZu+MdsTxy+CavJhRtqdzv/eeIKwP/jgY2xy5vpq3+evnX66u+MlUXlwJol4F7YKuoM
+         iX6a+311U+O40vRIFeSqCF7oBgbRo7VzL+liI8SMrGvYBneBd2gAwo7uuXTnKcltOm/p
+         Nkei9l8ppo9+rVW7cRJpW7VWAi8lotfiPLUFjzbn6/9InltTvO0MtC+yq2HC7yHS3yZW
+         UaqxDddY7k6DvlolKZXdqRb8kL/hc2tZ6/IrFaW3V8OxKp5BZ3L24qccsMiH8SFDV/0r
+         3pPw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757513516; x=1758118316;
+        d=1e100.net; s=20230601; t=1757513681; x=1758118481;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=BlRKv4Ffw1WSJlEgW2U45BRnwP3DdRL++Z1Dtw1fySY=;
-        b=sjJN8dhvVRj+JVZx0Qhd+to0b0ZNDav2tRNX0ehYRE/y0JtOilYIM0pZ7zkb8caNT2
-         xOB8aVU+rziWEuy5DsXCaacHVLU1PVlJ16HGxZ9vPc3ZWzzhLA2sUQwDQ0/mbL5h0cqR
-         t+22EafN6uoXpU4PWhtlqIWSfJH3AwKJpQEul5xuW9G4sU1HvcQYw2anq8BnKK4gGpXN
-         O/1DE/M8FOpblkcX3JenC4i+Tjbhhk/YYFRAWOARAJIPYFc80p5QzRRAvOmvDbIS4aju
-         FYWB3iuqCIb+VaRXyFxi4puWoFLHq7ZYb0R65yq7yPWrFm48+OyjrhsKC1cjxTwhqbjS
-         SR+g==
-X-Forwarded-Encrypted: i=1; AJvYcCVh+5hnyn4b6r35uCkUVOg+4fFqaqe793vvZpTU8zB1+vQDryyXeBJinxsXLv8bDT7L6pDJxKkO1InSxnA=@vger.kernel.org, AJvYcCXlw6ahmhrfk6HtAosXOavX6nH6EkNFVR51B4Or6evLhz1huwims/aC4dnkuMRC06vlkVydjgtbqg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxnF8+BUlhmyLHAtolScnw6QgJ47og9D381/D0cD4eDUf7mejC3
-	aJIO8de3KegJdi94IXQlB3w7E8e+SiW/PLijDVDN/QrZOZt43+JTIEFaXycvFjlfget4kih4OwX
-	6fuZA0Hav01UgEp9cVreqG9E5EfQeI6c=
-X-Gm-Gg: ASbGncsKoIWCiKs39cqzUj6JXfgEbFITHokZ+BtXtu5ZdVvawjC/1ZLcQ4f3wRdNfwG
-	M1IOv8f4XIByfF2r7zHTHDe+uZOLnGGXA95lok1XIO2HkxL++0qk2pP/gaciyUdMHRvcVkUYUAs
-	kFRHtXWV1RBERCPWrryWBV7tShHDl1QXxYNy2yM1Q1WEg5y0TdFUczjylntuF3eC/mWgTWs3m0G
-	0x89SzogU+hI5Wl0Q==
-X-Google-Smtp-Source: AGHT+IHr3ufdkLP58eojNDk71ENCQSGX78v8/v1O3w06BE4KGtrzjSiK02IAwnxG6XMYkG603b7v+dDCvt5fLh3Lzi4=
-X-Received: by 2002:a17:90b:4e83:b0:32b:b514:3912 with SMTP id
- 98e67ed59e1d1-32d43ee5afamr20100886a91.2.1757513516641; Wed, 10 Sep 2025
- 07:11:56 -0700 (PDT)
+        bh=LtFd/EREJDAyoOQ4j4U4pIx20JcwlzEPJvEqbmq0f14=;
+        b=Aq7ISZN4OeMDqYAsQpsCBHV1T/ae9tt/4BHhWLXJJM64ZkbnykK9ggWKxwPRIFPf4H
+         HWqy/e6G7Lyock5q7GpDyT6skswlU79ynsEV8jCMO/lqzMPnZykP6ws+XIhYIJYh3p/c
+         x3E+ROcxWw4OtdR1wZpocbZ+vRIMWkVAkapteCkbQpZgZeu9GrgWlIZg09WwwCMgrcbX
+         frR/EzA0g9QHS3UTyIFh0+UXWlLOox7PHDPYlG6YMNixC6GsitDKlQAvf51bdCvUvYHL
+         S2YMTr2r1a4XG5SZ6epobcp/UVBUW+MX/2QpD0DpKOGHxZqFDJceCDVRVyUn7XvANI+b
+         rfhA==
+X-Gm-Message-State: AOJu0YxwBIROkyeBlHVVj9FT6XpfQevGsxmEaWuH7aKmYSLD1Z1Gb0/b
+	WND8oC8I5U6RNsUSaGB0mO+xhC2Y58HeOe0ZY4K/+CgBjllajBfv4nMIH/Rw5r7LCpHu70bhPzB
+	BjpiRlWcD5sUzafGrz4prl8XZ67T1EdQ=
+X-Gm-Gg: ASbGnctOW1Q7AUZVKpHQBwdyDsfuOWM2Tw9mV5V3HxxipSulz9j4++kW5JFs+WnzluA
+	McXBzK5XctfrFDi6cfqinHsPJnnzPu7tEcPSeNV9DxRSBp/s+bBu5TUnzZ9pUmGDja92AetJctY
+	+sa7YjmGYueDYvwQLphbn6K3+IueHoieaQG1UuR51KXY6yBKcCepqq3FaQBRLW8Q8sxGs3Z2Ccv
+	vyBw1A6PmTBzs5oeRgYFtqp/2e9
+X-Google-Smtp-Source: AGHT+IHCedw0kwNDk/JjAyS7npiVJzfn+aXLw8moqkP1jPvytTN8tvg82vBwBwbQdKXc5N19TsBNqoCSCBoUzVRoY8g=
+X-Received: by 2002:a05:6870:4e98:b0:32b:d4f0:46fd with SMTP id
+ 586e51a60fabf-32bd4f0f6c0mr1053876fac.7.1757513681134; Wed, 10 Sep 2025
+ 07:14:41 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250828170503.2323187-1-nkapron@google.com>
-In-Reply-To: <20250828170503.2323187-1-nkapron@google.com>
+References: <20250910104322.328299-1-rjones@redhat.com> <20250910104322.328299-2-rjones@redhat.com>
+In-Reply-To: <20250910104322.328299-2-rjones@redhat.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 10 Sep 2025 10:11:45 -0400
-X-Gm-Features: Ac12FXyiDeyreEY4DrnfvbM_XMuE5GsA0S-i3oG_AeN9fiYaT3v8SZlvHCmmQ8g
-Message-ID: <CAEjxPJ7e6GVBzi2O7xv_A0+iJTWePRmMeN+jH0Z2Wo5qh6Om2w@mail.gmail.com>
-Subject: Re: [PATCH v3] libsepol: Support functionfs_seclabel policycap
-To: Neill Kapron <nkapron@google.com>
-Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, kernel-team@android.com, 
-	linux-kernel@vger.kernel.org, selinux@vger.kernel.org
+Date: Wed, 10 Sep 2025 10:14:29 -0400
+X-Gm-Features: Ac12FXzuJhIURPMjngaeyPK55Pr9sCXrLlEA1WA-Oz-i2yc9IQIs3qmPHUL2bII
+Message-ID: <CAEjxPJ5wEHLwbn7Rf=whqzFBgh=AVsy2YTY1L4wOr6JcB5yE5Q@mail.gmail.com>
+Subject: Re: [PATCH v3] setfiles: Add -A option to disable SELINUX_RESTORECON_ADD_ASSOC
+To: "Richard W.M. Jones" <rjones@redhat.com>
+Cc: selinux@vger.kernel.org, lautrbach@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 28, 2025 at 1:05=E2=80=AFPM Neill Kapron <nkapron@google.com> w=
-rote:
+On Wed, Sep 10, 2025 at 6:43=E2=80=AFAM Richard W.M. Jones <rjones@redhat.c=
+om> wrote:
 >
-> This adds the necessary userspace pieces to support the
-> functionfs_seclabel policycap which enables per-file labels in
-> functionfs and the ability for userspace to apply the labels.
+> SELINUX_RESTORECON_ADD_ASSOC tracks conflicts between inodes with
+> multiple hard links or bind mounts that have differing contexts.
+> However doing this involves building a large internal hashtable that
+> stores the full path of every file examined by setfiles.  For
+> filesystems that have very large numbers of files or long pathnames,
+> this uses a lot of memory, which makes SELinux relabelling in
+> constrained memory environments infeasible.
 >
-> With the policycap disabled, legacy behaviors are maintained and
-> per-file labeling is disallowed.
+> This adds a new setfiles -A option that disables this tracking.
 >
-> Signed-off-by: Neill Kapron <nkapron@google.com>
+> For example, using setfiles to relabel a filesystem with 15 million
+> files took 3.7GB of RAM.  Using this option, the same filesystem can
+> be relabelled in 121MB (albeit with no warnings or errors possible for
+> conflicting labels, but for our use case we don't care about that.)
+>
+> Fixes: https://issues.redhat.com/browse/RHEL-111505
+> Signed-off-by: Richard W.M. Jones <rjones@redhat.com>
 
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
->
-> Changes since v2:
-> - Sending as separate patches
 > ---
->  libsepol/include/sepol/policydb/polcaps.h | 1 +
->  libsepol/src/polcaps.c                    | 1 +
->  2 files changed, 2 insertions(+)
+>  policycoreutils/setfiles/setfiles.8 |  5 +++++
+>  policycoreutils/setfiles/setfiles.c | 11 +++++++----
+>  2 files changed, 12 insertions(+), 4 deletions(-)
 >
-> diff --git a/libsepol/include/sepol/policydb/polcaps.h b/libsepol/include=
-/sepol/policydb/polcaps.h
-> index 0835ea21..bbaebf1a 100644
-> --- a/libsepol/include/sepol/policydb/polcaps.h
-> +++ b/libsepol/include/sepol/policydb/polcaps.h
-> @@ -19,6 +19,7 @@ enum {
->         POLICYDB_CAP_NETLINK_XPERM,
->         POLICYDB_CAP_NETIF_WILDCARD,
->         POLICYDB_CAP_GENFS_SECLABEL_WILDCARD,
-> +       POLICYDB_CAP_FUNCTIONFS_SECLABEL,
->         __POLICYDB_CAP_MAX
->  };
->  #define POLICYDB_CAP_MAX (__POLICYDB_CAP_MAX - 1)
-> diff --git a/libsepol/src/polcaps.c b/libsepol/src/polcaps.c
-> index 7ac0ae7c..83eb6143 100644
-> --- a/libsepol/src/polcaps.c
-> +++ b/libsepol/src/polcaps.c
-> @@ -18,6 +18,7 @@ static const char * const polcap_names[POLICYDB_CAP_MAX=
- + 1] =3D {
->         [POLICYDB_CAP_NETLINK_XPERM]                    =3D "netlink_xper=
-m",
->         [POLICYDB_CAP_NETIF_WILDCARD]                   =3D "netif_wildca=
-rd",
->         [POLICYDB_CAP_GENFS_SECLABEL_WILDCARD]          =3D "genfs_seclab=
-el_wildcard",
-> +       [POLICYDB_CAP_FUNCTIONFS_SECLABEL]              =3D "functionfs_s=
-eclabel",
->  };
+> diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfil=
+es/setfiles.8
+> index eabf0a1c..d43e4ad2 100644
+> --- a/policycoreutils/setfiles/setfiles.8
+> +++ b/policycoreutils/setfiles/setfiles.8
+> @@ -23,6 +23,7 @@ setfiles \- set SELinux file security contexts.
+>  .RB [ \-I | \-D ]
+>  .RB [ \-T
+>  .IR nthreads ]
+> +.RB [ \-A ]
+>  .I spec_file
+>  .IR pathname \ ...
 >
->  int sepol_polcap_getnum(const char *name)
+> @@ -187,6 +188,10 @@ use up to
+>  threads.  Specify 0 to create as many threads as there are available
+>  CPU cores; 1 to use only a single thread (default); or any positive
+>  number to use the given number of threads (if possible).
+> +.TP
+> +.B \-A
+> +do not track inodes with multiple hard links or bind mounts that would
+> +match different contexts (saves memory)
+>
+>  .SH "ARGUMENTS"
+>  .TP
+> diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfil=
+es/setfiles.c
+> index ad09f840..31034316 100644
+> --- a/policycoreutils/setfiles/setfiles.c
+> +++ b/policycoreutils/setfiles/setfiles.c
+> @@ -40,9 +40,9 @@ static __attribute__((__noreturn__)) void usage(const c=
+har *const name)
+>                         name, name);
+>         } else {
+>                 fprintf(stderr,
+> -                       "usage:  %s [-diIDlmnpqvCEFUWT] [-e excludedir] [=
+-r alt_root_path] [-c policyfile] spec_file pathname...\n"
+> -                       "usage:  %s [-diIDlmnpqvCEFUWT] [-e excludedir] [=
+-r alt_root_path] [-c policyfile] spec_file -f filename\n"
+> -                       "usage:  %s -s [-diIDlmnpqvFUWT] spec_file\n",
+> +                       "usage:  %s [-diIDlmnpqvACEFUWT] [-e excludedir] =
+[-r alt_root_path] [-c policyfile] spec_file pathname...\n"
+> +                       "usage:  %s [-diIDlmnpqvACEFUWT] [-e excludedir] =
+[-r alt_root_path] [-c policyfile] spec_file -f filename\n"
+> +                       "usage:  %s -s [-diIDlmnpqvAFUWT] spec_file\n",
+>                         name, name, name);
+>         }
+>         exit(-1);
+> @@ -147,7 +147,7 @@ int main(int argc, char **argv)
+>         const char *base;
+>         int errors =3D 0;
+>         const char *ropts =3D "e:f:hiIDlmno:pqrsvFURW0xT:";
+> -       const char *sopts =3D "c:de:f:hiIDlmno:pqr:svCEFUR:W0T:";
+> +       const char *sopts =3D "c:de:f:hiIDlmno:pqr:svACEFUR:W0T:";
+>         const char *opts;
+>         union selinux_callback cb;
+>         long unsigned skipped_errors;
+> @@ -375,6 +375,9 @@ int main(int argc, char **argv)
+>                         if (*optarg =3D=3D '\0' || *endptr !=3D '\0')
+>                                 usage(argv[0]);
+>                         break;
+> +               case 'A':
+> +                       r_opts.add_assoc =3D 0;
+> +                       break;
+>                 case 'h':
+>                 case '?':
+>                         usage(argv[0]);
 > --
-> 2.51.0.318.gd7df087d1a-goog
+> 2.50.1
 >
