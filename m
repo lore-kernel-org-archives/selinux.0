@@ -1,111 +1,69 @@
-Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com [209.85.167.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA3422033A
-	for <selinux@vger.kernel.org>; Wed, 10 Sep 2025 01:53:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98D3D1448E0
+	for <selinux@vger.kernel.org>; Wed, 10 Sep 2025 10:43:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757469224; cv=none; b=beH6aiY8yiID3drb/BOTltJDYTsIkKG1M7Neli9+80owuAoHRJWQiufzSRM0tC+7/TL8U2otLHCJ3ZZeGFKu4Ug7wBCAx8/x4Af3pz9z+HKguXJknXA1QMs4X+vp29AnvYbCVix/AKY/Vj8bQ3ZSwcsy/w/kZYcxEiYSi7Y3bk8=
+	t=1757501013; cv=none; b=UFF1/cIzlyInBtyTppKLIFgAeaGSMv6/oDUpuKWhO+UDl5NAVm/4ft4liBIJb+XG4pko2m3fFLOY+py47fXT+Rija7DfaGPPaH49p03v3XTB8oH8a3GpaQv3BeF9o/f7vdeoDl1efqlotGh3HlB3SYx81Q7i3F9pY7JJTNbnAFw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757469224; c=relaxed/simple;
-	bh=oOBN4v7CY5t/jHv21xlGNgUfXnw/Tppx7o6yfCfw/Jw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=XonAYevlKZdXYxNJG0PbJkE948XdmUNZOQhhI293f3AvS0EdFNnogzEBcN7HYBabIhlJSW1cRiOkxu+mTKnEOK4CUanqFbnWa2ECZPqoXEceri6WRzUFgpJqaXzWqoImSw5tYJK7SEp/tJD/eHgkI7atECBLp0RO7/6orXBgGOg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=eR15rFID; arc=none smtp.client-ip=209.85.167.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1757501013; c=relaxed/simple;
+	bh=FOgrItVWEBT01HFFoAkXvg9fDIUZH1FoLgceU9kmufs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LA6s0HyV3WgbNRWN15VEb+PwYIaXJTdsGZsasJMc91102EmPWvGB48lr/JAlbBYWQrwpr+0BtXGuo7HtBpKY5k8g8RLYtV3TTz5kzLfh98VXNn7u2W+GmV94VYrHd7e/paO97U1DKFb6ILsPxnsEaGpa7NnT7yhOPJQILs5wzDw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KB25jEed; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="eR15rFID"
-Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-5694f0e29a1so2506e87.1
-        for <selinux@vger.kernel.org>; Tue, 09 Sep 2025 18:53:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1757469221; x=1758074021; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=sK7DfWbVGbxWl9hVVhkwTN04Ec3LWjfPI9DpoiQkdsA=;
-        b=eR15rFIDB6KvbN8OskO9C4yunw5GIwBpi6p/cfhh3i/Sev5SRUgKSWmyYmvfM/ixHy
-         fnyUqoRUA3NveoPq8ZHbJm2ij/pYZh6233OCYPSI1zhLpreoC7dGsmAvT5XY9v+AaJTW
-         IRDPjTfiCzsBujSjVGsyFt35dWAvWID+3h2WJTtj44E5sxxhKxtygClgNssAZwEzJrIe
-         wFsZ5EhHS/poJdVioGnSCoDL4NoBVBJWBn2qVZhT/qpZY2JJlHreOFLqIVF603ejwYfv
-         FJx1SEEh9/eJPKAzOzcj+52/D7X2HNsyHGFYyZ03l1KxJzNmuS7eftGCtjQoRPm9W8O9
-         pFQA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757469221; x=1758074021;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=sK7DfWbVGbxWl9hVVhkwTN04Ec3LWjfPI9DpoiQkdsA=;
-        b=kRFMQrgI8q1g81hXXV6uWEUjHZWTaJqcvFQXiLoE4l0dmWrTWMcwPKmUuXRZv1xaab
-         m8o+YEDoEUcEnZhG49r5QD2XF4A1Nx92yNYxWuxPJp5Yt8L33qVsN9i/oO5VabsJdVqr
-         ajLEuhpNQW/pCHDGniEwhqLQnCK2Q8ikcfWiRqKAVqVR5VW4KF16OQ6fL0+7Uoxb3g+s
-         ks2dhEvhsy593EV9qWStG4z0evyHv+3CuZJUtMUWFX+0skD/bJ6fQg11O6R+0fph7iB+
-         w7OM7H5oAP/GjsH8emy5RuyEV+hITiwmR3xymAjqNxxgmg8ydn5YxccCDTdypPhj5PWt
-         vZAw==
-X-Gm-Message-State: AOJu0YwMPCgTR8l9d3tGxpOZ05PosTkS0sbwQhzVaIzLDV/uU5t5k5OF
-	MEM7fPczYkhBK3nvWVBXQFjT9RB+IRUXNQK+4L+EhfS1sERWVnW+OWpQzbY538KSxy5RpUVkAJp
-	DlQdVuyz7/Jet8LH30eV0/LvkkWvjh61tQbOo1J9T
-X-Gm-Gg: ASbGncuoRQg+VA3WSxHdiZoReNnh07WLwmQ2P1DQrm5ntIXPvx39nA+8eiS6pyH9U6w
-	E30+vaFbhv2Ytcaplz4LJQPdmfOXIjxihKKyneely244rOgI67MuG9HI0hwwkN96lTIF//QBieI
-	ouM4n5XnWSxCYSGfx7QvjJ8D8mm1jYUuwvtLnBwB7OmI4/CEu8n55eiBEUQYeiQMbQsN0bX93jA
-	ifWqr/0KHXzvcUyCur3JJfGOa5XYfez+HK/ch5sIQ==
-X-Google-Smtp-Source: AGHT+IEAWE7+Xn+7FN8pGidkvw0MzcgGsuTYEpIq7qd236VANOHbXuq7EZ6UtsnfHDdIsTqyktDU02qugbux9pslwvo=
-X-Received: by 2002:a05:6512:3694:b0:55f:6c68:400c with SMTP id
- 2adb3069b0e04-56b3e1896f3mr91494e87.7.1757469220833; Tue, 09 Sep 2025
- 18:53:40 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KB25jEed"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1757501010;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=OgRAR0YgAYNQVDwzT48QiS+eScItgbG7/7voskMZL98=;
+	b=KB25jEedX2aTvsnn2/cFLZrjEe8VIkdFohSDRvgFzj6/2jizypsSUzWg2XJX0m+J2ogH5N
+	53r6OXkFwBGrDbL7eVWoB79NONs3Y2fwKQKi0rdTZnW4tcmHJybTlkxHFcBsEDgnKnZ5dh
+	CcPTji0BFsqgXvNXSL+Dh3kuZ2XZvNA=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-300-SRFlI-5rPnWSxJKHv-8ixA-1; Wed,
+ 10 Sep 2025 06:43:29 -0400
+X-MC-Unique: SRFlI-5rPnWSxJKHv-8ixA-1
+X-Mimecast-MFC-AGG-ID: SRFlI-5rPnWSxJKHv-8ixA_1757501008
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 2246A19560BB;
+	Wed, 10 Sep 2025 10:43:26 +0000 (UTC)
+Received: from cash.home.annexia.org (unknown [10.45.226.196])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id A2C991800446;
+	Wed, 10 Sep 2025 10:43:24 +0000 (UTC)
+From: "Richard W.M. Jones" <rjones@redhat.com>
+To: selinux@vger.kernel.org
+Cc: lautrbach@redhat.com,
+	stephen.smalley.work@gmail.com
+Subject: [PATCH v3] setfiles: Add -A option to disable SELINUX_RESTORECON_ADD_ASSOC
+Date: Wed, 10 Sep 2025 11:42:08 +0100
+Message-ID: <20250910104322.328299-1-rjones@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250909213020.343501-2-paul@paul-moore.com> <CAHC9VhR+5+B4Kx0zxFvZaiTM8Uw55fdA5d63+D7PV7Bj3tKPdw@mail.gmail.com>
- <CAHC9VhRXQWz4A5pN-y_nmgBC+Vwu0Qi6_Pb4ec4k3gEc1sgVOQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhRXQWz4A5pN-y_nmgBC+Vwu0Qi6_Pb4ec4k3gEc1sgVOQ@mail.gmail.com>
-From: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Date: Wed, 10 Sep 2025 11:53:21 +1000
-X-Gm-Features: Ac12FXxAju_V3AYMyW-ZKh_YbtnuH7CFBWCNc9OaDTsnmKJztiLpwMJ_o_3yujo
-Message-ID: <CA+zpnLeC5XOH8JrFrP0rsqw9h8pACqJk1-=AgXkYkZ3dCQpnMQ@mail.gmail.com>
-Subject: Re: [PATCH] selinux: adjust the !file/memfd_file error handling on execute
-To: Paul Moore <paul@paul-moore.com>
-Cc: selinux@vger.kernel.org, Stephen Smalley <stephen.smalley.work@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-On Wed, Sep 10, 2025 at 11:37=E2=80=AFAM Paul Moore <paul@paul-moore.com> w=
-rote:
->
-> On Tue, Sep 9, 2025 at 5:33=E2=80=AFPM Paul Moore <paul@paul-moore.com> w=
-rote:
-> > On Tue, Sep 9, 2025 at 5:30=E2=80=AFPM Paul Moore <paul@paul-moore.com>=
- wrote:
-> > >
-> > > A prior commit, see the 'Fixes:' tag below, added support for a new
-> > > object class, memfd_file.  As part of that change, support for the
-> > > new object class was added to selinux_bprm_creds_for_exec() to
-> > > facilitate execution of memfd_file objects using fexecvc(2), or
-> > > similar.  This patch adjusts some of the sanity checking added in tha=
-t
-> > > commit to avoid a "silent denial" in the case of a kernel bug as well
-> > > as return -EACCES instead of -EPERM so that we can more easily
-> > > distinguish between a permission denial and a fault in the code.
-> > >
-> > > Fixes: 084f547bd8e3 ("memfd,selinux: call security_inode_init_securit=
-y_anon()")
-> > > Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > > ---
-> > >  security/selinux/hooks.c | 5 +++--
-> > >  1 file changed, 3 insertions(+), 2 deletions(-)
-> >
-> > FYI, as of right now this is untested, but a test kernel is building
-> > as I write this ...
->
-> I was delayed slightly as it turns out the latest Rawhide dracut
-> packages are broken, but kernel boots and passes the (unmodified)
-> selinux-testsuite.  If anyone who has an updated/patched toolchain,
-> policy, test suite, etc. can verify everything is still okay when the
-> new policy capability is enabled I would appreciate it.
+v2 was here:
+https://lore.kernel.org/selinux/CAEjxPJ7nJ7j9HPR8yEeM8ErscZfmUr0imTwUvvwZikAqsP1EDA@mail.gmail.com/T/#u
 
-I just did. LGTM.
+This addresses the review comments for v2.
 
-Tested-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+I'll note that the man page options are not exactly in alphabetical
+order.  It seems like they started off that way, but new options have
+been added at the end (as I did with the new -A option).
+
+Rich.
+
