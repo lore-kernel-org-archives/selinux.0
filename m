@@ -1,59 +1,59 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5ADDC277CAB
-	for <selinux@vger.kernel.org>; Wed, 10 Sep 2025 16:07:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69A6833438B
+	for <selinux@vger.kernel.org>; Wed, 10 Sep 2025 16:07:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757520451; cv=none; b=rUUqd6yXlOyw/V8i6ER9qMxzo92VItSTKFY4gYArfCm969xkQ1aVO+wunmvbcoKRM1PA9zN+qnAi3ffjCIIkNUMS9Ajtoq1AMAiOJPbvQaEQ4brI7s30qiy+c5zwERNTamls1QKcIjaabeNRsMsz6zE5+F8CSc1NakaHh/LGN8A=
+	t=1757520472; cv=none; b=T5fDLP0wYODvZl+eenGHBHG1PPZYfoQHEOh76wbl6ewoLueupQqIpu06YJKc0yjSgysPxObT1W8ntfTcTJwbTTBk979PL0lMHA5vUsKqbu7FWiH7LjZHzhAqAJacb10Z7MZGDqVam3Q++v3QfjTpv+k+JUblwLT3+Z2LbWI1Ci4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757520451; c=relaxed/simple;
-	bh=KhQDNf7Hx5q2dTEvRXEt9KbPvFRrtNQjBvCUMncZ8gY=;
+	s=arc-20240116; t=1757520472; c=relaxed/simple;
+	bh=HOpvpmMa+n6+PJV3cMnp4V2y9/s+jwwW12vum25tD+w=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=n6lMHazmtMUYmc7RWxFhSg2IwR6LTq5gDUNXH2EPXZlcFqt2dD3Geog+OOjxIVwroIgp9M8+sEVhsGonQbX9SY5SsET8H2gHfbU+VStiI19PmVkHGuRY2L4S624xAGu5zC4kYAiq9bVbJIfpMjiqfASPxEhNA/t3OOqBYwdiMew=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=U10gFVpw; arc=none smtp.client-ip=209.85.216.48
+	 To:Cc:Content-Type; b=XHrTsqQ7+b5BQmup6gsU0G3/n1gM6JhX1JakQCHsJi/UQw8XBBGaSQ0ClQfjV0/bwQM1+Y4NlzvZPvU9xrislBkmr0o7YGvi4bYHRAU6LEz3+bTRW3eV357BPzz2d+B7WOPB0YxepINpcsuQaP5AIPDis19qnm4bD8kO4aefhgI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=FpAURq6c; arc=none smtp.client-ip=209.85.215.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="U10gFVpw"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-32db52f2f07so1515943a91.0
-        for <selinux@vger.kernel.org>; Wed, 10 Sep 2025 09:07:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="FpAURq6c"
+Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-b4755f37c3eso5932411a12.3
+        for <selinux@vger.kernel.org>; Wed, 10 Sep 2025 09:07:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1757520447; x=1758125247; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1757520469; x=1758125269; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=V/SSUahcKBV25mZdGMT5I31BSXz12HmWVHuFxBX4um8=;
-        b=U10gFVpw55h7s/KWjlj93keH9QGqrLSq05TElQMkrPoj1wqCBSGr+5GYu2l7pO2Ng6
-         wXAbqRhnm/audnXuAqIXIh3wnx4oPUtY7XXRPZL2+ltVxDWJhXL3E/wQj2nAjpGvpMh/
-         RZ96OCKxA4Ww9y0COBy86lzYqe+LaX+xGuPUQr3oQaG1VUOkUjxWRL9i02P6G+1SNokU
-         3Lh4xQQMnbuY3XOSb49FWAccFJoRYudM8hMoaQnn+oKM6D8j1zQDB0DSvkB+9wB/yoV0
-         2DgK9jGPPLPSxTvsX09yVf1p3dm1CP+/Ez63oE/9gvSWONKnmJSFqF6kBRiNbbg1g98A
-         OTdw==
+        bh=pLWqlRoMr7wcb02ZukmR6IJedBz59hQJwZhzt8WRM5Y=;
+        b=FpAURq6c5lfuaUq3gr8JehJsXKlwh59moYSx+j+L1ZNPs21BaWYrNtx1xw+J0KlzzW
+         taFpnJgaoJMCtq8Uo0GdD4c1W37B5/0wdMJAfpUpMDU6b5l8174V7nwmBCV/oSiWRhvO
+         p/CL/cvx2anSBHSM7MEza7nsf9VQPEskSmJV/ggH3YNMwWFtOEWUZSZjUj4DPfjh+Kx4
+         of1leET7rkP4P2zetoBfk+SB1eYghAZZXKu2yuDW/lfVc1bkjbgjT6gOGs/mOs3dI4Ov
+         GNqdPLAvpjQdxZqxo3ajrfPSz8VmYhnkEVKp+wZmJOv/NpR9AFJwEqv3MlbzoifAj7Mw
+         tlPA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757520447; x=1758125247;
+        d=1e100.net; s=20230601; t=1757520469; x=1758125269;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=V/SSUahcKBV25mZdGMT5I31BSXz12HmWVHuFxBX4um8=;
-        b=oDUEB+whkrI7qJKpXd6a8S89dr9OinavqsuJ1VZzbtXnrt1xVBMVyKjgS1I9nsTJmR
-         zgQLKRVRi+rV9VdigdqN+JuUd6EPiiNUMCnZ/aRm+S79N1rDomJIfsKNUmps+Os9Rp4q
-         7XROjbao6wSUQlK+yh0peQI6uQTTiTWVUHRCSQOKvoeVobaivLKrN8iBaJ8c2UejbrE0
-         7lPramR5n2jB59d6ZF5heELWYx8eSSYouYT0g/5jqxyu63Ok+orNt2A6ruR439tobIu5
-         TXfKJNYUyzpgg6Z0DbUAft5H9u51sd9AJ/fL1u/PujK/2IOxLxBYFF9Uq/a1/Y4qWLq0
-         LxHg==
-X-Forwarded-Encrypted: i=1; AJvYcCXyLp1dgniJKGqOBy3qi6T1RiZMoEfWzoT5lY58kYAoFpW3xUOVYW7IJnYYGCE9Zysk12S/dZSU@vger.kernel.org
-X-Gm-Message-State: AOJu0YwJ6mMxqFsY7shv+mVuI26R6ce3BtvtE3gALfcomp0kRDul8M+m
-	S+k7tILI0jvBxaUdLz44dklk3V6R4VYfkXODZSxsAnRmGkYnkUHGbRqwmkCErYVBRbJhP5NmPqt
-	BPnEMxsjydvHThQf7/zBUi16Ll99mC6LUCXhLfOEF9+MsZ8hdyN0=
-X-Gm-Gg: ASbGncvikAhdhwRRM4D6Ibii82+LH+xx5sPAjgYAXBMEXfxqofTvqf9SioJIkpXejqD
-	Vstyrv5du6jWPXgkdNEtVO1QCCFW3jAY/SYWNa+fV6FVbfAlumDJZhS71aQwaQWjethV3ySY939
-	vrKo0/Vjl2Y5+rE9ePRkE/kKUV0UIoDwv1/IhpxHCC+ZjF+R80dcWnPgL2p9ZRCQPGmIAqJTPS5
-	KSvlUbcOSuCKUaSdj06fJOooHuR
-X-Google-Smtp-Source: AGHT+IEEUvU4X6Q346k+tqtjJFLB7LE4vWJAsInXUACyHnTSDQZY/QgpfO9GTSpUCC6Yy/m37hWkJK44xg8W3MqkEko=
-X-Received: by 2002:a17:90a:d443:b0:31e:c62b:477b with SMTP id
- 98e67ed59e1d1-32d43eff6f0mr19556678a91.11.1757520447590; Wed, 10 Sep 2025
- 09:07:27 -0700 (PDT)
+        bh=pLWqlRoMr7wcb02ZukmR6IJedBz59hQJwZhzt8WRM5Y=;
+        b=DhJkdwE0yF1at1YqBLbLbrJMCzHOtxmndkk7u5JWoWvaBU5l5aD754cwktZHxkFqIL
+         WO806heRX42UjeF4JNAEoTOMVDwTjCJsEG4vw42OUjMdNUESRxRO9zrwxT92Rx/XiOMg
+         Yslpxm++HW/gupszCgsJcqiJjhjYY5rHnsAG+tyn56dHzVmRHUzUbVz2K9bQmhNzuXjo
+         e6TrKzXqTrXslqjP272fhQVMFxhXKbw0PXk1RamToYiV/vMUH5q36YCVg1F/nvctCyng
+         MmG1sGYO2bU160NAD8QsNR8ch5jfvLJBxjJEEZhZAhl15yIWpVYZ7cweyrcvAyCs7NYH
+         4/HQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXGBajH2l6HqpIvpB2YgCpuZrm5636BhV0wYJrgAnD6MowoZzGCcTEuD0IewIZEpaish3fN8pM1@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyxym7QWkP9s3IqbADltNnq5VguR/Nz+9V0H4eMjQdMYHs7xQIk
+	3OqMpIldnj4IBii4ch5XENlobuMyK7HwRM+hpObcoQFxfU8YZZ/ERZibxUmIefAb5d7UwqKVZao
+	RVdknvkoL/0wdwVPgZYnlnODHmqx+Ub39jvULL5N4
+X-Gm-Gg: ASbGncslL7bmedVrMrCeqEsEo9QLP/H83lHuuZZtF486nYsqcfpXPMRLMC63byXPFX3
+	E014BE1briSx06jhQTWnsthXYpDLdsWFFp00SmijfixSE87ahnHTf+36k4g9Zu/zysmxkCYmO/V
+	2JyJ8CO5pa7NaX5EVkz/PFh5EInCcy3cAWoonTYHslQKfwuYL1W1dli0Lp5Tae09AlT5eQHkuqQ
+	CY6nVJlraGLuTkUHA==
+X-Google-Smtp-Source: AGHT+IHpguB/BnkKHnH9zVjz6Dr8b1EHthri5eX+Xap2TuGmjLAnouAEbwh8yMIc+3LeX6BGg1JCQf54aJCfte2vL2M=
+X-Received: by 2002:a17:903:1111:b0:251:3d1c:81f4 with SMTP id
+ d9443c01a7336-25173bbbab1mr262547035ad.54.1757520469496; Wed, 10 Sep 2025
+ 09:07:49 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -61,12 +61,13 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20250909213020.343501-2-paul@paul-moore.com> <CAEjxPJ73qtdeTcv40gdj2tPJOSRC0VzGqEmHCZv6CwNz4AZdTQ@mail.gmail.com>
- <CAHC9VhSg6jsO8kET1qMUNUkHuWJ9e8UJb=Q75VmCv0kEzwk0Fg@mail.gmail.com> <CAEjxPJ7-1MdtcXaeTwH7Z-uPV2Mt++5NTGRWx6u58xKieH-G4w@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7-1MdtcXaeTwH7Z-uPV2Mt++5NTGRWx6u58xKieH-G4w@mail.gmail.com>
+ <CAHC9VhSg6jsO8kET1qMUNUkHuWJ9e8UJb=Q75VmCv0kEzwk0Fg@mail.gmail.com>
+ <CAEjxPJ7-1MdtcXaeTwH7Z-uPV2Mt++5NTGRWx6u58xKieH-G4w@mail.gmail.com> <CAEjxPJ72F9PsdWo_XBL5XDABYwZFJh5-TSt1bp3toLwgoLchkQ@mail.gmail.com>
+In-Reply-To: <CAEjxPJ72F9PsdWo_XBL5XDABYwZFJh5-TSt1bp3toLwgoLchkQ@mail.gmail.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 10 Sep 2025 12:07:14 -0400
-X-Gm-Features: Ac12FXzui_z2RYxjBKt_p_FpUOcF4N6uWhg-QmlWBL9IEIVFiAejLQufx08ATWM
-Message-ID: <CAHC9VhSemw9wyots53sTzZU9KE=u6z80HrMAZ12ZhS979oKVWg@mail.gmail.com>
+Date: Wed, 10 Sep 2025 12:07:37 -0400
+X-Gm-Features: Ac12FXyp8ZbxxUh6VWFYU31cgMgzuH75QcFuGKL7vLWXvrriBeUZR2CKjt8gHow
+Message-ID: <CAHC9VhTXR42Ogr-aS6OLHTZfW2vwBLtAcSqW7hJ4-0FMZfC2Kg@mail.gmail.com>
 Subject: Re: [PATCH] selinux: adjust the !file/memfd_file error handling on execute
 To: Stephen Smalley <stephen.smalley.work@gmail.com>
 Cc: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
@@ -74,60 +75,69 @@ Cc: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 10, 2025 at 12:03=E2=80=AFPM Stephen Smalley
+On Wed, Sep 10, 2025 at 12:06=E2=80=AFPM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
-> On Wed, Sep 10, 2025 at 11:57=E2=80=AFAM Paul Moore <paul@paul-moore.com>=
- wrote:
-> > On Wed, Sep 10, 2025 at 10:05=E2=80=AFAM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > > On Tue, Sep 9, 2025 at 5:30=E2=80=AFPM Paul Moore <paul@paul-moore.co=
+> On Wed, Sep 10, 2025 at 12:03=E2=80=AFPM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > On Wed, Sep 10, 2025 at 11:57=E2=80=AFAM Paul Moore <paul@paul-moore.co=
 m> wrote:
-> > > >
-> > > > A prior commit, see the 'Fixes:' tag below, added support for a new
-> > > > object class, memfd_file.  As part of that change, support for the
-> > > > new object class was added to selinux_bprm_creds_for_exec() to
-> > > > facilitate execution of memfd_file objects using fexecvc(2), or
-> > > > similar.  This patch adjusts some of the sanity checking added in t=
-hat
-> > > > commit to avoid a "silent denial" in the case of a kernel bug as we=
-ll
-> > > > as return -EACCES instead of -EPERM so that we can more easily
-> > > > distinguish between a permission denial and a fault in the code.
 > > >
-> > > Technically, this doesn't make it easier to distinguish because we
-> > > usually return -EACCES from avc_has_perm() and friends, but return
-> > > -EPERM for capability denials and in certain other cases (not always
-> > > clear why, arguably a bug unless we were just replicating the error
-> > > number for some existing check that also returned -EPERM).
-> >
-> > It's awfully fuzzy from my perspective.
-> >
-> > > My
-> > > suggestion to use -EACCES was because that is more consistent with ho=
-w
-> > > we report denials outside of capability checks.
-> > > To actually test this, would need an updated libsepol patch that deal=
+> > > On Wed, Sep 10, 2025 at 10:05=E2=80=AFAM Stephen Smalley
+> > > <stephen.smalley.work@gmail.com> wrote:
+> > > > On Tue, Sep 9, 2025 at 5:30=E2=80=AFPM Paul Moore <paul@paul-moore.=
+com> wrote:
+> > > > >
+> > > > > A prior commit, see the 'Fixes:' tag below, added support for a n=
+ew
+> > > > > object class, memfd_file.  As part of that change, support for th=
+e
+> > > > > new object class was added to selinux_bprm_creds_for_exec() to
+> > > > > facilitate execution of memfd_file objects using fexecvc(2), or
+> > > > > similar.  This patch adjusts some of the sanity checking added in=
+ that
+> > > > > commit to avoid a "silent denial" in the case of a kernel bug as =
+well
+> > > > > as return -EACCES instead of -EPERM so that we can more easily
+> > > > > distinguish between a permission denial and a fault in the code.
+> > > >
+> > > > Technically, this doesn't make it easier to distinguish because we
+> > > > usually return -EACCES from avc_has_perm() and friends, but return
+> > > > -EPERM for capability denials and in certain other cases (not alway=
 s
-> > > with the fact that the policy capability number changed on merge, or
-> > > re-basing the original patch on top. Otherwise,
-> > > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > > > clear why, arguably a bug unless we were just replicating the error
+> > > > number for some existing check that also returned -EPERM).
+> > >
+> > > It's awfully fuzzy from my perspective.
+> > >
+> > > > My
+> > > > suggestion to use -EACCES was because that is more consistent with =
+how
+> > > > we report denials outside of capability checks.
+> > > > To actually test this, would need an updated libsepol patch that de=
+als
+> > > > with the fact that the policy capability number changed on merge, o=
+r
+> > > > re-basing the original patch on top. Otherwise,
+> > > > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > >
+> > > To be honest, this isn't the sort of discussion I like to see for
+> > > patches that are merged in the -rc5 time frame, if we're merging stuf=
+f
+> > > at this point in the dev cycle we should be past uncertainty like
+> > > this.  I'm obviously not going to merge this patch and I'm going to
+> > > drop Thi=C3=A9baud's patch from selinux/dev too so we can sort this o=
+ut.
 > >
-> > To be honest, this isn't the sort of discussion I like to see for
-> > patches that are merged in the -rc5 time frame, if we're merging stuff
-> > at this point in the dev cycle we should be past uncertainty like
-> > this.  I'm obviously not going to merge this patch and I'm going to
-> > drop Thi=C3=A9baud's patch from selinux/dev too so we can sort this out=
-.
+> > Not sure it warrants reverting Thiebaud's patch. I was fine ack'ing
+> > that as is. I just thought we might want to follow up with something
+> > to improve the error handling here, which can be done anytime IMHO.
 >
-> Not sure it warrants reverting Thiebaud's patch. I was fine ack'ing
-> that as is. I just thought we might want to follow up with something
-> to improve the error handling here, which can be done anytime IMHO.
+> And if we revert his kernel patch, I'll have to likewise revert the
+> libsepol patch, and the policy capability number might change yet
+> again before it lands.
 
-I believe it does, the tree on kernel.org should be updated now.
-
-I agree that at the very least we should have a better
-discussion/consensus about the error handling, and that is something
-that should happen before we send the patch up to Linus.
+Yep.
 
 --=20
 paul-moore.com
