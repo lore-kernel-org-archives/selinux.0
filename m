@@ -1,169 +1,114 @@
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F3AC3203A4
-	for <selinux@vger.kernel.org>; Thu, 11 Sep 2025 12:13:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 523DA30EF88;
+	Thu, 11 Sep 2025 12:19:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757592807; cv=none; b=o+fMhFK4rOiVF5ykW7hhdR3dXqaFjDRJxfRjsORPimOtiUZIWtUJVCac6vu3vx51bMLXudYS2ylnQlhslud0/1B9+o6STaesawIOZghnamPs9Ig99IF9/aeXuNmpPx46CkgRSWb+oh197s0vx1sfOWJrHADeqkb4ayviu9n0j6Y=
+	t=1757593174; cv=none; b=KIhWV4NIL6zUNXhO/MWlPsalkXUx6GWPMSNjQ4cSXCX3sd0s0IEXzxLV6Whj21hXHiEMlx26Hf6HvU8qIp/uaKZtV/f/FIvdokiCLEB0pRLO12noyt3PmOi1Dr5IViPytHxyT9pKxOX3+KltmlWkENvj3LUbovCkXd9EJEJE1xg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757592807; c=relaxed/simple;
-	bh=BeApMY9U8UzxJeowbSn2d6nLioG3PcswdOQv9/qwDBk=;
+	s=arc-20240116; t=1757593174; c=relaxed/simple;
+	bh=lWtR/Gen2p00VdXWiJ+YA+dkVfXa9jO+BioMxIij8wo=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=V5Uk3MdvkptoaFJZfyLknE5VtLR4xvEhqsFaip/AfrbJz2qL5Kz8PlYqDUJa6BB+2qfG2Ar1lXBPCIHUE/YN1kNMWva/ZQz3SUVLo2pCerSuBdFRSGn43JEf7acs/EIdrXTslzHUqvyCUfJydW8TSRu69LbDBkV2FZBkOJLtjyo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Q0129ici; arc=none smtp.client-ip=209.85.216.53
+	 To:Cc:Content-Type; b=A5WvNilzsx/5UtUrVLM2lklaDo9UHZXuGwK7a26BnJX1JE7x7QNlZuz2gM9FqsbCn7AQgqqwiyaPMNALElsRVuSe51v578N9Vk+D4CGQde0jeb4eZwH9Z6SWGeV3Hw2vtz07GrP5dkDmmv2tEjCdwY6FOgQEbU+XzNWmA+qBiC4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NP89TnGH; arc=none smtp.client-ip=209.85.215.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Q0129ici"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-32b959b4895so414048a91.1
-        for <selinux@vger.kernel.org>; Thu, 11 Sep 2025 05:13:22 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NP89TnGH"
+Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-b4d4881897cso437413a12.0;
+        Thu, 11 Sep 2025 05:19:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757592800; x=1758197600; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1757593172; x=1758197972; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=HPDNEfrJHVBGfydaQcq1kn8RomVUdYk2g3YveS8t81M=;
-        b=Q0129iciYARx5g/ChpB3ifPrmTKxCgjtZFcsB24rjaTTXoOikjQw4TLbZlSnB1YmvS
-         qmx8OYwFYw3761mWMYXB/Fod4r0X0SmstGT3ud5LIEogFbdppB9uF/+61v9c9oMGcyie
-         HfIo6WG37Y02jjTQ5Y1At6FE3sCCxd3CnfFk9b/43TrEHKF9PiT16YDfzLqI3KkbrcLq
-         9pDgjgwYlwS+Rxm/oLCEtjapeaw4Nq0vwv2Io92ZmAisa3TSkKh3sxjjeLz1PFcm07B0
-         5T6ML0dy1COFBFQKmsqkBEyYp8udjBWRX5CA3WSMB9yFM7rpwHmdOBSX8N9aErL+B+Cc
-         VzCw==
+        bh=lWtR/Gen2p00VdXWiJ+YA+dkVfXa9jO+BioMxIij8wo=;
+        b=NP89TnGHAHovDQQW/cr0S8rV0HOy6XU6lONd9YtiJDh8HT3xBkFBep4taV6y/nW5I5
+         gz0gf1ViOJ3QyCGcxXAZTQ8xmXNeKa4AH9XH0AwIUUUj7+ETZqBP4IUdhVtLDvLJkJoz
+         b0AIQzOyVNLGHIyIkupTHGuChuAawTynT2RfxJXITNX7ENVy/0nvcbnfNhWSaDfxiVCV
+         w7OfkUAgOI4APGrgCSZZJqlrquqchQu8vdaohMZqlhaFFNo/fEafKqCn938BgHgI19iH
+         Cd/xEWVzZpNyAI2ncKtgJ7MMuLcpAluoce8FVzz8meRmXpTFZMYNROTYKRVM0ZHxtWuE
+         U6wA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757592800; x=1758197600;
+        d=1e100.net; s=20230601; t=1757593172; x=1758197972;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=HPDNEfrJHVBGfydaQcq1kn8RomVUdYk2g3YveS8t81M=;
-        b=Am8UwCPf0hECbuE2tcJTeloW6q+Y2xM312dAt6qkqXicMv8oAXIeq3TCS80opGpXhi
-         7DtUkDIgSD90A9YE9UK1ima5PN7RZcVX+7Qtz1R783Y+E1IQaKDPcN/ZSKw1Wgf7sXBT
-         rZ+n5lAcKtmZirQLG4CpojVCMZGXsA8SjSNV3ZZolGi4CbVzJ/gwzdGiPgZsqDh0+gGo
-         ZivyqTQpyX5tIbMkDlxB/VzlXA+AQeoa++JYsSE08EMpl0VLwIRvYUSrvU7PcQCu1kpG
-         pM4ntZY1rL/pFs7sreU9wiQPlrPMAaP+wh5T7SohI3JCtVLpRKBAiso80QFCa2FKSOoB
-         bGfA==
-X-Forwarded-Encrypted: i=1; AJvYcCUpk6HtoeiWV8mmyG4AZ6VJN0+AFJRBzH+6aR3cFjMX9UBocRJ26VTIyMvdlLvU5Ciw5deqC4+G@vger.kernel.org
-X-Gm-Message-State: AOJu0YwVLoIMv+2d607xs4XEYd2aJ7QnIN5H+PttanmMhqfndRd/r+vC
-	hgBeQHP6xGyhRLxndYe+p8nGLImKosQeu5CNPYm8dgshYjx+Nbsr7IvWLFnO6qx9JcK0FDP1YTS
-	wiruo5UcfI64C+wq99LpAM6tMLeRtNT/sEft0
-X-Gm-Gg: ASbGncv17nhkfrvHvg9b55OSL+njD1yICDFD0fZBy15KetbgawXywN+JkPf2bOc80iL
-	zNNRvpjCCvb93hRFr9S7Z3uGV99XRBoYOCofKCODNMEKzz0v29Z4so0iBROl9VPd8IGBHKr7wpV
-	iY5zC8qOhH4krTad5YNnQpQCZBEUfI6tO5+aoYUs1uWD/xu7E0L4ECUfJLEgP+a+GhT0wWY47Zq
-	M3dnRnuAzp6DL1XJA==
-X-Google-Smtp-Source: AGHT+IETXwpc3IGJwX4BAF0mKvaScmPHbNDYlOMNjglSo8rIUIsCSNNRpM/mJXWzmd3ppYALgML8WQwlq81flVUKcug=
-X-Received: by 2002:a17:90b:3c08:b0:32b:7067:c8f1 with SMTP id
- 98e67ed59e1d1-32d43f65352mr23024676a91.18.1757592800225; Thu, 11 Sep 2025
- 05:13:20 -0700 (PDT)
+        bh=lWtR/Gen2p00VdXWiJ+YA+dkVfXa9jO+BioMxIij8wo=;
+        b=Kv8qMeh5UBuso5kv7VnFEB25uuTqKMzBxBi8yWC4Pe52Ns0QSFXKMLr09tt+P3qVzD
+         nEwRp6RHuLpaEHGo5cRLackHeCb7G4NCiNcnWKVsxAd3sRroIQqUQeMikIRDZZkewGue
+         RQ8ih/JFuF5VD1M9Wad/vmjvI9YxY0JzE97ojQT3dSITZsGBtqEiq4wz18/2gvByOtlh
+         ah/j9pCYc+2MF8HleiWSpH+jfNDm/L9TN+1WrCEIXxW29IC2zbl0XippI8jchC2ks7RC
+         CQ5PvYAk8Fs3QlYzgCtGGyxP1w8U6B9Dbmfoz2ZldUwqy6Y+qVAd6TuoWdwQIl/5+lZE
+         mI1w==
+X-Forwarded-Encrypted: i=1; AJvYcCX/YJesqB9GY+RYhPxu3vFS4x85FCbmTw0ae9jJOAAmT7U4J5k96jNqQ8Ii0lgMbqiF4vsuFUY=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy8qCG5pAYlXLhPF2+6L5YeH+RW6sX3csALNSqjW2c8Xt6jSNK6
+	I95l4yW+U9r3g+gxfqKlkfnzbU5rtDUqKcSXMR0xdOyKV/WvYNXnLpN8ssRvCK026TiE7cpKSdI
+	ULtFdDXvw8kA3XHcJHNpXH1bYoYPjPU/DJMKS
+X-Gm-Gg: ASbGncuDvpsEkdZXcOsOH5d4mFNeHDtVtupJuqbMybP4P6XQ3Nui3Nj5/5mI6rjtqGR
+	7CoggeYrJwzryFU6Fqxgr96WuRqWtpBPcKlw0wsva4e5qYIv8TWOxmJpWLHf6MO1J5k2GyKX37p
+	gssXb6vLcw2pftEfhChBKOMwqaBd5if62eFYISgfW3Wa1O3mIMUSuvW0pjmV4gUz1MU5z9EfRDE
+	D8c+4jm74EdU0UpaA==
+X-Google-Smtp-Source: AGHT+IGGuy1wVQlXKaUW3Yopk59LkHeJDzt8DEdVaN1TIufpl9eGokUpZNY3LXPrK0xJWZNsrIqtCk0NFuNS+NwRklk=
+X-Received: by 2002:a17:90b:3c85:b0:32d:dd7c:c3d8 with SMTP id
+ 98e67ed59e1d1-32ddd7cc580mr1008395a91.25.1757593172462; Thu, 11 Sep 2025
+ 05:19:32 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250909213020.343501-2-paul@paul-moore.com> <CAEjxPJ73qtdeTcv40gdj2tPJOSRC0VzGqEmHCZv6CwNz4AZdTQ@mail.gmail.com>
- <CAHC9VhSg6jsO8kET1qMUNUkHuWJ9e8UJb=Q75VmCv0kEzwk0Fg@mail.gmail.com>
- <CAEjxPJ7-1MdtcXaeTwH7Z-uPV2Mt++5NTGRWx6u58xKieH-G4w@mail.gmail.com>
- <CAEjxPJ72F9PsdWo_XBL5XDABYwZFJh5-TSt1bp3toLwgoLchkQ@mail.gmail.com>
- <CAHC9VhTXR42Ogr-aS6OLHTZfW2vwBLtAcSqW7hJ4-0FMZfC2Kg@mail.gmail.com>
- <CAEjxPJ4387JPN+JOQ7g=Z6CCXYR-mk+6tr_VeyprxNJtCy1TWw@mail.gmail.com>
- <CAHC9VhSdKTUvY3Tg+dVCWHLfwULV-Vgzr-d942eh_yHa16HyjA@mail.gmail.com> <CA+zpnLca1_fRqcBq6AK0-hGbSb44R73xq2jw6qiYTv32GhKDfQ@mail.gmail.com>
-In-Reply-To: <CA+zpnLca1_fRqcBq6AK0-hGbSb44R73xq2jw6qiYTv32GhKDfQ@mail.gmail.com>
+References: <20250814132637.1659-1-stephen.smalley.work@gmail.com>
+ <20250814132637.1659-2-stephen.smalley.work@gmail.com> <6cfe4uqtic6ga3ch463zflke2wp5hobd7j3r5ctyp4puwbjiet@xgi6jfi7au3c>
+In-Reply-To: <6cfe4uqtic6ga3ch463zflke2wp5hobd7j3r5ctyp4puwbjiet@xgi6jfi7au3c>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 11 Sep 2025 08:13:08 -0400
-X-Gm-Features: Ac12FXycAkHo_1oxd6oV_jgfzNC2O9pbgpLm1sdW6awo4Q-r7MbGbcRbsGTbFQQ
-Message-ID: <CAEjxPJ7SDeMCq=0XFERiFozQmzRiJN9X2NB8v=_X8KOKYCrBLA@mail.gmail.com>
-Subject: Re: [PATCH] selinux: adjust the !file/memfd_file error handling on execute
-To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Cc: Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org
+Date: Thu, 11 Sep 2025 08:19:20 -0400
+X-Gm-Features: Ac12FXwAiovuXwx5vA7Sdc_GZCzODjR2jcx4RP-81Fp_mXyPLTv4mjF9qkeI-BA
+Message-ID: <CAEjxPJ4FYD2zyOCiUSnOzf7eP5_aN0d86=R7scwUueyCMQzF-A@mail.gmail.com>
+Subject: Re: [PATCH v7 01/42] selinux: restore passing of selinux_state
+To: Maxwell Bland <mbland@motorola.com>
+Cc: selinux@vger.kernel.org, paul@paul-moore.com, omosnace@redhat.com, 
+	netdev@vger.kernel.org, horms@kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 11, 2025 at 3:58=E2=80=AFAM Thi=C3=A9baud Weksteen <tweek@googl=
-e.com> wrote:
+On Wed, Sep 10, 2025 at 7:12=E2=80=AFPM Maxwell Bland <mbland@motorola.com>=
+ wrote:
 >
-> On Thu, Sep 11, 2025 at 9:16=E2=80=AFAM Paul Moore <paul@paul-moore.com> =
-wrote:
+> On Thu, Aug 14, 2025 at 09:25:52AM -0400, Stephen Smalley wrote:
+> > This reverts commit e67b79850fcc4eb5 ("selinux: stop passing selinux_st=
+ate
+> > pointers and their offspring"). This change is necessary in order to
+> > support SELinux namespaces.
 > >
-> > On Wed, Sep 10, 2025 at 12:29=E2=80=AFPM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > > On Wed, Sep 10, 2025 at 12:07=E2=80=AFPM Paul Moore <paul@paul-moore.=
-com> wrote:
-> > > > On Wed, Sep 10, 2025 at 12:06=E2=80=AFPM Stephen Smalley
-> > > > <stephen.smalley.work@gmail.com> wrote:
-> > > > > On Wed, Sep 10, 2025 at 12:03=E2=80=AFPM Stephen Smalley
-> > > > > <stephen.smalley.work@gmail.com> wrote:
-> > > > > >
-> > > > > > On Wed, Sep 10, 2025 at 11:57=E2=80=AFAM Paul Moore <paul@paul-=
-moore.com> wrote:
-> > > > > > >
-> > > > > > > On Wed, Sep 10, 2025 at 10:05=E2=80=AFAM Stephen Smalley
-> > > > > > > <stephen.smalley.work@gmail.com> wrote:
-> > > > > > > > On Tue, Sep 9, 2025 at 5:30=E2=80=AFPM Paul Moore <paul@pau=
-l-moore.com> wrote:
-> > > > > > > > >
-> > > > > > > > > A prior commit, see the 'Fixes:' tag below, added support=
- for a new
-> > > > > > > > > object class, memfd_file.  As part of that change, suppor=
-t for the
-> > > > > > > > > new object class was added to selinux_bprm_creds_for_exec=
-() to
-> > > > > > > > > facilitate execution of memfd_file objects using fexecvc(=
-2), or
-> > > > > > > > > similar.  This patch adjusts some of the sanity checking =
-added in that
-> > > > > > > > > commit to avoid a "silent denial" in the case of a kernel=
- bug as well
-> > > > > > > > > as return -EACCES instead of -EPERM so that we can more e=
-asily
-> > > > > > > > > distinguish between a permission denial and a fault in th=
-e code.
-> > > > > > > >
-> > > > > > > > Technically, this doesn't make it easier to distinguish bec=
-ause we
-> > > > > > > > usually return -EACCES from avc_has_perm() and friends, but=
- return
-> > > > > > > > -EPERM for capability denials and in certain other cases (n=
-ot always
-> > > > > > > > clear why, arguably a bug unless we were just replicating t=
-he error
-> > > > > > > > number for some existing check that also returned -EPERM).
-> > > > > > >
-> > > > > > > It's awfully fuzzy from my perspective.
 >
-> Stephen, from re-reading your messages, I am not sure which option you
-> prefer at this stage. Are you leaning back towards -EPERM?
+> FYI, thank you for this new commit. Some "fuel for the fire":
 >
-> An alternative here would be -EOPNOTSUPP, this would be more explicit
-> for userland on the root cause. There are similar usages in hooks.c
-> (see selinux_lsm_getattr for instance).
+> Turns out, e67b79850fcc4eb5 makes it hard to enforce immutability on the
+> SELinux state / AVC cache from EL2, because the compiler likes to put
+> them on the same page, leading to having the hypervisor track spinlock
+> management issues, just to ensure the core selinux state remains
+> unmodified.
+>
+> In the past (pre-2023/e67b79850fcc4eb5), it was possible to set the avc
+> cache onto a separate page from the other critical selinux_state data
+> during early boot, and it looks like this *may* restore that.
+>
+> As you likely know, the issue is without EL2 enforcement of immutability
+> on the selinux_state page it is possible to just flip the enforcing bit
+> via EL1 write-gadget. It may also be possible to address this whole
+> issue using ARM MTE or something else.
 
-At the end of the day, I don't strongly care and only Paul's opinion
-matters for final merge. Some arguments for each of the different
-options:
-1. -EACCES: Consistent with the majority of the SELinux code,
-particularly all avc_has_perm() calls. WRT POSIX.1, it seems to be
-primarily for file access checks but broadly can be viewed as "access
-denied to an object", which is the majority of the SELinux checks. In
-the case of this particular LSM hook and system call, we are dealing
-with a file object, and hence -EACCES could be viewed as appropriate
-to this check.
-2. -EPERM: Used for several cases within this hook function already,
-most likely due to checks that mirrored corresponding Linux checks in
-the core kernel that were also returning -EPERM. WRT POSIX.1, it seems
-to be for any permission check other than file access checks but
-broadly can be viewed as "operation not permitted for this process"
-with no object in view. In the case of this particular LSM hook and
-system call, we are already returning -EPERM for several other cases,
-and hence -EPERM could be viewed as appropriate to this check.
-3. -EOPNOTSUPP: Used by other SELinux hooks already. WRT POSIX.1, it
-seems to be only used for sockets, but on Linux, it has the same value
-as ENOTSUP and can broadly be viewed as "operation not supported". In
-the case of this particular LSM hook and system call, I don't see any
-existing uses of this error value, which could be good or bad
-depending on one's perspective (good: easily distinguished from any
-other cause; bad: not expected by userspace on execve, not documented
-in the execve man page).
-
-As far as I am concerned, feel free to pick any of the above and post
-a patch with it along with the corresponding rationale, and Paul can
-tell you if he wants something else.
+The reason for e67b79850fcc4eb5 ("selinux: stop passing selinux_state
+pointers and their offspring") was that Linus was unhappy with the
+extra argument passing throughout the SELinux functions for the global
+selinux_state.
+Until/unless we merge my SELinux namespace series (of which this is
+merely the first in the series), we don't have a compelling reason to
+restore the passing of the selinux_state.
+That said, placing selinux_state on a separate page from the AVC cache
+should be doable via a separate patch independent of the SELinux
+namespace series itself, so you could always submit a patch to do
+exactly that.
