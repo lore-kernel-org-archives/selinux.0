@@ -1,59 +1,59 @@
-Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com [209.85.167.42])
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B78B12D24AC
-	for <selinux@vger.kernel.org>; Thu, 11 Sep 2025 07:58:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F3AC3203A4
+	for <selinux@vger.kernel.org>; Thu, 11 Sep 2025 12:13:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757577509; cv=none; b=PFhh35NUNcofR3kl0bI1wMuIbBa/tjCDCVZOAvFiO/hL9Div949cbDR0ng4+RyOwZnWIlaLlBaXraGs6qZfBBxBwboRnFrlGcEHJXdJ2K3Qd5gAJr0ekcZUlzU4hWkI9GVAzDbw0rHX2GdalmpwfF7KusTfGllTGlKHPqAKNe4c=
+	t=1757592807; cv=none; b=o+fMhFK4rOiVF5ykW7hhdR3dXqaFjDRJxfRjsORPimOtiUZIWtUJVCac6vu3vx51bMLXudYS2ylnQlhslud0/1B9+o6STaesawIOZghnamPs9Ig99IF9/aeXuNmpPx46CkgRSWb+oh197s0vx1sfOWJrHADeqkb4ayviu9n0j6Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757577509; c=relaxed/simple;
-	bh=UeIXqlludSYMEwWhoNjpjaOSRmq3//gOoqNcDfiBsVo=;
+	s=arc-20240116; t=1757592807; c=relaxed/simple;
+	bh=BeApMY9U8UzxJeowbSn2d6nLioG3PcswdOQv9/qwDBk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hYtdw2dcfgUmwW0RJFsd3Byu5LNBbX4JLSM260dxlCSrtX/wS8ViE2VWy7EP9Hp79iufocmB15T0hD4Mxs/2agho9Jul5trT1wWiZ9k2RW4bXDtdkJkNJ+tU0bICTuVVA+92MtuEIDfUdfJULKVUfTQZ6xVswxstpg4biCAQzcw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=1x8oNrLr; arc=none smtp.client-ip=209.85.167.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	 To:Cc:Content-Type; b=V5Uk3MdvkptoaFJZfyLknE5VtLR4xvEhqsFaip/AfrbJz2qL5Kz8PlYqDUJa6BB+2qfG2Ar1lXBPCIHUE/YN1kNMWva/ZQz3SUVLo2pCerSuBdFRSGn43JEf7acs/EIdrXTslzHUqvyCUfJydW8TSRu69LbDBkV2FZBkOJLtjyo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Q0129ici; arc=none smtp.client-ip=209.85.216.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="1x8oNrLr"
-Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-560885b40e2so5565e87.0
-        for <selinux@vger.kernel.org>; Thu, 11 Sep 2025 00:58:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Q0129ici"
+Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-32b959b4895so414048a91.1
+        for <selinux@vger.kernel.org>; Thu, 11 Sep 2025 05:13:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1757577506; x=1758182306; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1757592800; x=1758197600; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=JF5NG+YttDSLEKUv5KIrP5G4Ql+hHf+w0iLwyRoya24=;
-        b=1x8oNrLr5qSpBaBZ+re4D0EP43FGXMYmXWetYLoZWeBlWzdXIX3ju6FsitpeWT7+3K
-         5nprAd2KZgxhDm7JNA4aV/CUl5LUS1hvYqr6pqDjRVTyO7IDYURpRPWvKjO9LpSPIPli
-         BcAnRBl5I88rI4YxdJuD4S2X6HmaMAhMdPmh+03/bWyCjPNQK4EMWFOuzgn6Z/EB2UVF
-         dtT1MDd3OoSyRQw4h+BXIPd7mobfaZyAcz40oVRdVuJLwNYWFHXMoYmK4a2hXSB3Y5/s
-         cS+btXUezXUCm3aN33WVxO+p6pmU0zekCx+adOSktS+dI4m7IDoLSUVgSTpDdUznDPGM
-         bUVw==
+        bh=HPDNEfrJHVBGfydaQcq1kn8RomVUdYk2g3YveS8t81M=;
+        b=Q0129iciYARx5g/ChpB3ifPrmTKxCgjtZFcsB24rjaTTXoOikjQw4TLbZlSnB1YmvS
+         qmx8OYwFYw3761mWMYXB/Fod4r0X0SmstGT3ud5LIEogFbdppB9uF/+61v9c9oMGcyie
+         HfIo6WG37Y02jjTQ5Y1At6FE3sCCxd3CnfFk9b/43TrEHKF9PiT16YDfzLqI3KkbrcLq
+         9pDgjgwYlwS+Rxm/oLCEtjapeaw4Nq0vwv2Io92ZmAisa3TSkKh3sxjjeLz1PFcm07B0
+         5T6ML0dy1COFBFQKmsqkBEyYp8udjBWRX5CA3WSMB9yFM7rpwHmdOBSX8N9aErL+B+Cc
+         VzCw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757577506; x=1758182306;
+        d=1e100.net; s=20230601; t=1757592800; x=1758197600;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=JF5NG+YttDSLEKUv5KIrP5G4Ql+hHf+w0iLwyRoya24=;
-        b=IZO7NDljo6e+Nd+yzhBrnepmN1QTjAaWK/YivGnv47lfjUY+OX4u5qGUhd+ZGj1XHq
-         PL9jymGz0wDl/zT92Q37vyAmHkPVfV+05VOq3K6b89nnnUhuBmvSKAcxRpM3hqDaM0Nf
-         /lrJ0feppsqSk8FpZkupoBP4J50boU32uIEgtObimls6wC10BW4yDptafKTay+0KL8ig
-         vEH/io9nniHuqGa/9rIOc6Ns2t/e3h9fHrctN910qd7/wjKkz60+neMO/wj+QrplaLek
-         I4EBEwRaiCqQPyqPyT7CvbUapahEvNZ7IAd5xWo4hswQskmeCRUeaqdVN/lZTKKnuAAk
-         ZISw==
-X-Forwarded-Encrypted: i=1; AJvYcCXyJcj5VswkTJO+620zcSyKu9l3TFOGUqG+RX8ne9eM+rMfuIXNiJJGRa8F/RcVmS2EMaJl8QMj@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywtwnf2b2R58H+eXILtI6cFThkIijI7cPIXENdDNUluNd8uopDj
-	0pmh4SWOVn2ZJ/9tkGf5UqibpOkm26HsQ/uDwk988z5O463PnKUhymRTgblVctIEz2nOme5l22i
-	TC6dOge7o1rlA+LZ+iQ1iP2Bqs917DxpnG2dPpwGBcqydUQPKGZVhXSAA
-X-Gm-Gg: ASbGncufQp2be0fkzyEs979aiAepgEdZqUpqbBzOvM50+39XojqqastEnnuH7+HV+6o
-	N+zYndszur8YoZgmXyFlN5Ig4k7tPF/ngikfE86kdw5+bN5InIjWllR+uzFb8Ca/jGGVjj6Yo2Z
-	JgegtMR27H1SwjdwRSQSOemRkRDGpzUH9UStRvY/Iztc2Yfv2yjjXc6DOgLR7DimPqf3Z+e1136
-	BOltZqyBcSu+g+OZbrms24vyLsh3cxPd9uH2WvC3Aoo9/C5fnYF
-X-Google-Smtp-Source: AGHT+IGZh8nrJ/VcqiHW85KBtZVe+1xrdXuowwvldOu8OpDXFCYx6b8XkfVOwjMykdYTX4hXgCL0NMVCYSM3rZ4wsRo=
-X-Received: by 2002:a05:6512:239b:b0:56c:8abf:2f84 with SMTP id
- 2adb3069b0e04-56c8abf32b4mr509937e87.6.1757577505221; Thu, 11 Sep 2025
- 00:58:25 -0700 (PDT)
+        bh=HPDNEfrJHVBGfydaQcq1kn8RomVUdYk2g3YveS8t81M=;
+        b=Am8UwCPf0hECbuE2tcJTeloW6q+Y2xM312dAt6qkqXicMv8oAXIeq3TCS80opGpXhi
+         7DtUkDIgSD90A9YE9UK1ima5PN7RZcVX+7Qtz1R783Y+E1IQaKDPcN/ZSKw1Wgf7sXBT
+         rZ+n5lAcKtmZirQLG4CpojVCMZGXsA8SjSNV3ZZolGi4CbVzJ/gwzdGiPgZsqDh0+gGo
+         ZivyqTQpyX5tIbMkDlxB/VzlXA+AQeoa++JYsSE08EMpl0VLwIRvYUSrvU7PcQCu1kpG
+         pM4ntZY1rL/pFs7sreU9wiQPlrPMAaP+wh5T7SohI3JCtVLpRKBAiso80QFCa2FKSOoB
+         bGfA==
+X-Forwarded-Encrypted: i=1; AJvYcCUpk6HtoeiWV8mmyG4AZ6VJN0+AFJRBzH+6aR3cFjMX9UBocRJ26VTIyMvdlLvU5Ciw5deqC4+G@vger.kernel.org
+X-Gm-Message-State: AOJu0YwVLoIMv+2d607xs4XEYd2aJ7QnIN5H+PttanmMhqfndRd/r+vC
+	hgBeQHP6xGyhRLxndYe+p8nGLImKosQeu5CNPYm8dgshYjx+Nbsr7IvWLFnO6qx9JcK0FDP1YTS
+	wiruo5UcfI64C+wq99LpAM6tMLeRtNT/sEft0
+X-Gm-Gg: ASbGncv17nhkfrvHvg9b55OSL+njD1yICDFD0fZBy15KetbgawXywN+JkPf2bOc80iL
+	zNNRvpjCCvb93hRFr9S7Z3uGV99XRBoYOCofKCODNMEKzz0v29Z4so0iBROl9VPd8IGBHKr7wpV
+	iY5zC8qOhH4krTad5YNnQpQCZBEUfI6tO5+aoYUs1uWD/xu7E0L4ECUfJLEgP+a+GhT0wWY47Zq
+	M3dnRnuAzp6DL1XJA==
+X-Google-Smtp-Source: AGHT+IETXwpc3IGJwX4BAF0mKvaScmPHbNDYlOMNjglSo8rIUIsCSNNRpM/mJXWzmd3ppYALgML8WQwlq81flVUKcug=
+X-Received: by 2002:a17:90b:3c08:b0:32b:7067:c8f1 with SMTP id
+ 98e67ed59e1d1-32d43f65352mr23024676a91.18.1757592800225; Thu, 11 Sep 2025
+ 05:13:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -65,150 +65,105 @@ References: <20250909213020.343501-2-paul@paul-moore.com> <CAEjxPJ73qtdeTcv40gdj
  <CAEjxPJ7-1MdtcXaeTwH7Z-uPV2Mt++5NTGRWx6u58xKieH-G4w@mail.gmail.com>
  <CAEjxPJ72F9PsdWo_XBL5XDABYwZFJh5-TSt1bp3toLwgoLchkQ@mail.gmail.com>
  <CAHC9VhTXR42Ogr-aS6OLHTZfW2vwBLtAcSqW7hJ4-0FMZfC2Kg@mail.gmail.com>
- <CAEjxPJ4387JPN+JOQ7g=Z6CCXYR-mk+6tr_VeyprxNJtCy1TWw@mail.gmail.com> <CAHC9VhSdKTUvY3Tg+dVCWHLfwULV-Vgzr-d942eh_yHa16HyjA@mail.gmail.com>
-In-Reply-To: <CAHC9VhSdKTUvY3Tg+dVCWHLfwULV-Vgzr-d942eh_yHa16HyjA@mail.gmail.com>
-From: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Date: Thu, 11 Sep 2025 17:58:06 +1000
-X-Gm-Features: Ac12FXx05dwP_DAm0R6WYFpNnS0KjWR3P2jXPXf504IwDkF4IwsXWQNMhNHYObw
-Message-ID: <CA+zpnLca1_fRqcBq6AK0-hGbSb44R73xq2jw6qiYTv32GhKDfQ@mail.gmail.com>
+ <CAEjxPJ4387JPN+JOQ7g=Z6CCXYR-mk+6tr_VeyprxNJtCy1TWw@mail.gmail.com>
+ <CAHC9VhSdKTUvY3Tg+dVCWHLfwULV-Vgzr-d942eh_yHa16HyjA@mail.gmail.com> <CA+zpnLca1_fRqcBq6AK0-hGbSb44R73xq2jw6qiYTv32GhKDfQ@mail.gmail.com>
+In-Reply-To: <CA+zpnLca1_fRqcBq6AK0-hGbSb44R73xq2jw6qiYTv32GhKDfQ@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 11 Sep 2025 08:13:08 -0400
+X-Gm-Features: Ac12FXycAkHo_1oxd6oV_jgfzNC2O9pbgpLm1sdW6awo4Q-r7MbGbcRbsGTbFQQ
+Message-ID: <CAEjxPJ7SDeMCq=0XFERiFozQmzRiJN9X2NB8v=_X8KOKYCrBLA@mail.gmail.com>
 Subject: Re: [PATCH] selinux: adjust the !file/memfd_file error handling on execute
-To: Paul Moore <paul@paul-moore.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org
+To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Cc: Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 11, 2025 at 9:16=E2=80=AFAM Paul Moore <paul@paul-moore.com> wr=
-ote:
+On Thu, Sep 11, 2025 at 3:58=E2=80=AFAM Thi=C3=A9baud Weksteen <tweek@googl=
+e.com> wrote:
 >
-> On Wed, Sep 10, 2025 at 12:29=E2=80=AFPM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> > On Wed, Sep 10, 2025 at 12:07=E2=80=AFPM Paul Moore <paul@paul-moore.co=
-m> wrote:
-> > > On Wed, Sep 10, 2025 at 12:06=E2=80=AFPM Stephen Smalley
-> > > <stephen.smalley.work@gmail.com> wrote:
-> > > > On Wed, Sep 10, 2025 at 12:03=E2=80=AFPM Stephen Smalley
-> > > > <stephen.smalley.work@gmail.com> wrote:
-> > > > >
-> > > > > On Wed, Sep 10, 2025 at 11:57=E2=80=AFAM Paul Moore <paul@paul-mo=
-ore.com> wrote:
-> > > > > >
-> > > > > > On Wed, Sep 10, 2025 at 10:05=E2=80=AFAM Stephen Smalley
-> > > > > > <stephen.smalley.work@gmail.com> wrote:
-> > > > > > > On Tue, Sep 9, 2025 at 5:30=E2=80=AFPM Paul Moore <paul@paul-=
-moore.com> wrote:
-> > > > > > > >
-> > > > > > > > A prior commit, see the 'Fixes:' tag below, added support f=
-or a new
-> > > > > > > > object class, memfd_file.  As part of that change, support =
-for the
-> > > > > > > > new object class was added to selinux_bprm_creds_for_exec()=
- to
-> > > > > > > > facilitate execution of memfd_file objects using fexecvc(2)=
-, or
-> > > > > > > > similar.  This patch adjusts some of the sanity checking ad=
-ded in that
-> > > > > > > > commit to avoid a "silent denial" in the case of a kernel b=
-ug as well
-> > > > > > > > as return -EACCES instead of -EPERM so that we can more eas=
-ily
-> > > > > > > > distinguish between a permission denial and a fault in the =
-code.
-> > > > > > >
-> > > > > > > Technically, this doesn't make it easier to distinguish becau=
-se we
-> > > > > > > usually return -EACCES from avc_has_perm() and friends, but r=
-eturn
-> > > > > > > -EPERM for capability denials and in certain other cases (not=
- always
-> > > > > > > clear why, arguably a bug unless we were just replicating the=
- error
-> > > > > > > number for some existing check that also returned -EPERM).
-> > > > > >
-> > > > > > It's awfully fuzzy from my perspective.
-
-Stephen, from re-reading your messages, I am not sure which option you
-prefer at this stage. Are you leaning back towards -EPERM?
-
-An alternative here would be -EOPNOTSUPP, this would be more explicit
-for userland on the root cause. There are similar usages in hooks.c
-(see selinux_lsm_getattr for instance).
-
-> > > > > >
-> > > > > > > My
-> > > > > > > suggestion to use -EACCES was because that is more consistent=
- with how
-> > > > > > > we report denials outside of capability checks.
-> > > > > > > To actually test this, would need an updated libsepol patch t=
-hat deals
-> > > > > > > with the fact that the policy capability number changed on me=
-rge, or
-> > > > > > > re-basing the original patch on top. Otherwise,
-> > > > > > > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > > > > >
-> > > > > > To be honest, this isn't the sort of discussion I like to see f=
-or
-> > > > > > patches that are merged in the -rc5 time frame, if we're mergin=
-g stuff
-> > > > > > at this point in the dev cycle we should be past uncertainty li=
-ke
-> > > > > > this.  I'm obviously not going to merge this patch and I'm goin=
-g to
-> > > > > > drop Thi=C3=A9baud's patch from selinux/dev too so we can sort =
-this out.
-> > > > >
-> > > > > Not sure it warrants reverting Thiebaud's patch. I was fine ack'i=
-ng
-> > > > > that as is. I just thought we might want to follow up with someth=
-ing
-> > > > > to improve the error handling here, which can be done anytime IMH=
-O.
-> > > >
-> > > > And if we revert his kernel patch, I'll have to likewise revert the
-> > > > libsepol patch, and the policy capability number might change yet
-> > > > again before it lands.
-> > >
-> > > Yep.
+> On Thu, Sep 11, 2025 at 9:16=E2=80=AFAM Paul Moore <paul@paul-moore.com> =
+wrote:
 > >
-> > Bummer. Me and my big mouth. Apologies to all.
+> > On Wed, Sep 10, 2025 at 12:29=E2=80=AFPM Stephen Smalley
+> > <stephen.smalley.work@gmail.com> wrote:
+> > > On Wed, Sep 10, 2025 at 12:07=E2=80=AFPM Paul Moore <paul@paul-moore.=
+com> wrote:
+> > > > On Wed, Sep 10, 2025 at 12:06=E2=80=AFPM Stephen Smalley
+> > > > <stephen.smalley.work@gmail.com> wrote:
+> > > > > On Wed, Sep 10, 2025 at 12:03=E2=80=AFPM Stephen Smalley
+> > > > > <stephen.smalley.work@gmail.com> wrote:
+> > > > > >
+> > > > > > On Wed, Sep 10, 2025 at 11:57=E2=80=AFAM Paul Moore <paul@paul-=
+moore.com> wrote:
+> > > > > > >
+> > > > > > > On Wed, Sep 10, 2025 at 10:05=E2=80=AFAM Stephen Smalley
+> > > > > > > <stephen.smalley.work@gmail.com> wrote:
+> > > > > > > > On Tue, Sep 9, 2025 at 5:30=E2=80=AFPM Paul Moore <paul@pau=
+l-moore.com> wrote:
+> > > > > > > > >
+> > > > > > > > > A prior commit, see the 'Fixes:' tag below, added support=
+ for a new
+> > > > > > > > > object class, memfd_file.  As part of that change, suppor=
+t for the
+> > > > > > > > > new object class was added to selinux_bprm_creds_for_exec=
+() to
+> > > > > > > > > facilitate execution of memfd_file objects using fexecvc(=
+2), or
+> > > > > > > > > similar.  This patch adjusts some of the sanity checking =
+added in that
+> > > > > > > > > commit to avoid a "silent denial" in the case of a kernel=
+ bug as well
+> > > > > > > > > as return -EACCES instead of -EPERM so that we can more e=
+asily
+> > > > > > > > > distinguish between a permission denial and a fault in th=
+e code.
+> > > > > > > >
+> > > > > > > > Technically, this doesn't make it easier to distinguish bec=
+ause we
+> > > > > > > > usually return -EACCES from avc_has_perm() and friends, but=
+ return
+> > > > > > > > -EPERM for capability denials and in certain other cases (n=
+ot always
+> > > > > > > > clear why, arguably a bug unless we were just replicating t=
+he error
+> > > > > > > > number for some existing check that also returned -EPERM).
+> > > > > > >
+> > > > > > > It's awfully fuzzy from my perspective.
 >
-> I really don't want the take away from this to be that speaking up
-> about potential issues is a bad thing.  It's far better to address
-> issues, even if they ultimately turn out to be nothing, *before* they
-> go up to Linus' tree rather than afterwards.  If folks start holding
-> back their comments for fear of a patch being held for revision,
-> rejected, dropped, or reverted, then we potentially set ourselves up
-> for failure in the future with ourselves, our users, and the kernel
-> development community as a whole; all of those possibilities are far
-> worse than what we are dealing with now.
+> Stephen, from re-reading your messages, I am not sure which option you
+> prefer at this stage. Are you leaning back towards -EPERM?
 >
-> If anything, the fault in this particular case was mine for not
-> reviewing the patch as thoroughly as I should have done; I was trying
-> to make sure we got things merged before the end of -rc5 and in my
-> haste I rushed through the review.  My apologies on that, I was
-> impatient and it caused confusion and extra work for everyone.
->
+> An alternative here would be -EOPNOTSUPP, this would be more explicit
+> for userland on the root cause. There are similar usages in hooks.c
+> (see selinux_lsm_getattr for instance).
 
-No worries at all.
+At the end of the day, I don't strongly care and only Paul's opinion
+matters for final merge. Some arguments for each of the different
+options:
+1. -EACCES: Consistent with the majority of the SELinux code,
+particularly all avc_has_perm() calls. WRT POSIX.1, it seems to be
+primarily for file access checks but broadly can be viewed as "access
+denied to an object", which is the majority of the SELinux checks. In
+the case of this particular LSM hook and system call, we are dealing
+with a file object, and hence -EACCES could be viewed as appropriate
+to this check.
+2. -EPERM: Used for several cases within this hook function already,
+most likely due to checks that mirrored corresponding Linux checks in
+the core kernel that were also returning -EPERM. WRT POSIX.1, it seems
+to be for any permission check other than file access checks but
+broadly can be viewed as "operation not permitted for this process"
+with no object in view. In the case of this particular LSM hook and
+system call, we are already returning -EPERM for several other cases,
+and hence -EPERM could be viewed as appropriate to this check.
+3. -EOPNOTSUPP: Used by other SELinux hooks already. WRT POSIX.1, it
+seems to be only used for sockets, but on Linux, it has the same value
+as ENOTSUP and can broadly be viewed as "operation not supported". In
+the case of this particular LSM hook and system call, I don't see any
+existing uses of this error value, which could be good or bad
+depending on one's perspective (good: easily distinguished from any
+other cause; bad: not expected by userspace on execve, not documented
+in the execve man page).
 
-> > Revert coming up...
->
-> This is something that might be worth a more general discussion among
-> the userspace folks, but moving forward it might be good policy to not
-> merge userspace changes that rely on kernel API magic numbers until
-> the associated kernel patch ends up in a tagged release from Linus.
-> Of course one could always merge the patches into a "dev", "staging",
-> or topic branch for ease of testing and later merge it into the
-> default branch.  Just a thought.
->
-> > On a different note, taking a quick look at POSIX.1 definitions of
-> > EPERM and EACCES makes me think we got it all wrong originally and
-> > should have been returning EPERM most places (except for file access
-> > checks, maybe). But changing the existing ones now could create havoc
-> > for userspace.
->
-> Yes, what we have in the kernel now is what we need to stick with
-> moving forward.  While consistency with POSIX is a nice goal,
-> consistency with the existing kernel code is the most important thing.
->
-> --
-> paul-moore.com
+As far as I am concerned, feel free to pick any of the above and post
+a patch with it along with the corresponding rationale, and Paul can
+tell you if he wants something else.
