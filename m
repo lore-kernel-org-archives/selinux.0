@@ -1,114 +1,118 @@
-Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
+Received: from mail-pf1-f193.google.com (mail-pf1-f193.google.com [209.85.210.193])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 523DA30EF88;
-	Thu, 11 Sep 2025 12:19:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E59761FFE;
+	Thu, 11 Sep 2025 13:07:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.193
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757593174; cv=none; b=KIhWV4NIL6zUNXhO/MWlPsalkXUx6GWPMSNjQ4cSXCX3sd0s0IEXzxLV6Whj21hXHiEMlx26Hf6HvU8qIp/uaKZtV/f/FIvdokiCLEB0pRLO12noyt3PmOi1Dr5IViPytHxyT9pKxOX3+KltmlWkENvj3LUbovCkXd9EJEJE1xg=
+	t=1757596026; cv=none; b=NQFmoO6uZtn6geuSIMaajd/iKRVIrjr9vtGbps/sQeQcIqDeAeqbgaQO3gaguxw0hUiB6VB0U3w+fds1+JIIJb04kU/UqUNoLL+bCsdQCikqTV/OMLJkUxeSSCP8ooL25FDPkhryZvTAo4hPsRFCCYiri9JSUo0OqYFCVk6XkAI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757593174; c=relaxed/simple;
-	bh=lWtR/Gen2p00VdXWiJ+YA+dkVfXa9jO+BioMxIij8wo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=A5WvNilzsx/5UtUrVLM2lklaDo9UHZXuGwK7a26BnJX1JE7x7QNlZuz2gM9FqsbCn7AQgqqwiyaPMNALElsRVuSe51v578N9Vk+D4CGQde0jeb4eZwH9Z6SWGeV3Hw2vtz07GrP5dkDmmv2tEjCdwY6FOgQEbU+XzNWmA+qBiC4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NP89TnGH; arc=none smtp.client-ip=209.85.215.169
+	s=arc-20240116; t=1757596026; c=relaxed/simple;
+	bh=hUIlfLdWs8KrHz8bnt9UfgV74P5yJ7K2YZbNpacyVZs=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=YnwoMLk+C/5v5nypseNT8+ObHE9mMohbDccb0tcH2LdoqO3NXf8npSawUZtSE1gLNoxMNAuyk8wKjX7ek9amEXLbwUkZ6W4ikORgTDPUe/keUfVurkOxS1ECXMUoEG2xT/edkO9TfX5pO6HbKaIUwpWG0Zhp1j0ZYUkb/3mGUA8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZKj13BX8; arc=none smtp.client-ip=209.85.210.193
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NP89TnGH"
-Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-b4d4881897cso437413a12.0;
-        Thu, 11 Sep 2025 05:19:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZKj13BX8"
+Received: by mail-pf1-f193.google.com with SMTP id d2e1a72fcca58-77287fb79d3so581392b3a.1;
+        Thu, 11 Sep 2025 06:07:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757593172; x=1758197972; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1757596024; x=1758200824; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=lWtR/Gen2p00VdXWiJ+YA+dkVfXa9jO+BioMxIij8wo=;
-        b=NP89TnGHAHovDQQW/cr0S8rV0HOy6XU6lONd9YtiJDh8HT3xBkFBep4taV6y/nW5I5
-         gz0gf1ViOJ3QyCGcxXAZTQ8xmXNeKa4AH9XH0AwIUUUj7+ETZqBP4IUdhVtLDvLJkJoz
-         b0AIQzOyVNLGHIyIkupTHGuChuAawTynT2RfxJXITNX7ENVy/0nvcbnfNhWSaDfxiVCV
-         w7OfkUAgOI4APGrgCSZZJqlrquqchQu8vdaohMZqlhaFFNo/fEafKqCn938BgHgI19iH
-         Cd/xEWVzZpNyAI2ncKtgJ7MMuLcpAluoce8FVzz8meRmXpTFZMYNROTYKRVM0ZHxtWuE
-         U6wA==
+        bh=qHm+I2EmjAjANzed28NlwQzUNIuNjC1w9Dx1d+YLRi0=;
+        b=ZKj13BX8Gnj4eXNC9H5dsMU8ZB9TRQED8CRKWDlQrrIvnVumfVSrX/vK6u3uX0PVUf
+         TJLwg/Wph9aGF//2VWvwlYYRacVUN7sCUxu/IBxWWmRUjwLTKIvBjLwnyXeCK2u35XfR
+         7GDY6YcbwIja2oUJ6/ZwX5uUdMGAzCjLONS1vTwHrtkdAbiFEgIktqHlKueIgDJGFv5r
+         k/6WodSWvE+I/4q8mCI9izNVCrLWjRdeakdwONkNQO9UPyeEik88TN6pK+hmnU86V+hc
+         phqernfz7wI3s+KzPvP5SWW8vHefUiCmWvommvxWZWM9Jg+QtoehLWniKDCKVejKs6Zg
+         m/Kg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757593172; x=1758197972;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1757596024; x=1758200824;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=lWtR/Gen2p00VdXWiJ+YA+dkVfXa9jO+BioMxIij8wo=;
-        b=Kv8qMeh5UBuso5kv7VnFEB25uuTqKMzBxBi8yWC4Pe52Ns0QSFXKMLr09tt+P3qVzD
-         nEwRp6RHuLpaEHGo5cRLackHeCb7G4NCiNcnWKVsxAd3sRroIQqUQeMikIRDZZkewGue
-         RQ8ih/JFuF5VD1M9Wad/vmjvI9YxY0JzE97ojQT3dSITZsGBtqEiq4wz18/2gvByOtlh
-         ah/j9pCYc+2MF8HleiWSpH+jfNDm/L9TN+1WrCEIXxW29IC2zbl0XippI8jchC2ks7RC
-         CQ5PvYAk8Fs3QlYzgCtGGyxP1w8U6B9Dbmfoz2ZldUwqy6Y+qVAd6TuoWdwQIl/5+lZE
-         mI1w==
-X-Forwarded-Encrypted: i=1; AJvYcCX/YJesqB9GY+RYhPxu3vFS4x85FCbmTw0ae9jJOAAmT7U4J5k96jNqQ8Ii0lgMbqiF4vsuFUY=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy8qCG5pAYlXLhPF2+6L5YeH+RW6sX3csALNSqjW2c8Xt6jSNK6
-	I95l4yW+U9r3g+gxfqKlkfnzbU5rtDUqKcSXMR0xdOyKV/WvYNXnLpN8ssRvCK026TiE7cpKSdI
-	ULtFdDXvw8kA3XHcJHNpXH1bYoYPjPU/DJMKS
-X-Gm-Gg: ASbGncuDvpsEkdZXcOsOH5d4mFNeHDtVtupJuqbMybP4P6XQ3Nui3Nj5/5mI6rjtqGR
-	7CoggeYrJwzryFU6Fqxgr96WuRqWtpBPcKlw0wsva4e5qYIv8TWOxmJpWLHf6MO1J5k2GyKX37p
-	gssXb6vLcw2pftEfhChBKOMwqaBd5if62eFYISgfW3Wa1O3mIMUSuvW0pjmV4gUz1MU5z9EfRDE
-	D8c+4jm74EdU0UpaA==
-X-Google-Smtp-Source: AGHT+IGGuy1wVQlXKaUW3Yopk59LkHeJDzt8DEdVaN1TIufpl9eGokUpZNY3LXPrK0xJWZNsrIqtCk0NFuNS+NwRklk=
-X-Received: by 2002:a17:90b:3c85:b0:32d:dd7c:c3d8 with SMTP id
- 98e67ed59e1d1-32ddd7cc580mr1008395a91.25.1757593172462; Thu, 11 Sep 2025
- 05:19:32 -0700 (PDT)
+        bh=qHm+I2EmjAjANzed28NlwQzUNIuNjC1w9Dx1d+YLRi0=;
+        b=INc+wOh9HIrYmqyfc5wcg+YRxVV0G9mfHneFMYDFJB8cFIi16GY4AOfLDXB3wpGgPU
+         8dHwQSpxU7XIQka1uVUdZtYcRhUpxsMtooK2VInEg6owJNDX1CiYsGmAWfs4IwgfrbLY
+         ygbu2TzOmaBVYGQL1ijlnsAod/6bCAXYO4FUVn7veD6pP7zemXdhJWtUdyB1EpRjEtRM
+         AQD3dEbu7GFG6P05pooKlvFOvNRZqiw5rNeVm6w4tWQo0hmL4qGlvZUowi0yNq/4DW80
+         6OBiQfl3i6sWrJd524cOItP++QKzMvWTUOWBsOZEiPSqDdZMhcnwmREmE7IIptO4lnD0
+         csFQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVhvj8T358TsGE1jBFIdSG7SwzxVbPXFAcQERuJM8dzuSHCcvYndHyrqTj9QkmiPYjN8Vu8Mg9c@vger.kernel.org
+X-Gm-Message-State: AOJu0YxhBqldH+9NMFEDsC4511lwfb9MGTPgEv5+GV6FmQFRbsfj/ggJ
+	OXrvsoG3/LloY6eXB4aokzVIArYhc/nmMcIo3b+pKGP9IMYnZorMCrqO
+X-Gm-Gg: ASbGncsk9eprDh/cyBw35fehLccwvhmOckPlPnZBE6PcVEhwaO9hGYlI7gD7teqq8r2
+	VHbqvrSSdh4a2w//dE4UUQX7h/iPeDxDLxwPDoRYEc4kAmhGY6kc4QUkiBSvWraFA2OqOsh4yPB
+	ADATH7Nft2L3PVse3r4wGHwCjkxYusSAWg4yrMOeHVCJcGGWrV9tDz3iq6dO12yfmZKpEyFfte+
+	PQeHl7fgmVc/24KlE462SwUSAeBQ49bkjRYGpCc0t0D2o4cm0C68/a2vNRj1OMAr9JRWwwoxf69
+	UPJTQ7OJ6fYDtD5bWfG78tGxFobL4F+8VN1unTKyIDVRFFjvRpCuvjuhId0Vr5rdw2L5mV9ViPn
+	GnY9EKgu4VKXRc8fQ9u7onxDF8cyV8id/PkhzIhwwGEPF6NIF7KQ=
+X-Google-Smtp-Source: AGHT+IF6OeRpInObyiPOKH13KWd8a6xyOTlxGrdUC++H3qdAy4kDLtxwmAOn2WxMk97ChRbSbgZh5A==
+X-Received: by 2002:a05:6a20:939d:b0:246:458:8531 with SMTP id adf61e73a8af0-2533bfd9437mr28380664637.4.1757596024114;
+        Thu, 11 Sep 2025 06:07:04 -0700 (PDT)
+Received: from zhr-ThinkStation-K.mioffice.cn ([43.224.245.231])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7760793b6b1sm2077519b3a.20.2025.09.11.06.07.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 11 Sep 2025 06:07:03 -0700 (PDT)
+From: Hongru Zhang <zhanghongru06@gmail.com>
+X-Google-Original-From: Hongru Zhang <zhanghongru@xiaomi.com>
+To: stephen.smalley.work@gmail.com
+Cc: linux-kernel@vger.kernel.org,
+	omosnace@redhat.com,
+	paul@paul-moore.com,
+	selinux@vger.kernel.org,
+	zhanghongru06@gmail.com,
+	zhanghongru@xiaomi.com
+Subject: Re: [PATCH] selinux: Make avc cache slot size configurable during boot
+Date: Thu, 11 Sep 2025 21:06:53 +0800
+Message-ID: <20250911130653.967139-1-zhanghongru@xiaomi.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <CAEjxPJ4-+WfGPLev5QU_+_NgBx68zdBBQ6x_+aonzbk4f9BNEw@mail.gmail.com>
+References: <CAEjxPJ4-+WfGPLev5QU_+_NgBx68zdBBQ6x_+aonzbk4f9BNEw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250814132637.1659-1-stephen.smalley.work@gmail.com>
- <20250814132637.1659-2-stephen.smalley.work@gmail.com> <6cfe4uqtic6ga3ch463zflke2wp5hobd7j3r5ctyp4puwbjiet@xgi6jfi7au3c>
-In-Reply-To: <6cfe4uqtic6ga3ch463zflke2wp5hobd7j3r5ctyp4puwbjiet@xgi6jfi7au3c>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 11 Sep 2025 08:19:20 -0400
-X-Gm-Features: Ac12FXwAiovuXwx5vA7Sdc_GZCzODjR2jcx4RP-81Fp_mXyPLTv4mjF9qkeI-BA
-Message-ID: <CAEjxPJ4FYD2zyOCiUSnOzf7eP5_aN0d86=R7scwUueyCMQzF-A@mail.gmail.com>
-Subject: Re: [PATCH v7 01/42] selinux: restore passing of selinux_state
-To: Maxwell Bland <mbland@motorola.com>
-Cc: selinux@vger.kernel.org, paul@paul-moore.com, omosnace@redhat.com, 
-	netdev@vger.kernel.org, horms@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Wed, Sep 10, 2025 at 7:12=E2=80=AFPM Maxwell Bland <mbland@motorola.com>=
- wrote:
->
-> On Thu, Aug 14, 2025 at 09:25:52AM -0400, Stephen Smalley wrote:
-> > This reverts commit e67b79850fcc4eb5 ("selinux: stop passing selinux_st=
-ate
-> > pointers and their offspring"). This change is necessary in order to
-> > support SELinux namespaces.
-> >
->
-> FYI, thank you for this new commit. Some "fuel for the fire":
->
-> Turns out, e67b79850fcc4eb5 makes it hard to enforce immutability on the
-> SELinux state / AVC cache from EL2, because the compiler likes to put
-> them on the same page, leading to having the hypervisor track spinlock
-> management issues, just to ensure the core selinux state remains
-> unmodified.
->
-> In the past (pre-2023/e67b79850fcc4eb5), it was possible to set the avc
-> cache onto a separate page from the other critical selinux_state data
-> during early boot, and it looks like this *may* restore that.
->
-> As you likely know, the issue is without EL2 enforcement of immutability
-> on the selinux_state page it is possible to just flip the enforcing bit
-> via EL1 write-gadget. It may also be possible to address this whole
-> issue using ARM MTE or something else.
+> >  static inline u32 avc_hash(u32 ssid, u32 tsid, u16 tclass)
+> >  {
+> > -       return (ssid ^ (tsid<<2) ^ (tclass<<4)) & (AVC_CACHE_SLOTS - 1);
+> > +       return (ssid ^ (tsid<<2) ^ (tclass<<4)) & (avc_cache_slots - 1);
+> 
+> If you are making the number of buckets adjustable, you should also
+> change the hash function to better deal with multiple numbers of
 
-The reason for e67b79850fcc4eb5 ("selinux: stop passing selinux_state
-pointers and their offspring") was that Linus was unhappy with the
-extra argument passing throughout the SELinux functions for the global
-selinux_state.
-Until/unless we merge my SELinux namespace series (of which this is
-merely the first in the series), we don't have a compelling reason to
-restore the passing of the selinux_state.
-That said, placing selinux_state on a separate page from the AVC cache
-should be doable via a separate patch independent of the SELinux
-namespace series itself, so you could always submit a patch to do
-exactly that.
+Thank you for the advice. When running the test model, I sampled
+/sys/fs/selinux/avc/hash_stats once per second for a total of 1800 times
+and analyzed the distribution uniformity of the hash algorithm using the
+sampled data.
+
+Baseline: 512 nodes, 512 buckets
+Comparison: 8192 nodes, 8192 buckets
+
+Metrics (Average value over 1800 samples):
+* Bucket utilization rate (higher -> better, same chain length assumed)
+	* Baseline: 52.5%
+	* Comparison: 49.5%
+* Max chain length (lower -> better, positive correlation with worst-case latency)
+	* Baseline: 7.5
+	* Comparison: 11.4
+
+Experimental results show that scaling buckets and nodes from 512 to 8192:
+1. The distribution uniformity under the current hash algorithm does not
+degrade significantly;
+2. The maximum chain length rise significantly, potentially degrading
+worst-case performance (ignoring other code in avc_search_node function).
+
+Details:
+url: https://gist.github.com/zhr250/cb7ebca61ff5455098082677d75b1795
+
+I will modify the hash algorithm in the avc_hash function and collect data
+again to see if we can achieve performance improvements.
