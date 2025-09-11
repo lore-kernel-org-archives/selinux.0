@@ -1,95 +1,76 @@
-Received: from mail-pg1-f179.google.com (mail-pg1-f179.google.com [209.85.215.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.hallyn.com (mail.hallyn.com [178.63.66.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FD082ED84C
-	for <selinux@vger.kernel.org>; Thu, 11 Sep 2025 22:24:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 892A61A08A3;
+	Thu, 11 Sep 2025 23:05:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.63.66.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757629458; cv=none; b=O22pZmrRb1eRTHp+fCWTlbTkHcbv74dXCRupE4Gdt6dQLD+IS3PbwpnY207u1KkKFVWOozAH9/U4I5qMzfeo0f8or0aSoN3olGQhC6GOYoH2RE1sADDFA97Cua1ZQ1mCoOb7emwS9H4/QNqN+1N7ghWiVfXG1g/RjJ+d+qsfgzI=
+	t=1757631911; cv=none; b=RBs+ZvJ8wKybf7bEe1eqpBvbkguPhw2Wkp6XKEjQcb1j/UHlj0REic8jQ6g7j6RvhPcieddOOtQdR24rFBNi/+zsWPS+Ea1tI0SPqAHG27HHAp75WiFOcdKbeH8nvZyzwA/uBDDSNRUfjAgwUCHfUhk2r5PP0g020zpd2hWJq48=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757629458; c=relaxed/simple;
-	bh=TOxHreosBJoREHUrSH/7ROAH34Ey9FkDleUQJ3zjuXo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=OOUyTNPIARRBHW+jnTTkYhgVJhdCUQsWTzYez8hi/tUk3tGACz3QBEQy3f0kCx3jSsUMlCi83MS/APrMnLLKKxxaoObSoRv4TVNEVMIcJE5CfNcob7H8vPvA4BTYGFxSY0sI+E1IJh4pnyPHcRBZjjHPrQtStS5YJfXyfwdlGec=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=ZHz9Uczx; arc=none smtp.client-ip=209.85.215.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="ZHz9Uczx"
-Received: by mail-pg1-f179.google.com with SMTP id 41be03b00d2f7-b52047b3f19so915626a12.2
-        for <selinux@vger.kernel.org>; Thu, 11 Sep 2025 15:24:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1757629456; x=1758234256; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=TOxHreosBJoREHUrSH/7ROAH34Ey9FkDleUQJ3zjuXo=;
-        b=ZHz9Uczxsowl9SabhL2InyavZ32WiFjBKVQPDfuF7ns3735rqGF3gkyciwuXWq9vNa
-         U8IyRTE7jeMKHiW1L2xsFnJOiFhiKO4GNpyYXw6EynDuY929/HF7UK36hGFX04nu+iBY
-         qkNWJzoHqly90C5rI9LVdf/gQfWDjWUWBsImkaY94QHK4iHWNeEv/+4TaBb0YWHsDcNI
-         r2zDKP71OPspCBVUPJX1YVdMDzjRfA1+TpccM0v4dorya8MiTHBqYOlS+m6VGzPXsHI6
-         L7qf1bymIOCgyn4OHTGrgsoVsPAvr7jryqLz7c5MFs9pR+TA1eaEh80Jxay7B3z8e1UF
-         OqXg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757629456; x=1758234256;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=TOxHreosBJoREHUrSH/7ROAH34Ey9FkDleUQJ3zjuXo=;
-        b=ZNwnDKY+t3ToVTNOlDuwK8baBxZ85f40VhA5o0ZNLnT9gjixXqHOn/OsHSuQVA9fFd
-         6q2EAgWLMnLOyHE5xbomv24xJY3LBOxiOCOYIU97DLwquHnnkDX5Y9pLurTAfeAwif3+
-         9AQXmtrJ8eTZ15YK4+rpzqj6OERvt6srz4kb3oZ+LbHT27EshcFEES6vXPgs55FG3RbK
-         5WX4dZcIasUj/GJuCKMy/DOg8q1lbnTc/gMNXf5uMFEEMdJ8cgdonOvvMgLASqw6+IQp
-         CxDZiPDha6cn7d/XGRQBY3RNWPxyyskDikv0gPv7MFFAbcYoEqBLgOWCjQqfaG2pezDA
-         HYnQ==
-X-Gm-Message-State: AOJu0YzbQsgKebPs1nS+kjXYuR944YTuTKdiL/KinaiHFWgSc7tvNN7T
-	bUrAcm1awa3cHrbQEipijPWjzJcHdQCQRZ7jOVWLcyAeCuuxCS5sfZWz19RASY9DscYuwZqYhY5
-	6yrUi1xSFnY1cAGl7V01s0vvLk+ZnURL4aGsLW0hU
-X-Gm-Gg: ASbGncvyjVHOXmA7bCFedhYQyjRHqXnu+uNUNCAEv9/nAjW6dZkCmRIgJiev/RIqnZr
-	+rpXsJ29FXPB8TQXNti/x2SzcWWqdSAf4Fv1CMo90z6oDYWtJwjBuoNxRS2x58Fy4RWJyqhrH5w
-	H8W4ohtWLqMuJj60Tm0EGCQCfiUP/2zmIrYVU9lfAiqbwz6AmPrIRK08cFGkYLLcvo4+6KUxbmR
-	NCX+HyTqRQT3/Sf9A==
-X-Google-Smtp-Source: AGHT+IFwAAU8D9+qMEnnOqzN+PqllufMoDEh+StKDbwMsV21cf2HN9BAvkgaeC+TDiDMKA9ufKYoxn/esG1aoNHXsZw=
-X-Received: by 2002:a17:90b:56cb:b0:327:fd85:6cd2 with SMTP id
- 98e67ed59e1d1-32de4f87920mr708852a91.24.1757629455898; Thu, 11 Sep 2025
- 15:24:15 -0700 (PDT)
+	s=arc-20240116; t=1757631911; c=relaxed/simple;
+	bh=gFDDD0WpyznxGP95sLwGd53MUAD0tWTC/LTbrcnsw6c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=kCd4MQFv2lZb51x7StZG1q/OgKEJpHeVtZGAZp+a2CEWrbVi9WU0S7qLy7A4xrqpwD77T5GkrL0GjQT8HcB1nh4au3/9mQJBSfLhh0RMQKmD8gCJ3qdCloCvaxbYlGTJF3xvsB3ZsslHMGNRwsxTM2d7dINEu7RG29ngXn3bwYI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hallyn.com; spf=pass smtp.mailfrom=mail.hallyn.com; arc=none smtp.client-ip=178.63.66.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hallyn.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mail.hallyn.com
+Received: by mail.hallyn.com (Postfix, from userid 1001)
+	id A31F19AB; Thu, 11 Sep 2025 18:05:05 -0500 (CDT)
+Date: Thu, 11 Sep 2025 18:05:05 -0500
+From: "Serge E. Hallyn" <serge@hallyn.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Christian =?iso-8859-1?Q?G=F6ttsche?= <cgoettsche@seltendoof.de>,
+	linux-kernel@vger.kernel.org,
+	Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>,
+	Christian Brauner <brauner@kernel.org>,
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Subject: Re: [PATCH] pid: use ns_capable_noaudit() when determining net
+ sysctl  permissions
+Message-ID: <aMNVoSM7PauOrCPF@mail.hallyn.com>
+References: <20250910192605.16431-1-cgoettsche@seltendoof.de>
+ <23663be0b8dc2a435bcc46a3d52e9e19@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250903192426.215857-2-stephen.smalley.work@gmail.com>
- <CAEjxPJ4ctFLY=_AUaNso_a4XJ8AziRoebR2ExFss_s3qNnYhJA@mail.gmail.com> <CAEjxPJ695zmnpiLLOHkLxt5HVPhFNRZ9Bu+o4khvFwFX3TLpVQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ695zmnpiLLOHkLxt5HVPhFNRZ9Bu+o4khvFwFX3TLpVQ@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 11 Sep 2025 18:24:04 -0400
-X-Gm-Features: Ac12FXwV7w6xqK--CqU45N_j2zE09QKW8-h7v_y52jV-oYM1_3xbDyMuphzE_CU
-Message-ID: <CAHC9VhThEdr1F+8+FiMwMZkYROT9Lyox5Pyvf8mkBPYYRX6WKw@mail.gmail.com>
-Subject: Re: [RFC PATCH] lsm,selinux: introduce LSM_ATTR_UNSHARE and wire it
- up for SELinux
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	omosnace@redhat.com, john.johansen@canonical.com, serge@hallyn.com, 
-	casey@schaufler-ca.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <23663be0b8dc2a435bcc46a3d52e9e19@paul-moore.com>
 
-On Thu, Sep 11, 2025 at 10:01=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Thu, Sep 4, 2025 at 10:41=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> > On Wed, Sep 3, 2025 at 3:28=E2=80=AFPM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > >
-> > > In the hopes of nudging the conversation in [1] in a more focused
-> > > direction with a goal of getting SELinux namespaces upstreamed, this
-> > > RFC provides a starting point for a concrete discussion. This is RFC
-> > > only and has only been build-tested thus far ...
->
-> Gentle ping on this RFC, happy to update and re-submit whenever.
+On Thu, Sep 11, 2025 at 04:46:20PM -0400, Paul Moore wrote:
+> On Sep 10, 2025 =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de> wrote:
+> > 
+> > The capability check should not be audited since it is only being used
+> > to determine the inode permissions. A failed check does not indicate a
+> > violation of security policy but, when an LSM is enabled, a denial audit
+> > message was being generated.
+> > 
+> > The denial audit message can either lead to the capability being
+> > unnecessarily allowed in a security policy, or being silenced potentially
+> > masking a legitimate capability check at a later point in time.
+> > 
+> > Similar to commit d6169b0206db ("net: Use ns_capable_noaudit() when
+> > determining net sysctl permissions")
+> > 
+> > Fixes: 7863dcc72d0f ("pid: allow pid_max to be set per pid namespace")
+> > CC: Christian Brauner <brauner@kernel.org>
+> > CC: linux-security-module@vger.kernel.org
+> > CC: selinux@vger.kernel.org
+> > Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+> > ---
+> >  kernel/pid.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> Reviewed-by: Paul Moore <paul@paul-moore.com>
 
-It's in my queue at least, but so are many other things at the moment.
+Thanks.
 
---=20
-paul-moore.com
+Acked-by: Serge Hallyn <serge@hallyn.com>
+
+I'll queue this up in the capability tree, unless Christian wanted
+it in his.
+
+-serge
