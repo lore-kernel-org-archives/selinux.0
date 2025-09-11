@@ -1,257 +1,182 @@
-Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2343331D364;
-	Thu, 11 Sep 2025 14:01:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AFC92DC792
+	for <selinux@vger.kernel.org>; Thu, 11 Sep 2025 18:48:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757599270; cv=none; b=dlfNAKr+BrIULcZ0hfNeQ0SYlueTF/kLxJgRC48+HyV9O0cUaV2ZSnfnA3Rr2QimC/Nbtw9LW3CdImcH7P5DsUaKSNnL/MeAgazrocts+lufVVnq4iHbTbrxDWZ6EV4U94oELT8nUE7APc3V1WFWwZIGvmliHs6jbuIDr7R2v2g=
+	t=1757616528; cv=none; b=KDsWhCQAw12He2uxyrZZFoO9fjPvypsLG7mC8dKo5l2s/+NN55kU+8Tajsl96V9EFV0NB+H0xE+YlsdK52NJUlLzdmlwwr55dezSphL0dY7xJlTAt2fcQIXcKlUAY5b5l5a5ZLwmT5/nRBHklmB4y9FcLCHpjJgNKdyn02tOaCY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757599270; c=relaxed/simple;
-	bh=5FQciLyfkw/1Nr/g4wrbD+FlhUHdnpLTO3NpsbXz4WQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=irFLtzqikBbD+nuusTD6UEpCeRVj7tn/kl1GVKC9f5PhgiphnAc2AKJctrnGwbHtsVD8OT8HjRgdT7HSZ8WfcWJIoGeHmufc4GqrffGlR05tYLw9IUyE+9Ud//d24psefdNpaNFcuVNKFUeNOmm2Lj381sBCsv8XJJQ/7txOtVQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=V7kJ0qRn; arc=none smtp.client-ip=209.85.216.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1757616528; c=relaxed/simple;
+	bh=bHiVerPGCekTzieW8mUvK9CAvoF4D0xki8bVu1IkM/k=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=FHHnDh3b646EoqLd21QWYuHtm3jzn+AoXkbInSMCY+M7NpqzqCYVd42eZMrxV2YgsReNkBss/3U6jyHyYKsrb1UA8gJ4skquDmlLKWjLr/ryus6zwWkb+kFr3j526Y66jOimeT1/c1koK9qsE2hTCjI1p0qs8EgNXSM4PYZXLJg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UE4HKJVs; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="V7kJ0qRn"
-Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-32b8919e7c7so842327a91.2;
-        Thu, 11 Sep 2025 07:01:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757599268; x=1758204068; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=MHkD6BwVLYAFhBmfkzAvqjPu6AQAFcmIArg7IqukgJ4=;
-        b=V7kJ0qRnYAbMSU80mtTXks8COuCImWl6LDrxAnRcg0gi2N9IS1geE1EqmW1fzAz8eJ
-         C4KEbkNVwB4xUDP2mZRKWgA7vOzJwTLCh+9tSaRZxrjuByVpm176mT28GnOy8LQxpyaL
-         Aa9V97oE1f0OozFrctzRSfaUD4Vc4rPrqkllAEHM58+6BX83D7u1FvfeKPt5MIMHCCZh
-         MP5pyQBBBXiXEXPk1G2nrrT/i8uXNor0MC9kwsaA3qYKeYtW1CzRj+60xhjv8zejOisS
-         5UYSFDxGYfp7wRLtHNL/D0DlTrA6uCC1OgBfLSjeReFXIPzTFe06nO41ChQbG4mwoG/t
-         pbyA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UE4HKJVs"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1757616525;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=GicTzaKdK1pTr0Ef9rc1n+zf6Gpcy2L+el57nuJCU6Q=;
+	b=UE4HKJVsfne9pRlrT2r4PUhY2UwZBydzJpurRF1/BOlNjBYc63QBR1G3mw1vBf9iEWSShR
+	avsIQZg7svLNvkrWQA8T7rWzH8nrcaC81B/oL8QmraLyPKaUH+rkMoM8i52sgAV9W2aLho
+	mck8W9ZzUBxph0e0LL230Ut7Uzahuy0=
+Received: from mail-yx1-f69.google.com (mail-yx1-f69.google.com
+ [74.125.224.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-158-buBDssNCM1SQDRp0DsbaFg-1; Thu, 11 Sep 2025 14:48:43 -0400
+X-MC-Unique: buBDssNCM1SQDRp0DsbaFg-1
+X-Mimecast-MFC-AGG-ID: buBDssNCM1SQDRp0DsbaFg_1757616523
+Received: by mail-yx1-f69.google.com with SMTP id 956f58d0204a3-6051e1b5833so628336d50.0
+        for <selinux@vger.kernel.org>; Thu, 11 Sep 2025 11:48:43 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757599268; x=1758204068;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=MHkD6BwVLYAFhBmfkzAvqjPu6AQAFcmIArg7IqukgJ4=;
-        b=hVPSPleilRN/ubCji8O2gzKUWtvnUa6z85x+oUH714InbLY6BjEyVPACHVRPX5pt96
-         srhkhi6EQ5ufQ8w5aucR8tWjs36c7TKWPB1hQatBVVQvfm35oT5iNPVBqWVN8rWLiq29
-         beJXOPqwSD0Zfo8rf2cvubcqL77Pon18QRGxq404P0UelmTJS9QpdwZEhJ8IXompk6YA
-         hqeuOvuWfAgl9Mlj6wjzZJWbe/tOawJyPWp5vr5ebNz12MLKzV/d4InvOI9WXuuDvzWy
-         iq/ybPN94A6QSrXXvwRuwwurY2YQLjCPfFhhuSSxUR9RK9PCzcsWFuV6Nih4BqGWGyNt
-         J64w==
-X-Forwarded-Encrypted: i=1; AJvYcCUSvPQGZXb3KloVpeg8IdP31xE93Zx1TY4Dn4wvjD+CSin9G+Rf1RRn2HAFgE0c6cW3l2hHIpesUqP57Va7t7UA+xqdb9c=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw7y8FTDvakNbETdpBF/BGhkB1ImA6v/JApVmm15c+faF4mts47
-	AaLtZLaeeV/mzBH+4A7vyCHhEAYouGqXA49/ESlzR0GJ8RUTlGURjieJALaVje1nX3oaVEW5ibJ
-	Jxr7XVJZCmKSbZ0xPwRHcZvOm3Dxapo2l7A==
-X-Gm-Gg: ASbGncuCCEucYk3fb9BLwc924wQuyEfDvdWM6960K3LSK8uoxbhwMjz+tqMKHYj0Plt
-	2PXgK/dd4RxTOSbt5x6q92Yq2uKF2BqWlX7e/6UzKwf+sVNLK1yLX73JalMx6sgzklFi1rRtU3C
-	IvcdZqu3NEvXh0fq2DgjM3fuVv2qxHQqZtZ214XRrFc845ay5r2io2lkdm/QyZqzsvBGDm1xpJN
-	3mpot+N+r5kCatGZQ==
-X-Google-Smtp-Source: AGHT+IH/dWW4EKJBkVryXIwBS6BMHWnT8oPFCrQ0gryxM+nteBI4BRTfwS2r0Mg9rMjPDn3vYy+Bfydna3x7e3Qg6ps=
-X-Received: by 2002:a17:90b:530b:b0:32b:d502:6ff2 with SMTP id
- 98e67ed59e1d1-32d440d9ef6mr20800901a91.34.1757599267610; Thu, 11 Sep 2025
- 07:01:07 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1757616523; x=1758221323;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=GicTzaKdK1pTr0Ef9rc1n+zf6Gpcy2L+el57nuJCU6Q=;
+        b=TriPl78rl5GeBAY9CIe/dFeuYxzFidm/nN+pl4ho+NlRgRFBpk3LpJa8asjjs5aKIE
+         Xp5G8mx9dkyZIBo9q0eZzs/gTARdp2WoPmrE0pbf3/8QRWwkzsQDNkdQEqn3vT7BAKVT
+         00sd/qG6XcvuQMySJUf2h4IpeLMf4PNncMTtx973m0L8UxWEEHlsCHQm7ayIu3Dz2kZm
+         WnJLMUmBvtjO0bAdqOn4C3z745uUc8r8Rw88oKQcLeC+a0IYNIDPRysqpkAWBV58hKOQ
+         JfCPOj3NVcuesKKOmre7ez2qbnLNGbkQi4knBRR9UoCpI6Y0GRcEN9wt8m4xUUI+aiWd
+         FyTQ==
+X-Gm-Message-State: AOJu0YxUHi+XopvmEDMwxcQCzUSBgSR3QeqO5V3SJYQ6yvA2jEYgDyEA
+	DwHD1lHCwm+K0GE5ctFdtLZGl7MT6n5WRkeMlTPDBAxnMyCE3WN/l8WtdKpF3DYxEfUNlGoHxyE
+	OxbDQSmt8g+L/g1iBvEcB26XIeZkqwy/KBCNpf3c3+DwRExVm/II4pomhs8ePnqRJc73w2v2yFy
+	JRj0zlPlK/IJKOcJf3reXyOuPLWB7OKpVbXneDeqe81JaH
+X-Gm-Gg: ASbGncudbSWbbq9wD0lq6JXu5OUNXyRhG4Od2nRZfczmvod9NPm/81quVxYOfr5ZgVQ
+	+kdaLYgtctRj2/wIcs2WZUZM4C1wNHvnuseVvOu3bKR9ADpeK7G1Gc0T0DwwRloCS0g30/0/J96
+	lDdJC3cy89B2Api3VA5dVa3aqRQtFR+hszItQ/lYFI0Az1boCGite3IA==
+X-Received: by 2002:a53:b192:0:b0:600:df03:32d2 with SMTP id 956f58d0204a3-6272269c061mr394386d50.24.1757616522832;
+        Thu, 11 Sep 2025 11:48:42 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFJ0ubvasAnWUgY+IZKIX5MD4oqAHoS09m0PRySCxPKuKr26mXC5Z7Lgme4VKW5oFUR4fi7OX/BVkQWLlm1KBQ=
+X-Received: by 2002:a53:b192:0:b0:600:df03:32d2 with SMTP id
+ 956f58d0204a3-6272269c061mr394373d50.24.1757616522380; Thu, 11 Sep 2025
+ 11:48:42 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250903192426.215857-2-stephen.smalley.work@gmail.com> <CAEjxPJ4ctFLY=_AUaNso_a4XJ8AziRoebR2ExFss_s3qNnYhJA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4ctFLY=_AUaNso_a4XJ8AziRoebR2ExFss_s3qNnYhJA@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 11 Sep 2025 10:00:56 -0400
-X-Gm-Features: Ac12FXxWUUn29ZLHOZgrL2I0MAvmSseRHp90xpNMa3a1GNFASB75iSpoaKpc8lc
-Message-ID: <CAEjxPJ695zmnpiLLOHkLxt5HVPhFNRZ9Bu+o4khvFwFX3TLpVQ@mail.gmail.com>
-Subject: Re: [RFC PATCH] lsm,selinux: introduce LSM_ATTR_UNSHARE and wire it
- up for SELinux
-To: selinux@vger.kernel.org, linux-security-module@vger.kernel.org
-Cc: paul@paul-moore.com, omosnace@redhat.com, john.johansen@canonical.com, 
-	serge@hallyn.com, casey@schaufler-ca.com
+From: Pranav Lawate <plawate@redhat.com>
+Date: Fri, 12 Sep 2025 00:18:05 +0530
+X-Gm-Features: Ac12FXyajCzPFhrCL3YmvdNMI15A44ydndopMBvpSddBAe-Ra7VDuXLlNtTUzoI
+Message-ID: <CAJp=TCGK-KUja2M9kxt5_SXC8P2=WSxN_-VjFJa96Luc2JSmCA@mail.gmail.com>
+Subject: [PATCH] semanage man pages: Add examples for -r RANGE flag usage
+To: selinux@vger.kernel.org
+Cc: Pranav Lawate <pran.lawate@gmail.com>, Vit Mojzis <vmojzis@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 4, 2025 at 10:41=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Wed, Sep 3, 2025 at 3:28=E2=80=AFPM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > In the hopes of nudging the conversation in [1] in a more focused
-> > direction with a goal of getting SELinux namespaces upstreamed, this
-> > RFC provides a starting point for a concrete discussion. This is RFC
-> > only and has only been build-tested thus far.
-> >
-> > This defines a new LSM_ATTR_UNSHARE attribute for the
-> > lsm_set_self_attr(2) system call and wires it up for SELinux to invoke
-> > the underlying function for unsharing the SELinux namespace. As with
-> > the selinuxfs interface, this immediately unshares the SELinux
-> > namespace of the current process just like an unshare(2) system call
-> > would do for other namespaces. I have not yet explored the
-> > alternatives of deferring the unshare to the next unshare(2),
-> > clone(2), or execve(2) call and would want to first confirm that doing
-> > so does not introduce any issues in the kernel or make it harder to
-> > integrate with existing container runtimes.
-> >
-> > Differences between this syscall interface and the selinuxfs interface
-> > that need discussion before moving forward:
-> >
-> > 1. The syscall interface does not currently check any Linux capability
-> > or DAC permissions, whereas the selinuxfs interface can only be set by
-> > uid-0 or CAP_DAC_OVERRIDE processes. We need to decide what if any
-> > capability or DAC check should apply to this syscall interface and if
-> > any, add the checks to either the LSM framework code or to the SELinux
-> > hook function.
-> >
-> > Pros: Checking a capability or DAC permissions prevents misuse of this
-> > interface by unprivileged processes, particularly on systems with
-> > policies that do not yet define any of the new SELinux permissions
-> > introduced for controlling this operation. This is a potential concern
-> > on Linux distributions that do not tightly coordinate kernel updates
-> > with policy updates (or where users may choose to deploy upstream
-> > kernels on their own), but not on Android.
-> >
-> > Cons: Checking a capability or DAC permissions requires any process
-> > that uses this facility to have the corresponding capability or
-> > permissions, which might otherwise be unnecessary and create
-> > additional risks. This is less likely if we use a capability already
-> > required by container runtimes and similar components that might
-> > leverage this facility for unsharing SELinux namespaces.
-> >
-> > 2. The syscall interface checks a new SELinux unshare_selinuxns
-> > permission in the process2 class between the task SID and itself,
-> > similar to other checks for setting process attributes. This means
-> > that:
-> >     allow domain self:process2 *; -or-
-> >     allow domain self:process2 ~anything-other-than-unshare_selinuxns; =
--or-
-> >     allow domain self:process2 unshare_selinuxns;
-> > would allow a process to unshare its SELinux namespace.
-> >
-> > The selinuxfs interface checks a new unshare permission in the
-> > security class between the task SID and the security initial SID,
-> > likewise similar to other checks for setting selinuxfs attributes.
-> > This means that:
-> >     allow domain security_t:security *; -or-
-> >     allow domain security_t:security ~anything-other-than-unshare; -or-
-> >     allow domain security_t:security unshare;
-> > would allow a process to unshare its SELinux namespace.
-> >
-> > Technically, the selinuxfs interface also currently requires open and
-> > write access to the selinuxfs node; hence:
-> >     allow domain security_t:file { open write };
-> > is also required for the selinuxfs interface.
-> >
-> > We need to decide what we want the SELinux check(s) to be for the
-> > syscall and whether it should be more like the former (process
-> > attributes) or more like the latter (security policy settings). Note
-> > that the permission name itself is unimportant here and only differs
-> > because it seemed less evident in the process2 class that we are
-> > talking about a SELinux namespace otherwise.
-> >
-> > Regardless, either form of allow rule can be prohibited in policies
-> > via neverallow rules on systems that enforce their usage
-> > (e.g. Android, not necessarily on Linux distributions).
-> >
-> > 3. The selinuxfs interface currently offers more functionality than I
-> > have implemented here for the sycall interface, including:
-> >
-> > a) the ability to read the selinuxfs node to see if your namespace has
-> > been unshared, which should be easily implementable via
-> > lsm_get_self_attr(2).  However, questions remain as to when that
-> > should return 1 versus 0 (currently returns 1 whenever your namespace
-> > is NOT the initial SELinux namespace, useful for the testsuite to
-> > detect it is in a child, but could instead be reset to 0 by a
-> > subsequent policy load to indicate completion of the setup of the
-> > namespace, thus hiding from child processes that they are in a child
-> > namespace once its policy has been loaded).
-> >
-> > b) the abilities to get and set the maximum number of SELinux
-> > namespaces (via a /sys/fs/selinux/maxns node) and to get and set the
-> > maximum depth for SELinux namespaces (via a /sys/fs/selinux/maxnsdepth
-> > node). These could be left in selinuxfs or migrated to some other LSM
-> > management APIs since they are global in scope, not per-process
-> > attributes.
-> >
-> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Hello,
+ This patch adds missing examples to the semanage-port and
+semanage-fcontext man pages showing the correct usage of the -r RANGE
+flag for MLS/MCS systems. Currently, users who try to use the -r flag
+without proper examples often encounter unclear error messages when
+they provide invalid range formats.
 
-Gentle ping on this RFC, happy to update and re-submit whenever.
+For example, Here is a command with wrong range string value:
+~~~
+# semanage fcontext -a -t admin_home_t -r s0.c0 /root/test
+libsepol.mls_from_string: invalid MLS context s0.c0 (No such file or directory).
+libsepol.mls_from_string: could not construct mls context structure
+(No such file or directory).
+libsepol.context_from_record: could not create context structure
+(Invalid argument).
+libsemanage.validate_handler: invalid context
+system_u:object_r:admin_home_t:s0.c0 specified for /root/test [all
+files] (Invalid argument).
+libsemanage.dbase_llist_iterate: could not iterate over records
+(Invalid argument).
+OSError: Invalid argument
+~~~
+Similarly for port
+~~~
+# semanage port -a -t http_port_t -p tcp -r s0.c0 8888
+libsepol.mls_from_string: invalid MLS context s0.c0 (No such file or directory).
+libsepol.mls_from_string: could not construct mls context structure
+(No such file or directory).
+libsepol.context_from_record: could not create context structure
+(Invalid argument).
+libsepol.port_from_record: could not create port structure for range
+8888:8888 (tcp) (Invalid argument).
+libsepol.sepol_port_modify: could not load port range 8888 - 8888
+(tcp) (Invalid argument).
+libsemanage.dbase_policydb_modify: could not modify record value
+(Invalid argument).
+libsemanage.semanage_base_merge_components: could not merge local
+modifications into policy (Invalid argument).
+OSError: Invalid argument
+~~~
 
-> > ---
-> >  include/uapi/linux/lsm.h            | 1 +
-> >  security/selinux/hooks.c            | 8 ++++++++
-> >  security/selinux/include/classmap.h | 4 +++-
-> >  3 files changed, 12 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/include/uapi/linux/lsm.h b/include/uapi/linux/lsm.h
-> > index 938593dfd5da..fb1b4a8aa639 100644
-> > --- a/include/uapi/linux/lsm.h
-> > +++ b/include/uapi/linux/lsm.h
-> > @@ -83,6 +83,7 @@ struct lsm_ctx {
-> >  #define LSM_ATTR_KEYCREATE     103
-> >  #define LSM_ATTR_PREV          104
-> >  #define LSM_ATTR_SOCKCREATE    105
-> > +#define LSM_ATTR_UNSHARE       106
-> >
-> >  /*
-> >   * LSM_FLAG_XXX definitions identify special handling instructions
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index c544b3e2fd5c..11b0b3c5b74a 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -6812,6 +6812,10 @@ static int selinux_lsm_setattr(u64 attr, void *v=
-alue, size_t size)
-> >                 error =3D avc_has_perm(state, mysid, mysid, SECCLASS_PR=
-OCESS,
-> >                                      PROCESS__SETCURRENT, NULL);
-> >                 break;
-> > +       case LSM_ATTR_UNSHARE:
-> > +               error =3D avc_has_perm(state, mysid, mysid, SECCLASS_PR=
-OCESS,
->
-> Ignore the obvious typo here (should be SECCLASS_PROCESS2 above). Will
-> be fixed before submission. Otherwise, the RFC remains the same.
->
-> > +                                    PROCESS2__UNSHARE_SELINUXNS, NULL)=
-;
-> > +               break;
-> >         default:
-> >                 error =3D -EOPNOTSUPP;
-> >                 break;
-> > @@ -6923,6 +6927,10 @@ static int selinux_lsm_setattr(u64 attr, void *v=
-alue, size_t size)
-> >                 }
-> >
-> >                 tsec->sid =3D sid;
-> > +       } else if (attr =3D=3D LSM_ATTR_UNSHARE) {
-> > +               error =3D selinux_state_create(new);
-> > +               if (error)
-> > +                       goto abort_change;
-> >         } else {
-> >                 error =3D -EINVAL;
-> >                 goto abort_change;
-> > diff --git a/security/selinux/include/classmap.h b/security/selinux/inc=
-lude/classmap.h
-> > index be52ebb6b94a..07fe316308cd 100644
-> > --- a/security/selinux/include/classmap.h
-> > +++ b/security/selinux/include/classmap.h
-> > @@ -60,7 +60,9 @@ const struct security_class_mapping secclass_map[] =
-=3D {
-> >             "siginh",       "setrlimit",     "rlimitinh",   "dyntransit=
-ion",
-> >             "setcurrent",   "execmem",       "execstack",   "execheap",
-> >             "setkeycreate", "setsockcreate", "getrlimit",   NULL } },
-> > -       { "process2", { "nnp_transition", "nosuid_transition", NULL } }=
-,
-> > +       { "process2",
-> > +         { "nnp_transition", "nosuid_transition", "unshare_selinuxns",
-> > +           NULL } },
-> >         { "system",
-> >           { "ipc_info", "syslog_read", "syslog_mod", "syslog_console",
-> >             "module_request", "module_load", "firmware_load",
-> > --
-> > 2.51.0
-> >
+My main motive is to come up with a logic to handle this error better
+but before undertaking that big of a change I wanted to push a small
+improvement to the code and so I have added correct example strings of
+MLS range into man pages for semanage-fcontext and semanage-port which
+I have tested to work properly on my RHEL 9.5 VM.
+
+This is my first contribution to the SELinux project.
+
+  The added examples demonstrate:
+  - Correct MLS range format: s0:c0.c255
+  - Complete command syntax with the -r flag for both port and
+fcontext operations
+  - Clear indication that this is for MLS/MCS systems only
+  - Practical use cases (HTTPS port and secure directory)
+
+  This should help users avoid common mistakes with range formatting
+and reduce support requests related to unclear error messages.
+
+  Signed-off-by: Pranav Lawate <pran.lawate@gmail.com>
+  ---
+   python/semanage/semanage-fcontext.8 | 4 ++++
+   python/semanage/semanage-port.8     | 2 ++
+   2 files changed, 6 insertions(+)
+
+  diff --git a/python/semanage/semanage-fcontext.8
+b/python/semanage/semanage-fcontext.8
+  index 3a96c62f..3e7a1d8b 100644
+  --- a/python/semanage/semanage-fcontext.8
+  +++ b/python/semanage/semanage-fcontext.8
+  @@ -100,6 +100,10 @@ execute the following commands.
+   # semanage fcontext \-a \-e /home /disk6/home
+   # restorecon \-R \-v /disk6
+
+  +Add file-context with MLS range s0:c0.c255 for /secure directory
+(MLS/MCS systems only)
+  +# semanage fcontext \-a \-t admin_home_t \-r s0:c0.c255 "/secure(/.*)?"
+  +# restorecon \-R \-v /secure
+  +
+   .SH "SEE ALSO"
+   .BR selinux (8),
+   .BR semanage (8),
+  diff --git a/python/semanage/semanage-port.8 b/python/semanage/semanage-port.8
+  index c6048660..217fa398 100644
+  --- a/python/semanage/semanage-port.8
+  +++ b/python/semanage/semanage-port.8
+  @@ -61,6 +61,8 @@ Allow Apache to listen on tcp port 81 (i.e. assign
+tcp port 81 label http_port_t
+   # semanage port \-a \-t http_port_t \-p tcp 81
+   Allow sshd to listen on tcp port 8991 (i.e. assign tcp port 8991
+label ssh_port_t, which sshd is
+  allowed to listen on)
+   # semanage port \-a \-t ssh_port_t \-p tcp 8991
+  +Allow Apache to listen on tcp port 443 with MLS range s0:c0.c255
+(MLS/MCS systems only)
+  +# semanage port \-a \-t http_port_t \-p tcp \-r s0:c0.c255 443
+
+   .SH "SEE ALSO"
+   .BR selinux (8),
+  --
+
+Looking forward to your positive response.
+
+Regards,
+Pranav Lawate
+Software Maintenance Engineer, RHCE
+Red Hat India Pvt. Ltd.
+plawate@redhat.com IRC: Pranav
+@RedHat   Red Hat  Red Hat
+
