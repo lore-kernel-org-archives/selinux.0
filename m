@@ -1,203 +1,94 @@
-Received: from mail.hallyn.com (mail.hallyn.com [178.63.66.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B0C41A08A3;
-	Thu, 11 Sep 2025 23:10:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.63.66.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6EC3347DD
+	for <selinux@vger.kernel.org>; Fri, 12 Sep 2025 01:48:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757632233; cv=none; b=PIWaxBOoYWTTPUjWXMeKh7QCKu1J1CUAxHi/ToHR/Cfmm3PYjNoe9iXUvA6r2aHlv52lP7ilCOQuLv8wLBbT5HvsfWKtjkA7hP97ddCQt4SCj7OkP9YzBGrwMi6jXVCCxjlAmmYHq3GnbdkVZcPZWt+BaS/CArHzOjRpZX+NZaQ=
+	t=1757641735; cv=none; b=mkWZaXg+0OJVbx/+66zd0Iz2zLz7UjG9AwHX7bq0R95I+398HvACKkcAp7KhpEis0FTo/eHJpaNCYqZvF7NXn8CNjHht0o2UjVkLvZC/Liuh8rpBsQi2k2C+hcUkq7qf6/w4pD0j64xTtD26KYpZnUFdf2vZgfkMGahwwgyVtOA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757632233; c=relaxed/simple;
-	bh=QAbfhdSCvFzsZZ+bLEU8WI/DznMGBRRCuNYxm+nmH+w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=IXbholEBVmltXuJ3O7to+7dPZMvflYFd/FT00l3ohMFbARejLx6NARj8chc9n7LmQvLVCAquUOlQmXnGT2V/VTVcICdxmUlaw6nivq5jqeHZLgLC/5sYnWjStJuUnNtdvDgGhdK4InjsajGjAl8I4VvixHJlbEVZVwJyMXRCQvg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hallyn.com; spf=pass smtp.mailfrom=mail.hallyn.com; arc=none smtp.client-ip=178.63.66.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hallyn.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mail.hallyn.com
-Received: by mail.hallyn.com (Postfix, from userid 1001)
-	id 3FA0B4C6; Thu, 11 Sep 2025 18:02:36 -0500 (CDT)
-Date: Thu, 11 Sep 2025 18:02:36 -0500
-From: "Serge E. Hallyn" <serge@hallyn.com>
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-	paul@paul-moore.com, omosnace@redhat.com,
-	john.johansen@canonical.com, serge@hallyn.com,
-	casey@schaufler-ca.com
-Subject: Re: [RFC PATCH] lsm,selinux: introduce LSM_ATTR_UNSHARE and wire it
- up for SELinux
-Message-ID: <aMNVDOCjCBZZE8Kb@mail.hallyn.com>
-References: <20250903192426.215857-2-stephen.smalley.work@gmail.com>
+	s=arc-20240116; t=1757641735; c=relaxed/simple;
+	bh=Zga3GNusDfSgVUj052y05xC1n7khhCDCOun+kMC4wAM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=LCZERw/8vjahTPJLRl1udTQrUbfk9ElwQ58K+q7jUcd7Dkx6cB26kSmS2G2OXRaaoU7jjOxQHrnhl4ddMohqEbV2Xvto5GB2aajE+yoKPGFNzkh2FV8HhtkN2QSTcRg0csjNvi2JVuhn9F1BXw5csexs61gV/AIczSG9Jpkn2DU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=AQ5pdCaI; arc=none smtp.client-ip=209.85.210.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="AQ5pdCaI"
+Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-7741991159bso2085826b3a.0
+        for <selinux@vger.kernel.org>; Thu, 11 Sep 2025 18:48:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1757641733; x=1758246533; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=kwZ+efw570OZx4YJ4/j4PWOdvYDNSjRQjeqYpWheFvI=;
+        b=AQ5pdCaIeyVAXT5K0h0cZt+naDyhkgw0cp1RWM9QeJZyxqYyA+4mKWKbtnRllowQLi
+         e623bHYj7BubYyltm3SuOfK4n3kwXALVopz9jzHGd7sSrsaKVQHkQ7AH1Q444I56oxZ8
+         mvlUDjWL240u/2XEgY4mGFq2rVUqdEiw0/gTt+4+yLc/T/zF+pXjtaHnJWCGRg8mvUcf
+         t6iS/Io4K2dxJ0gEbT3jcB7pADbKsCBchwbyWjZNGK8qDelC33kUYPY0JMo6eAGaTOaP
+         UWus4dGfpMDrW4a/BAwEEp3XSG1aALeVrZEjKKCcLTBiyU+hkyWWdwsoR31frBSW50jf
+         P1rQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1757641733; x=1758246533;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=kwZ+efw570OZx4YJ4/j4PWOdvYDNSjRQjeqYpWheFvI=;
+        b=KnIj3EN774YWK6yn9qPMVeIkiAJW1TwutE55R2D83vnZan0oMkxGsW/0rZ6yLBEcki
+         8eYsPBy2fkMDQXuuxIiv72b9HDsYhoIIfKcUtQEufZWzVIAri2y9tzex2mDpze25ZHb/
+         faADRiuuVgQDCvkCelcRqhbWVbBnWUky3HumJAKkKlWTF0mk/wqmkcNLVERD2MqhWTxe
+         eX6cF52FHYLXzYhQ5a0LoKkHtdaGW4REJ1vtaKjVo25zyT6KbptNyDLY7pcFo9N1yhaZ
+         2CRzg6ZwUWWb0IdLQbqBB1ROYfpdZv65vYUC2EgCe36XUDSSK3WZjrB3RI2YlCud4rBR
+         9N+A==
+X-Forwarded-Encrypted: i=1; AJvYcCUdt485kKYELS7CFbKjOdyYEzicydkS4QqSjJKt1XHBvZYJ8bZoKwKuTcvkCOAgFYQm5xQdfJsp@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw9NCEHZXelI5ihEYRtv95WJMNihKLuhptH8NXuuPJqcwSsIqId
+	OJEfn/NQ/II+SVGkrg/KfGgKTrvQ6CPu/K+y8WN1C804Tw8oM+Qo8+mCHF4Dtn95lJAfAaGuXov
+	bNhr2HVMw0M47AKdbCrDIp074s62V6rQd2SX5O+Yl
+X-Gm-Gg: ASbGncuhIzaXACk6qXK6foobF+A0kLYLxr0tWAWi/EyE2uwRQVtwat4HlB5vi2ad3Fd
+	/5VGCwpkgmlL8ZLHI8WGj+McxVUmrhNwGhiXMTLJ6B3LS10YbxaqxEem5f7QP5brv1X0Yq+I85p
+	OG9cgAOdwG0sL/6cRusRcqLhqB70nRlBs1LAuhnlbgXSK1mDXnDr9ryYc2OIq+xDkKt+lfvLVV4
+	mtl8Ms=
+X-Google-Smtp-Source: AGHT+IFcmKzAXmvR3kg0PSIDLyLXxlf/usnpeiCPFujxVN4S0OObwqltQTuSb24BYjTIZ7ku3FiMsnAVEhIfTSZTKnU=
+X-Received: by 2002:a05:6a20:158a:b0:245:fb85:ef69 with SMTP id
+ adf61e73a8af0-2602c04eaf7mr1616418637.40.1757641733012; Thu, 11 Sep 2025
+ 18:48:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250903192426.215857-2-stephen.smalley.work@gmail.com>
+References: <20250903192426.215857-2-stephen.smalley.work@gmail.com> <aMNVDOCjCBZZE8Kb@mail.hallyn.com>
+In-Reply-To: <aMNVDOCjCBZZE8Kb@mail.hallyn.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 11 Sep 2025 21:48:41 -0400
+X-Gm-Features: Ac12FXwv-pJpiAmW9-PshxFm06tfN1NilplttFrornlIK7ric0mSfbZU5-JB9Tg
+Message-ID: <CAHC9VhQYr_3WzG__RYs_mPtMqFCQz4wbrUnyGZeyKjCuEO93_Q@mail.gmail.com>
+Subject: Re: [RFC PATCH] lsm,selinux: introduce LSM_ATTR_UNSHARE and wire it
+ up for SELinux
+To: "Serge E. Hallyn" <serge@hallyn.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, omosnace@redhat.com, 
+	john.johansen@canonical.com, casey@schaufler-ca.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 03, 2025 at 03:24:26PM -0400, Stephen Smalley wrote:
-> In the hopes of nudging the conversation in [1] in a more focused
+On Thu, Sep 11, 2025 at 7:02=E2=80=AFPM Serge E. Hallyn <serge@hallyn.com> =
+wrote:
+> On Wed, Sep 03, 2025 at 03:24:26PM -0400, Stephen Smalley wrote:
+> > In the hopes of nudging the conversation in [1] in a more focused
+>
+> Hi Stephen,
+>
+> what was [1] supposed to be here?  I can think of two possibilities,
+> but I'm not seeing it inline...
 
-Hi Stephen,
+I'm guessing Stephen was talking about the "LSM namespacing API" thread:
 
-what was [1] supposed to be here?  I can think of two possibilities,
-but I'm not seeing it inline...
+https://lore.kernel.org/linux-security-module/CAHC9VhRGMmhxbajwQNfGFy+ZFF1u=
+N=3DUEBjqQZQ4UBy7yds3eVQ@mail.gmail.com/
 
-> direction with a goal of getting SELinux namespaces upstreamed, this
-> RFC provides a starting point for a concrete discussion. This is RFC
-> only and has only been build-tested thus far.
-> 
-> This defines a new LSM_ATTR_UNSHARE attribute for the
-> lsm_set_self_attr(2) system call and wires it up for SELinux to invoke
-> the underlying function for unsharing the SELinux namespace. As with
-> the selinuxfs interface, this immediately unshares the SELinux
-> namespace of the current process just like an unshare(2) system call
-> would do for other namespaces. I have not yet explored the
-> alternatives of deferring the unshare to the next unshare(2),
-> clone(2), or execve(2) call and would want to first confirm that doing
-> so does not introduce any issues in the kernel or make it harder to
-> integrate with existing container runtimes.
-> 
-> Differences between this syscall interface and the selinuxfs interface
-> that need discussion before moving forward:
-> 
-> 1. The syscall interface does not currently check any Linux capability
-> or DAC permissions, whereas the selinuxfs interface can only be set by
-> uid-0 or CAP_DAC_OVERRIDE processes. We need to decide what if any
-> capability or DAC check should apply to this syscall interface and if
-> any, add the checks to either the LSM framework code or to the SELinux
-> hook function.
-> 
-> Pros: Checking a capability or DAC permissions prevents misuse of this
-> interface by unprivileged processes, particularly on systems with
-> policies that do not yet define any of the new SELinux permissions
-> introduced for controlling this operation. This is a potential concern
-> on Linux distributions that do not tightly coordinate kernel updates
-> with policy updates (or where users may choose to deploy upstream
-> kernels on their own), but not on Android.
-> 
-> Cons: Checking a capability or DAC permissions requires any process
-> that uses this facility to have the corresponding capability or
-> permissions, which might otherwise be unnecessary and create
-> additional risks. This is less likely if we use a capability already
-> required by container runtimes and similar components that might
-> leverage this facility for unsharing SELinux namespaces.
-> 
-> 2. The syscall interface checks a new SELinux unshare_selinuxns
-> permission in the process2 class between the task SID and itself,
-> similar to other checks for setting process attributes. This means
-> that:
->     allow domain self:process2 *; -or-
->     allow domain self:process2 ~anything-other-than-unshare_selinuxns; -or-
->     allow domain self:process2 unshare_selinuxns;
-> would allow a process to unshare its SELinux namespace.
-> 
-> The selinuxfs interface checks a new unshare permission in the
-> security class between the task SID and the security initial SID,
-> likewise similar to other checks for setting selinuxfs attributes.
-> This means that:
->     allow domain security_t:security *; -or-
->     allow domain security_t:security ~anything-other-than-unshare; -or-
->     allow domain security_t:security unshare;
-> would allow a process to unshare its SELinux namespace.
-> 
-> Technically, the selinuxfs interface also currently requires open and
-> write access to the selinuxfs node; hence:
->     allow domain security_t:file { open write };
-> is also required for the selinuxfs interface.
-> 
-> We need to decide what we want the SELinux check(s) to be for the
-> syscall and whether it should be more like the former (process
-> attributes) or more like the latter (security policy settings). Note
-> that the permission name itself is unimportant here and only differs
-> because it seemed less evident in the process2 class that we are
-> talking about a SELinux namespace otherwise.
-> 
-> Regardless, either form of allow rule can be prohibited in policies
-> via neverallow rules on systems that enforce their usage
-> (e.g. Android, not necessarily on Linux distributions).
-> 
-> 3. The selinuxfs interface currently offers more functionality than I
-> have implemented here for the sycall interface, including:
-> 
-> a) the ability to read the selinuxfs node to see if your namespace has
-> been unshared, which should be easily implementable via
-> lsm_get_self_attr(2).  However, questions remain as to when that
-> should return 1 versus 0 (currently returns 1 whenever your namespace
-> is NOT the initial SELinux namespace, useful for the testsuite to
-> detect it is in a child, but could instead be reset to 0 by a
-> subsequent policy load to indicate completion of the setup of the
-> namespace, thus hiding from child processes that they are in a child
-> namespace once its policy has been loaded).
-> 
-> b) the abilities to get and set the maximum number of SELinux
-> namespaces (via a /sys/fs/selinux/maxns node) and to get and set the
-> maximum depth for SELinux namespaces (via a /sys/fs/selinux/maxnsdepth
-> node). These could be left in selinuxfs or migrated to some other LSM
-> management APIs since they are global in scope, not per-process
-> attributes.
-> 
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
->  include/uapi/linux/lsm.h            | 1 +
->  security/selinux/hooks.c            | 8 ++++++++
->  security/selinux/include/classmap.h | 4 +++-
->  3 files changed, 12 insertions(+), 1 deletion(-)
-> 
-> diff --git a/include/uapi/linux/lsm.h b/include/uapi/linux/lsm.h
-> index 938593dfd5da..fb1b4a8aa639 100644
-> --- a/include/uapi/linux/lsm.h
-> +++ b/include/uapi/linux/lsm.h
-> @@ -83,6 +83,7 @@ struct lsm_ctx {
->  #define LSM_ATTR_KEYCREATE	103
->  #define LSM_ATTR_PREV		104
->  #define LSM_ATTR_SOCKCREATE	105
-> +#define LSM_ATTR_UNSHARE	106
->  
->  /*
->   * LSM_FLAG_XXX definitions identify special handling instructions
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index c544b3e2fd5c..11b0b3c5b74a 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -6812,6 +6812,10 @@ static int selinux_lsm_setattr(u64 attr, void *value, size_t size)
->  		error = avc_has_perm(state, mysid, mysid, SECCLASS_PROCESS,
->  				     PROCESS__SETCURRENT, NULL);
->  		break;
-> +	case LSM_ATTR_UNSHARE:
-> +		error = avc_has_perm(state, mysid, mysid, SECCLASS_PROCESS,
-> +				     PROCESS2__UNSHARE_SELINUXNS, NULL);
-> +		break;
->  	default:
->  		error = -EOPNOTSUPP;
->  		break;
-> @@ -6923,6 +6927,10 @@ static int selinux_lsm_setattr(u64 attr, void *value, size_t size)
->  		}
->  
->  		tsec->sid = sid;
-> +	} else if (attr == LSM_ATTR_UNSHARE) {
-> +		error = selinux_state_create(new);
-> +		if (error)
-> +			goto abort_change;
->  	} else {
->  		error = -EINVAL;
->  		goto abort_change;
-> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-> index be52ebb6b94a..07fe316308cd 100644
-> --- a/security/selinux/include/classmap.h
-> +++ b/security/selinux/include/classmap.h
-> @@ -60,7 +60,9 @@ const struct security_class_mapping secclass_map[] = {
->  	    "siginh",	    "setrlimit",     "rlimitinh",   "dyntransition",
->  	    "setcurrent",   "execmem",	     "execstack",   "execheap",
->  	    "setkeycreate", "setsockcreate", "getrlimit",   NULL } },
-> -	{ "process2", { "nnp_transition", "nosuid_transition", NULL } },
-> +	{ "process2",
-> +	  { "nnp_transition", "nosuid_transition", "unshare_selinuxns",
-> +	    NULL } },
->  	{ "system",
->  	  { "ipc_info", "syslog_read", "syslog_mod", "syslog_console",
->  	    "module_request", "module_load", "firmware_load",
-> -- 
-> 2.51.0
+--=20
+paul-moore.com
