@@ -1,94 +1,129 @@
-Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6EC3347DD
-	for <selinux@vger.kernel.org>; Fri, 12 Sep 2025 01:48:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8390B2AD20
+	for <selinux@vger.kernel.org>; Fri, 12 Sep 2025 07:32:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757641735; cv=none; b=mkWZaXg+0OJVbx/+66zd0Iz2zLz7UjG9AwHX7bq0R95I+398HvACKkcAp7KhpEis0FTo/eHJpaNCYqZvF7NXn8CNjHht0o2UjVkLvZC/Liuh8rpBsQi2k2C+hcUkq7qf6/w4pD0j64xTtD26KYpZnUFdf2vZgfkMGahwwgyVtOA=
+	t=1757662337; cv=none; b=S4x/fKMCNc+1NHwJxAPo4Eui0pE1wrbAJ0+nxxOc71zUrQQRlyFBnbgiDXyrwnK29ksY+rUan4SUdCBQPO2Be/J/tE/TKW7inrxN8VVXDUELawSVFWqT7bJj0wbZiNAW9vVpeG2ih/IbtQc9+JOExS+LdS+ujAHC0jMvBMeCDO8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757641735; c=relaxed/simple;
-	bh=Zga3GNusDfSgVUj052y05xC1n7khhCDCOun+kMC4wAM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=LCZERw/8vjahTPJLRl1udTQrUbfk9ElwQ58K+q7jUcd7Dkx6cB26kSmS2G2OXRaaoU7jjOxQHrnhl4ddMohqEbV2Xvto5GB2aajE+yoKPGFNzkh2FV8HhtkN2QSTcRg0csjNvi2JVuhn9F1BXw5csexs61gV/AIczSG9Jpkn2DU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=AQ5pdCaI; arc=none smtp.client-ip=209.85.210.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1757662337; c=relaxed/simple;
+	bh=mVJNM8dHgAyM3oG5I+geCSFbDCnMCOthyfzNfi0vq3Y=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=cfsqybFUduxcEWuWt8BrIPGpY4jqCl4UmijIm/KhjL1TdcXZ/VkLNcpN24/ZPYdacop8u0l964GW0d5YyYHWPrwwETp4bGWeJQ1LhdsEFYtGtaTHGNVbTfTZw05OVLrSK4rjO0pqSzlftDRUGVuwyUK02rwi+Bwxqp1VbNT2KM0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=ITpDUNSR; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=UeZ2JiDf; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=ITpDUNSR; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=UeZ2JiDf; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="AQ5pdCaI"
-Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-7741991159bso2085826b3a.0
-        for <selinux@vger.kernel.org>; Thu, 11 Sep 2025 18:48:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1757641733; x=1758246533; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kwZ+efw570OZx4YJ4/j4PWOdvYDNSjRQjeqYpWheFvI=;
-        b=AQ5pdCaIeyVAXT5K0h0cZt+naDyhkgw0cp1RWM9QeJZyxqYyA+4mKWKbtnRllowQLi
-         e623bHYj7BubYyltm3SuOfK4n3kwXALVopz9jzHGd7sSrsaKVQHkQ7AH1Q444I56oxZ8
-         mvlUDjWL240u/2XEgY4mGFq2rVUqdEiw0/gTt+4+yLc/T/zF+pXjtaHnJWCGRg8mvUcf
-         t6iS/Io4K2dxJ0gEbT3jcB7pADbKsCBchwbyWjZNGK8qDelC33kUYPY0JMo6eAGaTOaP
-         UWus4dGfpMDrW4a/BAwEEp3XSG1aALeVrZEjKKCcLTBiyU+hkyWWdwsoR31frBSW50jf
-         P1rQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757641733; x=1758246533;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=kwZ+efw570OZx4YJ4/j4PWOdvYDNSjRQjeqYpWheFvI=;
-        b=KnIj3EN774YWK6yn9qPMVeIkiAJW1TwutE55R2D83vnZan0oMkxGsW/0rZ6yLBEcki
-         8eYsPBy2fkMDQXuuxIiv72b9HDsYhoIIfKcUtQEufZWzVIAri2y9tzex2mDpze25ZHb/
-         faADRiuuVgQDCvkCelcRqhbWVbBnWUky3HumJAKkKlWTF0mk/wqmkcNLVERD2MqhWTxe
-         eX6cF52FHYLXzYhQ5a0LoKkHtdaGW4REJ1vtaKjVo25zyT6KbptNyDLY7pcFo9N1yhaZ
-         2CRzg6ZwUWWb0IdLQbqBB1ROYfpdZv65vYUC2EgCe36XUDSSK3WZjrB3RI2YlCud4rBR
-         9N+A==
-X-Forwarded-Encrypted: i=1; AJvYcCUdt485kKYELS7CFbKjOdyYEzicydkS4QqSjJKt1XHBvZYJ8bZoKwKuTcvkCOAgFYQm5xQdfJsp@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw9NCEHZXelI5ihEYRtv95WJMNihKLuhptH8NXuuPJqcwSsIqId
-	OJEfn/NQ/II+SVGkrg/KfGgKTrvQ6CPu/K+y8WN1C804Tw8oM+Qo8+mCHF4Dtn95lJAfAaGuXov
-	bNhr2HVMw0M47AKdbCrDIp074s62V6rQd2SX5O+Yl
-X-Gm-Gg: ASbGncuhIzaXACk6qXK6foobF+A0kLYLxr0tWAWi/EyE2uwRQVtwat4HlB5vi2ad3Fd
-	/5VGCwpkgmlL8ZLHI8WGj+McxVUmrhNwGhiXMTLJ6B3LS10YbxaqxEem5f7QP5brv1X0Yq+I85p
-	OG9cgAOdwG0sL/6cRusRcqLhqB70nRlBs1LAuhnlbgXSK1mDXnDr9ryYc2OIq+xDkKt+lfvLVV4
-	mtl8Ms=
-X-Google-Smtp-Source: AGHT+IFcmKzAXmvR3kg0PSIDLyLXxlf/usnpeiCPFujxVN4S0OObwqltQTuSb24BYjTIZ7ku3FiMsnAVEhIfTSZTKnU=
-X-Received: by 2002:a05:6a20:158a:b0:245:fb85:ef69 with SMTP id
- adf61e73a8af0-2602c04eaf7mr1616418637.40.1757641733012; Thu, 11 Sep 2025
- 18:48:53 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="ITpDUNSR";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="UeZ2JiDf";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="ITpDUNSR";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="UeZ2JiDf"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 2A9983F121;
+	Fri, 12 Sep 2025 07:32:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1757662333; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=OveaFbmmCbW51d+hljl/KpbVsnuyOCv2Ca/ZyilCq1A=;
+	b=ITpDUNSRMd4U4WIJXe5ll8DZt0+vfUAT2uocMpQLPjnF0Jm2PUAHJbiaTYeVivgGSgkIO3
+	MjWVWCa0RuJLSyBKBEhHmu9v+NbEYei4mqMxaCbNTQk+xBg0wCSZ6p0+MIOvOfA42EkyWj
+	43vqxDQpEwJUyxeQMsDz9oVPD2n6bBA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1757662333;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=OveaFbmmCbW51d+hljl/KpbVsnuyOCv2Ca/ZyilCq1A=;
+	b=UeZ2JiDf6TqDjO+HEWHhQLFpf2vCI3+GxDRe2fzmVZ4mp/vv1Dpc+v5YL+7FyQms21APJv
+	MOSt0enni6QGfPBA==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1757662333; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=OveaFbmmCbW51d+hljl/KpbVsnuyOCv2Ca/ZyilCq1A=;
+	b=ITpDUNSRMd4U4WIJXe5ll8DZt0+vfUAT2uocMpQLPjnF0Jm2PUAHJbiaTYeVivgGSgkIO3
+	MjWVWCa0RuJLSyBKBEhHmu9v+NbEYei4mqMxaCbNTQk+xBg0wCSZ6p0+MIOvOfA42EkyWj
+	43vqxDQpEwJUyxeQMsDz9oVPD2n6bBA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1757662333;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=OveaFbmmCbW51d+hljl/KpbVsnuyOCv2Ca/ZyilCq1A=;
+	b=UeZ2JiDf6TqDjO+HEWHhQLFpf2vCI3+GxDRe2fzmVZ4mp/vv1Dpc+v5YL+7FyQms21APJv
+	MOSt0enni6QGfPBA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id DF951136DB;
+	Fri, 12 Sep 2025 07:32:12 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id Jn/MNXzMw2g7GgAAD6G6ig
+	(envelope-from <pvorel@suse.cz>); Fri, 12 Sep 2025 07:32:12 +0000
+From: Petr Vorel <pvorel@suse.cz>
+To: ltp@lists.linux.it
+Cc: Petr Vorel <pvorel@suse.cz>,
+	Mimi Zohar <zohar@linux.ibm.com>,
+	linux-integrity@vger.kernel.org,
+	selinux@vger.kernel.org,
+	Cyril Hrubis <chrubis@suse.cz>,
+	Coiby Xu <coxu@redhat.com>
+Subject: [PATCH 0/2] LTP IMA pre-release fixes
+Date: Fri, 12 Sep 2025 09:32:07 +0200
+Message-ID: <20250912073210.47637-1-pvorel@suse.cz>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250903192426.215857-2-stephen.smalley.work@gmail.com> <aMNVDOCjCBZZE8Kb@mail.hallyn.com>
-In-Reply-To: <aMNVDOCjCBZZE8Kb@mail.hallyn.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 11 Sep 2025 21:48:41 -0400
-X-Gm-Features: Ac12FXwv-pJpiAmW9-PshxFm06tfN1NilplttFrornlIK7ric0mSfbZU5-JB9Tg
-Message-ID: <CAHC9VhQYr_3WzG__RYs_mPtMqFCQz4wbrUnyGZeyKjCuEO93_Q@mail.gmail.com>
-Subject: Re: [RFC PATCH] lsm,selinux: introduce LSM_ATTR_UNSHARE and wire it
- up for SELinux
-To: "Serge E. Hallyn" <serge@hallyn.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, omosnace@redhat.com, 
-	john.johansen@canonical.com, casey@schaufler-ca.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Spam-Level: 
+X-Spamd-Result: default: False [-2.80 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_CONTAINS_FROM(1.00)[];
+	R_MISSING_CHARSET(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-0.999];
+	MIME_GOOD(-0.10)[text/plain];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	ARC_NA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.cz:mid];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCPT_COUNT_SEVEN(0.00)[7];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	TO_DN_SOME(0.00)[];
+	RCVD_TLS_ALL(0.00)[]
+X-Spam-Flag: NO
+X-Spam-Score: -2.80
 
-On Thu, Sep 11, 2025 at 7:02=E2=80=AFPM Serge E. Hallyn <serge@hallyn.com> =
-wrote:
-> On Wed, Sep 03, 2025 at 03:24:26PM -0400, Stephen Smalley wrote:
-> > In the hopes of nudging the conversation in [1] in a more focused
->
-> Hi Stephen,
->
-> what was [1] supposed to be here?  I can think of two possibilities,
-> but I'm not seeing it inline...
+Hi,
 
-I'm guessing Stephen was talking about the "LSM namespacing API" thread:
+important is the second patch. It'd be good to merge it before upcoming
+LTP release (1-2 weeks).
 
-https://lore.kernel.org/linux-security-module/CAHC9VhRGMmhxbajwQNfGFy+ZFF1u=
-N=3DUEBjqQZQ4UBy7yds3eVQ@mail.gmail.com/
+Kind regards,
+Petr
 
---=20
-paul-moore.com
+Petr Vorel (2):
+  ima_policy.sh: Optimize check for policy writable
+  ima_{conditionals,policy}: Handle policy required to be signed
+
+ .../security/integrity/ima/tests/ima_conditionals.sh | 11 ++++++++++-
+ .../security/integrity/ima/tests/ima_policy.sh       | 12 ++++++------
+ .../kernel/security/integrity/ima/tests/ima_setup.sh |  7 +++++++
+ 3 files changed, 23 insertions(+), 7 deletions(-)
+
+-- 
+2.51.0
+
