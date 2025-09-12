@@ -1,167 +1,110 @@
-Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B1522F60A2
-	for <selinux@vger.kernel.org>; Fri, 12 Sep 2025 12:35:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37C3B2E7BAE;
+	Fri, 12 Sep 2025 13:18:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757680539; cv=none; b=abJQmvxxTXpzm1PSpuZ5rj5PhSTavBEoDJW5ydTXRgLKmydWSxcR61sjxmqFBkpYJ2gRcCEf7G3+NTxSPSGjV8P30NtwFsmp9ygh+qXQNxd8RIMleo8qrEOgJlKpmkaXQ5zXQceXYEI3HBltEOg8XatF5ENGdtBOIi7jwql4gGw=
+	t=1757683101; cv=none; b=R3+YSKFN2LZXHq5RO9Lt8sGBizzBYu4aj78NEpVXGJ61APUKNkMYR/5iIkRgBim8tG4wOQSGcZ0IOAuTHTpaJJdUcl96vMNxfPHTBOa+P2ZvNmsWdWwLfdpmKme5GBou8REqVrgqNXfEJ8jhkSVNnwLS/O/QKs1KHvKxO86NqiY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757680539; c=relaxed/simple;
-	bh=Tj2+e83du4vC4DcQ+WEChWjKDbfxZ6nCt/evqIC5u40=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ctLr3AGpplDSMSOJORqoO4iKtddUMgaz5rRN0CrbyUTlccyLSxDgDruZOLzeb8tvzKMnzm8ambGOeCwzQ8vBBjqUspVFdRc/0/7iPXIQOnEx6I9FGCfiQpmMVlAX4MXrUf6cG0fOWBxHFE/25sEM5n86+vmMYrMysvgPoGi61Ok=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CW6D4zKl; arc=none smtp.client-ip=209.85.210.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1757683101; c=relaxed/simple;
+	bh=rjGdHh+ftt2qBFlZwuyMmhQlwlfRRJVAShREhD2SeOI=;
+	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
+	 Date:MIME-Version; b=gjyNrsmuXv3/LraIUGJym70z1INcLAhvCkoX2JekkLpBNj8xcHQ4PvHOA1s1ksv/XsTazmvlI8b53whR2aBB6iI58RE+SLT26b7iNZ/QtfLJEhG6SB/Vz8HNs689U88AHcw1CoCN2tFHD0KJq3IqTCxmoU1ETvxBYjFiycQTC4w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lDi0v9Cx; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CW6D4zKl"
-Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-7725fb32e1bso1905220b3a.1
-        for <selinux@vger.kernel.org>; Fri, 12 Sep 2025 05:35:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757680537; x=1758285337; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=q9JiQChWbox7CofESJhE4xi9hVI02nwJJqT2Ui2FNY0=;
-        b=CW6D4zKlKd1R2CERax75KozKtOYEiZaN8ATGM3mXR3Yxq84ER2FpzYXNZGcOVsY5eN
-         7uy0b8fAgj7ZPepqIm6+LTCHUz2cbgXvuRk5U6HRebTELAksQTatkjP8kIvnNQVxOUbk
-         ISSqSa0KBQNY9Oh0Nls8PjbxXVaE/Ru8jZFNgmorjn09/XKnDksocn5T2OWeqwg82J5t
-         24Vo5vjhFMdz4hKfa+5uqecSBF7N+9WgwjFABj1ZqjbYhQrvN0rtdgIZ3QRPAnLzWCQy
-         fBekNT0+Ddn4FGBN4KepizBHqae8Jb1shTgVH7pMRHphn9lnwmLKwARzcfHxE817KvAd
-         Tc0A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757680537; x=1758285337;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=q9JiQChWbox7CofESJhE4xi9hVI02nwJJqT2Ui2FNY0=;
-        b=bLpTAtXlC2PF6BO92AA/y/Yeu8DD+BgUDsMAET1bahvZnLB8mcWgL/dlB8pRhHQpvI
-         GU7fYwdgB5OZ8G2PBNJ7iqP5sL7YmT4/MBgwhzq8+i5dqXBBPwbtE2S7KvVp0PvoftGJ
-         2Srqw/6l/z/yZrAmUIcfhOd4jD0JJSaiq4JAaLr3v6x7RER2OlhVjyb5X+OzpPySrHPb
-         Vc9K72TaehDwC+q2HArDJqiQx52yy6qusEhIevGIbRPLMudW0Bi9XGbJdtANzvXx6VaT
-         Ke+ENyuwqXQFyujds5LooOIj4juIUIiPAvxzclr9qtzfv1yq4ZoJxJJLdPTsp8lDit8m
-         WHPg==
-X-Forwarded-Encrypted: i=1; AJvYcCV3u0hUpYL3AU8a80zbKjmKdfW0u+pxmtSGWupyDrnz/kTqrMZaiHZoNr9NmJXt2dY+cKn3Xt4j@vger.kernel.org
-X-Gm-Message-State: AOJu0YzgtmfJNhQpd6Nv29BshXJ5cW6wtrMRC3BBJl8JHp2IUsXD3ya4
-	PND0oXfWi3llCKp33EsnT2D6Co77BgyRSJKvIqa3HJG6LnFeZdLhSO6JNJ14L8ABmxtBfspLFzH
-	h852hTGtCBdOvXS1XOISjdC4KhGZ6ZJM=
-X-Gm-Gg: ASbGncs3gDdGenmBfps6/SeJuFAuKorMqe6kZZZX3wzYQ0Ga55twwtgy25RouoBXOAr
-	kTDexN1mywpNFrCl0qRIFDtoTZtpjeEBKjXBtIo3hsOjlYjhUHw+P3VHJpxfkPgq7VrTW7aukKG
-	NFTXdC9b7IUzVjDgy7AmHR4fvaftw94CXa2A4RpEyrjilbcL99YKJYPeZXyNJhOdEBog5d4EieL
-	V57O+E=
-X-Google-Smtp-Source: AGHT+IEQx1PETSfMB/6QLGHuYxCf5yh/1hM526+nvA7AYVYQddNTgpSwAE2ETgu3zPA51ZIJcXY8WaU5282fceEbiAg=
-X-Received: by 2002:a05:6a20:939d:b0:243:78a:82b3 with SMTP id
- adf61e73a8af0-2602c71d516mr3395424637.59.1757680536658; Fri, 12 Sep 2025
- 05:35:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lDi0v9Cx"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58CBfS6D029066;
+	Fri, 12 Sep 2025 13:18:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=rjGdHh
+	+ftt2qBFlZwuyMmhQlwlfRRJVAShREhD2SeOI=; b=lDi0v9CxAwgzaIn2DllOwl
+	4uLJ/7f70gJpB7U7fmtU39JTZFB0DOjUFP34jTlycbxTAlYwUClC1T5tGQhEkXz8
+	XJyMRLv6UMhcZrZuFncWRyFuIKECTuEJSlloZ6unDrTVS4D/TDjw6KfWg0jASiuN
+	v2OPbM+2+R+evsGRcAgqjcNJ0BKZiWYda2/DkWz7TzSJiwOvualhZYGE0tyHC1FB
+	kvbEwcrWlUzwxuOCDIThSUcXTaVzwfwZaXCsjWBswQEdI+i+IxUuYIFyf9qbWltK
+	2r0gpNOVG/gMNueUQU+cuSin1xSVGBtTzikin+rsWUv9nagh/yo9Y+OomRsij31Q
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 490cmxbqpy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 12 Sep 2025 13:18:10 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58CCCdDW011428;
+	Fri, 12 Sep 2025 13:18:09 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 490y9uucgh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 12 Sep 2025 13:18:09 +0000
+Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
+	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58CDI9aV19333562
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 12 Sep 2025 13:18:09 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2A5EC58052;
+	Fri, 12 Sep 2025 13:18:09 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6C16458045;
+	Fri, 12 Sep 2025 13:18:08 +0000 (GMT)
+Received: from li-43857255-d5e6-4659-90f1-fc5cee4750ad.ibm.com (unknown [9.61.85.212])
+	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 12 Sep 2025 13:18:08 +0000 (GMT)
+Message-ID: <79bb6b761ef478b6b4ac71875ac9d7215edd7c78.camel@linux.ibm.com>
+Subject: Re: [PATCH 1/2] ima_policy.sh: Optimize check for policy writable
+From: Mimi Zohar <zohar@linux.ibm.com>
+To: Petr Vorel <pvorel@suse.cz>, ltp@lists.linux.it
+Cc: linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        Cyril Hrubis
+	 <chrubis@suse.cz>, Coiby Xu <coxu@redhat.com>
+In-Reply-To: <20250912073210.47637-2-pvorel@suse.cz>
+References: <20250912073210.47637-1-pvorel@suse.cz>
+	 <20250912073210.47637-2-pvorel@suse.cz>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 12 Sep 2025 09:18:07 -0400
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAEjxPJ4naa66Aum5YO0jntY5-reXxF5Z-=JYTcmb7WFCBODAHg@mail.gmail.com>
- <20250912105939.1079014-1-zhanghongru@xiaomi.com>
-In-Reply-To: <20250912105939.1079014-1-zhanghongru@xiaomi.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 12 Sep 2025 08:35:25 -0400
-X-Gm-Features: Ac12FXx0D1xfyO9B8MbVlqQnGLXE8gX4XRYLx_eQw493PStSRkAcgif0AwZ25zQ
-Message-ID: <CAEjxPJ72UfNaPC0QXW61ENzCYLRUuYQCXeVxir4UFj4eP4PROg@mail.gmail.com>
-Subject: Re: [PATCH] selinux: Make avc cache slot size configurable during boot
-To: Hongru Zhang <zhanghongru06@gmail.com>
-Cc: linux-kernel@vger.kernel.org, omosnace@redhat.com, paul@paul-moore.com, 
-	selinux@vger.kernel.org, zhanghongru@xiaomi.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.54.3 (3.54.3-1.fc41) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: IJMtwYpPVrK9FJR4g_nQkYt3IF4I-9GV
+X-Proofpoint-ORIG-GUID: IJMtwYpPVrK9FJR4g_nQkYt3IF4I-9GV
+X-Authority-Analysis: v=2.4 cv=J52q7BnS c=1 sm=1 tr=0 ts=68c41d92 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=9TuvdWacXOjX2tRd1rUA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTA2MDAyNSBTYWx0ZWRfXyrRD2ZcUMJqM
+ RiiDrZcFjX8nCeIPOsZLEDo4sXd/nSNI+vuNUeBe6WrbqzF5DvM0IfS1ofxhkPntg28lv9VXxa5
+ LAUw51Mv8rk5dmb2F+Udsi9P84eywR4RhDErd+WdMnpgafUZL+U9pwaPNYp8tJonsYwuRJtNZQH
+ wcUvkd4npYp4zSdM83waBNILz5MfV0Ne3jp48Wrbt8grCUhJV2+14snVOqdUVL8lynpl/BtbrGV
+ Pz1dEglvJKWeAoEwNt13F8SL626ZVid31T3T/KLl33HNIzGghj7jmX7clcku89lMUhzsCSKx38O
+ hST/jNhicu9tZ2Arjp+nm8sSQavYIaf6i2tpRD5/EuJ/OSpsSN0+bQ/XYSJK385D7uO+NsWhnki
+ bTX3UGVn
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-09-12_04,2025-09-11_02,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 clxscore=1011 suspectscore=0 spamscore=0 phishscore=0
+ bulkscore=0 adultscore=0 malwarescore=0 priorityscore=1501
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509060025
 
-On Fri, Sep 12, 2025 at 7:00=E2=80=AFAM Hongru Zhang <zhanghongru06@gmail.c=
-om> wrote:
->
-> > > > Baseline: 512 nodes, 512 buckets
-> > > > Comparison: 8192 nodes, 8192 buckets
-> > > >
-> > > > Metrics (Average value over 1800 samples):
-> > > > * Bucket utilization rate (higher -> better, same chain length assu=
-med)
-> > > >         * Baseline: 52.5%
-> > > >         * Comparison: 49.5%
-> > > > * Max chain length (lower -> better, positive correlation with wors=
-t-case latency)
-> > > >         * Baseline: 7.5
-> > > >         * Comparison: 11.4
-> > > >
-> > > > Experimental results show that scaling buckets and nodes from 512 t=
-o 8192:
-> > > > 1. The distribution uniformity under the current hash algorithm doe=
-s not
-> > > > degrade significantly;
-> > > > 2. The maximum chain length rise significantly, potentially degradi=
-ng
-> > > > worst-case performance (ignoring other code in avc_search_node func=
-tion).
-> > > >
-> > > > Details:
-> > > > url: https://gist.github.com/zhr250/cb7ebca61ff5455098082677d75b179=
-5
-> > > >
-> > > > I will modify the hash algorithm in the avc_hash function and colle=
-ct data
-> > > > again to see if we can achieve performance improvements.
-> > >
-> > > If you look elsewhere in the SELinux code, you'll see that others hav=
-e
-> > > been converting other hash tables to using the jhash functions, so ma=
-y
-> > > want to try those here too.
-> >
-> > Or you could follow the example of ss/avtab.c which was converted to
-> > MurmurHash3.
->
-> I read the code of jhash and avtab_hash, it seems these algorithms are
-> more complex, with higher overhead compared to avc_hash. For cases with
-> a large number of nodes and limited number of buckets, the benefits can
-> be significant. However, for scenarios with a small number of nodes, the
-> overhead may already outweigh the gains. In my case, 8192 nodes are
-> sufficient, and I'm not sure if there are other cases with higher
-> requirements.
->
-> Based on the 'Max chain length' data I presented earlier, if we want the
-> hash operation and table lookup to yield an overall performance gain, the
-> overhead of the hash operation should not exceed the cost of traversing
-> 4 additional nodes (11.4 - 7.5 ~=3D 4). If measured by
-> 'Bucket utilization rate' (~50%, means average 2 nodes per chain), this
-> overhead should not exceed the cost of traversing 1 extra node. Otherwise=
-,
-> even if uniform distribution improves lookup performance, the hash
-> computation overhead could still degrade overall performance.
->
-> In scenarios requiring a large number of nodes, it seems necessary to
-> optimize the hash algorithm to avoid excessive bucket allocation for
-> maintaining performance, which would otherwise increase memory overhead.
->
-> I will first refer to the avtab_hash code to improve the avc_hash
-> function, and then show you the data. I will collect the following
-> information based on several different configuration using the same test
-> model:
->
-> Baseline: 512 nodes, 512 buckets, original avc_hash
-> A: 512 nodes, 512 buckets
-> B: 8192 nodes, 8192 buckets
-> C: 8192 nodes, 8192 buckets, original avc_hash
-> D: 8192 nodes, 4096 buckets ("large number" of nodes in limited buckets)
->
-> 1. /sys/fs/selinux/avc/hash_stats
->         a. assess the effectiveness of the optimized algorithm based on A=
-, B
->                 and Baseline. Expect bucket utilization rate: A ~=3D B > =
-Baseline.
-> 2. total latency of hash operation and table lookup
->         a. A vs Baseline: expect A is no obvious latency increasing
->         b. B vs A: expect B is close to A
->         c. C vs B: expect B is no worse than C
->         c. D vs C: see if we can save some memory with no obvious latency=
- increasing
+On Fri, 2025-09-12 at 09:32 +0200, Petr Vorel wrote:
+> Previously policy was checked in setup and in all tests
+> (redundant in test1). It should be enough to test in setup and after
+> write in test1, but let's being careful and test before writing the
+> policy in load_policy().
+>=20
+> Signed-off-by: Petr Vorel <pvorel@suse.cz>
 
-Thank you, looking forward to the results. Fun fact: the current
-avc_hash() function logic hasn't been changed since SELinux was first
-merged into Linux 2.6.0-test3.
+Thanks, Petr.
+
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+
