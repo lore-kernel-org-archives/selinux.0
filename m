@@ -1,51 +1,78 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from mail-pg1-f196.google.com (mail-pg1-f196.google.com [209.85.215.196])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6F312AD20
-	for <selinux@vger.kernel.org>; Fri, 12 Sep 2025 07:32:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A8D52FD1DA
+	for <selinux@vger.kernel.org>; Fri, 12 Sep 2025 11:00:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.196
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757662349; cv=none; b=kE3cmzu1V4mXumsym9oj11DYUQxCkiy73XpVBaEN87ZCA7Fmagq/qL0hyOk8mjSBUcJlp5oKLBpkjmh3HRvh3FT672d1TnL/nbPQDNBaUOP4IL9MEg2knDonwwLdD8ZdW5oFooeJlhBmHhTAomCBNkG64K9NhHCln5gOulEUVr4=
+	t=1757674803; cv=none; b=XvpS0SCjVuOx/muCOJ9DVTlX3EQbvqoSs+EkXRv/MU6cedD5jXEsywrHe5WS7QRXNGsBoDLFY7DBhqaY9ux1FwFA7JaCbJyJ6COPsjdk5t5lKS7C0EJWVqiIdrFlSYdf/PfNoyfmFIAN2V3jE5cBIHBmOl2Ur15sgxmZNoKyplU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757662349; c=relaxed/simple;
-	bh=SF5EN6pGbT6CnKsTPyGD0Nz6YR/VT2Nd5Gvdg3iJ4DY=;
+	s=arc-20240116; t=1757674803; c=relaxed/simple;
+	bh=Lv8Z/EsvKyPQrhIBJmijlUy1AOOhVUCeuR7SE/Sj8/Y=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=B9g6LxgMoLaPn/m9/79xzROaCl5daS1+e0rcOONfzPYeGavCHSg2tNYht3NG9p12Ovcyf1hJ6IG2za3N8X50ax8FefMPAjeEgiuvRG3HvrZkg8Hcls0mxLMJbOj6VKhT5CP5RHwST5MMFRkFUwp/Y6NJcKnAtbzX0M5D4Wckx7A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id DBE593F692;
-	Fri, 12 Sep 2025 07:32:13 +0000 (UTC)
-Authentication-Results: smtp-out1.suse.de;
-	none
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 8EE18136DB;
-	Fri, 12 Sep 2025 07:32:13 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id IIQrIX3Mw2g7GgAAD6G6ig
-	(envelope-from <pvorel@suse.cz>); Fri, 12 Sep 2025 07:32:13 +0000
-From: Petr Vorel <pvorel@suse.cz>
-To: ltp@lists.linux.it
-Cc: Petr Vorel <pvorel@suse.cz>,
-	Mimi Zohar <zohar@linux.ibm.com>,
-	linux-integrity@vger.kernel.org,
+	 MIME-Version; b=OJ6oWShtG7e0235UxOrZfMF+9JeuxU3EBXDPUpY3uC5jazNyajbqJ0VPqDMq3mUSBo7k2wf65M7VEhsPlb9Y1muo7QB1105Q8b/pv+eZujd6wPexa6uF0yCpA2Qe/3krZXyMgbQw7EL/+dbmt0vrziwE6HfStsFdDEfFtSNTxwc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NdqyXZ0T; arc=none smtp.client-ip=209.85.215.196
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NdqyXZ0T"
+Received: by mail-pg1-f196.google.com with SMTP id 41be03b00d2f7-b54acc8c96eso529687a12.0
+        for <selinux@vger.kernel.org>; Fri, 12 Sep 2025 04:00:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1757674800; x=1758279600; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=CGlezImdoAxOnbpnC+LXTdX0GBXGa9EFQIhsjjJX3xE=;
+        b=NdqyXZ0TN6lnejXk0nQ/hpmspsG/TVaRWW2p+pLsp8gnE+1Nddy9isZ+dfEVOUM4Og
+         5s1NbIxUwLc7tiBCC753QcJqzlzZPXx+zY26r+RjUZuFc0PZF+17iwnprLsbq0xB17BW
+         05tucUtGqVQu0xdB+nCbtTgsyPgjePmLJiPDy2aE/9/hDjPBczHcoEs1dXniY6YJarif
+         sJKOyZeuEPGWWVms3MDkBnNCrgmSY+p4KIzze1qBvTfAFSEZvk5ipywbDpHxQ3BLm5R8
+         JcdhZW4oU7Jh/VRXHcu8WwtwSfGIVm/cbD9/86KEcfXBPINBXuEiTqlyCgjYP8LaoHZJ
+         AHfA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1757674800; x=1758279600;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=CGlezImdoAxOnbpnC+LXTdX0GBXGa9EFQIhsjjJX3xE=;
+        b=fE6nCGyS+vnY9jvd6fz2QJ1BfoTB95QlVK82TpqG0xJGMOkT6k2L84Lh6/Rmzqibjx
+         rG04iJaMJ2nD2TzB9vGObe/RBT40lkQjE/IAWHzfCzpItERQFRKc9c8Aau3TEEOCQFiT
+         2bK5zanfd8x/IqGG1i10P6yJ3f2/8QQ/rdKFUkJKBc8LCPZB7ygTmq3mx/fXj0V92cg6
+         L41H4MOfCumyo1pwecrCACQ+pj+0yxVwbymS2DloeDF65WNUznp8f/4Uzk/c3nakBZ4V
+         Xta0lUKf1yCP7uemcQ7lDh+eswtLlVD1tMTL2g2TG2TKPV0RxuLfLuL41ktdssdKLDoV
+         kcew==
+X-Forwarded-Encrypted: i=1; AJvYcCUpnv/h1eC9Xih8RaQYc5a3/ewfhZq1gSCKn1n9IITAb21mEAIlU2oxqTHIKcMVuKh9nEuJAfpa@vger.kernel.org
+X-Gm-Message-State: AOJu0YwyHVAUkntbEYHLvGgTlaz331SEciSdJK02crRvxOQ6XIHcut3L
+	0aZ/1iMQbSQIhNFDLl/O8sPyhfLVKDcR7dYjExz8PyBCktowaE+iiKVf
+X-Gm-Gg: ASbGnct0bxCkN58jVAEcGVEf9lFK+bHfx4R6Zb4p+aC6MWLCvU2uZzAgqEGzZP6sEy8
+	4j/RQAQ3clTyIAQq3lhOoMvzpgXMi+8Eg7/TaQbd20I3ByIevyTduaXjUoA4VGEkbJHZdFTjYvf
+	kwzvjrXzA6XrfJ6aMUCfxsBEFXD370w8QfaS+MUfAUq8SVDbplpOzeNbDUD0dH4thyxiuM1KXLL
+	TS6vhrCbXtr4lduIfAJPhaPxmcUtg62xoGv/F20bl9ZqZA88y/31rzHhjpyG2I3kewvBZVEYP9/
+	cwbkWcofVstZla0UmDxluKEsdGju4u+Au5Ld+YjZEDpu/1k5GlMF33zDFPjaJk3Ha/hm+tQHvzV
+	ZBWc4x6sh/DXM/sRpmxr5EjZSYqrXMmjdpPiGCoUqBOfqdYbd7bA=
+X-Google-Smtp-Source: AGHT+IFW0sVkWLfTATGOs+e3L06riQgTnCt13Di8cg085uzPoGjrDKDDcAkFb4jmVbnJLc9ZMCGtNA==
+X-Received: by 2002:a17:903:2f4f:b0:24c:99bd:52bb with SMTP id d9443c01a7336-25d267641camr32497785ad.30.1757674799671;
+        Fri, 12 Sep 2025 03:59:59 -0700 (PDT)
+Received: from zhr-ThinkStation-K.mioffice.cn ([43.224.245.231])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-25c3a84a789sm46074395ad.88.2025.09.12.03.59.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 12 Sep 2025 03:59:59 -0700 (PDT)
+From: Hongru Zhang <zhanghongru06@gmail.com>
+X-Google-Original-From: Hongru Zhang <zhanghongru@xiaomi.com>
+To: stephen.smalley.work@gmail.com
+Cc: linux-kernel@vger.kernel.org,
+	omosnace@redhat.com,
+	paul@paul-moore.com,
 	selinux@vger.kernel.org,
-	Cyril Hrubis <chrubis@suse.cz>,
-	Coiby Xu <coxu@redhat.com>
-Subject: [PATCH 2/2] ima_{conditionals,policy}: Handle policy required to be signed
-Date: Fri, 12 Sep 2025 09:32:09 +0200
-Message-ID: <20250912073210.47637-3-pvorel@suse.cz>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20250912073210.47637-1-pvorel@suse.cz>
-References: <20250912073210.47637-1-pvorel@suse.cz>
+	zhanghongru06@gmail.com,
+	zhanghongru@xiaomi.com
+Subject: Re: [PATCH] selinux: Make avc cache slot size configurable during boot
+Date: Fri, 12 Sep 2025 18:59:39 +0800
+Message-ID: <20250912105939.1079014-1-zhanghongru@xiaomi.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <CAEjxPJ4naa66Aum5YO0jntY5-reXxF5Z-=JYTcmb7WFCBODAHg@mail.gmail.com>
+References: <CAEjxPJ4naa66Aum5YO0jntY5-reXxF5Z-=JYTcmb7WFCBODAHg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -53,123 +80,74 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Spam-Level: 
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spamd-Result: default: False [-4.00 / 50.00];
-	REPLY(-4.00)[]
-X-Rspamd-Queue-Id: DBE593F692
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Rspamd-Action: no action
-X-Spam-Flag: NO
-X-Spam-Score: -4.00
 
-Since kernel 6.6 policy needs to be signed on enabled UEFI secure boot.
-Skip testing in that case.
+> > > Baseline: 512 nodes, 512 buckets
+> > > Comparison: 8192 nodes, 8192 buckets
+> > >
+> > > Metrics (Average value over 1800 samples):
+> > > * Bucket utilization rate (higher -> better, same chain length assumed)
+> > >         * Baseline: 52.5%
+> > >         * Comparison: 49.5%
+> > > * Max chain length (lower -> better, positive correlation with worst-case latency)
+> > >         * Baseline: 7.5
+> > >         * Comparison: 11.4
+> > >
+> > > Experimental results show that scaling buckets and nodes from 512 to 8192:
+> > > 1. The distribution uniformity under the current hash algorithm does not
+> > > degrade significantly;
+> > > 2. The maximum chain length rise significantly, potentially degrading
+> > > worst-case performance (ignoring other code in avc_search_node function).
+> > >
+> > > Details:
+> > > url: https://gist.github.com/zhr250/cb7ebca61ff5455098082677d75b1795
+> > >
+> > > I will modify the hash algorithm in the avc_hash function and collect data
+> > > again to see if we can achieve performance improvements.
+> >
+> > If you look elsewhere in the SELinux code, you'll see that others have
+> > been converting other hash tables to using the jhash functions, so may
+> > want to try those here too.
+> 
+> Or you could follow the example of ss/avtab.c which was converted to
+> MurmurHash3.
 
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=56dc986a6b20b
+I read the code of jhash and avtab_hash, it seems these algorithms are
+more complex, with higher overhead compared to avc_hash. For cases with
+a large number of nodes and limited number of buckets, the benefits can
+be significant. However, for scenarios with a small number of nodes, the
+overhead may already outweigh the gains. In my case, 8192 nodes are
+sufficient, and I'm not sure if there are other cases with higher
+requirements.
 
-This fixes errors:
+Based on the 'Max chain length' data I presented earlier, if we want the
+hash operation and table lookup to yield an overall performance gain, the
+overhead of the hash operation should not exceed the cost of traversing
+4 additional nodes (11.4 - 7.5 ~= 4). If measured by 
+'Bucket utilization rate' (~50%, means average 2 nodes per chain), this
+overhead should not exceed the cost of traversing 1 extra node. Otherwise,
+even if uniform distribution improves lookup performance, the hash
+computation overhead could still degrade overall performance.
 
-    ima_policy 2 TINFO: verify that policy file is not opened concurrently and able to loaded multiple times
-    ima_policy 2 TFAIL: problem loading or extending policy (may require policy to be signed)
-    https://openqa.suse.de/tests/18723792#step/ima_conditionals/6
+In scenarios requiring a large number of nodes, it seems necessary to
+optimize the hash algorithm to avoid excessive bucket allocation for
+maintaining performance, which would otherwise increase memory overhead.
 
-    ima_conditionals 1 TINFO: verify measuring user files when requested via uid
-    echo: write error: Permission denied
-    ima_conditionals 1 TBROK: echo measure uid=65534 > /sys/kernel/security/ima/policy failed
+I will first refer to the avtab_hash code to improve the avc_hash
+function, and then show you the data. I will collect the following
+information based on several different configuration using the same test
+model:
 
-Ideally there would be test which check that unsigned policy cannot be
-written.
+Baseline: 512 nodes, 512 buckets, original avc_hash
+A: 512 nodes, 512 buckets
+B: 8192 nodes, 8192 buckets
+C: 8192 nodes, 8192 buckets, original avc_hash
+D: 8192 nodes, 4096 buckets ("large number" of nodes in limited buckets)
 
-Signed-off-by: Petr Vorel <pvorel@suse.cz>
----
- .../security/integrity/ima/tests/ima_conditionals.sh  | 11 ++++++++++-
- .../kernel/security/integrity/ima/tests/ima_policy.sh |  5 ++++-
- .../kernel/security/integrity/ima/tests/ima_setup.sh  |  7 +++++++
- 3 files changed, 21 insertions(+), 2 deletions(-)
-
-diff --git a/testcases/kernel/security/integrity/ima/tests/ima_conditionals.sh b/testcases/kernel/security/integrity/ima/tests/ima_conditionals.sh
-index b59f330cac..9125616890 100755
---- a/testcases/kernel/security/integrity/ima/tests/ima_conditionals.sh
-+++ b/testcases/kernel/security/integrity/ima/tests/ima_conditionals.sh
-@@ -1,7 +1,7 @@
- #!/bin/sh
- # SPDX-License-Identifier: GPL-2.0-or-later
- # Copyright (c) 2021 VPI Engineering
--# Copyright (c) 2021 Petr Vorel <pvorel@suse.cz>
-+# Copyright (c) 2021-2025 Petr Vorel <pvorel@suse.cz>
- # Author: Alex Henrie <alexh@vpitech.com>
- #
- # Verify that conditional rules work.
-@@ -10,8 +10,16 @@
- # support") from v5.16.
- 
- TST_NEEDS_CMDS="cat chgrp chown id sg sudo"
-+TST_SETUP="setup"
- TST_CNT=1
- 
-+setup()
-+{
-+	if check_need_signed_policy; then
-+		tst_brk TCONF "policy have to be signed"
-+	fi
-+}
-+
- verify_measurement()
- {
- 	local request="$1"
-@@ -22,6 +30,7 @@ verify_measurement()
- 	local value="$(id -u $user)"
- 	[ "$request" = 'gid' -o "$request" = 'fgroup' ] && value="$(id -g $user)"
- 
-+	# needs to be checked each run (not in setup)
- 	require_policy_writable
- 
- 	ROD rm -f $test_file
-diff --git a/testcases/kernel/security/integrity/ima/tests/ima_policy.sh b/testcases/kernel/security/integrity/ima/tests/ima_policy.sh
-index 1c4763d838..490c8b6c2e 100755
---- a/testcases/kernel/security/integrity/ima/tests/ima_policy.sh
-+++ b/testcases/kernel/security/integrity/ima/tests/ima_policy.sh
-@@ -61,12 +61,15 @@ test2()
- 	load_policy $VALID_POLICY & p2=$!
- 	wait "$p1"; rc1=$?
- 	wait "$p2"; rc2=$?
-+
- 	if [ $rc1 -eq 0 ] && [ $rc2 -eq 0 ]; then
- 		tst_res TFAIL "policy opened concurrently"
- 	elif [ $rc1 -eq 0 ] || [ $rc2 -eq 0 ]; then
- 		tst_res TPASS "policy was loaded just by one process and able to loaded multiple times"
-+	elif check_need_signed_policy; then
-+		tst_res TCONF "policy have to be signed"
- 	else
--		tst_res TFAIL "problem loading or extending policy (may require policy to be signed)"
-+		tst_res TFAIL "problem loading or extending policy"
- 	fi
- }
- 
-diff --git a/testcases/kernel/security/integrity/ima/tests/ima_setup.sh b/testcases/kernel/security/integrity/ima/tests/ima_setup.sh
-index 83fcefb4fc..2a7d651818 100644
---- a/testcases/kernel/security/integrity/ima/tests/ima_setup.sh
-+++ b/testcases/kernel/security/integrity/ima/tests/ima_setup.sh
-@@ -449,6 +449,13 @@ require_evmctl()
- 	fi
- }
- 
-+# 56dc986a6b20b ("ima: require signed IMA policy when UEFI secure boot is enabled") # v6.5-rc4
-+check_need_signed_policy()
-+{
-+	tst_secureboot_enabled && tst_kvcmp -ge '6.5' && tst_require_kconfigs \
-+		'CONFIG_IMA_KEYRINGS_PERMIT_SIGNED_BY_BUILTIN_OR_SECONDARY'
-+}
-+
- # loop device is needed to use only for tmpfs
- TMPDIR="${TMPDIR:-/tmp}"
- if tst_supported_fs -d $TMPDIR -s "tmpfs"; then
--- 
-2.51.0
-
+1. /sys/fs/selinux/avc/hash_stats
+	a. assess the effectiveness of the optimized algorithm based on A, B
+		and Baseline. Expect bucket utilization rate: A ~= B > Baseline.
+2. total latency of hash operation and table lookup
+	a. A vs Baseline: expect A is no obvious latency increasing
+	b. B vs A: expect B is close to A
+	c. C vs B: expect B is no worse than C
+	c. D vs C: see if we can save some memory with no obvious latency increasing
