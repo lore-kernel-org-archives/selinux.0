@@ -1,106 +1,86 @@
-Received: from mail-ot1-f45.google.com (mail-ot1-f45.google.com [209.85.210.45])
+Received: from mail-ot1-f53.google.com (mail-ot1-f53.google.com [209.85.210.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF8A125CC74
-	for <selinux@vger.kernel.org>; Sat, 13 Sep 2025 21:00:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40FF345945
+	for <selinux@vger.kernel.org>; Sun, 14 Sep 2025 05:16:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757797212; cv=none; b=GQP9WoqJ/MQRM1q7luWHjD53cF4ue7DzBxiVoFrq+yR1KM7kalCqQ063HzG1HHHJI0amt5I7kjLV85D8GTSKym3VXQEq9RphqS+8ROc8VrsepH565pHYHu5EzZw3EL89j+u4vfpy7XMrO6iYhjAl3LMhtHsv+Lo1mRoqSvMpGcg=
+	t=1757826966; cv=none; b=o9Pk+OOKJHMvIziCo52Tcta3Muw0SCcm9Q+G/iJq7o0aJAQqs+nbKK8rvolWuTZrs427d59S28Iulr81LyaqcJG8kx/3JVqmVfgqH7LOZFpcsZp9ABr28xNEhwUWOxtVK4etkUeGJ2grdfHrRGU4kaZvCr/i9wBEVCQE1KLcyDc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757797212; c=relaxed/simple;
-	bh=gDiGjb4ZpO3D87yjNU0pojdOXxYvL773xT7BSDw9X6U=;
-	h=Message-ID:Date:MIME-Version:To:From:Subject:Content-Type; b=Q5auiX0Lty09znukc57aWByxp5tHbUhh6e6Fds5siJjIguGQaxusWYwfAF+8LV102GtFVSvJY/OqJXwmhSBRSteun8AavqhtmGHbYx7gd0qVhe6MEeONcaIFrw4IcxNSNpC8Wo6xw0IUSU8E0ndDagtgRr6RxhvSiOWb442jxJc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ORYl5FXG; arc=none smtp.client-ip=209.85.210.45
+	s=arc-20240116; t=1757826966; c=relaxed/simple;
+	bh=TRQ282qM75Iu81y8Ziou4UPR7sBjIsad8QghBcSuImU=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To; b=W+cRzMmvgRbeel9H5YDlSnCyifvFVC4uGr7EfIxOOc8XFl6CZXNfG+16R8/rZF3BYKYPJZmuvD2zwiZqx6aJenEgj0RO+G4AVhzlXxqfkdBjBdGjwEFWwuUFADI2nnQtW5uoV8fjTajiq7CQ6dvOS2Lu4jQ/FyG4Wsqb1L2ThQ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=m35CMXdK; arc=none smtp.client-ip=209.85.210.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ORYl5FXG"
-Received: by mail-ot1-f45.google.com with SMTP id 46e09a7af769-746dae5ff93so3243711a34.0
-        for <selinux@vger.kernel.org>; Sat, 13 Sep 2025 14:00:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="m35CMXdK"
+Received: by mail-ot1-f53.google.com with SMTP id 46e09a7af769-74595f3852cso2255721a34.0
+        for <selinux@vger.kernel.org>; Sat, 13 Sep 2025 22:16:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757797210; x=1758402010; darn=vger.kernel.org;
-        h=content-transfer-encoding:subject:from:to:content-language
-         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=6Nf14KE5hxUbOxfkzafNghR0ImHQO3HD23PXe7jvra8=;
-        b=ORYl5FXGGyZLo2JnS8IVSdWmH6LqLI+Ik6VM4dTNVH5+sHlBns3SCtQHYt/X7phQbH
-         UXd/TIoX7pZ7Oi5sWbYDk4Owr29tv7KCs/Mh1Rgew6+fwXo2yPAgLyznrihPMIshiZYR
-         6D5OMBaJ8jz1SCBUm0/HMOK4gD+3ION8y39fa6PdBXLWu/4bH+qEwdGNgUHT2mOu6Ahz
-         QCujuf6MCR8Y1qPlKk8LW9SkGomliPwdomb9fDGzKzBSRnZog6kbs/mhq6IzsJwtKRu/
-         4ddaAhyrXfIiqKAjQgOTvZaisKyEJNFWQTqEP9AwHMJvcDuS9viV6lV4BPCtyGOkvNWb
-         ydcA==
+        d=gmail.com; s=20230601; t=1757826964; x=1758431764; darn=vger.kernel.org;
+        h=to:from:subject:message-id:date:content-transfer-encoding
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=TRQ282qM75Iu81y8Ziou4UPR7sBjIsad8QghBcSuImU=;
+        b=m35CMXdK8Qhr79f9kub/hYpRhN2j+lJH80JYw0h9l0VUD5JR/1NQm67qX0vsFia90V
+         liaSbQyRdZQdC9B142TDTZxxB1Q8IgOKDderYVOX/M4Xu6Pdh5OfKrdGoryQ/ORYtimy
+         RQP/pHBU2A2txZGF03TFQ5564Sh4sdnVTgSklQk3fb2xkJyBYFnB9kQAvz+jad1rFvNn
+         Gsmmu9u3/wlFNg/dXasOrOAgC7ym5wbJcprjNo6UtHBMWds7+Bq0wkJrBGGNFC1kYDTI
+         QSD17s4tlfU3Ow1Wt1TLjmZ7UvI1rlF327gTlbmifz+xfWtbJaT0z1AHULlBF4zVqeqf
+         LbBQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757797210; x=1758402010;
-        h=content-transfer-encoding:subject:from:to:content-language
-         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=6Nf14KE5hxUbOxfkzafNghR0ImHQO3HD23PXe7jvra8=;
-        b=w5vDBgiCtAUMupO3U4BWvODkeJW4Qvdr86RtE9H0Ft/SlKlrPvJbmHNzu/w4bqoBb2
-         n94OPIBi44aMXPpF+rvw2Ful7ZFnbRuZjy+YNpXyvk19+GsbQ5eONMHML0laR7Ykl0w9
-         3qbgajWeFfxk2xpXq1bYHAyjIbKsdtMB2s8JuoHnlwI4PEgvJHQjaUFVXjOT/nFZC1D9
-         GRyniB5gXnxspSBVDODWrEoFa9qZnj0cudlIorLYVDrF/mFIKi6TfjUoHKDMuZ5qjtZC
-         Yq4I/q7shgJLEpl3tN/Vm/D0RzMGMtR0Klujsc2uEkTeiPSoofxCfvFY3EDShUcCtIU/
-         wKDQ==
-X-Gm-Message-State: AOJu0YxrbsmfqlSJv8XUfY+qLRvtFk2RdQVabQepCRhzZfgdHP7Nerze
-	S0WepwkWnTYP/rwy2P7UGSxTmnziXKE58Kk2mF9bxhMxDUUO6w2ipKNYg3F2ug==
-X-Gm-Gg: ASbGnct1ulwnl0YfIgqVjR0IeuBuhse74gUzYmcoqfVZ6BKozrRSpY7zjy4scCA7NZu
-	ySk7xN+FU70PPYkUc42cTNw3cUks9/QcYPTovAq82aVmrFHIbAEcDm62ePRZDYQGDgpLkizTEvm
-	dQUn759LhuRWA4E2yTxJFwnBVZECX/3VRN+B5mNtCGLu8pvLA51vHN/WZN0XdbTGFv5wzJUqL6H
-	inEptfd9Q8mqpC+PxpK7mhijxlQsCT9Nuiz1WestP21yIzOGjBHHdTrq6xWqcbOXi6sNdgxAJa6
-	0INkEMFVKWFHjg2GNHCV3viVSCtw/nO3U1aIVmVeHdVSe0eqMez/16AHdi+Cjtqs+J0qV28tPWK
-	e/Hw/CBLWe19Xu13yCjOejcylKq8DMa199rxlYLEmpun+X7LBsJzaQp1RUDNPg1bWBz8xLKxtBH
-	AlhkBfLsv2FO3EJQ==
-X-Google-Smtp-Source: AGHT+IG7xYYGoh+YrYTo7y2m+631u3z0JAImBHYFFyTGKFu2ERkK6Jj9x6F+Dhkaq2heE27EM5Fscg==
-X-Received: by 2002:a05:6808:18a7:b0:438:2440:a594 with SMTP id 5614622812f47-43b8da71b5emr2712857b6e.47.1757797209843;
-        Sat, 13 Sep 2025 14:00:09 -0700 (PDT)
-Received: from [172.31.250.1] (47-162-145-207.bng01.plan.tx.frontiernet.net. [47.162.145.207])
-        by smtp.gmail.com with ESMTPSA id 5614622812f47-43b828d370esm1516735b6e.3.2025.09.13.14.00.08
+        d=1e100.net; s=20230601; t=1757826964; x=1758431764;
+        h=to:from:subject:message-id:date:content-transfer-encoding
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=TRQ282qM75Iu81y8Ziou4UPR7sBjIsad8QghBcSuImU=;
+        b=EhtOJLipvCw0HDKNs0ctBIJvohBNVvdMJHyBZEqev3LauDfDekemXbiNWqARkxtvq+
+         9+2GrAMKtBsSgNh1Q10WHotOEgFjOtsJUsAosD2biYCEbRmrG7DIVABUZ4AEXZtwdYY7
+         xcYp/w0yJ6JOjNAFRqEzKtyCQ1m3Tauy+Ts7Z2ZqaPP8K/RRfQ1hDef3h8Ze1IIE5pCV
+         6ozhWeuqGja4LaGpmM5KZgPt6eDW+E5MLQcKeg3lZf+B2n1HvMepUevwMsjoj0nsZd8N
+         +yBmSQaJxXimQi6hYzLdVQgMWe8YgrzHZnGasB8Xno3Lbq0nuNyS4Kq3zvuX/fGtq9Zr
+         9/LA==
+X-Gm-Message-State: AOJu0YxbwkD8wjhMeqHGFSy2tbgalOzUljS+dWTTHl5P7MdPCDJXQTjC
+	3D7d4OGx8vwvzcyY9FnVujBtq0hE1F4nN1JcMILunX/JwFSxLsMzinJvgJgTbA==
+X-Gm-Gg: ASbGncvDtrDHuR6gdtBdGUEVMBP8lbJ6FnZY/J8clRxqbkMdbUBEuV6GtFv9bxs6c7i
+	oQcALFy+wN/Sv/D9/GcQ5LSJSAd3I1Az/YrMNa3+2cXSHFxVni7sAOQ0+5qZRUJGFuadc0p3Kt6
+	d0LUnxFAKXxiHWqXsy4MvQmHZVnsTNUS8tdGpFnFb0xo/rkg1UoIaUCH3kpNBEsk2MUpgsuw3vp
+	l+5qNSYO637c79X7PznS+wrUJOl5Iex2BCzEca7h3J5SpVzwSGX0ezQE1qlNJ0MMY5DwEoyrrqc
+	7qjTLz8B5Nt1z87pVym2YLKvoRPRYPvuKvcFDcHhf2dAzVnqKG2NXiJMu9ms1v8daDRMiBEyrKX
+	HwPBhzwFwFQR7gZ7f4TF1vwWTo/d9m20FV1M/X+wK/uW3LBXqDuh3Vwg+Ul200E7LgSewHT/YgF
+	tGuZU2
+X-Google-Smtp-Source: AGHT+IG20zNAUzF69vFCmWrhZ7nC03gv9gTaBmjMMIWpHz50KVyWe4RG1ezWXbAId6Oc8d43x8K0gg==
+X-Received: by 2002:a05:6870:1cd:b0:315:24eb:6838 with SMTP id 586e51a60fabf-32e56db637bmr4124191fac.47.1757826964169;
+        Sat, 13 Sep 2025 22:16:04 -0700 (PDT)
+Received: from localhost ([95.173.217.66])
+        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-331955b6419sm175182fac.25.2025.09.13.22.16.01
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 13 Sep 2025 14:00:09 -0700 (PDT)
-Message-ID: <78602e06-7db0-4e0c-9415-75098682e58a@gmail.com>
-Date: Sat, 13 Sep 2025 16:00:08 -0500
+        Sat, 13 Sep 2025 22:16:02 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Content-Language: en-US
-To: SElinux list <selinux@vger.kernel.org>
-From: Ian Pilcher <arequipeno@gmail.com>
-Subject: File access macros
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Sun, 14 Sep 2025 06:15:49 +0100
+Message-Id: <DCS9NCJ1SZ91.12BXMI96H1ZHW@gmail.com>
+Subject: Clarification on kernel threads
+From: "Rahul Sandhu" <nvraxn@gmail.com>
+To: <selinux@vger.kernel.org>
+X-Mailer: aerc 0.20.1
 
-I'm writing a policy module to allow containerized and non-containerized
-services to share content.  (Basically to give container_t access to
-public_content_t and/or public_content_rw_t.)
+Hey,
 
-I don't normally make much use of SELinux policy macros, as the
-documentation seems to be rather difficult to find, scattered, and
-sometimes conflicting; instead I usually just use the denials generated
-by the program that I'm confining to determine exactly what access it
-needs.
+SELinux has the sid kernel, which when used e.g. as following:
+(sidcontext kernel (sys.id sys.role kernel.subj sys.lowlow))
 
-In this case, however, I'm trying to do something much more generic.
-I don't really know exactly what permissions a given containerized
-service might need, so I'm looking for a good, standard set of read-only
-and read/write permissions for files, directories, and symbolic links.
+But what privilege level (ring) do kernel threads run in? I can't find
+much clarification, and if a kernel thread runs in ring 0, then SELinux
+isn't of much use at all then given that the thread has complete access
+to both the processor and memory no?
 
-It sure seems like this must be a solved problem.  I.e. there must be
-something like this macro, which Google Gemini so helpfully
-hallucinated.
-
-     fs_read_access(<domain_type>, <file_type>);
-
-Thus far, I've been completely unable to find anything like this.
-
-Am I wrong that macros like this exist?
-
--- 
-========================================================================
-If your user interface is intuitive in retrospect ... it isn't intuitive
-========================================================================
-
+Thanks,
+Rahul
