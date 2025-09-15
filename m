@@ -1,77 +1,56 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mail.hallyn.com (mail.hallyn.com [178.63.66.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1CBC225761;
-	Mon, 15 Sep 2025 16:04:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 777EC2DAFB7;
+	Mon, 15 Sep 2025 17:10:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.63.66.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757952285; cv=none; b=Yy9PSuwjVfHChLbKNl2nKgI1vPAAdxV1rCiaRanGPzuMp/fgY+q0QtUhq2RqunvJV8ZGveLf+Abd+U49+eUyLTawL0VVRqGBjXNaeqaJqYKOe9rVGnjGgLWg3yl0rl5A3MnnQzBSXHiHf8QTXtm85lFaLbnfC3cg9NDGMzdxynQ=
+	t=1757956247; cv=none; b=JNJvhE9P5O1l/1HULwM/KbkD5vsydkJ+zD1zioYHPZzZ81AmlYZZn8pLcIcnIMfh6WfQ6ZTMCM6NgEbXCzd/ZRpbbCdyCBpb0yX4HN/56UDB0U7+tfUsn426ISlFUx3KZX9APTZGurEXtFrvwJDEglvY2Pirm+D/6JVYrxKeTpw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757952285; c=relaxed/simple;
-	bh=y/3VPnS/cbmPkKccFH0mNKVyABLcZQk5yctIJU7qkeU=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=cWUYSs9aJTG3NQIFWjeinjkRO1BKcGlQlYE9hhJVqgzN5D5qHTTNLfnXMkQaJ/97Z3o8GvRAC5mVnID+ggg0ZJRc494mTY0flijKz7Iw7pZQn0j5QXIRqz6xjELm6klaeg8XsIYdodktdADxipq9svaFbeAS8q07quuEB7iEhpk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H25jOKyh; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H25jOKyh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87783C4CEF1;
-	Mon, 15 Sep 2025 16:04:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1757952285;
-	bh=y/3VPnS/cbmPkKccFH0mNKVyABLcZQk5yctIJU7qkeU=;
-	h=Date:From:To:Cc:Subject:From;
-	b=H25jOKyhKu9SsQ32YF10ks2Aw7vjeeHjuL7ObVdrNr3hoEAwIIWWFyDrquMoWsnqu
-	 OfieuERGXkI6YDtHUc3vyW06ZbboENEwGIEALBAYm/1STbgUSdJLK2ou/auNZi1eRf
-	 dQBtm8w6WnCmdhRWXaE1Q1ydc4/1DtF1yzDUD6Z5RwIEOkHI2zujTAX74h74bhdSDo
-	 110eoWpgPamQuyXTRSgRjrPUIb4+vrbYPMNc0+chy6gHGr2yySmiRIOEr0sT8nDjed
-	 z7w01iOVOYD2XSOZ7GR2QSHZyoxZQAnv4lqflJKiaZ3xUYGbPGgIFgGIaeWOqk0WTs
-	 JOIq6aCnDOesw==
-Date: Mon, 15 Sep 2025 17:04:40 +0100
-From: Mark Brown <broonie@kernel.org>
-To: Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>,
+	s=arc-20240116; t=1757956247; c=relaxed/simple;
+	bh=tg5wQZt8IFHDWa57QcPEzPebm4t7CT0MwKDbjZ3TyXc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=O09sO/XyWifPUDYEwarKC9/82tNKLYJu2hpY9Z26BbOIGTg8oGJbwU8zQ45sxfk61UcDwjs2quAH4I56XIdb+y8EeXL08c3C2kdvfvm3aD9vi+s9Dg/ZI8xSUuaFL6hXgLGjMvN7COilNwk6/LaXJFH72sTiCbgK7RN+okoxOGE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hallyn.com; spf=pass smtp.mailfrom=mail.hallyn.com; arc=none smtp.client-ip=178.63.66.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hallyn.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mail.hallyn.com
+Received: by mail.hallyn.com (Postfix, from userid 1001)
+	id 44CCF6CC; Mon, 15 Sep 2025 12:10:42 -0500 (CDT)
+Date: Mon, 15 Sep 2025 12:10:42 -0500
+From: "Serge E. Hallyn" <serge@hallyn.com>
+To: Mark Brown <broonie@kernel.org>
+Cc: Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>,
 	Serge Hallyn <sergeh@kernel.org>,
 	Christian Brauner <brauner@kernel.org>,
-	Paul Moore <paul@paul-moore.com>
-Cc: linux-next@vger.kernel.org, linux-kernel@vger.kernel.org,
-	selinux@vger.kernel.org, linux-security-module@vger.kernel.org
-Subject: Missing signoff in the capabilities-next tree
-Message-ID: <bb5c5c5f-fa31-4339-aa53-d06596351f86@sirena.org.uk>
+	Paul Moore <paul@paul-moore.com>, linux-next@vger.kernel.org,
+	linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
+	linux-security-module@vger.kernel.org
+Subject: Re: Missing signoff in the capabilities-next tree
+Message-ID: <aMhIkinrQtnFz1/c@mail.hallyn.com>
+References: <bb5c5c5f-fa31-4339-aa53-d06596351f86@sirena.org.uk>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="SrGtx5dXEmZpxw0c"
-Content-Disposition: inline
-X-Cookie: Use a pun, go to jail.
-
-
---SrGtx5dXEmZpxw0c
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <bb5c5c5f-fa31-4339-aa53-d06596351f86@sirena.org.uk>
 
-Commit
+On Mon, Sep 15, 2025 at 05:04:40PM +0100, Mark Brown wrote:
+> Commit
+> 
+>   d87d3c530e0ce ("pid: use ns_capable_noaudit() when determining net sysctl permissions")
+> 
+> in the capabilites-next tree is missing a Signed-off-by from its
+> committer.
 
-  d87d3c530e0ce ("pid: use ns_capable_noaudit() when determining net sysctl permissions")
+Hm, I had expected b4 shazam to do that for me, but I see that
+that requires -s.
 
-in the capabilites-next tree is missing a Signed-off-by from its
-committer.
+In any case, I think I will be dropping it from this tree, and
+Christian will take it through his.
 
---SrGtx5dXEmZpxw0c
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmjIORcACgkQJNaLcl1U
-h9COCwf/X8kHyiQb0Ogtcb+5dSiGhzxyY7fa0vHQtdy+1MNrRpK4o3Q3RbBkX1yq
-DSttkJeaLA8hJumiCnKEalevw+46mVeyXiV1iuAB7XqSB34ZiNhuKKXt2BXVW2Tf
-1arHw1qit+5KQMy9pzGpgYbhsM7vbumA8pSBwyM/nXNyzeoPVRlDh5yubfMruVOn
-gea05ZXg4GNskFG8c0ZTUgl/2pPxtgwok4UuNzMBeqXdJPrIueBvsgqIsM1quyI4
-aLx/egNTyGgbCrMwKBslZ+cZ4BFr8uFURFGBSQEvOncGGWElpB2Ox9FqeK57ePYO
-0fnT/qp9BoQxXXj0SOFgGEZzXZ+HRg==
-=JsT8
------END PGP SIGNATURE-----
-
---SrGtx5dXEmZpxw0c--
+thanks,
+-serge
