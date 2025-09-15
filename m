@@ -1,102 +1,201 @@
-Received: from markus.defensec.nl (markus.defensec.nl [45.80.168.93])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 449B6DDAB
-	for <selinux@vger.kernel.org>; Sun, 14 Sep 2025 05:33:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.80.168.93
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EEA723313E
+	for <selinux@vger.kernel.org>; Mon, 15 Sep 2025 08:10:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757827998; cv=none; b=qS+KByCJLnvqvZ10Fls9RkZE9CbocdJ2rO5sVKXoY3UvQ8tCDDjtSuPwpX61GkcZZVD/KuQesOQDGaPrnzWnOrk/d1LMGbpTHUFyX1C54DVFDuI6cHenVbCd2cXuB5oZKupPfHyf5gR3HE6rx+nBjE6Od8ahI7J9o/rdnCrKf0o=
+	t=1757923843; cv=none; b=B1GqxdmeX6ifLvbCNFG6em6x2hTXmv5OFrzXWyOBExQyn7fP5wNd4yrAmYi/XSKmoXtPuodDrmIM/jc2J5LP19ejME2buk4OlQO4QnCzVVPq1AorImaa6sa9RiuxqJtXoDOg1LnGwFTGYd2qNT1pJxI1n0COoX1cTapLgKwHnho=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757827998; c=relaxed/simple;
-	bh=KYaWW2JGRzIYjW3y0kfrdhfWOAUIv+klc/uKthNQTYw=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=tuIEUi9EZuS4QEPJuijzf2pM3SX1ZhXoSZPGshMPJ3c5cwsMYNSfSplq0G8T3pcUXkWFugLSdnbRE4HGLXYXnmP/ImcH/2CFATefaotHXo+7vKK98wj/8nf8kbpX0YN8H5S54CD+/yj5brj4HTFqGoO3Zlv+xXwgC8X23cS24+E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=defensec.nl; spf=pass smtp.mailfrom=defensec.nl; dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b=KW9onGlh; arc=none smtp.client-ip=45.80.168.93
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=defensec.nl
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=defensec.nl
+	s=arc-20240116; t=1757923843; c=relaxed/simple;
+	bh=ydyKws+nqEg8H/nF9V4OWWxJt3j/OvMlxMlg9asjmH4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=NFUgcyVK57qkR9se/ct78fvmf06G993NxXRdYWKz1r8wrkR/KbvIqeakbkFsMlvfesyJhwgQHeVh0xAbusyrZhBEhyiH0hIYzmmk66WxOiJdzwqa2MXjQbfDQefZFNZltM+0+Jw4wncPVEp1dd1pKYej7fBL32ba5Q4XTR0jUAY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=DhxtuIjK; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=W+K2gdsw; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=DhxtuIjK; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=W+K2gdsw; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="KW9onGlh"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=defensec.nl;
-	s=default; t=1757827790;
-	bh=KYaWW2JGRzIYjW3y0kfrdhfWOAUIv+klc/uKthNQTYw=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-	b=KW9onGlh6TtPuX3t54F5+Nc4uBqz7MYKGBwT8D5uc4i6Lm80yk45ElGRAR79+zm4v
-	 Le6KpXPUfKpi9mjjuc8QmJ5GqU86ZyMQKJcQDtK5IrVk9NGw4dEIiUWnKNnWPArUbH
-	 UYqCZR6wJSwU+s4DfwG0ERc98M2kkqZHNg1XGwe8=
-Received: from nimbus (nimbus.lan [IPv6:2a10:3781:2099::514])
-	by markus.defensec.nl (Postfix) with ESMTPSA id B268E1DE40A;
-	Sun, 14 Sep 2025 07:29:50 +0200 (CEST)
-From: Dominick Grift <dominick.grift@defensec.nl>
-To: Ian Pilcher <arequipeno@gmail.com>
-Cc: SElinux list <selinux@vger.kernel.org>
-Subject: Re: File access macros
-In-Reply-To: <78602e06-7db0-4e0c-9415-75098682e58a@gmail.com> (Ian Pilcher's
-	message of "Sat, 13 Sep 2025 16:00:08 -0500")
-References: <78602e06-7db0-4e0c-9415-75098682e58a@gmail.com>
-Date: Sun, 14 Sep 2025 07:29:50 +0200
-Message-ID: <87frcpfvox.fsf@defensec.nl>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="DhxtuIjK";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="W+K2gdsw";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="DhxtuIjK";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="W+K2gdsw"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 4AD3322274;
+	Mon, 15 Sep 2025 08:10:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1757923840; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=wLaR5hpCkQB0JLaDrirBNLA3y9+oo8Li0ikMURch4Wk=;
+	b=DhxtuIjKdzUVuObQ8CnLmSCjJjtDkbeLC0dQJwJOubVVqb+Jb9VA5gmQhZM1VGHb5SBzNU
+	vxAJQKHcikn/6ZsMpgmndncs+2YlW7J4BhDh8/syFZlcv9d6lepoMOTvJd08UfV5ijmmIo
+	rGtXmFZZNn60WuJrcRyucyF1+FLdo7M=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1757923840;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=wLaR5hpCkQB0JLaDrirBNLA3y9+oo8Li0ikMURch4Wk=;
+	b=W+K2gdsws45tNWecIv+J1rVs5Z2GeW6fvStYXbek4hhkmD7o/YnNqQF8KcsSeSP5M/Fryj
+	j2yEFpYy0ytRQzCA==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=DhxtuIjK;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=W+K2gdsw
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1757923840; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=wLaR5hpCkQB0JLaDrirBNLA3y9+oo8Li0ikMURch4Wk=;
+	b=DhxtuIjKdzUVuObQ8CnLmSCjJjtDkbeLC0dQJwJOubVVqb+Jb9VA5gmQhZM1VGHb5SBzNU
+	vxAJQKHcikn/6ZsMpgmndncs+2YlW7J4BhDh8/syFZlcv9d6lepoMOTvJd08UfV5ijmmIo
+	rGtXmFZZNn60WuJrcRyucyF1+FLdo7M=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1757923840;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=wLaR5hpCkQB0JLaDrirBNLA3y9+oo8Li0ikMURch4Wk=;
+	b=W+K2gdsws45tNWecIv+J1rVs5Z2GeW6fvStYXbek4hhkmD7o/YnNqQF8KcsSeSP5M/Fryj
+	j2yEFpYy0ytRQzCA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 347761368D;
+	Mon, 15 Sep 2025 08:10:40 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id v6olDADKx2jpYQAAD6G6ig
+	(envelope-from <akumar@suse.de>); Mon, 15 Sep 2025 08:10:40 +0000
+From: Avinesh Kumar <akumar@suse.de>
+To: Petr Vorel <pvorel@suse.cz>
+Cc: ltp@lists.linux.it, Coiby Xu <coxu@redhat.com>, selinux@vger.kernel.org,
+ linux-integrity@vger.kernel.org
+Subject:
+ Re: [LTP] [PATCH 1/2] ima_policy.sh: Optimize check for policy writable
+Date: Mon, 15 Sep 2025 10:10:39 +0200
+Message-ID: <12750853.O9o76ZdvQC@thinkpad>
+In-Reply-To: <20250912073210.47637-2-pvorel@suse.cz>
+References:
+ <20250912073210.47637-1-pvorel@suse.cz>
+ <20250912073210.47637-2-pvorel@suse.cz>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
+X-Spamd-Result: default: False [-3.51 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	CTE_CASE(0.50)[];
+	MID_RHS_NOT_FQDN(0.50)[];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TO_DN_SOME(0.00)[];
+	ARC_NA(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	MIME_TRACE(0.00)[0:+];
+	MISSING_XM_UA(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	RCPT_COUNT_FIVE(0.00)[5];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.cz:email,suse.de:email,suse.de:dkim];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+]
+X-Spam-Flag: NO
+X-Spam-Level: 
+X-Rspamd-Queue-Id: 4AD3322274
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Action: no action
+X-Spam-Score: -3.51
 
-Ian Pilcher <arequipeno@gmail.com> writes:
+Hi,
 
-> I'm writing a policy module to allow containerized and non-containerized
-> services to share content.  (Basically to give container_t access to
-> public_content_t and/or public_content_rw_t.)
->
-> I don't normally make much use of SELinux policy macros, as the
-> documentation seems to be rather difficult to find, scattered, and
-> sometimes conflicting; instead I usually just use the denials generated
-> by the program that I'm confining to determine exactly what access it
-> needs.
->
-> In this case, however, I'm trying to do something much more generic.
-> I don't really know exactly what permissions a given containerized
-> service might need, so I'm looking for a good, standard set of read-only
-> and read/write permissions for files, directories, and symbolic links.
->
-> It sure seems like this must be a solved problem.  I.e. there must be
-> something like this macro, which Google Gemini so helpfully
-> hallucinated.
->
->     fs_read_access(<domain_type>, <file_type>);
->
-> Thus far, I've been completely unable to find anything like this.
->
-> Am I wrong that macros like this exist?
+On Friday, September 12, 2025 9:32:08 AM CEST Petr Vorel wrote:
+> Previously policy was checked in setup and in all tests
+> (redundant in test1). It should be enough to test in setup and after
+> write in test1, but let's being careful and test before writing the
+nit:
+s/let's being/let's be
+> policy in load_policy().
+> 
+> Signed-off-by: Petr Vorel <pvorel@suse.cz>
 
-I can give you an example of how the public content feature might be
-implemented with an example. the refpolicy ftp module:
+Reviewed-by: Avinesh Kumar <akumar@suse.de>
+for both the patches.
 
-There are two scenario's there:
+Regards,
+Avinesh
+> ---
+>  .../kernel/security/integrity/ima/tests/ima_policy.sh      | 7 ++-----
+>  1 file changed, 2 insertions(+), 5 deletions(-)
+> 
+> diff --git a/testcases/kernel/security/integrity/ima/tests/ima_policy.sh b/testcases/kernel/security/integrity/ima/tests/ima_policy.sh
+> index af1fb0028c..1c4763d838 100755
+> --- a/testcases/kernel/security/integrity/ima/tests/ima_policy.sh
+> +++ b/testcases/kernel/security/integrity/ima/tests/ima_policy.sh
+> @@ -1,7 +1,7 @@
+>  #!/bin/sh
+>  # SPDX-License-Identifier: GPL-2.0-or-later
+>  # Copyright (c) 2009 IBM Corporation
+> -# Copyright (c) 2018-2020 Petr Vorel <pvorel@suse.cz>
+> +# Copyright (c) 2018-2025 Petr Vorel <pvorel@suse.cz>
+>  # Author: Mimi Zohar <zohar@linux.ibm.com>
+>  #
+>  # Test replacing the default integrity measurement policy.
+> @@ -11,8 +11,6 @@ TST_CNT=2
+>  
+>  setup()
+>  {
+> -	require_policy_writable
+> -
+>  	VALID_POLICY="$TST_DATAROOT/measure.policy"
+>  	[ -f $VALID_POLICY ] || tst_brk TCONF "missing $VALID_POLICY"
+>  
+> @@ -24,6 +22,7 @@ load_policy()
+>  {
+>  	local ret
+>  
+> +	require_policy_writable
+>  	exec 2>/dev/null 4>$IMA_POLICY
+>  	[ $? -eq 0 ] || exit 1
+>  
+> @@ -43,7 +42,6 @@ test1()
+>  
+>  	local p1
+>  
+> -	require_policy_writable
+>  	load_policy $INVALID_POLICY & p1=$!
+>  	wait "$p1"
+>  	if [ $? -ne 0 ]; then
+> @@ -59,7 +57,6 @@ test2()
+>  
+>  	local p1 p2 rc1 rc2
+>  
+> -	require_policy_writable
+>  	load_policy $VALID_POLICY & p1=$!
+>  	load_policy $VALID_POLICY & p2=$!
+>  	wait "$p1"; rc1=$?
+> 
 
-1. by default ftpd_t can read(only) public_content_t and public_content_rw_t
-dirs, files and symlinks:
 
-https://github.com/SELinuxProject/refpolicy/blob/main/policy/modules/services/ftp.te#L251
 
-This interface is defined here:
 
-https://github.com/SELinuxProject/refpolicy/blob/main/policy/modules/system/miscfiles.if#L915
-
-2. write access to public_content_rw_t is conditional in this
-example (with a boolean):
-
-https://github.com/SELinuxProject/refpolicy/blob/main/policy/modules/services/ftp.te#L16
-https://github.com/SELinuxProject/refpolicy/blob/main/policy/modules/services/ftp.te#L260
-
-This interface is defined here:
-
-https://github.com/SELinuxProject/refpolicy/blob/main/policy/modules/system/miscfiles.if#L937
-
--- 
-gpg --locate-keys dominick.grift@defensec.nl (wkd)
-Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-Dominick Grift
-Mastodon: @kcinimod@defensec.nl
