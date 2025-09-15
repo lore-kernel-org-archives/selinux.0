@@ -1,119 +1,104 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E0B0306499
-	for <selinux@vger.kernel.org>; Mon, 15 Sep 2025 12:11:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53C1330496B
+	for <selinux@vger.kernel.org>; Mon, 15 Sep 2025 12:16:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757938282; cv=none; b=lHswwrPZBvHxakJi4yZIfJt0PootK8mIHFc/e7wiyCkqqYyD+YllpEOXOJnOLjBoDnPFmH77U01duV8540V3IAvvi249v/pgpaiLQ9bPHHyd6s+UDK5t6lon7V11jmBN7ColiCuYTcDTpmJqsi4H/b8C4Y7ql2q3NfgqU9QH6EA=
+	t=1757938604; cv=none; b=VYEHMEP5y220kuqFtvvW6TzP3C6eh213Hc380jLAtFmd1E4ZJt/WxXOSgfRsbyk6fqd9J8Cu4REj9NsW+A1782AgLK+ETlwf5fin+jYDGemJj0IiRypnwV3VDJu2CDcm4R5cMV6mhuhYPd0yZZ/skI5wsYI2uP/yEHQmMtBTX+w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757938282; c=relaxed/simple;
-	bh=iQ5IhtZgLm+rkc5eoGm9hIH3ZDzmZomFvTPndZ9kpjY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SbFfKlhV9vQ06jisku48NNjxcAFMvRMySihVqNgoeeujeK7hh8JOxJCUlbhKlHbt24uG0seeqYgfcSkObU8Le4BlYWQK5wxy15siwx0xcyet5pBUEHgLE4iduOSPMRSfCqOWGK39qCGAIAGQ028F+URgTYgrO/v+oKw8EOPSE5c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=hmxpPNSW; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=BEi3LbcT; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=hmxpPNSW; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=BEi3LbcT; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	s=arc-20240116; t=1757938604; c=relaxed/simple;
+	bh=WsZTIPh5rj+gOm7zCWNJGCG4Ck2u/c8oR6NlpZAYyA0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=TscaCrWODJKozDBGmknV7j+pFFjUJHV1k9nbUrCLBEcPM1+Zpepd013i8NjzhWHdrqUwbzY4zAY3T8x9Wz2fGgsQ3IDcMPh/7L29LjRhugYlvvzw/CraXQN4bSUYLNpXqtlqKFGag3+2niuvIl2c4Yt39HjbQC6O9fvi/LxCstY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GG8ULQhI; arc=none smtp.client-ip=209.85.216.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="hmxpPNSW";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="BEi3LbcT";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="hmxpPNSW";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="BEi3LbcT"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id C438E1F8C3;
-	Mon, 15 Sep 2025 12:11:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1757938278; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=+qEjuQevZqyO6CweEJ3yMgcImI5q9b4HueNFxukrWBY=;
-	b=hmxpPNSWXjFF1DnaMfFj7+DlM0YR/P+WlnCiH/AxdZ1GVJSjerp6IjD/Qtmt0BXrTj4+pC
-	vM4NNlSRpZuDvOtR5wOJbB6Cm6LTE+CoLmBxNaDIAZQgUBz83L1afT/5cNN9hBHrE5BnKC
-	p+8nI8Wm9Abe3fjt5ymtfQw0xB3OEu0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1757938278;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=+qEjuQevZqyO6CweEJ3yMgcImI5q9b4HueNFxukrWBY=;
-	b=BEi3LbcTVi2SoGRRq/V+s2scC0X9YCA2Ao5RhziYUzXgIT5PCllg+OQ3aqOoLtylq0Yc0i
-	zC5HJ7TAkWz33CDg==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1757938278; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=+qEjuQevZqyO6CweEJ3yMgcImI5q9b4HueNFxukrWBY=;
-	b=hmxpPNSWXjFF1DnaMfFj7+DlM0YR/P+WlnCiH/AxdZ1GVJSjerp6IjD/Qtmt0BXrTj4+pC
-	vM4NNlSRpZuDvOtR5wOJbB6Cm6LTE+CoLmBxNaDIAZQgUBz83L1afT/5cNN9hBHrE5BnKC
-	p+8nI8Wm9Abe3fjt5ymtfQw0xB3OEu0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1757938278;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=+qEjuQevZqyO6CweEJ3yMgcImI5q9b4HueNFxukrWBY=;
-	b=BEi3LbcTVi2SoGRRq/V+s2scC0X9YCA2Ao5RhziYUzXgIT5PCllg+OQ3aqOoLtylq0Yc0i
-	zC5HJ7TAkWz33CDg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id B184B1368D;
-	Mon, 15 Sep 2025 12:11:18 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id aLNwKWYCyGg4NAAAD6G6ig
-	(envelope-from <chrubis@suse.cz>); Mon, 15 Sep 2025 12:11:18 +0000
-Date: Mon, 15 Sep 2025 14:12:00 +0200
-From: Cyril Hrubis <chrubis@suse.cz>
-To: Petr Vorel <pvorel@suse.cz>
-Cc: ltp@lists.linux.it, Mimi Zohar <zohar@linux.ibm.com>,
-	linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-	Coiby Xu <coxu@redhat.com>
-Subject: Re: [PATCH 2/2] ima_{conditionals,policy}: Handle policy required to
- be signed
-Message-ID: <aMgCkNQlZ147Mm7w@yuki.lan>
-References: <20250912073210.47637-1-pvorel@suse.cz>
- <20250912073210.47637-3-pvorel@suse.cz>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GG8ULQhI"
+Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-32e372c413aso812619a91.0
+        for <selinux@vger.kernel.org>; Mon, 15 Sep 2025 05:16:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1757938602; x=1758543402; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=WsZTIPh5rj+gOm7zCWNJGCG4Ck2u/c8oR6NlpZAYyA0=;
+        b=GG8ULQhI4lZ0/lNSrEnLg1t0zo1nx5PvBWsI6rtxloSzuGJQiLc3I8k9hAD5qEMlYv
+         7TfDGjtE7JgKodLzNtLhbAUo83J8925uC8wTOwRb0MGWEQKKuQQ05MbUsoWLZmL65CZ7
+         No2nFTdwHw/kgkT2+3wa3xbohBt/fUpYJb3cQBt3/BjvFwsBji/s+weuq7v+RQDaj1af
+         Vw0g7yG0cyKtDu7s+ZrkGDebnqQpLJWEPmfLYwfaekBkxhyQ08Wy3X7e7LMZpFENvlL7
+         pYQNDpSexHq8j05yZvCPYNNzNWjeb/3cHBt9fC/09gO+9+vO0KVZrZU6BSsU0W/Z0f0o
+         Q8Og==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1757938602; x=1758543402;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=WsZTIPh5rj+gOm7zCWNJGCG4Ck2u/c8oR6NlpZAYyA0=;
+        b=oql61Y1Bu2bFqXvSP4BtXnm8cVmild3HBfd4IllghX6OgMd1D/mlRWyA/xk7KDuL4u
+         /xHKnMS7Av8cbx+3/WA/GAnShfd+2QXWeX2h3gL3QWyxJvbCRM8zxWkKqWdXCZ+BzHVS
+         EQfYgAsli4kk7pxoVvJEMLZIZiif9uL6w9DL1vwF8zxdkR8MlnbGxAP161FOhEILC19j
+         kq2uCBQpHtcE2GKDAOLn95jFZemHiwVvgRWHZcUj3MpV+PMcm+G9fnXDouYsNQqO1ZgA
+         gStoV/KOFHHDJhsR4MFRcQhrBgbObk5z2J7/6BMv70X1bHXLLEbx2lF4/NsxWnQlXDSP
+         4zSA==
+X-Gm-Message-State: AOJu0YznwhKUQQ3c657b2OG3/EFHn7vWJ/KX+dQItspv/2rJTleD8oRv
+	xhzlgktMxWkzqodWUaZie5LMtY7aSZDxZWemWmPfti+byMd4oFphIeoY+ss/dW/LDCyDhChsglm
+	bfd9SFQotBivIx4jy/7gAvQYqaoSBhq4=
+X-Gm-Gg: ASbGncuCR97PGWQsD6UbjQ4Kzrrz7/C2nSvVzCovG9hsaOZ81VhessE9fv7GKRtNPzU
+	pmCPYXeZaERuPdIA4SoTwwOcpti4Pai82PxZ3pRHqDOL7eCeOA/7Q7RfzLx+RyfVglMRpS9Pr7b
+	VDMN82iKLM6Q6mD9IhoMspFp7H/J2OUvZfIPBsBptXrhbF4IvPoyuyJRrrcVV+55n8DcYb0AZxw
+	xgYT12g5sYfm3F2ow==
+X-Google-Smtp-Source: AGHT+IEJFuybhNpS2ptf5Jh2MUgYvPadiO5yYL4hnfWEROWVyFvO8x4K/47GxuZ9/pw/0CUEJrDnu4kzXxRTSzix0DU=
+X-Received: by 2002:a17:90b:28d0:b0:327:c9c1:4f2a with SMTP id
+ 98e67ed59e1d1-32de4f97cbcmr14173918a91.27.1757938602449; Mon, 15 Sep 2025
+ 05:16:42 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250912073210.47637-3-pvorel@suse.cz>
-X-Spamd-Result: default: False [-4.30 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-0.999];
-	MIME_GOOD(-0.10)[text/plain];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	MISSING_XM_UA(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	FROM_HAS_DN(0.00)[];
-	RCPT_COUNT_FIVE(0.00)[6];
-	FROM_EQ_ENVFROM(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.cz:email,yuki.lan:mid,imap1.dmz-prg2.suse.org:helo]
-X-Spam-Flag: NO
-X-Spam-Level: 
-X-Spam-Score: -4.30
+References: <DCS9NCJ1SZ91.12BXMI96H1ZHW@gmail.com>
+In-Reply-To: <DCS9NCJ1SZ91.12BXMI96H1ZHW@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 15 Sep 2025 08:16:30 -0400
+X-Gm-Features: Ac12FXzX0Bf_qHiCrv9G63OaKFN2Qy89rbypZ4HD7GFv2bgm8mAcHdD9Ics1k_E
+Message-ID: <CAEjxPJ4zChtBRmdXr0a7tY3W1DD7BeeDuHzMmE-e6J_u0ivZeQ@mail.gmail.com>
+Subject: Re: Clarification on kernel threads
+To: Rahul Sandhu <nvraxn@gmail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi!
-Reviewed-by: Cyril Hrubis <chrubis@suse.cz>
+On Sun, Sep 14, 2025 at 1:16=E2=80=AFAM Rahul Sandhu <nvraxn@gmail.com> wro=
+te:
+>
+> Hey,
+>
+> SELinux has the sid kernel, which when used e.g. as following:
+> (sidcontext kernel (sys.id sys.role kernel.subj sys.lowlow))
+>
+> But what privilege level (ring) do kernel threads run in? I can't find
+> much clarification, and if a kernel thread runs in ring 0, then SELinux
+> isn't of much use at all then given that the thread has complete access
+> to both the processor and memory no?
 
--- 
-Cyril Hrubis
-chrubis@suse.cz
+Prior to the introduction of the userspace_initial_context policy
+capability (and still true unless it is enabled in your policy and a
+separate context is defined for the init SID), the first userspace
+task inherited the kernel SID and remained in it until it loads policy
+and re-exec's /sbin/init or switches to the init context. The same is
+true of usermode helpers. So restricting the kernel SID could be used
+to control such tasks before they exec or switch to another context.
+
+SELinux can't protect against errant behavior by actual kernel
+threads, as you note, but labeling kernel threads can be used to
+protect such threads from unintended accesses, e.g. to prevent them
+from exec'ing a userspace program via the usual kernel functions for
+execve which apply the SELinux checks, or from reading/writing
+untrusted files via the usual kernel functions for reading/writing
+which apply the SELinux checks. An actively malicious kernel thread
+can obviously bypass those checks altogether (or change the policy to
+allow them), but protecting kernel threads from untrusted executables
+and files can be useful to defend their integrity.
