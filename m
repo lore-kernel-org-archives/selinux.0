@@ -1,125 +1,239 @@
-Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
+Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 419CE1A2389
-	for <selinux@vger.kernel.org>; Tue, 16 Sep 2025 19:02:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4AC431BC9E
+	for <selinux@vger.kernel.org>; Tue, 16 Sep 2025 22:13:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758049331; cv=none; b=aCJzNn+imWHH/qtCqrGfTqxpCpib7q1MdUXCaAQc95VAQCHS+jPxlmKY2OhITJdSgIzwBjUr91M7zPOXNTVWFV3dzpA2VzV5Yar44QfLqid/s9X0ALR3ch1IHExdk4duBZ162VgzPdV/VL3UxSNhsQh9cRpW5LcxzcG2fBmfDOs=
+	t=1758060816; cv=none; b=dVvnIlDiQzi103qPFCgnOjonETj/4yGnFeF+/6rN9VqXrxLHc9qZllYu/7PpzfZcWDHEcSe/zQMibY+bpq5gQ3W4YEVfj4lf455dR3h919W/H9WyQhLlUYB6oUsuDsLE2BQK72LMoACsp/R/Rt2C6cwH4kSZW6gbl/TO8L5u/k8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758049331; c=relaxed/simple;
-	bh=Sg+kx4q0NazTPyycIRfYC8P9cj61eqowngRgLetnASc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WcopcUV6hgmm2d4p6w+Ffo8PEBrVKfUeY7VZmg1ztUEHPALVQ1ci2HLxaPxvdvPXJTj+GceM5LshGoiqlu4AdvbdQxzMCqp4h12hmX+4SoRwY7INIiS5E6dUfC+rF5LMk2XEkrcDU9FFI6pAzqiGLfv4zUbcT7dV+q2dWdGeEkI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=CuPlVOMo; arc=none smtp.client-ip=209.85.216.47
+	s=arc-20240116; t=1758060816; c=relaxed/simple;
+	bh=KEKoazf+RdgvXOwdy/j1s3l2Jx3MEp0aLYvpEDzfO68=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=sqFTPw9TG9Ac/Qrh0KGdOfWeOWDgGyFobD1OAJYTOV3mWSh0O133zUaEQuZLtlI+tmApDNk2HdzG6RKOv/GRDUNZB5TCk35R5DeWMD5YT0k7Z9HubucxBYKdRZGOu8Eo82yb5TCoUf0YFRtrhwfPO/ccHnpNg1NFcy6EZjLknTw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=W3sKM3f3; arc=none smtp.client-ip=209.85.160.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="CuPlVOMo"
-Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-32e1c40ecb0so2495109a91.3
-        for <selinux@vger.kernel.org>; Tue, 16 Sep 2025 12:02:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="W3sKM3f3"
+Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-4b7997a43ceso39584211cf.1
+        for <selinux@vger.kernel.org>; Tue, 16 Sep 2025 15:13:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1758049329; x=1758654129; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=S7kOby+LiZCEqRgnjpWbxLDXU8ItrJIpBG6mfssPgBE=;
-        b=CuPlVOMosQEoabTSdI6dDBPP4ZD7E4n0iJmmED8u6lrTm2OeZBvzTiY4ebWJvR3KsC
-         +8meZu5KExNNFJkiIuOzlGVaM3pTYnSONsT9w01wT26tLMEgZ/9Nd+rH7A7xnXlaLljR
-         E/LBKLEpLEXuuEVeC7N+87YnE8oVb+U4ND4v9Uj2WViwDDkY8qHhshbDS/CzqeLkjSuL
-         e681Ezw3KQGlYkVsiSA+S26Z5nTS09C6OOHkS82ElUPVEjnQWgVUS15fGztv79Bkm/eF
-         7PLtYBPNB4GaO3vvPBDP5vrO38+nt2mGE8aX1yNCcqkXN1BZxvr3wRFAh8LVvPoRdlrq
-         25RA==
+        d=paul-moore.com; s=google; t=1758060814; x=1758665614; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ou8HM7+FvpfjRvFRWjxB1s6gl/EzXkcqrmhBZWUvpNk=;
+        b=W3sKM3f3I2292bnBS3/OIz8GwkscYTVDCUuz/4c4tgj2ZXG+EdDUWCsNUliQ69EYAe
+         QEMvtcxYy+ycjhTYZmRlryKBsM9lJW6BWKAxSZz3w2mFZFAVeU1l1UxHCfl2RbXiQbEF
+         6kRTHm3/3/clbcYFaJalOr9+aE7KY6QJEaaO3NzOEtJCtntRxrkaMVEK6X7beaiD2E+O
+         sIW/EeGmrNzIgigc90DU+Xx19qWJH5IJFjnrMc3tjPcZaadViygUqW0cjOe56ncCf86q
+         ZXs4LAnRlBQgY4v/xlTSKnVQiKgrlG+AmNTn5ZPSQBG1m4lr6Lkheondnz8j7OnIwYgX
+         b7VQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758049329; x=1758654129;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=S7kOby+LiZCEqRgnjpWbxLDXU8ItrJIpBG6mfssPgBE=;
-        b=gcoQ3evVU901sWZNyAHSdsn/8xR2XyGr/SiONcF6W+PxGxNdmv6e72Z/v+eUXymo6Z
-         5b70yIHF2pfeD1kXxn5NSd1UTXl1MiIVoydIrF1+N5NpZADyvTJG3Nb1hqGrQIRwq+z+
-         gu3GfdeI4IdwaQWAuyuJyNp2WiLBkzFlaNf6TYkIjo+bdrKjHzelAMnn0nWIRjp0OfUT
-         ohQgbZkJk9tpAoZLAqwuIFStC59A1c5ehfd8wifVwPAMvzs6yX4HwlI30jmosOQz0Ceb
-         zVyIrC3tQtS+6c6kHPqEr6KIpx4/89U/6EJiYnRLKD2hHOW8ocZGxeXVfxEddhF4/y1G
-         quVA==
-X-Forwarded-Encrypted: i=1; AJvYcCVwQUfTLNY/T1fKPCoisG7kfmkDFTzBeuCj4tmpA9GD5795yRgwie4+YektYAeEMI24IkSk7U/h@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywqg8gg1QniBlIWEvmLkFS+KADEOt89Q/jORmggu6SoleuunjyQ
-	tb7YfgHhQ+DCyzxFkhbAq/BxC+VNX+IOi0w0fuxcT5baunZh9m0igQ9o+ULCpyWaLhoUBjjkEGv
-	IIbPzFGaIWGIsx2GQjd1kodx6SXXzvkLi2vPCr4pP
-X-Gm-Gg: ASbGncv8WUOaTxNOzWMtlOPwxQbwVdBRDDB9qwsUKAgPGm1NdpkdbGZJ1nXnUjFdXie
-	Jel/erXPNCmPtlZCeK7YyEHJmBzHL6FhbLAdMCLBPA3el20NLFIP/F8sqTCH08fLL8urnDgyGXH
-	fSyvZ4ksWqhq/pAELU1hwkxdWfvdlJCrC3J2ZvI/06dkkybavgS77BAFEWk7k5Who4aHvAXIl0y
-	7JPEPk=
-X-Google-Smtp-Source: AGHT+IExktKzFcvvXful1IUQpZLpF7VzSzA2hxyi1ZyatFWSxAFp5DTdrk4y8nmtXMgJl1cd0ojTV2bY6BDTLom74Ms=
-X-Received: by 2002:a17:90b:3907:b0:32b:d79e:58a6 with SMTP id
- 98e67ed59e1d1-32de4f97ba0mr18912467a91.25.1758049328814; Tue, 16 Sep 2025
- 12:02:08 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1758060814; x=1758665614;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Ou8HM7+FvpfjRvFRWjxB1s6gl/EzXkcqrmhBZWUvpNk=;
+        b=ivNNzad7x20+amnbPbKx/fAI4Ar+UCjWks5XXUXiOncbuOmi2UiVfv0mZGkTR8eOXl
+         M568NaG9tpwVXSCK4mFGoAYUqSW9QYMh1kVtobO6UR95uH9rGvJWnxrCraHP4P6gnIiG
+         sweZjAuBcWOmo3ZO/bFIjK4ACNQGtXPwJn1uwg8LY/eZUhoQnX48RzsnWq5eVTuiIWOd
+         5E3+j9ndqfkRHpHVytjn751jqM8H4SnTlQNIO0vNcgmMezQRFAK+NT5zYZa2FEDTXw5t
+         JIb1O69//Lk7436PEZJDlLeoSZ+CO08WkVn4KLqqxz4Qg10vC3Nf6jZZP8IeQY0Zo8ce
+         r8Hg==
+X-Forwarded-Encrypted: i=1; AJvYcCVBDt7RM7GNJURzw3MJ3yV8Okf13YCrFLH/q4qQD9brnQLtL0EvbHOmot8L8tpKB0P++2zEB/yS@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxmwfv9KCXZNcPnLE0TJj8YKByRuvn+obkloKv91RTY94ZkKtOw
+	444eihLoqmOyRaTROQaZ/72TqMHTL85rPXO+jtnP2l8BNXs+SuQ91vxdXQE7efjwtw==
+X-Gm-Gg: ASbGncu+7gs1VIRl/X8w02JXEj7eYt+3qRwuzMnneTRE9GV+gosGL7kW8sUjKvOcu8u
+	z3+bGQUNhR5+flOLgv02eO9d6U5r2++mDRRLD5r9fR/LCmFFFpUfNe7v47XKJ7erf+n2CE8iI1i
+	oznTMpoQRsFRWQ3iwvDR0JEp+qq8SSEvgRVGTmXu+K1yyO3V17NQrED+vCI/jtmW8eWZCq9hcE5
+	gnUxdM8r8iY4nyDVTUiAq08XAVPjtRsLDZ8hfBYhkTuSS3HcyTkt5h1KnEaufT99l4WmPUI8KLb
+	nj1oNjcipKKck7uSU9Fvmj20FQ2XiK68izvKh3v1fhrx/ObbqM6GOjXtfck4tWWWb8zqWyCX81i
+	VC68OXUQvtWau3pUoUFqyeCVhXX/XEMAwjdHmk3oRHzXGc3gpblsKcdksP6mpxGqp9KuT
+X-Google-Smtp-Source: AGHT+IGSeycXTJmU+LVCeOj0BwbvoSahcrD2iBEepqk9pDoC1WBPQ8AwrQa54YUYw62HRI2HbFD92g==
+X-Received: by 2002:ac8:7f04:0:b0:4b7:a434:adab with SMTP id d75a77b69052e-4ba671e6531mr1001801cf.28.1758060813626;
+        Tue, 16 Sep 2025 15:13:33 -0700 (PDT)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with UTF8SMTPSA id af79cd13be357-820cec300a4sm1000810985a.57.2025.09.16.15.13.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Sep 2025 15:13:32 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: linux-security-module@vger.kernel.org,
+	linux-integrity@vger.kernel.org,
+	selinux@vger.kernel.org
+Cc: John Johansen <john.johansen@canonical.com>,
+	Mimi Zohar <zohar@linux.ibm.com>,
+	Roberto Sassu <roberto.sassu@huawei.com>,
+	Fan Wu <wufan@kernel.org>,
+	=?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>,
+	=?UTF-8?q?G=C3=BCnther=20Noack?= <gnoack@google.com>,
+	Kees Cook <kees@kernel.org>,
+	Micah Morton <mortonm@chromium.org>,
+	Casey Schaufler <casey@schaufler-ca.com>,
+	Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+	Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>,
+	Xiu Jianfeng <xiujianfeng@huawei.com>
+Subject: [PATCH v4 0/34] Rework the LSM initialization
+Date: Tue, 16 Sep 2025 18:03:27 -0400
+Message-ID: <20250916220355.252592-36-paul@paul-moore.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <7a27eed6-9554-4f6a-9f2f-2cb1efc522fb@penurio.us>
- <CAEjxPJ5F5YtqqOb+KTiC4-ED+0YMAOLfKnABNnggjK_N2hhzjA@mail.gmail.com>
- <1ea8829c-7b4a-4048-8045-768b5af70218@ieee.org> <CAEjxPJ692h1RbJfHLGfVye7diVW1r5WJz=P0iZeNet0gf8Qusg@mail.gmail.com>
- <d3a2e381-1814-4d14-978a-8a2ad02063a3@ieee.org> <CAEjxPJ7mc1AtE1m1_fypn-q=Y=+WiGPpgkmHPZCdbWMqSdQQ+w@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7mc1AtE1m1_fypn-q=Y=+WiGPpgkmHPZCdbWMqSdQQ+w@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 16 Sep 2025 15:01:57 -0400
-X-Gm-Features: AS18NWBUhyMTIl0NZ6SlvThM_B56f7ARFfA4dHWk2Ogkr66PL2F5GBxFVxNFn80
-Message-ID: <CAHC9VhTCzGXv=2oET6404_XNTDxsHXA+=g6--984GNXpWQjEQg@mail.gmail.com>
-Subject: Re: Lack of official hosted macro documentation
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Chris PeBenito <pebenito@ieee.org>, Ian Pilcher <ian@penurio.us>, 
-	SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Tue, Sep 16, 2025 at 2:55=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Mon, Sep 15, 2025 at 4:16=E2=80=AFPM Chris PeBenito <pebenito@ieee.org=
-> wrote:
-> >
-> > On 9/15/2025 3:38 PM, Stephen Smalley wrote:
-> > > On Mon, Sep 15, 2025 at 3:26=E2=80=AFPM Chris PeBenito <pebenito@ieee=
-.org> wrote:
-> > >> On 9/15/2025 2:01 PM, Stephen Smalley wrote:
-> > >>> On Mon, Sep 15, 2025 at 1:56=E2=80=AFPM Ian Pilcher <ian@penurio.us=
-> wrote:
-> > >>>>
-> > >>>> TL;DR - Writing policy modules is harder than it needs to be, beca=
-use
-> > >>>> the documentation for the macros/interfaces in the reference polic=
-y is
-> > >>>> not easily discoverable.  This could be helped by hosting the gene=
-rated
-> > >>>> HTML documentation in a location that would be indexed/processed b=
-y
-> > >>>> search engines and AI chatbots.
-> > >>>
-> > >>> Great idea. I thought we actually used to have something like this =
-but
-> > >>> am not finding it now.
-> > >>> Chris, any clues?
-> > >>
-> > >> We did have some generated pages, but when the project moved to GitH=
-ub,
-> > >> there wasn't a place to put them.  There hadn't been any requests fo=
-r it
-> > >> to return, so I never looked into it.
-> > >>
-> > >> `make html` in the repo checkout will generate them in the doc/html/
-> > >> directory (from the repo root).
-> > >
-> > > Maybe we could put these in GitHub pages for SELinuxProject?
-> >
-> > I have no objection.
->
-> If someone else were to create a GitHub pages repo for SELinuxProject,
-> I can help maintain it.
+This is the fourth revision of the LSM initialization rework patchset.
+The number of changes between this revision and the last are limited to
+a rework of the lsm_read() function and the replacement of my IMA/EVM
+patch with one from Roberto; relatively minor things given the scope of
+the patchset.
 
-That's on my todo list, at least for a demo site to see how we like it.
+I've run the v4 patchset through some basic testing today and everything
+looks okay to me; I'll continue to play with it, but I wanted to get this
+out onto the list sooner rather than later.  Assuming Mimi is okay with
+Roberto's patch, and no other issues are found, I would expect this to go
+into the LSM tree after the upcoming merge window closes.
 
---=20
-paul-moore.com
+For those of you having problems pulling this patchset into your own
+local trees for review/testing, this patchset can be found in the
+working-lsm_init_rework branch of the main LSM tree:
+https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/lsm.git/log/?h=working-lsm_init_rework
+
+The RFC/v3 patchset:
+https://lore.kernel.org/linux-security-module/20250814225159.275901-36-paul@paul-moore.com/
+
+The RFC/v2 patchset:
+https://lore.kernel.org/linux-security-module/20250721232142.77224-36-paul@paul-moore.com/
+
+The RFC/v1 patchset is below, the cover letter provides some background
+and motivation for this series which still applies:
+https://lore.kernel.org/linux-security-module/20250409185019.238841-31-paul@paul-moore.com/
+
+CHANGELOG
+v4:
+- reworked the lsm_read() function (John, Roberto, Tetsuo)
+- replaced the IMA/EVM patch with one from Roberto
+RFC/v3:
+- rebased to lsm/dev branch
+- fixed IMA/EVM initcall comment (Roberto)
+- fixed CONFIG_IMA and CONFIG_EVM problems (Nicolas, Roberto)
+- fixed CONFIG_SECURITY_SMACK_NETFILTER problems (Roberto)
+- fixed the IMA/EVM header file include macro protections
+- fixed an off-by-one string length issue in lsm_read() (Casey)
+RFC/v2:
+- rename lsm_prep_single() to lsm_prepare()
+- drop the lsm_prop counting patch
+- drop the platform_certs changes from the IMA/EVM patch (Mimi)
+- split/reorder anough patches in the patchset that I lost track
+- added missing function comment blocks in the SELinux patches
+- split patch 04/29 into smaller patches (Kees)
+- fix an LSM list output problem in an intermediate patch (Kees)
+- preserve the "lsm_active_cnt" variable name (Casey)
+- cache the lsm_read() string (Kees)
+- squashed, split, and reordered the enabled/ordering patches
+- reworked the Smack patch (Casey)
+- conditionalized the SELinux IB init code (Stephen)
+- fixed missing Smack "__init" annotation (Fan)
+- fixed a potential unused variable warning in IMA/EVM (John)
+- fixed the placeholder commit descriptions (various)
+RFC/v1:
+- initial version
+
+--
+Paul Moore (33):
+      lsm: split the notifier code out into lsm_notifier.c
+      lsm: split the init code out into lsm_init.c
+      lsm: consolidate lsm_allowed() and prepare_lsm() into
+           lsm_prepare()
+      lsm: introduce looping macros for the initialization code
+      lsm: integrate report_lsm_order() code into caller
+      lsm: integrate lsm_early_cred() and lsm_early_task() into caller
+      lsm: rename ordered_lsm_init() to lsm_init_ordered()
+      lsm: replace the name field with a pointer to the lsm_id struct
+      lsm: rename the lsm order variables for consistency
+      lsm: rework lsm_active_cnt and lsm_idlist[]
+      lsm: get rid of the lsm_names list and do some cleanup
+      lsm: rework the LSM enable/disable setter/getter functions
+      lsm: rename exists_ordered_lsm() to lsm_order_exists()
+      lsm: rename/rework append_ordered_lsm() into lsm_order_append()
+      lsm: rename/rework ordered_lsm_parse() to lsm_order_parse()
+      lsm: cleanup the LSM blob size code
+      lsm: cleanup initialize_lsm() and rename to lsm_init_single()
+      lsm: fold lsm_init_ordered() into security_init()
+      lsm: add/tweak function header comment blocks in lsm_init.c
+      lsm: cleanup the debug and console output in lsm_init.c
+      lsm: output available LSMs when debugging
+      lsm: group lsm_order_parse() with the other lsm_order_*()
+           functions
+      lsm: introduce an initcall mechanism into the LSM framework
+      loadpin: move initcalls to the LSM framework
+      ipe: move initcalls to the LSM framework
+      smack: move initcalls to the LSM framework
+      tomoyo: move initcalls to the LSM framework
+      safesetid: move initcalls to the LSM framework
+      apparmor: move initcalls to the LSM framework
+      lockdown: move initcalls to the LSM framework
+      selinux: move initcalls to the LSM framework
+      lsm: consolidate all of the LSM framework initcalls
+      lsm: add a LSM_STARTED_ALL notification event
+
+Roberto Sassu (1):
+      ima,evm: move initcalls to the LSM framework
+
+ include/linux/lsm_hooks.h              |   73 +-
+ include/linux/security.h               |    3 
+ security/Makefile                      |    2 
+ security/apparmor/apparmorfs.c         |    4 
+ security/apparmor/crypto.c             |    3 
+ security/apparmor/include/apparmorfs.h |    2 
+ security/apparmor/include/crypto.h     |    1 
+ security/apparmor/lsm.c                |   11 
+ security/bpf/hooks.c                   |    2 
+ security/commoncap.c                   |    2 
+ security/inode.c                       |   46 +
+ security/integrity/evm/evm_main.c      |    5 
+ security/integrity/evm/evm_secfs.c     |   11 
+ security/integrity/iint.c              |   14 
+ security/integrity/ima/ima_fs.c        |   11 
+ security/integrity/ima/ima_main.c      |    6 
+ security/integrity/integrity.h         |    2 
+ security/ipe/fs.c                      |    4 
+ security/ipe/ipe.c                     |    3 
+ security/ipe/ipe.h                     |    2 
+ security/landlock/setup.c              |    2 
+ security/loadpin/loadpin.c             |   15 
+ security/lockdown/lockdown.c           |    5 
+ security/lsm.h                         |   42 +
+ security/lsm_init.c                    |  563 ++++++++++++++++++++++
+ security/lsm_notifier.c                |   31 +
+ security/lsm_syscalls.c                |    2 
+ security/min_addr.c                    |    5 
+ security/safesetid/lsm.c               |    3 
+ security/safesetid/lsm.h               |    2 
+ security/safesetid/securityfs.c        |    3 
+ security/security.c                    |  623 +------------------------
+ security/selinux/Makefile              |    2 
+ security/selinux/hooks.c               |   11 
+ security/selinux/ibpkey.c              |    5 
+ security/selinux/include/audit.h       |    9 
+ security/selinux/include/initcalls.h   |   19 
+ security/selinux/initcalls.c           |   52 ++
+ security/selinux/netif.c               |    5 
+ security/selinux/netlink.c             |    5 
+ security/selinux/netnode.c             |    5 
+ security/selinux/netport.c             |    5 
+ security/selinux/selinuxfs.c           |    5 
+ security/selinux/ss/services.c         |   26 -
+ security/smack/smack.h                 |   14 
+ security/smack/smack_lsm.c             |   11 
+ security/smack/smack_netfilter.c       |    4 
+ security/smack/smackfs.c               |    4 
+ security/tomoyo/common.h               |    2 
+ security/tomoyo/securityfs_if.c        |    4 
+ security/tomoyo/tomoyo.c               |    3 
+ security/yama/yama_lsm.c               |    2 
+ 52 files changed, 984 insertions(+), 712 deletions(-)
+
