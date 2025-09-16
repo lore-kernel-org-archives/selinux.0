@@ -1,63 +1,64 @@
-Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
+Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 007B0307AE9
-	for <selinux@vger.kernel.org>; Tue, 16 Sep 2025 22:14:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91076323F42
+	for <selinux@vger.kernel.org>; Tue, 16 Sep 2025 22:14:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758060876; cv=none; b=lQzeAKNksWOjR5JhYQXFlRM+2rRFIo/xhKc8atydXGJfmIn7cAwU54SldGIahbg1b8vt/NUDQJe6O46ci1xi7ye5wPTzYbhdb9launa+F8lBrgK0U7+FC7qm7rwfqcEDXsSKuBqeqDAUIsAjaIaa9k/ssAXWx6afcTKpqvs/xjQ=
+	t=1758060879; cv=none; b=F7/vPZ9Njq3OcoHn8GhknpozgIv8/98MegXZX58Cc2Nk22yW6Jv3OQlJ27K0YawGrXTVzXKM/z3jOrytzXzioT6BoJH1dLF+BBVzX2T+i7vLj02jnR3uUnWGQBndYuylcrDhev0l3OYaUD0AY//DLbXv0dEtjvEejUVtsIAejIw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758060876; c=relaxed/simple;
-	bh=eSPJ9IwafgtR568e6umiFwslA/7AiGEUrM0feWmarW0=;
+	s=arc-20240116; t=1758060879; c=relaxed/simple;
+	bh=+A8UykmM5y6JgZpn/LZlMjlBn7J7X9zEL9LbQ66C1UA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FYlSXTMpU148LyqnphgW0SwpiFs5Tf3dxgtg4wbisl7S/XXchcuLPqHMkyBiP/tgQcaw5H1iehfdY/I6qSR+u9+ZAKNrznV8C5XjhkjOSz60vXZhdU8SCRD+y2zfGJqToiNjgdVL7eI/wknoVksqvdEynOYhrvqIE1mE2bm1HHQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=D/CQy/Dn; arc=none smtp.client-ip=209.85.222.170
+	 MIME-Version; b=gz0UjfMM8JuxFz1j0wgqsJzAAGVOAQFlub+L0WEOubEuiWCOmeU1OcJs7okzty0YdZgPzIWLt4sR8Y+HTEpmFXmAltNOivzpqooCf9DmP2F81sma44ug6jFkayqquRh6AWl89SBZ/8UQMdm9cMSBZ5vUy8hD54aXYohl7fJnZyk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=IJeC4GAV; arc=none smtp.client-ip=209.85.219.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="D/CQy/Dn"
-Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-80e3612e1a7so994198785a.0
-        for <selinux@vger.kernel.org>; Tue, 16 Sep 2025 15:14:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="IJeC4GAV"
+Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-78e9f48da30so851056d6.1
+        for <selinux@vger.kernel.org>; Tue, 16 Sep 2025 15:14:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1758060874; x=1758665674; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1758060876; x=1758665676; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=DAtmfNQ6iTWPMtQABHuMDq5EmFwIC3YnzX4TbmWfkjc=;
-        b=D/CQy/DnKM9zzYmA7lBmci04DG4SdlUoqg9vT4nwNbOt5jjtykj2IsOuF5Dq2VkOcq
-         m7/xSjdrbxanugLl2PIdv6m7auChEcNIQ4pyuN44gCNipycSFuK9nerPYu8ePk5M18Ak
-         5UNoV9tTnz0LFqLMScEwkaZTxhEo1e2PyPIRxUk7fhoK1ILex1gKH27po2Uy5TEIhW0K
-         vZKcwvGszoGIFW0OLZP/sDNr/rnGiVQ8SeKaeesxTqPagmV39o27Yh9xGs0abxuSl2ER
-         SZIYV+qAqJysH8kBHC6HS040kQUWTumC0MOBlBzUNgvAQ6N6ukx7UzCJlEaYcpTzgc6x
-         fFtQ==
+        bh=rL8A3PYTBA07yIH2OqB9BEQIkDMK0RLNP0w/NWWAecM=;
+        b=IJeC4GAVbUkBsUv3HwsJHmqCxMpJhycsRRGTCBEdSmAVfPoluij/RfgG9wpbou484R
+         8lJoim2Ktf2sdsHgyDmmgWhZY0H9nqr4VSFjeSiwNIm7JpapKhBsbsTEv/5dMY6AUeBJ
+         0T4TxPbTrBJxtQnYFj3rpUtgO4X6SlLGMYQor6vPCSWSq4TWClixFtyavaYMjM1IK2kq
+         bVHof6Y+z2a9fc8ptYxy0kk02g529H4Ph1oHrKhJKsuFmoPGtisidD+kz/relagQGwh1
+         6fG03+xJC9pVjLPyGOF20UQotfMDmiBsKLw5dqEuT8CYBmseQzFb0sdlWduNBrZX7THr
+         POYA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758060874; x=1758665674;
+        d=1e100.net; s=20230601; t=1758060876; x=1758665676;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=DAtmfNQ6iTWPMtQABHuMDq5EmFwIC3YnzX4TbmWfkjc=;
-        b=KzeTDOZybfT3HRKCA+al3NMysiAI2DWScaFdQqXEnziT4LnillEgW80ENyFMspG2zf
-         unBl7PY9rEw/F0SQESwnd/QRR229uArmlKq5qgbKow5CHRtls6OQtqwDCYMYN6r8gPCe
-         1EEA95XfTKVNnOYLOqDuXSP4ZYY4zittaatqz3uNVTbfs/1be9LfcVa/V0XADGv24hpd
-         ximAuIHDvuhnFk2wvhm87KtM6A+ri6eE8lpWNjgQrFg/+s9wNVVQQxbUk1MZHysglKmP
-         KiPwkq4wDmgkopBtApx4fZmh/pESVbmt38cCI4q/w3q0ViL8YqDNHBtW7kd2URBYONhh
-         tkwA==
-X-Forwarded-Encrypted: i=1; AJvYcCV5feO66k8doWCIHD59XM7nW913hPZOeL/B38Ofc4iqyrdXgDAvD77Vtqurt48AWFCtBlbz35et@vger.kernel.org
-X-Gm-Message-State: AOJu0YwDoJdBP64IV3PO3nsH6t91NT0uuP/uqdC14dJvrManeNzo2EfW
-	C+Fm4FeCJ4Bl7wLDGY9Xwhh+wBdS65JL5svuC8IpH+PwDQb7AV/eAzP2/tTN6+xp6Q==
-X-Gm-Gg: ASbGncveM6HtBYfqUnOW9gi9p/r+pZAS1Aqvw9H4gKhAJaNolxYS7n6vpckUIaadPiD
-	x+FLZ0Hi91MTPxOkUqRhKsuJORpP/Les0AUUIaa0/WP4PVFw+tpixbUV0ApYOecskwK+qpuNTn1
-	FcWnn122HYRLcOey2GoMISBFUMdekytayfTbkJFCHNNn3uKS3VLGaus4ywDVzm8DOTpeAKJh74w
-	gi5irDjnCS4/ID9izlozCWLvVIWWWA3h2f+Vmm3nXlzcJLGM3LpRbS9EpeFoSh77PBrHzcjPB/H
-	trCSKM5dfAbjzalvyLzB1j5njYYmL5CbTn9zZiQf4WyHaiKBUMDqa/p+UdMMtq2zv5PrGbjcIaT
-	MVYQvKIjacMo72tZHS++Ye0EOliui4Q2h12HIeoJOBaWP7sea6TRAqzS8hx2IH5wVNDOH
-X-Google-Smtp-Source: AGHT+IEbqjualJU/XfMiX4TA7ZuPn8FRnSa8wwLfLCgZInNnnuLK2vsGbYixuZTDi99FKjwV7ZuDPQ==
-X-Received: by 2002:a05:620a:2686:b0:81f:fed6:a727 with SMTP id af79cd13be357-823fc891024mr1928760285a.26.1758060873984;
-        Tue, 16 Sep 2025 15:14:33 -0700 (PDT)
+        bh=rL8A3PYTBA07yIH2OqB9BEQIkDMK0RLNP0w/NWWAecM=;
+        b=DCpmfwQVtsFCe+jAd8MJAGfsgW5PhIeKcnpbBVlJqjQto4wC+eCOF2MAZQ8mwlpUu0
+         /E7joXL5IWZLzTfV+aPD0huwodZA2D5v4nWtXHnNoYS4q/LMQ26juBSgtO0GU2mIhkoO
+         y5NzhuqYxYz3oqOv4igBc60hT/t1cGu/hBHbvieqlVfjNdlZfUQLlQEYiNr/TEIf/Yef
+         V/+/4fBlGPYmaHjKgSZN4kIuk6xDxcOGWXraWF4Qv2tvj7X2lrbkeREU4uGtL+Y/FcyE
+         uFFbP21p/Jv51LM7rRJJuiMnqtWIEq4hAiwPE4JX2VgYzNsLfv2GkKhb4w/eXBhchcu1
+         8Z3g==
+X-Forwarded-Encrypted: i=1; AJvYcCWtHmnCcgiRV+zq6Gwu0Tu/A67uz9sR9aGG4d+npCavL4ClmfUxPq/oiZmnv2E5LT3lj2omxmtm@vger.kernel.org
+X-Gm-Message-State: AOJu0YwbUq2gf1j5zSNc9eMKwEXOXeCCkkUkJG2ugPmXyUvjUCSylV43
+	3kRhT0sQpIeXJuJp4CCO8HnGpYcgTPcDoCcNKL8zhktjfzIW4AbUM6hIunBebuSZp1nfKPDVFZw
+	H5w0=
+X-Gm-Gg: ASbGncss7rGXyNt+NAr5x/uSrvdaaGy+x+4rvi9DfhkA9m4+b4RylXeWLEdYxeOtDHU
+	IZbeC/3PQc+wUl1WHbiFe0PuS3KVuVKy8ljfCxso054Hzd4u4+ivfqAHDUGHJg0qaDLh1Tyj0n6
+	wQLoK3MWLTF7WeGbL9/YpNl/OT4qwrW5xjCOns6+8UCUJmK0UraBz2054G1HKUcwiCHnk5yi1Rz
+	Q+lq7lsXgWmPZY+r8hdCM9nXwZYnHMfBUnNxx/+c41ZnNFD1B1HAxDFbjDczjW2JVXXOZkd96LY
+	sV2kbY+1D0WVFXb97pYw2AnblGvzAmzMBL1HTpB/JFZkVssM0HAU7zcdSJgu/j29+Ln/2UFTr0s
+	f1mXsoNlg6oHcgA7MCPtlzIrLp8AdzfOT85GlfwDcslh2YPXqmimrkFfGpeJkCrLzbSWV
+X-Google-Smtp-Source: AGHT+IF6z0ZRr6CwRzDzwa42imnCF7XCHREKGQRMSeZqdbCMJOodDvlgpBAZmrEYV8Lh0o7LVJc/Bw==
+X-Received: by 2002:ad4:5cc2:0:b0:787:44ee:cb21 with SMTP id 6a1803df08f44-78744eed49amr100060176d6.34.1758060876515;
+        Tue, 16 Sep 2025 15:14:36 -0700 (PDT)
 Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with UTF8SMTPSA id af79cd13be357-820cd701cabsm1026717585a.41.2025.09.16.15.14.32
+        by smtp.gmail.com with UTF8SMTPSA id 6a1803df08f44-77902aba37dsm58367336d6.50.2025.09.16.15.14.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Sep 2025 15:14:32 -0700 (PDT)
+        Tue, 16 Sep 2025 15:14:34 -0700 (PDT)
 From: Paul Moore <paul@paul-moore.com>
 To: linux-security-module@vger.kernel.org,
 	linux-integrity@vger.kernel.org,
@@ -74,9 +75,9 @@ Cc: John Johansen <john.johansen@canonical.com>,
 	Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
 	Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>,
 	Xiu Jianfeng <xiujianfeng@huawei.com>
-Subject: [PATCH v4 30/34] lockdown: move initcalls to the LSM framework
-Date: Tue, 16 Sep 2025 18:03:57 -0400
-Message-ID: <20250916220355.252592-66-paul@paul-moore.com>
+Subject: [PATCH v4 31/34] ima,evm: move initcalls to the LSM framework
+Date: Tue, 16 Sep 2025 18:03:58 -0400
+Message-ID: <20250916220355.252592-67-paul@paul-moore.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20250916220355.252592-36-paul@paul-moore.com>
 References: <20250916220355.252592-36-paul@paul-moore.com>
@@ -86,37 +87,163 @@ List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=884; i=paul@paul-moore.com; h=from:subject; bh=eSPJ9IwafgtR568e6umiFwslA/7AiGEUrM0feWmarW0=; b=owEBbQKS/ZANAwAKAeog8tqXN4lzAcsmYgBoyd8rZ7FFCreg76jup3ccUSlvkc56RqACpDMht +VkjvZ5Kt2JAjMEAAEKAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCaMnfKwAKCRDqIPLalzeJ c/quD/4414VbtAzq0xezZsKY1Dz0kZUb+420OoogoEcbhxnFXsBQd1MglzaKbAoc0kbE15bXWUE nDMO7THHrEkAg3yQ4KPmsfB5e84P/aZUoGgi1YDyLOblOwqLIAJW4YI4/wGzxI+igDiik8NxwbL n1489P78ZL/rv+wIbmT+Kv1sPBI7hhIVFOgN5LSc01xmO4WXwBrnm/c8+ganiUrd0NwWkR9TZLS mIQcj6kNt4wQXaqkAvCV6hJP2vZ6JDJNTnOExtSytzBA2rCqMu5APQ/RRo9KeM5bqvPCZZ4iuzg XJ+i4xstMTStK1vsJukzbQyLCdKO9DIOPtE3Nf2MBX5tLLNNd6GrTi9xJkgTa1q6SoO1d/8zYHz hs4qcpT8AAgGXe0/7EyXtVnLDUpXKzFfb1T7XZl/PHB4KQwkMuoEoTlUMI+zWsWwpDrKlQvPuC5 wks5txf95jvLOMLryo0/16r/Ube00SPeDudHLLLM9hG8jpMyv0SbP+GcZHqGttB4m/T+GNMKuLz XpoPJYzrzBU0kGG66HKDQ1cnYbpng/WQPcWbjwN7hZiWgnkZsrrqRCQDepD+tkrj9Qh/3mIr9l+ qRKypRvNocNLTPMp+tJC1xMPFQm99y89Z4rm348ca+UzqOqRigryzmiccFfOb709Y4PoW/UxZ6+ 8hOBVnV75nCZPwQ==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=5029; i=paul@paul-moore.com; h=from:subject; bh=B6xkKxzJDX880wnxZuDY5At/z5onL7ffkdvP8EQljn4=; b=owEBbQKS/ZANAwAKAeog8tqXN4lzAcsmYgBoyd8uVB3v0lkqURDcif5AFU40mRBf5Bqo4OnQI 6H7tQ1a7E6JAjMEAAEKAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCaMnfLgAKCRDqIPLalzeJ c5EvD/wIL1GiF8/L0PbY3k1roSHWVt6mZi36ljZ8LNB4e3HDYwu/w78IoJeABJLtzm414bh0GSR V+QRiHu97kne/wUgc84fk+BKVWV6JosQGALUm7qTxPbZAzzzxS+I/yc8Vbd018z7QmdbricDIQh IUtQkwmexPRe//GSI6U4NUJBTOot3xx5nadF7/vNMoDQFBh46nG5BwgFXno3n6dP3vSjBRrpiNB 9WmBFdrSa+36ImZHPo80mdFHnfF96Iw5UGZOnNdoo1LnH8Al2ZDekRo+JXwENnIzjiy0mJiamUN eJSehXDDYSfVf4HWz+6BdzyxGIZU+4OFnEx5yAIhMTuryRtuB9s7+pmbzl0jRaaznpIy/bBEu/t 6NODsnBn696fqOcQzqw7/sq/qfV8MhL+eTiRau/iRE/AiZPYuiVziv/o6CPghSr++oboTkH4s7e pP+G1rbSTenEE2NTtt1mrV8ce/q1n2grvUbfExrV/1FUkFB0DUQEBmtJHBVk3YWDnE9Prl/5RhY vxS0JTjhw+KRf7TNiVju6t6flqmOTz21bIeQwBS6l82eOVafj0rwqttfBArcn5p3uHqzB2TEKCh FO+xNjVrWruZY25hFTHQ/89wJyq3YWmngRO9kVAaI1EZAurFTl3XapFEfZfVQGbG/IgeFAma91L YxpR4Gp/c5LdvjQ==
 X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
 Content-Transfer-Encoding: 8bit
 
-Reviewed-by: Kees Cook <kees@kernel.org>
-Acked-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Reviewed-by: John Johansen <john.johhansen@canonical.com>
+From: Roberto Sassu <roberto.sassu@huawei.com>
+
+This patch converts IMA and EVM to use the LSM frameworks's initcall
+mechanism. It moved the integrity_fs_init() call to ima_fs_init() and
+evm_init_secfs(), to work around the fact that there is no "integrity" LSM,
+and introduced integrity_fs_fini() to remove the integrity directory, if
+empty. Both integrity_fs_init() and integrity_fs_fini() support the
+scenario of being called by both the IMA and EVM LSMs.
+
+This patch does not touch any of the platform certificate code that
+lives under the security/integrity/platform_certs directory as the
+IMA/EVM developers would prefer to address that in a future patchset.
+
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+[PM: adjust description as discussed over email]
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- security/lockdown/lockdown.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ security/integrity/evm/evm_main.c  |  3 +--
+ security/integrity/evm/evm_secfs.c | 11 +++++++++--
+ security/integrity/iint.c          | 14 ++++++++++++--
+ security/integrity/ima/ima_fs.c    | 11 +++++++++--
+ security/integrity/ima/ima_main.c  |  4 ++--
+ security/integrity/integrity.h     |  2 ++
+ 6 files changed, 35 insertions(+), 10 deletions(-)
 
-diff --git a/security/lockdown/lockdown.c b/security/lockdown/lockdown.c
-index 4813f168ff93..8d46886d2cca 100644
---- a/security/lockdown/lockdown.c
-+++ b/security/lockdown/lockdown.c
-@@ -161,8 +161,6 @@ static int __init lockdown_secfs_init(void)
- 	return PTR_ERR_OR_ZERO(dentry);
+diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
+index db8e324ed4e6..73d500a375cb 100644
+--- a/security/integrity/evm/evm_main.c
++++ b/security/integrity/evm/evm_main.c
+@@ -1179,6 +1179,5 @@ DEFINE_LSM(evm) = {
+ 	.init = init_evm_lsm,
+ 	.order = LSM_ORDER_LAST,
+ 	.blobs = &evm_blob_sizes,
++	.initcall_late = init_evm,
+ };
+-
+-late_initcall(init_evm);
+diff --git a/security/integrity/evm/evm_secfs.c b/security/integrity/evm/evm_secfs.c
+index b0d2aad27850..c26724690cec 100644
+--- a/security/integrity/evm/evm_secfs.c
++++ b/security/integrity/evm/evm_secfs.c
+@@ -302,10 +302,16 @@ int __init evm_init_secfs(void)
+ 	int error = 0;
+ 	struct dentry *dentry;
+ 
+-	evm_dir = securityfs_create_dir("evm", integrity_dir);
+-	if (IS_ERR(evm_dir))
++	error = integrity_fs_init();
++	if (error < 0)
+ 		return -EFAULT;
+ 
++	evm_dir = securityfs_create_dir("evm", integrity_dir);
++	if (IS_ERR(evm_dir)) {
++		error = -EFAULT;
++		goto out;
++	}
++
+ 	dentry = securityfs_create_file("evm", 0660,
+ 				      evm_dir, NULL, &evm_key_ops);
+ 	if (IS_ERR(dentry)) {
+@@ -329,5 +335,6 @@ int __init evm_init_secfs(void)
+ out:
+ 	securityfs_remove(evm_symlink);
+ 	securityfs_remove(evm_dir);
++	integrity_fs_fini();
+ 	return error;
+ }
+diff --git a/security/integrity/iint.c b/security/integrity/iint.c
+index 068ac6c2ae1e..8ec1a3436a71 100644
+--- a/security/integrity/iint.c
++++ b/security/integrity/iint.c
+@@ -42,8 +42,11 @@ void __init integrity_load_keys(void)
+ 		evm_load_x509();
  }
  
--core_initcall(lockdown_secfs_init);
--
- #ifdef CONFIG_SECURITY_LOCKDOWN_LSM_EARLY
- DEFINE_EARLY_LSM(lockdown) = {
- #else
-@@ -170,4 +168,5 @@ DEFINE_LSM(lockdown) = {
- #endif
- 	.id = &lockdown_lsmid,
- 	.init = lockdown_lsm_init,
-+	.initcall_core = lockdown_secfs_init,
+-static int __init integrity_fs_init(void)
++int __init integrity_fs_init(void)
+ {
++	if (integrity_dir)
++		return 0;
++
+ 	integrity_dir = securityfs_create_dir("integrity", NULL);
+ 	if (IS_ERR(integrity_dir)) {
+ 		int ret = PTR_ERR(integrity_dir);
+@@ -58,4 +61,11 @@ static int __init integrity_fs_init(void)
+ 	return 0;
+ }
+ 
+-late_initcall(integrity_fs_init)
++void __init integrity_fs_fini(void)
++{
++	if (!integrity_dir || !simple_empty(integrity_dir))
++		return;
++
++	securityfs_remove(integrity_dir);
++	integrity_dir = NULL;
++}
+diff --git a/security/integrity/ima/ima_fs.c b/security/integrity/ima/ima_fs.c
+index 87045b09f120..012a58959ff0 100644
+--- a/security/integrity/ima/ima_fs.c
++++ b/security/integrity/ima/ima_fs.c
+@@ -499,9 +499,15 @@ int __init ima_fs_init(void)
+ 	struct dentry *dentry;
+ 	int ret;
+ 
++	ret = integrity_fs_init();
++	if (ret < 0)
++		return ret;
++
+ 	ima_dir = securityfs_create_dir("ima", integrity_dir);
+-	if (IS_ERR(ima_dir))
+-		return PTR_ERR(ima_dir);
++	if (IS_ERR(ima_dir)) {
++		ret = PTR_ERR(ima_dir);
++		goto out;
++	}
+ 
+ 	ima_symlink = securityfs_create_symlink("ima", NULL, "integrity/ima",
+ 						NULL);
+@@ -555,6 +561,7 @@ int __init ima_fs_init(void)
+ out:
+ 	securityfs_remove(ima_symlink);
+ 	securityfs_remove(ima_dir);
++	integrity_fs_fini();
+ 
+ 	return ret;
+ }
+diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+index eade8e1e3cb1..b703bfc2f470 100644
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -1283,6 +1283,6 @@ DEFINE_LSM(ima) = {
+ 	.init = init_ima_lsm,
+ 	.order = LSM_ORDER_LAST,
+ 	.blobs = &ima_blob_sizes,
++	/* Start IMA after the TPM is available */
++	.initcall_late = init_ima,
  };
+-
+-late_initcall(init_ima);	/* Start IMA after the TPM is available */
+diff --git a/security/integrity/integrity.h b/security/integrity/integrity.h
+index c2c2da691123..7b388b66cf80 100644
+--- a/security/integrity/integrity.h
++++ b/security/integrity/integrity.h
+@@ -114,6 +114,8 @@ struct ima_file_id {
+ 
+ int integrity_kernel_read(struct file *file, loff_t offset,
+ 			  void *addr, unsigned long count);
++int __init integrity_fs_init(void);
++void __init integrity_fs_fini(void);
+ 
+ #define INTEGRITY_KEYRING_EVM		0
+ #define INTEGRITY_KEYRING_IMA		1
 -- 
 2.51.0
 
