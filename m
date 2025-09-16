@@ -1,183 +1,117 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C131B31E8A5
-	for <selinux@vger.kernel.org>; Tue, 16 Sep 2025 16:41:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03B932F260B
+	for <selinux@vger.kernel.org>; Tue, 16 Sep 2025 18:55:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758040869; cv=none; b=crPFurRV+89IUnbOnOJPypn85Fgil4GiZHaMh4hrN0tQnEzRz3MOd93I5hNq3p2bfWgNddW9vOPFv2WXLCAtGPsYUxNsZm+180i5s0b/96Nr87j/Ngik60qnyqXcnTso+SJSArq5OWvE+Bh8Ch9k2RYfeh8su0tpAWMlaq96IQ4=
+	t=1758048941; cv=none; b=aqUOojEm8nnNk7dD7hcl+B7xBGAP0gb8mi3a/1pg84q6sFCgoRHjd8Sc0pyTYznUR7/a7z2HZx0VIgD3+qYt4UvWqo1kRn/SBHiNFNMwoXbmid0sPnotXwasI3swb5huXdElKSbev2rJxTip6ADdYcPM7kXLYR/gGJR8UKDUe3s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758040869; c=relaxed/simple;
-	bh=ygHRKU4+NyJNpxxxSeziFUbD7M5KcN1tEmTyd/ZM9MI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bFJBkz+knOgQH/UgQocIhLPQtdKrDRRyyKWQthUpE+NYhxBKWQjik+jGA8lPFEOiiXGISzVekGb3nqiBx37RpjG7ih76ndU4+ow5fjdK1eP5ew6EYPzlpq19H6gVyej+9UQIWf5q5Jx80ObS/hyrTtXSGWseKpiD/8TpTJRtuWY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=CxWwmcYS; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=30cVzvZ4; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=sDpQEn4k; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=o8MlFga7; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	s=arc-20240116; t=1758048941; c=relaxed/simple;
+	bh=yQZLEO97N1ggWumkq/IJfJbIaY6AhB3DfK64R7Uw5UE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=BSsYuoO5U7qabhpSsNMrOlZ1J171h1JW5GV7BwadYxsg+dXvjtcpIZgIclP0zvz1VBUm2y7WdmNG5lHCGCpVEV+LjLDCG3/RQ253I42BrqWLtdRRtb4v5x9OAlUao+dDfBAKYm/QcnWcay+0g/08fN/POpLgGFYKYpgJT83E1Ak=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=No76TUtv; arc=none smtp.client-ip=209.85.216.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="CxWwmcYS";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="30cVzvZ4";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="sDpQEn4k";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="o8MlFga7"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id C7402227A8;
-	Tue, 16 Sep 2025 16:41:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1758040866;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=60UJXs00+JFtBJRSqpPgQp+TkYv/DrUkYHiS5ruLArA=;
-	b=CxWwmcYS7wlahKqWtAyC9iOMvNJUPSh3MbRUHtaoUaIjgeLvJL2uBugKlPNbaghkSg47AZ
-	9KF2bHvKfDzHrZBQ4JGb7p3XTlhIE78YDg43Zat7bLOLrX8TIqqPL6QN5OL1VaHm/SsJmn
-	wfmiKn68hd11h85QDG6wXXh+cd3pU1k=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1758040866;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=60UJXs00+JFtBJRSqpPgQp+TkYv/DrUkYHiS5ruLArA=;
-	b=30cVzvZ4VHDffz+r8fP5OLTryRTOhw82RaYp2j5U3v84RtEfAjtpPedmnqxd1T6nttNy25
-	lV5rccHc6rYiDkCw==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=sDpQEn4k;
-	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=o8MlFga7
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1758040865;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=60UJXs00+JFtBJRSqpPgQp+TkYv/DrUkYHiS5ruLArA=;
-	b=sDpQEn4kvhvn4mgSO/dqWXZEY4il0SMEJuyYXwigha+uDLlTl4ZqiOySmF8hP0SapcOHIF
-	vfuoJpSPicXZ4qbKVL6MJlB8cO7kGmER9iyMVT7QSL4mCfTGRQMyc4NzItFC5/iVcS8wLw
-	Qcm4iIBI/+03TgGmqn3SKqUNuD7sktE=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1758040865;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=60UJXs00+JFtBJRSqpPgQp+TkYv/DrUkYHiS5ruLArA=;
-	b=o8MlFga7R7VpBFvW4tzLykyYcQnCtaE4yIZCS8d8OqLwWEwNBBlgowA+92WsTq+vV0fIy2
-	t3wc5yj+XUq5w5Aw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C634813A63;
-	Tue, 16 Sep 2025 16:41:04 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id KOvTLiCTyWhqVQAAD6G6ig
-	(envelope-from <pvorel@suse.cz>); Tue, 16 Sep 2025 16:41:04 +0000
-Date: Tue, 16 Sep 2025 18:41:02 +0200
-From: Petr Vorel <pvorel@suse.cz>
-To: Mimi Zohar <zohar@linux.ibm.com>
-Cc: ltp@lists.linux.it, linux-integrity@vger.kernel.org,
-	selinux@vger.kernel.org, Cyril Hrubis <chrubis@suse.cz>,
-	Coiby Xu <coxu@redhat.com>, Li Wang <liwang@redhat.com>
-Subject: Re: [PATCH 2/2] ima_{conditionals,policy}: Handle policy required to
- be signed
-Message-ID: <20250916164102.GA284778@pevik>
-Reply-To: Petr Vorel <pvorel@suse.cz>
-References: <20250912073210.47637-1-pvorel@suse.cz>
- <20250912073210.47637-3-pvorel@suse.cz>
- <b8723148a39083cab0b43f9c7fa5ce18d696f99d.camel@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="No76TUtv"
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-32df682cba2so180460a91.0
+        for <selinux@vger.kernel.org>; Tue, 16 Sep 2025 11:55:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1758048939; x=1758653739; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=f+QBfx32epdAdNPyHe1/ONEZYv20CZLtxukROY1EY7c=;
+        b=No76TUtvyZcXgXb3wlezprFYgT5lf6btsKIpm78ZomrtJViQFD89lWjOvDeUBtKYHW
+         JB0hUWHYMgn4/UXVMMGK0fbgKRTSYVtCiK5nwzBWaDKTblhE6hVfO8ZD+UcJ81JSbIZE
+         L8sKhu/o0Bklqo0mvtKfJ1dn4dFXMXZLlQ2+UmlvPKyxWkISEREC8KmEWBZh1wTr2y/x
+         rPRe4QkKJTpo/FoQPdDcX+HPUjqLMhzGJIWg6im7EbqNNwxJVA045qHDn7zJXKyvrErc
+         OYyGbOk/i22za9thnW7za70Gm1pjyyyaaERCKJk6e0V+0+qe7jR1ft6Yopu7sbHVzuxN
+         DYjw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1758048939; x=1758653739;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=f+QBfx32epdAdNPyHe1/ONEZYv20CZLtxukROY1EY7c=;
+        b=tEgNGV6WHln56gVbFT8vjCP3UwDdXhzk9iDtPHHlfFmjqklB178rB/mPvJqoRnYbEh
+         u49qaYbsnIEUrthKHiRp6CvXkKlSAkdbEZR2kLt0nvNzfrZCfAYrTABLsWBIjSkpsQms
+         /RqwkLq6aWK3zBMyVB7+s3NnQSfBpvmdvRtX4fEmssaHOd2lFrOln3JH1+n72TJ29e7X
+         RL5OuI1EHYWv6qYAHutUrf7vK/eYEPViD2zAG4+aMZyEAMSs2xgc+EToWRg1kV0ySyG4
+         3z6mYCnONgGeujCEIl4l9Vv4CoxioIFTT/G/hfsxqgo2hS86stKPu2eUXg0hXLVJz0zD
+         4K+Q==
+X-Forwarded-Encrypted: i=1; AJvYcCUAuyNeS9EiAXf+GBhIBYDFj/uGuQFoI8Hp/ALkhzwnJB/OgTGNGULaOpzvzdyTOc8Ez5AIRciF@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz2QCKi0TSCAutOTEkQvomoT8qWHcbVntLNt6kCOUViZMa7fadm
+	Hrrt+jOHvYKNyQmrLV1eNQWKT/R/6MFTrQQU1vMW5yYckzOLe0JqaEVR9oyAWgSfTGdPESemset
+	KCCyHo/cQGvzV0QfmRn1zegldLPlaO88=
+X-Gm-Gg: ASbGncuyloVtDZWrmzWhR+mfZ/Kwhctz8PGA1R1ocJ0m2Z0zJBid4Lrzo8vPSHJPDYP
+	63KlZcxzCJAc5WhNzd0APllYifKqBnUsfL1D7I4MjZbUEgzTJ0bKgvm9GODZsOCSWbaZfgXwPXL
+	ew/elhiJ1W0iy/tkBAyxLl1NVd681HqJ7o8pPU5ZmiESTBfLLgoljfGHpZdu9EaCFPIFnca8Gs7
+	d9XT0nTT0C99W05NQ==
+X-Google-Smtp-Source: AGHT+IGH1tDr6RygMSLfZlgkaIzbrhRU10FifKBMbQSNm6D1Il+4mP0pVCESOWN6g3QuPiL/62h1TINxSCV0sXU0hjk=
+X-Received: by 2002:a17:90b:4ac2:b0:314:2cd2:595d with SMTP id
+ 98e67ed59e1d1-32ea60da81bmr3630464a91.8.1758048937607; Tue, 16 Sep 2025
+ 11:55:37 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b8723148a39083cab0b43f9c7fa5ce18d696f99d.camel@linux.ibm.com>
-X-Spamd-Result: default: False [-3.71 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_RHS_NOT_FQDN(0.50)[];
-	HAS_REPLYTO(0.30)[pvorel@suse.cz];
-	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	TO_DN_SOME(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.cz:replyto,suse.cz:dkim,suse.cz:email,suse.de:url];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	MISSING_XM_UA(0.00)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	RCPT_COUNT_SEVEN(0.00)[7];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.cz:+];
-	REPLYTO_EQ_FROM(0.00)[]
-X-Spam-Flag: NO
-X-Spam-Level: 
-X-Rspamd-Queue-Id: C7402227A8
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Rspamd-Action: no action
-X-Spam-Score: -3.71
+References: <7a27eed6-9554-4f6a-9f2f-2cb1efc522fb@penurio.us>
+ <CAEjxPJ5F5YtqqOb+KTiC4-ED+0YMAOLfKnABNnggjK_N2hhzjA@mail.gmail.com>
+ <1ea8829c-7b4a-4048-8045-768b5af70218@ieee.org> <CAEjxPJ692h1RbJfHLGfVye7diVW1r5WJz=P0iZeNet0gf8Qusg@mail.gmail.com>
+ <d3a2e381-1814-4d14-978a-8a2ad02063a3@ieee.org>
+In-Reply-To: <d3a2e381-1814-4d14-978a-8a2ad02063a3@ieee.org>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Tue, 16 Sep 2025 14:55:25 -0400
+X-Gm-Features: AS18NWD7F9mtsC9-e2OJn1qzyaC3Qn3u9v0PpKe2rGcFB6m15E-cDoO6Vv07_pw
+Message-ID: <CAEjxPJ7mc1AtE1m1_fypn-q=Y=+WiGPpgkmHPZCdbWMqSdQQ+w@mail.gmail.com>
+Subject: Re: Lack of official hosted macro documentation
+To: Chris PeBenito <pebenito@ieee.org>
+Cc: Paul Moore <paul@paul-moore.com>, Ian Pilcher <ian@penurio.us>, 
+	SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Mimi,
+On Mon, Sep 15, 2025 at 4:16=E2=80=AFPM Chris PeBenito <pebenito@ieee.org> =
+wrote:
+>
+> On 9/15/2025 3:38 PM, Stephen Smalley wrote:
+> > On Mon, Sep 15, 2025 at 3:26=E2=80=AFPM Chris PeBenito <pebenito@ieee.o=
+rg> wrote:
+> >> On 9/15/2025 2:01 PM, Stephen Smalley wrote:
+> >>> On Mon, Sep 15, 2025 at 1:56=E2=80=AFPM Ian Pilcher <ian@penurio.us> =
+wrote:
+> >>>>
+> >>>> TL;DR - Writing policy modules is harder than it needs to be, becaus=
+e
+> >>>> the documentation for the macros/interfaces in the reference policy =
+is
+> >>>> not easily discoverable.  This could be helped by hosting the genera=
+ted
+> >>>> HTML documentation in a location that would be indexed/processed by
+> >>>> search engines and AI chatbots.
+> >>>
+> >>> Great idea. I thought we actually used to have something like this bu=
+t
+> >>> am not finding it now.
+> >>> Chris, any clues?
+> >>
+> >> We did have some generated pages, but when the project moved to GitHub=
+,
+> >> there wasn't a place to put them.  There hadn't been any requests for =
+it
+> >> to return, so I never looked into it.
+> >>
+> >> `make html` in the repo checkout will generate them in the doc/html/
+> >> directory (from the repo root).
+> >
+> > Maybe we could put these in GitHub pages for SELinuxProject?
+>
+> I have no objection.
 
-[ Cc Li, although I have no idea if Fedora even runs LTP IMA tests ]
-
-> On Fri, 2025-09-12 at 09:32 +0200, Petr Vorel wrote:
-> > Since kernel 6.6 policy needs to be signed on enabled UEFI secure boot.
-> > Skip testing in that case.
-
-> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=56dc986a6b20b
-
-> > This fixes errors:
-
-> >     ima_policy 2 TINFO: verify that policy file is not opened concurrently and able to loaded multiple times
-> >     ima_policy 2 TFAIL: problem loading or extending policy (may require policy to be signed)
-> >     https://openqa.suse.de/tests/18723792#step/ima_conditionals/6
-
-> >     ima_conditionals 1 TINFO: verify measuring user files when requested via uid
-> >     echo: write error: Permission denied
-> >     ima_conditionals 1 TBROK: echo measure uid=65534 > /sys/kernel/security/ima/policy failed
-
-> > Ideally there would be test which check that unsigned policy cannot be
-> > written.
-
-> > Signed-off-by: Petr Vorel <pvorel@suse.cz>
-
-> Thanks, Petr.
-
-> Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
-
-Thanks for your review, merged!
-
-> At some point, consider adding support for signing policy rules, if the
-> private/public keypair is provided.
-
-I'm not against it, but I'm not sure if I find time for this (as usual patches
-are welcome). If I understand the docs [1] [2] it depends on
-CONFIG_SYSTEM_TRUSTED_KEYS, right?
-
-Fedora builds with CONFIG_SYSTEM_TRUSTED_KEYS="certs/rhel.pem", but ship config
-with CONFIG_SYSTEM_TRUSTED_KEYS="" ("We are resetting this value to facilitate
-local builds" - makes perfectly sense), other distros (at least openSUSE
-Tumbleweed and Debian) build with CONFIG_SYSTEM_TRUSTED_KEYS="".
-
-I doubt that Fedora private key will be exposed for testing. Therefore this
-feature is IMHO useful for mainline testing, but not for distro testing, right?
-But again, I'm not against merging the patch (if anybody is willing to implement
-it).
-
-Kind regards,
-Petr
-
-[1] https://ima-doc.readthedocs.io/en/latest/ima-utilities.html#build-kernel-with-ima-ca-key-on-keyring
-[2] https://ima-doc.readthedocs.io/en/latest/ima-utilities.html#ima-ca-key-and-certificate
-
-> Mimi
+If someone else were to create a GitHub pages repo for SELinuxProject,
+I can help maintain it.
