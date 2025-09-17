@@ -1,172 +1,127 @@
-Received: from mail-lf1-f45.google.com (mail-lf1-f45.google.com [209.85.167.45])
+Received: from mail-yb1-f171.google.com (mail-yb1-f171.google.com [209.85.219.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF6D71C84DE
-	for <selinux@vger.kernel.org>; Wed, 17 Sep 2025 00:34:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DECDC202C30
+	for <selinux@vger.kernel.org>; Wed, 17 Sep 2025 01:09:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758069296; cv=none; b=i4otR4SRuBoJrK91LyVRbA3QpYACcdjjVm0Es8Z4XxqtnO2LZMHibTK/I8M14NXpfm+DAYncJ8Da4TwBDyXdwh4ib0Lbo+8d6GLuKKsP3dn+dpngMXFCWj7AKRQKA1ONTGktm0YhmMqCTcwmEA58YAJFA8HMYrKARDaHlJ6H33A=
+	t=1758071346; cv=none; b=lE+bkJOSgA9aHSAxS/kXTDseOU1a8qWQyNcPU68TnUW2z8AI+11EWvBS0zzFgD3Gvb4axDNipGx21YqlPEvzthMGe63MdIo5Lb5lbeq7QlswiGh898QjR7BSDFH+pUIW7ztDFTcOi3yI/HpmLEBpOCZHfDMo/VsnNV4ulMV3Q0Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758069296; c=relaxed/simple;
-	bh=6/rB1l/eXWHaa3FIjR4b9vplzipgbYUFKcxcVcRHxEo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=IH8D/IkGNdiKa35TyoxGfv6Y/8na3cMKebwTr6ngJ9YDYhyJk3eJ0/5YdIdbCUXwjFaRBdcWahv+83mijHYW0ALYPAPJxfFKflemSaXXdHPX1sQzHeMjSBsAGw0x+3FncQHG4dLf0ADOuKNms1jrkMMUd7lgFoiDs0OP2EyYhiI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=OhV3CkUR; arc=none smtp.client-ip=209.85.167.45
+	s=arc-20240116; t=1758071346; c=relaxed/simple;
+	bh=BUtYNeWBlf5QHi+IaMjeNB93VcPuCp37DQN4gnN67q4=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=CygZzE9vSHJv/CQQ8ZT9+ttMYIAMyKU3GGR+ItJvE7VM3OLoekQpaftbGkBsO8PJReIvlWbDFL1qHCLvS5xlP2Oiuszu56Eq2bDwjUuZtkZaQ8bbv/USAzpDrraECK0RQp52FZfq6Eo3GNZNtGNpPxmGjzr9AGoUZxRJe1u8LJY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Zze9Nx/y; arc=none smtp.client-ip=209.85.219.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="OhV3CkUR"
-Received: by mail-lf1-f45.google.com with SMTP id 2adb3069b0e04-5702b63d72bso3990e87.0
-        for <selinux@vger.kernel.org>; Tue, 16 Sep 2025 17:34:54 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Zze9Nx/y"
+Received: by mail-yb1-f171.google.com with SMTP id 3f1490d57ef6-ea409597fe1so2324465276.0
+        for <selinux@vger.kernel.org>; Tue, 16 Sep 2025 18:09:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1758069293; x=1758674093; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=0AF9Zf/ufENcHrKMvHlrpWPSseQ/RzWNQreOKhevrxE=;
-        b=OhV3CkURQqmcrRTl0ac29G3gbVj0iibi6GClojK388ma6gLPbjDN7Kwz2j4bi5Ou8h
-         D/xA81kVVIOcxJZXPglu7BNbzHxNBRKbOfSJY+TJXYrCAQ9bigvXoM9o9QYUClqQVNr9
-         0PiqN5ybujC6Q8IDznsHQkR4a7ileIqbxdG4mjnrIRmlpT2LNbMmoDhbc0mFVro3atQu
-         Xo8JIAk4a8kn1ZvmZKUeXq8SNRtM18HA+BFdEfkjLOfydOPG9NBAg+tkmCq+sskKs+wW
-         mmdkED0nVPqvMZqRe31VQAb9cNmswsEZbgWk6RFWSIZuhGOXPR1XHDSmkS+CVXATo+GS
-         OnSg==
+        d=google.com; s=20230601; t=1758071343; x=1758676143; darn=vger.kernel.org;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=aANTVr5axolQ7BbjwnLuDvhkzbQohdfLxP4+qHFFkZc=;
+        b=Zze9Nx/yMv9i9K9HmyB1tiJMq42YlgZCe/4u7vPBFeAshXaqGPcKufgKokFr3+TtIY
+         Ri8PZoQpFKttoy6BJP9oDJeB+PwMCwIrRj5Ptm6s2ucSndS/mT+TCGfmRxZnJZFqRlRi
+         XTOMCZMvAh3RFTu2cFnNCz6VWWFhWp4QBqm9UyrjXBrZelk1Hpsx/tGmx5pYgZbR/F+d
+         hn9RvIl+dnzVLPHusZgqfydoN5JYI/MN4gtMzjq5oBycVQs9QwCw0b1ak01RhX2VWKLH
+         XfO1ni5D5TrQdBMOv4WCYU03TiAqaeQEA7k5IoDi8KTIZjq+/KUjO3T+e51IbQpzo/Rp
+         OtxQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758069293; x=1758674093;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=0AF9Zf/ufENcHrKMvHlrpWPSseQ/RzWNQreOKhevrxE=;
-        b=ZeyJnj9E7BSPasW7gY3rrW5s0tbu2IyzdvB+xC6a/3qDp2LvqiUXQNWWxWBT52BI5L
-         2IUKTll1QglqamEBCCDKWwX2lno1XWEZfFLVmy52tWbAbMgFb5E98tgsc3Lk5kUigC5Q
-         +KTNlyDD+yC1gpXEje33mh+mZ1ix7FdAGc/8nZId2J5MuEAHKkhXy6UsZYcbmvsC61Pw
-         /6Y9v5T4lkc4RxLaZUmYeTDg4Ge9KaMjesBu/BduaT43USsMYIgtKfGiDHRfG4oP/5oW
-         M+daCcNUy2nhqJp45EQr8dN3ppzeUjrhfgaTR6CMmGX5xggFIi6WMVMNYCxgnSg+xmtC
-         h6nA==
-X-Forwarded-Encrypted: i=1; AJvYcCWZHJGRkdmLrQaWW+fuPekNVrGe+zscNwe6OH09V/sUu7DUnLq1xGCxvE7F6DtZmpi56i8UR/PB@vger.kernel.org
-X-Gm-Message-State: AOJu0YwjsMtjvI5azJM4Gg1DeWPCyOOW/Sv1trL15okqm/Y0kG9O3wbS
-	0IODVljWYeU43brVJOT4lzK5+ezgzUJ/NB2MIRDHybSrSUAt6v/YaxIVEwf9sx/J8FncpyAtgoA
-	HLh9Lf/Ow6dnLpv7BtSeIltMSQJUXbmoYR78rbrKI
-X-Gm-Gg: ASbGncv0mDJdizsu4H2xlQFEVt5Zi+QvyAiXHDYy7ZWG1W6VKmtE1mvu7oWdFBMI+5U
-	GdhNYb5G0u8eS0myQHTzw+ZLTvu5oZq0tqRP+KCUnhpFy1Dod9kUZfb3Af/tkGYZSL3j/cSHKJ0
-	eJRv0bI7EpWIGNcUoZlRBSg4zp8rrGjHTv38p05ittGyfZPEPPIwflVbNbS8ca08SIkqtg8TtZn
-	JYAFYVBBwL/0oChbdTPwQm4yZLQ+OgVKwF9/Lk2lkdyNPThuPI=
-X-Google-Smtp-Source: AGHT+IFcyjJzZ4NT9Tir+GT9MJKYCt97IWoZnmQP2gWhP7KEs1D5HqDovMOSpMabAp7PkDXB7hRvrieMLGEHtt4HWvI=
-X-Received: by 2002:a05:6512:61d0:10b0:55f:6ac4:c3b2 with SMTP id
- 2adb3069b0e04-5774cebae57mr183502e87.0.1758069292874; Tue, 16 Sep 2025
- 17:34:52 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1758071343; x=1758676143;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=aANTVr5axolQ7BbjwnLuDvhkzbQohdfLxP4+qHFFkZc=;
+        b=THrtKdbJs0/Zdk0XxpfqvjJGLTljCE2AuR0Spb7u7dpNDEFbOHE71Hmzx2wvicLyW/
+         joreG7ejssjsuXXxTn0b3SdQiHKyOdh+64XkMcpES8E9/kbmH2jewJjF0lIrGuKZV9F9
+         xWP8PNcq1QX8LdVgK6Lw2Ncx7laSlgDkxWly5yezhZlHVhn+hNGkrKTaZj7feD7ntbVS
+         WOCKR3acFPKhvVyY8YT+1ALp9ZFDDtrAXch1JA/+MwPP0vdNY4DBy1EuFapVCJhO9QeD
+         ftBDN9Px4y4QeaWO7JzMGGYK8OErCZVWMa6ytJnfwS8vZWF4MTC+cuUkDa216rTflwuc
+         OSBQ==
+X-Forwarded-Encrypted: i=1; AJvYcCW84VWTou7azHB+P5fJvsVBpIm/DzRsFkU4nPNYTsRRCz7YY4Gbl8Le1IS3L9jO1VxsDyqjQzyg@vger.kernel.org
+X-Gm-Message-State: AOJu0YzOyfJvKtAsO1n+b/AW1TBotLSyfdqj8ZFAff5gCWScQZI/3EQB
+	qMeXcWR0vfb6ySmw6GeTP7eeoD3ieg63o332X37KJBYpRt/CbOPTmmDpBpH44RxKow==
+X-Gm-Gg: ASbGncud8a+/KcWZR7KR2cQOqRbe61bAX5BnIGb0keDKtnwr56qrPHRhvODLrjClW5R
+	OcmekOAT6tMiogW5D/PHKOv0q8ruwSDbnGgkzRQV03v3CP5y2koZWphvYHKdAxxFrxoa0AFBLqP
+	bQj7lWEoq9KxLf0KDTIjhKZo18SQQA5cPf6YbwRUJHmDCZgvj/3p35JzbOJRrA4fgR9yh+CRoOK
+	NiQ52un3DAGxsZC29bZ6Zu8vFJplXXXAD2I3PN8YKGw4wdg0PqfsucsHSyFfsMOqds6wOKG83aC
+	POMMdt0u3j8/wJxsowm5N/7E+I4tOFSERhe7DPp8cCFokNd6JsrlxEqOhEQH7CG+8DOeM50BPfC
+	7ncIhWT7Lqt4l6MqqM4AC9hQm4Ro6NRF9fedZPhGu5jQUGy6gNapAuDvzixsVDqET3A/t8Vervm
+	ntLx+M31Rt4614KkMlo0V344W0
+X-Google-Smtp-Source: AGHT+IFGR6+9Hx1aPuBvMpaobAq/qWl23NruMocVjrvxvIXrOI6tSCiwuhhjzQFtoMNgnRtW9cEMWw==
+X-Received: by 2002:a05:690c:dc3:b0:71f:b944:103e with SMTP id 00721157ae682-73892c5726emr2575027b3.47.1758071342433;
+        Tue, 16 Sep 2025 18:09:02 -0700 (PDT)
+Received: from darker.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-73266fe1782sm29375867b3.46.2025.09.16.18.09.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Sep 2025 18:09:01 -0700 (PDT)
+Date: Tue, 16 Sep 2025 18:08:47 -0700 (PDT)
+From: Hugh Dickins <hughd@google.com>
+To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+cc: Paul Moore <paul@paul-moore.com>, Hugh Dickins <hughd@google.com>, 
+    James Morris <jmorris@namei.org>, 
+    Stephen Smalley <stephen.smalley.work@gmail.com>, 
+    Jeff Vander Stoep <jeffv@google.com>, Nick Kralevich <nnk@google.com>, 
+    Jeff Xu <jeffxu@google.com>, Baolin Wang <baolin.wang@linux.alibaba.com>, 
+    linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org, 
+    selinux@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] memfd,selinux: call security_inode_init_security_anon
+In-Reply-To: <CA+zpnLe8Z=2qY3rVCyZXyGPOaO2a0V2BVrdMkuwKs789igGCzw@mail.gmail.com>
+Message-ID: <b266fe61-7a7a-b13f-a73c-f30f5edc22a3@google.com>
+References: <20250826031824.1227551-1-tweek@google.com> <6afc91a9f5caef96b2ca335b6d143670@paul-moore.com> <92255d5e-7e0a-6ca3-3169-114ae7f6247f@google.com> <CAHC9VhQejS05C8AExkh32GidBdzXjauKPP6T_3eSGZDEwfwDuA@mail.gmail.com>
+ <CA+zpnLe8Z=2qY3rVCyZXyGPOaO2a0V2BVrdMkuwKs789igGCzw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250826031824.1227551-1-tweek@google.com> <6afc91a9f5caef96b2ca335b6d143670@paul-moore.com>
- <92255d5e-7e0a-6ca3-3169-114ae7f6247f@google.com> <CAHC9VhQejS05C8AExkh32GidBdzXjauKPP6T_3eSGZDEwfwDuA@mail.gmail.com>
-In-Reply-To: <CAHC9VhQejS05C8AExkh32GidBdzXjauKPP6T_3eSGZDEwfwDuA@mail.gmail.com>
-From: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Date: Wed, 17 Sep 2025 10:34:34 +1000
-X-Gm-Features: AS18NWBUShakTwgjwy447Q25zdtRhMIo7Iqnzp_7z4P3lmEl_tUSeuf2NkCr0RI
-Message-ID: <CA+zpnLe8Z=2qY3rVCyZXyGPOaO2a0V2BVrdMkuwKs789igGCzw@mail.gmail.com>
-Subject: Re: [PATCH] memfd,selinux: call security_inode_init_security_anon
-To: Paul Moore <paul@paul-moore.com>, Hugh Dickins <hughd@google.com>
-Cc: James Morris <jmorris@namei.org>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Jeff Vander Stoep <jeffv@google.com>, Nick Kralevich <nnk@google.com>, Jeff Xu <jeffxu@google.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, linux-kernel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
-	linux-mm@kvack.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/mixed; boundary="-1463770367-746452338-1758071341=:25424"
 
-On Wed, Sep 17, 2025 at 1:26=E2=80=AFAM Paul Moore <paul@paul-moore.com> wr=
-ote:
->
-> On Tue, Sep 16, 2025 at 1:07=E2=80=AFAM Hugh Dickins <hughd@google.com> w=
-rote:
-> > On Wed, 3 Sep 2025, Paul Moore wrote:
-> > > On Aug 25, 2025 "=3D?UTF-8?q?Thi=3DC3=3DA9baud=3D20Weksteen?=3D" <twe=
-ek@google.com> wrote:
-> > > >
-> > > > Prior to this change, no security hooks were called at the creation=
- of a
-> > > > memfd file. It means that, for SELinux as an example, it will recei=
-ve
-> > > > the default type of the filesystem that backs the in-memory inode. =
-In
-> > > > most cases, that would be tmpfs, but if MFD_HUGETLB is passed, it w=
-ill
-> > > > be hugetlbfs. Both can be considered implementation details of memf=
-d.
-> > > >
-> > > > It also means that it is not possible to differentiate between a fi=
-le
-> > > > coming from memfd_create and a file coming from a standard tmpfs mo=
-unt
-> > > > point.
-> > > >
-> > > > Additionally, no permission is validated at creation, which differs=
- from
-> > > > the similar memfd_secret syscall.
-> > > >
-> > > > Call security_inode_init_security_anon during creation. This ensure=
-s
-> > > > that the file is setup similarly to other anonymous inodes. On SELi=
-nux,
-> > > > it means that the file will receive the security context of its tas=
-k.
-> > > >
-> > > > The ability to limit fexecve on memfd has been of interest to avoid
-> > > > potential pitfalls where /proc/self/exe or similar would be execute=
-d
-> > > > [1][2]. Reuse the "execute_no_trans" and "entrypoint" access vector=
-s,
-> > > > similarly to the file class. These access vectors may not make sens=
-e for
-> > > > the existing "anon_inode" class. Therefore, define and assign a new
-> > > > class "memfd_file" to support such access vectors.
-> > > >
-> > > > Guard these changes behind a new policy capability named "memfd_cla=
-ss".
-> > > >
-> > > > [1] https://crbug.com/1305267
-> > > > [2] https://lore.kernel.org/lkml/20221215001205.51969-1-jeffxu@goog=
-le.com/
-> > > >
-> > > > Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
-> > > > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > > > Tested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
->
-> ...
->
-> > > Hugh, Baolin, and shmem/mm folks, are you okay with the changes above=
-? If
-> > > so it would be nice to get an ACK from one of you.
-> >
-> > So far as I can tell, seems okay to me:
-> > Acked-by: Hugh Dickins <hughd@google.com>
-> >
-> > If I'd responded earlier (sorry), I would have asked for it just to use
-> > &QSTR("[memfd]") directly in the call, rather than indirecting through
-> > unnecessary #define MEMFD_ANON_NAME "[memfd]"; never mind, that's all.
-> >
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Thanks for the review Hugh. In our case, it is necessary to expose
-MEMFD_ANON_NAME as there is a string comparison done in
-security/selinux/hooks.c (see selinux_inode_init_security_anon
-changes).
-I would argue it is cleaner to reference the same constant. The
-alternative here would be to have 2 copies of it, with the risk of
-them being out-of-sync at some point.
+---1463770367-746452338-1758071341=:25424
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-> > Please do take this, along with the rest, through your security tree:
-> > mm.git contains no conflicting change to mm/memfd.c at present.
->
-> Thanks Hugh, it turns out we ended up having a discussion on the
-> SELinux side (proper return values for error conditions) and I'm going
-> to hold off on this until after the upcoming merge window to give time
-> for that discussion to run its course.  The good news is that gives
-> Thi=C3=A9baud an opportunity to do the qstr fixup you wanted.
->
-> Thi=C3=A9baud, are you okay with making the change Hugh has requested?
->
-> --
-> paul-moore.com
+On Wed, 17 Sep 2025, Thi=C3=A9baud Weksteen wrote:
+> On Wed, Sep 17, 2025 at 1:26=E2=80=AFAM Paul Moore <paul@paul-moore.com> =
+wrote:
+> > >
+> > > So far as I can tell, seems okay to me:
+> > > Acked-by: Hugh Dickins <hughd@google.com>
+> > >
+> > > If I'd responded earlier (sorry), I would have asked for it just to u=
+se
+> > > &QSTR("[memfd]") directly in the call, rather than indirecting throug=
+h
+> > > unnecessary #define MEMFD_ANON_NAME "[memfd]"; never mind, that's all=
+=2E
+> > >
+>=20
+> Thanks for the review Hugh. In our case, it is necessary to expose
+> MEMFD_ANON_NAME as there is a string comparison done in
+> security/selinux/hooks.c (see selinux_inode_init_security_anon
+> changes).
+> I would argue it is cleaner to reference the same constant. The
+> alternative here would be to have 2 copies of it, with the risk of
+> them being out-of-sync at some point.
+
+Oh, I'm sorry, I simply misread your patch, and thought that the
+#define MEMFD_ANON_NAME "[memfd]" came at the start of mm/memfd.c,
+whereas it's in include/linux/memfd.h just before mm/memfd.c.
+
+Yes, you're perfectly correct to do it that way then, ignore me.
+(I do have to reflect on why three instances of MEMFD_ANON_NAME
+are safer than two instances of "[memfd]", but you are correct.)
+
+That does lead me to look quickly at the security/selinux/hooks.c
+end of the patch: I don't particularly love what I see there, but
+that's none of my business, you and Paul have constraints to meet
+there which I'm entirely unfamiliar with.
+
+Hugh
+---1463770367-746452338-1758071341=:25424--
