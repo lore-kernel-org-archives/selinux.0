@@ -1,131 +1,172 @@
-Received: from mail-qv1-f45.google.com (mail-qv1-f45.google.com [209.85.219.45])
+Received: from mail-lf1-f45.google.com (mail-lf1-f45.google.com [209.85.167.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1A4F32B49B
-	for <selinux@vger.kernel.org>; Tue, 16 Sep 2025 22:14:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF6D71C84DE
+	for <selinux@vger.kernel.org>; Wed, 17 Sep 2025 00:34:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758060884; cv=none; b=S3WsFwIG9UKPmf01WTS3H5pkrThqbyjraZwmtcPaB4ZeBJH1sTRXan264lLMj5TNA1kReiiBU+vOnEPaN2GnM50BQVyIgk1doCcIWua4jJPKOJnAf372iric4V6gXSFCs7P/JbndUkndtjFoJ3oc2GgSMNtqPVENp9wDuQkSjrg=
+	t=1758069296; cv=none; b=i4otR4SRuBoJrK91LyVRbA3QpYACcdjjVm0Es8Z4XxqtnO2LZMHibTK/I8M14NXpfm+DAYncJ8Da4TwBDyXdwh4ib0Lbo+8d6GLuKKsP3dn+dpngMXFCWj7AKRQKA1ONTGktm0YhmMqCTcwmEA58YAJFA8HMYrKARDaHlJ6H33A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758060884; c=relaxed/simple;
-	bh=aCC82L2q0ysTfaRazG/CWqQeq8HFWa6+t3PPs9R+FMg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=NG1UtBW4eUIAypGBd6RGM6FfD3/bMQNP30385K5XAeuatXGfoewCYGfTaBkmxEq1joUZubFj1m9K7D1aDeJlO71RSG/Ydh3GPTOcv+rfxsvbMmB+g0arRaO67DCpz63EOukN00XDrPuW2Q3VWZHZddtUwYbPyNavYHrIJ43NxRo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=LVzHf5MV; arc=none smtp.client-ip=209.85.219.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1758069296; c=relaxed/simple;
+	bh=6/rB1l/eXWHaa3FIjR4b9vplzipgbYUFKcxcVcRHxEo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=IH8D/IkGNdiKa35TyoxGfv6Y/8na3cMKebwTr6ngJ9YDYhyJk3eJ0/5YdIdbCUXwjFaRBdcWahv+83mijHYW0ALYPAPJxfFKflemSaXXdHPX1sQzHeMjSBsAGw0x+3FncQHG4dLf0ADOuKNms1jrkMMUd7lgFoiDs0OP2EyYhiI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=OhV3CkUR; arc=none smtp.client-ip=209.85.167.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="LVzHf5MV"
-Received: by mail-qv1-f45.google.com with SMTP id 6a1803df08f44-782ba4488b8so29981176d6.3
-        for <selinux@vger.kernel.org>; Tue, 16 Sep 2025 15:14:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="OhV3CkUR"
+Received: by mail-lf1-f45.google.com with SMTP id 2adb3069b0e04-5702b63d72bso3990e87.0
+        for <selinux@vger.kernel.org>; Tue, 16 Sep 2025 17:34:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1758060882; x=1758665682; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=google.com; s=20230601; t=1758069293; x=1758674093; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=01szfj2Cz8qfgT6cyE8Os4+shA0fv2T2/bVUGDyEzf8=;
-        b=LVzHf5MVNE643XNPSSlSg2haxWFxB/Oq9OD+GrC7bYouRY9dbJBeGZ2CxMng4dWQVP
-         Ez4R/dtHWFd2dgxVhfc86I4snrnlZLN5Lx3xDMPda4bIrXqwAJgxGS4X8y/0Gny38KD0
-         yfFz9n5CZkJRjLJKoqCf8Q6dfS6GPc5oB40C7CSpN5jVv3Mn5Hij0uUJPUb4UXnWN2H5
-         uNpHQj9dpyY98eR9JJmT/QxmVCIT42U+QVAKJwVxu34qxyEXWOrfDuXhIp8mbo8TqM3h
-         MXJCwo/0fEMvHtEQoms2mNHkiDpgTb6HjglgWQEDLKTk59gNU7mQw2hRqgVKulJDQnQG
-         t8jQ==
+        bh=0AF9Zf/ufENcHrKMvHlrpWPSseQ/RzWNQreOKhevrxE=;
+        b=OhV3CkURQqmcrRTl0ac29G3gbVj0iibi6GClojK388ma6gLPbjDN7Kwz2j4bi5Ou8h
+         D/xA81kVVIOcxJZXPglu7BNbzHxNBRKbOfSJY+TJXYrCAQ9bigvXoM9o9QYUClqQVNr9
+         0PiqN5ybujC6Q8IDznsHQkR4a7ileIqbxdG4mjnrIRmlpT2LNbMmoDhbc0mFVro3atQu
+         Xo8JIAk4a8kn1ZvmZKUeXq8SNRtM18HA+BFdEfkjLOfydOPG9NBAg+tkmCq+sskKs+wW
+         mmdkED0nVPqvMZqRe31VQAb9cNmswsEZbgWk6RFWSIZuhGOXPR1XHDSmkS+CVXATo+GS
+         OnSg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758060882; x=1758665682;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1758069293; x=1758674093;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=01szfj2Cz8qfgT6cyE8Os4+shA0fv2T2/bVUGDyEzf8=;
-        b=v4Ak8CaUuPmG5556h3Qc6s4cE7GG1jyhQw3S9sqCB/Sgj5dCFlMcAxvsxNeE52yu8q
-         sR9clcnqGqcRJEZU63UCw+udbwyReQhg+WycLMzdjHFj3+67bDZqEV+yCXF9QbBR4Xhl
-         eENdTF+7jxoE/Le9GvFyd927y8YOCbyDBekQUwIvYJj/frFQYZKq4de7s4Nh1w0AKbx9
-         KJfQmrlKbDUGHlMu03+IVX9ZQozf6or+7TEmNVi9khmUKFG12TRY7kcJz0k98L0b8hsj
-         GGJS1HO9PD66e0+wXZLRwC+Lm2qvPFQCLr8JVNuXBdzQG84QQ267hTsrxP30E0yzagET
-         6AOg==
-X-Forwarded-Encrypted: i=1; AJvYcCXDQnTTJnuTWr5PIcyTP1y1oOkDwZaLDzR3lLLf0a563C4P78SbJ8pC2WevaWIDTruY0WPvpl6G@vger.kernel.org
-X-Gm-Message-State: AOJu0YxpB8MHFQ9ll+Ty6wMdbjt7hrJa3p00B73gpVB+Hn3lJI7/ts7D
-	5OsnmIOWdkZTSVfZLpyDSk4zykBArbmOomprEuJ4cmx/4e4jgY+hnYMpCvM7EH+YyQ==
-X-Gm-Gg: ASbGncv5ybpTCpttsqBO2YlVpPU4nJ/ZnDa+3zx/yuCMigUZwvZt2m3sbs7CrN8hhvZ
-	nVs5W+ct902T6GQbu/c4wit4aAcvH7YA+DzGCBiG8CDqEWPYf7RdC4GKNIT7LyQpuqMeQKXhPBC
-	T9WG+xYETIRfk+g1CHBjG5HOM+T+UuMyy74kZdf/vnqnxumSMC35ez0tKOthZ12+czrx45A+dvg
-	BCCIA0KwQd4n0Vy/IuzUs7+KB+pJweo5/bLc9aoQTW0rUkZubzzC4RFZFTihY28xN8mS+2iXu9K
-	/SM3UhqcxOLu29fwe2xwDyiUaO5U7/eLjppkXfNDm3eCly/NR7bxutNfhf2Fwtv4VKwPURnv46f
-	KKQ0xlJhoTMyOe7U7WfKb9Vd+9BQoOGEf+xjMlmV0uYmecs1mrdqVGdr72jNz8WFKZZ3s
-X-Google-Smtp-Source: AGHT+IF1dqpDXLNbt8CmRok87Jh+UImED7Clfzg7Ej4N3+L8YwCkf8OUBsmT+MP+k7B+bCivdtcyOA==
-X-Received: by 2002:ad4:5e89:0:b0:77c:eb84:8de0 with SMTP id 6a1803df08f44-77ceb848f79mr134501036d6.26.1758060881918;
-        Tue, 16 Sep 2025 15:14:41 -0700 (PDT)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with UTF8SMTPSA id 6a1803df08f44-763b3f49139sm101521606d6.9.2025.09.16.15.14.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Sep 2025 15:14:40 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: linux-security-module@vger.kernel.org,
-	linux-integrity@vger.kernel.org,
-	selinux@vger.kernel.org
-Cc: John Johansen <john.johansen@canonical.com>,
-	Mimi Zohar <zohar@linux.ibm.com>,
-	Roberto Sassu <roberto.sassu@huawei.com>,
-	Fan Wu <wufan@kernel.org>,
-	=?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>,
-	=?UTF-8?q?G=C3=BCnther=20Noack?= <gnoack@google.com>,
-	Kees Cook <kees@kernel.org>,
-	Micah Morton <mortonm@chromium.org>,
-	Casey Schaufler <casey@schaufler-ca.com>,
-	Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-	Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>,
-	Xiu Jianfeng <xiujianfeng@huawei.com>
-Subject: [PATCH v4 34/34] lsm: add a LSM_STARTED_ALL notification event
-Date: Tue, 16 Sep 2025 18:04:01 -0400
-Message-ID: <20250916220355.252592-70-paul@paul-moore.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20250916220355.252592-36-paul@paul-moore.com>
-References: <20250916220355.252592-36-paul@paul-moore.com>
+        bh=0AF9Zf/ufENcHrKMvHlrpWPSseQ/RzWNQreOKhevrxE=;
+        b=ZeyJnj9E7BSPasW7gY3rrW5s0tbu2IyzdvB+xC6a/3qDp2LvqiUXQNWWxWBT52BI5L
+         2IUKTll1QglqamEBCCDKWwX2lno1XWEZfFLVmy52tWbAbMgFb5E98tgsc3Lk5kUigC5Q
+         +KTNlyDD+yC1gpXEje33mh+mZ1ix7FdAGc/8nZId2J5MuEAHKkhXy6UsZYcbmvsC61Pw
+         /6Y9v5T4lkc4RxLaZUmYeTDg4Ge9KaMjesBu/BduaT43USsMYIgtKfGiDHRfG4oP/5oW
+         M+daCcNUy2nhqJp45EQr8dN3ppzeUjrhfgaTR6CMmGX5xggFIi6WMVMNYCxgnSg+xmtC
+         h6nA==
+X-Forwarded-Encrypted: i=1; AJvYcCWZHJGRkdmLrQaWW+fuPekNVrGe+zscNwe6OH09V/sUu7DUnLq1xGCxvE7F6DtZmpi56i8UR/PB@vger.kernel.org
+X-Gm-Message-State: AOJu0YwjsMtjvI5azJM4Gg1DeWPCyOOW/Sv1trL15okqm/Y0kG9O3wbS
+	0IODVljWYeU43brVJOT4lzK5+ezgzUJ/NB2MIRDHybSrSUAt6v/YaxIVEwf9sx/J8FncpyAtgoA
+	HLh9Lf/Ow6dnLpv7BtSeIltMSQJUXbmoYR78rbrKI
+X-Gm-Gg: ASbGncv0mDJdizsu4H2xlQFEVt5Zi+QvyAiXHDYy7ZWG1W6VKmtE1mvu7oWdFBMI+5U
+	GdhNYb5G0u8eS0myQHTzw+ZLTvu5oZq0tqRP+KCUnhpFy1Dod9kUZfb3Af/tkGYZSL3j/cSHKJ0
+	eJRv0bI7EpWIGNcUoZlRBSg4zp8rrGjHTv38p05ittGyfZPEPPIwflVbNbS8ca08SIkqtg8TtZn
+	JYAFYVBBwL/0oChbdTPwQm4yZLQ+OgVKwF9/Lk2lkdyNPThuPI=
+X-Google-Smtp-Source: AGHT+IFcyjJzZ4NT9Tir+GT9MJKYCt97IWoZnmQP2gWhP7KEs1D5HqDovMOSpMabAp7PkDXB7hRvrieMLGEHtt4HWvI=
+X-Received: by 2002:a05:6512:61d0:10b0:55f:6ac4:c3b2 with SMTP id
+ 2adb3069b0e04-5774cebae57mr183502e87.0.1758069292874; Tue, 16 Sep 2025
+ 17:34:52 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1130; i=paul@paul-moore.com; h=from:subject; bh=aCC82L2q0ysTfaRazG/CWqQeq8HFWa6+t3PPs9R+FMg=; b=owEBbQKS/ZANAwAKAeog8tqXN4lzAcsmYgBoyd846bpw0/+yoZxyQYOyFvIbV8lN+aCviDkZP XEGukbIvcmJAjMEAAEKAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCaMnfOAAKCRDqIPLalzeJ c/j4EACQv3IyAp1a6CGB5WxKeCmgzNhL+HZiDLDBIaW/iAbkiZpvYBFCsvOWOuZbe7VTC02tQG/ RNj0eRQ50N6xdM8yRdp1kUHQjGys1aOGlFN2PwLEDoCZb5Y4ZFCxm3ctvJnwTCw8CfzdlCJLcXC sR+lUfGdHuYQuG3H6Ddf2Asq5bnOjTP53DzGPbJHkCciHrJCZkZAv5IbBpy1PQXLXm83EBz6cep CSNc3O/sOWEqk+grtxeS6nTcdLjFM7has+QIuP9jNshkoGffl37Ltw6pvLoW0ku0iSpsT22MW/l 4d4Mf0ghXp61Ayd8Ay+bNoVGERvh+0n78PhWN5tjZLPNqKaIlSylR3/UX6xGnkiKUJDseCl/3v6 I289CwjJhRWbR7K7gCqGItzETYHvsQXQkZXoObI1QDv+MmedJGiDNtrBaWG+fjIVEKjDFZQVi8n Or38t1N/cBoSV8sogiABL29Eq5kcgVgRPd9LCngb4pti7H8bSR2wQOoVWXlPj37LVSuIpeuczd/ 8CZBedW7Roi9c7nG7Z3oelDSrSMimGR4QQF9OnpxwIa7stfupQrW0748FQPjZH+4HpCKLerN+8e Dj6E96LTEvDq+Jv04p8z3F/gos5IYhZE4aJ4k1WWrkf/BwFNwxM5LiYq5Pk0k/WG0EYeXJrIBhs +e3X68c3GRynkYw==
-X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
-Content-Transfer-Encoding: 8bit
+References: <20250826031824.1227551-1-tweek@google.com> <6afc91a9f5caef96b2ca335b6d143670@paul-moore.com>
+ <92255d5e-7e0a-6ca3-3169-114ae7f6247f@google.com> <CAHC9VhQejS05C8AExkh32GidBdzXjauKPP6T_3eSGZDEwfwDuA@mail.gmail.com>
+In-Reply-To: <CAHC9VhQejS05C8AExkh32GidBdzXjauKPP6T_3eSGZDEwfwDuA@mail.gmail.com>
+From: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Date: Wed, 17 Sep 2025 10:34:34 +1000
+X-Gm-Features: AS18NWBUShakTwgjwy447Q25zdtRhMIo7Iqnzp_7z4P3lmEl_tUSeuf2NkCr0RI
+Message-ID: <CA+zpnLe8Z=2qY3rVCyZXyGPOaO2a0V2BVrdMkuwKs789igGCzw@mail.gmail.com>
+Subject: Re: [PATCH] memfd,selinux: call security_inode_init_security_anon
+To: Paul Moore <paul@paul-moore.com>, Hugh Dickins <hughd@google.com>
+Cc: James Morris <jmorris@namei.org>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Jeff Vander Stoep <jeffv@google.com>, Nick Kralevich <nnk@google.com>, Jeff Xu <jeffxu@google.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, linux-kernel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+	linux-mm@kvack.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Add a new LSM notifier event, LSM_STARTED_ALL, which is fired once at
-boot when all of the LSMs have been started.
+On Wed, Sep 17, 2025 at 1:26=E2=80=AFAM Paul Moore <paul@paul-moore.com> wr=
+ote:
+>
+> On Tue, Sep 16, 2025 at 1:07=E2=80=AFAM Hugh Dickins <hughd@google.com> w=
+rote:
+> > On Wed, 3 Sep 2025, Paul Moore wrote:
+> > > On Aug 25, 2025 "=3D?UTF-8?q?Thi=3DC3=3DA9baud=3D20Weksteen?=3D" <twe=
+ek@google.com> wrote:
+> > > >
+> > > > Prior to this change, no security hooks were called at the creation=
+ of a
+> > > > memfd file. It means that, for SELinux as an example, it will recei=
+ve
+> > > > the default type of the filesystem that backs the in-memory inode. =
+In
+> > > > most cases, that would be tmpfs, but if MFD_HUGETLB is passed, it w=
+ill
+> > > > be hugetlbfs. Both can be considered implementation details of memf=
+d.
+> > > >
+> > > > It also means that it is not possible to differentiate between a fi=
+le
+> > > > coming from memfd_create and a file coming from a standard tmpfs mo=
+unt
+> > > > point.
+> > > >
+> > > > Additionally, no permission is validated at creation, which differs=
+ from
+> > > > the similar memfd_secret syscall.
+> > > >
+> > > > Call security_inode_init_security_anon during creation. This ensure=
+s
+> > > > that the file is setup similarly to other anonymous inodes. On SELi=
+nux,
+> > > > it means that the file will receive the security context of its tas=
+k.
+> > > >
+> > > > The ability to limit fexecve on memfd has been of interest to avoid
+> > > > potential pitfalls where /proc/self/exe or similar would be execute=
+d
+> > > > [1][2]. Reuse the "execute_no_trans" and "entrypoint" access vector=
+s,
+> > > > similarly to the file class. These access vectors may not make sens=
+e for
+> > > > the existing "anon_inode" class. Therefore, define and assign a new
+> > > > class "memfd_file" to support such access vectors.
+> > > >
+> > > > Guard these changes behind a new policy capability named "memfd_cla=
+ss".
+> > > >
+> > > > [1] https://crbug.com/1305267
+> > > > [2] https://lore.kernel.org/lkml/20221215001205.51969-1-jeffxu@goog=
+le.com/
+> > > >
+> > > > Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+> > > > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > > > Tested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+>
+> ...
+>
+> > > Hugh, Baolin, and shmem/mm folks, are you okay with the changes above=
+? If
+> > > so it would be nice to get an ACK from one of you.
+> >
+> > So far as I can tell, seems okay to me:
+> > Acked-by: Hugh Dickins <hughd@google.com>
+> >
+> > If I'd responded earlier (sorry), I would have asked for it just to use
+> > &QSTR("[memfd]") directly in the call, rather than indirecting through
+> > unnecessary #define MEMFD_ANON_NAME "[memfd]"; never mind, that's all.
+> >
 
-Reviewed-by: Kees Cook <kees@kernel.org>
-Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
-Reviewed-by: John Johansen <john.johhansen@canonical.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
----
- include/linux/security.h | 1 +
- security/lsm_init.c      | 1 +
- 2 files changed, 2 insertions(+)
+Thanks for the review Hugh. In our case, it is necessary to expose
+MEMFD_ANON_NAME as there is a string comparison done in
+security/selinux/hooks.c (see selinux_inode_init_security_anon
+changes).
+I would argue it is cleaner to reference the same constant. The
+alternative here would be to have 2 copies of it, with the risk of
+them being out-of-sync at some point.
 
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 8560c50edd2e..c13f0a849024 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -85,6 +85,7 @@ struct timezone;
- 
- enum lsm_event {
- 	LSM_POLICY_CHANGE,
-+	LSM_STARTED_ALL,
- };
- 
- struct dm_verity_digest {
-diff --git a/security/lsm_init.c b/security/lsm_init.c
-index 2bd705836df8..af4046c5c581 100644
---- a/security/lsm_init.c
-+++ b/security/lsm_init.c
-@@ -556,6 +556,7 @@ static int __init security_initcall_late(void)
- 
- 	rc = lsm_initcall(late);
- 	lsm_pr_dbg("all enabled LSMs fully activated\n");
-+	call_blocking_lsm_notifier(LSM_STARTED_ALL, NULL);
- 
- 	return rc;
- }
--- 
-2.51.0
-
+> > Please do take this, along with the rest, through your security tree:
+> > mm.git contains no conflicting change to mm/memfd.c at present.
+>
+> Thanks Hugh, it turns out we ended up having a discussion on the
+> SELinux side (proper return values for error conditions) and I'm going
+> to hold off on this until after the upcoming merge window to give time
+> for that discussion to run its course.  The good news is that gives
+> Thi=C3=A9baud an opportunity to do the qstr fixup you wanted.
+>
+> Thi=C3=A9baud, are you okay with making the change Hugh has requested?
+>
+> --
+> paul-moore.com
