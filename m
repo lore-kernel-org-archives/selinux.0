@@ -1,59 +1,59 @@
-Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
+Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD11B211C
-	for <selinux@vger.kernel.org>; Thu, 18 Sep 2025 00:22:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 646D9155C88
+	for <selinux@vger.kernel.org>; Thu, 18 Sep 2025 00:37:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758154932; cv=none; b=LESp6g8bJIdu1Xfw4vBmplJzzSYwPtBrTgJHnF87g1k3PABxl1d2GeYNbxSUcu2ZhZoIzQViqf+999km3G0wiOv8eRh0zxyOXwj3HcbSobHBSMKSbqGSX7y01n+Av97ljbH3cNLPnvWFQAKeclqcXfnvs1dEfNxiDSX28I1zZ/o=
+	t=1758155870; cv=none; b=ofBdgd3UtS7tCoD9HpHx5OUyzIE6oj4+qrQRjnxv77SnKzORcf3S0WxSRAnU8/K2gjo3ROpFkQw5CsI6DRN99uSC2ucACSXDCVKvlpQr0Xr1HAyuapwYk276SUqFFJksgZilxZuCtHN3YflFNZJV5oHxbNIIJK10u+xxgSQVZHk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758154932; c=relaxed/simple;
-	bh=/ZbVIeVYqGYvbsgmREnTSgDE5d8lWWgn1carZLdQSKs=;
+	s=arc-20240116; t=1758155870; c=relaxed/simple;
+	bh=qqH4F11fWTgv6h4vGvrnN4oAXaGbo1p7srz7D/Oxq04=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=cSpQpm2kHDdNR+jbmgKyTv2mLxYgs3HdZ5BtqR057NmkagA80lPVAa2DNv4Fzju24zIINgLX8pCurVvmiftV/7yf7Ofger40DpK0SB9SIrvHYGXU8tkKOHhP7+baowGQS9QxTyhUAZaf+YpAg19nf182ZAd/OXUPe1tbN5vtq9o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=l/HsnFB3; arc=none smtp.client-ip=209.85.167.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	 To:Cc:Content-Type; b=uV/DixSrAF35HCUyTR0K6YY0Vs+x7YQv1NE1o6rQsjZVVV7yVDlHh7Cp3vOVv9DLhB9Jvretqt0QOhTPQUdgzxuZSp3yukmONfXe2GgqVOFvglDWASacrJT7AcIuW7PAaGLUEUsVFLgZYPYdF9HD5v/YIUKD6HomsCn1JzDJZJY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=GlCNbvhk; arc=none smtp.client-ip=209.85.216.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="l/HsnFB3"
-Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-572e153494eso1836e87.1
-        for <selinux@vger.kernel.org>; Wed, 17 Sep 2025 17:22:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="GlCNbvhk"
+Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-32e60fa6928so326971a91.1
+        for <selinux@vger.kernel.org>; Wed, 17 Sep 2025 17:37:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1758154929; x=1758759729; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1758155868; x=1758760668; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=/ZbVIeVYqGYvbsgmREnTSgDE5d8lWWgn1carZLdQSKs=;
-        b=l/HsnFB3kPI2YV65rFUpTJvWOo/4F4idtN3jFNO6dwbxn8wLhxVr2LZyToJWuP5QZ/
-         S5/PcpldKQd4Ys/9wEdf4ZjZN/k7t5VX1j+jW+aubKPK9X+3zSHKFj8wcJb7XRtTdaCP
-         +LFhbrGbyL54vN/I9wEXeZP+51PvdcEbj9k55wKtdxgDCvuqvmqdgoytQVu+9gaL+Ns8
-         +hTODgF3471tlyP0ewYPNCg3jtc7mSuKNDjXCLc8XtUC+1C9Nrp7JhKgT0uUoUBOpkSQ
-         1FH83u9LWRSuWrWbrozeW/GeEBWHBi8jVmTwNtWGMzUuDsVgqT3M6cfNYEHUF2kE8IaX
-         NwOQ==
+        bh=92otCWcjYZAoi7NV7b7M55aBo6hZq0XJG1/O6h3L3e4=;
+        b=GlCNbvhk9dOOOFarIWk2bCU/EwFZAdL4VPYzM1ywn8O3xZ584z1vVCbupuJcRi7CeW
+         TaBUYHz7fK30plaW1zv7AfsqGFh+7siGj1/iS0A23WOZiIb4ku/tvvq7bxbaFCJqCoGg
+         Ni+kNvsQkMPYdlHGySuX+XK3uzR6hgqhMS4cGJMcJvUuin4vdy+rJjA2nHZR1AobMeMn
+         3jNobbSa0vGtN6dvTL32aJAKkOvBNfnkuEgIUnbc4gQg7+JJCK1YX87ZDU/r3M7poe0P
+         ZC2ix5Zf20AoyCp6RSTYiW8x2CPzxXJpsRJtCovRce90m1t2NcAHDUKV2l8ff0o2daR8
+         NIsA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758154929; x=1758759729;
+        d=1e100.net; s=20230601; t=1758155868; x=1758760668;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/ZbVIeVYqGYvbsgmREnTSgDE5d8lWWgn1carZLdQSKs=;
-        b=MblhUzWXLtZO1ipGKHKjHQsZSnX9zOlNWEn+r1OLR2DPa5kFEGE7Okl6mj8GOH7wne
-         bvf8ajpEPMZ5qRd85IQVPTV95hj8I2kDMgFbpYOTyTw0edAzCpo57oZmdFew0VvxBmd9
-         FYG9flsiuXybfaUEBgnBHYVCwo07ELu6Fb45FLn4QIvsTNUyIb3+vrK7XybMMbj3ewdG
-         4eM0M6S1SBcZc/i3IcrI8rdFpf02oMz5QtOH+IkFjDaGi/yErjQd9BUuyMbZIYOmSVTs
-         l3SF6wQyTSCtMIGG2ylNqtk7PbzdVr+D0hmBJ44tS/oLMLtve/8Q499kpDojeNSKw6fO
-         Sakw==
-X-Forwarded-Encrypted: i=1; AJvYcCV9VtNR5h8usaOcEy1kO3mwlXNnoWiikYHT6nmZjAF7BAhNdoNOlPBSjLlTdWt0a3AKkTiRTRiL@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw/2v1A4UFDb+G2WoCCQV8Hfd0u6H4VqSc3ds2F6OiMWw/neWb4
-	ANU33721Unw9VFWsVth6BH8OexYIpy+AlpAIH1vSEm9AsZF/EfQQhhgToPYsxgcxzllzSL2SL1q
-	0PIjBVlqxgx33a0FnTTtkIWsRcU2uWYBXUwRjbsP0
-X-Gm-Gg: ASbGncsWHv/0jFbVfG0q/xeRQ66XzE07TnhQ6vZiMjRhkwQyMJEK/m7UqyGgC5RwV1t
-	x/TsoxFCb3kk6GBwRBYVQp5HXZXhPS77V/+lpXdKevu0lOg4dAJQaDS3weqbgnUgB6X8ep+vPDU
-	YB7ogWZTIN5q4wnDKC8vSmI/f86cnSfe8hwZ+bz7oPnOTXIHXA7PkcL9NKe6F6OnW6O5OvP6C0p
-	R99f+o19Fou87o5iVV3YwPkPqJJaQmTtviCSSRV7BlvjM11HKfEQ8Yq4kbn
-X-Google-Smtp-Source: AGHT+IF8O1tlftjEtMw9w16/HqJR/vZc8/66abNynQjj5q1J+puyGUNupLYmhlD6Ea5WoppnQq3+2jeNYvbRyLKGUhA=
-X-Received: by 2002:a19:5f15:0:b0:55f:68fe:76d4 with SMTP id
- 2adb3069b0e04-5777921204amr276447e87.5.1758154928537; Wed, 17 Sep 2025
- 17:22:08 -0700 (PDT)
+        bh=92otCWcjYZAoi7NV7b7M55aBo6hZq0XJG1/O6h3L3e4=;
+        b=ZDcZiKCCDtbmGkkw71mq3gp6WkvqQOy4gs/A93bpScI66t2xwpkRcICBKPL2XxGTA2
+         cTT5kliwkTQdKTnVdGrGn53eXPKL6OVr9PGXRr5W/zFAX/3fnL9XhdClFYL/WgoRQ0C9
+         aSo4t9X9icNytVIxGiMZO+HZTZOrqZzBORMwEJdJ5Pn9UTCDiP7M4Q7QjaNQasqG6fkp
+         jnA+/yg5zu8pU7YHvpBNzKtwvPeIN1J4yxF7cuklLuiULUcOjpW+pSMzKNDYaY0LGK64
+         hHB9ydvQYQeOvATx2mGmWDkxKN+4k0FuO+X2KkmKWqFsHYvA5LEE8HlU85FmWK4geVvC
+         4NUg==
+X-Forwarded-Encrypted: i=1; AJvYcCWcQ+0m1pi9DMFkIbTDHkrsjKmMpXrIaJ//0VpnAbkAYUcOFxnkBwzJ7R9eELpxKc/N0AOPJaH3@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyr2zZjbMt8u7RVlr5iwl5mAKexhMovM+/hvl3PFpakSi5y4Goy
+	6+m6f75prp8C+HycqeVKFpAW0xL7xngBXgtVS+PFYgZPI1taETkDcbxM3XYWsnrPIbTj/9NL2h9
+	7BCJQYcxaZqniV/KpBu5tin3OfsBS14k1THN7blCj
+X-Gm-Gg: ASbGncsvv2zdXa6hCH+lOnD2AsvdnRRwr9OgJkWBpj2UpC5u2oltiQr3EvsG/81JzKY
+	eHBYL7K94DkDWoMMYTI0HYayciXqPOjMzvNgzSDO57IHqRhA8EEof1mGb3mHsKqxR74vrFfXBwF
+	TXpsTYO9oohnd2xXiLxIVD8K6NM7A4ReMIDOwUQO4szbNsfUh+i9rZ1Uirvwn8OSyaO+Q7WJJ9y
+	4jA7xgH5vfnw51IZLGT+RgM4w==
+X-Google-Smtp-Source: AGHT+IH6r1J6WfOe8fhhKpPGbRIbI55hokIzulY3oS0P7cz5NzfOPGEtlbw4Ji1QdoDg4DnD/cfi0P8nH2cKJgTUTEM=
+X-Received: by 2002:a17:90b:4c4c:b0:32e:7270:94b5 with SMTP id
+ 98e67ed59e1d1-32ee3f141e1mr4338843a91.23.1758155867668; Wed, 17 Sep 2025
+ 17:37:47 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -68,71 +68,48 @@ References: <20250909213020.343501-2-paul@paul-moore.com> <CAEjxPJ73qtdeTcv40gdj
  <CAEjxPJ4387JPN+JOQ7g=Z6CCXYR-mk+6tr_VeyprxNJtCy1TWw@mail.gmail.com>
  <CAHC9VhSdKTUvY3Tg+dVCWHLfwULV-Vgzr-d942eh_yHa16HyjA@mail.gmail.com>
  <CA+zpnLca1_fRqcBq6AK0-hGbSb44R73xq2jw6qiYTv32GhKDfQ@mail.gmail.com>
- <CAEjxPJ7SDeMCq=0XFERiFozQmzRiJN9X2NB8v=_X8KOKYCrBLA@mail.gmail.com> <CAHC9VhRQJ+wZd-bi3Svg+RWEg+sC+YodvRfqEg3StoMAy5Rwow@mail.gmail.com>
-In-Reply-To: <CAHC9VhRQJ+wZd-bi3Svg+RWEg+sC+YodvRfqEg3StoMAy5Rwow@mail.gmail.com>
-From: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Date: Thu, 18 Sep 2025 10:21:51 +1000
-X-Gm-Features: AS18NWCaJ9fKEej7zhIT83djro9SGIX6Y7-BkCwc4d7noQpVantSHqyX8p0c8Z8
-Message-ID: <CA+zpnLdJZ2yxWqTCBGXRJR0XmrCPpX3N4F3n=ZkSLc00WVyn9g@mail.gmail.com>
+ <CAEjxPJ7SDeMCq=0XFERiFozQmzRiJN9X2NB8v=_X8KOKYCrBLA@mail.gmail.com>
+ <CAHC9VhRQJ+wZd-bi3Svg+RWEg+sC+YodvRfqEg3StoMAy5Rwow@mail.gmail.com> <CA+zpnLdJZ2yxWqTCBGXRJR0XmrCPpX3N4F3n=ZkSLc00WVyn9g@mail.gmail.com>
+In-Reply-To: <CA+zpnLdJZ2yxWqTCBGXRJR0XmrCPpX3N4F3n=ZkSLc00WVyn9g@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 17 Sep 2025 20:37:36 -0400
+X-Gm-Features: AS18NWDuO83iMYfoZMNMSRUSoy4YrIogsZ48WVruV4OJyOzM6BPUx2_dHZRMst0
+Message-ID: <CAHC9VhQ1anfefJ=PiDmR8iD2HD+=g8BFHX=wrYnfgE5mQw6W0g@mail.gmail.com>
 Subject: Re: [PATCH] selinux: adjust the !file/memfd_file error handling on execute
-To: Paul Moore <paul@paul-moore.com>
+To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
 Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
- On Thu, Sep 18, 2025 at 9:54=E2=80=AFAM Paul Moore <paul@paul-moore.com> w=
-rote:
->
-> On Thu, Sep 11, 2025 at 8:13=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> > At the end of the day, I don't strongly care and only Paul's opinion
-> > matters for final merge. Some arguments for each of the different
-> > options:
-> > 1. -EACCES: Consistent with the majority of the SELinux code,
-> > particularly all avc_has_perm() calls. WRT POSIX.1, it seems to be
-> > primarily for file access checks but broadly can be viewed as "access
-> > denied to an object", which is the majority of the SELinux checks. In
-> > the case of this particular LSM hook and system call, we are dealing
-> > with a file object, and hence -EACCES could be viewed as appropriate
-> > to this check.
->
-> Let's go with -EACCES, as Stephen has already mentioned, it's
-> consistent with the vast majority of SELinux return codes where access
-> has been denied, and while we can debate the merits of EACCES over
-> EPERM as it relates to the presence of a clearly defined object, or
-> the EPERM usage elsewhere in selinux_bprm_creds_for_exec(), at the end
-> of it all I don't think there is going to be a clear choice here so
-> let's go with the most common SELinux error code.
-
-Great, thanks for helping by making a call here Paul. Respinning a patch no=
-w.
-
->
-> ... and don't forget the WARN_ON() :)
->
-> > 2. -EPERM: Used for several cases within this hook function already,
-> > most likely due to checks that mirrored corresponding Linux checks in
-> > the core kernel that were also returning -EPERM. WRT POSIX.1, it seems
-> > to be for any permission check other than file access checks but
-> > broadly can be viewed as "operation not permitted for this process"
-> > with no object in view. In the case of this particular LSM hook and
-> > system call, we are already returning -EPERM for several other cases,
-> > and hence -EPERM could be viewed as appropriate to this check.
-> > 3. -EOPNOTSUPP: Used by other SELinux hooks already. WRT POSIX.1, it
-> > seems to be only used for sockets, but on Linux, it has the same value
-> > as ENOTSUP and can broadly be viewed as "operation not supported". In
-> > the case of this particular LSM hook and system call, I don't see any
-> > existing uses of this error value, which could be good or bad
-> > depending on one's perspective (good: easily distinguished from any
-> > other cause; bad: not expected by userspace on execve, not documented
-> > in the execve man page).
-
-Thanks for the clear comparison Stephen.
-
+On Wed, Sep 17, 2025 at 8:22=E2=80=AFPM Thi=C3=A9baud Weksteen <tweek@googl=
+e.com> wrote:
+>  On Thu, Sep 18, 2025 at 9:54=E2=80=AFAM Paul Moore <paul@paul-moore.com>=
+ wrote:
+> > On Thu, Sep 11, 2025 at 8:13=E2=80=AFAM Stephen Smalley
+> > <stephen.smalley.work@gmail.com> wrote:
+> > > At the end of the day, I don't strongly care and only Paul's opinion
+> > > matters for final merge. Some arguments for each of the different
+> > > options:
+> > > 1. -EACCES: Consistent with the majority of the SELinux code,
+> > > particularly all avc_has_perm() calls. WRT POSIX.1, it seems to be
+> > > primarily for file access checks but broadly can be viewed as "access
+> > > denied to an object", which is the majority of the SELinux checks. In
+> > > the case of this particular LSM hook and system call, we are dealing
+> > > with a file object, and hence -EACCES could be viewed as appropriate
+> > > to this check.
 > >
-> > As far as I am concerned, feel free to pick any of the above and post
-> > a patch with it along with the corresponding rationale, and Paul can
-> > tell you if he wants something else.
+> > Let's go with -EACCES, as Stephen has already mentioned, it's
+> > consistent with the vast majority of SELinux return codes where access
+> > has been denied, and while we can debate the merits of EACCES over
+> > EPERM as it relates to the presence of a clearly defined object, or
+> > the EPERM usage elsewhere in selinux_bprm_creds_for_exec(), at the end
+> > of it all I don't think there is going to be a clear choice here so
+> > let's go with the most common SELinux error code.
 >
-> --
-> paul-moore.com
+> Great, thanks for helping by making a call here Paul. Respinning a patch =
+now.
+
+Thanks for your patience and persistence with this.
+
+--=20
+paul-moore.com
