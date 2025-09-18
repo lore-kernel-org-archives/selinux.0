@@ -1,67 +1,74 @@
-Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
+Received: from mail-qv1-f47.google.com (mail-qv1-f47.google.com [209.85.219.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3708A1078F
-	for <selinux@vger.kernel.org>; Thu, 18 Sep 2025 13:53:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 482B9221557
+	for <selinux@vger.kernel.org>; Thu, 18 Sep 2025 14:07:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758203602; cv=none; b=WVvxdsshv1ROc8/q8TsNwqrb2454J5ltYQd5wdEdEdd5kMcTK6AKUWfOjBdi2OaFfoZ8ZDOGv2XetlfrncAr6hARU1yp831v4979lKebAJDQxWR6G8iBMcEf/E1Rz6xVZDPucGVmLTRxHk23X3wO9IX88KJ/37pV5QRwTeRx3oo=
+	t=1758204469; cv=none; b=TPZ8HSK8bqHaGSa2P10ClYwJxrZ/pEarr1SVn8G+RysgRifKyrs3OiOJ0l/Y4DQjIq24utSYSmInFllFlm7bbWCSKegRZDMus/SQMa12PKkPLLzP2p3eAFb3O+lik1RsTHdF4oZyJT9ugx4ddixdNplb3JwaiK006UpxSx56Tbo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758203602; c=relaxed/simple;
-	bh=LdTAMbnHtSPO+MTgMv5ZSrhSnz8WrGoEICXtBi8dt/k=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MYkbuPYmLqBmFBa9TbvO6Tei76CdoXbw3t2pbVIOo4tRIqH7kCdPID7toiTlP9cIjrc5fgOU4z1RoNPgHkLqiSWOT2cSdlyeb+6bsXY+mGbpvsJKD3cRWtDmM5g+9ED4u040iQ/Z1wOOuxr4/1XbBME4RUbZFL0zclhG9+o1Zm8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iVW1Kpt3; arc=none smtp.client-ip=209.85.160.175
+	s=arc-20240116; t=1758204469; c=relaxed/simple;
+	bh=PW5pU3SEtjuE0eKcxZzb4+iRfAaTqBLJ3Ef0QdqPyLY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nKKL0pxyJqDqibM3Qs2WUpgahBh6+PT8vPvVJZ54gkMxV8/pGHhu+q6L+LpGTMC4Ng6EEMx2N9dhH0cuE9Qr6Rt6iuJffC02v5zHywgvyN8F12Fveg5LavCFjxqVrWu7s+nEKr6qpSxeaPCI+ftu2tPI0c3/1H6/+6pdmd71To0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iDDZyalz; arc=none smtp.client-ip=209.85.219.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iVW1Kpt3"
-Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-4b5eee40cc0so10091151cf.0
-        for <selinux@vger.kernel.org>; Thu, 18 Sep 2025 06:53:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iDDZyalz"
+Received: by mail-qv1-f47.google.com with SMTP id 6a1803df08f44-78ea15d3489so9689966d6.3
+        for <selinux@vger.kernel.org>; Thu, 18 Sep 2025 07:07:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1758203599; x=1758808399; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1758204466; x=1758809266; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=4hx2YvD9QRvb353ps8UgCxX/k7kcKxIYizSJaLbSOLo=;
-        b=iVW1Kpt3p9E1B/sVCWg7ClZE6vgVTnEU7Hb/vM2N2ir1y9/o8HL1XvvY1ibox/MNNq
-         s1rLxFKc32F/TfbF/DbM4Ai+5vxQgdGVnzI4CHMbN5l/6sDNyoCN0lrWUczAdVJZYi8l
-         YnRuHJRdwjaq+Agq+KGhfPKQV5472XVrv2ayNBoYVp3GeZiZtx0+M18tXT3T83u/h6o/
-         nZ9NEdRDpyS87GejhxS2E/75bROBfvj2k1LV6B5/QJr9rpPAAO+TvFThD0OGWJ/ZpOSn
-         lOpCs0pc/pQUccreye8s2dfiPQ/re9/Tfak3c/QVnW3CKt3GCMZ3aH8w8JrgQE/TjW30
-         3MWA==
+        bh=yeQoas8PqpBGb7ryjr8a1ErU10km1dJJT/SCC9Pi2eY=;
+        b=iDDZyalzloq12R79TM6KvpZpbw0MSMqst3e3vNYTB6VxE4R1pHlY8e8NARpxM/SS3u
+         jaP+PcwyASAsr7dHVwgNX5eyoItGM2m9Rk4XLlQ4701WKrsEXbo6E/pakP5cjAuHkfBi
+         fUhxlAg8JWHJpXdJKnJLQI62XxHZFxwEg/YobR13solzfOM4vxugBqP2NKPFTIpbA+MD
+         c3jMbeeJooE12t7va8HhKygcvRjrMk1YHVqawYeQoKcqz6wX1NeA1wJAb5zmIWkfrYHA
+         JX/LcJc1SLcsbSeewfHnTfqR3Q1nR0dsiM04rA0Q4ZMzDn1BSlvVLZwqT1eaOg0Qhv7y
+         +/Mw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758203599; x=1758808399;
+        d=1e100.net; s=20230601; t=1758204466; x=1758809266;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=4hx2YvD9QRvb353ps8UgCxX/k7kcKxIYizSJaLbSOLo=;
-        b=n5bAyZ3OjUmyTF/Aup6KpOjqCVvCAx/VC9hp9fsskeigImw9YKTsgZlH4dnYQvhIFQ
-         5dlkEHBICAC7N1DsX0GyzajcHOvDicclnt1hPOUIg6X+W0l+jupDV6otPJXDV3hTiWyH
-         w3ABiGV7W0cnihw/5O4yTKz2PZN1trFU6wAOftLHeOiJiWZjo5qmK34MDiqrHvG6Hp6w
-         aeEv6v15iDgAc/lOWXY7IFY2k9BHiyObredPBdkxdzZDUSNZOGyHsBLHQv8u3fjoCJdw
-         y6/ga9dyP+SUUXuZzXKwm7b0+E4PAxeA/nJTVN1W1x9yaLCE51HjcePGrIIcVwhPsXgl
-         sBpA==
-X-Gm-Message-State: AOJu0YxPS/CcS29G1sgfmzPf8SV/B+WgTtL4ginzFXMPXPZ+QyNihC6L
-	ZQVhHtC0qUO8IqBkiQxuPZSTDOt8Atv+s2RrUtRKDpd1PyWgeFP5fem8Q6b2ng==
-X-Gm-Gg: ASbGncvZb7NrPO0E/TfbzUe5aQDtRCQ7RKBCnCFoafwQrfzoJC8jMiW2o9+oD1PP/y8
-	IF2TObEB4ExmVqIQHc5q2nc0e9EdObR/SOoIaXFZFBDl6h3K6yKDr6qxBBzJghqdGBikCgdgLkj
-	7VWBKROjglGzl1PDSHUF8B3wp8CEwbr6OjliPu5UQEnNuQV30inqsvvdHvxPLN9gmHFBrNUlIgM
-	zojaz6/tFwfhUWP9hjdpOE+8h0QR6lYadkQerIxBhSBz5MlshUsFg4s70ESGrw7bxMZco80WiZ4
-	Hoor4QVZwHMBljhyEf2vcAQzBS42DKqxrvS8g0lsLBBjj6N0eNL2wu/TKOOrGdf6VfirDNM24hw
-	0ESds3LDo401fCuHRgkYnWaWhvD1H+dOslViI7tF2dJ1yA4zBwi3L2L/DG0PqTviZvCdbWzp7Xy
-	bIh4gX/eUKAeNe7dIBzYuRUGUdHujjkUPaL27m/0SHjeRd
-X-Google-Smtp-Source: AGHT+IH5KGcKr9J19rPYm8Wo4HPDJXuCdhEHGQSEK7SUN6sztVGxkBaqYvdF/UVjRzqgQPIeXKhcgA==
-X-Received: by 2002:ac8:5d41:0:b0:4b7:a559:54ab with SMTP id d75a77b69052e-4ba6a200204mr74423021cf.44.1758203598704;
-        Thu, 18 Sep 2025 06:53:18 -0700 (PDT)
+        bh=yeQoas8PqpBGb7ryjr8a1ErU10km1dJJT/SCC9Pi2eY=;
+        b=RJr6ou8FNoNswFfHSQvLogclS4ycszGvdLEGNjWvtsRN75p9BiLERYeULX7YXGXF4x
+         ZO/cJfqUjSNEbDOKM3WxP2D2sssCwmEEUMs8DDjWNiJafYFXGXVjRoLqP0hFbdZnjJZR
+         R5Ulhl+HFgArPwY72yfLLQ3F720BLmlzP4BbNZJR+wXs77lSSRAsAWEgrNvJHxEj/h+k
+         0VKTnodcT/nMTeQHoxyTdQeqXnUgfPo/5CfvJ8YOKTk+Jq20VMkWjWZpWUgx39UNcH9a
+         vXErLxpQfryU+UB6TK0xfN3BDeELu4gTN2xdAY8LNiZ9IuaWJHcxf0Mt+aKd3EWe09Mb
+         LDGQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUhh0l5Or1q5/q7pTPG1NiWyAi5fU1ZDn6nPHNZWQfFRc8wgkecMxJgX8sTavg2Ll+ekBx8gaNi@vger.kernel.org
+X-Gm-Message-State: AOJu0YywDKvzb1dnYPHXctj5kNJKNhtIZn0tuQvGyAvlcpocjv7vXldu
+	/SDnkjWvORgt2xQihLJC1GiUth2HFOWqgKbingnLoeMtaMbdmh23Bqrs
+X-Gm-Gg: ASbGncszaQJvw8xiYzkadxyS4DDGus+ZMvpCvIsug8FBLopFP6nobu0ZS/fEh2VFyEq
+	gVmXF7iyLUvsw1UGwyOuUzfQVObG/nLQWw1Kdm8x6Kky5+wzvTUIqaTa+02s2xDp4U5tN6EenJW
+	TVOpJVzlBTEl+4jGv9N0pJJ2i+e3+/gIWQOk/5WNa8M1FuEcdkmfpdU7lT/d21qs4lSOkbgswC/
+	pMo6pm56S6UIfpjwpniVUKxLDUF+aNOseSV4efLwhi7qXVYZGstEaPsE4S6dzCGVZmCCjGflSOD
+	uniTOZDQ9mHCLYdGvnlMyuzPidKR6qvbnQ41qIvd5obtwCTXyjUvaU9dA0q6IbKWaybmL7KaYCC
+	yu5JvyhmKwZ+qhkW9wZLXu2qxSJCwZjEYjwocvkrchFy41nCCyT0eTSHizDxx9pKlEdvNntq900
+	Pvz3YGAv/ds3S58N1+SP4tccMXiGakxBUQ5mwUPYBXmqgR
+X-Google-Smtp-Source: AGHT+IEZcqCaAlB8tDl4mwjmiNMogID/BslW1mNco0kIzZFTf7/53cEmy78iG0ikG4s6ab879K2XYQ==
+X-Received: by 2002:ad4:5ca2:0:b0:781:d761:5468 with SMTP id 6a1803df08f44-78eceb32ef8mr82820096d6.39.1758204455245;
+        Thu, 18 Sep 2025 07:07:35 -0700 (PDT)
 Received: from fedora.. (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-793516d6df9sm13384346d6.46.2025.09.18.06.53.18
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-79347e50865sm13318066d6.33.2025.09.18.07.07.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Sep 2025 06:53:18 -0700 (PDT)
+        Thu, 18 Sep 2025 07:07:34 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [RFC PATCH selinuxns] libselinux: add selinux_unshare()
-Date: Thu, 18 Sep 2025 09:51:19 -0400
-Message-ID: <20250918135118.9896-2-stephen.smalley.work@gmail.com>
+To: linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org
+Cc: paul@paul-moore.com,
+	omosnace@redhat.com,
+	john.johansen@canonical.com,
+	serge@hallyn.com,
+	casey@schaufler-ca.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [RFC PATCH v2] lsm,selinux: introduce LSM_ATTR_UNSHARE and wire it up for SELinux
+Date: Thu, 18 Sep 2025 09:59:05 -0400
+Message-ID: <20250918135904.9997-2-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -71,212 +78,165 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-RFC only, this demonstrates how to implement unsharing of the SELinux
-namespace using the lsm_set_self_attr(LSM_UNSHARE_SELINUX...) system
-call instead of the /sys/fs/selinux/unshare interface.
+RFC-only, will ultimately split the LSM-only changes to their own
+patch for submission. I have now tested this with the corresponding
+selinux userspace change that you can find at
+https://lore.kernel.org/selinux/20250918135118.9896-2-stephen.smalley.work@gmail.com/
+and also verified that my modified systemd-nspawn still works when
+starting containers with their own SELinux namespace.
 
-Provide a selinux_unshare() wrapper for
-lsm_set_self_attr(LSM_ATTR_UNSHARE...) and other required processing
-when unsharing the SELinux namespace.
+This defines a new LSM_ATTR_UNSHARE attribute for the
+lsm_set_self_attr(2) system call and wires it up for SELinux to invoke
+the underlying function for unsharing the SELinux namespace. As with
+the selinuxfs interface, this immediately unshares the SELinux
+namespace of the current process just like an unshare(2) system call
+would do for other namespaces. I have not yet explored the
+alternatives of deferring the unshare to the next unshare(2),
+clone(2), or execve(2) call and would want to first confirm that doing
+so does not introduce any issues in the kernel or make it harder to
+integrate with existing container runtimes.
 
-Add a selinux_unshare() interface to unshare the SELinux namespace, and
-a unshareselinux utility to run a shell or command in its own SELinux
-and mount namespaces. The selinux_unshare() interface expects the caller
-to have already unshared its mount namespace and created a
-MS_REC|MS_PRIVATE mount of / prior to invoking it so that it can freely
-modify the selinuxfs mount as needed by the unshare operation. The
-unshareselinux utility demonstrates how to do this prior to calling
-selinux_unshare(). Upon a successful return from selinux_unshare(),
-the SELinux namespace will be unshared and there will be no selinuxfs
-mount on /sys/fs/selinux.  The caller can then proceed to mount a new
-selinuxfs filesystem private to the new namespace, load a policy,
-set enforcing mode, etc, as is commonly handled by init/systemd during
-boot.
+Differences between this syscall interface and the selinuxfs interface
+that need discussion before moving forward:
 
-If/when this gets merged, the new selinux_unshare() symbol should
-be moved to its own version in libselinux.map.
+1. The syscall interface does not currently check any Linux capability
+or DAC permissions, whereas the selinuxfs interface can only be set by
+uid-0 or CAP_DAC_OVERRIDE processes. We need to decide what if any
+capability or DAC check should apply to this syscall interface and if
+any, add the checks to either the LSM framework code or to the SELinux
+hook function.
+
+Pros: Checking a capability or DAC permissions prevents misuse of this
+interface by unprivileged processes, particularly on systems with
+policies that do not yet define any of the new SELinux permissions
+introduced for controlling this operation. This is a potential concern
+on Linux distributions that do not tightly coordinate kernel updates
+with policy updates (or where users may choose to deploy upstream
+kernels on their own), but not on Android.
+
+Cons: Checking a capability or DAC permissions requires any process
+that uses this facility to have the corresponding capability or
+permissions, which might otherwise be unnecessary and create
+additional risks. This is less likely if we use a capability already
+required by container runtimes and similar components that might
+leverage this facility for unsharing SELinux namespaces.
+
+2. The syscall interface checks a new SELinux unshare_selinuxns
+permission in the process2 class between the task SID and itself,
+similar to other checks for setting process attributes. This means
+that:
+    allow domain self:process2 *; -or-
+    allow domain self:process2 ~anything-other-than-unshare_selinuxns; -or-
+    allow domain self:process2 unshare_selinuxns;
+would allow a process to unshare its SELinux namespace.
+
+The selinuxfs interface checks a new unshare permission in the
+security class between the task SID and the security initial SID,
+likewise similar to other checks for setting selinuxfs attributes.
+This means that:
+    allow domain security_t:security *; -or-
+    allow domain security_t:security ~anything-other-than-unshare; -or-
+    allow domain security_t:security unshare;
+would allow a process to unshare its SELinux namespace.
+
+Technically, the selinuxfs interface also currently requires open and
+write access to the selinuxfs node; hence:
+    allow domain security_t:file { open write };
+is also required for the selinuxfs interface.
+
+We need to decide what we want the SELinux check(s) to be for the
+syscall and whether it should be more like the former (process
+attributes) or more like the latter (security policy settings). Note
+that the permission name itself is unimportant here and only differs
+because it seemed less evident in the process2 class that we are
+talking about a SELinux namespace otherwise.
+
+Regardless, either form of allow rule can be prohibited in policies
+via neverallow rules on systems that enforce their usage
+(e.g. Android, not necessarily on Linux distributions).
+
+3. The selinuxfs interface currently offers more functionality than I
+have implemented here for the sycall interface, including:
+
+a) the ability to read the selinuxfs node to see if your namespace has
+been unshared, which should be easily implementable via
+lsm_get_self_attr(2).  However, questions remain as to when that
+should return 1 versus 0 (currently returns 1 whenever your namespace
+is NOT the initial SELinux namespace, useful for the testsuite to
+detect it is in a child, but could instead be reset to 0 by a
+subsequent policy load to indicate completion of the setup of the
+namespace, thus hiding from child processes that they are in a child
+namespace once its policy has been loaded).
+
+b) the abilities to get and set the maximum number of SELinux
+namespaces (via a /sys/fs/selinux/maxns node) and to get and set the
+maximum depth for SELinux namespaces (via a /sys/fs/selinux/maxnsdepth
+node). These could be left in selinuxfs or migrated to some other LSM
+management APIs since they are global in scope, not per-process
+attributes.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libselinux/include/selinux/selinux.h | 13 +++++
- libselinux/src/libselinux.map        |  1 +
- libselinux/src/unshare.c             | 71 ++++++++++++++++++++++++++++
- libselinux/utils/.gitignore          |  1 +
- libselinux/utils/unshareselinux.c    | 42 ++++++++++++++++
- 5 files changed, 128 insertions(+)
- create mode 100644 libselinux/src/unshare.c
- create mode 100644 libselinux/utils/unshareselinux.c
+v2 fixes a typo (PROCESS->PROCESS2) and is now tested.
 
-diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
-index b1431e5d..1a68c29f 100644
---- a/libselinux/include/selinux/selinux.h
-+++ b/libselinux/include/selinux/selinux.h
-@@ -760,6 +760,19 @@ extern int selinux_lsetfilecon_default(const char *path);
-  */
- extern void selinux_reset_config(void);
+ include/uapi/linux/lsm.h            | 1 +
+ security/selinux/hooks.c            | 8 ++++++++
+ security/selinux/include/classmap.h | 4 +++-
+ 3 files changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/include/uapi/linux/lsm.h b/include/uapi/linux/lsm.h
+index 938593dfd5da..fb1b4a8aa639 100644
+--- a/include/uapi/linux/lsm.h
++++ b/include/uapi/linux/lsm.h
+@@ -83,6 +83,7 @@ struct lsm_ctx {
+ #define LSM_ATTR_KEYCREATE	103
+ #define LSM_ATTR_PREV		104
+ #define LSM_ATTR_SOCKCREATE	105
++#define LSM_ATTR_UNSHARE	106
  
-+/*
-+ * Unshare the SELinux namespace.
-+ * Prior to invoking this API, the caller must have unshared the
-+ * mount namespace (CLONE_NEWNS) and mounted a MS_REC|MS_PRIVATE
-+ * / filesystem so that selinux_unshare() can freely modify any
-+ * existing selinuxfs mount as needed for the unshare.
-+ * Returns 0 on success, in which case the SELinux namespace has
-+ * been unshared and any old selinuxfs mount will have been unmounted.
-+ * The caller can then proceed to mount a new selinuxfs filesystem
-+ * for the new namespace, load a policy, set enforcing mode, etc.
-+ */
-+extern int selinux_unshare(void);
-+
- #ifdef __cplusplus
- }
- #endif
-diff --git a/libselinux/src/libselinux.map b/libselinux/src/libselinux.map
-index ab002f01..f3966880 100644
---- a/libselinux/src/libselinux.map
-+++ b/libselinux/src/libselinux.map
-@@ -251,6 +251,7 @@ LIBSELINUX_3.5 {
-   global:
-     getpidprevcon;
-     getpidprevcon_raw;
-+    selinux_unshare;
- } LIBSELINUX_3.4;
+ /*
+  * LSM_FLAG_XXX definitions identify special handling instructions
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index f48483383d6e..1e34a16b7954 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -6816,6 +6816,10 @@ static int selinux_lsm_setattr(u64 attr, void *value, size_t size)
+ 		error = avc_has_perm(state, mysid, mysid, SECCLASS_PROCESS,
+ 				     PROCESS__SETCURRENT, NULL);
+ 		break;
++	case LSM_ATTR_UNSHARE:
++		error = avc_has_perm(state, mysid, mysid, SECCLASS_PROCESS2,
++				     PROCESS2__UNSHARE_SELINUXNS, NULL);
++		break;
+ 	default:
+ 		error = -EOPNOTSUPP;
+ 		break;
+@@ -6927,6 +6931,10 @@ static int selinux_lsm_setattr(u64 attr, void *value, size_t size)
+ 		}
  
- LIBSELINUX_3.8 {
-diff --git a/libselinux/src/unshare.c b/libselinux/src/unshare.c
-new file mode 100644
-index 00000000..d2fc7e20
---- /dev/null
-+++ b/libselinux/src/unshare.c
-@@ -0,0 +1,71 @@
-+#ifndef _GNU_SOURCE
-+#define _GNU_SOURCE
-+#endif
-+
-+#include <sched.h>
-+#include <stdint.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <fcntl.h>
-+#include <unistd.h>
-+#include <errno.h>
-+#include <sys/mount.h>
-+#include <sys/vfs.h>
-+#include <sys/statvfs.h>
-+#include <sys/syscall.h>
-+#include <linux/lsm.h>
-+
-+#include "selinux_internal.h"
-+#include "policy.h"
-+
-+#ifndef LSM_ATTR_UNSHARE
-+#define LSM_ATTR_UNSHARE 106
-+#endif
-+
-+#ifndef __NR_lsm_set_self_attr
-+#define __NR_lsm_set_self_attr 460
-+#endif
-+
-+#ifndef HAVE_LSM_SET_SELF_ATTR
-+#define HAVE_LSM_SET_SELF_ATTR 1
-+static int lsm_set_self_attr(unsigned int attr, struct lsm_ctx *ctx,
-+			     uint32_t size, uint32_t flags)
-+{
-+	return syscall(__NR_lsm_set_self_attr, attr, ctx, size, flags);
-+}
-+#endif
-+
-+/*
-+ * Precondition: caller must have already done unshare(CLONE_NEWNS) or
-+ * been created via clone(CLONE_NEWNS) and mounted a MS_REC|MS_PRIVATE
-+ * / filesystem so that any pre-existing selinuxfs mount can be
-+ * modified freely by selinux_unshare(). See ../utils/unshareselinux.c
-+ * for an example.
-+ */
-+int selinux_unshare(void)
-+{
-+	struct lsm_ctx ctx;
-+	int ret;
-+
-+	ctx.id = LSM_ID_SELINUX;
-+	ctx.flags = 0;
-+	ctx.len = sizeof(ctx);
-+	ctx.ctx_len = 0;
-+
-+	/* Unshare the SELinux namespace */
-+	ret = lsm_set_self_attr(LSM_ATTR_UNSHARE, &ctx, sizeof(ctx), 0);
-+	if (ret < 0)
-+		return -1;
-+
-+	/* Unmount the selinuxfs which refers to the old/parent namespace */
-+	ret = umount(SELINUXMNT);
-+	if (ret < 0)
-+		return ret;
-+
-+	/*
-+	 * Caller is responsible for mounting new selinuxfs, loading policy,
-+	 * setting enforcing mode, etc.
-+	 */
-+
-+	return 0;
-+}
-diff --git a/libselinux/utils/.gitignore b/libselinux/utils/.gitignore
-index 2e10b14f..bb290d90 100644
---- a/libselinux/utils/.gitignore
-+++ b/libselinux/utils/.gitignore
-@@ -30,3 +30,4 @@ setfilecon
- togglesebool
- selinux_check_access
- validatetrans
-+unshareselinux
-diff --git a/libselinux/utils/unshareselinux.c b/libselinux/utils/unshareselinux.c
-new file mode 100644
-index 00000000..b396b4fe
---- /dev/null
-+++ b/libselinux/utils/unshareselinux.c
-@@ -0,0 +1,42 @@
-+#ifndef _GNU_SOURCE
-+#define _GNU_SOURCE
-+#endif
-+
-+#include <sched.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <unistd.h>
-+#include <errno.h>
-+#include <sys/mount.h>
-+#include <selinux/selinux.h>
-+
-+int main(int argc, char **argv)
-+{
-+	int ret;
-+
-+	ret = unshare(CLONE_NEWNS);
-+	if (ret < 0) {
-+		perror("unshare(CLONE_NEWNS)");
-+		exit(1);
-+	}
-+
-+	ret = mount("none", "/", NULL, MS_REC | MS_PRIVATE, NULL);
-+	if (ret < 0) {
-+		perror("mount(/)");
-+		exit(1);
-+	}
-+
-+	ret = selinux_unshare();
-+	if (ret < 0) {
-+		perror("selinux_unshare");
-+		exit(1);
-+	}
-+
-+	if (argc < 2) {
-+		fprintf(stderr, "usage: %s command args...\n", argv[0]);
-+		exit(1);
-+	}
-+
-+	execvp(argv[1], &argv[1]);
-+	perror(argv[1]);
-+}
+ 		tsec->sid = sid;
++	} else if (attr == LSM_ATTR_UNSHARE) {
++		error = selinux_state_create(new);
++		if (error)
++			goto abort_change;
+ 	} else {
+ 		error = -EINVAL;
+ 		goto abort_change;
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index be52ebb6b94a..07fe316308cd 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -60,7 +60,9 @@ const struct security_class_mapping secclass_map[] = {
+ 	    "siginh",	    "setrlimit",     "rlimitinh",   "dyntransition",
+ 	    "setcurrent",   "execmem",	     "execstack",   "execheap",
+ 	    "setkeycreate", "setsockcreate", "getrlimit",   NULL } },
+-	{ "process2", { "nnp_transition", "nosuid_transition", NULL } },
++	{ "process2",
++	  { "nnp_transition", "nosuid_transition", "unshare_selinuxns",
++	    NULL } },
+ 	{ "system",
+ 	  { "ipc_info", "syslog_read", "syslog_mod", "syslog_console",
+ 	    "module_request", "module_load", "firmware_load",
 -- 
 2.50.1
 
