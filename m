@@ -1,167 +1,150 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F21B31158F;
-	Thu, 18 Sep 2025 15:51:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 841B3314D13;
+	Thu, 18 Sep 2025 15:51:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758210677; cv=none; b=DCfTuUJ17wxy2AeIRrvb9Iada/tbpSagx/I7svCe9eYzJlUFQcv7KCAdZ/QkmoNiYru16pCf3SudGY1D02gx8sL6Ayk//WzCDmp8ixi3QQI9sSY+GzwajcgWfE2kJtzAlCt3AKJyaVdNfk26YNuZyzzmCGw6VwrSbt3lHdDgCGc=
+	t=1758210677; cv=none; b=NWhNupRl+9BBIZ+pdOOUQOTqUjiMUoq+mQ+HbPJgntjPA069sf9lMnIOiOUpgJohdB6CvolhyJusNnqMu9A5ryQmEXPLX/vQTx9QZg8KK2gx0BOtm+TAVSVq9cMgdXNaFpZ61CeLDhwjCzY/sTXftmj52d85q7sk+9GRI4v7XHk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1758210677; c=relaxed/simple;
-	bh=XLoC4IDn6XB4T4stDaEg7atqyx17HXOSv6kMWVrjEEc=;
-	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
-	 Date:MIME-Version; b=FkcHvkJlCEs5dAKF6huIId2QIWe/yWyXBgX914bDAFmDgKqIAtmD5CKfKwfXqcVqbWDbaHTDYM1Q50iLrk2NSezk2uEFM8jqrlJW4G4v0xXeNXjjAaJknbUAy4fmTvt8V4LkDXwjf5+a9JWZU9N8ufzss8vh31X5sF/7qAR1jNQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DqJ4xidW; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	bh=e6XJbeklgFNXwruDywAZe7vowNbZUbwBKpZS63m54og=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=YSXPJ3tti4lzkiCYhxc0Ef9l4a45T2AaiS3YIu3rV2l6gSZjk2hbT3NWkxesZyTWif7TcAG9xmzoUmtbJY53E1lshvud4Q0H5VZlWgUqqa5VJuzutYgXiLZoWAhu6axDN3LmWCi8F76DOdapIAdSeYxB/bLyd+PxM6opRJaE4GQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lAxccBgH; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DqJ4xidW"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58I8L6Uw011358;
-	Thu, 18 Sep 2025 15:50:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=PChGhv
-	dlII29F1X4own0ZbEZ9B3RdFiEEvM/kvev0L4=; b=DqJ4xidW8BdujQXw8XwKAg
-	TeJGZbdc8cattWF/hDssZKjSVxvH9fPY/DCCQ4PXmwCcIjk3FHXhBlnSdDzwXvJw
-	LR4bMTMwiQnfz45nFUFNv5oYrOPGuqMtOfmWzAezkzW88Lhr4yfYRnGiZzo3pC3c
-	RTmrCdYd/v2DIYBa1aSemOTm7yoJV+jFjBWDszdQKXaeVEh6BknnLyoiuGG7KE5j
-	vZhtFHbn/rY+VVARsRmR75q+eCmn6oCNmYR3qIDQU2e9WM4KrIoeDKvraP5gDh0z
-	sBruDyUstEP7VRX+muXm8YsJGA4DeuLSt96fBm6v+9b9ABfM+TycV9eIX05MylRA
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 497g4njttu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 18 Sep 2025 15:50:08 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 58IFo8XC002773;
-	Thu, 18 Sep 2025 15:50:08 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 497g4njttp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 18 Sep 2025 15:50:08 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58IF8Af0009486;
-	Thu, 18 Sep 2025 15:50:07 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 495nn3q3ww-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 18 Sep 2025 15:50:07 +0000
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58IFo6Hs32113282
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 18 Sep 2025 15:50:06 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AC13F5805E;
-	Thu, 18 Sep 2025 15:50:06 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9B7DE5805D;
-	Thu, 18 Sep 2025 15:50:05 +0000 (GMT)
-Received: from li-43857255-d5e6-4659-90f1-fc5cee4750ad.ibm.com (unknown [9.61.89.238])
-	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 18 Sep 2025 15:50:05 +0000 (GMT)
-Message-ID: <4db3bb94c42f11240a880a439c7a678599d7053f.camel@linux.ibm.com>
-Subject: Re: [PATCH v4 20/34] lsm: cleanup the debug and console output in
- lsm_init.c
-From: Mimi Zohar <zohar@linux.ibm.com>
-To: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org
-Cc: John Johansen <john.johansen@canonical.com>,
-        Roberto Sassu	
- <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>,
-        =?ISO-8859-1?Q?Micka=EBl_Sala=FCn?=	 <mic@digikod.net>,
-        =?ISO-8859-1?Q?G=FCnther?= Noack <gnoack@google.com>,
-        Kees Cook
- <kees@kernel.org>, Micah Morton <mortonm@chromium.org>,
-        Casey Schaufler	
- <casey@schaufler-ca.com>,
-        Tetsuo Handa
- <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Nicolas Bouchinet
- <nicolas.bouchinet@oss.cyber.gouv.fr>,
-        Xiu Jianfeng <xiujianfeng@huawei.com>
-In-Reply-To: <20250916220355.252592-56-paul@paul-moore.com>
-References: <20250916220355.252592-36-paul@paul-moore.com>
-	 <20250916220355.252592-56-paul@paul-moore.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 18 Sep 2025 11:50:05 -0400
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lAxccBgH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D77DBC4CEE7;
+	Thu, 18 Sep 2025 15:51:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1758210677;
+	bh=e6XJbeklgFNXwruDywAZe7vowNbZUbwBKpZS63m54og=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+	b=lAxccBgHQJMGKL6W5XO/kIBHMi2AladIz8qPWx4MBG7gpBrzHZckIimBwgkALGSoK
+	 RTpLe7661eFC5B/7BhfypSLu8ciNLbjbhnW0/Uiw7F9qtuf/K/hOn+NGzmTK4Elius
+	 Puw/h1XtP570vHRTCm/o6CmMUjRekyChiJ42E7YZlGDJw6uFwLqKV4izLQfNVxc+1W
+	 3GgwOdBMEpO6bPhXxyYgbuGAlwFII7VeYUA20OL3bsW1JzfLATB4CEE7Um16odYOB9
+	 O8FOQqOy+9iE5VgV50GipK6qrDd5viCwdSnAqnhpyMVlV7VT8suWp23kcrZWa2l0BA
+	 qFbk69uCk7f8g==
+Date: Thu, 18 Sep 2025 09:51:07 -0600 (MDT)
+From: Paul Walmsley <pjw@kernel.org>
+To: Simon Schuster <schuster.simon@siemens-energy.com>
+cc: Dinh Nguyen <dinguyen@kernel.org>, Christian Brauner <brauner@kernel.org>, 
+    Arnd Bergmann <arnd@arndb.de>, Andrew Morton <akpm@linux-foundation.org>, 
+    David Hildenbrand <david@redhat.com>, 
+    Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, 
+    "Liam R. Howlett" <Liam.Howlett@oracle.com>, 
+    Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>, 
+    Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, 
+    Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, 
+    Juri Lelli <juri.lelli@redhat.com>, 
+    Vincent Guittot <vincent.guittot@linaro.org>, 
+    Dietmar Eggemann <dietmar.eggemann@arm.com>, 
+    Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>, 
+    Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>, 
+    Kees Cook <kees@kernel.org>, Paul Walmsley <paul.walmsley@sifive.com>, 
+    Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+    Alexandre Ghiti <alex@ghiti.fr>, Guo Ren <guoren@kernel.org>, 
+    Oleg Nesterov <oleg@redhat.com>, Jens Axboe <axboe@kernel.dk>, 
+    Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, 
+    Tejun Heo <tj@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>, 
+    =?ISO-8859-15?Q?Michal_Koutn=FD?= <mkoutny@suse.com>, 
+    Paul Moore <paul@paul-moore.com>, Serge Hallyn <sergeh@kernel.org>, 
+    James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+    Anna-Maria Behnsen <anna-maria@linutronix.de>, 
+    Frederic Weisbecker <frederic@kernel.org>, 
+    Thomas Gleixner <tglx@linutronix.de>, 
+    Masami Hiramatsu <mhiramat@kernel.org>, 
+    "David S. Miller" <davem@davemloft.net>, 
+    Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+    Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+    Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
+    Arnaldo Carvalho de Melo <acme@kernel.org>, 
+    Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
+    Alexander Shishkin <alexander.shishkin@linux.intel.com>, 
+    Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>, 
+    Adrian Hunter <adrian.hunter@intel.com>, 
+    John Johansen <john.johansen@canonical.com>, 
+    Stephen Smalley <stephen.smalley.work@gmail.com>, 
+    Ondrej Mosnacek <omosnace@redhat.com>, 
+    Kentaro Takeda <takedakn@nttdata.co.jp>, 
+    Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, 
+    Richard Henderson <richard.henderson@linaro.org>, 
+    Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>, 
+    Russell King <linux@armlinux.org.uk>, 
+    Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+    Brian Cain <bcain@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, 
+    WANG Xuerui <kernel@xen0n.name>, Geert Uytterhoeven <geert@linux-m68k.org>, 
+    Michal Simek <monstr@monstr.eu>, 
+    Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+    Jonas Bonn <jonas@southpole.se>, 
+    Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, 
+    Stafford Horne <shorne@gmail.com>, 
+    "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
+    Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+    Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+    Christophe Leroy <christophe.leroy@csgroup.eu>, 
+    Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+    Alexander Gordeev <agordeev@linux.ibm.com>, 
+    Christian Borntraeger <borntraeger@linux.ibm.com>, 
+    Sven Schnelle <svens@linux.ibm.com>, 
+    Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
+    John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
+    Andreas Larsson <andreas@gaisler.com>, Richard Weinberger <richard@nod.at>, 
+    Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
+    Johannes Berg <johannes@sipsolutions.net>, Borislav Petkov <bp@alien8.de>, 
+    Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+    "H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>, 
+    Max Filippov <jcmvbkbc@gmail.com>, linux-mm@kvack.org, 
+    linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org, 
+    linux-csky@vger.kernel.org, linux-block@vger.kernel.org, 
+    linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org, 
+    linux-security-module@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
+    netdev@vger.kernel.org, linux-perf-users@vger.kernel.org, 
+    apparmor@lists.ubuntu.com, selinux@vger.kernel.org, 
+    linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, 
+    linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, 
+    loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, 
+    linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, 
+    linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+    linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
+    sparclinux@vger.kernel.org, linux-um@lists.infradead.org
+Subject: Re: [PATCH v2 3/4] arch: copy_thread: pass clone_flags as u64
+In-Reply-To: <20250901-nios2-implement-clone3-v2-3-53fcf5577d57@siemens-energy.com>
+Message-ID: <ffb22e54-6b7d-5b88-4217-e67870051c6e@kernel.org>
+References: <20250901-nios2-implement-clone3-v2-0-53fcf5577d57@siemens-energy.com> <20250901-nios2-implement-clone3-v2-3-53fcf5577d57@siemens-energy.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Evolution 3.54.3 (3.54.3-2.fc41) 
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=MN5gmNZl c=1 sm=1 tr=0 ts=68cc2a30 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=vpqfxihKAAAA:8 a=DfNHnWVPAAAA:8
- a=xVhDTqbCAAAA:8 a=rzX1WqAAvrR1uQPcxNMA:9 a=QEXdDO2ut3YA:10
- a=AULIiLoY-XQsE5F6gcqX:22 a=rjTVMONInIDnV1a_A2c_:22 a=GrmWmAYt4dzCMttCBZOh:22
-X-Proofpoint-GUID: 6yzVrc6RCklkC6LcnuLiLsEyMYnVnO8T
-X-Proofpoint-ORIG-GUID: NwrpxkIowtORex3aANCNMuoijrBXtuMo
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTE2MDIwNCBTYWx0ZWRfX+tSVHHOaa1kj
- OZjZYVduOu81zF6PCpm1PVq/TApZWrsvZHYk7VfyWtFXVEfe1GB25xi+QzQu3GhBVjdyD2HaE74
- c3ztiP0Qh6t3rA9hsXoC7BawBV/2hIUTjMibB9/L9OZ9DPHp8QulgzrVCCqbgTX/tH7kslOKFHZ
- OtJd/DKwuCcMpr1c8hjazBiVS5nBkXczhqSNFg7lBLrBcj+oM7RmBycoU5yCljC47A48e6jKs9D
- 6R7Ma4IgLwzYholvi1AQHJ1cDpkqseTc5xeJBK+DmLjtBjRMAYvntKxCOAt38MlOYnceTQOKvVO
- Kk/g3KdVFf+ivDlLHSJ1eQMoXnAWugdDsyvUCrrALVdokLAE5HAofdN1hMtLqeMTK9L0qU3PTuM
- kW8+bvyC
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-18_01,2025-09-18_02,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 spamscore=0 priorityscore=1501 bulkscore=0 impostorscore=0
- malwarescore=0 adultscore=0 phishscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509160204
+Content-Type: text/plain; charset=US-ASCII
 
-On Tue, 2025-09-16 at 18:03 -0400, Paul Moore wrote:
-> Move away from an init specific init_debug() macro to a more general
-> lsm_pr()/lsm_pr_cont()/lsm_pr_dbg() set of macros that are available
-> both before and after init.  In the process we do a number of minor
-> changes to improve the LSM initialization output and cleanup the code
-> somewhat.
->=20
-> Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
-> Reviewed-by: John Johansen <john.johhansen@canonical.com>
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
-> ---
->  security/lsm.h      |  11 ++++
->  security/lsm_init.c | 123 +++++++++++++++++++-------------------------
->  security/security.c |   2 +
->  3 files changed, 66 insertions(+), 70 deletions(-)
->=20
-> diff --git a/security/lsm.h b/security/lsm.h
-> index dbe755c45e57..8dc267977ae0 100644
-> --- a/security/lsm.h
-> +++ b/security/lsm.h
-> @@ -6,9 +6,20 @@
->  #ifndef _LSM_H_
->  #define _LSM_H_
-> =20
-> +#include <linux/printk.h>
->  #include <linux/lsm_hooks.h>
->  #include <linux/lsm_count.h>
-> =20
-> +/* LSM debugging */
-> +extern bool lsm_debug;
-> +#define lsm_pr(...)		pr_info(__VA_ARGS__)
-> +#define lsm_pr_cont(...)	pr_cont(__VA_ARGS__)
-> +#define lsm_pr_dbg(...)
->=20
-> 				\
-> +	do {								\
-> +		if (lsm_debug)						\
-> +			pr_info(__VA_ARGS__);				\
-> +	} while (0)
+On Mon, 1 Sep 2025, Simon Schuster via B4 Relay wrote:
+
+> From: Simon Schuster <schuster.simon@siemens-energy.com>
+> 
+> With the introduction of clone3 in commit 7f192e3cd316 ("fork: add
+> clone3") the effective bit width of clone_flags on all architectures was
+> increased from 32-bit to 64-bit, with a new type of u64 for the flags.
+> However, for most consumers of clone_flags the interface was not
+> changed from the previous type of unsigned long.
+> 
+> While this works fine as long as none of the new 64-bit flag bits
+> (CLONE_CLEAR_SIGHAND and CLONE_INTO_CGROUP) are evaluated, this is still
+> undesirable in terms of the principle of least surprise.
+> 
+> Thus, this commit fixes all relevant interfaces of the copy_thread
+> function that is called from copy_process to consistently pass
+> clone_flags as u64, so that no truncation to 32-bit integers occurs on
+> 32-bit architectures.
+> 
+> Signed-off-by: Simon Schuster <schuster.simon@siemens-energy.com>
+
+Acked-by: Paul Walmsley <pjw@kernel.org> # for RISC-V
+
+Thanks!
 
 
-The existing pr_info and pr_cont themselves are #defines.  Is there a reaso=
-n for
-these new "#define"?  If there is a valid reason for having these new defin=
-es,
-why aren't they simply prefixed with "lsm"?
-
-Mimi
+- Paul
