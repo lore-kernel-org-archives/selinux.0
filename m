@@ -1,238 +1,132 @@
-Received: from mail-pg1-f175.google.com (mail-pg1-f175.google.com [209.85.215.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 071AD23AB98
-	for <selinux@vger.kernel.org>; Thu, 18 Sep 2025 14:59:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAA5E30F529;
+	Thu, 18 Sep 2025 15:15:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758207574; cv=none; b=SoMCZ34H56YOroJtfx90XTJaWM6NWQKmMNnkFSKtp+DgD7Xm9Fp+1VZZyeu7N+5aK1AReE+NYWH4leCiUeNmc/P4tXdanUI//MHSe+RUxcdOhfsA2jyRyGE3Jes160+D3VDK4Fcei8w8+x9d8wzXDrByNlFcTD6r+K0/pFDGJ4U=
+	t=1758208527; cv=none; b=fuAvh17J6YU30JBj1pkK+Rn8Hw6O68Z+uh/xcuiivIxYoBByiwHdx97yPPnTOy60PWnsdw3NiBmwEsuDzIziZmHysIK4jgR0eI61XhxX4Cooxx/wPcL23NANcxms6mkuT2OpWJxXiOu6q9a9Dsf8XELa7o5kGx8rC9vir05S834=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758207574; c=relaxed/simple;
-	bh=9AyjbZu/R6+7AfTH/imXIBSLKPGlymz6O9mTaOrNiZE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ELAmDj+Jn5tqetdc/gdt0qnBHhuaEHLF7bo1I085cCdBYxGvXK7R82BeiEwXhwxBaycWWnJrw8rYDIO+yQvD3LTPm7RH/5Ibi0ipfFEQSIM07E/OqZUsXkL6KHk/d0rXhahIOk8aNlD18ZiPf/7dr467c2o/6/T5HfZiEoTbeIY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Eem/2qv+; arc=none smtp.client-ip=209.85.215.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1758208527; c=relaxed/simple;
+	bh=7m8Hq61tVZWiz57e9668ITrXwgA2tmBkjlX1GsRuLng=;
+	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
+	 Date:MIME-Version; b=Hq35fcfcQONwsVYn96taDaMbou9X5jZdvI7EuqcS6sxqZTxDSnqANG8zPvgZL80DOet+yvp7WaTyI8k/B+Ft45SxjUFJqhOFc8CpjB9tvzi5ksiK5RKpt5Jrk0EYKob1ZQxGytseCgc3dW4gtt2RMNlM7h1C3rF5MfwqovumwJM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KkybRtPf; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Eem/2qv+"
-Received: by mail-pg1-f175.google.com with SMTP id 41be03b00d2f7-b5500891f00so606464a12.0
-        for <selinux@vger.kernel.org>; Thu, 18 Sep 2025 07:59:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1758207572; x=1758812372; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=1i5xXatEMur57KoQTvo+Bsthb7HXDozR76+usUBMQNA=;
-        b=Eem/2qv+KZTSB0qWtXChxJG9tKsiVEqz5IjQD38P4a/NMnG0EKxRdZcm7sT1wTDOpt
-         mmK94Wp+uza83RHiZjVZ1nRJbsAcoiflZbXIuIUdCZKn4hUOf4ego5cbidDR8Vs1P0nN
-         ntAswCqTFu9qG7ypjOli98yeo5kpyDYDCLOlcflRTKQokH7CMp4JCXQc1XH67SwTisvL
-         wiUQ/E+EgjYSnCCE3nZYA9pjskIFDfrEJClezCrdvjM3fFxpUHvH1+nuJJRCJNMZDtjl
-         S82DEx92xB8lhqAqJgIUZ6RjeU/Puh19GyTlti6/tArjLOsDkVad5gGG5pSeAMVSp0ew
-         KSBQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758207572; x=1758812372;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=1i5xXatEMur57KoQTvo+Bsthb7HXDozR76+usUBMQNA=;
-        b=k85M/0YmGgcHQBrVQpTkZsb1g9mBuKNukkyTptOwMoRdT9HSpOp833+u+3X6JySy5E
-         RfLRHETHRCkrYkFgxn9oVZjqkLAAkkcSYE/j9Nqhzlf7C5ezBiXA3PQbswuk5EjwvnaA
-         OL2ElVYfbTlbyKE+YRin8xDvFS0O3rheKw3FfO8cYKhGYMJkmgMN33kiWciqf/SGTv44
-         VdZsaQdHhNSMxby8g+3RoZDkf3NxjGYLDQ6W07wIF2T3k9lcaiCoJWa+BNUuJneieyhL
-         3fr0WDa5k79MEDjS5KpvSPddgMTbTCDQEoHxz0fOjEf4RGJVSAiuhmQozHjIgQsEMjLP
-         TmcA==
-X-Forwarded-Encrypted: i=1; AJvYcCWJ+L7r4Cv7zfSJPUvhP247wh1CLNY7htArYl1R8is1GLFVAuyBgO0Ni9l0DAAlDNgSo87oeUqE@vger.kernel.org
-X-Gm-Message-State: AOJu0YwhOWUa8P6SrXKEIWhQ1hlOwCYyUT2ioqnzvqmGGWN9uMEgjBAZ
-	WChpQ2BcfTwwL51zD6LuaEzLRqVreXoz2jB19y9+pfq1kEPS15j4DyltTz1VVIBqi+uJq/ci8UQ
-	k77s35PvIvoidtdmrSI62g4TTumJ2gdYGUzlFTANy
-X-Gm-Gg: ASbGncucq8na3is1oTZb+tdPoN9ekQQI2N0oMWsSgwmFuAGlBc4ig9xNyvTBTIi2vdl
-	SpyNpSC0ChbaM+aKaJm9tczdNo6qsELUoBKWR4VztAPhyRO5/eesaJHGwtgUOUnPiNiUfkzJ5ox
-	XKVdBS5QPE8yStBQ0bXfoun/s0cDpWTyv3RZfwzKUZIw1TPtMLbVPmwSGgKXSDNIOJ44WSmi0/B
-	+WZvGuvir7QgJVd+futDb2eHw==
-X-Google-Smtp-Source: AGHT+IEUKmSYDo2DX3O9oD+BnxOBGtwu3LH/T/y6wuBdnPkqqAF5QaDTPZSlvkftb77Ze+YCyuOE8m6me+Fz4wVGHZg=
-X-Received: by 2002:a17:902:f706:b0:267:6649:ec10 with SMTP id
- d9443c01a7336-268119b7b26mr78730635ad.4.1758207572052; Thu, 18 Sep 2025
- 07:59:32 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KkybRtPf"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58I8L6QN011358;
+	Thu, 18 Sep 2025 15:14:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=7m8Hq6
+	1tVZWiz57e9668ITrXwgA2tmBkjlX1GsRuLng=; b=KkybRtPf2eujPFN+QaAQjw
+	+URfkT7SMS+e/kIj6QFcICIYGTLJZY0C7jjXgsQ3hIw8ZP9900j1xhqGitCXakFN
+	w1GBaouI7+p90ocokC/kfgZ3lw2SOqiUNigerp6NtmrmCSW1ngPOQgunGWjjtueg
+	uboIg3C6mo9RMISG0WAmq2CS1Uqhuj4Pd2D2pXYKr3vALuG1qV6xQ3OeTZyJeDtO
+	bDuylOlGEM32AHY0rbR1oTXm68zMw8TdtVipej1OYUJN9mbn5vE/86yxBQ9fxfTt
+	QSXV3UQi80ltug1/ZPa1OPwyMCYdp+gLfL06vM/AlwYpwvb2YIsbYhPXt4YyGwug
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 497g4njnan-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 18 Sep 2025 15:14:16 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 58IFEFYE025678;
+	Thu, 18 Sep 2025 15:14:15 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 497g4njnaj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 18 Sep 2025 15:14:15 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58IDeb7x022316;
+	Thu, 18 Sep 2025 15:14:14 GMT
+Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 495kxpy98c-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 18 Sep 2025 15:14:14 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58IFEEJZ28443344
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 18 Sep 2025 15:14:14 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 89E845805F;
+	Thu, 18 Sep 2025 15:14:14 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EEEBC5805D;
+	Thu, 18 Sep 2025 15:14:12 +0000 (GMT)
+Received: from li-43857255-d5e6-4659-90f1-fc5cee4750ad.ibm.com (unknown [9.61.89.238])
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 18 Sep 2025 15:14:12 +0000 (GMT)
+Message-ID: <78e72c9779fdc42425755101de3270308255935c.camel@linux.ibm.com>
+Subject: Re: [PATCH v4 16/34] lsm: cleanup the LSM blob size code
+From: Mimi Zohar <zohar@linux.ibm.com>
+To: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org
+Cc: John Johansen <john.johansen@canonical.com>,
+        Roberto Sassu	
+ <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>,
+        =?ISO-8859-1?Q?Micka=EBl_Sala=FCn?=	 <mic@digikod.net>,
+        =?ISO-8859-1?Q?G=FCnther?= Noack <gnoack@google.com>,
+        Kees Cook
+ <kees@kernel.org>, Micah Morton <mortonm@chromium.org>,
+        Casey Schaufler	
+ <casey@schaufler-ca.com>,
+        Tetsuo Handa
+ <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Nicolas Bouchinet
+ <nicolas.bouchinet@oss.cyber.gouv.fr>,
+        Xiu Jianfeng <xiujianfeng@huawei.com>
+In-Reply-To: <20250916220355.252592-52-paul@paul-moore.com>
+References: <20250916220355.252592-36-paul@paul-moore.com>
+	 <20250916220355.252592-52-paul@paul-moore.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 18 Sep 2025 11:14:12 -0400
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250821182021.304-1-ericsu@linux.microsoft.com>
- <1752d2d2f04b17d4da2e40990985be51@paul-moore.com> <CAEjxPJ6qiw_T+9u_GuYgmLXShhbcG7hSt34Z9kvpiH9AQ9nmKA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6qiw_T+9u_GuYgmLXShhbcG7hSt34Z9kvpiH9AQ9nmKA@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 18 Sep 2025 10:59:19 -0400
-X-Gm-Features: AS18NWBPvst4Ka4WrxQ4l8s4vUvRJVfahEwJnzqHqaqjb-CAle_L7hVbKaIGReI
-Message-ID: <CAHC9VhREWrw=2u66pbba+KC=SrSTfZ=5bn7jiqngyHh7qyv3Xg@mail.gmail.com>
-Subject: Re: [PATCH v3] SELinux: Add support for BPF token access control
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Eric Suen <ericsu@linux.microsoft.com>, selinux@vger.kernel.org, 
-	omosnace@redhat.com, danieldurning.work@gmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.54.3 (3.54.3-2.fc41) 
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=MN5gmNZl c=1 sm=1 tr=0 ts=68cc21c8 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=VwQbUJbxAAAA:8 a=DfNHnWVPAAAA:8
+ a=vpqfxihKAAAA:8 a=xVhDTqbCAAAA:8 a=VnNF1IyMAAAA:8 a=TJvjXSSun--OMuyg4_MA:9
+ a=QEXdDO2ut3YA:10 a=rjTVMONInIDnV1a_A2c_:22 a=AULIiLoY-XQsE5F6gcqX:22
+ a=GrmWmAYt4dzCMttCBZOh:22
+X-Proofpoint-GUID: GbhyfS0D7amGsKO1mRlqQOVWYVAAcDB1
+X-Proofpoint-ORIG-GUID: i3uhtyHTbV0MkFHx1hY65_2tMW8JTMis
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTE2MDIwNCBTYWx0ZWRfX5b40MypvQPsQ
+ R/VulwDTt69/xvFkcqMUAlrut1dr1iOVuemTU2QWd1t+OKlAj+oQIEY5Zc0yWoAGjKkHCItw6zh
+ pwFzFwD1vfLnbhQj/WyXXEdVfT9YWTKr+opxOZDxgcFRhp5SsPPWDCkP33rCK/eGl3URbQQLojP
+ uHfQnalEIw04c1h3b1wFryHrVHCk6wjqIXNXPFwlaXBfRWru6Daq3pvofKbl9oEA90KfdGf7n7h
+ Kly7Yfjgd3iicKEdaqUc1wv3EPQ/MGxkc01Ftv2jfJ1cAGtzSivVq3ZV2sDf7nZv/piszIVXC5B
+ V1vUCx8cDL1shZ68Z1O9E/DMWXMrnDk2iYoO4aPD5vAvpZaBlL8W3mwgfZdgYJt4IGC759m7mgh
+ ++vVrOoz
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-09-18_01,2025-09-18_02,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 spamscore=0 priorityscore=1501 bulkscore=0 impostorscore=0
+ malwarescore=0 adultscore=0 phishscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509160204
 
-On Thu, Sep 18, 2025 at 9:36=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Wed, Sep 17, 2025 at 5:48=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
-wrote:
-> > On Aug 21, 2025 Eric Suen <ericsu@linux.microsoft.com> wrote:
-> > >
-> > > BPF token support was introduced to allow a privileged process to del=
-egate
-> > > limited BPF functionality=E2=80=94such as map creation and program lo=
-ading=E2=80=94to an
-> > > unprivileged process:
-> > >   https://lore.kernel.org/linux-security-module/20231130185229.268895=
-6-1-andrii@kernel.org/
-> > >
-> > > This patch adds SELinux support for controlling BPF token access. Wit=
-h
-> > > this change, SELinux policies can now enforce constraints on BPF toke=
-n
-> > > usage based on both the delegating (privileged) process and the recip=
-ient
-> > > (unprivileged) process.
-> > >
-> > > Supported operations currently include:
-> > >   - map_create
-> > >   - prog_load
-> > >
-> > > High-level workflow:
-> > >   1. An unprivileged process creates a VFS context via `fsopen()` and
-> > >      obtains a file descriptor.
-> > >   2. This descriptor is passed to a privileged process, which configu=
-res
-> > >      BPF token delegation options and mounts a BPF filesystem.
-> > >   3. SELinux records the `creator_sid` of the privileged process duri=
-ng
-> > >      mount setup.
-> > >   4. The unprivileged process then uses this BPF fs mount to create a
-> > >      token and attach it to subsequent BPF syscalls.
-> > >   5. During verification of `map_create` and `prog_load`, SELinux use=
-s
-> > >      `creator_sid` and the current SID to check policy permissions vi=
-a:
-> > >        avc_has_perm(creator_sid, current_sid, SECCLASS_BPF,
-> > >                     BPF__MAP_CREATE, NULL);
-> > >
-> > > The implementation introduces two new permissions:
-> > >   - map_create_as
-> > >   - prog_load_as
-> > >
-> > > At token creation time, SELinux verifies that the current process has=
- the
-> > > appropriate `*_as` permission (depending on the `allowed_cmds` value =
-in
-> > > the bpf_token) to act on behalf of the `creator_sid`.
-> > >
-> > > Example SELinux policy:
-> > >   allow test_bpf_t self:bpf {
-> > >       map_create map_read map_write prog_load prog_run
-> > >       map_create_as prog_load_as
-> > >   };
-> > >
-> > > Additionally, a new policy capability bpf_token_perms is added to ens=
-ure
-> > > backward compatibility. If disabled, previous behavior ((checks based=
- on
-> > > current process SID)) is preserved.
-> > >
-> > > Changes in v2:
-> > > - Fixed bug in selinux_bpffs_creator_sid(u32 fd) where it retrieved
-> > >   creator_sid from wrong file descriptor
-> > > - Removed unnecessary checks for null, per review comments from
-> > >   the first patch
-> > >
-> > > Changes in v3:
-> > > - Removed check for 'sid =3D=3D SECSID_NULL' in selinux_bpf_token_cre=
-ate and
-> > >   allow it to fall through to the permission checks which will fail a=
-s
-> > >   access denied to unlabeled_t
-> > >
-> > > Signed-off-by: Eric Suen <ericsu@linux.microsoft.com>
-> > > Tested-by: Daniel Durning <danieldurning.work@gmail.com>
-> > > Reviewed-by: Daniel Durning <danieldurning.work@gmail.com>
-> > > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > > ---
->
-> > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > > index e474cd7398ef..d949e9c5aa31 100644
-> > > --- a/security/selinux/hooks.c
-> > > +++ b/security/selinux/hooks.c
-> > > @@ -733,6 +733,8 @@ static int selinux_set_mnt_opts(struct super_bloc=
-k *sb,
-> > >               goto out;
-> > >       }
-> > >
-> > > +     sbsec->creator_sid =3D current_sid();
-> >
-> > A few things come to mind as I'm looking at the new creator_sid field.
-> >
-> > First, we should explicitly initialize @sbsec->creator_sid to
-> > SECINITSID_UNLABELED in selinux_sb_alloc_security() just as we do the
-> > other fields.  Yes, the LSM framework does some basic clearing, but thi=
-s
-> > is safer long term and it isn't likely that superblock allocation is
-> > going to be common enough to where the extra assignment is going to be
-> > a concern.
-> >
-> > While I don't think this is an immediate issue, I think it's a good ide=
-a
-> > to ensure that the selinux_cmp_sb_context() function compares the
-> > @sbsec->creator_sid fields and only returns true/"match" if they are th=
-e
-> > same.
->
-> Hmm...that raises another question in my mind - what happens if
-> multiple processes mount bpffs filesystems currently - do they each
-> get their own superbock or is that shared?
+On Tue, 2025-09-16 at 18:03 -0400, Paul Moore wrote:
+> Convert the lsm_blob_size fields to unsigned integers as there is no
+> current need for them to be negative, change "lsm_set_blob_size()" to
+> "lsm_blob_size_update()" to better reflect reality, and perform some
+> other minor cleanups to the associated code.
+>=20
+> Reviewed-by: Kees Cook <kees@kernel.org>
+> Reviewed-by: John Johansen <john.johansen@canonical.com>
+> Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
 
-Good question.  If the superblock is shared among all mount instances
-we need to do some extra work to determine the creator label/SID for
-each instance.
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
 
-> If the latter, then making this part of the comparison will block
-> subsequent mounts by tasks with different SIDs.
-> But not doing something here would lead to using whoever was the last
-> mounter for the SID, so I agree something needs to happen.
-
-Eric, can you look into the code and do some testing?
-
-> > > @@ -7144,10 +7180,15 @@ static void selinux_bpf_prog_free(struct bpf_=
-prog *prog)
-> > >       kfree(bpfsec);
-> > >  }
-> > >
-> > > +#define bpf_token_cmd(T, C) \
-> > > +     ((T)->allowed_cmds & (1ULL << (C)))
-> > > +
-> > >  static int selinux_bpf_token_create(struct bpf_token *token, union b=
-pf_attr *attr,
-> > >                                   const struct path *path)
-> > >  {
-> > >       struct bpf_security_struct *bpfsec;
-> > > +     u32 sid =3D selinux_bpffs_creator_sid(attr->token_create.bpffs_=
-fd);
-> > > +     int err;
-> > >
-> > >       bpfsec =3D kzalloc(sizeof(*bpfsec), GFP_KERNEL);
-> > >       if (!bpfsec)
-> >
-> > This isn't an issue with your code, and to be clear I'm not asking you
-> > to fix this, but more as a FYI/TODO for me (or anyone else who would
-> > care to do it), after the BPF token patch is merged, we should move the
-> > @bpfsec allocation/lifecycle-management for tokens out to the LSM
-> > framework so it can properly handle multiple LSMs.
->
-> This already happened in the LSM tree, just hasn't been merged to the
-> SELinux tree yet.
-
-Ah, yes, I forgot all about Blaise's patch!  My apologies.  At least
-that is one less thing for the TODO list ;)
-
---=20
-paul-moore.com
