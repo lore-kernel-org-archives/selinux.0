@@ -1,171 +1,81 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46FC2239E61;
-	Fri, 19 Sep 2025 10:47:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE9EF3093A5;
+	Fri, 19 Sep 2025 11:09:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758278825; cv=none; b=dsLY+XlKy4952+hkqYjIDKitWLRL/mEgjVzXM8nQHhEPPSDTdyuonOAp/npoT6vXddKjcCVvv97WKmYiPNJJ4iqCdSXyAvQqzPxpU1asNAWVFCnHPDODyuvjRZVNJ+Am8VGQVRcst18vz19H4M8fJBoSo28xlEgOwRDQjkprTmM=
+	t=1758280145; cv=none; b=SunPkhaJcAcIqOWpoMdRo68YIB1gml2lhwc6arxTT8j+PSIVxYhXb/Pp4uWoj9+DEBYhqiq1uWQL3E33AFC+WBKqhm2Y52sSoD0By2vt95MPUUQpsfAUn8p6N7Rk/Jivgn6oAMNoob22M39JykP8cHFbUuU3PS4AFG7Qev7iBX4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758278825; c=relaxed/simple;
-	bh=vfLWEdp6hPELtATZXb+jIVKsrbbD0y0LPNqnfytFKMk=;
-	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
-	 Date:MIME-Version; b=Mxx+Gut6pAjNah75/d7waIyMrciQtxFDqnsI0Jpg3HuDVV4wRWPdzLlYipAzzgAi6sRH3BZHUQ2TFD8IXcAYbyS8rJgnLg5WDACNo27CfUa46ycFBkQZv0+WlbRM8MZVCiOgxVOUTOVWAhFkIqyygyAL8eWDuozlIA0r6pwuxyo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EOU4emfC; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1758280145; c=relaxed/simple;
+	bh=V06mTc7mmAHF1get2Z6bBhxQM9RUjQgKarI2B38U708=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=j3dbo633ZHUoyK4EFdpZdN91NYqahqxYEC0KC8Ny5965PqgYvB4bPebA0/tUlsCGh7CFH4WRyX1+eUUh55jOSavDUtg/QZw6o2RoeSHc2y0in9vUGKjp8/Mfzxv1QICRLPrRN1A8r6jdGdA07G8mgywxjsHvuqmHXjLnqjLvjJ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cRuGVFgF; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EOU4emfC"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58J9MdFc011259;
-	Fri, 19 Sep 2025 10:45:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=AeWO0w
-	syEqad90+ewvUVs9jH/hJLSB8u3MG16Wi1Ktk=; b=EOU4emfCrpg5VNaDdloZKx
-	5OVzmdvNwjF+oBn6tPViJw9MHNlo8ObowNtp8OPAfFtzbAaK+atiA22Zm5U7Gu/N
-	4Sve323cIBabHsCknxbXNDyQ+7jKs6f1QPYzeqJE+z3f47NggKXajyL2YduxrOlt
-	eDcE6g7Q4cyirGp9NgCYPV0Rgdb3tHWbI2+EYMlTmQXgBcAXWI5ILh83GqnWV2TF
-	18TpaVuS1VHFaj5f5+CY0sxcEn7YLaOnh0U9N4fWFBtvdPS/rlYuXCwPKJNm8hdz
-	Je1BwpyZD4kH9XSBZJXXMOPxPw+whsKU0Js21EQVLAWExz87ii1XHqi8jlbjTD6Q
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 497g4nqf1p-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 19 Sep 2025 10:45:59 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 58JAQrat030562;
-	Fri, 19 Sep 2025 10:45:58 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 497g4nqf1h-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 19 Sep 2025 10:45:58 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58J93Ehw005963;
-	Fri, 19 Sep 2025 10:45:57 GMT
-Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 495jxuknpe-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 19 Sep 2025 10:45:57 +0000
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58JAjv8D16646836
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 19 Sep 2025 10:45:57 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6E3935805D;
-	Fri, 19 Sep 2025 10:45:57 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B97B458056;
-	Fri, 19 Sep 2025 10:45:55 +0000 (GMT)
-Received: from li-43857255-d5e6-4659-90f1-fc5cee4750ad.ibm.com (unknown [9.61.169.163])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 19 Sep 2025 10:45:55 +0000 (GMT)
-Message-ID: <a158ffe2edd1588b6afc435d392f286e77851168.camel@linux.ibm.com>
-Subject: Re: [PATCH v4 07/34] lsm: rename ordered_lsm_init() to
- lsm_init_ordered()
-From: Mimi Zohar <zohar@linux.ibm.com>
-To: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org
-Cc: John Johansen <john.johansen@canonical.com>,
-        Roberto Sassu	
- <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>,
-        =?ISO-8859-1?Q?Micka=EBl_Sala=FCn?=	 <mic@digikod.net>,
-        =?ISO-8859-1?Q?G=FCnther?= Noack <gnoack@google.com>,
-        Kees Cook
- <kees@kernel.org>, Micah Morton <mortonm@chromium.org>,
-        Casey Schaufler	
- <casey@schaufler-ca.com>,
-        Tetsuo Handa
- <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Nicolas Bouchinet
- <nicolas.bouchinet@oss.cyber.gouv.fr>,
-        Xiu Jianfeng <xiujianfeng@huawei.com>
-In-Reply-To: <20250916220355.252592-43-paul@paul-moore.com>
-References: <20250916220355.252592-36-paul@paul-moore.com>
-	 <20250916220355.252592-43-paul@paul-moore.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 19 Sep 2025 06:45:55 -0400
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cRuGVFgF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91021C4CEF0;
+	Fri, 19 Sep 2025 11:09:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1758280145;
+	bh=V06mTc7mmAHF1get2Z6bBhxQM9RUjQgKarI2B38U708=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=cRuGVFgFl9c98eKuCm34wFvL+/NoSt67LZ4HPIF87vqLIjAj/1hPJg/ziH2M93Q6x
+	 2L65uXr/CFu/xGN8X9warleY2HNZtLGro4SY2qYedciKfYA2kdxXkMT1zTVnqDqNWN
+	 huNuf/7o/gZ6KAc1akfAKlUrKtDRBOQjW1EJ5OYrtwfBKUMeS57K6Lorq1FWOgHJ8N
+	 mWqeqi43CwnJ2OcQCs39kwDtVcBHo6XPAoLi+I60MuuT34bNj+lX33KrdeGYfMh4Gx
+	 pAgozTYfE14YWenS/jP7x3gHTCyQvjjrPS+qOh47KbL1bsNR3SeIDtEsNVDfoQSIFk
+	 LIm3vywdLak3Q==
+From: Christian Brauner <brauner@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	=?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
+Cc: Christian Brauner <brauner@kernel.org>,
+	=?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
+	linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org
+Subject: Re: [PATCH] pid: use ns_capable_noaudit() when determining net sysctl permissions
+Date: Fri, 19 Sep 2025 13:08:58 +0200
+Message-ID: <20250919-gaswerk-auffressen-168545629187@brauner>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20250910192605.16431-1-cgoettsche@seltendoof.de>
+References: <20250910192605.16431-1-cgoettsche@seltendoof.de>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Evolution 3.54.3 (3.54.3-2.fc41) 
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=MN5gmNZl c=1 sm=1 tr=0 ts=68cd3467 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=vpqfxihKAAAA:8 a=DfNHnWVPAAAA:8
- a=xVhDTqbCAAAA:8 a=VnNF1IyMAAAA:8 a=Kzl9HfZgd8uXcRyxXDcA:9 a=QEXdDO2ut3YA:10
- a=AULIiLoY-XQsE5F6gcqX:22 a=rjTVMONInIDnV1a_A2c_:22 a=GrmWmAYt4dzCMttCBZOh:22
-X-Proofpoint-GUID: p0AUmOeBcJx7Lfs_RqRvm9V_RPRpogUZ
-X-Proofpoint-ORIG-GUID: 66hp5Ll5lkJ9DJ5epRaAspA-a6Ak0jIP
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTE2MDIwNCBTYWx0ZWRfXzks57cyTUEE6
- 8qC4fW29GVBeXRBFrspTbROcqhw3D6vVMm8LlXIt1lL8d9DxTosHsEZCmefHcJdQXBbVGVMr6Nc
- q3FZ8Frc9fa6VARQXzS4vTOxgnkXn4wymZ63NCIbvbgnT951XUKeLjymjp69M8xXXwc5OL+RFHD
- 9VoNEyULSFiz8qbYNg/hI37VCoc0GHYmQAI9HnDdQXLb7h1pyNptr4zh8TgkijCuOA+JpBgi1VP
- 3uaXbx4/nW8z0bPHCzYVtRdG1+7/umZuQMPHo2+Jqt557fGeWgtH02+uQ7yXIrwqgZDlOhwU3fd
- B1wkOOisHs5ySFWQLF7/ppmsivzBDqfLCMLWduvLni8b7hcWE71zNu2sMWr9URzh1n+eO0AqEmn
- TqUPTa6s
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-18_03,2025-09-19_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 spamscore=0 priorityscore=1501 bulkscore=0 impostorscore=0
- malwarescore=0 adultscore=0 phishscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509160204
+Content-Type: text/plain; charset="utf-8"
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1345; i=brauner@kernel.org; h=from:subject:message-id; bh=V06mTc7mmAHF1get2Z6bBhxQM9RUjQgKarI2B38U708=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWSctTzz6rOZ2vobl7ofp9gJNBz/4j953t1tR5a0T6/Z2 NifsfCPZkcpC4MYF4OsmCKLQ7tJuNxynorNRpkaMHNYmUCGMHBxCsBEXl5iZFh54JVwkcFBERb/ bcmcuxUtpbVDHrJGLbKO0z7x4sG58g8Mf2XfS9osqXwm3u7tIdOt+TvmhcG8S9uNwj+pSfz7eEH sHSsA
+X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
+Content-Transfer-Encoding: 8bit
 
-On Tue, 2025-09-16 at 18:03 -0400, Paul Moore wrote:
-> The new name more closely fits the rest of the naming scheme in
-> security/lsm_init.c.  This patch also adds a trivial comment block to
-> the top of the function.
->=20
-> Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
-> Reviewed-by: John Johansen <john.johhansen@canonical.com>
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
+On Wed, 10 Sep 2025 21:26:05 +0200, Christian Göttsche wrote:
+> The capability check should not be audited since it is only being used
+> to determine the inode permissions. A failed check does not indicate a
+> violation of security policy but, when an LSM is enabled, a denial audit
+> message was being generated.
+> 
+> The denial audit message can either lead to the capability being
+> unnecessarily allowed in a security policy, or being silenced potentially
+> masking a legitimate capability check at a later point in time.
+> 
+> [...]
 
-Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+Applied to the vfs-6.18.misc branch of the vfs/vfs.git tree.
+Patches in the vfs-6.18.misc branch should appear in linux-next soon.
 
-> ---
->  security/lsm_init.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
->=20
-> diff --git a/security/lsm_init.c b/security/lsm_init.c
-> index a8b82329c76a..4a108b03c23d 100644
-> --- a/security/lsm_init.c
-> +++ b/security/lsm_init.c
-> @@ -291,7 +291,10 @@ static void __init ordered_lsm_parse(const char *ord=
-er, const char *origin)
->  	kfree(sep);
->  }
-> =20
-> -static void __init ordered_lsm_init(void)
-> +/**
-> + * lsm_init_ordered - Initialize the ordered LSMs
-> + */
-> +static void __init lsm_init_ordered(void)
->  {
->  	unsigned int first =3D 0;
->  	struct lsm_info **lsm;
-> @@ -342,9 +345,6 @@ static void __init ordered_lsm_init(void)
->  	init_debug("bpf prog blob size   =3D %d\n", blob_sizes.lbs_bpf_prog);
->  	init_debug("bpf token blob size  =3D %d\n", blob_sizes.lbs_bpf_token);
-> =20
-> -	/*
-> -	 * Create any kmem_caches needed for blobs
-> -	 */
->  	if (blob_sizes.lbs_file)
->  		lsm_file_cache =3D kmem_cache_create("lsm_file_cache",
->  						   blob_sizes.lbs_file, 0,
-> @@ -498,7 +498,7 @@ int __init security_init(void)
->  	}
-> =20
->  	/* Load LSMs in specified order. */
-> -	ordered_lsm_init();
-> +	lsm_init_ordered();
-> =20
->  	return 0;
->  }
+Please report any outstanding bugs that were missed during review in a
+new review to the original patch series allowing us to drop it.
 
+It's encouraged to provide Acked-bys and Reviewed-bys even though the
+patch has now been applied. If possible patch trailers will be updated.
+
+Note that commit hashes shown below are subject to change due to rebase,
+trailer updates or similar. If in doubt, please check the listed branch.
+
+tree:   https://git.kernel.org/pub/scm/linux/kernel/git/vfs/vfs.git
+branch: vfs-6.18.misc
+
+[1/1] pid: use ns_capable_noaudit() when determining net sysctl permissions
+      https://git.kernel.org/vfs/vfs/c/b9cb7e59ac4a
