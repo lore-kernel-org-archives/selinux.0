@@ -1,106 +1,126 @@
-Received: from mail-ed1-f51.google.com (mail-ed1-f51.google.com [209.85.208.51])
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D26427B320
-	for <selinux@vger.kernel.org>; Mon, 22 Sep 2025 19:30:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE8C328B7CC
+	for <selinux@vger.kernel.org>; Mon, 22 Sep 2025 21:53:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758569422; cv=none; b=qSbEidka4B08ihD8+WkJIRU6NgdI6uSn4YUeTXihGBw1QCKHJeVQRgMFDMUUelO1xAyNcEqDjCww/cKoK96lFI3RA3CWTiWPpGCGqzKevo5Wj2Ck3yPbSHTR9nZSvFFTy/ZX/GRoCMsprX7p+0vQ35EZRfDWikqQC0zyTaIXPCc=
+	t=1758577988; cv=none; b=VIGu98eX/72tMMruSumEMI5tIaDvJ3kOS4Z2CEfeXANs6nnth1VX+BQPJJYWNz4p+1+iD7OzUAReaVJiah4+w6LObgjqXfDupomwA6VnK0FbpV4rY/GtnCgFR8pEQTRYbzvuhqakoiR5SjCVxCtfz9gM7ROcSjiHjtaqCCBL9Q4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758569422; c=relaxed/simple;
-	bh=M55kfbiA5WNrGJ3r6EqFqgctDNfA8Xd3Z8+bi9BHwqY=;
+	s=arc-20240116; t=1758577988; c=relaxed/simple;
+	bh=NrxcGV9SRKTH90U9r9TiQBRjMm9wgcBgK/JoZCvLbI8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=TTLUxh5Mu9AXKNCeJn5NtB4rrr6lh2jKnjJ4AvwPiGZosKzOlaWB2EQqH7sIoQlMXi4OR2nvDgu5/9iqU/P8JLi1RAAiyGPP8aQqBs8UMHAtOGXf/hs+Wa7yVFEUvNT1m11VSpxkRfHdyWz0L2DXj9jBhy/bwGPL0qDddtKzYWU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=a5L0TJsa; arc=none smtp.client-ip=209.85.208.51
+	 To:Cc:Content-Type; b=GpwihThjMQlGh5PaD+bkkwJ+Lim4ASowDVsB6xDX6gqXYXA+iroxNhRS0KcsFUN9Lyio46yPV2VnvX/4ihhSHqjLJE99k8jzVbDQcQdWBKjjbcQOAV5QHpFH/ABG4BKOU5yRlF7HJDlv44cm62MS0kEQUNUAlVAzbbFIbJoA7A8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=MpKMTw3m; arc=none smtp.client-ip=209.85.216.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="a5L0TJsa"
-Received: by mail-ed1-f51.google.com with SMTP id 4fb4d7f45d1cf-62ec5f750f7so8105366a12.3
-        for <selinux@vger.kernel.org>; Mon, 22 Sep 2025 12:30:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="MpKMTw3m"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-33226dc4fc9so2449091a91.1
+        for <selinux@vger.kernel.org>; Mon, 22 Sep 2025 14:53:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1758569419; x=1759174219; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1758577986; x=1759182786; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=cvdWOntfA4A2sQxeMILs61f9nOsNLek7agJHp14BnZw=;
-        b=a5L0TJsaSgtelL6PwfSc5g1RGH5xXQFmKj5F1lLBAeFsG69TsSvyMsSrFNtc2wPL2a
-         whvVf+1P6Xvn6utJdbFrhO8fyOhXDoBY2rlST9n/D0rmICcvUF5O1dzXv9inJoECHO9X
-         ilXyo8nEQz1QpOhlnDnQmz0lHxNKPiNHUrv4jk12thJRYG6FqJ7zCf790fiTUsUzjuZm
-         948+9zbPqmkPppmpcFykZDpX4SBd3I5vVjLb/gpoN1c2LoYLk5oBAjhEphmxQDiMnb7x
-         wAPV6rdtxYN3pr+QaE2TKzq0FR+A5G8hVdAolnBiI+qM7V/8LlkuDuBsTGO7sQfIcFTs
-         xrEQ==
+        bh=XBCpPhJ55NBZXeBegJaYDf1Vz3ukosPuvPoKyErH30U=;
+        b=MpKMTw3mB8cS+wLKmM8B/FN/L+1iE0pQQmRWOZVXGS4mSCm0K1pU1gDJEVuXtxVxXo
+         uuMqijoX2yPKTU1SBmZueh5b+sdLN7pZhuv3kLaRjZKGkXSOAC9C6ESuyUwF7clq173b
+         yJ5+EDg9rdkHiJpIiH2w8y83fZllQkrhUxph1nzJ6HHpN1IXyUdfWT5KaRdNq89s93H/
+         s4E3t3++vYp9s4hsJ7Gfua+d6FrHIhfJh5A1HbKlOc0yW2LG5bobwoUgQN7S0HOCniAv
+         j8qU/IC82212UsrQDCFGVWpN80TV1jKgkAsCMjorxmHvBUCWKKFn8l6dizk8iES8rIOW
+         zlOw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758569419; x=1759174219;
+        d=1e100.net; s=20230601; t=1758577986; x=1759182786;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=cvdWOntfA4A2sQxeMILs61f9nOsNLek7agJHp14BnZw=;
-        b=PlqhlK2jgAS1Rh3O759TraWHbrJbJOPoylRDrymzowEIuLVSBAGvdoi003+Pasadwz
-         F2BMItN4AHa4tjEKxWTRW9WExb+1uJ2+pxWjXlJgNQhAfPFgdhsiup+palu36Cja3bG4
-         10AvvUYiZjA+ONCZhKtamytW/Esjy6MTcSW/HwslknPWvUqVJit0sLPswOSa1fosvJ0m
-         VrW+qHXKrnZA/MeacI7LU+9dXipz+LFJw12fE/0MyFSs91aM6dBux3rvEqaY2eY/ngvC
-         5f9EpNDtTf5d1RBsVY2pasHN9J6Vn+W8IzK5PtzF7JdfzHppgycsAbl/lBgD5LJ4Itge
-         wqUg==
-X-Forwarded-Encrypted: i=1; AJvYcCVmFYR3DC1z4MyFj5sCCV6+DSaI29uTb3wHRDecWTQdMlRk4sPwQt1D0Q/3PwTEu8iiN1ELI4l4@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx+TBguQ676Wphlgdy1rI51PvQhphEsdcJh9IOW3nVrTSpr8rol
-	gvgru3lpsgt5hzkGcGs4d/uTG/ob3Mlsxb3X0qi7SGkF3cmcpeTaDdiibRte0isFnCgoGbmrw0i
-	A1n3EmxRpPNinPFalRD/LUr0NBFceGgC5hxeP7X1H
-X-Gm-Gg: ASbGnctwqG2GD5noWqSVLT3CFhNTuaD7N6h0VuoyPO0L2GF3KcFnucZI1XoI6sIC+VR
-	2TptWYBEf3n2eFUJzij6WuDn5AU/nVCiXQupgQMZR+5fM/J1Vf3DexB4mFGNSnvhb+J70hMovUl
-	JPpLq2ZXNQi0s0DsixHn62UEjxJ+uJ8XTDRY3Khh/lE2kkINI1QpwAMx0HL8OQZ57I+p72nBC8e
-	m8dicc=
-X-Google-Smtp-Source: AGHT+IEiBDSh+6Em5c+U4LmqyUVPf4J6sg4KEYshuli5NnK7h8jqw5N22Ih+dxfjqxwcfWjX8MHUInxueYuNHXzg6tw=
-X-Received: by 2002:a05:6402:5201:b0:633:7b1e:9aa3 with SMTP id
- 4fb4d7f45d1cf-6337b1ea02fmr4563672a12.34.1758569418235; Mon, 22 Sep 2025
- 12:30:18 -0700 (PDT)
+        bh=XBCpPhJ55NBZXeBegJaYDf1Vz3ukosPuvPoKyErH30U=;
+        b=LZeHkIMdLaBdZYCIZ70FTfZM1/sN9JKnYcyNB1hHGUOw4xSYjat6NOYWh1YBjWCto5
+         rPAVsme/JbbOALm0nfqj5QbCC/TQ/4JhVsJM7VP8X+f9QzVS/Y4XVtCctWauHagh3rAk
+         zfcJ6ZbUR4d7Mz3Q6Q8JqA5mZfFfh3Yo+GXNpc5xLOqFwxCunPPVeyGzk+d4CfjiO2CF
+         setT4wVjAehYVneYJgvueiuKNUYjdvGeLHHpjsLEE2gKZdjUf1kRVJsT7nbFAwhM2bIl
+         SqGUHfb5IEA4fzbl5dGSdUdaRO1aosmG3i2V1+T9eUs5pUPXb1h1qswEF6ZM7euCtof/
+         TGJg==
+X-Forwarded-Encrypted: i=1; AJvYcCWxyhofR0vx5VI3Cevc+U9pT8qyV8Dslr7DUvTPkIOzwtkbfmZZiQaaRiyPcPC8zprzzgMZSp3w@vger.kernel.org
+X-Gm-Message-State: AOJu0YyGv+bWDqvjlGgW4dmotO95hqCYV7KDH5w8w5NBA0orfxIluvYb
+	3LE2DTUvX8ZeZpHNYbg+2VhuZBfDpMyJjoC04mSngVRPUKhLwt8o4K4t44mVA+ikKqpQLOwALi9
+	cGr2aiLmZbnp4+xb1ngelVhCfdUzq2P5UyC8/4CCS
+X-Gm-Gg: ASbGncsi04QBZDuPIYWur3CPKRXsjcqbbK3OlMYgFq6h6sjgYNu8DYmJrYk8ZxyrI7R
+	aEnENrvbz0VEo02gEEpTgeCrncsuSHM9BvyO9ClkjXTUyzLseRRelnRyymtU2wasUu0pPNAczd4
+	HCtzZixLR/7kqqdMH5ZmfcSBmZ0DvePGbFtIBLJbmacwU1FIaWeLsbOVGqg0A5TOAgS5YyF4gB6
+	FM1oO0=
+X-Google-Smtp-Source: AGHT+IEIQWA5rKW43P5Fcmt7zmtt/MYBDfabS+vBWJKdvNBhoSvEK2C+yUTl6EB3o0bQhS1oiKlOiaKg1oXWzn0OcwI=
+X-Received: by 2002:a17:90b:540f:b0:327:734a:ae7a with SMTP id
+ 98e67ed59e1d1-332a92da6ebmr455889a91.11.1758577986004; Mon, 22 Sep 2025
+ 14:53:06 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250918020434.1612137-1-tweek@google.com> <CAHC9VhSbWJ-8tj5BxSTxznGO8zraKRSE31a+tqdfMHB53ef-MQ@mail.gmail.com>
- <CAEjxPJ5GidA9oT_fbKRe_nH1J3mER0ggM-dBW=Nuo765JDuQKg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5GidA9oT_fbKRe_nH1J3mER0ggM-dBW=Nuo765JDuQKg@mail.gmail.com>
+References: <20250916220355.252592-36-paul@paul-moore.com> <20250916220355.252592-47-paul@paul-moore.com>
+ <d514db2f7c1de9b6d9092ff2ad1ce4cdba286e83.camel@linux.ibm.com>
+ <CAHC9VhSOhaB86yEV0+2HWRc3oYgZmLX+Nz3ERbohGRHeroKThA@mail.gmail.com> <63cf73f5ed8ceda0d68df416c2ba18334e7a9b83.camel@linux.ibm.com>
+In-Reply-To: <63cf73f5ed8ceda0d68df416c2ba18334e7a9b83.camel@linux.ibm.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 22 Sep 2025 15:30:04 -0400
-X-Gm-Features: AS18NWA9HrHmx3YP496OglRtxh1AdycMtaqbc5LSlhUEUhu_PxKTgISVOm7uHlk
-Message-ID: <CAHC9VhS2TU2GWgfUOHerbfjyxb5QZMSMqLdQirjSdkUohR7opg@mail.gmail.com>
-Subject: Re: [PATCH v3] memfd,selinux: call security_inode_init_security_anon
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
-	Hugh Dickins <hughd@google.com>, James Morris <jmorris@namei.org>, 
-	Jeff Vander Stoep <jeffv@google.com>, Nick Kralevich <nnk@google.com>, Jeff Xu <jeffxu@google.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Isaac Manjarres <isaacmanjarres@google.com>, 
-	linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org, linux-mm@kvack.org
+Date: Mon, 22 Sep 2025 17:52:54 -0400
+X-Gm-Features: AS18NWCouzv17lHS4hgSMPjWiUR_MwHmSY1fDXCtAlsYtCf1VWHhUgu34JpGZtw
+Message-ID: <CAHC9VhR94kuqcwP6DcdG+QpcruU8dMnP55CmTXiQ-k+u5yOT1Q@mail.gmail.com>
+Subject: Re: [PATCH v4 11/34] lsm: get rid of the lsm_names list and do some cleanup
+To: Mimi Zohar <zohar@linux.ibm.com>
+Cc: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, 
+	selinux@vger.kernel.org, John Johansen <john.johansen@canonical.com>, 
+	Roberto Sassu <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>, 
+	=?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
+	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
+	Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>, 
+	Casey Schaufler <casey@schaufler-ca.com>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, 
+	Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>, Xiu Jianfeng <xiujianfeng@huawei.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 22, 2025 at 9:12=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Mon, Sep 22, 2025 at 6:53=E2=80=AFAM Mimi Zohar <zohar@linux.ibm.com> wr=
+ote:
 >
-> When would you recommend that I re-apply the corresponding userspace
-> patch to reserve this policy capability number for memfd_class?
-> After it is moved to selinux/dev? Understand that it isn't truly
-> reserved until it lands in a kernel.org kernel but would prefer to
-> reapply it sooner than that since there may be other policy capability
-> requests queueing up (e.g. bpf token) that should be done relative to
-> it. Can always revert it again if necessary, at least until another
-> userspace release is made (not sure on timeline for that).
+> On Sun, 2025-09-21 at 15:23 -0400, Paul Moore wrote:
+> > On Fri, Sep 19, 2025 at 3:16=E2=80=AFPM Mimi Zohar <zohar@linux.ibm.com=
+> wrote:
+> > >
+> > > On Tue, 2025-09-16 at 18:03 -0400, Paul Moore wrote:
+> > > > The LSM currently has a lot of code to maintain a list of the curre=
+ntly
+> > > > active LSMs in a human readable string, with the only user being th=
+e
+> > > > "/sys/kernel/security/lsm" code.  Let's drop all of that code and
+> > > > generate the string on first use and then cache it for subsequent u=
+se.
+> > > >
+> > > > Signed-off-by: Paul Moore <paul@paul-moore.com>
+> > >
+> > > FYI, checkpatch.pl complains of unbalanced braces, otherwise
+> >
+> > Looks good to me?
+> >
+> > % stg export --stdout lsm-lsm_names_cleanup | ./scripts/checkpatch.pl -
+> > total: 0 errors, 0 warnings, 139 lines checked
+> >
+> > Your patch has no obvious style problems and is ready for submission.
+>
+> Try adding "--strict", which enforces
+> https://www.kernel.org/doc/html/v4.10/process/coding-style.html#placing-b=
+races-and-spaces
 
-When it comes to API issues like this, my standard answer is "tagged
-release from Linus" as it is the safest option, but you know that
-already.
+Ah, yes, sure.  FWIW, I view checkpatch's findings mostly as
+"advisory"; oftentimes it can help catch important things, other times
+I think it's kinda silly (and no, I don't have a list of each, so
+please don't ask).  I often tell people new to kernel development that
+it is generally better to follow checkpatch's suggestions if you are
+uncertain, however don't be surprised if a maintainer prefers
+something slightly different.
 
-The fuzzier answer is that unless something crazy happens, I'm likely
-going to move the patches, in order, from selinux/dev-staging into
-selinux/dev when the merge window closes.  This means that any
-policycap API additions for the next cycle are going to start with the
-memfd_class policycap, so it *should* be fairly safe to merge the
-userspace bits now, I just wouldn't do a userspace release with that
-API change until we see a tagged release from Linus.
+For those reasons I don't ever bother with the "strict" checkpatch mode.
 
 --=20
 paul-moore.com
