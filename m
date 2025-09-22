@@ -1,149 +1,138 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4F01522F;
-	Mon, 22 Sep 2025 10:53:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F5C83064AE
+	for <selinux@vger.kernel.org>; Mon, 22 Sep 2025 12:29:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758538439; cv=none; b=MC34lVTc+FGi4H+7SbdMXa3BAO8nRjTTmyHTsXDrYzewYbN1d0v8p3kAjjOSwS3LJJduvEcRgZaNrCN5JUTsyBPCzQ4t8FOw9R4/I0UCbB25HOyW9J3wAPiPtE0FPYDr+OwupBgCU6n2Z/xA7Ajp0C2z/vWh2iaM4fyAdUBqt4U=
+	t=1758544183; cv=none; b=H2/6hMAEpPvjw4VNmQNB0wbOOqU4R1TUmx1lYlZPbVriLOynW3fHAXeCB1QX898ZkTz64S5VSFfSHKzXp0EqZ5nvIPQu1Nla8ygLyHp7vNzf8kRPnl3fWZEudanzRgiESzpxzQwmHl2PqcSXCXOxkiqfyuXc0cdvE9DZsDUjOGg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758538439; c=relaxed/simple;
-	bh=vVm/rh4qZNO++H9SW3SoCc/GJbF845IniMlO6ufZtJA=;
-	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
-	 Date:MIME-Version; b=TPsWUvr/relUp2ZpfBe/eNayY6l7y4h+NCM0X500zZCxz6oF6fgKLPNKwf0tT73nYR6qM3Pmyh4BNmUBxD71NSMDdOad7Ppkd6x62g5QBjNGyVfUQ97iSRjnrdCLLR3s6XmaKd4aR7vyofl4xEDG5WaAQDx6u0htZcPFL+e3EO4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pHRVjbD6; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1758544183; c=relaxed/simple;
+	bh=XqUdLGQWUaLEwKpZPel0kn3r/WxfPjtD/uu9HJp4bWc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=d7dQj4qiGkux8lZNgk3bMfWqhkztg/K0mupzlteZ6A9/cnooL1b7h5sCNdEeH4utvwMJFi4zCIEtQBWzfhfyCc8SqgzS+AlzvBnWOJ5iCT5gbX8YgiuLg3GoL0SSGoxDCYpTyCCFVGWfJWg1echHmFuowvABduEiZbG0tqr2gpk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dzLJhyfL; arc=none smtp.client-ip=209.85.216.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pHRVjbD6"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58M527x5006772;
-	Mon, 22 Sep 2025 10:52:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=0YCa5i
-	xq5n6J1YTb8a626BPv5bsn7LSdr5yPiOqA2tQ=; b=pHRVjbD6d58T6s9vFRMeuH
-	MjklQbzxjyZK1y2dPIIU2S9IvIC5fX0u1zXinmcxw5oPXUmtA6AvR6lG5mNEixmt
-	7poxwVX1idglU8QEsBp0Zu7s+o/k9BJWMgpDRdmi4Bypl72I4hLbty0B2oWuBj6I
-	sTrA0OZHOqVE8ta9IaTXboPWIlcXVR6nuJDVq9W7H4WltwlzTzYx7bKoeqcjx42T
-	EEjz28IkdQsujx2Lmob2J0c25FkjkRQJrtLberDM2xq1flftNj8E94aDKntM32N/
-	CIsloF0w1HU/U+KvsjBzQ63R9FrU8N51S9C5MW/j/95s3Er1QRl8I1FUkUhe2bjA
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 499jpk1ywu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 22 Sep 2025 10:52:51 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 58MAqpLR009215;
-	Mon, 22 Sep 2025 10:52:51 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 499jpk1ywr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 22 Sep 2025 10:52:51 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58MA5qeP030397;
-	Mon, 22 Sep 2025 10:52:50 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 49a9a0we0b-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 22 Sep 2025 10:52:50 +0000
-Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58MAqnwI22086254
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 22 Sep 2025 10:52:50 GMT
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C37705805E;
-	Mon, 22 Sep 2025 10:52:49 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DA24958056;
-	Mon, 22 Sep 2025 10:52:48 +0000 (GMT)
-Received: from li-43857255-d5e6-4659-90f1-fc5cee4750ad.ibm.com (unknown [9.61.106.79])
-	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 22 Sep 2025 10:52:48 +0000 (GMT)
-Message-ID: <63cf73f5ed8ceda0d68df416c2ba18334e7a9b83.camel@linux.ibm.com>
-Subject: Re: [PATCH v4 11/34] lsm: get rid of the lsm_names list and do
- some cleanup
-From: Mimi Zohar <zohar@linux.ibm.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org, John Johansen <john.johansen@canonical.com>,
-        Roberto Sassu <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>,
-        =?ISO-8859-1?Q?Micka=EBl_Sala=FCn?=	 <mic@digikod.net>,
-        =?ISO-8859-1?Q?G=FCnther?= Noack <gnoack@google.com>,
-        Kees Cook
- <kees@kernel.org>, Micah Morton <mortonm@chromium.org>,
-        Casey Schaufler	
- <casey@schaufler-ca.com>,
-        Tetsuo Handa
- <penguin-kernel@i-love.sakura.ne.jp>,
-        Nicolas Bouchinet
- <nicolas.bouchinet@oss.cyber.gouv.fr>,
-        Xiu Jianfeng <xiujianfeng@huawei.com>
-In-Reply-To: <CAHC9VhSOhaB86yEV0+2HWRc3oYgZmLX+Nz3ERbohGRHeroKThA@mail.gmail.com>
-References: <20250916220355.252592-36-paul@paul-moore.com>
-	 <20250916220355.252592-47-paul@paul-moore.com>
-	 <d514db2f7c1de9b6d9092ff2ad1ce4cdba286e83.camel@linux.ibm.com>
-	 <CAHC9VhSOhaB86yEV0+2HWRc3oYgZmLX+Nz3ERbohGRHeroKThA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 22 Sep 2025 06:52:48 -0400
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dzLJhyfL"
+Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-330469eb750so4912749a91.2
+        for <selinux@vger.kernel.org>; Mon, 22 Sep 2025 05:29:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1758544181; x=1759148981; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=+kkGbbFXja5HoNsE8aPiHdoJDOGmZAghS1T8bfUgIDo=;
+        b=dzLJhyfL/5nv8e/dFv5t1Ua4n1CBlL90Loebr1ibgSwMH8xvBhGtJOLeQpmPlJd5Il
+         9pBndXjVPaI9H1a8gnU5FKwrZY0ow5AgSWry5BNw3xmPOSZYI+VlKVph79b4hXUT0akK
+         rSe41cOlCbZQstrq0Q8Kt5sPTZGkBzKrf+Ge73WjGMtIGwGqoHx3xzID9rBzQ3vPL4p9
+         BDLkLBSa75kZs7l3BLOr93Fpl+IvtNYY7RIoYs/+SOTsRsuHIIDXgzqZ1qnZneRwoEtI
+         8WDewrzcJcN0a6SRDWLloMhURjTZqnjimhONTR/xcig/iFpAQ9WHtIVrp1v95XGbHm1w
+         JRWw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1758544181; x=1759148981;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=+kkGbbFXja5HoNsE8aPiHdoJDOGmZAghS1T8bfUgIDo=;
+        b=QMbPOvqrdaQiojn6QwqNRvehPapLeH8oUio4lX6bAJ2M2rYxoAJakdhOwqsWHXGulv
+         w1fAnXshnyfT/Ce8nEvdaqtC7YfrcOjq5YdgvgvRc+A3YOhQGXNU2peV1Jai7bTUcqfW
+         UF+RUT4KUq43fAXCOdEK/BDfqMVnvv8VhMILSn8oDv5Vykif49PMds5kUlzGFoCqlG2X
+         /BFzFrTl4o4MWXfFL+Q6EaX+ZFSvJ9JazS3sxAqCVCSjg7qZTDlxHJrBx9cR+TMGTLvg
+         qjfyWLUjB4TPtKMgJVPkiqQE7eRaMC8LrTiZLF2eYvAQMZw7IYQMdajpT2HIZ8yDIRTB
+         S6nw==
+X-Forwarded-Encrypted: i=1; AJvYcCUEORmcDYTrCwWn5Wn5Mr+5JgBFz1Jmnjuj0pV1lj0dZ8ww/4uxwxBqx33C8vOA8sRFiyqX3Euw@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw+zknzOM9JEeqzGTWUWKgvrngew3wttdupyYowJ5+RuGyjQmTL
+	aDjTt/4jSc8NwT5viwLXhCFdOE00LnsZquJzmdBwF4wKov/AlB6zW7iM5L9h230jflJwaJsdQm8
+	Yn9zje6E62yTll0ndraHVP5HAe5IjJyw=
+X-Gm-Gg: ASbGncs6qhT0OViHXYk4U4KwxDMJQVEpqlhcpqZX7vQaoAo6BFIBGWuLAFIhgtxzH4C
+	ZQnAHxzDvlu50IuNRvWG/Eb+b1fCtEMsZwjsZ4RxaE/iWD+avvUTru6S0f5xF50yh7CcF1eTIcK
+	u9SR44pK00khq4YpfYk8sAUmvyMXZ6+0Z4UOwDNjQe/N8p6wyvrawVdeTSDfM20NB8JbrpC5jm5
+	UPQDAMFgFshuJPqyQ==
+X-Google-Smtp-Source: AGHT+IGy5aeH7qgy9czqZ5/M905p2u1onS9dkeMikoIA8DbBlGZQierb85A/08SjKDghYR8IuXnI3vEtS7pZDZpl6ps=
+X-Received: by 2002:a17:90b:1d8a:b0:32e:6858:b503 with SMTP id
+ 98e67ed59e1d1-3309836b19amr16205104a91.29.1758544181522; Mon, 22 Sep 2025
+ 05:29:41 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Evolution 3.54.3 (3.54.3-2.fc41) 
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=L50dQ/T8 c=1 sm=1 tr=0 ts=68d12a83 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=e1LNZ6x10KNBX6yl:21 a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=xVhDTqbCAAAA:8 a=Yt5IGFHnr2jDG3FCesEA:9 a=QEXdDO2ut3YA:10
- a=Xy2LUYiHjMsA:10 a=8uXwW3QgYZ0A:10 a=ZXulRonScM0A:10
- a=GrmWmAYt4dzCMttCBZOh:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTIwMDAxMCBTYWx0ZWRfXyyDaNV6T7CaU
- MMUmBJm3RcjcTh4NfEA4+GyUHcJqTa/VuvDeuMH5OqljMNIZVe0kyE5SLkFLoylGmkWdmWcxYzb
- MJf8isLeikt9oPhJKxYV3YSkb5lC0wiJr9bCYgiwJivdf970qxGYY/luR7G9P34gp5GaGvg/Q9C
- EDKzZKmZFisMhohOn8lDrYPXGRsecDZ0XHPmzDtkUPaTFD1C63Gc7m+g51VF/WSXI0ijtF/SZKj
- jBKOd9IeCdQoJz0/1NLGgrkDIX3CLrgD/9v0KhmGfPb6wXc1F/ct0jQB0fvXSIiOXRwwgIbQAWS
- BVmjphS/dJjE56FwVmFE+GNRCJLxdGFAWVjyY8EL7MOStmNlpC2UARvJUXqVMhhRojrA+Y2z2B6
- GFVnYXwP
-X-Proofpoint-ORIG-GUID: tEhjr0P0ulCtjiWToiXabeOCCn-dvYUI
-X-Proofpoint-GUID: utIOu00GY_2fVWhAugXHLKw5UBb5_6OI
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-22_01,2025-09-22_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 adultscore=0 phishscore=0 impostorscore=0 spamscore=0
- priorityscore=1501 suspectscore=0 clxscore=1015 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509200010
+References: <CAEjxPJ5JFqSMGSg5KEYd40JhLkgUo6g0uykDkXdKW3q5F1JtjQ@mail.gmail.com>
+ <20250920075018.631959-1-zhanghongru@xiaomi.com>
+In-Reply-To: <20250920075018.631959-1-zhanghongru@xiaomi.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 22 Sep 2025 08:29:30 -0400
+X-Gm-Features: AS18NWAxU6UFV7vm6gn38Vy_4Hwhdd_fzc_Vx7jcwj1EFPNG5vr21PNixBQM4Tc
+Message-ID: <CAEjxPJ41d8WcEh8QYp9E63+tCO2ukE5UWvCJ-hoXgN_Sx=P_-Q@mail.gmail.com>
+Subject: Re: [PATCH] selinux: Make avc cache slot size configurable during boot
+To: Hongru Zhang <zhanghongru06@gmail.com>
+Cc: linux-kernel@vger.kernel.org, omosnace@redhat.com, paul@paul-moore.com, 
+	selinux@vger.kernel.org, zhanghongru@xiaomi.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, 2025-09-21 at 15:23 -0400, Paul Moore wrote:
-> On Fri, Sep 19, 2025 at 3:16=E2=80=AFPM Mimi Zohar <zohar@linux.ibm.com> =
-wrote:
-> >=20
-> > On Tue, 2025-09-16 at 18:03 -0400, Paul Moore wrote:
-> > > The LSM currently has a lot of code to maintain a list of the current=
-ly
-> > > active LSMs in a human readable string, with the only user being the
-> > > "/sys/kernel/security/lsm" code.  Let's drop all of that code and
-> > > generate the string on first use and then cache it for subsequent use=
-.
-> > >=20
-> > > Signed-off-by: Paul Moore <paul@paul-moore.com>
-> >=20
-> > FYI, checkpatch.pl complains of unbalanced braces, otherwise
->=20
-> Looks good to me?
->=20
-> % stg export --stdout lsm-lsm_names_cleanup | ./scripts/checkpatch.pl -
-> total: 0 errors, 0 warnings, 139 lines checked
->=20
-> Your patch has no obvious style problems and is ready for submission.
+On Sat, Sep 20, 2025 at 3:50=E2=80=AFAM Hongru Zhang <zhanghongru06@gmail.c=
+om> wrote:
+>
+> > > Implementation of Muladd:
+> > > static inline u32 avc_hash(u32 ssid, u32 tsid, u16 tclass)
+> > > {
+> > >         return (ssid * 0x9E3779B9 + tsid * 0x85EBCA77 + tclass * 0xC2=
+B2AE35) & (avc_cache_slots - 1);
+> > > }
+> >
+> > Can you cite the source of this hash function? Is it public domain or
+> > otherwise GPLv2-compatible?
+>
+> Based on my input, the AI proposed this algorithm and provided an explana=
+tion
+> for why it fits. The AI also stated that using these constants does not c=
+ause
+> GPLv2 license compatibility issues. If needed, I'll check with the compan=
+y's
+> legal department.
+>
+> Hash constant explaination:
+> * 0x9E3779B9 (2654435769)
+>         * Origin: Golden ratio phi =3D (square(5) - 1) / 2 ~=3D 0.6180339=
+887...
+>         * Calculation: 2^32 * phi ~=3D 2654435769 =3D 0x9E3779B9
+>         * Properties:
+>                 * This is the classic constant for Knuth's multiplicative=
+ hashing
+>                 * Excellent bit diffusion characteristics
+>                 * Coprime with powers of 2, ensuring uniform distribution
+> * 0x85EBCA77 (2246822519)
+>         * Origin: Popular quality constant used in modern hash algorithms=
+ like MurmurHash
+>         * Properties:
+>                 * Contains good alternating patterns of 1s and 0s in bina=
+ry representation
+>                 * Shows excellent difference from other constants in bitw=
+ise perspective
+>                 * Tested and verified for superior avalanche effect
+> * 0xC2B2AE35 (3266489917)
+>         * Origin: Also from modern hash algorithms (e.g., MurmurHash3)
+>         * Properties:
+>                 * Large prime-like properties
+>                 * Complex distribution of 1s in binary representation
+>                 * Complementary to the first two constants
+>
+> Advantages of this design:
+> * Minimized collisions: Different inputs won't produce similar contributi=
+ons
+> * Bit diffusion: Each constant effectively scrambles input bits
+> * Mathematical guarantee: These constants are theoretically analyzed and =
+empirically validated
+> * Complementarity: Three constants complement each other at the binary le=
+vel
 
-Try adding "--strict", which enforces
-https://www.kernel.org/doc/html/v4.10/process/coding-style.html#placing-bra=
-ces-and-spaces
-
-Mimi
+Given that the constants are from well known, public sources (which
+you should document in the patch description and possibly as comments
+in the code) and the combining function is trivial, I assume this is
+fine to use, but at the end of the day, it is Paul's call. I would
+recommend #define's for each constant with its source noted as a
+comment.
