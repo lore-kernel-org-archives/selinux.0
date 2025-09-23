@@ -1,126 +1,109 @@
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
+Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE8C328B7CC
-	for <selinux@vger.kernel.org>; Mon, 22 Sep 2025 21:53:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BFC72FD1CF
+	for <selinux@vger.kernel.org>; Tue, 23 Sep 2025 12:56:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758577988; cv=none; b=VIGu98eX/72tMMruSumEMI5tIaDvJ3kOS4Z2CEfeXANs6nnth1VX+BQPJJYWNz4p+1+iD7OzUAReaVJiah4+w6LObgjqXfDupomwA6VnK0FbpV4rY/GtnCgFR8pEQTRYbzvuhqakoiR5SjCVxCtfz9gM7ROcSjiHjtaqCCBL9Q4=
+	t=1758632204; cv=none; b=smVltdUxx4aTEOdgTSdD4xxmgPqagNE6SAbGuzDTQs6qK84c6SXdqZHhHWyDFZzxaDI95GnFEY10v8CFhC5btul11OZJ5PkkHZXT+xamQO6IKnPKCR3zAU73FAluC8ElPghSzPvgP2/8tehFWHD7pG1CFze5zH89nnolUF6+R7g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758577988; c=relaxed/simple;
-	bh=NrxcGV9SRKTH90U9r9TiQBRjMm9wgcBgK/JoZCvLbI8=;
+	s=arc-20240116; t=1758632204; c=relaxed/simple;
+	bh=MqQXauR3TqW87nMcC/2DYpK5ng2fX7s92okPViRMOik=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=GpwihThjMQlGh5PaD+bkkwJ+Lim4ASowDVsB6xDX6gqXYXA+iroxNhRS0KcsFUN9Lyio46yPV2VnvX/4ihhSHqjLJE99k8jzVbDQcQdWBKjjbcQOAV5QHpFH/ABG4BKOU5yRlF7HJDlv44cm62MS0kEQUNUAlVAzbbFIbJoA7A8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=MpKMTw3m; arc=none smtp.client-ip=209.85.216.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=DiQX2Wu7FGHWQ10Xzo1YuwRil1+RzkTXxgn7XkayH1ykwFZcrVKu04QuayiYS35XogFVKeTckO6JgyQqvJSYYSW1UnoAUZWse0rytn/TZWMc3ykLxLkVnvN5NqsKkKfyll2arT0xrTteXn7eYw1w4UDW4rT4oSOutqUFk/PBirQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IfpTgxDC; arc=none smtp.client-ip=209.85.215.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="MpKMTw3m"
-Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-33226dc4fc9so2449091a91.1
-        for <selinux@vger.kernel.org>; Mon, 22 Sep 2025 14:53:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IfpTgxDC"
+Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-b5515eaefceso4163525a12.2
+        for <selinux@vger.kernel.org>; Tue, 23 Sep 2025 05:56:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1758577986; x=1759182786; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1758632202; x=1759237002; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=XBCpPhJ55NBZXeBegJaYDf1Vz3ukosPuvPoKyErH30U=;
-        b=MpKMTw3mB8cS+wLKmM8B/FN/L+1iE0pQQmRWOZVXGS4mSCm0K1pU1gDJEVuXtxVxXo
-         uuMqijoX2yPKTU1SBmZueh5b+sdLN7pZhuv3kLaRjZKGkXSOAC9C6ESuyUwF7clq173b
-         yJ5+EDg9rdkHiJpIiH2w8y83fZllQkrhUxph1nzJ6HHpN1IXyUdfWT5KaRdNq89s93H/
-         s4E3t3++vYp9s4hsJ7Gfua+d6FrHIhfJh5A1HbKlOc0yW2LG5bobwoUgQN7S0HOCniAv
-         j8qU/IC82212UsrQDCFGVWpN80TV1jKgkAsCMjorxmHvBUCWKKFn8l6dizk8iES8rIOW
-         zlOw==
+        bh=MqQXauR3TqW87nMcC/2DYpK5ng2fX7s92okPViRMOik=;
+        b=IfpTgxDCrkM6+ZLQkXCivKay8O1tM1NXF476t/qfMRAT2OaY9hAeV94mDl5pH5UyS5
+         NIAQo36inTG3Rf+afjO19gMIFZta2E7TXxlk+T1oBv/EynWqVXdPgtD/4IOBax1GfFmX
+         d9rcD31vOnBsDYDKruoH1mv5gryQhjAXQq18QHimDfqdDpsJhwV6pUc9fy/SI4xctIS7
+         qjp3iAAXDRGx6KktMyeMAcpMeFezGXSQbZdrAMKKHmOg5eFEGlOhWKDs5uuTo7WtzUx5
+         /Tw8t4F0mNf2jLzHl7egOgU9Sqs63LEjSQuyk/JAkPVk5ResU5ChUY6WMoW0Wj91phcL
+         Nuow==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758577986; x=1759182786;
+        d=1e100.net; s=20230601; t=1758632202; x=1759237002;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=XBCpPhJ55NBZXeBegJaYDf1Vz3ukosPuvPoKyErH30U=;
-        b=LZeHkIMdLaBdZYCIZ70FTfZM1/sN9JKnYcyNB1hHGUOw4xSYjat6NOYWh1YBjWCto5
-         rPAVsme/JbbOALm0nfqj5QbCC/TQ/4JhVsJM7VP8X+f9QzVS/Y4XVtCctWauHagh3rAk
-         zfcJ6ZbUR4d7Mz3Q6Q8JqA5mZfFfh3Yo+GXNpc5xLOqFwxCunPPVeyGzk+d4CfjiO2CF
-         setT4wVjAehYVneYJgvueiuKNUYjdvGeLHHpjsLEE2gKZdjUf1kRVJsT7nbFAwhM2bIl
-         SqGUHfb5IEA4fzbl5dGSdUdaRO1aosmG3i2V1+T9eUs5pUPXb1h1qswEF6ZM7euCtof/
-         TGJg==
-X-Forwarded-Encrypted: i=1; AJvYcCWxyhofR0vx5VI3Cevc+U9pT8qyV8Dslr7DUvTPkIOzwtkbfmZZiQaaRiyPcPC8zprzzgMZSp3w@vger.kernel.org
-X-Gm-Message-State: AOJu0YyGv+bWDqvjlGgW4dmotO95hqCYV7KDH5w8w5NBA0orfxIluvYb
-	3LE2DTUvX8ZeZpHNYbg+2VhuZBfDpMyJjoC04mSngVRPUKhLwt8o4K4t44mVA+ikKqpQLOwALi9
-	cGr2aiLmZbnp4+xb1ngelVhCfdUzq2P5UyC8/4CCS
-X-Gm-Gg: ASbGncsi04QBZDuPIYWur3CPKRXsjcqbbK3OlMYgFq6h6sjgYNu8DYmJrYk8ZxyrI7R
-	aEnENrvbz0VEo02gEEpTgeCrncsuSHM9BvyO9ClkjXTUyzLseRRelnRyymtU2wasUu0pPNAczd4
-	HCtzZixLR/7kqqdMH5ZmfcSBmZ0DvePGbFtIBLJbmacwU1FIaWeLsbOVGqg0A5TOAgS5YyF4gB6
-	FM1oO0=
-X-Google-Smtp-Source: AGHT+IEIQWA5rKW43P5Fcmt7zmtt/MYBDfabS+vBWJKdvNBhoSvEK2C+yUTl6EB3o0bQhS1oiKlOiaKg1oXWzn0OcwI=
-X-Received: by 2002:a17:90b:540f:b0:327:734a:ae7a with SMTP id
- 98e67ed59e1d1-332a92da6ebmr455889a91.11.1758577986004; Mon, 22 Sep 2025
- 14:53:06 -0700 (PDT)
+        bh=MqQXauR3TqW87nMcC/2DYpK5ng2fX7s92okPViRMOik=;
+        b=UrepQEzFVG/v7piW4+XJmebO3ooJ61y4eLeiTET6yTOxOtqsHbmrEtPjIHQTYZeAcD
+         4aSs5DQH4VVacY6tQxtjitO0z1ckN5X9VJ9vsDAWkk9BA3rdbeD27Mqc4fdt4ky9WqRk
+         dvbA3rqZUuYvXMOISl/37LxameUFIzfkVax9K5iQd9pBEoPRoJYKjNUGSXgTW3yR+3KJ
+         fTtM2at1/7shcmu2+cZnqrUztT8E4/gNAlaXURTEc47/Lj26DGbf8QLsP0vy42P0MGta
+         2kmIPS3WS/Z1pdJh9+j9ztNdNxo4ylfb7mVJpeSpYG7wLICJn3X/P5Szx5PyKny/+XMq
+         CfuQ==
+X-Forwarded-Encrypted: i=1; AJvYcCV7rpYqsgv4OrFhMliUBctPxDd9BHkPyqa0q52OCNAKJ6tQDq8/OW1W/tNN0wuEMR3bIWokjy4W@vger.kernel.org
+X-Gm-Message-State: AOJu0YzKwhxh5NsbrmhQqa2X2ic9JNKboCUAGcR+EfXGKvxVKOF/RJOX
+	E6SDtyZhLjBX1gb/oJiKj8wizqbp1OMsG8wYXqb1WrVchnVg3XxwW4OiQKUIVhybTTo4ILm63QQ
+	y02OZ7sCTt3wkiMi9XfjUsvs6qu2YleTNzw==
+X-Gm-Gg: ASbGncvL6RDk499oQ5UhL76FNB7RMIwEBeiQw3GMHob+Ow9iUq9G/fkCSRuq6cGvXfM
+	qhf7cSfoqRiV84EUdugCmFlq+BEVYY8zO/1b10UEpuMfeLhLuoQ394dnFiFh5NWX4oAeaIYJl7k
+	GbwF0lxIz1i40NG9kNXcj17JO5+ABGfG/VAFSyBelQCVjuQ5D2E0Jj06vntEqmm8GA69AvWO/q2
+	YrYAic=
+X-Google-Smtp-Source: AGHT+IGIR0Dg6KTTkTNwsy5s1ZY0j9djaX4RlWtKd2ZVeVX+1BTDWUvJa7AvBD+scrggd/V0KUNGCE4oeJrfTtefwS8=
+X-Received: by 2002:a17:90b:4fca:b0:32e:381f:880d with SMTP id
+ 98e67ed59e1d1-332a951400bmr3316417a91.8.1758632202343; Tue, 23 Sep 2025
+ 05:56:42 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250916220355.252592-36-paul@paul-moore.com> <20250916220355.252592-47-paul@paul-moore.com>
- <d514db2f7c1de9b6d9092ff2ad1ce4cdba286e83.camel@linux.ibm.com>
- <CAHC9VhSOhaB86yEV0+2HWRc3oYgZmLX+Nz3ERbohGRHeroKThA@mail.gmail.com> <63cf73f5ed8ceda0d68df416c2ba18334e7a9b83.camel@linux.ibm.com>
-In-Reply-To: <63cf73f5ed8ceda0d68df416c2ba18334e7a9b83.camel@linux.ibm.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 22 Sep 2025 17:52:54 -0400
-X-Gm-Features: AS18NWCouzv17lHS4hgSMPjWiUR_MwHmSY1fDXCtAlsYtCf1VWHhUgu34JpGZtw
-Message-ID: <CAHC9VhR94kuqcwP6DcdG+QpcruU8dMnP55CmTXiQ-k+u5yOT1Q@mail.gmail.com>
-Subject: Re: [PATCH v4 11/34] lsm: get rid of the lsm_names list and do some cleanup
-To: Mimi Zohar <zohar@linux.ibm.com>
-Cc: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, 
-	selinux@vger.kernel.org, John Johansen <john.johansen@canonical.com>, 
-	Roberto Sassu <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>, 
-	=?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
-	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
-	Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>, 
-	Casey Schaufler <casey@schaufler-ca.com>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, 
-	Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>, Xiu Jianfeng <xiujianfeng@huawei.com>
+References: <20250902055026.617170-1-tweek@google.com> <CAEjxPJ6HmLe5c-iosTvfDYy5EVz8xNRq0=A-jDKTKXvCNWMypA@mail.gmail.com>
+ <CAEjxPJ61HCx3xz5HQwVKD+-9ctOL9WjuQ1mXu435eg9k+JRsTg@mail.gmail.com> <CAEjxPJ5qJBpK+gioHBWcju3KdrSStZ9RAWL9XVuguQ90DSvYAg@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5qJBpK+gioHBWcju3KdrSStZ9RAWL9XVuguQ90DSvYAg@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Tue, 23 Sep 2025 08:56:29 -0400
+X-Gm-Features: AS18NWA4xjlKSP-SGL55-XzHvC-8YoDNp76bhoUaSdgoNBZycJ2WAskL-nip--g
+Message-ID: <CAEjxPJ7aQjuKsNyip+Gy14tig3rMSd=R59oBxWxnvWzM0k-d4Q@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: add memfd_class capability
+To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Cc: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
+	Jeff Vander Stoep <jeffv@google.com>, Nick Kralevich <nnk@google.com>, Jeff Xu <jeffxu@google.com>, 
+	selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 22, 2025 at 6:53=E2=80=AFAM Mimi Zohar <zohar@linux.ibm.com> wr=
-ote:
+On Wed, Sep 10, 2025 at 12:44=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> On Sun, 2025-09-21 at 15:23 -0400, Paul Moore wrote:
-> > On Fri, Sep 19, 2025 at 3:16=E2=80=AFPM Mimi Zohar <zohar@linux.ibm.com=
-> wrote:
+> On Wed, Sep 10, 2025 at 10:35=E2=80=AFAM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > On Wed, Sep 10, 2025 at 10:20=E2=80=AFAM Stephen Smalley
+> > <stephen.smalley.work@gmail.com> wrote:
 > > >
-> > > On Tue, 2025-09-16 at 18:03 -0400, Paul Moore wrote:
-> > > > The LSM currently has a lot of code to maintain a list of the curre=
-ntly
-> > > > active LSMs in a human readable string, with the only user being th=
-e
-> > > > "/sys/kernel/security/lsm" code.  Let's drop all of that code and
-> > > > generate the string on first use and then cache it for subsequent u=
-se.
+> > > On Tue, Sep 2, 2025 at 1:50=E2=80=AFAM Thi=C3=A9baud Weksteen <tweek@=
+google.com> wrote:
 > > > >
-> > > > Signed-off-by: Paul Moore <paul@paul-moore.com>
+> > > > memfd_class was declared upstream in [1]. Add it to the list of kno=
+wn
+> > > > capabilities.
+> > > >
+> > > > [1] https://lore.kernel.org/selinux/20250826031824.1227551-1-tweek@=
+google.com/
+> > > >
+> > > > Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
 > > >
-> > > FYI, checkpatch.pl complains of unbalanced braces, otherwise
+> > > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > >
+> > > Will re-base on merge.
 > >
-> > Looks good to me?
-> >
-> > % stg export --stdout lsm-lsm_names_cleanup | ./scripts/checkpatch.pl -
-> > total: 0 errors, 0 warnings, 139 lines checked
-> >
-> > Your patch has no obvious style problems and is ready for submission.
+> > Thanks, now merged - note that the policy capability number changed
+> > due to the previous merge of the functionfs_seclabel polcap.
 >
-> Try adding "--strict", which enforces
-> https://www.kernel.org/doc/html/v4.10/process/coding-style.html#placing-b=
-races-and-spaces
+> With apologies, this has now been reverted due to the kernel revert.
+> Happy to re-base on top when/if the kernel patch lands.
 
-Ah, yes, sure.  FWIW, I view checkpatch's findings mostly as
-"advisory"; oftentimes it can help catch important things, other times
-I think it's kinda silly (and no, I don't have a list of each, so
-please don't ask).  I often tell people new to kernel development that
-it is generally better to follow checkpatch's suggestions if you are
-uncertain, however don't be surprised if a maintainer prefers
-something slightly different.
-
-For those reasons I don't ever bother with the "strict" checkpatch mode.
-
---=20
-paul-moore.com
+Now re-applied, hopefully for good this time.
