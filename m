@@ -1,109 +1,98 @@
-Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
+Received: from mail-qt1-f174.google.com (mail-qt1-f174.google.com [209.85.160.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BFC72FD1CF
-	for <selinux@vger.kernel.org>; Tue, 23 Sep 2025 12:56:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC40E1E0B9C
+	for <selinux@vger.kernel.org>; Tue, 23 Sep 2025 15:22:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758632204; cv=none; b=smVltdUxx4aTEOdgTSdD4xxmgPqagNE6SAbGuzDTQs6qK84c6SXdqZHhHWyDFZzxaDI95GnFEY10v8CFhC5btul11OZJ5PkkHZXT+xamQO6IKnPKCR3zAU73FAluC8ElPghSzPvgP2/8tehFWHD7pG1CFze5zH89nnolUF6+R7g=
+	t=1758640962; cv=none; b=ql2mIP0XhFqF+Kcq5tnWPnXe8HvNaqUTDcP7TcrmBYnZSTKIFxz2x6l0ZOWd9MNNcSJiOB/gsCH9Py6VofSzKpY2hGVRj89nK4sh0Fy49PEBlJj8/kMkgW4pMF4th7mmPp40K27gVeFn2OjZ44cir0gXSVsrZTsoq2ayyc0RcCo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758632204; c=relaxed/simple;
-	bh=MqQXauR3TqW87nMcC/2DYpK5ng2fX7s92okPViRMOik=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=DiQX2Wu7FGHWQ10Xzo1YuwRil1+RzkTXxgn7XkayH1ykwFZcrVKu04QuayiYS35XogFVKeTckO6JgyQqvJSYYSW1UnoAUZWse0rytn/TZWMc3ykLxLkVnvN5NqsKkKfyll2arT0xrTteXn7eYw1w4UDW4rT4oSOutqUFk/PBirQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IfpTgxDC; arc=none smtp.client-ip=209.85.215.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1758640962; c=relaxed/simple;
+	bh=MMRtDJwtHG5yKWr24G8/99hDhk+UTKCMK9/RTKDxNHA=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Content-Type; b=IhwgjnUF955dkvuozbBfARWdqi8Jh6JjAfXLeukXFefkL+6L7yacJZMu4frPB8kK0dKiSLzgtDCAVrCxNoah/uB2gBpAveUQfntV7xCrDu26EPoMbQYeWdGeKWQno/WuLnVBg0jWQjZ0pA4mwT0ayc+I1TR1UjvYgJmV88j/Hg8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ieee.org; spf=pass smtp.mailfrom=ieee.org; dkim=pass (1024-bit key) header.d=ieee.org header.i=@ieee.org header.b=BLn2Amjg; arc=none smtp.client-ip=209.85.160.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ieee.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ieee.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IfpTgxDC"
-Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-b5515eaefceso4163525a12.2
-        for <selinux@vger.kernel.org>; Tue, 23 Sep 2025 05:56:42 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=ieee.org header.i=@ieee.org header.b="BLn2Amjg"
+Received: by mail-qt1-f174.google.com with SMTP id d75a77b69052e-4ca7a71adcbso18994271cf.3
+        for <selinux@vger.kernel.org>; Tue, 23 Sep 2025 08:22:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1758632202; x=1759237002; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=ieee.org; s=google; t=1758640959; x=1759245759; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-language:to:subject:from
+         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=MqQXauR3TqW87nMcC/2DYpK5ng2fX7s92okPViRMOik=;
-        b=IfpTgxDCrkM6+ZLQkXCivKay8O1tM1NXF476t/qfMRAT2OaY9hAeV94mDl5pH5UyS5
-         NIAQo36inTG3Rf+afjO19gMIFZta2E7TXxlk+T1oBv/EynWqVXdPgtD/4IOBax1GfFmX
-         d9rcD31vOnBsDYDKruoH1mv5gryQhjAXQq18QHimDfqdDpsJhwV6pUc9fy/SI4xctIS7
-         qjp3iAAXDRGx6KktMyeMAcpMeFezGXSQbZdrAMKKHmOg5eFEGlOhWKDs5uuTo7WtzUx5
-         /Tw8t4F0mNf2jLzHl7egOgU9Sqs63LEjSQuyk/JAkPVk5ResU5ChUY6WMoW0Wj91phcL
-         Nuow==
+        bh=iEFctr+JmHNwxHeGiNnQBJMTV2oVjFbNJMTk7U+4s5s=;
+        b=BLn2AmjgQElaZe1rzwBNxfOrzZYz/4QkvfxNKYAHldbK1Zm+uzn0ULR2B9gDCu5HgF
+         PAiUZUx2I6FEdh8DsrJz8ZhX+Jrr9mp0+Eufmwm2v9BNjsKfrgZ6ZrSaMrXY22LHbz9s
+         C3PPdNxwR1bhIO3fqPq0FAMJ7BLXXmDScrt2w=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758632202; x=1759237002;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=MqQXauR3TqW87nMcC/2DYpK5ng2fX7s92okPViRMOik=;
-        b=UrepQEzFVG/v7piW4+XJmebO3ooJ61y4eLeiTET6yTOxOtqsHbmrEtPjIHQTYZeAcD
-         4aSs5DQH4VVacY6tQxtjitO0z1ckN5X9VJ9vsDAWkk9BA3rdbeD27Mqc4fdt4ky9WqRk
-         dvbA3rqZUuYvXMOISl/37LxameUFIzfkVax9K5iQd9pBEoPRoJYKjNUGSXgTW3yR+3KJ
-         fTtM2at1/7shcmu2+cZnqrUztT8E4/gNAlaXURTEc47/Lj26DGbf8QLsP0vy42P0MGta
-         2kmIPS3WS/Z1pdJh9+j9ztNdNxo4ylfb7mVJpeSpYG7wLICJn3X/P5Szx5PyKny/+XMq
-         CfuQ==
-X-Forwarded-Encrypted: i=1; AJvYcCV7rpYqsgv4OrFhMliUBctPxDd9BHkPyqa0q52OCNAKJ6tQDq8/OW1W/tNN0wuEMR3bIWokjy4W@vger.kernel.org
-X-Gm-Message-State: AOJu0YzKwhxh5NsbrmhQqa2X2ic9JNKboCUAGcR+EfXGKvxVKOF/RJOX
-	E6SDtyZhLjBX1gb/oJiKj8wizqbp1OMsG8wYXqb1WrVchnVg3XxwW4OiQKUIVhybTTo4ILm63QQ
-	y02OZ7sCTt3wkiMi9XfjUsvs6qu2YleTNzw==
-X-Gm-Gg: ASbGncvL6RDk499oQ5UhL76FNB7RMIwEBeiQw3GMHob+Ow9iUq9G/fkCSRuq6cGvXfM
-	qhf7cSfoqRiV84EUdugCmFlq+BEVYY8zO/1b10UEpuMfeLhLuoQ394dnFiFh5NWX4oAeaIYJl7k
-	GbwF0lxIz1i40NG9kNXcj17JO5+ABGfG/VAFSyBelQCVjuQ5D2E0Jj06vntEqmm8GA69AvWO/q2
-	YrYAic=
-X-Google-Smtp-Source: AGHT+IGIR0Dg6KTTkTNwsy5s1ZY0j9djaX4RlWtKd2ZVeVX+1BTDWUvJa7AvBD+scrggd/V0KUNGCE4oeJrfTtefwS8=
-X-Received: by 2002:a17:90b:4fca:b0:32e:381f:880d with SMTP id
- 98e67ed59e1d1-332a951400bmr3316417a91.8.1758632202343; Tue, 23 Sep 2025
- 05:56:42 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1758640959; x=1759245759;
+        h=content-transfer-encoding:content-language:to:subject:from
+         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=iEFctr+JmHNwxHeGiNnQBJMTV2oVjFbNJMTk7U+4s5s=;
+        b=HVvdB55df7BZ62vcq4VbRg+7cEmrDC3zgIJKnQmrC0nLqktPYMWSYIidTzXxfxG1kh
+         GhKKCZMs8f0EgS5Uu/FJAbaq7fhx5Z2oIR6D87sGCj51+Ecw7HRiL+1bUvHOfjACtLfE
+         N2Ooh/+TQSfEe1+tmD5T86S5zGG6fQ1Zm+HDKRfp+7CL6xFNq4wpZ82eJsW+T0e6tB5b
+         BEdOp/GoGhgO4bZirBUx2H9+nS+P2b+692w0+BRNJ3xRMaGShvBddqS5hhRY+9x/9xV9
+         J7qf4zKwi00PPF/2kzdmqBM57Iiqbgizx1yGsCimXimSGuqsf3q1OxXUQWxngqBkTIZZ
+         g+gA==
+X-Gm-Message-State: AOJu0Yy2Tqj3xRObZ8nxUe73ojFTHHZvx99qebO2Aue76uD9px0MEm7C
+	D5BHsQYZ4rpN7Pr1NR5QjzYt1Mbuw1sCOB6TK1vloaFcxWH82tWeYtH3qdbg5EzwmMk2YvIkGlo
+	nXuK+ICRjrl6xWiMFvKyNI1LEeeCguADxbumdgbzeEgpOSTjyaQIKXCulevJpb7yzTwW8tJz3qb
+	idfuLgHjqJsrOCZfOw5SpR97KA0SUr4ax5dQ4w
+X-Gm-Gg: ASbGncsjZvtAQdRIM4LmVNqWGHmzoRb/TC7Ilce6Vfi5ZSBUKKRhA7iZjTFOaLrqKJe
+	Xjno1eN6eq1yVHQEAVoDkL0KWGaBtgoHVc1mZqvFq1yEiDO8+Xp1OtNGe+cwLGnAB+hk43YS4DB
+	s5+bBQ6z3r2UL7nNZW3d+osp38MoW9mpy1axrxZOyxviSoPSeACX6IyxySueM8EfnW7O6trt8vt
+	rY1LvvD0sYsqHWcKc8DFEqRxdiFJGk50r9y+ywldF1IQOqBCa/3h8rZM4jVroESv0AZ+RVjAxzy
+	pzFpVLGnZARoh59QJgyPPsqCoDoHBpPM9CIS4F3ACE1CXNMY39qT+pjbJDSUTb1u75BTt2tsul/
+	70/i/bZTBozEotwSj7V1mi/Ukb+XgZv28cyz67VoIJdNl3fAOJWAP/q6XxhVhHAxQhjkVXXD9OG
+	ZO4+2JM+A/WAlzRw==
+X-Google-Smtp-Source: AGHT+IFuy3EEXLKt7qvZoddOvI7e7NtFKt/I64qYcmBnmWsRaVQHmGJ9HdCUakEwhvny4Zp+g1hEpg==
+X-Received: by 2002:a05:622a:13d0:b0:4c9:5199:b948 with SMTP id d75a77b69052e-4d370d5c4b9mr35218641cf.58.1758640959039;
+        Tue, 23 Sep 2025 08:22:39 -0700 (PDT)
+Received: from ?IPV6:2601:145:c282:5650:db86:5c8a:31ca:2959? ([2601:145:c282:5650:db86:5c8a:31ca:2959])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4bda23afa1dsm86441321cf.15.2025.09.23.08.22.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 23 Sep 2025 08:22:38 -0700 (PDT)
+Message-ID: <bd9f17c1-f593-4e24-a06e-a6bf414970c1@ieee.org>
+Date: Tue, 23 Sep 2025 11:22:36 -0400
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250902055026.617170-1-tweek@google.com> <CAEjxPJ6HmLe5c-iosTvfDYy5EVz8xNRq0=A-jDKTKXvCNWMypA@mail.gmail.com>
- <CAEjxPJ61HCx3xz5HQwVKD+-9ctOL9WjuQ1mXu435eg9k+JRsTg@mail.gmail.com> <CAEjxPJ5qJBpK+gioHBWcju3KdrSStZ9RAWL9XVuguQ90DSvYAg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5qJBpK+gioHBWcju3KdrSStZ9RAWL9XVuguQ90DSvYAg@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 23 Sep 2025 08:56:29 -0400
-X-Gm-Features: AS18NWA4xjlKSP-SGL55-XzHvC-8YoDNp76bhoUaSdgoNBZycJ2WAskL-nip--g
-Message-ID: <CAEjxPJ7aQjuKsNyip+Gy14tig3rMSd=R59oBxWxnvWzM0k-d4Q@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: add memfd_class capability
-To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Cc: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
-	Jeff Vander Stoep <jeffv@google.com>, Nick Kralevich <nnk@google.com>, Jeff Xu <jeffxu@google.com>, 
-	selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+From: Chris PeBenito <pebenito@ieee.org>
+Subject: ANN: Reference Policy 2.20250923
+To: SElinux mailing list <selinux@vger.kernel.org>,
+ SELinux Reference Policy mailing list <selinux-refpolicy@vger.kernel.org>
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Wed, Sep 10, 2025 at 12:44=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Wed, Sep 10, 2025 at 10:35=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > On Wed, Sep 10, 2025 at 10:20=E2=80=AFAM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > >
-> > > On Tue, Sep 2, 2025 at 1:50=E2=80=AFAM Thi=C3=A9baud Weksteen <tweek@=
-google.com> wrote:
-> > > >
-> > > > memfd_class was declared upstream in [1]. Add it to the list of kno=
-wn
-> > > > capabilities.
-> > > >
-> > > > [1] https://lore.kernel.org/selinux/20250826031824.1227551-1-tweek@=
-google.com/
-> > > >
-> > > > Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
-> > >
-> > > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > >
-> > > Will re-base on merge.
-> >
-> > Thanks, now merged - note that the policy capability number changed
-> > due to the previous merge of the functionfs_seclabel polcap.
->
-> With apologies, this has now been reverted due to the kernel revert.
-> Happy to re-base on top when/if the kernel patch lands.
+A new release of SELinux Reference Policy is available:
 
-Now re-applied, hopefully for good this time.
+https://github.com/SELinuxProject/refpolicy/releases/tag/RELEASE_2_20250923
+
+Notable Changes:
+* Several updates and fixes for systemd
+* Add new permissions and policy capabilities
+* Drop reiserfs support (it was removed in kernel 6.13)
+
+New Modules
+* bubblewrap
+* incus
+* kanidm
+* seatd
+* opensnitch
+
+Full Changelog:
+https://github.com/SELinuxProject/refpolicy/compare/RELEASE_2_20250618...RELEASE_2_20250923
+
+
+-- 
+Chris PeBenito
+
