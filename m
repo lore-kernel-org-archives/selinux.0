@@ -1,98 +1,114 @@
-Received: from mail-qt1-f174.google.com (mail-qt1-f174.google.com [209.85.160.174])
+Received: from mail-pl1-f195.google.com (mail-pl1-f195.google.com [209.85.214.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC40E1E0B9C
-	for <selinux@vger.kernel.org>; Tue, 23 Sep 2025 15:22:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FE894317D
+	for <selinux@vger.kernel.org>; Wed, 24 Sep 2025 02:55:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758640962; cv=none; b=ql2mIP0XhFqF+Kcq5tnWPnXe8HvNaqUTDcP7TcrmBYnZSTKIFxz2x6l0ZOWd9MNNcSJiOB/gsCH9Py6VofSzKpY2hGVRj89nK4sh0Fy49PEBlJj8/kMkgW4pMF4th7mmPp40K27gVeFn2OjZ44cir0gXSVsrZTsoq2ayyc0RcCo=
+	t=1758682533; cv=none; b=QhTh3p3ysteTtZvgYqKKPh18U/4n+Zu2rllLUQGDHshn4tgw0dvFkljMarmhNn7EITmbS+E9Z1TO8UtFJKsxRil7SRQhH3CN9o+mu86uwkO4r4t122YAP0x6g5wHUv8XA/FSL9KJLsHgHVFSJrPgSa6F0Qo34gje6W3msi2ABuk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758640962; c=relaxed/simple;
-	bh=MMRtDJwtHG5yKWr24G8/99hDhk+UTKCMK9/RTKDxNHA=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Content-Type; b=IhwgjnUF955dkvuozbBfARWdqi8Jh6JjAfXLeukXFefkL+6L7yacJZMu4frPB8kK0dKiSLzgtDCAVrCxNoah/uB2gBpAveUQfntV7xCrDu26EPoMbQYeWdGeKWQno/WuLnVBg0jWQjZ0pA4mwT0ayc+I1TR1UjvYgJmV88j/Hg8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ieee.org; spf=pass smtp.mailfrom=ieee.org; dkim=pass (1024-bit key) header.d=ieee.org header.i=@ieee.org header.b=BLn2Amjg; arc=none smtp.client-ip=209.85.160.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ieee.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ieee.org
+	s=arc-20240116; t=1758682533; c=relaxed/simple;
+	bh=bm2epe93zLMC1CmNPO/0bKANSpaCEfsZMpV2wIYXwD8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZHVbnMaxOvFxjgrHea5ABPdE+zMSavHXFwhoXNKh3U73hD4MqQsumpwSMz8F9T1W/fNs2JqPMIW2lOjBgWAeyhBNQXrFToNDe9F+cUEn3/cwbomFX83/AqnTokDBgGhE1dWDsycXaALeVzJnTPaxx2FcZqUC4wcyB2rYK9INb30=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OIzNF5+1; arc=none smtp.client-ip=209.85.214.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ieee.org header.i=@ieee.org header.b="BLn2Amjg"
-Received: by mail-qt1-f174.google.com with SMTP id d75a77b69052e-4ca7a71adcbso18994271cf.3
-        for <selinux@vger.kernel.org>; Tue, 23 Sep 2025 08:22:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OIzNF5+1"
+Received: by mail-pl1-f195.google.com with SMTP id d9443c01a7336-27a6c3f482dso21443285ad.1
+        for <selinux@vger.kernel.org>; Tue, 23 Sep 2025 19:55:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ieee.org; s=google; t=1758640959; x=1759245759; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-language:to:subject:from
-         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=iEFctr+JmHNwxHeGiNnQBJMTV2oVjFbNJMTk7U+4s5s=;
-        b=BLn2AmjgQElaZe1rzwBNxfOrzZYz/4QkvfxNKYAHldbK1Zm+uzn0ULR2B9gDCu5HgF
-         PAiUZUx2I6FEdh8DsrJz8ZhX+Jrr9mp0+Eufmwm2v9BNjsKfrgZ6ZrSaMrXY22LHbz9s
-         C3PPdNxwR1bhIO3fqPq0FAMJ7BLXXmDScrt2w=
+        d=gmail.com; s=20230601; t=1758682531; x=1759287331; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=il0Rh6jjeeiAS7jzN7tDtV9HZWk/D2ddD41PvShuPbk=;
+        b=OIzNF5+11nzpevbwtGGWzjGrA/UvUoWjcW0X8sMeAg1H+U4HRm5O3yjcIx7o0AN2/b
+         XstyXFFIhSUvtlWFr3JWudVDsHNP/slQR/zA5BEMHWXgSULrW7H91KUpdMMMVRq1V03U
+         q0k39WdBLreoGTophyYhpTXSnUWvFBB120TU09W8iimXmt4QMVcC7Azz1k9RQBzPZ/a/
+         EaW31ecGubL+BarPSIaFtYKGiS4hS3zwPr+layZg7YAf/DT5yHFq6+Q8R45J34FtXefK
+         IfnY7RBFcpBdYFgeWuQBhYa5jzpHPPkmGirIMOg76G7TLCztJYTgBcEUA+1Wwg5AtrN3
+         UMgA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758640959; x=1759245759;
-        h=content-transfer-encoding:content-language:to:subject:from
-         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=iEFctr+JmHNwxHeGiNnQBJMTV2oVjFbNJMTk7U+4s5s=;
-        b=HVvdB55df7BZ62vcq4VbRg+7cEmrDC3zgIJKnQmrC0nLqktPYMWSYIidTzXxfxG1kh
-         GhKKCZMs8f0EgS5Uu/FJAbaq7fhx5Z2oIR6D87sGCj51+Ecw7HRiL+1bUvHOfjACtLfE
-         N2Ooh/+TQSfEe1+tmD5T86S5zGG6fQ1Zm+HDKRfp+7CL6xFNq4wpZ82eJsW+T0e6tB5b
-         BEdOp/GoGhgO4bZirBUx2H9+nS+P2b+692w0+BRNJ3xRMaGShvBddqS5hhRY+9x/9xV9
-         J7qf4zKwi00PPF/2kzdmqBM57Iiqbgizx1yGsCimXimSGuqsf3q1OxXUQWxngqBkTIZZ
-         g+gA==
-X-Gm-Message-State: AOJu0Yy2Tqj3xRObZ8nxUe73ojFTHHZvx99qebO2Aue76uD9px0MEm7C
-	D5BHsQYZ4rpN7Pr1NR5QjzYt1Mbuw1sCOB6TK1vloaFcxWH82tWeYtH3qdbg5EzwmMk2YvIkGlo
-	nXuK+ICRjrl6xWiMFvKyNI1LEeeCguADxbumdgbzeEgpOSTjyaQIKXCulevJpb7yzTwW8tJz3qb
-	idfuLgHjqJsrOCZfOw5SpR97KA0SUr4ax5dQ4w
-X-Gm-Gg: ASbGncsjZvtAQdRIM4LmVNqWGHmzoRb/TC7Ilce6Vfi5ZSBUKKRhA7iZjTFOaLrqKJe
-	Xjno1eN6eq1yVHQEAVoDkL0KWGaBtgoHVc1mZqvFq1yEiDO8+Xp1OtNGe+cwLGnAB+hk43YS4DB
-	s5+bBQ6z3r2UL7nNZW3d+osp38MoW9mpy1axrxZOyxviSoPSeACX6IyxySueM8EfnW7O6trt8vt
-	rY1LvvD0sYsqHWcKc8DFEqRxdiFJGk50r9y+ywldF1IQOqBCa/3h8rZM4jVroESv0AZ+RVjAxzy
-	pzFpVLGnZARoh59QJgyPPsqCoDoHBpPM9CIS4F3ACE1CXNMY39qT+pjbJDSUTb1u75BTt2tsul/
-	70/i/bZTBozEotwSj7V1mi/Ukb+XgZv28cyz67VoIJdNl3fAOJWAP/q6XxhVhHAxQhjkVXXD9OG
-	ZO4+2JM+A/WAlzRw==
-X-Google-Smtp-Source: AGHT+IFuy3EEXLKt7qvZoddOvI7e7NtFKt/I64qYcmBnmWsRaVQHmGJ9HdCUakEwhvny4Zp+g1hEpg==
-X-Received: by 2002:a05:622a:13d0:b0:4c9:5199:b948 with SMTP id d75a77b69052e-4d370d5c4b9mr35218641cf.58.1758640959039;
-        Tue, 23 Sep 2025 08:22:39 -0700 (PDT)
-Received: from ?IPV6:2601:145:c282:5650:db86:5c8a:31ca:2959? ([2601:145:c282:5650:db86:5c8a:31ca:2959])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4bda23afa1dsm86441321cf.15.2025.09.23.08.22.38
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 23 Sep 2025 08:22:38 -0700 (PDT)
-Message-ID: <bd9f17c1-f593-4e24-a06e-a6bf414970c1@ieee.org>
-Date: Tue, 23 Sep 2025 11:22:36 -0400
+        d=1e100.net; s=20230601; t=1758682531; x=1759287331;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=il0Rh6jjeeiAS7jzN7tDtV9HZWk/D2ddD41PvShuPbk=;
+        b=MoRuk4ouC6RwPksjhnD9YUcE0dAUEZgq+cBfEf1WJUhtg6DTY04j0wEpPxu+9jD6m9
+         zU5fjqEIwOdzImHLgPr+g3k69mQMLdAPzr2F2HacKz/hQwdUlYb9DoLqTNiMhQ4pL1Le
+         S5cnNT6Fyb6LMzT9Mcd85pVmRfzIf8vds7YKQNAOcu0xfYpaRGTqwTizqfp2x4rlH0Wf
+         79RwpDZKvZw92BsjTyqwt35tKo+0gXQvLlRLQvcSlCF3hTxSMM2RRWUhi9zrrysx2JBS
+         HMwo+sfCCcm7f5PqtzmED27b/F5RixHlDOaSwyqm84RqmEBmVnkq08eMsNbFBAw220cL
+         VTLQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUyzR+qfdJfCBemLKjykSOR+uFgFuzgKTQmOI+RcubRUv6dVamsNWrh+Duc+zjanI22D9tP8fCh@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy/jT4kvKwRZbbJL+BqTK35zGk99wlG5Fnn26mUIXtBmZdsKGVj
+	1oR78pn53r7M3tuA2Aesl/gBGoHW0CzCagFRieRgpyHCN1vi7dVU97PE
+X-Gm-Gg: ASbGnctYlZF0KS13WrbKvXGy6dl8RUoC/bN33wzsueHZx3mPI0x3yawETpFTGb6o+qw
+	nnyEa9YWw8RZllpHRCfKvhk9ClcFN1cz3l9y4FyI8H+8sPxokzSr9VG7Ed5z/dFXVS8Lh/aSvVq
+	PH0wUDLS3aoC5ZK6bmh1dukpoPfRN06o9mcZaRYOnwgQ+adUOWyXX9NLIi7EeqEdudvQ+B0TUja
+	L6FutfBvuHorc5BknmaPdMeuHn7fOOsFJ7aYBgf6yPyibVHkhhSKnpSkpM7DXSClGRECRHMaLRX
+	kxoG/uACWfFrPZfM+oSUxsdb9oUKgCs1F9tNU1hf7Miwi/4X2fmKYHqdo6nn3tTd/A87G7QIoLU
+	YDT0JZHDos1Qz5cAb5nCZ8C7x5zBMo6g7ijx/MDf/5lqHEMhC944=
+X-Google-Smtp-Source: AGHT+IF1meMrMvZtj8Zhw9AeG+j9x3fUMEf06X9X2JaKe3j4NHlXZzTdJGu3JBvEXaE9LIEr1DLkMQ==
+X-Received: by 2002:a17:902:e790:b0:26e:146e:769c with SMTP id d9443c01a7336-27cc79c8873mr60981165ad.52.1758682531425;
+        Tue, 23 Sep 2025 19:55:31 -0700 (PDT)
+Received: from zhr-ThinkStation-K.mioffice.cn ([43.224.245.231])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-26980319870sm175895955ad.120.2025.09.23.19.55.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 23 Sep 2025 19:55:31 -0700 (PDT)
+From: Hongru Zhang <zhanghongru06@gmail.com>
+X-Google-Original-From: Hongru Zhang <zhanghongru@xiaomi.com>
+To: paul@paul-moore.com,
+	stephen.smalley.work@gmail.com,
+	omosnace@redhat.com
+Cc: linux-kernel@vger.kernel.org,
+	selinux@vger.kernel.org,
+	zhanghongru@xiaomi.com
+Subject: [PATCH v2 0/2] selinux: speed up avc_search_node() with large number of avc nodes
+Date: Wed, 24 Sep 2025 10:55:19 +0800
+Message-ID: <cover.1758633723.git.zhanghongru@xiaomi.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Chris PeBenito <pebenito@ieee.org>
-Subject: ANN: Reference Policy 2.20250923
-To: SElinux mailing list <selinux@vger.kernel.org>,
- SELinux Reference Policy mailing list <selinux-refpolicy@vger.kernel.org>
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-A new release of SELinux Reference Policy is available:
+On mobile device high-load situations, permission check can happen
+more than 90,000/s (8 core system). With default 512 cache nodes
+configuration, avc cache miss happens more often and occasionally
+leads to long time (>2ms) irqs off on both big and little cores,
+which decreases system real-time capability.
 
-https://github.com/SELinuxProject/refpolicy/releases/tag/RELEASE_2_20250923
+Although we can expand avc nodes through /sys/fs/selinux/cache_threshold
+to mitigate long time irqs off, hash conflicts make the bucket average
+length longer because of the fixed size of cache slots, leading to
+avc_search_node() latency increase.
 
-Notable Changes:
-* Several updates and fixes for systemd
-* Add new permissions and policy capabilities
-* Drop reiserfs support (it was removed in kernel 6.13)
+This patch series aims to expand AVC nodes without significantly increasing
+avc_search_node() latency.
 
-New Modules
-* bubblewrap
-* incus
-* kanidm
-* seatd
-* opensnitch
+This is v2 of the patch series, addressing feedback from v1.
+Changes since v1:
+- improve hash algorithm in avc_hash()
+- define avc_cache_slots as a static variable
 
-Full Changelog:
-https://github.com/SELinuxProject/refpolicy/compare/RELEASE_2_20250618...RELEASE_2_20250923
+v1 discussion:
+https://lore.kernel.org/selinux/20250905100454.685866-1-zhanghongru@xiaomi.com/
+
+--
+Hongru Zhang (2):
+  selinux: Make avc cache slot size configurable during boot
+  selinux: improve bucket distribution uniformity of avc_hash()
+
+ .../admin-guide/kernel-parameters.txt         |  4 +
+ security/selinux/avc.c                        | 82 ++++++++++++++-----
+ 2 files changed, 64 insertions(+), 22 deletions(-)
 
 
+base-commit: 68e1e908cb7682db9fb7f79907f9352435a81c0f
 -- 
-Chris PeBenito
+2.43.0
 
