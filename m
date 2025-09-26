@@ -1,163 +1,337 @@
-Received: from mail-pl1-f196.google.com (mail-pl1-f196.google.com [209.85.214.196])
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46C3E19E7F9
-	for <selinux@vger.kernel.org>; Fri, 26 Sep 2025 06:23:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.196
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A7F410E3
+	for <selinux@vger.kernel.org>; Fri, 26 Sep 2025 12:20:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758867822; cv=none; b=QlJclAht/xOWcU7TmjDjabukhDY/sdKWDrwPrtKWx0RsD0wpBKFfv6pOW82+XsY+yfKj4cUn2De/8msMCYYFeRauRE7nBoJXu4K4WrkuKzq1AX0kHF/2AdyDVl5XA6dV1cJmjLmm/Up+xVLL4tPNChNo90R4Y6b9JxxEfXthkzw=
+	t=1758889211; cv=none; b=A/Ny3LARTZSMJq0IUHbbJ4Lkj8tuobTusjohpBBJ6vTyJFCDYE1N31Vlwez9P7jw7qCQm9aKXrhcxXLRIop0siUU00VwGISwr6eVdr801cLmppojdWZD9eIARQfGHICeOFUN+Sfh1uyiQG+j01VShqc9sweAYkrfUY8YBfxLPrA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758867822; c=relaxed/simple;
-	bh=u6Sq2YURwtuu5QNEEMlKl7xX/uAJZnHBmjr5auxbeg4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=CimH2VxC7bHdeuTbvK8FYcOgEmsjKX8r2WQmGHDxTu/ypAKhZkKPB1MzaU0me9LQ/tnzw0lJ7Fa8/DA1KNDDuVfns4dVGfz0LVLWsEDP2FewLXHxKhjvDCZw9abnzAyvt1reV719Zp5i2KUFFB43Ha1u9QEiMCMgdpFaztohPkk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OAqJU7u/; arc=none smtp.client-ip=209.85.214.196
+	s=arc-20240116; t=1758889211; c=relaxed/simple;
+	bh=gz7PYCx8C7VbuVpe1N5ETR7y/DgnTEF5RUfAmzZzGyA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=XlmTmESbL6YVWNCFu8gBFWEnl4+a7Le4cQnYDyIqCpq57mTkxoJIUXD8WrJKXEUckkdzzq7KcINspxtg6Nim0UX1hGvcBGvu2U2hjuMWI9aq71Z2ZEGe0GoPPRqxeuVGmYIl8JURTHNM8NJyjMx+RtneoKCfbnfEQ6wB7x2Stsk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A0WekZMX; arc=none smtp.client-ip=209.85.216.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OAqJU7u/"
-Received: by mail-pl1-f196.google.com with SMTP id d9443c01a7336-27ee41e074dso11435005ad.1
-        for <selinux@vger.kernel.org>; Thu, 25 Sep 2025 23:23:41 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A0WekZMX"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-3322e63602eso2621388a91.0
+        for <selinux@vger.kernel.org>; Fri, 26 Sep 2025 05:20:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1758867820; x=1759472620; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1758889209; x=1759494009; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=I+IWmkPAlMQiBvEu/U0MvJdvKLaUfjFQa+8mon/ZBiY=;
-        b=OAqJU7u/21pfPzvaNE3Epov7BHffzNaL6Uoe3nRutQsaq6BL1pFFv70v3Ac3xZlGUO
-         L37/zEPR9sMrjEyk0jQ/lX/iNvaMdyZUDoxZ40UqDb1uVDp2KTq3J4TTxwf9Ti3RB/q9
-         j9Prubd0l76GWkjdW6WPfoPEwTqCB3ImGwtcKy2uAOVamHPnis+/boeCYrZ1oXrDSsh6
-         eqZFAZJ8u9MzO7b2RHxuUW4Qxz+FQxUwj++X8YI8nZAM10O049JryjX6g+Qd07Bs4hk/
-         la5O/0VXEUySt13VhbAeligm7sP+EkLWubEGvIjnUX1MWZsd73yrkHlOoW4noYiXjRmg
-         vR3A==
+        bh=63XaMfzK8yhyDQm37+O5+ql9FVzf01Td2YS2+vRTpGE=;
+        b=A0WekZMXskQ8asHR+NvPPTCvkV/MGqiolViKUbqETa6Q3DaTqDNbZ+NJDJ2v1m9WGW
+         KXvRG3tvjvV3MPU2F1eKlgsw2N//+SHli3TS6/iL7braXWinR1dBZVD8wKeIVkS+2afF
+         ZXrk2VQobOjahe/t/Kkp4EdxdEKlEora0kjfpQCE0wlYMucsqTIAtGICRTBrLfm8eJns
+         KYX6EK8K0+5ZsU7FAyRM38Da12G1F1lrg4vE1YfZ9WGC6tFZ2HxpeehMYAwjDfsrgEvd
+         A4exwHevFURnOgSxOZ8qhdPUbbdWo3vFPVrTWRrRA1aftxkm0xuPKlnOCCC0GGWtgEiI
+         8wzQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758867820; x=1759472620;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1758889209; x=1759494009;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=I+IWmkPAlMQiBvEu/U0MvJdvKLaUfjFQa+8mon/ZBiY=;
-        b=vd7Ajt0HbWU/5Bsc9sS7/c8STlhH1WOTfnZ+0gUBq4Cl2kxrGYB4Ce7MeHOiQk3nMG
-         pwu51ne0YlwxK54lgc/Ujkd5riZ3SdBsPGKml9ul9S7Pnp3pt0/PRQ76dy0NqTPV2DTY
-         rWhG4TvPMtiD6aGK4qqPfdrugbaTHDT34PMgrtmLtWBzwEs8rJH6Amez340hsBkbZHpn
-         pOKpHYlrTtZ8DZZLGkBUKXzsPzIva4DhjtQ1x5cYHlr1gX0DADm5+MFhaMkRkcaSZR/I
-         feAYjHMixZGSU1GEFaHTs8y85BolxUK8wgs8AUeZk+XrI+vDg6WG3DfmN1pEgJlvjIPF
-         9c7g==
-X-Forwarded-Encrypted: i=1; AJvYcCVkHCFU05FatnB6PHaqpqqAZnytDW7EH/hp+Wn+cUPz4X8bepgHcL2pPQpXaeF4C2heIrKno/9D@vger.kernel.org
-X-Gm-Message-State: AOJu0YwuSOiS09s8nhXKzFwrWCYS7FUmC4DsLPK19xH8PbVowrInxQQX
-	4UQ+uNjTjfAAQQCo+wRWyctJpjrhgotSuLJETF8vnRgokZeLvhSpXp+v
-X-Gm-Gg: ASbGncuZD1tWKAzTwxKLYoeHLPztyw0zOuVgYmt5R0xC/k/pUFAIM1VDWUIjAZhFqNd
-	oFGS1yvJaE0qdMIBzr+anHDsN5/gkD6XDSDnMpCSzxmQfmtEUxXbipUPXx6TbgEYAzXe1jmRWMp
-	lZcDHln98tSyUtJi645YGejj1SKZ3WPmXiFjKMQqh5RHT5fIGoVznM13/qwiebJ6v+WzYTKYaqb
-	q+TVE6/2lWjc0LnFcqxqzGVPbhYPmr2manjGQqz7cV1ZZd7WSTnPuLvdMjlnHHwrlxjcvqCXIEx
-	3yZDT5oICe7vfDuv4NcvBFSiQPc3GJ36FCFefJaNT7m3SzaSwe4ksOdtH7lGjvIREVFHEHllkpm
-	epMkfjPyr/L2AzqWfyKLhh4hXaltE3DssY/zZa3hSGDtj6IQY41I=
-X-Google-Smtp-Source: AGHT+IGMdkjfopWJVTl5U8eSEKamt5UYh2lxs0dBr+wzV2Rf8C6wXp6A4BGv3sEN+utd4O11ehuJeA==
-X-Received: by 2002:a17:903:37cf:b0:27d:69de:edca with SMTP id d9443c01a7336-27ed4a16b89mr67720485ad.13.1758867820429;
-        Thu, 25 Sep 2025 23:23:40 -0700 (PDT)
-Received: from zhr-ThinkStation-K.mioffice.cn ([43.224.245.231])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-27ed69ab0aesm42856845ad.113.2025.09.25.23.23.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Sep 2025 23:23:40 -0700 (PDT)
-From: Hongru Zhang <zhanghongru06@gmail.com>
-X-Google-Original-From: Hongru Zhang <zhanghongru@xiaomi.com>
-To: stephen.smalley.work@gmail.com,
-	paul@paul-moore.com,
-	omosnace@redhat.com
-Cc: linux-kernel@vger.kernel.org,
-	selinux@vger.kernel.org,
-	zhanghongru@xiaomi.com
-Subject: [PATCH v3 2/2] selinux: improve bucket distribution uniformity of avc_hash()
-Date: Fri, 26 Sep 2025 14:23:33 +0800
-Message-ID: <000bce8f11d06684f70a29705dfd417747475b1a.1758859391.git.zhanghongru@xiaomi.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <cover.1758859391.git.zhanghongru@xiaomi.com>
-References: <cover.1758859391.git.zhanghongru@xiaomi.com>
+        bh=63XaMfzK8yhyDQm37+O5+ql9FVzf01Td2YS2+vRTpGE=;
+        b=B6Fxw34cNNWSOQlSAyqHyYH82ovKnEQPW5aE2XlC3Sl6Aii/xxe4aPD2Q2mw0ejVgA
+         S8DrWwIFGWfXPX4CkAr1TdRJWAK3FauEbUUVbJvJrrN0Orrz52olAFyvY15x9Nka0Dz2
+         5HSfekQxSUT+2merLnVAZRUZFP7izbYcML8WoDt7RGAwECPfgObIPa50QtOtJHf9+TH9
+         YrFDT3F3NxOowhFaqMN3D4hHxBf424fpC5QIkTOBOXqDcyugQD+XFknjZcVmxvkDa2qH
+         C/NFXeg8tDghWyONcGy9JqDFCehkKpJtw9NxXVkyEhskH1l0XSXXYUd3sUoVwrbMIkvt
+         jgYw==
+X-Forwarded-Encrypted: i=1; AJvYcCWHVplCSEWtinplPhM8yHlNkamcnW/aJ82kCztE+0vKU3iLiog73nbS8+m6ZC/mkvmAukjimaHX@vger.kernel.org
+X-Gm-Message-State: AOJu0YzoPxG5cRdQ1s3HSWJaBTYp07h7O5z5Wn8C4zI0tBNX7whkbYQB
+	Up32mN+1BqP05L/BxTn1JH2/ZB5mpqsHcutvqhAlHLON5rs8vMb+4u8AAuoMelCnTXE/0400das
+	yxsREo2LUNwLPC/uJkKRtPFpxeroAe1Y=
+X-Gm-Gg: ASbGnctI0DBcIovYg/tPi2arnLxIdzYbI6FhU1M4a8Jeh1yUBlSHts9PvMkkxL2JVng
+	Mx7c3Z8jQg6nJv6FG+gvQPDRQmTZYLmbThRFqmSZMFTEaqJPKDUerK+weTEBsKOfAAA7FMI7bMX
+	NXyNWNVJweSJZJ0AoBXgU42RcQ+bTwtXqmY3CJIejpNSpO6sbLFICBS6fOcAPWv3HolizNZgn5q
+	oJfC9/e3TH7yIv+QQ==
+X-Google-Smtp-Source: AGHT+IHn4YvUUyQ9XHaEV3KsqG3nnEUzQaGT6MR+TmYhn7OE0sZfzN9PxJemdpIt5vsKrD9BY0LIiVWU6RtLhkFtlmw=
+X-Received: by 2002:a17:90b:4c06:b0:335:28e3:81cd with SMTP id
+ 98e67ed59e1d1-33528e38f06mr3327973a91.18.1758889208664; Fri, 26 Sep 2025
+ 05:20:08 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <cover.1758859391.git.zhanghongru@xiaomi.com> <d849e8a98bf88bd12fd13a8f6b6e84290dcaaf6e.1758859391.git.zhanghongru@xiaomi.com>
+In-Reply-To: <d849e8a98bf88bd12fd13a8f6b6e84290dcaaf6e.1758859391.git.zhanghongru@xiaomi.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Fri, 26 Sep 2025 08:19:57 -0400
+X-Gm-Features: AS18NWBN3eoEVqsdRCWCmL4ealbBjbXKw5Z6Vj5YkoXeOcJtpUoVAunuQWhxb3A
+Message-ID: <CAEjxPJ6K3QfXz+kw9hxLtkyC-4kuNsXq_7wz+g8SB9ObAJQhBg@mail.gmail.com>
+Subject: Re: [PATCH v3 1/2] selinux: Make avc cache slot size configurable
+ during boot
+To: Hongru Zhang <zhanghongru06@gmail.com>
+Cc: paul@paul-moore.com, omosnace@redhat.com, linux-kernel@vger.kernel.org, 
+	selinux@vger.kernel.org, zhanghongru@xiaomi.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Hongru Zhang <zhanghongru@xiaomi.com>
+On Fri, Sep 26, 2025 at 2:23=E2=80=AFAM Hongru Zhang <zhanghongru06@gmail.c=
+om> wrote:
+>
+> From: Hongru Zhang <zhanghongru@xiaomi.com>
+>
+> On mobile device high-load situations, permission check can happen
+> more than 90,000/s (8 core system). With default 512 cache nodes
+> configuration, avc cache miss happens more often and occasionally
+> leads to long time (>2ms) irqs off on both big and little cores,
+> which decreases system real-time capability.
+>
+> An actual call stack is as follows:
+>  =3D> avc_compute_av
+>  =3D> avc_perm_nonode
+>  =3D> avc_has_perm_noaudit
+>  =3D> selinux_capable
+>  =3D> security_capable
+>  =3D> capable
+>  =3D> __sched_setscheduler
+>  =3D> do_sched_setscheduler
+>  =3D> __arm64_sys_sched_setscheduler
+>  =3D> invoke_syscall
+>  =3D> el0_svc_common
+>  =3D> do_el0_svc
+>  =3D> el0_svc
+>  =3D> el0t_64_sync_handler
+>  =3D> el0t_64_sync
+>
+> Although we can expand avc nodes through /sys/fs/selinux/cache_threshold
+> to mitigate long time irqs off, hash conflicts make the bucket average
+> length longer because of the fixed size of cache slots, leading to
+> avc_search_node latency increase.
+>
+> Make avc cache slot size also configurable, and with fine tuning, we can
+> mitigate long time irqs off with slightly avc_search_node performance
+> regression.
+>
+> Theoretically, the main overhead is memory consumption.
+>
+> avc_search_node avg latency test results (about 100,000,000 times) on
+> Qcom SM8750, 6.6.30-android15-8:
+>
+> Case 1:
+> +---------+---------------------+------------------------+
+> |         | no-patch (512/512)  | with-patch (512/512)   |
+> +---------+---------------------+------------------------+
+> | latency |        85 ns        |         87 ns          |
+> +---------+---------------------+------------------------+
+>
+> Case 2:
+> +---------+---------------------+------------------------+
+> |         | no-patch (8192/512) | with-patch (8192/8192) |
+> +---------+---------------------+------------------------+
+> | latency |        277 ns       |         106 ns         |
+> +---------+---------------------+------------------------+
+>
+> Case 1 shows 512 nodes configuration has ~2% performance regression
+> with patch.
+> Case 2 shows 8192 nodes configuration has ~61% latency benifit with
+> patch.
+>
+> Signed-off-by: Hongru Zhang <zhanghongru@xiaomi.com>
 
-Under heavy stress testing (on an 8-core system sustaining over 50,000
-authentication events per second), sample once per second and take the
-mean of 1800 samples:
+Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-1. Bucket utilization rate and length of longest chain
-+--------------------------+-----------------------------------------+
-|                          | bucket utilization rate / longest chain |
-|                          +--------------------+--------------------+
-|                          |      no-patch      |     with-patch     |
-+--------------------------+--------------------+--------------------+
-|  512 nodes,  512 buckets |      52.5%/7.5     |     58.2%/6.2      |
-+--------------------------+--------------------+--------------------+
-| 1024 nodes,  512 buckets |      68.9%/12.1    |     82.4%/8.9      |
-+--------------------------+--------------------+--------------------+
-| 2048 nodes,  512 buckets |      83.7%/19.4    |     94.8%/15.2     |
-+--------------------------+--------------------+--------------------+
-| 8192 nodes, 8192 buckets |      49.5%/11.4    |     61.9%/6.6      |
-+--------------------------+--------------------+--------------------+
-
-2. avc_search_node latency (total latency of hash operation and table
-lookup)
-+--------------------------+-----------------------------------------+
-|                          |   latency of function avc_search_node   |
-|                          +--------------------+--------------------+
-|                          |      no-patch      |     with-patch     |
-+--------------------------+--------------------+--------------------+
-|  512 nodes,  512 buckets |        87ns        |        79ns        |
-+--------------------------+--------------------+--------------------+
-| 1024 nodes,  512 buckets |        97ns        |        91ns        |
-+--------------------------+--------------------+--------------------+
-| 2048 nodes,  512 buckets |       118ns        |       110ns        |
-+--------------------------+--------------------+--------------------+
-| 8192 nodes, 8192 buckets |       106ns        |        94ns        |
-+--------------------------+--------------------+--------------------+
-
-Although the multiplication in the new hash algorithm has higher overhead
-than the bitwise operations in the original algorithm, the data shows
-that the new algorithm achieves better distribution, reducing average
-lookup time. Consequently, the total latency of hashing and table lookup
-is lower than before.
-
-Signed-off-by: Hongru Zhang <zhanghongru@xiaomi.com>
----
- security/selinux/avc.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
-
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 7a7f88012865..fc631d1097bc 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -146,9 +146,24 @@ static struct kmem_cache *avc_xperms_data_cachep __ro_after_init;
- static struct kmem_cache *avc_xperms_decision_cachep __ro_after_init;
- static struct kmem_cache *avc_xperms_cachep __ro_after_init;
- 
-+/*
-+ * Advantages of this hash design:
-+ *     - Minimized collisions: Different inputs won't produce similar
-+ *       contributions
-+ *     - Bit diffusion: Each constant effectively scrambles input bits
-+ *     - Mathematical guarantee: These constants are theoretically analyzed
-+ *       and empirically validated
-+ *     - Complementarity: Three constants complement each other at the
-+ *       binary level
-+ */
-+#define C1 0x9E3779B9	/* 2^32 multiplied by Golden Ratio, classic constant
-+			 * for Knuth's multiplicative hashing
-+			 */
-+#define C2 0x85EBCA77	/* Large prime-like properties */
-+#define C3 0xC2B2AE35	/* Large prime-like properties, MurmurHash3 constant */
- static inline u32 avc_hash(u32 ssid, u32 tsid, u16 tclass)
- {
--	return (ssid ^ (tsid<<2) ^ (tclass<<4)) & (avc_cache_slots - 1);
-+	return (ssid * C1 + tsid * C2 + tclass * C3) & (avc_cache_slots - 1);
- }
- 
- /**
--- 
-2.43.0
-
+> ---
+>  .../admin-guide/kernel-parameters.txt         |  4 ++
+>  security/selinux/avc.c                        | 68 +++++++++++++------
+>  2 files changed, 50 insertions(+), 22 deletions(-)
+>
+> diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentat=
+ion/admin-guide/kernel-parameters.txt
+> index 747a55abf494..70dc6d659117 100644
+> --- a/Documentation/admin-guide/kernel-parameters.txt
+> +++ b/Documentation/admin-guide/kernel-parameters.txt
+> @@ -6620,6 +6620,10 @@
+>                         1 -- enable.
+>                         Default value is 1.
+>
+> +       selinux_avc_cache_slots=3D [SELINUX] Set the avc cache slot size.
+> +                       Format: <int> (must be >0, power of 2)
+> +                       Default: 512
+> +
+>         serialnumber    [BUGS=3DX86-32]
+>
+>         sev=3Doption[,option...] [X86-64]
+> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> index 430b0e23ee00..7a7f88012865 100644
+> --- a/security/selinux/avc.c
+> +++ b/security/selinux/avc.c
+> @@ -34,7 +34,7 @@
+>  #define CREATE_TRACE_POINTS
+>  #include <trace/events/avc.h>
+>
+> -#define AVC_CACHE_SLOTS                        512
+> +static int avc_cache_slots __ro_after_init =3D 512;
+>  #define AVC_DEF_CACHE_THRESHOLD                512
+>  #define AVC_CACHE_RECLAIM              16
+>
+> @@ -68,9 +68,13 @@ struct avc_xperms_node {
+>         struct list_head xpd_head; /* list head of extended_perms_decisio=
+n */
+>  };
+>
+> +struct avc_slot {
+> +       struct hlist_head       slot;           /* head for avc_node->lis=
+t */
+> +       spinlock_t              slot_lock;      /* lock for writes */
+> +};
+> +
+>  struct avc_cache {
+> -       struct hlist_head       slots[AVC_CACHE_SLOTS]; /* head for avc_n=
+ode->list */
+> -       spinlock_t              slots_lock[AVC_CACHE_SLOTS]; /* lock for =
+writes */
+> +       struct avc_slot         *slots;
+>         atomic_t                lru_hint;       /* LRU hint for reclaim s=
+can */
+>         atomic_t                active_nodes;
+>         u32                     latest_notif;   /* latest revocation noti=
+fication */
+> @@ -93,14 +97,34 @@ struct selinux_avc {
+>
+>  static struct selinux_avc selinux_avc;
+>
+> +static int __init set_selinux_avc_cache_slots(char *str)
+> +{
+> +       int val;
+> +
+> +       if ((kstrtoint(str, 0, &val)) || !is_power_of_2(val)) {
+> +               pr_warn("Unable to set selinux_avc_cache_slots, use defau=
+lt value\n");
+> +               return 1;
+> +       }
+> +
+> +       avc_cache_slots =3D val;
+> +
+> +       return 1;
+> +}
+> +__setup("selinux_avc_cache_slots=3D", set_selinux_avc_cache_slots);
+> +
+>  void selinux_avc_init(void)
+>  {
+>         int i;
+>
+> +       selinux_avc.avc_cache.slots =3D
+> +               kmalloc_array(avc_cache_slots, sizeof(struct avc_slot), G=
+FP_KERNEL);
+> +       if (!selinux_avc.avc_cache.slots)
+> +               panic("SELinux: No memory to alloc avc cache slots\n");
+> +
+>         selinux_avc.avc_cache_threshold =3D AVC_DEF_CACHE_THRESHOLD;
+> -       for (i =3D 0; i < AVC_CACHE_SLOTS; i++) {
+> -               INIT_HLIST_HEAD(&selinux_avc.avc_cache.slots[i]);
+> -               spin_lock_init(&selinux_avc.avc_cache.slots_lock[i]);
+> +       for (i =3D 0; i < avc_cache_slots; i++) {
+> +               INIT_HLIST_HEAD(&selinux_avc.avc_cache.slots[i].slot);
+> +               spin_lock_init(&selinux_avc.avc_cache.slots[i].slot_lock)=
+;
+>         }
+>         atomic_set(&selinux_avc.avc_cache.active_nodes, 0);
+>         atomic_set(&selinux_avc.avc_cache.lru_hint, 0);
+> @@ -124,7 +148,7 @@ static struct kmem_cache *avc_xperms_cachep __ro_afte=
+r_init;
+>
+>  static inline u32 avc_hash(u32 ssid, u32 tsid, u16 tclass)
+>  {
+> -       return (ssid ^ (tsid<<2) ^ (tclass<<4)) & (AVC_CACHE_SLOTS - 1);
+> +       return (ssid ^ (tsid<<2) ^ (tclass<<4)) & (avc_cache_slots - 1);
+>  }
+>
+>  /**
+> @@ -150,8 +174,8 @@ int avc_get_hash_stats(char *page)
+>
+>         slots_used =3D 0;
+>         max_chain_len =3D 0;
+> -       for (i =3D 0; i < AVC_CACHE_SLOTS; i++) {
+> -               head =3D &selinux_avc.avc_cache.slots[i];
+> +       for (i =3D 0; i < avc_cache_slots; i++) {
+> +               head =3D &selinux_avc.avc_cache.slots[i].slot;
+>                 if (!hlist_empty(head)) {
+>                         slots_used++;
+>                         chain_len =3D 0;
+> @@ -167,7 +191,7 @@ int avc_get_hash_stats(char *page)
+>         return scnprintf(page, PAGE_SIZE, "entries: %d\nbuckets used: %d/=
+%d\n"
+>                          "longest chain: %d\n",
+>                          atomic_read(&selinux_avc.avc_cache.active_nodes)=
+,
+> -                        slots_used, AVC_CACHE_SLOTS, max_chain_len);
+> +                        slots_used, avc_cache_slots, max_chain_len);
+>  }
+>
+>  /*
+> @@ -463,11 +487,11 @@ static inline int avc_reclaim_node(void)
+>         struct hlist_head *head;
+>         spinlock_t *lock;
+>
+> -       for (try =3D 0, ecx =3D 0; try < AVC_CACHE_SLOTS; try++) {
+> +       for (try =3D 0, ecx =3D 0; try < avc_cache_slots; try++) {
+>                 hvalue =3D atomic_inc_return(&selinux_avc.avc_cache.lru_h=
+int) &
+> -                       (AVC_CACHE_SLOTS - 1);
+> -               head =3D &selinux_avc.avc_cache.slots[hvalue];
+> -               lock =3D &selinux_avc.avc_cache.slots_lock[hvalue];
+> +                       (avc_cache_slots - 1);
+> +               head =3D &selinux_avc.avc_cache.slots[hvalue].slot;
+> +               lock =3D &selinux_avc.avc_cache.slots[hvalue].slot_lock;
+>
+>                 if (!spin_trylock_irqsave(lock, flags))
+>                         continue;
+> @@ -524,7 +548,7 @@ static inline struct avc_node *avc_search_node(u32 ss=
+id, u32 tsid, u16 tclass)
+>         struct hlist_head *head;
+>
+>         hvalue =3D avc_hash(ssid, tsid, tclass);
+> -       head =3D &selinux_avc.avc_cache.slots[hvalue];
+> +       head =3D &selinux_avc.avc_cache.slots[hvalue].slot;
+>         hlist_for_each_entry_rcu(node, head, list) {
+>                 if (ssid =3D=3D node->ae.ssid &&
+>                     tclass =3D=3D node->ae.tclass &&
+> @@ -625,8 +649,8 @@ static void avc_insert(u32 ssid, u32 tsid, u16 tclass=
+,
+>         }
+>
+>         hvalue =3D avc_hash(ssid, tsid, tclass);
+> -       head =3D &selinux_avc.avc_cache.slots[hvalue];
+> -       lock =3D &selinux_avc.avc_cache.slots_lock[hvalue];
+> +       head =3D &selinux_avc.avc_cache.slots[hvalue].slot;
+> +       lock =3D &selinux_avc.avc_cache.slots[hvalue].slot_lock;
+>         spin_lock_irqsave(lock, flag);
+>         hlist_for_each_entry(pos, head, list) {
+>                 if (pos->ae.ssid =3D=3D ssid &&
+> @@ -846,8 +870,8 @@ static int avc_update_node(u32 event, u32 perms, u8 d=
+river, u8 base_perm,
+>         /* Lock the target slot */
+>         hvalue =3D avc_hash(ssid, tsid, tclass);
+>
+> -       head =3D &selinux_avc.avc_cache.slots[hvalue];
+> -       lock =3D &selinux_avc.avc_cache.slots_lock[hvalue];
+> +       head =3D &selinux_avc.avc_cache.slots[hvalue].slot;
+> +       lock =3D &selinux_avc.avc_cache.slots[hvalue].slot_lock;
+>
+>         spin_lock_irqsave(lock, flag);
+>
+> @@ -929,9 +953,9 @@ static void avc_flush(void)
+>         unsigned long flag;
+>         int i;
+>
+> -       for (i =3D 0; i < AVC_CACHE_SLOTS; i++) {
+> -               head =3D &selinux_avc.avc_cache.slots[i];
+> -               lock =3D &selinux_avc.avc_cache.slots_lock[i];
+> +       for (i =3D 0; i < avc_cache_slots; i++) {
+> +               head =3D &selinux_avc.avc_cache.slots[i].slot;
+> +               lock =3D &selinux_avc.avc_cache.slots[i].slot_lock;
+>
+>                 spin_lock_irqsave(lock, flag);
+>                 /*
+> --
+> 2.43.0
+>
