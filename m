@@ -1,174 +1,140 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41FBD25332E
-	for <selinux@vger.kernel.org>; Fri, 26 Sep 2025 12:26:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B92721D3F6
+	for <selinux@vger.kernel.org>; Sat, 27 Sep 2025 03:07:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758889574; cv=none; b=SiplJ17u9uWEILwRCOPsXaNq0VfK8j3O1a4xBNkLKAe52U5b+xLKIkvuNQy75rpdTElji1xCq0DYzxxzyNmhEuiONHja2x0WKIecpYnbg1qXolS1Dmrq98bQY1bVss5x0WMVb6/3OvLXeFqF4MABShE9Xc7+oqrs9qB4pvQBetw=
+	t=1758942459; cv=none; b=r8ykNTxtmiZm05u474zTbqNVIIpSB7YKXJeFZvxLBvmZmEMzYObL/b32ko3huCxCyis4UFsPCYlUtknVjq7zNmlGJqca6KUajds2Zrw1RT4NyYcLwatPFTRVKeIDlxAcSohtjnPLSLgMfD4qUAqJiOZ/hKlF3iKAd32r60wmsUs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758889574; c=relaxed/simple;
-	bh=t2+UAvCr4XcZ0OnnZKKa2yux1QRJHla1KR4kjND7Qv0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YTMuG5gZRmzVjsofJ7bWJP3Tta/jvmNNQ9d1JXsPSSHjVn/ICBc4xHPjzo6yLqeZSE/aRL8WS+Ws9K4vnRrYlGIDb9Ea8xPU7UdmjcNzzGSA65b52LdFc9KT/4moqKw0DXOSpocXsbInzlQ3DUrUK4wMJRDajD+xH6w9oa92wK0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aX5oblO/; arc=none smtp.client-ip=209.85.216.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1758942459; c=relaxed/simple;
+	bh=ucrbnxHbs6y8rfjx9+39n5L5p/YEYkoVyR9JIDN1sHg=;
+	h=Date:Message-ID:From:To:Cc:Subject; b=W0WsSslz/NePYAshoBZ5pmm0LX9va5e6RVDkV3OlTVRXceXTMFx7XIWSQryM+C2N/t3HbG28mre8AwUf9EI1/2D7urhsfQJc10qhiUK4rGg+Zt+AY/IXOJQJgl1xq/nnrzt28rAuJmb3foDVXTcv8vyjSD/3Rso6aAjjWxBOJJs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=ea10qfzU; arc=none smtp.client-ip=209.85.222.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aX5oblO/"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-32e715cbad3so2462373a91.3
-        for <selinux@vger.kernel.org>; Fri, 26 Sep 2025 05:26:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="ea10qfzU"
+Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-86278558d6fso92917685a.1
+        for <selinux@vger.kernel.org>; Fri, 26 Sep 2025 20:07:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1758889571; x=1759494371; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=paul-moore.com; s=google; t=1758942456; x=1759547256; darn=vger.kernel.org;
+        h=subject:cc:to:from:message-id:date:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ZLHkKF18lMe3OS222CIEqifXITXK3HwcUajzIjkMKH8=;
-        b=aX5oblO/6DOE1cKyM0anqBA/rHkeTPzlqffWeZDTaC5+iBwl2IkfZHvjK871kW/ZgU
-         xMGCctTOjpLHK7CWkkFIWVHn1xwt7/XTWqr+n2Rcn7q8pBQu3lE2DjirMFsvWBHyrN1D
-         os7bEFhREGt4U2RkmqMSM6wc85OzKE/SNA27cPKTAZUBi/UKtm2h8DVo7fb9dBFPNcvC
-         lf7MONqirov1ozZjidlvDYIW+KVIYSvAn8OcswePshwNFKVWX2Wq5c2HsW1P7Wl3Zq0h
-         ti5E8BnIEynK+oP5YG8GRtIMG65skNKDaaqchd3N4UJgKrO4wJ3o7hk3B2DtqOfYFONt
-         Aimg==
+        bh=qarOpL2GufODFN9/VORlA9hfhsH3FKJWScm5xbA4n6E=;
+        b=ea10qfzU3wCzJOzfvkdKZ03UYUlgB/8bkV9jQHkLCoWAQsSLmshvl1rTLjjIt7K4n1
+         OFzEmX+p4L3WAPRUu1GXffGT0NyP2UA9ELNlK+mscaBwLmq401V4NzUu3ZNh8pNOXnyj
+         QCnVHwQrCWoyxBSHM64lvae6Qj6UghZsfFssF80RWFwSkPrFYlW+N5Otf/2FlCTM034g
+         auCtIFHPQNWlDklkmdsK4VUcSQ3RYVc66Ckg/78AZtmQUK4rzUieO7wYHlMpVLfb26CV
+         Ay+XaVST/WYvMp7Nl05pBIgg/pqwhj/DYUfk4Q62BqiSktqcx+vDRy1PAd0n9X+OpLv+
+         KhXw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758889571; x=1759494371;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1758942456; x=1759547256;
+        h=subject:cc:to:from:message-id:date:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ZLHkKF18lMe3OS222CIEqifXITXK3HwcUajzIjkMKH8=;
-        b=I4k3PFCNxdNHIAiU/br9eXaNBEBOUG1nI+Fe1rb0d6EUcb9MZVxGK5aGtNU77hEwAu
-         C9b06A0nAEIrqiTY3zFxxSaE1pUt0DADaXklsq8Z795RQTQBV6kjXRgxuKVbca4Aczqb
-         BoF81VFOTrxWIwcaabmhJiuB81wcqkOACnzkmXp/SbCmtFPePkgGO0dYLKtr8lHMpSA6
-         xDLx0Du+ycHO/fTX6uiMQ+btyEWUnhdOFmwLfJScJaQOMikJy0JgUIWk8d+itbSbKZfj
-         DIpmZdaW3TC7pLq5wmMMOmvNNAls4eUaMXwrWmjrKTaQxy+nkVNEQTV1MygZg9gmYI0v
-         nVWA==
-X-Forwarded-Encrypted: i=1; AJvYcCW/shnP2odWxZEDbvjkEnLpXgDKWJHvahq2BnZnH9xmP/jaw3r1/Hl6zwtpCxgtwWUonEBLStL9@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy+++QdXwXhXqlCVoRvLZIJAjaaxeAgbaYoudnrB1wuDvXWpdhz
-	PTJT9WIU2HejYmBZvGyEJEMki1Ii/CsrgE9QJFq0DFteiy0pIB7CtdYcbJNbiVQaV4YWc/ewWRO
-	MgXj6LaiAvEi+crOX5ZhKHUGS0Ztf2Dg=
-X-Gm-Gg: ASbGncvSnygYRUv3xOYYotOc8kL8VKEa0c8BIVP35H1eQEFdWUI+W0sMenfcKdRnqCK
-	NK93N8yQXxq6kPlLXR4yYsYTdY6I6RbMfWOg6QGLFCDls2KBufaQJJhcM60E3qOFDrw+TfmZwzq
-	Tsd03rhwexiMo1Y1xlkVtzGgHrbtSEDV3maIBKY8DrzDT43yGto1/BI88JvGXc5Q1WpNUyHEiuF
-	97l4xE=
-X-Google-Smtp-Source: AGHT+IEWys8J0C72NETqC55vyqmXxW6+QIWxx+Seey07j/4IIo8icZ+/rlQ6ghZ1ziJpIUdGrAfANpZbVc4TQKrQDlw=
-X-Received: by 2002:a17:90b:1c04:b0:32e:d600:4fe9 with SMTP id
- 98e67ed59e1d1-3342a20be0emr8158451a91.4.1758889571403; Fri, 26 Sep 2025
- 05:26:11 -0700 (PDT)
+        bh=qarOpL2GufODFN9/VORlA9hfhsH3FKJWScm5xbA4n6E=;
+        b=rHv+aNwKE6QnlYyXTRmzknDxypuBjzkefwrCXY8faP/4IJOwkrdyW/OG17caB51JY5
+         6QElxLOlgYtnbk8yAmPDBYLju6wW7mfs/LQp9W3NEvscy1LixEIcJ2v4rfQYTPsYvGXJ
+         nRjroO2xYTQDEk8Jamr9VIq9oBfV27F+wyzmxhYC+vRLjiwW2SeAUV/2k+rSFikoUWKU
+         vMMI114cY3a+EpTh76AH3/Qu7oPPCmJY+TImoiYw/PZ/Dx4/+4VSuhi37FKiv3HbciKn
+         Wcipscq2yc7n5Qdn81A2pUz4To+mlERjdHWJ2j1VeRCP/xvukcl80m1g9GTQvZUyI/fE
+         PHIQ==
+X-Gm-Message-State: AOJu0YzzhhMt1Y2VD2u+FPhYMrku5loOgwrWvODs12QixYG4kkKOjqiC
+	RXNGGS6OiSdk9dOtqf7MXjtRKT4S/S+LTBndfHqxIpDff5fQn261d8paRFSxN7LkCQ==
+X-Gm-Gg: ASbGnctPQoSgi4IGR+hBy2TtcyJjLppiUsNThpmc/u7Ou23F7+fuD6MBxlHbubEoxZV
+	9EK8jmGYVQMBO6Zzvr6Ut24hfU9hUdqP4vcAkwnvzYo2ioetH65da5WDc8aiUaS6m2eS51IOkuf
+	2RL6onPTd6IhWxZitvWFLo1K+R5m+cf3ESHLZ3F1WNztEr7rn5dbOD6eW83DmsGygkFWHEez7HV
+	k3Kh7wtBy/HNZpMY2lAFsG8tFJXd74LMZRbhKVoWtNfjuaeLR1dnAq9qu9Y8WqjUjVQndlezJG+
+	E7pTIj/21Smr6Cs+dNiL/hK59fdPx9P48eOEkYjgceFj9MioCDCGPEz0NqhO7xJV+FtudWqgdkr
+	/M1xDtAyCuupLfS5nhzetmE6mk2gIKTqbbfCwd3kP1qBbHJsjWvDlESuSzy5pqz64IBMN
+X-Google-Smtp-Source: AGHT+IH7/95OX7mDmeLwjFg9UQBqc4U9wVQ3WQqLE+SJ450L4afnkagQt2OSLDQqm/vQMLWRbYZQVw==
+X-Received: by 2002:a05:620a:17ac:b0:865:cacf:e11d with SMTP id af79cd13be357-865cacfe675mr27248685a.12.1758942455861;
+        Fri, 26 Sep 2025 20:07:35 -0700 (PDT)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with UTF8SMTPSA id d75a77b69052e-4db11cd52e5sm36709041cf.47.2025.09.26.20.07.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 26 Sep 2025 20:07:34 -0700 (PDT)
+Date: Fri, 26 Sep 2025 23:07:34 -0400
+Message-ID: <6edbd0e6dc79902981bf9a34e8d41128@paul-moore.com>
+From: Paul Moore <paul@paul-moore.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: selinux@vger.kernel.org, linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [GIT PULL] selinux/selinux-pr-20250926
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <cover.1758859391.git.zhanghongru@xiaomi.com> <000bce8f11d06684f70a29705dfd417747475b1a.1758859391.git.zhanghongru@xiaomi.com>
-In-Reply-To: <000bce8f11d06684f70a29705dfd417747475b1a.1758859391.git.zhanghongru@xiaomi.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 26 Sep 2025 08:26:00 -0400
-X-Gm-Features: AS18NWDVkDtCF6-U2g1H_ZHnjJmLvgakys0oOfyAF7DD3QET6slT2Rpk4YbTFw8
-Message-ID: <CAEjxPJ7CgZT2r9bMYnyhHD=WfG5T-vT21x0ZYKp0Gz9TJo_nEQ@mail.gmail.com>
-Subject: Re: [PATCH v3 2/2] selinux: improve bucket distribution uniformity of avc_hash()
-To: Hongru Zhang <zhanghongru06@gmail.com>
-Cc: paul@paul-moore.com, omosnace@redhat.com, linux-kernel@vger.kernel.org, 
-	selinux@vger.kernel.org, zhanghongru@xiaomi.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 26, 2025 at 2:23=E2=80=AFAM Hongru Zhang <zhanghongru06@gmail.c=
-om> wrote:
->
-> From: Hongru Zhang <zhanghongru@xiaomi.com>
->
-> Under heavy stress testing (on an 8-core system sustaining over 50,000
-> authentication events per second), sample once per second and take the
-> mean of 1800 samples:
->
-> 1. Bucket utilization rate and length of longest chain
-> +--------------------------+-----------------------------------------+
-> |                          | bucket utilization rate / longest chain |
-> |                          +--------------------+--------------------+
-> |                          |      no-patch      |     with-patch     |
-> +--------------------------+--------------------+--------------------+
-> |  512 nodes,  512 buckets |      52.5%/7.5     |     58.2%/6.2      |
-> +--------------------------+--------------------+--------------------+
-> | 1024 nodes,  512 buckets |      68.9%/12.1    |     82.4%/8.9      |
-> +--------------------------+--------------------+--------------------+
-> | 2048 nodes,  512 buckets |      83.7%/19.4    |     94.8%/15.2     |
-> +--------------------------+--------------------+--------------------+
-> | 8192 nodes, 8192 buckets |      49.5%/11.4    |     61.9%/6.6      |
-> +--------------------------+--------------------+--------------------+
->
-> 2. avc_search_node latency (total latency of hash operation and table
-> lookup)
-> +--------------------------+-----------------------------------------+
-> |                          |   latency of function avc_search_node   |
-> |                          +--------------------+--------------------+
-> |                          |      no-patch      |     with-patch     |
-> +--------------------------+--------------------+--------------------+
-> |  512 nodes,  512 buckets |        87ns        |        79ns        |
-> +--------------------------+--------------------+--------------------+
-> | 1024 nodes,  512 buckets |        97ns        |        91ns        |
-> +--------------------------+--------------------+--------------------+
-> | 2048 nodes,  512 buckets |       118ns        |       110ns        |
-> +--------------------------+--------------------+--------------------+
-> | 8192 nodes, 8192 buckets |       106ns        |        94ns        |
-> +--------------------------+--------------------+--------------------+
->
-> Although the multiplication in the new hash algorithm has higher overhead
-> than the bitwise operations in the original algorithm, the data shows
-> that the new algorithm achieves better distribution, reducing average
-> lookup time. Consequently, the total latency of hashing and table lookup
-> is lower than before.
->
-> Signed-off-by: Hongru Zhang <zhanghongru@xiaomi.com>
+Linus,
 
-One minor nit below but you can wait and see what Paul says.
-Otherwise,
-Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Here are the SELinux patches for the upcoming Linux v6.18 merge window:
 
-> ---
->  security/selinux/avc.c | 17 ++++++++++++++++-
->  1 file changed, 16 insertions(+), 1 deletion(-)
->
-> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-> index 7a7f88012865..fc631d1097bc 100644
-> --- a/security/selinux/avc.c
-> +++ b/security/selinux/avc.c
-> @@ -146,9 +146,24 @@ static struct kmem_cache *avc_xperms_data_cachep __r=
-o_after_init;
->  static struct kmem_cache *avc_xperms_decision_cachep __ro_after_init;
->  static struct kmem_cache *avc_xperms_cachep __ro_after_init;
->
-> +/*
-> + * Advantages of this hash design:
-> + *     - Minimized collisions: Different inputs won't produce similar
-> + *       contributions
-> + *     - Bit diffusion: Each constant effectively scrambles input bits
-> + *     - Mathematical guarantee: These constants are theoretically analy=
-zed
-> + *       and empirically validated
-> + *     - Complementarity: Three constants complement each other at the
-> + *       binary level
-> + */
-> +#define C1 0x9E3779B9  /* 2^32 multiplied by Golden Ratio, classic const=
-ant
-> +                        * for Knuth's multiplicative hashing
-> +                        */
+- Support per-file labeling for functionfs
 
-Personally, I would put this comment on lines above the #define rather
-than alongside it since it is a multi-line comment. But you can wait
-and see what Paul prefers.
+  Both genfscon and user defined labeling methods are supported.  This
+  should help users who want to provide separation between the control
+  endpoint file, "ep0", and other endpoints.
 
-> +#define C2 0x85EBCA77  /* Large prime-like properties */
-> +#define C3 0xC2B2AE35  /* Large prime-like properties, MurmurHash3 const=
-ant */
->  static inline u32 avc_hash(u32 ssid, u32 tsid, u16 tclass)
->  {
-> -       return (ssid ^ (tsid<<2) ^ (tclass<<4)) & (avc_cache_slots - 1);
-> +       return (ssid * C1 + tsid * C2 + tclass * C3) & (avc_cache_slots -=
- 1);
->  }
->
->  /**
-> --
-> 2.43.0
->
+- Remove our use of get_zeroed_page() in sel_read_bool()
+
+  Update sel_read_bool() to use a four byte stack buffer instead of a
+  memory page fetched via get_zeroed_page(), and fix a memory in the
+  process.
+
+  Needless to say we should have done this a long time ago, but it was
+  in a very old chunk of code that "just worked" and I don't think
+  anyone had taken a real look at it in many years.
+
+- Better use of the netdev skb/sock helper functions
+
+  Convert a sk_to_full_sk(skb->sk) into a skb_to_full_sk(skb) call.
+
+- Remove some old, dead, and/or redundant code
+
+Paul
+
+--
+The following changes since commit 8f5ae30d69d7543eee0d70083daf4de8fe15d585:
+
+  Linux 6.17-rc1 (2025-08-10 19:41:16 +0300)
+
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+    tags/selinux-pr-20250926
+
+for you to fetch changes up to 68e1e908cb7682db9fb7f79907f9352435a81c0f:
+
+  selinux: enable per-file labeling for functionfs
+    (2025-09-07 12:54:56 -0400)
+
+----------------------------------------------------------------
+selinux/stable-6.18 PR 20250926
+----------------------------------------------------------------
+
+Neill Kapron (1):
+      selinux: enable per-file labeling for functionfs
+
+Qianfeng Rong (1):
+      selinux: Remove redundant __GFP_NOWARN
+
+Stephen Smalley (1):
+      selinux: fix sel_read_bool() allocation and error handling
+
+Tianjia Zhang (1):
+      selinux: use a consistent method to get full socket from skb
+
+Yue Haibing (1):
+      selinux: Remove unused function selinux_policycap_netif_wildcard()
+
+ security/selinux/avc.c                     |   13 ++++++-------
+ security/selinux/hooks.c                   |   10 +++++++---
+ security/selinux/include/policycap.h       |    1 +
+ security/selinux/include/policycap_names.h |    1 +
+ security/selinux/include/security.h        |    4 ++--
+ security/selinux/selinuxfs.c               |   18 +++++-------------
+ 6 files changed, 22 insertions(+), 25 deletions(-)
+
+--
+paul-moore.com
