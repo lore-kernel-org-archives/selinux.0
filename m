@@ -1,128 +1,253 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F38F718A921
-	for <selinux@vger.kernel.org>; Tue, 30 Sep 2025 20:01:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85C5E2857C7
+	for <selinux@vger.kernel.org>; Tue, 30 Sep 2025 20:11:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759262495; cv=none; b=k2Qdnl7+/k3mAQGwUCuJK8PJYxBfDp0vesPOpcAsRJtq/xh/Ndi+L1uQt5H/lxSGxdz7RrNj8N8Azt/1/Sz5CzvPwY/u2DVnpGZVcTW5s8LVyUqysqMlTB/WCQGLbcVQJDppIFITUTc0IcKqIYsvNKzEplJduQGYwPDCSCkXYWk=
+	t=1759263094; cv=none; b=hVsQwM1UtlqddwXsmmNHC7WZ64EajybTpdScuhGDXQB7RtUesNzyfKvDxx8DPSIwZg8zqP+5qncrzoCyuq7ISoYJUoxexWYYTgrgIr0dixKqYvaHi3MJaM5eFcyKcCD5G0hCjYZhv0wEoQ7BAvkr80JTk5KUJM0A5Bcb12gJoaY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759262495; c=relaxed/simple;
-	bh=7qXSXpwVfyrxaE3FEVMu6hX9GvP5VO3R8heXpEJLsCw=;
+	s=arc-20240116; t=1759263094; c=relaxed/simple;
+	bh=4S7jZ3uC4JBPtyAOlsnSX2bqFuLQK8X7sOt+PRLiduc=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=PfP8PQKwegTlMh7oe7kgj9WP1QEXPm3T8eTej8CfIRyRheN1tyk2KpmGjy6DFEJzbfbwF2/fsp9njxJTKTIZuPpoYmpogkGwHIVDe/QnnvukaKOgud4M1gCLUdx42APnyVTsg7pGdKNmKK5z6HkMu/MCKGxiilGyKoXl0FcuR2A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GUf7Icdj; arc=none smtp.client-ip=209.85.216.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=ZPlWvvz456k1KM7O0X1R4FB1FCTbNoSaXoBkoAcr4t6hXFcmcQVJpdfy+GctnNjrMVKz8Sqh2Pfg5Nldgh534FrSZ1V+cznlbj4I15QaqPcDMCt80JpXtAh+jwL9i2laty/3rvOudA70xGGEZzeMxrz7eAqxEmQFc3w8gUuR3KI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=R50h/6CR; arc=none smtp.client-ip=209.85.216.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GUf7Icdj"
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-3381f041d7fso316912a91.0
-        for <selinux@vger.kernel.org>; Tue, 30 Sep 2025 13:01:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="R50h/6CR"
+Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-32df5cae0b1so7527004a91.2
+        for <selinux@vger.kernel.org>; Tue, 30 Sep 2025 13:11:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1759262493; x=1759867293; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1759263091; x=1759867891; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=aWo/NJp/DPDiDhi3M8vILdvcM+qNCQ/99XIEYETWfbg=;
-        b=GUf7IcdjOChsPLsDWM4vCCm0f2dHMAZlEgyHjbsCgNQ55d3qjxam2KNrC2tkC0yGBT
-         tMeMxA4+5VJZij06LoHkx1q22phZFi9dsJNv8u6B02aRsdsqil2tYGT3TSchwR9k4PU2
-         cjpVfin5nUDVcor8zKVriBZXMG558cMzPodme3FAz9pbq1gab5WUcxh59D7byc4mWCwR
-         J4B/lHP5PV5drBvaaZ5V1XN6b4j2vdtZFl6TSApstloeeeFxaDc016EXQ7jL76nMTMZ5
-         puqTvz2lcRI1UmdEqEiHfYHlJKTtsAejhMkxauzVTOG8K/xvzmNF7TDgbsje5CewGSim
-         bhWg==
+        bh=sGGTuNMSpK/IX2jcE2kdw78gs62apiEUig7wcWdCPrA=;
+        b=R50h/6CR66QxXK4Mwqd5Ta2uMRpyDfCBwXbCi8GGIp7v6AM/BfJkKwxD15KrEI7+9Z
+         iyokZXprclWko3bfEH0LeodQvO8IpKdizWehEE78K1JTJDpx693lnCcnSyC385y7Z9NP
+         fufBqGzd6kBv3GjzRfFFFX6NEiDdzgymWvZPDz8evSnwq9uaKK7wDU+zi/oN6iLHA7DA
+         mQM7KuogjwfCB637+JIcaAUB9ENVGKBJo0Xg85ilR0MQUeA6JeLFAKtdHDvwEudO15Xu
+         CvLVSZdKiZpNVtVq8Fpxl5UPViSClNI4PtkaMsE2QcqGTlQcDy46ME0C3riKr3gedgtX
+         TyKQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759262493; x=1759867293;
+        d=1e100.net; s=20230601; t=1759263091; x=1759867891;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=aWo/NJp/DPDiDhi3M8vILdvcM+qNCQ/99XIEYETWfbg=;
-        b=IGN8GrWO7EWIGq/dT1SZCt9e3hpnXecx5UCe7I8fhv9Gs2+dcgrcCM/fU/gPqLAw/4
-         J8/qavEsxvfwJiIVZZPerSHjT3sjusSUpp/FUYytkUP/41qIqTc8fUvKxRhTBE3v3GuX
-         PzaAdaY1Wz6FJe2Dea6Ef9PWyx4G9nDWvxwd+q3PpHNTN5l/srCB6JlqAeToi7ue1tLt
-         RdFy3eUXcrx1kNjhSUlouP4L95Gcfvh/NT8+D8X01uQuyOLFlqGU9X+Ri2Wj9nnXl72b
-         feie1zUlel1FfO16xB2MqWmAXdiUi+nP49K/lwAqGjdtdU3CRzDByn6QpTZLHcIbL+JS
-         APSg==
-X-Forwarded-Encrypted: i=1; AJvYcCWqY38j0GUlvehUsESTDeWueeFu0MLfhvxKosE+Gn5G9+JkspqyOuJHQWK2bgsL3VzWZAnhh+9e@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyl4e0A2XWCA64QtYISwR6kOOybD0l8sD8kQoDq0gh5aroJWnhm
-	3prneainCj+5TL7WxOzeHMY5xy2nkZe8fBMofDcyqeMQMTR+f91/Ltzu7E8mAWuCIlKwfUrI4OI
-	V+hhx09w7FuQNC+yuobogTtWRVofYFY8=
-X-Gm-Gg: ASbGncsPCbJzhY9ymKOYzQg+7+Yrj/AeW4056lDOEWAfUZhmGw5qnhB7Rp84+4tSVR9
-	gnN1mW3Crh3IVc++7UpvD/Y5aor3MUYrcXLR+rc80TwOfBvXF17FAeSNY2JiuhxRHsNCohwlFTH
-	aEqwFxfy2XAjEZ0DW9a92VMEJjyyrQauv++vRb1leDJwa+Bjh7kKYn8Ofj1P38nvjnjetL8U+u1
-	xJKqNgLMziwtI35Id0WYukH+n/sLOfq/kutBHKZ0g==
-X-Google-Smtp-Source: AGHT+IFxATyDJkay6p8QMh9yzWv3yKV+bBLM0X9MlYJEySTUExIFQU0lrSPEVy/e9b8CyfriTlVARknRoz8I1/ieR+s=
-X-Received: by 2002:a17:90b:2241:b0:330:9c26:bf3d with SMTP id
- 98e67ed59e1d1-339a58b74abmr1094619a91.16.1759262493116; Tue, 30 Sep 2025
- 13:01:33 -0700 (PDT)
+        bh=sGGTuNMSpK/IX2jcE2kdw78gs62apiEUig7wcWdCPrA=;
+        b=KP5LmYKUNLu/o2vbJpr0u5rGRdc9l/L3o/1Vlrc+aAQrJW7DDMwd/9PZFnFXTCgDYx
+         MPCA3LFU4I0+Gm+uhNguKCO19N0ennGEF+C1DBloMzjeW7nBGlk54/bHCBMTKpBZgXLp
+         8ESGla2Ip5RhKR7PfHJogvub2D+jruYyHWC02Wpjt782PgC5cl35WLFkl4oUfxGmLWyo
+         nLd8Ny0msR7qNNde2m+BN7IGPlr4qbKT3qblo2IDvfKl2yyOL19lX/L80BvE2fLSdKog
+         E3PKWOCiipFCxtWOVb2/ZwSc1TBzF3gswSqvOMED8ciDUo8GoLvBGiGGVWHWR1DFJKBH
+         UtjQ==
+X-Gm-Message-State: AOJu0Yy6+EC3ifhlrVw7K0munWt4tUpYpaxZGbbfCurDSiocNfjvhVvZ
+	YkXqYeL+9RNIbRv59R85F1f1MYrO10tWUV8Q/3a+uz0jC0O6shixlsDvq6CjYPSO0YGchPIs3xC
+	60yQawM+Jna8dIt3ZD3ZbUiW6vtr4Bh2OnbzqUmmY
+X-Gm-Gg: ASbGncsZsfhekHyhAI+S9PG+queqK4Tc//qKzjTIpX9w+g5xf+bJUciE0ePQYGrN9cZ
+	rViPRB1jNHAhXhtakGQKSP9neZSnby+SAFp8VN3j6QJn43uh6aJtEk71Djoojoof+ounABJbRQV
+	p2WHdgLeq7IqbS0AHQtkrq+WbUS71odC+bn1GUdAJvnmH49dbIUdg3LZpDcs0W9woAh8ACAU4Fr
+	i2wL3eMSvnxHD+QTvh0ED1FNKPZ9zw=
+X-Google-Smtp-Source: AGHT+IH19QaUhYGV0YsoCoE1LU0CmmNRvyL6yd0SCrGLdokCAFDK+kSvCCPTwgIB0Agj0AUOYRQz9b4VVeztVQwQKPE=
+X-Received: by 2002:a17:90b:4f8b:b0:330:6edd:9cf with SMTP id
+ 98e67ed59e1d1-339a6f06e29mr760547a91.22.1759263090694; Tue, 30 Sep 2025
+ 13:11:30 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <87pldq40fr.fsf@defensec.nl> <DD4XI30UAJ8U.1XMTXFPG4NYJ2@gmail.com>
-In-Reply-To: <DD4XI30UAJ8U.1XMTXFPG4NYJ2@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 30 Sep 2025 16:01:21 -0400
-X-Gm-Features: AS18NWA9EuY5JyyTzMWfm-n6I6s0Fu39KnzJ0fVAhe04DW1mUJzCkbZSYHI85pw
-Message-ID: <CAEjxPJ7UHmeQcxDETObNm4sQHAD1uvy8LsBq4JRCf=UvAwCfdQ@mail.gmail.com>
-Subject: Re: systemd.exec(5) PAMName= with libselinux
-To: Rahul Sandhu <nvraxn@gmail.com>
-Cc: dominick.grift@defensec.nl, selinux@vger.kernel.org
+References: <20250916220355.252592-36-paul@paul-moore.com> <20250916220355.252592-67-paul@paul-moore.com>
+In-Reply-To: <20250916220355.252592-67-paul@paul-moore.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 30 Sep 2025 16:11:17 -0400
+X-Gm-Features: AS18NWCP-Q5jq8SXy7IkNbNEbfERyy-dg84QqfHzyCZ7GFhRE-mFkbyKDIwrsVc
+Message-ID: <CAHC9VhQCmFJQ1=Eyu1D+Mcg2FVDByrk8QcwV5HaZdB95esiA7Q@mail.gmail.com>
+Subject: Re: [PATCH v4 31/34] ima,evm: move initcalls to the LSM framework
+To: Mimi Zohar <zohar@linux.ibm.com>
+Cc: selinux@vger.kernel.org, linux-integrity@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, 
+	John Johansen <john.johansen@canonical.com>, Roberto Sassu <roberto.sassu@huawei.com>, 
+	Fan Wu <wufan@kernel.org>, =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
+	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
+	Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>, 
+	Casey Schaufler <casey@schaufler-ca.com>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, 
+	Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>, Xiu Jianfeng <xiujianfeng@huawei.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Sep 28, 2025 at 10:29=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> wr=
+On Tue, Sep 16, 2025 at 6:14=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
 ote:
 >
-> Hi,
+> From: Roberto Sassu <roberto.sassu@huawei.com>
 >
-> I think this is solveable but this is going to need a new field added to
-> default_contexts + $selinux_root/$policy_type/contexts/users/*. I had a
-> look around tonight, couple notes:
+> This patch converts IMA and EVM to use the LSM frameworks's initcall
+> mechanism. It moved the integrity_fs_init() call to ima_fs_init() and
+> evm_init_secfs(), to work around the fact that there is no "integrity" LS=
+M,
+> and introduced integrity_fs_fini() to remove the integrity directory, if
+> empty. Both integrity_fs_init() and integrity_fs_fini() support the
+> scenario of being called by both the IMA and EVM LSMs.
 >
-> 1. We can't really change (and shouldn't change) the function signature
->    for get_ordered_context_list (3) and friends.  However, we shouldn't
->    need to do that (see point 2).
+> This patch does not touch any of the platform certificate code that
+> lives under the security/integrity/platform_certs directory as the
+> IMA/EVM developers would prefer to address that in a future patchset.
 >
-> 2. So long as get_ordered_context_list (3) and friends still can parse
->    the user context files, we should be fine.  They all seem to rely on
->    the same underlying function to parse those files, get_context_user,
->    so along as we update that to support multiple "fields", and to just
->    ignore extra fields, then that should be okay. This should mean that
->    backwards compatability should not be a problem at all.
->
-> Then, we adapt pam_selinux (8) to use getseuserbyname (3) to lookup all
-> fields it needs manually (without using any of the libselinux helpers
-> for that). Alternatively, we could add a helper to libselinux for that
-> that supports the new "fields" so that we don't break compatability. If
-> that's a desired route, any suggestions for that?
->
-> One concern I do have (and something I'm trying to keep in mind) is
-> ensuring that libselinux doesn't have a dependency on PAM, or at least
-> that our entire user login flow is completely dependent on PAM such
-> that it's impossible or hard to replace it, given that we don't have it
-> as a hard dependency right now, and I would be cautious to make it one.
-> However, we are just adding a field here, so although we can have that
-> new field by *convention* be for a PAM login stack, other software is
-> free to interpret as it wishes.
->
-> Another option would be to try and deprecate default_contexts, given
-> that it seems to be showing some age in terms of no longer being enough
-> for one of the major pieces of software in today's landspace (systemd),
-> and introducing a new file that supports a configuration format with
-> some kind of KV system so we have named "fields". However, myself I am
-> not convinced that this is needed or worth it right now, but of course
-> open to ideas and suggestions.
->
-> Thoughts?
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> [PM: adjust description as discussed over email]
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> ---
+>  security/integrity/evm/evm_main.c  |  3 +--
+>  security/integrity/evm/evm_secfs.c | 11 +++++++++--
+>  security/integrity/iint.c          | 14 ++++++++++++--
+>  security/integrity/ima/ima_fs.c    | 11 +++++++++--
+>  security/integrity/ima/ima_main.c  |  4 ++--
+>  security/integrity/integrity.h     |  2 ++
+>  6 files changed, 35 insertions(+), 10 deletions(-)
 
-I'm not overly concerned with requiring use of pam_selinux and/or
-replicating its logic in whatever authentication system is in use by a
-given Linux distribution for user context computation/selection.
-Others (particularly distro maintainers) are welcome to speak up if
-they disagree.
+I appreciate you reviewing most (all?) of the other patches in this
+patchset, but any chance you could review the IMA/EVM from Roberto?
+This is the only patch that really needs your review ...
 
-I'm also fine with incremental evolution here rather than wholesale
-rip-and-replace, but since you would be the one doing the work, it's
-more a question of what you want to take on IMHO.
+> diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/e=
+vm_main.c
+> index db8e324ed4e6..73d500a375cb 100644
+> --- a/security/integrity/evm/evm_main.c
+> +++ b/security/integrity/evm/evm_main.c
+> @@ -1179,6 +1179,5 @@ DEFINE_LSM(evm) =3D {
+>         .init =3D init_evm_lsm,
+>         .order =3D LSM_ORDER_LAST,
+>         .blobs =3D &evm_blob_sizes,
+> +       .initcall_late =3D init_evm,
+>  };
+> -
+> -late_initcall(init_evm);
+> diff --git a/security/integrity/evm/evm_secfs.c b/security/integrity/evm/=
+evm_secfs.c
+> index b0d2aad27850..c26724690cec 100644
+> --- a/security/integrity/evm/evm_secfs.c
+> +++ b/security/integrity/evm/evm_secfs.c
+> @@ -302,10 +302,16 @@ int __init evm_init_secfs(void)
+>         int error =3D 0;
+>         struct dentry *dentry;
+>
+> -       evm_dir =3D securityfs_create_dir("evm", integrity_dir);
+> -       if (IS_ERR(evm_dir))
+> +       error =3D integrity_fs_init();
+> +       if (error < 0)
+>                 return -EFAULT;
+>
+> +       evm_dir =3D securityfs_create_dir("evm", integrity_dir);
+> +       if (IS_ERR(evm_dir)) {
+> +               error =3D -EFAULT;
+> +               goto out;
+> +       }
+> +
+>         dentry =3D securityfs_create_file("evm", 0660,
+>                                       evm_dir, NULL, &evm_key_ops);
+>         if (IS_ERR(dentry)) {
+> @@ -329,5 +335,6 @@ int __init evm_init_secfs(void)
+>  out:
+>         securityfs_remove(evm_symlink);
+>         securityfs_remove(evm_dir);
+> +       integrity_fs_fini();
+>         return error;
+>  }
+> diff --git a/security/integrity/iint.c b/security/integrity/iint.c
+> index 068ac6c2ae1e..8ec1a3436a71 100644
+> --- a/security/integrity/iint.c
+> +++ b/security/integrity/iint.c
+> @@ -42,8 +42,11 @@ void __init integrity_load_keys(void)
+>                 evm_load_x509();
+>  }
+>
+> -static int __init integrity_fs_init(void)
+> +int __init integrity_fs_init(void)
+>  {
+> +       if (integrity_dir)
+> +               return 0;
+> +
+>         integrity_dir =3D securityfs_create_dir("integrity", NULL);
+>         if (IS_ERR(integrity_dir)) {
+>                 int ret =3D PTR_ERR(integrity_dir);
+> @@ -58,4 +61,11 @@ static int __init integrity_fs_init(void)
+>         return 0;
+>  }
+>
+> -late_initcall(integrity_fs_init)
+> +void __init integrity_fs_fini(void)
+> +{
+> +       if (!integrity_dir || !simple_empty(integrity_dir))
+> +               return;
+> +
+> +       securityfs_remove(integrity_dir);
+> +       integrity_dir =3D NULL;
+> +}
+> diff --git a/security/integrity/ima/ima_fs.c b/security/integrity/ima/ima=
+_fs.c
+> index 87045b09f120..012a58959ff0 100644
+> --- a/security/integrity/ima/ima_fs.c
+> +++ b/security/integrity/ima/ima_fs.c
+> @@ -499,9 +499,15 @@ int __init ima_fs_init(void)
+>         struct dentry *dentry;
+>         int ret;
+>
+> +       ret =3D integrity_fs_init();
+> +       if (ret < 0)
+> +               return ret;
+> +
+>         ima_dir =3D securityfs_create_dir("ima", integrity_dir);
+> -       if (IS_ERR(ima_dir))
+> -               return PTR_ERR(ima_dir);
+> +       if (IS_ERR(ima_dir)) {
+> +               ret =3D PTR_ERR(ima_dir);
+> +               goto out;
+> +       }
+>
+>         ima_symlink =3D securityfs_create_symlink("ima", NULL, "integrity=
+/ima",
+>                                                 NULL);
+> @@ -555,6 +561,7 @@ int __init ima_fs_init(void)
+>  out:
+>         securityfs_remove(ima_symlink);
+>         securityfs_remove(ima_dir);
+> +       integrity_fs_fini();
+>
+>         return ret;
+>  }
+> diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/i=
+ma_main.c
+> index eade8e1e3cb1..b703bfc2f470 100644
+> --- a/security/integrity/ima/ima_main.c
+> +++ b/security/integrity/ima/ima_main.c
+> @@ -1283,6 +1283,6 @@ DEFINE_LSM(ima) =3D {
+>         .init =3D init_ima_lsm,
+>         .order =3D LSM_ORDER_LAST,
+>         .blobs =3D &ima_blob_sizes,
+> +       /* Start IMA after the TPM is available */
+> +       .initcall_late =3D init_ima,
+>  };
+> -
+> -late_initcall(init_ima);       /* Start IMA after the TPM is available *=
+/
+> diff --git a/security/integrity/integrity.h b/security/integrity/integrit=
+y.h
+> index c2c2da691123..7b388b66cf80 100644
+> --- a/security/integrity/integrity.h
+> +++ b/security/integrity/integrity.h
+> @@ -114,6 +114,8 @@ struct ima_file_id {
+>
+>  int integrity_kernel_read(struct file *file, loff_t offset,
+>                           void *addr, unsigned long count);
+> +int __init integrity_fs_init(void);
+> +void __init integrity_fs_fini(void);
+>
+>  #define INTEGRITY_KEYRING_EVM          0
+>  #define INTEGRITY_KEYRING_IMA          1
+> --
+> 2.51.0
+
+--=20
+paul-moore.com
