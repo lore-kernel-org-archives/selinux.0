@@ -1,52 +1,75 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from sonic307-15.consmr.mail.ne1.yahoo.com (sonic307-15.consmr.mail.ne1.yahoo.com [66.163.190.38])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E034D2494ED
-	for <selinux@vger.kernel.org>; Wed,  1 Oct 2025 17:30:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEE222AEF5
+	for <selinux@vger.kernel.org>; Wed,  1 Oct 2025 21:57:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.190.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759339821; cv=none; b=biHwDVwR3oA8d2Rxr0ybgBQIfgo8aOsom+VPrFpvWiDTK+t9ksp4lPJ6WFz0DyjYkHFF7sS8SJIHeFZGWxDVuiZmUYMpr02em6D/BEdHrqKr6MThVdsH5AeR9JQYGfXFaY+OmqU+1vWLJTkArxQkzVX8TimBmE9LD4ZBmXV1Zig=
+	t=1759355824; cv=none; b=GslzS4sQfchKRNDZyZLKv1uEGiFD8d1Zepp626FSF/oAnoXJa0yj89UrlU3w4EydxMt5wH+AGMllvsgr/QMsBskrS83QFXrGoD6LZHzj6gMjvl+i6EQ0NnNDemQG7WXWDIzMjSq2TeoKwFgbkl/4bEmsB4yhAFcsmZWrTxdrfSo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759339821; c=relaxed/simple;
-	bh=Y7Dh7tWsHdBtbCh0j+euq2nIQlrer/twAPaZO/akT9o=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YjfjwLQaiCCDqER+ALac8qMFrfVzCgb/ScvFEXDfsJRRioJbkXJcY+EYnUY1b1x0GiLfVs/nxruQrn1hav+Gr+YBoTABDA4AA7osB9FhXz/sOHpty7sK2jfhY/pQTqacJuoLaxUYqqb61tHBv7M0xj75sJOWGrl8TeN4lOy9XCg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Nic+wvmj; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1759355824; c=relaxed/simple;
+	bh=/KHwMvApgdHtxvt4nJFBBT22DUVQzjKqbkBKZ6OaPgg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:References; b=sa1v1c6AV7KAf1oAtq9/vU1gfWZGS7BOo/x+8o9HrTZHYDH+7w1zdyDOFA7YWSaN0Uq+R5sMT2FI5Kq3IfsXPWJkYydgjQQ8FKXvg/D+pDdCENOcXp6DXkMNayzrzXklR5CkD+qkuUFCmJlfZHu6CuU4/+X3gr4kVpRd5FPyZNk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=TG/dNr2D; arc=none smtp.client-ip=66.163.190.38
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Nic+wvmj"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1759339818;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=f0bAMFHWHpe7EudOZUfA8EYk7xOR2QVFgDJKAAzVHdY=;
-	b=Nic+wvmjtycZEtTIjChkuFInvz8vSR8gs9Sd8FlEvU6DJuHIIuWghlb9SIomK/q2mpOHBE
-	MeWqYY7qb+JMUu6vOR5ED5wdyoQzlxEP95c2Zwv0y2BSjywZmZgWUvuiy0aj3AUZIN4b+M
-	FV9VujfxHIAZdstSyb4OX4fHJLTgtzw=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-441-jbHmS1D0PE2nWerfkonsCg-1; Wed,
- 01 Oct 2025 13:30:17 -0400
-X-MC-Unique: jbHmS1D0PE2nWerfkonsCg-1
-X-Mimecast-MFC-AGG-ID: jbHmS1D0PE2nWerfkonsCg_1759339816
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 800DF19774DD;
-	Wed,  1 Oct 2025 17:30:16 +0000 (UTC)
-Received: from plawate-thinkpadp1gen4i.pnq.csb (unknown [10.74.80.54])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 9B05819560B8;
-	Wed,  1 Oct 2025 17:30:14 +0000 (UTC)
-From: Pranav Lawate <plawate@redhat.com>
-To: selinux@vger.kernel.org
-Cc: pran.lawate@gmail.com,
-	vmojzis@redhat.com
-Subject: [PATCH] improve semanage man pages: Add examples for -r RANGE flag usage
-Date: Wed,  1 Oct 2025 22:52:59 +0530
-Message-ID: <20251001172938.206904-1-plawate@redhat.com>
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="TG/dNr2D"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1759355816; bh=d5W86E9kzuTsMlc3NVlw42rhi4hfIHTHvgYCsbysjUU=; h=From:To:Cc:Subject:Date:References:From:Subject:Reply-To; b=TG/dNr2DWDNu3QWiA0onQwFjvRvRyPDACiJT/PD96QG6ktuO40XKdIhEw7YJWbiSWelysorHG7SQh6e9uIXRl5yVH6+G369qi3zn0GTUrh+3czabDusTaqsjW6vhOS7lv/MotBo5BaZ/cBPobjmUbiWu/EsLT+BjTbtBWOZhKQ0AI6E7LTvqyh6HLhMCwwGucIPyL0Gvaak+QtIZhbunnjlEI24t3ZwPnDuhW4LPMgxWmz6KVktvinIiO9/4KMQ9g7qMLK9ezeR3GTISvmaJxJT0KWXa8OWu8X1N5fGsoGwAWI1UBJYJyfydDxjspHKDVIQu0bGDSFWUZ9+XCDn1vA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1759355816; bh=JN+ISi6AqfeTELbc+k5wiO1rPZYfFx7HHkobVJminN5=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=dTAc7XI5df0CKJilnzvES+Y5DQ52r1BDMjD9790OgnXoNYrv667z9YVe0NXkkyuZfuDUXYEXsHzgdBt0oJpq0eQW1bXGbjonbdAKBGBC3r5+YXcyvyVGFQeU02XtA8KMmGH/dAlCsRK7BQwdLqLxHN5n2i/d7ACl56By0o1fWM7j4pCgcy5yjBezxXO84qDYtC+lYY29Il0UM7G/HxWoN1JFoP/DDBN8KBn1EPuFB8J4MWF/IU9R5TjCOTCWmFfmf1QdepAGRZORPo0BlNWTmwuVNJ7xEl8GP0sRF0TIMTpTZLLBal4CuCB2xbOaTwSYu2Tff2lIg2piWdn6SMfKKQ==
+X-YMail-OSG: rbGmPKEVM1mkdoaE5n1qqLgf_1_0k2nf8hYCAM2avjykzkU1eEP3zX6AF85l4hl
+ 5yzBvR0E0FD4ieqG2vKKRWRFRCd6W2N9hantVk8O8ctfMOCudCUc47oLuD.JeHuBGfl4_9NMz7NA
+ 0JDMhWZos_7p67EPhFWdkwXoscj4Zvh5tKUutfhTwpbYM08cpLZo0bn_JxW.BumoDiLj.ZPm_dzU
+ ZtzDTohfZOIOh65Eg49AZtKAXvS17GusrSu6O7N.V3pX0L7HHX72HJrt9nqTE73ZsLidVn1nqDxo
+ mPTPYcAPlt6ye0gISLqD3W2e94qRjGQJ42JOerygXLVJ9jcS.CTEX2CwPt7tnatrUZET5tjCDdlR
+ esIASYucvTd5W1foWefwQE8_zfFn2Y_JOYuTuZLQ5P1bawZQBQuMdY7JM.NP2xZKcBlrxUDrXJzc
+ 9.Isml8dVyIrAXm_55BBmIoU7T.DSTE7HyobFNPiMBbHLFeSkPksuRTD1IykuoY4gE0bnUoV5zET
+ _lRXKZBPduSazXh5bsToJ.dDDDaqlUYP5pMkv7q1i75p3qIxidXxbOuVPkSM48axgGwpvgIF3_nu
+ rzlP6v_ggk14oEUyXleR7rTcUDQWmcKessRbnt6JyNYWA09LgHd6cWW0mSjPGMloke_SQgLS2i1E
+ gv4v0vzsP28OFlsN8N1ndhMvW2QY103ES6An9FvE7UzRMGLSNkgvV9oSbP.5dzBvQpD0vRxrvvIZ
+ v0Avej9EXBNFwCMvFhYgX88pVRooJGwSmqV_csEoStnZZ87xkfykkLlI1Kuw1KvndKmUElvS1OKG
+ 7Vkq_0ZHk8TQ.IUrHLlbGz9.6MS2H6Qq9xzGLSMlV90gEaNAkj7HaqbNdqkSH7l18aJt8Ty.QAKl
+ aA9RCKdrjT3zfgT8EM66z3ASci63lVzNYQZgbJRGELlwmzdipGYw7UlzG9cizP_kJ.vWDBZxzW2u
+ t52pMQNWvP_lPW3N4JRryHfqRm04F66.jYreg.XgBc.nqSGhxlxSFtHNaULxnn4jIy7hVpmI_hIn
+ cF8NlxDgZJfCxiAFadWgMQpiEzQzqDCfnufmLROB18Bgg7ea4TTNHW1u.Yw7Ue43XhPIfKnL5xNP
+ FtC0zjLlpjqgmTA.LRhZMI7d2Ic1IVSVgrL5wm5a7j__bOMoJo2mceDeHFPanwfFLy_blgKB1lzO
+ 16t8vx82OjYIcFUcCSL6Mi9EydpAmHme0fVO89WstjWDJbKfHOiUBc3OR7cpO78Yj95mY2Y3eebT
+ xh_txGmY_AuVXYgpjvp7Z0aUczDAoa9FNdu7b7fo.OY1fxdjHwnkDF9KBdnMedcwc.Vmln4aE887
+ 1kabhAM4UnqeNdn1N6jPtOyDmawseE8kaeYJiJCJFvuiuW86q7CvBPEKwP0Xym7EwGEw.OcoC7Bq
+ 4H8y1INbTiOPr4ARkpjjqXviypBpxz1tjz5UjgOmPYmCwgGS6XzQxt9gtM6bf2mk1p_xYxNvW2tU
+ 2x.yI12paduaTdvLkQA5W.Yhc5Esl7LaI0GU3MXW5aroyLziKDFjU3FNnW1qHxB.YPopWiUrsKO9
+ 0eYM.su5PJztJOripWFj1AZ20BwtGzntSS4dYAsr3NyHflm9WV.8jWMSEluH3mbTyNyMqVHDOrLw
+ cmoQ7eWsQWQhzZvsfwhoUlrs.rMvyHSNFWVi_weJyUTBr1cRF_jOkBeERzttJZcFmIG68STAQ9WM
+ uNgx5EGylSCrb5QXaS6uyb7TDrQ4IzGvluCHpnh8K_Gl0h45.w2I_z_gOzXiOR0zAFV4M7wMcf0w
+ 017OR.N328QJe.VsqlQuFKZJPtWJjxGJixig0m9VXz9Jwg5_b4NQzQv3GUMktjR_F7Dl3uhECI.V
+ fI6B7d.jknVfpDJ2XYJ5nWPCMdCvehc2LrCJdQnehQPjydlb3OR.FshzARAGrSQfqTBtu54hf4RT
+ v4EN2sSlgQrzAUMJw6UH10FlkERyU0grjh4s5Mj0snxocjPTwJRHX_JgziQ.IT1GrbzXEUUfvnw2
+ UY8A3P07uFJevyaAfqMLz7GO63tsLidUZfySx4cMyw94637F7KbrsNWcMd8KuQ5auO7A_2oFatfB
+ wfAejbE3x8kxpQnfAzs6_DAm1mPVEKsYbypogKkKAit.M35sykB36CvR_5BuMgYgQIrlR1CXMga_
+ 10S4bo8h6ujf1GPPxrqHJntKsWF5bISxMKbIOOZgqOfbYWVdNm5ujvphOb61QBFp_vEcOSvHdmsz
+ 71w5gTrt8Qm6azR0ao1h8ur6GgR06m.tJVK.OScwxzCLOCGI6WBXsmZd.YoDMg85M1YdvGULBAB5
+ WKesFI_AUNFJkRp45lg--
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: 88c7b613-922f-44fb-bb61-e616cd609782
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Wed, 1 Oct 2025 21:56:56 +0000
+Received: by hermes--production-gq1-66b66ffd5-4kj8j (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 49e653aa15d96dc3c9cb4665110aa952;
+          Wed, 01 Oct 2025 21:56:54 +0000 (UTC)
+From: Casey Schaufler <casey@schaufler-ca.com>
+To: casey@schaufler-ca.com,
+	paul@paul-moore.com,
+	linux-security-module@vger.kernel.org
+Cc: jmorris@namei.org,
+	serge@hallyn.com,
+	keescook@chromium.org,
+	john.johansen@canonical.com,
+	penguin-kernel@i-love.sakura.ne.jp,
+	stephen.smalley.work@gmail.com,
+	linux-kernel@vger.kernel.org,
+	selinux@vger.kernel.org
+Subject: [PATCH 0/2] LSM: Identify module using network facilities
+Date: Wed,  1 Oct 2025 14:56:41 -0700
+Message-ID: <20251001215643.31465-1-casey@schaufler-ca.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -54,108 +77,51 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+References: <20251001215643.31465-1-casey.ref@schaufler-ca.com>
 
-From: Pranav Lawate <pran.lawate@gmail.com>
+Security identification for network packets is provided by two mechanisms,
+secmarks and netlabel.
 
-Hello,
- I tried to send an email on Sept 12 and waited for 20 days. Today I got
-to know it didn't really reach properly. So now retrying with 'git
-send-email' instead of using gmail with plain text.
+Secmarks are 32 bit quantities managed by the netfilter system.  It is
+strongly believed that there is no hope that the size of this will ever
+change. This is problematic in the face of multiple security modules
+trying to use this facility at the same time.  There is no identified use
+case, nor user space support for specifying netfilter rules for multiple
+LSMs. The LSMs have been modified to request use of the secmark, and to
+eschew them if the request is denied. The first LSM that requests use
+of secmarks is granted it, and all subsequent requests are denied.
 
- This patch adds missing examples to the semanage-port and
-semanage-fcontext man pages showing the correct usage of the -r RANGE
-flag for MLS/MCS systems. Currently, users who try to use the -r flag
-without proper examples often encounter unclear error messages when
-they provide invalid range formats.
+Netlabel uses the CIPSO2 and CALIPSO IP options to transmit security
+information on IP packets. It does not support sending multiple sets of
+data. It is unlikely that any two LSMs would agree on how a packet should
+be labeled. As with the secmarks, LSMs have been modified to request use
+of netlabel, and to eschew them if the request is denied. The first LSM
+that requests use of netlabel is granted it, and all subsequent requests
+are denied.
 
-For example, Here is a command with wrong range string value:
-~~~
-# semanage fcontext -a -t admin_home_t -r s0.c0 /root/test
-libsepol.mls_from_string: invalid MLS context s0.c0 (No such file or directory).
-libsepol.mls_from_string: could not construct mls context structure
-(No such file or directory).
-libsepol.context_from_record: could not create context structure
-(Invalid argument).
-libsemanage.validate_handler: invalid context
-system_u:object_r:admin_home_t:s0.c0 specified for /root/test [all
-files] (Invalid argument).
-libsemanage.dbase_llist_iterate: could not iterate over records
-(Invalid argument).
-OSError: Invalid argument
-~~~
-Similarly for port
-~~~
-# semanage port -a -t http_port_t -p tcp -r s0.c0 8888
-libsepol.mls_from_string: invalid MLS context s0.c0 (No such file or directory).
-libsepol.mls_from_string: could not construct mls context structure
-(No such file or directory).
-libsepol.context_from_record: could not create context structure
-(Invalid argument).
-libsepol.port_from_record: could not create port structure for range
-8888:8888 (tcp) (Invalid argument).
-libsepol.sepol_port_modify: could not load port range 8888 - 8888
-(tcp) (Invalid argument).
-libsemanage.dbase_policydb_modify: could not modify record value
-(Invalid argument).
-libsemanage.semanage_base_merge_components: could not merge local
-modifications into policy (Invalid argument).
-OSError: Invalid argument
-~~~
+The ordering determines which LSM gets these features. The ability
+to determine which LSM gets the feature at boot time, perhaps with
+lsm.secmark and lsm.netlabel boot options, is left for future work.
 
-My main motive is to come up with a logic to handle this error better
-but before undertaking that big of a change I wanted to push a small
-improvement to the code and so I have added correct example strings of
-MLS range into man pages for semanage-fcontext and semanage-port which
-I have tested to work properly on my RHEL 9.5 VM.
+https://github.com/cschaufler/lsm-stacking#secmark-6.17-rc6-v1
 
-This is my first contribution to the SELinux project.
+Casey Schaufler (2):
+  LSM: Exclusive secmark usage
+  LSM: Allow reservation of netlabel
 
-  The added examples demonstrate:
-  - Correct MLS range format: s0:c0.c255
-  - Complete command syntax with the -r flag for both port and
-fcontext operations
-  - Clear indication that this is for MLS/MCS systems only
-  - Practical use cases (HTTPS port and secure directory)
+ include/linux/lsm_hooks.h           |  2 ++
+ security/apparmor/include/net.h     |  5 ++++
+ security/apparmor/lsm.c             |  7 +++---
+ security/security.c                 | 12 +++++++++
+ security/selinux/hooks.c            | 11 +++++---
+ security/selinux/include/netlabel.h |  5 ++++
+ security/selinux/netlabel.c         |  4 +--
+ security/smack/smack.h              | 10 ++++++++
+ security/smack/smack_lsm.c          | 39 +++++++++++++++++++++--------
+ security/smack/smack_netfilter.c    | 10 ++++++--
+ security/smack/smackfs.c            | 20 ++++++++++++++-
+ 11 files changed, 103 insertions(+), 22 deletions(-)
 
-  This should help users avoid common mistakes with range formatting
-and reduce support requests related to unclear error messages.
-* Here is my Patch: 
-
-Signed-off-by: Pranav Lawate <pran.lawate@gmail.com>
----
- python/semanage/semanage-fcontext.8 | 4 ++++
- python/semanage/semanage-port.8     | 2 ++
- 2 files changed, 6 insertions(+)
-
-diff --git a/python/semanage/semanage-fcontext.8 b/python/semanage/semanage-fcontext.8
-index 3a96c62f..3e7a1d8b 100644
---- a/python/semanage/semanage-fcontext.8
-+++ b/python/semanage/semanage-fcontext.8
-@@ -100,6 +100,10 @@ execute the following commands.
- # semanage fcontext \-a \-e /home /disk6/home
- # restorecon \-R \-v /disk6
- 
-+Add file-context with MLS range s0:c0.c255 for /secure directory (MLS/MCS systems only)
-+# semanage fcontext \-a \-t admin_home_t \-r s0:c0.c255 "/secure(/.*)?"
-+# restorecon \-R \-v /secure
-+
- .SH "SEE ALSO"
- .BR selinux (8),
- .BR semanage (8),
-diff --git a/python/semanage/semanage-port.8 b/python/semanage/semanage-port.8
-index c6048660..217fa398 100644
---- a/python/semanage/semanage-port.8
-+++ b/python/semanage/semanage-port.8
-@@ -61,6 +61,8 @@ Allow Apache to listen on tcp port 81 (i.e. assign tcp port 81 label http_port_t
- # semanage port \-a \-t http_port_t \-p tcp 81
- Allow sshd to listen on tcp port 8991 (i.e. assign tcp port 8991 label ssh_port_t, which sshd is allowed to listen on)
- # semanage port \-a \-t ssh_port_t \-p tcp 8991
-+Allow Apache to listen on tcp port 443 with MLS range s0:c0.c255 (MLS/MCS systems only)
-+# semanage port \-a \-t http_port_t \-p tcp \-r s0:c0.c255 443
- 
- .SH "SEE ALSO"
- .BR selinux (8),
 -- 
 2.51.0
 
