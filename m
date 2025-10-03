@@ -1,67 +1,78 @@
-Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
+Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B442712E1E9
-	for <selinux@vger.kernel.org>; Fri,  3 Oct 2025 19:04:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4FBA1EE7B7
+	for <selinux@vger.kernel.org>; Fri,  3 Oct 2025 19:11:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759518301; cv=none; b=dMUW7ymkNVMcTb63HS19gPe8gNss/Nu/9zUK9XVXbjy0+1yOlD37as7Q8PlYd2MRzoB/HAOnIwqbBmYtBUGNrBp5TH/sVKtJVjamrgsgEOkyDPA+KkgkOXqh4u2dPRjEDX9Z2qogEkjYKYHtYaSe5/gmAXLelH8+4hzKNCsV4+E=
+	t=1759518700; cv=none; b=eo9vbB6oidNvrCtKFwjy1SDu9FugEp4381hTZJAgn4/dkvDXfnv+8ADeKeBacJimzp8zJUUKCk6IW3r4KHk8IErGgYavWWhZyNxMQxWON5mDNoI+CMMsy3HQQ873XL4UwJE7aCjmUOwsVafp7cZ4g++tMMnvrE8kLdx95syfQ5I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759518301; c=relaxed/simple;
-	bh=Mndpk3/LhTYHetEVI+OFLxD4/5O4zuFOILyZCtj1rAw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=C8CiQbsMrCkK7SS/1TozCnALiinNPQue3GB/WBXAfgA1tCqQA/Xy2Rc3KdgY36cNwllfX2feh1/wucofDJ4CmpVf6sXKsiWnMDhghza/TC22CljY5xsuoF5w8KvIkb60460uzBQxZv3sUjw1PMvUVaB8JoXWAXZlcsA1BaHSZpA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Y88sF+rV; arc=none smtp.client-ip=209.85.221.48
+	s=arc-20240116; t=1759518700; c=relaxed/simple;
+	bh=qNhI4fozkv8fv/lAwki7sY08xD4XO8qRaqdADN66AB4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=VNq8Ug3KL1o2nXuM0t3b3YsemiQi7uq9nk9Ut8RgAZKegB30lk2OXUsIM5jyaedjDEak8av73osiKdj7b0XrB6ShR8nUNPA/tOiB8aepaci9sFzMAX6RlKHDiT9mzPc6cga7dS7cDLm2nf10wFQqksV62Eerr/ZslhGzUgxPCZk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OXBoJdwy; arc=none smtp.client-ip=209.85.160.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y88sF+rV"
-Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-3ee12807d97so2114103f8f.0
-        for <selinux@vger.kernel.org>; Fri, 03 Oct 2025 12:04:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OXBoJdwy"
+Received: by mail-qt1-f172.google.com with SMTP id d75a77b69052e-4e06163d9e9so25796911cf.3
+        for <selinux@vger.kernel.org>; Fri, 03 Oct 2025 12:11:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1759518294; x=1760123094; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1759518698; x=1760123498; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=lXPKrMjzomUtVsNlZbBqRRFmZ+s/rVGqZ+wPhVvxzDY=;
-        b=Y88sF+rVsbo3DWijhm5rdv4KXX+JcDMMkac3OZr6cQqFE0T+CA6kDaNjCAYJYARp0Q
-         eOMIPp8PQ9VAGXVeItTCOzrxDY8QtnPCCYoxlSHxsS1xFeKBzYSgJ/cPSr6BN+bDNq9Z
-         842at4h/rBKUT0rxC2HZ+oUBcj+e2TX4grl32o7puTXAoTAF+IeUBjjFC3q3g+HGDK5J
-         rkpAIh/13+34se7AHStQklqiIg4d83hZRvHa3CAn+W7a7vbZHCLWUYMaAuepEsymKBPz
-         pEzJ54n98ZV47K/Ga+w4CUTDaVgHgXrCwIhzewjWS8G2K1e9Kz52Lxqk1wSw9AP/v89P
-         oZbw==
+        bh=ReEFQvzA0ptpzhP/wKLfBOmz+qA+6kGtcka0Y6onfCY=;
+        b=OXBoJdwyDlWMdK1a961ECoFByUwiUT/KLBKxv0ZtjHNl79yVg3pD52MVgzYGrFxHDW
+         Z6JM79wCZOVBQiJzeyW51aEd0/TYrZrL9knu0Zd/JJ0DQsyh8ERYoA8BQMqEC3BLG6X3
+         OA0LQbfq8VZTJz+xHi0Hxeq5049qSesodGqe0MafVHnvLe92A/Jldt+t01REwOib16Iw
+         gsk21g6aBUUfDYoHvxmvuoIqNbjb+JntzIxnSqY5noxz5V4wAJxrdoD4BmsHo7QOU0SH
+         cNamGwofGdUAwLx+GIQsSSbi1d+/CLRVTWpOlMeiDZ7kpBnfyuz3nzMs/xrKAkhYLSsc
+         hheA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759518294; x=1760123094;
+        d=1e100.net; s=20230601; t=1759518698; x=1760123498;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=lXPKrMjzomUtVsNlZbBqRRFmZ+s/rVGqZ+wPhVvxzDY=;
-        b=ONT78ipB76U4mjwpok3ponOYbUOMjufW4uOVl8YsKdNWuwxQwUa/bqbMvPYI3r+lkQ
-         GN+5+auA0jt+9EklnweuIn8W7NJjefyPf7U/lwMwmp2V8I4YSLVnV3CPXXwI7+xLc1XW
-         2f2RkRYUoj2OAQRCez083ypc0sGlo3CFLTB+CMvWM7UDqr5Gz2n+mWAEVnrEjkZ/WaRU
-         lQjh/am3ZvoG6lEIr6j2W20hvU+x7vEoDgM40tqKs2cPQuK/8ITI5EZO+0MSb2usWqiT
-         HxtF0+VGY57kmu7+abvcf+KFMScupOx5Yjp88SKx58gpUMqkXa8Qa29SSnvxANdegIrH
-         Lp8Q==
-X-Gm-Message-State: AOJu0Yx6J4PXIImklGFEKbrqOVGnb7GFU5uCh5+ipy9xORnz5//0zUN3
-	iYjkbckQ6aLvnvYUb7Sm6wu/ouZQG1M/F1/nt/bCj290QMSi9N1GkWJyrhndsg==
-X-Gm-Gg: ASbGncvbHImK0TjS2y0VcYY0UndZedi3RfePMCj5DqAoPiD6JjQ0oA+c4zSHCdxMnni
-	z9sopVk6hGVkFw8WnpV16krgVTAqycK777IOGHJrs2TEKdY0j46fteP+4guxMU3ITlvajhIhp95
-	9Ex309Ng7LuTQNB8wM/E4cttman+Wyb16RblUisbUMlfwgvyy0wdETfIVwOuys1wbjUsHyWAC2C
-	C2ZDwtk6Zl7/Zu4OFL7lscLXwLKtJsTX4mlegjz1LTHKbQ/0pwcEP9xaIWEJ3We2zKYK+Ah78qi
-	Gu6CBetL5enOSChU8L6pl/H75mih13oARU0z02kss8OYkRi3B86Xk2BtuIcA6aMonwOQbOlObuA
-	MpMYRNK8zHwh5U/0ypvEgUc4u2cZqpOk=
-X-Google-Smtp-Source: AGHT+IGnOfG9v/IudaLdI8rJIMcIEUU0K1EVQDoJr+Jmpnld5SgHxXLcTpRMMnFYc14kbwoqPG5jUA==
-X-Received: by 2002:a05:6000:1889:b0:3e9:d54:19a0 with SMTP id ffacd0b85a97d-425671c1674mr2604419f8f.57.1759518293605;
-        Fri, 03 Oct 2025 12:04:53 -0700 (PDT)
-Received: from sierra ([81.79.59.57])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4255d8f0853sm9302176f8f.50.2025.10.03.12.04.53
+        bh=ReEFQvzA0ptpzhP/wKLfBOmz+qA+6kGtcka0Y6onfCY=;
+        b=sC57N/e3XUyfJjItWMLr5hFdA7oahVNrYDDPV1e6rp0IHtKdxr0C7z6xW17XW2xs6+
+         irffB2+dKbbUozSA0s9V68BR896bCIr8MZHmtdg9IbvycSH9Nhv7ZFCNr4S75cpamnpC
+         TL2E1QkKJ4zdU13+OWynPrI2DD1R6+erY20iTeVjUGjZMYH7Zim8hOWKQ8n3pN+4UsTu
+         9zGAPYxX62S9QR7i+dxue6dvnafGNpNtjy3LqLBG/fd6H/wrPLeiXK5Zu38TA3C79VtR
+         +fHngO8jhS2zSbv9Q/mUqN6QDWbruc3PuZ/EEFOfZz2aQBZ49QNXaNNFB+1EXvUmFysX
+         WNew==
+X-Forwarded-Encrypted: i=1; AJvYcCU89cCCyRk/UQwnYLiFLWrSZyKmCBqV3YRjAjxSNOAQPQWiIkRirkU8AJn6Tg7a/BlB0Dl20IOA@vger.kernel.org
+X-Gm-Message-State: AOJu0YxnJogtiFzMpD26Na1zQjakLLWMZIzgZT4rNGgEgxCjd4kNFIrM
+	BlMYAYXp1y4L24SOBimEPvku1x+uLibLyuy5Ze1d/WyxwYAoqy8SpjYB
+X-Gm-Gg: ASbGncuZ1CFvv/pyE7QCrqEbSlVtj6l/qxtSWgy0+NQ2iRHrebRSLu9F5gkIiIVdNAE
+	n83m5FbPZcZXDfACxHuUrhvjp9+WsxsVoEUv5jeLNsxO/7htvimIuxvCKt2/gZCAt61ZtYQjZfi
+	WAqZN727aJGjB1GX3a1pqAacNrrjBR1I3suhMh+sTkjV+O3X5k6I2ou4nqOliIwb5dKzAkQX7iS
+	8BcG6lMfv/Ub29tV+NqBjrnjySGL0+6M8ZUoFiRCgPKuY8+d5rudaYtLBrFZajDZb7TArFclwov
+	OzAMZ9NrlMOQzUctN7qhq7tjrqIN5UqQ360PEvbpvuOK7rJLRos/SpuA73KFZ1VWbhqDItXb2UQ
+	tlwr+/uRz8WvHfkeR4/4qce6mCc1sBRBIo2+D8a/Ss2nZFuXYC5srq4PQ+iD8p8QNsE2M79ubRG
+	Lw+LFC4hs/la1my5nR/p/Fv8+9D0lGCkMjI1M4gf6TLe7Q/EyxBrPzrR0tr02L73rYzypvN+fal
+	rg=
+X-Google-Smtp-Source: AGHT+IEpaRGWG0AE0nbyt0iFzIe6GNXbyGNAl6pbmFlWyLhGrIG6sAvUMUV/AAhdpb0nTbdnc1CI9g==
+X-Received: by 2002:a05:622a:4d0e:b0:4dc:cb40:7078 with SMTP id d75a77b69052e-4e576a3c704mr59562151cf.19.1759518697529;
+        Fri, 03 Oct 2025 12:11:37 -0700 (PDT)
+Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4e55c9e79f1sm44631881cf.28.2025.10.03.12.11.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Oct 2025 12:04:53 -0700 (PDT)
-From: Rahul Sandhu <nvraxn@gmail.com>
-To: selinux@vger.kernel.org
-Cc: Rahul Sandhu <nvraxn@gmail.com>
-Subject: [PATCH] docs: fix context_*_range (3) return value documentation
-Date: Fri,  3 Oct 2025 20:04:34 +0100
-Message-ID: <20251003190434.432154-1-nvraxn@gmail.com>
-X-Mailer: git-send-email 2.50.1
+        Fri, 03 Oct 2025 12:11:37 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: paul@paul-moore.com
+Cc: linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org,
+	john.johansen@canonical.com,
+	casey@schaufler-ca.com,
+	serge@hallyn.com,
+	corbet@lwn.net,
+	jmorris@namei.org,
+	linux-doc@vger.kernel.org,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH v2] lsm,uapi: introduce LSM_ATTR_UNSHARE
+Date: Fri,  3 Oct 2025 15:10:00 -0400
+Message-ID: <20251003190959.3288-2-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -70,30 +81,58 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The context_*_range () family of functions return less than zero on
-failure[1][2].
+This defines a new LSM_ATTR_UNSHARE attribute for the
+lsm_set_self_attr(2) and lsm_get_self_attr(2) system calls. When
+passed to lsm_set_self_attr(2), the LSM-specific namespace for the
+specified LSM id is immediately unshared in a similar manner to the
+unshare(2) system call for other Linux namespaces. When passed to
+lsm_get_self_attr(2), ctx->ctx_len is set to 1 and ctx->ctx[0] is set
+to a boolean (0 or 1) that indicates whether the LSM-specific
+namespace for the specified LSM id has been unshared and not yet fully
+initialized (e.g. no policy yet loaded).
 
-[1] https://github.com/SELinuxProject/selinux/blob/main/libselinux/src/context.c#L184
-[2] https://github.com/SELinuxProject/selinux/blob/main/libselinux/src/context.c#L190
+Link: https://lore.kernel.org/selinux/CAHC9VhRGMmhxbajwQNfGFy+ZFF1uN=UEBjqQZQ4UBy7yds3eVQ@mail.gmail.com/
 
-Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libselinux/man/man3/context_new.3 | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/userspace-api/lsm.rst | 11 +++++++++++
+ include/uapi/linux/lsm.h            |  1 +
+ 2 files changed, 12 insertions(+)
 
-diff --git a/libselinux/man/man3/context_new.3 b/libselinux/man/man3/context_new.3
-index 3dabac3d..04522366 100644
---- a/libselinux/man/man3/context_new.3
-+++ b/libselinux/man/man3/context_new.3
-@@ -71,7 +71,7 @@ set a context component.
- .SH "RETURN VALUE"
- On failure
- .BR context_*_set ()
--functions return non-zero and 0 on success.
-+functions return non-zero on failure and 0 on success.
+diff --git a/Documentation/userspace-api/lsm.rst b/Documentation/userspace-api/lsm.rst
+index a76da373841b..1134629863cf 100644
+--- a/Documentation/userspace-api/lsm.rst
++++ b/Documentation/userspace-api/lsm.rst
+@@ -48,6 +48,17 @@ creating socket objects.
+ The proc filesystem provides this value in ``/proc/self/attr/sockcreate``.
+ This is supported by the SELinux security module.
  
- The other functions return NULL on failure and non-NULL on success.
++``LSM_ATTR_UNSHARE`` is used to unshare the LSM-specific namespace for
++the process.
++When passed to ``lsm_set_self_attr(2)``, the LSM-specific namespace
++for the specified LSM id is immediately unshared in a similar manner
++to the ``unshare(2)`` system call for other Linux namespaces. When
++passed to ``lsm_get_self_attr(2)``, ``ctx->ctx_len`` is set to ``1``
++and ``ctx->ctx[0]`` is set to a boolean (``0`` or ``1``) that
++indicates whether the LSM-specific namespace for the specified LSM id
++has been unshared and not yet fully initialized (e.g. no policy yet
++loaded).
++
+ Kernel interface
+ ================
  
+diff --git a/include/uapi/linux/lsm.h b/include/uapi/linux/lsm.h
+index 938593dfd5da..fb1b4a8aa639 100644
+--- a/include/uapi/linux/lsm.h
++++ b/include/uapi/linux/lsm.h
+@@ -83,6 +83,7 @@ struct lsm_ctx {
+ #define LSM_ATTR_KEYCREATE	103
+ #define LSM_ATTR_PREV		104
+ #define LSM_ATTR_SOCKCREATE	105
++#define LSM_ATTR_UNSHARE	106
+ 
+ /*
+  * LSM_FLAG_XXX definitions identify special handling instructions
 -- 
-2.50.1
+2.51.0
 
