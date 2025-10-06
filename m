@@ -1,180 +1,113 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C3A12C9D
-	for <selinux@vger.kernel.org>; Mon,  6 Oct 2025 15:45:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17F7F2D7DF7
+	for <selinux@vger.kernel.org>; Mon,  6 Oct 2025 15:48:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759765519; cv=none; b=hVF7gDVaew9EcgodSn4kTbwEDpX5Dt3NyhdfFlHTKivppG6g3RR9IjzR+vJ4uNoslGxlNqXzvYxcZ0FbPeuPdrQ/1b30fRtyLlvwgxoxRM/kQH87Pn+vTxUfPHs/nnQE7cwustGKWbSJLC4Sf2BjGOXWbzwpMsof1qOV4APA6MM=
+	t=1759765705; cv=none; b=Ci8KOOTemZO5Md/sdHTj/p7VwnDrgNhZQYg6kqdVpSTVa7G7/s/ic85Pae/JvWsGVJPqt9y3EjQuR+PGbAb8nP4dd4ED/kVQseOFRr+cDTaRP3nDMPUCN9dB1YU/aJuTnKWc6oH3NtI7IWMRG1/HZNWWfESGWg7Qqd3eDyVRxf0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759765519; c=relaxed/simple;
-	bh=hdsJFDsqdMsshfNndEJcIIa8Wbt0uRXbhmTspGUolTs=;
+	s=arc-20240116; t=1759765705; c=relaxed/simple;
+	bh=RKpdFK4lBxt1deQ7lajcfXMG2L54FCcU5mSDWxOuGnw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=FXjiKs/BbKHgQuMZppwCu1eTKpDuVguY8koxFBOT8nFOSclrKBDNDz3LuAQHZ0EvXKrjrWOKewIjpdeq9rlqGjB4eXHmxcGIb/GM0FeZoHOG80OMwLmrodEwE/w9QP3d/j8oLqUA+D+oQDYMwHKXH7D8eR7bk+xEcr9vxjTge8c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kI9SeE3a; arc=none smtp.client-ip=209.85.216.48
+	 To:Cc:Content-Type; b=n44PuC94JASy7Tbrx0iTIXPHwgnsNnkR2tn3oc93snbvXmSwRmBNYLXom703s1SaJYvmLJ4GI9vS8+xmMrcJcBecQDi9JYeW8vyP60vGolGjGiOkhaErzbDX8+l26KknYFrUEYh1os9Lnyb8ktO0Gq3mD2N+qHerwdXQbODZAPw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mM81ky9H; arc=none smtp.client-ip=209.85.215.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kI9SeE3a"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-3306d93e562so5590202a91.1
-        for <selinux@vger.kernel.org>; Mon, 06 Oct 2025 08:45:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mM81ky9H"
+Received: by mail-pg1-f171.google.com with SMTP id 41be03b00d2f7-b550a522a49so4430614a12.2
+        for <selinux@vger.kernel.org>; Mon, 06 Oct 2025 08:48:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1759765516; x=1760370316; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1759765703; x=1760370503; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=HgQL61rOpZmTPEXJ2/fczW62Z+Lxb+IJnKp0A0AJ/pg=;
-        b=kI9SeE3aFo2yUCLWmpkkWfqT2rRU5yLO2LBMMiV/uVoOt0Gqp04DqJl3qIt7BT/UxI
-         uFr0htBa3SZyED06O/A3iUH7W22aL9k4Y6Qkz7aslXFvrJ+Se/8l7XP+IfWas4Fq6E8z
-         ZlrwtNWj5qZci7yPWc/7mLH7zMuDb10bEuBE93Lw32HnSrvwM+xGKdtjsEqss0hpxspN
-         w0kjZJ9wQARfhl9a4TkKKTThleQRBSK4nztAdDOIzmwo9rzpB+B0q5NNSneoGDogWv5s
-         55qyl8xAMms9XerP5oU30J15CI12OtUO0g2L37NQV7bxho4MQuJY0qnVUqLYu2CXsezT
-         sVeQ==
+        bh=OSVoDP1gMBKEyHdLBojGetmP9lwc24i/sF9TfuCE4Wo=;
+        b=mM81ky9HdMhc3lPK09in7BvHG17xQDE28BLQVoswTj27qHvYO0YUKZXRbI9zzzIU3Q
+         XTXA9IShzPRfYuv12Qw81nKdwOQCUAU4bjCM1EIRKFY2iIxbcLiSOzqnUrXsm0dj+48o
+         WETc0oEe+MsqS47quVrc7zfnJUH6NoNhdzDLaw0o9hju/u10urDeVgpjJ1PWqWCn5a/G
+         vBNheQtywLxLLpa+JpltetrFB4d5Yi/8CkUu1bYgShNdSXgmjPqgaeDY91wuc68+S4lY
+         SAhDAt5d4DMyrfbQ6g1fPL58ENOKEV7pmXgBvnWiz2cWOvzsO4k6b6kM5HDzyOl8pq90
+         ZOJA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759765516; x=1760370316;
+        d=1e100.net; s=20230601; t=1759765703; x=1760370503;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=HgQL61rOpZmTPEXJ2/fczW62Z+Lxb+IJnKp0A0AJ/pg=;
-        b=c0FLsoG/d/ywChpBAjjqG4bAUUKV56yixLUAp4Zv72K8dVOJI+iXmRCGprhTqiCD8S
-         7Nc+fQwuHcMoKRosfeNSQZlfqhWepafYulcflXlPqy3iHS383Kl4ixHIST30yPDgwexx
-         7y5G/vCBvw/4R/uodIvn/bdt5uxbrrdH3+fdyYPgkGA+VSMG+Z5TO0ViwZZXJQMVcCNq
-         Xl46sp8pQGDFxwmabZr4qQ4xNUPY1zA+Ryusmj0Mk7hVn/7LhIsijbUCpfI8MHoa7naR
-         j00Emd2GbQ0lKc3EwXvLo9dm0Fyd6Vv7xuYXmyyCQ+BSat5z7iw9w4XdYvlZUc9mf08U
-         N+vw==
-X-Gm-Message-State: AOJu0YwOKbP/vTjCrFNsMa45UwNRsMxWuzK2Ee8deyi1GUdR/L4TSB58
-	2kU/JR7Sa18ILCBFXLZQYhLO2wMufpMbebLbC+HfBt4l+7iN6MYDwOyZSHN313nVSFt+jvyEoYx
-	GDBOwZrUXyUKC5AER49nsPmTd0JWZsf0=
-X-Gm-Gg: ASbGncueyNWlr/TQMvsBsQxCph5n+p6sD5N3zImu5UfBU8colJbR+MxcEdQ7YZ5NkRF
-	ZY8Iy7MfthESsamfHRKYoRFfgtKzHsQO2on7GB9giQBJcubPUiEUwNx0syePcI69Hrf3yI09aPA
-	NOnOwOfHC6HcnWEMF5Xm8onEv5kCrRQI30MU5NfE1LA6ykeoQJzYGPjy9ntjUApCfTzsVdXGnho
-	U/cUwyjtizrz444E2evbU8ncGUi/jdS9nyprKeEuQ==
-X-Google-Smtp-Source: AGHT+IH5xayJGifksIeE1zAePvfRFDQIeVp2MiSIgctKfqgvna++iEvcZP7NevK64oqFECG/sCqc4zIwX83GfV+V/VM=
-X-Received: by 2002:a17:90b:1d06:b0:329:d8d2:3602 with SMTP id
- 98e67ed59e1d1-339c27a2b9fmr17725481a91.17.1759765516070; Mon, 06 Oct 2025
- 08:45:16 -0700 (PDT)
+        bh=OSVoDP1gMBKEyHdLBojGetmP9lwc24i/sF9TfuCE4Wo=;
+        b=YIkisIxpCXdBzpd4UQAZezIaxoXjgLUkdZxLA2IIQgQrwVfD0F0y8ffrC+d0R1z/ca
+         gJGRNBy6Nimc8oeexes/oy0P/2QEPa0UNvxHzsmoVRK8cd4BP3O1xIQPeUIXAVDnwFhP
+         8ypzXkutOq0vx25T+tUiAcGexl3fh+Pv6hyD5FIWuSAQZjMOvSuGkGvhpePuBYSU+WxJ
+         kU/qPWXAvMPenpikFVv5/Gv3NNCzkrvBgqr87kx2XYqRMBWoWCdtromDt6fxMjpSaMgr
+         Y9qzKNPBBn+JJZbjvW22GZ3ajaoNcwewQ8oIcO7anuQI+yETC9f9TNmaiBOQ/p6fuDIp
+         ftYA==
+X-Gm-Message-State: AOJu0YzXrPYtp2KgI6BJjbmO3lbAC800IUi70xePlfs2adaEzetUzMp9
+	5/TKlP9eDt+rpW4x4Y7YCPozJUokVseu73lXy0r2PkEnTD7xse33wVixjnGub5fPu+XVbemXeOE
+	nbmu0VDsN9Y3ORBqVdU8Mj8h5DXL1TE8pvA==
+X-Gm-Gg: ASbGncv4XuM9FtwHN00qINVwLWSIF7JxOCdvYVc5Cjx3oZuZQO5yQG+jDYhqG1rCt8f
+	jWYYq1RgMpD5McVlL+EaL2TXyf+gMenIGyvIi5LH6FJNkDllEIfXtOfNlzEvX/kfjz931WGDNwS
+	aZxejMRUbWrAAqe0GGLF3nRigPmEpvMijJnQa+ow+3EuUzqRLiRHhHrj88Il50oP+YcHnMSijop
+	hvAnbo30KdJFR5pGqDThQHKc2QvPmufG5c4KNPsBw==
+X-Google-Smtp-Source: AGHT+IElHn4/ltobpkmbA3qN7FIOW8lVu0ld6+EAmaAt70tNTm82sM0qGJtPEE7lrkfPMGGAdOYPHIiN8I2B1a43eoE=
+X-Received: by 2002:a17:90b:1649:b0:332:8133:b377 with SMTP id
+ 98e67ed59e1d1-339c2728546mr19328712a91.15.1759765703436; Mon, 06 Oct 2025
+ 08:48:23 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAEjxPJ60msaQXmD3kWOPoLb-=Fx1WK2TdGObpg+Vq40-yJEfTw@mail.gmail.com>
- <20250801174527.1203687-1-nvraxn@gmail.com>
-In-Reply-To: <20250801174527.1203687-1-nvraxn@gmail.com>
+References: <20250912132911.63623-1-calebcenter@live.com>
+In-Reply-To: <20250912132911.63623-1-calebcenter@live.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 6 Oct 2025 11:45:03 -0400
-X-Gm-Features: AS18NWB5Pr-KmRekxoN-qYNvxkjCRDplbeG3F2dgSylW8hOdJSd3vKXanlg6dZ4
-Message-ID: <CAEjxPJ46APV=OOBEqBLORJ3eHEC10P=eH1=SS3fK6BCGwpxu7g@mail.gmail.com>
-Subject: Re: [PATCH v3] libselinux: refactor selinux_check_securetty_context
-To: Rahul Sandhu <nvraxn@gmail.com>
-Cc: selinux@vger.kernel.org
+Date: Mon, 6 Oct 2025 11:48:12 -0400
+X-Gm-Features: AS18NWAPLKBgpP2I7YNvdLybwrA84bVT1eFP_U6z7-Suco_wonuTYDmx2UPV2vo
+Message-ID: <CAEjxPJ7y-vhX-dVRr6CPw4D-2+FjM9mYj9_HwJrM0XtzckFG=Q@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: fix TARGET and LIBSO on Darwin
+To: Caleb Xu <calebcenter@live.com>
+Cc: "selinux@vger.kernel.org" <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 1, 2025 at 1:45=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> wrot=
-e:
+On Fri, Sep 12, 2025 at 9:29=E2=80=AFAM Caleb Xu <calebcenter@live.com> wro=
+te:
 >
-> Invert the checks for fp and con.
+> On macOS (Darwin), shared libraries have the extension .dylib and the
+> soversion is between the basename and the extension, e.g. libfoo.1.2.3.dy=
+lib,
+> which differs from the usual libfoo.so.1.2.3 scheme in Linux.
 >
-> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+> This change sets the TARGET and LIBSO variables appropriately in the Make=
+file
+> for libsepol when building on macOS.
+>
+> Signed-off-by: Caleb Xu <calebcenter@live.com>
+
+I am not a macOS user so I can't test this myself but it looks fine to me.
 
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 > ---
->  .../src/selinux_check_securetty_context.c     | 69 ++++++++++---------
->  1 file changed, 36 insertions(+), 33 deletions(-)
+>  libsepol/src/Makefile | 2 ++
+>  1 file changed, 2 insertions(+)
 >
-> diff --git a/libselinux/src/selinux_check_securetty_context.c b/libselinu=
-x/src/selinux_check_securetty_context.c
-> index 7609752e..bf61f53d 100644
-> --- a/libselinux/src/selinux_check_securetty_context.c
-> +++ b/libselinux/src/selinux_check_securetty_context.c
-> @@ -8,45 +8,48 @@
->
->  int selinux_check_securetty_context(const char * tty_context)
->  {
-> +       FILE *fp =3D fopen(selinux_securetty_types_path(), "re");
-> +       if (!fp)
-> +               return -1;
-> +
-> +       context_t con =3D context_new(tty_context);
-> +       if (!con) {
-> +               fclose(fp);
-> +               return -1;
-> +       }
-> +
-> +       const char *type =3D context_type_get(con);
-> +
->         char *line =3D NULL;
->         char *start, *end =3D NULL;
->         size_t line_len =3D 0;
-> -       ssize_t len;
->         int found =3D -1;
-> -       FILE *fp;
-> -       fp =3D fopen(selinux_securetty_types_path(), "re");
-> -       if (fp) {
-> -               context_t con =3D context_new(tty_context);
-> -               if (con) {
-> -                       const char *type =3D context_type_get(con);
-> -                       while ((len =3D getline(&line, &line_len, fp)) !=
-=3D -1) {
-> -
-> -                               if (line[len - 1] =3D=3D '\n')
-> -                                       line[len - 1] =3D 0;
-> -
-> -                               /* Skip leading whitespace. */
-> -                               start =3D line;
-> -                               while (*start && isspace((unsigned char)*=
-start))
-> -                                       start++;
-> -                               if (!(*start))
-> -                                       continue;
-> -
-> -                               end =3D start;
-> -                               while (*end && !isspace((unsigned char)*e=
-nd))
-> -                                       end++;
-> -                               if (*end)
-> -                                       *end++ =3D 0;
-> -                               if (!strcmp(type, start)) {
-> -                                       found =3D 0;
-> -                                       break;
-> -                               }
-> -                       }
-> -                       free(line);
-> -                       context_free(con);
-> +       ssize_t len;
-> +       while ((len =3D getline(&line, &line_len, fp)) !=3D -1) {
-> +               if (line[len - 1] =3D=3D '\n')
-> +                       line[len - 1] =3D 0;
-> +
-> +               /* Skip leading whitespace. */
-> +               start =3D line;
-> +               while (*start && isspace((unsigned char)*start))
-> +                       start++;
-> +               if (!(*start))
-> +                       continue;
-> +
-> +               end =3D start;
-> +               while (*end && !isspace((unsigned char)*end))
-> +                       end++;
-> +               if (*end)
-> +                       *end++ =3D 0;
-> +               if (!strcmp(type, start)) {
-> +                       found =3D 0;
-> +                       break;
->                 }
-> -               fclose(fp);
->         }
->
-> +       free(line);
-> +       context_free(con);
-> +       fclose(fp);
-> +
->         return found;
->  }
-> -
+> diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
+> index a1aed072..90aed394 100644
+> --- a/libsepol/src/Makefile
+> +++ b/libsepol/src/Makefile
+> @@ -40,6 +40,8 @@ LD_SONAME_FLAGS=3D-soname,$(LIBSO),--version-script=3D$=
+(LIBMAP),-z,defs
+>  LN=3Dln
+>  OS :=3D $(shell uname)
+>  ifeq ($(OS), Darwin)
+> +TARGET=3Dlibsepol.dylib
+> +LIBSO=3Dlibsepol.$(LIBVERSION).dylib
+>  LD_SONAME_FLAGS=3D-install_name,$(LIBSO)
+>  LDFLAGS +=3D -undefined dynamic_lookup
+>  LN=3Dgln
 > --
-> 2.50.1
+> 2.39.5 (Apple Git-154)
+>
 >
