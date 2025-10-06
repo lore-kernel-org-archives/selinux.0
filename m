@@ -1,96 +1,89 @@
-Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75F2D2D6E7C
-	for <selinux@vger.kernel.org>; Mon,  6 Oct 2025 15:06:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BF54276038
+	for <selinux@vger.kernel.org>; Mon,  6 Oct 2025 15:12:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759763189; cv=none; b=QYWn+JxXt2Vjrws0ijHE7jffGiBR3nxRf9uX/IVW/JknaCicWj9oDT2sN82JJ2qdwShSfZHV6N0kodZbjmQeiZKbkI1L7+URvgV7eyUF2TdSnQhriWXyyVOSO5iDQsYwP1+JwyZMx5qJs+Khv4Kp604cZAyPyzVpy0mhrdHebRg=
+	t=1759763535; cv=none; b=a4WLjbWVl8xuquQ4ChbkUUW2SJaS1wxvp3yFRW4dhUdyVu7U38Bqc3/DH9suoV5DrNYbHcj0mDb+1/H9N128wDfuhaP40ek7AFvGVrIDY3Ia4DhSB3TkHZo1ktS0cZB6h5VH6Kpm9rAZBMQ/EzaV9Fx8VLDgzqw1jIbEY42XYtI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759763189; c=relaxed/simple;
-	bh=lJHbkh5A12zWmxjF0K/3iX5NnCg3rdCZCfXP9jdeMsc=;
+	s=arc-20240116; t=1759763535; c=relaxed/simple;
+	bh=EUCKyeRmlSde5T9Povz3OSAAUM506l5PqpMO7b5ULek=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=NGVBkRhskhnYcIOzATwldwqyWhEZR5qDD4xOV/RA11LPO/NV9asNynCZrtkxPfDwtb2EsVQVUgW8KUCHNNhp+D3t6FQBhC9/DCk7KfAXRFmOUms68arqKM706K4yu5aE57DI+fPAM2w74vD9QZrEGo1zgO4+qJVvRX5yQpTCwu8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=T01vsa/2; arc=none smtp.client-ip=209.85.216.50
+	 To:Cc:Content-Type; b=hnj17g2JOIwAl0oe7/ZF1J3/0R0fO/3Wkp1Tgqk6QVr4ICq2EVSNKxCgEq1u/rcdVXPcOvCNhmyd4UOWQbua8GJYvuRBkIov0LSjyZdPVLTtm57ZV9qML5ell6Zb2lbtrRSTOM8+206/Zi5gUjVz476Zp9Su9KKuN/eN2HrmENQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=l3YwGCFm; arc=none smtp.client-ip=209.85.216.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T01vsa/2"
-Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-3322e6360bbso5036239a91.0
-        for <selinux@vger.kernel.org>; Mon, 06 Oct 2025 08:06:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l3YwGCFm"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-3305c08d9f6so3573791a91.1
+        for <selinux@vger.kernel.org>; Mon, 06 Oct 2025 08:12:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1759763187; x=1760367987; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1759763533; x=1760368333; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=fq7cdt9ZifINX9wwkiJBck29zwXup5uR5rW5avuOJyc=;
-        b=T01vsa/2LE+tI1qxA86fFpKHaDVgI08/Xb3yMmPjeqEIgtC/sDF8gMn4FnQvIpAVh7
-         KdQ9gO2KehDmQgzLhwEaXdJ5sz+RSbxtsGQfynQ+4wOdn5fY5JVT3sVrFfRqC/TpwRO8
-         LSAPpp30uEPqquurcNr4Sjs5s3LDpLYqx2ccOEgQVK6JYR92bEjKMpvQwx7DgGmBsAkk
-         2t9voCNRbH5ggvaEuGPdSPTofsG+yjQstO8Pfx9pMBpOO8jwnmQEmlyQsg9vEwBk7MIj
-         E0j8o7gx90FoYdEPtMkJw2HiOzKKCAEWscU+CZFUL5QzfyRxdwVWL8jP/RvQ5HWLOWxx
-         x+sQ==
+        bh=l22LKfI/zeNEmfXygl1K/SJb9mFFH/U0K2uj6MnwM/w=;
+        b=l3YwGCFmUmi2dWaIBKZlTr0cM2hujvfo6e5dheUjrwf9m0P66rHP9jMkeF6IGLDRP4
+         IKZLpwIKdVrI3iLSTK1E4YCBmXuioEZNTEHBeY8iRIOjt8FUi803mXQAlAXcsLGtRR7l
+         OtLPIVlGQbeWO/aK41+ISAndFn3xjy5Xx/32ORzV02nbETkRoidDCMUaKwXyJK7SzNz6
+         cKtMRGpArQRHEIsw52aR/eNOshWFQYats5hPW0vFcBA9KvLQGE7naX3TSnRuKZW/PR1I
+         HmL8Kgs7N79q5Pk0C4LUwwLZ3TaCKONddyA9UKQUMudBlwCC0C8RL+14Mm6kmv0BMjcp
+         yJZQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759763187; x=1760367987;
+        d=1e100.net; s=20230601; t=1759763533; x=1760368333;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=fq7cdt9ZifINX9wwkiJBck29zwXup5uR5rW5avuOJyc=;
-        b=AMmVv5nSF94tj8/8c+bZyRyk/Z0BlVJOs8Cp3N/SZMMMIo1DNP0PYCpWLG+V/+8mp1
-         /5tDRfjvJsUo16YG7qZ0EmTgGwCOfnpdZ9FrEH3JlOqvDI3Mp0bNmysOMm8oZLEmY8Rq
-         EdVr5e+sfs7AMRkQMxacSdYVbFzzHkr0SHQ6Hl1uUY+f96yUDvfqUKK3kOuMINT3VKnt
-         E+CcqFochBYC9S/kj/xkUWTepZg0lmursdZsXaSlVlT4C/xOn49YxMaOEBAscvFB58vU
-         6Fj+c40FS1muZW8OdyRTQ6Yb/FKNAkpXw5hNVQjkbFsm89unkxfAuOoQH3D9/YPFK646
-         oQzA==
-X-Forwarded-Encrypted: i=1; AJvYcCVbG8zFSSPMv/zUWZ8bNeTyJIR4v8IDoke2xHF+IhxXu3LKqmXg5DHdJZ+U/ULPdiEPPEhyYW3i@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy/V347uGHRSkXoz9U41/eaAMHFR0w573x5Vbf8yswsog8o0cQS
-	V6DjaJwz3BNOxHOfNH/ds9K+DXXaiB8dS6gut+/HO+mndDdZhCzOBEd5SF9j2nVWdZurAdspFhV
-	XZrZimALncGm8XRYQlkmp/DxOwIDqVAc=
-X-Gm-Gg: ASbGncvbV5dtnnV2SBDiTiqK9jDqs4hwu6LRO8xpWPiPsS7Yv1Qbzhh69aKreS1skNO
-	s1pf+j0pb0wSVPpa6pLkjqMylaWb4fArU1eyZlDPdze99wIbJ2AV7X/XNMhhvRyIBE9KeT45i/Q
-	IudcneG2N6Mu2hx709ZEGsepFKk0j7ZGhvPUUNiGJH3rCC/3dpwcxFsI3yIwyuNkrT1++N3ebcq
-	y7jqulqbaXOpj3Cz5a1UIKLlDFU8E4up6DY8sEtMVWwjF+xIK8a
-X-Google-Smtp-Source: AGHT+IEHkw9MPqHcA5SKu0QHKTwycngFaQaqS3XxJjPoDvWlNzGNMRoeNdQibYdcKhNTsO76Dxf/0kWy8D06owfUj/g=
-X-Received: by 2002:a17:90b:1b46:b0:330:6c04:a72b with SMTP id
- 98e67ed59e1d1-339c27409e7mr15358707a91.3.1759763186353; Mon, 06 Oct 2025
- 08:06:26 -0700 (PDT)
+        bh=l22LKfI/zeNEmfXygl1K/SJb9mFFH/U0K2uj6MnwM/w=;
+        b=r8fxDz625jLzaHtxEDeNsap7VaGebL4kQZMUd8U8V+Qas3Lln9jxAiwkDa8nWKuavN
+         vynwDKRQCqZQ0rfWwWW4nNR58kS20Q8cY+XeLhqtZSXftLiQAshwxS4joir+3AUClyc6
+         xrdIPGsCjmylW4heaLjHeBUYhu/V0J3eXYzKG/cgCL4V4wZjVG2S5vz6/HiBGsptBs/U
+         ce0HL56rJZwrzd3SgMa0uQAD3izoxm6pqbX/+f8TnPhnU9WOtae49z7O4c0dhveaJI23
+         Kt/NJ/Z40kcrqp15MqJYvAtC1vyZJQQ0lz4JdpVCLaQeLNoQoP8gOf4rHukk+Qbq7If1
+         /1uQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVVNHiXaAPqZBSKcCOWxBredsykKY6I8a75geCQG2fK3HA2gxhjEwM7KOFSios/Z+bVDqxzmY03@vger.kernel.org
+X-Gm-Message-State: AOJu0YyVnru6dV2QH1NwcYo5oaQNVo8EwML1+pBDy7GNwbVhMP3n1fbD
+	MUyD6M0RIyUu5EFMdpRp7PhWzNXeyCBTrmSSKfYPQg7qfwRcwl2l8RiYRqmwiG/yb/a5KmiHK9e
+	MG9130Egzthepb4it5Ymsr3YyawNvlIo=
+X-Gm-Gg: ASbGncsoouUUXggHbqmtOyOwTXrUV36GKsSZ7iXo9Nb6OYlEAWeRyaEqObX4kiWRESH
+	rxL8X8UAa/yOdoV9it/Gom4ZUORsULz7d3jDXNSpYYU5sQQzIcpExoFxqKipuXod0YAc5aVJLWD
+	AFvkgw7RSSKXjJ8NkC0Rz0en0M4lkrQRvfaAjlPqtkn9RKq/MOpCHwKnL7QuPBUoseZK2HSEydZ
+	syFHPmYMqig18lHlELhR84eecfvDBe2TbXJWybTUg==
+X-Google-Smtp-Source: AGHT+IE5QOM7Iv2WUk6m7hgkLPUymhRFxpNDwkuO3SkOwxbVEChNOh9opcr2Jm3x+DDzq3RqWNtrqr5yvg8DnwRI0Yg=
+X-Received: by 2002:a17:90a:510:b0:32d:a37c:4e31 with SMTP id
+ 98e67ed59e1d1-339b52180f2mr14298555a91.17.1759763532804; Mon, 06 Oct 2025
+ 08:12:12 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250731102224.1045166-1-nvraxn@gmail.com> <CAP+JOzTBrgKgzf2M4VRXXG_1=wSd-Zf-xGrp7J6w=o34+adGCg@mail.gmail.com>
-In-Reply-To: <CAP+JOzTBrgKgzf2M4VRXXG_1=wSd-Zf-xGrp7J6w=o34+adGCg@mail.gmail.com>
+References: <20250813052552.3636318-1-inseob@google.com> <CAP+JOzQu-KPLP9QSeseLj+VB10j-PYO1se8T+zKY4-kP=zQoiA@mail.gmail.com>
+In-Reply-To: <CAP+JOzQu-KPLP9QSeseLj+VB10j-PYO1se8T+zKY4-kP=zQoiA@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 6 Oct 2025 11:06:15 -0400
-X-Gm-Features: AS18NWCHevIHIxVXZpPVFyjENRnHXHMlmI5CD4rpRxr_LgQoHRoDM5X2H00cB08
-Message-ID: <CAEjxPJ7VV9bvTQq4BDeynCuLaWe3ER0YRwTnXAwcre4KKk1U+w@mail.gmail.com>
-Subject: Re: [PATCH] python: fix flake8 F824 error
+Date: Mon, 6 Oct 2025 11:12:01 -0400
+X-Gm-Features: AS18NWCPqZcbeFXuxLkbTRczgZ4rqL_aboYrpMQjmQtqI_f8Hvs4BCEAkVr3Cm0
+Message-ID: <CAEjxPJ6OhyTeuVbpck4Z5hcw7gy=amNsRFCwnK6b-xxq1empTg@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: Fix erroneous genfscon asterisks
 To: James Carter <jwcart2@gmail.com>
-Cc: Rahul Sandhu <nvraxn@gmail.com>, selinux@vger.kernel.org
+Cc: Inseob Kim <inseob@google.com>, selinux@vger.kernel.org, takayas@google.com, 
+	tweek@google.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 12, 2025 at 11:45=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
+On Thu, Aug 14, 2025 at 12:52=E2=80=AFPM James Carter <jwcart2@gmail.com> w=
 rote:
 >
-> On Thu, Jul 31, 2025 at 6:34=E2=80=AFAM Rahul Sandhu <nvraxn@gmail.com> w=
-rote:
+> On Wed, Aug 13, 2025 at 1:26=E2=80=AFAM Inseob Kim <inseob@google.com> wr=
+ote:
 > >
-> > This fixes failing CI[1].  From the flake8 documentation[2]:
+> > When genfs_seclabel_wildcard is on, extra asterisks are added to keep
+> > semantics of genfscon entries. That needs to be removed when converting
+> > the policy to CIL or conf, but genfscon_to_cil is missing it.
 > >
-> > > global name / nonlocal name is unused: name is never assigned in scop=
-e
-> >
-> > Meaning that a global only needs to be defined with the global keyword
-> > in scope when it's being assigned to; not when it's being read.
-> >
-> > [1] https://github.com/SELinuxProject/selinux/actions/runs/16623315767/=
-job/47032933729
-> > [2] https://flake8.pycqa.org/en/latest/user/error-codes.html
-> >
-> > Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+> > Signed-off-by: Inseob Kim <inseob@google.com>
 >
 > Acked-by: James Carter <jwcart2@gmail.com>
 
@@ -98,95 +91,63 @@ Thanks, merged.
 
 >
 > > ---
-> >  mcstrans/share/util/mlstrans-test         | 4 ++--
-> >  python/semanage/seobject.py               | 1 -
-> >  python/sepolgen/src/sepolgen/refparser.py | 2 +-
-> >  python/sepolicy/sepolicy/__init__.py      | 3 ---
-> >  4 files changed, 3 insertions(+), 7 deletions(-)
+> >  libsepol/src/module_to_cil.c | 17 +++++++++++++++--
+> >  1 file changed, 15 insertions(+), 2 deletions(-)
 > >
-> > diff --git a/mcstrans/share/util/mlstrans-test b/mcstrans/share/util/ml=
-strans-test
-> > index df34e0e6..8fa0c379 100644
-> > --- a/mcstrans/share/util/mlstrans-test
-> > +++ b/mcstrans/share/util/mlstrans-test
-> > @@ -8,7 +8,7 @@ errors =3D 0
+> > diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.=
+c
+> > index b4439b27..8647d928 100644
+> > --- a/libsepol/src/module_to_cil.c
+> > +++ b/libsepol/src/module_to_cil.c
+> > @@ -2987,10 +2987,22 @@ static int genfscon_to_cil(struct policydb *pdb=
+)
+> >         struct genfs *genfs;
+> >         struct ocontext *ocon;
+> >         uint32_t sclass;
+> > +       char *name;
+> > +       int wildcard =3D ebitmap_get_bit(&pdb->policycaps, POLICYDB_CAP=
+_GENFS_SECLABEL_WILDCARD);
+> > +       size_t name_len;
 > >
-> >
-> >  def untrans(trans, val):
-> > -    global errors, verbose
-> > +    global errors
-> >      (rc, raw) =3D selinux.selinux_trans_to_raw_context(trans)
-> >      if raw !=3D val:
-> >          print("untrans: '%s' -> '%s' !=3D '%s' FAILED" % (trans, raw, =
-val))
-> > @@ -19,7 +19,7 @@ def untrans(trans, val):
-> >
-> >
-> >  def trans(raw, val):
-> > -    global errors, verbose
-> > +    global errors
-> >      (rc, trans) =3D selinux.selinux_raw_to_trans_context(raw)
-> >      if trans !=3D val:
-> >          print("trans: '%s' -> '%s' !=3D '%s' FAILED" % (raw, trans, va=
-l))
-> > diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
-> > index 10963e81..b41efd59 100644
-> > --- a/python/semanage/seobject.py
-> > +++ b/python/semanage/seobject.py
-> > @@ -244,7 +244,6 @@ class semanageRecords:
-> >      args =3D None
-> >
-> >      def __init__(self, args =3D None):
-> > -        global handle
-> >          if args:
-> >              # legacy code - args was store originally
-> >              if isinstance(args, str):
-> > diff --git a/python/sepolgen/src/sepolgen/refparser.py b/python/sepolge=
-n/src/sepolgen/refparser.py
-> > index c8a3eb54..01a322ca 100644
-> > --- a/python/sepolgen/src/sepolgen/refparser.py
-> > +++ b/python/sepolgen/src/sepolgen/refparser.py
-> > @@ -1038,7 +1038,7 @@ def p_quoted_filename(p):
-> >  #
-> >
-> >  def p_error(tok):
-> > -    global error, parse_file, success, parser
-> > +    global error, success
-> >      error =3D "%s: Syntax error on line %d %s [type=3D%s]" % (parse_fi=
-le, tok.lineno, tok.value, tok.type)
-> >      print(error)
-> >      success =3D False
-> > diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sep=
-olicy/__init__.py
-> > index 2d526c94..3b87a869 100644
-> > --- a/python/sepolicy/sepolicy/__init__.py
-> > +++ b/python/sepolicy/sepolicy/__init__.py
-> > @@ -195,7 +195,6 @@ def init_policy():
-> >      policy(policy_file)
-> >
-> >  def info(setype, name=3DNone):
-> > -    global _pol
-> >      if not _pol:
-> >          init_policy()
-> >
-> > @@ -354,7 +353,6 @@ def _setools_rule_to_dict(rule):
-> >
-> >
-> >  def search(types, seinfo=3DNone):
-> > -    global _pol
-> >      if not _pol:
-> >          init_policy()
-> >      if not seinfo:
-> > @@ -936,7 +934,6 @@ def get_all_roles():
-> >      if roles:
-> >          return roles
-> >
-> > -    global _pol
-> >      if not _pol:
-> >          init_policy()
-> >
+> >         for (genfs =3D pdb->genfs; genfs !=3D NULL; genfs =3D genfs->ne=
+xt) {
+> >                 for (ocon =3D genfs->head; ocon !=3D NULL; ocon =3D oco=
+n->next) {
+> >                         sclass =3D ocon->v.sclass;
+> > +                       name =3D ocon->u.name;
+> > +                       name_len =3D strlen(name);
+> > +                       if (wildcard) {
+> > +                               if (name_len =3D=3D 0 || name[name_len =
+- 1] !=3D '*') {
+> > +                                       ERR(NULL, "genfscon path must e=
+nd with '*' when genfs_seclabel_wildcard");
+> > +                                       return -1;
+> > +                               }
+> > +                               --name_len;
+> > +                       }
+> >                         if (sclass) {
+> >                                 const char *file_type;
+> >                                 const char *class_name =3D pdb->p_class=
+_val_to_name[sclass-1];
+> > @@ -3011,9 +3023,10 @@ static int genfscon_to_cil(struct policydb *pdb)
+> >                                 } else {
+> >                                         return -1;
+> >                                 }
+> > -                               cil_printf("(genfscon %s \"%s\" %s ", g=
+enfs->fstype, ocon->u.name, file_type);
+> > +                               cil_printf("(genfscon %s \"%.*s\" %s ",=
+ genfs->fstype, (int)name_len, name,
+> > +                                          file_type);
+> >                         } else {
+> > -                               cil_printf("(genfscon %s \"%s\" ", genf=
+s->fstype, ocon->u.name);
+> > +                               cil_printf("(genfscon %s \"%.*s\" ", ge=
+nfs->fstype, (int)name_len, name);
+> >                         }
+> >                         context_to_cil(pdb, &ocon->context[0]);
+> >                         cil_printf(")\n");
 > > --
-> > 2.50.1
+> > 2.51.0.rc0.205.g4a044479a3-goog
 > >
 > >
 >
