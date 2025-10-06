@@ -1,153 +1,162 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BF54276038
-	for <selinux@vger.kernel.org>; Mon,  6 Oct 2025 15:12:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E23B3299927
+	for <selinux@vger.kernel.org>; Mon,  6 Oct 2025 15:26:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759763535; cv=none; b=a4WLjbWVl8xuquQ4ChbkUUW2SJaS1wxvp3yFRW4dhUdyVu7U38Bqc3/DH9suoV5DrNYbHcj0mDb+1/H9N128wDfuhaP40ek7AFvGVrIDY3Ia4DhSB3TkHZo1ktS0cZB6h5VH6Kpm9rAZBMQ/EzaV9Fx8VLDgzqw1jIbEY42XYtI=
+	t=1759764387; cv=none; b=OU3oG7oSRS4UcRpKDn2LeuyRofYTUInwhcrPS/La/aU52hhqadM59cU4S5hboVpa1SxokW/5laWZQbWnSGvlKfMyrZs0723kfD2r+4qLKcMPByhPQOFHCy7PEQY8TwynTORmmNXT+uBC7Oor5bcvlrmr8N3vrPyni2AwOJfyVXs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759763535; c=relaxed/simple;
-	bh=EUCKyeRmlSde5T9Povz3OSAAUM506l5PqpMO7b5ULek=;
+	s=arc-20240116; t=1759764387; c=relaxed/simple;
+	bh=xgn6W3Mw3nIatAj9wnOmnRcTjd8DfkcJqUW+JBmRrLo=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hnj17g2JOIwAl0oe7/ZF1J3/0R0fO/3Wkp1Tgqk6QVr4ICq2EVSNKxCgEq1u/rcdVXPcOvCNhmyd4UOWQbua8GJYvuRBkIov0LSjyZdPVLTtm57ZV9qML5ell6Zb2lbtrRSTOM8+206/Zi5gUjVz476Zp9Su9KKuN/eN2HrmENQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=l3YwGCFm; arc=none smtp.client-ip=209.85.216.43
+	 To:Cc:Content-Type; b=a/BD9GkPFekTmDu7oW2kAqwYWuqnHAATe9krrJfDkzYyx7qpAZRMLcHYa68rwa/aUM4cWzD7Iu5da2avIYK4I7IsHIKCw9GJSsfFw7APQB0lVeoxtgCOYe7cl5YoXxhHfJfbBs//5q+Oby3iVETJ0i/p0b2vAQT85W2/CxBlV8U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HgoKWVHb; arc=none smtp.client-ip=209.85.210.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l3YwGCFm"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-3305c08d9f6so3573791a91.1
-        for <selinux@vger.kernel.org>; Mon, 06 Oct 2025 08:12:13 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HgoKWVHb"
+Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-781251eec51so3785356b3a.3
+        for <selinux@vger.kernel.org>; Mon, 06 Oct 2025 08:26:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1759763533; x=1760368333; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1759764384; x=1760369184; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=l22LKfI/zeNEmfXygl1K/SJb9mFFH/U0K2uj6MnwM/w=;
-        b=l3YwGCFmUmi2dWaIBKZlTr0cM2hujvfo6e5dheUjrwf9m0P66rHP9jMkeF6IGLDRP4
-         IKZLpwIKdVrI3iLSTK1E4YCBmXuioEZNTEHBeY8iRIOjt8FUi803mXQAlAXcsLGtRR7l
-         OtLPIVlGQbeWO/aK41+ISAndFn3xjy5Xx/32ORzV02nbETkRoidDCMUaKwXyJK7SzNz6
-         cKtMRGpArQRHEIsw52aR/eNOshWFQYats5hPW0vFcBA9KvLQGE7naX3TSnRuKZW/PR1I
-         HmL8Kgs7N79q5Pk0C4LUwwLZ3TaCKONddyA9UKQUMudBlwCC0C8RL+14Mm6kmv0BMjcp
-         yJZQ==
+        bh=KIxIzysK0PjWOOGQ72Zy20mn3PkKWE312+es7okbF7c=;
+        b=HgoKWVHbQSDVBbn8BJeIwBYP51T3c9PUVh7HfnMGFAgxorYOF00Ni+9Nqg60crrmvy
+         Q47EqnpEN7P0wtp84GWuaWunGOv133I7QKR8El4F+xXWZP8VSzH3zDl4gAjzw/uRpL3p
+         /B6FSn7BY+i6i6+VYSW/+QDNDeZyMi5R8MEdAsCn5dDSQ4J5AytkrR566kh68lkRc5zC
+         utM3E2qguIZUX7NGV6U50wURhs32NyqW0eyrjzRpeYNQbdAgOVAgCOuQeN0jOSyW9WMe
+         CV53JDJbCcQzBXCSFVw22exODFjrCKOGsYDtefxjinS1C0m7VR4JHlPax7gnSiB5xYgN
+         HiQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759763533; x=1760368333;
+        d=1e100.net; s=20230601; t=1759764384; x=1760369184;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=l22LKfI/zeNEmfXygl1K/SJb9mFFH/U0K2uj6MnwM/w=;
-        b=r8fxDz625jLzaHtxEDeNsap7VaGebL4kQZMUd8U8V+Qas3Lln9jxAiwkDa8nWKuavN
-         vynwDKRQCqZQ0rfWwWW4nNR58kS20Q8cY+XeLhqtZSXftLiQAshwxS4joir+3AUClyc6
-         xrdIPGsCjmylW4heaLjHeBUYhu/V0J3eXYzKG/cgCL4V4wZjVG2S5vz6/HiBGsptBs/U
-         ce0HL56rJZwrzd3SgMa0uQAD3izoxm6pqbX/+f8TnPhnU9WOtae49z7O4c0dhveaJI23
-         Kt/NJ/Z40kcrqp15MqJYvAtC1vyZJQQ0lz4JdpVCLaQeLNoQoP8gOf4rHukk+Qbq7If1
-         /1uQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVVNHiXaAPqZBSKcCOWxBredsykKY6I8a75geCQG2fK3HA2gxhjEwM7KOFSios/Z+bVDqxzmY03@vger.kernel.org
-X-Gm-Message-State: AOJu0YyVnru6dV2QH1NwcYo5oaQNVo8EwML1+pBDy7GNwbVhMP3n1fbD
-	MUyD6M0RIyUu5EFMdpRp7PhWzNXeyCBTrmSSKfYPQg7qfwRcwl2l8RiYRqmwiG/yb/a5KmiHK9e
-	MG9130Egzthepb4it5Ymsr3YyawNvlIo=
-X-Gm-Gg: ASbGncsoouUUXggHbqmtOyOwTXrUV36GKsSZ7iXo9Nb6OYlEAWeRyaEqObX4kiWRESH
-	rxL8X8UAa/yOdoV9it/Gom4ZUORsULz7d3jDXNSpYYU5sQQzIcpExoFxqKipuXod0YAc5aVJLWD
-	AFvkgw7RSSKXjJ8NkC0Rz0en0M4lkrQRvfaAjlPqtkn9RKq/MOpCHwKnL7QuPBUoseZK2HSEydZ
-	syFHPmYMqig18lHlELhR84eecfvDBe2TbXJWybTUg==
-X-Google-Smtp-Source: AGHT+IE5QOM7Iv2WUk6m7hgkLPUymhRFxpNDwkuO3SkOwxbVEChNOh9opcr2Jm3x+DDzq3RqWNtrqr5yvg8DnwRI0Yg=
-X-Received: by 2002:a17:90a:510:b0:32d:a37c:4e31 with SMTP id
- 98e67ed59e1d1-339b52180f2mr14298555a91.17.1759763532804; Mon, 06 Oct 2025
- 08:12:12 -0700 (PDT)
+        bh=KIxIzysK0PjWOOGQ72Zy20mn3PkKWE312+es7okbF7c=;
+        b=wkcYxPU10+dAjrw16ZOQqdfDrq02NpHU+gD/LYTwjhT8IDvC3QCMZqsrBMkNm6rf/b
+         1/Ohs0C0KtQo7pLJSTTi8Yg92a3BTlIUeCXO+SqjkcuOVn+ZIVxfx5YJkAJpwNb5PTHj
+         euLtxYjP/ZCVxxHvATfEUz2V2Ri3gLeZsAbMiHbC16+rQ512j7eE7kEK9Ui0GYyzoRn8
+         fmzVTO3ZkR02E5cSEHoV4M4ILuJY1AM1L5tLcrH7a96PuY7eKCthWyTbB+MQM4jwbAAt
+         ruYoLductgKv7h3/umZIDx5i9hI2RWcGzukr6Cze56gSzMJk6Du5EzIJZW0UavzmCxYZ
+         G4IA==
+X-Gm-Message-State: AOJu0YyBjxEjajhR8U2MQPEex/rDOT3bO3NZ90RbQJiJCQ0LH/K2JoFh
+	1DQ4DpuO80lPJMf52YH9aIualSgjSuQcfvvvXk7SLkk5N3STRXwv+P0FLmZjSU6yC4yF5u+UY1s
+	7U6C0GJGz7S6maLeCPjGCJQT5wXo3NvCiLw==
+X-Gm-Gg: ASbGncvyqhW/M1bdp4d6WmDNHdv1bi0k5kmPc4rrs88O+Q0+zMOqKl8KamG46hetCLS
+	4JdX9SiZ57zfQzZzKQoG00y8wWaVNOMSGJ+MRAt1cZzV7IyvKjuJN0D5l63dJIxtiGhaczR0153
+	7vRJ8jQ2WCklxIuAWuOCbMnkrvwaxF/s2kNlbKMbs+kkBSOrhTj26dVXtF2aafxJeo0/HfF2wYQ
+	Qny90VTy6Dp/+uUf5H8Y+M7HWOaz84=
+X-Google-Smtp-Source: AGHT+IFDhBWjunXBEe+Ryic6LEJtLltvMEiiZqV6N3OJ3MXRrEJgbelgPrLiQrg9m9tQT2Zu83XitcCSaOpSqyG00dU=
+X-Received: by 2002:a17:90b:3b86:b0:32e:5b07:15dd with SMTP id
+ 98e67ed59e1d1-339c2707b50mr13483250a91.1.1759764384173; Mon, 06 Oct 2025
+ 08:26:24 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250813052552.3636318-1-inseob@google.com> <CAP+JOzQu-KPLP9QSeseLj+VB10j-PYO1se8T+zKY4-kP=zQoiA@mail.gmail.com>
-In-Reply-To: <CAP+JOzQu-KPLP9QSeseLj+VB10j-PYO1se8T+zKY4-kP=zQoiA@mail.gmail.com>
+References: <20250731171706.1079400-1-nvraxn@gmail.com>
+In-Reply-To: <20250731171706.1079400-1-nvraxn@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 6 Oct 2025 11:12:01 -0400
-X-Gm-Features: AS18NWCPqZcbeFXuxLkbTRczgZ4rqL_aboYrpMQjmQtqI_f8Hvs4BCEAkVr3Cm0
-Message-ID: <CAEjxPJ6OhyTeuVbpck4Z5hcw7gy=amNsRFCwnK6b-xxq1empTg@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: Fix erroneous genfscon asterisks
-To: James Carter <jwcart2@gmail.com>
-Cc: Inseob Kim <inseob@google.com>, selinux@vger.kernel.org, takayas@google.com, 
-	tweek@google.com
+Date: Mon, 6 Oct 2025 11:26:13 -0400
+X-Gm-Features: AS18NWAfa-KUIb1f0kdBmbGKlZaY6JsYttC0qOokbm6BmFuEUdxcFP_9X1xT0Ww
+Message-ID: <CAEjxPJ7L7K1=1JE0+h28uRt3fySF5RgW1wt_k352_Wv+qr9TUg@mail.gmail.com>
+Subject: Re: [PATCH] seunshare: always use translations when printing
+To: Rahul Sandhu <nvraxn@gmail.com>
+Cc: selinux@vger.kernel.org, Petr Lautrbach <plautrba@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 14, 2025 at 12:52=E2=80=AFPM James Carter <jwcart2@gmail.com> w=
-rote:
+On Thu, Jul 31, 2025 at 1:18=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> wro=
+te:
 >
-> On Wed, Aug 13, 2025 at 1:26=E2=80=AFAM Inseob Kim <inseob@google.com> wr=
-ote:
-> >
-> > When genfs_seclabel_wildcard is on, extra asterisks are added to keep
-> > semantics of genfscon entries. That needs to be removed when converting
-> > the policy to CIL or conf, but genfscon_to_cil is missing it.
-> >
-> > Signed-off-by: Inseob Kim <inseob@google.com>
+> Some errors previously were not using gettext for translations, hence
+> wrap them with the _ macro.
 >
-> Acked-by: James Carter <jwcart2@gmail.com>
+> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
 
-Thanks, merged.
+Obviously this will require updating the translation files.
 
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+
+
+> ---
+>  sandbox/seunshare.c | 14 +++++++-------
+>  1 file changed, 7 insertions(+), 7 deletions(-)
 >
-> > ---
-> >  libsepol/src/module_to_cil.c | 17 +++++++++++++++--
-> >  1 file changed, 15 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.=
-c
-> > index b4439b27..8647d928 100644
-> > --- a/libsepol/src/module_to_cil.c
-> > +++ b/libsepol/src/module_to_cil.c
-> > @@ -2987,10 +2987,22 @@ static int genfscon_to_cil(struct policydb *pdb=
-)
-> >         struct genfs *genfs;
-> >         struct ocontext *ocon;
-> >         uint32_t sclass;
-> > +       char *name;
-> > +       int wildcard =3D ebitmap_get_bit(&pdb->policycaps, POLICYDB_CAP=
-_GENFS_SECLABEL_WILDCARD);
-> > +       size_t name_len;
-> >
-> >         for (genfs =3D pdb->genfs; genfs !=3D NULL; genfs =3D genfs->ne=
-xt) {
-> >                 for (ocon =3D genfs->head; ocon !=3D NULL; ocon =3D oco=
-n->next) {
-> >                         sclass =3D ocon->v.sclass;
-> > +                       name =3D ocon->u.name;
-> > +                       name_len =3D strlen(name);
-> > +                       if (wildcard) {
-> > +                               if (name_len =3D=3D 0 || name[name_len =
-- 1] !=3D '*') {
-> > +                                       ERR(NULL, "genfscon path must e=
-nd with '*' when genfs_seclabel_wildcard");
-> > +                                       return -1;
-> > +                               }
-> > +                               --name_len;
-> > +                       }
-> >                         if (sclass) {
-> >                                 const char *file_type;
-> >                                 const char *class_name =3D pdb->p_class=
-_val_to_name[sclass-1];
-> > @@ -3011,9 +3023,10 @@ static int genfscon_to_cil(struct policydb *pdb)
-> >                                 } else {
-> >                                         return -1;
-> >                                 }
-> > -                               cil_printf("(genfscon %s \"%s\" %s ", g=
-enfs->fstype, ocon->u.name, file_type);
-> > +                               cil_printf("(genfscon %s \"%.*s\" %s ",=
- genfs->fstype, (int)name_len, name,
-> > +                                          file_type);
-> >                         } else {
-> > -                               cil_printf("(genfscon %s \"%s\" ", genf=
-s->fstype, ocon->u.name);
-> > +                               cil_printf("(genfscon %s \"%.*s\" ", ge=
-nfs->fstype, (int)name_len, name);
-> >                         }
-> >                         context_to_cil(pdb, &ocon->context[0]);
-> >                         cil_printf(")\n");
-> > --
-> > 2.51.0.rc0.205.g4a044479a3-goog
-> >
-> >
+> diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
+> index 106f625f..97430535 100644
+> --- a/sandbox/seunshare.c
+> +++ b/sandbox/seunshare.c
+> @@ -103,7 +103,7 @@ static int set_signal_handles(void)
+>
+>         /* Empty the signal mask in case someone is blocking a signal */
+>         if (sigemptyset(&empty)) {
+> -               fprintf(stderr, "Unable to obtain empty signal set\n");
+> +               fprintf(stderr, _("Unable to obtain empty signal set\n"))=
+;
+>                 return -1;
+>         }
+>
+> @@ -111,12 +111,12 @@ static int set_signal_handles(void)
+>
+>         /* Terminate on SIGHUP */
+>         if (signal(SIGHUP, SIG_DFL) =3D=3D SIG_ERR) {
+> -               perror("Unable to set SIGHUP handler");
+> +               perror(_("Unable to set SIGHUP handler"));
+>                 return -1;
+>         }
+>
+>         if (signal(SIGINT, handler) =3D=3D SIG_ERR) {
+> -               perror("Unable to set SIGINT handler");
+> +               perror(_("Unable to set SIGINT handler"));
+>                 return -1;
+>         }
+>
+> @@ -353,7 +353,7 @@ static int rsynccmd(const char * src, const char *dst=
+, char **cmdbuf)
+>
+>         /* match glob for all files in src dir */
+>         if (asprintf(&buf, "%s/*", src) =3D=3D -1) {
+> -               fprintf(stderr, "Out of memory\n");
+> +               fprintf(stderr, _("Out of memory\n"));
+>                 return -1;
+>         }
+>
+> @@ -371,12 +371,12 @@ static int rsynccmd(const char * src, const char *d=
+st, char **cmdbuf)
+>
+>                 if (!buf) {
+>                         if (asprintf(&newbuf, "\'%s\'", path) =3D=3D -1) =
+{
+> -                               fprintf(stderr, "Out of memory\n");
+> +                               fprintf(stderr, _("Out of memory\n"));
+>                                 goto err;
+>                         }
+>                 } else {
+>                         if (asprintf(&newbuf, "%s  \'%s\'", buf, path) =
+=3D=3D -1) {
+> -                               fprintf(stderr, "Out of memory\n");
+> +                               fprintf(stderr, _("Out of memory\n"));
+>                                 goto err;
+>                         }
+>                 }
+> @@ -387,7 +387,7 @@ static int rsynccmd(const char * src, const char *dst=
+, char **cmdbuf)
+>
+>         if (buf) {
+>                 if (asprintf(&newbuf, "/usr/bin/rsync -trlHDq %s '%s'", b=
+uf, dst) =3D=3D -1) {
+> -                       fprintf(stderr, "Out of memory\n");
+> +                       fprintf(stderr, _("Out of memory\n"));
+>                         goto err;
+>                 }
+>                 *cmdbuf=3Dnewbuf;
+> --
+> 2.50.1
+>
 >
