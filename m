@@ -1,207 +1,122 @@
-Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 112771E98F3
-	for <selinux@vger.kernel.org>; Mon,  6 Oct 2025 16:42:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C81171DF982
+	for <selinux@vger.kernel.org>; Mon,  6 Oct 2025 16:46:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759768956; cv=none; b=ceEi1EUTVdaT7G4oEFkgE/4wwLDc806hfg8QQoAzgZf6hIJss3kRI5rKuS8HSHcR2z3sLyZADrGeGEmLAe2PS79LUaOfl4j9eEQ9rPstwiZIQSx6RkLpKVt024OHcTQZGreG8oaul5CMoTf0CVWKepky3JhQkhbLVEGtXql1BwA=
+	t=1759769185; cv=none; b=gLbOB/xGe3Z56+OgIPjTR1AVYDrHFN56m2UxGgkKKIrGQyGC2X3iFASoBMyUNNau1GuwwhMv1BZSH2IZOJRQRWOg3DtgbOQtsW8M/cEaYLM6VUeRMoEupvwjDanb4vFJ0jGjv7wZNlAuVv3HiTJsVRfGqilbUVz94DUA0kYSc8I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759768956; c=relaxed/simple;
-	bh=YpmIm7Q5hYJWTit8xS4qqo4z4pPkUfVvHXj1apeHvnM=;
+	s=arc-20240116; t=1759769185; c=relaxed/simple;
+	bh=pnw4T8fmr/3qFT9680yUyvoi4wDP4r7vX8cwW/E10YY=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=lD9Wej+JdrONfEWsIQYHUwcVF/YUB/Q55i1I0hTIZBuh0AU2DTAP313Rqjz5wFseBMxWCeJ+vgox6EuULVNUGjtxSw+EQkTtk3qjFg+V+gAmrASSALVXhT/bk+ttSGvj4wm4iqo1SQkD1xx8j5v8cm3VNYXaeG/bTw5JrVZGN6M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ze2d8UXK; arc=none smtp.client-ip=209.85.216.47
+	 To:Cc:Content-Type; b=aBt5prRhpguauBM+4PxVJX8jNaprkPqdtwhlEE6+QpnVawRQg7gHcRwsBjc3s31xOjjONiN1Rbw7c2b8Y/1Jq/CMtiTjeu8HEDKYuMJ7ZV7BqiTNEApvWuf2l5l6S/hczcPe7/O2HUKqzPeJPV4aJseYAhSIZQ+Jlyvzyx8G6Qw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AaJXmp23; arc=none smtp.client-ip=209.85.210.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ze2d8UXK"
-Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-3322e6360bbso5157380a91.0
-        for <selinux@vger.kernel.org>; Mon, 06 Oct 2025 09:42:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AaJXmp23"
+Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-791c287c10dso558873b3a.1
+        for <selinux@vger.kernel.org>; Mon, 06 Oct 2025 09:46:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1759768954; x=1760373754; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1759769182; x=1760373982; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=4lZN8TUCEFSVvPqKzXy3VFfhHz60q6RhGUCXywChAPk=;
-        b=Ze2d8UXKl5KLehiHi3uzHxeU+p5vmsuJ5qwgpUqIUbCE+Mgo+uX4ZE/3ZqdUYoznA6
-         MzHIPkGyjR7qXOOyddTUwKEP3ItUe2XL29Yx9GluzqGdlGCdCtDabV4BtuxxvAy97MSy
-         QPFnXJTO3nngvORVaMdyMarMqZFAFL2dBjR0HlBLHHkfS7gu3UgUyg8x0MN5QaSuayPo
-         ie8+c3rvfCbincVbT7TkjRh9aUGQRHtYul6vK/ygxtYKozCJZtqdfNBrp9le5UaI+Yb/
-         dW9qI61TUROlkgyo5RljoS6+/78YNPxSjsompAyjoSvC1pLkwJ9ao4x1pm2GwuIcWTNE
-         hfaA==
+        bh=WBgZ32kzsgoiw+/b/kYiEsqyOmgnWMuJfoSPctgjFDY=;
+        b=AaJXmp23RgXBebjPRQftsxNoXOLK+4Gpbf0c41EbOFaZ2qEiO4wVMhrveJjOgfewsl
+         0fg8ETjlSzPSLu6zJ3yPjAmpzCP4aBaLKjcwZckdVuk1iYTG08Uoi1sEX8nxLDwwUYDH
+         UOc6FOO5XWUxvrxCcyN5zoKgpKlxuOczSn+Le2xtHuV9xeN1hVwYq0eVOvrlAUllTeu9
+         aXvYs/zweSnutO5Z9SnGBlNbJa3zQWtYoGkRwB2Jil2kN238IK2ZFR0D+THHdxMGiNVe
+         CtGu6sZCtSMb+55Tmg9oWWXIBQp/vV51afRfAV3RCbqr+Ch6L+2Fy3pdCf1gyvGE+ssb
+         FIzg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759768954; x=1760373754;
+        d=1e100.net; s=20230601; t=1759769182; x=1760373982;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=4lZN8TUCEFSVvPqKzXy3VFfhHz60q6RhGUCXywChAPk=;
-        b=K5TCLalV4gL98J+Lfzi+HpxkeU0/1bhxFifq97eqQdTaUIG6k559Orkp9voe4r7t0I
-         EBg5UOF6X64Pb5+UoqlJ0+anifSHOnvkHUTijZDcEMXKWNS0HQQv13I/T+4l/eg8Tc9v
-         Y+tgADILmFPO7xNP8EqdlAocljau37z3OODXRgmGrwic+a0SqsNRV1Oi2Nq3xqV7BJoo
-         kWnhTELp952zVFJ2JN5rmy//rwoyR8Ejmpy9FsfUWnxKgWUEr44ySQ6zaN/V/KnOw73A
-         GeUG+VQZG5QWY4s884BaKcc5knaqVD+A9ucQzWBo3LGAsIV/mzkHEEOkVXPsEAEpPRdc
-         tiOA==
-X-Gm-Message-State: AOJu0YyxN9JbBqaqRa4Oao+1vuAn4ME0/1McRPTAKmm8RmodPjBcYMWv
-	BWOPv8VribBlfBjpuQqVmAA58JFThUTvml99gjKKefB41svkD3SDC8P6vmhhfCnK8z/7cX8mLJA
-	/1IT266+OlkhnROYzWvWz4C6dv8b1/gU=
-X-Gm-Gg: ASbGncv6x15NBsmWg5L6eqAYH0yIL0uYT7CpAcWEWo1i2J4JGPa2NVVM5l7Tb12Xkx0
-	MNiFbRBBCIxILGnPK0Ll2Ah3NlLfqNTaL38p1rfciB7JzEmg/Dl1p/jusI2fnibwYeczi4Mqnz2
-	ULfK0LWqEudoTb2kgPfhou84SGbjqNpEGlhdN4VT8vL7cBB2Rp0K1aRsnuJQXyQPcKkMaZcCGwO
-	gYCDN1TyuiEIGh0L0bBpRzdfYTHeq4=
-X-Google-Smtp-Source: AGHT+IFFjQlB3Ofo/HikxxJH7tPMumAxx3vONu4NubcopteZEsy2tw4SWdv95i480G8jbfaLkvwKwQT7iq8ZMOh0XGI=
-X-Received: by 2002:a17:90b:1b46:b0:330:6c04:a72b with SMTP id
- 98e67ed59e1d1-339c27409e7mr15707229a91.3.1759768954316; Mon, 06 Oct 2025
- 09:42:34 -0700 (PDT)
+        bh=WBgZ32kzsgoiw+/b/kYiEsqyOmgnWMuJfoSPctgjFDY=;
+        b=GYGea3P/AkeVdDI60S+rfO/OonADSEWCRI+wT1IC8rxADResZd8fwVxyMhmhQl//+w
+         9ocEdNwU41eNhV6ZlPwvJZv1LhtPbixJ32VvETETnFR87wvEbId2wAjGKxYnTZ+5ZtR0
+         i1VhfGvetAIXNudzUwv44/6Ddng9XwY/HuTRaU1TuMMxPK4IW3QRmmkk7rcL0aFLJwvC
+         VJpWkgcJ3ubft0w0LYmCcO8qlS2b+UQQDx24mdCQuu2w3jehuUQXd2BXCQtbnpPRa94D
+         WILlJ0ybNZFeP9iyn6KiWyNgiguaBR/pF1LNwKIWG4rjbsr/jlZmnxJ9cEQAajuAefY3
+         cWMw==
+X-Gm-Message-State: AOJu0Yycxf79F5KZalPuCxhWC8n1b/mMEuAf+yaVQp+r+t2XIYk5ZHY1
+	T1iyk+L08J5Jq5EN87+WD+pEl4DfzVObvwN2CGUiTCtKmEyeviM2jqTYu91vtMLgI9BG+jHP4N7
+	N7GbXTwyuzo1ReHzM1cbq3RrC1yDl1bNH8g==
+X-Gm-Gg: ASbGnctCVlngJrYyw7H31e9wbQljSW7iLAQlTWOGWrNa7gEHKxqiSxt6U5VRGa2J7Cw
+	XEE07miVgKIIi3s2TPtObQ08MEkdB72s4TM+mF8a7+FfZoX1T5JAjCyP3Nz85OxVxpAYPuODtz8
+	s2WJVT1FcJ7dMc9OxBB0flnmxoeHuMNTMZp8N4jI5FycUeBpOUlJBS1IUZCycagTRAqPOt1ooC6
+	Py4VRo1mPBdiCda98OfZTe/85P9kuE=
+X-Google-Smtp-Source: AGHT+IHTfJS5UFe6kubwUAM+qhtfd1q5rADEdsSandg2W5dY23rh8elOMiWVXdioHUVBRfOyGKfKI6aK5APL6WxNVeY=
+X-Received: by 2002:a17:90b:1e0c:b0:32e:a4d:41cb with SMTP id
+ 98e67ed59e1d1-339c276d8bbmr12108409a91.1.1759769181918; Mon, 06 Oct 2025
+ 09:46:21 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAEjxPJ4UKshtRGPyEKwkfTS-D5uc9thFNovC2_--kdV-Y3gDbg@mail.gmail.com>
- <20250925060346.906929-1-nvraxn@gmail.com>
-In-Reply-To: <20250925060346.906929-1-nvraxn@gmail.com>
+References: <20250925172647.931521-1-nvraxn@gmail.com>
+In-Reply-To: <20250925172647.931521-1-nvraxn@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 6 Oct 2025 12:42:21 -0400
-X-Gm-Features: AS18NWBToT71z41IMroEhzuFNXiYlOqwfW-Ljxw0xqhrUQCslug-JyvDE6dh0pM
-Message-ID: <CAEjxPJ7DR6i07OcCg6_1Aj+qbxH6gaL3KNNXAPZWX8Vt_FiFCg@mail.gmail.com>
-Subject: Re: [PATCH v2] libsemanage: get_home_dirs: cleanup parsing of values
- from conf files
+Date: Mon, 6 Oct 2025 12:46:11 -0400
+X-Gm-Features: AS18NWCxsmAMSLP6tjO40FV2y-r_CQGAZqjRMzUdxvLW9jUwvZDoIdiFW0X9T6Q
+Message-ID: <CAEjxPJ5xCiHe=m=jS0TEgUbn8DtJqvfNpiyu=+SSO4Sv6ppUgQ@mail.gmail.com>
+Subject: Re: [PATCH] build: Make sure SHLIBDIR respects PREFIX
 To: Rahul Sandhu <nvraxn@gmail.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 25, 2025 at 2:04=E2=80=AFAM Rahul Sandhu <nvraxn@gmail.com> wro=
+On Thu, Sep 25, 2025 at 1:27=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> wro=
 te:
 >
-> atoi (3) is... bugprone.  It's virtually impossible to differentiate an
-> invalid value (e.g. the string "foo") from a valid value such as "0" as
-> 0 is returned on error!  From the manual page:
+> Not respecting PREFIX can pollute the environment in various build
+> configurations. LIBDIR already respects it, so we may as well make
+> SHLIBDIR respect PREFIX too. Fixes #494 on Github[1].
 >
-> >       except that atoi() does not detect errors.
-> > RETURN VALUE
-> >       The converted value or 0 on error.
->
-> In the case of get_home_dirs, atoi is downright wrong.  We are parsing
-> UID_MIN, UID_MAX, and LU_UIDNUMBER, which all have a numerical value,
-> without any validation that what we are parsing is actually a number.
-> This is especially problematic as that means that in the case of an
-> invalid value (e.g. UID_MIN=3Dfoo), UID_MIN is incorrectly parsed as 0.
->
-> Instead, use strtoul (3) to parse these values.  If parsing fails, such
-> as in the case where UID_MIN=3Dfoo, warn that parsing failed, and use the
-> default values for each key as specified by the manual page.
+> [1] https://github.com/SELinuxProject/selinux/issues/494
+
+If you don't have usrmerge, this can produce the wrong result by
+default, i.e. installing shared libraries to /usr/lib instead of /lib.
+
 >
 > Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
-
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-
 > ---
->  libsemanage/src/genhomedircon.c | 47 ++++++++++++++++++++++++++++-----
->  1 file changed, 41 insertions(+), 6 deletions(-)
+>  libselinux/src/Makefile | 2 +-
+>  libsepol/src/Makefile   | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 >
-> v2: use a macro for the default values and error string
+> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> index 261c22d4..c855e759 100644
+> --- a/libselinux/src/Makefile
+> +++ b/libselinux/src/Makefile
+> @@ -10,7 +10,7 @@ PKG_CONFIG ?=3D pkg-config
+>  # Installation directories.
+>  PREFIX ?=3D /usr
+>  LIBDIR ?=3D $(PREFIX)/lib
+> -SHLIBDIR ?=3D /lib
+> +SHLIBDIR ?=3D $(PREFIX)/lib
+>  INCLUDEDIR ?=3D $(PREFIX)/include
+>  PYINC ?=3D $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
+>  PYLIBS ?=3D $(shell $(PKG_CONFIG) --libs $(PYPREFIX))
+> diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
+> index a1aed072..f8574d70 100644
+> --- a/libsepol/src/Makefile
+> +++ b/libsepol/src/Makefile
+> @@ -2,7 +2,7 @@
+>  PREFIX ?=3D /usr
+>  INCLUDEDIR ?=3D $(PREFIX)/include
+>  LIBDIR ?=3D $(PREFIX)/lib
+> -SHLIBDIR ?=3D /lib
+> +SHLIBDIR ?=3D $(PREFIX)/lib
+>  RANLIB ?=3D ranlib
+>  CILDIR ?=3D ../cil
 >
-> diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedir=
-con.c
-> index 8782e2cb..34056562 100644
-> --- a/libsemanage/src/genhomedircon.c
-> +++ b/libsemanage/src/genhomedircon.c
-> @@ -64,6 +64,11 @@
->  #define PATH_SHELLS_FILE "/etc/shells"
->  #define PATH_NOLOGIN_SHELL "/sbin/nologin"
->
-> +/* fallback values */
-> +#define FALLBACK_MINUID 1000
-> +#define FALLBACK_MAXUID 60000
-> +#define FALLBACK_LU_UIDNUMBER 500
-> +
->  /* comments written to context file */
->  #define COMMENT_FILE_CONTEXT_HEADER "#\n#\n# " \
->                         "User-specific file contexts, generated via libse=
-manage\n" \
-> @@ -352,26 +357,54 @@ static semanage_list_t *get_home_dirs(genhomedircon=
-_settings_t * s)
->                 goto fail;
->         }
->
-> +#define genhomedircon_warn_conv_fail(key, val) \
-> +       WARN(s->h_semanage, \
-> +            "Conversion failed for key " key ", is its value a number?" =
-\
-> +            "  Falling back to default value of `%s`.", #val);
-> +
->         path =3D semanage_findval(PATH_ETC_LOGIN_DEFS, "UID_MIN", NULL);
->         if (path && *path) {
-> -               temp =3D atoi(path);
-> -               minuid =3D temp;
-> -               minuid_set =3D 1;
-> +               char *endptr;
-> +               const unsigned long val =3D strtoul(path, &endptr, 0);
-> +               if (endptr !=3D path && *endptr =3D=3D '\0') {
-> +                       minuid =3D (uid_t)val;
-> +                       minuid_set =3D 1;
-> +               } else {
-> +                       /* we were provided an invalid value, use default=
-s.  */
-> +                       genhomedircon_warn_conv_fail("UID_MIN", FALLBACK_=
-MINUID);
-> +                       minuid =3D FALLBACK_MINUID;
-> +                       minuid_set =3D 1;
-> +               }
->         }
->         free(path);
->         path =3D NULL;
->
->         path =3D semanage_findval(PATH_ETC_LOGIN_DEFS, "UID_MAX", NULL);
->         if (path && *path) {
-> -               temp =3D atoi(path);
-> -               maxuid =3D temp;
-> +               char *endptr;
-> +               const unsigned long val =3D strtoul(path, &endptr, 0);
-> +               if (endptr !=3D path && *endptr =3D=3D '\0') {
-> +                       maxuid =3D (uid_t)val;
-> +               } else {
-> +                       /* we were provided an invalid value, use default=
-s.  */
-> +                       genhomedircon_warn_conv_fail("UID_MAX", FALLBACK_=
-MAXUID);
-> +                       maxuid =3D FALLBACK_MAXUID;
-> +               }
->         }
->         free(path);
->         path =3D NULL;
->
->         path =3D semanage_findval(PATH_ETC_LIBUSER, "LU_UIDNUMBER", "=3D"=
-);
->         if (path && *path) {
-> -               temp =3D atoi(path);
-> +               char *endptr;
-> +               const unsigned long val =3D strtoul(path, &endptr, 0);
-> +               if (endptr !=3D path && *endptr =3D=3D '\0') {
-> +                       temp =3D (uid_t)val;
-> +               } else {
-> +                       /* we were provided an invalid value, use default=
-s.  */
-> +                       genhomedircon_warn_conv_fail("LU_UIDNUMBER", FALL=
-BACK_LU_UIDNUMBER);
-> +                       temp =3D FALLBACK_LU_UIDNUMBER;
-> +               }
->                 if (!minuid_set || temp < minuid) {
->                         minuid =3D temp;
->                         minuid_set =3D 1;
-> @@ -380,6 +413,8 @@ static semanage_list_t *get_home_dirs(genhomedircon_s=
-ettings_t * s)
->         free(path);
->         path =3D NULL;
->
-> +#undef genhomedircon_warn_conv_fail
-> +
->         errno =3D 0;
->         setpwent();
->         while (1) {
 > --
 > 2.50.1
+>
 >
