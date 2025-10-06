@@ -1,204 +1,286 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 7234E17A316
-	for <selinux@vger.kernel.org>; Mon,  6 Oct 2025 16:46:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93C942248AE
+	for <selinux@vger.kernel.org>; Mon,  6 Oct 2025 16:52:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759769222; cv=none; b=J6gdt/yZHLKq7DjDdecSkdc79RyuuEutx3S9tQd1GhWHpR9U1EWBMNegm+hkl7wJUQeRPlO8D564nGEr83Arp9ThC/0k1cAQ1KkDW2bZD1YcjN5tLLp4XncQ3MCTacbgFbvI6d+GYX6sMcU9cwWtkaHn/GqZh5BJF1NzQsJCFa4=
+	t=1759769558; cv=none; b=NIpgDtbE1KstNNgbeGHCnTt+2Ls0uxO0VV80CtNeXr06wEFEGPTq+Qqdyx/ea3ty0O6OR1+0z0RNLgaWB1l/AFapqe20WfW84gJ6SzDvpKDF7lEsAC9WCjrvTowYHaqNsSwZrn8CzeanrZH3ZO03ir/uHjy9hgFqCXcTY4dXrr0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759769222; c=relaxed/simple;
-	bh=GewNgGLRXk06CkbNWe17baUwwdbp+3Z2ojtSvnyjUd0=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=BIgKLI6UD+cNYNXyo/ssjICMN0DwCaQ05Q9G1XO21lljedYgXvgGAxSrdKaJtXOWmZUOXfJ9T3STwMCkBXTpDGS+9rxXbMYEntWReCS79scvrS8X6C5KsWe0XvLtUcRk558/VCkUt7BYbIdcpcwnIE9bGusFic2zvc8Ke9oDay0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=jLktZER1; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1759769558; c=relaxed/simple;
+	bh=KFGjKEE4dos+lXRlXEgem1kEA0TQLfzQ1O2ueJEpS4M=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=LmvBkEwIyYku6ZjQUDezSoeGBDBS9Ics/jMOODVbuZhpq/fintJy76PzfgBFkU/85/eoR1q57BnDjsJ6gNcY0XmYCdBGMgZwD7IxwrS2p0Oe/lajQvXEff4S+vMUzzZex4v8yrmzAv/+1UMoE/oeVo5VAmHRhKHdOu7fy4KWuqk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CYPxdrpa; arc=none smtp.client-ip=209.85.216.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="jLktZER1"
-Received: from [10.137.198.68] (unknown [131.107.147.196])
-	by linux.microsoft.com (Postfix) with ESMTPSA id 3C51B211AF2F;
-	Mon,  6 Oct 2025 09:46:58 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 3C51B211AF2F
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1759769218;
-	bh=hDRQd9RCqeqACa1GNu4dKWNpCWjr8a8VvsJcr4te/eU=;
-	h=Date:From:Subject:To:Cc:References:In-Reply-To:From;
-	b=jLktZER17TmBELsh+yXC1p5qhGRwhfTVIVYYZJZO6WshufW7esOaZPGbgGOkyyX9O
-	 WMT2NiPLqQi8li9ZtSJd15U/zJWP4NWuQLwJb+XSMey15TyzOxGatcQremQhKAR8Ux
-	 nNBGsJQSvncdWiUinaDIkwtfax25mfmp++nWdFVE=
-Message-ID: <a09f3304-9011-4b85-8371-78fec23327a8@linux.microsoft.com>
-Date: Mon, 6 Oct 2025 09:46:57 -0700
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CYPxdrpa"
+Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-330631e534eso5712510a91.0
+        for <selinux@vger.kernel.org>; Mon, 06 Oct 2025 09:52:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1759769556; x=1760374356; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=UFqtLZ/jAaKzJkQGWLIAF6hIz5zgdJEMOq36fd0jE8w=;
+        b=CYPxdrpalnlR/F1nEvN8RBXUxWYY7srGGhI0klYuA13fnWpWxgFf0pffP4kRCDEdrh
+         wTCFDLCTmn6UDvczFOxfTYw6rOjtYDRE+xa1i4aZ8Z6yNRX0D6ukSI0ky0Uh8jTpbewN
+         j50YzRXwzlQb1IAyIUZcnxpM84S++p1Cb7Hm2HG8sfr8JWy4SwuqP2nvUGVdaK+eZcOB
+         fPadn3ujGlROp0nulcxDgw21JkzhUZAWBtSW78veKyH/GqBstoz+11JbogduE9gSE25Y
+         dAQBGKxoHpmWwc0AzUA8yyDly2ISwqGOYmGXcYAYgQQPDX5irbbp2XsILSNO81iijVSi
+         7fJw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1759769556; x=1760374356;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=UFqtLZ/jAaKzJkQGWLIAF6hIz5zgdJEMOq36fd0jE8w=;
+        b=LB8oEvGxuOrGgyBFtiURFtvXtSDv93W+uyBna5YlKjUI0lofwlQxLCtwWGGQjmmpcC
+         WcBzSlZiWcPQRd88mzML6EHr3t721H5bS+GudW5gyaP4WSCZLSZsLeSc8nzY8VCxxCxP
+         jrQ0SMcqJz6rHO+Bkn4hjjmCs3AZXcTwWBvVheIbH1MwxA74+qvz1IqQUDRZE9S6CIRN
+         +dVzglL9/bpWq/VyULfc+0Kibq3FrQEkJNbFnENSazSwqXEMDP6AM2LDg1xuLOMBy46o
+         c0yflIS+TlUDROyZLE7QQ4DxV3Ff72yEGfCgOt9kRv2nzAwLmBaYQVNysrwGxAXPqimz
+         rYOQ==
+X-Gm-Message-State: AOJu0YwCdBY/Gpt2v9IALs3EV3n+IUnk6dh1pHJbbNY7M/7v13CYbhlx
+	wweYTR+AJjL8y+rQ3Kyq5pUl+cYOLP7i/M49AWHnDO9pPX7jGUN++LCxl6kiZwzZR1vJvq1YT3+
+	RtRruFdiHWDcw4cbN1tP30RaJGLJQcC0VLw==
+X-Gm-Gg: ASbGncsI+nuqjuUf1p4WMcCiLMsJB4xyFACvhNAKXvNY8vSJC8e/RexHbumPnwlZkQd
+	x78JSDL+fHklKA/cAnLnHkR1Lpur6mFJgcF9o9oQC8rh10RgEAMR5S0YkoVyjqM65VnAGhZdt6/
+	u0Yp7IUuQsxKcjpcKyoqMUI59CvL66QwAa/VajTJCQRyJ2NvCQygrIl7LFkBWvugwu3pTVN3+96
+	gygNKPs15YOV+RgfXlunii79d7iTPyD7O3AKy7PRQ==
+X-Google-Smtp-Source: AGHT+IHkjcgURgfFBiTtDxdhO/hCz5hxe3wy6WnzJDyiP0dAPYacJz4yfsL3suaOJnHQkXQfQU1exzQYtysYTHGOqso=
+X-Received: by 2002:a17:90b:180d:b0:32b:c5a9:7be9 with SMTP id
+ 98e67ed59e1d1-339c27b98eemr16880587a91.25.1759769555757; Mon, 06 Oct 2025
+ 09:52:35 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Eric Suen <ericsu@linux.microsoft.com>
-Subject: Re: [PATCH v3] SELinux: Add support for BPF token access control
-To: Paul Moore <paul@paul-moore.com>,
- Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, omosnace@redhat.com, danieldurning.work@gmail.com
-References: <20250821182021.304-1-ericsu@linux.microsoft.com>
- <1752d2d2f04b17d4da2e40990985be51@paul-moore.com>
- <CAEjxPJ6qiw_T+9u_GuYgmLXShhbcG7hSt34Z9kvpiH9AQ9nmKA@mail.gmail.com>
- <CAHC9VhREWrw=2u66pbba+KC=SrSTfZ=5bn7jiqngyHh7qyv3Xg@mail.gmail.com>
-Content-Language: en-US
-In-Reply-To: <CAHC9VhREWrw=2u66pbba+KC=SrSTfZ=5bn7jiqngyHh7qyv3Xg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <20250928223923.1268452-1-nvraxn@gmail.com> <20250928224823.1269182-1-nvraxn@gmail.com>
+In-Reply-To: <20250928224823.1269182-1-nvraxn@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 6 Oct 2025 12:52:24 -0400
+X-Gm-Features: AS18NWB2nuagAaLIHM2ns88qMlnvhQtEYFblSOyavy_b-1l3BQjyAqkjGKuvSi8
+Message-ID: <CAEjxPJ5fK0HtMzn7kHsddvzC+Ku+BnK1YCe4ZJ-DG0_7WfSNwg@mail.gmail.com>
+Subject: Re: [RFC PATCH v2] treewide: add .clang-format configuration file
+To: Rahul Sandhu <nvraxn@gmail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 9/18/2025 7:59 AM, Paul Moore wrote:
-> On Thu, Sep 18, 2025 at 9:36 AM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
->> On Wed, Sep 17, 2025 at 5:48 PM Paul Moore<paul@paul-moore.com> wrote:
->>> On Aug 21, 2025 Eric Suen<ericsu@linux.microsoft.com> wrote:
->>>> BPF token support was introduced to allow a privileged process to delegate
->>>> limited BPF functionality—such as map creation and program loading—to an
->>>> unprivileged process:
->>>>    https://lore.kernel.org/linux-security-module/20231130185229.2688956-1-andrii@kernel.org/
->>>>
->>>> This patch adds SELinux support for controlling BPF token access. With
->>>> this change, SELinux policies can now enforce constraints on BPF token
->>>> usage based on both the delegating (privileged) process and the recipient
->>>> (unprivileged) process.
->>>>
->>>> Supported operations currently include:
->>>>    - map_create
->>>>    - prog_load
->>>>
->>>> High-level workflow:
->>>>    1. An unprivileged process creates a VFS context via `fsopen()` and
->>>>       obtains a file descriptor.
->>>>    2. This descriptor is passed to a privileged process, which configures
->>>>       BPF token delegation options and mounts a BPF filesystem.
->>>>    3. SELinux records the `creator_sid` of the privileged process during
->>>>       mount setup.
->>>>    4. The unprivileged process then uses this BPF fs mount to create a
->>>>       token and attach it to subsequent BPF syscalls.
->>>>    5. During verification of `map_create` and `prog_load`, SELinux uses
->>>>       `creator_sid` and the current SID to check policy permissions via:
->>>>         avc_has_perm(creator_sid, current_sid, SECCLASS_BPF,
->>>>                      BPF__MAP_CREATE, NULL);
->>>>
->>>> The implementation introduces two new permissions:
->>>>    - map_create_as
->>>>    - prog_load_as
->>>>
->>>> At token creation time, SELinux verifies that the current process has the
->>>> appropriate `*_as` permission (depending on the `allowed_cmds` value in
->>>> the bpf_token) to act on behalf of the `creator_sid`.
->>>>
->>>> Example SELinux policy:
->>>>    allow test_bpf_t self:bpf {
->>>>        map_create map_read map_write prog_load prog_run
->>>>        map_create_as prog_load_as
->>>>    };
->>>>
->>>> Additionally, a new policy capability bpf_token_perms is added to ensure
->>>> backward compatibility. If disabled, previous behavior ((checks based on
->>>> current process SID)) is preserved.
->>>>
->>>> Changes in v2:
->>>> - Fixed bug in selinux_bpffs_creator_sid(u32 fd) where it retrieved
->>>>    creator_sid from wrong file descriptor
->>>> - Removed unnecessary checks for null, per review comments from
->>>>    the first patch
->>>>
->>>> Changes in v3:
->>>> - Removed check for 'sid == SECSID_NULL' in selinux_bpf_token_create and
->>>>    allow it to fall through to the permission checks which will fail as
->>>>    access denied to unlabeled_t
->>>>
->>>> Signed-off-by: Eric Suen<ericsu@linux.microsoft.com>
->>>> Tested-by: Daniel Durning<danieldurning.work@gmail.com>
->>>> Reviewed-by: Daniel Durning<danieldurning.work@gmail.com>
->>>> Acked-by: Stephen Smalley<stephen.smalley.work@gmail.com>
->>>> ---
->>>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->>>> index e474cd7398ef..d949e9c5aa31 100644
->>>> --- a/security/selinux/hooks.c
->>>> +++ b/security/selinux/hooks.c
->>>> @@ -733,6 +733,8 @@ static int selinux_set_mnt_opts(struct super_block *sb,
->>>>                goto out;
->>>>        }
->>>>
->>>> +     sbsec->creator_sid = current_sid();
->>> A few things come to mind as I'm looking at the new creator_sid field.
->>>
->>> First, we should explicitly initialize @sbsec->creator_sid to
->>> SECINITSID_UNLABELED in selinux_sb_alloc_security() just as we do the
->>> other fields.  Yes, the LSM framework does some basic clearing, but this
->>> is safer long term and it isn't likely that superblock allocation is
->>> going to be common enough to where the extra assignment is going to be
->>> a concern.
->>>
->>> While I don't think this is an immediate issue, I think it's a good idea
->>> to ensure that the selinux_cmp_sb_context() function compares the
->>> @sbsec->creator_sid fields and only returns true/"match" if they are the
->>> same.
->> Hmm...that raises another question in my mind - what happens if
->> multiple processes mount bpffs filesystems currently - do they each
->> get their own superbock or is that shared?
-> Good question.  If the superblock is shared among all mount instances
-> we need to do some extra work to determine the creator label/SID for
-> each instance.
+On Sun, Sep 28, 2025 at 6:48=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> wro=
+te:
 >
->> If the latter, then making this part of the comparison will block
->> subsequent mounts by tasks with different SIDs.
->> But not doing something here would lead to using whoever was the last
->> mounter for the SID, so I agree something needs to happen.
-> Eric, can you look into the code and do some testing?
-
-It doesn't appear the superblock is shared between processes. Here is 
-what I did to verify:
-
-1. Modified test_bpf_map_create in testsuite so it forks/starts two 
-concurrent processes that each trigger bpf map creation.
-
-2. Added debug printf in selinux_bpffs_creator_sid (in 
-'selinux/security/selinux/hooks.c') to print out current task pid/tgid, 
-super_block pointer, and superblock_security_struct pointer.
-
-3. Observed that the printed super_block and superblock_security_struct 
-addresses were unique for each pid/tgid, indicating a distinct 
-superblock instance per mount.
-
- From the code level, Paul also helped to review bpffs superblock 
-creation. Here is his response:
-
-You can confirm this by looking at the bpf_get_tree() function which is 
-used to create a new bpffs tree.  The bpf_get_tree() function calls into 
-get_tree_nodev(), which calls into vfs_get_super(), which calls into 
-sget_fc() with a NULL "test" parameter.  When sget_fc() is called with a 
-NULL "test" parameter a new superblock is created regardless of if any 
-existing bpffs superblocks already exist.
-
-
->>>> @@ -7144,10 +7180,15 @@ static void selinux_bpf_prog_free(struct bpf_prog *prog)
->>>>        kfree(bpfsec);
->>>>   }
->>>>
->>>> +#define bpf_token_cmd(T, C) \
->>>> +     ((T)->allowed_cmds & (1ULL << (C)))
->>>> +
->>>>   static int selinux_bpf_token_create(struct bpf_token *token, union bpf_attr *attr,
->>>>                                    const struct path *path)
->>>>   {
->>>>        struct bpf_security_struct *bpfsec;
->>>> +     u32 sid = selinux_bpffs_creator_sid(attr->token_create.bpffs_fd);
->>>> +     int err;
->>>>
->>>>        bpfsec = kzalloc(sizeof(*bpfsec), GFP_KERNEL);
->>>>        if (!bpfsec)
->>> This isn't an issue with your code, and to be clear I'm not asking you
->>> to fix this, but more as a FYI/TODO for me (or anyone else who would
->>> care to do it), after the BPF token patch is merged, we should move the
->>> @bpfsec allocation/lifecycle-management for tokens out to the LSM
->>> framework so it can properly handle multiple LSMs.
->> This already happened in the LSM tree, just hasn't been merged to the
->> SELinux tree yet.
-> Ah, yes, I forgot all about Blaise's patch!  My apologies.  At least
-> that is one less thing for the TODO list ;)
+> Currently only an RFC.
 >
+> Add the .clang-format configuration file, taken from the Linux kernel
+> repository. We don't have any official style guidelines in tree at
+> present, which makes it a bit unclear how to format C code for new
+> contributors. As well as this, different parts of the codebase seem to
+> been formatted with different styles on occasion, so using an automatic
+> formatter should resolve this.
+>
+> .clang-format is also read by various editors and tooling for writing C
+> code. It may also be worth adding an editorconfig file in the future as
+> well?
 
+Can't hurt.
+
+> It may well also be worth adding a `format` target to the Makefiles, is
+> that something that would be useful?
+
+IMHO, yes.
+
+>
+> A few other things to consider to do in the future:
+> 1. Reformat all existing code. I understand this is a big change, hence
+>    the RFC, but we may as well get all code formatted if we go down
+>    this route; afterall, it's not like this will cause any breaking
+>    changes.
+
+Not opposed but will defer to the distro package maintainers on when
+they want to apply such a change since it makes back-porting future
+patches more painful for them.
+
+> 2. Possibly add a CI target to check that all code is formatted as per
+>    the new clang-format configuration? The options `--dry-run` as well
+>    as `-Werror` can be passed to clang-format for this.
+
+Sounds reasonable too.
+
+>
+> Comments/feedback appreciated, thanks.
+
+No strong opinions; would be fine with any standardized coding style.
+For comparison, selinux-testsuite has tools/check-syntax which can be
+used to check or fix coding style problems for C and perl code, but
+I'd be fine with using clang-format here as in the kernel.
+
+> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+> ---
+>  .clang-format   | 130 ++++++++++++++++++++++++++++++++++++++++++++++++
+>  CONTRIBUTING.md |   2 +
+>  2 files changed, 132 insertions(+)
+>  create mode 100644 .clang-format
+>
+> v2: remove linux kernel ForEachMacros and replace them with ours
+>
+> diff --git a/.clang-format b/.clang-format
+> new file mode 100644
+> index 00000000..35595d87
+> --- /dev/null
+> +++ b/.clang-format
+> @@ -0,0 +1,130 @@
+> +# SPDX-License-Identifier: GPL-2.0
+> +#
+> +# clang-format configuration file. Intended for clang-format >=3D 11.
+> +#
+> +# For more information, see:
+> +#
+> +#   Documentation/dev-tools/clang-format.rst
+> +#   https://clang.llvm.org/docs/ClangFormat.html
+> +#   https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+> +#
+> +---
+> +AccessModifierOffset: -4
+> +AlignAfterOpenBracket: Align
+> +AlignConsecutiveAssignments: false
+> +AlignConsecutiveDeclarations: false
+> +AlignEscapedNewlines: Left
+> +AlignOperands: true
+> +AlignTrailingComments: false
+> +AllowAllParametersOfDeclarationOnNextLine: false
+> +AllowShortBlocksOnASingleLine: false
+> +AllowShortCaseLabelsOnASingleLine: false
+> +AllowShortFunctionsOnASingleLine: None
+> +AllowShortIfStatementsOnASingleLine: false
+> +AllowShortLoopsOnASingleLine: false
+> +AlwaysBreakAfterDefinitionReturnType: None
+> +AlwaysBreakAfterReturnType: None
+> +AlwaysBreakBeforeMultilineStrings: false
+> +AlwaysBreakTemplateDeclarations: false
+> +BinPackArguments: true
+> +BinPackParameters: true
+> +BraceWrapping:
+> +  AfterClass: false
+> +  AfterControlStatement: false
+> +  AfterEnum: false
+> +  AfterFunction: true
+> +  AfterNamespace: true
+> +  AfterObjCDeclaration: false
+> +  AfterStruct: false
+> +  AfterUnion: false
+> +  AfterExternBlock: false
+> +  BeforeCatch: false
+> +  BeforeElse: false
+> +  IndentBraces: false
+> +  SplitEmptyFunction: true
+> +  SplitEmptyRecord: true
+> +  SplitEmptyNamespace: true
+> +BreakBeforeBinaryOperators: None
+> +BreakBeforeBraces: Custom
+> +BreakBeforeInheritanceComma: false
+> +BreakBeforeTernaryOperators: false
+> +BreakConstructorInitializersBeforeComma: false
+> +BreakConstructorInitializers: BeforeComma
+> +BreakAfterJavaFieldAnnotations: false
+> +BreakStringLiterals: false
+> +ColumnLimit: 80
+> +CommentPragmas: '^ IWYU pragma:'
+> +CompactNamespaces: false
+> +ConstructorInitializerAllOnOneLineOrOnePerLine: false
+> +ConstructorInitializerIndentWidth: 8
+> +ContinuationIndentWidth: 8
+> +Cpp11BracedListStyle: false
+> +DerivePointerAlignment: false
+> +DisableFormat: false
+> +ExperimentalAutoDetectBinPacking: false
+> +FixNamespaceComments: false
+> +
+> +# Taken from:
+> +#   git grep -h '^#define [^[:space:]]*for_each[^[:space:]]*(' \
+> +#   | sed "s,^#define \([^[:space:]]*for_each[^[:space:]]*\)(.*$,  - '\1=
+'," \
+> +#   | LC_ALL=3DC sort -u
+> +ForEachMacros:
+> +  - 'cil_list_for_each'
+> +  - 'cil_stack_for_each'
+> +  - 'cil_stack_for_each_starting_at'
+> +  - 'ebitmap_for_each_bit'
+> +  - 'ebitmap_for_each_positive_bit'
+> +
+> +IncludeBlocks: Preserve
+> +IncludeCategories:
+> +  - Regex: '.*'
+> +    Priority: 1
+> +IncludeIsMainRegex: '(Test)?$'
+> +IndentCaseLabels: false
+> +IndentGotoLabels: false
+> +IndentPPDirectives: None
+> +IndentWidth: 8
+> +IndentWrappedFunctionNames: false
+> +JavaScriptQuotes: Leave
+> +JavaScriptWrapImports: true
+> +KeepEmptyLinesAtTheStartOfBlocks: false
+> +MacroBlockBegin: ''
+> +MacroBlockEnd: ''
+> +MaxEmptyLinesToKeep: 1
+> +NamespaceIndentation: None
+> +ObjCBinPackProtocolList: Auto
+> +ObjCBlockIndentWidth: 8
+> +ObjCSpaceAfterProperty: true
+> +ObjCSpaceBeforeProtocolList: true
+> +
+> +# Taken from git's rules
+> +PenaltyBreakAssignment: 10
+> +PenaltyBreakBeforeFirstCallParameter: 30
+> +PenaltyBreakComment: 10
+> +PenaltyBreakFirstLessLess: 0
+> +PenaltyBreakString: 10
+> +PenaltyExcessCharacter: 100
+> +PenaltyReturnTypeOnItsOwnLine: 60
+> +
+> +PointerAlignment: Right
+> +ReflowComments: false
+> +SortIncludes: false
+> +SortUsingDeclarations: false
+> +SpaceAfterCStyleCast: false
+> +SpaceAfterTemplateKeyword: true
+> +SpaceBeforeAssignmentOperators: true
+> +SpaceBeforeCtorInitializerColon: true
+> +SpaceBeforeInheritanceColon: true
+> +SpaceBeforeParens: ControlStatementsExceptForEachMacros
+> +SpaceBeforeRangeBasedForLoopColon: true
+> +SpaceInEmptyParentheses: false
+> +SpacesBeforeTrailingComments: 1
+> +SpacesInAngles: false
+> +SpacesInContainerLiterals: false
+> +SpacesInCStyleCastParentheses: false
+> +SpacesInParentheses: false
+> +SpacesInSquareBrackets: false
+> +Standard: Cpp03
+> +TabWidth: 8
+> +UseTab: Always
+> +...
+> diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
+> index c501cf84..7ec8cb0f 100644
+> --- a/CONTRIBUTING.md
+> +++ b/CONTRIBUTING.md
+> @@ -53,6 +53,8 @@ When preparing patches, please follow these guidelines:
+>  -   Separate large patches into logical patches
+>  -   Patch descriptions must end with your "Signed-off-by" line. This mea=
+ns your
+>      code meets the Developer's certificate of origin, see below.
+> +-   C code should be formatted using clang-format, using the .clang-form=
+at
+> +    configuration file at the root of this repository.
+>
+>  When adding new, large features or tools it is best to discuss the
+>  design on the mailing list prior to submitting the patch.
+> --
+> 2.50.1
+>
+>
