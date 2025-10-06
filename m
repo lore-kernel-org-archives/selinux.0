@@ -1,378 +1,140 @@
-Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EEFC6FBF
-	for <selinux@vger.kernel.org>; Fri,  3 Oct 2025 19:19:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56989170A11;
+	Mon,  6 Oct 2025 11:09:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759519194; cv=none; b=Xa4JNeCl/aiTVusVB67kA4KPAw7bNYW5fqRrnmPVq+HXG3f5IrwEO7mFV4WFcH9QCt4kp2o36jbWSOKBXt+CS00iGua8UPF7Gq0SXq2X9Z8NyUi55HDHQttQiqgidLLUVpq29Y2adMix+VJl9aaKB2CWKYnlu0ViBK882hw29fM=
+	t=1759748951; cv=none; b=MqweA50IP+7yhxauo5E1FBLDrcykLJvhG4MJKZaTMl0Zllr6cgQA7Adnx7lwPG29v6E4nOHy+AjQ4twJnCNoDk8pxwQXvRACm13M1fGi2e79vbctlEIx2AoaEJRLAqyGJp7IsqRvrSn7wI/RhNvqwzoCnmVcRHAn1CpH7I4zBqE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759519194; c=relaxed/simple;
-	bh=7Tl1mP/ZB3rWwIkYNl6r4tms0G8IIweqH51T0x8EWMI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=GqN6T90zvO1Wfkf93lCXDu4ZQ88MYQCnbfGl8nhLqTtEpaqzOpS/EAO+vwJWSjtn2AXYfr1XssDGsHohH/fH9m2aCdJsvE+YeQSvmJhvSD0E0Y7jGAK41HXPmNhyH9vU0iOSoVHtwbGexxLAPoh6ttb/YkqaMYzpWabS3kMO5bk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Bikbltj0; arc=none smtp.client-ip=209.85.222.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1759748951; c=relaxed/simple;
+	bh=iAUttCGRO/dduZhfc2/39dETHCE1Y3M+f3KADtcy2rk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=pTsORPUarDvHIUk5Pq84xkCbHniQPmlpbTFdvxWOVvuJVBbxGiQHH831GnLgPNRPDa2vPJ97LFuIADlglsqCMJLLBLME1JWpjmKZVBiGMr2a441VMke7VKVKuN4JZo//sMEEi+uRZiklrKRvCVP2D3o655GFdCAPzCZ3Qmiup3I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AwWOeaFQ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Bikbltj0"
-Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-85b94fe19e2so258528485a.3
-        for <selinux@vger.kernel.org>; Fri, 03 Oct 2025 12:19:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1759519191; x=1760123991; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=3ZF+zKROGso6ahU8PQiIs8ycJGs5psvHbeoz3dSTrPY=;
-        b=Bikbltj0wlt3GE+rBDOeOtpYL5rLN4w5eQdLHxHuol9ajTYIRdAH5Tj2ZFsOXNNyme
-         tiNkWCpD6sIQ8Ff3Ok6mZfAFRVw55O6KnDRv5mJzGa8eKTTVmUMwIK9fCi68TaTa4lMK
-         QSGHRFrbjtyBRet4nk1lttG6EY4JCJfJwQON2n1zw8bMnVDMfggRlqYC9tyYgk829VnH
-         O89Hz+XgdfS/QQMtxdSpbd34Cq8MDzRGOFMkMn8uiMp0+rGFkaCsSIhxVWHaFlqZNSF6
-         TPxXvZxvbPQDV/oi4oD8mzrnhkWHfnmS82M1w+qnjYHdlrzj7xXH4UXIyP7vjBbTbRJu
-         lyoQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759519191; x=1760123991;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=3ZF+zKROGso6ahU8PQiIs8ycJGs5psvHbeoz3dSTrPY=;
-        b=PAvIeIofLmX9CmPBJ6aaHRksjC0BufdaExTi2yU13o9cS5otji3i5ZqP9XxXuOo8Or
-         +3fZJ0WjuutMIPbp1+nSrPG/e8PpR5s2pjqNu3XB16Vqd3J/UheqMwgWwnjOYcNkgDEV
-         KMtjfF7BYw9ohPWnG3pudHAIBCHxY1OWIcT/kJUywmZGaibHSqxjvsKeKpWEuTzRI6OL
-         6WoP86ilT1roi6bav1wypxLdLiT8UrmAGriGX73Ay7B2GEgu491qr3RtpHvRYXCokm+0
-         e1vg6EFuD4lmSpAp+xqC6LMvUthp3e8BPmhLHqFZBJj3odiIJZROeTyQcRwvcyFQ2+xJ
-         LtWg==
-X-Gm-Message-State: AOJu0YyKscphs7qM/MGsWIumZfitJe0N48wRl4ViHc0wOYjEldcs4sge
-	Zz46SNC8UyVR0DrsvRilgyMgPESLlxr1FzhocxQGezIWFypOkJaCpRaCKamnnw==
-X-Gm-Gg: ASbGncu4+3Ge+7NtV/cQGyU06tPF3aewjI36mInEM60SiDWgmJe6qlccbL/3hkUz0ZE
-	yRyvUoPwUjSrkIvbpg+c2Zp97DCY82Vlij4SBHmZLDsn1awwOb3XDbmHqDHtVF9SsJHBuYHGfh7
-	WvnpZxV57duZmbk8sFvQBUQRgyFkxoHoUd1sOqGzxjIVrJczRQhCk2UvizpjBfNUr0U7SJ7DyaI
-	mIhHTXkaXCXAFrB9/HIh466WPW7qpRRrmZ5LIv6gjrUKdmhvYECLQdcmJLy8zXKmbXysawjmMjC
-	6qjF9l3JQ27wcRor+Se7+1Kdr8negSQt4gM4mSck9KRaYF+6d+wzsB0N3tdA7/KMIL8qOzmwvcV
-	8BNNNUN/ZlCZTCrb1n+7AxttxD2BaF8tqBSEYCQfYZJKm49Yop8pTsJRbUxvzsPajKgAK8y4JPI
-	/QlOVjmvA6yP7KOCpdvVBV7bpIXLh3kWQIYOOSIY8kXOb41vzY4F5JLAvVj67LtKfYS2dab9RIR
-	T8HYe1z1Tp7Qw==
-X-Google-Smtp-Source: AGHT+IGTFC2vnI7STZrRrhYdP7MP49bZYF1Zm6FUgZcDiYMVyUru45UO85ZXtHZachn94fFdz7bKKg==
-X-Received: by 2002:a05:620a:45a0:b0:865:f7bd:f333 with SMTP id af79cd13be357-87a34aa53d3mr607914485a.28.1759519190897;
-        Fri, 03 Oct 2025 12:19:50 -0700 (PDT)
-Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8777892eadasm491833985a.39.2025.10.03.12.19.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Oct 2025 12:19:50 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [RFC PATCH v2] libselinux: add selinux_unshare() and is_selinux_unshared()
-Date: Fri,  3 Oct 2025 15:19:23 -0400
-Message-ID: <20251003191922.5326-2-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.51.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AwWOeaFQ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21758C4CEF5;
+	Mon,  6 Oct 2025 11:09:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1759748950;
+	bh=iAUttCGRO/dduZhfc2/39dETHCE1Y3M+f3KADtcy2rk=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=AwWOeaFQJ/VjsW+sWbulhEi3dU6wn+mmOthy+vla6dh6I6Ump1Be3uY0Yg0vesKZ+
+	 BOf6YGEptbFfwZFjmCtvseMZKBHlpDouEcU0SB58tAui9E7fZ2WLyhD+2JYqvVuydw
+	 ugDEytqinuL1khRuKkPTYmbkrLzj1NZDISFvkjm9LwzJgDUTFA+2YxtHmCfKczPQgv
+	 3y4GYAHV7uvVKJME+IyEMVPsFnaDpCMqWKJ6wD78fe8U4YH96v5DjfY1fBibXvLfac
+	 08QMhHHyAcLjKBt8U5nsp5kRAgedeeMJdHuYlIEdTv1NSh4lWts7r0QBVDD7lQbUGT
+	 GfHqhPPKXhE5Q==
+Message-ID: <a622643f-1585-40b0-9441-cf7ece176e83@kernel.org>
+Date: Mon, 6 Oct 2025 13:09:05 +0200
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 4/6] fs: make vfs_fileattr_[get|set] return -EOPNOSUPP
+To: Andrey Albershteyn <aalbersh@redhat.com>,
+ Amir Goldstein <amir73il@gmail.com>, Arnd Bergmann <arnd@arndb.de>,
+ Casey Schaufler <casey@schaufler-ca.com>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali@kernel.org>,
+ Paul Moore <paul@paul-moore.com>
+Cc: linux-api@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org,
+ selinux@vger.kernel.org, Andrey Albershteyn <aalbersh@kernel.org>
+References: <20250630-xattrat-syscall-v6-0-c4e3bc35227b@kernel.org>
+ <20250630-xattrat-syscall-v6-4-c4e3bc35227b@kernel.org>
+Content-Language: en-US
+From: Jiri Slaby <jirislaby@kernel.org>
+Autocrypt: addr=jirislaby@kernel.org; keydata=
+ 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
+In-Reply-To: <20250630-xattrat-syscall-v6-4-c4e3bc35227b@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-RFC only, this demonstrates how to implement unsharing of the SELinux
-namespace using the lsm_set_self_attr(LSM_ATTR_UNSHARE, ...) system
-call and how to implement detection of whether one is in an unshared
-SELinux namespace that has not yet been fully initialized using
-the lsm_get_self_attr(LSM_ATTR_UNSHARE, ...) system call.
+On 30. 06. 25, 18:20, Andrey Albershteyn wrote:
+> Future patches will add new syscalls which use these functions. As
+> this interface won't be used for ioctls only, the EOPNOSUPP is more
+> appropriate return code.
+> 
+> This patch converts return code from ENOIOCTLCMD to EOPNOSUPP for
+> vfs_fileattr_get and vfs_fileattr_set. To save old behavior translate
+> EOPNOSUPP back for current users - overlayfs, encryptfs and fs/ioctl.c.
+> 
+> Signed-off-by: Andrey Albershteyn <aalbersh@kernel.org>
+...
+> @@ -292,6 +294,8 @@ int ioctl_setflags(struct file *file, unsigned int __user *argp)
+>   			fileattr_fill_flags(&fa, flags);
+>   			err = vfs_fileattr_set(idmap, dentry, &fa);
+>   			mnt_drop_write_file(file);
+> +			if (err == -EOPNOTSUPP)
+> +				err = -ENOIOCTLCMD;
 
-Provide a selinux_unshare() wrapper for
-lsm_set_self_attr(LSM_ATTR_UNSHARE, ...) and other required processing
-when unsharing the SELinux namespace, and an is_selinux_unshared()
-wrapper for lsm_get_self_attr(LSM_ATTR_UNSHARE, ...) for detecting
-whether one is in an unshared SELinux namespace that has not yet
-been fully initialized.
+This breaks borg code (unit tests already) as it expects EOPNOTSUPP, not 
+ENOIOCTLCMD/ENOTTY:
+https://github.com/borgbackup/borg/blob/1c6ef7a200c7f72f8d1204d727fea32168616ceb/src/borg/platform/linux.pyx#L147
 
-Add a selinux_unshare() interface to unshare the SELinux namespace, and
-a unshareselinux utility to run a shell or command in its own SELinux
-and mount namespaces. The selinux_unshare() interface expects the caller
-to have already unshared its mount namespace and created a
-MS_REC|MS_PRIVATE mount of / prior to invoking it so that it can freely
-modify the selinuxfs mount as needed by the unshare operation. The
-unshareselinux utility demonstrates how to do this prior to calling
-selinux_unshare(). Upon a successful return from selinux_unshare(),
-the SELinux namespace will be unshared and there will be no selinuxfs
-mount on /sys/fs/selinux.  The caller can then proceed to mount a new
-selinuxfs filesystem private to the new namespace, load a policy,
-set enforcing mode, etc, as is commonly handled by init/systemd during
-boot.
+I.e. setflags now returns ENOIOCTLCMD/ENOTTY for cases where 6.16 used 
+to return EOPNOTSUPP.
 
-Add an is_selinux_unshared() interface to detect whether one is in
-an unshared SELinux namespace that has not yet been fully initialized
-(i.e. no policy loaded yet), and a selinuxunshared utility to use
-it from a shell or script.
+This minimal testcase program doing ioctl(fd2, FS_IOC_SETFLAGS, 
+&FS_NODUMP_FL):
+https://github.com/jirislaby/collected_sources/tree/master/ioctl_setflags
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- libselinux/include/selinux/selinux.h |  22 ++++++
- libselinux/src/libselinux.map        |   6 ++
- libselinux/src/unshare.c             | 114 +++++++++++++++++++++++++++
- libselinux/utils/.gitignore          |   2 +
- libselinux/utils/selinuxunshared.c   |  24 ++++++
- libselinux/utils/unshareselinux.c    |  42 ++++++++++
- 6 files changed, 210 insertions(+)
- create mode 100644 libselinux/src/unshare.c
- create mode 100644 libselinux/utils/selinuxunshared.c
- create mode 100644 libselinux/utils/unshareselinux.c
+dumps in 6.16:
+sf: ioctl: Operation not supported
 
-diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
-index b1431e5d..4cac6283 100644
---- a/libselinux/include/selinux/selinux.h
-+++ b/libselinux/include/selinux/selinux.h
-@@ -760,6 +760,28 @@ extern int selinux_lsetfilecon_default(const char *path);
-  */
- extern void selinux_reset_config(void);
- 
-+/*
-+ * Unshare the SELinux namespace.
-+ * Prior to invoking this API, the caller must have unshared the
-+ * mount namespace (CLONE_NEWNS) and mounted a MS_REC|MS_PRIVATE
-+ * / filesystem so that selinux_unshare() can freely modify any
-+ * existing selinuxfs mount as needed for the unshare.
-+ * Returns 0 on success, in which case the SELinux namespace has
-+ * been unshared and any old selinuxfs mount will have been unmounted.
-+ * The caller can then proceed to mount a new selinuxfs filesystem
-+ * for the new namespace, load a policy, set enforcing mode, etc.
-+ */
-+extern int selinux_unshare(void);
-+
-+/*
-+ * Returns 1 if the SELinux namespace was unshared and has not
-+ * yet been fully initialized (i.e. policy not yet loaded).
-+ * Returns 0 if the SELinux namespace was either not unshared or
-+ * has been fully initialized.
-+ * Returns -1 if not supported.
-+ */
-+extern int is_selinux_unshared(void);
-+
- #ifdef __cplusplus
- }
- #endif
-diff --git a/libselinux/src/libselinux.map b/libselinux/src/libselinux.map
-index ab002f01..77f5790c 100644
---- a/libselinux/src/libselinux.map
-+++ b/libselinux/src/libselinux.map
-@@ -262,3 +262,9 @@ LIBSELINUX_3.9 {
-   global:
-     context_to_str;
- } LIBSELINUX_3.8;
-+
-+LIBSELINUX_4.0 {
-+  global:
-+    selinux_unshare;
-+    is_selinux_unshared;
-+} LIBSELINUX_3.9;
-diff --git a/libselinux/src/unshare.c b/libselinux/src/unshare.c
-new file mode 100644
-index 00000000..16edb2c0
---- /dev/null
-+++ b/libselinux/src/unshare.c
-@@ -0,0 +1,114 @@
-+#ifndef _GNU_SOURCE
-+#define _GNU_SOURCE
-+#endif
-+
-+#include <sched.h>
-+#include <stdint.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <fcntl.h>
-+#include <unistd.h>
-+#include <errno.h>
-+#include <sys/mount.h>
-+#include <sys/vfs.h>
-+#include <sys/statvfs.h>
-+#include <sys/syscall.h>
-+#include <linux/lsm.h>
-+
-+#include "selinux_internal.h"
-+#include "policy.h"
-+
-+#ifndef LSM_ATTR_UNSHARE
-+#define LSM_ATTR_UNSHARE 106
-+#endif
-+
-+#ifndef __NR_lsm_get_self_attr
-+#define __NR_lsm_get_self_attr 459
-+#endif
-+
-+#ifndef __NR_lsm_set_self_attr
-+#define __NR_lsm_set_self_attr 460
-+#endif
-+
-+#ifndef HAVE_LSM_SET_SELF_ATTR
-+#define HAVE_LSM_SET_SELF_ATTR 1
-+static int lsm_set_self_attr(unsigned int attr, struct lsm_ctx *ctx,
-+			     uint32_t size, uint32_t flags)
-+{
-+	return syscall(__NR_lsm_set_self_attr, attr, ctx, size, flags);
-+}
-+#endif
-+
-+#ifndef HAVE_LSM_GET_SELF_ATTR
-+#define HAVE_LSM_GET_SELF_ATTR 1
-+static int lsm_get_self_attr(unsigned int attr, struct lsm_ctx *ctx,
-+			     uint32_t *size, uint32_t flags)
-+{
-+	return syscall(__NR_lsm_get_self_attr, attr, ctx, size, flags);
-+}
-+#endif
-+
-+/*
-+ * Precondition: caller must have already done unshare(CLONE_NEWNS) or
-+ * been created via clone(CLONE_NEWNS) and mounted a MS_REC|MS_PRIVATE
-+ * / filesystem so that any pre-existing selinuxfs mount can be
-+ * modified freely by selinux_unshare(). See ../utils/unshareselinux.c
-+ * for an example.
-+ */
-+int selinux_unshare(void)
-+{
-+	struct lsm_ctx ctx;
-+	int ret;
-+
-+	ctx.id = LSM_ID_SELINUX;
-+	ctx.flags = 0;
-+	ctx.len = sizeof(ctx);
-+	ctx.ctx_len = 0;
-+
-+	/* Unshare the SELinux namespace */
-+	ret = lsm_set_self_attr(LSM_ATTR_UNSHARE, &ctx, sizeof(ctx), 0);
-+	if (ret < 0)
-+		return -1;
-+
-+	/* Unmount the selinuxfs which refers to the old/parent namespace */
-+	ret = umount(SELINUXMNT);
-+	if (ret < 0)
-+		return ret;
-+
-+	/*
-+	 * Caller is responsible for mounting new selinuxfs, loading policy,
-+	 * setting enforcing mode, etc.
-+	 */
-+
-+	return 0;
-+}
-+
-+struct selinux_ctx {
-+	struct lsm_ctx lsmctx;
-+	char unshared;
-+};
-+
-+/*
-+ * Returns 1 if the SELinux namespace was unshared and has not
-+ * yet been fully initialized (i.e. policy not yet loaded).
-+ * Returns 0 if the SELinux namespace was either not unshared or
-+ * has been fully initialized.
-+ * Returns -1 on any other case, e.g. operation not supported.
-+ */
-+int is_selinux_unshared(void)
-+{
-+	struct selinux_ctx ctx;
-+	uint32_t size = sizeof(ctx);
-+	int ret;
-+
-+	ctx.lsmctx.id = LSM_ID_SELINUX;
-+	ctx.lsmctx.flags = 0;
-+	ctx.lsmctx.len = sizeof(ctx);
-+	ctx.lsmctx.ctx_len = 0;
-+
-+	ret = lsm_get_self_attr(LSM_ATTR_UNSHARE, (struct lsm_ctx *)&ctx,
-+				&size, LSM_FLAG_SINGLE);
-+	if (ret < 0)
-+		return ret;
-+	return ctx.unshared;
-+}
-diff --git a/libselinux/utils/.gitignore b/libselinux/utils/.gitignore
-index 2e10b14f..ffd2bc8e 100644
---- a/libselinux/utils/.gitignore
-+++ b/libselinux/utils/.gitignore
-@@ -30,3 +30,5 @@ setfilecon
- togglesebool
- selinux_check_access
- validatetrans
-+unshareselinux
-+selinuxunshared
-diff --git a/libselinux/utils/selinuxunshared.c b/libselinux/utils/selinuxunshared.c
-new file mode 100644
-index 00000000..965f7ba3
---- /dev/null
-+++ b/libselinux/utils/selinuxunshared.c
-@@ -0,0 +1,24 @@
-+#include <unistd.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <selinux/selinux.h>
-+
-+int main(int argc, char **argv)
-+{
-+	int ret;
-+
-+	if (argc != 1) {
-+		fprintf(stderr, "usage: %s\n", argv[0]);
-+		exit(-1);
-+	}
-+
-+	ret = is_selinux_unshared();
-+	if (ret < 0) {
-+		perror(argv[0]);
-+		exit(-1);
-+	}
-+
-+	printf("%d\n", ret);
-+
-+	exit(!ret);
-+}
-diff --git a/libselinux/utils/unshareselinux.c b/libselinux/utils/unshareselinux.c
-new file mode 100644
-index 00000000..b396b4fe
---- /dev/null
-+++ b/libselinux/utils/unshareselinux.c
-@@ -0,0 +1,42 @@
-+#ifndef _GNU_SOURCE
-+#define _GNU_SOURCE
-+#endif
-+
-+#include <sched.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <unistd.h>
-+#include <errno.h>
-+#include <sys/mount.h>
-+#include <selinux/selinux.h>
-+
-+int main(int argc, char **argv)
-+{
-+	int ret;
-+
-+	ret = unshare(CLONE_NEWNS);
-+	if (ret < 0) {
-+		perror("unshare(CLONE_NEWNS)");
-+		exit(1);
-+	}
-+
-+	ret = mount("none", "/", NULL, MS_REC | MS_PRIVATE, NULL);
-+	if (ret < 0) {
-+		perror("mount(/)");
-+		exit(1);
-+	}
-+
-+	ret = selinux_unshare();
-+	if (ret < 0) {
-+		perror("selinux_unshare");
-+		exit(1);
-+	}
-+
-+	if (argc < 2) {
-+		fprintf(stderr, "usage: %s command args...\n", argv[0]);
-+		exit(1);
-+	}
-+
-+	execvp(argv[1], &argv[1]);
-+	perror(argv[1]);
-+}
+with the above patch:
+sf: ioctl: Inappropriate ioctl for device
+
+
+Is this expected?
+
+thanks,
 -- 
-2.51.0
+js
+suse labs
 
