@@ -1,110 +1,145 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7113231836
-	for <selinux@vger.kernel.org>; Mon,  6 Oct 2025 18:41:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9CC82D9498
+	for <selinux@vger.kernel.org>; Mon,  6 Oct 2025 18:53:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759776112; cv=none; b=AfT6T+RJxL37CMbG5bHIYAKOs9rGgH3sExZkiEUqRQEse1ic29ORPdTdvz1UgTOFKrMynGK3vx5OGwgW8t3ceLpMwaL2yfvZtQX8IuCPyNM1x+sUhc8JTIcaSS57qXKogHqk8WjOjfbQGPufpSooWcI5vYcR+z/XFbXmhUQbpWw=
+	t=1759776790; cv=none; b=QCZVgJz/I/Mg2YPnLSnnAWYUgCx459SLbsz5W/+ZRHQwue82KKLsUJuxPAgHC237STzBKKmlSoYZm4S6afFOJEIUEfOVILJG+HOE88767NpSPe8rW40QYarFjXjcAR5FLUoUkq3vMHE0eDQR1GGnjn9ZSIDiD242muznD2CCxSY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759776112; c=relaxed/simple;
-	bh=LBJGL/nyY16szf0dJ3ghOi41a5AYx2XMpbG74refev4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=NlD4Ez8jIEoTH8gb+ln47j+2+JBTvEUOJd/SwPFopfs8Y/nmdYfoJTBrdPQGM8KkF97rBH760YlvpDN+jO4a0qys9u3QAjqPEt4QKgcGqWUT4+UoxbrWrcRx6AyibxnSasOcW9aqNf2rRgd82Rj2/TQpj+MZbMXGD+k/vRfSg5U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TSngByEI; arc=none smtp.client-ip=209.85.216.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1759776790; c=relaxed/simple;
+	bh=eWI9PmOJt9WIaRlYjU78S12UG6uSHamRZWNSsCfgWvo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=pS2Kyzb3mr7JJDYhAFMZ2JSKpO3XQtFK2St3WbE2+hSOm5DDoLG4CY1oDlYQQveBa+iZE9bVsUMjd42kfxyMQy/ylhKdd4VFPvxpmyS0luvnQ4E/TjCDgyjlvq9InaspE7keAySJH9Fuy5CtaFKZ9cKrYJsnR7YEeEhvQAdyUXA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cZc/yqqJ; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TSngByEI"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-330b0bb4507so4811464a91.3
-        for <selinux@vger.kernel.org>; Mon, 06 Oct 2025 11:41:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1759776110; x=1760380910; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/MY2B1hDTp1bdxoRyaXtEZ5EXjHjpHhQMmRXBkM24XQ=;
-        b=TSngByEIeB674BADFYHobLQPxLZet51BpAqZ5Fyl7NKEJVV10F0JRkEQZOnixdLN7o
-         lhLCLPmdiJigq/gCynF9enTRBDllPuYJx1O/XgICMqdyaPGPIP0YKTUOn7dOPMNnVgqR
-         lMpASqCroGvmadmTh+7as0m62ayn5WmP0hWbRWeomcRh69si/Qu0l18SaqVcR2kC80ar
-         9yURZFOPPpOguNx9ViKyC7eV8Ux8jBZ3uHlQYmzgJ0gG6HgGtlhidcsg7Fqz79Gue5z0
-         kjk3li5OBJfxmpyEiRF+yZFLgu6yQTA8eLvBn6flfpC2PKiOvU/2cCMy1BUzMnryskSe
-         Xu4Q==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cZc/yqqJ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1759776787;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=3AELUvjO0N+ODGhRgLstmsznCqJ4q95SzfBUYFo2Qts=;
+	b=cZc/yqqJJlIIHPvNRrGGmAXMLPQwyPGyz9dgu3x+zm4Ea2kU3jYMdgh87eqsC7rAzyD4Ek
+	jMzl9/uCDYuDaze+LRHfxLZufcieVFrfUvJV2DSs7QGiStH9Y3bwvxtEdyYX1uQIT8/WXY
+	zBwQuCe4ZjILxjlM0lWgy0nPGgXgb4c=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-546-ICrwQPeyOfOSWy4PXaGKaw-1; Mon, 06 Oct 2025 14:53:06 -0400
+X-MC-Unique: ICrwQPeyOfOSWy4PXaGKaw-1
+X-Mimecast-MFC-AGG-ID: ICrwQPeyOfOSWy4PXaGKaw_1759776785
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-46e502a37cdso35246715e9.0
+        for <selinux@vger.kernel.org>; Mon, 06 Oct 2025 11:53:06 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759776110; x=1760380910;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=/MY2B1hDTp1bdxoRyaXtEZ5EXjHjpHhQMmRXBkM24XQ=;
-        b=inJNQGsJZeyn7/KZkdVu9LglxpIET/BK8E3H9+Dg56OIJQ0M/eZ2vL/mm0l4DkQ/ww
-         4e/JmsRRA3HlGoIwH5XaW+4tTStrxIOfEo6r7OYM1G+G4MUe6ThFfbKiPflrTbWRaFR7
-         dQE36eQNwsHyXoXA2DQC9gQcDxLu7kcSNyYKZcyqQ0JvWel/5PmTSpR+/NvVC+PALQpp
-         zQTOXwFGcDnBDDZhYzp/W14PDQcWnut92kB4vBZaJ9ymkZMThlPISyrddNRBtq2oQ+oi
-         pJrSz8/rb8lAL0HlWPaWkj0xB8VTqD/uVkY1jQzRKS+cdNjgv4hQjjBsv3T8Dr7v62AF
-         Fg0A==
-X-Gm-Message-State: AOJu0YxFYevuUqX4Y0mq3WylSD1P1gX/uxMplXDYrAG5Fec/acrUzbtO
-	X72/wnXmlkqj9NtUkdFntGD7UtexeIBrulzkZGt/BzkpX5Tz2O80HU3MU536dUppRF8zk8z/u1k
-	bqxy8xUlcoDrkTyTtFczLflXcsQ93eITFzQ==
-X-Gm-Gg: ASbGncvXoI3b7lZSmk2zXe1xDxZ1Rwq2VNQ4kI5JtRJhjzuptnbFKICtrMwUNYF6HVN
-	tEmjI38DvrxmoXtNynEEroU3NMMuYgg9py8R2YQmKskuvPdIOPwETtArC4CHyh0lVNEgwfzywWb
-	QSrg3wtp2RyU5iNpbCyr0KJHEkeMNE2Z2r41GWkM8xWAbEJFc/gzWUUVGJs61gS2w5ije4BRL7f
-	fW6X/CBTvKMXc63V9ev1+9m884jlP16E6Hi9qu2Pw==
-X-Google-Smtp-Source: AGHT+IGMS7yRpOwhmbfW6gIAWM3RNNsEFA0mX1UY/vT57VfbSmDvHtxdka0lbVYQcoGUxxHOm9XTcsMEZfzjTJ6YDlU=
-X-Received: by 2002:a17:90b:4a8f:b0:330:852e:2bcc with SMTP id
- 98e67ed59e1d1-339c27b94e9mr14879617a91.21.1759776109936; Mon, 06 Oct 2025
- 11:41:49 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1759776785; x=1760381585;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=3AELUvjO0N+ODGhRgLstmsznCqJ4q95SzfBUYFo2Qts=;
+        b=RFvHPh7BaYU/pTTYf1m+4X5BvppT/cUoHLhgfUGeq7H88ttjwzQZi2tK2HLriGzNZH
+         Na1BDLxGN4GC5IKV5CxiASHGM8tSHRpbJLfamBigQnlV9q+vXx/+WMLUnhZ4UlTQCD30
+         gFosPL4rdKXki1vjF1jtglUdtbVY4TNXwxF7CF0gqdbIwypwEYdRcZFV4gEm72RWB62y
+         Uz48cVZ799xfxApr4teC41jSjpWcf6M+gpqNqop2bKjq3zStHCBkUDTg4BW0NBREDD3e
+         LQwP5zmHOsEDfyquXHs4Af2TemvL5u7f1+1KGwl3ptz52niFmRPLVHwPt9mlTZWQn3B7
+         hPlg==
+X-Forwarded-Encrypted: i=1; AJvYcCWyFBFmRc447XpWc/ZaxVcl8vpxEgldBsFBWvZF1djr4kCsWkEfji77pdX/QoRgjtpnZW1EefsP@vger.kernel.org
+X-Gm-Message-State: AOJu0YwzY2LPq2MVz207U8iu23CRZArlLgeeOdcH8OG7/w6czTd9VttC
+	cP8zIp7lZ83xH4bTAdt82RIuRI2ihVB7j1Qau2UxrOrZLpO2zsUbkQ+1qTJFyojy2wYdvYOgM7d
+	2ZoXEH9PLrff55scbgcypBfPygfRtajdGoy3RrQ1/H9eCLZsFkmW7lP+nu98hmgBSgA==
+X-Gm-Gg: ASbGnctBLHkDG2A3jqC4cHlR7AbW/4SI2Fp0X2I4lXTlEQxQ2f8C3fvCX8W+odaz6vP
+	0m/KS2LlkuyAcEzlmykdHLPfcgdNvP/cPmZDcr+QXs/kzMEdshRjewjynbdmQC6yTIztpLS+h6e
+	jQCQKVGxr7v0PpG1UipolUh5Z0gY0WJ8KbNuxJ9K9dfk6eM/1ZeZ9Jh/BSjMrbYfXGuJDDQIrLv
+	4sd8WJh9XHGBJu0govKcESJUWfRq4aJKpvPx/M+YabHhg2sUoou6p9JcGD2n0p5mSbG4zadttIq
+	7KfEVfD884HILKhQan+lwfvbYbaYLWoRJTMWQyO9vZFbDN90jpbhfJs/hs//wT2sQQ==
+X-Received: by 2002:a05:6000:2303:b0:3ec:1154:7dec with SMTP id ffacd0b85a97d-42567164b20mr8887678f8f.25.1759776784554;
+        Mon, 06 Oct 2025 11:53:04 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEcKlhLopprqD0ctLDeK3ZiOapzKNjpNRXsOsRWDtqgxDtwJuOl9eDtA1aAuyt6f3P21Qd/GA==
+X-Received: by 2002:a05:6000:2303:b0:3ec:1154:7dec with SMTP id ffacd0b85a97d-42567164b20mr8887653f8f.25.1759776783878;
+        Mon, 06 Oct 2025 11:53:03 -0700 (PDT)
+Received: from thinky (ip-217-030-074-039.aim-net.cz. [217.30.74.39])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4255d8f0170sm22533134f8f.49.2025.10.06.11.53.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 Oct 2025 11:53:03 -0700 (PDT)
+Date: Mon, 6 Oct 2025 20:52:32 +0200
+From: Andrey Albershteyn <aalbersh@redhat.com>
+To: Jan Kara <jack@suse.cz>
+Cc: Jiri Slaby <jirislaby@kernel.org>, Amir Goldstein <amir73il@gmail.com>, 
+	Arnd Bergmann <arnd@arndb.de>, Casey Schaufler <casey@schaufler-ca.com>, 
+	Christian Brauner <brauner@kernel.org>, Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>, 
+	Paul Moore <paul@paul-moore.com>, linux-api@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, selinux@vger.kernel.org, 
+	Andrey Albershteyn <aalbersh@kernel.org>
+Subject: Re: [PATCH v6 4/6] fs: make vfs_fileattr_[get|set] return -EOPNOSUPP
+Message-ID: <eyl6bzyi33tn6uys2ba5xjluvw7yjempqnla3jaih76mtgxgxq@i6xe2nquwqaf>
+References: <20250630-xattrat-syscall-v6-0-c4e3bc35227b@kernel.org>
+ <20250630-xattrat-syscall-v6-4-c4e3bc35227b@kernel.org>
+ <a622643f-1585-40b0-9441-cf7ece176e83@kernel.org>
+ <jp3vopwtpik7bj77aejuknaziecuml6x2l2dr3oe2xoats6tls@yskzvehakmkv>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251003190434.432154-1-nvraxn@gmail.com>
-In-Reply-To: <20251003190434.432154-1-nvraxn@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 6 Oct 2025 14:41:38 -0400
-X-Gm-Features: AS18NWDTkb7JyFshlVGmaFLIkmFAicMJ0_lR4iEyE-AKoMn0rvZwNJ_njysNLMY
-Message-ID: <CAEjxPJ6Wcv_SG7=ZsGuRyf-83f1G+ywTBCeeey7hfNyCqF-KJw@mail.gmail.com>
-Subject: Re: [PATCH] docs: fix context_*_range (3) return value documentation
-To: Rahul Sandhu <nvraxn@gmail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <jp3vopwtpik7bj77aejuknaziecuml6x2l2dr3oe2xoats6tls@yskzvehakmkv>
 
-On Fri, Oct 3, 2025 at 3:05=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> wrot=
-e:
->
-> The context_*_range () family of functions return less than zero on
-> failure[1][2].
->
-> [1] https://github.com/SELinuxProject/selinux/blob/main/libselinux/src/co=
-ntext.c#L184
-> [2] https://github.com/SELinuxProject/selinux/blob/main/libselinux/src/co=
-ntext.c#L190
->
-> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+On 2025-10-06 17:39:46, Jan Kara wrote:
+> On Mon 06-10-25 13:09:05, Jiri Slaby wrote:
+> > On 30. 06. 25, 18:20, Andrey Albershteyn wrote:
+> > > Future patches will add new syscalls which use these functions. As
+> > > this interface won't be used for ioctls only, the EOPNOSUPP is more
+> > > appropriate return code.
+> > > 
+> > > This patch converts return code from ENOIOCTLCMD to EOPNOSUPP for
+> > > vfs_fileattr_get and vfs_fileattr_set. To save old behavior translate
+> > > EOPNOSUPP back for current users - overlayfs, encryptfs and fs/ioctl.c.
+> > > 
+> > > Signed-off-by: Andrey Albershteyn <aalbersh@kernel.org>
+> > ...
+> > > @@ -292,6 +294,8 @@ int ioctl_setflags(struct file *file, unsigned int __user *argp)
+> > >   			fileattr_fill_flags(&fa, flags);
+> > >   			err = vfs_fileattr_set(idmap, dentry, &fa);
+> > >   			mnt_drop_write_file(file);
+> > > +			if (err == -EOPNOTSUPP)
+> > > +				err = -ENOIOCTLCMD;
+> > 
+> > This breaks borg code (unit tests already) as it expects EOPNOTSUPP, not
+> > ENOIOCTLCMD/ENOTTY:
+> > https://github.com/borgbackup/borg/blob/1c6ef7a200c7f72f8d1204d727fea32168616ceb/src/borg/platform/linux.pyx#L147
+> > 
+> > I.e. setflags now returns ENOIOCTLCMD/ENOTTY for cases where 6.16 used to
+> > return EOPNOTSUPP.
+> > 
+> > This minimal testcase program doing ioctl(fd2, FS_IOC_SETFLAGS,
+> > &FS_NODUMP_FL):
+> > https://github.com/jirislaby/collected_sources/tree/master/ioctl_setflags
+> > 
+> > dumps in 6.16:
+> > sf: ioctl: Operation not supported
+> > 
+> > with the above patch:
+> > sf: ioctl: Inappropriate ioctl for device
+> > 
+> > Is this expected?
+> 
+> No, that's a bug and a clear userspace regression so we need to fix it. I
+> think we need to revert this commit and instead convert ENOIOCTLCMD from
+> vfs_fileattr_get/set() to EOPNOTSUPP in appropriate places. Andrey?
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+I will prepare a patch soon
 
-> ---
->  libselinux/man/man3/context_new.3 | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/libselinux/man/man3/context_new.3 b/libselinux/man/man3/cont=
-ext_new.3
-> index 3dabac3d..04522366 100644
-> --- a/libselinux/man/man3/context_new.3
-> +++ b/libselinux/man/man3/context_new.3
-> @@ -71,7 +71,7 @@ set a context component.
->  .SH "RETURN VALUE"
->  On failure
->  .BR context_*_set ()
-> -functions return non-zero and 0 on success.
-> +functions return non-zero on failure and 0 on success.
->
->  The other functions return NULL on failure and non-NULL on success.
->
-> --
-> 2.50.1
->
->
+> 
+> 								Honza
+> -- 
+> Jan Kara <jack@suse.com>
+> SUSE Labs, CR
+> 
+
+-- 
+- Andrey
+
