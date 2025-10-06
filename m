@@ -1,128 +1,192 @@
-Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
+Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A7C66ADD
-	for <selinux@vger.kernel.org>; Mon,  6 Oct 2025 14:35:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75F2D2D6E7C
+	for <selinux@vger.kernel.org>; Mon,  6 Oct 2025 15:06:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759761312; cv=none; b=gwSE72QN0FEPHK7GgVjJGw86QTWSi1Tphofymo9hSwsXRg3RWS9+AiNkEFocYFRnuXiav+fr+nFhukUH+j2GHnqoMpFO5Iw/15j3Ux9CkGXd5iK7vbIbcTwId3OvwfF8yS/cUp2x3aJl8F5PPLi7T2zwHnt2PMAfSNXZLY/p3u8=
+	t=1759763189; cv=none; b=QYWn+JxXt2Vjrws0ijHE7jffGiBR3nxRf9uX/IVW/JknaCicWj9oDT2sN82JJ2qdwShSfZHV6N0kodZbjmQeiZKbkI1L7+URvgV7eyUF2TdSnQhriWXyyVOSO5iDQsYwP1+JwyZMx5qJs+Khv4Kp604cZAyPyzVpy0mhrdHebRg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759761312; c=relaxed/simple;
-	bh=juvGzKCKleUkoxXP/AvyLSBP/8S7ahOlGPn6Ldncjm8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=fvzN3PMYVdWX5VUmhhYL0RxHlzmVMTMAWR4gNAIy14f6Kmp/QIalcAhvnoSya+t2RDlk4JOjvIWdSrwExw+DPeI7QCywxVrY2EqrnR3nQYTvqNaawepX8mhvWgvC+KtJD72mzcJ7n0agzwdFQ36KEXQWiW/2JNzB2C0bvyGDi0A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VbONY74M; arc=none smtp.client-ip=209.85.219.43
+	s=arc-20240116; t=1759763189; c=relaxed/simple;
+	bh=lJHbkh5A12zWmxjF0K/3iX5NnCg3rdCZCfXP9jdeMsc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=NGVBkRhskhnYcIOzATwldwqyWhEZR5qDD4xOV/RA11LPO/NV9asNynCZrtkxPfDwtb2EsVQVUgW8KUCHNNhp+D3t6FQBhC9/DCk7KfAXRFmOUms68arqKM706K4yu5aE57DI+fPAM2w74vD9QZrEGo1zgO4+qJVvRX5yQpTCwu8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=T01vsa/2; arc=none smtp.client-ip=209.85.216.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VbONY74M"
-Received: by mail-qv1-f43.google.com with SMTP id 6a1803df08f44-78f15d5846dso59478176d6.0
-        for <selinux@vger.kernel.org>; Mon, 06 Oct 2025 07:35:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T01vsa/2"
+Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-3322e6360bbso5036239a91.0
+        for <selinux@vger.kernel.org>; Mon, 06 Oct 2025 08:06:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1759761310; x=1760366110; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1759763187; x=1760367987; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=zR+mUhA5Kuos/2vakwBj5BqLP90/449VUU1F44vPVZ4=;
-        b=VbONY74MDKNj1TVe2CihS0FQEKYiP6AMyXSdmmh1yWKvasKHEd6Zk63pPWGmSwqjnx
-         go1mOzGwNXR51zEIRSlBNJn5vA1GvdOhr9/dqzSUfu6HmpuAE2ospvYu9gUj5qponmNX
-         sr3PvTCMzxg3nPvAtRTUkkqlqceL4PciHSzz7VQduY4bZYLd/MtbvPsSkbyA288OF1dK
-         ebQ4eYkrEQvGRb9624ZrMrm0lr4xVpYl5XSCxQoHcmSYSUkEEGq1ecnEBBFN8Mfg64A9
-         QGYEcMD8x/h5hg8OiRo+LMX3Y3eprsDndEsPBoWtA+DC8oQ597Z+PUVwbd7xwvSzVsZb
-         sPEg==
+        bh=fq7cdt9ZifINX9wwkiJBck29zwXup5uR5rW5avuOJyc=;
+        b=T01vsa/2LE+tI1qxA86fFpKHaDVgI08/Xb3yMmPjeqEIgtC/sDF8gMn4FnQvIpAVh7
+         KdQ9gO2KehDmQgzLhwEaXdJ5sz+RSbxtsGQfynQ+4wOdn5fY5JVT3sVrFfRqC/TpwRO8
+         LSAPpp30uEPqquurcNr4Sjs5s3LDpLYqx2ccOEgQVK6JYR92bEjKMpvQwx7DgGmBsAkk
+         2t9voCNRbH5ggvaEuGPdSPTofsG+yjQstO8Pfx9pMBpOO8jwnmQEmlyQsg9vEwBk7MIj
+         E0j8o7gx90FoYdEPtMkJw2HiOzKKCAEWscU+CZFUL5QzfyRxdwVWL8jP/RvQ5HWLOWxx
+         x+sQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759761310; x=1760366110;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1759763187; x=1760367987;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=zR+mUhA5Kuos/2vakwBj5BqLP90/449VUU1F44vPVZ4=;
-        b=Nfvtpd1bNAUBCs7Zn+fNyfrS6P55goI5KDsB0byORImknU/8bBnzmZSnbFBo7G952T
-         MX8IKQe6uie/zimJ32OP8YCuLSUb0szQCK4jhWwVIb9XhsG4OrwvhDgzBmYPGNpNntTr
-         uHYS5lbq73b+L8Vt78/Wha2d6+87VDPPXPr+Ph6Yu5dzpm+DJJaLKyx6GqIafaDs3N5R
-         RPA8q5XJPR9HCAW7k+ksXGApJPDnXn79SLElUjuBQYkNLvGa29wk3+zgF7qH3bpE3x+z
-         jtHueRpE7QILVUZIIjwVNzjKN0oq4VPTba9i8/7g9deSHD7f4MYUHHb8fuQx6W75HUnd
-         RtCg==
-X-Gm-Message-State: AOJu0Yz1khorjDMwgSp4wm03zTXhGiwPLrdrIySBnc1o2b9I3qiV/ZqQ
-	SvMX+pRQ5Ehf8MEyGiGR9HvpQatQN54+5ctH1Wy1ILg1DYcnKb0xzyMw9RmNbg==
-X-Gm-Gg: ASbGncurLWyncsswt7F6VZjlv5gQ0p+4OxOgjpJRA6E8EwKsl1KlpELOAupH+8dlyE+
-	BwJdeGRRj08STTj5rWIZEAbEVbJYZstCR6kmNE+fXjB9hfHsS+QiIzcy+2BDPQSPFqE0BPdQPcc
-	L5OrhsiJYgcevmwCo5aa9qN3GK8HT31zwvPoaRyspbd7yadOag6W7llBOcvXGEiPowNHUJrl79x
-	2dgJZlMCn5oUVadtN5gA4nq1tMVY94yRBkN97X3iYuS2aKbIGEVn5MbgqixgrenXtVwtDLwsB+A
-	g0TwAsHp+vJk+UACvSJK0TI9u9OKufNXiDK7fR1BgE13OruoGQhbctNdEA+3uqokBQclWPgrDJC
-	VHD1Utbvro7QJaKO9trNGuROVlZ3NAVeL/pnAs0Mo1r1xrpHNGiR16wMKzuJLWE0nCOW9ZVA1Y9
-	5UfzkKKiHOPQLjvCMQA3I/I+x0Wh1C8UC9afRrmHR5Tp5W3PA=
-X-Google-Smtp-Source: AGHT+IHpfAMRbry5YfXZ/3PZmjfujzB3XuUeaHoihgsdSGBX1C3Vnp2blQBFGSEDKWb0gE7armlONQ==
-X-Received: by 2002:a05:6214:484:b0:81b:23d:55a8 with SMTP id 6a1803df08f44-879dc87ee1amr145506866d6.59.1759761309707;
-        Mon, 06 Oct 2025 07:35:09 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-878be61fc21sm118975926d6.63.2025.10.06.07.35.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Oct 2025 07:35:09 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com,
-	cgzones@googlemail.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [RFC PATCH v3 2/2] systemd: perform SELinux initialization again in a SELinux namespace
-Date: Mon,  6 Oct 2025 10:30:54 -0400
-Message-ID: <20251006143052.271761-4-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20251006143052.271761-2-stephen.smalley.work@gmail.com>
-References: <20251006143052.271761-2-stephen.smalley.work@gmail.com>
+        bh=fq7cdt9ZifINX9wwkiJBck29zwXup5uR5rW5avuOJyc=;
+        b=AMmVv5nSF94tj8/8c+bZyRyk/Z0BlVJOs8Cp3N/SZMMMIo1DNP0PYCpWLG+V/+8mp1
+         /5tDRfjvJsUo16YG7qZ0EmTgGwCOfnpdZ9FrEH3JlOqvDI3Mp0bNmysOMm8oZLEmY8Rq
+         EdVr5e+sfs7AMRkQMxacSdYVbFzzHkr0SHQ6Hl1uUY+f96yUDvfqUKK3kOuMINT3VKnt
+         E+CcqFochBYC9S/kj/xkUWTepZg0lmursdZsXaSlVlT4C/xOn49YxMaOEBAscvFB58vU
+         6Fj+c40FS1muZW8OdyRTQ6Yb/FKNAkpXw5hNVQjkbFsm89unkxfAuOoQH3D9/YPFK646
+         oQzA==
+X-Forwarded-Encrypted: i=1; AJvYcCVbG8zFSSPMv/zUWZ8bNeTyJIR4v8IDoke2xHF+IhxXu3LKqmXg5DHdJZ+U/ULPdiEPPEhyYW3i@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy/V347uGHRSkXoz9U41/eaAMHFR0w573x5Vbf8yswsog8o0cQS
+	V6DjaJwz3BNOxHOfNH/ds9K+DXXaiB8dS6gut+/HO+mndDdZhCzOBEd5SF9j2nVWdZurAdspFhV
+	XZrZimALncGm8XRYQlkmp/DxOwIDqVAc=
+X-Gm-Gg: ASbGncvbV5dtnnV2SBDiTiqK9jDqs4hwu6LRO8xpWPiPsS7Yv1Qbzhh69aKreS1skNO
+	s1pf+j0pb0wSVPpa6pLkjqMylaWb4fArU1eyZlDPdze99wIbJ2AV7X/XNMhhvRyIBE9KeT45i/Q
+	IudcneG2N6Mu2hx709ZEGsepFKk0j7ZGhvPUUNiGJH3rCC/3dpwcxFsI3yIwyuNkrT1++N3ebcq
+	y7jqulqbaXOpj3Cz5a1UIKLlDFU8E4up6DY8sEtMVWwjF+xIK8a
+X-Google-Smtp-Source: AGHT+IEHkw9MPqHcA5SKu0QHKTwycngFaQaqS3XxJjPoDvWlNzGNMRoeNdQibYdcKhNTsO76Dxf/0kWy8D06owfUj/g=
+X-Received: by 2002:a17:90b:1b46:b0:330:6c04:a72b with SMTP id
+ 98e67ed59e1d1-339c27409e7mr15358707a91.3.1759763186353; Mon, 06 Oct 2025
+ 08:06:26 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20250731102224.1045166-1-nvraxn@gmail.com> <CAP+JOzTBrgKgzf2M4VRXXG_1=wSd-Zf-xGrp7J6w=o34+adGCg@mail.gmail.com>
+In-Reply-To: <CAP+JOzTBrgKgzf2M4VRXXG_1=wSd-Zf-xGrp7J6w=o34+adGCg@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 6 Oct 2025 11:06:15 -0400
+X-Gm-Features: AS18NWCHevIHIxVXZpPVFyjENRnHXHMlmI5CD4rpRxr_LgQoHRoDM5X2H00cB08
+Message-ID: <CAEjxPJ7VV9bvTQq4BDeynCuLaWe3ER0YRwTnXAwcre4KKk1U+w@mail.gmail.com>
+Subject: Re: [PATCH] python: fix flake8 F824 error
+To: James Carter <jwcart2@gmail.com>
+Cc: Rahul Sandhu <nvraxn@gmail.com>, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-RFC only, this demonstrates the changes required to systemd to
-perform SELinux setup and initialization when run in its own
-SELinux namespace. Otherwise, by default, systemd currently skips
-SELinux processing when run within a container to avoid conflicting
-with the host.
+On Tue, Aug 12, 2025 at 11:45=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
+rote:
+>
+> On Thu, Jul 31, 2025 at 6:34=E2=80=AFAM Rahul Sandhu <nvraxn@gmail.com> w=
+rote:
+> >
+> > This fixes failing CI[1].  From the flake8 documentation[2]:
+> >
+> > > global name / nonlocal name is unused: name is never assigned in scop=
+e
+> >
+> > Meaning that a global only needs to be defined with the global keyword
+> > in scope when it's being assigned to; not when it's being read.
+> >
+> > [1] https://github.com/SELinuxProject/selinux/actions/runs/16623315767/=
+job/47032933729
+> > [2] https://flake8.pycqa.org/en/latest/user/error-codes.html
+> >
+> > Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+>
+> Acked-by: James Carter <jwcart2@gmail.com>
 
-Modify systemd to perform SELinux setup and initialization when
-run in its own SELinux namespace.
+Thanks, merged.
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
-v3 reverts to setting and checking the SELINUXNS environment variable
-for detection of whether the SELinux namespace was unshared since
-systemd-nspawn sets seccomp filters that do not allow-list the
-lsm_get_self_attr(2) system call.
-
- src/core/main.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
-
-diff --git a/src/core/main.c b/src/core/main.c
-index 4fc870d6c0..eb8075fb79 100644
---- a/src/core/main.c
-+++ b/src/core/main.c
-@@ -3124,6 +3124,22 @@ int main(int argc, char *argv[]) {
-                         log_set_target(LOG_TARGET_JOURNAL_OR_KMSG);
- 
-                 } else {
-+                        const char *selinuxns = getenv("SELINUXNS");
-+
-+                        if (selinuxns) {
-+                                r = mac_selinux_setup(&loaded_policy);
-+                                if (r < 0) {
-+                                        error_message = "Failed to setup SELinux namespace support";
-+                                        goto finish;
-+                                }
-+
-+                                r = mac_selinux_init();
-+                                if (r < 0) {
-+                                        error_message = "Failed to initialize SELinux namespace support";
-+                                        goto finish;
-+                                }
-+                        }
-+
-                         /* Running inside a container, as PID 1 */
-                         log_set_target_and_open(LOG_TARGET_CONSOLE);
- 
--- 
-2.51.0
-
+>
+> > ---
+> >  mcstrans/share/util/mlstrans-test         | 4 ++--
+> >  python/semanage/seobject.py               | 1 -
+> >  python/sepolgen/src/sepolgen/refparser.py | 2 +-
+> >  python/sepolicy/sepolicy/__init__.py      | 3 ---
+> >  4 files changed, 3 insertions(+), 7 deletions(-)
+> >
+> > diff --git a/mcstrans/share/util/mlstrans-test b/mcstrans/share/util/ml=
+strans-test
+> > index df34e0e6..8fa0c379 100644
+> > --- a/mcstrans/share/util/mlstrans-test
+> > +++ b/mcstrans/share/util/mlstrans-test
+> > @@ -8,7 +8,7 @@ errors =3D 0
+> >
+> >
+> >  def untrans(trans, val):
+> > -    global errors, verbose
+> > +    global errors
+> >      (rc, raw) =3D selinux.selinux_trans_to_raw_context(trans)
+> >      if raw !=3D val:
+> >          print("untrans: '%s' -> '%s' !=3D '%s' FAILED" % (trans, raw, =
+val))
+> > @@ -19,7 +19,7 @@ def untrans(trans, val):
+> >
+> >
+> >  def trans(raw, val):
+> > -    global errors, verbose
+> > +    global errors
+> >      (rc, trans) =3D selinux.selinux_raw_to_trans_context(raw)
+> >      if trans !=3D val:
+> >          print("trans: '%s' -> '%s' !=3D '%s' FAILED" % (raw, trans, va=
+l))
+> > diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
+> > index 10963e81..b41efd59 100644
+> > --- a/python/semanage/seobject.py
+> > +++ b/python/semanage/seobject.py
+> > @@ -244,7 +244,6 @@ class semanageRecords:
+> >      args =3D None
+> >
+> >      def __init__(self, args =3D None):
+> > -        global handle
+> >          if args:
+> >              # legacy code - args was store originally
+> >              if isinstance(args, str):
+> > diff --git a/python/sepolgen/src/sepolgen/refparser.py b/python/sepolge=
+n/src/sepolgen/refparser.py
+> > index c8a3eb54..01a322ca 100644
+> > --- a/python/sepolgen/src/sepolgen/refparser.py
+> > +++ b/python/sepolgen/src/sepolgen/refparser.py
+> > @@ -1038,7 +1038,7 @@ def p_quoted_filename(p):
+> >  #
+> >
+> >  def p_error(tok):
+> > -    global error, parse_file, success, parser
+> > +    global error, success
+> >      error =3D "%s: Syntax error on line %d %s [type=3D%s]" % (parse_fi=
+le, tok.lineno, tok.value, tok.type)
+> >      print(error)
+> >      success =3D False
+> > diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sep=
+olicy/__init__.py
+> > index 2d526c94..3b87a869 100644
+> > --- a/python/sepolicy/sepolicy/__init__.py
+> > +++ b/python/sepolicy/sepolicy/__init__.py
+> > @@ -195,7 +195,6 @@ def init_policy():
+> >      policy(policy_file)
+> >
+> >  def info(setype, name=3DNone):
+> > -    global _pol
+> >      if not _pol:
+> >          init_policy()
+> >
+> > @@ -354,7 +353,6 @@ def _setools_rule_to_dict(rule):
+> >
+> >
+> >  def search(types, seinfo=3DNone):
+> > -    global _pol
+> >      if not _pol:
+> >          init_policy()
+> >      if not seinfo:
+> > @@ -936,7 +934,6 @@ def get_all_roles():
+> >      if roles:
+> >          return roles
+> >
+> > -    global _pol
+> >      if not _pol:
+> >          init_policy()
+> >
+> > --
+> > 2.50.1
+> >
+> >
+>
