@@ -1,205 +1,181 @@
-Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F101EB661
-	for <selinux@vger.kernel.org>; Mon,  6 Oct 2025 18:15:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A2F31C5D55
+	for <selinux@vger.kernel.org>; Mon,  6 Oct 2025 18:36:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759774560; cv=none; b=uWnYe41wOTmvvUIqH2tlxjwUHK7xpNtZinrnNKfFua3U8JTzLNwopzooOu/Qzebm3o7PxfYPNZc70AFMPxIFNoi143evaRfDfViPqf8hYoEGrvSDoXQhLTY1fuXozdfwahfrHheM3IZUuOiGBoduUzV3Et5ALgPiAt4+JEzEpDw=
+	t=1759775763; cv=none; b=aATE/H7gl68UW3TsHK/mCYABEK9S1yyzyEnkN0NOVLoXNbW6IyItLLi5XbI32bZBjTkIFFpeGaosA8hEvfINRxMOU46Gz/7tKcs7D9VMWGOV8WTVH9miUATaHrEL7RLjh2aa+HyrHk2ODMxp6SL13/ux3yJhcXSukUZsTb3RXXA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759774560; c=relaxed/simple;
-	bh=D5rG2bmwFmXM4qtT4i7pDtkcx6nRfUwINFS/p2lmR9M=;
+	s=arc-20240116; t=1759775763; c=relaxed/simple;
+	bh=1+vKnx8123ElRI0Dwiaib8JUlOwzyCto27T1l76WOhE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=TvCoHtQCUAtCxALVSn+HyVpdi88UjXNeUtK4ZkkxNsnz+X3vOzEQ9UZLr4JCw7a86hTlosUTYfwZmwcMvbTRgphQjrR/6S1ulmj9or+WhwHHHxwzDdZ+cD/3au5aRxNm0MmiXOiNgSaqQYQkGnB3xmP1Gg/YPFyGFqCDM8Sst6g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OZxEfgim; arc=none smtp.client-ip=209.85.215.176
+	 To:Cc:Content-Type; b=M/NPXb+hMBNoAlZgCz2GeSsGJcKLYEFXRF47WequBPA6V8Wk4fj31hl2hFt+0UcQW2qOApTFUAV2F/1UaPZh6yVAufcQgyLyHGtmDqLrFF8jmQ35DhYoPAoki6dCcO42QFZowIZ98I0ioQCDYuYC3VOSiaNcHt0aGcwmZK1UJb8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DUGDaP5T; arc=none smtp.client-ip=209.85.216.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OZxEfgim"
-Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-b5507d3ccd8so4263850a12.0
-        for <selinux@vger.kernel.org>; Mon, 06 Oct 2025 11:15:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DUGDaP5T"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-33226dc4fc9so5337178a91.1
+        for <selinux@vger.kernel.org>; Mon, 06 Oct 2025 11:36:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1759774558; x=1760379358; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1759775761; x=1760380561; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=+nn6C1bOibkgdcmlvPsNgo458S28oM8kWbQLYIMbf7w=;
-        b=OZxEfgimq5KN8QC/Pze74BKxhctaV/4It3SL71cWl7h1aoo5/eJaOHx5pXR/HHlrlX
-         TnYBsrX2NaOvAhfB48idXUd2rT4lfzS3rLgEmKIt2xteGFxqNzqNO+oKHoh1KJjm6AHr
-         T5+2jrdWmyw51BelQA/By6C97Lj/WN4nJl5sBxkpZwrAq+FG++fD7H75y8zTUZ05EwT6
-         7f/Hf14BOWOuAb4hPy7BmwWzTXxcTlduOIjJ2C8bSe2GADVNEQDQF/e2i26NDsLKV811
-         seqE8cb+g1fnJOvUeVNBkPcHGxIesna30IpXgcfTVB/NHgh5KzMdVNVU2nJnmGbGnrrz
-         YnTw==
+        bh=/N4dAWTTln7weEeWhmmty0l1UsJFqRi2cb4WppdmYYA=;
+        b=DUGDaP5TQVeo8SXfuQn60Mamg5lOevKJ1mKzDoNSxiu0eFNQphSbmsDBtVl6Cr3ovn
+         r8lyEVasSHVGPOlkIEACSPQE//kaIqsZQmRNtKikVHNfJR1utOLIebLX6uMFJu+t2C51
+         SNE1htwdYafVWVp/cwiBDvPrijfFkQbUehuOIMS6LXq5Oc227qhLbGQ+LrgeC0OV0a1W
+         GShjN8TzREUeGQZ+SeAzn/oHxSJyaj8ERxZ+B6uP85UyKZZPbXATcSkLd7iVrUOMPg+K
+         NUJrNwglphqEslE7umRBf80zJ1ka7MsVDd7UB4Y3zhnw7fXQvEfCqjyxEKTK5ebK0Ltz
+         rMDw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759774558; x=1760379358;
+        d=1e100.net; s=20230601; t=1759775761; x=1760380561;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=+nn6C1bOibkgdcmlvPsNgo458S28oM8kWbQLYIMbf7w=;
-        b=lwYJv7UnKce+H4oh2bZaBnQQVq0LyBKrUjBQqNwiYNkVqDBw8VYjr8MNGF7qI9hgn+
-         MZgyiwmZLmaVkqZdbOBf36iyup4gBgJmjYL/oiyOwxmIllt04SyqveuHxW4isO1EWB24
-         /nz/GAgEGCrH+EIClpsVsO/9TY5ZZh+wTvjO8Wg9gyO6dm3d08Q9rclav90k3lN6JGuo
-         Y7zLcX4LQlNMQXeeWPJnT/4ZZo3D8XrXiB8wn1cgJUCQvl2oZJdGxAzbTmksbLHR4jcw
-         367hk5rHzP3r2xYhjIoaL6pETC2A1gk/KHIU16kEQcxfNYWbpdPwAcHjN+8UaZiIohi7
-         zAJA==
-X-Gm-Message-State: AOJu0YzLEi7jlkpferRVwhEScEnnoioOY4popoIggpJKc46thiUGMjup
-	4N3J7FCji7iPym+L1Ih6LAcmcRXi3a/2GwWI9VvYLFNmqYSLKwHKafEFFi+zmb3fycKU/b2HGbr
-	lPnu9cJGJsOT7/5Ce83DdxyVQAW9i7Ws=
-X-Gm-Gg: ASbGnctZTw9U99pljaJuywk9abZSYjasI0JDY8i8pguEae59dtO3HuwTIKpKZGkz0Kr
-	2xnHF0ntsi9fiMNZKCwF8HWvSGD/38aVv8OBHS9LryIleNR/RMCJ8sFxwqpJx1UodVRsfzX1nKG
-	CAKImFMD8tLnLdQanxS63jsB26BNQiLVzSVIS34fSlPpqHyojyxd+IwURExclLtD2WhRwAFywlb
-	tTRH25OD38Ks86lOUytkX5jFCmbGTLyaYNriXVTAQ==
-X-Google-Smtp-Source: AGHT+IEgScP9A6bIbhG9joFx/DPAmF+MtJ9Ou3UhsWHD7dfoN75isSQgMpWU8mzPUAUsuKnUqwIJ9W3Ceeo9iCrdvSY=
-X-Received: by 2002:a17:90b:33ce:b0:32e:5d79:64f4 with SMTP id
- 98e67ed59e1d1-339c279e24dmr17596315a91.25.1759774557949; Mon, 06 Oct 2025
- 11:15:57 -0700 (PDT)
+        bh=/N4dAWTTln7weEeWhmmty0l1UsJFqRi2cb4WppdmYYA=;
+        b=BTACayKhWzJGfe6kcHT60tmxFzxS6pRF4q3x1b6soGP+YTLJnEpzw6HaL/CxbHj7JB
+         LejX+No3v11oSUOb1pKw/2iPyJGR8uJX09/H8ZNVf1sxGCTCX/H5TPOQHqM5mWrm3JHq
+         40JL5Ad1B7BHT8PmgwNDa0eKyZXrApJJng1pRHft5XyacVfy8TknsoufYtybmbSu7tHJ
+         bvhZM06bufudLdCUKfsfwez6H6LfZNQAj8NTdc29sW6QxaN4NO/FlRx/X+diQxglbmNO
+         xp7tRo1MrQZLTsGvzZsCQFl6OcGnOtasnm+whyyzCtQZOQpFTvfU+AOFJC+/SYS5X7eF
+         wktQ==
+X-Gm-Message-State: AOJu0Yw4S3MWA2yevWGAkhvZ4OWNhRFaAtsOfm4MvmE3gqJ3Bqk09bF3
+	pAX/9zSenHXwjqKr+WQr67ssFPzmiUsUzGkUgwvfGinORniXAiJiZzvCavdVFFNsDcYjER/3Pc0
+	xbS4aEW6FB2HLuNwZJkbwNMB6uQBxG3zvGQ==
+X-Gm-Gg: ASbGnctNeg2F4OkYQWzIjpl5scv6Nq/SytbIYOx70151jBzJ0allehcTBu0SKw+jntL
+	6w0HJ0iTi8YgkwSFwDbJpeRVy4qLqVKhmMMPe/g1ax3dpKDHdww+A80Xw2BJiq93vMzVOHjwtY6
+	AEOGNU90Ya6Z+S/3wxCmB/uD4SYNbcp+xmVf4PxXth71W3m5dBYtrm1nh0jWWCORcnR0HBowiFg
+	YFYAqoRc/2Ldp36lVzlB1CFfG5Pct0j++rUhGiXZw==
+X-Google-Smtp-Source: AGHT+IHy3wVrFGQlzn1Mh1f8cD5E2K7aHIgTHNC9jipdxPbEyOIbPtjjSpH4zQJaZOdH6L3XF4/XrWC3x+N8yB8d8jI=
+X-Received: by 2002:a17:90b:388b:b0:32e:24cf:e658 with SMTP id
+ 98e67ed59e1d1-339c2716d84mr15466461a91.3.1759775761031; Mon, 06 Oct 2025
+ 11:36:01 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251001172938.206904-1-plawate@redhat.com>
-In-Reply-To: <20251001172938.206904-1-plawate@redhat.com>
+References: <20250901171852.2216823-1-vmojzis@redhat.com> <20251003164046.485103-1-vmojzis@redhat.com>
+In-Reply-To: <20251003164046.485103-1-vmojzis@redhat.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 6 Oct 2025 14:15:47 -0400
-X-Gm-Features: AS18NWBj5lcasAPFzsp8k-L9ITFCrIi1AgJoVVXW_9uD8BlcaLqeit8cwoxkb-c
-Message-ID: <CAEjxPJ7xHLZZMx=8=Vv+kfVXwquNATA2_iaO_Ja+e_J=H31ftQ@mail.gmail.com>
-Subject: Re: [PATCH] improve semanage man pages: Add examples for -r RANGE
- flag usage
-To: Pranav Lawate <plawate@redhat.com>
-Cc: selinux@vger.kernel.org, pran.lawate@gmail.com, vmojzis@redhat.com
+Date: Mon, 6 Oct 2025 14:35:49 -0400
+X-Gm-Features: AS18NWByebj2gLAAssb6ZNmODn6Knj15R_-6D-H6Z4XsHyMai19Agdy60AVTiyE
+Message-ID: <CAEjxPJ4ZFwO3Zay0XU8g=ZrzvV2HDiDs-OTU02J_zb0fWyQ+Pg@mail.gmail.com>
+Subject: Re: [PATCH v2] semanage: Reset active value when deleting boolean customizations
+To: Vit Mojzis <vmojzis@redhat.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Oct 1, 2025 at 1:30=E2=80=AFPM Pranav Lawate <plawate@redhat.com> w=
-rote:
+On Fri, Oct 3, 2025 at 12:41=E2=80=AFPM Vit Mojzis <vmojzis@redhat.com> wro=
+te:
 >
-> From: Pranav Lawate <pran.lawate@gmail.com>
+> Currently, removal of boolean local customizations leaves their current
+> (active) value untouched.
 >
-> Hello,
->  I tried to send an email on Sept 12 and waited for 20 days. Today I got
-> to know it didn't really reach properly. So now retrying with 'git
-> send-email' instead of using gmail with plain text.
+> After the removal is complete, semanage_bool_query will return the
+> default value. But it needs to be called in a separate transaction.
+> This makes the fix a bit awkward, but I have not found a way to query
+> the default value before the first transation is committed.
+>
+> Fixes:
+>   # getsebool smbd_anon_write
+>   smbd_anon_write --> off
+>   # semanage boolean -m1 smbd_anon_write
+>   # semanage boolean -D
+>   # getsebool smbd_anon_write
+>   smbd_anon_write --> on
+>   # manage boolean -l isemanage boolean --list | grep smbd_anon_write
+>   smbd_anon_write                (on   ,  off)  Allow smbd to anon write
+>
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 
-Remove the above from your message so that it doesn't get included in
-the actual commit message.
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
->
->  This patch adds missing examples to the semanage-port and
-> semanage-fcontext man pages showing the correct usage of the -r RANGE
-> flag for MLS/MCS systems. Currently, users who try to use the -r flag
-> without proper examples often encounter unclear error messages when
-> they provide invalid range formats.
->
-> For example, Here is a command with wrong range string value:
-> ~~~
-> # semanage fcontext -a -t admin_home_t -r s0.c0 /root/test
-> libsepol.mls_from_string: invalid MLS context s0.c0 (No such file or dire=
-ctory).
-> libsepol.mls_from_string: could not construct mls context structure
-> (No such file or directory).
-> libsepol.context_from_record: could not create context structure
-> (Invalid argument).
-> libsemanage.validate_handler: invalid context
-> system_u:object_r:admin_home_t:s0.c0 specified for /root/test [all
-> files] (Invalid argument).
-> libsemanage.dbase_llist_iterate: could not iterate over records
-> (Invalid argument).
-> OSError: Invalid argument
-> ~~~
-> Similarly for port
-> ~~~
-> # semanage port -a -t http_port_t -p tcp -r s0.c0 8888
-> libsepol.mls_from_string: invalid MLS context s0.c0 (No such file or dire=
-ctory).
-> libsepol.mls_from_string: could not construct mls context structure
-> (No such file or directory).
-> libsepol.context_from_record: could not create context structure
-> (Invalid argument).
-> libsepol.port_from_record: could not create port structure for range
-> 8888:8888 (tcp) (Invalid argument).
-> libsepol.sepol_port_modify: could not load port range 8888 - 8888
-> (tcp) (Invalid argument).
-> libsemanage.dbase_policydb_modify: could not modify record value
-> (Invalid argument).
-> libsemanage.semanage_base_merge_components: could not merge local
-> modifications into policy (Invalid argument).
-> OSError: Invalid argument
-> ~~~
->
-> My main motive is to come up with a logic to handle this error better
-> but before undertaking that big of a change I wanted to push a small
-> improvement to the code and so I have added correct example strings of
-> MLS range into man pages for semanage-fcontext and semanage-port which
-> I have tested to work properly on my RHEL 9.5 VM.
->
-> This is my first contribution to the SELinux project.
->
->   The added examples demonstrate:
->   - Correct MLS range format: s0:c0.c255
->   - Complete command syntax with the -r flag for both port and
-> fcontext operations
->   - Clear indication that this is for MLS/MCS systems only
->   - Practical use cases (HTTPS port and secure directory)
->
->   This should help users avoid common mistakes with range formatting
-> and reduce support requests related to unclear error messages.
-> * Here is my Patch:
 
-Remove the "Here is my Patch above".
-
->
-> Signed-off-by: Pranav Lawate <pran.lawate@gmail.com>
 > ---
->  python/semanage/semanage-fcontext.8 | 4 ++++
->  python/semanage/semanage-port.8     | 2 ++
->  2 files changed, 6 insertions(+)
+> I only added comments explaining the code and improved the commit
+> message (no code changes in v2).
 >
-> diff --git a/python/semanage/semanage-fcontext.8 b/python/semanage/semana=
-ge-fcontext.8
-> index 3a96c62f..3e7a1d8b 100644
-> --- a/python/semanage/semanage-fcontext.8
-> +++ b/python/semanage/semanage-fcontext.8
-> @@ -100,6 +100,10 @@ execute the following commands.
->  # semanage fcontext \-a \-e /home /disk6/home
->  # restorecon \-R \-v /disk6
+>  python/semanage/seobject.py | 43 +++++++++++++++++++++++++++++++++++++
+>  1 file changed, 43 insertions(+)
 >
-> +Add file-context with MLS range s0:c0.c255 for /secure directory (MLS/MC=
-S systems only)
-> +# semanage fcontext \-a \-t admin_home_t \-r s0:c0.c255 "/secure(/.*)?"
-> +# restorecon \-R \-v /secure
-
-This didn't appear to relabel /secure when I tried it; seemed to
-require adding the -F flag to force it.
-
+> diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
+> index 10963e81..6d6188fd 100644
+> --- a/python/semanage/seobject.py
+> +++ b/python/semanage/seobject.py
+> @@ -2886,7 +2886,15 @@ class booleanRecords(semanageRecords):
+>          self.__delete(name)
+>          self.commit()
+>
+> +        # New transaction to reset the boolean to its default value.
+> +        # Calling __reset_value in the same transaction as the removal o=
+f
+> +        # local customizations does nothing
+> +        self.begin()
+> +        self.__reset_value(name)
+> +        self.commit()
 > +
->  .SH "SEE ALSO"
->  .BR selinux (8),
->  .BR semanage (8),
-> diff --git a/python/semanage/semanage-port.8 b/python/semanage/semanage-p=
-ort.8
-> index c6048660..217fa398 100644
-> --- a/python/semanage/semanage-port.8
-> +++ b/python/semanage/semanage-port.8
-> @@ -61,6 +61,8 @@ Allow Apache to listen on tcp port 81 (i.e. assign tcp =
-port 81 label http_port_t
->  # semanage port \-a \-t http_port_t \-p tcp 81
->  Allow sshd to listen on tcp port 8991 (i.e. assign tcp port 8991 label s=
-sh_port_t, which sshd is allowed to listen on)
->  # semanage port \-a \-t ssh_port_t \-p tcp 8991
-> +Allow Apache to listen on tcp port 443 with MLS range s0:c0.c255 (MLS/MC=
-S systems only)
-> +# semanage port \-a \-t http_port_t \-p tcp \-r s0:c0.c255 443
-
-Not fond of this example since we wouldn't want anyone to do that in
-reality, but also how did you confirm that it actually worked?
-semanage port -l only appears to show the type information.
-
+>      def deleteall(self):
+> +        deleted =3D []
+>          (rc, self.blist) =3D semanage_bool_list_local(self.sh)
+>          if rc < 0:
+>              raise ValueError(_("Could not list booleans"))
+> @@ -2895,10 +2903,45 @@ class booleanRecords(semanageRecords):
 >
->  .SH "SEE ALSO"
->  .BR selinux (8),
+>          for boolean in self.blist:
+>              name =3D semanage_bool_get_name(boolean)
+> +            deleted.append(name)
+>              self.__delete(name)
+>
+>          self.commit()
+>
+> +        # New transaction to reset all affected booleans to their defaul=
+t values.
+> +        # Calling __reset_value in the same transaction as the removal o=
+f
+> +        # local customizations does nothing
+> +        self.begin()
+> +
+> +        for boolean in deleted:
+> +            self.__reset_value(boolean)
+> +
+> +        self.commit()
+> +
+> +    # Set active value to default
+> +    # Note: this needs to be called in a new transaction after removing =
+local customizations
+> +    # in order for semanage_bool_query to fetch the default value
+> +    # (as opposed to the current one -- set by the local customizations)
+> +    def __reset_value(self, name):
+> +        name =3D selinux.selinux_boolean_sub(name)
+> +
+> +        (rc, k) =3D semanage_bool_key_create(self.sh, name)
+> +        if rc < 0:
+> +            raise ValueError(_("Could not create a key for %s") % name)
+> +
+> +        (rc, b) =3D semanage_bool_query(self.sh, k)
+> +        if rc < 0:
+> +            raise ValueError(_("Could not query boolean %s") % name)
+> +
+> +        semanage_bool_set_value(b, semanage_bool_get_value(b))
+> +
+> +        rc =3D semanage_bool_set_active(self.sh, k, b)
+> +        if rc < 0:
+> +            raise ValueError(_("Could not set active value of boolean %s=
+") % name)
+> +
+> +        semanage_bool_key_free(k)
+> +        semanage_bool_free(b)
+> +
+>      def get_all(self, locallist=3D0):
+>          ddict =3D {}
+>          if locallist:
 > --
-> 2.51.0
+> 2.49.0
 >
 >
