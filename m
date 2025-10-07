@@ -1,135 +1,125 @@
-Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
+Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18B0A1C5F23
-	for <selinux@vger.kernel.org>; Tue,  7 Oct 2025 19:28:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 448C81C5F23
+	for <selinux@vger.kernel.org>; Tue,  7 Oct 2025 19:29:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759865308; cv=none; b=BzOpYjMlSIYb/Lc5pIJwGZJ/U5xrASWR9QpTTqsWfZF48DY970Rbiv9JCTX+6zKuYTQoSKh229/aGCtVdzmHJU0a9Qdc/YafR2JyO7bsW+3rHPSbbN3Z/xHhEuTRdy5FoOiYiatmtFu0fkVhRBTmNH5K6omp61xGLJId58ltI3w=
+	t=1759865353; cv=none; b=ZTk9WfuWm18iWW5uTe26sLTbipvul/ObIqfoen2yKHXz3C6hjC9/MsjY/ZOqrFGWgVgXYKUFPrKmwA4aUC8ghkgITGmx+ZKQtiYG0Lh9X1i+f/SXdGWCYBnK4ZnjV/ABFfFwAY6RaWg3bjf1+EZYUR6iLL+auQxozXMIQQQYdJk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759865308; c=relaxed/simple;
-	bh=WBii1+10XNoZHclsd7d2pcht+y9nyCnIk1WdTDjWo2g=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kRcRkHnvIVD6IpUhG9hPnrTJEnBBz200if+q2NEOFob6fiZ00jKtycWJAbWzmQ4M3TwsHhM7YN6mAqha2G8XeNBOxA6M2AMzH3y3j2MDAxOFUanunSBfAjfFtYBIpPb6a2iXDw+MJrBvzkxaQt0SrSAEPRVef7xaAz4Z18tF1Lo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YjcFOW0N; arc=none smtp.client-ip=209.85.221.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1759865353; c=relaxed/simple;
+	bh=Yq4A3aAneGBJMf7Pq2q+VbBOeQmX2sByHaj59EwJ6cE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=J8TEjT0UtVAES19xQrTIkWcn8Vf3ZK+U72ukka0BKnlGLCpnbJvwHa+IKD+ndoh+N5WQgdX760vkn+HkTCvyn4CtxE6Df4Lp2FRB2vVNaeHSNNNkP6WG2OY948ovRYphk9XFvJ1biYUEddi5PMTtdAk1qcraLUnun+Em02fJKcY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=TWaw5m2w; arc=none smtp.client-ip=209.85.216.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YjcFOW0N"
-Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-42568669606so3620171f8f.2
-        for <selinux@vger.kernel.org>; Tue, 07 Oct 2025 12:28:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="TWaw5m2w"
+Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-3306eb96da1so5531964a91.1
+        for <selinux@vger.kernel.org>; Tue, 07 Oct 2025 12:29:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1759865305; x=1760470105; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=ougQYGFn3tYStfsr03zsncqgARtaqsRa8cT/6k2kvbs=;
-        b=YjcFOW0NlZJcVeE0ZQqnkV+FEi4N/OAggH8m0PPk5NDC1bQr70jfRKJ/SOL4BJPKRx
-         KawUAB69JHKNWn0I7o4q7khlK+D03bIkLx3kjLc3g+1UetSZdMaGdpwYgbRznIJY2oNA
-         yR8AOIxAoYZos14LuBYil/gUkO9OP+C4p1tKQ5y0eVBDYeVIeC1OvSdEUDq3OIvf3IPI
-         wsDJ53Ec40OIfD6Deufz1lJMyQXSUcr4Rd0ziFyNGPBkD35tbXVbD3YSn004vRUai/Am
-         nUeqRFevvg2niAY16UGCN/iA62+3XkmwFWmAJj/3dlaUAJBcTBBS60/E2St6ZKz8Y+rs
-         vbkQ==
+        d=paul-moore.com; s=google; t=1759865350; x=1760470150; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=eCPT61E+gdkaCNPxS9tVsNBNendxI8W7I0SJKezwxXg=;
+        b=TWaw5m2wzEp0LgbS8Kq7TrCUDEVfJu8k4MhfGhGiETsW/zmLU7CWjK05A951tn9mP9
+         HXg8wgqbw4olbCg+BJuoV1Yb9Z6QxBtMW13m4TIXDFnaFetMer8C0CXDEgQzfR+LSYAH
+         ym+GsrJ/p+HzaDZFndV0wn7skJEKQoAckSz43J68HsiU3TgNQ6yQrXLyo3ipbBemgzgn
+         aVruTGs/XIgwADI98J3aPr03gCX5zZFSNhcI30TF+E0YhHOP7LlKD0j/KsOMv1IJTsKp
+         fnMBsqdaIuqrRMT2yvt1IosA8Fa6fafo8qPoRrTiN9o2GrVmp2Z1k3IoYytxzolf14MN
+         KLuA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759865305; x=1760470105;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=ougQYGFn3tYStfsr03zsncqgARtaqsRa8cT/6k2kvbs=;
-        b=vJpiE7lol03NTqvTcmFY+x4YVZgXxzhzb2dgZ1h7CsxqH8o7dM4HQgJW7XSLDAsN31
-         FN0rFJLIWcUVWywU0ANlnwSia2KHxTdREhjJ6MEXgjzNInwo6miOf995iE6WJ9uHoyZN
-         2jZOP/DCrKXh/J3tj+IxRinlXzFHK1JX39Fe7qcsW4b8BsxqbgtjbGLqlY3+s/Ja3pgQ
-         sPHP6LwebsRpgWi1RhUGSEcReihd0BGpRQav1aRwQBOF/bvsVfffK97YiMbBjuNVPvJQ
-         Ai0gHMlWAf8N0Q+j16Pq0y6GEo/VlUxGdYzM+yniNuaKKZW/PBMeJLQojHUYvgeV0HLq
-         pa8Q==
-X-Gm-Message-State: AOJu0Yx1AsztVfRxwNSYXCig9wI8PRwUgZ4GLiuimGaq7C97SE+PgElQ
-	WzA6DtOyWVgFduPNBbzUhyNZnZkTi3/5qLRSTWEdCEHxa41VtA74JbJKzHvX/6cG
-X-Gm-Gg: ASbGnctybhh/PBWJWA4hYW5jPp+saGYhD0PgBKoE6WHxDTkgYtq6QCVg3QV5i8EKa7u
-	GY7eDckq7znIWkQigBY+Eh0g+LYqZ+JJ5bdIyvoyQ10uRdU3e2fdHoMxibjig8MDNyLhXNeDolX
-	CJllW2NFCFYwuceGpzFfDUA98VpjrnINDlyN3LK+kKU3pxEm6PyaE4rpfVL7sUBSxKX5De6Qk07
-	1N0PouAeqOrDbaWVIKRY0DsTfIPyv4Urbi3xn05UjrTSUKZ8D3DdoT+EsVAOF+EKp45phRyL8J3
-	Zsf35QDH+heK0u9INuTcfm2ssby5tlvPcHJTh0kyJThauaQ5o1WVhj2A7smxtJ58DiLN3Nwz8GD
-	IKXDbjhBpssX1JhVc3SATuLgiT2/LLwiq
-X-Google-Smtp-Source: AGHT+IHaLmxu7+vHY2IHL7bSs95V9SNyJZ9sSxZaU4WoKYahrcpGFIbSUzNW5vpTGEE7Q3kAtPbJ6g==
-X-Received: by 2002:a05:6000:3106:b0:3ee:12a8:6f1c with SMTP id ffacd0b85a97d-4266e8de388mr305780f8f.46.1759865305037;
-        Tue, 07 Oct 2025 12:28:25 -0700 (PDT)
-Received: from sierra ([81.79.15.180])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4255d8f4cc3sm26580954f8f.55.2025.10.07.12.28.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Oct 2025 12:28:24 -0700 (PDT)
-From: Rahul Sandhu <nvraxn@gmail.com>
-To: selinux@vger.kernel.org
-Cc: Rahul Sandhu <nvraxn@gmail.com>
-Subject: [PATCH] default_contexts: introduce PAM stacks
-Date: Tue,  7 Oct 2025 20:28:08 +0100
-Message-ID: <20251007192808.514297-1-nvraxn@gmail.com>
-X-Mailer: git-send-email 2.50.1
+        d=1e100.net; s=20230601; t=1759865350; x=1760470150;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=eCPT61E+gdkaCNPxS9tVsNBNendxI8W7I0SJKezwxXg=;
+        b=OoKB+H17cxNAqWOu5OYdYjkKfRbVkO7VNJEiPQTLwZ1UpfWKoLXjDQxANTa1qzI3pI
+         bXx4vCjIddlidENAXWZtosOt+5GDL66+q498VnY7uLpD3VsMWFivCzJMkEKSmlHiWalZ
+         IYfFC1CYqTYXVjwrZ7eDeL3I31RNvUXt4CabU6onsdPWOSNWtCcMjXiUEAdEHjX816sX
+         vS3+gVNbptu5awR16+FGntPppMzqtdUXS+qDygNIiEaMbZxHIY3HBsJnZT5IMm+I8Pql
+         ADBipijcTCZCHY1mOrpXTy1I55yqu7pUFesEWnwtY1/CkBUlxKXdzJFDsgwgyKNaTnJq
+         fNXg==
+X-Gm-Message-State: AOJu0YzcR3fR4DoGFvkQ0uvDn0OdN4mT9CV0r5m8iiH6iholuv0M+6WD
+	FxwhpuP/x1TEgED6R53yR5DL7VWaTu7DOFjgGUn/ye3gfxDcJzHTPcPRW+tkDqP1beNEkqtm4I0
+	ys5rTpItfZMWdSLQGlG2CxIsH9FZT1H3uz1kaM/s+
+X-Gm-Gg: ASbGnctC1DcpJ/6s+AGSOj2YBuucGIKrGZafS8aNfcaP/yXVqsJddVju/ymkpJQ5DnP
+	HYlT2SloRwcYxFIpaIBiX+76XbpiauORPXo/Kpv8FBzXBe+3zXdP+ovKmt5eEnGwxFr23SXwnTR
+	0yoWulmsebVcSMTxZ8CY9eU2MEdGYiyJNCd6ntuztSAMunol706LN3RGV2v9uL57evE57ZQuaI0
+	poaLBXYHCzfnT2YM99dWPiywiDEpAE=
+X-Google-Smtp-Source: AGHT+IFEjhoKLhEJmiqVHFw/fLI8pi83+pXDmcDWU6REA5on34u3pwCMUgxOKhiMjjcxOW8lBRLqqBRzq/k5scg+WEA=
+X-Received: by 2002:a17:90b:3b43:b0:330:7a32:3290 with SMTP id
+ 98e67ed59e1d1-33b513b4de7mr800030a91.37.1759865350172; Tue, 07 Oct 2025
+ 12:29:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20251007183552.74330-2-stephen.smalley.work@gmail.com>
+In-Reply-To: <20251007183552.74330-2-stephen.smalley.work@gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 7 Oct 2025 15:28:58 -0400
+X-Gm-Features: AS18NWDf2s-J4iOys1ZymJjdlywU_GPir8Y_LVjQzucr0sBSqQ7Z-Upqr4zY5Ow
+Message-ID: <CAHC9VhS8e_WBQZu76LUqy0ydqChwxzZZVZviz_UG-GDiOfwEyQ@mail.gmail.com>
+Subject: Re: [PATCH v3] selinux-testsuite: Add btrfs support for filesystem tests
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, omosnace@redhat.com, 
+	Richard Haines <richard_c_haines@btinternet.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-This allows a default_contexts entry to only be matched for a given PAM
-stack. This feature isn't implemented by us in this commit, though it
-may be in the future should it prove useful for `pam_selinux`.
+On Tue, Oct 7, 2025 at 2:37=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> From: Richard Haines <richard_c_haines@btinternet.com>
+>
+> This allows btrfs filesystems to be created to support the
+> filesystem mount(2) type calls and the fs_filesystem fsmount(2)
+> type calls.
+>
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+>  README.md                      | 2 ++
+>  defconfig                      | 5 +++++
+>  tests/Makefile                 | 2 +-
+>  tests/filesystem/Filesystem.pm | 3 +++
+>  tests/filesystem/btrfs         | 1 +
+>  tests/filesystem/test          | 6 ++++++
+>  tests/fs_filesystem/btrfs      | 1 +
+>  tests/fs_filesystem/test       | 6 ++++++
+>  8 files changed, 25 insertions(+), 1 deletion(-)
+>  create mode 120000 tests/filesystem/btrfs
+>  create mode 120000 tests/fs_filesystem/btrfs
 
-Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
----
- libselinux/man/man5/default_contexts.5 | 8 +++++++-
- libselinux/src/get_context_list.c      | 6 ++++++
- 2 files changed, 13 insertions(+), 1 deletion(-)
+...
 
-diff --git a/libselinux/man/man5/default_contexts.5 b/libselinux/man/man5/default_contexts.5
-index f63d24a0..49ebbd25 100644
---- a/libselinux/man/man5/default_contexts.5
-+++ b/libselinux/man/man5/default_contexts.5
-@@ -35,7 +35,7 @@ Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIco
- .SH "FILE FORMAT"
- Each line in the default configuration file consists of the following:
- .RS
--.I login_process user_login_process [user_login_process] ...
-+.I login_process user_login_process [user_login_process] ... <pam_stack>
- .RE
- .sp
- Where:
-@@ -48,6 +48,10 @@ This consists of a \fIrole\fB:\fItype\fR[\fB:\fIrange\fR] entry that represents
- .RS
- This consists of one or more \fIrole\fB:\fItype\fR[\fB:\fIrange\fR] entries that represent the user login process context defined in the policy.
- .RE
-+.I pam_stack
-+.RS
-+This consists of a name for a PAM stack required for a match.  All PAM stacks must be enclosed in quotes, else they will be treated as a \fIuser_login_process\fR.
-+.RE
- .RE
- .
- .SH "EXAMPLE"
-@@ -64,6 +68,8 @@ system_r:sshd_t:s0			 user_r:user_t:s0
- system_r:sulogin_t:s0		 sysadm_r:sysadm_t:s0
- .br
- system_r:xdm_t:s0			 user_r:user_t:s0
-+.br
-+system_r:xdm_t:s0			 user_r:user_t:s0 "login"
- .
- .SH "SEE ALSO"
- .ad l
-diff --git a/libselinux/src/get_context_list.c b/libselinux/src/get_context_list.c
-index 0f3bdc5c..8e9c5bc2 100644
---- a/libselinux/src/get_context_list.c
-+++ b/libselinux/src/get_context_list.c
-@@ -165,6 +165,12 @@ static int get_context_user(FILE * fp,
- 		if (line[len - 1] == '\n')
- 			line[len - 1] = 0;
- 
-+		/* This line requires a pam stack to be matched, which we don't handle. */
-+		if (strchr(line, '"')) {
-+			found = 0;
-+			continue;
-+		}
-+
- 		/* Skip leading whitespace. */
- 		start = line;
- 		while (*start && isspace((unsigned char)*start))
--- 
-2.50.1
+> diff --git a/tests/filesystem/btrfs b/tests/filesystem/btrfs
+> new file mode 120000
+> index 0000000..945c9b4
+> --- /dev/null
+> +++ b/tests/filesystem/btrfs
+> @@ -0,0 +1 @@
+> +.
+> \ No newline at end of file
 
+This, and the similar file below, look odd to me.  I only looked very
+quickly, but I don't see any references to these files in the rest of
+this patchset, is their inclusion in this patch a mistake, or am I
+missing something?
+
+> diff --git a/tests/fs_filesystem/btrfs b/tests/fs_filesystem/btrfs
+> new file mode 120000
+> index 0000000..945c9b4
+> --- /dev/null
+> +++ b/tests/fs_filesystem/btrfs
+> @@ -0,0 +1 @@
+> +.
+> \ No newline at end of file
+
+--=20
+paul-moore.com
