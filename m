@@ -1,234 +1,213 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 306582E9EC9
-	for <selinux@vger.kernel.org>; Tue,  7 Oct 2025 18:20:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 888A32E975F
+	for <selinux@vger.kernel.org>; Tue,  7 Oct 2025 18:37:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759861256; cv=none; b=qiRO527TCqUu5Qe/2ywWq38fJJGHaPRTNHTKM4Uq4o3up0OAdiYAEqhqk4U9LHtV+Pc3/Bu+57a+Rvl4ASgKikzCNXdGVpB7pVovqLWidPR0ZTdVRG2BQrs8cIDOReONPudlZLgVf6AeUu8gQlHREXM4sh6s0tq0UpdGdW4U+Vo=
+	t=1759862260; cv=none; b=gHxHp/22VnbPnMX77b6E0uJezMsGs81ZhYkGE+bVPVV03wVLSwAZ91M9O8SPz5bYYHO06VgGfh3xoowzpav97l39gh4cCZ0mC2gqvxiW6AYJwf8U8G4MjzbausWFBaeIFRtEbSX+SvNDQLvRxz7xIQijcA55vKCu7YlnthUVfJM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759861256; c=relaxed/simple;
-	bh=5MLv1a2DnUYMXvBBUzqSMIq23Mo5X0LvqgGL+gd2aUE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=uRUHoMHYXPl69nAxc2DTo5oRnCM5LstXOembUvbjLzwKmDDSFKhPxgXnjZUdE//yhps3OsXuFdAca1a3C2P2NKrFgw5Tg0mGX9D1Tb26Xv+OjZ/skyB/J2XA5jGeUDTIMqGsNMq4WOFfzkueLHNbSrPLbs0vsHilM21vc9lugxU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EavEA1cP; arc=none smtp.client-ip=209.85.216.54
+	s=arc-20240116; t=1759862260; c=relaxed/simple;
+	bh=eyn/KzFOy4T91KZL7RI/g5YyUZrnAGnZH/GVjmna92E=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tsRHUFJKhQayaOdVTk1ssC53FGRznEKa2LzYWz9Fk2ikzzuAUd+D2J32zBucJs+3009PY2robp2ILjBYTf5uipkzAJ9Jzp7VmfiNgeJuJJwvEYN8gwhk/rSxVnHZkGNh74LFbqrTkZMPNwv/xDYOX0FN4U/1lCprJT/4EN/GsLo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dfXK+aPW; arc=none smtp.client-ip=209.85.160.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EavEA1cP"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-3306eb96da1so5477928a91.1
-        for <selinux@vger.kernel.org>; Tue, 07 Oct 2025 11:20:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dfXK+aPW"
+Received: by mail-qt1-f172.google.com with SMTP id d75a77b69052e-4df81016e59so61284761cf.3
+        for <selinux@vger.kernel.org>; Tue, 07 Oct 2025 11:37:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1759861254; x=1760466054; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=FFOfFmxz2/B0vN24GlED5YoXKd3mSXZMj4p1bSTqSJk=;
-        b=EavEA1cPYTQ/DXha0EKegndtFZExFa93uU7Y7nwXcBS/YNgLAxBpLxkjULfPVZd2Ip
-         VjJJKVNECYgA6gZ//XS7OFZvU5P3/2s/CH2/YQVMKP9tqAlW9NPA0XDLYf6aRwkaUwW1
-         iiXJL/Gy8kFzJRyLCyP7OXb9470t+bxRnhDk9uOxrQrEO2VJZn9flkT7mjHFqVjpP8pZ
-         ahDN5dNE9/z/ndL/u7SkO5jM/AddcMGcAnmBIKd+J5rKICQrQGdr320yp1BzRlwWBHVc
-         T1mEEe/Eegt97OkYENNXF1zryWv17NycQaUhVeiHhZAJwRmV/4/hLTf7K9MY389JTf0Z
-         Rq3w==
+        d=gmail.com; s=20230601; t=1759862256; x=1760467056; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=+J4WMHvjjOYESNywHE8lupCDlHEDXgItV6s/g7WLU0Y=;
+        b=dfXK+aPW/CIE1ADv2rnFYR2eU82Qc6akDCeuI7dOwD5dt2geew0jcYh5ZXs23L55ST
+         fFUADdlFZ6/L2x/ro1kIqamGOHukDbrEY14T+jGBl4BlehxQI4CmjeY+tyVJj2GKuDjO
+         ovdqpykcReeLRvdHQ5/LrvaSSK3eplD5A4QJMD/lFMK839siimz/IDLOmk/eig1NRC+X
+         Pg35hLK9AccpmP8cbAxMxuO31M0NQcPx9p8Kj+dx7bPx/8ULg5ym35/zLWI+9IsLHVaO
+         SzhqldNcYYWJ12Q+mCFk+xyqRy88ilqJSqrmC3mpI3IDQahlA5eakYasm7u+cBAGUCJT
+         oC7A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759861254; x=1760466054;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=FFOfFmxz2/B0vN24GlED5YoXKd3mSXZMj4p1bSTqSJk=;
-        b=vXwIDlP0DcoPFcrslFSCxLkunPzN8flL8+NEt4ty6dk16C9Nb49LsZ0OXQMBRwnzoR
-         glUNDLR0fAnbJ45BTZ+2qRDt6V/Uqw0SLltQlwgCTgux/zwL/LM9PCvU7QjmHL/4nVN5
-         fnJbb0NHxqbgH10ypG5L8RlmcBEv38qpUMQwlWbABko3DxVtM/WOY0T0uln/j5oPItUu
-         jylC+w1Y1COiQ9cLlqHapJH3kF8FKu+07mJnHPK++Oe6O4u8R389X3qZxLVavekh0lSB
-         o0DOHXMYXxDtig/90jpdPCSdYeHiYMgeEmChYQPeNjlSKbho5YTkgJLu8J4x+ePTSpsy
-         oQNA==
-X-Forwarded-Encrypted: i=1; AJvYcCX1fzbbCKh+/mQwIYQbStKBSoGJ9eQezlS43+PcTksHpTUnB+INa0f+mj+NrVi3OgBOUMOKSSsX@vger.kernel.org
-X-Gm-Message-State: AOJu0YxOv2B9F4A1Ozkm5dLmMdKMr62JrJNZBjchM8d5U0dqxeYpPYxy
-	RgoaTutDa5tcKx3KRQQ5+gILQDrDtdjTeagDhaAO2frV11dsR1Ibbj/J3byRz7mfRygj3UZDzCZ
-	Gs2U6O87rqA97E6D1MHS5SbhQDZW5pyA=
-X-Gm-Gg: ASbGncuz+uwXyCr6dUe7o5sD6EBNqicaUPeB/0umu5y/8fD/Pf6+ykE/cPntw+KHyXW
-	gSAFl7BELJRLdYPdY60L626uUlgBygG7eBB0XKFe0dSy0JJWaTuQZHruy1XDDlcbd+ZURbPhHrI
-	Af7Mp0YfhPs9Hfq5l8LS81KDQ0SzhudStcVQs17sUHgdlNlXtWqhTvniWiZxuJXR73nw/Ccd0R2
-	lslYymZr/4CckfmPF6XZBQakfqby+Y=
-X-Google-Smtp-Source: AGHT+IGfyOXSS6GCOH3UTNQj3Cd4ggpSraBp94Zr/4fe5F2QmLcYJNf4A6s86qMH5ycrX1h+l5PeddCrptirFxr0Z18=
-X-Received: by 2002:a17:90b:3b43:b0:330:7a32:3290 with SMTP id
- 98e67ed59e1d1-33b513b4de7mr554458a91.37.1759861252991; Tue, 07 Oct 2025
- 11:20:52 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1759862256; x=1760467056;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=+J4WMHvjjOYESNywHE8lupCDlHEDXgItV6s/g7WLU0Y=;
+        b=IC4PO2uxVyDPP9aRRYGK0aNCp+P6/sbOUNXSmF+7k5mjuvXHpYqcRkQNRURcuA3lP3
+         fGeK41DyL7RCN3dXdKU+Me6CD3lC/dgA5G+C2I5QW4zBKACxU8UcQS8klNnthqaVKvhi
+         MjNhrLfAzBHQNUQlRjZbFt7ZRow1JQwIX8hLLqJXUHy+Kp/VDS3zwr7/dFhaxBy9YSDL
+         wAAuXDpYVfx9yk1UmJ9SHNoxO5VTGImzIsOXKv+wiztaw9PptwUC3eAMhkEHFIdeiwqG
+         fQeSHZLf+p9TX0HREbZJB4FxzFo59LHBXwU8MQLUAnUA1Cuf1wyltR2394GwLQM3s4aF
+         5lPQ==
+X-Gm-Message-State: AOJu0YwpYhbjhwibdTz6XoAO9i7ogHJ+64Zyz63mmWID2UqP3QJ25Fd+
+	4qRZEmikykSR8IegDBczLRF9CWhDnMdDMTXqQsohxtb5lcx4qWuE+4mxjSwcoQ==
+X-Gm-Gg: ASbGncs9Fp5FPgpWqloSUa6hcD9W/gelnKSkdTy/jo66TJm2gROYJWP1J3VTQqRllYD
+	H33NHiorRPoa4/exrIifVd+58FVTQQXYXSzb43R+ghDrhvmlshKW8B8UBqZUQ2+J6cW80ZpX5Oo
+	SN29Yz2L8MGK2NGH4C8fSUdp5End3mKo6NQFTI9F+KOuYxumPiVtKSbcsXrbFx/VsKjRvaQ0Q7D
+	J8QDaNhZq5wxYzwjixIhqgi4Ve2sb6+Fp4jCdURUfx3LvSKiPzdpVJ4uYyy/HdxRURs3Wngwn0s
+	57TI91iPSzfsUZRM3+E3o3qI4QwVIT8LlF6wUXqE256XzIy0VOPiFiBOvBkBg51hN034rBsXZ0E
+	HvJcN28Q0psc5RFxP8stP/94uXvfVLk84jYxj6pYtDeZFDQ6JHHtvHUqUET+iEC3HPU6BfyGUIH
+	ofFEmmEa4fI86R9l9FwG0h+82GC5AJDtzz94kLwDIX6JjTkdU=
+X-Google-Smtp-Source: AGHT+IH6MtvFvd6uN7fkeUEXvArACo/bro5UcS+0UjVdVXI2Mh2kZ7E7xx2IEZJQ1TdRavDdfaeiIQ==
+X-Received: by 2002:ac8:5d4d:0:b0:4cf:ce43:5603 with SMTP id d75a77b69052e-4e6eacc67d6mr9433301cf.10.1759862255905;
+        Tue, 07 Oct 2025 11:37:35 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8777979927dsm1548337285a.57.2025.10.07.11.37.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Oct 2025 11:37:35 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com,
+	omosnace@redhat.com,
+	Richard Haines <richard_c_haines@btinternet.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH v3] selinux-testsuite: Add btrfs support for filesystem tests
+Date: Tue,  7 Oct 2025 14:35:53 -0400
+Message-ID: <20251007183552.74330-2-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAEjxPJ7xRYnSgN2qauMPHT54uV5PB7z+8DO1=PPOtT68so6=4g@mail.gmail.com>
- <20251007180906.507115-1-nvraxn@gmail.com>
-In-Reply-To: <20251007180906.507115-1-nvraxn@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 7 Oct 2025 14:20:41 -0400
-X-Gm-Features: AS18NWDgPMz9OeY2OWm-NiN2VVs3YLp_UWbYY7iiFG8cWHNgvsYPs8StcwC2iow
-Message-ID: <CAEjxPJ6rpJNpFviGHDiJsx_A_APdMTOS9Nyr0mcfT5YCWUtfvQ@mail.gmail.com>
-Subject: Re: [PATCH v7] seunshare: fix the frail tmpdir cleanup
-To: Rahul Sandhu <nvraxn@gmail.com>
-Cc: jwcart2@gmail.com, lautrbach@redhat.com, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, Oct 7, 2025 at 2:09=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> wrot=
-e:
->
-> For some reason, rm is invoked via system (3) to cleanup the runtime
-> temp directory.  This really isn't all that robust, *especially* given
-> that seunshare is supposed to be a security boundary.  Instead do this
-> using libc, the API designed to be used within C programs.
->
-> Also make sure that we don't follow symbolic links; the input being
-> deleted is untrusted, and hence a malicious symbolic link may be placed
-> outside of the sandbox.
->
-> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+From: Richard Haines <richard_c_haines@btinternet.com>
 
-7th time's the charm ;)
+This allows btrfs filesystems to be created to support the
+filesystem mount(2) type calls and the fs_filesystem fsmount(2)
+type calls.
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ README.md                      | 2 ++
+ defconfig                      | 5 +++++
+ tests/Makefile                 | 2 +-
+ tests/filesystem/Filesystem.pm | 3 +++
+ tests/filesystem/btrfs         | 1 +
+ tests/filesystem/test          | 6 ++++++
+ tests/fs_filesystem/btrfs      | 1 +
+ tests/fs_filesystem/test       | 6 ++++++
+ 8 files changed, 25 insertions(+), 1 deletion(-)
+ create mode 120000 tests/filesystem/btrfs
+ create mode 120000 tests/fs_filesystem/btrfs
 
-> ---
->  sandbox/seunshare.c | 78 ++++++++++++++++++++++++++++++++++++++-------
->  1 file changed, 66 insertions(+), 12 deletions(-)
->
-> v2: don't use else after return
-> v3: don't follow symlinks in rm_rf ().  This is pretty important as we
->     we are operating on an untrusted directory, which may have symlinks
->     pointed to privileged content.  However, as we only really need to
->     operate on the contents of the tmpdir, we can ignore symlinks.
-> v4: fix spelling in commit message
-> v5: fix spelling in comment
-> v6: fix the error checking for the rm_rf () function.
-> v7: include stdbool.h
->
-> diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
-> index 106f625f..01ed9d8e 100644
-> --- a/sandbox/seunshare.c
-> +++ b/sandbox/seunshare.c
-> @@ -4,6 +4,7 @@
->   */
->
->  #define _GNU_SOURCE
-> +#include <stdbool.h>
->  #include <signal.h>
->  #include <sys/fsuid.h>
->  #include <sys/stat.h>
-> @@ -403,6 +404,66 @@ err:
->         return rc;
->  }
->
-> +/*
-> + * Recursively delete a directory.
-> + * SAFETY: This function will NOT follow symbolic links (AT_SYMLINK_NOFO=
-LLOW).
-> + *         As a result, this function can be run safely on a directory o=
-wned by
-> + *         a non-root user: symbolic links to root paths (such as /root)=
- will
-> + *         not be followed.
-> + */
-> +static bool rm_rf(int targetfd, const char *path) {
-> +       struct stat statbuf;
-> +
-> +       if (fstatat(targetfd, path, &statbuf, AT_SYMLINK_NOFOLLOW) < 0) {
-> +               if (errno =3D=3D ENOENT) {
-> +                       return true;
-> +               }
-> +               perror("fstatat");
-> +               return false;
-> +       }
-> +
-> +       if (S_ISDIR(statbuf.st_mode)) {
-> +               const int newfd =3D openat(targetfd, path, O_RDONLY | O_D=
-IRECTORY | O_CLOEXEC);
-> +               if (newfd < 0) {
-> +                       perror("openat");
-> +                       return false;
-> +               }
-> +
-> +               DIR *dir =3D fdopendir(newfd);
-> +               if (!dir) {
-> +                       perror("fdopendir");
-> +                       close(newfd);
-> +                       return false;
-> +               }
-> +
-> +               struct dirent *entry;
-> +               int rc =3D true;
-> +               while ((entry =3D readdir(dir)) !=3D NULL) {
-> +                       if (strcmp(entry->d_name, ".") =3D=3D 0 || strcmp=
-(entry->d_name, "..") =3D=3D 0) {
-> +                               continue;
-> +                       }
-> +
-> +                       if (!rm_rf(dirfd(dir), entry->d_name)) {
-> +                               rc =3D false;
-> +                       }
-> +               }
-> +
-> +               closedir(dir);
-> +
-> +               if (unlinkat(targetfd, path, AT_REMOVEDIR) < 0) {
-> +                       perror("unlinkat");
-> +                       rc =3D false;
-> +               }
-> +
-> +               return rc;
-> +       }
-> +       if (unlinkat(targetfd, path, 0) < 0) {
-> +               perror("unlinkat");
-> +               return false;
-> +       }
-> +       return true;
-> +}
-> +
->  /**
->   * Clean up runtime temporary directory.  Returns 0 if no problem was de=
-tected,
->   * >0 if some error was detected, but errors here are treated as non-fat=
-al and
-> @@ -428,24 +489,17 @@ static int cleanup_tmpdir(const char *tmpdir, const=
- char *src,
->                 free(cmdbuf); cmdbuf =3D NULL;
->         }
->
-> -       /* remove files from the runtime temporary directory */
-> -       if (asprintf(&cmdbuf, "/bin/rm -r '%s/' 2>/dev/null", tmpdir) =3D=
-=3D -1) {
-> -               fprintf(stderr, _("Out of memory\n"));
-> -               cmdbuf =3D NULL;
-> +       if ((uid_t)setfsuid(0) !=3D 0) {
-> +               /* setfsuid does not return error, but this check makes c=
-ode checkers happy */
->                 rc++;
->         }
-> -       /* this may fail if there's root-owned file left in the runtime t=
-mpdir */
-> -       if (cmdbuf && spawn_command(cmdbuf, pwd->pw_uid) !=3D 0) rc++;
-> -       free(cmdbuf); cmdbuf =3D NULL;
->
-> -       /* remove runtime temporary directory */
-> -       if ((uid_t)setfsuid(0) !=3D 0) {
-> -               /* setfsuid does not return error, but this check makes c=
-ode checkers happy */
-> +       /* Recursively remove the runtime temp directory.  */
-> +       if (!rm_rf(AT_FDCWD, tmpdir)) {
-> +               fprintf(stderr, _("Failed to recursively remove directory=
- %s\n"), tmpdir);
->                 rc++;
->         }
->
-> -       if (pwd->pw_uid !=3D 0 && rmdir(tmpdir) =3D=3D -1)
-> -               fprintf(stderr, _("Failed to remove directory %s: %s\n"),=
- tmpdir, strerror(errno));
->         if ((uid_t)setfsuid(pwd->pw_uid) !=3D 0) {
->                 fprintf(stderr, _("unable to switch back to user after cl=
-earing tmp dir\n"));
->                 rc++;
-> --
-> 2.50.1
->
+diff --git a/README.md b/README.md
+index f067eeb..973028e 100644
+--- a/README.md
++++ b/README.md
+@@ -61,6 +61,7 @@ similar dependencies):
+ * e2fsprogs _(used by the ext4 filesystem tests)_
+ * jfsutils _(used by the jfs filesystem tests)_
+ * dosfstools _(used by the vfat filesystem tests)_
++* btrfs-progs _(used by the btrfs filesystem tests)_
+ * nftables _(used by inet_socket and sctp tests if ver >= 9.3 for secmark testing )_
+ * rdma-core-devel _(to build the `ibpkey` test program)_
+ 
+@@ -136,6 +137,7 @@ command:
+ 		e2fsprogs \
+ 		jfsutils \
+ 		dosfstools \
++		btrfs-progs \
+ 		nftables \
+ 		netlabel-tools \
+ 		libibverbs-dev
+diff --git a/defconfig b/defconfig
+index b2d4a90..214eb26 100644
+--- a/defconfig
++++ b/defconfig
+@@ -122,6 +122,11 @@ CONFIG_XFS_QUOTA=y
+ CONFIG_VFAT_FS=m
+ CONFIG_FAT_DEFAULT_IOCHARSET="ascii"
+ 
++
++# Test BTRFS filesystem.
++# This is not required for SELinux operation itself.
++CONFIG_BTRFS_FS=y
++
+ # watch_queue for key changes.
+ # They are not required for SELinux operation itself.
+ CONFIG_WATCH_QUEUE=y
+diff --git a/tests/Makefile b/tests/Makefile
+index 903ab11..f002389 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -4,7 +4,7 @@ SBINDIR ?= $(PREFIX)/sbin
+ POLDEV ?= $(PREFIX)/share/selinux/devel
+ INCLUDEDIR ?= $(PREFIX)/include
+ SELINUXFS ?= /sys/fs/selinux
+-FILESYSTEMS ?= ext4 xfs jfs vfat
++FILESYSTEMS ?= ext4 xfs jfs vfat btrfs
+ 
+ export CFLAGS+=-g -O0 -Wall -D_GNU_SOURCE
+ 
+diff --git a/tests/filesystem/Filesystem.pm b/tests/filesystem/Filesystem.pm
+index f169464..7ea9031 100644
+--- a/tests/filesystem/Filesystem.pm
++++ b/tests/filesystem/Filesystem.pm
+@@ -123,6 +123,9 @@ sub attach_dev {
+ sub make_fs {
+     my ( $mk_type, $mk_dev, $mk_dir, $mk_opts ) = @_;
+     my $mk_size = 16;
++    if ( $mk_type eq "btrfs" ) {
++        $mk_size = 300;
++    }
+     if ( $mk_type eq "xfs" ) {
+         $mk_size = 300;
+     }
+diff --git a/tests/filesystem/btrfs b/tests/filesystem/btrfs
+new file mode 120000
+index 0000000..945c9b4
+--- /dev/null
++++ b/tests/filesystem/btrfs
+@@ -0,0 +1 @@
++.
+\ No newline at end of file
+diff --git a/tests/filesystem/test b/tests/filesystem/test
+index a7d8b24..56f116a 100755
+--- a/tests/filesystem/test
++++ b/tests/filesystem/test
+@@ -89,6 +89,12 @@ BEGIN {
+         $test_count   = 55;
+         $quota_checks = 0;
+     }
++
++    # BTRFS uses internal quotas requiring no security hooks
++    elsif ( $fs_type eq "btrfs" ) {
++        $test_count   = 55;
++        $quota_checks = 0;
++    }
+     else {
+         $test_count = 69;
+     }
+diff --git a/tests/fs_filesystem/btrfs b/tests/fs_filesystem/btrfs
+new file mode 120000
+index 0000000..945c9b4
+--- /dev/null
++++ b/tests/fs_filesystem/btrfs
+@@ -0,0 +1 @@
++.
+\ No newline at end of file
+diff --git a/tests/fs_filesystem/test b/tests/fs_filesystem/test
+index 9af8971..1d04bbc 100755
+--- a/tests/fs_filesystem/test
++++ b/tests/fs_filesystem/test
+@@ -92,6 +92,12 @@ BEGIN {
+         $test_count   = 54;
+         $quota_checks = 0;
+     }
++
++    # BTRFS uses internal quotas requiring no security hooks
++    elsif ( $fs_type eq "btrfs" ) {
++        $test_count   = 54;
++        $quota_checks = 0;
++    }
+     else {
+         $test_count = 68;
+     }
+-- 
+2.51.0
+
