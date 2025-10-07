@@ -1,131 +1,231 @@
-Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B473F2D9493
-	for <selinux@vger.kernel.org>; Tue,  7 Oct 2025 13:24:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 819712E0B6E
+	for <selinux@vger.kernel.org>; Tue,  7 Oct 2025 13:50:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759843476; cv=none; b=Z8irWd/EBY6CAWqdRu0Onxa2c0swtvEq3qhaoVbJ0WdU+050BAZLNL2F4TvcZoFms4uiD4Nd27kkDuL7uXVubjN1HV610H6NOHWl6jWr3heUEShqSyMm9sPKWCJLQJ92ubSys/oLtbOxRd4lVfWkwt3V1cPef/VTrHM2oOcSOTo=
+	t=1759845036; cv=none; b=AuOPEt2e+bQ4WwcJ6yqxWOCBlYnseKn5XJEnK/dFeIJZu2zEHLEfeV+TqdIOs17dxmiN39nBjePVqK3RE0ltXbUjbQYgIeTChdMYl+/dQZXEB4s5reQaAB3wRrCfPhupgR/EMCfMhtoSDgksOutBvbtUZFO3HljELmM1sdAb7L0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759843476; c=relaxed/simple;
-	bh=4neoBKr9Xbk8vvyuoIfG4bNpp4edq+f5MBBiKjB3a60=;
+	s=arc-20240116; t=1759845036; c=relaxed/simple;
+	bh=KfoYUtqAIArW5pTAiK1+bN08AU7+4Pv/Gr3DtuWWkHI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=CfI9d67MKQLcpbU7lZOvtOpwpf1oUjmCid8KljvTrcYnmYyg2IjCfr9ZYqsX2C2iaOvmMPJbpyzhCKreQF6DZsClwS0wTpDwJ0aNEGeSiKIe/ZzrKM4rbrBnmHj90Yjd2dR09QRoLHPfcA5f63/XRdi4mgkq5kQbQEbugjCI9L0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ow78tKY2; arc=none smtp.client-ip=209.85.216.52
+	 To:Cc:Content-Type; b=Welx9X6F2Pgy2VL6LP9cgBVBSjluDfy2nwsSJojQpwqDzq4j+hgHjQiepuxoZ4/W9NeFZ4YkmdfG0U1iobokD4uZ6+F+L4ieh/gWnLZ+G/awd8zQOJibGNUhy5pZlKiCIri+4ZBgPEg1F/jYkXjoqcFcN9q0IGvMXAlcfuMzo+Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KaYuFHzM; arc=none smtp.client-ip=209.85.216.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ow78tKY2"
-Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-339d53f4960so3342827a91.3
-        for <selinux@vger.kernel.org>; Tue, 07 Oct 2025 06:24:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KaYuFHzM"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-3381f041d7fso7702537a91.0
+        for <selinux@vger.kernel.org>; Tue, 07 Oct 2025 06:50:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1759843474; x=1760448274; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1759845034; x=1760449834; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=mLz07rqWF8q6MjNOZtn+w6UvMaWhASlvOCgvZqB1AO0=;
-        b=Ow78tKY2Z0BaJQDcx6dHFJkqrSDWJeSH5ZEA+7W2tAf+2yRsLGWnLLZQbmV4MOGr4v
-         pmokt6KScl82SZMKa9oNLtIVXkzWx/huJubtl5uZmh9B7WQS9Hz+0CdnKhWdpvLRH18R
-         2XFEzALgOKOrkrKk0uy2Ftir24fwJ+fxF5HvoHYrRW6YTJUazIsP2zmya3dm+aDyd2Un
-         2LNNjfJw/YPrRtaxs0+5KizOTAnaGgCFLn2XWotb2tkcaVqsYLNX4oyPoEXATga1orTK
-         C0PALc+AHr0QzMBQzqK8CzT82zCBTTHmflk8d8/WC+FVuODZvpfa6MTVCyzO6/wAZyWl
-         jSsw==
+        bh=RHTwXnOP+p6tRJ87eac8IxFdBMPm7LSl7qzrztnSgF0=;
+        b=KaYuFHzMh0rvcS/AhFowuQfrD54uePQF8PIWLugKYRv8EmIeJXr3ul86sAl8xZrCvC
+         uCdYrYsQC9hhmOpUsYi1EDhk5eFzb8K6CTlzr4l+1xCknIEA+4BsY06IFjLQRpv1Ba4n
+         bkYt1CFWbsUv6yTIs865lnCwPcjVWm6GzH+JBR3TGm7tjBtdU8P1QbnbMTjU3/QMuNlm
+         KItdBrVHryIa3YLT9E/uxNJooY1tiER8SuqiY10HGtbqR+YjmJRs/q6FqU/dZEvD+Ipm
+         gFmAPPt+8Qf5A0WnfDMoRKdOK76/3tFJxZsBIcmMBRrRomsubzKpblS7Mr04sdW8JbW2
+         CNaA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759843474; x=1760448274;
+        d=1e100.net; s=20230601; t=1759845034; x=1760449834;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=mLz07rqWF8q6MjNOZtn+w6UvMaWhASlvOCgvZqB1AO0=;
-        b=j9SxtFQ9Zo+Zxi/1UbI/jXXBYKhT7eRhINJt/W3+6Bww2TGNVCNOOCeRo0nndU8UVL
-         7L10OXQ5PRILQXbN118Cm3+coUg5QBS/GpR0f24RaMxaRrfIuwazbBU3PAmnxhwk6Grx
-         TQyg5MMKCBWEB4YiNvSDIZi1hqbiC64k0f2MZgXKm3No9P0udTnJVZrEhLlzt5+EzLD6
-         9H2IVhbmlJWVGNKDlUBiIlYx82a47Kd67n/HA/kr5gB3kjT6hrpaL9YxK59BahhwUUn6
-         6SJTg7m0r215fwItPgVaWLUdcLrroszfIrth3IfodFBgo1vx8Hi5xzWDV/xfCltLkuSA
-         Dquw==
-X-Forwarded-Encrypted: i=1; AJvYcCXJa+K3MIyr0DF4NjIyU4363mTv1SvMyYPLDiJw8guyHNcz928S6tZ8T8j0RxuU7uUSYq1dsi+u@vger.kernel.org
-X-Gm-Message-State: AOJu0YwJTIM1670MNIUqTmWw9HOSTwuvz0aIgXXueyPhU4g3zjMtV9GU
-	6x+n+hzhIexpSmzFTbNUwVkGikIkqva8cYyP5MAkG/aAU+m3gE7TzqFtJOL4zepq26qCxX3mYFu
-	vSXNCxO3oLCgpSL+Im7DVcdiMpL1MYGRpZw==
-X-Gm-Gg: ASbGncthMfBNoZjAiXJV+Y+fkqVHKtdSktsi2v/Wfpb5bYj0l7/0kcvgFI23y5wGVMe
-	a77UDI7a/dlveNDNp5FlEGWLcrp6LIKEf26fIMa9++578W02J8/xdFhAj4SZuvexHfVoQtpHE6u
-	NSZ8oN5BpeRmxmog/elHqvN0/CLR8S8fKsMZpNTm3IkpGhn/VeM2O88+GmP2WIZXNTmjipm59Iq
-	wKyMh/7wEUsJ3N/3F/D2MlNrIc/HlR8nEo7vxKtrQ==
-X-Google-Smtp-Source: AGHT+IHl7K/9rdw1kiAcPZjVEWgO9R2a6QBnIZqqKSxujLr09FkfOU/JsjzYzfa27bCWBfDm6jlwcdyWi+1Eh/YZLpQ=
-X-Received: by 2002:a17:90b:4b8a:b0:32e:3552:8c79 with SMTP id
- 98e67ed59e1d1-339c279977dmr21669554a91.29.1759843473768; Tue, 07 Oct 2025
- 06:24:33 -0700 (PDT)
+        bh=RHTwXnOP+p6tRJ87eac8IxFdBMPm7LSl7qzrztnSgF0=;
+        b=lPqPZuSupG0YryF3NaKx0FQvUhRLmo3QhDGsqCDHsSZXm+LuQCh5dnSsG7eaC/gsGG
+         CiK4DliJ/m97+670DR7oGAE1rppFBTvV/pOpH5BLoHxg8M4eTOdCnkXzfx8uIekfYVKY
+         o3NOsfLJepLH+888JFdkr8tf68cnAYs2T/K5YvSZIgN4pfwbP2csp6j/T3DqdvwinwZI
+         8EBlq+Sz+MbKrYkyujyouiu6mYQmShLJ14OCgkhz0bnZESE3K2w3akrNW191qsybo5qU
+         FE8oeEUWhf3XJMmSSdsYyifl6xXUpv03MqCQZglyOvwqO8VmhCLQcoDwNkHHPXluO5yJ
+         z7Fw==
+X-Gm-Message-State: AOJu0YznrC8zEg5z3y9S1W7SXPRvIE27WQ3pSxgkbsPBbYp7w/G6BdZa
+	oOQliJ0LSFAbTyDGQFJE+2GnOoXKGWdMiN0LGcVNJm1R3fE7eYm98azu/vwcfqTxbAHp2R41WB7
+	HtuTrTrZW0UsOUnJnP3OGY5RmUSCEaNs=
+X-Gm-Gg: ASbGncs514dttQ512utPu1MENPS9URU6hRa/HQAmxf0AwUkxC9z4Udpa7biRjcUjxeP
+	IUTI4s+dp7mxZaoeQL0B6Albhq+EX7D74lAYWxXCRRK8ZxbN7aScYKTpNkCvMjVM/fOzCus+H5j
+	bjW2PUv8vE/C4IbO9FG6IXOyR3oWjdQhz/cTXqyZbY1B9cMSs9XCTLzyV1xvkwgc5VI0K3LN+C5
+	08a+HyE9JFUzBGjrL1XA7ogZXxSpTA=
+X-Google-Smtp-Source: AGHT+IHNpITtxbwUIIrIgVqK7oUcJCqDI51McBdhUqDgiCsntWu1kzCUVW+16tt4ypz5fXsK2jny3RAfCIMZwnDQfdo=
+X-Received: by 2002:a17:90b:514e:b0:32d:a37c:4e31 with SMTP id
+ 98e67ed59e1d1-339edadd3bdmr5521804a91.17.1759845033209; Tue, 07 Oct 2025
+ 06:50:33 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251007104656.479127-1-nvraxn@gmail.com> <DDC1IZN24NIU.YAASI575IJPX@gmail.com>
-In-Reply-To: <DDC1IZN24NIU.YAASI575IJPX@gmail.com>
+References: <20250623102726.3818713-1-vmojzis@redhat.com> <f20586e8-cf08-4d17-8ebc-3b2cf2dd2eb8@googlemail.com>
+ <d2e081e1-b3a5-420a-904e-e67599f98d46@redhat.com> <CAP+JOzQCoCY8AuY1njM1PyZk7gJZ5Ed_hc5ANXEcznwx9EAqQQ@mail.gmail.com>
+ <CAP+JOzShgrLBiesobVHWPQ9gZUrWvt=x8OhZ3m8ngyG_Vs8gkw@mail.gmail.com> <bd163350-a979-4af9-97a2-80f65f123054@redhat.com>
+In-Reply-To: <bd163350-a979-4af9-97a2-80f65f123054@redhat.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 7 Oct 2025 09:24:22 -0400
-X-Gm-Features: AS18NWD-J0jOhStjFD8eedhKKeXMrZhmuCmXxIeTtmd5FprpwuJnZ6qLQNYvjGA
-Message-ID: <CAEjxPJ6KhLNWkWnGv=SU4podyVXiSH=jooF95oNuGbVFzN0HVg@mail.gmail.com>
-Subject: Re: [PATCH v3] treewide: add .clang-format configuration file
-To: Rahul Sandhu <nvraxn@gmail.com>
-Cc: lautrbach@redhat.com, selinux@vger.kernel.org
+Date: Tue, 7 Oct 2025 09:50:22 -0400
+X-Gm-Features: AS18NWA0V6c2m01MVvBCdUbFOQao127VBJCJ8nDvH-NkFwKVcVAB_iy2YswVQH8
+Message-ID: <CAEjxPJ7ijHMzX8TwCxYvEH6ye2NP_Fw=cCfqXwph9Gfxr6oXQw@mail.gmail.com>
+Subject: Re: [PATCH] checkpolicy: Allow attribute assignment to attributes
+To: Vit Mojzis <vmojzis@redhat.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 7, 2025 at 7:07=E2=80=AFAM Rahul Sandhu <nvraxn@gmail.com> wrot=
-e:
+On Mon, Jun 23, 2025 at 3:25=E2=80=AFPM Vit Mojzis <vmojzis@redhat.com> wro=
+te:
 >
-> On Tue Oct 7, 2025 at 11:46 AM, Rahul Sandhu wrote:
+> On 6/23/25 8:21 PM, James Carter wrote:
+> > On Mon, Jun 23, 2025 at 2:06=E2=80=AFPM James Carter <jwcart2@gmail.com=
+> wrote:
+> >>
+> >> On Mon, Jun 23, 2025 at 7:34=E2=80=AFAM Vit Mojzis <vmojzis@redhat.com=
+> wrote:
+> >>>
+> >>>
+> >>>
+> >>> On 6/23/25 12:56 PM, Christian G=C3=B6ttsche wrote:
+> >>>> Jun 23, 2025 12:27:47 Vit Mojzis <vmojzis@redhat.com>:
+> >>>>
+> >>>>> Allow "typeattribute <attribute> <attribute>" to pass checkpolicy,
+> >>>>> since (typeattributeset <attribute> <attribute>) is valid in CIL.
+> >>>>>
+> >>>>> Fixes:
+> >>>>>     $ cat myattributetest.te
+> >>>>>     policy_module(attributetest, 1.0.0)
+> >>>>>
+> >>>>>     gen_require(`
+> >>>>>       attribute domain;
+> >>>>>     ')
+> >>>>>
+> >>>>>     attribute myattribute;
+> >>>>>
+> >>>>>     typeattribute myattribute domain;
+> >>>>>
+> >>>>>     $ make -f /usr/share/selinux/devel/Makefile attributetest.pp   =
+                                                                           =
+                                              2 =E2=86=B5
+> >>>>>     Compiling targeted attributetest module
+> >>>>>     attributetest.te:9:ERROR 'unknown type myattribute' at token ';=
+' on line 3418:
+> >>>>>     typeattribute myattribute domain;
+> >>>>>
+> >>>>> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+> >>>>> ---
+> >>>>> After some simple tests with CIL policies, it seems that attribute
+> >>>>> assignment works as expected. Is there a reason checkpolicy does no=
+t
+> >>>>> recognise it?
+> >>>> Did you test that all types associated with myattribute are the also=
+ associated with domain?
+> >>>>
+> >>> Yes, also please see the more complex example below (mytype_t is part=
+ of
+> >>> "a", "b" and "c" after being assigned to "c").
+> >>> As for the "domain" example:
+> >>>
+> >>> $ cat typeattribute.te
+> >>> policy_module(attributetest, 1.0.0)
+> >>>
+> >>> gen_require(`
+> >>>           attribute domain;
+> >>> ')
+> >>>
+> >>> attribute myattribute;
+> >>>
+> >>> typeattribute myattribute domain;
+> >>>
+> >>> type mytype_t;
+> >>>
+> >>> typeattribute mytype_t myattribute;
+> >>>
+> >>> $ make -f /usr/share/selinux/devel/Makefile attributetest.pp
+> >>> Compiling targeted attributetest module
+> >>> Creating targeted attributetest.pp policy package
+> >>> rm tmp/attributetest.mod.fc tmp/attributetest.mod
+> >>>
+> >>> $ /usr/libexec/selinux/hll/pp < attributetest.pp > attributetest.cil
+> >>> $ cat attributetest.cil
+> >>> (typeattribute myattribute)
+> >>> (typeattributeset myattribute (mytype_t ))
+> >>> (type mytype_t)
+> >>> (roletype object_r mytype_t)
+> >>> (roleattributeset cil_gen_require system_r)
+> >>> (typeattributeset cil_gen_require domain)
+> >>> (typeattributeset domain (myattribute ))
+> >>>
+> >>> $ semodule -i attributetest.pp
+> >>> $ seinfo -xa domain | grep mytype
+> >>>       mytype_t
+> >>>
+> >>> I also tested the functionality on a combination of multiple attribut=
+es
+> >>> from container module and all seems to work fine (at least as long as=
+ we
+> >>> can trust "seinfo" and "sesearch"). CIL is not even complaining about=
+ a
+> >>> mixed assignements that result in some interface calls on attributes
+> >>> (e.g. kernel_read_all_proc(container_t_domain) -> (typeattributeset
+> >>> can_dump_kernel (container_runtime_t container_t container_t_domain
+> >>> container_userns_t container_logreader_t container_logwriter_t
+> >>> container_kvm_t container_init_t container_engine_t container_device_=
+t
+> >>> container_device_plugin_t container_device_plugin_init_t ))). In
+> >>> combination with "typeattribute mycontainer_t container_t_domain;" th=
+is
+> >>> also works as expected:
+> >>> $ seinfo -xa can_dump_kernel | grep mycontainer_t
+> >>>       mycontainer_t
+> >>>
+> >>> It is by no means a complete test. I was hoping someone here would be
+> >>> more familiar with attribute assignment and would let me know why it'=
+s
+> >>> not allowed or that it is just an oversight.
+> >>>
+> >>
+> >> I don't think the kernel supports attributes being assigned to attribu=
+tes.
+> >> For CIL to support typeattributesets, it expands all attributes when
+> >> it evaluates the set.
+> >>
+> >> I think what is happening is that binary format unintentionally
+> >> handles attributes being assigned to attributes (even though that was
+> >> never intended) and since CIL is creating the final binary policy for
+> >> the kernel all the attributes in an attribute get expanded.
+> >> It might actually be possible to start allowing this, but I would want
+> >> to test more to make sure.
 > >
-> >Currently only an RFC.
+> > I just realized that the fatal flaw in this is that the kernel binary
+> > policy produced by checkpolicy will not work (if I am correct that the
+> > kernel will not properly handle attributes having attributes and even
+> > if it does there could be severe performance issues).
+> > Jim
 > >
-> >Add the .clang-format configuration file, taken from the Linux kernel
-> >repository. We don't have any official style guidelines in tree at
-> >present, which makes it a bit unclear how to format C code for new
-> >contributors. As well as this, different parts of the codebase seem to
-> >been formatted with different styles on occasion, so using an automatic
-> >formatter should resolve this.
-> >
-> >As well as this, replace all the existing indent targets with format
-> >targets. Commands used to find and replace those targets:
-> >
-> >git grep -l -E '(\.\./)*scripts/Lindent' | xargs sed -i -E 's@(\.\./)*sc=
-ripts/Lindent@clang-format -i@g'
-> >git grep -l 'indent' -- '*Makefile' | xargs sed -i 's/indent/format/g'
-> >
-> >Also add some empty format targets to Makefiles that previously were
-> >missing an indent target so that `make format` does not error.
-> >
-> >A few other things to consider to do in the future:
-> >1. Reformat all existing code. I understand this is a big change, hence
-> >   the RFC, but we may as well get all code formatted if we go down
-> >   this route; afterall, it's not like this will cause any breaking
-> >   changes.
-> >2. Possibly add a CI target to check that all code is formatted as per
-> >   the new clang-format configuration? The options `--dry-run` as well
-> >   as `-Werror` can be passed to clang-format for this.
-> >
-> >Comments/feedback appreciated, thanks.
-> >
-> >Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
-> >---
+>
+> Thank you for the analysis. Does that mean that I need to test that the
+> access is actually allowed? Is there some simple way to measure
+> performance (or are there other side effects I can watch for instead)?
+>
+> I just tried replacing all the rules assigned to container_t with
+> container_t_doman attribute
+> https://github.com/vmojzis/container-selinux/commit/3645ca555ed5b5aacbd64=
+e300522cfc6e2fbc493
+> and a comparison of sesearch outputs matched between original
+> container_t and mycontainer_t that was assigned to the new attribute
+> (outputs attached). So even complex policy constructs seem to at least
+> transfer to CIL properly.
+>
+> Thank you.
+> Vit
 
-> Oops, I forgot to send this as an RFC, apologies - it still is one! I'll
-> sent the next patch as an RFC again.
->
-> While we're still talking about code style/formatting, I think it also
-> would be nice to add some clarification about usage of braces. Right
-> now, the usage of bracing is somewhat mixed: there are many places where
-> one line statements don't have braces, and vice versa. It would be good
-> to decide what the style regarding braces would be here and add it to
-> the CONTRIBUTING guide.
->
-> Regarding my own personal opinion, I think it would be best off to have
-> braces surrounding all statements (if/for/while, etc). It adds
-> consistency to all of those kinds of statements, and it also helps avoid
-> bugs such as the infamous `goto fail;` vulnerability[1]. It's a fairly
-> small trade off for a bit of added safety. However, maintainer opinions
-> are of course very much welcome here.
-
-I would tend to be consistent with the kernel CodingStyle i.e. no { }
-for singe-line statements, but this is not a hill I will die on.
+Sorry to join this thread late but I believe James is correct that
+this is NOT supported by the kernel and hence won't work if one
+compiles policy monolithically with checkpolicy as opposed to
+compiling it modularly (which ends up indirecting through CIL). Hence,
+we can't safely allow this in checkpolicy itself except for modular
+policy and even then only if we know that the libsepol on the end
+system where the module will be installed is going to handle it
+properly. If we were to alter the libsepol expand_module() logic to
+replicate whatever it is that CIL does for attribute expansion, then
+maybe we could allow this in checkpolicy too.
