@@ -1,153 +1,89 @@
-Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
+Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1A55146585
-	for <selinux@vger.kernel.org>; Tue,  7 Oct 2025 15:15:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C987442AA3
+	for <selinux@vger.kernel.org>; Tue,  7 Oct 2025 15:37:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759850113; cv=none; b=Kag0K7Ks2c+aIfUsArjfY7S1YPkZH8NYniiEc1MJR/w29uGQ54II1TxwVNI8Jufk7KaXRa2yDXKwu1m1mcaUCggeqojXY2TLiv+HXbIvgkt/S2Hz465N4OtbRFGTQHtzSuZFYYXFrUwIA5RE3nqo1B4tO8aNM+jBMHa+74bYIcw=
+	t=1759851427; cv=none; b=pqrhN85kY2GbCvuCv6KsWZTnOBhvF7E4vUDjVHNj8umZESByYHqSwxHHb1Dh/NZegxmGTUnJiJWTPivypGHapiHjUM/Es3Ew7juY6KdK56e6cSz6wn7148y0Nkq/6cjeegF5b1IGq8gL+nz7bgPSjRue2P6g2giOWYyCxMDeH34=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759850113; c=relaxed/simple;
-	bh=x1k6QI5cFJmFPs/xLbocQd2ipRlUQpOJc6NWYZNCfNc=;
+	s=arc-20240116; t=1759851427; c=relaxed/simple;
+	bh=H+Ttyc3FEvXMjQtHq/me5qnvVLQ1QMM6b7kLyeaz4Y4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=U5y6rBuFi0syQqurk7HcLEMX1l95dMRR5a+WYXmACj7amFtFd9a7PgSh/IsCjFFpd/6vE57FuEUOjv3p8wVLF5VZJZPArp+ytUwF8DvOK0mpl0JRFOQ+NPzM/JH+q07ChY8E5kQTjvrrLP+Y6Vg7DHQri61cZTiikhBGI1GL/R0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Fgbu0t3z; arc=none smtp.client-ip=209.85.215.169
+	 To:Cc:Content-Type; b=kN/r9FjN/iz4R/vZBvpSZ3KflfKatCNj+4i2MR1XQM3U8IA2MvnUr63LuNBvKCfotzHLgIMBLn+pujZOTSBW7xKud5zXbO9EE39J4mxUuNH+M+WSbLT+ip8PeQOfgZI5ritkdJXu8n2ebQ1BVwU9CJuUr5o/po9P+EPzKlrQrac=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JMHFLNAS; arc=none smtp.client-ip=209.85.214.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Fgbu0t3z"
-Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-b555ab7fabaso6319539a12.0
-        for <selinux@vger.kernel.org>; Tue, 07 Oct 2025 08:15:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JMHFLNAS"
+Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-273a0aeed57so94477125ad.1
+        for <selinux@vger.kernel.org>; Tue, 07 Oct 2025 08:37:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1759850111; x=1760454911; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1759851425; x=1760456225; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=lB5nUOl2p833ZmsHRh1RM8URgMaMu/rmbHYupQKLzEo=;
-        b=Fgbu0t3zoDyFkXCw/nhnpaWezQn6t+Ctyl//4O/7NF8Gn6fk+56XffG2HtynJdGVp6
-         P0TneBk38eCv9+jkiX0jf9fNW2H6WhSePXndwcTkZrMTWq3OLWM58mqxWgM9+2kZkoYR
-         f/t1eslQQxKHFqyKl5Nbo6eKbzvSnU/ADvdlobw5sSXEUvWh5ju6bOi+3pZowDsq2csV
-         F74xBwnl3s1TS212Dv2dxs7rlG1+cIplOtLy60FBbBjuyXB7V4uiqgSqTycCurZ9qLKu
-         rEvXPbfdJIZsS5B58wYusAirHIx1TyhLHO/Q9/tupcr8cthPZlPBNCePafAVSnow8dVR
-         TZxQ==
+        bh=H+Ttyc3FEvXMjQtHq/me5qnvVLQ1QMM6b7kLyeaz4Y4=;
+        b=JMHFLNAS3cXEmRw+RR90qgfKiHOwPS802ScE+sWh5sXhBfCltSv4uDWxuqW48iO21b
+         NHXbh38MzjnV3uyjcPrewCUBgySjVuSu9zswBpCGJsucvKXCz02yTNJH1K9EDlII3U5W
+         EymHz+4tvL/1EEu/YcSCH5CNESE9/LKaNroGJ00jBVJuNfHXv6hs3IQ1V3WL6ig3BUxN
+         jbvxBQQncJol8IuzhQMGd4182bdKrgltYLb0Ef0ihb4+vQDdeJ/0TNfD6AG4JEiQq5iQ
+         m73o+pmATjEzL2CaCfmfsre3qMpkor9M0uHLouPvJ6gbEhaQn6taDv+HTq04L60niXse
+         KiKg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759850111; x=1760454911;
+        d=1e100.net; s=20230601; t=1759851425; x=1760456225;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=lB5nUOl2p833ZmsHRh1RM8URgMaMu/rmbHYupQKLzEo=;
-        b=hlHuC7+/HJssU/rSGNTzmbAn9z/Eq5QDGb3qmdokNc7TOE7md1v3Cn+sQxKcJt2jyV
-         8q5AguKl9GM3EmQ6CNTsHDY0OnDuKX26krz/2vLayjIVlDIUfwU32pFF8zunVi2e3jB9
-         b66fkpGDqVyQevMMr6SjvgkVwhSFPjSGkO+7hsyJqijaOxHD+55LASfPKH/hU7nZ6TO9
-         mbqRAbjp8KjUfqu50hPEX6COsZAhx3GOf1Q6FDbo3CEA7kVspNdoeJDk/JLP49iKcRGJ
-         607b2XejE0jqUkYNEpr/Dc2Tpeq2Bifc420dx/UtjS8tmwPS15ae/HXI6isKCM5yzaE0
-         LA5Q==
-X-Gm-Message-State: AOJu0Yy0r6a9lBLpZA0EDzMh7pyO2Qe0u+IE5QMYEwxme1fg8XMGGTU0
-	cqgfJ9dJOAW/rldLMpsBdFNAz093YkBN0n6jVTWXGSE2Ok2KeOpSI9wZbWcNPi4D2JpzjDxZXf4
-	S1NdUxBgZsc9ci6OjilGwTGSCQJEBxvI=
-X-Gm-Gg: ASbGncuQeDrUjFbkar9GSaQ4uGiiIij48GHYcFyt3SRRSaCVXWnGWaYwU3Zh3XF5tpS
-	4eve82sU3SUtxt+lx+DCn+X3Q3o5PFGIkg4UIj0ElH4WZtkfp5+D488RG4113gwnrpXEIhN7GRm
-	HGGerwIu+BdPOTyHnlom2UXsIfprDjM+6AVRVpaQRym2cEhzfdwjhxfTt1Z5AeyCjH/DOvr1Vch
-	S4clpXKzE0w2acEhzM5pJdMsGFacaI=
-X-Google-Smtp-Source: AGHT+IFPLhcr5L/59GJRRQ2LqbLK4h7HOqyvP+abWxQpuHH0UQwzOR7/thIG/EHltxfKse+eWxO9sLrVdwl6KyaWtWg=
-X-Received: by 2002:a17:90b:5807:b0:339:dcc3:82ca with SMTP id
- 98e67ed59e1d1-339dcc38971mr12630003a91.6.1759850110736; Tue, 07 Oct 2025
- 08:15:10 -0700 (PDT)
+        bh=H+Ttyc3FEvXMjQtHq/me5qnvVLQ1QMM6b7kLyeaz4Y4=;
+        b=RxcMQqpOYgRv3TuSC/SxLvzQg8Q1x3NnsPLxc5t9an8oauRllqLMTMxImgaz75h+Gm
+         MMWQPAqeSIyOKmYGzLcZZ0BWoAVo8xhjgymG57PdovDrpgRLA0ltLZ+r+9uQlL1n2Lqz
+         JaOoKpp//0Ga0JA9daXtBaup1HTn56ywU6EJH9tFjrqK6BVskppEO8X69kWO2O1wq1br
+         9zDopzY7yGkV0jjDiSYtuP/8c2Q8EAsPqFb9hCSTi+RJzV061DnIChTdL5mE6BUo9pUS
+         lUuO46+6zBW0WwhBv/9UODmxprDaUDhnWhB+yZz06IXDwIG+PZoPcf9EV7vZdMRfGlg1
+         4vEA==
+X-Gm-Message-State: AOJu0YzVXpX4bJu5xZbMY9MzVPhwJoGM/ZVMVvc2u8Ad050kbj53OC4g
+	RVwgedCchL/VUgrXi/D6prbcK8XdSJARdWeaDypH6Z97g+/c+0s2nH50UI+mfqaqGkhJF+HGT+I
+	CriM2cwelfvxuOrGqRdUNjsNKPaRY+HSxTg==
+X-Gm-Gg: ASbGncv5A5mySRtAhyvFCWeDWBmfvIG5H14KkhIQgEPI/6V2J6SxVUqaKNqq9yybds1
+	2qxvDkmjzOORhPyFVBIYmiEHdFaxF0oamOfHKknfM5SJZ3w5IDbtgJKn1CFx5j6x42tDuGTf4pe
+	zBktWcLYukO/ch9mEsUjtuw2z6W0Y3pw9jvccGB57bgNttDcxfhxjeVN1+3YHo3i3uGqoeSnlPS
+	NR1Klv2T+iJH+ybIa2W4vLWDpG8IQ0/Y1Ys6uBFSA==
+X-Google-Smtp-Source: AGHT+IH/kNzi/M58m1LFB2U1vzQPe+h26SIUrGbrtuM9JXqEwHYsqfcX22jUoxHAcq2xafuhTCFJDAU8cxbNAKWg4ag=
+X-Received: by 2002:a17:903:286:b0:26e:7ac9:9d3 with SMTP id
+ d9443c01a7336-28ec9c97670mr52989265ad.18.1759851425145; Tue, 07 Oct 2025
+ 08:37:05 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251007150659.33954-1-plawate@redhat.com> <20251007150659.33954-2-plawate@redhat.com>
-In-Reply-To: <20251007150659.33954-2-plawate@redhat.com>
+References: <20250731171706.1079400-1-nvraxn@gmail.com> <CAEjxPJ7L7K1=1JE0+h28uRt3fySF5RgW1wt_k352_Wv+qr9TUg@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7L7K1=1JE0+h28uRt3fySF5RgW1wt_k352_Wv+qr9TUg@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 7 Oct 2025 11:14:59 -0400
-X-Gm-Features: AS18NWAgGCJh1Btd1E33OAeo2_87w0eqr7x_jQZduEEb0cv9PU9bN_dlDqn3qBw
-Message-ID: <CAEjxPJ5MFzohCxfjkk6x=c1V2qqBR5gqX22DY6Bc0PDQF-yzWg@mail.gmail.com>
-Subject: Re: [PATCH 1/1] improve semanage man pages: Add examples for -r RANGE
- flag usage
-To: Pranav Lawate <plawate@redhat.com>
-Cc: selinux@vger.kernel.org, pran.lawate@gmail.com, vmojzis@redhat.com
+Date: Tue, 7 Oct 2025 11:36:54 -0400
+X-Gm-Features: AS18NWCJkbk1RUKhjZLZ1Ipzcy5ZXA8Aya8fE5VkQvznEyCxJQ2AZS5jwlLB4Co
+Message-ID: <CAEjxPJ69ie4ySVkeaA_MrygLPpz9UEQe2pCEFU4rR21R8ZwXFQ@mail.gmail.com>
+Subject: Re: [PATCH] seunshare: always use translations when printing
+To: Rahul Sandhu <nvraxn@gmail.com>
+Cc: selinux@vger.kernel.org, Petr Lautrbach <plautrba@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 7, 2025 at 11:07=E2=80=AFAM Pranav Lawate <plawate@redhat.com> =
-wrote:
+On Mon, Oct 6, 2025 at 11:26=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> From: Pranav Lawate <pran.lawate@gmail.com>
+> On Thu, Jul 31, 2025 at 1:18=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> w=
+rote:
+> >
+> > Some errors previously were not using gettext for translations, hence
+> > wrap them with the _ macro.
+> >
+> > Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
 >
-> This patch adds missing examples to the semanage-port and
-> semanage-fcontext man pages showing the correct usage of the -r RANGE
-> flag for MLS/MCS systems. Currently, users who try to use the -r flag
-> without proper examples often encounter unclear error messages when
-> they provide invalid range formats.
+> Obviously this will require updating the translation files.
 >
-> For example, here is a command with wrong range string value:
-> libsepol.mls_from_string: invalid MLS context s0.c0 (No such file or dire=
-ctory)
-> [...error output...]
->
-> The added examples demonstrate:
->   - Correct MLS range format: s0:c0.c255
->   - Complete command syntax with the -r flag for both port and
->     fcontext operations
->   - Clear indication that this is for MLS/MCS systems only
->   - Verification method using seinfo for port changes (semanage port -l
->     only shows type, not MLS range)
->   - Use -F flag to restorecon in fcontext example (required to force
->     relabeling)
->
-> Signed-off-by: Pranav Lawate <pran.lawate@gmail.com>
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Technically tcp port 9999 seems to already be defined in my policy for
-jboss_management_port_t and has an entry in /etc/services for
-"distinct" but I don't feel strongly enough to insist on changing it
-again.
-
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-
-
-> ---
->  python/semanage/semanage-fcontext.8 | 4 ++++
->  python/semanage/semanage-port.8     | 3 +++
->  2 files changed, 7 insertions(+)
->
-> diff --git a/python/semanage/semanage-fcontext.8 b/python/semanage/semana=
-ge-fcontext.8
-> index 3a96c62f..a29b7499 100644
-> --- a/python/semanage/semanage-fcontext.8
-> +++ b/python/semanage/semanage-fcontext.8
-> @@ -100,6 +100,10 @@ execute the following commands.
->  # semanage fcontext \-a \-e /home /disk6/home
->  # restorecon \-R \-v /disk6
->
-> +Add file-context with MLS range s0:c0.c255 for /secure directory (MLS/MC=
-S systems only)
-> +# semanage fcontext \-a \-t admin_home_t \-r s0:c0.c255 "/secure(/.*)?"
-> +# restorecon \-R \-F \-v /secure
-> +
->  .SH "SEE ALSO"
->  .BR selinux (8),
->  .BR semanage (8),
-> diff --git a/python/semanage/semanage-port.8 b/python/semanage/semanage-p=
-ort.8
-> index c6048660..0df44290 100644
-> --- a/python/semanage/semanage-port.8
-> +++ b/python/semanage/semanage-port.8
-> @@ -61,6 +61,9 @@ Allow Apache to listen on tcp port 81 (i.e. assign tcp =
-port 81 label http_port_t
->  # semanage port \-a \-t http_port_t \-p tcp 81
->  Allow sshd to listen on tcp port 8991 (i.e. assign tcp port 8991 label s=
-sh_port_t, which sshd is allowed to listen on)
->  # semanage port \-a \-t ssh_port_t \-p tcp 8991
-> +Add a custom port 9999 with MLS range s0:c0.c255 (MLS/MCS systems only).=
- Verify with seinfo.
-> +# semanage port \-a \-t http_port_t \-p tcp \-r s0:c0.c255 9999
-> +# seinfo \-\-portcon \-x | grep 9999
->
->  .SH "SEE ALSO"
->  .BR selinux (8),
-> --
-> 2.51.0
->
+Thanks, merged.
