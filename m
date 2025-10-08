@@ -1,113 +1,96 @@
-Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09E1C1A9FB0
-	for <selinux@vger.kernel.org>; Wed,  8 Oct 2025 13:16:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 416F21A9FB0
+	for <selinux@vger.kernel.org>; Wed,  8 Oct 2025 13:16:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759929370; cv=none; b=vEhH2iLkRjSKpmdFGg77lRyUurc3vtLF9Ec7KNzUrueGLNxRdmkXai/rLRBNYXeZTzLygd+5QEr0yQhZX6/Hn8RjNJoC1hTvoWwKKyKj6Wb5B3Fe1kI2rggAIlKW8NppFLICilye6Mf3AdZpr3hVrcxjDN1mp1khgvBHAsg5Mo8=
+	t=1759929413; cv=none; b=M+iFbf0QIRx5uxg7YtrwlnC/asNboUSwTcNYYPK5vNgplm/VZuiscLrqiqMEncqnVnwc5H5T3owymNcuUEoEIre1h7ubN35Am3wys2g4LYo68vsm+sBQlZtzlOaQNA7unsCzDM0jYQCeQzMJdyIsEpON/re3AJOBjqxpzg8LNS0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759929370; c=relaxed/simple;
-	bh=6qYx+/z+lPHBdPXPGFP8RgooK733/VjJjn2pLT4e/4I=;
+	s=arc-20240116; t=1759929413; c=relaxed/simple;
+	bh=KE15Hb8fmJFtP+GfilHjb+mRdntA4tohWAiEQP80qvA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=eYVNPpQhcENcJ9tezprxdfytDc4wLcr7Kf0kHZvNabUvyibJwqsYOOTb8vwbfhQ4EpWWfsbKqON7PVnBbBsRd3MvNnAkJM7HJ1PNA0ChJsqFOLjfpFwlvoPORaxjcsnDoJ9wLSYiqB/Cwr3VXZf+XJ2sNRxymeVevnhL/mjVjwE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OpNg8qRg; arc=none smtp.client-ip=209.85.214.180
+	 To:Cc:Content-Type; b=LliAq52C99+pe3nX3klVsuo+sXf5jvlLmvqRQrm4zC9ZByBZyx0IUasZ5YVM4S4Md/1t5cKDX8GevB5tiyHsGj5E3XZrCndCyL1L9J9eFC64SNOtI0U3v1EYg5VIvwBQljaQ21/IbUH8Sak2Mi7kEdAx4GCzZxhwLGSdH01JnFg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FmMybdTh; arc=none smtp.client-ip=209.85.216.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OpNg8qRg"
-Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-27edcbcd158so96857455ad.3
-        for <selinux@vger.kernel.org>; Wed, 08 Oct 2025 06:16:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FmMybdTh"
+Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-3306d93e562so8002651a91.1
+        for <selinux@vger.kernel.org>; Wed, 08 Oct 2025 06:16:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1759929368; x=1760534168; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1759929411; x=1760534211; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=l9HCfFlGnkE+X4h7oIP7P/6fW4+GzpcsomXq+bGkOGs=;
-        b=OpNg8qRg53yTyd9JPBAzOdPH4VBP8a4ozgBFDR9254PP181vpANIRHk6hMw8j9cy2Q
-         527RNNCKeP4Vlq1AQLjdWYi+htvLhxTxE+hiHMvNUyLlpjULM/1Mv1RVT84na/Tnheph
-         /jRzx7jxZyDhEe2dBut92hqaEUPOnhrq5U8G5s7HQW1CLPG5vElgMuxkjXjL5ZUjsWok
-         LxCu+aQQRHTqeDMQOvDfdT/0Coqf504E5gc9Mxp4r0/eyxWfsYetcRhM/4Tjc+EXhLUK
-         rdaRJKFPIcqhEuDyfqD40UoEB+346SRPFgSxZnyAaUDFtgXYzH1H/qfJHaRBAmpkjTd4
-         6eHw==
+        bh=zdZ9y1XbuIaBo7DDk33UpCaiOafWEzU9OeTqDZVnKJw=;
+        b=FmMybdThE5+WV6QGRANIomLZo3cUSC5/hE7QheXH+KGOrTtNpQGvyi3Z6Fxic86bI1
+         1gHMMDe8v4x0f27eNE6fPL6II6KZcvRk+ZvspMz6QLH00jnez6b7AU9NV5vSwdHNbs90
+         E64WZNdfpwNR18ra+dWqJMZKk+8I/KayM4KK13d6Bfw0L/YtA4J5cg2d1MC/45kC1J0w
+         /An9+z5SO2Ez3wJtTkxkKSNVV9pM9Cfk3d3pmbAEgCw8ZncH2H53zbH6KSVXohuWFT+P
+         n11ZJX0ASH/mK1S89KdjSrw2WGY2eU5e2zkLN1YZ1btxxf7Ay4/F1RcWbIGQie3Mx1wo
+         UIyQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759929368; x=1760534168;
+        d=1e100.net; s=20230601; t=1759929411; x=1760534211;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=l9HCfFlGnkE+X4h7oIP7P/6fW4+GzpcsomXq+bGkOGs=;
-        b=JUkrPvxKKVR8ksfYW0yOiKCelvVEQNfCRfBqFB3baDWeRDwpw8XmQgZIVVXu5T8d5v
-         nM3GCh9IY3QQaHYg3DpbBTsx4L7ES5IL+Awtfv/ClMwMDdMJ8Pn85DhMahdPvIcjOo09
-         xFt/QLWMTVVlickMLUJOfJDnvuKwe3/L3NzknngsoGGl+QjnqlI+WHkZxQrxXTaWTVnf
-         Dque+SuHbV/tqPAHS/0LmPMjXpd+QXBUn02ST6ubzZMJCACg/JgRP0JDfIvz1VGiZcK8
-         Iy+p6ODiufmzncWt7fCS985gSiudprRso3q3NFBWEVL20B3/xlhi9qMiil6ItDcdqHuS
-         RlFQ==
-X-Gm-Message-State: AOJu0Yx36Uw0M3JULvW23QaorpN4NI30opNAmtVDFvaP6AgVz5xZOfRs
-	E4oAKL3gjiI7RNnP7Sf4jZChGWXksPmP/R8HXeZwyESxBEeuiHC4CToDtCaEyiKa55/kO1OSUTU
-	r2WBjWRfFXYhg7rBO1OCqiC+HmdxCEQA=
-X-Gm-Gg: ASbGncuzyF4yHVgKAVS4LX7oqFZNNpFRrZKK+e7ZEWFe58vkl77LNQkPjbpESj7YHpH
-	pR91AJWDcZONBDt6g9e/+lRYF0q6Gl25qqYb2gu20TQpkrvIAscpgGKdGJir2OCj5nHMlUxW7eR
-	WNvTDk0m6fMAET2desnfes0RCBEetb9A5FS2tvjbUra8H6EA0P6a/fRkuYvn2bMvFok1O+gnjZM
-	Mv/KXTKuraSA6cNjnJWxcbSShpozrU=
-X-Google-Smtp-Source: AGHT+IHr6rKBJTfMiIbSbvL1Urpp/sBK0sTXrlNvwmokEti3rCbQ+dJOxdFYVuRSO1KRvabtEPTLyuzGgsHkT3ep3IQ=
-X-Received: by 2002:a17:902:f693:b0:27d:6cdc:99e4 with SMTP id
- d9443c01a7336-2902723ba41mr45934325ad.21.1759929368098; Wed, 08 Oct 2025
- 06:16:08 -0700 (PDT)
+        bh=zdZ9y1XbuIaBo7DDk33UpCaiOafWEzU9OeTqDZVnKJw=;
+        b=QUNY2F2HMCj7id47dfY0ZIojdnKl1z8l0PFJXk4097C+2gf8mJywpmVX+ZzD7MZJbK
+         wjQDwo0h3bUM5T6JqdF486w4D8psHeQ+wkAz3XCL/7jtz/z54oKtePCXKsaKhw9hJI4A
+         BsC1e5eZ/Te2Cl12sSY+y5ZISWmKLN+7nySmK+3IPxaDffYNNBC3D9IlHOuTlOfEaNgd
+         jLTQ/mtpIWlGP/uU8MR3d7wfBju574LQfQzafNP1Glr+LdGPaKvk48CcYlsZyvmTAXXT
+         OhFZAV5E0bgmqxg670gJ2TNgt/+htaYGPCWlQSk7C++NYMYE4phh57la/JvH4bBeNuOC
+         fmPg==
+X-Forwarded-Encrypted: i=1; AJvYcCVWrxyvrZlnreHF9FiEianKq/MtM0ixteI74H0IM+9F+hN75dMMu//jNw0TmedHae9tjc0H2ca7@vger.kernel.org
+X-Gm-Message-State: AOJu0YzTQuh/mjR549QG7GW6xBlKHzJFbiQtuQFC+WYeo63AZAiCpzNr
+	1DICStEBaggMPWfQn5VDTQQiiCgKMWRIsLqHFOaG16DXyXywrwSeAoYJJqF36RaqG9a5dsVMorO
+	sm+QEPeRu0BpuEh2eV1OLh1FloUKUfrg=
+X-Gm-Gg: ASbGncsW+rXIYoL23pfUoZ1CltBnoGZFQTOSKdi8Fko7fjvPgm81dBy0ZS3/ZZtP41d
+	0LIugOi1HRiJ9/v1cT3vpkZP+3vAfrEH47LCK3DLrgA7xNIv13PncgabaQmml4kOD+pUkJFfWVG
+	zeb3UGemBVDMQYG5mLgqWbn69U1vI1ttlm5HuJ2cNnBV9L0J76io5RiRyAcYAVn4T8/3/6C1okG
+	U20cvdBvIRVkbTxmJVaWAFJ0yrLbXIX6hd19vTkaA==
+X-Google-Smtp-Source: AGHT+IFC1S6iJrP8LzDioqr/2fsJnONFC1C2qrXHWcT+h1efZ6u2P8c0wV1Hm7Ufb8uGPyicHawa5WHa85kku9erKzk=
+X-Received: by 2002:a17:90b:1c07:b0:335:2a21:69db with SMTP id
+ 98e67ed59e1d1-33b51161d5emr4177448a91.10.1759929411387; Wed, 08 Oct 2025
+ 06:16:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251007150659.33954-1-plawate@redhat.com> <20251007150659.33954-2-plawate@redhat.com>
- <CAEjxPJ5MFzohCxfjkk6x=c1V2qqBR5gqX22DY6Bc0PDQF-yzWg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5MFzohCxfjkk6x=c1V2qqBR5gqX22DY6Bc0PDQF-yzWg@mail.gmail.com>
+References: <CAEjxPJ7xRYnSgN2qauMPHT54uV5PB7z+8DO1=PPOtT68so6=4g@mail.gmail.com>
+ <20251007180906.507115-1-nvraxn@gmail.com> <CAEjxPJ6rpJNpFviGHDiJsx_A_APdMTOS9Nyr0mcfT5YCWUtfvQ@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6rpJNpFviGHDiJsx_A_APdMTOS9Nyr0mcfT5YCWUtfvQ@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 8 Oct 2025 09:15:57 -0400
-X-Gm-Features: AS18NWBFzRVAQc186l9O78JT4ZjvhZSrzVeHKv6V7bhRfQNnp9WPQHLOuqVdX2A
-Message-ID: <CAEjxPJ4vfm3xnpohOCpete075hTLJMr9Kbi6w0u0kMRoVa87qg@mail.gmail.com>
-Subject: Re: [PATCH 1/1] improve semanage man pages: Add examples for -r RANGE
- flag usage
-To: Pranav Lawate <plawate@redhat.com>
-Cc: selinux@vger.kernel.org, pran.lawate@gmail.com, vmojzis@redhat.com
+Date: Wed, 8 Oct 2025 09:16:39 -0400
+X-Gm-Features: AS18NWBDsB-v_UJ6D-mz6BQVcWZ3ZltQoS4uZD4OcLRAKegjBvPvsKg-5qoY6mE
+Message-ID: <CAEjxPJ7ZmwEKwFQmWaZ0QTsrj2NgyvH9AP94bweaXveP1ndkBw@mail.gmail.com>
+Subject: Re: [PATCH v7] seunshare: fix the frail tmpdir cleanup
+To: Rahul Sandhu <nvraxn@gmail.com>
+Cc: jwcart2@gmail.com, lautrbach@redhat.com, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 7, 2025 at 11:14=E2=80=AFAM Stephen Smalley
+On Tue, Oct 7, 2025 at 2:20=E2=80=AFPM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> On Tue, Oct 7, 2025 at 11:07=E2=80=AFAM Pranav Lawate <plawate@redhat.com=
-> wrote:
+> On Tue, Oct 7, 2025 at 2:09=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> wr=
+ote:
 > >
-> > From: Pranav Lawate <pran.lawate@gmail.com>
+> > For some reason, rm is invoked via system (3) to cleanup the runtime
+> > temp directory.  This really isn't all that robust, *especially* given
+> > that seunshare is supposed to be a security boundary.  Instead do this
+> > using libc, the API designed to be used within C programs.
 > >
-> > This patch adds missing examples to the semanage-port and
-> > semanage-fcontext man pages showing the correct usage of the -r RANGE
-> > flag for MLS/MCS systems. Currently, users who try to use the -r flag
-> > without proper examples often encounter unclear error messages when
-> > they provide invalid range formats.
+> > Also make sure that we don't follow symbolic links; the input being
+> > deleted is untrusted, and hence a malicious symbolic link may be placed
+> > outside of the sandbox.
 > >
-> > For example, here is a command with wrong range string value:
-> > libsepol.mls_from_string: invalid MLS context s0.c0 (No such file or di=
-rectory)
-> > [...error output...]
-> >
-> > The added examples demonstrate:
-> >   - Correct MLS range format: s0:c0.c255
-> >   - Complete command syntax with the -r flag for both port and
-> >     fcontext operations
-> >   - Clear indication that this is for MLS/MCS systems only
-> >   - Verification method using seinfo for port changes (semanage port -l
-> >     only shows type, not MLS range)
-> >   - Use -F flag to restorecon in fcontext example (required to force
-> >     relabeling)
-> >
-> > Signed-off-by: Pranav Lawate <pran.lawate@gmail.com>
+> > Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
 >
-> Technically tcp port 9999 seems to already be defined in my policy for
-> jboss_management_port_t and has an entry in /etc/services for
-> "distinct" but I don't feel strongly enough to insist on changing it
-> again.
+> 7th time's the charm ;)
 >
 > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
