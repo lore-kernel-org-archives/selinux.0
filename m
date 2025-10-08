@@ -1,132 +1,140 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7522E19CC0C
-	for <selinux@vger.kernel.org>; Tue,  7 Oct 2025 19:59:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49BCA191
+	for <selinux@vger.kernel.org>; Wed,  8 Oct 2025 00:06:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759867170; cv=none; b=uza/2j3uZoRBs2c4jvfrQND1rCUwkV/BB88mdDJZPfYCWNmY8TV5N92+Aoj+TiU8B8gE2XkSrqQUF6Hp34ZJNtvx6O+IlX9G7gLjSJ3F+NI+utpbzO1FxKInWnz/e9sESMCWe5qF/tLqbSJk9OPdg+79aqEZ/d2cq2+xc9OkBZQ=
+	t=1759881967; cv=none; b=ea8CL2gOGPUoM4g8tFfhEPw4LYYuQey0PrypLDZ4pZx1pBEZfQ7Vt4bEkFwTyN/dyXYNWXFy0X1Oab6c+WVXZHNE1c4I2lL37es373WM1iqhgGITaMGSAnrDD1PVD5cnqfH08YvMoTPy/EbwqLqBdYG74ZDUMhfFoIO/jXfS/EE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759867170; c=relaxed/simple;
-	bh=VNoBhWGf2z4MEJDad2V0PXqEjy0cAwrOlAXVqCZvA20=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ba/gqOc7EpFRoyOChi6de3lwW0XenVDi58cxTFGXuivU3a463oJabKZmLZrttfEgmHCf0GF2qnowLABYYUsaoig+7ZV2nZxxIoNx/7poWed8sCMa+nccIBWNg7vw6Hu3+7/YRVF2M6tgfxn9/FeFGHcloMNk/VDgvAUAn2rVlYQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=VF9MHnZY; arc=none smtp.client-ip=209.85.216.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1759881967; c=relaxed/simple;
+	bh=iByYgKeFHAbw0PE/YTfOWHupGaE+J1qGKTTlikSiabc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=M1kpPYkGpBFJoWAHIjM9RH2lMTnuhP2fBVr4aHMV6SAEuMKUnanQDlTBXClvxUWXvzRxDjvA/OmRGDQAVGSW9yIwgt2XvkZe4mdVrz3+hSp+tXRvRVvZB2ndKrDMOxSfwo+SScSin1KpclBCIznY0x6wPjCCvM1Hf/J0R0uNowo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ykb8zpDe; arc=none smtp.client-ip=209.85.128.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="VF9MHnZY"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-32eb76b9039so8754781a91.1
-        for <selinux@vger.kernel.org>; Tue, 07 Oct 2025 12:59:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ykb8zpDe"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-46e42fa08e4so64816465e9.3
+        for <selinux@vger.kernel.org>; Tue, 07 Oct 2025 17:06:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1759867168; x=1760471968; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1759881962; x=1760486762; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Otzliy8lh5JzyEXKACk7L39OCLat5c75iFSwzoBo2kI=;
-        b=VF9MHnZYSnKFr/DaB/eeeFSuUwT+Uh2bFqGsfbblLIpIqSzida91hhfkMsTyysVyLO
-         tIUKPsJ3iWjEoolt3Tebd1h7XdfU4Z21M70/ySUeslfiowvSF8FyGGYBD+K48EAK4wj8
-         N9TnQ/qEvwenadVi+xdKQpDe0aKeX9Ao0xdrzba8H1D8dUtcRviYodGXwagaFr674VCz
-         HJFTA7qZ9qWTs8fMpl/ugUekKfzJZz7JPZF/MXSmEJu8YPQrWFh5ROBsCRY6MaZ2MJMv
-         j6yKoi8CoUuaJ3+kY4cWMaDXrWG4z3ksV6ynZtERBqCTPSEE50sAdvU0/Do3mwV69vnw
-         8Hug==
+        bh=+wl/LhZoksa8STIvwpe7IaiC9Xf4MeipgBIgvKvnObg=;
+        b=Ykb8zpDeMWhlDphONOaJTFVg7GDn/DUDtA/tnz5v/jBqk3cHrJOX9bUHi1R+1Z4iLp
+         58+c/m1rXZgYoA7y7ZBv1kmNJ9BsOSqjo5+JkeB2CveshAiC6Y9mxH32SAc9QzaTYItn
+         tDW94CqhHTIGqJ2ZyFjBAcBD55wiFnS9UBKnJI/k4zBgJ9V7EDN9O4YzE5VgF1lts2yE
+         PeVq3Le8+V/+/Ak/YNcoN7pZFAo02T313reMjilpYwzkMjNrmoRiu5TcxrwisR/q9Agc
+         emWlxHQaXMiDVL2pI5pbKwXQhzaT5OeBj04Vr79CsNOEi7oSKpnqmfBYpQud0mNPeVyh
+         885w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759867168; x=1760471968;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1759881962; x=1760486762;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Otzliy8lh5JzyEXKACk7L39OCLat5c75iFSwzoBo2kI=;
-        b=FiX1JaiNasp9yDc8ZCj9CutfZ996ULXsS+tbkxNHfehVAcoS0Ph9K8wHesY5ef1LK1
-         eL/isHB7MZyQ198IqiEPKF+N97gQcw+u8/KXBaSfPb2+Rw9Bwu4FOHeRARvqieF4LLPh
-         k0peuYrnMA1T0eVESvG/QYwIznXJ+zVUix6tbEjPbq3W6vMmB0kjBnjMJEVpijih2DNF
-         CmbbK1o1ZRDDBhqVCrituywJg6uuE16JknAXSUS4pdE+f0Ciq1g6RBMlKIMgCtfAUzKp
-         TBKf0/mp7VZzhJIcno/k93B5pV6Vz2U7BZsQ1m6o9G6GVXWJj5a4J1ziNyv5IMqy1Lbb
-         s3WQ==
-X-Gm-Message-State: AOJu0YwrO02h/3ur6ut7+2JpuuHGkTGfglDAUqq8t5bmkxClAM4G31a7
-	DDxSJndPWPWtx3i+kma/JVvJIZKrtl8t7uD9wZQa449BR9+PYFFdMo7dYYoTXqvJFqoRPBaLWKv
-	w3fgeaw753KYTHA5oqVm71PIMpTOyoVixPr1MW3jtIwJyuJ9O2Dk=
-X-Gm-Gg: ASbGncuDKCB6rC4vok6048UZa3VWCXEFb9pX4DiUoU4gYC0T2ecSn9Z67JZQyQFJ4nc
-	05DS+bINckDbisjYaE+9dwzv3NrWkvbw5p2TbwJWbQpaFbx3alqzNCKaJwwHpw9Y6QnTAwIj9BE
-	nDivm9rMY+E/WO6p5zWDFGrhvcolUJdy1/DSdW+RKakMbG0qsDITjZ+U08nlkVAiotiSmSZeNus
-	4S1Tzr9pTQKbwMoDQj9jbvUB6nij7A=
-X-Google-Smtp-Source: AGHT+IGWP0lCnj26KKQPCcXpLFLqUncYpwDHXidh3gCDa3Pqqym3X2V09iSQBZgd/50QPK4wq7c04NVXbVmgzX8/0j8=
-X-Received: by 2002:a17:90b:1652:b0:32e:9281:7c7b with SMTP id
- 98e67ed59e1d1-33b510f8404mr826165a91.3.1759867166745; Tue, 07 Oct 2025
- 12:59:26 -0700 (PDT)
+        bh=+wl/LhZoksa8STIvwpe7IaiC9Xf4MeipgBIgvKvnObg=;
+        b=PgfbDB2h8Sy6kJ+MIGbECDry2kVOAvz9bwsBpz38CPMRYfePWjruckAVg3uM3ZSDPN
+         GswOVrz1LZJJLf8RQgzFUcNJ0+ma5Saa7Tq8aSkl3CFZNeje3VGKEx3nXKPRE/nstnLR
+         jYpmChZfQeF7nqQ647UVtgMaqwmySdEVzT3qFjCDgWDC5XXMDCcKS4IjNc8sgnBoKhRl
+         WcpF2YTmYzVnFss/ifAOsv9d4lg/yRlQ1j5bYCXfS1W6F9OGUYViEHMUHsvvgVsCo8xL
+         aKujEH56RnWe1tzc79LFaL3MnX6dItgUZxG8BNYNuWsdcs4NMD17wkSwW+7FbJztdTyX
+         Lbsg==
+X-Gm-Message-State: AOJu0YyWTNkCUWcvhX2/qIxHwGjY27QGobPPDLuFXdtwQtqh0pEIkFA1
+	Dt66oTzGNMJwi9wbyC8hojnCpSl86osNQMq2qw+WEHiuSO87Z/Y1VuFi
+X-Gm-Gg: ASbGncs5EDXGWAhgAxkMYZR+asiDMoBD3GG40GXuVSU3unEyrsYgnapsuR7gXzDSxUN
+	o7J0x7tYHRGj39c9pmvqYGFFORSI9WWwaw/ug9clLKiY802AWruM2LbrVwpdmI4s5p/O2coNlRm
+	HgCWIUFmukQBlT2jLoTtXhx43J5YOmenK5dM7aLKp2U/u6koHgvyOKXxDsiJhp1L2niPXjknm3j
+	y7JLPnz6N/Tp7NPWM9qRrrM2smtsPjYUkdTag2RkZC43XYmOJdnVM3xazN+A1CP/zkSr0JNabJL
+	XbMKgeyz3DiNCBEkMXK5xLP+2bKWJnBUfRSfqD5xizsV2+rqowcRikg36sjPMRK0IJMB87PR2mT
+	q/KyjNc2XpWbokq4nMYPDzKYppZNuFVlv
+X-Google-Smtp-Source: AGHT+IFgo9c8uZcOeh1tyIzM6ahbdeLLW3fC+jQQ/1Vx52G7xAprwPj4XnpS99TvPXEJRbWxeq0AxQ==
+X-Received: by 2002:a05:600c:3b1f:b0:46e:4340:adf7 with SMTP id 5b1f17b1804b1-46fa9a8b3c0mr9577865e9.8.1759881962287;
+        Tue, 07 Oct 2025 17:06:02 -0700 (PDT)
+Received: from sierra ([81.79.15.180])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4255d8f0853sm27753798f8f.50.2025.10.07.17.06.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Oct 2025 17:06:01 -0700 (PDT)
+From: Rahul Sandhu <nvraxn@gmail.com>
+To: nvraxn@gmail.com
+Cc: selinux@vger.kernel.org
+Subject: [PATCH v2] default_contexts: introduce PAM stacks
+Date: Wed,  8 Oct 2025 01:05:49 +0100
+Message-ID: <20251008000549.539392-1-nvraxn@gmail.com>
+X-Mailer: git-send-email 2.50.1
+In-Reply-To: <20251007192808.514297-1-nvraxn@gmail.com>
+References: <20251007192808.514297-1-nvraxn@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251007183552.74330-2-stephen.smalley.work@gmail.com>
- <CAEjxPJ6gFMPFj-9im_EeencH2B4d6CfCa0TQs=5XZG4O7vBvew@mail.gmail.com>
- <CAEjxPJ6FtXxkqQEPUPMDkX+4aKV_u+oWzYRnnS9AUOOtEr_3eQ@mail.gmail.com>
- <CAHC9VhQ=Fegv_+_hZ=aBqgHLYmuT39JBZeY0+_JbsmgS4V5gCg@mail.gmail.com> <CAEjxPJ4pWWs9dDzWNV5h5+r9QOz8cXfArhvRR+zG6pxGi32oKQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4pWWs9dDzWNV5h5+r9QOz8cXfArhvRR+zG6pxGi32oKQ@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 7 Oct 2025 15:59:14 -0400
-X-Gm-Features: AS18NWB99pnKowJoqQOx1XRx5MVB7RGXv0VywrezLZYfRfBwDLYg56C-SAokbLc
-Message-ID: <CAHC9VhRKA6QFOYrhpVM_f7bNBX+wy5xmGa468X8DLLPs+3AGWQ@mail.gmail.com>
-Subject: Re: [PATCH v3] selinux-testsuite: Add btrfs support for filesystem tests
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, omosnace@redhat.com, 
-	Richard Haines <richard_c_haines@btinternet.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, Oct 7, 2025 at 3:50=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Tue, Oct 7, 2025 at 3:33=E2=80=AFPM Paul Moore <paul@paul-moore.com> w=
-rote:
-> > On Tue, Oct 7, 2025 at 3:14=E2=80=AFPM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > > On Tue, Oct 7, 2025 at 2:46=E2=80=AFPM Stephen Smalley
-> > > <stephen.smalley.work@gmail.com> wrote:
-> > > > On Tue, Oct 7, 2025 at 2:37=E2=80=AFPM Stephen Smalley
-> > > > <stephen.smalley.work@gmail.com> wrote:
+This allows a default_contexts entry to only be matched for a given PAM
+stack. This feature isn't implemented by us in this commit, though it
+may be in the future should it prove useful for `pam_selinux`.
 
-...
+Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+---
+ libselinux/man/man5/default_contexts.5 | 8 +++++++-
+ libselinux/src/get_context_list.c      | 4 ++++
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
-> > > > > diff --git a/tests/filesystem/Filesystem.pm b/tests/filesystem/Fi=
-lesystem.pm
-> > > > > index f169464..7ea9031 100644
-> > > > > --- a/tests/filesystem/Filesystem.pm
-> > > > > +++ b/tests/filesystem/Filesystem.pm
-> > > > > @@ -123,6 +123,9 @@ sub attach_dev {
-> > > > >  sub make_fs {
-> > > > >      my ( $mk_type, $mk_dev, $mk_dir, $mk_opts ) =3D @_;
-> > > > >      my $mk_size =3D 16;
-> > > > > +    if ( $mk_type eq "btrfs" ) {
-> > > > > +        $mk_size =3D 300;
-> > >
-> > > Looks like I could drop this down to 109 if we care. 109M =3D=3D 1142=
-94784
-> > > bytes is the smallest supported size reported by mkfs.btrfs. I don't
-> > > know how stable that value remains across different versions or how i=
-t
-> > > was derived.
-> >
-> > I'd be worried about tests failing at some point in the future if they
-> > are running right at the limit.  Did you find 300 to be problematic in
-> > some way, e.g. excessively slow?
->
-> No, it wasn't excessively slow as far as I noticed - no more so than usua=
-l.
-> 300M is the min size for xfs so I just reused it here.
+v2: no need to set found to 0, it's already initalised as that. not
+    sure what I was thinking...
 
-As long as it's not a problem, I've got no real preference.  If there
-is some way to simplify the test code by adopting a common lowest
-acceptable fs fize that would probably be worthwhile, but I wouldn't
-bother too much with that.
+diff --git a/libselinux/man/man5/default_contexts.5 b/libselinux/man/man5/default_contexts.5
+index f63d24a0..49ebbd25 100644
+--- a/libselinux/man/man5/default_contexts.5
++++ b/libselinux/man/man5/default_contexts.5
+@@ -35,7 +35,7 @@ Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIco
+ .SH "FILE FORMAT"
+ Each line in the default configuration file consists of the following:
+ .RS
+-.I login_process user_login_process [user_login_process] ...
++.I login_process user_login_process [user_login_process] ... <pam_stack>
+ .RE
+ .sp
+ Where:
+@@ -48,6 +48,10 @@ This consists of a \fIrole\fB:\fItype\fR[\fB:\fIrange\fR] entry that represents
+ .RS
+ This consists of one or more \fIrole\fB:\fItype\fR[\fB:\fIrange\fR] entries that represent the user login process context defined in the policy.
+ .RE
++.I pam_stack
++.RS
++This consists of a name for a PAM stack required for a match.  All PAM stacks must be enclosed in quotes, else they will be treated as a \fIuser_login_process\fR.
++.RE
+ .RE
+ .
+ .SH "EXAMPLE"
+@@ -64,6 +68,8 @@ system_r:sshd_t:s0			 user_r:user_t:s0
+ system_r:sulogin_t:s0		 sysadm_r:sysadm_t:s0
+ .br
+ system_r:xdm_t:s0			 user_r:user_t:s0
++.br
++system_r:xdm_t:s0			 user_r:user_t:s0 "login"
+ .
+ .SH "SEE ALSO"
+ .ad l
+diff --git a/libselinux/src/get_context_list.c b/libselinux/src/get_context_list.c
+index 0f3bdc5c..331a26d8 100644
+--- a/libselinux/src/get_context_list.c
++++ b/libselinux/src/get_context_list.c
+@@ -165,6 +165,10 @@ static int get_context_user(FILE * fp,
+ 		if (line[len - 1] == '\n')
+ 			line[len - 1] = 0;
+ 
++		/* This line requires a pam stack to be matched, which we don't handle. */
++		if (strchr(line, '"'))
++			continue;
++
+ 		/* Skip leading whitespace. */
+ 		start = line;
+ 		while (*start && isspace((unsigned char)*start))
+-- 
+2.50.1
 
-Ultimately this is up to Ondrej if/when he sees this patch again.
-
-> > Assuming the exact number is arbitrary, as long as the minimum is met,
-> > we could always make it a little smaller while keeping it to a power
-> > of two, e.g. 128.
->
-> Yep, can make it that too if desired.
-
---=20
-paul-moore.com
