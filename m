@@ -1,228 +1,118 @@
-Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
+Received: from sonic316-26.consmr.mail.ne1.yahoo.com (sonic316-26.consmr.mail.ne1.yahoo.com [66.163.187.152])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48ABF1A4F3C
-	for <selinux@vger.kernel.org>; Fri, 10 Oct 2025 15:00:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BF572F7AD8
+	for <selinux@vger.kernel.org>; Fri, 10 Oct 2025 15:09:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.187.152
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760108451; cv=none; b=fNcEguPqBxoD4Dgf1FQD3Idgd4xggXaHAXLp1RinfYafxve1SLrZ2FZ4KtS4Zvuyhu1xW0CFRs8HCDR2y+w3T9zUiav0KwuC1VoaMOnVxdRRpmd45tnEwlavfVWZAs9YAc8EPdfL6SH8FLKdeT+bboMtGLRv4wybG6qTXz1/dko=
+	t=1760108944; cv=none; b=cSaxYi8kiXSsq5jqmXtIyB2AuHyofKuuqppsTSVMGEU0CrDnRI5HQ/tx5tb0t6jpkpaKw+wFENyakqCx5y/daLv/fIhSW8hWFnWcNG+fVqdhAFd1dJHHrpryXOer9Vyab1dBNJxsbe/iJLoyrGlZQXMChOJFVi3Vt9XhrMhRvJY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760108451; c=relaxed/simple;
-	bh=pp246uTerFZJog/e4hjFA9+XB/z68RB5I0evQ/CPXSw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=EL09/nXUvkJNQcSE4qep8JRWc/ViTcxVuWGGCOEiC0UMfigoGk1Prewuk1yAkL0hShPGZAOC+LsmIzU/MKyNDYrG9PaSh1Prvcj98q5MuK2lBHbmNksAQ8EZJ/YFmQ72JSVs0ZMsIGXQukxSZlkB2X3jNYe0p+G6vAENkAPZfII=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=DxekZ+5s; arc=none smtp.client-ip=209.85.216.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1760108944; c=relaxed/simple;
+	bh=HGsjbE6k1Cg7BWKlETqXdaWfp1ExPcd17cLqxSAQBWg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Q1kEktqe2Qek+J/qky3951+VSwjVAjoQW4XeZw4WJQIREHbDRawcmiQdhunIUwLh7TwWGmMeGLSckyoFM8OkthJJqTYo+g9khQonOzq1IzQa1CKSWkn8F6JLMQ/zVVHSWmRQ6UmUsbYmI8aTsGGP1L2xG5/DOdUZqKh0TjboEZY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=NjDrQ4Oq; arc=none smtp.client-ip=66.163.187.152
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="DxekZ+5s"
-Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-33082c95fd0so2799790a91.1
-        for <selinux@vger.kernel.org>; Fri, 10 Oct 2025 08:00:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1760108449; x=1760713249; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=PrnkWgVz/Z49/J8nG6GzbbPnjpZrG1a+SrZMq+zyDL0=;
-        b=DxekZ+5skgFkvqgU6WuwVzk9hY7rSewoNtCFzppYRPWjIxh5GzTEljyVUZH+zG0fUb
-         mNbSnfsT3gM61WkBPbG7ZSB2qr9hXH2nm6pJ+nTZePkudmQr78Iis9g3AQl3/h3pq8Dz
-         pSqLfqloidh1Ew1IkVMEYedvW52lZQQhic9EKnGoCnJ+oRiJeGw9FWkwQbguZY63hMU0
-         uaFPItLW5lnDXs9+HGt0kQpkc9hYwWPCeMP63rWssiRCaUsEqP6CLzXOUGVySQHr9tzH
-         Zd+L8scuSAAI7AQSwvqWMepbDCkuDpwimVCkpuozVbyOx5RkkEtolGqju/2cnJiTDqKZ
-         n3+A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760108449; x=1760713249;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=PrnkWgVz/Z49/J8nG6GzbbPnjpZrG1a+SrZMq+zyDL0=;
-        b=Eii8QIQfwXpDOcnXsjmYGmlKefn1WfsnFmsWz6q52ivOGxorhRxlTZwcBffpnROqTv
-         QFa57H3JNr/WuVmxyEdxYYNMAC0AUPCD7yIWDpRDYGCjR1tYnZUuwPjtfHFUIsK3xGzk
-         P9Z+5g1jSq+bU7qVbw/g4aagJNT8esbAFwnbjoGRvid+lHeACNQGZs+86GEOCZrFA6F4
-         R/Zgyp2jigMGKqi0YME1wIxg6W5ovpjAYaZUdZ/u1Lk5TOSEdfZfEKa9/ub2al8cVPDn
-         poMHYBuxPuY8lWsVWk7HNVLPOj0Ve9tbdesjRsmMCAS+ygaAXUu1E+oxxL6cq307fLoe
-         nTFQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVJb4hn9RMOVnVTblXk/hqu3pa4C2wU9pczHRth3EHfBuaY3fnxr0V1o4cnZL8Sn4rchWLzyghT@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxdb1s07+ul1iqot+9aCnawPCHxwLhan/E5GfHBILh3pQFsTin8
-	bJ7acGwSK7SLR2e6KkCaN/dGQmf8PwIBVrrXY31WIoOdnXvy1UOnmUctZMsVig9FMDzvpWU410P
-	N6B6xo5DH0A43Sj2+in+B804aCmVpNN5xN5Q2tb4v
-X-Gm-Gg: ASbGncsTQWe6yazax+NxNLfEgxebseQtNfYok1HjuzFsLA9QAnRM1Ol99xuVWolO7Lu
-	3IO1Lh+Zh+E+crHaaT6V5oLf6swLm3thLbMZvXsZnNQIzLZLLjwfJleBjhzmD6n19fpMFJrLOyv
-	uGdQ+CN2bKFxias4o9k3w45bM9Xy5zjX8SGLYKa7R+o0/IBsVxtHXDoNyyI4LGFunyYEUb+uWMH
-	5fwx4RT7Y+TtvW88MszIzid6A==
-X-Google-Smtp-Source: AGHT+IHTYyhEFkKDD3X150o5MD7ZP8eFJxfaJJZoy46BgzM/dN96rHz0DqKMzJSZ8COyShPASIiBWoiLtZwKUFbGRtg=
-X-Received: by 2002:a17:90b:1d8b:b0:32b:355a:9de with SMTP id
- 98e67ed59e1d1-33b513d005amr16427754a91.32.1760108448726; Fri, 10 Oct 2025
- 08:00:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="NjDrQ4Oq"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1760108941; bh=s5sHM8FWOIxntJ1+B14ZnieG9KTdiXXbLg0dtX9zCwg=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=NjDrQ4Oq67a7AMu/BGuI6WCi7mMFwgXhbbI1BGjYaNA7DEeebXULtQxxmQ4+7S2/wo0I6xXNsz9THdGEny/Fl2Cu4TxSA5Tjrvd54BNLutP7LdH+fcmzlXynpGAHCksHg7U/ip5rwxt7plV4CCv1ftuPBEUQOt6P6M547Sdu134MOmo5vYaddvkpOiMdTRolo9vOxeYQCLGQOnUM5dlzySHoin9bcyO6YODsqsOoTv4jzy3AVaVihGn6xQ2dIrg9tsfL6lvNT64KwlkAlNURfaceIlORDeDBLfGFluFy56BbUpYOiB5bwskeslkh8Yr0Rxq2En3/NQhI2PQVZ31ayw==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1760108941; bh=USJTwe/uw7H6hWaOg/k7AgrN3VrUJGb1DO/eXMDzcoQ=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=TjFjHGqOqu05f4pCz4WorNCoLUj5Rjv97dHdeQgC8LA/bY+vK3hR1o0h40qx/4GGI/qT5IXSzfXrXJJ9bcJA5iG6i5d8sTXzLTCHxa/UcO774vvXUZXrsx6FFFEwgvKLK3TuBcB0gmgpMKhS0ud2Hl15EgDgblLHXXO4iCioS8qSt0DoVRV4PAhwmND3HaqbKoRZ2Nlme+FlHT/IyHxdst8UJHKGvBSqfGW67EfhBvbtBsYM52BU/IIwL37vPKyQO2Zh2I1p/K3U8AUi/SU/X7k1Fxx1s0V45/QQCqiyG355ajPD0EZ/4tyxX9CvskEv2mLWIgW1qHg2CayB8e+ENQ==
+X-YMail-OSG: 3ziaTvAVM1mpfcaMokhq84FKVpBZUg8u9NEtemdnSBGzpYFiOd.tjtG0.hg.U6w
+ eNPgLN2q0eHNqwFImdk7pEq7HZVi4FeJ4splyxi03MrjMX9JTjVCIeHaLmpbaFRSvvEXoQxAyIZ_
+ 6X0BIq1CySHP1SJhdm6cst5332TkNg7YVvOHk5ewAnF4tuvt.JKZUjJQfPj32az1FC2vVONJlRse
+ 94KSqmog_256XcPEQT7i8TmGuCp2qrxgCfq3xxvfpwFEfWykKdRSQ5UyxuomT_rUYTweY.2Iqc9Q
+ YR4HYBFVQXNOoCaoSSztrzUjZk5ad4ckMeGdP2hoiT_wtPHnumCRnOVT1rRdsokew3Rjk3hYlcm2
+ vuosDBJ0Xxc2wOLlu_mKIFsxgfQZRgxxNxv9QUQvUp_9z3BGunbKZAQlF11S5wh9ii2_gesZUnAL
+ IqV_fsQ0FpKNsRArv9Et7vE2k_wTY4cPYZZAUUomdbiuZjk2A_W0u3uceg.o0Qenru9eobNjhk3B
+ 7gWX6HIXnHItG3_XJG3cB578iHhV26jr07tZXQgaFBTMDE13YDHPJ8.1tAdr2zMRJKLFDy0FNUFv
+ JsItEYzAoSxTGslR6xSTvgCK_q1mwF_CIoR3XT44pEJG1VQNvYb.sdTnOSH7ciiZx1.4tHrgqMQc
+ bWPPTfHssAULCdTY9laLDU8yVVfYiQN9W17Wd65ixo.adpCSIVupWyeLdx9m0j.AEkH4H8ATCAD_
+ SPAx3mP6ZHPfbJga8Xz0i_WYl7m5xr6Tn6L0vlXLe4pCPKCckvHf_raWCEvdQSKlbuOEk3Q63.3s
+ S5eQQZBnVgtAFTrNjdW.Szu0W.jMK0WdnDC886b8Fbj1OGW48o6k5YZMZzF3TY.rXMd.tuzz2bGv
+ 0dmly.UnBnKYrqaQMdm9KTziDFR6SkJWp5EujSWVhANUokLWBJDJzTh5S7wY4nwR_mSZbYv_n48C
+ jxgGFwC5i.vgUMBLwBpUHJtoQP.2B9T5NL7vpDpyTT37Qvk66HK3EFO5UhDgsCWUbD0VtYC46QZb
+ SZfQNSVCCLYPAX2ZMq9ME43mvz3Q.ohaaFVM_Idw_Mut4owyF15Xf.45w7rk9WUiU54U3cib59lN
+ It72KpfpfhaD_JmOPXBVQqSfp1dNFwbprheWFPDR3ryaf22wSIs7KPz4fS3rHw_yO1tdMRr01DSY
+ sXBY736HEF7impyDRmbi4QgJEQ2XyyBfw6JOlLBdbJJlAYkm4QYzZROoSn2hyzamuF5yDxEX8iBs
+ 2t2NXIl5UIHwQFhig_P0SuAmpJZ9yroHhYPMSD8eIwfdd9CxMsdAWvDIlV8CSbGFR.hkRPyQuaT0
+ M1ok0vwWV3hFIyRkKd10.sZrybZ3sTh8KXJgpXuA5aMJ4azDrjxYAEEcgjzSVlb4FTwVngO87OQQ
+ LjMZIZxRdar4SLG2pinyB1Oc5Hofq.a29zHg0A5KC3lQtRqor6kcLVPXTwaynMBFM2BawZCpuiVG
+ 9KE1WEc2KLjaKcVw4EgxvQSALfslDStbvEWn_ODjw.nOnJeaOq2QOWqzGYJpYhYfsPHcvOebi7As
+ N4drSq0RuicmeN4j7Wm9qqIL8PwVuvkBwoR7ZOWhzlcHEFlvMW77BH64HG22Z7ePYVm.Y_8pTzZG
+ kTp5ae.QvLM8zue3qB0kHfORqwgSjh6Y_RroPWzWKPEYbXBNRHJBAwj3_qwYvShuEZmH1W3BHC3e
+ o7ku3mMpr526UqtFZrCagmTUSCqrZ5coUgEFeBJwKpvD1r_2XA_sPInvslD2.AxddiZ5fnl95RXa
+ 6zVqaEoMUEYfuiOrzNwIr.IZta_zSpRdjFYmFP9mMszcJa4PRXkL3IwQIJ2kEjQNiVc2eqeSn9Hm
+ zofsWHr1t0zlqUieoxrK1OBBqf.LWmrDes2nAQHTHqC0.LYcMSGyI7dK3R2gQ7ASpyK7C_Qk11Xo
+ mcY5QSa0YIt7PFZet1dYddFZW_dm732.J1hhMvX7E4ZT1eqgpysBWwEMa69xKHG_gz0z2NLz4zO8
+ LTxdvl4qBKM4X5qhgygjJROYKs2SC4jQLMEyhBLrXNsSUckqdJS_Dr45hVaaQa.8ODciUjRbOvwj
+ C9eo3Y3TALiiRlKBRNckRYt7tO55M0aF.wRPPMhek__VmoQMUr2N5smQfxhJZHNGrnDUAMk4U4W2
+ RbtcnJBGP4i_E7Aah7DdYAks0jlBH._b0zxdO.d3Yv.Qb7Z9TiqmMeyN16tlj1yQT.Q_GPqEp_iP
+ 3IGBeuQzHi4V6Q9B9jvpB2WPJkpwMZ2ec5LQ990kv.psKlnB4BlfB.SaE5rYbzblnbHanGIBcyxu
+ w2y_JnXGf4SNCzSFF
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: 468ca47d-6dfd-4e15-b4d1-43d336e800bd
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Fri, 10 Oct 2025 15:09:01 +0000
+Received: by hermes--production-gq1-66b66ffd5-cl26f (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 8888783bd8bb8c322748e1ff4bf26922;
+          Fri, 10 Oct 2025 15:08:56 +0000 (UTC)
+Message-ID: <ec89959d-c3a0-403d-bfb0-7405639eb0cf@schaufler-ca.com>
+Date: Fri, 10 Oct 2025 08:08:54 -0700
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251010080900.1680512-1-omosnace@redhat.com>
-In-Reply-To: <20251010080900.1680512-1-omosnace@redhat.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 10 Oct 2025 11:00:37 -0400
-X-Gm-Features: AS18NWDk8nitfjQpo1v3aBdPKBaoi907QLUPlKp_SF-2hEkCLZTSq-1OKrB7XMM
-Message-ID: <CAHC9VhQxnTsZV=vjf1Wk5po16mLuKNPoi3UR-7gN6PxodncgxQ@mail.gmail.com>
-Subject: Re: [PATCH v2] nbd: override creds to kernel when calling sock_{send,recv}msg()
-To: Ondrej Mosnacek <omosnace@redhat.com>
-Cc: Josef Bacik <josef@toxicpanda.com>, Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org, 
-	nbd@other.debian.org, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org, Ming Lei <ming.lei@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/2] LSM: Allow reservation of netlabel
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: paul@paul-moore.com, linux-security-module@vger.kernel.org,
+ jmorris@namei.org, serge@hallyn.com, keescook@chromium.org,
+ john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+ linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
+ Casey Schaufler <casey@schaufler-ca.com>
+References: <20251001215643.31465-1-casey@schaufler-ca.com>
+ <20251001215643.31465-3-casey@schaufler-ca.com>
+ <CAEjxPJ48PiZ5ZOZbZjka5YeiBxaWFsCufoGcY_jEztM+wtEUCA@mail.gmail.com>
+Content-Language: en-US
+From: Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <CAEjxPJ48PiZ5ZOZbZjka5YeiBxaWFsCufoGcY_jEztM+wtEUCA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Mailer: WebService/1.1.24562 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-On Fri, Oct 10, 2025 at 4:09=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.co=
-m> wrote:
->
-> sock_{send,recv}msg() internally calls security_socket_{send,recv}msg(),
-> which does security checks (e.g. SELinux) for socket access against the
-> current task. However, _sock_xmit() in drivers/block/nbd.c may be called
-> indirectly from a userspace syscall, where the NBD socket access would
-> be incorrectly checked against the calling userspace task (which simply
-> tries to read/write a file that happens to reside on an NBD device).
->
-> To fix this, temporarily override creds to kernel ones before calling
-> the sock_*() functions. This allows the security modules to recognize
-> this as internal access by the kernel, which will normally be allowed.
->
-> A way to trigger the issue is to do the following (on a system with
-> SELinux set to enforcing):
->
->     ### Create nbd device:
->     truncate -s 256M /tmp/testfile
->     nbd-server localhost:10809 /tmp/testfile
->
->     ### Connect to the nbd server:
->     nbd-client localhost
->
->     ### Create mdraid array
->     mdadm --create -l 1 -n 2 /dev/md/testarray /dev/nbd0 missing
->
-> After these steps, assuming the SELinux policy doesn't allow the
-> unexpected access pattern, errors will be visible on the kernel console:
->
-> [  142.204243] nbd0: detected capacity change from 0 to 524288
-> [  165.189967] md: async del_gendisk mode will be removed in future, plea=
-se upgrade to mdadm-4.5+
-> [  165.252299] md/raid1:md127: active with 1 out of 2 mirrors
-> [  165.252725] md127: detected capacity change from 0 to 522240
-> [  165.255434] block nbd0: Send control failed (result -13)
-> [  165.255718] block nbd0: Request send failed, requeueing
-> [  165.256006] block nbd0: Dead connection, failed to find a fallback
-> [  165.256041] block nbd0: Receive control failed (result -32)
-> [  165.256423] block nbd0: shutting down sockets
-> [  165.257196] I/O error, dev nbd0, sector 2048 op 0x0:(READ) flags 0x0 p=
-hys_seg 1 prio class 2
-> [  165.257736] Buffer I/O error on dev md127, logical block 0, async page=
- read
-> [  165.258263] I/O error, dev nbd0, sector 2048 op 0x0:(READ) flags 0x0 p=
-hys_seg 1 prio class 2
-> [  165.259376] Buffer I/O error on dev md127, logical block 0, async page=
- read
-> [  165.259920] I/O error, dev nbd0, sector 2048 op 0x0:(READ) flags 0x0 p=
-hys_seg 1 prio class 2
-> [  165.260628] Buffer I/O error on dev md127, logical block 0, async page=
- read
-> [  165.261661] ldm_validate_partition_table(): Disk read failed.
-> [  165.262108] I/O error, dev nbd0, sector 2048 op 0x0:(READ) flags 0x0 p=
-hys_seg 1 prio class 2
-> [  165.262769] Buffer I/O error on dev md127, logical block 0, async page=
- read
-> [  165.263697] I/O error, dev nbd0, sector 2048 op 0x0:(READ) flags 0x0 p=
-hys_seg 1 prio class 2
-> [  165.264412] Buffer I/O error on dev md127, logical block 0, async page=
- read
-> [  165.265412] I/O error, dev nbd0, sector 2048 op 0x0:(READ) flags 0x0 p=
-hys_seg 1 prio class 2
-> [  165.265872] Buffer I/O error on dev md127, logical block 0, async page=
- read
-> [  165.266378] I/O error, dev nbd0, sector 2048 op 0x0:(READ) flags 0x0 p=
-hys_seg 1 prio class 2
-> [  165.267168] Buffer I/O error on dev md127, logical block 0, async page=
- read
-> [  165.267564]  md127: unable to read partition table
-> [  165.269581] I/O error, dev nbd0, sector 0 op 0x0:(READ) flags 0x0 phys=
-_seg 1 prio class 2
-> [  165.269960] Buffer I/O error on dev nbd0, logical block 0, async page =
-read
-> [  165.270316] I/O error, dev nbd0, sector 0 op 0x0:(READ) flags 0x0 phys=
-_seg 1 prio class 2
-> [  165.270913] Buffer I/O error on dev nbd0, logical block 0, async page =
-read
-> [  165.271253] I/O error, dev nbd0, sector 0 op 0x0:(READ) flags 0x0 phys=
-_seg 1 prio class 2
-> [  165.271809] Buffer I/O error on dev nbd0, logical block 0, async page =
-read
-> [  165.272074] ldm_validate_partition_table(): Disk read failed.
-> [  165.272360]  nbd0: unable to read partition table
-> [  165.289004] ldm_validate_partition_table(): Disk read failed.
-> [  165.289614]  nbd0: unable to read partition table
->
-> The corresponding SELinux denial on Fedora/RHEL will look like this
-> (assuming it's not silenced):
-> type=3DAVC msg=3Daudit(1758104872.510:116): avc:  denied  { write } for  =
-pid=3D1908 comm=3D"mdadm" laddr=3D::1 lport=3D32772 faddr=3D::1 fport=3D108=
-09 scontext=3Dsystem_u:system_r:mdadm_t:s0-s0:c0.c1023 tcontext=3Dunconfine=
-d_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=3Dtcp_socket permissive=
-=3D0
->
-> The respective backtrace looks like this:
-> @security[mdadm, -13,
->         handshake_exit+221615650
->         handshake_exit+221615650
->         handshake_exit+221616465
->         security_socket_sendmsg+5
->         sock_sendmsg+106
->         handshake_exit+221616150
->         sock_sendmsg+5
->         __sock_xmit+162
->         nbd_send_cmd+597
->         nbd_handle_cmd+377
->         nbd_queue_rq+63
->         blk_mq_dispatch_rq_list+653
->         __blk_mq_do_dispatch_sched+184
->         __blk_mq_sched_dispatch_requests+333
->         blk_mq_sched_dispatch_requests+38
->         blk_mq_run_hw_queue+239
->         blk_mq_dispatch_plug_list+382
->         blk_mq_flush_plug_list.part.0+55
->         __blk_flush_plug+241
->         __submit_bio+353
->         submit_bio_noacct_nocheck+364
->         submit_bio_wait+84
->         __blkdev_direct_IO_simple+232
->         blkdev_read_iter+162
->         vfs_read+591
->         ksys_read+95
->         do_syscall_64+92
->         entry_SYSCALL_64_after_hwframe+120
-> ]: 1
->
-> The issue has started to appear since commit 060406c61c7c ("block: add
-> plug while submitting IO").
->
-> Cc: Ming Lei <ming.lei@redhat.com>
-> Link: https://bugzilla.redhat.com/show_bug.cgi?id=3D2348878
-> Fixes: 060406c61c7c ("block: add plug while submitting IO")
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->
-> Changes in v2:
->  * Move put_cred() after destroy_workqueue() in nbd_cleanup() to avoid a =
-UAF
->  * Add some more details into the commit message
->  * Add a Fixes: tag
->
-> v1: https://lore.kernel.org/linux-block/20251009134542.1529148-1-omosnace=
-@redhat.com/
->
->  drivers/block/nbd.c | 15 +++++++++++++++
->  1 file changed, 15 insertions(+)
+On 10/9/2025 11:53 AM, Stephen Smalley wrote:
+> On Wed, Oct 1, 2025 at 5:56 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+>> Allow LSMs to request exclusive access to the netlabel facility.
+>> Provide mechanism for LSMs to determine if they have access to
+>> netlabel. Update the current users of netlabel, SELinux and Smack,
+>> to use and respect the exclusive use of netlabel.
+>>
+>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+>> ---
+>> diff --git a/security/security.c b/security/security.c
+>> index e59e3d403de6..9eca10844b56 100644
+>> --- a/security/security.c
+>> +++ b/security/security.c
+>> @@ -289,6 +289,12 @@ static void __init lsm_set_blob_sizes(struct lsm_blob_sizes *needed)
+>>                 else
+>>                         blob_sizes.lbs_secmark = true;
+>>         }
+>> +       if (needed->lbs_netlabel) {
+>> +               if (blob_sizes.lbs_netlabel)
+>> +                       needed->lbs_netlabel = false;
+>> +               else
+>> +                       blob_sizes.lbs_netlabel = true;
+>> +
+> Same principle here - if a LSM wants to use netlabel, it may want to
+> guarantee that it truly has exclusive access to it no matter what the
+> LSM order is.
 
-Acked-by: Paul Moore <paul@paul-moore.com>
+And if SELinux and Smack both shout "I gotta have it!" who wins?
+Does the system fail to boot? Do you assign it to the first requestor,
+as this patch does explicitly?
 
---=20
-paul-moore.com
+If LSMs can't be equal in the eyes of the infrastructure, If one (e.g. SELinux)
+always gets its way regardless of the end user intent, I have a problem with
+the whole thing.
+
