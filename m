@@ -1,110 +1,131 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B19E927979A
-	for <selinux@vger.kernel.org>; Mon, 13 Oct 2025 16:11:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8A602F069D
+	for <selinux@vger.kernel.org>; Mon, 13 Oct 2025 20:55:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760371901; cv=none; b=ClBnNuRG/Im5C85cVD9pVSc//wVz1GyaO1QJfhpTZrc5rQS5vRHmpcxYHkA2MT33eePUsnqW76mz3oxjVuehn7liCFJexwRAQc4ennMTMQpeovtuJU/IGPJWXrahq+M0G2qgMOwyDq+VHHQgZvIiUpRie6LNf9/v9OlK1kjAbwU=
+	t=1760388950; cv=none; b=HVrFxTFc6L7K7t7NqJ41LUlJAV2kdGvm5R7hRgUYEf82ZNCAM+e8WQKSkyaZSxJgwGB1RmxuoUWan6tgj2ZDKPz43utZNbNQLcQBVQVI9+At3TW16ivtAVLBRzIMfXYW8Bl2B3auDZ+p4T0K+fbjPTiyHxK/YXYRtoUq7THHDwg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760371901; c=relaxed/simple;
-	bh=kg/O8YEE7mR+ya0+LRSE57GVTGuGrt0BUIQcKJIGT5k=;
+	s=arc-20240116; t=1760388950; c=relaxed/simple;
+	bh=gDYIsGZJNtpz85UGGORoVa634/GqJuKrEvq8/6pyYD8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Yu9LPPqHF9VYUYPrWQNH+o4uIMrmdZe2a2IAVRMw5VMu4B3lr9/AGhKhtISaKI39b9lJESbULrpXEJTPxYLaX3Ru3gWdmM+6P3CDPKKttCgk68LoBdiX8EnI8OUcUXga9CZWZhcVPrhlPr77/DMHN74C/TmwNWH/lGJhJHDXXB8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=BAafWk04; arc=none smtp.client-ip=209.85.216.45
+	 To:Cc:Content-Type; b=RwAVsbjNe1Fc5xQiSxUpCTFOQmP4IDy+rdrqHzTamPOskNt847gE5Wt9jbGSIFXc5RwOHN8sx296XTPNoA4T1lI32MinfZoOMvJJQ7aHfihAYls+JKNs8hnPDgR+zRnZZ72U5CDwgCHpUC+vgF7TbcJM63Ue89I2bgwDrFtdJP8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=O+UyanCS; arc=none smtp.client-ip=209.85.216.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="BAafWk04"
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-3352018e051so5125416a91.0
-        for <selinux@vger.kernel.org>; Mon, 13 Oct 2025 09:11:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="O+UyanCS"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-339d53f4960so4818945a91.3
+        for <selinux@vger.kernel.org>; Mon, 13 Oct 2025 13:55:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1760371899; x=1760976699; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1760388947; x=1760993747; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=JqOTihtF3LWBkyrOGHrf9dtz4pV67L7r6ac9tYX6C1E=;
-        b=BAafWk04W2IbJqD903TwCKpzbScLcVU1DKRkLGTFdkHM1jBvA3zQR9GbyFNH8of9oF
-         hwsmFajD2xsR0xDY9YRutepiKkY4bbQKElitqEKuRwwL2mDvhsN/CtCGOC3xe0188Qhq
-         LigN5AGNIzz0C4FR4VO0ylgKaMMxboX1i2qSCAFwvkvUcRpAXac/uVrDQnIektIi6zq7
-         2uNzT8uUFDkS4MwP/H4SfleVSXY3Bn+jcB2ta3lMuMxFFc3KMyQ4CcKm8RtXBhj+IROF
-         438Ah7Z9VdA5IMeWIFwxRff350vLN1dFuwoTVgsq42uxqLcVVgyFQyF0glugqziB0CUM
-         7V9w==
+        bh=3RDNpZAyhwqcckigDtVfOVuYTuSUKS3TRvIv4aY4DWs=;
+        b=O+UyanCSQFWA8QndFiHUonQfLD97F4UplMUx26OOxzdNUyK8VQWf+erRmFu7Dy3Sui
+         NHebMdt19I2HyRYe/0jAJtARWwHbtB/A+frLu1OpSwXZ3MG824LUv+XqQRU5wBmPRUTp
+         1Imz5QF5LGYz6OI52/86EenXOGn5h05YpnZWX99ODPlt4yZMXWc0PkyN/jWU3qatPuAq
+         I4IzHvAgy5PtvarhBHvXKHDfI9/qHRTtMR3k3Rhlj4EYWIjcjIcX2oZqW+kRHcpuDlO0
+         4IJrey4Y7Tf4rnQGDM79wXgYdKWlBymf4MCmwj8Wa/F/w8IGNGNGL3g1DXToqHxV+Bwh
+         Gt+A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760371899; x=1760976699;
+        d=1e100.net; s=20230601; t=1760388947; x=1760993747;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=JqOTihtF3LWBkyrOGHrf9dtz4pV67L7r6ac9tYX6C1E=;
-        b=aC8FRkHlLaOReGiqQzOufDDIZUZZ3dVtgqPw4uHl797YBLGn5U20bMaW1in3UsqB2d
-         dWzR7B40vJ2Pr//DpaXInZwqXqYWuKAvTs9lyrzZNGg2KeVO+rzvoF/19No6RfnIlp0D
-         YxM7X71y40uJRPc0SQxvsKiU1JOttdA9fZpvP6pvrXeCz1Lddi9GI3YYiJ/D3AVDjOwf
-         DGkVuMMPu3h9Uy7QqsPiql3EynE8O/u29wvqnhkp2abzZsfHsHo6lGztvR6DTKjkA8c4
-         GBtggt/eYiXM75l9oMXch89PuH5wCLUvl9zvm6tT987zArVVdD1tYq7V1Q+4OoaGJdGU
-         +Emg==
-X-Forwarded-Encrypted: i=1; AJvYcCUsiPEooU69ZxZn+zUYF4jfLDNIMuxcRoK0X8jHjVSt0GwpVFfkGA+fHwwqcsjdeN6hsEIZwGkk@vger.kernel.org
-X-Gm-Message-State: AOJu0YydJO39xfqIwR+KpR4A/cpYVEbtQP4R2B22gG1cNo3hzYA5Ke5Z
-	0kxX8EZa27u0jnVDzRX7TZBHO0h3YIYHIICDLgsyOY9APqrnWUbwBgRKnkqlalcdTa23TwP0zkb
-	jk+he/r/WexrvseZ9346wjZR4cr/UtHJAhPSGMVdG
-X-Gm-Gg: ASbGncuZ9dSfES5QLQHGtmPBPSteJ/GL67NDxRT2d0AAIkkfYMWIRt+BlLDcF9uvUwv
-	Ce2bERAUSlX1h5ne4nVMriIGZCjpQMUh3beuoB3o/NPUdwg9ojNWkPz2SHethKp8/I7qo7cVxbD
-	YErW+XZGwqL9hpUupxEpvr7sj/kFu7f/gCQFE/SBr+qfhwKP+gnSnMloX+aJDLIlNMEWXHclfKv
-	nP+SoaVMg5Wfl4hXvcnAwl1yQ==
-X-Google-Smtp-Source: AGHT+IHRsuUk9qzBCL3fBbXKncdyg4e+WegpXlz1W9aKK5q8PTZ1CSe8HMgR8w4ThEmt0m0Vt2wsoc3RPFAThEuvYAo=
-X-Received: by 2002:a17:90b:1e0c:b0:32e:749d:fcb6 with SMTP id
- 98e67ed59e1d1-33b51118ef7mr32930909a91.12.1760371898906; Mon, 13 Oct 2025
- 09:11:38 -0700 (PDT)
+        bh=3RDNpZAyhwqcckigDtVfOVuYTuSUKS3TRvIv4aY4DWs=;
+        b=so8MCmWwITGGUb5KeNh1zlClgGcCmmG1EmfKvbrQhcLKpp5fvPQDzdg1HelOVt7D5t
+         twcl+uFTgpFyXs52/lePE6/8h8p4CNktAnBbvPmVTgwFC0HJ+uLlH9hWpo6r/+2SJNeX
+         VYoYJjDeCy+ayaDmH6oMicoUpqkfyuPnErfoJQOb3vnyosXL0S58HK4EBWZvXtrsvzY9
+         09VIImJCPfVItNRzZ/ncbrPQwXlcHae2g+OYtjBNluSXkD+hNZ3g5xulwBVDj6xsGh2h
+         23kFCI/zMGbTV+FgUDhVvAFP5gkUmn8izjEwMrqZLduIX+cSG1hLH5pAYHQRRHKLyjZ6
+         egmQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWaNB0z9MV6h/TO1OBdeCWmmcsN/vLLn7uVFjv4KrHoX0uZr8DO0ZQCudPs/hSb6MBozexUp8UT@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzacv5604pea2jdG25g2djQwqE4LN5bDtF/oItRAU1vWYznIF5T
+	Roo2TkMMPN8MfKA0/PDaFnBDyJzjdK4VxcpWU6DNbiaaa1e+sxXm/lXQomggc+KZ8LhZPatii1U
+	tVmCE7Y/IWvom7VOcKB2fDFXHgDl84RgekYSh2dcP
+X-Gm-Gg: ASbGncsilcZ0A7q4R03DCFTxxypioqTK+1wjObAgqFsyELIni+4+e1KlEKn4d22561z
+	xvGwVXXS9F2U2FAwwiv+B95qXL+xPddZHWa8YAMn7QI3eWzmSYbJ3cbiRjInErS/YgCOKIHHVmd
+	6yxd25arfXXQFq5AoPXJGTytjDVeW9x/b9T4/9eHH9IgoH0GeA61RP1DwjJ65elfeBySTsyW3Ae
+	7jErSwNCmQTefaeHTthnYKFHXg79psDRYlBBoaACPtSSfQ=
+X-Google-Smtp-Source: AGHT+IFqAomyulxKG8LO+DgQFeLFDPy+KFQmqr2wqA7gA8PG1OfLl0aF1pmvG9L+PEXZ8/496jeCTHuT+POsXuT50tg=
+X-Received: by 2002:a17:90b:3ec4:b0:32e:51dd:46dd with SMTP id
+ 98e67ed59e1d1-33b5116b782mr32102690a91.16.1760388947138; Mon, 13 Oct 2025
+ 13:55:47 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250918020434.1612137-1-tweek@google.com> <CAHC9VhSbWJ-8tj5BxSTxznGO8zraKRSE31a+tqdfMHB53ef-MQ@mail.gmail.com>
- <CAEjxPJ5GidA9oT_fbKRe_nH1J3mER0ggM-dBW=Nuo765JDuQKg@mail.gmail.com> <CAHC9VhS2TU2GWgfUOHerbfjyxb5QZMSMqLdQirjSdkUohR7opg@mail.gmail.com>
-In-Reply-To: <CAHC9VhS2TU2GWgfUOHerbfjyxb5QZMSMqLdQirjSdkUohR7opg@mail.gmail.com>
+References: <20250925171208.5997-1-casey@schaufler-ca.com> <20250925171208.5997-3-casey@schaufler-ca.com>
+ <CAEjxPJ4D7A4KDF9BfmRa9VvzcAHBkkrdKCvmGazuZUto5=qDuw@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4D7A4KDF9BfmRa9VvzcAHBkkrdKCvmGazuZUto5=qDuw@mail.gmail.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 13 Oct 2025 12:11:26 -0400
-X-Gm-Features: AS18NWDWa7MaOMrTZEmj_OT-vE-kCVjZdzIYuzWQVFZrpDBS2O2ZFbNWHUYu4oU
-Message-ID: <CAHC9VhTSRkP=jNw8bLRx5em6MnX9HTywBqXGsJCBPQ9MKJym=g@mail.gmail.com>
-Subject: Re: [PATCH v3] memfd,selinux: call security_inode_init_security_anon
+Date: Mon, 13 Oct 2025 16:55:34 -0400
+X-Gm-Features: AS18NWDkJN7A1rvC66jbpLrd01lw_5s8wNzGOHMHaR2wj-KW1Eukad0lJzueb3o
+Message-ID: <CAHC9VhSRGyMuTYxP0nDpXv_MwvNqVsrBXcak84AGHj7ycDtu3A@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] LSM: Infrastructure management of the mnt_opts
+ security blob
 To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
-	Hugh Dickins <hughd@google.com>, James Morris <jmorris@namei.org>, 
-	Jeff Vander Stoep <jeffv@google.com>, Nick Kralevich <nnk@google.com>, Jeff Xu <jeffxu@google.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Isaac Manjarres <isaacmanjarres@google.com>, 
-	linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org, linux-mm@kvack.org
+Cc: Casey Schaufler <casey@schaufler-ca.com>, Ondrej Mosnacek <omosnace@redhat.com>, eparis@redhat.com, 
+	linux-security-module@vger.kernel.org, jmorris@namei.org, serge@hallyn.com, 
+	keescook@chromium.org, john.johansen@canonical.com, 
+	penguin-kernel@i-love.sakura.ne.jp, linux-kernel@vger.kernel.org, 
+	selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 22, 2025 at 3:30=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
-> On Mon, Sep 22, 2025 at 9:12=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
+On Thu, Oct 9, 2025 at 2:38=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+> On Thu, Sep 25, 2025 at 1:12=E2=80=AFPM Casey Schaufler <casey@schaufler-=
+ca.com> wrote:
 > >
-> > When would you recommend that I re-apply the corresponding userspace
-> > patch to reserve this policy capability number for memfd_class?
-> > After it is moved to selinux/dev? Understand that it isn't truly
-> > reserved until it lands in a kernel.org kernel but would prefer to
-> > reapply it sooner than that since there may be other policy capability
-> > requests queueing up (e.g. bpf token) that should be done relative to
-> > it. Can always revert it again if necessary, at least until another
-> > userspace release is made (not sure on timeline for that).
+> > Move management of the mnt_opts->security blob out of the individual
+> > security modules and into the security infrastructure.  The modules
+> > tell the infrastructure how much space is required, and the space is
+> > allocated as required in the interfaces that use the blob.
+> >
+> > Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> > ---
 >
-> When it comes to API issues like this, my standard answer is "tagged
-> release from Linus" as it is the safest option, but you know that
-> already.
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 4bba9d119713..1ccf880e4894 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -656,19 +651,13 @@ static int selinux_set_mnt_opts(struct super_bloc=
+k *sb,
+> >         mutex_lock(&sbsec->lock);
+> >
+> >         if (!selinux_initialized()) {
+> > -               if (!opts) {
+> > -                       /* Defer initialization until selinux_complete_=
+init,
+> > -                          after the initial policy is loaded and the s=
+ecurity
+> > -                          server is ready to handle calls. */
+> > -                       if (kern_flags & SECURITY_LSM_NATIVE_LABELS) {
+> > -                               sbsec->flags |=3D SE_SBNATIVE;
+> > -                               *set_kern_flags |=3D SECURITY_LSM_NATIV=
+E_LABELS;
+> > -                       }
+> > -                       goto out;
+> > +               /* Defer initialization until selinux_complete_init,
+> > +                  after the initial policy is loaded and the security
+> > +                  server is ready to handle calls. */
+> > +               if (kern_flags & SECURITY_LSM_NATIVE_LABELS) {
+> > +                       sbsec->flags |=3D SE_SBNATIVE;
+> > +                       *set_kern_flags |=3D SECURITY_LSM_NATIVE_LABELS=
+;
 >
-> The fuzzier answer is that unless something crazy happens, I'm likely
-> going to move the patches, in order, from selinux/dev-staging into
-> selinux/dev when the merge window closes.  This means that any
-> policycap API additions for the next cycle are going to start with the
-> memfd_class policycap, so it *should* be fairly safe to merge the
-> userspace bits now, I just wouldn't do a userspace release with that
-> API change until we see a tagged release from Linus.
+> This seemingly would produce a change in behavior for SELinux.
+> Previously we would only do this if there were no SELinux mount
+> options specified.
 
-... and the patch is now in selinux/dev, thanks everyone!
+What Stephen said.  I think this is good work that needs to be done
+(thank you for doing it!), but we have to preserve existing behaviors.
 
 --=20
 paul-moore.com
