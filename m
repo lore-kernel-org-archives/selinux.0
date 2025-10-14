@@ -1,61 +1,63 @@
-Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
+Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 983EC2BAF9
-	for <selinux@vger.kernel.org>; Tue, 14 Oct 2025 04:13:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A756A2C1590
+	for <selinux@vger.kernel.org>; Tue, 14 Oct 2025 08:44:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760415212; cv=none; b=O8AsYF31I4m1AvXoT8WkcMSa1E5IiKT8TzhJj8b22ZxPliNq7dlN23JbY1AvD1Rj4+B3eRr8LYEe1IdZcGWHjy2DQodPWH0pf+TL1Efrke9aPFWDEqhbPZugottXJpwCybCL/P0EqapdZQjQpd002YcgOBm+iLNs6+D+ZXPty5g=
+	t=1760431499; cv=none; b=JK5QAVnD1aajj4LCZtkl6zSycrZKSCQ6JVS08w7mlzWR0VRaMtuR2RuxMkJ754ZPlcivEyEcSMrJU8QBZ+yolYT/DR8Hp/UXMuGgnmXBWTNYwV2+pj+wVh9WSREnG+5rMhf4z1vxKHuzyYZN47wfVwFrN6ifXHxUFSYU0zti+Rw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760415212; c=relaxed/simple;
-	bh=BD5BG+J+Iv4x7sZ0ZYEcFMBWcl3it+BMD+XKSw/pSfI=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To; b=e/mwUzQ0kPdRj5IJbMC0i0Hz7QfDxpRXlBjtcsFjW1+jNIVuzIGRu2LN+jF/6seOM7FsvKZQw1x/DH8Ef0ndSeJwKDVeQPdpxLSBspWxmF30B8zaSIGnORl08iuiU7jXL9fwzysJYRSvrWVj7xi5RmYHPXzQvr4u397o706V6O8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PS4C6Vik; arc=none smtp.client-ip=209.85.218.50
+	s=arc-20240116; t=1760431499; c=relaxed/simple;
+	bh=QCc667ZR356w9M9sRjuYNALD7n1ghS2qqr7eO4lXmgA=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 In-Reply-To; b=KPv7lw58Z8p7D2IlHhIuPH+4YA3wn/9/Q46JgbYK7YoItMbbgq4EkNbsLP11a0mbc0ixDoUgVSV8XXwbZH2FZYp65RqK3/AQCUvS6q0Ur61vEtWZ6rPjKLpzTjTprAvgYGBMLteBpr/gak1yPXo5JfvDkAby0WGbrOhV1igIm9w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hRqYRDdR; arc=none smtp.client-ip=209.85.221.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PS4C6Vik"
-Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-b403bb7843eso1045708866b.3
-        for <selinux@vger.kernel.org>; Mon, 13 Oct 2025 21:13:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hRqYRDdR"
+Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-3ee13baf2e1so3662584f8f.3
+        for <selinux@vger.kernel.org>; Tue, 14 Oct 2025 01:44:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1760415209; x=1761020009; darn=vger.kernel.org;
-        h=to:from:subject:message-id:date:content-transfer-encoding
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=Hba2QyDVHqDSBRvj8xwSi+VE5t8MeaaCWOLmMRvl0zc=;
-        b=PS4C6Vikur9AT0MgjXScRUiCr/jabdrXMZp32JXqVuWEH/PeVu3liXyG00wHnoXofE
-         VRuppITXkHDEFWWJa1wZ50GDcmF5dcODf5spSpTPY4hI2COSFbEPYXO07FRtyPM8qOfh
-         do4fgdMjKTFKhUfRKGbP3t4m0IlbfgGfY8Zt0T0weO/gl33DxkHSyy1gvBurCfOo1om/
-         aaKCEnxx+3SFBQoL9SQI3668QSo/iT1m5MWHOThTZAofat66Zr8FZb9tqPSDh13/+gfF
-         iZ4K82U80v3B5HnodxW0DAKC4hFk44XFUACp7VhgrrgIHok6f18AwN/ZXp2tIL9GUhLn
-         Rfvw==
+        d=gmail.com; s=20230601; t=1760431496; x=1761036296; darn=vger.kernel.org;
+        h=in-reply-to:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=QCc667ZR356w9M9sRjuYNALD7n1ghS2qqr7eO4lXmgA=;
+        b=hRqYRDdRhsTKKsTu0/kamAJEbYntGBGkgHvfZoY0K4CMdcCzrsQEBxnCnyKnkyXJul
+         bGlSebIwsj94+KpGixlEVqDaUW8aj1LNE9gcDnE0nF5cb7g4WqWHKj39E9bFLx9JgvwX
+         Yv5fPd9lwVHJknQqyYzHcR+6hTSnq51DWSKfK0AXBqdWavKnjiioxvILiTk+wQLDz1sK
+         LglCDSMcbu+HvQIU+KOanY3Rq/2XjjE3nOtkmL9NPPNmI66rjci7yDxzY+RbrXNbevFg
+         EANeGb+K/0d7zCnw5Sa0UMHNFgp7NNrtmKDOSvl9e2bmieafue20s1AWAxbOQjOQklFP
+         CWng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760415209; x=1761020009;
-        h=to:from:subject:message-id:date:content-transfer-encoding
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Hba2QyDVHqDSBRvj8xwSi+VE5t8MeaaCWOLmMRvl0zc=;
-        b=pOEl/9K3tA64o0TREQZ1sEcx2nSyZjJCfRz94TN3mvOmRNKBOTTNmBk14m3+rtfKgJ
-         M+3JuVImj0OBJDyioGY8a0ld2FamO+aUt8GcXLwnnluQggUlM3AiAQS2QB3m9Oc+8PkF
-         XCT6v2purTt3xlAxgxpBEAutiUvIip7dlV+JAs2FPuIhBcEreLqbuHMkGFFk+LePrxYI
-         nJ9PHbg/defHCE2IMlcbp5pSFxMs6hcCDC9iltVJ/uLHbqniJ2sA4pyG1AdvbIoSDy8z
-         jpVMajsR6wr1p6or9rRmT6J3Pq+FrNf1ksTc00PEolUGUiIj22bw5rQEq9QK/V/qhgIe
-         G9Qg==
-X-Gm-Message-State: AOJu0YxQG6xIiVkIgF2F+s223SwLVPXYlO56xCEOHtcrqzpjaT2E67Mt
-	krgX0JF3vX8+9ddqRfbMjpfEu+WUNRD8hQpcxfIb2QVXgEbkrIbouU9DS/5How==
-X-Gm-Gg: ASbGncvERN1l4qdf4IibJ69tdtKaZc7Jhvj9go7BnMpnkKG35TlqAjjhyoWSwP+azFh
-	bvY280Lh8Q8ozo2vCTEMPLXtrdEiH1Gj4T/5+NvtnfpQKFsbkV7YeYWwIetulkzxYa73xNZ9udo
-	6/UP3DKqBWl4eBQFUZwjyJFZ61sKnqsOCdC6aLa5YwcNXb6QABlijBMxQkSViU0Xr5uN0mdndVa
-	2dL9Gr198c1gN67ANNRrjHOFMgBlzcshHv+NlXlzM+vRyMkmaEyUkapNyevuO6TJ4dy3wG5FeRl
-	j78vBiga3yIcZmgLPa93OUDmKdZm2sinU+GD/XpPX7DfnAFLZdMYRAJlFCzGTN/sj6W/t7k6ZdP
-	VTbPoLOUqZTUsTkF/aRcetRvE4zNXDG+5SwPN8Mkd4eYnIA==
-X-Google-Smtp-Source: AGHT+IEL8BQ8mt956tpXTgg5lKS5oaNvkAom//l2ECSPwFoKh2ht/Fs1pG8zP9O0oIMmmJ7PgtMAtQ==
-X-Received: by 2002:a17:907:c28:b0:b46:3f98:6ba5 with SMTP id a640c23a62f3a-b50aa48e3a6mr2730354066b.11.1760415208807;
-        Mon, 13 Oct 2025 21:13:28 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1760431496; x=1761036296;
+        h=in-reply-to:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=QCc667ZR356w9M9sRjuYNALD7n1ghS2qqr7eO4lXmgA=;
+        b=YQdzSVvZfqTMvojMiq8afLVvt5UjD/5FPYzmSr0ptO5zOoWLjZe2ikN5nQewtsyxjI
+         3rOoecFWsCGUwBRgVhK+yiSe3KoDDxdeO3eIm3tDhpE3D8+VqPzjHkVhOwZOAUCVEtwD
+         VtCCVCg11vMLIj8iUX0xWrYnB0QiUNiRlMYM6njdLS7CgsR9aP9Zy1Hay848sn01t753
+         61AzF16yE86CiaJ/w0BgIWljUg9F/Ex6KPXvBI87qlm6np6cHE+BhdXU84VVxlgK9l6S
+         qguej7ZhjwL3B5IhHiDL4otqZVt7l7/bduXwXw5mPeZeRgiX+ZRJh4BCMlJvmtUDl4z3
+         7VxQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVNgVWhNvDaWn2T4gTZrhrLCQU3Zn0ksodCuP2Y4bM0qNs6fccf22Evwb5uI8cl4lvCE9STyjtR@vger.kernel.org
+X-Gm-Message-State: AOJu0YyzGCfpJsEJ2Vfa+lBQENAxbzV+HKHGpgauJ5iLxd1uSsZFX80R
+	UN8NSPxEktQEScX/n1VbjZoLS28OCyM1Hi8vpt5MBn+R2BN/JH0Nfutm
+X-Gm-Gg: ASbGncvSmOCwnvguaZMDeYpjPA0YVOMSSJkur1e37RsxN79ghgvAuY5dJpoJmhn21qJ
+	+rdmDmELyIso55S9s/9RIwihpMJIrWG21wjj+VlM7eJFJpXmFz1/v7xJppapu9GWLYGim8K+SLS
+	bEe7Gnb8Z+/jejxVL8VDNKQL7+DKORVx6tjkn48SWct8G55gtDdgozdmX0NcxhSlmFJyKPl2T4X
+	C0mUZ2QHTxS0DL4BKCnJ4I/DDFKinhlPjJTOXfcVPlF/P5X90weqQK2iXcNKhzcymJ7wFvcv5yA
+	tGgGAPobaBhf3FbjakfnpQxQ+ckXf28dyotOKF8Wuyvirc/M4HXZlXd7gsx2gbB8G+utuCKrTkz
+	PNaxks1VGOp9FIKrCAW+dEM32ZvwLzBPyJKk=
+X-Google-Smtp-Source: AGHT+IFfa8OAtafuuUGs2egVJBUb1byqVIgBWU+yOOKTl2fIrZpKoG8/MJ8EE2gS4Xc4dZ2jyMCXRw==
+X-Received: by 2002:a05:6000:40da:b0:3f8:8aa7:465d with SMTP id ffacd0b85a97d-4266e7d4580mr13959139f8f.30.1760431495672;
+        Tue, 14 Oct 2025 01:44:55 -0700 (PDT)
 Received: from localhost ([2a0a:ef40:89b:b900:2e0:4cff:feb0:4e4d])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b55d5cad86csm1036789866b.17.2025.10.13.21.13.28
-        for <selinux@vger.kernel.org>
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-46fb482ba41sm228702445e9.4.2025.10.14.01.44.55
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 13 Oct 2025 21:13:28 -0700 (PDT)
+        Tue, 14 Oct 2025 01:44:55 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -64,25 +66,28 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset=UTF-8
-Date: Tue, 14 Oct 2025 05:13:28 +0100
-Message-Id: <DDHR3Y151ZWK.3DNFX6HD9BW9N@gmail.com>
-Subject: confusion regarding the setcap permission
+Date: Tue, 14 Oct 2025 09:44:54 +0100
+Message-Id: <DDHWVS1R3X60.17PAF8BR4DEWA@gmail.com>
+Cc: <lautrbach@redhat.com>, <nvraxn@gmail.com>, <selinux@vger.kernel.org>
+Subject: Re: [PATCH v2] default_contexts: introduce PAM stacks
 From: "Rahul Sandhu" <nvraxn@gmail.com>
-To: <selinux@vger.kernel.org>
+To: <stephen.smalley.work@gmail.com>
 X-Mailer: aerc 0.20.1
+In-Reply-To: <CAEjxPJ5
+ P23pREOYr7nz0OyFQb04Pz1fNaNB0_9Qn52aLQqrAQ@mail.gmail.com>
 
-Hi,
+> I'd like to see an actual implementation of how this will be used
+> before we add it to libselinux.
+> Also looking for input from the distro package maintainers.
 
-I'm looking at the class process' permission setcap, and I'm a bit
-confused as to what it actually grants. The SELinux Notebook describes
-setcap as follows:
-> Set Linux capabilities of process.
-However I'm not really sure what's going on here:
-1. What syscall is actually used to set capabilities of a process?
-2. What processes is it allowed to set? Assuming that the process is
-   started with dac_override (granted both on its executable file and
-   the SELinux domain it runs in), would setcap allow it to only set
-   dac_override? Would it allow it to set other permissions?
+Sure, no problem. I'll have a patch for pam_selinux(8) ready soon as
+well. This patch goes back to the systemd-run0 discussion we had. I
+just realised that if we're adding this to default_contexts, then we
+also want to probably add the same functionality to contexts/users, so
+I'll send another (RFC?) patch to document that too.
 
-Thanks,
+Would you like me to ping your github account (@stephensmalley) on the
+PR I send to pam?
+
+Regards,
 Rahul
