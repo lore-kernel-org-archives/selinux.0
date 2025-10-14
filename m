@@ -1,66 +1,67 @@
-Received: from mail-qv1-f47.google.com (mail-qv1-f47.google.com [209.85.219.47])
+Received: from mail-qv1-f53.google.com (mail-qv1-f53.google.com [209.85.219.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4286130CD8D
-	for <selinux@vger.kernel.org>; Tue, 14 Oct 2025 23:12:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 329CD30E0E1
+	for <selinux@vger.kernel.org>; Tue, 14 Oct 2025 23:12:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760483580; cv=none; b=mnaLht14ye6cVytFgR3+82wpQapJgpX7LwLwYayFUYABGIFxjo/mTtsaKfAAMQzrTOqRR1PbR5h9/A0bIjW/UDZjdyMkEH8MCxetgGBNHcWf3PGcu0JfRklFilsawqyF6at3IwDnYaxUPBCLVNjskz5+HdktkgJd7tH6tFBkMrQ=
+	t=1760483582; cv=none; b=Sro2kIkFmnk78G4/7lQmHTlGippCvWeZs3a1myN5YvPeYP3WdJRHRSQGuA2xIUy/bVpIjCDVCMFukoVlWSACmWXcZjPoh+MWRmzdeS/n6sT+ph/0fG83pF1IP9mgcDc6Ggz1H7uNVRBVbSDDqyV82glKH20KOAnT8KFLc2Kq0oE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760483580; c=relaxed/simple;
-	bh=foCmb5W6RClH11/V4qgET2I1gpQvWp/PxyJHOlaDdN0=;
+	s=arc-20240116; t=1760483582; c=relaxed/simple;
+	bh=2OjZR0xIzGES+vVHimuhr1zX3QGgjQKBqN8vzmD73Qs=;
 	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=W7za+VjzEjBaIBNvl4E9CvuZpCCf2L+Cn0a9U26y/WlkwXYQRrdbDtI32esKIVIAu8ejaLOqAt4Ms6Klr/5Mcw/7NpzoH2C4Mfju1OrabbGUaZgTpgnODwgadsXS6ZTFd0tWxFokj1SSZFsSV2TqHAZiGWGZ5CrxiE8AE1RDAA0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=JcC2BVJW; arc=none smtp.client-ip=209.85.219.47
+	 References:In-Reply-To; b=nwkjWAoBHG/bZYdeNYAzn/vIwoYt0O4XZzERMhT5A/hLgS8lQqxCRRQXjOKp4qMO7tjCW/6W0coqh3M2sBOdPWB9fu3d8km9XOl9qlyDhQFxRrJ5cEn/6uJGLKAA8YiSaQTT/SgmT1t3jrubGB8xfAAZkvHRe6tlLrvLhmMNnWI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=WMyFQcnO; arc=none smtp.client-ip=209.85.219.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="JcC2BVJW"
-Received: by mail-qv1-f47.google.com with SMTP id 6a1803df08f44-78f15d5846dso97586436d6.0
-        for <selinux@vger.kernel.org>; Tue, 14 Oct 2025 16:12:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="WMyFQcnO"
+Received: by mail-qv1-f53.google.com with SMTP id 6a1803df08f44-7f7835f4478so58988486d6.1
+        for <selinux@vger.kernel.org>; Tue, 14 Oct 2025 16:12:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1760483577; x=1761088377; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1760483579; x=1761088379; darn=vger.kernel.org;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :mime-version:message-id:date:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=UCQPp9bQbyUFc7xAWYe06+PCP6ZWoD05DYNG/yuCCoo=;
-        b=JcC2BVJWB+k4XJtYAQ3oxVa7LBs3f26l0KvoTmYXnPDALttk+EAEPRYVYECeZWpwhA
-         EdZFYSfs1n9bWXaBkOohlzSBXQajTzI8iO9g1iGUyfKyfBSX1LWBtSSNBiCSEzz5HCzJ
-         ws6/77urM6Qds3IBoseQX7jzma8Gw6o2BXt9DG1WbaGqJnfwnIlJFA0HLzO8Lz+jWTrD
-         wzJRMCCNbBIeLzOizK15UVaIIxc4/UGZtaZRyCS6LZHjaKmMxf5Xi0JhreKxeEnOdiIs
-         GL058QVAfIqM3ZuYNOeYJ7zMe/TxudAjQ1ZcyUAbfcYHw1WL40/7GYnoj6eu16eOIoMj
-         La+A==
+        bh=mtW7xGM0A0i7bPQL5H3HW6xoKoQmcrde+jRMi+evfuc=;
+        b=WMyFQcnOAdB/+dSch4ZN4hT3y02F1Jxkg6407M2HSVC6sCpMjABchEszuEZXFkOjZv
+         AcZMRdb3M0pJPorj69ymuxVr+f9TiowBWhxn428bmBRA8pxgRP5uCBWj2tHRmvgt0Yc5
+         cls1grSuL3az3zgt/ouDRbQ088bZabq+Nn8wyJliCUpl4KpTpMG/8UnBDYE55dmOUac8
+         GulLGa6WPgFfbLG3S66PPcuUwyu5RnSP5pHlg0W5nmQBrABhvVUGqJNYctvzFJTDS0Am
+         QIOXzeeZdqujE6G/ixfdRe0VHk/aVeh6YtXTsvHix9+m7LLnBKyHjuY5Amr1KOfgQd5T
+         zqzQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760483577; x=1761088377;
+        d=1e100.net; s=20230601; t=1760483579; x=1761088379;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=UCQPp9bQbyUFc7xAWYe06+PCP6ZWoD05DYNG/yuCCoo=;
-        b=kv8nv38PIb50WywUGo23Ij0SYcQDoP9jcE8io2MpOqbYTCwgjczvINHbbZZc31xU2H
-         v/J4hLd7yl7cGORohGQMRtKr9FqbPyeEjTx9S0MgAJxjyJ4o8WASSEa9Bae8CwZtRLQ0
-         8/2h41xajNAMBf22I2tltBxdskIwTAT3+cp1CTc95p8LsQQbP06gOgXB/x3EP1+Cm1Gw
-         snTO53LEsHSlIVogBQKSjxcfsD5blU2QG9Wgz/vaih0Z46QccuzF+rULQYoeJMcPpoFN
-         +eULZvXtqJDRu//0e0RYkoAdIlDW6+ImIGmbJYdxeyc1IcWSwG3CFkQYV/Froy1QsHBU
-         BeRQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWgkiqZYQ4fo7N2TvfZMDMdgC+ECte4wKr/bFodgElx278cs6H0wpJ5bPijrXZsYrD+fqNfTkv3@vger.kernel.org
-X-Gm-Message-State: AOJu0YzdmOZd05GdAknp5JX6wJRJ4LfZbxZjtTog0aI09M4qb9mLrZQi
-	elrnt8vnrNccCGe3Mru2gMZGLHN3Tj3Lh3YSzyj3XVIDXR4KYc+bUiryOGulmE4HAA==
-X-Gm-Gg: ASbGnctKxClU6UEpVNQduYPvyTcgQWZ5Fb5mPPFNCa7KJrd7wMJ27tR1idNAEM29LdR
-	y2r8Wj6KS6/dQCG3SP4UtzMgy/hEm2Y2lZBzARif7yUJTnFMsExf3nIVfieaFbCnNYDfDqudZNL
-	5EkcJ2/7jLfWkrOi2V79F1BFsEWPByOj0yhR7vCSrOve3JbrHjwqmUJ6I/lOYwigC8R3mA0mupa
-	aJzC/SB2I0gO5JGVpSc4i0O8FB543mEZkZfmShGtT5CFahcmX5nIvHsIn/n3cUhObb05acFf2ZO
-	kQVFF5FHwVwNOqa4fAAHiNf7X3e6oHZbcf4/G62H/tIKLqML2ATuZJGJUbzIy+oHtweZPHeSWF3
-	Spmy2aBrV1Qg3aD4EoXJ/oVc2FPCPXMO1uhRsIhjUdBu6KjL7Bp6bw1ypnUnWMhX16pcX+Ssi8G
-	sALWD2D7RZAyyBtGZxYKc9bA==
-X-Google-Smtp-Source: AGHT+IGUK4+OZlOwx7+K3DolpHpg4wxF5PDVeFNt2hgjjeQNdw27tz2rjbFhf9h3RN6vn6hAUsmJqQ==
-X-Received: by 2002:a05:6214:1bcf:b0:80e:9291:c47f with SMTP id 6a1803df08f44-87b2e768f91mr379237516d6.44.1760483576981;
-        Tue, 14 Oct 2025 16:12:56 -0700 (PDT)
+        bh=mtW7xGM0A0i7bPQL5H3HW6xoKoQmcrde+jRMi+evfuc=;
+        b=Y7Hs+abfSehSLdBP4VvgF1iKKIR6d65Scmr6YnmcpIJ3QLWVbKwS12DZKU0DuwBKHP
+         4XWzlN9bVPmneFH6rSWt8sl+3/GZhB/Us2NUEsAPGFVphdUXVp/pBZl1QAfNaKzWnhG5
+         xIFXpgHphENYT/NmiFuYKH3BfRPGeoglO+5ioyaa4rmKWxh24jm9b+2CC4VhHhbrhApt
+         4dbFdPFj1V57OBn8EZfhKgE6SChloTQ8m9rRyvHA272zIeKeYEdO8gHr2BbbjO1QtApB
+         GzA7QK3lwHjhB90jdO2l87mWVipRsTm4NSzfA1bAzuQPAFBpi/KKihditwpvDD/RrThY
+         9JjQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXokjtzpus8j1E71kQk/3zzDnmS5EW6ZKc3Xl8T+mDr5IglhmqVXgfkjBVmD+/Ym+VrFwjLvtaN@vger.kernel.org
+X-Gm-Message-State: AOJu0YxbX5YcRgWZ5JMs6fPkMPPhJaPjYfRpJ3j0PlE/T30yluTpfeUJ
+	ZJpLenFhcaQ7K1NqIVVCu+1sZqAzaQXY/RT0rKhEgWG1jQMySX2Rse/pP4l7DWFkIWJNhn92oT3
+	cxvbU8A==
+X-Gm-Gg: ASbGncvQ0mveGmsJuAPAQfIQPCoGcrr7Hyqw23dHk74oLUdyNe8AUBTrGl/wWkbRR81
+	bjwAIyd+mhgKBtK+Gi7O3hQEz4ovdTlXMkisfofFma2dK4+esv5nMo1+NtTqHc7mOCHwlYfQB5S
+	HBlwHZikKar3jvSRKP+RKyOh6LXGwlsO+jfG9MHHTfQhVN57qNSz42J9K2ZcOwRmRNhk4K3wUpb
+	yuP94Hj2Wgt/TzvWYL89YUVaDUcE7IBuLseUnluNhU2cy6F4DeI0878rzFQQzOVSSDkGQGvRgaP
+	JtEAJECwXbMalkqI2V1cLXh79AUROXns9GPtlHaXURuu/RB4zyL5EfOi3JrpAcXf+pxbV+OP+xC
+	Q+QTYQQwxLF/8lNwWot8UAEiH3ZDyugLpqP+91mWT19dIFrMXMda2pzvaZldGHnXFLCzoNDOQ+Q
+	+2j/W1rUb47e5BQLBhMXybUw==
+X-Google-Smtp-Source: AGHT+IEptTo2pxg8BQyRH/EAXGF7Ajlrs/OC3K7xB2VEK00ORspclexLASyXzj0clJy3+lke8DpgeA==
+X-Received: by 2002:a05:622a:4814:b0:4b5:dc7c:a6ef with SMTP id d75a77b69052e-4e6ead57ffcmr362320031cf.50.1760483578960;
+        Tue, 14 Oct 2025 16:12:58 -0700 (PDT)
 Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with UTF8SMTPSA id 6a1803df08f44-87c012a2c6dsm7233906d6.46.2025.10.14.16.12.55
+        by smtp.gmail.com with UTF8SMTPSA id d75a77b69052e-4e885f1bf3dsm517031cf.24.2025.10.14.16.12.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Oct 2025 16:12:55 -0700 (PDT)
-Date: Tue, 14 Oct 2025 19:12:55 -0400
-Message-ID: <3aa966ae48394feec053a63c8868ca0a@paul-moore.com>
+        Tue, 14 Oct 2025 16:12:57 -0700 (PDT)
+Date: Tue, 14 Oct 2025 19:12:57 -0400
+Message-ID: <3559abfc0d5ceb11f03451aab517c8d2@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -73,24 +74,31 @@ X-Mailer: pstg-pwork:20251014_1821/pstg-lib:20251014_1132/pstg-pwork:20251014_18
 From: Paul Moore <paul@paul-moore.com>
 To: Casey Schaufler <casey@schaufler-ca.com>, casey@schaufler-ca.com, eparis@redhat.com, linux-security-module@vger.kernel.org, audit@vger.kernel.org
 Cc: jmorris@namei.org, serge@hallyn.com, keescook@chromium.org, john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH RFC 10/15] LSM: allocate mnt_opts blobs instead of module  specific data
-References: <20250621171851.5869-11-casey@schaufler-ca.com>
-In-Reply-To: <20250621171851.5869-11-casey@schaufler-ca.com>
+Subject: Re: [PATCH RFC 11/15] LSM: Infrastructure management of the mnt_opts  security blob
+References: <20250621171851.5869-12-casey@schaufler-ca.com>
+In-Reply-To: <20250621171851.5869-12-casey@schaufler-ca.com>
 
 On Jun 21, 2025 Casey Schaufler <casey@schaufler-ca.com> wrote:
 > 
-> Replace allocations of LSM specific mount data with the
-> shared mnt_opts blob.
+> Move management of the mnt_opts->security blob out of the
+> individual security modules and into the security
+> infrastructure. Blobs are still allocated within the modules
+> as they are only required when mount options are present.
+> The modules tell the infrastructure how much space is required,
+> and the space is allocated if needed. Modules can no longer
+> count on the presence of a blob implying that mount options
+> specific to that module are present, so flags are added
+> to the module specific blobs to indicate that this module
+> has options.
 > 
 > Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 > ---
->  include/linux/lsm_hooks.h  |  1 +
->  security/security.c        | 12 ++++++++++++
->  security/selinux/hooks.c   | 10 +++++++---
->  security/smack/smack_lsm.c |  4 ++--
->  4 files changed, 22 insertions(+), 5 deletions(-)
+>  security/security.c        | 14 ++++-----
+>  security/selinux/hooks.c   | 58 +++++++++++++++++++++++-------------
+>  security/smack/smack_lsm.c | 61 ++++++++++++++++++++++++++------------
+>  3 files changed, 85 insertions(+), 48 deletions(-)
 
-We discussed the concepts in this patch in a separate patchset, lore link below.
+We discussed this patch in a separate patchset, lore link below.
 
 https://lore.kernel.org/linux-security-module/20250925171208.5997-1-casey@schaufler-ca.com/
 
