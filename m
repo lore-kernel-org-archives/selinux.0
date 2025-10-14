@@ -1,66 +1,66 @@
-Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com [209.85.219.48])
+Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A76542DF71C
-	for <selinux@vger.kernel.org>; Tue, 14 Oct 2025 23:12:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F67A2E765E
+	for <selinux@vger.kernel.org>; Tue, 14 Oct 2025 23:12:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760483566; cv=none; b=XQMxO5zHSEJWxTbGFsweqSyPFMJzOgRQuU3iuHI+LCnlrlGc9rkAiTVEPfZPtMVcX7NDQsyID20FMplFEiriZ8iT5yyW2B/v1Rbi3F/fe9kiT2HeGw1B0dQzVmW5Wp6GqcyBN8DfULIS0f8CiomZzJdqpwIpbWlTV7Al4orRifg=
+	t=1760483567; cv=none; b=EeGYrQYasyPySVXGbNaGHunuRZP17zk4QfEDU59PPr3Isg3kdhK6kRh15IwL0ebFf/ry1rjdr5r/fKlnnlvZUKubrIgPbwyAWGXJVCO25Km/cAem0l7ZUIM9EsbFZiEtg0+4fje6sp4fVlCZijromGZH5+bike3ox7LdWNZWja4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760483566; c=relaxed/simple;
-	bh=3Zla5hsgeKl5qE4xSZwjkNBiMgzZToY1+It37HWjw6k=;
+	s=arc-20240116; t=1760483567; c=relaxed/simple;
+	bh=b+JPuRya1KU5RJhAmgP2fLr3omiwqFKbt15uSqlXlxk=;
 	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=ssCIpBuWzjL8u52c95XvWfD0NmwAZ5dF3BTEc6Hxp1D2yUaymgSBPt/XrvC415cCQwbuUuN0xjiB1VHgjrJLcSbCOooXeJEP6ZBUdeSgtEJuH/bZB2yCO/yE5ece8hxB6VkgghiRwO1Ww6tNvRydatxzY1J9A23gFNtEzLdQT+U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=NSjOr9zQ; arc=none smtp.client-ip=209.85.219.48
+	 References:In-Reply-To; b=QLpP8KwaLlNC4dC4E7xRSBhXHKDY1zX+WE9LAuwWQLtp5WpVDWuH8Sqo7kR/2zFG30l29qc8VhLOh/zxUU8C9eVbwEShMx5bZ4tNngvydpfDD9+vGWi1IIq4FADcQnyVL7puRflOPGQxm7JZrEmp6IDJ5NdEPQVgAsI8saAK/20=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=VUQSwCfy; arc=none smtp.client-ip=209.85.222.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="NSjOr9zQ"
-Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-78f15d58576so4742956d6.0
-        for <selinux@vger.kernel.org>; Tue, 14 Oct 2025 16:12:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="VUQSwCfy"
+Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-88e4704a626so1688785a.0
+        for <selinux@vger.kernel.org>; Tue, 14 Oct 2025 16:12:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1760483563; x=1761088363; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1760483564; x=1761088364; darn=vger.kernel.org;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :mime-version:message-id:date:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=MtLfPqM0qRyHopfnx8yEcwhphaJsW9uFXWQJka3Yibc=;
-        b=NSjOr9zQXLXuj1V2iyQLH6yNnAJSVtXITKlKKnken42rgfOU2TcZenzjYOIek89amM
-         6jvwo3gFn5RfqnCAiemRH/Mx1zUqgw/ZnhPZV+tqlySEAh12NlDzovmSu3crxMhOQVMI
-         E7YKiwzRCTa3GESfhjqm380TKTsqBpXFbV3ThQ9Y70i2gRz2v7SPnIeN3XTwFz56lO3s
-         lZSxFFPtlRy8AqblWVM+POOu9G1qSiD9P4Y3QFpnZwd7Csf/58Hx1qSH/L9zlZ8wTY1a
-         xxr+bRDfyaZKEEefHOi6pjoGX2kvSelWczxtvzgGnxjx2SvLfcTx34ECGvM6ZZwEVBuC
-         WI9Q==
+        bh=vVvdaze35/CRosAlcMdQpNGdw9QE4ISqfe//0KuZp3M=;
+        b=VUQSwCfyYwnlAEqFXlFsAD3pTFNEVKVixzJ2/dcKjQU2RqclsciV8Vv14OZdy4K+9d
+         p0Qbf4kAkpsXOO7UcKArvzpcCVW5RU6INa5eZbcTLXkAjyCsbHmQU4f1H4Tb/knhtC/o
+         oozvtewSSWLEPo6vjsRoU45m7/J4O4wp2ojhDZSsATKmw0H5YXeUHSvocJry0LHU7OtG
+         UdW24ZrvwOLT9t3xIRRd6fgUsYoYDO5C4xIT89Ior0+JLtIBL/jInQByYhux6Adj0Rx6
+         NRNRHgkUyIIrliJ4zWvtSoJJWEkUYzkcboUdGnwXn/w8hYMYByR0daragyZPrHkZr2rs
+         uFCQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760483563; x=1761088363;
+        d=1e100.net; s=20230601; t=1760483564; x=1761088364;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=MtLfPqM0qRyHopfnx8yEcwhphaJsW9uFXWQJka3Yibc=;
-        b=iUjISmD90TWfSsHIff/wrNaUFKVW2z32FMGPlMR91BjNZ1RVrcV2XMoK7iqzx3kr7t
-         yrp2GKYHwrY1Pv70r3RW5s+T7mrwIRsJqdcUMisxhWkk0LiXUtVjJBzHrfQTA9ra84Jx
-         6l4EPCUgULs9ZNaKKE3VkEngOskElyuPZ/rMsi7t5Crq/qjxMenWxo5cmvwNxolWCOEG
-         FjtE0u5xzisVlCwxzHRKC27SIOc10Yk8d7IE3fsreMV1qgXwezLHEkbEU64kvmZ+Ktrw
-         Y0OlJ8poeaxtbTU3LWUUq4ddRrG2Jh4V4QrRlOM2Nl4sEclau6dsgykl4L1EDrNtVOCD
-         lLfA==
-X-Forwarded-Encrypted: i=1; AJvYcCUjFmJWTRpdEjKrFnGtHq5ucxZpEUU0yvwGFzLX1TSJboy7OvMajUO/z/+fV0MH4y3i5PFgB7B/@vger.kernel.org
-X-Gm-Message-State: AOJu0YwWh3tXPJYlKOQ9Z3hcT+OUDfxTnblRFoQvyLNq6NXw7MydTDNO
-	iakAajuLTOdiNSRm63b4zl/WtkPL8AxrvzzAJ5XrJf40bBNu3+7HppI4Pb3ZLpnZXw==
-X-Gm-Gg: ASbGncue6IWyXCs/v+eS1b1vsJW9WY4fHetl6TVk2csILQqf3u0gXEWKMg7H4gVW8Lw
-	Z0LZ0D6VA9jjEYyblwykLTNlazQEg+JbshmlDF4kMtvjZOO1TUIN3LVttdAV9aIhnqpWbElz2QD
-	OMJaRt9NIZg9zi0ilgGXKW8eAEB9E550gEl//BVmt6qdae1v85hZK5A0UuIMz3oP4wBY6QEYt7C
-	dyftWzNw64uj+i+7zUvbW90mT/bEsnlrfqXj5DO7YpQ5AKvGtbvzVPIk7D3Sf088p7tsGy9r8E8
-	ikKMji9fo8c76Y9L1xvM1dNfgqotw1qZIdOsSimHe5kBg/N2Tmu1U5qBlGcYGG47V0zFvxhC96b
-	OC54iN+Nlp4mre4ZnNqCDjWODiG6yi1x6xvExP/H6TdSA4+s8GD5K03Nfo4SLWPAlnk32EQx7mz
-	RXkMfgTIR/ZUVgcDy9ZPmuLA==
-X-Google-Smtp-Source: AGHT+IElj7ocLs2TIw65fx5R2ooBgDA9bofkFHqCmgSA+UgdqEXOhfYPORVhESpLJNrEH6dTHeSXJw==
-X-Received: by 2002:a05:6214:2b06:b0:7f8:21f8:6f7a with SMTP id 6a1803df08f44-87b3a7fb6aamr353893716d6.23.1760483562435;
-        Tue, 14 Oct 2025 16:12:42 -0700 (PDT)
+        bh=vVvdaze35/CRosAlcMdQpNGdw9QE4ISqfe//0KuZp3M=;
+        b=J/eszjueRdcgiKXLHjZnZskQAMisiPBAec6K9uu+yYc80YVUZbrNhbw/vVhco1NFTB
+         Shsv6YoFyWU58l6CIXbxDf7EuhRQftcd180B30owDuhCL05MMzim8ZNjsJy7Pq5JJx/p
+         BMUYXcXvF0PwDkFf6H6N1hLVEY5BCS3poKaWoO67PmiJDFKRx+b2LUXX7UVXDSJbP0z8
+         ry0B1ytShx+Vw3Uy3CGgrrhUYt//9Q8ccShErDXYBXZNycZUo2mJdmX2KDVk+MFkHMPB
+         BM41SfpR8PVmPsFc1qu+a87XKcxgaHWlrOGsjGKpy90o/0So4iXKIb/tMJTRucLL5NvF
+         O9hg==
+X-Forwarded-Encrypted: i=1; AJvYcCWJ8z+mJFD6KFuxfQJNGRNsS3/p88HRH0PooQzt2qmE5gdAOogIwQb4sPC7hB6XJhHCF3JVO26P@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz+LUY62DODsgXJmvN05cTUxOjfTKcm39tFG9UAWkB0ERWZabyw
+	P3pxXVNKPjxlktd1HWkLuF6mIhnhcHz/HITxKFPoBtjvV4U87AxUKYSFYfEmigqnhg==
+X-Gm-Gg: ASbGncs59YW2WTN+HLVqCxmNrgiKDfgc2jNKMmeZ4VYkTPdrGUgD+LbeO3r5GMr1DlU
+	XsjXRyteDd4qEqiKw28JAK0xpq+u5sSBcW4p5Yl4K0iXq1LJ1kUS1SRK9JyqJuXZgkBSR7cwbuM
+	ZnSkQI217QMVHU1fsG7dvrqUWyfRSPOGJmsAanDvHrukppWKCo/274hAM/l38dumb8VCRmc+0xG
+	Lbv+3jOVww0UNAu0+QHmIqOOIScHQfMGJEdjAgm+R63xgS89qdIhahkXJd6YMbgkj05CuWea9pr
+	qsyxwZGyMBR1LEOWx/zg2P8DnA7Hi3HXLTiTE0h9KJOgj6pkZMRE5b9aHBd3yFYRRCdpId/J2z7
+	1awzNgvRCBJAztNu91A9ZQKqJsulPgRMYeQ8BSLZPHFlpEvE4DO+L3Xfz+sJ8S/bbUCVaVea2Rt
+	hTSInYEORZ9Vs=
+X-Google-Smtp-Source: AGHT+IHIaLztJ0EzDzTfr0vpC8k7Pus9jJGW+Vxhl33MfL6VS+zErfGM1vlpYkIvsD1bC3Dy3OU/pg==
+X-Received: by 2002:ac8:7f89:0:b0:4e0:b72b:7f6d with SMTP id d75a77b69052e-4e6eacf4870mr384481971cf.29.1760483564238;
+        Tue, 14 Oct 2025 16:12:44 -0700 (PDT)
 Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with UTF8SMTPSA id 6a1803df08f44-87c012a226fsm6968306d6.50.2025.10.14.16.12.40
+        by smtp.gmail.com with UTF8SMTPSA id d75a77b69052e-4e881c8cecfsm7843551cf.19.2025.10.14.16.12.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Oct 2025 16:12:41 -0700 (PDT)
-Date: Tue, 14 Oct 2025 19:12:40 -0400
-Message-ID: <a32fb2be726969d5da7caf55a8f82e77@paul-moore.com>
+        Tue, 14 Oct 2025 16:12:43 -0700 (PDT)
+Date: Tue, 14 Oct 2025 19:12:42 -0400
+Message-ID: <cee3f6f2d0657e53f5313225fe182a1b@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -73,26 +73,51 @@ X-Mailer: pstg-pwork:20251014_1821/pstg-lib:20251014_1132/pstg-pwork:20251014_18
 From: Paul Moore <paul@paul-moore.com>
 To: Casey Schaufler <casey@schaufler-ca.com>, casey@schaufler-ca.com, eparis@redhat.com, linux-security-module@vger.kernel.org, audit@vger.kernel.org
 Cc: jmorris@namei.org, serge@hallyn.com, keescook@chromium.org, john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH RFC 2/15] LSM: security_lsmblob_to_secctx module selection
-References: <20250621171851.5869-3-casey@schaufler-ca.com>
-In-Reply-To: <20250621171851.5869-3-casey@schaufler-ca.com>
+Subject: Re: [PATCH RFC 3/15] Audit: Add record for multiple task security  contexts
+References: <20250621171851.5869-4-casey@schaufler-ca.com>
+In-Reply-To: <20250621171851.5869-4-casey@schaufler-ca.com>
 
 On Jun 21, 2025 Casey Schaufler <casey@schaufler-ca.com> wrote:
 > 
-> Add a parameter lsmid to security_lsmblob_to_secctx() to identify which
-> of the security modules that may be active should provide the security
-> context. If the value of lsmid is LSM_ID_UNDEF the first LSM providing
-> a hook is used. security_secid_to_secctx() is unchanged, and will
-> always report the first LSM providing a hook.
+> Replace the single skb pointer in an audit_buffer with a list of
+> skb pointers. Add the audit_stamp information to the audit_buffer as
+> there's no guarantee that there will be an audit_context containing
+> the stamp associated with the event. At audit_log_end() time create
+> auxiliary records as have been added to the list. Functions are
+> created to manage the skb list in the audit_buffer.
 > 
+> Create a new audit record AUDIT_MAC_TASK_CONTEXTS.
+> An example of the MAC_TASK_CONTEXTS record is:
+> 
+>     type=MAC_TASK_CONTEXTS
+>     msg=audit(1600880931.832:113)
+>     subj_apparmor=unconfined
+>     subj_smack=_
+> 
+> When an audit event includes a AUDIT_MAC_TASK_CONTEXTS record the
+> "subj=" field in other records in the event will be "subj=?".
+> An AUDIT_MAC_TASK_CONTEXTS record is supplied when the system has
+> multiple security modules that may make access decisions based on a
+> subject security context.
+> 
+> Refactor audit_log_task_context(), creating a new audit_log_subj_ctx().
+> This is used in netlabel auditing to provide multiple subject security
+> contexts as necessary.
+> 
+> Suggested-by: Paul Moore <paul@paul-moore.com>
 > Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 > ---
->  include/linux/security.h     |  6 ++++--
->  kernel/audit.c               |  4 ++--
->  kernel/auditsc.c             |  8 +++++---
->  net/netlabel/netlabel_user.c |  3 ++-
->  security/security.c          | 13 +++++++++++--
->  5 files changed, 24 insertions(+), 10 deletions(-)
+>  include/linux/audit.h        |  16 +++
+>  include/uapi/linux/audit.h   |   1 +
+>  kernel/audit.c               | 207 +++++++++++++++++++++++++++++------
+>  net/netlabel/netlabel_user.c |   9 +-
+>  security/apparmor/lsm.c      |   3 +
+>  security/lsm.h               |   4 -
+>  security/lsm_init.c          |   5 -
+>  security/security.c          |   3 -
+>  security/selinux/hooks.c     |   3 +
+>  security/smack/smack_lsm.c   |   3 +
+>  10 files changed, 202 insertions(+), 52 deletions(-)
 
 Similar to patch 1/15, dropped due to this already being in Linus'
 tree.
