@@ -1,97 +1,99 @@
-Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
+Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4C3530C371
-	for <selinux@vger.kernel.org>; Tue, 14 Oct 2025 12:36:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 974ED2D47ED
+	for <selinux@vger.kernel.org>; Tue, 14 Oct 2025 23:12:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760445409; cv=none; b=gC0drfnAJSNE1ircOZCUFxpEn1G9E/r/U7alKssQkkEb5DFnhit2pxHwD1KPhBip5jnh4OFZRn1MzatR/x3u6Yx50z7Wa3ppDO0FTZWao4rRDJPSTiXp7AST/a1U1vaETxvp7zKwT0qAHzgmi2cJoI+3UE9zpfrint/4Sgi2gSg=
+	t=1760483563; cv=none; b=N6PBUySo25tS0wRoYicspL9YOB8AMMh+do+drcuYfjtH8fbFvK5YqAjcVDBqJk+pZuRJdLJK2SVXo1HtOkPS+yEdK1KNqcy6/vhd5P7DT9thF23uJ+T4c2Ei2JVhHPxBA6S/5b4cSWZkB/R/6RRjhu9tD8IDS8WJzAKCgQu9YnM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760445409; c=relaxed/simple;
-	bh=RHV27hcQOpu0iwNyP1JcqGkwe7y1MgkMGppeLGkx2qA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=g98zN//6TfxKhjLC1GoSx8Gj8zHf4R3tawpY2baJlWmMyFoHK5v0voLuRcAxi8c6yqSQlg+x6JEAlQQZjmGgm13SKEpu9rN1fY+kiye++w08djZP+//QQGWncZVApnfjNqI1ju9dPm4cvfUppvzKaF8iksyrid5KyzXV75fV1Xk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EbO7vZ6e; arc=none smtp.client-ip=209.85.214.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1760483563; c=relaxed/simple;
+	bh=jP7eKKlEemoHr9cH5h7XSAsqHsL7E6l+1k/CdljmEEA=;
+	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
+	 References:In-Reply-To; b=aOqZxFu8lEGvUOMdqclc7tgFXYRj37m1edBI/SaAqLyYk88LSklgIPkUJtD8BjIW2gZ7hEb+nJZslFRp5PcCoL7OQiDkqpgNvf19W1Dp78Oi5uIcJwqlu/xUMYdtKbM8r2gI1ZpRNQhw34OFB0E1XJOeLx4tMQ4N0T/raJuVjc8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=D+m1psg/; arc=none smtp.client-ip=209.85.222.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EbO7vZ6e"
-Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-26d0fbe238bso38075295ad.3
-        for <selinux@vger.kernel.org>; Tue, 14 Oct 2025 05:36:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="D+m1psg/"
+Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-84827ef386aso574466485a.0
+        for <selinux@vger.kernel.org>; Tue, 14 Oct 2025 16:12:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1760445407; x=1761050207; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=RHV27hcQOpu0iwNyP1JcqGkwe7y1MgkMGppeLGkx2qA=;
-        b=EbO7vZ6eTSZDCgZKGrsu40BrYZ16Efo6tpixLFldg7R9+yojt0mt/3GrKNvQbsNqBd
-         U5O/O3a4V8wQXiig3YfDNtWWVnPYqPJrNRUA87Ro+JcLQVNIILCJD2HxaZ+bu4SwFLok
-         ZC4e6mAaZrkLJUeL9bGLQVOIndiye1fWF3IxTsNayRXYV1ONzaEf1kS6p8HVO5QskEqF
-         WtU7Kxows1MfzF/e2+ik4POgfAekjOTBLu/aJInPpvsWsKejvFDiHLKKN5K+1RwvrcaS
-         2fpmMbP7y3xTcsEtwbnczGx6XSkrf4scauYNMhMN8oeT9TJvTKQYDjorXt2q2Fxau81/
-         EiOA==
+        d=paul-moore.com; s=google; t=1760483560; x=1761088360; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=WLBpXGvn84P1YsJATB/vo2Be6tu4bfzDW/H1Hf/uJzg=;
+        b=D+m1psg/0sPA5QUhpnBP97dPq4bd8CQkg3Pfjl/zaOpk19TkocwXe328GVOZCPcJdf
+         bdwF7+IjhxslyctHtjf5J4Bbm11EuFY5VAPTLLChUPFzez8fN2e0Zod9GjCK2ix3WHH9
+         L4p9WOhLc3SBVfIMcAbMWc5R65PsdBM8o0rCUAzH1o9DlvaM8ILu56S2mFUBcCqELEJ8
+         pDfbFHDNvlEsAJWlOKgythNnBcgEbGR1MPesiNfqKBVCLji0Ez0A3Pou+wzUD6cwyqgt
+         uJVfBOP67LMupZW2bPSuaWPfy5Yx7m5WjsYovsIzuOkpfH8RqvJfmiQu1R6qvp6wuHg4
+         8ToQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760445407; x=1761050207;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=RHV27hcQOpu0iwNyP1JcqGkwe7y1MgkMGppeLGkx2qA=;
-        b=p8IOykf9P+eEphdb/9lfGxm/2S/7imtNTvSBa3Hrp9g+Z/HDo4y8mg8jxGPWF4AM/u
-         iyxZP8Df568m28IVAH/97Od7N+6H3Sof2DCG6pQX80EzOe2GUg678Nm3Ekr8H5BE0+Ll
-         o3TCmuKiZ78vAVvL5qeY+3CPkJ0j7/uaAfOQSIq1sfkUrvYTW40ilrEArGtZUmvaWucF
-         WcgS3iDCwnJKy2uqTkKAvrSxW70Eg7oo2L7DOuTNKQAC3Jer8nswn9w8cWT/2lMuZl3s
-         jh7wXpGw962JSuaVxhmTQWcIANng28ZFyv5vzGRwpYtDON6GtdwSz09NIK7fCB5ea9Ic
-         Ve7w==
-X-Forwarded-Encrypted: i=1; AJvYcCU1QyRqcoKABbv4O6XHuySPqJopXkbPUgpFHLb5Ld44W9radl324IuvPH3vjNWWbm1lPXk62apy@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywrnb2t2/VTrIm/KXpG9PMlITPsw+dC9j4K2C9s5Djjme2uAgZl
-	gd5RCIz3+VX6sA9ybsoSxoxGp6KFbaWrSRP2XFP8+cI9g9eGqO8sSnf0woJgycVfDOjQUlHA8up
-	iYvfft0eheEFclNRbjiJOAl5GMXWuPqnXfQ==
-X-Gm-Gg: ASbGncvEIm7U5ypxakyLY87v+E902qVdM8ezKa2+oNTeNNdYFIAGJk4gGBljhbCxtQv
-	7n5kBoergnvy9k/jA57zkt0fjqGFZLf9SJZRo4WU3bOEmIUWlLTbUuDfUgP9ROEu/e8XqyIDuiw
-	qJcmKKrQ16CCOGLafCZX8GWAoWa3eeLS41S16enEq2I81FioiXpmypLhruvFcUAGnPg1bgxPKvF
-	cc5z+H0w/b2BP+bW0tQ3cy+awYkQnzkMVH4
-X-Google-Smtp-Source: AGHT+IHloQXhoPV44NeqwyU9+jIqjyk6RrZ2abUe+HtCi9AkOsPrAEPoLLuGZyOoCYG1fqeZ8j1EvNo1V4xH6de2rKI=
-X-Received: by 2002:a17:903:2f0e:b0:248:a642:eec6 with SMTP id
- d9443c01a7336-29027402f2dmr266262745ad.50.1760445407047; Tue, 14 Oct 2025
- 05:36:47 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1760483560; x=1761088360;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=WLBpXGvn84P1YsJATB/vo2Be6tu4bfzDW/H1Hf/uJzg=;
+        b=ZiV6pJIGxa5V5JAac9S+Og5FXoeOiVyTIuRN20lB+8fhmnPmx4PNhUm+nvn0d1LuOZ
+         XSgJniY6SXIKsa5oxfFGY3YvA9DFpdLyHMqNAOpSdg/xpdEyoj6iuY5TXmS4+cPsN2mg
+         bLq75vIz1k5PFH6fF8rhW7OMqAOwCY/INYmZnhTGG/F6T5X/2Z1DjI1gcoG6CcqK4+Xu
+         8qB5QTVb9v+B657vprSpyzd5KfKi2+Vpbqm52lBcSENDNyR7P9OvGVR1igvbuW69mSyD
+         Wj/thwooXHAo6nmkiMqaXre/ubIKtRd/Ao4haixpmKNkTSp4RNcDjeMMtwopRpXIpPEw
+         LZLQ==
+X-Forwarded-Encrypted: i=1; AJvYcCX0XWn2w9PGo0Jj0zqDHssnLwhQY0Rvp4Sz3M4cu/jigMunvVwj/zpnohhAL6hJ1SDG8eNWO4Uo@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywz23kGfXVz93WI0OOOBu0z79bSwZMLVcRwz8hKmTraaqQpXwLt
+	1fyWtzrX4wEAjvNO3gyaeSMTf/884gxjqFkDBzBoV+vuFNcJZwnakH/r8OVaPZWODw==
+X-Gm-Gg: ASbGncsdk83jXsf7dQabS5f1eI5U8rzKVYWuUHQqq2YHGe/X0gEOO/2PEIfqIMbeAsG
+	qWUDpSUpp3ncQw2634ilsH+mNR/+PTFttvRCOgZulq6MpZHhHpYX/RFGun4U0Zs+pgdxvcoSmYY
+	XeUxbpsw38ae4//WTGK/bTLWRL/axuETEIKk2N4s7+OB0D8ldcxoj0u+vb3Hdv/2/pMiHqW1m24
+	3dGTk0nMw3lApsSaiHdvCHMBbf2NezmZx/nQXiQ/dCTUaVRyqv4I3bOnW3VaQ4/H+iQ7SDRQqZb
+	oM3mTnhaRNTteMVYjptO7kEMQw5CFEHQN79MqOnEosevuxVvkcCsogrP7/Rv2jxw0DUXF6ocKTM
+	5M8DYHriPEpSfZ78LWabpHJhwHSRh29WlDDGA2DNHaY/8dhP+WQubYbg3snxHls8zMS7GWmnuBl
+	1nNRJDfsLdRmA=
+X-Google-Smtp-Source: AGHT+IHHcLVZiMgSbPLG7eY76yfCqa2vB+jpgcP40CTtOHs38xnmpRUGPmtafOl88Gxs8UC/0Ltr+w==
+X-Received: by 2002:a05:620a:254b:b0:88e:1671:2e4f with SMTP id af79cd13be357-88e16712febmr95763785a.78.1760483560211;
+        Tue, 14 Oct 2025 16:12:40 -0700 (PDT)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with UTF8SMTPSA id af79cd13be357-88e1d60aecfsm23093585a.34.2025.10.14.16.12.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Oct 2025 16:12:38 -0700 (PDT)
+Date: Tue, 14 Oct 2025 19:12:37 -0400
+Message-ID: <846555fc86ec02df31f55935e747a71f@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <DDHWVS1R3X60.17PAF8BR4DEWA@gmail.com>
-In-Reply-To: <DDHWVS1R3X60.17PAF8BR4DEWA@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 14 Oct 2025 08:36:36 -0400
-X-Gm-Features: AS18NWB45Q6sv6es0iJCBdB0N5JRxh_lOHJ5S-u_SbVhVTntwh5NiT4shnnPVg4
-Message-ID: <CAEjxPJ7uSGfOTi8L5WzfA50ZH+kzxNvRGtooMaNuS-iQwVay_g@mail.gmail.com>
-Subject: Re: [PATCH v2] default_contexts: introduce PAM stacks
-To: Rahul Sandhu <nvraxn@gmail.com>
-Cc: lautrbach@redhat.com, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=UTF-8 
+Content-Transfer-Encoding: 8bit 
+X-Mailer: pstg-pwork:20251014_1821/pstg-lib:20251014_1132/pstg-pwork:20251014_1821
+From: Paul Moore <paul@paul-moore.com>
+To: Casey Schaufler <casey@schaufler-ca.com>, casey@schaufler-ca.com, eparis@redhat.com, linux-security-module@vger.kernel.org, audit@vger.kernel.org
+Cc: jmorris@namei.org, serge@hallyn.com, keescook@chromium.org, john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org, selinux@vger.kernel.org
+Subject: Re: [PATCH RFC 1/15] Audit: Create audit_stamp structure
+References: <20250621171851.5869-2-casey@schaufler-ca.com>
+In-Reply-To: <20250621171851.5869-2-casey@schaufler-ca.com>
 
-On Tue, Oct 14, 2025 at 4:44=E2=80=AFAM Rahul Sandhu <nvraxn@gmail.com> wro=
-te:
->
-> > I'd like to see an actual implementation of how this will be used
-> > before we add it to libselinux.
-> > Also looking for input from the distro package maintainers.
->
-> Sure, no problem. I'll have a patch for pam_selinux(8) ready soon as
-> well. This patch goes back to the systemd-run0 discussion we had. I
-> just realised that if we're adding this to default_contexts, then we
-> also want to probably add the same functionality to contexts/users, so
-> I'll send another (RFC?) patch to document that too.
+On Jun 21, 2025 Casey Schaufler <casey@schaufler-ca.com> wrote:
+> 
+> Replace the timestamp and serial number pair used in audit records
+> with a structure containing the two elements.
+> 
+> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> ---
+>  kernel/audit.c   | 17 +++++++++--------
+>  kernel/audit.h   | 13 +++++++++----
+>  kernel/auditsc.c | 22 +++++++++-------------
+>  3 files changed, 27 insertions(+), 25 deletions(-)
 
-I think ideally we'd provide an extended libselinux function for
-reading these values for use by the pam modules to avoid exposing the
-file format directly to the pam modules, unless that has already
-happened.
+Dropped as this patch was merged into Linus' tree during the v6.18
+merge window via another patchset.  To be clear, I generally don't have
+a problem with multiple patchsets including a few common patches, it
+helps prevent cross-dependencies between patchsets which is a good
+thing.
 
->
-> Would you like me to ping your github account (@stephensmalley) on the
-> PR I send to pam?
-
-Sure.
+--
+paul-moore.com
