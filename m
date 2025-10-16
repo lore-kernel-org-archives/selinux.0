@@ -1,177 +1,123 @@
-Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B8DA32D0DD
-	for <selinux@vger.kernel.org>; Thu, 16 Oct 2025 16:10:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F421B217722
+	for <selinux@vger.kernel.org>; Thu, 16 Oct 2025 18:09:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760631037; cv=none; b=Ufz6ew7E9Bu87rEBtqPlIEyoKpjaX9g7Ar5WWDYyCmYJxQFJtXpZzkmz3uuI9+VEZYzaa876aHj8YwCmBo+WlSKlM+MqBloWfmlUnKJ0IXsRsXlZk+qAq3pxmqIwQKKYAObsHhYFR3g5HSuIS+0MaOQmYTqYFMo9ve2NA3sAm4s=
+	t=1760638180; cv=none; b=PbN3cvuAbGUNwPpvkTbZiAcLKWq/ECnfkQfSVMtW45xC9i0xVYCjpf/JBv8wOzCt2uAymzMd/oKDO353AASZiqFIsMxo/Xohn057Qz8Mt5F+gmfNimFcxnFR1qLOhsxePVmbFSift8Sp1RPQvcK5opPSCRZ8I95O321a20jE+0Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760631037; c=relaxed/simple;
-	bh=5UtGQucdHWvV1VugHg8AwOSOVxwUSSdJwhzi3mHy2TQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pGdPK1Xtyair2qCLQ5QOVHkEn1zGy+/UlwnpCAxxMYh836JdLumJQMqyXGhZVX2Gqpie5Utm2pWEoHTClYZwZ/ll6OrPtqYnUOjCM4FDVI++As6v+CaRQcZ6ma01WDe16hJu6ZdETbTvpviImZNFRrSbSzXKRJ6A+qGS1ZUD8QI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=NYCe9kIp; arc=none smtp.client-ip=209.85.216.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1760638180; c=relaxed/simple;
+	bh=zsYOaeFr2Hyxt89gz7G04HeM7h56ouBWo2fy93/X+aY=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=svZYbAYNmVBkF2n9/9hnw6033/BJ2gdp8g0V9FMr19+DKe/3HxMEzX9UA1AdP8eIqJkm97leFUtt6G9+T4w3cdUEncZhafs18shTCmyStwr8nqvStSqMQqpV8DX+ng2DaHSyyg7gGJJmge08vKMETd97hp8DpCurVzyLECNMM0M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LkwYE88s; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="NYCe9kIp"
-Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-32ec291a325so743427a91.1
-        for <selinux@vger.kernel.org>; Thu, 16 Oct 2025 09:10:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1760631034; x=1761235834; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=K2Fw457lsujl863WIGncA2buGEjIZuUiUwxbr3V3/I0=;
-        b=NYCe9kIpf/mRszA574OdjvoSPYFzejRcwuj0JOGNmm7dUGLMY1TDT4vaUHc+fYyGTA
-         GTKbLI6Y0ycCwGWTfRHkE70lxSrv/wHvHV4ardZofiC1bCO+SjPy8IFp4Ux38MmDXH2i
-         PI7DzyHRoMO4oId5IIbGdEVME5mj0JeHSRJoLYWSkt4ijCqEAH/piGZcnZJVO2wKisuW
-         gh85m5SBXKxw/cqFS9j9sFv7PpCMbH1Bt0w/JgCTVAxLzj7sISf+U52n4W9l3tZoURh8
-         n34hV+JWSGu+pVztnR3RKeXlPpbBx2Dqb2j/h2LxoihDwwqAJPW2ISopVBsBUrXONbij
-         qa1Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760631034; x=1761235834;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=K2Fw457lsujl863WIGncA2buGEjIZuUiUwxbr3V3/I0=;
-        b=Shlba0f9eR5RmSfwJ6BsM68RH9ECvoN+geaJ0mZIkBnJsCWQLKbrqS1vSnHvs27o2e
-         zhPuWNF3zrH/k6uEEmItSvoBmZmAVzffTiaqfFv66jzBLkcFPYfBqWymCZ3feLqkUPZc
-         0wJjwemlP4EzXqFMQVbjfsOCuUjwtccjhA635HrBVM6uyzeQMZb0dhti3IenCQVWPeQv
-         b4VKKKkp0/tgDlKaXMdP6AojqT3M2Uqq0Uki64qnTuB8yM3AIzESxXHhgs49KREsXUoD
-         F40VpNciqZRrUZ6uDosZAIDaWE4LgFb+UQDXOlRqS2JYAuY89o7a0xWZbuAWbyhR8xR+
-         AJtQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU6P2RkBOHsSgOvmLUU9Lw6byxeMYJ4N/NvHX3P3/cMPCika5J5e2Myx5OX3jjOgkgxVxr3idlZ@vger.kernel.org
-X-Gm-Message-State: AOJu0YwZfpAsEM3Tyg3JjnY9MlOqH4qx6dFTq5rxylZ0mXqBmHBamiSl
-	d+lDWDYgZrlcRZdN6PbatKkgNVbTys8j4JQ6FUiOfmqPSYKOoV7DDRDRZGL9/TPFB0/cpnyIz8X
-	uJ2Tav6oyHIDyuiRcjjieX7D0GmC0UZ6f3veT0ywI
-X-Gm-Gg: ASbGncuUoOVmODb5k44xNVD5hoKvKIqiBcCVowxPLg+biTqXxH3ef4ZGRdzFhy657v0
-	Ih3erMTM/U1pMbs7vjnWrgxOBH/O3sFfOD6Yo1WkoZmf2HcXpcxaMybdJK0OrZsXSms24W9VNSN
-	oRI0qHXPBWDe0ugHKPyvouRqW++ldfQrsZI5tNaQUW1d1lhJ29L41azsWzAeEuoruu6vh1NLFwF
-	P+AGoVBILll6U2fAMRPZT+AU8LA3xlELPM7ebfk6H+y9m+nSXiG/cYiTmTO3C8JjWdbInw=
-X-Google-Smtp-Source: AGHT+IGp38C0cJS6JqiJ1dH0cu4QMdk7Npt2z8JZts5L+nJgnRNXrI+h+Y4ddR4+oD1P7lBoPBzMJK7uS7Yj5h75FIM=
-X-Received: by 2002:a17:90a:ec8b:b0:32e:a10b:ce48 with SMTP id
- 98e67ed59e1d1-33bcf86c996mr442367a91.12.1760631034392; Thu, 16 Oct 2025
- 09:10:34 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LkwYE88s"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1760638177;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=DK8uoAPNnhceWoxbeMRLM8Nks+gU9B/bXBByjMwpB/o=;
+	b=LkwYE88sdTCrE4Pou/STUGpm6bWAaAiZloxRFYspUHSrm2nLYZT2lfcxO5TxPQsIMsjQxc
+	qi+Q6k7LD8IjGrjzCWPViN5QtslEL6XoXxS3ZMTfgxU/OgexV56k6bybQN3iNABKCMHPzS
+	K9WKQk+eLnscl0FYKvjozaS0TGBtHSg=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-651-60lgGsCaNLqisM8Ln6Vy3w-1; Thu,
+ 16 Oct 2025 14:09:36 -0400
+X-MC-Unique: 60lgGsCaNLqisM8Ln6Vy3w-1
+X-Mimecast-MFC-AGG-ID: 60lgGsCaNLqisM8Ln6Vy3w_1760638175
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B388D1800744
+	for <selinux@vger.kernel.org>; Thu, 16 Oct 2025 18:09:35 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.44.34.40])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id D72651956056
+	for <selinux@vger.kernel.org>; Thu, 16 Oct 2025 18:09:34 +0000 (UTC)
+From: Vit Mojzis <vmojzis@redhat.com>
+To: selinux@vger.kernel.org
+Subject: [PATCH] libselinux: Ignore files removed during relabeling
+Date: Thu, 16 Oct 2025 20:08:37 +0200
+Message-ID: <20251016180929.452863-1-vmojzis@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251008234613.2150-1-ericsu@linux.microsoft.com>
- <9f91729c4030890ebd10a6faa1009589@paul-moore.com> <CAEjxPJ4SdB1xEM2zNwAW9hgdh7QqbCEOewjaR0t61QnKNKyw3Q@mail.gmail.com>
- <CAHC9VhSAiAbW_-f0BRGXPSDKMesPj=2-wyEbrtDouYpYrq7j2w@mail.gmail.com> <CAEjxPJ7YU71UuWDa8tVm-dJAF+wZrmhujC9M2zkf+UXB44cEww@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7YU71UuWDa8tVm-dJAF+wZrmhujC9M2zkf+UXB44cEww@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 16 Oct 2025 12:10:22 -0400
-X-Gm-Features: AS18NWDXtHRKradrU9wzOo4v6MGbn__cnNJfCSlx9imnxCm0RTa8nH6fYJGffLo
-Message-ID: <CAHC9VhS5-5+LxEstKX=ZHNPK6RazRqejXOEOXv-UJjiNsvQ6GA@mail.gmail.com>
-Subject: Re: [PATCH v5] SELinux: Add support for BPF token access control
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Eric Suen <ericsu@linux.microsoft.com>, selinux@vger.kernel.org, 
-	omosnace@redhat.com, danieldurning.work@gmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-On Thu, Oct 16, 2025 at 11:52=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Thu, Oct 16, 2025 at 11:02=E2=80=AFAM Paul Moore <paul@paul-moore.com>=
- wrote:
-> > On Thu, Oct 16, 2025 at 10:05=E2=80=AFAM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > > On Wed, Oct 15, 2025 at 5:36=E2=80=AFPM Paul Moore <paul@paul-moore.c=
-om> wrote:
-> > > > On Oct  8, 2025 Eric Suen <ericsu@linux.microsoft.com> wrote:
-> > > > >
-> > > > > BPF token support was introduced to allow a privileged process to=
- delegate
-> > > > > limited BPF functionality=E2=80=94such as map creation and progra=
-m loading=E2=80=94to
-> > > > > an unprivileged process ...
+In case ignore_noent is specified, ignore files removed during
+relabeling (race condition between folder read, file read and label
+set).
 
-...
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+---
+ libselinux/src/selinux_restorecon.c | 30 ++++++++++++++++++++++++-----
+ 1 file changed, 25 insertions(+), 5 deletions(-)
 
-> > > > For a normal capability permission check, it makes sense for the su=
-bject
-> > > > and object to be the same as the process/subject isn't operating on
-> > > > anything other than itself, it's simply attempting to assert a capa=
-bility
-> > > > that it has been assigned.
-> > > >
-> > > > However, I don't believe it is quite as simple for the BPF token
-> > > > capability check.  In this case the current process isn't asking if=
- it
-> > > > can assert a capability assigned to itself, it is asking if it can =
-assert
-> > > > a capability assigned to the token.  Due to this I'm wondering if w=
-e
-> > > > should change the subject to the current task, leaving the object
-> > > > as the token:
-> > > >
-> > > >   selinux_bpf_token_capable(...)
-> > > >   {
-> > > >     struct bpf_security_struct *bpfsec =3D token->security
-> > > >     bool initns =3D (token->userns =3D=3D &init_user_ns);
-> > > >     u32 av =3D CAP_TO_MASK(cap);
-> > > >     u16 sclass;
-> > > >
-> > > >     switch (CAP_TO_INDEX(cap)) {
-> > > >     case 0:
-> > > >         sclass =3D initns ? SECCLASS_CAPABILITY : SECCCLASS_CAP_USE=
-RNS;
-> > > >         break;
-> > > >     ...
-> > > >     }
-> > > >
-> > > >     return avc_has_perm(current_sid(), bpfsec->sid, sclass, av, NUL=
-L);
-> > >
-> > > My understanding, which could be wrong, is that this hook is called
-> > > outside of process context (or at least outside of the context of
-> > > either process involved - token creator or token user) since it can b=
-e
-> > > called during any eBPF program and hence we can only use information
-> > > from the token, not the current process, for our permission checks. W=
-e
-> > > could perhaps pre-compute the capability access vectors at token
-> > > creation time and cache them for later checking instead.
-> >
-> > If you take a close look at bpf_token_capable() and you follow the
-> > bpf_ns_capable() call down to ns_capable_common() you will see that it
-> > calls into security_capable() with the current task's creds.  I
-> > haven't chased all of the callers of bpf_token_capable(), but if there
-> > is a case where bpf_token_capable() is being called outside of the
-> > current task's process context we have a larger problem that needs to
-> > be addressed.
-> >
-> > Aside from the calling context, does the subj/obj change sound
-> > reasonable?  While I think it makes sense, I like getting a sanity
-> > check from others on things like this as the impact is significant.
->
-> I suppose the only residual question is whether the bpffs creator sid
-> should factor into these checks too as it does for the
-> map_create/prog_load ones. Daniel's patch didn't have that construct
-> and hence didn't consider it.
+diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
+index 39eabeb9..7cad4c8d 100644
+--- a/libselinux/src/selinux_restorecon.c
++++ b/libselinux/src/selinux_restorecon.c
+@@ -726,6 +726,14 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
+ 			    pathname, newcon);
+ 
+ 	if (lgetfilecon_raw(pathname, &curcon) < 0) {
++		/* Ignore files removed during relabeling if ignore_noent is set */
++		if (flags->ignore_noent && errno == ENOENT){
++			if (flags->verbose)
++				selinux_log(SELINUX_INFO,
++					    "%s removed during relabeling\n",
++					    pathname);
++			goto out;
++		}
+ 		if (errno != ENODATA)
+ 			goto err;
+ 
+@@ -765,8 +773,19 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
+ 		}
+ 
+ 		if (!flags->nochange) {
+-			if (lsetfilecon(pathname, newcon) < 0)
+-				goto err;
++			if (lsetfilecon(pathname, newcon) < 0){
++				/* Ignore files removed during relabeling if ignore_noent is set */
++				if (flags->ignore_noent && errno == ENOENT){
++					if (flags->verbose)
++						selinux_log(SELINUX_INFO,
++							    "%s removed during relabeling\n",
++							    pathname);
++					goto out;
++				}
++				else
++					goto err;
++			}
++
+ 			updated = true;
+ 		}
+ 
+@@ -932,9 +951,10 @@ loop_body:
+ 		case FTS_NS:
+ 			error = errno;
+ 			errno = ftsent->fts_errno;
+-			selinux_log(SELINUX_ERROR,
+-				    "Could not stat %s: %m.\n",
+-				    ftsent->fts_path);
++			if (!state->flags.ignore_noent || errno != ENOENT)
++				selinux_log(SELINUX_ERROR,
++					    "Could not stat %s: %m.\n",
++					    ftsent->fts_path);
+ 			errno = error;
+ 			fts_set(fts, ftsent, FTS_SKIP);
+ 			continue;
+-- 
+2.51.0
 
-Yes, good point, I was mistakenly thinking that the token's label was
-from the creator SID, but it isn't as the child namespace creates the
-token.  I think we probably need a grantor_sid field in the
-bpf_security_struct that is set to the superblock's creator_sid in
-selinux_bpf_token_create(); the grantor_sid would then be used as the
-object in the selinux_bpf_token_capable() check.
-
-> If not, then I suppose the proposed
-> subj/obj change is reasonable albeit a bit strange looking to those
-> who are used to capability checks always being task-self checks.
-
-Yes, I agree it would be a bit unusual, but I'm more concerned with
-the permission check properly reflecting what is being requested by
-the kernel.  I also tend to think that the bpf token capability check
-looking a bit unusual may be a positive thing as it will allow policy
-devs/admins to better distinguish between "normal" capability checks
-and token-based capability checks.
-
---=20
-paul-moore.com
