@@ -1,269 +1,179 @@
-Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
+Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BFA2186284
-	for <selinux@vger.kernel.org>; Thu, 16 Oct 2025 14:05:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47A933451AA
+	for <selinux@vger.kernel.org>; Thu, 16 Oct 2025 15:02:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760623517; cv=none; b=Iyb8n0+0oscAax2du6p89jQHsF9liAMjgYCZKJvhvAxUp8HssHRiO31hROf6TU2DAVBEOXMNCEmUgYYQNek5O/WchhpObbZXaIRhMnyWypFwEPm47HajpAWbyyCJAXdr9avb+b3SLXeN/F/tXmy7n8p8CfuTungtXrKY36Zrws4=
+	t=1760626974; cv=none; b=r53TA6XoR66Qz5ijeSF2G+1CJ5DPyrBGum1N7hdOJ+wFpWl+Ziv6BQ0IBWW+wkRyvqaJY/YekXQUNf7dRt7M8/qpHiMERg/PgGecotT8t/rL2HY276ev8d7yWXQtmXIvo3IFR5DzpDYTfV2wh4w41OxtyKDgNzNqx5mjlrxPjZM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760623517; c=relaxed/simple;
-	bh=kiIjqOgmcZWHioyY59M9oltsD2+SjqBHb5ZjUnGdmgA=;
+	s=arc-20240116; t=1760626974; c=relaxed/simple;
+	bh=Xc7ykTilSR0QjIBYhCP6P27H5PcVxVD5VJ34rH6FIMw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=q2E05roP7YPTQ4zwbeKMwENDE6pBL7Eoc138csLnU6ZZb+HK1Cs4df19jt51n+IneXdpsoKBhaLWiDwD+rF4ZGTyr4R5PXkr8LQfpJPmAGeyYUtl+X0sGm4jRMTFLKC4n7AouDWFb+TwYJ7YCEUSHuEa4Lpt34JYrKIokx8YD+Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=N1eGfkdS; arc=none smtp.client-ip=209.85.210.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=GlTGeR8bQzH3MK9NH2fheaAMdEOSk1lU7cDUbQ3TTlWh+qNj/Z5INr8ATSIJaGxariORwQa86DAXDyRmWzmuCAL/xJpLChVZEdHymTS4AeEFpjZcQ1YZkgCRDR2yJS41vgXqvWHdZICrHsKxHNchUOZ+jy/FuaVmD7NxiGN53uw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=ACRbcwwE; arc=none smtp.client-ip=209.85.210.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N1eGfkdS"
-Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-781206cce18so850003b3a.0
-        for <selinux@vger.kernel.org>; Thu, 16 Oct 2025 07:05:14 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="ACRbcwwE"
+Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-77f67ba775aso1274147b3a.3
+        for <selinux@vger.kernel.org>; Thu, 16 Oct 2025 08:02:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1760623514; x=1761228314; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1760626971; x=1761231771; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ulnwp41U1+A0HF+wwi+uQ0+tbMyK/WTny4LEDbP00Ds=;
-        b=N1eGfkdSMHcIv4ToBP8m9qYlX8ZUQXFfx3YXK+Y1NHWzXgx1aa2kvIngbOxhh8217f
-         lDOnuyM6KrLd931W4zDtT8JYzw8hYfrTMp9NoAihKs1ZqHvpjxuiifgBCUxMvlqH7SuU
-         sTcn25DB3mp3njlCxwk5y+z1zgJZfOCs46Zz214KlPmtxDINZKYbfBHI2g6DzSnnwIjf
-         RQcXxBb2taCEJ/tEml+F3xLtFAhcQtZr0jsmUWPPkbIAgerBR0to618lzm3PPBcwS8Sj
-         yk4ig9Wf0o1GNew2oX9Rwy9Cr/jWssmC97ey+FFZYzt75G2gRLqPn8LHDGWtWCWXzJnI
-         C5cw==
+        bh=jhGFr30axY/WgwfaF9z+hifsh/Fg7t+15krQpfPhwhM=;
+        b=ACRbcwwEh5LO0efNDEl/bVqv6cOhVzGNhURL4t8nQorjWplkS88lawTTtOC6L78VRb
+         l4AeGBFkTK9Q33LJPiM86v8189HkCC9C23ii49EWOksa9e8E7uZyUHUQ0bvh99bSdM5V
+         Euikwn9qDcW/LV2Z5ttaiYTwwGSgugtVhQ7orEeknIxj2VZA58a8biOcg2O5bSgV+uX/
+         SZKwqJSpypMBU6/UmAZFN7gxRUDvb2Y9zBBDJqNUqQBrYIO8gEobXaDYGRJIPnTyW01+
+         sUa6P1248O37DD4lj+hooP3ZYYoV9o5n8I2niuTcXwzQxFLRvBQ3IeGGDZ87eP+X9KH8
+         bT/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760623514; x=1761228314;
+        d=1e100.net; s=20230601; t=1760626971; x=1761231771;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ulnwp41U1+A0HF+wwi+uQ0+tbMyK/WTny4LEDbP00Ds=;
-        b=DYAQyyrhdHPhbizgq3gEEIhtqNJwYe5s510rElkVkfY+u8F+RnEKEZEt1XlXAlwh09
-         8hXmEz06VUqpvTI/dAAgCZ6U3RdUznCz05YYKxS9+l/y6kdoiovsX3RPvZLKLRkggJ+4
-         cyz2zlTiZ4YnRUT7O/NkHanC1mCroxIb8NjzUekgCDImIaofhO8qOf9FL7siveT4xtjS
-         K3F/xWMz4lz/BdHS7CiGqBK8vYNAa8E83avYXv3W7WoSU3bzgLnf0PTGEq5PLhIGjt7a
-         golv6Y5gIGnSyIZfCWMZWkdyYT0ZWzu5RMpIWbFJO5IA7yiFQgCor9bJuvhe5i2xgXTq
-         JIlQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVOPMwvd1DugPm5dZwXPN3fS4F3+lygdz3jyuYOtCCPSeRRZC8LGwYEOuyxBwQQuB8cnf1n5TH9@vger.kernel.org
-X-Gm-Message-State: AOJu0YwOl0Y4pCIsqZFyt6LAPbuziGC+mQFyBK7RsQSUTILVGslLPZSG
-	OdeSLNS4O7KZzy2hwOpn1nQtRSO1uElaKAgl4VtCe/rvImGe+1gdWsS2zX7Sqs3Y1SATI7pFXM/
-	g3dr4OB5dmzJLgfqrVgCqEV24moFmiCU=
-X-Gm-Gg: ASbGncsRc0fcSHsQgvpWh+pOZ6nbQVQH485kuoXNZ0QpIakyRJ7MYDQUtzardLgddZh
-	wxlZXjCrDCp0zFv2gz4GTTjxHkfSVUUFQ6BMYVv9zF7ouiTEb1q6Ga+fdeffX2/mm/B7z6/7Pqc
-	v/8F8EhreRLLQsrdZ1Z0zNUegGZ/Su56sg1guzL5zhIBwcp8LVqZRsiEptmWmTR3Tfk+P1pOcce
-	hTaPhXzUadgxE4KaHYVD77EwR/CmqPmp61IxwlUuV0129vW1fdvx0GYPTbQ
-X-Google-Smtp-Source: AGHT+IHtS1/GOZbfEvBQs7rJVE/wpPXPA9J774IRQTdmV3RSZgOW5m+xGj4HCJnaKG392adbcrrpm/JYZmNnBrVGzaQ=
-X-Received: by 2002:a05:6a21:329f:b0:2b9:6b0b:66be with SMTP id
- adf61e73a8af0-334a78fbd57mr465129637.14.1760623513415; Thu, 16 Oct 2025
- 07:05:13 -0700 (PDT)
+        bh=jhGFr30axY/WgwfaF9z+hifsh/Fg7t+15krQpfPhwhM=;
+        b=UacK+CoAcCOwSC6EjoAM0PBzVcvZV/NZrNfkTYxLEehC7z5JvkikN1pGpVyP+PGhz+
+         egn6Qz4ik094FjT85fe1TEr/3RmTrA63mpkRI2mg1JV+uBdSOFHmX5uLol6bu55E27Js
+         VwqQs4agKkYDiA0kBVQPRrmdcGTgkubcTkckuktClD0DLqGxP0rYf0dgcO8Yh7M0tkIc
+         GstT/RGxBIv8OboWXRfS5Cd5x7ZpbtkzG8EbZtX3UdnmWi/fhfakKTwf5OvpfX3twU5r
+         jDiFCdwP3wvcU5rzikW6nzdpVHep3A/2xjAfmj1L6UlaFUS6pgsZweFNIJjn6KlkwDgW
+         ohzw==
+X-Forwarded-Encrypted: i=1; AJvYcCWBCukpd3akd3vryvjsCzntKBXBkxYfplJ2LUFrc+frZJu8RxX5nnKqoJoJWeYmeTeJL7awXd4v@vger.kernel.org
+X-Gm-Message-State: AOJu0YxtTT+ldbm4oub2lUpPaZ2V6PB8p1Dl4KMaxjj0Vt9Db8PZQnbw
+	Jq65eaCXxYOsgwnMOIIofX/9JFMb5VwyXAmv2jUgKO0jqMXlA8iDFQzj29evz5dzLpbwqr/EWsT
+	ezFKhReDyCQHFzvMECTU4twUDMXL3ddTH1Hwy4Jxxd1YK8Ng8AzDigz2E
+X-Gm-Gg: ASbGncsPHcykFdPJUvLEvUsMrhTGQZFTBpKgFURVsmNpl3bmHftDtkiHr3Of5SQJBkQ
+	uKnk9U3wNoo4GSkzzuZhFm5i1cNw1ckQHaqZ9Wk3eH0XbPrBAonOR1gA7i2dVZiwTV3aKz+BGro
+	wwS8jkcFowqBvWAx5hoWnMKixjnL0tlNSAuurvdPHIaj3FgDd1QRRRXtOzYEk3twroLM20p6W0x
+	Cku1XyCSuyQpAp5bv2T+dbUckxGk29rFsDlUQA1Cstpl9O866BxXBwEae798IYN9kb+kkc=
+X-Google-Smtp-Source: AGHT+IFqc5ie2mNylwJg5E3qdaOqEzTyuedsVS0GcuS2gogOS8n12mxffYYtv6c42j10+ZDO5sIDE2LEHDrW5c415YE=
+X-Received: by 2002:a17:902:f647:b0:273:1516:3ed2 with SMTP id
+ d9443c01a7336-290cb756abemr3256425ad.50.1760626969424; Thu, 16 Oct 2025
+ 08:02:49 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251008234613.2150-1-ericsu@linux.microsoft.com> <9f91729c4030890ebd10a6faa1009589@paul-moore.com>
-In-Reply-To: <9f91729c4030890ebd10a6faa1009589@paul-moore.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 16 Oct 2025 10:05:02 -0400
-X-Gm-Features: AS18NWDA9zYJ8OpoYTIKWFNG8OFkEwl7iQkTV4kknnyxiF-I68Ijb4lAp4096Cg
-Message-ID: <CAEjxPJ4SdB1xEM2zNwAW9hgdh7QqbCEOewjaR0t61QnKNKyw3Q@mail.gmail.com>
+References: <20251008234613.2150-1-ericsu@linux.microsoft.com>
+ <9f91729c4030890ebd10a6faa1009589@paul-moore.com> <CAEjxPJ4SdB1xEM2zNwAW9hgdh7QqbCEOewjaR0t61QnKNKyw3Q@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4SdB1xEM2zNwAW9hgdh7QqbCEOewjaR0t61QnKNKyw3Q@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 16 Oct 2025 11:02:37 -0400
+X-Gm-Features: AS18NWA-wye4fUasrYO1mWoGwHClF59N49x5kX8uiLxt88MxSVcy1pKWWAPMh0U
+Message-ID: <CAHC9VhSAiAbW_-f0BRGXPSDKMesPj=2-wyEbrtDouYpYrq7j2w@mail.gmail.com>
 Subject: Re: [PATCH v5] SELinux: Add support for BPF token access control
-To: Paul Moore <paul@paul-moore.com>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
 Cc: Eric Suen <ericsu@linux.microsoft.com>, selinux@vger.kernel.org, 
 	omosnace@redhat.com, danieldurning.work@gmail.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Oct 15, 2025 at 5:36=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
->
-> On Oct  8, 2025 Eric Suen <ericsu@linux.microsoft.com> wrote:
-> >
-> > BPF token support was introduced to allow a privileged process to deleg=
-ate
-> > limited BPF functionality=E2=80=94such as map creation and program load=
-ing=E2=80=94to
-> > an unprivileged process:
-> >   https://lore.kernel.org/linux-security-module/20231130185229.2688956-=
-1-andrii@kernel.org/
-> >
-> > This patch adds SELinux support for controlling BPF token access. With
-> > this change, SELinux policies can now enforce constraints on BPF token
-> > usage based on both the delegating (privileged) process and the recipie=
-nt
-> > (unprivileged) process.
-> >
-> > Supported operations currently include:
-> >   - map_create
-> >   - prog_load
-> >
-> > High-level workflow:
-> >   1. An unprivileged process creates a VFS context via `fsopen()` and
-> >      obtains a file descriptor.
-> >   2. This descriptor is passed to a privileged process, which configure=
-s
-> >      BPF token delegation options and mounts a BPF filesystem.
-> >   3. SELinux records the `creator_sid` of the privileged process during
-> >      mount setup.
-> >   4. The unprivileged process then uses this BPF fs mount to create a
-> >      token and attach it to subsequent BPF syscalls.
-> >   5. During verification of `map_create` and `prog_load`, SELinux uses
-> >      `creator_sid` and the current SID to check policy permissions via:
-> >        avc_has_perm(creator_sid, current_sid, SECCLASS_BPF,
-> >                     BPF__MAP_CREATE, NULL);
-> >
-> > The implementation introduces two new permissions:
-> >   - map_create_as
-> >   - prog_load_as
-> >
-> > At token creation time, SELinux verifies that the current process has t=
-he
-> > appropriate `*_as` permission (depending on the `allowed_cmds` value in
-> > the bpf_token) to act on behalf of the `creator_sid`.
-> >
-> > Example SELinux policy:
-> >   allow test_bpf_t self:bpf {
-> >       map_create map_read map_write prog_load prog_run
-> >       map_create_as prog_load_as
-> >   };
-> >
-> > Additionally, a new policy capability bpf_token_perms is added to ensur=
-e
-> > backward compatibility. If disabled, previous behavior ((checks based o=
-n
-> > current process SID)) is preserved.
-> >
-> > Signed-off-by: Eric Suen <ericsu@linux.microsoft.com>
-> > Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > Tested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > ---
-> > Changes in v2:
-> > - Fixed bug in selinux_bpffs_creator_sid(u32 fd) where it retrieved
-> >   creator_sid from wrong file descriptor
-> > - Removed unnecessary checks for null, per review comments from
-> >   the first patch
-> >
-> > Changes in v3:
-> > - Removed check for 'sid =3D=3D SECSID_NULL' in selinux_bpf_token_creat=
-e and
-> >   allow it to fall through to the permission checks which will fail as
-> >   access denied to unlabeled_t
-> >
-> > Changes in v4:
-> > - Added initialization of creator_sid in selinux_sb_alloc_security
-> > - Enabled handling of creator_sid in selinux_cmp_sb_context and
-> >   selinux_sb_clone_mnt_opts
-> > - Minor updates based on review comments
-> >
-> > Changes in v5:
-> > - Moved to dev-staging branch instead of main
-> > - Added implementation of selinux_bpf_token_capable which is originally
-> >   from Daniel's patch
-> >   https://lore.kernel.org/selinux/20250801154637.143931-1-danieldurning=
-.work@gmail.com/
-> >
-> >  security/selinux/hooks.c                   | 116 ++++++++++++++++++++-
-> >  security/selinux/include/classmap.h        |   2 +-
-> >  security/selinux/include/objsec.h          |   2 +
-> >  security/selinux/include/policycap.h       |   1 +
-> >  security/selinux/include/policycap_names.h |   1 +
-> >  security/selinux/include/security.h        |   6 ++
-> >  6 files changed, 125 insertions(+), 3 deletions(-)
->
-> FYI, I had to apply a surprising amount of merge fixups due to the
-> allocator changes that went up to Linus during the merge window; I've
-> never seen git put put patch hunks in such odd places before ...
->
-> I fixed up several long lines too (lines > 80 chars).
->
-> I also gave credit to Daniel in the commit description with the following
-> text:
->
->     Credit to Daniel Durning <danieldurning.work@gmail.com> for his work =
-on
->     the selinux_bpf_token_capable() implementation.
->
-> ... but I have some questions about the BPF token capability hook, see be=
-low.
->
-> > +static int selinux_bpf_token_capable(const struct bpf_token *token, in=
-t cap)
-> > +{
-> > +     u16 sclass;
-> > +     struct bpf_security_struct *bpfsec =3D token->security;
-> > +     u32 sid =3D bpfsec->sid;
-> > +     u32 av =3D CAP_TO_MASK(cap);
-> > +
-> > +     switch (CAP_TO_INDEX(cap)) {
-> > +     case 0:
-> > +             sclass =3D SECCLASS_CAP_USERNS;
-> > +             break;
-> > +     case 1:
-> > +             sclass =3D SECCLASS_CAP2_USERNS;
-> > +             break;
->
-> This assumes that this call will always be made in a non-init userns,
-> I'd rather see us handle arbitrary user namespaces, see
-> bpf_token_capable() for hints.
+On Thu, Oct 16, 2025 at 10:05=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+> On Wed, Oct 15, 2025 at 5:36=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
+wrote:
+> > On Oct  8, 2025 Eric Suen <ericsu@linux.microsoft.com> wrote:
+> > >
+> > > BPF token support was introduced to allow a privileged process to del=
+egate
+> > > limited BPF functionality=E2=80=94such as map creation and program lo=
+ading=E2=80=94to
+> > > an unprivileged process ...
 
-Is that possible? bpf_token_create() explicitly disallows creating a
-BPF token in the init_user_ns.
+...
 
-> This is especially important if we consider that the capability being
-> checked doesn't necessarily belong to the current task, but rather the
-> token, which was very likely created in a userns closer to the init ns,
-> more on this below.
+> > > +static int selinux_bpf_token_capable(const struct bpf_token *token, =
+int cap)
+> > > +{
+> > > +     u16 sclass;
+> > > +     struct bpf_security_struct *bpfsec =3D token->security;
+> > > +     u32 sid =3D bpfsec->sid;
+> > > +     u32 av =3D CAP_TO_MASK(cap);
+> > > +
+> > > +     switch (CAP_TO_INDEX(cap)) {
+> > > +     case 0:
+> > > +             sclass =3D SECCLASS_CAP_USERNS;
+> > > +             break;
+> > > +     case 1:
+> > > +             sclass =3D SECCLASS_CAP2_USERNS;
+> > > +             break;
+> >
+> > This assumes that this call will always be made in a non-init userns,
+> > I'd rather see us handle arbitrary user namespaces, see
+> > bpf_token_capable() for hints.
 >
-> > +     default:
-> > +             pr_err("SELinux:  out of range capability %d\n", cap);
-> > +             return -EINVAL;
-> > +     }
-> > +
-> > +     return avc_has_perm(sid, sid, sclass, av, NULL);
-> > +}
->
-> This is surely a copy-n-paste from selinux_capable(), which is a very
-> sensible thing to do, however I do wonder if the special nature of the
-> BPF tokens warrants a change in the subj/obj.
->
-> For a normal capability permission check, it makes sense for the subject
-> and object to be the same as the process/subject isn't operating on
-> anything other than itself, it's simply attempting to assert a capability
-> that it has been assigned.
->
-> However, I don't believe it is quite as simple for the BPF token
-> capability check.  In this case the current process isn't asking if it
-> can assert a capability assigned to itself, it is asking if it can assert
-> a capability assigned to the token.  Due to this I'm wondering if we
-> should change the subject to the current task, leaving the object
-> as the token:
->
->   selinux_bpf_token_capable(...)
->   {
->     struct bpf_security_struct *bpfsec =3D token->security
->     bool initns =3D (token->userns =3D=3D &init_user_ns);
->     u32 av =3D CAP_TO_MASK(cap);
->     u16 sclass;
->
->     switch (CAP_TO_INDEX(cap)) {
->     case 0:
->         sclass =3D initns ? SECCLASS_CAPABILITY : SECCCLASS_CAP_USERNS;
->         break;
->     ...
->     }
->
->     return avc_has_perm(current_sid(), bpfsec->sid, sclass, av, NULL);
+> Is that possible? bpf_token_create() explicitly disallows creating a
+> BPF token in the init_user_ns.
 
-My understanding, which could be wrong, is that this hook is called
-outside of process context (or at least outside of the context of
-either process involved - token creator or token user) since it can be
-called during any eBPF program and hence we can only use information
-from the token, not the current process, for our permission checks. We
-could perhaps pre-compute the capability access vectors at token
-creation time and cache them for later checking instead.
+Yes, you are correct, bpf_token_create() blocks creating a token in
+the init userns, but based on the return codes and comments in the
+function I worry that this is simply because the BPF devs can't think
+of a good reason to allow it at the moment, and not because it is
+something that they want to intentionally block.  If we don't have
+code to handle both the init and non-init cases we might miss a change
+in bpf_token_create() that could cause us to use the wrong object
+class in the future.
 
->   }
+The change to support both types of user namespaces is relatively
+small so I'd rather us include it now and have one less bug waiting
+for us in the future.
+
+> > For a normal capability permission check, it makes sense for the subjec=
+t
+> > and object to be the same as the process/subject isn't operating on
+> > anything other than itself, it's simply attempting to assert a capabili=
+ty
+> > that it has been assigned.
+> >
+> > However, I don't believe it is quite as simple for the BPF token
+> > capability check.  In this case the current process isn't asking if it
+> > can assert a capability assigned to itself, it is asking if it can asse=
+rt
+> > a capability assigned to the token.  Due to this I'm wondering if we
+> > should change the subject to the current task, leaving the object
+> > as the token:
+> >
+> >   selinux_bpf_token_capable(...)
+> >   {
+> >     struct bpf_security_struct *bpfsec =3D token->security
+> >     bool initns =3D (token->userns =3D=3D &init_user_ns);
+> >     u32 av =3D CAP_TO_MASK(cap);
+> >     u16 sclass;
+> >
+> >     switch (CAP_TO_INDEX(cap)) {
+> >     case 0:
+> >         sclass =3D initns ? SECCLASS_CAPABILITY : SECCCLASS_CAP_USERNS;
+> >         break;
+> >     ...
+> >     }
+> >
+> >     return avc_has_perm(current_sid(), bpfsec->sid, sclass, av, NULL);
 >
-> Thoughts?
->
-> --
-> paul-moore.com
+> My understanding, which could be wrong, is that this hook is called
+> outside of process context (or at least outside of the context of
+> either process involved - token creator or token user) since it can be
+> called during any eBPF program and hence we can only use information
+> from the token, not the current process, for our permission checks. We
+> could perhaps pre-compute the capability access vectors at token
+> creation time and cache them for later checking instead.
+
+If you take a close look at bpf_token_capable() and you follow the
+bpf_ns_capable() call down to ns_capable_common() you will see that it
+calls into security_capable() with the current task's creds.  I
+haven't chased all of the callers of bpf_token_capable(), but if there
+is a case where bpf_token_capable() is being called outside of the
+current task's process context we have a larger problem that needs to
+be addressed.
+
+Aside from the calling context, does the subj/obj change sound
+reasonable?  While I think it makes sense, I like getting a sanity
+check from others on things like this as the impact is significant.
+
+--=20
+paul-moore.com
