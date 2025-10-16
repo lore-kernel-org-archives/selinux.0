@@ -1,186 +1,269 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 732B0243969
-	for <selinux@vger.kernel.org>; Thu, 16 Oct 2025 11:02:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BFA2186284
+	for <selinux@vger.kernel.org>; Thu, 16 Oct 2025 14:05:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760612557; cv=none; b=qBR0Dj+dR/Oq63Lce6BtgB1WeAGJG4+xj+tw9Q4rM7jFIbOIdXzLoTZLx37357sIP1B93t49kBXOBgCowp1czy7mcU17612nODSzH3Vi7jhRCWkBon+q3gIgi9Jwpk0tQTgWNTjCLWddVffGV7Frs97ENysssz8MdgFEyhGLLQ0=
+	t=1760623517; cv=none; b=Iyb8n0+0oscAax2du6p89jQHsF9liAMjgYCZKJvhvAxUp8HssHRiO31hROf6TU2DAVBEOXMNCEmUgYYQNek5O/WchhpObbZXaIRhMnyWypFwEPm47HajpAWbyyCJAXdr9avb+b3SLXeN/F/tXmy7n8p8CfuTungtXrKY36Zrws4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760612557; c=relaxed/simple;
-	bh=QfApUCjeA54oY/UI0rlOTppWTpEejp4a9h6j6gyUFlI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=coKiox3jL323sVp6aF8WwNWt1RUm0JPTslS8NPp0c7A1jq9MCVGIquf5xWSgSBv0VjOkm0EQSZQDDJA66YjI1QnRYvTcvC+DR7xG8ae9k4C0EgddeeeG8WgTuzqydHIpI7ArEKwzwmz1NP7+PcmmgKAVyKddHEXiq0BbS01hvxA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eAWylTVf; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1760623517; c=relaxed/simple;
+	bh=kiIjqOgmcZWHioyY59M9oltsD2+SjqBHb5ZjUnGdmgA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=q2E05roP7YPTQ4zwbeKMwENDE6pBL7Eoc138csLnU6ZZb+HK1Cs4df19jt51n+IneXdpsoKBhaLWiDwD+rF4ZGTyr4R5PXkr8LQfpJPmAGeyYUtl+X0sGm4jRMTFLKC4n7AouDWFb+TwYJ7YCEUSHuEa4Lpt34JYrKIokx8YD+Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=N1eGfkdS; arc=none smtp.client-ip=209.85.210.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eAWylTVf"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1760612553;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=EV67XLAliAWteGnv6LeupYn1YMdBJhusGkJrVtgTyoY=;
-	b=eAWylTVfVJg0q6AgnS47DxKr9W2rjt305FRsXY8Gmh8gSxKDDH1hLKhA+gmmEs4QQVMl4A
-	5URfh1a7ycIVaDGDTAI7PFCV3taAkfDfQNaxpUhDA149FJeXwYCoElTK8a0+tbsFlWQCAA
-	kkt5SLekA4Te4RVo7MtvDlNDLsLU3B8=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-97-i6akanTxO56IkvV9FiVnTA-1; Thu,
- 16 Oct 2025 07:02:30 -0400
-X-MC-Unique: i6akanTxO56IkvV9FiVnTA-1
-X-Mimecast-MFC-AGG-ID: i6akanTxO56IkvV9FiVnTA_1760612549
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 71F9D1956095;
-	Thu, 16 Oct 2025 11:02:28 +0000 (UTC)
-Received: from fedora (unknown [10.72.120.7])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 825CE19560AD;
-	Thu, 16 Oct 2025 11:02:22 +0000 (UTC)
-Date: Thu, 16 Oct 2025 19:02:17 +0800
-From: Ming Lei <ming.lei@redhat.com>
-To: Ondrej Mosnacek <omosnace@redhat.com>
-Cc: Josef Bacik <josef@toxicpanda.com>, Jens Axboe <axboe@kernel.dk>,
-	linux-block@vger.kernel.org, nbd@other.debian.org,
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH v2] nbd: override creds to kernel when calling
- sock_{send,recv}msg()
-Message-ID: <aPDQuZzIHHzYq7vt@fedora>
-References: <20251010080900.1680512-1-omosnace@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N1eGfkdS"
+Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-781206cce18so850003b3a.0
+        for <selinux@vger.kernel.org>; Thu, 16 Oct 2025 07:05:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1760623514; x=1761228314; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ulnwp41U1+A0HF+wwi+uQ0+tbMyK/WTny4LEDbP00Ds=;
+        b=N1eGfkdSMHcIv4ToBP8m9qYlX8ZUQXFfx3YXK+Y1NHWzXgx1aa2kvIngbOxhh8217f
+         lDOnuyM6KrLd931W4zDtT8JYzw8hYfrTMp9NoAihKs1ZqHvpjxuiifgBCUxMvlqH7SuU
+         sTcn25DB3mp3njlCxwk5y+z1zgJZfOCs46Zz214KlPmtxDINZKYbfBHI2g6DzSnnwIjf
+         RQcXxBb2taCEJ/tEml+F3xLtFAhcQtZr0jsmUWPPkbIAgerBR0to618lzm3PPBcwS8Sj
+         yk4ig9Wf0o1GNew2oX9Rwy9Cr/jWssmC97ey+FFZYzt75G2gRLqPn8LHDGWtWCWXzJnI
+         C5cw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1760623514; x=1761228314;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ulnwp41U1+A0HF+wwi+uQ0+tbMyK/WTny4LEDbP00Ds=;
+        b=DYAQyyrhdHPhbizgq3gEEIhtqNJwYe5s510rElkVkfY+u8F+RnEKEZEt1XlXAlwh09
+         8hXmEz06VUqpvTI/dAAgCZ6U3RdUznCz05YYKxS9+l/y6kdoiovsX3RPvZLKLRkggJ+4
+         cyz2zlTiZ4YnRUT7O/NkHanC1mCroxIb8NjzUekgCDImIaofhO8qOf9FL7siveT4xtjS
+         K3F/xWMz4lz/BdHS7CiGqBK8vYNAa8E83avYXv3W7WoSU3bzgLnf0PTGEq5PLhIGjt7a
+         golv6Y5gIGnSyIZfCWMZWkdyYT0ZWzu5RMpIWbFJO5IA7yiFQgCor9bJuvhe5i2xgXTq
+         JIlQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVOPMwvd1DugPm5dZwXPN3fS4F3+lygdz3jyuYOtCCPSeRRZC8LGwYEOuyxBwQQuB8cnf1n5TH9@vger.kernel.org
+X-Gm-Message-State: AOJu0YwOl0Y4pCIsqZFyt6LAPbuziGC+mQFyBK7RsQSUTILVGslLPZSG
+	OdeSLNS4O7KZzy2hwOpn1nQtRSO1uElaKAgl4VtCe/rvImGe+1gdWsS2zX7Sqs3Y1SATI7pFXM/
+	g3dr4OB5dmzJLgfqrVgCqEV24moFmiCU=
+X-Gm-Gg: ASbGncsRc0fcSHsQgvpWh+pOZ6nbQVQH485kuoXNZ0QpIakyRJ7MYDQUtzardLgddZh
+	wxlZXjCrDCp0zFv2gz4GTTjxHkfSVUUFQ6BMYVv9zF7ouiTEb1q6Ga+fdeffX2/mm/B7z6/7Pqc
+	v/8F8EhreRLLQsrdZ1Z0zNUegGZ/Su56sg1guzL5zhIBwcp8LVqZRsiEptmWmTR3Tfk+P1pOcce
+	hTaPhXzUadgxE4KaHYVD77EwR/CmqPmp61IxwlUuV0129vW1fdvx0GYPTbQ
+X-Google-Smtp-Source: AGHT+IHtS1/GOZbfEvBQs7rJVE/wpPXPA9J774IRQTdmV3RSZgOW5m+xGj4HCJnaKG392adbcrrpm/JYZmNnBrVGzaQ=
+X-Received: by 2002:a05:6a21:329f:b0:2b9:6b0b:66be with SMTP id
+ adf61e73a8af0-334a78fbd57mr465129637.14.1760623513415; Thu, 16 Oct 2025
+ 07:05:13 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251010080900.1680512-1-omosnace@redhat.com>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+References: <20251008234613.2150-1-ericsu@linux.microsoft.com> <9f91729c4030890ebd10a6faa1009589@paul-moore.com>
+In-Reply-To: <9f91729c4030890ebd10a6faa1009589@paul-moore.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 16 Oct 2025 10:05:02 -0400
+X-Gm-Features: AS18NWDA9zYJ8OpoYTIKWFNG8OFkEwl7iQkTV4kknnyxiF-I68Ijb4lAp4096Cg
+Message-ID: <CAEjxPJ4SdB1xEM2zNwAW9hgdh7QqbCEOewjaR0t61QnKNKyw3Q@mail.gmail.com>
+Subject: Re: [PATCH v5] SELinux: Add support for BPF token access control
+To: Paul Moore <paul@paul-moore.com>
+Cc: Eric Suen <ericsu@linux.microsoft.com>, selinux@vger.kernel.org, 
+	omosnace@redhat.com, danieldurning.work@gmail.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 10, 2025 at 10:09:00AM +0200, Ondrej Mosnacek wrote:
-> sock_{send,recv}msg() internally calls security_socket_{send,recv}msg(),
-> which does security checks (e.g. SELinux) for socket access against the
-> current task. However, _sock_xmit() in drivers/block/nbd.c may be called
-> indirectly from a userspace syscall, where the NBD socket access would
-> be incorrectly checked against the calling userspace task (which simply
-> tries to read/write a file that happens to reside on an NBD device).
-> 
-> To fix this, temporarily override creds to kernel ones before calling
-> the sock_*() functions. This allows the security modules to recognize
-> this as internal access by the kernel, which will normally be allowed.
-> 
-> A way to trigger the issue is to do the following (on a system with
-> SELinux set to enforcing):
-> 
->     ### Create nbd device:
->     truncate -s 256M /tmp/testfile
->     nbd-server localhost:10809 /tmp/testfile
-> 
->     ### Connect to the nbd server:
->     nbd-client localhost
-> 
->     ### Create mdraid array
->     mdadm --create -l 1 -n 2 /dev/md/testarray /dev/nbd0 missing
-> 
-> After these steps, assuming the SELinux policy doesn't allow the
-> unexpected access pattern, errors will be visible on the kernel console:
-> 
-> [  142.204243] nbd0: detected capacity change from 0 to 524288
-> [  165.189967] md: async del_gendisk mode will be removed in future, please upgrade to mdadm-4.5+
-> [  165.252299] md/raid1:md127: active with 1 out of 2 mirrors
-> [  165.252725] md127: detected capacity change from 0 to 522240
-> [  165.255434] block nbd0: Send control failed (result -13)
-> [  165.255718] block nbd0: Request send failed, requeueing
-> [  165.256006] block nbd0: Dead connection, failed to find a fallback
-> [  165.256041] block nbd0: Receive control failed (result -32)
-> [  165.256423] block nbd0: shutting down sockets
-> [  165.257196] I/O error, dev nbd0, sector 2048 op 0x0:(READ) flags 0x0 phys_seg 1 prio class 2
-> [  165.257736] Buffer I/O error on dev md127, logical block 0, async page read
-> [  165.258263] I/O error, dev nbd0, sector 2048 op 0x0:(READ) flags 0x0 phys_seg 1 prio class 2
-> [  165.259376] Buffer I/O error on dev md127, logical block 0, async page read
-> [  165.259920] I/O error, dev nbd0, sector 2048 op 0x0:(READ) flags 0x0 phys_seg 1 prio class 2
-> [  165.260628] Buffer I/O error on dev md127, logical block 0, async page read
-> [  165.261661] ldm_validate_partition_table(): Disk read failed.
-> [  165.262108] I/O error, dev nbd0, sector 2048 op 0x0:(READ) flags 0x0 phys_seg 1 prio class 2
-> [  165.262769] Buffer I/O error on dev md127, logical block 0, async page read
-> [  165.263697] I/O error, dev nbd0, sector 2048 op 0x0:(READ) flags 0x0 phys_seg 1 prio class 2
-> [  165.264412] Buffer I/O error on dev md127, logical block 0, async page read
-> [  165.265412] I/O error, dev nbd0, sector 2048 op 0x0:(READ) flags 0x0 phys_seg 1 prio class 2
-> [  165.265872] Buffer I/O error on dev md127, logical block 0, async page read
-> [  165.266378] I/O error, dev nbd0, sector 2048 op 0x0:(READ) flags 0x0 phys_seg 1 prio class 2
-> [  165.267168] Buffer I/O error on dev md127, logical block 0, async page read
-> [  165.267564]  md127: unable to read partition table
-> [  165.269581] I/O error, dev nbd0, sector 0 op 0x0:(READ) flags 0x0 phys_seg 1 prio class 2
-> [  165.269960] Buffer I/O error on dev nbd0, logical block 0, async page read
-> [  165.270316] I/O error, dev nbd0, sector 0 op 0x0:(READ) flags 0x0 phys_seg 1 prio class 2
-> [  165.270913] Buffer I/O error on dev nbd0, logical block 0, async page read
-> [  165.271253] I/O error, dev nbd0, sector 0 op 0x0:(READ) flags 0x0 phys_seg 1 prio class 2
-> [  165.271809] Buffer I/O error on dev nbd0, logical block 0, async page read
-> [  165.272074] ldm_validate_partition_table(): Disk read failed.
-> [  165.272360]  nbd0: unable to read partition table
-> [  165.289004] ldm_validate_partition_table(): Disk read failed.
-> [  165.289614]  nbd0: unable to read partition table
-> 
-> The corresponding SELinux denial on Fedora/RHEL will look like this
-> (assuming it's not silenced):
-> type=AVC msg=audit(1758104872.510:116): avc:  denied  { write } for  pid=1908 comm="mdadm" laddr=::1 lport=32772 faddr=::1 fport=10809 scontext=system_u:system_r:mdadm_t:s0-s0:c0.c1023 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=tcp_socket permissive=0
-> 
-> The respective backtrace looks like this:
-> @security[mdadm, -13,
->         handshake_exit+221615650
->         handshake_exit+221615650
->         handshake_exit+221616465
->         security_socket_sendmsg+5
->         sock_sendmsg+106
->         handshake_exit+221616150
->         sock_sendmsg+5
->         __sock_xmit+162
->         nbd_send_cmd+597
->         nbd_handle_cmd+377
->         nbd_queue_rq+63
->         blk_mq_dispatch_rq_list+653
->         __blk_mq_do_dispatch_sched+184
->         __blk_mq_sched_dispatch_requests+333
->         blk_mq_sched_dispatch_requests+38
->         blk_mq_run_hw_queue+239
->         blk_mq_dispatch_plug_list+382
->         blk_mq_flush_plug_list.part.0+55
->         __blk_flush_plug+241
->         __submit_bio+353
->         submit_bio_noacct_nocheck+364
->         submit_bio_wait+84
->         __blkdev_direct_IO_simple+232
->         blkdev_read_iter+162
->         vfs_read+591
->         ksys_read+95
->         do_syscall_64+92
->         entry_SYSCALL_64_after_hwframe+120
-> ]: 1
-> 
-> The issue has started to appear since commit 060406c61c7c ("block: add
-> plug while submitting IO").
-> 
-> Cc: Ming Lei <ming.lei@redhat.com>
-> Link: https://bugzilla.redhat.com/show_bug.cgi?id=2348878
-> Fixes: 060406c61c7c ("block: add plug while submitting IO")
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
-> 
-> Changes in v2:
->  * Move put_cred() after destroy_workqueue() in nbd_cleanup() to avoid a UAF
->  * Add some more details into the commit message
->  * Add a Fixes: tag
+On Wed, Oct 15, 2025 at 5:36=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+>
+> On Oct  8, 2025 Eric Suen <ericsu@linux.microsoft.com> wrote:
+> >
+> > BPF token support was introduced to allow a privileged process to deleg=
+ate
+> > limited BPF functionality=E2=80=94such as map creation and program load=
+ing=E2=80=94to
+> > an unprivileged process:
+> >   https://lore.kernel.org/linux-security-module/20231130185229.2688956-=
+1-andrii@kernel.org/
+> >
+> > This patch adds SELinux support for controlling BPF token access. With
+> > this change, SELinux policies can now enforce constraints on BPF token
+> > usage based on both the delegating (privileged) process and the recipie=
+nt
+> > (unprivileged) process.
+> >
+> > Supported operations currently include:
+> >   - map_create
+> >   - prog_load
+> >
+> > High-level workflow:
+> >   1. An unprivileged process creates a VFS context via `fsopen()` and
+> >      obtains a file descriptor.
+> >   2. This descriptor is passed to a privileged process, which configure=
+s
+> >      BPF token delegation options and mounts a BPF filesystem.
+> >   3. SELinux records the `creator_sid` of the privileged process during
+> >      mount setup.
+> >   4. The unprivileged process then uses this BPF fs mount to create a
+> >      token and attach it to subsequent BPF syscalls.
+> >   5. During verification of `map_create` and `prog_load`, SELinux uses
+> >      `creator_sid` and the current SID to check policy permissions via:
+> >        avc_has_perm(creator_sid, current_sid, SECCLASS_BPF,
+> >                     BPF__MAP_CREATE, NULL);
+> >
+> > The implementation introduces two new permissions:
+> >   - map_create_as
+> >   - prog_load_as
+> >
+> > At token creation time, SELinux verifies that the current process has t=
+he
+> > appropriate `*_as` permission (depending on the `allowed_cmds` value in
+> > the bpf_token) to act on behalf of the `creator_sid`.
+> >
+> > Example SELinux policy:
+> >   allow test_bpf_t self:bpf {
+> >       map_create map_read map_write prog_load prog_run
+> >       map_create_as prog_load_as
+> >   };
+> >
+> > Additionally, a new policy capability bpf_token_perms is added to ensur=
+e
+> > backward compatibility. If disabled, previous behavior ((checks based o=
+n
+> > current process SID)) is preserved.
+> >
+> > Signed-off-by: Eric Suen <ericsu@linux.microsoft.com>
+> > Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > Tested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > ---
+> > Changes in v2:
+> > - Fixed bug in selinux_bpffs_creator_sid(u32 fd) where it retrieved
+> >   creator_sid from wrong file descriptor
+> > - Removed unnecessary checks for null, per review comments from
+> >   the first patch
+> >
+> > Changes in v3:
+> > - Removed check for 'sid =3D=3D SECSID_NULL' in selinux_bpf_token_creat=
+e and
+> >   allow it to fall through to the permission checks which will fail as
+> >   access denied to unlabeled_t
+> >
+> > Changes in v4:
+> > - Added initialization of creator_sid in selinux_sb_alloc_security
+> > - Enabled handling of creator_sid in selinux_cmp_sb_context and
+> >   selinux_sb_clone_mnt_opts
+> > - Minor updates based on review comments
+> >
+> > Changes in v5:
+> > - Moved to dev-staging branch instead of main
+> > - Added implementation of selinux_bpf_token_capable which is originally
+> >   from Daniel's patch
+> >   https://lore.kernel.org/selinux/20250801154637.143931-1-danieldurning=
+.work@gmail.com/
+> >
+> >  security/selinux/hooks.c                   | 116 ++++++++++++++++++++-
+> >  security/selinux/include/classmap.h        |   2 +-
+> >  security/selinux/include/objsec.h          |   2 +
+> >  security/selinux/include/policycap.h       |   1 +
+> >  security/selinux/include/policycap_names.h |   1 +
+> >  security/selinux/include/security.h        |   6 ++
+> >  6 files changed, 125 insertions(+), 3 deletions(-)
+>
+> FYI, I had to apply a surprising amount of merge fixups due to the
+> allocator changes that went up to Linus during the merge window; I've
+> never seen git put put patch hunks in such odd places before ...
+>
+> I fixed up several long lines too (lines > 80 chars).
+>
+> I also gave credit to Daniel in the commit description with the following
+> text:
+>
+>     Credit to Daniel Durning <danieldurning.work@gmail.com> for his work =
+on
+>     the selinux_bpf_token_capable() implementation.
+>
+> ... but I have some questions about the BPF token capability hook, see be=
+low.
+>
+> > +static int selinux_bpf_token_capable(const struct bpf_token *token, in=
+t cap)
+> > +{
+> > +     u16 sclass;
+> > +     struct bpf_security_struct *bpfsec =3D token->security;
+> > +     u32 sid =3D bpfsec->sid;
+> > +     u32 av =3D CAP_TO_MASK(cap);
+> > +
+> > +     switch (CAP_TO_INDEX(cap)) {
+> > +     case 0:
+> > +             sclass =3D SECCLASS_CAP_USERNS;
+> > +             break;
+> > +     case 1:
+> > +             sclass =3D SECCLASS_CAP2_USERNS;
+> > +             break;
+>
+> This assumes that this call will always be made in a non-init userns,
+> I'd rather see us handle arbitrary user namespaces, see
+> bpf_token_capable() for hints.
 
-Hello Jens,
+Is that possible? bpf_token_create() explicitly disallows creating a
+BPF token in the init_user_ns.
 
-Any chance to pull this patch into v6.18 if you are fine?
+> This is especially important if we consider that the capability being
+> checked doesn't necessarily belong to the current task, but rather the
+> token, which was very likely created in a userns closer to the init ns,
+> more on this below.
+>
+> > +     default:
+> > +             pr_err("SELinux:  out of range capability %d\n", cap);
+> > +             return -EINVAL;
+> > +     }
+> > +
+> > +     return avc_has_perm(sid, sid, sclass, av, NULL);
+> > +}
+>
+> This is surely a copy-n-paste from selinux_capable(), which is a very
+> sensible thing to do, however I do wonder if the special nature of the
+> BPF tokens warrants a change in the subj/obj.
+>
+> For a normal capability permission check, it makes sense for the subject
+> and object to be the same as the process/subject isn't operating on
+> anything other than itself, it's simply attempting to assert a capability
+> that it has been assigned.
+>
+> However, I don't believe it is quite as simple for the BPF token
+> capability check.  In this case the current process isn't asking if it
+> can assert a capability assigned to itself, it is asking if it can assert
+> a capability assigned to the token.  Due to this I'm wondering if we
+> should change the subject to the current task, leaving the object
+> as the token:
+>
+>   selinux_bpf_token_capable(...)
+>   {
+>     struct bpf_security_struct *bpfsec =3D token->security
+>     bool initns =3D (token->userns =3D=3D &init_user_ns);
+>     u32 av =3D CAP_TO_MASK(cap);
+>     u16 sclass;
+>
+>     switch (CAP_TO_INDEX(cap)) {
+>     case 0:
+>         sclass =3D initns ? SECCLASS_CAPABILITY : SECCCLASS_CAP_USERNS;
+>         break;
+>     ...
+>     }
+>
+>     return avc_has_perm(current_sid(), bpfsec->sid, sclass, av, NULL);
 
+My understanding, which could be wrong, is that this hook is called
+outside of process context (or at least outside of the context of
+either process involved - token creator or token user) since it can be
+called during any eBPF program and hence we can only use information
+from the token, not the current process, for our permission checks. We
+could perhaps pre-compute the capability access vectors at token
+creation time and cache them for later checking instead.
 
-Thanks,
-Ming
-
+>   }
+>
+> Thoughts?
+>
+> --
+> paul-moore.com
