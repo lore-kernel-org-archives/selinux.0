@@ -1,150 +1,190 @@
-Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4D4B41C71
-	for <selinux@vger.kernel.org>; Thu, 16 Oct 2025 21:19:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E4DB18FDDB
+	for <selinux@vger.kernel.org>; Thu, 16 Oct 2025 22:05:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760649544; cv=none; b=VVKucLI5spdaXAQJ6iifXKbWMo9omZYwnQMSKS7IZhgdS07yOAJBltE6jNXxEVQbe7TVVKJqXBKSbaT8dwevjswD3wONr1FCD4akNDh4VnfluwWBrtumiHIBFkt03ls4kawTwTDgowxemR4Xud3caX8iFtc42Svr6HKkLkm8Alo=
+	t=1760652360; cv=none; b=t4Jzzdfd/f6soNCXGWN3Git1mWiipuJs5dCFk9ziPoYD7dOxYFq5Ctq2tekA9jLyF4gPoGA1dX7ljjthyDgfKMGOf1RYOAESTrCHGT8UBZoxSQT55jLkmYMSJm2BBLsCBivs+28opNIfua85l98lAo9zRgB7ZF1FrORjQPUd124=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760649544; c=relaxed/simple;
-	bh=oEq7krugDJTA+w+mWfevAp59eUOZjk7fwVyk9SAIAZo=;
-	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=YbjIPBaX1RgeHzd2lZep3MgRAaLjyxV523RjaRzDg7MYAkJGy1dsa2A7lj9uj4NsD5aPU6ovkl91bxApGhgNVgUYzqz1KTcN+ZjoxjlGbWn/xLskpzhNppo7rhIB2eEGdYJwWxBQcSaW+xOR7SMY5/1GGnzYGRM61eTSCb4TlBM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=JFdLfToK; arc=none smtp.client-ip=209.85.222.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1760652360; c=relaxed/simple;
+	bh=dImewWyTRki9VVpC15iKFcWOUgpXXeLEslXif2eWbfo=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=dxV6W4osgApwMGYaOPn7BOxPgdxEh+sBgioXSQsLZfvEJ/5ahQNyPL0/8UXJ0G7IU8IpzbPvSMMrMkJSKm5DJrR41Y3OeWVgujTqBa87ILhaiLY0YRzP25CjihJFUhVeynKpSBOh2XxZvkKCMzUFgiD586DRNVADPMPOwRyxT8s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BaPdXRcJ; arc=none smtp.client-ip=209.85.128.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="JFdLfToK"
-Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-87a0801ba1aso237949585a.2
-        for <selinux@vger.kernel.org>; Thu, 16 Oct 2025 14:19:02 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BaPdXRcJ"
+Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-4711825a02bso2263605e9.2
+        for <selinux@vger.kernel.org>; Thu, 16 Oct 2025 15:05:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1760649542; x=1761254342; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=ohEP9vmDzdNDw2wyJvX2m18Ru5DuXlVzONp6Y0tHUlk=;
-        b=JFdLfToKj1bhe8weP6RwVrMkFv0kUdhhcQuDUHl7Vv2tAZiKzYkBb82rlv4OXZ1OwK
-         oAkWIIXN/Uvl4uTcYdcQKlNIVzB/aMZ1NP/jgtnen50uSxexZirIxbYvQq9bGxosc3pE
-         IECO8n/tw/fU3RqEUZd+TKDKrt6c5IhKjWY+g7+aiOBl5BNHEqI9RXPrgjWVJaIV6Hoq
-         GO2O7mIA00MU4c5TD8FGubpsbiW4HAs549THczDU0QCschHosm94Ya1r25TyDDsqLtnf
-         +Upjcvs1bQULTWBOA/d8h6sj9wHl+zUNiBgRMpYzDW3DY2SJYiCzHfjQ1tUBpAllY3VE
-         iPAQ==
+        d=gmail.com; s=20230601; t=1760652357; x=1761257157; darn=vger.kernel.org;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=zaG5jD1Ljiou+nsuG7rfBuJZBzDeB9iH9Dck9hwNKuw=;
+        b=BaPdXRcJUXRyZdLiY5I5nbywhOncbNJ0MARMd3BRXXNwHgRWt71uexFZf0jYwnAE6m
+         HdHQcAUN1RgV880IIzgLEJsnDsZhDJ41VU+XHsn+Cv3dPYIfC028OSVyb1JXQ/7cIBkK
+         ir6KGq6y06tuHKX6/E4sOLTWKONx3sIUoPnq5Sl/nL4Xpig9JvSnlYTSdKSkZf8vlI8V
+         ecUfe33BzyqHV1leyag7Pj94/UDK+n9lC3q9vDTV16GyhNVOTcoINWfdG2ZfYChFMwUQ
+         sJ0g22gWJyC2zh6lbCtA8jCEQiQjgoXoBf0Wv80E09UbByPZu/oQq5C6vALNhp+Epzou
+         9DRQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760649542; x=1761254342;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=ohEP9vmDzdNDw2wyJvX2m18Ru5DuXlVzONp6Y0tHUlk=;
-        b=VvJPB7goY34F5UNPigcAgwJuSW+tW7vw6ExhzOilPx1KIdExd8lPxNoFqTL4CIrUBP
-         dWSf2yOYsE5mHvcxFFJcVOlKdLEGhb+ELj1rmM4p17GlClFEOoIb+dPER6IEqAZNJKf4
-         xetHr0Y0O5rK0Uql1NAq+L/R6NMVu6bm2LaV42rIXwJTYl6W3BYvV5IypmoH2r7xvlIu
-         UdzhCoHiva9ycy6v0lmdJ1yPT9GkbTap1ePpOHhpkhqbz6DWGhJtCdvRxqkwkSAMMInH
-         fOvEv7/bUiFGutYgcIhnCMd7kxs6yuD1ix+kWba2JShBk/QeqEnioOSS3mjF7xrHW5Tz
-         RJ2A==
-X-Forwarded-Encrypted: i=1; AJvYcCUwrujBD8NtMEPZDuYdqaI+gq2pGPZsq+uTOOAlmspi7TkxxxvhUStNkmZ/R65ckj8NDI4tchfi@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz2+Kdlkikp0jv/ygz0Z8Mhw83MtVqa3Qatuh3Zt2orYt2K8oO/
-	/NY2sczSu4QxrJg9G7nVO04xmqFZFf2XiN3Uj1oQOi3HxKu7feu2MQ9E64kWwukkZg==
-X-Gm-Gg: ASbGnct+qBj1DipPDg3zHfJWtwV0GNiHOHtkfB4xVWAKiywQpWKPvP+UnAZh2pmnqAr
-	CxRQ86FNzE6SCQTR6pPVbVGEy749ppAeHPXgBKGiJuOTYVBM9+sSr8rKmM18DQJq1gQQrCLMd6i
-	QDoj73fMMYhS4HBjDmB/f5yaH7a+IVPSi3c+1T4i9EgT40uV8JLW1MFVGDisW82md2Nv5kjxDVW
-	PWyWEqlrMyd38tChhUKsSzYHTtxeLwkKP/CZmk/u/Z1VIOpSFsQkPxly157VHKMlg6bpG38dO7p
-	pxp7JWRohtxYhOBq6vPIrL88MB1GjyBvcPIqkY1EcevmUBDAF8EicZUjU7abXz424VQ9qLVZkKd
-	PzaU8fgd2iBjTBlyCJme4xiycC4pCzVEIKXndOz9SYMi/a/fGjQVksgVdPKowmR49g6TSC/5qw0
-	FzQ78Y8UiUz49O3gmbCzpZZFECb/felCy9FJLmLO2K8YYGHQ==
-X-Google-Smtp-Source: AGHT+IGhPPSGnaEYxwJthVZ66B+DjXF19ZDlohxPofSyke9ghcptO97DdQtWNBAXkLHCXWo+9/Uffw==
-X-Received: by 2002:a05:620a:3955:b0:849:2a77:5612 with SMTP id af79cd13be357-8906e2ce121mr210451185a.17.1760649541812;
-        Thu, 16 Oct 2025 14:19:01 -0700 (PDT)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-88f37e4b953sm281282885a.29.2025.10.16.14.18.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Oct 2025 14:19:00 -0700 (PDT)
-Date: Thu, 16 Oct 2025 17:18:59 -0400
-Message-ID: <c77eac51a26a0248980027e9f3b3b564@paul-moore.com>
+        d=1e100.net; s=20230601; t=1760652357; x=1761257157;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=zaG5jD1Ljiou+nsuG7rfBuJZBzDeB9iH9Dck9hwNKuw=;
+        b=Nt81n+ypCbiU/aOOQPs9MShTEpwZEbM9Hjt3bebRBLrPZSPfNp6Gr8wqg99sKV2EPh
+         u2Mz7eVQrvg85uqvQ5TcJT7oEh24roSsiigc1jB6P6MeRSfTVOG7wCgNGT8qSDeX9LrS
+         XLLbGFcZAGbQdnsL6phi7AsVWiXrr2b/1Yhuey7KgurmD7eSNXhxD6JV2z6kYRKfCSZb
+         twaH83HWmC0N65e9TWEBoBa/lZGUiz8vKOy7Kxb8hgBV0RA6TZRsIKKts1NzOVooht03
+         QM6jnE2KCMIYKTUytxA6sokp3dgi+Yq34tqJhopbU2QrND/GxQSri9OG0HoflWD6JlEj
+         bTZA==
+X-Forwarded-Encrypted: i=1; AJvYcCWaCnkO4OZr/SHUd8PdberRWwvhc5Vz6/DT8ZwZ4xKLwkCws/0QUUPMlK7Hqi57PyOd8Ukrx3GD@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy2lZGj3od7ug+N/6gCx6KjctneLo/01C5xOSd3/YFwV0tfhP39
+	l6qLTxMGmYykXShB0EIMvGTSRNm2WU3UwcqsarW74/2ikkRuCFkVaLML
+X-Gm-Gg: ASbGncuUONEwCbWoKddWvVFOQgItUun/sV6/SJFUu+UjPxOaJd2cTq2U0G21+mtNrW+
+	4M2tHDfWSFi6KhPzhYcCBrzH/FzIev7sB/LVO/mxOno3eU/gUcnqNe/9Ogqr0/D0ONbTE5uiWey
+	o0zUksLf4yy1wChE/34EBnLdGzQ2r668J+HYs+swYr/dn/abxVdFTvbex8gBHm2x2r+qMKjDCi5
+	sjLeDZVd/ymmVVwMSyafrzHuPTI6bOp/khgZkrN31wHZu41kZEDiYFih5PgwZGpv4jtbFuDFKpP
+	rAehIJ4nd7pUu/Q75azTVg5vp8lkQfwLBAirW8TQe4vLX5cqRMAA0a4Yvj+zzIDy3/FskqJWYnV
+	uDenbMREenPi3puoHMq/Uq8gOvfmdRlu0Wxg2+EHWFRBVulpk7FWIxOyxTTbXl+al9RHQ1w==
+X-Google-Smtp-Source: AGHT+IFXgVVkCr10LrwFVR0GUDVWTIQ1w9M96t6D6Vz5dsf6bz9EzUOSlpbr2wSNTNAEolNRCFcCkA==
+X-Received: by 2002:a05:600c:4e0b:b0:46d:27b7:e7ff with SMTP id 5b1f17b1804b1-4711791f4e1mr9900815e9.36.1760652356558;
+        Thu, 16 Oct 2025 15:05:56 -0700 (PDT)
+Received: from localhost ([2a0a:ef40:89b:b900:2e0:4cff:feb0:4e4d])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-426ce57cce5sm37789529f8f.1.2025.10.16.15.05.55
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 16 Oct 2025 15:05:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=UTF-8 
-Content-Transfer-Encoding: 8bit 
-X-Mailer: pstg-pwork:20251016_1653/pstg-lib:20251016_1653/pstg-pwork:20251016_1653
-From: Paul Moore <paul@paul-moore.com>
-To: Hongru Zhang <zhanghongru06@gmail.com>, stephen.smalley.work@gmail.com, omosnace@redhat.com
-Cc: linux-kernel@vger.kernel.org, selinux@vger.kernel.org, zhanghongru@xiaomi.com
-Subject: Re: [PATCH v3 2/2] selinux: improve bucket distribution uniformity of  avc_hash()
-References: <000bce8f11d06684f70a29705dfd417747475b1a.1758859391.git.zhanghongru@xiaomi.com>
-In-Reply-To: <000bce8f11d06684f70a29705dfd417747475b1a.1758859391.git.zhanghongru@xiaomi.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Thu, 16 Oct 2025 23:05:55 +0100
+Message-Id: <DDK3662P8K9T.RXDV7DIQFPV1@gmail.com>
+Cc: <lautrbach@redhat.com>, <selinux@vger.kernel.org>
+Subject: Re: [PATCH v3] treewide: add .clang-format configuration file
+From: "Rahul Sandhu" <nvraxn@gmail.com>
+To: "Stephen Smalley" <stephen.smalley.work@gmail.com>
+X-Mailer: aerc 0.20.1
+References: <87ldln43to.fsf@redhat.com>
+ <20251007104656.479127-1-nvraxn@gmail.com>
+ <CAEjxPJ5cMQb2DE37BnzrDQYars8eRfe4VSfN_4mwRQAhj2nW8w@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5cMQb2DE37BnzrDQYars8eRfe4VSfN_4mwRQAhj2nW8w@mail.gmail.com>
 
-On Sep 26, 2025 Hongru Zhang <zhanghongru06@gmail.com> wrote:
-> 
-> Under heavy stress testing (on an 8-core system sustaining over 50,000
-> authentication events per second), sample once per second and take the
-> mean of 1800 samples:
-> 
-> 1. Bucket utilization rate and length of longest chain
-> +--------------------------+-----------------------------------------+
-> |                          | bucket utilization rate / longest chain |
-> |                          +--------------------+--------------------+
-> |                          |      no-patch      |     with-patch     |
-> +--------------------------+--------------------+--------------------+
-> |  512 nodes,  512 buckets |      52.5%/7.5     |     58.2%/6.2      |
-> +--------------------------+--------------------+--------------------+
-> | 1024 nodes,  512 buckets |      68.9%/12.1    |     82.4%/8.9      |
-> +--------------------------+--------------------+--------------------+
-> | 2048 nodes,  512 buckets |      83.7%/19.4    |     94.8%/15.2     |
-> +--------------------------+--------------------+--------------------+
-> | 8192 nodes, 8192 buckets |      49.5%/11.4    |     61.9%/6.6      |
-> +--------------------------+--------------------+--------------------+
-> 
-> 2. avc_search_node latency (total latency of hash operation and table
-> lookup)
-> +--------------------------+-----------------------------------------+
-> |                          |   latency of function avc_search_node   |
-> |                          +--------------------+--------------------+
-> |                          |      no-patch      |     with-patch     |
-> +--------------------------+--------------------+--------------------+
-> |  512 nodes,  512 buckets |        87ns        |        79ns        |
-> +--------------------------+--------------------+--------------------+
-> | 1024 nodes,  512 buckets |        97ns        |        91ns        |
-> +--------------------------+--------------------+--------------------+
-> | 2048 nodes,  512 buckets |       118ns        |       110ns        |
-> +--------------------------+--------------------+--------------------+
-> | 8192 nodes, 8192 buckets |       106ns        |        94ns        |
-> +--------------------------+--------------------+--------------------+
-> 
-> Although the multiplication in the new hash algorithm has higher overhead
-> than the bitwise operations in the original algorithm, the data shows
-> that the new algorithm achieves better distribution, reducing average
-> lookup time. Consequently, the total latency of hashing and table lookup
-> is lower than before.
-> 
-> Signed-off-by: Hongru Zhang <zhanghongru@xiaomi.com>
-> Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
->  security/selinux/avc.c | 17 ++++++++++++++++-
->  1 file changed, 16 insertions(+), 1 deletion(-)
+On Tue Oct 7, 2025 at 2:21 PM BST, Stephen Smalley wrote:
+> On Tue, Oct 7, 2025 at 6:47=E2=80=AFAM Rahul Sandhu <nvraxn@gmail.com> wr=
+ote:
+>>
+>> Currently only an RFC.
+>>
+>> Add the .clang-format configuration file, taken from the Linux kernel
+>> repository. We don't have any official style guidelines in tree at
+>> present, which makes it a bit unclear how to format C code for new
+>> contributors. As well as this, different parts of the codebase seem to
+>> been formatted with different styles on occasion, so using an automatic
+>> formatter should resolve this.
+>>
+>> As well as this, replace all the existing indent targets with format
+>> targets. Commands used to find and replace those targets:
+>>
+>> git grep -l -E '(\.\./)*scripts/Lindent' | xargs sed -i -E 's@(\.\./)*sc=
+ripts/Lindent@clang-format -i@g'
+>> git grep -l 'indent' -- '*Makefile' | xargs sed -i 's/indent/format/g'
+>>
+>> Also add some empty format targets to Makefiles that previously were
+>> missing an indent target so that `make format` does not error.
+>>
+>> A few other things to consider to do in the future:
+>> 1. Reformat all existing code. I understand this is a big change, hence
+>>    the RFC, but we may as well get all code formatted if we go down
+>>    this route; afterall, it's not like this will cause any breaking
+>>    changes.
+>> 2. Possibly add a CI target to check that all code is formatted as per
+>>    the new clang-format configuration? The options `--dry-run` as well
+>>    as `-Werror` can be passed to clang-format for this.
+>
+> Yes please.
 
-My understanding from previous iterations of this patch is that this new
-hash function was AI generated and hasn't really gone through the any
-rigorus analysis beyond the performance measurements above, is that
-correct?  I'm not opposed to using AI to assist in patch development or
-algorithm creation, especially if there is some acknowledgement in the
-commit description, but I do hold the patches to the same standard as
-any other proposed change.  For this reason, I would expect some third
-party review of the hash function by someone with enough experience to
-provide a reasonable analysis of the hash function in comparison to
-other existing options.
+Should this be added in another patch? My concern is that CI will fail
+should this be merged without formatting all code.
 
-... and yes, I do recognize that the existing AVC hash function likely
-did not have to go through the same level of scrutiny, but it has the
-significant advantage of being a known quantity, problems and all.
+>
+>>
+>> Comments/feedback appreciated, thanks.
+>>
+>> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+>> ---
+>>
+>> v2: remove linux kernel ForEachMacros and replace them with ours
+>> v3: replace the indent target with the new format target. also remove an=
+y
+>>     mention of `.editorconfig` from the commit message; those changes ar=
+e
+>>     better suited for another patch (they're small and self-contained en=
+ough
+>>     that they're a smaller thing to merge).
+>>
+>>
+>
+>> diff --git a/mcstrans/Makefile b/mcstrans/Makefile
+>> index b20279ab..28d8c7bc 100644
+>> --- a/mcstrans/Makefile
+>> +++ b/mcstrans/Makefile
+>> @@ -21,4 +21,6 @@ clean:
+>>
+>>  relabel:
+>>
+>> +format:
+>> +
+>
+> We should add targets for mcstrans/utils/*.c and mcstrans/src/*.[hc]
 
-If you want to change the AVC hash to something else with better
-performance, I suggest sticking with a well known hash algorithm,
-ideally one already present in the kernel; that is going to be the
-quickest path towards acceptance.
+I wrote a simple check-format target in the Makefile:
 
---
-paul-moore.com
+# We shouldn't have any unformatted files in the repo without an explicit e=
+xception.
+# Given that this is used with the `check-format` target, which does not mo=
+dify any
+# source files, merely checking if they're formatted properly, it's fine to=
+ rely on
+# find to get all C source and header files.
+CHECK_FORMAT_SOURCE_FILES :=3D $(shell find $(SUBDIRS) -type f \( -name '*.=
+c' -o -name '*.h' \))
+
+check-format:
+	clang-format --dry-run -Werror $(CHECK_FORMAT_SOURCE_FILES)
+
+However, after running `make format` and `make check-format`, I noticed
+a whole load of failures caused by a load of other missing targets. I'm
+thinking that it may just be better off using that same find command to
+get all c sources and headers, and have a single, global format target.
+Afterall, in pushed code after we've formatted it all, I don't see any
+reason that some code should be left unformatted (especially as we have
+things such as the clang-format off comments for specific sub-sections
+of code), and while working locally if someone wishes to format only a
+specific globbed set of files, something like this should work fine:
+clang-format -i src/*.c
+
+Thoughts? Suggestions?
+
+>
+>> diff --git a/secilc/Makefile b/secilc/Makefile
+>> index ef7bc8cd..2518933f 100644
+>> --- a/secilc/Makefile
+>> +++ b/secilc/Makefile
+>> @@ -87,4 +87,6 @@ clean:
+>>
+>>  relabel:
+>>
+>> +format:
+>> +
+>
+> Should add a target for secilc/*.c
+
