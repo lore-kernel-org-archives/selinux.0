@@ -1,123 +1,157 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F421B217722
-	for <selinux@vger.kernel.org>; Thu, 16 Oct 2025 18:09:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C99C225760
+	for <selinux@vger.kernel.org>; Thu, 16 Oct 2025 18:24:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760638180; cv=none; b=PbN3cvuAbGUNwPpvkTbZiAcLKWq/ECnfkQfSVMtW45xC9i0xVYCjpf/JBv8wOzCt2uAymzMd/oKDO353AASZiqFIsMxo/Xohn057Qz8Mt5F+gmfNimFcxnFR1qLOhsxePVmbFSift8Sp1RPQvcK5opPSCRZ8I95O321a20jE+0Y=
+	t=1760639102; cv=none; b=HN4TndeI2ZpD3MtyKRkciUEMViUq3aENfplF8xANKcQhkD9LjUHpr0v29rTgwvUnBql3BCf1WeRFFfeRR8jtlkEjo/O1NKw5himv4y9ABVViqJ2SVXIWK+xeu8PGTsCqjji5Z+7lunJF5om3wTjNW7A/tGGux1iB/jAxXDXFePE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760638180; c=relaxed/simple;
-	bh=zsYOaeFr2Hyxt89gz7G04HeM7h56ouBWo2fy93/X+aY=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=svZYbAYNmVBkF2n9/9hnw6033/BJ2gdp8g0V9FMr19+DKe/3HxMEzX9UA1AdP8eIqJkm97leFUtt6G9+T4w3cdUEncZhafs18shTCmyStwr8nqvStSqMQqpV8DX+ng2DaHSyyg7gGJJmge08vKMETd97hp8DpCurVzyLECNMM0M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LkwYE88s; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1760639102; c=relaxed/simple;
+	bh=uD9elZd5PmrggFQZ77ejP3NJX9IBGjm8k2ZJ3bBdchI=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:
+	 References:In-Reply-To; b=gg1lvzAd1zUu4rtNRsTCxvW9/R61X7ieKiRnR6lukswJy6/BPbeTGwynH+bf3jTsoq2Cuxt3YN2nc9ElyoHnWMKCzDnslpt2h0QIdVyFby/CASYGyIUTPo1dYhfwwsmXDWN3pCZb+3/RDB4YBwtomG22e3mPetJ+2uTTBhm5qjk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EYP2HaVS; arc=none smtp.client-ip=209.85.218.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LkwYE88s"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1760638177;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=DK8uoAPNnhceWoxbeMRLM8Nks+gU9B/bXBByjMwpB/o=;
-	b=LkwYE88sdTCrE4Pou/STUGpm6bWAaAiZloxRFYspUHSrm2nLYZT2lfcxO5TxPQsIMsjQxc
-	qi+Q6k7LD8IjGrjzCWPViN5QtslEL6XoXxS3ZMTfgxU/OgexV56k6bybQN3iNABKCMHPzS
-	K9WKQk+eLnscl0FYKvjozaS0TGBtHSg=
-Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-651-60lgGsCaNLqisM8Ln6Vy3w-1; Thu,
- 16 Oct 2025 14:09:36 -0400
-X-MC-Unique: 60lgGsCaNLqisM8Ln6Vy3w-1
-X-Mimecast-MFC-AGG-ID: 60lgGsCaNLqisM8Ln6Vy3w_1760638175
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B388D1800744
-	for <selinux@vger.kernel.org>; Thu, 16 Oct 2025 18:09:35 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.44.34.40])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id D72651956056
-	for <selinux@vger.kernel.org>; Thu, 16 Oct 2025 18:09:34 +0000 (UTC)
-From: Vit Mojzis <vmojzis@redhat.com>
-To: selinux@vger.kernel.org
-Subject: [PATCH] libselinux: Ignore files removed during relabeling
-Date: Thu, 16 Oct 2025 20:08:37 +0200
-Message-ID: <20251016180929.452863-1-vmojzis@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EYP2HaVS"
+Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-b40f11a1027so199830066b.2
+        for <selinux@vger.kernel.org>; Thu, 16 Oct 2025 11:24:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1760639098; x=1761243898; darn=vger.kernel.org;
+        h=in-reply-to:references:to:from:subject:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=HzJFLTF2vPVkCFiUS3pOr5XUGo2C9vHak/HsDph8FIg=;
+        b=EYP2HaVSbxtLxokjVw+NmRihgheRIVi1svObcgGLbTuhPTJpqpV71FLHSx/nsPNgg+
+         GEYLfuaEM3P8i9bIfBtFyuf7sO9wA02vrOk+I1KgsfHWV59Ln0lICzIOsRnS9iWZ0kad
+         8BS5NzwOxka3Qf8mP93qpzTYqYmcvIY5cEXfDyOEKgw25OXwJiNs787mWiTlXqpZN8Zb
+         yj998Ac5NbuBjps16kYfVZ3J3pUSADUZ3DGeGNTfcmFidZE0D5DvntCtGLxLs4nJuOiV
+         8D4d7aDMc+JyNDiaJiyYPoIDpb3y80a+qLnMw3ZyqDrHHfWcWfn1Ly1TMegmOkrP405K
+         idag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1760639098; x=1761243898;
+        h=in-reply-to:references:to:from:subject:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=HzJFLTF2vPVkCFiUS3pOr5XUGo2C9vHak/HsDph8FIg=;
+        b=VWH0032/zhSfGGZRuLrXT5RfcTo7v5khUP0wQ3J4E2ORZD62GbfvF4RPFL1iLo4x3/
+         rQ7W29z1j5AQOB0zbigmiu/FyHRqoiJXv9lPwq1Zh5hdwgaksZ9SIy2oz9S0VKakiwOr
+         4YA7DSPkWdx+BeoLedJbnMAwoWVCg0OVhwzrWzsduf7wJYnjDV9svIb8ciW3N4CDAkcr
+         qLPVbg/Dn4NeQgUy8pJQMMN16mmqnKPWF0ZntCtJP6Q+Hji8S7PLIr1Y99pBVDoDXthI
+         uDp1TXb3fWUvWTzZqaYhO162NsXaoJ8ITShcFQsSy78XqAWIuTbuS79+ltyzhXpP4NAN
+         oElg==
+X-Forwarded-Encrypted: i=1; AJvYcCWbgFsU0A6lq1fpbFeiF48Z/zGvb4CBif1kVvFQlj6GkN3iXr6CP3oT6axZSz5UqbI6/n1BmyPV@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyi9WKBXtunwdhCk3Amh3H9KJujH1R8DvFCm1pyxT/mzoMmviBR
+	ZNWz/Ue5wILgvhbGqnIQOIVhX6VkQFYaCDDzpZh6JEYP3BuDlFCxaROq
+X-Gm-Gg: ASbGncvAaQMPgpNKMX+d0TuYsu2RmII+Pt2NedA2MktndRr6KpgHpVKq4PfziiW6MNF
+	nQPKDnYPTt4fKnCG2ApWyDlOFBNseO7HWF4hJ96S62P2v/CCfuc7f5Y0JMfCN6BHRlNFxBR+XAc
+	33tD+5gcZrImkDr/Sc59rB79kB+BS5W8ff3vY+6DSYl8XKV31MroSXL2o6zDbNKNGeMQIC9fHE3
+	f4OABGzy7U/0fVhEZhKQFDH57+6xS6xZ0/gbkEgEqsYM38/bNUngaNIiuwktOYDZovTblnZOCdW
+	LVoDH8A+86DHvr3tfhdBIUa7C7xzjI4UmRVu7nBxBOjLLyjdE8nvNCiPJyV/nGwQpioVmor2SDm
+	Y7hb5YFj1GTaSFzEntYcmnT0bpJa5krecwt8cBN2qzBGSd/zHu6n+mAETChZQpaxKvgRY68DavY
+	xqjGwx
+X-Google-Smtp-Source: AGHT+IE6BgVM5Jb9gXBWM2LFUBU+XVaLiLIPy0+Si2cmU+HxmVbfGcdj2uOFq0uiq/ESUUb+Xie9Vg==
+X-Received: by 2002:a17:906:c104:b0:b40:5752:16b7 with SMTP id a640c23a62f3a-b6475124787mr99526166b.51.1760639098034;
+        Thu, 16 Oct 2025 11:24:58 -0700 (PDT)
+Received: from localhost ([2a0a:ef40:89b:b900:2e0:4cff:feb0:4e4d])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b5cccdaa0f9sm585727366b.45.2025.10.16.11.24.57
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 16 Oct 2025 11:24:57 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Thu, 16 Oct 2025 19:24:57 +0100
+Message-Id: <DDJYGZAJRMC4.O9KO64SAAPFJ@gmail.com>
+Subject: Re: [PATCH] libselinux: Ignore files removed during relabeling
+From: "Rahul Sandhu" <nvraxn@gmail.com>
+To: "Vit Mojzis" <vmojzis@redhat.com>, <selinux@vger.kernel.org>
+X-Mailer: aerc 0.20.1
+References: <20251016180929.452863-1-vmojzis@redhat.com>
+In-Reply-To: <20251016180929.452863-1-vmojzis@redhat.com>
 
-In case ignore_noent is specified, ignore files removed during
-relabeling (race condition between folder read, file read and label
-set).
+On Thu Oct 16, 2025 at 7:08 PM BST, Vit Mojzis wrote:
+> In case ignore_noent is specified, ignore files removed during
+> relabeling (race condition between folder read, file read and label
+> set).
+>
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+> ---
+>  libselinux/src/selinux_restorecon.c | 30 ++++++++++++++++++++++++-----
+>  1 file changed, 25 insertions(+), 5 deletions(-)
+>
+> diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux=
+_restorecon.c
+> index 39eabeb9..7cad4c8d 100644
+> --- a/libselinux/src/selinux_restorecon.c
+> +++ b/libselinux/src/selinux_restorecon.c
+> @@ -726,6 +726,14 @@ static int restorecon_sb(const char *pathname, const=
+ struct stat *sb,
+>  			    pathname, newcon);
+> =20
+>  	if (lgetfilecon_raw(pathname, &curcon) < 0) {
+> +		/* Ignore files removed during relabeling if ignore_noent is set */
+> +		if (flags->ignore_noent && errno =3D=3D ENOENT){
 
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
- libselinux/src/selinux_restorecon.c | 30 ++++++++++++++++++++++++-----
- 1 file changed, 25 insertions(+), 5 deletions(-)
+Nit: there should be a space after the `(` and before the `{`, inline with =
+the rest of the code style.
 
-diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
-index 39eabeb9..7cad4c8d 100644
---- a/libselinux/src/selinux_restorecon.c
-+++ b/libselinux/src/selinux_restorecon.c
-@@ -726,6 +726,14 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
- 			    pathname, newcon);
- 
- 	if (lgetfilecon_raw(pathname, &curcon) < 0) {
-+		/* Ignore files removed during relabeling if ignore_noent is set */
-+		if (flags->ignore_noent && errno == ENOENT){
-+			if (flags->verbose)
-+				selinux_log(SELINUX_INFO,
-+					    "%s removed during relabeling\n",
-+					    pathname);
-+			goto out;
-+		}
- 		if (errno != ENODATA)
- 			goto err;
- 
-@@ -765,8 +773,19 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
- 		}
- 
- 		if (!flags->nochange) {
--			if (lsetfilecon(pathname, newcon) < 0)
--				goto err;
-+			if (lsetfilecon(pathname, newcon) < 0){
-+				/* Ignore files removed during relabeling if ignore_noent is set */
-+				if (flags->ignore_noent && errno == ENOENT){
-+					if (flags->verbose)
-+						selinux_log(SELINUX_INFO,
-+							    "%s removed during relabeling\n",
-+							    pathname);
-+					goto out;
-+				}
-+				else
-+					goto err;
-+			}
-+
- 			updated = true;
- 		}
- 
-@@ -932,9 +951,10 @@ loop_body:
- 		case FTS_NS:
- 			error = errno;
- 			errno = ftsent->fts_errno;
--			selinux_log(SELINUX_ERROR,
--				    "Could not stat %s: %m.\n",
--				    ftsent->fts_path);
-+			if (!state->flags.ignore_noent || errno != ENOENT)
-+				selinux_log(SELINUX_ERROR,
-+					    "Could not stat %s: %m.\n",
-+					    ftsent->fts_path);
- 			errno = error;
- 			fts_set(fts, ftsent, FTS_SKIP);
- 			continue;
--- 
-2.51.0
+> +			if (flags->verbose)
+> +				selinux_log(SELINUX_INFO,
+> +					    "%s removed during relabeling\n",
+> +					    pathname);
+> +			goto out;
+> +		}
+>  		if (errno !=3D ENODATA)
+>  			goto err;
+> =20
+> @@ -765,8 +773,19 @@ static int restorecon_sb(const char *pathname, const=
+ struct stat *sb,
+>  		}
+> =20
+>  		if (!flags->nochange) {
+> -			if (lsetfilecon(pathname, newcon) < 0)
+> -				goto err;
+> +			if (lsetfilecon(pathname, newcon) < 0){
+
+Same as above.
+
+> +				/* Ignore files removed during relabeling if ignore_noent is set */
+> +				if (flags->ignore_noent && errno =3D=3D ENOENT){
+
+And here too.
+
+> +					if (flags->verbose)
+> +						selinux_log(SELINUX_INFO,
+> +							    "%s removed during relabeling\n",
+> +							    pathname);
+> +					goto out;
+> +				}
+> +				else
+> +					goto err;
+> +			}
+> +
+>  			updated =3D true;
+>  		}
+> =20
+> @@ -932,9 +951,10 @@ loop_body:
+>  		case FTS_NS:
+>  			error =3D errno;
+>  			errno =3D ftsent->fts_errno;
+> -			selinux_log(SELINUX_ERROR,
+> -				    "Could not stat %s: %m.\n",
+> -				    ftsent->fts_path);
+> +			if (!state->flags.ignore_noent || errno !=3D ENOENT)
+> +				selinux_log(SELINUX_ERROR,
+> +					    "Could not stat %s: %m.\n",
+> +					    ftsent->fts_path);
+>  			errno =3D error;
+>  			fts_set(fts, ftsent, FTS_SKIP);
+>  			continue;
 
