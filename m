@@ -1,64 +1,64 @@
-Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
+Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B007354AF8
-	for <selinux@vger.kernel.org>; Fri, 17 Oct 2025 20:29:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C0C9354AF6
+	for <selinux@vger.kernel.org>; Fri, 17 Oct 2025 20:29:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760732952; cv=none; b=RS2P+txrA5HaUBf3iG2J3gEywabFpw1WPHVv8rYUEyYvZ4GHmE37ajeKPKuCCxV9mSl3roIp/sK+KJ8Z5fih4GX8yn33G1M3+E2hs9joBBBM6K6F7gY0oYcdOjnMsH+HmfiuTXHFzGKuTEuZFQ024T3Ufsp7NoANsXzcoPHmyVA=
+	t=1760732955; cv=none; b=lTh4FLWjMaO6s3EuP5oKrO8KJOKj2qtLoCWZ45v/wnJ6YWo8dOG3trzIY0GcDd54b1MfrQo0Uis/pZaOJY/IHXggIGVeYFCvF4vwDblqE9cU5zi75hik7OuvO9y7GdEjaUCxYbWXJC/gS5KLxkvo8aLN6OQkh1ftEKQRiXZZwXM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760732952; c=relaxed/simple;
-	bh=Hkdj0OI5JGvnXUWu3kZ7e6LcKqeJJ0y+zTjBis11uXk=;
+	s=arc-20240116; t=1760732955; c=relaxed/simple;
+	bh=0ARNTbjqo5w7fHcXTt/PrX3CrXpL0V7SuQTNbX9ZQt4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=nokkHstAknQlW+R24qFNPIzI121SJwVaRvHMLHe+o6nOHP3FGL1eDotfRZ/Wr1rXTd2aPUmrNzVHJzbq29RxHiLNvunrbP+6sm10sqpt2/w/SEn/r7PmCFwkqhJcpcTNfgYMwK0k7sbKuIFicLogEkIaezd3OMcDkrq1/F0tBRM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=XwTH/m4m; arc=none smtp.client-ip=209.85.222.174
+	 MIME-Version; b=VcYtaxqo87Frt0zlw0mCeV4r1l4LjjFAwY3B+J8zsk+9RyOtuE7/WiNpojtwwDHLsON1ljp3teMzJctQ7apuw8HG0l204Eud7C/+n+5HtFVbdw28erHYlOaxJ76/kMvRM9QqLayK+iRDpwkQ3E4ULr+LfSxDsGCEoePQ1oMUU8I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=RPoo7lxA; arc=none smtp.client-ip=209.85.222.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="XwTH/m4m"
-Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-88f79ae58d9so311344585a.2
-        for <selinux@vger.kernel.org>; Fri, 17 Oct 2025 13:29:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="RPoo7lxA"
+Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-88f2b29b651so333021385a.0
+        for <selinux@vger.kernel.org>; Fri, 17 Oct 2025 13:29:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1760732950; x=1761337750; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1760732952; x=1761337752; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=7jaiQLqTK88O3hgkSrlCVkxlRCh5w9zQGBkzoo50mK0=;
-        b=XwTH/m4myY+YLtJyIBVH2mmqchK6vECTBMA72swMoyGS6c2eI/zBpiIAcETu9wqXut
-         +fZihhqXpiAO9jWw/26CGRy/laFScTMxpfae5sw8AghMxOSzU5gcAGS97wuDTYikCAMc
-         NUq1tmr0U9GXK2M105rx6FinVKS8rCdxfXAWBeJci5S1qOstbKqw2q1RxZwya9tSQGHV
-         E9LXoPknyAxJiy/LZmwMp9Uvh6uobeOupwnMqENTFxCEJfN3KbsYG5H323R8WRaTK9am
-         QV28x/15n/Nm6/dcaJjDkwu7wdT7X/RPaLKqJgETZav/VULB0T95zoFK4Tyd4fUx8Mys
-         l10w==
+        bh=jsMv4hxAnObrkHFZoYBItWDCr7amEmuVwwwwZZ0QcVQ=;
+        b=RPoo7lxABX7lAkmuEQxB7HYtQSPjMly8ujCOMSmC20exz87s30usHyiJmnyywUTOSh
+         4TWaU3zaIQ62+due8gGMT8CrNiU31M1Qw7EwcJ56RfyJuqkTsW4YaeVPHFI/g/6j3IMs
+         T14Z5glLdR8yRdR96hHRUtHaJnADYxAhEdUWFzgaGqTuh7p9LxD/r8ZtDJisepHvyDjZ
+         l9Us/HEHA/HU8BZ7tw1GGFsr2s52MNE2ypF84O4WN9+bqqNjAlalVz47cQKlVmbK63Vo
+         XeRMZ02v7TYvngqcd5yg72y1CpJ/2gcZJ+4YoQnC9Bzco3tsqwVuGV0K3de6C0UqfKSV
+         ql8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760732950; x=1761337750;
+        d=1e100.net; s=20230601; t=1760732952; x=1761337752;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=7jaiQLqTK88O3hgkSrlCVkxlRCh5w9zQGBkzoo50mK0=;
-        b=h8YG2Gepgt3XiosCL4vjPbqsyRpBrcUQSiEPFGt66EHgWHMJlwwu06s1rwSyovzHLH
-         m40qZ8ubWW38gzE57TJFqgskFu8AnrY31yHIQ0cZ1CQ+0pVm91xzC+RnYtZLIeK0rh3r
-         HHQVW1PRAQHZGL1OPlXTGq4htredWb47PYq01qI6dSHY4QdTIkS/7WOKNt/uE/lP+CU9
-         EQiIvaV4FYK62VHdFTRWp+rTbR22KxW6EXraUAgWrA2PPibsb9udZmYTZbsHqDKYBK1m
-         qIr0KZvlrP9u7lHbM8gtJaKzPA9YSUC8ik5QaSFoMzw9xV/MMQi4VjZKTvUIxePogDMb
-         OYaw==
-X-Forwarded-Encrypted: i=1; AJvYcCWCl1XI7lzbj5xiMPjVL93uhWf/xNsjV8wZdhQxqL0tCTe0lrG9EbLIywnEzrryU3mMasIYh6LE@vger.kernel.org
-X-Gm-Message-State: AOJu0YwGEpXeVRNpglLaTCn0GN/ErVip+G0EydBxsWx1/Td5q9uIzqea
-	uAbgRBTAoERssrr2xX2XwF40lAFeKP0v98xMAKqxZBG6XqGV4x8xMXSDoqilthybQw==
-X-Gm-Gg: ASbGncu/DyxzPmBapJxENFFNJL2l/RFDXmnojXbOKOXL/XNOHQ9+XkPLr2wQom6F44V
-	AaPeuATMCn/9WneibXSnIjOfEnMGQllG8FunFJFNyvAP5nDK6mAhzV++VDM3iDfSmbYVGUvB2Eg
-	ZWoEgu3V4m9qz3/SgrB++DmzFYOrejz5rjcnvk0AxoaA3Aupr0Zkm8Y7AtqB3jD4abqsyaHaCSv
-	T0cIKr0WKE3Rv0hx1cH6Zh4nX7c2q6uLRb9zhRGyulpd+B5+5VvkucCwFEQPdQmqXh52xCJdmiF
-	Llc3zvTLXtRVZRnphJhmwVOOQ/J4O02Hb3RQb4CFAeO8AX6gK9B+9UO7ncvWodd1nfZYT4q0sLT
-	qoHdlYlFvKe7SmRxOsBkahBpnLJhAvKJxjGBZ6GVyekMpYcRUH7ynsyDKjTjj/9aoWw9fzZXO87
-	oUTS64SqtCmEjr2KbIpoKvDd1aIkHxqqVPjpNHat/klvKJcg==
-X-Google-Smtp-Source: AGHT+IEtw775NA3ah7SYtQxU+JuV7pz7Eynz3OO4GnJm+Qc7/WwYCJ5of7onDXeNlNj49WNAEvKm/Q==
-X-Received: by 2002:a05:620a:a1d8:20b0:891:2289:c8b0 with SMTP id af79cd13be357-8912289cb99mr403826785a.28.1760732949855;
-        Fri, 17 Oct 2025 13:29:09 -0700 (PDT)
+        bh=jsMv4hxAnObrkHFZoYBItWDCr7amEmuVwwwwZZ0QcVQ=;
+        b=oQwrH3ujcC7JgJHxb72Z4X79SNLnpF0CdLCQAWVEurI8Qs8pcKqiFj7J4ydqybJTfD
+         TF2CWg0PsofjvSpgJ0BGVFU5FPU9hXJQ9/p1tGevnzuyiwRAQ4WnhXCPgg8mlgX3K2MH
+         z/ZfohP0ZDYoUAaGg2V0y4dwuGIbF77ly5Z7rIi7eGbwBA+GwqaZG48WtT+bWuu+MqZi
+         Bi7Jxv7dSfpTOAXHhJsJk/73Im+XelH47ZsLCSub1EPIVhcghUjwUADhFLPDuPOfhFRM
+         Ss0mrSMXuhCLb1TCVjs7LeLRIzuNnv8xD3L/cy+lj50iZJ7pev1rntwsVsCkc8itDch+
+         Nfaw==
+X-Forwarded-Encrypted: i=1; AJvYcCXSNRTNzbRgj3GdGIMlrd1H5nF6PsKrKAEXnGWXDJP76C1RfDXW22zmze1KgtY0/9iQGfkTbNpP@vger.kernel.org
+X-Gm-Message-State: AOJu0YzxCADmdNxi5NGWNc27p7Q+fqzcPbNZw5V6YfIrAKci7nAmmTjh
+	Gk0pz/iorPU7yx5u5g87MEvYsm0eQMqdw3L4QsmWEg8ZzO9gxM0phB1tPnGqD6PpAg==
+X-Gm-Gg: ASbGnctzD3w6KlWkGOgM9tNxhH8g0Sq/vq2TxIaVj4WAwOUte23dSoV7Wu62Jw0oOZc
+	7AUXKIFBVE0jzk+nJRQGvG5WtKv2F4mia/2/2dY0ZS20IFLO6X4RdynX6sN8m+pOFWAvBgZUa9U
+	UvpXeeLcgMuhAKUNeo1EltDi2cxYgNEW7ehjMaHArTQOtOJG+YQzCOp83WQVxCWXpKZAM/yhjN9
+	IuNkbVQ3jMa6IhGi2Km/50jKCjyj2++WngayylZeVUYChX2jD/CqSg4YkhnlBm7KcoTJxNDfXPK
+	6mTeofTcvZu9rLQOoCVq4XJwf3tFUZFADhdQ0+WtcW2CbJ+TYfeLdBK2X4jVvdqKLzkvtUXiNSd
+	J6hKGZfTtPNVy4m0c/A11OEuBj0WuGGjh3gdz97L2sc4Sp97w5VsGodB3M/Z/juwrkfxeLLNXFC
+	imv6BSqJtczAH1C5bInkrNUVIHmCZWSCG6NAaWXrIbNWJsQQ==
+X-Google-Smtp-Source: AGHT+IHR1s7Oyx2idoI3ZOawjagf9Epm8GCD5AewBeSUmlHVNbALzFXJS04/Sk1NfTEi3qtoDqA34g==
+X-Received: by 2002:a05:620a:4110:b0:844:cb8f:7999 with SMTP id af79cd13be357-8906e7b2f48mr633722585a.17.1760732951676;
+        Fri, 17 Oct 2025 13:29:11 -0700 (PDT)
 Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-891cd57c825sm40664185a.28.2025.10.17.13.29.08
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-891cc8d5edasm41017485a.7.2025.10.17.13.29.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Oct 2025 13:29:08 -0700 (PDT)
+        Fri, 17 Oct 2025 13:29:10 -0700 (PDT)
 From: Paul Moore <paul@paul-moore.com>
 To: linux-security-module@vger.kernel.org,
 	linux-integrity@vger.kernel.org,
@@ -75,9 +75,9 @@ Cc: John Johansen <john.johansen@canonical.com>,
 	Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
 	Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>,
 	Xiu Jianfeng <xiujianfeng@huawei.com>
-Subject: [PATCH v5 13/34] lsm: rename exists_ordered_lsm() to lsm_order_exists()
-Date: Fri, 17 Oct 2025 16:24:41 -0400
-Message-ID: <20251017202456.484010-49-paul@paul-moore.com>
+Subject: [PATCH v5 14/34] lsm: rename/rework append_ordered_lsm() into lsm_order_append()
+Date: Fri, 17 Oct 2025 16:24:42 -0400
+Message-ID: <20251017202456.484010-50-paul@paul-moore.com>
 X-Mailer: git-send-email 2.51.1.dirty
 In-Reply-To: <20251017202456.484010-36-paul@paul-moore.com>
 References: <20251017202456.484010-36-paul@paul-moore.com>
@@ -87,65 +87,163 @@ List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2045; i=paul@paul-moore.com; h=from:subject; bh=Hkdj0OI5JGvnXUWu3kZ7e6LcKqeJJ0y+zTjBis11uXk=; b=owEBbQKS/ZANAwAKAeog8tqXN4lzAcsmYgBo8qY/bpHjwlAYnGvTqNUcCI4NGr7OliF9vSWzN NQ6D11MM2eJAjMEAAEKAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCaPKmPwAKCRDqIPLalzeJ c/W3D/988hhqWa5zZ5Lj4EZdjriGAY55Mrc7utuuQn4GAZ4+2C4p3LPU7XnpFBiY0vPqx6/M/Wa W8Ius3I2Qu/we/faYbCpoJ3kWQGwzriAUQst/5QSvagG7kuX81jw6TBrTMa+wwYGC01EEJc9Pu8 u+jPEDsglk4n9bZBWRaHq0eke5N/kDP5SoEyuf2sUf4DHyMuLnHUCpmtb3mRw6EY+qvX2wOU6fs qkFYk5bHZTTlaAHBKm1gq6zlCLf9OzgMYtS8eEL0WK9Jt08MdlqtOkQaX3OPVbSFRMyWAWIoGNc pxFsmbgiP/HHS/hC/p/1kiMOAgVqmO0ouk6Y3VaWxmOvkLfvFeqKPBMMBOFNkOKZEFQMFzWEr2/ b8envEFd4b3edHdrK8pP9RN6ahuepbuloELYyM6RDoT7OuU4W5m5oeqDD32kERL+IvxElN3d3yz s7I5jOFOn/7tD4RRzPCkM7/aEomfj5EwaEMCcptvhXnkiNhzB4HTRB2BxXBDqvI3SCKwaedwxPw R6gRzZmK7U7Yq/0gs2is01+rZBtWTBYz6FDbHgYGPajkwSyKRYMx/fBr/vt9iFE+TLNzoqx5Ykn KiMX8jy3XFIAls2pawT+zOMBtOJqC75XwF2c+YETB9TH36UGvMgJuwEYc1pYcwtHZFConahM0wb 7QMgflWFovfPURQ==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=5159; i=paul@paul-moore.com; h=from:subject; bh=0ARNTbjqo5w7fHcXTt/PrX3CrXpL0V7SuQTNbX9ZQt4=; b=owEBbQKS/ZANAwAKAeog8tqXN4lzAcsmYgBo8qZDMTtJeMRYBdf54CxDk78rbuV6vciEXYI8d 1zheaUwFIWJAjMEAAEKAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCaPKmQwAKCRDqIPLalzeJ c+D4EADclTAsnHj+AM/ijBKYnaMAP5Fr26HoksbvoBg7i/zTticMtSrlAFARXu8q8TjRPXt0rXz dacJwrPpSSWzi/EkMxMKBUKq1JqZ2aKjKEmMyX/l/ARr6vLKkeqNTysFYEU9wYvhdzWcHHer+ob YeCunPg2eAOle0o6JKcBZLYM98yrDCurRO84bCxYfb/ff0FpYi08MZ+HVPQVK96f6lFvlVLOEny zMfqV3Je5X6aaC3sSYZ7SwFLDV0YalZxcOnf3HpgBDR6rj5HQ/pSL36HR7sNyDPBo3BVKGWmx+J U9WPTuGLZRLvCVtBXi3e0O5cdCGp3CHGAIFzQ1OApBh6sqaavB4aNZ8rupOhUAji6zBqjOjARm3 S+dLoOYmttel/zqZ1KYStR3BWABwj60zseH+tylr/iqi2Y7P/hSAm2laQY3giFh4BMVKNUjV9VG vyYmZybi9wHTltNfk2e1C8CfFCcv9y3062GIJtstVNhjXzqeuHrP8CFBIzXYGu3QZ+I/eyytg0a RjwG9PuzC1zorAK+luIgcxM6RT7sVg9jwAlY7vNyNDa7meLSIs+zWyHfZ3bqZ17M6J4RuyYC5Y9 3K7J5cyy8UMZLB7rucVwmc213fK9rgrpqKx/FzJl/e6ijqY/nkVLQMo6T2atxuhjTCYAqCArly2 3IAOvhQwNTGQngQ==
 X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
 Content-Transfer-Encoding: 8bit
 
-Also add a header comment block to the function.
+Rename append_ordered_lsm() to lsm_order_append() to better match
+convention and do some rework.  The rework includes moving the
+LSM_FLAG_EXCLUSIVE logic from lsm_prepare() to lsm_order_append()
+in order to consolidate the individual LSM append/activation code,
+and adding logic to skip appending explicitly disabled LSMs to the
+active LSM list.
 
 Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
 Reviewed-by: John Johansen <john.johhansen@canonical.com>
-Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- security/lsm_init.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ security/lsm_init.c | 76 +++++++++++++++++++++++++--------------------
+ 1 file changed, 43 insertions(+), 33 deletions(-)
 
 diff --git a/security/lsm_init.c b/security/lsm_init.c
-index 9bfc35b44b63..4b66a8cfe8eb 100644
+index 4b66a8cfe8eb..1881cd28f0a0 100644
 --- a/security/lsm_init.c
 +++ b/security/lsm_init.c
-@@ -108,8 +108,11 @@ static inline bool lsm_is_enabled(struct lsm_info *lsm)
- 	return (lsm->enabled ? *lsm->enabled : false);
+@@ -124,24 +124,48 @@ static bool __init lsm_order_exists(struct lsm_info *lsm)
+ 	return false;
  }
  
--/* Is an LSM already listed in the ordered LSMs list? */
--static bool __init exists_ordered_lsm(struct lsm_info *lsm)
+-/* Append an LSM to the list of ordered LSMs to initialize. */
+-static int last_lsm __initdata;
+-static void __init append_ordered_lsm(struct lsm_info *lsm, const char *from)
 +/**
-+ * lsm_order_exists - Determine if a LSM exists in the ordered list
++ * lsm_order_append - Append a LSM to the ordered list
 + * @lsm: LSM definition
++ * @src: source of the addition
++ *
++ * Append @lsm to the enabled LSM array after ensuring that it hasn't been
++ * explicitly disabled, is a duplicate entry, or would run afoul of the
++ * LSM_FLAG_EXCLUSIVE logic.
 + */
-+static bool __init lsm_order_exists(struct lsm_info *lsm)
- {
- 	struct lsm_info **check;
- 
-@@ -126,7 +129,7 @@ static int last_lsm __initdata;
- static void __init append_ordered_lsm(struct lsm_info *lsm, const char *from)
++static void __init lsm_order_append(struct lsm_info *lsm, const char *src)
  {
  	/* Ignore duplicate selections. */
--	if (exists_ordered_lsm(lsm))
-+	if (lsm_order_exists(lsm))
+ 	if (lsm_order_exists(lsm))
  		return;
  
- 	if (WARN(last_lsm == MAX_LSM_COUNT, "%s: out of LSM static calls!?\n", from))
-@@ -269,7 +272,7 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
+-	if (WARN(last_lsm == MAX_LSM_COUNT, "%s: out of LSM static calls!?\n", from))
+-		return;
++	/* Skip explicitly disabled LSMs. */
++	if (lsm->enabled && !lsm_is_enabled(lsm))
++		goto out;
+ 
+-	/* Enable this LSM, if it is not already set. */
+-	if (!lsm->enabled)
+-		lsm->enabled = &lsm_enabled_true;
+-	lsm_order[last_lsm] = lsm;
+-	lsm_idlist[last_lsm++] = lsm->id;
++	if (WARN(lsm_active_cnt == MAX_LSM_COUNT,
++		 "%s: out of LSM static calls!?\n", src)) {
++		lsm_enabled_set(lsm, false);
++		goto out;
++	}
+ 
+-	init_debug("%s ordered: %s (%s)\n", from, lsm->id->name,
++	if (lsm->flags & LSM_FLAG_EXCLUSIVE) {
++		if (lsm_exclusive) {
++			init_debug("exclusive disabled: %s\n", lsm->id->name);
++			lsm_enabled_set(lsm, false);
++			goto out;
++		} else {
++			init_debug("exclusive chosen:   %s\n", lsm->id->name);
++			lsm_exclusive = lsm;
++		}
++	}
++
++	lsm_enabled_set(lsm, true);
++	lsm_order[lsm_active_cnt] = lsm;
++	lsm_idlist[lsm_active_cnt++] = lsm->id;
++
++out:
++	init_debug("%s ordered: %s (%s)\n", src, lsm->id->name,
+ 		   lsm_is_enabled(lsm) ? "enabled" : "disabled");
+ }
+ 
+@@ -163,26 +187,12 @@ static void __init lsm_set_blob_size(int *need, int *lbs)
+  */
+ static void __init lsm_prepare(struct lsm_info *lsm)
+ {
+-	struct lsm_blob_sizes *blobs;
++	struct lsm_blob_sizes *blobs = lsm->blobs;
+ 
+-	if (!lsm_is_enabled(lsm)) {
+-		lsm_enabled_set(lsm, false);
++	if (!blobs)
+ 		return;
+-	} else if ((lsm->flags & LSM_FLAG_EXCLUSIVE) && lsm_exclusive) {
+-		init_debug("exclusive disabled: %s\n", lsm->id->name);
+-		lsm_enabled_set(lsm, false);
+-		return;
+-	}
+-
+-	/* Mark the LSM as enabled. */
+-	lsm_enabled_set(lsm, true);
+-	if ((lsm->flags & LSM_FLAG_EXCLUSIVE) && !lsm_exclusive) {
+-		init_debug("exclusive chosen:   %s\n", lsm->id->name);
+-		lsm_exclusive = lsm;
+-	}
+ 
+ 	/* Register the LSM blob sizes. */
+-	blobs = lsm->blobs;
+ 	lsm_set_blob_size(&blobs->lbs_cred, &blob_sizes.lbs_cred);
+ 	lsm_set_blob_size(&blobs->lbs_file, &blob_sizes.lbs_file);
+ 	lsm_set_blob_size(&blobs->lbs_ib, &blob_sizes.lbs_ib);
+@@ -227,7 +237,7 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
+ 	/* LSM_ORDER_FIRST is always first. */
+ 	lsm_for_each_raw(lsm) {
+ 		if (lsm->order == LSM_ORDER_FIRST)
+-			append_ordered_lsm(lsm, "  first");
++			lsm_order_append(lsm, "  first");
+ 	}
+ 
  	/* Process "security=", if given. */
- 	if (lsm_order_legacy) {
+@@ -259,7 +269,7 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
  		lsm_for_each_raw(lsm) {
--			if (exists_ordered_lsm(lsm))
-+			if (lsm_order_exists(lsm))
+ 			if (strcmp(lsm->id->name, name) == 0) {
+ 				if (lsm->order == LSM_ORDER_MUTABLE)
+-					append_ordered_lsm(lsm, origin);
++					lsm_order_append(lsm, origin);
+ 				found = true;
+ 			}
+ 		}
+@@ -275,14 +285,14 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
+ 			if (lsm_order_exists(lsm))
  				continue;
  			if (strcmp(lsm->id->name, lsm_order_legacy) == 0)
- 				append_ordered_lsm(lsm, "security=");
-@@ -284,7 +287,7 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
+-				append_ordered_lsm(lsm, "security=");
++				lsm_order_append(lsm, "security=");
+ 		}
+ 	}
+ 
+ 	/* LSM_ORDER_LAST is always last. */
+ 	lsm_for_each_raw(lsm) {
+ 		if (lsm->order == LSM_ORDER_LAST)
+-			append_ordered_lsm(lsm, "   last");
++			lsm_order_append(lsm, "   last");
+ 	}
  
  	/* Disable all LSMs not in the ordered list. */
- 	lsm_for_each_raw(lsm) {
--		if (exists_ordered_lsm(lsm))
-+		if (lsm_order_exists(lsm))
- 			continue;
- 		lsm_enabled_set(lsm, false);
- 		init_debug("%s skipped: %s (not in requested order)\n",
+@@ -415,8 +425,8 @@ int __init early_security_init(void)
+ 	struct lsm_info *lsm;
+ 
+ 	lsm_early_for_each_raw(lsm) {
+-		if (!lsm->enabled)
+-			lsm->enabled = &lsm_enabled_true;
++		lsm_enabled_set(lsm, true);
++		lsm_order_append(lsm, "early");
+ 		lsm_prepare(lsm);
+ 		initialize_lsm(lsm);
+ 	}
 -- 
 2.51.1.dirty
 
