@@ -1,117 +1,242 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 932852D24B6
-	for <selinux@vger.kernel.org>; Fri, 17 Oct 2025 15:08:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63B6C354AC5
+	for <selinux@vger.kernel.org>; Fri, 17 Oct 2025 20:28:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760713736; cv=none; b=HTT+2Wqpknlw+ax4H6Kaq541Z/18MVdlarORlLbTxPiOVVIfZmW41N2GY2Oot0g67zOEmT/7IFUfQqF1+sjfBZ8UMgM+DRUZmiDFVh+WUK/R4e+651r6vDal6AmFWg4DDIbp78Z60DbkjaId77d6xZEg4cQrAh4FJzOZcrpwfU4=
+	t=1760732928; cv=none; b=Vdev369mGXNoReNK5XqtZIgCNCwHAoSdPypQT38IAvvplRd/kKD5vutVrVd+tKT/pUGU216wM6x7DvwNQVj/Cm7BF+8t8Ijyr2txyhLWpEQiwhrcUTMUmpA2OxBwal0pvHXSIBaRWI3F5oYHXvKIUzmFd57VhYJUoSZ99pOPqPE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760713736; c=relaxed/simple;
-	bh=cDj7hhnRmAjsPYrvQradtvQUYwigGmL0U9OoRmPeJ3o=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=nL5kKJtHZ3HWf+wrnWl4WGzhu+7MJyaQzgB/Gn1FExlausaQS1+97rp1/Af0LyF7YjFLEe9HnCn5l4B7UlVQbUfw6W8/LWcE7qyeaILKM291YS8gOk+ZzZaLW+d0T7jra3NRCgWaJCo/thn+enQRwNyITJ04Z85Ji2c5OF9DbuI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IvvZSBrE; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1760732928; c=relaxed/simple;
+	bh=iuXlvEP4RWicw4SMNuBF275xFR1ztz7FQKPfurRD1Wk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=uUYmv2bGh57VubuuXqbC3U6YMziwzcGXw4drHXwrdG+RKq/0JCALbrQEKov3iVoCgRs+Hhh7I0K03R5dTp/RpIibSN71Y+TjloOAG32pnWzXSMl6G37QPOxs16phlvgpiFViyoJ6BlFyxYoCyVz2A8rteuK79AQR454wHRbl30A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=PLBUAaIe; arc=none smtp.client-ip=209.85.222.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IvvZSBrE"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1760713733;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=l9Ycd8mazgmep3R9PWYA/lSmCqW/jSfzSICL1vR/LZ0=;
-	b=IvvZSBrEbivV+AVBkD0H6g3TtF/YdUGKvN3NCPrDJx+QiNsShtj0nK5Y9IbDIBLECtAKdg
-	iqbfCSLj7FjV/2M8B4ofGV4qq/r8CP5UqAaE8zaqWqFHS3Ff/3/4PZYR5GekyhPuH6p293
-	l02FGSx/xYs5Lvkptsi12IDnCl6L8PY=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-468-1csQ0XC0ORO9zfjIOxy6uw-1; Fri,
- 17 Oct 2025 11:08:52 -0400
-X-MC-Unique: 1csQ0XC0ORO9zfjIOxy6uw-1
-X-Mimecast-MFC-AGG-ID: 1csQ0XC0ORO9zfjIOxy6uw_1760713731
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 78BFA1956095
-	for <selinux@vger.kernel.org>; Fri, 17 Oct 2025 15:08:51 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.44.34.40])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id C3DDF19560B2
-	for <selinux@vger.kernel.org>; Fri, 17 Oct 2025 15:08:50 +0000 (UTC)
-From: Vit Mojzis <vmojzis@redhat.com>
-To: selinux@vger.kernel.org
-Subject: [PATCH v2] libselinux: Ignore files removed during relabeling
-Date: Fri, 17 Oct 2025 17:08:34 +0200
-Message-ID: <20251017150847.580771-1-vmojzis@redhat.com>
-In-Reply-To: <CAEjxPJ7UE2vtCBNwDphKO1SPC88vbTHCyq+ENhvZe1Tea2hCGA@mail.gmail.com>
-References: <CAEjxPJ7UE2vtCBNwDphKO1SPC88vbTHCyq+ENhvZe1Tea2hCGA@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="PLBUAaIe"
+Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-88f239686f2so292108985a.0
+        for <selinux@vger.kernel.org>; Fri, 17 Oct 2025 13:28:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1760732924; x=1761337724; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=9uBbjIUU74h1ZDdgDIYFE6I7PBb7cxOEFrM5zScIsrk=;
+        b=PLBUAaIe5jLqf0aU10hmnqbPmyObSJVkuqg+fhMz8g343Cf3v9cQgSlGgOv//XejT4
+         +9w4rpLNF94qr95hHB97goy8mXL0uED9WV2eMUWQ3HGrFGMIbzgyjQ7cS5NbdTiZdYYh
+         hYug9/3u8zTEXDTqy2W5nIAXCYfd2pd+61XEDHgh6gxXTtoSpAcYnMIb+iOckjj8dE/J
+         k/RvE7gdRP6hGWWCSOt+QGHFNl9SWU3clndE3igFZQHyTR6PIQnm2RhhaadzDA0X8zUt
+         NLw6c2JcgiyWl+t55HrYcpBrOJO3nXbwV6abEaYfUoYDbe1rHXkDvcbau91St+PTOsQg
+         9Rkw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1760732924; x=1761337724;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=9uBbjIUU74h1ZDdgDIYFE6I7PBb7cxOEFrM5zScIsrk=;
+        b=dz1FYEl2MA9deNr9wY/w+eq5Hcztrlk69ndxnS5biMQ/23e6Sff4670Od8Gr/aERfv
+         I56Olp02NBnQMnTlWnMvIqQODdbTK1cGtxhgsGDCKQLfQ9M4Xil35FBUQHWgV9NwkEml
+         L+94p+k+nLqywjIIQbOxi485doWpVvTdSYEKogbb67Ze4tXMsmtDxLotfHgFpuSsmOI6
+         898VuAKqWexuwl8udmRHHGdcXi0CPn/udIWJ5h4kSlHDSYiMucUHgTwrBbpjjprn4fZu
+         YKlYS7Ba/7XyegWtwH81N6uzJN+EmU/yeqXjxCKxrHVimeuLtKiPExGNcCV1CaKxspga
+         cPtQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWhhYkse5Ghcv4vCgAQ6Ot1VQ0yMp5Pj7ci+YzflteG2tL3kvMfIG6XrPlEWhWDvgdk0dV+Y7GU@vger.kernel.org
+X-Gm-Message-State: AOJu0YxVem1cHf/ebdDOP4IeU3X/Yt/eBC3coRA6BXbR6mHzfIvICodF
+	h7SzdYV10A5XQOsmvE8qjrT/GxWe/n1LLoGQ/IzA4WRWHas1ecWlKRXBMXg90wEAFA==
+X-Gm-Gg: ASbGncsLSM6gXz3YBkqBo5HApsBSv0qJXYBJYLQlhC/1MTbyrEA86aZh6krwtuHDd8q
+	2evXk7n6o3Bhh/uDDcuqVKrrchtEwNUPcsmsYqX0g1gszdlUTMKwH+3XB8gDF6qT+8ExyuQzFjb
+	/qT8w0OU3cfMynLd6n7pSE0fpqCpSrDajTvJcH7b5JwjmyNzifWMHQXWzgydHZk5AZGrzxNxvvE
+	L6NH+0bn6H37qXcwTBz7CzDoxFKe+IKhWcUK6BHmkqfbDzeO2XzgEKqud+NIynVWi+/DN2Yenxs
+	/vnnh34cXK5zFdeonvD1qrjqP7FMTS9PpJGtDRUjaHvaShJ9FPKaFvpOL87VHyL/QH+AoF9SVkF
+	7Iq2i6YBCC8syl7PAQVxFVsuBAO0P1LRqtGwMJQIVAz0oKwbSiM+i8Uhggzc4tDc9vCpFmuXoth
+	LhRnCZ/QEfhxmGDR4MRYCDxihoEn69JdK1AFCkrEuiXXRlPQ==
+X-Google-Smtp-Source: AGHT+IGU83kYhlHhrPIm0RnfAz1WwXuAOKzXLce53bDxHAbB5mzVCypK8r4pC/cQrYZhzGpjh4cVgA==
+X-Received: by 2002:ac8:5fd6:0:b0:4e8:a376:4345 with SMTP id d75a77b69052e-4e8a3764648mr37620811cf.43.1760732924100;
+        Fri, 17 Oct 2025 13:28:44 -0700 (PDT)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4e8ab0c8705sm4967831cf.26.2025.10.17.13.28.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 17 Oct 2025 13:28:42 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: linux-security-module@vger.kernel.org,
+	linux-integrity@vger.kernel.org,
+	selinux@vger.kernel.org
+Cc: John Johansen <john.johansen@canonical.com>,
+	Mimi Zohar <zohar@linux.ibm.com>,
+	Roberto Sassu <roberto.sassu@huawei.com>,
+	Fan Wu <wufan@kernel.org>,
+	=?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>,
+	=?UTF-8?q?G=C3=BCnther=20Noack?= <gnoack@google.com>,
+	Kees Cook <kees@kernel.org>,
+	Micah Morton <mortonm@chromium.org>,
+	Casey Schaufler <casey@schaufler-ca.com>,
+	Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+	Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>,
+	Xiu Jianfeng <xiujianfeng@huawei.com>
+Subject: [PATCH v5 0/34] Rework the LSM initialization
+Date: Fri, 17 Oct 2025 16:24:28 -0400
+Message-ID: <20251017202456.484010-36-paul@paul-moore.com>
+X-Mailer: git-send-email 2.51.1.dirty
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-In case ignore_noent is specified, ignore files removed during
-relabeling (race condition between folder read, file read and label
-set).
+This is the fifth, and likely final, revision of the LSM rework patchset.
+The number of changes in this revision are very minor and barring any
+surprises I expect to merge this into the lsm/dev branch next week; I'll
+send a notice when I do.  While there isn't anything in this revision
+that people haven't seen previously, if you do have any concerns or
+feedback, please let me know.  Once again, thank you to all of you that
+have taken the time to review these patches.
 
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
- libselinux/src/selinux_restorecon.c | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+I've aldo updated the working-lsm_init_rework branch of the main LSM
+tree to contain the latest v5 revision of the patchset:
+https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/lsm.git/log/?h=working-lsm_init_rework
 
-diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
-index 39eabeb9..681c69db 100644
---- a/libselinux/src/selinux_restorecon.c
-+++ b/libselinux/src/selinux_restorecon.c
-@@ -726,6 +726,9 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
- 			    pathname, newcon);
- 
- 	if (lgetfilecon_raw(pathname, &curcon) < 0) {
-+		/* Ignore files removed during relabeling if ignore_noent is set */
-+		if (flags->ignore_noent && errno == ENOENT)
-+			goto out;
- 		if (errno != ENODATA)
- 			goto err;
- 
-@@ -765,8 +768,14 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
- 		}
- 
- 		if (!flags->nochange) {
--			if (lsetfilecon(pathname, newcon) < 0)
--				goto err;
-+			if (lsetfilecon(pathname, newcon) < 0) {
-+				/* Ignore files removed during relabeling if ignore_noent is set */
-+				if (flags->ignore_noent && errno == ENOENT)
-+					goto out;
-+				else
-+					goto err;
-+			}
-+
- 			updated = true;
- 		}
- 
-@@ -932,9 +941,10 @@ loop_body:
- 		case FTS_NS:
- 			error = errno;
- 			errno = ftsent->fts_errno;
--			selinux_log(SELINUX_ERROR,
--				    "Could not stat %s: %m.\n",
--				    ftsent->fts_path);
-+			if (!state->flags.ignore_noent || errno != ENOENT)
-+				selinux_log(SELINUX_ERROR,
-+					    "Could not stat %s: %m.\n",
-+					    ftsent->fts_path);
- 			errno = error;
- 			fts_set(fts, ftsent, FTS_SKIP);
- 			continue;
--- 
-2.51.0
+The v4 patchset:
+https://lore.kernel.org/linux-security-module/20250916220355.252592-36-paul@paul-moore.com/
+
+The RFC/v3 patchset:
+https://lore.kernel.org/linux-security-module/20250814225159.275901-36-paul@paul-moore.com/
+
+The RFC/v2 patchset:
+https://lore.kernel.org/linux-security-module/20250721232142.77224-36-paul@paul-moore.com/
+
+The RFC/v1 patchset is below, the cover letter provides some background
+and motivation for this series which still applies:
+https://lore.kernel.org/linux-security-module/20250409185019.238841-31-paul@paul-moore.com/
+
+CHANGELOG
+v5:
+- rebased to lsm/dev branch post v6.18-rc1
+- fixed a !CONFIG_SECURITYFS bug (kernel test robot)
+- fixed a missing "__rcu" annotation on a cast (kernel test robot)
+v4:
+- reworked the lsm_read() function (John, Roberto, Tetsuo)
+- replaced the IMA/EVM patch with one from Roberto
+RFC/v3:
+- rebased to lsm/dev branch
+- fixed IMA/EVM initcall comment (Roberto)
+- fixed CONFIG_IMA and CONFIG_EVM problems (Nicolas, Roberto)
+- fixed CONFIG_SECURITY_SMACK_NETFILTER problems (Roberto)
+- fixed the IMA/EVM header file include macro protections
+- fixed an off-by-one string length issue in lsm_read() (Casey)
+RFC/v2:
+- rename lsm_prep_single() to lsm_prepare()
+- drop the lsm_prop counting patch
+- drop the platform_certs changes from the IMA/EVM patch (Mimi)
+- split/reorder anough patches in the patchset that I lost track
+- added missing function comment blocks in the SELinux patches
+- split patch 04/29 into smaller patches (Kees)
+- fix an LSM list output problem in an intermediate patch (Kees)
+- preserve the "lsm_active_cnt" variable name (Casey)
+- cache the lsm_read() string (Kees)
+- squashed, split, and reordered the enabled/ordering patches
+- reworked the Smack patch (Casey)
+- conditionalized the SELinux IB init code (Stephen)
+- fixed missing Smack "__init" annotation (Fan)
+- fixed a potential unused variable warning in IMA/EVM (John)
+- fixed the placeholder commit descriptions (various)
+RFC/v1:
+- initial version
+
+--
+Paul Moore (33):
+      lsm: split the notifier code out into lsm_notifier.c
+      lsm: split the init code out into lsm_init.c
+      lsm: consolidate lsm_allowed() and prepare_lsm() into
+         lsm_prepare()
+      lsm: introduce looping macros for the initialization code
+      lsm: integrate report_lsm_order() code into caller
+      lsm: integrate lsm_early_cred() and lsm_early_task() into caller
+      lsm: rename ordered_lsm_init() to lsm_init_ordered()
+      lsm: replace the name field with a pointer to the lsm_id struct
+      lsm: rename the lsm order variables for consistency
+      lsm: rework lsm_active_cnt and lsm_idlist[]
+      lsm: get rid of the lsm_names list and do some cleanup
+      lsm: rework the LSM enable/disable setter/getter functions
+      lsm: rename exists_ordered_lsm() to lsm_order_exists()
+      lsm: rename/rework append_ordered_lsm() into lsm_order_append()
+      lsm: rename/rework ordered_lsm_parse() to lsm_order_parse()
+      lsm: cleanup the LSM blob size code
+      lsm: cleanup initialize_lsm() and rename to lsm_init_single()
+      lsm: fold lsm_init_ordered() into security_init()
+      lsm: add/tweak function header comment blocks in lsm_init.c
+      lsm: cleanup the debug and console output in lsm_init.c
+      lsm: output available LSMs when debugging
+      lsm: group lsm_order_parse() with the other lsm_order_*()
+         functions
+      lsm: introduce an initcall mechanism into the LSM framework
+      loadpin: move initcalls to the LSM framework
+      ipe: move initcalls to the LSM framework
+      smack: move initcalls to the LSM framework
+      tomoyo: move initcalls to the LSM framework
+      safesetid: move initcalls to the LSM framework
+      apparmor: move initcalls to the LSM framework
+      lockdown: move initcalls to the LSM framework
+      selinux: move initcalls to the LSM framework
+      lsm: consolidate all of the LSM framework initcalls
+      lsm: add a LSM_STARTED_ALL notification event
+
+Roberto Sassu (1):
+      ima,evm: move initcalls to the LSM framework
+
+ include/linux/lsm_hooks.h              |   73 +-
+ include/linux/security.h               |    3 
+ security/Makefile                      |    2 
+ security/apparmor/apparmorfs.c         |    4 
+ security/apparmor/crypto.c             |    3 
+ security/apparmor/include/apparmorfs.h |    2 
+ security/apparmor/include/crypto.h     |    1 
+ security/apparmor/lsm.c                |   11 
+ security/bpf/hooks.c                   |    2 
+ security/commoncap.c                   |    2 
+ security/inode.c                       |   46 +
+ security/integrity/evm/evm_main.c      |    5 
+ security/integrity/evm/evm_secfs.c     |   11 
+ security/integrity/iint.c              |   14 
+ security/integrity/ima/ima_fs.c        |   11 
+ security/integrity/ima/ima_main.c      |    6 
+ security/integrity/integrity.h         |    2 
+ security/ipe/fs.c                      |    4 
+ security/ipe/ipe.c                     |    3 
+ security/ipe/ipe.h                     |    2 
+ security/landlock/setup.c              |    2 
+ security/loadpin/loadpin.c             |   15 
+ security/lockdown/lockdown.c           |    5 
+ security/lsm.h                         |   58 ++
+ security/lsm_init.c                    |  563 ++++++++++++++++++++++
+ security/lsm_notifier.c                |   31 +
+ security/lsm_syscalls.c                |    2 
+ security/min_addr.c                    |    5 
+ security/safesetid/lsm.c               |    3 
+ security/safesetid/lsm.h               |    2 
+ security/safesetid/securityfs.c        |    3 
+ security/security.c                    |  623 +------------------------
+ security/selinux/Makefile              |    2 
+ security/selinux/hooks.c               |   11 
+ security/selinux/ibpkey.c              |    5 
+ security/selinux/include/audit.h       |    9 
+ security/selinux/include/initcalls.h   |   19 
+ security/selinux/initcalls.c           |   52 ++
+ security/selinux/netif.c               |    5 
+ security/selinux/netlink.c             |    5 
+ security/selinux/netnode.c             |    5 
+ security/selinux/netport.c             |    5 
+ security/selinux/selinuxfs.c           |    5 
+ security/selinux/ss/services.c         |   26 -
+ security/smack/smack.h                 |   14 
+ security/smack/smack_lsm.c             |   11 
+ security/smack/smack_netfilter.c       |    4 
+ security/smack/smackfs.c               |    4 
+ security/tomoyo/common.h               |    2 
+ security/tomoyo/securityfs_if.c        |    4 
+ security/tomoyo/tomoyo.c               |    3 
+ security/yama/yama_lsm.c               |    2 
+ 52 files changed, 1000 insertions(+), 712 deletions(-)
 
