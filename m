@@ -1,133 +1,211 @@
-Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D6522797BE
-	for <selinux@vger.kernel.org>; Fri, 17 Oct 2025 20:49:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E026D2874E3
+	for <selinux@vger.kernel.org>; Fri, 17 Oct 2025 20:59:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760734154; cv=none; b=qHOUuU0bLLWo+qHbhnr7IL7UH01Zwb9ZvZ+3kWz/9xRcjDZT79+POsAc7OtxYiRdbQGBKLQKb2xnv6kkBBev6IhSWv9tKWTEPQozzI82cq4pWsmP/UWfourNEY9r6VrEVyZCUI0jTxL+baQ5GgwU8WjVzgbBPOsqL5s9x8hT+YQ=
+	t=1760734775; cv=none; b=CdCC1rhke6VpDMzsqfIojTqNBpUxSHW0IU+/d+ejktihygKdSfnbtXH/o07UyYoBn8fY6EZHKUkXlNYLCd1+M2uiO/ChhpBD1ABQA7gT68oMMPo1qZYdhahOT0DoWB97C7tjXaUVl7pFGSd1cInj6RXSAXzYAeueOBOwjoBMJhA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760734154; c=relaxed/simple;
-	bh=WKicIXmz7bnIQGhAXSwDfAouRuhWgFryW5dnjoIl1Z4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ZIf8TIN9mD55uzRZFnd2XcLUdEC+OkBJt/1cus0noJzprTvVvIKzucrltBFWuXLjohI9qqGNCmbosOdJUAIBfzKndFDxghTWVffTOd6BI6shC88z6FMcu39C3ufJjEifsq9LVt4StPTc1vpFTNBvcjfo0xWr5IpJkANmU2huHQI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Va/+6G0Z; arc=none smtp.client-ip=209.85.222.177
+	s=arc-20240116; t=1760734775; c=relaxed/simple;
+	bh=e89QIJCu3NnHGbEpfJbSpPegYSPtflNrZ3i6VCWhESY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=qF1sA14pU26MbhoIVdu2ZCdCRSBv4VLMaF7RkyYmDkWsM6NhlbBKoBy/Fuqe3zueUQHV+fWO1e/Tugz1TaOn5MTpqlZOblYXI/Il8h41g2GRcH6t8jaJLusHJCr9hBH8Ce+Le/Kq2TQKqmY9y45KGYyd4Nm86RjJSd0liA3q8Yw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=NoSzkU8y; arc=none smtp.client-ip=209.85.216.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Va/+6G0Z"
-Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-88f86727622so348745685a.1
-        for <selinux@vger.kernel.org>; Fri, 17 Oct 2025 13:49:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="NoSzkU8y"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-33b8a8aa73bso2186206a91.0
+        for <selinux@vger.kernel.org>; Fri, 17 Oct 2025 13:59:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1760734152; x=1761338952; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=paul-moore.com; s=google; t=1760734772; x=1761339572; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=RKtz/vkc290/v3y7dFkvXfjVdcrtyl+E7FWTxNg0D5A=;
-        b=Va/+6G0Zj56SaC38gysg7S+eb+skTwu7auy03obW0Z5qPB2XTruqVQb+D1UW4i4ovH
-         Cule3L7QynhW2TudzCK3Fj5PO4yGwO7MhZO6YSLD6QlvUkHrOimxEdfhrj1YKviMGwOa
-         GFONhMgAhfd9LWoBDPaWoLFXi/VhUZ0pt2x9sitPfDLA0MrpuPetstL4YYG+DTk3+5kV
-         qYV9sNQLQZlmrofmNvZcS3eFwTBAIaaYw+LSaD//UX3PYg8Dlxss2ie6tSDETuaMDemK
-         qHdnlKP52Pd8Lrao63e2MSkB3omxjGyoWW2PdJgcmmgX6PJItVZEsO9CTWZSGCnSMqRy
-         z74Q==
+        bh=OX8ZaKICkZurP7qqp4KURNWhEfVEFdZ1NxO3hfLjNng=;
+        b=NoSzkU8yDcKT0YuOcj/ZrfWzZtsEMw/Vgntb5nBwMg4xBhVmk1kEgd8CznySNPOGsm
+         Y+sujLTd0utNMGOoTIhfyrSw7X7uect64cxyzucRYq+rqfJisT0d166ZxzJStSQlzY+J
+         MiX5UaTF7rRrdBYETlqxP2b15nL7K70JC8EZMlw01crKLOr2P9Xr8MUmXn56KgRiycCV
+         cJxvd5MJfWdDTNrU3wgl8d00xXlJD1BMkwbVBdWHEOhNFB2IdG4ejBgTwzJvtjR741Vp
+         uQmI/XKpzieN6xR6jytUvnsjDnB5JLYAWFomzPR4FbMv2UZf6K7hErLgvAmYAxRnlhSL
+         z9XA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760734152; x=1761338952;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1760734772; x=1761339572;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=RKtz/vkc290/v3y7dFkvXfjVdcrtyl+E7FWTxNg0D5A=;
-        b=UUJunhx8n1f9Z5S74lHO9a9aCBRzyyTnsC4I3Htp5YO+5hybVlRJ2tj3Tx6ZKgOJkb
-         rnlw7WABbYOTrL5fWDdiPSDW66w3KjM+YSH3kY6vQiEoF7oqBDTYAzuY6m9ZTuU9UnH8
-         Yk7K9IxvPs2l7eRrxhY5PHk1Z+tGpYDTl9aA0laqNuwDev03oM8U1l4fwxeuw23/lGWo
-         wTNAgChzW+wEm4McVUNfitQckUGTjnbymdllvJ+CAwPLcrk/wtg90J2g1XtLEt+ocq6R
-         T/hNj+KbjJk4rlxP+7Hedbb5neHHf7gwPS+ly3ybH8anhpJct7QuFnFkJQqnGgFD5DJQ
-         1DBg==
-X-Forwarded-Encrypted: i=1; AJvYcCUwgNbdftp+S0dW1n+SVzwYtdWURU+zV+GHVT2h5bBL9yr2AW1vPrfq7V3W0L0aBZd9jPHCJja2@vger.kernel.org
-X-Gm-Message-State: AOJu0YwyONKH8dYQUy7CkRUZdoNzfi5X12RwLFYe/tqDNh+g2vE2lfFh
-	r4f1NYqetI0g+vANN/jPUGeiJQ2aBjzOfGz5eWYqE7F8HfUh/Byob96QjSz5mhLU6w==
-X-Gm-Gg: ASbGncuvjqXKMUIAnEuC4Kst3dNk55xRmtDJq44Dt8zfDFaAT90vDvZrfAFIypt86Fe
-	D6b2SSuQfFjxc0kH5SZ9Meftieh/vmSeQHgwKfxjTqGBHy9Hp236RaLFig1g0sy/3x3sb5oRsqL
-	rieOHiLoN/YLd/hJG0+X4BWIAc+ijABNDuM9opqMpyfCVY3EE3GqeBcRcLSisn2ooaGofyJ/WzS
-	1apVrqbxp72QAVRlHMdIxglE5+mMycCQk7Cg92jXgr/MzOXjRscwPoN/I8xcecB0dJ20fRPz816
-	25aVv8U6jLh2hFLSPI910uU1fL6ie97Ekm1b8My1PI06z3LoVSxLuyKpctfuaUB5xzvjdsjD1GO
-	EiNDDufFluxGGuHkm4KIqKlNSguuoep7IoEl0U5qSSB5X2r6i1RhkPesNQ9stHukZOFDOsVIH+k
-	M/JXOmt7M16cnLnpLIfQRYWf7uvbJrNC9fWfFC6Be7bwGZlB/zVS7e+jLU
-X-Google-Smtp-Source: AGHT+IHGZu78yRyhIKfalS/+sm4s6XszeQNLh4vmUvi7QqFzyQmuCMuSpemEdlt2MRk8WCsOPnaUQQ==
-X-Received: by 2002:ac8:5707:0:b0:4dd:ca89:8d7d with SMTP id d75a77b69052e-4e89d3a27dcmr76029711cf.56.1760734152046;
-        Fri, 17 Oct 2025 13:49:12 -0700 (PDT)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-87d028a9987sm5018766d6.44.2025.10.17.13.49.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Oct 2025 13:49:10 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: linux-security-module@vger.kernel.org,
-	linux-integrity@vger.kernel.org,
-	selinux@vger.kernel.org
-Cc: john.johansen@canonical.com,
-	zohar@linux.ibm.com,
-	roberto.sassu@huawei.com,
-	wufan@kernel.org,
-	mic@digikod.net,
-	gnoack@google.com,
-	kees@kernel.org,
-	mortonm@chromium.org,
-	casey@schaufler-ca.com,
-	penguin-kernel@I-love.SAKURA.ne.jp,
-	nicolas.bouchinet@oss.cyber.gouv.fr,
-	xiujianfeng@huawei.com
-Subject: [PATCH v5 11/11] lsm: add a LSM_STARTED_ALL notification event
-Date: Fri, 17 Oct 2025 16:48:25 -0400
-Message-ID: <20251017204815.505363-22-paul@paul-moore.com>
-X-Mailer: git-send-email 2.51.1.dirty
-In-Reply-To: <20251017204815.505363-12-paul@paul-moore.com>
-References: <20251017202456.484010-36-paul@paul-moore.com>
- <20251017204815.505363-12-paul@paul-moore.com>
+        bh=OX8ZaKICkZurP7qqp4KURNWhEfVEFdZ1NxO3hfLjNng=;
+        b=I2dqJVrRgeEP5xN9MIdlTN2P9jd+0msBpfDV3n3LUDFbOojNTTSgYxAhxbUMlRxWq7
+         bjpr4T6O7R0TWx3G1C1mPzm1R/qSMXUmuwGNEYObWW9gP2IzyjNuk0bqZ9xnCsT7RK6L
+         +k+3bJfMSaTkEhcZtusTyM8F2KOuxFFyDV/TcFhWjv17EE15XehTqZj/d0f1DGJtmaPp
+         VCNfImdU5AQnQbGq792WIT/kXZxYsbGj9rDS2pLZd7Yim4aF7uwvEbXR+CpoQSu77W8G
+         ZeDEm9jEb6yfcN883ZdvefVpe/K5KZU+DeCZihJmVxratvvy8mL16NAH3mHCQj4f/n1e
+         2nJQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXnVb44FraemvzGYkPdaXpcT2XLMa2DEVoJG3etdwP/otfsG+Z9xcodWqqA354Ydt4yvJ47Cvj0@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyvy3ZzKXg+pAZ0w/3Rubxb5pA88aFsTTI9s637yHZxJ/n3Aht3
+	JwZ1FsvqkMIu3iFFgenY9jZmU9lMdpMw1L+5sa6X3BsOxj2qH6/96l8MoxN+NGSSZMaX+Yh5/fU
+	Wn6pvNYg7CV8ldjeYLfvQDAn6SHzWIxcxeGLD8q4q
+X-Gm-Gg: ASbGncvYzLgZNPmQ4v6mcp9OsU+Yik2n+FiUEX+ZRzILQ0zN2nrkVqSnX5sAI2ylMiD
+	SYu50GxxtAa5n0ZldeGQEKE5X/1SxPZpEkcSknmlbUlkEl0fMk5rtwXxREbVlbz3MbxPUZG5TWS
+	hc6UCp6wdx7rZ3RljBN9hKXfWwlNYmRP9tphHg+p7iD9np/bf8yt6ESHVEZaOb3+U8cbfX1SiuV
+	XoSqAi9u2/l87bp+vn8t+iaYgTTA3nqMUSj8jk1w15zBqjIaCR30ONeCac9
+X-Google-Smtp-Source: AGHT+IG6Kfu9K0+lk1D/XHIKhGtwsLPifmxM0P9K47LcIIkEjMChq9PCvHEQylirdUvNTwoNhDEZ9jFZTS5klPcwwvI=
+X-Received: by 2002:a17:90b:2d8f:b0:335:2eee:19dc with SMTP id
+ 98e67ed59e1d1-33bcf8f94b6mr5743064a91.28.1760734772116; Fri, 17 Oct 2025
+ 13:59:32 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1136; i=paul@paul-moore.com; h=from:subject; bh=WKicIXmz7bnIQGhAXSwDfAouRuhWgFryW5dnjoIl1Z4=; b=kA0DAAoB6iDy2pc3iXMByyZiAGjyq6+ghB3O3BYguG+6jVCkggcsRoWS+8eeqUiOeWQsm4zWI IkCMwQAAQoAHRYhBEtCqM8H8pnVVJd+7+og8tqXN4lzBQJo8quvAAoJEOog8tqXN4lz4uIQAMhf t1D9gT3dBoizePCN9guhDI5Dz5nrvexVFzSF+5Ry9flh2HBkmO1QUy8OXtndsXa/76/yKY9UPF7 q632ClOg56jdniSVdfcVfwoFO4lizUTBLkIOfuf/LZy5f4dZHDrRHMUC1h4DmqTQWvSnwWyYYhx NJOaTYTcPxObVnE+3dVNvmOiD1baRVgZNiBs5iV46+mwZqUoHqDAynp6JuI53jgQCJdJkr7m37b 3YxgMPmqVbxLWDDwuQP9HrRT8ZKHpUWvxVU12NjBOnkOVcdGQG269vB6dIF8sEEuGLYM8+YIngp NbltnD3w3eQLTnaWa7m2DUlrNdUIvOKg3iKCcvxigKEKshMTyGBRZ+kFy9g7HCWm4JcRxO42Ywm 8yOBvHex8RMVG1xJRFCjM06PzEm1vL5YAcEua9YDlGydnIn2c52Yje7IWIfSSnW6DKx2wLILP/C sSl4ZIMfiLrfoVUO1UEyTD5AvkBSU75xB4OFDZrE6/EV1ZoMENUCzBT0Om68W7bN+Nmmk+EmoDK 6KWfyQX3Lw2ZWdARXMDydi/CdjDVlVO6ILKzQNFH90NgIKo1evEIlOXwLU1HKYjD1MweSH+/NBV 7tQTirmn8wPbfUniGN3mlB7+7kIZoWWGiRVfYmutFXI/FC24cfGwUAvY8ERLT3quHblGSlssfnN QWPH7
-X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
-Content-Transfer-Encoding: 8bit
+References: <20251017202456.484010-36-paul@paul-moore.com>
+In-Reply-To: <20251017202456.484010-36-paul@paul-moore.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Fri, 17 Oct 2025 16:59:20 -0400
+X-Gm-Features: AS18NWDsPyC9L0XdCHx2z67n5R5ykR1KRnY-DeF8JpDQJR5U7ZFMG7NWetREIEU
+Message-ID: <CAHC9VhQK9Lf3ENmzxR6QLvj=PhWgPWD2_irLyYu9AxEsJ9raCg@mail.gmail.com>
+Subject: Re: [PATCH v5 0/34] Rework the LSM initialization
+To: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, 
+	selinux@vger.kernel.org
+Cc: John Johansen <john.johansen@canonical.com>, Mimi Zohar <zohar@linux.ibm.com>, 
+	Roberto Sassu <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>, 
+	=?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
+	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
+	Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>, 
+	Casey Schaufler <casey@schaufler-ca.com>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, 
+	Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>, Xiu Jianfeng <xiujianfeng@huawei.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Add a new LSM notifier event, LSM_STARTED_ALL, which is fired once at
-boot when all of the LSMs have been started.
+On Fri, Oct 17, 2025 at 4:28=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+>
+> This is the fifth, and likely final, revision of the LSM rework patchset.
+> The number of changes in this revision are very minor and barring any
+> surprises I expect to merge this into the lsm/dev branch next week; I'll
+> send a notice when I do.  While there isn't anything in this revision
+> that people haven't seen previously, if you do have any concerns or
+> feedback, please let me know.  Once again, thank you to all of you that
+> have taken the time to review these patches.
+>
+> I've aldo updated the working-lsm_init_rework branch of the main LSM
+> tree to contain the latest v5 revision of the patchset:
+> https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/lsm.git/log/?h=3D=
+working-lsm_init_rework
+>
+> The v4 patchset:
+> https://lore.kernel.org/linux-security-module/20250916220355.252592-36-pa=
+ul@paul-moore.com/
+>
+> The RFC/v3 patchset:
+> https://lore.kernel.org/linux-security-module/20250814225159.275901-36-pa=
+ul@paul-moore.com/
+>
+> The RFC/v2 patchset:
+> https://lore.kernel.org/linux-security-module/20250721232142.77224-36-pau=
+l@paul-moore.com/
+>
+> The RFC/v1 patchset is below, the cover letter provides some background
+> and motivation for this series which still applies:
+> https://lore.kernel.org/linux-security-module/20250409185019.238841-31-pa=
+ul@paul-moore.com/
+>
+> CHANGELOG
+> v5:
+> - rebased to lsm/dev branch post v6.18-rc1
+> - fixed a !CONFIG_SECURITYFS bug (kernel test robot)
+> - fixed a missing "__rcu" annotation on a cast (kernel test robot)
+> v4:
+> - reworked the lsm_read() function (John, Roberto, Tetsuo)
+> - replaced the IMA/EVM patch with one from Roberto
+> RFC/v3:
+> - rebased to lsm/dev branch
+> - fixed IMA/EVM initcall comment (Roberto)
+> - fixed CONFIG_IMA and CONFIG_EVM problems (Nicolas, Roberto)
+> - fixed CONFIG_SECURITY_SMACK_NETFILTER problems (Roberto)
+> - fixed the IMA/EVM header file include macro protections
+> - fixed an off-by-one string length issue in lsm_read() (Casey)
+> RFC/v2:
+> - rename lsm_prep_single() to lsm_prepare()
+> - drop the lsm_prop counting patch
+> - drop the platform_certs changes from the IMA/EVM patch (Mimi)
+> - split/reorder anough patches in the patchset that I lost track
+> - added missing function comment blocks in the SELinux patches
+> - split patch 04/29 into smaller patches (Kees)
+> - fix an LSM list output problem in an intermediate patch (Kees)
+> - preserve the "lsm_active_cnt" variable name (Casey)
+> - cache the lsm_read() string (Kees)
+> - squashed, split, and reordered the enabled/ordering patches
+> - reworked the Smack patch (Casey)
+> - conditionalized the SELinux IB init code (Stephen)
+> - fixed missing Smack "__init" annotation (Fan)
+> - fixed a potential unused variable warning in IMA/EVM (John)
+> - fixed the placeholder commit descriptions (various)
+> RFC/v1:
+> - initial version
+>
+> --
+> Paul Moore (33):
+>       lsm: split the notifier code out into lsm_notifier.c
+>       lsm: split the init code out into lsm_init.c
+>       lsm: consolidate lsm_allowed() and prepare_lsm() into
+>          lsm_prepare()
+>       lsm: introduce looping macros for the initialization code
+>       lsm: integrate report_lsm_order() code into caller
+>       lsm: integrate lsm_early_cred() and lsm_early_task() into caller
+>       lsm: rename ordered_lsm_init() to lsm_init_ordered()
+>       lsm: replace the name field with a pointer to the lsm_id struct
+>       lsm: rename the lsm order variables for consistency
+>       lsm: rework lsm_active_cnt and lsm_idlist[]
+>       lsm: get rid of the lsm_names list and do some cleanup
+>       lsm: rework the LSM enable/disable setter/getter functions
+>       lsm: rename exists_ordered_lsm() to lsm_order_exists()
+>       lsm: rename/rework append_ordered_lsm() into lsm_order_append()
+>       lsm: rename/rework ordered_lsm_parse() to lsm_order_parse()
+>       lsm: cleanup the LSM blob size code
+>       lsm: cleanup initialize_lsm() and rename to lsm_init_single()
+>       lsm: fold lsm_init_ordered() into security_init()
+>       lsm: add/tweak function header comment blocks in lsm_init.c
+>       lsm: cleanup the debug and console output in lsm_init.c
+>       lsm: output available LSMs when debugging
+>       lsm: group lsm_order_parse() with the other lsm_order_*()
+>          functions
+>       lsm: introduce an initcall mechanism into the LSM framework
+>       loadpin: move initcalls to the LSM framework
+>       ipe: move initcalls to the LSM framework
+>       smack: move initcalls to the LSM framework
+>       tomoyo: move initcalls to the LSM framework
+>       safesetid: move initcalls to the LSM framework
+>       apparmor: move initcalls to the LSM framework
+>       lockdown: move initcalls to the LSM framework
+>       selinux: move initcalls to the LSM framework
+>       lsm: consolidate all of the LSM framework initcalls
+>       lsm: add a LSM_STARTED_ALL notification event
+>
+> Roberto Sassu (1):
+>       ima,evm: move initcalls to the LSM framework
 
-Reviewed-by: Kees Cook <kees@kernel.org>
-Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
-Reviewed-by: John Johansen <john.johhansen@canonical.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
----
- include/linux/security.h | 1 +
- security/lsm_init.c      | 1 +
- 2 files changed, 2 insertions(+)
+Unfortunately I ran into a mail throttling issue when sending this
+patchset and my initial post only contained the first 22 patches, so I
+resent patches 23 through 34.  While I set the reply-to header
+properly, the remaining patches should be threaded under the cover
+letter, the numbering was reset to that patch 23/34 appears as patch
+01/11.  Sigh.
 
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 556890ea2e83..eb36451ce41f 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -85,6 +85,7 @@ struct timezone;
- 
- enum lsm_event {
- 	LSM_POLICY_CHANGE,
-+	LSM_STARTED_ALL,
- };
- 
- struct dm_verity_digest {
-diff --git a/security/lsm_init.c b/security/lsm_init.c
-index 0f668bca98f9..6bb67d41ce52 100644
---- a/security/lsm_init.c
-+++ b/security/lsm_init.c
-@@ -556,6 +556,7 @@ static int __init security_initcall_late(void)
- 
- 	rc = lsm_initcall(late);
- 	lsm_pr_dbg("all enabled LSMs fully activated\n");
-+	call_blocking_lsm_notifier(LSM_STARTED_ALL, NULL);
- 
- 	return rc;
- }
--- 
-2.51.1.dirty
+My apologies, I thought this would be preferable to resending the full
+patchset, and potentially getting throttled again.
 
+As this revision is fairly minor, and everyone that *needs* to review
+the patchset has already, I'm going to leave things as-is on the list.
+All of the patches are present in that thread, the numbering is just a
+little wonky.  If there is any concern about ordering, you can always
+check the git repo mentioned in the cover letter.
+
+Once again, sorry for the confusion, I've never hit throttling like
+that before, but if it becomes a regular problem I'll make adjustments
+to prevent it from becoming more of an issue.
+
+--=20
+paul-moore.com
