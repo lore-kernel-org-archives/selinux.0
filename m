@@ -1,211 +1,178 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E026D2874E3
-	for <selinux@vger.kernel.org>; Fri, 17 Oct 2025 20:59:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 535661F92E
+	for <selinux@vger.kernel.org>; Sat, 18 Oct 2025 05:20:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760734775; cv=none; b=CdCC1rhke6VpDMzsqfIojTqNBpUxSHW0IU+/d+ejktihygKdSfnbtXH/o07UyYoBn8fY6EZHKUkXlNYLCd1+M2uiO/ChhpBD1ABQA7gT68oMMPo1qZYdhahOT0DoWB97C7tjXaUVl7pFGSd1cInj6RXSAXzYAeueOBOwjoBMJhA=
+	t=1760764821; cv=none; b=qSaqVucKhMQd2wucIGINS+UtB1BchpRSTHyrQsEUksMvYR3BDPz+tXlT4yHhs4dRFGuibNocJgg6VssRw/VNqKGBwGBJI3+hH8heF/0Z6gqVPHsFvYxhKmol09PTnS5JSOhKNgRHPIncz9nbVmJIPHj9DzeA8YWBbjL3Nc/AUEA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760734775; c=relaxed/simple;
-	bh=e89QIJCu3NnHGbEpfJbSpPegYSPtflNrZ3i6VCWhESY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qF1sA14pU26MbhoIVdu2ZCdCRSBv4VLMaF7RkyYmDkWsM6NhlbBKoBy/Fuqe3zueUQHV+fWO1e/Tugz1TaOn5MTpqlZOblYXI/Il8h41g2GRcH6t8jaJLusHJCr9hBH8Ce+Le/Kq2TQKqmY9y45KGYyd4Nm86RjJSd0liA3q8Yw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=NoSzkU8y; arc=none smtp.client-ip=209.85.216.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1760764821; c=relaxed/simple;
+	bh=Y5UkCRMSH6ldQUmyKq2i2LXKiZVJmwQVqj3vPpsr2r0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=JR6Dcsv0TcMLFMUevsYUF3kfoMaQBXBpYWB3ak1gjts8+xysGq5ErfvgfFerl2kwc395NlZhc+aQIAZYVhTM2NSTuLb2BOAM9ISpTQ6GayBty1DQAwBX3CAPuz8b4zQ3qXSh5s2x7iAnOVLeBr9/8si5+Lrck1ehaQu+tlx2n4E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ea8ke10t; arc=none smtp.client-ip=209.85.218.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="NoSzkU8y"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-33b8a8aa73bso2186206a91.0
-        for <selinux@vger.kernel.org>; Fri, 17 Oct 2025 13:59:32 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ea8ke10t"
+Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-b626a4cd9d6so542195166b.3
+        for <selinux@vger.kernel.org>; Fri, 17 Oct 2025 22:20:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1760734772; x=1761339572; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OX8ZaKICkZurP7qqp4KURNWhEfVEFdZ1NxO3hfLjNng=;
-        b=NoSzkU8yDcKT0YuOcj/ZrfWzZtsEMw/Vgntb5nBwMg4xBhVmk1kEgd8CznySNPOGsm
-         Y+sujLTd0utNMGOoTIhfyrSw7X7uect64cxyzucRYq+rqfJisT0d166ZxzJStSQlzY+J
-         MiX5UaTF7rRrdBYETlqxP2b15nL7K70JC8EZMlw01crKLOr2P9Xr8MUmXn56KgRiycCV
-         cJxvd5MJfWdDTNrU3wgl8d00xXlJD1BMkwbVBdWHEOhNFB2IdG4ejBgTwzJvtjR741Vp
-         uQmI/XKpzieN6xR6jytUvnsjDnB5JLYAWFomzPR4FbMv2UZf6K7hErLgvAmYAxRnlhSL
-         z9XA==
+        d=gmail.com; s=20230601; t=1760764817; x=1761369617; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=B6WIeGCGC9/5HEKB2ECG5kjh2djgHNgJuy4YbMQKudU=;
+        b=ea8ke10t83gL8FRpQx28FGqmUjM13LwlvFxiZ4qflur/Ub3diBhdd1rbQL0qdcbAfB
+         000ODaycQB5a2LrR94H0rt3L1Gt0HcMnqqRsYZUfLr7ykLvUBOLbsDf/pL+ZyOsaPX1N
+         kYjdYBKZHvo0QqQBR2Nhs//qaHyiKhgHiNCA6BVA40qQs8yTpazUd1hb5VSYrQyNocZZ
+         2ShEKSBrSz+JCZ05xzd13SRYnoGTKw3XFjXF/SPIHWkOevlrxbqDMaTdEnUQMx/ZVSYs
+         EJFDcIOUq0chlyltL9mfxc/TMhJ8EFiNDANdACtvwcC6XOg4W7OUIeMmkgI51tP4gr7I
+         X/xw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760734772; x=1761339572;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=OX8ZaKICkZurP7qqp4KURNWhEfVEFdZ1NxO3hfLjNng=;
-        b=I2dqJVrRgeEP5xN9MIdlTN2P9jd+0msBpfDV3n3LUDFbOojNTTSgYxAhxbUMlRxWq7
-         bjpr4T6O7R0TWx3G1C1mPzm1R/qSMXUmuwGNEYObWW9gP2IzyjNuk0bqZ9xnCsT7RK6L
-         +k+3bJfMSaTkEhcZtusTyM8F2KOuxFFyDV/TcFhWjv17EE15XehTqZj/d0f1DGJtmaPp
-         VCNfImdU5AQnQbGq792WIT/kXZxYsbGj9rDS2pLZd7Yim4aF7uwvEbXR+CpoQSu77W8G
-         ZeDEm9jEb6yfcN883ZdvefVpe/K5KZU+DeCZihJmVxratvvy8mL16NAH3mHCQj4f/n1e
-         2nJQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXnVb44FraemvzGYkPdaXpcT2XLMa2DEVoJG3etdwP/otfsG+Z9xcodWqqA354Ydt4yvJ47Cvj0@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyvy3ZzKXg+pAZ0w/3Rubxb5pA88aFsTTI9s637yHZxJ/n3Aht3
-	JwZ1FsvqkMIu3iFFgenY9jZmU9lMdpMw1L+5sa6X3BsOxj2qH6/96l8MoxN+NGSSZMaX+Yh5/fU
-	Wn6pvNYg7CV8ldjeYLfvQDAn6SHzWIxcxeGLD8q4q
-X-Gm-Gg: ASbGncvYzLgZNPmQ4v6mcp9OsU+Yik2n+FiUEX+ZRzILQ0zN2nrkVqSnX5sAI2ylMiD
-	SYu50GxxtAa5n0ZldeGQEKE5X/1SxPZpEkcSknmlbUlkEl0fMk5rtwXxREbVlbz3MbxPUZG5TWS
-	hc6UCp6wdx7rZ3RljBN9hKXfWwlNYmRP9tphHg+p7iD9np/bf8yt6ESHVEZaOb3+U8cbfX1SiuV
-	XoSqAi9u2/l87bp+vn8t+iaYgTTA3nqMUSj8jk1w15zBqjIaCR30ONeCac9
-X-Google-Smtp-Source: AGHT+IG6Kfu9K0+lk1D/XHIKhGtwsLPifmxM0P9K47LcIIkEjMChq9PCvHEQylirdUvNTwoNhDEZ9jFZTS5klPcwwvI=
-X-Received: by 2002:a17:90b:2d8f:b0:335:2eee:19dc with SMTP id
- 98e67ed59e1d1-33bcf8f94b6mr5743064a91.28.1760734772116; Fri, 17 Oct 2025
- 13:59:32 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1760764817; x=1761369617;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=B6WIeGCGC9/5HEKB2ECG5kjh2djgHNgJuy4YbMQKudU=;
+        b=E1LRGP58NUgxkLsR3RybDf+fKc27ntjYGBtQzsJRk0lNKDWS2PHDpsU/jHkq2+iXdO
+         f/Eaccboip5puaOL2cDY4tlUEl7Tc/Rf9vEC1k2VOxn7EpAcqjOpgDeN+re3DQAE6Kvl
+         /UCxZNkcmUH5eyzQUk+qPSq11nStJEQ5KIzMIvcIaW+acqv9QUtZ/9DHfVEfqvrVlIR4
+         0lSnlyi/mVwasQ2/zkULU1CJEvZ0Q9jtI+GBTphGo5l36QTPScU9pLG6uerte5GkxYC+
+         bUnJQ1yAK52n4fWE7SfKJ3LglWhbNi6OVl8s+tIXxnzHW8YZaBrIvGlgwr1CigwZlQCy
+         OXng==
+X-Gm-Message-State: AOJu0YwsGbWWkqkTcSLy113Fy0FfMZyTd2iyKuUtiNdurNzIU9sPl9Z5
+	fof0CbiuiBV3RJMaRSjgO10Uzgx8prRf6FSmWlsYemWZQCAVzTB1FCaAKUqpsw==
+X-Gm-Gg: ASbGncuHDelLG3RTnCiEQsbVOOjmoP13CaFZK+yJg55pnA5HEFLSnaCWG/3izXEO581
+	tNppYhjKEpyihyJbN1l0Y9LehKfckQFUV4jFkr4diPPiP0vPcfzXZLuCjsKvjfeECHVoRj3zyCE
+	Sfh5BxEpnx3W/Yw4wfgxTCxF2nLtpexno26PIYBl1bBgUz/pLm7X62Dl/0KJRFirYHP1KZiGIY6
+	UEfcOpPGP/lwk53ujKuAvwWUe8jV2aKHQjSxZwiut5Q3SdcWLx6sZ/ODt9TsjAxHF1eICXq2H8k
+	S3Y4hceakshtCL0R7uZjTCaZQHMkenmHBo2L//f5S1/SdJAZ9r90mmHC5+SoHS/nwNipMbkqfuD
+	kUp11r1ibvAmMufvf5OdWQlfwYVwAiY7KlvtjeAC7d8g0BeoiU8Z4ZVa4BlSlDN24J/srE96sSb
+	5KUvg=
+X-Google-Smtp-Source: AGHT+IGUObIwsl414q2tK4OTFzRtWAZk/iIR0G+0R5rp6C260GogBGruG62c+s3FblWzLBCesbQdlA==
+X-Received: by 2002:a17:907:3d87:b0:b33:a2ef:c7 with SMTP id a640c23a62f3a-b6475706fcdmr723357366b.55.1760764817203;
+        Fri, 17 Oct 2025 22:20:17 -0700 (PDT)
+Received: from graphite ([2a0a:ef40:89b:b900:2e0:4cff:feb0:4e4d])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b65e7da2bd2sm149494966b.10.2025.10.17.22.20.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 17 Oct 2025 22:20:16 -0700 (PDT)
+From: Rahul Sandhu <nvraxn@gmail.com>
+To: selinux@vger.kernel.org
+Cc: Rahul Sandhu <nvraxn@gmail.com>
+Subject: [PATCH] libsemanage: semanage_store: recursively create SEMANAGE_ROOT
+Date: Sat, 18 Oct 2025 06:19:45 +0100
+Message-ID: <20251018051945.51425-1-nvraxn@gmail.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251017202456.484010-36-paul@paul-moore.com>
-In-Reply-To: <20251017202456.484010-36-paul@paul-moore.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 17 Oct 2025 16:59:20 -0400
-X-Gm-Features: AS18NWDsPyC9L0XdCHx2z67n5R5ykR1KRnY-DeF8JpDQJR5U7ZFMG7NWetREIEU
-Message-ID: <CAHC9VhQK9Lf3ENmzxR6QLvj=PhWgPWD2_irLyYu9AxEsJ9raCg@mail.gmail.com>
-Subject: Re: [PATCH v5 0/34] Rework the LSM initialization
-To: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, 
-	selinux@vger.kernel.org
-Cc: John Johansen <john.johansen@canonical.com>, Mimi Zohar <zohar@linux.ibm.com>, 
-	Roberto Sassu <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>, 
-	=?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
-	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
-	Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>, 
-	Casey Schaufler <casey@schaufler-ca.com>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, 
-	Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>, Xiu Jianfeng <xiujianfeng@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Fri, Oct 17, 2025 at 4:28=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
->
-> This is the fifth, and likely final, revision of the LSM rework patchset.
-> The number of changes in this revision are very minor and barring any
-> surprises I expect to merge this into the lsm/dev branch next week; I'll
-> send a notice when I do.  While there isn't anything in this revision
-> that people haven't seen previously, if you do have any concerns or
-> feedback, please let me know.  Once again, thank you to all of you that
-> have taken the time to review these patches.
->
-> I've aldo updated the working-lsm_init_rework branch of the main LSM
-> tree to contain the latest v5 revision of the patchset:
-> https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/lsm.git/log/?h=3D=
-working-lsm_init_rework
->
-> The v4 patchset:
-> https://lore.kernel.org/linux-security-module/20250916220355.252592-36-pa=
-ul@paul-moore.com/
->
-> The RFC/v3 patchset:
-> https://lore.kernel.org/linux-security-module/20250814225159.275901-36-pa=
-ul@paul-moore.com/
->
-> The RFC/v2 patchset:
-> https://lore.kernel.org/linux-security-module/20250721232142.77224-36-pau=
-l@paul-moore.com/
->
-> The RFC/v1 patchset is below, the cover letter provides some background
-> and motivation for this series which still applies:
-> https://lore.kernel.org/linux-security-module/20250409185019.238841-31-pa=
-ul@paul-moore.com/
->
-> CHANGELOG
-> v5:
-> - rebased to lsm/dev branch post v6.18-rc1
-> - fixed a !CONFIG_SECURITYFS bug (kernel test robot)
-> - fixed a missing "__rcu" annotation on a cast (kernel test robot)
-> v4:
-> - reworked the lsm_read() function (John, Roberto, Tetsuo)
-> - replaced the IMA/EVM patch with one from Roberto
-> RFC/v3:
-> - rebased to lsm/dev branch
-> - fixed IMA/EVM initcall comment (Roberto)
-> - fixed CONFIG_IMA and CONFIG_EVM problems (Nicolas, Roberto)
-> - fixed CONFIG_SECURITY_SMACK_NETFILTER problems (Roberto)
-> - fixed the IMA/EVM header file include macro protections
-> - fixed an off-by-one string length issue in lsm_read() (Casey)
-> RFC/v2:
-> - rename lsm_prep_single() to lsm_prepare()
-> - drop the lsm_prop counting patch
-> - drop the platform_certs changes from the IMA/EVM patch (Mimi)
-> - split/reorder anough patches in the patchset that I lost track
-> - added missing function comment blocks in the SELinux patches
-> - split patch 04/29 into smaller patches (Kees)
-> - fix an LSM list output problem in an intermediate patch (Kees)
-> - preserve the "lsm_active_cnt" variable name (Casey)
-> - cache the lsm_read() string (Kees)
-> - squashed, split, and reordered the enabled/ordering patches
-> - reworked the Smack patch (Casey)
-> - conditionalized the SELinux IB init code (Stephen)
-> - fixed missing Smack "__init" annotation (Fan)
-> - fixed a potential unused variable warning in IMA/EVM (John)
-> - fixed the placeholder commit descriptions (various)
-> RFC/v1:
-> - initial version
->
-> --
-> Paul Moore (33):
->       lsm: split the notifier code out into lsm_notifier.c
->       lsm: split the init code out into lsm_init.c
->       lsm: consolidate lsm_allowed() and prepare_lsm() into
->          lsm_prepare()
->       lsm: introduce looping macros for the initialization code
->       lsm: integrate report_lsm_order() code into caller
->       lsm: integrate lsm_early_cred() and lsm_early_task() into caller
->       lsm: rename ordered_lsm_init() to lsm_init_ordered()
->       lsm: replace the name field with a pointer to the lsm_id struct
->       lsm: rename the lsm order variables for consistency
->       lsm: rework lsm_active_cnt and lsm_idlist[]
->       lsm: get rid of the lsm_names list and do some cleanup
->       lsm: rework the LSM enable/disable setter/getter functions
->       lsm: rename exists_ordered_lsm() to lsm_order_exists()
->       lsm: rename/rework append_ordered_lsm() into lsm_order_append()
->       lsm: rename/rework ordered_lsm_parse() to lsm_order_parse()
->       lsm: cleanup the LSM blob size code
->       lsm: cleanup initialize_lsm() and rename to lsm_init_single()
->       lsm: fold lsm_init_ordered() into security_init()
->       lsm: add/tweak function header comment blocks in lsm_init.c
->       lsm: cleanup the debug and console output in lsm_init.c
->       lsm: output available LSMs when debugging
->       lsm: group lsm_order_parse() with the other lsm_order_*()
->          functions
->       lsm: introduce an initcall mechanism into the LSM framework
->       loadpin: move initcalls to the LSM framework
->       ipe: move initcalls to the LSM framework
->       smack: move initcalls to the LSM framework
->       tomoyo: move initcalls to the LSM framework
->       safesetid: move initcalls to the LSM framework
->       apparmor: move initcalls to the LSM framework
->       lockdown: move initcalls to the LSM framework
->       selinux: move initcalls to the LSM framework
->       lsm: consolidate all of the LSM framework initcalls
->       lsm: add a LSM_STARTED_ALL notification event
->
-> Roberto Sassu (1):
->       ima,evm: move initcalls to the LSM framework
+In package build/install environments, when semodule(8) is passed the
+`--path` option, it is expected that it creates the entire directory
+tree for the policy root.
 
-Unfortunately I ran into a mail throttling issue when sending this
-patchset and my initial post only contained the first 22 patches, so I
-resent patches 23 through 34.  While I set the reply-to header
-properly, the remaining patches should be threaded under the cover
-letter, the numbering was reset to that patch 23/34 appears as patch
-01/11.  Sigh.
+Some package managers warn or error if permissions do not align between
+the tree on the existing system and the build environment about to be
+merged. To make sure this is a non-issue, create the tree of the policy
+root with 0755 permissions (in line with standards for `/var/lib`) and
+then chmod the final path to the more restrictive 0700 permissions. As
+the contents being placed in the policy root are security sensitive,
+erorr instead of warning if we fail to chown the policy root to 0700.
 
-My apologies, I thought this would be preferable to resending the full
-patchset, and potentially getting throttled again.
+Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+---
+ libsemanage/src/semanage_store.c | 58 ++++++++++++++++++++++++++++----
+ 1 file changed, 52 insertions(+), 6 deletions(-)
 
-As this revision is fairly minor, and everyone that *needs* to review
-the patchset has already, I'm going to leave things as-is on the list.
-All of the patches are present in that thread, the numbering is just a
-little wonky.  If there is any concern about ordering, you can always
-check the git repo mentioned in the cover letter.
+diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+index 1731c5e8..c1425f15 100644
+--- a/libsemanage/src/semanage_store.c
++++ b/libsemanage/src/semanage_store.c
+@@ -491,6 +491,44 @@ char *semanage_conf_path(void)
+ 	return semanage_conf;
+ }
+ 
++/* Recursively create a directory from a path string.
++ * Returns 0 on success, -errno on failure.
++ */
++static int mkdir_recursive(const char *path, mode_t mode)
++{
++	if (!path || !*path) {
++		return -EINVAL;
++	}
++
++	char path_buffer[PATH_MAX] = {0};
++	size_t len = strlen(path);
++	/* + 1 for nullterm.  */
++	if (len + 1 >= sizeof(path_buffer)) {
++		return -ENAMETOOLONG;
++	}
++
++	strncpy(path_buffer, path, sizeof(path_buffer) - 1);
++
++	/* trim possible trailing slashes, except if '/' is the entire path.  */
++	while (len > 1 && path_buffer[len - 1] == '/') {
++		path_buffer[--len] = '\0';
++	}
++
++	for (char *pos = path_buffer + 1, *slash; (slash = strchr(pos, '/')); pos = slash + 1) {
++		*slash = '\0';
++		if (mkdir(path_buffer, mode) != 0 && errno != EEXIST) {
++			return -errno;
++		}
++		*slash = '/';
++	}
++
++	if (mkdir(path_buffer, mode) != 0 && errno != EEXIST) {
++		return -errno;
++	}
++
++	return 0;
++}
++
+ /**************** functions that create module store ***************/
+ 
+ /* Check that the semanage store exists.  If 'create' is non-zero then
+@@ -506,14 +544,20 @@ int semanage_create_store(semanage_handle_t * sh, int create)
+ 
+ 	if (stat(path, &sb) == -1) {
+ 		if (errno == ENOENT && create) {
+-			mask = umask(0077);
+-			if (mkdir(path, S_IRWXU) == -1) {
+-				umask(mask);
+-				ERR(sh, "Could not create module store at %s.",
+-				    path);
++			/* First we create directories recursively with standard permissions so that
++			   we don't screw up ownership of toplevel dirs such as `/var` in pkgmgr
++			   environments.  */
++			const int r = mkdir_recursive(path, (mode_t)0755);
++			if (r != 0) {
++				ERR(sh, "Could not create module store at %s: %s.", path, strerror(-r));
++				return -2;
++			}
++			/* Now that we've created the directory tree, we set the permissions of the
++			   target path to 0700. */
++			if (chmod(path, (mode_t)0700) != 0) {
++				ERR(sh, "Failed to chown module store at %s: %s.", path, strerror(errno));
+ 				return -2;
+ 			}
+-			umask(mask);
+ 		} else {
+ 			if (create)
+ 				ERR(sh,
+@@ -529,6 +573,8 @@ int semanage_create_store(semanage_handle_t * sh, int create)
+ 			return -1;
+ 		}
+ 	}
++	/* We no longer need to use mkdir_recursive at this point: the toplevel
++	   directory heirachy has been created by now.  */
+ 	path = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_TOPLEVEL);
+ 	if (stat(path, &sb) == -1) {
+ 		if (errno == ENOENT && create) {
+-- 
+2.51.0
 
-Once again, sorry for the confusion, I've never hit throttling like
-that before, but if it becomes a regular problem I'll make adjustments
-to prevent it from becoming more of an issue.
-
---=20
-paul-moore.com
