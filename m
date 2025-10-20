@@ -1,133 +1,105 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31E802D1901
-	for <selinux@vger.kernel.org>; Mon, 20 Oct 2025 19:22:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2728C3314DF
+	for <selinux@vger.kernel.org>; Mon, 20 Oct 2025 19:45:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760988157; cv=none; b=AiUKaBRenrJ6ZCoySUfc3evxaD7mcj872I4w1kPdpiMl5GF5OWpBVV5tc+WKqVwWTafQQYcfqYcQK/44Fz5NfhEtSg6/spzT01fXd+Za7XnAsRs69f35A76OBNgqF8EAa5yMe64P0djlbNAIMO/jAhjkcOOhxj5GhH56eIR9kjA=
+	t=1760989514; cv=none; b=IKJP2Lzd3ZxycaQRXkh0LqBcg83T/+OA0N/pYNn+w0/uQRG27PGw0RxbKUktfOvTZObMip//F+5afvZ6sE7o97jbimE1KR7xQnH/PSpX7JADDV0+2EGOt1l5Kycxk+GTE1+/Y9ozM/W7mIR7Jtz25jCD+eTt9Ts1Nekg1zHvVIU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760988157; c=relaxed/simple;
-	bh=umZ857QeuIIQUUqPe4gSdyB7ETX65pLAn2ZcuUZtFE4=;
+	s=arc-20240116; t=1760989514; c=relaxed/simple;
+	bh=VCEU0WKOcRt8uH09AxlgIdGdrbwjCqsNTrZ5PR2D38E=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mpDEpaJ/MvPfgmaptO9rlL7TZOOVq8WJBi4SkAYSvh0GtG04x+Z5LRh2Br+SluYWZPihiQmEhYYxjp01TAnMaFguPI4y4PL3w5iKWHupF6ZLtwmrIYDfhcT8AvTh7zCWFWE8nIDbT7rIUhPLzZ+ll+jWsBxPEJ6wIedRO0bvq50=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=RbqGEYWA; arc=none smtp.client-ip=209.85.216.43
+	 To:Cc:Content-Type; b=RZJ49/iInii9YKkwWqak1v6ygZ08Yh0/K07tTGyUvLe7Y5Yox9jkMQqaFMfOkarbI6KUizsY1B7K9X1tBcBU2822FSgMLDUO/WzxgHEu6ShGA9FCfD8WxcX2EIS1t/AD8/DiH4DbiYqx2SMOS0hLZ51Y/LHwmcgXDynEVpMBsik=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Ib9X9TZk; arc=none smtp.client-ip=209.85.216.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="RbqGEYWA"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-33badfbbc48so5911021a91.2
-        for <selinux@vger.kernel.org>; Mon, 20 Oct 2025 12:22:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Ib9X9TZk"
+Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-339e71ccf48so6490886a91.3
+        for <selinux@vger.kernel.org>; Mon, 20 Oct 2025 12:45:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1760988155; x=1761592955; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1760989511; x=1761594311; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=rXSjkwnG8Cy2vSuisj9Mg3o4cb7lSzCYpfE+yrCbTp8=;
-        b=RbqGEYWAmcb7Jg1BWkb1xm8A/yIbo6PR8TcyqZQ9Jee4hWRk+ZCClrna6eFEu6ZJlT
-         8HhsmKpnHXxW6tHy3CRQSFJ8PgCh87Iu53/SkyaGJjvxXVIzuO8PEPyHo2djWOCh6SfT
-         GC2azFh5uJNlMpMmdEcigmXX71mcSX/fGt3rB8XTsnLHzxI4Dwnz6v1W5hKVmPFPRjCs
-         0g+vcbkIbOJ3o3NFCz/iAm1EFg2kiZ9zocvdsBWwHXEoBUyb1EVWJKoBhP29+X1CnnL0
-         6wK64SQntHt82CRDmZVwewRaRRK1s38HM40bGthYDQ01NdURmbGX1uFub8lOLguU57SO
-         UbQA==
+        bh=VCEU0WKOcRt8uH09AxlgIdGdrbwjCqsNTrZ5PR2D38E=;
+        b=Ib9X9TZkHKj2D0thJvwbpRFLaZFa72cofLe0ytzoAyEV8mCmKn9EUk8kF8p4HRlOz5
+         uRXYw07qztw5FPac/MVOA/9Ik/KmGaz0F9Q0q9atZBuiYYWgETfcnMm1XhMLBdNE2Fak
+         o7VrXVp/fS1blf6gqyxarxC2xwezy8il+oj5qx/g0IwuDo9DlTod9riSf8iheof9C4S9
+         BGf9q1kKM9BIykMeUPL3B6SnZdOIWr4vf68SHptB9sbo90epShdrOOLJXQJyrF+cxQPr
+         eaBPx7Th8a3jvZZWnU6EvP+2ZMvavHhvnPtUXKT3qr4wKqLuHjR7taLPWSGnXNOekbKE
+         Efpw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760988155; x=1761592955;
+        d=1e100.net; s=20230601; t=1760989511; x=1761594311;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=rXSjkwnG8Cy2vSuisj9Mg3o4cb7lSzCYpfE+yrCbTp8=;
-        b=PB+hN2UfP3RIYPB2f9j1kjbKQDzu51aApsEq+omYS8OEeHNC+KN5Oh+X8tT44TVhJ+
-         S8OuL4X5qMgM+h8MDc08Kzkmvy9MND+ySGD27TYyIdpYbH/ATiJgCZ5xfE0iHEBYkS+4
-         Cp8ZjZJlqvJclUB5HtekiryAYNF1ofWdk74qBWBuzNkW7a8wCxga+OYlcs7by6K1Er0+
-         zSSCZyGD3R2UmOc3g9aAjQSywnbQyBLWZ2y70sCuC8O/Eun8F7cap9ACBLUgxcZVTpgq
-         Nnzgkv/KON2cg6YKJajXwStG/xxn0payte2BQDH605KIpRzwyURvWVapzaRJYldOYZlR
-         8qWQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWb8odCdPFslVoGSbNC6tLa+WejDr0qI8cVzNK1mYzvTt23Jwq3eCzy3/tkxv/EAt0Z7kt604wx@vger.kernel.org
-X-Gm-Message-State: AOJu0YwY0OTyEuZFHM80xCszD7/uSdKmiFBXBj+k0N6F8YBHVD62WAiM
-	X489d5hSkfn1ppyntNyPSQJMe7n+PtGXNvFFwZyZ0JdgEcrCOu8H0oMyGHIZH4Wmp/iZOdsIUDM
-	yzgLYb5hQz8+7EaHZKsWCituVWcSGDBCrxMIFO5f7
-X-Gm-Gg: ASbGncvbPt4HiwDcVMyEOAXSY19Gb8mCbGIIzg1Aekxy1xchk+81MPdhUgrD0VHfGW+
-	k2cqGlEwOV7srdarVoMvrxnH2jzhtqafM/J8y6DK5eDu5JOJq3g8ewMO/FbmxdCXPr8CbYrz6rz
-	GSfXxRCk/j2BqwwUoObR+4Y8DHHOWFaXKxWp9Ym385+X7jMhYbONhASb8Dc07fDqvf9sNyna6bT
-	Vh4oOu+kJzxyEQCKQNxQbzbK98+UOiNMxE8+mqUpH7aDEhaiui36gzLdv20YfYJKCDy7x8gkCOZ
-	z3kgwg==
-X-Google-Smtp-Source: AGHT+IFSiHOTUDXYpFNI+OFkM6wdZC9V5vzg+BHgaKVj7iXBx06hRGe7eu82SnindZ5rZ6l1EtKLHfi8m3vUHWu1hew=
-X-Received: by 2002:a17:90a:e710:b0:32e:8c1e:1301 with SMTP id
- 98e67ed59e1d1-33bcf93f784mr18159001a91.34.1760988155257; Mon, 20 Oct 2025
- 12:22:35 -0700 (PDT)
+        bh=VCEU0WKOcRt8uH09AxlgIdGdrbwjCqsNTrZ5PR2D38E=;
+        b=Th2+UwfGssE1y8DaE7RuzzYqHAzq/Is9cenOxDj3rBp90pjfAs+wc5TM4ZKWagIj8o
+         sXXH4TtDt0qtlzTefMsasHupu9TQPkPxHjwx1mpl8l2ODLQ7f+JWfLhzB3AnKTTuuhjv
+         nKyUc1vlLUwqOwqBvBX5yyCPe7AZWf4/I3rxk70PfUXETKLlWl2KSax5dyUbZVv+b2+7
+         SG9EZ8ri1S8Zsp7Yziq2Xs7wVz3i47JC2n3Svv9vi5lcFoHxHJvYW3sTXTEQqTOmNy8Z
+         iG+YqvMtdyqQ24Wpx8pATgetNkIxGpaQF07KIJ5H8R/7pFWXZrVy4hDW8qUb5Eq7s5k4
+         yTkw==
+X-Forwarded-Encrypted: i=1; AJvYcCWHaDUSXm4Rcrk2OQYq98rFHNzXU1BHibB+Hn+LqxJqWS7YvqqSoeZMgabjcas5OIDOmMlzWWvD@vger.kernel.org
+X-Gm-Message-State: AOJu0YzdaZ6uRZY6quQjRibWznLdXNyY/DqOjLgHYRX+4T8/VX3bFWFZ
+	8tbVZZrt4pegy4L3klw/UHLvAmIoePBXTGqgBAfbzQt89ObX/bLGyxOQjF6q8zJtZwl0P28pYoB
+	GiRDyA4XNmO2rhqE7qQA/U5f7D+MIZeOLNZoaM0iT
+X-Gm-Gg: ASbGncuad+qbHlpRgWa2gnWgnq2vIORAC6i13x6CT1afnpF28NfLgcnCB8Hou66yw8q
+	PXq15Y/nuEM/yQpQ81bF1UV0f/0obMPpmYcry708nnz2uIMqg0jOXOnGkKop3oGEc/C8ia5J8Jg
+	Smkc45mYTTDKmQNl3/r58irJTbopbAi/s+dmrzXxLImWbb8bhtJYtIraj1bo6PRtacXzeZdX83N
+	SVqOzAYu+DwwzdnRs0KvohohOl/DOVwQpt+OGsIX5BVTx2bxjLTq8isyJ+UFCHDmUBh9qw=
+X-Google-Smtp-Source: AGHT+IEenXOkNohiqJLVgj5aurgvEoGkiULfuK8scdYRERow3ijKAZkm4ZUS/+GJ7fckXlSK4CGIhPCjIiaxr+Y8pxE=
+X-Received: by 2002:a17:90b:5105:b0:32e:e3af:45f6 with SMTP id
+ 98e67ed59e1d1-33bcf87b6a4mr18241210a91.10.1760989511270; Mon, 20 Oct 2025
+ 12:45:11 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <d849e8a98bf88bd12fd13a8f6b6e84290dcaaf6e.1758859391.git.zhanghongru@xiaomi.com>
- <b30e8d56703dfd84778fa73845eaa1ec@paul-moore.com> <CAEjxPJ5CYtyfMPcaM2ugyMJQ2d+YQz4oXVBOcm7=gHsOk-2sRg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5CYtyfMPcaM2ugyMJQ2d+YQz4oXVBOcm7=gHsOk-2sRg@mail.gmail.com>
+References: <c77eac51a26a0248980027e9f3b3b564@paul-moore.com> <20251017095342.1180797-1-zhanghongru@xiaomi.com>
+In-Reply-To: <20251017095342.1180797-1-zhanghongru@xiaomi.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 20 Oct 2025 15:22:23 -0400
-X-Gm-Features: AS18NWDeWQWRVRVN4vI0aAwunYxaLBao1DfrZHcW6WRNO1RLsNCVYZgwwhSGgqQ
-Message-ID: <CAHC9VhTz48LOy5E7ywAFYjp=OK43y4MndV6V9HjLC1CpUCJ0xQ@mail.gmail.com>
-Subject: Re: [PATCH v3 1/2] selinux: Make avc cache slot size configurable
- during boot
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Hongru Zhang <zhanghongru06@gmail.com>, omosnace@redhat.com, 
-	linux-kernel@vger.kernel.org, selinux@vger.kernel.org, zhanghongru@xiaomi.com
+Date: Mon, 20 Oct 2025 15:44:59 -0400
+X-Gm-Features: AS18NWD3BYsicXVXZu5qzq5h8AK3tIvy-eKY9eQXxou9Vzg-_zWsJHfh8MkXdLY
+Message-ID: <CAHC9VhStjnvsgunsrKZ55zMfAAGOySLtp-TNGUKZcECJO2LkOw@mail.gmail.com>
+Subject: Re: [PATCH v3 2/2] selinux: improve bucket distribution uniformity of avc_hash()
+To: Hongru Zhang <zhanghongru06@gmail.com>
+Cc: linux-kernel@vger.kernel.org, omosnace@redhat.com, selinux@vger.kernel.org, 
+	stephen.smalley.work@gmail.com, zhanghongru@xiaomi.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 17, 2025 at 7:59=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Thu, Oct 16, 2025 at 5:18=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
-wrote:
+On Fri, Oct 17, 2025 at 5:53=E2=80=AFAM Hongru Zhang <zhanghongru06@gmail.c=
+om> wrote:
 > > On Sep 26, 2025 Hongru Zhang <zhanghongru06@gmail.com> wrote:
 
 ...
 
-> > I would expect the number of active AVC nodes, and AVC churn in general=
-,
-> > to be very policy dependent; some policies and use cases simply result =
-in
-> > more AVC nodes than others.  With that in mind, I'm wondering if instea=
-d
-> > of using a kernel command line parameter to specify the number of AVC
-> > buckets, we should instead include an AVC size "hint" in the policy tha=
-t
-> > we can use to size the AVC when loading a new policy.
-> >
-> > Thoughts?
-> >
-> > I think it would be important to consider it strictly as a "hint" as
-> > that would make life easier, e.g. if the previous policy hinted at a
-> > larger AVC we may not want to bother with reducing the number of bucket=
-s.
-> > I would suggest starting with an implementation that uses the hint as a
-> > power of two for the number of AVC slots/buckets, with a value of '0'
-> > indicating a default value (512 slots, e.g. '2^9').
+> > If you want to change the AVC hash to something else with better
+> > performance, I suggest sticking with a well known hash algorithm,
+> > ideally one already present in the kernel; that is going to be the
+> > quickest path towards acceptance.
 >
-> So, aside from Hongru's points about this requiring a change to the
-> binary policy format and compiler and introducing possible
-> atomicity/locking issues in the AVC code when accessing the number of
-> buckets ...
+> Stephen initially suggested I refer to the jhash or MurmurHash3 algorithm=
+s
+> in the kernel. In my previous testing, MurmurHash3 also achieved
+> performance improvements compared to the original algorithm, so it's good=
+.
 
-I know you've heard me say this before, but for the sake of those who
-haven't, "because it's a lot of work" isn't something that I consider
-to be a valid excuse.  It's fine, and good (!), to explain the work
-needed to successfully make a change, but I have an almost allergic
-reaction to those who use the amount of work needed as an argument
-against doing The Right Thing.
+I don't know if it would be any better, but we also use djb2a for the
+symbol table hash, see commit 32db469edfcc ("selinux: improve symtab
+string hashing"); that would be another option for you to consider.
 
-> I am also uncertain that this is something that is fully
-> determinable from policy alone.
+> I plan to move the MurmurHash3 implementation from avtab_hash() to a newl=
+y
+> created file security/selinux/include/hash.h as a public function, which
+> will be called by both avtab_hash() and avc_hash(). Is this ok?
 
-Agreed, but if we are going to make this changeable, I'd rather see it
-as something that could be changed without requiring a reboot.  Not
-wanting to add yet another selinuxfs node, and seeing *some*
-relationship between AVC size and policy, adding a AVC size hint to
-the policy seems reasonable.
-
-However, as I mentioned in my reply to Hongru, we may be able to solve
-the immediate problem with a Kconfig tunable.
+Sure, that sounds reasonable.
 
 --=20
 paul-moore.com
