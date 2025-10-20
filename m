@@ -1,145 +1,220 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25F2222D7B6
-	for <selinux@vger.kernel.org>; Mon, 20 Oct 2025 16:40:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B45EC2741B6
+	for <selinux@vger.kernel.org>; Mon, 20 Oct 2025 17:19:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760978428; cv=none; b=m/iRJI3DIBbzUFKIAWSwrK+pzHWPh2K6WxFy3KoXz8xoF9ztjKnxM2U5ZEpKW7vf3suSlKlPZWNyCcps0H70Kl3wEt2x/mi58xg3hBntgP63JgtVe4SIl+pK+LhRFKW1gfZCKq5cWNwsfMVhyAg9a1a79vB57Y/NIUv+RCMKxbo=
+	t=1760980769; cv=none; b=B3klQ7eIvxcefu+S2DM8GHnSh3bO3KNjVINriJgzXsLoCjcGQy483J+Wq3il7d2Wkc1tcLIGEjq0q0jwrwqsUl+dKf+zX7PlvyPKW0EtPLjtF1z+2jLC9vtTtverHSS79dIOv8oP0a/oUI9uuyLGNDyB5gqpUw6TvH8gkcpx+g4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760978428; c=relaxed/simple;
-	bh=9MoPCE3omyUV7pmzHdTZY8CcW6Z7U2dJHtoUfl+awr4=;
+	s=arc-20240116; t=1760980769; c=relaxed/simple;
+	bh=dIctKXyot4unP9TfIstkrdXnT2xOfBmJKUgRzgWr/s4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kIcNXws6To2xpdUXsRPql1B8TC+ZsbPv8TLfvbsDxUEqsVpUz7b5FJx6Y0/LfxQZAslxR1GcX3XKwfDicEQJVupzmPrATTgbqKSMHEbXO7iwXmheu5Uv3v3klz34Eoc7YinsQsRKk/rjvsL7VpgIg5xrVi6PYHMwOsGIQtuYM/0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Q7PpcsAe; arc=none smtp.client-ip=209.85.216.54
+	 To:Cc:Content-Type; b=dP20OTTI1AcPKEsdJAgCjMjg7c/R5yWu/VORIJAg0n1jiDCxFdP+80n3idz7LPM9qhmYpk2vD9HYKgk5LHY4MdMSCnjdtY3ikj1p5sU+K544DHkMBqZt3JiQtV1cSD1AtzDJMZbYGyKiZwIqdw4Z7UKi2pWJf+seV64TLOBMIo0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ECaJdhU3; arc=none smtp.client-ip=209.85.216.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Q7PpcsAe"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-339d7c403b6so4186895a91.2
-        for <selinux@vger.kernel.org>; Mon, 20 Oct 2025 09:40:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ECaJdhU3"
+Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-33bc2178d6aso3109144a91.0
+        for <selinux@vger.kernel.org>; Mon, 20 Oct 2025 10:19:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1760978426; x=1761583226; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1760980766; x=1761585566; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=X2ix8GsYu1u70ball/QdTJXtHk82+gyjHMURpwV0acM=;
-        b=Q7PpcsAeWX/1cjpkaE7QI89pwYDZKrX8TFcZPr4gTGXAz7YGtsRuu2wXqOGj42SchB
-         SiZ4sUA9tKbwROFy4+V0NwUFoDuqSZenGqLJGugRTZPOAJWwex3D360RjBW8s3r3DUHB
-         5kMvF8S4hf3TCTFVWOLPiF/PrCETboOq7RSN9ThB2JArUBkoGIJ2D2b0Nn6FHyNGFiEz
-         zVZlqv0m0+Mn3A0C3totMQrUoBWfTyqzwAwVk7iorUnPpKY4/Vuwrf7mH/31oy7YhOeU
-         OP7/mpNXZd2SzyAf7sblBRWidPEKswx+ZvUbvQqA2B+ZuYvM6c1tnyXAr0v+DwC6LHEe
-         Yncw==
+        bh=sylcjcPaxI1rfP8bUnZQeCbE/T2B8Qlbla9DLthnHIA=;
+        b=ECaJdhU3IxKtfIerZ8LaDuBVj7Xr2mJ85tD9ERQqAnaVsvgt92p81wsBl5UcjhkMvJ
+         5cQxjttii9K23qVOzZ/y8eBUzvmbybHvmIlrM4T94cYqS1QeSZHgeczAzej1jZK7qc90
+         ipl/pCdwfscsLC86v6FgMs17Pni/plts8xqmbuXHBWYaxFgDfyLgwrak1Ld+0J/6u1rr
+         CF4KN9WSsOdxUrw4mqjndfJoONIoauskrR38V0pHeTwAm0wKJ6oS9USV616pVLnoFBXX
+         y5YqY9AT6gsUGIyIT6xZdTm1A0BY8ODw7RutjdxicHWA+TRbZtgtdfZyUh5+gH/p5nXX
+         71AQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760978426; x=1761583226;
+        d=1e100.net; s=20230601; t=1760980766; x=1761585566;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=X2ix8GsYu1u70ball/QdTJXtHk82+gyjHMURpwV0acM=;
-        b=Fytc09sqMFTIYJfxxKjnXyGGNiAIKNjnYk4+abz3fXXe4arf2l+Y0uLMAt3GZUFMgz
-         iI/5jQX+Eb9dfGgwikwBx6xjYmK83LG5IwmvvAKIn+OBC71xaqx15KlLiDfqgbN1EN2P
-         nHjVBrMUjeFH8QYljYBd/Bha55BuaKfAZgs2xjk+qRhMFo6MgdNowbKveCdIA+CJx/3b
-         l7qEooOsEQ0QUDGL25aX7s7GwElUGkz5Nnb5CcMArJxw7ljNChO8G2/6N2+xpjWBpA+k
-         1goXw/mRcBoXjbGvm9Q13P4PVF/69g8Vq9PVJ3vAIWZiPeXnGp6cC6OKbQacX9JYBu68
-         2Gow==
-X-Forwarded-Encrypted: i=1; AJvYcCUYqSgPEXJHLE1ePrIToxDNUI5EfF+UUVHb8BlSWnvcyujyHADU+AccVMf+x4CaGZ6XHzop4eV8@vger.kernel.org
-X-Gm-Message-State: AOJu0YzKUTdTrTIMtdcX9gGszoQVzKLduDRtojKAJ5v5NdfjuEOFm7Sk
-	QjkdQqg8hN/xBICRrLS+6J2hfvlQPCmJQaKO13VY0iVi2d7IA28M9m+Kag8itn0DUPcU8HEWApv
-	bnPXhLo7VHOzaIKKC8MZUtjLe4DLiCRw=
-X-Gm-Gg: ASbGnctq7pKISp6ULKP5t9XzCpOa9UhgE/8M44wKDN1I/dYotIG/Kb+BjCNH9uzl1gV
-	CFSpKKw1RnKQqStbaDvU+3MuN0nwQ0M1E18mzUsSabK03ANcwqiV4fGy5PvgXPS6O4Mmv6ip5X/
-	vxjO7B/L6+ftvf0GG0kobJRsslNEaLxqT+6icEe+mQx876r8FhbA5XZ+7BTHfCYT5Z9yKRLcjQ+
-	oAtMQ7fPu/gRJQ3z5wn+XYJcTrpsMDbZaV0ZUh+PoJn9nKCtc98kdHVgqFvCmejuLK3QF0=
-X-Google-Smtp-Source: AGHT+IH7nUvbsTeDRN59lgVV9zEkGiIcpP3IYYWiHTXf/5KAbZpk/qtUVj2M79IXj1uggUm9dGVvxGpKQpP7DKDiLsA=
+        bh=sylcjcPaxI1rfP8bUnZQeCbE/T2B8Qlbla9DLthnHIA=;
+        b=YWmk0kSeKPeR0j38U5FCGepp3iEgF/AF/6bogBNgOqPDOoaesRkDzYVxN0eEvnuAYt
+         95J2kUjnCHg/iG8z3j87G9YlVFtyar1zWLrqokyXVHjAat/IGwxdXOMnhncg0jVmUErG
+         PmXN7a5Azmt4jZxUv1S3Uf+qDK8hysbOJpb9fk/8HgUJQz0Z43tOHePXxGUSVGNgNsk/
+         w6zpO1y639cYufKhoM0kmFONWYgTkq+YH5HIWj9hkuRxX4IooOF7GliV0y8dY0vAEF/J
+         8PShZKM9V294stnwhybDjqr9iBdZgA02fyXhSB6bkA1+UkikhPaZlB+P9qLhIC+xtIQx
+         vSfQ==
+X-Gm-Message-State: AOJu0Yzvw7MD/K3hWL5hEJBLv3kDac0qrRwSqsMe8emwZU/6cGo+J5XY
+	pf84S+Wcf0vsGNTAl30k5ZbdOmKvKqftGfFQ/FVJR0EwAQxYd3bG4Ph2RtkE8BbbPzN2VLPOJvT
+	/Pz7cdQ7Aq/mpuFuzt15m8uTBNsgcpQ0=
+X-Gm-Gg: ASbGncuRY0dRXIjj1g5ScVGDX+7EoGllG+wnBu4uHn28/oqlmWQG1VSM36GbXHBVxw/
+	Bgf7uJtelHRBdJDmrPMb7DyjRgHa/sz4RlFcBHVtFV7RtCZiYp/xCYzv6286Kh67fBs7+bCzrPX
+	fnrNMx9FAjkyQqRy/1OqOoCcc+RMpIMxpHvIHujRsq36EGC9/YWrmni2eaP9GkrCP4jAx0NFI29
+	mfQWYc5JXpdlKI3Zq4MAVeZEj+sZxXoFbacLJAWi00qsPavZ5/ykTP6PWCWd5mINSDdmqA=
+X-Google-Smtp-Source: AGHT+IE+7L0PQd5ha/h78pmrKHiCbQGc8TwFrT0tMcDTbtNhnhYavhlYPTsm9aLztkZfOOWzdbWF9poA5SNlI6T8gBw=
 X-Received: by 2002:a17:90b:5623:b0:33b:d371:1131 with SMTP id
- 98e67ed59e1d1-33bd3711391mr16951259a91.34.1760978426163; Mon, 20 Oct 2025
- 09:40:26 -0700 (PDT)
+ 98e67ed59e1d1-33bd3711391mr17073293a91.34.1760980766280; Mon, 20 Oct 2025
+ 10:19:26 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251020140732.4703-1-nvraxn@gmail.com> <20251020140941.4769-1-nvraxn@gmail.com>
- <CAEjxPJ6-po0nSioWywXnkPoxYBOSmdb6dQQud3dT5sbxs_RHqw@mail.gmail.com>
- <87zf9llf6c.fsf@redhat.com> <DDNAGHE330XQ.28CTM0WKT1S4O@gmail.com>
-In-Reply-To: <DDNAGHE330XQ.28CTM0WKT1S4O@gmail.com>
+References: <20251018051945.51425-1-nvraxn@gmail.com> <CAEjxPJ6dzwny-82pHpEHf6ugMDpXb_atFe5Q-EZBzte=NYy7_g@mail.gmail.com>
+ <DDN73GJRM4FD.64O8R1T8XR3M@gmail.com> <CAEjxPJ6FTYB6B3qn3cCGE-16h4kUT-mjGzxxCP9JFDAA-k99hA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6FTYB6B3qn3cCGE-16h4kUT-mjGzxxCP9JFDAA-k99hA@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 20 Oct 2025 12:40:15 -0400
-X-Gm-Features: AS18NWDvK-k1a6xCyscAmFxV6864mES6RttSx7DRIEUoE5j8n4_d-N8te_qO8bw
-Message-ID: <CAEjxPJ7T-xTyPhbNnC5GgC4d9wMtMD+pkPF0JgRmOdMvM6opUg@mail.gmail.com>
-Subject: Re: When to apply `make format` to the entire tree
+Date: Mon, 20 Oct 2025 13:19:15 -0400
+X-Gm-Features: AS18NWDbbb-pfEQr95GizGayMOCRkrr068jx8ZGubpYaeoWspDdV5zjE7heRJ1I
+Message-ID: <CAEjxPJ7VktYWYreg4PMUSTeoxRvBBoD0HVb1bsXdsach+j7PyA@mail.gmail.com>
+Subject: Re: [PATCH] libsemanage: semanage_store: recursively create SEMANAGE_ROOT
 To: Rahul Sandhu <nvraxn@gmail.com>
-Cc: Petr Lautrbach <lautrbach@redhat.com>, selinux@vger.kernel.org
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 20, 2025 at 12:26=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> wr=
-ote:
+On Mon, Oct 20, 2025 at 12:27=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> On Mon Oct 20, 2025 at 5:18 PM BST, Petr Lautrbach wrote:
-> > Stephen Smalley <stephen.smalley.work@gmail.com> writes:
+> On Mon, Oct 20, 2025 at 9:48=E2=80=AFAM Rahul Sandhu <nvraxn@gmail.com> w=
+rote:
 > >
-> >> On Mon, Oct 20, 2025 at 10:09=E2=80=AFAM Rahul Sandhu <nvraxn@gmail.co=
+> > On Mon Oct 20, 2025 at 2:15 PM BST, Stephen Smalley wrote:
+> > > On Sat, Oct 18, 2025 at 1:20=E2=80=AFAM Rahul Sandhu <nvraxn@gmail.co=
 m> wrote:
-> >>>
-> >>> Add the .clang-format configuration file, taken from the Linux kernel
-> >>> repository. We don't have any official style guidelines in tree at
-> >>> present, which makes it a bit unclear how to format C code for new
-> >>> contributors. As well as this, different parts of the codebase seem t=
-o
-> >>> been formatted with different styles on occasion, so using an automat=
-ic
-> >>> formatter should resolve this.
-> >>>
-> >>> As well as this, replace all the existing indent targets with a singl=
+> > >>
+> > >> In package build/install environments, when semodule(8) is passed th=
 e
-> >>> toplevel `format` target. Managing all the source files to be formatt=
-ed
-> >>> is not pretty to maintain, and doesn't really give us much.
-> >>>
-> >>> Also define a toplevel `check-format` target to verify that all code =
-is
-> >>> formatted properly. This only becomes useful in the future once we ha=
-ve
-> >>> reformatted all existing code, but is wired up for now.
-> >>>
-> >>> For the future:
-> >>> 1. Reformat all existing code. I understand this is a big change, but
-> >>>    we may as well get all code formatted if we go down this route;
-> >>>    afterall, it's not like this will cause any breaking changes.
-> >>>
-> >>> 2. Add a CI target to check that all code is formatted as per the new
-> >>>    clang-format configuration. The `check-format` target can be used
-> >>>    for this.
-> >>>
-> >>> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
-> >>
-> >> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> >>
-> >> Will defer to distro package maintainers to decide when to apply make
-> >> format to the entire tree. Common practice I think is to do it just
-> >> before or after a release.
+> > >> `--path` option, it is expected that it creates the entire directory
+> > >> tree for the policy root.
+> > >>
+> > >> Some package managers warn or error if permissions do not align betw=
+een
+> > >> the tree on the existing system and the build environment about to b=
+e
+> > >> merged. To make sure this is a non-issue, create the tree of the pol=
+icy
+> > >> root with 0755 permissions (in line with standards for `/var/lib`) a=
+nd
+> > >> then chmod the final path to the more restrictive 0700 permissions. =
+As
+> > >> the contents being placed in the policy root are security sensitive,
+> > >> erorr instead of warning if we fail to chown the policy root to 0700=
+.
+> > >
+> > > error
+> > >
+> > >>
+> > >> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+> > >> ---
+> > >>  libsemanage/src/semanage_store.c | 58 ++++++++++++++++++++++++++++-=
+---
+> > >>  1 file changed, 52 insertions(+), 6 deletions(-)
+> > >>
+> > >> diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/sema=
+nage_store.c
+> > >> index 1731c5e8..c1425f15 100644
+> > >> --- a/libsemanage/src/semanage_store.c
+> > >> +++ b/libsemanage/src/semanage_store.c
+> > >> @@ -491,6 +491,44 @@ char *semanage_conf_path(void)
+> > >>         return semanage_conf;
+> > >>  }
+> > >>
+> > >> +/* Recursively create a directory from a path string.
+> > >> + * Returns 0 on success, -errno on failure.
+> > >> + */
+> > >> +static int mkdir_recursive(const char *path, mode_t mode)
+> > >> +{
+> > >> +       if (!path || !*path) {
+> > >> +               return -EINVAL;
+> > >> +       }
+> > >> +
+> > >> +       char path_buffer[PATH_MAX] =3D {0};
+> > >> +       size_t len =3D strlen(path);
+> > >> +       /* + 1 for nullterm.  */
+> > >> +       if (len + 1 >=3D sizeof(path_buffer)) {
+> > >
+> > > if len =3D=3D sizeof(path_buffer) - 1, then len + 1 =3D=3D sizeof(pat=
+h_buffer)
+> > > and this condition will evaluate to true even though the path + NUL
+> > > terminator will fit into the buffer, right?
+> > >
 > >
+> > Yea, forgot to change the check from `>=3D` to `>` when I added the +1 =
+to
+> > make the nullterm more clear. Will update.
 > >
-> > For me, it's better do it before the release so I would not need to
-> > backport the format patch together with some future change.
+> > >> +               return -ENAMETOOLONG;
+> > >> +       }
+> > >> +
+> > >> +       strncpy(path_buffer, path, sizeof(path_buffer) - 1);
+> > >
+> > > Not sure why "sizeof(path_buffer) - 1" is used as "n" here or why we
+> > > even need to use strncpy() at this point. We already know that path
+> > > has length len and that len < sizeof(path_buffer), right?
+> > >
+> >
+> > Should be fine as I initalise with `=3D {0}`, but it isn't great agreed=
+,
+> > will change this.
+> >
+> > >> +
+> > >> +       /* trim possible trailing slashes, except if '/' is the enti=
+re path.  */
+> > >> +       while (len > 1 && path_buffer[len - 1] =3D=3D '/') {
+> > >> +               path_buffer[--len] =3D '\0';
+> > >> +       }
+> > >> +
+> > >> +       for (char *pos =3D path_buffer + 1, *slash; (slash =3D strch=
+r(pos, '/')); pos =3D slash + 1) {
+> > >
+> > > Assumes that path_buffer originally starts with a "/"? Likely always
+> > > true but noting it.
+> > >
+> >
+> > I don't think this is the case, there are two cases here:
+> >
+> > 1. We start with a /, so `/foo/bar`. In this case, we have the + 1, so
+> >    the `/` is skipped over and we start searching from the `f` characte=
+r
+> >    and find the next `/` before `bar`. In this case, we set that to '\0=
+'
+> >    so mkdir doesn't read past that, only creating `/foo` (because we di=
+d
+> >    not actually modify the first slash in `path_buffer`. We modify pos,
+> >    which is how we calculate where '/' is to set it to '\0'.
+> >
+> > 2. We don't start with a /, so `foo/bar`. in this case, we have the + 1
+> >    again, but this doesn't actually matter! Sure, pos advances, but we
+> >    never remove or change the initial character in the `path_buffer`, w=
+e
+> >    only advance past it when searching for the `/`, which then continue=
+s
+> >    the case like we did above, setting the `/` to '\0'.
+> >
+> > I might have had some oversight though, please do correct me if I have
+> > missed something.
 >
-> Alright. I'll send a patch (non-rfc then) to format the code, and then
-> maybe just before the release someone can reply and I'll rebase it? I
-> also am happy to let a maintainer apply the patch instead (I mean it is
-> just one command) because of course the diff will be pretty huge, so it
-> is a real concern to make sure that the code is "untampered" with.
+> I assumed incorrectly that you are calling mkdir() with pos to create
+> each directory component in turn. On 2nd look though I see you are
+> just passing path_buffer each time. But that won't work if you have a
+> multi-component pathname with more than one directory level, yes?
 
-I don't think we need to send a patch to the mailing list for that,
-just have whoever cuts the next release run make format and commit the
-result before tagging.
+Oh, never mind - I just misread the code again.
 
-> If that's the preferred route (I still think it is best regardless of
-> whoever sends the patch for people to check it locally by running `make
-> check-format` and committing it locally, and then diff'ing the patches
-> or something akin to that), I can simply send a patch hooking up CI and
-> updating the contribution guide telling people to format the code and
-> that can be applied after the format patch?
-
-Yes, that seems fine.
+>
+> >
+> > >> @@ -529,6 +573,8 @@ int semanage_create_store(semanage_handle_t * sh=
+, int create)
+> > >>                         return -1;
+> > >>                 }
+> > >>         }
+> > >> +       /* We no longer need to use mkdir_recursive at this point: t=
+he toplevel
+> > >> +          directory heirachy has been created by now.  */
+> > >
+> > > hierarchy
+> >
+> > Will fix - whoops.
+> >
+> > Regards,
+> > Rahul
