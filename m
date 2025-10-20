@@ -1,74 +1,75 @@
-Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E88762F8BCB
-	for <selinux@vger.kernel.org>; Mon, 20 Oct 2025 14:07:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0EA8248F7F
+	for <selinux@vger.kernel.org>; Mon, 20 Oct 2025 14:09:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760969271; cv=none; b=sIzSkIvZ9cG4lFanpDYUFthO67PsTbTo83Lttr4OvENH/z0eqp3s1QEDJlFXKWkRY19fhQcfCIq0om2CM0IFdS/5YCZM6DFl0686ZPMl1HQFqB8pQna0BtEsn13SdcfVrxwNmOoCDNU3X4TrFK3LxYGBCf5vOdwgCVOJb23Lf2g=
+	t=1760969399; cv=none; b=WyXdOeHT5yNW/MJ6x5yG5DLj5VSnzWF4GeAkW07GCzxGo9s9OPgvjmQ377jHSPiMqHyzOIOKwy/s0iPhQSWQk3asL6yk1ZL13aClg5zJCjnWUvJZmP9P6+OTFJEHeCHZPFClpOoTF7yZyTM61wdzUdaFodtArKf5UJcCQQQGm5Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760969271; c=relaxed/simple;
-	bh=81MTcHNVXXHKpjN9Y76LRyN8xnlqcM0r+fg5rgRfKqE=;
+	s=arc-20240116; t=1760969399; c=relaxed/simple;
+	bh=H3HPHAWpBhRiFOGEOzauJ2lxTa/sr8s2P89n7+z4g+g=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=XgtRHrRzSdhDitNxTm655uU2Pkgmd3cD0iXHHiZhtjU7Qb2qgqA534cNNkydrO2ukVh9wuHbRkwlZY9HWhTPzNqdLNDpoUEwLx5rupXaLbjvOwGpxVRfnpqi1wPJpL7VFywYSPLRAVtaZwFUtDbJf1UsnUKgvfGzXJom3G4AqrU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DZWSUPcJ; arc=none smtp.client-ip=209.85.128.43
+	 MIME-Version; b=IQmczrAzAgH2BRegmuEy6VDdx5TLTVL/Lmic5ElG4u8vQTMoFkhPDASdt01jPOiA9K/uZ3M5fSxyuAzqRYEhfqHHx2Exhyx8gniN9DrzDbXSuhgbJpK4otTea+6T0/AsJCvGRQIRsSk9mJLUC2xoyZxP+qnLh3qC/yUJSQMWKz8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UURWPTJv; arc=none smtp.client-ip=209.85.221.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DZWSUPcJ"
-Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-47109187c32so20917615e9.2
-        for <selinux@vger.kernel.org>; Mon, 20 Oct 2025 07:07:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UURWPTJv"
+Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-4282fba734bso970157f8f.0
+        for <selinux@vger.kernel.org>; Mon, 20 Oct 2025 07:09:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1760969266; x=1761574066; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1760969395; x=1761574195; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=x5gNfg4DtNeDTEvo4IQVfV0PrZtaUNl27ptNc7RNhmQ=;
-        b=DZWSUPcJeU99iBHOx13Sy/sxP3OpwUN81IloxtXr0v4S0ANyigdj5DsPSt/7dzD+O/
-         jBvpRXP6t/nSYXSoPaSalYypqrRVlC0/lPLAsZzVvnBDm+CaetOq65NswJl/TtLGHRNw
-         uJqR5PXNuqmCjRYU98wMgqJEXI51S1bSkHxYSJLEpWpETLio8Y2R8rD9XyhjZe9WzxLK
-         Wh8G2zwopQYaJwaDudA1HIvONzKHnslvPA+FaqKY3WjkbVnuZcnM130DhoRGFepLYNNk
-         LY8Zum6qLHml64gZ3oXGWHNnj0r/vvTjfximap+KzKTvQ/ytp9GdnGUMfv6LsYr5etwN
-         kstQ==
+        bh=Nm4V/2K5JhlIhnXuIVGoduIaK+uURRKZFYHK7YwTRw8=;
+        b=UURWPTJvolKmJ1O3RIZiZsArHrLI33K5OsrT4HKbG1NSVqNpd9ENFWeNkKQyth9z3v
+         t2S5G4b8PKkD4LDJ3HAur2zCnzxEi221IiDuhfuS09BOKoOqO5p3ArcPcsJriFWuJC/r
+         UyzqUSAHIyyeqKLf5wXycjCdNosna8VXBaKQEICJMss16NRrPqJxp/PGA1j+QQOT7cYx
+         vtHFkIPFhQmhGAPPphzLYzc1Io7JukoyNOA0+yjV8wB8QoBDWU7wcZZRzD1SAkQ31er0
+         DY7ttsOMx4P9C9ljY8zXP860TyifcE4/BVN/XO2Wvs3fmHWyROm1q7ODU4Li+YtG+++6
+         4MXA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760969266; x=1761574066;
+        d=1e100.net; s=20230601; t=1760969395; x=1761574195;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=x5gNfg4DtNeDTEvo4IQVfV0PrZtaUNl27ptNc7RNhmQ=;
-        b=MeQJPmBJmxvNbhXaaHobwSTjMTT1NH0kEUPTUFnz4eNFFZQqyMeE1RSuFprv/Xdi+6
-         jjNQWzx7N6ie4rLwgXkXmy63EgKyP0yJKWs5SOp59ltcH/QO60pOHMHNTG6FN/7ydRXz
-         5Z/GgbWLP5RRoCuoHhHC1gfBFcUSRm1RxXwmHzM/QrewZjZ68Sw/opsV2LDLvNzh4L+L
-         PM+18rIuvBO5kwV5H2WiNE461CH9NXRCORRsEDbdAqKn14V0SfNCq48gXik5xPf892Bt
-         joa9RAD9RrO6KWLnPsKSBa0DQhbCd+fg9PSWzt6/5qvraqwQb+6qfFcR5lDxvMfnhuNR
-         +ItQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUERPqcc+M/+xioHYAJD8Fos/UEgGJc7JzH5zT9JyuKI90tQz8QoxdBxsodxjXbyGaBFpm67yIG@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyz0r9rv1vMouAAELLM6BaohLMb7ihFvy5t7vOEy+CZGvLsRsn8
-	HEmDlX6tBjuCwa5fsNuGAZQsVWVaGKaaR2WJCZWbzOSNBGN4Wxg9de6l
-X-Gm-Gg: ASbGncuALzhx0nxzvtrIjn4sL45ZG5xJFomON0Dv7T2bgutdqngdCQLX960v7OH9yQi
-	0SLV9SZkR1rbsyz9QL05evaRtuaYgpZPfA8bJXI7Xd+WfF1uvrAuYcrf1C6DPmxyjbMc3S/tMXk
-	byQfqNHl8DX++uxCIysGN54xnE4V3VpiT/RosacDwYueWC1M5IJ0Eej0sw8Fez4a4/Q4BD9vcRU
-	negSLivRuZhmaX6KqMHqwddlawASCcFyti2aP0H1fGxizD/Qq5UwJ3gS+fReT0iIeoOaUi5/akv
-	V3eRhjPjfjVxYXfkH9BARY1DxyGPEAwMvCcAnrjrguiFilCjSNjmOrKEvoE//qMtY3r+8oolRWR
-	eNGR8UeBepFdSlmTpCR77lfVz5oD2CyQv+Asr3IzFZZQZDI9WHRf/xQwLtCuUZZdz5Y48X9t0
-X-Google-Smtp-Source: AGHT+IEPA09c9sRWTSe4xwJqdUL7P/e2d82KgpMCvVIa3gxywkxc9TWYOs0bh39dDG6EN0NYAvoVJA==
-X-Received: by 2002:a05:600c:1396:b0:46c:adf8:c845 with SMTP id 5b1f17b1804b1-471178aba5bmr87868795e9.16.1760969266073;
-        Mon, 20 Oct 2025 07:07:46 -0700 (PDT)
+        bh=Nm4V/2K5JhlIhnXuIVGoduIaK+uURRKZFYHK7YwTRw8=;
+        b=WnOattXxwMXOd+1iiiR9LSNamGkizOSM91b2jDSj1pbPihAnL0+iRYZSXv2une9Qx9
+         YEg+NSiJWi+IC8Eqz1u/Fm4/UFLxHaYNEI8lJ7D9nvPGVEsABYgh+xbK59RGprFo8aYo
+         JuyasWbVCe0DcEuQWjIMukEWXq5JGOHTbIC9GkGqNSkOtLHeeZdf2VmB4kVYkCw97Lnn
+         m80pghLyMhB6ug6Ca6P7bcCq2w/jJkLXV49mesXzTBjqAuBLFgn2uKr2pF5X7r4g6iyb
+         18vXscMWUlZC+jj5Z7C7/2GJGYd/1pGn03TguWHDnWDAvjIvYyBZC9Z5VWG0QBfxjs/a
+         sbbA==
+X-Forwarded-Encrypted: i=1; AJvYcCUVRaeW9/p15VsRkbwDayVQFNSokD3CrApI11CigT9AMTBolpPfusPbwaq3cIztqo0NFwX4Se8t@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy0tNcLK73DSDt2WAUa2ya4H1/VsIk3hOhp+zbdbz7lFEIOyMCj
+	D7CvCtbNUNUmsWrGvGNz+OWk9m5pSbnBLDsXOL6YGdMamkRiF6ad8Oub
+X-Gm-Gg: ASbGncvAbH0KJDv1ZVp5LpCCDa96i205p2pCzI8Oo6BHNaCHX8GH4ynmg5hYQvIg/Tn
+	0CQpF5sscxI6JW/5lYqmseoToib7bgbcOWViyd3+MwmZxFPfEqBH73DTaM/rD5lMEwqQkRhP1Gm
+	cQ1SJe6iscXTO+5CsnF/jEuLQ+ot+6NIEAutLRlXAfwLhi8R6JjsS5vhUOYOUw/+CN2LRafm0Dt
+	0tfD2bGlBMlLWnXxUOs3vbYIGwSbFqvVL/IMprTkrsO1sIlG4W91FLzDHqBvG08JLfE209lxBhT
+	17WPipjdhoOMIk/RatYQS+RNxIQeXZwRTURCcxXC+u03Wo+96p7TKXL6NZ6/pJibmggtCqXKJV3
+	J7H4u1/j95PDq/dh8u5/SC75HIZnOs86aLSiCMtOWBu4Et5b+Sy5l5uoD0KH+yXOxcH0Zb8Hy+E
+	pH/O+5hPSA15RDLwkHLw==
+X-Google-Smtp-Source: AGHT+IGT3EJFvbYzbzHXlS9IVDv9hoIQ8KUtuqzB82o7tQJQtSeyn2V7yyx5rOKKHlI/kvlncGKwXg==
+X-Received: by 2002:a05:6000:41c7:b0:427:699:a9cf with SMTP id ffacd0b85a97d-4270699aa37mr9003937f8f.33.1760969394760;
+        Mon, 20 Oct 2025 07:09:54 -0700 (PDT)
 Received: from graphite ([2a0a:ef40:89b:b900:2e0:4cff:feb0:4e4d])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4715257d972sm150970305e9.1.2025.10.20.07.07.45
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-427f009a75bsm15860814f8f.23.2025.10.20.07.09.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Oct 2025 07:07:45 -0700 (PDT)
+        Mon, 20 Oct 2025 07:09:54 -0700 (PDT)
 From: Rahul Sandhu <nvraxn@gmail.com>
-To: stephen.smalley.work@gmail.com
+To: nvraxn@gmail.com
 Cc: lautrbach@redhat.com,
-	nvraxn@gmail.com,
-	selinux@vger.kernel.org
-Subject: [PATCH v5] treewide: add .clang-format configuration file
-Date: Mon, 20 Oct 2025 15:07:32 +0100
-Message-ID: <20251020140732.4703-1-nvraxn@gmail.com>
+	selinux@vger.kernel.org,
+	stephen.smalley.work@gmail.com
+Subject: [PATCH v6] treewide: add .clang-format configuration file
+Date: Mon, 20 Oct 2025 15:09:41 +0100
+Message-ID: <20251020140941.4769-1-nvraxn@gmail.com>
 X-Mailer: git-send-email 2.51.0
-In-Reply-To: <CAEjxPJ5o5fdYswHkkbVbnOt-UdKP641KRDV2J7h83Fc4D3qikQ@mail.gmail.com>
-References: <CAEjxPJ5o5fdYswHkkbVbnOt-UdKP641KRDV2J7h83Fc4D3qikQ@mail.gmail.com>
+In-Reply-To: <20251020140732.4703-1-nvraxn@gmail.com>
+References: <20251020140732.4703-1-nvraxn@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -76,8 +77,6 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-
-Currently only an RFC.
 
 Add the .clang-format configuration file, taken from the Linux kernel
 repository. We don't have any official style guidelines in tree at
@@ -95,10 +94,10 @@ formatted properly. This only becomes useful in the future once we have
 reformatted all existing code, but is wired up for now.
 
 For the future:
-1. Reformat all existing code. I understand this is a big change, hence
-   the RFC, but we may as well get all code formatted if we go down
-   this route; afterall, it's not like this will cause any breaking
-   changes.
+1. Reformat all existing code. I understand this is a big change, but
+   we may as well get all code formatted if we go down this route;
+   afterall, it's not like this will cause any breaking changes.
+
 2. Add a CI target to check that all code is formatted as per the new
    clang-format configuration. The `check-format` target can be used
    for this.
@@ -163,6 +162,7 @@ v3: replace the indent target with the new format target. also remove any
 v4: drop the subdir format targets entirely, replacing with a single toplevel
     format and check-format target.
 v5: add back relabel target accidently removed.
+v6: remove all references to being an RFC in the commit message.
 
 diff --git a/.clang-format b/.clang-format
 new file mode 100644
