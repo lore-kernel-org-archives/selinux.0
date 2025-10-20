@@ -1,82 +1,85 @@
 Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 660CE2C0F89
-	for <selinux@vger.kernel.org>; Mon, 20 Oct 2025 19:12:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31E802D1901
+	for <selinux@vger.kernel.org>; Mon, 20 Oct 2025 19:22:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760987562; cv=none; b=ZVNe9bh8yrJKeNLHs+KBP0Ht27eQYOP8JUxdj4HTh/3RhP2v3k5X8BUef2qlf8H6lnZcZ9c7Fz3FPgk4B1VpiWYhZLm4rNf/BSsaHW0bDHV5Lj1uKwbfYbjcfCvY/SAldcM1ayyl4wQpKNKhtK8d3DGv3ldlr1kVbT0MZY6uKH8=
+	t=1760988157; cv=none; b=AiUKaBRenrJ6ZCoySUfc3evxaD7mcj872I4w1kPdpiMl5GF5OWpBVV5tc+WKqVwWTafQQYcfqYcQK/44Fz5NfhEtSg6/spzT01fXd+Za7XnAsRs69f35A76OBNgqF8EAa5yMe64P0djlbNAIMO/jAhjkcOOhxj5GhH56eIR9kjA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760987562; c=relaxed/simple;
-	bh=Wto3PZwvEe+pg4mNkQ3S7CuwCsIYj9pOUY9FLfwcENY=;
+	s=arc-20240116; t=1760988157; c=relaxed/simple;
+	bh=umZ857QeuIIQUUqPe4gSdyB7ETX65pLAn2ZcuUZtFE4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ukChEstvqOAZaq2NNrmEPDve+CA4j6faBBw7cKbRgjJk+6MSGkKvn8TpN3C70h27UouPvOwuWY0rJlyfQDHYQhFE8xmBu2ZiSJeB/vx3GDhIV6Cm/ejDW/X3fPVtq4SjS+mUWiF8RRMxDnrpOw0zB/pkftjqMDj2cbaRc0RMXrM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=XvAly5Lg; arc=none smtp.client-ip=209.85.216.43
+	 To:Cc:Content-Type; b=mpDEpaJ/MvPfgmaptO9rlL7TZOOVq8WJBi4SkAYSvh0GtG04x+Z5LRh2Br+SluYWZPihiQmEhYYxjp01TAnMaFguPI4y4PL3w5iKWHupF6ZLtwmrIYDfhcT8AvTh7zCWFWE8nIDbT7rIUhPLzZ+ll+jWsBxPEJ6wIedRO0bvq50=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=RbqGEYWA; arc=none smtp.client-ip=209.85.216.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="XvAly5Lg"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-33ba38ed94eso5180362a91.1
-        for <selinux@vger.kernel.org>; Mon, 20 Oct 2025 12:12:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="RbqGEYWA"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-33badfbbc48so5911021a91.2
+        for <selinux@vger.kernel.org>; Mon, 20 Oct 2025 12:22:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1760987560; x=1761592360; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1760988155; x=1761592955; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Sc7VJXdo3UtIww5U8CPY9TfvbkDo2/ocS4PDbChl9Jk=;
-        b=XvAly5LgIVNg1r6SM0b498KKuGwwSxkTFJJWqf9TasecQehvR7tMLbz1GcsaBqlBQv
-         B/e3X58A+ECkNartOxhvHa+/6hewqgVgKedsMO+1fPQAMmyegfPIbELFOU38M7j4AXuV
-         vxBuwRzhc/8DzTjA0R9ktONyybRCMa5k+gc7u12nJv+CcYoUhv/fWyhB8bbrVKB+2g6V
-         XkaxSxY6c9/ED+nVlXpMwPMgg+PuTDVQJFhN+uE3s+VfN3AGyGlayGO0scujDZ3MSAsR
-         BJ3k1YhOsQZW06ZEO4I42EWizekiRDjjhwLUHwzctu8qHUBRFox+V1x8cHEcExsWU2qe
-         EYqw==
+        bh=rXSjkwnG8Cy2vSuisj9Mg3o4cb7lSzCYpfE+yrCbTp8=;
+        b=RbqGEYWAmcb7Jg1BWkb1xm8A/yIbo6PR8TcyqZQ9Jee4hWRk+ZCClrna6eFEu6ZJlT
+         8HhsmKpnHXxW6tHy3CRQSFJ8PgCh87Iu53/SkyaGJjvxXVIzuO8PEPyHo2djWOCh6SfT
+         GC2azFh5uJNlMpMmdEcigmXX71mcSX/fGt3rB8XTsnLHzxI4Dwnz6v1W5hKVmPFPRjCs
+         0g+vcbkIbOJ3o3NFCz/iAm1EFg2kiZ9zocvdsBWwHXEoBUyb1EVWJKoBhP29+X1CnnL0
+         6wK64SQntHt82CRDmZVwewRaRRK1s38HM40bGthYDQ01NdURmbGX1uFub8lOLguU57SO
+         UbQA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760987560; x=1761592360;
+        d=1e100.net; s=20230601; t=1760988155; x=1761592955;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Sc7VJXdo3UtIww5U8CPY9TfvbkDo2/ocS4PDbChl9Jk=;
-        b=oIlWr+/ni3QIt7d2fPSmvWeSQwU5cJtvGrg/3ZA0Enr8c3a+DDqIg6M1BAgbZkO4wU
-         pQNnHrMTQcuXRVp83wlcLhs0467V2XSMPJSDuvNesYHQa10wM2QxZEmV8xQb/6IbExMJ
-         c/55zNM4qgj3FIoQX4XA67jlXQXxQ9BzhBDl/M6qeoDD3c2d1N1bVSNzebkpNS+z1yii
-         JHt74dxKLMI0DZv4EDN8mos2D4udmYZbDSU2cMga89FRXLy/Mus7uyrEZJuFmrOmwnsp
-         f4RDUeGHzX/CtjYqJLWkZb3huqeHj1P1qOq96G7Wa93rtUjJ/kLlZPsMR1aMwfmIucMO
-         1Lvg==
-X-Forwarded-Encrypted: i=1; AJvYcCUSuuD1GIJVg/qluzlEMl3EVnm4HvswqaPeL6M1mHMfgb2JA7hm3pHQHxuAppqYXQ+7j9RVt/gY@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz/7HLn4PS+/bTdxag1oOZueYN8LrvHugTOvgsnnFKrSRX9w4K0
-	hPPvUjBwmnkAgo9gmYP+r+iCJabtRFbXmk0gVmCqfQw5oxG1ArmTh9Wd0Z0tFPMTLMGXI2OxLiv
-	nli6FX0W75d66hpr/q/iN4BCOxZHFNnw/JbSopGVw
-X-Gm-Gg: ASbGncui+TrPOYJrefu7UuQH8jN7mAGW5KDU9VrgO6E4l/7jkiS20aqn1CqTzA0eNEK
-	ZOnB3JwgvOzggDwNxtinkwwMpvBm/rngjZole5qela1ycHDIzIeu9zND0YiXug4DxZmT1cbpnvJ
-	347G5yAHqL3I0ptY5/vlce2K4TvmhQzSECOLE5+VZkuz/mv2ofPhB2T8sCXmhN0MCjG9jV8anjD
-	hw0EyCgxm4IyCAL6kMMk8MIJJvcw3AbAXvmc7ebM4Y+Vq+ZJucngq6ORpiFU+ENI2SE1h5G30fj
-	NNzVPg==
-X-Google-Smtp-Source: AGHT+IFHrTtTH6I3lTgO8qQ7DSrZQAKZFTUY6VZ8yzd1t4lfye4csFe9B9t1LuoroTCUBrs/OA+MDscdSNIVCjPeyfE=
-X-Received: by 2002:a17:90b:2ec7:b0:33b:6650:57c3 with SMTP id
- 98e67ed59e1d1-33bcf8ec60dmr18193076a91.21.1760987559706; Mon, 20 Oct 2025
- 12:12:39 -0700 (PDT)
+        bh=rXSjkwnG8Cy2vSuisj9Mg3o4cb7lSzCYpfE+yrCbTp8=;
+        b=PB+hN2UfP3RIYPB2f9j1kjbKQDzu51aApsEq+omYS8OEeHNC+KN5Oh+X8tT44TVhJ+
+         S8OuL4X5qMgM+h8MDc08Kzkmvy9MND+ySGD27TYyIdpYbH/ATiJgCZ5xfE0iHEBYkS+4
+         Cp8ZjZJlqvJclUB5HtekiryAYNF1ofWdk74qBWBuzNkW7a8wCxga+OYlcs7by6K1Er0+
+         zSSCZyGD3R2UmOc3g9aAjQSywnbQyBLWZ2y70sCuC8O/Eun8F7cap9ACBLUgxcZVTpgq
+         Nnzgkv/KON2cg6YKJajXwStG/xxn0payte2BQDH605KIpRzwyURvWVapzaRJYldOYZlR
+         8qWQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWb8odCdPFslVoGSbNC6tLa+WejDr0qI8cVzNK1mYzvTt23Jwq3eCzy3/tkxv/EAt0Z7kt604wx@vger.kernel.org
+X-Gm-Message-State: AOJu0YwY0OTyEuZFHM80xCszD7/uSdKmiFBXBj+k0N6F8YBHVD62WAiM
+	X489d5hSkfn1ppyntNyPSQJMe7n+PtGXNvFFwZyZ0JdgEcrCOu8H0oMyGHIZH4Wmp/iZOdsIUDM
+	yzgLYb5hQz8+7EaHZKsWCituVWcSGDBCrxMIFO5f7
+X-Gm-Gg: ASbGncvbPt4HiwDcVMyEOAXSY19Gb8mCbGIIzg1Aekxy1xchk+81MPdhUgrD0VHfGW+
+	k2cqGlEwOV7srdarVoMvrxnH2jzhtqafM/J8y6DK5eDu5JOJq3g8ewMO/FbmxdCXPr8CbYrz6rz
+	GSfXxRCk/j2BqwwUoObR+4Y8DHHOWFaXKxWp9Ym385+X7jMhYbONhASb8Dc07fDqvf9sNyna6bT
+	Vh4oOu+kJzxyEQCKQNxQbzbK98+UOiNMxE8+mqUpH7aDEhaiui36gzLdv20YfYJKCDy7x8gkCOZ
+	z3kgwg==
+X-Google-Smtp-Source: AGHT+IFSiHOTUDXYpFNI+OFkM6wdZC9V5vzg+BHgaKVj7iXBx06hRGe7eu82SnindZ5rZ6l1EtKLHfi8m3vUHWu1hew=
+X-Received: by 2002:a17:90a:e710:b0:32e:8c1e:1301 with SMTP id
+ 98e67ed59e1d1-33bcf93f784mr18159001a91.34.1760988155257; Mon, 20 Oct 2025
+ 12:22:35 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <b30e8d56703dfd84778fa73845eaa1ec@paul-moore.com> <20251017081050.1171969-1-zhanghongru@xiaomi.com>
-In-Reply-To: <20251017081050.1171969-1-zhanghongru@xiaomi.com>
+References: <d849e8a98bf88bd12fd13a8f6b6e84290dcaaf6e.1758859391.git.zhanghongru@xiaomi.com>
+ <b30e8d56703dfd84778fa73845eaa1ec@paul-moore.com> <CAEjxPJ5CYtyfMPcaM2ugyMJQ2d+YQz4oXVBOcm7=gHsOk-2sRg@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5CYtyfMPcaM2ugyMJQ2d+YQz4oXVBOcm7=gHsOk-2sRg@mail.gmail.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 20 Oct 2025 15:12:28 -0400
-X-Gm-Features: AS18NWB9BWqh8x0h5dc2vyZvqxDGjfJS5_tcMkj-8g4gJY7kkSA9hd7IeNuvtrg
-Message-ID: <CAHC9VhQ_hv1ri1csrgGP+9RssCuJBDuOLSDowZRD5xZcDD2mPA@mail.gmail.com>
+Date: Mon, 20 Oct 2025 15:22:23 -0400
+X-Gm-Features: AS18NWDeWQWRVRVN4vI0aAwunYxaLBao1DfrZHcW6WRNO1RLsNCVYZgwwhSGgqQ
+Message-ID: <CAHC9VhTz48LOy5E7ywAFYjp=OK43y4MndV6V9HjLC1CpUCJ0xQ@mail.gmail.com>
 Subject: Re: [PATCH v3 1/2] selinux: Make avc cache slot size configurable
  during boot
-To: Hongru Zhang <zhanghongru06@gmail.com>
-Cc: linux-kernel@vger.kernel.org, omosnace@redhat.com, selinux@vger.kernel.org, 
-	stephen.smalley.work@gmail.com, zhanghongru@xiaomi.com
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Hongru Zhang <zhanghongru06@gmail.com>, omosnace@redhat.com, 
+	linux-kernel@vger.kernel.org, selinux@vger.kernel.org, zhanghongru@xiaomi.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 17, 2025 at 4:10=E2=80=AFAM Hongru Zhang <zhanghongru06@gmail.c=
-om> wrote:
+On Fri, Oct 17, 2025 at 7:59=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+> On Thu, Oct 16, 2025 at 5:18=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
+wrote:
 > > On Sep 26, 2025 Hongru Zhang <zhanghongru06@gmail.com> wrote:
 
 ...
@@ -93,62 +96,38 @@ t
 > > we can use to size the AVC when loading a new policy.
 > >
 > > Thoughts?
+> >
+> > I think it would be important to consider it strictly as a "hint" as
+> > that would make life easier, e.g. if the previous policy hinted at a
+> > larger AVC we may not want to bother with reducing the number of bucket=
+s.
+> > I would suggest starting with an implementation that uses the hint as a
+> > power of two for the number of AVC slots/buckets, with a value of '0'
+> > indicating a default value (512 slots, e.g. '2^9').
 >
-> I previously considered supporting dynamic adjustment of slot size during
-> runtime, but this seems to introduce code complexity and overhead. Every
-> time avc_lookup() or avc_insert() happens, we would need to check if the
-> table exists. Adjusting slot size and accessing a specific slot might
-> occur simultaneously, potentially requiring additional lock protection.
+> So, aside from Hongru's points about this requiring a change to the
+> binary policy format and compiler and introducing possible
+> atomicity/locking issues in the AVC code when accessing the number of
+> buckets ...
 
-I would imagine that a very simple implementation would simply convert
-the selinux_avc variable from an instance of selinux_avc to a RCU
-protected selinux_avc pointer.  As the AVC already uses RCU, I think
-the number of changes should be relatively minimal:
+I know you've heard me say this before, but for the sake of those who
+haven't, "because it's a lot of work" isn't something that I consider
+to be a valid excuse.  It's fine, and good (!), to explain the work
+needed to successfully make a change, but I have an almost allergic
+reaction to those who use the amount of work needed as an argument
+against doing The Right Thing.
 
-* Ensure we wrap selinux_avc derefs with rcu_dereference().  This
-should be the only real change needed for lookups and insertions as
-every search through the AVC will start with deref'ing the selinux_avc
-pointer.
+> I am also uncertain that this is something that is fully
+> determinable from policy alone.
 
-* Update avc_init() to allocate the cache slots with a default value,
-fail if unable to allocate the cache memory.  If we ensure that the
-selinux_avc pointer will always be valid, we can avoid having to check
-it.
+Agreed, but if we are going to make this changeable, I'd rather see it
+as something that could be changed without requiring a reboot.  Not
+wanting to add yet another selinuxfs node, and seeing *some*
+relationship between AVC size and policy, adding a AVC size hint to
+the policy seems reasonable.
 
-* Policy (re)loads which would change the number of AVC cache slots
-would allocate and initialize a new selinux_avc then swap the global
-selinux_avc pointer under spinlock.  The old AVC cache could then be
-free'd according to RCU rules.  I haven't thought about it too much,
-but I suspect we could do away with flushing the old AVC in these
-cases, even if we can't, flushing the old AVC is easy enough.
-
-> When increasing slot size, we could directly copy the contents from the
-> old table. When decreasing slot size, nodes exceeding the new slot size
-> would need to be re-hashed and attached to appropriate positions.
-
-Changing the number of cache slots should happen infrequently enough
-that I see no need to migrate the old entries to the new cache
-instance.  It's a cache, it will fill back up naturally.
-
-> On my Android device, policies are fixed before system image release and
-> don't change or load dynamically during system running. Using kernel
-> parameters for adjustment ensures no additional locks or checks are neede=
-d
-> during runtime table access, maintaining simplicity and efficiency of the
-> lookup code.
-
-If your system does not update its policy over the course of a single
-boot, and presumably doesn't drastically change its behavior during
-that time, there is another, simpler option that we should consider:
-setting AVC_CACHE_SLOTS at compile time based on a Kconfig tunable.
-The code change would essentially be one line:
-
- #define AVC_CACHE_SLOTS   (2 << CONFIG_SECURITY_SELINUX_AVC_HASH_BITS)
-
-... with a corresponding entry in security/selinux/Kconfig.  That
-should be a very easy change, and if you set the default value such
-that AVC_CACHE_SLOTS remains at 512, there should be no impact on
-existing systems.
+However, as I mentioned in my reply to Hongru, we may be able to solve
+the immediate problem with a Kconfig tunable.
 
 --=20
 paul-moore.com
