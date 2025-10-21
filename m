@@ -1,203 +1,116 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF8CF334C38
-	for <selinux@vger.kernel.org>; Tue, 21 Oct 2025 12:59:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D892E2192F5
+	for <selinux@vger.kernel.org>; Tue, 21 Oct 2025 13:15:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761051584; cv=none; b=d68I5XOPOmTZqZw8pR1jnMKAGYzZjVLnZzOxSum9ww7z8c0h8/BvdHE59beFkBokcfOvYpDKHKzC13gzP4Pu2k6TfBHtTuP5AdEwhJ0gtpjascW519bWiHLOtkpXediLa2HdeeRLn+M0EE6tP+qKtsI07WFI0XjvldxIP+APIWs=
+	t=1761052531; cv=none; b=r4AQgQH2uVSNcrDOnSM3q1gtY0qMmPG9jv6OEJe6yIPkMb7DAL6V1yBmojhC/HEBtTk3Nk6ISrWDWBwTc2u4w+RNGmLAsaoYX9b09sATrYQoqhBhqksQiLhL6wgR8gv7DVfBsJOSzIxuLzHbc20YFrsCGp//om/IX3MeYjvxzZQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761051584; c=relaxed/simple;
-	bh=/p+HgR3jic0vaW33oVFFcwkYd4QS/6dl17XZeRGVpzI=;
+	s=arc-20240116; t=1761052531; c=relaxed/simple;
+	bh=bfFd+8/PDGUbkEfMxytbKNsVmFs9Ox9N7yEkdLPc5yg=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Xsf36TeXOHHPZbc0/IL3c1c66oWGDRc1P480t+3kg/7fFv79/TKOGrSv+DfWVVVDJqhULGWdcTA/Xw7DOdgJezZC27AyXH3AKT7d7IuOsmcKoVqaX3k/vByLHilWJRR9Pqqt2LoLijXZ8hMS0/eEjl7w9Uaf1I+MJA6vZDOSZ+U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=auvr6gzM; arc=none smtp.client-ip=209.85.216.46
+	 To:Cc:Content-Type; b=dcpkiX11NLeXyz3jKZvtzgO7A7qXeOYxon3V2bf8GO4o2S+7a1/Iw8v2j9FD7RbhSf8IKsr555X38mW0TPJhuS8OfczXWzsfsXmRBLzrdUKf3yI6qiuUddOKQNCMnTjijvSeEiMC+ZrwOud5LNdLQRDNsXYC1kg0GjHxB+BdHGI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lM2+Ch0+; arc=none smtp.client-ip=209.85.216.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="auvr6gzM"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-33ba5d8f3bfso4860018a91.3
-        for <selinux@vger.kernel.org>; Tue, 21 Oct 2025 05:59:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lM2+Ch0+"
+Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-339d53f4960so5700505a91.3
+        for <selinux@vger.kernel.org>; Tue, 21 Oct 2025 06:15:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1761051582; x=1761656382; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1761052529; x=1761657329; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=dnjs5HLXRntrXc8jqDCnWXhI3O4BYXlR37R4X7p/hic=;
-        b=auvr6gzMi5eSj2lPQ/zLzitADpzm5UGdvsvr/m/BNWP+MIfUWkCIGodc878JL4+oJB
-         BVe7J6dcjRpcrCAaCCbTFH0Ya0yR82KUpjQ8YvBdZZBq9c/lmBP1R5E7UuAuarKt4Row
-         F4fCb4PPiKxb+DxMn7uUBPd94BDsQa3oQaupTIwxG536967Hp33pLmCpVbwfZB2XSs8u
-         zsMjgK9KpXmh/xCd01KesCF5mQ//c4RsNCD/3Z/d/g61SaKOeg5zuX1zZzzZ4N6etJxe
-         svDDgJ6BHwKGSTXm9cJY8tNzzihvCMrtwrUjETiv/QpapHMwTWzq3MQ52gGFKpM314xJ
-         fPQw==
+        bh=BN2xDQWD5EyYAn/fWuDwR3IxtRPz0rtASHvPNwxxXns=;
+        b=lM2+Ch0+rd+EABFIsVyue/uXZ1FDBOR9tWmVORkf7FcAcYp/4r47SOKRSJr2oQV3kH
+         /YZtfYP/QuqZH50HDc4RyZ+6sQZEPmnSquERFuLwlJZpzYgunpM2jIUext0cbm19cSqy
+         QrmfrmzFjwCEA7VhaoKk5McM/JpoGa/8C7aY3AZ7wtzeTTm23GzpjI0tBjYszLExhFyJ
+         RiUcrPEN9cb0U/9q8czmmgmM2PsJO9hTkBDuAe7UV+DS86IDqoFBgtnTSn0S8SaFD9gT
+         ylD/b5WtpIUJw9pD1/vy49JmpqANxtlAPTjQmbRx9VI15FRmcTzFPVcl/z4bRFbS8qLJ
+         RpqA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761051582; x=1761656382;
+        d=1e100.net; s=20230601; t=1761052529; x=1761657329;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=dnjs5HLXRntrXc8jqDCnWXhI3O4BYXlR37R4X7p/hic=;
-        b=qdyPIJU1G1yZgp1fyjb7SOkFXMERS+xkHjS2r+zDNBxUmEeFfmByBd05Dkzai7sYE5
-         cyrQyacnLUEA28p9spGA9bOtSquR/F/eUyRcClSDheIrXkiSxSQRa92TIRAVZ82KXs7p
-         SoVtjFwrKsB5de8/si2S+Gs7Nqjdv3+0siKSS4HnTWIvO3QNpK2C8a0HtxaYTlbObY/J
-         e4uJyGg6ow7zDFzT1RdRwGYgSBTYHJGIfjPv13vAREGvrApoi3D8HeFta6Hr17ZqelkH
-         aGqH9yY85LMEGyoUDh4d/q5GB2mjWQCMgwusde0hhZh4x4c9S2RGz32+Cbcisk/ic2Xv
-         9hlg==
-X-Gm-Message-State: AOJu0YzkKN6CVyk0CH/mNM8MVecyh8f1qBWsb/FUnpdrBpeORn2DIjQ2
-	yvry7gCQ8SfEUMyPbl5a/0ARg0f7BO3exvhhQfJSj/yvIMoKUgwuARY1Zyv22cuKQ/uMjGdX995
-	hG8htLnKdKWH7HEZSY1OlTuFNHoURRFE=
-X-Gm-Gg: ASbGncsl8RkJDXQY/JaRPc7WHirKLtp/awjKSaGeee/kuuYW7g2N6Th0Mq7AkzQA5bx
-	zTwoOwLWLtxeO4aObQ/Ro0HmLS1k5/E4Uj8ROQFu4qjBhVoUQo+qwHbz2bdRtOCMODaClbu1zQz
-	77c16cu+cjn9DUXjYSJYMK67pOFWB7pFMHRrYrzG1YwNr8U0pYKDzxJeyDOtXjTW+1vGMcYmAS8
-	dYS/XP3n0IfQpiNVf9HfzfesLHZhOjiXAcZKwiNxwTGaPCVBehwRqIffaB9
-X-Google-Smtp-Source: AGHT+IGwP501xpAkJwxEgbk+ygNEbzIlvQShLmM7P1Qv/msLmpndMyTlRic9mwGqAiP0YVPylwykBHyd4H9GY0WuJcg=
-X-Received: by 2002:a17:90b:5383:b0:33b:b0d6:6bc2 with SMTP id
- 98e67ed59e1d1-33bcf90923amr19809068a91.30.1761051582040; Tue, 21 Oct 2025
- 05:59:42 -0700 (PDT)
+        bh=BN2xDQWD5EyYAn/fWuDwR3IxtRPz0rtASHvPNwxxXns=;
+        b=DFyZKirhJEGPEK5zbKtPW5JyZpvc+xmBgyi5fgatp6GvRtzw1j8PPknOdOfuM/8GQU
+         41aqStrNUeJmcX3Ndx5qVPzE8BF3s7drwHShRtIs1HBh8cfVFRgMQbzAND0gtbnl4xfK
+         +kzkrBw22/SxAoieaa4iCjHAIbYSXn/pQvrpa/ivEl0R/BvCvREoKCsXSovGyN0wzg6e
+         cQj1IxlLS9sLHRDYutfo+MldXbIXAabWEiUj76oT2JC5U2FK0J7ovcyR66MEYs5EO9/x
+         2x0UOz+bPbNjeY50hD5GSafs7a0vI4AybNt5jPhx+ruZ2ABTlZECiiTPbjF7l2QCuf+I
+         5F4w==
+X-Gm-Message-State: AOJu0Yw+wwjz/akf1XhuJfOu9rP8CK60Ol07NUoshiQ/o5opBBhYurly
+	t9jotRZWA0N1Ytoq83DQ7FhTClCEbLLhswe7w5nyA8k4P0TbgOt3zzsFw66lJgSC51+G7hR7MvJ
+	y1yV1HH2+l96ocqN1FNw4GVII/Am3+OXJcQ==
+X-Gm-Gg: ASbGncsH5GcyGs1GxMfD941J7GoIyRVoQnbpv0sZY4UozlqJYe4d9HIxea40oFiWOnT
+	0/Gv+BsqdmOsFhai+xGyaf6a5zstxtkv7vhbvLjcP9BLfnOtUpDI8SPIqDynknRu2VNnKWuUems
+	02ve5BGBsSG0aDKf/taUxSPsFSAcWQo1FSAy4iojUXV0bUsWMKQXyH/m9dZnt0cs64TmQk5rRQK
+	dcRlCKN73dP5E3xzUf2+97+Va9Z0yrlG9iZQY4V5KsfKsCM8QOwey0vzXGzxzdgxo+h2vKznp7d
+	PAsewA==
+X-Google-Smtp-Source: AGHT+IGUR5pSEV6vo3bWdc5H6S3cDqMIu5HqiY5BPj9O85A6DyaphLTrgeEb2mQ75ZoP+McWPqsTTaKYgGgBNiuBP5s=
+X-Received: by 2002:a17:90b:5105:b0:329:e2b1:def3 with SMTP id
+ 98e67ed59e1d1-33bcf87f412mr20731851a91.10.1761052528912; Tue, 21 Oct 2025
+ 06:15:28 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAEjxPJ7VktYWYreg4PMUSTeoxRvBBoD0HVb1bsXdsach+j7PyA@mail.gmail.com>
- <20251020174027.11343-1-nvraxn@gmail.com>
-In-Reply-To: <20251020174027.11343-1-nvraxn@gmail.com>
+References: <20251021113626.40772-1-nvraxn@gmail.com>
+In-Reply-To: <20251021113626.40772-1-nvraxn@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 21 Oct 2025 08:59:31 -0400
-X-Gm-Features: AS18NWDp0MnU-hJbbklS8tausxfFeLymAoiqG73JX7ot12Nlzrtx7fKLsv7tSZM
-Message-ID: <CAEjxPJ5Qab+=YSVNFhjHxGrzb983XtqzKoTi5avbYQ9w6t+a9w@mail.gmail.com>
-Subject: Re: [PATCH v2] libsemanage: semanage_store: recursively create SEMANAGE_ROOT
+Date: Tue, 21 Oct 2025 09:15:17 -0400
+X-Gm-Features: AS18NWDF4bDTYMVsBXZc88vPZ56o8UN14hI6Ja6KCUpxeP9ufHVHpL0_U8iaiSI
+Message-ID: <CAEjxPJ7=xQBqEp+TWs8GEr_Oi_-t3MaW9cUh0TE8i1F7qWZ0jg@mail.gmail.com>
+Subject: Re: [PATCH] genhomedircon: cleanup parsing of uid config values
 To: Rahul Sandhu <nvraxn@gmail.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 20, 2025 at 1:42=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> wro=
+On Tue, Oct 21, 2025 at 7:36=E2=80=AFAM Rahul Sandhu <nvraxn@gmail.com> wro=
 te:
 >
-> In package build/install environments, when semodule(8) is passed the
-> `--path` option, it is expected that it creates the entire directory
-> tree for the policy root.
->
-> Some package managers warn or error if permissions do not align between
-> the tree on the existing system and the build environment about to be
-> merged. To make sure this is a non-issue, create the tree of the policy
-> root with 0755 permissions (in line with standards for `/var/lib`) and
-> then chmod the final path to the more restrictive 0700 permissions. As
-> the contents being placed in the policy root are security sensitive,
-> error instead of warning if we fail to chown the policy root to 0700.
+> Parsing KV files with a separator of similar format is fairly similar,
+> so we may as well add a helper function to make it easier to read.
 >
 > Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
-
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-
 > ---
->  libsemanage/src/semanage_store.c | 59 ++++++++++++++++++++++++++++----
->  1 file changed, 53 insertions(+), 6 deletions(-)
+>  libsemanage/src/genhomedircon.c | 81 +++++++++++++--------------------
+>  1 file changed, 32 insertions(+), 49 deletions(-)
 >
-> v2: fix-up buffer length check, use memcpy instead of strncpy: we check
->     the size already.
->
-> diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_=
-store.c
-> index 1731c5e8..e3048c08 100644
-> --- a/libsemanage/src/semanage_store.c
-> +++ b/libsemanage/src/semanage_store.c
-> @@ -491,6 +491,45 @@ char *semanage_conf_path(void)
->         return semanage_conf;
+> diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedir=
+con.c
+> index 34056562..08a22df1 100644
+> --- a/libsemanage/src/genhomedircon.c
+> +++ b/libsemanage/src/genhomedircon.c
+> @@ -308,6 +308,29 @@ done:
+>         return retval;
 >  }
 >
-> +/* Recursively create a directory from a path string.
-> + * Returns 0 on success, -errno on failure.
-> + */
-> +static int mkdir_recursive(const char *path, mode_t mode)
+> +static int parse_uid_config(const char *file, const char *key, const cha=
+r *sep,
+> +               uid_t fallback, uid_t *out)
 > +{
+> +       char *path =3D semanage_findval(file, key, sep);
+
+Not new to this patch, but more obvious now that it is in a dedicated
+helper: seems odd to call this path when it is a UID string.
+
 > +       if (!path || !*path) {
-> +               return -EINVAL;
+> +               free(path);
+> +               *out =3D fallback;
+> +               return 0;
 > +       }
 > +
-> +       char path_buffer[PATH_MAX] =3D {0};
-> +       size_t len =3D strlen(path);
-> +       /* + 1 for nullterm.  */
-> +       if (len + 1 > sizeof(path_buffer)) {
-> +               return -ENAMETOOLONG;
-> +       }
+> +       char *endptr;
+> +       const unsigned long val =3D strtoul(path, &endptr, 0);
+> +       free(path);
 > +
-> +       /* + 1 for nullterm.  */
-> +       memcpy(path_buffer, path, len + 1);
-> +
-> +       /* trim possible trailing slashes, except if '/' is the entire pa=
-th.  */
-> +       while (len > 1 && path_buffer[len - 1] =3D=3D '/') {
-> +               path_buffer[--len] =3D '\0';
-> +       }
-> +
-> +       for (char *pos =3D path_buffer + 1, *slash; (slash =3D strchr(pos=
-, '/')); pos =3D slash + 1) {
-> +               *slash =3D '\0';
-> +               if (mkdir(path_buffer, mode) !=3D 0 && errno !=3D EEXIST)=
- {
-> +                       return -errno;
-> +               }
-> +               *slash =3D '/';
-> +       }
-> +
-> +       if (mkdir(path_buffer, mode) !=3D 0 && errno !=3D EEXIST) {
-> +               return -errno;
-> +       }
-> +
-> +       return 0;
-> +}
-> +
->  /**************** functions that create module store ***************/
->
->  /* Check that the semanage store exists.  If 'create' is non-zero then
-> @@ -506,14 +545,20 @@ int semanage_create_store(semanage_handle_t * sh, i=
-nt create)
->
->         if (stat(path, &sb) =3D=3D -1) {
->                 if (errno =3D=3D ENOENT && create) {
-> -                       mask =3D umask(0077);
-> -                       if (mkdir(path, S_IRWXU) =3D=3D -1) {
-> -                               umask(mask);
-> -                               ERR(sh, "Could not create module store at=
- %s.",
-> -                                   path);
-> +                       /* First we create directories recursively with s=
-tandard permissions so that
-> +                          we don't screw up ownership of toplevel dirs s=
-uch as `/var` in pkgmgr
-> +                          environments.  */
-> +                       const int r =3D mkdir_recursive(path, (mode_t)075=
-5);
-> +                       if (r !=3D 0) {
-> +                               ERR(sh, "Could not create module store at=
- %s: %s.", path, strerror(-r));
-> +                               return -2;
-> +                       }
-> +                       /* Now that we've created the directory tree, we =
-set the permissions of the
-> +                          target path to 0700. */
-> +                       if (chmod(path, (mode_t)0700) !=3D 0) {
-> +                               ERR(sh, "Failed to chown module store at =
-%s: %s.", path, strerror(errno));
->                                 return -2;
->                         }
-> -                       umask(mask);
->                 } else {
->                         if (create)
->                                 ERR(sh,
-> @@ -529,6 +574,8 @@ int semanage_create_store(semanage_handle_t * sh, int=
- create)
->                         return -1;
->                 }
->         }
-> +       /* We no longer need to use mkdir_recursive at this point: the to=
-plevel
-> +          directory hierarchy has been created by now.  */
->         path =3D semanage_path(SEMANAGE_ACTIVE, SEMANAGE_TOPLEVEL);
->         if (stat(path, &sb) =3D=3D -1) {
->                 if (errno =3D=3D ENOENT && create) {
-> --
-> 2.51.0
->
+> +       if (endptr !=3D path && *endptr =3D=3D '\0') {
+
+This could end up dereferencing the memory you freed above.
