@@ -1,142 +1,203 @@
-Received: from mail-pf1-f193.google.com (mail-pf1-f193.google.com [209.85.210.193])
+Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AC0F32E754
-	for <selinux@vger.kernel.org>; Tue, 21 Oct 2025 12:38:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.193
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF8CF334C38
+	for <selinux@vger.kernel.org>; Tue, 21 Oct 2025 12:59:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761050337; cv=none; b=jDTHwCK2d5gUjCD3ZaWyiLE9WucaaAGLZp7f0/BAPcljdpaLVbrmxdWr+5wWBpr7FJaYx0Tlh9g4GH/P23sNYlUmjChW+SLWaX2itrHn4dHaSn1MJgej86Ova3FfP7EHVJ0Jku7Xa8Pjg8AsBU3SCkDaWjY6JBx1hK/Vy6vh9gE=
+	t=1761051584; cv=none; b=d68I5XOPOmTZqZw8pR1jnMKAGYzZjVLnZzOxSum9ww7z8c0h8/BvdHE59beFkBokcfOvYpDKHKzC13gzP4Pu2k6TfBHtTuP5AdEwhJ0gtpjascW519bWiHLOtkpXediLa2HdeeRLn+M0EE6tP+qKtsI07WFI0XjvldxIP+APIWs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761050337; c=relaxed/simple;
-	bh=mHDkxZIgV1WlRJbMtp+HutFhcDGsU2i3APvf9PfVJzg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=D+VYCNtPk52MUr6YrQvh3DgBLRWAn6p3Faz6xBz1CAdPCB+54E4RAAE1HSNLG3oPY+Omr7aMJwGDTpgz+U1VqHag1Tv8Ub0bsMZ1mOz4TLu2O2b8h9psn1N8Una3FZFgcMZ8Be26d3/JPPuwf0vNu78iPKrsXIIUgOAo01diIp0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hLy1KFH0; arc=none smtp.client-ip=209.85.210.193
+	s=arc-20240116; t=1761051584; c=relaxed/simple;
+	bh=/p+HgR3jic0vaW33oVFFcwkYd4QS/6dl17XZeRGVpzI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Xsf36TeXOHHPZbc0/IL3c1c66oWGDRc1P480t+3kg/7fFv79/TKOGrSv+DfWVVVDJqhULGWdcTA/Xw7DOdgJezZC27AyXH3AKT7d7IuOsmcKoVqaX3k/vByLHilWJRR9Pqqt2LoLijXZ8hMS0/eEjl7w9Uaf1I+MJA6vZDOSZ+U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=auvr6gzM; arc=none smtp.client-ip=209.85.216.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hLy1KFH0"
-Received: by mail-pf1-f193.google.com with SMTP id d2e1a72fcca58-79af647cef2so4682356b3a.3
-        for <selinux@vger.kernel.org>; Tue, 21 Oct 2025 05:38:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="auvr6gzM"
+Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-33ba5d8f3bfso4860018a91.3
+        for <selinux@vger.kernel.org>; Tue, 21 Oct 2025 05:59:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1761050334; x=1761655134; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1761051582; x=1761656382; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=nouOVrwQ50AtkUiwuvOBNTOWEJPD1kyilpHzlZVLbTA=;
-        b=hLy1KFH0orXV0mUdn2nvl5ogcLgJTYxOORH0DnfMX0kIQhraGGs9GnHQ91Hv4fyLBu
-         CeUug0bb0OHWKV95Ce5Gjv4/3+9QFAPQ9WIY5PVpbqrDHzQnqNzPrLqVT7zHuwxPpu5/
-         6GNiVmXfMLJdGSaGGHxAXbQOBX8+BaKEfjgWKqc/3fAQdEFs5q2CPQXt503uU2Ajj0Oj
-         SU/Od+lul81/YyY5t5a7X79wRjgylqiUU3qBGtqAuZ0Rf7WUZ0QJn8P73+RGSZuL3lB/
-         zNIOajCHdjEYdqr4n5YUvnzA2ztT/cCuXIVljGXSrkm76OO3skI/xipzMiOIQJzzaByW
-         bzVQ==
+        bh=dnjs5HLXRntrXc8jqDCnWXhI3O4BYXlR37R4X7p/hic=;
+        b=auvr6gzMi5eSj2lPQ/zLzitADpzm5UGdvsvr/m/BNWP+MIfUWkCIGodc878JL4+oJB
+         BVe7J6dcjRpcrCAaCCbTFH0Ya0yR82KUpjQ8YvBdZZBq9c/lmBP1R5E7UuAuarKt4Row
+         F4fCb4PPiKxb+DxMn7uUBPd94BDsQa3oQaupTIwxG536967Hp33pLmCpVbwfZB2XSs8u
+         zsMjgK9KpXmh/xCd01KesCF5mQ//c4RsNCD/3Z/d/g61SaKOeg5zuX1zZzzZ4N6etJxe
+         svDDgJ6BHwKGSTXm9cJY8tNzzihvCMrtwrUjETiv/QpapHMwTWzq3MQ52gGFKpM314xJ
+         fPQw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761050334; x=1761655134;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1761051582; x=1761656382;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=nouOVrwQ50AtkUiwuvOBNTOWEJPD1kyilpHzlZVLbTA=;
-        b=CXQhBd6LHiU66OB4iDCBmhdNLmYMbHL8Nf2jRfctHrLYZzLq9Q+WajjYhAva3PCNpR
-         94LPZuj+IXfcue2D0ZEPmFlvJXnzuki/SlBGH43cFuNC43u6f1l6nS1hnnlhBpzl6L75
-         Cgu7ZJcgfERoZRLvAu9epKCnWa6Ee5yqj4D8/xjSSnVVouA4886FeoAo80/Ldp5kzkeO
-         SJzg//62svOfjFJi7RZPKlyWam5jCQaN5i7wlPoP93xv1DHvjJef/3Tzd6RhOnB81Dri
-         +gJhvS5R6+NwJfwQtf7OSozu5wSpHWS3mK0wDGg6biuyXES1KSlLtIeOUfRqEj37PG4p
-         uIsg==
-X-Forwarded-Encrypted: i=1; AJvYcCWIFhx1/cJxKYIG8yWZIsFieq6E7wj7BOVqC0GQyH96IgRUXzX8U+xo/zIOR7Rl15ab1Z777/Be@vger.kernel.org
-X-Gm-Message-State: AOJu0YzLiejWkrgzPdXGCW7Fm3gIboXISmI113XUVS+W2wbbJDac5O31
-	UFVq96onGlBL4tFH2IBrPU0iHPOH1FGMt8MDwN4ri3X3ogXRnifIHCKj
-X-Gm-Gg: ASbGncvjhajnqyBfu77U2ze3SqZxVHK70YDRdPd/HjVEZQBDLZM8ZoijUCjjaYJ7I0z
-	YSWwvnZlUxx9otIT5YfOY8ylyvA0nn80riAngaBpSS7Etdy/ZFsLdAlQq1iEuPVDGXKM6rTSg4U
-	luSFO7iOn7MxI1brR91XbbnGGvR/ff2y3tN+UfTz/kjvjYg2HlXR6Bntf1AE/Tw8NI6itaZddBO
-	IxAWautkxG7NBoEHRB4ZbytuyFLG07m1CddS2SbUTFwla+F3r1boUTCWKVmLMEvFN4W7uP9Nd+U
-	Tke32CAdIuHQGmpdSeco852HKbocMjAXCDygPxByhfn0r3uqz+nWIs3QbSES4KMeuh7+bKGpKpT
-	+dOoJnpTEys0cSvZ5fnsrsRFsI6jpW0RWoBhD0SRzfFSxjg8gx3F9SIwy2HDOTA2/BqOOs4bx+y
-	Xi9B86ZFOhrHuEw/NAVMed3YyibdHx52i1SYJ2MJw=
-X-Google-Smtp-Source: AGHT+IFwl7RUH1by8AgGc+oNOKvpnFXUyqZAom8I7koI3NV7bibbAKhuB2xsuiXOSaExjXPs0nuRqg==
-X-Received: by 2002:a05:6a00:c94:b0:781:2ba:ef21 with SMTP id d2e1a72fcca58-7a220b1d061mr17172564b3a.23.1761050334408;
-        Tue, 21 Oct 2025 05:38:54 -0700 (PDT)
-Received: from zhr-ThinkStation-K.mioffice.cn ([43.224.245.231])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7a22ff35a59sm11169428b3a.25.2025.10.21.05.38.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Oct 2025 05:38:54 -0700 (PDT)
-From: Hongru Zhang <zhanghongru06@gmail.com>
-X-Google-Original-From: Hongru Zhang <zhanghongru@xiaomi.com>
-To: paul@paul-moore.com
-Cc: linux-kernel@vger.kernel.org,
-	omosnace@redhat.com,
-	selinux@vger.kernel.org,
-	stephen.smalley.work@gmail.com,
-	zhanghongru06@gmail.com,
-	zhanghongru@xiaomi.com
-Subject: Re: [PATCH v3 1/2] selinux: Make avc cache slot size configurable during boot
-Date: Tue, 21 Oct 2025 20:38:38 +0800
-Message-ID: <20251021123842.968605-1-zhanghongru@xiaomi.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <CAHC9VhQ_hv1ri1csrgGP+9RssCuJBDuOLSDowZRD5xZcDD2mPA@mail.gmail.com>
-References: <CAHC9VhQ_hv1ri1csrgGP+9RssCuJBDuOLSDowZRD5xZcDD2mPA@mail.gmail.com>
+        bh=dnjs5HLXRntrXc8jqDCnWXhI3O4BYXlR37R4X7p/hic=;
+        b=qdyPIJU1G1yZgp1fyjb7SOkFXMERS+xkHjS2r+zDNBxUmEeFfmByBd05Dkzai7sYE5
+         cyrQyacnLUEA28p9spGA9bOtSquR/F/eUyRcClSDheIrXkiSxSQRa92TIRAVZ82KXs7p
+         SoVtjFwrKsB5de8/si2S+Gs7Nqjdv3+0siKSS4HnTWIvO3QNpK2C8a0HtxaYTlbObY/J
+         e4uJyGg6ow7zDFzT1RdRwGYgSBTYHJGIfjPv13vAREGvrApoi3D8HeFta6Hr17ZqelkH
+         aGqH9yY85LMEGyoUDh4d/q5GB2mjWQCMgwusde0hhZh4x4c9S2RGz32+Cbcisk/ic2Xv
+         9hlg==
+X-Gm-Message-State: AOJu0YzkKN6CVyk0CH/mNM8MVecyh8f1qBWsb/FUnpdrBpeORn2DIjQ2
+	yvry7gCQ8SfEUMyPbl5a/0ARg0f7BO3exvhhQfJSj/yvIMoKUgwuARY1Zyv22cuKQ/uMjGdX995
+	hG8htLnKdKWH7HEZSY1OlTuFNHoURRFE=
+X-Gm-Gg: ASbGncsl8RkJDXQY/JaRPc7WHirKLtp/awjKSaGeee/kuuYW7g2N6Th0Mq7AkzQA5bx
+	zTwoOwLWLtxeO4aObQ/Ro0HmLS1k5/E4Uj8ROQFu4qjBhVoUQo+qwHbz2bdRtOCMODaClbu1zQz
+	77c16cu+cjn9DUXjYSJYMK67pOFWB7pFMHRrYrzG1YwNr8U0pYKDzxJeyDOtXjTW+1vGMcYmAS8
+	dYS/XP3n0IfQpiNVf9HfzfesLHZhOjiXAcZKwiNxwTGaPCVBehwRqIffaB9
+X-Google-Smtp-Source: AGHT+IGwP501xpAkJwxEgbk+ygNEbzIlvQShLmM7P1Qv/msLmpndMyTlRic9mwGqAiP0YVPylwykBHyd4H9GY0WuJcg=
+X-Received: by 2002:a17:90b:5383:b0:33b:b0d6:6bc2 with SMTP id
+ 98e67ed59e1d1-33bcf90923amr19809068a91.30.1761051582040; Tue, 21 Oct 2025
+ 05:59:42 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <CAEjxPJ7VktYWYreg4PMUSTeoxRvBBoD0HVb1bsXdsach+j7PyA@mail.gmail.com>
+ <20251020174027.11343-1-nvraxn@gmail.com>
+In-Reply-To: <20251020174027.11343-1-nvraxn@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Tue, 21 Oct 2025 08:59:31 -0400
+X-Gm-Features: AS18NWDp0MnU-hJbbklS8tausxfFeLymAoiqG73JX7ot12Nlzrtx7fKLsv7tSZM
+Message-ID: <CAEjxPJ5Qab+=YSVNFhjHxGrzb983XtqzKoTi5avbYQ9w6t+a9w@mail.gmail.com>
+Subject: Re: [PATCH v2] libsemanage: semanage_store: recursively create SEMANAGE_ROOT
+To: Rahul Sandhu <nvraxn@gmail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-> I would imagine that a very simple implementation would simply convert
-> the selinux_avc variable from an instance of selinux_avc to a RCU
-> protected selinux_avc pointer.  As the AVC already uses RCU, I think
-> the number of changes should be relatively minimal:
-> 
-> * Ensure we wrap selinux_avc derefs with rcu_dereference().  This
-> should be the only real change needed for lookups and insertions as
-> every search through the AVC will start with deref'ing the selinux_avc
-> pointer.
-> 
-> * Update avc_init() to allocate the cache slots with a default value,
-> fail if unable to allocate the cache memory.  If we ensure that the
-> selinux_avc pointer will always be valid, we can avoid having to check
-> it.
-> 
-> * Policy (re)loads which would change the number of AVC cache slots
-> would allocate and initialize a new selinux_avc then swap the global
-> selinux_avc pointer under spinlock.  The old AVC cache could then be
-> free'd according to RCU rules.  I haven't thought about it too much,
-> but I suspect we could do away with flushing the old AVC in these
-> cases, even if we can't, flushing the old AVC is easy enough.
-> 
-> > When increasing slot size, we could directly copy the contents from the
-> > old table. When decreasing slot size, nodes exceeding the new slot size
-> > would need to be re-hashed and attached to appropriate positions.
-> 
-> Changing the number of cache slots should happen infrequently enough
-> that I see no need to migrate the old entries to the new cache
-> instance.  It's a cache, it will fill back up naturally.
-> 
-> > On my Android device, policies are fixed before system image release and
-> > don't change or load dynamically during system running. Using kernel
-> > parameters for adjustment ensures no additional locks or checks are neede=
-> d
-> > during runtime table access, maintaining simplicity and efficiency of the
-> > lookup code.
-> 
-> If your system does not update its policy over the course of a single
-> boot, and presumably doesn't drastically change its behavior during
-> that time, there is another, simpler option that we should consider:
-> setting AVC_CACHE_SLOTS at compile time based on a Kconfig tunable.
-> The code change would essentially be one line:
-> 
->  #define AVC_CACHE_SLOTS   (2 << CONFIG_SECURITY_SELINUX_AVC_HASH_BITS)
-> 
-> ... with a corresponding entry in security/selinux/Kconfig.  That
-> should be a very easy change, and if you set the default value such
-> that AVC_CACHE_SLOTS remains at 512, there should be no impact on
-> existing systems.
-> 
+On Mon, Oct 20, 2025 at 1:42=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> wro=
+te:
+>
+> In package build/install environments, when semodule(8) is passed the
+> `--path` option, it is expected that it creates the entire directory
+> tree for the policy root.
+>
+> Some package managers warn or error if permissions do not align between
+> the tree on the existing system and the build environment about to be
+> merged. To make sure this is a non-issue, create the tree of the policy
+> root with 0755 permissions (in line with standards for `/var/lib`) and
+> then chmod the final path to the more restrictive 0700 permissions. As
+> the contents being placed in the policy root are security sensitive,
+> error instead of warning if we fail to chown the policy root to 0700.
+>
+> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
 
-Alright，I will add a CONFIG_SECURITY_SELINUX_AVC_HASH_BITS in
-security/selinux/Kconfig, the range is between 9 and 14 (512 : 16384),
-with a default value of 9. And then I will send a new patchset version.
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-I will try to submit the final version in Q1 2026 based on the discussion
-(Because I have some planned Q4 work that hasn't been completed yet).
+> ---
+>  libsemanage/src/semanage_store.c | 59 ++++++++++++++++++++++++++++----
+>  1 file changed, 53 insertions(+), 6 deletions(-)
+>
+> v2: fix-up buffer length check, use memcpy instead of strncpy: we check
+>     the size already.
+>
+> diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_=
+store.c
+> index 1731c5e8..e3048c08 100644
+> --- a/libsemanage/src/semanage_store.c
+> +++ b/libsemanage/src/semanage_store.c
+> @@ -491,6 +491,45 @@ char *semanage_conf_path(void)
+>         return semanage_conf;
+>  }
+>
+> +/* Recursively create a directory from a path string.
+> + * Returns 0 on success, -errno on failure.
+> + */
+> +static int mkdir_recursive(const char *path, mode_t mode)
+> +{
+> +       if (!path || !*path) {
+> +               return -EINVAL;
+> +       }
+> +
+> +       char path_buffer[PATH_MAX] =3D {0};
+> +       size_t len =3D strlen(path);
+> +       /* + 1 for nullterm.  */
+> +       if (len + 1 > sizeof(path_buffer)) {
+> +               return -ENAMETOOLONG;
+> +       }
+> +
+> +       /* + 1 for nullterm.  */
+> +       memcpy(path_buffer, path, len + 1);
+> +
+> +       /* trim possible trailing slashes, except if '/' is the entire pa=
+th.  */
+> +       while (len > 1 && path_buffer[len - 1] =3D=3D '/') {
+> +               path_buffer[--len] =3D '\0';
+> +       }
+> +
+> +       for (char *pos =3D path_buffer + 1, *slash; (slash =3D strchr(pos=
+, '/')); pos =3D slash + 1) {
+> +               *slash =3D '\0';
+> +               if (mkdir(path_buffer, mode) !=3D 0 && errno !=3D EEXIST)=
+ {
+> +                       return -errno;
+> +               }
+> +               *slash =3D '/';
+> +       }
+> +
+> +       if (mkdir(path_buffer, mode) !=3D 0 && errno !=3D EEXIST) {
+> +               return -errno;
+> +       }
+> +
+> +       return 0;
+> +}
+> +
+>  /**************** functions that create module store ***************/
+>
+>  /* Check that the semanage store exists.  If 'create' is non-zero then
+> @@ -506,14 +545,20 @@ int semanage_create_store(semanage_handle_t * sh, i=
+nt create)
+>
+>         if (stat(path, &sb) =3D=3D -1) {
+>                 if (errno =3D=3D ENOENT && create) {
+> -                       mask =3D umask(0077);
+> -                       if (mkdir(path, S_IRWXU) =3D=3D -1) {
+> -                               umask(mask);
+> -                               ERR(sh, "Could not create module store at=
+ %s.",
+> -                                   path);
+> +                       /* First we create directories recursively with s=
+tandard permissions so that
+> +                          we don't screw up ownership of toplevel dirs s=
+uch as `/var` in pkgmgr
+> +                          environments.  */
+> +                       const int r =3D mkdir_recursive(path, (mode_t)075=
+5);
+> +                       if (r !=3D 0) {
+> +                               ERR(sh, "Could not create module store at=
+ %s: %s.", path, strerror(-r));
+> +                               return -2;
+> +                       }
+> +                       /* Now that we've created the directory tree, we =
+set the permissions of the
+> +                          target path to 0700. */
+> +                       if (chmod(path, (mode_t)0700) !=3D 0) {
+> +                               ERR(sh, "Failed to chown module store at =
+%s: %s.", path, strerror(errno));
+>                                 return -2;
+>                         }
+> -                       umask(mask);
+>                 } else {
+>                         if (create)
+>                                 ERR(sh,
+> @@ -529,6 +574,8 @@ int semanage_create_store(semanage_handle_t * sh, int=
+ create)
+>                         return -1;
+>                 }
+>         }
+> +       /* We no longer need to use mkdir_recursive at this point: the to=
+plevel
+> +          directory hierarchy has been created by now.  */
+>         path =3D semanage_path(SEMANAGE_ACTIVE, SEMANAGE_TOPLEVEL);
+>         if (stat(path, &sb) =3D=3D -1) {
+>                 if (errno =3D=3D ENOENT && create) {
+> --
+> 2.51.0
+>
