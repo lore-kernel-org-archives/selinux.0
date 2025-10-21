@@ -1,111 +1,138 @@
-Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 712311F099C
-	for <selinux@vger.kernel.org>; Tue, 21 Oct 2025 16:23:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id BA53734847A
+	for <selinux@vger.kernel.org>; Tue, 21 Oct 2025 17:04:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761063790; cv=none; b=u0Btf8Fq9thAk3PK/xrulrjxsxbMkb4icKDZCtcSsg6n05U0YxjHij7g/gf+PcDSGfrxllgz3RrY9CIoo/jTweUIbN5ZiphF3WGVCzY4Qlo9eLLK0v0EHNV+8qGqkkTUeYikm+gwE4W2p4DenEFXIrjaJlRB/guzsFDYDs6a8n0=
+	t=1761066248; cv=none; b=iBE62za9+lHx7eCyKDyLRebmiFQueoZR1qDcD355zQOeiB3nLK6+w3FO3zK6B+3CviWldWINuuY2t+IsQzFI82EIYBnKjo0+STq6ntVQCiLzSUSFagJFwN93ritrZOWmn6aYkGv62JZ8n7rlMg/RtQBnj97wGnzm3C2t3IKx/t8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761063790; c=relaxed/simple;
-	bh=ioFG2QaGQxwz5gnpyd7wKdUTHVMhLAfWcPTQKhiPDj8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HfvmpX2YktuJ0Qc1ayPms5sr2PjsxRcu1l2nUt1nAvpkqSe+qBGrnOKdsdq5KEJyPhQlX852sHNYgrKg0Goa64ONub5h4jaTc3idmZm2XxbmFdXsFdtmCrxYEq5Bo6ZVl1SH3O8eCb2CcncInhDs2REjYgSpASWUWKvTztkmlbU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=PIzC92+N; arc=none smtp.client-ip=209.85.216.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1761066248; c=relaxed/simple;
+	bh=Ihd6ap1KwjC1inIQFRGbIl+NbqmfeURse1Sn4DNnV1g=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=nvR9rTyTH4tpNCU/SA8Fv83fMSdHZKuZ9UrZ6w6XZzGO4HfiBJDVp8Amm9Ish/WlsPqNerLbC4/Z7K90pvRssLttGJSPxPcWIzKeF9/GBZVKLxuv/xD5Cq0RuFUitkeLL/XqKy34GMXNCOWSxB2asNIrk6BC7CjFy1tu9UnSQD0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=Hk1ayF5V; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="PIzC92+N"
-Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-330b4739538so5444116a91.3
-        for <selinux@vger.kernel.org>; Tue, 21 Oct 2025 09:23:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1761063788; x=1761668588; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Ko+Kc8EOpLWbTMFL12IdldJO27v4hHa56bAgcQaqoNs=;
-        b=PIzC92+NAcRrYYvOCcZ5zh179YtDgPKe7MKBk7CoapOyIg4BBBAzBlR/LJlFyxb0Mq
-         nYW5837NRRpXxTIEPbJBngIrWSHtNcWwYBsYWunuEGNLgJfHzqdaVv9qqb+45pnLxCNi
-         K26JiyGTv6humd543ucN0thQnxaZ0r1MhKH+BLqmJ9T8jFVofv3yRPprn4pYc4sBAQKw
-         NcREaUPtuPZnWOibV/FM3XuFU7NSwPs2xlt1D33o0ahRZGhz8wJtmPrAGh5KTzAmeSet
-         RUkEdZkCrhKSYYxr4AOckza20b52/4uJqoj5kV+AKl3a1l2vSM3wqZ1YyxChjjT5Cdpm
-         4NuQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761063788; x=1761668588;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Ko+Kc8EOpLWbTMFL12IdldJO27v4hHa56bAgcQaqoNs=;
-        b=agkvI3fcSKLrmo4nei6xQXDuUfObDXcMa5BkJjVCXagCLp4oVyLMS5he2a45gr7zcG
-         X9T017fVnETFQOI+GZR1dIppGY6FmT7sEXDKmxo5AB+OJGoiqf2E+naKjI/Ow+uXy+Dj
-         dEk99PkRzOHGIY40/QCVeGGWsip4+SKJ9EsxMvo1XPkbxDOyfG9KpuljOBynh+jPgZUH
-         HaiUAlho9lNSJ8IoLF6y/I5B5kfcyMsy9W1H4yxNmYNy5OTRiFj337ZYMYwHLQSrtSwp
-         AMPUVOcP50/4TLTmpoDzbWfBAPoB56ieoYNAtovny1HaYQfS9lx4DVDKyClP2c/SXZhx
-         nokA==
-X-Forwarded-Encrypted: i=1; AJvYcCXmbJIdhWUXF5LysKNb+QfMCq2ahywaPKnb/O8Hy2NQ3PuWanSs+6F78vJfq4H9dWDLaUP1G/T+@vger.kernel.org
-X-Gm-Message-State: AOJu0YxL0Ry7HnWJ3qJXtOKmZ/l6gaPNL/s0p5SzZZ316eVkaXlSOEIg
-	VRf5rHX2xCKOtPPlN5BGCp0XPUspHabuM4rkV7TZsSkbMcU0pOrkf1uAR30fHWw0izWDVt+GVZ1
-	hk3OhEtoHDkPZsJ1jtVDGbFBIgbGOF0vuV9s3ZZf0
-X-Gm-Gg: ASbGncsAKX8MHn8f3wOK+UmP0QGOXlMBlrNEbeTT9S6LLZamw02XQJTBLZWIhabtooM
-	mfpHsLzuwUpMr+FSfZYALBpE6eLzFjEN1lvnFjnxdD4A7p02TELTdVBOrnAtDiTt2t/8LTucCGU
-	X2U2LfZnCo07tAdgULc0xEBy0U5mWIBBo/t2AjzqXcz5DJJ3igt/cJDhxeltJa07wCNJyk9It9i
-	yHmp/qtxe5aPdJglQFjKgX6aDXHsjDNNycBWB1UQVlFzutWlvjoiDcBdp3Jqq8JJ3HZxco=
-X-Google-Smtp-Source: AGHT+IGt4Lzi4mhp1MfH5jF+IcHXWUOccQlOFd9tFKs5S9MlSna+BmR7SWJIKFfxQoQ0qSxgAqL9kA7McL4N2dVYx68=
-X-Received: by 2002:a17:90b:180e:b0:32e:73fd:81a3 with SMTP id
- 98e67ed59e1d1-33bcf93dfbdmr27922336a91.33.1761063787525; Tue, 21 Oct 2025
- 09:23:07 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="Hk1ayF5V"
+Received: from [10.137.198.68] (unknown [131.107.147.196])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 3A6AD201DAC7;
+	Tue, 21 Oct 2025 10:03:59 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 3A6AD201DAC7
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1761066239;
+	bh=hgHz61oqRNE+WzTPjUvU/XcqEbT2DnJ2Wy8gyhkaO6A=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=Hk1ayF5VZEHNUistQfCGBZz2BJACphByWvUuDUjTOlKbWNwAnIFEVAx+hOVD6uPBW
+	 ghXAhZsaVPTSLDBZ0DSyOzIqgOy5yUorBjFAZMVqupY3kQDLCG/HnkFeJ2t6FPgqEz
+	 84x2jRfUHjAtEhNBVafhglxhBuBgRpkvfMHmoYXA=
+Message-ID: <aa8862a8-1898-47e2-93e3-96584e7efaf1@linux.microsoft.com>
+Date: Tue, 21 Oct 2025 10:03:58 -0700
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251021122758.2659513-1-omosnace@redhat.com>
-In-Reply-To: <20251021122758.2659513-1-omosnace@redhat.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 21 Oct 2025 12:22:56 -0400
-X-Gm-Features: AS18NWB5lQV6vOb0FNBV3MhIGbNUH6yZO81tIZnwRE8GRrrg4_dPsp5GczFYtAw
-Message-ID: <CAHC9VhTf51hZ=r=hNpeHGU3FBAC-Y3yB6FmsQq_hKq4WUihRBQ@mail.gmail.com>
-Subject: Re: [PATCH v2] x86/bpf: do not audit capability check in do_jit()
-To: Ondrej Mosnacek <omosnace@redhat.com>
-Cc: Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, bpf@vger.kernel.org, 
-	selinux@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	"Serge E . Hallyn" <serge@hallyn.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5] SELinux: Add support for BPF token access control
+To: Paul Moore <paul@paul-moore.com>,
+ Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, omosnace@redhat.com, danieldurning.work@gmail.com
+References: <20251008234613.2150-1-ericsu@linux.microsoft.com>
+ <9f91729c4030890ebd10a6faa1009589@paul-moore.com>
+ <CAEjxPJ4SdB1xEM2zNwAW9hgdh7QqbCEOewjaR0t61QnKNKyw3Q@mail.gmail.com>
+ <CAHC9VhSAiAbW_-f0BRGXPSDKMesPj=2-wyEbrtDouYpYrq7j2w@mail.gmail.com>
+ <CAEjxPJ7YU71UuWDa8tVm-dJAF+wZrmhujC9M2zkf+UXB44cEww@mail.gmail.com>
+ <CAHC9VhS5-5+LxEstKX=ZHNPK6RazRqejXOEOXv-UJjiNsvQ6GA@mail.gmail.com>
+Content-Language: en-US
+From: Eric Suen <ericsu@linux.microsoft.com>
+In-Reply-To: <CAHC9VhS5-5+LxEstKX=ZHNPK6RazRqejXOEOXv-UJjiNsvQ6GA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Tue, Oct 21, 2025 at 8:28=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.co=
-m> wrote:
+On 10/16/2025 9:10 AM, Paul Moore wrote:
+> On Thu, Oct 16, 2025 at 11:52 AM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+>> On Thu, Oct 16, 2025 at 11:02 AM Paul Moore <paul@paul-moore.com> wrote:
+>>> On Thu, Oct 16, 2025 at 10:05 AM Stephen Smalley
+>>> <stephen.smalley.work@gmail.com> wrote:
+>>>> On Wed, Oct 15, 2025 at 5:36 PM Paul Moore <paul@paul-moore.com> wrote:
+>>>>> On Oct  8, 2025 Eric Suen <ericsu@linux.microsoft.com> wrote:
+>>>>>> BPF token support was introduced to allow a privileged process to delegate
+>>>>>> limited BPF functionality—such as map creation and program loading—to
+>>>>>> an unprivileged process ...
+> ...
 >
-> The failure of this check only results in a security mitigation being
-> applied, slightly affecting performance of the compiled BPF program. It
-> doesn't result in a failed syscall, an thus auditing a failed LSM
-> permission check for it is unwanted. For example with SELinux, it causes
-> a denial to be reported for confined processes running as root, which
-> tends to be flagged as a problem to be fixed in the policy. Yet
-> dontauditing or allowing CAP_SYS_ADMIN to the domain may not be
-> desirable, as it would allow/silence also other checks - either going
-> against the principle of least privilege or making debugging potentially
-> harder.
+>>>>> For a normal capability permission check, it makes sense for the subject
+>>>>> and object to be the same as the process/subject isn't operating on
+>>>>> anything other than itself, it's simply attempting to assert a capability
+>>>>> that it has been assigned.
+>>>>>
+>>>>> However, I don't believe it is quite as simple for the BPF token
+>>>>> capability check.  In this case the current process isn't asking if it
+>>>>> can assert a capability assigned to itself, it is asking if it can assert
+>>>>> a capability assigned to the token.  Due to this I'm wondering if we
+>>>>> should change the subject to the current task, leaving the object
+>>>>> as the token:
+>>>>>
+>>>>>    selinux_bpf_token_capable(...)
+>>>>>    {
+>>>>>      struct bpf_security_struct *bpfsec = token->security
+>>>>>      bool initns = (token->userns == &init_user_ns);
+>>>>>      u32 av = CAP_TO_MASK(cap);
+>>>>>      u16 sclass;
+>>>>>
+>>>>>      switch (CAP_TO_INDEX(cap)) {
+>>>>>      case 0:
+>>>>>          sclass = initns ? SECCLASS_CAPABILITY : SECCCLASS_CAP_USERNS;
+>>>>>          break;
+>>>>>      ...
+>>>>>      }
+>>>>>
+>>>>>      return avc_has_perm(current_sid(), bpfsec->sid, sclass, av, NULL);
+>>>> My understanding, which could be wrong, is that this hook is called
+>>>> outside of process context (or at least outside of the context of
+>>>> either process involved - token creator or token user) since it can be
+>>>> called during any eBPF program and hence we can only use information
+>>>> from the token, not the current process, for our permission checks. We
+>>>> could perhaps pre-compute the capability access vectors at token
+>>>> creation time and cache them for later checking instead.
+>>> If you take a close look at bpf_token_capable() and you follow the
+>>> bpf_ns_capable() call down to ns_capable_common() you will see that it
+>>> calls into security_capable() with the current task's creds.  I
+>>> haven't chased all of the callers of bpf_token_capable(), but if there
+>>> is a case where bpf_token_capable() is being called outside of the
+>>> current task's process context we have a larger problem that needs to
+>>> be addressed.
+>>>
+>>> Aside from the calling context, does the subj/obj change sound
+>>> reasonable?  While I think it makes sense, I like getting a sanity
+>>> check from others on things like this as the impact is significant.
+>> I suppose the only residual question is whether the bpffs creator sid
+>> should factor into these checks too as it does for the
+>> map_create/prog_load ones. Daniel's patch didn't have that construct
+>> and hence didn't consider it.
+> Yes, good point, I was mistakenly thinking that the token's label was
+> from the creator SID, but it isn't as the child namespace creates the
+> token.  I think we probably need a grantor_sid field in the
+> bpf_security_struct that is set to the superblock's creator_sid in
+> selinux_bpf_token_create(); the grantor_sid would then be used as the
+> object in the selinux_bpf_token_capable() check.
 >
-> Fix it by changing it from capable() to ns_capable_noaudit(), which
-> instructs the LSMs to not audit the resulting denials.
+>> If not, then I suppose the proposed
+>> subj/obj change is reasonable albeit a bit strange looking to those
+>> who are used to capability checks always being task-self checks.
+> Yes, I agree it would be a bit unusual, but I'm more concerned with
+> the permission check properly reflecting what is being requested by
+> the kernel.  I also tend to think that the bpf token capability check
+> looking a bit unusual may be a positive thing as it will allow policy
+> devs/admins to better distinguish between "normal" capability checks
+> and token-based capability checks.
 >
-> Link: https://bugzilla.redhat.com/show_bug.cgi?id=3D2369326
-> Fixes: d4e89d212d40 ("x86/bpf: Call branch history clearing sequence on e=
-xit")
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->
-> v1: https://lore.kernel.org/selinux/20250806143105.915748-1-omosnace@redh=
-at.com/
-> Changes in v2:
->  - just silence the audit records instead of switching to bpf_capable()
->
->  arch/x86/net/bpf_jit_comp.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+Learned a lot from this great discussion. I will look more into it and 
+send out a new patch.
 
-Reviewed-by: Paul Moore <paul@paul-moore.com>
+Paul - to help minimize merge fixups next time, should I base my next 
+revision on the latest dev-staging branch? Not sure if this branch will 
+have all the changes from the merge window.
 
---=20
-paul-moore.com
