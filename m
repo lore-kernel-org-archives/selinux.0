@@ -1,272 +1,142 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f193.google.com (mail-pf1-f193.google.com [209.85.210.193])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FA2F32E133
-	for <selinux@vger.kernel.org>; Tue, 21 Oct 2025 12:32:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AC0F32E754
+	for <selinux@vger.kernel.org>; Tue, 21 Oct 2025 12:38:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.193
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761049944; cv=none; b=Ud9S1XiD5agSRq9SPw2anrlnkOLyWBkZjkBcN9jbLVLKUV3Zv7NtoYYh4BV6hQ8SDw5Rj0u7ktQhns6AoYvWxJeC5GmKfSnUvWC8T3cwTUj3Xb6u1RRxJ3YvasZ884J+vC19fCTG+qsO4HGpaWEgKiNaEzOQc+F5qJZSa3kEVXE=
+	t=1761050337; cv=none; b=jDTHwCK2d5gUjCD3ZaWyiLE9WucaaAGLZp7f0/BAPcljdpaLVbrmxdWr+5wWBpr7FJaYx0Tlh9g4GH/P23sNYlUmjChW+SLWaX2itrHn4dHaSn1MJgej86Ova3FfP7EHVJ0Jku7Xa8Pjg8AsBU3SCkDaWjY6JBx1hK/Vy6vh9gE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761049944; c=relaxed/simple;
-	bh=gJMb3RaxgZ1ClGa1ulWPL8W3xe59H6NHWiVKgH/F01w=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=lFrDHrjK3jD+tX80bSg+4sjW9l2MiDZLocfGHq+mlZVg4SIQpCfSi3e/41h29+FbduFxyzXKn0b7rZzVf5NSNQe/DPhFohVMx2teHUacIAyoZtEg4KyLOYuPMKQDFDB52E+i81KubDHez5NGwmCC/rttIr4k1LeYFUKazR5rB1s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IKeZC2Z6; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1761050337; c=relaxed/simple;
+	bh=mHDkxZIgV1WlRJbMtp+HutFhcDGsU2i3APvf9PfVJzg=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=D+VYCNtPk52MUr6YrQvh3DgBLRWAn6p3Faz6xBz1CAdPCB+54E4RAAE1HSNLG3oPY+Omr7aMJwGDTpgz+U1VqHag1Tv8Ub0bsMZ1mOz4TLu2O2b8h9psn1N8Una3FZFgcMZ8Be26d3/JPPuwf0vNu78iPKrsXIIUgOAo01diIp0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hLy1KFH0; arc=none smtp.client-ip=209.85.210.193
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IKeZC2Z6"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1761049941;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JdoU62wbuXAxxH0K7ITRbODOzbdvvENaGi26Iv0pTM0=;
-	b=IKeZC2Z6hrG4a999u8IVfXSxfau0gh+PoYUTiR0/LcgB8H5j/qn8PEFNhEqFZBGSHjCpCK
-	S2vp9ngGlOf9tjPFwRiOnfdJY+bMIqoQ82t3aiSs+fi2QnymDSnu8q+FVESj2CZ5m0TPsX
-	61hrqgqWlK9dUxYDTiXhf5L9NX7hMzw=
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
- [209.85.214.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-458-53QxowCjPoaHLkpsT4HWEA-1; Tue, 21 Oct 2025 08:32:19 -0400
-X-MC-Unique: 53QxowCjPoaHLkpsT4HWEA-1
-X-Mimecast-MFC-AGG-ID: 53QxowCjPoaHLkpsT4HWEA_1761049939
-Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-26985173d8eso143330705ad.1
-        for <selinux@vger.kernel.org>; Tue, 21 Oct 2025 05:32:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hLy1KFH0"
+Received: by mail-pf1-f193.google.com with SMTP id d2e1a72fcca58-79af647cef2so4682356b3a.3
+        for <selinux@vger.kernel.org>; Tue, 21 Oct 2025 05:38:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1761050334; x=1761655134; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=nouOVrwQ50AtkUiwuvOBNTOWEJPD1kyilpHzlZVLbTA=;
+        b=hLy1KFH0orXV0mUdn2nvl5ogcLgJTYxOORH0DnfMX0kIQhraGGs9GnHQ91Hv4fyLBu
+         CeUug0bb0OHWKV95Ce5Gjv4/3+9QFAPQ9WIY5PVpbqrDHzQnqNzPrLqVT7zHuwxPpu5/
+         6GNiVmXfMLJdGSaGGHxAXbQOBX8+BaKEfjgWKqc/3fAQdEFs5q2CPQXt503uU2Ajj0Oj
+         SU/Od+lul81/YyY5t5a7X79wRjgylqiUU3qBGtqAuZ0Rf7WUZ0QJn8P73+RGSZuL3lB/
+         zNIOajCHdjEYdqr4n5YUvnzA2ztT/cCuXIVljGXSrkm76OO3skI/xipzMiOIQJzzaByW
+         bzVQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761049939; x=1761654739;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1761050334; x=1761655134;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=JdoU62wbuXAxxH0K7ITRbODOzbdvvENaGi26Iv0pTM0=;
-        b=Hv8qmuBsOZNq+Ak6Z0EYZqQl+wE/cFVJW/2ve2uuhC8qwAU05uwLvrNug5Ef+gIZ+/
-         R2FqKegoqIPDaRMdl7OeXHkdPdXGkLZpAbprBPLMY+W3KgIo3wXbmYzlmjarvdXC8thR
-         7LA4hYfuQzgJi3ZODbOYV2FR4eX55NrTNYaLLXrAbzuJEVwn7mBZXTL7L5fhawpjvhtW
-         esuHFXxRVZe3CjtdrXAZU5ZT4hUv91/OwqCW3V8LMaUkHIjeTmH6DS801VmbgF5MDPsu
-         sphj5Wo/ZI/mPHB5xT6ACQQeII3Dw48uDURtMeRwJxT+an4VYl52hpt2DE7D3+pVOB3j
-         d/Fg==
-X-Forwarded-Encrypted: i=1; AJvYcCXnGoOda2YzT1dnFm0neI1WHdSrsxV1AJtncZrXYgpVxcssXLnf6pwOGRXy62cOwM1vYY0Rvb2o@vger.kernel.org
-X-Gm-Message-State: AOJu0YxVWEziW/3szOW4NP1rwn/6MB94fpYDHM+nMVUYXc6wBYM8agVI
-	WhOjqN26yVmDca/R1ZyVzRLE5INLHHhyLmy2UTXnP0WV4Z14NIORaHsHeadS2poR8AZ0J4eoFnx
-	Z1ywGysQlIW7WTsxWfE86DctdcUqOp9NzjY+OGcCXvrBAgFwfuiIZFMygazSOh62132jmKuo+Oa
-	+Qc7HApxMVdOSydB0OjV6fWuCa346eqMlLAw==
-X-Gm-Gg: ASbGncueTpup/1dRPD/b4P2YhDJizpoF0g0XD5OY05q/s/CL8IF4rizmQmCL52TMlvs
-	3tNxQGPA1OILZ6ehdo11LPVNNkKjf2t4GFxZzTh7DxDuEZFZdh5ifgiHl+VQQ26xUe5DJA3KbKx
-	e8E9CxbpT3oY+1n8Cijv4IEiF3GLztr0N1vvdqvpIOFA/E9WS7HwmxWQ==
-X-Received: by 2002:a17:902:f542:b0:24f:dbe7:73a2 with SMTP id d9443c01a7336-290ca121a7bmr216609935ad.31.1761049938522;
-        Tue, 21 Oct 2025 05:32:18 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEOjGo2JPlA16CH9WoVMfy8R1y8uHfg1hDfztqK4uOi1qlrUtTRlrXJgHSiHRG83pPc78ni7SWqR+lje7yjY00=
-X-Received: by 2002:a17:902:f542:b0:24f:dbe7:73a2 with SMTP id
- d9443c01a7336-290ca121a7bmr216609545ad.31.1761049938081; Tue, 21 Oct 2025
- 05:32:18 -0700 (PDT)
+        bh=nouOVrwQ50AtkUiwuvOBNTOWEJPD1kyilpHzlZVLbTA=;
+        b=CXQhBd6LHiU66OB4iDCBmhdNLmYMbHL8Nf2jRfctHrLYZzLq9Q+WajjYhAva3PCNpR
+         94LPZuj+IXfcue2D0ZEPmFlvJXnzuki/SlBGH43cFuNC43u6f1l6nS1hnnlhBpzl6L75
+         Cgu7ZJcgfERoZRLvAu9epKCnWa6Ee5yqj4D8/xjSSnVVouA4886FeoAo80/Ldp5kzkeO
+         SJzg//62svOfjFJi7RZPKlyWam5jCQaN5i7wlPoP93xv1DHvjJef/3Tzd6RhOnB81Dri
+         +gJhvS5R6+NwJfwQtf7OSozu5wSpHWS3mK0wDGg6biuyXES1KSlLtIeOUfRqEj37PG4p
+         uIsg==
+X-Forwarded-Encrypted: i=1; AJvYcCWIFhx1/cJxKYIG8yWZIsFieq6E7wj7BOVqC0GQyH96IgRUXzX8U+xo/zIOR7Rl15ab1Z777/Be@vger.kernel.org
+X-Gm-Message-State: AOJu0YzLiejWkrgzPdXGCW7Fm3gIboXISmI113XUVS+W2wbbJDac5O31
+	UFVq96onGlBL4tFH2IBrPU0iHPOH1FGMt8MDwN4ri3X3ogXRnifIHCKj
+X-Gm-Gg: ASbGncvjhajnqyBfu77U2ze3SqZxVHK70YDRdPd/HjVEZQBDLZM8ZoijUCjjaYJ7I0z
+	YSWwvnZlUxx9otIT5YfOY8ylyvA0nn80riAngaBpSS7Etdy/ZFsLdAlQq1iEuPVDGXKM6rTSg4U
+	luSFO7iOn7MxI1brR91XbbnGGvR/ff2y3tN+UfTz/kjvjYg2HlXR6Bntf1AE/Tw8NI6itaZddBO
+	IxAWautkxG7NBoEHRB4ZbytuyFLG07m1CddS2SbUTFwla+F3r1boUTCWKVmLMEvFN4W7uP9Nd+U
+	Tke32CAdIuHQGmpdSeco852HKbocMjAXCDygPxByhfn0r3uqz+nWIs3QbSES4KMeuh7+bKGpKpT
+	+dOoJnpTEys0cSvZ5fnsrsRFsI6jpW0RWoBhD0SRzfFSxjg8gx3F9SIwy2HDOTA2/BqOOs4bx+y
+	Xi9B86ZFOhrHuEw/NAVMed3YyibdHx52i1SYJ2MJw=
+X-Google-Smtp-Source: AGHT+IFwl7RUH1by8AgGc+oNOKvpnFXUyqZAom8I7koI3NV7bibbAKhuB2xsuiXOSaExjXPs0nuRqg==
+X-Received: by 2002:a05:6a00:c94:b0:781:2ba:ef21 with SMTP id d2e1a72fcca58-7a220b1d061mr17172564b3a.23.1761050334408;
+        Tue, 21 Oct 2025 05:38:54 -0700 (PDT)
+Received: from zhr-ThinkStation-K.mioffice.cn ([43.224.245.231])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7a22ff35a59sm11169428b3a.25.2025.10.21.05.38.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Oct 2025 05:38:54 -0700 (PDT)
+From: Hongru Zhang <zhanghongru06@gmail.com>
+X-Google-Original-From: Hongru Zhang <zhanghongru@xiaomi.com>
+To: paul@paul-moore.com
+Cc: linux-kernel@vger.kernel.org,
+	omosnace@redhat.com,
+	selinux@vger.kernel.org,
+	stephen.smalley.work@gmail.com,
+	zhanghongru06@gmail.com,
+	zhanghongru@xiaomi.com
+Subject: Re: [PATCH v3 1/2] selinux: Make avc cache slot size configurable during boot
+Date: Tue, 21 Oct 2025 20:38:38 +0800
+Message-ID: <20251021123842.968605-1-zhanghongru@xiaomi.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <CAHC9VhQ_hv1ri1csrgGP+9RssCuJBDuOLSDowZRD5xZcDD2mPA@mail.gmail.com>
+References: <CAHC9VhQ_hv1ri1csrgGP+9RssCuJBDuOLSDowZRD5xZcDD2mPA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250806143105.915748-1-omosnace@redhat.com> <aJP+/1VGbe1EcgKz@mail.hallyn.com>
- <aJaPQZqDIcT17aAU@mail.hallyn.com> <CAADnVQKY0z1RAJdAmRGbLWZxrJPG6Kawe6_qQHjoVM7Xz8CfuA@mail.gmail.com>
- <CAFqZXNtAfzFJtL3gG7ViEFOWoAE2VNrvCOA5DxqMmWt7z6g5Yg@mail.gmail.com> <CAADnVQL7C6hM6vwztSdq_U4b0u8p-0aVwkaKDAxd53q_+8G1bw@mail.gmail.com>
-In-Reply-To: <CAADnVQL7C6hM6vwztSdq_U4b0u8p-0aVwkaKDAxd53q_+8G1bw@mail.gmail.com>
-From: Ondrej Mosnacek <omosnace@redhat.com>
-Date: Tue, 21 Oct 2025 14:32:06 +0200
-X-Gm-Features: AS18NWDtlLiRlYTkW7OcLz395NuzOZ99QUZ8rPCjWvXNNpMvBxp3958XQNO852E
-Message-ID: <CAFqZXNuNDSrCYqOUiAY4B2BTcCbte+cR822K7zFjxPyko53Wbg@mail.gmail.com>
-Subject: Re: [PATCH] x86/bpf: use bpf_capable() instead of capable(CAP_SYS_ADMIN)
-To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc: "Serge E. Hallyn" <serge@hallyn.com>, daniel.sneddon@linux.intel.com, 
-	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, alexandre.chartre@oracle.com, 
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, bpf <bpf@vger.kernel.org>, 
-	selinux@vger.kernel.org, LSM List <linux-security-module@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Tue, Sep 2, 2025 at 7:37=E2=80=AFPM Alexei Starovoitov
-<alexei.starovoitov@gmail.com> wrote:
->
-> On Wed, Aug 13, 2025 at 2:49=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.=
-com> wrote:
-> >
-> > On Sat, Aug 9, 2025 at 2:46=E2=80=AFAM Alexei Starovoitov
-> > <alexei.starovoitov@gmail.com> wrote:
-> > >
-> > > On Fri, Aug 8, 2025 at 4:59=E2=80=AFPM Serge E. Hallyn <serge@hallyn.=
-com> wrote:
-> > > >
-> > > > On Wed, Aug 06, 2025 at 08:18:55PM -0500, Serge E. Hallyn wrote:
-> > > > > On Wed, Aug 06, 2025 at 04:31:05PM +0200, Ondrej Mosnacek wrote:
-> > > > > > Don't check against the overloaded CAP_SYS_ADMINin do_jit(), bu=
-t instead
-> > > > > > use bpf_capable(), which checks against the more granular CAP_B=
-PF first.
-> > > > > > Going straight to CAP_SYS_ADMIN may cause unnecessary audit log=
- spam
-> > > > > > under SELinux, as privileged domains using BPF would usually on=
-ly be
-> > > > > > allowed CAP_BPF and not CAP_SYS_ADMIN.
-> > > > > >
-> > > > > > Link: https://bugzilla.redhat.com/show_bug.cgi?id=3D2369326
-> > > > > > Fixes: d4e89d212d40 ("x86/bpf: Call branch history clearing seq=
-uence on exit")
-> > > > > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > > > >
-> > > > > So this seems correct, *provided* that we consider it within the =
-purview of
-> > > > > CAP_BPF to be able to avoid clearing the branch history buffer.
-> > >
-> > > true, but...
-> > >
-> > > > >
-> > > > > I suspect that's the case, but it might warrant discussion.
-> > > > >
-> > > > > Reviewed-by: Serge Hallyn <serge@hallyn.com>
-> > > >
-> > > > (BTW, I'm assuming this will get pulled into a BPF tree or somethin=
-g, and
-> > > > doesn't need to go into the capabilities tree.  Let me know if that=
-'s wrong)
-> > >
-> > > Right.
-> > > scripts/get_maintainer.pl arch/x86/net/bpf_jit_comp.c
-> > > is your friend.
-> > >
-> > > Pls cc author-s of the commit in question in the future.
-> > > Adding them now.
-> > >
-> > > > > > diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit=
-_comp.c
-> > > > > > index 15672cb926fc1..2a825e5745ca1 100644
-> > > > > > --- a/arch/x86/net/bpf_jit_comp.c
-> > > > > > +++ b/arch/x86/net/bpf_jit_comp.c
-> > > > > > @@ -2591,8 +2591,7 @@ emit_jmp:
-> > > > > >                     seen_exit =3D true;
-> > > > > >                     /* Update cleanup_addr */
-> > > > > >                     ctx->cleanup_addr =3D proglen;
-> > > > > > -                   if (bpf_prog_was_classic(bpf_prog) &&
-> > > > > > -                       !capable(CAP_SYS_ADMIN)) {
-> > > > > > +                   if (bpf_prog_was_classic(bpf_prog) && !bpf_=
-capable()) {
-> > >
-> > > This looks wrong for several reasons.
-> > >
-> > > 1.
-> > > bpf_capable() and CAP_BPF in general applies to eBPF only.
-> > > There is no precedent so far to do anything differently
-> > > for cBPF when CAP_BPF is present.
-> >
-> > That's not entirely true, see below.
-> >
-> > > 2.
-> > > commit log states that
-> > > "privileged domains using BPF would usually only be allowed CAP_BPF
-> > > and not CAP_SYS_ADMIN"
-> > > which is true for eBPF only, since cBPF is always allowed for
-> > > all unpriv users.
-> > > Start chrome browser and you get cBPF loaded.
-> >
-> > Processes using cBPF (via SO_ATTACH_FILTER) already can trigger a
-> > CAP_BPF check - when the net.core.bpf_jit_harden sysctl is set to 1,
-> > then the sequence sk_attach_filter() -> __get_filter() ->
-> > bpf_prog_alloc() -> bpf_prog_alloc_no_stats() ->
-> > bpf_jit_blinding_enabled() -> bpf_token_capable() happens for the same
-> > iio-sensor-proxy syscall as the one that hits the CAP_SYS_ADMIN check.
->
-> Agree that it's a similar case and we should standardize on
-> the way to check whether mitigation is necessary.
-> But I think in both cases it should be "_noaudit" version.
-> In other words, everywhere where jit, verifier or anything else
-> is checking caps to apply a mitigation or not we should use "_noaudit".
->
-> > Because of this we have already granted the BPF capability in
-> > Fedora/RHEL SELinux policy to many domains that would usually run as
-> > root and that use SO_ATTACH_FILTER. The logic being that they are
-> > legitimately using BPF + without SELinux they would be fully
-> > privileged (root) and they would pass that check + it seemed they
-> > could otherwise lose some performance due to the hardening (though I'm
-> > not sure now if it applies to cBPF, so this point could be moot) +
-> > CAP_BPF doesn't grant any excess privileges beyond this (as opposed to
-> > e.g. CAP_SYS_ADMIN). This is what I meant behind that commit log
-> > statement, though I didn't remember the details, so I didn't state it
-> > as clearly as I could have (my apologies).
-> >
-> > Now this same usage started triggering the new plain CAP_SYS_ADMIN
-> > check so I naturally assumed that changing it to bpf_capable() would
-> > be the most logical solution (as it would let us keep the services
-> > excluded from the hardening via CAP_BPF without granting the broad
-> > CAP_SYS_ADMIN).
->
-> I see. Sounds like you identified bpf_jit_blinding_enabled() case
-> and special cased it selinux. So doing bpf_capable() in JIT
-> would fit the existing selinux handling.
->
-> >
-> > Is the fact that CAP_BPF check is reachable via cBPF use unexpected
-> > behavior? If both cBPF and eBPF can be JIT'd and CAP_BPF is already
-> > being used for the "exempt from JIT hardening" semantics in one place,
-> > why should cBPF and eBPF be treated differently? In fact, shouldn't
-> > the decision to apply the Spectre mitigation also take into account
-> > the net.core.bpf_jit_harden sysctl even when the program is not cBPF?
-> >
-> > > 3.
-> > > glancing over bugzilla it seems that the issue is
-> > > excessive audit spam and not related to CAP_BPF and privileges.
-> > > If so then the fix is to use
-> > > ns_capable_noaudit(&init_user_ns, CAP_SYS_ADMIN)
-> > >
-> > > 4.
-> > > I don't understand how the patch is supposed to fix the issue.
-> > > iio-sensor-proxy is probably unpriv. Why would it use CAP_BPF?
-> > > It's using cBPF, so there is no reason for it to have CAP_BPF.
-> > > So capable(CAP_BPF) will fail just like capable(CAP_SYS_ADMIN),
-> > > but since CAP_BPF check was done first, the audit won't
-> > > be printed, because it's some undocumented internal selinux behavior =
-?
-> > > None of it is in the commit log :(
-> >
-> > It is not unprivileged. It runs as root and without SELinux it would
-> > have all capabilities allowed. If it were running without any
-> > capabilities, then indeed there would be no SELinux checks.
-> >
-> > > 5.
-> > > And finally all that looks like a selinux bug.
-> > > Just because something in the kernel is asking capable(CAP_SYS_ADMIN)
-> > > there is no need to spam users with the wrong message:
-> > > "SELinux is preventing iio-sensor-prox from using the 'sys_admin' cap=
-abilities."
-> > > iio-sensor-prox is not trying to use 'sys_admin' capabilities.
-> > > cBPF prog will be loaded anyway, with or without BHB clearing.
-> >
-> > Well, it depends... In this case the AVC denial informs us that the
-> > kernel is making some decision depending on the capability and that a
-> > decision should be made in the policy to allow or silence the access
-> > vector. Even when the consequence is not a failure of the syscall, it
-> > still may be useful to have the denial reported, since there is a
-> > potential performance impact. OTOH, with CAP_SYS_ADMIN if the decision
-> > is to not allow it, then silencing it via a dontaudit rule would
-> > potentially hide other more critical CAP_SYS_ADMIN denials, so it's
-> > hard to decide what is better - to silence this specific case in the
-> > kernel vs. to let the user allow/silence the specific AV in the
-> > policy...
->
-> imo we should apply a general rule for using "_noaudit"
-> for all checks that don't end up as a denial.
-> There are various bpf_allow_ptr_leaks(), bpf_bypass_spec_v[14]()
-> checks in the verifier that should be converted to "_noaudit".
-> It's true that the check affects performance and users could be
-> interested in the end result, but if they enable mitigations they
-> expect the performance hit across the board, so skipping a mitigation
-> for a privileged process is a bonus. A prog will be tiny bit faster.
-> So not worth flagging anywhere.
+> I would imagine that a very simple implementation would simply convert
+> the selinux_avc variable from an instance of selinux_avc to a RCU
+> protected selinux_avc pointer.  As the AVC already uses RCU, I think
+> the number of changes should be relatively minimal:
+> 
+> * Ensure we wrap selinux_avc derefs with rcu_dereference().  This
+> should be the only real change needed for lookups and insertions as
+> every search through the AVC will start with deref'ing the selinux_avc
+> pointer.
+> 
+> * Update avc_init() to allocate the cache slots with a default value,
+> fail if unable to allocate the cache memory.  If we ensure that the
+> selinux_avc pointer will always be valid, we can avoid having to check
+> it.
+> 
+> * Policy (re)loads which would change the number of AVC cache slots
+> would allocate and initialize a new selinux_avc then swap the global
+> selinux_avc pointer under spinlock.  The old AVC cache could then be
+> free'd according to RCU rules.  I haven't thought about it too much,
+> but I suspect we could do away with flushing the old AVC in these
+> cases, even if we can't, flushing the old AVC is easy enough.
+> 
+> > When increasing slot size, we could directly copy the contents from the
+> > old table. When decreasing slot size, nodes exceeding the new slot size
+> > would need to be re-hashed and attached to appropriate positions.
+> 
+> Changing the number of cache slots should happen infrequently enough
+> that I see no need to migrate the old entries to the new cache
+> instance.  It's a cache, it will fill back up naturally.
+> 
+> > On my Android device, policies are fixed before system image release and
+> > don't change or load dynamically during system running. Using kernel
+> > parameters for adjustment ensures no additional locks or checks are neede=
+> d
+> > during runtime table access, maintaining simplicity and efficiency of the
+> > lookup code.
+> 
+> If your system does not update its policy over the course of a single
+> boot, and presumably doesn't drastically change its behavior during
+> that time, there is another, simpler option that we should consider:
+> setting AVC_CACHE_SLOTS at compile time based on a Kconfig tunable.
+> The code change would essentially be one line:
+> 
+>  #define AVC_CACHE_SLOTS   (2 << CONFIG_SECURITY_SELINUX_AVC_HASH_BITS)
+> 
+> ... with a corresponding entry in security/selinux/Kconfig.  That
+> should be a very easy change, and if you set the default value such
+> that AVC_CACHE_SLOTS remains at 512, there should be no impact on
+> existing systems.
+> 
 
-Ok, so I have sent a v2 that switches to ns_capable_noaudit() instead:
-https://lore.kernel.org/selinux/20251021122758.2659513-1-omosnace@redhat.co=
-m/
+Alright，I will add a CONFIG_SECURITY_SELINUX_AVC_HASH_BITS in
+security/selinux/Kconfig, the range is between 9 and 14 (512 : 16384),
+with a default value of 9. And then I will send a new patchset version.
 
---
-Ondrej Mosnacek
-Senior Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
-
+I will try to submit the final version in Q1 2026 based on the discussion
+(Because I have some planned Q4 work that hasn't been completed yet).
