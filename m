@@ -1,97 +1,204 @@
-Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
+Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A447E34B185
-	for <selinux@vger.kernel.org>; Tue, 21 Oct 2025 17:14:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 828A017D2
+	for <selinux@vger.kernel.org>; Wed, 22 Oct 2025 00:01:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761066858; cv=none; b=gBvhxHO3z8YIYx4DTBcC1zxVNyXtQN1g8P6UaquvNS3Ec0q5hTJlRiWcUe1Jdp4nP9jyUE0qyN6fzpqpJ3pNf/Cvk5V298AWUv5JmTEuFQImRaRLpkd1tOJ4l09jjS/oZ5GNmKp9FQdTpY8RcmC931sWTEg0LfQ05IfARd/PdFs=
+	t=1761091282; cv=none; b=DTaYIfh375N2zx9BC0zpqu3tHZUF99JAoOu4UKiJGwfaHwId0p0I9ILBjkFpmg1yEXTGuV6K2iebuOPcLreDGJiBvNiGHroKoH8V8nAi+U+3LIAev4ZGGkpsnufKohnrAJFJTrGYXM82Rf0ORPDjxPZ+HG6BJMq2AR/GknTgD7k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761066858; c=relaxed/simple;
-	bh=SY9hfEhnatNUm82gBt97teqVGp9h+Zsb24n9K//bMKQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Zz2c6i3ygmXtznNJtfttORtKdPhU8m64pt5H5CDsctzf3reRob3AOgLInj7991e3Ks9U0Dn0EYtor7TUxWLG7S/YEFfOvlVCYimOo1lqiouNwl+BVquh75/xovlFIm10Yvdp2OYB5hsTaMO1kFdaafw5aL17iV8A8LbNu69jsKs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=a4+58S0a; arc=none smtp.client-ip=209.85.210.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1761091282; c=relaxed/simple;
+	bh=NvQuUGp/83C3Kja2Yt4ZKioDYcN4WIrEk8XrXi4+LEU=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=LqbdbWj1ZGQsdmGTPglfj90qDyHKGcAC8XRtBQ38cR6Vo+Z08G88J6uwPVv8ooz3oNXxyVrHBhD4zb9m711X/8IPDOfecg0BWMpPvRlvmFlo3DnbSzwuDPRasWl3XDekAqgmqKwe+Gc03ZGq7LOY4bzZV+tLZn6l3omXlzpNopY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TnfiX4Nc; arc=none smtp.client-ip=209.85.218.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="a4+58S0a"
-Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-7a23208a0c2so2526227b3a.0
-        for <selinux@vger.kernel.org>; Tue, 21 Oct 2025 10:14:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TnfiX4Nc"
+Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-b50206773adso95919366b.0
+        for <selinux@vger.kernel.org>; Tue, 21 Oct 2025 17:01:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1761066856; x=1761671656; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1761091279; x=1761696079; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=NvDoyZiTO2VXbxNnIjJcYdI7LrR379gdB3mzEniFdXg=;
-        b=a4+58S0ardeAaK0VIrysUV6jUdn7XMzjiuMaT+MNiIB41LqCLgesgB9eNCxpckWhxS
-         1q/12xveBDaZfxyDkpVNGBJ/yb2sjI+LQNrdOK1mGxcj8nmJBYYcoqcp/AHqIHAmzAGz
-         uGuLId2A2tsvhiTUWdVxl12XVVRrSzPLzvHLp6c4Uq8efmR5lanwZAnY4+0Tsv/Buo0u
-         iUXvIo17nd0ImkHw5R/Cdy+IQxNpoQJpCTJhZ4HLzxUbCCiNiEyZ01K7xVafnfOr+bxI
-         92lNha+YuP/6fgKezerxklgukuIEywo7g1OcpZyekN7NlqV3ACcsoEs8ZVVCc3UmSlwB
-         VC9A==
+        bh=SUWMjW+J0WNe1GxUHMvM+rAyiNNM4eHi3vBNv/9ss+Y=;
+        b=TnfiX4NceKkW08QVfrKGiwiGA/tabS38cOHQP+zrzomThcnyEkQrl+ANRxMQNPkfkV
+         k6Zt6pnfONtk15r5BRC6tUXmKIBPkBVlDipR42il2d+yricbWbIx3u8NnFaVrROHaWW1
+         65aW12G/tNppwrxjn9OIC8+5gVVXL7fIfKqH0s4vksDI1xlhk0X8Uba5+4x1fEC8zWGX
+         HcNAtV2cTQEnlqVFmd3DGZxIlatmASsrLdptN/5QsZTK+CkcxkefpP4HBSIxbyX6aW1a
+         9yAeM21oqs4JDupo6QkkHeFPBwD5opfxWsHVp51DO+gOvDJ6gq98yBV+mrLTOqgzzGU4
+         1LrQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761066856; x=1761671656;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1761091279; x=1761696079;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=NvDoyZiTO2VXbxNnIjJcYdI7LrR379gdB3mzEniFdXg=;
-        b=G5c9KnyuDk9F/0D8li0C3acEPibiF7TNVP3w8azgNxWY0DvcfLk02cGbT0BirtBrIM
-         MJPOTRJAGqn8iMYWwAD58OrT2MkZPIQMdwIpDLJq1H2gjgXLIURKUfEDyGuh+6oLYdBy
-         TjxOn9gvyscj6ce3f8k3OFqknjJWfykjEOahqhouACpfTdEjpxi4qIq30djQLUR0FeZZ
-         e0YqIX6ZGv0+0RmUywVIhvamAr8RBcxSrwuNwLGTVMRdBN5ONUJCAyZLVML56kwu/rKI
-         2f/IOBr4SIrue5Adoztr0Inil4zDPRXju3TeAQR72hMqeWtf0pIsnzdVvJJEMNUYzBe7
-         acjg==
-X-Forwarded-Encrypted: i=1; AJvYcCUwCj8Y97ajA+6rPolPYs8WpquQQtzN4khAhlmS1VZnhj9O/LyB07frfGJOL2RzfWEtSapSE4IG@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw9mpb2swm18Syi+/AAubAU8HPSa6Fu1bKFbQi/c5yR6PMRkJjU
-	PzuzZPcF62x2ytgZSu40fappGDgDIMWwQrN/wqwFMfW9sDygX0pKAogp8K5HJ5xYFgRJkydKXfC
-	xfk5U83s6kSeJbEqfhX8qhJGeADdURDPvXz1+ZUpL
-X-Gm-Gg: ASbGnctcLPcFp8h2zY3H/z+zh3WxhV7nfV1XXPyRoAMYHykU8sXbKBteA/xIp3/Imkv
-	C4aRPtEecG0PHXjdLIkoz1zLfdyIJ3HyMOL5UXtHKHNMqe1qKKDveD4SV+VsEDNMXKJkUgXajdd
-	ubZjgZwLz7RTSlE/2YbUIeBaWlO67UfbYXq+ow6Jza8/Rm9B067+oXkSUSw1OOZf3Ijmys8sRBG
-	0xDYNCQa20ukW+n9uV2KbXAqhCrQ3/DZX2CH6s2bC25gZs6TIOhcmPUrWNW
-X-Google-Smtp-Source: AGHT+IF1CHH5DQLS0QXsOg+GgFtuH4E5gZhKbyMpbKK9JycZXpo5pI3t6VfHvnnOe9z0T6UvGQfRG/udThvZpXGcp/s=
-X-Received: by 2002:a17:90b:2247:b0:32d:e780:e9d5 with SMTP id
- 98e67ed59e1d1-33bcf8e5f10mr24053313a91.22.1761066855967; Tue, 21 Oct 2025
- 10:14:15 -0700 (PDT)
+        bh=SUWMjW+J0WNe1GxUHMvM+rAyiNNM4eHi3vBNv/9ss+Y=;
+        b=EU2bUM+D1WHRNa9LQFHhjY3DFy92xBvauZbVq1vReOMQDVescwQ5D8KA8j2GHmKIAw
+         mgkxZczg9R1R8S2Ez6+jUjd2KHJhXQ7tIRz7AIicn1v4TVIQIVLnwIuXBmrPIrCJ9xBN
+         rIV5J3m2kAmwL8DA3Xzqx7UtzuP76KVqx8P5ACHb0k/LFgjdVuzMiXUXi/RSRr2iqPQB
+         A/RuLQhRT2mEKVpzWigR1JYEbihOLLR5jVKZL6C25a2YmSCXu3OYe7IiMLKxbvKNVSEM
+         9WEi5qFa6Wgmqv2PrJC0QS947kJirAGjqNa9KJWpr8IENMmGCGLVuB8JJY50YDNYc/Tn
+         Om3g==
+X-Forwarded-Encrypted: i=1; AJvYcCU0NXm2Kznsw2GhbVjrbhEzq1z124AUTeKlGE7QOXuyv1x0LmorzU1zFqbkBNkB12LH9eJMSLdJ@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz+9hs2XVsEWDAvGdm8z9YQmXkgJ8uzg20eEcMgfpHzgOaksOXo
+	e6Bl1//oOhFIMj4j9wjl8aHo0OSGJEavW8uwQV+6f+rJAUEW1Uj/pAy5
+X-Gm-Gg: ASbGncto30Vw6m0AmeWQz9bTVrHt8WtRcH1S0uXzOA5qd/ePmdz0miZQYrww/Eg9HbX
+	ouSOiLo/iCdHrEyJwK+ppICikDvEYeurBKa4cPjpwzouxZCE6sWFDh6mFSJvo6lilJb+HzZKGpz
+	6CFeot66eRlblVJ800X7LwDzaIljTV97OSOGC57kEaoZd+VU1yTESi6FwycC33iRL6HGbGNdSVX
+	C/JUCkhI3WhpcbyAIY+MtEjhHcpYTZ8OvzgeKDFOGmjbiEm1hshWZA7Udsd9gv1zsYWZO7eN4hp
+	4lPAFMI4bTWpuGot4+gzFdmswMTCCnBrlEq5yIK2luMjoAr8L9bYUsg9j8PoH+i8TleMF0CIUyU
+	zKNLxrZeApWIzf0lmi1FQq/obUbkdt3ABQYDz3MZE6FhSALoSRVtzpab98M4Ulr5mdj3IkDmteS
+	FMNws0Yzk=
+X-Google-Smtp-Source: AGHT+IHs4lIkS8plxxxlucaf2/6ROq6ueG31pou4VhGY1S9klfqCF0/gMcbhRVTr/fm7FDnRKtvEgg==
+X-Received: by 2002:a17:907:1c86:b0:b07:87f1:fc42 with SMTP id a640c23a62f3a-b6d2c7526b3mr219607066b.16.1761091278583;
+        Tue, 21 Oct 2025 17:01:18 -0700 (PDT)
+Received: from graphite ([2a0a:ef40:89b:b900:2e0:4cff:feb0:4e4d])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b65e8581780sm1176014366b.31.2025.10.21.17.01.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Oct 2025 17:01:17 -0700 (PDT)
+From: Rahul Sandhu <nvraxn@gmail.com>
+To: stephen.smalley.work@gmail.com
+Cc: nvraxn@gmail.com,
+	selinux@vger.kernel.org
+Subject: [PATCH v2] genhomedircon: cleanup parsing of uid config values
+Date: Wed, 22 Oct 2025 01:01:05 +0100
+Message-ID: <20251022000105.54945-1-nvraxn@gmail.com>
+X-Mailer: git-send-email 2.51.0
+In-Reply-To: <CAEjxPJ7=xQBqEp+TWs8GEr_Oi_-t3MaW9cUh0TE8i1F7qWZ0jg@mail.gmail.com>
+References: <CAEjxPJ7=xQBqEp+TWs8GEr_Oi_-t3MaW9cUh0TE8i1F7qWZ0jg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251008234613.2150-1-ericsu@linux.microsoft.com>
- <9f91729c4030890ebd10a6faa1009589@paul-moore.com> <CAEjxPJ4SdB1xEM2zNwAW9hgdh7QqbCEOewjaR0t61QnKNKyw3Q@mail.gmail.com>
- <CAHC9VhSAiAbW_-f0BRGXPSDKMesPj=2-wyEbrtDouYpYrq7j2w@mail.gmail.com>
- <CAEjxPJ7YU71UuWDa8tVm-dJAF+wZrmhujC9M2zkf+UXB44cEww@mail.gmail.com>
- <CAHC9VhS5-5+LxEstKX=ZHNPK6RazRqejXOEOXv-UJjiNsvQ6GA@mail.gmail.com> <aa8862a8-1898-47e2-93e3-96584e7efaf1@linux.microsoft.com>
-In-Reply-To: <aa8862a8-1898-47e2-93e3-96584e7efaf1@linux.microsoft.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 21 Oct 2025 13:14:04 -0400
-X-Gm-Features: AS18NWCIRcudCM5tYZeL3vFTW-zNjZhXcNXOeFAJaasYzt76L9tl_m-GIBLPQ2Y
-Message-ID: <CAHC9VhR_0VP_7UHmVRM5kLPZmKQeSW3iP=NGWkEbfNFsPMqOkg@mail.gmail.com>
-Subject: Re: [PATCH v5] SELinux: Add support for BPF token access control
-To: Eric Suen <ericsu@linux.microsoft.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org, 
-	omosnace@redhat.com, danieldurning.work@gmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, Oct 21, 2025 at 1:04=E2=80=AFPM Eric Suen <ericsu@linux.microsoft.c=
-om> wrote:
->
-> Paul - to help minimize merge fixups next time, should I base my next
-> revision on the latest dev-staging branch? Not sure if this branch will
-> have all the changes from the merge window.
+Parsing KV files with a separator of similar format is fairly similar,
+so we may as well add a helper function to make it easier to read.
 
-My policy is generally that patches based either on Linus' tree or the
-selinux/dev are okay, if any merge fuzzing is needed I'll take care of
-that.  I think the guidance you received to use selinux/dev-staging
-was simply due to the state of different trees during that particular
-point in time of development cycle.
+Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+---
+ libsemanage/src/genhomedircon.c | 82 +++++++++++++--------------------
+ 1 file changed, 33 insertions(+), 49 deletions(-)
 
-For the next revision I would recommend basing your patch on the
-current selinux/dev branch.
+v2: rename path to something more sensible (afterall, we are parsing a
+    UID!) and move the free to later, just before both return paths to
+    not dereference it when checking whether we actually parsed a valid
+    number or not.
 
---=20
-paul-moore.com
+diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
+index 34056562..bb840856 100644
+--- a/libsemanage/src/genhomedircon.c
++++ b/libsemanage/src/genhomedircon.c
+@@ -308,6 +308,30 @@ done:
+ 	return retval;
+ }
+ 
++static int parse_uid_config(const char *file, const char *key, const char *sep,
++		uid_t fallback, uid_t *out)
++{
++	char *uid_str = semanage_findval(file, key, sep);
++	if (!uid_str || !*uid_str) {
++		free(uid_str);
++		*out = fallback;
++		return 0;
++	}
++
++	char *endptr;
++	const unsigned long val = strtoul(uid_str, &endptr, 0);
++
++	if (endptr != uid_str && *endptr == '\0') {
++		*out = (uid_t)val;
++		free(uid_str);
++		return 0;
++	}
++
++	free(uid_str);
++	*out = fallback;
++	return -1;
++}
++
+ static semanage_list_t *get_home_dirs(genhomedircon_settings_t * s)
+ {
+ 	semanage_list_t *homedir_list = NULL;
+@@ -315,7 +339,6 @@ static semanage_list_t *get_home_dirs(genhomedircon_settings_t * s)
+ 	fc_match_handle_t hand;
+ 	char *path = NULL;
+ 	uid_t temp, minuid = 500, maxuid = 60000;
+-	int minuid_set = 0;
+ 	struct passwd *pwbuf;
+ 	struct stat buf;
+ 
+@@ -362,56 +385,17 @@ static semanage_list_t *get_home_dirs(genhomedircon_settings_t * s)
+ 	     "Conversion failed for key " key ", is its value a number?" \
+ 	     "  Falling back to default value of `%s`.", #val);
+ 
+-	path = semanage_findval(PATH_ETC_LOGIN_DEFS, "UID_MIN", NULL);
+-	if (path && *path) {
+-		char *endptr;
+-		const unsigned long val = strtoul(path, &endptr, 0);
+-		if (endptr != path && *endptr == '\0') {
+-			minuid = (uid_t)val;
+-			minuid_set = 1;
+-		} else {
+-			/* we were provided an invalid value, use defaults.  */
+-			genhomedircon_warn_conv_fail("UID_MIN", FALLBACK_MINUID);
+-			minuid = FALLBACK_MINUID;
+-			minuid_set = 1;
+-		}
+-	}
+-	free(path);
+-	path = NULL;
++	if (parse_uid_config(PATH_ETC_LOGIN_DEFS, "UID_MIN", NULL, FALLBACK_MINUID, &minuid) < 0)
++		genhomedircon_warn_conv_fail("UID_MIN", FALLBACK_MINUID);
+ 
+-	path = semanage_findval(PATH_ETC_LOGIN_DEFS, "UID_MAX", NULL);
+-	if (path && *path) {
+-		char *endptr;
+-		const unsigned long val = strtoul(path, &endptr, 0);
+-		if (endptr != path && *endptr == '\0') {
+-			maxuid = (uid_t)val;
+-		} else {
+-			/* we were provided an invalid value, use defaults.  */
+-			genhomedircon_warn_conv_fail("UID_MAX", FALLBACK_MAXUID);
+-			maxuid = FALLBACK_MAXUID;
+-		}
+-	}
+-	free(path);
+-	path = NULL;
++	if (parse_uid_config(PATH_ETC_LOGIN_DEFS, "UID_MAX", NULL, FALLBACK_MAXUID, &maxuid) < 0)
++		genhomedircon_warn_conv_fail("UID_MAX", FALLBACK_MAXUID);
+ 
+-	path = semanage_findval(PATH_ETC_LIBUSER, "LU_UIDNUMBER", "=");
+-	if (path && *path) {
+-		char *endptr;
+-		const unsigned long val = strtoul(path, &endptr, 0);
+-		if (endptr != path && *endptr == '\0') {
+-			temp = (uid_t)val;
+-		} else {
+-			/* we were provided an invalid value, use defaults.  */
+-			genhomedircon_warn_conv_fail("LU_UIDNUMBER", FALLBACK_LU_UIDNUMBER);
+-			temp = FALLBACK_LU_UIDNUMBER;
+-		}
+-		if (!minuid_set || temp < minuid) {
+-			minuid = temp;
+-			minuid_set = 1;
+-		}
+-	}
+-	free(path);
+-	path = NULL;
++	if (parse_uid_config(PATH_ETC_LIBUSER, "LU_UIDNUMBER", "=", FALLBACK_LU_UIDNUMBER, &temp) < 0)
++		genhomedircon_warn_conv_fail("LU_UIDNUMBER", FALLBACK_LU_UIDNUMBER);
++
++	if (temp < minuid)
++		minuid = temp;
+ 
+ #undef genhomedircon_warn_conv_fail
+ 
+-- 
+2.51.0
+
