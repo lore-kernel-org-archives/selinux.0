@@ -1,137 +1,166 @@
-Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21DD52F692D;
-	Wed, 22 Oct 2025 07:27:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=60.244.123.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 716172144C9
+	for <selinux@vger.kernel.org>; Wed, 22 Oct 2025 14:51:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761118069; cv=none; b=JJjvuBVuCE4Mwdw26+LSe5AYncdtSUAtchuWeH1YGP4c1a6tBMbMq5jCvVWnF3Ic9pzAKjjV7rAOkxder7nxZUt+/HmKlcjKC1pc/s0spX9vZKVjHJKjw8YF7zIoJM3JLjKgTbicSnT8Jku2QNfovfR8SZQ6KYdRDuyBuzOMk2I=
+	t=1761144680; cv=none; b=LIeCX0cNJGrOvK1nP1hHVf74kdo33CUV4OBtVaziRnvBJuQHYOA6WlAhd8zuUzpNOkRuruoCF1/Zf+EmLNZwHdltZUCzBa26/tvCqkBKYJZ27PVyjYqLs4dw+psO0TQ2hcnki/j+rI9pl0NX9wfI2xEGs//Nn+eTtV0qziojiMc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761118069; c=relaxed/simple;
-	bh=wmBsN+nYF5w2nv3f6w1WyQtDDiJghpBuJ0uLM6ic6bY=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ndchcSTCUBQVp6nVdsuKdO9L2YWQu4hgnq5rOKu/SoANm98RB/P5GARzWRxwBnu+qmne4uiQGSwvQQ3JClmhEwFi3EAXd84g999ruMgGUs/1nGWMjt8A+gUlGJPsIOg1g4wBJwkjQfGmvPesA6egJAORk5DF9m8yJ9OIt21ER+s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mediatek.com; spf=pass smtp.mailfrom=mediatek.com; dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b=BhZfxNHa; arc=none smtp.client-ip=60.244.123.138
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mediatek.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mediatek.com
+	s=arc-20240116; t=1761144680; c=relaxed/simple;
+	bh=AUKJkjWqoqcRkz78Xsd10BdAwE7tuxqUM0EfgammiX0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=bOehoe37ozz5GnILhBl1xSQ3thOJlasCHiq55EPgA61PvvKj0cTqoEpNiVJBegzvegWebPjq4m7p33XLNtflXxy4m65qNX5Kvv74Yc1zpuUussK5sYzhqOoslanwPBvStJVVZe2Yxr5+VLU5W+5x5WrpWLoe/vb9QVADspzlVcU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=P95yHDsy; arc=none smtp.client-ip=209.85.216.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="BhZfxNHa"
-X-UUID: 98f00670af1811f0ae1e63ff8927bad3-20251022
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-	h=Content-Type:Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=9c11skWlcBrFfxSYse2dgS/l/ws/5SueoJHq0on6oNU=;
-	b=BhZfxNHawsebvQAm2DVzx4b7RgGDNIt1pg6ndgwXWi4DJ+vsNAbcSgm/8oyhJWQDwAWZY/kkIRVHDPf4ZOcmMtbUbJ2uMMxkbuVeldc/cnEV82MrFByy/dMKajjIHx/zBSnHViRS7rFua8GDUhVGLD7TeTrFYzlJAH/Pm5d4x8U=;
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.6,REQID:e0f06d7c-2766-4e93-9a91-072835f13a3e,IP:0,UR
-	L:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:r
-	elease,TS:0
-X-CID-META: VersionHash:a9d874c,CLOUDID:e228b458-98d8-4d0a-b903-bc96efd77f78,B
-	ulkID:nil,BulkQuantity:0,Recheck:0,SF:81|82|102|836|888|898,TC:-5,Content:
-	0|15|50,EDM:-3,IP:nil,URL:0,File:130,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,
-	OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: 98f00670af1811f0ae1e63ff8927bad3-20251022
-Received: from mtkmbs13n2.mediatek.inc [(172.21.101.108)] by mailgw01.mediatek.com
-	(envelope-from <xion.wang@mediatek.com>)
-	(Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-	with ESMTP id 253924129; Wed, 22 Oct 2025 15:27:42 +0800
-Received: from mtkmbs13n1.mediatek.inc (172.21.101.193) by
- MTKMBS09N2.mediatek.inc (172.21.101.94) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1748.26; Wed, 22 Oct 2025 15:27:40 +0800
-Received: from mbjsdccf07.gcn.mediatek.inc (10.15.20.246) by
- mtkmbs13n1.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
- 15.2.1748.26 via Frontend Transport; Wed, 22 Oct 2025 15:27:40 +0800
-From: <xion.wang@mediatek.com>
-To: Paul Moore <paul@paul-moore.com>, Stephen Smalley
-	<stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>, AngeloGioacchino Del Regno
-	<angelogioacchino.delregno@collabora.com>
-CC: <wsd_upstream@mediatek.com>, <huadian.liu@mediatek.com>, Xion Wang
-	<xion.wang@mediatek.com>, <selinux@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-	<linux-mediatek@lists.infradead.org>
-Subject: [PATCH 1/1] selinux: export current_sid API for use in other kernel modules
-Date: Wed, 22 Oct 2025 15:27:18 +0800
-Message-ID: <20251022072729.14820-2-xion.wang@mediatek.com>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20251022072729.14820-1-xion.wang@mediatek.com>
-References: <20251022072729.14820-1-xion.wang@mediatek.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P95yHDsy"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-33bbc4e81dfso7111204a91.1
+        for <selinux@vger.kernel.org>; Wed, 22 Oct 2025 07:51:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1761144679; x=1761749479; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=UpvuWVUAE6dmZ3CKTOfaM9k38/ALVZl/dD2Q+/5wT7A=;
+        b=P95yHDsy9sb0AEyZhM4b4BJ6B9otwsNlulP4XdBwyJ6O/xTesNy3qX4/Blz5QmB5nO
+         G8IXhzIKxkwt/5oc5RG9UpMR0TRUJ/Yoc86E8fakez9ZLPyT3par36XfpK+rRxqE7NBM
+         i6ctYtSZjqyvwaC4PZgi66l0c0P65xX6mkeyRTNwoMosYW/BXyn/u5bHRH51bJQzB/9U
+         zD9LriRpw30Zz6FkfKMCHq2fkeZ8LFGgyQmtWMutBP23OLF94DVKhymGRjcIYbo3L0G5
+         rLg8C/rQda3oX+UYe0sDAIEGpKVFeOq/jIGAdoabBWEge1NMkAnsYIO7WdPXSDMvNlfI
+         9lRA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1761144679; x=1761749479;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=UpvuWVUAE6dmZ3CKTOfaM9k38/ALVZl/dD2Q+/5wT7A=;
+        b=rqXCBQHrliSPdbA3G4GEPC+dmZP3D7yABsmyklehsOOD8KRkAoGcFydONTrty+4HsU
+         uRDM08NnA9EHnB0wm58HqC0hnt0sOzh67PvHUpedPIQ4LjEdVO9jnQfxgZQLLPkhuUoA
+         lwAWhqsuoei5MfGyRIQMb6tEuUWCbOi5InLHn1ufPGykeBvjwkGsQ3N8pRWLAn3Lbygd
+         OlwGYqWus7hYDH7uPFKiuigfr+aGnmD/Q8rRVqc5Sq0jrzfQZcvK97Tu1f5aT49bkN07
+         qsrmddQG4B4uxjLi/egBlG1S2Uv38Fa3ZaueGEKQwXhLCDQkCMOFr1506BOw2CVPVWWo
+         Mvvg==
+X-Gm-Message-State: AOJu0YwXGDQF5QHm+kvqVBQBK7Dz5Ex/wqQSJWT2mgYNesHamc3IHfuM
+	rHtoJVE36pdbdAkvF23BHUHhfl0+fP0aUoBcrDfCAya4SFnvx7o2RDA9I2zq/t6Y9wqLcUKz+h9
+	i9Zj+LIxtLHqjdz9gBcSTGotMxIAWLNbGaA==
+X-Gm-Gg: ASbGncvNBStNYr9U7RpG7zet9Sbubx/ib5fsiu/JRmCzoYeNtRmQ3ugG4bqawBLK9Ea
+	SsSGPP1xrOJIG2P2W7wi5zRtm9Cdi7zKwlzUvtatOO1RNsALR4+4qbSFcc1s6oD/Bn64Msd5TjD
+	fRIzBEIst0EH9Tp0T2xqaPcS4h2byv+ITof373IQnpGojXPZJNKqadv6NNfr+LUNOYO5iKcxzEp
+	p3+FaJUWWf08RoEgBrH5ZcKQDQzIVYTe3SCy6X+701stAI0EU+gOvL592mdFAVLq7eNmjw=
+X-Google-Smtp-Source: AGHT+IEW/6wSq2fafQayabVR/5olDJWjlBrCLv1VCq35hnwVyzjsTzmK1HvZC7mmNN5YudQSRDGjN+WryZl8aGeJ9vw=
+X-Received: by 2002:a17:90a:e710:b0:32e:8c1e:1301 with SMTP id
+ 98e67ed59e1d1-33bcf93f784mr26731075a91.34.1761144678571; Wed, 22 Oct 2025
+ 07:51:18 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-MTK: N
+References: <CAEjxPJ7=xQBqEp+TWs8GEr_Oi_-t3MaW9cUh0TE8i1F7qWZ0jg@mail.gmail.com>
+ <20251022000105.54945-1-nvraxn@gmail.com>
+In-Reply-To: <20251022000105.54945-1-nvraxn@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Wed, 22 Oct 2025 10:51:06 -0400
+X-Gm-Features: AS18NWDWPDYXy1t9z-RLv9zikEQNJsaQw01jNeK4uY79cVj1LGV7su6OPxxpJsI
+Message-ID: <CAEjxPJ6fWTXOrD6Fhj=JK9xReGxMT7BzXF1PT5WXfFf07=Udtw@mail.gmail.com>
+Subject: Re: [PATCH v2] genhomedircon: cleanup parsing of uid config values
+To: Rahul Sandhu <nvraxn@gmail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Xion Wang <xion.wang@mediatek.com>
+On Tue, Oct 21, 2025 at 8:01=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> wro=
+te:
+>
+> Parsing KV files with a separator of similar format is fairly similar,
+> so we may as well add a helper function to make it easier to read.
+>
+> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+> ---
+>  libsemanage/src/genhomedircon.c | 82 +++++++++++++--------------------
+>  1 file changed, 33 insertions(+), 49 deletions(-)
+>
+> v2: rename path to something more sensible (afterall, we are parsing a
+>     UID!) and move the free to later, just before both return paths to
+>     not dereference it when checking whether we actually parsed a valid
+>     number or not.
+>
+> diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedir=
+con.c
+> index 34056562..bb840856 100644
+> --- a/libsemanage/src/genhomedircon.c
+> +++ b/libsemanage/src/genhomedircon.c
+> @@ -315,7 +339,6 @@ static semanage_list_t *get_home_dirs(genhomedircon_s=
+ettings_t * s)
+>         fc_match_handle_t hand;
+>         char *path =3D NULL;
+>         uid_t temp, minuid =3D 500, maxuid =3D 60000;
 
-Convert current_sid from static inline to a global
-function and export it with EXPORT_SYMBOL.
-This allows other kernel modules to retrieve
-the SELinux security ID of the current task.
+Should we be using our FALLBACK_* definitions above to initialize? Or
+alternatively, do we need to initialize them at all since
+parse_uid_config() always sets them?
 
-Signed-off-by: Xion Wang <xion.wang@mediatek.com>
----
- security/selinux/hooks.c          | 11 +++++++++++
- security/selinux/include/objsec.h | 12 ++----------
- 2 files changed, 13 insertions(+), 10 deletions(-)
+> -       int minuid_set =3D 0;
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index dfc22da42f30..0c128f323332 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -229,6 +229,17 @@ static inline u32 cred_sid(const struct cred *cred)
- 	return tsec->sid;
- }
- 
-+/*
-+ * get the subjective security ID of the current task
-+ */
-+u32 current_sid(void)
-+{
-+	const struct task_security_struct *tsec = selinux_cred(current_cred());
-+
-+	return tsec->sid;
-+}
-+EXPORT_SYMBOL(current_sid);
-+
- static void __ad_net_init(struct common_audit_data *ad,
- 			  struct lsm_network_audit *net,
- 			  int ifindex, struct sock *sk, u16 family)
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index 2d5139c6d45b..787a0cd74ff0 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -202,16 +202,6 @@ selinux_ipc(const struct kern_ipc_perm *ipc)
- 	return ipc->security + selinux_blob_sizes.lbs_ipc;
- }
- 
--/*
-- * get the subjective security ID of the current task
-- */
--static inline u32 current_sid(void)
--{
--	const struct task_security_struct *tsec = selinux_cred(current_cred());
--
--	return tsec->sid;
--}
--
- static inline struct superblock_security_struct *
- selinux_superblock(const struct super_block *superblock)
- {
-@@ -265,4 +255,6 @@ selinux_bpf_token_security(struct bpf_token *token)
- 	return token->security + selinux_blob_sizes.lbs_bpf_token;
- }
- #endif /* CONFIG_BPF_SYSCALL */
-+
-+u32 current_sid(void);
- #endif /* _SELINUX_OBJSEC_H_ */
--- 
-2.45.2
+Not sure you can drop this altogether, see below.
 
+> @@ -362,56 +385,17 @@ static semanage_list_t *get_home_dirs(genhomedircon=
+_settings_t * s)
+>              "Conversion failed for key " key ", is its value a number?" =
+\
+>              "  Falling back to default value of `%s`.", #val);
+>
+> -       path =3D semanage_findval(PATH_ETC_LOGIN_DEFS, "UID_MIN", NULL);
+> -       if (path && *path) {
+> -               char *endptr;
+> -               const unsigned long val =3D strtoul(path, &endptr, 0);
+> -               if (endptr !=3D path && *endptr =3D=3D '\0') {
+> -                       minuid =3D (uid_t)val;
+> -                       minuid_set =3D 1;
+> -               } else {
+> -                       /* we were provided an invalid value, use default=
+s.  */
+> -                       genhomedircon_warn_conv_fail("UID_MIN", FALLBACK_=
+MINUID);
+> -                       minuid =3D FALLBACK_MINUID;
+> -                       minuid_set =3D 1;
+> -               }
+> -       }
+
+Note that minuid_set is NOT set to 1 if !path or !*path i.e. no
+UID_MIN definition found at all in login.defs.
+
+> -       path =3D semanage_findval(PATH_ETC_LIBUSER, "LU_UIDNUMBER", "=3D"=
+);
+> -       if (path && *path) {
+> -               char *endptr;
+> -               const unsigned long val =3D strtoul(path, &endptr, 0);
+> -               if (endptr !=3D path && *endptr =3D=3D '\0') {
+> -                       temp =3D (uid_t)val;
+> -               } else {
+> -                       /* we were provided an invalid value, use default=
+s.  */
+> -                       genhomedircon_warn_conv_fail("LU_UIDNUMBER", FALL=
+BACK_LU_UIDNUMBER);
+> -                       temp =3D FALLBACK_LU_UIDNUMBER;
+> -               }
+> -               if (!minuid_set || temp < minuid) {
+> -                       minuid =3D temp;
+> -                       minuid_set =3D 1;
+> -               }
+> -       }
+> -       free(path);
+> -       path =3D NULL;
+> +       if (parse_uid_config(PATH_ETC_LIBUSER, "LU_UIDNUMBER", "=3D", FAL=
+LBACK_LU_UIDNUMBER, &temp) < 0)
+> +               genhomedircon_warn_conv_fail("LU_UIDNUMBER", FALLBACK_LU_=
+UIDNUMBER);
+> +
+> +       if (temp < minuid)
+> +               minuid =3D temp;
+
+This might lower minuid to FALLBACK_LU_UIDNUMBER (500) even if it was
+explicitly set by login.defs.
