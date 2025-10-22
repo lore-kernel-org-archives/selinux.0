@@ -1,101 +1,92 @@
-Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
+Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01D1E305E2D
-	for <selinux@vger.kernel.org>; Wed, 22 Oct 2025 23:34:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 739231BDCF
+	for <selinux@vger.kernel.org>; Wed, 22 Oct 2025 23:38:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761176072; cv=none; b=dTrnmmgj+12ttb5CESaAklj0pr5XY2RntJ5XXSai7SiW1FlsKYlft2NkhSifq9X3YjcTuE9dXbNc9oN1PIXY4ysvOKTLLEhH8+uXc7zLKuejrbpiGQYwG94EPWNJg6wt5HdF9uMd3GZCcxYFIvcvqqSUnyFZmw/bqSEwqdBLrrY=
+	t=1761176299; cv=none; b=g4WvaRYLeeHlI69MDsyANcgmjuL0ctXTGt0JHedi1bYqI6G6rEJNcMnynpZpodgdNW9wZeWWvuAv8Juv1VP+cn95weBT7+9eg7Vzi5APWi+JtB4uwpx+N1iKXVdOhEBkp9VD/D/Wwn39Mid0pxpivZR4Y8v56SPlV+Xd/W2jz5A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761176072; c=relaxed/simple;
-	bh=SMAOENLFLnEuNnFZ1B57t486wsXpH7mhGQuf802qEsc=;
+	s=arc-20240116; t=1761176299; c=relaxed/simple;
+	bh=LYKIPVspJfdSDazyirPz9heRK01nd07VwEgWmL8zD1I=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=UFEiHDAUJXj2Z0QD/jdLR3QiqiIq+WmGESoMyLnJETxPQM6RqYULqRJO1tLdx+dd5QtVGT8hmeyzB2pu2f7jNVS4ZY5qIscpinUCdkfGfablQGsqZQau4FTDK4ze6x9+v3PbLyjvKCzyM70XCwyKurIo766IV0N5ku/yo7Lj08A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Q8f6meju; arc=none smtp.client-ip=209.85.210.171
+	 To:Cc:Content-Type; b=ZGI8twMRMm43hTMuTiWgBDP7BY4gEhXbh8KTFHKpa5WBpaDDyd1NwJP1UBnOzbJ7MA/XaJ5Dd3CSHqF1K4oTXvthSBe7hg2lgTn6ADWTyESmoVKCVCD3aAWPKs4HNYT0rANdrI1n99AZ9PUIpfUi3BV4z+JsyTH59qzHpmqYiBs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Qx+vvEKs; arc=none smtp.client-ip=209.85.216.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Q8f6meju"
-Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-77f5d497692so249526b3a.1
-        for <selinux@vger.kernel.org>; Wed, 22 Oct 2025 16:34:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Qx+vvEKs"
+Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-33bb1701ca5so189208a91.3
+        for <selinux@vger.kernel.org>; Wed, 22 Oct 2025 16:38:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1761176070; x=1761780870; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1761176297; x=1761781097; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=XYTGG9Mb6OsLLfCv5H2JjYhedhDfFTXQmDBbuKdGPv0=;
-        b=Q8f6mejuot8zc2yRERzbqti3HeoTvgR8KpPG8kLTncFU3Viwta3Hn/tO9VZMK8e9iR
-         buFSjJ4JUX2wfiMzEE87djhoicf+/c77NXCGGkdV/+tUQe9Bl0T3el/UOk09o24c1N8u
-         7yXrzN0d9BH/Yc0Qj9Ne/Tr+/9EBF0g3VGHtH62xw+8pOeRDjJNePuagH7m4QnSW6Cpz
-         4+MevC/CeNcaDOikdBGoJSKU/cfefzlc6pQhKU5lcG0cE0InUTOpGsNXxyDIjxZxjJQ6
-         Ku6kSaX3Imp6h+iG5LbI6N2Dq4ZPoIUQMTarGNKqDC+0OZL9Kr4bB7BvwxxEXC2TGJEy
-         T0IA==
+        bh=LYKIPVspJfdSDazyirPz9heRK01nd07VwEgWmL8zD1I=;
+        b=Qx+vvEKsiss2jyAS4ZL52ZrnPKZoXtZZHIKhFRVqMez9YaK7R0hwb2cJvRqjgtm833
+         D49SIEv/ZfUFiMLzZX26P/0BphYMIIzqLm4E9R+zDvV4qEHYg6iVZn+MDaHk54dmMBsj
+         vT2XfKKP8h9bLkz83+7FPmkMUzaLahWdw/NzchupCCuKKJPDoIFDW9QT/uiL09H+5XLp
+         Amhn4QWtsh2AyQ7hcoIiPkBD8w25mefugFfmxgQVtbJHVJtnoUl/yywFbYo+RSHSbU7R
+         /xViKIIliFpAsw5cFH+h/biw8InxG+wwDVVTPlaLBH+enQYZ+X0yrffOXgclWTIgc37J
+         QFWw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761176070; x=1761780870;
+        d=1e100.net; s=20230601; t=1761176297; x=1761781097;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=XYTGG9Mb6OsLLfCv5H2JjYhedhDfFTXQmDBbuKdGPv0=;
-        b=jKCTDTNryg5QUE6o0TyXzYA4ThBkmUpoPFPio4BloexeHSkDmaH3Wl2ybJB/ADXa/H
-         rFyjhtuJ7NapVUzKhySSlqZdxGgmc6Arry/Bxy6ifaW/MYh4eJCiAGsFv75YeYrw8C5y
-         Z3ryH+ybBFA2io3eO3CBXKSYjdyMB5L8+46MumNMAfqCB2AqrAniy6CkjWjooHBDqeGu
-         tpcnsoycwRcHWnplGhKwsY+HQanV9H9rbfNgmmBhzJQ5zOsIkif2vs4UbsLJNSlZfvUP
-         De9RIC21nNEft9jTW451X7PO4oLq2wRrHyA9nRSR1GBRPCIIjNLtNN16qPjPEDzdgnz6
-         8JvQ==
-X-Forwarded-Encrypted: i=1; AJvYcCX2VYg0dczgwmHrt4Uo8xQ0WngsBScgTnXKTb9V5M5b3oWzYV3zEHq7nh+6v5GuvomYdcUb218/@vger.kernel.org
-X-Gm-Message-State: AOJu0YztAcnft0BEqFyxDPO63K1LxjztPGoE4so+H8LQ2BIozZqTjdq/
-	P7GMMwuF6gKPcMeYWmSYkdIM5jEAHDKdWAQ9khgGd2lATZQ8xcw8ekih8WuJm9xuOJpXKCo/cD6
-	L0yYMwsxlNQ4qK44oJ3enpUkOQB3Bd1D/6jYnFhqH
-X-Gm-Gg: ASbGncue+r6Ehov3+WYF0sCo3ZLyrkx2WeqHEhx3+7U25+Wg0zmCU6EJ2HQxBeK1fkg
-	48d57D2nhavG4z4dxDsIOrlnX270uJOjgk+rGEH6AFU4ABAZkH0P94zTEFX1AO1PUSRpXMSc4GZ
-	SehzkkwhLNztgvT2YzJSIALWnUczPuEWX8rPYIHHWy6wsKCxgHfPIVs3RsiSqNDJtzj3xtxJQqA
-	s4X/m2qgBKO5G/SLYTS8SNTJKwGM7fHKVeA8s8syseY2GoCeMX42q42mw7hbFFek11lFms=
-X-Google-Smtp-Source: AGHT+IEpdFxeI3Tg3wPnuZQbcK3uSFH1zDfkYZ+d44nuiGe8slDFYbF1+f2bbbTHcXljNnVPc4f29mGU4SVhJ+4wxrk=
-X-Received: by 2002:a05:6a21:328a:b0:334:a523:abe7 with SMTP id
- adf61e73a8af0-334a8594429mr30867764637.27.1761176070015; Wed, 22 Oct 2025
- 16:34:30 -0700 (PDT)
+        bh=LYKIPVspJfdSDazyirPz9heRK01nd07VwEgWmL8zD1I=;
+        b=ux3HSOnToxlvncMrW6auG5Xo5fTaua9swfvVPat8JNtLB3MFIb0vyf+Y8JkeakkUEt
+         v6wijaZcoKJ5/KOaFcCvW8SjZaXDGY1Ne6zHRIh4MGnsHJ2ReJsPW6tV4CcxTucpFFkq
+         QntX/4jlvsIIje+EMmz7HejlPDmSGSn31jK9cWDq2YS4fGXegMMiBo5uFjCpI0TGFmC6
+         PaLnpXkeO2mayL4R1LkgjDCzJU7jMCnVajcNOKzKgIW+XM8vumnFRDJNg7RqqPjq2k7q
+         jPvfqrtUWrxiW9m37VoVUFUVYIsrvSIrgR3QvqNkRL6U8sBZ0EpID1lNVx5f9RGjxx4u
+         wzJw==
+X-Gm-Message-State: AOJu0YwZ4kJyOzKBsmIwRVf2YUo7OyrL/kTC0T7li1oSRzHMppqCaQci
+	VNa2ER0RDTnNEbiRaLeqGjg0BIrcY9m/559Uwm6AaxvYCqG7LQ4HtHesXYJHf/IWInt8gZklbmB
+	/yJCqgQ40KjC15oKrqiaDhYoxBjzVH4+ezP8Wb+Pq
+X-Gm-Gg: ASbGncvgfSbhoWu3NNMVE8VflulvlSt3xf9zYRBcen845DGIFY5ji1ctn/PbDracGrJ
+	wL779AEWj2uEMc7I84L/g4ANQfCe7iE7+h46BW9D52Mhjnu72VOVZZjGJPsy9Ng5D5Xr0e4NUkV
+	dbgYHe/q+C+mzJ9RFaaiCuL9xHbd4uDIaMswZ93tHjeIxbZcsqsaI0MtlA87y/YOXEnxTXB8SRU
+	mnCNyJ3T2qpDRbrpmv4bfBysIvpiabfzBjPHY9+pIkBGMH97eZwn6onWS9EZF6UR611+Y8=
+X-Google-Smtp-Source: AGHT+IFK04iAW3gOsHv8S1u/QXELPW5K5SBc/R9s4BwDZHCkM4JlYq58OhcVziGaFi/ZCwxwJYz1TQcg/OikgCIEF4o=
+X-Received: by 2002:a17:90b:1d88:b0:32b:df0e:9283 with SMTP id
+ 98e67ed59e1d1-33bcf90e86cmr29335173a91.34.1761176296693; Wed, 22 Oct 2025
+ 16:38:16 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251017202456.484010-36-paul@paul-moore.com>
-In-Reply-To: <20251017202456.484010-36-paul@paul-moore.com>
+References: <CAEjxPJ4CNH91Vh-5dF=43Xwg7WpSq8obKn+iAyg0HhqWqBzAUw@mail.gmail.com>
+ <CAHC9VhQZ9wdb9Tr4V40kXu_40xF29+dizae2oysPL5LKnkfU0A@mail.gmail.com> <CAHC9VhQwR8vu1ajp1NDir3KhWC=XW_TiqeNHKz2nHRWCHnADEw@mail.gmail.com>
+In-Reply-To: <CAHC9VhQwR8vu1ajp1NDir3KhWC=XW_TiqeNHKz2nHRWCHnADEw@mail.gmail.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 22 Oct 2025 19:34:18 -0400
-X-Gm-Features: AS18NWB813Tg6fqdUDfKRNqfMg-iS1a5dI4NsDx5kG5Rq3ywJYs9FofpNeOyw_c
-Message-ID: <CAHC9VhTNBs4+n6m83hbwJk4APALsikmwcHoyX67GWHLPZPSQBQ@mail.gmail.com>
-Subject: Re: [PATCH v5 0/34] Rework the LSM initialization
-To: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, 
-	selinux@vger.kernel.org
-Cc: John Johansen <john.johansen@canonical.com>, Mimi Zohar <zohar@linux.ibm.com>, 
-	Roberto Sassu <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>, 
-	=?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
-	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
-	Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>, 
-	Casey Schaufler <casey@schaufler-ca.com>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, 
-	Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>, Xiu Jianfeng <xiujianfeng@huawei.com>
+Date: Wed, 22 Oct 2025 19:38:05 -0400
+X-Gm-Features: AS18NWD9fS343AEqcWNTqXNVEp4p89bWGq6pnMwhEoGbbJKWPTPqB1hYF4BRWk0
+Message-ID: <CAHC9VhQ9xk7LFVKkZ8uVeWVQUpSO-TtWOziDtpJYDcbUzVi4oQ@mail.gmail.com>
+Subject: Re: Fix for v6.18-rc1 udp test bug
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: SElinux list <selinux@vger.kernel.org>, Ondrej Mosnacek <omosnace@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 17, 2025 at 4:28=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+On Wed, Oct 15, 2025 at 5:53=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
 ote:
+> On Wed, Oct 15, 2025 at 5:39=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
+wrote:
+> > ... I'll add this to the kernel-secnext builds now so anyone
+> > using those should benefit on the next version.
 >
-> This is the fifth, and likely final, revision of the LSM rework patchset.
-> The number of changes in this revision are very minor and barring any
-> surprises I expect to merge this into the lsm/dev branch next week; I'll
-> send a notice when I do.
+> Kernel version 6.18.0-0.rc1.251015ge987e.18.2.secnext, or later,
+> should have this fix.
+>
+> https://groups.google.com/g/kernel-secnext/c/6NKuDyD-DHY
 
-Here is that notice.  This patchset is now merged into lsm/dev and
-should be in the next linux-next release; if anyone notices anything
-odd, please let me know.
-
-As a FYI, I also moved the base of lsm/dev up to v6.18-rc2 to grab the
-fix below (it was affecting testing).
-
-https://lore.kernel.org/netdev/20251015052715.4140493-1-edumazet@google.com=
-/
+FYI, I also went ahead and rebased selinux/dev to v6.18-rc2 to pick up
+this fix so that anyone building kernels directly from selinux/dev (or
+selinux/next for that matter) should have the fix.
 
 --=20
 paul-moore.com
