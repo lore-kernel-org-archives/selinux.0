@@ -1,204 +1,125 @@
-Received: from mail-pf1-f196.google.com (mail-pf1-f196.google.com [209.85.210.196])
+Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8106C30C62E
-	for <selinux@vger.kernel.org>; Thu, 23 Oct 2025 11:30:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.196
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 950001C3C11
+	for <selinux@vger.kernel.org>; Thu, 23 Oct 2025 22:24:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761219029; cv=none; b=S0Z3qTavO/Sivpsc4PpO0Lhgysi99TGXpO+opWEb8yBkIf0tjo3AeSVIME2sD58GwCHqB+AyAd9MmeSqPqDo8Ad0g4A4MANkwnISVVjmhb4NCLXFTFL41Tno1qn4LEyQbN15/bP4C0avLteaNC5rgduQmso8QOJ/K0ma2zQnGQo=
+	t=1761258268; cv=none; b=to1KjWnRzqrVsapmsbAR/X10yNyxp0WUiAa6yx/Q78oyttZ9bFgYkI2Zdc2mses2ytbBC5uUlx8R9Pud6Pvecz8mScXNbJHiXK82WL4bEL2MnsRZMgSIzOCrzI6dJfiaiNrM+FpaH7zqVwla+gC2RmJqK0VC9dIn8hzG7ws1XGM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761219029; c=relaxed/simple;
-	bh=g1DU7d94xMAyLBEjLrv5eEgZmKZsihsLzGHxYVkc4e4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=rjFmlN8qiLMi1LbB4okTOX4Xm0jD6LrRjBK6QllfiA6mijgrv9fiw1jG8ZGEFnL/tpotflvLAJaZ15zR8rtFUM0kZNctv1sb47pR2C812hTG97gQsTJ03H4hKCMgSf3M+K36z/QNAd+1a3uuJC0QvdEc0o+XXOKPPpvTHMwjepw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NZCJ0Wo3; arc=none smtp.client-ip=209.85.210.196
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1761258268; c=relaxed/simple;
+	bh=RI61nj5Xpi3g63pf6MmrqXj3YI71ZQ8vNKUPxwaYJkY=;
+	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
+	 References:In-Reply-To; b=pVXz4QFUDrngBzMmQT6bqP2v9ZqV9i4nCo60TXTsPrtUkYpCLurTYcKfyHhGRtqk7vShKe+CeHdjJUDanRRvNODCTHcvZGNv5g5sw4SmFzk6SqbM6Kka/NwFz3DXQazWsAbIu4ReMqIlt4PkuJEqLZpebb4q+pXDhdKSnffDUQU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=ZX9+ush9; arc=none smtp.client-ip=209.85.219.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NZCJ0Wo3"
-Received: by mail-pf1-f196.google.com with SMTP id d2e1a72fcca58-7a27ab05a2dso347119b3a.2
-        for <selinux@vger.kernel.org>; Thu, 23 Oct 2025 04:30:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="ZX9+ush9"
+Received: by mail-qv1-f50.google.com with SMTP id 6a1803df08f44-87eed34f767so13304306d6.2
+        for <selinux@vger.kernel.org>; Thu, 23 Oct 2025 15:24:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1761219026; x=1761823826; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=aLppwfFWUo1tq7Snl3tWff6m26kvcM/wx2BRdiKXXcI=;
-        b=NZCJ0Wo3XD3NZYME7JarAHy4BMt82k0z1eTVAia4CSl6v+/S6h8DQvSOn1yvgU6o3i
-         6pUDP6vNTi6+ALik5WlQ+owfhSdIjqmvHePAyH0Y96x78Y2nMdalySQgzQAnfuZnnQeB
-         tWeJD8Us5vix9ztiyEswKI6qWlA72XJ8pveluDxqFkIJ6oTXJgD1xY9r+R0RoV73moR7
-         qJKQtB/4IqRc4EPxBpd1bFP9rFrJFNu3Dhne3Wz6D4BIV4Z2N7bUyQUzWgn5oJG/hT/N
-         DejBD/eDoPb5k3Fo4PU9qgVRlI1aDX8WbNrNxvCz4aWzbu7Lnl6/aHs46EHSn5OuriZO
-         TcAw==
+        d=paul-moore.com; s=google; t=1761258265; x=1761863065; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=9ltpHz74jq2314hEgAIMxZgJUxyrXRNrY30m3sAX6Y0=;
+        b=ZX9+ush9E9fMDqGpCpziy2RhwCNo7k1a0fMcmSGzSAhpwHNDe+ZTq/TWZ0Gzu0aB5r
+         mnqOQ5Mee3TenzjjSVj0mz7dN+uPOTjrdoQZqH6E33LftU+PVmxEqm5qdwlngN67Vwmk
+         PR2zgZkfRQvuOwx0ohwrpxgKWafXtzAajDXDGihCoM6P3LXLGMiAsM+MRM7Xzl2NWKxF
+         +yxnjJx9rRfPJFbQm25+2Rc4PRoWb9CIY0SIvOJQaxm7Qf2xmZqWMUs/mSBwkeW5n7BT
+         dLfveqmGlKoZG6k79VPFrpCz6FjwPjyN8oaeLcBwY4b1fjy+mWoqpmADlK1Y/Kcil/9M
+         Huyg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761219026; x=1761823826;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=aLppwfFWUo1tq7Snl3tWff6m26kvcM/wx2BRdiKXXcI=;
-        b=fgsCMYGajHSLAJYkMDOEpqOb+/0yNWOzGmi4vRMsLyw9o2CEuXVPqMdnuEWCFaw0fA
-         tIOQgkWndehspU3AESxEcrom5lWdxKNvNeFwud9BO4WZ/3tbemNwdh+OMx8k3ARwK/DA
-         d4vKxTinFk+X5dh/OXmZYOprZWusf73gY7CZsXrc0JS0MKRGF/NC+o2nvmCxYfW7umRi
-         Fo7VDjbyFhmnNgFE4taxWj7VLChzY+KltMAxz2BS7/mLr94CkAq9tztqFw5rzhYcx8Pl
-         j0LMXyprKnnTaqRHkHhcdXGDwkbBgyemdrnZEkG2fESIp2ZAd1lwvRQh+f/IFcWIuplP
-         RhyA==
-X-Forwarded-Encrypted: i=1; AJvYcCUTIu87EXb737efcm2iloU9mCLTMObq1pUGb7DG63FvyGQSUTPcF7NFowBJgD77T4HZWNKaOUv3@vger.kernel.org
-X-Gm-Message-State: AOJu0YyzvG320qn0Tk+3xbeKemfcGzXpLWzaHU/RmKWD2mUjUBN659+r
-	B5R4pzgSlDVLLDeC6NKQpCZsB95fuhosltkmNiGFDc2AUZOTXItrKjBB
-X-Gm-Gg: ASbGncu4Jc0HiUKt2kWN4b1KJ0YnEMYjRBYphJeKdCWd+QBsXeeNoqo/yGQLiGtdBRe
-	w87VT6Ngnj7l0ZOcN1VXgoBQccW+gNUB06sESXaRNM8S5S6gV0hEumHUt4ssB6OW0i0UAF/hT26
-	KS/w5cZlb6GxO9FFewAH8dudv0xqy3PYgh96iRYkOGxErsTBJcbM4Xrdb5RrfLAP60aU0xxsiP4
-	jDeuhC39a8P6DjQY6C0gLZwNY1mim4H5BPp7dzyHyzxvp8aNAqNagmYWWjyuReiCL6rmtqAVjse
-	euYS9onXwTnQ9kR4kpl2Zmuk588imJ5b1GiLbEvpgZPDngcE5LQcT4TiaiuE4cR6S+6dmRZgko8
-	jHcI+fQq2mx5KmX+kVAVTXRj2T0Nntsy7rjQW8N1coCsdrue826AUUNc6euLhMIcW7iB6j1sMkV
-	mdQ+wL7aboA9c0RuX799l60czSDzTQ4ru5seQnuhc=
-X-Google-Smtp-Source: AGHT+IGVxKcixynlh26jYNQh04/DlYMvYZG4vx+TykiwHkcLG3w5tzvnhnluh27LHDoEaKYdepQqUw==
-X-Received: by 2002:a05:6a21:3289:b0:2f3:b278:eaa5 with SMTP id adf61e73a8af0-334a862dffcmr29150670637.60.1761219026204;
-        Thu, 23 Oct 2025 04:30:26 -0700 (PDT)
-Received: from zhr-ThinkStation-K.mioffice.cn ([43.224.245.231])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-b6cf4e0a42fsm1834429a12.25.2025.10.23.04.30.23
+        d=1e100.net; s=20230601; t=1761258265; x=1761863065;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=9ltpHz74jq2314hEgAIMxZgJUxyrXRNrY30m3sAX6Y0=;
+        b=nVyH0DfnARgyWW6II0W3slZSxj4p2vEyIrSNKRVCpw8CpDZ4M+G7wwo7B2Vjn31q5T
+         pQSnX1NVj7cNiRPNdTpkkwKwZyWF7v/y9Nu70b3FAfwj0sKbkbDOtQ23MVEtHasPRF34
+         xiU1Eq9/+jZr8TYY5WLnV94QvgS6wGWDLOYppbPZuAA4Tb4ygm19X39dI3cOsRkHCkoA
+         BRgeqF18e9Qft0z6uTd0iurfo+Gk2PO0jBPfezNACQ1khh3CJoec1h1Knxf8osbgRZyj
+         TLse3rtek3R3Nc0qMV4ubs6bVhe6E+44FDN87qCMsbYH/Th8hn9e4vPqMJmZkBtajWRE
+         v3hg==
+X-Forwarded-Encrypted: i=1; AJvYcCVEPjgpCVflInotdKKI/OjcsUlnH6CNsjmPpquJmFQBXyZardWuAHFYS+fNXtb8l7sILYWd4+OL@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw3ydoz9/Uxfuckg3p7r0X+20FQ4T61CFC5MmBAAAqXZtEr0rb7
+	np/VJPYykRjfSnMTlBMN0FR3HIhpomUcQOcKACdh3+H/6ncrKuS4mCnrTtOlg7WChg==
+X-Gm-Gg: ASbGncthBUDG261Z9ieXajbrpKed4AQFYTrhCJL3lML9D0/gQYC9S8xCvIS4Z3FWVBO
+	1j7aELpkEIHq9zlK1phvGksL6hSueCEe3LMv8dV8L51+Can2JQrV4Ddy7d+pvisH9E227ZsSEmN
+	KPBQxBaexxir7/rYvvkd3ZnUzhMTkgIekdgNonZo8qJpzRUiBBSJ4azuBbinF6ilL1VIg06xClg
+	3J+DJ0QGoILmkYY1syupk5/gLZU8rK5asEV8wbqOpJktQ+wzinthBfgju0kT8kFo8wfYJn4SxCs
+	MVngmR9iQZj+57BZzLlnFPdfPH/QK1nw5DK7dhjH3olX/DvCaiz9ehAzzKZJ3MAo6mrNTDl1CwW
+	eu4yCLrbJ0zgL/p03SddJ55+RvGjbV9HJ7fLvsn7dp5PoNFrqLnK1kMjVkk9MSWp4cWi284JkAQ
+	tNG7AfEsbAH1cDpMZ9OrJffzzVoqJUWHnFGTcXIN7tpWRpcT+wbMeXKDs4
+X-Google-Smtp-Source: AGHT+IE8jv3Je8Ul7XlJ8/oqI6J54riHmM5iZFaCaN+Iyggje6kxt1OT1o4JcVmt60o1zEpBWQteiQ==
+X-Received: by 2002:ad4:5ece:0:b0:878:6fa3:842d with SMTP id 6a1803df08f44-87fb62a1d27mr1305436d6.0.1761258265418;
+        Thu, 23 Oct 2025 15:24:25 -0700 (PDT)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-87f9e82908bsm23214256d6.58.2025.10.23.15.24.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Oct 2025 04:30:25 -0700 (PDT)
-From: Hongru Zhang <zhanghongru06@gmail.com>
-X-Google-Original-From: Hongru Zhang <zhanghongru@xiaomi.com>
-To: paul@paul-moore.com,
-	stephen.smalley.work@gmail.com,
-	omosnace@redhat.com
-Cc: linux-kernel@vger.kernel.org,
-	selinux@vger.kernel.org,
-	zhanghongru@xiaomi.com
-Subject: [PATCH v4 3/3] selinux: improve bucket distribution uniformity of avc_hash()
-Date: Thu, 23 Oct 2025 19:30:18 +0800
-Message-ID: <4bf4246da1ad44670093e006bffd3c9e07f089ea.1761217900.git.zhanghongru@xiaomi.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <cover.1761217900.git.zhanghongru@xiaomi.com>
-References: <cover.1761217900.git.zhanghongru@xiaomi.com>
+        Thu, 23 Oct 2025 15:24:24 -0700 (PDT)
+Date: Thu, 23 Oct 2025 18:24:24 -0400
+Message-ID: <5364449d2011c1d394a7bb30109b923d@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=UTF-8 
+Content-Transfer-Encoding: 8bit 
+X-Mailer: pstg-pwork:20251022_1923/pstg-lib:20251023_1801/pstg-pwork:20251022_1923
+From: Paul Moore <paul@paul-moore.com>
+To: Hongru Zhang <zhanghongru06@gmail.com>, stephen.smalley.work@gmail.com, omosnace@redhat.com
+Cc: linux-kernel@vger.kernel.org, selinux@vger.kernel.org, zhanghongru@xiaomi.com
+Subject: Re: [PATCH v4 1/3] selinux: Introduce a new config to make avc cache  slot size adjustable
+References: <cc48748e9dcfa63fbbaeabad0b2536a0f602cb1d.1761217900.git.zhanghongru@xiaomi.com>
+In-Reply-To: <cc48748e9dcfa63fbbaeabad0b2536a0f602cb1d.1761217900.git.zhanghongru@xiaomi.com>
 
-From: Hongru Zhang <zhanghongru@xiaomi.com>
+On Oct 23, 2025 Hongru Zhang <zhanghongru06@gmail.com> wrote:
+> 
+> On mobile device high-load situations, permission check can happen
+> more than 90,000/s (8 core system). With default 512 cache nodes
+> configuration, avc cache miss happens more often and occasionally
+> leads to long time (>2ms) irqs off on both big and little cores,
+> which decreases system real-time capability.
+> 
+> An actual call stack is as follows:
+>  => avc_compute_av
+>  => avc_perm_nonode
+>  => avc_has_perm_noaudit
+>  => selinux_capable
+>  => security_capable
+>  => capable
+>  => __sched_setscheduler
+>  => do_sched_setscheduler
+>  => __arm64_sys_sched_setscheduler
+>  => invoke_syscall
+>  => el0_svc_common
+>  => do_el0_svc
+>  => el0_svc
+>  => el0t_64_sync_handler
+>  => el0t_64_sync
+> 
+> Although we can expand avc nodes through /sys/fs/selinux/cache_threshold
+> to mitigate long time irqs off, hash conflicts make the bucket average
+> length longer because of the fixed size of cache slots, leading to
+> avc_search_node() latency increase.
+> 
+> So introduce a new config to make avc cache slot size also configurable,
+> and with fine tuning, we can mitigate long time irqs off with slightly
+> avc_search_node() performance regression.
+> 
+> Theoretically, the main overhead is memory consumption.
+> 
+> Signed-off-by: Hongru Zhang <zhanghongru@xiaomi.com>
+> ---
+>  security/selinux/Kconfig | 11 +++++++++++
+>  security/selinux/avc.c   |  6 +++---
+>  2 files changed, 14 insertions(+), 3 deletions(-)
 
-Reuse the already implemented MurmurHash3 algorithm. Under heavy stress
-testing (on an 8-core system sustaining over 50,000 authentication events
-per second), sample once per second and take the mean of 1800 samples:
+Merged into selinux/dev, thanks!
 
-1. Bucket utilization rate and length of longest chain
-+--------------------------+-----------------------------------------+
-|                          | bucket utilization rate / longest chain |
-|                          +--------------------+--------------------+
-|                          |      no-patch      |     with-patch     |
-+--------------------------+--------------------+--------------------+
-|  512 nodes,  512 buckets |      52.5%/7.5     |     60.2%/5.7      |
-+--------------------------+--------------------+--------------------+
-| 1024 nodes,  512 buckets |      68.9%/12.1    |     80.2%/9.7      |
-+--------------------------+--------------------+--------------------+
-| 2048 nodes,  512 buckets |      83.7%/19.4    |     93.4%/16.3     |
-+--------------------------+--------------------+--------------------+
-| 8192 nodes, 8192 buckets |      49.5%/11.4    |     60.3%/7.4      |
-+--------------------------+--------------------+--------------------+
-
-2. avc_search_node latency (total latency of hash operation and table
-lookup)
-+--------------------------+-----------------------------------------+
-|                          |   latency of function avc_search_node   |
-|                          +--------------------+--------------------+
-|                          |      no-patch      |     with-patch     |
-+--------------------------+--------------------+--------------------+
-|  512 nodes,  512 buckets |        87ns        |        84ns        |
-+--------------------------+--------------------+--------------------+
-| 1024 nodes,  512 buckets |        97ns        |        96ns        |
-+--------------------------+--------------------+--------------------+
-| 2048 nodes,  512 buckets |       118ns        |       113ns        |
-+--------------------------+--------------------+--------------------+
-| 8192 nodes, 8192 buckets |       106ns        |        99ns        |
-+--------------------------+--------------------+--------------------+
-
-Although MurmurHash3 has higher overhead than the bitwise operations in
-the original algorithm, the data shows that the MurmurHash3 achieves
-better distribution, reducing average lookup time. Consequently, the
-total latency of hashing and table lookup is lower than before.
-
-Signed-off-by: Hongru Zhang <zhanghongru@xiaomi.com>
----
- security/selinux/avc.c          |  3 ++-
- security/selinux/include/hash.h | 11 ++++++-----
- security/selinux/ss/avtab.c     |  6 ++++++
- 3 files changed, 14 insertions(+), 6 deletions(-)
-
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index c12d45e46db6..8f77b9a732e1 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -30,6 +30,7 @@
- #include "avc.h"
- #include "avc_ss.h"
- #include "classmap.h"
-+#include "hash.h"
- 
- #define CREATE_TRACE_POINTS
- #include <trace/events/avc.h>
-@@ -124,7 +125,7 @@ static struct kmem_cache *avc_xperms_cachep __ro_after_init;
- 
- static inline u32 avc_hash(u32 ssid, u32 tsid, u16 tclass)
- {
--	return (ssid ^ (tsid<<2) ^ (tclass<<4)) & (AVC_CACHE_SLOTS - 1);
-+	return av_hash(ssid, tsid, (u32)tclass, (u32)(AVC_CACHE_SLOTS - 1));
- }
- 
- /**
-diff --git a/security/selinux/include/hash.h b/security/selinux/include/hash.h
-index 5b429a873eb6..18956dbef8ff 100644
---- a/security/selinux/include/hash.h
-+++ b/security/selinux/include/hash.h
-@@ -3,10 +3,11 @@
- #ifndef _SELINUX_HASH_H_
- #define _SELINUX_HASH_H_
- 
--/* Based on MurmurHash3, written by Austin Appleby and placed in the
-+/*
-+ * Based on MurmurHash3, written by Austin Appleby and placed in the
-  * public domain.
-  */
--static inline u32 avtab_hash(const struct avtab_key *keyp, u32 mask)
-+static inline u32 av_hash(u32 key1, u32 key2, u32 key3, u32 mask)
- {
- 	static const u32 c1 = 0xcc9e2d51;
- 	static const u32 c2 = 0x1b873593;
-@@ -28,9 +29,9 @@ static inline u32 avtab_hash(const struct avtab_key *keyp, u32 mask)
- 		hash = hash * m + n;                       \
- 	} while (0)
- 
--	mix(keyp->target_class);
--	mix(keyp->target_type);
--	mix(keyp->source_type);
-+	mix(key1);
-+	mix(key2);
-+	mix(key3);
- 
- #undef mix
- 
-diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
-index 15e89d9b5d72..7d44b546ab45 100644
---- a/security/selinux/ss/avtab.c
-+++ b/security/selinux/ss/avtab.c
-@@ -25,6 +25,12 @@
- static struct kmem_cache *avtab_node_cachep __ro_after_init;
- static struct kmem_cache *avtab_xperms_cachep __ro_after_init;
- 
-+static inline u32 avtab_hash(const struct avtab_key *keyp, u32 mask)
-+{
-+	return av_hash((u32)keyp->target_class, (u32)keyp->target_type,
-+			(u32)keyp->source_type, mask);
-+}
-+
- static struct avtab_node *avtab_insert_node(struct avtab *h,
- 					    struct avtab_node **dst,
- 					    const struct avtab_key *key,
--- 
-2.43.0
-
+--
+paul-moore.com
