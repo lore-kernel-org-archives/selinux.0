@@ -1,64 +1,64 @@
-Received: from mail-pj1-f68.google.com (mail-pj1-f68.google.com [209.85.216.68])
+Received: from mail-pl1-f196.google.com (mail-pl1-f196.google.com [209.85.214.196])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C0EB30DEC8
-	for <selinux@vger.kernel.org>; Thu, 23 Oct 2025 11:29:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.68
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74A8B30E843
+	for <selinux@vger.kernel.org>; Thu, 23 Oct 2025 11:30:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.196
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761218971; cv=none; b=EyCyXghx9zulSkCwkSKQRIbQF9VtkFydMbOyELJh8fIC+y0z77LTHO2Ayj9bU5iAt5IBmfS7dxHFSXx/D91ntEL18A2MULHqkO0UItEOClXyk2sYgBCDKBx5aGiJmy75XLigOp7VB9XiwwOdEUbuXNqd4DJwQcH8xOHHuSbFYSQ=
+	t=1761219004; cv=none; b=KLvVvsDhMaEOUMNlMPhN5FM4kOpbn5NxA9NXjSAtxu/hnHoSXBAa0afkLqqZ50TJHv141EyQYzg/Poh/HNAxz/T+e6Rw5zfEV/NpsGC8n0GqRtnzTDWeTiTxxG0rc4H82yKiioQAfPTaoe3bdUKp7U89cwp4tLDNoRofS5jfI1U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761218971; c=relaxed/simple;
-	bh=FzKKP+qi1TzhAHy7hRHyyiW9VgAJXjaR72cYrrVJ5mc=;
+	s=arc-20240116; t=1761219004; c=relaxed/simple;
+	bh=3cmcw6O1JT0q/DZK1ZW/J4/7wvV5/ihiGwU0wWyX6Sk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=h/xz2Ypn+1Il7Hy7G3BgI79/BTpFqygt1ipQU4Y+IVVHkhlRbYgeVGqM3tcZ8sbUbM1DdNS8xeQCw3ZxNDloFdE9TdgIa3sRnRCTcOJhRF86G1wqDFiSY5DXjtcawGUvb2JHXTM7oBWT3aQc1zYigy+p7S87lOP4XzN83qm3Ejg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bYtkqRJO; arc=none smtp.client-ip=209.85.216.68
+	 MIME-Version; b=gWsNs8zUXdFCHgqrlu81uTes1W7Dq3of77H66WcEXj8POlmAdOtqJe7XMtsuDl6I1wxPEcP1FkRXmJzS3kU6giKmMv5fxXU5lnrb0T0dRhTM0hP06ojzPTTElb70RPmjuLYzsM0PgPsQYqW5jp1uHHHnsO4JtMGoDTrQpXA1H8A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R2bUaFvL; arc=none smtp.client-ip=209.85.214.196
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bYtkqRJO"
-Received: by mail-pj1-f68.google.com with SMTP id 98e67ed59e1d1-339c9bf3492so926413a91.2
-        for <selinux@vger.kernel.org>; Thu, 23 Oct 2025 04:29:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R2bUaFvL"
+Received: by mail-pl1-f196.google.com with SMTP id d9443c01a7336-292fd52d527so7465215ad.2
+        for <selinux@vger.kernel.org>; Thu, 23 Oct 2025 04:30:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1761218967; x=1761823767; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1761219002; x=1761823802; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=pI8fyvV9NpEDh37BJB0AeNnznBi5OzA64bjGckGCQw4=;
-        b=bYtkqRJO3m2MRd84Vh8P8CENFYgXShP7hPZayPRpzHltTEjMRbDEG2gAJblVt3iU1C
-         pyh/BdGcXrPx5MUCWFx7es6Yd718xgvasR3ibASOPdIQoFI7P6MiNjtYH+fHgykZV8ru
-         /edtBNnv2xnc1RJVW+J50tCiqndrpvTEa9A7gZ1VJF0rLjcQinNuUJ9j+ZJuZ8L8TorP
-         hY9z1if0M4y7d9yiqe2oYkfZDcn9aWqUEIUS08K+83t//sIrBlnOsCvA9aFsjc5ncT3h
-         5lU1FDhHLubrPipc2uhC2OVL8rjVTR6GRMJak5JONyU8SoSrYEU9dgkyfotxCbLeS47l
-         c9Pw==
+        bh=pSSwZBbOhzicOHkC0jzyAmVpir4bL5Qo+D6Q4ZcG14k=;
+        b=R2bUaFvLpFNhPZwz42gjuqlGRXbFYIhh/po0QtjkHUSvtjaUOiTz1YCh/2OK2LSDKT
+         CnnO6PVPnVG1RYVQJDHn7quJx0m3uAlxjPJC4tbDI3RnyCqPwn7G9P8bV0pCOnLwSCyt
+         PdIsPogjtou4RytBBqPdKEUhDHnRdo6U/AGcmJQXs14I3xycS0vZUyZruWwWv1fYWACf
+         vAKFOSa6HVaHIt55vpx47F2To06igH5XE/kbBzyAWpCPnbcpln127SXd2NW8sEVrJUQ0
+         geK90wKxCBRxV6CA6J9D6Mv2WvnB+JpwhOBl14RiQTlh9zkr2SuCh/RXRX5JdYjVmm7U
+         PcdQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761218967; x=1761823767;
+        d=1e100.net; s=20230601; t=1761219002; x=1761823802;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=pI8fyvV9NpEDh37BJB0AeNnznBi5OzA64bjGckGCQw4=;
-        b=U5asCbC3OHgA1C2PzLZYAsKj/BBIrkUD9q7hc4uHpOiDllv61iuHtIwJMCu6mmat57
-         uwzdj+BZ9K4/+gVlibbAN05SjE5YFlghzUH6FKMfRZnrlMM6XwU1ZCQPrSHUyy/9higM
-         THNqx6alW5HHBguCYqiSELgw1YgXtowhjLv4GSQS6jAYlMMn7h68H9c/0hR01tE/kYkn
-         x2z0ey58L6KlEex2x3Z4fjhwR26zZEOVrCLf2ULMTncXGpndp2UBpx0U2U8wwoExC8a/
-         xWzHsxPeJykEcx+/Y4Jtcz+MxG+tB+Jk7Dq8kq+YyQxDpu+tAuIwXvhUZCdK+DNMxRjB
-         +ZoQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVopJXMR/WvHCn92WZM8ddzz16UrsmUytaARNafs17yChUFzfcx/Y02Ol01iak2OFbpl6GXUvU9@vger.kernel.org
-X-Gm-Message-State: AOJu0YwsyBvL/z4M3tW5fNjsPMmf8mnh5gHNzG7RjQwZTJIwa7NLIsXd
-	q7L9333KplXHqWvhMJBdAsI5HUoNBzyeZ6G/sVQwTun/q+c1BosOS5hC
-X-Gm-Gg: ASbGncvOcICTwzMdyc0OTHq4crDphr3r73d4agYtX/k7nIXneOJ3sfpKblD+jWrjXBS
-	vIJvvTF6dD2dCqTZQrKkYp/hm7fZsI789+5/U98jv3Tjg0UbPwd6w2n/cX43hlO/9vPKCvIVlO/
-	ajaHTpj48inzQoR4gbXhEaP6y2KD9YQPD/bh9N8075mC7/DB8UzRlvmsQv8Z3eOE6NUlsCooh8n
-	e03XwVrmTG75hsBzg5dqAX/roS07xhEEVfpzz9DRy6GM+5K0xyzJDFOiUSAtHlOjSMMwoXFommT
-	HtfmmplHCDaX08dwGNg9mRpuJvmxOVMFgtwJwUJGj/dpoEXqRFCTq9zuVpQS1q2kK4VB4Zttlfl
-	fDl1IdAAMBsg5tXS2HaFFk/PjwlOwcr1hL9YCINDHXckmgMlFt5B++Z9wZEMeZvRHZ9lULWxFBt
-	3HlCSt8bmHIPXsn2tI/Q9iVm7SHQqmg2HMV3UPx04=
-X-Google-Smtp-Source: AGHT+IHMYmeE18WGGDWshrdmjaUibaI2DHVfeSDnI9qvk7s92Hc90Yy/ULdLnI50ohpLA3HpbFF6uw==
-X-Received: by 2002:a17:903:b0e:b0:290:c76f:d2ac with SMTP id d9443c01a7336-290cb65c5dbmr299615075ad.43.1761218967442;
-        Thu, 23 Oct 2025 04:29:27 -0700 (PDT)
+        bh=pSSwZBbOhzicOHkC0jzyAmVpir4bL5Qo+D6Q4ZcG14k=;
+        b=PYioHHKzcaUCayKMqK/J5GZ1Xqpni1SV/q1i95XTzSJbs8oGtpzqw2kw3lQ8rerSev
+         H2Z+0BLCm/T7SOHps/ybUeDN0tw12+/qSnv6qJpIAkLcuT4iTiZa6xgmnMIocHmgzZwg
+         vIDinIe4dL6M4/wGB4SbPIk04N7/ThQ8m3SJWEzC8y2XoHpCyCpE5FhRId9CfuOjyts7
+         qMC3x7HMWwuuNoY126PFcTrV12UYMte1CzcghqO9DVt0GqjMdysZZN17FxnbCL3Ob3bj
+         0nTKmZIQaVkNUoxRzXHQmKnd8cVztxg1nqjXHoTTk7miOJVICA0aoWoOH422Hy1vCNMJ
+         b0Aw==
+X-Forwarded-Encrypted: i=1; AJvYcCXJuBpgvbgBnSHxK55hUsVDDh3tg/CVpCuiK1p6ephrx3gF7GPMecUtUelZjJ38NvUYqx5v3XDW@vger.kernel.org
+X-Gm-Message-State: AOJu0YwJbI7Dt0KEXTbwbEaRxY53Fd3zSEl92F69QkuZmbOcsYDIpAh+
+	mJyvCVyzT6LipOsv9yQOZ0Qsy/1LlcJM5zcHeVRyndoV0b9F1fskKiwd
+X-Gm-Gg: ASbGncuzToLZb4RGZfodrN0VJjs8mRX8FgTt9zuAYcU++v30iKsz5ROYYr65yGb0bag
+	wPoXfYm43+cb1clPzrVsNd6zjjsoVONMajwH1me0JBLhhup81StqmZHj6uTHJceVXnn2bTrhUU5
+	ZwGlrjfQ9Nq8jQJwDHxkjcxDb6LHheQg5oQWTYbyuRbsEAibW936bACAcItn/71VXa7cJniNDQY
+	P5lNJK1GrjIb9eluJYKVyN0U2HvuLzhPMlEIYRHJC3y06BJXqkX4Rj5E3ewBDxcOLKuxDqGg1wd
+	Zn1gRiZ+5rcu0D3BM2mX9KsaPw0bZUDBHtgJP5Hdq1szfMCrFY5EApejFT4HpgCxVKC1RltiUeJ
+	imvLMD60Vobs9IfBYayyEGdgohGgA2U0fS30mjgfXVuaIR6niHsJ9dweZJhy99jR5P3VQn69B5M
+	keDb0Jm/tSrqOAzxoWzCxPpVVO/tL+lz4ObFQgvT8=
+X-Google-Smtp-Source: AGHT+IHq/+kXGc2/fBqgPUCYCUQAWCMlK3uONwZTn9qBtZxs7snqnVTZyF//ylvAIdgH0uG3mnHE3w==
+X-Received: by 2002:a17:902:e743:b0:290:ad79:c613 with SMTP id d9443c01a7336-290cb27c76cmr298740505ad.47.1761219001668;
+        Thu, 23 Oct 2025 04:30:01 -0700 (PDT)
 Received: from zhr-ThinkStation-K.mioffice.cn ([43.224.245.231])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2946de02cb7sm20942165ad.40.2025.10.23.04.29.24
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2946dded613sm20473685ad.37.2025.10.23.04.29.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Oct 2025 04:29:26 -0700 (PDT)
+        Thu, 23 Oct 2025 04:30:00 -0700 (PDT)
 From: Hongru Zhang <zhanghongru06@gmail.com>
 X-Google-Original-From: Hongru Zhang <zhanghongru@xiaomi.com>
 To: paul@paul-moore.com,
@@ -67,9 +67,9 @@ To: paul@paul-moore.com,
 Cc: linux-kernel@vger.kernel.org,
 	selinux@vger.kernel.org,
 	zhanghongru@xiaomi.com
-Subject: [PATCH v4 1/3] selinux: Introduce a new config to make avc cache slot size adjustable
-Date: Thu, 23 Oct 2025 19:29:19 +0800
-Message-ID: <cc48748e9dcfa63fbbaeabad0b2536a0f602cb1d.1761217900.git.zhanghongru@xiaomi.com>
+Subject: [PATCH v4 2/3] selinux: Move avtab_hash() to a shared location for future reuse
+Date: Thu, 23 Oct 2025 19:29:54 +0800
+Message-ID: <a878f27f8148bb4cc662755f6e69400632183477.1761217900.git.zhanghongru@xiaomi.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <cover.1761217900.git.zhanghongru@xiaomi.com>
 References: <cover.1761217900.git.zhanghongru@xiaomi.com>
@@ -83,85 +83,123 @@ Content-Transfer-Encoding: 8bit
 
 From: Hongru Zhang <zhanghongru@xiaomi.com>
 
-On mobile device high-load situations, permission check can happen
-more than 90,000/s (8 core system). With default 512 cache nodes
-configuration, avc cache miss happens more often and occasionally
-leads to long time (>2ms) irqs off on both big and little cores,
-which decreases system real-time capability.
-
-An actual call stack is as follows:
- => avc_compute_av
- => avc_perm_nonode
- => avc_has_perm_noaudit
- => selinux_capable
- => security_capable
- => capable
- => __sched_setscheduler
- => do_sched_setscheduler
- => __arm64_sys_sched_setscheduler
- => invoke_syscall
- => el0_svc_common
- => do_el0_svc
- => el0_svc
- => el0t_64_sync_handler
- => el0t_64_sync
-
-Although we can expand avc nodes through /sys/fs/selinux/cache_threshold
-to mitigate long time irqs off, hash conflicts make the bucket average
-length longer because of the fixed size of cache slots, leading to
-avc_search_node() latency increase.
-
-So introduce a new config to make avc cache slot size also configurable,
-and with fine tuning, we can mitigate long time irqs off with slightly
-avc_search_node() performance regression.
-
-Theoretically, the main overhead is memory consumption.
+This is a preparation patch, no functional change.
 
 Signed-off-by: Hongru Zhang <zhanghongru@xiaomi.com>
 ---
- security/selinux/Kconfig | 11 +++++++++++
- security/selinux/avc.c   |  6 +++---
- 2 files changed, 14 insertions(+), 3 deletions(-)
+ security/selinux/include/hash.h | 46 +++++++++++++++++++++++++++++++++
+ security/selinux/ss/avtab.c     | 41 +----------------------------
+ 2 files changed, 47 insertions(+), 40 deletions(-)
+ create mode 100644 security/selinux/include/hash.h
 
-diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
-index 61abc1e094a8..5588c4d573f6 100644
---- a/security/selinux/Kconfig
-+++ b/security/selinux/Kconfig
-@@ -69,6 +69,17 @@ config SECURITY_SELINUX_SID2STR_CACHE_SIZE
- 
- 	  If unsure, keep the default value.
- 
-+config SECURITY_SELINUX_AVC_HASH_BITS
-+	int "SELinux avc hashtable size"
-+	depends on SECURITY_SELINUX
-+	range 9 14
-+	default 9
-+	help
-+	  This option sets the number of buckets used in the AVC hash table
-+	  to 2^SECURITY_SELINUX_AVC_HASH_BITS. A higher value helps maintain
-+	  shorter chain lengths especially when expanding AVC nodes via
-+	  /sys/fs/selinux/avc/cache_threshold.
+diff --git a/security/selinux/include/hash.h b/security/selinux/include/hash.h
+new file mode 100644
+index 000000000000..5b429a873eb6
+--- /dev/null
++++ b/security/selinux/include/hash.h
+@@ -0,0 +1,46 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
 +
- config SECURITY_SELINUX_DEBUG
- 	bool "SELinux kernel debugging support"
- 	depends on SECURITY_SELINUX
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 430b0e23ee00..c12d45e46db6 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -34,9 +34,9 @@
- #define CREATE_TRACE_POINTS
- #include <trace/events/avc.h>
++#ifndef _SELINUX_HASH_H_
++#define _SELINUX_HASH_H_
++
++/* Based on MurmurHash3, written by Austin Appleby and placed in the
++ * public domain.
++ */
++static inline u32 avtab_hash(const struct avtab_key *keyp, u32 mask)
++{
++	static const u32 c1 = 0xcc9e2d51;
++	static const u32 c2 = 0x1b873593;
++	static const u32 r1 = 15;
++	static const u32 r2 = 13;
++	static const u32 m = 5;
++	static const u32 n = 0xe6546b64;
++
++	u32 hash = 0;
++
++#define mix(input)                                         \
++	do {                                               \
++		u32 v = input;                             \
++		v *= c1;                                   \
++		v = (v << r1) | (v >> (32 - r1));          \
++		v *= c2;                                   \
++		hash ^= v;                                 \
++		hash = (hash << r2) | (hash >> (32 - r2)); \
++		hash = hash * m + n;                       \
++	} while (0)
++
++	mix(keyp->target_class);
++	mix(keyp->target_type);
++	mix(keyp->source_type);
++
++#undef mix
++
++	hash ^= hash >> 16;
++	hash *= 0x85ebca6b;
++	hash ^= hash >> 13;
++	hash *= 0xc2b2ae35;
++	hash ^= hash >> 16;
++
++	return hash & mask;
++}
++
++#endif /* _SELINUX_HASH_H_ */
+diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
+index c2c31521cace..15e89d9b5d72 100644
+--- a/security/selinux/ss/avtab.c
++++ b/security/selinux/ss/avtab.c
+@@ -20,50 +20,11 @@
+ #include <linux/errno.h>
+ #include "avtab.h"
+ #include "policydb.h"
++#include "hash.h"
  
--#define AVC_CACHE_SLOTS			512
--#define AVC_DEF_CACHE_THRESHOLD		512
--#define AVC_CACHE_RECLAIM		16
-+#define AVC_CACHE_SLOTS		(1 << CONFIG_SECURITY_SELINUX_AVC_HASH_BITS)
-+#define AVC_DEF_CACHE_THRESHOLD	AVC_CACHE_SLOTS
-+#define AVC_CACHE_RECLAIM	16
+ static struct kmem_cache *avtab_node_cachep __ro_after_init;
+ static struct kmem_cache *avtab_xperms_cachep __ro_after_init;
  
- #ifdef CONFIG_SECURITY_SELINUX_AVC_STATS
- #define avc_cache_stats_incr(field)	this_cpu_inc(avc_cache_stats.field)
+-/* Based on MurmurHash3, written by Austin Appleby and placed in the
+- * public domain.
+- */
+-static inline u32 avtab_hash(const struct avtab_key *keyp, u32 mask)
+-{
+-	static const u32 c1 = 0xcc9e2d51;
+-	static const u32 c2 = 0x1b873593;
+-	static const u32 r1 = 15;
+-	static const u32 r2 = 13;
+-	static const u32 m = 5;
+-	static const u32 n = 0xe6546b64;
+-
+-	u32 hash = 0;
+-
+-#define mix(input)                                         \
+-	do {                                               \
+-		u32 v = input;                             \
+-		v *= c1;                                   \
+-		v = (v << r1) | (v >> (32 - r1));          \
+-		v *= c2;                                   \
+-		hash ^= v;                                 \
+-		hash = (hash << r2) | (hash >> (32 - r2)); \
+-		hash = hash * m + n;                       \
+-	} while (0)
+-
+-	mix(keyp->target_class);
+-	mix(keyp->target_type);
+-	mix(keyp->source_type);
+-
+-#undef mix
+-
+-	hash ^= hash >> 16;
+-	hash *= 0x85ebca6b;
+-	hash ^= hash >> 13;
+-	hash *= 0xc2b2ae35;
+-	hash ^= hash >> 16;
+-
+-	return hash & mask;
+-}
+-
+ static struct avtab_node *avtab_insert_node(struct avtab *h,
+ 					    struct avtab_node **dst,
+ 					    const struct avtab_key *key,
 -- 
 2.43.0
 
