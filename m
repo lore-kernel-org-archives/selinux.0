@@ -1,132 +1,232 @@
-Received: from mail-qv1-f42.google.com (mail-qv1-f42.google.com [209.85.219.42])
+Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5A74299A8A
-	for <selinux@vger.kernel.org>; Thu, 23 Oct 2025 22:24:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 853182ED165
+	for <selinux@vger.kernel.org>; Fri, 24 Oct 2025 08:08:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761258272; cv=none; b=aDGITqB3k10+v733m/aMMnI/4R8Vaee6Pj5n4wcqlVs/cGXC0sW6QBwuHyw7NiGF2tMQG0q9l38mNR/gcFKXZuoUNFLprGKw9okn6/5uE/rxICpxNpHGPrPqVc17uVeYARAAFsaxlm5qpc7csiq8xAsq/TgyQFUAd5K0T/qFXuY=
+	t=1761293292; cv=none; b=jXpCoBovrUdaFhA4YHT7a3IVfUcYby80bSW3KHOR4Vo43p/CcIMUTJu2LSREE2iEdDv6rwDZEUqBqranYqfuRSxzMJ5xaT8PLSPUOKnLGxTrAFOW/2Hdmq0ER8cuytjdrEudcBoOrRok1nj0EdNAWxVNDpPxpXroJDkyUb3xrR0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761258272; c=relaxed/simple;
-	bh=v/l7SPMG23kk+Ts04TGLZFyi019MvHES/jNfDQwR7TI=;
-	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=l8XrEYrO+I9Ut3xiJh1tCEWJMAxJoTqi1sUAKzk+4ymeCoXJvO089jJRHs+urK/xatgplYP5DHfrJW++13mSBYtYL7V9DeAD6tEFO7sebKw2dAk7u34aCBwh1edh6bMQJ4hoTikWaSiQWMTm/TCD8nD2j7m40lYsQ4ZOD53OEh8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=U/iirpGJ; arc=none smtp.client-ip=209.85.219.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1761293292; c=relaxed/simple;
+	bh=scyFXidKF6tH3q3+wcDfdsbQpniJVT3Cy+BCNhSJdVU=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=LWR5hLzkoOXdNGolKP4HZ13SYiispapxdRwmLyI4gX0yiIaccE5BvO+f8jme3sK4vP584mzEBdr4egVSdqqhpvOkgbO7XoGTk3LdKCdHDS9d0j3EQNUKZHu036hZCc58mlXCvLApuUhcscEnbhc5W/RTTguVFJgApNWKWCaW5x4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G/uwbimK; arc=none smtp.client-ip=209.85.218.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="U/iirpGJ"
-Received: by mail-qv1-f42.google.com with SMTP id 6a1803df08f44-8738c6fdbe8so13449076d6.1
-        for <selinux@vger.kernel.org>; Thu, 23 Oct 2025 15:24:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G/uwbimK"
+Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-b50206773adso233187366b.0
+        for <selinux@vger.kernel.org>; Fri, 24 Oct 2025 01:08:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1761258270; x=1761863070; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=wsVU516gxnm37ZNKMKmffKd6VUi6tTnfSbRILvG3sIk=;
-        b=U/iirpGJmE6W5KsMRb4QREKaT4HAncd6L0lq2KY/57z4bg9wRZagRPizWyfIaQerW5
-         fbh5mulL+k+JCJcIqbQaFEx/wdYvRmUkrYb9unZfsFVNFJZXfUi0qHR3QQzCpaejmI38
-         96eEWdLDTaon37ZVW0w+WsNkgzpRBTWrnw3N2qlNoC/E6Io4hmmAsA9whMYBoNKtZpQh
-         ZOEbHlJCJ6AJOXdnHLXgZYXEwS1dolnQeQeWKAI13K575se/qub4b6gvq6FzHQMOLEex
-         R8uuCz1poaWmtp1SkIU9yEQ/ekyke+02E5nORY5rIM2t/6QhXCsFH07Jj2RYgBXD53/f
-         c/ag==
+        d=gmail.com; s=20230601; t=1761293287; x=1761898087; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6eof3l8FcbGs/LUz5LKy49+Ple9wtq5xYQDgdytpRc4=;
+        b=G/uwbimKBfJ0JEmet/NhrGnOQj7ccN7IkklEtfGANHOERjpYind6uUwYHb8b1cLjnw
+         DD2RfyqED3Q/aj7euOPDbwAEoovZ/wV5FzxyhzhrGmaoqsn+Kp2B4COXm+KllG8G8V6r
+         OclhYguBXcljBxPbwfmLna0boXBNpTnAZfscN1qBXqAC5l3ZWgafcXwW7KyNO/YUlOBp
+         g1HKtoUBN8q44x0gVxEzbUo6q9Fs7ChG1Mkel15KxtE5sWpxxjik1x0ob5CxNgyN0K2G
+         WqkbLdLdkxFf0YVBs65MhtavSA8snMu5DgCb92S1pd0P1FZFZFIwcKuqOs4+tBeymBXy
+         BcsQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761258270; x=1761863070;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=wsVU516gxnm37ZNKMKmffKd6VUi6tTnfSbRILvG3sIk=;
-        b=SvRbOogd0vo2HlQkiROpEj/UQyJ6X3xMjxS9h1Wiel6dC00PZ0VjbidaYPoqBdrZlp
-         v+CGrPsAEWylygAzre9r1zx9uTWDLrugm7jNl9CvK7OB6+msG2WOqWSwnv9iU7vRKEWb
-         f6uvIz842ocUCl9RWwj//jS6hhLOWM44QtQ953Rnggl2UYLxkfEOYTMYCunkIuFeffxv
-         /Ujw6AySlGS7+QqP++Cxzxk2FKNQOLlm396TkZOBNrCKvDfSznQCCFLXh+Q26E0GaHeu
-         tUu+yfxjtujd/cCXAoPqTg+pxKWL1jkeAywbqNpMymA7ue1HEyDlPE9iUCa/azXpGluR
-         YiiA==
-X-Forwarded-Encrypted: i=1; AJvYcCVjv5nLTJfpEko+I5DGMWLlJaso42TwofhSwTVkWB6YQbJq7SXyBGjGaOI8++DLsFi6f52+8M9Q@vger.kernel.org
-X-Gm-Message-State: AOJu0YxRK10zS5T4BbRLnYs2F4KfmYiFFV/5C/k/WtZDrELs/In8mvG7
-	GTY5gLBZaTrnOAscRtJBXE1aiuYuRLS766GUOwBxWAR1IYq3t8++QKgsT0CYV1ShOw==
-X-Gm-Gg: ASbGncs4yknyS3YV09WZIAGsEo1/u1G1Y5fH2Zx7VphryZfsBZPBMcJNix/DsXWReHO
-	jI869EWofyyR/j5r6jxrgf1fsis2Q+edGLJz8qgqGUP3yN8w5/Hf6iASQqa1kanSZoCub/uZzRl
-	Pj0W9rOFWA2YUPtY8WW63fi1++aomomWcC+tMIW1wxqLhUz54OLbudByzNT6kw4E+Sd0A8s6pLb
-	q65n7yF//m4px3D/Y5ArLQ31NRPcRbOrW+ojCm9Yf9falTcHahodvJJbIOyuPOQgau7DGBZDpU5
-	YeIddrx86eJ83Bl7UFo207ZgQNM7oA+HFdaUiyqB8A7P/mh6eNNQteVRjB1mXkSNysdhupSXNgX
-	SjOsed756K+yPAohlOAtZ4zGth0u8dNyC2+jtTtocY/m8sZDBoAcy7HV5LmMl2hQdQ03vy1zAkX
-	zRuBE+9MCUzGnJvlKBToK5Kfiz1TM59IDebCHPWqtZpCucQ33UwgpyDpPx
-X-Google-Smtp-Source: AGHT+IESwU+mjviQXWL75zoMQF1m617JcPvBrAhyZkS6egkpwvtfTvo8InxvAPzKXkvegNlVe4dYzg==
-X-Received: by 2002:a05:6214:5298:b0:788:82e0:3a9 with SMTP id 6a1803df08f44-87fb40e8913mr5630766d6.21.1761258269638;
-        Thu, 23 Oct 2025 15:24:29 -0700 (PDT)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-87f9e7f52e1sm22984526d6.51.2025.10.23.15.24.27
+        d=1e100.net; s=20230601; t=1761293287; x=1761898087;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=6eof3l8FcbGs/LUz5LKy49+Ple9wtq5xYQDgdytpRc4=;
+        b=iQheRFvw6GY0dbCKQv5V/mjPFtASdT5ksTNauPgB1HoUPk/Ta9fJECt5d8TbpBw5hQ
+         q0Sb34kJkmJjyG3WYGNEEPbLGagw34t0j3FnuKgwbQbaLoQpDp+aQWbwMmHAszrBme8x
+         KEZqRvjR67Z+UQ0GAJnp1GYW3wyGtnD0A2HXuEGvzI6/egRm2YkLi3rxtVA1dT0onYCk
+         vrLnoIMhv0HxDc1EKy+Et92yE03Hu/Z+tlQUK4nUZVbjQ51BHgtDdcEPD8SxzY6/4Dqx
+         FSFXxvc1tmaV+uRccqOM43YhYzfmN+2kAzQU57KHFmUH1PvQeX5I5w+3BJ3mmWuJUYhK
+         vzXg==
+X-Forwarded-Encrypted: i=1; AJvYcCUBHHYEjeoEtYjApzCt+T4BTnJQzutZnkDVUp4jiAmWWY2y5EkV4cxhbK3j8XqGCVhubac8hsgX@vger.kernel.org
+X-Gm-Message-State: AOJu0YyfddLpiWEe4Kb3xdO9ivlRUZjksSJEWkAexJhaC8TBk4BNRK0U
+	7OEqEmIXhi8Vy+Xn5awupTYB6gPnfa7KQ8FI+V/0mtNLTcgdqf1VFZpM1vhArA==
+X-Gm-Gg: ASbGnct59SWaBWIkhU0oIYWyk8bGXZUooG3LuGWZvj2U1tgwTCz1L0j/+uy0ZtDv6H/
+	bUxnK39EUh+MJLiB77Q9SxV3LbcVpp3lt/++q3Z2DShc+knmx5jBfahQ+e+619zsBJPXQJ5w9Zz
+	NgO5zn1WfE5QH3+Idc7cT8FV7zaLOR+f8L1qI4E6VAh8fseFikdC8WXkJyDJnxrqvnQ6IqV5TyJ
+	+raBMX9p0Ox+au78Se7HuqGHwLXjjc5aPrUEbbHFvXkWYOex7vnYEj3epPO6X0r37eg3Xmdhtd8
+	hAtWWLHLA1I07bekmhaGFA1ps+J+4BtOhg6Lm1zgKsSH/eR2A5WzamHaL4s4v20Xd/FwKdF10aW
+	3R4pZ+e1QyeZUXFPVzDcprAqny+B++la+PIV131Dy3uR6luKTKo45Zw0j7XoFVvOdCjhlyGuM4T
+	iUkoWXAiM=
+X-Google-Smtp-Source: AGHT+IGTUhbBV5KUT6R6znGOhBHZv6vIVCa8SAx6CbMvY25Fx00AgQgve2tGJohbRJDJ3aIyuLQV8Q==
+X-Received: by 2002:a17:907:6e89:b0:b3c:9bee:eb95 with SMTP id a640c23a62f3a-b6d6bade06fmr240410866b.3.1761293287246;
+        Fri, 24 Oct 2025 01:08:07 -0700 (PDT)
+Received: from graphite ([2a0a:ef40:89b:b900:2e0:4cff:feb0:4e4d])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b6d5130d517sm461321366b.3.2025.10.24.01.08.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Oct 2025 15:24:28 -0700 (PDT)
-Date: Thu, 23 Oct 2025 18:24:27 -0400
-Message-ID: <5fa2cff3acf5ae62cb76f157fb36b7a8@paul-moore.com>
+        Fri, 24 Oct 2025 01:08:06 -0700 (PDT)
+From: Rahul Sandhu <nvraxn@gmail.com>
+To: stephen.smalley.work@gmail.com
+Cc: nvraxn@gmail.com,
+	selinux@vger.kernel.org
+Subject: [PATCH v3] genhomedircon: cleanup parsing of uid config values
+Date: Fri, 24 Oct 2025 09:07:57 +0100
+Message-ID: <20251024080757.15618-1-nvraxn@gmail.com>
+X-Mailer: git-send-email 2.51.0
+In-Reply-To: <CAEjxPJ6fWTXOrD6Fhj=JK9xReGxMT7BzXF1PT5WXfFf07=Udtw@mail.gmail.com>
+References: <CAEjxPJ6fWTXOrD6Fhj=JK9xReGxMT7BzXF1PT5WXfFf07=Udtw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=UTF-8 
-Content-Transfer-Encoding: 8bit 
-X-Mailer: pstg-pwork:20251022_1923/pstg-lib:20251023_1801/pstg-pwork:20251022_1923
-From: Paul Moore <paul@paul-moore.com>
-To: Hongru Zhang <zhanghongru06@gmail.com>, stephen.smalley.work@gmail.com, omosnace@redhat.com
-Cc: linux-kernel@vger.kernel.org, selinux@vger.kernel.org, zhanghongru@xiaomi.com
-Subject: Re: [PATCH v4 3/3] selinux: improve bucket distribution uniformity of  avc_hash()
-References: <4bf4246da1ad44670093e006bffd3c9e07f089ea.1761217900.git.zhanghongru@xiaomi.com>
-In-Reply-To: <4bf4246da1ad44670093e006bffd3c9e07f089ea.1761217900.git.zhanghongru@xiaomi.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Oct 23, 2025 Hongru Zhang <zhanghongru06@gmail.com> wrote:
-> 
-> Reuse the already implemented MurmurHash3 algorithm. Under heavy stress
-> testing (on an 8-core system sustaining over 50,000 authentication events
-> per second), sample once per second and take the mean of 1800 samples:
-> 
-> 1. Bucket utilization rate and length of longest chain
-> +--------------------------+-----------------------------------------+
-> |                          | bucket utilization rate / longest chain |
-> |                          +--------------------+--------------------+
-> |                          |      no-patch      |     with-patch     |
-> +--------------------------+--------------------+--------------------+
-> |  512 nodes,  512 buckets |      52.5%/7.5     |     60.2%/5.7      |
-> +--------------------------+--------------------+--------------------+
-> | 1024 nodes,  512 buckets |      68.9%/12.1    |     80.2%/9.7      |
-> +--------------------------+--------------------+--------------------+
-> | 2048 nodes,  512 buckets |      83.7%/19.4    |     93.4%/16.3     |
-> +--------------------------+--------------------+--------------------+
-> | 8192 nodes, 8192 buckets |      49.5%/11.4    |     60.3%/7.4      |
-> +--------------------------+--------------------+--------------------+
-> 
-> 2. avc_search_node latency (total latency of hash operation and table
-> lookup)
-> +--------------------------+-----------------------------------------+
-> |                          |   latency of function avc_search_node   |
-> |                          +--------------------+--------------------+
-> |                          |      no-patch      |     with-patch     |
-> +--------------------------+--------------------+--------------------+
-> |  512 nodes,  512 buckets |        87ns        |        84ns        |
-> +--------------------------+--------------------+--------------------+
-> | 1024 nodes,  512 buckets |        97ns        |        96ns        |
-> +--------------------------+--------------------+--------------------+
-> | 2048 nodes,  512 buckets |       118ns        |       113ns        |
-> +--------------------------+--------------------+--------------------+
-> | 8192 nodes, 8192 buckets |       106ns        |        99ns        |
-> +--------------------------+--------------------+--------------------+
-> 
-> Although MurmurHash3 has higher overhead than the bitwise operations in
-> the original algorithm, the data shows that the MurmurHash3 achieves
-> better distribution, reducing average lookup time. Consequently, the
-> total latency of hashing and table lookup is lower than before.
-> 
-> Signed-off-by: Hongru Zhang <zhanghongru@xiaomi.com>
-> ---
->  security/selinux/avc.c          |  3 ++-
->  security/selinux/include/hash.h | 11 ++++++-----
->  security/selinux/ss/avtab.c     |  6 ++++++
->  3 files changed, 14 insertions(+), 6 deletions(-)
+Parsing KV files with a separator of similar format is fairly similar,
+so we may as well add a helper function to make it easier to read.
 
-Merged into selinux/dev, thanks!
+Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+---
+ libsemanage/src/genhomedircon.c | 107 +++++++++++++++++---------------
+ 1 file changed, 57 insertions(+), 50 deletions(-)
 
---
-paul-moore.com
+v2: rename path to something more sensible (afterall, we are parsing a
+    UID!) and move the free to later, just before both return paths to
+    not dereference it when checking whether we actually parsed a valid
+    number or not.
+v3: handle the fallback case for minuid properly such that we don't end
+    up always using a fallback if minuid is not set in login.defs, and
+    return a bool instead as it's a bit more sensible for what we're
+    trying to return. Also, check for ERANGE.
+
+diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
+index 34056562..e91c64e6 100644
+--- a/libsemanage/src/genhomedircon.c
++++ b/libsemanage/src/genhomedircon.c
+@@ -308,14 +308,52 @@ done:
+ 	return retval;
+ }
+ 
++/*
++ * Parses `file` for `key` seperated by `sep` into `out`.
++ * Returns:
++ *   true on success.
++ *   false on failure.
++ *   `out` is guaranteed to be initalised.
++ *   `fallback_set` is initalised to false, and set to true if a fallback was used.
++ */
++static bool parse_uid_config(const char *file, const char *key, const char *sep,
++		uid_t fallback, uid_t *out, bool *fallback_set)
++{
++	assert(out);
++	assert(fallback_set);
++
++	*fallback_set = false;
++
++	char *uid_str = semanage_findval(file, key, sep);
++	if (!uid_str || !*uid_str) {
++		free(uid_str);
++		*fallback_set = true;
++		*out = fallback;
++		return true;
++	}
++
++	char *endptr;
++	errno = 0;
++	const unsigned long val = strtoul(uid_str, &endptr, 0);
++
++	if (endptr != uid_str && *endptr == '\0' && errno != ERANGE) {
++		*out = (uid_t)val;
++		free(uid_str);
++		return true;
++	}
++
++	free(uid_str);
++	*fallback_set = true;
++	*out = fallback;
++	return false;
++}
++
+ static semanage_list_t *get_home_dirs(genhomedircon_settings_t * s)
+ {
+ 	semanage_list_t *homedir_list = NULL;
+ 	semanage_list_t *shells = NULL;
+ 	fc_match_handle_t hand;
+ 	char *path = NULL;
+-	uid_t temp, minuid = 500, maxuid = 60000;
+-	int minuid_set = 0;
+ 	struct passwd *pwbuf;
+ 	struct stat buf;
+ 
+@@ -362,56 +400,25 @@ static semanage_list_t *get_home_dirs(genhomedircon_settings_t * s)
+ 	     "Conversion failed for key " key ", is its value a number?" \
+ 	     "  Falling back to default value of `%s`.", #val);
+ 
+-	path = semanage_findval(PATH_ETC_LOGIN_DEFS, "UID_MIN", NULL);
+-	if (path && *path) {
+-		char *endptr;
+-		const unsigned long val = strtoul(path, &endptr, 0);
+-		if (endptr != path && *endptr == '\0') {
+-			minuid = (uid_t)val;
+-			minuid_set = 1;
+-		} else {
+-			/* we were provided an invalid value, use defaults.  */
+-			genhomedircon_warn_conv_fail("UID_MIN", FALLBACK_MINUID);
+-			minuid = FALLBACK_MINUID;
+-			minuid_set = 1;
+-		}
+-	}
+-	free(path);
+-	path = NULL;
++	uid_t minuid;
++	bool fallback_set;
++	if (!parse_uid_config(PATH_ETC_LOGIN_DEFS, "UID_MIN", NULL, FALLBACK_MINUID, &minuid, &fallback_set))
++		genhomedircon_warn_conv_fail("UID_MIN", FALLBACK_MINUID);
+ 
+-	path = semanage_findval(PATH_ETC_LOGIN_DEFS, "UID_MAX", NULL);
+-	if (path && *path) {
+-		char *endptr;
+-		const unsigned long val = strtoul(path, &endptr, 0);
+-		if (endptr != path && *endptr == '\0') {
+-			maxuid = (uid_t)val;
+-		} else {
+-			/* we were provided an invalid value, use defaults.  */
+-			genhomedircon_warn_conv_fail("UID_MAX", FALLBACK_MAXUID);
+-			maxuid = FALLBACK_MAXUID;
+-		}
+-	}
+-	free(path);
+-	path = NULL;
++	const bool logindefs_minuid_fallback_set = fallback_set;
+ 
+-	path = semanage_findval(PATH_ETC_LIBUSER, "LU_UIDNUMBER", "=");
+-	if (path && *path) {
+-		char *endptr;
+-		const unsigned long val = strtoul(path, &endptr, 0);
+-		if (endptr != path && *endptr == '\0') {
+-			temp = (uid_t)val;
+-		} else {
+-			/* we were provided an invalid value, use defaults.  */
+-			genhomedircon_warn_conv_fail("LU_UIDNUMBER", FALLBACK_LU_UIDNUMBER);
+-			temp = FALLBACK_LU_UIDNUMBER;
+-		}
+-		if (!minuid_set || temp < minuid) {
+-			minuid = temp;
+-			minuid_set = 1;
+-		}
+-	}
+-	free(path);
+-	path = NULL;
++	uid_t temp;
++	if (!parse_uid_config(PATH_ETC_LIBUSER, "LU_UIDNUMBER", "=", FALLBACK_LU_UIDNUMBER, &temp, &fallback_set))
++		genhomedircon_warn_conv_fail("LU_UIDNUMBER", FALLBACK_LU_UIDNUMBER);
++
++	if (logindefs_minuid_fallback_set)
++		minuid = temp;
++
++	uid_t maxuid;
++	/* We don't actually check fallback_set here, PATH_ETC_LOGIN_DEFS is the one source of
++	   truth for UID_MAX.  */
++	if (!parse_uid_config(PATH_ETC_LOGIN_DEFS, "UID_MAX", NULL, FALLBACK_MAXUID, &maxuid, &fallback_set))
++		genhomedircon_warn_conv_fail("UID_MAX", FALLBACK_MAXUID);
+ 
+ #undef genhomedircon_warn_conv_fail
+ 
+-- 
+2.51.0
+
