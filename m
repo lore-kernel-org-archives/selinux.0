@@ -1,239 +1,258 @@
-Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
+Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AEFF2FC881
-	for <selinux@vger.kernel.org>; Sun, 26 Oct 2025 19:13:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0A63258ECF
+	for <selinux@vger.kernel.org>; Mon, 27 Oct 2025 13:10:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761506014; cv=none; b=OfLaCIo/l4aJ2r1nuRB/nWbVElLtVy5H1m1oqk3Ywb8FfzvFgcaJHXRVFJGt87ZR10JAg5WY9TQRzBdfeyR9sFodMF6eGaurGpYUiVqAfaujnoDrdZ1bSM0RtZUIxta0qx7qQ4h24ECQbHpZjd+raz81Qt0F8UFuMPExKOXVeuA=
+	t=1761570659; cv=none; b=Ix1/UlvVeitomGjHmCM2SjFoB+CXwTym0zBeLIjSoI9ZZODKBIU5XU7hJvSuLByP98bEwckQa4EaZZLuA087YtDNMlv+8BWluQSw00fLrwZEZ5Y1v22b9ja9TD4meKnf6h/FEaUNwtLVwDEta0TA2W+ovDnuiGWiWt3bfBRxTo8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761506014; c=relaxed/simple;
-	bh=1otbcRUMJp9mdDb3MpghaPHUzb6g/pfYP/1jqP1Snbs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Edp9ddiFU2VCtKY3IW8grZBrVfWtWtDm1jCs0esLg8BvDva+4deJ69myC1Lf8QNiMzsw5SRx6ZGECHZjsaGvsPeBbRWPtGxRAIJgu4v27U9wGVz68IGmthJk9m1JdwPYFlj5Mkgrj/yfLOz+ti2HEvCncoXBsfvgi9o0zhMONhI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HyqvsdX1; arc=none smtp.client-ip=209.85.218.51
+	s=arc-20240116; t=1761570659; c=relaxed/simple;
+	bh=4NqR5gp5NfFoBnrbCCUjCjS8Xp+wxi1UQKChkrd5H/A=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=e30VxpNMv+SfoiOHZip2cmqy7/48MlhY9VaspOgYgOI1N7HsXr/9bIr48VyOhmEO+LTdA0QHDZu4CgdLHsuNKvt9/3somVs68qFn7LOPJw3Eu0fPS1INfsNwm0l53P/5jODrdXNAps3VhHBXiThV2c8JrFgoPrfbuJtF9XhR2UY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hd89NBCZ; arc=none smtp.client-ip=209.85.215.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HyqvsdX1"
-Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-b6d5e04e0d3so606536066b.2
-        for <selinux@vger.kernel.org>; Sun, 26 Oct 2025 12:13:32 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hd89NBCZ"
+Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-b6ceba7c97eso4344767a12.0
+        for <selinux@vger.kernel.org>; Mon, 27 Oct 2025 06:10:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1761506011; x=1762110811; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1761570657; x=1762175457; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=S7l7TRwbCq/5QsYYPi9mD+G5w+CGf73vkh3wblTTt4Q=;
-        b=HyqvsdX1pBl18Y9PXGzKcHo9RWYx4aZB4Cz+B5fbRLaSOTjooxt+yEEQsDpIKM6Nqm
-         C1yUJqvQiv/mRSuvRYb/cFcrYe795T6swFJRyXaDQq40+GY/f+gfsl1Q/pjC3YEpF2xK
-         RwmhUemJlsDe3TNMw0URQM4kxZDYmV+cjepdYQLKcVsSPgbNlGomsDaGqhf9RfZNZE+r
-         rKwDFdx89stNlmfaesDYHe842SVR4s5Tuo9NK/+SlMcgS9l2+D3k8HWGfQGhcapF0cnw
-         qoEeH2LwGpsba/XuFaqoNozqhJAmjLCLdo77VXm1S2xqZJEeGur5HYQKQJgGl9QMDYEP
-         S8rw==
+        bh=HnaSnUi5/zOEOFc/ynKL/eowKncLxz5l4wpVrJuQDE4=;
+        b=hd89NBCZhRYo1XxMKfGkIR0ccJmkUARLgFfHbv0/xLSHfA6/RY9k2Xnsvt6UnZ6C9x
+         5dUFpPuFpx/EpKXNsQcsVdOGGhGVrvclNwYhkvdmkO8893DUEVski8SC2oHxzJW2KZ4F
+         jB54CkJiAE7HPfFd4mMMn9qGA7UNxYEKhxFH8PHBNYqhQLq6Nqnx5er17FA3GKMqN3jh
+         Asth0MJ0HlRlqtK54lZ3cZZlzjHo/wyxvHXH2HlZluHc/i+t/KgCFusfixFgSgKg3P2g
+         FFj8G5AuJYmU6o3m3f8mHQMeaUT7rpGgSeILaAXgHJH7H+O5XgYDUeEhWX6olMX1bzYx
+         xU/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761506011; x=1762110811;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1761570657; x=1762175457;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=S7l7TRwbCq/5QsYYPi9mD+G5w+CGf73vkh3wblTTt4Q=;
-        b=nqLP140cWx0L0zrC43Q5Dxt5tYlgJF63EX/nf4J408Wdwpih13tlrbXc/md+uDOucQ
-         BnyDbCTNPobub4QHFQuySLhvE/h6vSHlKJjxdZ829FxOhVY0b5zeidyCpuQa8MWFmZcA
-         nU6PoPvEI2+XmAxUnDXA8pr2Ey//OpE8UToSTPOKEgpVkeGz/0Anpo5kPLWUoDekEBVJ
-         EW5bqIG+AoCkuj7U8G1y3JARcwi480NHJtov/tfnTnP7IhmqsWHJaJcTmdmV52E1wNRg
-         muMjeJLPPVNagyCTeOKwLnR53+svw9MKex+NizBA/cQ6puOd7YIcjVfPFEtY02wjjzeK
-         nF8A==
-X-Forwarded-Encrypted: i=1; AJvYcCVIFlms+xKiZTFnxZ9zYPq8FMrt45hKLFbhuFutMPCb8VetBh7plLJsGGiNleHEf+YWF7Id3amc@vger.kernel.org
-X-Gm-Message-State: AOJu0YwT9PboEsShd39ZkI/Qg4XkcQ3GuzV/tGqIh5u726LO75vrS1Ml
-	UZgKvi5RumfkAoXlQCuOqTadjcekhRBKdIpYiQXRqEWn6Az0kESEIjOP
-X-Gm-Gg: ASbGncsKb5hAp+6RAbnarFiakzhCrJQFcyxIV5JoYrEVbBNuDeYvEbj7dSORVR/vvRm
-	KEROIU3mUKz9/qwbPH5j2GJeAcxb3gFZSN1W7dbvGnPJ7LRYJwVr0LPNSYcSVBQfSgzkUd1YSsQ
-	g/TkuB0dbyt1INpdS8XWmG9EpY0agbuuoZwV0WCReDiwtsN3986eyq6orF5st+8U7+fWZ7SPebG
-	mjrPpRj8KOKFG31J53odbIb8AtvRWw5pbxob8okwBA4o4iHLcf+EpMdZ+k/BPavnozhhl5jYdbh
-	0oT8Hlvov0pO6ROm0rAptFqYrxVdPWhCiehyads2Ps2S+u8Ec7Q78g8KtQjxrL+vTkIpnwdZPZV
-	yXIPBJrMpwF+kgAoagsC2HDWwSndEZ7lA5ga3XL11XNJSDvLBKr0ivDoyo3MguMSwVZE0J4jcHB
-	ceHRwL02g=
-X-Google-Smtp-Source: AGHT+IF14K/mQ0zPAFVA8SWRmYpb16yDX0eCO+DeQ9NTjB0lJjFfQOoobDmuBm/OeNSHSTvPkrUQXA==
-X-Received: by 2002:a17:907:d93:b0:b32:2b60:f13 with SMTP id a640c23a62f3a-b6473f42d62mr4281477966b.54.1761506010828;
-        Sun, 26 Oct 2025 12:13:30 -0700 (PDT)
-Received: from graphite ([2a0a:ef40:89b:b900:2e0:4cff:feb0:4e4d])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b6d85308c82sm537595366b.5.2025.10.26.12.13.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 26 Oct 2025 12:13:30 -0700 (PDT)
-From: Rahul Sandhu <nvraxn@gmail.com>
-To: stephen.smalley.work@gmail.com
-Cc: nvraxn@gmail.com,
-	selinux@vger.kernel.org,
-	hylandb256@gmail.com,
-	"Hyland B." <me@ow.swag.toys>
-Subject: [PATCH v4] genhomedircon: cleanup parsing of uid config values
-Date: Sun, 26 Oct 2025 19:13:17 +0000
-Message-ID: <20251026191317.28685-1-nvraxn@gmail.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <CAEjxPJ6BxZV=sUxzfThj=zu2BxX5S43WHBhc2GUie+-V8QZCBg@mail.gmail.com>
-References: <CAEjxPJ6BxZV=sUxzfThj=zu2BxX5S43WHBhc2GUie+-V8QZCBg@mail.gmail.com>
+        bh=HnaSnUi5/zOEOFc/ynKL/eowKncLxz5l4wpVrJuQDE4=;
+        b=aPQ5mq4+WyHkJyVrVzw4SzZ715dvJ6O1Ck6dfeL18zghbh5aNIjV9ObGzHL9SNbDef
+         bubtM7uA7etgaO0M739VjeLkpl1qUPRIvoPWW1KGAcEXJKgqAH3xu/+m+1xC/MhUAc4z
+         yLkMecue9uUwbY0RectFhCC+yNacnyjKCXDr1n0MV7ZmOZTClzlNVgMioUmThm3XpAsI
+         v1a8d6CojS2dCjNETsCjYxabCNCn4WJ2YWjLMPA1xlbh89eH9HG7JNUHjcSIhTI5YbbR
+         Ry2w+pFljrA5M4sWPuCcSLbCT3oLX7gdLPp14n7WZ5G0PLK9Gu9W0FJqE+nB1nLUGRbv
+         UPZw==
+X-Gm-Message-State: AOJu0YxcZhe5JUTkUn2UqxST7o5Q30yOE379OTU9z/AbwJsL6Onp3T0f
+	lFrrQjpOQ7yjox2/WURQWqKTSpOL3VYmoDsa2tBH20d23sk0Z6T6w1DDEeDazByA7HSA+TtaBx7
+	r4frQfctlZAGoKPQdUu+5TVPa/SuQzKU=
+X-Gm-Gg: ASbGncviVpY0knl9G4G7tjJ4idBUgDVanQe1cfY3+biL1urScoGf0Hay4QGCgMQo2v5
+	CJBTikaye+gNLLWvsj/JhO6v/4gdDihP8ckmj6VfhbyGQcKgf380xC2Sfe+3W7mR4nldXHgPJ1f
+	fTrCsnxbtOs920/4cjYk4z5xWCZWGz6dGTNGRYOox+sL9FN94UWItjrzMmBBJrLekb8SdbrwRA9
+	w6//dw7Awq0RTTo9s4Ei0SnI/zrCXdLpHCT01Okr6b09TiVM7zd+AP+LIg6
+X-Google-Smtp-Source: AGHT+IHJnP7cMKCkQDv9GY1gxkZXc8SB387QaWUrZsNkTmETEkoaWdUiUQUSLAOMeH4zQxD96863S5y0mKfRnMqVlZg=
+X-Received: by 2002:a17:90b:1dc4:b0:330:6f13:53fc with SMTP id
+ 98e67ed59e1d1-33bcf8f870bmr44755091a91.27.1761570656520; Mon, 27 Oct 2025
+ 06:10:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <CAEjxPJ6BxZV=sUxzfThj=zu2BxX5S43WHBhc2GUie+-V8QZCBg@mail.gmail.com>
+ <20251026191317.28685-1-nvraxn@gmail.com>
+In-Reply-To: <20251026191317.28685-1-nvraxn@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 27 Oct 2025 09:10:45 -0400
+X-Gm-Features: AWmQ_bn8CKLK05ICy5ohOO8XuMbm_PjfU9QaZwQU4eFuD5k2ey5F8w7rwNpmOwQ
+Message-ID: <CAEjxPJ7rVmMuxPrBhm8DRFok3E0=A4iNf0f+S54R9r7JZ3iHCQ@mail.gmail.com>
+Subject: Re: [PATCH v4] genhomedircon: cleanup parsing of uid config values
+To: Rahul Sandhu <nvraxn@gmail.com>
+Cc: selinux@vger.kernel.org, hylandb256@gmail.com, 
+	"Hyland B." <me@ow.swag.toys>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Parsing KV files with a separator of similar format is fairly similar,
-so we may as well add a helper function to make it easier to read.
+On Sun, Oct 26, 2025 at 3:13=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> wro=
+te:
+>
+> Parsing KV files with a separator of similar format is fairly similar,
+> so we may as well add a helper function to make it easier to read.
+>
+> Credit to Hyland for reminding me to check for ERANGE.
+>
+> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+> Reviewed-by: Hyland B. <me@ow.swag.toys>
 
-Credit to Hyland for reminding me to check for ERANGE.
+I don't see any such email from Hyland, just this from you, possibly
+it was bounced by the list or eaten by spam filters?
 
-Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
-Reviewed-by: Hyland B. <me@ow.swag.toys>
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- libsemanage/src/genhomedircon.c | 107 +++++++++++++++++---------------
- 1 file changed, 57 insertions(+), 50 deletions(-)
-
-v2: rename path to something more sensible (afterall, we are parsing a
-    UID!) and move the free to later, just before both return paths to
-    not dereference it when checking whether we actually parsed a valid
-    number or not.
-v3: handle the fallback case for minuid properly such that we don't end
-    up always using a fallback if minuid is not set in login.defs, and
-    return a bool instead as it's a bit more sensible for what we're
-    trying to return. Also, check for ERANGE.
-v4: add credit to Hyland for reminding me to check for ERANGE.
-
-diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
-index 34056562..e91c64e6 100644
---- a/libsemanage/src/genhomedircon.c
-+++ b/libsemanage/src/genhomedircon.c
-@@ -308,14 +308,52 @@ done:
- 	return retval;
- }
- 
-+/*
-+ * Parses `file` for `key` seperated by `sep` into `out`.
-+ * Returns:
-+ *   true on success.
-+ *   false on failure.
-+ *   `out` is guaranteed to be initalised.
-+ *   `fallback_set` is initalised to false, and set to true if a fallback was used.
-+ */
-+static bool parse_uid_config(const char *file, const char *key, const char *sep,
-+		uid_t fallback, uid_t *out, bool *fallback_set)
-+{
-+	assert(out);
-+	assert(fallback_set);
-+
-+	*fallback_set = false;
-+
-+	char *uid_str = semanage_findval(file, key, sep);
-+	if (!uid_str || !*uid_str) {
-+		free(uid_str);
-+		*fallback_set = true;
-+		*out = fallback;
-+		return true;
-+	}
-+
-+	char *endptr;
-+	errno = 0;
-+	const unsigned long val = strtoul(uid_str, &endptr, 0);
-+
-+	if (endptr != uid_str && *endptr == '\0' && errno != ERANGE) {
-+		*out = (uid_t)val;
-+		free(uid_str);
-+		return true;
-+	}
-+
-+	free(uid_str);
-+	*fallback_set = true;
-+	*out = fallback;
-+	return false;
-+}
-+
- static semanage_list_t *get_home_dirs(genhomedircon_settings_t * s)
- {
- 	semanage_list_t *homedir_list = NULL;
- 	semanage_list_t *shells = NULL;
- 	fc_match_handle_t hand;
- 	char *path = NULL;
--	uid_t temp, minuid = 500, maxuid = 60000;
--	int minuid_set = 0;
- 	struct passwd *pwbuf;
- 	struct stat buf;
- 
-@@ -362,56 +400,25 @@ static semanage_list_t *get_home_dirs(genhomedircon_settings_t * s)
- 	     "Conversion failed for key " key ", is its value a number?" \
- 	     "  Falling back to default value of `%s`.", #val);
- 
--	path = semanage_findval(PATH_ETC_LOGIN_DEFS, "UID_MIN", NULL);
--	if (path && *path) {
--		char *endptr;
--		const unsigned long val = strtoul(path, &endptr, 0);
--		if (endptr != path && *endptr == '\0') {
--			minuid = (uid_t)val;
--			minuid_set = 1;
--		} else {
--			/* we were provided an invalid value, use defaults.  */
--			genhomedircon_warn_conv_fail("UID_MIN", FALLBACK_MINUID);
--			minuid = FALLBACK_MINUID;
--			minuid_set = 1;
--		}
--	}
--	free(path);
--	path = NULL;
-+	uid_t minuid;
-+	bool fallback_set;
-+	if (!parse_uid_config(PATH_ETC_LOGIN_DEFS, "UID_MIN", NULL, FALLBACK_MINUID, &minuid, &fallback_set))
-+		genhomedircon_warn_conv_fail("UID_MIN", FALLBACK_MINUID);
- 
--	path = semanage_findval(PATH_ETC_LOGIN_DEFS, "UID_MAX", NULL);
--	if (path && *path) {
--		char *endptr;
--		const unsigned long val = strtoul(path, &endptr, 0);
--		if (endptr != path && *endptr == '\0') {
--			maxuid = (uid_t)val;
--		} else {
--			/* we were provided an invalid value, use defaults.  */
--			genhomedircon_warn_conv_fail("UID_MAX", FALLBACK_MAXUID);
--			maxuid = FALLBACK_MAXUID;
--		}
--	}
--	free(path);
--	path = NULL;
-+	const bool logindefs_minuid_fallback_set = fallback_set;
- 
--	path = semanage_findval(PATH_ETC_LIBUSER, "LU_UIDNUMBER", "=");
--	if (path && *path) {
--		char *endptr;
--		const unsigned long val = strtoul(path, &endptr, 0);
--		if (endptr != path && *endptr == '\0') {
--			temp = (uid_t)val;
--		} else {
--			/* we were provided an invalid value, use defaults.  */
--			genhomedircon_warn_conv_fail("LU_UIDNUMBER", FALLBACK_LU_UIDNUMBER);
--			temp = FALLBACK_LU_UIDNUMBER;
--		}
--		if (!minuid_set || temp < minuid) {
--			minuid = temp;
--			minuid_set = 1;
--		}
--	}
--	free(path);
--	path = NULL;
-+	uid_t temp;
-+	if (!parse_uid_config(PATH_ETC_LIBUSER, "LU_UIDNUMBER", "=", FALLBACK_LU_UIDNUMBER, &temp, &fallback_set))
-+		genhomedircon_warn_conv_fail("LU_UIDNUMBER", FALLBACK_LU_UIDNUMBER);
-+
-+	if (logindefs_minuid_fallback_set)
-+		minuid = temp;
-+
-+	uid_t maxuid;
-+	/* We don't actually check fallback_set here, PATH_ETC_LOGIN_DEFS is the one source of
-+	   truth for UID_MAX.  */
-+	if (!parse_uid_config(PATH_ETC_LOGIN_DEFS, "UID_MAX", NULL, FALLBACK_MAXUID, &maxuid, &fallback_set))
-+		genhomedircon_warn_conv_fail("UID_MAX", FALLBACK_MAXUID);
- 
- #undef genhomedircon_warn_conv_fail
- 
--- 
-2.51.0
-
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+>  libsemanage/src/genhomedircon.c | 107 +++++++++++++++++---------------
+>  1 file changed, 57 insertions(+), 50 deletions(-)
+>
+> v2: rename path to something more sensible (afterall, we are parsing a
+>     UID!) and move the free to later, just before both return paths to
+>     not dereference it when checking whether we actually parsed a valid
+>     number or not.
+> v3: handle the fallback case for minuid properly such that we don't end
+>     up always using a fallback if minuid is not set in login.defs, and
+>     return a bool instead as it's a bit more sensible for what we're
+>     trying to return. Also, check for ERANGE.
+> v4: add credit to Hyland for reminding me to check for ERANGE.
+>
+> diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedir=
+con.c
+> index 34056562..e91c64e6 100644
+> --- a/libsemanage/src/genhomedircon.c
+> +++ b/libsemanage/src/genhomedircon.c
+> @@ -308,14 +308,52 @@ done:
+>         return retval;
+>  }
+>
+> +/*
+> + * Parses `file` for `key` seperated by `sep` into `out`.
+> + * Returns:
+> + *   true on success.
+> + *   false on failure.
+> + *   `out` is guaranteed to be initalised.
+> + *   `fallback_set` is initalised to false, and set to true if a fallbac=
+k was used.
+> + */
+> +static bool parse_uid_config(const char *file, const char *key, const ch=
+ar *sep,
+> +               uid_t fallback, uid_t *out, bool *fallback_set)
+> +{
+> +       assert(out);
+> +       assert(fallback_set);
+> +
+> +       *fallback_set =3D false;
+> +
+> +       char *uid_str =3D semanage_findval(file, key, sep);
+> +       if (!uid_str || !*uid_str) {
+> +               free(uid_str);
+> +               *fallback_set =3D true;
+> +               *out =3D fallback;
+> +               return true;
+> +       }
+> +
+> +       char *endptr;
+> +       errno =3D 0;
+> +       const unsigned long val =3D strtoul(uid_str, &endptr, 0);
+> +
+> +       if (endptr !=3D uid_str && *endptr =3D=3D '\0' && errno !=3D ERAN=
+GE) {
+> +               *out =3D (uid_t)val;
+> +               free(uid_str);
+> +               return true;
+> +       }
+> +
+> +       free(uid_str);
+> +       *fallback_set =3D true;
+> +       *out =3D fallback;
+> +       return false;
+> +}
+> +
+>  static semanage_list_t *get_home_dirs(genhomedircon_settings_t * s)
+>  {
+>         semanage_list_t *homedir_list =3D NULL;
+>         semanage_list_t *shells =3D NULL;
+>         fc_match_handle_t hand;
+>         char *path =3D NULL;
+> -       uid_t temp, minuid =3D 500, maxuid =3D 60000;
+> -       int minuid_set =3D 0;
+>         struct passwd *pwbuf;
+>         struct stat buf;
+>
+> @@ -362,56 +400,25 @@ static semanage_list_t *get_home_dirs(genhomedircon=
+_settings_t * s)
+>              "Conversion failed for key " key ", is its value a number?" =
+\
+>              "  Falling back to default value of `%s`.", #val);
+>
+> -       path =3D semanage_findval(PATH_ETC_LOGIN_DEFS, "UID_MIN", NULL);
+> -       if (path && *path) {
+> -               char *endptr;
+> -               const unsigned long val =3D strtoul(path, &endptr, 0);
+> -               if (endptr !=3D path && *endptr =3D=3D '\0') {
+> -                       minuid =3D (uid_t)val;
+> -                       minuid_set =3D 1;
+> -               } else {
+> -                       /* we were provided an invalid value, use default=
+s.  */
+> -                       genhomedircon_warn_conv_fail("UID_MIN", FALLBACK_=
+MINUID);
+> -                       minuid =3D FALLBACK_MINUID;
+> -                       minuid_set =3D 1;
+> -               }
+> -       }
+> -       free(path);
+> -       path =3D NULL;
+> +       uid_t minuid;
+> +       bool fallback_set;
+> +       if (!parse_uid_config(PATH_ETC_LOGIN_DEFS, "UID_MIN", NULL, FALLB=
+ACK_MINUID, &minuid, &fallback_set))
+> +               genhomedircon_warn_conv_fail("UID_MIN", FALLBACK_MINUID);
+>
+> -       path =3D semanage_findval(PATH_ETC_LOGIN_DEFS, "UID_MAX", NULL);
+> -       if (path && *path) {
+> -               char *endptr;
+> -               const unsigned long val =3D strtoul(path, &endptr, 0);
+> -               if (endptr !=3D path && *endptr =3D=3D '\0') {
+> -                       maxuid =3D (uid_t)val;
+> -               } else {
+> -                       /* we were provided an invalid value, use default=
+s.  */
+> -                       genhomedircon_warn_conv_fail("UID_MAX", FALLBACK_=
+MAXUID);
+> -                       maxuid =3D FALLBACK_MAXUID;
+> -               }
+> -       }
+> -       free(path);
+> -       path =3D NULL;
+> +       const bool logindefs_minuid_fallback_set =3D fallback_set;
+>
+> -       path =3D semanage_findval(PATH_ETC_LIBUSER, "LU_UIDNUMBER", "=3D"=
+);
+> -       if (path && *path) {
+> -               char *endptr;
+> -               const unsigned long val =3D strtoul(path, &endptr, 0);
+> -               if (endptr !=3D path && *endptr =3D=3D '\0') {
+> -                       temp =3D (uid_t)val;
+> -               } else {
+> -                       /* we were provided an invalid value, use default=
+s.  */
+> -                       genhomedircon_warn_conv_fail("LU_UIDNUMBER", FALL=
+BACK_LU_UIDNUMBER);
+> -                       temp =3D FALLBACK_LU_UIDNUMBER;
+> -               }
+> -               if (!minuid_set || temp < minuid) {
+> -                       minuid =3D temp;
+> -                       minuid_set =3D 1;
+> -               }
+> -       }
+> -       free(path);
+> -       path =3D NULL;
+> +       uid_t temp;
+> +       if (!parse_uid_config(PATH_ETC_LIBUSER, "LU_UIDNUMBER", "=3D", FA=
+LLBACK_LU_UIDNUMBER, &temp, &fallback_set))
+> +               genhomedircon_warn_conv_fail("LU_UIDNUMBER", FALLBACK_LU_=
+UIDNUMBER);
+> +
+> +       if (logindefs_minuid_fallback_set)
+> +               minuid =3D temp;
+> +
+> +       uid_t maxuid;
+> +       /* We don't actually check fallback_set here, PATH_ETC_LOGIN_DEFS=
+ is the one source of
+> +          truth for UID_MAX.  */
+> +       if (!parse_uid_config(PATH_ETC_LOGIN_DEFS, "UID_MAX", NULL, FALLB=
+ACK_MAXUID, &maxuid, &fallback_set))
+> +               genhomedircon_warn_conv_fail("UID_MAX", FALLBACK_MAXUID);
+>
+>  #undef genhomedircon_warn_conv_fail
+>
+> --
+> 2.51.0
+>
