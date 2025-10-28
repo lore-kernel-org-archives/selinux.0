@@ -1,34 +1,34 @@
 Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [62.89.141.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26A741F5435;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26A1E1F4CBB;
 	Tue, 28 Oct 2025 00:46:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.89.141.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761612385; cv=none; b=pAmQDhdYGSC1gEmzRhALwJ6qQK4LGvJAZPMvKVTTC7MuHTGKA6dD9C5ssVQqrWunupt1bca2UmvYxQEypOhS4nns4l9jxTd48wSqhFPJ+W/NK5JevEqPIeHSnfykzPaR2OdpUtrz5bjY1nHLtjsbqAZ/97rWJjNEjEKX4StcQrM=
+	t=1761612384; cv=none; b=Xy5H7vKp1S1X0QFKjwRWCgAoRbcR3h70sm5+MfDsu0Ch+VOiCpP/oxb7yV8pqQ4qfNZVtVww2p6BWbGuzth9DclgujTb1D9H/1b2a7AZuXiRFsBHePGt5aQpBLkUj2WHYHCsljUIeMvmwP8XcVVS1qv2LZ4Eqr/WBaZx5ybNq4k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761612385; c=relaxed/simple;
-	bh=Q3JKx9rr2UYQTrTc5nh98pYJ2RYkW05b2PhhcVfT9eI=;
+	s=arc-20240116; t=1761612384; c=relaxed/simple;
+	bh=3/7wTnp+BUluB0yOKxyyf9McG0O9FqLVmSTXxagaJjY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=qmDEFavkVx8bU51H3+9rAMapgnN+NwTJor+3i6arCrc29paqAcUwZkWr404F7UQDiTkF1XHLGcXwnHYcG8o0ZVFAN8xuiE6KgmBria6uj07cVtE6h2dYEg1ON+hjVTnRxXZ4RkSvsDbLy4bv9EVp1BxEXxtKHrTa4IWfIoedewM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=EnJw0qmw; arc=none smtp.client-ip=62.89.141.173
+	 MIME-Version; b=TgAPxzwTyAHTJMK96an3lEMhTvcR1nyY/MqfBmbGNDoIFWQ0WF8o4WwsU738Ld1G0lTzKRCIisPyWyk3W1p+t3PJA/2KCMoNXORiDtYzb5YcD/ZgW+g6bpr0sq35N+vPt07IZdZaTTZj7j4SPf69iAS1haEKVyWII4l5W9UUYd8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=f4JAKTKO; arc=none smtp.client-ip=62.89.141.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ftp.linux.org.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="EnJw0qmw"
+	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="f4JAKTKO"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=linux.org.uk; s=zeniv-20220401; h=Sender:Content-Transfer-Encoding:
 	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:
 	Reply-To:Content-Type:Content-ID:Content-Description;
-	bh=LJyQ0sQN8CTZJ8YY6THdmavnh3TQW/mMqH0kl5Snbhs=; b=EnJw0qmwlqcmyocNeFhS6dBbSW
-	1oc/tk54h8tJLUV3jtnCFVKV9SAzfc4a2bYuIhkLHFSyHnSHxvnmO5HqsOqRDA3PqL9Zk6LZgPkvx
-	YcMuriKNT4TgjVgt+sWOdMq+fgGBoc4zTrg/svOSrV2sDeU+SAq3EqO23MEOeybVqamlG8jLbnlEo
-	y/HsdpdTaX3RDCUnOXaJ03nH346+GbeNtOQmdhhN4Tm7H8LjtLEw8RBxU25YzvnbiD3RMQnmvLtFB
-	k108O9Ns40dXLKbM2rmZSbK5mlgYsg/XsAcDElak6W1NteqV+jnici7stCuS3qwplcpKtK86fqV/X
-	LWoMcYKA==;
+	bh=wxn4MG/UuDcxk84tNsHI6sa3Q9kQYypoP2eBG9UjNw0=; b=f4JAKTKOyUvAjdLI7hZUAhoUfo
+	Umj1X11GLfW5MbBiC38ur+8xzYipcDH16+43VSUxKfs/lHaISaeSkVzRaNpFTfyFUYCY+KdHM7KhI
+	vD1SFb1t0huHy5LzNuaYBee+aQ8MI356K8GTabzz8vwPsHYG8ARquVPAV0jwve8cZLy6+IaB33B/a
+	vx+dI7d90jzzbg/JvrMvk8K3ehJlOqP7J33X9UucwIFiY8i8I80AxuBEIDHDi4WAk1toaAkb+9/68
+	MB4VBC0i7KQg5RZoG7H1S/o1eUUEBvKV8dC1zGT/SYE4rP1NzvzsSmrHwljXjO/LoS0yILwrLxu0O
+	+p944aPg==;
 Received: from viro by zeniv.linux.org.uk with local (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vDXqq-00000001eY2-2qXC;
-	Tue, 28 Oct 2025 00:46:16 +0000
+	id 1vDXqr-00000001eYS-0CJN;
+	Tue, 28 Oct 2025 00:46:17 +0000
 From: Al Viro <viro@zeniv.linux.org.uk>
 To: linux-fsdevel@vger.kernel.org
 Cc: torvalds@linux-foundation.org,
@@ -52,9 +52,9 @@ Cc: torvalds@linux-foundation.org,
 	selinux@vger.kernel.org,
 	borntraeger@linux.ibm.com,
 	bpf@vger.kernel.org
-Subject: [PATCH v2 19/50] convert tracefs
-Date: Tue, 28 Oct 2025 00:45:38 +0000
-Message-ID: <20251028004614.393374-20-viro@zeniv.linux.org.uk>
+Subject: [PATCH v2 23/50] convert spufs
+Date: Tue, 28 Oct 2025 00:45:42 +0000
+Message-ID: <20251028004614.393374-24-viro@zeniv.linux.org.uk>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20251028004614.393374-1-viro@zeniv.linux.org.uk>
 References: <20251028004614.393374-1-viro@zeniv.linux.org.uk>
@@ -67,95 +67,75 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: Al Viro <viro@ftp.linux.org.uk>
 
-A mix of persistent and non-persistent dentries in there.  Strictly
-speaking, no need for kill_litter_super() anyway - it pins an internal
-mount whenever a persistent dentry is created, so at fs shutdown time
-there won't be any to deal with.
-
-However, let's make it explicit - replace d_instantiate() with
-d_make_persistent() + dput() (the latter in tracefs_end_creating(),
-where it folds with inode_unlock() into simple_done_creating())
-for dentries we want persistent and have d_make_discardable() done
-either by simple_recursive_removal() (used by tracefs_remove())
-or explicitly in eventfs_remove_events_dir().
+have spufs_new_file() use d_make_persistent() instead of d_add() and
+do an uncondition dput() in the caller; the rest is completely
+straightforward.
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
- fs/tracefs/event_inode.c |  4 ++--
- fs/tracefs/inode.c       | 13 ++++++-------
- 2 files changed, 8 insertions(+), 9 deletions(-)
+ arch/powerpc/platforms/cell/spufs/inode.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/fs/tracefs/event_inode.c b/fs/tracefs/event_inode.c
-index 93c231601c8e..61cbdafa2411 100644
---- a/fs/tracefs/event_inode.c
-+++ b/fs/tracefs/event_inode.c
-@@ -823,7 +823,7 @@ struct eventfs_inode *eventfs_create_events_dir(const char *name, struct dentry
- 	 * something not worth much. Keeping directory links at 1
- 	 * tells userspace not to trust the link number.
- 	 */
--	d_instantiate(dentry, inode);
+diff --git a/arch/powerpc/platforms/cell/spufs/inode.c b/arch/powerpc/platforms/cell/spufs/inode.c
+index 7ec60290abe6..f21f7a76ef0b 100644
+--- a/arch/powerpc/platforms/cell/spufs/inode.c
++++ b/arch/powerpc/platforms/cell/spufs/inode.c
+@@ -127,7 +127,7 @@ spufs_new_file(struct super_block *sb, struct dentry *dentry,
+ 	inode->i_fop = fops;
+ 	inode->i_size = size;
+ 	inode->i_private = SPUFS_I(inode)->i_ctx = get_spu_context(ctx);
+-	d_add(dentry, inode);
 +	d_make_persistent(dentry, inode);
- 	/* The dentry of the "events" parent does keep track though */
- 	inc_nlink(dentry->d_parent->d_inode);
- 	fsnotify_mkdir(dentry->d_parent->d_inode, dentry);
-@@ -910,5 +910,5 @@ void eventfs_remove_events_dir(struct eventfs_inode *ei)
- 	 * and destroyed dynamically.
- 	 */
- 	d_invalidate(dentry);
--	dput(dentry);
-+	d_make_discardable(dentry);
+ out:
+ 	return ret;
  }
-diff --git a/fs/tracefs/inode.c b/fs/tracefs/inode.c
-index 0c023941a316..d9d8932a7b9c 100644
---- a/fs/tracefs/inode.c
-+++ b/fs/tracefs/inode.c
-@@ -538,7 +538,7 @@ static struct file_system_type trace_fs_type = {
- 	.name =		"tracefs",
- 	.init_fs_context = tracefs_init_fs_context,
- 	.parameters	= tracefs_param_specs,
--	.kill_sb =	kill_litter_super,
-+	.kill_sb =	kill_anon_super,
- };
- MODULE_ALIAS_FS("tracefs");
+@@ -163,10 +163,9 @@ static int spufs_fill_dir(struct dentry *dir,
+ 			return -ENOMEM;
+ 		ret = spufs_new_file(dir->d_sb, dentry, files->ops,
+ 					files->mode & mode, files->size, ctx);
+-		if (ret) {
+-			dput(dentry);
++		dput(dentry);
++		if (ret)
+ 			return ret;
+-		}
+ 		files++;
+ 	}
+ 	return 0;
+@@ -241,11 +240,10 @@ spufs_mkdir(struct inode *dir, struct dentry *dentry, unsigned int flags,
  
-@@ -571,16 +571,15 @@ struct dentry *tracefs_start_creating(const char *name, struct dentry *parent)
+ 	inode_lock(inode);
  
- struct dentry *tracefs_failed_creating(struct dentry *dentry)
- {
--	inode_unlock(d_inode(dentry->d_parent));
--	dput(dentry);
-+	simple_done_creating(dentry);
- 	simple_release_fs(&tracefs_mount, &tracefs_mount_count);
- 	return NULL;
- }
- 
- struct dentry *tracefs_end_creating(struct dentry *dentry)
- {
--	inode_unlock(d_inode(dentry->d_parent));
--	return dentry;
-+	simple_done_creating(dentry);
-+	return dentry;	// borrowed
- }
- 
- /* Find the inode that this will use for default */
-@@ -661,7 +660,7 @@ struct dentry *tracefs_create_file(const char *name, umode_t mode,
- 	inode->i_private = data;
- 	inode->i_uid = d_inode(dentry->d_parent)->i_uid;
- 	inode->i_gid = d_inode(dentry->d_parent)->i_gid;
--	d_instantiate(dentry, inode);
-+	d_make_persistent(dentry, inode);
- 	fsnotify_create(d_inode(dentry->d_parent), dentry);
- 	return tracefs_end_creating(dentry);
- }
-@@ -692,7 +691,7 @@ static struct dentry *__create_dir(const char *name, struct dentry *parent,
- 
- 	/* directory inodes start off with i_nlink == 2 (for "." entry) */
+-	dget(dentry);
+ 	inc_nlink(dir);
  	inc_nlink(inode);
+ 
 -	d_instantiate(dentry, inode);
 +	d_make_persistent(dentry, inode);
- 	inc_nlink(d_inode(dentry->d_parent));
- 	fsnotify_mkdir(d_inode(dentry->d_parent), dentry);
- 	return tracefs_end_creating(dentry);
+ 
+ 	if (flags & SPU_CREATE_NOSCHED)
+ 		ret = spufs_fill_dir(dentry, spufs_dir_nosched_contents,
+@@ -479,10 +477,9 @@ spufs_mkgang(struct inode *dir, struct dentry *dentry, umode_t mode)
+ 	inode->i_op = &simple_dir_inode_operations;
+ 	inode->i_fop = &simple_dir_operations;
+ 
+-	d_instantiate(dentry, inode);
+-	dget(dentry);
+ 	inc_nlink(dir);
+ 	inc_nlink(d_inode(dentry));
++	d_make_persistent(dentry, inode);
+ 	return ret;
+ 
+ out_iput:
+@@ -780,7 +777,7 @@ static struct file_system_type spufs_type = {
+ 	.name = "spufs",
+ 	.init_fs_context = spufs_init_fs_context,
+ 	.parameters	= spufs_fs_parameters,
+-	.kill_sb = kill_litter_super,
++	.kill_sb = kill_anon_super,
+ };
+ MODULE_ALIAS_FS("spufs");
+ 
 -- 
 2.47.3
 
