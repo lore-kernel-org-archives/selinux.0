@@ -1,72 +1,72 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EDE327472
-	for <selinux@vger.kernel.org>; Wed, 29 Oct 2025 00:08:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 474062AD20
+	for <selinux@vger.kernel.org>; Wed, 29 Oct 2025 00:10:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761696501; cv=none; b=WIanfDtu0gP8AbYWEQPtQlrA1lA8kh4rZiz62LgO4F2IzKt4lGB/yZcnDCXkmhQynsZdOqlCLK5QkVUhfeL+hKSAWnnm2uPYMZ/7gRSh6wi38EVdwL+DRfLU3D8zQYJcoELxBHNGDtQ0ADeABHO9krHgEHehzUKwE0wQ5bh++dE=
+	t=1761696643; cv=none; b=C3MAB2MoKOG2OLPTzv9sJo2ZFugCwxW4FvZVSGOJO9/ftCwOJGCOz7Qhf79ocYm/AEW7T3HkSaw0JGXyGzNAliJfXv/YsJGNqK/bu0heniQZxGtjcfUptPlmON9PROvXWtQr35InenoqYPL9WFCGnK+QmJVvXllCd72wHxd5Qkg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761696501; c=relaxed/simple;
-	bh=4+0VmKS7izmdzBSkGnuSr1zXLYq/caM1BpBnvQPHwUU=;
+	s=arc-20240116; t=1761696643; c=relaxed/simple;
+	bh=QloRiWksfwupmAUdBgNLV/svbMoFmzJRlSMrdXPaxnQ=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=TRqDXAqPL4EYAW3QU+8nS3jY+4RK2I0oUiCb+J6ho8itbKNBMDC6u6tl0wOgmz66hJ06XEj7P+LiQrWUuTWJuRr6AKe0XhstpVDELPlxyac5ymswcyIX/MCiHW9gJHGZOKq4kzT9VvRKKqFv6mbSHup77ECBLHchM5hNvF128F0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Rm/tQAfY; arc=none smtp.client-ip=209.85.216.46
+	 To:Cc:Content-Type; b=lnXh9BfdK3QyPNvuTvtRGUpLWB2uHsJuiE6/ZHr80qaXuo5BSw1M+2JoCQwglSEgM/TcdepVoVKuMZuZ5QYy58JZkAmm3C6Rl82L4/bIUxKSrXuWMPjct0JRrhpJVB2o6ATVUaMq85Xj5W+Mb5f3gpAmU2gj4f71U25gW6ADAGU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=evHEHdUk; arc=none smtp.client-ip=209.85.216.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Rm/tQAfY"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-339d7c403b6so6443370a91.2
-        for <selinux@vger.kernel.org>; Tue, 28 Oct 2025 17:08:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="evHEHdUk"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-33be037cf73so6884299a91.2
+        for <selinux@vger.kernel.org>; Tue, 28 Oct 2025 17:10:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1761696499; x=1762301299; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1761696642; x=1762301442; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=cZjzJP5BDJixdHcjsD4MEtXcdIeCfYM/75TifkWeDww=;
-        b=Rm/tQAfYDRv9P5gu7ha5CsCLxdHAVSufx4wPrLRv39Ao5X4Zd0nLl4WMq66DKWF21j
-         pzblNcL+S7EmmehpeXxiCucHVp/gIxF+345p35vVv7k3j4S9XiyILrrjYNpDck8Nwjvf
-         u0v4idUFcDSYLq+/hsZKpXYxYmCl3he69VZ7RAvIotMFQhDCV2Kqsptie1SrDLZP1AA0
-         kxbVDhUun37cH9zNf8QuTePAzGTU4YKjhVH0cU+/jVfx/MbmEfEddQxZN+GQ58Zt0VjO
-         DdJYJ6gKRYAwQ0SnbRvOZxH3etqOX762S1vBeYEBv174TLf5QcBHlHYWHsPxQFrzkq1d
-         oq5w==
+        bh=OAeYT3sIf5J+urxpWRZdGCYWbbcmjWbjfXki2vhXqBo=;
+        b=evHEHdUkGc41clD3/HvS6TCsRDFkA9q6MEZ+Ee8ikmU90EW0nwK1uXakOJknKdIEYw
+         UPOMfeEvBNhKrHjLjHr7xIYCpdId2KHIvvTrAsza0xQeogPNi8UwwvqaI96FT8ITZ8vQ
+         uzFC0R7kneeJXGfF8/cqcxLa3ozJQN2E70B69L9NShTl9bB++pcLxc0q3bhCZ6JHhbk2
+         c7LXeRcZcT65SzKjp7o+Ph+jEW+BDN8aORwZ2Q6/pPfvCmUIvEEXu+nEyBOVi1hFu8Rr
+         SUBY5Gz0grZxmej8kpSYf3nSsLE60De2XMA1fzyVirRng1clt1tCPFYnLsbjXnIXjkwS
+         8jyw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761696499; x=1762301299;
+        d=1e100.net; s=20230601; t=1761696642; x=1762301442;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=cZjzJP5BDJixdHcjsD4MEtXcdIeCfYM/75TifkWeDww=;
-        b=Xz4g5TuQPtrkwiY/G0zhCLGo1/Zmakts0tvpY4ekqdh0571NTCln7UhN3tGp/LNhJO
-         v7DqtmsMR9EeGH4PTuoztQuunQOgGpy47UMuMla3U1tThd7vKdiCaovjmApt6QyNS5XW
-         GFv20wxIDZm8UdAq60RI32YOzrS1CXTq1Vc6ZuZ7+SQs3n6Dstc383tvS/RsST0jtVYm
-         4gFY0y7Q0cNplsfcf1xJWjPUZqt0RKC1o32NF7jwI2UOolYJiNY2XFcSiTmLC3XnwFxl
-         WIbj/CfbqxbSYXYF+aERgS1nm0z5nj+HAP4zeD+66vlM24wp2eDMcHMdwJhSzr3CJFWM
-         /1XA==
-X-Forwarded-Encrypted: i=1; AJvYcCW4kZ0LK/4S6mUgCcwD33lLKqwl+LKVyFYMgv3bS2hfwW26oaDXlJfEXbfSFxEqPQGPvmJTLI0+@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxfdp24O4iEXld5B/5EDp5wyvd60uo/DuD1bA2HaUs3Dr9/DpFG
-	5TwM1ho+6aFbUUHcGtIgvJ24qrW2CniMD9yJrCWl4P/PdhrUvH4Bsp2maq6okRVNKZiuDERV59O
-	/bJb0WtpaAPSrYjztaLpHwarw10d6kqjrzd4G0TQP
-X-Gm-Gg: ASbGncuMAV/SPBOhAXj1G5Ig2gO1aC14gI9u6txRopztG2h89G3TYFAEXTcFFVuNsND
-	ZRZHfujDFrrEIv6JKJSeyXuAfQ24HrfmlzbPshYRlmqx6Pb95Ety1SnxmWCYixj/Dp5lgIJa11g
-	g+aKwl00sXrYOlt1pa2FMkrFgWpEC9HcRwXdpn3TwUmbj3RgCT80/j9fdoUYpzx97ZebU1twrGe
-	f8z8hxz6gSKaVs5V0OSWfKDdvt4rGqQHJ/pefUkINi09vUgSuI8MkG2Nl/w
-X-Google-Smtp-Source: AGHT+IGEKRPFq5L2rd6w/ubcuTn//BXhetf/wOj9xAOGHPjYYno+UXGan0WlvoJBaoZ1JF4tIK0SCxZjeiDlUqLjb6g=
-X-Received: by 2002:a17:90b:4a05:b0:339:ef05:3575 with SMTP id
- 98e67ed59e1d1-3403a294f2fmr971614a91.26.1761696498871; Tue, 28 Oct 2025
- 17:08:18 -0700 (PDT)
+        bh=OAeYT3sIf5J+urxpWRZdGCYWbbcmjWbjfXki2vhXqBo=;
+        b=FK2fIlLuAXxo9aUXouWt1jf9vFb4C9rOs/xg30kBqpgvJNNZD+SgwkV+dJNHkMhBex
+         ckK8icx4dAny2vrNr8NSxZMC1OAG3Ok7TvOsSWS+pEH5x7pB3A7aaBl2MNX/awCmdS1O
+         VsMD5hAXdyEHpiswsz+5Kqf0LlYwhOaPajXA9j9W0gUBXhd/12z3bVkJRPvVL8pSlAs0
+         Tfw+ohyPvgzvPMaLXUMPruFW9tQtBwMDS6EPqawaXnu9PAYSKaDnU7eQ4Wbj5XEv4epH
+         0XkMcGRAAMTAm+m85X5CdoQTCfjA9p8S5Aor+fdKu+yH92MH2NVDd2aBnZM5Xm1P7yPC
+         Uohg==
+X-Forwarded-Encrypted: i=1; AJvYcCWn/torU6a6YvhC2PaVLSHGVTqv9YEJkefAJwRNehbMxzn+2z1bROHzZx8DdmH2+oGYeFppM2rI@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz19aA0vY64sg1fQfqtxq+W/jul4+Wlp0fEKxFJcNkxHoJAJafo
+	pK8s//mHWpkS4dFEU2dS2AaKxfOLT8dIbVfAzi8gkm9mN4o/+BNWGgNhSTnjJvCw3yw47QnhMnW
+	XhBZLzZqg5xouk4AP9RRf0FdXojvCgPLNCuw5RPrt
+X-Gm-Gg: ASbGncvRwXeGhZb2HVtl5GazSD0QzUX/k071SpISDPd4/JHk2mw6YfjvKqM0avzAx7y
+	SoH5O5xLnVP5jbqVbrrA/zbhFGrJdOUnLY1RVqK0A5BMrra77u89aHA9MHW3wVuQIYOD5f1+wnx
+	W6cOst6kCC1FkN3u+VJrLjuymEFrqfkk1tXm8s3bfZGL3+dtJjGHc0A4zML5VQIt/UpQVBiMIGr
+	KhxlloiEG8nOLZpEl8kdUXzntm3a4U8JzFR7qBKCPfJ7yyrVgEGIAYSSgfZ
+X-Google-Smtp-Source: AGHT+IGhjs8q4GiygXwr6DCqhQXMqWhNs5oaPfnq5KAn4id0agHe+xmdqRLWlZPNOFZ/N+dUgAnaM8QQHq+RXzkh3rE=
+X-Received: by 2002:a17:90b:4c8c:b0:32e:d600:4fdb with SMTP id
+ 98e67ed59e1d1-3403a2a1014mr987268a91.18.1761696641654; Tue, 28 Oct 2025
+ 17:10:41 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251028004614.393374-1-viro@zeniv.linux.org.uk> <20251028004614.393374-34-viro@zeniv.linux.org.uk>
-In-Reply-To: <20251028004614.393374-34-viro@zeniv.linux.org.uk>
+References: <20251028004614.393374-1-viro@zeniv.linux.org.uk> <20251028004614.393374-49-viro@zeniv.linux.org.uk>
+In-Reply-To: <20251028004614.393374-49-viro@zeniv.linux.org.uk>
 From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 28 Oct 2025 20:08:07 -0400
-X-Gm-Features: AWmQ_blBn2fdqYcxKi_H91_QLngZD09fAUzDyH5oMtRPekpRq9pqWMOuQKzGUHw
-Message-ID: <CAHC9VhSeiK=qqLMUDAKRTgS5EEHdVvLD7-afuDqJWYFindvfUA@mail.gmail.com>
-Subject: Re: [PATCH v2 33/50] selinuxfs: don't stash the dentry of /policy_capabilities
+Date: Tue, 28 Oct 2025 20:10:29 -0400
+X-Gm-Features: AWmQ_bnyVa46lrJnSEC4p7b8a6-fhgKBPo6xvMl8XVNnPJL6uMjYjs2dxSO45Ps
+Message-ID: <CAHC9VhRX6kqFbbKuOoKOLLve6c+7TN3=fXHrtXyj=osfNYd+2A@mail.gmail.com>
+Subject: Re: [PATCH v2 48/50] convert securityfs
 To: Al Viro <viro@zeniv.linux.org.uk>
 Cc: linux-fsdevel@vger.kernel.org, torvalds@linux-foundation.org, 
 	brauner@kernel.org, jack@suse.cz, raven@themaw.net, miklos@szeredi.hu, 
@@ -82,19 +82,22 @@ Content-Transfer-Encoding: quoted-printable
 On Mon, Oct 27, 2025 at 8:46=E2=80=AFPM Al Viro <viro@zeniv.linux.org.uk> w=
 rote:
 >
-> Don't bother to store the dentry of /policy_capabilities - it belongs
-> to invariant part of tree and we only use it to populate that directory,
-> so there's no reason to keep it around afterwards.
+> securityfs uses simple_recursive_removal(), but does not bother to mark
+> dentries persistent.  This is the only place where it still happens; get
+> rid of that irregularity.
 >
-> Same situation as with /avc, /ss, etc.  There are two directories that
-> get replaced on policy load - /class and /booleans.  These we need to
-> stash (and update the pointers on policy reload); /policy_capabilities
-> is not in the same boat.
+> * use simple_{start,done}_creating() and d_make_persitent(); kill_litter_=
+super()
+> use was already gone, since we empty the filesystem instance before it ge=
+ts
+> shut down.
 >
 > Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 > ---
->  security/selinux/selinuxfs.c | 21 +++++++++------------
->  1 file changed, 9 insertions(+), 12 deletions(-)
+>  security/inode.c | 33 ++++++++++++---------------------
+>  1 file changed, 12 insertions(+), 21 deletions(-)
+
+Much cleaner now.
 
 Acked-by: Paul Moore <paul@paul-moore.com>
 
