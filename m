@@ -1,132 +1,459 @@
-Received: from sonic305-27.consmr.mail.ne1.yahoo.com (sonic305-27.consmr.mail.ne1.yahoo.com [66.163.185.153])
+Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8317333427
-	for <selinux@vger.kernel.org>; Tue,  4 Nov 2025 17:56:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.185.153
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28FB0224AE0
+	for <selinux@vger.kernel.org>; Tue,  4 Nov 2025 20:52:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762278981; cv=none; b=AHsitoW4r0rcLalxBcYhfQOSEN0bxyc0jHyCXl6vovuxMFJ6nFV34GGZ1rCNv5rsndEyh5qrcBVaIE8EeNo5Ss7DeUmPXlwf6DspKkOXx9u0Kaue1XJ1St270z6meE2azWuGQy3LAD8ZDRDpf5Avzx4sbT5ZsMzA0+l1DEOevuo=
+	t=1762289574; cv=none; b=MBDSdKzWUfB8a2DMXvVsMJ0skHmaNTHgisNR9CRjDNTKijuJZymufS7Gzh57DVDiS7lnkblvGkwB1wKR4+PuiDYe8ZSNqNL573SQq9dtmMp04twmw3+Ah6KTFDHw+41On5tl96sO5QJ7H/aXwnYFX8RPrvywKNWXtpJo4V4ihEc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762278981; c=relaxed/simple;
-	bh=+vRx3ABJ4EajGVIFFGaixi+4TZ+VcU6yxjdyq28GRUE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=bA2CUbjCWN7dRsR6AHQ51B2HXB74R0q3BQdDd/gdtlUhG9pkzufsTX8r4fAwk0BpSMcwSiC0e/KYTUYIB4eFCrsF/FxGFWhgoVahlUT8O2Pnltg/HdHBrHqrN64ZYijylO8IZ5X6BvpQBrdcyTdu6dE5M+SppRFqXhysN1OxjZo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=lKIwzYU0; arc=none smtp.client-ip=66.163.185.153
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+	s=arc-20240116; t=1762289574; c=relaxed/simple;
+	bh=HRoq0xqYvwrk+mdM9L60nNgrUWG7Uwzyvb4gtadgDBo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=BGv3tfX1e5zvu+TAUk9KvJSTvcOqHVt0VeTIgnC75UHEbVLhXN4mx+rlEFyDhPdx6v4OrNEjh4RMJrCZzlrgcz4OaUxi8LeOaX+XjA0vTfiHbf6N/cIVB+2yyre5TRoplVOM/4fjOIpOXuULNKUabLjpGuYqxLhyQU5oBBFRcBk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EWABdFzy; arc=none smtp.client-ip=209.85.160.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="lKIwzYU0"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1762278978; bh=th6F6yZ9ktqthCQv2MGa7/ckJ5CDORFCRwj664QG8rk=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=lKIwzYU0ZkpnICuSm/2BUZ2F5W47SIRk1pkyPmakyFLlnn5IS7Bzv+kwRLGpBJdoG1SdyLa9AtP0sD6TejmTziE1lZVwg6ans5lYgmbqCZldOnYiExzOlI8MVgMIcwBLoqcYr19kTA5+CVGBFTFrj/mHKqfI8RQu8K3e7mO4Zk2n3EegAqsvkNYMYWwFK60C93dfIhosYYobiaZRdARKyoA+DgOqyQ3M3we4b9tLJy46oatcpDI15eo5wjvipmsx6PXJCs/5jHGBB1Yw0D1wkyjGoqD7jjXAahLV0yTUE0hArGmsSoDMRDr/Ietw1+QUUqxtUoc5hYY2OlFSvvUZTw==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1762278978; bh=l6HkUlc8oyx++Zw9RVj421kmwzleq7Ab+gA83ECcQ3H=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=IaUj4vZ7SCmPJwEHCbnEkEFugWSjciuRkX3I5JN+vnXrxQrpVPT8jJqxNynQvQRfZyDNIeXwiCF3nMVyXlzj3e/yz3MiuOYRFPymoLvXgmBihsc17cPTDolxpgCacsXxcudJAbT7vR1/m5jy8f6bAG6xah18ltOkQ+6F9uJ8Y837zawFasdxoiX6oo4vfLL0VlqLccP9YNpwROIEOjJBP1I+/VF1ukFYVLTevoMmkUurxa88JzGJlkloecStDrr3D2RjHjKsnLTZSwP0cxXQrSc3Sch78+AKfIn/2rXEr15MzUTsJy+Jg6ebbnc48kHcAhqX40aMfiUI5WW8qs045w==
-X-YMail-OSG: ah3BC7EVM1lTrsL2uHHnvdF.OIDsV6XmfES7VvXvrSObFz3Cq5AcwNaCvp_q2hf
- B5wCD2sn8r5BOLe_5_aGMrXpdqRs8xCKX3bssNJofRis_GWZTiF11jqJypf2Hn9KhHrBSqjiJPE9
- bVYu93wqdPoA9vEeZOO1O1zZY6KVuFbcIPsc4JeSCTFK8nKRz8Om..yvKjEiG94_ylajD5j1YtRu
- qh_ypoRgOH8jj_BXutAbFiat1X_RzK3UPS6hH7DBoBKwgb.0KOJwRl4u6Zd3uWChhE6Gc.q6tHGO
- jLp.88SQ5wwK.lHeA.nFc8vJwVU7m3A9OLdI.2LxxBlewof6iOgOogE.3L3pxeP4VL87noV1ZQkR
- VPhkqxnrC7ki5WUNMU11doX95W7oy.UehCldtyAeF1UYoDq.BIfVA80KwKLxpVz1YEjtMFcS_UtQ
- 1mKXOZkdo9V_BwqV6xMwXlrHS3EMh66KIs12sgdRv5Of8UTXSCgcsTt907Vr0UbWFNauQItD2wV5
- ecSKIfAwjc9KUAARezFjkWxgBCYcz7hDWYu_vo6FkWNtmXogMlb8_vlLgkLBVyXwTxEobOX3ZqSD
- HaS6Enwi2GfWclriaai_PL1A5gmf8d0HMgalSXeLdJIlOKQaWancihntiE5T3HOiej9gRY1f5Vza
- 4S2z8cDHTcoxfJUA9paajs5_Pc1EefoP_iwhEITp3O298ytXG22lxFyj9XcI085rQyMLPglVjKqg
- rka6c.oiV5YK5eeJdoMYYqyR99xN.DEYkcFVMPAzXNJd6VyBrS7k46mh51xABdJsqEaV3qPWh2gP
- aNcBNWmTXjunFZrnRemAea6t4udC7DeHPTXDFGoMtMKfcsygb5lA4vXPsCX2nEMbQxlCAa1WcZab
- uCyJsgCUEY6_HEwPHhEGpSB6Mp8yUaOycwaAZuHWk9Iw3ATjPbdZcJVuLAbJKsVpMKoqQljFLcq0
- xHRotadGPmTFgdSh_HHd5yY072UVmPNpcmoDoCQPdbZCD8HWvEsMi.fpeDYrBbtCYyBWnSyBVYMG
- 6C7R.rxokxKmheSrpjZXuacsU_rk1oFe7km4mAyBp1ZQjsctuB4iNb8yET847z7pQYRMzHd3C6Dz
- G55k1kHKKDnnTaP59TPhjKb2N3qbsQxj.udBGtRr.U8X.pvVSDjE7XPle1W3hMTfU4zGumGvEgdY
- F90mpVSwgcfQqm.fpTo55ddtIGdGaiNgZ0qczaBnmnsSvDtaerDeNrdr2wY5b173Z16BuDzF1gdy
- RZUPzSGaElDpmMPaX9Eheqk.K0Jx3h9sMx7zc.UhwI.PDgJm0pyIV3BNeRluyQFhQ0AOuxS54QTJ
- ghl2IkHAZTT5L_hBolpCPhLsD_7AjGFJwOqc4uEfhKJflolGT1.0gQ7JneOxyAycWZoqHqMgXc_3
- F39hxJKOCsUQ8s9VHJyvTTpW8fpFl41SfRMQPqQJw3NrRYLD_SgotBo6B8NEB50QjE9qZZYRtGQT
- qslm9NWrEAP.SI5DQlN7KvmL6ZirwyNMhXDPelJH5gV8OSJvztDEEBXnCrunLsYLDyfOpgLRbgZw
- IHkF8RLIwtxxfBqu2MO2ekePJqv02LSYLSqgCbJOAaOrh7jkKPgIPRbUEl71aWIJwHDBUPge_tHy
- gzUPLzYIm2WBGM91BFIHA7Nunn8cq6FttQ_7uoCDp8_tzJFcefW1HaTkM0J_zJ4S6G3FTwiIgORi
- 0_W01DD3bZ9Gq_KJPuTChj1nZEAowi9P9m8tp7xKZYs_WyPBlCbq3vcaKOARyZyubiHWbUSMdP6F
- 1jtJVx380WM9Dk.RlTwf0oTrK271_X01u3YoFtBy_st_PFvWD76fkbxV3itXU4zHlTV9hE9vy5T7
- _LZ9SmDjUIxaQP2nNFc9dsZa9CkJdpIP.Quks9BfvPBsXGzKrtogbi16NxmNKzaB5llQA6ZAqhBj
- utUE0BmqqmB0lvXB5P0qJRFMgXwhCV_IvO8GKu3QcN3Ib5V6bY05xyg_hRuk_7PSvP144JWVaF80
- ONwIaoqRiUW8QBnDfbUko9RGlUxtnAW4d0aAleF8N05RcccXnoAvDD5JYh5ukl9YAN9xVuIIA5jP
- kQklhKCDgZwjc4ZOM8utm3i1h1wIoTtTsbGgStUJrRSZeTyBE58zqCXPtFcWrvyMU5sCUsTZtHMG
- yvvs6NdUBZGVR_n4fxOA3EtcC.ZFgA4CWbByFyAaxxmDBXunPNDSQGtN2K1o6czY5lNDGJKiOAmN
- 7tb2Wg.9buzL6bK054eeBScqj.L_E3cF9T9CiyCGODbIu5PRRB06eq2il3XtTYKvwmV3CMiPDKx5
- DS8bKL_g5R0Zx5FxgdMVClB5je6z0ZXY-
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 0fbb50a8-a99f-4367-bc8d-f2eeae093282
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic305.consmr.mail.ne1.yahoo.com with HTTP; Tue, 4 Nov 2025 17:56:18 +0000
-Received: by hermes--production-gq1-86c5846576-72cgw (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 09ccb174d06ff61091f56c6092cd5092;
-          Tue, 04 Nov 2025 17:46:10 +0000 (UTC)
-Message-ID: <200ce2d0-6243-415b-954c-3078779dff2c@schaufler-ca.com>
-Date: Tue, 4 Nov 2025 09:46:07 -0800
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EWABdFzy"
+Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-4e89ac45e61so53901501cf.2
+        for <selinux@vger.kernel.org>; Tue, 04 Nov 2025 12:52:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1762289571; x=1762894371; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=fccDfwhFc6swDtqThEGLuo47VM6s9WsSi+q5THme3Eg=;
+        b=EWABdFzy4bk7lcyvTPYQ1GanEuL4x67/VuIWQ70eaOLEXAKrSAUUWMV717Z9V2oK8P
+         eALDe+aWFXaSDh+XtfPPyVOtdvsWpt3GE98pShuA9/C+qiDf0ZjvX2WHpB7SXFrSEjt4
+         3FwHW9tw5M/LWDygm6Cp6d7WO6SpvE+MwiH+KLF6vbt2XYJ1a7pZLk1QQDG3GVBjPrRh
+         +PrkNOB2WaddXSxWCMjK1zOCdWURE2eGAnAe7Wy6kSfEc/ruZZRTCV3yKMUsi0K0MaS1
+         Alsv4A5HTNPJvaD9BP8VZ5elNAiiEUFwfV7YrCj1SCrU0nl4AiV/3ek0BeA50bDxhXG5
+         rwqw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1762289571; x=1762894371;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=fccDfwhFc6swDtqThEGLuo47VM6s9WsSi+q5THme3Eg=;
+        b=cIXi/6s4Xzhic0iA7B1hKs/AnFR+OPZPWo+EALVjRYvBQw/o18USroFkA4hEIq2t8r
+         AHinBuco+bOBi6Bdnzzky9Lemo0zidR+asEZOktENNCOHdXHOOk5t595e+ySAbvNWwug
+         Miwt+W4cA30SJsAy6QnfXXgVeY2x+VqkWtNnH/eHeVFENHKUAyQHWuas3F1W4NCNiXpA
+         fc9XCNvQ4oBjFoB7AUs0DFJWOsUS9YHzux5dVmmvj7dfHSKmKbfkdW4jaW/ZikpVI2Gc
+         KODnqp1uLiBZ/JGwAhhdV0np2Nh3UfI5G9foMK3GHhMHet4JOI3ka1dxGSlTAftjzHVr
+         l9AQ==
+X-Gm-Message-State: AOJu0YyxnOO4alHcxl3Con7cX3hhMBrPF21KZIHG0XOffHfXFK+ZtsBW
+	UX0oA5a2dJ55oakdRb442e2SYw1RFwo/NlMIJOZqn+0krNCtEGYNb0t4dV09YA==
+X-Gm-Gg: ASbGnct+ZAwzMjwGPlMyG1ylbIcN/bMehSKIna4CaqWR5p+GIkzbGin2P5BGmUKSsSu
+	nv5Nq6RAc8/0fV6B7an6Br6J14rv8VX/f6AncH4/C/uhEjMU/0GGkZNFiB3NiMVZ1TIp6SwT1X+
+	COwepfpbU802MP/awxd7eTNNtsL4Kk/SzNymZR4qpqRDTBq0GCRE96o+WLL93lgCo1hdBcUBqLE
+	jxa6qVcgjuImLCBq7H//s4f+27asEGkqG1gUUtCI3SZslKojbh/roHdVMEon5AKSQrcF8HDV8CO
+	sCl+BhQP7qhIci331Gia8Unuxtg9+ZvGk/HmBV39FuPJeAAwdnTX5RoNUjtBwAw5QQFcIbFbTni
+	PQiU0s9VG67LwLXxpNRU4xKsnjsCnqUH4ByXdOyodYGefxNDub3jZ6nQ/V7JdTXKjrCyrtkP4GK
+	y1+XD+hg3U
+X-Google-Smtp-Source: AGHT+IElGtsQIq4ai8REIFlxkDBZHjFzE6vw2QGdL54eU1kzKSKlUriO++BmuFOb9MjhOvTysPLtIQ==
+X-Received: by 2002:a05:622a:11c7:b0:4ba:add1:abb4 with SMTP id d75a77b69052e-4ed72609951mr10180141cf.44.1762289570845;
+        Tue, 04 Nov 2025 12:52:50 -0800 (PST)
+Received: from fedora ([144.51.8.27])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4ed5fbe2c2fsm23472791cf.21.2025.11.04.12.52.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Nov 2025 12:52:50 -0800 (PST)
+From: James Carter <jwcart2@gmail.com>
+To: selinux@vger.kernel.org
+Cc: stephen.smalley.work@gmail.com,
+	russell@coker.com.au,
+	James Carter <jwcart2@gmail.com>
+Subject: [PATCH 1/2] libsepol: Fix sid handling when writing out policy from binary
+Date: Tue,  4 Nov 2025 15:52:35 -0500
+Message-ID: <20251104205236.60931-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.50.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/2] LSM: Infrastructure management of the mnt_opts
- security blob
-To: Paul Moore <paul@paul-moore.com>,
- Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Ondrej Mosnacek <omosnace@redhat.com>, eparis@redhat.com,
- linux-security-module@vger.kernel.org, jmorris@namei.org, serge@hallyn.com,
- keescook@chromium.org, john.johansen@canonical.com,
- penguin-kernel@i-love.sakura.ne.jp, linux-kernel@vger.kernel.org,
- selinux@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>
-References: <20250925171208.5997-1-casey@schaufler-ca.com>
- <20250925171208.5997-3-casey@schaufler-ca.com>
- <CAEjxPJ4D7A4KDF9BfmRa9VvzcAHBkkrdKCvmGazuZUto5=qDuw@mail.gmail.com>
- <CAHC9VhSRGyMuTYxP0nDpXv_MwvNqVsrBXcak84AGHj7ycDtu3A@mail.gmail.com>
-Content-Language: en-US
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <CAHC9VhSRGyMuTYxP0nDpXv_MwvNqVsrBXcak84AGHj7ycDtu3A@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Mailer: WebService/1.1.24652 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-On 10/13/2025 1:55 PM, Paul Moore wrote:
-> On Thu, Oct 9, 2025 at 2:38 PM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
->> On Thu, Sep 25, 2025 at 1:12 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
->>> Move management of the mnt_opts->security blob out of the individual
->>> security modules and into the security infrastructure.  The modules
->>> tell the infrastructure how much space is required, and the space is
->>> allocated as required in the interfaces that use the blob.
->>>
->>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
->>> ---
->>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->>> index 4bba9d119713..1ccf880e4894 100644
->>> --- a/security/selinux/hooks.c
->>> +++ b/security/selinux/hooks.c
->>> @@ -656,19 +651,13 @@ static int selinux_set_mnt_opts(struct super_block *sb,
->>>         mutex_lock(&sbsec->lock);
->>>
->>>         if (!selinux_initialized()) {
->>> -               if (!opts) {
->>> -                       /* Defer initialization until selinux_complete_init,
->>> -                          after the initial policy is loaded and the security
->>> -                          server is ready to handle calls. */
->>> -                       if (kern_flags & SECURITY_LSM_NATIVE_LABELS) {
->>> -                               sbsec->flags |= SE_SBNATIVE;
->>> -                               *set_kern_flags |= SECURITY_LSM_NATIVE_LABELS;
->>> -                       }
->>> -                       goto out;
->>> +               /* Defer initialization until selinux_complete_init,
->>> +                  after the initial policy is loaded and the security
->>> +                  server is ready to handle calls. */
->>> +               if (kern_flags & SECURITY_LSM_NATIVE_LABELS) {
->>> +                       sbsec->flags |= SE_SBNATIVE;
->>> +                       *set_kern_flags |= SECURITY_LSM_NATIVE_LABELS;
->> This seemingly would produce a change in behavior for SELinux.
+Initial sids are stored only as unsigned 32-bit numbers in a
+binary policy. When a binary kernel policy is converted to CIL
+or a policy.conf or a binary base module is converted to CIL, a
+mapping in kernel_to_common.h is used to determine the name of
+the initial sid.
 
-Except that it doesn't, at least from the tests I've been able to find.
-If multiple LSMs use mount options you can't use the !opts test, because
-there may be options for another LSM. Deferring initialization is harmless
-when there are options, as it's all checked again later.
+A problem can occur when policy converted from binary to text is
+once again compiled. The initial sids will not be the correct
+number if there are gaps in the list of initial sids. This will
+cause the effected initial sids to be interpreted by the kernel
+as a different initial sid.
 
->> Previously we would only do this if there were no SELinux mount
->> options specified.
-> What Stephen said.  I think this is good work that needs to be done
-> (thank you for doing it!), but we have to preserve existing behaviors.
->
+When writing out sid and sidorder statements in CIL, write out
+all the initial sids from kernel (which is initial sid #1) to the
+initial sid with the highest number associated with it. In the
+same way, when writing out sid statements for a policy.conf, all
+the initial sids from the first to the highest numbered must be
+written out with no gaps.
+
+No changes are needed when writing out statements associating
+an initial sid with a security context. There can be gaps in
+these statements. The numbering is taken from the declarations.
+
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libsepol/src/kernel_to_cil.c    |  47 +++-----------
+ libsepol/src/kernel_to_common.c |  48 +++++++++++++++
+ libsepol/src/kernel_to_common.h |   1 +
+ libsepol/src/kernel_to_conf.c   |  41 +++---------
+ libsepol/src/module_to_cil.c    | 106 ++++++++++++++++----------------
+ 5 files changed, 121 insertions(+), 122 deletions(-)
+
+diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+index 4da63ba5..06cf4498 100644
+--- a/libsepol/src/kernel_to_cil.c
++++ b/libsepol/src/kernel_to_cil.c
+@@ -565,54 +565,31 @@ exit:
+ static int write_sids_to_cil(FILE *out, const char *const *sid_to_str,
+ 			     unsigned num_sids, struct ocontext *isids)
+ {
+-	struct ocontext *isid;
+ 	struct strs *strs;
+ 	char *sid;
+ 	char *prev;
+-	char unknown[18];
+ 	unsigned i;
+-	int rc;
+ 
+-	rc = strs_init(&strs, num_sids+1);
+-	if (rc != 0) {
+-		goto exit;
++	strs = isids_to_strs(sid_to_str, num_sids, isids);
++	if (!strs) {
++		ERR(NULL, "Error writing sid rules to CIL");
++		return -1;
+ 	}
+ 
+-	for (isid = isids; isid != NULL; isid = isid->next) {
+-		i = isid->sid[0];
+-		if (i < num_sids && sid_to_str[i]) {
+-			sid = strdup(sid_to_str[i]);
+-		} else {
+-			snprintf(unknown, 18, "%s%u", "UNKNOWN", i);
+-			sid = strdup(unknown);
+-		}
+-		if (!sid) {
+-			ERR(NULL, "Out of memory");
+-			rc = -1;
+-			goto exit;
+-		}
+-		rc = strs_add_at_index(strs, sid, i);
+-		if (rc != 0) {
+-			free(sid);
+-			goto exit;
+-		}
++	if (strs_num_items(strs) == 0) {
++		strs_destroy(&strs);
++		return 0;
+ 	}
+ 
+-	for (i=0; i<strs_num_items(strs); i++) {
++	for (i=1; i < strs_num_items(strs); i++) {
+ 		sid = strs_read_at_index(strs, i);
+-		if (!sid) {
+-			continue;
+-		}
+ 		sepol_printf(out, "(sid %s)\n", sid);
+ 	}
+ 
+ 	sepol_printf(out, "(sidorder (");
+ 	prev = NULL;
+-	for (i=0; i<strs_num_items(strs); i++) {
++	for (i=1; i < strs_num_items(strs); i++) {
+ 		sid = strs_read_at_index(strs, i);
+-		if (!sid) {
+-			continue;
+-		}
+ 		if (prev) {
+ 			sepol_printf(out, "%s ", prev);
+ 		}
+@@ -623,14 +600,10 @@ static int write_sids_to_cil(FILE *out, const char *const *sid_to_str,
+ 	}
+ 	sepol_printf(out, "))\n");
+ 
+-exit:
+ 	strs_free_all(strs);
+ 	strs_destroy(&strs);
+-	if (rc != 0) {
+-		ERR(NULL, "Error writing sid rules to CIL");
+-	}
+ 
+-	return rc;
++	return 0;
+ }
+ 
+ static int write_sid_decl_rules_to_cil(FILE *out, struct policydb *pdb)
+diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_common.c
+index e4338ec6..99e46865 100644
+--- a/libsepol/src/kernel_to_common.c
++++ b/libsepol/src/kernel_to_common.c
+@@ -382,6 +382,54 @@ int strs_stack_empty(const struct strs *stack)
+ 	return strs_num_items(stack) == 0;
+ }
+ 
++struct strs *isids_to_strs(const char *const *sid_to_str, unsigned num_sids, struct ocontext *isids)
++{
++	struct ocontext *isid;
++	struct strs *strs;
++	char *sid;
++	char unknown[18];
++	unsigned i, max;
++	int rc;
++
++	rc = strs_init(&strs, num_sids+1);
++	if (rc != 0) {
++		goto exit;
++	}
++
++	max = 0;
++	for (isid = isids; isid != NULL; isid = isid->next) {
++		i = isid->sid[0];
++		if (i > max) {
++			max = i;
++		}
++	}
++
++	for (i=1; i <= max; i++) {
++		if (i < num_sids && sid_to_str[i]) {
++			sid = strdup(sid_to_str[i]);
++		} else {
++			snprintf(unknown, 18, "%s%u", "UNKNOWN", i);
++			sid = strdup(unknown);
++		}
++		if (!sid) {
++			ERR(NULL, "Out of memory");
++			goto exit;
++		}
++		rc = strs_add_at_index(strs, sid, i);
++		if (rc != 0) {
++			free(sid);
++			goto exit;
++		}
++	}
++
++	return strs;
++
++exit:
++	strs_free_all(strs);
++	strs_destroy(&strs);
++	return NULL;
++}
++
+ static int compare_ranges(uint64_t l1, uint64_t h1, uint64_t l2, uint64_t h2)
+ {
+ 	uint64_t d1, d2;
+diff --git a/libsepol/src/kernel_to_common.h b/libsepol/src/kernel_to_common.h
+index 3ba97dfc..d3283658 100644
+--- a/libsepol/src/kernel_to_common.h
++++ b/libsepol/src/kernel_to_common.h
+@@ -115,4 +115,5 @@ int strs_stack_push(struct strs *stack, char *s);
+ char *strs_stack_pop(struct strs *stack);
+ int strs_stack_empty(const struct strs *stack);
+ 
++struct strs *isids_to_strs(const char *const *sid_to_str, unsigned num_sids, struct ocontext *isids);
+ int sort_ocontexts(struct policydb *pdb);
+diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
+index 6d608443..a8126d58 100644
+--- a/libsepol/src/kernel_to_conf.c
++++ b/libsepol/src/kernel_to_conf.c
+@@ -463,53 +463,30 @@ static int write_class_decl_rules_to_conf(FILE *out, struct policydb *pdb)
+ static int write_sids_to_conf(FILE *out, const char *const *sid_to_str,
+ 			      unsigned num_sids, struct ocontext *isids)
+ {
+-	struct ocontext *isid;
+ 	struct strs *strs;
+ 	char *sid;
+-	char unknown[18];
+ 	unsigned i;
+-	int rc;
+ 
+-	rc = strs_init(&strs, num_sids+1);
+-	if (rc != 0) {
+-		goto exit;
++	strs = isids_to_strs(sid_to_str, num_sids, isids);
++	if (!strs) {
++		ERR(NULL, "Error writing sid rules to policy.conf");
++		return -1;
+ 	}
+ 
+-	for (isid = isids; isid != NULL; isid = isid->next) {
+-		i = isid->sid[0];
+-		if (i < num_sids && sid_to_str[i]) {
+-			sid = strdup(sid_to_str[i]);
+-		} else {
+-			snprintf(unknown, sizeof(unknown), "%s%u", "UNKNOWN", i);
+-			sid = strdup(unknown);
+-		}
+-		if (!sid) {
+-			rc = -1;
+-			goto exit;
+-		}
+-		rc = strs_add_at_index(strs, sid, i);
+-		if (rc != 0) {
+-			free(sid);
+-			goto exit;
+-		}
++	if (strs_num_items(strs) == 0) {
++		strs_destroy(&strs);
++		return 0;
+ 	}
+ 
+-	for (i=0; i<strs_num_items(strs); i++) {
++	for (i=1; i < strs_num_items(strs); i++) {
+ 		sid = strs_read_at_index(strs, i);
+-		if (!sid) {
+-			continue;
+-		}
+ 		sepol_printf(out, "sid %s\n", sid);
+ 	}
+ 
+-exit:
+ 	strs_free_all(strs);
+ 	strs_destroy(&strs);
+-	if (rc != 0) {
+-		ERR(NULL, "Error writing sid rules to policy.conf");
+-	}
+ 
+-	return rc;
++	return 0;
+ }
+ 
+ static int write_sid_decl_rules_to_conf(FILE *out, struct policydb *pdb)
+diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+index 8647d928..1c4e80d1 100644
+--- a/libsepol/src/module_to_cil.c
++++ b/libsepol/src/module_to_cil.c
+@@ -2544,71 +2544,71 @@ static int context_to_cil(struct policydb *pdb, struct context_struct *con)
+ static int ocontext_isid_to_cil(struct policydb *pdb, const char *const *sid_to_string,
+ 				unsigned num_sids, struct ocontext *isids)
+ {
+-	int rc = -1;
+-
+ 	struct ocontext *isid;
+-
+-	struct sid_item {
+-		char *sid_key;
+-		struct sid_item *next;
+-	};
+-
+-	struct sid_item *head = NULL;
+-	struct sid_item *item = NULL;
++	struct ocontext **isid_array;
++	struct strs *strs;
+ 	char *sid;
+-	char unknown[18];
++	char *prev;
+ 	unsigned i;
+ 
+-	for (isid = isids; isid != NULL; isid = isid->next) {
+-		i = isid->sid[0];
+-		if (i < num_sids && sid_to_string[i]) {
+-			sid = (char*)sid_to_string[i];
+-		} else {
+-			snprintf(unknown, 18, "%s%u", "UNKNOWN", i);
+-			sid = unknown;
+-		}
+-		cil_println(0, "(sid %s)", sid);
+-		cil_printf("(sidcontext %s ", sid);
+-		context_to_cil(pdb, &isid->context[0]);
+-		cil_printf(")\n");
++	strs = isids_to_strs(sid_to_string, num_sids, isids);
++	if (!strs) {
++		ERR(NULL, "Error writing sid rules to CIL");
++		return -1;
++	}
+ 
+-		// get the sid names in the correct order (reverse from the isids
+-		// ocontext) for sidorder statement
+-		item = malloc(sizeof(*item));
+-		if (item == NULL) {
+-			ERR(NULL, "Out of memory");
+-			rc = -1;
+-			goto exit;
+-		}
+-		item->sid_key = strdup(sid);
+-		if (!item->sid_key) {
+-			ERR(NULL, "Out of memory");
+-			free(item);
+-			rc = -1;
+-			goto exit;
++	if (strs_num_items(strs) == 0) {
++		strs_destroy(&strs);
++		return 0;
++	}
++
++	for (i=1; i < strs_num_items(strs); i++) {
++		sid = strs_read_at_index(strs, i);
++		cil_printf("(sid %s)\n", sid);
++	}
++
++	cil_printf("(sidorder (");
++	prev = NULL;
++	for (i=1; i < strs_num_items(strs); i++) {
++		sid = strs_read_at_index(strs, i);
++		if (prev) {
++			cil_printf("%s ", prev);
+ 		}
+-		item->next = head;
+-		head = item;
++		prev = sid;
++	}
++	if (prev) {
++		cil_printf("%s", prev);
+ 	}
++	cil_printf("))\n");
+ 
+-	if (head != NULL) {
+-		cil_printf("(sidorder (");
+-		for (item = head; item != NULL; item = item->next) {
+-			cil_printf("%s ", item->sid_key);
++	isid_array = calloc(strs_num_items(strs), sizeof(struct ocontext *));
++	if (!isid_array) {
++		ERR(NULL, "Out of memory");
++		strs_free_all(strs);
++		strs_destroy(&strs);
++		return -1;
++	}
++	for (isid = isids; isid != NULL; isid = isid->next) {
++		i = isid->sid[0];
++		if (i < strs_num_items(strs)) {
++			isid_array[i] = isid;
++		}
++	}
++	for (i=1; i < strs_num_items(strs); i++) {
++		if (isid_array[i]) {
++			sid = strs_read_at_index(strs, i);
++			cil_printf("(sidcontext %s ", sid);
++			isid = isid_array[i];
++			context_to_cil(pdb, &isid->context[0]);
++			cil_printf(")\n");
+ 		}
+-		cil_printf("))\n");
+ 	}
++	free(isid_array);
+ 
+-	rc = 0;
++	strs_free_all(strs);
++	strs_destroy(&strs);
+ 
+-exit:
+-	while(head) {
+-		item = head;
+-		head = item->next;
+-		free(item->sid_key);
+-		free(item);
+-	}
+-	return rc;
++	return 0;
+ }
+ 
+ static int ocontext_selinux_isid_to_cil(struct policydb *pdb, struct ocontext *isids)
+-- 
+2.50.0
+
