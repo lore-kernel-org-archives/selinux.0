@@ -1,143 +1,489 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C6F1331A59;
-	Wed,  5 Nov 2025 15:23:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 513E426FDB3
+	for <selinux@vger.kernel.org>; Wed,  5 Nov 2025 18:59:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762356227; cv=none; b=S11uMwJaf8FrbcnQifEJz0plYqTOW3WzX0Nf8KvSN8tyIeCPKiZ9pCrHNWuhxh4fbkZnLqLcGXeukGDzVllsUt/g4gP+oqJBsqLKB1A7rF1dRW6aAGszQ7tJnLMMaaCiJu1SvgmbN4M8/s8ojVJGOQQHTZ5rR+bCUSXgeYWspYQ=
+	t=1762369149; cv=none; b=kOx0VQWSDfflDQa8d+F9WDOJXzwsTjGkvMqRRFfNnlahMRg1SdzUasvldJuhL2NzJxZtIS7SiS+/B6tR8R42MBzkDoFeo24oWo/Ps4knKpQaK5S/iMFoP6tSXj1q3565c557bmlvLtuCXgbWHKgb6XwBdwKBDEUfwLKZr+oSFnY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762356227; c=relaxed/simple;
-	bh=kUs8Lv2NDX+HzCDICX2X7wBuseMdW6bT2eEf/zscT/4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Aj3T1v/331VyzhdKe9HuEzbzDACObaKZk/f0CION5BGLM1PozB5yuGI9Wymp2UlKrW6pKOfL6kcNCVGmlJNxMyDWfKoDHBvGKonrj9ArOK+3+4Oa3F8X1Ex1t+/IghDsB4fvY9Hj6Yv/U/T60XYXHMaMDj7kKPncOMPonYM6ttg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uMrvcThp; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1762369149; c=relaxed/simple;
+	bh=CETaHu0gvvquyMZE+3Nope4nyPb86xxPqbV5RtIfMAY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=qp7DhgfuiX3novPdboZBryNaiYeDCbRq9RZ8H+G2p9GUZCXwdnB9gjeahMrNI3KrGZV1q8av5rO4j6rlvQfLhzW+NeKfnMBty8zrVUGIxu9uMecPSTFiLYyamNlkvqaXWVR1RAetNJ/Z3RlQWiPWR06ftOXzlG6Lg5cHzxiNh/4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=a0yWU8cP; arc=none smtp.client-ip=209.85.214.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uMrvcThp"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEE3FC4CEF5;
-	Wed,  5 Nov 2025 15:23:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1762356226;
-	bh=kUs8Lv2NDX+HzCDICX2X7wBuseMdW6bT2eEf/zscT/4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=uMrvcThpY3YAAbWSY9xnzagjiDcwxd3DE9e20MpciQ0mHPg3Rf2Ci/61aau+E4mQM
-	 8nZgzHXJSUUcSaMnT3I6e/kc2OTFqEOU8mhgloW70El8EVP4uFuINodUwyZYdb4wN6
-	 1lFZyctatEB0Ly2mBkqqT1g1f5kszp3d1j2Gfcxbk6+UPzncHihdjKp/ahdU45prxY
-	 rmgoXHjD8Oya/yhaU7KPl20KhLjgM4879Ne2XzlbiGqEnxwVLMRrnoxp2UrzmMsOXc
-	 mmWDqocG56Gn6iM3/+Xaa3pHugJb+dKTjiXrnAV7pXWqqp81/F+Ra04o22uyDpfK++
-	 osL5X75ZbKhQQ==
-Date: Wed, 5 Nov 2025 16:23:39 +0100
-From: Christian Brauner <brauner@kernel.org>
-To: James Bottomley <James.Bottomley@hansenpartnership.com>
-Cc: Ard Biesheuvel <ardb@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, 
-	linux-fsdevel@vger.kernel.org, torvalds@linux-foundation.org, jack@suse.cz, raven@themaw.net, 
-	miklos@szeredi.hu, neil@brown.name, a.hindborg@kernel.org, linux-mm@kvack.org, 
-	linux-efi@vger.kernel.org, ocfs2-devel@lists.linux.dev, kees@kernel.org, 
-	rostedt@goodmis.org, gregkh@linuxfoundation.org, linux-usb@vger.kernel.org, 
-	paul@paul-moore.com, casey@schaufler-ca.com, linuxppc-dev@lists.ozlabs.org, 
-	john.johansen@canonical.com, selinux@vger.kernel.org, borntraeger@linux.ibm.com, 
-	bpf@vger.kernel.org
-Subject: Re: [PATCH v2 22/50] convert efivarfs
-Message-ID: <20251105-absatz-zehrt-8d1197f900c9@brauner>
-References: <CAMj1kXF6tvg6+CL_1x7h0HK1PoSGtxDjc0LQ1abGQBd5qrbffg@mail.gmail.com>
- <9f079d0c8cffb150c0decb673a12bfe1b835efc9.camel@HansenPartnership.com>
- <20251029193755.GU2441659@ZenIV>
- <CAMj1kXHnEq97bzt-C=zKJdV3BK3EDJCPz3Pfyk52p2735-4wFA@mail.gmail.com>
- <20251105-aufheben-ausmusterung-4588dab8c585@brauner>
- <423f5cc5352c54fc21e0570daeeddc4a58e74974.camel@HansenPartnership.com>
- <20251105-sohlen-fenster-e7c5af1204c4@brauner>
- <305ff01c159993d8124ae3125f7dacf6b61fa933.camel@HansenPartnership.com>
- <20251105-ausfiel-klopapier-599213591ad2@brauner>
- <ddc9e2efa25d59ae7f1989ac155b9a9043ca830b.camel@HansenPartnership.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="a0yWU8cP"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2955805b7acso10953835ad.1
+        for <selinux@vger.kernel.org>; Wed, 05 Nov 2025 10:59:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1762369144; x=1762973944; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=To5N11ppR80QBGbRBN8uR5qkinBIUmuzo1a/StaRtJI=;
+        b=a0yWU8cPst78OlrUiHN1iyT0Kao0KwKYSl99YkDY61F8lgzWJ+G3elZ3l7TTfC0ioe
+         wbxyK9d9RS+yQ8XKVyZxEjVc5kKsO83uQ7npZq+Bp1Cc0IZ8it2b6CJ/ww9rqGUR4pf/
+         e7UnvIAbgh3QcOrryh0DDZjA0hR7yKBdtKgyk7BuyTOXczAloC6alrjmEsXnKQyDvOx4
+         CqI4BwBTdproicOjCOQxPllIDRV9kS92c3KjKbIdSAMJT7UuCZHk7UIUHcX4msSYfUKJ
+         X28Xds5ULD84W7wWyayLrp+kl3uJZAVPIPBcgPeNpOR+6YQFpRe0qyAdqqdCtd0nA8m/
+         zegA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1762369144; x=1762973944;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=To5N11ppR80QBGbRBN8uR5qkinBIUmuzo1a/StaRtJI=;
+        b=N+yi9Qk4liTli+5vXTNG7daMsrtw0iL6qQa9TE1lFBrgDoeA6i/tgjkHEr/Cl2akwd
+         qjJ/duh29R8eioYrSyrOhydgmPfvHZseOJjvHZ35tObJ8+YsyhbUW9Kj95/Hqf5B6/YX
+         wCHbJp1SwiDyZYCRsyoiZ44R6o6GSUlYjk27T7XRj9Ok8EZWWTETW4h5g8I/q8CW5EHX
+         K92oimZ6NWoloULHZRbcfddgr+KyHhOPtlLm3D+ufFiIiupOBdQoouuYfDzyI6Y3pBIY
+         dMPFqEpegDq46vJqWPgf7xV4MIhjFW568sfEqgO2i6hpWZLwgRVN3Zcko125OzVgwTjU
+         47xA==
+X-Gm-Message-State: AOJu0YzdVTL2Gd5p+LA9ArdEAsJ5ojJHSTwRAdsA9WLieErUJKaALeEd
+	xnAoDxPlsUwa++ZBF7kSEZoPyol9znQ3D/xca/1jIgLX7FogZm69H6JbpAbJlA+ewmDGOta5JO6
+	ktikQvZR/VCYbeIbX+4LO5rhZ23NLz58=
+X-Gm-Gg: ASbGncvJz2Nt3kxdbbXrnuy9c/BLLZnLnIQ3qhxwtEtLffgP/1MX2PO7z7mwN4wLMMx
+	DndDTVx/ING5qjS7wpIzDEDVX3sCmC/VzIr3I58eEfRB2NzD/eD847DgQ9gBEfsQXnZpQc/7/q3
+	Hxx22QAhZ13eV/J+w9QzmANricz2JpUYOofJ7yivzx0mIXYAgjONfjqd0d7bD6dPsyrh60dZxE0
+	kzHCYe0KlvfWZmCFkZhaJkCC5zm3BYpQkTxISpiq3Uoyh8kb5hDru5z2Nl4bOxk3EtkXzM=
+X-Google-Smtp-Source: AGHT+IGPI7Zt8LGd6gnaRDQCtg8ok6npk0JC3t37vmcneUcwA5t5EbJndbu2i0+kXQYr86StvsVTa0LhFIelY1baztA=
+X-Received: by 2002:a17:903:2347:b0:295:134:9ae5 with SMTP id
+ d9443c01a7336-29651430c5cmr4932065ad.24.1762369144283; Wed, 05 Nov 2025
+ 10:59:04 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <ddc9e2efa25d59ae7f1989ac155b9a9043ca830b.camel@HansenPartnership.com>
+References: <20251104205236.60931-1-jwcart2@gmail.com>
+In-Reply-To: <20251104205236.60931-1-jwcart2@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Wed, 5 Nov 2025 13:58:53 -0500
+X-Gm-Features: AWmQ_blif-28-HUJCisfHMBqTTb_cIzE5BJaAn4MAP2Cu1tegXB2aKrHmnb0ikc
+Message-ID: <CAEjxPJ4N9DEAWPLEWc5k1VYkSwfinycZN5OgJeG=4-Pep0+zaA@mail.gmail.com>
+Subject: Re: [PATCH 1/2] libsepol: Fix sid handling when writing out policy
+ from binary
+To: James Carter <jwcart2@gmail.com>
+Cc: selinux@vger.kernel.org, russell@coker.com.au, 
+	Chris PeBenito <pebenito@ieee.org>, selinux-refpolicy@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 05, 2025 at 09:01:59AM -0500, James Bottomley wrote:
-> On Wed, 2025-11-05 at 14:46 +0100, Christian Brauner wrote:
-> > On Wed, Nov 05, 2025 at 08:33:10AM -0500, James Bottomley wrote:
-> > > On Wed, 2025-11-05 at 14:16 +0100, Christian Brauner wrote:
-> > > > On Wed, Nov 05, 2025 at 08:09:03AM -0500, James Bottomley wrote:
-> > > > > On Wed, 2025-11-05 at 12:47 +0100, Christian Brauner wrote:
-> > > [...]
-> > > > > > And suspend/resume works just fine with freeze/thaw. See
-> > > > > > commit
-> > > > > > eacfbf74196f ("power: freeze filesystems during
-> > > > > > suspend/resume") which implements exactly that.
-> > > > > > 
-> > > > > > The reason this didn't work for you is very likely:
-> > > > > > 
-> > > > > > cat /sys/power/freeze_filesystems
-> > > > > > 0
-> > > > > > 
-> > > > > > which you must set to 1.
-> > > > > 
-> > > > > Actually, no, that's not correct.  The efivarfs freeze/thaw
-> > > > > logic must run unconditionally regardless of this setting to
-> > > > > fix the systemd bug, so all the variable resyncing is done in
-> > > > > the thaw call, which isn't conditioned on the above (or at
-> > > > > least it shouldn't be).
-> > > > 
-> > > > It is conditioned on the above currently but we can certainly fix
-> > > > it easily to not be.
-> > > 
-> > > It still seems to be unconditional in upstream 6.18-rc4
-> > > kernel/power/hibernate.c with only freeze being conditioned on the
-> > 
-> > I'm honestly not sure how efivarfs would be frozen if
-> > filesystems_freeze() isn't called... Maybe I missed that memo though.
-> > In any case I just sent you...
-> 
-> We don't need to be frozen: our freeze_fs method is empty, we just need
-> thaw_fs calling.
+On Tue, Nov 4, 2025 at 3:52=E2=80=AFPM James Carter <jwcart2@gmail.com> wro=
+te:
+>
+> Initial sids are stored only as unsigned 32-bit numbers in a
+> binary policy. When a binary kernel policy is converted to CIL
+> or a policy.conf or a binary base module is converted to CIL, a
+> mapping in kernel_to_common.h is used to determine the name of
+> the initial sid.
+>
+> A problem can occur when policy converted from binary to text is
+> once again compiled. The initial sids will not be the correct
+> number if there are gaps in the list of initial sids. This will
+> cause the effected initial sids to be interpreted by the kernel
+> as a different initial sid.
+>
+> When writing out sid and sidorder statements in CIL, write out
+> all the initial sids from kernel (which is initial sid #1) to the
+> initial sid with the highest number associated with it. In the
+> same way, when writing out sid statements for a policy.conf, all
+> the initial sids from the first to the highest numbered must be
+> written out with no gaps.
+>
+> No changes are needed when writing out statements associating
+> an initial sid with a security context. There can be gaps in
+> these statements. The numbering is taken from the declarations.
+>
+> Signed-off-by: James Carter <jwcart2@gmail.com>
 
-No, you need to call freeze so the power subsystem can mark the
-filesystem as being exclusively frozen by it because that specific
-freeze must not be undone by anyone else e.g., userspace or some other
-internal unfreeze due to some filesystem (for other filesystems this is
-very relevant) internal freeze for say scrub or whatever.
+With this applied, I confirmed that building refpolicy with the patch
+in [1] did not disturb the initial SID index values.
+I also saw no regressions wrt existing policy.
 
-If filesystem_thaw() doesn't find efivarfs frozen - and exclusively
-frozen by the power subsyste - it obviously won't call the actual
-efivarfs thaw method. It's all working in order. My patch should fix
-your issue and will ensure efivarfs always runs. We wouldn't even need
-an SB_I_* flag for this. We could equally well just match superblock but
-other filesystems might need or want to opt into this too.
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Tested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Don't implement thaw_super() yourself, please.
+[1] https://lore.kernel.org/selinux-refpolicy/20251030200720.18719-2-stephe=
+n.smalley.work@gmail.com/
 
-> 
-> Is the trouble that there's now freeze/thaw accounting, so thaw won't
-> be called based on that if freeze wasn't?  In which case might it not
-> be better for us to implement thaw_super, which is called
-> unconditionally and leaves the accounting up to the filesystem?
-> 
-> > > setting of the filesystem_freeze variable but I haven't checked -
-> > > next.
-> > > 
-> > > However, if there's anything in the works to change that we would
-> > > need an exception for efivarfs, please ... we can't have a bug fix
-> > > conditioned on a user setting.
-> > 
-> > ... a patch in another mail.
-> > 
-> > Sorry in case I misunderstood that you _always_ wanted that sync
-> > regardless of userspace enabling it.
-> 
-> We need the thaw method called to get the variable resync to happen. 
-> That fixes a bug on hibernate with systemd (and also accounts for an
-> other efi variable changes the user may have made between hibernate and
-> resume), yes.  And we need that to happen unconditionally to fix the
-> systemd bug.
-> 
-> Regards,
-> 
-> James
-> 
+> ---
+>  libsepol/src/kernel_to_cil.c    |  47 +++-----------
+>  libsepol/src/kernel_to_common.c |  48 +++++++++++++++
+>  libsepol/src/kernel_to_common.h |   1 +
+>  libsepol/src/kernel_to_conf.c   |  41 +++---------
+>  libsepol/src/module_to_cil.c    | 106 ++++++++++++++++----------------
+>  5 files changed, 121 insertions(+), 122 deletions(-)
+>
+> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+> index 4da63ba5..06cf4498 100644
+> --- a/libsepol/src/kernel_to_cil.c
+> +++ b/libsepol/src/kernel_to_cil.c
+> @@ -565,54 +565,31 @@ exit:
+>  static int write_sids_to_cil(FILE *out, const char *const *sid_to_str,
+>                              unsigned num_sids, struct ocontext *isids)
+>  {
+> -       struct ocontext *isid;
+>         struct strs *strs;
+>         char *sid;
+>         char *prev;
+> -       char unknown[18];
+>         unsigned i;
+> -       int rc;
+>
+> -       rc =3D strs_init(&strs, num_sids+1);
+> -       if (rc !=3D 0) {
+> -               goto exit;
+> +       strs =3D isids_to_strs(sid_to_str, num_sids, isids);
+> +       if (!strs) {
+> +               ERR(NULL, "Error writing sid rules to CIL");
+> +               return -1;
+>         }
+>
+> -       for (isid =3D isids; isid !=3D NULL; isid =3D isid->next) {
+> -               i =3D isid->sid[0];
+> -               if (i < num_sids && sid_to_str[i]) {
+> -                       sid =3D strdup(sid_to_str[i]);
+> -               } else {
+> -                       snprintf(unknown, 18, "%s%u", "UNKNOWN", i);
+> -                       sid =3D strdup(unknown);
+> -               }
+> -               if (!sid) {
+> -                       ERR(NULL, "Out of memory");
+> -                       rc =3D -1;
+> -                       goto exit;
+> -               }
+> -               rc =3D strs_add_at_index(strs, sid, i);
+> -               if (rc !=3D 0) {
+> -                       free(sid);
+> -                       goto exit;
+> -               }
+> +       if (strs_num_items(strs) =3D=3D 0) {
+> +               strs_destroy(&strs);
+> +               return 0;
+>         }
+>
+> -       for (i=3D0; i<strs_num_items(strs); i++) {
+> +       for (i=3D1; i < strs_num_items(strs); i++) {
+>                 sid =3D strs_read_at_index(strs, i);
+> -               if (!sid) {
+> -                       continue;
+> -               }
+>                 sepol_printf(out, "(sid %s)\n", sid);
+>         }
+>
+>         sepol_printf(out, "(sidorder (");
+>         prev =3D NULL;
+> -       for (i=3D0; i<strs_num_items(strs); i++) {
+> +       for (i=3D1; i < strs_num_items(strs); i++) {
+>                 sid =3D strs_read_at_index(strs, i);
+> -               if (!sid) {
+> -                       continue;
+> -               }
+>                 if (prev) {
+>                         sepol_printf(out, "%s ", prev);
+>                 }
+> @@ -623,14 +600,10 @@ static int write_sids_to_cil(FILE *out, const char =
+*const *sid_to_str,
+>         }
+>         sepol_printf(out, "))\n");
+>
+> -exit:
+>         strs_free_all(strs);
+>         strs_destroy(&strs);
+> -       if (rc !=3D 0) {
+> -               ERR(NULL, "Error writing sid rules to CIL");
+> -       }
+>
+> -       return rc;
+> +       return 0;
+>  }
+>
+>  static int write_sid_decl_rules_to_cil(FILE *out, struct policydb *pdb)
+> diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_com=
+mon.c
+> index e4338ec6..99e46865 100644
+> --- a/libsepol/src/kernel_to_common.c
+> +++ b/libsepol/src/kernel_to_common.c
+> @@ -382,6 +382,54 @@ int strs_stack_empty(const struct strs *stack)
+>         return strs_num_items(stack) =3D=3D 0;
+>  }
+>
+> +struct strs *isids_to_strs(const char *const *sid_to_str, unsigned num_s=
+ids, struct ocontext *isids)
+> +{
+> +       struct ocontext *isid;
+> +       struct strs *strs;
+> +       char *sid;
+> +       char unknown[18];
+> +       unsigned i, max;
+> +       int rc;
+> +
+> +       rc =3D strs_init(&strs, num_sids+1);
+> +       if (rc !=3D 0) {
+> +               goto exit;
+> +       }
+> +
+> +       max =3D 0;
+> +       for (isid =3D isids; isid !=3D NULL; isid =3D isid->next) {
+> +               i =3D isid->sid[0];
+> +               if (i > max) {
+> +                       max =3D i;
+> +               }
+> +       }
+> +
+> +       for (i=3D1; i <=3D max; i++) {
+> +               if (i < num_sids && sid_to_str[i]) {
+> +                       sid =3D strdup(sid_to_str[i]);
+> +               } else {
+> +                       snprintf(unknown, 18, "%s%u", "UNKNOWN", i);
+> +                       sid =3D strdup(unknown);
+> +               }
+> +               if (!sid) {
+> +                       ERR(NULL, "Out of memory");
+> +                       goto exit;
+> +               }
+> +               rc =3D strs_add_at_index(strs, sid, i);
+> +               if (rc !=3D 0) {
+> +                       free(sid);
+> +                       goto exit;
+> +               }
+> +       }
+> +
+> +       return strs;
+> +
+> +exit:
+> +       strs_free_all(strs);
+> +       strs_destroy(&strs);
+> +       return NULL;
+> +}
+> +
+>  static int compare_ranges(uint64_t l1, uint64_t h1, uint64_t l2, uint64_=
+t h2)
+>  {
+>         uint64_t d1, d2;
+> diff --git a/libsepol/src/kernel_to_common.h b/libsepol/src/kernel_to_com=
+mon.h
+> index 3ba97dfc..d3283658 100644
+> --- a/libsepol/src/kernel_to_common.h
+> +++ b/libsepol/src/kernel_to_common.h
+> @@ -115,4 +115,5 @@ int strs_stack_push(struct strs *stack, char *s);
+>  char *strs_stack_pop(struct strs *stack);
+>  int strs_stack_empty(const struct strs *stack);
+>
+> +struct strs *isids_to_strs(const char *const *sid_to_str, unsigned num_s=
+ids, struct ocontext *isids);
+>  int sort_ocontexts(struct policydb *pdb);
+> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.=
+c
+> index 6d608443..a8126d58 100644
+> --- a/libsepol/src/kernel_to_conf.c
+> +++ b/libsepol/src/kernel_to_conf.c
+> @@ -463,53 +463,30 @@ static int write_class_decl_rules_to_conf(FILE *out=
+, struct policydb *pdb)
+>  static int write_sids_to_conf(FILE *out, const char *const *sid_to_str,
+>                               unsigned num_sids, struct ocontext *isids)
+>  {
+> -       struct ocontext *isid;
+>         struct strs *strs;
+>         char *sid;
+> -       char unknown[18];
+>         unsigned i;
+> -       int rc;
+>
+> -       rc =3D strs_init(&strs, num_sids+1);
+> -       if (rc !=3D 0) {
+> -               goto exit;
+> +       strs =3D isids_to_strs(sid_to_str, num_sids, isids);
+> +       if (!strs) {
+> +               ERR(NULL, "Error writing sid rules to policy.conf");
+> +               return -1;
+>         }
+>
+> -       for (isid =3D isids; isid !=3D NULL; isid =3D isid->next) {
+> -               i =3D isid->sid[0];
+> -               if (i < num_sids && sid_to_str[i]) {
+> -                       sid =3D strdup(sid_to_str[i]);
+> -               } else {
+> -                       snprintf(unknown, sizeof(unknown), "%s%u", "UNKNO=
+WN", i);
+> -                       sid =3D strdup(unknown);
+> -               }
+> -               if (!sid) {
+> -                       rc =3D -1;
+> -                       goto exit;
+> -               }
+> -               rc =3D strs_add_at_index(strs, sid, i);
+> -               if (rc !=3D 0) {
+> -                       free(sid);
+> -                       goto exit;
+> -               }
+> +       if (strs_num_items(strs) =3D=3D 0) {
+> +               strs_destroy(&strs);
+> +               return 0;
+>         }
+>
+> -       for (i=3D0; i<strs_num_items(strs); i++) {
+> +       for (i=3D1; i < strs_num_items(strs); i++) {
+>                 sid =3D strs_read_at_index(strs, i);
+> -               if (!sid) {
+> -                       continue;
+> -               }
+>                 sepol_printf(out, "sid %s\n", sid);
+>         }
+>
+> -exit:
+>         strs_free_all(strs);
+>         strs_destroy(&strs);
+> -       if (rc !=3D 0) {
+> -               ERR(NULL, "Error writing sid rules to policy.conf");
+> -       }
+>
+> -       return rc;
+> +       return 0;
+>  }
+>
+>  static int write_sid_decl_rules_to_conf(FILE *out, struct policydb *pdb)
+> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+> index 8647d928..1c4e80d1 100644
+> --- a/libsepol/src/module_to_cil.c
+> +++ b/libsepol/src/module_to_cil.c
+> @@ -2544,71 +2544,71 @@ static int context_to_cil(struct policydb *pdb, s=
+truct context_struct *con)
+>  static int ocontext_isid_to_cil(struct policydb *pdb, const char *const =
+*sid_to_string,
+>                                 unsigned num_sids, struct ocontext *isids=
+)
+>  {
+> -       int rc =3D -1;
+> -
+>         struct ocontext *isid;
+> -
+> -       struct sid_item {
+> -               char *sid_key;
+> -               struct sid_item *next;
+> -       };
+> -
+> -       struct sid_item *head =3D NULL;
+> -       struct sid_item *item =3D NULL;
+> +       struct ocontext **isid_array;
+> +       struct strs *strs;
+>         char *sid;
+> -       char unknown[18];
+> +       char *prev;
+>         unsigned i;
+>
+> -       for (isid =3D isids; isid !=3D NULL; isid =3D isid->next) {
+> -               i =3D isid->sid[0];
+> -               if (i < num_sids && sid_to_string[i]) {
+> -                       sid =3D (char*)sid_to_string[i];
+> -               } else {
+> -                       snprintf(unknown, 18, "%s%u", "UNKNOWN", i);
+> -                       sid =3D unknown;
+> -               }
+> -               cil_println(0, "(sid %s)", sid);
+> -               cil_printf("(sidcontext %s ", sid);
+> -               context_to_cil(pdb, &isid->context[0]);
+> -               cil_printf(")\n");
+> +       strs =3D isids_to_strs(sid_to_string, num_sids, isids);
+> +       if (!strs) {
+> +               ERR(NULL, "Error writing sid rules to CIL");
+> +               return -1;
+> +       }
+>
+> -               // get the sid names in the correct order (reverse from t=
+he isids
+> -               // ocontext) for sidorder statement
+> -               item =3D malloc(sizeof(*item));
+> -               if (item =3D=3D NULL) {
+> -                       ERR(NULL, "Out of memory");
+> -                       rc =3D -1;
+> -                       goto exit;
+> -               }
+> -               item->sid_key =3D strdup(sid);
+> -               if (!item->sid_key) {
+> -                       ERR(NULL, "Out of memory");
+> -                       free(item);
+> -                       rc =3D -1;
+> -                       goto exit;
+> +       if (strs_num_items(strs) =3D=3D 0) {
+> +               strs_destroy(&strs);
+> +               return 0;
+> +       }
+> +
+> +       for (i=3D1; i < strs_num_items(strs); i++) {
+> +               sid =3D strs_read_at_index(strs, i);
+> +               cil_printf("(sid %s)\n", sid);
+> +       }
+> +
+> +       cil_printf("(sidorder (");
+> +       prev =3D NULL;
+> +       for (i=3D1; i < strs_num_items(strs); i++) {
+> +               sid =3D strs_read_at_index(strs, i);
+> +               if (prev) {
+> +                       cil_printf("%s ", prev);
+>                 }
+> -               item->next =3D head;
+> -               head =3D item;
+> +               prev =3D sid;
+> +       }
+> +       if (prev) {
+> +               cil_printf("%s", prev);
+>         }
+> +       cil_printf("))\n");
+>
+> -       if (head !=3D NULL) {
+> -               cil_printf("(sidorder (");
+> -               for (item =3D head; item !=3D NULL; item =3D item->next) =
+{
+> -                       cil_printf("%s ", item->sid_key);
+> +       isid_array =3D calloc(strs_num_items(strs), sizeof(struct ocontex=
+t *));
+> +       if (!isid_array) {
+> +               ERR(NULL, "Out of memory");
+> +               strs_free_all(strs);
+> +               strs_destroy(&strs);
+> +               return -1;
+> +       }
+> +       for (isid =3D isids; isid !=3D NULL; isid =3D isid->next) {
+> +               i =3D isid->sid[0];
+> +               if (i < strs_num_items(strs)) {
+> +                       isid_array[i] =3D isid;
+> +               }
+> +       }
+> +       for (i=3D1; i < strs_num_items(strs); i++) {
+> +               if (isid_array[i]) {
+> +                       sid =3D strs_read_at_index(strs, i);
+> +                       cil_printf("(sidcontext %s ", sid);
+> +                       isid =3D isid_array[i];
+> +                       context_to_cil(pdb, &isid->context[0]);
+> +                       cil_printf(")\n");
+>                 }
+> -               cil_printf("))\n");
+>         }
+> +       free(isid_array);
+>
+> -       rc =3D 0;
+> +       strs_free_all(strs);
+> +       strs_destroy(&strs);
+>
+> -exit:
+> -       while(head) {
+> -               item =3D head;
+> -               head =3D item->next;
+> -               free(item->sid_key);
+> -               free(item);
+> -       }
+> -       return rc;
+> +       return 0;
+>  }
+>
+>  static int ocontext_selinux_isid_to_cil(struct policydb *pdb, struct oco=
+ntext *isids)
+> --
+> 2.50.0
+>
