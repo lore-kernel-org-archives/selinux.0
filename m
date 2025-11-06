@@ -1,256 +1,138 @@
-Received: from mail-il1-f197.google.com (mail-il1-f197.google.com [209.85.166.197])
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AA41309EE8
-	for <selinux@vger.kernel.org>; Thu,  6 Nov 2025 09:02:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.197
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28801354AC6
+	for <selinux@vger.kernel.org>; Thu,  6 Nov 2025 19:57:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762419770; cv=none; b=UWNZcQYDXMZI+lgPJ0Ir/SNBmOw8YI6KhZoiY+Cl/RIihtwt6WPSizBTWATo9RQmetHUH4TaFD8y6h2mnoNwaH4JNRANJd65u85BDkxno26D9swiw4xsQ2j73fcd/WoEawrE7EqxFekR6p69gcKKiQ9pjPDbh5ntO+tSsasaQHA=
+	t=1762459079; cv=none; b=JOTS8Jw8A02p7i+qrk9C/H3rd0PfefyZ6d0O68esmEjyziWDu35nnYnm7bs6ST/QIbwvW7zpoPSqawrjlSE2K8dSOeaUkvuHp8ntQZLZrqSPW96AP2bg2qSCDmXAFTaeozvZ2MAOrwryIC3v6+jJNhVEz4n7c0kXJcZn0LFeVps=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762419770; c=relaxed/simple;
-	bh=Rr7rNnPEzbOTdtYIuAcXQ36F1YEIBKRcDnXlgES33XM=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:Cc:
-	 Content-Type; b=B1ycaDhShrZJAGY7Q8yyzJE4Vr9KdT//coR2BUoovoZsCjEXf+09vhOeRYdygsgiwEd0sk/vsHibJrSbMCYSbehhIit48q4mF786BrpjtJ2RxrJv0wai4AhrUJH0Mo42jAare5yrz0vRMMYLQNNKD6M1K5dIIUibBkdRN2TK9/s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.197
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-il1-f197.google.com with SMTP id e9e14a558f8ab-432fb58f876so4358085ab.1
-        for <selinux@vger.kernel.org>; Thu, 06 Nov 2025 01:02:48 -0800 (PST)
+	s=arc-20240116; t=1762459079; c=relaxed/simple;
+	bh=okHFpo+o7hPVL7uvrA15kv4GJ75VSWJZG54vVcFD5RI=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To; b=AyOg8OXkM6dsYM/TMMr7rO2quzNHL1XkQJvIfaLCOqFlspUqDRwM/bZIE1jvwqIZNB+wgIrxjEPQBg9tl2VkIv5Z/SV+UzDU5mJvbyxOwFYeOwzSZ4eSLi/Udt0FD8tRrClxK1n3epLgFZ9tIPGwpsDavPN8spCpLBPv/frMEcQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SDotKBz8; arc=none smtp.client-ip=209.85.128.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SDotKBz8"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-47118259fd8so19255e9.3
+        for <selinux@vger.kernel.org>; Thu, 06 Nov 2025 11:57:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1762459076; x=1763063876; darn=vger.kernel.org;
+        h=to:from:subject:cc:message-id:date:content-transfer-encoding
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=4WSA2cs3T/BM46eQaZwiGWGxYdel8RomWmvzYINlNbY=;
+        b=SDotKBz8Ev8Dt5Adsg8Zx0uYKJdKa6SAKjDUjquN0J6Cu54JN/IoGYq7d2ryEC6mlI
+         D/GI7D5XLdxdxqKfZS4d0T8VS6eMdHuR3P0T+fWKuwFVQ8YaztmwEdLYayzoEKhdemB6
+         tqmmIC+1eX9uuNUpfIEd9Mvt8fd/KcVHzJMlpUx+npSe8YdRuKTqfZ3M0AJxClSs+WAn
+         Rg8uP+10iRjX+Z7OSfwunMUiP+DtgmJwV0VPrGLYWQ5Tq+QFQ870yNBfurxieB/in5t0
+         nVQ8fN4N/B3WaqG0/AnrLnPonWhSwqJtZeSKtVUqdhn7nJtDs9NiaAVpIbXDo2Wx68cE
+         j1bg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762419767; x=1763024567;
-        h=cc:to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=r8E0+ouzlVdoTElswHiPK8yFC6riJLd5SyKVj4+Fe4w=;
-        b=Y0OTOWxvBiOAsO3Zq5OObqspFlgih0UWuNPFsLh3yIuNdiPJENxglpflrILm9YKTmb
-         0NjcFOwweQUAWqfFq0NgwsliZLvOVTvRv1UFygjXD7djTKVs4wXP0nF24bY01dlx35Vb
-         uMz8KY2HfNGWa3DSE4Dc7xAwTaLTTcKHix3aVK0sxItjJjpbYZdp5I8W6tjoLmOg2oKy
-         GaMKAwYULT2s+2+fhyKdNzDm5U4TbKu/INTRMFWCHzvgaZxaEXUAFNPp4fj+KlpHjQgP
-         WyT7MD4EOJhU5cCcPoNgH9xGCtCPePp2FLGTYYmUIX0tZFaebMz77spGRostsXc1m2tB
-         Tdmg==
-X-Forwarded-Encrypted: i=1; AJvYcCViI7ahlzBgOxpF8I8lB/++ms9rBvATIiGf7GvR65nV8jkbDxawn91yYGQ6UJ4S1BcLqeLA8nji@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz3SiGx19OW1zARXK8Vjqapj8n0Q3iXR7QMbxdSiOHRk0aVTUx+
-	sPcNQBr2hPXKf8mTC0yaymi5DUxujPKWzttNj3PL40aOxJeLz1Lr2uBzBtOicoYAqnqHrOlCWmy
-	rKqX+PjEAXPSmpC4gDXgrZEqOJW1/rLfAVTjdCIdg4wGfi/hyIUSaXGrtw3s=
-X-Google-Smtp-Source: AGHT+IG2+XO9mtVu991pXvlz+VZb8KzNDnm0wvskVW9qOHFFxk5SFup8IMdJP1K43vqqIYpPzRVA5JUpKoQ5O6f2XWPv7TKHUvKc
+        d=1e100.net; s=20230601; t=1762459076; x=1763063876;
+        h=to:from:subject:cc:message-id:date:content-transfer-encoding
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=4WSA2cs3T/BM46eQaZwiGWGxYdel8RomWmvzYINlNbY=;
+        b=WkDbSH+cx9RXNpzS7kXBCwVDYLLqiYvV9Zkd6NCJYmqnczBS0NG9kyXVkK8yfpqZX1
+         fO7mBWhl4sxBuFSklHcbZOlkvimJvQJ0G1LBcSopIzhJirqrkuAAMbHPsvj23KNx/Rrh
+         YmqaGrXD74iDSc1pasxwHX3ggOC/Idrfpdi4WnZaKlSkNKZCF47K8VOOK2a7RLvUCRhU
+         F4dq42kXaCb8d8lKaPlOvoV0QWk1SyPYDLdNXzxvzhBPiikdBIUg6KWjLQrYDu6WpyUH
+         bExDiIy10XIj6/hge4q5QU9IrYVIzrPp9BSY/2dApRpkiI1WJ4eaSFJbwu9F8jETs/1+
+         vKsw==
+X-Gm-Message-State: AOJu0YwoOJmXjD5SbQlMzR6tX2fFAFdzok+oJWH78wCLFMxFyJIButnb
+	S8JM53KnjyTmOoXv334o+PC6dbWMNKEkM2chFIUCWkKjXwGsJgPNXkhY6xJejA==
+X-Gm-Gg: ASbGncuzQnx7F2X2baqvRwFBNTEcZoV2CqAbgzIyzwvRfHfvYomR4eutfxhGFvYBVlG
+	sZKH3uU7mOBiv1vO5x8dzfTlYevLv7lb9Ti5G3CgCORXTHGkrInw6a0O/p1WUUuFM4Wr2t8ls3H
+	xtXoehiwhKl4+umWSDHMuMbHR2idIB+C8VwmRJWxc/99CcixLypv7Y4dQfqd0OLLBWh/ljaomeo
+	l9iQZYlZ/eB02andzvn8O+hiPySnYEbiy0R2kmaHMrIZdfoqmE7YGyK/dip8jVQoRN69SdCRDz6
+	4DHG+dB5+gxGDrG58nhchu5OnpCZukflcZ1lmfMS3Y15SaoAhBIDSmmmhhbfH5q1NH5b/bqX/Kn
+	Al/T4fee8bmhkEicJHrasN3SwdA5VVzkTpwINpAc/UwTFfvr0ZF7UMsvTyI7oox8Gv5p4Sw==
+X-Google-Smtp-Source: AGHT+IFySofO6SKeXu9WVf+ZErPzxVuq3FeurxQeBTQmH6uoHAwAhPAAot4aDK9iLX2uPo7FPSZbmA==
+X-Received: by 2002:a05:600c:524f:b0:477:54b3:3478 with SMTP id 5b1f17b1804b1-4776bc86518mr4445805e9.8.1762459076327;
+        Thu, 06 Nov 2025 11:57:56 -0800 (PST)
+Received: from localhost ([2a0a:ef40:89b:b900:2e0:4cff:feb0:4e4d])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4776bccd2f9sm7846455e9.3.2025.11.06.11.57.55
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 06 Nov 2025 11:57:55 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:330e:b0:430:c90d:10ae with SMTP id
- e9e14a558f8ab-433407dfcc7mr95789415ab.32.1762419767538; Thu, 06 Nov 2025
- 01:02:47 -0800 (PST)
-Date: Thu, 06 Nov 2025 01:02:47 -0800
-In-Reply-To: <20251106005333.956321-1-neilb@ownmail.net>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <690c6437.050a0220.baf87.0083.GAE@google.com>
-Subject: [syzbot ci] Re: Create and use APIs to centralise locking for
- directory ops.
-From: syzbot ci <syzbot+ci853f3070c3383748@syzkaller.appspotmail.com>
-To: amir73il@gmail.com, brauner@kernel.org, cem@kernel.org, 
-	chuck.lever@oracle.com, clm@fb.com, code@tyhicks.com, dai.ngo@oracle.com, 
-	dakr@kernel.org, dhowells@redhat.com, djwong@kernel.org, dsterba@suse.com, 
-	ecryptfs@vger.kernel.org, gregkh@linuxfoundation.org, jack@suse.cz, 
-	jlayton@kernel.org, jmorris@namei.org, john.johansen@canonical.com, 
-	linkinjeon@kernel.org, linux-cifs@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	linux-unionfs@vger.kernel.org, linux-xfs@vger.kernel.org, 
-	lorenzo.stoakes@oracle.com, miklos@szeredi.hu, mjguzik@gmail.com, 
-	neilb@ownmail.net, netfs@lists.linux.dev, okorniev@redhat.com, 
-	omosnace@redhat.com, paul@paul-moore.com, rafael@kernel.org, 
-	selinux@vger.kernel.org, senozhatsky@chromium.org, serge@hallyn.com, 
-	smfrench@gmail.com, stefanb@linux.ibm.com, stephen.smalley.work@gmail.com, 
-	viro@zeniv.linux.org.uk
-Cc: syzbot@lists.linux.dev, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Thu, 06 Nov 2025 19:57:55 +0000
+Message-Id: <DE1VLLSK1NN9.CCD295WLXVQ6@gmail.com>
+Cc: <dominick.grift@defensec.nl>, <lautrbach@redhat.com>,
+ <cgzones@googlemail.com>
+Subject: DBus Permissions
+From: "Rahul Sandhu" <nvraxn@gmail.com>
+To: <selinux@vger.kernel.org>
+X-Mailer: aerc 0.20.1
 
-syzbot ci has tested the following series
+I've been looking into SELinux support for filtering DBus permissions
+lately. Right now, we have a few things of note from the dbus class:
 
-[v5] Create and use APIs to centralise locking for directory ops.
-https://lore.kernel.org/all/20251106005333.956321-1-neilb@ownmail.net
-* [PATCH v5 01/14] debugfs: rename end_creating() to debugfs_end_creating()
-* [PATCH v5 02/14] VFS: introduce start_dirop() and end_dirop()
-* [PATCH v5 03/14] VFS: tidy up do_unlinkat()
-* [PATCH v5 04/14] VFS/nfsd/cachefiles/ovl: add start_creating() and end_creating()
-* [PATCH v5 05/14] VFS/nfsd/cachefiles/ovl: introduce start_removing() and end_removing()
-* [PATCH v5 06/14] VFS: introduce start_creating_noperm() and start_removing_noperm()
-* [PATCH v5 07/14] VFS: introduce start_removing_dentry()
-* [PATCH v5 08/14] VFS: add start_creating_killable() and start_removing_killable()
-* [PATCH v5 09/14] VFS/nfsd/ovl: introduce start_renaming() and end_renaming()
-* [PATCH v5 10/14] VFS/ovl/smb: introduce start_renaming_dentry()
-* [PATCH v5 11/14] Add start_renaming_two_dentries()
-* [PATCH v5 12/14] ecryptfs: use new start_creating/start_removing APIs
-* [PATCH v5 13/14] VFS: change vfs_mkdir() to unlock on failure.
-* [PATCH v5 14/14] VFS: introduce end_creating_keep()
+(class dbus (acquire_svc send_msg))
 
-and found the following issues:
-* WARNING: lock held when returning to user space in start_creating
-* possible deadlock in mnt_want_write
+1. acquire_svc. This is useful for:
+   Allowing contexts to own names on the bus. We have numerous names
+   that exist on the bus that are effectively trusted: applications
+   need to be able to trust that the owner of a name is the intended
+   target. An example of this would be org.freedesktop.PolicyKit1 and
+   polkit: applications check if unprivileged subjects are allowed to
+   perform privileged operations using this DBus API. We can make use of
+   acquire_svc to ensure that only e.g. polkit.subj may own that name.
 
-Full report is available here:
-https://ci.syzbot.org/series/4f406e4d-6aba-457a-b9c1-21f4407176a0
+2. send_msg. This is useful for ensuring that subjects may only speak
+   to their intended targets.
 
-***
+However, this has some serious limitations. For one, many names on the
+bus provide *both* unprivileged and privileged interfaces. An example
+of this is org.freedesktop.systemd1, the systemd api. It has various
+actions that aren't all that privileged (for example GetUnit) as well
+as actions that are highly privileged (such as StartUnit). A bug has
+been filed[1] such that any service capable of speaking to systemd over
+dbus can effectively escape its sandboxing (systemd's sandboxing, not
+selinux confinement)! It can simply start a transient unit using dbus
+without the same restrictions applied to the unit.
 
-WARNING: lock held when returning to user space in start_creating
+In the case of systemd however, the situation is actually *much* better
+than other cases: systemd is actually SELinux aware and is an object
+manager, which means we at least have some control over what happens.
+However, dbus is a pretty fundermental IPC primative for desktop Linux.
+Plenty of things that aren't object managers nor SELinux aware provide
+privileged and unprivileged interfaces on the same bus name. One of the
+main advantages of brokering is the ability to perform various checks
+without the server needing to implement them.
 
-tree:      torvalds
-URL:       https://kernel.googlesource.com/pub/scm/linux/kernel/git/torvalds/linux
-base:      6146a0f1dfae5d37442a9ddcba012add260bceb0
-arch:      amd64
-compiler:  Debian clang version 20.1.8 (++20250708063551+0c9f909b7976-1~exp1~20250708183702.136), Debian LLD 20.1.8
-config:    https://ci.syzbot.org/builds/49013fb4-56ed-423c-8e15-252d65d5c1b4/config
-C repro:   https://ci.syzbot.org/findings/403597e5-81d3-4a9e-8d43-cf15c00b3265/c_repro
-syz repro: https://ci.syzbot.org/findings/403597e5-81d3-4a9e-8d43-cf15c00b3265/syz_repro
+Hence, I propose extending what we can do with DBus to allow us to be
+much more granular with it. Other LSMs and IPC systems already have
+access control similar to this:
 
-UDF-fs: INFO Mounting volume 'LinuxUDF', timestamp 2022/11/22 14:59 (1000)
-overlayfs: upper fs needs to support d_type.
-overlayfs: upper fs does not support tmpfile.
-================================================
-WARNING: lock held when returning to user space!
-syzkaller #0 Not tainted
-------------------------------------------------
-syz.0.17/5964 is leaving the kernel with locks still held!
-1 lock held by syz.0.17/5964:
- #0: ffff888119a282a0 (&type->i_mutex_dir_key#8/1){+.+.}-{4:4}, at: inode_lock_nested include/linux/fs.h:1025 [inline]
- #0: ffff888119a282a0 (&type->i_mutex_dir_key#8/1){+.+.}-{4:4}, at: __start_dirop fs/namei.c:2794 [inline]
- #0: ffff888119a282a0 (&type->i_mutex_dir_key#8/1){+.+.}-{4:4}, at: start_dirop fs/namei.c:2805 [inline]
- #0: ffff888119a282a0 (&type->i_mutex_dir_key#8/1){+.+.}-{4:4}, at: start_creating+0xbe/0x100 fs/namei.c:3261
+1. Android's binder supports service names being labelled[2]. This is
+   slightly different to the case of DBus here with binder being part
+   of the kernel, however the core concept could still apply as we may
+   simply provide dropins to extend the functionality of dbus config
+   to label names, and extend the dbus class. This would provide back-
+   wards compatability. It's also somewhat limited however because of
+   the DBus IPC design.
 
+2. AppArmor has a much more rich access control setup for DBus. It does
+   not require installing DBus policy files, and supports performing
+   filtering based on the bus type, the path on the bus, the interface,
+   and the member. It also supports representing this all in policy[3].
+   This is in my opinion a much cleaner approach than requiring us to
+   have loads of labels for each possible member and interface. However,
+   I don't really have any idea as to how we this could represented in
+   policy. Maybe something using xperms? But I'm a bit lost as to how
+   an xperm set could be mapped to it.
 
-***
+[1] https://github.com/systemd/systemd/issues/8846
+[2] https://source.android.com/docs/core/architecture/hidl/binder-ipc#names
+[3] https://man.archlinux.org/man/apparmor.d.5.en#DBus_rules
 
-possible deadlock in mnt_want_write
-
-tree:      torvalds
-URL:       https://kernel.googlesource.com/pub/scm/linux/kernel/git/torvalds/linux
-base:      6146a0f1dfae5d37442a9ddcba012add260bceb0
-arch:      amd64
-compiler:  Debian clang version 20.1.8 (++20250708063551+0c9f909b7976-1~exp1~20250708183702.136), Debian LLD 20.1.8
-config:    https://ci.syzbot.org/builds/49013fb4-56ed-423c-8e15-252d65d5c1b4/config
-syz repro: https://ci.syzbot.org/findings/7d1f626d-9979-4c5b-b36b-5616a983b0ac/syz_repro
-
-======================================================
-WARNING: possible circular locking dependency detected
-syzkaller #0 Not tainted
-------------------------------------------------------
-syz.0.17/6011 is trying to acquire lock:
-ffff88810943c420
- (sb_writers#12){.+.+}-{0:0}, at: mnt_want_write+0x41/0x90 fs/namespace.c:508
-
-but task is already holding lock:
-ffff888169f40940 (&type->i_mutex_dir_key#5/1){+.+.}-{4:4}, at: inode_lock_nested include/linux/fs.h:1025 [inline]
-ffff888169f40940 (&type->i_mutex_dir_key#5/1){+.+.}-{4:4}, at: __start_dirop fs/namei.c:2794 [inline]
-ffff888169f40940 (&type->i_mutex_dir_key#5/1){+.+.}-{4:4}, at: start_dirop fs/namei.c:2805 [inline]
-ffff888169f40940 (&type->i_mutex_dir_key#5/1){+.+.}-{4:4}, at: start_creating+0xbe/0x100 fs/namei.c:3261
-
-which lock already depends on the new lock.
-
-
-the existing dependency chain (in reverse order) is:
-
--> #1 (&type->i_mutex_dir_key#5/1){+.+.}-{4:4}:
-       reacquire_held_locks+0x127/0x1d0 kernel/locking/lockdep.c:5385
-       __lock_release kernel/locking/lockdep.c:5574 [inline]
-       lock_release+0x1b4/0x3e0 kernel/locking/lockdep.c:5889
-       up_write+0x2d/0x420 kernel/locking/rwsem.c:1642
-       inode_unlock include/linux/fs.h:990 [inline]
-       end_dirop fs/namei.c:2818 [inline]
-       end_creating include/linux/namei.h:125 [inline]
-       vfs_mkdir+0x111/0x570 fs/namei.c:5037
-       do_mkdirat+0x247/0x5e0 fs/namei.c:5058
-       __do_sys_mkdir fs/namei.c:5080 [inline]
-       __se_sys_mkdir fs/namei.c:5078 [inline]
-       __x64_sys_mkdir+0x6c/0x80 fs/namei.c:5078
-       do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
-       do_syscall_64+0xfa/0xfa0 arch/x86/entry/syscall_64.c:94
-       entry_SYSCALL_64_after_hwframe+0x77/0x7f
-
--> #0 (sb_writers#12){.+.+}-{0:0}:
-       check_prev_add kernel/locking/lockdep.c:3165 [inline]
-       check_prevs_add kernel/locking/lockdep.c:3284 [inline]
-       validate_chain+0xb9b/0x2140 kernel/locking/lockdep.c:3908
-       __lock_acquire+0xab9/0xd20 kernel/locking/lockdep.c:5237
-       lock_acquire+0x120/0x360 kernel/locking/lockdep.c:5868
-       percpu_down_read_internal include/linux/percpu-rwsem.h:53 [inline]
-       percpu_down_read_freezable include/linux/percpu-rwsem.h:83 [inline]
-       __sb_start_write include/linux/fs.h:1916 [inline]
-       sb_start_write+0x4d/0x1c0 include/linux/fs.h:2052
-       mnt_want_write+0x41/0x90 fs/namespace.c:508
-       filename_create+0x14f/0x360 fs/namei.c:4785
-       do_mkdirat+0x32c/0x5e0 fs/namei.c:5050
-       __do_sys_mkdir fs/namei.c:5080 [inline]
-       __se_sys_mkdir fs/namei.c:5078 [inline]
-       __x64_sys_mkdir+0x6c/0x80 fs/namei.c:5078
-       do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
-       do_syscall_64+0xfa/0xfa0 arch/x86/entry/syscall_64.c:94
-       entry_SYSCALL_64_after_hwframe+0x77/0x7f
-
-other info that might help us debug this:
-
- Possible unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(&type->i_mutex_dir_key#5/1);
-                               lock(sb_writers#12);
-                               lock(&type->i_mutex_dir_key#5/1);
-  rlock(sb_writers#12);
-
- *** DEADLOCK ***
-
-1 lock held by syz.0.17/6011:
- #0: ffff888169f40940 (&type->i_mutex_dir_key#5/1){+.+.}-{4:4}, at: inode_lock_nested include/linux/fs.h:1025 [inline]
- #0: ffff888169f40940 (&type->i_mutex_dir_key#5/1){+.+.}-{4:4}, at: __start_dirop fs/namei.c:2794 [inline]
- #0: ffff888169f40940 (&type->i_mutex_dir_key#5/1){+.+.}-{4:4}, at: start_dirop fs/namei.c:2805 [inline]
- #0: ffff888169f40940 (&type->i_mutex_dir_key#5/1){+.+.}-{4:4}, at: start_creating+0xbe/0x100 fs/namei.c:3261
-
-stack backtrace:
-CPU: 1 UID: 0 PID: 6011 Comm: syz.0.17 Not tainted syzkaller #0 PREEMPT(full) 
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.2-debian-1.16.2-1 04/01/2014
-Call Trace:
- <TASK>
- dump_stack_lvl+0x189/0x250 lib/dump_stack.c:120
- print_circular_bug+0x2ee/0x310 kernel/locking/lockdep.c:2043
- check_noncircular+0x134/0x160 kernel/locking/lockdep.c:2175
- check_prev_add kernel/locking/lockdep.c:3165 [inline]
- check_prevs_add kernel/locking/lockdep.c:3284 [inline]
- validate_chain+0xb9b/0x2140 kernel/locking/lockdep.c:3908
- __lock_acquire+0xab9/0xd20 kernel/locking/lockdep.c:5237
- lock_acquire+0x120/0x360 kernel/locking/lockdep.c:5868
- percpu_down_read_internal include/linux/percpu-rwsem.h:53 [inline]
- percpu_down_read_freezable include/linux/percpu-rwsem.h:83 [inline]
- __sb_start_write include/linux/fs.h:1916 [inline]
- sb_start_write+0x4d/0x1c0 include/linux/fs.h:2052
- mnt_want_write+0x41/0x90 fs/namespace.c:508
- filename_create+0x14f/0x360 fs/namei.c:4785
- do_mkdirat+0x32c/0x5e0 fs/namei.c:5050
- __do_sys_mkdir fs/namei.c:5080 [inline]
- __se_sys_mkdir fs/namei.c:5078 [inline]
- __x64_sys_mkdir+0x6c/0x80 fs/namei.c:5078
- do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
- do_syscall_64+0xfa/0xfa0 arch/x86/entry/syscall_64.c:94
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7fdc9a98efc9
-Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 a8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007fdc9b79b038 EFLAGS: 00000246 ORIG_RAX: 0000000000000053
-RAX: ffffffffffffffda RBX: 00007fdc9abe5fa0 RCX: 00007fdc9a98efc9
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 00002000000008c0
-RBP: 00007fdc9aa11f91 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007fdc9abe6038 R14: 00007fdc9abe5fa0 R15: 00007ffe4d481c38
- </TASK>
-
-
-***
-
-If these findings have caused you to resend the series or submit a
-separate fix, please add the following tag to your commit message:
-  Tested-by: syzbot@syzkaller.appspotmail.com
-
----
-This report is generated by a bot. It may contain errors.
-syzbot ci engineers can be reached at syzkaller@googlegroups.com.
+Thoughts/suggestions?
+Rahul
