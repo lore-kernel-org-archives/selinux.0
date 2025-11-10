@@ -1,177 +1,189 @@
-Received: from mail-qv1-f54.google.com (mail-qv1-f54.google.com [209.85.219.54])
+Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4453E28136F
-	for <selinux@vger.kernel.org>; Mon, 10 Nov 2025 17:12:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00E2D2D6E55
+	for <selinux@vger.kernel.org>; Mon, 10 Nov 2025 17:30:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762794743; cv=none; b=IpBOyHD775m6Z7Oulbc7ldNHwqTPVrgW+nUm6K2wIF6Mylqk3WjSn8Wk3JIK/1qT7QK6iInc2qd7p2b8063Qf1BkyixLh0arxj+acLApXr3lMf/taZFWvqm81H+9kkThDCQSGqECdymQn22X31bcq5LhNCC7eat48opCE5HVBss=
+	t=1762795854; cv=none; b=k5cpY+nNulQLUJrCjGln7YkER0s0aJzOYOcyiT4ByZjnCBIbdY8IIeKSpQuaLJ2Sd1jwD96UDC2XbdO59YAnRlzE59ce+8vndQuhif0fbweaUBXjAvbxiW8KvvrSJVx3DJO37IQ6bkR5Fbo8nkU67/fMPySd2n/1JwlrRm37qgk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762794743; c=relaxed/simple;
-	bh=2e2EkW/Kv+64mGjr4LxqwFCFxt5eeIOuAdF3a+cHPaA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Xf+wuUq0rUW06x7QimATKTEcG8y0VbLG/yfi2lHuhoU7TGUxDEqW7D9zdhMsbEtGzuOyR9+4N3aO2aV50yDOh82s7Dax83WAcGvdTIwz+sIJKM3wpxsiBt7cXnB8BxB0aYOFmCpoty+qiAPNSI5nQflpWMucvxsiAwrBQye5PZ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nTaW29ro; arc=none smtp.client-ip=209.85.219.54
+	s=arc-20240116; t=1762795854; c=relaxed/simple;
+	bh=troxVhxfQBVjFwf8LpZkj4v60KJWpcZ7GG8KqeA3sP8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=FnefUfYzXEleAXMXHRoZc6kzVKktBqsGw56sKzlaMwFqhnSxBT47hZeYkSJMa9ViEiljiTBUy+cvcZCoSOGzewQQBnQqFfZpgPj/EAF5Di0pyPEGN3NpDJcyFXLt4rh3gHHrtBZMY0jrjMQcTeRCszjxQGXfVAMZo1EGnD6iRtI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AC9XHANc; arc=none smtp.client-ip=209.85.210.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nTaW29ro"
-Received: by mail-qv1-f54.google.com with SMTP id 6a1803df08f44-882475d8851so17763376d6.2
-        for <selinux@vger.kernel.org>; Mon, 10 Nov 2025 09:12:22 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AC9XHANc"
+Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-782e93932ffso2717872b3a.3
+        for <selinux@vger.kernel.org>; Mon, 10 Nov 2025 09:30:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1762794741; x=1763399541; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Anb6ycyv1i4DJYb/ym1O+XK3h7pDCAaMl4V3Ye5u2dI=;
-        b=nTaW29rofqiXMCmVSzOrtChzuCpSIzHXSeUYb2nUB5fiSqHySNYkE6doP3SjkiUn2l
-         rzsKzZ8Rf0UFWU7JeXeqIe/tJH2wqQd/eOpfruAbf6k9poUnCPdbA0yvZiKXUIZyR7G1
-         NtetUY1/iKtM9tXLkabp2hJtBJ2ySz28EJBBnFNmjSp0U/Cnl6teL6yXYyewKpwwgcB2
-         cm2Xxo9YQTz65BjIGO4Fm9/+ahAKz+EyUw/KtMGgEuuyWttQLoPTPUHlMeMp3/m3XjPq
-         zbNy6AMvMUGKElZPdaTuwaGkX0KVX9vjUxxcuKC8l/ARYbyu8wlpO5rfON9EpFlpxjkW
-         9OQA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762794741; x=1763399541;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1762795851; x=1763400651; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Anb6ycyv1i4DJYb/ym1O+XK3h7pDCAaMl4V3Ye5u2dI=;
-        b=o0k16eZMae+4L4VPEb35pfDuQyC0Ktn7GKm2f+JhTUQlwn5e2eu2Q23GPL8dcRU8hc
-         T55bpLwmaOD33nEji0lz/cR/XCsU5zTn0WogNjJKPzEBtl8ZrLXtyGJzqJkOgqkpm8xx
-         jW4mFAvox1XkI4VqsdRmYIIh3aaQULaw9+lGIZNC3iXfgZb5XRDlrh50sWgym67NsoFb
-         L6KUYVjoiDvmQFIpZGetf7QcCWicwHCrzzOx3X71i7rr9ISEhoBcjf4ZhxdVJpR/iU8i
-         r8U5sgTadPoZjJZJiYF4kuluLkThIEdnmYpmXrbz+AEPUWsOFemM00HMvfYpgtdnvBEH
-         l9jg==
-X-Gm-Message-State: AOJu0YyVnha2Tu5okRk1Q8ZkYjwTBdQRyGWeZNeA9THLwzUfAqiIaE22
-	dV1Oneg/vJ2XjfQKEv2+C3i6im2aJj62dOFIokC/QeGgNOSq2js/yM3tekHiTw==
-X-Gm-Gg: ASbGncsoItolE9QEujZ3Kvjx8j7MWgURQBMPuAYlzyIReumB6O4xzRrzjQziJ6X5amx
-	dzRVLT6s3so2ULNy7uMAb/sgtVztdkKf2W5+iNCKQ19VstWgeKSkEJwX0Egkky3A/+7OmChr5tz
-	As0CIfZkebj+HqBmAMXFbXgjRK5QHG8coMWjyAFOsTTT41tIXWC8ghw+uEaXhTeHQPtio6hZpbJ
-	vz9vx957I6K86WBFyrthGNY1TF0lfZ840/ZOQTizf8lL4n8r7WbhAydhdOgblkeIGKeg7bGICIy
-	ZgAAwRiYSF9DZFZZSwo98Lu6+qR2kaWL5/YtfTpiouwzo2PXo5kmbhkI4/B4qvf6ROVMC6Q5SJ+
-	Cln6Cptt/UqYOL/GUHh2Ppqko4acTQxz85C3u/U54QTzqoqFbtljO+FNjjTb58wYVdFeRS9hGCi
-	Lshv8f1Xrk/Q4O4lI1C6rSAi7BfDZqtct9+QK/7LweQ5m3hQrzyFlm8TCnCI7EwkYJnDbFTrEeK
-	hfB9+MZdx9vSe8=
-X-Google-Smtp-Source: AGHT+IHXFrLImO6xUGbPfNEhBhdFYduocUxGd+7dHSitP/X2QJ3br70bQqb53jD0m7knHYfW8UJ5Wg==
-X-Received: by 2002:a05:6214:d86:b0:880:68ee:ad87 with SMTP id 6a1803df08f44-88238764f8emr117298266d6.64.1762794740798;
-        Mon, 10 Nov 2025 09:12:20 -0800 (PST)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-88238b40396sm54029356d6.38.2025.11.10.09.12.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 Nov 2025 09:12:20 -0800 (PST)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com,
-	omosnace@redhat.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH testsuite v2] policy: do not modify the allow_domain_fd_use boolean
-Date: Mon, 10 Nov 2025 12:09:59 -0500
-Message-ID: <20251110170958.23627-2-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.51.1
+        bh=ZBupVcckmVz5Ln4jfPWyUolTVnASsByCuaOtA4I7qvo=;
+        b=AC9XHANc7Jv98OiD1RAbXbgghzmw1fEwG+S7ohAbVKTZWl40zZDYQxjQT60E0kzVgF
+         0lDK3EhNyqlXgP46+IyQtHB8hn5TTuyX8hGN7aPnqGaC/cZ/twGlZbKdZ4mHsmjIMj2m
+         9B235fBEy+69JEIZbjZKnmzi0oot5veGPLpqdFnhs6N0L6Z4WRAY3bOc2sWGobkCepm7
+         29F+ut8qbkM9nIyouH+e9sIriR42Kmct4jI6zyyL2LV5cRdCJE9MZ2KaCcj1YONMjG0N
+         BLlTXjRo6B8D1sl2IY0/xH6nDtCVzbGhLx6JTNf/sUskbrDXyIOTzOZLSIPdvJK0aHUy
+         HwUQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1762795851; x=1763400651;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=ZBupVcckmVz5Ln4jfPWyUolTVnASsByCuaOtA4I7qvo=;
+        b=rkT/WvfWhLvJg1xhixJ0L5HOZRfx8ZQfW/EKo9cyqApqw4tahfpjvK/MC3qAGS8mdP
+         SLJQd6DrziBD8MkTyTpb0Vllby3Y/er+92DVeYgfiy80HGeExcDes6eAXenkG+COPURe
+         ZB2PSE8+YkyQhEF57HhtVUh+3FMkNAw0h/6ezkJPKCVk7LjNYuc6OxFV+ma4M2EWSduH
+         E2BpPFMpfUNQEG7kK4N7lJlvlAc/C2Jm165duvnRZQ+0F66eiT/Nir8SVKeEUAcAupbN
+         SXGx4YmK0yz+BNXBCm6Wto6GDufk/YlnGjsTA4x2sb1MIYQNS7gDFad4cXiZULEBIUXn
+         tOUg==
+X-Forwarded-Encrypted: i=1; AJvYcCXq6u57WT1sU10Q9ZLM0Z84iiWMkudqqjb82mv02o7ztyf1RGF50mMJgd4/4YD2lkZ5OWUBjPol@vger.kernel.org
+X-Gm-Message-State: AOJu0YyRoUjkNFFzlLWZe5hni4Tj1FSah697ik2wz8im3xrvDRl+OoVz
+	7t4DKsBLgc2ak3kkerDe4g05e5QndSkwXHZSUvgjlG98y8JlHX6ZWtikYXrkpTfXwnjL41Iz9Bm
+	b4dqV7cWjn04RMxI4lSSaCIA7OhBg8B0=
+X-Gm-Gg: ASbGncuHM6Epfu5wVX96nJgZ1IwtzVvHbyxIVD9BYGSsSGxUIt3+iv1gtBzqrgCuRTH
+	LA+fQCUVe5NXh8Lg446reLTRHEWSMDBP4QL0WpCvcVK7nrTroEpf3n0dOEXlDEwNyz9PdHTJ4FH
+	QgsoEWdFKy00YcGpzrdweGjKLq9kbcDMu8/wfgN+NMpZ9Q+dUa+UALqr9HgS0HUceI+gdQFymcy
+	b+O3OiRceaYFB9pF3yuIYeWB9pKanfdN7mfOuA7hmyijf0g5MAPMTERMHk0
+X-Google-Smtp-Source: AGHT+IG1vzxlgOlG9RofPIQ8HXS/TzZg0c7M7/gWC0zTYmT64xMp8LfK4tDIRftHYt3f+PSr3BPp3nPvSQoI3SsCuMA=
+X-Received: by 2002:a17:90a:ac0e:b0:343:747e:2cab with SMTP id
+ 98e67ed59e1d1-343747e31a5mr6285125a91.8.1762795851107; Mon, 10 Nov 2025
+ 09:30:51 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20251106005333.956321-1-neilb@ownmail.net> <20251106005333.956321-12-neilb@ownmail.net>
+ <CAEjxPJ528Ou4dvRwHo+kXjWreGicda8BOXkQRvq3vMED6JQKOQ@mail.gmail.com>
+In-Reply-To: <CAEjxPJ528Ou4dvRwHo+kXjWreGicda8BOXkQRvq3vMED6JQKOQ@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 10 Nov 2025 12:30:39 -0500
+X-Gm-Features: AWmQ_bndNmWOI1mokvMjGbHl4ympSya5-SIjECF6vpxPVypYlN3NvFXLixarZ1U
+Message-ID: <CAEjxPJ6-BXRntLqNRJxveAbwHmC2EB9YYg7f4hLD9T2g-H3fzw@mail.gmail.com>
+Subject: Re: [PATCH v5 11/14] Add start_renaming_two_dentries()
+To: NeilBrown <neil@brown.name>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, 
+	Amir Goldstein <amir73il@gmail.com>, Jan Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org, 
+	Jeff Layton <jlayton@kernel.org>, Chris Mason <clm@fb.com>, David Sterba <dsterba@suse.com>, 
+	David Howells <dhowells@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	"Rafael J. Wysocki" <rafael@kernel.org>, Danilo Krummrich <dakr@kernel.org>, Tyler Hicks <code@tyhicks.com>, 
+	Miklos Szeredi <miklos@szeredi.hu>, Chuck Lever <chuck.lever@oracle.com>, 
+	Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo <Dai.Ngo@oracle.com>, 
+	Namjae Jeon <linkinjeon@kernel.org>, Steve French <smfrench@gmail.com>, 
+	Sergey Senozhatsky <senozhatsky@chromium.org>, Carlos Maiolino <cem@kernel.org>, 
+	John Johansen <john.johansen@canonical.com>, Paul Moore <paul@paul-moore.com>, 
+	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+	Ondrej Mosnacek <omosnace@redhat.com>, Mateusz Guzik <mjguzik@gmail.com>, 
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Stefan Berger <stefanb@linux.ibm.com>, 
+	"Darrick J. Wong" <djwong@kernel.org>, linux-kernel@vger.kernel.org, netfs@lists.linux.dev, 
+	ecryptfs@vger.kernel.org, linux-nfs@vger.kernel.org, 
+	linux-unionfs@vger.kernel.org, linux-cifs@vger.kernel.org, 
+	linux-xfs@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Modifying the allow_domain_fd_use boolean value during testsuite
-execution is increasingly triggering breakage on Fedora since its
-policy defaults to 1/true, to the point that you can't ssh or even
-console login to a VM while the testsuite is running or even afterward
-if the testsuite encounters any failures. Instead of modifying this
-boolean, just update the relevant test domains to use the _minimal
-interface so they do not inherit this rule by default and add any
-required allowed rules to them.
+On Mon, Nov 10, 2025 at 11:08=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Wed, Nov 5, 2025 at 7:56=E2=80=AFPM NeilBrown <neilb@ownmail.net> wrot=
+e:
+> >
+> > From: NeilBrown <neil@brown.name>
+> >
+> > A few callers want to lock for a rename and already have both dentries.
+> > Also debugfs does want to perform a lookup but doesn't want permission
+> > checking, so start_renaming_dentry() cannot be used.
+> >
+> > This patch introduces start_renaming_two_dentries() which is given both
+> > dentries.  debugfs performs one lookup itself.  As it will only continu=
+e
+> > with a negative dentry and as those cannot be renamed or unlinked, it i=
+s
+> > safe to do the lookup before getting the rename locks.
+> >
+> > overlayfs uses start_renaming_two_dentries() in three places and  selin=
+ux
+> > uses it twice in sel_make_policy_nodes().
+> >
+> > In sel_make_policy_nodes() we now lock for rename twice instead of just
+> > once so the combined operation is no longer atomic w.r.t the parent
+> > directory locks.  As selinux_state.policy_mutex is held across the whol=
+e
+> > operation this does open up any interesting races.
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
-v2 addresses a comment from Ondrej Mosnacek <omosnace@redhat.com>,
-rewriting the sigkill rule to use testsuite_caller_domain and moving it
-to a more appropriate location.
+Also, I assume you mean "does NOT open up any interesting races" above.
 
- policy/Makefile          | 6 ------
- policy/test_binder.te    | 3 ++-
- policy/test_fdreceive.te | 4 +++-
- policy/test_global.te    | 1 +
- policy/test_inherit.te   | 3 ++-
- 5 files changed, 8 insertions(+), 9 deletions(-)
-
-diff --git a/policy/Makefile b/policy/Makefile
-index 17bb80d..a43883f 100644
---- a/policy/Makefile
-+++ b/policy/Makefile
-@@ -223,16 +223,10 @@ build: $(TARGETS)
- 
- load: expand_check all
- 	# General policy load
--	@if /usr/sbin/getsebool allow_domain_fd_use 2> /dev/null; then \
--		/usr/sbin/setsebool allow_domain_fd_use=0; \
--	fi
- 	$(SEMODULE) -i test_policy/test_policy.pp $(CIL_TARGETS)
- 
- unload:
- 	# General policy unload
--	@if /usr/sbin/getsebool allow_domain_fd_use 2> /dev/null; then \
--		/usr/sbin/setsebool allow_domain_fd_use=1; \
--	fi
- 	$(SEMODULE) -r test_policy $(subst .cil,,$(CIL_TARGETS))
- 
- clean:
-diff --git a/policy/test_binder.te b/policy/test_binder.te
-index 4c7974a..a267a85 100644
---- a/policy/test_binder.te
-+++ b/policy/test_binder.te
-@@ -42,7 +42,8 @@ allow test_binder_provider_no_fd_t test_file_t:fifo_file rw_file_perms;
- ################################# Client ####################################
- #
- type test_binder_client_t;
--testsuite_domain_type(test_binder_client_t)
-+# Must use _minimal interface to avoid granting domain fd use permission
-+testsuite_domain_type_minimal(test_binder_client_t)
- typeattribute test_binder_client_t binderdomain;
- allow test_binder_client_t test_binder_provider_t:binder { call impersonate };
- allow test_binder_client_t test_binder_mgr_t:binder { call };
-diff --git a/policy/test_fdreceive.te b/policy/test_fdreceive.te
-index df9e974..805e04e 100644
---- a/policy/test_fdreceive.te
-+++ b/policy/test_fdreceive.te
-@@ -27,7 +27,9 @@ typeattribute test_fdreceive_client2_t fdreceivedomain;
- # Can receive fds from client, not from client2.
- # Can access test file, not second test file.
- type test_fdreceive_server_t;
--testsuite_domain_type(test_fdreceive_server_t);
-+# Use the _minimal interface to avoid allowing fd use by default
-+testsuite_domain_type_minimal(test_fdreceive_server_t)
-+allow test_fdreceive_server_t self:unix_stream_socket create_stream_socket_perms;
- typeattribute test_fdreceive_server_t fdreceivedomain;
- 
- # Grant the necessary permissions for the server domain.
-diff --git a/policy/test_global.te b/policy/test_global.te
-index 0078485..759353c 100644
---- a/policy/test_global.te
-+++ b/policy/test_global.te
-@@ -69,6 +69,7 @@ optional_policy(`
- 
- # Needed for domains outside domain_type()
- dontaudit testsuite_caller_domain testsuite_domain:process { noatsecure rlimitinh siginh };
-+allow testsuite_caller_domain testsuite_domain:process sigkill;
- 
- # keys test may trigger search AVCs for root's keys
- dontaudit testsuite_domain testsuite_caller_domain:key { search };
-diff --git a/policy/test_inherit.te b/policy/test_inherit.te
-index da26ea3..7e09534 100644
---- a/policy/test_inherit.te
-+++ b/policy/test_inherit.te
-@@ -22,7 +22,8 @@ typeattribute test_inherit_child_t inheritdomain;
- # Domain for child process that cannot inherit from parent due to lack
- # of fd use permission.
- type test_inherit_nouse_t;
--testsuite_domain_type(test_inherit_nouse_t)
-+# Use the _minimal interface to avoid allowing fd use by default
-+testsuite_domain_type_minimal(test_inherit_nouse_t)
- typeattribute test_inherit_nouse_t inheritdomain;
- 
- # Domain for child process that cannot inherit r/w fd to test file
--- 
-2.51.1
-
+> >
+> > Reviewed-by: Amir Goldstein <amir73il@gmail.com>
+> > Signed-off-by: NeilBrown <neil@brown.name>
+> >
+> > ---
+> > changes since v3:
+> >  added missing assignment to rd.mnt_idmap in ovl_cleanup_and_whiteout
+> > ---
+>
+> > diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.=
+c
+> > index 232e087bce3e..a224ef9bb831 100644
+> > --- a/security/selinux/selinuxfs.c
+> > +++ b/security/selinux/selinuxfs.c
+> > @@ -539,22 +540,30 @@ static int sel_make_policy_nodes(struct selinux_f=
+s_info *fsi,
+> >         if (ret)
+> >                 goto out;
+> >
+> > -       lock_rename(tmp_parent, fsi->sb->s_root);
+> > +       rd.old_parent =3D tmp_parent;
+> > +       rd.new_parent =3D fsi->sb->s_root;
+> >
+> >         /* booleans */
+> > -       d_exchange(tmp_bool_dir, fsi->bool_dir);
+> > +       ret =3D start_renaming_two_dentries(&rd, tmp_bool_dir, fsi->boo=
+l_dir);
+> > +       if (!ret) {
+> > +               d_exchange(tmp_bool_dir, fsi->bool_dir);
+>
+> I would recommend an immediate goto out if ret !=3D 0; we don't want to
+> silently fall through and possibly reset ret on the next
+> start_renaming_two_dentries() call, thereby ultimately returning 0 to
+> the caller and acting as if nothing bad happened.
+>
+> >
+> > -       swap(fsi->bool_num, bool_num);
+> > -       swap(fsi->bool_pending_names, bool_names);
+> > -       swap(fsi->bool_pending_values, bool_values);
+> > +               swap(fsi->bool_num, bool_num);
+> > +               swap(fsi->bool_pending_names, bool_names);
+> > +               swap(fsi->bool_pending_values, bool_values);
+> >
+> > -       fsi->bool_dir =3D tmp_bool_dir;
+> > +               fsi->bool_dir =3D tmp_bool_dir;
+> > +               end_renaming(&rd);
+> > +       }
+> >
+> >         /* classes */
+> > -       d_exchange(tmp_class_dir, fsi->class_dir);
+> > -       fsi->class_dir =3D tmp_class_dir;
+> > +       ret =3D start_renaming_two_dentries(&rd, tmp_class_dir, fsi->cl=
+ass_dir);
+> > +       if (ret =3D=3D 0) {
+> > +               d_exchange(tmp_class_dir, fsi->class_dir);
+> > +               fsi->class_dir =3D tmp_class_dir;
+> >
+> > -       unlock_rename(tmp_parent, fsi->sb->s_root);
+> > +               end_renaming(&rd);
+> > +       }
+> >
+> >  out:
+> >         sel_remove_old_bool_data(bool_num, bool_names, bool_values);
+> > --
+> > 2.50.0.107.gf914562f5916.dirty
+> >
