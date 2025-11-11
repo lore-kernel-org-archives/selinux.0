@@ -1,153 +1,152 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
+Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [62.89.141.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66BE332AAB9;
-	Tue, 11 Nov 2025 06:53:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F5FF330B17;
+	Tue, 11 Nov 2025 06:55:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.89.141.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762844040; cv=none; b=ZQThUYKeqkKfDCHFYrsxBvtJq0rhlQE72Yf70pUjP4JTb5rR6UlK+an8Y8LZYC1IQjH3okv2NEj09fIz6NLSVfcYgoVJiRwRUwYi73RREUpMniKJW6qIiFQ1we6/YW51VG4A45vY5DqTqo8LiTz4HwTPhtNTr52POyfnRAhmVXU=
+	t=1762844130; cv=none; b=lftdVszRxElBmGTaIOjAVJE86fYYx5geAmNxq1V/cV0ualgcg6kyM0w97iw889AJ/9fRJoOERuVX7tz5Pf1xSi3/vqUQlvGiczrAr7YKzubmnDRqwUzzkhNVSYmuJMmIvwBJTwiyTEIhyrjeCGEgu9RII8ATvco/FhvpdAcdxEE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762844040; c=relaxed/simple;
-	bh=xwKJ2OZInrOV9QwDsYLEOZJjAGoBztbUSeW9SN5oSnA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qBuqf+yEEI5IOYPkbfPnsY0Yiy8JYZqu/OkKDicsm/GMz8FPaqGiqGDXyCMa9xd4jMVPBUo2g7A7EbU+vn146eL3PKDQuQwORvP6QMbAm7+tlM9mj+zXGBx2enGZLDTpuiWcJMOoem+qBvHB/3DerTz5wRg24eq0o3WhyT1KrmM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=iKlgqEGP; arc=none smtp.client-ip=198.175.65.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1762844130; c=relaxed/simple;
+	bh=CyVivJufSb4sh4+oM9l7NXmE+V2B9EmDQGjIticKJ8E=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=MFJwjVQTKVzkEM8VW+MoWT2Dnnpa0WUfoA4RUT0Kzsgc3bampJrOVjjaTvJACyNF8Apnu16BMAO9zc4hL4U0qel82i3ROxPGAHX+Q6Uah4AFpolMdAUQyHsbR7dazeqW4Ix5xb/bK9nxRsQGfuvj7M6KrJGH/RDkc6LBztoxHeA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=bfOYqpnw; arc=none smtp.client-ip=62.89.141.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ftp.linux.org.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="iKlgqEGP"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1762844038; x=1794380038;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=xwKJ2OZInrOV9QwDsYLEOZJjAGoBztbUSeW9SN5oSnA=;
-  b=iKlgqEGPe/3YwwBxXk0xCQf58Gix1x8Qn6wUSJUtpVUdFgCKup/VRdqe
-   dfxcdCDgBiYuMznRx79G/HsPsK5LvTlacDjrViaa4SiQ9pSW7gBAzZzvr
-   H1HNp9C1Q9MhcxXjV7zOw28gBHnkh0c8MdqWdTAqHX8737EuMu7VF6wYs
-   RP8Z3pamQLYVp1LrHdu5Toj7mOb3qHdo2q82VFAgvL4sZiasYJH1PvLD6
-   zToQkwsi5mtfk7D/jvu/QsvGWvsNctfloDHge8ZWjmM76vqtm6NNktLuc
-   ifPwoz2qVylhM3UIVeIgVt99FSLgJvFJQqhtlKaQflMdDQnzCpXmGLrfc
-   A==;
-X-CSE-ConnectionGUID: OCdIZ/AaQZ6GukFPbhIzDQ==
-X-CSE-MsgGUID: yAfHcM9qSd6xRLy7X5frzA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11609"; a="65058783"
-X-IronPort-AV: E=Sophos;i="6.19,295,1754982000"; 
-   d="scan'208";a="65058783"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2025 22:53:58 -0800
-X-CSE-ConnectionGUID: FQ26DOY0TiuoXffS+mUq1Q==
-X-CSE-MsgGUID: hmpvrjNtSV+aFOGvSQgffQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.19,295,1754982000"; 
-   d="scan'208";a="194075959"
-Received: from lkp-server01.sh.intel.com (HELO 7b01c990427b) ([10.239.97.150])
-  by orviesa005.jf.intel.com with ESMTP; 10 Nov 2025 22:53:56 -0800
-Received: from kbuild by 7b01c990427b with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1vIiGH-0002sD-1e;
-	Tue, 11 Nov 2025 06:53:53 +0000
-Date: Tue, 11 Nov 2025 14:52:54 +0800
-From: kernel test robot <lkp@intel.com>
-To: Ryan Foster <foster.ryan.r@gmail.com>, selinux@vger.kernel.org
-Cc: oe-kbuild-all@lists.linux.dev, linux-security-module@vger.kernel.org,
-	linux-kernel@vger.kernel.org, serge@hallyn.com, paul@paul-moore.com,
-	Ryan Foster <foster.ryan.r@gmail.com>
-Subject: Re: [PATCH] security: Add KUnit tests for rootid_owns_currentns()
-Message-ID: <202511111459.1ToyUP5p-lkp@intel.com>
-References: <20251110143748.4144288-1-foster.ryan.r@gmail.com>
+	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="bfOYqpnw"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=linux.org.uk; s=zeniv-20220401; h=Sender:Content-Transfer-Encoding:
+	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:
+	Reply-To:Content-Type:Content-ID:Content-Description;
+	bh=TcFcmzxfGV+3rJDGgJ/eg0JcSdO3AKCKkQ7NxQ/vrvI=; b=bfOYqpnwRITYWirzu325V+Vjft
+	4P70PiidxpZzvKaDpbtGKJZ7Z7kz6ULfRHNrRj/WhL+Opb09PfOAkeMHjytlfhR5QIfbTxRuY/lkk
+	/SP/qvo6ubJuLtRmW3riFd9ATus8rT+PHyY9X1HWRv2hv7DJJ2L7Ccaz4SET8eWwIQLJ+goThnlDi
+	vkXMMPnDq1aZDyW1sUWNd7e6NenMqgpjtXspP5i7WkLuyOipur7dG97xmgp/Mmhh9IBeuSaH76i9V
+	Rv8y20iWmbTDwzQuWzvArRCwYZiu969sFh4ctU9PLoErZxvGh/parpyMzgOk9czyg9AZyT20F80Sa
+	ixjYrEeA==;
+Received: from viro by zeniv.linux.org.uk with local (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1vIiHl-0000000BwzW-1uyd;
+	Tue, 11 Nov 2025 06:55:25 +0000
+From: Al Viro <viro@zeniv.linux.org.uk>
+To: linux-fsdevel@vger.kernel.org
+Cc: torvalds@linux-foundation.org,
+	brauner@kernel.org,
+	jack@suse.cz,
+	raven@themaw.net,
+	miklos@szeredi.hu,
+	neil@brown.name,
+	a.hindborg@kernel.org,
+	linux-mm@kvack.org,
+	linux-efi@vger.kernel.org,
+	ocfs2-devel@lists.linux.dev,
+	kees@kernel.org,
+	rostedt@goodmis.org,
+	gregkh@linuxfoundation.org,
+	linux-usb@vger.kernel.org,
+	paul@paul-moore.com,
+	casey@schaufler-ca.com,
+	linuxppc-dev@lists.ozlabs.org,
+	john.johansen@canonical.com,
+	selinux@vger.kernel.org,
+	borntraeger@linux.ibm.com,
+	bpf@vger.kernel.org
+Subject: [PATCH v3 24/50] convert ibmasmfs
+Date: Tue, 11 Nov 2025 06:54:53 +0000
+Message-ID: <20251111065520.2847791-25-viro@zeniv.linux.org.uk>
+X-Mailer: git-send-email 2.49.0
+In-Reply-To: <20251111065520.2847791-1-viro@zeniv.linux.org.uk>
+References: <20251111065520.2847791-1-viro@zeniv.linux.org.uk>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251110143748.4144288-1-foster.ryan.r@gmail.com>
+Content-Transfer-Encoding: 8bit
+Sender: Al Viro <viro@ftp.linux.org.uk>
 
-Hi Ryan,
+static contents for each "service processor", whatever the fuck it is.
+Congruent subdirectories of root, created at mount time, taken out
+by kill_litter_super().  All dentries created with d_alloc_name() and are
+left pinned.  The odd part is that the list of service providers is
+assumed to be unchanging - no locking, nothing to handle removals or
+extra elements added later on.
 
-kernel test robot noticed the following build errors:
+... and it's a PCI device.  If you ever tell it to remove an instance,
+you are fucked - it doesn't bother with removing its directory from filesystem,
+it has a strange check that presumably wanted to be a check for removed
+devices, but it had never been fleshed out.
 
-[auto build test ERROR on pcmoore-selinux/next]
-[also build test ERROR on linus/master v6.18-rc5 next-20251110]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+Anyway, d_add() -> d_make_persistent()+dput() in ibmasmfs_create_dir() and
+ibmasmfs_create_file(), and make the latter return int - no need to even
+borrow that dentry, callers completely ignore it.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Ryan-Foster/security-Add-KUnit-tests-for-rootid_owns_currentns/20251110-223824
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git next
-patch link:    https://lore.kernel.org/r/20251110143748.4144288-1-foster.ryan.r%40gmail.com
-patch subject: [PATCH] security: Add KUnit tests for rootid_owns_currentns()
-config: mips-randconfig-r053-20251111 (https://download.01.org/0day-ci/archive/20251111/202511111459.1ToyUP5p-lkp@intel.com/config)
-compiler: mips-linux-gcc (GCC) 8.5.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20251111/202511111459.1ToyUP5p-lkp@intel.com/reproduce)
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+---
+ drivers/misc/ibmasm/ibmasmfs.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202511111459.1ToyUP5p-lkp@intel.com/
-
-All error/warnings (new ones prefixed by >>):
-
->> security/commoncap_test.c:23:3: error: conflicting types for 'vfsuid_t'
-    } vfsuid_t;
-      ^~~~~~~~
-   In file included from include/linux/fs.h:45,
-                    from arch/mips/include/asm/elf.h:12,
-                    from include/linux/elf.h:6,
-                    from include/linux/module.h:20,
-                    from include/kunit/test.h:24,
-                    from security/commoncap_test.c:9:
-   include/linux/mnt_idmapping.h:17:3: note: previous declaration of 'vfsuid_t' was here
-    } vfsuid_t;
-      ^~~~~~~~
->> security/commoncap_test.c:26:21: error: conflicting types for '__vfsuid_val'
-    static inline uid_t __vfsuid_val(vfsuid_t uid)
-                        ^~~~~~~~~~~~
-   In file included from include/linux/fs.h:45,
-                    from arch/mips/include/asm/elf.h:12,
-                    from include/linux/elf.h:6,
-                    from include/linux/module.h:20,
-                    from include/kunit/test.h:24,
-                    from security/commoncap_test.c:9:
-   include/linux/mnt_idmapping.h:34:21: note: previous definition of '__vfsuid_val' was here
-    static inline uid_t __vfsuid_val(vfsuid_t uid)
-                        ^~~~~~~~~~~~
->> security/commoncap_test.c:31: warning: "VFSUIDT_INIT" redefined
-    #define VFSUIDT_INIT(val) ((vfsuid_t){ __kuid_val(val) })
-    
-   In file included from include/linux/fs.h:45,
-                    from arch/mips/include/asm/elf.h:12,
-                    from include/linux/elf.h:6,
-                    from include/linux/module.h:20,
-                    from include/kunit/test.h:24,
-                    from security/commoncap_test.c:9:
-   include/linux/mnt_idmapping.h:109: note: this is the location of the previous definition
-    #define VFSUIDT_INIT(val) (vfsuid_t){ __kuid_val(val) }
-    
-
-
-vim +/vfsuid_t +23 security/commoncap_test.c
-
-    18	
-    19	/* Forward declare the minimal types we need - match the actual kernel definitions */
-    20	struct mnt_idmap;
-    21	typedef struct {
-    22		uid_t val;
-  > 23	} vfsuid_t;
-    24	
-    25	/* Minimal macros we need - match kernel definitions from mnt_idmapping.h */
-  > 26	static inline uid_t __vfsuid_val(vfsuid_t uid)
-    27	{
-    28		return uid.val;
-    29	}
-    30	
-  > 31	#define VFSUIDT_INIT(val) ((vfsuid_t){ __kuid_val(val) })
-    32	#define INVALID_VFSUID VFSUIDT_INIT(INVALID_UID)
-    33	
-
+diff --git a/drivers/misc/ibmasm/ibmasmfs.c b/drivers/misc/ibmasm/ibmasmfs.c
+index b26c930e3edb..a6cde74efb68 100644
+--- a/drivers/misc/ibmasm/ibmasmfs.c
++++ b/drivers/misc/ibmasm/ibmasmfs.c
+@@ -103,7 +103,7 @@ static struct file_system_type ibmasmfs_type = {
+ 	.owner          = THIS_MODULE,
+ 	.name           = "ibmasmfs",
+ 	.init_fs_context = ibmasmfs_init_fs_context,
+-	.kill_sb        = kill_litter_super,
++	.kill_sb        = kill_anon_super,
+ };
+ MODULE_ALIAS_FS("ibmasmfs");
+ 
+@@ -144,7 +144,7 @@ static struct inode *ibmasmfs_make_inode(struct super_block *sb, int mode)
+ 	return ret;
+ }
+ 
+-static struct dentry *ibmasmfs_create_file(struct dentry *parent,
++static int ibmasmfs_create_file(struct dentry *parent,
+ 			const char *name,
+ 			const struct file_operations *fops,
+ 			void *data,
+@@ -155,19 +155,20 @@ static struct dentry *ibmasmfs_create_file(struct dentry *parent,
+ 
+ 	dentry = d_alloc_name(parent, name);
+ 	if (!dentry)
+-		return NULL;
++		return -ENOMEM;
+ 
+ 	inode = ibmasmfs_make_inode(parent->d_sb, S_IFREG | mode);
+ 	if (!inode) {
+ 		dput(dentry);
+-		return NULL;
++		return -ENOMEM;
+ 	}
+ 
+ 	inode->i_fop = fops;
+ 	inode->i_private = data;
+ 
+-	d_add(dentry, inode);
+-	return dentry;
++	d_make_persistent(dentry, inode);
++	dput(dentry);
++	return 0;
+ }
+ 
+ static struct dentry *ibmasmfs_create_dir(struct dentry *parent,
+@@ -189,8 +190,9 @@ static struct dentry *ibmasmfs_create_dir(struct dentry *parent,
+ 	inode->i_op = &simple_dir_inode_operations;
+ 	inode->i_fop = ibmasmfs_dir_ops;
+ 
+-	d_add(dentry, inode);
+-	return dentry;
++	d_make_persistent(dentry, inode);
++	dput(dentry);
++	return dentry; // borrowed
+ }
+ 
+ int ibmasmfs_register(void)
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.47.3
+
