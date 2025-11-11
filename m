@@ -1,128 +1,128 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 068A134D39F;
-	Tue, 11 Nov 2025 07:53:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FA1826E71E
+	for <selinux@vger.kernel.org>; Tue, 11 Nov 2025 09:08:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762847599; cv=none; b=UVfWh+hID1oMXG6ITJpTzxW4bu7HBwe+90T+LQzQYm9Ht8XJwVzMsQvHCclUu2ot7kv1hAGgZQRfSydFEeTZvHdDMq7PL7Ra0BGDpyvb+zqP/5B3/ildMjEk35JbAsNgP9Y3GN0NEDzG/tgWiD5VCfT6dKPjSxfSglgDp0NUK48=
+	t=1762852114; cv=none; b=EwsWib5XpheFs1y9GxloTD02yCGqeWf3K0KTaV4k/8tuWbStDsOnRno7tOo+0Vyal2LXGU1Y4kRciOxa0rC4LS1ccR/POpXqbwSTu9I3BewZClVwLV2VhxKFPmgW2GciIVd9Zrt9LBU/PjqjWidweY2o3H6Hr2dMCEVd62sndK4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762847599; c=relaxed/simple;
-	bh=7qxex0fb9sux6H6YiFyflQQ1fF27LToi81rAOC7nyJw=;
-	h=Content-Type:MIME-Version:Message-Id:In-Reply-To:References:
-	 Subject:From:To:Cc:Date; b=lTpg3aMoVowBQmm3doycj0FMjvpH+imPj/F5/lm/8Qj/ZevTLScD7gB6kRXtEytNxXGGJjyKHQh0nqN5qKixXvF0QwAIgA2DFoDGJjUtHFwafH6gxNV0TT8zsKzNAVea5HC8icCstY+ZzKpMmIa0YUnRbu78p0IM25/7OAlkPRI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=o8p0McGb; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1762852114; c=relaxed/simple;
+	bh=5WBsIs9xl/TdCHSUEiKBFkMW7x+q66XckzUvLU7VqqA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=H6AjeXpo4sXsctI5ecC1TpFKrSRJ+0C+TWthPYSczVlY51Ac9UVUh1DVsgG+pOOwHRP4X5fSqQOg9DhtjviEfDNtHjD123KlxZ76927kCRfB/seNluY5NfVlNLtJZUx6j/ak3Q7i6CuXLUdBTCxzU4APMh8nqstpj+g/2HC1uT0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HPyn0JOk; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=kfTw4eSF; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="o8p0McGb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73270C116B1;
-	Tue, 11 Nov 2025 07:53:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1762847598;
-	bh=7qxex0fb9sux6H6YiFyflQQ1fF27LToi81rAOC7nyJw=;
-	h=In-Reply-To:References:Subject:From:To:Cc:Date:From;
-	b=o8p0McGbUBg/mt4W0NwniQY9deSF651afKOoP439t4jTJeKv5LTx9vea9SGEQP8si
-	 Q+5a+sIU7/rr5zqsP+ur8SebApGAvWVYTCiHpEoBxnRS/ATLz92ZlOpzA+IPHvqxX7
-	 dy4GVB4pVeP8wFW2h7PYHaYeO0gbrMbOZYKJPHlrur9uUuvNsp9xny9Zx+MXTS3GYV
-	 cqyVrLtwlM6rSDu0Fgu90qu055/duQnw869B0CGPbEtwgor0ofWM7MG2wjg4jSiR0W
-	 0z4Ylk8vrW16xqRUmM/x1Dj8l4LfK4kIc0/1RsgkaikoHSoF9wMUFwvk/QGdaVgMjc
-	 CIoMYVMhdAYTw==
-Content-Type: multipart/mixed; boundary="===============1170773288298516893=="
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HPyn0JOk";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="kfTw4eSF"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1762852111;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=iaKuhl8Z4LoL9dSjExQBPbPSZFVTX9jAz1TQyy1laMY=;
+	b=HPyn0JOkqo/lqZDjOFMjdXClZkahDT2F5d+1lN8K5AfeWNQbEsop0jggJiC0D06FsFd989
+	Eh38JQjF5tEppCPf1VrC0fm9GqDRuCvvgv1FC8aFsxw6ebOJnedk3hHu30AkccjkyMmuEG
+	9pQOpRMnbGLGHcMXUyEINWJQLwENWUM=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-250-BXuGc92fPrG5N6miipDXRQ-1; Tue, 11 Nov 2025 04:08:30 -0500
+X-MC-Unique: BXuGc92fPrG5N6miipDXRQ-1
+X-Mimecast-MFC-AGG-ID: BXuGc92fPrG5N6miipDXRQ_1762852109
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-3437863d0easo2649620a91.0
+        for <selinux@vger.kernel.org>; Tue, 11 Nov 2025 01:08:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=redhat.com; s=google; t=1762852109; x=1763456909; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=iaKuhl8Z4LoL9dSjExQBPbPSZFVTX9jAz1TQyy1laMY=;
+        b=kfTw4eSF/KLlEVSmj996so3mp2SaufbKb569q3bsO7SkUM/8d30MkUGkSXi0aCyYWz
+         Gah0ZRY1G+Th6bNBOIFtTDpPyf9LZzR9z3177/+PRhdeMDtX1uXJYL76Du5QQyCKGBRB
+         mfgH0wUIYfyfKM+5nEW3EjfkRGHqdHubkg/rQDiLUF4E1nT1QeY0h9nhzH6n5uv6MAZ4
+         eJfHIx8UD09m8u4zJlz8Jo5bW+OkM5sx2A04nKP/uL32696/o/NLMrdatgn/0XRXEu74
+         KCkrfadNlv/68Cc505vBoHdrMQWff0KpM5D2kF4a+NJm5T7fYby/c5HLmd2b86mejMiH
+         HPfA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1762852109; x=1763456909;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=iaKuhl8Z4LoL9dSjExQBPbPSZFVTX9jAz1TQyy1laMY=;
+        b=CXhaR36evuL6vPELXt9SVfW3ryOra6NvWVQhICJVFc89fyVCJ7wn5WHiEGaGkzMi5A
+         eDU+b61tJPzWKOZ4Th5B9TbM8qjOSsn8ikDb8zPfaz6NswnUqfcArEWhz1mh87Fdj7/P
+         1fGAukkj+aNsjw3V9LNl9qY8+/hMi0vtTcBWVSR5M3nAcxOei6lAoP+TfyzxX/qJ051K
+         lxjgIGyomaVhxDXDod2/tfFQqqb6q0MDYy4lnCpwiBrsokm4JgrkjRX3kqevyFbR+yVN
+         P0EPdh1wot/EITxaogavZDWcrQeFfl4Xw7nbxNsnrfnhXguocVeWoZIpkzKtj2Gtz5pk
+         hoHg==
+X-Gm-Message-State: AOJu0YwMyIpEEULOVCL3l0nr/NVY91csVQia38OE1oRBp1E0pFLt5Ug4
+	1DIBusn8ae4zi2cHa2dDZcxsEo/6NxLkq5NuYu+GifsrRNKF1e2pzBl8GNmgsOeHU2o+rxtk16B
+	NMvyFZDNOEMU0HvNyv961w+oyFfWTXp1ey0NgbpBT4uvHN5WuezP3a3V7vMDNa+pbROzX+RYPBq
+	WMVKsTVCJ89f3aHpja0YOZ0e/9hyscEdovtw==
+X-Gm-Gg: ASbGncubnoTT/JnXueLb/sMxsY2/Iu0AqPfgkRqEiaDs+wgFm2pbKKyR4AsHNxP1w2i
+	IcpfTA55s0AAo9tIypj4Pf0pH8S9ksCEtz3dDBOKehUQx4khADbsuQ+bGdNEh8nnBBrJPAsTLFZ
+	t6DfdY3r9tSymYngztMwVe+Ln9IOwAcbPrEWBnYDLUU/b1RaDup2kN7Gp/n5WLGkLfgZ60noGzB
+	1q01sLtKNiiDOCH
+X-Received: by 2002:a17:90b:1c01:b0:341:8ca8:ae64 with SMTP id 98e67ed59e1d1-3436cd0e60bmr15765062a91.35.1762852108978;
+        Tue, 11 Nov 2025 01:08:28 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHkaToHL5N7kY0Uh79nDnaQ6ijMgouSVcs0/nJl3Es/gwZRTjLzRerWKI8NTi7vbMkqY9iFwJXWqtfMgf40ifc=
+X-Received: by 2002:a17:90b:1c01:b0:341:8ca8:ae64 with SMTP id
+ 98e67ed59e1d1-3436cd0e60bmr15765034a91.35.1762852108638; Tue, 11 Nov 2025
+ 01:08:28 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <70d825699c6e0a7e6cb978fdefba5935d5a515702e22e732d5c2ad919cfe010b@mail.kernel.org>
-In-Reply-To: <20251111065520.2847791-35-viro@zeniv.linux.org.uk>
-References: <20251111065520.2847791-35-viro@zeniv.linux.org.uk>
-Subject: Re: [PATCH v3 34/50] selinuxfs: new helper for attaching files to tree
-From: bot+bpf-ci@kernel.org
-To: viro@zeniv.linux.org.uk,linux-fsdevel@vger.kernel.org
-Cc: torvalds@linux-foundation.org,brauner@kernel.org,jack@suse.cz,raven@themaw.net,miklos@szeredi.hu,neil@brown.name,a.hindborg@kernel.org,linux-mm@kvack.org,linux-efi@vger.kernel.org,ocfs2-devel@lists.linux.dev,kees@kernel.org,rostedt@goodmis.org,gregkh@linuxfoundation.org,linux-usb@vger.kernel.org,paul@paul-moore.com,casey@schaufler-ca.com,linuxppc-dev@lists.ozlabs.org,john.johansen@canonical.com,selinux@vger.kernel.org,borntraeger@linux.ibm.com,bpf@vger.kernel.org,ast@kernel.org,andrii@kernel.org,daniel@iogearbox.net,martin.lau@kernel.org,eddyz87@gmail.com,yonghong.song@linux.dev,clm@meta.com,ihor.solodrai@linux.dev
-Date: Tue, 11 Nov 2025 07:53:18 +0000 (UTC)
+References: <20251110170958.23627-2-stephen.smalley.work@gmail.com>
+In-Reply-To: <20251110170958.23627-2-stephen.smalley.work@gmail.com>
+From: Ondrej Mosnacek <omosnace@redhat.com>
+Date: Tue, 11 Nov 2025 10:08:17 +0100
+X-Gm-Features: AWmQ_bmKDwUv3QqnSZ-Le32uWlE4Y4ZEiebAxAhTNWBmNWtVCaRXRZ9xUecPn6g
+Message-ID: <CAFqZXNugEsk-4we8O2Qur3pviyzMoh6aQFmjD-XuuH+Cno1Hwg@mail.gmail.com>
+Subject: Re: [PATCH testsuite v2] policy: do not modify the
+ allow_domain_fd_use boolean
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, paul@paul-moore.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
---===============1170773288298516893==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-
-> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> index b39e919c2..f088776db 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-
-[ ... ]
-
-> @@ -1197,6 +1197,25 @@ static struct inode *sel_make_inode(struct super_block *sb, umode_t mode)
->  	return ret;
->  }
+On Mon, Nov 10, 2025 at 6:12=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> +static struct dentry *sel_attach(struct dentry *parent, const char *name,
-> +				 struct inode *inode)
-> +{
-> +	struct dentry *dentry = d_alloc_name(parent, name);
-> +	if (unlikely(!dentry)) {
-> +		iput(inode);
-> +		return ERR_PTR(-ENOMEM);
-> +	}
-> +	d_add(dentry, inode);
-> +	return dentry;
-> +}
-> +
-> +static int sel_attach_file(struct dentry *parent, const char *name,
-> +			   struct inode *inode)
-> +{
-> +	struct dentry *dentry = sel_attach(parent, name, inode);
-> +	return PTR_ERR_OR_ZERO(dentry);
-> +}
-
-[ ... ]
-
-> @@ -1887,31 +1887,23 @@ static struct dentry *sel_make_dir(struct dentry *dir, const char *name,
->  			unsigned long *ino)
->  {
-> -	struct dentry *dentry = d_alloc_name(dir, name);
->  	struct inode *inode;
+> Modifying the allow_domain_fd_use boolean value during testsuite
+> execution is increasingly triggering breakage on Fedora since its
+> policy defaults to 1/true, to the point that you can't ssh or even
+> console login to a VM while the testsuite is running or even afterward
+> if the testsuite encounters any failures. Instead of modifying this
+> boolean, just update the relevant test domains to use the _minimal
+> interface so they do not inherit this rule by default and add any
+> required allowed rules to them.
 >
-> -	if (!dentry)
-> -		return ERR_PTR(-ENOMEM);
-> -
->  	inode = sel_make_inode(dir->d_sb, S_IFDIR | S_IRUGO | S_IXUGO);
-> -	if (!inode) {
-> -		dput(dentry);
-> +	if (!inode)
->  		return ERR_PTR(-ENOMEM);
-> -	}
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+> v2 addresses a comment from Ondrej Mosnacek <omosnace@redhat.com>,
+> rewriting the sigkill rule to use testsuite_caller_domain and moving it
+> to a more appropriate location.
 >
->  	inode->i_op = &simple_dir_inode_operations;
->  	inode->i_fop = &simple_dir_operations;
->  	inode->i_ino = ++(*ino);
->  	/* directory inodes start off with i_nlink == 2 (for "." entry) */
->  	inc_nlink(inode);
-> -	d_add(dentry, inode);
->  	/* bump link count on parent directory, too */
->  	inc_nlink(d_inode(dir));
-> +
-> +	return sel_attach(dir, name, inode);
->  }
+>  policy/Makefile          | 6 ------
+>  policy/test_binder.te    | 3 ++-
+>  policy/test_fdreceive.te | 4 +++-
+>  policy/test_global.te    | 1 +
+>  policy/test_inherit.te   | 3 ++-
+>  5 files changed, 8 insertions(+), 9 deletions(-)
 
-Can this leak the parent directory's reference count? The parent inode's
-link count is incremented with inc_nlink(d_inode(dir)) before calling
-sel_attach(). When sel_attach()->d_alloc_name() fails and returns NULL,
-sel_attach() correctly cleans up the child inode with iput() and returns
-ERR_PTR(-ENOMEM). However, the parent directory's link count has already
-been incremented and is never decremented on this error path.
+Thanks, applied:
+https://github.com/SELinuxProject/selinux-testsuite/commit/f40c76cec56778fd=
+5651ad6de715d9941dbfd4b3
 
-In the original code, the parent link count increment happened after
-d_add() succeeded, ensuring it only occurred when the full operation
-completed successfully.
+--=20
+Ondrej Mosnacek
+Senior Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
 
-
----
-AI reviewed your patch. Please fix the bug or email reply why it's not a bug.
-See: https://github.com/kernel-patches/vmtest/blob/master/ci/claude/README.md
-
-CI run summary: https://github.com/kernel-patches/bpf/actions/runs/19257803162
-
---===============1170773288298516893==--
