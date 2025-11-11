@@ -1,34 +1,34 @@
 Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [62.89.141.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7D973446C9;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3471344037;
 	Tue, 11 Nov 2025 06:55:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.89.141.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762844131; cv=none; b=Z1TPl/2ujCOajYlAWDDC1z4fgNo6iqkaJKt6+vcUgUO0QzIYKy3L14agOEnyEi3QctL1zPxw/Ps6IwNJAfZAk4fXNBHe3pSnmWgHFTJu/5gi2wXYyRf2i024tsqFk1AGQ5OSElQGfVrUHX7ZPrbEMOmEIGzmYqAc4U7wYG2yqbQ=
+	t=1762844131; cv=none; b=EWx0gVbhp4H7gle+pI5t92CEIq6U9IDK+3Oe5VZBRV0Kvbhrhw89FVXVjuC2mS7RXjTPMcoV1Ml6quCA0qqlldK6vr+bY2M5KpH4+TE281J5u5LldMwPz09IPtmdr84L747XF6fIxoVw+5Pq7JiKuWKL0bWxP3gTs2Odhp1w67Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1762844131; c=relaxed/simple;
-	bh=aQb2qy2J1pCZ1132PoicrKjRnzTEBFPwnGLeE5EsJfc=;
+	bh=X6JFnoVtKD57NvZa94J2H+MWO1OHhaAUlhfoIPR5JFk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=mzoh4o4RBqx172UmT6ni+8YMZxFSdPRMgP+vBcoFzO5+WzLfsW97OB7Y5HoHa0vAnLjrIkcTdpvATSLlrG8qEAIdvebhMqhuTARxV17IR2b1tR4OxgneGw5VXKUcZ0LDoqHfCu9ukiW07Kz2kXGdA5xYV80mRtvhsClC/lrEAco=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=KJyJxRMc; arc=none smtp.client-ip=62.89.141.173
+	 MIME-Version; b=FsMTLyTv2TmVqlLSCp4yfOXP2den+syeDZ726+Mhix9AxGdXKNRdOnzF5frC29ovvjVgcFhdSmJYcsI032jPh8nigrm1ZT9amXBH3Vm7CvEs+eoF35jN7IlGlqr946i1amFUrCst54M0551BF7VQMwqJbeJqQIabmXtR5JJ4bbY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=OsRGle84; arc=none smtp.client-ip=62.89.141.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ftp.linux.org.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="KJyJxRMc"
+	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="OsRGle84"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=linux.org.uk; s=zeniv-20220401; h=Sender:Content-Transfer-Encoding:
 	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:
 	Reply-To:Content-Type:Content-ID:Content-Description;
-	bh=JiG9nHcsxcwZpHb/L0Tx41DaV7imD29tLb/ai1sU578=; b=KJyJxRMc0dvbQcOITZBVA+WBk6
-	ifKPkydBj5RdVYpkYeX6lt/kJ7ld5xb0t53muvLxLstYnB5Kj+ibW1kF1JoNVPQmbi/Msmgp6IIua
-	rxkVOKwaX09nya1yIHsO/LXlke4OexR2bBkWG9LhOwtpTOY2ugBYceF0WF/wnns6qgtdqeY6EhATx
-	NaphnnRAzZNypERmbf3t7xl0oXOouhXWk5Ks9Gq+2D+L1HLZ20izPqJ7SWklcqVqWcK8WfltyTXu1
-	JWzC4NyfbA4dtQ5vb8jg0/lTWmXs+f02YOh/csRHhSEvARsXS9htgina50+ZEPcUaq8myz/AFR1Nu
-	i5DDMhaA==;
+	bh=bkByHERsS9JuCtqGS9wCvZ7R+EhcIoCC8ci4VG063fc=; b=OsRGle84xX6lCMsOqbmX88O9Vv
+	QCGMmghlcMX+6qLKlD9YKtDKt/l7fD3/fJuRQCcxCewWhB6+puUIARCAP4cdHhdwrk97PNTrKy26Q
+	8csjifXGqpFVsO9ko9DNm/2juQyXZvXFmkWFAeWU+31WAdIv7cfWan9d4z/6lgn5AjPSiVVRTdXaU
+	VhylboWKmDvf+1FPY/jegeXzt69CLtlo6J62v6F96sm5LguMFUuvDL6c0RASnXkK+tYJuZ/c+7FMb
+	jUPSTT+hCcfBeXvrWHIi3KnwppTrUqUdM5EsI3H7rnVi1AuKn23uRGHjcgBa/LO4606zdkJpk/K1m
+	OCyq9HEQ==;
 Received: from viro by zeniv.linux.org.uk with local (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vIiHj-0000000BwyK-2Gux;
-	Tue, 11 Nov 2025 06:55:23 +0000
+	id 1vIiHk-0000000Bwyi-0fof;
+	Tue, 11 Nov 2025 06:55:24 +0000
 From: Al Viro <viro@zeniv.linux.org.uk>
 To: linux-fsdevel@vger.kernel.org
 Cc: torvalds@linux-foundation.org,
@@ -52,9 +52,9 @@ Cc: torvalds@linux-foundation.org,
 	selinux@vger.kernel.org,
 	borntraeger@linux.ibm.com,
 	bpf@vger.kernel.org
-Subject: [PATCH v3 14/50] convert mqueue
-Date: Tue, 11 Nov 2025 06:54:43 +0000
-Message-ID: <20251111065520.2847791-15-viro@zeniv.linux.org.uk>
+Subject: [PATCH v3 19/50] convert tracefs
+Date: Tue, 11 Nov 2025 06:54:48 +0000
+Message-ID: <20251111065520.2847791-20-viro@zeniv.linux.org.uk>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20251111065520.2847791-1-viro@zeniv.linux.org.uk>
 References: <20251111065520.2847791-1-viro@zeniv.linux.org.uk>
@@ -67,56 +67,96 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: Al Viro <viro@ftp.linux.org.uk>
 
-All modifications via normal VFS codepaths; just take care of making
-persistent in in mqueue_create_attr() and discardable in mqueue_unlink()
-and it doesn't need kill_litter_super() at all.
+A mix of persistent and non-persistent dentries in there.  Strictly
+speaking, no need for kill_litter_super() anyway - it pins an internal
+mount whenever a persistent dentry is created, so at fs shutdown time
+there won't be any to deal with.
 
-mqueue_unlink() side is best handled by having it call simple_unlink()
-rather than duplicating its guts...
+However, let's make it explicit - replace d_instantiate() with
+d_make_persistent() + dput() (the latter in tracefs_end_creating(),
+where it folds with inode_unlock() into simple_done_creating())
+for dentries we want persistent and have d_make_discardable() done
+either by simple_recursive_removal() (used by tracefs_remove())
+or explicitly in eventfs_remove_events_dir().
 
+Acked-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
- ipc/mqueue.c | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+ fs/tracefs/event_inode.c |  4 ++--
+ fs/tracefs/inode.c       | 13 ++++++-------
+ 2 files changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/ipc/mqueue.c b/ipc/mqueue.c
-index 093551fe66a7..5737130137bf 100644
---- a/ipc/mqueue.c
-+++ b/ipc/mqueue.c
-@@ -599,8 +599,7 @@ static int mqueue_create_attr(struct dentry *dentry, umode_t mode, void *arg)
- 	dir->i_size += DIRENT_SIZE;
- 	simple_inode_init_ts(dir);
- 
+diff --git a/fs/tracefs/event_inode.c b/fs/tracefs/event_inode.c
+index 93c231601c8e..61cbdafa2411 100644
+--- a/fs/tracefs/event_inode.c
++++ b/fs/tracefs/event_inode.c
+@@ -823,7 +823,7 @@ struct eventfs_inode *eventfs_create_events_dir(const char *name, struct dentry
+ 	 * something not worth much. Keeping directory links at 1
+ 	 * tells userspace not to trust the link number.
+ 	 */
 -	d_instantiate(dentry, inode);
--	dget(dentry);
 +	d_make_persistent(dentry, inode);
- 	return 0;
- out_unlock:
- 	spin_unlock(&mq_lock);
-@@ -617,13 +616,8 @@ static int mqueue_create(struct mnt_idmap *idmap, struct inode *dir,
- 
- static int mqueue_unlink(struct inode *dir, struct dentry *dentry)
- {
--	struct inode *inode = d_inode(dentry);
--
--	simple_inode_init_ts(dir);
- 	dir->i_size -= DIRENT_SIZE;
--	drop_nlink(inode);
+ 	/* The dentry of the "events" parent does keep track though */
+ 	inc_nlink(dentry->d_parent->d_inode);
+ 	fsnotify_mkdir(dentry->d_parent->d_inode, dentry);
+@@ -910,5 +910,5 @@ void eventfs_remove_events_dir(struct eventfs_inode *ei)
+ 	 * and destroyed dynamically.
+ 	 */
+ 	d_invalidate(dentry);
 -	dput(dentry);
--	return 0;
-+	return simple_unlink(dir, dentry);
++	d_make_discardable(dentry);
+ }
+diff --git a/fs/tracefs/inode.c b/fs/tracefs/inode.c
+index 0c023941a316..d9d8932a7b9c 100644
+--- a/fs/tracefs/inode.c
++++ b/fs/tracefs/inode.c
+@@ -538,7 +538,7 @@ static struct file_system_type trace_fs_type = {
+ 	.name =		"tracefs",
+ 	.init_fs_context = tracefs_init_fs_context,
+ 	.parameters	= tracefs_param_specs,
+-	.kill_sb =	kill_litter_super,
++	.kill_sb =	kill_anon_super,
+ };
+ MODULE_ALIAS_FS("tracefs");
+ 
+@@ -571,16 +571,15 @@ struct dentry *tracefs_start_creating(const char *name, struct dentry *parent)
+ 
+ struct dentry *tracefs_failed_creating(struct dentry *dentry)
+ {
+-	inode_unlock(d_inode(dentry->d_parent));
+-	dput(dentry);
++	simple_done_creating(dentry);
+ 	simple_release_fs(&tracefs_mount, &tracefs_mount_count);
+ 	return NULL;
  }
  
- /*
-@@ -1638,7 +1632,7 @@ static const struct fs_context_operations mqueue_fs_context_ops = {
- static struct file_system_type mqueue_fs_type = {
- 	.name			= "mqueue",
- 	.init_fs_context	= mqueue_init_fs_context,
--	.kill_sb		= kill_litter_super,
-+	.kill_sb		= kill_anon_super,
- 	.fs_flags		= FS_USERNS_MOUNT,
- };
+ struct dentry *tracefs_end_creating(struct dentry *dentry)
+ {
+-	inode_unlock(d_inode(dentry->d_parent));
+-	return dentry;
++	simple_done_creating(dentry);
++	return dentry;	// borrowed
+ }
  
+ /* Find the inode that this will use for default */
+@@ -661,7 +660,7 @@ struct dentry *tracefs_create_file(const char *name, umode_t mode,
+ 	inode->i_private = data;
+ 	inode->i_uid = d_inode(dentry->d_parent)->i_uid;
+ 	inode->i_gid = d_inode(dentry->d_parent)->i_gid;
+-	d_instantiate(dentry, inode);
++	d_make_persistent(dentry, inode);
+ 	fsnotify_create(d_inode(dentry->d_parent), dentry);
+ 	return tracefs_end_creating(dentry);
+ }
+@@ -692,7 +691,7 @@ static struct dentry *__create_dir(const char *name, struct dentry *parent,
+ 
+ 	/* directory inodes start off with i_nlink == 2 (for "." entry) */
+ 	inc_nlink(inode);
+-	d_instantiate(dentry, inode);
++	d_make_persistent(dentry, inode);
+ 	inc_nlink(d_inode(dentry->d_parent));
+ 	fsnotify_mkdir(d_inode(dentry->d_parent), dentry);
+ 	return tracefs_end_creating(dentry);
 -- 
 2.47.3
 
