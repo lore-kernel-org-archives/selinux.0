@@ -1,34 +1,34 @@
 Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [62.89.141.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90C6D34C83D;
-	Tue, 11 Nov 2025 06:55:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 618A234B1B7;
+	Tue, 11 Nov 2025 06:55:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.89.141.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762844135; cv=none; b=I9PADvpt9MKtSPWx+R97S+ltAFGJbOik5cYIwMdIHc0NezBKvA1C/XFg07M9AS93GjtQ2hBeDferIELxes+7cMT55H4ZNmFp0EfxI6/Mr1HxFX7xcRhuiUS6g9tnySJqe91u1iOaHTRipfbegtVPXdRBlnfHnt+2g99EaBDVikY=
+	t=1762844135; cv=none; b=iP/pMBS6ZOWlQDnxVQiLeyEzMdMBXo1/iTI8jlHMKg56mmQs1PI/UhRGta4Ce5SPMg7WI6fE0zKSmazi9Aa6j6ANG60wH7b2dF6gRsas4V/JGw9AiJDgyzPbwK1MRfYTeMy8lM8loh4TlU+Lmbr+OupkWAfb6keiWgiW762NS5g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1762844135; c=relaxed/simple;
-	bh=WwFHCuQtytil9cvgc+ldg87rrIX/Mu55UMJ+9wTv5BQ=;
+	bh=McNIUAqXu4qUUnpy/u9z9Zap5mXt5Gi3Tmjpjgu3QB8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=CD1jzGN9Y1oh+tqeB0OkjMCybMeG9QjxEGdigIEtnRNEvbLv+uvlDe0Z4Dwnuq1Kjsit21BfYYM4cjU5E1YEkbm1FSmzt3DjZWMed/tEuIuglFByCCiXbFT46hNs4I600qoW/1wKVGeMgZepujfgovgIV+a+jS9zr0l1zLe74t4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=JGLwt4bF; arc=none smtp.client-ip=62.89.141.173
+	 MIME-Version; b=NDjI4eP2rWk73EiopAyto0RZHdrl8h0Y/ARp5HJI65C8mn4wUSv7qEyN5CSs8nWKO3pX15DOa3OsJWvhKb8DJMfszEfEbxr12Pp7V3IdeCMSCnY9sL4wxsGmvVdokHeK/08guGjfRIjhDprn50VY+VgJDe/Cm2GzS3UErg8SFHs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=wtKH4oxQ; arc=none smtp.client-ip=62.89.141.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ftp.linux.org.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="JGLwt4bF"
+	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="wtKH4oxQ"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=linux.org.uk; s=zeniv-20220401; h=Sender:Content-Transfer-Encoding:
 	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:
 	Reply-To:Content-Type:Content-ID:Content-Description;
-	bh=NN/33ifYl1WumRWtJ01j5wECnyYUZIw+8lYgHF3pdkY=; b=JGLwt4bFKt+weKOGEAuRY1BkUH
-	jksDpCk4IvkmGCryA1CxedqSvu5B/BXGdNI+IcDKJ1r5rfWS7ErXAhGX7Xy1lFVsR6CGDPeZnJ7aj
-	fjjrD0fAmbmuUruhPrlaA4Z4zen9Wd9GNwhJ/h8iDP8LGA6/f7zAzcKx9zM88wQ4CoRvHbQZcjzeH
-	4+PJKk1uZXrwvPREkXYtY1eMcCUsOaLhg/A76+4nBnjgM1P/PHvtfm2uzHpD4UjilTjncT9UuqJME
-	+gN4ieWneLEyDsQxGtkOS73PsH08RsYC976nln8RWc6oujYZOuPeXIvbre7uIuvb4MXmKirSZBcQ4
-	EyY9JreA==;
+	bh=AxXF+ZX7o2qevQIhaj7GgHO9nhvHZfJFLXJ69dxgaxo=; b=wtKH4oxQY/2cA79HkCgcoKJBMF
+	YOrX8xLQGNijM4ZeIrn5wgh8EBLeXIRaCgznbJWJLF4sMCXG88No2yz/1N4QDf4Ybv2gyxTP0MuEY
+	HkPV42ETmPsvVN2SBm+bxIDlulzSLOfEmEy6wdi0zvIgWAJwDEbSoixVhKxYYLF4BnOcAsljsLcW7
+	3Bt6WXPUByXgorENsvHsomVIe3iq9nlXOBMLEUsu5/duQEnIXHaL+5Itk/JH6XH6Q/JfUB6ZlnzVj
+	7OaCgWawr8yfCA28JGyWJ2pL3w9/EGC2wTPtLqttDRbvBiPwZB5KGEGoXvL1Z/3IFEh1JEsOTDgsR
+	JeBZReMA==;
 Received: from viro by zeniv.linux.org.uk with local (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vIiHr-0000000BxHh-3DCA;
-	Tue, 11 Nov 2025 06:55:31 +0000
+	id 1vIiHo-0000000Bx8x-3l9j;
+	Tue, 11 Nov 2025 06:55:29 +0000
 From: Al Viro <viro@zeniv.linux.org.uk>
 To: linux-fsdevel@vger.kernel.org
 Cc: torvalds@linux-foundation.org,
@@ -52,9 +52,9 @@ Cc: torvalds@linux-foundation.org,
 	selinux@vger.kernel.org,
 	borntraeger@linux.ibm.com,
 	bpf@vger.kernel.org
-Subject: [PATCH v3 45/50] convert nfsctl
-Date: Tue, 11 Nov 2025 06:55:14 +0000
-Message-ID: <20251111065520.2847791-46-viro@zeniv.linux.org.uk>
+Subject: [PATCH v3 40/50] hypfs: don't pin dentries twice
+Date: Tue, 11 Nov 2025 06:55:09 +0000
+Message-ID: <20251111065520.2847791-41-viro@zeniv.linux.org.uk>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20251111065520.2847791-1-viro@zeniv.linux.org.uk>
 References: <20251111065520.2847791-1-viro@zeniv.linux.org.uk>
@@ -67,92 +67,108 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: Al Viro <viro@ftp.linux.org.uk>
 
-One instance per net-ns.  There's a fixed subset (several files in root,
-an optional symlink in root + initially empty /clients/) + per-client
-subdirectory in /clients/.  Clients can appear only after the filesystem
-is there and they are all gone before it gets through ->kill_sb().
-
-Fixed subset created in fill_super(), regular files by simple_fill_super(),
-then a subdirectory and a symlink - manually.  It is removed by
-kill_litter_super().
-
-Per-client subdirectories are created by nfsd_client_mkdir() (populated
-with client-supplied list of files in them).  Removed by nfsd_client_rmdir(),
-which is simple_recursive_removal().
-
-All dentries except for the ones from simple_fill_super() come from
-	* nfsd_mkdir() (subdirectory, dentry from simple_start_creating()).
-	  Called from fill_super() (creates initially empty /clients)
-	  and from nfsd_client_mkdir (creates a per-client subdirectory
-	  in /clients).
-	* _nfsd_symlink() (symlink, dentry from simple_start_creating()), called
-	  from fill_super().
-	* nfsdfs_create_files() (regulars, dentry from simple_start_creating()),
-	  called only from nfsd_client_mkdir().
-
-Turn d_instatiate() + inode_unlock() into d_make_persistent() + simple_done_creating()
-in nfsd_mkdir(), _nfsd_symlink() and nfsdfs_create_files() and we are done.
+hypfs dentries end up with refcount 2 when they are not busy.
+Refcount 1 is enough to keep them pinned, and going that way
+allows to simplify things nicely:
+	* don't need to drop an extra reference before the
+call of kill_litter_super() in ->kill_sb(); all we need
+there is to reset the cleanup list - everything on it will
+be taken out automatically.
+	* we can make use of simple_recursive_removal() on
+tree rebuilds; just make sure that only children of root
+end up in the cleanup list and hypfs_delete_tree() becomes
+much simpler
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
- fs/nfsd/nfsctl.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ arch/s390/hypfs/inode.c | 41 ++++++++++-------------------------------
+ 1 file changed, 10 insertions(+), 31 deletions(-)
 
-diff --git a/fs/nfsd/nfsctl.c b/fs/nfsd/nfsctl.c
-index 2b79129703d5..5ce9a49e76ba 100644
---- a/fs/nfsd/nfsctl.c
-+++ b/fs/nfsd/nfsctl.c
-@@ -1137,11 +1137,11 @@ static struct dentry *nfsd_mkdir(struct dentry *parent, struct nfsdfs_client *nc
- 		inode->i_private = ncl;
- 		kref_get(&ncl->cl_ref);
+diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
+index 96409573c75d..a4dc8e13d999 100644
+--- a/arch/s390/hypfs/inode.c
++++ b/arch/s390/hypfs/inode.c
+@@ -61,33 +61,17 @@ static void hypfs_update_update(struct super_block *sb)
+ 
+ static void hypfs_add_dentry(struct dentry *dentry)
+ {
+-	dentry->d_fsdata = hypfs_last_dentry;
+-	hypfs_last_dentry = dentry;
+-}
+-
+-static void hypfs_remove(struct dentry *dentry)
+-{
+-	struct dentry *parent;
+-
+-	parent = dentry->d_parent;
+-	inode_lock(d_inode(parent));
+-	if (simple_positive(dentry)) {
+-		if (d_is_dir(dentry))
+-			simple_rmdir(d_inode(parent), dentry);
+-		else
+-			simple_unlink(d_inode(parent), dentry);
++	if (IS_ROOT(dentry->d_parent)) {
++		dentry->d_fsdata = hypfs_last_dentry;
++		hypfs_last_dentry = dentry;
  	}
--	d_instantiate(dentry, inode);
-+	d_make_persistent(dentry, inode);
- 	inc_nlink(dir);
- 	fsnotify_mkdir(dir, dentry);
--	inode_unlock(dir);
--	return dentry;
-+	simple_done_creating(dentry);
-+	return dentry;	// borrowed
+-	d_drop(dentry);
+-	dput(dentry);
+-	inode_unlock(d_inode(parent));
  }
  
- #if IS_ENABLED(CONFIG_SUNRPC_GSS)
-@@ -1170,9 +1170,9 @@ static void _nfsd_symlink(struct dentry *parent, const char *name,
- 	inode->i_link = (char *)content;
- 	inode->i_size = strlen(content);
- 
--	d_instantiate(dentry, inode);
-+	d_make_persistent(dentry, inode);
- 	fsnotify_create(dir, dentry);
--	inode_unlock(dir);
-+	simple_done_creating(dentry);
- }
- #else
- static inline void _nfsd_symlink(struct dentry *parent, const char *name,
-@@ -1228,11 +1228,11 @@ static int nfsdfs_create_files(struct dentry *root,
- 		kref_get(&ncl->cl_ref);
- 		inode->i_fop = files->ops;
- 		inode->i_private = ncl;
--		d_instantiate(dentry, inode);
-+		d_make_persistent(dentry, inode);
- 		fsnotify_create(dir, dentry);
- 		if (fdentries)
--			fdentries[i] = dentry;
--		inode_unlock(dir);
-+			fdentries[i] = dentry; // borrowed
-+		simple_done_creating(dentry);
+-static void hypfs_delete_tree(struct dentry *root)
++static void hypfs_delete_tree(void)
+ {
+ 	while (hypfs_last_dentry) {
+-		struct dentry *next_dentry;
+-		next_dentry = hypfs_last_dentry->d_fsdata;
+-		hypfs_remove(hypfs_last_dentry);
++		struct dentry *next_dentry = hypfs_last_dentry->d_fsdata;
++		simple_recursive_removal(hypfs_last_dentry, NULL);
+ 		hypfs_last_dentry = next_dentry;
  	}
- 	return 0;
  }
-@@ -1346,7 +1346,7 @@ static void nfsd_umount(struct super_block *sb)
+@@ -184,14 +168,14 @@ static ssize_t hypfs_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ 		rc = -EBUSY;
+ 		goto out;
+ 	}
+-	hypfs_delete_tree(sb->s_root);
++	hypfs_delete_tree();
+ 	if (machine_is_vm())
+ 		rc = hypfs_vm_create_files(sb->s_root);
+ 	else
+ 		rc = hypfs_diag_create_files(sb->s_root);
+ 	if (rc) {
+ 		pr_err("Updating the hypfs tree failed\n");
+-		hypfs_delete_tree(sb->s_root);
++		hypfs_delete_tree();
+ 		goto out;
+ 	}
+ 	hypfs_update_update(sb);
+@@ -326,13 +310,9 @@ static void hypfs_kill_super(struct super_block *sb)
+ {
+ 	struct hypfs_sb_info *sb_info = sb->s_fs_info;
  
- 	nfsd_shutdown_threads(net);
- 
--	kill_litter_super(sb);
-+	kill_anon_super(sb);
- 	put_net(net);
+-	if (sb->s_root)
+-		hypfs_delete_tree(sb->s_root);
+-	if (sb_info && sb_info->update_file)
+-		hypfs_remove(sb_info->update_file);
+-	kfree(sb->s_fs_info);
+-	sb->s_fs_info = NULL;
++	hypfs_last_dentry = NULL;
+ 	kill_litter_super(sb);
++	kfree(sb_info);
  }
  
+ static struct dentry *hypfs_create_file(struct dentry *parent, const char *name,
+@@ -367,7 +347,6 @@ static struct dentry *hypfs_create_file(struct dentry *parent, const char *name,
+ 		BUG();
+ 	inode->i_private = data;
+ 	d_instantiate(dentry, inode);
+-	dget(dentry);
+ fail:
+ 	inode_unlock(d_inode(parent));
+ 	return dentry;
 -- 
 2.47.3
 
