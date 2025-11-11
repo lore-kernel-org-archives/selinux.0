@@ -1,33 +1,33 @@
 Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [62.89.141.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2759D348867;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BCE834AAF9;
 	Tue, 11 Nov 2025 06:55:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.89.141.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762844134; cv=none; b=mwn5iD4EbNw/mi1uBvzakbQvHUQMMpj4sQYCo7X2gKqBcXMbvgd45kVgKj6tPwS+V19Haed1YkY3Qeipf9uD0CrjLx1TBZ+Qjpx7pWS6HirgTjdBQ72ZLwgs/yGZYbMlXBO88/n6/t6wKv6hf4OjYKlkps6l7qZM0YI3z+CCepE=
+	t=1762844134; cv=none; b=s0p4ZjB4h5ByFnsxswVYvkajk/CQWXhSGMzVZjYG4BititMdbFP8owTxMXO/LN5kVDvZA3hWGeS2tpo4eX/iZeKxaXtuFP+w9EF8GY5Vg7GGjhrkiG6Q80WmDNjT+cyuRvcEELQTcdP3SlAvcveQ7QYbVjN4bdu8zYeT4UtvMSQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1762844134; c=relaxed/simple;
-	bh=JNS4GZ7CCFPFECzgiJ71+maFY7CIDmqN0fMb5CQ92e8=;
+	bh=byBMgHbR87T18XBWxBXLSo3SukdEydOq3tHxIUqMMIY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=NIwoa7nVce1wF9fosEuT4AfiIJkjdzg1v9LVqKX4oVe9yOSZUfKwqzn8yDeHNfugZA1OJrDPKR8r4ojceoPb3NBJUuTb5+kYnYkvHuDHPUPIIeSuDxOpGqncYMdlCPgAbS3ga+OYEN0MyT+2jf3j30CiOxq117VJcBuxq5+b5jM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=XIQ+y+Vl; arc=none smtp.client-ip=62.89.141.173
+	 MIME-Version; b=g8Ko8onuzgIdc2rk/XiTMah968cfZ0JoklC0LbN49CQT86n+tAJBNLUTH/KkIMnewZNJtbNsZEbO9Eq4hTZ9equqLRSfn/R7rNCYjhobGSeAmiXaTOCYhah/RHe/1Yx0XEZA5HXC7jwQ0lJZcNLnrQ3tbhJ/zOpcDLZvzzEqSJc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=oQsjlNA0; arc=none smtp.client-ip=62.89.141.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ftp.linux.org.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="XIQ+y+Vl"
+	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="oQsjlNA0"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=linux.org.uk; s=zeniv-20220401; h=Sender:Content-Transfer-Encoding:
-	Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:
-	To:From:Reply-To:Content-ID:Content-Description;
-	bh=N+tXunEOs6X459keGHQ5swXgQ1VhlYiy4rVqOJxhLx8=; b=XIQ+y+VlFDH+1yuCJgvoROjDye
-	zPueB2Z9hy0fbTNFgwsJjwwNUqLSFZXY+uzh/rvreoEu3pkRb38Jj7WMS/xAUSH/r5lBM1Ra/Z9Cj
-	H3RzfsUCTskyAGw/Tufvoa/hESm+kdI/n4tbYqd4a+avsp9p3jpsa/4jOB+z91B+sOPf1F6xQx/MY
-	eJ8Kp4OjBdKXt8krqSxOZ+Wo0ZokSKMjr7uvMGTYw9awSO0hnlIvfHeOU6AvBEfNeTU+iFcz7czvc
-	KdwIP1k/9CIvkLpZhbqncS5dAaBf+h+h5fzsXzPtIDidV/XIh7NDxq5fZ2lS3Cxn+IeObHNr48f/O
-	212tHJww==;
+	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:
+	Reply-To:Content-Type:Content-ID:Content-Description;
+	bh=h9ER29fbTJgjBa1gGf0LtXabL8srR/KWhHIa5FKJzwk=; b=oQsjlNA09lydyaG8FeEwSV0XoJ
+	PUWsxqhIyS8v4nFPrdoo96yfcVKpmdff1gejn53PbFOVMACcn6fe7mJoXdScunb2j9pVWcq9ijz79
+	vvmfnDQnEQ7JKbik2NCvovbfTo69xQuIggh4zPsb1p/Upe/eH4hziX654BCvSmnlJ/k3FfMOIwbJF
+	o8q0WnptvwFpYe5ZM/6npRERUN8GH0zJzilKT37w5RGhgnp5RPBoFufvwG8Sk8nQx5BbD+To6YWvp
+	cDz9q86r/3rOH5cGFEWaBhEpqEMRUOkTxYFsXrqQIxijoK5+8o3fyMu4FW57NIVo0iyE3kHiX/kFO
+	mTLjKEdQ==;
 Received: from viro by zeniv.linux.org.uk with local (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vIiHn-0000000Bx5D-3qL0;
+	id 1vIiHo-0000000Bx7I-1Uv3;
 	Tue, 11 Nov 2025 06:55:28 +0000
 From: Al Viro <viro@zeniv.linux.org.uk>
 To: linux-fsdevel@vger.kernel.org
@@ -52,9 +52,9 @@ Cc: torvalds@linux-foundation.org,
 	selinux@vger.kernel.org,
 	borntraeger@linux.ibm.com,
 	bpf@vger.kernel.org
-Subject: [PATCH v3 36/50] functionfs: switch to simple_remove_by_name()
-Date: Tue, 11 Nov 2025 06:55:05 +0000
-Message-ID: <20251111065520.2847791-37-viro@zeniv.linux.org.uk>
+Subject: [PATCH v3 38/50] gadgetfs: switch to simple_remove_by_name()
+Date: Tue, 11 Nov 2025 06:55:07 +0000
+Message-ID: <20251111065520.2847791-39-viro@zeniv.linux.org.uk>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20251111065520.2847791-1-viro@zeniv.linux.org.uk>
 References: <20251111065520.2847791-1-viro@zeniv.linux.org.uk>
@@ -64,129 +64,138 @@ List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: Al Viro <viro@ftp.linux.org.uk>
 
-No need to return dentry from ffs_sb_create_file() or keep it around
+No need to return dentry from gadgetfs_create_file() or keep it around
 afterwards.
 
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
- drivers/usb/gadget/function/f_fs.c | 39 ++++++++++++------------------
- 1 file changed, 15 insertions(+), 24 deletions(-)
+ drivers/usb/gadget/legacy/inode.c | 32 +++++++++++++------------------
+ 1 file changed, 13 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-index 47cfbe41fdff..43dcd39b76c5 100644
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -160,8 +160,6 @@ struct ffs_epfile {
- 	struct ffs_data			*ffs;
- 	struct ffs_ep			*ep;	/* P: ffs->eps_lock */
- 
+diff --git a/drivers/usb/gadget/legacy/inode.c b/drivers/usb/gadget/legacy/inode.c
+index 13c3da49348c..bcc25f13483f 100644
+--- a/drivers/usb/gadget/legacy/inode.c
++++ b/drivers/usb/gadget/legacy/inode.c
+@@ -150,7 +150,6 @@ struct dev_data {
+ 	void				*buf;
+ 	wait_queue_head_t		wait;
+ 	struct super_block		*sb;
 -	struct dentry			*dentry;
+ 
+ 	/* except this scratch i/o buffer for ep0 */
+ 	u8				rbuf[RBUF_SIZE];
+@@ -208,7 +207,6 @@ struct ep_data {
+ 	struct usb_endpoint_descriptor	desc, hs_desc;
+ 	struct list_head		epfiles;
+ 	wait_queue_head_t		wait;
+-	struct dentry			*dentry;
+ };
+ 
+ static inline void get_ep (struct ep_data *data)
+@@ -1561,16 +1559,12 @@ static void destroy_ep_files (struct dev_data *dev)
+ 	spin_lock_irq (&dev->lock);
+ 	while (!list_empty(&dev->epfiles)) {
+ 		struct ep_data	*ep;
+-		struct dentry	*dentry;
+ 
+ 		/* break link to FS */
+ 		ep = list_first_entry (&dev->epfiles, struct ep_data, epfiles);
+ 		list_del_init (&ep->epfiles);
+ 		spin_unlock_irq (&dev->lock);
+ 
+-		dentry = ep->dentry;
+-		ep->dentry = NULL;
 -
- 	/*
- 	 * Buffer for holding data from partial reads which may happen since
- 	 * we’re rounding user read requests to a multiple of a max packet size.
-@@ -273,9 +271,8 @@ struct ffs_desc_helper {
- static int  __must_check ffs_epfiles_create(struct ffs_data *ffs);
- static void ffs_epfiles_destroy(struct ffs_epfile *epfiles, unsigned count);
+ 		/* break link to controller */
+ 		mutex_lock(&ep->lock);
+ 		if (ep->state == STATE_EP_ENABLED)
+@@ -1581,10 +1575,11 @@ static void destroy_ep_files (struct dev_data *dev)
+ 		mutex_unlock(&ep->lock);
  
--static struct dentry *
--ffs_sb_create_file(struct super_block *sb, const char *name, void *data,
--		   const struct file_operations *fops);
-+static int ffs_sb_create_file(struct super_block *sb, const char *name,
-+			      void *data, const struct file_operations *fops);
+ 		wake_up (&ep->wait);
+-		put_ep (ep);
  
- /* Devices management *******************************************************/
+ 		/* break link to dcache */
+-		simple_recursive_removal(dentry, NULL);
++		simple_remove_by_name(dev->sb->s_root, ep->name, NULL);
++
++		put_ep (ep);
  
-@@ -1866,9 +1863,8 @@ ffs_sb_make_inode(struct super_block *sb, void *data,
+ 		spin_lock_irq (&dev->lock);
+ 	}
+@@ -1592,14 +1587,14 @@ static void destroy_ep_files (struct dev_data *dev)
  }
  
- /* Create "regular" file */
--static struct dentry *ffs_sb_create_file(struct super_block *sb,
--					const char *name, void *data,
--					const struct file_operations *fops)
-+static int ffs_sb_create_file(struct super_block *sb, const char *name,
-+			      void *data, const struct file_operations *fops)
+ 
+-static struct dentry *
+-gadgetfs_create_file (struct super_block *sb, char const *name,
++static int gadgetfs_create_file (struct super_block *sb, char const *name,
+ 		void *data, const struct file_operations *fops);
+ 
+ static int activate_ep_files (struct dev_data *dev)
  {
- 	struct ffs_data	*ffs = sb->s_fs_info;
+ 	struct usb_ep	*ep;
+ 	struct ep_data	*data;
++	int err;
+ 
+ 	gadget_for_each_ep (ep, dev->gadget) {
+ 
+@@ -1622,9 +1617,9 @@ static int activate_ep_files (struct dev_data *dev)
+ 		if (!data->req)
+ 			goto enomem1;
+ 
+-		data->dentry = gadgetfs_create_file (dev->sb, data->name,
++		err = gadgetfs_create_file (dev->sb, data->name,
+ 				data, &ep_io_operations);
+-		if (!data->dentry)
++		if (err)
+ 			goto enomem2;
+ 		list_add_tail (&data->epfiles, &dev->epfiles);
+ 	}
+@@ -1988,8 +1983,7 @@ gadgetfs_make_inode (struct super_block *sb,
+ /* creates in fs root directory, so non-renamable and non-linkable.
+  * so inode and dentry are paired, until device reconfig.
+  */
+-static struct dentry *
+-gadgetfs_create_file (struct super_block *sb, char const *name,
++static int gadgetfs_create_file (struct super_block *sb, char const *name,
+ 		void *data, const struct file_operations *fops)
+ {
  	struct dentry	*dentry;
-@@ -1876,16 +1872,16 @@ static struct dentry *ffs_sb_create_file(struct super_block *sb,
+@@ -1997,16 +1991,16 @@ gadgetfs_create_file (struct super_block *sb, char const *name,
  
  	dentry = d_alloc_name(sb->s_root, name);
  	if (!dentry)
 -		return NULL;
 +		return -ENOMEM;
  
- 	inode = ffs_sb_make_inode(sb, data, fops, NULL, &ffs->file_perms);
+ 	inode = gadgetfs_make_inode (sb, data, fops,
+ 			S_IFREG | (default_perm & S_IRWXUGO));
  	if (!inode) {
  		dput(dentry);
 -		return NULL;
 +		return -ENOMEM;
  	}
- 
- 	d_add(dentry, inode);
+ 	d_add (dentry, inode);
 -	return dentry;
 +	return 0;
  }
  
- /* Super block */
-@@ -1928,10 +1924,7 @@ static int ffs_sb_fill(struct super_block *sb, struct fs_context *fc)
- 		return -ENOMEM;
+ static const struct super_operations gadget_fs_operations = {
+@@ -2059,8 +2053,8 @@ gadgetfs_fill_super (struct super_block *sb, struct fs_context *fc)
+ 		goto Enomem;
  
- 	/* EP0 file */
--	if (!ffs_sb_create_file(sb, "ep0", ffs, &ffs_ep0_operations))
--		return -ENOMEM;
--
--	return 0;
-+	return ffs_sb_create_file(sb, "ep0", ffs, &ffs_ep0_operations);
- }
- 
- enum {
-@@ -2323,6 +2316,7 @@ static int ffs_epfiles_create(struct ffs_data *ffs)
- {
- 	struct ffs_epfile *epfile, *epfiles;
- 	unsigned i, count;
-+	int err;
- 
- 	count = ffs->eps_count;
- 	epfiles = kcalloc(count, sizeof(*epfiles), GFP_KERNEL);
-@@ -2339,12 +2333,11 @@ static int ffs_epfiles_create(struct ffs_data *ffs)
- 			sprintf(epfile->name, "ep%02x", ffs->eps_addrmap[i]);
- 		else
- 			sprintf(epfile->name, "ep%u", i);
--		epfile->dentry = ffs_sb_create_file(ffs->sb, epfile->name,
--						 epfile,
--						 &ffs_epfile_operations);
--		if (!epfile->dentry) {
-+		err = ffs_sb_create_file(ffs->sb, epfile->name,
-+					 epfile, &ffs_epfile_operations);
-+		if (err) {
- 			ffs_epfiles_destroy(epfiles, i - 1);
--			return -ENOMEM;
-+			return err;
- 		}
+ 	dev->sb = sb;
+-	dev->dentry = gadgetfs_create_file(sb, CHIP, dev, &ep0_operations);
+-	if (!dev->dentry) {
++	rc = gadgetfs_create_file(sb, CHIP, dev, &ep0_operations);
++	if (rc) {
+ 		put_dev(dev);
+ 		goto Enomem;
  	}
- 
-@@ -2355,13 +2348,11 @@ static int ffs_epfiles_create(struct ffs_data *ffs)
- static void ffs_epfiles_destroy(struct ffs_epfile *epfiles, unsigned count)
- {
- 	struct ffs_epfile *epfile = epfiles;
-+	struct dentry *root = epfile->ffs->sb->s_root;
- 
- 	for (; count; --count, ++epfile) {
- 		BUG_ON(mutex_is_locked(&epfile->mutex));
--		if (epfile->dentry) {
--			simple_recursive_removal(epfile->dentry, NULL);
--			epfile->dentry = NULL;
--		}
-+		simple_remove_by_name(root, epfile->name, NULL);
- 	}
- 
- 	kfree(epfiles);
 -- 
 2.47.3
 
