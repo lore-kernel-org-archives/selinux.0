@@ -1,68 +1,68 @@
-Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
+Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com [209.85.160.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E494733B969
-	for <selinux@vger.kernel.org>; Tue, 11 Nov 2025 10:28:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B831434CFA0
+	for <selinux@vger.kernel.org>; Tue, 11 Nov 2025 10:30:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762856912; cv=none; b=JX3AsGg+saWdKh1TRU2XDBVeZoCSwKPfI7kTTbCqDVgK+Zs+VqmEacHWg04Suu4zs8E6m0Cg29qPzcmFEqNsFT8sUEscFNPJeJgyhbBbH4gJY+/P+UwfxnwdLqCYAJ0Qyjw7TlQ4guDyqGmUMRokdLF9S0SQ2YCXuAbYRcM3CW8=
+	t=1762857007; cv=none; b=M+jufKa/MOmDaqZJCQS9rtiZxQgIwqhHHi28kNcFZC+femW2WhqmZwDqQ9J8CKs0I1ZA+4BH3GCtwgU0dwgjNpKh+WHwyXJNMs4WLf4PbhVgTYD85/6nMkAK5KWCA+jtI8M0NsPXFkfDUEfr/YdOxLDnsDD0czXciqRF66KhtoY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762856912; c=relaxed/simple;
-	bh=AFJjiFOvGyHo0S6e8akF06HQkuXboJRcqUguRvorBaA=;
+	s=arc-20240116; t=1762857007; c=relaxed/simple;
+	bh=ErpvLu+msmOQH+DLoUzEraHYQEPe7HwAu5dxR8qbtAo=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pINr16RXsBaBCfv5/XIra/H2I585eFs25+AbnYtPzAtgUSiaPpk0jLH9jigk0Z6vrF/PFAU23IpYOLoQzKafPugK6Q/vW13fdudD2EJ0C9oyPOjSrHpTzbQRTsCdi2z5KKWqFw11wX6ZvCGELzlKtiWu9AtTJJXXtIPbPJbUJvI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu; spf=pass smtp.mailfrom=szeredi.hu; dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b=S677OMUs; arc=none smtp.client-ip=209.85.160.179
+	 To:Cc:Content-Type; b=DO1z4s15oDQWDYmM3n4uAHh7lSHCbYdpUj5pAUjZBome8fnzHLT11cZJpS6Ihz5R8aKcdPd9HVejk5t5YnVxYWlrVxRKzg3IQNiJSCkNBMsKMEIbiOK3Cbq4S2bxbSBaM1/51bD9QhOC8p1B3Nn5U1bx5eJ4JZjjHoe4x6vAZ60=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu; spf=pass smtp.mailfrom=szeredi.hu; dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b=q4HHA45X; arc=none smtp.client-ip=209.85.160.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=szeredi.hu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="S677OMUs"
-Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-4edb029249aso20330951cf.2
-        for <selinux@vger.kernel.org>; Tue, 11 Nov 2025 02:28:29 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="q4HHA45X"
+Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-4edb911661fso18901681cf.1
+        for <selinux@vger.kernel.org>; Tue, 11 Nov 2025 02:30:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=szeredi.hu; s=google; t=1762856909; x=1763461709; darn=vger.kernel.org;
+        d=szeredi.hu; s=google; t=1762857004; x=1763461804; darn=vger.kernel.org;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=h/p7mEepN8jUuWyprYCkVkbNxCuAN/nU2Y/T4HHlQA0=;
-        b=S677OMUsTqJF1qJWtI73xM3czE842pFDa4Z3u6wgcHg/XV9/ynva0/WZAQSUJTVye3
-         RAw/yyuEH0ysJcdYdNkFWVhuAC6gwvAe/aOJifEx4sjXEwAkhG5vctExTDyw9eYdZTpx
-         KoJTGHwJutDyzWwASbXuKTO+L6tY34jBFFhG0=
+        bh=ErpvLu+msmOQH+DLoUzEraHYQEPe7HwAu5dxR8qbtAo=;
+        b=q4HHA45Xx0xTDskll4DjSU6SWhWolRSlpTtA8cDnYPTI/9mbRIiB52rjVByj7Xz8ay
+         nFP0//QDDttEQdXDUPTQYuhtZxg4E9Z6etcMAQhjvLkWtzN7d8du6hlQT4fTRYhV57g2
+         fSGQ47hY+Biwn3/0+lGUjV8ol/iJevVJFrQy0=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762856909; x=1763461709;
+        d=1e100.net; s=20230601; t=1762857004; x=1763461804;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=h/p7mEepN8jUuWyprYCkVkbNxCuAN/nU2Y/T4HHlQA0=;
-        b=XTKMt0E202PdPRjqK1HIbKf0gsX0QFKy0E+MkCie9IHJUAebQ6loJufg3PeJFGgS+9
-         UaMUCxZIk5h+hdeb3QGrGLvMGa0tT20lHEvadJLfHLrb55C71XJKkXEcn58EX0x8Fu+f
-         D/Xe/VNsJzCAktQrDu19ePQ+c+EKNDl1V42tmszDW8rs0XgJNKdCcgMt7m+Co0KO44TJ
-         H8Wp0HX40+KYcF8O4VjXVEO7Be8rjjsX7aqJLJMajwt20qSmxgUEaJrGCiCmLYHLKfmE
-         h5Z3p8pPVhLR9Dc2PM1c5h8RorHIyk9xR4Gh5Ygxuy2O7bORVxm9PiMl6svBe4uDqGdu
-         2R/w==
-X-Forwarded-Encrypted: i=1; AJvYcCX2m3RUXpVK024i2yC1Mg8kERck/Cq2Xo1YvWifFe84v86mCn2j40OFDUFbIpZs5ghPM+aBRtpH@vger.kernel.org
-X-Gm-Message-State: AOJu0YxlHYJvPEzra7zJigeUtmObfwvx6o/Y8GBlt9wEKJz0Z5KtvCMa
-	RToPbZwJtlnwHTmU7pm6Yl7SBY7lMhtTfwgorZbF1Gb4HZiyaJrjwxraTxzBks501LCUb/fi5z+
-	PJkgx4zu2g5cxnebMdzP3WKeGiNFDqrEYzgNvoQKWkA==
-X-Gm-Gg: ASbGncuOviS5P4/xm3CGEJm85bpoMMLg0FXCJIiRq2atHEF0TEhdKym5j8WjPE+zvxN
-	1rABmqxnx7ow2XAd0iKMUiadz+QuzOEne/TQwza0cmOP+XKlVqhgXmbTqT/UWBWVeQxyMY5CWsB
-	DCysJL2JIP+HfswD8DusY8m3DPcCsdNJLC+chnuAxRt+eETrvqYFhJdbHTsuUIqnxKBZg5APa7D
-	Xyo89h3YITQju5T3bPnEUGgEQsztob9T335TZN/81xnUZuaTzGh56UKf5w=
-X-Google-Smtp-Source: AGHT+IF2jsXtOYznzAlKiswAAYjfBT86jbKpGaMbobTgICmObIV//j5aCRxdPYkP+19MfGrAnajQvcSXxRuiu1TbWoM=
-X-Received: by 2002:a05:622a:1898:b0:4ed:602d:dfb8 with SMTP id
- d75a77b69052e-4eda5043040mr135933731cf.82.1762856908949; Tue, 11 Nov 2025
- 02:28:28 -0800 (PST)
+        bh=ErpvLu+msmOQH+DLoUzEraHYQEPe7HwAu5dxR8qbtAo=;
+        b=l06K1sw/erQo88LnMxvpHafmT9wxSQEmN5UHTHSx4OpR0jwJuuCyq6ga1LQL09MrET
+         qFYtliZt7m665pqg+28Wl2d3JnjjqPSpHAh9J2AGhJKe3A71MBMIjMpq5yr2rsh0O8wr
+         MhnrHlK8MohP+0pO0l+WFAfn51zE1LBuYx3/v5YKfRw3jbpR075IuF5yjGFIvBXxR5ie
+         Xv+PUWhJ24VreHNBjnC5RCBYYf/6ssXcM4MVFnC8Ortcj4y+lsgRj3D33r0gPF0lGxd/
+         M86E66J7isUtVLGXu8z+aCADMfRkPaeiZz/dpGwmIcnqCTys39yb1uMDWuqiv0t/B/Iw
+         QTYQ==
+X-Forwarded-Encrypted: i=1; AJvYcCX+TaBv9QqNcNW+qmNYneHg0A+nPGhZ7lAkH7qd3SMezlxXHnAYMoOSLSIqDBG/ho4WtOTzkl98@vger.kernel.org
+X-Gm-Message-State: AOJu0YwY0Vyypa5rdS+mxipqOHtYqBW2njwzfscyj33c6juRIFtVkH8Q
+	BPH1aJ8Xi/R4z6bhLF57ka/bVImJjCiD41pegpzt22P/ICaj6k/WJF6DGxRWN20D/lIqs7EjNvU
+	4KU0YCUrSQWpco6HsmUZnPc7QMe5XKCjKE+BKNLXwUw==
+X-Gm-Gg: ASbGnctodmsnKss5eh/i1MZFR/hwNz5UdnI6wk8di1oxtGw9fhQ1CyCApqz3W3VhxfX
+	zaf1yrHfRCN1QSD8gwNgV5Ltc624w/OejLwcpefxuU6vdy7b3yOerh/dU9MTNCkDps4qLulPK8m
+	ghmnuSn4XJXb0pnwYt87X5Zh5yEnTrSPz1by066rxK9A3E667mJ4w5kz6J2bJuYyjjPaouVFCf/
+	jRFiaVOnHI1SHY9P17dyUErqPr9fo0/2txytV3lPGna64h1iX/+/zJkbgaoLN1LZrezJg==
+X-Google-Smtp-Source: AGHT+IG1vPc79jE1NxMTWUcAkMOFXJ1dO7xwNLHncVzXeQGMi6M4ZcaWG7wZ9Wn4xgn8RqaQcm4UKxcrnMz8XFw/71I=
+X-Received: by 2002:ac8:7d8b:0:b0:4ed:b378:145d with SMTP id
+ d75a77b69052e-4edb3781c5fmr87056701cf.45.1762857003684; Tue, 11 Nov 2025
+ 02:30:03 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251111065520.2847791-1-viro@zeniv.linux.org.uk> <20251111065520.2847791-18-viro@zeniv.linux.org.uk>
-In-Reply-To: <20251111065520.2847791-18-viro@zeniv.linux.org.uk>
+References: <20251111065520.2847791-1-viro@zeniv.linux.org.uk> <20251111065520.2847791-4-viro@zeniv.linux.org.uk>
+In-Reply-To: <20251111065520.2847791-4-viro@zeniv.linux.org.uk>
 From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 11 Nov 2025 11:28:17 +0100
-X-Gm-Features: AWmQ_bl7He3VQsld2UXN2E831Naa9ot3hmwpZMaWScQnQVWsufspzsog6zo2yMQ
-Message-ID: <CAJfpegv0jMq96xD8gSbMBydj=1wRixVGy+qd3feC2vSSn7v_rg@mail.gmail.com>
-Subject: Re: [PATCH v3 17/50] convert fuse_ctl
+Date: Tue, 11 Nov 2025 11:29:52 +0100
+X-Gm-Features: AWmQ_bnbS5BGnOdlDcNli2J3_mWe2QdNv2AalQvWZZg8jjhCbQzLKZqYiVdFPQQ
+Message-ID: <CAJfpegv5eZK=70GEdbofg8u-CKS7gL6Ur5PD86Ay4h3Z8D986A@mail.gmail.com>
+Subject: Re: [PATCH v3 03/50] new helper: simple_remove_by_name()
 To: Al Viro <viro@zeniv.linux.org.uk>
 Cc: linux-fsdevel@vger.kernel.org, torvalds@linux-foundation.org, 
 	brauner@kernel.org, jack@suse.cz, raven@themaw.net, neil@brown.name, 
@@ -76,16 +76,12 @@ Content-Type: text/plain; charset="UTF-8"
 
 On Tue, 11 Nov 2025 at 07:55, Al Viro <viro@zeniv.linux.org.uk> wrote:
 >
-> objects are created in fuse_ctl_add_dentry() by d_alloc_name()+d_add(),
-> removed by simple_remove_by_name().
+> simple_recursive_removal(), but instead of victim dentry it takes
+> parent + name.
 >
-> What we return is a borrowed reference - it is valid until the call of
-> fuse_ctl_remove_conn() and we depend upon the exclusion (on fuse_mutex)
-> for safety.  Return value is used only within the caller
-> (fuse_ctl_add_conn()).
->
-> Replace d_add() with d_make_persistent() + dput().  dput() is paired
-> with d_alloc_name() and return value is the result of d_make_persistent().
+> Used to be open-coded in fs/fuse/control.c, but there's no need to expose
+> the guts of that thing there and there are other potential users, so
+> let's lift it into libfs...
 >
 > Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
