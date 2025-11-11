@@ -1,34 +1,34 @@
 Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [62.89.141.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23655347FD8;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C549F346FA7;
 	Tue, 11 Nov 2025 06:55:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.89.141.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762844133; cv=none; b=MlvNJRnny1aZKx9RHdD7QtZETmDu2Ih3NyNQBTUVWnddqcChLmk8Fy56uPaZmQm+PWpR2wywvp2DNzK224eCY+0UIShAZN/LYpHpplkK1mcjZnjoc4p8zZJ+GoM5E+krI4IPFnTr2soBQuKO4DgXQ5Zu4014MA/zLJ/0fLbie4Y=
+	t=1762844133; cv=none; b=Fzb3F6+lDfj/20G8OlLce4PXI1TwNXuMu0wpXkonXN/bYmZCqjibKBMITzmuYMC0YEb8gkaZs6xtKa/frsmpBbQjrU11DQZOaqBqAbge5JPzl2E3FQcqmii/Ym9W77jW/r5mKYAPVqVcHii1gjgRGn4pBOb8cinctrTCbYHKyKU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1762844133; c=relaxed/simple;
-	bh=g0DzPIcsJ7FGStG4d77ktIfa76GpIX47vIyEYt5ulTE=;
+	bh=Zkw5PIqzgZo1iaAu+8HqtP/RCpmxhagt1hjrnfFaxjo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=R2SG0uM59ksPfycyT/9pG2MlBqY4or6w56ayWMfFkg9Z1xVVQh76OIG6U3L+d/IgSWGvkv2dAHdazz+8zwq19LSBMh6jaEBKEtWwp1eYYqcZ7VKa7Fi+9p8QFmyH7WSjH17C0gesQY5VJHKmbczz6ugYzrsl5DpXL089gh+REs8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=tc0/LaWO; arc=none smtp.client-ip=62.89.141.173
+	 MIME-Version; b=r9Mh6ugjDirhPJR5jWqeLxuGinals6vb0i7hYiLl6syz8Ds9l4nxB4hyfKYkj7cJVtJCvvG3Zf1/GvATqgOF3NB/6l4QQXGq8ulnFKhibSN/VmXEQD6fEuSerCMi4lM9+zSD64HOvNurmA91rPifKLK8ypQ3eFWaQvVchopaoDs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=TqkcMEiv; arc=none smtp.client-ip=62.89.141.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ftp.linux.org.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="tc0/LaWO"
+	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="TqkcMEiv"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=linux.org.uk; s=zeniv-20220401; h=Sender:Content-Transfer-Encoding:
 	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:
 	Reply-To:Content-Type:Content-ID:Content-Description;
-	bh=0EOMkT/UFsYLOkQCFILn7xjwHlMa0Zq2h7YoVPTnFkU=; b=tc0/LaWOOgbMQ111+igu49CS2g
-	phQ+Ub498iuMr20TnISzkpSlI5Rh9m3XDKIHm7ttVNJWMNodhJrqScO1UChifsgTI0vp9a+TC0zQ6
-	wgIoJMLc1ZxBeW43ROXp06EFElt8QvwpbW5Lm+4FTnxcW0IJWyS8W4g9QDdJpt4Ef4wpnI+3bZwTD
-	/FrUz0/B80hWcmSL60mE+RJDBRevzP6gYz6fARP+/akZPB5L0nOP9JBP0eptP6MQFkY9iVmWnn0uy
-	48PTVG93EJ3fivCiWdovYzsAT+/N8eSgVEHVRP0vkxJajSkYrBjMF90xFvWKrIH4uI8kq34s1Uk3/
-	2di164SQ==;
+	bh=NeGicC5Z67ZOycdylyHVP58sPv/wzz9kpKbtM8vrBao=; b=TqkcMEivZIXJYaF6ZOIHxmt9Vk
+	ohKhWrAsLkuIVUzpRtv9GAOLw4PKTjGu0cDrLfq1aZdI1jpzLIeVbQJUtimjnqiyE4l28biMeXbU0
+	SIQ9Rb3j150+dScnH4j4C3q+qtBcOCjEBfpcd3R4Jx8kW1fQP3eCjEpoPGCq/C7xzApDvTnyKJR98
+	PXZAThOhk5zfcqKAsI5C3RZlC5f1Axfu8UDfOLsCHtAoj7mqx27DDYDiOSKPtcPe+a8s9ij06CBms
+	M0WHQ4bUWJL0ApP+7L+eWUGoTAFk9bqmcTwUs5BYke3+24aoCR67UP1bIbQcrW5ESQ9Z9sGcWideo
+	fsqkHMSQ==;
 Received: from viro by zeniv.linux.org.uk with local (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vIiHm-0000000Bx00-0jJ1;
-	Tue, 11 Nov 2025 06:55:26 +0000
+	id 1vIiHj-0000000BwyO-2vqR;
+	Tue, 11 Nov 2025 06:55:23 +0000
 From: Al Viro <viro@zeniv.linux.org.uk>
 To: linux-fsdevel@vger.kernel.org
 Cc: torvalds@linux-foundation.org,
@@ -52,9 +52,9 @@ Cc: torvalds@linux-foundation.org,
 	selinux@vger.kernel.org,
 	borntraeger@linux.ibm.com,
 	bpf@vger.kernel.org
-Subject: [PATCH v3 30/50] autofs_{rmdir,unlink}: dentry->d_fsdata->dentry == dentry there
-Date: Tue, 11 Nov 2025 06:54:59 +0000
-Message-ID: <20251111065520.2847791-31-viro@zeniv.linux.org.uk>
+Subject: [PATCH v3 15/50] convert bpf
+Date: Tue, 11 Nov 2025 06:54:44 +0000
+Message-ID: <20251111065520.2847791-16-viro@zeniv.linux.org.uk>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20251111065520.2847791-1-viro@zeniv.linux.org.uk>
 References: <20251111065520.2847791-1-viro@zeniv.linux.org.uk>
@@ -67,37 +67,65 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: Al Viro <viro@ftp.linux.org.uk>
 
+object creation goes through the normal VFS paths or approximation
+thereof (user_path_create()/done_path_create() in case of bpf_obj_do_pin(),
+open-coded simple_{start,done}_creating() in bpf_iter_link_pin_kernel()
+at mount time), removals go entirely through the normal VFS paths (and
+->unlink() is simple_unlink() there).
+
+Enough to have bpf_dentry_finalize() use d_make_persistent() instead
+of dget() and we are done.
+
+Convert bpf_iter_link_pin_kernel() to simple_{start,done}_creating(),
+while we are at it.
+
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
- fs/autofs/root.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ kernel/bpf/inode.c | 15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
-diff --git a/fs/autofs/root.c b/fs/autofs/root.c
-index 174c7205fee4..39794633d484 100644
---- a/fs/autofs/root.c
-+++ b/fs/autofs/root.c
-@@ -623,12 +623,11 @@ static int autofs_dir_symlink(struct mnt_idmap *idmap,
- static int autofs_dir_unlink(struct inode *dir, struct dentry *dentry)
+diff --git a/kernel/bpf/inode.c b/kernel/bpf/inode.c
+index 81780bcf8d25..9f866a010dad 100644
+--- a/kernel/bpf/inode.c
++++ b/kernel/bpf/inode.c
+@@ -144,8 +144,7 @@ static int bpf_inode_type(const struct inode *inode, enum bpf_type *type)
+ static void bpf_dentry_finalize(struct dentry *dentry, struct inode *inode,
+ 				struct inode *dir)
  {
- 	struct autofs_sb_info *sbi = autofs_sbi(dir->i_sb);
--	struct autofs_info *ino = autofs_dentry_ino(dentry);
- 	struct autofs_info *p_ino;
+-	d_instantiate(dentry, inode);
+-	dget(dentry);
++	d_make_persistent(dentry, inode);
  
- 	p_ino = autofs_dentry_ino(dentry->d_parent);
- 	p_ino->count--;
--	dput(ino->dentry);
-+	dput(dentry);
+ 	inode_set_mtime_to_ts(dir, inode_set_ctime_current(dir));
+ }
+@@ -420,16 +419,12 @@ static int bpf_iter_link_pin_kernel(struct dentry *parent,
+ 	struct dentry *dentry;
+ 	int ret;
  
- 	d_inode(dentry)->i_size = 0;
- 	clear_nlink(d_inode(dentry));
-@@ -710,7 +709,7 @@ static int autofs_dir_rmdir(struct inode *dir, struct dentry *dentry)
+-	inode_lock(parent->d_inode);
+-	dentry = lookup_noperm(&QSTR(name), parent);
+-	if (IS_ERR(dentry)) {
+-		inode_unlock(parent->d_inode);
++	dentry = simple_start_creating(parent, name);
++	if (IS_ERR(dentry))
+ 		return PTR_ERR(dentry);
+-	}
+ 	ret = bpf_mkobj_ops(dentry, mode, link, &bpf_link_iops,
+ 			    &bpf_iter_fops);
+-	dput(dentry);
+-	inode_unlock(parent->d_inode);
++	simple_done_creating(dentry);
+ 	return ret;
+ }
  
- 	p_ino = autofs_dentry_ino(dentry->d_parent);
- 	p_ino->count--;
--	dput(ino->dentry);
-+	dput(dentry);
- 	d_inode(dentry)->i_size = 0;
- 	clear_nlink(d_inode(dentry));
+@@ -1080,7 +1075,7 @@ static void bpf_kill_super(struct super_block *sb)
+ {
+ 	struct bpf_mount_opts *opts = sb->s_fs_info;
+ 
+-	kill_litter_super(sb);
++	kill_anon_super(sb);
+ 	kfree(opts);
+ }
  
 -- 
 2.47.3
