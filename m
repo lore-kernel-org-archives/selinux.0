@@ -1,309 +1,256 @@
-Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com [209.85.167.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.hallyn.com (mail.hallyn.com [178.63.66.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1835F2EB5CE
-	for <selinux@vger.kernel.org>; Mon, 10 Nov 2025 20:38:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 254EB5227;
+	Tue, 11 Nov 2025 00:40:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.63.66.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762807089; cv=none; b=giUtNijXKTS/CMWuMZKU5sqNixe38jq190bvNWObBy+Z0RixjUono/9qv73j/vDt+xbXc5+R73z1BMWa+6csisgy1YESanV9oBM2zG44429rvmTw6jhv8MV5mO9v/0Ek9CRPTS+hSPJ/JcPxekCpkBoVOI8+10fZIUVJD6KHyVg=
+	t=1762821631; cv=none; b=Cu0p/9mnC06Xs7Jlm6+rEdOVVIPmox/hzbvVzj2VGcuJKk0FAJfuXZMCMx6m0Y0qrTLS7mvbOgHIHgaDefrVf20Uegb0sfj6LWNsrfMw4Ny3XDF2LsbJdT0yrfbns1tpyHEMV5ExYRMRY1lsD2h3rY/K4o+B5uLw7UXRdKR3N3A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762807089; c=relaxed/simple;
-	bh=9azrhI6JODILGw5J/+pQZgna9H0HMugWT1GTHJd1Dww=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=aALtt0P+RhMjp9GwQ2M1Ts1/emqWJPuvLY5KCtnfGaMS6MN3htE2L+C5u2TNKGO6xvRrJ8fSU9pZszGk+u2R2WSNiGuEvTXsUc49+p6UuOKwsly/NvwKddMndOQ6xmLSNjlDnyMOhhTj3DJ9cikHegDZPNv8DIkbMRPhEAH2QT8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Tcx5VUCv; arc=none smtp.client-ip=209.85.167.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Tcx5VUCv"
-Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-5943b62c47dso3081998e87.1
-        for <selinux@vger.kernel.org>; Mon, 10 Nov 2025 12:38:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1762807085; x=1763411885; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=MGe6GpqLXxq3fGLMxODKgs/2aIukZrXKWfiD9YZ/YeY=;
-        b=Tcx5VUCvKPjVF8CQrdyDPpnw1F6nDA+WXMNwQBhzaporj6zF8hdxTCtCu4DMywCN+3
-         v0Ae7zeHYc7WfQsYn4YFhavBy+k03G5Q9Wq02Xb1iROOdq98U+f9YY1YAFfprBPsBDeB
-         IiXPWXLPdhzRs4c9DGFfiw/GenUu8ysX2V0+5L4dClRjS6DjmBa0sXv28p8fCeJA06C9
-         t36h9blOUJO0ooZl1AqMglySZ/Z878uP/NI7T1bq0qeoENsvPrThTzGR7qYvDx/M63Jy
-         Xn5cudGOZVKniByRYveMSJf33oe7gaAfbxFOr2uDt9y2MAxS8fCOyFfvdS5ZWsjbt3WZ
-         pn+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762807085; x=1763411885;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=MGe6GpqLXxq3fGLMxODKgs/2aIukZrXKWfiD9YZ/YeY=;
-        b=rqEwBd/MmmF98UxGCnLwg5uQe0Ap3c+GWqJidJTPzAnYKnp94OwnWbTBuWC1JJGIZl
-         ogccb6jy8N3p7X0K0ruHxu/P0/MHSikj6cCsCwlXVXYfQPD3DG0wI0LTPbhhWWXtUawF
-         ChWDaHdIwLHFqERsQiBu2Ffg5Onr+PjRTxW+EobnCGUkO7pZT6WxlfGcR9HVtSrYos7S
-         mDswQZC7Yk2BlYN1xzTerPXVdW94hwQdOizE4hjm1CB80qV4T2B57Omv+KEFak1zMMLF
-         y2JPSAzooMNoRPRBjLmrU0zY2kKU6NOks7NyFgTegnybvPAzUDKRXTOsSVw5nfCG1NQJ
-         BJNw==
-X-Gm-Message-State: AOJu0YxpOz/IzE7HtddBUo3Sh2h+ZV/7xXEmNoDTSr6CIx81n1eYnWck
-	GTHzQYliu52cy0Z5t8PdEwi3EqLTIyQsJx2UI9LTGJL91kMFB6OYwTkN/8OmA3EtUMZEW2d0bLb
-	Y2IcwLuxoydEk3C0bvcpJlI+ee7cXAmHd4Q==
-X-Gm-Gg: ASbGncuBKUi0bwROm9vugoJMkFuxW0syZd2ePIrasIJYiYQ0/c6vhLyYoeDUe+Rl/I/
-	l7uZSnVTwx56IXppixD60sZmc4boSHk0N6I+qIhaRoQI2gJVh/msVWJ2WDE1dFEGRxcCA5GQ2KX
-	Js4smYP9yxmJ3belCqkPPWdlVCSvnWrqna5W0wHe901GoNmfrnG2+sjckr+jJjmV5spkBwqPtkS
-	l/6Jv9FC3289sqVYdyao9ZoZ2sTsSlyJpD0NX2YLLhAYp6IuvjEF9EGYUHj+VmWFfEFXkvY
-X-Google-Smtp-Source: AGHT+IH94cHuYuOWBTA8FVAPfQewiGKyeVFLnFxM0ySFRxk2pquwmWbZD8TvKdDuZinsb7lxDVE072FRA4HQrCJgLgw=
-X-Received: by 2002:a05:6512:224f:b0:594:2d64:bcee with SMTP id
- 2adb3069b0e04-5945f19bf29mr2641791e87.15.1762807084901; Mon, 10 Nov 2025
- 12:38:04 -0800 (PST)
+	s=arc-20240116; t=1762821631; c=relaxed/simple;
+	bh=VcdPLs3EB//q4aR6+ynLP7yXQxBJC2aRhBa0wVKo43g=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=fRmwWFmUZss48mhrW7L1hAH1o4hCRMPdtWjflywnWD/EnzG4Mk9jm4NahvEnfj5RCFt0tZAfZZPj6VgtVVmJDK6WZIvGgw2bPfuGzkvc9+Z8FIaXb8ezvXQl42l5My964e0GtB1DM79PRvdHWjS+/OpW49PoQSQNGV2yt5LYdOo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hallyn.com; spf=pass smtp.mailfrom=mail.hallyn.com; arc=none smtp.client-ip=178.63.66.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hallyn.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mail.hallyn.com
+Received: by mail.hallyn.com (Postfix, from userid 1001)
+	id 519EE160B; Mon, 10 Nov 2025 18:33:29 -0600 (CST)
+Date: Mon, 10 Nov 2025 18:33:29 -0600
+From: "Serge E. Hallyn" <serge@hallyn.com>
+To: Ryan Foster <foster.ryan.r@gmail.com>
+Cc: selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+	linux-kernel@vger.kernel.org, serge@hallyn.com, paul@paul-moore.com
+Subject: Re: [PATCH] security: Add KUnit tests for rootid_owns_currentns()
+Message-ID: <aRKEWVse2AzperzG@mail.hallyn.com>
+References: <20251110143748.4144288-1-foster.ryan.r@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251110180935.202229-1-vmojzis@redhat.com> <CAFftDdpQM3mgBsR9A1F=ybfqU7Wwp0gbKbvYjTc-Bdz1fatPYQ@mail.gmail.com>
-In-Reply-To: <CAFftDdpQM3mgBsR9A1F=ybfqU7Wwp0gbKbvYjTc-Bdz1fatPYQ@mail.gmail.com>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Mon, 10 Nov 2025 14:37:53 -0600
-X-Gm-Features: AWmQ_bk_WkUsCVPxGKtfMof3uBJ-gQjgKwmt8hKQdk0JiLgeCwtpmAHPD3MOU94
-Message-ID: <CAFftDdoSdF2NYRichwF2pfNdriChOf7ob+N+CN7OjWZafLwGaA@mail.gmail.com>
-Subject: Re: [PATCH] restorecon: Add option to count number of relabeled files
-To: Vit Mojzis <vmojzis@redhat.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251110143748.4144288-1-foster.ryan.r@gmail.com>
 
-On Mon, Nov 10, 2025 at 2:23=E2=80=AFPM William Roberts
-<bill.c.roberts@gmail.com> wrote:
->
-> On Mon, Nov 10, 2025 at 12:11=E2=80=AFPM Vit Mojzis <vmojzis@redhat.com> =
-wrote:
-> >
-> > This is useful in case we want to check that a remediation using
-> > restorecon was successful (otherwise 0 is always returned, even if no
-> > files where relabeled).
-> >
-> > Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
-> > ---
-> >  libselinux/include/selinux/restorecon.h |  9 +++++++++
-> >  libselinux/src/libselinux.map           |  1 +
-> >  libselinux/src/selinux_restorecon.c     | 14 ++++++++++++++
-> >  policycoreutils/setfiles/restore.h      |  1 +
-> >  policycoreutils/setfiles/restorecon.8   |  3 +++
-> >  policycoreutils/setfiles/setfiles.c     | 24 ++++++++++++++++++++----
-> >  6 files changed, 48 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/libselinux/include/selinux/restorecon.h b/libselinux/inclu=
-de/selinux/restorecon.h
-> > index 0ccf73a6..736481bb 100644
-> > --- a/libselinux/include/selinux/restorecon.h
-> > +++ b/libselinux/include/selinux/restorecon.h
-> > @@ -228,6 +228,15 @@ extern int selinux_restorecon_xattr(const char *pa=
-thname,
-> >   */
-> >  extern long unsigned selinux_restorecon_get_skipped_errors(void);
-> >
-> > +/* selinux_restorecon_get_relabeled_files - Get the number of relabele=
-d files
-> > + *
-> > + * If selinux_restorecon(3) or selinux_restorecon_parallel(3) was call=
-ed,
-> > + * this function returns the number of files that were successfully re=
-labeled.
-> > + * If the SELINUX_RESTORECON_NOCHANGE flag was set, this function retu=
-rns
-> > + * the number of files that would be relabeled.
-> > + */
-> > +extern long unsigned selinux_restorecon_get_relabeled_files(void);
-> > +
-> >  #ifdef __cplusplus
-> >  }
-> >  #endif
-> > diff --git a/libselinux/src/libselinux.map b/libselinux/src/libselinux.=
-map
-> > index ab002f01..f21e089e 100644
-> > --- a/libselinux/src/libselinux.map
-> > +++ b/libselinux/src/libselinux.map
-> > @@ -244,6 +244,7 @@ LIBSELINUX_1.0 {
-> >  LIBSELINUX_3.4 {
-> >    global:
-> >      selinux_restorecon_get_skipped_errors;
-> > +    selinux_restorecon_get_relabeled_files;
-> >      selinux_restorecon_parallel;
-> >  } LIBSELINUX_1.0;
-> >
-> > diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selin=
-ux_restorecon.c
-> > index 681c69db..6e9a159e 100644
-> > --- a/libselinux/src/selinux_restorecon.c
-> > +++ b/libselinux/src/selinux_restorecon.c
-> > @@ -69,6 +69,9 @@ static struct dir_xattr *dir_xattr_last;
-> >  /* Number of errors ignored during the file tree walk. */
-> >  static long unsigned skipped_errors;
-> >
-> > +/* Number of successfully relabeled files or files that would be relab=
-eled */
-> > +static long unsigned relabeled_files;
-> > +
-> >  /* restorecon_flags for passing to restorecon_sb() */
-> >  struct rest_flags {
-> >         bool nochange;
-> > @@ -796,6 +799,10 @@ static int restorecon_sb(const char *pathname, con=
-st struct stat *sb,
-> >                                 syslog(LOG_INFO, "labeling %s to %s\n",
-> >                                             pathname, newcon);
-> >                 }
-> > +
-> > +               /* Count relabeled files (or would be relabeled if "noc=
-hange" was not set) */
-> > +               relabeled_files++;
-> > +
-> >         }
-> >
-> >  out:
-> > @@ -1096,6 +1103,8 @@ static int selinux_restorecon_common(const char *=
-pathname_orig,
-> >         state.skipped_errors =3D 0;
-> >         state.saved_errno =3D 0;
-> >
-> > +       relabeled_files =3D 0;
-> > +
-> >         struct stat sb;
-> >         char *pathname =3D NULL, *pathdnamer =3D NULL, *pathdname, *pat=
-hbname;
-> >         char *paths[2] =3D { NULL, NULL };
-> > @@ -1618,3 +1627,8 @@ long unsigned selinux_restorecon_get_skipped_erro=
-rs(void)
-> >  {
-> >         return skipped_errors;
-> >  }
-> > +
-> > +long unsigned selinux_restorecon_get_relabeled_files(void)
-> > +{
-> > +       return relabeled_files;
-> > +}
-> > diff --git a/policycoreutils/setfiles/restore.h b/policycoreutils/setfi=
-les/restore.h
-> > index 95afb960..7c949c1c 100644
-> > --- a/policycoreutils/setfiles/restore.h
-> > +++ b/policycoreutils/setfiles/restore.h
-> > @@ -37,6 +37,7 @@ struct restore_opts {
-> >         unsigned int ignore_mounts;
-> >         unsigned int conflict_error;
-> >         unsigned int count_errors;
-> > +       unsigned int count_relabeled;
->
-> It's using unsigned int, but other places use unsigned long. Wouldn't we =
-want to
-> keep this consistent to prevent truncating long to int? Do we care
-> about rollovers?
-> It's unlikely to happen, but some file systems don't have bounds on
-> the number of files,
-> also can't restorecon go across fs boundaries, so the count could be
-> high, albeit unlikely.
->
-> >         /* restorecon_flags holds | of above for restore_init() */
-> >         unsigned int restorecon_flags;
-> >         char *rootpath;
-> > diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/se=
-tfiles/restorecon.8
-> > index 1134420e..e9bd16b6 100644
-> > --- a/policycoreutils/setfiles/restorecon.8
-> > +++ b/policycoreutils/setfiles/restorecon.8
-> > @@ -153,6 +153,9 @@ display warnings about entries that had no matching=
- files by outputting the
-> >  .BR selabel_stats (3)
-> >  results.
-> >  .TP
-> > +.B \-c
-> > +count and display the number of (would be) relabeled files. The exit c=
-ode will be set to the number of relabeled files (capped at 254).
-> > +.TP
-> >  .B \-0
-> >  the separator for the input items is assumed to be the null character
-> >  (instead of the white space).  The quotes and the backslash characters=
- are
-> > diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setf=
-iles/setfiles.c
-> > index 31034316..6323f56c 100644
-> > --- a/policycoreutils/setfiles/setfiles.c
-> > +++ b/policycoreutils/setfiles/setfiles.c
-> > @@ -35,8 +35,8 @@ static __attribute__((__noreturn__)) void usage(const=
- char *const name)
-> >  {
-> >         if (iamrestorecon) {
-> >                 fprintf(stderr,
-> > -                       "usage:  %s [-iIDFUmnprRv0xT] [-e excludedir] p=
-athname...\n"
-> > -                       "usage:  %s [-iIDFUmnprRv0xT] [-e excludedir] -=
-f filename\n",
-> > +                       "usage:  %s [-ciIDFUmnprRv0xT] [-e excludedir] =
-pathname...\n"
-> > +                       "usage:  %s [-ciIDFUmnprRv0xT] [-e excludedir] =
--f filename\n",
-> >                         name, name);
-> >         } else {
-> >                 fprintf(stderr,
-> > @@ -146,7 +146,7 @@ int main(int argc, char **argv)
-> >         size_t buf_len, nthreads =3D 1;
-> >         const char *base;
-> >         int errors =3D 0;
-> > -       const char *ropts =3D "e:f:hiIDlmno:pqrsvFURW0xT:";
-> > +       const char *ropts =3D "ce:f:hiIDlmno:pqrsvFURW0xT:";
-> >         const char *sopts =3D "c:de:f:hiIDlmno:pqr:svACEFUR:W0T:";
-> >         const char *opts;
-> >         union selinux_callback cb;
-> > @@ -223,7 +223,10 @@ int main(int argc, char **argv)
-> >         while ((opt =3D getopt(argc, argv, opts)) > 0) {
-> >                 switch (opt) {
-> >                 case 'c':
-> > -                       {
-> > +                       if (iamrestorecon) {
-> > +                               r_opts.count_relabeled =3D 1;
-> > +                               break;
-> > +                       } else {
-> >                                 FILE *policystream;
-> >
-> >                                 policyfile =3D optarg;
-> > @@ -479,5 +482,18 @@ int main(int argc, char **argv)
-> >         if (r_opts.progress)
-> >                 fprintf(stdout, "\n");
-> >
-> > +       /* Output relabeled file count if requested */
-> > +       if (r_opts.count_relabeled) {
-> > +               long unsigned relabeled_count =3D selinux_restorecon_ge=
-t_relabeled_files();
-> > +               printf("Relabeled %lu files\n", relabeled_count);
-> > +
-> > +               /* Set exit code to number of relabeled files (capped a=
-t 254) */
-> > +               if (errors) {
-> > +                       exit(-1);
-> > +               } else {
-> > +                       exit(relabeled_count > 254 ? 254 : (int)relabel=
-ed_count);
-> > +               }
->
-> This I don't like. By convention, certain exit codes mean things. If
-> someone is debugging a restorecon with this option set,
-> and sees exit code 127, they're going to think, "command not found".
-> There are other codes to, like 126 not executable,
-> 128 + signum, ie 137 is I was killed by SIGKILL Additionally, the
-> truncation makes it less useful.
+On Mon, Nov 10, 2025 at 06:37:48AM -0800, Ryan Foster wrote:
+> The rootid_owns_currentns() function in security/commoncap.c is a
+> security-critical function used to determine if a root ID from a
+> parent namespace owns the current namespace. This function is used
+> in multiple security-critical paths:
+> 
+> 1. cap_inode_getsecurity() - file capability retrieval
+> 2. get_vfs_caps_from_disk() - file capability loading during exec
+> 
+> Despite its security-critical nature, this function had no test
+> coverage. This patch adds KUnit tests to verify the function's
+> behavior in various scenarios:
+> 
+> - Root ID in init namespace (positive case)
+> - Invalid vfsuid (negative case)
+> - Non-root UID (negative case)
 
-I forgot to mention as well, If a user enables this option in a script
-set to exit
-on error, they have to code around this command under specific options.
+I'd be more excited about this if it tested the actual
+functionality.
 
->
-> I'd rather see this just exit 0 or 1, if folks need the count they can
-> parse it from stdout.
->
-> I'm no longer an SELinux maintainer, so don't let my nack stop anyone.
->
-> > +       }
-> > +
-> >         exit(errors ? -1 : skipped_errors ? 1 : 0);
-> >  }
-> > --
-> > 2.51.0
-> >
-> >
+The rootid_owns_currentns() could be split so that it calls
+a (static if not testing) inline rootid_owns_userns(), and
+then you test the latter.  Then create a few user namespaces
+with different values for the namespace's uid 0, and make
+sure rootid_owns_userns(testns, testuid) behaves correctly.
+
+Actually, this function should probably be renamed.
+"rootid_owns_currentns()" is not correct.  It should just be
+"uid_owns_currentns()".
+
+> The function is made testable by exporting it when
+> CONFIG_SECURITY_COMMONCAP_KUNIT_TEST is enabled, while maintaining
+> static visibility in production builds.
+> 
+> This follows the pattern established by other security subsystems
+> (IPE, Landlock) for KUnit testing.
+> 
+> Signed-off-by: Ryan Foster <foster.ryan.r@gmail.com>
+> ---
+>  security/Kconfig          |  17 ++++++
+>  security/Makefile         |   1 +
+>  security/commoncap.c      |   5 ++
+>  security/commoncap_test.c | 109 ++++++++++++++++++++++++++++++++++++++
+>  4 files changed, 132 insertions(+)
+>  create mode 100644 security/commoncap_test.c
+> 
+> diff --git a/security/Kconfig b/security/Kconfig
+> index 285f284dfcac..c7b3f42ef875 100644
+> --- a/security/Kconfig
+> +++ b/security/Kconfig
+> @@ -284,6 +284,23 @@ config LSM
+>  
+>  	  If unsure, leave this as the default.
+>  
+> +config SECURITY_COMMONCAP_KUNIT_TEST
+> +	bool "Build KUnit tests for commoncap" if !KUNIT_ALL_TESTS
+> +	depends on KUNIT=y
+> +	default KUNIT_ALL_TESTS
+> +	help
+> +	  This builds the commoncap KUnit tests.
+> +
+> +	  KUnit tests run during boot and output the results to the debug log
+> +	  in TAP format (https://testanything.org/). Only useful for kernel devs
+> +	  running KUnit test harness and are not for inclusion into a
+> +	  production build.
+> +
+> +	  For more information on KUnit and unit tests in general please refer
+> +	  to the KUnit documentation in Documentation/dev-tools/kunit/.
+> +
+> +	  If unsure, say N.
+> +
+>  source "security/Kconfig.hardening"
+>  
+>  endmenu
+> diff --git a/security/Makefile b/security/Makefile
+> index 22ff4c8bd8ce..5b1285fde552 100644
+> --- a/security/Makefile
+> +++ b/security/Makefile
+> @@ -7,6 +7,7 @@ obj-$(CONFIG_KEYS)			+= keys/
+>  
+>  # always enable default capabilities
+>  obj-y					+= commoncap.o
+> +obj-$(CONFIG_SECURITY_COMMONCAP_KUNIT_TEST)	+= commoncap_test.o
+>  obj-$(CONFIG_SECURITY) 			+= lsm_syscalls.o
+>  obj-$(CONFIG_MMU)			+= min_addr.o
+>  
+> diff --git a/security/commoncap.c b/security/commoncap.c
+> index 6bd4adeb4795..4d0e014ce7cd 100644
+> --- a/security/commoncap.c
+> +++ b/security/commoncap.c
+> @@ -358,7 +358,12 @@ int cap_inode_killpriv(struct mnt_idmap *idmap, struct dentry *dentry)
+>  	return error;
+>  }
+>  
+> +#ifdef CONFIG_SECURITY_COMMONCAP_KUNIT_TEST
+> +bool rootid_owns_currentns(vfsuid_t rootvfsuid);
+> +bool rootid_owns_currentns(vfsuid_t rootvfsuid)
+> +#else
+>  static bool rootid_owns_currentns(vfsuid_t rootvfsuid)
+> +#endif
+>  {
+>  	struct user_namespace *ns;
+>  	kuid_t kroot;
+> diff --git a/security/commoncap_test.c b/security/commoncap_test.c
+> new file mode 100644
+> index 000000000000..9757d433d314
+> --- /dev/null
+> +++ b/security/commoncap_test.c
+> @@ -0,0 +1,109 @@
+> +// SPDX-License-Identifier: GPL-2.0-or-later
+> +/*
+> + * KUnit tests for commoncap.c security functions
+> + *
+> + * Tests for security-critical functions in the capability subsystem,
+> + * particularly namespace-related capability checks.
+> + */
+> +
+> +#include <kunit/test.h>
+> +#include <linux/user_namespace.h>
+> +#include <linux/uidgid.h>
+> +#include <linux/module.h>
+> +
+> +/* We need to include the actual vfsuid_t definition but avoid the problematic
+> + * inline functions in mnt_idmapping.h. Include just the type definitions.
+> + */
+> +#include <linux/types.h>
+> +
+> +/* Forward declare the minimal types we need - match the actual kernel definitions */
+> +struct mnt_idmap;
+> +typedef struct {
+> +	uid_t val;
+> +} vfsuid_t;
+> +
+> +/* Minimal macros we need - match kernel definitions from mnt_idmapping.h */
+> +static inline uid_t __vfsuid_val(vfsuid_t uid)
+> +{
+> +	return uid.val;
+> +}
+> +
+> +#define VFSUIDT_INIT(val) ((vfsuid_t){ __kuid_val(val) })
+> +#define INVALID_VFSUID VFSUIDT_INIT(INVALID_UID)
+> +
+> +#ifdef CONFIG_SECURITY_COMMONCAP_KUNIT_TEST
+> +
+> +/* Forward declaration - function is exported when KUNIT_TEST is enabled */
+> +extern bool rootid_owns_currentns(vfsuid_t rootvfsuid);
+> +
+> +/**
+> + * test_rootid_owns_currentns_init_ns - Test rootid_owns_currentns with init ns
+> + *
+> + * Verifies that a root ID in the init namespace correctly owns the current
+> + * namespace when running in init_user_ns.
+> + */
+> +static void test_rootid_owns_currentns_init_ns(struct kunit *test)
+> +{
+> +	vfsuid_t root_vfsuid;
+> +	kuid_t root_kuid;
+> +
+> +	/* Create a root UID in init namespace */
+> +	root_kuid = KUIDT_INIT(0);
+> +	root_vfsuid = VFSUIDT_INIT(root_kuid);
+> +
+> +	/* In init namespace, root should own current namespace */
+> +	KUNIT_EXPECT_TRUE(test, rootid_owns_currentns(root_vfsuid));
+> +}
+> +
+> +/**
+> + * test_rootid_owns_currentns_invalid - Test rootid_owns_currentns with invalid vfsuid
+> + *
+> + * Verifies that an invalid vfsuid correctly returns false.
+> + */
+> +static void test_rootid_owns_currentns_invalid(struct kunit *test)
+> +{
+> +	vfsuid_t invalid_vfsuid;
+> +
+> +	/* Use the predefined invalid vfsuid */
+> +	invalid_vfsuid = INVALID_VFSUID;
+> +
+> +	/* Invalid vfsuid should return false */
+> +	KUNIT_EXPECT_FALSE(test, rootid_owns_currentns(invalid_vfsuid));
+> +}
+> +
+> +/**
+> + * test_rootid_owns_currentns_nonroot - Test rootid_owns_currentns with non-root UID
+> + *
+> + * Verifies that a non-root UID correctly returns false.
+> + */
+> +static void test_rootid_owns_currentns_nonroot(struct kunit *test)
+> +{
+> +	vfsuid_t nonroot_vfsuid;
+> +	kuid_t nonroot_kuid;
+> +
+> +	/* Create a non-root UID */
+> +	nonroot_kuid = KUIDT_INIT(1000);
+> +	nonroot_vfsuid = VFSUIDT_INIT(nonroot_kuid);
+> +
+> +	/* Non-root UID should return false */
+> +	KUNIT_EXPECT_FALSE(test, rootid_owns_currentns(nonroot_vfsuid));
+> +}
+> +
+> +static struct kunit_case commoncap_test_cases[] = {
+> +	KUNIT_CASE(test_rootid_owns_currentns_init_ns),
+> +	KUNIT_CASE(test_rootid_owns_currentns_invalid),
+> +	KUNIT_CASE(test_rootid_owns_currentns_nonroot),
+> +	{}
+> +};
+> +
+> +static struct kunit_suite commoncap_test_suite = {
+> +	.name = "commoncap",
+> +	.test_cases = commoncap_test_cases,
+> +};
+> +
+> +kunit_test_suite(commoncap_test_suite);
+> +
+> +MODULE_LICENSE("GPL");
+> +
+> +#endif /* CONFIG_SECURITY_COMMONCAP_KUNIT_TEST */
+> +
+> -- 
+> 2.43.0
