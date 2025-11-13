@@ -1,106 +1,212 @@
-Received: from mail-lf1-f54.google.com (mail-lf1-f54.google.com [209.85.167.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C099529CEB
-	for <selinux@vger.kernel.org>; Thu, 13 Nov 2025 20:18:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01974261B6D;
+	Thu, 13 Nov 2025 21:20:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763065084; cv=none; b=eOwc7TGI4195ib8q5jxzmtrj+yvtswdZjSrMP1T7un/aViBcuuIYt1vZ4TM1DLSYtohlSwbXRbHunijU1IT1gt3CZxU8B+Sr/tgsRIZGk8cnlKGYUKQDXn1bmSdgFk8bYr/He8yvqSyq1DH5z4jckL01SFv1GbQqmv1UErnFBpA=
+	t=1763068810; cv=none; b=bBPI+T4Ot/+EfAELaILSBXTG2z71TFTVS1Nnh2BERdcK+SRwQAGCdNG6XgKhsOt+hI5iWGJhYabQCUllwzT8h2/QlxPKgRQdugcMlgfbIiSDA+a+RxNImcpPcJYG9GajzvWAE0Ml3VZ151tBo4+Qex2dNn6IPkteOzkiXCFhYHs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763065084; c=relaxed/simple;
-	bh=Wyb1/gYczLTnS0QVQF3Ihr797lKax2HmLzKlpskuTlk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=BCWeE00hIMB4SGJzWin3dBf45SrORVHplxLZ+Q3MmhtXIBc9I1Z3/JjGqG8v6sKoK34P/fxoCpR6LYRwoimKKIAA99Kn3HGmXiNDNDJX+g0OHp8RsV/8tPr5IT0ASPJmQg6gz/KSSiZo0HXhoyJYPIdo2oQ0LRmHAIg32tz9avE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QJzsVnY1; arc=none smtp.client-ip=209.85.167.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1763068810; c=relaxed/simple;
+	bh=9y9a2c/jVOu6lhfw2KQmK7c70gHOg4s3VbgeD47eFJc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gNuAzWsoblvxysl4MQ6sbrHLRNYKKox5Eo/Gw7+hVtWe17M8V/fSBIpVZm4avNvVZgbRCgrf9NOZuZSF4GJGMJGc2rzraUh4NQWR1TSSPAtIdapMkRX/tq+WsbAkyXBajTYZ7qiumTLCVzbyEuJQ61UZpGmh+1X0yKXtDFFvNN4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=S6rUH8FB; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QJzsVnY1"
-Received: by mail-lf1-f54.google.com with SMTP id 2adb3069b0e04-59581e32163so851376e87.1
-        for <selinux@vger.kernel.org>; Thu, 13 Nov 2025 12:18:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1763065081; x=1763669881; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=Wd92Ndz/t9JneRdrlKnJP40FMXBs68UtdyPJfj/H4QQ=;
-        b=QJzsVnY1FifMwvGcxuIk4Z5f7+XYKnlr/LqIY1rNnF1akdGYCJVykc92FlucoRJciK
-         JLft3glECj6/8qEVEm+awyxbyUEUTUxSjwWBoP+KlH972ngPuvEbEbrQXPcRgcWcTphb
-         VWla14Rm7m5rugw3lVWr8m/fWV5N/sSmwwCfJlOVJq0e21ozT4WTQMIuFRgyDXUSn2xw
-         eE5hGpzPJfcQ+1gB1dVDPJzrZ9xYtpnuBysfTKZsntSoFqZ4p3yRTAZNdaNAaB8DJibA
-         v75d8ClNigF5cXysV/ZnlVxte4f5h58MjcfdrulV55MirRnddsLfEz9y08IBY9Er3q3D
-         xXZg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763065081; x=1763669881;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Wd92Ndz/t9JneRdrlKnJP40FMXBs68UtdyPJfj/H4QQ=;
-        b=LqLK84fYaleLQR47Ml2kSRSAR/cIv+2rkhbWqBewGQVqHLMOzLecfUg0bs54Y4BXNa
-         BkI6FcTe1giQKsBfPHd96kJqYYsJAMIzgFutAjB1eS124I4FHZXP9Gbb3jwvTkBnoD5U
-         SJCqTTGxOXOjzn1slMqvwTXsvzYLtjG3+SFazTIWr7TzWRzb5p9+4VJLiq5QrKqM5VA4
-         ohmUYeXo4lIXyeE6CtK2qiAaFvydPLmtQBu5CCRbu8RAR0EB3NZobPnwN65sD00lAsqE
-         LhZMylfCvIqw9kFBbJ6u/+rYJ43IR9bu9AeBWNktpzSSTd6hNzMf8BaZnnwqsa86bzU5
-         bCyw==
-X-Gm-Message-State: AOJu0YyPm5kifdEeQHbXMz3xEZjcoaVs/Ti51CS7yntocE6X5VhaQ0xG
-	oj2wLOpmH3hdpyRpyCbvCUM4OuQ0OOvHIeyHduxcpUmOPmilnc6KYzE9BpbAWpufxa3+y+poWm3
-	lS51d3kvhyngzO12mTJ2CTwMsVl5GMmPu5w==
-X-Gm-Gg: ASbGncvrFAaV/wNlSzrMPV+uj4JS6biUwNm5saEyJydi0d+6qz7kmS3Jf8OPlLkIV/b
-	Z5z6vp1+VPN07kwhJOXF7ZNbLhSYxNrTK2OQ0Mp4q8WN0W3Zwp0r5rfaMpev36GiZjYEwrw2GW7
-	Vk6CRH8otjF8NGHOo6oYUu9quwQWkb7v1nu0g6pg43vy8peZeAWE1Si88zUJZZ6zzkLdqcy9Mbq
-	tdiy6xpHJbt2IYihjbUA9cmcxw8CHy3cMpEvTp1ZrbR99DNa30kKFvBKRJXYw==
-X-Google-Smtp-Source: AGHT+IFMhoanrLbvPoIFU8p+RGq24PrndonGtZTmlXvJv7DqRGij6CJDpxn2Dj70MPqS2ULI3zlAhnMgMC4Pbero0Qk=
-X-Received: by 2002:a05:6512:230a:b0:595:7dff:ebb1 with SMTP id
- 2adb3069b0e04-595841fa4d7mr220848e87.36.1763065080554; Thu, 13 Nov 2025
- 12:18:00 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="S6rUH8FB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60C0AC4CEF5;
+	Thu, 13 Nov 2025 21:20:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1763068809;
+	bh=9y9a2c/jVOu6lhfw2KQmK7c70gHOg4s3VbgeD47eFJc=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=S6rUH8FB57R/UUe04bwBSoaGOYGmurKvFQGiKjaRp+69RaYMny8aJztzOQraBcrQq
+	 2lwrKakpi4mw3npKSHEcLjHJYPumZM6bSLsdqs+5vrFZt/jlpgeaTIxOM5qITJXPz9
+	 vcfnIkmnsJ7qWYDomwahLU7DQW/0LJ2QhI+mOxNo=
+Date: Thu, 13 Nov 2025 16:20:08 -0500
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Al Viro <viro@zeniv.linux.org.uk>
+Cc: bot+bpf-ci@kernel.org, linux-fsdevel@vger.kernel.org,
+	torvalds@linux-foundation.org, brauner@kernel.org, jack@suse.cz,
+	raven@themaw.net, miklos@szeredi.hu, neil@brown.name,
+	a.hindborg@kernel.org, linux-mm@kvack.org,
+	linux-efi@vger.kernel.org, ocfs2-devel@lists.linux.dev,
+	kees@kernel.org, rostedt@goodmis.org, linux-usb@vger.kernel.org,
+	paul@paul-moore.com, casey@schaufler-ca.com,
+	linuxppc-dev@lists.ozlabs.org, john.johansen@canonical.com,
+	selinux@vger.kernel.org, borntraeger@linux.ibm.com,
+	bpf@vger.kernel.org, ast@kernel.org, andrii@kernel.org,
+	daniel@iogearbox.net, martin.lau@kernel.org, eddyz87@gmail.com,
+	yonghong.song@linux.dev, ihor.solodrai@linux.dev,
+	Chris Mason <clm@meta.com>
+Subject: Re: [functionfs] mainline UAF (was Re: [PATCH v3 36/50] functionfs:
+ switch to simple_remove_by_name())
+Message-ID: <2025111316-cornfield-sphinx-ba89@gregkh>
+References: <20251111065520.2847791-37-viro@zeniv.linux.org.uk>
+ <20754dba9be498daeda5fe856e7276c9c91c271999320ae32331adb25a47cd4f@mail.kernel.org>
+ <20251111092244.GS2441659@ZenIV>
+ <e6b90909-fdd7-4c4d-b96e-df27ea9f39c4@meta.com>
+ <20251113092636.GX2441659@ZenIV>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAFftDdp3ZChoaVF-5FN=O=b09Hv6VSXAUzRQ0muW0NParjZBhA@mail.gmail.com>
- <20251113171151.719458-1-vmojzis@redhat.com>
-In-Reply-To: <20251113171151.719458-1-vmojzis@redhat.com>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Thu, 13 Nov 2025 14:17:48 -0600
-X-Gm-Features: AWmQ_bkGqTORZdA2UaCeLkQ9Uc_F-jvihj9E58M7_ukjMpVL-rntHLmMbP9qLOw
-Message-ID: <CAFftDdp9+wUoYG+8TL9J0JGCh_dkLA+ty2w=sJQaayHJwbyMLw@mail.gmail.com>
-Subject: Re: [PATCH v2] restorecon: Add option to count relabeled files
-To: Vit Mojzis <vmojzis@redhat.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251113092636.GX2441659@ZenIV>
 
-<snip>
+On Thu, Nov 13, 2025 at 09:26:36AM +0000, Al Viro wrote:
+> On Tue, Nov 11, 2025 at 10:44:26PM -0500, Chris Mason wrote:
+> 
+> > We're wandering into fuzzing territory here, and I honestly have no idea
+> > if this is a valid use of any of this code, but AI managed to make a
+> > repro that crashes only after your patch.  So, I'll let you decide.
+> > 
+> > The new review:
+> > 
+> > Can this dereference ZERO_SIZE_PTR when eps_count is 0?
+> > 
+> > When ffs->eps_count is 0, ffs_epfiles_create() calls kcalloc(0, ...) which
+> > returns ZERO_SIZE_PTR (0x10). The loop never executes so epfiles[0].ffs is
+> > never initialized. Later, cleanup paths (ffs_data_closed and ffs_data_clear)
+> > check if (epfiles) which is true for ZERO_SIZE_PTR, and call
+> > ffs_epfiles_destroy(epfiles, 0).
+> > 
+> > In the old code, the for loop condition prevented any dereferences when
+> > count=0. In the new code, "root = epfile->ffs->sb->s_root" dereferences
+> > epfile before checking count, which would fault on ZERO_SIZE_PTR.
+> 
+> Lovely.  OK, this is a bug.  It is trivial to work around (all callers
+> have ffs avaible, so just passing it as an explicit argument solves
+> the problem), but there is a real UAF in functionfs since all the way
+> back to original merge.  Take a look at
+> 
+> static int
+> ffs_epfile_open(struct inode *inode, struct file *file)
+> {
+> 	struct ffs_epfile *epfile = inode->i_private;
+> 
+> 	if (WARN_ON(epfile->ffs->state != FFS_ACTIVE))
+> 		return -ENODEV;
+> 
+> 	file->private_data = epfile;
+> 	ffs_data_opened(epfile->ffs);
+> 
+> 	return stream_open(inode, file);
+> }
+> 
+> and think what happens if that (->open() of dynamic files in there)
+> races with file removal.  Specifically, if we get called with ffs->opened
+> equal to 1 due to opened ep0 and get preempted away just before the
+> call ffs_data_opened().  Another thread closes ep0, hitting
+> ffs_data_closed(), dropping ffs->opened to 0 and getting
+> 			ffs->state = FFS_CLOSING;
+> 			ffs_data_reset(ffs);
+> which calls ffs_data_clear(), where we hit
+> 		ffs_epfiles_destroy(epfiles, ffs->eps_count);
+> All files except ep0 are removed and epfiles gets freed, leaving the
+> first thread (in ffs_epfile_open()) with file->private_data pointing
+> into a freed array.
+> 
+> open() succeeds, with any subsequent IO on the resulting file leading
+> to calls of
+> static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
+> {
+> 	struct ffs_epfile *epfile = file->private_data;
+> 
+> and a bunch of accesses to *epfile later in that function, all of them
+> UAF.
+> 
+> As far as I can tell, the damn thing intends to prevent removals between
+> ffs_data_opened() and ffs_data_closed(), so other methods would be safe
+> if ->open() had been done right.  I'm not happy with the way that FSM
+> is done (the real state is a mix of ffs->state, ffs->opened and ffs->mutex,
+> and rules bloody awful; I'm still not entirely convinced that ffs itself
+> can't be freed with ffs->reset_work scheduled for execution), but that's
+> a separate story.  
+> 
+> Another variant of that scenario is with ffs->no_disconnect set;
+> in a sense, it's even nastier.  In that case ffs_data_closed() won't
+> remove anything - it will set ffs->state to FFS_DEACTIVATED, leaving
+> the removals for ffs_data_open().  If we have *two* threads in open(),
+> the first one to call ffs_data_open() will do removal; on another CPU
+> the second will just get past its increment of ->opened (from 1 to 2)
+> and move on, without waiting for anything.
+> 
+> IMO we should just take ffs->mutex in there, getting to ffs via
+> inode->i_sb->s_fs_info.  And yes, compare ffs->state with FFS_ACTIVE -
+> under ->mutex, without WARN_ON() and after having bumped ->opened
+> so that racing ffs_data_closed() would do nothing.  Not FFS_ACTIVE -
+> call ffs_data_closed() ourselves on failure exit.
+> 
+> As in
+> 
+> static int
+> ffs_epfile_open(struct inode *inode, struct file *file)
+> {
+> 	strict ffs_data *ffs = inode->i_sb->s_fs_info;
+> 	int ret;
+> 
+>         /* Acquire mutex */
+> 	ret = ffs_mutex_lock(&ffs->mutex, file->f_flags & O_NONBLOCK);
+> 	if (ret < 0)
+> 		return ret;
+> 
+> 	ffs_data_opened(ffs);
+> 	/*
+> 	 * not FFS_ACTIVE - there might be a pending removal;
+> 	 * FFS_ACITVE alone is not enough, though - we might have
+> 	 * been through FFS_CLOSING and back to FFS_ACTIVE,
+> 	 * with our file already removed.
+> 	 */
+> 	if (unlikely(ffs->state != FFS_ACTIVE ||
+> 		     !simple_positive(file->f_path.dentry))) {
+> 		ffs_data_closed(ffs);
+> 		mutex_unlock(&ffs->mutex);
+> 		return -ENODEV;
+> 	}
+> 	mutex_unlock(&ffs->mutex);
+> 
+> 	file->private_data = inode->i_private;
+> 	return stream_open(inode, file);
+> }
+> 
+> and
+> 
+> static int ffs_ep0_open(struct inode *inode, struct file *file)
+> {
+>         struct ffs_data *ffs = inode->i_private;
+> 	int ret;
+> 
+>         /* Acquire mutex */
+> 	ret = ffs_mutex_lock(&ffs->mutex, file->f_flags & O_NONBLOCK);
+> 	if (ret < 0)
+> 		return ret;
+> 
+> 	ffs_data_opened(ffs);
+> 	if (ffs->state == FFS_CLOSING) {
+> 		ffs_data_closed(ffs);
+> 		mutex_unlock(&ffs->mutex);
+> 		return -EBUSY;
+> 	}
+> 	mutex_unlock(&ffs->mutex);
+> 
+> 	file->private_data = ffs;
+> 	return stream_open(inode, file);
+> }
+> 
+> Said that, I'm _NOT_ familiar with that code; this is just from a couple
+> of days digging through the driver, so I would like to hear comments from
+> the maintainer...  Greg?
+> 
 
-Just reviewing for the output formatting.
+Sorry for the delay.  Yes, we should be grabing the mutex in there, good
+catch.  There's been more issues pointed out with the gadget code in the
+past year or so as more people are starting to actually use it and
+stress it more.  So if you have a patch for this, I'll gladly take it :)
 
->         if (r_opts.mass_relabel && !r_opts.nochange)
-> @@ -479,5 +484,14 @@ int main(int argc, char **argv)
->         if (r_opts.progress)
->                 fprintf(stdout, "\n");
->
-> +       /* Output relabeled file count if requested */
-> +       if (r_opts.count_relabeled) {
-> +               long unsigned relabeled_count = selinux_restorecon_get_relabeled_files();
-> +               printf("Relabeled %lu files\n", relabeled_count);
+thanks,
 
-I like this better, I guess the question is now, do we just make it
-printf("%lu\n", relabeled_count) for
-ease of parsing? I can see Dan's point there. I am fine either way, as
-adding cut -d' ' -f1-1 is fine by me.
-However, whatever we choose, the output **has to be stable**.
-
-Hard lessons from tpm2-tools still haunt me, sorry Stephen :-p
-
-
-> +
-> +               /* Set exit code to 0 if at least one file was relabeled */
-> +               exit(errors ? -1 : relabeled_count ? 0 : 1);
-> +       }
-> +
->         exit(errors ? -1 : skipped_errors ? 1 : 0);
->  }
-> --
-> 2.51.1
->
->
+greg k-h
