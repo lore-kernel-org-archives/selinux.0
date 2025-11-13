@@ -1,410 +1,99 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D14C33556C
-	for <selinux@vger.kernel.org>; Thu, 13 Nov 2025 17:12:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 779A21ACDFD
+	for <selinux@vger.kernel.org>; Thu, 13 Nov 2025 17:36:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763053924; cv=none; b=SQg9G65mnP9QznfiXycYuMcl0IofQNLGyVVupnBZxWVOHLr2fxCwHZvTBh/vLlEdy0fbgjm4WJcCW1zsVaMgDzolDOfmdqm+92aVb3ksx/Tb6fzoZQvt/jWc0Q7HpVqVl/uEcygp5SRoPJVvOxghTbQLAHF3Lp63N8IqwAvVOpI=
+	t=1763055368; cv=none; b=CbiZb5U+OWZkGV5vMrCHOUKHdugOP+bX0YqqpXZcQxGAtlOgz+Us/yi2Xwc2CU/x+7IsA6OKRVmCOpBFBRsCd9ktBoFbvH61CAj32yZe1yH/6KL5vyPeozNbrRH1y6fxtczwmh76+etXxG/fSQ3INQKNr0vMzfzH6vzOcGfsmUw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763053924; c=relaxed/simple;
-	bh=adCNJvHGGUr2CSLJL5zXOXJ7ufRBZ7WTgc5rIPloxKE=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=eVx82mufhe79tGjjN/HScvtqGk47Sa5Mj1Wfn+wL9d2rLiuly8n1eQNFh4HFVnYtgSZeg0uMwJ/AktOiWT36jEOqdVlzvVHEFPc1KOqw5K4M19O0RuoDvlWDLcLN8rpSJVwp89DhaJvC977Cotg7a8a0cN/5fL26Arjwxgs608s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WTSOC+sW; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1763055368; c=relaxed/simple;
+	bh=JYXsxaF1px/OX7lqED4hoe0RnjUVmLdxWEnlN4WkO/I=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=lcLTNKaalrMCgh2ktHCiFz1Xny5sS4ROfca+dJw5GtfyP8GMzzZdmleNkUfRQvZPXFyNZHmueGPKnPq8CWCub9JhHh9J9oh7L4pFWtmo5QJknYi7mpWhccRdn1acvRCNdjxyHmCe/8fTdQ8s++w9RKT/IeFPGRlZcHZIVejofJY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=fnsVQ9gf; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WTSOC+sW"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1763053921;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=9hAhL2FCuuvR8UWIz2VeMi55WYhkJH2CxTpmu+0WMYk=;
-	b=WTSOC+sW1d4Jcu4cnzHU65H51HcseaIPcF2rUD+/RgPvVViYz9YQg0A7C5EEgTLyHDiyjR
-	O82D0oAlCE27S0scCYde00ZP65smhNzPwWkM0ce+f0CQNHQebIkb3969dCaq6qS1SXQj6F
-	szpa5NNT/eWOaZJLyUzSiOxiBAVp9b0=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-462-i4eGflhjNFmCx0JTr1UbWA-1; Thu,
- 13 Nov 2025 12:12:00 -0500
-X-MC-Unique: i4eGflhjNFmCx0JTr1UbWA-1
-X-Mimecast-MFC-AGG-ID: i4eGflhjNFmCx0JTr1UbWA_1763053919
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E0C6F195606D
-	for <selinux@vger.kernel.org>; Thu, 13 Nov 2025 17:11:58 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.45.224.73])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id EB613300018D
-	for <selinux@vger.kernel.org>; Thu, 13 Nov 2025 17:11:57 +0000 (UTC)
-From: Vit Mojzis <vmojzis@redhat.com>
-To: selinux@vger.kernel.org
-Subject: [PATCH v2] restorecon: Add option to count relabeled files
-Date: Thu, 13 Nov 2025 18:11:34 +0100
-Message-ID: <20251113171151.719458-1-vmojzis@redhat.com>
-In-Reply-To: <CAFftDdp3ZChoaVF-5FN=O=b09Hv6VSXAUzRQ0muW0NParjZBhA@mail.gmail.com>
-References: <CAFftDdp3ZChoaVF-5FN=O=b09Hv6VSXAUzRQ0muW0NParjZBhA@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="fnsVQ9gf"
+Received: from [100.96.192.252] (unknown [52.177.6.198])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 8FBD0201337F;
+	Thu, 13 Nov 2025 09:36:00 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 8FBD0201337F
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1763055360;
+	bh=lzxqDK6OT6UhsC8zT4Ak1jisB4QKXKqzgMWivY++JHQ=;
+	h=Date:Subject:To:References:From:In-Reply-To:From;
+	b=fnsVQ9gfOwO9+Y+H2xO9SbEOVPoBlWAHqt4w9jzgcZLACSNNAYDha8UKOGAFbVt2s
+	 u1jWA9yYid/blZ58KrAL1i7TQCPq8QpiRy+Ybb9RyOQ3UUYRqcxjHlDALgwfOGKsMc
+	 okNjz7VJHWSWpjbprj9ovd8Zb982Ajp1lal67jGE=
+Message-ID: <394ce63e-2ea0-4b0f-9196-bb47c6721f85@linux.microsoft.com>
+Date: Thu, 13 Nov 2025 12:35:59 -0500
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] restorecon: Add option to count number of relabeled files
+To: William Roberts <bill.c.roberts@gmail.com>,
+ SElinux list <selinux@vger.kernel.org>
+References: <20251110180935.202229-1-vmojzis@redhat.com>
+ <CAFftDdpQM3mgBsR9A1F=ybfqU7Wwp0gbKbvYjTc-Bdz1fatPYQ@mail.gmail.com>
+ <CAFftDdoSdF2NYRichwF2pfNdriChOf7ob+N+CN7OjWZafLwGaA@mail.gmail.com>
+ <0d41ceb7-5173-4360-a746-c258e86089e8@linux.microsoft.com>
+ <CAFftDdoTR5ae1qORSjPuOj5ea1O15qtgrRiadhTp2HMh926swg@mail.gmail.com>
+ <CAFftDdp3ZChoaVF-5FN=O=b09Hv6VSXAUzRQ0muW0NParjZBhA@mail.gmail.com>
+Content-Language: en-US
+From: Daniel Burgener <dburgener@linux.microsoft.com>
+In-Reply-To: <CAFftDdp3ZChoaVF-5FN=O=b09Hv6VSXAUzRQ0muW0NParjZBhA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-This is useful in case we want to check that a remediation using
-restorecon was successful (otherwise 0 is always returned, even if no
-files were relabeled).
+On 11/12/2025 7:43 PM, William Roberts wrote:
+> On Tue, Nov 11, 2025 at 10:34 AM William Roberts
+> <bill.c.roberts@gmail.com> wrote:
+>>
+>> <snip>
+>>>>> I'm no longer an SELinux maintainer, so don't let my nack stop anyone.
+>>>
+>>> We have a need for a similar use case in terms of ensuring that
+>>> restorecon actually performed relabeling, but I agree that I don't think
+>>> this patch as is would meet our needs.
+>>>
+>>> One thing that might make the patch more usable and address these
+>>> comments would be to instead pass the expected number of relabels as an
+>>> argument to restorecon and then return success if the relabel count ==
+>>> the expected count.  That avoids all the problems around exit code
+>>> handling while still verifying the count.
+>>>
+>>> The other problem though is that in the presence of globbing it's not
+>>> clear that getting the expected number of files relabeled means that you
+>>> actually relabeled the files you expected to.  But I guess the answer to
+>>> that is just "don't use the count feature with globbing".  Even without
+>>> globbing though, if you don't relabel all the files, you don't know
+>>> which one you skipped without extra handling, which seems like you
+>>> really don't need to know the number relabeled as much as whether it was
+>>> the number you expected, which seems like a point in favor of "pass the
+>>> expected count".
+>>>
+>>
+> 
+> Sorry I accidentally sent this only to Daniel, adding back the list.
+> 
+> With -v doesn't restorecon show what would be changed? Perhaps it
+> would be better
+> to add an option that produces some standard formatting for an audit
+> trail and that output
+> could include various statistics. Then folks could parse those
+> records. I see -p does some form
+> of progress/status meter as well, for whatever that is worth.
+> 
+> <snip>
 
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
- libselinux/include/selinux/restorecon.h | 15 +++++++++++
- libselinux/src/libselinux.map           |  1 +
- libselinux/src/selinux_restorecon.c     | 34 ++++++++++++++++++++++---
- policycoreutils/setfiles/restore.c      | 12 ++++++---
- policycoreutils/setfiles/restore.h      |  3 ++-
- policycoreutils/setfiles/restorecon.8   |  3 +++
- policycoreutils/setfiles/setfiles.c     | 26 ++++++++++++++-----
- 7 files changed, 79 insertions(+), 15 deletions(-)
+My two cents FWIW is that being able to see whether you actually 
+relabeled via exit status is way more useful than having to parse output 
+to get at that info.  There's no need for the complexity of the wrapper, 
+no opportunities for parser bugs, and you can just directly succeed/fail 
+a systemd unit or bash script based on the return code.
 
-diff --git a/libselinux/include/selinux/restorecon.h b/libselinux/include/selinux/restorecon.h
-index 0ccf73a6..65aaef23 100644
---- a/libselinux/include/selinux/restorecon.h
-+++ b/libselinux/include/selinux/restorecon.h
-@@ -134,6 +134,11 @@ extern int selinux_restorecon_parallel(const char *pathname,
-  */
- #define SELINUX_RESTORECON_SET_USER_ROLE		0x40000
- 
-+/*
-+ * Count the number of relabeled files (or would be relabeled if "nochange" was not set).
-+ */
-+ #define SELINUX_RESTORECON_COUNT_RELABELED		0x80000
-+
- /**
-  * selinux_restorecon_set_sehandle - Set the global fc handle.
-  * @hndl: specifies handle to set as the global fc handle.
-@@ -228,6 +233,16 @@ extern int selinux_restorecon_xattr(const char *pathname,
-  */
- extern long unsigned selinux_restorecon_get_skipped_errors(void);
- 
-+/* selinux_restorecon_get_relabeled_files - Get the number of relabeled files
-+ *
-+ * If SELINUX_RESTORECON_COUNT_RELABELED was passed to selinux_restorecon(3) or
-+ * selinux_restorecon_parallel(3), this function returns the number of files
-+ * that were successfully relabeled.
-+ * If the SELINUX_RESTORECON_NOCHANGE flag was set, this function returns
-+ * the number of files that would be relabeled.
-+ */
-+extern long unsigned selinux_restorecon_get_relabeled_files(void);
-+
- #ifdef __cplusplus
- }
- #endif
-diff --git a/libselinux/src/libselinux.map b/libselinux/src/libselinux.map
-index ab002f01..f21e089e 100644
---- a/libselinux/src/libselinux.map
-+++ b/libselinux/src/libselinux.map
-@@ -244,6 +244,7 @@ LIBSELINUX_1.0 {
- LIBSELINUX_3.4 {
-   global:
-     selinux_restorecon_get_skipped_errors;
-+    selinux_restorecon_get_relabeled_files;
-     selinux_restorecon_parallel;
- } LIBSELINUX_1.0;
- 
-diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
-index 681c69db..8fadf4d2 100644
---- a/libselinux/src/selinux_restorecon.c
-+++ b/libselinux/src/selinux_restorecon.c
-@@ -69,6 +69,9 @@ static struct dir_xattr *dir_xattr_last;
- /* Number of errors ignored during the file tree walk. */
- static long unsigned skipped_errors;
- 
-+/* Number of successfully relabeled files or files that would be relabeled */
-+static long unsigned relabeled_files;
-+
- /* restorecon_flags for passing to restorecon_sb() */
- struct rest_flags {
- 	bool nochange;
-@@ -88,6 +91,7 @@ struct rest_flags {
- 	bool warnonnomatch;
- 	bool conflicterror;
- 	bool count_errors;
-+	bool count_relabeled;
- };
- 
- static void restorecon_init(void)
-@@ -650,11 +654,12 @@ out:
- }
- 
- static int restorecon_sb(const char *pathname, const struct stat *sb,
--			    const struct rest_flags *flags, bool first)
-+			    const struct rest_flags *flags, bool first, bool *updated_out)
- {
- 	char *newcon = NULL;
- 	char *curcon = NULL;
- 	int rc;
-+	bool updated = false;
- 	const char *lookup_path = pathname;
- 
- 	if (rootpath) {
-@@ -736,7 +741,6 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
- 	}
- 
- 	if (curcon == NULL || strcmp(curcon, newcon) != 0) {
--		bool updated = false;
- 
- 		if (!flags->set_specctx && curcon &&
- 				    (is_context_customizable(curcon) > 0)) {
-@@ -796,9 +800,14 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
- 				syslog(LOG_INFO, "labeling %s to %s\n",
- 					    pathname, newcon);
- 		}
-+
-+		/* Note: relabel counting handled by caller */
-+
- 	}
- 
- out:
-+	if (updated_out)
-+		*updated_out = updated;
- 	rc = 0;
- out1:
- 	freecon(curcon);
-@@ -887,6 +896,7 @@ struct rest_state {
- 	bool abort;
- 	int error;
- 	long unsigned skipped_errors;
-+	long unsigned relabeled_files;
- 	int saved_errno;
- 	pthread_mutex_t mutex;
- };
-@@ -1010,8 +1020,9 @@ loop_body:
- 			if (state->parallel)
- 				pthread_mutex_unlock(&state->mutex);
- 
-+			bool updated = false;
- 			error = restorecon_sb(ent_path, &ent_st, &state->flags,
--					      first);
-+					      first, &updated);
- 
- 			if (state->parallel) {
- 				pthread_mutex_lock(&state->mutex);
-@@ -1030,6 +1041,8 @@ loop_body:
- 					state->skipped_errors++;
- 				else
- 					state->error = error;
-+			} else if (updated && state->flags.count_relabeled) {
-+				state->relabeled_files++;
- 			}
- 			break;
- 		}
-@@ -1087,6 +1100,8 @@ static int selinux_restorecon_common(const char *pathname_orig,
- 		    SELINUX_RESTORECON_IGNORE_DIGEST) ? true : false;
- 	state.flags.count_errors = (restorecon_flags &
- 		    SELINUX_RESTORECON_COUNT_ERRORS) ? true : false;
-+	state.flags.count_relabeled = (restorecon_flags &
-+		    SELINUX_RESTORECON_COUNT_RELABELED) ? true : false;
- 	state.setrestorecondigest = true;
- 
- 	state.head = NULL;
-@@ -1094,6 +1109,7 @@ static int selinux_restorecon_common(const char *pathname_orig,
- 	state.abort = false;
- 	state.error = 0;
- 	state.skipped_errors = 0;
-+	state.relabeled_files = 0;
- 	state.saved_errno = 0;
- 
- 	struct stat sb;
-@@ -1215,7 +1231,11 @@ static int selinux_restorecon_common(const char *pathname_orig,
- 			goto cleanup;
- 		}
- 
--		error = restorecon_sb(pathname, &sb, &state.flags, true);
-+		bool updated = false;
-+		error = restorecon_sb(pathname, &sb, &state.flags, true, &updated);
-+		if (updated && state.flags.count_relabeled) {
-+			state.relabeled_files++;
-+		}
- 		goto cleanup;
- 	}
- 
-@@ -1341,6 +1361,7 @@ out:
- 	(void) fts_close(state.fts);
- 	errno = state.saved_errno;
- cleanup:
-+	relabeled_files = state.relabeled_files;
- 	if (state.flags.add_assoc) {
- 		if (state.flags.verbose)
- 			filespec_eval();
-@@ -1618,3 +1639,8 @@ long unsigned selinux_restorecon_get_skipped_errors(void)
- {
- 	return skipped_errors;
- }
-+
-+long unsigned selinux_restorecon_get_relabeled_files(void)
-+{
-+	return relabeled_files;
-+}
-diff --git a/policycoreutils/setfiles/restore.c b/policycoreutils/setfiles/restore.c
-index 2c031ccc..07582e7c 100644
---- a/policycoreutils/setfiles/restore.c
-+++ b/policycoreutils/setfiles/restore.c
-@@ -43,7 +43,7 @@ void restore_init(struct restore_opts *opts)
- 			   opts->syslog_changes | opts->log_matches |
- 			   opts->ignore_noent | opts->ignore_mounts |
- 			   opts->mass_relabel | opts->conflict_error |
--			   opts->count_errors;
-+			   opts->count_errors | opts->count_relabeled;
- 
- 	/* Use setfiles, restorecon and restorecond own handles */
- 	selinux_restorecon_set_sehandle(opts->hnd);
-@@ -75,7 +75,7 @@ void restore_finish(void)
- }
- 
- int process_glob(char *name, struct restore_opts *opts, size_t nthreads,
--		 long unsigned *skipped_errors)
-+		 long unsigned *skipped_errors, long unsigned *relabeled_files)
- {
- 	glob_t globbuf;
- 	size_t i, len;
-@@ -99,8 +99,12 @@ int process_glob(char *name, struct restore_opts *opts, size_t nthreads,
- 						 nthreads);
- 		if (rc < 0)
- 			errors = rc;
--		else if (opts->restorecon_flags & SELINUX_RESTORECON_COUNT_ERRORS)
--			*skipped_errors += selinux_restorecon_get_skipped_errors();
-+		else {
-+			if (opts->restorecon_flags & SELINUX_RESTORECON_COUNT_ERRORS)
-+				*skipped_errors += selinux_restorecon_get_skipped_errors();
-+			if (opts->restorecon_flags & SELINUX_RESTORECON_COUNT_RELABELED)
-+				*relabeled_files += selinux_restorecon_get_relabeled_files();
-+		}
- 	}
- 
- 	globfree(&globbuf);
-diff --git a/policycoreutils/setfiles/restore.h b/policycoreutils/setfiles/restore.h
-index 95afb960..36f73059 100644
---- a/policycoreutils/setfiles/restore.h
-+++ b/policycoreutils/setfiles/restore.h
-@@ -37,6 +37,7 @@ struct restore_opts {
- 	unsigned int ignore_mounts;
- 	unsigned int conflict_error;
- 	unsigned int count_errors;
-+	unsigned int count_relabeled;
- 	/* restorecon_flags holds | of above for restore_init() */
- 	unsigned int restorecon_flags;
- 	char *rootpath;
-@@ -52,7 +53,7 @@ void restore_init(struct restore_opts *opts);
- void restore_finish(void);
- void add_exclude(const char *directory);
- int process_glob(char *name, struct restore_opts *opts, size_t nthreads,
--		 long unsigned *skipped_errors);
-+		 long unsigned *skipped_errors, long unsigned *relabeled_files);
- extern char **exclude_list;
- 
- #endif
-diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setfiles/restorecon.8
-index 1134420e..b7ff9715 100644
---- a/policycoreutils/setfiles/restorecon.8
-+++ b/policycoreutils/setfiles/restorecon.8
-@@ -153,6 +153,9 @@ display warnings about entries that had no matching files by outputting the
- .BR selabel_stats (3)
- results.
- .TP
-+.B \-c
-+count and display the number of (would be) relabeled files. The exit code will be set to 0 only if at least one file is relabeled.
-+.TP
- .B \-0
- the separator for the input items is assumed to be the null character
- (instead of the white space).  The quotes and the backslash characters are
-diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-index 31034316..351940f3 100644
---- a/policycoreutils/setfiles/setfiles.c
-+++ b/policycoreutils/setfiles/setfiles.c
-@@ -35,8 +35,8 @@ static __attribute__((__noreturn__)) void usage(const char *const name)
- {
- 	if (iamrestorecon) {
- 		fprintf(stderr,
--			"usage:  %s [-iIDFUmnprRv0xT] [-e excludedir] pathname...\n"
--			"usage:  %s [-iIDFUmnprRv0xT] [-e excludedir] -f filename\n",
-+			"usage:  %s [-ciIDFUmnprRv0xT] [-e excludedir] pathname...\n"
-+			"usage:  %s [-ciIDFUmnprRv0xT] [-e excludedir] -f filename\n",
- 			name, name);
- 	} else {
- 		fprintf(stderr,
-@@ -146,11 +146,12 @@ int main(int argc, char **argv)
- 	size_t buf_len, nthreads = 1;
- 	const char *base;
- 	int errors = 0;
--	const char *ropts = "e:f:hiIDlmno:pqrsvFURW0xT:";
-+	const char *ropts = "ce:f:hiIDlmno:pqrsvFURW0xT:";
- 	const char *sopts = "c:de:f:hiIDlmno:pqr:svACEFUR:W0T:";
- 	const char *opts;
- 	union selinux_callback cb;
- 	long unsigned skipped_errors;
-+	long unsigned relabeled_files;
- 
- 	/* Initialize variables */
- 	memset(&r_opts, 0, sizeof(r_opts));
-@@ -160,6 +161,7 @@ int main(int argc, char **argv)
- 	request_digest = 0;
- 	policyfile = NULL;
- 	skipped_errors = 0;
-+	relabeled_files = 0;
- 
- 	if (!argv[0]) {
- 		fprintf(stderr, "Called without required program name!\n");
-@@ -223,7 +225,10 @@ int main(int argc, char **argv)
- 	while ((opt = getopt(argc, argv, opts)) > 0) {
- 		switch (opt) {
- 		case 'c':
--			{
-+			if (iamrestorecon) {
-+				r_opts.count_relabeled = SELINUX_RESTORECON_COUNT_RELABELED;
-+				break;
-+			} else {
- 				FILE *policystream;
- 
- 				policyfile = optarg;
-@@ -457,14 +462,14 @@ int main(int argc, char **argv)
- 			if (!strcmp(buf, "/"))
- 				r_opts.mass_relabel = SELINUX_RESTORECON_MASS_RELABEL;
- 			errors |= process_glob(buf, &r_opts, nthreads,
--					       &skipped_errors) < 0;
-+					       &skipped_errors, &relabeled_files) < 0;
- 		}
- 		if (strcmp(input_filename, "-") != 0)
- 			fclose(f);
- 	} else {
- 		for (i = optind; i < argc; i++)
- 			errors |= process_glob(argv[i], &r_opts, nthreads,
--					       &skipped_errors) < 0;
-+					       &skipped_errors, &relabeled_files) < 0;
- 	}
- 
- 	if (r_opts.mass_relabel && !r_opts.nochange)
-@@ -479,5 +484,14 @@ int main(int argc, char **argv)
- 	if (r_opts.progress)
- 		fprintf(stdout, "\n");
- 
-+	/* Output relabeled file count if requested */
-+	if (r_opts.count_relabeled) {
-+		long unsigned relabeled_count = selinux_restorecon_get_relabeled_files();
-+		printf("Relabeled %lu files\n", relabeled_count);
-+
-+		/* Set exit code to 0 if at least one file was relabeled */
-+		exit(errors ? -1 : relabeled_count ? 0 : 1);
-+	}
-+
- 	exit(errors ? -1 : skipped_errors ? 1 : 0);
- }
--- 
-2.51.1
-
+-Daniel
