@@ -1,251 +1,120 @@
-Received: from flow-b5-smtp.messagingengine.com (flow-b5-smtp.messagingengine.com [202.12.124.140])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f54.google.com (mail-lf1-f54.google.com [209.85.167.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCB0226E6F5;
-	Thu, 13 Nov 2025 00:43:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD250199931
+	for <selinux@vger.kernel.org>; Thu, 13 Nov 2025 00:43:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762994591; cv=none; b=PLfsTLnnteJErhHPVi5P5e1R/lpnPl2xzi0XYkJZUfdSvYCaX9+cYdHuX81EtxkYUiGP9gSPcnjEBW3LC4iJy44cfqehnNdLawWmTR6y4o6hNhlKDJRlo+3qYX3c6uW2uev2lTM9MYYN3hciog6bPkgKBCYJAreZt6h0gekBhJY=
+	t=1762994621; cv=none; b=Ojia1+fZGriADdGFlVOJ8nCieNhBrTiZx3ExSH/QKAKXPe2k4kNP6MAh8ndVv2GpPsOoYogZ1ziy2+nfoL1bJFw5JhHOLPUIJMV/GnPKC1wxl9HNht07fdLvyePBSZkPrHhOH4qAf5BIDnAyykjUwKLe2GwpJahulZ+d/R8ustw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762994591; c=relaxed/simple;
-	bh=OTB0rGLAxSxPYqaVuzKhtxaaom6SXBwXYWGgKixk4og=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=iqrqu4o5GvS9NXQzlb4+DphUWW0uPJT9NYfXlDGp5UpZfndo0TDEdyB37mOr58mbgg4beTV3W3HpnJm2h55LtVIpu+OrrIyD9uuw07irQ5CHCcKhYQYlr18UsOKMSl6jL5CfA661X0fFQqtjzDv4uiQwS+/6BMuYo8hfUsaAJhc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ownmail.net; spf=pass smtp.mailfrom=ownmail.net; dkim=pass (2048-bit key) header.d=ownmail.net header.i=@ownmail.net header.b=LcFeVDZg; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=y5IZtIaQ; arc=none smtp.client-ip=202.12.124.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ownmail.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ownmail.net
+	s=arc-20240116; t=1762994621; c=relaxed/simple;
+	bh=fpAXtI1PNi5xtUGy+9dcTRW3Xpxbbhz7K5FX1rcR/5A=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Content-Type; b=moDKguZtOCOKM0IfzkNeLz/NlVdKMhg8zG1QnDkSAsNO0Wg1fXY6c/ewHwr7Usjv8BGRBW41hvj6VktMIbvmDFwxKk8XNxVRf2g8qwHJuDALxjVz3veygIL+FMiP5iGIY9tOs203zSgb8zFeNWwqdw9YMOEeZwCgRBiqN15w9kw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=H4+UjJ55; arc=none smtp.client-ip=209.85.167.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ownmail.net header.i=@ownmail.net header.b="LcFeVDZg";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="y5IZtIaQ"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailflow.stl.internal (Postfix) with ESMTP id 1C94C1300C9C;
-	Wed, 12 Nov 2025 19:43:08 -0500 (EST)
-Received: from phl-mailfrontend-02 ([10.202.2.163])
-  by phl-compute-04.internal (MEProxy); Wed, 12 Nov 2025 19:43:09 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ownmail.net; h=
-	cc:cc:content-transfer-encoding:content-type:date:date:from:from
-	:in-reply-to:in-reply-to:message-id:mime-version:references
-	:reply-to:reply-to:subject:subject:to:to; s=fm3; t=1762994587;
-	 x=1763001787; bh=LH6B8gufGV0TjJ4vlHu8RH1VmAxd1MYT56YsH6sKK6w=; b=
-	LcFeVDZgdj6isygMwW1oIYlc7mst+quWlTaNMT0fsvXfYmp1ZXN1NXM4X95hrrSv
-	DvoZcFS/DH6CH+uKZJBGXii8RSKCe2jAKSdyTbzyLr5rxDVADOhFFguBaHaIZogi
-	Oo84gyVH5AkICsS30Alo8gyP9KHpBLzZCGALCeL/pjklVuqcD4VNCTlpX5EFnFTy
-	8dwEwqys52KZbOFCf//pXRccTxqE/H12Vm9+s30YWKbYHR5Xr5Aar++CxnTNrRq0
-	MHhuhpn8Rdx8Q7lybzi2Wb7ZZFdPSAlEMNeK47V59B8GpH2W7bk59BOEmFxSFlb0
-	0nePM9v/timsp+emzn9D9g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:date:date:feedback-id:feedback-id:from:from
-	:in-reply-to:in-reply-to:message-id:mime-version:references
-	:reply-to:reply-to:subject:subject:to:to:x-me-proxy:x-me-sender
-	:x-me-sender:x-sasl-enc; s=fm3; t=1762994587; x=1763001787; bh=L
-	H6B8gufGV0TjJ4vlHu8RH1VmAxd1MYT56YsH6sKK6w=; b=y5IZtIaQ5rUB7FZc9
-	DZiFRQNoyTxQjRss2CWGi/2vujHuc8nwLRS0bIATFM/3zmLXR1D+WqEgcUa5xBgG
-	NmIj2541lKoAXLaqsR+t2zkfDd8Kl87UiOQCz/YwJSIqsZHFh8c8Mezk7hoitMfJ
-	+lkR8gI45oA9KzMR3Y72nNsZYENu4QGgO7onqdAlQmku+pyNP8tEJR9CF3f8dq20
-	LQjyaoNmewI7tTUsacxY2huMyhJ2JCCpvq+mPm/yIp/Z7sQisLYcFT5bTmeFXEIH
-	SZ3QOLjICK5YWweqXwcazxL2DuID/AwpOp2Y+XiPrSW17gr7GwaaLGVmaWHciqFp
-	OHW7Q==
-X-ME-Sender: <xms:mykVaSUwVqtIzfyjHocH7cPvv5XBpa0X1D_9lZn61xQbxHCxkXGasw>
-    <xme:mykVaTqMEcjDOUNn2Ok2QhFo2ec8KKqTJWiECORYIv3NWqT4aZa1u3vIAgqIt3DuT
-    eL62AF9da2UBumwh6hHqMlr2Apy5LlOPCd8u_VE77TRzFCxGA>
-X-ME-Received: <xmr:mykVaTYWE3CdfkUP4vOCNQ4YFfvW5eEWclj8W-i2XmghbotjkL8ytkpP4S6-hBL6wB21RR8h9qeV8G8-UnifVAI_9CT3ZWU5uS00Yn9GZUFO>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggddvtdehheegucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhephffvvefufffkofgjfhhrggfgsedtkeertdertddtnecuhfhrohhmpefpvghilheu
-    rhhofihnuceonhgvihhlsgesohifnhhmrghilhdrnhgvtheqnecuggftrfgrthhtvghrnh
-    epveevkeffudeuvefhieeghffgudektdelkeejiedtjedugfeukedvkeffvdefvddunecu
-    vehluhhsthgvrhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhepnhgvihhlsg
-    esohifnhhmrghilhdrnhgvthdpnhgspghrtghpthhtohepgedtpdhmohguvgepshhmthhp
-    ohhuthdprhgtphhtthhopehvihhrohesiigvnhhivhdrlhhinhhugidrohhrghdruhhkpd
-    hrtghpthhtohepshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphht
-    thhopehlihhnuhigqdigfhhssehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoh
-    eplhhinhhugidquhhnihhonhhfshesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphht
-    thhopehlihhnuhigqdhsvggtuhhrihhthidqmhhoughulhgvsehvghgvrhdrkhgvrhhnvg
-    hlrdhorhhgpdhrtghpthhtoheplhhinhhugidqnhhfshesvhhgvghrrdhkvghrnhgvlhdr
-    ohhrghdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlh
-    drohhrghdprhgtphhtthhopehlihhnuhigqdhfshguvghvvghlsehvghgvrhdrkhgvrhhn
-    vghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqtghifhhssehvghgvrhdrkhgvrhhnvg
-    hlrdhorhhg
-X-ME-Proxy: <xmx:mykVaXCaC6FMRT2xrI4xiuXZMdd4I6puaIt8pgf5zrtW07ZMrxjszw>
-    <xmx:mykVaeH4gTlfc_orQZm7HbzBGUxV9g9PdW-yYmi3BPtyvHuOubhxEg>
-    <xmx:mykVaTwsOiMEB8iYLInJyeTZKhfJ1yAms0HRzV6umBeNshUynQYHXg>
-    <xmx:mykVaTfSC-8N3rruS9d_IutVbX-KqK1QErWxGADESmYPr-whfK0uGA>
-    <xmx:mykVaWuUGHt76D35n5qsHYsTqLG9Zdz2WwzhMWF2V0_uy5i2t_IuohBZ>
-Feedback-ID: iab3e480c:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 12 Nov 2025 19:42:57 -0500 (EST)
-From: NeilBrown <neilb@ownmail.net>
-To: "Alexander Viro" <viro@zeniv.linux.org.uk>,
-	"Christian Brauner" <brauner@kernel.org>,
-	"Amir Goldstein" <amir73il@gmail.com>
-Cc: "Jan Kara" <jack@suse.cz>,	linux-fsdevel@vger.kernel.org,
-	Jeff Layton <jlayton@kernel.org>,	Chris Mason <clm@fb.com>,
-	David Sterba <dsterba@suse.com>,	David Howells <dhowells@redhat.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>,	Tyler Hicks <code@tyhicks.com>,
-	Miklos Szeredi <miklos@szeredi.hu>,	Chuck Lever <chuck.lever@oracle.com>,
-	Olga Kornievskaia <okorniev@redhat.com>,	Dai Ngo <Dai.Ngo@oracle.com>,
-	Namjae Jeon <linkinjeon@kernel.org>,	Steve French <smfrench@gmail.com>,
-	Sergey Senozhatsky <senozhatsky@chromium.org>,
-	Carlos Maiolino <cem@kernel.org>,
-	John Johansen <john.johansen@canonical.com>,
-	Paul Moore <paul@paul-moore.com>,	James Morris <jmorris@namei.org>,
-	"Serge E. Hallyn" <serge@hallyn.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>,	Mateusz Guzik <mjguzik@gmail.com>,
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	Stefan Berger <stefanb@linux.ibm.com>,
-	"Darrick J. Wong" <djwong@kernel.org>,	linux-kernel@vger.kernel.org,
-	netfs@lists.linux.dev,	ecryptfs@vger.kernel.org,
-	linux-nfs@vger.kernel.org,	linux-unionfs@vger.kernel.org,
-	linux-cifs@vger.kernel.org,	linux-xfs@vger.kernel.org,
-	linux-security-module@vger.kernel.org,	selinux@vger.kernel.org
-Subject: [PATCH v6 15/15] VFS: introduce end_creating_keep()
-Date: Thu, 13 Nov 2025 11:18:38 +1100
-Message-ID: <20251113002050.676694-16-neilb@ownmail.net>
-X-Mailer: git-send-email 2.50.0.107.gf914562f5916.dirty
-In-Reply-To: <20251113002050.676694-1-neilb@ownmail.net>
-References: <20251113002050.676694-1-neilb@ownmail.net>
-Reply-To: NeilBrown <neil@brown.name>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="H4+UjJ55"
+Received: by mail-lf1-f54.google.com with SMTP id 2adb3069b0e04-5957ac0efc2so213317e87.1
+        for <selinux@vger.kernel.org>; Wed, 12 Nov 2025 16:43:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1762994618; x=1763599418; darn=vger.kernel.org;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=wnnz8NddVHsF4uuY9dDLvis0mFm5HAgiyp02x5fzh4w=;
+        b=H4+UjJ55CkVOUeIB1A2eo2RiAop7eELkroKeV0piahNQ1YPgh6zJkuHdM80Jw29ZEc
+         Eizk457RurTF+8XCZCrv3IpoNhBzCWIwWHk3Y09VTKcKk+L8wl8zJaO/PM61b9mK2rDf
+         azjCQZevdOnOVJGA7tqNe0JxLMEv2V19jXTLhjZWhIczG4kyFf+iCiCQrizYkOYMp2//
+         NBifqRNQidE8MSircKqAnoZEAfHrJ4zUfa1E4Vm2OlPhN0DAlTrJ0RteFQlOgAuAT5is
+         kZq4rB8ZZUUxVd2A3rxXCrtxPXP59dNxM/OAmpkMJA14sT0rvCDZZuBCDyZoByi795rE
+         jwKA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1762994618; x=1763599418;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=wnnz8NddVHsF4uuY9dDLvis0mFm5HAgiyp02x5fzh4w=;
+        b=F2/nQxOLl41WtaNedwnBTJHrP0rzMu2dtIH3oIKXRCuhw2vjUJo5mb6A6P1izVu3sx
+         ODFMfIkNbSlOX3RqiIA+PzuGnMlUxdP0QJqVZZUxeg4sUzFRd3EKF7ErsRWdaNQA5YSr
+         jvpBdWfs8lRAHVcy8Uh/rNmE/7NQhXj5T7lhaAtNT9whc3P4vYcgaZrci70hGu6Fb5Cl
+         dlZmh42b13md08CwLU7rfvx7+/T33kW3veGuNvk1r6K52l4qBicvx8+x1MJtg4eTZZgA
+         XTZ/a7JVhLp1ZEDu1rMFAPZipJk0eS0iTrbxyCPkRtLutpBfw9qt+GltBRDKGwma118t
+         swRQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXYjRst+67AAOib9Jk1F7lIlif/aXiDm3D4Hof8MG4/Q6i/n8ZYiHz0pXosUVYgNCOPzcXTSb5N@vger.kernel.org
+X-Gm-Message-State: AOJu0YxU5k4AcOvSMh221C3d7RwdI4RwLPXkUg4oOz3V5B1aSqyfk1GU
+	4Sam4LYKlemf0+CyvSAoc8GwVeC+OwkrWoZtLVi4N2Em0VPNnIIHNF+ktxALIcWYR2DZ2ampK0R
+	WV9FHMkdDwu1jc6d39N2x9K5VmGlUthUC1g==
+X-Gm-Gg: ASbGncuuT1SbvBGEyAwzykQFzz2PK3nQs9zeC/g9B4aURrArZvTEkJp2dgVs1QPWwQ2
+	NygRxj4+4Pmz7/96IK0Z5/kRvvKP7jEcrhq4dwdUS+8t1aZGZ9bB2UtXVPpuQpVMTr3tlfX3Y7D
+	BiQkPXTFDL1yaNf5XMds+MzCeC8rMIQZBDmdf3WGJQfGglxvQdNQoGfl+A7jUFodlzFfZNxHKah
+	H+tcVuaHoUMLjkW0yEt3s11Wr47il5NOQcp5a/V8/Aoxe6wHk8w9ZNAgBgsHL57fveLChaJ
+X-Google-Smtp-Source: AGHT+IE0/3o7wy6GbLPkvIketjV4Lnezu1T42ujc4BYk7m/qBFlXKDVds4YQmW3eC/A3HElxXfvYrSkF0BCv+BLf+NE=
+X-Received: by 2002:a05:6512:3c96:b0:594:2cdf:1941 with SMTP id
+ 2adb3069b0e04-59576e17a9amr1982097e87.31.1762994617619; Wed, 12 Nov 2025
+ 16:43:37 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20251110180935.202229-1-vmojzis@redhat.com> <CAFftDdpQM3mgBsR9A1F=ybfqU7Wwp0gbKbvYjTc-Bdz1fatPYQ@mail.gmail.com>
+ <CAFftDdoSdF2NYRichwF2pfNdriChOf7ob+N+CN7OjWZafLwGaA@mail.gmail.com>
+ <0d41ceb7-5173-4360-a746-c258e86089e8@linux.microsoft.com> <CAFftDdoTR5ae1qORSjPuOj5ea1O15qtgrRiadhTp2HMh926swg@mail.gmail.com>
+In-Reply-To: <CAFftDdoTR5ae1qORSjPuOj5ea1O15qtgrRiadhTp2HMh926swg@mail.gmail.com>
+From: William Roberts <bill.c.roberts@gmail.com>
+Date: Wed, 12 Nov 2025 18:43:26 -0600
+X-Gm-Features: AWmQ_bk8MWauuQKxQKzeFhqhFPNHNC7lM9WhlB2qF6O9QFcE_nG_FFtxX2p3MnE
+Message-ID: <CAFftDdp3ZChoaVF-5FN=O=b09Hv6VSXAUzRQ0muW0NParjZBhA@mail.gmail.com>
+Subject: Re: [PATCH] restorecon: Add option to count number of relabeled files
+To: Daniel Burgener <dburgener@linux.microsoft.com>, SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: NeilBrown <neil@brown.name>
+On Tue, Nov 11, 2025 at 10:34=E2=80=AFAM William Roberts
+<bill.c.roberts@gmail.com> wrote:
+>
+> <snip>
+> > >> I'm no longer an SELinux maintainer, so don't let my nack stop anyon=
+e.
+> >
+> > We have a need for a similar use case in terms of ensuring that
+> > restorecon actually performed relabeling, but I agree that I don't thin=
+k
+> > this patch as is would meet our needs.
+> >
+> > One thing that might make the patch more usable and address these
+> > comments would be to instead pass the expected number of relabels as an
+> > argument to restorecon and then return success if the relabel count =3D=
+=3D
+> > the expected count.  That avoids all the problems around exit code
+> > handling while still verifying the count.
+> >
+> > The other problem though is that in the presence of globbing it's not
+> > clear that getting the expected number of files relabeled means that yo=
+u
+> > actually relabeled the files you expected to.  But I guess the answer t=
+o
+> > that is just "don't use the count feature with globbing".  Even without
+> > globbing though, if you don't relabel all the files, you don't know
+> > which one you skipped without extra handling, which seems like you
+> > really don't need to know the number relabeled as much as whether it wa=
+s
+> > the number you expected, which seems like a point in favor of "pass the
+> > expected count".
+> >
+>
 
-Occasionally the caller of end_creating() wants to keep using the dentry.
-Rather then requiring them to dget() the dentry (when not an error)
-before calling end_creating(), provide end_creating_keep() which does
-this.
+Sorry I accidentally sent this only to Daniel, adding back the list.
 
-cachefiles and overlayfs make use of this.
+With -v doesn't restorecon show what would be changed? Perhaps it
+would be better
+to add an option that produces some standard formatting for an audit
+trail and that output
+could include various statistics. Then folks could parse those
+records. I see -p does some form
+of progress/status meter as well, for whatever that is worth.
 
-Reviewed-by: Amir Goldstein <amir73il@gmail.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: NeilBrown <neil@brown.name>
----
- fs/cachefiles/namei.c |  3 +--
- fs/overlayfs/dir.c    |  8 ++------
- fs/overlayfs/super.c  | 11 +++--------
- include/linux/namei.h | 22 ++++++++++++++++++++++
- 4 files changed, 28 insertions(+), 16 deletions(-)
-
-diff --git a/fs/cachefiles/namei.c b/fs/cachefiles/namei.c
-index 59327618ac42..ef22ac19545b 100644
---- a/fs/cachefiles/namei.c
-+++ b/fs/cachefiles/namei.c
-@@ -155,8 +155,7 @@ struct dentry *cachefiles_get_directory(struct cachefiles_cache *cache,
- 
- 	/* Tell rmdir() it's not allowed to delete the subdir */
- 	inode_lock(d_inode(subdir));
--	dget(subdir);
--	end_creating(subdir);
-+	end_creating_keep(subdir);
- 
- 	if (!__cachefiles_mark_inode_in_use(NULL, d_inode(subdir))) {
- 		pr_notice("cachefiles: Inode already in use: %pd (B=%lx)\n",
-diff --git a/fs/overlayfs/dir.c b/fs/overlayfs/dir.c
-index 739f974dc258..d21f81a524f6 100644
---- a/fs/overlayfs/dir.c
-+++ b/fs/overlayfs/dir.c
-@@ -251,10 +251,7 @@ struct dentry *ovl_create_temp(struct ovl_fs *ofs, struct dentry *workdir,
- 	if (IS_ERR(ret))
- 		return ret;
- 	ret = ovl_create_real(ofs, workdir, ret, attr);
--	if (!IS_ERR(ret))
--		dget(ret);
--	end_creating(ret);
--	return ret;
-+	return end_creating_keep(ret);
- }
- 
- static int ovl_set_opaque_xerr(struct dentry *dentry, struct dentry *upper,
-@@ -364,8 +361,7 @@ static int ovl_create_upper(struct dentry *dentry, struct inode *inode,
- 	if (IS_ERR(newdentry))
- 		return PTR_ERR(newdentry);
- 
--	dget(newdentry);
--	end_creating(newdentry);
-+	end_creating_keep(newdentry);
- 
- 	if (ovl_type_merge(dentry->d_parent) && d_is_dir(newdentry) &&
- 	    !ovl_allow_offline_changes(ofs)) {
-diff --git a/fs/overlayfs/super.c b/fs/overlayfs/super.c
-index 3acda985c8a3..7b8fc1cab6eb 100644
---- a/fs/overlayfs/super.c
-+++ b/fs/overlayfs/super.c
-@@ -319,8 +319,7 @@ static struct dentry *ovl_workdir_create(struct ovl_fs *ofs,
- 		};
- 
- 		if (work->d_inode) {
--			dget(work);
--			end_creating(work);
-+			end_creating_keep(work);
- 			if (persist)
- 				return work;
- 			err = -EEXIST;
-@@ -336,9 +335,7 @@ static struct dentry *ovl_workdir_create(struct ovl_fs *ofs,
- 		}
- 
- 		work = ovl_do_mkdir(ofs, dir, work, attr.ia_mode);
--		if (!IS_ERR(work))
--			dget(work);
--		end_creating(work);
-+		end_creating_keep(work);
- 		err = PTR_ERR(work);
- 		if (IS_ERR(work))
- 			goto out_err;
-@@ -630,9 +627,7 @@ static struct dentry *ovl_lookup_or_create(struct ovl_fs *ofs,
- 		if (!child->d_inode)
- 			child = ovl_create_real(ofs, parent, child,
- 						OVL_CATTR(mode));
--		if (!IS_ERR(child))
--			dget(child);
--		end_creating(child);
-+		end_creating_keep(child);
- 	}
- 	dput(parent);
- 
-diff --git a/include/linux/namei.h b/include/linux/namei.h
-index b4d95b79b5a8..58600cf234bc 100644
---- a/include/linux/namei.h
-+++ b/include/linux/namei.h
-@@ -126,6 +126,28 @@ static inline void end_creating(struct dentry *child)
- 	end_dirop(child);
- }
- 
-+/* end_creating_keep - finish action started with start_creating() and return result
-+ * @child: dentry returned by start_creating() or vfs_mkdir()
-+ *
-+ * Unlock and return the child. This can be called after
-+ * start_creating() whether that function succeeded or not,
-+ * but it is not needed on failure.
-+ *
-+ * If vfs_mkdir() was called then the value returned from that function
-+ * should be given for @child rather than the original dentry, as vfs_mkdir()
-+ * may have provided a new dentry.
-+ *
-+ * Returns: @child, which may be a dentry or an error.
-+ *
-+ */
-+static inline struct dentry *end_creating_keep(struct dentry *child)
-+{
-+	if (!IS_ERR(child))
-+		dget(child);
-+	end_dirop(child);
-+	return child;
-+}
-+
- /**
-  * end_removing - finish action started with start_removing
-  * @child:  dentry returned by start_removing()
--- 
-2.50.0.107.gf914562f5916.dirty
-
+<snip>
