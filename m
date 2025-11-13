@@ -1,207 +1,410 @@
-Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [62.89.141.173])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4452927B359;
-	Thu, 13 Nov 2025 09:26:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.89.141.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D14C33556C
+	for <selinux@vger.kernel.org>; Thu, 13 Nov 2025 17:12:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763026007; cv=none; b=hg0IyaLU6Ivk3mKmi24M/5KPVhwie24LkviNEm25In/84fax4Ah6/Pq0pMXSan72Q89YDEwTRYQXC2fBhvZEqdDZgvK1XmUPMXim1yO7Ld3wpRViNWypHKFagZkmASSV9u5+Hqfr09aRCi74YjQHnL/8MLDyeIFqwu0jPJWBcLs=
+	t=1763053924; cv=none; b=SQg9G65mnP9QznfiXycYuMcl0IofQNLGyVVupnBZxWVOHLr2fxCwHZvTBh/vLlEdy0fbgjm4WJcCW1zsVaMgDzolDOfmdqm+92aVb3ksx/Tb6fzoZQvt/jWc0Q7HpVqVl/uEcygp5SRoPJVvOxghTbQLAHF3Lp63N8IqwAvVOpI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763026007; c=relaxed/simple;
-	bh=V9v4rcZd8cRDteZ6yt185AXmX9IehUKxWoOSUbyVPQE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Gm+k30SNROr3uE8MC0T66+FTRdSZlmMzIXaSmbln1AYrQgIzpQloz3B+n0pKBl/ZYLSf3p54LcPe5UFYZjFRLVncW2KFpB3aTZ80ZcosBlA7oOax4iJPcho7xBfAMrpFB2ZZ6hYs01h+IlGx3eUaGc2yTxFHuMJrtIJacMZuLz4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=BZWkX6ff; arc=none smtp.client-ip=62.89.141.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ftp.linux.org.uk
+	s=arc-20240116; t=1763053924; c=relaxed/simple;
+	bh=adCNJvHGGUr2CSLJL5zXOXJ7ufRBZ7WTgc5rIPloxKE=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=eVx82mufhe79tGjjN/HScvtqGk47Sa5Mj1Wfn+wL9d2rLiuly8n1eQNFh4HFVnYtgSZeg0uMwJ/AktOiWT36jEOqdVlzvVHEFPc1KOqw5K4M19O0RuoDvlWDLcLN8rpSJVwp89DhaJvC977Cotg7a8a0cN/5fL26Arjwxgs608s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WTSOC+sW; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="BZWkX6ff"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
-	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=LDUxCZ9a1FBEg+ndXr53elrDsetDAHrRuckIwq+rkq0=; b=BZWkX6ff3GA3RTeDfa4driAPz2
-	WEG9gIlnyiYFdtMOWlbZu9v/maRJmMXsW7OV71VZxaFQzrkQ+QdzfOvUBvZ8qNmBTAaQ0c64+1a4e
-	e2Ntp0fd4Nz2PbSh3xvepolayFe8B+2k6YRJKodfIL7Czycd5Xq28Trj5RrH9AvJL7ifIGizzoNUd
-	S85OBW6rXLf1OGeorqTcGvgW3AVCokPuyfp1wjY7Y3yAbmhvYTcVBNIroydt68NMMAAiPyRPwfcyz
-	nXp2xc7r/dlTreE2iy/5WTgr8kPTqpleSNRGiMCmePXOZMGXGvpta32ZoNyWi03E8Avg9wVxF2qVG
-	6GSVcCPw==;
-Received: from viro by zeniv.linux.org.uk with local (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vJTbA-0000000HMAd-16pF;
-	Thu, 13 Nov 2025 09:26:36 +0000
-Date: Thu, 13 Nov 2025 09:26:36 +0000
-From: Al Viro <viro@zeniv.linux.org.uk>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: bot+bpf-ci@kernel.org, linux-fsdevel@vger.kernel.org,
-	torvalds@linux-foundation.org, brauner@kernel.org, jack@suse.cz,
-	raven@themaw.net, miklos@szeredi.hu, neil@brown.name,
-	a.hindborg@kernel.org, linux-mm@kvack.org,
-	linux-efi@vger.kernel.org, ocfs2-devel@lists.linux.dev,
-	kees@kernel.org, rostedt@goodmis.org, gregkh@linuxfoundation.org,
-	linux-usb@vger.kernel.org, paul@paul-moore.com,
-	casey@schaufler-ca.com, linuxppc-dev@lists.ozlabs.org,
-	john.johansen@canonical.com, selinux@vger.kernel.org,
-	borntraeger@linux.ibm.com, bpf@vger.kernel.org, ast@kernel.org,
-	andrii@kernel.org, daniel@iogearbox.net, martin.lau@kernel.org,
-	eddyz87@gmail.com, yonghong.song@linux.dev, ihor.solodrai@linux.dev,
-	Chris Mason <clm@meta.com>
-Subject: [functionfs] mainline UAF (was Re: [PATCH v3 36/50] functionfs:
- switch to simple_remove_by_name())
-Message-ID: <20251113092636.GX2441659@ZenIV>
-References: <20251111065520.2847791-37-viro@zeniv.linux.org.uk>
- <20754dba9be498daeda5fe856e7276c9c91c271999320ae32331adb25a47cd4f@mail.kernel.org>
- <20251111092244.GS2441659@ZenIV>
- <e6b90909-fdd7-4c4d-b96e-df27ea9f39c4@meta.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WTSOC+sW"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1763053921;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=9hAhL2FCuuvR8UWIz2VeMi55WYhkJH2CxTpmu+0WMYk=;
+	b=WTSOC+sW1d4Jcu4cnzHU65H51HcseaIPcF2rUD+/RgPvVViYz9YQg0A7C5EEgTLyHDiyjR
+	O82D0oAlCE27S0scCYde00ZP65smhNzPwWkM0ce+f0CQNHQebIkb3969dCaq6qS1SXQj6F
+	szpa5NNT/eWOaZJLyUzSiOxiBAVp9b0=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-462-i4eGflhjNFmCx0JTr1UbWA-1; Thu,
+ 13 Nov 2025 12:12:00 -0500
+X-MC-Unique: i4eGflhjNFmCx0JTr1UbWA-1
+X-Mimecast-MFC-AGG-ID: i4eGflhjNFmCx0JTr1UbWA_1763053919
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E0C6F195606D
+	for <selinux@vger.kernel.org>; Thu, 13 Nov 2025 17:11:58 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.45.224.73])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id EB613300018D
+	for <selinux@vger.kernel.org>; Thu, 13 Nov 2025 17:11:57 +0000 (UTC)
+From: Vit Mojzis <vmojzis@redhat.com>
+To: selinux@vger.kernel.org
+Subject: [PATCH v2] restorecon: Add option to count relabeled files
+Date: Thu, 13 Nov 2025 18:11:34 +0100
+Message-ID: <20251113171151.719458-1-vmojzis@redhat.com>
+In-Reply-To: <CAFftDdp3ZChoaVF-5FN=O=b09Hv6VSXAUzRQ0muW0NParjZBhA@mail.gmail.com>
+References: <CAFftDdp3ZChoaVF-5FN=O=b09Hv6VSXAUzRQ0muW0NParjZBhA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e6b90909-fdd7-4c4d-b96e-df27ea9f39c4@meta.com>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-On Tue, Nov 11, 2025 at 10:44:26PM -0500, Chris Mason wrote:
+This is useful in case we want to check that a remediation using
+restorecon was successful (otherwise 0 is always returned, even if no
+files were relabeled).
 
-> We're wandering into fuzzing territory here, and I honestly have no idea
-> if this is a valid use of any of this code, but AI managed to make a
-> repro that crashes only after your patch.  So, I'll let you decide.
-> 
-> The new review:
-> 
-> Can this dereference ZERO_SIZE_PTR when eps_count is 0?
-> 
-> When ffs->eps_count is 0, ffs_epfiles_create() calls kcalloc(0, ...) which
-> returns ZERO_SIZE_PTR (0x10). The loop never executes so epfiles[0].ffs is
-> never initialized. Later, cleanup paths (ffs_data_closed and ffs_data_clear)
-> check if (epfiles) which is true for ZERO_SIZE_PTR, and call
-> ffs_epfiles_destroy(epfiles, 0).
-> 
-> In the old code, the for loop condition prevented any dereferences when
-> count=0. In the new code, "root = epfile->ffs->sb->s_root" dereferences
-> epfile before checking count, which would fault on ZERO_SIZE_PTR.
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+---
+ libselinux/include/selinux/restorecon.h | 15 +++++++++++
+ libselinux/src/libselinux.map           |  1 +
+ libselinux/src/selinux_restorecon.c     | 34 ++++++++++++++++++++++---
+ policycoreutils/setfiles/restore.c      | 12 ++++++---
+ policycoreutils/setfiles/restore.h      |  3 ++-
+ policycoreutils/setfiles/restorecon.8   |  3 +++
+ policycoreutils/setfiles/setfiles.c     | 26 ++++++++++++++-----
+ 7 files changed, 79 insertions(+), 15 deletions(-)
 
-Lovely.  OK, this is a bug.  It is trivial to work around (all callers
-have ffs avaible, so just passing it as an explicit argument solves
-the problem), but there is a real UAF in functionfs since all the way
-back to original merge.  Take a look at
+diff --git a/libselinux/include/selinux/restorecon.h b/libselinux/include/selinux/restorecon.h
+index 0ccf73a6..65aaef23 100644
+--- a/libselinux/include/selinux/restorecon.h
++++ b/libselinux/include/selinux/restorecon.h
+@@ -134,6 +134,11 @@ extern int selinux_restorecon_parallel(const char *pathname,
+  */
+ #define SELINUX_RESTORECON_SET_USER_ROLE		0x40000
+ 
++/*
++ * Count the number of relabeled files (or would be relabeled if "nochange" was not set).
++ */
++ #define SELINUX_RESTORECON_COUNT_RELABELED		0x80000
++
+ /**
+  * selinux_restorecon_set_sehandle - Set the global fc handle.
+  * @hndl: specifies handle to set as the global fc handle.
+@@ -228,6 +233,16 @@ extern int selinux_restorecon_xattr(const char *pathname,
+  */
+ extern long unsigned selinux_restorecon_get_skipped_errors(void);
+ 
++/* selinux_restorecon_get_relabeled_files - Get the number of relabeled files
++ *
++ * If SELINUX_RESTORECON_COUNT_RELABELED was passed to selinux_restorecon(3) or
++ * selinux_restorecon_parallel(3), this function returns the number of files
++ * that were successfully relabeled.
++ * If the SELINUX_RESTORECON_NOCHANGE flag was set, this function returns
++ * the number of files that would be relabeled.
++ */
++extern long unsigned selinux_restorecon_get_relabeled_files(void);
++
+ #ifdef __cplusplus
+ }
+ #endif
+diff --git a/libselinux/src/libselinux.map b/libselinux/src/libselinux.map
+index ab002f01..f21e089e 100644
+--- a/libselinux/src/libselinux.map
++++ b/libselinux/src/libselinux.map
+@@ -244,6 +244,7 @@ LIBSELINUX_1.0 {
+ LIBSELINUX_3.4 {
+   global:
+     selinux_restorecon_get_skipped_errors;
++    selinux_restorecon_get_relabeled_files;
+     selinux_restorecon_parallel;
+ } LIBSELINUX_1.0;
+ 
+diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
+index 681c69db..8fadf4d2 100644
+--- a/libselinux/src/selinux_restorecon.c
++++ b/libselinux/src/selinux_restorecon.c
+@@ -69,6 +69,9 @@ static struct dir_xattr *dir_xattr_last;
+ /* Number of errors ignored during the file tree walk. */
+ static long unsigned skipped_errors;
+ 
++/* Number of successfully relabeled files or files that would be relabeled */
++static long unsigned relabeled_files;
++
+ /* restorecon_flags for passing to restorecon_sb() */
+ struct rest_flags {
+ 	bool nochange;
+@@ -88,6 +91,7 @@ struct rest_flags {
+ 	bool warnonnomatch;
+ 	bool conflicterror;
+ 	bool count_errors;
++	bool count_relabeled;
+ };
+ 
+ static void restorecon_init(void)
+@@ -650,11 +654,12 @@ out:
+ }
+ 
+ static int restorecon_sb(const char *pathname, const struct stat *sb,
+-			    const struct rest_flags *flags, bool first)
++			    const struct rest_flags *flags, bool first, bool *updated_out)
+ {
+ 	char *newcon = NULL;
+ 	char *curcon = NULL;
+ 	int rc;
++	bool updated = false;
+ 	const char *lookup_path = pathname;
+ 
+ 	if (rootpath) {
+@@ -736,7 +741,6 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
+ 	}
+ 
+ 	if (curcon == NULL || strcmp(curcon, newcon) != 0) {
+-		bool updated = false;
+ 
+ 		if (!flags->set_specctx && curcon &&
+ 				    (is_context_customizable(curcon) > 0)) {
+@@ -796,9 +800,14 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
+ 				syslog(LOG_INFO, "labeling %s to %s\n",
+ 					    pathname, newcon);
+ 		}
++
++		/* Note: relabel counting handled by caller */
++
+ 	}
+ 
+ out:
++	if (updated_out)
++		*updated_out = updated;
+ 	rc = 0;
+ out1:
+ 	freecon(curcon);
+@@ -887,6 +896,7 @@ struct rest_state {
+ 	bool abort;
+ 	int error;
+ 	long unsigned skipped_errors;
++	long unsigned relabeled_files;
+ 	int saved_errno;
+ 	pthread_mutex_t mutex;
+ };
+@@ -1010,8 +1020,9 @@ loop_body:
+ 			if (state->parallel)
+ 				pthread_mutex_unlock(&state->mutex);
+ 
++			bool updated = false;
+ 			error = restorecon_sb(ent_path, &ent_st, &state->flags,
+-					      first);
++					      first, &updated);
+ 
+ 			if (state->parallel) {
+ 				pthread_mutex_lock(&state->mutex);
+@@ -1030,6 +1041,8 @@ loop_body:
+ 					state->skipped_errors++;
+ 				else
+ 					state->error = error;
++			} else if (updated && state->flags.count_relabeled) {
++				state->relabeled_files++;
+ 			}
+ 			break;
+ 		}
+@@ -1087,6 +1100,8 @@ static int selinux_restorecon_common(const char *pathname_orig,
+ 		    SELINUX_RESTORECON_IGNORE_DIGEST) ? true : false;
+ 	state.flags.count_errors = (restorecon_flags &
+ 		    SELINUX_RESTORECON_COUNT_ERRORS) ? true : false;
++	state.flags.count_relabeled = (restorecon_flags &
++		    SELINUX_RESTORECON_COUNT_RELABELED) ? true : false;
+ 	state.setrestorecondigest = true;
+ 
+ 	state.head = NULL;
+@@ -1094,6 +1109,7 @@ static int selinux_restorecon_common(const char *pathname_orig,
+ 	state.abort = false;
+ 	state.error = 0;
+ 	state.skipped_errors = 0;
++	state.relabeled_files = 0;
+ 	state.saved_errno = 0;
+ 
+ 	struct stat sb;
+@@ -1215,7 +1231,11 @@ static int selinux_restorecon_common(const char *pathname_orig,
+ 			goto cleanup;
+ 		}
+ 
+-		error = restorecon_sb(pathname, &sb, &state.flags, true);
++		bool updated = false;
++		error = restorecon_sb(pathname, &sb, &state.flags, true, &updated);
++		if (updated && state.flags.count_relabeled) {
++			state.relabeled_files++;
++		}
+ 		goto cleanup;
+ 	}
+ 
+@@ -1341,6 +1361,7 @@ out:
+ 	(void) fts_close(state.fts);
+ 	errno = state.saved_errno;
+ cleanup:
++	relabeled_files = state.relabeled_files;
+ 	if (state.flags.add_assoc) {
+ 		if (state.flags.verbose)
+ 			filespec_eval();
+@@ -1618,3 +1639,8 @@ long unsigned selinux_restorecon_get_skipped_errors(void)
+ {
+ 	return skipped_errors;
+ }
++
++long unsigned selinux_restorecon_get_relabeled_files(void)
++{
++	return relabeled_files;
++}
+diff --git a/policycoreutils/setfiles/restore.c b/policycoreutils/setfiles/restore.c
+index 2c031ccc..07582e7c 100644
+--- a/policycoreutils/setfiles/restore.c
++++ b/policycoreutils/setfiles/restore.c
+@@ -43,7 +43,7 @@ void restore_init(struct restore_opts *opts)
+ 			   opts->syslog_changes | opts->log_matches |
+ 			   opts->ignore_noent | opts->ignore_mounts |
+ 			   opts->mass_relabel | opts->conflict_error |
+-			   opts->count_errors;
++			   opts->count_errors | opts->count_relabeled;
+ 
+ 	/* Use setfiles, restorecon and restorecond own handles */
+ 	selinux_restorecon_set_sehandle(opts->hnd);
+@@ -75,7 +75,7 @@ void restore_finish(void)
+ }
+ 
+ int process_glob(char *name, struct restore_opts *opts, size_t nthreads,
+-		 long unsigned *skipped_errors)
++		 long unsigned *skipped_errors, long unsigned *relabeled_files)
+ {
+ 	glob_t globbuf;
+ 	size_t i, len;
+@@ -99,8 +99,12 @@ int process_glob(char *name, struct restore_opts *opts, size_t nthreads,
+ 						 nthreads);
+ 		if (rc < 0)
+ 			errors = rc;
+-		else if (opts->restorecon_flags & SELINUX_RESTORECON_COUNT_ERRORS)
+-			*skipped_errors += selinux_restorecon_get_skipped_errors();
++		else {
++			if (opts->restorecon_flags & SELINUX_RESTORECON_COUNT_ERRORS)
++				*skipped_errors += selinux_restorecon_get_skipped_errors();
++			if (opts->restorecon_flags & SELINUX_RESTORECON_COUNT_RELABELED)
++				*relabeled_files += selinux_restorecon_get_relabeled_files();
++		}
+ 	}
+ 
+ 	globfree(&globbuf);
+diff --git a/policycoreutils/setfiles/restore.h b/policycoreutils/setfiles/restore.h
+index 95afb960..36f73059 100644
+--- a/policycoreutils/setfiles/restore.h
++++ b/policycoreutils/setfiles/restore.h
+@@ -37,6 +37,7 @@ struct restore_opts {
+ 	unsigned int ignore_mounts;
+ 	unsigned int conflict_error;
+ 	unsigned int count_errors;
++	unsigned int count_relabeled;
+ 	/* restorecon_flags holds | of above for restore_init() */
+ 	unsigned int restorecon_flags;
+ 	char *rootpath;
+@@ -52,7 +53,7 @@ void restore_init(struct restore_opts *opts);
+ void restore_finish(void);
+ void add_exclude(const char *directory);
+ int process_glob(char *name, struct restore_opts *opts, size_t nthreads,
+-		 long unsigned *skipped_errors);
++		 long unsigned *skipped_errors, long unsigned *relabeled_files);
+ extern char **exclude_list;
+ 
+ #endif
+diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setfiles/restorecon.8
+index 1134420e..b7ff9715 100644
+--- a/policycoreutils/setfiles/restorecon.8
++++ b/policycoreutils/setfiles/restorecon.8
+@@ -153,6 +153,9 @@ display warnings about entries that had no matching files by outputting the
+ .BR selabel_stats (3)
+ results.
+ .TP
++.B \-c
++count and display the number of (would be) relabeled files. The exit code will be set to 0 only if at least one file is relabeled.
++.TP
+ .B \-0
+ the separator for the input items is assumed to be the null character
+ (instead of the white space).  The quotes and the backslash characters are
+diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
+index 31034316..351940f3 100644
+--- a/policycoreutils/setfiles/setfiles.c
++++ b/policycoreutils/setfiles/setfiles.c
+@@ -35,8 +35,8 @@ static __attribute__((__noreturn__)) void usage(const char *const name)
+ {
+ 	if (iamrestorecon) {
+ 		fprintf(stderr,
+-			"usage:  %s [-iIDFUmnprRv0xT] [-e excludedir] pathname...\n"
+-			"usage:  %s [-iIDFUmnprRv0xT] [-e excludedir] -f filename\n",
++			"usage:  %s [-ciIDFUmnprRv0xT] [-e excludedir] pathname...\n"
++			"usage:  %s [-ciIDFUmnprRv0xT] [-e excludedir] -f filename\n",
+ 			name, name);
+ 	} else {
+ 		fprintf(stderr,
+@@ -146,11 +146,12 @@ int main(int argc, char **argv)
+ 	size_t buf_len, nthreads = 1;
+ 	const char *base;
+ 	int errors = 0;
+-	const char *ropts = "e:f:hiIDlmno:pqrsvFURW0xT:";
++	const char *ropts = "ce:f:hiIDlmno:pqrsvFURW0xT:";
+ 	const char *sopts = "c:de:f:hiIDlmno:pqr:svACEFUR:W0T:";
+ 	const char *opts;
+ 	union selinux_callback cb;
+ 	long unsigned skipped_errors;
++	long unsigned relabeled_files;
+ 
+ 	/* Initialize variables */
+ 	memset(&r_opts, 0, sizeof(r_opts));
+@@ -160,6 +161,7 @@ int main(int argc, char **argv)
+ 	request_digest = 0;
+ 	policyfile = NULL;
+ 	skipped_errors = 0;
++	relabeled_files = 0;
+ 
+ 	if (!argv[0]) {
+ 		fprintf(stderr, "Called without required program name!\n");
+@@ -223,7 +225,10 @@ int main(int argc, char **argv)
+ 	while ((opt = getopt(argc, argv, opts)) > 0) {
+ 		switch (opt) {
+ 		case 'c':
+-			{
++			if (iamrestorecon) {
++				r_opts.count_relabeled = SELINUX_RESTORECON_COUNT_RELABELED;
++				break;
++			} else {
+ 				FILE *policystream;
+ 
+ 				policyfile = optarg;
+@@ -457,14 +462,14 @@ int main(int argc, char **argv)
+ 			if (!strcmp(buf, "/"))
+ 				r_opts.mass_relabel = SELINUX_RESTORECON_MASS_RELABEL;
+ 			errors |= process_glob(buf, &r_opts, nthreads,
+-					       &skipped_errors) < 0;
++					       &skipped_errors, &relabeled_files) < 0;
+ 		}
+ 		if (strcmp(input_filename, "-") != 0)
+ 			fclose(f);
+ 	} else {
+ 		for (i = optind; i < argc; i++)
+ 			errors |= process_glob(argv[i], &r_opts, nthreads,
+-					       &skipped_errors) < 0;
++					       &skipped_errors, &relabeled_files) < 0;
+ 	}
+ 
+ 	if (r_opts.mass_relabel && !r_opts.nochange)
+@@ -479,5 +484,14 @@ int main(int argc, char **argv)
+ 	if (r_opts.progress)
+ 		fprintf(stdout, "\n");
+ 
++	/* Output relabeled file count if requested */
++	if (r_opts.count_relabeled) {
++		long unsigned relabeled_count = selinux_restorecon_get_relabeled_files();
++		printf("Relabeled %lu files\n", relabeled_count);
++
++		/* Set exit code to 0 if at least one file was relabeled */
++		exit(errors ? -1 : relabeled_count ? 0 : 1);
++	}
++
+ 	exit(errors ? -1 : skipped_errors ? 1 : 0);
+ }
+-- 
+2.51.1
 
-static int
-ffs_epfile_open(struct inode *inode, struct file *file)
-{
-	struct ffs_epfile *epfile = inode->i_private;
-
-	if (WARN_ON(epfile->ffs->state != FFS_ACTIVE))
-		return -ENODEV;
-
-	file->private_data = epfile;
-	ffs_data_opened(epfile->ffs);
-
-	return stream_open(inode, file);
-}
-
-and think what happens if that (->open() of dynamic files in there)
-races with file removal.  Specifically, if we get called with ffs->opened
-equal to 1 due to opened ep0 and get preempted away just before the
-call ffs_data_opened().  Another thread closes ep0, hitting
-ffs_data_closed(), dropping ffs->opened to 0 and getting
-			ffs->state = FFS_CLOSING;
-			ffs_data_reset(ffs);
-which calls ffs_data_clear(), where we hit
-		ffs_epfiles_destroy(epfiles, ffs->eps_count);
-All files except ep0 are removed and epfiles gets freed, leaving the
-first thread (in ffs_epfile_open()) with file->private_data pointing
-into a freed array.
-
-open() succeeds, with any subsequent IO on the resulting file leading
-to calls of
-static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
-{
-	struct ffs_epfile *epfile = file->private_data;
-
-and a bunch of accesses to *epfile later in that function, all of them
-UAF.
-
-As far as I can tell, the damn thing intends to prevent removals between
-ffs_data_opened() and ffs_data_closed(), so other methods would be safe
-if ->open() had been done right.  I'm not happy with the way that FSM
-is done (the real state is a mix of ffs->state, ffs->opened and ffs->mutex,
-and rules bloody awful; I'm still not entirely convinced that ffs itself
-can't be freed with ffs->reset_work scheduled for execution), but that's
-a separate story.  
-
-Another variant of that scenario is with ffs->no_disconnect set;
-in a sense, it's even nastier.  In that case ffs_data_closed() won't
-remove anything - it will set ffs->state to FFS_DEACTIVATED, leaving
-the removals for ffs_data_open().  If we have *two* threads in open(),
-the first one to call ffs_data_open() will do removal; on another CPU
-the second will just get past its increment of ->opened (from 1 to 2)
-and move on, without waiting for anything.
-
-IMO we should just take ffs->mutex in there, getting to ffs via
-inode->i_sb->s_fs_info.  And yes, compare ffs->state with FFS_ACTIVE -
-under ->mutex, without WARN_ON() and after having bumped ->opened
-so that racing ffs_data_closed() would do nothing.  Not FFS_ACTIVE -
-call ffs_data_closed() ourselves on failure exit.
-
-As in
-
-static int
-ffs_epfile_open(struct inode *inode, struct file *file)
-{
-	strict ffs_data *ffs = inode->i_sb->s_fs_info;
-	int ret;
-
-        /* Acquire mutex */
-	ret = ffs_mutex_lock(&ffs->mutex, file->f_flags & O_NONBLOCK);
-	if (ret < 0)
-		return ret;
-
-	ffs_data_opened(ffs);
-	/*
-	 * not FFS_ACTIVE - there might be a pending removal;
-	 * FFS_ACITVE alone is not enough, though - we might have
-	 * been through FFS_CLOSING and back to FFS_ACTIVE,
-	 * with our file already removed.
-	 */
-	if (unlikely(ffs->state != FFS_ACTIVE ||
-		     !simple_positive(file->f_path.dentry))) {
-		ffs_data_closed(ffs);
-		mutex_unlock(&ffs->mutex);
-		return -ENODEV;
-	}
-	mutex_unlock(&ffs->mutex);
-
-	file->private_data = inode->i_private;
-	return stream_open(inode, file);
-}
-
-and
-
-static int ffs_ep0_open(struct inode *inode, struct file *file)
-{
-        struct ffs_data *ffs = inode->i_private;
-	int ret;
-
-        /* Acquire mutex */
-	ret = ffs_mutex_lock(&ffs->mutex, file->f_flags & O_NONBLOCK);
-	if (ret < 0)
-		return ret;
-
-	ffs_data_opened(ffs);
-	if (ffs->state == FFS_CLOSING) {
-		ffs_data_closed(ffs);
-		mutex_unlock(&ffs->mutex);
-		return -EBUSY;
-	}
-	mutex_unlock(&ffs->mutex);
-
-	file->private_data = ffs;
-	return stream_open(inode, file);
-}
-
-Said that, I'm _NOT_ familiar with that code; this is just from a couple
-of days digging through the driver, so I would like to hear comments from
-the maintainer...  Greg?
