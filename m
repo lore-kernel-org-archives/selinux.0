@@ -1,53 +1,56 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 403D1313E0C;
-	Fri, 14 Nov 2025 11:42:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04274BA3D;
+	Fri, 14 Nov 2025 12:24:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763120569; cv=none; b=IWgcI80iqFnKNb/mZLYZHS6vDVZJQKMmUmzCGT1X4rg2/5J595lfkm5F1vN8Bzye9ni2Plu+XYBl5orfVPDMXMkQDPfA5CpkIVF2k8YH1gL8Qw87J3KlP/XTY4gRRWcUHP3UPNEo4B2Akh+e4bG+6cPtkEW7bOGDatWZ48VAGyw=
+	t=1763123092; cv=none; b=M2u5i/QIENyB9GgQz58g43qoBJYxuGR9Wday9Gv0wvi8f0WZTvQxcITPn7qfGLS77BP7dA421w146Tiv77mPFc3t2R2EWcwL/5M5YtZFNOa5nDjT77fjMZvc2jMjo/WPzgjL6FACfmlgqGKX8rp6wx0ZKMKpWOXO35iuqYBZ1Kk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763120569; c=relaxed/simple;
-	bh=JCJJ+smwYrR2g3QGo7fPrR+zmXOiaWETE6PY6T/Dud0=;
+	s=arc-20240116; t=1763123092; c=relaxed/simple;
+	bh=+mBDMZqOqXyj1nw2FoUq3hfj9Pq1+bVG+kNKFkCOjGM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rJXju2BvGOLm1mX6M2PJR6zk1jXnI09SnYp6HgFYqzxjonS1IaohFNM5kG8WNaMiqlHlUdyXUZGwzFqE4JLjVY31lxFRDYV0g7RCQgNk4HUhY4foyoPBGeUyN3ovek6Vu/ZBDxrFWEpr4mNQg407b/YMa2t4YaIvFx+OE32wMvA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=q8fkkteN; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=uncm53JlyQI3sC0uNQ/siFO2d34jb51g2OdTsNckO1Up3EqgIVPiq51Rw7opVrd3tCYaVTwmhhztHrU3GnXRiYbYz/zdXXB3od0WLMH/2xoNY6jnSyTZgN/L9OFbk5Bk8NhCYQZokI84gmzPfKqH+1zM0EaReMHFKhJ91cos8ro=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=L88J3kMN; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="q8fkkteN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05698C4CEF8;
-	Fri, 14 Nov 2025 11:42:41 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="L88J3kMN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B678C4AF09;
+	Fri, 14 Nov 2025 12:24:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1763120568;
-	bh=JCJJ+smwYrR2g3QGo7fPrR+zmXOiaWETE6PY6T/Dud0=;
+	s=k20201202; t=1763123091;
+	bh=+mBDMZqOqXyj1nw2FoUq3hfj9Pq1+bVG+kNKFkCOjGM=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=q8fkkteNmYzK0uACVLTWx5CVyhemcbPv8ndiusq5y7wxdrRHX+D2H9fcpkAKGbyPx
-	 t5aZYId2snhO2ynpmREc1bqI3cU4DdNz17nRX/z5TP+NFY1vcDyPrCXh9/NqUwnFif
-	 Z6wTsOzsxOik8RgVJyp7gpXSEh75s+2HrrOGP3ASjN7IzFCA4pRUKqXxnv5YH2pe3M
-	 L+vwqRdrmBiLxbWOkkw54+LuM8bcNU97McPS4KwqMsEThRjBXbgOcNftN9EmWedDtj
-	 inyCQJSGs2hC3h21FdXNPEG8NpnkR4rLZbURImoTgCWZzgbov37oGW2cpm0piGUfPF
-	 04fJ+m4146kng==
-Date: Fri, 14 Nov 2025 12:42:39 +0100
+	b=L88J3kMNXclmlVXvSCh0nwJz3MI/z//UToTodAyB8+hSlNnkgXmt679fqapIropxt
+	 TUKtETf1WbcWvQE6SEEa+vxb91ma9o4EiZV0RToOZ4Ov5mPY5b43+Ubt0LW1+fDwfU
+	 tLqEQIv5BoWbspBjSFZbeubTeip6wzBqqXljdlL33QtlYekrXKtmNVKynge7yPqMts
+	 +QLPN90oTnvZgsDNursj4MM6EYHj2IB3cRa5vnPrY6LbfG/BgI4m2zsEsMemyRtNPJ
+	 ymiv896FRZ1UahmIF3bSUq4VROCfN8SABYT93BJyBU6UnvuYE29zdU0f92GFitE8Zk
+	 L1O4gixSsAR3g==
+Date: Fri, 14 Nov 2025 13:24:41 +0100
 From: Christian Brauner <brauner@kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, bot+bpf-ci@kernel.org, 
-	linux-fsdevel@vger.kernel.org, torvalds@linux-foundation.org, jack@suse.cz, raven@themaw.net, 
-	miklos@szeredi.hu, neil@brown.name, a.hindborg@kernel.org, linux-mm@kvack.org, 
-	linux-efi@vger.kernel.org, ocfs2-devel@lists.linux.dev, kees@kernel.org, 
-	rostedt@goodmis.org, linux-usb@vger.kernel.org, paul@paul-moore.com, 
-	casey@schaufler-ca.com, linuxppc-dev@lists.ozlabs.org, john.johansen@canonical.com, 
-	selinux@vger.kernel.org, borntraeger@linux.ibm.com, bpf@vger.kernel.org, ast@kernel.org, 
-	andrii@kernel.org, daniel@iogearbox.net, martin.lau@kernel.org, eddyz87@gmail.com, 
-	yonghong.song@linux.dev, ihor.solodrai@linux.dev, Chris Mason <clm@meta.com>
-Subject: Re: [functionfs] mainline UAF (was Re: [PATCH v3 36/50] functionfs:
- switch to simple_remove_by_name())
-Message-ID: <20251114-abkehr-rasur-b2eae31c4d57@brauner>
-References: <20251111065520.2847791-37-viro@zeniv.linux.org.uk>
- <20754dba9be498daeda5fe856e7276c9c91c271999320ae32331adb25a47cd4f@mail.kernel.org>
- <20251111092244.GS2441659@ZenIV>
- <e6b90909-fdd7-4c4d-b96e-df27ea9f39c4@meta.com>
- <20251113092636.GX2441659@ZenIV>
- <2025111316-cornfield-sphinx-ba89@gregkh>
- <20251114074614.GY2441659@ZenIV>
+To: NeilBrown <neil@brown.name>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Amir Goldstein <amir73il@gmail.com>, Jan Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org, 
+	Jeff Layton <jlayton@kernel.org>, Chris Mason <clm@fb.com>, David Sterba <dsterba@suse.com>, 
+	David Howells <dhowells@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	"Rafael J. Wysocki" <rafael@kernel.org>, Danilo Krummrich <dakr@kernel.org>, 
+	Tyler Hicks <code@tyhicks.com>, Miklos Szeredi <miklos@szeredi.hu>, 
+	Chuck Lever <chuck.lever@oracle.com>, Olga Kornievskaia <okorniev@redhat.com>, 
+	Dai Ngo <Dai.Ngo@oracle.com>, Namjae Jeon <linkinjeon@kernel.org>, 
+	Steve French <smfrench@gmail.com>, Sergey Senozhatsky <senozhatsky@chromium.org>, 
+	Carlos Maiolino <cem@kernel.org>, John Johansen <john.johansen@canonical.com>, 
+	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
+	"Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Ondrej Mosnacek <omosnace@redhat.com>, Mateusz Guzik <mjguzik@gmail.com>, 
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Stefan Berger <stefanb@linux.ibm.com>, 
+	"Darrick J. Wong" <djwong@kernel.org>, linux-kernel@vger.kernel.org, netfs@lists.linux.dev, 
+	ecryptfs@vger.kernel.org, linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org, 
+	linux-cifs@vger.kernel.org, linux-xfs@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org
+Subject: Re: [PATCH v6 00/15] Create and use APIs to centralise locking for
+ directory ops
+Message-ID: <20251114-baden-banknoten-96fb107f79d7@brauner>
+References: <20251113002050.676694-1-neilb@ownmail.net>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -56,225 +59,21 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20251114074614.GY2441659@ZenIV>
+In-Reply-To: <20251113002050.676694-1-neilb@ownmail.net>
 
-On Fri, Nov 14, 2025 at 07:46:14AM +0000, Al Viro wrote:
-> On Thu, Nov 13, 2025 at 04:20:08PM -0500, Greg Kroah-Hartman wrote:
-> 
-> > Sorry for the delay.  Yes, we should be grabing the mutex in there, good
-> > catch.  There's been more issues pointed out with the gadget code in the
-> > past year or so as more people are starting to actually use it and
-> > stress it more.  So if you have a patch for this, I'll gladly take it :)
-> 
-> How about the following?
-> 
-> commit 330837c8101578438f64cfaec3fb85521d668e56
-> Author: Al Viro <viro@zeniv.linux.org.uk>
-> Date:   Fri Nov 14 02:18:22 2025 -0500
-> 
->     functionfs: fix the open/removal races
->     
->     ffs_epfile_open() can race with removal, ending up with file->private_data
+On Thu, Nov 13, 2025 at 11:18:23AM +1100, NeilBrown wrote:
+> Following is a new version of this series:
+>  - fixed a bug found by syzbot
+>  - cleanup suggested by Stephen Smalley
+>  - added patch for missing updates in smb/server - thanks Jeff Layton
 
-Very apt prefix though.
-(Like Paul would say: "Sorry, couldn't resist.")
+The codeflow right now is very very gnarly in a lot of places which
+obviously isn't your fault. But start_creating() and end_creating()
+would very naturally lend themselves to be CLASS() guards.
 
->     pointing to freed object.
->     
->     There is a total count of opened files on functionfs (both ep0 and
->     dynamic ones) and when it hits zero, dynamic files get removed.
->     Unfortunately, that removal can happen while another thread is
->     in ffs_epfile_open(), but has not incremented the count yet.
->     In that case open will succeed, leaving us with UAF on any subsequent
->     read() or write().
->     
->     The root cause is that ffs->opened is misused; atomic_dec_and_test() vs.
->     atomic_add_return() is not a good idea, when object remains visible all
->     along.
->     
->     To untangle that
->             * serialize openers on ffs->mutex (both for ep0 and for dynamic files)
->             * have dynamic ones use atomic_inc_not_zero() and fail if we had
->     zero ->opened; in that case the file we are opening is doomed.
->             * have the inodes of dynamic files marked on removal (from the
->     callback of simple_recursive_removal()) - clear ->i_private there.
->             * have open of dynamic ones verify they hadn't been already removed,
->     along with checking that state is FFS_ACTIVE.
->     
->     Fix another abuse of ->opened, while we are at it - it starts equal to 0,
->     is incremented on opens and decremented on ->release()... *and* decremented
->     (always from 0 to -1) in ->kill_sb().  Handling that case has no business
->     in ffs_data_closed() (or to ->opened); just have ffs_kill_sb() do what
->     ffs_data_closed() would in case of decrement to negative rather than
->     calling ffs_data_closed() there.
->     
->     And don't bother with bumping ffs->ref when opening a file - superblock
->     already holds the reference and it won't go away while there are any opened
->     files on the filesystem.
->     
->     Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-> 
-> diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-> index 47cfbe41fdff..ed7fa869ea77 100644
-> --- a/drivers/usb/gadget/function/f_fs.c
-> +++ b/drivers/usb/gadget/function/f_fs.c
-> @@ -640,13 +640,22 @@ static ssize_t ffs_ep0_read(struct file *file, char __user *buf,
->  
->  static int ffs_ep0_open(struct inode *inode, struct file *file)
->  {
-> -	struct ffs_data *ffs = inode->i_private;
-> +	struct ffs_data *ffs = inode->i_sb->s_fs_info;
-> +	int ret;
->  
-> -	if (ffs->state == FFS_CLOSING)
-> -		return -EBUSY;
-> +	/* Acquire mutex */
-> +	ret = ffs_mutex_lock(&ffs->mutex, file->f_flags & O_NONBLOCK);
-> +	if (ret < 0)
-> +		return ret;
->  
-> -	file->private_data = ffs;
->  	ffs_data_opened(ffs);
-> +	if (ffs->state == FFS_CLOSING) {
-> +		ffs_data_closed(ffs);
-> +		mutex_unlock(&ffs->mutex);
-> +		return -EBUSY;
-> +	}
-> +	mutex_unlock(&ffs->mutex);
-> +	file->private_data = ffs;
->  
->  	return stream_open(inode, file);
->  }
-> @@ -1193,14 +1202,33 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
->  static int
->  ffs_epfile_open(struct inode *inode, struct file *file)
->  {
-> -	struct ffs_epfile *epfile = inode->i_private;
-> +	struct ffs_data *ffs = inode->i_sb->s_fs_info;
-> +	struct ffs_epfile *epfile;
-> +	int ret;
->  
-> -	if (WARN_ON(epfile->ffs->state != FFS_ACTIVE))
-> +	/* Acquire mutex */
-> +	ret = ffs_mutex_lock(&ffs->mutex, file->f_flags & O_NONBLOCK);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	if (!atomic_inc_not_zero(&ffs->opened)) {
-> +		mutex_unlock(&ffs->mutex);
->  		return -ENODEV;
-> +	}
-> +	/*
-> +	 * we want the state to be FFS_ACTIVE; FFS_ACTIVE alone is
-> +	 * not enough, though - we might have been through FFS_CLOSING
-> +	 * and back to FFS_ACTIVE, with our file already removed.
-> +	 */
-> +	epfile = smp_load_acquire(&inode->i_private);
-> +	if (unlikely(ffs->state != FFS_ACTIVE || !epfile)) {
-> +		mutex_unlock(&ffs->mutex);
-> +		ffs_data_closed(ffs);
-> +		return -ENODEV;
-> +	}
-> +	mutex_unlock(&ffs->mutex);
->  
->  	file->private_data = epfile;
-> -	ffs_data_opened(epfile->ffs);
-> -
->  	return stream_open(inode, file);
->  }
->  
-> @@ -1332,7 +1360,7 @@ static void ffs_dmabuf_put(struct dma_buf_attachment *attach)
->  static int
->  ffs_epfile_release(struct inode *inode, struct file *file)
->  {
-> -	struct ffs_epfile *epfile = inode->i_private;
-> +	struct ffs_epfile *epfile = file->private_data;
->  	struct ffs_dmabuf_priv *priv, *tmp;
->  	struct ffs_data *ffs = epfile->ffs;
->  
-> @@ -2071,12 +2099,18 @@ static int ffs_fs_init_fs_context(struct fs_context *fc)
->  	return 0;
->  }
->  
-> +static void ffs_data_reset(struct ffs_data *ffs);
-> +
->  static void
->  ffs_fs_kill_sb(struct super_block *sb)
->  {
->  	kill_litter_super(sb);
-> -	if (sb->s_fs_info)
-> -		ffs_data_closed(sb->s_fs_info);
-> +	if (sb->s_fs_info) {
-> +		struct ffs_data *ffs = sb->s_fs_info;
-> +		ffs->state = FFS_CLOSING;
-> +		ffs_data_reset(ffs);
-> +		ffs_data_put(ffs);
-> +	}
->  }
->  
->  static struct file_system_type ffs_fs_type = {
-> @@ -2114,7 +2148,6 @@ static void functionfs_cleanup(void)
->  /* ffs_data and ffs_function construction and destruction code **************/
->  
->  static void ffs_data_clear(struct ffs_data *ffs);
-> -static void ffs_data_reset(struct ffs_data *ffs);
->  
->  static void ffs_data_get(struct ffs_data *ffs)
->  {
-> @@ -2123,7 +2156,6 @@ static void ffs_data_get(struct ffs_data *ffs)
->  
->  static void ffs_data_opened(struct ffs_data *ffs)
->  {
-> -	refcount_inc(&ffs->ref);
->  	if (atomic_add_return(1, &ffs->opened) == 1 &&
->  			ffs->state == FFS_DEACTIVATED) {
->  		ffs->state = FFS_CLOSING;
-> @@ -2148,11 +2180,11 @@ static void ffs_data_put(struct ffs_data *ffs)
->  
->  static void ffs_data_closed(struct ffs_data *ffs)
->  {
-> -	struct ffs_epfile *epfiles;
-> -	unsigned long flags;
-> -
->  	if (atomic_dec_and_test(&ffs->opened)) {
->  		if (ffs->no_disconnect) {
-> +			struct ffs_epfile *epfiles;
-> +			unsigned long flags;
-> +
->  			ffs->state = FFS_DEACTIVATED;
->  			spin_lock_irqsave(&ffs->eps_lock, flags);
->  			epfiles = ffs->epfiles;
-> @@ -2171,12 +2203,6 @@ static void ffs_data_closed(struct ffs_data *ffs)
->  			ffs_data_reset(ffs);
->  		}
->  	}
-> -	if (atomic_read(&ffs->opened) < 0) {
-> -		ffs->state = FFS_CLOSING;
-> -		ffs_data_reset(ffs);
-> -	}
-> -
-> -	ffs_data_put(ffs);
->  }
->  
->  static struct ffs_data *ffs_data_new(const char *dev_name)
-> @@ -2352,6 +2378,11 @@ static int ffs_epfiles_create(struct ffs_data *ffs)
->  	return 0;
->  }
->  
-> +static void clear_one(struct dentry *dentry)
-> +{
-> +	smp_store_release(&dentry->d_inode->i_private, NULL);
-> +}
-> +
->  static void ffs_epfiles_destroy(struct ffs_epfile *epfiles, unsigned count)
->  {
->  	struct ffs_epfile *epfile = epfiles;
-> @@ -2359,7 +2390,7 @@ static void ffs_epfiles_destroy(struct ffs_epfile *epfiles, unsigned count)
->  	for (; count; --count, ++epfile) {
->  		BUG_ON(mutex_is_locked(&epfile->mutex));
->  		if (epfile->dentry) {
-> -			simple_recursive_removal(epfile->dentry, NULL);
-> +			simple_recursive_removal(epfile->dentry, clear_one);
->  			epfile->dentry = NULL;
->  		}
->  	}
+Unrelated: I'm very inclined to slap a patch on top that renames
+start_creating()/end_creating() and start_dirop()/end_dirop() to
+vfs_start_creating()/vfs_end_creating() and
+vfs_start_dirop()/vfs_end_dirop(). After all they are VFS level
+maintained helpers and I try to be consistent with the naming in the
+codebase making it very easy to grep.
