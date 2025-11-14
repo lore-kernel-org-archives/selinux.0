@@ -1,164 +1,252 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from aer-iport-2.cisco.com (aer-iport-2.cisco.com [173.38.203.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0E12314A86;
-	Fri, 14 Nov 2025 14:05:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80E7D3161B3
+	for <selinux@vger.kernel.org>; Fri, 14 Nov 2025 14:16:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.38.203.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763129155; cv=none; b=cI2SSr5uQKMBTPBvDJ4vu+DE0OGupTe8meo9PCG5cnJ2ceWTkGDoqT1DXqv5IlF8J/43nNS69FrcZMuLIoq5fZShPlPUlTuBPuiiJsfBkni/0Yzs6afr0UVyStvLq4CSuCSZu8XaZ1xH6toxSY9uFBgAmVvy+T45lMFaLqQsxT0=
+	t=1763129797; cv=none; b=iS9FXjke+DQ8xO7yHhlvBvkFGO1Npodh4jLLzbObd9/PGMG1tI7940vGbEXtBzXOSgbkIkS/XgJYPka3RZgCcB/exT7kfrFVSdi6dsf5sFEJz6jFjKAcHex+bkrUTMm8euhBUXBv6FA4/rMjE7rV9JePa6GI1qgL8czL9h3v1OM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763129155; c=relaxed/simple;
-	bh=ZEg0b7s99KNx4Nn2gvpPToGyxGUieeAOKuc2AOfsqIw=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=oIbxps0tUCyB96J/aKC66At9WNL+JR+XByVMbmLiH4AWhWhNe1F8r/4L5DYlj+jjBhfJ/jPZM2zx29a1NflT0W5lsSZTtN3drKIqAH0YtIqgfdeLEgIuAQK4qLdKaEI4z31oGatHUwKWeXnI33l9KokR+7/ENZtlba5CiItgbOg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=g2gK+Z2R; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1763129797; c=relaxed/simple;
+	bh=7VUP20LPcIuzOM1Az25Qn3D4OYfMJxaWngMPe4L7X9I=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=i/Ap+UgiIcRx9VydhB1YlugiZDSSLLUcyVL1+QSzaAm7zA8ZKyyI3LDxLhd+tspUfWnMm4E5oway2TfW2bGFdgimcxecw/GoXA7AuACZ+LyjRuQGvq4suB2NYgtOQNXtV5uQQc9rN977I6IVuhLm1Hi8ag0sIJq/MNvLXBDrw4Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cisco.com; spf=pass smtp.mailfrom=cisco.com; dkim=pass (2048-bit key) header.d=cisco.com header.i=@cisco.com header.b=aEfoi+Tz; arc=none smtp.client-ip=173.38.203.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cisco.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cisco.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="g2gK+Z2R"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CD9AC113D0;
-	Fri, 14 Nov 2025 14:05:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1763129155;
-	bh=ZEg0b7s99KNx4Nn2gvpPToGyxGUieeAOKuc2AOfsqIw=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-	b=g2gK+Z2R1kkCNwMWd3/1/a2Gwy4+svU66Kyd0VXHdTxpok4JKQ23poq7HsFRoV07N
-	 xwm0EkfzePQa3UwDOdege8hJ3aD+cSLFN2nZPEf/ElsqNE0ezlSz9CIwyLdCwoSqYY
-	 gGG+2ZgkHhsCVVtCAydzDfFPNRmL8hLE0a3YiUXIrDB9z8HfyLfzx9bua2wfY8zuEY
-	 2AJ/0W1E3LwZl5Mtuivea9rBXZH8U7qZQMPlascthU1jcxbgVRJ8ennTndvILnh9tK
-	 Jj6nx/k1gHR1NjUaZMT26+hPbHkqaYk3o9q/DcLmf461HiLq+qtZQrMpTaAiKhP8EJ
-	 RB4nI7XbzCDvg==
-Message-ID: <b30eac3d6368d2eb03a2acbae113455b65753e0c.camel@kernel.org>
-Subject: Re: [PATCH v6 00/15] Create and use APIs to centralise locking for
- directory ops
-From: Jeff Layton <jlayton@kernel.org>
-To: Christian Brauner <brauner@kernel.org>, NeilBrown <neil@brown.name>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>, Amir Goldstein	
- <amir73il@gmail.com>, Jan Kara <jack@suse.cz>,
- linux-fsdevel@vger.kernel.org,  Chris Mason	 <clm@fb.com>, David Sterba
- <dsterba@suse.com>, David Howells <dhowells@redhat.com>,  Greg
- Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki"
- <rafael@kernel.org>, Danilo Krummrich	 <dakr@kernel.org>, Tyler Hicks
- <code@tyhicks.com>, Miklos Szeredi	 <miklos@szeredi.hu>, Chuck Lever
- <chuck.lever@oracle.com>, Olga Kornievskaia	 <okorniev@redhat.com>, Dai Ngo
- <Dai.Ngo@oracle.com>, Namjae Jeon	 <linkinjeon@kernel.org>, Steve French
- <smfrench@gmail.com>, Sergey Senozhatsky	 <senozhatsky@chromium.org>,
- Carlos Maiolino <cem@kernel.org>, John Johansen	
- <john.johansen@canonical.com>, Paul Moore <paul@paul-moore.com>, James
- Morris	 <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, Stephen
- Smalley	 <stephen.smalley.work@gmail.com>, Ondrej Mosnacek
- <omosnace@redhat.com>,  Mateusz Guzik <mjguzik@gmail.com>, Lorenzo Stoakes
- <lorenzo.stoakes@oracle.com>, Stefan Berger	 <stefanb@linux.ibm.com>,
- "Darrick J. Wong" <djwong@kernel.org>, 	linux-kernel@vger.kernel.org,
- netfs@lists.linux.dev, ecryptfs@vger.kernel.org, 
-	linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org, 
-	linux-cifs@vger.kernel.org, linux-xfs@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Date: Fri, 14 Nov 2025 09:05:51 -0500
-In-Reply-To: <20251114-baden-banknoten-96fb107f79d7@brauner>
-References: <20251113002050.676694-1-neilb@ownmail.net>
-	 <20251114-baden-banknoten-96fb107f79d7@brauner>
-Autocrypt: addr=jlayton@kernel.org; prefer-encrypt=mutual;
- keydata=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
- QZIQXVeAA+smfTT0tDrisj1U5x6ZB9b3nBg65kc=
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.58.1 (3.58.1-1.fc43) 
+	dkim=pass (2048-bit key) header.d=cisco.com header.i=@cisco.com header.b="aEfoi+Tz"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=cisco.com; i=@cisco.com; l=8143; q=dns/txt;
+  s=iport01; t=1763129794; x=1764339394;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=tnODTS+AIZUHS3IEGHa12An2YaP2IAj8p1dHZvHKGao=;
+  b=aEfoi+Tz7mpJJNufXRVmP+huhRgDrauR4qdnMKF7YHKcTTTIHMrxbDjS
+   yi0Zjzdp0TdoDjeyBDAzNPlh180vvxR1OONcotAyRybr1VhgSIO2KnkpC
+   V8llB9b3UfLNixrXJX+oikC+OD1qwOcMaEo7rpWotkjIpREQiogz35C6m
+   DITkzw8CGd2PzHAgi5VlUPOY1HQ9Xq414Eocr8fJ7ZkKU05yJuhq7Yc34
+   k+V2YThkeCEvVABRkdoiuYzT5xx27UwK19X00P0Mf6snolH2ATJ65ZnP9
+   nYyuZezHz+6WeFVc/bx/JJRDh7wim71gs5iVnz6sCUJm5nY8ycF6E0cHC
+   w==;
+X-CSE-ConnectionGUID: MOwD6KStTb2h1n/luJam/Q==
+X-CSE-MsgGUID: PIxD9YEkRwCuJeLSy8dnrw==
+X-IPAS-Result: =?us-ascii?q?A0CDBAB0OBdp/85K/pBaHgEBCxIMQIFFC4JHe11DSYRUj?=
+ =?us-ascii?q?1OCIQOLZIcHiy8UgWsPAQEBDzEgBAEBgVODNAKMWgImNAkOAQIEAQEBAQMCA?=
+ =?us-ascii?q?wEBAQEBAQEBAQEBCwEBBQEBAQIBBwWBDhOGTw2GWwEBAQMjDwE7CxALGAICJ?=
+ =?us-ascii?q?gICIDYGEwiCe4I6AzYDr3h6gTKBAd0+DYEygSkscC6INB8BimYnG4INhAc4P?=
+ =?us-ascii?q?oIfgW8BEgGDfIJpBIEOgRQ8UoF6hC2CcYE4iBgVKYY6UngcA1ksAUsKNQwzb?=
+ =?us-ascii?q?UMDgS5LBTdlEkAiHylgVECBRhiCB24PBoESGUkCAgIFAkA6WIEQBhwGHBICA?=
+ =?us-ascii?q?wECAjpVDYEEcwICBIIZfoIKD4lJgRgDeD03FBuVWFGCLD4dGy4HMCYHeBkMG?=
+ =?us-ascii?q?AIKHhwvky6dcpQmcYQmjB6PPYYTSQOFRaUQmQaSEZcwgWg8aXAzIhsVO4JnC?=
+ =?us-ascii?q?UkZD5Mlw3RFMgI6AgcBCgEBAwmCOYQPjR8BAQ?=
+IronPort-Data: A9a23:CwFrVa9wt8B1VHqJKTILDrUD2n+TJUtcMsCJ2f8bNWPcYEJGY0x3y
+ zQaDTuFM/3bamL0et0kOYq/pxsCvJSHyddmT1M4rSBEQiMRo6IpJzg2wmQcns+2BpeeJK6yx
+ 5xGMrEsFOhtEDmE4EzrauS9xZVF/fngbqLmD+LZMTxGSwZhSSMw4TpugOdRbrRA2bBVOCvT/
+ 4qjyyHjEAX9gWMtaztIs/jrRC5H5ZwehhtJ5jTSWtgT1LPuvyF9JI4SI6i3M0z5TuF8dsamR
+ /zOxa2O5WjQ+REgELuNyt4XpWVTH9Y+lSDX4pZnc/DKbipq/0Te4Y5nXBYoUnq7vh3S9zxHJ
+ HqhgrTrIeshFvWkdO3wyHC0GQkmVUFN0OevzXRSLaV/wmWeG0YAzcmCA2kTGpI0pMVMHV1Er
+ /xBLncJczKKgqWPlefTpulE3qzPLeHiMZlavjRryivUSK57B5vCWK7No9Rf2V/chOgXQaqYP
+ ZdFL2UzKk6YPXWjOX9PYH46tOKlnGXkeiZwo1OOrq1x6G/WpOB0+OOzbYaJK4TWLSlTtn65t
+ k6Xzkn6OA4xKf6S7QGUon6qnPCayEsXX6pXTtVU7MVCm0Ge3mweDlsNUFK/pfSozFG5QdF3J
+ Ekd+y5opq83nGSwQ938WQCoiGCLswRaWNdKFeA+rgaXxcLpDx2xD2UeCzoEY9s8uYpuGHoh1
+ 0SCmJXiAjkHXKCpdE9xP4y89VuaURX550dbDcPYZWPpO+Xenbw=
+IronPort-HdrOrdr: A9a23:W3/Qr6qv0tcRKzYSOUmh5icaV5oQeYIsimQD101hICG9vPb2qy
+ mLpoV/6faSskd0ZJhAo6HjBEDuexnhHPJOjLX5eI3SOzUO21HYT72Kj7GC/9SIIUSXndK1l5
+ 0BT0EUMrPN5DZB4foTJGKDYq8dKB7tytHPudvj
+X-Talos-CUID: =?us-ascii?q?9a23=3A+39uVmpvl3/VPFz+q4S5u5fmUeUCbVGD70zMH0X?=
+ =?us-ascii?q?iCT9vD7mIa1aVv5oxxg=3D=3D?=
+X-Talos-MUID: =?us-ascii?q?9a23=3AzIYniA0xiISVxVEOsu5/GwvQ6jUj24W+JBE8vJY?=
+ =?us-ascii?q?8pOKZFyFUACbNgDKtXdpy?=
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-AV: E=Sophos;i="6.19,305,1754956800"; 
+   d="scan'208";a="36544904"
+Received: from aer-l-core-05.cisco.com ([144.254.74.206])
+  by aer-iport-2.cisco.com with ESMTP/TLS/TLS_AES_256_GCM_SHA384; 14 Nov 2025 14:15:23 +0000
+Received: from perrin (unknown [10.48.246.234])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by aer-l-core-05.cisco.com (Postfix) with ESMTPS id 9508C18000231;
+	Fri, 14 Nov 2025 14:15:22 +0000 (GMT)
+Date: Fri, 14 Nov 2025 15:15:21 +0100
+From: Martin =?utf-8?Q?Erts=C3=A5s?= <mertsas@cisco.com>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org
+Subject: Re: SELinux Namespace work
+Message-ID: <aoskc4jnsb2ivi7mgdkhxxxahwmrblzayvu7qdtpgjjnz7u7ca@6x6bz243yu4b>
+References: <io56y7r63uyeduqe7ukx3wcjvhzfnnsxle2go5raxqy76lrn3n@edx4doao3gv3>
+ <CAEjxPJ5cGzHDrsUGKCOxOUZm-0d8shoPahbZB7zVFTivujRNsw@mail.gmail.com>
+ <kakoxc3dfli7fjjistybeqhf34abzqovkmq2gs4fg5sv7nviam@w36m2srscmbu>
+ <CAEjxPJ5rD7Fq_t5EDoy8EYHzMhgntR+KK=3OZAAuA0V047yKWQ@mail.gmail.com>
+ <CAEjxPJ744wutA3FZmA88OMyay__P0qVAYTB6RRnh=v+LiPyxJQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAEjxPJ744wutA3FZmA88OMyay__P0qVAYTB6RRnh=v+LiPyxJQ@mail.gmail.com>
+X-Outbound-SMTP-Client: 10.48.246.234, [10.48.246.234]
+X-Outbound-Node: aer-l-core-05.cisco.com
 
-On Fri, 2025-11-14 at 13:24 +0100, Christian Brauner wrote:
-> On Thu, Nov 13, 2025 at 11:18:23AM +1100, NeilBrown wrote:
-> > Following is a new version of this series:
-> >  - fixed a bug found by syzbot
-> >  - cleanup suggested by Stephen Smalley
-> >  - added patch for missing updates in smb/server - thanks Jeff Layton
->=20
-> The codeflow right now is very very gnarly in a lot of places which
-> obviously isn't your fault. But start_creating() and end_creating()
-> would very naturally lend themselves to be CLASS() guards.
->=20
-> Unrelated: I'm very inclined to slap a patch on top that renames
-> start_creating()/end_creating() and start_dirop()/end_dirop() to
-> vfs_start_creating()/vfs_end_creating() and
-> vfs_start_dirop()/vfs_end_dirop(). After all they are VFS level
-> maintained helpers and I try to be consistent with the naming in the
-> codebase making it very easy to grep.
+On Tue, Jun 24, 2025 at 09:04:10AM -0400, Stephen Smalley wrote:
+> On Tue, Jun 24, 2025 at 8:43 AM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > On Tue, Jun 24, 2025 at 1:44 AM Martin Ertsås <mertsas@cisco.com> wrote:
+> > >
+> > > On Mon, Jun 23, 2025 at 08:09:34AM -0400, Stephen Smalley wrote:
+> > > > On Mon, Jun 23, 2025 at 7:37 AM Martin Ertsås <mertsas@cisco.com> wrote:
+> > > > >
+> > > > > Good day.
+> > > > >
+> > > > > I have been looking a bit on your SELinux Namespace work, as we have a
+> > > > > usecase for it where it will be necessary. Basically we're running
+> > > > > Android in a lxc container.
+> > > > >
+> > > > > Currently we just have a single label for everything happening inside
+> > > > > the container, and disabled every SELinux handling from the Android side,
+> > > > > as that doesn't work.
+> > > > >
+> > > > > So we're looking into if your namespace patches will allow us to let
+> > > > > Android do its own SELinux handling, and it seems very promising, so
+> > > > > thanks a lot.
+> > > > >
+> > > > > My question is about user namespaces and the selinux namespace. I see
+> > > > > you very consciously have not linked the two, and I was wondering if
+> > > > > the problem I'm seeing might be due to that?
+> > > > >
+> > > > > What I try to do is, as root in the init usernamespace:
+> > > > >
+> > > > > ```
+> > > > > # unshare -m -n -U --map-root-user
+> > > > > # mount --make-rprivate /
+> > > > > # echo 1 > /sys/fs/selinux/unshare
+> > > > > # umount /sys/fs/selinux
+> > > > > # mount -t selinuxfs selinux /sys/fs/selinux
+> > > > > ```
+> > > > >
+> > > > > The problem is in the umount step, it returns with:
+> > > > >
+> > > > > `umount: /sys/fs/selinux: not mounted.`
+> > > > >
+> > > > > Do you know if there's a way I can make this work? Or is this a
+> > > > > limitation of the current implementation? Seems like the flow today has
+> > > > > to be to first unshare and remount the selinuxfs, and then enter the
+> > > > > user namespace.
+> > > >
+> > > > So, first, unless your email contains proprietary information, I would
+> > > > recommend cc'ing the selinux mailing list.
+> > > > Then, with regard to your question, the above doesn't appear to be due
+> > > > to anything in SELinux itself, as the same
+> > > > behavior occurs even if I don't unshare the SELinux namespace and even
+> > > > if SELinux is permissive.
+> > > > I would have to look further into what unshare -m -n -U
+> > > > --map-root-user and mount --make-rprivate / does that is causing this
+> > > > behavior but it doesn't seem like it is something in SELinux itself.
+> > >
+> > > Thank you for the reply.
+> > >
+> > > You're correct. I was assuming it was due to the SELinux namespace, but
+> > > testing without the patches at all shows the same behaviour. I'll dig
+> > > into that and see what I can find then. Thank you.
+> >
+> > On further thought, I think that you aren't allowed to unmount or
+> > otherwise modify a mount for a filesystem that was mounted by a
+> > different user namespace, so when you unshare the user namespace, you
+> > can no longer unmount the old selinuxfs mount. Hence, it does appear
+> > that you would need to unshare the SELinux namespace first, then the
+> > user namespace.
+> 
+> Looks like you also cannot mount selinuxfs from the child user
+> namespace; again, this occurs even if SELinux is permissive, so it
+> appears to be a DAC and/or capabilities restriction imposed on user
+> namespaces. So the sequence would have to be along the lines of:
+> # echo 1 > /sys/fs/selinux/unshare # unshare SELinux namespace
+> # unshare -m # unshare mount namespace so we can unmount old selinuxfs
+> # umount /sys/fs/selinux # unmount old selinuxfs
+> # mount -t selinuxfs none /sys/fs/selinux # mount new selinuxfs for
+> child namespace
+> #  unshare -m -n -U --map-root-user # unshare user namespace
+> 
+> And then it is possible to load policy into the child namespace (or
+> you could do it before, either way).
+> 
+> Note that we have a helper on my selinuxns branch of libselinux that
+> handles the first 3 steps for you, leaving the rest to be done by
+> systemd or whatever.
 
-That sounds like a good idea. The current names are a little too
-generic.
---=20
-Jeff Layton <jlayton@kernel.org>
+Thank you for the help so far. I have dug quite a bit into an issue with
+this together with the cgroup namespace, which is required for running
+Android in a container.
+
+What I see is that before mounting the cgroup namespace, it is labeled
+based on the new selinux namespace as expected. But when mounting the
+cgroup2 filesystem, some of the labels change to the host labels. This
+causes problems, as I on the host have the user system_u, while android
+only has u. So when I try to make a subdirectory in the new cgroup, I
+get -ENOMEM as selinux can not find a system_u user.
+
+This is what I can observe:
+
+# echo 1 > /sys/fs/selinux/unshare
+# unshare -m -n -C -p --fork /tmp/setup_namespace.sh
+[cisco:/] $ load_selinux_policy
+Loaded selinux policy. Enforcing=0
+load_selinux_policy-3.2# ls -lZ /sys/fs
+drwxr-xr-x    2 root     root     u:object_r:sysfs:s0                      0 Nov 14 14:05 9p
+dr-xr-xr-x    2 root     root     u:object_r:sysfs:s0                      0 Nov 14 14:05 bpf
+dr-xr-xr-x    2 root     root     u:object_r:sysfs:s0                      0 Nov 14 14:05 cgroup
+drwxr-xr-x    8 root     root     u:object_r:sysfs:s0                      0 Nov 14 14:05 ext4
+drwxr-xr-x    3 root     root     u:object_r:sysfs:s0                      0 Nov 14 14:05 fuse
+drwxr-xr-x    3 root     root     u:object_r:sysfs:s0                      0 Nov 14 14:05 nfs
+dr-xr-xr-x    2 root     root     u:object_r:sysfs:s0                      0 Nov 14 14:05 pstore
+drwxr-xr-x    8 root     root     u:object_r:selinuxfs:s0                  0 Nov 14 14:05 selinux
+load_selinux_policy-3.2# mount -t cgroup2 none /sys/fs/cgroup
+load_selinux_policy-3.2# ls -lZ /sys/fs
+drwxr-xr-x    2 root     root     u:object_r:sysfs:s0                      0 Nov 14 14:05 9p
+dr-xr-xr-x    2 root     root     u:object_r:sysfs:s0                      0 Nov 14 14:05 bpf
+drwxr-xr-x    2 root     root     system_u:object_r:cgroup_t               0 Nov 14 13:53 cgroup
+drwxr-xr-x    8 root     root     u:object_r:sysfs:s0                      0 Nov 14 14:05 ext4
+drwxr-xr-x    3 root     root     u:object_r:sysfs:s0                      0 Nov 14 14:05 fuse
+drwxr-xr-x    3 root     root     u:object_r:sysfs:s0                      0 Nov 14 14:05 nfs
+dr-xr-xr-x    2 root     root     u:object_r:sysfs:s0                      0 Nov 14 14:05 pstore
+drwxr-xr-x    8 root     root     u:object_r:selinuxfs:s0                  0 Nov 14 14:05 selinux
+load_selinux_policy-3.2# ls -lZ /sys/fs/cgroup/
+-r--r--r--    1 root     root     u:object_r:unlabeled:s0                  0 Nov 14 13:53 cgroup.controllers
+-r--r--r--    1 root     root     system_u:object_r:cgroup_t               0 Nov 14 13:53 cgroup.events
+-rw-r--r--    1 root     root     u:object_r:unlabeled:s0                  0 Nov 14 13:53 cgroup.freeze
+--w-------    1 root     root     u:object_r:unlabeled:s0                  0 Nov 14 13:53 cgroup.kill
+-rw-r--r--    1 root     root     u:object_r:unlabeled:s0                  0 Nov 14 13:53 cgroup.max.depth
+-rw-r--r--    1 root     root     u:object_r:unlabeled:s0                  0 Nov 14 13:53 cgroup.max.descendants
+-rw-r--r--    1 root     root     system_u:object_r:cgroup_t               0 Nov 14 13:53 cgroup.procs
+-r--r--r--    1 root     root     u:object_r:unlabeled:s0                  0 Nov 14 13:53 cgroup.stat
+-rw-r--r--    1 root     root     u:object_r:unlabeled:s0                  0 Nov 14 13:53 cgroup.subtree_control
+-rw-r--r--    1 root     root     u:object_r:unlabeled:s0                  0 Nov 14 13:53 cgroup.threads
+-rw-r--r--    1 root     root     u:object_r:unlabeled:s0                  0 Nov 14 13:53 cgroup.type
+-r--r--r--    1 root     root     u:object_r:unlabeled:s0                  0 Nov 14 13:53 cpu.stat
+load_selinux_policy-3.2# mkdir /sys/fs/cgroup/foo
+mkdir: can't create directory '/sys/fs/cgroup/foo': Cannot allocate memory
+load_selinux_policy-3.2#
+
+The setup_namespace just creates a new rootfs and mounts the android
+container and selinux policy into that. And load_selinux_policy is just a wrapper that loads the android selinux policy.
+
+What I have traced it down to is that when kernfs_get_tree from
+fs/kernfs/mount.c is mounting the cgroup, the superblock is reused from
+the old cgroup namespace, which also has the security context from the
+old selinux namespace. This causes the labels to be mixed as shown
+above. This doesn't seem to involve SELinux code directly, but just the
+kernfs code.
+
+Should the kernfs test function for the superblock involve checking the
+security context as well? Not sure what a proper fix for this would be?
+Or if I'm missunderstanding something and doing something fundamentally
+wrong here?
+
+Best regards,
+- Martin
