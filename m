@@ -1,244 +1,194 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 623073346B6
-	for <selinux@vger.kernel.org>; Mon, 17 Nov 2025 14:28:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E4EA334C1D
+	for <selinux@vger.kernel.org>; Mon, 17 Nov 2025 14:37:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763389732; cv=none; b=MpqaYJquhdSZp+vIOpfpZWbAUbrKJ6wnW8AhFpuh1UlpFlt9I6aYUIxVx3Dius4KKvhrJIzKgEhf7OAIku889OVlV/AK4+QwxCYcuV3j93q/Y30jquCVZBHEz7oCkRonu9vkYEtg5E1/qAAQA5trta2MCJXzkh7S613xOt5IIWk=
+	t=1763390237; cv=none; b=qgoCdEE1CuL4bcjrRM3A13bNNGu28gLB3StxpbWsgyDHUShDK7xYakRt346DTpL6d1Z6Fe1loPFUg05z50K9BomDabhgJWf6uql5KrOr2+gKdSVlEOxOGBlUHwM0FCMX4SkyozcilMMmuj3nyQA7BtXNGNdbN+68PUjoeAFzAoo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763389732; c=relaxed/simple;
-	bh=plrF1OpVfIeXGp9emgsMzur+7bvAc/Kf7qEekcQZn60=;
+	s=arc-20240116; t=1763390237; c=relaxed/simple;
+	bh=6NuU1TaKKlGMlP3B+lllJeXPWIW53S2nsAu1WDF10i8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=IOHcO37c/tK78QV+I5EQJK9iD/cmx1nuyQhFLfzHWD3SMQCEdEIy3W2jKBaejZdGRiXIV83FU9BoSq/KQffd6Tc+Kub6DQ7mpfX/+1Oex2JhWhCMpAXAEJ3+zGtjkMb1cUhfPj3jnG+ZzjN9WAZwJNir6UmsfWCLrB18kRh/Hl8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZHIKUxTk; arc=none smtp.client-ip=209.85.216.48
+	 To:Cc:Content-Type; b=gGL1HKgWFl1N2k3epZ5Y1oRGXN10i6d3791JBCO9WM6syCk+kVtRTeS7G0Jkp/fl2sHbZEfqMDJQijlILNmQAmnZF6wxNrXbZzpwVQcCDxA5EyLZCyAY44y37wAmuo448bBDqC1UpmeKRHEPPZzb/rx7Q5JmIM/83Sz9seCPkR8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Jk7c96Wp; arc=none smtp.client-ip=209.85.216.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZHIKUxTk"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-3437af8444cso4490964a91.2
-        for <selinux@vger.kernel.org>; Mon, 17 Nov 2025 06:28:50 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jk7c96Wp"
+Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-340a5c58bf1so3101544a91.2
+        for <selinux@vger.kernel.org>; Mon, 17 Nov 2025 06:37:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1763389729; x=1763994529; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1763390235; x=1763995035; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=9mlf6u5Mio8lLAhcHMozUj13WcoUNeli21y7DvtWTkE=;
-        b=ZHIKUxTkmPgnyDykVg2E9pOgwMwxCpIYBx2zXsvfSyc7kDG6Gbk50cwUS5B/dBDZfO
-         sdS15gE+o42B3Tp3J5X5SJcvyz9TJ4EdTeJHIMWIAq7zAw2x+mSBJB8SkPX+mkYit2eX
-         2QHaxaW4xA2K0Mo4BfK+HVd8kRnWOygNOPgXXoG7bfUhP+3NuoVxl2fkt0s2f3iWZpi2
-         GswE7/XFSFV6ix8SbJ4g6A5RgMYNA0QPivux0GtF5FDZbBIuZYh1D5dOw8Oehu8OqTw0
-         Ln7Ss/UYgraE8v7TCUqSlA7xqgVCTPl1ytT+h/LiiWeURRn7h9Tvoo5nXU087NMeAJsh
-         IxvQ==
+        bh=vu/yE6ia84zmqVhbXQnJS/8J/nmh7PcLwqeIWJSCJZw=;
+        b=Jk7c96Wp53kgutOVOKbTLn8SwQP/5T2+Qx4KrkQ1bP/96q2fnyxq/kJQg+vVzWX1lk
+         znd5gJXqE+7mDhjMisa3K+Z5y7YqvfIDKPGbVFzVyMsJ2Tpr5MetzwHi3n2YCKiiZxfz
+         UEv0gIC16p0zvj4ahWAZk3EqzHPuHLStdfQZMzqJipG0rMyNNVOLPetyBWMbzv7ninc9
+         S0WF09r4Qj21N0JxEYp3gDkt0ZQk4juPPUpq/XV3MxUMAZMzzC3sMZb3/AcrDAyz0LJC
+         wlqCTx66zlKfGKG91oSaXDzhcjAs8azJ2iZkR/8EptpW/Hx2Rc8cPmX58CDwSYO80sC8
+         /HEQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763389729; x=1763994529;
+        d=1e100.net; s=20230601; t=1763390235; x=1763995035;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=9mlf6u5Mio8lLAhcHMozUj13WcoUNeli21y7DvtWTkE=;
-        b=Yn+5h3xc7KHyABhzO6yWF/NLTZIJHsFnzdnAdCMRKfauSvQcGnkx97MBdHUB9lvClM
-         sLtg8/DoR7mIlgFd91JEbR5CVhh4Lxj7LG1UC7FYKHAOupONPw7US7wz/WO5CtIO1GpM
-         Ko87DTFYP0pydJfK3hXesWPTadWeK/qTGwk3dRkYJ5OdUEHRzjH22sM50ci9Bb7rs30y
-         CH0i+LvFBAnJQW37EkYa6Z9nr7UFUxMsMYZsmW6WOdrs+rPe+7TyaYtbspVh7fg/bXGo
-         gHujae0p+jG8m6Wi6DJbRmBEwm/8YjJ8/oaMAiRHxjxJcS2PGHOHRCqAOkVfUw/Nbo6n
-         013g==
-X-Gm-Message-State: AOJu0YwX3+vPRQJcUsLSWkmYI1E/DbHPggJZCC1YT3ks2scukGYiwlV3
-	tOCFa0LAwtVNnZZkNiSmv3zPoXy5jvuJW63iS/1iGKKjQTzeMmo/sz2SALalMWR7ImvrqFIpXzP
-	uAsSwoe3L8/rDxmLl/P21P6vYjXtHL7E=
-X-Gm-Gg: ASbGncteDKXoDb8e+mTa8mzFeICRsHEnbR77qowUGhAxHuJ1lSdBhiJ5B9iq6Xp5yvi
-	LM7rAATM9Y4h/ttS0c5PErGV9mz3+vdFmkw1zTBlLPSpCmQSRlSCursHZ7OFBwwlfXK0xQDTxvA
-	Hacy7Up7AKPPlM+FVDuTQZogaBUo2gpJ3NS7pn6gwizZZ0ySLC93uhXl1Tz3CJ7ZEaEJ3vdMwgw
-	hLHW6Ski7P27fvSg2ISPFYzKHj3HQmIQxoGPkrDxBrd6l9z1NSuN0dvy81be+M86Ch7YN0=
-X-Google-Smtp-Source: AGHT+IFkMWeEdFlSGiqzcPanRNtG7Z9z/7CIvmZp0tn6BEmkeBZUIgRVUINPmnCJ8SCfnO/xa5yFLu9uErdQWJlvN3A=
-X-Received: by 2002:a17:90b:2fcf:b0:340:c179:3666 with SMTP id
- 98e67ed59e1d1-343f9e92a3emr12670139a91.8.1763389729381; Mon, 17 Nov 2025
- 06:28:49 -0800 (PST)
+        bh=vu/yE6ia84zmqVhbXQnJS/8J/nmh7PcLwqeIWJSCJZw=;
+        b=jdyNKra6IqFq8p6WdOEfdM8/IOdsN/Laweo+Pa/S1wpaznYysfo/1hp8KvGrKacY4z
+         XlyxxV1OgMKefOFo8vX5k6rrrgu6m2Kzv5B9+VvwugPqoxmwu1P2ato0RW5h5Nq8t2kv
+         R8/BvpbbBlTny8MI1eAhwVGuejRIUULMgnRuhD728FkyD9VvUSUOhB0YwIJS/PFfiQfn
+         7QdgFWQvHhSWaAFvgp4np2WlZwCBB3tuZgOIZSQt4rIH1UlvUC34IVC8rfWpdfwbAI17
+         nlFYAy6R+VNtTY+9z7fbzMPmvq87S0MHkvVrLMQfGzCXHKc571XMaKhh4/POoD7j3yrj
+         KJew==
+X-Gm-Message-State: AOJu0Yz1w3PYCjwhH1D9JjMs4/aSexfMqZcmMY+LN19oEF30DuIqhDAO
+	5+Uoi0s+3HHlSWAdfP1QI++IQ1J/+Bsx1H1LnAuKOPVuYvpP8PtQXavBw1xvWI0SDsmfDZ4YEdw
+	2SJoH2v3vOonR6K17TAmGAu0BGTEOQE4=
+X-Gm-Gg: ASbGncuXrfiG7dNt05AAS63Sgnc3unFiSp9gFhdcYAi7UpU1uC/Ph6oBe60XbK9Lv0w
+	p7mcXc8u9XsCwyU+PYMo0MGG9lUik+5Ra+MET6wKcNKFz0OMoXWPhHRBJ+zgTF+0Ep6kCTWyU5V
+	qzGmFIVFo3ZlW4jk7DEWEQxFtIqhq/ovNm/LppefRRYm9yyFnIIbbokvaJKjohgkK6hHIW1FHH+
+	LpXv3fpvvl+bYj8VS4dDYPIYmy0QlGGeuBaDvj4f8+Mlk2MTsvRJWf2mb7RB7bqq8mI0sQ=
+X-Google-Smtp-Source: AGHT+IGA4lO3G/PMP5VB5l1H1GWQwrAgq7sQvuCrBc/XxpUAU0k3T4TYZvQ9ybNLsd5n7G3vEchEWEStDlU/hWsxG+c=
+X-Received: by 2002:a17:90b:38ca:b0:340:c151:2d66 with SMTP id
+ 98e67ed59e1d1-343fa638ef3mr12030299a91.30.1763390234628; Mon, 17 Nov 2025
+ 06:37:14 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <io56y7r63uyeduqe7ukx3wcjvhzfnnsxle2go5raxqy76lrn3n@edx4doao3gv3>
- <CAEjxPJ5cGzHDrsUGKCOxOUZm-0d8shoPahbZB7zVFTivujRNsw@mail.gmail.com>
- <kakoxc3dfli7fjjistybeqhf34abzqovkmq2gs4fg5sv7nviam@w36m2srscmbu>
- <CAEjxPJ5rD7Fq_t5EDoy8EYHzMhgntR+KK=3OZAAuA0V047yKWQ@mail.gmail.com>
- <CAEjxPJ744wutA3FZmA88OMyay__P0qVAYTB6RRnh=v+LiPyxJQ@mail.gmail.com>
- <aoskc4jnsb2ivi7mgdkhxxxahwmrblzayvu7qdtpgjjnz7u7ca@6x6bz243yu4b>
- <CAEjxPJ4xff=wfvVpnSNuydWN4k1TX6f8GtBtWmv_Fc7yKMZaUA@mail.gmail.com> <54p5qlyfsj5twmuacf6nqmzaandshs34uwq7vdjycpcl4okgsw@fcovtdadvhlt>
-In-Reply-To: <54p5qlyfsj5twmuacf6nqmzaandshs34uwq7vdjycpcl4okgsw@fcovtdadvhlt>
+References: <20251116205208.734-1-ericsu@linux.microsoft.com>
+In-Reply-To: <20251116205208.734-1-ericsu@linux.microsoft.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 17 Nov 2025 09:28:38 -0500
-X-Gm-Features: AWmQ_bkZy8XyBw1i7whe5e9QmruVABQ5_V4DapWjIj_uMjIucV_j5ahHZbGn164
-Message-ID: <CAEjxPJ4Ho+BFQ2Br6ajE0wF0Ueha04Z-EK45Fb3+2VC4hEVZBA@mail.gmail.com>
-Subject: Re: SELinux Namespace work
-To: =?UTF-8?Q?Martin_Erts=C3=A5s?= <mertsas@cisco.com>
-Cc: selinux@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>, 
-	Paul Moore <paul@paul-moore.com>
+Date: Mon, 17 Nov 2025 09:37:03 -0500
+X-Gm-Features: AWmQ_bnMnCpP-ChUgTO6pSn_xdUIUqT6rBTGdOZbRfGJAkSai9R7IxM9Gc8bybE
+Message-ID: <CAEjxPJ7s8vS_Spt-9wabztTeh-3j+uX6auSEecHZh6RfkPpQHg@mail.gmail.com>
+Subject: Re: [PATCH v6] SELinux: Add support for BPF token access control
+To: Eric Suen <ericsu@linux.microsoft.com>
+Cc: selinux@vger.kernel.org, paul@paul-moore.com, omosnace@redhat.com, 
+	danieldurning.work@gmail.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Nov 17, 2025 at 3:09=E2=80=AFAM Martin Erts=C3=A5s <mertsas@cisco.c=
+On Sun, Nov 16, 2025 at 3:52=E2=80=AFPM Eric Suen <ericsu@linux.microsoft.c=
 om> wrote:
 >
-> On Fri, Nov 14, 2025 at 10:25:38AM -0500, Stephen Smalley wrote:
-> > On Fri, Nov 14, 2025 at 9:15=E2=80=AFAM Martin Erts=C3=A5s <mertsas@cis=
-co.com> wrote:
-> > > Thank you for the help so far. I have dug quite a bit into an issue w=
-ith
-> > > this together with the cgroup namespace, which is required for runnin=
-g
-> > > Android in a container.
-> > >
-> > > What I see is that before mounting the cgroup namespace, it is labele=
-d
-> > > based on the new selinux namespace as expected. But when mounting the
-> > > cgroup2 filesystem, some of the labels change to the host labels. Thi=
-s
-> > > causes problems, as I on the host have the user system_u, while andro=
-id
-> > > only has u. So when I try to make a subdirectory in the new cgroup, I
-> > > get -ENOMEM as selinux can not find a system_u user.
-> > >
-> > > This is what I can observe:
-> > >
-> > > # echo 1 > /sys/fs/selinux/unshare
-> >
-> > Note that my current working-selinuxns branch has switched from the
-> > /sys/fs/selinux/unshare interface to the system call-based approach
-> > recommended by the discussion on the LSM list so at some point you may
-> > need to switch over to using that as well. That however is not
-> > relevant to your issue below; I am just mentioning it for your
-> > awareness. It remains to be seen what the final upstream API will be.
->
-> Yes, I noticed. I will switch to this one as soon as I have a working
-> prototype, as this seems to solely be an API change. If the branches
-> starts to diverge I would need to swap ASAP though.
->
-> > > # unshare -m -n -C -p --fork /tmp/setup_namespace.sh
-> > > [cisco:/] $ load_selinux_policy
-> > > Loaded selinux policy. Enforcing=3D0
-> > > load_selinux_policy-3.2# ls -lZ /sys/fs
-> > > drwxr-xr-x    2 root     root     u:object_r:sysfs:s0                =
-      0 Nov 14 14:05 9p
-> > > dr-xr-xr-x    2 root     root     u:object_r:sysfs:s0                =
-      0 Nov 14 14:05 bpf
-> > > dr-xr-xr-x    2 root     root     u:object_r:sysfs:s0                =
-      0 Nov 14 14:05 cgroup
-> > > drwxr-xr-x    8 root     root     u:object_r:sysfs:s0                =
-      0 Nov 14 14:05 ext4
-> > > drwxr-xr-x    3 root     root     u:object_r:sysfs:s0                =
-      0 Nov 14 14:05 fuse
-> > > drwxr-xr-x    3 root     root     u:object_r:sysfs:s0                =
-      0 Nov 14 14:05 nfs
-> > > dr-xr-xr-x    2 root     root     u:object_r:sysfs:s0                =
-      0 Nov 14 14:05 pstore
-> > > drwxr-xr-x    8 root     root     u:object_r:selinuxfs:s0            =
-      0 Nov 14 14:05 selinux
-> >
-> > Looks like your container sysfs mount was labeled per its policy
-> > rather than the host policy, as expected. Did you do anything special
-> > when mounting sysfs?
->
-> No, just did `mount -t sysfs none /sys` I have attached the script and
-> the selinux policy.
->
-> > > load_selinux_policy-3.2# mount -t cgroup2 none /sys/fs/cgroup
-> > > load_selinux_policy-3.2# ls -lZ /sys/fs
-> > > drwxr-xr-x    2 root     root     u:object_r:sysfs:s0                =
-      0 Nov 14 14:05 9p
-> > > dr-xr-xr-x    2 root     root     u:object_r:sysfs:s0                =
-      0 Nov 14 14:05 bpf
-> > > drwxr-xr-x    2 root     root     system_u:object_r:cgroup_t         =
-      0 Nov 14 13:53 cgroup
-> > > drwxr-xr-x    8 root     root     u:object_r:sysfs:s0                =
-      0 Nov 14 14:05 ext4
-> > > drwxr-xr-x    3 root     root     u:object_r:sysfs:s0                =
-      0 Nov 14 14:05 fuse
-> > > drwxr-xr-x    3 root     root     u:object_r:sysfs:s0                =
-      0 Nov 14 14:05 nfs
-> > > dr-xr-xr-x    2 root     root     u:object_r:sysfs:s0                =
-      0 Nov 14 14:05 pstore
-> > > drwxr-xr-x    8 root     root     u:object_r:selinuxfs:s0            =
-      0 Nov 14 14:05 selinux
-> > > load_selinux_policy-3.2# ls -lZ /sys/fs/cgroup/
-> > > -r--r--r--    1 root     root     u:object_r:unlabeled:s0            =
-      0 Nov 14 13:53 cgroup.controllers
-> > > -r--r--r--    1 root     root     system_u:object_r:cgroup_t         =
-      0 Nov 14 13:53 cgroup.events
-> > > -rw-r--r--    1 root     root     u:object_r:unlabeled:s0            =
-      0 Nov 14 13:53 cgroup.freeze
-> > > --w-------    1 root     root     u:object_r:unlabeled:s0            =
-      0 Nov 14 13:53 cgroup.kill
-> > > -rw-r--r--    1 root     root     u:object_r:unlabeled:s0            =
-      0 Nov 14 13:53 cgroup.max.depth
-> > > -rw-r--r--    1 root     root     u:object_r:unlabeled:s0            =
-      0 Nov 14 13:53 cgroup.max.descendants
-> > > -rw-r--r--    1 root     root     system_u:object_r:cgroup_t         =
-      0 Nov 14 13:53 cgroup.procs
-> > > -r--r--r--    1 root     root     u:object_r:unlabeled:s0            =
-      0 Nov 14 13:53 cgroup.stat
-> > > -rw-r--r--    1 root     root     u:object_r:unlabeled:s0            =
-      0 Nov 14 13:53 cgroup.subtree_control
-> > > -rw-r--r--    1 root     root     u:object_r:unlabeled:s0            =
-      0 Nov 14 13:53 cgroup.threads
-> > > -rw-r--r--    1 root     root     u:object_r:unlabeled:s0            =
-      0 Nov 14 13:53 cgroup.type
-> > > -r--r--r--    1 root     root     u:object_r:unlabeled:s0            =
-      0 Nov 14 13:53 cpu.stat
-> >
-> > That's very odd indeed - I would expect them all to be labeled based
-> > on either the container policy or the host policy, not a mix of the
-> > two. cgroup2 and sysfs are both kernfs-based so I'm wondering how/why
-> > they differ.
->
-> My suspicion is that since the cgroup namespace gives you a subhierarchy
-> view of the host cgroup hierarchy, the superblock is reused as for
-> cgroup it's actually the same hierarchy. Just with a different root.
-> While the sysfs is a completely new sys mount. But I'm not 100% sure.
->
-> I will dig into why some, like cgroup.subtree_control, are labeled with
-> the new selinux policy, while others are labeled with the host selinux po=
-licy.
->
-> > > load_selinux_policy-3.2# mkdir /sys/fs/cgroup/foo
-> > > mkdir: can't create directory '/sys/fs/cgroup/foo': Cannot allocate m=
-emory
-> > > load_selinux_policy-3.2#
-> > >
-> > > The setup_namespace just creates a new rootfs and mounts the android
-> > > container and selinux policy into that. And load_selinux_policy is ju=
-st a wrapper that loads the android selinux policy.
-> > >
-> > > What I have traced it down to is that when kernfs_get_tree from
-> > > fs/kernfs/mount.c is mounting the cgroup, the superblock is reused fr=
-om
-> > > the old cgroup namespace, which also has the security context from th=
+> BPF token support was introduced to allow a privileged process to delegat=
 e
-> > > old selinux namespace. This causes the labels to be mixed as shown
-> > > above. This doesn't seem to involve SELinux code directly, but just t=
-he
-> > > kernfs code.
-> > >
-> > > Should the kernfs test function for the superblock involve checking t=
-he
-> > > security context as well? Not sure what a proper fix for this would b=
-e?
-> > > Or if I'm missunderstanding something and doing something fundamental=
-ly
-> > > wrong here?
-> >
-> > First I'd like to understand why it seems to be working for sysfs but
-> > not cgroup2 since they are both kernfs-based. What's different between
-> > the two?
-> > And since you unshared the cgroup namespace, why doesn't that trigger
-> > a new superblock creation by itself? It's better if we can avoid
-> > introducing a special check just for SELinux/LSM here.
+> limited BPF functionality=E2=80=94such as map creation and program loadin=
+g=E2=80=94to
+> an unprivileged process:
+>   https://lore.kernel.org/linux-security-module/20231130185229.2688956-1-=
+andrii@kernel.org/
 >
-> Good questions. I think I answered my hunch on these above, but I'm
-> truly not sure. I have attached the setup_namespace.sh script I use so
-> you can see, as well as the selinux policy I load.
+> This patch adds SELinux support for controlling BPF token access. With
+> this change, SELinux policies can now enforce constraints on BPF token
+> usage based on both the delegating (privileged) process and the recipient
+> (unprivileged) process.
+>
+> Supported operations currently include:
+>   - map_create
+>   - prog_load
+>
+> High-level workflow:
+>   1. An unprivileged process creates a VFS context via `fsopen()` and
+>      obtains a file descriptor.
+>   2. This descriptor is passed to a privileged process, which configures
+>      BPF token delegation options and mounts a BPF filesystem.
+>   3. SELinux records the `creator_sid` of the privileged process during
+>      mount setup.
+>   4. The unprivileged process then uses this BPF fs mount to create a
+>      token and attach it to subsequent BPF syscalls.
+>   5. During verification of `map_create` and `prog_load`, SELinux uses
+>      `creator_sid` and the current SID to check policy permissions via:
+>        avc_has_perm(creator_sid, current_sid, SECCLASS_BPF,
+>                     BPF__MAP_CREATE, NULL);
+>
+> The implementation introduces two new permissions:
+>   - map_create_as
+>   - prog_load_as
+>
+> At token creation time, SELinux verifies that the current process has the
+> appropriate `*_as` permission (depending on the `allowed_cmds` value in
+> the bpf_token) to act on behalf of the `creator_sid`.
+>
+> Example SELinux policy:
+>   allow test_bpf_t self:bpf {
+>       map_create map_read map_write prog_load prog_run
+>       map_create_as prog_load_as
+>   };
+>
+> Additionally, a new policy capability bpf_token_perms is added to ensure
+> backward compatibility. If disabled, previous behavior ((checks based on
+> current process SID)) is preserved.
+>
+> Signed-off-by: Eric Suen <ericsu@linux.microsoft.com>
+> ---
+> Changes in v2:
+> - Fixed bug in selinux_bpffs_creator_sid(u32 fd) where it retrieved
+>   creator_sid from wrong file descriptor
+> - Removed unnecessary checks for null, per review comments from
+>   the first patch
+>
+> Changes in v3:
+> - Removed check for 'sid =3D=3D SECSID_NULL' in selinux_bpf_token_create =
+and
+>   allow it to fall through to the permission checks which will fail as
+>   access denied to unlabeled_t
+>
+> Changes in v4:
+> - Added initialization of creator_sid in selinux_sb_alloc_security
+> - Enabled handling of creator_sid in selinux_cmp_sb_context and
+>   selinux_sb_clone_mnt_opts
+> - Minor updates based on review comments
+>
+> Changes in v5:
+> - Moved to dev-staging branch instead of main
+> - Added implementation of selinux_bpf_token_capable which is originally
+>   from Daniel's patch
+>   https://lore.kernel.org/selinux/20250801154637.143931-1-danieldurning.w=
+ork@gmail.com/
+>
+> Changes in v6:
+> - Moved changes to main branch
+> - Updated bpf_token_capable to use grantor_sid as object in permission
+>   check
 
-And just to confirm, is your load_selinux_policy just a program that
-does the equivalent of open+fstat+mmap+security_load_policy() on the
-Android policy file?
+> +static int selinux_bpf_token_capable(const struct bpf_token *token, int =
+cap)
+> +{
+> +       u16 sclass;
+> +       struct bpf_security_struct *bpfsec =3D token->security;
+> +       bool initns =3D (token->userns =3D=3D &init_user_ns);
+> +       u32 av =3D CAP_TO_MASK(cap);
+> +
+> +       switch (CAP_TO_INDEX(cap)) {
+> +       case 0:
+> +               sclass =3D initns ? SECCLASS_CAPABILITY : SECCLASS_CAP_US=
+ERNS;
+> +               break;
+> +       case 1:
+> +               sclass =3D initns ? SECCLASS_CAPABILITY : SECCLASS_CAP2_U=
+SERNS;
+> +               break;
+> +       default:
+> +               pr_err("SELinux:  out of range capability %d\n", cap);
+> +               return -EINVAL;
+> +       }
+> +
+> +       return avc_has_perm(bpfsec->sid, bpfsec->grantor_sid, sclass, av,=
+ NULL);
+
+1. There is a 3rd possible SID that could have been used here if this
+is always called in process context, i.e. current_sid().
+Do we care? What is the typical relationship among the three SIDs,
+e.g. will two of the three be the same in the common case?
+2. Do you have a test case that exercises success and failure of this check=
+?
+
+> +}
+>  #endif
+>
+>  struct lsm_blob_sizes selinux_blob_sizes __ro_after_init =3D {
