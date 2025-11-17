@@ -1,199 +1,172 @@
-Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [62.89.141.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B832C303C94;
-	Mon, 17 Nov 2025 22:06:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.89.141.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF3FC30F958
+	for <selinux@vger.kernel.org>; Mon, 17 Nov 2025 23:04:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763417199; cv=none; b=VRvNYjTYTIFRFt3j4u1A8DTBhhkPpwN83WbE2/QGdElB4aJKzjbsGFmP/i5qsyZtc8bldSdTNysx6/xSEwhsowh2aH9zB3H+ebbJ/HiS10eaoQ9frr0ktnriLg6e1Kbp/PYaAbmFSoe3RE2a1dwTw00Pb26wdcZaQYI+/bttles=
+	t=1763420681; cv=none; b=Z+izhYZ0uATymxI65crlEFvvwFdLTQrTfvjauIiMgfE0VlFETdd+xxl0esRCzoaRL93BesOOt5XvcIO5qyQ+WfX78ZrrXjfAMbiObsG4rNgF/dzb45jZ3LMiqzBW/3jPC2Wfku8JKtgIWM5JrrGFNULbNEA4r9baX7npSGJwqGs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763417199; c=relaxed/simple;
-	bh=8yP6iHjMbYUYXNRM4tJJ2f1dQnWttvZa3M/tHFD+o00=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UoRSF0ihe0y0mUhrNmP7TspL2OE3jSUTukDNOrdJyEg4Sj8p+QMsZAkYbym4Rnq4+Tp1p7izARaImPjK67A6UkVKmRFYLh+PTIfjkne8RqDJ5aM7NaBT8D7Mp7b/2DwiFG5/+WbnSAYbLcpOs1vcod64jWX9dnbOEZH3gpUM8gc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=LGGTxIiN; arc=none smtp.client-ip=62.89.141.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ftp.linux.org.uk
+	s=arc-20240116; t=1763420681; c=relaxed/simple;
+	bh=i7DdhnG71ftd4i2m2G21HgRfKhN3UzNnHz1O3MhLXC4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Wn7T7qX/9hGkM6JFInbrsy0B6se06rLN+BPa9+hKjuH81CmneIYIh9CpWaOMont4j5uZvD2/1zmqly7G4zlly+44vdK961zml3EPUFQcMfPfYuxUMaEf8mlrkAN5f//DAq4EraJ+Bq5x3HeclScUFa+44H/2q1sFWdOVPNcotj8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=YmjZq2vE; arc=none smtp.client-ip=209.85.216.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="LGGTxIiN"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
-	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=Pa8Bj6Fizee8bOJm05tNzfmFor9U/R6BxTW6KbLJQb8=; b=LGGTxIiNBdrbm5G2I+cWguzNzA
-	zWVvjmo7bkADIlhFP685l1lN8nMOPePMcXYA8HPiQkfsCX2eaHsBhgEmqSlkey+XkLqDp4jvYvvYP
-	bjcDbMo44o50n24abxn38PZ0pyf+c868M7DhFitlxq19WV5vC1nlrn867TlFaLsqi96LU2NDUpWkc
-	phrUaYp+rXDBb16CZ1LpweTW6OlKcN47whnhIVrsAbduMu+37YeWV/ant1bEjxIR2f4ZgJYP/VAPL
-	XTMw5jekKcQsFuy69b1FFiXLw2cnuLnT1rHFocNvmgCtp4kCKDeEKPFGnl6w8KeV7mLyTvQTa8nKd
-	NA3ikdXQ==;
-Received: from viro by zeniv.linux.org.uk with local (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vL7Mp-00000007N36-2ZO2;
-	Mon, 17 Nov 2025 22:06:35 +0000
-Date: Mon, 17 Nov 2025 22:06:35 +0000
-From: Al Viro <viro@zeniv.linux.org.uk>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: bot+bpf-ci@kernel.org, linux-fsdevel@vger.kernel.org,
-	torvalds@linux-foundation.org, brauner@kernel.org, jack@suse.cz,
-	raven@themaw.net, miklos@szeredi.hu, neil@brown.name,
-	a.hindborg@kernel.org, linux-mm@kvack.org,
-	linux-efi@vger.kernel.org, ocfs2-devel@lists.linux.dev,
-	kees@kernel.org, rostedt@goodmis.org, linux-usb@vger.kernel.org,
-	paul@paul-moore.com, casey@schaufler-ca.com,
-	linuxppc-dev@lists.ozlabs.org, john.johansen@canonical.com,
-	selinux@vger.kernel.org, borntraeger@linux.ibm.com,
-	bpf@vger.kernel.org, ast@kernel.org, andrii@kernel.org,
-	daniel@iogearbox.net, martin.lau@kernel.org, eddyz87@gmail.com,
-	yonghong.song@linux.dev, ihor.solodrai@linux.dev,
-	Chris Mason <clm@meta.com>
-Subject: [PATCH 4/4] functionfs: fix the open/removal races
-Message-ID: <20251117220635.GD1745314@ZenIV>
-References: <20251111065520.2847791-37-viro@zeniv.linux.org.uk>
- <20754dba9be498daeda5fe856e7276c9c91c271999320ae32331adb25a47cd4f@mail.kernel.org>
- <20251111092244.GS2441659@ZenIV>
- <e6b90909-fdd7-4c4d-b96e-df27ea9f39c4@meta.com>
- <20251113092636.GX2441659@ZenIV>
- <2025111316-cornfield-sphinx-ba89@gregkh>
- <20251114074614.GY2441659@ZenIV>
- <2025111555-spoon-backslid-8d1f@gregkh>
- <20251117220415.GB2441659@ZenIV>
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="YmjZq2vE"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-34374febdefso5184178a91.0
+        for <selinux@vger.kernel.org>; Mon, 17 Nov 2025 15:04:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1763420676; x=1764025476; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=67DqjyCI/JhVTsF1ULoiPuOUOphLY2mp3g5O7RzL6g8=;
+        b=YmjZq2vEP3RrKkuynMuBECfzV/qmuCZcW2k5SrDDwNLrBwCjhC9leZeksspqC9Reg5
+         7m1qs16aYUYUzMy31VgnfaRfQ925KDC/Wf0JDl3vg/7PHxxunMH/Nn6A8qpdHIeOgmKF
+         SSalfOtnM6+aKcPi/R1diKoX6mzhOZoLeEgbC5txiQiK8mFtldLoRKhJhxkJw2YYx59r
+         W0OtXAGkR5gvdztwjWl9g4n1k7D8tVL8dwrwiXVcU0tTMTY3u4bltrQMVL5eUp5spcvr
+         GNGswPZEV3ZLiPG9FXx0fVQEcWAztc4A7KBMY/KmU8D+TNzUS8SypFep3kDas3TIZnAY
+         J+LA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763420676; x=1764025476;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=67DqjyCI/JhVTsF1ULoiPuOUOphLY2mp3g5O7RzL6g8=;
+        b=mzv6u8FczUsEeXOcL2TEvN7ZLpFuEXwNV46Bxq7adl3tMZftiBzm3iQhqBaJDnXgd9
+         2v5QA+FBsY7pKJyzPEg1hBF64nEUX0oxSC39YLEv+dbMfJhF4d6YTLDoVwsVmkKuHkp6
+         N9RdbYRo/+JPbTYhHavRkJn8rV8DCIjZEb8kBTvdB6nuvmigdL2Q4DkQo/7mKAr6H/UF
+         0NGCdwj7ywB71PxX6JYEt2EmrEyc6onbkNzLPunY4EgXqddeQ0AI15VQGOkAAxr7IhMd
+         M50GFLQHD+EL0ghiOjJIVV+beaNYgXfF0xcF91m4yTFlCbDR23xb9lmppcr+aA2kFVM+
+         wOZw==
+X-Forwarded-Encrypted: i=1; AJvYcCW6bd2AcbL9SNJ+KEhzo1f+IEX75FAHavLPw0TtX4a6qLg4b8rTzo/bIp7N0OLAaUA/Vrg3svrI@vger.kernel.org
+X-Gm-Message-State: AOJu0YwRqqLjJcacJjUprFQfvoOPEjagOA/A6cZHU8igBmOpEkbLuWxr
+	hnxK8O1m4Hx1VdUNWAabVFXyqp1tJ4U37Z9Th/ZI2DZ4XMJtMblUV/zsOTk3+mSBIhUWSZXAXsD
+	iJlnnjZZjoPw0LXftN1ZQ8QPfUW/nWRR5kp5KIenB
+X-Gm-Gg: ASbGnctydK6aILrimbbt6uTU6VvrfhJPVG0W8Dtwu9T3oe/L+U9zxcDDLfhAp9Q03CO
+	VD5hjhgj5i6FC35Anbv1LkffEdjLVmaqLHZRGX9oUWj2NkCNxsHc+UF7xqvo5yosVOuTK0xWpf/
+	knD5oYNQRYk6AnQ6Ie8DARsOL1GLY3/qx/i+pykgf5Br9V5vEUyLCmhAzBMOv1kTx2EOi7XKI4W
+	yY1WgDvQpHeGJLnS9RR7+oeM9GDWEoRX3hS+UJGfUt7JdvPySodRv0DkyxrnEUdo/BpVfsZZlK1
+	hGSSRg==
+X-Google-Smtp-Source: AGHT+IEvNsvH0S9IPXXRMbbmgzHTccG9PPI2nYN0bRiYDZkjLr7eZa3zFcl2Aq+G2oZCl+9tdbOi4J//UzL45yvj1Lw=
+X-Received: by 2002:a17:90b:3a45:b0:341:2141:d809 with SMTP id
+ 98e67ed59e1d1-343fa74b235mr16121302a91.26.1763420676475; Mon, 17 Nov 2025
+ 15:04:36 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251117220415.GB2441659@ZenIV>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+References: <20251113002050.676694-1-neilb@ownmail.net> <20251113002050.676694-13-neilb@ownmail.net>
+In-Reply-To: <20251113002050.676694-13-neilb@ownmail.net>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 17 Nov 2025 18:04:25 -0500
+X-Gm-Features: AWmQ_blmwKtGFLQfMeJ-bOJqBB1-xlrqHYzasnjIoux8218WIXniQF0qawaCUpA
+Message-ID: <CAHC9VhQERRrabQhMUd3DHRg+TqV6Ztoo0kqwK_tn5u--in-f4Q@mail.gmail.com>
+Subject: Re: [PATCH v6 12/15] Add start_renaming_two_dentries()
+To: NeilBrown <neil@brown.name>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, 
+	Amir Goldstein <amir73il@gmail.com>, Jan Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org, 
+	Jeff Layton <jlayton@kernel.org>, Chris Mason <clm@fb.com>, David Sterba <dsterba@suse.com>, 
+	David Howells <dhowells@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	"Rafael J. Wysocki" <rafael@kernel.org>, Danilo Krummrich <dakr@kernel.org>, Tyler Hicks <code@tyhicks.com>, 
+	Miklos Szeredi <miklos@szeredi.hu>, Chuck Lever <chuck.lever@oracle.com>, 
+	Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo <Dai.Ngo@oracle.com>, 
+	Namjae Jeon <linkinjeon@kernel.org>, Steve French <smfrench@gmail.com>, 
+	Sergey Senozhatsky <senozhatsky@chromium.org>, Carlos Maiolino <cem@kernel.org>, 
+	John Johansen <john.johansen@canonical.com>, James Morris <jmorris@namei.org>, 
+	"Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Ondrej Mosnacek <omosnace@redhat.com>, Mateusz Guzik <mjguzik@gmail.com>, 
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Stefan Berger <stefanb@linux.ibm.com>, 
+	"Darrick J. Wong" <djwong@kernel.org>, linux-kernel@vger.kernel.org, netfs@lists.linux.dev, 
+	ecryptfs@vger.kernel.org, linux-nfs@vger.kernel.org, 
+	linux-unionfs@vger.kernel.org, linux-cifs@vger.kernel.org, 
+	linux-xfs@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-ffs_epfile_open() can race with removal, ending up with file->private_data
-pointing to freed object.
+On Wed, Nov 12, 2025 at 7:42=E2=80=AFPM NeilBrown <neilb@ownmail.net> wrote=
+:
+>
+> From: NeilBrown <neil@brown.name>
+>
+> A few callers want to lock for a rename and already have both dentries.
+> Also debugfs does want to perform a lookup but doesn't want permission
+> checking, so start_renaming_dentry() cannot be used.
+>
+> This patch introduces start_renaming_two_dentries() which is given both
+> dentries.  debugfs performs one lookup itself.  As it will only continue
+> with a negative dentry and as those cannot be renamed or unlinked, it is
+> safe to do the lookup before getting the rename locks.
+>
+> overlayfs uses start_renaming_two_dentries() in three places and  selinux
+> uses it twice in sel_make_policy_nodes().
+>
+> In sel_make_policy_nodes() we now lock for rename twice instead of just
+> once so the combined operation is no longer atomic w.r.t the parent
+> directory locks.  As selinux_state.policy_mutex is held across the whole
+> operation this does not open up any interesting races.
+>
+> Reviewed-by: Amir Goldstein <amir73il@gmail.com>
+> Reviewed-by: Jeff Layton <jlayton@kernel.org>
+> Signed-off-by: NeilBrown <neil@brown.name>
+>
+> ---
+> changes since v5:
+>  - sel_make_policy_nodes now uses "goto out" on error from start_renaming=
+_two_dentries()
+>
+> changes since v3:
+>  added missing assignment to rd.mnt_idmap in ovl_cleanup_and_whiteout
+> ---
+>  fs/debugfs/inode.c           | 48 ++++++++++++--------------
+>  fs/namei.c                   | 65 ++++++++++++++++++++++++++++++++++++
+>  fs/overlayfs/dir.c           | 43 ++++++++++++++++--------
+>  include/linux/namei.h        |  2 ++
+>  security/selinux/selinuxfs.c | 15 +++++++--
+>  5 files changed, 131 insertions(+), 42 deletions(-)
 
-There is a total count of opened files on functionfs (both ep0 and
-dynamic ones) and when it hits zero, dynamic files get removed.
-Unfortunately, that removal can happen while another thread is
-in ffs_epfile_open(), but has not incremented the count yet.
-In that case open will succeed, leaving us with UAF on any subsequent
-read() or write().
+...
 
-The root cause is that ffs->opened is misused; atomic_dec_and_test() vs.
-atomic_add_return() is not a good idea, when object remains visible all
-along.
+> diff --git a/fs/namei.c b/fs/namei.c
+> index 4b740048df97..7f0384ceb976 100644
+> --- a/fs/namei.c
+> +++ b/fs/namei.c
+> @@ -3877,6 +3877,71 @@ int start_renaming_dentry(struct renamedata *rd, i=
+nt lookup_flags,
+>  }
+>  EXPORT_SYMBOL(start_renaming_dentry);
+>
+> +/**
+> + * start_renaming_two_dentries - Lock to dentries in given parents for r=
+ename
 
-To untangle that
-	* serialize openers on ffs->mutex (both for ep0 and for dynamic files)
-	* have dynamic ones use atomic_inc_not_zero() and fail if we had
-zero ->opened; in that case the file we are opening is doomed.
-	* have the inodes of dynamic files marked on removal (from the
-callback of simple_recursive_removal()) - clear ->i_private there.
-	* have open of dynamic ones verify they hadn't been already removed,
-along with checking that state is FFS_ACTIVE.
+I'm guessing you meant this to read "Lock *two* dentries ...".
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
----
- drivers/usb/gadget/function/f_fs.c | 53 ++++++++++++++++++++++++------
- 1 file changed, 43 insertions(+), 10 deletions(-)
+Otherwise the SELinux changes look fine to me.
 
-diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-index 27860fc0fd7d..c7cb23a15fd0 100644
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -640,13 +640,22 @@ static ssize_t ffs_ep0_read(struct file *file, char __user *buf,
- 
- static int ffs_ep0_open(struct inode *inode, struct file *file)
- {
--	struct ffs_data *ffs = inode->i_private;
-+	struct ffs_data *ffs = inode->i_sb->s_fs_info;
-+	int ret;
- 
--	if (ffs->state == FFS_CLOSING)
--		return -EBUSY;
-+	/* Acquire mutex */
-+	ret = ffs_mutex_lock(&ffs->mutex, file->f_flags & O_NONBLOCK);
-+	if (ret < 0)
-+		return ret;
- 
--	file->private_data = ffs;
- 	ffs_data_opened(ffs);
-+	if (ffs->state == FFS_CLOSING) {
-+		ffs_data_closed(ffs);
-+		mutex_unlock(&ffs->mutex);
-+		return -EBUSY;
-+	}
-+	mutex_unlock(&ffs->mutex);
-+	file->private_data = ffs;
- 
- 	return stream_open(inode, file);
- }
-@@ -1193,14 +1202,33 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
- static int
- ffs_epfile_open(struct inode *inode, struct file *file)
- {
--	struct ffs_epfile *epfile = inode->i_private;
-+	struct ffs_data *ffs = inode->i_sb->s_fs_info;
-+	struct ffs_epfile *epfile;
-+	int ret;
- 
--	if (WARN_ON(epfile->ffs->state != FFS_ACTIVE))
-+	/* Acquire mutex */
-+	ret = ffs_mutex_lock(&ffs->mutex, file->f_flags & O_NONBLOCK);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (!atomic_inc_not_zero(&ffs->opened)) {
-+		mutex_unlock(&ffs->mutex);
-+		return -ENODEV;
-+	}
-+	/*
-+	 * we want the state to be FFS_ACTIVE; FFS_ACTIVE alone is
-+	 * not enough, though - we might have been through FFS_CLOSING
-+	 * and back to FFS_ACTIVE, with our file already removed.
-+	 */
-+	epfile = smp_load_acquire(&inode->i_private);
-+	if (unlikely(ffs->state != FFS_ACTIVE || !epfile)) {
-+		mutex_unlock(&ffs->mutex);
-+		ffs_data_closed(ffs);
- 		return -ENODEV;
-+	}
-+	mutex_unlock(&ffs->mutex);
- 
- 	file->private_data = epfile;
--	ffs_data_opened(epfile->ffs);
--
- 	return stream_open(inode, file);
- }
- 
-@@ -1332,7 +1360,7 @@ static void ffs_dmabuf_put(struct dma_buf_attachment *attach)
- static int
- ffs_epfile_release(struct inode *inode, struct file *file)
- {
--	struct ffs_epfile *epfile = inode->i_private;
-+	struct ffs_epfile *epfile = file->private_data;
- 	struct ffs_dmabuf_priv *priv, *tmp;
- 	struct ffs_data *ffs = epfile->ffs;
- 
-@@ -2353,6 +2381,11 @@ static int ffs_epfiles_create(struct ffs_data *ffs)
- 	return 0;
- }
- 
-+static void clear_one(struct dentry *dentry)
-+{
-+	smp_store_release(&dentry->d_inode->i_private, NULL);
-+}
-+
- static void ffs_epfiles_destroy(struct ffs_epfile *epfiles, unsigned count)
- {
- 	struct ffs_epfile *epfile = epfiles;
-@@ -2360,7 +2393,7 @@ static void ffs_epfiles_destroy(struct ffs_epfile *epfiles, unsigned count)
- 	for (; count; --count, ++epfile) {
- 		BUG_ON(mutex_is_locked(&epfile->mutex));
- 		if (epfile->dentry) {
--			simple_recursive_removal(epfile->dentry, NULL);
-+			simple_recursive_removal(epfile->dentry, clear_one);
- 			epfile->dentry = NULL;
- 		}
- 	}
--- 
-2.47.3
+Acked-by: Paul Moore <paul@paul-moore.com> (SELinux)
 
+> + * @rd:           rename data containing parent
+> + * @old_dentry:   dentry of name to move
+> + * @new_dentry:   dentry to move to
+> + *
+> + * Ensure locks are in place for rename and check parentage is still cor=
+rect.
+> + *
+> + * On success the two dentries are stored in @rd.old_dentry and
+> + * @rd.new_dentry and @rd.old_parent and @rd.new_parent are confirmed to
+> + * be the parents of the dentries.
+> + *
+> + * References and the lock can be dropped with end_renaming()
+> + *
+> + * Returns: zero or an error.
+> + */
+
+--=20
+paul-moore.com
