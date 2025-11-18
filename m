@@ -1,423 +1,145 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BFA32C3247
-	for <selinux@vger.kernel.org>; Tue, 18 Nov 2025 08:59:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 740D330E822
+	for <selinux@vger.kernel.org>; Tue, 18 Nov 2025 13:44:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763456373; cv=none; b=OCtR4Njhgwk4ts/2giDu6tbGJHIAzpUv7OWeGGLa7fMRhcNOCECfamwDPumWwZFDQ/fz9ylmoVyZWXn0rpJmq3usyTGSfw4rGtiZdblNPk2dqi4VRSdYVjXmZQj0C8stn0gx2Ot5pPTILvMQyNuvxOouXXw/J89H0dQLRrhbTnM=
+	t=1763473479; cv=none; b=CswwwhSwkDyl9eO7RdfDiWRYzXnoFWOe5922Wd5KI96O6iqoE+SDmIUsrqBp4i32uqpRawCJCi3pGdwsQvII8xffZvxSN5WC5+thwAejg4SwDlku1ZdoYHd4g+pfKDGJ9rAFTi+ZQ+UbmWFio4Zv3fDqbUS2gqsK61/IQ/9vEpk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763456373; c=relaxed/simple;
-	bh=96wbnbsserQKktI2ahSEe1T0Z516Ulg09200sr7WOXY=;
-	h=From:To:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=GPEQ6fiNT31AbFV0/5QnqrGyntFvPwDHN27eFEMz5WX9iSItBu0Itjna9Ub1kzsezJyJ6MFB8zqw3jIr3loC52+mtJsdzgAB8xqSw4yxSmUTY6FhdaNDFZFfoHWlT0V85dkDO1S7N58Hp5Iqx+M4wRhlKXNEmpTddZA92GN7Mp0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dPj+l4dv; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1763473479; c=relaxed/simple;
+	bh=BckwF6VQd6Vy45EPbHS4ajDXzu+7wnsM56+I70u0cb0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=qzV4o5UH9u7LHZfvCovSsEgIYN25I91fLkgXqs3fxana6NJd2h9tLdeGyHaPOf4l5JolsbpLhkHj8occNtpoRuXx8H/PeycGuVtTwRBxJ3djxefXHjhtEY4FrhICtgYeLZHWlfgBVhrnOim2/Ta4V5GjjD3B3IuSyixvhSrjFrQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cARYm4//; arc=none smtp.client-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dPj+l4dv"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1763456370;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=91kgsicl79YtLNH3ecy5UdsiUqFTX5qftBCPKHd6H4U=;
-	b=dPj+l4dvDjKBhkYW93LoD3jHhDU4i7pGElU8KLkPnhLdOguctAezuPl9ItuvNxyH+GJ67F
-	iD/AdujWYO1pbPkV2j+tvyz1cww8/EaLmmeI/HNrdqQEzCKS0yaz8MxsEQ9J2AGBXcf2Ym
-	uB+9qQpVRxB+IgzuHD+CvPL+Z5Afstc=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-199-zRtSkjh1MeWaECnsfbPsbg-1; Tue,
- 18 Nov 2025 03:59:28 -0500
-X-MC-Unique: zRtSkjh1MeWaECnsfbPsbg-1
-X-Mimecast-MFC-AGG-ID: zRtSkjh1MeWaECnsfbPsbg_1763456367
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id CA255195605C
-	for <selinux@vger.kernel.org>; Tue, 18 Nov 2025 08:59:27 +0000 (UTC)
-Received: from localhost (unknown [10.45.224.173])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 4978B19560B0;
-	Tue, 18 Nov 2025 08:59:27 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
-To: Vit Mojzis <vmojzis@redhat.com>, selinux@vger.kernel.org
-Subject: Re: [PATCH v2] restorecon: Add option to count relabeled files
-In-Reply-To: <20251113171151.719458-1-vmojzis@redhat.com>
-References: <CAFftDdp3ZChoaVF-5FN=O=b09Hv6VSXAUzRQ0muW0NParjZBhA@mail.gmail.com>
- <20251113171151.719458-1-vmojzis@redhat.com>
-Date: Tue, 18 Nov 2025 09:59:25 +0100
-Message-ID: <87wm3nemxe.fsf@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cARYm4//"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-29853ec5b8cso63810255ad.3
+        for <selinux@vger.kernel.org>; Tue, 18 Nov 2025 05:44:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1763473478; x=1764078278; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=fi6VvX4X7Vr6Hlmbl1NKbweVfWQrbcu+BUn9sW/W0bY=;
+        b=cARYm4//1Vy6VrbiXmVXP8HE5oqGNHrQB4fMOgkpcS81VuvvrIr9AzJG3HihL1bNNi
+         Qv1Y3BVc2PfFU0rsVaQfL2aa+M/BvRBWWWQnMB/uVpsVfKtHrqPoQOXziDq6H5tBuUB6
+         5p/QKiFHNZLETe8OHB6Lo+Q3DecAKjSK210eGiQvrcyukvXeXLLns8bts1Byw1YyFOsJ
+         KWKXEFr2gtzsqGH6GRm49F5q9rAyGJzDhRrCee/3lWfaLHR54z/O6LZ8IOGj2pGuMMBa
+         mJ45LJEaRdnuWSgH+tlGqSGKS20SNQ8ahiXKAX4U/kzLBBlS9d3+1hdrogA91zuXC/xA
+         5OcQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763473478; x=1764078278;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=fi6VvX4X7Vr6Hlmbl1NKbweVfWQrbcu+BUn9sW/W0bY=;
+        b=v/ZpwAEEV9Cv9m4NX0piqdbvZIOy8AXyvwpqtHtz5vCMsjzzVXpFN/gAR4XqRLm+ST
+         Yrp+y073afQJmlfmuI+E9vRUlHsFfRCifx9GbofxX1Lpbtoe3u53MGbcFdyQMkOlBdT0
+         8G0lD/SObZeRWHmjhkR+kzTZacDqT49/8zU3xXjTkwypFMqsjRXUvARBFVI0tUeWA0pt
+         NRgm7VmCIeVnpLYJSW3W1vNXTQ4VkD0xnMpjisE2YzrazrAZJmfsPGNZVGdIAfZL6YrP
+         047TfJePDsSX5720TjQhduYrCKoDtCB2hTirXavNuqs6pIO4FGM1PcS8ADVa8iVgwPWV
+         IUAg==
+X-Gm-Message-State: AOJu0YxV6Cll52iBL/mHZm46dxUVzj190HWtBmVRg3OYBMnYytTGqcjA
+	eSdBiv/RDCtk8lzSj7nYgFJpwUaTBSzWTYLsp+tUIYSSr7mCyPoOSfKWKdIsyhvSnZ7g8itDm9o
+	AUY8G44Jgv9GlQ9YkhB/81GfkKofZlySUHg==
+X-Gm-Gg: ASbGnctrz7blvRgkSsDZIAbXtUCQOYrOqqw/Dnc/87kxJO7mrv7BOEasZif7stCwtx1
+	hPiSNeSQvUFz1rwBavR9MdEO8cDa9HUaHiB4DX9U+2mo8UKAZFcmMdt95vqE9PXZbDoriPqjmSx
+	VaJnLl1R0/uyGXojvTNj6bRLHTs6D7cxlYeLbAPIOJOMhyZcGbXDxlgPC8LFzdqJzSd5mdppgiF
+	k9C1w5BabRc9t8Kvl+cS4yXPAnessBuwew9GSHNHvnkNGhFAn+amS2TyHnp7U+ovCSdboE=
+X-Google-Smtp-Source: AGHT+IED54saghXjFaHPfkZ+AfKv8W+6Dv1fkQHQE7mnx/HzKYo5kzJzQFSgqllx+fELWl8kDTcCtAugOLwQV9Pc2GU=
+X-Received: by 2002:a17:902:ce05:b0:295:7b8c:6611 with SMTP id
+ d9443c01a7336-2986a6d2755mr193183645ad.15.1763473477670; Tue, 18 Nov 2025
+ 05:44:37 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+References: <20251114174514.14695-1-stephen.smalley.work@gmail.com>
+ <CAHC9VhTponNBYJ=YEE447XKSLrHc8kKwVBxMuiQPNrzjKZ=GXA@mail.gmail.com>
+ <CAEjxPJ5=GJ5aTxk2xTAiLCiJc41RMo2Wtfp4VJ1XBAdzzEGW6Q@mail.gmail.com> <CAHC9VhRtgQkvpY=Sa+4VNtg6PRnVVEBNLk+Q3FoWoSApqWjHYg@mail.gmail.com>
+In-Reply-To: <CAHC9VhRtgQkvpY=Sa+4VNtg6PRnVVEBNLk+Q3FoWoSApqWjHYg@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Tue, 18 Nov 2025 08:44:26 -0500
+X-Gm-Features: AWmQ_bkUkiE1hLJd5h3JvV34plddsuOdTTwbVXwoD98aNfzSieuzqKPphOaD5Is
+Message-ID: <CAEjxPJ6hFwZBW=WBUmubhSzjyna7XAQUdTvMCnPDaZ0a2HyN7w@mail.gmail.com>
+Subject: Re: [PATCH 1/2] selinux: move avdcache to per-task security blob
+To: Paul Moore <paul@paul-moore.com>
+Cc: selinux@vger.kernel.org, omosnace@redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Vit Mojzis <vmojzis@redhat.com> writes:
-
-> This is useful in case we want to check that a remediation using
-> restorecon was successful (otherwise 0 is always returned, even if no
-> files were relabeled).
+On Mon, Nov 17, 2025 at 4:43=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
 >
-> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
-> ---
->  libselinux/include/selinux/restorecon.h | 15 +++++++++++
->  libselinux/src/libselinux.map           |  1 +
->  libselinux/src/selinux_restorecon.c     | 34 ++++++++++++++++++++++---
->  policycoreutils/setfiles/restore.c      | 12 ++++++---
->  policycoreutils/setfiles/restore.h      |  3 ++-
->  policycoreutils/setfiles/restorecon.8   |  3 +++
->  policycoreutils/setfiles/setfiles.c     | 26 ++++++++++++++-----
->  7 files changed, 79 insertions(+), 15 deletions(-)
+> On Mon, Nov 17, 2025 at 4:26=E2=80=AFPM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> > On Mon, Nov 17, 2025 at 2:55=E2=80=AFPM Paul Moore <paul@paul-moore.com=
+> wrote:
+> > >
+> > > On Fri, Nov 14, 2025 at 12:45=E2=80=AFPM Stephen Smalley
+> > > <stephen.smalley.work@gmail.com> wrote:
+> > > >
+> > > > The SELinux task_security_struct was originally per-task but later
+> > > > migrated to per-cred when creds were first introduced to Linux. The
+> > > > avdcache was meant to be per-task rather than per-cred; move it to =
+a
+> > > > new task_selinux_struct that is allocated per-task.
+> > > >
+> > > > Fixes: 5d7ddc59b3d89b724a5aa8f30d0db94ff8d2d93f ("selinux: reduce p=
+ath walk overhead")
+> > > > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > > > ---
+> > > >  security/selinux/hooks.c          | 35 +++++++++++++++++++--------=
+----
+> > > >  security/selinux/include/objsec.h | 13 ++++++++++--
+> > > >  2 files changed, 33 insertions(+), 15 deletions(-)
+> > >
+> > > Apologies for the delay, I was away the past few days.
+> > >
+> > > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > > > index a22b1920242f..0eea43e4a90c 100644
+> > > > --- a/security/selinux/hooks.c
+> > > > +++ b/security/selinux/hooks.c
+> > > > @@ -212,11 +212,15 @@ static int selinux_lsm_notifier_avc_callback(=
+u32 event)
+> > > >  static void cred_init_security(void)
+> > > >  {
+> > > >         struct task_security_struct *tsec;
+> > > > +       struct task_selinux_struct *tsel;
+> > >
+> > > I know we had a brief discussion about this off-list before you poste=
+d
+> > > the patchset and I asked you to move the task/cred renaming patch
+> > > after this one, but looking at the results in cred_init_security() I'=
+m
+> > > regretting that comment; the naming is just too ugly otherwise.
+> >
+> > I'm not 100% sure that setting avdcache.sid in cred_init_security() is
+> > even necessary since it should be set whenever the avdcache is first
+> > populated and there is nothing else being initialized in the avdcache.
+> > So if that's the only ugly part we could just drop it. I only included
+> > it since it was being done previously. It wasn't in my original
+> > patches.
+> >
+> > > As this patch shuffling is my fault, I'll go ahead and re-arrange the=
+m
+> > > and follow up with a reply when they are in the stable-6.18 tree so
+> > > you can verify everything is still okay with you.
+> >
+> > In that case I'd be inclined to revert to the original patches since
+> > they are already ordered correctly and they don't introduce the extra
+> > task_selinux_struct name since it isn't needed.
 >
-> diff --git a/libselinux/include/selinux/restorecon.h b/libselinux/include/selinux/restorecon.h
-> index 0ccf73a6..65aaef23 100644
-> --- a/libselinux/include/selinux/restorecon.h
-> +++ b/libselinux/include/selinux/restorecon.h
-> @@ -134,6 +134,11 @@ extern int selinux_restorecon_parallel(const char *pathname,
->   */
->  #define SELINUX_RESTORECON_SET_USER_ROLE		0x40000
->  
-> +/*
-> + * Count the number of relabeled files (or would be relabeled if "nochange" was not set).
-> + */
-> + #define SELINUX_RESTORECON_COUNT_RELABELED		0x80000
-> +
->  /**
->   * selinux_restorecon_set_sehandle - Set the global fc handle.
->   * @hndl: specifies handle to set as the global fc handle.
-> @@ -228,6 +233,16 @@ extern int selinux_restorecon_xattr(const char *pathname,
->   */
->  extern long unsigned selinux_restorecon_get_skipped_errors(void);
->  
-> +/* selinux_restorecon_get_relabeled_files - Get the number of relabeled files
-> + *
-> + * If SELINUX_RESTORECON_COUNT_RELABELED was passed to selinux_restorecon(3) or
-> + * selinux_restorecon_parallel(3), this function returns the number of files
-> + * that were successfully relabeled.
-> + * If the SELINUX_RESTORECON_NOCHANGE flag was set, this function returns
-> + * the number of files that would be relabeled.
-> + */
-> +extern long unsigned selinux_restorecon_get_relabeled_files(void);
-> +
->  #ifdef __cplusplus
->  }
->  #endif
-> diff --git a/libselinux/src/libselinux.map b/libselinux/src/libselinux.map
-> index ab002f01..f21e089e 100644
-> --- a/libselinux/src/libselinux.map
-> +++ b/libselinux/src/libselinux.map
-> @@ -244,6 +244,7 @@ LIBSELINUX_1.0 {
->  LIBSELINUX_3.4 {
->    global:
->      selinux_restorecon_get_skipped_errors;
-> +    selinux_restorecon_get_relabeled_files;
->      selinux_restorecon_parallel;
->  } LIBSELINUX_1.0;
+> I'd want to go back and look at those patches again, but I don't
+> recall anything jumping out at me during the quick review.  I did just
+> check and they do have your sign-off, do you have a problem if I merge
+> those (adding the fixes tag, etc.)?  I'll resend them to the list
+> simply so we have a record of that beyond just the git repo.  Or did
+> you want to change anything in there first?
 
-This will be a new symbol libselinux-3.10 so it needs to be in new section:
-
-LIBSELINUX_3.10 {
-  global:
-    selinux_restorecon_get_relabeled_files;
-} LIBSELINUX_3.9;
-
-
-
-
->  
-> diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
-> index 681c69db..8fadf4d2 100644
-> --- a/libselinux/src/selinux_restorecon.c
-> +++ b/libselinux/src/selinux_restorecon.c
-> @@ -69,6 +69,9 @@ static struct dir_xattr *dir_xattr_last;
->  /* Number of errors ignored during the file tree walk. */
->  static long unsigned skipped_errors;
->  
-> +/* Number of successfully relabeled files or files that would be relabeled */
-> +static long unsigned relabeled_files;
-> +
->  /* restorecon_flags for passing to restorecon_sb() */
->  struct rest_flags {
->  	bool nochange;
-> @@ -88,6 +91,7 @@ struct rest_flags {
->  	bool warnonnomatch;
->  	bool conflicterror;
->  	bool count_errors;
-> +	bool count_relabeled;
->  };
->  
->  static void restorecon_init(void)
-> @@ -650,11 +654,12 @@ out:
->  }
->  
->  static int restorecon_sb(const char *pathname, const struct stat *sb,
-> -			    const struct rest_flags *flags, bool first)
-> +			    const struct rest_flags *flags, bool first, bool *updated_out)
->  {
->  	char *newcon = NULL;
->  	char *curcon = NULL;
->  	int rc;
-> +	bool updated = false;
->  	const char *lookup_path = pathname;
->  
->  	if (rootpath) {
-> @@ -736,7 +741,6 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
->  	}
->  
->  	if (curcon == NULL || strcmp(curcon, newcon) != 0) {
-> -		bool updated = false;
->  
->  		if (!flags->set_specctx && curcon &&
->  				    (is_context_customizable(curcon) > 0)) {
-> @@ -796,9 +800,14 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
->  				syslog(LOG_INFO, "labeling %s to %s\n",
->  					    pathname, newcon);
->  		}
-> +
-> +		/* Note: relabel counting handled by caller */
-> +
->  	}
->  
->  out:
-> +	if (updated_out)
-> +		*updated_out = updated;
->  	rc = 0;
->  out1:
->  	freecon(curcon);
-> @@ -887,6 +896,7 @@ struct rest_state {
->  	bool abort;
->  	int error;
->  	long unsigned skipped_errors;
-> +	long unsigned relabeled_files;
->  	int saved_errno;
->  	pthread_mutex_t mutex;
->  };
-> @@ -1010,8 +1020,9 @@ loop_body:
->  			if (state->parallel)
->  				pthread_mutex_unlock(&state->mutex);
->  
-> +			bool updated = false;
->  			error = restorecon_sb(ent_path, &ent_st, &state->flags,
-> -					      first);
-> +					      first, &updated);
->  
->  			if (state->parallel) {
->  				pthread_mutex_lock(&state->mutex);
-> @@ -1030,6 +1041,8 @@ loop_body:
->  					state->skipped_errors++;
->  				else
->  					state->error = error;
-> +			} else if (updated && state->flags.count_relabeled) {
-> +				state->relabeled_files++;
->  			}
->  			break;
->  		}
-> @@ -1087,6 +1100,8 @@ static int selinux_restorecon_common(const char *pathname_orig,
->  		    SELINUX_RESTORECON_IGNORE_DIGEST) ? true : false;
->  	state.flags.count_errors = (restorecon_flags &
->  		    SELINUX_RESTORECON_COUNT_ERRORS) ? true : false;
-> +	state.flags.count_relabeled = (restorecon_flags &
-> +		    SELINUX_RESTORECON_COUNT_RELABELED) ? true : false;
->  	state.setrestorecondigest = true;
->  
->  	state.head = NULL;
-> @@ -1094,6 +1109,7 @@ static int selinux_restorecon_common(const char *pathname_orig,
->  	state.abort = false;
->  	state.error = 0;
->  	state.skipped_errors = 0;
-> +	state.relabeled_files = 0;
->  	state.saved_errno = 0;
->  
->  	struct stat sb;
-> @@ -1215,7 +1231,11 @@ static int selinux_restorecon_common(const char *pathname_orig,
->  			goto cleanup;
->  		}
->  
-> -		error = restorecon_sb(pathname, &sb, &state.flags, true);
-> +		bool updated = false;
-> +		error = restorecon_sb(pathname, &sb, &state.flags, true, &updated);
-> +		if (updated && state.flags.count_relabeled) {
-> +			state.relabeled_files++;
-> +		}
->  		goto cleanup;
->  	}
->  
-> @@ -1341,6 +1361,7 @@ out:
->  	(void) fts_close(state.fts);
->  	errno = state.saved_errno;
->  cleanup:
-> +	relabeled_files = state.relabeled_files;
->  	if (state.flags.add_assoc) {
->  		if (state.flags.verbose)
->  			filespec_eval();
-> @@ -1618,3 +1639,8 @@ long unsigned selinux_restorecon_get_skipped_errors(void)
->  {
->  	return skipped_errors;
->  }
-> +
-> +long unsigned selinux_restorecon_get_relabeled_files(void)
-> +{
-> +	return relabeled_files;
-> +}
-> diff --git a/policycoreutils/setfiles/restore.c b/policycoreutils/setfiles/restore.c
-> index 2c031ccc..07582e7c 100644
-> --- a/policycoreutils/setfiles/restore.c
-> +++ b/policycoreutils/setfiles/restore.c
-> @@ -43,7 +43,7 @@ void restore_init(struct restore_opts *opts)
->  			   opts->syslog_changes | opts->log_matches |
->  			   opts->ignore_noent | opts->ignore_mounts |
->  			   opts->mass_relabel | opts->conflict_error |
-> -			   opts->count_errors;
-> +			   opts->count_errors | opts->count_relabeled;
->  
->  	/* Use setfiles, restorecon and restorecond own handles */
->  	selinux_restorecon_set_sehandle(opts->hnd);
-> @@ -75,7 +75,7 @@ void restore_finish(void)
->  }
->  
->  int process_glob(char *name, struct restore_opts *opts, size_t nthreads,
-> -		 long unsigned *skipped_errors)
-> +		 long unsigned *skipped_errors, long unsigned *relabeled_files)
->  {
->  	glob_t globbuf;
->  	size_t i, len;
-> @@ -99,8 +99,12 @@ int process_glob(char *name, struct restore_opts *opts, size_t nthreads,
->  						 nthreads);
->  		if (rc < 0)
->  			errors = rc;
-> -		else if (opts->restorecon_flags & SELINUX_RESTORECON_COUNT_ERRORS)
-> -			*skipped_errors += selinux_restorecon_get_skipped_errors();
-> +		else {
-> +			if (opts->restorecon_flags & SELINUX_RESTORECON_COUNT_ERRORS)
-> +				*skipped_errors += selinux_restorecon_get_skipped_errors();
-> +			if (opts->restorecon_flags & SELINUX_RESTORECON_COUNT_RELABELED)
-> +				*relabeled_files += selinux_restorecon_get_relabeled_files();
-> +		}
->  	}
->  
->  	globfree(&globbuf);
-> diff --git a/policycoreutils/setfiles/restore.h b/policycoreutils/setfiles/restore.h
-> index 95afb960..36f73059 100644
-> --- a/policycoreutils/setfiles/restore.h
-> +++ b/policycoreutils/setfiles/restore.h
-> @@ -37,6 +37,7 @@ struct restore_opts {
->  	unsigned int ignore_mounts;
->  	unsigned int conflict_error;
->  	unsigned int count_errors;
-> +	unsigned int count_relabeled;
->  	/* restorecon_flags holds | of above for restore_init() */
->  	unsigned int restorecon_flags;
->  	char *rootpath;
-> @@ -52,7 +53,7 @@ void restore_init(struct restore_opts *opts);
->  void restore_finish(void);
->  void add_exclude(const char *directory);
->  int process_glob(char *name, struct restore_opts *opts, size_t nthreads,
-> -		 long unsigned *skipped_errors);
-> +		 long unsigned *skipped_errors, long unsigned *relabeled_files);
->  extern char **exclude_list;
->  
->  #endif
-> diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setfiles/restorecon.8
-> index 1134420e..b7ff9715 100644
-> --- a/policycoreutils/setfiles/restorecon.8
-> +++ b/policycoreutils/setfiles/restorecon.8
-> @@ -153,6 +153,9 @@ display warnings about entries that had no matching files by outputting the
->  .BR selabel_stats (3)
->  results.
->  .TP
-> +.B \-c
-> +count and display the number of (would be) relabeled files. The exit code will be set to 0 only if at least one file is relabeled.
-> +.TP
->  .B \-0
->  the separator for the input items is assumed to be the null character
->  (instead of the white space).  The quotes and the backslash characters are
-> diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-> index 31034316..351940f3 100644
-> --- a/policycoreutils/setfiles/setfiles.c
-> +++ b/policycoreutils/setfiles/setfiles.c
-> @@ -35,8 +35,8 @@ static __attribute__((__noreturn__)) void usage(const char *const name)
->  {
->  	if (iamrestorecon) {
->  		fprintf(stderr,
-> -			"usage:  %s [-iIDFUmnprRv0xT] [-e excludedir] pathname...\n"
-> -			"usage:  %s [-iIDFUmnprRv0xT] [-e excludedir] -f filename\n",
-> +			"usage:  %s [-ciIDFUmnprRv0xT] [-e excludedir] pathname...\n"
-> +			"usage:  %s [-ciIDFUmnprRv0xT] [-e excludedir] -f filename\n",
->  			name, name);
->  	} else {
->  		fprintf(stderr,
-> @@ -146,11 +146,12 @@ int main(int argc, char **argv)
->  	size_t buf_len, nthreads = 1;
->  	const char *base;
->  	int errors = 0;
-> -	const char *ropts = "e:f:hiIDlmno:pqrsvFURW0xT:";
-> +	const char *ropts = "ce:f:hiIDlmno:pqrsvFURW0xT:";
->  	const char *sopts = "c:de:f:hiIDlmno:pqr:svACEFUR:W0T:";
->  	const char *opts;
->  	union selinux_callback cb;
->  	long unsigned skipped_errors;
-> +	long unsigned relabeled_files;
->  
->  	/* Initialize variables */
->  	memset(&r_opts, 0, sizeof(r_opts));
-> @@ -160,6 +161,7 @@ int main(int argc, char **argv)
->  	request_digest = 0;
->  	policyfile = NULL;
->  	skipped_errors = 0;
-> +	relabeled_files = 0;
->  
->  	if (!argv[0]) {
->  		fprintf(stderr, "Called without required program name!\n");
-> @@ -223,7 +225,10 @@ int main(int argc, char **argv)
->  	while ((opt = getopt(argc, argv, opts)) > 0) {
->  		switch (opt) {
->  		case 'c':
-> -			{
-> +			if (iamrestorecon) {
-> +				r_opts.count_relabeled = SELINUX_RESTORECON_COUNT_RELABELED;
-> +				break;
-> +			} else {
->  				FILE *policystream;
->  
->  				policyfile = optarg;
-> @@ -457,14 +462,14 @@ int main(int argc, char **argv)
->  			if (!strcmp(buf, "/"))
->  				r_opts.mass_relabel = SELINUX_RESTORECON_MASS_RELABEL;
->  			errors |= process_glob(buf, &r_opts, nthreads,
-> -					       &skipped_errors) < 0;
-> +					       &skipped_errors, &relabeled_files) < 0;
->  		}
->  		if (strcmp(input_filename, "-") != 0)
->  			fclose(f);
->  	} else {
->  		for (i = optind; i < argc; i++)
->  			errors |= process_glob(argv[i], &r_opts, nthreads,
-> -					       &skipped_errors) < 0;
-> +					       &skipped_errors, &relabeled_files) < 0;
->  	}
->  
->  	if (r_opts.mass_relabel && !r_opts.nochange)
-> @@ -479,5 +484,14 @@ int main(int argc, char **argv)
->  	if (r_opts.progress)
->  		fprintf(stdout, "\n");
->  
-> +	/* Output relabeled file count if requested */
-> +	if (r_opts.count_relabeled) {
-> +		long unsigned relabeled_count = selinux_restorecon_get_relabeled_files();
-> +		printf("Relabeled %lu files\n", relabeled_count);
-> +
-> +		/* Set exit code to 0 if at least one file was relabeled */
-> +		exit(errors ? -1 : relabeled_count ? 0 : 1);
-> +	}
-> +
->  	exit(errors ? -1 : skipped_errors ? 1 : 0);
->  }
-> -- 
-> 2.51.1
-
+That's fine with me.
