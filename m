@@ -1,34 +1,34 @@
 Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [62.89.141.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D1E71F8BD6;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E882285074;
 	Tue, 18 Nov 2025 05:16:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.89.141.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763442977; cv=none; b=gyL69q8SgUgKjA6h/vn/9znG8H8HpR8AXY0pTC1Hrw7M/+WeoGIAsnVR39GFn1ZatFZCO4MXNTAi+Kge9d9Hq3bASuk2TKJT8rlkd6El3OgcpC5+pxw+z4p9gyI7/u9k65xXh3ZPSKEgNiiM+0/ISTwGbwb14YS8fOu5vmJwsFw=
+	t=1763442976; cv=none; b=IqEyaGIg18JckdTy0fMlDwHPo3qlUVkxg22PzBlgsGTR0fXOEmE8FXOP9lMwqEVCNx1uqH4GMhcA+TR2tbW7aiy6pzwMDX0gzo/dkd+iILw4aQALiB9eU9W9lynIqxnh+NVBEUmGzseP2tSeJmyWYMQeAm+sxZ2JrJv03taCehY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763442977; c=relaxed/simple;
-	bh=drdrUYlNf0PCOpfWhx6O/F9lOTCkn1Mjer9awXrbASA=;
+	s=arc-20240116; t=1763442976; c=relaxed/simple;
+	bh=aQb2qy2J1pCZ1132PoicrKjRnzTEBFPwnGLeE5EsJfc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=M05GwMkGmGG44zUJkEwu+eXoGGrtexJu3Vk1LKVlNAiDFmSB6EDEoOMS01Xoyrn4cgP+XhEq4lFG9qGznewZKwRDye0LjWksvL4B8WidtW4MuWsTeCK3RLRtKgkjdoQiXwLFtBDJaxZ4XCnCs4hxFEoGTALyM6g+K4sAMbGnFP8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=U4N6FHfz; arc=none smtp.client-ip=62.89.141.173
+	 MIME-Version; b=LZNExFe5gOLNVRV8lzCDTim8rd1O5Yg1ulp21WUgrT/B3ChqpYPVrJilry0vA+HNqYwe1o+3xW1UmtHsFVJ2IC6G3U6WQicWI4fYBSZ6h/mXx8P545FMaDYVZ+9fsm/KmTZvRlNQM1gGjoh7+R6ViCljL5e+ybsLkDGANZsIhwI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=ZKo+9Obd; arc=none smtp.client-ip=62.89.141.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ftp.linux.org.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="U4N6FHfz"
+	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="ZKo+9Obd"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=linux.org.uk; s=zeniv-20220401; h=Sender:Content-Transfer-Encoding:
 	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:
 	Reply-To:Content-Type:Content-ID:Content-Description;
-	bh=LZ6yrPf10XyjUbpb0uoz9zDvZV76d0sxqTJxoq2o+VY=; b=U4N6FHfzCrbb4azFmBn86hOncH
-	so26EVVboKgDcIHc4NlNjYEgmAeLAcFqHHn/t/vo56xyfRQsxhg1YHRnMAAWaVNY2xD35h5jYh8k5
-	yCfUGsKDh/bPgSRBJXsOPWFNagA+bppgRLXsGQ/yTJUOkhKA9V2WvyOxQRt+60nOdr3l//WnP1r3k
-	6JXxdBHmyFKBis+FJb/2i7FGpynpeU4Gb/PvvgXdXoPlGD37K66yHbbJ8CLTqK63mNFUqFZZh24mm
-	M+JqNVYMtGvdE7EL+ByCK96+52rNllm1LMZUcqbTbJMLt12x0is3C4q7BhBXF4em/I4Ucp3/jxwyy
-	Pl/2JT3g==;
+	bh=JiG9nHcsxcwZpHb/L0Tx41DaV7imD29tLb/ai1sU578=; b=ZKo+9ObdivkDNkysiYahzyuuss
+	V9yrjHh7tmjMIizFvtgrzU1ew9DKv2ijMXyq/m+VY6kJr1ok4yabwOPGzxZgNPqo1qdCwZH+GGCA9
+	Xtf/YL51cWReDV2QQXM8zEYytJDNiC9btkCVTAfz/42rcVTuGMFe7UWcDLIpuix5YDrac++QHzoXz
+	6v2zGdAVaUgb36aZ1KMpkw4J2jiHmlaq73tuwK2Le9V93bz2apa3mx7aNKqaPIoaPriRmBF0oazpX
+	A4BKfQIDaZjshqkFVaASv2u9+Euguf7X+3JH3/CMgPPVV+/JuZY+mNYWB3ETE4qgxS7s+2dJxIEyv
+	jDie91pw==;
 Received: from viro by zeniv.linux.org.uk with local (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vLE4V-0000000GERh-1RuG;
-	Tue, 18 Nov 2025 05:16:07 +0000
+	id 1vLE4U-0000000GER4-2rTm;
+	Tue, 18 Nov 2025 05:16:06 +0000
 From: Al Viro <viro@zeniv.linux.org.uk>
 To: linux-fsdevel@vger.kernel.org
 Cc: torvalds@linux-foundation.org,
@@ -53,9 +53,9 @@ Cc: torvalds@linux-foundation.org,
 	borntraeger@linux.ibm.com,
 	bpf@vger.kernel.org,
 	clm@meta.com
-Subject: [PATCH v4 21/54] debugfs: remove duplicate checks in callers of start_creating()
-Date: Tue, 18 Nov 2025 05:15:30 +0000
-Message-ID: <20251118051604.3868588-22-viro@zeniv.linux.org.uk>
+Subject: [PATCH v4 14/54] convert mqueue
+Date: Tue, 18 Nov 2025 05:15:23 +0000
+Message-ID: <20251118051604.3868588-15-viro@zeniv.linux.org.uk>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20251118051604.3868588-1-viro@zeniv.linux.org.uk>
 References: <20251118051604.3868588-1-viro@zeniv.linux.org.uk>
@@ -68,55 +68,56 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: Al Viro <viro@ftp.linux.org.uk>
 
-we'd already verified that DEBUGFS_ALLOW_API was there in
-start_creating() - it would've failed otherwise
+All modifications via normal VFS codepaths; just take care of making
+persistent in in mqueue_create_attr() and discardable in mqueue_unlink()
+and it doesn't need kill_litter_super() at all.
 
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+mqueue_unlink() side is best handled by having it call simple_unlink()
+rather than duplicating its guts...
+
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
- fs/debugfs/inode.c | 15 ---------------
- 1 file changed, 15 deletions(-)
+ ipc/mqueue.c | 12 +++---------
+ 1 file changed, 3 insertions(+), 9 deletions(-)
 
-diff --git a/fs/debugfs/inode.c b/fs/debugfs/inode.c
-index 682120fdbb17..25a554331ac4 100644
---- a/fs/debugfs/inode.c
-+++ b/fs/debugfs/inode.c
-@@ -433,11 +433,6 @@ static struct dentry *__debugfs_create_file(const char *name, umode_t mode,
- 	if (IS_ERR(dentry))
- 		return dentry;
+diff --git a/ipc/mqueue.c b/ipc/mqueue.c
+index 093551fe66a7..5737130137bf 100644
+--- a/ipc/mqueue.c
++++ b/ipc/mqueue.c
+@@ -599,8 +599,7 @@ static int mqueue_create_attr(struct dentry *dentry, umode_t mode, void *arg)
+ 	dir->i_size += DIRENT_SIZE;
+ 	simple_inode_init_ts(dir);
  
--	if (!(debugfs_allow & DEBUGFS_ALLOW_API)) {
--		failed_creating(dentry);
--		return ERR_PTR(-EPERM);
--	}
--
- 	inode = debugfs_get_inode(dentry->d_sb);
- 	if (unlikely(!inode)) {
- 		pr_err("out of free dentries, can not create file '%s'\n",
-@@ -583,11 +578,6 @@ struct dentry *debugfs_create_dir(const char *name, struct dentry *parent)
- 	if (IS_ERR(dentry))
- 		return dentry;
+-	d_instantiate(dentry, inode);
+-	dget(dentry);
++	d_make_persistent(dentry, inode);
+ 	return 0;
+ out_unlock:
+ 	spin_unlock(&mq_lock);
+@@ -617,13 +616,8 @@ static int mqueue_create(struct mnt_idmap *idmap, struct inode *dir,
  
--	if (!(debugfs_allow & DEBUGFS_ALLOW_API)) {
--		failed_creating(dentry);
--		return ERR_PTR(-EPERM);
--	}
+ static int mqueue_unlink(struct inode *dir, struct dentry *dentry)
+ {
+-	struct inode *inode = d_inode(dentry);
 -
- 	inode = debugfs_get_inode(dentry->d_sb);
- 	if (unlikely(!inode)) {
- 		pr_err("out of free dentries, can not create directory '%s'\n",
-@@ -630,11 +620,6 @@ struct dentry *debugfs_create_automount(const char *name,
- 	if (IS_ERR(dentry))
- 		return dentry;
+-	simple_inode_init_ts(dir);
+ 	dir->i_size -= DIRENT_SIZE;
+-	drop_nlink(inode);
+-	dput(dentry);
+-	return 0;
++	return simple_unlink(dir, dentry);
+ }
  
--	if (!(debugfs_allow & DEBUGFS_ALLOW_API)) {
--		failed_creating(dentry);
--		return ERR_PTR(-EPERM);
--	}
--
- 	inode = debugfs_get_inode(dentry->d_sb);
- 	if (unlikely(!inode)) {
- 		pr_err("out of free dentries, can not create automount '%s'\n",
+ /*
+@@ -1638,7 +1632,7 @@ static const struct fs_context_operations mqueue_fs_context_ops = {
+ static struct file_system_type mqueue_fs_type = {
+ 	.name			= "mqueue",
+ 	.init_fs_context	= mqueue_init_fs_context,
+-	.kill_sb		= kill_litter_super,
++	.kill_sb		= kill_anon_super,
+ 	.fs_flags		= FS_USERNS_MOUNT,
+ };
+ 
 -- 
 2.47.3
 
