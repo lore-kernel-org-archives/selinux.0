@@ -1,72 +1,76 @@
-Received: from mail-qv1-f42.google.com (mail-qv1-f42.google.com [209.85.219.42])
+Received: from mail-qt1-f176.google.com (mail-qt1-f176.google.com [209.85.160.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63FD32F2609
-	for <selinux@vger.kernel.org>; Tue, 18 Nov 2025 15:47:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3648366568
+	for <selinux@vger.kernel.org>; Tue, 18 Nov 2025 15:47:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763480831; cv=none; b=s7ps8N8clPij85pytHYpHMbKZYss+4RBVC8HWkXzDjHdI4Hxgg3+0/+ym6QN/vst2HYxYe/fadp42w/qnXhGQcr76tDxNUW5RutBTvRxwvsWshFOxXCk8tE2sIU0iO2QYzlvy99uJNmhQ0x7Njyw6ccjVPwobeY6swQ43ozAhIk=
+	t=1763480831; cv=none; b=ntHCxM4t+J2pIYueA6ddU980gt8l813P2HpIBrPLuRD2cVrPTQPCPQn4AqbnRGGJN8GgsCpRIKPOqcFkBaPuOb7+AwP/iIdiuxd3wTQ5Xu1ywFtWPW0bPnYvXxZDTT3OONH2zjDRNS8nCbd+6fkTNZndHZwaHKSISjonifzl0U4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1763480831; c=relaxed/simple;
-	bh=0DSh5U6k/7MqxoHu1XYz4w8LNDAQWRUhBf3mNdUyqzE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LqJm33NYZMYlE/XLIzbL4g5MMmvEPGkSQWUUwwiaUSScC5wmFrRnERE53juGO9j2jX/lp8t2WFigpExoOpwvg35VyPRmntdSdWyWo0FljgvHp7trO9janIBhNDjoszd7C8Uqm9y8l1KqBfpU3KVaoas2Wy4D6w4IVPFi2urGu1Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XQNIWmZO; arc=none smtp.client-ip=209.85.219.42
+	bh=wvfQZaiOZ0J+nErWNOMfPfIWmJRhayt6aoPDFjq5Jwk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=YLdDwOkPhfsxuwGFxVgOuBrSeJN/auNMDvT1Qmek5R+g3CgvoXXmvA2SkuI4dzb4wZWGVysaP5VbC0jLjmtIloDbeHWLm7GgCRpg4HTLkG4aG99qRtUxCO3KTPU671YncAfhzOfHTtc253r7jeWqSTsNUpcIsaaCpYLI5NtHKFc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=I78xQeje; arc=none smtp.client-ip=209.85.160.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XQNIWmZO"
-Received: by mail-qv1-f42.google.com with SMTP id 6a1803df08f44-8823dfa84c5so62204016d6.3
-        for <selinux@vger.kernel.org>; Tue, 18 Nov 2025 07:47:05 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="I78xQeje"
+Received: by mail-qt1-f176.google.com with SMTP id d75a77b69052e-4ee1879e6d9so32446261cf.1
+        for <selinux@vger.kernel.org>; Tue, 18 Nov 2025 07:47:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1763480824; x=1764085624; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=VOOFjWD3UgDN5O/sQw+SKQvJ9LcxlCkXlswm/lL/LXE=;
-        b=XQNIWmZOt1tFMqS1O0XA+NFOCtzsWDe3S8qDv2ZhOotfBg1JluhhBAE3SnGCgvmRF4
-         Lcn8k6qInIzgnrsphLRv69Evyi6Cn72UGPfGqnLLEInJVLjpAvgyaSGWUoJcL8Te83sZ
-         5JDVgrjtvzjQ0BztTUVm8wb8bdmCcvOm2c+rLSLU5H8nUDEgwcNf/08JZUZIcXFAFXhO
-         KgVMbdaTM0FGQhe5e3PquMVCFfrDgZyui9EqQn7KlHNFCPPy5eilNPQydugzT4VFeDrO
-         hQgGGfpIXxigehhB4XOquWWn8XcAhn6J2mMCKyPCtPZcA07waioRJIB4o68lgjLkGcsV
-         LeVg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763480824; x=1764085624;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1763480829; x=1764085629; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=VOOFjWD3UgDN5O/sQw+SKQvJ9LcxlCkXlswm/lL/LXE=;
-        b=VjZMGxGIdv2aC3lOLHN9T93VZHaKnBm+j8I48qqZbPIyC88GUPVVLlhFpUvWa8WkFy
-         ReRXp375i0L00COxe3iG4yn0VsEt8H/V7NyxqA61OYTHLP9QEuWsx743B346l2L/pXvC
-         bJ4KwrmT112HJUzTKB2izlWLeZTXR3Q0ekB/5FPbkFCP8qXRoyoYiLG6/sRu/D/FxXXt
-         X6639G4EJNs49cFFwE5ZV3TFrrYN0ZksQeXE+kyM/cvAGIvQ0Hs3qmrrUIL4M/fyXuCz
-         AdPzrHNtyJGBPWtjKihEO7WKhejAV3hZML5P8pvnHAE74Z7/MBiLyxtVv4XNWvOvU2ep
-         p4yw==
-X-Gm-Message-State: AOJu0YzBh3Nc1u0vOFSOUbvOd60T/fbxIf4MtsD43q4V+zlbiEcVUkz1
-	ztbeXe4XsxVJF9GeZ1xzCNz0SRjoLmiHjnz/rjZ45r4q7vHS5NJvuIkL
-X-Gm-Gg: ASbGnct0gR6bWpg3FujXk2k14Y/okrxDolKx/1FYaehCkPrEP7K2u5T8CeIGICjnwe/
-	0oeM3hljSQHG6n2ex5ZOD8SaJYWzLFpvdKS9iRhrdCrZe5XXanMk/7+zMCtHTdBVC1VBzNwt5xO
-	0HpEA9cSs9fDRWvCFU3dKsVWZwuyH4WDQy1rh+aGmyKc23FO+48afkGgZP1dT2FaVLUhT+LZdUC
-	SgwGRXUxTBm813HqTFRVW0J38yUUM6FW+YUT2kYWCOd9YNi5CZv1XPNz45VYbN874+2qewkrSAi
-	kv9b3QY6+T18Xzg+pMkk6jETjtDYxSWYc/S+rnRe4/T/fxHYlQp9DpUqURzGQT/YdCPAbBaQKfJ
-	5B4cuC5w+Fbs9sKeGcJB1jQ0X+YEV8FeQCWAT2+Z9P7I2rYIj2fRGAjRVaxpAweLim/KWbY7S/t
-	+vC+pUkV5y+an+5LxppbEu58ZJ3WX5qqxr3o76ohpd4e+Wf6OaQlObi5uFbUT6TBcxrhIeR82F5
-	B775wBPAN4f96T7iv8mZVwZtw==
-X-Google-Smtp-Source: AGHT+IEyjOtV/gQBNwixrpysBWLRW3hLqnBpEqMirSBmHIJv7zfocPQgipMyay4ffPJQt5kmE5wwFw==
-X-Received: by 2002:a05:6214:234d:b0:880:8843:1f91 with SMTP id 6a1803df08f44-88292616614mr235366036d6.22.1763480824425;
-        Tue, 18 Nov 2025 07:47:04 -0800 (PST)
+        bh=DaBBiCSWsZ1bxuog+b7Q1HrhqzYOnLj/niVJLnzNuus=;
+        b=I78xQejeBfA/JCeyGIjklMhvyrqL9zJuyL+jgHIJCuGHVZCl9VjSF8F0/0nMVWzJ6X
+         g/7tf0nUy/wv7Id7ZgfO6zrOF6LvTlSOYCMz9PyYApwb3xjccKJHAEJnG82i2NlIOcxO
+         XtObR64H2kcOFdfIsdBN2SH8cFmI5z69MBVEO9jJhCKmGv7X5+ErlQR8xZbr3AVR+LW1
+         rGa3BLzk60rejKjLayBgXeyKjr7lCsMAoB1gtrkJ3JQ5nYbsxcUqSElc6Gu7LOcFuPeW
+         HcdALYmOgT1wwervBb7zbbqiG5TBm3xY/cRCnQ+6x4QC2qjVDC6J8tXasGk36UEeAl4f
+         0meQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763480829; x=1764085629;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=DaBBiCSWsZ1bxuog+b7Q1HrhqzYOnLj/niVJLnzNuus=;
+        b=eLRA9LAxFmyGaSCtyh+osxhOJOY1HCYuFMgbgukbswBl3pkZeFag++Nc2GIoW6h7g8
+         jFS9ZL+NucgkjQFlDCIyMmRYj0Ii/aqGhAasPIoNUMtg8nDtZNg5aSbJfpvwKsYtt+EX
+         GhiYqUz+dtU/eOFdLs0GAgxU9pcZ55ytV1/7lBeG1ehF7p1RrbY9tMRS68XtOOtz9I3x
+         1HeR5NPo6/xzYXDJu1bfLKW/LgJlNTlYK0IobvNHtIfEDYlDleVVxivpBnS++ARYAgvL
+         dXvCU0FGqk+P/mr2DPWFspvD+XAMxl/IG+QqiIJ1LcIiPf+UrPHN/6OxWXuqvlG+wEGK
+         HjAg==
+X-Gm-Message-State: AOJu0YwieZQI83hWM3VwWmmS/7CJ9u/RWFT0Uj1yWEAHbsypJXKJCEbu
+	N4I+5fl2qv70RvW0LPVgwieGN1fT9eeo1KvNIQTM/p8D6bAn4V348Kkt
+X-Gm-Gg: ASbGncsAU+HRYgcZif2oMRkgJUKjB6R0FNoZkF0RJai5JHJjz/0FfThTyyT3mSNqPcI
+	pWZ4JUthgGIba0+zRW76xES+2L2uvrKdRoiQfS7Dcveua56/mKG9J/g0nbneK/XJTIfQ6SuEtnA
+	9Ia8l/WVj5HxaBTrFoJKKxpTmQq+ZPllQFfgIdIybOY17uvAWYAL/ggGsr84TownP1L87mFP64W
+	PclbWwkwDhyG5N8YiLnaz9+rzTeUxvZclR8WktDvJ32H4kjEMCdNHy8eZRL0+5b713eWhjEJ/g9
+	b9hqXaTXm7o6ZcxUeHIHZH+aSoo9dOT+66oUHcs3rfVPTxP5vhdKtXTqF4REPvkRPQ5KUE1dnaF
+	LtQMQHebJnIvlyfZaskxbqcesFzwrtNJwwQPLyz98ZCU7Q1qL/MvvenERpzQO2p8/4TZcnFy8B1
+	HR95foaZZQYMZDIZBOrVutzD5ft1KYlhmgyv1V+w1sgnfyef0hJYHNYX9GZpW2y2iTh/2y7PhwM
+	jd55ZirWvqmtv+irItP+AdMIw==
+X-Google-Smtp-Source: AGHT+IFaKzZXayvSqLb9lJH/t60teNEH2H9cuHSnXMJsPO3s/qd9H3m7JGIggt9fBtco4aKX8LZeqQ==
+X-Received: by 2002:ac8:7f45:0:b0:4ee:1e63:a4cd with SMTP id d75a77b69052e-4ee1e63a6f7mr105758131cf.82.1763480828657;
+        Tue, 18 Nov 2025 07:47:08 -0800 (PST)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-88286312406sm115911066d6.19.2025.11.18.07.47.03
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-88286312406sm115911066d6.19.2025.11.18.07.47.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Nov 2025 07:47:04 -0800 (PST)
+        Tue, 18 Nov 2025 07:47:08 -0800 (PST)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: mertsas@cisco.com
 Cc: selinux@vger.kernel.org,
 	paul@paul-moore.com,
 	omosnace@redhat.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [RFC PATCH selinuxns 1/3] selinux: do not cache sblabel mount flag in superblock
-Date: Tue, 18 Nov 2025 10:46:45 -0500
-Message-ID: <20251118154647.14566-1-stephen.smalley.work@gmail.com>
+Subject: [RFC PATCH selinuxns 2/3] selinux: do not cache genfs xattr flag in superblock security blob
+Date: Tue, 18 Nov 2025 10:46:46 -0500
+Message-ID: <20251118154647.14566-2-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.51.1
+In-Reply-To: <20251118154647.14566-1-stephen.smalley.work@gmail.com>
+References: <20251118154647.14566-1-stephen.smalley.work@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -75,107 +79,73 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Currently SELinux determines whether the superblock supports
-security labeling at superblock creation time and caches it
-as a SBLABEL_MNT flag in the superblock security blob. However,
-with the introduciton of SELinux namespaces, this can change
-within a child SELinux namespace due to a different value for
-the cgroupseclabel policy capability in its policy. Stop
-precomputing and caching this flag and instead check it on use.
+We should only try to fetch the xattr for cgroup or cgroup2 inodes if
+the cgroup_seclabel policy capability is enabled in the policy.
+Since this may differ in a child SELinux namespace, we need to check
+it at inode labeling time rather than only on superblock initialization.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- security/selinux/hooks.c            | 22 ++++++----------------
+ security/selinux/hooks.c            | 12 ++++++++----
  security/selinux/include/security.h |  1 -
- 2 files changed, 6 insertions(+), 17 deletions(-)
+ 2 files changed, 8 insertions(+), 5 deletions(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 7003a3f96ead..61171c45329f 100644
+index 61171c45329f..5cfb7d8106fb 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -581,16 +581,6 @@ static int sb_finish_set_opts(struct super_block *sb)
+@@ -749,7 +749,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 	if (!strcmp(sb->s_type->name, "sysfs") ||
+ 	    !strcmp(sb->s_type->name, "cgroup") ||
+ 	    !strcmp(sb->s_type->name, "cgroup2"))
+-		sbsec->flags |= SE_SBGENFS | SE_SBGENFS_XATTR;
++		sbsec->flags |= SE_SBGENFS;
  
- 	sbsec->flags |= SE_SBINITIALIZED;
- 
--	/*
--	 * Explicitly set or clear SBLABEL_MNT.  It's not sufficient to simply
--	 * leave the flag untouched because sb_clone_mnt_opts might be handing
--	 * us a superblock that needs the flag to be cleared.
--	 */
--	if (selinux_is_sblabel_mnt(sb))
--		sbsec->flags |= SBLABEL_MNT;
--	else
--		sbsec->flags &= ~SBLABEL_MNT;
--
- 	/* Initialize the root inode. */
- 	rc = inode_doinit_with_dentry(root_inode, root);
- 
-@@ -1141,7 +1131,7 @@ static int selinux_sb_show_options(struct seq_file *m, struct super_block *sb)
- 		if (rc)
- 			return rc;
- 	}
--	if (sbsec->flags & SBLABEL_MNT) {
-+	if (selinux_is_sblabel_mnt(sb)) {
- 		seq_putc(m, ',');
- 		seq_puts(m, SECLABEL_STR);
- 	}
-@@ -1815,7 +1805,7 @@ selinux_determine_inode_label(const struct task_security_struct *tsec,
- 	if ((sbsec->flags & SE_SBINITIALIZED) &&
- 	    (sbsec->behavior == SECURITY_FS_USE_MNTPOINT)) {
- 		*_new_isid = sbsec->mntpoint_sid;
--	} else if ((sbsec->flags & SBLABEL_MNT) &&
-+	} else if (selinux_is_sblabel_mnt(dir->i_sb) &&
- 		   tsec->create_sid) {
- 		*_new_isid = tsec->create_sid;
- 	} else {
-@@ -3023,7 +3013,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
- 	}
- 
- 	if (!selinux_initialized(current_selinux_state) ||
--	    !(sbsec->flags & SBLABEL_MNT))
-+	    !selinux_is_sblabel_mnt(dir->i_sb))
- 		return -EOPNOTSUPP;
- 
- 	if (xattr) {
-@@ -3454,7 +3444,7 @@ static int selinux_inode_setxattr(struct mnt_idmap *idmap,
- 		return (inode_owner_or_capable(idmap, inode) ? 0 : -EPERM);
- 
- 	sbsec = selinux_superblock(inode->i_sb);
--	if (!(sbsec->flags & SBLABEL_MNT))
-+	if (!selinux_is_sblabel_mnt(inode->i_sb))
- 		return -EOPNOTSUPP;
- 
- 	if (!inode_owner_or_capable(idmap, inode))
-@@ -3730,7 +3720,7 @@ static int selinux_inode_setsecurity(struct inode *inode, const char *name,
- 		return -EOPNOTSUPP;
- 
- 	sbsec = selinux_superblock(inode->i_sb);
--	if (!(sbsec->flags & SBLABEL_MNT))
-+	if (!selinux_is_sblabel_mnt(inode->i_sb))
- 		return -EOPNOTSUPP;
- 
- 	if (!value || !size)
-@@ -7105,7 +7095,7 @@ static int selinux_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen
+ 	if (!sbsec->behavior) {
+ 		/*
+@@ -1428,6 +1428,7 @@ static int inode_doinit_use_xattr(struct selinux_state *state,
+ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dentry)
  {
- 	int rc = selinux_inode_setsecurity(inode, XATTR_SELINUX_SUFFIX,
- 					   ctx, ctxlen, 0);
--	/* Do not return error when suppressing label (SBLABEL_MNT not set). */
-+	/* Do not return error when suppressing label. */
- 	return rc == -EOPNOTSUPP ? 0 : rc;
- }
+ 	struct selinux_state *state = current_selinux_state;
++	struct super_block *sb = inode->i_sb;
+ 	struct superblock_security_struct *sbsec = NULL;
+ 	struct inode_security_struct *isec = selinux_inode(inode);
+ 	u32 task_sid, sid = 0;
+@@ -1451,7 +1452,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 	while (state && !selinux_initialized(state))
+ 		state = state->parent;
  
+-	sbsec = selinux_superblock(inode->i_sb);
++	sbsec = selinux_superblock(sb);
+ 	if (!state || !(sbsec->flags & SE_SBINITIALIZED)) {
+ 		/* Defer initialization until selinux_complete_init,
+ 		   after the initial policy is loaded and the security
+@@ -1571,8 +1572,11 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 				goto out;
+ 			}
+ 
+-			if ((sbsec->flags & SE_SBGENFS_XATTR) &&
+-			    (inode->i_opflags & IOP_XATTR)) {
++			if ((inode->i_opflags & IOP_XATTR) &&
++			    (!strcmp(sb->s_type->name, "sysfs") ||
++			     (selinux_policycap_cgroupseclabel() &&
++			      (!strcmp(sb->s_type->name, "cgroup") ||
++			       !strcmp(sb->s_type->name, "cgroup2"))))) {
+ 				rc = inode_doinit_use_xattr(state, inode,
+ 							    dentry, sid,
+ 							    &sid);
 diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index e3e0b1eb7575..c5df7a0b0069 100644
+index c5df7a0b0069..8d39137c6ebc 100644
 --- a/security/selinux/include/security.h
 +++ b/security/selinux/include/security.h
-@@ -63,7 +63,6 @@
- #define FSCONTEXT_MNT	0x02
- #define ROOTCONTEXT_MNT 0x04
- #define DEFCONTEXT_MNT	0x08
--#define SBLABEL_MNT	0x10
- /* Non-mount related flags */
+@@ -67,7 +67,6 @@
  #define SE_SBINITIALIZED 0x0100
  #define SE_SBPROC	 0x0200
+ #define SE_SBGENFS	 0x0400
+-#define SE_SBGENFS_XATTR 0x0800
+ #define SE_SBNATIVE	 0x1000
+ 
+ #define CONTEXT_STR	"context"
 -- 
 2.51.1
 
