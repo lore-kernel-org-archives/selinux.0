@@ -1,411 +1,418 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f176.google.com (mail-qt1-f176.google.com [209.85.160.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 756FA273D76
-	for <selinux@vger.kernel.org>; Tue, 18 Nov 2025 20:12:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FC0E2744F
+	for <selinux@vger.kernel.org>; Wed, 19 Nov 2025 02:03:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763496725; cv=none; b=NceDzldfCjKF+cThtd/IXtVN8A3IvFWn6vFL26XndSIAU9SoEWrlj1KaQ0Z6pc7k8BEKSQ1NnN/Eaz7S1ikaBTT0I5FxAMUrOStrqbeAaauW5qUKv9l4pnvoG9jPwcrVeiHGp5xdsxL224ynOTGPvdn+zfgLkjCqyGKzZpeevbs=
+	t=1763517830; cv=none; b=gB4RHnZ0mSorpVwwNd2Swggs3vjfGMixXkDYQbFTTB7//m/rkef5Pke+kepAndgVa09Hqt+/ltqyZTmn0ZNq9gIw9ZLP6ZY2lIoF/ajRHLQoXB8fidgy2gsK41ffXZ1fb3zlxfBsoU22aDwbXMFRUx1NrslJQ5GYIk0y42JlFgA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763496725; c=relaxed/simple;
-	bh=KQOmi9tNjeafC0KgXoe3ZyVoTkOArChOQp3w8r7wu+w=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=tg44c/WTvedOaAvBceMk27yWG1T82AjGFoQlMH77mf0jXbTJneUrDRDYZ6H5ZngSznJ4up4fBYRy+8+IQhz0z3fOcqwT97EBLLo5gJgc+Dwvq+khtNHx4xXZwHvkE1Yp/7xz0/mejmjLEsrvSWXU0qu+O2aa6OEXDz/aZHos8uU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=T/8wIg2F; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1763517830; c=relaxed/simple;
+	bh=DPPKVHkDjWkX7IwsheLGUO+i/3i7gimsz7CmO+sA+Io=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=EBMyFGoMb4YvyGIxIRImYy8Vv+hwUons8YH9Y55KKcjAQbnFZikSv6l7KqUlbcIRzWRZgZ/fdG/fTrKqWFnkf9kuvKMwFi1xpZkupyNbbs1tYteqqIzwGV0tYY2qxutHpNsoYJGf9eyJqBZMEK7yKUIoNT0ni0jVUywS+hm2CZw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=G4vuyK6S; arc=none smtp.client-ip=209.85.160.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="T/8wIg2F"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1763496722;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=04CbF6RT1EfnuXeR9Oy17sHPx2pSJsaA5FvBqNMZ0rk=;
-	b=T/8wIg2FH/3OaW3TIzNvy1sCRCmJKheFywhP6V8Gu3TnKEumGVXxydcZErt22tJixGlxlR
-	SzvQLyDFxp3uiRIr0T11bueALxWJxEUZIJ+HiFSM8kIoUSnoT8mlsGVzQZBKWkdWM5PlGa
-	AWvnltVNKvKhDlTiDBOSTz7m+8LvKVQ=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-607-ppi-6ohtMumEB5llIb87Hg-1; Tue,
- 18 Nov 2025 15:11:49 -0500
-X-MC-Unique: ppi-6ohtMumEB5llIb87Hg-1
-X-Mimecast-MFC-AGG-ID: ppi-6ohtMumEB5llIb87Hg_1763496709
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 339B218AB31D
-	for <selinux@vger.kernel.org>; Tue, 18 Nov 2025 20:11:49 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.44.32.11])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 6D2D119560B0
-	for <selinux@vger.kernel.org>; Tue, 18 Nov 2025 20:11:48 +0000 (UTC)
-From: Vit Mojzis <vmojzis@redhat.com>
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="G4vuyK6S"
+Received: by mail-qt1-f176.google.com with SMTP id d75a77b69052e-4ee2293e6a2so21988361cf.0
+        for <selinux@vger.kernel.org>; Tue, 18 Nov 2025 18:03:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1763517826; x=1764122626; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=WePxoo2tkO1gfuamc47xX4KZMwa3dNWH4auLMxbvCLk=;
+        b=G4vuyK6SEUTokv9469SjC2Bgo5MsEm6EqCVxjp1zSftxSR6RHz9O9KBLm6zguqkcGd
+         GJWGtbNJElmvcA4HuretfuhGcE9nQNmZfaP4aDS3F8B7IYXn+dZ25290KMSeDzogg5Qg
+         E/dODM4nZQm6t4L5oD3IdeLqWRSttPfnKe3d9QNvFVhLJInMMevTjEx+6WMt8Xst6BtC
+         VLayac3/5efqlojhghmonEtpBdsStkqDjWl04wKuaf/wUUAkME+ZjmzNdvsbkd6mfOuk
+         BD9mogjl2sm+X/ixq++hwhOFs4J0W2dhs13I3lPNqk2fG2R4QMVREnTJc9R5sbjReFNX
+         JQSQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763517826; x=1764122626;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=WePxoo2tkO1gfuamc47xX4KZMwa3dNWH4auLMxbvCLk=;
+        b=d5GKSu4WdRmtkWhLaLXI2VVugybHEzj4VBt8f+j9GIKkGVKVhJiCWNIC6vhWnua+Gd
+         ZAjt30Y47olk/TllWcE8EV76WtZQ0kOVvRZTpdZMvpVAyZ6rJTaf8sZdbuA4UaNA5yNM
+         wdt7pKINawI3MCuKfrlVTXJPJQXUORIoC3xZdstQtn/Hb0vDkWSGXG2sYTrMPqb2d6w4
+         O/DoI34+i76OEQzmXjnrB1E94jpKcSfSNlgtXVKuSkJy1K6aeGx7dZnv7iI1vJ4J5e3L
+         IYYa+O+Ml61SEf7yxYeBDaFs4Fr9BV9zyjiGJudhWHMXj/PDpN73+AnVBrXRGIg0VDq7
+         NdqA==
+X-Gm-Message-State: AOJu0Yy6atToMpazeH7A9oa8cDqNzsZNYYjZfWZCcnOptYqkBTfZEgpE
+	JAEPx9VZcA9U7QmP+zvonmndfH8RarRsYm3xDXTPYjjOUlPA1HilIudo2xuuyOpAbHmnaC+PA1Q
+	yfr4=
+X-Gm-Gg: ASbGncvA1nvuZ2o5lxanReBNZo048qD+0mWVDTvisn1j0ukkdZ7kdLOZSqLqE3nkRcg
+	imGJr7gb2BCzY8M94+vOHP2X7cVAaRHNmrwtzTWr5JvvWyO88EZBnCEa0WtQyxMtAgZinDyi8b2
+	xKD5F0sfTsl4xy8C9V5+e931bLmBYXR84TfFdefJiurow8U9gGg1SMw3Ue86n27C5YCgVUfVuPO
+	r2DM4Wms0TgT0IpNtVRtx6LMttqztG8obYNlYLmWzHHhUqWzsu3hWldIJn7vHZvjYYu1eqc6xMP
+	0w7NpN2RWraFhEvgu+Sik5BLJE/JrOblYdxNmGQ/tIlFiZ9ZLvb2U8so4M30H+UiTFm0/jzV9qu
+	fmxawUGGZYiKyzm/1zPy6Z0+/TrwTBN54QO7/0RZFHmxYhDc7LvgGtqUY866A5llGAD/Pvo9GzN
+	dVOtj6MlhyCmcnGII8N15di3VUoAMw+OXbK7dcM2cZgRyULfMeoDcoWqzp
+X-Google-Smtp-Source: AGHT+IFNDHAzOpaQhQNBA69FfqsaTZv3o9QAmXQZ9n4iqCCEnmJdH2cxtxoY0sts1oD8fCT7y1V0fg==
+X-Received: by 2002:ac8:7c41:0:b0:4ec:d893:a0fc with SMTP id d75a77b69052e-4edf20620e2mr264136841cf.4.1763517825884;
+        Tue, 18 Nov 2025 18:03:45 -0800 (PST)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4ee1c21ea34sm60960071cf.30.2025.11.18.18.03.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Nov 2025 18:03:45 -0800 (PST)
+From: Paul Moore <paul@paul-moore.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH v3] restorecon: Add option to count relabeled files
-Date: Tue, 18 Nov 2025 21:11:43 +0100
-Message-ID: <20251118201145.984733-1-vmojzis@redhat.com>
-In-Reply-To: <87wm3nemxe.fsf@redhat.com>wq>
-References: <87wm3nemxe.fsf@redhat.com>wq>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH 1/3] selinux: rename task_security_struct to cred_security_struct
+Date: Tue, 18 Nov 2025 21:03:35 -0500
+Message-ID: <20251119020334.521449-4-paul@paul-moore.com>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=13948; i=paul@paul-moore.com; h=from:subject; bh=Lbgct7r1z6EW5KH2lN/ehSF6nuVD7szwVGPXk2/sJ+o=; b=owEBbQKS/ZANAwAKAeog8tqXN4lzAcsmYgBpHSV2C7/n62mavSqve1skguix64ZSlNMnrI83Y 7j288hbcRqJAjMEAAEKAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCaR0ldgAKCRDqIPLalzeJ c/tRD/92Chfx9Pg88lSNYhjElj5t7aLL2Zorvumi7RMHS0gxuqeN56qaj5twWMTJ5jnD8MeK8P6 hBwZzz8nprk0oo2GLWFYIGf6P3P3vp3L7FvVcD7J4/TyaXCVpnqRfLM72TB5erXBC20BCb58qW+ DxA+WdTIO4LYs1nM3WtG0y29h0i1MwD11zX7WDL69X7XY6uvTk6Bom4UHOjgnl7BBu9AdCem8KB uYTVLzqb+fOozE6C/Pt5nN8OnXAU5eek8Io07KLY67f8R3f9udMzgOadxCv8R6TaoQNsAJR2OYK ZwnpfTDU0sJzOhUNJsL0RdK7TLp0I28qFrpCsNpJqeJxQOgUGFSPak7qa1ixReAFPRnDlZP9Lm9 FjrAxp7rAzhg2LDQko6Gxy0QSzuvPXy1NvNiGJUEZUXYF5jA2HRaSrcM9DIFXywfXZbu7jJ2Svo Jn8fjrojGtqv0wdS+YN6MrIsevyxVvShtVmqJGSGBDf4VPImJrPrpEdGL/xpJMC9RuTjTCrLW73 zK+N2o6X+5P+YgrQ+J1Nwq1y/kR17hkgY9PSGAntCLRDHbaENGnrr4fknTnslWLcij7JhUY47RM uzO7/Gz4XRMWQhh+pG8bN2vp++upeffeW4eyooAwEtXnlJLCGVQX4Sz/axMsB+mQ3x7lochpcfi IA3KZ4AfZny9n5g==
+X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-This is useful in case we want to check that a remediation using
-restorecon was successful (otherwise 0 is always returned, even if no
-files were relabeled).
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+Before Linux had cred structures, the SELinux task_security_struct was
+per-task and although the structure was switched to being per-cred
+long ago, the name was never updated. This change renames it to
+cred_security_struct to avoid confusion and pave the way for the
+introduction of an actual per-task security structure for SELinux. No
+functional change.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- libselinux/include/selinux/restorecon.h | 15 +++++++++++
- libselinux/src/libselinux.map           |  5 ++++
- libselinux/src/selinux_restorecon.c     | 34 ++++++++++++++++++++++---
- policycoreutils/setfiles/restore.c      | 12 ++++++---
- policycoreutils/setfiles/restore.h      |  3 ++-
- policycoreutils/setfiles/restorecon.8   |  3 +++
- policycoreutils/setfiles/setfiles.c     | 26 ++++++++++++++-----
- 7 files changed, 83 insertions(+), 15 deletions(-)
+ security/selinux/hooks.c          | 68 +++++++++++++++----------------
+ security/selinux/include/objsec.h |  8 ++--
+ 2 files changed, 38 insertions(+), 38 deletions(-)
 
-diff --git a/libselinux/include/selinux/restorecon.h b/libselinux/include/selinux/restorecon.h
-index 0ccf73a6..65aaef23 100644
---- a/libselinux/include/selinux/restorecon.h
-+++ b/libselinux/include/selinux/restorecon.h
-@@ -134,6 +134,11 @@ extern int selinux_restorecon_parallel(const char *pathname,
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index dfc22da42f30..0890e7ee84c9 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -210,7 +210,7 @@ static int selinux_lsm_notifier_avc_callback(u32 event)
   */
- #define SELINUX_RESTORECON_SET_USER_ROLE		0x40000
- 
-+/*
-+ * Count the number of relabeled files (or would be relabeled if "nochange" was not set).
-+ */
-+ #define SELINUX_RESTORECON_COUNT_RELABELED		0x80000
-+
- /**
-  * selinux_restorecon_set_sehandle - Set the global fc handle.
-  * @hndl: specifies handle to set as the global fc handle.
-@@ -228,6 +233,16 @@ extern int selinux_restorecon_xattr(const char *pathname,
-  */
- extern long unsigned selinux_restorecon_get_skipped_errors(void);
- 
-+/* selinux_restorecon_get_relabeled_files - Get the number of relabeled files
-+ *
-+ * If SELINUX_RESTORECON_COUNT_RELABELED was passed to selinux_restorecon(3) or
-+ * selinux_restorecon_parallel(3), this function returns the number of files
-+ * that were successfully relabeled.
-+ * If the SELINUX_RESTORECON_NOCHANGE flag was set, this function returns
-+ * the number of files that would be relabeled.
-+ */
-+extern long unsigned selinux_restorecon_get_relabeled_files(void);
-+
- #ifdef __cplusplus
- }
- #endif
-diff --git a/libselinux/src/libselinux.map b/libselinux/src/libselinux.map
-index ab002f01..95cd53b0 100644
---- a/libselinux/src/libselinux.map
-+++ b/libselinux/src/libselinux.map
-@@ -262,3 +262,8 @@ LIBSELINUX_3.9 {
-   global:
-     context_to_str;
- } LIBSELINUX_3.8;
-+
-+LIBSELINUX_3.10 {
-+  global:
-+    selinux_restorecon_get_relabeled_files;
-+} LIBSELINUX_3.9;
-diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
-index 681c69db..8fadf4d2 100644
---- a/libselinux/src/selinux_restorecon.c
-+++ b/libselinux/src/selinux_restorecon.c
-@@ -69,6 +69,9 @@ static struct dir_xattr *dir_xattr_last;
- /* Number of errors ignored during the file tree walk. */
- static long unsigned skipped_errors;
- 
-+/* Number of successfully relabeled files or files that would be relabeled */
-+static long unsigned relabeled_files;
-+
- /* restorecon_flags for passing to restorecon_sb() */
- struct rest_flags {
- 	bool nochange;
-@@ -88,6 +91,7 @@ struct rest_flags {
- 	bool warnonnomatch;
- 	bool conflicterror;
- 	bool count_errors;
-+	bool count_relabeled;
- };
- 
- static void restorecon_init(void)
-@@ -650,11 +654,12 @@ out:
- }
- 
- static int restorecon_sb(const char *pathname, const struct stat *sb,
--			    const struct rest_flags *flags, bool first)
-+			    const struct rest_flags *flags, bool first, bool *updated_out)
+ static void cred_init_security(void)
  {
- 	char *newcon = NULL;
- 	char *curcon = NULL;
+-	struct task_security_struct *tsec;
++	struct cred_security_struct *tsec;
+ 
+ 	/* NOTE: the lsm framework zeros out the buffer on allocation */
+ 
+@@ -223,7 +223,7 @@ static void cred_init_security(void)
+  */
+ static inline u32 cred_sid(const struct cred *cred)
+ {
+-	const struct task_security_struct *tsec;
++	const struct cred_security_struct *tsec;
+ 
+ 	tsec = selinux_cred(cred);
+ 	return tsec->sid;
+@@ -437,7 +437,7 @@ static int may_context_mount_sb_relabel(u32 sid,
+ 			struct superblock_security_struct *sbsec,
+ 			const struct cred *cred)
+ {
+-	const struct task_security_struct *tsec = selinux_cred(cred);
++	const struct cred_security_struct *tsec = selinux_cred(cred);
  	int rc;
-+	bool updated = false;
- 	const char *lookup_path = pathname;
  
- 	if (rootpath) {
-@@ -736,7 +741,6 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
- 	}
+ 	rc = avc_has_perm(tsec->sid, sbsec->sid, SECCLASS_FILESYSTEM,
+@@ -454,7 +454,7 @@ static int may_context_mount_inode_relabel(u32 sid,
+ 			struct superblock_security_struct *sbsec,
+ 			const struct cred *cred)
+ {
+-	const struct task_security_struct *tsec = selinux_cred(cred);
++	const struct cred_security_struct *tsec = selinux_cred(cred);
+ 	int rc;
+ 	rc = avc_has_perm(tsec->sid, sbsec->sid, SECCLASS_FILESYSTEM,
+ 			  FILESYSTEM__RELABELFROM, NULL);
+@@ -1788,7 +1788,7 @@ static int file_has_perm(const struct cred *cred,
+  * Determine the label for an inode that might be unioned.
+  */
+ static int
+-selinux_determine_inode_label(const struct task_security_struct *tsec,
++selinux_determine_inode_label(const struct cred_security_struct *tsec,
+ 				 struct inode *dir,
+ 				 const struct qstr *name, u16 tclass,
+ 				 u32 *_new_isid)
+@@ -1817,7 +1817,7 @@ static int may_create(struct inode *dir,
+ 		      struct dentry *dentry,
+ 		      u16 tclass)
+ {
+-	const struct task_security_struct *tsec = selinux_cred(current_cred());
++	const struct cred_security_struct *tsec = selinux_cred(current_cred());
+ 	struct inode_security_struct *dsec;
+ 	struct superblock_security_struct *sbsec;
+ 	u32 sid, newsid;
+@@ -2251,8 +2251,8 @@ static u32 ptrace_parent_sid(void)
+ }
  
- 	if (curcon == NULL || strcmp(curcon, newcon) != 0) {
--		bool updated = false;
+ static int check_nnp_nosuid(const struct linux_binprm *bprm,
+-			    const struct task_security_struct *old_tsec,
+-			    const struct task_security_struct *new_tsec)
++			    const struct cred_security_struct *old_tsec,
++			    const struct cred_security_struct *new_tsec)
+ {
+ 	int nnp = (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS);
+ 	int nosuid = !mnt_may_suid(bprm->file->f_path.mnt);
+@@ -2305,8 +2305,8 @@ static int check_nnp_nosuid(const struct linux_binprm *bprm,
  
- 		if (!flags->set_specctx && curcon &&
- 				    (is_context_customizable(curcon) > 0)) {
-@@ -796,9 +800,14 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
- 				syslog(LOG_INFO, "labeling %s to %s\n",
- 					    pathname, newcon);
- 		}
-+
-+		/* Note: relabel counting handled by caller */
-+
- 	}
+ static int selinux_bprm_creds_for_exec(struct linux_binprm *bprm)
+ {
+-	const struct task_security_struct *old_tsec;
+-	struct task_security_struct *new_tsec;
++	const struct cred_security_struct *old_tsec;
++	struct cred_security_struct *new_tsec;
+ 	struct inode_security_struct *isec;
+ 	struct common_audit_data ad;
+ 	struct inode *inode = file_inode(bprm->file);
+@@ -2483,7 +2483,7 @@ static inline void flush_unauthorized_files(const struct cred *cred,
+  */
+ static void selinux_bprm_committing_creds(const struct linux_binprm *bprm)
+ {
+-	struct task_security_struct *new_tsec;
++	struct cred_security_struct *new_tsec;
+ 	struct rlimit *rlim, *initrlim;
+ 	int rc, i;
  
- out:
-+	if (updated_out)
-+		*updated_out = updated;
- 	rc = 0;
- out1:
- 	freecon(curcon);
-@@ -887,6 +896,7 @@ struct rest_state {
- 	bool abort;
+@@ -2529,7 +2529,7 @@ static void selinux_bprm_committing_creds(const struct linux_binprm *bprm)
+  */
+ static void selinux_bprm_committed_creds(const struct linux_binprm *bprm)
+ {
+-	const struct task_security_struct *tsec = selinux_cred(current_cred());
++	const struct cred_security_struct *tsec = selinux_cred(current_cred());
+ 	u32 osid, sid;
+ 	int rc;
+ 
+@@ -2911,7 +2911,7 @@ static int selinux_dentry_create_files_as(struct dentry *dentry, int mode,
+ {
+ 	u32 newsid;
+ 	int rc;
+-	struct task_security_struct *tsec;
++	struct cred_security_struct *tsec;
+ 
+ 	rc = selinux_determine_inode_label(selinux_cred(old),
+ 					   d_inode(dentry->d_parent), name,
+@@ -2929,7 +2929,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+ 				       const struct qstr *qstr,
+ 				       struct xattr *xattrs, int *xattr_count)
+ {
+-	const struct task_security_struct *tsec = selinux_cred(current_cred());
++	const struct cred_security_struct *tsec = selinux_cred(current_cred());
+ 	struct superblock_security_struct *sbsec;
+ 	struct xattr *xattr = lsm_get_xattr_slot(xattrs, xattr_count);
+ 	u32 newsid, clen;
+@@ -3110,7 +3110,7 @@ static noinline int audit_inode_permission(struct inode *inode,
+  * Clear the task's AVD cache in @tsec and reset it to the current policy's
+  * and task's info.
+  */
+-static inline void task_avdcache_reset(struct task_security_struct *tsec)
++static inline void task_avdcache_reset(struct cred_security_struct *tsec)
+ {
+ 	memset(&tsec->avdcache.dir, 0, sizeof(tsec->avdcache.dir));
+ 	tsec->avdcache.sid = tsec->sid;
+@@ -3127,7 +3127,7 @@ static inline void task_avdcache_reset(struct task_security_struct *tsec)
+  * Search @tsec for a AVD cache entry that matches @isec and return it to the
+  * caller via @avdc.  Returns 0 if a match is found, negative values otherwise.
+  */
+-static inline int task_avdcache_search(struct task_security_struct *tsec,
++static inline int task_avdcache_search(struct cred_security_struct *tsec,
+ 				       struct inode_security_struct *isec,
+ 				       struct avdc_entry **avdc)
+ {
+@@ -3167,7 +3167,7 @@ static inline int task_avdcache_search(struct task_security_struct *tsec,
+  * Update the AVD cache in @tsec with the @avdc and @audited info associated
+  * with @isec.
+  */
+-static inline void task_avdcache_update(struct task_security_struct *tsec,
++static inline void task_avdcache_update(struct cred_security_struct *tsec,
+ 					struct inode_security_struct *isec,
+ 					struct av_decision *avd,
+ 					u32 audited)
+@@ -3201,7 +3201,7 @@ static int selinux_inode_permission(struct inode *inode, int requested)
+ {
+ 	int mask;
+ 	u32 perms;
+-	struct task_security_struct *tsec;
++	struct cred_security_struct *tsec;
+ 	struct inode_security_struct *isec;
+ 	struct avdc_entry *avdc;
+ 	int rc, rc2;
+@@ -3283,7 +3283,7 @@ static int selinux_inode_setattr(struct mnt_idmap *idmap, struct dentry *dentry,
+ 
+ static int selinux_inode_getattr(const struct path *path)
+ {
+-	struct task_security_struct *tsec;
++	struct cred_security_struct *tsec;
+ 
+ 	tsec = selinux_cred(current_cred());
+ 
+@@ -3659,7 +3659,7 @@ static void selinux_inode_getlsmprop(struct inode *inode, struct lsm_prop *prop)
+ static int selinux_inode_copy_up(struct dentry *src, struct cred **new)
+ {
+ 	struct lsm_prop prop;
+-	struct task_security_struct *tsec;
++	struct cred_security_struct *tsec;
+ 	struct cred *new_creds = *new;
+ 
+ 	if (new_creds == NULL) {
+@@ -3697,7 +3697,7 @@ static int selinux_inode_copy_up_xattr(struct dentry *dentry, const char *name)
+ static int selinux_kernfs_init_security(struct kernfs_node *kn_dir,
+ 					struct kernfs_node *kn)
+ {
+-	const struct task_security_struct *tsec = selinux_cred(current_cred());
++	const struct cred_security_struct *tsec = selinux_cred(current_cred());
+ 	u32 parent_sid, newsid, clen;
+ 	int rc;
+ 	char *context;
+@@ -4161,8 +4161,8 @@ static int selinux_task_alloc(struct task_struct *task,
+ static int selinux_cred_prepare(struct cred *new, const struct cred *old,
+ 				gfp_t gfp)
+ {
+-	const struct task_security_struct *old_tsec = selinux_cred(old);
+-	struct task_security_struct *tsec = selinux_cred(new);
++	const struct cred_security_struct *old_tsec = selinux_cred(old);
++	struct cred_security_struct *tsec = selinux_cred(new);
+ 
+ 	*tsec = *old_tsec;
+ 	return 0;
+@@ -4173,8 +4173,8 @@ static int selinux_cred_prepare(struct cred *new, const struct cred *old,
+  */
+ static void selinux_cred_transfer(struct cred *new, const struct cred *old)
+ {
+-	const struct task_security_struct *old_tsec = selinux_cred(old);
+-	struct task_security_struct *tsec = selinux_cred(new);
++	const struct cred_security_struct *old_tsec = selinux_cred(old);
++	struct cred_security_struct *tsec = selinux_cred(new);
+ 
+ 	*tsec = *old_tsec;
+ }
+@@ -4195,7 +4195,7 @@ static void selinux_cred_getlsmprop(const struct cred *c, struct lsm_prop *prop)
+  */
+ static int selinux_kernel_act_as(struct cred *new, u32 secid)
+ {
+-	struct task_security_struct *tsec = selinux_cred(new);
++	struct cred_security_struct *tsec = selinux_cred(new);
+ 	u32 sid = current_sid();
+ 	int ret;
+ 
+@@ -4219,7 +4219,7 @@ static int selinux_kernel_act_as(struct cred *new, u32 secid)
+ static int selinux_kernel_create_files_as(struct cred *new, struct inode *inode)
+ {
+ 	struct inode_security_struct *isec = inode_security(inode);
+-	struct task_security_struct *tsec = selinux_cred(new);
++	struct cred_security_struct *tsec = selinux_cred(new);
+ 	u32 sid = current_sid();
+ 	int ret;
+ 
+@@ -4744,7 +4744,7 @@ static int selinux_conn_sid(u32 sk_sid, u32 skb_sid, u32 *conn_sid)
+ 
+ /* socket security operations */
+ 
+-static int socket_sockcreate_sid(const struct task_security_struct *tsec,
++static int socket_sockcreate_sid(const struct cred_security_struct *tsec,
+ 				 u16 secclass, u32 *socksid)
+ {
+ 	if (tsec->sockcreate_sid > SECSID_NULL) {
+@@ -4797,7 +4797,7 @@ static int sock_has_perm(struct sock *sk, u32 perms)
+ static int selinux_socket_create(int family, int type,
+ 				 int protocol, int kern)
+ {
+-	const struct task_security_struct *tsec = selinux_cred(current_cred());
++	const struct cred_security_struct *tsec = selinux_cred(current_cred());
+ 	u32 newsid;
+ 	u16 secclass;
+ 	int rc;
+@@ -4816,7 +4816,7 @@ static int selinux_socket_create(int family, int type,
+ static int selinux_socket_post_create(struct socket *sock, int family,
+ 				      int type, int protocol, int kern)
+ {
+-	const struct task_security_struct *tsec = selinux_cred(current_cred());
++	const struct cred_security_struct *tsec = selinux_cred(current_cred());
+ 	struct inode_security_struct *isec = inode_security_novalidate(SOCK_INODE(sock));
+ 	struct sk_security_struct *sksec;
+ 	u16 sclass = socket_type_to_security_class(family, type, protocol);
+@@ -6526,7 +6526,7 @@ static void selinux_d_instantiate(struct dentry *dentry, struct inode *inode)
+ static int selinux_lsm_getattr(unsigned int attr, struct task_struct *p,
+ 			       char **value)
+ {
+-	const struct task_security_struct *tsec;
++	const struct cred_security_struct *tsec;
  	int error;
- 	long unsigned skipped_errors;
-+	long unsigned relabeled_files;
- 	int saved_errno;
- 	pthread_mutex_t mutex;
- };
-@@ -1010,8 +1020,9 @@ loop_body:
- 			if (state->parallel)
- 				pthread_mutex_unlock(&state->mutex);
+ 	u32 sid;
+ 	u32 len;
+@@ -6581,7 +6581,7 @@ static int selinux_lsm_getattr(unsigned int attr, struct task_struct *p,
  
-+			bool updated = false;
- 			error = restorecon_sb(ent_path, &ent_st, &state->flags,
--					      first);
-+					      first, &updated);
- 
- 			if (state->parallel) {
- 				pthread_mutex_lock(&state->mutex);
-@@ -1030,6 +1041,8 @@ loop_body:
- 					state->skipped_errors++;
- 				else
- 					state->error = error;
-+			} else if (updated && state->flags.count_relabeled) {
-+				state->relabeled_files++;
- 			}
- 			break;
- 		}
-@@ -1087,6 +1100,8 @@ static int selinux_restorecon_common(const char *pathname_orig,
- 		    SELINUX_RESTORECON_IGNORE_DIGEST) ? true : false;
- 	state.flags.count_errors = (restorecon_flags &
- 		    SELINUX_RESTORECON_COUNT_ERRORS) ? true : false;
-+	state.flags.count_relabeled = (restorecon_flags &
-+		    SELINUX_RESTORECON_COUNT_RELABELED) ? true : false;
- 	state.setrestorecondigest = true;
- 
- 	state.head = NULL;
-@@ -1094,6 +1109,7 @@ static int selinux_restorecon_common(const char *pathname_orig,
- 	state.abort = false;
- 	state.error = 0;
- 	state.skipped_errors = 0;
-+	state.relabeled_files = 0;
- 	state.saved_errno = 0;
- 
- 	struct stat sb;
-@@ -1215,7 +1231,11 @@ static int selinux_restorecon_common(const char *pathname_orig,
- 			goto cleanup;
- 		}
- 
--		error = restorecon_sb(pathname, &sb, &state.flags, true);
-+		bool updated = false;
-+		error = restorecon_sb(pathname, &sb, &state.flags, true, &updated);
-+		if (updated && state.flags.count_relabeled) {
-+			state.relabeled_files++;
-+		}
- 		goto cleanup;
- 	}
- 
-@@ -1341,6 +1361,7 @@ out:
- 	(void) fts_close(state.fts);
- 	errno = state.saved_errno;
- cleanup:
-+	relabeled_files = state.relabeled_files;
- 	if (state.flags.add_assoc) {
- 		if (state.flags.verbose)
- 			filespec_eval();
-@@ -1618,3 +1639,8 @@ long unsigned selinux_restorecon_get_skipped_errors(void)
+ static int selinux_lsm_setattr(u64 attr, void *value, size_t size)
  {
- 	return skipped_errors;
- }
-+
-+long unsigned selinux_restorecon_get_relabeled_files(void)
-+{
-+	return relabeled_files;
-+}
-diff --git a/policycoreutils/setfiles/restore.c b/policycoreutils/setfiles/restore.c
-index 2c031ccc..07582e7c 100644
---- a/policycoreutils/setfiles/restore.c
-+++ b/policycoreutils/setfiles/restore.c
-@@ -43,7 +43,7 @@ void restore_init(struct restore_opts *opts)
- 			   opts->syslog_changes | opts->log_matches |
- 			   opts->ignore_noent | opts->ignore_mounts |
- 			   opts->mass_relabel | opts->conflict_error |
--			   opts->count_errors;
-+			   opts->count_errors | opts->count_relabeled;
- 
- 	/* Use setfiles, restorecon and restorecond own handles */
- 	selinux_restorecon_set_sehandle(opts->hnd);
-@@ -75,7 +75,7 @@ void restore_finish(void)
- }
- 
- int process_glob(char *name, struct restore_opts *opts, size_t nthreads,
--		 long unsigned *skipped_errors)
-+		 long unsigned *skipped_errors, long unsigned *relabeled_files)
+-	struct task_security_struct *tsec;
++	struct cred_security_struct *tsec;
+ 	struct cred *new;
+ 	u32 mysid = current_sid(), sid = 0, ptsid;
+ 	int error;
+@@ -6876,7 +6876,7 @@ static int selinux_inode_getsecctx(struct inode *inode, struct lsm_context *cp)
+ static int selinux_key_alloc(struct key *k, const struct cred *cred,
+ 			     unsigned long flags)
  {
- 	glob_t globbuf;
- 	size_t i, len;
-@@ -99,8 +99,12 @@ int process_glob(char *name, struct restore_opts *opts, size_t nthreads,
- 						 nthreads);
- 		if (rc < 0)
- 			errors = rc;
--		else if (opts->restorecon_flags & SELINUX_RESTORECON_COUNT_ERRORS)
--			*skipped_errors += selinux_restorecon_get_skipped_errors();
-+		else {
-+			if (opts->restorecon_flags & SELINUX_RESTORECON_COUNT_ERRORS)
-+				*skipped_errors += selinux_restorecon_get_skipped_errors();
-+			if (opts->restorecon_flags & SELINUX_RESTORECON_COUNT_RELABELED)
-+				*relabeled_files += selinux_restorecon_get_relabeled_files();
-+		}
- 	}
+-	const struct task_security_struct *tsec;
++	const struct cred_security_struct *tsec;
+ 	struct key_security_struct *ksec = selinux_key(k);
  
- 	globfree(&globbuf);
-diff --git a/policycoreutils/setfiles/restore.h b/policycoreutils/setfiles/restore.h
-index 95afb960..36f73059 100644
---- a/policycoreutils/setfiles/restore.h
-+++ b/policycoreutils/setfiles/restore.h
-@@ -37,6 +37,7 @@ struct restore_opts {
- 	unsigned int ignore_mounts;
- 	unsigned int conflict_error;
- 	unsigned int count_errors;
-+	unsigned int count_relabeled;
- 	/* restorecon_flags holds | of above for restore_init() */
- 	unsigned int restorecon_flags;
- 	char *rootpath;
-@@ -52,7 +53,7 @@ void restore_init(struct restore_opts *opts);
- void restore_finish(void);
- void add_exclude(const char *directory);
- int process_glob(char *name, struct restore_opts *opts, size_t nthreads,
--		 long unsigned *skipped_errors);
-+		 long unsigned *skipped_errors, long unsigned *relabeled_files);
- extern char **exclude_list;
- 
+ 	tsec = selinux_cred(cred);
+@@ -7137,7 +7137,7 @@ static int selinux_bpf_token_create(struct bpf_token *token, union bpf_attr *att
  #endif
-diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setfiles/restorecon.8
-index 1134420e..b7ff9715 100644
---- a/policycoreutils/setfiles/restorecon.8
-+++ b/policycoreutils/setfiles/restorecon.8
-@@ -153,6 +153,9 @@ display warnings about entries that had no matching files by outputting the
- .BR selabel_stats (3)
- results.
- .TP
-+.B \-c
-+count and display the number of (would be) relabeled files. The exit code will be set to 0 only if at least one file is relabeled.
-+.TP
- .B \-0
- the separator for the input items is assumed to be the null character
- (instead of the white space).  The quotes and the backslash characters are
-diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-index 31034316..351940f3 100644
---- a/policycoreutils/setfiles/setfiles.c
-+++ b/policycoreutils/setfiles/setfiles.c
-@@ -35,8 +35,8 @@ static __attribute__((__noreturn__)) void usage(const char *const name)
+ 
+ struct lsm_blob_sizes selinux_blob_sizes __ro_after_init = {
+-	.lbs_cred = sizeof(struct task_security_struct),
++	.lbs_cred = sizeof(struct cred_security_struct),
+ 	.lbs_file = sizeof(struct file_security_struct),
+ 	.lbs_inode = sizeof(struct inode_security_struct),
+ 	.lbs_ipc = sizeof(struct ipc_security_struct),
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 2d5139c6d45b..e71ce352bc97 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -37,7 +37,7 @@ struct avdc_entry {
+ 	bool permissive; /* AVC permissive flag */
+ };
+ 
+-struct task_security_struct {
++struct cred_security_struct {
+ 	u32 osid; /* SID prior to last execve */
+ 	u32 sid; /* current SID */
+ 	u32 exec_sid; /* exec SID */
+@@ -54,7 +54,7 @@ struct task_security_struct {
+ 	} avdcache;
+ } __randomize_layout;
+ 
+-static inline bool task_avdcache_permnoaudit(struct task_security_struct *tsec)
++static inline bool task_avdcache_permnoaudit(struct cred_security_struct *tsec)
  {
- 	if (iamrestorecon) {
- 		fprintf(stderr,
--			"usage:  %s [-iIDFUmnprRv0xT] [-e excludedir] pathname...\n"
--			"usage:  %s [-iIDFUmnprRv0xT] [-e excludedir] -f filename\n",
-+			"usage:  %s [-ciIDFUmnprRv0xT] [-e excludedir] pathname...\n"
-+			"usage:  %s [-ciIDFUmnprRv0xT] [-e excludedir] -f filename\n",
- 			name, name);
- 	} else {
- 		fprintf(stderr,
-@@ -146,11 +146,12 @@ int main(int argc, char **argv)
- 	size_t buf_len, nthreads = 1;
- 	const char *base;
- 	int errors = 0;
--	const char *ropts = "e:f:hiIDlmno:pqrsvFURW0xT:";
-+	const char *ropts = "ce:f:hiIDlmno:pqrsvFURW0xT:";
- 	const char *sopts = "c:de:f:hiIDlmno:pqr:svACEFUR:W0T:";
- 	const char *opts;
- 	union selinux_callback cb;
- 	long unsigned skipped_errors;
-+	long unsigned relabeled_files;
+ 	return (tsec->avdcache.permissive_neveraudit &&
+ 		tsec->sid == tsec->avdcache.sid &&
+@@ -172,7 +172,7 @@ struct perf_event_security_struct {
+ };
  
- 	/* Initialize variables */
- 	memset(&r_opts, 0, sizeof(r_opts));
-@@ -160,6 +161,7 @@ int main(int argc, char **argv)
- 	request_digest = 0;
- 	policyfile = NULL;
- 	skipped_errors = 0;
-+	relabeled_files = 0;
+ extern struct lsm_blob_sizes selinux_blob_sizes;
+-static inline struct task_security_struct *selinux_cred(const struct cred *cred)
++static inline struct cred_security_struct *selinux_cred(const struct cred *cred)
+ {
+ 	return cred->security + selinux_blob_sizes.lbs_cred;
+ }
+@@ -207,7 +207,7 @@ selinux_ipc(const struct kern_ipc_perm *ipc)
+  */
+ static inline u32 current_sid(void)
+ {
+-	const struct task_security_struct *tsec = selinux_cred(current_cred());
++	const struct cred_security_struct *tsec = selinux_cred(current_cred());
  
- 	if (!argv[0]) {
- 		fprintf(stderr, "Called without required program name!\n");
-@@ -223,7 +225,10 @@ int main(int argc, char **argv)
- 	while ((opt = getopt(argc, argv, opts)) > 0) {
- 		switch (opt) {
- 		case 'c':
--			{
-+			if (iamrestorecon) {
-+				r_opts.count_relabeled = SELINUX_RESTORECON_COUNT_RELABELED;
-+				break;
-+			} else {
- 				FILE *policystream;
- 
- 				policyfile = optarg;
-@@ -457,14 +462,14 @@ int main(int argc, char **argv)
- 			if (!strcmp(buf, "/"))
- 				r_opts.mass_relabel = SELINUX_RESTORECON_MASS_RELABEL;
- 			errors |= process_glob(buf, &r_opts, nthreads,
--					       &skipped_errors) < 0;
-+					       &skipped_errors, &relabeled_files) < 0;
- 		}
- 		if (strcmp(input_filename, "-") != 0)
- 			fclose(f);
- 	} else {
- 		for (i = optind; i < argc; i++)
- 			errors |= process_glob(argv[i], &r_opts, nthreads,
--					       &skipped_errors) < 0;
-+					       &skipped_errors, &relabeled_files) < 0;
- 	}
- 
- 	if (r_opts.mass_relabel && !r_opts.nochange)
-@@ -479,5 +484,14 @@ int main(int argc, char **argv)
- 	if (r_opts.progress)
- 		fprintf(stdout, "\n");
- 
-+	/* Output relabeled file count if requested */
-+	if (r_opts.count_relabeled) {
-+		long unsigned relabeled_count = selinux_restorecon_get_relabeled_files();
-+		printf("Relabeled %lu files\n", relabeled_count);
-+
-+		/* Set exit code to 0 if at least one file was relabeled */
-+		exit(errors ? -1 : relabeled_count ? 0 : 1);
-+	}
-+
- 	exit(errors ? -1 : skipped_errors ? 1 : 0);
+ 	return tsec->sid;
  }
 -- 
-2.51.1
+2.52.0
 
