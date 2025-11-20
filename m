@@ -1,94 +1,122 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC7E6221271
-	for <selinux@vger.kernel.org>; Thu, 20 Nov 2025 21:15:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BF5A2BE65B
+	for <selinux@vger.kernel.org>; Thu, 20 Nov 2025 22:57:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763673348; cv=none; b=Ml6hWYSGZ5bzSVJeN8+ip2C1Uw+/lBvBMPc7lW46PHOeHPJErK2KvHzktAr/npF8SPr1xD1L3Lypg+S0UgqX3u9jErUq+Mc/KzlG17xkQXag1MYi1WKCpeRaeLumkDpDVwanYPlP2T/rV6cp/f5mi+cS4svA6lTqF0jDsIeFNMA=
+	t=1763679448; cv=none; b=VgBMhR8j5BPLZHpuSgfaEvXsbst1ZxpQr4QKNh+N+pOaLYVVX446V+Xc/RahYEWdp4NdJqxW7K3lfT1vFx1+lOmiXVQhVIJ0PaYc+LlPLgPgTFoIgZSsszJ9R8WIUGQ+tjceK9YJdCYg8k9+IfOtutvpNto8D2OPTowau11f4AM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763673348; c=relaxed/simple;
-	bh=MqV25iWj23690D1kTofUWc5gXlmC1JOwdVWdQKgJE0w=;
+	s=arc-20240116; t=1763679448; c=relaxed/simple;
+	bh=qQ4PvmQoNFQK8TS8TRADFAM7d0Q/RB0S+0o7X97mJdo=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=k5kCjkQUsRHJrmW2Zy++T9virgGRxhgSO5HRUSY4GcKuZVKHIDmRVnHmr3Qngqww8+s073lA09CWl38GpCMFY4JudggyldtG/tXoeq7c+9oLA/EQjPz7MGyImNf584m145U6cwV2PwPkUFwtmXbN9OT/ow483HfhtdXmGxyaM/4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VkONFF9T; arc=none smtp.client-ip=209.85.216.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=rUrVjHT8ttjw6yjAp7pKuopC/xfObRaMGkmCkSA+O+503i8QrurNzDgRKL/nUOKyWxrrf4a1lO0PQqM4PJ6b32qzLvgeluCNcP+Hf7upFZ3vxLCfJ1tL1JwQ7CPTqlvTgWnuXlNKZCp+jlMEJ/ySkxAiLHd9A7CUUDG79Zeq+4U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=W5v/+Vtd; arc=none smtp.client-ip=209.85.216.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VkONFF9T"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-340a5c58bf1so895599a91.2
-        for <selinux@vger.kernel.org>; Thu, 20 Nov 2025 13:15:46 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="W5v/+Vtd"
+Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-3436d6aa66dso1356893a91.1
+        for <selinux@vger.kernel.org>; Thu, 20 Nov 2025 14:57:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1763673346; x=1764278146; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1763679445; x=1764284245; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=xmg8PkPwMlX7+C+H4DLYa/aa3r4/eJTmhyeSdMb1aOk=;
-        b=VkONFF9Tota5c3tOo+uKbcGZLRyLfMopUghE+XIb3ATQeOmvXh1/nI/d5BTpmnJJQ2
-         XzvRzaZVG0rtfmV4U/5TLYdpk+8D2zqBJSj+S149mgpsyhA3yVYTEPskRarb9hQ9Gkq+
-         qbqLV7pTvhaMyc5+VY8NjFRXgIRw7rQbpjuaig4zRCzuf2RpUV6xPqY8Y7OTVkG2HqLJ
-         2a3jY+VtmetspeK1nYYhJwrwDcISJfDQPGHF5xicOWPdqb1T+nnK9b9pOhLzZ7GHbIxu
-         3bw5+Pr2BkEdLsWOLdtb4Wtmj/YUiFtmJ6KuE8t7ecgz1Lpt1Pex2KefLK8oL3nLiOLA
-         OhoQ==
+        bh=r250qwM/sjsPhWniak69NdHr2BPUfxih4zgZ6cqynZI=;
+        b=W5v/+Vtdf8M3E3U7RVbdE71jxsJ0xqL/zBt/pCYkxSFgRP/wYSeLBH4X9hhnKLRkEs
+         WUQUX/h0bJz1J2VSd6XAjkP9p4zodKG3Cj/ChGd65xaP9F1UupY/3SKASCQ6veSSkejc
+         dH5GntYBBHbom853Zv4b5PX3HtvHmMJIk3TGbwKFJnfgJUcR+WliXf1816RCtwoQZ69+
+         98/AwjD/b0sq3UmMkQRxQVIGrx7qfshbVviyNh5kjySGXpuncNZIwX+jcaZbN/dCHnCQ
+         DP6qqCz6xFivF+XCP3/jLK/62lB5+L/4FwX4ay4jjWIOgZT/iJNBwtgjgp21SIyTGNFF
+         j/5A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763673346; x=1764278146;
+        d=1e100.net; s=20230601; t=1763679445; x=1764284245;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=xmg8PkPwMlX7+C+H4DLYa/aa3r4/eJTmhyeSdMb1aOk=;
-        b=VVOJ5w5V3B7sgwbIiLjruRtoIFMshxnRbkvxMYXK9s1kG7eXmY/RiOAu4N5FhUsqUr
-         laUTGBkpHxuemfX0KBEw1GL5LAFEp/NxVs8zyZ98roNqdJS+JqR7XF79pegcfcKf7dXr
-         5JHbyF6Zhj1XnPnx8vzC93bgpqGePnUDNg3Fo/RaYwx/v3ewxUV2C0ftjxH4PRqGJ1Jk
-         2Hv0NI10FG1Iku5jUcxITGTS1LbMOmffWsb8vEeLnJrHJHxZg5KvKifuGEDIPSl29Qbe
-         J3uE+fC/E14AmGoUEPgLnwxG/gz0B9S7CAnvCb/HBVu3dAbFWE3bgp/eXtXb3yfA+AIJ
-         2WhQ==
-X-Gm-Message-State: AOJu0Yz16gv1DOf1WdkTUfrRieRV/I07ZjXV4T0LpE2CCk6pd8BnDroK
-	DBYIQnFxnSzUZj8lUaEF9X++c8n3vKr9VaAVyOwPGnGLj2QZ/fvjG29dcyTRZ4kVm0ei1K3Oyga
-	YU49MpY9rPRRqC4YdoHsI0LIc8yEXgUA=
-X-Gm-Gg: ASbGncsepFstbOJQcbq6xbAzvIGpiOfrBv5OMNtgV0olTNUf4/2QosL6ZTmPXKRsJb/
-	CK0N3Nv8lescQ05H7ZPnQYUCXV+UCbr76dti/0wMs5NpVPWRxth++7F53gr5jkGDtHa79rr8VOB
-	w6+QJN9DZtX9rnZA5fGQDi1M4ukUGkkpAV+BS18flkPof3HE6a9MxBW3a8l7hhrel7JgQOMTNoU
-	oyyPk6Mxi8TXNTx8BWtr+zGeUn4fnhi4ZBGGsgEhj2uR5hP6AhZBiwTEmjnkH4jy1h2wSs=
-X-Google-Smtp-Source: AGHT+IHA2r9Wd615agDW0MWmTT7GbJBoNSQGiS2Jx2xTibIvrrlereq40Ne4xrTY78y2+ONQMjISiX/F8hwxYgly4qg=
-X-Received: by 2002:a17:90b:57ee:b0:33f:f22c:8602 with SMTP id
- 98e67ed59e1d1-34727c4b44amr4320176a91.26.1763673345970; Thu, 20 Nov 2025
- 13:15:45 -0800 (PST)
+        bh=r250qwM/sjsPhWniak69NdHr2BPUfxih4zgZ6cqynZI=;
+        b=mK063mHDf+C7pKXyEgf3ytlBPEh8SY5LNQIoAxAEX4B8WLsCZK75D4b3oN+X0XGtLK
+         65dvSGYl8KX9qFBIqBfWBiD1QVsg9NgSN9W5GaGOWFqA8ddf3kU6+kiwgnhDvAbGF542
+         ul41tY1cADtpQHqGsjy2QqzrsEdHqFYRSaUcqJ4DIpgo+XlgUA976AA48fTH71DoqssM
+         XTOA3DkmKv5K/JxlWmlonTnEICYnloLcJwBt5cdPGuI2jiDRfb0vvb7FBgw01g14BAqW
+         opPgkegGMGLkCImq631fOPQFDEs1PBqY+hb20U7HuFNGOMp4FDJ4N0I1tt+ki2a/xpIP
+         /uIg==
+X-Gm-Message-State: AOJu0YzKnWv8yUKUDGdRa5ShTzi+57tKlcn2/CBYPLZ/IRR7KBy6fccU
+	MoKOi/txWJoVkALwr7FxDpzfO0B7hUFydQmUWSY8YlGevKbOJTJiBZwS7xbk6vOiTHuVs5GviE2
+	JEZxSPKBTfPJVjQRR28tgMGtqSmzSgDrJjhR3q6JZEJsJ0XKHUN8=
+X-Gm-Gg: ASbGncsUKb2YNtvr2orEM1J1HC+/O+VfoYkhQvGtsXVAcpbJenEqOzYVSwYoqlS9r7t
+	iUl3v0d5R/8saAjj18iL/rMih5I8Ca9m29JpcTjcCdBx/YSoO9PLAQetX/ZTDr1QTYcMSDex2c1
+	5iiW120aUw5e35waVQoWavcsw4d1VFsGAsfmLxz1n7kVBv1bYCjDioctVmPTSr/ZHa8totYHEMf
+	DNfKafraBuCb677Nd0lguv3kVrtSx+pO/9/0s1+kx7UvFfaq3Khj/7mUIawhqRmz3mQT8Q=
+X-Google-Smtp-Source: AGHT+IHmdF7yEavBCvH4ASbuLeH2nmrkb5JjLyq0VeTO/iw9ohaQMcAOHlt3i7kODJf+3K8mM4aaHz19D3ATybrcEMM=
+X-Received: by 2002:a17:90b:5626:b0:343:cfa1:c458 with SMTP id
+ 98e67ed59e1d1-3473346ea40mr315807a91.18.1763679445490; Thu, 20 Nov 2025
+ 14:57:25 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <D6E78BE1-7054-46F2-AA10-1BC2E0D4A82B@redfish-solutions.com>
-In-Reply-To: <D6E78BE1-7054-46F2-AA10-1BC2E0D4A82B@redfish-solutions.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 20 Nov 2025 16:15:34 -0500
-X-Gm-Features: AWmQ_bkUKZ8OGON-Yg2AMmgjlJuiGz-v6evlZUajLeDw272D4bFED4ChcL71BX0
-Message-ID: <CAEjxPJ7umghjAo3Yg25QsYL+pfQ27bxOvS8J2S5-MSKtKZBXww@mail.gmail.com>
-Subject: Re: Adding SElinux support for a service
-To: Philip Prindeville <philipp_subx@redfish-solutions.com>
+References: <20251119195628.184825-4-paul@paul-moore.com> <20251119195628.184825-6-paul@paul-moore.com>
+ <CAEjxPJ4cy3zarsytxGV65+mNh7ikbt_Le_4M-m8YV0QqvgdRWg@mail.gmail.com> <CAHC9VhRaWn_Rdh=EtiNKsFJu3KKJuVqoNN0BEQg_4wV3yNnTcw@mail.gmail.com>
+In-Reply-To: <CAHC9VhRaWn_Rdh=EtiNKsFJu3KKJuVqoNN0BEQg_4wV3yNnTcw@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 20 Nov 2025 17:57:13 -0500
+X-Gm-Features: AWmQ_bnFOe6UTjvZf_aqqgxqyDs9PtKELnLevTXLjG6JUryJpcz72GTOIi_3t2c
+Message-ID: <CAHC9VhSVa1YkWaYdP9dXd8VGvQn4weZrPPDwOBJs=zrqtkiGag@mail.gmail.com>
+Subject: Re: [PATCH v2 3/3] selinux: rename the cred_security_struct variables
+ to "crsec"
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 20, 2025 at 3:14=E2=80=AFPM Philip Prindeville
-<philipp_subx@redfish-solutions.com> wrote:
+On Thu, Nov 20, 2025 at 3:53=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+> On Thu, Nov 20, 2025 at 8:57=E2=80=AFAM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> > On Wed, Nov 19, 2025 at 2:56=E2=80=AFPM Paul Moore <paul@paul-moore.com=
+> wrote:
+> > >
+> > > Along with the renaming from task_security_struct to cred_security_st=
+ruct,
+> > > rename the local variables to "crsec" from "tsec".  This both fits wi=
+th
+> > > existing conventions and helps distinguish between task and cred rela=
+ted
+> > > variables.
+> > >
+> > > No functional changes.
+> > >
+> > > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > > Signed-off-by: Paul Moore <paul@paul-moore.com>
+> >
+> > Just re-affirming my Acked-by since this patch did change.
 >
-> Hi,
+> Yeah, normally that would have been enough of a change to drop the
+> ACK, but since the change was exactly what you had described when you
+> provided the ACK I felt it was reasonable to leave it intact.
 >
-> I'm working on SElinux support for a server that talks to a PCIe GPS card=
-.
+> > I confirmed that building security/selinux/hooks.o before and after
+> > this change produces the same result (after stripping the object
+> > file).
 >
-> Is there a guide to how to port a new service to SElinux, for instance ho=
-w to give it its own context?  Or, in the absence of a guide, what GitHub p=
-roject can I look at for the supporting commits that were done to achieve t=
-he same?
+> Thanks.
+>
+> > Not sure how the stable maintainers are going to respond to the two
+> > renaming patches though.
+>
+> Yeah, we'll have to see.  We need to fix it in Linus' tree regardless,
+> so the first step is simply getting the patches there.  Unless the
+> patches apply cleanly (which is somewhat doubtful), the stable folks
+> will likely drop the patch on the floor and it will be up to someone
+> to manually port the patch and resubmit it to the stable folks.  First
+> step is Linus' tree, let's get that done and see how it goes.
 
-Can you elaborate a little on what it is you want to do? Do you have
-SELinux enabled and enforcing already on the base system and just want
-to add policy for a new service to confine it and/or control what
-other processes can talk to it?
-Or do you also want the service to be SELinux-aware, aka a userspace
-object manager, where it enforces its own security policy over its own
-objects and operations?
-What's your starting point?
+All three patches are now in selinux/stable-6.18.  Assuming no
+problems in the automated testing I'll send them to Linus tomorrow.
+
+--=20
+paul-moore.com
