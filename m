@@ -1,108 +1,113 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39073254AFF
-	for <selinux@vger.kernel.org>; Fri, 21 Nov 2025 10:25:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B080346A0E
+	for <selinux@vger.kernel.org>; Fri, 21 Nov 2025 13:46:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763720753; cv=none; b=JirW846mwOZj4f1jWH2JHmtSQkFnRY4cEdQS6JNQuzx1Nztr/9KvBCN18Vdf/IPIgt0XdoYh6YtgCF+t2V5MmlUxiBU+2S3/UYDOii6y/+RUFOwFiTYCE4YcSJd8M154sjf2DWrrIcgydTxzaLC81rkizAT8vZPFM/W/kJ4+RGE=
+	t=1763732812; cv=none; b=lVzl7oaDN3ZcxHzdHpEbPCUmQnxp6IgnI+bdp7qi/fOLoZNJyS91aFi5emdIhoPHae8aUq8oYuOOugtwS1R1kcVTMZPFhbW2pXyxOntHP5P+nx3CGrnJUNvoc7FvfzwGBuTq/2IDw7Yk1gFyFqyuP2gCVpqGa4Wj4IdqHeFlwLY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763720753; c=relaxed/simple;
-	bh=lK9l/XzGJXOSDpgVJsXd8VkeUiUlljQ65KwIEcAcP5I=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=NSXA5UAHkM2MWNMz30hxRVMpugiPjydKkVe2x9RNhAxadcvmg9tDq9IjM3qT4wvl+J1v4VTWWNoZoy0WGULnnZ+s2itJk9XdIeqYOJwC7ZmPTGiJ/qnnf5RyBpw3x5fJb8yk5iZKOV2zM+aljkSnxePS9SqSPqlYeaOtXI+lRJw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fp7/D8RH; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1763732812; c=relaxed/simple;
+	bh=XRnupV/QJLc8sXou1M8dbGu9RLj7D/1Sq/blNEmzl/M=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=DVHf2k5lYaLJbTIwU3akRuH95Yxmv1AURCS5d4ZxBCDKwEdNA7/vRLlBSljZSYcwxPTY9N+kx5FARk1FK/vnGKozu5LfHgqCMVHobwWujhprFPg4+3aNsxJCL4gpP9AL0Rm+FvvUIbN7NYI0e1ZOBeepWRkfcIRzq35Dw0TeuFE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Yz7YVX2Z; arc=none smtp.client-ip=209.85.216.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fp7/D8RH"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1763720751;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=+ZTmNHrmdbaHJH5Wm0sJwoeRR5YlNXyihAOp0rs4w7c=;
-	b=fp7/D8RHUGtVgRNjHTzojNOTuyyEepxNBKlprNmTpuLDAhoMrgoZ9wUdGxggYbjrIvdSDY
-	4XGAkya5YaWPNf1BZ7RC1grwnk7CSf5GlC41ATpDPF/8cP/SwP/GrwRcA+h2I8DoHZ/dGP
-	RsP+5pD68GqwTtwRVvhTjGv4dW3GuEE=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-412-B0XhXOIPNyOusUNrJx9Pzg-1; Fri,
- 21 Nov 2025 05:25:46 -0500
-X-MC-Unique: B0XhXOIPNyOusUNrJx9Pzg-1
-X-Mimecast-MFC-AGG-ID: B0XhXOIPNyOusUNrJx9Pzg_1763720746
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E8D361800650;
-	Fri, 21 Nov 2025 10:25:45 +0000 (UTC)
-Received: from localhost (unknown [10.45.225.228])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 700BD1800947;
-	Fri, 21 Nov 2025 10:25:45 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
-To: Philip Prindeville <philipp_subx@redfish-solutions.com>, Stephen Smalley
- <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org
-Subject: Re: Adding SElinux support for a service
-In-Reply-To: <60A8D560-3A88-48B7-88AE-1D7023AF2B44@redfish-solutions.com>
-References: <D6E78BE1-7054-46F2-AA10-1BC2E0D4A82B@redfish-solutions.com>
- <CAEjxPJ7umghjAo3Yg25QsYL+pfQ27bxOvS8J2S5-MSKtKZBXww@mail.gmail.com>
- <60A8D560-3A88-48B7-88AE-1D7023AF2B44@redfish-solutions.com>
-Date: Fri, 21 Nov 2025 11:25:44 +0100
-Message-ID: <87ecprfzrr.fsf@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Yz7YVX2Z"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-343dfb673a8so2045296a91.0
+        for <selinux@vger.kernel.org>; Fri, 21 Nov 2025 05:46:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1763732810; x=1764337610; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=77vz8RBfezkZtH9uDRMzfjGGctbCIkZO2us9G3nzzrQ=;
+        b=Yz7YVX2ZCN3TGRuIZNi+7sYJJczeKAHoPMTk9H6ZyuKAkGqCDALnz2y0cTU52rLjKn
+         R1OQC1gyVnN+JXDSC68jy0QNY2WsJs9pnNVCN1WPZPBNe5f6JxVy5qBDvzQhh5XC4ISM
+         lsiEZphsAPa2Gqz/M12VFXMVI/sXgo8ys43UTAZ3NEl5Gk6HJrMYtkKgdkjJoQ8FgUtE
+         m33THt8PUmHxqnwhtNxp3AyE212hbP2Vo7+Fu2v5aKthkFggRQPDYM3HG0p5nJitfYuW
+         pkunnn5ejSwDr+nlldoHW/pGCh/JlqW71Rp6pL/WE1XQPEit9XwR4bOzR0x9cG2ZThmh
+         w09A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763732810; x=1764337610;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=77vz8RBfezkZtH9uDRMzfjGGctbCIkZO2us9G3nzzrQ=;
+        b=b/OLXDYt6AQv6Z81urbILfPSxih+6hMWkEpGKpb2q1J0GMhParr6Y7PWNY7SwylQvt
+         t5cMN0YZK48pwL9Uph/LO4e+fOeG38/Y55wIk0/HBIZWDTbA24WnPr25KYB6Pcop2QCl
+         9CVo/6FbJD5lPD7uOL1TAhmyPhpyG2UqaRoYV9Y87QgRc1I9NayhqG3y8ZqYqtilRlg7
+         nL2fekDSthfbBtVzL4ikgHgv9bkekP4NUvfh2PSqIRtrXh9Jp8kQrePrVMTlccJqcz6h
+         TrwZP/bbvc2dVjMYkBncWSZhLqx+IUUQmaHM8bxVDaCO851I5G6SaXjPjg92d71oHr7O
+         VjPw==
+X-Gm-Message-State: AOJu0YyJfuWFkkcPmfZtlRuknNPe2slj5COyv01O4VEvY7fKThINHwIh
+	E0xcgiFv3+ND4EEBPvPQVRtJZX05s9z8pFlstb6Xp8eaAIRXwAnupfA+emcGx2IuVi+LrfoWypj
+	OVIqxJy8gzi81WTIMQX1V7rkkq+Q2DG226g==
+X-Gm-Gg: ASbGncujcNqqw/m6YNWoC/nquBdpld0KfsEjtpxcdZ0aoZkyllWczvvi6tT8ow/+KDC
+	7yd6mMJyiKWCr/JgoIWVK7kSkofAbv2ikXQyG/iDDLV0KVWrsfse8AyNyzdA+w9AOzxXC2qKsZO
+	l56l2QxjweL0LdueP1wrT+rSOa+TrrAYYWrdi6OT6L0Lt59vmow0+1WDcXWT5w/0+t3lqXuPytk
+	GRPJ7G0APoLUt8iAsFchvpDmXPCaUn3XIRN16Q02tjmgQEIow1wd3fgDMVn3h9rkW1golobc+aK
+	/1QBcg==
+X-Google-Smtp-Source: AGHT+IFvnKvOafszEJZp8RUCczHf9Gi7UJ5hPVRL1wdPi8pIeR8FblE/wfVDXyC2CTQBVJU+hNgmUVb1RJMBJG+vv5E=
+X-Received: by 2002:a17:90b:394d:b0:343:e461:9022 with SMTP id
+ 98e67ed59e1d1-34733f22796mr2726682a91.24.1763732810509; Fri, 21 Nov 2025
+ 05:46:50 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+References: <20251121082038.735276-1-omosnace@redhat.com>
+In-Reply-To: <20251121082038.735276-1-omosnace@redhat.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Fri, 21 Nov 2025 08:46:39 -0500
+X-Gm-Features: AWmQ_bll6JIYIY6Jo9AbAaXWgl9iqrfNnWh31nCm4rR9M2DOX0ta_4oZkNAiHkI
+Message-ID: <CAEjxPJ7BkZ39UfpLhQjx5L16Chzu6V+0tjYR_1Vhnir2fK4mvA@mail.gmail.com>
+Subject: Re: [PATCH testsuite] policy: allow testsuite caller domain to ptrace
+ testsuite processes
+To: Ondrej Mosnacek <omosnace@redhat.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-Philip Prindeville <philipp_subx@redfish-solutions.com> writes:
+On Fri, Nov 21, 2025 at 3:24=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.co=
+m> wrote:
+>
+> While this is not required for the testsuite execution itself, it is
+> useful when debugging by prepending commands with 'strace ...'.
+> Testsuite domains outside domain_type() aren't allowed to be ptraced by
+> other domains, so the permission needs to be allowed explicitly in the
+> testsuite policy.
+>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 
->> On Nov 20, 2025, at 2:15=E2=80=AFPM, Stephen Smalley <stephen.smalley.wo=
-rk@gmail.com> wrote:
->>=20
->> On Thu, Nov 20, 2025 at 3:14=E2=80=AFPM Philip Prindeville
->> <philipp_subx@redfish-solutions.com> wrote:
->>>=20
->>> Hi,
->>>=20
->>> I'm working on SElinux support for a server that talks to a PCIe GPS ca=
-rd.
->>>=20
->>> Is there a guide to how to port a new service to SElinux, for instance =
-how to give it its own context?  Or, in the absence of a guide, what GitHub=
- project can I look at for the supporting commits that were done to achieve=
- the same?
->>=20
->> Can you elaborate a little on what it is you want to do? Do you have
->> SELinux enabled and enforcing already on the base system and just want
->> to add policy for a new service to confine it and/or control what
->> other processes can talk to it?
->> Or do you also want the service to be SELinux-aware, aka a userspace
->> object manager, where it enforces its own security policy over its own
->> objects and operations?
->> What's your starting point?
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+
+> ---
+>  policy/test_global.te | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+>
+> diff --git a/policy/test_global.te b/policy/test_global.te
+> index 759353c..cb7d9c2 100644
+> --- a/policy/test_global.te
+> +++ b/policy/test_global.te
+> @@ -69,7 +69,9 @@ optional_policy(`
+>
+>  # Needed for domains outside domain_type()
+>  dontaudit testsuite_caller_domain testsuite_domain:process { noatsecure =
+rlimitinh siginh };
+> -allow testsuite_caller_domain testsuite_domain:process sigkill;
+> +# ptrace - only needed for debugging (e.g. strace)
+> +# sigkill - needed for some tests to pass
+> +allow testsuite_caller_domain testsuite_domain:process { ptrace sigkill =
+};
+>
+>  # keys test may trigger search AVCs for root's keys
+>  dontaudit testsuite_domain testsuite_caller_domain:key { search };
+> --
+> 2.51.1
 >
 >
-> Yes, I have an SElinux system (RHEL 10.0) and I=E2=80=99m running the dae=
-mon on it.  I want to package policy rules with the daemon, but yes, I also=
- want to confine the daemon to its own context.
->
-> Currently only chronyd or ntpd would talk to it, either by the char devic=
-e it creates, or else the shared memory segment it creates.
-
-Take a look at https://fedoraproject.org/wiki/SELinux/IndependentPolicy
-
-Also given that this is for rpm based distro using fedora-selinux
-policy, selinux@lists.fedoraproject.org might the better place to get a
-help.
-
-Petr
-
