@@ -1,255 +1,156 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from flow-b3-smtp.messagingengine.com (flow-b3-smtp.messagingengine.com [202.12.124.138])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4410631ED6A
-	for <selinux@vger.kernel.org>; Thu, 27 Nov 2025 08:27:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 016D92E88BB;
+	Thu, 27 Nov 2025 11:07:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764232028; cv=none; b=tJ6jCOibzuTzHEsWHdPyPBXK9snYT4VlKe9F/MZ7u2Bqx7v4lAyuc2/MuhWbTiZ5JqNz0myyTsSB+X5BO56wOUGOum08jMscYpzfA8siMTbAVehRR+1Kq3v+uggdliTDmTFFSrHPrrK+AS3RqsS55x4zZp0n6p/PZJpmo1MRL38=
+	t=1764241630; cv=none; b=eNKhoruAcwxBwkoSqXHP5+Y9MT5loYk4IbXYXNrrB8DD/Ew7mU4tnNUUnk6YVdmp+vMs6h35zD34BQMpTaVH35n7ajq62ghxqTP4rc0Hgn+BbAhdTXebnFZO+9RDudp95IUBxzuJ9IBprz2EO9PdtLNnUolFI6fqLHkYJnSNWCk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764232028; c=relaxed/simple;
-	bh=/mUWgxkL9+sCjuwadgrhOcFRWKcOSSnc8D8i2xja2lU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=tvwmJ8xhYxVJx5qR1OUER8UcgBB6sUQIbcLKA2R27QuNdH6G41JTN4ZW8hG0dwAj8zjHfzOqpWVRj7EAWHvehE9qjEmzhMgtPW3bVvTCxxJbUyUzqhAsVNoJznHnE4mRRo0xd6B9He4+KbfUy868v/qCx8Cce30+6Ay02eaE7h0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=oFSbET6+; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=z3DtPwX6; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=yic4SqC5; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=uwrv650K; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	s=arc-20240116; t=1764241630; c=relaxed/simple;
+	bh=HkBd2PnP2K/+bMjcvkK7yrb9pbkDjya1rb823D1Fcag=;
+	h=Content-Type:MIME-Version:From:To:Cc:Subject:In-reply-to:
+	 References:Date:Message-id; b=Y62r2oFl6gOJTPg7c/B8MjQgRCfwneS52K7WzqJET94BbK08H4L+rzGUEPFK58IxpH4/XSP5NULwt2sZq2v/3QK212Y68RwRAJzjFnqtqW6MOzuS06TnX4e+LowU2LvnOnRQhPnGdFLvGUxSlQuyEzutDKpj4sGnwYdwN2GawDM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ownmail.net; spf=pass smtp.mailfrom=ownmail.net; dkim=pass (2048-bit key) header.d=ownmail.net header.i=@ownmail.net header.b=ka/lpb95; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=Ms5xnA/R; arc=none smtp.client-ip=202.12.124.138
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ownmail.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ownmail.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="oFSbET6+";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="z3DtPwX6";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="yic4SqC5";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="uwrv650K"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 5AD665BCD0;
-	Thu, 27 Nov 2025 08:26:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1764232006; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=44PQYSarwQ70kFnpNKxwf8Ea202qaPQUdfXBtkV9La0=;
-	b=oFSbET6+KY7ojFpPIjhYdMUPDPdvHCnBkCKhdVArtUcAyM3ehZPXxHHRdjOVeY+pjAwEvn
-	y3ads3JZvEz2qXBFdoPZOKvth9/BUigvmOm0THMWvdNYsYlMgI5hNHAynKgWxz3+QTW9Bs
-	36N8gFaHLt6imevEqB0i03zn+8kBrzw=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1764232006;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=44PQYSarwQ70kFnpNKxwf8Ea202qaPQUdfXBtkV9La0=;
-	b=z3DtPwX62c/mYydZVrGKBSH26D18EY7YXxlWzLlL7WCcrveHKhF8kgUGggX39IJz2IAz50
-	GMZ91HIvQMcp9KCA==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1764232005; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=44PQYSarwQ70kFnpNKxwf8Ea202qaPQUdfXBtkV9La0=;
-	b=yic4SqC5nhjkLjpBuG3m2+KFXCffDkumGlBmVLYnlXxRCZHabgpuvdpcbGxLys02jg/QS8
-	zpTevFJMHEoCsYAtPCBmRDjwX9Z+upihN0poTx6aRWbixT35SFSNRfJVHa2BLZ/zW6sJx+
-	PkSMDa1FW2kIAL+ayyE6yVTrpm3mF4g=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1764232005;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=44PQYSarwQ70kFnpNKxwf8Ea202qaPQUdfXBtkV9La0=;
-	b=uwrv650Kvrf2cQw4UCdFwIV8NzrGm6akeMgUsJsQ5MbEVWBcmG7TO30ZR7oBNXuu7iJhmG
-	6s1WVf0usjHeO0CQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 23C523EA68;
-	Thu, 27 Nov 2025 08:26:45 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id YJvyB0ULKGmNJgAAD6G6ig
-	(envelope-from <pvorel@suse.cz>); Thu, 27 Nov 2025 08:26:45 +0000
-From: Petr Vorel <pvorel@suse.cz>
-To: ltp@lists.linux.it
-Cc: Petr Vorel <pvorel@suse.cz>,
-	Mimi Zohar <zohar@linux.ibm.com>,
-	linux-integrity@vger.kernel.org,
-	selinux@vger.kernel.org,
-	Cyril Hrubis <chrubis@suse.cz>,
-	Jan Stancek <jstancek@redhat.com>,
-	Li Wang <liwang@redhat.com>
-Subject: [PATCH v3 4/4] ima_conditionals.sh: Split test by request
-Date: Thu, 27 Nov 2025 09:26:38 +0100
-Message-ID: <20251127082638.224110-5-pvorel@suse.cz>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20251127082638.224110-1-pvorel@suse.cz>
-References: <20251127082638.224110-1-pvorel@suse.cz>
+	dkim=pass (2048-bit key) header.d=ownmail.net header.i=@ownmail.net header.b="ka/lpb95";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="Ms5xnA/R"
+Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
+	by mailflow.stl.internal (Postfix) with ESMTP id 3934213002C9;
+	Thu, 27 Nov 2025 06:07:07 -0500 (EST)
+Received: from phl-mailfrontend-02 ([10.202.2.163])
+  by phl-compute-02.internal (MEProxy); Thu, 27 Nov 2025 06:07:08 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ownmail.net; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:reply-to:subject:subject:to:to; s=fm1; t=
+	1764241627; x=1764248827; bh=m686wgdc6rAxQpfWyfWaFqyG5nu4q2ogZY9
+	nkpeW1PE=; b=ka/lpb951xyrUAhG228/mNtM/Zb9CjXuyuVQmzJs0zy6mIUSv+8
+	27XbMO2idf1NWcxigbnwXlZWeQYu0m5gs2qBCAnsvYzXRiNj67BflxygkrwFNewY
+	RkRuep2U5ALdKQFt4+4CCk6GeSyrCxEuikoJ6Y7vUgWzf0PWB7Ol6uoOLjGEml8D
+	pbV+sGvXx+C9HItTFqbNNTyNyBVRU1c36Hv0s4pt/xxL7i9AKq6y91OAH63evckO
+	x0MVXnfZ8/GAxa65+ef/XWPDbgslK04E5CPTk89S9JFHjxAVwn8Lgkczl8skdG74
+	3NOjBt/91SsI4rEGj3HlJ6nhVuNyP3oSQkg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1764241627; x=
+	1764248827; bh=m686wgdc6rAxQpfWyfWaFqyG5nu4q2ogZY9nkpeW1PE=; b=M
+	s5xnA/RELvPaIKfoYDyxpt6wKNPRae1X3vEoeGdovZBw7eEkrADfocpCTCkTGgMb
+	Oq/tBsYlAVe4oEtyD82733pyf7utzAd7zJ3NDbGRKvcRJCUyd2dBrS+wvMUFRaiK
+	dHCdMa9TIOKnrPvlmLY6TfFH+RQcGG3Ul7af7JNqjvTdSkHnDvNeoxOdq7iSL/aG
+	5ocRkgOBWoaCr5x5B3nByaAj4MbPEA70y80ml8PflOjJzqQP3IahZQSGlGVVTMUe
+	wPsBJuQPOJNQcvA55LtVKnZj39egORZlnj2USFqP7PKaIhK43mZosPjVqc8I7HYO
+	hGUyTknRFA43YmpTEpNQA==
+X-ME-Sender: <xms:2TAoaaB11YFlS2f6wd6h4jfbETQ-9-jeye7yhKZX6JXoPrQGDqHWFQ>
+    <xme:2TAoaZmjEiykDgCLVW_GPBdHLx9bIxx1xPG6Jc7S1he2zy3wtswqCvGYQTBopQHz_
+    4Ea5sOCXbqZ6A2DbCQzjZ1kzTzA0t9daZgqib1dj98T-jukeVQ>
+X-ME-Received: <xmr:2TAoaaljHe1k06sSs1PaDKWniCu09rNffC_V-qJcdQDwteiF6ONhtZAqnewfvxbffeJ5qr_iC-UQxi68duzRY0yDbkGir9K5iZL-YTnpepe7>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggddvgeejtdejucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurheptgfgggfhvfevufgjfhffkfhrsehtjeertddttdejnecuhfhrohhmpefpvghilheu
+    rhhofihnuceonhgvihhlsgesohifnhhmrghilhdrnhgvtheqnecuggftrfgrthhtvghrnh
+    epudetfefhudevhedvfeeufedvffekveekgfdtfefggfekheejgefhteeihffggfelnecu
+    vehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepnhgvihhlsg
+    esohifnhhmrghilhdrnhgvthdpnhgspghrtghpthhtohepgedtpdhmohguvgepshhmthhp
+    ohhuthdprhgtphhtthhopehvihhrohesiigvnhhivhdrlhhinhhugidrohhrghdruhhkpd
+    hrtghpthhtohepshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphht
+    thhopehlihhnuhigqdigfhhssehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoh
+    eplhhinhhugidquhhnihhonhhfshesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphht
+    thhopehlihhnuhigqdhsvggtuhhrihhthidqmhhoughulhgvsehvghgvrhdrkhgvrhhnvg
+    hlrdhorhhgpdhrtghpthhtoheplhhinhhugidqnhhfshesvhhgvghrrdhkvghrnhgvlhdr
+    ohhrghdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlh
+    drohhrghdprhgtphhtthhopehlihhnuhigqdhfshguvghvvghlsehvghgvrhdrkhgvrhhn
+    vghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqtghifhhssehvghgvrhdrkhgvrhhnvg
+    hlrdhorhhg
+X-ME-Proxy: <xmx:2TAoaWfmB0ALOniHx1zW9AacCFYVD5fLnqMOL3YO5AlOZ4rz17fYVw>
+    <xmx:2TAoaQw74tDplhDPWvATTSLE4zXp3wG1ArOQZRBzSLzkq2_1ZjALvw>
+    <xmx:2TAoaYv6TFwNcJAzl9venNBL9E0uF7_-JcSW_t1M4YdygybdaNa6Ag>
+    <xmx:2TAoadqjPNS0cVjqyMonmMxrVa_pCcpnpniXDI9BOyRhhfLoHJyRPA>
+    <xmx:2zAoaUfBxXG1RVPgWI2CO0psTGTJvAtu_rsnDw18bmzCEnY1zT9_1teQ>
+Feedback-ID: iab3e480c:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
+ 27 Nov 2025 06:06:55 -0500 (EST)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spamd-Result: default: False [-2.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_CONTAINS_FROM(1.00)[];
-	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	ARC_NA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[ima_keys.sh:url,ima_selinux.sh:url,imap1.dmz-prg2.suse.org:helo,ima_violations.sh:url,suse.cz:mid,suse.cz:email,ima_conditionals.sh:url];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	RCPT_COUNT_SEVEN(0.00)[8];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	TO_DN_SOME(0.00)[];
-	RCVD_TLS_ALL(0.00)[]
-X-Spam-Level: 
-X-Spam-Score: -2.80
-X-Spam-Flag: NO
+From: NeilBrown <neilb@ownmail.net>
+To: "Christian Brauner" <brauner@kernel.org>
+Cc: "Alexander Viro" <viro@zeniv.linux.org.uk>,
+ "Amir Goldstein" <amir73il@gmail.com>, "Jan Kara" <jack@suse.cz>,
+ linux-fsdevel@vger.kernel.org, "Jeff Layton" <jlayton@kernel.org>,
+ "Chris Mason" <clm@fb.com>, "David Sterba" <dsterba@suse.com>,
+ "David Howells" <dhowells@redhat.com>,
+ "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+ "Rafael J. Wysocki" <rafael@kernel.org>,
+ "Danilo Krummrich" <dakr@kernel.org>, "Tyler Hicks" <code@tyhicks.com>,
+ "Miklos Szeredi" <miklos@szeredi.hu>,
+ "Chuck Lever" <chuck.lever@oracle.com>,
+ "Olga Kornievskaia" <okorniev@redhat.com>,
+ "Dai Ngo" <Dai.Ngo@oracle.com>, "Namjae Jeon" <linkinjeon@kernel.org>,
+ "Steve French" <smfrench@gmail.com>,
+ "Sergey Senozhatsky" <senozhatsky@chromium.org>,
+ "Carlos Maiolino" <cem@kernel.org>,
+ "John Johansen" <john.johansen@canonical.com>,
+ "Paul Moore" <paul@paul-moore.com>, "James Morris" <jmorris@namei.org>,
+ "Serge E. Hallyn" <serge@hallyn.com>,
+ "Stephen Smalley" <stephen.smalley.work@gmail.com>,
+ "Ondrej Mosnacek" <omosnace@redhat.com>,
+ "Mateusz Guzik" <mjguzik@gmail.com>,
+ "Lorenzo Stoakes" <lorenzo.stoakes@oracle.com>,
+ "Stefan Berger" <stefanb@linux.ibm.com>,
+ "Darrick J. Wong" <djwong@kernel.org>, linux-kernel@vger.kernel.org,
+ netfs@lists.linux.dev, ecryptfs@vger.kernel.org,
+ linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org,
+ linux-cifs@vger.kernel.org, linux-xfs@vger.kernel.org,
+ linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Subject: Re: [PATCH v6 00/15] Create and use APIs to centralise locking for
+ directory ops
+In-reply-to: <20251114-baden-banknoten-96fb107f79d7@brauner>
+References: <20251113002050.676694-1-neilb@ownmail.net>,
+ <20251114-baden-banknoten-96fb107f79d7@brauner>
+Date: Thu, 27 Nov 2025 22:06:53 +1100
+Message-id: <176424161356.634289.1248496397204103747@noble.neil.brown.name>
+Reply-To: NeilBrown <neil@brown.name>
 
-This helps to run all testcases on systems without CONFIG_IMA_WRITE_POLICY=y
-(disabled by default in mainline, therefore disabled for some distros,
-e.g. openSUSE Tumbleweed), if SUT reboots.
+On Fri, 14 Nov 2025, Christian Brauner wrote:
+> On Thu, Nov 13, 2025 at 11:18:23AM +1100, NeilBrown wrote:
+> > Following is a new version of this series:
+> >  - fixed a bug found by syzbot
+> >  - cleanup suggested by Stephen Smalley
+> >  - added patch for missing updates in smb/server - thanks Jeff Layton
+> 
+> The codeflow right now is very very gnarly in a lot of places which
+> obviously isn't your fault. But start_creating() and end_creating()
+> would very naturally lend themselves to be CLASS() guards.
 
-Signed-off-by: Petr Vorel <pvorel@suse.cz>
----
- runtest/ima                                   |  5 +-
- .../integrity/ima/tests/ima_conditionals.sh   | 67 ++++++++++++-------
- 2 files changed, 46 insertions(+), 26 deletions(-)
+I agree that using guards would be nice.  One of my earlier versions did
+that but Al wants the change to use guards to be separate from other
+changes.  I'll suggest something at some stage if no-one else does it first.
 
-diff --git a/runtest/ima b/runtest/ima
-index 01942eefa3..c8d0c6801e 100644
---- a/runtest/ima
-+++ b/runtest/ima
-@@ -6,5 +6,8 @@ ima_violations ima_violations.sh
- ima_keys ima_keys.sh
- ima_kexec ima_kexec.sh
- ima_selinux ima_selinux.sh
--ima_conditionals ima_conditionals.sh
-+ima_conditionals_uid ima_conditionals.sh -r uid
-+ima_conditionals_fowner ima_conditionals.sh -r fowner
-+ima_conditionals_gid ima_conditionals.sh -r gid
-+ima_conditionals_fgroup ima_conditionals.sh -r fgroup
- evm_overlay evm_overlay.sh
-diff --git a/testcases/kernel/security/integrity/ima/tests/ima_conditionals.sh b/testcases/kernel/security/integrity/ima/tests/ima_conditionals.sh
-index e290dcdaaa..8eed0b6a9d 100755
---- a/testcases/kernel/security/integrity/ima/tests/ima_conditionals.sh
-+++ b/testcases/kernel/security/integrity/ima/tests/ima_conditionals.sh
-@@ -11,35 +11,66 @@
- 
- TST_NEEDS_CMDS="cat chgrp chown"
- TST_SETUP="setup"
--TST_CNT=1
-+TST_OPTS="r:"
-+TST_USAGE="usage"
-+TST_PARSE_ARGS="parse_args"
-+REQUEST="uid"
-+
-+parse_args()
-+{
-+	REQUEST="$2"
-+}
-+
-+usage()
-+{
-+	cat << EOF
-+usage: $0 [-r <uid|fowner|gid|fgroup>]
-+
-+OPTIONS
-+-r	Specify the request to be measured. One of:
-+	uid, fowner, gid, fgroup
-+	Default: uid
-+EOF
-+}
- 
- setup()
- {
-+	case "$REQUEST" in
-+	fgroup|fowner|gid|uid)
-+		tst_res TINFO "request '$REQUEST'"
-+		;;
-+	*) tst_brk TBROK "Invalid -r '$REQUEST', use: -r <uid|fowner|gid|fgroup>";;
-+	esac
-+
- 	if check_need_signed_policy; then
- 		tst_brk TCONF "policy have to be signed"
- 	fi
- }
- 
--verify_measurement()
-+test()
- {
-+	# needs to be checked each run (not in setup)
-+	require_policy_writable
-+
- 	local request="$1"
--	local user="nobody"
- 	local test_file="$PWD/test.txt"
- 	local cmd="cat $test_file > /dev/null"
--
- 	local value="$TST_USR_UID"
--	[ "$request" = 'gid' -o "$request" = 'fgroup' ] && value="$TST_USR_GID"
- 
--	# needs to be checked each run (not in setup)
--	require_policy_writable
-+	if [ "$REQUEST" = 'gid' -o "$REQUEST" = 'fgroup' ]; then
-+		if tst_kvcmp -lt 5.16; then
-+			tst_brk TCONF "gid and fgroup options require kernel 5.16 or newer"
-+		fi
-+		value="$TST_USR_GID"
-+	fi
- 
- 	ROD rm -f $test_file
- 
--	tst_res TINFO "verify measuring user files when requested via $request"
--	ROD echo "measure $request=$value" \> $IMA_POLICY
--	ROD echo "$(cat /proc/uptime) $request test" \> $test_file
-+	tst_res TINFO "verify measuring user files when requested via $REQUEST"
-+	ROD echo "measure $REQUEST=$value" \> $IMA_POLICY
-+	ROD echo "$(cat /proc/uptime) $REQUEST test" \> $test_file
- 
--	case "$request" in
-+	case "$REQUEST" in
- 	fgroup)
- 		chgrp $TST_USR_GID $test_file
- 		sh -c "$cmd"
-@@ -49,24 +80,10 @@ verify_measurement()
- 		sh -c "$cmd"
- 		;;
- 	gid|uid) tst_sudo sh -c "$cmd";;
--	*) tst_brk TBROK "Invalid res type '$1'";;
- 	esac
- 
- 	ima_check $test_file
- }
- 
--test1()
--{
--	verify_measurement uid
--	verify_measurement fowner
--
--	if tst_kvcmp -lt 5.16; then
--		tst_brk TCONF "gid and fgroup options require kernel 5.16 or newer"
--	fi
--
--	verify_measurement gid
--	verify_measurement fgroup
--}
--
- . ima_setup.sh
- tst_run
--- 
-2.51.0
+> 
+> Unrelated: I'm very inclined to slap a patch on top that renames
+> start_creating()/end_creating() and start_dirop()/end_dirop() to
+> vfs_start_creating()/vfs_end_creating() and
+> vfs_start_dirop()/vfs_end_dirop(). After all they are VFS level
+> maintained helpers and I try to be consistent with the naming in the
+> codebase making it very easy to grep.
+> 
+
+I don't object to adding a vfs_ prefix.
+(What would be really nice is of the vfs_ code was in a separate vfs/
+directory, but that is probably too intrusive to be worth it).
+
+Thanks,
+NeilBrown
 
