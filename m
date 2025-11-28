@@ -1,101 +1,86 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from mail-dy1-f177.google.com (mail-dy1-f177.google.com [74.125.82.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2091264FB5
-	for <selinux@vger.kernel.org>; Thu, 27 Nov 2025 12:55:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1367E1391
+	for <selinux@vger.kernel.org>; Fri, 28 Nov 2025 19:06:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764248111; cv=none; b=hAKjWJrS1k+fJfwWXGqCm1zltghfYa2LFVEMvP6VIC5BASiqHbtRobd/TAEII3xOpn6uqPIqFMsTmajAuOAo0/niZs10A76FnbozTz4qzzlThQZFQPno13/ZT2KX8JqnBuAewKzBSzgWpuPDp4lPAL2U4oC/ExfCkfNnv35nw/8=
+	t=1764356791; cv=none; b=DfYSU1AY/oCc79+w0luG4B3HI7CQ2AYgEuXGn47AshNgc1xMtrdG8mA0wQ12UU6Kh3hN0f06XBEPM7Z/H1V2V5/4TUGEVJuWKCKMl6O8BaCqJDYomv/eK0/a3fUxGDd/0rsLeu5fwsY26WLGePrkt/eSo8RfNvK58nHD1GXoxNw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764248111; c=relaxed/simple;
-	bh=zbmfSpFgRw2gM8+xB+rL8zx6dxucISc4kqDXFSvPP90=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Ek96U4xWireEc1cZQHhj1tMGp3JE9f/YcLACEtBNAZeKPRujZffDSLS1TI4E6YLXeKWxyqQXMKh1kzXAyZ68/Ibfx0WY3jxvSEX3noft0CpLoKqlGHC/ZK/KNZSSAt/twzU2cJWkhJJdpiPYNsogQ1LC1TYvJdhCQBZHEDPAr3Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 04FAE336A2;
-	Thu, 27 Nov 2025 12:55:08 +0000 (UTC)
-Authentication-Results: smtp-out1.suse.de;
-	none
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C06963EA63;
-	Thu, 27 Nov 2025 12:55:07 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id J+vdLStKKGlyLgAAD6G6ig
-	(envelope-from <pvorel@suse.cz>); Thu, 27 Nov 2025 12:55:07 +0000
-Date: Thu, 27 Nov 2025 13:55:06 +0100
-From: Petr Vorel <pvorel@suse.cz>
-To: Li Wang <liwang@redhat.com>
-Cc: ltp@lists.linux.it, Mimi Zohar <zohar@linux.ibm.com>,
-	linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-	Cyril Hrubis <chrubis@suse.cz>, Jan Stancek <jstancek@redhat.com>
-Subject: Re: [PATCH v3 1/4] shell: Add tst_sudo.c helper
-Message-ID: <20251127125506.GA244936@pevik>
-Reply-To: Petr Vorel <pvorel@suse.cz>
-References: <20251127082638.224110-1-pvorel@suse.cz>
- <20251127082638.224110-2-pvorel@suse.cz>
- <CAEemH2cUYekSphFW_uj2w1FzYt3RWXDDnhmQ5TFAyr0T3HFxow@mail.gmail.com>
- <CAEemH2e6ivP0rzfTBp5LnZ8n-oe7moqfHszgs2QyYVMUTUQ_wQ@mail.gmail.com>
+	s=arc-20240116; t=1764356791; c=relaxed/simple;
+	bh=lu52N/2VGNuNTTK3803qHK8MwtTQZ8QRDSD6H516Txc=;
+	h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=FpptLX8gpG4YfFyAiw7b9Uh08mdoTtSWqPGNPWuu8oc4qzWVuekFnp+qlu8fNuF2waZZOQBOX+UhRR33oR8LU7jJfxcUrje/dtHfDI+iQrseBJ/BwhdLtpK5r/HqM0itUttoRtjMJ3N2cx5jbcgS2tP9shCgd/XKWJ8zKOBerN4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=perfinion.com; spf=none smtp.mailfrom=perfinion.com; dkim=pass (2048-bit key) header.d=perfinion-com.20230601.gappssmtp.com header.i=@perfinion-com.20230601.gappssmtp.com header.b=hqzx7dkw; arc=none smtp.client-ip=74.125.82.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=perfinion.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=perfinion.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=perfinion-com.20230601.gappssmtp.com header.i=@perfinion-com.20230601.gappssmtp.com header.b="hqzx7dkw"
+Received: by mail-dy1-f177.google.com with SMTP id 5a478bee46e88-2a45877bd5eso4331524eec.0
+        for <selinux@vger.kernel.org>; Fri, 28 Nov 2025 11:06:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=perfinion-com.20230601.gappssmtp.com; s=20230601; t=1764356781; x=1764961581; darn=vger.kernel.org;
+        h=content-disposition:mime-version:message-id:subject:to:from:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=lu52N/2VGNuNTTK3803qHK8MwtTQZ8QRDSD6H516Txc=;
+        b=hqzx7dkweMkVODh7W5yIPajSdnmL/fIUDD8vts6BDEfJ+tM5w/EVYOkrV1qJmKZ13J
+         L5HGylNE/gJ1+RLKx2YWS36pPgf22d6zZgFLODO9T+3/T4WnKXJNkU6LASmshJZOq4zG
+         pGJP9OaqQoqN65V9fwxdUBAVw3AwKvQCEeB2yB3iQ1HXMMu/xvdYsYvCFrNmROHWVIe6
+         suQezkAlFGZDnwLRs8vmYsseM4IWbmXV8f6sBE+SIN/o5CorP71gnx68Zy2LcRWzql64
+         5BMIsPTwiAwktsyZwOpFu/wHF6T4ILfpxgXkD4KsXIJBdGdQRkOXmQbgoVGQp6znTvV8
+         2c1Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1764356781; x=1764961581;
+        h=content-disposition:mime-version:message-id:subject:to:from:date
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=lu52N/2VGNuNTTK3803qHK8MwtTQZ8QRDSD6H516Txc=;
+        b=qsZsymG8VEnOw7Hdpiy86Z0rC+04W4h8NLipdrHVAXl55aa50Om3VdebyQzlSRY7nJ
+         YTvwa/NrmX2iIk+yNTbhFtrIhCSlK+l4cpbVcJhlY3p0e7/D89ZyCTbxSwipn1BMd3wo
+         tPw5naEF3Vodv/Ck7oVZlVl53suj/BPZ+tWhFKC1QKmZRXs7brD0RoKGj18uCMH+Z1If
+         YLsGbaA4RttR2Zrv4eKVibS2SIdDwbYlpqjx0fS7ROuZ67TJj6brWz+bJo4Ig1w7us++
+         Sst4iyT1/XO98A6D/eBKzCncqtZUlF3MKViLEyytjhizd/q6lOX2azXp3vTP1mnk75do
+         7Ycw==
+X-Gm-Message-State: AOJu0YxiSiOQY1tElBa/iA0Nse8e3WoRChfR8zWnv6a0IRlrcBVSHbfo
+	pxMXHLZYOJcCVymle1te68QHGNnJaviGOoe7LpToR0RFe8Nt4Aykk5hMg1H/DBAImduNA3hmOKB
+	aKVwI
+X-Gm-Gg: ASbGnctTyFOeqi03E972j9YUyM9tEUnabkPYk8yzfKVEprXdbpJpRGeIacW6ldSETjc
+	drz3QcPSPwvHlXZPvE+NBqDDUJGkNQbSstBpYZlYkXEKP4ih13AY4EYQoCp9+IJbvQGVCJTJDu4
+	1W3uzhXN7USFmXwmafMB5idwVqKChCbN2e4IT4daHaQgG80CiP23cICyGSWdAeUEg/nUOF8Fm+Q
+	6VLkIG2gQ4XVb0b4hAu8ue4WFhoZfnRXvPHLyviQh5pLQ0yUoJmufvUOnLFzlC8lo92tWCdECwQ
+	EuBstXtc3qULOTRhWplBvKKjOKX6tXaKGq1vr+y1kfcYFotJNOvW3GO5wF2LifbVWL3s+o/NjRX
+	paFLkabAPt8BKWBaI+5FOrkmIKQpPlEoX38zTDiE5Wkkf2b7f97GpSlV9VDev06yUvLviL4maXo
+	STRuAOiAYLUQ==
+X-Google-Smtp-Source: AGHT+IHZIVhEjS8nWXmfoA2NufHaqCqCn3ieJYVdiD9895z/ayyjZQqgMgmosANxi0cfOdXNkZHkoA==
+X-Received: by 2002:a05:7300:de05:b0:2a4:7337:e9ad with SMTP id 5a478bee46e88-2a6ff52f777mr14722144eec.3.1764356780695;
+        Fri, 28 Nov 2025 11:06:20 -0800 (PST)
+Received: from localhost ([2001:5a8:4c64:f300:f1a4:fa58:d2e6:f0b9])
+        by smtp.gmail.com with UTF8SMTPSA id 5a478bee46e88-2a9655ceb04sm17776451eec.1.2025.11.28.11.06.18
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 28 Nov 2025 11:06:18 -0800 (PST)
+Date: Fri, 28 Nov 2025 11:06:17 -0800
+From: Jason Zaman <jason@perfinion.com>
+To: selinux@vger.kernel.org
+Subject: Intent to release SELinux Userspace 3.10-rc1
+Message-ID: <aSnyqWpGJfhn9RYS@anduin.perfinion.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAEemH2e6ivP0rzfTBp5LnZ8n-oe7moqfHszgs2QyYVMUTUQ_wQ@mail.gmail.com>
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Spam-Flag: NO
-X-Spam-Score: -4.00
-X-Spam-Level: 
-X-Spamd-Result: default: False [-4.00 / 50.00];
-	REPLY(-4.00)[]
-X-Rspamd-Queue-Id: 04FAE336A2
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
 
-> On Thu, Nov 27, 2025 at 7:57 PM Li Wang <liwang@redhat.com> wrote:
+Hi All,
 
-> > Hi Petr,
+Just a quick note that we'll be working towards the next SELinux
+userspace release. This one will be 3.10. I'll make the RC1 release in
+about 2 weeks then there will be a bit of a break over the winter
+holidays and in the new year will hopefully make more RC's every 2
+weeks. If things go similarly to prior releases, that should hopefully
+put the final 3.10 release around early Feb.
 
-> > I feel that the filename tst_sudo.c is a bit misleading. The helper
-> > doesn’t
-> > replicate sudo behavior (authentication, privilege escalation), it simply
-> > drops from root to a fixed UID/GID before executing a command.
-
-> > So readers may expect a “sudo-like” elevation wrapper when, however
-> > it’s a privilege-dropping trampoline.
-
-Thanks, makes sense.
-
-> > What about renaming it to:
-> >   tst_runas.c,
-> >   tst_runas_nobody.c, or
-> >   tst_drop_privs.c?
-
-> Personally, I prefer the tst_runas_nody.c because it reflects the
-> default privilege,
-> but due it supports the more env so contains "su" maybe better:
->   tst_su_switch.c, tst_su_cmd.c
-
-I'd be ok with tst_su.c, but sure tst_su_cmd.c is ok as well.
-I'll wait little longer for feedback from others.
-
-Kind regards,
-Petr
+With Kind Regards,
+Jason
