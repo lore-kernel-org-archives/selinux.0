@@ -1,157 +1,121 @@
-Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com [209.85.222.171])
+Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F1F11A0BD6
-	for <selinux@vger.kernel.org>; Tue,  2 Dec 2025 02:00:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15797254B18
+	for <selinux@vger.kernel.org>; Tue,  2 Dec 2025 08:46:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764640847; cv=none; b=hWgPE6idwnDs3UNdhBsYVRTAZJQp739DWFlpw6ffa8XFTmmEZK8X39D7i69Kt2yfIpyD1fWGIBJa4zo98HTw6wqwYD3L9DqsM+3OoqjY6kM6NuUgD+uwg4EcAX1LCoGzOwiUnoeuqM6UMIqjHBzW1W1l5FDsq2MO1XEkLChw3rE=
+	t=1764665216; cv=none; b=CaSC6sauXHV2a2rr9ur8nH9DSTpQ2Ed8XOcYGuP+Xc/46GaE3+umB4cN3XDT4V9V1xUwg8MjmSk2Qhtn+6HGOOao10/FxNLdE55Q7hvRKsFhQcWOJaXZJc/hpK9Hynu7JsNKIz0YD2FTWCMx2vnc9Aw5HbxulCBuLXgdwj/BRhM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764640847; c=relaxed/simple;
-	bh=jIor6HZfBVDSpqYaaFhDlLF+FN2tt3dPpZB/qWbN1Dk=;
-	h=Date:Message-ID:From:To:Cc:Subject; b=Aj94scf5BfxsMrKd6BvHddYGy9gPUN9KqyaxzWSzK1DgVHWHFfqLMZKkrMDf8Ef5jMoHSTzgsbCNKEeAqeQY0j99cAvqTqDptv8f8uYXfe72LY+xUFR78QNiNlSppfwuO59R0fXaN9I+iDqcVqAVvo1lA6sBicNv6SCRHsR3f7I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=WEYmaHnX; arc=none smtp.client-ip=209.85.222.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1764665216; c=relaxed/simple;
+	bh=qcpxFQirLzafdSnNIq92XhuOn+HzWCu4AcZ2SW0UjqI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=t4BtovtT16OSWETXotPi2ZIS7lixpGiMSlwqLsp45WyqcvfhSweKr0cXqz/Cw49yQshYAhueM5Sx6N9flD6dD+ko2corIGOYQTfwtqL2WY5sBA95x8LXUY82BF81FL13uTKJaSWyp8AKD4J+jGSR8lpj0vlGHPZQ8WnFL/MQx4M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu; spf=pass smtp.mailfrom=szeredi.hu; dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b=bbbrFs6+; arc=none smtp.client-ip=209.85.160.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=szeredi.hu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="WEYmaHnX"
-Received: by mail-qk1-f171.google.com with SMTP id af79cd13be357-8b2d56eaaceso476789085a.0
-        for <selinux@vger.kernel.org>; Mon, 01 Dec 2025 18:00:45 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="bbbrFs6+"
+Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-4ee0ce50b95so53517181cf.0
+        for <selinux@vger.kernel.org>; Tue, 02 Dec 2025 00:46:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1764640844; x=1765245644; darn=vger.kernel.org;
-        h=subject:cc:to:from:message-id:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Ah3Feu6sAO09lbeHSVtb4lWfsmSbB0P6fly/Y481iLs=;
-        b=WEYmaHnXEra8N0eFhIVkq5f2/wIRmtdI/FontWN8JLkOcFafGgY6wi0zHDht9sGQB8
-         +jDkscY3fI+Q3s+EP6a+2s3hi+uPGOVEx3Ryfu5R38OPtTUlHmSN98FYtVdhDwgA6Z+n
-         DvCtnnERjvJeFKhHszRiSs3fXCkePzQGoyhP4ulA/qzw/eZFfqgMGd58ZpZ/+VqKDaGr
-         ejThqNAwbaVo2Aocsd6U6tASHAoxk81TqvBFrLB5EKFy/Vlg0kZw3B3ZDKhTRR2Ll2it
-         iHdRsG5M1xzRF26gvrWWbVYxfkAUu2idj7heFqn23HFGu6vJtl7HWZL7Yw7V0vu51A/d
-         N47w==
+        d=szeredi.hu; s=google; t=1764665213; x=1765270013; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=dxvySic7ZCI3Kve7CCt8lN1Lme0d3OPvrFfTikR164w=;
+        b=bbbrFs6+5vw0v4zASrPuLyid+iafPWKvHeYf/XOZ4RlTfrAcYHZVAdk6e+pk3VUvT5
+         48D6eTBCgo/3krpFsqeWdnF8GCD9YaUPsH9bnVDmtOnvHdlmeiRQ7K1+nPucKysf1DKV
+         mmqSSKGrjMO7aaGrUT4vdZIAqeiNk+895+LjE=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764640844; x=1765245644;
-        h=subject:cc:to:from:message-id:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=Ah3Feu6sAO09lbeHSVtb4lWfsmSbB0P6fly/Y481iLs=;
-        b=BihELRJxMmgikdjK7Qdf46JjqTxlXWfORku7udu9/9EFhGkUUvT9RobS+WMqp9c+9H
-         0oGIb81PnHcRS2Nuzk3h5pCvloOFUxkxyY0uIIGWTgyLDlx7WpeynAUtN95c1KLx+hd8
-         5TQ8zFPwrkPiqfeWE1jWtnHnyFGfCDkIa0Uf45JlrbRYidual4/7oWuZZEB2P9wHMExr
-         ntWIIfZn4l85p6IaGFyly8zPlDHIQczxJLYPq183hzhgUC/Gj2eHC+3IB6Ee96PUFN4W
-         DqhtQZfmOaI/ZG8kzX3LtqrnTwT5uMumjKrqG1UH/JaLQ3opdn07YeKSs/zxBWiEzJTH
-         Xh9w==
-X-Gm-Message-State: AOJu0YwGLPvgtYpwTucH8JWLPymSg2J5cWfzfsw/ZCdMU5Cd5M9DvbZj
-	CZsHE3M2WJUOOxq4AvZWqaN23Ym/wp7u3DwZxSlzpgAjiFmdyblFRdPPXg0CuAQbvKtOFEsD0+9
-	YS+Y=
-X-Gm-Gg: ASbGncu3B5ZjFPzpUWqr1icbxMgJGHWv2oWW2Rn4HjjXS7LumV8AmQab3NYi9+qZq0+
-	RuSzwFVIBI3UO3VSLTa+GKSiMYkZdDRCU96qGM0AFpav2652eBvPM+BghLPvxvv61dkz1Rl+ix4
-	1kkYaClRX8ztAdjd8qOEfGdg+fc3fJdtTp7DVf1UPIILCGRhQRIL/s7qqqV5Zxgs+VoIQo9rBGd
-	p1IKLOyVCWxPOhPABGgZrRXdXnk1Did47Auw8ynQKCc9dHwLF/1quPwsMsmpGeQkJEFfLieOSqf
-	U4Jt0IJdsJu4Rpw6RYNR9SUp4S5qKpCe91YvM7F5DEOkqDP0yyTsOUkdJzhMp9a94Un4XNlPTnv
-	AIR9meGTjWmZPBTfRDjkljcFlNgKo0te63Odcpi9e7RgQH2wR41OnQ4t64b1Riv/s+QnIR6uBdD
-	WBPIAMgiS0VfvBfA3jLUV4wV6FHsV8SroLfSuwaZXRLD1CBSR5S7Y0BtZM
-X-Google-Smtp-Source: AGHT+IEwvuzceuk/POjZI3s8E+Cqj8tznNYRNViaB0HVGSt9OUapuyEOJ6ghH8dfJwYlFthpdc9RXA==
-X-Received: by 2002:a05:620a:4141:b0:89e:99b3:2eaa with SMTP id af79cd13be357-8b33d1b24a4mr5849567985a.8.1764640843938;
-        Mon, 01 Dec 2025 18:00:43 -0800 (PST)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-886524e1609sm94731756d6.17.2025.12.01.18.00.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Dec 2025 18:00:43 -0800 (PST)
-Date: Mon, 01 Dec 2025 21:00:42 -0500
-Message-ID: <c48b683b30a44eb12a0ff032876386fd@paul-moore.com>
-From: Paul Moore <paul@paul-moore.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: selinux@vger.kernel.org, linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [GIT PULL] selinux/selinux-pr-20251201
+        d=1e100.net; s=20230601; t=1764665213; x=1765270013;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=dxvySic7ZCI3Kve7CCt8lN1Lme0d3OPvrFfTikR164w=;
+        b=VaVDvoiDMDCN6EPlUdGE+oPz62YN1pv2enJCjTMqOTPZQQT9MYO61W2651xVuUKGiA
+         DlGlaqG3NpIEKbn7WNKYQk41Kh44gTgnrsYlEbN0cpi5X1tL1O5jI+M1h5H12i3BUdVq
+         E1LtQXXe2trVS51n5CblouW0NOsLM7zgidtLBvK2UOALDNxljt3UOCTEtbPO7EUeqkZX
+         UVYlFefTlZ4xm/bEKJYI+s5KVKFfAn0XkupOtdwfBd5bPlyMcLRgDVfiYS9xuAhgm8vO
+         d4zyT0DslLF92D14zYDRbHsdy/tCfONwYt9GdTVN/fA5KJwqJDKyrb38DNV8VFIzlCYM
+         qfVg==
+X-Forwarded-Encrypted: i=1; AJvYcCU9OpLIGl0qHbjRgYgJzlDsLElNUOks10SaWDnb8cW6AWVpi09MEknPS0Fbm7ck4pdsENZKT6dt@vger.kernel.org
+X-Gm-Message-State: AOJu0YzFGMIn5YLru4Uar8nCQKs1VzcidoRPXsk2cauSed+3wAjOdCCT
+	TYU736x+5iEz+8KzKKri+LQ5l0yDGasxnpyz0zXNKMM+zbqsuJ9HfiVbOV9c9O5gk/1CT4Q5ClG
+	RBERX4SLA2ylL4prc7D0UrqoTFWnQZlc0CmOshKYWEw==
+X-Gm-Gg: ASbGncvOoKTPEO/q1T49wgNI6BiOyxQ8nRQaA7bcf5Py10khpnIZW454/EhgERg6wpD
+	Tin+yf/izVi8ciVPAm9Wiw4/dpdByH3M10o0MDUhmSN34dwPqrw4HDypLO6leFBrhz7MTxfLD4q
+	mMfMsSeyNIX7yDqGSeJgTODlJiD5DweRpQ4JnAT5g36mnPmMv1/bKXp98Vcs7x+pCuQAIQH0SGC
+	mIg0EoLDn8E4I8glVTQACEHlPiIKvK8csOZqC29V9GWq51jCndjTuYddPNAAxTBjc6B3w==
+X-Google-Smtp-Source: AGHT+IEmdgKRfEJt7lhW9JewHKYA/V5LXGRt+5HoCO1i6voev0VJmL65LKUm+BLjfUqBCpppRBhIODxs9MlwVlA6duw=
+X-Received: by 2002:ac8:7dc2:0:b0:4ee:1f69:fdeb with SMTP id
+ d75a77b69052e-4f0088dcc91mr26981181cf.11.1764665212783; Tue, 02 Dec 2025
+ 00:46:52 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20251113002050.676694-1-neilb@ownmail.net> <20251113002050.676694-7-neilb@ownmail.net>
+ <6713ea38-b583-4c86-b74a-bea55652851d@packett.cool> <176454037897.634289.3566631742434963788@noble.neil.brown.name>
+ <CAOQ4uxjihcBxJzckbJis8hGcWO61QKhiqeGH+hDkTUkDhu23Ww@mail.gmail.com>
+ <20251201083324.GA3538@ZenIV> <CAJfpegs+o01jgY76WsGnk9j41LS5V0JQSk--d6xsJJp4VjTh8Q@mail.gmail.com>
+ <20251201170813.GH3538@ZenIV>
+In-Reply-To: <20251201170813.GH3538@ZenIV>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 2 Dec 2025 09:46:41 +0100
+X-Gm-Features: AWmQ_blWv82I_AJ0z54S1o3oAiX82VQ2RDfse7yanE0u3ZklpA9ZzlQdeqtb1vo
+Message-ID: <CAJfpegtJDJL7T0-Uj664xOm4N2e6fyJp_XwFecHX_9e9ipUyEw@mail.gmail.com>
+Subject: Re: [PATCH] fuse: fix conversion of fuse_reverse_inval_entry() to start_removing()
+To: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Amir Goldstein <amir73il@gmail.com>, NeilBrown <neil@brown.name>, 
+	Christian Brauner <brauner@kernel.org>, Val Packett <val@packett.cool>, Jan Kara <jack@suse.cz>, 
+	linux-fsdevel@vger.kernel.org, Jeff Layton <jlayton@kernel.org>, 
+	Chris Mason <clm@fb.com>, David Sterba <dsterba@suse.com>, David Howells <dhowells@redhat.com>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
+	Danilo Krummrich <dakr@kernel.org>, Tyler Hicks <code@tyhicks.com>, Chuck Lever <chuck.lever@oracle.com>, 
+	Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo <Dai.Ngo@oracle.com>, 
+	Namjae Jeon <linkinjeon@kernel.org>, Steve French <smfrench@gmail.com>, 
+	Sergey Senozhatsky <senozhatsky@chromium.org>, Carlos Maiolino <cem@kernel.org>, 
+	John Johansen <john.johansen@canonical.com>, Paul Moore <paul@paul-moore.com>, 
+	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	Mateusz Guzik <mjguzik@gmail.com>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, 
+	Stefan Berger <stefanb@linux.ibm.com>, "Darrick J. Wong" <djwong@kernel.org>, linux-kernel@vger.kernel.org, 
+	netfs@lists.linux.dev, ecryptfs@vger.kernel.org, linux-nfs@vger.kernel.org, 
+	linux-unionfs@vger.kernel.org, linux-cifs@vger.kernel.org, 
+	linux-xfs@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Linus,
+On Mon, 1 Dec 2025 at 18:08, Al Viro <viro@zeniv.linux.org.uk> wrote:
 
-A handful of SELinux changes for v6.19, the summary is below, but I
-wanted to call out a merge conflict caused by the recent task/cred
-changes sent up during the v6.18-rcX cycle.  The conflict does require
-some manual intervention to resolve, but it is limited to changing
-the "SECCLASS_FILE" parameter in two avc_has_perm() calls to
-"isec->sclass" in selinux_bprm_creds_for_exec().  The
-selinux-pr-20251201.merge tag contains an example fixup of the merge
-conflict.
+> Then as far as VFS is concerned, it's an equivalent of "we'd done
+> a dcache lookup and revalidate told us to bugger off", which does
+> *not* need locking the parent - the same sequence can very well
+> happen without touching any inode locks.
 
-Here is the pull request summary:
+Okay.
 
-- Improve the granularity of SELinux labeling for memfd files
+> IOW, from the point of view of locking protocol changes that's not
+> a removal at all.
+>
+> Or do you need them serialized for fuse-internal purposes?
 
-  Currently when creating a memfd file, SELinux treats it the same as
-  any other tmpfs, or hugetlbfs, file.  While simple, the drawback is
-  that it is not possible to differentiate between memfd and tmpfs
-  files.  This pull request adds a call to the
-  security_inode_init_security_anon() LSM hook and wires up SELinux to
-  provide a set of memfd specific access controls, including the ability
-  to control the execution of memfds.
-  
-  As usual, the commit message has more information.
+Not as far as I can see. As to any fuse filesystem being reliant on
+this behavior, I think that's unlikely, though it's sort of documented
+in the libfuse APIs as:
 
-- Improve the SELinux AVC lookup performance
+ * To avoid a deadlock this function must not be called in the
+ * execution path of a related filesystem operation or within any code
+ * that could hold a lock that could be needed to execute such an
+ * operation. As of kernel 4.18, a "related operation" is a lookup(),
+ * symlink(), mknod(), mkdir(), unlink(), rename(), link() or create()
+ * request for the parent, and a setattr(), unlink(), rmdir(),
+ * rename(), setxattr(), removexattr(), readdir() or readdirplus()
+ * request for the inode itself.
 
-  Adopt the MurmurHash3 for the SELinux AVC hash function instead of
-  the custom hash function currently used.  MurmurHash3 is already
-  used for the SELinux access vector table so the impact to the code
-  is minimal, and performance tests have shown improvements in both
-  hash distribution and latency.
-  
-  See the commit message for the performance measurments.
+Why the locking was added in the first place?  Oversight, probably.
 
-- Introduce a Kconfig option for the SELinux AVC bucket/slot size
-
-  While we have the ability to grow the number of AVC hash buckets
-  today, the size of the buckets (slot size) is fixed at 512.  This
-  pull request makes that slot size configurable at build time through
-  a new Kconfig knob, CONFIG_SECURITY_SELINUX_AVC_HASH_BITS.
-
-Paul
-
---
-The following changes since commit 211ddde0823f1442e4ad052a2f30f050145ccada:
-
-  Linux 6.18-rc2 (2025-10-19 15:19:16 -1000)
-
-are available in the Git repository at:
-
-  https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
-    tags/selinux-pr-20251201
-
-for you to fetch changes up to 20d387d7ceab95aade436c363927b3ab81b0be36:
-
-  selinux: improve bucket distribution uniformity of avc_hash()
-    (2025-10-23 18:24:30 -0400)
-
-----------------------------------------------------------------
-selinux/stable-6.19 PR 20251201
-----------------------------------------------------------------
-
-Hongru Zhang (3):
-      selinux: Introduce a new config to make avc cache slot size
-         adjustable
-      selinux: Move avtab_hash() to a shared location for future reuse
-      selinux: improve bucket distribution uniformity of avc_hash()
-
-Thiébaud Weksteen (1):
-      memfd,selinux: call security_inode_init_security_anon()
-
- include/linux/memfd.h                      |    2 
- mm/memfd.c                                 |   14 +++++-
- security/selinux/Kconfig                   |   11 ++++
- security/selinux/avc.c                     |    9 ++--
- security/selinux/hooks.c                   |   26 +++++++++--
- security/selinux/include/classmap.h        |    2 
- security/selinux/include/hash.h            |   47 +++++++++++++++++++++
- security/selinux/include/policycap.h       |    1 
- security/selinux/include/policycap_names.h |    1 
- security/selinux/include/security.h        |    5 ++
- security/selinux/ss/avtab.c                |   39 +----------------
- 11 files changed, 110 insertions(+), 47 deletions(-)
-
---
-paul-moore.com
+Thanks,
+Miklos
