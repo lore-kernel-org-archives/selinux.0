@@ -1,69 +1,69 @@
-Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
+Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC7C23A1CEF
-	for <selinux@vger.kernel.org>; Wed,  3 Dec 2025 16:32:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFCC7376BEA
+	for <selinux@vger.kernel.org>; Wed,  3 Dec 2025 16:32:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764779554; cv=none; b=CLTeRghx8H9gtmBVBvw9X7IdgrJNZ8SThtuLxf4TskLvqJt6wkI+1Xu4udAY3YvxN1ax7ojEzWqNpUm374e+ENfhVepouUt5YaKstwnJRrMa+hHSzFCKy8Z406OXdv1odUZq/jDJiRboEUqt6xaERsXCIYD9xYSkEttayVXV9Jc=
+	t=1764779555; cv=none; b=SKmK1SHA5Mg2VvfJAYHnlMX2fZUsdwn1Bcy1k/+z8Vaeh4xR8G43sMvqC/oM8HakRcoGWmZnexRcv8KRi5SyIjmIt8bFpdQK3dlPE/68Mpeu0Z36/omSAzYJSZ5PlTxD8BGNg9yIfU+r1lY/pehGCL/sulqFBC1TUdQ80sxVBx8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764779554; c=relaxed/simple;
-	bh=YMEiYhCjNzBqNaY/banzdZa0AOu0zf9bxkC3vUC5Uis=;
+	s=arc-20240116; t=1764779555; c=relaxed/simple;
+	bh=lfgoLC8OCFWUCTwOdmZgk7/vfRTMwXZNdLqgAsYI1FU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=LdTBOFEG/GW/Yzlc1o7ZIbJEsX7PWgTCmxJ18vX7NueJ1BCrd2uzCknObsJPgh1RppdMYsDy6ZxKesEdvrCNmnRcVCSnCLgDBOOIGsI6gOLDvYslmubWcFZ5DLWAL91fe+V1vb5d3RdIZlEC/m2PVDbrh/XwOWwQo8x+LxAz72k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XsesCt6V; arc=none smtp.client-ip=209.85.222.179
+	 MIME-Version; b=TWmRadNWGxFvyafJZFRd0tHDaH+Dyr91zjy+6M2PAO6TnE891SfiFk555xtdCuziTFGg0NF4ZpmO4c8jtOQXtmQgQitedIPGMF907onM9XED/Wj+fmLtXJ5/YTF6ZZzQnYOt2jAkVf2dr8G4o85fw2qzMpacP8uGlefTFGKM21M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jSFHQUNU; arc=none smtp.client-ip=209.85.222.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XsesCt6V"
-Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-8b21fc25ae1so658601785a.1
-        for <selinux@vger.kernel.org>; Wed, 03 Dec 2025 08:32:32 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jSFHQUNU"
+Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-8b2ea2b9631so644476785a.3
+        for <selinux@vger.kernel.org>; Wed, 03 Dec 2025 08:32:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1764779551; x=1765384351; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1764779552; x=1765384352; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=amQAODbbqlbUJt3HX5X1LyF+s3TCIELjpcRP5NTe0rU=;
-        b=XsesCt6VmrCMFCPhCXa5aOH6Jug92RqS/4Mpzr+nDtyo/v0f/Z1ifIvFBXFKZDOxPd
-         LkAQ7OthtmfAtSlCIhZ+1JO3dzuzB4dUU3c7ij5ceIwZX4LIDxZk/zN36yLTn4/ZEnRu
-         upWHpwbhXJN1EGJ991ZH4aR38z3m9NTgg2w02ZUDMfmYidK0E2LT4E07qW+CQ0+Fw5Cw
-         6P6t9LVNWnNqRT1vG40uXaW2Ro4tUQ6G4a153gQrhzQfl26WVg5+cghdfbdlSstnKlRK
-         58eB6fhr3wdD29HxFqARqIzlbn09aY2Q2UHun89kUTIuadqTOtfI0ov9U3RGP9+flcPr
-         q7Vg==
+        bh=He8D/sVmP+FmPUg2OENU5aQI0DL/WudiU372xQUBgtY=;
+        b=jSFHQUNUbzS0dlzj97DcLLX23mD9Q427ANCWKd+rKLmv8mVLrCI/hRXcyXUc5vTTto
+         Y8UUYA1McU2fSfApTQHmVv3z79vXBDdhqdeGdOb5sOFs4oN05gicuHsaPOg+z0ZFQ2TS
+         g3BNbu/LTFe/Pi2AtdPZFeE8Hlus82UjLuJ0w/jIPRvalSXUJqOrFVhx3ZUYqlss7/mK
+         aw+ZSNK7kRRqvhSYCN7nhLckN/ct08BFq/mE9PdQmy9XZkjkWdROq+uJwSQmI0JlE+Ge
+         LoXS8O+JKXqCnvU7SHE5bJhpQdAadMdV+8zO7AE7pmNijUGRZ069xT1EIZ70PIiyWQpy
+         UNSA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764779551; x=1765384351;
+        d=1e100.net; s=20230601; t=1764779552; x=1765384352;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=amQAODbbqlbUJt3HX5X1LyF+s3TCIELjpcRP5NTe0rU=;
-        b=kKS4AAb6o2u/GLftmFxh0hlisNLMna5mGm8l2UzVRlxHCSF+cAzG+n0j08madKyJJF
-         SxsXiag6v/gXh9w79OOklI0/zmESuNft2oZzOZICW9GH61Ers61FSVIYYhZryI1TndWK
-         iXzf/9rHQObHNhj7/8YA3PD0/ax2LKFMdAAswax9NpSbT5Q3XNCBZ3TDHVY8zWD/qOo9
-         71csQrVbOYFmkIPWjf4NBvJvOBYI02aXxBzTAPYdNTYU5uOuYs9asV0MqOkIJMCOGnGQ
-         dycni8U4q34wnFbLu2REIX+4HNoikGYXvCWcR8Vxs7b3PFc0jF48Ums5EB/AjPhCnbji
-         RXDg==
-X-Gm-Message-State: AOJu0YyFgcmE5N91neQkJQVC2T4KqJDC+5K0hPw0xRzUqdG1FBxIBvx4
-	xAlINR21OCE+lprgyKVp5P/5F8mabwraWxIVLL4pz744IUG7vDD42+LiVZwbwQ==
-X-Gm-Gg: ASbGncvQ2KrFQDVj8WY+w4KkYKWmpbcejg9trnUYb4bUhAruf6fH2u3MOEuq/ZgZ0WH
-	IUGRDEOn6FOFtGZOB/t8uu4N2n0gyD6H8rbSmORq7gCPW3BgZymcpllrYLFPTTAfewsgRybw4hl
-	VJsF+4ueOdhbT3d8FUNbUm/g/8nPI7TaH4di6+VXU5WKngqI0e3OxmQtV2CCaz77hW1p2zXg7mM
-	KFaaEf1YvZew6385rO+J7aP5/OC/3nVqKfZjXgfC+Cbs1mvXnGWg/pVmwK8Z7Dnp0ARNifOSBHT
-	h1OWOC/W1/U0O+SIbycpLsud+D5muD0DmeIAfnNWyhOGa6qJpMAsv+W7zVGS6pRDuIaIQS/VXqm
-	yQcI8O0NXuC8iYW87FoIDE3F8qMDAZ8A9tIZCcE5ZvLrE1LrY4GaeRUadBWcMYpcHPpMrB+Ozja
-	4J4QhQ4z23JDrWh6Dx6g0=
-X-Google-Smtp-Source: AGHT+IHMx03+xNK2U2wn7ldOuummO8quMVmGEExJ8JTE8rOSjE9nzb9l/GhUa0c1k1c8ZX7g0/yHGQ==
-X-Received: by 2002:a05:620a:4506:b0:8b5:dbd9:2114 with SMTP id af79cd13be357-8b5e2496a61mr401534085a.0.1764779551351;
-        Wed, 03 Dec 2025 08:32:31 -0800 (PST)
+        bh=He8D/sVmP+FmPUg2OENU5aQI0DL/WudiU372xQUBgtY=;
+        b=DPpMWrKlzlGCHL/5iKytN7OS35E5Z+22P1upSG7vG6aYz1zue4ZuhoJxt3tDQCjgJd
+         zMxDTVdUfB5dDGQmxf1e9lvp1f/pNPtIkp/ETUYukEEAqhluSzEwS0ppyYaCe+BBTcQb
+         GUIf0rnOeYLZkTbTVdnyHN/48KxvQBu8/8ZURNSTyttI9slrUk380P2oOC4ocHmkLJln
+         kSsTCnGSyGYHbKuuRNQdAmv9n4euqab/xAPKzc7oYrflV729bbS6S70HDWjT7tzVYUWu
+         1O30cHUH8yeKd0w+Fjgz6PZaxXasPfkSCdM07gNxVnIXBe+3cVC23lINcIH2pTbwvkEY
+         iNag==
+X-Gm-Message-State: AOJu0YwiOYLoAGy0fK8n/dUd0gR7cb3N2FJT0zaus8wwqqHwFHn9FCM5
+	lkCFcDZkbebeYskEn6V17WrQ9NMhAuGmF7nVj3BaORpNPqvdEHslzDZfxeK4jw==
+X-Gm-Gg: ASbGncuZSiASXz+KxaOanFdm/Vj5Hcpci0OcXJxGE3yJcTeQ9EJ2wpDIV/GTnecVl65
+	3ATIR7lUY5yyIztICqWJQHQBV21eHhD8GBy5CvwFiUTa9MbyVHUY2sW+8uqPIAPzMH2yRyBq2bk
+	zGYoAELdAp0U5vhIJSQDaDv4fh5t5aX+86XMZISulFfkn1TCyYsR+l2m/ORD0o/9JbKwmxXyvfn
+	v9wJrRvJBkE2D/8FyagXbIYczTn+MyfZ0ox2152pfyKjwLx6iAs/9XNxVjeaUaRmSyo/gvUOPYX
+	e7uF0FkNAdADWHZNHLQRJn2GYx3cC5sV8Xk55Soo/59s09qbTpUbAEIZeWfimWkTAlABGPP81Ev
+	S+D958RAavISBUyiD+q8S3lcZnSWAFqiItB0vk2EjCssCRwjko4g5x418pKM4zKokw7trxpvLXf
+	m6DOFh1CTr4lGl7Aq6bhSlHZ4lYkoN5g==
+X-Google-Smtp-Source: AGHT+IE9rIX9wP/exhm5rhmOR7iSms1jeLmQftkg0zHf2jyuB09GXHvB9DNNfe6xh7DW6k3JjBaFug==
+X-Received: by 2002:a05:620a:c55:b0:8a4:b9eb:e62a with SMTP id af79cd13be357-8b5e47d0422mr358739685a.23.1764779552375;
+        Wed, 03 Dec 2025 08:32:32 -0800 (PST)
 Received: from fedora ([144.51.8.27])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8b52a1cad4esm1333399485a.45.2025.12.03.08.32.30
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8b52a1cad4esm1333399485a.45.2025.12.03.08.32.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Dec 2025 08:32:30 -0800 (PST)
+        Wed, 03 Dec 2025 08:32:31 -0800 (PST)
 From: James Carter <jwcart2@gmail.com>
 To: selinux@vger.kernel.org
 Cc: James Carter <jwcart2@gmail.com>
-Subject: [PATCH 3/6] Fix an error in the policyd validation of user datums
-Date: Wed,  3 Dec 2025 11:32:15 -0500
-Message-ID: <20251203163218.54939-4-jwcart2@gmail.com>
+Subject: [PATCH 4/6] libsepol: Fix processing of levels for user rule in an optional block
+Date: Wed,  3 Dec 2025 11:32:16 -0500
+Message-ID: <20251203163218.54939-5-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.50.0
 In-Reply-To: <20251203163218.54939-1-jwcart2@gmail.com>
 References: <20251203163218.54939-1-jwcart2@gmail.com>
@@ -75,44 +75,102 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-If a user is in a require block in a base module, then a user datum
-will be created for the user. This will cause the policydb to fail
-validation when the base module is loaded if the required user is
-not in the base module because the MLS level and range will be
-empty.
+When converting a module to CIL, MLS user statements in an optional
+block are not handled correctly. The string names of the sensitivities
+for the user's default level and range are not looked up correctly.
+There is special code to look up the name of a sensitivity directly
+from the sensitivity's id instead of with the usual -1 offset.
 
-Make sure that a level datum has a sensitivity and fail validation
-if it does not, but allow levels and ranges in the user datum to
-have no MLS information.
+Instead, lookup the sensitivities for a MLS user statement in an
+optional block with thei usual -1 offset.
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- libsepol/src/policydb_validate.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ libsepol/src/module_to_cil.c | 23 ++++++++---------------
+ 1 file changed, 8 insertions(+), 15 deletions(-)
 
-diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
-index d441526e..fb79c8d9 100644
---- a/libsepol/src/policydb_validate.c
-+++ b/libsepol/src/policydb_validate.c
-@@ -665,6 +665,8 @@ bad:
+diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+index 1c4e80d1..41c2b051 100644
+--- a/libsepol/src/module_to_cil.c
++++ b/libsepol/src/module_to_cil.c
+@@ -516,11 +516,11 @@ static int is_id_in_scope(struct policydb *pdb, struct stack *decl_stack, char *
+ 	return is_id_in_scope_with_start(pdb, decl_stack, start, symbol_type, type);
+ }
  
- static int validate_mls_level(const mls_level_t *level, const validate_t *sens, const validate_t *cats)
+-static int semantic_level_to_cil(struct policydb *pdb, int sens_offset, struct mls_semantic_level *level)
++static int semantic_level_to_cil(struct policydb *pdb, struct mls_semantic_level *level)
  {
-+	if (level->sens == 0)
-+		return 0;
- 	if (validate_value(level->sens, sens))
- 		goto bad;
- 	if (validate_ebitmap(&level->cat, cats))
-@@ -681,6 +683,9 @@ static int validate_level_datum(sepol_handle_t *handle, const level_datum_t *lev
- 	if (level->notdefined != 0)
- 		goto bad;
+ 	struct mls_semantic_cat *cat;
  
-+	if (level->level->sens == 0)
-+		goto bad;
-+
- 	if (validate_mls_level(level->level, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
- 		goto bad;
+-	cil_printf("(%s ", pdb->p_sens_val_to_name[level->sens - sens_offset]);
++	cil_printf("(%s ", pdb->p_sens_val_to_name[level->sens - 1]);
  
+ 	if (level->cat != NULL) {
+ 		cil_printf("(");
+@@ -1586,14 +1586,14 @@ static int range_trans_to_cil(int indent, struct policydb *pdb, struct range_tra
+ 
+ 					cil_printf("(");
+ 
+-					rc = semantic_level_to_cil(pdb, 1, &rule->trange.level[0]);
++					rc = semantic_level_to_cil(pdb, &rule->trange.level[0]);
+ 					if (rc != 0) {
+ 						goto exit;
+ 					}
+ 
+ 					cil_printf(" ");
+ 
+-					rc = semantic_level_to_cil(pdb, 1, &rule->trange.level[1]);
++					rc = semantic_level_to_cil(pdb, &rule->trange.level[1]);
+ 					if (rc != 0) {
+ 						goto exit;
+ 					}
+@@ -2320,7 +2320,7 @@ exit:
+ 	return rc;
+ }
+ 
+-static int user_to_cil(int indent, struct policydb *pdb, struct avrule_block *block, struct stack *UNUSED(decl_stack), char *key, void *datum,  int scope)
++static int user_to_cil(int indent, struct policydb *pdb, struct avrule_block *UNUSED(block), struct stack *UNUSED(decl_stack), char *key, void *datum,  int scope)
+ {
+ 	struct user_datum *user = datum;
+ 	struct ebitmap roles = user->roles.roles;
+@@ -2328,7 +2328,6 @@ static int user_to_cil(int indent, struct policydb *pdb, struct avrule_block *bl
+ 	struct mls_semantic_range range = user->range;
+ 	struct ebitmap_node *node;
+ 	uint32_t i;
+-	int sens_offset = 1;
+ 
+ 	if (scope == SCOPE_DECL) {
+ 		cil_println(indent, "(user %s)", key);
+@@ -2341,16 +2340,10 @@ static int user_to_cil(int indent, struct policydb *pdb, struct avrule_block *bl
+ 		cil_println(indent, "(userrole %s %s)", key, pdb->p_role_val_to_name[i]);
+ 	}
+ 
+-	if (block->flags & AVRULE_OPTIONAL) {
+-		// sensitivities in user statements in optionals do not have the
+-		// standard -1 offset
+-		sens_offset = 0;
+-	}
+-
+ 	cil_indent(indent);
+ 	cil_printf("(userlevel %s ", key);
+ 	if (pdb->mls) {
+-		semantic_level_to_cil(pdb, sens_offset, &level);
++		semantic_level_to_cil(pdb, &level);
+ 	} else {
+ 		cil_printf(DEFAULT_LEVEL);
+ 	}
+@@ -2359,9 +2352,9 @@ static int user_to_cil(int indent, struct policydb *pdb, struct avrule_block *bl
+ 	cil_indent(indent);
+ 	cil_printf("(userrange %s (", key);
+ 	if (pdb->mls) {
+-		semantic_level_to_cil(pdb, sens_offset, &range.level[0]);
++		semantic_level_to_cil(pdb, &range.level[0]);
+ 		cil_printf(" ");
+-		semantic_level_to_cil(pdb, sens_offset, &range.level[1]);
++		semantic_level_to_cil(pdb, &range.level[1]);
+ 	} else {
+ 		cil_printf(DEFAULT_LEVEL " " DEFAULT_LEVEL);
+ 	}
 -- 
 2.50.0
 
