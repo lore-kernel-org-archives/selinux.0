@@ -1,121 +1,183 @@
-Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
+Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15797254B18
-	for <selinux@vger.kernel.org>; Tue,  2 Dec 2025 08:46:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E03230FC30
+	for <selinux@vger.kernel.org>; Wed,  3 Dec 2025 15:35:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764665216; cv=none; b=CaSC6sauXHV2a2rr9ur8nH9DSTpQ2Ed8XOcYGuP+Xc/46GaE3+umB4cN3XDT4V9V1xUwg8MjmSk2Qhtn+6HGOOao10/FxNLdE55Q7hvRKsFhQcWOJaXZJc/hpK9Hynu7JsNKIz0YD2FTWCMx2vnc9Aw5HbxulCBuLXgdwj/BRhM=
+	t=1764776142; cv=none; b=nB7fxxHLmkFJaZVpVgEiwKqElhcg9t+5HnWmkaMKFIzwl4fnE9F50niz20r9gUtG3E7wibJ3m1kXPC2D7vYq6iOSFaBDglF3GR0WCJ81F9rLKxUteHqRd5lFOR95Ac5xr/aYFwaIDwmxO0tcmK92BUrpHwgv2Vhfrk4vO/wTPdA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764665216; c=relaxed/simple;
-	bh=qcpxFQirLzafdSnNIq92XhuOn+HzWCu4AcZ2SW0UjqI=;
+	s=arc-20240116; t=1764776142; c=relaxed/simple;
+	bh=w4A2UegXwtOrwBEh5yC+6bOraNmFEGQzXJlFijVxv7k=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=t4BtovtT16OSWETXotPi2ZIS7lixpGiMSlwqLsp45WyqcvfhSweKr0cXqz/Cw49yQshYAhueM5Sx6N9flD6dD+ko2corIGOYQTfwtqL2WY5sBA95x8LXUY82BF81FL13uTKJaSWyp8AKD4J+jGSR8lpj0vlGHPZQ8WnFL/MQx4M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu; spf=pass smtp.mailfrom=szeredi.hu; dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b=bbbrFs6+; arc=none smtp.client-ip=209.85.160.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=szeredi.hu
+	 To:Cc:Content-Type; b=XeNC4nDPUe9P1xGtKfORWTez6EHtJsD/WjuFJ740zn5vZ60ow4qipLbyWCXWj5YYrUQ6q4AAmQJUSUiHKU4IQPy/dOKNE3G5qzBaDFsYWukJaFI9y5s4POJ4yh6NJWe3Milaz/AjlwRpSgX+mADsAJa9uqNHMGvaw9HDW0xehLM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ACDBrCvr; arc=none smtp.client-ip=209.85.216.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="bbbrFs6+"
-Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-4ee0ce50b95so53517181cf.0
-        for <selinux@vger.kernel.org>; Tue, 02 Dec 2025 00:46:53 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ACDBrCvr"
+Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-34101107cc8so6248692a91.0
+        for <selinux@vger.kernel.org>; Wed, 03 Dec 2025 07:35:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=szeredi.hu; s=google; t=1764665213; x=1765270013; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=dxvySic7ZCI3Kve7CCt8lN1Lme0d3OPvrFfTikR164w=;
-        b=bbbrFs6+5vw0v4zASrPuLyid+iafPWKvHeYf/XOZ4RlTfrAcYHZVAdk6e+pk3VUvT5
-         48D6eTBCgo/3krpFsqeWdnF8GCD9YaUPsH9bnVDmtOnvHdlmeiRQ7K1+nPucKysf1DKV
-         mmqSSKGrjMO7aaGrUT4vdZIAqeiNk+895+LjE=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764665213; x=1765270013;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1764776140; x=1765380940; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=dxvySic7ZCI3Kve7CCt8lN1Lme0d3OPvrFfTikR164w=;
-        b=VaVDvoiDMDCN6EPlUdGE+oPz62YN1pv2enJCjTMqOTPZQQT9MYO61W2651xVuUKGiA
-         DlGlaqG3NpIEKbn7WNKYQk41Kh44gTgnrsYlEbN0cpi5X1tL1O5jI+M1h5H12i3BUdVq
-         E1LtQXXe2trVS51n5CblouW0NOsLM7zgidtLBvK2UOALDNxljt3UOCTEtbPO7EUeqkZX
-         UVYlFefTlZ4xm/bEKJYI+s5KVKFfAn0XkupOtdwfBd5bPlyMcLRgDVfiYS9xuAhgm8vO
-         d4zyT0DslLF92D14zYDRbHsdy/tCfONwYt9GdTVN/fA5KJwqJDKyrb38DNV8VFIzlCYM
-         qfVg==
-X-Forwarded-Encrypted: i=1; AJvYcCU9OpLIGl0qHbjRgYgJzlDsLElNUOks10SaWDnb8cW6AWVpi09MEknPS0Fbm7ck4pdsENZKT6dt@vger.kernel.org
-X-Gm-Message-State: AOJu0YzFGMIn5YLru4Uar8nCQKs1VzcidoRPXsk2cauSed+3wAjOdCCT
-	TYU736x+5iEz+8KzKKri+LQ5l0yDGasxnpyz0zXNKMM+zbqsuJ9HfiVbOV9c9O5gk/1CT4Q5ClG
-	RBERX4SLA2ylL4prc7D0UrqoTFWnQZlc0CmOshKYWEw==
-X-Gm-Gg: ASbGncvOoKTPEO/q1T49wgNI6BiOyxQ8nRQaA7bcf5Py10khpnIZW454/EhgERg6wpD
-	Tin+yf/izVi8ciVPAm9Wiw4/dpdByH3M10o0MDUhmSN34dwPqrw4HDypLO6leFBrhz7MTxfLD4q
-	mMfMsSeyNIX7yDqGSeJgTODlJiD5DweRpQ4JnAT5g36mnPmMv1/bKXp98Vcs7x+pCuQAIQH0SGC
-	mIg0EoLDn8E4I8glVTQACEHlPiIKvK8csOZqC29V9GWq51jCndjTuYddPNAAxTBjc6B3w==
-X-Google-Smtp-Source: AGHT+IEmdgKRfEJt7lhW9JewHKYA/V5LXGRt+5HoCO1i6voev0VJmL65LKUm+BLjfUqBCpppRBhIODxs9MlwVlA6duw=
-X-Received: by 2002:ac8:7dc2:0:b0:4ee:1f69:fdeb with SMTP id
- d75a77b69052e-4f0088dcc91mr26981181cf.11.1764665212783; Tue, 02 Dec 2025
- 00:46:52 -0800 (PST)
+        bh=QGbO2/2t1gFhYYme3zOuFfWPsTzKJnXlmoRT6R7R7HQ=;
+        b=ACDBrCvrdOub/paqt3Lhc2vov+K9R1lUYZN3tqC+Cdw668Opp/8Xzdxo2QRO9Tlhaj
+         JPbsmmXEfOrWuasIoR/U+/gsXqMLRoRzdY7McjkeQlrsPlKCQ+hQBf5Ip4ILCMY3qk9C
+         AB6Sjf55UZcC6TAVZtm/ZJqEVEhoY6nmICfaULXsEjePQTDAB0x8qQFVsaOpPomnI70r
+         iS0TPerUKqu+URC1Jr+CUVSzavw8T3oNR6ULLWO2bfED9m/LlqRRvUtAVMrpuRyYjW9U
+         d7uhzgOYVn7YfKGtvjwwW5aoAilGZ9exAg5suTjdapATv700dADSP3d1rqGWJXZdIUq2
+         rKhA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1764776140; x=1765380940;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=QGbO2/2t1gFhYYme3zOuFfWPsTzKJnXlmoRT6R7R7HQ=;
+        b=D/a6ES1X/FBv11Ic8djfoi7JLd5G5+oVwu4f9vlbnU+bxmpNoZ1NaP+EUHBjaksHGJ
+         g09XfN1yntZ5VK/bH4MxKMoqaZpYbSoD24lQogIhWEH467nMYieCT1s2xyQQ5mg6Whuf
+         z4XeFfx+7ID0xaapJh8SIl8O9y6SlRddUaiWAor4w/pJwg1VFhuvYe6KN/nfgSQ728m3
+         hZjlvDhDgNudCJfpA96sv5Wn3nNGCkjnnSrok7Dct+cgbi8AfTpYejzluBeCZl9QZJ3h
+         PrlmvhObvYAjMnBmHnWJCvJJQY/8GVKmrX1nEU+2ik+K8NFNK7x0Y7Bd4lKw9fxn+lav
+         2I+w==
+X-Forwarded-Encrypted: i=1; AJvYcCUHzI4+FertOy3jpFht2eF9++Fldaki8Yej070/2X7ZtnIDYc1iF5EoWV5dF8tl8Ij0D/a1wwcR@vger.kernel.org
+X-Gm-Message-State: AOJu0Yznab/N1h2Ym8FR2dQp5+7qxvxVQbcqKVwNdA1ZCdXcOnQ6DTdg
+	Ces78uUUwEn/yKPSzT9PkgEsnqSg1h13b55GRxF8Gu5XaPm3EvLotoE0GkDftiXuBOB/NeYSBTq
+	u9Oo7HRIIxggHQeEKnmS4DfN3k47Y1og=
+X-Gm-Gg: ASbGncvPfFi6gyFK3iRJJ4nSPqA+W42GE6QiuQ10myPJNp48ABqxCd9YPX3Y4jo6dXw
+	i0JYeAZHkLMscp+WyaT12v0aLc9KzMF1kQlD8QlqmbY18CeVdSDcF5TZqomK1zMJeWnM+77fiuR
+	WejMBepabFOUMlRMLIrrlD6Fh19CbSo2SmqBrEoZW4ZLvtLCjjXWPoGpRubyLEgjdygnFeUq3wl
+	cihwW3LQ8e5cKAZuBU+v6dlnbRfMPgWgnAMC4RYgXbXv9g4Ez12e3lm+FYT6cv0klxeyz0=
+X-Google-Smtp-Source: AGHT+IEn9vxknosINeRwqaUkMbRpVbYZ9rAaqqFNWjUkmEIFHUcEtIIP4pCogGv3nNhRP3bv8J9Bo8pWrUn/qzHHVX0=
+X-Received: by 2002:a17:90b:1c09:b0:336:9dcf:ed14 with SMTP id
+ 98e67ed59e1d1-349127f9576mr3362218a91.23.1764776139904; Wed, 03 Dec 2025
+ 07:35:39 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251113002050.676694-1-neilb@ownmail.net> <20251113002050.676694-7-neilb@ownmail.net>
- <6713ea38-b583-4c86-b74a-bea55652851d@packett.cool> <176454037897.634289.3566631742434963788@noble.neil.brown.name>
- <CAOQ4uxjihcBxJzckbJis8hGcWO61QKhiqeGH+hDkTUkDhu23Ww@mail.gmail.com>
- <20251201083324.GA3538@ZenIV> <CAJfpegs+o01jgY76WsGnk9j41LS5V0JQSk--d6xsJJp4VjTh8Q@mail.gmail.com>
- <20251201170813.GH3538@ZenIV>
-In-Reply-To: <20251201170813.GH3538@ZenIV>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 2 Dec 2025 09:46:41 +0100
-X-Gm-Features: AWmQ_blWv82I_AJ0z54S1o3oAiX82VQ2RDfse7yanE0u3ZklpA9ZzlQdeqtb1vo
-Message-ID: <CAJfpegtJDJL7T0-Uj664xOm4N2e6fyJp_XwFecHX_9e9ipUyEw@mail.gmail.com>
-Subject: Re: [PATCH] fuse: fix conversion of fuse_reverse_inval_entry() to start_removing()
-To: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Amir Goldstein <amir73il@gmail.com>, NeilBrown <neil@brown.name>, 
-	Christian Brauner <brauner@kernel.org>, Val Packett <val@packett.cool>, Jan Kara <jack@suse.cz>, 
-	linux-fsdevel@vger.kernel.org, Jeff Layton <jlayton@kernel.org>, 
-	Chris Mason <clm@fb.com>, David Sterba <dsterba@suse.com>, David Howells <dhowells@redhat.com>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
-	Danilo Krummrich <dakr@kernel.org>, Tyler Hicks <code@tyhicks.com>, Chuck Lever <chuck.lever@oracle.com>, 
-	Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo <Dai.Ngo@oracle.com>, 
-	Namjae Jeon <linkinjeon@kernel.org>, Steve French <smfrench@gmail.com>, 
-	Sergey Senozhatsky <senozhatsky@chromium.org>, Carlos Maiolino <cem@kernel.org>, 
-	John Johansen <john.johansen@canonical.com>, Paul Moore <paul@paul-moore.com>, 
-	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	Mateusz Guzik <mjguzik@gmail.com>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, 
-	Stefan Berger <stefanb@linux.ibm.com>, "Darrick J. Wong" <djwong@kernel.org>, linux-kernel@vger.kernel.org, 
-	netfs@lists.linux.dev, ecryptfs@vger.kernel.org, linux-nfs@vger.kernel.org, 
-	linux-unionfs@vger.kernel.org, linux-cifs@vger.kernel.org, 
-	linux-xfs@vger.kernel.org, linux-security-module@vger.kernel.org, 
+References: <20250428195022.24587-2-stephen.smalley.work@gmail.com>
+ <CAHC9VhQfrMe7EY3_bvW6PcLdaW7tPMgv6WZuePxd1RrbhyZv-g@mail.gmail.com>
+ <CAHC9VhQyDX+NgWipgm5DGMewfVTBe3DkLbe_AANRiuAj40bA1w@mail.gmail.com>
+ <6797b694-6c40-4806-9541-05ce6a0b07fc@oracle.com> <CAHC9VhQsK_XpJ-bbt6AXM4fk30huhrPvvMSEuHHTPb=eJZwoUA@mail.gmail.com>
+ <CAHC9VhQnR6TKzzzpE9XQqiFivV0ECbVx7GH+1fQmz917-MAhsw@mail.gmail.com>
+In-Reply-To: <CAHC9VhQnR6TKzzzpE9XQqiFivV0ECbVx7GH+1fQmz917-MAhsw@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Wed, 3 Dec 2025 10:35:28 -0500
+X-Gm-Features: AWmQ_bkzJ94ne_NaS9DdGj-0rfpzDplsxIIA51owmAroNoWGHAQbs9nJIizmk5w
+Message-ID: <CAEjxPJ7_7_Uru3dwXzNLSj5GdBTzdPDQr5RwXtdjvDv9GjmVAQ@mail.gmail.com>
+Subject: Re: [PATCH v2] security,fs,nfs,net: update security_inode_listsecurity()
+ interface
+To: Paul Moore <paul@paul-moore.com>
+Cc: Anna Schumaker <anna.schumaker@oracle.com>, Trond Myklebust <trondmy@kernel.org>, 
+	Anna Schumaker <anna@kernel.org>, Jakub Kicinski <kuba@kernel.org>, 
+	Casey Schaufler <casey@schaufler-ca.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, James Morris <jmorris@namei.org>, 
+	"Serge E. Hallyn" <serge@hallyn.com>, Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, 
+	Willem de Bruijn <willemb@google.com>, "David S. Miller" <davem@davemloft.net>, 
+	Simon Horman <horms@kernel.org>, Ondrej Mosnacek <omosnace@redhat.com>, linux-nfs@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, netdev@vger.kernel.org, 
 	selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, 1 Dec 2025 at 18:08, Al Viro <viro@zeniv.linux.org.uk> wrote:
-
-> Then as far as VFS is concerned, it's an equivalent of "we'd done
-> a dcache lookup and revalidate told us to bugger off", which does
-> *not* need locking the parent - the same sequence can very well
-> happen without touching any inode locks.
-
-Okay.
-
-> IOW, from the point of view of locking protocol changes that's not
-> a removal at all.
+On Wed, Jul 23, 2025 at 10:10=E2=80=AFPM Paul Moore <paul@paul-moore.com> w=
+rote:
 >
-> Or do you need them serialized for fuse-internal purposes?
+> On Thu, Jun 19, 2025 at 5:18=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
+wrote:
+> > On Tue, May 27, 2025 at 5:03=E2=80=AFPM Anna Schumaker
+> > <anna.schumaker@oracle.com> wrote:
+> > > On 5/20/25 5:31 PM, Paul Moore wrote:
+> > > > On Tue, Apr 29, 2025 at 7:34=E2=80=AFPM Paul Moore <paul@paul-moore=
+.com> wrote:
+> > > >> On Mon, Apr 28, 2025 at 4:15=E2=80=AFPM Stephen Smalley
+> > > >> <stephen.smalley.work@gmail.com> wrote:
+> > > >>>
+> > > >>> Update the security_inode_listsecurity() interface to allow
+> > > >>> use of the xattr_list_one() helper and update the hook
+> > > >>> implementations.
+> > > >>>
+> > > >>> Link: https://lore.kernel.org/selinux/20250424152822.2719-1-steph=
+en.smalley.work@gmail.com/
+> > > >>>
+> > > >>> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > > >>> ---
+> > > >>> This patch is relative to the one linked above, which in theory i=
+s on
+> > > >>> vfs.fixes but doesn't appear to have been pushed when I looked.
+> > > >>>
+> > > >>>  fs/nfs/nfs4proc.c             | 10 ++++++----
+> > > >>>  fs/xattr.c                    | 19 +++++++------------
+> > > >>>  include/linux/lsm_hook_defs.h |  4 ++--
+> > > >>>  include/linux/security.h      |  5 +++--
+> > > >>>  net/socket.c                  | 17 +++++++----------
+> > > >>>  security/security.c           | 16 ++++++++--------
+> > > >>>  security/selinux/hooks.c      | 10 +++-------
+> > > >>>  security/smack/smack_lsm.c    | 13 ++++---------
+> > > >>>  8 files changed, 40 insertions(+), 54 deletions(-)
+> > > >>
+> > > >> Thanks Stephen.  Once we get ACKs from the NFS, netdev, and Smack
+> > > >> folks I can pull this into the LSM tree.
+> > > >
+> > > > Gentle ping for Trond, Anna, Jakub, and Casey ... can I get some AC=
+Ks
+> > > > on this patch?  It's a little late for the upcoming merge window, b=
+ut
+> > > > I'd like to merge this via the LSM tree after the merge window clos=
+es.
+> > >
+> > > For the NFS change:
+> > >     Acked-by: Anna Schumaker <anna.schumaker@oracle.com>
+> >
+> > Hi Anna,
+> >
+> > Thanks for reviewing the patch.  Unfortunately when merging the patch
+> > today and fixing up some merge conflicts I bumped into an odd case in
+> > the NFS space and I wanted to check with you on how you would like to
+> > resolve it.
+> >
+> > Commit 243fea134633 ("NFSv4.2: fix listxattr to return selinux
+> > security label")[1] adds a direct call to
+> > security_inode_listsecurity() in nfs4_listxattr(), despite the
+> > existing nfs4_listxattr_nfs4_label() call which calls into the same
+> > LSM hook, although that call is conditional on the server supporting
+> > NFS_CAP_SECURITY_LABEL.  Based on a quick search, it appears the only
+> > caller for nfs4_listxattr_nfs4_label() is nfs4_listxattr() so I'm
+> > wondering if there isn't some room for improvement here.
+> >
+> > I think there are two obvious options, and I'm curious about your
+> > thoughts on which of these you would prefer, or if there is another
+> > third option that you would like to see merged.
+> >
+> > Option #1:
+> > Essentially back out commit 243fea134633, removing the direct LSM call
+> > in nfs4_listxattr() and relying on the nfs4_listxattr_nfs4_label() for
+> > the LSM/SELinux xattrs.  I think we would want to remove the
+> > NFS_CAP_SECURITY_LABEL check and build nfs4_listxattr_nfs4_label()
+> > regardless of CONFIG_NFS_V4_SECURITY_LABEL.
+> >
+> > Option #2:
+> > Remove nfs4_listxattr_nfs4_label() entirely and keep the direct LSM
+> > call in nfs4_listxattr(), with the required changes for this patch.
+> >
+> > Thoughts?
+> >
+> > [1] https://lore.kernel.org/all/20250425180921.86702-1-okorniev@redhat.=
+com/
+>
+> A gentle ping on the question above for the NFS folks.  If I don't
+> hear anything I'll hack up something and send it out for review, but I
+> thought it would nice if we could sort out the proper fix first.
 
-Not as far as I can see. As to any fuse filesystem being reliant on
-this behavior, I think that's unlikely, though it's sort of documented
-in the libfuse APIs as:
-
- * To avoid a deadlock this function must not be called in the
- * execution path of a related filesystem operation or within any code
- * that could hold a lock that could be needed to execute such an
- * operation. As of kernel 4.18, a "related operation" is a lookup(),
- * symlink(), mknod(), mkdir(), unlink(), rename(), link() or create()
- * request for the parent, and a setattr(), unlink(), rmdir(),
- * rename(), setxattr(), removexattr(), readdir() or readdirplus()
- * request for the inode itself.
-
-Why the locking was added in the first place?  Oversight, probably.
-
-Thanks,
-Miklos
+Raising this thread back up again to see if the NFS folks have a
+preference on option #1 or #2 above, or
+something else altogether. Should returning of the security.selinux
+xattr name from listxattr() be dependent on
+NFS_CAP_SECURITY_LABEL being set by the server and should it be
+dependent on CONFIG_NFS_V4_SECURITY_LABEL?
