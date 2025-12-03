@@ -1,512 +1,217 @@
-Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C758393DDB
-	for <selinux@vger.kernel.org>; Wed,  3 Dec 2025 16:32:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5AFF3002B4
+	for <selinux@vger.kernel.org>; Wed,  3 Dec 2025 18:08:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764779558; cv=none; b=ub+dTxyKeYgx5Nj5e/P3z+vcEIY1PDR9nfWrZrghEbJCfST/UUTD0aiC3GO2hF8HcBtmvHTYgwTIgOkJLo6rZ0/blzAtGO1uYInfInNpzkY2DppyrEt/shrvKFOezSFQjOM0SjEQK87fVB5QzJ0lzkThn2hTQUtD2LBEHx+XEFY=
+	t=1764785319; cv=none; b=jJ0ZDYOhkm9rLJ9ywOvBx1dNRyWQAhHhRNCIez8T+mao9E1QfPXaVxH1Gok5RnWOoTsxn5qXYVah9ujskxfl7gT8YsiuAHfaQFY7IxrBts5eObfnu8INVsSP2/xTag1Ij+q3+uF5FN0hSZ1B1bT5XcstN8WOr5NYA6cRuXuIjKI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764779558; c=relaxed/simple;
-	bh=jY5wWmWUHToC0dOCVityOqdVXr2XjnPBwT2tsLkz/2E=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YYJ3iHW/d0qPUIR78Ffc/8bMBTwqokofEju9E6VImAMecq6y0zxNEdhq2pnTQR1s3Zoglu1HSNRBw7LT0R2qjqqNpkWWuXVbhOnC3hBEUdFwpS0C5uuPnWQIKzrhHz0nxfGVs+qcPIAomrpXXGrWQXVm3rXdnjzgdw/kmVMji+c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G80M1vHP; arc=none smtp.client-ip=209.85.222.177
+	s=arc-20240116; t=1764785319; c=relaxed/simple;
+	bh=5jRrBA6CAZndQPZV3Us9+ZC5wzxN9fOkcbS0Noz1Wo0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=VI6bx/UD+VfDSNQ3jsEbxh+inkPE177UwA+Wy3YMCck+rgkYGQErsqiPrIVA2likQlxhBZ12G2Ji+uCFVUljjVw0udf88BN9MjuOsvMvQ2CUwGUzWBFsIWMUQ1dd0Fq2Buj2+/yx6spQ+BlWJqIRpMx6Rg01DQlk6w0q3n+qeeM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=exOZFkqi; arc=none smtp.client-ip=209.85.216.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G80M1vHP"
-Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-8b5ed9e7500so55067385a.0
-        for <selinux@vger.kernel.org>; Wed, 03 Dec 2025 08:32:35 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="exOZFkqi"
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-3437af8444cso8202166a91.2
+        for <selinux@vger.kernel.org>; Wed, 03 Dec 2025 10:08:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1764779555; x=1765384355; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1764785317; x=1765390117; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=sw7VnDg9qmfCXT7+AEVfyLDYTa7zHIeVr4JGnzp/qvQ=;
-        b=G80M1vHPl1X13SSDsm8ZcuDkomM9FkK412SXvNFRLiNiTzM2EirzntgOL16jrv41CK
-         uEBRJg020BsLyzDbtx3xr9o9D0eQqgFu9PEFAsPshcqRasX0aY5hzJuVreMvIXN89Sqm
-         gIX5oqEN7cdV9/7R3KTqxhvMKyo4BseNUaLm43OykpAYeQ003jl61NoEIKF2t6RrtFGl
-         fGNfXLVPD6zgYxC5i44e4cuNjYx7Oi7qIFzwkqsX60076mxbxFLkI/gbq1Rl4WI8zThT
-         FJYCo7SaBdoMPx5eEqTijfv26td4P+GWcUXJKXqWo46rlva7mVHUzz3sAUhJL8vPUC/8
-         8fkQ==
+        bh=GofhpDmA3kuMABKH76nE8pV99jzh1HFP7UqmhwVcaVc=;
+        b=exOZFkqiFRWcTXzfix5rHKnpg+SEnj4tlotLLzJtW81caMyBTiPdTK2TH+c9rLwt8i
+         27y9sO6ZDzle6LbCvrnz+K6m/hnTqFI3F/bgn29BiqtDzNwMytrTiRLWWydfeR7sMSbr
+         U5yXvhPV5+0qC60uLCJjIkN0Opyyl5zOmIOeMeMMrO1KQOWu4MoDqElRLzAsuBB4+GBV
+         0Kal2yFKsL/42Sw61/7+3hDR9zl+G/gnMQnEo0j/zHSy9/zJfQUu945ktlmLfUi3wpvR
+         zdmBs9OaMF2UhpYTW90YP8mzrzvXLiihYHT5ZeJtQcIpon+AFORb1ps0Ij07eUTUD7sK
+         ynZg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764779555; x=1765384355;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20230601; t=1764785317; x=1765390117;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=sw7VnDg9qmfCXT7+AEVfyLDYTa7zHIeVr4JGnzp/qvQ=;
-        b=eBi1Xu1EGeJGrZorNOB13Z4BeClWekATYAchp7gFDM6enE1bdo10EYLhbTeSFfnc+N
-         HoZQkJOOxrIXGF+97IN97NPr0nrRPSPGef+qJDbNVzO8V73S21cTEJ2Fev/zzukSMLes
-         v8I7xQUwUBZ8En89x68Nj/abOnRA+qR67oc7GLjwlCzInHMjV1GP0X91AmEvrqy/5+Qh
-         7+WyqFfCs9UOW2idyq79j+UN36EVmwjmXHmphOSmZYVeFcZ7KLjcTbwCwWSLoeB0VCzu
-         MHtbtr62i2Wg8z7iddWNhQT5nHCGZaxhkNOPzSXDyl/phvxnvOOIROMVgOIFMfqRje4H
-         iTiA==
-X-Gm-Message-State: AOJu0Yw8imDYnSImtuBOXor+hZ9HZi1JxX9e/H8klBqkD995cQKtxRqp
-	AEndW8YKDi9aVikvn6H7AbCqYmYtVj98Hxx6vSsep8sQB57JHVzwdViiznD/vQ==
-X-Gm-Gg: ASbGnctYn1Lv3Hl/dGk7CSJHl6t25QBXbClt7iFC7XVIaABcBoVSmNDyAgUAX0yoWJT
-	3m6kMlEpJeVps9VjbpsU4M6ffbQjeylUzbwnlVeb1o6CGrCEnGDFo8iG6JfDcfIhqK6pAFwJ2yo
-	ZXLOxOHUu6UOg5k94MCHaG45OINC4op3FsUgurE4k7v5/L1AHF3rAK/KOpLndBFAmlQ1uwILNja
-	Wbh2rEZXpnL8W0PU/JtTVAnUPC9OK8Q3t/fdYRBhp+LfEo8a+lI7Cz1fROaPoLBSulSMRjwMYk/
-	e77SovzZo2n784sz39edMJAEHbmGuoAVFzcnhFsDxs1/uvdpl5Sl+2C69tqpgyxDr74PxK+wqKM
-	N6UD2nktGg36B2LyB5ZombnF25pO2waS4f1OTMA0gPLHFcVq9y3ed4DnZJdQLV+wMJbEJ3fQz0b
-	Uu74/rV5IXPIrausY0zKA=
-X-Google-Smtp-Source: AGHT+IF+zW+Za9B8iOg4PHspuFltuzcHDh5mboCCZbzrqEsrBcUhpp7VDf1HewiW0rCN+jewzrooTw==
-X-Received: by 2002:a05:620a:29d5:b0:8b2:dabe:de27 with SMTP id af79cd13be357-8b5e7453da5mr400184485a.85.1764779554233;
-        Wed, 03 Dec 2025 08:32:34 -0800 (PST)
-Received: from fedora ([144.51.8.27])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8b52a1cad4esm1333399485a.45.2025.12.03.08.32.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Dec 2025 08:32:33 -0800 (PST)
-From: James Carter <jwcart2@gmail.com>
-To: selinux@vger.kernel.org
-Cc: James Carter <jwcart2@gmail.com>
-Subject: [PATCH 6/6] libsepol: Expand role attributes when expanding instead of when linking
-Date: Wed,  3 Dec 2025 11:32:18 -0500
-Message-ID: <20251203163218.54939-7-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.50.0
-In-Reply-To: <20251203163218.54939-1-jwcart2@gmail.com>
-References: <20251203163218.54939-1-jwcart2@gmail.com>
+        bh=GofhpDmA3kuMABKH76nE8pV99jzh1HFP7UqmhwVcaVc=;
+        b=IiDM3V/DyhM/cEdYWeRB1+Vq2eRtaUK/9tm5v211dNjlKXZEdqJzJG0bV3n+TGkawT
+         /0BPsBgtBCuth3i+Ryz1UUjt04kgmi7KjFS61RaoxIXdVDPlY9oJ9X5Y9QrOQdPiO8Sb
+         fmgvbNoCls8OO0crU1kliieosGVB/O38KXacJtUtX/gz3U+XWaUrplk6PzvrVm1vdA1v
+         Z31W4MfmQR++WS6gGA+2U+ZBKcDMJQ36DRvNbyzFUvwn9jGJuKnwEA0QtyHV5uiv3BXp
+         3CSPn7EVFNJue883AIk/IpCjWObQEgwMiEKjuDDM9IlBT17NLsPOxWz4Os255Hrie/1x
+         rMKg==
+X-Forwarded-Encrypted: i=1; AJvYcCUulBBdfqSQjbro3AV5Cfzmik9xahxjFPWSiMmTunp7lvEUpIWWbz5/Pu4FTXEw/mjBPVtorELL@vger.kernel.org
+X-Gm-Message-State: AOJu0YyMREYtdWET+N9lldYajnIzhZVe3kt6p9UU6c2iS23H/tXQV1PY
+	GSwn55j0MwvRnMM+X1fvG5uB2TJlzF9GfShoG4vtG5r4jrd8kYLwJJLOtFm/9IO+zczYocrCP4a
+	oslq2xnajLXr5FtqSQKjkPjv1h0zf6JU=
+X-Gm-Gg: ASbGncs6VUUgY06U26+rb0nbkrl9WZRkNFF0N2yzmw72hBC3I+CLJBC893F0aX93VwT
+	7GOWs3WDjv2EweeGIa53PAmBaNboxTBZhxm6a21UL0smGCrICiFpbI0C1hDh93TLn/YCZdCeI+Z
+	soJ1g19cqiTLgqPd7ATYNB2G/ij357L3R3eiSEG95iSV5Keb9XTsbsLpm/cdtF5ak1oFSNm0Lwv
+	7cl3AfSYhB4h03NhQHX7gGPbll0rtDozcQ07M7BLfod4kdrOm3tzVOzDT6bxjISc3nvwGA=
+X-Google-Smtp-Source: AGHT+IHGznhelPwKgdPOtpIE7u08vw3jm14atDXVn66Erhhaksa/6LYDtrqkXqGm7zWDplH+0e5xN6Ib8bNcjdNIzPk=
+X-Received: by 2002:a17:90b:53c4:b0:340:d1a1:af8e with SMTP id
+ 98e67ed59e1d1-3491270ef84mr3755821a91.37.1764785316786; Wed, 03 Dec 2025
+ 10:08:36 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20250428195022.24587-2-stephen.smalley.work@gmail.com>
+ <CAHC9VhQfrMe7EY3_bvW6PcLdaW7tPMgv6WZuePxd1RrbhyZv-g@mail.gmail.com>
+ <CAHC9VhQyDX+NgWipgm5DGMewfVTBe3DkLbe_AANRiuAj40bA1w@mail.gmail.com>
+ <6797b694-6c40-4806-9541-05ce6a0b07fc@oracle.com> <CAHC9VhQsK_XpJ-bbt6AXM4fk30huhrPvvMSEuHHTPb=eJZwoUA@mail.gmail.com>
+ <CAHC9VhQnR6TKzzzpE9XQqiFivV0ECbVx7GH+1fQmz917-MAhsw@mail.gmail.com>
+ <CAEjxPJ7_7_Uru3dwXzNLSj5GdBTzdPDQr5RwXtdjvDv9GjmVAQ@mail.gmail.com> <CAHC9VhQDHTNkrB4YuNoafM0bhAav=CP5Ux6ZZGY9+WF0+0_9ww@mail.gmail.com>
+In-Reply-To: <CAHC9VhQDHTNkrB4YuNoafM0bhAav=CP5Ux6ZZGY9+WF0+0_9ww@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Wed, 3 Dec 2025 13:08:24 -0500
+X-Gm-Features: AWmQ_bk8AJKB1D_utiPsmnzq48mAqxnxmRMWIq7jwXCZe5n9tvCfux9dhWFG1TQ
+Message-ID: <CAEjxPJ6e8z__=MP5NfdUxkOMQ=EnUFSjWFofP4YPwHqK=Ki5nw@mail.gmail.com>
+Subject: Re: [PATCH v2] security,fs,nfs,net: update security_inode_listsecurity()
+ interface
+To: Paul Moore <paul@paul-moore.com>
+Cc: Anna Schumaker <anna.schumaker@oracle.com>, Trond Myklebust <trondmy@kernel.org>, 
+	Anna Schumaker <anna@kernel.org>, Jakub Kicinski <kuba@kernel.org>, 
+	Casey Schaufler <casey@schaufler-ca.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, James Morris <jmorris@namei.org>, 
+	"Serge E. Hallyn" <serge@hallyn.com>, Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, 
+	Willem de Bruijn <willemb@google.com>, "David S. Miller" <davem@davemloft.net>, 
+	Simon Horman <horms@kernel.org>, Ondrej Mosnacek <omosnace@redhat.com>, linux-nfs@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, netdev@vger.kernel.org, 
+	selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Role attributes are being expanded during the linking phase rather
-than during the expand phase. This might be due to some concern
-over role attributes not being kept for the kernel policy.
+On Wed, Dec 3, 2025 at 10:55=E2=80=AFAM Paul Moore <paul@paul-moore.com> wr=
+ote:
+>
+> On Wed, Dec 3, 2025 at 10:35=E2=80=AFAM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> > On Wed, Jul 23, 2025 at 10:10=E2=80=AFPM Paul Moore <paul@paul-moore.co=
+m> wrote:
+> > > On Thu, Jun 19, 2025 at 5:18=E2=80=AFPM Paul Moore <paul@paul-moore.c=
+om> wrote:
+> > > > On Tue, May 27, 2025 at 5:03=E2=80=AFPM Anna Schumaker
+> > > > <anna.schumaker@oracle.com> wrote:
+> > > > > On 5/20/25 5:31 PM, Paul Moore wrote:
+> > > > > > On Tue, Apr 29, 2025 at 7:34=E2=80=AFPM Paul Moore <paul@paul-m=
+oore.com> wrote:
+> > > > > >> On Mon, Apr 28, 2025 at 4:15=E2=80=AFPM Stephen Smalley
+> > > > > >> <stephen.smalley.work@gmail.com> wrote:
+> > > > > >>>
+> > > > > >>> Update the security_inode_listsecurity() interface to allow
+> > > > > >>> use of the xattr_list_one() helper and update the hook
+> > > > > >>> implementations.
+> > > > > >>>
+> > > > > >>> Link: https://lore.kernel.org/selinux/20250424152822.2719-1-s=
+tephen.smalley.work@gmail.com/
+> > > > > >>>
+> > > > > >>> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.co=
+m>
+> > > > > >>> ---
+> > > > > >>> This patch is relative to the one linked above, which in theo=
+ry is on
+> > > > > >>> vfs.fixes but doesn't appear to have been pushed when I looke=
+d.
+> > > > > >>>
+> > > > > >>>  fs/nfs/nfs4proc.c             | 10 ++++++----
+> > > > > >>>  fs/xattr.c                    | 19 +++++++------------
+> > > > > >>>  include/linux/lsm_hook_defs.h |  4 ++--
+> > > > > >>>  include/linux/security.h      |  5 +++--
+> > > > > >>>  net/socket.c                  | 17 +++++++----------
+> > > > > >>>  security/security.c           | 16 ++++++++--------
+> > > > > >>>  security/selinux/hooks.c      | 10 +++-------
+> > > > > >>>  security/smack/smack_lsm.c    | 13 ++++---------
+> > > > > >>>  8 files changed, 40 insertions(+), 54 deletions(-)
+> > > > > >>
+> > > > > >> Thanks Stephen.  Once we get ACKs from the NFS, netdev, and Sm=
+ack
+> > > > > >> folks I can pull this into the LSM tree.
+> > > > > >
+> > > > > > Gentle ping for Trond, Anna, Jakub, and Casey ... can I get som=
+e ACKs
+> > > > > > on this patch?  It's a little late for the upcoming merge windo=
+w, but
+> > > > > > I'd like to merge this via the LSM tree after the merge window =
+closes.
+> > > > >
+> > > > > For the NFS change:
+> > > > >     Acked-by: Anna Schumaker <anna.schumaker@oracle.com>
+> > > >
+> > > > Hi Anna,
+> > > >
+> > > > Thanks for reviewing the patch.  Unfortunately when merging the pat=
+ch
+> > > > today and fixing up some merge conflicts I bumped into an odd case =
+in
+> > > > the NFS space and I wanted to check with you on how you would like =
+to
+> > > > resolve it.
+> > > >
+> > > > Commit 243fea134633 ("NFSv4.2: fix listxattr to return selinux
+> > > > security label")[1] adds a direct call to
+> > > > security_inode_listsecurity() in nfs4_listxattr(), despite the
+> > > > existing nfs4_listxattr_nfs4_label() call which calls into the same
+> > > > LSM hook, although that call is conditional on the server supportin=
+g
+> > > > NFS_CAP_SECURITY_LABEL.  Based on a quick search, it appears the on=
+ly
+> > > > caller for nfs4_listxattr_nfs4_label() is nfs4_listxattr() so I'm
+> > > > wondering if there isn't some room for improvement here.
+> > > >
+> > > > I think there are two obvious options, and I'm curious about your
+> > > > thoughts on which of these you would prefer, or if there is another
+> > > > third option that you would like to see merged.
+> > > >
+> > > > Option #1:
+> > > > Essentially back out commit 243fea134633, removing the direct LSM c=
+all
+> > > > in nfs4_listxattr() and relying on the nfs4_listxattr_nfs4_label() =
+for
+> > > > the LSM/SELinux xattrs.  I think we would want to remove the
+> > > > NFS_CAP_SECURITY_LABEL check and build nfs4_listxattr_nfs4_label()
+> > > > regardless of CONFIG_NFS_V4_SECURITY_LABEL.
+> > > >
+> > > > Option #2:
+> > > > Remove nfs4_listxattr_nfs4_label() entirely and keep the direct LSM
+> > > > call in nfs4_listxattr(), with the required changes for this patch.
+> > > >
+> > > > Thoughts?
+> > > >
+> > > > [1] https://lore.kernel.org/all/20250425180921.86702-1-okorniev@red=
+hat.com/
+> > >
+> > > A gentle ping on the question above for the NFS folks.  If I don't
+> > > hear anything I'll hack up something and send it out for review, but =
+I
+> > > thought it would nice if we could sort out the proper fix first.
+> >
+> > Raising this thread back up again to see if the NFS folks have a
+> > preference on option #1 or #2 above, or
+> > something else altogether. Should returning of the security.selinux
+> > xattr name from listxattr() be dependent on
+> > NFS_CAP_SECURITY_LABEL being set by the server and should it be
+> > dependent on CONFIG_NFS_V4_SECURITY_LABEL?
+>
+> Thanks for bringing this back up Stephen, it would be good to get this re=
+solved.
 
-Instead of this, expand role attributes during the expand phase.
-One extra step is needed to make sure the pp and mod files end up
-the same as before. The role attributes in the base policy need to
-be expanded as well as those in the kernel policy. This is because
-of a side effect that occurs when compiling a base module. When a
-base module is compiled it is linked and expanded inorder to verify
-that linking and expansion will work. Even though the resulting
-kernel policy is discarded, the base module is changed because the
-linking phase expands the role attributes in the base module.
-
-With this change the pp files, mod files, and the final binary
-file (bin file) produced are identical to ones produced by an old
-toolchain without these changes. The only file that is different
-is the linked binary (lnk file). In the old toolchain, all roles
-in blocks are added to the role in the global scope and the role
-attributes are expanded, but this will be done again when the
-policy is expanded. Expanding a linked binary created with these
-patches using the old toolchain will produce the same kernel binary
-policy. Expanding a linked binary created with the old toolchain
-using the new toolchain will also produce the same kernel binary
-policy.
-
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
- libsepol/src/expand.c | 179 +++++++++++++++++++++++++++++-------------
- libsepol/src/link.c   | 129 ------------------------------
- 2 files changed, 126 insertions(+), 182 deletions(-)
-
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 5ecd43e5..04b5e5e4 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -824,27 +824,18 @@ static int role_types_copy_callback(hashtab_key_t key, hashtab_datum_t datum, vo
- 	return 0;
- }
- 
--/* For the role attribute in the base module, escalate its counterpart's
-- * types.types ebitmap in the out module to the counterparts of all the
-- * regular role that belongs to the current role attribute. Note, must be
-- * invoked after role_copy_callback so that state->rolemap is available.
-- */
--static int role_fix_callback(hashtab_key_t key, hashtab_datum_t datum,
--			     void *data)
-+static int role_roles_copy_callback(hashtab_key_t key, hashtab_datum_t datum, void *data)
- {
--	char *id, *base_reg_role_id;
--	role_datum_t *role, *new_role, *regular_role;
-+	char *id;
-+	role_datum_t *role, *new_role;
- 	expand_state_t *state;
--	ebitmap_node_t *rnode;
--	unsigned int i;
--	ebitmap_t mapped_roles;
-+	ebitmap_t mapped;
- 
- 	id = key;
--	role = (role_datum_t *)datum;
-+	role = (role_datum_t *) datum;
- 	state = (expand_state_t *)data;
- 
--	if (strcmp(id, OBJECT_R) == 0) {
--		/* object_r is never a role attribute by far */
-+	if (role->flavor != ROLE_ATTRIB) {
- 		return 0;
- 	}
- 
-@@ -853,39 +844,107 @@ static int role_fix_callback(hashtab_key_t key, hashtab_datum_t datum,
- 		return 0;
- 	}
- 
--	if (role->flavor != ROLE_ATTRIB)
--		return 0;
--
- 	if (state->verbose)
--		INFO(state->handle, "fixing role attribute %s", id);
-+		INFO(state->handle, "copying roles for role %s", id);
- 
--	new_role =
--		(role_datum_t *)hashtab_search(state->out->p_roles.table, id);
--
--	assert(new_role != NULL && new_role->flavor == ROLE_ATTRIB);
-+	new_role = (role_datum_t *)hashtab_search(state->out->p_roles.table, id);
-+	if (!new_role) {
-+		ERR(state->handle, "Could not find role %s", id);
-+		return -1;
-+	}
- 
--	ebitmap_init(&mapped_roles);
--	if (map_ebitmap(&role->roles, &mapped_roles, state->rolemap))
-+	/* convert roles in the role datum in the global symtab */
-+	if (map_ebitmap(&role->roles, &mapped, state->rolemap))
- 		return -1;
--	if (ebitmap_union(&new_role->roles, &mapped_roles)) {
-+	if (ebitmap_union(&new_role->roles, &mapped)) {
- 		ERR(state->handle, "Out of memory!");
--		ebitmap_destroy(&mapped_roles);
-+		ebitmap_destroy(&mapped);
- 		return -1;
- 	}
--	ebitmap_destroy(&mapped_roles);
-+	ebitmap_destroy(&mapped);
-+
-+	return 0;
-+}
-+static int expand_role_attributes_in_attributes(sepol_handle_t *handle, policydb_t *p)
-+{
-+	ebitmap_t attrs, roles;
-+	ebitmap_node_t *ni, *nj;
-+	unsigned int i, j, reps = 0, done = 0;
-+	role_datum_t *rd, *ad;
-+
-+	ebitmap_init(&attrs);
-+	for (i=0; i < p->p_roles.nprim; i++) {
-+		rd = p->role_val_to_struct[i];
-+		if (rd->flavor == ROLE_ATTRIB) {
-+			ebitmap_set_bit(&attrs, i, 1);
-+		}
-+	}
-+
-+	while (!done && reps < p->p_roles.nprim) {
-+		done = 1;
-+		reps++;
-+		ebitmap_for_each_positive_bit(&attrs, ni, i) {
-+			rd = p->role_val_to_struct[i];
-+			if (ebitmap_match_any(&rd->roles, &attrs)) {
-+				done = 0;
-+				if (ebitmap_get_bit(&rd->roles, i)) {
-+					ERR(handle, "Before: attr has own bit set: %d\n", i);
-+				}
-+				ebitmap_init(&roles);
-+				ebitmap_for_each_positive_bit(&rd->roles, nj, j) {
-+					if (ebitmap_get_bit(&attrs, j)) {
-+						ad = p->role_val_to_struct[j];
-+						ebitmap_union(&roles, &ad->roles);
-+						ebitmap_set_bit(&rd->roles, j, 0);
-+					}
-+				}
-+				ebitmap_union(&rd->roles, &roles);
-+				ebitmap_destroy(&roles);
-+				if (ebitmap_get_bit(&rd->roles, i)) {
-+					ERR(handle, "After: attr has own bit set: %d\n", i);
-+					done = 1; /* Just end early */
-+				}
-+			}
-+		}
-+	}
- 
--	ebitmap_for_each_positive_bit(&role->roles, rnode, i) {
--		/* take advantage of sym_val_to_name[]
--		 * of the base module */
--		base_reg_role_id = state->base->p_role_val_to_name[i];
--		regular_role = (role_datum_t *)hashtab_search(
--					state->out->p_roles.table,
--					base_reg_role_id);
--		assert(regular_role != NULL &&
--		       regular_role->flavor == ROLE_ROLE);
--
--		if (ebitmap_union(&regular_role->types.types,
--				  &new_role->types.types)) {
-+	if (reps >= p->p_roles.nprim) {
-+		ERR(handle, "Had to bail: reps = %u\n", reps);
-+	}
-+
-+	ebitmap_destroy(&attrs);
-+
-+	return 0;
-+}
-+
-+/* For the role attribute in the base module, escalate its counterpart's
-+ * types.types ebitmap in the out module to the counterparts of all the
-+ * regular role that belongs to the current role attribute. Note, must be
-+ * invoked after role_copy_callback so that state->rolemap is available.
-+ */
-+static int role_fix_callback(hashtab_key_t key, hashtab_datum_t datum,
-+			     void *data)
-+{
-+	char *id;
-+	role_datum_t *attr, *role;
-+	expand_state_t *state;
-+	ebitmap_node_t *rnode;
-+	unsigned int i;
-+
-+	id = key;
-+	attr = (role_datum_t *)datum;
-+	state = (expand_state_t *)data;
-+
-+	if (attr->flavor != ROLE_ATTRIB)
-+		return 0;
-+
-+	if (state->verbose)
-+		INFO(state->handle, "fixing role attribute %s", id);
-+
-+	ebitmap_for_each_positive_bit(&attr->roles, rnode, i) {
-+		role = state->out->role_val_to_struct[i];
-+		assert(role != NULL && role->flavor == ROLE_ROLE);
-+		if (ebitmap_union(&role->types.types, &attr->types.types)) {
- 			ERR(state->handle, "Out of memory!");
- 			return -1;
- 		}
-@@ -2494,7 +2553,7 @@ int expand_rule(sepol_handle_t * handle,
-  * the regular role belongs to could be properly handled by
-  * copy_role_trans and copy_role_allow.
-  */
--int role_set_expand(role_set_t * x, ebitmap_t * r, policydb_t * out, policydb_t * base, uint32_t * rolemap)
-+int role_set_expand(role_set_t * x, ebitmap_t * r, policydb_t * out, __attribute__ ((unused)) policydb_t * base, uint32_t * rolemap)
- {
- 	unsigned int i;
- 	ebitmap_node_t *rnode;
-@@ -2515,29 +2574,25 @@ int role_set_expand(role_set_t * x, ebitmap_t * r, policydb_t * out, policydb_t
- 	ebitmap_init(&roles);
- 	
- 	if (rolemap) {
--		assert(base != NULL);
--		ebitmap_for_each_positive_bit(&x->roles, rnode, i) {
--			/* take advantage of p_role_val_to_struct[]
--			 * of the base module */
--			role = base->role_val_to_struct[i];
-+		if (map_ebitmap(&x->roles, &mapped_roles, rolemap))
-+			goto bad;
-+		ebitmap_for_each_positive_bit(&mapped_roles, rnode, i) {
-+			role = out->role_val_to_struct[i];
- 			assert(role != NULL);
- 			if (role->flavor == ROLE_ATTRIB) {
--				if (ebitmap_union(&roles,
--						  &role->roles))
-+				if (ebitmap_union(&roles, &role->roles))
- 					goto bad;
- 			} else {
- 				if (ebitmap_set_bit(&roles, i, 1))
- 					goto bad;
- 			}
- 		}
--		if (map_ebitmap(&roles, &mapped_roles, rolemap))
--			goto bad;
- 	} else {
--		if (ebitmap_cpy(&mapped_roles, &x->roles))
-+		if (ebitmap_cpy(&roles, &x->roles))
- 			goto bad;
- 	}
- 
--	ebitmap_for_each_positive_bit(&mapped_roles, rnode, i) {
-+	ebitmap_for_each_positive_bit(&roles, rnode, i) {
- 		if (ebitmap_set_bit(r, i, 1))
- 			goto bad;
- 	}
-@@ -3138,6 +3193,8 @@ int expand_module(sepol_handle_t * handle,
- 		goto cleanup;
- 	if (hashtab_map(state.base->p_roles.table, role_types_copy_callback, &state))
- 		goto cleanup;
-+	if (hashtab_map(state.base->p_roles.table, role_roles_copy_callback, &state))
-+		goto cleanup;
- 	for (curblock = state.base->global; curblock != NULL;
- 	     curblock = curblock->next) {
- 		avrule_decl_t *decl = curblock->enabled;
-@@ -3149,9 +3206,25 @@ int expand_module(sepol_handle_t * handle,
- 			goto cleanup;
- 		if (hashtab_map(decl->p_roles.table, role_types_copy_callback, &state))
- 			goto cleanup;
-+		if (hashtab_map(decl->p_roles.table, role_roles_copy_callback, &state))
-+			goto cleanup;
-+	}
-+	/* Expand any role attributes found in the roles ebitmap of each role attribute */
-+	if (expand_role_attributes_in_attributes(state.handle, state.out)) {
-+		goto cleanup;
- 	}
-+	/* When compiling a base module, the base module is linked and expanded (to
-+	 * verify that it could be done) and the resulting kernel module is discarded.
-+	 * But the base module is changed while linking because role attributes are
-+	 * expanded while linking instead of being expanded when expanding.
-+	 * To duplicate that behavior, expand the base module role attributes.
-+	 */
-+	if (expand_role_attributes_in_attributes(state.handle, state.base)) {
-+		goto cleanup;
-+	}
-+
- 	/* Copy types in role attribute to all roles that belongs to it */
--	if (hashtab_map(state.base->p_roles.table, role_fix_callback, &state))
-+	if (hashtab_map(state.out->p_roles.table, role_fix_callback, &state))
- 		goto cleanup;
- 
- 	/* copy MLS's sensitivity level and categories - this needs to be done
-diff --git a/libsepol/src/link.c b/libsepol/src/link.c
-index 55c29d21..da65257a 100644
---- a/libsepol/src/link.c
-+++ b/libsepol/src/link.c
-@@ -2366,120 +2366,6 @@ static int prepare_base(link_state_t * state, uint32_t num_mod_decls)
- 	return 0;
- }
- 
--static int expand_role_attributes(hashtab_key_t key, hashtab_datum_t datum,
--				  void * data)
--{
--	char *id;
--	role_datum_t *role, *sub_attr;
--	link_state_t *state;
--	unsigned int i;
--	ebitmap_node_t *rnode;
--
--	id = key;
--	role = (role_datum_t *)datum;
--	state = (link_state_t *)data;
--
--	if (strcmp(id, OBJECT_R) == 0){
--		/* object_r is never a role attribute by far */
--		return 0;
--	}
--
--	if (role->flavor != ROLE_ATTRIB)
--		return 0;
--
--	if (state->verbose)
--		INFO(state->handle, "expanding role attribute %s", id);
--
--restart:
--	ebitmap_for_each_positive_bit(&role->roles, rnode, i) {
--		sub_attr = state->base->role_val_to_struct[i];
--		if (sub_attr->flavor != ROLE_ATTRIB)
--			continue;
--
--		/* remove the sub role attribute from the parent
--		 * role attribute's roles ebitmap */
--		if (ebitmap_set_bit(&role->roles, i, 0))
--			return -1;
--
--		/* loop dependency of role attributes */
--		if (sub_attr->s.value == role->s.value)
--			continue;
--
--		/* now go on to expand a sub role attribute
--		 * by escalating its roles ebitmap */
--		if (ebitmap_union(&role->roles, &sub_attr->roles)) {
--			ERR(state->handle, "Out of memory!");
--			return -1;
--		}
--
--		/* sub_attr->roles may contain other role attributes,
--		 * re-scan the parent role attribute's roles ebitmap */
--		goto restart;
--	}
--
--	return 0;
--}
--
--/* For any role attribute in a declaration's local symtab[SYM_ROLES] table,
-- * copy its roles ebitmap into its duplicate's in the base->p_roles.table.
-- */
--static int populate_decl_roleattributes(hashtab_key_t key, 
--					hashtab_datum_t datum,
--					void *data)
--{
--	char *id = key;
--	role_datum_t *decl_role, *base_role;
--	link_state_t *state = (link_state_t *)data;
--
--	decl_role = (role_datum_t *)datum;
--
--	if (strcmp(id, OBJECT_R) == 0) {
--		/* object_r is never a role attribute by far */
--		return 0;
--	}
--
--	if (decl_role->flavor != ROLE_ATTRIB)
--		return 0;
--
--	base_role = (role_datum_t *)hashtab_search(state->base->p_roles.table,
--						   id);
--	assert(base_role != NULL && base_role->flavor == ROLE_ATTRIB);
--
--	if (ebitmap_union(&base_role->roles, &decl_role->roles)) {
--		ERR(state->handle, "Out of memory!");
--		return -1;
--	}
--
--	return 0;
--}
--
--static int populate_roleattributes(link_state_t *state, policydb_t *pol)
--{
--	avrule_block_t *block;
--	avrule_decl_t *decl;
--
--	if (state->verbose)
--		INFO(state->handle, "Populating role-attribute relationship "
--			    "from enabled declarations' local symtab.");
--
--	/* Iterate through all of the blocks skipping the first(which is the
--	 * global block, is required to be present and can't have an else).
--	 * If the block is disabled or not having an enabled decl, skip it.
--	 */
--	for (block = pol->global->next; block != NULL; block = block->next)
--	{
--		decl = block->enabled;
--		if (decl == NULL || decl->enabled == 0)
--			continue;
--
--		if (hashtab_map(decl->symtab[SYM_ROLES].table, 
--				populate_decl_roleattributes, state))
--			return -1;
--	}
--
--	return 0;
--}
--
- /* Link a set of modules into a base module. This process is somewhat
-  * similar to an actual compiler: it requires a set of order dependent
-  * steps.  The base and every module must have been indexed prior to
-@@ -2576,21 +2462,6 @@ int link_modules(sepol_handle_t * handle,
- 		goto cleanup;
- 	}
- 
--	/* Now that all role attribute's roles ebitmap have been settled,
--	 * escalate sub role attribute's roles ebitmap into that of parent.
--	 *
--	 * First, since some role-attribute relationships could be recorded
--	 * in some decl's local symtab(see get_local_role()), we need to
--	 * populate them up to the base.p_roles table. */
--	if (populate_roleattributes(&state, state.base)) {
--		retval = SEPOL_EREQ;
--		goto cleanup;
--	}
--	
--	/* Now do the escalation. */
--	if (hashtab_map(state.base->p_roles.table, expand_role_attributes,
--			&state))
--		goto cleanup;
- 
- 	retval = 0;
-       cleanup:
--- 
-2.50.0
-
+On second look, I realized that commit 243fea134633 ("NFSv4.2: fix
+listxattr to return selinux security label") was likely motivated by
+the same issue as commit 8b0ba61df5a1c44e2b3cf6 ("fs/xattr.c: fix
+simple_xattr_list to always include security.* xattrs"), i.e. the
+coreutils change that switched ls -Z from unconditionally calling
+getxattr("security.selinux") (via libselinux getfilecon(3)) to only
+doing so if listxattr() returns the "security.selinux" xattr name.
+Hence, we want the call to security_inode_listsecurity() to be
+unconditional, which favors option #2. My only residual question
+though is that commit 243fea134633 put the call _after_ fetching the
+user.* xattr names, whereas the nfs4_listxattr_nfs4_label() returns it
+_before_ any user.* xattrs are appended. I'd be inclined to move up
+the security_inode_listsecurity() call to replace the
+nfs4_listxattr_nfs4_label() call along with option #2.
