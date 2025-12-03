@@ -1,69 +1,69 @@
 Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2661376BEA
-	for <selinux@vger.kernel.org>; Wed,  3 Dec 2025 16:32:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC7C23A1CEF
+	for <selinux@vger.kernel.org>; Wed,  3 Dec 2025 16:32:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764779553; cv=none; b=O2eHeSWiVTFgsdeOtzg5FxKNmgetWHno1O86A2hFWlMMft6os205nXEdmNs25Zhkwqhah/KNOS50ljCDqyyECR4HqE9tWiVe6JxvIav6RgZEL8unh1+tS6GiyfuP4jAZ1V+8roNIpQfeVdhA7L7P5rtzMNbB90UdBrbi4q8vmCA=
+	t=1764779554; cv=none; b=CLTeRghx8H9gtmBVBvw9X7IdgrJNZ8SThtuLxf4TskLvqJt6wkI+1Xu4udAY3YvxN1ax7ojEzWqNpUm374e+ENfhVepouUt5YaKstwnJRrMa+hHSzFCKy8Z406OXdv1odUZq/jDJiRboEUqt6xaERsXCIYD9xYSkEttayVXV9Jc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764779553; c=relaxed/simple;
-	bh=GjFe7L6yy+TvfAwheju5QSPHeWndkHoS3r0/xSIuUx0=;
+	s=arc-20240116; t=1764779554; c=relaxed/simple;
+	bh=YMEiYhCjNzBqNaY/banzdZa0AOu0zf9bxkC3vUC5Uis=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=VhWLhBfH2RHvHiuoRMKDY5zEBR+IJvlxLh5TZ0O5kLosO+V38cK+CSJwHJlcRXrJzNjSqguuiskzZSpfdT8VmZ3pBKmcpqxsyBvS2d5wYPCMWjKLH5Scp3HyBBer0Bw9XiznvYXHgfP1m8t4S3C1Sv4YDBoCwIAqx3CPzZzhCKM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BnNXR8Gd; arc=none smtp.client-ip=209.85.222.179
+	 MIME-Version; b=LdTBOFEG/GW/Yzlc1o7ZIbJEsX7PWgTCmxJ18vX7NueJ1BCrd2uzCknObsJPgh1RppdMYsDy6ZxKesEdvrCNmnRcVCSnCLgDBOOIGsI6gOLDvYslmubWcFZ5DLWAL91fe+V1vb5d3RdIZlEC/m2PVDbrh/XwOWwQo8x+LxAz72k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XsesCt6V; arc=none smtp.client-ip=209.85.222.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BnNXR8Gd"
-Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-8b21fc25ae1so658599485a.1
-        for <selinux@vger.kernel.org>; Wed, 03 Dec 2025 08:32:31 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XsesCt6V"
+Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-8b21fc25ae1so658601785a.1
+        for <selinux@vger.kernel.org>; Wed, 03 Dec 2025 08:32:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1764779550; x=1765384350; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1764779551; x=1765384351; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=kVzaAyJvhGMcBfiSytha9Bx0/ThVF6tyKDID5OUWJO4=;
-        b=BnNXR8GdnZktnzJlt0NCtPEXnJDsDnYfN90PcWGvqCQz/OuEoWXuf1CMucniwfWf7H
-         hRO/bIIxmyar39k7ARpaD3hb9rqbGni6Dkv98O2U5Vf0KwH9OCumU578c0WOHGLHLbIO
-         YBB1EdGxDLPdOe+I9WrooYJOBfopJd4Cl+LKN6HgBVlR/x2evi+r72HAx9KMbr6oAuee
-         acV/1NxxInm+bIDyxzZRJO29Rjq3F/h858VmCn0s2o4DvatL/zFDwjP5QzcvaZOkK3sM
-         bpZtbnGorVUEZP2x8GzEcV1B/xSnWitYho8Pl41gSN20kbdUomB3qWLleaeW2GY3FVPc
-         scXw==
+        bh=amQAODbbqlbUJt3HX5X1LyF+s3TCIELjpcRP5NTe0rU=;
+        b=XsesCt6VmrCMFCPhCXa5aOH6Jug92RqS/4Mpzr+nDtyo/v0f/Z1ifIvFBXFKZDOxPd
+         LkAQ7OthtmfAtSlCIhZ+1JO3dzuzB4dUU3c7ij5ceIwZX4LIDxZk/zN36yLTn4/ZEnRu
+         upWHpwbhXJN1EGJ991ZH4aR38z3m9NTgg2w02ZUDMfmYidK0E2LT4E07qW+CQ0+Fw5Cw
+         6P6t9LVNWnNqRT1vG40uXaW2Ro4tUQ6G4a153gQrhzQfl26WVg5+cghdfbdlSstnKlRK
+         58eB6fhr3wdD29HxFqARqIzlbn09aY2Q2UHun89kUTIuadqTOtfI0ov9U3RGP9+flcPr
+         q7Vg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764779550; x=1765384350;
+        d=1e100.net; s=20230601; t=1764779551; x=1765384351;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=kVzaAyJvhGMcBfiSytha9Bx0/ThVF6tyKDID5OUWJO4=;
-        b=Y1HyPFvbVLNCGxoZj6vba84Vf2Jdu6sBqiCt3LWmzo9EQ5U5ce+npcPsgOkGT0yXRH
-         BvVLOgQ/ADH46dSCyn5Zz5wHPpDFx5hwKQ6Y5KZQXcyUCj7pCS4falmrK4AxaaFMHt9y
-         5MPJWyuVo+Ev1mGA2Ns0M/Yl3/ZSxXOkOMSp5Rhslo/uv/Cvf6wAO6Qwd1yDJ+1YpAIe
-         xS4eWLR18USxNAn2GVFTFqqdWAN2rnJb3zMuVX2slvxN7WVBRjDZfb5I69YpaX/oVANd
-         rekgUJjURkC5Owc3x3+aTVHdEsoOgebEE3v17IDSOa+DxY+CRUSWu93JL2a6mtDwCeCP
-         MzfQ==
-X-Gm-Message-State: AOJu0YxVmmt4w2NKfPbzbx+Z01xAKU+IzquoIOcTvabmVXyawMY6YzKw
-	yr2tvESK18RjcTq2PcYdy/xzcd7VLOlJMhVtUqyHZe9Vjkf5SZ/IqNNXxS6pVg==
-X-Gm-Gg: ASbGncuE0qh+k0rykKbah96sMyAtN9VAimVCuIs1e7a69hLMkdekQN9Q8fmM/SF6WpJ
-	SWdXcL4NVZ9QZhi7cSk4tNY/RXKspIRKYHVTQpReLwL+NzV7npd/DuIIAmq5tTGWthVF69ni8QJ
-	Saqgw1g3RmqbvslEIcQMACZyxHJykYtglMJxvVXzwr0jOjb98og/HSA3XDebzU9LhLpWOWoJxNp
-	tQxb2Lj83tUB0I5TR612H9NZiNPV3Ele7mFSwNTXGVhV9wTvnHtIcIIWaJ1sVOcASwt7WU6vwlm
-	JqBa4+RFLWNCTiC5zDfEFgLcMaVpTj7w0bgl0ba7abAZWeO2+Oe2Wnn51a2x2ZJIG8jTyoPmOWA
-	dzcs0PjXrze4V+r627bZeXv5PZscyA/UZkLWlVu5CYec4jkeBbJTiEx95NwdWRLRJNrueZdodY+
-	zmgxkDMMAQtnufN9JIx6I=
-X-Google-Smtp-Source: AGHT+IGRkpzH5NCGc4OOZR5fWmiIPEE69O/6MGSltfyFDj3DdFi0oyXMoJP7r5oZwGiCNJvGp5prvA==
-X-Received: by 2002:a05:620a:711c:b0:893:31da:1028 with SMTP id af79cd13be357-8b5e725fbffmr381239285a.90.1764779550271;
-        Wed, 03 Dec 2025 08:32:30 -0800 (PST)
+        bh=amQAODbbqlbUJt3HX5X1LyF+s3TCIELjpcRP5NTe0rU=;
+        b=kKS4AAb6o2u/GLftmFxh0hlisNLMna5mGm8l2UzVRlxHCSF+cAzG+n0j08madKyJJF
+         SxsXiag6v/gXh9w79OOklI0/zmESuNft2oZzOZICW9GH61Ers61FSVIYYhZryI1TndWK
+         iXzf/9rHQObHNhj7/8YA3PD0/ax2LKFMdAAswax9NpSbT5Q3XNCBZ3TDHVY8zWD/qOo9
+         71csQrVbOYFmkIPWjf4NBvJvOBYI02aXxBzTAPYdNTYU5uOuYs9asV0MqOkIJMCOGnGQ
+         dycni8U4q34wnFbLu2REIX+4HNoikGYXvCWcR8Vxs7b3PFc0jF48Ums5EB/AjPhCnbji
+         RXDg==
+X-Gm-Message-State: AOJu0YyFgcmE5N91neQkJQVC2T4KqJDC+5K0hPw0xRzUqdG1FBxIBvx4
+	xAlINR21OCE+lprgyKVp5P/5F8mabwraWxIVLL4pz744IUG7vDD42+LiVZwbwQ==
+X-Gm-Gg: ASbGncvQ2KrFQDVj8WY+w4KkYKWmpbcejg9trnUYb4bUhAruf6fH2u3MOEuq/ZgZ0WH
+	IUGRDEOn6FOFtGZOB/t8uu4N2n0gyD6H8rbSmORq7gCPW3BgZymcpllrYLFPTTAfewsgRybw4hl
+	VJsF+4ueOdhbT3d8FUNbUm/g/8nPI7TaH4di6+VXU5WKngqI0e3OxmQtV2CCaz77hW1p2zXg7mM
+	KFaaEf1YvZew6385rO+J7aP5/OC/3nVqKfZjXgfC+Cbs1mvXnGWg/pVmwK8Z7Dnp0ARNifOSBHT
+	h1OWOC/W1/U0O+SIbycpLsud+D5muD0DmeIAfnNWyhOGa6qJpMAsv+W7zVGS6pRDuIaIQS/VXqm
+	yQcI8O0NXuC8iYW87FoIDE3F8qMDAZ8A9tIZCcE5ZvLrE1LrY4GaeRUadBWcMYpcHPpMrB+Ozja
+	4J4QhQ4z23JDrWh6Dx6g0=
+X-Google-Smtp-Source: AGHT+IHMx03+xNK2U2wn7ldOuummO8quMVmGEExJ8JTE8rOSjE9nzb9l/GhUa0c1k1c8ZX7g0/yHGQ==
+X-Received: by 2002:a05:620a:4506:b0:8b5:dbd9:2114 with SMTP id af79cd13be357-8b5e2496a61mr401534085a.0.1764779551351;
+        Wed, 03 Dec 2025 08:32:31 -0800 (PST)
 Received: from fedora ([144.51.8.27])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8b52a1cad4esm1333399485a.45.2025.12.03.08.32.29
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8b52a1cad4esm1333399485a.45.2025.12.03.08.32.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Dec 2025 08:32:29 -0800 (PST)
+        Wed, 03 Dec 2025 08:32:30 -0800 (PST)
 From: James Carter <jwcart2@gmail.com>
 To: selinux@vger.kernel.org
 Cc: James Carter <jwcart2@gmail.com>
-Subject: [PATCH 2/6] Provide a better error message for implicit role and user bounds
-Date: Wed,  3 Dec 2025 11:32:14 -0500
-Message-ID: <20251203163218.54939-3-jwcart2@gmail.com>
+Subject: [PATCH 3/6] Fix an error in the policyd validation of user datums
+Date: Wed,  3 Dec 2025 11:32:15 -0500
+Message-ID: <20251203163218.54939-4-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.50.0
 In-Reply-To: <20251203163218.54939-1-jwcart2@gmail.com>
 References: <20251203163218.54939-1-jwcart2@gmail.com>
@@ -75,93 +75,44 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Implicit role and user bounds requires the role and its parent to
-be in the same scope. The current error message says that the parent
-does not exist, but, in fact, the parent could exist in a different
-scope.
+If a user is in a require block in a base module, then a user datum
+will be created for the user. This will cause the policydb to fail
+validation when the base module is loaded if the required user is
+not in the base module because the MLS level and range will be
+empty.
 
-Instead, have the error message say that the parent was not found
-in the same scope.
+Make sure that a level datum has a sensitivity and fail validation
+if it does not, but allow levels and ranges in the user datum to
+have no MLS information.
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- checkpolicy/module_compiler.c | 34 ++++++++--------------------------
- 1 file changed, 8 insertions(+), 26 deletions(-)
+ libsepol/src/policydb_validate.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/checkpolicy/module_compiler.c b/checkpolicy/module_compiler.c
-index efbcfa7d..4b2f98d8 100644
---- a/checkpolicy/module_compiler.c
-+++ b/checkpolicy/module_compiler.c
-@@ -207,8 +207,7 @@ int declare_symbol(uint32_t symbol_type,
- 	return ret;
- }
+diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
+index d441526e..fb79c8d9 100644
+--- a/libsepol/src/policydb_validate.c
++++ b/libsepol/src/policydb_validate.c
+@@ -665,6 +665,8 @@ bad:
  
--static int role_implicit_bounds(hashtab_t roles_tab,
--				char *role_id, role_datum_t *role)
-+static int role_implicit_bounds(hashtab_t roles_tab, char *role_id, role_datum_t *role)
+ static int validate_mls_level(const mls_level_t *level, const validate_t *sens, const validate_t *cats)
  {
- 	role_datum_t *bounds;
- 	char *bounds_id, *delim;
-@@ -226,21 +225,13 @@ static int role_implicit_bounds(hashtab_t roles_tab,
++	if (level->sens == 0)
++		return 0;
+ 	if (validate_value(level->sens, sens))
+ 		goto bad;
+ 	if (validate_ebitmap(&level->cat, cats))
+@@ -681,6 +683,9 @@ static int validate_level_datum(sepol_handle_t *handle, const level_datum_t *lev
+ 	if (level->notdefined != 0)
+ 		goto bad;
  
- 	bounds = hashtab_search(roles_tab, bounds_id);
- 	if (!bounds) {
--		yyerror2("role %s doesn't exist, is implicit bounds of %s",
--			 bounds_id, role_id);
-+		yyerror2("Implicit role bounds declared (%s), but the parent (%s) was not found in the same scope", role_id, bounds_id);
- 		free(bounds_id);
- 		return -1;
- 	}
- 
--	if (!role->bounds)
--		role->bounds = bounds->s.value;
--	else if (role->bounds != bounds->s.value) {
--		yyerror2("role %s has inconsistent bounds %s/%s",
--			 role_id, bounds_id,
--			 policydbp->p_role_val_to_name[role->bounds - 1]);
--		free(bounds_id);
--		return -1;
--	}
-+	role->bounds = bounds->s.value;
++	if (level->level->sens == 0)
++		goto bad;
 +
- 	free(bounds_id);
+ 	if (validate_mls_level(level->level, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
+ 		goto bad;
  
- 	return 0;
-@@ -456,8 +447,7 @@ type_datum_t *declare_type(unsigned char primary, unsigned char isattr)
- 	return type;
- }
- 
--static int user_implicit_bounds(hashtab_t users_tab,
--				char *user_id, user_datum_t *user)
-+static int user_implicit_bounds(hashtab_t users_tab, char *user_id, user_datum_t *user)
- {
- 	user_datum_t *bounds;
- 	char *bounds_id, *delim;
-@@ -475,21 +465,13 @@ static int user_implicit_bounds(hashtab_t users_tab,
- 
- 	bounds = hashtab_search(users_tab, bounds_id);
- 	if (!bounds) {
--		yyerror2("user %s doesn't exist, is implicit bounds of %s",
--			 bounds_id, user_id);
-+		yyerror2("Implicit user bounds declared (%s), but the parent (%s) was not found in the same scope", user_id, bounds_id);
- 		free(bounds_id);
- 		return -1;
- 	}
- 
--	if (!user->bounds)
--		user->bounds = bounds->s.value;
--	else if (user->bounds != bounds->s.value) {
--		yyerror2("user %s has inconsistent bounds %s/%s",
--			 user_id, bounds_id,
--			 policydbp->p_role_val_to_name[user->bounds - 1]);
--		free(bounds_id);
--		return -1;
--	}
-+	user->bounds = bounds->s.value;
-+
- 	free(bounds_id);
- 
- 	return 0;
 -- 
 2.50.0
 
