@@ -1,235 +1,84 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+Received: from sonic301-38.consmr.mail.ne1.yahoo.com (sonic301-38.consmr.mail.ne1.yahoo.com [66.163.184.207])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4D7B2FB627
-	for <selinux@vger.kernel.org>; Wed,  3 Dec 2025 20:01:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52EF23277B8
+	for <selinux@vger.kernel.org>; Wed,  3 Dec 2025 21:53:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.184.207
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764792120; cv=none; b=qq8MFuy2Hxun75W42I7vOHtj6vYEnax4dna2qBVVtUyzfDd0c7at5TaRqY3p8Jt/Jl1fGKZ9CTXt2ZnN/P3WREzfKzHsW4JvAmhQflt3KZFvncfrnlYJHinawVfj52zWHxEX0JVQ7RZOt3yCI4UC2LaQrYrb8hbn6ZtMeZS95mw=
+	t=1764798799; cv=none; b=cY37tfkIuFIdff/i/PFLJmVe7j0A6uLyTaLkWJa04trnir5qAAGx4SR59hxWFWC78ZW+amclhIs6DCzIVRY1kpzqFpK/jOuCsQ+pCgRvkaaO1VA+D7mxjQLcN8fRkj6ar0mNr7N5U9HnKLFD0gRqpMv7vDCppXCOCeHP3SpP48M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764792120; c=relaxed/simple;
-	bh=hbRxPzrFs0+hdOQNG7cizB6rmMqCryN13XBu971WWrc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=J9hsKaq/p9/xTM9GDMtAxNq48D18dhjImhI2m5rHEZ+lmEnAZkU/2kk25rsVHYH04P8yd0pZyoHEC/9NZ+kk6P2FpJGcdKUYTF0TzFDiraJnVYivKreg5hkYfUkCMy+AwX+uv60xYOP68udFYsK3bSluOgpHCxP3diQiiRpN1wk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Gua5w8vu; arc=none smtp.client-ip=209.85.214.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1764798799; c=relaxed/simple;
+	bh=zKrugURZRPn7whQW2IIEmAugbQcKC61BcxEZrPBs+NE=;
+	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type:
+	 References; b=pB1LmZ/w1rvyg9lXeSIjMYaAHUkQC8rN3JqOCvWIGBcB4uepDrg/Wc5E/T6TTDeAbRV7Kml45Bp+MPUTfsWA3FOHrLiMhJiMIo+t6czUsq+L9PO+B8FMWxqLkKJoj3dEpefy1c+u9L1F9gUytxlk2l7sn8G5rYA/VoYJY5B5EvU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=RJX4eWKI; arc=none smtp.client-ip=66.163.184.207
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Gua5w8vu"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-29812589890so2164495ad.3
-        for <selinux@vger.kernel.org>; Wed, 03 Dec 2025 12:01:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1764792116; x=1765396916; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=lWaqHaC4GF2GSiscDP1QV02fWUrsKcrNYOyAr5e3bj4=;
-        b=Gua5w8vuNJ0CIFuzPH5VMXH+Unqz3dxMkoqGogUFBB+/hM9CqQmuyIED5ze48QVDC7
-         F6xjoTrULY5M7EqT+AJZD0hvqAMNJ+PRrlr6Inntq3kBJ++u/tLReaA3IV1lS0zOemH2
-         b98G4f/j+wrWww+ymeJ+M9jZJuFujJi2Tl+6K8JwPFpHPssQKU0/P5lu18EXGIWaXATB
-         PSH2hLh2kN6uZUfSCgb3MtXCNtgVXfbIPyMVI7dOhDuHYJZig8JspbUyPrEoE7Hexahz
-         pKg0AU3P0vZH0gGCXzCJosTJIMSFqKCpf1JnHfZyKwIgNEpRufT8Jeldhz1ihTYtv/QT
-         dB2w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764792116; x=1765396916;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=lWaqHaC4GF2GSiscDP1QV02fWUrsKcrNYOyAr5e3bj4=;
-        b=B5f4nHJENhZPpX9vu3F+rdkbr/8f4XGgoVvzT6SVDuDH44HTCu3+qW/gX6XW+Jmzzt
-         Jfa6L5nlKX1kTcMima0TuA5z7sScr/FFv+FvlaaxorFnBTu7FR93BEduLwoNYdkfQlgW
-         bVRSqObk95CGwGbhHeXKnmyJLA1k/qq5Yc6Lfq83zHspitgstX1l5bY1+vnB0sVrWXM6
-         VVEXxxJbUnnHktt4NBeQEtDsZUvYu9AQ1LkJ1d34gs1eWXobCmqly61rpM2tbqO82TBj
-         mahlw3Iw3YlDOGI73oQh+ajKHd9TmtOOP1kGj4IvhCneQ9ddyECbANkMAO/Cg2/MdFSc
-         It0Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUviWLxZ1Utxlc+9q2mXXixoEwUrjRQnTkWJAPWwMhrLq3ODzIW//Dsss3rrkHLYy1Fu8Jx5aNP@vger.kernel.org
-X-Gm-Message-State: AOJu0YzqDmfTxUvgN+sZCE8q9eo46mpRQ9LYnAwUjR1t5A5Nb24WgmiT
-	Lb839u3IA556traXlY/ThoyqDvR2rL+lwYDH15kdpH2kF+4SSs91ST8Ho5RCBUGEySlWbhUJ5im
-	LCVvNeC5x1nt5N91WvXu/bbn73Dbq75U=
-X-Gm-Gg: ASbGncuQ5REsXNDVU8r4bzid930i94FIDIcGKgnMF8ullFR7xh2+NHOoMvD5ftVLG+A
-	DI+gCxdbFfQMvOHkVThET9etOZKTdvkpIIPGGdSLG+tNjchbQ6gGqYvw3ME9YuVnVNjIWs/aeev
-	59TTcFMy2azhK0KII2v7GH4wQtbuvFB9tmgWCLpUzAH2L2fFoArBSqRCSs9t8sCF564+8rLUlCj
-	xr/C12Wirx0zEQ+kRCPSZg517xAku15vboPUfaCzvRIHP3iDxIzlD9voqAm9YhOr1sojck=
-X-Google-Smtp-Source: AGHT+IFMW2zvGnUfsXUU0ZfhpGZCjO/uFcPG/fkXmof4XTwIGBBP8YMgombNXaZ4eGJxAoBe7L60wBZMW3zl1igUF10=
-X-Received: by 2002:a17:903:1aec:b0:298:485d:556b with SMTP id
- d9443c01a7336-29d6833a74fmr38470125ad.5.1764792116164; Wed, 03 Dec 2025
- 12:01:56 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="RJX4eWKI"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1764798796; bh=zKrugURZRPn7whQW2IIEmAugbQcKC61BcxEZrPBs+NE=; h=Date:To:Cc:From:Subject:References:From:Subject:Reply-To; b=RJX4eWKIyNmf2B+t1TlFUOxQmanpFqqXH2JRwPpFoNdvowQWOFpjcysdu40nWH6ABIrdHHkuRVGyEDRABAqqrcmj1uXWbInGESYMmu2WfMpZTYkzMfehCTj+uE8NAcl53pVErBju3QhhJH2njagCsysz3O0XzW0E0Sx4wa2MaLkoFI9c1rFTnO2sDgzVpF54LFV5SAQuvYJm2e9/NOv5/WmDPPW2wPCqXqDegxInKaR6nAFiQ+CQmUcRTqTtMQCvyPKAdytPc+CKmjX0V/QqTrzFSLgQX+/pNaxxjyizQeobr8mQvY133C+rUd85UeypWKiQ5zuhOHTnJVAk50M8cA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1764798796; bh=UCueqRd5XO3mDxLcKf7J9QThI2TsrsI8OV1BvNLdl0Q=; h=X-Sonic-MF:Date:To:From:Subject:From:Subject; b=icbpk09/MdW4D/nxUlnofHLfBhzGnGAHHc8nyWVwYY6DAhIq+j7LJPStefQud1HyEiB36cupFbvyhjRyxanMMO9Y+e5dhoIQamstWQ22ZvE1e5yCVlfuhE9Tk+MkS6UYgSHhqoq74iAqfGExSCermw6K7ZjpHzjIfxcKQTWmjREuybtlhI/xhdn3v1UqgEBAoYapO9CtunfGhG+WCxuu/fR9O4Wco1t81K4CC9SdYsPNKoW2J2iBJD/CjYnz23kSe4uIoTINXPLIL49KHqu/FK3FCOAVBj7i4DDJOFCBvZdqq2uoxSOXqj9z6Y6UbdMWgfiDIPpKOkvlbEfejtfmOA==
+X-YMail-OSG: xzcR16YVM1l2r3t0DPHZuhf65mOHk0bNjig2G4Ppxru6oXOa3dak5WZpfepEe16
+ vnshnlBlSuis5JmV1yyppq1QZCCZSdOIUlr3N7UYnsH1KZXvyEYRDOm9WhwK0fGmsBnKu40wapQA
+ jeZy3JlnnbYBhb321ZNch0Hrg0I3beXD2Gok5xqvyVJQFU0H2_V8ElOJ8414W9_HxqphWGnlQtLU
+ YmLiWGc0EIZHwkIVVY.tfHgWJZuT8xH9F8J3MD5uasNCAMIPtXFbO2dLLFR6.K_wXcksXDKog6rO
+ xss0LhGw1jxABRbsnJN8xcUjwcXYlIMU.kUGEswggPm_deZALtnHlRlBVNH18GoKtcnCYC5kcgyy
+ _qldcyqWGmtCZQDIlyW9CiJk0B8KgpQqihryswve2WZ88Mlilf72oPUsWop74RHGwXj3PE2bcATA
+ 2z9B8vLCGFq0oXU2otcg3.38PCv2rACV6CGKX3rQPKFQfCjrfSPBiae3IEwniIVPJX5XAraPm1rB
+ PCkfEvs8Y7i_9s.1wSrERDD.GTLFn1jv8G922GZuuw.Y7dotvThRJEpvJ7dIHkfVfWWpGbEMHVqy
+ TouRNLxFSGDOdiyAbaI1myvc0jMXKBH5iozZTR0RxI_w0_gU6FTmp8Xkh2J8FGzfR.46uq.TM9ZF
+ AOtiixNqKIn7DVz6DGrB22h6ykQC95OiEBp6GKHExKYz8FxDotiNxuKjpgvHLv_yqfEQgVRgsZRa
+ WKPleAMNxTTSHDpTZzRAUR8lQTvnJy4fpeAwW2uLvX5ZoXro6iO.uel1LakIc0wP5vCwpINQXJ4n
+ 4l7Xuk.tjYl73p2cx1uDpezzBVE8INg6LKZ6rfFDhUldQnehp7SpIcfvKB37kWC4c.nSLGWS32At
+ uwUU5KctaRog4dHNz2eCUg4hFsLcEcE5nN1pOsIWnMpi3uDixm7L50b6JRuPJW8gGA1mTd4j7js3
+ ZejIatkkX0kUq.g66uMxuB8w2m5ZmL1VSwEYzoNrC4mGhfM2ttfsyJkC02hdXg4qQFFotUZO1DA6
+ P4u0MPErs1c3GKZGql3xkQepAG.wnqZ5.UBq3UMp2_OC1lmo4TH7pltbeXpzhhqb40vRR7Yulofr
+ Y6_Eaxn1t98_VPVfVq3K_Ol4hnbFwnhGNbA0uFXblxdf568nO_5oV8ZO8AH6ylV585nHmyK0vDXA
+ 6P21e2g.QtvOBSRJ8U.J2PdMaJGqlqR4636bDebQxXzrnSFwFxhiTUvW_mh39cCWqwFLo4SYKue3
+ ie.4gNMhpHsz2g0G7.Dmscl2yBj8Ip.0sL2XY2W9KbRnoOsKvkVt6imrQBV577TgLeNV4yKAIUBv
+ Lh.zW2oPtqdewTorTC_9k6Ro0p204N9PZw39yYvHhpZqP0h2eBRxa.QSdi6OESqpR2jewlKGdXZZ
+ 3_0Rkc0BUNvGkdQmE2XMhnuJcOaPT7qaZ1Y4oUVntBG.XWRq4XKuExl3JCZ7mspDRw5UIJ9nFOHD
+ l5.zQsoeN0FyuhvAptOE4lM.QxHHok6RZs6jU6t0lJTwqEu1KP1hlwBuBcJJI1NLHsd.ejcLrtxq
+ B3IBZz_AIG.xkVZrhBVFlQUZuFnmQd8TC1hOIvkZVr22o8vprUKAfiOH6a6z7tB3gdVyZDKui25f
+ OJO6HUTyb174prxglGkx5jq_cX.KrNnCawAuEqyTu7RI13z1Ni5z421bsbsQkldEqMuFe0CBT2w7
+ occp25SXNGNhjhZFLQwAxIHOv9U_G2TiH3aKwvVy.XLNkj3KZvr6DDkXR6kSqdRSIPM890eC4_.f
+ _ZTslclzia2syNxIumfa8P5VjRuEHI1_UDTAi2Ov6Cr1guQsKU7vp3x9PFviWBErxZ2vpnPYdcXx
+ uuBR3vOOxPvIbKofGgWyN7i0icVtCPsYQs9TMOdGcTWDr8opX.F4SldzLuD4I1SiKhWL4VRIl9Mr
+ 89FACDn.A0cZARMbGAUOkxKhVbksKGoyeAcfAKtMURX0EaxuUk61vYmFuga1MxA46cfelsNuoJbA
+ SjIvShSIDCrI4T_LkOdWdZLsbPol2imz92nIVewzukueZ2yOOmibjedG0dapvO7Znd_ysbrX2naQ
+ 4VDo3WWYm8qyS1XGgO70K2Lxym_bj6d9nrTfJdPn.bp_ATa01RE7DhrlYBwl894Bswy7yLoN56Y7
+ Vp2GxFaSTtsM8YE.J7HSP6xtTAZBsg_dHlgDNSPxleA8Vlnc.cwtoh4jnNqhu1HFfC7PeiInLChw
+ SKk6cwl620sRWsNYFdJxBhS0vN1AcCgcQ4Em2zkzEf5OH6IjAVLG.VVYsbM.EoL3TBkToVSUOH71
+ VL9JK
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: d9712815-5925-4f55-b6be-a69180cc3166
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.ne1.yahoo.com with HTTP; Wed, 3 Dec 2025 21:53:16 +0000
+Received: by hermes--production-gq1-fdb64d996-j67dx (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 76d7dc38f9359a00d8772e98ba4ff629;
+          Wed, 03 Dec 2025 21:32:57 +0000 (UTC)
+Message-ID: <cb4293da-41dc-4586-adca-2859944905dc@schaufler-ca.com>
+Date: Wed, 3 Dec 2025 13:32:55 -0800
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250428195022.24587-2-stephen.smalley.work@gmail.com>
- <CAHC9VhQfrMe7EY3_bvW6PcLdaW7tPMgv6WZuePxd1RrbhyZv-g@mail.gmail.com>
- <CAHC9VhQyDX+NgWipgm5DGMewfVTBe3DkLbe_AANRiuAj40bA1w@mail.gmail.com>
- <6797b694-6c40-4806-9541-05ce6a0b07fc@oracle.com> <CAHC9VhQsK_XpJ-bbt6AXM4fk30huhrPvvMSEuHHTPb=eJZwoUA@mail.gmail.com>
- <CAHC9VhQnR6TKzzzpE9XQqiFivV0ECbVx7GH+1fQmz917-MAhsw@mail.gmail.com>
- <CAEjxPJ7_7_Uru3dwXzNLSj5GdBTzdPDQr5RwXtdjvDv9GjmVAQ@mail.gmail.com>
- <CAHC9VhQDHTNkrB4YuNoafM0bhAav=CP5Ux6ZZGY9+WF0+0_9ww@mail.gmail.com> <CAEjxPJ6e8z__=MP5NfdUxkOMQ=EnUFSjWFofP4YPwHqK=Ki5nw@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6e8z__=MP5NfdUxkOMQ=EnUFSjWFofP4YPwHqK=Ki5nw@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 3 Dec 2025 15:01:45 -0500
-X-Gm-Features: AWmQ_bmK8IWF69Ya7Il-q1NU_c222p9dRgleuYlQl2p8kptbZYlJgZKkfKVtZaM
-Message-ID: <CAEjxPJ4T4srp91xsfbVd357Fhwb6Mx_3RGxCHT8Tnk_zk38m+g@mail.gmail.com>
-Subject: Re: [PATCH v2] security,fs,nfs,net: update security_inode_listsecurity()
- interface
-To: Paul Moore <paul@paul-moore.com>
-Cc: Anna Schumaker <anna.schumaker@oracle.com>, Trond Myklebust <trondmy@kernel.org>, 
-	Anna Schumaker <anna@kernel.org>, Jakub Kicinski <kuba@kernel.org>, 
-	Casey Schaufler <casey@schaufler-ca.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, James Morris <jmorris@namei.org>, 
-	"Serge E. Hallyn" <serge@hallyn.com>, Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, 
-	Willem de Bruijn <willemb@google.com>, "David S. Miller" <davem@davemloft.net>, 
-	Simon Horman <horms@kernel.org>, Ondrej Mosnacek <omosnace@redhat.com>, linux-nfs@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, netdev@vger.kernel.org, 
-	selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Content-Language: en-US
+To: LSM List <linux-security-module@vger.kernel.org>
+Cc: SElinux list <selinux@vger.kernel.org>,
+ Casey Schaufler <casey@schaufler-ca.com>
+From: Casey Schaufler <casey@schaufler-ca.com>
+Subject: set_security_override_from_ctx()
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+References: <cb4293da-41dc-4586-adca-2859944905dc.ref@schaufler-ca.com>
+X-Mailer: WebService/1.1.24794 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-On Wed, Dec 3, 2025 at 1:08=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Wed, Dec 3, 2025 at 10:55=E2=80=AFAM Paul Moore <paul@paul-moore.com> =
-wrote:
-> >
-> > On Wed, Dec 3, 2025 at 10:35=E2=80=AFAM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > > On Wed, Jul 23, 2025 at 10:10=E2=80=AFPM Paul Moore <paul@paul-moore.=
-com> wrote:
-> > > > On Thu, Jun 19, 2025 at 5:18=E2=80=AFPM Paul Moore <paul@paul-moore=
-.com> wrote:
-> > > > > On Tue, May 27, 2025 at 5:03=E2=80=AFPM Anna Schumaker
-> > > > > <anna.schumaker@oracle.com> wrote:
-> > > > > > On 5/20/25 5:31 PM, Paul Moore wrote:
-> > > > > > > On Tue, Apr 29, 2025 at 7:34=E2=80=AFPM Paul Moore <paul@paul=
--moore.com> wrote:
-> > > > > > >> On Mon, Apr 28, 2025 at 4:15=E2=80=AFPM Stephen Smalley
-> > > > > > >> <stephen.smalley.work@gmail.com> wrote:
-> > > > > > >>>
-> > > > > > >>> Update the security_inode_listsecurity() interface to allow
-> > > > > > >>> use of the xattr_list_one() helper and update the hook
-> > > > > > >>> implementations.
-> > > > > > >>>
-> > > > > > >>> Link: https://lore.kernel.org/selinux/20250424152822.2719-1=
--stephen.smalley.work@gmail.com/
-> > > > > > >>>
-> > > > > > >>> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.=
-com>
-> > > > > > >>> ---
-> > > > > > >>> This patch is relative to the one linked above, which in th=
-eory is on
-> > > > > > >>> vfs.fixes but doesn't appear to have been pushed when I loo=
-ked.
-> > > > > > >>>
-> > > > > > >>>  fs/nfs/nfs4proc.c             | 10 ++++++----
-> > > > > > >>>  fs/xattr.c                    | 19 +++++++------------
-> > > > > > >>>  include/linux/lsm_hook_defs.h |  4 ++--
-> > > > > > >>>  include/linux/security.h      |  5 +++--
-> > > > > > >>>  net/socket.c                  | 17 +++++++----------
-> > > > > > >>>  security/security.c           | 16 ++++++++--------
-> > > > > > >>>  security/selinux/hooks.c      | 10 +++-------
-> > > > > > >>>  security/smack/smack_lsm.c    | 13 ++++---------
-> > > > > > >>>  8 files changed, 40 insertions(+), 54 deletions(-)
-> > > > > > >>
-> > > > > > >> Thanks Stephen.  Once we get ACKs from the NFS, netdev, and =
-Smack
-> > > > > > >> folks I can pull this into the LSM tree.
-> > > > > > >
-> > > > > > > Gentle ping for Trond, Anna, Jakub, and Casey ... can I get s=
-ome ACKs
-> > > > > > > on this patch?  It's a little late for the upcoming merge win=
-dow, but
-> > > > > > > I'd like to merge this via the LSM tree after the merge windo=
-w closes.
-> > > > > >
-> > > > > > For the NFS change:
-> > > > > >     Acked-by: Anna Schumaker <anna.schumaker@oracle.com>
-> > > > >
-> > > > > Hi Anna,
-> > > > >
-> > > > > Thanks for reviewing the patch.  Unfortunately when merging the p=
-atch
-> > > > > today and fixing up some merge conflicts I bumped into an odd cas=
-e in
-> > > > > the NFS space and I wanted to check with you on how you would lik=
-e to
-> > > > > resolve it.
-> > > > >
-> > > > > Commit 243fea134633 ("NFSv4.2: fix listxattr to return selinux
-> > > > > security label")[1] adds a direct call to
-> > > > > security_inode_listsecurity() in nfs4_listxattr(), despite the
-> > > > > existing nfs4_listxattr_nfs4_label() call which calls into the sa=
-me
-> > > > > LSM hook, although that call is conditional on the server support=
-ing
-> > > > > NFS_CAP_SECURITY_LABEL.  Based on a quick search, it appears the =
-only
-> > > > > caller for nfs4_listxattr_nfs4_label() is nfs4_listxattr() so I'm
-> > > > > wondering if there isn't some room for improvement here.
-> > > > >
-> > > > > I think there are two obvious options, and I'm curious about your
-> > > > > thoughts on which of these you would prefer, or if there is anoth=
-er
-> > > > > third option that you would like to see merged.
-> > > > >
-> > > > > Option #1:
-> > > > > Essentially back out commit 243fea134633, removing the direct LSM=
- call
-> > > > > in nfs4_listxattr() and relying on the nfs4_listxattr_nfs4_label(=
-) for
-> > > > > the LSM/SELinux xattrs.  I think we would want to remove the
-> > > > > NFS_CAP_SECURITY_LABEL check and build nfs4_listxattr_nfs4_label(=
-)
-> > > > > regardless of CONFIG_NFS_V4_SECURITY_LABEL.
-> > > > >
-> > > > > Option #2:
-> > > > > Remove nfs4_listxattr_nfs4_label() entirely and keep the direct L=
-SM
-> > > > > call in nfs4_listxattr(), with the required changes for this patc=
-h.
-> > > > >
-> > > > > Thoughts?
-> > > > >
-> > > > > [1] https://lore.kernel.org/all/20250425180921.86702-1-okorniev@r=
-edhat.com/
-> > > >
-> > > > A gentle ping on the question above for the NFS folks.  If I don't
-> > > > hear anything I'll hack up something and send it out for review, bu=
-t I
-> > > > thought it would nice if we could sort out the proper fix first.
-> > >
-> > > Raising this thread back up again to see if the NFS folks have a
-> > > preference on option #1 or #2 above, or
-> > > something else altogether. Should returning of the security.selinux
-> > > xattr name from listxattr() be dependent on
-> > > NFS_CAP_SECURITY_LABEL being set by the server and should it be
-> > > dependent on CONFIG_NFS_V4_SECURITY_LABEL?
-> >
-> > Thanks for bringing this back up Stephen, it would be good to get this =
-resolved.
->
-> On second look, I realized that commit 243fea134633 ("NFSv4.2: fix
-> listxattr to return selinux security label") was likely motivated by
-> the same issue as commit 8b0ba61df5a1c44e2b3cf6 ("fs/xattr.c: fix
-> simple_xattr_list to always include security.* xattrs"), i.e. the
-> coreutils change that switched ls -Z from unconditionally calling
-> getxattr("security.selinux") (via libselinux getfilecon(3)) to only
-> doing so if listxattr() returns the "security.selinux" xattr name.
-> Hence, we want the call to security_inode_listsecurity() to be
-> unconditional, which favors option #2. My only residual question
-> though is that commit 243fea134633 put the call _after_ fetching the
-> user.* xattr names, whereas the nfs4_listxattr_nfs4_label() returns it
-> _before_ any user.* xattrs are appended. I'd be inclined to move up
-> the security_inode_listsecurity() call to replace the
-> nfs4_listxattr_nfs4_label() call along with option #2.
+While trying to ensure sanity in security context processing I
+discovered set_security_override_from_ctx(), which is not used anywhere
+in the upstream kernel. Does anyone here know what its purpose is? I
+would very much like to remove it, but of course wouldn't want to break
+anything important.
 
-I've made an attempt to unify the two security_inode_listsecurity()
-hook calls in the nfs4 code into a single, unconditional call from
-nfs4_listxattr(), which can be found here:
-https://lore.kernel.org/selinux/20251203195728.8592-1-stephen.smalley.work@=
-gmail.com/T/#u
 
-If this is deemed acceptable by the NFS folks, then I can re-base this
-patch on top of that one.
