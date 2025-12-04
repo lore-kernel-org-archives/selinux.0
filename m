@@ -1,155 +1,82 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 0C6C9398F98
-	for <selinux@vger.kernel.org>; Thu,  4 Dec 2025 20:25:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA7DF398FAA
+	for <selinux@vger.kernel.org>; Thu,  4 Dec 2025 23:46:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764879918; cv=none; b=Q0ce5b8EPQaUGvX4UmTdPfrp77cdkeU11u/b3wtYAgspA4rNlPG/1M1gtcb2xYlaD7csclBHJJxJVfbuHdOs9BfyQGDMqyultvsDYAfkA44xs0PxEwy51iAZHHhfM05ZT158MjWAMaGbYAY4wiB9sZSeIbI3QHYDpn1Dw2iVWNs=
+	t=1764891970; cv=none; b=HwBo1VAp7uNjNsfxx138YFIyg4tdmnA+cW6zf3Xj//Fnq1zui5XkRUv278c0vQeE5pjbZRWTHmgC7UIafJvOeprIHcZ9vXHCx87rlKz0gzVp4ObNrIwVSlWJd0H1U5wJ8deml2wk2rWDPeHl2o4Lgq1Xbi+uj9+MCQN5knHGcqw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764879918; c=relaxed/simple;
-	bh=mXfHvM14ER3ZU2RjLKtiAmfmWp7tp1lS/SLtZWNaHWU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=jE9dYtPR+xJ3As39jReczRYCffVIxwJf5tSOsxoeAvHDY5ue5X/nofMom+wyXEP9tDj3SXjNGyRF0Bk5qUnngGd5x1CB7nnbNobapjsrt1/uOXZRzvxwBx3qIzCDlXVJQ+fCIkjFfuAd3E3FLiRY0Lpsg1D4GSUTi7T+Z024fIM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=PebvY6Ry; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1764891970; c=relaxed/simple;
+	bh=8bXJ68pKnt2pDJWg8mag08R6u19g8q+B1AYX7/7aTaY=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=lL/lW7ti9h/46psf1MFaZ2bdqO/DVCgdHns6lQWeD+U3wNi16tDKpIeG9b4u9DDCDmVnVcCIw9x5XYM4OlPNT5wjQtOfH1+WZvivpye3X6+2UotlxXnTfZN8H6ZPv+745vL3OLUO048omRIDW6daOhxrzjVS3/vU/S8D4ihgNaQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=ToG1vI4/; arc=none smtp.client-ip=209.85.214.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="PebvY6Ry"
-Received: from [10.137.198.68] (unknown [131.107.147.196])
-	by linux.microsoft.com (Postfix) with ESMTPSA id C2911200E9C5;
-	Thu,  4 Dec 2025 12:25:15 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com C2911200E9C5
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1764879915;
-	bh=IPKVF/EFNRH6cBN7T1/7CXlHLDt5BRx9Kj9KFcAJ4jo=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=PebvY6RyHOVGyeb+VdyuzS2vIsy+abfJHH1bhp1z6qzTneivriTJnbnsTdozsTzQB
-	 kEK4oFtRTBRuIARzb7kRU+bziVnTNAPygC2IBqD6DVsktT5g04YeXbAHj93U3mGW/j
-	 k72J+KhI04qOK7u/uRx+Prfv/pxRqFI3G0l5SyoY=
-Message-ID: <c856fb1e-bdbf-45c5-8766-d4fd927c9ea9@linux.microsoft.com>
-Date: Thu, 4 Dec 2025 12:25:15 -0800
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="ToG1vI4/"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-29555b384acso15616585ad.1
+        for <selinux@vger.kernel.org>; Thu, 04 Dec 2025 15:46:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1764891967; x=1765496767; darn=vger.kernel.org;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=FcMvkSjX6f8b8j1hzjcKUPEU1GcyuQTU/MO0Z28PcZ8=;
+        b=ToG1vI4/wrLMeDpJTxAaIZ64pq3bedEKyvQKRD6Ud2lXZfZNyN7lCg95ZQ3oit7rS6
+         1vU36wrvNpj37XvIXXdeuJqpIKIozrloURpNmS3AwQlVoMEV8wz/Zw5IRo/V6Ri23dB6
+         v3pp8lJxicNXTh8IvG7oQQphh842qbC3w0uCZyqN/N2c81fWDvCRMN6L3Fklt2nOjieT
+         sZzhYPf73udp66t2hhcPokByLVIp3READeUATMv/glPDGf7jkiE3NJTQBNFeM+Ube/v/
+         Ou3EKE/M6MtB3cpVkqmriQS56tbzSg3V1D+uPK8VDs7q2oD7AD1i71JlYQMAJ/nWXN9o
+         MNtg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1764891967; x=1765496767;
+        h=to:subject:message-id:date:from:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=FcMvkSjX6f8b8j1hzjcKUPEU1GcyuQTU/MO0Z28PcZ8=;
+        b=GxRhP0UtBNREJLsrphK+sTAHwuDTWM+WJI9gVpCRcXwJRWKu0m74TgUIir6pHhoqa1
+         bkeLa45jN7iE6KKCzs5ZXQOt6cdlGCkuDL2GxTkvUU1kgzc3iF34M3o/CSqmL0CxFt58
+         JhE/7rDNGoQSeYeahVsPSkNSxo5tuPrxuO36aqz7jzzQ1JpP3FhdE1ga5f5pFqtHk5Yk
+         flIpHrB/B5OBI9vbOVkJOXdJd3MA2Y69K0Nfgot9kYniOSiMkAXDxX6eeNopau2gmX9b
+         Lobe0FpZm2g1XbUZqG0exhMmn+V2UpTEXzZsnUOs7runoi5ucgwNU9QQ2kT0qQ7Il8FN
+         +DXg==
+X-Gm-Message-State: AOJu0YxU80XeGmjOhrQSSTPHwiPp+/u24sH/coxOEdpjxJcNBtUL4mux
+	jweWelvHjsg4tG2hhGNe9mGlvxzkHkdScPpJOth+zrGiBGAskFFqitww/5gVdxqDxkD4AR0DnxP
+	xT9zF0G3tC3RLH5jZFofNseelgqDTzaYSxU6+OJttEMaGXbwZvn9lgQ==
+X-Gm-Gg: ASbGncsHjb0EVRSApHEaaA0xJw7d2LS2hf+b8HGbIXxVQ3klArSvrX+6lsUgIZNULlM
+	tYGz3GyvMIacp+iUfvu8vZp707mNHvaII0kA18t6mlP4ciU+7QAOiq58kWly9Js5Fcfxy8PLmEE
+	93QE5pCR1jiBUcQVNIqQ+5WSElBLZvCo1q/ym/EUG6pGxvrjlr1pW3PupEt+UdGG/z4PKC/LHUl
+	xI7FpTJXh872RObzrX/GDQeYgWMiwPGZE939FWiN4T8bhWy4WW0d63s9dqRZhIFIhOf0P4=
+X-Google-Smtp-Source: AGHT+IG2zAuKZiUy3L5m+89UNotpV8SiKZOHZc/OJXmp0bBrE/zs5IsJl4JmK0x2dIIs4E+x5mr5D2gz1j1IIM0HSj8=
+X-Received: by 2002:a17:90b:44:b0:340:a5b2:c30b with SMTP id
+ 98e67ed59e1d1-349125d33b9mr7153178a91.9.1764891966575; Thu, 04 Dec 2025
+ 15:46:06 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6] SELinux: Add support for BPF token access control
-To: Paul Moore <paul@paul-moore.com>,
- Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, omosnace@redhat.com, danieldurning.work@gmail.com
-References: <20251116205208.734-1-ericsu@linux.microsoft.com>
- <CAEjxPJ7s8vS_Spt-9wabztTeh-3j+uX6auSEecHZh6RfkPpQHg@mail.gmail.com>
- <CAHC9VhSomsUf2ydNs=nmNHnEc6YSZQCaZ8kmUHjCSmg+tNAxZg@mail.gmail.com>
-Content-Language: en-US
-From: Eric Suen <ericsu@linux.microsoft.com>
-In-Reply-To: <CAHC9VhSomsUf2ydNs=nmNHnEc6YSZQCaZ8kmUHjCSmg+tNAxZg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 4 Dec 2025 18:45:54 -0500
+X-Gm-Features: AWmQ_blD_39yEYf704f6nOoRUGxrLy7FZsyc20Nh-HiofWtj5noCCRtpbz0k1T4
+Message-ID: <CAHC9VhSaM6Hkbe+VHpRXir9OJd1=S=e1BB3zLkSTD+CXwXaqHg@mail.gmail.com>
+Subject: overlayfs test failures on kernels post v6.18
+To: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On 11/18/2025 11:57 AM, Paul Moore wrote:
-> On Mon, Nov 17, 2025 at 9:37 AM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
->> On Sun, Nov 16, 2025 at 3:52 PM Eric Suen <ericsu@linux.microsoft.com> wrote:
->>> BPF token support was introduced to allow a privileged process to delegate
->>> limited BPF functionality—such as map creation and program loading—to
->>> an unprivileged process:
->>>    https://lore.kernel.org/linux-security-module/20231130185229.2688956-1-andrii@kernel.org/
->>>
->>> This patch adds SELinux support for controlling BPF token access. With
->>> this change, SELinux policies can now enforce constraints on BPF token
->>> usage based on both the delegating (privileged) process and the recipient
->>> (unprivileged) process.
->>>
->>> Supported operations currently include:
->>>    - map_create
->>>    - prog_load
->>>
->>> High-level workflow:
->>>    1. An unprivileged process creates a VFS context via `fsopen()` and
->>>       obtains a file descriptor.
->>>    2. This descriptor is passed to a privileged process, which configures
->>>       BPF token delegation options and mounts a BPF filesystem.
->>>    3. SELinux records the `creator_sid` of the privileged process during
->>>       mount setup.
->>>    4. The unprivileged process then uses this BPF fs mount to create a
->>>       token and attach it to subsequent BPF syscalls.
->>>    5. During verification of `map_create` and `prog_load`, SELinux uses
->>>       `creator_sid` and the current SID to check policy permissions via:
->>>         avc_has_perm(creator_sid, current_sid, SECCLASS_BPF,
->>>                      BPF__MAP_CREATE, NULL);
->>>
->>> The implementation introduces two new permissions:
->>>    - map_create_as
->>>    - prog_load_as
->>>
->>> At token creation time, SELinux verifies that the current process has the
->>> appropriate `*_as` permission (depending on the `allowed_cmds` value in
->>> the bpf_token) to act on behalf of the `creator_sid`.
->>>
->>> Example SELinux policy:
->>>    allow test_bpf_t self:bpf {
->>>        map_create map_read map_write prog_load prog_run
->>>        map_create_as prog_load_as
->>>    };
->>>
->>> Additionally, a new policy capability bpf_token_perms is added to ensure
->>> backward compatibility. If disabled, previous behavior ((checks based on
->>> current process SID)) is preserved.
-> ...
->
->>> +static int selinux_bpf_token_capable(const struct bpf_token *token, int cap)
->>> +{
->>> +       u16 sclass;
->>> +       struct bpf_security_struct *bpfsec = token->security;
->>> +       bool initns = (token->userns == &init_user_ns);
->>> +       u32 av = CAP_TO_MASK(cap);
->>> +
->>> +       switch (CAP_TO_INDEX(cap)) {
->>> +       case 0:
->>> +               sclass = initns ? SECCLASS_CAPABILITY : SECCLASS_CAP_USERNS;
->>> +               break;
->>> +       case 1:
->>> +               sclass = initns ? SECCLASS_CAPABILITY : SECCLASS_CAP2_USERNS;
->>> +               break;
->>> +       default:
->>> +               pr_err("SELinux:  out of range capability %d\n", cap);
->>> +               return -EINVAL;
->>> +       }
->>> +
->>> +       return avc_has_perm(bpfsec->sid, bpfsec->grantor_sid, sclass, av, NULL);
->> 1. There is a 3rd possible SID that could have been used here if this
->> is always called in process context, i.e. current_sid().
->> Do we care? What is the typical relationship among the three SIDs,
->> e.g. will two of the three be the same in the common case?
-> Based on the discussion in v5[1] of this series, I was expecting to
-> see something like the following:
->
->    return avc_has_perm(current_sid(), bpfsec->grantor_sid, ...);
->
-> As mentioned previously, I view the selinux_bpf_token_capable() check
-> as asking if the current process can assert a capability assigned to
-> the token.  In this case that would mean the subject would be
-> 'current_sid()' and the object would be 'bpfsec->grantor_sid' as the
-> bpfsec->grantor_sid should reflect the security context/label of the
-> process which delegated its authority to the token.
->
-> [1] https://lore.kernel.org/selinux/CAHC9VhS5-5+LxEstKX=ZHNPK6RazRqejXOEOXv-UJjiNsvQ6GA@mail.gmail.com/
+Those of you running tests on kernels during the merge window may have
+noticed overlayfs test failures in the selinux-testsuite.  I just took
+a quick look and the failure is occurring in test function sub_42() in
+tests/overlay/test.  That particular test is expecting a file type of
+"test_overlay_transition_files_t" but the actual file type is
+"test_overlay_files_rwx_t".
 
-Thank you, Paul.
+I only had a few minutes to look at it just now, but there were a
+*lot* of overlayfs patches sent up to Linus for this merge window,
+most of them relating to overlayfs credentials (moving to scoped
+guards), so it is possible there are other SELinux/overlayfs failures
+as well.  Has anyone else noticed any odd SELinux/overlayfs bugs in
+recent kernels?
 
-Stephen - thanks for catching the issue. It's a bug in the code. I will 
-send out a new patch for the fix, plus new tests covering both success 
-and failure cases for 'avc_has_perm'.
-
->
->> 2. Do you have a test case that exercises success and failure of this check?
->>
->>> +}
->>>   #endif
->>>
->>>   struct lsm_blob_sizes selinux_blob_sizes __ro_after_init = {
-> --
-> paul-moore.com
-
-
+-- 
+paul-moore.com
