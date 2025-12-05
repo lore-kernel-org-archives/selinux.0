@@ -1,60 +1,79 @@
-Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62B0F320CBE
-	for <selinux@vger.kernel.org>; Fri,  5 Dec 2025 13:10:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7686F21B195
+	for <selinux@vger.kernel.org>; Fri,  5 Dec 2025 13:57:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764940238; cv=none; b=RXcCuB7QC4PaD0sALUi5x2BoFJGtU7s6at7ZGpE2QCRyRg2/fOVsh5EUuCwgKhfoBmwqOpNhGWJ6NUfhYSl90xE3iBDrGgmW2U2uLFJIHg3QJ4IjLQMDts720uY3XjFDIyx/1khzB7VNxWK8r0YT5BDSHsvoU0a6wNk9luahDJc=
+	t=1764943077; cv=none; b=OSLTSDzhl4+MrMrRmJI2WCp0mfLhW/GpYEw5fGUU8bMoBI4I75pA+MjcHUpaISQ/nxAh/2j+evFt12As8ltAyF3E7SisuKLLIys8oI2bInd/pk0pWM7D6LcP+UIqGef3nlv2C7FYIktNMtCcpPq8qIKUYtje4Opq6wkY9BRJqcI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764940238; c=relaxed/simple;
-	bh=4xT4/pFJO58+sUQqy+VKD18mXqMmuLjv58AdpSWrsqo=;
+	s=arc-20240116; t=1764943077; c=relaxed/simple;
+	bh=+BXdtm4tyTi/wKYv5NAtpRXBLiD0v6xAF2vGz4Lxo1M=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=clBSjpsysxr8gjSra7FzDtaLgONVPfebXNMIJ50lB3uufYzNQpeSxG6EcF+/CXGpqA3xg0r8xPlzcGKu1xAw0rpn87m41BwwZS6+yMSqAk0kEVX70mH3r6LCdDJIsvyIbBhBORvpHA0dfGc+I/9ANALl8nKQ+numuJJ6Bgmz8w4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jANnTY5C; arc=none smtp.client-ip=209.85.218.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=kNEbVUrJuHKJCqNzzu1Dk45ja5J7bYKWrasIRLSodI6TXTRwxEPKKEGP+nK0zI6BwSLW1+V4/IcgOOGoM7poMl+H+L+67jhXakCZffKPtz/9QgzzHnjMLXjY0lO5Rrmws3p+D5+zoRYpu2AkomnzZojUOaJAnoZyeoZ/LNYHE5I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SbnjjZ+Q; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=WukgQx1L; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jANnTY5C"
-Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-b72b495aa81so310361866b.2
-        for <selinux@vger.kernel.org>; Fri, 05 Dec 2025 05:10:34 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SbnjjZ+Q";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="WukgQx1L"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1764943072;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=PnVj39dJvqvU+lgRXhMvk2k6Z6VI84+sYStT3+jYej8=;
+	b=SbnjjZ+QiLOworW7BTtN/RTsVWYqf5OshiE5XZeMIYUVGPNA6x1YZPs8fjBLnGIRdAk5j3
+	ky7w96gxY2J414+f8BfHhCXic3pv3xd2AX6wlxrL4QEJXNsGSPEWKU9wxkNrHI4J0tSm9S
+	f0KxB9H1E4tYyiP1Q4JfmnEy4FRx6rU=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-18-lnhhNHIdNnuK9YvhQcz68w-1; Fri, 05 Dec 2025 08:57:51 -0500
+X-MC-Unique: lnhhNHIdNnuK9YvhQcz68w-1
+X-Mimecast-MFC-AGG-ID: lnhhNHIdNnuK9YvhQcz68w_1764943071
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-345b4f2a8e8so3727924a91.1
+        for <selinux@vger.kernel.org>; Fri, 05 Dec 2025 05:57:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1764940232; x=1765545032; darn=vger.kernel.org;
+        d=redhat.com; s=google; t=1764943071; x=1765547871; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=BcX4laLHRubdDtehon4atANvt8XPKg8C/L9HFHj0XXM=;
-        b=jANnTY5CKI/iWOxZj4Gux9ylngOhasqpEi7Y2aPgB49Ej4PZXGQ15SMJcCHVeUoOvr
-         pGZr5drc4iyc5013evVuE+vNh2HyHJ3KneaTHkjbzaAyBrk5R5F/aMrcLS3coTPsResl
-         GflWxCOAx/qv28K9JIaAUYXQPge4vFeg3bbgYq5BpNDbUz7OaepXCyWVbR3Rk1PJg0yn
-         +nTTl7B/1Pe5FSW3VWCJPDthkembivvx07s58kMo/vMFMlP8Yysm1mKc1em/o8MNmR25
-         efaeko1falL8SAcMhD3seEES/V6IeWoQ5QRbCCf0H0rfFAF3QE8XfPVNiryinxKq/5Y0
-         FDdw==
+        bh=PnVj39dJvqvU+lgRXhMvk2k6Z6VI84+sYStT3+jYej8=;
+        b=WukgQx1LP4eYudlBtRMavKQmUuSdsxELiNTVx6D7nnHcAaFAxqfFSR2qWIpmGnfYQN
+         Vs1Jbwh73wWoPoGttF+Yj4bx+URlqDEJ/cA7tnREBDTsOBIfdgIwhS9wAMJsvDprAIy2
+         0d7BmSI86P6y9gKFPrSIErq8VwZfGVNtCozVoRwDrgwdhGdFrtgYpDfDerMpXfiy/K8U
+         Q+dCWgrt9O/YOSToOfxK464FPFkJdVed4A1dSYFI2Ek3Ltiuct2FAP50o1fts8LNmoe/
+         YfuTcKVDjlnEt60fL1YABzKjFAOmqN8OBwG4RFxjjhZrvXSr6EUC6uW7m0DJT6/m01qK
+         vfrw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764940232; x=1765545032;
+        d=1e100.net; s=20230601; t=1764943071; x=1765547871;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=BcX4laLHRubdDtehon4atANvt8XPKg8C/L9HFHj0XXM=;
-        b=Nw0SSMWIxYVhdFw6UbQwGvV74qlAtZEGRXIA9CJoX4UgUXLXLcYt0PUGyarBobZv2j
-         VqNIciBt3iWEGKbbmx9uZiRtfROEo6JmHe9ZQCp//brV/F39xQDrJXcMBlyz/Lrr89ps
-         xZ3L26IjQJKfgz/P55JyxcxmDVmpR4g7fxEGl7+i6sSLTiy5F70c2nUPh9/57uD2Usqg
-         JdEWZWgI8P3aNAA8P+7u576Nih4MFCfk2pQziHhz/0y5ZUDbGXB9HXB5neE5HNJGxTwY
-         Sz3GrNaFoAy1oJBFH7xdMw9zJMWssjRH9JI65jt1hEaMrDVo6e/3xTGUkZZQerDAV4mf
-         g+rA==
-X-Forwarded-Encrypted: i=1; AJvYcCVQ8vxw8IX6ARdClg4u9SMUWnQKqHSCVAZ8vm2d2w41dNLz6sUQ9wSjRDfncXZfYt68DvtVsZZe@vger.kernel.org
-X-Gm-Message-State: AOJu0YxHCtdmdkG9HPpFbbEjI4HTb0RFxu93ZW5lnAWIufHz8QRxBZVg
-	N1YFyMaat6i+mzgE36488xuRGaJVP+ZL20pKP3DUV0e3rfEGASP/4iZOYoci48aTT2/PUlChkIa
-	CWL2lTEBE7zv11s7E72Eo504veWaJJJ138GW8mHI=
-X-Gm-Gg: ASbGncv27+fgPevXnOTGiYgAxsDgn3mVOhSgCRFi68O2w0YOL3jodgmBfVSFK/8qmjc
-	jcuBkSPXTnZR9G1fG5ej9mab/GWERA22m+pxRzHoA1nVT22KQ9Fz12IZfTuAerIK74X/lrmWDUk
-	NR0oS2hGYfhlulvX6Lqa7TGqItmSASQ5ravIEZTuM1jcfuPym1/uQqaWIhREhbgSm5/o1hO1OYW
-	QFaTLkDf3vK5ANYwSdOjAPpNRjxWcuJtqIJUIyMkEcugYAFgX1UXPJeg102qfDICOAPusKFdg/Q
-	fdwZVFc0zsnsiAoVlahnkdKZh1HS1g==
-X-Google-Smtp-Source: AGHT+IH+bjqgyF4OybLZ1CaPOMTtMUxyQI+oBWVuVFxhRMeYZbs+FAfFHkppRjihAVO8Xel8hzJQI9GT1FDKtcuBEeM=
-X-Received: by 2002:a17:907:3d89:b0:b73:5e4d:fae0 with SMTP id
- a640c23a62f3a-b79ec472670mr615900466b.23.1764940232062; Fri, 05 Dec 2025
- 05:10:32 -0800 (PST)
+        bh=PnVj39dJvqvU+lgRXhMvk2k6Z6VI84+sYStT3+jYej8=;
+        b=YkYMo1BkFTjfAIfxiXpjFbtBsHkqoHujDi2fKIFFS7yj8FEltLJe1OBS97UJJ0hJzl
+         1UJvlWUG9GI0c/ExA/8p9WfOLiUO6gBQf9CNRLBTtPMaIsXqTO8i6yObmZgscgi03qDc
+         nif3TV8wAPO0C7oZlbtMCb5Y+ahsabS6PRQIU7znakjAoQm71Ha8LENhTLAibE5HmQTB
+         NR1guojzmRaP4/rZPhPxvSuXlzYrGiaNLRSbRNQxB1HZljGAglUVnusr0TXRckfNhZKu
+         tOofGxl3y3Fs6YrK6pYw/mOGVFt3+G9xwDNixk5iD099/EOojXYssq4HGUjn8u9FgR0C
+         RaqA==
+X-Forwarded-Encrypted: i=1; AJvYcCWgY8RLoIVABvW5zfzcYxBI8iLZqS+b1DYdur/+Vdf1Vmth46FKHcHinUYG9xE+8luKqKGJugbY@vger.kernel.org
+X-Gm-Message-State: AOJu0YwkpjDHbfCb2RR8KqGrCDKbLL1mgkw4kB00aPfN1EfmCPNO1f6A
+	8NkdbF6UugT/mbj8jIWZDIHlHVLadC35ds49XCSQ4bNJylz5yCrpNnrt9rO6GTLufyPtQQCUOaz
+	Jbgt+K9AyXH2G29iHdJXSDA2c4cwoEjomcOjYG3DWc9UT7k40lPwdak6Br5MiP1mmOI4ldJmDUh
+	wsCnBm28i9jIJHtJQ/ay8H9g4bmgicWgWJkQ==
+X-Gm-Gg: ASbGncv2+NoK4JnB2RLOcUiFs8t7yRYHvGEjZW8oTSNNWmwFKXkjgtoHkimxx4j4a7S
+	Q7FwIYceODu+nposKLhFCqWGSZFW0wSPlZcygVRUNcHytn9Sn0HIHqtU71skIAA4OBXJ8AU714z
+	OJ1Zfvi/aQl3b6Rsi2AbDpRfEx4x1ML52ZhWA/kF46tkLpWLNBb6yNwOMpMw2gagOTcC4xx8cLJ
+	LcdDhosJB0i2BW0Nxi8f8/kWDA=
+X-Received: by 2002:a17:90b:3b81:b0:313:1c7b:fc62 with SMTP id 98e67ed59e1d1-349126c86a6mr9808404a91.22.1764943070755;
+        Fri, 05 Dec 2025 05:57:50 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFoegNfFc0zc9ROKiTg2YCb+eE5Eqjtu9ZhU5KIKpBraoQUMnUObucMeGtxUpF0wL0KtvcdLzYGduYPZ0Al4iQ=
+X-Received: by 2002:a17:90b:3b81:b0:313:1c7b:fc62 with SMTP id
+ 98e67ed59e1d1-349126c86a6mr9808393a91.22.1764943070367; Fri, 05 Dec 2025
+ 05:57:50 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -63,14 +82,14 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20251205-tortur-amtieren-1273b2eef469@brauner>
 In-Reply-To: <20251205-tortur-amtieren-1273b2eef469@brauner>
-From: Amir Goldstein <amir73il@gmail.com>
-Date: Fri, 5 Dec 2025 14:10:20 +0100
-X-Gm-Features: AQt7F2o5_v64pqrTjhaGm5Wj_Gk-rT48H5Sc9ihWo997QO_hAZaF5Fa4k5_WQKw
-Message-ID: <CAOQ4uxjxcNW174cdJzjPErPkKarpM=zyXhexXWc3YRJLB1mSHg@mail.gmail.com>
+From: Ondrej Mosnacek <omosnace@redhat.com>
+Date: Fri, 5 Dec 2025 14:57:39 +0100
+X-Gm-Features: AWmQ_bk3sPfst03CQ4S4jHGlmem27hNP2Zk_oCcIzARsjmMEO4vTJou6icyRekk
+Message-ID: <CAFqZXNvMxoTk1MQq96r=QQGjLqWwLrbdUVJ+nkSD3dzB2yTEYA@mail.gmail.com>
 Subject: Re: [PATCH] ovl: pass original credentials, not mounter credentials
  during create
 To: Christian Brauner <brauner@kernel.org>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, Ondrej Mosnacek <omosnace@redhat.com>, 
+Cc: Amir Goldstein <amir73il@gmail.com>, Miklos Szeredi <miklos@szeredi.hu>, 
 	Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org, 
 	Linux FS Devel <linux-fsdevel@vger.kernel.org>, linux-unionfs@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -93,10 +112,11 @@ creator_creds")
 AAbFij8Q@mail.gmail.com
 > Signed-off-by: Christian Brauner <brauner@kernel.org>
 
-Looks sane
-Thanks,
+Fixes the issue according to my testing.
 
-Reviewed-by: Amir Goldstein <amir73il@gmail.com>
+Tested-by: Ondrej Mosnacek <omosnace@redhat.com>
+
+Thanks!
 
 > ---
 >  fs/overlayfs/dir.c | 20 ++++++++++++--------
@@ -191,3 +211,9 @@ reds, dentry, inode, mode) {
 > --
 > 2.47.3
 >
+
+--
+Ondrej Mosnacek
+Senior Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
+
