@@ -1,82 +1,432 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA7DF398FAA
-	for <selinux@vger.kernel.org>; Thu,  4 Dec 2025 23:46:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 47B6C18EB0
+	for <selinux@vger.kernel.org>; Fri,  5 Dec 2025 02:43:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764891970; cv=none; b=HwBo1VAp7uNjNsfxx138YFIyg4tdmnA+cW6zf3Xj//Fnq1zui5XkRUv278c0vQeE5pjbZRWTHmgC7UIafJvOeprIHcZ9vXHCx87rlKz0gzVp4ObNrIwVSlWJd0H1U5wJ8deml2wk2rWDPeHl2o4Lgq1Xbi+uj9+MCQN5knHGcqw=
+	t=1764902586; cv=none; b=iH3dhJne7tlgniYRXPy9ZJflg0q4OtgWX0f204UtIuxfjl44E3dGCusg0ANCe0yDPaEiW9YG8T87DahjKTKE8FUDlcQTzHmLe/cj4/BHxzx+t2dFlhCbiZ55QSNIRKhkB/dHW6LPn4VFp1Hn0B9Cc7IG/LU5PK1HQqECj4abnm8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764891970; c=relaxed/simple;
-	bh=8bXJ68pKnt2pDJWg8mag08R6u19g8q+B1AYX7/7aTaY=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=lL/lW7ti9h/46psf1MFaZ2bdqO/DVCgdHns6lQWeD+U3wNi16tDKpIeG9b4u9DDCDmVnVcCIw9x5XYM4OlPNT5wjQtOfH1+WZvivpye3X6+2UotlxXnTfZN8H6ZPv+745vL3OLUO048omRIDW6daOhxrzjVS3/vU/S8D4ihgNaQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=ToG1vI4/; arc=none smtp.client-ip=209.85.214.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1764902586; c=relaxed/simple;
+	bh=7aiXZUNalzwX3UXWB+fLSj57CD3tab6UuZWxwkudado=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=uo/mODYRS+vBqt/hESUaqdl23eeuxN+Q2vSRtHixHyGAUN8Ql3tTdZSIjWS5MUSoi0I+zmReMoxugXsynFkOBQ/GNkIkw3OYQHlgaqS253fBMnnOFkDEYS0bEskg09mCpFKTfG2XYbdI7INQRsYotolFQOnsneMkV2BkGFD0PZA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=WhbIByV9; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="ToG1vI4/"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-29555b384acso15616585ad.1
-        for <selinux@vger.kernel.org>; Thu, 04 Dec 2025 15:46:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1764891967; x=1765496767; darn=vger.kernel.org;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=FcMvkSjX6f8b8j1hzjcKUPEU1GcyuQTU/MO0Z28PcZ8=;
-        b=ToG1vI4/wrLMeDpJTxAaIZ64pq3bedEKyvQKRD6Ud2lXZfZNyN7lCg95ZQ3oit7rS6
-         1vU36wrvNpj37XvIXXdeuJqpIKIozrloURpNmS3AwQlVoMEV8wz/Zw5IRo/V6Ri23dB6
-         v3pp8lJxicNXTh8IvG7oQQphh842qbC3w0uCZyqN/N2c81fWDvCRMN6L3Fklt2nOjieT
-         sZzhYPf73udp66t2hhcPokByLVIp3READeUATMv/glPDGf7jkiE3NJTQBNFeM+Ube/v/
-         Ou3EKE/M6MtB3cpVkqmriQS56tbzSg3V1D+uPK8VDs7q2oD7AD1i71JlYQMAJ/nWXN9o
-         MNtg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764891967; x=1765496767;
-        h=to:subject:message-id:date:from:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=FcMvkSjX6f8b8j1hzjcKUPEU1GcyuQTU/MO0Z28PcZ8=;
-        b=GxRhP0UtBNREJLsrphK+sTAHwuDTWM+WJI9gVpCRcXwJRWKu0m74TgUIir6pHhoqa1
-         bkeLa45jN7iE6KKCzs5ZXQOt6cdlGCkuDL2GxTkvUU1kgzc3iF34M3o/CSqmL0CxFt58
-         JhE/7rDNGoQSeYeahVsPSkNSxo5tuPrxuO36aqz7jzzQ1JpP3FhdE1ga5f5pFqtHk5Yk
-         flIpHrB/B5OBI9vbOVkJOXdJd3MA2Y69K0Nfgot9kYniOSiMkAXDxX6eeNopau2gmX9b
-         Lobe0FpZm2g1XbUZqG0exhMmn+V2UpTEXzZsnUOs7runoi5ucgwNU9QQ2kT0qQ7Il8FN
-         +DXg==
-X-Gm-Message-State: AOJu0YxU80XeGmjOhrQSSTPHwiPp+/u24sH/coxOEdpjxJcNBtUL4mux
-	jweWelvHjsg4tG2hhGNe9mGlvxzkHkdScPpJOth+zrGiBGAskFFqitww/5gVdxqDxkD4AR0DnxP
-	xT9zF0G3tC3RLH5jZFofNseelgqDTzaYSxU6+OJttEMaGXbwZvn9lgQ==
-X-Gm-Gg: ASbGncsHjb0EVRSApHEaaA0xJw7d2LS2hf+b8HGbIXxVQ3klArSvrX+6lsUgIZNULlM
-	tYGz3GyvMIacp+iUfvu8vZp707mNHvaII0kA18t6mlP4ciU+7QAOiq58kWly9Js5Fcfxy8PLmEE
-	93QE5pCR1jiBUcQVNIqQ+5WSElBLZvCo1q/ym/EUG6pGxvrjlr1pW3PupEt+UdGG/z4PKC/LHUl
-	xI7FpTJXh872RObzrX/GDQeYgWMiwPGZE939FWiN4T8bhWy4WW0d63s9dqRZhIFIhOf0P4=
-X-Google-Smtp-Source: AGHT+IG2zAuKZiUy3L5m+89UNotpV8SiKZOHZc/OJXmp0bBrE/zs5IsJl4JmK0x2dIIs4E+x5mr5D2gz1j1IIM0HSj8=
-X-Received: by 2002:a17:90b:44:b0:340:a5b2:c30b with SMTP id
- 98e67ed59e1d1-349125d33b9mr7153178a91.9.1764891966575; Thu, 04 Dec 2025
- 15:46:06 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="WhbIByV9"
+Received: from ericsu-dev1 (unknown [131.107.1.202])
+	by linux.microsoft.com (Postfix) with ESMTPSA id EB6232123272;
+	Thu,  4 Dec 2025 18:43:02 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com EB6232123272
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1764902583;
+	bh=ecwws2paFCxGBUtpv/5o6NO5Ygt3VSRN3e3yds+sEXM=;
+	h=From:To:Cc:Subject:Date:From;
+	b=WhbIByV9F73chKlPc7yAcq/+6abLHwOINkJ0FVqC3rBNYuONb4gw2Iv4qy0WpJOIt
+	 Bb15L58+eDHrdnXpdRFABnAfLWURZ3qrvLX6kzVNvYTmnUWYRN4jAYuwsO+y1jdwgA
+	 p3iPti77rhP3YpdEt9/vsD+dH06dcfCNajFuVC3w=
+From: Eric Suen <ericsu@linux.microsoft.com>
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com,
+	stephen.smalley.work@gmail.com,
+	omosnace@redhat.com,
+	danieldurning.work@gmail.com,
+	ericsu@linux.microsoft.com
+Subject: [PATCH v7] SELinux: Add support for BPF token access control
+Date: Thu,  4 Dec 2025 18:42:59 -0800
+Message-ID: <20251205024259.704-1-ericsu@linux.microsoft.com>
+X-Mailer: git-send-email 2.52.0.windows.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 4 Dec 2025 18:45:54 -0500
-X-Gm-Features: AWmQ_blD_39yEYf704f6nOoRUGxrLy7FZsyc20Nh-HiofWtj5noCCRtpbz0k1T4
-Message-ID: <CAHC9VhSaM6Hkbe+VHpRXir9OJd1=S=e1BB3zLkSTD+CXwXaqHg@mail.gmail.com>
-Subject: overlayfs test failures on kernels post v6.18
-To: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Those of you running tests on kernels during the merge window may have
-noticed overlayfs test failures in the selinux-testsuite.  I just took
-a quick look and the failure is occurring in test function sub_42() in
-tests/overlay/test.  That particular test is expecting a file type of
-"test_overlay_transition_files_t" but the actual file type is
-"test_overlay_files_rwx_t".
+BPF token support was introduced to allow a privileged process to delegate
+limited BPF functionality—such as map creation and program loading—to
+an unprivileged process:
+  https://lore.kernel.org/linux-security-module/20231130185229.2688956-1-andrii@kernel.org/
 
-I only had a few minutes to look at it just now, but there were a
-*lot* of overlayfs patches sent up to Linus for this merge window,
-most of them relating to overlayfs credentials (moving to scoped
-guards), so it is possible there are other SELinux/overlayfs failures
-as well.  Has anyone else noticed any odd SELinux/overlayfs bugs in
-recent kernels?
+This patch adds SELinux support for controlling BPF token access. With
+this change, SELinux policies can now enforce constraints on BPF token
+usage based on both the delegating (privileged) process and the recipient
+(unprivileged) process.
 
+Supported operations currently include:
+  - map_create
+  - prog_load
+
+High-level workflow:
+  1. An unprivileged process creates a VFS context via `fsopen()` and
+     obtains a file descriptor.
+  2. This descriptor is passed to a privileged process, which configures
+     BPF token delegation options and mounts a BPF filesystem.
+  3. SELinux records the `creator_sid` of the privileged process during
+     mount setup.
+  4. The unprivileged process then uses this BPF fs mount to create a
+     token and attach it to subsequent BPF syscalls.
+  5. During verification of `map_create` and `prog_load`, SELinux uses
+     `creator_sid` and the current SID to check policy permissions via:
+       avc_has_perm(creator_sid, current_sid, SECCLASS_BPF,
+                    BPF__MAP_CREATE, NULL);
+
+The implementation introduces two new permissions:
+  - map_create_as
+  - prog_load_as
+
+At token creation time, SELinux verifies that the current process has the
+appropriate `*_as` permission (depending on the `allowed_cmds` value in
+the bpf_token) to act on behalf of the `creator_sid`.
+
+Example SELinux policy:
+  allow test_bpf_t self:bpf {
+      map_create map_read map_write prog_load prog_run
+      map_create_as prog_load_as
+  };
+
+Additionally, a new policy capability bpf_token_perms is added to ensure
+backward compatibility. If disabled, previous behavior ((checks based on
+current process SID)) is preserved.
+
+Signed-off-by: Eric Suen <ericsu@linux.microsoft.com>
+---
+Changes in v2:
+- Fixed bug in selinux_bpffs_creator_sid(u32 fd) where it retrieved
+  creator_sid from wrong file descriptor
+- Removed unnecessary checks for null, per review comments from
+  the first patch
+
+Changes in v3:
+- Removed check for 'sid == SECSID_NULL' in selinux_bpf_token_create and
+  allow it to fall through to the permission checks which will fail as
+  access denied to unlabeled_t
+
+Changes in v4:
+- Added initialization of creator_sid in selinux_sb_alloc_security
+- Enabled handling of creator_sid in selinux_cmp_sb_context and
+  selinux_sb_clone_mnt_opts
+- Minor updates based on review comments
+
+Changes in v5:
+- Moved to dev-staging branch instead of main
+- Added implementation of selinux_bpf_token_capable which is originally
+  from Daniel's patch
+  https://lore.kernel.org/selinux/20250801154637.143931-1-danieldurning.work@gmail.com/
+
+Changes in v6:
+- Updated bpf_token_capable to use grantor_sid as object in permission
+  check
+
+Changes in v7:
+- Bug fix in selinux_bpf_token_capable where incorrect source sid
+  was used in avc_has_perm
+
+ security/selinux/hooks.c                   | 117 ++++++++++++++++++++-
+ security/selinux/include/classmap.h        |   2 +-
+ security/selinux/include/objsec.h          |   3 +
+ security/selinux/include/policycap.h       |   1 +
+ security/selinux/include/policycap_names.h |   1 +
+ security/selinux/include/security.h        |   6 ++
+ 6 files changed, 127 insertions(+), 3 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index c95a5874bf7d..ffae25a18bd9 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -733,6 +733,8 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 		goto out;
+ 	}
+ 
++	sbsec->creator_sid = current_sid();
++
+ 	if (strcmp(sb->s_type->name, "proc") == 0)
+ 		sbsec->flags |= SE_SBPROC | SE_SBGENFS;
+ 
+@@ -902,6 +904,8 @@ static int selinux_cmp_sb_context(const struct super_block *oldsb,
+ 		if (oldroot->sid != newroot->sid)
+ 			goto mismatch;
+ 	}
++	if (old->creator_sid != new->creator_sid)
++		goto mismatch;
+ 	return 0;
+ mismatch:
+ 	pr_warn("SELinux: mount invalid.  Same superblock, "
+@@ -961,6 +965,7 @@ static int selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
+ 	newsbsec->sid = oldsbsec->sid;
+ 	newsbsec->def_sid = oldsbsec->def_sid;
+ 	newsbsec->behavior = oldsbsec->behavior;
++	newsbsec->creator_sid = oldsbsec->creator_sid;
+ 
+ 	if (newsbsec->behavior == SECURITY_FS_USE_NATIVE &&
+ 		!(kern_flags & SECURITY_LSM_NATIVE_LABELS) && !set_context) {
+@@ -2576,6 +2581,7 @@ static int selinux_sb_alloc_security(struct super_block *sb)
+ 	sbsec->sid = SECINITSID_UNLABELED;
+ 	sbsec->def_sid = SECINITSID_FILE;
+ 	sbsec->mntpoint_sid = SECINITSID_UNLABELED;
++	sbsec->creator_sid = SECINITSID_UNLABELED;
+ 
+ 	return 0;
+ }
+@@ -7017,6 +7023,9 @@ static int selinux_bpf(int cmd, union bpf_attr *attr,
+ 	u32 sid = current_sid();
+ 	int ret;
+ 
++	if (selinux_policycap_bpf_token_perms())
++		return 0;
++
+ 	switch (cmd) {
+ 	case BPF_MAP_CREATE:
+ 		ret = avc_has_perm(sid, sid, SECCLASS_BPF, BPF__MAP_CREATE,
+@@ -7098,10 +7107,29 @@ static int selinux_bpf_prog(struct bpf_prog *prog)
+ 			    BPF__PROG_RUN, NULL);
+ }
+ 
++static u32 selinux_bpffs_creator_sid(u32 fd)
++{
++	struct path path;
++	struct super_block *sb;
++	struct superblock_security_struct *sbsec;
++
++	CLASS(fd, f)(fd);
++
++	if (fd_empty(f))
++		return SECSID_NULL;
++
++	path = fd_file(f)->f_path;
++	sb = path.dentry->d_sb;
++	sbsec = selinux_superblock(sb);
++
++	return sbsec->creator_sid;
++}
++
+ static int selinux_bpf_map_create(struct bpf_map *map, union bpf_attr *attr,
+ 				  struct bpf_token *token, bool kernel)
+ {
+ 	struct bpf_security_struct *bpfsec;
++	u32 ssid;
+ 
+ 	bpfsec = kzalloc(sizeof(*bpfsec), GFP_KERNEL);
+ 	if (!bpfsec)
+@@ -7110,7 +7138,12 @@ static int selinux_bpf_map_create(struct bpf_map *map, union bpf_attr *attr,
+ 	bpfsec->sid = current_sid();
+ 	map->security = bpfsec;
+ 
+-	return 0;
++	if (!token)
++		ssid = bpfsec->sid;
++	else
++		ssid = selinux_bpffs_creator_sid(attr->map_token_fd);
++
++	return avc_has_perm(ssid, bpfsec->sid, SECCLASS_BPF, BPF__MAP_CREATE, NULL);
+ }
+ 
+ static void selinux_bpf_map_free(struct bpf_map *map)
+@@ -7125,6 +7158,7 @@ static int selinux_bpf_prog_load(struct bpf_prog *prog, union bpf_attr *attr,
+ 				 struct bpf_token *token, bool kernel)
+ {
+ 	struct bpf_security_struct *bpfsec;
++	u32 ssid;
+ 
+ 	bpfsec = kzalloc(sizeof(*bpfsec), GFP_KERNEL);
+ 	if (!bpfsec)
+@@ -7133,7 +7167,12 @@ static int selinux_bpf_prog_load(struct bpf_prog *prog, union bpf_attr *attr,
+ 	bpfsec->sid = current_sid();
+ 	prog->aux->security = bpfsec;
+ 
+-	return 0;
++	if (!token)
++		ssid = bpfsec->sid;
++	else
++		ssid = selinux_bpffs_creator_sid(attr->prog_token_fd);
++
++	return avc_has_perm(ssid, bpfsec->sid, SECCLASS_BPF, BPF__PROG_LOAD, NULL);
+ }
+ 
+ static void selinux_bpf_prog_free(struct bpf_prog *prog)
+@@ -7144,18 +7183,47 @@ static void selinux_bpf_prog_free(struct bpf_prog *prog)
+ 	kfree(bpfsec);
+ }
+ 
++#define bpf_token_cmd(T, C) \
++	((T)->allowed_cmds & (1ULL << (C)))
++
+ static int selinux_bpf_token_create(struct bpf_token *token, union bpf_attr *attr,
+ 				    const struct path *path)
+ {
+ 	struct bpf_security_struct *bpfsec;
++	u32 sid = selinux_bpffs_creator_sid(attr->token_create.bpffs_fd);
++	int err;
+ 
+ 	bpfsec = kzalloc(sizeof(*bpfsec), GFP_KERNEL);
+ 	if (!bpfsec)
+ 		return -ENOMEM;
+ 
+ 	bpfsec->sid = current_sid();
++	bpfsec->grantor_sid = sid;
+ 	token->security = bpfsec;
+ 
++	bpfsec->perms = 0;
++
++	/**
++	 * 'token->allowed_cmds' is a bit mask of allowed commands
++	 * Convert the BPF command enum to a bitmask representing its position in the
++	 * allowed_cmds bitmap.
++	 */
++	if (bpf_token_cmd(token, BPF_MAP_CREATE)) {
++		err = avc_has_perm(bpfsec->sid, sid, SECCLASS_BPF, BPF__MAP_CREATE_AS, NULL);
++		if (err)
++			return err;
++
++		bpfsec->perms |= BPF__MAP_CREATE;
++	}
++
++	if (bpf_token_cmd(token, BPF_PROG_LOAD)) {
++		err = avc_has_perm(bpfsec->sid, sid, SECCLASS_BPF, BPF__PROG_LOAD_AS, NULL);
++		if (err)
++			return err;
++
++		bpfsec->perms |= BPF__PROG_LOAD;
++	}
++
+ 	return 0;
+ }
+ 
+@@ -7166,6 +7234,49 @@ static void selinux_bpf_token_free(struct bpf_token *token)
+ 	token->security = NULL;
+ 	kfree(bpfsec);
+ }
++
++static int selinux_bpf_token_cmd(const struct bpf_token *token, enum bpf_cmd cmd)
++{
++	struct bpf_security_struct *bpfsec;
++
++	bpfsec = token->security;
++	switch (cmd) {
++	case BPF_MAP_CREATE:
++		if (!(bpfsec->perms & BPF__MAP_CREATE))
++			return -EACCES;
++		break;
++	case BPF_PROG_LOAD:
++		if (!(bpfsec->perms & BPF__PROG_LOAD))
++			return -EACCES;
++		break;
++	default:
++		break;
++	}
++
++	return 0;
++}
++
++static int selinux_bpf_token_capable(const struct bpf_token *token, int cap)
++{
++	u16 sclass;
++	struct bpf_security_struct *bpfsec = token->security;
++	bool initns = (token->userns == &init_user_ns);
++	u32 av = CAP_TO_MASK(cap);
++
++	switch (CAP_TO_INDEX(cap)) {
++	case 0:
++		sclass = initns ? SECCLASS_CAPABILITY : SECCLASS_CAP_USERNS;
++		break;
++	case 1:
++		sclass = initns ? SECCLASS_CAPABILITY : SECCLASS_CAP2_USERNS;
++		break;
++	default:
++		pr_err("SELinux:  out of range capability %d\n", cap);
++		return -EINVAL;
++	}
++
++	return avc_has_perm(current_sid(), bpfsec->grantor_sid, sclass, av, NULL);
++}
+ #endif
+ 
+ struct lsm_blob_sizes selinux_blob_sizes __ro_after_init = {
+@@ -7599,6 +7710,8 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
+ 	LSM_HOOK_INIT(bpf_map_create, selinux_bpf_map_create),
+ 	LSM_HOOK_INIT(bpf_prog_load, selinux_bpf_prog_load),
+ 	LSM_HOOK_INIT(bpf_token_create, selinux_bpf_token_create),
++	LSM_HOOK_INIT(bpf_token_cmd, selinux_bpf_token_cmd),
++	LSM_HOOK_INIT(bpf_token_capable, selinux_bpf_token_capable),
+ #endif
+ #ifdef CONFIG_PERF_EVENTS
+ 	LSM_HOOK_INIT(perf_event_alloc, selinux_perf_event_alloc),
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index 5665aa5e7853..a6ed864af64c 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -171,7 +171,7 @@ const struct security_class_mapping secclass_map[] = {
+ 	{ "infiniband_endport", { "manage_subnet", NULL } },
+ 	{ "bpf",
+ 	  { "map_create", "map_read", "map_write", "prog_load", "prog_run",
+-	    NULL } },
++	    "map_create_as", "prog_load_as", NULL } },
+ 	{ "xdp_socket", { COMMON_SOCK_PERMS, NULL } },
+ 	{ "mctp_socket", { COMMON_SOCK_PERMS, NULL } },
+ 	{ "perf_event",
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 1d7ac59015a1..c1b223e012b4 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -87,6 +87,7 @@ struct superblock_security_struct {
+ 	u32 sid; /* SID of file system superblock */
+ 	u32 def_sid; /* default SID for labeling */
+ 	u32 mntpoint_sid; /* SECURITY_FS_USE_MNTPOINT context for files */
++	u32 creator_sid; /* SID of privileged process */
+ 	unsigned short behavior; /* labeling behavior */
+ 	unsigned short flags; /* which mount options were specified */
+ 	struct mutex lock;
+@@ -164,6 +165,8 @@ struct pkey_security_struct {
+ 
+ struct bpf_security_struct {
+ 	u32 sid; /* SID of bpf obj creator */
++	u32 perms; /* allowed AV permissions, e.g. BPF__MAP_CREATE, for requested bpf commands */
++	u32 grantor_sid; /* SID of privileged process used for permission check */
+ };
+ 
+ struct perf_event_security_struct {
+diff --git a/security/selinux/include/policycap.h b/security/selinux/include/policycap.h
+index 7405154e6c42..cde6aaf442cd 100644
+--- a/security/selinux/include/policycap.h
++++ b/security/selinux/include/policycap.h
+@@ -17,6 +17,7 @@ enum {
+ 	POLICYDB_CAP_NETLINK_XPERM,
+ 	POLICYDB_CAP_NETIF_WILDCARD,
+ 	POLICYDB_CAP_GENFS_SECLABEL_WILDCARD,
++	POLICYDB_CAP_BPF_TOKEN_PERMS,
+ 	__POLICYDB_CAP_MAX
+ };
+ #define POLICYDB_CAP_MAX (__POLICYDB_CAP_MAX - 1)
+diff --git a/security/selinux/include/policycap_names.h b/security/selinux/include/policycap_names.h
+index d8962fcf2ff9..cd5e73f992ea 100644
+--- a/security/selinux/include/policycap_names.h
++++ b/security/selinux/include/policycap_names.h
+@@ -20,6 +20,7 @@ const char *const selinux_policycap_names[__POLICYDB_CAP_MAX] = {
+ 	"netlink_xperm",
+ 	"netif_wildcard",
+ 	"genfs_seclabel_wildcard",
++	"bpf_token_perms",
+ };
+ /* clang-format on */
+ 
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 8201e6a3ac0f..d3832e4ad4fb 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -209,6 +209,12 @@ static inline bool selinux_policycap_netif_wildcard(void)
+ 		selinux_state.policycap[POLICYDB_CAP_NETIF_WILDCARD]);
+ }
+ 
++static inline bool selinux_policycap_bpf_token_perms(void)
++{
++	return READ_ONCE(
++		selinux_state.policycap[POLICYDB_CAP_BPF_TOKEN_PERMS]);
++}
++
+ struct selinux_policy_convert_data;
+ 
+ struct selinux_load_state {
 -- 
-paul-moore.com
+2.50.1
+
