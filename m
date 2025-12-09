@@ -1,157 +1,156 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16D0F2DC349
-	for <selinux@vger.kernel.org>; Mon,  8 Dec 2025 14:13:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B54A119005E
+	for <selinux@vger.kernel.org>; Tue,  9 Dec 2025 13:19:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765203210; cv=none; b=r8hEqRRJsln9UnsIou7NDN68npBiwCq4Tt4dS35ro0yF1OogsiX0LKXOodC+IrD9Bb+NREVI11tglQHdvehZU3VJ/psAG32BT9hD3SEJatnExlSXdd50IOALjhVwlvosmbSBJf6jKiYKu77YyTh2kNjz8vQmSMDRwxnlGKs7DKs=
+	t=1765286356; cv=none; b=iOWIqPOtIhxlcpyMWvcx4r0dUayasCBC5ikqN6y8uzwV0CUz8Mb1upqWyCP8tpvF1SUFKRylQs28gO8oSXNcypi8Gio1Wfqm8BcAz6fE6yK9MVB5n85vnZp3meBxQUt/0dG+aH83G0NfDJ0QtraftAkiVdoIUIwSv4U6ZP6j+fE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765203210; c=relaxed/simple;
-	bh=CkiLp8uORVTDTgSxdg0yAB9K2YCm0fxoJkT1pSblz54=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ElL/WdxwOcngLmgrBR3JnkbhKC1WDFgAyU1EglNdoO3lcrGk4HicriBpMR8Prrf+p53AAHBgMaWA5vJmyOouZuSsaF31w105eiX923uMFbn18XBlvg5KaNdaVax6qhX4ky5A35M6xQm7uNqQC0TO2mmZiJ/BSJvc+p2GmqfG3q4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=i5Q2bgKp; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=fvbiiu4+; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=L2MGOa9P; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=6D27nCMG; arc=none smtp.client-ip=195.135.223.130
+	s=arc-20240116; t=1765286356; c=relaxed/simple;
+	bh=RjXZVDam+Nlxj7dKKXc2K9YczSPRoFq0dS8S5USh89k=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=YojOJsgxpAo+JESmb7o4W5H/lBaNMa+AZISNCB0IXqEEQjE322H5M1e+GIC/JIUYx3BgNaiEHmZWUYVhXx0mdJVlPpkwOv80kqbhCeEvcYT+wOIgSs6udXy9i06oYNvuR9Jl8RyEMoiSLvY7XIAJ3uth8Ny0Sc8yoddY4pRZcfc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=dXyT3H0v; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=XNE1Yg3i; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=ah62tPCg; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=0T5uCkzN; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="i5Q2bgKp";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="fvbiiu4+";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="L2MGOa9P";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="6D27nCMG"
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="dXyT3H0v";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="XNE1Yg3i";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="ah62tPCg";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="0T5uCkzN"
 Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 9E1F53391B;
-	Mon,  8 Dec 2025 14:13:24 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 233515BE30;
+	Tue,  9 Dec 2025 13:19:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1765203205; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=tjJaNWg3FwT2wxAWdSiZjUiaEGDtCtx66txb8BKbNIM=;
-	b=i5Q2bgKpMu8ShKvEGoMUTPNvQ7dSxXz7bC7QZ6ZiyeC/TknrmW/WF3wSYijl7F+F67ErbH
-	Bz9yEhn/sybOyvUQz0N0rEuu0JC4BB93c7UinBr6HX38JCVsn+tGlEG9ZbETGoKHLLjHrv
-	Vx6EnSoL4LXVE5ud8sbH+wZUXnTZ3po=
+	t=1765286345; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=sylz5wWwmP56dJcE/RoAYIM6tFs023Qu1Eal5VNdntg=;
+	b=dXyT3H0vmdbo6oPMOZ/9l8UzulPXt/Mn8MP2RpAS6qsKfuztTfFZNyFlXvseGkYCRg+gRx
+	jeDOvirOjU3dky67yAYHpXvTBdVQ7Fsy7UusWoa4GbFAOGy2NXPaovdluZTotvbEDLLzo/
+	LLsBHfPBuuJA2SJRAZgm7yq4/yCZpw0=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1765203205;
+	s=susede2_ed25519; t=1765286345;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=tjJaNWg3FwT2wxAWdSiZjUiaEGDtCtx66txb8BKbNIM=;
-	b=fvbiiu4+LeZvl/j224LVBDfvhPEwEutkN61uaphSe90VTTu1NWPYq3p1j9mrKn8m8qm2tH
-	n6Inb1Gk90PbXIDg==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=L2MGOa9P;
-	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=6D27nCMG
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=sylz5wWwmP56dJcE/RoAYIM6tFs023Qu1Eal5VNdntg=;
+	b=XNE1Yg3iljK6OHnEpvyx5ZxLm2fHdtLeuWxZQP9Gi/frZQ5MVKCDkMPasNdSHzAP22KHan
+	T4jTt61ekzHgOECw==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=ah62tPCg;
+	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=0T5uCkzN
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1765203204; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=tjJaNWg3FwT2wxAWdSiZjUiaEGDtCtx66txb8BKbNIM=;
-	b=L2MGOa9PINGGsNw4W6vvVw89/A0dUejiyFUMDGGgRkWGbxCXlyNIRzOGfsgtCjZ0k3OdSg
-	u470Lwkb2RWb/2ATzR7EhbVm1AJ7BP+bCajzPAYWACEMgGsuiXtcTHSRBujYYf2gp6DVeV
-	IPeVZKT98rrk1uTy/6Ik/72he3qp3vk=
+	t=1765286344; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=sylz5wWwmP56dJcE/RoAYIM6tFs023Qu1Eal5VNdntg=;
+	b=ah62tPCglLY8qMDeVJzFizNg/P9TZzGM6ol0+Is+IytsQx94qvNwPjwcQRCNXXHxNmU2Ks
+	vWYdj482IBSSVWuoWpVWPTy7+cP8oobxKSmJx8kb0e30OMDX7vznmgU+pe+Zq1uXejNl67
+	FfRUxt+O5fCKu+Mmglzern/Y4bQCOhs=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1765203204;
+	s=susede2_ed25519; t=1765286344;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=tjJaNWg3FwT2wxAWdSiZjUiaEGDtCtx66txb8BKbNIM=;
-	b=6D27nCMG+phdksc5THYFexNtPCHNxm0RUCkkLBH0GkvI/CwES9xjw7XS05lqGyvHN22dLh
-	Ha4mlsv+5OsrwhAg==
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=sylz5wWwmP56dJcE/RoAYIM6tFs023Qu1Eal5VNdntg=;
+	b=0T5uCkzN6qxaN6f3sHRcAM4ktnifCCkiiMkffyPsx2BcFmrEdcg7QYXQFLWObTwvMj4qYG
+	n/xNRGWZVYUwOGCA==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 6AD063EA63;
-	Mon,  8 Dec 2025 14:13:24 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 104773EA63;
+	Tue,  9 Dec 2025 13:19:04 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 5rkOGQTdNml8KAAAD6G6ig
-	(envelope-from <pvorel@suse.cz>); Mon, 08 Dec 2025 14:13:24 +0000
-From: Petr Vorel <pvorel@suse.cz>
-To: ltp@lists.linux.it
-Cc: Petr Vorel <pvorel@suse.cz>,
-	Mimi Zohar <zohar@linux.ibm.com>,
-	linux-integrity@vger.kernel.org,
-	selinux@vger.kernel.org
-Subject: [PATCH] ima_selinux: Fix requirements
-Date: Mon,  8 Dec 2025 15:13:21 +0100
-Message-ID: <20251208141321.696537-1-pvorel@suse.cz>
-X-Mailer: git-send-email 2.51.0
+	id 7LkZA8ghOGkdEwAAD6G6ig
+	(envelope-from <chrubis@suse.cz>); Tue, 09 Dec 2025 13:19:04 +0000
+Date: Tue, 9 Dec 2025 14:19:48 +0100
+From: Cyril Hrubis <chrubis@suse.cz>
+To: Li Wang <liwang@redhat.com>
+Cc: Petr Vorel <pvorel@suse.cz>, ltp@lists.linux.it,
+	Mimi Zohar <zohar@linux.ibm.com>, linux-integrity@vger.kernel.org,
+	selinux@vger.kernel.org, Jan Stancek <jstancek@redhat.com>
+Subject: Re: [PATCH v3 1/4] shell: Add tst_sudo.c helper
+Message-ID: <aTgh9CIRfVWniUZD@yuki.lan>
+References: <20251127082638.224110-1-pvorel@suse.cz>
+ <20251127082638.224110-2-pvorel@suse.cz>
+ <CAEemH2cUYekSphFW_uj2w1FzYt3RWXDDnhmQ5TFAyr0T3HFxow@mail.gmail.com>
+ <CAEemH2e6ivP0rzfTBp5LnZ8n-oe7moqfHszgs2QyYVMUTUQ_wQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Spamd-Result: default: False [-3.01 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	MID_CONTAINS_FROM(1.00)[];
+In-Reply-To: <CAEemH2e6ivP0rzfTBp5LnZ8n-oe7moqfHszgs2QyYVMUTUQ_wQ@mail.gmail.com>
+X-Spamd-Result: default: False [-4.51 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
 	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_MISSING_CHARSET(0.50)[];
 	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
 	NEURAL_HAM_SHORT(-0.20)[-1.000];
 	MIME_GOOD(-0.10)[text/plain];
 	MX_GOOD(-0.01)[];
 	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	ARC_NA(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_DN_SOME(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	URIBL_BLOCKED(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,ima_selinux.sh:url,suse.cz:email,suse.cz:dkim,suse.cz:mid];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	DWL_DNSWL_BLOCKED(0.00)[suse.cz:dkim];
-	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	FROM_EQ_ENVFROM(0.00)[];
 	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	MISSING_XM_UA(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCPT_COUNT_SEVEN(0.00)[7];
 	RCVD_TLS_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.cz:+];
-	RCPT_COUNT_FIVE(0.00)[5];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.cz:email,suse.cz:dkim,suse.cz:mid,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.cz:dkim,suse.cz:email,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,yuki.lan:mid];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	DKIM_TRACE(0.00)[suse.cz:+]
 X-Rspamd-Action: no action
 X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
 X-Spam-Level: 
-X-Rspamd-Queue-Id: 9E1F53391B
+X-Rspamd-Queue-Id: 233515BE30
 X-Spam-Flag: NO
-X-Spam-Score: -3.01
+X-Spam-Score: -4.51
 
-"measure func=CRITICAL_DATA label=selinux" in selinux.policy LTP example
-policy is a subset of "measure func=CRITICAL_DATA" loaded by
-ima_policy=critical_data kernel command line option.
+Hi!
+> > I feel that the filename tst_sudo.c is a bit misleading. The helper
+> > doesn’t
+> > replicate sudo behavior (authentication, privilege escalation), it simply
+> > drops from root to a fixed UID/GID before executing a command.
+> >
+> > So readers may expect a “sudo-like” elevation wrapper when, however
+> > it’s a privilege-dropping trampoline.
+> >
+> > What about renaming it to:
+> >   tst_runas.c,
+> >   tst_runas_nobody.c, or
+> >   tst_drop_privs.c?
+> >
+> 
+> 
+> Personally, I prefer the tst_runas_nody.c because it reflects the
+> default privilege,
+> but due it supports the more env so contains "su" maybe better:
+>   tst_su_switch.c, tst_su_cmd.c
 
-Therefore ima_selinux.sh require only one of them, not both.
+Maybe just tst_runas.c I think that 'runas' in the name is probably the
+best description.
 
-Reported-by: Mimi Zohar <zohar@linux.ibm.com>
-Signed-off-by: Petr Vorel <pvorel@suse.cz>
----
-Thanks Mimi!
-
-Kind regards,
-Petr
-
- testcases/kernel/security/integrity/ima/tests/ima_selinux.sh | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/testcases/kernel/security/integrity/ima/tests/ima_selinux.sh b/testcases/kernel/security/integrity/ima/tests/ima_selinux.sh
-index 1a0de21efd..e64a7739f9 100755
---- a/testcases/kernel/security/integrity/ima/tests/ima_selinux.sh
-+++ b/testcases/kernel/security/integrity/ima/tests/ima_selinux.sh
-@@ -18,13 +18,12 @@ TST_SETUP="setup"
- TST_MIN_KVER="5.12"
- 
- REQUIRED_POLICY_CONTENT='selinux.policy'
-+REQUIRED_BUILTIN_POLICY='critical_data'
- 
- setup()
- {
- 	SELINUX_DIR=$(tst_get_selinux_dir)
- 	[ "$SELINUX_DIR" ] || tst_brk TCONF "SELinux is not enabled"
--
--	require_ima_policy_cmdline "critical_data"
- }
- 
- # Format of the measured SELinux state data.
 -- 
-2.51.0
-
+Cyril Hrubis
+chrubis@suse.cz
