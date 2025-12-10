@@ -1,94 +1,35 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20A69303A0A
-	for <selinux@vger.kernel.org>; Tue,  9 Dec 2025 18:56:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D509301470;
+	Wed, 10 Dec 2025 07:33:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765306579; cv=none; b=UL44IeCHiaMprjnBiKCrKwF82dQXXxHd9WZqbwfFwH+j9Sb0/mNg27AsVvV8rTyIfcwK319JPSdDvrHqeb42S6l6vEhDEGcTnYvtwQyG933vHn8UtGQXFRhYUj8H4NteVBIyJOglMOSamEg9MWn9ygMaA4smtTB4o4k1TtqjioQ=
+	t=1765351996; cv=none; b=dZW5qbJEDqnrDcQJO4dgV3yyn6yZDI30GNMeKBCZR6JXjf5VDnGyIEOHXCd7fsa8zXOgU2LVbWvEvrrqhuqjYauMYtHT3BRUGa7fu4bnktQGgdx+coxTZfMuPGVxSy/Nw5ExNIIbEJJZAKXrDZg/K5b+9lu7V5G1DrENgLZ6fSQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765306579; c=relaxed/simple;
-	bh=mTU56RQkQt0zIK8voFFa0bQdeqqcopR6IsGOdFlCW5I=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=T2oTYDf71pa0O9tv6AF83wfQ/1TqQw65/sZQCi0nqgdRjzrQjcX8iIGrXtm24qWgWwY1JpoOTeAUgOxl7SbNUvihKC54NaiSrTsEPyPy89YmWTOGZ/QC25y5NljczPAtJxQuT1qnyIQccvfiHXl9O1EP9ot4mAq53h3pMo+ebfU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=Swt/T1nj; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=3gBGTqqD; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=S55Mu65I; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=6zvKynHL; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	s=arc-20240116; t=1765351996; c=relaxed/simple;
+	bh=z32QeBspTHvfGL7jT4zgsGt50dcCo9fMPnf9xtq3X9A=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=peLDOgq2XvwXr9JnGhNp9FRAFdPKi1BXqIL/F2C2Uc979KNs+wLXUwi5SxJGx954Q8zOKINjmuRPvhjpr0aBVwrTlZG4OqSctInwMl7Wu8o6QtoEyHCQCTAgwU7fyt2xdIYOhsw4HwpBiRQejGfxRtR91Q83F6F6zLCGU5JsTgg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FEAxtl4n; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="Swt/T1nj";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="3gBGTqqD";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="S55Mu65I";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="6zvKynHL"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 6144C5BE03;
-	Tue,  9 Dec 2025 18:56:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1765306563; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=/P8UQAkwsKDxj/7A3oMQW2mFBFDU2oZ5ypQ0Oe/SU58=;
-	b=Swt/T1njlihtZMbxZp02dLl1U2lhsEvIA7f24rQxFtbUi2VElKPPIorH37ca0NP1c5CHoh
-	70PjXJTke43CKvAUUMU3XbEBLW2xMr7BSfM5NiuZRr7QKSoDPLmZlCxRU5I0JX1fkl9307
-	qVzxs2f75FGnqrkg7fqhFmWy2uLaDmA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1765306563;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=/P8UQAkwsKDxj/7A3oMQW2mFBFDU2oZ5ypQ0Oe/SU58=;
-	b=3gBGTqqDkXnnG4gu25ddiUEQohtcIPX/Ga1+2LAe54WQD8MietTJe5m1ESxhBH3tNzFRNQ
-	7+cV25PiuXStrdCQ==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=S55Mu65I;
-	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=6zvKynHL
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1765306562; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=/P8UQAkwsKDxj/7A3oMQW2mFBFDU2oZ5ypQ0Oe/SU58=;
-	b=S55Mu65IQnigi90WcQVUMEJS03lJIA9Kt61gXQJSEHpALPxoUAFGKaoPEHDMKF25E20SMr
-	OOQ9Yy3qHd4r47cCEFuFRMDe+JuLwmxk6UMEFkhqG6s+INM8p0K9Nwy8C936bkCZ8n6150
-	wFAOOS4r85slL/mIO8O+wt6nf7tbfnQ=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1765306562;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=/P8UQAkwsKDxj/7A3oMQW2mFBFDU2oZ5ypQ0Oe/SU58=;
-	b=6zvKynHLj9ng0eOnEdCk86UnorvZNqbeTLW91qBUumnaxCvfIja3qxN935ki3oyyOcqp74
-	tRtc8U82fPQXcfDA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 1A1BE3EA65;
-	Tue,  9 Dec 2025 18:56:02 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id KJN2BcJwOGnSSAAAD6G6ig
-	(envelope-from <pvorel@suse.cz>); Tue, 09 Dec 2025 18:56:02 +0000
-From: Petr Vorel <pvorel@suse.cz>
-To: ltp@lists.linux.it
-Cc: Petr Vorel <pvorel@suse.cz>,
-	Mimi Zohar <zohar@linux.ibm.com>,
-	linux-integrity@vger.kernel.org,
-	selinux@vger.kernel.org,
-	Cyril Hrubis <chrubis@suse.cz>,
-	Jan Stancek <jstancek@redhat.com>,
-	Li Wang <liwang@redhat.com>
-Subject: [PATCH v4 3/4] ima_{conditionals,measurements}.sh: Use tst_runas
-Date: Tue,  9 Dec 2025 19:55:56 +0100
-Message-ID: <20251209185557.20598-4-pvorel@suse.cz>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20251209185557.20598-1-pvorel@suse.cz>
-References: <20251209185557.20598-1-pvorel@suse.cz>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FEAxtl4n"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DAC4C116B1;
+	Wed, 10 Dec 2025 07:33:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1765351996;
+	bh=z32QeBspTHvfGL7jT4zgsGt50dcCo9fMPnf9xtq3X9A=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=FEAxtl4n/dE8j2tgbOfAC0aRj0oMADjly1Y7eYym4r1/h0AHWHd+msfqZscjgA2ys
+	 J5TKwMM+gwM36agvp6KNeLKumtc53QXwEMq3lvmsv6YY9Mm08kPTivEvQ58mXGNHWx
+	 8kKMPr2F/amgC3HLyHga3JUrOgY76SUYh33Ks+1tDCkh5mwbHsds7rPxQKRevlrfm5
+	 9pMq2/w38fiHmWWl99urOhDiNqpJvLLyLz1FwtOHGZrVJYxiFHjoHyZXyWu4DzuHp9
+	 BobSUGpGPA5rYtWmXQnEhaiDuD67FW0cdeX875SmZJjv2UIztQsEgYjOHpSYrSfQ3L
+	 JJRruqcT5u1Iw==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 788BE3809A18;
+	Wed, 10 Dec 2025 07:30:12 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -96,134 +37,51 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Flag: NO
-X-Spam-Score: -3.01
-X-Rspamd-Queue-Id: 6144C5BE03
-X-Spamd-Result: default: False [-3.01 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_MISSING_CHARSET(0.50)[];
-	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.cz:mid,suse.cz:dkim,suse.cz:email];
-	ARC_NA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	RCPT_COUNT_SEVEN(0.00)[8];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	RCVD_TLS_ALL(0.00)[];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	DKIM_TRACE(0.00)[suse.cz:+]
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Rspamd-Action: no action
-X-Spam-Level: 
+Subject: Re: [PATCH] bpf, arm64: Do not audit capability check in do_jit()
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <176535181104.487333.8109866817495387423.git-patchwork-notify@kernel.org>
+Date: Wed, 10 Dec 2025 07:30:11 +0000
+References: <20251204125916.441021-1-omosnace@redhat.com>
+In-Reply-To: <20251204125916.441021-1-omosnace@redhat.com>
+To: Ondrej Mosnacek <omosnace@redhat.com>
+Cc: ast@kernel.org, daniel@iogearbox.net, bpf@vger.kernel.org,
+ selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+ serge@hallyn.com
 
-Replace 'sudo' and 'sg' with 'tst_runas'.
+Hello:
 
-This not only removes 'sudo' external dependency, but it s required
-because new releases of many distros (e.g. Debian, openSUSE Tumbleweed,
-SLES, ...) switched shell for 'nobody' user from /bin/bash (or /bin/sh)
-to /usr/sbin/nologin. That effectively disables using 'sudo', 'su', 'sg':
+This patch was applied to bpf/bpf.git (master)
+by Alexei Starovoitov <ast@kernel.org>:
 
-    ima_conditionals 1 TINFO: verify measuring user files when requested via uid
-    sudo: Account expired or PAM config lacks an "account" section for sudo, contact your system administrator
-    sudo: a password is required
+On Thu,  4 Dec 2025 13:59:16 +0100 you wrote:
+> Analogically to the x86 commit 881a9c9cb785 ("bpf: Do not audit
+> capability check in do_jit()"), change the capable() call to
+> ns_capable_noaudit() in order to avoid spurious SELinux denials in audit
+> log.
+> 
+> The commit log from that commit applies here as well:
+> """
+> The failure of this check only results in a security mitigation being
+> applied, slightly affecting performance of the compiled BPF program. It
+> doesn't result in a failed syscall, an thus auditing a failed LSM
+> permission check for it is unwanted. For example with SELinux, it causes
+> a denial to be reported for confined processes running as root, which
+> tends to be flagged as a problem to be fixed in the policy. Yet
+> dontauditing or allowing CAP_SYS_ADMIN to the domain may not be
+> desirable, as it would allow/silence also other checks - either going
+> against the principle of least privilege or making debugging potentially
+> harder.
+> 
+> [...]
 
-Signed-off-by: Petr Vorel <pvorel@suse.cz>
----
- .../integrity/ima/tests/ima_conditionals.sh         | 13 ++++++-------
- .../integrity/ima/tests/ima_measurements.sh         | 11 ++---------
- 2 files changed, 8 insertions(+), 16 deletions(-)
+Here is the summary with links:
+  - bpf, arm64: Do not audit capability check in do_jit()
+    https://git.kernel.org/bpf/bpf/c/189e5deb944a
 
-diff --git a/testcases/kernel/security/integrity/ima/tests/ima_conditionals.sh b/testcases/kernel/security/integrity/ima/tests/ima_conditionals.sh
-index ba19176039..ae947db1e9 100755
---- a/testcases/kernel/security/integrity/ima/tests/ima_conditionals.sh
-+++ b/testcases/kernel/security/integrity/ima/tests/ima_conditionals.sh
-@@ -9,7 +9,7 @@
- # gid and fgroup options test kernel commit 40224c41661b ("ima: add gid
- # support") from v5.16.
- 
--TST_NEEDS_CMDS="cat chgrp chown id sg sudo"
-+TST_NEEDS_CMDS="cat chgrp chown"
- TST_SETUP="setup"
- TST_CNT=1
- 
-@@ -27,8 +27,8 @@ verify_measurement()
- 	local test_file="$PWD/test.txt"
- 	local cmd="cat $test_file > /dev/null"
- 
--	local value="$(id -u $user)"
--	[ "$request" = 'gid' -o "$request" = 'fgroup' ] && value="$(id -g $user)"
-+	local value="$TST_USR_UID"
-+	[ "$request" = 'gid' -o "$request" = 'fgroup' ] && value="$TST_USR_GID"
- 
- 	# needs to be checked each run (not in setup)
- 	require_policy_writable
-@@ -41,15 +41,14 @@ verify_measurement()
- 
- 	case "$request" in
- 	fgroup)
--		chgrp $user $test_file
-+		chgrp $TST_USR_GID $test_file
- 		sh -c "$cmd"
- 		;;
- 	fowner)
--		chown $user $test_file
-+		chown $TST_USR_UID $test_file
- 		sh -c "$cmd"
- 		;;
--	gid) sg $user "sh -c '$cmd'";;
--	uid) sudo -n -u $user sh -c "$cmd";;
-+	gid|uid) tst_runas sh -c "$cmd";;
- 	*) tst_brk TBROK "Invalid res type '$1'";;
- 	esac
- 
-diff --git a/testcases/kernel/security/integrity/ima/tests/ima_measurements.sh b/testcases/kernel/security/integrity/ima/tests/ima_measurements.sh
-index 60350f3926..cf35e131ed 100755
---- a/testcases/kernel/security/integrity/ima/tests/ima_measurements.sh
-+++ b/testcases/kernel/security/integrity/ima/tests/ima_measurements.sh
-@@ -68,30 +68,23 @@ test2()
- 
- test3()
- {
--	local user="nobody"
- 	local dir="$PWD/user"
- 	local file="$dir/test.txt"
- 	local cmd="grep $file $ASCII_MEASUREMENTS"
- 
- 	# Default policy does not measure user files
- 	tst_res TINFO "verify not measuring user files"
--	tst_check_cmds sudo || return
- 
- 	if [ "$IMA_MISSING_POLICY_CONTENT" = 1 ]; then
- 		tst_res TCONF "test requires specific policy, try load it with LTP_IMA_LOAD_POLICY=1"
- 		return
- 	fi
- 
--	if ! id $user >/dev/null 2>/dev/null; then
--		tst_res TCONF "missing system user $user (wrong installation)"
--		return
--	fi
--
- 	[ -d "$dir" ] || mkdir -m 0700 $dir
--	chown $user $dir
-+	chown $TST_USR_UID $dir
- 	cd $dir
- 	# need to read file to get updated $ASCII_MEASUREMENTS
--	sudo -n -u $user sh -c "echo $(cat /proc/uptime) user file > $file; cat $file > /dev/null"
-+	tst_runas sh -c "echo $(cat /proc/uptime) user file > $file; cat $file > /dev/null"
- 	cd ..
- 
- 	if ! tst_rod "$cmd" 2> /dev/null; then
+You are awesome, thank you!
 -- 
-2.51.0
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
