@@ -1,137 +1,90 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com [209.85.167.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB99722CBE6
-	for <selinux@vger.kernel.org>; Thu, 11 Dec 2025 00:01:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 665D0303A14
+	for <selinux@vger.kernel.org>; Thu, 11 Dec 2025 10:37:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765411288; cv=none; b=iXh0Vy/jtRj0Q+Sto/uVRBZVAaFO8PhZ4oqfBaVVIQb0qLjsS43TmpdXONScF+ePs/lxJfr8z+wgMynF/Kms8J2BzsaVUY/qvjjZ4BtR6hbWQOf4TDTXsghT6PSBbYIS+KEn/8VMBRdwCm4ffyuBV/7CriGUAa0i+2pekHDYMZw=
+	t=1765449468; cv=none; b=T/2Pm4cFuFPxOkzF14JVuJPNVPwIuX3PF9n21jZAo2G1Ie3/P8bp7VzKwPZmvtAuBCkd03pUiGpxbcPmFbuL4k1iqbD6MNubTX1WurqVy2XPaDifKYtlWA5++l4atW66PE8HUcz3/i76ny/XM8w+LUPdIRhB4MUNqRm2JvNt55I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765411288; c=relaxed/simple;
-	bh=GNDKGqZrsh3cUgcoqHXYPQ8B4kklYDWGv22V8osEAqE=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=b6bAp5jqjipoaZbXJFsMZzUrIBBX2Cv3af2AW32DJJxlJ5S2gB+SxG9mYtuKkx5rB0uuz5n6V4KugpsrWSoIVz8pzVau8Bd+CkQ1KkBRv8VGRikP0TKs4wE0pFEI+Jbt/pdKJnbD7jIJeSWZqdCCVG3F5UbBgYsUSeuBqTfBilM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XMv9y1GW; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1765449468; c=relaxed/simple;
+	bh=9BRTH/FEGnS97KG3LM0lBBvG1ySlWbwu0HJaW9O0rNw=;
+	h=Mime-Version:Content-Type:Date:Message-Id:From:To:Cc:Subject:
+	 References:In-Reply-To; b=AEhzGUKuHZDecpT87eyhUIt+4bQLb6YR+FiehKMRDPuzRSpHSeKpnYH81oRx4BWCkWJwLsammat9ieqmF0fX4b3ik+oQytTHhokVAyda0KgCo7k6WMBuODwchyl5wED61mtzuQUbKs3OUk8txwj8bD2mOQ+MAgXmozuENSl6fqA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=gy4M2ztW; arc=none smtp.client-ip=209.85.167.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XMv9y1GW"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1765411282;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=d6Xmf5Jivc/6h5UGBXnMNZdINprcUOpigr+GkFue7Xc=;
-	b=XMv9y1GWMQ5SiYb2rZ4eX/tSX7smdphnHfVI24ed60ScCF1PSCW330EuSymQHOgeTnHlb5
-	iQwaYU0phbQVc3hK4Kf1fwwBCKUv9LCkybPQhahiXxo4x/dkKcgQQ3MUGl5HUdnLbr88xc
-	fgURClMwFVVufGT1sk/o8eyOZ9PaQtU=
-Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-438-Okpg0KbxMwG0Qma3-Iyc8Q-1; Wed,
- 10 Dec 2025 19:01:21 -0500
-X-MC-Unique: Okpg0KbxMwG0Qma3-Iyc8Q-1
-X-Mimecast-MFC-AGG-ID: Okpg0KbxMwG0Qma3-Iyc8Q_1765411280
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 1F3A81800378
-	for <selinux@vger.kernel.org>; Thu, 11 Dec 2025 00:01:20 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.44.32.41])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 7319619560AD
-	for <selinux@vger.kernel.org>; Thu, 11 Dec 2025 00:01:19 +0000 (UTC)
-From: Vit Mojzis <vmojzis@redhat.com>
-To: selinux@vger.kernel.org
-Subject: [PATCH] python/sepolicy: Add support for DNF5
-Date: Thu, 11 Dec 2025 01:00:52 +0100
-Message-ID: <20251211000115.43983-1-vmojzis@redhat.com>
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="gy4M2ztW"
+Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-597de27b241so934322e87.2
+        for <selinux@vger.kernel.org>; Thu, 11 Dec 2025 02:37:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1765449463; x=1766054263; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=9BRTH/FEGnS97KG3LM0lBBvG1ySlWbwu0HJaW9O0rNw=;
+        b=gy4M2ztWJpmEaBDVuRlSu3B9OtgZrgaYxYfQt71AAhU/GcQzBdY7uonFOOISfBE126
+         2u42j6dwkrFccuwjtftgHAxMRX5K4+GKSOBmjSPr/dr2cm7id8UWR+HmHlLvLKoghDoF
+         hVIM7A0nzA8uWxS2WpDIk7/CsBBrj4DH9CtNMBxg/1YlRe2Dju2kHCTPAQI9h2ANGfRr
+         YIyqhcc4uVilFlNo/IIw7bnOmCcNCJjzwkGo9e7QC09ltvTKQqNrQ+wbYTJ5xRVHxzpW
+         iuvTcsnh1LIcuj/Ryme3Na5DD1EUazH0+ExV+2LdMNQzhZY0hVh6Cho1aMoKcuxHBaab
+         TZmg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1765449463; x=1766054263;
+        h=in-reply-to:references:subject:cc:to:from:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-gg:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=9BRTH/FEGnS97KG3LM0lBBvG1ySlWbwu0HJaW9O0rNw=;
+        b=ERGyVPw9jQOBn2I1YdPFLN3m7Q3CietXePdpK0QTjAfe6NacN/+V0PS4KoUVexoaFu
+         QGslteGvqmpt0aCLHodunayXo1JKgphfww1HH/tqwuDBByzF3Hxqm09smj0VD1EBu9/S
+         HaKDadWOaISQrjkMBsqUh74/r9NCebwj/EN4TwbNJ+FZUHWQy/ppSKZK6BmE05U7UFRG
+         SUhqUqlTa9YssA1dmroqIpbGLM0jjlTDJS25xpPnN4llp7RP1LVLhpom5GOYAlNZNqR8
+         oOZcRZ6PTnvmrs1G3otMh8Nl8ROWptTt6EgB6+3UzPy7YGiajUmRlocVCwsfOSQiJrs2
+         e+aw==
+X-Gm-Message-State: AOJu0Yz2XV+6awFd1FoLAjwT+WKk88Ist/j2O9zRzEBwQVovi3fsvp0U
+	BXcsfMSGWV7yVm8Kb2UfKz8YzJZjD9aSKAP+ywVEQhh7IrBGFc/Yex/aVaCAnsBWtfv+oDOs2FE
+	giWroZPk=
+X-Gm-Gg: AY/fxX7sxtOOaLRbfllej910FzyIbVHYqEEUBkjZfnq4cvQrshcz9GIwfqT/7q4TeAF
+	DSKJAfmVBOBgkqYxOzlLQhKaFJryOAQwa4QQzJe6kXPUWgQ2lIw0BhnbQ9eJHlzFryD0fFZsHoY
+	msMLue75bJB9DwI8MucE4dPXBQ4FsRaFy0cyfoVGd9pIWxrvSSf1zOLKPKONaSQc7sbuqydZ8pj
+	kLl+eq4mCbGEiiR8qu3vkYspYuGDL+gJ5DAB8Nc4IVp2rPlZa8A18iwvyCqdtZW+L5z+0oqixEi
+	2XhImvncB6D3yFWaTt1SGW2Mi0p9VjMrqZDnOfn8sdz/GEa7NCCXfcVhVS90Q57EnuVTtlZj8ma
+	qQ+8mHv86pTRDpIZf2kEaw4Nva4AtIFflHz/kZPaDpmBIqBMUj/Vx1n4KAe0oSCLFr5gjfrZbg8
+	15r/UbDW7wIVg27h38zUM=
+X-Google-Smtp-Source: AGHT+IERqS1L6ci7q8dGntRfw2/ZItR2qtmAlqrQG8XSEGr8iPup2BGl+AX1ZFkBRb6+fnmg6Y4WXQ==
+X-Received: by 2002:a05:6512:33d6:b0:595:81e7:3daa with SMTP id 2adb3069b0e04-598ee52e8c5mr2220693e87.27.1765449463194;
+        Thu, 11 Dec 2025 02:37:43 -0800 (PST)
+Received: from localhost ([2a02:a31b:84a1:b780:6f4e:21d6:82d2:5333])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-598f2fa75efsm748663e87.69.2025.12.11.02.37.42
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 11 Dec 2025 02:37:42 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Thu, 11 Dec 2025 11:37:41 +0100
+Message-Id: <DEVBLPYYQNMS.3IOZO4CG4IAYU@suse.com>
+From: "Andrea Cervesato" <andrea.cervesato@suse.com>
+To: "Petr Vorel" <pvorel@suse.cz>, <ltp@lists.linux.it>
+Cc: <selinux@vger.kernel.org>, <linux-integrity@vger.kernel.org>
+Subject: Re: [LTP] [PATCH v4 0/4] tst_runas.c, ima_{conditionals,
+ measurements}.sh enhancements
+X-Mailer: aerc 0.18.2
+References: <20251209185557.20598-1-pvorel@suse.cz>
+In-Reply-To: <20251209185557.20598-1-pvorel@suse.cz>
 
-This allows policycoreutils-devel to drop the dependency on python3-dnf
-in favor of python3-libdnf5.
+Hi Petr,
 
-Requires: (python3-libdnf5 if dnf5 else python3-dnf)
+thanks for adding this tool. We will probably need to update
+documentation as well after this patch will be merged.
 
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
- python/sepolicy/sepolicy/generate.py | 57 ++++++++++++++++++++++++++++
- 1 file changed, 57 insertions(+)
-
-diff --git a/python/sepolicy/sepolicy/generate.py b/python/sepolicy/sepolicy/generate.py
-index adf65f27..780a56b2 100644
---- a/python/sepolicy/sepolicy/generate.py
-+++ b/python/sepolicy/sepolicy/generate.py
-@@ -1262,6 +1262,63 @@ allow %s_t %s_t:%s_socket name_%s;
-         return fcfile
- 
-     def __extract_rpms(self):
-+        # Try dnf5 first, fall back to dnf4
-+        try:
-+            import libdnf5
-+            self.__extract_rpms_dnf5()
-+        except ImportError:
-+            try:
-+                import dnf
-+                self.__extract_rpms_dnf4()
-+            except ImportError:
-+                pass
-+
-+    def __extract_rpms_dnf5(self):
-+        import libdnf5
-+
-+        base = libdnf5.base.Base()
-+        base.load_config()
-+        base.setup()
-+
-+        repo_sack = base.get_repo_sack()
-+        repo_sack.create_repos_from_system_configuration()
-+
-+        repo_sack.load_repos()
-+
-+        query = libdnf5.rpm.PackageQuery(base)
-+        query.filter_file([self.program])
-+        query.filter_available()
-+
-+        for pkg in query:
-+            self.rpms.append(pkg.get_name())
-+            files = pkg.get_files()
-+            for fname in files:
-+                for b in self.DEFAULT_DIRS:
-+                    if b == "/etc":
-+                        continue
-+                    if fname.startswith(b):
-+                        if os.path.isfile(fname):
-+                            self.add_file(fname)
-+                        else:
-+                            self.add_dir(fname)
-+
-+            # Query for source package
-+            src_query = libdnf5.rpm.PackageQuery(base)
-+            src_query.filter_provides([pkg.get_source_name()])
-+            src_query.filter_available()
-+            for bpkg in src_query:
-+                files = bpkg.get_files()
-+                for fname in files:
-+                    for b in self.DEFAULT_DIRS:
-+                        if b == "/etc":
-+                            continue
-+                        if fname.startswith(b):
-+                            if os.path.isfile(fname):
-+                                self.add_file(fname)
-+                            else:
-+                                self.add_dir(fname)
-+
-+    def __extract_rpms_dnf4(self):
-         import dnf
- 
-         with dnf.Base() as base:
--- 
-2.52.0
+--=20
+Andrea Cervesato
+SUSE QE Automation Engineer Linux
+andrea.cervesato@suse.com
 
