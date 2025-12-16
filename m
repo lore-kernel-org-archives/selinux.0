@@ -1,161 +1,109 @@
-Received: from mail-lj1-f174.google.com (mail-lj1-f174.google.com [209.85.208.174])
+Received: from mail-lj1-f169.google.com (mail-lj1-f169.google.com [209.85.208.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23C0E18A6D4
-	for <selinux@vger.kernel.org>; Tue, 16 Dec 2025 17:18:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7ADA32874F1
+	for <selinux@vger.kernel.org>; Tue, 16 Dec 2025 17:18:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765905503; cv=none; b=eMWFGOiCGQC6e0KmaHptDIeSis/sKHo2t5ZlRcMwHmcku1fpFjgE64Rjr7hL8T6rEYhfqPld335rwrdy/kHC6kTYiPNMzkz/x5e7nwrjY4xrajuPxmEKTzwIysL3cViXF/ER45h8drVk82EoWx0wRouNta1jDuko47EVuebHOSs=
+	t=1765905523; cv=none; b=EMZ9UTOMwqCTcgobSe7g1KmLtVhpbKjigdkEhULiFeRzP9f1qnhzXGY5gf7N4EIT2wbQ7uemvCJItjPji92x06yaiIvX8e10Oc/v03VDgi5+z7ZMTWeVWHkT4h9UluIQCW6GUAND96kj8MTeX4muewsV/NuRZ8S3PVeaRqbB8Yc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765905503; c=relaxed/simple;
-	bh=REirjFzrWSmFTkCbq3yjnoN48eaDsOECqD5+j3VVCDc=;
+	s=arc-20240116; t=1765905523; c=relaxed/simple;
+	bh=EAGcp8JRcog6WFp3910GFEt14cmLruVhZk7xiH7AZ2M=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mlYou6sbMTMhiDdl1PTizUwVg92/9KJ20Lr586gd80ma6M1xLvwI44JH4uR0Jsjr+Cz/Gy9zy0HkVonwYikH6DCbvGUQE46W6oh6yTYnJbY3WYc2wf9PAulVr6olA9TzfVNzcOE1CaLr67l5GhTl7jZW3ED06lSt+05hP5quztI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Kga4lGEx; arc=none smtp.client-ip=209.85.208.174
+	 To:Cc:Content-Type; b=uWx8NhTk8CnogPxbI6n5qIlNvFOtUlEL36Kr7xUN+RAPvGAWqmq6Nf5+ZwQYUD93Iwx0iqjnG+XEW2KaXRiEeLUf7kMx/lV/LoYStJ21kYuTrxLjXzBmLG+3191huyENByItgm6qps8PFK1cPXQjG7vnxxsu77BgATk6K+f89uY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aJUr2O3t; arc=none smtp.client-ip=209.85.208.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Kga4lGEx"
-Received: by mail-lj1-f174.google.com with SMTP id 38308e7fff4ca-37b96cbd875so40876171fa.3
-        for <selinux@vger.kernel.org>; Tue, 16 Dec 2025 09:18:20 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aJUr2O3t"
+Received: by mail-lj1-f169.google.com with SMTP id 38308e7fff4ca-37b9d8122fdso37228901fa.3
+        for <selinux@vger.kernel.org>; Tue, 16 Dec 2025 09:18:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1765905499; x=1766510299; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1765905519; x=1766510319; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=llWfhzPTujMLVhNefXEQI2bFA+Okg04tgTh/tazCd4w=;
-        b=Kga4lGExWNLlj6RR2qpok9sb+LLUl7O4JquO2Y08u5eo8psCyn6ME2gmCRaL7CxQYr
-         1p34Qb4qZGm3rSyALQ2pAGtC5VpUSt2aMpsEzjYK4YpQjdsV1rQj6vrbxkNPEKkHmfnh
-         FwkleVpvIZolE+8VPfA2nG2fq5+w7i3CoHjx0Nvi4jc3hTIBIXtVkz3GWQ3Hi/KE8+vI
-         AcwJIFKfE8QCRmLSLksmq4StQ98oaej4s4dm8Qk4cZ2JuoaPMlg/K83hUd9KVCD0lU5I
-         d/iPrKl5S25ttu0kUe4rxLp3Zj0T13O9cLVlzSM4e53u/l9/wzz5GFIJFv3FCqY1x4HO
-         vkbQ==
+        bh=/bYpMDl1bLx4FkBAO9Cl8Jqvc4y2NlUHRwIBpkyNxAU=;
+        b=aJUr2O3tOIYMfizl5DOBtOpPO9v+4ULOBjf+yd2JH8kNxQNYqWvV+982ecwn+/hnrV
+         RE7X5pZ+ZI7B2jUXZdj1pHWToW7JaojbsKtdcCzXeyfuL7l/XXcnHprmcRkSrde2HBuS
+         AtQX+l/tZ79XgS2z8qDOMkLAynYZP3b13IaZD1U8seofPWLjHj7ero58zG0BiFkiNnCr
+         aDxoB/xefHm9mwaPPsVGmHhjSI8ao890EEA0+vfauBc4yKydiVaqw5WNe5fLBXeh/azD
+         ufLfq1kfvTNNq4amAcPmDoeilJPJHD48uYofZRymPJg0KWfR/idRSfi2bL4Y5JINkmit
+         Bptw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765905499; x=1766510299;
+        d=1e100.net; s=20230601; t=1765905520; x=1766510320;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=llWfhzPTujMLVhNefXEQI2bFA+Okg04tgTh/tazCd4w=;
-        b=Q844Ok1wad2eWx9Pwoz+QJkE8rrYKZLFULzhNjiDAY/xgY7M/o7IDMcUTTGmuPZOIU
-         vsVFP9jCI9gRj0GvI1r2tBiMKoB79XBIyTFKIHO+T8Ga/jqYEp6TT+QdU5Rokzw5sMZB
-         jOjWJ0uedo7gnDyXeoppip+sUb4QdxLxwYsbJi5K/hxYO5KNRTPbjo1V/TW0yhFsjOK/
-         9YLPfos3YVmdRcRHNyeNnMawl/ffHJvQW6H6L54ZKUpN1YQI6s+u50PL7RhiEwBh60r2
-         2Q4uFJ3yuE/YB9jJ9mWZbqEn12Mji62yuahucH8oyC0D+5wMW3zuEgdzodRj7btM1++V
-         RlqQ==
-X-Gm-Message-State: AOJu0Yzu9Tb6uVZuK1JybvgOml2LQUSvQkR0X26qrjfbtcn7hvcc0xVy
-	2SI6HvQzKAvmxwU7HMuDOfISnirpUX40rkQJsA0mWHBqi4XLzBpQpT+x0pFezh3kYhNF9rtSwqO
-	CSnYEAwtpLAPRqKSPxCs0HLsHKDsA66dyHg2z
-X-Gm-Gg: AY/fxX7yxJmdWcZxIteWtxfdLdotn97XpUw5MmAh4xkqTJiAHIvH4Q4sTMzirF4Hdys
-	8DefysWbRwZGSKQGlflaVnliv8XlEk4To5fqMKtjiRiJn8wtTEas85WrNN9fVlpz+WEtwuwgqU5
-	9+VhIz4sNtxNGCb5KddDZjmLNZFXBvq6UjLkJ4krYluTZ+IPH7Et0G5WVTa+GHcuMs5Ff/c7p5q
-	xWKQA95yk2c9m8c7rllhoBHcjtADBNHZWwfVFLR2f9zbxysaFC9nsKW0uq1DHdwZPej
-X-Google-Smtp-Source: AGHT+IHrgppXfReAYqE06gMG6ooG1+fta5oxN72M9XAiJmuo12eMAKzSXcxsKqd3C0YnZXPbxKF9HQ5/yLjq4ZCY62A=
-X-Received: by 2002:a05:651c:1613:b0:37f:cf97:491c with SMTP id
- 38308e7fff4ca-37fd08d13d1mr43432251fa.37.1765905498948; Tue, 16 Dec 2025
- 09:18:18 -0800 (PST)
+        bh=/bYpMDl1bLx4FkBAO9Cl8Jqvc4y2NlUHRwIBpkyNxAU=;
+        b=W1AHifaVL/k9soEdbJSALiv72BgNA5wnTGanaT13QgKrhi8atsfKFVq1a9tn+zwE1p
+         IepmAVIwGsMtLj6DAyrRabjXPuXvOM0U+9PXE2lPah6zzOGYXGsxVxPRWql3mGMwD1m8
+         OO/t8Wy3dHcO/4QbuUzr96bbqkDCuXrFHrZlgKzB0xMuTVSlr9jMe579OKybUP8JVlel
+         +2rZCnHovbvjhq/GaGLjgTw/HK3Hz2R2yLcEzebheex47JjmtwH5KQn/tX6JFfTd+9vE
+         AGEU51K28/yHfhkrSl8E9VJzPyWpFqpzndIxkGsS3mI6zwQ8AzarkLSWCsZ/86QW4Crl
+         OfvQ==
+X-Gm-Message-State: AOJu0YxiJKrEg9BASIVj6CFR3T8SW8lyDx/+KKIBbQHZDDAKWJiyNOdT
+	10zPa451m10vElO6B8W5hfeBUEhbkmymS0x91AmvuGglrjlyej/q7qKIh0nlKtM7FkgfM0tV6iU
+	XSTMA67P4gnxtLMjqKJ8CN/7Xx5FDQlQLqKcy
+X-Gm-Gg: AY/fxX49uiwog0KBIHSHMB3u6lzrm5Vdug8P8rxA91Sreah9NZExmUZ+51fidWayqNY
+	oF4T+B54FMxRRvgFWHM1LAeC3upLKSOwljwuQMo/Y/JkZ8KNnP8lI6QnXg0QGQtIeP5jXGSpX6j
+	HUdM/rybW20E21RPeJX9z1ya93Ai7TL2QUD0U1/0oImgg9lOc1vYTzeR2b1dxZO3kX1R3lFstLE
+	QXgxGNx0LD8BcJedFYqEerHAX9qnMXkPViw34qRZqy/boWxm+Nr3FWLJVGGJCBw3pKx
+X-Google-Smtp-Source: AGHT+IHYQLTy4XlNm9Q7srNZkd//LnsB3aojslp0Vw/o72ZepPWJxu38abwHGSim5N6KxT15iPchmb6X0XzoF2mxwYs=
+X-Received: by 2002:a2e:a989:0:b0:37a:30c5:af1f with SMTP id
+ 38308e7fff4ca-37fd1fbc752mr50460621fa.40.1765905519457; Tue, 16 Dec 2025
+ 09:18:39 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251211000115.43983-1-vmojzis@redhat.com>
-In-Reply-To: <20251211000115.43983-1-vmojzis@redhat.com>
+References: <20251123065843.377806-1-nvraxn@gmail.com>
+In-Reply-To: <20251123065843.377806-1-nvraxn@gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Tue, 16 Dec 2025 12:18:07 -0500
-X-Gm-Features: AQt7F2r7XJ39IzKOytFH1FlqL-kcQwqA7NJ3WX7OOfDVdXNegLUzxT1h5h3jB-E
-Message-ID: <CAP+JOzRMmK6D1fOTOy4B=vP6irA6dyrXBWVNUgr6GcaQW5xA+w@mail.gmail.com>
-Subject: Re: [PATCH] python/sepolicy: Add support for DNF5
-To: Vit Mojzis <vmojzis@redhat.com>
+Date: Tue, 16 Dec 2025 12:18:28 -0500
+X-Gm-Features: AQt7F2pbWTS7LyNjMW_8eTsTR5XZYi6KOLGg2pmkq9XrYwod00xr0eivAPCmV3c
+Message-ID: <CAP+JOzQRf9cvUAe1CJyxUh_QFxxZ+-PRCgWSW==XNifMJ1s+xg@mail.gmail.com>
+Subject: Re: [PATCH] cil: reference guide: remove extra @ in valid symbol chars
+To: Rahul Sandhu <nvraxn@gmail.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Dec 10, 2025 at 7:01=E2=80=AFPM Vit Mojzis <vmojzis@redhat.com> wro=
+On Sun, Nov 23, 2025 at 1:59=E2=80=AFAM Rahul Sandhu <nvraxn@gmail.com> wro=
 te:
 >
-> This allows policycoreutils-devel to drop the dependency on python3-dnf
-> in favor of python3-libdnf5.
+> @ is listed twice.
 >
-> Requires: (python3-libdnf5 if dnf5 else python3-dnf)
->
-> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
 
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  python/sepolicy/sepolicy/generate.py | 57 ++++++++++++++++++++++++++++
->  1 file changed, 57 insertions(+)
+>  secilc/docs/cil_reference_guide.md | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> diff --git a/python/sepolicy/sepolicy/generate.py b/python/sepolicy/sepol=
-icy/generate.py
-> index adf65f27..780a56b2 100644
-> --- a/python/sepolicy/sepolicy/generate.py
-> +++ b/python/sepolicy/sepolicy/generate.py
-> @@ -1262,6 +1262,63 @@ allow %s_t %s_t:%s_socket name_%s;
->          return fcfile
+> diff --git a/secilc/docs/cil_reference_guide.md b/secilc/docs/cil_referen=
+ce_guide.md
+> index 5ae5a3a3..bcd34b68 100644
+> --- a/secilc/docs/cil_reference_guide.md
+> +++ b/secilc/docs/cil_reference_guide.md
+> @@ -93,7 +93,7 @@ Definitions may be repeated many times throughout the p=
+olicy. Duplicates will re
+>  Symbol Character Set
+>  --------------------
 >
->      def __extract_rpms(self):
-> +        # Try dnf5 first, fall back to dnf4
-> +        try:
-> +            import libdnf5
-> +            self.__extract_rpms_dnf5()
-> +        except ImportError:
-> +            try:
-> +                import dnf
-> +                self.__extract_rpms_dnf4()
-> +            except ImportError:
-> +                pass
-> +
-> +    def __extract_rpms_dnf5(self):
-> +        import libdnf5
-> +
-> +        base =3D libdnf5.base.Base()
-> +        base.load_config()
-> +        base.setup()
-> +
-> +        repo_sack =3D base.get_repo_sack()
-> +        repo_sack.create_repos_from_system_configuration()
-> +
-> +        repo_sack.load_repos()
-> +
-> +        query =3D libdnf5.rpm.PackageQuery(base)
-> +        query.filter_file([self.program])
-> +        query.filter_available()
-> +
-> +        for pkg in query:
-> +            self.rpms.append(pkg.get_name())
-> +            files =3D pkg.get_files()
-> +            for fname in files:
-> +                for b in self.DEFAULT_DIRS:
-> +                    if b =3D=3D "/etc":
-> +                        continue
-> +                    if fname.startswith(b):
-> +                        if os.path.isfile(fname):
-> +                            self.add_file(fname)
-> +                        else:
-> +                            self.add_dir(fname)
-> +
-> +            # Query for source package
-> +            src_query =3D libdnf5.rpm.PackageQuery(base)
-> +            src_query.filter_provides([pkg.get_source_name()])
-> +            src_query.filter_available()
-> +            for bpkg in src_query:
-> +                files =3D bpkg.get_files()
-> +                for fname in files:
-> +                    for b in self.DEFAULT_DIRS:
-> +                        if b =3D=3D "/etc":
-> +                            continue
-> +                        if fname.startswith(b):
-> +                            if os.path.isfile(fname):
-> +                                self.add_file(fname)
-> +                            else:
-> +                                self.add_dir(fname)
-> +
-> +    def __extract_rpms_dnf4(self):
->          import dnf
+> -Symbols (any string not enclosed in double quotes) must only contain alp=
+hanumeric `[a-z A-Z] [0-9]` characters plus the following special character=
+s: `\.@=3D/-_$%@+!|&^:`
+> +Symbols (any string not enclosed in double quotes) must only contain alp=
+hanumeric `[a-z A-Z] [0-9]` characters plus the following special character=
+s: `\.=3D/-_$%@+!|&^:`
 >
->          with dnf.Base() as base:
+>  However symbols are checked for any specific character set limitations, =
+for example:
+>
 > --
 > 2.52.0
 >
