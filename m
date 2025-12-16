@@ -1,117 +1,86 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA65B3451D9;
-	Mon, 15 Dec 2025 14:20:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6F4433A6E6
+	for <selinux@vger.kernel.org>; Tue, 16 Dec 2025 09:55:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765808401; cv=none; b=Uz/ULNkROUSRhpVbfpWDpmGr7rc+aSqYkuhZUQpXW2ca5s5v5GaCVfYrEHsTV21OrRLyo9H5EpnPv6NYtiV8WnaaNUYPk2w8VhG+NJCq8ji1GqJCOBp+mEhJrNq/q+LXzfX4xw7wjogdm0Ols8d/MTQzcgr/XqW2gPqaqketfJU=
+	t=1765878960; cv=none; b=mbfT1aWdFNzv2K05toEP7xxJXBP7ljoW7bAJwToclSUWPT6gkQYEUmNgWiZkDunrSpfUXQAPVJ2eQGrWLAfwo/xPubGIvrufeRUUT3srNsHoAIiF0RIh6JWKdZoXybvf9sfEfyx8ahQAEDPW82NA7BCYcu+tq40ItixnOQfZmrA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765808401; c=relaxed/simple;
-	bh=SOKNAp3KlXqmQkYAHiY1KnI5hmWZlwxQAhzfS0nZwp0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kIoEB+n1sPAcQgcbWZrUiLBH+jZQZY3o6jxGUMLFjiuxGX500ACkKSve6XLqihOQw8EGfPHDOGNnKS8OpLkaOFF+tBdZQb1xKhsgLoTGcgp1JuPnzZ7c67KaxgVeZHXxsXIsLIC2cP2eGx2RBcmLvjW8qVe5gMficrmvqbPcgfI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DFCKKO8Y; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1765878960; c=relaxed/simple;
+	bh=v6qSPbazIbEay7EXZFe9DGCkiumHopuzf+llzVeMCzA=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=HLbVi6IeL2Eb9AFQr3Hm/aLmscP5HHs4xwrvO9MbA8iFdT6/+p82nMC2/4DBBQOJoqyc2Yz23L9nT1UiKFzed7/COc0ul+nt4tkbH9IgwFbl5E0fVMJeR1J4LFg60Hl1gBgFLZqeagynzuJDbaEjD90koJOTJHl7xHgGYTLNROk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=dLc9yK9m; arc=none smtp.client-ip=209.85.128.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DFCKKO8Y"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0605C4CEF5;
-	Mon, 15 Dec 2025 14:19:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1765808400;
-	bh=SOKNAp3KlXqmQkYAHiY1KnI5hmWZlwxQAhzfS0nZwp0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=DFCKKO8Y56kGcvgU39JK+toyUpk4jGwiPG6HyglacSq1MKmKkenC3jKNS9/HS5ipp
-	 B6NSOx8wBgq7Am6EMfMeh1PNOzsczwCgxkrjC6/z42Hk9J8i+SuYZOm6VUp9ou3SV9
-	 dgItcJM7Pf5rvLbJn9iHf33BlNlYry5yy3lCZ7IwJ+0MJKNGUTfNv5fUXEn1llrPl4
-	 EdZzX8EDySvcR9aLsG+tR4I+BaJYILYt8x/3OPDwPDyv8kLUOno34+gcWfYODinh1u
-	 qnMHAYCJBYMihFLwg4WxBl6Nw3qxa68g95/milv0l5zl+UvAMcycihLDuAxNErOEg+
-	 Xu0/K5zP9ANjw==
-Date: Mon, 15 Dec 2025 15:19:49 +0100
-From: Christian Brauner <brauner@kernel.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: Al Viro <viro@zeniv.linux.org.uk>, Amir Goldstein <amir73il@gmail.com>, 
-	NeilBrown <neil@brown.name>, Val Packett <val@packett.cool>, Jan Kara <jack@suse.cz>, 
-	linux-fsdevel@vger.kernel.org, Jeff Layton <jlayton@kernel.org>, Chris Mason <clm@fb.com>, 
-	David Sterba <dsterba@suse.com>, David Howells <dhowells@redhat.com>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
-	Danilo Krummrich <dakr@kernel.org>, Tyler Hicks <code@tyhicks.com>, 
-	Chuck Lever <chuck.lever@oracle.com>, Olga Kornievskaia <okorniev@redhat.com>, 
-	Dai Ngo <Dai.Ngo@oracle.com>, Namjae Jeon <linkinjeon@kernel.org>, 
-	Steve French <smfrench@gmail.com>, Sergey Senozhatsky <senozhatsky@chromium.org>, 
-	Carlos Maiolino <cem@kernel.org>, John Johansen <john.johansen@canonical.com>, 
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
-	"Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, Mateusz Guzik <mjguzik@gmail.com>, 
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Stefan Berger <stefanb@linux.ibm.com>, 
-	"Darrick J. Wong" <djwong@kernel.org>, linux-kernel@vger.kernel.org, netfs@lists.linux.dev, 
-	ecryptfs@vger.kernel.org, linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org, 
-	linux-cifs@vger.kernel.org, linux-xfs@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org
-Subject: Re: [PATCH] fuse: fix conversion of fuse_reverse_inval_entry() to
- start_removing()
-Message-ID: <20251215-immens-hurtig-1f0b23aa4bf3@brauner>
-References: <20251113002050.676694-1-neilb@ownmail.net>
- <20251113002050.676694-7-neilb@ownmail.net>
- <6713ea38-b583-4c86-b74a-bea55652851d@packett.cool>
- <176454037897.634289.3566631742434963788@noble.neil.brown.name>
- <CAOQ4uxjihcBxJzckbJis8hGcWO61QKhiqeGH+hDkTUkDhu23Ww@mail.gmail.com>
- <20251201083324.GA3538@ZenIV>
- <CAJfpegs+o01jgY76WsGnk9j41LS5V0JQSk--d6xsJJp4VjTh8Q@mail.gmail.com>
- <20251205-unmoralisch-jahrtausend-cca02ad0e4fa@brauner>
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="dLc9yK9m"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-4777771ed1aso33290255e9.2
+        for <selinux@vger.kernel.org>; Tue, 16 Dec 2025 01:55:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1765878955; x=1766483755; darn=vger.kernel.org;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=v6qSPbazIbEay7EXZFe9DGCkiumHopuzf+llzVeMCzA=;
+        b=dLc9yK9mQHt/plAosleuRsuPIQJQKLBw71xTvsI0hklvzVOh0B55xZP66xkalolGQh
+         8ihDWmxT68hAq7vSYiIftMw2ZhMoUgXu6QbOCz18N+M/n6Kj+wu+yCVCwxypa4oVJdi3
+         WLUWp26UOEB1QX81bnXypdND7vlUVU11mi91zXHBLlGCbYyFLg04t6mQbM9Wk6joB7c/
+         /428t46GpcCSUL46BmQtKiLYAT4jDnQhSp3Yg9j9tucHbjND5obu9HwqBsCA5YhnyvgR
+         EgH+ZzvMF14KyqcqP7ZfjNhFDDzhRDKkfhpS4qMSEqsq6fB7fed6bBA6+1ih8XoFCOU4
+         EDrA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1765878955; x=1766483755;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-gg:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=v6qSPbazIbEay7EXZFe9DGCkiumHopuzf+llzVeMCzA=;
+        b=dwjd8gnhuf5lZNdVT0Wj2qnnU2j2Z47rjaYZem0CLeiQ7O2AgkjxDdSqaiu2VX3I2m
+         kz8uPUgiiPYf+jCIYOXbvy32cTHVfQAuRjyVWw5m59+/8D8PJcQ24FuvXlFHUdE3cXay
+         Lk+QjOa0Jdc/jgR25q6da8n/+Reo9kBkDXUzexxk/B1Z7/mQkkSwxWBxnfKBfqJ5bOV4
+         W0dLm9lxLJHk0HNQF1+tdP2WnNwFPpXgkvbnDg6xWCkXeGcs+MH9tEFSH65qcWs89ALZ
+         jFvuaGtXUyRsj91amdmnureMiMAraHgvvVtxKdTdXTPs/1MZ27LgTwv4dRGn6euLqn9W
+         6fSQ==
+X-Gm-Message-State: AOJu0YyXw8SHFqntCz7jQOYC1tU12Nb/ZiwhL0HJycia9ljjHZppk/yl
+	7ZP4oM9ZRHGWGkXH1Yj4SAM8zor8oTH1W0EgS6G0bhrGzFGhODzEDypQAIzwZf0c8zAJIgHxEQn
+	hVxfveAI=
+X-Gm-Gg: AY/fxX7w5vqZjlrP8PR+WK7aqgOBcUlSQXb+p8WUyO/ZDMGX3ELDMLApCUVz0/egtPf
+	pbr4FBOwd6CQbH/Q40q6+MN7sGuRgkFr4HrkuEc9GeIcHkoFgrnWjJPe8apip1W6I3ij/1uDhM+
+	YbtFx1slcOFTx/D8c9QXaHGPX1yIHxVSxC8Fdap9eQSpPnXVbJ0IU3rLmamsjwV7q9qzxbpOfT0
+	l3rexClWmC/E/Sr/DH94bfOa4fPWZzacKq/kvuYGP7iAML1WmYfURQNUdm5SCpkgA281RMIRraR
+	5VNrb530rvXHTVZ/yxneIiSeQ2iuv4O1yooH4++DO5lU10f9PUOnFmmkVOQSPC1u2VswfKEL6zW
+	4aLXrd8LEwmWbkQ2FUHcPZ1L/mREhcryDDNUSwz4BeInXZ/HXC7gUXC/+u54+aVXPDqW3Vb/2Jh
+	99EKT0TLorMzX+iPDptBs=
+X-Google-Smtp-Source: AGHT+IHVG/5tLgeX9lKKllhXy4OLKTMjwaMgOmEL5Z/47SH1UmyNaMk7+S+ymlyPRDD4ez9W+Qs8ww==
+X-Received: by 2002:a05:600c:1d2a:b0:477:9a28:b09a with SMTP id 5b1f17b1804b1-47a8f7039c3mr146487405e9.0.1765878955168;
+        Tue, 16 Dec 2025 01:55:55 -0800 (PST)
+Received: from localhost ([2a02:a31b:84a1:b780:6f4e:21d6:82d2:5333])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-430fb078e56sm13668810f8f.21.2025.12.16.01.55.54
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 16 Dec 2025 01:55:54 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20251205-unmoralisch-jahrtausend-cca02ad0e4fa@brauner>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 16 Dec 2025 10:55:54 +0100
+Message-Id: <DEZJUGBX3UJT.3NRHNSS55B7I2@suse.com>
+Cc: <selinux@vger.kernel.org>, <linux-integrity@vger.kernel.org>
+Subject: Re: [LTP] [PATCH] ima_selinux: Fix requirements
+From: "Andrea Cervesato" <andrea.cervesato@suse.com>
+To: "Petr Vorel" <pvorel@suse.cz>, <ltp@lists.linux.it>
+X-Mailer: aerc 0.18.2
+References: <20251208141321.696537-1-pvorel@suse.cz>
+In-Reply-To: <20251208141321.696537-1-pvorel@suse.cz>
 
-On Fri, Dec 05, 2025 at 02:09:41PM +0100, Christian Brauner wrote:
-> On Mon, Dec 01, 2025 at 03:03:08PM +0100, Miklos Szeredi wrote:
-> > On Mon, 1 Dec 2025 at 09:33, Al Viro <viro@zeniv.linux.org.uk> wrote:
-> > >
-> > > On Mon, Dec 01, 2025 at 09:22:54AM +0100, Amir Goldstein wrote:
-> > >
-> > > > I don't think there is a point in optimizing parallel dir operations
-> > > > with FUSE server cache invalidation, but maybe I am missing
-> > > > something.
-> > >
-> > > The interesting part is the expected semantics of operation;
-> > > d_invalidate() side definitely doesn't need any of that cruft,
-> > > but I would really like to understand what that function
-> > > is supposed to do.
-> > >
-> > > Miklos, could you post a brain dump on that?
-> > 
-> > This function is supposed to invalidate a dentry due to remote changes
-> > (FUSE_NOTIFY_INVAL_ENTRY).  Originally it was supplied a parent ID and
-> > a name and called d_invalidate() on the looked up dentry.
-> > 
-> > Then it grew a variant (FUSE_NOTIFY_DELETE) that was also supplied a
-> > child ID, which was matched against the looked up inode.  This was
-> > commit 451d0f599934 ("FUSE: Notifying the kernel of deletion."),
-> > Apparently this worked around the fact that at that time
-> > d_invalidate() returned -EBUSY if the target was still in use and
-> > didn't unhash the dentry in that case.
-> > 
-> > That was later changed by commit bafc9b754f75 ("vfs: More precise
-> > tests in d_invalidate") to unconditionally unhash the target, which
-> > effectively made FUSE_NOTIFY_INVAL_ENTRY and FUSE_NOTIFY_DELETE
-> > equivalent and the code in question unnecessary.
-> > 
-> > For the future, we could also introduce FUSE_NOTIFY_MOVE, that would
-> > differentiate between a delete and a move, while
-> > FUSE_NOTIFY_INVAL_ENTRY would continue to be the common (deleted or
-> > moved) notification.
-> > 
-> > Attaching untested patch to remove this cruft.
-> 
-> Should we revert the fuse specific bits of c9ba789dad15 ("VFS: introduce
-> start_creating_noperm() and start_removing_noperm()") and then apply
-> your changes afterwards?
+Acked-by: Andrea Cervesato <andrea.cervesato@suse.com>
 
-I think we shouldn't have this sitting around indefinitely so it would
-be good if we'd get a nod that this is ok or someone sending revert +
-fix that I can pick up. :)
+--=20
+Andrea Cervesato
+SUSE QE Automation Engineer Linux
+andrea.cervesato@suse.com
+
