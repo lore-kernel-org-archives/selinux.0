@@ -1,128 +1,140 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com [209.85.219.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF80734F47E
-	for <selinux@vger.kernel.org>; Wed, 17 Dec 2025 16:04:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E06A335C1A9
+	for <selinux@vger.kernel.org>; Wed, 17 Dec 2025 17:49:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765987447; cv=none; b=Tqq+wbnrpUgCRyibWf6dyvyPjoYGIuCCxt3jzOxWGjwtX0nkqJY8QpuFZQdYWn04OR3N4NOuoaARxeDb7jNPFw3mA1NML+ZsNMBW+gDpJLff+p0jgwGBTrpgzkkgayVbxOGPsWTlp+yMPZ8VmdYiHGCgcHwGDj9vv/drRnVVHn4=
+	t=1765993779; cv=none; b=NCpBQS8VcrRk/OEEeqf7iKly7IgkCzgFaAE5Z2dH+i7XTf0TGdhOJPxpCbaX74y3o4qfnJRGAQokb6dG30grbglf+YilxttIiGl3ni+zJpjuIw5DkRKnZa810vlHY2ck/PCWc8dHLD3K9yjIguJsgRRPtUhCFpm7qMd+OMJR3mY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765987447; c=relaxed/simple;
-	bh=gXrXN/AZ0oWN3O+7Wfw6KcFLd1/3tx8UHvlMPibRGWY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EADjovpxKXX5OQGbfn1XPHfm4SBpWTAr7v0vBSWgcx8uNKT/VzV98Wmu8KEOlX/W7tKkK1yECr1HPQX0Zel2ryGslWMImubphsj15/a8eXlvZnAXNg5uAYXKdL+oLbH7thfQh2z5l5oNRmEZnKesRb+f0Ezcw/VInZlPMHtWFOU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=CBejA6EP; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=dnT86+kt; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=ik+HqAIN; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=MMm9TBAs; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	s=arc-20240116; t=1765993779; c=relaxed/simple;
+	bh=fMBq638nPscM5PKDnGAPfJwd9i6DUVibrg2uIi8QUbo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=A5jpGUyP6cIbdjHDFhv2Gl+FVVXA4on4CIO4zAJ31+foNC0NRnd309E8dC1PsGTLucQ4LsJ8hWNn9P6Tk0DlCcyjnn4OT3QjMTh6gDJkuQe3PY/RHzyNp+/9w370z9HGHxZVJkArjDj4JnyGIIOioSHycIrgNP7sctWFi9GBTAg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NloVgll8; arc=none smtp.client-ip=209.85.219.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="CBejA6EP";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="dnT86+kt";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="ik+HqAIN";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="MMm9TBAs"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id EC8D65BCF9;
-	Wed, 17 Dec 2025 16:04:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1765987444; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=vRk5a1ooMS2GCwtBMJRtjNK5XcxPO7/SnQWuyzMj4EY=;
-	b=CBejA6EPCX5bdHbXK1hb4LqPo042NRxBNJik+03usXZ3DPMmjYsx8+gSJkAQXHIybnZoqy
-	Dqhq+paEk28OlGFyo/ORpZ29wngD7Rj4zrVKU2p4+zRKwsX15FhkAeXbWJJi4bJsOcH7eV
-	E/ROKXrowvdq1rlwEZNuftimhHGj6hk=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1765987444;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=vRk5a1ooMS2GCwtBMJRtjNK5XcxPO7/SnQWuyzMj4EY=;
-	b=dnT86+ktLe9aRtGRQjHD+P49s3RBiHxTe/lgRY6pEZFKbO1NhHroslksoYAaDp8MbMCGUp
-	y9/dz3fYRGTWRlBA==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=ik+HqAIN;
-	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=MMm9TBAs
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1765987442; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=vRk5a1ooMS2GCwtBMJRtjNK5XcxPO7/SnQWuyzMj4EY=;
-	b=ik+HqAINOzJdEF8krJBUdMuJD8Z3dKsUnpKX8XN/IBRB0DtoanoTQvn4rgQMJUwnC+LeX+
-	u1tdMS7nLC5mcyurSwi0fecIzCFFuyLO7AUpYblak50UlKDjLi2Uwdre70Ue2GPrSuLyKW
-	0FuTKFpFoz32GgS+vg2YtNfk3euCtlE=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1765987442;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=vRk5a1ooMS2GCwtBMJRtjNK5XcxPO7/SnQWuyzMj4EY=;
-	b=MMm9TBAsB6kfwkpGoVIoF5VLyS4byw2fgXpCzLVt4Wiz6yGJ1Y727aBKiwUBfwNOJSbUPe
-	+p8SZ782WBNehBCw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id CFF783EA63;
-	Wed, 17 Dec 2025 16:04:02 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id m1OpMXLUQmkJZQAAD6G6ig
-	(envelope-from <chrubis@suse.cz>); Wed, 17 Dec 2025 16:04:02 +0000
-Date: Wed, 17 Dec 2025 17:05:05 +0100
-From: Cyril Hrubis <chrubis@suse.cz>
-To: Petr Vorel <pvorel@suse.cz>
-Cc: ltp@lists.linux.it, Mimi Zohar <zohar@linux.ibm.com>,
-	linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-	Jan Stancek <jstancek@redhat.com>, Li Wang <liwang@redhat.com>
-Subject: Re: [PATCH v4 3/4] ima_{conditionals,measurements}.sh: Use tst_runas
-Message-ID: <aULUsVxLIXFM19IV@yuki.lan>
-References: <20251209185557.20598-1-pvorel@suse.cz>
- <20251209185557.20598-4-pvorel@suse.cz>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NloVgll8"
+Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-88a22eb38edso31696676d6.2
+        for <selinux@vger.kernel.org>; Wed, 17 Dec 2025 09:49:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1765993774; x=1766598574; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZPlV8NJ3zbXR1oxxsfMXmZhGyMwV3aK7aZbDHsL44p4=;
+        b=NloVgll8sOmJrzd5+9fzTSKrQF49fVTA/W70yOarylX8/KxOu1OfCcSOBKAxZq/xN4
+         kWI32QK0pFU3w4hw459vvHBKUNVIvQNitJZxO1mbDUAB9IYP8TcbPTN2fgnz22wgPmB0
+         OW7ElvseJC/sjtsTHCbkBgD5RwyhtdfBKXegVpnO2lj3YbnRTc1RJjlIiD3fmIYs/y9v
+         v2nNSeXy0GZZvlzAQbzvCAf4xB/QI2YW782Xgn83ZGtr1ZZrEbayC9APRrp1SaJONSsP
+         wFkmGb5n+jLcJPk8bacTQ4BpB67Ppe617aneE0mip95Cu2fgGkG54+STV+wB/Ybt9442
+         47Eg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1765993774; x=1766598574;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ZPlV8NJ3zbXR1oxxsfMXmZhGyMwV3aK7aZbDHsL44p4=;
+        b=d2eYSHNl/K7lchTrRHYKSIvZuIymrJx+FmvNLvxe5u6qA6d1Cqm6FxBliQny3HYJ+Z
+         95pw91YRSUUGTsNUpgGesIj3fLbnds/BANKOhs9MYZHWeW69KSNBUtL47e6YA09uBiT+
+         h6lPcz7Wh0i3uWoWh+KQ5vFPCrqJdQ/QgdzeNGbjv2TWDY0GADayXiRXkwHWv5z5x5Cz
+         7aqDQMDhR3niKkW4/vOvdiWSVr3MmfKwYSH5b0GF+JBUxd+bii+rUCZNal/eGymKuMKD
+         3um7AmLFQwj7vtAGnkJemjj6jTbAU1NlsXBDcFq7UIgJKrHgRQ4uedZx0xT8QJNq7nkI
+         MxbQ==
+X-Gm-Message-State: AOJu0YynH7U2xSfgFTHyGd4ngmtHUfTVvqTSQPzvs7jAulLg1MAGn6DG
+	N8fUgSOKQLsjjdzEfhy5xYJI49qDF1we4Wg7iNrxlIedUEGPCKl/0razP4zq4Q==
+X-Gm-Gg: AY/fxX7oiw2ozLcHwgAT2BveGrn2m31xc/88u6+mdbtcfS03PxjsO6kc56Zy9K0phol
+	XpZfvsoNLZuXCfwqPhC0f+ih9nKclbIHhVac3sZIvgqkfC4s31vhhSjFjDvqmixKdRhCnX/3wtY
+	tBXHjjbzN36jgs5YA9lqEVbCVKzPrvE/KOQM7OnI5hDsgFbg0PnKXomZ58WPtkVgW5Cwf8cR3HU
+	2x747H6r6bVy35FjgQzT+rq/q1yty4SHXV+5RRl/ssbL470b09etJ6j9vLjDCM4wXiPd6C7rHUZ
+	AP9ILpBOxp/eVZlrVcfS3g11bjGbZHD4GvBpl1f/G/yjuJlkcwQjJ/dYEJnIhz9wy7pwFZRDKlo
+	7Uyz/WEeWNY8tCxBbBFyzcmBr+dN6pYdxYm5FV+oRflgg5mJo3KAQUUveglcycDCS1fXMeE2Pi/
+	+rDnSpjz13I4QG0mZyiBI=
+X-Google-Smtp-Source: AGHT+IG0gSj589uhnl3aj8Cfr4nxz82LIK3acTTIOraEGw8za7TcvT0GRgeehdMoZS/ACoe0L4kuwA==
+X-Received: by 2002:a05:6214:2dc4:b0:888:87ea:c7db with SMTP id 6a1803df08f44-88887eacc37mr296031526d6.39.1765993774001;
+        Wed, 17 Dec 2025 09:49:34 -0800 (PST)
+Received: from fedora ([144.51.8.27])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-88c6089aeb8sm186146d6.28.2025.12.17.09.49.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 17 Dec 2025 09:49:33 -0800 (PST)
+From: James Carter <jwcart2@gmail.com>
+To: selinux@vger.kernel.org
+Cc: James Carter <jwcart2@gmail.com>
+Subject: [PATCH] libsepol: Fix expand_role_attributes_in_attributes()
+Date: Wed, 17 Dec 2025 12:49:14 -0500
+Message-ID: <20251217174914.189853-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.50.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251209185557.20598-4-pvorel@suse.cz>
-X-Spamd-Result: default: False [-4.51 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	MISSING_XM_UA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCPT_COUNT_SEVEN(0.00)[7];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.cz:dkim,suse.cz:email,yuki.lan:mid];
-	DKIM_TRACE(0.00)[suse.cz:+]
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Spam-Level: 
-X-Rspamd-Queue-Id: EC8D65BCF9
-X-Spam-Flag: NO
-X-Spam-Score: -4.51
+Content-Transfer-Encoding: 8bit
 
-Hi!
-> +	chown $TST_USR_UID $dir
+Fix potential NULL dereference when there are gaps in the roles in
+the role_val_to_struct array.
 
-And we need it here.
+Remove debugging messages and provide a better error message.
 
+Checking "!done" is clearer than checking "reps < p->p_roles.nprim"
+for determining that there was a problem expanding role attributes.
+
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libsepol/src/expand.c | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
+
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index 04b5e5e4..74f03c87 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -875,7 +875,7 @@ static int expand_role_attributes_in_attributes(sepol_handle_t *handle, policydb
+ 	ebitmap_init(&attrs);
+ 	for (i=0; i < p->p_roles.nprim; i++) {
+ 		rd = p->role_val_to_struct[i];
+-		if (rd->flavor == ROLE_ATTRIB) {
++		if (rd && rd->flavor == ROLE_ATTRIB) {
+ 			ebitmap_set_bit(&attrs, i, 1);
+ 		}
+ 	}
+@@ -887,9 +887,6 @@ static int expand_role_attributes_in_attributes(sepol_handle_t *handle, policydb
+ 			rd = p->role_val_to_struct[i];
+ 			if (ebitmap_match_any(&rd->roles, &attrs)) {
+ 				done = 0;
+-				if (ebitmap_get_bit(&rd->roles, i)) {
+-					ERR(handle, "Before: attr has own bit set: %d\n", i);
+-				}
+ 				ebitmap_init(&roles);
+ 				ebitmap_for_each_positive_bit(&rd->roles, nj, j) {
+ 					if (ebitmap_get_bit(&attrs, j)) {
+@@ -901,19 +898,21 @@ static int expand_role_attributes_in_attributes(sepol_handle_t *handle, policydb
+ 				ebitmap_union(&rd->roles, &roles);
+ 				ebitmap_destroy(&roles);
+ 				if (ebitmap_get_bit(&rd->roles, i)) {
+-					ERR(handle, "After: attr has own bit set: %d\n", i);
+-					done = 1; /* Just end early */
++					ERR(handle, "Found loop in role attributes involving: %s", p->p_role_val_to_name[i]);
++					ebitmap_destroy(&attrs);
++					return -1;
+ 				}
+ 			}
+ 		}
+ 	}
+ 
+-	if (reps >= p->p_roles.nprim) {
+-		ERR(handle, "Had to bail: reps = %u\n", reps);
+-	}
+-
+ 	ebitmap_destroy(&attrs);
+ 
++	if (!done) {
++		ERR(handle, "Failed to expand role attributes");
++		return -1;
++	}
++
+ 	return 0;
+ }
+ 
 -- 
-Cyril Hrubis
-chrubis@suse.cz
+2.50.0
+
