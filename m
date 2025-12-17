@@ -1,149 +1,179 @@
 Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A28C15ADB4
-	for <selinux@vger.kernel.org>; Wed, 17 Dec 2025 15:12:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F5B018AE3
+	for <selinux@vger.kernel.org>; Wed, 17 Dec 2025 15:46:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765984331; cv=none; b=i1KJqwJ45IWEudgDUewggBCd/cOKLcdsLdy9cPQH4g+VbfSwgWSPkr7vMB/o9sAH6VcxgKskJr46HqXzVxge+yRcgL8aMej3F9orbeXd9/0l826Crcy9XxH+1LiXbJr/XMA/fiDfk51P4vLkrXfEYRUmxo1V9hCkW0XxQjMSXwA=
+	t=1765986401; cv=none; b=XrlxPp4GxHgK6k7wxNO4pkLomrXvv6i5zdJUtFIt/zbhGmlcbC6OkzvKy0IwUXpX4RgNrfNfLssl6iMzoFS3VTjj+B4ViKKlxr0OoOFc2Mnreo+IMnR1g9hvLDdaJ7M6eFGKxCdq5SIlcdMJ72oz+fAOOy2KOLebBO7H9ues8AA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765984331; c=relaxed/simple;
-	bh=Tk+8+xwVzj792TZn97DKMkpQsZz/U6cp6brfVrGUkp8=;
+	s=arc-20240116; t=1765986401; c=relaxed/simple;
+	bh=4znfgqeyEQpJ11jVUZ7ry/ac/5UWlTA2ZtXSlPQ3UTs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CSavGykCT4e8RwJMCoWnsKfBIkFFnc1h7NHHArD6yjjYBSmBG8ojV7WSNMV6nocvS0Kpxx1VId8qG3z+ybnd3PX7NwETyXebIAofK8S5JVjdDnhwvEoK973+YI4W1aIInh6gRkRCcV+RQaj1DbLdENSz7BePU9UsUPu3ZTuLbVQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=pnwhDDqt; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=exd3w8pd; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=p2ZhrvLM; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=kkJm++Jc; arc=none smtp.client-ip=195.135.223.130
+	 Content-Type:Content-Disposition:In-Reply-To; b=hE5IfZe4EhJRn79CSBd0Bw2zU7Wbfhp5ywhl7618eE2+VmjYe7dmzE1QUHxfk/wh+0+JSimAz1iDqsWC4rv+tHTvGxM/f/4wCIaL5C/8k1rqgtGIWewdSgaMLSxpiR1WLCNtsJiBAL4ryZnhUPkGmLDflNMkYRa1PqdMtmSNoG0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=a+i2JoLz; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=JgsRy1M2; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=KT8gk5mA; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=ATQNsNPp; arc=none smtp.client-ip=195.135.223.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="pnwhDDqt";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="exd3w8pd";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="p2ZhrvLM";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="kkJm++Jc"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="a+i2JoLz";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="JgsRy1M2";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="KT8gk5mA";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="ATQNsNPp"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 3FC6033686;
-	Wed, 17 Dec 2025 15:12:07 +0000 (UTC)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 31DA633686;
+	Wed, 17 Dec 2025 15:46:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1765984328; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1765986397; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=YncB7umH4aaG+XTQEorT0kMDfmen0vuVl1nXsAZRMQ0=;
-	b=pnwhDDqtrHV+Yc2nd2Dk2XPKiz2slneMO+aR5o4qR3vE7lfNRAvil2ngRYRUKffRBVeTvS
-	HeM5NyBVPS665XkEo/EURo6CmEnMdz+Jj3fFk4p6PuccTIamQbn39UZMTMvyF1DYH2upzE
-	qcl7YLB6g0Vev2PjUmkt6tpGdZNxQWg=
+	bh=WMZ2O2fyT/znNNwgOvA9pVOn615YNM2PB2mf71SiOBI=;
+	b=a+i2JoLztiFCJaRiuUl29R7w7UelOmIePq5WagRmkt2XRgf9Gsuw89AImDkj2FDY0RkVQK
+	T9TRFkjzKrgEIWi3d3Fquz3/j0mT6PfAlK0dIGNRw1hRWa76eRyTrcA82wHGeGCO1QnU5I
+	0f30mW1Xm4BnSRJo+Rr5mswnUuF9Gww=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1765984328;
+	s=susede2_ed25519; t=1765986397;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=YncB7umH4aaG+XTQEorT0kMDfmen0vuVl1nXsAZRMQ0=;
-	b=exd3w8pdqR/H4QTKD1/lBRdZPm3VBx+7YLrxd4562+cILIN2puGpi/53qcuUpauVPNeb3M
-	XLx/aV8+9A0yRbDA==
+	bh=WMZ2O2fyT/znNNwgOvA9pVOn615YNM2PB2mf71SiOBI=;
+	b=JgsRy1M2r3o3ROCqqCPNZKTdryRXCLsFMm76xQQh8qbVg5WCY4EJiESLiJfSCS9IUmasVv
+	nOtphHpIWOfWstDg==
 Authentication-Results: smtp-out1.suse.de;
-	none
+	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=KT8gk5mA;
+	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=ATQNsNPp
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1765984327; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1765986396; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=YncB7umH4aaG+XTQEorT0kMDfmen0vuVl1nXsAZRMQ0=;
-	b=p2ZhrvLM7J94RqCQkxSgAbuSbrAmI02e7Wjoogpce4L4h6/GFxH/LOMxj1JpHHrBeIB+kh
-	1oUMb5L7SyKpdumZjiG2D43wA2qjaaPlxEISaJer7A7NSpKQM1YTQUZ0rbgdEwR0Yrku4w
-	7eRpi3NMS2GQFn8s/sMSHolhX54u/64=
+	bh=WMZ2O2fyT/znNNwgOvA9pVOn615YNM2PB2mf71SiOBI=;
+	b=KT8gk5mA/bfhPQ059BU8oZYJdbdYiA0bEvoXJzzwgsob8EdMZL5/yMBfjHCt6PRcJ9C6b8
+	5GHYyyDOwrl0O1gO238n5lWMjeK9KfIAXwmPf2rOWQKyFrxmmXXDWc6NvYyQkKagqyrooX
+	DiYrTTMD9GaB+CcDZeikhBhdVoHHBBQ=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1765984327;
+	s=susede2_ed25519; t=1765986396;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=YncB7umH4aaG+XTQEorT0kMDfmen0vuVl1nXsAZRMQ0=;
-	b=kkJm++JcZd/gK9qfrjuN0JrzI7PJCv/Lz6f0wsYb4P1GSTJ5fAjtxkaXXVz1l/qiRtbV/v
-	mf6fXMBRrEnjlqBw==
+	bh=WMZ2O2fyT/znNNwgOvA9pVOn615YNM2PB2mf71SiOBI=;
+	b=ATQNsNPpcobfkQy2gXDi8BinwbqcAkAelK1tefZnGUY97Si6XLaAQKxQDewEDeAn+x+dHu
+	SQYkJm3oFIDZXGCQ==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 24F2D3EA63;
-	Wed, 17 Dec 2025 15:12:07 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 207333EA63;
+	Wed, 17 Dec 2025 15:46:36 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id SjvjA0fIQmmNNAAAD6G6ig
-	(envelope-from <chrubis@suse.cz>); Wed, 17 Dec 2025 15:12:07 +0000
-Date: Wed, 17 Dec 2025 16:13:09 +0100
+	id dDw2BVzQQmmmVAAAD6G6ig
+	(envelope-from <chrubis@suse.cz>); Wed, 17 Dec 2025 15:46:36 +0000
+Date: Wed, 17 Dec 2025 16:47:34 +0100
 From: Cyril Hrubis <chrubis@suse.cz>
-To: Li Wang <liwang@redhat.com>
-Cc: Petr Vorel <pvorel@suse.cz>, ltp@lists.linux.it,
-	Mimi Zohar <zohar@linux.ibm.com>, linux-integrity@vger.kernel.org,
-	selinux@vger.kernel.org, Jan Stancek <jstancek@redhat.com>
-Subject: Re: [PATCH v4 1/4] shell: Add tst_runas.c helper
-Message-ID: <aULIhXrMA4dgTwGg@yuki.lan>
+To: Petr Vorel <pvorel@suse.cz>
+Cc: ltp@lists.linux.it, Mimi Zohar <zohar@linux.ibm.com>,
+	linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+	Jan Stancek <jstancek@redhat.com>, Li Wang <liwang@redhat.com>
+Subject: Re: [PATCH v4 2/4] tst_test.sh: Add TST_USR_{G,U}ID variables
+Message-ID: <aULQlhbHltLTbdG4@yuki.lan>
 References: <20251209185557.20598-1-pvorel@suse.cz>
- <20251209185557.20598-2-pvorel@suse.cz>
- <CAEemH2ej8-e_S4LgcKKkt08dUhyF0TreWp-QvXzQ1QGQYbywJg@mail.gmail.com>
+ <20251209185557.20598-3-pvorel@suse.cz>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAEemH2ej8-e_S4LgcKKkt08dUhyF0TreWp-QvXzQ1QGQYbywJg@mail.gmail.com>
-X-Spamd-Result: default: False [-4.30 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-0.993];
-	MIME_GOOD(-0.10)[text/plain];
-	MIME_TRACE(0.00)[0:+];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	ARC_NA(0.00)[];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	RCVD_TLS_ALL(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	MISSING_XM_UA(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	RCPT_COUNT_SEVEN(0.00)[7];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,yuki.lan:mid,suse.cz:email]
-X-Spam-Level: 
+In-Reply-To: <20251209185557.20598-3-pvorel@suse.cz>
 X-Spam-Flag: NO
-X-Spam-Score: -4.30
+X-Spam-Score: -4.51
+X-Rspamd-Queue-Id: 31DA633686
+X-Spamd-Result: default: False [-4.51 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	TO_DN_SOME(0.00)[];
+	ARC_NA(0.00)[];
+	MISSING_XM_UA(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	RCPT_COUNT_SEVEN(0.00)[7];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[yuki.lan:mid,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.cz:dkim,suse.cz:email];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	DKIM_TRACE(0.00)[suse.cz:+]
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Rspamd-Action: no action
+X-Spam-Level: 
 
-Jo!
-> > +       char *uid_env = getenv(TST_TO_STR_(LTP_USR_UID));
-> > +       char *gid_env = getenv(TST_TO_STR_(LTP_USR_GID));
-> >
+Hi!
+> Add TST_USR_{G,U}ID variables with the default values from tst_runas.c.
 > 
+> These can be used as a default values for tests which use tst_runas and
+> need to know UID/GID for other commands.
 > 
-> So far this format is correct.
+> It will be used in LTP IMA tests.
 > 
-> But as I pointed in the last thread, here using TST_TO_STR_ might be a
-> potential
-> issue if someday we make changes on that to become two-level macro.
-> It likely to interpreted as  getenv("65534");
+> Signed-off-by: Petr Vorel <pvorel@suse.cz>
+> ---
+>  testcases/lib/tst_runas.c | 1 +
+>  testcases/lib/tst_test.sh | 6 +++++-
+>  2 files changed, 6 insertions(+), 1 deletion(-)
 > 
-> So on the safe side, I’d still recommend writing it explicitly:
-> 
->     char *uid_env = getenv("LTP_USR_UID");
->     char *gid_env = getenv("LTP_USR_GID");
+> diff --git a/testcases/lib/tst_runas.c b/testcases/lib/tst_runas.c
+> index e8d5d8dd9d..e937828273 100644
+> --- a/testcases/lib/tst_runas.c
+> +++ b/testcases/lib/tst_runas.c
+> @@ -3,6 +3,7 @@
+>   * Copyright (c) 2025 Petr Vorel <pvorel@suse.cz>
+>   */
+>  
+> +/* update also tst_test.sh */
+>  #define LTP_USR_UID 65534
+>  #define LTP_USR_GID 65534
+>  
+> diff --git a/testcases/lib/tst_test.sh b/testcases/lib/tst_test.sh
+> index 4be10a4f94..26e6a86dcb 100644
+> --- a/testcases/lib/tst_test.sh
+> +++ b/testcases/lib/tst_test.sh
+> @@ -17,6 +17,10 @@ export TST_ITERATIONS=1
+>  export TST_TMPDIR_RHOST=0
+>  export TST_LIB_LOADED=1
+>  
+> +# see testcases/lib/tst_runas.c
+> +export TST_USR_UID="${LTP_USR_UID:-65534}"
+> +export TST_USR_GID="${LTP_USR_GID:-65534}"
 
-+1
+Do we need this? We already have the default values in the C code...
 
-> The rest whole patch set looks good:
+>  . tst_ansi_color.sh
+>  . tst_security.sh
+>  
+> @@ -689,7 +693,7 @@ tst_run()
+>  			CHECKPOINT_WAKE2|CHECKPOINT_WAKE_AND_WAIT);;
+>  			DEV_EXTRA_OPTS|DEV_FS_OPTS|FORMAT_DEVICE|MOUNT_DEVICE);;
+>  			SKIP_FILESYSTEMS|SKIP_IN_LOCKDOWN|SKIP_IN_SECUREBOOT);;
+> -			DEVICE_SIZE);;
+> +			DEVICE_SIZE|USR_UID|USR_GID);;
+>  			*) tst_res TWARN "Reserved variable TST_$_tst_i used!";;
+>  			esac
+>  		done
+> -- 
+> 2.51.0
 > 
-> Reviewed-by: Li Wang <liwang@redhat.com>
-
-For the rest also from me:
-
-Reviewed-by: Cyril Hrubis <chrubis@suse.cz>
 
 -- 
 Cyril Hrubis
