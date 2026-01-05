@@ -1,154 +1,86 @@
-Received: from mail-06.mail-europe.com (mail-06.mail-europe.com [85.9.210.45])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E08114A8E
-	for <selinux@vger.kernel.org>; Sat,  3 Jan 2026 23:11:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=85.9.210.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC2443242B8
+	for <selinux@vger.kernel.org>; Mon,  5 Jan 2026 17:40:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767481870; cv=none; b=cFjmTMLGX8EcZR/MN5qQbCtYQPwWxPChKjv+ns8mqxAngKrTz22Q6QoRv31sX212K6h7l2/ITPULxGm61xyxSCpILRGHMq4KMPytyVsKj+kg+BQySRZM7hKZX1n4/HBnmBH/YForkyOxjnKFrGoJru+9H/AB3tnXbhLbitpVMDU=
+	t=1767634832; cv=none; b=HDDzUJFK4pOjUNhOnfLElNZdW7iJpfrNSb4w2nDi39rD9SuhyjP+hdayWkFM4XEkAIICcrryPyR/28sMxryoxFkS9C/5xEqDIOcVRHF5jryt2ezVrLFCDMvqHWZK8045Id0xdV9BnhC97ErXxCh7OuBDypwiKDUHBI+JcMbjIxU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767481870; c=relaxed/simple;
-	bh=tyRZjY/aMBflzwbCz0oYnqwTdxrSu3OyDh55j5Z8wDM=;
-	h=Date:To:From:Subject:Message-ID:MIME-Version:Content-Type; b=kew3yuomobdlMuI1WpoOwC6j9Y5+dKRo0QMU+SKNeo/ArzFYP62WFlCSKxMyqqgl/omvI+5hib0IC+zPSDUy0sfTSI5XgxXSNIpceNiNvaiJXyJFhfKjjARESXbPfnpf6fUAebjLOXREnCKt13QVoMl0jYAAqUshYc/5xP2+MNI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me; spf=pass smtp.mailfrom=proton.me; dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b=VAJufJ3A; arc=none smtp.client-ip=85.9.210.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
+	s=arc-20240116; t=1767634832; c=relaxed/simple;
+	bh=6gsK4X19BHFh4C1iuGrGtlwAmu3gxa7XMxqlUupJYWA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-type; b=LEfLhtKzlCNVxzdx60baG3syQVXcyTgovDi3234OiXScS8T0yghIgC39JgrQ3kT+2Vnh2V9tH6OuO5bnyIN+F2NFvcYpnJNqtBOcqDJdo9nHSTHXRuLYTjrBPFBM4tXFX2H67Yog7sVYFhhL4/mqjjLbCuu4jc2hRGoYPr1jHtI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=G1ynOE9u; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b="VAJufJ3A"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
-	s=protonmail; t=1767481850; x=1767741050;
-	bh=tyRZjY/aMBflzwbCz0oYnqwTdxrSu3OyDh55j5Z8wDM=;
-	h=Date:To:From:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
-	 Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
-	b=VAJufJ3AEhA41zeGqnTCavGfv78fh4ac20S6ztyPMsO1Sah3hXMNlxb3iPd1eZiZ6
-	 3Qbhzq7hcAmvxiZ9JtZCQrPJSW5Oi/NlKOcrLPkGrZ7WjfMUwB7BBOQNeflFKTexaC
-	 x24DIBlzi6E5EWMCoDKo276ZJD8cAown52xU/Wolkqtn55Rpd2V0/9BgXL2Dk1IJZX
-	 LT7XFmfwH3niZaTFIlaFFy/PiqdeYSkNIQ1tB+bLEW3G993LIuTgi99kbCURFrdftc
-	 glLaziFoB2PFYYg1qiqiFgGVVc2Hy1MAw0STdySAq9JAllUU/m91Asz+gjLgkCesZc
-	 /xs/sfxgwBHMQ==
-Date: Sat, 03 Jan 2026 23:10:46 +0000
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G1ynOE9u"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1767634828;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=XhNBexD4AIyCFdV7JLtWwvlTw2j6YSvmK6t/bencCEw=;
+	b=G1ynOE9u+dvH0Xg/iEq5Ut+x6gaVHKQ/buaRdFqkBn+JjayQ4I3+QAq0JNiSxOBlWQMYp4
+	ZMS5bJB2aoUS+bnux9okqax/0ceSQSJiFgpqZ+o3wl3qYt+FBRFh9Li6DcjtYk7kYTSOAY
+	azV7rvuZ2w/MydouHTZSMpRlVn80qJ4=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-417-JB1xxBrnMRGpKJt91DiaFw-1; Mon,
+ 05 Jan 2026 12:40:27 -0500
+X-MC-Unique: JB1xxBrnMRGpKJt91DiaFw-1
+X-Mimecast-MFC-AGG-ID: JB1xxBrnMRGpKJt91DiaFw_1767634825
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 4C8E31956068
+	for <selinux@vger.kernel.org>; Mon,  5 Jan 2026 17:40:25 +0000 (UTC)
+Received: from p16v.redhat.com (unknown [10.44.33.211])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 3A93219560A7;
+	Mon,  5 Jan 2026 17:40:23 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
 To: selinux@vger.kernel.org
-From: andria_girl <andria_girl@proton.me>
-Subject: The sepolicy generate template uses the wrong time format for ausearch
-Message-ID: <511bed9d-6df6-4565-ac47-459f4e0f2dd9@proton.me>
-Feedback-ID: 45881598:user:proton
-X-Pm-Message-ID: 3be30e957acbe22bfce00c3ff45b8f4853be3422
+Cc: Petr Lautrbach <lautrbach@redhat.com>
+Subject: [PATCH] SECURITY.md: add lautrbach@redhat.com gpg fingerprint
+Date: Mon,  5 Jan 2026 18:40:11 +0100
+Message-ID: <20260105174020.887724-1-lautrbach@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="b1=_IYyVDlgBBBJie11dZVgvdRPdCF6kmADapjpAORlHJSQ"
+Content-type: text/plain
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
---b1=_IYyVDlgBBBJie11dZVgvdRPdCF6kmADapjpAORlHJSQ
-Content-Type: multipart/alternative;
- boundary="b2=_IYyVDlgBBBJie11dZVgvdRPdCF6kmADapjpAORlHJSQ"
+The key is available at:
+https://github.com/bachradsusi.gpg
+https://plautrba.fedorapeople.org/lautrbach@redhat.com.gpg
 
---b2=_IYyVDlgBBBJie11dZVgvdRPdCF6kmADapjpAORlHJSQ
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: base64
+Also update the email address
 
-V2hlbiBydW5uaW5nIFtzZXBvbGljeSBnZW5lcmF0ZSdzIGNvbXBpbGUgdGVtcGxhdGVdKGh0dHBz
-Oi8vZ2l0aHViLmNvbS9TRUxpbnV4UHJvamVjdC9zZWxpbnV4L2Jsb2IvMGFiNTQyYTQ0NThmMjg1
-MzBlMGU5MzgwYTkwM2Y1YzNhYTliMTUyNi9weXRob24vc2Vwb2xpY3kvc2Vwb2xpY3kvdGVtcGxh
-dGVzL3NjcmlwdC5weSNMMzYtTDM4KSBpdCBmYWlscyB0byB1c2UgdGhlIGNvcnJlY3QgdGltZSBm
-b3JtYXQuIElmIHRoZSBzeXN0ZW0ncyBsb2NhbGUgdGltZSByZXByZXNlbnRhdGlvbiBpcyAxMi1o
-b3VyIGZvcm1hdCwgaXQgcGFzc2VzIHRoYXQgMTItaG91ciB0aW1lIChzYW5zIHRoZSBBTS9QTSkg
-dG8gYXVzZWFyY2gsIHdoaWNoIG9ubHkgc3VwcG9ydHMgMjQtaG91ciB0aW1lIGZvcm1hdC4gU28g
-aWYgaXQncyA0IHBtIG9yIDE2OjAwIGl0J2xsIGxvb2sgdXAgYWxsIHRoZSBhbGVydHMgZnJvbSA0
-IGFtIGV2ZW4gaWYgeW91IGp1c3QgcmFuIC0tdXBkYXRlIGEgbWludXRlIGFnby4KCmlmCgpbCgoi
-CgokCgoxCgoiCgo9CgoiLS11cGRhdGUiCgpdCgo7Cgp0aGVuCgp0aW1lCgo9CgpgCgpscwoKLWwK
-Ci0tdGltZS1zdHlsZQoKPQoKIisleCAlWCIKClRFTVBMQVRFRklMRS50ZQoKfAoKYXdrCgoneyBw
-cmludGYgIiVzICVzIiwgJDYsICQ3IH0nCgpgCgpydWxlcwoKPQoKYAoKYXVzZWFyY2gKCi0tc3Rh
-cnQKCiQKCnRpbWUKCi1tCgphdmMKCi0tcmF3Cgotc2UKClRFTVBMQVRFRklMRQoKYAoKQ2hhbmdp
-bmcgdGhlIC0tdGltZS1zdHlsZSBmcm9tICsleCAlWCAobG9jYWxlJ3MgdGltZSByZXByZXNlbnRh
-dGlvbikgdG8gKyV4ICVUICh0aW1lOyBzYW1lIGFzICVIOiVNOiVTKSBzZWVtcyB0byBmaXggaXQg
-anVzdCBmaW5lLgoKVGhhbmtzLAphbmRyaWFfZ2lybCAoZmFlL2ZhZXIp
+Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+---
+ SECURITY.md | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---b2=_IYyVDlgBBBJie11dZVgvdRPdCF6kmADapjpAORlHJSQ
-Content-Type: text/html; charset=utf-8
-Content-Transfer-Encoding: base64
-
-PCFET0NUWVBFIGh0bWw+DQo8aHRtbD4NCiAgPGhlYWQ+DQoNCiAgICA8bWV0YSBodHRwLWVxdWl2
-PSJjb250ZW50LXR5cGUiIGNvbnRlbnQ9InRleHQvaHRtbDsgY2hhcnNldD1VVEYtOCI+DQogIDwv
-aGVhZD4NCiAgPGJvZHk+DQogICAgPHA+V2hlbiBydW5uaW5nIDxhIG1vei1kby1ub3Qtc2VuZD0i
-dHJ1ZSINCmhyZWY9Imh0dHBzOi8vZ2l0aHViLmNvbS9TRUxpbnV4UHJvamVjdC9zZWxpbnV4L2Js
-b2IvMGFiNTQyYTQ0NThmMjg1MzBlMGU5MzgwYTkwM2Y1YzNhYTliMTUyNi9weXRob24vc2Vwb2xp
-Y3kvc2Vwb2xpY3kvdGVtcGxhdGVzL3NjcmlwdC5weSNMMzYtTDM4Ij48Zm9udA0KICAgICAgICAg
-IGZhY2U9Im1vbm9zcGFjZSI+c2Vwb2xpY3kgZ2VuZXJhdGU8L2ZvbnQ+J3MgY29tcGlsZSB0ZW1w
-bGF0ZTwvYT4NCiAgICAgIGl0IGZhaWxzIHRvIHVzZSB0aGUgY29ycmVjdCB0aW1lIGZvcm1hdC4g
-SWYgdGhlIHN5c3RlbSdzIGxvY2FsZQ0KICAgICAgdGltZSByZXByZXNlbnRhdGlvbiBpcyAxMi1o
-b3VyIGZvcm1hdCwgaXQgcGFzc2VzIHRoYXQgMTItaG91ciB0aW1lDQogICAgICAoc2FucyB0aGUg
-QU0vUE0pIHRvIDxmb250IGZhY2U9Im1vbm9zcGFjZSI+YXVzZWFyY2g8L2ZvbnQ+LCB3aGljaA0K
-ICAgICAgb25seSBzdXBwb3J0cyAyNC1ob3VyIHRpbWUgZm9ybWF0LiBTbyBpZiBpdCdzIDQgcG0g
-b3IgMTY6MDAgaXQnbGwNCiAgICAgIGxvb2sgdXAgYWxsIHRoZSBhbGVydHMgZnJvbSA0IGFtIGV2
-ZW4gaWYgeW91IGp1c3QgcmFuIDxmb250DQogICAgICAgIGZhY2U9Im1vbm9zcGFjZSI+LS11cGRh
-dGU8L2ZvbnQ+wqBhIG1pbnV0ZSBhZ28uPC9wPg0KICAgIDxwcmUgc3R5bGU9ImNvbG9yOiNjZmNm
-YzI7YmFja2dyb3VuZC1jb2xvcjojMjMyNjI5OyI+CTxiPjxzcGFuDQogICAgc3R5bGU9ImNvbG9y
-OiNmZGJjNGI7Ij5pZjwvc3Bhbj48L2I+IDxzcGFuIHN0eWxlPSJjb2xvcjojNjA5Y2EwOyI+Wzwv
-c3Bhbj4gPHNwYW4NCiAgICBzdHlsZT0iY29sb3I6I2Y0NGY0ZjsiPiI8L3NwYW4+PHNwYW4gc3R5
-bGU9ImNvbG9yOiMyN2FlYWU7Ij4kPC9zcGFuPjxzcGFuDQogICAgc3R5bGU9ImNvbG9yOiMyN2Fl
-YWU7Ij4xPC9zcGFuPjxzcGFuIHN0eWxlPSJjb2xvcjojZjQ0ZjRmOyI+Ijwvc3Bhbj4gPHNwYW4N
-CiAgICBzdHlsZT0iY29sb3I6IzI3YWU2MDsiPj08L3NwYW4+IDxzcGFuIHN0eWxlPSJjb2xvcjoj
-ZjQ0ZjRmOyI+Ii0tdXBkYXRlIjwvc3Bhbj4gPHNwYW4NCiAgICBzdHlsZT0iY29sb3I6IzYwOWNh
-MDsiPl08L3NwYW4+IDxiPjs8L2I+IDxiPjxzcGFuDQogICAgc3R5bGU9ImNvbG9yOiNmZGJjNGI7
-Ij50aGVuPC9zcGFuPjwvYj4NCgkJPHNwYW4gc3R5bGU9ImNvbG9yOiMyN2FlYWU7Ij50aW1lPC9z
-cGFuPjxzcGFuIHN0eWxlPSJjb2xvcjojM2Y4MDU4OyI+PTwvc3Bhbj48Yj5gPC9iPjxzcGFuDQog
-ICAgc3R5bGU9ImNvbG9yOiM4ZTQ0YWQ7Ij5sczwvc3Bhbj4gPHNwYW4gc3R5bGU9ImNvbG9yOiMy
-OTgwYjk7Ij4tbDwvc3Bhbj4gPHNwYW4NCiAgICBzdHlsZT0iY29sb3I6IzI5ODBiOTsiPi0tdGlt
-ZS1zdHlsZTwvc3Bhbj48c3Bhbg0KICAgIHN0eWxlPSJjb2xvcjojM2Y4MDU4OyI+PTwvc3Bhbj48
-c3BhbiBzdHlsZT0iY29sb3I6I2Y0NGY0ZjsiPiIrJXggJVgiPC9zcGFuPiBURU1QTEFURUZJTEUu
-dGUgPGI+fDwvYj4gPHNwYW4NCiAgICBzdHlsZT0iY29sb3I6IzhlNDRhZDsiPmF3azwvc3Bhbj4g
-PHNwYW4gc3R5bGU9ImNvbG9yOiNmNDRmNGY7Ij4neyBwcmludGYgIiVzICVzIiwgJDYsICQ3IH0n
-PC9zcGFuPjxiPmA8L2I+DQoJCTxzcGFuIHN0eWxlPSJjb2xvcjojMjdhZWFlOyI+cnVsZXM8L3Nw
-YW4+PHNwYW4gc3R5bGU9ImNvbG9yOiMzZjgwNTg7Ij49PC9zcGFuPjxiPmA8L2I+PGI+PHNwYW4N
-CiAgICBzdHlsZT0iY29sb3I6IzAwOTlmZjsiPmF1c2VhcmNoPC9zcGFuPjwvYj4gPHNwYW4NCiAg
-ICBzdHlsZT0iY29sb3I6IzI5ODBiOTsiPi0tc3RhcnQ8L3NwYW4+IDxzcGFuIHN0eWxlPSJjb2xv
-cjojMjdhZWFlOyI+JDwvc3Bhbj48c3Bhbg0KICAgIHN0eWxlPSJjb2xvcjojMjdhZWFlOyI+dGlt
-ZTwvc3Bhbj4gPHNwYW4gc3R5bGU9ImNvbG9yOiMyOTgwYjk7Ij4tbTwvc3Bhbj4gYXZjIDxzcGFu
-DQogICAgc3R5bGU9ImNvbG9yOiMyOTgwYjk7Ij4tLXJhdzwvc3Bhbj4gPHNwYW4gc3R5bGU9ImNv
-bG9yOiMyOTgwYjk7Ij4tc2U8L3NwYW4+IFRFTVBMQVRFRklMRTxiPmA8L2I+PC9wcmU+DQogICAg
-PHA+Q2hhbmdpbmcgdGhlIDxmb250IGZhY2U9Im1vbm9zcGFjZSI+LS10aW1lLXN0eWxlPC9mb250
-PiBmcm9tIDxmb250DQogICAgICAgIGZhY2U9Im1vbm9zcGFjZSI+KyV4ICVYPC9mb250PiAobG9j
-YWxlJ3MgdGltZSByZXByZXNlbnRhdGlvbikgdG8NCiAgICAgIDxmb250IGZhY2U9Im1vbm9zcGFj
-ZSI+KyV4ICVUPC9mb250PiAodGltZTsgc2FtZSBhcyA8Zm9udA0KICAgICAgICBmYWNlPSJtb25v
-c3BhY2UiPiVIOiVNOiVTPC9mb250Pikgc2VlbXMgdG8gZml4IGl0IGp1c3QgZmluZS48L3A+DQog
-ICAgPGFkZHJlc3M+VGhhbmtzLDxicj4NCiAgICAgIGFuZHJpYV9naXJsIChmYWUvZmFlcik8L2Fk
-ZHJlc3M+DQogIDwvYm9keT4NCjwvaHRtbD4NCg==
-
-
---b2=_IYyVDlgBBBJie11dZVgvdRPdCF6kmADapjpAORlHJSQ--
-
---b1=_IYyVDlgBBBJie11dZVgvdRPdCF6kmADapjpAORlHJSQ
-Content-Type: application/pgp-keys; name=OpenPGP_0x1BC2E72870FA74F9.asc
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename=OpenPGP_0x1BC2E72870FA74F9.asc
-
-LS0tLS1CRUdJTiBQR1AgUFVCTElDIEtFWSBCTE9DSy0tLS0tDQoNCnhqTUVZbGdPSlJZSkt3WUJC
-QUhhUnc4QkFRZEFYMkc3ZUZKM1ZGd1RmOHJUUXFWcnlJbmg4WXFzMDcwZXZwM2kNClVUZElVNC9O
-TFdGdVpISnBZVjluYVhKc1FIQnliM1J2Ymk1dFpTQThZVzVrY21saFgyZHBjbXhBY0hKdmRHOXUN
-CkxtMWxQc0tQQkJBV0NnQWdCUUppV0E0bEJnc0pCd2dEQWdRVkNBb0NCQllDQVFBQ0dRRUNHd01D
-SGdFQUlRa1ENCkc4TG5LSEQ2ZFBrV0lRU21CME5zR1E4YzlLcUk0K0lid3Vjb2NQcDArWk4vQVA5
-cnpIM3M2TXpoS3J0dWVjZFYNCmx0L3AySm5MODF1OWhEbHJhU1EzYWJCcGJRRC9YV2xSMXcydGdV
-dzVwWTdoYjFWTzRFZXI1MThld1ZSakpIRUINCmlsSHozQW5PT0FSaVdBNGxFZ29yQmdFRUFaZFZB
-UVVCQVFkQWhFVzQ0RTd4aFBXTVNZV0RMUGEvbDhacUt6OHQNCjllcjZ1d3VrUGNDVHh6c0RBUWdI
-d25nRUdCWUlBQWtGQW1KWURpVUNHd3dBSVFrUUc4TG5LSEQ2ZFBrV0lRU20NCkIwTnNHUThjOUtx
-STQrSWJ3dWNvY1BwMCtiTVZBUURmUmlGc0dXZ2E5M1FDK0RweW5lTHRIb3VjaU1hUTRyS3YNCkZv
-YlBHUEZxZkFFQWtic1MycmQwMmx3STNKck5NKzZpM0NtWWR6dnpMYjYzYlhZNyt1S2V4Z0k9DQo9
-bENEdQ0KLS0tLS1FTkQgUEdQIFBVQkxJQyBLRVkgQkxPQ0stLS0tLQ0K
-
---b1=_IYyVDlgBBBJie11dZVgvdRPdCF6kmADapjpAORlHJSQ
-Content-Type: application/pgp-signature; name=OpenPGP_signature.asc
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename=OpenPGP_signature.asc
-
-LS0tLS1CRUdJTiBQR1AgU0lHTkFUVVJFLS0tLS0NCg0Kd25zRUFCWUlBQ01XSVFTbUIwTnNHUThj
-OUtxSTQrSWJ3dWNvY1BwMCtRVUNhVm1oOUFVREFBQUFBQUFLQ1JBYnd1Y29jUHAwK1IrWA0KQVFE
-M05NMG50SG11N1lKMFJ3RDFaZGE1emN1WTFpSVFESGdvTjBteDVtdzYyZ0QvYmNxQklWVkFJc0lK
-ZDMzUkR0bVNzZnJ5MnIyLw0KOFl3alRoV3NCQjZJY0FzPQ0KPWpCb3cNCi0tLS0tRU5EIFBHUCBT
-SUdOQVRVUkUtLS0tLQ0K
-
---b1=_IYyVDlgBBBJie11dZVgvdRPdCF6kmADapjpAORlHJSQ--
+diff --git a/SECURITY.md b/SECURITY.md
+index 2a7ce5b317a7..faa060ccff03 100644
+--- a/SECURITY.md
++++ b/SECURITY.md
+@@ -24,7 +24,8 @@ list is below. We typically request at most a 90 day time period to address
+ the issue before it is made public, but we will make every effort to address
+ the issue as quickly as possible and shorten the disclosure window.
+ 
+-* Petr Lautrbach, plautrba@redhat.com
++* Petr Lautrbach, lautrbach@redhat.com
++  *  (GPG fingerprint) 68D2 1823 342A 1368 3AEB  3E4E FB4C 685B 5DC1 C13E
+ * Nicolas Iooss, nicolas.iooss@m4x.org
+   *  (GPG fingerprint) E25E 254C 8EE4 D303 554B  F5AF EC70 1A1D A494 C5EB
+ * Jeffrey Vander Stoep, jeffv@google.com
+-- 
+2.52.0
 
