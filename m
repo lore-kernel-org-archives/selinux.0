@@ -1,95 +1,127 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 8F0D226ACC
-	for <selinux@vger.kernel.org>; Tue,  6 Jan 2026 18:59:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from markus.defensec.nl (markus.defensec.nl [45.80.168.93])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CDE434D913
+	for <selinux@vger.kernel.org>; Tue,  6 Jan 2026 19:37:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.80.168.93
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767725984; cv=none; b=AfZURwSvqe6srdfvxan8sus2y2gL826to/o0ew8a7Smy0mzMrkfEQnKZIXZv6yVnDjDG+ErtMarNvcy72Nv8962WLvvp+kXW1ZRcyrcviP8TLygyBI2b/qYR1ON1ytYE2A7lj1tjqhKD7dj4cpf9ZbRfn4eVTkUKNQXrY3hA1m4=
+	t=1767728264; cv=none; b=WbhO+I85g8Ax+MfdUkSrIOq79NRqXNH4n38WquzFrIZhAGhT06wKaJcARDIVYrrq9WJWBs4ihzY1EBHJcVz7soYn3K0ikDieO96aNPobvyyB4jD0ZKAUDWQAs2Efe48SyuXrYRwe8yy/LvBa7vjBd6kwSksTqINnYD8EZFhIBRo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767725984; c=relaxed/simple;
-	bh=ZcD74K2P9YLckj5Fafsb4wBu7RhTI4yoxiKGISdU/pY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Bj338bjDxt/gTuk4ZcVHC/KHD0bjo9cATev8yAT0DNgRt9W27Et5VDaMb0z+16B5mupPR9IwGqU97YtFUpuPZV59sJ7LDQvJktstYEIttkyDhOCNEON5aZRvShb8bg0eczu1+dpViirqjcCi847UZ21QQR/xIHsUafNe4xWe/Hs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=H+EJC3CC; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1767728264; c=relaxed/simple;
+	bh=jd0pTZliMrbeZH+EP248qTZhQ3owXXjnr5jxpL/AMgY=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=P8YgHVIes8gvA9GqM9so7uS3nMwPuGOOHIhZRH5XukBUS3RBKfVF87XWe5nM4/37xb5qPlq2Sp90PjdswDqMHw0f5k21ehfpfUItao3e8SPCDvIj0oeJVVmGCk9ixMz4WtEu0r4zGWaRWgVps0ya+OTjbtnN29OEubyGy3YrbVk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=defensec.nl; spf=pass smtp.mailfrom=defensec.nl; dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b=mY6FyyK3; arc=none smtp.client-ip=45.80.168.93
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=defensec.nl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=defensec.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="H+EJC3CC"
-Received: from [192.168.254.48] (c-69-251-182-238.hsd1.md.comcast.net [69.251.182.238])
-	by linux.microsoft.com (Postfix) with ESMTPSA id AE38F2016FF2;
-	Tue,  6 Jan 2026 10:59:42 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com AE38F2016FF2
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1767725982;
-	bh=RfA9SUVreRXDaqFmb8kXmMqf2fOIgzsPskLJjDw6pkk=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=H+EJC3CCp4g0fb5tc+pr+ltSxtMZoI94NvuywrcV6uowjq2PonBhOvMy7oYkUhInO
-	 5EzhcBoYWIvm97uFfSUEEmOeSlOminD0i9bvIp/or62xQ4OYWqQeZCIelBHSnjGdiN
-	 0seh5KgN3P5PiQEgdysRSRy9gPsub4C0AVKbLEY4=
-Message-ID: <b9204287-fb00-4a3f-835f-a59a4a35588e@linux.microsoft.com>
-Date: Tue, 6 Jan 2026 13:58:15 -0500
+	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="mY6FyyK3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=defensec.nl;
+	s=default; t=1767728260;
+	bh=jd0pTZliMrbeZH+EP248qTZhQ3owXXjnr5jxpL/AMgY=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+	b=mY6FyyK3Wx5vAG/D4gYrG+finUm0Z8cawa7ya7uz3+AgU6KkpOHwqWDz85jferjZe
+	 VmmyPaygzwT5FtyqvL61onDP8C2grI26U/C2qTsyug2qM3uYLKAHyiZphmp/vsqaNR
+	 85kP8wTfSEMDbLvGDGSNGDXgETzoHHTIaUALvKXk=
+Received: from debian (debian.lan [IPv6:2a10:3781:2099::87a])
+	by markus.defensec.nl (Postfix) with ESMTPSA id 23757240264;
+	Tue, 06 Jan 2026 20:37:40 +0100 (CET)
+From: Dominick Grift <dominick.grift@defensec.nl>
+To: Chris PeBenito <chpebeni@linux.microsoft.com>
+Cc: SELinux mailing list <selinux@vger.kernel.org>
+Subject: Re: RFC systemd-sysext/confext image context mounts
+In-Reply-To: <6692b25d-cfcc-4bde-a115-889be530e31a@linux.microsoft.com> (Chris
+	PeBenito's message of "Tue, 6 Jan 2026 13:55:34 -0500")
+References: <65a70099-a752-42d5-adfc-5973c21b9710@linux.microsoft.com>
+	<87o6n6iskb.fsf@defensec.nl>
+	<6692b25d-cfcc-4bde-a115-889be530e31a@linux.microsoft.com>
+Date: Tue, 06 Jan 2026 20:37:39 +0100
+Message-ID: <87jyxuilbw.fsf@defensec.nl>
+User-Agent: Gnus/5.13 (Gnus v5.13)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: RFC systemd-sysext/confext image context mounts
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: SELinux mailing list <selinux@vger.kernel.org>
-References: <65a70099-a752-42d5-adfc-5973c21b9710@linux.microsoft.com>
- <CAEjxPJ6yhZSbzMWXq4sQQ7hLydzzmz3i_Bnj9nhskdr0rWf5Hg@mail.gmail.com>
- <508aca6e-7b32-4b4a-b309-6e6faebf0b8e@linux.microsoft.com>
- <CAEjxPJ5insPOkSdUuv0ziWFT_8S0bJ5VUtQ0kyrjJMATqw-=Gw@mail.gmail.com>
-Content-Language: en-US
-From: Chris PeBenito <chpebeni@linux.microsoft.com>
-In-Reply-To: <CAEjxPJ5insPOkSdUuv0ziWFT_8S0bJ5VUtQ0kyrjJMATqw-=Gw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 
+Chris PeBenito <chpebeni@linux.microsoft.com> writes:
 
-On 1/6/2026 12:08 PM, Stephen Smalley wrote:
-> On Tue, Jan 6, 2026 at 11:44 AM Chris PeBenito
-> <chpebeni@linux.microsoft.com> wrote:
->> On 1/6/2026 11:20 AM, Stephen Smalley wrote:
->>> On Tue, Jan 6, 2026 at 11:08 AM Chris PeBenito
->>> <chpebeni@linux.microsoft.com> wrote:
->>>>
->>>> Systemd provides tools for composing directories like /usr and /opt
->>>> (system extensions, sysext) or /etc (configuration extensions, confext).
->>>>     These tools create an overlayfs at the target location, with the root
->>>> filesystem and extensions.  While they support raw directories, files,
->>>> and mutable filesystems, my current concern is with extending immutable
->>>> distributions at runtime using additional immutable images.
->>>>
->>>> The challenge lies in ensuring proper labeling before deploying an
->>>> image, which is problematic for third-party images lacking labels or
->>>> using incompatible ones.  I haven't made any patches yet, as I want to
->>>> consult this group and the systemd developers first.  My proposal is:
->>>> for internally labeled filesystems (ext4, etc.), have the tools validate
->>>> the image's root directory label.  If validation fails, apply a context=
->>>> mount using the label from the contexts/systemd_contexts file in the
->>>> policy.  I'd probably also add options in sysext.conf(.d) and
->>>> confext.conf(.d) to override this behavior, such as for specifying an
->>>> alternate label for the context mount.
->>>>
->>>> What are your thoughts?
+> On 1/6/2026 12:01 PM, Dominick Grift wrote:
+>> Chris PeBenito <chpebeni@linux.microsoft.com> writes:
+>> 
+>>> Systemd provides tools for composing directories like /usr and /opt
+>>> (system extensions, sysext) or /etc (configuration extensions,
+>>> confext).   These tools create an overlayfs at the target location,
+>>> with the root filesystem and extensions.  While they support raw
+>>> directories, files, and mutable filesystems, my current concern is
+>>> with extending immutable distributions at runtime using additional
+>>> immutable images.
 >>>
->>> What does validate mean in the above? Check that it matches the
->>> mountpoint's match in file_contexts? Or just check that the context is
->>> valid under the currently loaded policy?
->>
->> I meant the latter.
-> 
-> The matching file context for the mountpoint would be a more precise
-> check of whether the directory tree is labeled compatibly with the
-> host OS. Regardless, to get the actual on-disk xattr value the process
-> fetching it will need mac_admin permission and CAP_MAC_ADMIN in its
-> effective capability set, which we generally don't allow even for
-> unconfined domains, and use the _raw libselinux interfaces or the
-> getxattr interface directly. Otherwise it will be automatically
-> remapped to the unlabeled context if invalid.
+>>> The challenge lies in ensuring proper labeling before deploying an
+>>> image, which is problematic for third-party images lacking labels or
+>>> using incompatible ones.  I haven't made any patches yet, as I want to
+>>> consult this group and the systemd developers first.  My proposal is:
+>>> for internally labeled filesystems (ext4, etc.), have the tools
+>>> validate the image's root directory label.  If validation fails, apply
+>> Sounds fragile as these filesystems by definition have more then
+>> just a
+>> root directory.
+>> 
+>>> a context= mount using the label from the contexts/systemd_contexts
+>>> file in the policy.  I'd probably also add options in sysext.conf(.d)
+>>> and confext.conf(.d) to override this behavior, such as for specifying
+>>> an alternate label for the context mount.
+>>>
+>>> What are your thoughts?
+>> I am not opposed per se but feels inconsistent. Consider for
+>> example verity authentication which will also most likely be used in
+>> these types of scenarios: why would one be able to deal with verity but
+>> not with selinux labels?
+>
+> A third party would provide the hashtree and root hash along with the
+> image.  If you're referring to a signature, that would be provided
+> too. Are you expecting them to also put out an image every time
+> someone comes up with a new policy variation?
 
-This would probably be done with systemd-dissect, which, I believe, 
-directly inspects the image, without mounting it.
+Sounds like that won't be an issue then. Good. I don't think in terms of
+"them". I would probably use the same key/crt for both the hosts root as
+well as extension images. I also think that I would probably update my
+extensions if a change to the hosts policy affects them negatively. I am
+not sure if systemd.v (vpick) currently works with extensions and or if
+there are plans to make that work but I can see the potential benefits
+in that regard
 
+>
+>
+>> Also wondering where systemd is going to go with extensions will we get
+>> per-user instances that work together with systemd-mountfsd like we
+>> currently have with systemd-nspawn? If so how will that affect this design.
+> Can you elaborate?  I'm not familiar with these aspects.
+>
+
+systemd-mountfsd allows unprivileged users to request it to mount images
+on their behalf. I don't know how per-user extensions for say ~/.config
+and/or ~/.local(/share)? would be implemented technically but I have no
+doubt that if there is a desire/interest for such functionality that Poettering
+will be able to implement it.
+
+I imagine that it could work similar with for example starting a
+systemd --user service unit with RootImage= or systemd-nspawn -I ran without
+root. Which by the way present similar challenges.
+
+But. Keep in mind that we have container, root, extension and portable
+image types. They all have similar challenges and aside from root images
+they can be imported with importctl. importctl --user currently works
+for container images and so I have no reason to believe that it will not
+be made to work if there is a desire for per-user extensions and/or portables.
+
+Again. Not opposed per se. Just contributing my 2 cents. Happy to share
+my thoughts.
+
+-- 
+gpg --auto-key-locate clear,nodefault,wkd --locate-external-keys dominick.grift@defensec.nl
+Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
+Dominick Grift
+Mastodon: @kcinimod@defensec.nl
