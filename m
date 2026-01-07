@@ -1,112 +1,307 @@
-Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B126C2D7810
-	for <selinux@vger.kernel.org>; Tue,  6 Jan 2026 22:13:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82AB430F530
+	for <selinux@vger.kernel.org>; Wed,  7 Jan 2026 11:49:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767737598; cv=none; b=skzKdMbtk/c8kCNPNenDUQbt+s8E4oCQfKqbW2Lgeh0BbeDcoVbzhRAWLcr5gHJk+qOW4iG5z3KHV09Sw6fspyfFLkO8zS+7pM6bz6Q8phA1as59xdu4wXHqXcM6OR1pPq69iP3KzwmU3Ev6OMWSt+RVtdam2gNsaUH+IiXEXrA=
+	t=1767786559; cv=none; b=gYLrxGsQFsTGn/0rSN3bOAAJ+U2/KT/sRr+4//yjVUTUqEZNqKOM7qFMxECcfNSj+oBSiQ3d6f+k9mUcAB/PtN/vMskJLYHLv7AUDf1FPESlAz02PsYerLdAWDMJcypA0cI1xkGdy3xusWU7iRgP/kgR9DZ6I2wsa8IJGESQXLo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767737598; c=relaxed/simple;
-	bh=GluBh8m2y3PcEGE3+V9nl0D2yS7kGa0EPK26bG84vaA=;
-	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=J7L74nmN2RBQP2YRCV0HgvRJtr/1kL3uKGBtAmHIwKg6Wj9DAmJ5kSTKodFEbS9vrdlUpH45zoUr5SdcADhETFsNMSKvVOr8XFiKJ+Vo+8W7FBOBJxMm0f5OustoD+6qWbROdZwYFrs7zPYjyZTOZOp631YMfrpRUdaMmsTLbMA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=XQPsTu7C; arc=none smtp.client-ip=209.85.219.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1767786559; c=relaxed/simple;
+	bh=9W/OWcQp4rvK8WWvn2U7UloQxJP1Nma5ncmM5Z7Iigg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-type; b=t70iz8tQ1+go28A1YZkMCrkbe/Bsg7FsqeySnlyYu7bw+ZFE6ABqHPM7vL7XFLjKWcxp47miYWQY5XALqNTlBV97CPEc+ItlsilE3lXr1eIJTJHo/3JVABsy7ZQ7SAGzwYL3v1wCmXnwYbgCL4C163qmqui21Z3VCC5MBtMgOEo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NsS01JXk; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="XQPsTu7C"
-Received: by mail-qv1-f43.google.com with SMTP id 6a1803df08f44-88a379ca088so15808796d6.0
-        for <selinux@vger.kernel.org>; Tue, 06 Jan 2026 14:13:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1767737595; x=1768342395; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=2ndqp7w6INqSmDj45WR661sezFnhIaCas/O5ymSiHjQ=;
-        b=XQPsTu7CGWrwhmDA1fIvenjHRnkIhsaeMXmGkj1NClTQtpGehA3W1yPzyQt/uQEqHq
-         1NuPjhVh5s7OKK6+UmgUS45uqoKs1pJowLtUqO+yPsYDMjF2EaAQAEMOnNubOrpgEUlp
-         AYAndsEGX4GCshBEHaDqRh0TIn7V3owdjZszR9sriC1xGb1Cseh7Vh9+OtwCVXQYDqy8
-         B4cQ/hhAR4YowWtqMx+hzuHrDOLGvjBhMQh1l4zsGYOSv5Cski6EGr8OkhjAHMwN1b6B
-         pPbAiHAYCAcBNjkklqbF1kYr38By80Zk9HNwHlIC/h5/nCKtyyrfXbS6O+Y49ilddWbx
-         pYqw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767737595; x=1768342395;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=2ndqp7w6INqSmDj45WR661sezFnhIaCas/O5ymSiHjQ=;
-        b=W1q2IjAA814ypMRZ3tKJFXX8a6WGwcZsnvIZTp3OlXc65T7D2oUkd9sm1tDKNdiVw6
-         bsoR2cxNle0qk2J8X/A1dXib24yOsG/dQKJXo+4J7lYhxpZLxYke/ST83hy034rvNz7g
-         iH+YvawoBsHv4m8T+e9IH9EuX0xzpS2UGGguq+aozsg6QkiZgyqaQyKZ2HvlemSslelz
-         gxqTarXwAuAmT2PITPu7Nov5MpGV5wwVfKlvVNztYt4aJeQh3Yflut0KVCDoievkYNMI
-         UnWLJsnhxyDDG0Pa/YWw+RipYU+rM8QAzTTNB33j98CU4KATu0uRdFbhAqSCnKhdU5GI
-         84AA==
-X-Forwarded-Encrypted: i=1; AJvYcCXNWbn2pw8iNKcJnC+kGoz8bjVrlM8JGuc1gfLDO32kRrVV+cIZ5u1HC882qUe1IESOzSYdyYso@vger.kernel.org
-X-Gm-Message-State: AOJu0YyBSgd79iTPCkWOYbuUNGLozTA0klsy+G0Cvg7dFIgqojg5F9j/
-	pEQy3OfpmAfxKDqvFvQQFLU0Sa0mMJWLHglnjqgy0FPIP4MRE9jNgboCoGIv/7o2Wg==
-X-Gm-Gg: AY/fxX6X7IoppulYQgDTEe+MfdVQKelWwTatppCJ1Wjhn41Sk4AKlzK4FfPvmSP5K54
-	xMkPc5BUWpKg6WvagZ08EPXgVDFbxDYywO4dZ+RNwO4jwwMzXeucuSPAFa7JGoqkuK1vHiP06ry
-	6fXT5ECSnMQePb5CnVyaVGwIhf38wMFJ8oJHlH2Ur+DgLqjwZnpdmcAX2HmKsFbDJX6h9jAHcPn
-	gRpDhQfEt9i/o79eKgh+8+c8/Ml0bDHHEtmEO22TiY6PX2qVj+S0LJrGYSWSfZ7ladCxQWr4FB6
-	Xu0ysfpWearfIqkfyLxn4fTOHOFb4dyOFe7Lzp9QJNvVWabL8OWDXtProGjk6Kw386HRMt9VWHK
-	Hrffm+Fxy2r+KGBW+o544U6DwyANkzdvi6s55evHXeTgDyBezAqkOgAca2wR7+/zVROB3UizSUe
-	cU4n+6JNnFLIYpc9ry//zHso5iIow9EtzINdgH/mpEa8XuZb7HOXZXtF4/
-X-Google-Smtp-Source: AGHT+IHcmlCgI7WlFr18qOoSGtSo4kPbBkhNEeig2CIGNrNBUesdSzmx2NVuMD6+7V/OhPmQRFjH0A==
-X-Received: by 2002:a05:6214:5509:b0:88a:525a:8db8 with SMTP id 6a1803df08f44-8908424fc75mr7312106d6.35.1767737595588;
-        Tue, 06 Jan 2026 14:13:15 -0800 (PST)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-890770e2833sm21004626d6.18.2026.01.06.14.13.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 06 Jan 2026 14:13:14 -0800 (PST)
-Date: Tue, 06 Jan 2026 17:13:13 -0500
-Message-ID: <95dbf9af0e01953e2e6dca14eead406c@paul-moore.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NsS01JXk"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1767786556;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=baNqPTvc9wzrLTkjFvhrDOwjHhhgJKyxjpkd8jKHC8Q=;
+	b=NsS01JXkKa0vAe6uPQCkep9kQ4EwF+fw4BbKKyw0cSS4TOgd0cKkIeOXLyIPaM//ae7A/X
+	ZxyzwbeuMl4FSCyHiDVpjQHyizOq7hsvxeOqWBg+temucijIZs4f9SMTsrBXPTTid3WIjt
+	5YDM0LEpg/6tRjJFmHjP45fz0jFw1OQ=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-577-AzX3epnlMtOoO-S8HbAWkA-1; Wed,
+ 07 Jan 2026 06:49:12 -0500
+X-MC-Unique: AzX3epnlMtOoO-S8HbAWkA-1
+X-Mimecast-MFC-AGG-ID: AzX3epnlMtOoO-S8HbAWkA_1767786551
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 622DD19560A3;
+	Wed,  7 Jan 2026 11:49:11 +0000 (UTC)
+Received: from p16v.redhat.com (unknown [10.44.33.210])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 035FC1956048;
+	Wed,  7 Jan 2026 11:49:09 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: selinux@vger.kernel.org
+Cc: Petr Lautrbach <lautrbach@redhat.com>,
+	Rahul Sandhu <nvraxn@gmail.com>
+Subject: [PATCH] sandbox/seunshare: Replace system() with execv() to prevent shell injection
+Date: Wed,  7 Jan 2026 12:48:50 +0100
+Message-ID: <20260107114900.1482675-1-lautrbach@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=UTF-8 
-Content-Transfer-Encoding: 8bit 
-X-Mailer: pstg-pwork:20260106_1639/pstg-lib:20260106_1639/pstg-pwork:20260106_1639
-From: Paul Moore <paul@paul-moore.com>
-To: Stephen Smalley <stephen.smalley.work@gmail.com>, trondmy@kernel.org, anna@kernel.org
-Cc: okorniev@redhat.com, linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org, selinux@vger.kernel.org, Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: Re: [PATCH] nfs: unify security_inode_listsecurity() calls
-References: <20251203195728.8592-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20251203195728.8592-1-stephen.smalley.work@gmail.com>
+MIME-Version: 1.0
+Content-type: text/plain
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-On Dec  3, 2025 Stephen Smalley <stephen.smalley.work@gmail.com> wrote:
-> 
-> commit 243fea134633 ("NFSv4.2: fix listxattr to return selinux
-> security label") introduced a direct call to
-> security_inode_listsecurity() in nfs4_listxattr(). However,
-> nfs4_listxattr() already indirectly called
-> security_inode_listsecurity() via nfs4_listxattr_nfs4_label() if
-> CONFIG_NFS_V4_SECURITY_LABEL is enabled and the server has the
-> NFS_CAP_SECURITY_LABEL capability enabled. This duplication was fixed
-> by commit 9acb237deff7 ("NFSv4.2: another fix for listxattr") by
-> making the second call conditional on NFS_CAP_SECURITY_LABEL not being
-> set by the server. However, the combination of the two changes
-> effectively makes one call to security_inode_listsecurity() in every
-> case - which is the desired behavior since getxattr() always returns a
-> security xattr even if it has to synthesize one. Further, the two
-> different calls produce different xattr name ordering between
-> security.* and user.* xattr names. Unify the two separate calls into a
-> single call and get rid of nfs4_listxattr_nfs4_label() altogether.
-> 
-> Link: https://lore.kernel.org/selinux/CAEjxPJ6e8z__=MP5NfdUxkOMQ=EnUFSjWFofP4YPwHqK=Ki5nw@mail.gmail.com/
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
->  fs/nfs/nfs4proc.c | 38 +++-----------------------------------
->  1 file changed, 3 insertions(+), 35 deletions(-)
+Refactor spawn_command() to use execv() instead of system() to eliminate
+shell injection vulnerabilities.
 
-It's been over a month without any comments, positive or negative, so
-I'm going to go ahead and merge this into lsm/dev; if anyone has any
-objections, ACKS, etc. please speak up soon.
+Reported-By: Rahul Sandhu <nvraxn@gmail.com>
+Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+---
+ sandbox/seunshare.c | 132 ++++++++++++++++++++++++++------------------
+ 1 file changed, 79 insertions(+), 53 deletions(-)
 
-Thanks Stephen.
+diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
+index 65da46463a8f..74b87b7d13ec 100644
+--- a/sandbox/seunshare.c
++++ b/sandbox/seunshare.c
+@@ -56,6 +56,12 @@
+ #define USAGE_STRING _("USAGE: seunshare [ -v ] [ -C ] [ -k ] [ -t tmpdir ] [ -h homedir ] \
+ [ -r runuserdir ] [ -P pipewiresocket ] [ -W waylandsocket ] [ -Z CONTEXT ] -- executable [args] ")
+ 
++#define strdup_or_err(args, index, src) do {	\
++		args[index] = strdup(src); \
++		if (! args[index]) \
++			goto err; \
++	} while(0)
++
+ static int verbose = 0;
+ static int child = 0;
+ 
+@@ -136,15 +142,14 @@ static int set_signal_handles(void)
+ 	} while(0)
+ 
+ /**
+- * Spawn external command using system() with dropped privileges.
+- * TODO: avoid system() and use exec*() instead
++ * Spawn external command with dropped privileges.
+  */
+-static int spawn_command(const char *cmd, uid_t uid){
++static int spawn_command(char **cmd, uid_t uid){
+ 	int childpid;
+ 	int status = -1;
+ 
+ 	if (verbose > 1)
+-		printf("spawn_command: %s\n", cmd);
++		printf("spawn_command: %s\n", cmd[0]);
+ 
+ 	childpid = fork();
+ 	if (childpid == -1) {
+@@ -155,8 +160,7 @@ static int spawn_command(const char *cmd, uid_t uid){
+ 	if (childpid == 0) {
+ 		if (drop_privs(uid) != 0) exit(-1);
+ 
+-		status = system(cmd);
+-		status_to_retval(status, status);
++		status = execv(cmd[0], cmd);
+ 		exit(status);
+ 	}
+ 
+@@ -342,15 +346,24 @@ static int bad_path(const char *path) {
+ 	return 0;
+ }
+ 
+-static int rsynccmd(const char * src, const char *dst, char **cmdbuf)
+-{
++static void free_args(char **args) {
++	char **args_p = args;
++	if (! args)
++		return;
++	while (*args_p != NULL) {
++		free(*args_p);
++		args_p++;
++	}
++	free(args);
++}
++
++static int rsynccmd(const char * src, const char *dst, char ***cmd) {
++	char **args;
+ 	char *buf = NULL;
+-	char *newbuf = NULL;
+ 	glob_t fglob;
+ 	fglob.gl_offs = 0;
+ 	int flags = GLOB_PERIOD;
+-	unsigned int i = 0;
+-	int rc = -1;
++	unsigned int i = 0, index = 0;
+ 
+ 	/* match glob for all files in src dir */
+ 	if (asprintf(&buf, "%s/*", src) == -1) {
+@@ -365,43 +378,35 @@ static int rsynccmd(const char * src, const char *dst, char **cmdbuf)
+ 
+ 	free(buf); buf = NULL;
+ 
+-	for ( i=0; i < fglob.gl_pathc; i++) {
+-		const char *path = fglob.gl_pathv[i];
+-
+-		if (bad_path(path)) continue;
+-
+-		if (!buf) {
+-			if (asprintf(&newbuf, "\'%s\'", path) == -1) {
+-				fprintf(stderr, _("Out of memory\n"));
+-				goto err;
+-			}
+-		} else {
+-			if (asprintf(&newbuf, "%s  \'%s\'", buf, path) == -1) {
+-				fprintf(stderr, _("Out of memory\n"));
+-				goto err;
+-			}
+-		}
+-
+-		free(buf); buf = newbuf;
+-		newbuf = NULL;
++	/* rsync  -trlHDq + <glob list> + dst + NULL */
++	*cmd = calloc(2 + fglob.gl_pathc + 2, sizeof(char *));
++	if (! *cmd) {
++		fprintf(stderr, _("Out of memory\n"));
++		return -1;
+ 	}
+ 
+-	if (buf) {
+-		if (asprintf(&newbuf, "/usr/bin/rsync -trlHDq %s '%s'", buf, dst) == -1) {
+-			fprintf(stderr, _("Out of memory\n"));
+-			goto err;
+-		}
+-		*cmdbuf=newbuf;
+-	}
+-	else {
+-		*cmdbuf=NULL;
+-	}
+-	rc = 0;
++	args = *cmd;
++	strdup_or_err(args, 0, "/usr/bin/rsync");
++	strdup_or_err(args, 1, "-trlHDq");
+ 
++	for ( i=0, index = 2; i < fglob.gl_pathc; i++) {
++		const char *path = fglob.gl_pathv[i];
++		if (bad_path(path)) continue;
++		strdup_or_err(args, index, path);
++		index++;
++	}
++	strdup_or_err(args, index, dst);
++	index++;
++	args[index] = NULL;
++	globfree(&fglob);
++	return 0;
+ err:
+-	free(buf); buf = NULL;
+ 	globfree(&fglob);
+-	return rc;
++	if (args) {
++		free_args(args);
++		*cmd = NULL;
++	}
++	return -1;
+ }
+ 
+ /*
+@@ -472,21 +477,38 @@ static bool rm_rf(int targetfd, const char *path) {
+ static int cleanup_tmpdir(const char *tmpdir, const char *src,
+ 	struct passwd *pwd, int copy_content)
+ {
+-	char *cmdbuf = NULL;
++	char **args;
+ 	int rc = 0;
+ 
+ 	/* rsync files back */
+ 	if (copy_content) {
+-		if (asprintf(&cmdbuf, "/usr/bin/rsync --exclude=.X11-unix -utrlHDq --delete '%s/' '%s/'", tmpdir, src) == -1) {
++		args = calloc(7, sizeof(char *));
++		if (! args) {
+ 			fprintf(stderr, _("Out of memory\n"));
+-			cmdbuf = NULL;
+-			rc++;
++			return 1;
++		}
++
++		strdup_or_err(args, 0, "/usr/bin/rsync");
++		strdup_or_err(args, 1, "--exclude=.X11-unix");
++		strdup_or_err(args, 2, "-utrlHDq");
++		strdup_or_err(args, 3, "--delete");
++		if (asprintf(&args[4], "%s/", tmpdir) == -1) {
++			fprintf(stderr, _("Out of memory\n"));
++			free_args(args);
++			return 1;
+ 		}
+-		if (cmdbuf && spawn_command(cmdbuf, pwd->pw_uid) != 0) {
++		if (asprintf(&args[5], "%s/", src) == -1) {
++			fprintf(stderr, _("Out of memory\n"));
++			free_args(args);
++			return 1;
++		}
++		args[6] = NULL;
++
++		if (spawn_command(args, pwd->pw_uid) != 0) {
+ 			fprintf(stderr, _("Failed to copy files from the runtime temporary directory\n"));
+ 			rc++;
+ 		}
+-		free(cmdbuf); cmdbuf = NULL;
++		free_args(args);
+ 	}
+ 
+ 	if ((uid_t)setfsuid(0) != 0) {
+@@ -506,6 +528,10 @@ static int cleanup_tmpdir(const char *tmpdir, const char *src,
+ 	}
+ 
+ 	return rc;
++err:
++	if (args)
++		free_args(args);
++	return 1;
+ }
+ 
+ /**
+@@ -518,7 +544,7 @@ static char *create_tmpdir(const char *src, struct stat *src_st,
+ 	struct stat *out_st, struct passwd *pwd, const char *execcon)
+ {
+ 	char *tmpdir = NULL;
+-	char *cmdbuf = NULL;
++	char **cmd = NULL;
+ 	int fd_t = -1, fd_s = -1;
+ 	struct stat tmp_st;
+ 	char *con = NULL;
+@@ -605,7 +631,7 @@ static char *create_tmpdir(const char *src, struct stat *src_st,
+ 	if ((uid_t)setfsuid(pwd->pw_uid) != 0)
+ 		goto err;
+ 
+-	if (rsynccmd(src, tmpdir, &cmdbuf) < 0) {
++	if (rsynccmd(src, tmpdir, &cmd) < 0) {
+ 		goto err;
+ 	}
+ 
+@@ -613,7 +639,7 @@ static char *create_tmpdir(const char *src, struct stat *src_st,
+ 	if ((uid_t)setfsuid(0) != pwd->pw_uid)
+ 		goto err;
+ 
+-	if (cmdbuf && spawn_command(cmdbuf, pwd->pw_uid) != 0) {
++	if (spawn_command(cmd, pwd->pw_uid) != 0) {
+ 		fprintf(stderr, _("Failed to populate runtime temporary directory\n"));
+ 		cleanup_tmpdir(tmpdir, src, pwd, 0);
+ 		goto err;
+@@ -623,7 +649,7 @@ static char *create_tmpdir(const char *src, struct stat *src_st,
+ err:
+ 	free(tmpdir); tmpdir = NULL;
+ good:
+-	free(cmdbuf); cmdbuf = NULL;
++	free_args(cmd);
+ 	freecon(con); con = NULL;
+ 	if (fd_t >= 0) close(fd_t);
+ 	if (fd_s >= 0) close(fd_s);
+-- 
+2.52.0
 
---
-paul-moore.com
