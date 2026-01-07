@@ -1,153 +1,138 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from markus.defensec.nl (markus.defensec.nl [45.80.168.93])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2C4B30BF6A
-	for <selinux@vger.kernel.org>; Wed,  7 Jan 2026 12:08:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E49322FFDCC
+	for <selinux@vger.kernel.org>; Wed,  7 Jan 2026 12:28:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.80.168.93
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767787712; cv=none; b=WW37Dkllu8obf9VNo0GX4M4uP3TVGvTjtbqGSfxhvxtuZjp1fmya31ZkifRF7qlgnZv1xPthY6ohEAzgDfpJ/zsxcsD03pgrWYXM7iyRHp44pkC9Yel9rRTEARRlOTkAtIH29nYJwjUnksMnPn2wSWVGnjQ7PpIdd0cj59Mzl14=
+	t=1767788937; cv=none; b=Zt6+dAKW+Cpdai3TeE8RWuOkv7QaXDQ7kJKFXk/eGC7LUo4y0r7HzqdumFenWaUBwIAKIWmVba8pDiMwNopyBn8R3AmK+SBkTV/ub5dTs6jR2HP4SPdFCiuNibg4ePlJxqYOQ1nnL7RJF3j4XMbedm9FnWZJTIMFPw/+KUhF5sA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767787712; c=relaxed/simple;
-	bh=zyP7AlzG0V1Wad3NFXjpBoVTp+mDNsYhgdrJmY1KzMs=;
+	s=arc-20240116; t=1767788937; c=relaxed/simple;
+	bh=JGpY1PzdrzpTRQYiDanOxZkkdaJP4YksHP3t0FQ0+yE=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=m5ezEW10K/eKv622g4yZL6CPkB8hqEqBMztFAqkSbjky1yIE3nLvUY0acLAkj7e8oT3fy9lAKwIeMHlbg5TVg4BL5wCnPjW33cl0GqPoI1TE6chIQg2ohe7pZ9dS4VkLTxB6o9B237b6AyGv1v5g5+h/K1E8scD4BxyKuqnbZ1M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=D9UazdhT; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 MIME-Version:Content-Type; b=YBfMWvO03A72iwoNC3diXYkeU+v3qX1+ZoHWzUs8XHPKYdq5gR0zQKCmcyG2WmEnDuIh1V/aYlvkZu60lCH7TXLwd5EB73VD6dijQSqHbIG01vxki7kXW/qBObGg9FyyZDb3pyHgbPIVeGupBiMOY0zCtljFgYaepr3IRsLCgbM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=defensec.nl; spf=pass smtp.mailfrom=defensec.nl; dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b=TaPeGu0w; arc=none smtp.client-ip=45.80.168.93
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=defensec.nl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=defensec.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="D9UazdhT"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1767787709;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=dCHYrfRsxnr4Gw7y+zLfYaQmRfhq5Qw1zQmB6odduyg=;
-	b=D9UazdhTUmc6drSDUhqKBfyVkvX8lnICvVA9c/RCST34aHvegyp5DbCboTvN6D9WEAatlj
-	KTw8wK80sUA9WL8u8k2ZBTXHnwKplx68YBxUtzV5Enr26fyowSiaDAs93s4Vhg9Rc/1snH
-	QeJCSdi0b30pMBK59F5UAKxiZpYDkD0=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-275-8iWM-lZGP_KU23pNrsAF9A-1; Wed,
- 07 Jan 2026 07:08:28 -0500
-X-MC-Unique: 8iWM-lZGP_KU23pNrsAF9A-1
-X-Mimecast-MFC-AGG-ID: 8iWM-lZGP_KU23pNrsAF9A_1767787707
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 67FAE18005B3;
-	Wed,  7 Jan 2026 12:08:27 +0000 (UTC)
-Received: from localhost (unknown [10.44.33.210])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id EAE1119560A2;
-	Wed,  7 Jan 2026 12:08:26 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
-To: Paul Moore <paul@paul-moore.com>,  selinux@vger.kernel.org
-Cc:
-Subject: Re: [PATCH] SECURITY.md: add lautrbach@redhat.com gpg fingerprint
-In-Reply-To: <CAHC9VhRaKE2fuXik5xxaw5i1f9QgveFj0_FgzMVyRCHebueZGQ@mail.gmail.com>
-References: <20260105174020.887724-1-lautrbach@redhat.com>
- <CAHC9VhRaKE2fuXik5xxaw5i1f9QgveFj0_FgzMVyRCHebueZGQ@mail.gmail.com>
-Date: Wed, 07 Jan 2026 13:08:25 +0100
-Message-ID: <87h5sxvd52.fsf@redhat.com>
+	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="TaPeGu0w"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=defensec.nl;
+	s=default; t=1767788933;
+	bh=JGpY1PzdrzpTRQYiDanOxZkkdaJP4YksHP3t0FQ0+yE=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+	b=TaPeGu0w6GNEC1MmaaAHBrKJygcfvtyA0aCyw/jpGiEDaK+zHe7t/rQQFKrfs8he8
+	 VjA150c5KY8pCzr5wZuvht8COfG/4v5NvLn1wH4dgmFbvUoFiO3tjvLVRRYZws6Muz
+	 AlJ96GddJM8BNOjz/7734bFT4lfQseytnlnn3MNk=
+Received: from nimbus (nimbus.lan [IPv6:2a10:3781:2099::514])
+	by markus.defensec.nl (Postfix) with ESMTPSA id F3FDD2419B3;
+	Wed, 07 Jan 2026 13:28:52 +0100 (CET)
+From: Dominick Grift <dominick.grift@defensec.nl>
+To: Chris PeBenito <chpebeni@linux.microsoft.com>
+Cc: SELinux mailing list <selinux@vger.kernel.org>
+Subject: Re: RFC systemd-sysext/confext image context mounts
+In-Reply-To: <87jyxuilbw.fsf@defensec.nl> (Dominick Grift's message of "Tue,
+	06 Jan 2026 20:37:39 +0100")
+References: <65a70099-a752-42d5-adfc-5973c21b9710@linux.microsoft.com>
+	<87o6n6iskb.fsf@defensec.nl>
+	<6692b25d-cfcc-4bde-a115-889be530e31a@linux.microsoft.com>
+	<87jyxuilbw.fsf@defensec.nl>
+Date: Wed, 07 Jan 2026 13:28:52 +0100
+Message-ID: <87zf6phaij.fsf@defensec.nl>
+User-Agent: Gnus/5.13 (Gnus v5.13)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+Content-Type: text/plain
 
-Paul Moore <paul@paul-moore.com> writes:
+Dominick Grift <dominick.grift@defensec.nl> writes:
 
-> On Mon, Jan 5, 2026 at 12:46=E2=80=AFPM Petr Lautrbach <lautrbach@redhat.=
-com> wrote:
->>
->> The key is available at:
->> https://github.com/bachradsusi.gpg
->> https://plautrba.fedorapeople.org/lautrbach@redhat.com.gpg
->>
->> Also update the email address
->>
->> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
->> ---
->>  SECURITY.md | 3 ++-
->>  1 file changed, 2 insertions(+), 1 deletion(-)
->>
->> diff --git a/SECURITY.md b/SECURITY.md
->> index 2a7ce5b317a7..faa060ccff03 100644
->> --- a/SECURITY.md
->> +++ b/SECURITY.md
->> @@ -24,7 +24,8 @@ list is below. We typically request at most a 90 day t=
-ime period to address
->>  the issue before it is made public, but we will make every effort to ad=
-dress
->>  the issue as quickly as possible and shorten the disclosure window.
->>
->> -* Petr Lautrbach, plautrba@redhat.com
->> +* Petr Lautrbach, lautrbach@redhat.com
->> +  *  (GPG fingerprint) 68D2 1823 342A 1368 3AEB  3E4E FB4C 685B 5DC1 C1=
-3E
+> Chris PeBenito <chpebeni@linux.microsoft.com> writes:
 >
-> I think you may want to list the fingerprint of your primary key and
-> not a subkey, as the primary key is what carries the signatures and
-> helps verify trust.
+>> On 1/6/2026 12:01 PM, Dominick Grift wrote:
+>>> Chris PeBenito <chpebeni@linux.microsoft.com> writes:
+>>> 
+>>>> Systemd provides tools for composing directories like /usr and /opt
+>>>> (system extensions, sysext) or /etc (configuration extensions,
+>>>> confext).   These tools create an overlayfs at the target location,
+>>>> with the root filesystem and extensions.  While they support raw
+>>>> directories, files, and mutable filesystems, my current concern is
+>>>> with extending immutable distributions at runtime using additional
+>>>> immutable images.
+>>>>
+>>>> The challenge lies in ensuring proper labeling before deploying an
+>>>> image, which is problematic for third-party images lacking labels or
+>>>> using incompatible ones.  I haven't made any patches yet, as I want to
+>>>> consult this group and the systemd developers first.  My proposal is:
+>>>> for internally labeled filesystems (ext4, etc.), have the tools
+>>>> validate the image's root directory label.  If validation fails, apply
+>>> Sounds fragile as these filesystems by definition have more then
+>>> just a
+>>> root directory.
+>>> 
+>>>> a context= mount using the label from the contexts/systemd_contexts
+>>>> file in the policy.  I'd probably also add options in sysext.conf(.d)
+>>>> and confext.conf(.d) to override this behavior, such as for specifying
+>>>> an alternate label for the context mount.
+>>>>
+>>>> What are your thoughts?
+>>> I am not opposed per se but feels inconsistent. Consider for
+>>> example verity authentication which will also most likely be used in
+>>> these types of scenarios: why would one be able to deal with verity but
+>>> not with selinux labels?
+>>
+>> A third party would provide the hashtree and root hash along with the
+>> image.  If you're referring to a signature, that would be provided
+>> too. Are you expecting them to also put out an image every time
+>> someone comes up with a new policy variation?
+
+I looked into this but youre right indeed that all a image vendor has to
+do is make the public key available. Then the consumer of the image just
+needs to pull that into /etc/verity.d and then thats basically
+everything you need for extensions.
+
+So this was a non-argument.
+
 >
-
-I guess I need help then:
-
-$ gpg --show-keys --fingerprint lautrbach@redhat.com.gpg
-pub   rsa4096/63A8AD4B982C4373 2012-04-03 [SC]
-      Key fingerprint =3D E853 C184 8B01 85CF 4286  4DF3 63A8 AD4B 982C 4373
-      Keygrip =3D 6BC6915CA93F20709BC8B5020B8E22D7E6ED2F94
-uid                            Petr Lautrbach <plautrba@redhat.com>
-sub   rsa4096/06C3AB0B84CA81FE 2017-12-05 [A]
-      Keygrip =3D 04808A09AA88E1CB0055033ACBC0A27D4ED46237
-sub   rsa4096/BE22091E3EF62275 2017-12-05 [S]
-      Keygrip =3D 56BA5B9D06707CA797DD4380A7ED91A95ED233CE
-sub   rsa4096/7C4D5CA6A1BC4B25 2012-04-03 [E]
-      Keygrip =3D B0FED3D171572C546D4601AB94C1852E46A02FE6
-
-pub   rsa4096/BC3905F235179CF1 2022-10-26 [SC] [expired: 2024-10-25]
-      Key fingerprint =3D B868 2847 764D F60D F52D  992C BC39 05F2 3517 9CF1
-      Keygrip =3D FA0CE92171EEBAC2DD084E6399F18709A2F7353B
-uid                            Petr Lautrbach <lautrbach@redhat.com>
-sub   rsa4096/F1B73DE3D81A529B 2022-10-26 [E] [expired: 2024-10-25]
-      Keygrip =3D 3A28778B1F09A154888A372BE543AB2CA12BB4F1
-sub   rsa4096/2F2D5A2B6D4CC2C5 2022-10-26 [A] [expired: 2024-10-25]
-      Keygrip =3D E5B12C87E5760AC68443C63D620AD3E407A67FA7
-sub   rsa4096/4695881C254508D1 2022-10-26 [S] [expired: 2024-10-25]
-      Keygrip =3D 55F576834D965A315EC66BF1327BAA810A5A2587
-
-gpg: WARNING: No valid encryption subkey left over.
-pub   rsa4096/FB4C685B5DC1C13E 2024-11-04 [SC] [expires: 2026-11-04]
-      Key fingerprint =3D 68D2 1823 342A 1368 3AEB  3E4E FB4C 685B 5DC1 C13E
-      Keygrip =3D 834230A0854D7A8698B5432C007560FE7AECC504
-uid                            Petr Lautrbach <lautrbach@redhat.com>
-sub   rsa4096/C500C028A770AB66 2024-11-04 [E] [expires: 2026-11-04]
-      Keygrip =3D 2EF1D48B43E234CAAE155A0AD032C00063FCB102
-sub   rsa4096/CDCAE8C927C6BE31 2024-11-04 [S] [expires: 2026-11-04]
-      Keygrip =3D CAE3E6B80FFD15958C813CC635CFFDF9F86D9C17
-sub   rsa4096/37BCD711A64B2890 2024-11-04 [AR] [expires: 2026-11-04]
-      Keygrip =3D 850707DAF56607DEABD28933FD0A77D382923F1C
-
-
-
-I'm looking at the last one Petr Lautrbach <lautrbach@redhat.com>
-[expires: 2026-11-04]=20
-
-
-
->>  * Nicolas Iooss, nicolas.iooss@m4x.org
->>    *  (GPG fingerprint) E25E 254C 8EE4 D303 554B  F5AF EC70 1A1D A494 C5=
-EB
->>  * Jeffrey Vander Stoep, jeffv@google.com
->> --
->> 2.52.0
+> Sounds like that won't be an issue then. Good. I don't think in terms of
+> "them". I would probably use the same key/crt for both the hosts root as
+> well as extension images. I also think that I would probably update my
+> extensions if a change to the hosts policy affects them negatively. I am
+> not sure if systemd.v (vpick) currently works with extensions and or if
+> there are plans to make that work but I can see the potential benefits
+> in that regard
 >
-> --=20
-> paul-moore.com
+>>
+>>
+>>> Also wondering where systemd is going to go with extensions will we get
+>>> per-user instances that work together with systemd-mountfsd like we
+>>> currently have with systemd-nspawn? If so how will that affect this design.
+>> Can you elaborate?  I'm not familiar with these aspects.
+>>
+>
+> systemd-mountfsd allows unprivileged users to request it to mount images
+> on their behalf. I don't know how per-user extensions for say ~/.config
+> and/or ~/.local(/share)? would be implemented technically but I have no
+> doubt that if there is a desire/interest for such functionality that Poettering
+> will be able to implement it.
+>
+> I imagine that it could work similar with for example starting a
+> systemd --user service unit with RootImage= or systemd-nspawn -I ran without
+> root. Which by the way present similar challenges.
+>
+> But. Keep in mind that we have container, root, extension and portable
+> image types. They all have similar challenges and aside from root images
+> they can be imported with importctl. importctl --user currently works
+> for container images and so I have no reason to believe that it will not
+> be made to work if there is a desire for per-user extensions and/or portables.
+>
+> Again. Not opposed per se. Just contributing my 2 cents. Happy to share
+> my thoughts.
 
+-- 
+gpg --auto-key-locate clear,nodefault,wkd --locate-external-keys dominick.grift@defensec.nl
+Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
+Dominick Grift
+Mastodon: @kcinimod@defensec.nl
