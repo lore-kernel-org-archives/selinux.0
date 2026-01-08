@@ -1,177 +1,170 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f180.google.com (mail-lj1-f180.google.com [209.85.208.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 093313563EA
-	for <selinux@vger.kernel.org>; Thu,  8 Jan 2026 08:57:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C3C72BCF46
+	for <selinux@vger.kernel.org>; Thu,  8 Jan 2026 17:03:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767862655; cv=none; b=SbAo7JWwv0YR6II+t3wryfuPjByHm7L1a7q/Z+eJs8c8dIGl+xzt6+gYA61a73BUbFLRGUrU0G5zUVk/WjUm9QQ3ddtqQPcFscrOZjQBiGxChL0dj9quHQdT1ZDouwreGk0spnvsSjMfPFlqSCprtj67bcKwmOMq9fD7aYuTb6o=
+	t=1767891795; cv=none; b=L/yqQYVlenX7kLc6ysoG4Si6Ew8h90ucoPRzhv3YBChoLP53jS5zjAEFm8jfwXcGbCTz54dTfWQevJJ4gawIWt/jCyWC3PyeZoDdDehRCauGCcG0Q1ugnNyAwkIwSUyn0TNa4p9SvVhxUJdmdA833Bo9xJdgbzTa5D42uyz71eo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767862655; c=relaxed/simple;
-	bh=YZdDiqjPhgzu1t06dqsKfSRXVHrUFJk1xD8q3oJLcDg=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=biYJd9hO7GGSzudCUcGLCdCZfb8QmdtIna1Ef5hsw0iIF1mcw5+2o1KOa705rwjOK4Rl3nEH4kSD25AhGbZCKcpxZSW3dXFKT4yHcxEAXjYgTrA6YB0G9cqiOJMtVbf1VBlJQK0letXcV4PUFD3A0NqmxoC/5Wwquj9WmdqxmAU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=fail smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dCS9tKAo; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1767891795; c=relaxed/simple;
+	bh=jb+LkVD3iG4ZAyz4HgRcWG84xPSa0shjNgAu/foEMcc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=fJcFpC4a5/KjKi6uGibk4cQbsrhKzDFL7cr5eLZFHenTTvDxTSbylQp225f09cZvWPJJOkEW2Ql3Nt2FwQAJv/7ZUwP8zlh0ljMjl4binxQBaq2coUxHJuCc6mXqtu7+EWCTnWICbIv0+ZGHaIy/kPTNCg756dxATtIWggd3eng=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WcNa+wgt; arc=none smtp.client-ip=209.85.208.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dCS9tKAo"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1767862643;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=OoMqqKEMophNpuQS8oECxtNAD3osl3IKbxVl1JimFfw=;
-	b=dCS9tKAoTytgHpz9cH5VSP0BfhbqneeweDavmBvWYR7zbE+3cni/L1DQoVO2kUlVXsnFXr
-	XHMtasK2nc8u4MrSdgYaYLI4RTekDA4KlC45BcvpfoNl69LQ+dHBMiI6RFCTGCiXlN9o/I
-	Bg4iKKyzU8p8Eit7Xhb6Rc8JhFaSkHM=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-210-Sa7yrZBwMzSTvI624jhJSA-1; Thu,
- 08 Jan 2026 03:57:20 -0500
-X-MC-Unique: Sa7yrZBwMzSTvI624jhJSA-1
-X-Mimecast-MFC-AGG-ID: Sa7yrZBwMzSTvI624jhJSA_1767862639
-Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 38F5F19560B2;
-	Thu,  8 Jan 2026 08:57:19 +0000 (UTC)
-Received: from localhost (unknown [10.44.33.184])
-	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 94CAC18004D8;
-	Thu,  8 Jan 2026 08:57:18 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: selinux@vger.kernel.org
-Subject: Re: [PATCH] SECURITY.md: add lautrbach@redhat.com gpg fingerprint
-In-Reply-To: <CAHC9VhQmYLMqFzytgauijn_C6TXksBVsptEdNb2ZcyKFT8fsCg@mail.gmail.com>
-References: <20260105174020.887724-1-lautrbach@redhat.com>
- <CAHC9VhRaKE2fuXik5xxaw5i1f9QgveFj0_FgzMVyRCHebueZGQ@mail.gmail.com>
- <87h5sxvd52.fsf@redhat.com>
- <CAHC9VhQmYLMqFzytgauijn_C6TXksBVsptEdNb2ZcyKFT8fsCg@mail.gmail.com>
-Date: Thu, 08 Jan 2026 09:57:17 +0100
-Message-ID: <87cy3kv5w2.fsf@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WcNa+wgt"
+Received: by mail-lj1-f180.google.com with SMTP id 38308e7fff4ca-3831ad8ae4eso374841fa.1
+        for <selinux@vger.kernel.org>; Thu, 08 Jan 2026 09:03:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1767891787; x=1768496587; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=fztcka0il9CRIJPACeLY6TG138rJ4SP7IYyVFU7o1I8=;
+        b=WcNa+wgtmpHDzwTICgDGZeHuZSFWs9VhDP6pO/YKZRla8u3iEaAvq2+C6NrGTVrsxw
+         n9aOmeG1o6UkHZX5Xt/s0d6VbmlAnp7OtqrQBeNjADmJIThQGdxi5nGxQ5SWaeIeG2oT
+         9a7cZyD3cWxXSjwH+ADLypyi3NBoX4fBm0XgMVrMXq0bORi+osDMe6nJ24Oz1/bjQXtf
+         CYzAt7Gp4AFTFNL20SldKeWUILoE3WtoIPuXpN8evHDqzJPH0mjA1BC9He+eyDGTnB+1
+         BhzrYyD+G2YtG5phybmnQtDGbF4jvhmOrwarY2zx6ucSIhvJ1oRhmB3GLXbF9OvapMQC
+         +vVg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1767891787; x=1768496587;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=fztcka0il9CRIJPACeLY6TG138rJ4SP7IYyVFU7o1I8=;
+        b=RQ2zhoHiO+ZBkXVx7n/vmX1dt+VBX4/KzB00ac3EXIKWsIKKcyVWhNLE7mBZGlEbl8
+         0GcszGqx/FeJYXqBrQ3i9XTi5IxDGYGXPxqXkuf0dXwAYVtiKO+iVHMHooInOpSBzZc1
+         nHQcDwj80T7IVK4WYxPPnWZ0WxfihR9d0/bvn0wEw1XSk0ly1aqrUXtfVUqSpFpnsk7s
+         2QxW8lrUts92q3Ti55x1zODKDP4N7U5+y7Dkp+Qo3bDB0rhWcDdCASeH2XP6mLSnPhWg
+         FlZL4bvYlcX/4t8vpBoVZkw0RzW0yhKyIcs0O42XKQ4BluNPUCfMrN5aA+g1eubmCSmy
+         ketQ==
+X-Gm-Message-State: AOJu0YwVLxXZ2YweBGlIrmOgtTqQy7y+OYvhL2PA9LT46I2FHlsqxlTm
+	M+5KhkUKIKRYVXj1gLbeLtgWKPd1O63O9JusPvFPWTpyuXq23j1g0YoNorqC/Gb/UVOKpW/V4IB
+	mAw9NNOhdrdS8nCkOPg6d+gsxmWRVlqw=
+X-Gm-Gg: AY/fxX41iFcV+QlEGrDF+6XHcreBJb+CESAaGjTqM1ih6JQX/JexFr0TzHC9FKARSDT
+	Xq6Yiw6sI0660A4Y08uUzuA84WApa1T5zOP/3afpKrd2FjlbXEVWe7F0vCl4f7I0ySMeDAXDwaE
+	t2CErPLR7QjjrpFn1RvtS1nSVkB0yB5xgGsKGE79T31McZTZupGJ4B0GyQbx/Q9SjUbdz8GZak7
+	JeKu5Gd7ENWRN44a1HRp860HrcFCV0eLozQEKP4+pF5l20PsV+KWZC8IPwDBXD/t0EC
+X-Google-Smtp-Source: AGHT+IHc48bOE4mbj5kjy7rloNcPZKRttjMIz1AYTYDIhp4T0eYckk24W3Xzad49E64rQcjy3ZL7bKjNeRhnShPB8dY=
+X-Received: by 2002:a2e:a781:0:b0:37f:8332:6ae0 with SMTP id
+ 38308e7fff4ca-382ff7080bemr23562301fa.33.1767891787023; Thu, 08 Jan 2026
+ 09:03:07 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+References: <20251211000115.43983-1-vmojzis@redhat.com> <CAP+JOzRMmK6D1fOTOy4B=vP6irA6dyrXBWVNUgr6GcaQW5xA+w@mail.gmail.com>
+In-Reply-To: <CAP+JOzRMmK6D1fOTOy4B=vP6irA6dyrXBWVNUgr6GcaQW5xA+w@mail.gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Thu, 8 Jan 2026 12:02:56 -0500
+X-Gm-Features: AQt7F2o3YgE1gc7epoNWm3P4FluQNNv2FNUFFCgNZpsvtD9FDsbIc1aDrfIZE0c
+Message-ID: <CAP+JOzQGQ0KD63xx1ytzR7xFcK2HNB8wi7nQ8Mh17vaJXinMJA@mail.gmail.com>
+Subject: Re: [PATCH] python/sepolicy: Add support for DNF5
+To: Vit Mojzis <vmojzis@redhat.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-Paul Moore <paul@paul-moore.com> writes:
-
-> On Wed, Jan 7, 2026 at 7:08=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.c=
-om> wrote:
->> Paul Moore <paul@paul-moore.com> writes:
->> > On Mon, Jan 5, 2026 at 12:46=E2=80=AFPM Petr Lautrbach <lautrbach@redh=
-at.com> wrote:
->> >>
->> >> The key is available at:
->> >> https://github.com/bachradsusi.gpg
->> >> https://plautrba.fedorapeople.org/lautrbach@redhat.com.gpg
->> >>
->> >> Also update the email address
->> >>
->> >> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
->> >> ---
->> >>  SECURITY.md | 3 ++-
->> >>  1 file changed, 2 insertions(+), 1 deletion(-)
->> >>
->> >> diff --git a/SECURITY.md b/SECURITY.md
->> >> index 2a7ce5b317a7..faa060ccff03 100644
->> >> --- a/SECURITY.md
->> >> +++ b/SECURITY.md
->> >> @@ -24,7 +24,8 @@ list is below. We typically request at most a 90 da=
-y time period to address
->> >>  the issue before it is made public, but we will make every effort to=
- address
->> >>  the issue as quickly as possible and shorten the disclosure window.
->> >>
->> >> -* Petr Lautrbach, plautrba@redhat.com
->> >> +* Petr Lautrbach, lautrbach@redhat.com
->> >> +  *  (GPG fingerprint) 68D2 1823 342A 1368 3AEB  3E4E FB4C 685B 5DC1=
- C13E
->> >
->> > I think you may want to list the fingerprint of your primary key and
->> > not a subkey, as the primary key is what carries the signatures and
->> > helps verify trust.
->> >
->>
->> I guess I need help then:
->>
->> $ gpg --show-keys --fingerprint lautrbach@redhat.com.gpg
+On Tue, Dec 16, 2025 at 12:18=E2=80=AFPM James Carter <jwcart2@gmail.com> w=
+rote:
 >
-> You want to use the key fingerprint which displays when you run 'gpg
-> --fingerprint <email>'.  Assuming you have the keys for the other devs
-> in your keyring, you'll notice that command can be used to reproduce
-> the other fingerprints in the file.
+> On Wed, Dec 10, 2025 at 7:01=E2=80=AFPM Vit Mojzis <vmojzis@redhat.com> w=
+rote:
+> >
+> > This allows policycoreutils-devel to drop the dependency on python3-dnf
+> > in favor of python3-libdnf5.
+> >
+> > Requires: (python3-libdnf5 if dnf5 else python3-dnf)
+> >
+> > Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 >
-> %  gpg --fingerprint plautrba@redhat.com
-> pub   rsa4096 2012-04-03 [SC]
->      E853 C184 8B01 85CF 4286  4DF3 63A8 AD4B 982C 4373
-> uid           [  full  ] Petr Lautrbach <plautrba@redhat.com>
-> sub   rsa4096 2012-04-03 [E]
-> sub   rsa4096 2017-12-05 [S]
-> sub   rsa4096 2017-12-05 [A]
-
-I've also changed my email contact address to lautrbach@redhat.com which I
-use for some time already:
-
-> From: Petr Lautrbach <lautrbach@redhat.com>
-
-> -* Petr Lautrbach, plautrba@redhat.com
-> +* Petr Lautrbach, lautrbach@redhat.com
-
-> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
-
-
-$ git log | grep lautrbach@redhat.com | wc -l
-175
-
-$ gpg --fingerprint lautrbach@redhat.com
-pub   rsa4096/FB4C685B5DC1C13E 2024-11-04 [SC] [expires: 2026-11-04]
-      Key fingerprint =3D 68D2 1823 342A 1368 3AEB  3E4E FB4C 685B 5DC1 C13E
-      Keygrip =3D 834230A0854D7A8698B5432C007560FE7AECC504
-uid                 [ultimate] Petr Lautrbach <lautrbach@redhat.com>
-sub   rsa4096/C500C028A770AB66 2024-11-04 [E] [expires: 2026-11-04]
-      Key fingerprint =3D 58E9 06B2 5680 15A7 91C8  D2EC C500 C028 A770 AB66
-      Keygrip =3D 2EF1D48B43E234CAAE155A0AD032C00063FCB102
-sub   rsa4096/CDCAE8C927C6BE31 2024-11-04 [S] [expires: 2026-11-04]
-      Key fingerprint =3D 7200 EB2C 3F5E 4884 63C0  CE9E CDCA E8C9 27C6 BE31
-      Keygrip =3D CAE3E6B80FFD15958C813CC635CFFDF9F86D9C17
-sub   rsa4096/37BCD711A64B2890 2024-11-04 [AR] [expires: 2026-11-04]
-      Key fingerprint =3D 832F CF4A 82B0 7F2A 51E4  3DDB 37BC D711 A64B 2890
-      Keygrip =3D 850707DAF56607DEABD28933FD0A77D382923F1C
-
-pub   rsa4096/BC3905F235179CF1 2022-10-26 [SC] [expired: 2024-10-25]
-      Key fingerprint =3D B868 2847 764D F60D F52D  992C BC39 05F2 3517 9CF1
-      Keygrip =3D FA0CE92171EEBAC2DD084E6399F18709A2F7353B
-uid                 [ expired] Petr Lautrbach <lautrbach@redhat.com>
-
-
-
-
-> %  gpg --fingerprint paul@paul-moore.com
-> pub   rsa4096 2011-10-10 [SC]
->      7100 AADF AE6E 6E94 0D2E  0AD6 55E4 5A5A E8CA 7C8A
-> uid           [ultimate] Paul Moore <paul@paul-moore.com>
-> uid           [ultimate] Paul Moore <pcmoore@umich.edu>
-> sub   rsa4096 2018-10-15 [E]
-> sub   rsa4096 2018-10-15 [S]
-> sub   rsa4096 2020-06-19 [A]
+> Acked-by: James Carter <jwcart2@gmail.com>
 >
->> >>  * Nicolas Iooss, nicolas.iooss@m4x.org
->> >>    *  (GPG fingerprint) E25E 254C 8EE4 D303 554B  F5AF EC70 1A1D A494=
- C5EB
->> >>  * Jeffrey Vander Stoep, jeffv@google.com
->> >> --
->> >> 2.52.0
->
-> --=20
-> paul-moore.com
 
+Merged.
+Thanks,
+Jim
+
+> > ---
+> >  python/sepolicy/sepolicy/generate.py | 57 ++++++++++++++++++++++++++++
+> >  1 file changed, 57 insertions(+)
+> >
+> > diff --git a/python/sepolicy/sepolicy/generate.py b/python/sepolicy/sep=
+olicy/generate.py
+> > index adf65f27..780a56b2 100644
+> > --- a/python/sepolicy/sepolicy/generate.py
+> > +++ b/python/sepolicy/sepolicy/generate.py
+> > @@ -1262,6 +1262,63 @@ allow %s_t %s_t:%s_socket name_%s;
+> >          return fcfile
+> >
+> >      def __extract_rpms(self):
+> > +        # Try dnf5 first, fall back to dnf4
+> > +        try:
+> > +            import libdnf5
+> > +            self.__extract_rpms_dnf5()
+> > +        except ImportError:
+> > +            try:
+> > +                import dnf
+> > +                self.__extract_rpms_dnf4()
+> > +            except ImportError:
+> > +                pass
+> > +
+> > +    def __extract_rpms_dnf5(self):
+> > +        import libdnf5
+> > +
+> > +        base =3D libdnf5.base.Base()
+> > +        base.load_config()
+> > +        base.setup()
+> > +
+> > +        repo_sack =3D base.get_repo_sack()
+> > +        repo_sack.create_repos_from_system_configuration()
+> > +
+> > +        repo_sack.load_repos()
+> > +
+> > +        query =3D libdnf5.rpm.PackageQuery(base)
+> > +        query.filter_file([self.program])
+> > +        query.filter_available()
+> > +
+> > +        for pkg in query:
+> > +            self.rpms.append(pkg.get_name())
+> > +            files =3D pkg.get_files()
+> > +            for fname in files:
+> > +                for b in self.DEFAULT_DIRS:
+> > +                    if b =3D=3D "/etc":
+> > +                        continue
+> > +                    if fname.startswith(b):
+> > +                        if os.path.isfile(fname):
+> > +                            self.add_file(fname)
+> > +                        else:
+> > +                            self.add_dir(fname)
+> > +
+> > +            # Query for source package
+> > +            src_query =3D libdnf5.rpm.PackageQuery(base)
+> > +            src_query.filter_provides([pkg.get_source_name()])
+> > +            src_query.filter_available()
+> > +            for bpkg in src_query:
+> > +                files =3D bpkg.get_files()
+> > +                for fname in files:
+> > +                    for b in self.DEFAULT_DIRS:
+> > +                        if b =3D=3D "/etc":
+> > +                            continue
+> > +                        if fname.startswith(b):
+> > +                            if os.path.isfile(fname):
+> > +                                self.add_file(fname)
+> > +                            else:
+> > +                                self.add_dir(fname)
+> > +
+> > +    def __extract_rpms_dnf4(self):
+> >          import dnf
+> >
+> >          with dnf.Base() as base:
+> > --
+> > 2.52.0
+> >
+> >
