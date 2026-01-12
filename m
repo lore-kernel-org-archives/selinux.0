@@ -1,169 +1,140 @@
-Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35D9D2EC0A2
-	for <selinux@vger.kernel.org>; Mon, 12 Jan 2026 18:49:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4035D241CB7
+	for <selinux@vger.kernel.org>; Mon, 12 Jan 2026 23:49:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768243787; cv=none; b=EKY3QGD/KILwXrJldPIseGqa6sicVqIhn90K+Ju5iirHWM4DGldRwR20K209F9A/B1ubOsWSuaxl9jHVioULQSdwLKNTND+P81wQL1nwlniS6F55hNjgwKxbdz9W9qFfW1clhNT+OoAQX4Hxr+h0Vw4NagdAAA/yU8mw29qUj8U=
+	t=1768261756; cv=none; b=Ale4eV94HQynNHucotF2FUpIFiG9S8hO8hoc0UTVFiipGQUEkUEePgwEn+ISAkkl/qpmfy+i6cvC65v9XffTB4zvMbhLYzCo7ES8wE3+9pi3NPfLjbOHREItz+1Y2LSwg+RQx57ozJ0Nt2GxAk/BtebVf01grVLlPk2M+hqDMLQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768243787; c=relaxed/simple;
-	bh=uiDJFuJBVltuANrR9vg9XY+jK1n0fUtc/XcfGcshQYM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=HrEi1GO27iTNHxb9FolC+jfIRWzXqRgvjt85IHvua7PqVleQqg67MtqKaXXst34LwIowaZkdFBwpPFoaVHHw08/03EbCxfUETmgRDzEXXuTxn0FhnZqdOgNEft4hmreJnWnUcubVCYSULMo17Pail6X0BY7Iw7Eq2a+fv/9S+xU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G6132PfS; arc=none smtp.client-ip=209.85.222.173
+	s=arc-20240116; t=1768261756; c=relaxed/simple;
+	bh=7c2pDMQ/TSxfUFhLiMVWwWCTqlcAYrXWIZno8jMCdTk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=J/Nz4TfARFiEDE5mkgWlIIL3Y63mqO1RExIvgAQG3tDEdseXPWYcNP91F/KfyNFOmMgeKQUQuhMnmrtzlsJaNkDCj+Z0c20A/5uaZf9AcXiMtYOyjEx54cfCOdiHrPlTvGAt6YbSwHaHVkCAkztBCwAbR95DDEbKWTH1IXLSOQU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=djPgZLwl; arc=none smtp.client-ip=209.85.128.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G6132PfS"
-Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-8b2f0f9e4cbso454397185a.0
-        for <selinux@vger.kernel.org>; Mon, 12 Jan 2026 10:49:45 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="djPgZLwl"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-47d3ffa5f33so31367125e9.2
+        for <selinux@vger.kernel.org>; Mon, 12 Jan 2026 15:49:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768243785; x=1768848585; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1768261753; x=1768866553; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=xTEFr32Kb9qcBoO29kL0sNFUN3F6hfFHR7ssfT1hFic=;
-        b=G6132PfSs+RD2VIov3L+v1eNTDI093xyqTxzBtihb5NSMRmnZHt5C2QjH8Eh6Lu6tb
-         3TgPakzYxmSDaudUPh1GN5dtj1wZtcxZmcSmI86D+ZsEgBWTmEQNrJ9P0wTRiFJLSKVr
-         yp15/LKT2s67VHOThmDyXTNkJD8x7WefouWQY226CXtjf2W7ULZ4z3Zf8qHjT/fS5BtS
-         es8HxthMIhuXeSN1M9QPAZ7H3cl/+Wa4hkbINzNw6c357ui6CY+o2n6ddvUTp6lIIwdU
-         +7w72QEsG7kEVv2TQLwOifm80/6uvVUygnd/lSgM8p/sDocJXc6v6r1S9zawKBoNCjP2
-         crNw==
+        bh=cGKRULbs+5kTxneb03QIEfEZLJKmrhq54TFWVH2N8G0=;
+        b=djPgZLwlnl3bZHwqc0GzwinJB1xObHsLc/bMvaDrudi447Z+Kz2/Oo/4O5ucZrGQAS
+         kJkRO/V/q7NccEYXtugcTOeyTs2e3LodYD9DJFRTEXjsCi7feSil3H5zakXsBdree/dE
+         j/Q9CCZb6fQ6MHMYgDtCedQCx0MTWU8TY19tOUNZXoFTw6LeOOsyLWKNzfiQ7lCJ6aMz
+         wl/4sut0mjeYTAAyzUMYBT4Zri5GkbGHLbzqlH4bcdcP6d721J67JTNEIAOYnmRLSgE4
+         OK2IYDgeCuwlvYoh+Wl/i1kJp3jlLMMp6AICaAN8XHn5bgWEerPAi+Bpb6yNkw3krez/
+         OKYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768243785; x=1768848585;
+        d=1e100.net; s=20230601; t=1768261753; x=1768866553;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=xTEFr32Kb9qcBoO29kL0sNFUN3F6hfFHR7ssfT1hFic=;
-        b=EoxhMr0kTzgKKgGQLF4OkUsoor5ziFwEs/FUd5mhe5CJ2Fyvd37RtN2oJMdspvrWze
-         c7RAe7nXxKgUAYQaTlZcKjdrzMCNA0TOdhPX6jn+B4jQlOiOSGUCJ2KvexK0wSsIuK6H
-         re5eFyXZcQs5k9xeVFlYQwCCeNn6vtOAWs13daJk5SOujx201vtDR1BxflPuGH7Kw6O9
-         tnALkNbf04nliEd0El1wOg/xyaJ3TReLg1eSQF2/gBU3hxIobP0MemdLxM+laAMypK6E
-         bfdN+BibiVu9s8M6lFjx49USEtl0cWYcrz8eACbK++fqNUOZFxvOm5BE4HOY4MD5hqOH
-         vlVw==
-X-Gm-Message-State: AOJu0Yw3TmtYHEa7mUepDPXFkK+hVVeP1+rcNYb4A0WA4aOaB2VlUZ1K
-	J0F4/ZLTwetsQdlF5ZNmvYcyItDje/Po/asw8qKQx96SSBLdtJZUQqfou0RP7g==
-X-Gm-Gg: AY/fxX7FBt+Fxsn4z5ZayDJkvHH86gIJnjlk4YJkzVsB72YCTB2yWTqpPLEoKwDpfXz
-	Zn6/ojjb1Yx338gmSp9lM+FNWgGD9SThucPSFze2Z4LWbukkth/pY+ml/xDMLJ4VypJeCMnltuy
-	xIyfha1LPdDH5ingB6YG9l9Q6BusWu8t/O9mJhTEu3RMSMC6QSUhxYEkFpQ0YMxZv6WrPZoKmaw
-	Sbs9L5LhUWsA7+doApGiKy8sIWvttkrg8rfMgq2Q3xg97Ca+cHVRyjHdxwkJ9Fb+sYT9ySvKQCY
-	b9OdxybbzDuMCjegLVJ3Li9nmHIe4Qn72YheUq60+CS/IjPm3VjBSMHgVfWkD9twdckTAkl8eXr
-	8KkIdqG1tUtnY5ssg5RRYQN3+GptMOEG/qEBAaWhxbJyZ+7etGnTG4ieSO9cKrg3wwAihxheLkB
-	FdVicdAGQpHhCtEN2W433xT4ZBkup6RA==
-X-Google-Smtp-Source: AGHT+IGdb0fj3EMUfYqyCXeeRIFWbOzhBlmqt4/EITv+/aqBFTadDmnagMG+2xZOBR2vOxKpxc2vYw==
-X-Received: by 2002:a05:620a:2942:b0:8b2:9b48:605b with SMTP id af79cd13be357-8c52083f73emr60785285a.6.1768243785034;
-        Mon, 12 Jan 2026 10:49:45 -0800 (PST)
-Received: from fedora ([144.51.8.27])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8c37f51bf8csm1546077785a.28.2026.01.12.10.49.44
+        bh=cGKRULbs+5kTxneb03QIEfEZLJKmrhq54TFWVH2N8G0=;
+        b=lCvcsIbw/79dfhft2KbzI3BDzL9i9KkYaMiPploWkVh1SjlKsnoE7ydY5Xx8iwXRuz
+         3y/NKfPqYzoYsQiVyEROT8NJOqsMQlNU0UkVc2gzsmHqHE/9VOidBZWJqOHbyPPTQlGZ
+         S+yMNCRz8/43rs60790H+GHtLcodRRWknHAb1yt3+IvOZiNrgM/Y0wuE3QOsHmvRrn0r
+         ZFaSdtXeJnRz6sGay+akKpbwCG7ByGXckrhilJ3FyKnAzpi+r/AB5ascJVyj5GR8Imhy
+         H3ZmdKKctrJZivQvNqzFW3G8pFOIzrBZrkU3e985wG+hkzq2f+BjGK9WMZaM5meZad5x
+         PIvQ==
+X-Gm-Message-State: AOJu0YxvAi2iQExaNvTvBXEPGM4A8CqDUmNOIRQ9XlwOp8fNgIASXl+o
+	OBNegjmRStuaPoqjKO2iI7VF/k/pLu8JvTS641x7MMTRgFZr0wID8f7gPyMR0w==
+X-Gm-Gg: AY/fxX7/7Xb+4qK+WK8unBnb4K/dhPO/XAgkvbtaE7CzwKKlsKhjN1BENdWKsiwrfpw
+	phtsO7ryPS1X+Kt46PSWX/kucLgCY8tlJ3Kxq82OHsjLQTJ/E9M0ly5apySBFHHU10z9Ub9RYhp
+	vbmXf+sSH71737vjo4Xxuc3q+qTGi9oJNt6AfjnuX6K5Ax2oP2TwrHkKNufFK/TUDafdH3ADlwl
+	V11KJbH+1yohnLYMuN35JD/Z4syV+U5hoXeT1VsTyAabpLMtkzbvdSQaHD6iqn3IDvQjpOY41Ve
+	nIK6ps3+V0hewzwWCZFLO1618YIwXekUb2JlLnxMY20abV+XNLUlGPDMdbS56vLLp0h5orWdq4H
+	vWxHxMIjTypim87ajkH0YOwjkz1gkuhE99LR72eduv6UTaU6tGw/z3tQXltPCY4Rhdz1Nv4A=
+X-Google-Smtp-Source: AGHT+IEaIBDHNe/F2lEQbkhPmaYIJVTv31LRhF9/JnUd4ajjRDvC1hARc0nkmYTpNLI1gu/IYrJ9uA==
+X-Received: by 2002:a05:600c:45c7:b0:477:994b:dbb8 with SMTP id 5b1f17b1804b1-47d84b2cf22mr229578495e9.11.1768261753337;
+        Mon, 12 Jan 2026 15:49:13 -0800 (PST)
+Received: from graphite ([2a0a:ef40:90a:9600:de8b:28ff:fe7c:941c])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d7f68f686sm374029365e9.3.2026.01.12.15.49.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Jan 2026 10:49:44 -0800 (PST)
-From: James Carter <jwcart2@gmail.com>
+        Mon, 12 Jan 2026 15:49:12 -0800 (PST)
+From: Rahul Sandhu <nvraxn@gmail.com>
 To: selinux@vger.kernel.org
-Cc: James Carter <jwcart2@gmail.com>
-Subject: [PATCH] libsepol: Fix possible use-after-free when expanding attributes
-Date: Mon, 12 Jan 2026 13:49:28 -0500
-Message-ID: <20260112184928.58593-1-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.50.0
+Cc: Rahul Sandhu <nvraxn@gmail.com>
+Subject: [PATCH] libsepol: policydb_read(): use a static string for policydb_str
+Date: Mon, 12 Jan 2026 23:48:40 +0000
+Message-ID: <20260112234839.13732-2-nvraxn@gmail.com>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2195; i=nvraxn@gmail.com; h=from:subject; bh=7c2pDMQ/TSxfUFhLiMVWwWCTqlcAYrXWIZno8jMCdTk=; b=owGbwMvMwCmc0Xus8aefgg/jabUkhszUjvDCCKZHWmr6O7Q2PqssPXMl5Dqn8f4/FpN7vXxK3 u4S+6HSsZGFQZiTwVJMkWX/PrYbJU/n/j765HUHzBxWJpAh0iINDEDAwsCXm5hXaqRjpGeqbahn aKgDZDJwcQrAVDu3M9YHHJXrmxbjJPDuafyy+x8ULO6WmMk73oqJXVEXNmXW810m8Wxqsu6J+tO 6MoOUspeqHmOsT737wOWExsPZWu+m9KQuW//4TmTB74z1Ey83u0zR3j8l0cfwkOiJbckal430zr FbmX7hAwA=
+X-Developer-Key: i=nvraxn@gmail.com; a=openpgp; fpr=BFBE06D874E59DFBC5E4EB88688DC681F94E204C
 Content-Transfer-Encoding: 8bit
 
-Both expand_attributes_in_attributes() and
-expand_role_attritbutes_in_attributes() have a potential use-after-
-free bug. The function ebitmap_set_bit(), when used to clear a bit
-will free an ebitmap node if no other bits are set on that node.
-This can result in a use-after-free in
-ebitmap_for_each_positive_bit() which keeps a pointer to the current
-node.
+We know the maximum possible size of policydb_str at compile time; it's
+POLICYDB_STRING_MAX_LENGTH + 1 (with + 1 accounting for the null term).
+As POLICYDB_STRING_MAX_LENGTH is trivially small, make it a static str,
+avoiding an extra allocation.
 
-Instead, use a temporary ebitmap and update the types or roles after
-the loop is done. Also move the check for a loop earlier to avoid
-uneccessary work.
-
-Reported-by: oss-fuzz (issue 474561491)
-Signed-off-by: James Carter <jwcart2@gmail.com>
+Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
 ---
- libsepol/src/expand.c | 37 +++++++++++++++++++++----------------
- 1 file changed, 21 insertions(+), 16 deletions(-)
+ libsepol/src/policydb.c | 15 +--------------
+ 1 file changed, 1 insertion(+), 14 deletions(-)
 
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 6e0c038e..ed912b57 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -245,19 +245,22 @@ static int expand_attributes_in_attributes(sepol_handle_t *handle, policydb_t *p
- 				done = 0;
- 				ebitmap_init(&types);
- 				ebitmap_for_each_positive_bit(&td->types, nj, j) {
-+					if (i == j) {
-+						ERR(handle, "Found loop in type attributes involving: %s", p->p_type_val_to_name[i]);
-+						ebitmap_destroy(&attrs);
-+						ebitmap_destroy(&types);
-+						return -1;
-+					}
- 					if (ebitmap_get_bit(&attrs, j)) {
- 						ad = p->type_val_to_struct[j];
- 						ebitmap_union(&types, &ad->types);
--						ebitmap_set_bit(&td->types, j, 0);
-+					} else {
-+						ebitmap_set_bit(&types, j, 1);
- 					}
- 				}
--				ebitmap_union(&td->types, &types);
-+				ebitmap_destroy(&td->types);
-+				ebitmap_cpy(&td->types, &types);
- 				ebitmap_destroy(&types);
--				if (ebitmap_get_bit(&td->types, i)) {
--					ERR(handle, "Found loop in type attributes involving: %s", p->p_type_val_to_name[i]);
--					ebitmap_destroy(&attrs);
--					return -1;
--				}
- 			}
- 		}
- 	}
-@@ -925,9 +928,8 @@ static int expand_role_attributes_in_attributes(sepol_handle_t *handle, policydb
- 	ebitmap_init(&attrs);
- 	for (i=0; i < p->p_roles.nprim; i++) {
- 		rd = p->role_val_to_struct[i];
--		if (rd && rd->flavor == ROLE_ATTRIB) {
-+		if (rd && rd->flavor == ROLE_ATTRIB)
- 			ebitmap_set_bit(&attrs, i, 1);
--		}
+diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+index 6aaa18f2..2b0e32f7 100644
+--- a/libsepol/src/policydb.c
++++ b/libsepol/src/policydb.c
+@@ -4192,7 +4192,7 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+ 	unsigned int i, j, r_policyvers;
+ 	uint32_t buf[5], nprim;
+ 	size_t len, nel;
+-	char *policydb_str;
++	static char policydb_str[POLICYDB_STRING_MAX_LENGTH + 1];
+ 	const struct policydb_compat_info *info;
+ 	unsigned int policy_type, bufindex;
+ 	ebitmap_node_t *tnode;
+@@ -4222,16 +4222,9 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+ 		return POLICYDB_ERROR;
  	}
  
- 	while (!done && reps < p->p_roles.nprim) {
-@@ -939,19 +941,22 @@ static int expand_role_attributes_in_attributes(sepol_handle_t *handle, policydb
- 				done = 0;
- 				ebitmap_init(&roles);
- 				ebitmap_for_each_positive_bit(&rd->roles, nj, j) {
-+					if (i == j) {
-+						ERR(handle, "Found loop in role attributes involving: %s", p->p_role_val_to_name[i]);
-+						ebitmap_destroy(&attrs);
-+						ebitmap_destroy(&roles);
-+						return -1;
-+					}
- 					if (ebitmap_get_bit(&attrs, j)) {
- 						ad = p->role_val_to_struct[j];
- 						ebitmap_union(&roles, &ad->roles);
--						ebitmap_set_bit(&rd->roles, j, 0);
-+					} else {
-+						ebitmap_set_bit(&roles, j, 1);
- 					}
- 				}
--				ebitmap_union(&rd->roles, &roles);
-+				ebitmap_destroy(&rd->roles);
-+				ebitmap_cpy(&rd->roles, &roles);
- 				ebitmap_destroy(&roles);
--				if (ebitmap_get_bit(&rd->roles, i)) {
--					ERR(handle, "Found loop in role attributes involving: %s", p->p_role_val_to_name[i]);
--					ebitmap_destroy(&attrs);
--					return -1;
--				}
- 			}
+-	policydb_str = malloc(len + 1);
+-	if (!policydb_str) {
+-		ERR(fp->handle, "unable to allocate memory for policydb "
+-		    "string of length %zu", len);
+-		return POLICYDB_ERROR;
+-	}
+ 	rc = next_entry(policydb_str, fp, len);
+ 	if (rc < 0) {
+ 		ERR(fp->handle, "truncated policydb string identifier");
+-		free(policydb_str);
+ 		return POLICYDB_ERROR;
+ 	}
+ 	policydb_str[len] = 0;
+@@ -4248,22 +4241,16 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+ 		if (i == POLICYDB_TARGET_SZ) {
+ 			ERR(fp->handle, "cannot find a valid target for policy "
+ 				"string %s", policydb_str);
+-			free(policydb_str);
+ 			return POLICYDB_ERROR;
+ 		}
+ 	} else {
+ 		if (strcmp(policydb_str, POLICYDB_MOD_STRING)) {
+ 			ERR(fp->handle, "invalid string identifier %s",
+ 				policydb_str);
+-			free(policydb_str);
+ 			return POLICYDB_ERROR;
  		}
  	}
+ 
+-	/* Done with policydb_str. */
+-	free(policydb_str);
+-	policydb_str = NULL;
+-
+ 	/* Read the version, config, and table sizes (and policy type if it's a module). */
+ 	if (policy_type == POLICY_KERN)
+ 		nel = 4;
 -- 
-2.50.0
+2.52.0
 
