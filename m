@@ -1,169 +1,169 @@
-Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
+Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3446D30E84F
-	for <selinux@vger.kernel.org>; Mon, 12 Jan 2026 14:14:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35D9D2EC0A2
+	for <selinux@vger.kernel.org>; Mon, 12 Jan 2026 18:49:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768227252; cv=none; b=Tq9jqvf4H+HqlPPffSkHJIz6s9um3N+KG9/s1RqVI6QucqVeeiP9mcYUrGOK3vQ+s8y18KYigZtl/mc/68Vq/4oCOK68gN48FKs9EZAeTANoRLMhFnwtv9tNUqcJ2PHEU32iQY83wCQBTptEjh4b9s6v2cXGtAYS6E6oupoTIe4=
+	t=1768243787; cv=none; b=EKY3QGD/KILwXrJldPIseGqa6sicVqIhn90K+Ju5iirHWM4DGldRwR20K209F9A/B1ubOsWSuaxl9jHVioULQSdwLKNTND+P81wQL1nwlniS6F55hNjgwKxbdz9W9qFfW1clhNT+OoAQX4Hxr+h0Vw4NagdAAA/yU8mw29qUj8U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768227252; c=relaxed/simple;
-	bh=oJTgfyM5IvICDKoyTHBHFznK1mUCcZD3E0Y4evbifdQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=TROvZIroUG+OWLqtDWCYwqbU+VqZ6mzI74afXDubP24T3KTyt7TrqcahgQbwcJT8XwG+7B3T7h0SN0dI6TPWqg6dsVKn8U0ITX8GtFUIItIuTa+DRDk9G1UpF1SUqUYQObYr2OsN2NhLMlxVXniCYqaXA/8CghtfV1APA0oxToE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ewlcIeeA; arc=none smtp.client-ip=209.85.214.169
+	s=arc-20240116; t=1768243787; c=relaxed/simple;
+	bh=uiDJFuJBVltuANrR9vg9XY+jK1n0fUtc/XcfGcshQYM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=HrEi1GO27iTNHxb9FolC+jfIRWzXqRgvjt85IHvua7PqVleQqg67MtqKaXXst34LwIowaZkdFBwpPFoaVHHw08/03EbCxfUETmgRDzEXXuTxn0FhnZqdOgNEft4hmreJnWnUcubVCYSULMo17Pail6X0BY7Iw7Eq2a+fv/9S+xU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G6132PfS; arc=none smtp.client-ip=209.85.222.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ewlcIeeA"
-Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2a0c20ee83dso57676515ad.2
-        for <selinux@vger.kernel.org>; Mon, 12 Jan 2026 06:14:10 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G6132PfS"
+Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-8b2f0f9e4cbso454397185a.0
+        for <selinux@vger.kernel.org>; Mon, 12 Jan 2026 10:49:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768227250; x=1768832050; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=NQw4DWbt/5PgBJphqXvAFJPVOKJkjIHNKZbqArIqlns=;
-        b=ewlcIeeA/CrkTxMmDAvgWeuXm19lMLFpYusJQVcMPbQPlAGSspsK4yeh7JbaPNLWlC
-         8oGeNFA18DV9NFZI7TCBqMl0nIGbqKqA/o2vYHJ9y+sgWzVpG3gdCZipi6u4pim6VjcS
-         ZSdmlq6fElMjJ2Yo597BKiMGDdNHE6zojVofOhcVq0eJghkHEJkjLCxk5WrJcEb6uxkJ
-         z84PkTNN7XZ0P2JTz6u9yDItZ/p4Ig7MlX58KQGPgQMLsENaqRdO6IfHMwmwNMtPLMzE
-         j9FNHZKrBxLlWChOrtE/ukvHM0Gl+Zw0IpOjk7d21fI1tlhYrrBX/xZy+2xePzmkY9WJ
-         HQAg==
+        d=gmail.com; s=20230601; t=1768243785; x=1768848585; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=xTEFr32Kb9qcBoO29kL0sNFUN3F6hfFHR7ssfT1hFic=;
+        b=G6132PfSs+RD2VIov3L+v1eNTDI093xyqTxzBtihb5NSMRmnZHt5C2QjH8Eh6Lu6tb
+         3TgPakzYxmSDaudUPh1GN5dtj1wZtcxZmcSmI86D+ZsEgBWTmEQNrJ9P0wTRiFJLSKVr
+         yp15/LKT2s67VHOThmDyXTNkJD8x7WefouWQY226CXtjf2W7ULZ4z3Zf8qHjT/fS5BtS
+         es8HxthMIhuXeSN1M9QPAZ7H3cl/+Wa4hkbINzNw6c357ui6CY+o2n6ddvUTp6lIIwdU
+         +7w72QEsG7kEVv2TQLwOifm80/6uvVUygnd/lSgM8p/sDocJXc6v6r1S9zawKBoNCjP2
+         crNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768227250; x=1768832050;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=NQw4DWbt/5PgBJphqXvAFJPVOKJkjIHNKZbqArIqlns=;
-        b=oypFTPqWwQEBkf4b/+HNGmpXbKyZAXDYbFgJP6+zHktM3nPe1ill78drBCgqdXZycA
-         24AVhBpzeWL0P/alfHyAkZzZ+ILkNk7a/2/H1nBsCyJkcPHL9KMK6l5otX8VGtAKggFU
-         Azzr/uTFyAG5DUvriRnqsWN6EcNXugibVVsdm/2NRM0ebhkQkAxGrBTDkvEUXGkjxszr
-         vl2gb+y/hfYDqIQ/c3hBnHldrY6Umytwmcgaw+XYIYreJxsfy+rpxT7f1Er0wEfX+eIC
-         9sBz9Yfo7DvRld1rJtIVo3ZAWWcAhDEUxDX4WplX/keKrgikSG0MvWkZb5n25lLuxkvX
-         PIuA==
-X-Forwarded-Encrypted: i=1; AJvYcCUzKmLeMAJ5QhdzHOZiEGQvjUbspZXCdRSS2E2kUJOfQL1ot0azP/fiHkRCEhEJ3Bk5q1T6gyA2@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy1zdVjF1nf7s7TUBM2W0wERjh7hXCvRXhbQ3mb3Qh7O3zSvFaN
-	pjjokv2Acg+618ctdDk5nigyeqD6Q05amdA2hA/yl0ZMzijBuPqTxBab9D8Kbf2oDE6pMrdSXyG
-	o8wv3IQyjdYnMCKlLbmlHH31x6mUbaFA=
-X-Gm-Gg: AY/fxX4tizIxwjOf5bYXehoysqYuNVWn65SX3PN0vx4fvpTX3cI/asB/tOHzZPLlgEH
-	e5asNOIXt3cuGk6ca89Uxap//RTuTDpLK2+56m1COIcACI2T3qSes48zLX0m4+pk8QwzlMhbrTT
-	HBazMu7dE57QQrAX8sr48CI9ewvsXkcrP+yWAiEXwqBnMUfcRDolXZ6Gl3VLxlDlB4ReZZuZwca
-	HV31O49VVjUMAbr2vPMcUxNOS6JZwOflPo6xVe6bCpaxu2yfJJ2xanjNQ/fMzKScmrsNFDmAxwO
-	MNIq+g==
-X-Google-Smtp-Source: AGHT+IE+yrlLC31F4kyVtwW5QfjU5isp3twm5hIVbYMeJyPazA9h8VseQYiKOaunY/n/jZ+LOqFp31kLiIpOlhC5M5Y=
-X-Received: by 2002:a17:903:1905:b0:290:cd9c:1229 with SMTP id
- d9443c01a7336-2a3ee42b171mr181927875ad.19.1768227250296; Mon, 12 Jan 2026
- 06:14:10 -0800 (PST)
+        d=1e100.net; s=20230601; t=1768243785; x=1768848585;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=xTEFr32Kb9qcBoO29kL0sNFUN3F6hfFHR7ssfT1hFic=;
+        b=EoxhMr0kTzgKKgGQLF4OkUsoor5ziFwEs/FUd5mhe5CJ2Fyvd37RtN2oJMdspvrWze
+         c7RAe7nXxKgUAYQaTlZcKjdrzMCNA0TOdhPX6jn+B4jQlOiOSGUCJ2KvexK0wSsIuK6H
+         re5eFyXZcQs5k9xeVFlYQwCCeNn6vtOAWs13daJk5SOujx201vtDR1BxflPuGH7Kw6O9
+         tnALkNbf04nliEd0El1wOg/xyaJ3TReLg1eSQF2/gBU3hxIobP0MemdLxM+laAMypK6E
+         bfdN+BibiVu9s8M6lFjx49USEtl0cWYcrz8eACbK++fqNUOZFxvOm5BE4HOY4MD5hqOH
+         vlVw==
+X-Gm-Message-State: AOJu0Yw3TmtYHEa7mUepDPXFkK+hVVeP1+rcNYb4A0WA4aOaB2VlUZ1K
+	J0F4/ZLTwetsQdlF5ZNmvYcyItDje/Po/asw8qKQx96SSBLdtJZUQqfou0RP7g==
+X-Gm-Gg: AY/fxX7FBt+Fxsn4z5ZayDJkvHH86gIJnjlk4YJkzVsB72YCTB2yWTqpPLEoKwDpfXz
+	Zn6/ojjb1Yx338gmSp9lM+FNWgGD9SThucPSFze2Z4LWbukkth/pY+ml/xDMLJ4VypJeCMnltuy
+	xIyfha1LPdDH5ingB6YG9l9Q6BusWu8t/O9mJhTEu3RMSMC6QSUhxYEkFpQ0YMxZv6WrPZoKmaw
+	Sbs9L5LhUWsA7+doApGiKy8sIWvttkrg8rfMgq2Q3xg97Ca+cHVRyjHdxwkJ9Fb+sYT9ySvKQCY
+	b9OdxybbzDuMCjegLVJ3Li9nmHIe4Qn72YheUq60+CS/IjPm3VjBSMHgVfWkD9twdckTAkl8eXr
+	8KkIdqG1tUtnY5ssg5RRYQN3+GptMOEG/qEBAaWhxbJyZ+7etGnTG4ieSO9cKrg3wwAihxheLkB
+	FdVicdAGQpHhCtEN2W433xT4ZBkup6RA==
+X-Google-Smtp-Source: AGHT+IGdb0fj3EMUfYqyCXeeRIFWbOzhBlmqt4/EITv+/aqBFTadDmnagMG+2xZOBR2vOxKpxc2vYw==
+X-Received: by 2002:a05:620a:2942:b0:8b2:9b48:605b with SMTP id af79cd13be357-8c52083f73emr60785285a.6.1768243785034;
+        Mon, 12 Jan 2026 10:49:45 -0800 (PST)
+Received: from fedora ([144.51.8.27])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8c37f51bf8csm1546077785a.28.2026.01.12.10.49.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Jan 2026 10:49:44 -0800 (PST)
+From: James Carter <jwcart2@gmail.com>
+To: selinux@vger.kernel.org
+Cc: James Carter <jwcart2@gmail.com>
+Subject: [PATCH] libsepol: Fix possible use-after-free when expanding attributes
+Date: Mon, 12 Jan 2026 13:49:28 -0500
+Message-ID: <20260112184928.58593-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.50.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251205024259.704-1-ericsu@linux.microsoft.com>
- <caeaa280-ffa3-415f-bf39-340f66ee45fa@linux.microsoft.com>
- <CAKrb_fG=OdXSydv0GV8XmtXv2ptfNN=U0ebht_3CTu+oe-wskA@mail.gmail.com> <CAHC9VhRcZb5KKT9yqrqw4odFWgiXgv_-U+KoR=qrtepE5zt-bQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhRcZb5KKT9yqrqw4odFWgiXgv_-U+KoR=qrtepE5zt-bQ@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 12 Jan 2026 09:13:59 -0500
-X-Gm-Features: AZwV_QjUVB-pt97l-4pLsJ5zDIrdq7on18ax3ZtKC_EQW38ASUqVjVBIFNQWYrA
-Message-ID: <CAEjxPJ5oCPUAaSxoCi9DQGBrPMfXBF-qNvzpxA-+7ZRuSgHdhA@mail.gmail.com>
-Subject: Re: [PATCH v7] SELinux: Add support for BPF token access control
-To: Paul Moore <paul@paul-moore.com>
-Cc: Daniel Durning <danieldurning.work@gmail.com>, Eric Suen <ericsu@linux.microsoft.com>, 
-	selinux@vger.kernel.org, omosnace@redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Fri, Jan 9, 2026 at 10:34=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
->
-> On Wed, Dec 10, 2025 at 12:37=E2=80=AFPM Daniel Durning
-> <danieldurning.work@gmail.com> wrote:
-> > On Thu, Dec 4, 2025 at 10:12=E2=80=AFPM Eric Suen <ericsu@linux.microso=
-ft.com> wrote:
-> > > On 12/4/2025 6:42 PM, Eric Suen wrote:
-> > >
-> > > I need to mention that this patch is based on v6.17. Ran into few
-> > > Hyper-V VM/testing issues with the latest kernel (v6.18) that I have =
-not
-> > > yet been able to resolve. I believe the issues are related to HYPERV
-> > > configs, but troubleshooting will take some time. In the meantime, I
-> > > would like to get this patch reviewed early.
-> > > > BPF token support was introduced to allow a privileged process to d=
-elegate
-> > > > limited BPF functionality=E2=80=94such as map creation and program =
-loading=E2=80=94to
-> > > > an unprivileged process:
-> > > >    https://lore.kernel.org/linux-security-module/20231130185229.268=
-8956-1-andrii@kernel.org/
-> > > >
-> > > > This patch adds SELinux support for controlling BPF token access. W=
-ith
-> > > > this change, SELinux policies can now enforce constraints on BPF to=
-ken
-> > > > usage based on both the delegating (privileged) process and the rec=
-ipient
-> > > > (unprivileged) process.
-> > > >
-> > > > Supported operations currently include:
-> > > >    - map_create
-> > > >    - prog_load
-> > > >
-> > > > High-level workflow:
-> > > >    1. An unprivileged process creates a VFS context via `fsopen()` =
-and
-> > > >       obtains a file descriptor.
-> > > >    2. This descriptor is passed to a privileged process, which conf=
-igures
-> > > >       BPF token delegation options and mounts a BPF filesystem.
-> > > >    3. SELinux records the `creator_sid` of the privileged process d=
-uring
-> > > >       mount setup.
-> > > >    4. The unprivileged process then uses this BPF fs mount to creat=
-e a
-> > > >       token and attach it to subsequent BPF syscalls.
-> > > >    5. During verification of `map_create` and `prog_load`, SELinux =
-uses
-> > > >       `creator_sid` and the current SID to check policy permissions=
- via:
-> > > >         avc_has_perm(creator_sid, current_sid, SECCLASS_BPF,
-> > > >                      BPF__MAP_CREATE, NULL);
-> > > >
-> > > > The implementation introduces two new permissions:
-> > > >    - map_create_as
-> > > >    - prog_load_as
-> > > >
-> > > > At token creation time, SELinux verifies that the current process h=
-as the
-> > > > appropriate `*_as` permission (depending on the `allowed_cmds` valu=
-e in
-> > > > the bpf_token) to act on behalf of the `creator_sid`.
-> > > >
-> > > > Example SELinux policy:
-> > > >    allow test_bpf_t self:bpf {
-> > > >        map_create map_read map_write prog_load prog_run
-> > > >        map_create_as prog_load_as
-> > > >    };
-> > > >
-> > > > Additionally, a new policy capability bpf_token_perms is added to e=
-nsure
-> > > > backward compatibility. If disabled, previous behavior ((checks bas=
-ed on
-> > > > current process SID)) is preserved.
-> > > >
-> > > > Signed-off-by: Eric Suen <ericsu@linux.microsoft.com>
-> >
-> > Tested-by: Daniel Durning <danieldurning.work@gmail.com>
-> > Reviewed-by: Daniel Durning <danieldurning.work@gmail.com>
->
-> Thanks Eric and Daniel!  The v7 revision looks pretty good to me, does
-> anyone have any other issues or concerns with this patch?
+Both expand_attributes_in_attributes() and
+expand_role_attritbutes_in_attributes() have a potential use-after-
+free bug. The function ebitmap_set_bit(), when used to clear a bit
+will free an ebitmap node if no other bits are set on that node.
+This can result in a use-after-free in
+ebitmap_for_each_positive_bit() which keeps a pointer to the current
+node.
 
-No concerns but was waiting for a version based on something newer than 6.1=
-7.
+Instead, use a temporary ebitmap and update the types or roles after
+the loop is done. Also move the check for a loop earlier to avoid
+uneccessary work.
 
->
-> --
-> paul-moore.com
+Reported-by: oss-fuzz (issue 474561491)
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libsepol/src/expand.c | 37 +++++++++++++++++++++----------------
+ 1 file changed, 21 insertions(+), 16 deletions(-)
+
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index 6e0c038e..ed912b57 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -245,19 +245,22 @@ static int expand_attributes_in_attributes(sepol_handle_t *handle, policydb_t *p
+ 				done = 0;
+ 				ebitmap_init(&types);
+ 				ebitmap_for_each_positive_bit(&td->types, nj, j) {
++					if (i == j) {
++						ERR(handle, "Found loop in type attributes involving: %s", p->p_type_val_to_name[i]);
++						ebitmap_destroy(&attrs);
++						ebitmap_destroy(&types);
++						return -1;
++					}
+ 					if (ebitmap_get_bit(&attrs, j)) {
+ 						ad = p->type_val_to_struct[j];
+ 						ebitmap_union(&types, &ad->types);
+-						ebitmap_set_bit(&td->types, j, 0);
++					} else {
++						ebitmap_set_bit(&types, j, 1);
+ 					}
+ 				}
+-				ebitmap_union(&td->types, &types);
++				ebitmap_destroy(&td->types);
++				ebitmap_cpy(&td->types, &types);
+ 				ebitmap_destroy(&types);
+-				if (ebitmap_get_bit(&td->types, i)) {
+-					ERR(handle, "Found loop in type attributes involving: %s", p->p_type_val_to_name[i]);
+-					ebitmap_destroy(&attrs);
+-					return -1;
+-				}
+ 			}
+ 		}
+ 	}
+@@ -925,9 +928,8 @@ static int expand_role_attributes_in_attributes(sepol_handle_t *handle, policydb
+ 	ebitmap_init(&attrs);
+ 	for (i=0; i < p->p_roles.nprim; i++) {
+ 		rd = p->role_val_to_struct[i];
+-		if (rd && rd->flavor == ROLE_ATTRIB) {
++		if (rd && rd->flavor == ROLE_ATTRIB)
+ 			ebitmap_set_bit(&attrs, i, 1);
+-		}
+ 	}
+ 
+ 	while (!done && reps < p->p_roles.nprim) {
+@@ -939,19 +941,22 @@ static int expand_role_attributes_in_attributes(sepol_handle_t *handle, policydb
+ 				done = 0;
+ 				ebitmap_init(&roles);
+ 				ebitmap_for_each_positive_bit(&rd->roles, nj, j) {
++					if (i == j) {
++						ERR(handle, "Found loop in role attributes involving: %s", p->p_role_val_to_name[i]);
++						ebitmap_destroy(&attrs);
++						ebitmap_destroy(&roles);
++						return -1;
++					}
+ 					if (ebitmap_get_bit(&attrs, j)) {
+ 						ad = p->role_val_to_struct[j];
+ 						ebitmap_union(&roles, &ad->roles);
+-						ebitmap_set_bit(&rd->roles, j, 0);
++					} else {
++						ebitmap_set_bit(&roles, j, 1);
+ 					}
+ 				}
+-				ebitmap_union(&rd->roles, &roles);
++				ebitmap_destroy(&rd->roles);
++				ebitmap_cpy(&rd->roles, &roles);
+ 				ebitmap_destroy(&roles);
+-				if (ebitmap_get_bit(&rd->roles, i)) {
+-					ERR(handle, "Found loop in role attributes involving: %s", p->p_role_val_to_name[i]);
+-					ebitmap_destroy(&attrs);
+-					return -1;
+-				}
+ 			}
+ 		}
+ 	}
+-- 
+2.50.0
+
