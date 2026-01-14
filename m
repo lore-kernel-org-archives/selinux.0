@@ -1,67 +1,67 @@
-Received: from mail-qt1-f177.google.com (mail-qt1-f177.google.com [209.85.160.177])
+Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB0D134DB4B
-	for <selinux@vger.kernel.org>; Wed, 14 Jan 2026 21:23:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E68A8221DB1
+	for <selinux@vger.kernel.org>; Wed, 14 Jan 2026 21:27:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768425800; cv=none; b=CLgqApy6R2rSPCf3N3cEA9m5sCtTNsYQvj+BAeUeOTzvCbu9IcKsSulZoAKM9y+EClyzqNKST52Sdt01Lg7RPLJ3pbFyKECGpmuyXoboR2APXk9hm0yIbJPjXvBUvvsEyO3UYnmjZEDPnk1/3Gxk7qgDAwCy2OGkeVXvz4FZOBs=
+	t=1768426041; cv=none; b=EGExS02gRKXXRrC5WNkcB0vI6u+iTZYaI2kNXKBa1CBBxN83Y9/RknRSkYj60xO95uxk7c2GishTd9OUfcmY3ydq866uOqGhILfG6+sDp0WZ1SntwZtX952DkTX3C2Wf9lNznfyIfm2dF7wgCHSv5IrNc4lBbzFEEO6+4sQqxIg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768425800; c=relaxed/simple;
-	bh=duBx2NZVWh9sUQEGfb5Nx5/6gm4+jvLNkjVZbCfw9cE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=dWDHg5tV8V0ET0GUR8QP1evuROSHZrm7hCIZry7P2HlBuu2eWNoLh4/EHSmC4f7XeWWIcu8TBYsYdJuySgFWAwu6TDctBZ8IsKz3hu2RjYZZziUD3OAROelnHT4J/AstNjk7MgwKF+hEDgh34Ph4oId3meUy4oM8g6/dLcIOLHs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=ShVbUhR1; arc=none smtp.client-ip=209.85.160.177
+	s=arc-20240116; t=1768426041; c=relaxed/simple;
+	bh=1mMtdGRJ3t53cn+j8/XyNg/pXLPNEbbCdSXEvie6G9s=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=JNnELf3nhoDuJi1Hrvmf8g1+BWIlMoLP+H3f8Ezgo+Qtu0XEka2Mezy+EeRPo05BYRaz0TFTZZHKItSncXSCZwKmL9a6tnu1vyo9MRtgoRJoIeJvMAj0hmCnWKudiefIro0gV94a7dYWN2HYHnmR0aejKitSizjg2v6rvh6fGAQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=bhrWlcW3; arc=none smtp.client-ip=209.85.222.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="ShVbUhR1"
-Received: by mail-qt1-f177.google.com with SMTP id d75a77b69052e-5014b671367so2850621cf.3
-        for <selinux@vger.kernel.org>; Wed, 14 Jan 2026 13:23:18 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="bhrWlcW3"
+Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-8c07bc2ad13so18116085a.2
+        for <selinux@vger.kernel.org>; Wed, 14 Jan 2026 13:27:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1768425797; x=1769030597; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=FVCy4V3r2esjNV9WokGzxmBAWCZzobtziEycva4YEOw=;
-        b=ShVbUhR1Hi3tQMM1hyqtkWufAgwUZrNBm532Jkmjcm4UBXCygiJ0AM1M0mhfhAvHdM
-         hRclhKBsVM325iGP98RnybL8rBY47QIu/n3WEEZbckmbwYDlNYaHXDj/xzg98Q7+4vwZ
-         kSen3BpXzYCIyCBuHpl3IuKoMQJDrnpSnZz/fkbm9DJs8X2riwV/PrEDTHVPchL+OiMc
-         A+YzxarEB6Blv07C8XjJmodXgA1iPlOPfoKJn6Q4JI4DYq+ZpMPEfFANne85VnRmHUaP
-         NjZcLftqLZSAZLnYjK0zPvx12UjCSAi5oVpAg2hFajvVazAVqmFOT3Pzazx8hJcgwCAJ
-         hlNQ==
+        d=paul-moore.com; s=google; t=1768426038; x=1769030838; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=kDYfaqYaSpy5RcP9ByWgz8r6jpXpwIWbrHPc9eTMQFM=;
+        b=bhrWlcW3EpYGixCTcL4qqjSHfGoq4DTWJigU6Ctz7kUFuE5ddXq7ON0YQvOmmcsJyL
+         MFe1Xt9nY1+uik4cmUU5blfCaegIoPTz60aUf2/pTZmksvD1NwTL9nxDdJtNzXBSdvP6
+         oiPDNA4F27yq0RQSiyV9ncC4yuuhYu2qKYRcMvG+GnSriXGWi+bJ6U0ICAXNxJaypxHL
+         g+7nFXJ81lUq99Xm+T5jpMx9+BesU/kB2a//qKbI/Y/NQ9WtiophVwYdYg+Oc6mVd08v
+         RzBF7tXiSEhfL1FaB283F/Rg3KETLifFBl3diQoAmDJn0zGtBfxKfTXTixMe2mYJrAQp
+         DP5A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768425797; x=1769030597;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=FVCy4V3r2esjNV9WokGzxmBAWCZzobtziEycva4YEOw=;
-        b=lWWeuOLmMlepmjL/W1DNiqtL2pJ6fmWKQSOo/hzFnqMCcmMjcktweklDxIjIcSF6q8
-         4pY7+ov5CFYhIxB1FoD5xliLs1k+8Gux9EnJMcHA1VsncXBaIKeI18UzEp8LmnfyLQOv
-         qUvTJBysc8q2f36LdZB3TgJveonApDyegZTArprndaLkGL0F4t2N0zA/IHXv7v6hzNqt
-         uSQ/hBAyQZ9dXRnegNb/B0NZg6khMJmuJ3gl2Em9+HiwpfoKVm61J1r2sJ7Z3tCF+8Xq
-         ZUWoR0INhsYXSwquZZ54fyApr513YF7jLoT0gyWoXV/rJY+9pb/i8BHFbdUk1MuimqlV
-         v9/A==
-X-Gm-Message-State: AOJu0YymvYA1P0upJlsSGLi5brlBMSJm1qiZbDJaqX0Wsjonb5ifIxJp
-	icQuMo89urQnaoXTnyIMXrqsOF96BbQ+r6c0ZmcrXbZdcczUrzVUaoOMU+a7vvUr4NY4yvxRtkt
-	PcxY=
-X-Gm-Gg: AY/fxX62h5O6ogo6765YsxY1H6t9EJdn5qfYajT8iElXoWBwZN0Mz+GTqfJ6KcGvUKl
-	FHsGK9fbqtpGQChaZ3OawsfNagmIu2QUsYhl3/RbOnU4pPzpRFFPQd/7ZBbKJ/+Xi5b8qc1dOf3
-	GT8IlpOr3iuSCPTpW/5rCd1c27FtnIz6JgU3Mpa95H7O3XbwOd+B4tSVbHxV5c5Bm3AA4mfNswu
-	ovSR3byOXesCRsyffqsAsyz7fgjNyshf4q4FUngwQHcb6IQf9ZC0la4rtpaTKTMs91RWXV0I3hP
-	8NoARU/psfIJwXOEwfYV+Rf46C77Z2PpmX7Vv5NDPqwOfAXYuMYN6GcPnoZmMjI2Lc0yH43cf0I
-	XzG9u/iWUAtmZb7twCVqhXGRQmnqN5l7TB7hrHbJvaF63cxbOx6xHhBYmZHemGYIv+YVLraCIys
-	QBT7OxOVJ4RuWIi04/VuX131T+F68LlaYhPVn7HJ3dbEHZLftibztkgmfHIurIk8VAhaQ=
-X-Received: by 2002:a05:622a:6a4b:b0:501:4446:2ce with SMTP id d75a77b69052e-5014827841bmr41992841cf.49.1768425797234;
-        Wed, 14 Jan 2026 13:23:17 -0800 (PST)
+        d=1e100.net; s=20230601; t=1768426038; x=1769030838;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=kDYfaqYaSpy5RcP9ByWgz8r6jpXpwIWbrHPc9eTMQFM=;
+        b=prPeE+RDU0p1NGHxS7fncxAzWWsvqPuZ1Fh6coBgm5rtJrB1HeJXorQHCiXZdZSYl5
+         zf/MxKi/dw24qn0emRV+8RZ5bUCWpEnxki+Zfsg8USEQvtlfzvbbvtrJRJZNiRDv853h
+         G0q8o3sjm1wIvkPVZAQfU1l533dwzj/TsL4GYxC04ayZe6kSoloBLJ0tjUmy7rmEs94u
+         kR4uemQWkPHflcUc8gG/mM+ZSo2gPFPG7heOoNLYvhGcGDj53WH5AiwZc8xU3oub92Af
+         ZpqFsoYYrbNx2Ko9kdkSqh2zWpNJDacfdhFuA4psxNxKbvgnkC7wDcpo2xscB/QM5G7H
+         98og==
+X-Gm-Message-State: AOJu0Yyjpj2DUKKn7SGkBArpsFtl7vxHhkr+ByAn5Qp2ppOB8LNXCf/e
+	4BpkBsR4uBMX++Lz/MrChw87qusp0MNjvjyKYKsJc984lNoVLa8q/G/cQ4Gb54vO3aQngO2D1q3
+	8MTc=
+X-Gm-Gg: AY/fxX7KpqdzjGcja5aU34w5+ALLNuXbvF/TYzZrZMh1z7B36WHs20QYVsZg+eDSXFf
+	rfljFZ2RGrWEPukDyrRPcm9XSlmKTjhLJjqZYCZzBsD9AiCvS58KcqTgXuUUdfc4F04JruSKgyQ
+	3UxF0Qj/BBPS/1lzpqQsjQETKeV7va4wlmO0FYWh52AYPf39H+7+YwZ4zJpxq9y/80tKVMfjWKJ
+	hgPmvYTvXAPTF29g4iBmt7HViNYjMWQydxjY08PER0pNEHDFycvgb1FF4fmUJYI34SLbyLTO9EI
+	z/kwAIsSw4XEivgrKsNyiuAZ24rgDQkbGhuu3DyR+iTlOLFwRSloQeOjIapNV++6o3qk8p7cktb
+	Mx6v1fYEuilI50FCmXzHjYlHTgowSkWXm0dsWhleCiI5EVJFRNnEcmRfAMJwMjcnVcX0vwtSBDO
+	2tYTOSJ6NIlPViSF/VgVd/IXi8BQ2vZAlGgJ2ddcMBXmJlKFKK3vbrq5dl
+X-Received: by 2002:a05:620a:2588:b0:8a3:cd9e:e40e with SMTP id af79cd13be357-8c52fc0e709mr566151485a.86.1768426038304;
+        Wed, 14 Jan 2026 13:27:18 -0800 (PST)
 Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-890770e472csm185296916d6.23.2026.01.14.13.23.16
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8c530a92553sm242101185a.17.2026.01.14.13.27.17
+        for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Jan 2026 13:23:16 -0800 (PST)
+        Wed, 14 Jan 2026 13:27:17 -0800 (PST)
 From: Paul Moore <paul@paul-moore.com>
 To: selinux@vger.kernel.org
-Cc: cgzones@googlemail.com
-Subject: [PATCH] selinux: fix a capabilities parsing typo in selinux_bpf_token_capable()
-Date: Wed, 14 Jan 2026 16:23:09 -0500
-Message-ID: <20260114212308.291762-2-paul@paul-moore.com>
+Subject: [PATCH] selinux: drop the BUG() in cred_has_capability()
+Date: Wed, 14 Jan 2026 16:27:14 -0500
+Message-ID: <20260114212713.296107-2-paul@paul-moore.com>
 X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -69,34 +69,32 @@ List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=986; i=paul@paul-moore.com; h=from:subject; bh=duBx2NZVWh9sUQEGfb5Nx5/6gm4+jvLNkjVZbCfw9cE=; b=owEBbQKS/ZANAwAKAeog8tqXN4lzAcsmYgBpaAk81jIZqt9xBldeLagcSjPWpnxWmDj+QrYEt Gfi2l9mK86JAjMEAAEKAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCaWgJPAAKCRDqIPLalzeJ c+OgD/0ZCIMk66ewkrwXonjuElqvMvX8D1hEKLTA7n8jsnD82W8I0DN1K/yrLFr8sKEe6O2Fb2D +4/cT1T2wGm+qoxSp95pDSMTS/6BeHHdagh0QuyT/QS6QLT6A+zHa/gkeSn5nSppLs6FkikW48u 6n8Zsma8Wq9RmZJ7bBp+fDKKZ3H6+OE4Sh1mGs1D5Q1VV/N4EifYKLbBh9x1IjwoZLprPnlBK/9 1eC2i1u6vwFPUTs7a0LdCjogElOQ263qK5e0xmPv6deRGQGwsV4t2alklNAP1h2bCi5z0c0OgvH 7CK4j5bKHPMgjsb78OI098lSVpwe89c1IuSC0pWFRfx8NSU/YhuT9Me5ScHfX8zTa9RqGD6u8dM 5od7ZMyf9vyA0hKBiROTNS0Q6Uld3CW/eWA9G46AA0+7fXfRE3ekf/g++udcBrUdPh2WuP6HKwZ pbWJOM84ArvopXWAIOQVkkkO8Orx9k2X715x57XbzNFyUr1tsg6dLz1gU05dtvci3vw4X9XHge1 ofnsqqeTLah81qNAr7cYlmiQ84AWjs5uAxAX9WaIm7isAgWagWdA0b/d8aLirThLns3NwUjsugW +2ccWSoH1xXQ/P+gLTm09AxdQL3n3vn7rBfki+5yebfVoMQ2qASgo+uHYZaPUggzYyJgNA+SeNd rTcfS1VXysYpeYQ==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=749; i=paul@paul-moore.com; h=from:subject; bh=1mMtdGRJ3t53cn+j8/XyNg/pXLPNEbbCdSXEvie6G9s=; b=owEBbQKS/ZANAwAKAeog8tqXN4lzAcsmYgBpaAoxurhI2astAF+nZy0nIGCn+18kug1thL5fq yR8gkvJRiuJAjMEAAEKAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCaWgKMQAKCRDqIPLalzeJ c3/1D/99Gj6B5mr6Y2Q2Gr/ujhSFNnAqBDfhxn5xHJaQewe5lJ8BqxrAv7OvrybgbPQ4eCjtKXh D1EXokJ329kgTrHp1N+CY3QtvHq1n6cKV5zN2l7jG7qKC8CcINlUzpyjWJmjx3all/afP6GbyhJ q5yYsD83EsbTbwJJRs5RB22EQGbaB/L8VClfN1Wig8hUoIVYRcfjTuiYyJiDVS+vDwwCkUM4vat aIMwJcA1fymJj2BToEbHvuPqZ2isv5/2IJP0W4BxkWY51S0mVO3E9icGAInwC/902P1oJw1snqR 0dlxtvn1bG+gmXg5GLewHriGlVA2VM/XLShf+1fYhy6AJHiyk5ooC4sRFdDbdqmLBn2u9uh1w9u y6DSGHsTb2KIGKtLB+ivCGQbfXQ2nN47I0GskxHy5kQyZm49qevyvn8HM4FQOcl3yStHZrMI/Nf hTSjxb3gy+yahCWXGjM6aUrhOUeUIjacfQa4s5JfDcQKS6A4uWWOlcisQE02FmOJbaBu9JBUcv9 8e4/FMngJbPmb7V6LjZDhW+5hyGFcATRXDGsgExND2FL462DNXNahPKv2VWeGYn8kl6ucmzFtOS SkTD/b4sElJNprS1JytJ0ld3cMod37lgXWFiyui1UmwEWr787O7b3EvIa95zWsDfDJJfWXvKmXQ ttS7SW4Jami/l9w==
 X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
 Content-Transfer-Encoding: 8bit
 
-There was a typo, likely a cut-n-paste bug, where we were checking for
-SECCLASS_CAPABILITY instead of SECCLASS_CAPABILITY2.
+With the compile time check located immediately above the
+cred_has_capability() function ensuring that we will notice if the
+capability set grows beyond 63 capabilities, we can safely remove
+the BUG() call from the cred_has_capability().
 
-Fixes: 5473a722f782 ("selinux: add support for BPF token access control")
-Reported-by: Christian Göttsche <cgzones@googlemail.com>
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- security/selinux/hooks.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/selinux/hooks.c | 1 -
+ 1 file changed, 1 deletion(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index c7c19ceeeb2f..9289ed89a8ec 100644
+index 9289ed89a8ec..feda34b18d83 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -7260,7 +7260,7 @@ static int selinux_bpf_token_capable(const struct bpf_token *token, int cap)
- 		sclass = initns ? SECCLASS_CAPABILITY : SECCLASS_CAP_USERNS;
- 		break;
- 	case 1:
--		sclass = initns ? SECCLASS_CAPABILITY : SECCLASS_CAP2_USERNS;
-+		sclass = initns ? SECCLASS_CAPABILITY2 : SECCLASS_CAP2_USERNS;
+@@ -1659,7 +1659,6 @@ static int cred_has_capability(const struct cred *cred,
  		break;
  	default:
  		pr_err("SELinux:  out of range capability %d\n", cap);
+-		BUG();
+ 		return -EINVAL;
+ 	}
+ 
 -- 
 2.52.0
 
