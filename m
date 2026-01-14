@@ -1,241 +1,112 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9D6026D4E5
-	for <selinux@vger.kernel.org>; Wed, 14 Jan 2026 20:55:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78A8E356A38
+	for <selinux@vger.kernel.org>; Wed, 14 Jan 2026 21:00:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768424121; cv=none; b=Vg8iQ+TbofwaWHoPppPb5Dm9XPf+I/sy3tYiESlzCtIkIThs75mCCGj2WRVMtpwXweegRfR5mkdqcnB/gM+YFcbEaTkzouFiM1LJEKzQ1vjHrPePRH9/BnJS8v4O5rChtLTs1zzzg2FTkisjZHTxzvEEQC46EkR0JQYM4ejRrnQ=
+	t=1768424409; cv=none; b=arCYmKhdiBoYe1NcH5hpRLkMaKzFXKxnmyaUvzwYeG5PhjOuN6Un7rkT01ogNiImCfS5rctOl7KrIkLjV/tMyGhzNp5AuNYqLd+BzOcWgWPITQ4ys4TQhHSoAcCjVx2sI3Yc6Rn8xLHw/MX5pK5amFj7SIEWChnF1wGeEaVB6kU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768424121; c=relaxed/simple;
-	bh=WzPP6InwypV58AN4M9bxp/LPj/erFLR8FnWiDAgRzSk=;
+	s=arc-20240116; t=1768424409; c=relaxed/simple;
+	bh=Ccy1ACVCbaP7lQVejHR4hSAslrYqH5zGup/Zsoflmao=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ZNX46uT8ga1KcDPZkB2g0BH5CQ+uxCwyC43lQd3h2qIuY9+vb12/WtCbcNwtRh9PU+s9YYnP6OJkCa/HQ7nWW+7lgs0dM22XQnadHSU+pmK0LS/yUrbqTvOEGIn1+zBhWnQHhVOTZyc4IJSWdIp9m+hGBHCXRv84aL3C66Kmh5I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Oo7iw5Vz; arc=none smtp.client-ip=209.85.216.46
+	 To:Cc:Content-Type; b=RKdawTbvOzASVWBQduJlEfJSbSUk2sjbll3/8Jt31RKseQdZF6naHAOPbIRuwRPAtOARkfb/FP43ao2ifvQixQapbu0X0QDw58fABVn+85NzEIOO7Ad5U3efyxPAiFu3xqwOprU27eHI57FRQpKg+ndiHQDv3wgY/1oh12RaEbE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=UYUBBzT/; arc=none smtp.client-ip=209.85.210.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Oo7iw5Vz"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-34b75fba315so58147a91.3
-        for <selinux@vger.kernel.org>; Wed, 14 Jan 2026 12:55:19 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="UYUBBzT/"
+Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-81f39438187so120215b3a.2
+        for <selinux@vger.kernel.org>; Wed, 14 Jan 2026 13:00:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1768424119; x=1769028919; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1768424408; x=1769029208; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Ov56W3kE6T99c3Wt7CAHQmWWwKH29Zcq0pg7H0jYfZ0=;
-        b=Oo7iw5Vzu+oig+4Qtn7Z1yGu90r3M0Jio6plIaVhiHXTKaGsTgcd0+kLsx5A/3xcdZ
-         orsT79JvI16c4qMVPxHDNs2KfgwTvgR9USww7uOf0Isuxd6rrBYabKjNL3GUm99gWX1L
-         ArLAkwp2TfQHJx64NO9FO5Bqsw0JXadbx79z/G4Q5yti1Vf4C0ki4HIIKlsDlLtgKctN
-         FsytA4iTSmdrwhwanqeaRf1n457FvWvvMWyMXbzPl3eDhYYsQqKI2neXbFq17jrTaobb
-         fqxDRYx3pMpofXSWbcw/qX3rXoOxBXys2jjxaal0rUOhF2a0rCVA43+rZP6rFdf3Ffw0
-         yifQ==
+        bh=NJg5RdcPwEpMhSyBRaiKqWwhH60M/5xS60EVlIliRPs=;
+        b=UYUBBzT/S8YpV5SoE3pN+yRPXv2NO83oPY+wVIMHVZ1wXxHYl5HRyudg1HJ1ycStdf
+         LAC9Dj7wR6UptcYHwucK3BaMMpHY8ETYiJ+2s/VAxfd6acWfCOV1l2dAL+SLTEQ1O4sh
+         eMwMx927Mzk9LqyzwtuOAPQqb7xNDu3Rr4GS9N0/N2kZes8gVfZQMsh+yj6SGlucdqTh
+         z4CU7gvSrm4SLz6fYNXbpfFyuwXf24eT+xd+iS8fy5Q/fViADkUfFyM5A6S+aBRAhjMY
+         ObLYVQm2eGpH0ofTmPz7RRjImf0AyP0akynchSB42ukXsHdYHMgjclOOoEBfctlBAliQ
+         43Gw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768424119; x=1769028919;
+        d=1e100.net; s=20230601; t=1768424408; x=1769029208;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=Ov56W3kE6T99c3Wt7CAHQmWWwKH29Zcq0pg7H0jYfZ0=;
-        b=K3iVR2+mmtwQYs5nd+loVVdNUwtrJOFz4bybiBTgxt63LGeTKlh8auxUgYiGttdHEg
-         naszxotEx3lE1s0jgYTICm0aJNNrgLyyE3ogrk3wlJaT5B7BJEHhB8halTlli3SgPkBQ
-         7f/7NaoWG+ox13wItWpDSBG5Po3AMmm0KO7b9Qy1QdzHKiBo9ziOwdMNS5DMdB8cE36n
-         SF/idP2DK7geEL6AH+26tXbLeP1NHX/2D7/6I1rMdmNilwBWHdLgnHxVbpuX6cejBLU5
-         aDfEsBJrNQr+8g50MkJ+FXQeeZa888EtxY5QqDOxEy4AWT78D3Z1N4llYtdQrYJIhhkZ
-         PKag==
-X-Gm-Message-State: AOJu0Yx0H/Yp39PulxPtpjbvP3wUqvpuaQPTdeC8ZhyYSY/qM0g2WiUk
-	1UQfqeZ6iA6kNY5T+2MnPZDLnjTciO17AN4o4HZsIznZOU1pW6DJdW3Q9Ikn6nSirj0nrGhYw/n
-	M++3T2+yPjQOczF2WxO4eJlGaA8Kmnh5SA6ijHjVq
-X-Gm-Gg: AY/fxX4aQqGCOJpX9zfPcl8N7xBn/g2V3d4xz02+jwYSazJiz3Xe4MjqmZVggaxDwIF
-	OI+JCcHvX+94svWLzNfORmNH1VEXb3+7QOI8TxaN3E/HN/8E/bL5lPC4wmXBhtY2i1r/cnBGTiu
-	eFNlGpHa8RV6/2S7lQObBOOXaq5PRmieTWDtrymzoKBjkAwEF7URkhTl5chw7mtVP5PIkANpoNe
-	wn+PeiL5X/eJgxPI1I8zTgjTNYhYPhK7HRXlzpC0rWccx6a/aeqSiXakL2vUuSF4qsoLS6dakAi
-	+nmofw==
-X-Received: by 2002:a17:90a:f945:b0:340:e529:5572 with SMTP id
- 98e67ed59e1d1-3510909522fmr3520456a91.8.1768424118933; Wed, 14 Jan 2026
- 12:55:18 -0800 (PST)
+        bh=NJg5RdcPwEpMhSyBRaiKqWwhH60M/5xS60EVlIliRPs=;
+        b=hfCA08UPJf1Cz8QWodhbKRutdCoYGQ6Ql6qglAhpVW/4DiU2eo7a9ACx0CP33eTM7t
+         S9ypKTUK1BIwJr1b6pn5MhBjcgWvEwG7ecuZYp4mJ2e3y4aD5SpFV+bx/p5afBvUhtkG
+         GzpinQzhCzgx/wM4XX1/a0kMAd+qjTGernIidp9FEmK304wfhPNapd1LdIZXuhKTBUkk
+         1AabuP6KMQ9UDEEwxkSNfCPJqcNAahsTkV1KS+s5DArWITEaAFS8/6HyqW4fh7oQB6fB
+         uFwnXyH1uXpmv7G/x6awv6PLqA8Bb8M5XstV5rN0Pnpx1wZnYXJ7kCJucMxU5ANPoYej
+         mNPQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVtNBVzW9Y0fGzGCTcU4rnt6mGPWCmHXmjx72ZhBYvnxPRZFVoGzlVG0bUNR4uQCQkDPnrDSXJb@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyxs0c6YRqIuKrGm3Y+n9ERF2V4vLzz1Dc+JUPN3RS3YUmjz+Mn
+	BWZ+974EucchvNIO4fp+UYY5XdQKWI6rRSZJw1JAsSQzOa+7O83j1DRG8pn7SH9T6AFkV2Ctzkl
+	TuGD4nmdComUNxJXPof1rhCJe2zVso1/uqfUQGOFi
+X-Gm-Gg: AY/fxX47a1i7bkom7o+q8jIBDKvFF4hiDufj7vgbaduSTosasYQCZb3YH0aHrc9/CbN
+	y0iseKR0+rDV9CZ3tOJM0bM357JkLbrN+EkFwMArWJsT1B0AyX6cxAMwagcvQshP3lr+v7oRJIV
+	HCMCCAwGcO6g1hm51VWTNZD7caA1reG34t4yd8K8eUZ5l/UIgKfzkOFmdtjy2q/cuVi9cpJ5BG9
+	vzPB3ziC3VgJKEiTULQtcG4ef7Cf57+plgJmhCWM60Xhxdos0I6+ypGK7pXmsg4zo+DOzM=
+X-Received: by 2002:a17:90b:3d4f:b0:340:99fd:9676 with SMTP id
+ 98e67ed59e1d1-3510b0a8594mr3290512a91.10.1768424407723; Wed, 14 Jan 2026
+ 13:00:07 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260105174020.887724-1-lautrbach@redhat.com> <CAHC9VhRaKE2fuXik5xxaw5i1f9QgveFj0_FgzMVyRCHebueZGQ@mail.gmail.com>
- <87h5sxvd52.fsf@redhat.com> <CAHC9VhQmYLMqFzytgauijn_C6TXksBVsptEdNb2ZcyKFT8fsCg@mail.gmail.com>
- <87cy3kv5w2.fsf@redhat.com> <CAHC9VhTcEFHNJcTSbvWFU4gKpAUBg-8cLAfushX8CrhnT41SbQ@mail.gmail.com>
- <873448ujz1.fsf@redhat.com>
-In-Reply-To: <873448ujz1.fsf@redhat.com>
+References: <20251205024259.704-1-ericsu@linux.microsoft.com>
+ <b687544287eb8850f24592a207a0b846@paul-moore.com> <CAJ2a_Dfk7R2n99790ke+b+LBUAY+Jn2Uq-kgm8yzUvX-Hx4xAg@mail.gmail.com>
+In-Reply-To: <CAJ2a_Dfk7R2n99790ke+b+LBUAY+Jn2Uq-kgm8yzUvX-Hx4xAg@mail.gmail.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 14 Jan 2026 15:55:07 -0500
-X-Gm-Features: AZwV_QjmC-pDRioATxlKz7fkKkKMQfDn3eYu_OR7mkiZr6Hlgx5p46BZt3N4fOE
-Message-ID: <CAHC9VhSBGr=6izQCmWwOcg85S3G02aDMgSrQ-bGEf-sR9RYtVg@mail.gmail.com>
-Subject: Re: [PATCH] SECURITY.md: add lautrbach@redhat.com gpg fingerprint
-To: Petr Lautrbach <lautrbach@redhat.com>
-Cc: selinux@vger.kernel.org
+Date: Wed, 14 Jan 2026 15:59:56 -0500
+X-Gm-Features: AZwV_QhK766ZOQDjjxhS7darX_HAgawMXFLq9WVdb9cDjJ7GLf_S9EW-oTn5o9w
+Message-ID: <CAHC9VhQ8Z1YvpDGZK1m15nvU0qsNsyFtTvmyQAUMO+=9txaBpQ@mail.gmail.com>
+Subject: Re: [PATCH v7] SELinux: Add support for BPF token access control
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc: Eric Suen <ericsu@linux.microsoft.com>, selinux@vger.kernel.org, 
+	stephen.smalley.work@gmail.com, omosnace@redhat.com, 
+	danieldurning.work@gmail.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 14, 2026 at 1:28=E2=80=AFPM Petr Lautrbach <lautrbach@redhat.co=
-m> wrote:
-> Paul Moore <paul@paul-moore.com> writes:
-> > On Thu, Jan 8, 2026 at 3:57=E2=80=AFAM Petr Lautrbach <lautrbach@redhat=
-.com> wrote:
-> >> Paul Moore <paul@paul-moore.com> writes:
-> >> > On Wed, Jan 7, 2026 at 7:08=E2=80=AFAM Petr Lautrbach <lautrbach@red=
-hat.com> wrote:
-> >> >> Paul Moore <paul@paul-moore.com> writes:
-> >> >> > On Mon, Jan 5, 2026 at 12:46=E2=80=AFPM Petr Lautrbach <lautrbach=
-@redhat.com> wrote:
-> >
-> > ...
-> >
-> >> >> >> diff --git a/SECURITY.md b/SECURITY.md
-> >> >> >> index 2a7ce5b317a7..faa060ccff03 100644
-> >> >> >> --- a/SECURITY.md
-> >> >> >> +++ b/SECURITY.md
-> >> >> >> @@ -24,7 +24,8 @@ list is below. We typically request at most a =
-90 day time period to address
-> >> >> >>  the issue before it is made public, but we will make every effo=
-rt to address
-> >> >> >>  the issue as quickly as possible and shorten the disclosure win=
-dow.
-> >> >> >>
-> >> >> >> -* Petr Lautrbach, plautrba@redhat.com
-> >> >> >> +* Petr Lautrbach, lautrbach@redhat.com
-> >> >> >> +  *  (GPG fingerprint) 68D2 1823 342A 1368 3AEB  3E4E FB4C 685B=
- 5DC1 C13E
-> >> >> >
-> >> >> > I think you may want to list the fingerprint of your primary key =
-and
-> >> >> > not a subkey, as the primary key is what carries the signatures a=
-nd
-> >> >> > helps verify trust.
-> >> >> >
-> >> >>
-> >> >> I guess I need help then:
-> >> >>
-> >> >> $ gpg --show-keys --fingerprint lautrbach@redhat.com.gpg
-> >> >
-> >> > You want to use the key fingerprint which displays when you run 'gpg
-> >> > --fingerprint <email>'.  Assuming you have the keys for the other de=
-vs
-> >> > in your keyring, you'll notice that command can be used to reproduce
-> >> > the other fingerprints in the file.
-> >> >
-> >> > %  gpg --fingerprint plautrba@redhat.com
-> >> > pub   rsa4096 2012-04-03 [SC]
-> >> >      E853 C184 8B01 85CF 4286  4DF3 63A8 AD4B 982C 4373
-> >> > uid           [  full  ] Petr Lautrbach <plautrba@redhat.com>
-> >> > sub   rsa4096 2012-04-03 [E]
-> >> > sub   rsa4096 2017-12-05 [S]
-> >> > sub   rsa4096 2017-12-05 [A]
-> >>
-> >> I've also changed my email contact address to lautrbach@redhat.com whi=
-ch I
-> >> use for some time already:
-> >>
-> >> > From: Petr Lautrbach <lautrbach@redhat.com>
-> >>
-> >> > -* Petr Lautrbach, plautrba@redhat.com
-> >> > +* Petr Lautrbach, lautrbach@redhat.com
-> >
-> > There are mechanisms to add a new identity to an existing GPG key:
-> >
-> > https://docs.github.com/en/authentication/managing-commit-signature-ver=
-ification/associating-an-email-with-your-gpg-key
->
->
-> I could add plautrba@redhat.com to lautrbach@redhat.com (68D2 1823 342A
-> 1368 3AEB  3E4E FB4C 685B 5DC1 C13E) but it would not make any
-> difference for this purpose.
->
-> I use lautrbach@redhat.com email and I expect people send me encrypted
-> emails using 68D2 1823 342A 1368 3AEB  3E4E FB4C 685B 5DC1 C13E key there=
-.
->
-> I use lautrbach@redhat.com identity for signing since  SELinux userspace =
-release
-> 3.6 in December 2023.
->
-> $ gpg --verify checkpolicy-3.6.tar.gz.asc
-> gpg: assuming signed data in 'checkpolicy-3.6.tar.gz'
-> gpg: Signature made Wed 13 Dec 2023 03:47:30 PM CET
-> gpg:                using RSA key 1BE2C0FF08949623102FD2564695881C254508D=
-1
-> gpg: Good signature from "Petr Lautrbach <lautrbach@redhat.com>" [expired=
-]
-> gpg: Note: This key has expired!
-> Primary key fingerprint: B868 2847 764D F60D F52D  992C BC39 05F2 3517 9C=
-F1
->      Subkey fingerprint: 1BE2 C0FF 0894 9623 102F  D256 4695 881C 2545 08=
-D1
->
-> $ gpg --verify checkpolicy-3.9.tar.gz.asc
-> gpg: assuming signed data in 'checkpolicy-3.9.tar.gz'
-> gpg: Signature made Wed 16 Jul 2025 12:55:48 PM CEST
-> gpg:                using RSA key 7200EB2C3F5E488463C0CE9ECDCAE8C927C6BE3=
-1
-> gpg: Good signature from "Petr Lautrbach <plautrba@redhat.com>" [ultimate=
-]
-> gpg:                 aka "Petr Lautrbach <lautrbach@redhat.com>" [ultimat=
-e]
-> Primary key fingerprint: 68D2 1823 342A 1368 3AEB  3E4E FB4C 685B 5DC1 C1=
-3E
->      Subkey fingerprint: 7200 EB2C 3F5E 4884 63C0  CE9E CDCA E8C9 27C6 BE=
-31
->
-> The only copy of private key of E853 C184 8B01 85CF 4286  4DF3 63A8 AD4B9=
-82C 4373
-> was on my yubikey which I destroyed few years ago when I forgot the PIN.
+On Wed, Jan 14, 2026 at 12:56=E2=80=AFPM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+> On Tue, 13 Jan 2026 at 21:45, Paul Moore <paul@paul-moore.com> wrote:
+> > On Dec  4, 2025 Eric Suen <ericsu@linux.microsoft.com> wrote:
+> > >
+> > > BPF token support was introduced to allow a privileged process to del=
+egate
+> > > limited BPF functionality=E2=80=94such as map creation and program lo=
+ading=E2=80=94to
+> > > an unprivileged process:
 
-First off, if you've lost access to your primary GPG key you likely
-want to create a new GPG key and get that signed by other trusted
-SELinux developers; I'm sure you remember the process, but we can
-discuss more offline if needed.
+...
 
-Beyond that, I think there is a disconnect between the different GPG
-key types, signatures, etc. There is a link below which I think may
-help explain the differences, but if you are already familiar with GPG
-keys and I'm simply misunderstanding things, please feel free to
-ignore the link (the post is somewhat lengthy).
+> > Merged into selinux/dev with some minor line length and whitespace
+> > tweaks.  Thanks everyone!
+>
+> I think there is a typo in selinux_bpf_token_capable():
+>
+> switch (CAP_TO_INDEX(cap)) {
+>     case 0:
+>         sclass =3D initns ? SECCLASS_CAPABILITY : SECCLASS_CAP_USERNS;
+>         break;
+>     case 1:
+>         sclass =3D initns ? SECCLASS_CAPABILITY : SECCLASS_CAP2_USERNS;
+> //  <-- SECCLASS_CAPABILITY2  ??
 
-https://davesteele.github.io/gpg/2014/09/20/anatomy-of-a-gpg-key
+Oooh, good catch, thanks!  I'll work up a fix right now.
 
-When listing GPG key fingerprints, people list the fingerprint of
-their primary key, as that is the key which is signed by others, and
-the key used to sign other people's (primary) keys.  This primary key
-is then used to sign the subkeys associated with the primary key;
-these subkeys are what are typically used for signing, encryption, and
-in some cases authentication (ssh, etc.).  For example, if you look at
-my entry in the SECURITY.md file you will see a key fingerprint of
-7100..., the fingerprint of my primary key, but if you look at the
-kernel tag signatures you see that I'm using my signature subkey.
-
-[NOTE: command output trimmed for clarity]
-
-% gpg --fingerprint paul@paul-moore.com
-pub   rsa4096 2011-10-10 [SC]
-     7100...
-uid           [ultimate] Paul Moore <paul@paul-moore.com>
-sub   rsa4096 2018-10-15 [E]
-sub   rsa4096 2018-10-15 [S]
-sub   rsa4096 2020-06-19 [A]
-%  git tag --verify selinux-pr-20251201
-selinux/stable-6.19 PR 20251201
-gpg: Signature made Mon 01 Dec 2025 03:54:57 PM EST
-gpg:                using RSA key 4B42...
-gpg:                issuer "paul@paul-moore.com"
-gpg: Good signature from "Paul Moore <paul@paul-moore.com>" [ultimate]
-% gpg --list-key 4B42...
-pub   rsa4096 2011-10-10 [SC]
-     7100...
-uid           [ultimate] Paul Moore <paul@paul-moore.com>
-sub   rsa4096 2018-10-15 [E]
-sub   rsa4096 2018-10-15 [S]
-sub   rsa4096 2020-06-19 [A]
-
-I believe that if you look at the other GPG fingerprints in
-SECURITY.md you will see that they are all fingerprints of primary
-keys, not subkeys.
+>         break;
+>     default:
+>         pr_err("SELinux:  out of range capability %d\n", cap);
+>     return -EINVAL;
+> }
 
 --=20
 paul-moore.com
