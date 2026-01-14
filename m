@@ -1,111 +1,172 @@
-Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 256F237BE97
-	for <selinux@vger.kernel.org>; Wed, 14 Jan 2026 10:01:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5AAC39C640
+	for <selinux@vger.kernel.org>; Wed, 14 Jan 2026 15:32:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768384914; cv=none; b=XhnTmSP5sZiYxUkHIlxW+FeiW3rlTRGSrIKiMlH6cyVC6vrEfobYT80RgUA4U9SBiU2nFfxw1xiNHVr2OWLyS6hQ6toT6s1BGa2pAvUoZJlWLaGUT/BI0Wbj2G1Skk46VX9MR/slmwWJZTHaIp4K924zFGYMhBrffJxGZ2oSwDw=
+	t=1768404780; cv=none; b=aFj7Tc2Jm3skqfCXMjrOh3CYZDcvcsgwaI/rZ1mtPjtpec360ro+MopXRPX5SPhe8gyz5j3CU4q2b2XMfAAR6nKGZvBsuSUoV5KrWMKnoxPWVVs2VbHl/bq0cxSsAhmRosGr5dC+Bx0f64U2QgJgvWIj5R9y4OyuRF5IZzSI7kY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768384914; c=relaxed/simple;
-	bh=fPVZTq8+zbrDGHoMjHeAp/6+eq8x4H0qoyA5826QEWg=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=YvaNimGzWc3rbquH9gQynGz9HlMaLiYw7m1s6TwEVt/1AdI6iNmoy7xvuPEYzHBFcgRumUnsnOfgTiw+mjAI16MK6B4IlVLXM9IZ8NxmubiR5RDCrQfTkBKKOI/UEa1Q7ft/xkXSgHI0/mFVzSqghx0Ix3GR9WpasXloLxubGv0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Y44e6sUR; arc=none smtp.client-ip=209.85.215.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1768404780; c=relaxed/simple;
+	bh=7hd0s3Nq/EA/IWehh64W9qPgm07ENnnFVDxB0dwtRdA=;
+	h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=YBf3GFEE0O9O5nJhExpVCRhCVZSxLDReGD1kLDw4XkDnUX52KmO29dDI8Qb9NACHhq/w0NTlnOQNfl9aNB9a5vizF1UUpm00p3phfyntC6qBFIfJonuq40cNwUlbMQ3QVxmfZ7CHe+6YHF3IVfPErWVkHXzoHF0eZ1FagCk51mc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=T6KzyV+d; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=EiHP9wUq; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=T6KzyV+d; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=EiHP9wUq; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y44e6sUR"
-Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-b4755f37c3eso4880474a12.3
-        for <selinux@vger.kernel.org>; Wed, 14 Jan 2026 02:01:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768384912; x=1768989712; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=+zsrKnMkvLo2Q8esJ6ms2Of5PtJ7bwHEYXuvf3bfQ0M=;
-        b=Y44e6sURst4OMGZEa5CHw7QKGBlg8TDParAx23qvoVUcThV9CRwZjPiEdNmjSUwDGK
-         +lK6JSHP+c34OiDRFc9OyCPvsV2oSN+gVErWVaOBw3m2gXJcuDY0mEwDVtdCCwVCFmJE
-         if4eBwm/d+CwZu4DklY5qkw+wxQ9ETO1TGjxivbSt8Oyv5Sw3CqI/Sp9g5vbmsa7PQya
-         PBuChhE2pIOnS2LSD7IyS0yigV8/lybZoGyqW3/5CUorGx2xEZRsB8QAa4JbneX/qBza
-         J9llaG3+D86gCn+kr/VZkREfYpaml4Cx/4Cz0zoBxyKRuwao4GRxYF+HxjpJzrN2mPXL
-         XLIw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768384912; x=1768989712;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=+zsrKnMkvLo2Q8esJ6ms2Of5PtJ7bwHEYXuvf3bfQ0M=;
-        b=XS7aqYF9AZ/UKXuJwLCzCYEU6eH4VH/Sdpz94Wg57tcGRrVi989lt0Rrv+Rsp/0Az/
-         UqqcQsYck6uMpwjlA8vqgnkOh3p6b5E4eK+mFlSGJtrS5Hn+UYP4/ukN5wSORxAW5GMt
-         Ew8Ntiz22UBcn1qpkfzL0vTCXwZQSwEaAjY0AOaGIxIA2DGWJGBWX9e9nI4KaE5htsvi
-         vCURYmh+eRCsQosPMHOLNOIj3gmrQXL0VqU6GlhYNWDdFSmuiABqm4zQYrpWE/oMNpHu
-         di/v5kSo8ruJtOPycyVpFXC3vs3WzuPdCRWt4IZvWegC2rq6BNyn74mIU4TOQRqJ+Sr5
-         +6kA==
-X-Gm-Message-State: AOJu0YxYkdSJIoRLD4lOd4NT2Du4T3pYZWCUooQLuuC9rbJLhyuTavOk
-	BjPfqfo+jdjgQaYWIUoZ0WpR6X2bgVg+Eii9f9aAzjQOm5r5WLPv0D0Kq9yBqg==
-X-Gm-Gg: AY/fxX6mMBSzSyacAYsunVY1z6CD11Ymdt8yOQJuUUYI0oxpHTawasxv/ipYRAfQeTr
-	ucdsOh0OaFhX74ErDdua+Zk09CALEDA09UNVxeC6iSjTKE+isxuJWgFPvJ0faDK4DL72JuoxETA
-	rbT4cf5ZPOmoLxkSLdkNCz2w7c4tK1qqSCZ3TV4fM+VJhIW1J07i7sJNyU+/3rIl1kDEcsQvHkV
-	0oULkUN3A5tGw4fTFhJ3lUm3fVbdeEKu+cufWFjIokAk/1FOGxc4Qbd04b9aTI3/OnFQVzlGCIx
-	sX0tDCATjjiTZDXM4gMZ06rOi14dC4cGQqSOtGHLRdjjthAvma09zK6V7kCSlcv7UVipbKzGiu3
-	1VgHNFXWtYK9l2ExW2J9FaR/u5c+1zwBugET3PKw0iMlWszFAYlBa8fX/tsrns4kl5JM6hHH0Jr
-	nOaokoT8qNwkB5asRM+g==
-X-Received: by 2002:a05:6a20:7f89:b0:347:9ae1:cffb with SMTP id adf61e73a8af0-38bed0d2c3bmr2290673637.24.1768384912475;
-        Wed, 14 Jan 2026 02:01:52 -0800 (PST)
-Received: from L-12443L.kpit.com ([106.51.46.100])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c4cbf28ebe4sm22370879a12.4.2026.01.14.02.01.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Jan 2026 02:01:52 -0800 (PST)
-From: Bhabu Bindu <bindudaniel1996@gmail.com>
-X-Google-Original-From: Bhabu Bindu <bhabu.bindu@kpit.com>
-To: selinux-refpolicy@vger.kernel.org
-Cc: selinux@vger.kernel.org,
-	bhabu.bindu@kpit.com,
-	Bhabu Bindu <Bhabu.Bindu@kpit.com>
-Subject: [PATCH] udev: allow udevadmin to extend socket recv buffer
-Date: Wed, 14 Jan 2026 15:31:05 +0530
-Message-Id: <20260114100105.542373-1-bhabu.bindu@kpit.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="T6KzyV+d";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="EiHP9wUq";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="T6KzyV+d";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="EiHP9wUq"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id E14295CBEA
+	for <selinux@vger.kernel.org>; Wed, 14 Jan 2026 15:32:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1768404776; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+	 mime-version:mime-version:content-type:content-type;
+	bh=HOVIgQnexzdGk/G+ySfsKJZHiQ45W9igScaPbY9mO44=;
+	b=T6KzyV+dkLAARZm4nuaWF2a6kfIv18lM7nOZ63ztLWXLqQHfvqYgIxhV8JEFPGjm23tacm
+	/AuZkMKl8xrnA2DbhWF2rXkgWGk1AI/8JmTMI9oq1pOlemSHZ8awB5v9NOE21I9XqKblrH
+	TESH4nEj/jHT2CcrwrSif8D+fj9GpjY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1768404776;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+	 mime-version:mime-version:content-type:content-type;
+	bh=HOVIgQnexzdGk/G+ySfsKJZHiQ45W9igScaPbY9mO44=;
+	b=EiHP9wUqVO40ADQJU20So+EtOu9YW+mTxnxOkgKnQEVDPM0eBdO0bfX4FXGRBaYGEvGiCX
+	OGpgRs44Ankku1DA==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1768404776; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+	 mime-version:mime-version:content-type:content-type;
+	bh=HOVIgQnexzdGk/G+ySfsKJZHiQ45W9igScaPbY9mO44=;
+	b=T6KzyV+dkLAARZm4nuaWF2a6kfIv18lM7nOZ63ztLWXLqQHfvqYgIxhV8JEFPGjm23tacm
+	/AuZkMKl8xrnA2DbhWF2rXkgWGk1AI/8JmTMI9oq1pOlemSHZ8awB5v9NOE21I9XqKblrH
+	TESH4nEj/jHT2CcrwrSif8D+fj9GpjY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1768404776;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+	 mime-version:mime-version:content-type:content-type;
+	bh=HOVIgQnexzdGk/G+ySfsKJZHiQ45W9igScaPbY9mO44=;
+	b=EiHP9wUqVO40ADQJU20So+EtOu9YW+mTxnxOkgKnQEVDPM0eBdO0bfX4FXGRBaYGEvGiCX
+	OGpgRs44Ankku1DA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id CEA9B3EA63
+	for <selinux@vger.kernel.org>; Wed, 14 Jan 2026 15:32:56 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id sollMSi3Z2nODwAAD6G6ig
+	(envelope-from <jsegitz@suse.de>)
+	for <selinux@vger.kernel.org>; Wed, 14 Jan 2026 15:32:56 +0000
+Date: Wed, 14 Jan 2026 16:32:55 +0100
+From: Johannes Segitz <jsegitz@suse.de>
+To: selinux@vger.kernel.org
+Subject: [PATCH] Ignore files that vanish during relabeling if ignore_noent
+ is set
+Message-ID: <aWe3J9UVT9WIBiuF@suse.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="t/fGLQBw1Ql0a9q8"
+Content-Disposition: inline
+X-Spamd-Result: default: False [-6.40 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	SIGNED_PGP(-2.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MIME_GOOD(-0.20)[multipart/signed,text/plain];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	MISSING_XM_UA(0.00)[];
+	RCPT_COUNT_ONE(0.00)[1];
+	MIME_TRACE(0.00)[0:+,1:+,2:~];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	PREVIOUSLY_DELIVERED(0.00)[selinux@vger.kernel.org];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_DN_NONE(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.com:mid,suse.com:email]
+X-Spam-Flag: NO
+X-Spam-Score: -6.40
+X-Spam-Level: 
 
-From: Bhabu Bindu <Bhabu.Bindu@kpit.com>
 
-Upstream systemd commit [eba449fa81f6] (PR #29872) modifies udevadm-trigger
-and sd-device-monitor to unconditionally increase the receive buffer size
-on netlink sockets. This helps avoid failures under high event loads,
-such as:
-wait-for-udev: Failed to increase receive buffer size, ignoring: Operation not permitted
+--t/fGLQBw1Ql0a9q8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-To address: "wait-for-udev: Failed to increase receive buffer size, ignoring:
-Operation not permitted", we need to allow udevadm to increase the buffer.
-This may fix the issue that udevadm trigger hangs while processing the events
-References:
-- https://github.com/systemd/systemd/pull/29872
+This happens e.g. when temporary files vanish during labeling the file
+system. I don't like it that this is now in the err: handler, but
+otherwise it would need to be repeated above a couple of times
 
-To support this in SELinux, Allow udevadm to use CAP_NET_ADMIN to extend
-the socket receive buffer to hold more events.
-
-Signed-off-by: Bhabu Bindu <Bhabu.Bindu@kpit.com>
+Signed-off-by: Johannes Segitz <jsegitz@suse.com>
 ---
- policy/modules/system/udev.te | 3 +++
- 1 file changed, 3 insertions(+)
+ libselinux/src/selinux_restorecon.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/policy/modules/system/udev.te b/policy/modules/system/udev.te
-index e245a66a4..82fe8354d 100644
---- a/policy/modules/system/udev.te
-+++ b/policy/modules/system/udev.te
-@@ -447,3 +447,6 @@ seutil_read_file_contexts(udevadm_t)
- storage_getattr_fixed_disk_dev(udevadm_t)
- 
- userdom_use_user_terminals(udevadm_t)
-+
-+# Allow udevadm to use CAP_NET_ADMIN to extend the socket receive buffer to hold more events
-+allow udevadm_t self:capability { net_admin };
--- 
-2.34.1
+diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
+index 7ef2d45d..6c55125c 100644
+--- a/libselinux/src/selinux_restorecon.c
++++ b/libselinux/src/selinux_restorecon.c
+@@ -768,10 +768,15 @@ out1:
+        freecon(newcon);
+        return rc;
+ err:
+-       selinux_log(SELINUX_ERROR,
+-                   "Could not set context for %s:  %m\n",
+-                   pathname);
+-       rc = -1;
++       if (flags->ignore_noent && errno == ENOENT) {
++    // Sometimes files gets deleted while the relabeling happens
++               goto out;
++       } else {
++               selinux_log(SELINUX_ERROR,
++                                       "Could not set context for %s:  %m\n",
++                                       pathname);
++               rc = -1;
++       }
+        goto out1;
+ }
 
+--
+2.52.0
+
+--t/fGLQBw1Ql0a9q8
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQJPBAEBCgA5FiEEJQ9D9ffObx6cWU+VvCfdnSzE/WYFAmlntycbFIAAAAAABAAO
+bWFudTIsMi41KzEuMTEsMiwyAAoJELwn3Z0sxP1mI2kP/jqScWw4wE2W9fdTNJ1N
+m86Vo+jNNmb6FIzy4f5bm+2zF9EqPzTdSRSZL/zu4Zti7xn5w5IvDhzrnDb5gfEO
+zh3jT2HlZoKXRnrJyduwa7WMGsE3U4F8++M/uzeMwy60QLT+LHRgU23lQSsQQrS/
+D0Vyr7Q9SfYaAcDAUzHELUOzEPuAvQ28WqNa6XWhl9gHrZceb2iEwSzGpLAyhMtD
+sBXl3KlAkrZurMvIeWCLgpK2b12qtEYti4P/h+tOAud5mAQbatps91CKkYnS8HNm
+9T7m5U1h2TehTEnVIpuQ6JZkrfpN9ocDlRlr91SgJfuf+8Iwp4+GDG4IJLscnCsn
+rONSSqSbyjH50ZDF0dSJO1uIlsJ4S+/U40eQtEK7XR+3Js/u2muLDiRNTmfKVOkn
+NW38x0yWeN2Hpls78KTKpHUFA15zdwia2PDGIdlY/ZshnOQnCkt+m+3ldF/anYuH
+NigGxMY7aV/mWZo/9a7NygTGWlENSYl9u/DoAfA8dgtu8ikCKbhcgifcvqKVtt3P
+HCaO6ImVDgyP8pYaUgFRPk7+PtQY+rtIxry6Cr7M0ufO9t8iqCmALm2rqR5LnqvH
+3HqpU5S2ACXieTCA0K9QJqA1I6dgMOpVo96tljD/tCrZmIgP8SQZwzIPnCafXE1v
+W4IhRRMn8qt5XGmD6SxG5qIa
+=K7x+
+-----END PGP SIGNATURE-----
+
+--t/fGLQBw1Ql0a9q8--
