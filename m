@@ -1,148 +1,121 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mta1.formilux.org (mta1.formilux.org [51.159.59.229])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 422A8309EFB
-	for <selinux@vger.kernel.org>; Thu, 15 Jan 2026 19:29:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6500A31AAA8;
+	Thu, 15 Jan 2026 20:19:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=51.159.59.229
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768505403; cv=none; b=J4KP+T02zKo5ZiU2NhlhYWqKfOevyAFoBxFdhLw3jrw3uMqwgE/ngpVbjyMbqxrBxac7LO6XuKtAsXPOyo1kL+mLufAFqVeCpJwq662nZc3jYXm66lSFc81KqQlE/YoNEwGbi+3bN+1wnz/ZAcU6jtw0MlGdgh0+p+GhBJ9cL+U=
+	t=1768508351; cv=none; b=qQKnjhAZKx5kiFJYR36Q+e6xfndIHIMQTXFMy6R3QqVmKTY13dA7QSY0v3gfiB7c2s5WjxDhx2dwV/mrqmhoSQLGXfvHRoCss+gFP5x9AUffSI/9Il2cxSc/yybH9TBTh/p5qi9x0ETO89lyfXPbORDaocgT8CUs9G73s6ZOupA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768505403; c=relaxed/simple;
-	bh=n8VxPysbZ0u5xKCIn6w5IkF601T1IK0J4X6Lg437rXs=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=HaijPN/VgbO55SJWJDv8qxxPqd/+Ks2sd43tvWrsOj9TAgS/H9OJMBctz0BDfL9KPd6/JmTwgg3m99z7pYnrvCRWUeoMViah4Jz4JqFtwD4yDJYZ8l3syKSKUct0Na7JxwcjfbUlLbrM87IMGtY2RbJeageVj24qApBv2rlt7XE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=boTbUC9k; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1768508351; c=relaxed/simple;
+	bh=PkWMJbgG30qvn/kk4nfhRoFjfQKxSR345VAokulLNlw=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=H4aPUzwbJpqtRYn1Em0M5kBepj+Jw3axeMrezYw2AtLZ34LHcflUPFy5kUWzAibg7S9FLvYZyNJCVrSU6ADMfCQ4DMrw/hlhAx4/sMchdQEqPccwsESFWjAk4RP+gNKleKmiBHXoXCvxqDqndD67fDVXVJNRoNVtEiLZf97+htg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=1wt.eu; spf=pass smtp.mailfrom=1wt.eu; dkim=pass (1024-bit key) header.d=1wt.eu header.i=@1wt.eu header.b=HFrMaR8K; arc=none smtp.client-ip=51.159.59.229
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=1wt.eu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=1wt.eu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="boTbUC9k"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1768505397;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=AdtRFqhnj2lQZHVoU8YSvj5WXAdq+S4Lxo7i4UTl4Gw=;
-	b=boTbUC9kDSR6YrB6cY1mBBLbFBMdb5pU0ukRjdAyh43fvGApR66WSkzTGkYG/Q6mDxRgSH
-	K4dYAk6dteQvGkf237Xs4VbaSEqRadFr4PZSCm8ZYI1dxhsjVVKrmrbjJDvOpt4JGIbV4J
-	pfdyf26M51rlontx0IJUXewqq77HTUA=
-Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-152-bhJWnd2BOQOYWgsothoF_w-1; Thu,
- 15 Jan 2026 14:29:56 -0500
-X-MC-Unique: bhJWnd2BOQOYWgsothoF_w-1
-X-Mimecast-MFC-AGG-ID: bhJWnd2BOQOYWgsothoF_w_1768505395
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 743FC180034D;
-	Thu, 15 Jan 2026 19:29:55 +0000 (UTC)
-Received: from localhost (unknown [10.45.224.54])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id E9A9119560A7;
-	Thu, 15 Jan 2026 19:29:54 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: selinux@vger.kernel.org
-Subject: Re: [PATCH] SECURITY.md: add lautrbach@redhat.com gpg fingerprint
-In-Reply-To: <CAHC9VhSeoyDPyK=Ph6_ksTwW3YrCaoHSztfPDnEGAxSsCYNPLw@mail.gmail.com>
-References: <20260105174020.887724-1-lautrbach@redhat.com>
- <CAHC9VhRaKE2fuXik5xxaw5i1f9QgveFj0_FgzMVyRCHebueZGQ@mail.gmail.com>
- <87h5sxvd52.fsf@redhat.com>
- <CAHC9VhQmYLMqFzytgauijn_C6TXksBVsptEdNb2ZcyKFT8fsCg@mail.gmail.com>
- <87cy3kv5w2.fsf@redhat.com>
- <CAHC9VhTcEFHNJcTSbvWFU4gKpAUBg-8cLAfushX8CrhnT41SbQ@mail.gmail.com>
- <873448ujz1.fsf@redhat.com>
- <CAHC9VhSBGr=6izQCmWwOcg85S3G02aDMgSrQ-bGEf-sR9RYtVg@mail.gmail.com>
- <87pl7b1f0n.fsf@redhat.com>
- <CAHC9VhQHrnkMO0JMtDyEnsmgMJisSU5bs76bzLYXGirc8uDYmA@mail.gmail.com>
- <87jyxi24jd.fsf@redhat.com>
- <CAHC9VhS=LNhFxHjxdeiCD2nThXPeCUibcos5wNTqox4uvVO5ug@mail.gmail.com>
- <CAHC9VhSeoyDPyK=Ph6_ksTwW3YrCaoHSztfPDnEGAxSsCYNPLw@mail.gmail.com>
-Date: Thu, 15 Jan 2026 20:29:53 +0100
-Message-ID: <87h5sm1xou.fsf@redhat.com>
+	dkim=pass (1024-bit key) header.d=1wt.eu header.i=@1wt.eu header.b="HFrMaR8K"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=1wt.eu; s=mail;
+	t=1768508340; bh=ZDQuS3dK1IrlbWJs15I7fbnuinR386XZYn/sxeLVbEw=;
+	h=From:Message-ID:From;
+	b=HFrMaR8K27qmeGF5yBl9IW9np+7mFz1vjQRC9Re8o64ZwX5wrP5njbHeOaBfgcLck
+	 X5oLRDTggQfWyVIiS/tQ803XxF59biElRqCWSyLbW/iSYpTMpRxf0XTgCBCyRU/Ru+
+	 Mtx+kDQL7gBRydJlQlnXVq5tEADKi13fsv5DyUrs=
+Received: from 1wt.eu (ded1.1wt.eu [163.172.96.212])
+	by mta1.formilux.org (Postfix) with ESMTP id 12F78C0BB3;
+	Thu, 15 Jan 2026 21:19:00 +0100 (CET)
+Date: Thu, 15 Jan 2026 21:18:59 +0100
+From: Willy Tarreau <w@1wt.eu>
+To: Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: security@kernel.org, selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Suspected off-by-one in context_struct_to_string()
+Message-ID: <aWlLs1o5gk7k5osk@1wt.eu>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Paul Moore <paul@paul-moore.com> writes:
+Hello,
 
-> On Thu, Jan 15, 2026 at 1:30=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
-wrote:
->> On Thu, Jan 15, 2026 at 12:02=E2=80=AFPM Petr Lautrbach <lautrbach@redha=
-t.com> wrote:
->> > Paul Moore <paul@paul-moore.com> writes:
->> >
->> > > On Thu, Jan 15, 2026 at 3:01=E2=80=AFAM Petr Lautrbach <lautrbach@re=
-dhat.com> wrote:
->> > >>
->> > >> "68D2 1823 342A 1368 3AEB  3E4E FB4C 685B 5DC1 C13E" is not a subke=
-y.
->> > >
->> > > Okay, in this case you need to get this new key signed by other
->> > > individuals trusted by the SELinux community before we can consider
->> > > including it in the SECURITY.md file.
->> > >
->> >
->> > My idea was:
->> >
->> > Before this patch my address was there without gpg fingerprint. It mea=
-ns
->> > that I could be contacted directly via un-encrypted email.
->>
->> Yes.  However, I believe there are usually different levels of trust
->> associated with plaintext and encrypted email.
->>
->> > The key I used in this patch was already used for SELinux userspace
->> > release ...
->>
->> I think the understanding was that release signing would be done by
->> individuals with a GPG key signed by others in the SELinux community
->> to help establish trust.  However, as you pointed out I don't think we
->> documented that requirement or enforced it properly, we should do so
->> in the future.
->>
->> > ... public key is available at 2 different locations connected to
->> > me - github (I'm part of SELinux organization) and
->> > plautrba.fedorapeople.org (I'm a packager for 15+ years) and it's also
->> > used in Fedora [1] and RHEL [2] - only Red Hat employees can push ther=
-e and it
->> > was me who pushed [3]. That being said I expected that the key is
->> > already trusted due to all the records.
->>
->> While that demonstrates some level of trust between that user/key and
->> those organizations (GH, Fedora, IBM/RH), it doesn't establish a level
->> of trust between that user/key and the SELinux community.
->
-> ... and I should say that I have no reason to believe you are not the
-> Good Petr who is a valued member of the SELinux community, but there
-> are rumors of an Evil Petr and I just want to make sure we do the
-> right thing from a community perspective ;)
->
-> Apologies for what may seem like excessive pedantry on this.
->
+we've received a suspected vulnerability report on the kernel security
+list, that was clearly generated by AI and really not clear at all on
+the root causes nor impacts. We first dismissed it and it kept coming
+back a few times. I'm not pasting it because it's more confusing than
+interesting, though I can pass it to the maintainers if desired. I'm
+also purposely *not* CCing the reporter, as the address changed a few
+times, and once you respond you receive a new copy of the same report.
+Clearly this bot deserves a bit more tuning.
 
-You should probably consider to remove bachradsusi account from Github
-SELinuxProject org and remove them commit rights. They provided
-https://github.com/bachradsusi.gpg with public keys they can't confirm
-that private keys are really in hands of Petr:
+The report claimed that the call to mls_compute_context_len() didn't
+properly reflect the size needed by mls_sid_to_context() due to an
+off-by-one that would result in the trailing zero being written too far.
+Initially we thought that was wrong since there are +1 everywhere in
+all lengths calculation in the function. But revisiting it today made
+us realize that this indeed seems to be true: the +1 that are everywhere
+are in fact due to the surrounding delimiters, and the first one that
+appeared to be the one accounting for the trailing zero was in fact
+for the starting colon.
 
-E853C1848B0185CF42864DF363A8AD4B982C4373 - uses SHA1 and private keys
-are lost - according to me, so it would be better to contact Petr with
-encrypted message and ask him to sign a response. But it could take some
-time to get a response for him.
+In context_struct_to_string(), we have this:
 
-68D21823342A13683AEB3E4EFB4C685B5DC1C13E - not signed by any SELinux
-team member.
+	*scontext_len += strlen(sym_name(p, SYM_USERS, context->user - 1)) + 1;
+	*scontext_len += strlen(sym_name(p, SYM_ROLES, context->role - 1)) + 1;
+	*scontext_len += strlen(sym_name(p, SYM_TYPES, context->type - 1)) + 1;
+	*scontext_len += mls_compute_context_len(p, context);
 
-There's a risk that they'll change released files and files signatures.
+*scontext_len is initialized to zero, is increased by the length of each
+appended string + delimiter, and used as-is in kmalloc() a few lines later:
 
-Petr
+	scontextp = kmalloc(*scontext_len, GFP_ATOMIC);
 
+then filled by sprintf() then mls_sid_to_context():
+
+        scontextp += sprintf(scontextp, "%s:%s:%s",
+                sym_name(p, SYM_USERS, context->user - 1),
+                sym_name(p, SYM_ROLES, context->role - 1),
+                sym_name(p, SYM_TYPES, context->type - 1));
+
+        mls_sid_to_context(p, context, &scontextp);
+
+And finally the trailing zero is appended:
+
+        *scontextp = 0;
+
+Thus unless I'm missing something, that trailing zero is indeed written
+past the end of the allocated area. The impact looks fairly limited
+though given that root is required to reach that code.
+
+Given the semantics of *scontext_len that claims to contain the string
+length, my feeling is that we should add one to the kmalloc() call:
+
+-	scontextp = kmalloc(*scontext_len, GFP_ATOMIC);
++	scontextp = kmalloc(*scontext_len + 1, GFP_ATOMIC);
+
+I must confess we got confused a bit when trying to follow this code,
+because the called functions do not indicate the expected output format
+nor whether or not the trailing zero is counted, so it's easy to think
+that a +1 stands for the trailing zero instead of an unclear delimiter.
+Also, it looks like the sole purpose of mls_compute_context_len() is
+to compute the length that will be needed to store the result of
+mls_sid_to_context(), and results in an almost copy-paste of one into
+the other, making it harder to check if they match (we had to read
+them due to the report pointing at that first one for being wrong, which
+is not the case depending on what we consider as a string length). I
+think that instead a change consisting in calling mls_sid_to_context()
+with a NULL destination buffer to avoid emitting bytes, and making it
+return the length could make the whole design more robust by doing a
+first call to compute the length and a second one to perform the copy.
+
+Let us know if you need more info, if all of this is wrong, if you want
+a copy of the original report or even the reporter's address if you want
+to attempt to communicate with them (we don't even know if there's a
+human or only a bot there).
+
+Thanks,
+Willy
