@@ -1,304 +1,416 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx1.secunet.com (mx1.secunet.com [62.96.220.36])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1106932E13A
-	for <selinux@vger.kernel.org>; Thu, 15 Jan 2026 08:01:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8123A31355D;
+	Thu, 15 Jan 2026 08:06:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.96.220.36
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768464065; cv=none; b=c/0oOgM4+ZOICdkMOK3yWgDzXBScQJU0S9VQmgd2TLMGFdKE3EALYqf6YUra5TIESX4lbXMt4v93lVx9NbsORVDX704P2I18tCfChIFAVSpPseUUi+pp7M7nap1sAdoeYgpYHgrdcZyPC13sw8VOfBLoZEeKGVeiWtdoTa2ZcD4=
+	t=1768464393; cv=none; b=sHDbNmUn9aD7CKFFjexerLGuTgdnHC3pms5FdN37nlJcBK/6l92fd+khM05XdpnRvoIo6YWauxNpdIeZfEn2/IRjS99T7hbF21dbEL5kjiS4p2KMZzC7Nilm50y6wDRETU1SWSAJrEcUKWW568v+hTBTvB/sCN2vOPzqxnaVumg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768464065; c=relaxed/simple;
-	bh=TyZjkTEgQQv2qNcss8tbuAFQwkm40ae+9Kcv3IF7nZ0=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=amzFACl1ufj7IcWIhecODvPI82g/koKyi6kccQmqg12l579hpvV71iuSrduxv+wUwiiGze2YhuLQkNknaWybts5324wR4wrVCpgjNZj7SdwHc1KSrSZQzNdE4XCehLDbvzY6S8acDVm6aQ2wZP/+OIspeDdnQboUJl/VSyDm+og=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UStQMU89; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1768464393; c=relaxed/simple;
+	bh=5wSNSxE/+84dvRaoiZYtKNsgDW+o8LpXQcWD+JArCo4=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=O8oe61+7nFIB6fH7SanK2SUaVcIo7cYe77Gwgi/mEm0F+aKKObDy8hNt/apCBY1VpJBYs8NHJVWEVz9yXu8vSqC7yj6sUS01/WMTCKHIhGabc/r/LcBe7uzCUdav1VtsjSJmurVX6OWS3ZpIlUTNQzUfXXRoXdLe5sLLKt8n+q0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com; spf=pass smtp.mailfrom=secunet.com; dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b=MLu87Jfx; arc=none smtp.client-ip=62.96.220.36
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=secunet.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UStQMU89"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1768464061;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=0thFOOhBlsfzvsrhP0+xjV/LtVYR/Nfb8tev44U3tno=;
-	b=UStQMU89TD8mttd2R0QHHRA99Nu+WXS3Xluhw3hCffUxefCDnODYHCqIFDZSfKU5SjVm3a
-	OAuvlThINpMO9/6M311irdlEcjz3q3AkKq4vwm6DhBUEbLj6FX2rtLiVzcKsAJw6DKymkr
-	0cz1rDmTCWVUEBJ5Zo7nI7mCP/hWCBc=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-517-5SXeXmQ2P5ub-03M3EY8yQ-1; Thu,
- 15 Jan 2026 03:00:59 -0500
-X-MC-Unique: 5SXeXmQ2P5ub-03M3EY8yQ-1
-X-Mimecast-MFC-AGG-ID: 5SXeXmQ2P5ub-03M3EY8yQ_1768464058
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b="MLu87Jfx"
+Received: from localhost (localhost [127.0.0.1])
+	by mx1.secunet.com (Postfix) with ESMTP id EC522208B0;
+	Thu, 15 Jan 2026 09:06:23 +0100 (CET)
+X-Virus-Scanned: by secunet
+Received: from mx1.secunet.com ([127.0.0.1])
+ by localhost (mx1.secunet.com [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id tgzT67rvDSTq; Thu, 15 Jan 2026 09:06:23 +0100 (CET)
+Received: from EXCH-02.secunet.de (rl2.secunet.de [10.32.0.232])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id A151918005A7;
-	Thu, 15 Jan 2026 08:00:58 +0000 (UTC)
-Received: from localhost (unknown [10.45.224.54])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 2CC9D180049F;
-	Thu, 15 Jan 2026 08:00:57 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: selinux@vger.kernel.org
-Subject: Re: [PATCH] SECURITY.md: add lautrbach@redhat.com gpg fingerprint
-In-Reply-To: <CAHC9VhSBGr=6izQCmWwOcg85S3G02aDMgSrQ-bGEf-sR9RYtVg@mail.gmail.com>
-References: <20260105174020.887724-1-lautrbach@redhat.com>
- <CAHC9VhRaKE2fuXik5xxaw5i1f9QgveFj0_FgzMVyRCHebueZGQ@mail.gmail.com>
- <87h5sxvd52.fsf@redhat.com>
- <CAHC9VhQmYLMqFzytgauijn_C6TXksBVsptEdNb2ZcyKFT8fsCg@mail.gmail.com>
- <87cy3kv5w2.fsf@redhat.com>
- <CAHC9VhTcEFHNJcTSbvWFU4gKpAUBg-8cLAfushX8CrhnT41SbQ@mail.gmail.com>
- <873448ujz1.fsf@redhat.com>
- <CAHC9VhSBGr=6izQCmWwOcg85S3G02aDMgSrQ-bGEf-sR9RYtVg@mail.gmail.com>
-Date: Thu, 15 Jan 2026 09:00:56 +0100
-Message-ID: <87pl7b1f0n.fsf@redhat.com>
+	by mx1.secunet.com (Postfix) with ESMTPS id 00B8120894;
+	Thu, 15 Jan 2026 09:06:23 +0100 (CET)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.secunet.com 00B8120894
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=secunet.com;
+	s=202301; t=1768464383;
+	bh=1ZQ8UCD1/JFJ06foyidVKgbZGf/W18cxJte+8JopSmM=;
+	h=From:To:CC:Subject:Date:In-Reply-To:References:From;
+	b=MLu87Jfx41UZMzFbXLOlC4ADDQWVL/30H5FPXdsJTfg8YlKyqBGWHXFmSlVXVLF2e
+	 iwsiVXdmTa9SV+I+BTlzPxo1ZmTZy3/muyUIvzE/cD6bI6qOY40d4EAFbIPi99EzDX
+	 v8xmzAsb3alRdQIW42hdoYSlwX1HYvaR+LoRpzXGbKx4iFo8pG24aR/tXzhz6Z8d62
+	 ykiFQiH+GbnvOdpYbPkZBF8ll48QJ6X/ZyGemIe3AS1ZUhpWpIaROvoMLwxhp9H+Sj
+	 8CdTGg9nv1XLip8JAWbimh5IqE38OUT69Ny4sBJ+xVXDbC7xMFSuwusuzl6GulbCcG
+	 eQq53rzo6qtEw==
+Received: from moon.secunet.de (172.18.149.1) by EXCH-02.secunet.de
+ (10.32.0.172) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Thu, 15 Jan
+ 2026 09:06:21 +0100
+From: Antony Antony <antony.antony@secunet.com>
+To: Antony Antony <antony.antony@secunet.com>, Steffen Klassert
+	<steffen.klassert@secunet.com>, Herbert Xu <herbert@gondor.apana.org.au>,
+	<netdev@vger.kernel.org>
+CC: "David S . Miller" <davem@davemloft.net>, Eric Dumazet
+	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>, Chiachang Wang <chiachangwang@google.com>, Yan Yan
+	<evitayan@google.com>, Shinta Sugimoto <shinta.sugimoto@ericsson.com>,
+	<devel@linux-ipsec.org>, Simon Horman <horms@kernel.org>, Paul Moore
+	<paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>, <linux-kernel@vger.kernel.org>,
+	<selinux@vger.kernel.org>
+Subject: [PATCH ipsec-next v2 4/4] xfrm: add XFRM_MSG_MIGRATE_STATE for single SA migration
+Date: Thu, 15 Jan 2026 09:05:59 +0100
+Message-ID: <33ff1bb0672e49e7e3ea2424a9a61ae621a2a28d.1768462955.git.antony.antony@secunet.com>
+X-Mailer: git-send-email 2.39.5
+In-Reply-To: <cover.1768462955.git.antony.antony@secunet.com>
+References: <cover.1768462955.git.antony.antony@secunet.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: EXCH-04.secunet.de (10.32.0.184) To EXCH-02.secunet.de
+ (10.32.0.172)
 
-Paul Moore <paul@paul-moore.com> writes:
+Add a new netlink method to migrate a single xfrm_state.
+Unlike the existing migration mechanism (SA + policy), this
+supports migrating only the SA and allows changing the reqid.
 
-> On Wed, Jan 14, 2026 at 1:28=E2=80=AFPM Petr Lautrbach <lautrbach@redhat.=
-com> wrote:
->> Paul Moore <paul@paul-moore.com> writes:
->> > On Thu, Jan 8, 2026 at 3:57=E2=80=AFAM Petr Lautrbach <lautrbach@redha=
-t.com> wrote:
->> >> Paul Moore <paul@paul-moore.com> writes:
->> >> > On Wed, Jan 7, 2026 at 7:08=E2=80=AFAM Petr Lautrbach <lautrbach@re=
-dhat.com> wrote:
->> >> >> Paul Moore <paul@paul-moore.com> writes:
->> >> >> > On Mon, Jan 5, 2026 at 12:46=E2=80=AFPM Petr Lautrbach <lautrbac=
-h@redhat.com> wrote:
->> >
->> > ...
->> >
->> >> >> >> diff --git a/SECURITY.md b/SECURITY.md
->> >> >> >> index 2a7ce5b317a7..faa060ccff03 100644
->> >> >> >> --- a/SECURITY.md
->> >> >> >> +++ b/SECURITY.md
->> >> >> >> @@ -24,7 +24,8 @@ list is below. We typically request at most a=
- 90 day time period to address
->> >> >> >>  the issue before it is made public, but we will make every eff=
-ort to address
->> >> >> >>  the issue as quickly as possible and shorten the disclosure wi=
-ndow.
->> >> >> >>
->> >> >> >> -* Petr Lautrbach, plautrba@redhat.com
->> >> >> >> +* Petr Lautrbach, lautrbach@redhat.com
->> >> >> >> +  *  (GPG fingerprint) 68D2 1823 342A 1368 3AEB  3E4E FB4C 685=
-B 5DC1 C13E
->> >> >> >
->> >> >> > I think you may want to list the fingerprint of your primary key=
- and
->> >> >> > not a subkey, as the primary key is what carries the signatures =
-and
->> >> >> > helps verify trust.
->> >> >> >
->> >> >>
->> >> >> I guess I need help then:
->> >> >>
->> >> >> $ gpg --show-keys --fingerprint lautrbach@redhat.com.gpg
->> >> >
->> >> > You want to use the key fingerprint which displays when you run 'gpg
->> >> > --fingerprint <email>'.  Assuming you have the keys for the other d=
-evs
->> >> > in your keyring, you'll notice that command can be used to reproduce
->> >> > the other fingerprints in the file.
->> >> >
->> >> > %  gpg --fingerprint plautrba@redhat.com
->> >> > pub   rsa4096 2012-04-03 [SC]
->> >> >      E853 C184 8B01 85CF 4286  4DF3 63A8 AD4B 982C 4373
->> >> > uid           [  full  ] Petr Lautrbach <plautrba@redhat.com>
->> >> > sub   rsa4096 2012-04-03 [E]
->> >> > sub   rsa4096 2017-12-05 [S]
->> >> > sub   rsa4096 2017-12-05 [A]
->> >>
->> >> I've also changed my email contact address to lautrbach@redhat.com wh=
-ich I
->> >> use for some time already:
->> >>
->> >> > From: Petr Lautrbach <lautrbach@redhat.com>
->> >>
->> >> > -* Petr Lautrbach, plautrba@redhat.com
->> >> > +* Petr Lautrbach, lautrbach@redhat.com
->> >
->> > There are mechanisms to add a new identity to an existing GPG key:
->> >
->> > https://docs.github.com/en/authentication/managing-commit-signature-ve=
-rification/associating-an-email-with-your-gpg-key
->>
->>
->> I could add plautrba@redhat.com to lautrbach@redhat.com (68D2 1823 342A
->> 1368 3AEB  3E4E FB4C 685B 5DC1 C13E) but it would not make any
->> difference for this purpose.
->>
->> I use lautrbach@redhat.com email and I expect people send me encrypted
->> emails using 68D2 1823 342A 1368 3AEB  3E4E FB4C 685B 5DC1 C13E key ther=
-e.
->>
->> I use lautrbach@redhat.com identity for signing since  SELinux userspace=
- release
->> 3.6 in December 2023.
->>
->> $ gpg --verify checkpolicy-3.6.tar.gz.asc
->> gpg: assuming signed data in 'checkpolicy-3.6.tar.gz'
->> gpg: Signature made Wed 13 Dec 2023 03:47:30 PM CET
->> gpg:                using RSA key 1BE2C0FF08949623102FD2564695881C254508=
-D1
->> gpg: Good signature from "Petr Lautrbach <lautrbach@redhat.com>" [expire=
-d]
->> gpg: Note: This key has expired!
->> Primary key fingerprint: B868 2847 764D F60D F52D  992C BC39 05F2 3517 9=
-CF1
->>      Subkey fingerprint: 1BE2 C0FF 0894 9623 102F  D256 4695 881C 2545 0=
-8D1
->>
->> $ gpg --verify checkpolicy-3.9.tar.gz.asc
->> gpg: assuming signed data in 'checkpolicy-3.9.tar.gz'
->> gpg: Signature made Wed 16 Jul 2025 12:55:48 PM CEST
->> gpg:                using RSA key 7200EB2C3F5E488463C0CE9ECDCAE8C927C6BE=
-31
->> gpg: Good signature from "Petr Lautrbach <plautrba@redhat.com>" [ultimat=
-e]
->> gpg:                 aka "Petr Lautrbach <lautrbach@redhat.com>" [ultima=
-te]
->> Primary key fingerprint: 68D2 1823 342A 1368 3AEB  3E4E FB4C 685B 5DC1 C=
-13E
->>      Subkey fingerprint: 7200 EB2C 3F5E 4884 63C0  CE9E CDCA E8C9 27C6 B=
-E31
->>
->> The only copy of private key of E853 C184 8B01 85CF 4286  4DF3 63A8 AD4B=
-982C 4373
->> was on my yubikey which I destroyed few years ago when I forgot the PIN.
->
-[...]
-> Beyond that, I think there is a disconnect between the different GPG
-> key types, signatures, etc. There is a link below which I think may
-> help explain the differences, but if you are already familiar with GPG
-> keys and I'm simply misunderstanding things, please feel free to
-> ignore the link (the post is somewhat lengthy).
->
-> https://davesteele.github.io/gpg/2014/09/20/anatomy-of-a-gpg-key
->
-> When listing GPG key fingerprints, people list the fingerprint of
-> their primary key, as that is the key which is signed by others, and
-> the key used to sign other people's (primary) keys.  This primary key
-> is then used to sign the subkeys associated with the primary key;
-> these subkeys are what are typically used for signing, encryption, and
-> in some cases authentication (ssh, etc.).  For example, if you look at
-> my entry in the SECURITY.md file you will see a key fingerprint of
-> 7100..., the fingerprint of my primary key, but if you look at the
-> kernel tag signatures you see that I'm using my signature subkey.
->
-> [NOTE: command output trimmed for clarity]
->
-> % gpg --fingerprint paul@paul-moore.com
-> pub   rsa4096 2011-10-10 [SC]
->      7100...
-> uid           [ultimate] Paul Moore <paul@paul-moore.com>
-> sub   rsa4096 2018-10-15 [E]
-> sub   rsa4096 2018-10-15 [S]
-> sub   rsa4096 2020-06-19 [A]
-> %  git tag --verify selinux-pr-20251201
-> selinux/stable-6.19 PR 20251201
-> gpg: Signature made Mon 01 Dec 2025 03:54:57 PM EST
-> gpg:                using RSA key 4B42...
-> gpg:                issuer "paul@paul-moore.com"
-> gpg: Good signature from "Paul Moore <paul@paul-moore.com>" [ultimate]
-> % gpg --list-key 4B42...
-> pub   rsa4096 2011-10-10 [SC]
->      7100...
-> uid           [ultimate] Paul Moore <paul@paul-moore.com>
-> sub   rsa4096 2018-10-15 [E]
-> sub   rsa4096 2018-10-15 [S]
-> sub   rsa4096 2020-06-19 [A]
->
-> I believe that if you look at the other GPG fingerprints in
-> SECURITY.md you will see that they are all fingerprints of primary
-> keys, not subkeys.
->
+The reqid is invarient in old migration.
 
-"68D2 1823 342A 1368 3AEB  3E4E FB4C 685B 5DC1 C13E" is not a subkey.=20
+Signed-off-by: Antony Antony <antony.antony@secunet.com>
+---
+v1->v2: merged next patch here to fix use uninitialized value
+	- removed unnecessary inline
+        - added const when possible
+---
+ include/net/xfrm.h          |   1 +
+ include/uapi/linux/xfrm.h   |  11 +++
+ net/xfrm/xfrm_state.c       |  19 +++--
+ net/xfrm/xfrm_user.c        | 160 ++++++++++++++++++++++++++++++++++++
+ security/selinux/nlmsgtab.c |   3 +-
+ 5 files changed, 185 insertions(+), 9 deletions(-)
 
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index 05fa0552523d..4147c5ba6093 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -686,6 +686,7 @@ struct xfrm_migrate {
+ 	u8			mode;
+ 	u16			reserved;
+ 	u32			old_reqid;
++	u32			new_reqid;
+ 	u16			old_family;
+ 	u16			new_family;
+ };
+diff --git a/include/uapi/linux/xfrm.h b/include/uapi/linux/xfrm.h
+index a23495c0e0a1..60b1f201b237 100644
+--- a/include/uapi/linux/xfrm.h
++++ b/include/uapi/linux/xfrm.h
+@@ -227,6 +227,9 @@ enum {
+ #define XFRM_MSG_SETDEFAULT XFRM_MSG_SETDEFAULT
+ 	XFRM_MSG_GETDEFAULT,
+ #define XFRM_MSG_GETDEFAULT XFRM_MSG_GETDEFAULT
++
++	XFRM_MSG_MIGRATE_STATE,
++#define XFRM_MSG_MIGRATE_STATE XFRM_MSG_MIGRATE_STATE
+ 	__XFRM_MSG_MAX
+ };
+ #define XFRM_MSG_MAX (__XFRM_MSG_MAX - 1)
+@@ -507,6 +510,14 @@ struct xfrm_user_migrate {
+ 	__u16				new_family;
+ };
 
-$ gpg --fingerprint lautrbach@redhat.com
-pub   rsa4096/FB4C685B5DC1C13E 2024-11-04 [SC] [expires: 2026-11-04]
-      Key fingerprint =3D 68D2 1823 342A 1368 3AEB  3E4E FB4C 685B 5DC1 C13E
-                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^=
-=20=20
++struct xfrm_user_migrate_state {
++	struct xfrm_usersa_id id;
++	xfrm_address_t new_saddr;
++	xfrm_address_t new_daddr;
++	__u16 new_family;
++	__u32 new_reqid;
++};
++
+ struct xfrm_user_mapping {
+ 	struct xfrm_usersa_id		id;
+ 	__u32				reqid;
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index fe595d7f4398..f35630dea00f 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -1966,8 +1966,9 @@ static inline int clone_security(struct xfrm_state *x, struct xfrm_sec_ctx *secu
+ }
 
-      Keygrip =3D 834230A0854D7A8698B5432C007560FE7AECC504
-uid                 [ultimate] Petr Lautrbach <plautrba@redhat.com>
-uid                 [ultimate] Petr Lautrbach <lautrbach@redhat.com>
-sub   rsa4096/C500C028A770AB66 2024-11-04 [E] [expires: 2026-11-04]
-      Key fingerprint =3D 58E9 06B2 5680 15A7 91C8  D2EC C500 C028 A770 AB66
-      Keygrip =3D 2EF1D48B43E234CAAE155A0AD032C00063FCB102
-sub   rsa4096/CDCAE8C927C6BE31 2024-11-04 [S] [expires: 2026-11-04]
-      Key fingerprint =3D 7200 EB2C 3F5E 4884 63C0  CE9E CDCA E8C9 27C6 BE31
-      Keygrip =3D CAE3E6B80FFD15958C813CC635CFFDF9F86D9C17
-sub   rsa4096/37BCD711A64B2890 2024-11-04 [AR] [expires: 2026-11-04]
-      Key fingerprint =3D 832F CF4A 82B0 7F2A 51E4  3DDB 37BC D711 A64B 2890
-      Keygrip =3D 850707DAF56607DEABD28933FD0A77D382923F1C
+ static struct xfrm_state *xfrm_state_clone_and_setup(struct xfrm_state *orig,
+-					   struct xfrm_encap_tmpl *encap,
+-					   struct xfrm_migrate *m)
++					   const struct xfrm_encap_tmpl *encap,
++					   const struct xfrm_migrate *m,
++					   struct netlink_ext_ack *extack)
+ {
+ 	struct net *net = xs_net(orig);
+ 	struct xfrm_state *x = xfrm_state_alloc(net);
+@@ -1979,7 +1980,6 @@ static struct xfrm_state *xfrm_state_clone_and_setup(struct xfrm_state *orig,
+ 	memcpy(&x->lft, &orig->lft, sizeof(x->lft));
+ 	x->props.mode = orig->props.mode;
+ 	x->props.replay_window = orig->props.replay_window;
+-	x->props.reqid = orig->props.reqid;
 
+ 	if (orig->aalg) {
+ 		x->aalg = xfrm_algo_auth_clone(orig->aalg);
+@@ -2058,7 +2058,7 @@ static struct xfrm_state *xfrm_state_clone_and_setup(struct xfrm_state *orig,
+ 			goto error;
+ 	}
 
-$ gpg --list-key FB4C685B5DC1C13E
-pub   rsa4096/FB4C685B5DC1C13E 2024-11-04 [SC] [expires: 2026-11-04]
-      Key fingerprint =3D 68D2 1823 342A 1368 3AEB  3E4E FB4C 685B 5DC1 C13E
-      Keygrip =3D 834230A0854D7A8698B5432C007560FE7AECC504
-uid                 [ultimate] Petr Lautrbach <lautrbach@redhat.com>
-sub   rsa4096/C500C028A770AB66 2024-11-04 [E] [expires: 2026-11-04]
-      Keygrip =3D 2EF1D48B43E234CAAE155A0AD032C00063FCB102
-sub   rsa4096/CDCAE8C927C6BE31 2024-11-04 [S] [expires: 2026-11-04]
-      Keygrip =3D CAE3E6B80FFD15958C813CC635CFFDF9F86D9C17
-sub   rsa4096/37BCD711A64B2890 2024-11-04 [AR] [expires: 2026-11-04]
-      Keygrip =3D 850707DAF56607DEABD28933FD0A77D382923F1C
+-
++	x->props.reqid = m->new_reqid;
+ 	x->props.family = m->new_family;
+ 	memcpy(&x->id.daddr, &m->new_daddr, sizeof(x->id.daddr));
+ 	memcpy(&x->props.saddr, &m->new_saddr, sizeof(x->props.saddr));
+@@ -2133,7 +2133,7 @@ struct xfrm_state *xfrm_state_migrate(struct xfrm_state *x,
+ {
+ 	struct xfrm_state *xc;
 
+-	xc = xfrm_state_clone_and_setup(x, encap, m);
++	xc = xfrm_state_clone_and_setup(x, encap, m, extack);
+ 	if (!xc)
+ 		return NULL;
 
-$ git tag -s -m "check signature" check
+@@ -2145,9 +2145,12 @@ struct xfrm_state *xfrm_state_migrate(struct xfrm_state *x,
+ 		goto error;
 
-$ git tag --verify check=20=20=20=20=20=20=20=20=20=20=20=20=20=20
-object 374ee744d6ed84ee2ca70c90be023290409a8fa4
-type commit
-tag check
-tagger Petr Lautrbach <lautrbach@redhat.com> 1768463780 +0100
+ 	/* add state */
+-	if (xfrm_addr_equal(&x->id.daddr, &m->new_daddr, m->new_family)) {
+-		/* a care is needed when the destination address of the
+-		   state is to be updated as it is a part of triplet */
++	if (xfrm_addr_equal(&x->id.daddr, &m->new_daddr, m->new_family) ||
++	    x->props.reqid != xc->props.reqid) {
++		/*
++		 * a care is needed when the destination address or the reqid
++		 * of the state is to be updated as it is a part of triplet
++		 */
+ 		xfrm_state_insert(xc);
+ 	} else {
+ 		if (xfrm_state_add(xc) < 0)
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index 26b82d94acc1..298d7c1454e5 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -3052,6 +3052,22 @@ static int xfrm_add_acquire(struct sk_buff *skb, struct nlmsghdr *nlh,
+ }
 
-check signature
-gpg: Signature made Thu 15 Jan 2026 08:56:20 AM CET
-gpg:                using RSA key 7200EB2C3F5E488463C0CE9ECDCAE8C927C6BE31
-gpg: checking the trustdb
-gpg: marginals needed: 3  completes needed: 1  trust model: pgp
-gpg: depth: 0  valid:   1  signed:   1  trust: 0-, 0q, 0n, 0m, 0f, 1u
-gpg: depth: 1  valid:   1  signed:   0  trust: 1-, 0q, 0n, 0m, 0f, 0u
-gpg: next trustdb check due at 2026-11-04
-gpg: Good signature from "Petr Lautrbach <lautrbach@redhat.com>" [ultimate]
-Primary key fingerprint: 68D2 1823 342A 1368 3AEB  3E4E FB4C 685B 5DC1 C13E
-     Subkey fingerprint: 7200 EB2C 3F5E 4884 63C0  CE9E CDCA E8C9 27C6 BE31
+ #ifdef CONFIG_XFRM_MIGRATE
++static int copy_from_user_migrate_state(struct xfrm_migrate *ma,
++					const struct xfrm_user_migrate_state *um)
++{
++	memcpy(&ma->old_daddr, &um->id.daddr, sizeof(ma->old_daddr));
++	memcpy(&ma->new_daddr, &um->new_daddr, sizeof(ma->new_daddr));
++	memcpy(&ma->new_saddr, &um->new_saddr, sizeof(ma->new_saddr));
++
++	ma->proto = um->id.proto;
++	ma->new_reqid = um->new_reqid;
++
++	ma->old_family = um->id.family;
++	ma->new_family = um->new_family;
++
++	return 0;
++}
++
+ static int copy_from_user_migrate(struct xfrm_migrate *ma,
+ 				  struct xfrm_kmaddress *k,
+ 				  struct nlattr **attrs, int *num,
+@@ -3088,6 +3104,7 @@ static int copy_from_user_migrate(struct xfrm_migrate *ma,
+ 		ma->proto = um->proto;
+ 		ma->mode = um->mode;
+ 		ma->old_reqid = um->reqid;
++		ma->new_reqid = um->reqid; /* reqid is invariant in XFRM_MSG_MIGRATE */
 
+ 		ma->old_family = um->old_family;
+ 		ma->new_family = um->new_family;
+@@ -3154,7 +3171,148 @@ static int xfrm_do_migrate(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 	kfree(xuo);
+ 	return err;
+ }
++
++static int build_migrate_state(struct sk_buff *skb,
++			       const struct xfrm_user_migrate_state *m,
++			       const struct xfrm_encap_tmpl *encap,
++			       const struct xfrm_user_offload *xuo)
++{
++	int err;
++	struct nlmsghdr *nlh;
++	struct xfrm_user_migrate_state *um;
++
++	nlh = nlmsg_put(skb, 0, 0, XFRM_MSG_MIGRATE_STATE,
++			sizeof(struct xfrm_user_migrate_state), 0);
++	if (!nlh)
++		return -EMSGSIZE;
++
++	um = nlmsg_data(nlh);
++	memset(um, 0, sizeof(*um));
++	memcpy(um, m, sizeof(*um));
++
++	if (encap) {
++		err = nla_put(skb, XFRMA_ENCAP, sizeof(*encap), encap);
++		if (err)
++			goto out_cancel;
++	}
++
++	if (xuo) {
++		err = nla_put(skb, XFRMA_OFFLOAD_DEV, sizeof(*xuo), xuo);
++		if (err)
++			goto out_cancel;
++	}
++
++	nlmsg_end(skb, nlh);
++	return 0;
++
++out_cancel:
++	nlmsg_cancel(skb, nlh);
++	return err;
++}
++
++static unsigned int xfrm_migrate_state_msgsize(bool with_encap, bool with_xuo)
++{
++	return NLMSG_ALIGN(sizeof(struct xfrm_user_migrate_state)) +
++		(with_encap ? nla_total_size(sizeof(struct xfrm_encap_tmpl)) : 0) +
++		(with_xuo ? nla_total_size(sizeof(struct xfrm_user_offload)) : 0);
++}
++
++static int xfrm_send_migrate_state(const struct xfrm_user_migrate_state *um,
++				   const struct xfrm_encap_tmpl *encap,
++				   const struct xfrm_user_offload *xuo)
++{
++	int err;
++	struct sk_buff *skb;
++	struct net *net = &init_net;
++
++	skb = nlmsg_new(xfrm_migrate_state_msgsize(!!encap, !!xuo), GFP_ATOMIC);
++	if (!skb)
++		return -ENOMEM;
++
++	err = build_migrate_state(skb, um, encap, xuo);
++	if (err < 0) {
++		WARN_ON(1);
++		return err;
++	}
++
++	return xfrm_nlmsg_multicast(net, skb, 0, XFRMNLGRP_MIGRATE);
++}
++
++static int xfrm_do_migrate_state(struct sk_buff *skb, struct nlmsghdr *nlh,
++				 struct nlattr **attrs, struct netlink_ext_ack *extack)
++{
++	int err = -ESRCH;
++	struct xfrm_state *x;
++	struct net *net = sock_net(skb->sk);
++	struct xfrm_encap_tmpl *encap = NULL;
++	struct xfrm_user_offload *xuo = NULL;
++	struct xfrm_migrate m = { .old_saddr.a4 = 0,};
++	struct xfrm_user_migrate_state *um = nlmsg_data(nlh);
++
++	if (!um->id.spi) {
++		NL_SET_ERR_MSG(extack, "Invalid SPI 0x0");
++		return -EINVAL;
++	}
++
++	err = copy_from_user_migrate_state(&m, um);
++	if (err)
++		return err;
++
++	x = xfrm_user_state_lookup(net, &um->id, attrs, &err);
++
++	if (x) {
++		struct xfrm_state *xc;
++
++		if (!x->dir) {
++			NL_SET_ERR_MSG(extack, "State direction is invalid");
++			err = -EINVAL;
++			goto error;
++		}
++
++		if (attrs[XFRMA_ENCAP]) {
++			encap = kmemdup(nla_data(attrs[XFRMA_ENCAP]),
++					sizeof(*encap), GFP_KERNEL);
++			if (!encap) {
++				err = -ENOMEM;
++				goto error;
++			}
++		}
++		if (attrs[XFRMA_OFFLOAD_DEV]) {
++			xuo = kmemdup(nla_data(attrs[XFRMA_OFFLOAD_DEV]),
++				      sizeof(*xuo), GFP_KERNEL);
++			if (!xuo) {
++				err = -ENOMEM;
++				goto error;
++			}
++		}
++		xc = xfrm_state_migrate(x, &m, encap, net, xuo, extack);
++		if (xc) {
++			xfrm_state_delete(x);
++			xfrm_send_migrate_state(um, encap, xuo);
++		} else {
++			if (extack && !extack->_msg)
++				NL_SET_ERR_MSG(extack, "State migration clone failed");
++			err = -EINVAL;
++		}
++	} else {
++		NL_SET_ERR_MSG(extack, "Can not find state");
++		return err;
++	}
++error:
++	xfrm_state_put(x);
++	kfree(encap);
++	kfree(xuo);
++	return err;
++}
++
+ #else
++static int xfrm_do_migrate_state(struct sk_buff *skb, struct nlmsghdr *nlh,
++				 struct nlattr **attrs, struct netlink_ext_ack *extack)
++{
++	NL_SET_ERR_MSG(extack, "XFRM_MSG_MIGRATE_STATE is not supported");
++	return -ENOPROTOOPT;
++}
++
+ static int xfrm_do_migrate(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 			   struct nlattr **attrs, struct netlink_ext_ack *extack)
+ {
+@@ -3307,6 +3465,7 @@ const int xfrm_msg_min[XFRM_NR_MSGTYPES] = {
+ 	[XFRM_MSG_GETSPDINFO  - XFRM_MSG_BASE] = sizeof(u32),
+ 	[XFRM_MSG_SETDEFAULT  - XFRM_MSG_BASE] = XMSGSIZE(xfrm_userpolicy_default),
+ 	[XFRM_MSG_GETDEFAULT  - XFRM_MSG_BASE] = XMSGSIZE(xfrm_userpolicy_default),
++	[XFRM_MSG_MIGRATE_STATE - XFRM_MSG_BASE] = XMSGSIZE(xfrm_user_migrate_state),
+ };
+ EXPORT_SYMBOL_GPL(xfrm_msg_min);
 
+@@ -3400,6 +3559,7 @@ static const struct xfrm_link {
+ 	[XFRM_MSG_GETSPDINFO  - XFRM_MSG_BASE] = { .doit = xfrm_get_spdinfo   },
+ 	[XFRM_MSG_SETDEFAULT  - XFRM_MSG_BASE] = { .doit = xfrm_set_default   },
+ 	[XFRM_MSG_GETDEFAULT  - XFRM_MSG_BASE] = { .doit = xfrm_get_default   },
++	[XFRM_MSG_MIGRATE_STATE - XFRM_MSG_BASE] = { .doit = xfrm_do_migrate_state },
+ };
 
-I've dropped all but the one key from https://plautrba.fedorapeople.org/lau=
-trbach@redhat.com.gpg
+ static int xfrm_reject_unused_attr(int type, struct nlattr **attrs,
+diff --git a/security/selinux/nlmsgtab.c b/security/selinux/nlmsgtab.c
+index 2c0b07f9fbbd..655d2616c9d2 100644
+--- a/security/selinux/nlmsgtab.c
++++ b/security/selinux/nlmsgtab.c
+@@ -128,6 +128,7 @@ static const struct nlmsg_perm nlmsg_xfrm_perms[] = {
+ 	{ XFRM_MSG_MAPPING, NETLINK_XFRM_SOCKET__NLMSG_READ },
+ 	{ XFRM_MSG_SETDEFAULT, NETLINK_XFRM_SOCKET__NLMSG_WRITE },
+ 	{ XFRM_MSG_GETDEFAULT, NETLINK_XFRM_SOCKET__NLMSG_READ },
++	{ XFRM_MSG_MIGRATE_STATE, NETLINK_XFRM_SOCKET__NLMSG_WRITE },
+ };
 
-# curl -O https://plautrba.fedorapeople.org/lautrbach@redhat.com.gpg
+ static const struct nlmsg_perm nlmsg_audit_perms[] = {
+@@ -203,7 +204,7 @@ int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm)
+ 		 * structures at the top of this file with the new mappings
+ 		 * before updating the BUILD_BUG_ON() macro!
+ 		 */
+-		BUILD_BUG_ON(XFRM_MSG_MAX != XFRM_MSG_GETDEFAULT);
++		BUILD_BUG_ON(XFRM_MSG_MAX != XFRM_MSG_MIGRATE_STATE);
 
-# gpg --show-keys --fingerprint lautrbach@redhat.com.gpg
-pub   rsa4096 2024-11-04 [SC] [expires: 2026-11-04]
-      68D2 1823 342A 1368 3AEB  3E4E FB4C 685B 5DC1 C13E
-uid                      Petr Lautrbach <lautrbach@redhat.com>
-sub   rsa4096 2024-11-04 [E] [expires: 2026-11-04]
-sub   rsa4096 2024-11-04 [S] [expires: 2026-11-04]
-sub   rsa4096 2024-11-04 [AR] [expires: 2026-11-04]
-
-
+ 		if (selinux_policycap_netlink_xperm()) {
+ 			*perm = NETLINK_XFRM_SOCKET__NLMSG;
+--
+2.39.5
 
