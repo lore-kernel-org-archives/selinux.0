@@ -1,118 +1,65 @@
-Received: from mta1.formilux.org (mta1.formilux.org [51.159.59.229])
+Received: from mail.bizial.pl (mail.bizial.pl [141.94.21.111])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDE2F2D061C;
-	Fri, 16 Jan 2026 08:26:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=51.159.59.229
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89BCB30DEC4
+	for <selinux@vger.kernel.org>; Fri, 16 Jan 2026 09:08:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=141.94.21.111
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768551968; cv=none; b=F6r9Ju9xkVojNZe6uAtjuVAl6sqzbd2FDHl13vfumetTBmgIjEiWyC7oJx0vBIA1Kt0UvMJDxQVDyTsmux6NYdbhqm3B6yHZxcIRD0w83WzqAzuwurmv4tne8Ay20fRSzL2+VWbf2mdF5aN3XmLgor+xbGiBuge4aFTm0vH8BRA=
+	t=1768554531; cv=none; b=NFBSfL5FY0bW3yp2V2Gwt/rv+04r32P5LD6POYeHhpXunsx5zW1XkkP5UY/jGwIr+5faPkfwy+92QiyCoins+CA84tQZRvYevJoaawSo1j8nzRLZNj3Y1HSNQuBmocir4Ro7VbpN9yIqDZyahZeeQn6Y+FYsAcNlT7beuispbpI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768551968; c=relaxed/simple;
-	bh=MzL2R7Oe5wUS73kI0LzlF7hHjo/nzk1CKa4Pcgik384=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OAVCB4V5cXkyY3q93lqfMkNv6eIhwMZOiF80qnBVd/OMPw1BgHL49GQAQkjJ38LDcggUBcDyj3fPs04WMvwE+We6YrzCymauYFRlrgy1QS6209PJzFpW2bQEQAd+jhvvk0NTrhwK6podk0jtGi4c3pyLVS7foSBxAJJYu+93Eu8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=1wt.eu; spf=pass smtp.mailfrom=1wt.eu; dkim=pass (1024-bit key) header.d=1wt.eu header.i=@1wt.eu header.b=FHxGOKVO; arc=none smtp.client-ip=51.159.59.229
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=1wt.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=1wt.eu
+	s=arc-20240116; t=1768554531; c=relaxed/simple;
+	bh=T8G42ymPsbQlOmSfXp6t7vdzurf0DxoeMgYu7hEL14k=;
+	h=Message-ID:Date:From:To:Subject:MIME-Version:Content-Type; b=RNCWPE0LBRg1SKchzJQlpfQ819+SmA/2U2XUR4nof8zLCUX1grMcqV4F7Ec/qZhtTY4ZJ5D2AmXRHFt/P7cKkSdKfpPI7r93YQIHvm+YZJ+zCxpf6hkpy8PcDHJ3ig/v0IVM3yX5jd8GMJwoHR2exaJAzHdxT7Lssou7098CoNI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bizial.pl; spf=pass smtp.mailfrom=bizial.pl; dkim=pass (2048-bit key) header.d=bizial.pl header.i=@bizial.pl header.b=okxSdTiS; arc=none smtp.client-ip=141.94.21.111
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bizial.pl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bizial.pl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=1wt.eu header.i=@1wt.eu header.b="FHxGOKVO"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=1wt.eu; s=mail;
-	t=1768551963; bh=ic2dlkhdj5/QSbu11Kb4rCwu1gTlxcwfYbqvbPBJfbg=;
-	h=From:Message-ID:From;
-	b=FHxGOKVOr4P92HQWXOtwZxT3Nyyn4pBWK+7HdlAw/K45ZpAtggl8hKjpFVUsWc5h0
-	 KLIUuFtexHGdrOak+m5+g5eJABbOboibszNAxyiF7E+z1eoAuVkhnOb6j+X1uQRXSV
-	 k4BPr8LmpPn6VP4ap7L+oNfWVpW5m6myYBZPHWuQ=
-Received: from 1wt.eu (ded1.1wt.eu [163.172.96.212])
-	by mta1.formilux.org (Postfix) with ESMTP id C4FAFC0B8B;
-	Fri, 16 Jan 2026 09:26:03 +0100 (CET)
-Date: Fri, 16 Jan 2026 09:26:03 +0100
-From: Willy Tarreau <w@1wt.eu>
-To: Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>
-Cc: Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>, security@kernel.org,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Suspected off-by-one in context_struct_to_string()
-Message-ID: <aWn2G3soUcbnJ07r@1wt.eu>
-References: <aWlLs1o5gk7k5osk@1wt.eu>
- <CAJ2a_DeFC5Z2VKXoDDkKmhcB8cft_ZtU1UtriPX292q4GRyh-A@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=bizial.pl header.i=@bizial.pl header.b="okxSdTiS"
+Received: by mail.bizial.pl (Postfix, from userid 1002)
+	id 6A871256D4; Fri, 16 Jan 2026 10:06:25 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=bizial.pl; s=mail;
+	t=1768554447; bh=T8G42ymPsbQlOmSfXp6t7vdzurf0DxoeMgYu7hEL14k=;
+	h=Date:From:To:Subject:From;
+	b=okxSdTiSWmfWMTC1JnUOgdowBcl3QYG0J+yWZGLnfoPT3Dl/gPGJPbemXArF3q5nq
+	 vhVZ2Z38/nZlhMO9XEYVZlYDn8sfUY5UBeuKcv4K7uRyTparI6V6a9nz5dYP/SwqRn
+	 PNqES19ZEL7/YrnePWC1vs9UdIylCVCLiArDE4eMeqfkwHtB2ZRAaOW1/4ZrsD0KOQ
+	 G4K83zLLsr8iiFPodbrkv5DxSBcExqzOw6fQ/RTr5YRrvF4CC0tz24eVNM2MPSjq8G
+	 5IXG/3s5/8JyzdOr/ud/4TLUG7gDz4u3oWmG3zAAdVspqqS+NWFGNT5Rii1NLrAXpo
+	 oSTCpWGLBYCTw==
+Received: by mail.bizial.pl for <selinux@vger.kernel.org>; Fri, 16 Jan 2026 09:05:54 GMT
+Message-ID: <20260116084500-0.1.d4.2vyaj.0.74lpe4xdiq@bizial.pl>
+Date: Fri, 16 Jan 2026 09:05:54 GMT
+From: "Filip Czuczwara" <filip.czuczwara@bizial.pl>
+To: <selinux@vger.kernel.org>
+Subject: Prezentacja 
+X-Mailer: mail.bizial.pl
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAJ2a_DeFC5Z2VKXoDDkKmhcB8cft_ZtU1UtriPX292q4GRyh-A@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jan 16, 2026 at 09:16:10AM +0100, Christian Göttsche wrote:
-> On Thu, 15 Jan 2026 at 21:20, Willy Tarreau <w@1wt.eu> wrote:
-> >
-> > Hello,
-> >
-> > we've received a suspected vulnerability report on the kernel security
-> > list, that was clearly generated by AI and really not clear at all on
-> > the root causes nor impacts. We first dismissed it and it kept coming
-> > back a few times. I'm not pasting it because it's more confusing than
-> > interesting, though I can pass it to the maintainers if desired. I'm
-> > also purposely *not* CCing the reporter, as the address changed a few
-> > times, and once you respond you receive a new copy of the same report.
-> > Clearly this bot deserves a bit more tuning.
-> >
-> > The report claimed that the call to mls_compute_context_len() didn't
-> > properly reflect the size needed by mls_sid_to_context() due to an
-> > off-by-one that would result in the trailing zero being written too far.
-> > Initially we thought that was wrong since there are +1 everywhere in
-> > all lengths calculation in the function. But revisiting it today made
-> > us realize that this indeed seems to be true: the +1 that are everywhere
-> > are in fact due to the surrounding delimiters, and the first one that
-> > appeared to be the one accounting for the trailing zero was in fact
-> > for the starting colon.
-> >
-> > In context_struct_to_string(), we have this:
-> >
-> >         *scontext_len += strlen(sym_name(p, SYM_USERS, context->user - 1)) + 1;
-> >         *scontext_len += strlen(sym_name(p, SYM_ROLES, context->role - 1)) + 1;
-> >         *scontext_len += strlen(sym_name(p, SYM_TYPES, context->type - 1)) + 1;
-> 
-> I think this +1 from the type name length covers the trailing NUL
-> byte, since mls_compute_context_len() and mls_sid_to_context() cover
-> the one byte space for the separating colon between type and optional
-> MLS component.
+Dzie=C5=84 dobry!
 
-Sorry if I'm not clear, but my point is that above each strlen()+1
-seems to serve as the length of the text + its colon delimiter, so
-it covers useful chars and excludes the trailing zero, which is fine.
+Czy m=C3=B3g=C5=82bym przedstawi=C4=87 rozwi=C4=85zanie, kt=C3=B3re umo=C5=
+=BCliwia monitoring ka=C5=BCdego auta w czasie rzeczywistym w tym jego po=
+zycj=C4=99, zu=C5=BCycie paliwa i przebieg?
 
-> >         *scontext_len += mls_compute_context_len(p, context);
+Dodatkowo nasze narz=C4=99dzie minimalizuje koszty utrzymania samochod=C3=
+=B3w, skraca czas przejazd=C3=B3w, a tak=C5=BCe umo=C5=BCliwia tworzenie =
+planu tras czy dostaw.
 
-Here it does exactly the same.
+Z naszej wiedzy i do=C5=9Bwiadczenia korzysta ju=C5=BC ponad 49 tys. Klie=
+nt=C3=B3w. Monitorujemy 809 000 pojazd=C3=B3w na ca=C5=82ym =C5=9Bwiecie,=
+ co jest nasz=C4=85 najlepsz=C4=85 wizyt=C3=B3wk=C4=85.
 
-> >
-> > *scontext_len is initialized to zero, is increased by the length of each
-> > appended string + delimiter, and used as-is in kmalloc() a few lines later:
+Bardzo prosz=C4=99 o e-maila zwrotnego, je=C5=9Bli mogliby=C5=9Bmy wsp=C3=
+=B3lnie om=C3=B3wi=C4=87 potencja=C5=82 wykorzystania takiego rozwi=C4=85=
+zania w Pa=C5=84stwa firmie.
 
-So now we're allocating an area of the number of useful chars, not
-counting the trailing zero.
 
-> >         scontextp = kmalloc(*scontext_len, GFP_ATOMIC);
-> >
-> > then filled by sprintf() then mls_sid_to_context():
-> >
-> >         scontextp += sprintf(scontextp, "%s:%s:%s",
-> >                 sym_name(p, SYM_USERS, context->user - 1),
-> >                 sym_name(p, SYM_ROLES, context->role - 1),
-> >                 sym_name(p, SYM_TYPES, context->type - 1));
-> >
-> >         mls_sid_to_context(p, context, &scontextp);
-> >
-> > And finally the trailing zero is appended:
-> >
-> >         *scontextp = 0;
-
-Yet we're emitting it.
-
-At least that's how I read it.
-
-Willy
+Pozdrawiam
+Filip Czuczwara
