@@ -1,68 +1,68 @@
-Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
+Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC0174CA295
-	for <selinux@vger.kernel.org>; Thu, 22 Jan 2026 16:06:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D211B4C9573
+	for <selinux@vger.kernel.org>; Thu, 22 Jan 2026 16:06:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769097985; cv=none; b=hGjEokj76u4rExl8F+RN1Iz45zIsGJQ5ZlZNnfG6iUILd5HuCvT5wyCf7myWzEsQklcVWUMUgbkM20LGLEqfx5VkfAS6o+sS0zRrgqme8sDltjvbxsrc+kJ2LW6yexjXG5wL0h+ddcFHX/tu8HNPdKP5QISkEUSvFRQ6n/Hj9mg=
+	t=1769097988; cv=none; b=rZI9G2wuBNV8X1Km3di0/hgb7+4KEV2pjf8x8GhN84DmnQL2RMSHtSnz+SVf9GPJzi/sPyLTyHqbxuqqCRE9HzdXH9a2SE54i624Lc1sej2hWKZv4nkdV5F/ED2vpE7VFJGz5f/DoRnPI8lit89ZEPN5vltpkUfoj5ahegjCZ0s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769097985; c=relaxed/simple;
-	bh=tv+nSYsMPty0z6gKW9OxWcOX2JhEgMg86J8YiWn0wCA=;
+	s=arc-20240116; t=1769097988; c=relaxed/simple;
+	bh=PztqHbVs1KLOSerB8B/t3xEI2h21FAoUuJeG/mcdV+E=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=MNpjY2WZFWsr33ddwYXSa4ChNXQYkucZOtzvOwOekdcTA2owKKCnhzhybnsYd+xlpuRwKNmqcNjvSTC8LjfhmIjEDZIvHaOGMf/+DPM7YGauJlChhE+mR0HJF90TIj5C0yiPwbbA6yl8kZLChfJd3H0sADLKaPxF58MBNRPiz9E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aK/TMB06; arc=none smtp.client-ip=209.85.222.173
+	 MIME-Version; b=pdkY7q3D+PUQye93ou/WOTwqXeJ4oezWJkZ8PgBSv7R7GYnOp/0i7EGiycxv/HFuOsLLQ16+Ndg7kAOR+uuNPDJ+oMwgVGsQcZ6gPw037bos4f4dSM2R47HNXApeHr51Ur4vGRLDbui+idu2L9X6icQF+3AM5Jcusg+gCrKNqek=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MRpm61yD; arc=none smtp.client-ip=209.85.222.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aK/TMB06"
-Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-8c59bce68a1so82094285a.0
-        for <selinux@vger.kernel.org>; Thu, 22 Jan 2026 08:06:17 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MRpm61yD"
+Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-8c52e25e644so115160485a.0
+        for <selinux@vger.kernel.org>; Thu, 22 Jan 2026 08:06:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769097976; x=1769702776; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1769097975; x=1769702775; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=/zZBojMNUksU1oHYfdmmNreBj1bTByxP/lDz58YEKbU=;
-        b=aK/TMB06/ieh2jQ5qVkC1oOCBNidwSvfXx4AWOabTZsm0sFs8RdrOJIRBPDh/cnKwd
-         Z1agetp1ecE3G4GqJL3V/BmEgcU9C3S9fucLBPxL3o3acBwx5UL6mniQTwinfiGwuK2E
-         XP0eJf8yx+DbGNpaBPeU+uQy5eCXe/zolmZkwtBtaKC5YwIEBMTwerC+zyCeKVG6xMoU
-         0jSXqyirOd8cXMwhrR8Z1fSticNEBKW05GSWnmIOH2QDXjqprMG1jJNSmPXa3EeXrmuB
-         sd9ljl130AJr7xjhQk37zfSqFjdSPoBwq+ZDOV50t7wJ45/LzMljX6TcLX7n75ELLp9H
-         0Bfg==
+        bh=kkDZmRUQH2tGAt58EC0AYh+I6qMqVTFx3k1QJ/F1CHQ=;
+        b=MRpm61yDr9oPBWi8F0LD1btVJc4yg4igu9psmY+wULvtsSP0XrN6Xg6uBo9kKKYBo3
+         J+Dwmu6qG/bx1dvilcpGZOIzIeC7EIAZHk0KGFltKE2+CPQOLPq/LKI+4RGjgfUNF5II
+         8cNGfq060qMuEzZvCrigJBvL1qgTYmeCGiKP+QzkvB6B5rfvz4zgGl91o+zGjLkqgmR5
+         9nzKMcc00+dtxBPhA6EUdCcASl61+9d+3MfElMoJjO5nxlzvYZ/jaIo7UIh+ZPu87tDn
+         rCNSV0ZRAkj6fdk3m8anK39XAKeGKkaTPgxvW6LGHft9GtCWDKyH3dCkvLkd2BHwQky9
+         Lqsw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769097976; x=1769702776;
+        d=1e100.net; s=20230601; t=1769097975; x=1769702775;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=/zZBojMNUksU1oHYfdmmNreBj1bTByxP/lDz58YEKbU=;
-        b=mKM/aB5RYLTAaGmf2UujMHgn7s76PnT57+JfgTeqhoRH5KgRgXV+cPE35pjd79OTA+
-         kjlW2YthSKdBvxItcjO9C4+H4PCsADbhYSGvEaQI8F018XgACycGSy/qvi7xY5SFWrhw
-         bHRYFntbTg33enjp6YbwyWo/wICH4fpkNm96Ph/fhEs4KXEpqcXFFtqWGLmikJtUI3NY
-         PHVbXlmRiBk88fOg2eynhubK3Aupby3igQiy59+z8NLc1shSjwzI8kV+dGemqMiAE+sa
-         2MuUkDTX0Hqb1qc6bR2R8FLsrSGF5C7CJ1eEfpBbRiYS0UcMpy2Y9Ot16bmORR7+wWlR
-         3yrg==
-X-Gm-Message-State: AOJu0YxJIei/wzxL0aP4rzrBWjgE0Ww4/fps7WBmoVxX6qEDCOYMLfYN
-	NsXDpxRRnA60XZgX0/L2v2kLAVDyHBwzFt1KAg12zgLvHVBJERyD2aSsJLO2vA==
-X-Gm-Gg: AZuq6aJo66ApjZcKyK5HTqh8Ot/p1GkHKTND7QhrJWVoOPK0r4jwtEcZDDP0kjxTifJ
-	+ahKe/PM4/E2v/mf6f71V33SjG0WQv4J1ZLm2mg8eIMEAxdSmJZPDfMEiyqXZkWfrjEXbtOu4MP
-	rDl0ctWgi8YWNqIVcpLCdg+rZwqIDbCWRjXjPRBxMCHcKZ642gOvgsCFNrO3BiZsqAE4venkYX2
-	/FPVj7I2opzjMIVRSlap4gYOaDFz0ey7jZP2j6rxj1fVtwTKpNqffihc/owybCadClA3+Ep4y3o
-	UnARPCDlxAB26F1P8JN+WQJaZ5ZOou+kCPC5QKzGwrmmPW33TCB1B5n7ELyzR4oDXMqK95T4wNr
-	1T0qQPSIOluG6OHH+SWfUllyhmY4lzDFBR+tKxf9NOFVZLpyfN0UxsMBAqPTRrEXtugLraLYQl+
-	4o/149tJi9UfLrIlpALNQ=
-X-Received: by 2002:a05:620a:44c1:b0:8b2:e1bd:6b0 with SMTP id af79cd13be357-8c6ccf06c2cmr1155917885a.54.1769097975915;
+        bh=kkDZmRUQH2tGAt58EC0AYh+I6qMqVTFx3k1QJ/F1CHQ=;
+        b=bzQhl5chRDWf4qN+1Frv7P6Hxnn4hrnyfy+K1PZ3oifEu5CTIGuVxOQaSBHWkGyrZS
+         rQg816KPk8WkYyypznghtAaIYY0AbeELJGtbiuikSJlSbmBodv8lhH+Iwhn0JGWLYNkQ
+         Z8er9G+EufVt9c6qhbRXOEvmUcJcZiqKpZP24uLjj/+OrynNvyhgiTwwxd+yDdB4ogjP
+         uQVq9+Dt3TSW545LvmXI+T2/m5jP32fepM1W+JhSaTXVf5HgqeNgruaEIAXX9nxpLWpO
+         vNMFAZ3Z7ScXFLne1qSVirQWGPdvly5QttTBVcNaVLZ1AyujPHFQYaGpJrBdYhPessSI
+         KJyQ==
+X-Gm-Message-State: AOJu0Ywet9bkdUFPdJZE7jcXV45t+ayu30oEwXGaghb1Ap6uTGdkV+xO
+	f0zJsesaXcyF2ZqqeoGDenkOCwiTn93r0Tf58dMtKSxTE5+siaZvoT0KNcUJZQ==
+X-Gm-Gg: AZuq6aLVR31g/oYDIl1EEUP9dETCyjdpn9wKiwvDM+XZvPeZpwpPmkHiG78ADVvYFfR
+	eY5TKGbcC+5Orr8BB7FqkXPKuhmLOYI+t2Xs7wqV8ItuhRYd+pLYzQ2kQcLIHvsdSDIhEwCeiTS
+	cT4Mle021ZgKnzgPdHMTZ1Ta8WyXUdm9gsOs6fbUbZBz+LQysZCdAh8L4L5AKyXYSCOG34suiQC
+	ad4uWLDbLfjmLFc76Vv4BESqb2ToXL57FnYwcW8f1E14iaini6W4/OFiS7ku2nUF/XUd6jIEjD9
+	jTHdDFcy5fhL6hJ62StsbOUbg3x/IQNf1pKevhGWzEGUPMDA8XyaUL+FaKl8BNGPMShA4nSvxbU
+	/YJz5YNZpRxKGZHLjfuJlU2A8UP54JXIerknqSsW4UKDqRQgqC8s8KIEyvplFJ0CLQPEpGPbnhY
+	FhltQlnP9BBUSVBl6UV5U=
+X-Received: by 2002:a05:620a:470a:b0:8ba:2b0e:fa36 with SMTP id af79cd13be357-8c6a68d8ec4mr2573897185a.24.1769097975082;
         Thu, 22 Jan 2026 08:06:15 -0800 (PST)
 Received: from fedora ([144.51.8.27])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8c6a725e897sm1562127385a.38.2026.01.22.08.06.15
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8c6a725e897sm1562127385a.38.2026.01.22.08.06.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Jan 2026 08:06:15 -0800 (PST)
+        Thu, 22 Jan 2026 08:06:14 -0800 (PST)
 From: James Carter <jwcart2@gmail.com>
 To: selinux@vger.kernel.org
 Cc: James Carter <jwcart2@gmail.com>
-Subject: [PATCH 3/3] libsepol: Handled required users in module_to_cil
-Date: Thu, 22 Jan 2026 11:06:02 -0500
-Message-ID: <20260122160602.65567-3-jwcart2@gmail.com>
+Subject: [PATCH 2/3] libsepol: Check for an unset sensitivity in module_to_cil
+Date: Thu, 22 Jan 2026 11:06:01 -0500
+Message-ID: <20260122160602.65567-2-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260122160602.65567-1-jwcart2@gmail.com>
 References: <20260122160602.65567-1-jwcart2@gmail.com>
@@ -74,51 +74,42 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-In module_to_cil, required users are being treated like a
-declared user. This causes a user that only appears in a require
-block to be declared in the resulting CIL policy.
+It is possible for a base policy to have sensitivities for user
+levels and ranges that are not set if the user is used in a require
+block.
 
-Instead, use the strategy used for types and roles and add the
-required user to a userattribute rule. This will cause the
-required user to be used and if it is not declared elsewhere the
-optional block will be disabled.
+Check for an unset sensitivity before using it to look up the
+name of the sensitivity to prevent a memory access error.
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- libsepol/src/module_to_cil.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ libsepol/src/module_to_cil.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
 diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index 56ebd9c8..89cd0b9b 100644
+index 41c2b051..56ebd9c8 100644
 --- a/libsepol/src/module_to_cil.c
 +++ b/libsepol/src/module_to_cil.c
-@@ -2332,13 +2332,21 @@ static int user_to_cil(int indent, struct policydb *pdb, struct avrule_block *UN
- 	struct ebitmap_node *node;
- 	uint32_t i;
+@@ -520,6 +520,9 @@ static int semantic_level_to_cil(struct policydb *pdb, struct mls_semantic_level
+ {
+ 	struct mls_semantic_cat *cat;
  
--	if (scope == SCOPE_DECL) {
--		cil_println(indent, "(user %s)", key);
--		// object_r is implicit in checkmodule, but not with CIL, create it
--		// as part of base
--		cil_println(indent, "(userrole %s " DEFAULT_OBJECT ")", key);
-+	if (scope == SCOPE_REQ) {
-+		// if a user is in the REQ scope, then it could cause an
-+		// optional block to fail, even if it is never used. However in CIL,
-+		// symbols must be used in order to cause an optional block to fail. So
-+		// for symbols in the REQ scope, add them to a userattribute as a way
-+		// to 'use' them in the optional without affecting the resulting policy.
-+		cil_println(indent, "(userattributeset " GEN_REQUIRE_ATTR " %s)", key);
-+		return 0;
- 	}
- 
-+	cil_println(indent, "(user %s)", key);
-+	// object_r is implicit in checkmodule, but not with CIL, create it
-+	// as part of base
-+	cil_println(indent, "(userrole %s " DEFAULT_OBJECT ")", key);
++	if (level->sens == 0)
++		return -1;
 +
- 	ebitmap_for_each_positive_bit(&roles, node, i) {
- 		cil_println(indent, "(userrole %s %s)", key, pdb->p_role_val_to_name[i]);
- 	}
+ 	cil_printf("(%s ", pdb->p_sens_val_to_name[level->sens - 1]);
+ 
+ 	if (level->cat != NULL) {
+@@ -2499,6 +2502,9 @@ static int level_to_cil(struct policydb *pdb, struct mls_level *level)
+ {
+ 	struct ebitmap *map = &level->cat;
+ 
++	if (level->sens == 0)
++		return -1;
++
+ 	cil_printf("(%s", pdb->p_sens_val_to_name[level->sens - 1]);
+ 
+ 	if (!ebitmap_is_empty(map)) {
 -- 
 2.52.0
 
