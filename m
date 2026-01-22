@@ -1,143 +1,128 @@
-Received: from mx1.secunet.com (mx1.secunet.com [62.96.220.36])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C7B443C050;
-	Thu, 22 Jan 2026 10:50:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.96.220.36
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B13CB30DD11
+	for <selinux@vger.kernel.org>; Thu, 22 Jan 2026 14:07:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769079027; cv=none; b=DLXebC9nnnnF7q2G5zJXs0tF6lFczfmJxS1ae50s/mJzbgPA0lHh1G2pAOD7KSGLwUskVhJa/pYq+Fjdj5SyLuNwqD/zbSAqMTXqp3Y1XknZmK/ADN9SwuyDjDPXSi6bEEtlOGhxrtSC1FOASI44fgEqcr2UwZhg5vPrUgZjhng=
+	t=1769090872; cv=none; b=k7ZiLMd9+l2HlSmHjxSiveI2U0oIJybu30TGqCa8Ct9iwErKJIZWASY7Z7DfD2sMhvbgEieHoaZXs0RAJpAJgzSdONfr6XVjHWN8yztsiCdQXpa5tk3OjHrxjblxS8W2MkXXI3K4DCYAbciZqf+/Vp5ttrMxGtWv0xknOUbJz5E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769079027; c=relaxed/simple;
-	bh=MS9OKYTyTcB4St88J3kjOMxqr6qydLzq5+rFqUKIl1U=;
-	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Q3IXW/x3Yb8GWHVPcPFIz8WYhCPFbOtYQ+KB6zMPtbPA5Qjfo7WrOVCXeUWxIUY3kjB+LeeFRkCwflh0x3MEYblRwBnR42I7/UKr6s9sTn2Hz+w75joc03Xv0cV1JRqHMbYSd9esPbO3gCuMDu6deJlSSdicbGDDjj+1JDGWqCY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com; spf=pass smtp.mailfrom=secunet.com; dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b=QZp3xUXa; arc=none smtp.client-ip=62.96.220.36
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=secunet.com
+	s=arc-20240116; t=1769090872; c=relaxed/simple;
+	bh=G07Wvq8WvGFjY0dmP+/uGwYn1jnRFIolVqzUSFCwWXo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rIwRhUQml+TxHxlkyfFXeb4OD/dyF+VeQiMcHIFEoq4HnlICAOus30VHlGzF4186VnrQBIrlzepgggDkN2FMzIG3e7o3eztCRuK7K1fhqDa7GFA4/8wvzcp2/EzNsJCfY4u7NRq++shJFKPMYe3bnn+VFwgbgsT/RTO3MNir9QE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Q/2rZ962; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=r6rDTYd9; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b="QZp3xUXa"
-Received: from localhost (localhost [127.0.0.1])
-	by mx1.secunet.com (Postfix) with ESMTP id 57B3420853;
-	Thu, 22 Jan 2026 11:50:18 +0100 (CET)
-X-Virus-Scanned: by secunet
-Received: from mx1.secunet.com ([127.0.0.1])
- by localhost (mx1.secunet.com [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id IkP7Erp8dMmt; Thu, 22 Jan 2026 11:50:17 +0100 (CET)
-Received: from EXCH-01.secunet.de (rl1.secunet.de [10.32.0.231])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.secunet.com (Postfix) with ESMTPS id B07E62019D;
-	Thu, 22 Jan 2026 11:50:17 +0100 (CET)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.secunet.com B07E62019D
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=secunet.com;
-	s=202301; t=1769079017;
-	bh=c1aSZu+8LTmz5cVQKNlhVszfW/irmSsHfvWOFd1abBM=;
-	h=Date:From:To:CC:Subject:References:In-Reply-To:From;
-	b=QZp3xUXaWK3Zb1B4CaB6W2TydunP57z9zw/t+FdWVPsbEI/2bVGLEpqy+QDkBhV9c
-	 tYxOq33JbsY6oJXz19AN38rHoZM6K7UACiU2GXUA0rMywRd+wUofh0h93bAku+EVEk
-	 3YqRb/cGyKggKWHqmaJLWTk4ti3Y80Z+EZq9Iu4XST/zmVcKzMIh1M0wUq9DmpvImt
-	 YfPW4285sn0DPEdwB9j/+l+wdrtvBOowI4hzkYsz+Ng4t4t9C1Kx+ZeTQQfP6AoTu/
-	 pzHoOmdTKLaXYQ7L2OiKAurhGOdPwS1RlcmyL6rGrwOF4Hgu/DLPO+KiqaRq76SADl
-	 AAWy4vsD/cbBw==
-Received: from secunet.com (10.182.7.193) by EXCH-01.secunet.de (10.32.0.171)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Thu, 22 Jan
- 2026 11:50:17 +0100
-Received: (nullmailer pid 1680181 invoked by uid 1000);
-	Thu, 22 Jan 2026 10:50:16 -0000
-Date: Thu, 22 Jan 2026 11:50:16 +0100
-From: Steffen Klassert <steffen.klassert@secunet.com>
-To: Antony Antony <antony.antony@secunet.com>
-CC: Herbert Xu <herbert@gondor.apana.org.au>, <netdev@vger.kernel.org>, "David
- S . Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub
- Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Chiachang Wang
-	<chiachangwang@google.com>, Yan Yan <evitayan@google.com>,
-	<devel@linux-ipsec.org>, Simon Horman <horms@kernel.org>, Paul Moore
-	<paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>, <linux-kernel@vger.kernel.org>,
-	<selinux@vger.kernel.org>
-Subject: Re: [PATCH ipsec-next v4 5/5] xfrm: add XFRM_MSG_MIGRATE_STATE for
- single SA migration
-Message-ID: <aXIA6JdfwK1CEMeX@secunet.com>
-References: <cover.1768811736.git.antony.antony@secunet.com>
- <b134abaf18390d1bcdd59d2192687bac0e2c2710.1768811736.git.antony.antony@secunet.com>
- <aXH9BvGTxfaGRN4j@secunet.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Q/2rZ962";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="r6rDTYd9"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1769090869;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=EtcMyJILD4z1qrnqIkPGVFTkZx7N2Lh4EB8ICDznUWY=;
+	b=Q/2rZ962h3B/ZIk113PX6ENUo9cXI+PExGOp6aJ3Zx+mGQ5c3zOi0lwu5qkiLzai5KZmHP
+	J1VOzlli0js12/DHXK3gO88jExXqHAgJjddiu7oQZAxDILqWHDr2gfwZrPt+i5AYt3SuoW
+	zVnwW6yBq+oBWfyGGieckexgRv5ez7s=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-263-IsD4KziSNPC34HWwqHWJHQ-1; Thu, 22 Jan 2026 09:07:48 -0500
+X-MC-Unique: IsD4KziSNPC34HWwqHWJHQ-1
+X-Mimecast-MFC-AGG-ID: IsD4KziSNPC34HWwqHWJHQ_1769090867
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-4325aa61c6bso630712f8f.0
+        for <selinux@vger.kernel.org>; Thu, 22 Jan 2026 06:07:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=redhat.com; s=google; t=1769090867; x=1769695667; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=EtcMyJILD4z1qrnqIkPGVFTkZx7N2Lh4EB8ICDznUWY=;
+        b=r6rDTYd9ICtDAVJ2Po4KepCxhAFrCKSrA5dgSgjYcWJEjdzPPbQLejdnWrz02TxobY
+         jWlJua7WeNrJnHrgxGjcaPlL5fBCdEGh+Rw2Fffo6JCNxnyft0iQwGM42+32wT50V9bU
+         LsgGnepJNLDh56mpQNfzV9Q36YXO76+xBg4S+r8WHoCBg0apIXF+nyfPW+6/zMDqoorX
+         tuX6zGDXykXoa2LGAzMLFY6X0jHutnLKbjkxZLx8EGsfUsIPs50U3rupoK8svXY99HMf
+         7KJd9atXNJWyW8ka2qQy5EXAu9u0qQFF6bcwJpHk4tnM9q7PUKZ0sof3aKreXkXguzED
+         R7LA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769090867; x=1769695667;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=EtcMyJILD4z1qrnqIkPGVFTkZx7N2Lh4EB8ICDznUWY=;
+        b=THDuNjUmT4SYB3EYx4h839pjD7jgtvqhrR2HTyi83JhnAnzXR4DnfDxvSgkAv4ULl6
+         NPhv5tosMgVPSF4cdKHhcP0n+Y2eya/anXrdz0Zht0WYRGeYLJObjQHaW7Gn5ULb36mu
+         gTu4RMmcyZduXqBpI3EoVw95YCnKDqhdraNRWLtKIgB2C0Kx1WmSYa4MKvv+T+kMILJN
+         wj42cMCIh+vZN0rQRTdPTCWFnc3cDzsxzYeHNBybsop1dQ0AclY3aI0kfP7EN2fid8cO
+         CgTxpN/41hAV1ls5+df1umJDG2CBIMMidquvpsFGXsoJr2tSs5V83OjCILe2sNicQfzj
+         /d8g==
+X-Forwarded-Encrypted: i=1; AJvYcCVLFzsVBaYHucLM+uX1FckxdblY0AixyKC8JyQbj1XbCZQ5b8tuk3z8kviDapGqIZu0u5lzKrNT@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyp5xW4fcRzG6qESarnUE6S7mbknxo37azHYRWHi0YrO1eMC6sc
+	S9WfmQXs658pR3e3Hl45mLl0hU46Oa0zs+4kklZaxChA3BYwQmrqYtWJsJ+/K+vbJQyktah5KuV
+	RG9uHu7cZmWPftYabK7PaPGSMn+QyWqYRW85iKRhM0gWKAuHe4oE1HDyQPgg=
+X-Gm-Gg: AZuq6aL18bivdvcxQ6Vj9IwOve38UPh+MY1reI1BZzlK2HFFAtWxxzPY9ATi32QCiZY
+	LgtH4k2V15EO8L/6X9Pu+nin9WYhXrx1o/7eMxaqtz4ckCZyhAY2aC7PJLEYartxovXK7QCYLOn
+	eroYU7LWfizYijN+zvu+KiHVWbm/rlVlMb//TwA23gfQ/v2OWe/rZKXq2i9PlLHE+b7ZhQtY6L3
+	D3SwtIOpUfOTWHKNUOwV2/wOqvNjtHEvOxXOaeWfYqM299ySkvTq9YguX02csFYHFQZCA/qNeae
+	Fq5dLpryKiiuETCMNRQjdUJbfXQavbM2Mo20YTFQ4iHVKGLRkf0yA1n3GRZPOY9/SPc=
+X-Received: by 2002:a05:6000:25c7:b0:432:5bf9:cf15 with SMTP id ffacd0b85a97d-4356a024907mr35369565f8f.5.1769090867088;
+        Thu, 22 Jan 2026 06:07:47 -0800 (PST)
+X-Received: by 2002:a05:6000:25c7:b0:432:5bf9:cf15 with SMTP id ffacd0b85a97d-4356a024907mr35369503f8f.5.1769090866620;
+        Thu, 22 Jan 2026 06:07:46 -0800 (PST)
+Received: from fedora ([213.175.46.86])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43595e0a705sm17390416f8f.14.2026.01.22.06.07.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 22 Jan 2026 06:07:46 -0800 (PST)
+From: Ondrej Mosnacek <omosnace@redhat.com>
+To: Andrew Morton <akpm@linux-foundation.org>,
+	"Eric W . Biederman" <ebiederm@xmission.com>
+Cc: linux-kernel@vger.kernel.org,
+	linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org
+Subject: [PATCH] ucount: check for CAP_SYS_RESOURCE using ns_capable_noaudit()
+Date: Thu, 22 Jan 2026 15:07:45 +0100
+Message-ID: <20260122140745.239428-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <aXH9BvGTxfaGRN4j@secunet.com>
-X-ClientProxiedBy: EXCH-02.secunet.de (10.32.0.172) To EXCH-01.secunet.de
- (10.32.0.171)
+Content-Transfer-Encoding: 8bit
 
-On Thu, Jan 22, 2026 at 11:33:42AM +0100, Steffen Klassert wrote:
-> On Mon, Jan 19, 2026 at 09:54:55AM +0100, Antony Antony wrote:
-> > +
-> > +static int xfrm_do_migrate_state(struct sk_buff *skb, struct nlmsghdr *nlh,
-> > +				 struct nlattr **attrs, struct netlink_ext_ack *extack)
-> > +{
-> > +	int err = -ESRCH;
-> > +	struct xfrm_state *x;
-> > +	struct net *net = sock_net(skb->sk);
-> > +	struct xfrm_encap_tmpl *encap = NULL;
-> > +	struct xfrm_user_offload *xuo = NULL;
-> > +	struct xfrm_migrate m = { .old_saddr.a4 = 0,};
-> > +	struct xfrm_user_migrate_state *um = nlmsg_data(nlh);
-> > +
-> > +	if (!um->id.spi) {
-> > +		NL_SET_ERR_MSG(extack, "Invalid SPI 0x0");
-> > +		return -EINVAL;
-> > +	}
-> > +
-> > +	err = copy_from_user_migrate_state(&m, um);
-> > +	if (err)
-> > +		return err;
-> > +
-> > +	x = xfrm_user_state_lookup(net, &um->id, attrs, &err);
-> > +
-> > +	if (x) {
-> > +		struct xfrm_state *xc;
-> > +
-> > +		if (!x->dir) {
-> > +			NL_SET_ERR_MSG(extack, "State direction is invalid");
-> > +			err = -EINVAL;
-> > +			goto error;
-> > +		}
-> > +
-> > +		if (attrs[XFRMA_ENCAP]) {
-> > +			encap = kmemdup(nla_data(attrs[XFRMA_ENCAP]),
-> > +					sizeof(*encap), GFP_KERNEL);
-> > +			if (!encap) {
-> > +				err = -ENOMEM;
-> > +				goto error;
-> > +			}
-> > +		}
-> > +		if (attrs[XFRMA_OFFLOAD_DEV]) {
-> > +			xuo = kmemdup(nla_data(attrs[XFRMA_OFFLOAD_DEV]),
-> > +				      sizeof(*xuo), GFP_KERNEL);
-> > +			if (!xuo) {
-> > +				err = -ENOMEM;
-> > +				goto error;
-> > +			}
-> > +		}
-> > +		xc = xfrm_state_migrate(x, &m, encap, net, xuo, extack);
-> > +		if (xc) {
-> > +			xfrm_state_delete(x);
-> 
-> This xfrm_state_delete() comes too late. You need to synchronize this
-> with xfrm_state_clone_and_setup() by holding the state lock.
-> Otherwise we might hand out the same sequence number etc. more than
-> one time. Unfortunately xfrm_migrate() has the same problem, the
-> error recovery mechanism in xfrm_migrate() looks broken.
+The user.* sysctls implement the ctl_table_root::permissions hook and
+they override the file access mode based on the CAP_SYS_RESOURCE
+capability (at most rwx if capable, at most r-- if not). The capability
+is being checked unconditionally, so if an LSM denies the capability, an
+audit record may be logged even when access is in fact granted.
 
-The xfrm_migrate() problem is nasty, looks like we can't recover
-if the state migration fails. We probably have to delete the
-states and wait for the userspace to insert new ones.
+Given the logic in the set_permissions() function in kernel/ucount.c and
+the unfortunate way the permission checking is implemented, it doesn't
+seem viable to avoid false positive denials by deferring the capability
+check. Thus, do the same as in net_ctl_permissions() (net/sysctl_net.c)
+- switch from ns_capable() to ns_capable_noaudit(), so that the check
+never logs an audit record.
 
-Another thing, xfrm_user_state_lookup() returns a reference on x,
-you should drop it somewhere.
+Fixes: dbec28460a89 ("userns: Add per user namespace sysctls.")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ kernel/ucount.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/kernel/ucount.c b/kernel/ucount.c
+index 586af49fc03e4..fc4a8f2d30965 100644
+--- a/kernel/ucount.c
++++ b/kernel/ucount.c
+@@ -47,7 +47,7 @@ static int set_permissions(struct ctl_table_header *head,
+ 	int mode;
+ 
+ 	/* Allow users with CAP_SYS_RESOURCE unrestrained access */
+-	if (ns_capable(user_ns, CAP_SYS_RESOURCE))
++	if (ns_capable_noaudit(user_ns, CAP_SYS_RESOURCE))
+ 		mode = (table->mode & S_IRWXU) >> 6;
+ 	else
+ 	/* Allow all others at most read-only access */
+-- 
+2.52.0
 
