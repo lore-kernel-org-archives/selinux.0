@@ -1,66 +1,66 @@
-Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
+Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A7ED4CA287
-	for <selinux@vger.kernel.org>; Thu, 22 Jan 2026 16:06:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 055872DEA8F
+	for <selinux@vger.kernel.org>; Thu, 22 Jan 2026 16:46:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769097993; cv=none; b=JoNTZNOO1buqirvZJd4y/AhjVzQPiYZtyA3DxrzqQk7cpym73ipi9AH9Zia+nQyM0U4dSoKtCXTxZRXSFnPm7Ztgk1zDLu6FvdrJ5cAYfC2oREXlBVqS3wWq4jNYlK8DuuS5ln/PD1T8Tpe+DAQp3skbsyYKH67Fhk83xodJfZo=
+	t=1769100369; cv=none; b=BkDa5dscXp6DSgAPmEE8TA9bKNUkeQzlFlO6DfHBcMWjFDOWqLU4MbF8y/eQZ8fJra+UPBgBCrsmEs3WYfzHfQAvsGF0amQOCC8UK2O8pmJtiU915xcmrOu7/gzcb5o4cpsbwQhndEEmbrgwz0WNBEIyYbuTiXqo3EA+hBo1pH8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769097993; c=relaxed/simple;
-	bh=OhD6AgnFZsUy1EvUAhFk1NVGcEJr8+xUWFiooq5FhUM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=FYHyT5BFAs8JPMTpEn9D2opx7dtikQz9v6ljVp4G4EQVuD5NnItbhBPLH9+kU1nVmYDIG6m68lVHMnlYvBchHgCcCU6VkD1rhcB99Wepf4EtzQEdBv1CDoRI1WnVfdlKMCIK2fc/Ui/1eT5fx7ackHlWmQmK6uZDLu6B+p3a9Ks=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gf6351w4; arc=none smtp.client-ip=209.85.222.174
+	s=arc-20240116; t=1769100369; c=relaxed/simple;
+	bh=K/m7RxFpr45JB15KeowDtqNhPyBCkgDg20EoSBLnt8o=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=a4E+oikcUW76xARpioKToGnslsNag6j1APlZ2LglYKfdtx6aY39h+2UrJiwTv6dtxYqrwHaISpAydgKtEi5GNb7LhygibVhWLwRmbxEY4mJq8Pnvjio0pZZdfVHDWUQmpb7s8nHeNoBR95lTw8DsehQA/TKULNxQ1LRReGh0ToU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ihvPfia4; arc=none smtp.client-ip=209.85.222.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gf6351w4"
-Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-8c655e0ee70so140511085a.3
-        for <selinux@vger.kernel.org>; Thu, 22 Jan 2026 08:06:16 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ihvPfia4"
+Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-8c6a822068eso152266685a.3
+        for <selinux@vger.kernel.org>; Thu, 22 Jan 2026 08:46:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769097974; x=1769702774; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1769100358; x=1769705158; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=c7pyZN2ZhqqDo1rpGZwSk2R0xhAoJshXr9Oe+QgJhMQ=;
-        b=gf6351w4JGhdnS9pc+hGOrgut/goxWZgH4/hR9ZwJ9UR/nvNTqNcmqthkB92m2fNoW
-         /Fi0VhaEsCQszehU0uZkBK4Qn1g+CmJExdWU1ypRt7sP9Bn2JSL5/H1kshCkh6rpwp5v
-         kyZHhZWdB9qHS0jJdUxgYjqqzbOhlfe4/DShHWj4xPt/KgAgJNerh1T8tKUF9IsYmeFl
-         mKndfphnUWJh7kJKR7GcNWcYUEYMWODIK5fC1ajeph0zuakmqDpsy1TaWrBTUg1lMO/X
-         LUeIZ/pjKI8lprlJNl0D12jH8RxevMEV92ZtkkV4M4GUZDqACpVFCQbh6Zw6WuIXhC3T
-         Z9uQ==
+        bh=HtVIjkjq27DY7iX0hFU6RWSaZgYAd+VXW3JtQs0FcZ8=;
+        b=ihvPfia4FXu0Iu8iNbZEic4hhbckxd0UC1C2sluJ8py/EIxu6o0nvVvIJJryGTK8B7
+         oobZBlMDMaEYiAkY/E0JN0valtIsvmmR293hftVm6JpEvMlWAEHxjey9JEHfXaezKp0f
+         MtA66rt5UVB572SRWDV29anHA8a1gV738lUbgKbreyoSy1g4TEucYR6OUCQQoTIbkzao
+         SR6oH0BaFJ+4x1INLgVvG6wuT+r4Jp5gDKPFrhsyuc/Ilrkhe5KKnQitrqck7H8EdIP8
+         mdMFQnOu5nYOHWfV1uljXYfocVnkWy5dXLZwB87el3u0ppoipMZZyplFFIYEe0yBZ5f2
+         Nnqw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769097974; x=1769702774;
+        d=1e100.net; s=20230601; t=1769100358; x=1769705158;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=c7pyZN2ZhqqDo1rpGZwSk2R0xhAoJshXr9Oe+QgJhMQ=;
-        b=CsueWHzcgvZrwpqY6iWNF2Lr1+btPKzJC+0+zTmR2aLH5WIfDtnfsxOoM1sU0VKy1C
-         NBgQeFzEwWC0KkdQVpzMgVPvjhTBi7BqEov3zck7zQAg4UsnCHfLXYhN4/VVedJUvTJ/
-         B8mKBPAzS35VVAM+Vu83uwutHwBpMd2pp/VRaK0vEmopWJdzkekgbzS9C+qKZ9+kwO9T
-         VejrXFdNCakP8G4SN2t0Esm3oesh0GYMD7aZ2/S2N9d546Q3P/GG2lm8k3kbf3vxKIQD
-         HJaKoAzsc9ffXDGLAIen8/CYCFm1oxb6yhM3rrmfMlSv8T2X9lJVloFzbpRYi1gnWdy5
-         zKkg==
-X-Gm-Message-State: AOJu0YwgzMnvIKdcOh5605m7p4s0RsGVsemDaHJN16m6vgctcXtzn6Wu
-	/sQTd6+irMTj6tfoRTtCFcI8Jbtm4zHBF36lRcyuK/2+Y473bwpQUKPwLif6Xw==
-X-Gm-Gg: AZuq6aJvMoF+q0COrK66ofqLbH115zAosd/Olzzqpsdel2l7/Mr4G/rYiq6Gca73YON
-	BOhL2LQXdys0LLe05d7A1YN1KnXPWp5OSUpUL3yiRjMsiJq94rSBB/8sUE+ZVv5V7UXbFdTjgIO
-	fO9Jzl7K33OuXtlqxkVTWN2IeopTuozyE0dCL5vVRubbsgyahA9+XPmFBD3pRC2SENKm7Qe4SE4
-	xr1E9GdtsAIzDsS7qsP/zrhAF2NJfBDnrWDml/JjYvDuZzGxa8K4+jqI0Aoip3Y30USCTeBqGnR
-	HfgifkMgl1aChD48H967J4DLf7IgF24memlPpu4QKxiG1tNiNF7Zzvg4QkuQpg7J6fNl1FYEo1q
-	wB6lRkok8IQgCuGx1Hlbk0rKj59DLDlzHzh6g0mNdbbWQhKeelDoIQ56UUdy+7Sj0y/vP37dIu/
-	+BL2/FY7tSDtpv+Bezleo=
-X-Received: by 2002:a05:620a:469f:b0:8b3:19dd:46ea with SMTP id af79cd13be357-8c6cce508e4mr1198988185a.72.1769097974371;
-        Thu, 22 Jan 2026 08:06:14 -0800 (PST)
+        bh=HtVIjkjq27DY7iX0hFU6RWSaZgYAd+VXW3JtQs0FcZ8=;
+        b=rQgV/ujJ3S3Estb2PpsKOD3BsCa+tBistdBaBiRKATjfbIk4SETPFPHC8wfbB7jKGy
+         OG7KW1thW/3AnztG5IZTSTHNb/bvSHJZw0KNDJqI+j0btY2XeFOY/5Afz8xSbcGrKw4Q
+         xFH745QreO4jsfNibU+4JhjSpcrfb7uIieD/ZtNj/Nq+tRbKYWzyXDHPczUgk4KvuXG3
+         3P1PO+TNVsPJlTJv9J0fV+EDal7jgps97Xy4nEXATSToB/iiIi/917RX8YZgTrRpVMRF
+         z3xMZiwtDrL+kcSJwkyggCz3DFk3QAHgxSXy7YJ57PaTboogK8cs/0kVL299e6xinve3
+         rwYQ==
+X-Gm-Message-State: AOJu0YwWSA0u3CsYQFEKdbkFOI068jVfylUx5tFMDNd+mnm0lTp/6R0A
+	vJIFCicg4fy+UX3NAHRfzjRcwJNHao2IBoUEIUBEpLXbL5+XblG7WMXdY4B19w==
+X-Gm-Gg: AZuq6aKtvg4cCk1cdTVnOipxD7jpdVXcBS+smgjBE3bQd07raXKkFXXgp1Wor9rAY2O
+	8z2mcgW0rz+4fbhn61biymmAa4At7YVah5AZXkT0fZ+yRy6CgbzJyaj0NO6NvARaqO86bG3bBlO
+	+H/fZaTy0SDB9wsrP5EspT7QYrJPIb0i+NPWqC/d0ZZz5BwRD/eskbpi8qZDjMRd6I0vYZ2hbJS
+	XzecKEGs5J7lF4TMhpHBdj2TJdANo13zr2ecfgxOA8DRQ1nPWg5ONv8RQ62nUb5cbHs2xMrfK3U
+	6M0RYCZjQlim9mKxbOfST52gz4HKGhW2DSAyHNrHZjUuTrd31+VclLruH1PPHtfGqvhpD6PGgPM
+	qWVdXNzaqE4B3ADB4EBmXhqJ31QZC6CorI22a8xI+sD4MPCj9SFn8BaHImSrRAzy5+9qS+HxmsR
+	1Z3OMYZFtlbQIiswsFLt+6Rg0huvoNHQ==
+X-Received: by 2002:a05:622a:58e:b0:4ee:28b8:f110 with SMTP id d75a77b69052e-502f774bb1bmr3130951cf.29.1769100358289;
+        Thu, 22 Jan 2026 08:45:58 -0800 (PST)
 Received: from fedora ([144.51.8.27])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8c6a725e897sm1562127385a.38.2026.01.22.08.06.13
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-502a1efb778sm126476521cf.23.2026.01.22.08.45.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Jan 2026 08:06:13 -0800 (PST)
+        Thu, 22 Jan 2026 08:45:57 -0800 (PST)
 From: James Carter <jwcart2@gmail.com>
 To: selinux@vger.kernel.org
 Cc: James Carter <jwcart2@gmail.com>
-Subject: [PATCH 1/3] libsepol: Tighten checks on MLS range and level when validating
-Date: Thu, 22 Jan 2026 11:06:00 -0500
-Message-ID: <20260122160602.65567-1-jwcart2@gmail.com>
+Subject: [PATCH] libsepol: Fix potential NULL dereference in policydb_read()
+Date: Thu, 22 Jan 2026 11:45:45 -0500
+Message-ID: <20260122164545.77705-1-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -70,155 +70,29 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Because of various corner cases, the checks for MLS semantic
-levels and ranges and the checks for MLS levels and ranges do not
-give an error when the value for the sensitivity is 0 (which occurs
-because it has not been set).
+Since there can be gaps in the type_val_to_struct array for very
+old policies (version < POLICYDB_VERSION_BOUNDARY), need to
+that it is not NULL for a particular index before using.
 
-The corner cases only apply to users and, even then, not to all
-policy types, so user's MLS portions are not being checked as
-strictly as possible. Range transitions are also not getting checked
-as strictly as they could be either.
-
-For user datums:
-- Only check the MLS portions for MLS policies.
-- Do not allow unset sensitivities in semantic levels and ranges for
-a modular policy.
-- Do not allow unset sensitivities in levels and ranges for a
-kernel policy.
-
-For range transitions:
-- Never allow unset sensitivities.
-
-Reported-by: oss-fuzz (issues 471456886 and 471525113)
+Reported-by: oss-fuzz (issue 474424148)
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- libsepol/src/policydb_validate.c | 50 +++++++++++++++++---------------
- 1 file changed, 27 insertions(+), 23 deletions(-)
+ libsepol/src/policydb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
-index 5afbfa49..9ee71bf2 100644
---- a/libsepol/src/policydb_validate.c
-+++ b/libsepol/src/policydb_validate.c
-@@ -661,9 +661,9 @@ bad:
- 	return -1;
- }
+diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+index 6aaa18f2..9760b164 100644
+--- a/libsepol/src/policydb.c
++++ b/libsepol/src/policydb.c
+@@ -4513,7 +4513,7 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+ 					if (j >= p->p_types.nprim)
+ 						goto bad;
  
--static int validate_mls_semantic_level(const mls_semantic_level_t *level, const validate_t *sens, const validate_t *cats)
-+static int validate_mls_semantic_level(const mls_semantic_level_t *level, const validate_t *sens, const validate_t *cats, int allow_unset)
- {
--	if (level->sens == 0)
-+	if (allow_unset && level->sens == 0)
- 		return 0;
- 	if (validate_value(level->sens, sens))
- 		goto bad;
-@@ -676,11 +676,11 @@ bad:
- 	return -1;
- }
- 
--static int validate_mls_semantic_range(const mls_semantic_range_t *range, const validate_t *sens, const validate_t *cats)
-+static int validate_mls_semantic_range(const mls_semantic_range_t *range, const validate_t *sens, const validate_t *cats, int allow_unset)
- {
--	if (validate_mls_semantic_level(&range->level[0], sens, cats))
-+	if (validate_mls_semantic_level(&range->level[0], sens, cats, allow_unset))
- 		goto bad;
--	if (validate_mls_semantic_level(&range->level[1], sens, cats))
-+	if (validate_mls_semantic_level(&range->level[1], sens, cats, allow_unset))
- 		goto bad;
- 
- 	return 0;
-@@ -689,9 +689,9 @@ bad:
- 	return -1;
- }
- 
--static int validate_mls_level(const mls_level_t *level, const validate_t *sens, const validate_t *cats)
-+static int validate_mls_level(const mls_level_t *level, const validate_t *sens, const validate_t *cats, int allow_unset)
- {
--	if (level->sens == 0)
-+	if (allow_unset && level->sens == 0)
- 		return 0;
- 	if (validate_value(level->sens, sens))
- 		goto bad;
-@@ -712,7 +712,7 @@ static int validate_level_datum(sepol_handle_t *handle, const level_datum_t *lev
- 	if (level->level->sens == 0)
- 		goto bad;
- 
--	if (validate_mls_level(level->level, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
-+	if (validate_mls_level(level->level, &flavors[SYM_LEVELS], &flavors[SYM_CATS], 0))
- 		goto bad;
- 
- 	if (level->isalias) {
-@@ -740,11 +740,11 @@ static int validate_level_datum_wrapper(__attribute__ ((unused)) hashtab_key_t k
- 	return validate_level_datum(margs->handle, d, margs->flavors, margs->policy);
- }
- 
--static int validate_mls_range(const mls_range_t *range, const validate_t *sens, const validate_t *cats)
-+static int validate_mls_range(const mls_range_t *range, const validate_t *sens, const validate_t *cats, int allow_unset)
- {
--	if (validate_mls_level(&range->level[0], sens, cats))
-+	if (validate_mls_level(&range->level[0], sens, cats, allow_unset))
- 		goto bad;
--	if (validate_mls_level(&range->level[1], sens, cats))
-+	if (validate_mls_level(&range->level[1], sens, cats, allow_unset))
- 		goto bad;
- 
- 	return 0;
-@@ -759,14 +759,19 @@ static int validate_user_datum(sepol_handle_t *handle, const user_datum_t *user,
- 		goto bad;
- 	if (validate_role_set(&user->roles, &flavors[SYM_ROLES]))
- 		goto bad;
--	if (validate_mls_semantic_range(&user->range, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
--		goto bad;
--	if (validate_mls_semantic_level(&user->dfltlevel, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
--		goto bad;
--	if (p->mls && p->policy_type != POLICY_MOD && validate_mls_range(&user->exp_range, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
--		goto bad;
--	if (p->mls && p->policy_type != POLICY_MOD && validate_mls_level(&user->exp_dfltlevel, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
--		goto bad;
-+	if (p->mls) {
-+		int allow_unset = (p->policy_type != POLICY_MOD);
-+		if (validate_mls_semantic_range(&user->range, &flavors[SYM_LEVELS], &flavors[SYM_CATS], allow_unset))
-+			goto bad;
-+		if (validate_mls_semantic_level(&user->dfltlevel, &flavors[SYM_LEVELS], &flavors[SYM_CATS], allow_unset))
-+			goto bad;
-+
-+		allow_unset = (p->policy_type != POLICY_KERN);
-+		if (validate_mls_range(&user->exp_range, &flavors[SYM_LEVELS], &flavors[SYM_CATS], allow_unset))
-+			goto bad;
-+		if (validate_mls_level(&user->exp_dfltlevel, &flavors[SYM_LEVELS], &flavors[SYM_CATS], allow_unset))
-+			goto bad;
-+	}
- 	if (user->bounds && validate_value(user->bounds, &flavors[SYM_USERS]))
- 		goto bad;
- 
-@@ -1323,7 +1328,7 @@ static int validate_context(const context_struct_t *con, validate_t flavors[], i
- 		return -1;
- 	if (validate_value(con->type, &flavors[SYM_TYPES]))
- 		return -1;
--	if (mls && validate_mls_range(&con->range, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
-+	if (mls && validate_mls_range(&con->range, &flavors[SYM_LEVELS], &flavors[SYM_CATS], 0))
- 		return -1;
- 
- 	return 0;
-@@ -1484,7 +1489,7 @@ static int validate_range_trans_rules(sepol_handle_t *handle, const range_trans_
- 			goto bad;
- 		if (validate_ebitmap(&range_trans->tclasses, &flavors[SYM_CLASSES]))
- 			goto bad;
--		if (validate_mls_semantic_range(&range_trans->trange, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
-+		if (validate_mls_semantic_range(&range_trans->trange, &flavors[SYM_LEVELS], &flavors[SYM_CATS], 0))
- 			goto bad;
- 	}
- 
-@@ -1663,8 +1668,7 @@ static int validate_range_transition(hashtab_key_t key, hashtab_datum_t data, vo
- 		goto bad;
- 	if (validate_value(rt->target_class, &flavors[SYM_CLASSES]))
- 		goto bad;
--
--	if (validate_mls_range(r, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
-+	if (validate_mls_range(r, &flavors[SYM_LEVELS], &flavors[SYM_CATS], 0))
- 		goto bad;
- 
- 	return 0;
+-					if (p->type_val_to_struct[i]->flavor == TYPE_ATTRIB) {
++					if (p->type_val_to_struct[i] && p->type_val_to_struct[i]->flavor == TYPE_ATTRIB) {
+ 						ERR(fp->handle, "Invalid to have type attributes associated with an attribute for a kernel policy");
+ 						goto bad;
+ 					}
 -- 
 2.52.0
 
