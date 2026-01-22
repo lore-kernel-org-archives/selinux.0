@@ -1,82 +1,134 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 644BE32E68D
-	for <selinux@vger.kernel.org>; Wed, 21 Jan 2026 20:40:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from mx1.secunet.com (mx1.secunet.com [62.96.220.36])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 128C9302147;
+	Thu, 22 Jan 2026 10:33:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.96.220.36
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769028058; cv=none; b=sY2hhFN8mg4aI0/jE/E8k7Whf/vLSTpDK01o6aiWi3wlGFRJ4NdscUHuAX3WBMFxXlfZJmo1myYOlzR6n3uVxkIiBQQwuCtGd/v/v6HrhYF5Ais+x8+/h4/A4yZNCxIwFFi8GC0nRaesvro17qMs+c+lNVg/OtjZdeTvtCUz4ig=
+	t=1769078038; cv=none; b=rd9ExQqMh8J0P08bnzuuyzoVcdgC+iz4hdSswAf0pv/N4wRV6MjBwkYHY8dEsAbZJQPAjTH+507KdLLz1NpNxGDuC9ptGOtZmzAwTLcascQsM1eTQ58WAxm9yzO3wa/ou6TL3qqm8ZCscbuvag61qvb2nRLthzXX8QHPrQ2EjaQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769028058; c=relaxed/simple;
-	bh=GQvrhaD03hC+ffgaokB/i5YL7xDgZ8K0bv/O4K7JrgA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nJY5e8bE3RvQoq95byY6bNlXNfu83pjJpldasPaP+SV/YW37I+vor9cZRVLnmbB8B6GI+qdhKk43EX5YMc9FrM9sfSfyoCD6FoquTg0oq+A/xZq3NW/GsQLWMDkNTJ4qbEspBiW2uQBMriAC/MYT4CiaNMpRSV09TToC1LXpB8Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=nUG6A3ws; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1769078038; c=relaxed/simple;
+	bh=vZpCkFfsmKgn23EtxwSEhcFIHFpfsGSIFAqLSt8IBRk=;
+	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=W1MuueXefwmbMxbZ97ZV0lGqIIqbBsHhLeGjhGDyx+2OZnsSZt89AvM0itQlmqZDT7DcXkpNEw/eWKxcWS+URjk1bpDUt3fYNl9pn7p8PkKAYgGjHGTykXnT2+PUJ8xEhCkRM4NqANd42+EeAdGuiGT1beIiIJ14GKBnpTg45/U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com; spf=pass smtp.mailfrom=secunet.com; dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b=WabI5oCo; arc=none smtp.client-ip=62.96.220.36
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=secunet.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="nUG6A3ws"
-Received: from [10.137.198.68] (unknown [131.107.147.196])
-	by linux.microsoft.com (Postfix) with ESMTPSA id 8503420B7167;
-	Wed, 21 Jan 2026 12:40:56 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 8503420B7167
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1769028056;
-	bh=BXIjUEhAkn1Ae2atjm4ncNtQi4OueLYtqnP8qvHVcTE=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=nUG6A3wsnvXwmBXHY/QlY+nqTPFZZZ7dFEKKuoNrSC5FGQS//DQ1cIl1YgjXbkNfq
-	 3QqoEJKOOEbZI/Dm9stGmHB8kEeBHGGFFBE8OvV+fOUFlj5QgpoCEcYUTQmJGgV9GZ
-	 aiLNwetbw1JmcWmZI0M35gsCDQpZ+3gyeKactgCM=
-Message-ID: <1e33d0db-0be3-4f85-97db-88c68978815c@linux.microsoft.com>
-Date: Wed, 21 Jan 2026 12:40:56 -0800
+	dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b="WabI5oCo"
+Received: from localhost (localhost [127.0.0.1])
+	by mx1.secunet.com (Postfix) with ESMTP id CD7832089F;
+	Thu, 22 Jan 2026 11:33:45 +0100 (CET)
+X-Virus-Scanned: by secunet
+Received: from mx1.secunet.com ([127.0.0.1])
+ by localhost (mx1.secunet.com [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id gPtyFwTTFlis; Thu, 22 Jan 2026 11:33:45 +0100 (CET)
+Received: from EXCH-01.secunet.de (rl1.secunet.de [10.32.0.231])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mx1.secunet.com (Postfix) with ESMTPS id 3412B20049;
+	Thu, 22 Jan 2026 11:33:45 +0100 (CET)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.secunet.com 3412B20049
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=secunet.com;
+	s=202301; t=1769078025;
+	bh=2qr3cgmUzoYOcfrgMpvvg/oiMbFlfcTLWs1AGHXfEyQ=;
+	h=Date:From:To:CC:Subject:References:In-Reply-To:From;
+	b=WabI5oCoNIKE5qJeor8XymCCa7Nb9p9lnbI01ySNTnvamdRBs25VvmJ4Y1bwsdQEO
+	 FKvq3gAKvqO7XYbgzJ+9uKmO12UrjLXvwcmjaY6cEi9KlcsUOA7FI1sdKr/Bb39mvn
+	 X1qgvuCw5BEvZVmPWqK0kfUKsDNqVSTYef+PtcML/Bu7CB4cI3m0ozFblzKtPtN+aG
+	 SVDR9mJdJsIqAWpwCbs03E7nL6kdg7AAjOgiYuk0CHUtqkYftKRf3LXTXusEQXEOuG
+	 6A3OZ3qiHNjgqvkcesfmS9SBiPqA9RERX+MGsS8mu2xK3O7XnJAkajNEv4Wrzb7bY5
+	 rBzGsi5s3rf3Q==
+Received: from secunet.com (10.182.7.193) by EXCH-01.secunet.de (10.32.0.171)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Thu, 22 Jan
+ 2026 11:33:43 +0100
+Received: (nullmailer pid 1665856 invoked by uid 1000);
+	Thu, 22 Jan 2026 10:33:42 -0000
+Date: Thu, 22 Jan 2026 11:33:42 +0100
+From: Steffen Klassert <steffen.klassert@secunet.com>
+To: Antony Antony <antony.antony@secunet.com>
+CC: Herbert Xu <herbert@gondor.apana.org.au>, <netdev@vger.kernel.org>, "David
+ S . Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub
+ Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Chiachang Wang
+	<chiachangwang@google.com>, Yan Yan <evitayan@google.com>,
+	<devel@linux-ipsec.org>, Simon Horman <horms@kernel.org>, Paul Moore
+	<paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>, <linux-kernel@vger.kernel.org>,
+	<selinux@vger.kernel.org>
+Subject: Re: [PATCH ipsec-next v4 5/5] xfrm: add XFRM_MSG_MIGRATE_STATE for
+ single SA migration
+Message-ID: <aXH9BvGTxfaGRN4j@secunet.com>
+References: <cover.1768811736.git.antony.antony@secunet.com>
+ <b134abaf18390d1bcdd59d2192687bac0e2c2710.1768811736.git.antony.antony@secunet.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v7] SELinux: Add support for BPF token access control
-To: Paul Moore <paul@paul-moore.com>,
- =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: selinux@vger.kernel.org, stephen.smalley.work@gmail.com,
- omosnace@redhat.com, danieldurning.work@gmail.com
-References: <20251205024259.704-1-ericsu@linux.microsoft.com>
- <b687544287eb8850f24592a207a0b846@paul-moore.com>
- <CAJ2a_Dfk7R2n99790ke+b+LBUAY+Jn2Uq-kgm8yzUvX-Hx4xAg@mail.gmail.com>
- <CAHC9VhQ8Z1YvpDGZK1m15nvU0qsNsyFtTvmyQAUMO+=9txaBpQ@mail.gmail.com>
-Content-Language: en-US
-From: Eric Suen <ericsu@linux.microsoft.com>
-In-Reply-To: <CAHC9VhQ8Z1YvpDGZK1m15nvU0qsNsyFtTvmyQAUMO+=9txaBpQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <b134abaf18390d1bcdd59d2192687bac0e2c2710.1768811736.git.antony.antony@secunet.com>
+X-ClientProxiedBy: EXCH-03.secunet.de (10.32.0.183) To EXCH-01.secunet.de
+ (10.32.0.171)
 
-On 1/14/2026 12:59 PM, Paul Moore wrote:
-> On Wed, Jan 14, 2026 at 12:56 PM Christian Göttsche
-> <cgzones@googlemail.com> wrote:
->> On Tue, 13 Jan 2026 at 21:45, Paul Moore <paul@paul-moore.com> wrote:
->>> On Dec  4, 2025 Eric Suen <ericsu@linux.microsoft.com> wrote:
->>>> BPF token support was introduced to allow a privileged process to delegate
->>>> limited BPF functionality—such as map creation and program loading—to
->>>> an unprivileged process:
-> ...
->
->>> Merged into selinux/dev with some minor line length and whitespace
->>> tweaks.  Thanks everyone!
->> I think there is a typo in selinux_bpf_token_capable():
->>
->> switch (CAP_TO_INDEX(cap)) {
->>      case 0:
->>          sclass = initns ? SECCLASS_CAPABILITY : SECCLASS_CAP_USERNS;
->>          break;
->>      case 1:
->>          sclass = initns ? SECCLASS_CAPABILITY : SECCLASS_CAP2_USERNS;
->> //  <-- SECCLASS_CAPABILITY2  ??
-> Oooh, good catch, thanks!  I'll work up a fix right now.
->
->>          break;
->>      default:
->>          pr_err("SELinux:  out of range capability %d\n", cap);
->>      return -EINVAL;
->> }
+On Mon, Jan 19, 2026 at 09:54:55AM +0100, Antony Antony wrote:
+> +
+> +static int xfrm_do_migrate_state(struct sk_buff *skb, struct nlmsghdr *nlh,
+> +				 struct nlattr **attrs, struct netlink_ext_ack *extack)
+> +{
+> +	int err = -ESRCH;
+> +	struct xfrm_state *x;
+> +	struct net *net = sock_net(skb->sk);
+> +	struct xfrm_encap_tmpl *encap = NULL;
+> +	struct xfrm_user_offload *xuo = NULL;
+> +	struct xfrm_migrate m = { .old_saddr.a4 = 0,};
+> +	struct xfrm_user_migrate_state *um = nlmsg_data(nlh);
+> +
+> +	if (!um->id.spi) {
+> +		NL_SET_ERR_MSG(extack, "Invalid SPI 0x0");
+> +		return -EINVAL;
+> +	}
+> +
+> +	err = copy_from_user_migrate_state(&m, um);
+> +	if (err)
+> +		return err;
+> +
+> +	x = xfrm_user_state_lookup(net, &um->id, attrs, &err);
+> +
+> +	if (x) {
+> +		struct xfrm_state *xc;
+> +
+> +		if (!x->dir) {
+> +			NL_SET_ERR_MSG(extack, "State direction is invalid");
+> +			err = -EINVAL;
+> +			goto error;
+> +		}
+> +
+> +		if (attrs[XFRMA_ENCAP]) {
+> +			encap = kmemdup(nla_data(attrs[XFRMA_ENCAP]),
+> +					sizeof(*encap), GFP_KERNEL);
+> +			if (!encap) {
+> +				err = -ENOMEM;
+> +				goto error;
+> +			}
+> +		}
+> +		if (attrs[XFRMA_OFFLOAD_DEV]) {
+> +			xuo = kmemdup(nla_data(attrs[XFRMA_OFFLOAD_DEV]),
+> +				      sizeof(*xuo), GFP_KERNEL);
+> +			if (!xuo) {
+> +				err = -ENOMEM;
+> +				goto error;
+> +			}
+> +		}
+> +		xc = xfrm_state_migrate(x, &m, encap, net, xuo, extack);
+> +		if (xc) {
+> +			xfrm_state_delete(x);
 
-Thanks a lot, Paul, for the help. Should have checked my email more often :(
+This xfrm_state_delete() comes too late. You need to synchronize this
+with xfrm_state_clone_and_setup() by holding the state lock.
+Otherwise we might hand out the same sequence number etc. more than
+one time. Unfortunately xfrm_migrate() has the same problem, the
+error recovery mechanism in xfrm_migrate() looks broken.
 
