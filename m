@@ -1,112 +1,124 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31C4C32D45C;
-	Thu, 22 Jan 2026 14:37:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC0174CA295
+	for <selinux@vger.kernel.org>; Thu, 22 Jan 2026 16:06:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769092646; cv=none; b=ee8XK7Vofi41k01KTMqZ16xFGnPOR9kW4gt7q1USodxItt9JX9bNCSqPPyKXJUonlNkx98ogi3AIW/v6aGsuS57elxbAdWl6K7sKg9jeYRnewg5Aq7AEEUxBBvPKJUQUyU6Us3Syy/j5FplauR4SxO201SMom1iD403QKewmBcc=
+	t=1769097985; cv=none; b=hGjEokj76u4rExl8F+RN1Iz45zIsGJQ5ZlZNnfG6iUILd5HuCvT5wyCf7myWzEsQklcVWUMUgbkM20LGLEqfx5VkfAS6o+sS0zRrgqme8sDltjvbxsrc+kJ2LW6yexjXG5wL0h+ddcFHX/tu8HNPdKP5QISkEUSvFRQ6n/Hj9mg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769092646; c=relaxed/simple;
-	bh=P8AJzOiR3sPqDe6hTCRwgczBy2Ea5sT2if/nh/WzG/I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bFZRCiqZWrhdcvzgluDQBVOhYFvtQSBsmMSj0m4HyMhAVEh3KLVUp6G8QCaX2f1PnJSAh1aImKsLxcOk70cWX1N0EUIGciXTRLIXocrafn7ZCXvmsdOYezZZXUrXMFNt7SR8nO2b2/F8dQ72gZZhywvWLdwsEe5L88wni5yHh6I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YmZjT/NN; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1769097985; c=relaxed/simple;
+	bh=tv+nSYsMPty0z6gKW9OxWcOX2JhEgMg86J8YiWn0wCA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=MNpjY2WZFWsr33ddwYXSa4ChNXQYkucZOtzvOwOekdcTA2owKKCnhzhybnsYd+xlpuRwKNmqcNjvSTC8LjfhmIjEDZIvHaOGMf/+DPM7YGauJlChhE+mR0HJF90TIj5C0yiPwbbA6yl8kZLChfJd3H0sADLKaPxF58MBNRPiz9E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aK/TMB06; arc=none smtp.client-ip=209.85.222.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YmZjT/NN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8F07C116C6;
-	Thu, 22 Jan 2026 14:37:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769092645;
-	bh=P8AJzOiR3sPqDe6hTCRwgczBy2Ea5sT2if/nh/WzG/I=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=YmZjT/NNd6fCcanauIcaLDG6+KTBbHPA9gfStGQ0+ee/htrPhNcjyDwRglSNgyCGX
-	 ICW2eGsy3rcJLG/y7VpKUVUlq8Bwu0DXHMft8tGEXp6JPsge8A3HxR76celhQKy2lo
-	 3rGnou+k1p6hZQ8vAgJvfisotnMmwpWJTtsbqrpkq3YTRtq+kLUer0hG+Js5kkqzaM
-	 yhqV/VHu2iEOu9qA2xylt3DKHqaFgbyxkeUu6+qLOnX31lG454qNf+2CtHI+i7IyU7
-	 b2gCCD/SkbMJoddgnT1UJhpBA/DWfb/5JEvwDcorTzrjFXn4L6qa/8mvzZQ7vD4WZU
-	 ihkPagDTMY5vQ==
-Date: Thu, 22 Jan 2026 15:37:20 +0100
-From: Alexey Gladkov <legion@kernel.org>
-To: Ondrej Mosnacek <omosnace@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	"Eric W . Biederman" <ebiederm@xmission.com>,
-	linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-	selinux@vger.kernel.org
-Subject: Re: [PATCH] ipc: don't audit capability check in ipc_permissions()
-Message-ID: <aXI2IOmVZTWlYE_9@example.org>
-References: <20260122141303.241133-1-omosnace@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aK/TMB06"
+Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-8c59bce68a1so82094285a.0
+        for <selinux@vger.kernel.org>; Thu, 22 Jan 2026 08:06:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1769097976; x=1769702776; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=/zZBojMNUksU1oHYfdmmNreBj1bTByxP/lDz58YEKbU=;
+        b=aK/TMB06/ieh2jQ5qVkC1oOCBNidwSvfXx4AWOabTZsm0sFs8RdrOJIRBPDh/cnKwd
+         Z1agetp1ecE3G4GqJL3V/BmEgcU9C3S9fucLBPxL3o3acBwx5UL6mniQTwinfiGwuK2E
+         XP0eJf8yx+DbGNpaBPeU+uQy5eCXe/zolmZkwtBtaKC5YwIEBMTwerC+zyCeKVG6xMoU
+         0jSXqyirOd8cXMwhrR8Z1fSticNEBKW05GSWnmIOH2QDXjqprMG1jJNSmPXa3EeXrmuB
+         sd9ljl130AJr7xjhQk37zfSqFjdSPoBwq+ZDOV50t7wJ45/LzMljX6TcLX7n75ELLp9H
+         0Bfg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769097976; x=1769702776;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=/zZBojMNUksU1oHYfdmmNreBj1bTByxP/lDz58YEKbU=;
+        b=mKM/aB5RYLTAaGmf2UujMHgn7s76PnT57+JfgTeqhoRH5KgRgXV+cPE35pjd79OTA+
+         kjlW2YthSKdBvxItcjO9C4+H4PCsADbhYSGvEaQI8F018XgACycGSy/qvi7xY5SFWrhw
+         bHRYFntbTg33enjp6YbwyWo/wICH4fpkNm96Ph/fhEs4KXEpqcXFFtqWGLmikJtUI3NY
+         PHVbXlmRiBk88fOg2eynhubK3Aupby3igQiy59+z8NLc1shSjwzI8kV+dGemqMiAE+sa
+         2MuUkDTX0Hqb1qc6bR2R8FLsrSGF5C7CJ1eEfpBbRiYS0UcMpy2Y9Ot16bmORR7+wWlR
+         3yrg==
+X-Gm-Message-State: AOJu0YxJIei/wzxL0aP4rzrBWjgE0Ww4/fps7WBmoVxX6qEDCOYMLfYN
+	NsXDpxRRnA60XZgX0/L2v2kLAVDyHBwzFt1KAg12zgLvHVBJERyD2aSsJLO2vA==
+X-Gm-Gg: AZuq6aJo66ApjZcKyK5HTqh8Ot/p1GkHKTND7QhrJWVoOPK0r4jwtEcZDDP0kjxTifJ
+	+ahKe/PM4/E2v/mf6f71V33SjG0WQv4J1ZLm2mg8eIMEAxdSmJZPDfMEiyqXZkWfrjEXbtOu4MP
+	rDl0ctWgi8YWNqIVcpLCdg+rZwqIDbCWRjXjPRBxMCHcKZ642gOvgsCFNrO3BiZsqAE4venkYX2
+	/FPVj7I2opzjMIVRSlap4gYOaDFz0ey7jZP2j6rxj1fVtwTKpNqffihc/owybCadClA3+Ep4y3o
+	UnARPCDlxAB26F1P8JN+WQJaZ5ZOou+kCPC5QKzGwrmmPW33TCB1B5n7ELyzR4oDXMqK95T4wNr
+	1T0qQPSIOluG6OHH+SWfUllyhmY4lzDFBR+tKxf9NOFVZLpyfN0UxsMBAqPTRrEXtugLraLYQl+
+	4o/149tJi9UfLrIlpALNQ=
+X-Received: by 2002:a05:620a:44c1:b0:8b2:e1bd:6b0 with SMTP id af79cd13be357-8c6ccf06c2cmr1155917885a.54.1769097975915;
+        Thu, 22 Jan 2026 08:06:15 -0800 (PST)
+Received: from fedora ([144.51.8.27])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8c6a725e897sm1562127385a.38.2026.01.22.08.06.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 22 Jan 2026 08:06:15 -0800 (PST)
+From: James Carter <jwcart2@gmail.com>
+To: selinux@vger.kernel.org
+Cc: James Carter <jwcart2@gmail.com>
+Subject: [PATCH 3/3] libsepol: Handled required users in module_to_cil
+Date: Thu, 22 Jan 2026 11:06:02 -0500
+Message-ID: <20260122160602.65567-3-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.52.0
+In-Reply-To: <20260122160602.65567-1-jwcart2@gmail.com>
+References: <20260122160602.65567-1-jwcart2@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260122141303.241133-1-omosnace@redhat.com>
+Content-Transfer-Encoding: 8bit
 
-On Thu, Jan 22, 2026 at 03:13:03PM +0100, Ondrej Mosnacek wrote:
-> The IPC sysctls implement the ctl_table_root::permissions hook and
-> they override the file access mode based on the CAP_CHECKPOINT_RESTORE
-> capability, which is being checked regardless of whether any access is
-> actually denied or not, so if an LSM denies the capability, an audit
-> record may be logged even when access is in fact granted.
-> 
-> It wouldn't be viable to restructure the sysctl permission logic to only
-> check the capability when the access would be actually denied if it's
-> not granted. Thus, do the same as in net_ctl_permissions()
-> (net/sysctl_net.c) - switch from ns_capable() to ns_capable_noaudit(),
-> so that the check never emits an audit record.
-> 
-> Fixes: 0889f44e2810 ("ipc: Check permissions for checkpoint_restart sysctls at open time")
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+In module_to_cil, required users are being treated like a
+declared user. This causes a user that only appears in a require
+block to be declared in the resulting CIL policy.
 
-Some permission hooks already use ns_capable_noaudit.
-For example, pid_table_root_permissions.
-I think it makes sense here also.
+Instead, use the strategy used for types and roles and add the
+required user to a userattribute rule. This will cause the
+required user to be used and if it is not declared elsewhere the
+optional block will be disabled.
 
-Acked-by: Alexey Gladkov <legion@kernel.org>
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libsepol/src/module_to_cil.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-> ---
->  include/linux/capability.h | 6 ++++++
->  ipc/ipc_sysctl.c           | 2 +-
->  2 files changed, 7 insertions(+), 1 deletion(-)
-> 
-> diff --git a/include/linux/capability.h b/include/linux/capability.h
-> index 1fb08922552c7..37db92b3d6f89 100644
-> --- a/include/linux/capability.h
-> +++ b/include/linux/capability.h
-> @@ -203,6 +203,12 @@ static inline bool checkpoint_restore_ns_capable(struct user_namespace *ns)
->  		ns_capable(ns, CAP_SYS_ADMIN);
->  }
->  
-> +static inline bool checkpoint_restore_ns_capable_noaudit(struct user_namespace *ns)
-> +{
-> +	return ns_capable_noaudit(ns, CAP_CHECKPOINT_RESTORE) ||
-> +		ns_capable_noaudit(ns, CAP_SYS_ADMIN);
-> +}
-> +
->  /* audit system wants to get cap info from files as well */
->  int get_vfs_caps_from_disk(struct mnt_idmap *idmap,
->  			   const struct dentry *dentry,
-> diff --git a/ipc/ipc_sysctl.c b/ipc/ipc_sysctl.c
-> index 15b17e86e198c..9b087ebeb643b 100644
-> --- a/ipc/ipc_sysctl.c
-> +++ b/ipc/ipc_sysctl.c
-> @@ -214,7 +214,7 @@ static int ipc_permissions(struct ctl_table_header *head, const struct ctl_table
->  	if (((table->data == &ns->ids[IPC_SEM_IDS].next_id) ||
->  	     (table->data == &ns->ids[IPC_MSG_IDS].next_id) ||
->  	     (table->data == &ns->ids[IPC_SHM_IDS].next_id)) &&
-> -	    checkpoint_restore_ns_capable(ns->user_ns))
-> +	    checkpoint_restore_ns_capable_noaudit(ns->user_ns))
->  		mode = 0666;
->  	else
->  #endif
-> -- 
-> 2.52.0
-> 
-
+diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+index 56ebd9c8..89cd0b9b 100644
+--- a/libsepol/src/module_to_cil.c
++++ b/libsepol/src/module_to_cil.c
+@@ -2332,13 +2332,21 @@ static int user_to_cil(int indent, struct policydb *pdb, struct avrule_block *UN
+ 	struct ebitmap_node *node;
+ 	uint32_t i;
+ 
+-	if (scope == SCOPE_DECL) {
+-		cil_println(indent, "(user %s)", key);
+-		// object_r is implicit in checkmodule, but not with CIL, create it
+-		// as part of base
+-		cil_println(indent, "(userrole %s " DEFAULT_OBJECT ")", key);
++	if (scope == SCOPE_REQ) {
++		// if a user is in the REQ scope, then it could cause an
++		// optional block to fail, even if it is never used. However in CIL,
++		// symbols must be used in order to cause an optional block to fail. So
++		// for symbols in the REQ scope, add them to a userattribute as a way
++		// to 'use' them in the optional without affecting the resulting policy.
++		cil_println(indent, "(userattributeset " GEN_REQUIRE_ATTR " %s)", key);
++		return 0;
+ 	}
+ 
++	cil_println(indent, "(user %s)", key);
++	// object_r is implicit in checkmodule, but not with CIL, create it
++	// as part of base
++	cil_println(indent, "(userrole %s " DEFAULT_OBJECT ")", key);
++
+ 	ebitmap_for_each_positive_bit(&roles, node, i) {
+ 		cil_println(indent, "(userrole %s %s)", key, pdb->p_role_val_to_name[i]);
+ 	}
 -- 
-Rgrds, legion
+2.52.0
 
