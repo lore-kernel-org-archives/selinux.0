@@ -1,155 +1,504 @@
-Received: from mail-lj1-f181.google.com (mail-lj1-f181.google.com [209.85.208.181])
+Received: from mail-lj1-f177.google.com (mail-lj1-f177.google.com [209.85.208.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39539318EC9
-	for <selinux@vger.kernel.org>; Fri, 23 Jan 2026 15:08:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08FC0318EC9
+	for <selinux@vger.kernel.org>; Fri, 23 Jan 2026 15:13:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.177
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769180946; cv=pass; b=XzMgrxNwRbR+OxOkFRM8HtjMJr56sgc90PKg50EQt4dyf+4W5UXlUEhYMxrNZ1rwQ2Um7GYkTjfelPjbHEQ7s3d5ehAjwqq5M19UZXzV4/Jp1VjmsihQsLBgl3VbmoamBZaSMXXc/UdvkmZ3NLZJaWYe3fDwWercwjyBwH8CezQ=
+	t=1769181238; cv=pass; b=OxqX+bbnBJ8tQ3y8C3XGp+GTsTUkCMc4GmT5xRRKbdxBEkKCiRSBd4843RNirX9MWbVICHVmrK6fJrUuzlUEZwkeHuN99vHDLzb8Sz7/70ZGehbYv+htpFqvqua4w/Q2Eq4NZJ4FmpUoGgdL82SgNRuuwwR8bfIgKdAUfdFr+I4=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769180946; c=relaxed/simple;
-	bh=S2YeDSI65yRRxuyDtxUgMvbKnwfRSPjPz1R0PUI20y8=;
+	s=arc-20240116; t=1769181238; c=relaxed/simple;
+	bh=2vD9io302ZX4udB5PSh1e2XgWbC4f3DX7jHE3Ra2Uh8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=jazQ3mBBTMwQKJkTdWBHsQvzMK2cHwWcrANCVlYWh7Wu5KDmOfOnZShL2ktrXKoNqbeL2A4CWRsyBRxi0W99BTm4gpnyRPDacznIF+JmP7Sya1pdWAdCxA7oyLkE+siOaIsgMX2qfixlqjs4ikUZI2c/ywJTaemBangWBB0OHDM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZjuYx9di; arc=pass smtp.client-ip=209.85.208.181
+	 To:Cc:Content-Type; b=e29JCHp8eX486lKtIt2aHq1HtTZeAj9dRBXWbDkoV8IUc5DpkSE12C2h+txBBVqeaw7UFLLA3xCiIil+XhVbnq6iBgRdgxxnblg/KxTuWecgoxckPMX9BFNhzGfxay0cRhzX+Sl78iMKDtqSWLFcBaV87B7uYJP9ak8s9zGGxjU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Hg8ThsNe; arc=pass smtp.client-ip=209.85.208.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZjuYx9di"
-Received: by mail-lj1-f181.google.com with SMTP id 38308e7fff4ca-38316445a67so19677721fa.3
-        for <selinux@vger.kernel.org>; Fri, 23 Jan 2026 07:08:56 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1769180934; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Hg8ThsNe"
+Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-382f9211cbfso21629621fa.0
+        for <selinux@vger.kernel.org>; Fri, 23 Jan 2026 07:13:54 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1769181231; cv=none;
         d=google.com; s=arc-20240605;
-        b=PR/HRa5CuCjq/ErAIUtk7zJW9mFeHTLCvgh2VK/8bJCVRBL28zjxjMxQJoVncD86cl
-         E51bznYolUbP2TDkv1tiUpVeCkN1scoOiANpx4GO4CFataXrlr6zVCFSjGEJr46cA22f
-         HOn6seI+lmqV+ZCeAS3b6UchCQ+V+qwA5NjB1qpEOoqymiMGmMEZbrQQ6YOQKv51Ktn/
-         h9gn3LTqQuZ88zJ17FQ2VWc0ZZ7CxGs6pywzaokiKbTWJnZ19hD2I6N0ixP/ThovJbjq
-         0xYfR46WY4TC+dQ4HycxeSH0LzluaIzhZksI5wwLvCz7KObYaJ1g4WVVNvfrgK4UxsY5
-         jrXg==
+        b=RmcsMIr+bN6j1hpwuWqKHN6xEhugJBfc1xGdPCqA5LyI8Gd1gzs1Jtt03RwjRtUCgs
+         unFdVBWK6aEsWPS+eC/IHgS9oFo0f9V+Lr8XEwDsaTACH8NDQa3/GVL8rVrGk5H61mn8
+         V/kveH7HpbKLB0CbLGKGN01tpTJkfURQ89IFs0PTvSg+F+EMgJIkdrVnTI3CToWJ/a9o
+         hUxwj4DECmMO/TU6+2Vn6NGKwGfMQ0tm1DSfzHb4t+0xRywDIMkvHWUM8Lsfq0pdoAOi
+         6SPzstFcTT6l9YJID8GKd+XzUNKYmiL81E4lPsbbelS+qPPSOuRMoyojVXzk9aPT56ov
+         nSKA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=0FzzC3u/R27U/pU5HyTt6U4K8VT0ok74FzfNzOBSulE=;
-        fh=64kfzEJR+k3A/Bo0EjJbS2mTPctgdvPLOIBcE6p3LTk=;
-        b=VOTwiGWarA664DyN0lTntkpImKl6VqtHJongZYNLYWj80rP4bXiboQIhPZbsiWirbZ
-         UrkdT7kY+MwRyh6OFWtVyixyDYz1GjZHHtRvRlOZvXwE9cmfr1JWLTUj3SJFEq9Q5s+s
-         uRmwEeooE0pfrQs/UulRA2bHb9J1jg0LJermNVtaHQEq2Kt6ayquk+7Dxhp3OD1YnC1j
-         ea41MgzmNrYJh1B3EzTb6W+qbH6yLQL/w6qX2kwLACV6Qbm9Hm8zbXZLTt8zAhg6pUZw
-         XNrjaR6dPjTywYRGDJLsXTBlB/kpp4gImuTab3C/xghskBAP/iilLm089h7l9A+cTeT4
-         yS/A==;
+        bh=0cpCF3C8EDgNTze/ZGr6TpJnsjgAF4aktTtg2gswDXc=;
+        fh=XCM8fo7IfM89sTn06SjGxcUqBXOhXzH4qY9c7awlrP0=;
+        b=byEoo2BgSaGyO4XlFA7UtUDVnI0h3DqlXF2tgHAJUswwf7GI0vNb4hJz3qUKB+xD5Y
+         Z/xq2mmzAbY07WWLpmRn5kS3d4JQ/6hAhprHqcv28aSe6USrt7VtbiRconHw0kKarWbR
+         WKlT+kZuwyu3BX5VYgTlzJf2rHD6/qXIohknIcIM52twNi+kaHYOvPtN9uf344ucM1TX
+         GpjedumreWt+KepJCcUg4O0qjW4pwsv+UJfZMZO65yhyQlULN4nc2+RqSPI06DXhqEMV
+         zAbgXOvv8PmaEy8e+BEdXcGm4gtkv+hOtc9DApG3ZFbAoipyPYn9ygCVEY4b3BXBN6Yh
+         77rg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769180934; x=1769785734; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1769181231; x=1769786031; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=0FzzC3u/R27U/pU5HyTt6U4K8VT0ok74FzfNzOBSulE=;
-        b=ZjuYx9difJRj8kLVh3lRNP5vbKRapD4XTimBRQLyoTdkYnbXZDSLrkYNh5cUtB882H
-         gzWJ7WQI+cye60vXPKtPkLMD8pnqJa99UpvjMeCvDVg7KjzCsRI5+pEqMpSRK/1ed0HQ
-         fINQi3lbM3e9SjkMezVZQbbF0is+twEBEkWPqLDGQjgWU01hLvZ6pJg6CIfCmBYVSwAL
-         A8vlUVbVY+QA6qYa77xx5gTO22xV3A532/xPdC8qU6mtpkeeOSx2FR2n8rhCdDbI3On/
-         NnkME2suvf5KI9qCtbicKBLoNVA1ku2LInUwMYbPL0sUpq2WtPned1Tk0+LD7AnnpfV9
-         2UhQ==
+        bh=0cpCF3C8EDgNTze/ZGr6TpJnsjgAF4aktTtg2gswDXc=;
+        b=Hg8ThsNe7x92mkdrhmeWCtfg7LBuIhPCg4BZvoeliBT4uOLURYApU4ephqScWjfVR+
+         I2yKU/AvDRLFvlk4DUutOlOqD16laRsNQGQgWjtXaDEimWNEZ1FXbDxPHRjlOLjwO0Qb
+         v1dyMgDdKqwROm4gGRflJNNtfUOWADPJzithkkdnRa2iS3brRe5TYW3Jyx4kg3mzUEfX
+         ItXXO1XV14d67dnYOVQ+NJQMDnveFTwC+tyMQpmth6Q+O5vTt/iaCXxTG1JuwL7wwkzB
+         og/jdBsN8s4zA5xecyVdwbM3YBn8Siegq/S7uhKAPS9kECpd/INaPT5vr9Hv5nQCJruu
+         I1BQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769180934; x=1769785734;
+        d=1e100.net; s=20230601; t=1769181231; x=1769786031;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=0FzzC3u/R27U/pU5HyTt6U4K8VT0ok74FzfNzOBSulE=;
-        b=eIEo8eUcQCMvPhEtqKIm9fLc3t/WZ13NcRYCHHwv0zB80HLGNnQSsznB2L5WMw1es2
-         mMtg/5fKbnSPoYriwnvzoj6WwnJrrjgItpN2I2Mvgp2bTkB1uNANnSMAkZTbGD0jTldK
-         WjdKscPANzGadVG7AeKptALtFXZ90la59NMboYpaHK4njJIRFSsPUW+ghRNAHkBeVmJb
-         A5EfbGJuXpukWAmRWhzAkzvsByGMYUmB818v6usrw5/tvPuxjraCJXZLz4Sp1DgjycUQ
-         Nh/Ef2Sqqm/IqSnynP5MJaoCQobznkRhxAR0egishlKU6Mu+MXoLFEXeIugtA3BsuLAf
-         JxIA==
-X-Gm-Message-State: AOJu0Yzwf3X8nGK4wWAx6kNETLBOCNKwG6pBtmft4SBqbVyP7FOJfonX
-	fRTXI3ZJyoVKS6B5zelGeEQ9O2JQmRWd2ws7th40YwKFzpYfq/MWLiaQEKkaUZmTN0dQIcS/TM/
-	e/3YVvXGfIA8PSA6ls5+E7jQhVfAOkkZzuHEk
-X-Gm-Gg: AZuq6aL988Xj9daRhzefhgMIadeaxhF1F8ofCdhmzkoN+8csH02Jt1sA+JrzgwatZKn
-	c9qLk3QVd7SRHb4c8DHAc3cBENMb2sXrjiGoeQfJ1+eN2xYTRTIirA6g/ICDszxHg9iQ0B8ePBr
-	gWgYE2ftsp5VhbP6bz0gZHQpEXCxkdGo2FybgjlqwvCwD9hFVh0sqSmORqN2ZXk6kTEdzGbJROK
-	fOT9Eo5auhKsi5jgjrbfBCnN080axbIY5bQswBqqGSSNbUbVgT6ZbR7M5b0BIL+V9F+
-X-Received: by 2002:a05:651c:f04:b0:383:5390:bc96 with SMTP id
- 38308e7fff4ca-385d9e2cb1bmr13751621fa.0.1769180933346; Fri, 23 Jan 2026
- 07:08:53 -0800 (PST)
+        bh=0cpCF3C8EDgNTze/ZGr6TpJnsjgAF4aktTtg2gswDXc=;
+        b=ls4rjVIocZ7tDT4sS/M3+KnqUM3hHNZJH5owtm5JM4H5Sb1HX1YE4RnGUjq/mdBp/P
+         bjpdzPuOh9OitsFMMyUxS7luJP/HbhajI9bbHXrv+Eo+JcLNAeOhm8AMdD0nMeghrcVe
+         zxiBkPorlUMF/UhSA7vCNDiJ0pGWSErg8RVLGJ8xVQTviJV06oU6rc/1SFvEc2SS+i1a
+         GZbECy3eapI8UNWVF9HCttbY7+phwrMMzPzjVPHVRgPvVXWXR6tJWsBSDufFhCyQC4Ba
+         bDDOPA3RatfEAOnxG9u4uA93yXUlk7xwHZbM26MKYmyYi4Kh1Vn148ymxyvAooXL+DHF
+         r0lQ==
+X-Gm-Message-State: AOJu0YzvZRjNKZJC1yYvN5mWUatRHi3EY0IatPf6yuCR+eYxjnMJE88B
+	eJIqGrv4Z+wVvCd35JTIcLDNpAsKD8fAM6MFxGcujPNaGL6N+Q2LV6D6hH7UG0LZRUJ1z9Pwvlu
+	LrMC2J5DoTeq7pWCbYq4PryBesLnYagg=
+X-Gm-Gg: AZuq6aI4bXvVZSBMZB77SyJy11FPeqa6IaObeicvGs+7Ct6N1zRcYRNy7SfvnxAphip
+	qnjav1P35tth1Jj78mMhh9zts5IbUAPPc1KbVTASVibvcYJIISIP2zLHKGDTHcQVpfZJA6ola4L
+	ZObu2y/8uKR4fj+UTFLw+/X+qX6hWgY6Ya3s0dHaAZC5D2OQq/atBuCeRWDTA9rr6kXD1WMAkHv
+	Jl2OAluyy6abCoQnYBoAHzNtF7/kTAsp+PcEN9rKoqVsetvPfli3K3hCg9kj1s478Y5rIUn5bJC
+	WMY=
+X-Received: by 2002:a05:651c:a0a:b0:37a:3fbf:b16f with SMTP id
+ 38308e7fff4ca-385d9f79306mr9183441fa.19.1769181230494; Fri, 23 Jan 2026
+ 07:13:50 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251227143911.1630813-1-thomas.petazzoni@bootlin.com>
-In-Reply-To: <20251227143911.1630813-1-thomas.petazzoni@bootlin.com>
+References: <87wm3nemxe.fsf@redhat.com> <20251118201145.984733-1-vmojzis@redhat.com>
+In-Reply-To: <20251118201145.984733-1-vmojzis@redhat.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Fri, 23 Jan 2026 10:08:42 -0500
-X-Gm-Features: AZwV_QiB93U2rOzd9O1eKK4Um1tCUBohnOhcHACA-OrDHATIiTL9TGYWBc9L3G4
-Message-ID: <CAP+JOzRZBfW53JSN3kSyZdUtk8Hdv2TGKt567LMh0fFEOegrvQ@mail.gmail.com>
-Subject: Re: [PATCH] libselinux/src/Makefile: build python module without isolation
-To: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Cc: selinux@vger.kernel.org, =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>, 
-	Bernd Kuhls <bernd@kuhls.net>
+Date: Fri, 23 Jan 2026 10:13:38 -0500
+X-Gm-Features: AZwV_QjtN4O2qeEuv4LbUnTB_U4v7THi5hkgPnk18JY6_KXSY5oZ29MafNXKwb4
+Message-ID: <CAP+JOzS4MHOaNSH1xMhiKGh5fcX3EEKQb42iu6k+A_AGkW4-YA@mail.gmail.com>
+Subject: Re: [PATCH v3] restorecon: Add option to count relabeled files
+To: Vit Mojzis <vmojzis@redhat.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Dec 27, 2025 at 9:39=E2=80=AFAM Thomas Petazzoni
-<thomas.petazzoni@bootlin.com> wrote:
+On Tue, Nov 18, 2025 at 3:12=E2=80=AFPM Vit Mojzis <vmojzis@redhat.com> wro=
+te:
 >
-> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> This is useful in case we want to check that a remediation using
+> restorecon was successful (otherwise 0 is always returned, even if no
+> files were relabeled).
 >
-> The "pip install" logic in libselinux/src/Makefile tries to get
-> setuptools from the network, which is not correct as during the
-> build/installation, there shouldn't be any network access, or
-> downloading of arbitrary resources from the network.
->
-> This causes build issues in Debian:
->
->   https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D1121121
->
-> And in Buildroot:
->
->   https://autobuild.buildroot.net/results/0e9/0e9de0c0d8b6ec57eea9f8834f0=
-2076b296ba4f1/build-end.log
->
-> To fix this, we use the --no-build-isolation pip install argument so
-> that pip install is allowed to use the system-provided setuptools,
-> instead of wanting to download this one.
->
-> This patch is derived from
-> https://sources.debian.org/src/libselinux/3.9-4/debian/patches/Build-pyth=
-on-module-without-isolation-Closes-1119155.patch,
-> with the change that --no-build-isolation is passed unconditionally,
-> regardless of whether $(DESTDIR) is empty or not.
->
-> Signed-off-by: Bernd Kuhls <bernd@kuhls.net>
-> Signed-off-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  libselinux/src/Makefile | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  libselinux/include/selinux/restorecon.h | 15 +++++++++++
+>  libselinux/src/libselinux.map           |  5 ++++
+>  libselinux/src/selinux_restorecon.c     | 34 ++++++++++++++++++++++---
+>  policycoreutils/setfiles/restore.c      | 12 ++++++---
+>  policycoreutils/setfiles/restore.h      |  3 ++-
+>  policycoreutils/setfiles/restorecon.8   |  3 +++
+>  policycoreutils/setfiles/setfiles.c     | 26 ++++++++++++++-----
+>  7 files changed, 83 insertions(+), 15 deletions(-)
 >
-> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> index f7412cd1..0dbba7f4 100644
-> --- a/libselinux/src/Makefile
-> +++ b/libselinux/src/Makefile
-> @@ -198,7 +198,7 @@ ifneq ($(DISABLE_SHARED),y)
->  endif
+> diff --git a/libselinux/include/selinux/restorecon.h b/libselinux/include=
+/selinux/restorecon.h
+> index 0ccf73a6..65aaef23 100644
+> --- a/libselinux/include/selinux/restorecon.h
+> +++ b/libselinux/include/selinux/restorecon.h
+> @@ -134,6 +134,11 @@ extern int selinux_restorecon_parallel(const char *p=
+athname,
+>   */
+>  #define SELINUX_RESTORECON_SET_USER_ROLE               0x40000
 >
->  install-pywrap: pywrap
-> -       CFLAGS=3D"$(CPPFLAGS) $(CFLAGS) $(SWIG_CFLAGS)" $(PYTHON) -m pip =
-install --prefix=3D$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR=
-) --ignore-installed --no-deps` $(PYTHON_SETUP_ARGS) .
-> +       CFLAGS=3D"$(CPPFLAGS) $(CFLAGS) $(SWIG_CFLAGS)" $(PYTHON) -m pip =
-install --no-build-isolation --prefix=3D$(PREFIX) `test -n "$(DESTDIR)" && =
-echo --root $(DESTDIR) --ignore-installed --no-deps` $(PYTHON_SETUP_ARGS) .
->         install -m 644 $(SWIGPYOUT) $(DESTDIR)$(PYTHONLIBDIR)/selinux/__i=
-nit__.py
->         ln -sf --relative $(DESTDIR)$(PYTHONLIBDIR)/selinux/_selinux$(PYC=
-EXT) $(DESTDIR)$(PYTHONLIBDIR)/_selinux$(PYCEXT)
+> +/*
+> + * Count the number of relabeled files (or would be relabeled if "nochan=
+ge" was not set).
+> + */
+> + #define SELINUX_RESTORECON_COUNT_RELABELED            0x80000
+> +
+>  /**
+>   * selinux_restorecon_set_sehandle - Set the global fc handle.
+>   * @hndl: specifies handle to set as the global fc handle.
+> @@ -228,6 +233,16 @@ extern int selinux_restorecon_xattr(const char *path=
+name,
+>   */
+>  extern long unsigned selinux_restorecon_get_skipped_errors(void);
 >
+> +/* selinux_restorecon_get_relabeled_files - Get the number of relabeled =
+files
+> + *
+> + * If SELINUX_RESTORECON_COUNT_RELABELED was passed to selinux_restoreco=
+n(3) or
+> + * selinux_restorecon_parallel(3), this function returns the number of f=
+iles
+> + * that were successfully relabeled.
+> + * If the SELINUX_RESTORECON_NOCHANGE flag was set, this function return=
+s
+> + * the number of files that would be relabeled.
+> + */
+> +extern long unsigned selinux_restorecon_get_relabeled_files(void);
+> +
+>  #ifdef __cplusplus
+>  }
+>  #endif
+> diff --git a/libselinux/src/libselinux.map b/libselinux/src/libselinux.ma=
+p
+> index ab002f01..95cd53b0 100644
+> --- a/libselinux/src/libselinux.map
+> +++ b/libselinux/src/libselinux.map
+> @@ -262,3 +262,8 @@ LIBSELINUX_3.9 {
+>    global:
+>      context_to_str;
+>  } LIBSELINUX_3.8;
+> +
+> +LIBSELINUX_3.10 {
+> +  global:
+> +    selinux_restorecon_get_relabeled_files;
+> +} LIBSELINUX_3.9;
+> diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux=
+_restorecon.c
+> index 681c69db..8fadf4d2 100644
+> --- a/libselinux/src/selinux_restorecon.c
+> +++ b/libselinux/src/selinux_restorecon.c
+> @@ -69,6 +69,9 @@ static struct dir_xattr *dir_xattr_last;
+>  /* Number of errors ignored during the file tree walk. */
+>  static long unsigned skipped_errors;
+>
+> +/* Number of successfully relabeled files or files that would be relabel=
+ed */
+> +static long unsigned relabeled_files;
+> +
+>  /* restorecon_flags for passing to restorecon_sb() */
+>  struct rest_flags {
+>         bool nochange;
+> @@ -88,6 +91,7 @@ struct rest_flags {
+>         bool warnonnomatch;
+>         bool conflicterror;
+>         bool count_errors;
+> +       bool count_relabeled;
+>  };
+>
+>  static void restorecon_init(void)
+> @@ -650,11 +654,12 @@ out:
+>  }
+>
+>  static int restorecon_sb(const char *pathname, const struct stat *sb,
+> -                           const struct rest_flags *flags, bool first)
+> +                           const struct rest_flags *flags, bool first, b=
+ool *updated_out)
+>  {
+>         char *newcon =3D NULL;
+>         char *curcon =3D NULL;
+>         int rc;
+> +       bool updated =3D false;
+>         const char *lookup_path =3D pathname;
+>
+>         if (rootpath) {
+> @@ -736,7 +741,6 @@ static int restorecon_sb(const char *pathname, const =
+struct stat *sb,
+>         }
+>
+>         if (curcon =3D=3D NULL || strcmp(curcon, newcon) !=3D 0) {
+> -               bool updated =3D false;
+>
+>                 if (!flags->set_specctx && curcon &&
+>                                     (is_context_customizable(curcon) > 0)=
+) {
+> @@ -796,9 +800,14 @@ static int restorecon_sb(const char *pathname, const=
+ struct stat *sb,
+>                                 syslog(LOG_INFO, "labeling %s to %s\n",
+>                                             pathname, newcon);
+>                 }
+> +
+> +               /* Note: relabel counting handled by caller */
+> +
+>         }
+>
+>  out:
+> +       if (updated_out)
+> +               *updated_out =3D updated;
+>         rc =3D 0;
+>  out1:
+>         freecon(curcon);
+> @@ -887,6 +896,7 @@ struct rest_state {
+>         bool abort;
+>         int error;
+>         long unsigned skipped_errors;
+> +       long unsigned relabeled_files;
+>         int saved_errno;
+>         pthread_mutex_t mutex;
+>  };
+> @@ -1010,8 +1020,9 @@ loop_body:
+>                         if (state->parallel)
+>                                 pthread_mutex_unlock(&state->mutex);
+>
+> +                       bool updated =3D false;
+>                         error =3D restorecon_sb(ent_path, &ent_st, &state=
+->flags,
+> -                                             first);
+> +                                             first, &updated);
+>
+>                         if (state->parallel) {
+>                                 pthread_mutex_lock(&state->mutex);
+> @@ -1030,6 +1041,8 @@ loop_body:
+>                                         state->skipped_errors++;
+>                                 else
+>                                         state->error =3D error;
+> +                       } else if (updated && state->flags.count_relabele=
+d) {
+> +                               state->relabeled_files++;
+>                         }
+>                         break;
+>                 }
+> @@ -1087,6 +1100,8 @@ static int selinux_restorecon_common(const char *pa=
+thname_orig,
+>                     SELINUX_RESTORECON_IGNORE_DIGEST) ? true : false;
+>         state.flags.count_errors =3D (restorecon_flags &
+>                     SELINUX_RESTORECON_COUNT_ERRORS) ? true : false;
+> +       state.flags.count_relabeled =3D (restorecon_flags &
+> +                   SELINUX_RESTORECON_COUNT_RELABELED) ? true : false;
+>         state.setrestorecondigest =3D true;
+>
+>         state.head =3D NULL;
+> @@ -1094,6 +1109,7 @@ static int selinux_restorecon_common(const char *pa=
+thname_orig,
+>         state.abort =3D false;
+>         state.error =3D 0;
+>         state.skipped_errors =3D 0;
+> +       state.relabeled_files =3D 0;
+>         state.saved_errno =3D 0;
+>
+>         struct stat sb;
+> @@ -1215,7 +1231,11 @@ static int selinux_restorecon_common(const char *p=
+athname_orig,
+>                         goto cleanup;
+>                 }
+>
+> -               error =3D restorecon_sb(pathname, &sb, &state.flags, true=
+);
+> +               bool updated =3D false;
+> +               error =3D restorecon_sb(pathname, &sb, &state.flags, true=
+, &updated);
+> +               if (updated && state.flags.count_relabeled) {
+> +                       state.relabeled_files++;
+> +               }
+>                 goto cleanup;
+>         }
+>
+> @@ -1341,6 +1361,7 @@ out:
+>         (void) fts_close(state.fts);
+>         errno =3D state.saved_errno;
+>  cleanup:
+> +       relabeled_files =3D state.relabeled_files;
+>         if (state.flags.add_assoc) {
+>                 if (state.flags.verbose)
+>                         filespec_eval();
+> @@ -1618,3 +1639,8 @@ long unsigned selinux_restorecon_get_skipped_errors=
+(void)
+>  {
+>         return skipped_errors;
+>  }
+> +
+> +long unsigned selinux_restorecon_get_relabeled_files(void)
+> +{
+> +       return relabeled_files;
+> +}
+> diff --git a/policycoreutils/setfiles/restore.c b/policycoreutils/setfile=
+s/restore.c
+> index 2c031ccc..07582e7c 100644
+> --- a/policycoreutils/setfiles/restore.c
+> +++ b/policycoreutils/setfiles/restore.c
+> @@ -43,7 +43,7 @@ void restore_init(struct restore_opts *opts)
+>                            opts->syslog_changes | opts->log_matches |
+>                            opts->ignore_noent | opts->ignore_mounts |
+>                            opts->mass_relabel | opts->conflict_error |
+> -                          opts->count_errors;
+> +                          opts->count_errors | opts->count_relabeled;
+>
+>         /* Use setfiles, restorecon and restorecond own handles */
+>         selinux_restorecon_set_sehandle(opts->hnd);
+> @@ -75,7 +75,7 @@ void restore_finish(void)
+>  }
+>
+>  int process_glob(char *name, struct restore_opts *opts, size_t nthreads,
+> -                long unsigned *skipped_errors)
+> +                long unsigned *skipped_errors, long unsigned *relabeled_=
+files)
+>  {
+>         glob_t globbuf;
+>         size_t i, len;
+> @@ -99,8 +99,12 @@ int process_glob(char *name, struct restore_opts *opts=
+, size_t nthreads,
+>                                                  nthreads);
+>                 if (rc < 0)
+>                         errors =3D rc;
+> -               else if (opts->restorecon_flags & SELINUX_RESTORECON_COUN=
+T_ERRORS)
+> -                       *skipped_errors +=3D selinux_restorecon_get_skipp=
+ed_errors();
+> +               else {
+> +                       if (opts->restorecon_flags & SELINUX_RESTORECON_C=
+OUNT_ERRORS)
+> +                               *skipped_errors +=3D selinux_restorecon_g=
+et_skipped_errors();
+> +                       if (opts->restorecon_flags & SELINUX_RESTORECON_C=
+OUNT_RELABELED)
+> +                               *relabeled_files +=3D selinux_restorecon_=
+get_relabeled_files();
+> +               }
+>         }
+>
+>         globfree(&globbuf);
+> diff --git a/policycoreutils/setfiles/restore.h b/policycoreutils/setfile=
+s/restore.h
+> index 95afb960..36f73059 100644
+> --- a/policycoreutils/setfiles/restore.h
+> +++ b/policycoreutils/setfiles/restore.h
+> @@ -37,6 +37,7 @@ struct restore_opts {
+>         unsigned int ignore_mounts;
+>         unsigned int conflict_error;
+>         unsigned int count_errors;
+> +       unsigned int count_relabeled;
+>         /* restorecon_flags holds | of above for restore_init() */
+>         unsigned int restorecon_flags;
+>         char *rootpath;
+> @@ -52,7 +53,7 @@ void restore_init(struct restore_opts *opts);
+>  void restore_finish(void);
+>  void add_exclude(const char *directory);
+>  int process_glob(char *name, struct restore_opts *opts, size_t nthreads,
+> -                long unsigned *skipped_errors);
+> +                long unsigned *skipped_errors, long unsigned *relabeled_=
+files);
+>  extern char **exclude_list;
+>
+>  #endif
+> diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setf=
+iles/restorecon.8
+> index 1134420e..b7ff9715 100644
+> --- a/policycoreutils/setfiles/restorecon.8
+> +++ b/policycoreutils/setfiles/restorecon.8
+> @@ -153,6 +153,9 @@ display warnings about entries that had no matching f=
+iles by outputting the
+>  .BR selabel_stats (3)
+>  results.
+>  .TP
+> +.B \-c
+> +count and display the number of (would be) relabeled files. The exit cod=
+e will be set to 0 only if at least one file is relabeled.
+> +.TP
+>  .B \-0
+>  the separator for the input items is assumed to be the null character
+>  (instead of the white space).  The quotes and the backslash characters a=
+re
+> diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfil=
+es/setfiles.c
+> index 31034316..351940f3 100644
+> --- a/policycoreutils/setfiles/setfiles.c
+> +++ b/policycoreutils/setfiles/setfiles.c
+> @@ -35,8 +35,8 @@ static __attribute__((__noreturn__)) void usage(const c=
+har *const name)
+>  {
+>         if (iamrestorecon) {
+>                 fprintf(stderr,
+> -                       "usage:  %s [-iIDFUmnprRv0xT] [-e excludedir] pat=
+hname...\n"
+> -                       "usage:  %s [-iIDFUmnprRv0xT] [-e excludedir] -f =
+filename\n",
+> +                       "usage:  %s [-ciIDFUmnprRv0xT] [-e excludedir] pa=
+thname...\n"
+> +                       "usage:  %s [-ciIDFUmnprRv0xT] [-e excludedir] -f=
+ filename\n",
+>                         name, name);
+>         } else {
+>                 fprintf(stderr,
+> @@ -146,11 +146,12 @@ int main(int argc, char **argv)
+>         size_t buf_len, nthreads =3D 1;
+>         const char *base;
+>         int errors =3D 0;
+> -       const char *ropts =3D "e:f:hiIDlmno:pqrsvFURW0xT:";
+> +       const char *ropts =3D "ce:f:hiIDlmno:pqrsvFURW0xT:";
+>         const char *sopts =3D "c:de:f:hiIDlmno:pqr:svACEFUR:W0T:";
+>         const char *opts;
+>         union selinux_callback cb;
+>         long unsigned skipped_errors;
+> +       long unsigned relabeled_files;
+>
+>         /* Initialize variables */
+>         memset(&r_opts, 0, sizeof(r_opts));
+> @@ -160,6 +161,7 @@ int main(int argc, char **argv)
+>         request_digest =3D 0;
+>         policyfile =3D NULL;
+>         skipped_errors =3D 0;
+> +       relabeled_files =3D 0;
+>
+>         if (!argv[0]) {
+>                 fprintf(stderr, "Called without required program name!\n"=
+);
+> @@ -223,7 +225,10 @@ int main(int argc, char **argv)
+>         while ((opt =3D getopt(argc, argv, opts)) > 0) {
+>                 switch (opt) {
+>                 case 'c':
+> -                       {
+> +                       if (iamrestorecon) {
+> +                               r_opts.count_relabeled =3D SELINUX_RESTOR=
+ECON_COUNT_RELABELED;
+> +                               break;
+> +                       } else {
+>                                 FILE *policystream;
+>
+>                                 policyfile =3D optarg;
+> @@ -457,14 +462,14 @@ int main(int argc, char **argv)
+>                         if (!strcmp(buf, "/"))
+>                                 r_opts.mass_relabel =3D SELINUX_RESTORECO=
+N_MASS_RELABEL;
+>                         errors |=3D process_glob(buf, &r_opts, nthreads,
+> -                                              &skipped_errors) < 0;
+> +                                              &skipped_errors, &relabele=
+d_files) < 0;
+>                 }
+>                 if (strcmp(input_filename, "-") !=3D 0)
+>                         fclose(f);
+>         } else {
+>                 for (i =3D optind; i < argc; i++)
+>                         errors |=3D process_glob(argv[i], &r_opts, nthrea=
+ds,
+> -                                              &skipped_errors) < 0;
+> +                                              &skipped_errors, &relabele=
+d_files) < 0;
+>         }
+>
+>         if (r_opts.mass_relabel && !r_opts.nochange)
+> @@ -479,5 +484,14 @@ int main(int argc, char **argv)
+>         if (r_opts.progress)
+>                 fprintf(stdout, "\n");
+>
+> +       /* Output relabeled file count if requested */
+> +       if (r_opts.count_relabeled) {
+> +               long unsigned relabeled_count =3D selinux_restorecon_get_=
+relabeled_files();
+> +               printf("Relabeled %lu files\n", relabeled_count);
+> +
+> +               /* Set exit code to 0 if at least one file was relabeled =
+*/
+> +               exit(errors ? -1 : relabeled_count ? 0 : 1);
+> +       }
+> +
+>         exit(errors ? -1 : skipped_errors ? 1 : 0);
+>  }
 > --
-> 2.52.0
+> 2.51.1
 >
 >
