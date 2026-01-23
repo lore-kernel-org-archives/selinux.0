@@ -1,140 +1,127 @@
-Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from oak.phenome.org (unknown [193.110.157.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0D82376BF7
-	for <selinux@vger.kernel.org>; Thu, 22 Jan 2026 18:53:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0ED1B324716;
+	Fri, 23 Jan 2026 05:42:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.110.157.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769107997; cv=none; b=retkbP26kNfMjxuSMJ/4/fZv1vSHSu/Pp37A4T1KIm6vOWFeHODi7nR/hvFF04fuodRIu5U6tJr0/7qHsLoU1l7/2KLVkQyGm9erwVNpBaaBwQRhYX0Ms1bdZM/OuECVmNMBzIICm17YRvrOy8mKSugq4M7ZZ46e/SrJg9xKsns=
+	t=1769146936; cv=none; b=B2Y7pl0RuCTJ8jXV5wl/xHHFCDvrKJ9T5Q2hadIM0b3tRl7TLHkAGI273HWEClDVSSrEjMnP3+hhT6a/EkcwjLP0iTNuzIFqLGaSTqd7/K66FjTijpaJSDDzE++Kc8O2Yh25fK29dPsd79sd16lYCx0lC0vN7ZjmVX1pu8vyJvM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769107997; c=relaxed/simple;
-	bh=9vB6dnHO1WaPXpzeI1NxW4xRieEHjn6fupV102yX8dA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=XE3iXuvU2OI/VduONTcruQaXA2kjhaxzFK65S49s41+6ShrvAVVcE8m4A5MRuoEJZm4FEDcETL+u5y2xkalTPmS4ZxFLC5XQhrS73mawSwxDXzaFsOQFN9Q3OfLXm4LoxfumUZhZw4GUfUUP1jtkTeOXLjCnqzkUtrAznzOJGN4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WSAbYUht; arc=none smtp.client-ip=209.85.222.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1769146936; c=relaxed/simple;
+	bh=x29JAg4vInVBwBj5v09QW/0mIT8veRgcMZ17Kmqszh4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=PYyee66zj1YwSZEXJpZ+vtU/vopnXvGHiyx9UaPR+dFU0D4cVsQWgkZXRBeOWxqv1enNvcQDwqhVgp2HE0TFUXWFHrfZMyb607pwNOjUCUJRNIYKIt3aZ5YW05EfHvr0pQCfl6Mo99Jv2/IsChuSDFfNBNrqS/Mk6zUlmI2nZrQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=phenome.org; spf=pass smtp.mailfrom=phenome.org; dkim=pass (2048-bit key) header.d=phenome.org header.i=@phenome.org header.b=WrpbQyU1; arc=none smtp.client-ip=193.110.157.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=phenome.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=phenome.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WSAbYUht"
-Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-8c6af798a83so132989285a.0
-        for <selinux@vger.kernel.org>; Thu, 22 Jan 2026 10:53:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769107978; x=1769712778; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=2CLYlblczlFiC+TGOVC9aPfMGtYo+WgOCNHffya0cQI=;
-        b=WSAbYUht40hYAHE8hVVI07vV2SpI5DzTc+y7tFQ0lA58CQNyfEnPMVqDc/m7AiWLv8
-         vOyphDzxhNbnv2PBoDNzft4n7HHmN2ZTNpM/8zoqwJUUNY/gYCkZvlcSdTJom2EIv468
-         RMa7o5D8w1FBIIqwFrHnz4gGyIOoBP422Jw9gs081uPHYzO00Re/1IP390LALvpf0Ja5
-         QMDZL8Q3hKZ5elLcIrWbp5IJKZ+IZT8JiLIBYiVqq7EbTh4bT+ynuIwheVaiz7m2vLx0
-         PWDLXrfUEPRoMzssFzaS5Lgc5iYTkv1sFy1WbyNqInn051bhgiQ4NsHfpqQmIJ9Mg593
-         8Dfw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769107978; x=1769712778;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=2CLYlblczlFiC+TGOVC9aPfMGtYo+WgOCNHffya0cQI=;
-        b=mMbAyuVp5WlsJTqCLzuAhB2y3j5t/mutdVM7mLgdMtwRywP6sKfrzTzN2OrAa9E6+6
-         617cS/ed7Aon1eDMjLl4BI4qhUHpbms4wxqGJzSWt/eRSBwhbX2Vca6iMjJlbh1rmVsc
-         +dsUme/glcbLYPr8CB1siZ0UXcGmToPJorVoKQMEXtOfbPWa3DEp4jsSv1kwThVAsaeE
-         TGAtkOzv+R7WS0nRZtwQv3qElhnlULXxgNaubVG/b1qrntW24MKzVcu9HebspZyRml1b
-         pezLaZwymIt4rYp+gbGpfO75VxZ/EZRr+N6/gfW61vPUrcM+20Iym3T2TTtDf5Abdikg
-         UTdA==
-X-Gm-Message-State: AOJu0YwhecWVTVfUFaboN95LP9mz3c2HFt05oaP7c/NaKjrdinskRY2m
-	bHmapaVbTf7jgxBomCfS0R78B25Ez7lRkt7Dak3BkNovaNp1zO1jp7/3lMhePg==
-X-Gm-Gg: AZuq6aJH6xOr9maNTAfcdftH0RHhxy6HBj+OT/FAOEJ6e598XOTcUHnPXVyZq24LO74
-	9cG+e/jDEZJxtVaX/9EK5HyebPI7HjA3/UV/rFWgaV+0upBqsyNr5ItXr2itHj2aDhRdpioIDkx
-	UFWOgKeKMxdWDkGc7bNOZbWqU8OwRhj0BfgQoqrwW1aLAc3cJ07V72VJPGBpDxGW7m7T6kwz7Ib
-	Wr9M0bHj+aNGp6DWAqFkqB69E/HBkeGLxoSZ6CD9drLy9MGX4+CsfxEMtSXRX8nrsC02W3lND+L
-	37CztsapGo54RtSx4xwQC+8rkSG+hzIu5phoTmV5YLY+XOs0tC/JBH60ij2dd0osGn+nO1ZWi8/
-	ifJjZ8Xa+/dyPb9mFKUZ+TMy7SRLEVRAWXRvqOchGzTV6O6XqPPhuESWAqc0jJLlqtfYcOI/ojI
-	vtChr6P4SDjCn9Rp2+yCA=
-X-Received: by 2002:a05:620a:2808:b0:8c5:3321:91e6 with SMTP id af79cd13be357-8c6e2e4b86bmr58108585a.79.1769107978410;
-        Thu, 22 Jan 2026 10:52:58 -0800 (PST)
-Received: from fedora ([144.51.8.27])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-894918243fdsm714446d6.5.2026.01.22.10.52.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Jan 2026 10:52:57 -0800 (PST)
-From: James Carter <jwcart2@gmail.com>
-To: selinux@vger.kernel.org
-Cc: James Carter <jwcart2@gmail.com>
-Subject: [PATCH] libsepol: Fix potential use of an uninitialized value in link.c
-Date: Thu, 22 Jan 2026 13:52:43 -0500
-Message-ID: <20260122185243.86209-1-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.52.0
+	dkim=pass (2048-bit key) header.d=phenome.org header.i=@phenome.org header.b="WrpbQyU1"
+Authentication-Results: oak.phenome.org (amavisd); dkim=pass (2048-bit key)
+ reason="pass (just generated, assumed good)" header.d=phenome.org
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=phenome.org; h=
+	in-reply-to:content-disposition:content-type:content-type
+	:mime-version:references:message-id:subject:subject:from:from
+	:date:date:received; s=oak1; t=1769146916; x=1770010917; bh=x29J
+	Ag4vInVBwBj5v09QW/0mIT8veRgcMZ17Kmqszh4=; b=WrpbQyU1rDQD5yueZGBA
+	IYA88FYTD3ygKrv4hA1mogv3stDyA7SDdo6IyK+O7c4qFIm5kgj7OlexRxFaj6HL
+	kgVgz4iD2VDzcgd9KGG/oDkznDkiBbnXV9XXbRVzUXuf5KaN49Du0QtNirkw1fnV
+	fJFsWyXGDPxpOOrXhHnlrP7gHPvbFGpGdg8Ij2WhRoNpw2I7zn2s25lFZ4ybxMcm
+	LBLotLQCwlqDD7YO42G4DGt1BF67ePu2/YUlYYE0pcgDAvEZj24O3TTxWtz3O5Sp
+	cv8xyuJuT3qb6Si/Oz68+0H0yJegxMUgNwpfaxazH4s4/cNNFxLLECw/jK9SwRnw
+	sg==
+X-Virus-Scanned: amavisd at oak.phenome.org
+Received: by oak.phenome.org (Postfix);
+	Fri, 23 Jan 2026 06:41:53 +0100 (CET)
+Date: Fri, 23 Jan 2026 06:41:52 +0100
+From: Antony Antony <antony@phenome.org>
+To: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: Antony Antony <antony.antony@secunet.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>, netdev@vger.kernel.org,
+	"David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Chiachang Wang <chiachangwang@google.com>,
+	Yan Yan <evitayan@google.com>, devel@linux-ipsec.org,
+	Simon Horman <horms@kernel.org>, Paul Moore <paul@paul-moore.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org,
+	selinux@vger.kernel.org
+Subject: Re: [devel-ipsec] Re: [PATCH ipsec-next v4 5/5] xfrm: add
+ XFRM_MSG_MIGRATE_STATE for single SA migration
+Message-ID: <aXMKIPhuiJiNUd1b@Antony2201.local>
+References: <cover.1768811736.git.antony.antony@secunet.com>
+ <b134abaf18390d1bcdd59d2192687bac0e2c2710.1768811736.git.antony.antony@secunet.com>
+ <aXH9BvGTxfaGRN4j@secunet.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aXH9BvGTxfaGRN4j@secunet.com>
 
-The fields in struct missing_requirement are not assigned a value
-in the case where a class is required but not in scope for an
-optional block. This results in the use of an uninitialized value
-in  print_missing_requirements(). The fields of the struct are
-assigned correctly when the permission of a class is not in scope.
+On Thu, Jan 22, 2026 at 11:33:42AM +0100, Steffen Klassert via Devel wrote:
+> On Mon, Jan 19, 2026 at 09:54:55AM +0100, Antony Antony wrote:
+> > +
+> > +static int xfrm_do_migrate_state(struct sk_buff *skb, struct nlmsghdr *nlh,
+> > +				 struct nlattr **attrs, struct netlink_ext_ack *extack)
+> > +{
+> > +	int err = -ESRCH;
+> > +	struct xfrm_state *x;
+> > +	struct net *net = sock_net(skb->sk);
+> > +	struct xfrm_encap_tmpl *encap = NULL;
+> > +	struct xfrm_user_offload *xuo = NULL;
+> > +	struct xfrm_migrate m = { .old_saddr.a4 = 0,};
+> > +	struct xfrm_user_migrate_state *um = nlmsg_data(nlh);
+> > +
+> > +	if (!um->id.spi) {
+> > +		NL_SET_ERR_MSG(extack, "Invalid SPI 0x0");
+> > +		return -EINVAL;
+> > +	}
+> > +
+> > +	err = copy_from_user_migrate_state(&m, um);
+> > +	if (err)
+> > +		return err;
+> > +
+> > +	x = xfrm_user_state_lookup(net, &um->id, attrs, &err);
+> > +
+> > +	if (x) {
+> > +		struct xfrm_state *xc;
+> > +
+> > +		if (!x->dir) {
+> > +			NL_SET_ERR_MSG(extack, "State direction is invalid");
+> > +			err = -EINVAL;
+> > +			goto error;
+> > +		}
+> > +
+> > +		if (attrs[XFRMA_ENCAP]) {
+> > +			encap = kmemdup(nla_data(attrs[XFRMA_ENCAP]),
+> > +					sizeof(*encap), GFP_KERNEL);
+> > +			if (!encap) {
+> > +				err = -ENOMEM;
+> > +				goto error;
+> > +			}
+> > +		}
+> > +		if (attrs[XFRMA_OFFLOAD_DEV]) {
+> > +			xuo = kmemdup(nla_data(attrs[XFRMA_OFFLOAD_DEV]),
+> > +				      sizeof(*xuo), GFP_KERNEL);
+> > +			if (!xuo) {
+> > +				err = -ENOMEM;
+> > +				goto error;
+> > +			}
+> > +		}
+> > +		xc = xfrm_state_migrate(x, &m, encap, net, xuo, extack);
+> > +		if (xc) {
+> > +			xfrm_state_delete(x);
+> 
+> This xfrm_state_delete() comes too late. You need to synchronize this
+> with xfrm_state_clone_and_setup() by holding the state lock.
 
-Assign values to the fields of the struct missing_requirement when
-exiting early because the class is not in scope. Use 0 for the
-permission index and only print the class name in
-print_missing_requirements() if the permission index is 0.
+yes. I added a lock, x->lock, and within the lock call __xfrm_state_delete()
+That seems to work, not encountring a deadlock.
 
-Reported-by: oss-fuzz (issue 472084713)
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
- libsepol/src/link.c | 27 ++++++++++++++++-----------
- 1 file changed, 16 insertions(+), 11 deletions(-)
-
-diff --git a/libsepol/src/link.c b/libsepol/src/link.c
-index da65257a..188b4020 100644
---- a/libsepol/src/link.c
-+++ b/libsepol/src/link.c
-@@ -1987,6 +1987,9 @@ static int is_decl_requires_met(link_state_t * state,
- 
- 
- 		if (!is_id_enabled(id, state->base, SYM_CLASSES)) {
-+			req->symbol_type = SYM_CLASSES;
-+			req->symbol_value = i + 1;
-+			req->perm_value = 0;
- 			return 0;
- 		}
- 
-@@ -2109,20 +2112,22 @@ static void print_missing_requirements(link_state_t * state,
- 	    cur->branch_list->module_name : "BASE";
- 
- 	if (req->symbol_type == SYM_CLASSES) {
--
- 		struct find_perm_arg fparg;
-+		class_datum_t *cladatum = p->class_val_to_struct[req->symbol_value - 1];
- 
--		class_datum_t *cladatum;
--		cladatum = p->class_val_to_struct[req->symbol_value - 1];
--
--		fparg.valuep = req->perm_value;
--		fparg.key = NULL;
--		(void)hashtab_map(cladatum->permissions.table, find_perm, &fparg);
-+		if (req->perm_value == 0) {
-+			ERR(state->handle, "%s's global requirements were not met: class %s",
-+				mod_name, p->p_class_val_to_name[req->symbol_value - 1]);
-+		} else {
-+			fparg.valuep = req->perm_value;
-+			fparg.key = NULL;
-+			(void)hashtab_map(cladatum->permissions.table, find_perm, &fparg);
- 
--		ERR(state->handle,
--		    "%s's global requirements were not met: class %s, permission %s",
--		    mod_name,
--		    p->p_class_val_to_name[req->symbol_value - 1], fparg.key);
-+			ERR(state->handle,
-+				"%s's global requirements were not met: class %s, permission %s",
-+				mod_name,
-+				p->p_class_val_to_name[req->symbol_value - 1], fparg.key);
-+		}
- 	} else {
- 		ERR(state->handle,
- 		    "%s's global requirements were not met: %s %s",
--- 
-2.52.0
-
+> Otherwise we might hand out the same sequence number etc. more than
+> one time. Unfortunately xfrm_migrate() has the same problem, the
+> error recovery mechanism in xfrm_migrate() looks broken.
