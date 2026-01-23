@@ -1,201 +1,366 @@
-Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f169.google.com (mail-lj1-f169.google.com [209.85.208.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C52BA3783B8;
-	Fri, 23 Jan 2026 10:09:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.181.97.72
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769162959; cv=none; b=iIgCdu3E+C4ir+q109UZ5Mj6KZ0kjZnx5sFbAA9FygFYet4ZLzfhks9DbqLC6xDuPWiX0Mr/bCxvQPRhkH2EOrrlpe82frXETv4cWeV3xa0flHLMdsFcsrjDDGXbKqqmzYzA7+kkROrdABlhbpeduRdwB+VSFnKJLnQec+AGozQ=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769162959; c=relaxed/simple;
-	bh=h8wOrwZGBr/rWMJrSgjZ5G80YkNzn771CHOv4mZnx1A=;
-	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type; b=ZBXMUPsMrQIESYVDsYTV7N/YaHVUsHrEySLFjsrF58lgmEUZO2uOuwkZXp4EcxFJMhpyBCP39KL8kTHAQJSDa0/1+FTP5ivPtRthi3VzHDqRcvLx8YxG8F9AYUOs72H+Mj/qLOUEFiEHnFmugaTXOfMdg7PxSo5RnQP4L49BXQo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=I-love.SAKURA.ne.jp; spf=pass smtp.mailfrom=I-love.SAKURA.ne.jp; arc=none smtp.client-ip=202.181.97.72
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=I-love.SAKURA.ne.jp
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=I-love.SAKURA.ne.jp
-Received: from www262.sakura.ne.jp (localhost [127.0.0.1])
-	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 60NA8KYK076887;
-	Fri, 23 Jan 2026 19:08:20 +0900 (JST)
-	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
-Received: from [192.168.1.10] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
-	(authenticated bits=0)
-	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 60NA8KQ6076884
-	(version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
-	Fri, 23 Jan 2026 19:08:20 +0900 (JST)
-	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
-Message-ID: <2ec9c137-79a5-4562-8587-43dd2633f116@I-love.SAKURA.ne.jp>
-Date: Fri, 23 Jan 2026 19:08:19 +0900
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFDE5283CB1
+	for <selinux@vger.kernel.org>; Fri, 23 Jan 2026 15:03:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.169
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1769180606; cv=pass; b=NqfJ2Ayyn2fbs3FeQVN63h9Hk4KkuRg3ruEGRkoagBa1/2vtF3Uef5Uv4h1fA/C958jj4kvacTRSrfDdzwVwckBI7Tbzl7IOUA3AzIxAlU8/lEgD6fQKeuTRW276wdOTOOyz6WApXcHA2dZIQTNGD42bijoQ+e5HU2+TYYnCNTk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1769180606; c=relaxed/simple;
+	bh=rwq4m3hpjYG+3BRQ2DEHd6zcUlfJe9q+EJVxABrqJcs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=tk7YSWEPO/39sKoZt8CacLohpyVzLRBpVzIE1Wn9nXWXfvbni3PozNwPEe/VQy3ar6sLHrysTzw9kOQ0JrGXEDLh9AwtWSDe6NlNTWKP51L7JqsqZgdWYVhBUlJ1a5a1S5FvUjwZp6AHtgKQv7Zee4a7CS6fD7qdX3/4qLAv9yc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SML46LoV; arc=pass smtp.client-ip=209.85.208.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SML46LoV"
+Received: by mail-lj1-f169.google.com with SMTP id 38308e7fff4ca-37fd6e91990so24351611fa.3
+        for <selinux@vger.kernel.org>; Fri, 23 Jan 2026 07:03:24 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1769180603; cv=none;
+        d=google.com; s=arc-20240605;
+        b=XrwYCzx1RcVGf38vnyGfnNJKchHQ3r3eoNx25NjuUtw+tOZrlqFfshn4BmBrgiT0V4
+         II4VYy3EUbvOykk0luAD/d7oQNu934/tTdaSghR7UGEztaTkZMdMU3QsDMFy4m14DeW7
+         oDWitpn8bCMYbD6e0BVg3h2cylVsTHT7nqbfFTIHGv87uvR5s2go2jzrK+bPa1bGoBik
+         Yl6BWav/QQ7Vzd/MkmzVfw01wSlH9ZE9CTOWEZagbVp1xfbgHM/5zBd+Szgo9HW+GY1N
+         dROtvv3MGExebmscHXB+KfjkyYZ8wI3RC5osLH9BHYYk13xeHnaj82b1hrgyB2GCY06x
+         B9dw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=ps/oiUAwxkPxIkd+nFlk13f/Z4J97rmsNvG2ipwa+7k=;
+        fh=IdnM6pgHPPeNgwOxSSybsMeRgsAFlvhyJ19RVUnmBlA=;
+        b=UFvob/4iM1295kErt7rzD+1+P1o453KWuFw/L+tjQbxlnEVGX8kYrlsh5pv7VAjRN4
+         rXYt5eXnMDhSSuWmJl/y0AUwGAP1o03G79MGEk5UsvHmQfkxJ7ePcoLupNY6s7WKqTAF
+         3wQ1KU4wNWotDTw7amnYONe2QVTjOPHJ65+R7tChDgRkQcL5nWNVcYsy2C65Yh8T1/X1
+         fCdDRYGi0CuO+ztzhw3ak3OT5/jduUqfy3IpJHzsh4VFHfOcZfv+cHBIhbjv6p9fkZe0
+         6iKp+TtwFQ+0mguJhku58P88/AFpdbmENyBe3jdQ3zbg/ERt1Gjxh1To6JbFhvKRsqCI
+         qE3w==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1769180603; x=1769785403; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ps/oiUAwxkPxIkd+nFlk13f/Z4J97rmsNvG2ipwa+7k=;
+        b=SML46LoVhEi3CHtzcIZfoN2gsBl1G7CkgsQke2YfJ1T8wPNDsu+0HGKhFzThd5yHJ2
+         ShlzBn3uWOsM8vbTjYYOA2E4rLdoHu9zNa2NPbS53JrNGSFKsKyAgJuNWsGATHgkt7Vb
+         lTKKRDVfunhdZE7hFgaD2gP7hkY+/W4GPuVFTcsOtd5Vdl7p04NJOa2t9bI+7FUL302b
+         sM2fgRDCV+2F9nwot9l9bJ4k/v/1rkYcoYvN/oDFuLZNBPM9rLytwuUkJMqi7tYenqf7
+         hVOgAiTNZS4dnJ1K2EKlX5YwxAbhVH6jr9NItCo0n+whf9SjzPm1vVuL+n09YXq/jeac
+         dJyQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769180603; x=1769785403;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=ps/oiUAwxkPxIkd+nFlk13f/Z4J97rmsNvG2ipwa+7k=;
+        b=paGL8kz4wPNtPBGwtsAdFQZo3l06n2/RqQEvxhFDZvBiviUqGyFCYIFTAbRmLvcwaZ
+         Gi1xywfUAknYmFqSb3KDb6icXsUD9S/4eeZ+jRP/3otSiNlX+sFJbvH+shGXWQ0Igk1K
+         I0KbSsE3WeGmigbmuYJcV55594AmqZvzlVGNy/MABgp+o7GvVa5c+g+qOjV1Tu+IsGVp
+         9Xu79CxJYmypNPQzrrO66A4dOaUqZIwf8q7lym2wUcpmVCGmkMREa/X+glookNeYQvFy
+         Cmgu3OownIizfW4SPV5MDEXrEThV3e2/EIdFF9Hp4JWdmdQuZWt0wsMyJh62ID0PkVGX
+         BNrg==
+X-Gm-Message-State: AOJu0YzNw5f206aOvAPDFcY73Rq5hLt9/K8yGIQQhpyErCTU9KYRKCkf
+	7IT5pArCIAhJqevT0+akpa/1U6upNU46PDhJ0xqgAb4X3lKRGrjiQNwgQS9WTdLXRYc+Z+0Fq36
+	QA/nkZ+xtdSVaJz3fuX1K6zDoZRnAzz8=
+X-Gm-Gg: AZuq6aIp8TkZBcO5LYS7r3YA9DHb0QZVBxIJbpr7HPNWKG9kj9k3Cnmv1YGVcAWvRVZ
+	5crz7t5irv0OTdH46m4UtvyuGFwvbo4l69Ir2+RrhZSOXHwSQ7XH3K+9ihV6lVLFdlrPhAFLaVj
+	Um04O99fJbnaIrsITYy4bFhE2vT9cpqJI4nGSEH+Q45O4poiO4yRrSJw+HNnf/WcSzP6b2bce+2
+	CZYHDk2fIRqE0wheCtlT+XGnPwFDHPCBN5OUtHbztPkfd1oNAx/6BDfXAKwF0OqGjXc
+X-Received: by 2002:a2e:beaa:0:b0:37a:84e5:a1cc with SMTP id
+ 38308e7fff4ca-385da068226mr11319641fa.22.1769180602167; Fri, 23 Jan 2026
+ 07:03:22 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Content-Language: en-US
-To: linux-security-module <linux-security-module@vger.kernel.org>,
-        SELinux <selinux@vger.kernel.org>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
-        Network Development <netdev@vger.kernel.org>
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Subject: [PATCH] xfrm: kill xfrm_dev_{state,policy}_flush_secctx_check()
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Anti-Virus-Server: fsav405.rs.sakura.ne.jp
-X-Virus-Status: clean
+References: <DFID35MI20QY.1TO7H1O354V64@gmail.com> <20260107165908.1584087-1-lautrbach@redhat.com>
+In-Reply-To: <20260107165908.1584087-1-lautrbach@redhat.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Fri, 23 Jan 2026 10:03:10 -0500
+X-Gm-Features: AZwV_QhQLNXlKsoFMm_X9fCpziAMWY_z5x4qLhYY_EZlPWmOe_J6U9B7xxh7sBY
+Message-ID: <CAP+JOzS23+GZdXGGXdce8-UCvAc8jpsZ84aCCTP1_QJ2tNmNoA@mail.gmail.com>
+Subject: Re: [PATCH v2] sandbox/seunshare: Replace system() with execv() to
+ prevent shell injection
+To: Petr Lautrbach <lautrbach@redhat.com>
+Cc: selinux@vger.kernel.org, Rahul Sandhu <nvraxn@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Since xfrm_dev_{state,policy}_flush() are called from only NETDEV_DOWN and
-NETDEV_UNREGISTER events, making xfrm_dev_{state,policy}_flush() no-op by
-returning an error value from xfrm_dev_{state,policy}_flush_secctx_check()
-is pointless. Especially, if xfrm_dev_{state,policy}_flush_secctx_check()
-returned an error value upon NETDEV_UNREGISTER event, the system will hung
-up with
+On Wed, Jan 7, 2026 at 12:33=E2=80=AFPM Petr Lautrbach <lautrbach@redhat.co=
+m> wrote:
+>
+> Refactor spawn_command() to use execv() instead of system() to eliminate
+> shell injection vulnerabilities.
+>
+> Reported-By: Rahul Sandhu <nvraxn@gmail.com>
+> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
 
-  unregister_netdevice: waiting for $dev to become free. Usage count = $count
+Acked-by: James Carter <jwcart2@gmail.com>
 
-message because the reference to $dev acquired by
-xfrm_dev_{state,policy}_add() cannot be released.
-
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
----
- net/xfrm/xfrm_policy.c | 35 -----------------------------------
- net/xfrm/xfrm_state.c  | 33 ---------------------------------
- 2 files changed, 68 deletions(-)
-
-diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
-index 62486f866975..f4df6491095f 100644
---- a/net/xfrm/xfrm_policy.c
-+++ b/net/xfrm/xfrm_policy.c
-@@ -1778,41 +1778,12 @@ xfrm_policy_flush_secctx_check(struct net *net, u8 type, bool task_valid)
- 	}
- 	return err;
- }
--
--static inline int xfrm_dev_policy_flush_secctx_check(struct net *net,
--						     struct net_device *dev,
--						     bool task_valid)
--{
--	struct xfrm_policy *pol;
--	int err = 0;
--
--	list_for_each_entry(pol, &net->xfrm.policy_all, walk.all) {
--		if (pol->walk.dead ||
--		    xfrm_policy_id2dir(pol->index) >= XFRM_POLICY_MAX ||
--		    pol->xdo.dev != dev)
--			continue;
--
--		err = security_xfrm_policy_delete(pol->security);
--		if (err) {
--			xfrm_audit_policy_delete(pol, 0, task_valid);
--			return err;
--		}
--	}
--	return err;
--}
- #else
- static inline int
- xfrm_policy_flush_secctx_check(struct net *net, u8 type, bool task_valid)
- {
- 	return 0;
- }
--
--static inline int xfrm_dev_policy_flush_secctx_check(struct net *net,
--						     struct net_device *dev,
--						     bool task_valid)
--{
--	return 0;
--}
- #endif
- 
- int xfrm_policy_flush(struct net *net, u8 type, bool task_valid)
-@@ -1861,11 +1832,6 @@ int xfrm_dev_policy_flush(struct net *net, struct net_device *dev,
- 	struct xfrm_policy *pol;
- 
- 	spin_lock_bh(&net->xfrm.xfrm_policy_lock);
--
--	err = xfrm_dev_policy_flush_secctx_check(net, dev, task_valid);
--	if (err)
--		goto out;
--
- again:
- 	list_for_each_entry(pol, &net->xfrm.policy_all, walk.all) {
- 		if (pol->walk.dead)
-@@ -1888,7 +1854,6 @@ int xfrm_dev_policy_flush(struct net *net, struct net_device *dev,
- 		__xfrm_policy_inexact_flush(net);
- 	else
- 		err = -ESRCH;
--out:
- 	spin_unlock_bh(&net->xfrm.xfrm_policy_lock);
- 	return err;
- }
-diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index 98b362d51836..855778177558 100644
---- a/net/xfrm/xfrm_state.c
-+++ b/net/xfrm/xfrm_state.c
-@@ -881,41 +881,12 @@ xfrm_state_flush_secctx_check(struct net *net, u8 proto, bool task_valid)
- 
- 	return err;
- }
--
--static inline int
--xfrm_dev_state_flush_secctx_check(struct net *net, struct net_device *dev, bool task_valid)
--{
--	int i, err = 0;
--
--	for (i = 0; i <= net->xfrm.state_hmask; i++) {
--		struct xfrm_state *x;
--		struct xfrm_dev_offload *xso;
--
--		hlist_for_each_entry(x, net->xfrm.state_bydst+i, bydst) {
--			xso = &x->xso;
--
--			if (xso->dev == dev &&
--			   (err = security_xfrm_state_delete(x)) != 0) {
--				xfrm_audit_state_delete(x, 0, task_valid);
--				return err;
--			}
--		}
--	}
--
--	return err;
--}
- #else
- static inline int
- xfrm_state_flush_secctx_check(struct net *net, u8 proto, bool task_valid)
- {
- 	return 0;
- }
--
--static inline int
--xfrm_dev_state_flush_secctx_check(struct net *net, struct net_device *dev, bool task_valid)
--{
--	return 0;
--}
- #endif
- 
- int xfrm_state_flush(struct net *net, u8 proto, bool task_valid)
-@@ -966,9 +937,6 @@ int xfrm_dev_state_flush(struct net *net, struct net_device *dev, bool task_vali
- 	int i, err = 0, cnt = 0;
- 
- 	spin_lock_bh(&net->xfrm.xfrm_state_lock);
--	err = xfrm_dev_state_flush_secctx_check(net, dev, task_valid);
--	if (err)
--		goto out;
- 
- 	err = -ESRCH;
- 	for (i = 0; i <= net->xfrm.state_hmask; i++) {
-@@ -997,7 +965,6 @@ int xfrm_dev_state_flush(struct net *net, struct net_device *dev, bool task_vali
- 	if (cnt)
- 		err = 0;
- 
--out:
- 	spin_unlock_bh(&net->xfrm.xfrm_state_lock);
- 
- 	spin_lock_bh(&xfrm_state_dev_gc_lock);
--- 
-2.47.3
-
+> ---
+> v2  - drop index initialization
+>
+>  sandbox/seunshare.c | 132 ++++++++++++++++++++++++++------------------
+>  1 file changed, 79 insertions(+), 53 deletions(-)
+>
+> diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
+> index 65da46463a8f..2512a18c7b52 100644
+> --- a/sandbox/seunshare.c
+> +++ b/sandbox/seunshare.c
+> @@ -56,6 +56,12 @@
+>  #define USAGE_STRING _("USAGE: seunshare [ -v ] [ -C ] [ -k ] [ -t tmpdi=
+r ] [ -h homedir ] \
+>  [ -r runuserdir ] [ -P pipewiresocket ] [ -W waylandsocket ] [ -Z CONTEX=
+T ] -- executable [args] ")
+>
+> +#define strdup_or_err(args, index, src) do {   \
+> +               args[index] =3D strdup(src); \
+> +               if (! args[index]) \
+> +                       goto err; \
+> +       } while(0)
+> +
+>  static int verbose =3D 0;
+>  static int child =3D 0;
+>
+> @@ -136,15 +142,14 @@ static int set_signal_handles(void)
+>         } while(0)
+>
+>  /**
+> - * Spawn external command using system() with dropped privileges.
+> - * TODO: avoid system() and use exec*() instead
+> + * Spawn external command with dropped privileges.
+>   */
+> -static int spawn_command(const char *cmd, uid_t uid){
+> +static int spawn_command(char **cmd, uid_t uid){
+>         int childpid;
+>         int status =3D -1;
+>
+>         if (verbose > 1)
+> -               printf("spawn_command: %s\n", cmd);
+> +               printf("spawn_command: %s\n", cmd[0]);
+>
+>         childpid =3D fork();
+>         if (childpid =3D=3D -1) {
+> @@ -155,8 +160,7 @@ static int spawn_command(const char *cmd, uid_t uid){
+>         if (childpid =3D=3D 0) {
+>                 if (drop_privs(uid) !=3D 0) exit(-1);
+>
+> -               status =3D system(cmd);
+> -               status_to_retval(status, status);
+> +               status =3D execv(cmd[0], cmd);
+>                 exit(status);
+>         }
+>
+> @@ -342,15 +346,24 @@ static int bad_path(const char *path) {
+>         return 0;
+>  }
+>
+> -static int rsynccmd(const char * src, const char *dst, char **cmdbuf)
+> -{
+> +static void free_args(char **args) {
+> +       char **args_p =3D args;
+> +       if (! args)
+> +               return;
+> +       while (*args_p !=3D NULL) {
+> +               free(*args_p);
+> +               args_p++;
+> +       }
+> +       free(args);
+> +}
+> +
+> +static int rsynccmd(const char * src, const char *dst, char ***cmd) {
+> +       char **args;
+>         char *buf =3D NULL;
+> -       char *newbuf =3D NULL;
+>         glob_t fglob;
+>         fglob.gl_offs =3D 0;
+>         int flags =3D GLOB_PERIOD;
+> -       unsigned int i =3D 0;
+> -       int rc =3D -1;
+> +       unsigned int i =3D 0, index;
+>
+>         /* match glob for all files in src dir */
+>         if (asprintf(&buf, "%s/*", src) =3D=3D -1) {
+> @@ -365,43 +378,35 @@ static int rsynccmd(const char * src, const char *d=
+st, char **cmdbuf)
+>
+>         free(buf); buf =3D NULL;
+>
+> -       for ( i=3D0; i < fglob.gl_pathc; i++) {
+> -               const char *path =3D fglob.gl_pathv[i];
+> -
+> -               if (bad_path(path)) continue;
+> -
+> -               if (!buf) {
+> -                       if (asprintf(&newbuf, "\'%s\'", path) =3D=3D -1) =
+{
+> -                               fprintf(stderr, _("Out of memory\n"));
+> -                               goto err;
+> -                       }
+> -               } else {
+> -                       if (asprintf(&newbuf, "%s  \'%s\'", buf, path) =
+=3D=3D -1) {
+> -                               fprintf(stderr, _("Out of memory\n"));
+> -                               goto err;
+> -                       }
+> -               }
+> -
+> -               free(buf); buf =3D newbuf;
+> -               newbuf =3D NULL;
+> +       /* rsync  -trlHDq + <glob list> + dst + NULL */
+> +       *cmd =3D calloc(2 + fglob.gl_pathc + 2, sizeof(char *));
+> +       if (! *cmd) {
+> +               fprintf(stderr, _("Out of memory\n"));
+> +               return -1;
+>         }
+>
+> -       if (buf) {
+> -               if (asprintf(&newbuf, "/usr/bin/rsync -trlHDq %s '%s'", b=
+uf, dst) =3D=3D -1) {
+> -                       fprintf(stderr, _("Out of memory\n"));
+> -                       goto err;
+> -               }
+> -               *cmdbuf=3Dnewbuf;
+> -       }
+> -       else {
+> -               *cmdbuf=3DNULL;
+> -       }
+> -       rc =3D 0;
+> +       args =3D *cmd;
+> +       strdup_or_err(args, 0, "/usr/bin/rsync");
+> +       strdup_or_err(args, 1, "-trlHDq");
+>
+> +       for ( i=3D0, index =3D 2; i < fglob.gl_pathc; i++) {
+> +               const char *path =3D fglob.gl_pathv[i];
+> +               if (bad_path(path)) continue;
+> +               strdup_or_err(args, index, path);
+> +               index++;
+> +       }
+> +       strdup_or_err(args, index, dst);
+> +       index++;
+> +       args[index] =3D NULL;
+> +       globfree(&fglob);
+> +       return 0;
+>  err:
+> -       free(buf); buf =3D NULL;
+>         globfree(&fglob);
+> -       return rc;
+> +       if (args) {
+> +               free_args(args);
+> +               *cmd =3D NULL;
+> +       }
+> +       return -1;
+>  }
+>
+>  /*
+> @@ -472,21 +477,38 @@ static bool rm_rf(int targetfd, const char *path) {
+>  static int cleanup_tmpdir(const char *tmpdir, const char *src,
+>         struct passwd *pwd, int copy_content)
+>  {
+> -       char *cmdbuf =3D NULL;
+> +       char **args;
+>         int rc =3D 0;
+>
+>         /* rsync files back */
+>         if (copy_content) {
+> -               if (asprintf(&cmdbuf, "/usr/bin/rsync --exclude=3D.X11-un=
+ix -utrlHDq --delete '%s/' '%s/'", tmpdir, src) =3D=3D -1) {
+> +               args =3D calloc(7, sizeof(char *));
+> +               if (! args) {
+>                         fprintf(stderr, _("Out of memory\n"));
+> -                       cmdbuf =3D NULL;
+> -                       rc++;
+> +                       return 1;
+> +               }
+> +
+> +               strdup_or_err(args, 0, "/usr/bin/rsync");
+> +               strdup_or_err(args, 1, "--exclude=3D.X11-unix");
+> +               strdup_or_err(args, 2, "-utrlHDq");
+> +               strdup_or_err(args, 3, "--delete");
+> +               if (asprintf(&args[4], "%s/", tmpdir) =3D=3D -1) {
+> +                       fprintf(stderr, _("Out of memory\n"));
+> +                       free_args(args);
+> +                       return 1;
+>                 }
+> -               if (cmdbuf && spawn_command(cmdbuf, pwd->pw_uid) !=3D 0) =
+{
+> +               if (asprintf(&args[5], "%s/", src) =3D=3D -1) {
+> +                       fprintf(stderr, _("Out of memory\n"));
+> +                       free_args(args);
+> +                       return 1;
+> +               }
+> +               args[6] =3D NULL;
+> +
+> +               if (spawn_command(args, pwd->pw_uid) !=3D 0) {
+>                         fprintf(stderr, _("Failed to copy files from the =
+runtime temporary directory\n"));
+>                         rc++;
+>                 }
+> -               free(cmdbuf); cmdbuf =3D NULL;
+> +               free_args(args);
+>         }
+>
+>         if ((uid_t)setfsuid(0) !=3D 0) {
+> @@ -506,6 +528,10 @@ static int cleanup_tmpdir(const char *tmpdir, const =
+char *src,
+>         }
+>
+>         return rc;
+> +err:
+> +       if (args)
+> +               free_args(args);
+> +       return 1;
+>  }
+>
+>  /**
+> @@ -518,7 +544,7 @@ static char *create_tmpdir(const char *src, struct st=
+at *src_st,
+>         struct stat *out_st, struct passwd *pwd, const char *execcon)
+>  {
+>         char *tmpdir =3D NULL;
+> -       char *cmdbuf =3D NULL;
+> +       char **cmd =3D NULL;
+>         int fd_t =3D -1, fd_s =3D -1;
+>         struct stat tmp_st;
+>         char *con =3D NULL;
+> @@ -605,7 +631,7 @@ static char *create_tmpdir(const char *src, struct st=
+at *src_st,
+>         if ((uid_t)setfsuid(pwd->pw_uid) !=3D 0)
+>                 goto err;
+>
+> -       if (rsynccmd(src, tmpdir, &cmdbuf) < 0) {
+> +       if (rsynccmd(src, tmpdir, &cmd) < 0) {
+>                 goto err;
+>         }
+>
+> @@ -613,7 +639,7 @@ static char *create_tmpdir(const char *src, struct st=
+at *src_st,
+>         if ((uid_t)setfsuid(0) !=3D pwd->pw_uid)
+>                 goto err;
+>
+> -       if (cmdbuf && spawn_command(cmdbuf, pwd->pw_uid) !=3D 0) {
+> +       if (spawn_command(cmd, pwd->pw_uid) !=3D 0) {
+>                 fprintf(stderr, _("Failed to populate runtime temporary d=
+irectory\n"));
+>                 cleanup_tmpdir(tmpdir, src, pwd, 0);
+>                 goto err;
+> @@ -623,7 +649,7 @@ static char *create_tmpdir(const char *src, struct st=
+at *src_st,
+>  err:
+>         free(tmpdir); tmpdir =3D NULL;
+>  good:
+> -       free(cmdbuf); cmdbuf =3D NULL;
+> +       free_args(cmd);
+>         freecon(con); con =3D NULL;
+>         if (fd_t >=3D 0) close(fd_t);
+>         if (fd_s >=3D 0) close(fd_s);
+> --
+> 2.52.0
+>
+>
