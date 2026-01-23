@@ -1,365 +1,154 @@
-Received: from mail-lj1-f169.google.com (mail-lj1-f169.google.com [209.85.208.169])
+Received: from mail-lj1-f181.google.com (mail-lj1-f181.google.com [209.85.208.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFDE5283CB1
-	for <selinux@vger.kernel.org>; Fri, 23 Jan 2026 15:03:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39539318EC9
+	for <selinux@vger.kernel.org>; Fri, 23 Jan 2026 15:08:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.181
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769180606; cv=pass; b=NqfJ2Ayyn2fbs3FeQVN63h9Hk4KkuRg3ruEGRkoagBa1/2vtF3Uef5Uv4h1fA/C958jj4kvacTRSrfDdzwVwckBI7Tbzl7IOUA3AzIxAlU8/lEgD6fQKeuTRW276wdOTOOyz6WApXcHA2dZIQTNGD42bijoQ+e5HU2+TYYnCNTk=
+	t=1769180946; cv=pass; b=XzMgrxNwRbR+OxOkFRM8HtjMJr56sgc90PKg50EQt4dyf+4W5UXlUEhYMxrNZ1rwQ2Um7GYkTjfelPjbHEQ7s3d5ehAjwqq5M19UZXzV4/Jp1VjmsihQsLBgl3VbmoamBZaSMXXc/UdvkmZ3NLZJaWYe3fDwWercwjyBwH8CezQ=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769180606; c=relaxed/simple;
-	bh=rwq4m3hpjYG+3BRQ2DEHd6zcUlfJe9q+EJVxABrqJcs=;
+	s=arc-20240116; t=1769180946; c=relaxed/simple;
+	bh=S2YeDSI65yRRxuyDtxUgMvbKnwfRSPjPz1R0PUI20y8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tk7YSWEPO/39sKoZt8CacLohpyVzLRBpVzIE1Wn9nXWXfvbni3PozNwPEe/VQy3ar6sLHrysTzw9kOQ0JrGXEDLh9AwtWSDe6NlNTWKP51L7JqsqZgdWYVhBUlJ1a5a1S5FvUjwZp6AHtgKQv7Zee4a7CS6fD7qdX3/4qLAv9yc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SML46LoV; arc=pass smtp.client-ip=209.85.208.169
+	 To:Cc:Content-Type; b=jazQ3mBBTMwQKJkTdWBHsQvzMK2cHwWcrANCVlYWh7Wu5KDmOfOnZShL2ktrXKoNqbeL2A4CWRsyBRxi0W99BTm4gpnyRPDacznIF+JmP7Sya1pdWAdCxA7oyLkE+siOaIsgMX2qfixlqjs4ikUZI2c/ywJTaemBangWBB0OHDM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZjuYx9di; arc=pass smtp.client-ip=209.85.208.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SML46LoV"
-Received: by mail-lj1-f169.google.com with SMTP id 38308e7fff4ca-37fd6e91990so24351611fa.3
-        for <selinux@vger.kernel.org>; Fri, 23 Jan 2026 07:03:24 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1769180603; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZjuYx9di"
+Received: by mail-lj1-f181.google.com with SMTP id 38308e7fff4ca-38316445a67so19677721fa.3
+        for <selinux@vger.kernel.org>; Fri, 23 Jan 2026 07:08:56 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1769180934; cv=none;
         d=google.com; s=arc-20240605;
-        b=XrwYCzx1RcVGf38vnyGfnNJKchHQ3r3eoNx25NjuUtw+tOZrlqFfshn4BmBrgiT0V4
-         II4VYy3EUbvOykk0luAD/d7oQNu934/tTdaSghR7UGEztaTkZMdMU3QsDMFy4m14DeW7
-         oDWitpn8bCMYbD6e0BVg3h2cylVsTHT7nqbfFTIHGv87uvR5s2go2jzrK+bPa1bGoBik
-         Yl6BWav/QQ7Vzd/MkmzVfw01wSlH9ZE9CTOWEZagbVp1xfbgHM/5zBd+Szgo9HW+GY1N
-         dROtvv3MGExebmscHXB+KfjkyYZ8wI3RC5osLH9BHYYk13xeHnaj82b1hrgyB2GCY06x
-         B9dw==
+        b=PR/HRa5CuCjq/ErAIUtk7zJW9mFeHTLCvgh2VK/8bJCVRBL28zjxjMxQJoVncD86cl
+         E51bznYolUbP2TDkv1tiUpVeCkN1scoOiANpx4GO4CFataXrlr6zVCFSjGEJr46cA22f
+         HOn6seI+lmqV+ZCeAS3b6UchCQ+V+qwA5NjB1qpEOoqymiMGmMEZbrQQ6YOQKv51Ktn/
+         h9gn3LTqQuZ88zJ17FQ2VWc0ZZ7CxGs6pywzaokiKbTWJnZ19hD2I6N0ixP/ThovJbjq
+         0xYfR46WY4TC+dQ4HycxeSH0LzluaIzhZksI5wwLvCz7KObYaJ1g4WVVNvfrgK4UxsY5
+         jrXg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=ps/oiUAwxkPxIkd+nFlk13f/Z4J97rmsNvG2ipwa+7k=;
-        fh=IdnM6pgHPPeNgwOxSSybsMeRgsAFlvhyJ19RVUnmBlA=;
-        b=UFvob/4iM1295kErt7rzD+1+P1o453KWuFw/L+tjQbxlnEVGX8kYrlsh5pv7VAjRN4
-         rXYt5eXnMDhSSuWmJl/y0AUwGAP1o03G79MGEk5UsvHmQfkxJ7ePcoLupNY6s7WKqTAF
-         3wQ1KU4wNWotDTw7amnYONe2QVTjOPHJ65+R7tChDgRkQcL5nWNVcYsy2C65Yh8T1/X1
-         fCdDRYGi0CuO+ztzhw3ak3OT5/jduUqfy3IpJHzsh4VFHfOcZfv+cHBIhbjv6p9fkZe0
-         6iKp+TtwFQ+0mguJhku58P88/AFpdbmENyBe3jdQ3zbg/ERt1Gjxh1To6JbFhvKRsqCI
-         qE3w==;
+        bh=0FzzC3u/R27U/pU5HyTt6U4K8VT0ok74FzfNzOBSulE=;
+        fh=64kfzEJR+k3A/Bo0EjJbS2mTPctgdvPLOIBcE6p3LTk=;
+        b=VOTwiGWarA664DyN0lTntkpImKl6VqtHJongZYNLYWj80rP4bXiboQIhPZbsiWirbZ
+         UrkdT7kY+MwRyh6OFWtVyixyDYz1GjZHHtRvRlOZvXwE9cmfr1JWLTUj3SJFEq9Q5s+s
+         uRmwEeooE0pfrQs/UulRA2bHb9J1jg0LJermNVtaHQEq2Kt6ayquk+7Dxhp3OD1YnC1j
+         ea41MgzmNrYJh1B3EzTb6W+qbH6yLQL/w6qX2kwLACV6Qbm9Hm8zbXZLTt8zAhg6pUZw
+         XNrjaR6dPjTywYRGDJLsXTBlB/kpp4gImuTab3C/xghskBAP/iilLm089h7l9A+cTeT4
+         yS/A==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769180603; x=1769785403; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1769180934; x=1769785734; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ps/oiUAwxkPxIkd+nFlk13f/Z4J97rmsNvG2ipwa+7k=;
-        b=SML46LoVhEi3CHtzcIZfoN2gsBl1G7CkgsQke2YfJ1T8wPNDsu+0HGKhFzThd5yHJ2
-         ShlzBn3uWOsM8vbTjYYOA2E4rLdoHu9zNa2NPbS53JrNGSFKsKyAgJuNWsGATHgkt7Vb
-         lTKKRDVfunhdZE7hFgaD2gP7hkY+/W4GPuVFTcsOtd5Vdl7p04NJOa2t9bI+7FUL302b
-         sM2fgRDCV+2F9nwot9l9bJ4k/v/1rkYcoYvN/oDFuLZNBPM9rLytwuUkJMqi7tYenqf7
-         hVOgAiTNZS4dnJ1K2EKlX5YwxAbhVH6jr9NItCo0n+whf9SjzPm1vVuL+n09YXq/jeac
-         dJyQ==
+        bh=0FzzC3u/R27U/pU5HyTt6U4K8VT0ok74FzfNzOBSulE=;
+        b=ZjuYx9difJRj8kLVh3lRNP5vbKRapD4XTimBRQLyoTdkYnbXZDSLrkYNh5cUtB882H
+         gzWJ7WQI+cye60vXPKtPkLMD8pnqJa99UpvjMeCvDVg7KjzCsRI5+pEqMpSRK/1ed0HQ
+         fINQi3lbM3e9SjkMezVZQbbF0is+twEBEkWPqLDGQjgWU01hLvZ6pJg6CIfCmBYVSwAL
+         A8vlUVbVY+QA6qYa77xx5gTO22xV3A532/xPdC8qU6mtpkeeOSx2FR2n8rhCdDbI3On/
+         NnkME2suvf5KI9qCtbicKBLoNVA1ku2LInUwMYbPL0sUpq2WtPned1Tk0+LD7AnnpfV9
+         2UhQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769180603; x=1769785403;
+        d=1e100.net; s=20230601; t=1769180934; x=1769785734;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=ps/oiUAwxkPxIkd+nFlk13f/Z4J97rmsNvG2ipwa+7k=;
-        b=paGL8kz4wPNtPBGwtsAdFQZo3l06n2/RqQEvxhFDZvBiviUqGyFCYIFTAbRmLvcwaZ
-         Gi1xywfUAknYmFqSb3KDb6icXsUD9S/4eeZ+jRP/3otSiNlX+sFJbvH+shGXWQ0Igk1K
-         I0KbSsE3WeGmigbmuYJcV55594AmqZvzlVGNy/MABgp+o7GvVa5c+g+qOjV1Tu+IsGVp
-         9Xu79CxJYmypNPQzrrO66A4dOaUqZIwf8q7lym2wUcpmVCGmkMREa/X+glookNeYQvFy
-         Cmgu3OownIizfW4SPV5MDEXrEThV3e2/EIdFF9Hp4JWdmdQuZWt0wsMyJh62ID0PkVGX
-         BNrg==
-X-Gm-Message-State: AOJu0YzNw5f206aOvAPDFcY73Rq5hLt9/K8yGIQQhpyErCTU9KYRKCkf
-	7IT5pArCIAhJqevT0+akpa/1U6upNU46PDhJ0xqgAb4X3lKRGrjiQNwgQS9WTdLXRYc+Z+0Fq36
-	QA/nkZ+xtdSVaJz3fuX1K6zDoZRnAzz8=
-X-Gm-Gg: AZuq6aIp8TkZBcO5LYS7r3YA9DHb0QZVBxIJbpr7HPNWKG9kj9k3Cnmv1YGVcAWvRVZ
-	5crz7t5irv0OTdH46m4UtvyuGFwvbo4l69Ir2+RrhZSOXHwSQ7XH3K+9ihV6lVLFdlrPhAFLaVj
-	Um04O99fJbnaIrsITYy4bFhE2vT9cpqJI4nGSEH+Q45O4poiO4yRrSJw+HNnf/WcSzP6b2bce+2
-	CZYHDk2fIRqE0wheCtlT+XGnPwFDHPCBN5OUtHbztPkfd1oNAx/6BDfXAKwF0OqGjXc
-X-Received: by 2002:a2e:beaa:0:b0:37a:84e5:a1cc with SMTP id
- 38308e7fff4ca-385da068226mr11319641fa.22.1769180602167; Fri, 23 Jan 2026
- 07:03:22 -0800 (PST)
+        bh=0FzzC3u/R27U/pU5HyTt6U4K8VT0ok74FzfNzOBSulE=;
+        b=eIEo8eUcQCMvPhEtqKIm9fLc3t/WZ13NcRYCHHwv0zB80HLGNnQSsznB2L5WMw1es2
+         mMtg/5fKbnSPoYriwnvzoj6WwnJrrjgItpN2I2Mvgp2bTkB1uNANnSMAkZTbGD0jTldK
+         WjdKscPANzGadVG7AeKptALtFXZ90la59NMboYpaHK4njJIRFSsPUW+ghRNAHkBeVmJb
+         A5EfbGJuXpukWAmRWhzAkzvsByGMYUmB818v6usrw5/tvPuxjraCJXZLz4Sp1DgjycUQ
+         Nh/Ef2Sqqm/IqSnynP5MJaoCQobznkRhxAR0egishlKU6Mu+MXoLFEXeIugtA3BsuLAf
+         JxIA==
+X-Gm-Message-State: AOJu0Yzwf3X8nGK4wWAx6kNETLBOCNKwG6pBtmft4SBqbVyP7FOJfonX
+	fRTXI3ZJyoVKS6B5zelGeEQ9O2JQmRWd2ws7th40YwKFzpYfq/MWLiaQEKkaUZmTN0dQIcS/TM/
+	e/3YVvXGfIA8PSA6ls5+E7jQhVfAOkkZzuHEk
+X-Gm-Gg: AZuq6aL988Xj9daRhzefhgMIadeaxhF1F8ofCdhmzkoN+8csH02Jt1sA+JrzgwatZKn
+	c9qLk3QVd7SRHb4c8DHAc3cBENMb2sXrjiGoeQfJ1+eN2xYTRTIirA6g/ICDszxHg9iQ0B8ePBr
+	gWgYE2ftsp5VhbP6bz0gZHQpEXCxkdGo2FybgjlqwvCwD9hFVh0sqSmORqN2ZXk6kTEdzGbJROK
+	fOT9Eo5auhKsi5jgjrbfBCnN080axbIY5bQswBqqGSSNbUbVgT6ZbR7M5b0BIL+V9F+
+X-Received: by 2002:a05:651c:f04:b0:383:5390:bc96 with SMTP id
+ 38308e7fff4ca-385d9e2cb1bmr13751621fa.0.1769180933346; Fri, 23 Jan 2026
+ 07:08:53 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <DFID35MI20QY.1TO7H1O354V64@gmail.com> <20260107165908.1584087-1-lautrbach@redhat.com>
-In-Reply-To: <20260107165908.1584087-1-lautrbach@redhat.com>
+References: <20251227143911.1630813-1-thomas.petazzoni@bootlin.com>
+In-Reply-To: <20251227143911.1630813-1-thomas.petazzoni@bootlin.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Fri, 23 Jan 2026 10:03:10 -0500
-X-Gm-Features: AZwV_QhQLNXlKsoFMm_X9fCpziAMWY_z5x4qLhYY_EZlPWmOe_J6U9B7xxh7sBY
-Message-ID: <CAP+JOzS23+GZdXGGXdce8-UCvAc8jpsZ84aCCTP1_QJ2tNmNoA@mail.gmail.com>
-Subject: Re: [PATCH v2] sandbox/seunshare: Replace system() with execv() to
- prevent shell injection
-To: Petr Lautrbach <lautrbach@redhat.com>
-Cc: selinux@vger.kernel.org, Rahul Sandhu <nvraxn@gmail.com>
+Date: Fri, 23 Jan 2026 10:08:42 -0500
+X-Gm-Features: AZwV_QiB93U2rOzd9O1eKK4Um1tCUBohnOhcHACA-OrDHATIiTL9TGYWBc9L3G4
+Message-ID: <CAP+JOzRZBfW53JSN3kSyZdUtk8Hdv2TGKt567LMh0fFEOegrvQ@mail.gmail.com>
+Subject: Re: [PATCH] libselinux/src/Makefile: build python module without isolation
+To: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Cc: selinux@vger.kernel.org, =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>, 
+	Bernd Kuhls <bernd@kuhls.net>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 7, 2026 at 12:33=E2=80=AFPM Petr Lautrbach <lautrbach@redhat.co=
-m> wrote:
+On Sat, Dec 27, 2025 at 9:39=E2=80=AFAM Thomas Petazzoni
+<thomas.petazzoni@bootlin.com> wrote:
 >
-> Refactor spawn_command() to use execv() instead of system() to eliminate
-> shell injection vulnerabilities.
+> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Reported-By: Rahul Sandhu <nvraxn@gmail.com>
-> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+> The "pip install" logic in libselinux/src/Makefile tries to get
+> setuptools from the network, which is not correct as during the
+> build/installation, there shouldn't be any network access, or
+> downloading of arbitrary resources from the network.
+>
+> This causes build issues in Debian:
+>
+>   https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D1121121
+>
+> And in Buildroot:
+>
+>   https://autobuild.buildroot.net/results/0e9/0e9de0c0d8b6ec57eea9f8834f0=
+2076b296ba4f1/build-end.log
+>
+> To fix this, we use the --no-build-isolation pip install argument so
+> that pip install is allowed to use the system-provided setuptools,
+> instead of wanting to download this one.
+>
+> This patch is derived from
+> https://sources.debian.org/src/libselinux/3.9-4/debian/patches/Build-pyth=
+on-module-without-isolation-Closes-1119155.patch,
+> with the change that --no-build-isolation is passed unconditionally,
+> regardless of whether $(DESTDIR) is empty or not.
+>
+> Signed-off-by: Bernd Kuhls <bernd@kuhls.net>
+> Signed-off-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
 
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
-> v2  - drop index initialization
+>  libselinux/src/Makefile | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
->  sandbox/seunshare.c | 132 ++++++++++++++++++++++++++------------------
->  1 file changed, 79 insertions(+), 53 deletions(-)
+> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> index f7412cd1..0dbba7f4 100644
+> --- a/libselinux/src/Makefile
+> +++ b/libselinux/src/Makefile
+> @@ -198,7 +198,7 @@ ifneq ($(DISABLE_SHARED),y)
+>  endif
 >
-> diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
-> index 65da46463a8f..2512a18c7b52 100644
-> --- a/sandbox/seunshare.c
-> +++ b/sandbox/seunshare.c
-> @@ -56,6 +56,12 @@
->  #define USAGE_STRING _("USAGE: seunshare [ -v ] [ -C ] [ -k ] [ -t tmpdi=
-r ] [ -h homedir ] \
->  [ -r runuserdir ] [ -P pipewiresocket ] [ -W waylandsocket ] [ -Z CONTEX=
-T ] -- executable [args] ")
+>  install-pywrap: pywrap
+> -       CFLAGS=3D"$(CPPFLAGS) $(CFLAGS) $(SWIG_CFLAGS)" $(PYTHON) -m pip =
+install --prefix=3D$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR=
+) --ignore-installed --no-deps` $(PYTHON_SETUP_ARGS) .
+> +       CFLAGS=3D"$(CPPFLAGS) $(CFLAGS) $(SWIG_CFLAGS)" $(PYTHON) -m pip =
+install --no-build-isolation --prefix=3D$(PREFIX) `test -n "$(DESTDIR)" && =
+echo --root $(DESTDIR) --ignore-installed --no-deps` $(PYTHON_SETUP_ARGS) .
+>         install -m 644 $(SWIGPYOUT) $(DESTDIR)$(PYTHONLIBDIR)/selinux/__i=
+nit__.py
+>         ln -sf --relative $(DESTDIR)$(PYTHONLIBDIR)/selinux/_selinux$(PYC=
+EXT) $(DESTDIR)$(PYTHONLIBDIR)/_selinux$(PYCEXT)
 >
-> +#define strdup_or_err(args, index, src) do {   \
-> +               args[index] =3D strdup(src); \
-> +               if (! args[index]) \
-> +                       goto err; \
-> +       } while(0)
-> +
->  static int verbose =3D 0;
->  static int child =3D 0;
->
-> @@ -136,15 +142,14 @@ static int set_signal_handles(void)
->         } while(0)
->
->  /**
-> - * Spawn external command using system() with dropped privileges.
-> - * TODO: avoid system() and use exec*() instead
-> + * Spawn external command with dropped privileges.
->   */
-> -static int spawn_command(const char *cmd, uid_t uid){
-> +static int spawn_command(char **cmd, uid_t uid){
->         int childpid;
->         int status =3D -1;
->
->         if (verbose > 1)
-> -               printf("spawn_command: %s\n", cmd);
-> +               printf("spawn_command: %s\n", cmd[0]);
->
->         childpid =3D fork();
->         if (childpid =3D=3D -1) {
-> @@ -155,8 +160,7 @@ static int spawn_command(const char *cmd, uid_t uid){
->         if (childpid =3D=3D 0) {
->                 if (drop_privs(uid) !=3D 0) exit(-1);
->
-> -               status =3D system(cmd);
-> -               status_to_retval(status, status);
-> +               status =3D execv(cmd[0], cmd);
->                 exit(status);
->         }
->
-> @@ -342,15 +346,24 @@ static int bad_path(const char *path) {
->         return 0;
->  }
->
-> -static int rsynccmd(const char * src, const char *dst, char **cmdbuf)
-> -{
-> +static void free_args(char **args) {
-> +       char **args_p =3D args;
-> +       if (! args)
-> +               return;
-> +       while (*args_p !=3D NULL) {
-> +               free(*args_p);
-> +               args_p++;
-> +       }
-> +       free(args);
-> +}
-> +
-> +static int rsynccmd(const char * src, const char *dst, char ***cmd) {
-> +       char **args;
->         char *buf =3D NULL;
-> -       char *newbuf =3D NULL;
->         glob_t fglob;
->         fglob.gl_offs =3D 0;
->         int flags =3D GLOB_PERIOD;
-> -       unsigned int i =3D 0;
-> -       int rc =3D -1;
-> +       unsigned int i =3D 0, index;
->
->         /* match glob for all files in src dir */
->         if (asprintf(&buf, "%s/*", src) =3D=3D -1) {
-> @@ -365,43 +378,35 @@ static int rsynccmd(const char * src, const char *d=
-st, char **cmdbuf)
->
->         free(buf); buf =3D NULL;
->
-> -       for ( i=3D0; i < fglob.gl_pathc; i++) {
-> -               const char *path =3D fglob.gl_pathv[i];
-> -
-> -               if (bad_path(path)) continue;
-> -
-> -               if (!buf) {
-> -                       if (asprintf(&newbuf, "\'%s\'", path) =3D=3D -1) =
-{
-> -                               fprintf(stderr, _("Out of memory\n"));
-> -                               goto err;
-> -                       }
-> -               } else {
-> -                       if (asprintf(&newbuf, "%s  \'%s\'", buf, path) =
-=3D=3D -1) {
-> -                               fprintf(stderr, _("Out of memory\n"));
-> -                               goto err;
-> -                       }
-> -               }
-> -
-> -               free(buf); buf =3D newbuf;
-> -               newbuf =3D NULL;
-> +       /* rsync  -trlHDq + <glob list> + dst + NULL */
-> +       *cmd =3D calloc(2 + fglob.gl_pathc + 2, sizeof(char *));
-> +       if (! *cmd) {
-> +               fprintf(stderr, _("Out of memory\n"));
-> +               return -1;
->         }
->
-> -       if (buf) {
-> -               if (asprintf(&newbuf, "/usr/bin/rsync -trlHDq %s '%s'", b=
-uf, dst) =3D=3D -1) {
-> -                       fprintf(stderr, _("Out of memory\n"));
-> -                       goto err;
-> -               }
-> -               *cmdbuf=3Dnewbuf;
-> -       }
-> -       else {
-> -               *cmdbuf=3DNULL;
-> -       }
-> -       rc =3D 0;
-> +       args =3D *cmd;
-> +       strdup_or_err(args, 0, "/usr/bin/rsync");
-> +       strdup_or_err(args, 1, "-trlHDq");
->
-> +       for ( i=3D0, index =3D 2; i < fglob.gl_pathc; i++) {
-> +               const char *path =3D fglob.gl_pathv[i];
-> +               if (bad_path(path)) continue;
-> +               strdup_or_err(args, index, path);
-> +               index++;
-> +       }
-> +       strdup_or_err(args, index, dst);
-> +       index++;
-> +       args[index] =3D NULL;
-> +       globfree(&fglob);
-> +       return 0;
->  err:
-> -       free(buf); buf =3D NULL;
->         globfree(&fglob);
-> -       return rc;
-> +       if (args) {
-> +               free_args(args);
-> +               *cmd =3D NULL;
-> +       }
-> +       return -1;
->  }
->
->  /*
-> @@ -472,21 +477,38 @@ static bool rm_rf(int targetfd, const char *path) {
->  static int cleanup_tmpdir(const char *tmpdir, const char *src,
->         struct passwd *pwd, int copy_content)
->  {
-> -       char *cmdbuf =3D NULL;
-> +       char **args;
->         int rc =3D 0;
->
->         /* rsync files back */
->         if (copy_content) {
-> -               if (asprintf(&cmdbuf, "/usr/bin/rsync --exclude=3D.X11-un=
-ix -utrlHDq --delete '%s/' '%s/'", tmpdir, src) =3D=3D -1) {
-> +               args =3D calloc(7, sizeof(char *));
-> +               if (! args) {
->                         fprintf(stderr, _("Out of memory\n"));
-> -                       cmdbuf =3D NULL;
-> -                       rc++;
-> +                       return 1;
-> +               }
-> +
-> +               strdup_or_err(args, 0, "/usr/bin/rsync");
-> +               strdup_or_err(args, 1, "--exclude=3D.X11-unix");
-> +               strdup_or_err(args, 2, "-utrlHDq");
-> +               strdup_or_err(args, 3, "--delete");
-> +               if (asprintf(&args[4], "%s/", tmpdir) =3D=3D -1) {
-> +                       fprintf(stderr, _("Out of memory\n"));
-> +                       free_args(args);
-> +                       return 1;
->                 }
-> -               if (cmdbuf && spawn_command(cmdbuf, pwd->pw_uid) !=3D 0) =
-{
-> +               if (asprintf(&args[5], "%s/", src) =3D=3D -1) {
-> +                       fprintf(stderr, _("Out of memory\n"));
-> +                       free_args(args);
-> +                       return 1;
-> +               }
-> +               args[6] =3D NULL;
-> +
-> +               if (spawn_command(args, pwd->pw_uid) !=3D 0) {
->                         fprintf(stderr, _("Failed to copy files from the =
-runtime temporary directory\n"));
->                         rc++;
->                 }
-> -               free(cmdbuf); cmdbuf =3D NULL;
-> +               free_args(args);
->         }
->
->         if ((uid_t)setfsuid(0) !=3D 0) {
-> @@ -506,6 +528,10 @@ static int cleanup_tmpdir(const char *tmpdir, const =
-char *src,
->         }
->
->         return rc;
-> +err:
-> +       if (args)
-> +               free_args(args);
-> +       return 1;
->  }
->
->  /**
-> @@ -518,7 +544,7 @@ static char *create_tmpdir(const char *src, struct st=
-at *src_st,
->         struct stat *out_st, struct passwd *pwd, const char *execcon)
->  {
->         char *tmpdir =3D NULL;
-> -       char *cmdbuf =3D NULL;
-> +       char **cmd =3D NULL;
->         int fd_t =3D -1, fd_s =3D -1;
->         struct stat tmp_st;
->         char *con =3D NULL;
-> @@ -605,7 +631,7 @@ static char *create_tmpdir(const char *src, struct st=
-at *src_st,
->         if ((uid_t)setfsuid(pwd->pw_uid) !=3D 0)
->                 goto err;
->
-> -       if (rsynccmd(src, tmpdir, &cmdbuf) < 0) {
-> +       if (rsynccmd(src, tmpdir, &cmd) < 0) {
->                 goto err;
->         }
->
-> @@ -613,7 +639,7 @@ static char *create_tmpdir(const char *src, struct st=
-at *src_st,
->         if ((uid_t)setfsuid(0) !=3D pwd->pw_uid)
->                 goto err;
->
-> -       if (cmdbuf && spawn_command(cmdbuf, pwd->pw_uid) !=3D 0) {
-> +       if (spawn_command(cmd, pwd->pw_uid) !=3D 0) {
->                 fprintf(stderr, _("Failed to populate runtime temporary d=
-irectory\n"));
->                 cleanup_tmpdir(tmpdir, src, pwd, 0);
->                 goto err;
-> @@ -623,7 +649,7 @@ static char *create_tmpdir(const char *src, struct st=
-at *src_st,
->  err:
->         free(tmpdir); tmpdir =3D NULL;
->  good:
-> -       free(cmdbuf); cmdbuf =3D NULL;
-> +       free_args(cmd);
->         freecon(con); con =3D NULL;
->         if (fd_t >=3D 0) close(fd_t);
->         if (fd_s >=3D 0) close(fd_s);
 > --
 > 2.52.0
 >
