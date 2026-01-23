@@ -1,162 +1,201 @@
-Received: from mx1.secunet.com (mx1.secunet.com [62.96.220.36])
+Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C1FB253B58;
-	Fri, 23 Jan 2026 08:32:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.96.220.36
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C52BA3783B8;
+	Fri, 23 Jan 2026 10:09:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.181.97.72
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769157142; cv=none; b=M78JNxLxlDUDLtlreuYJtb1gEhzxEZVV91E4GaEkZYmAwmMiNf8kk7NLvUatuBGULapNRVmm2RQlB9QBp6I2tPhR+DxiI9+I8s+u2EaubNGn2+9qxemu6m2LyQ40ypsI6awFQtN6e+MEQ9YArNZPdeYxwT2Q0vV1+NWk+8QxiS0=
+	t=1769162959; cv=none; b=iIgCdu3E+C4ir+q109UZ5Mj6KZ0kjZnx5sFbAA9FygFYet4ZLzfhks9DbqLC6xDuPWiX0Mr/bCxvQPRhkH2EOrrlpe82frXETv4cWeV3xa0flHLMdsFcsrjDDGXbKqqmzYzA7+kkROrdABlhbpeduRdwB+VSFnKJLnQec+AGozQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769157142; c=relaxed/simple;
-	bh=pe/U8R1GHGgSVphOhGhvbyXMon4vZEqHjodKszec0Ow=;
-	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dkHWRSxfd2KhYC2szWwv32O7KqwfhbR+dJdD/ye8y4GYrNVogP9BdwXrJU3b8L4ihWodIRzYABWYVutF9ZSyvk5B9Ui5zsyAIdNLueRtSzlpI9ILt+Kn/G6opY76OKw4db8p8AVPcKgeMa79q6MFbTduDzE2A8Jy3WnI39Cz6eg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com; spf=pass smtp.mailfrom=secunet.com; dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b=S0JW/Se4; arc=none smtp.client-ip=62.96.220.36
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=secunet.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b="S0JW/Se4"
-Received: from localhost (localhost [127.0.0.1])
-	by mx1.secunet.com (Postfix) with ESMTP id 4295F2087C;
-	Fri, 23 Jan 2026 09:32:17 +0100 (CET)
-X-Virus-Scanned: by secunet
-Received: from mx1.secunet.com ([127.0.0.1])
- by localhost (mx1.secunet.com [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3NzD6L_K90UO; Fri, 23 Jan 2026 09:32:16 +0100 (CET)
-Received: from EXCH-01.secunet.de (rl1.secunet.de [10.32.0.231])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.secunet.com (Postfix) with ESMTPS id 968B1201E4;
-	Fri, 23 Jan 2026 09:32:16 +0100 (CET)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.secunet.com 968B1201E4
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=secunet.com;
-	s=202301; t=1769157136;
-	bh=JPf6CgXjsnmZXM26M5Jo8AsLktests7HCe2DYHQMJk8=;
-	h=Date:From:To:CC:Subject:References:In-Reply-To:From;
-	b=S0JW/Se4RoCYu4h3aegzIuTPjHv46y79aCxGMF3F+hrR0DECz+QVPxvCMWBLpDYwm
-	 qrFeNSzVG+tbdoaZjFhXibf55f+YGOBXCD7zxwJe7+aCM5UNFiNrkubrboK+5CH/x8
-	 He1zkZPjx/PKHIEyXVfZTTD3/asEOz1ZAWbkTfchDCK1246dF/JHRh5MW/ad5kKMg1
-	 nO9sQJ2a/X6h+BKvYnPHyIFBWprs3H2rN+4fzQBPnr0mF5PdwfR/ofZ3Bt2sAgZFOd
-	 Tar9jbSvoiMNZ6kpxicwCKrGUrykRQlAQ+UnCCW4eAMUAyDHcmvBfP1f0PqGEtVrBZ
-	 ebyMRWFqKkhXw==
-Received: from secunet.com (10.182.7.193) by EXCH-01.secunet.de (10.32.0.171)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Fri, 23 Jan
- 2026 09:32:15 +0100
-Received: (nullmailer pid 2692962 invoked by uid 1000);
-	Fri, 23 Jan 2026 08:32:15 -0000
-Date: Fri, 23 Jan 2026 09:32:15 +0100
-From: Steffen Klassert <steffen.klassert@secunet.com>
-To: Antony Antony <antony@phenome.org>
-CC: Antony Antony <antony.antony@secunet.com>, Herbert Xu
-	<herbert@gondor.apana.org.au>, <netdev@vger.kernel.org>, "David S . Miller"
-	<davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski
-	<kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Chiachang Wang
-	<chiachangwang@google.com>, Yan Yan <evitayan@google.com>,
-	<devel@linux-ipsec.org>, Simon Horman <horms@kernel.org>, Paul Moore
-	<paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>, <linux-kernel@vger.kernel.org>,
-	<selinux@vger.kernel.org>
-Subject: Re: [devel-ipsec] Re: [PATCH ipsec-next v4 5/5] xfrm: add
- XFRM_MSG_MIGRATE_STATE for single SA migration
-Message-ID: <aXMyD4zss0wnXf7h@secunet.com>
-References: <cover.1768811736.git.antony.antony@secunet.com>
- <b134abaf18390d1bcdd59d2192687bac0e2c2710.1768811736.git.antony.antony@secunet.com>
- <aXH9BvGTxfaGRN4j@secunet.com>
- <aXIA6JdfwK1CEMeX@secunet.com>
- <aXMN_m7_PFxr_AO8@Antony2201.local>
+	s=arc-20240116; t=1769162959; c=relaxed/simple;
+	bh=h8wOrwZGBr/rWMJrSgjZ5G80YkNzn771CHOv4mZnx1A=;
+	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type; b=ZBXMUPsMrQIESYVDsYTV7N/YaHVUsHrEySLFjsrF58lgmEUZO2uOuwkZXp4EcxFJMhpyBCP39KL8kTHAQJSDa0/1+FTP5ivPtRthi3VzHDqRcvLx8YxG8F9AYUOs72H+Mj/qLOUEFiEHnFmugaTXOfMdg7PxSo5RnQP4L49BXQo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=I-love.SAKURA.ne.jp; spf=pass smtp.mailfrom=I-love.SAKURA.ne.jp; arc=none smtp.client-ip=202.181.97.72
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=I-love.SAKURA.ne.jp
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=I-love.SAKURA.ne.jp
+Received: from www262.sakura.ne.jp (localhost [127.0.0.1])
+	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 60NA8KYK076887;
+	Fri, 23 Jan 2026 19:08:20 +0900 (JST)
+	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Received: from [192.168.1.10] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
+	(authenticated bits=0)
+	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 60NA8KQ6076884
+	(version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
+	Fri, 23 Jan 2026 19:08:20 +0900 (JST)
+	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Message-ID: <2ec9c137-79a5-4562-8587-43dd2633f116@I-love.SAKURA.ne.jp>
+Date: Fri, 23 Jan 2026 19:08:19 +0900
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <aXMN_m7_PFxr_AO8@Antony2201.local>
-X-ClientProxiedBy: EXCH-01.secunet.de (10.32.0.171) To EXCH-01.secunet.de
- (10.32.0.171)
+User-Agent: Mozilla Thunderbird
+Content-Language: en-US
+To: linux-security-module <linux-security-module@vger.kernel.org>,
+        SELinux <selinux@vger.kernel.org>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+        Network Development <netdev@vger.kernel.org>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Subject: [PATCH] xfrm: kill xfrm_dev_{state,policy}_flush_secctx_check()
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Anti-Virus-Server: fsav405.rs.sakura.ne.jp
+X-Virus-Status: clean
 
-On Fri, Jan 23, 2026 at 06:58:22AM +0100, Antony Antony wrote:
-> On Thu, Jan 22, 2026 at 11:50:16AM +0100, Steffen Klassert via Devel wrote:
-> > On Thu, Jan 22, 2026 at 11:33:42AM +0100, Steffen Klassert wrote:
-> > > On Mon, Jan 19, 2026 at 09:54:55AM +0100, Antony Antony wrote:
-> > > > +
-> > > > +static int xfrm_do_migrate_state(struct sk_buff *skb, struct nlmsghdr *nlh,
-> > > > +				 struct nlattr **attrs, struct netlink_ext_ack *extack)
-> > > > +{
-> > > > +	int err = -ESRCH;
-> > > > +	struct xfrm_state *x;
-> > > > +	struct net *net = sock_net(skb->sk);
-> > > > +	struct xfrm_encap_tmpl *encap = NULL;
-> > > > +	struct xfrm_user_offload *xuo = NULL;
-> > > > +	struct xfrm_migrate m = { .old_saddr.a4 = 0,};
-> > > > +	struct xfrm_user_migrate_state *um = nlmsg_data(nlh);
-> > > > +
-> > > > +	if (!um->id.spi) {
-> > > > +		NL_SET_ERR_MSG(extack, "Invalid SPI 0x0");
-> > > > +		return -EINVAL;
-> > > > +	}
-> > > > +
-> > > > +	err = copy_from_user_migrate_state(&m, um);
-> > > > +	if (err)
-> > > > +		return err;
-> > > > +
-> > > > +	x = xfrm_user_state_lookup(net, &um->id, attrs, &err);
-> > > > +
-> > > > +	if (x) {
-> > > > +		struct xfrm_state *xc;
-> > > > +
-> > > > +		if (!x->dir) {
-> > > > +			NL_SET_ERR_MSG(extack, "State direction is invalid");
-> > > > +			err = -EINVAL;
-> > > > +			goto error;
-> > > > +		}
-> > > > +
-> > > > +		if (attrs[XFRMA_ENCAP]) {
-> > > > +			encap = kmemdup(nla_data(attrs[XFRMA_ENCAP]),
-> > > > +					sizeof(*encap), GFP_KERNEL);
-> > > > +			if (!encap) {
-> > > > +				err = -ENOMEM;
-> > > > +				goto error;
-> > > > +			}
-> > > > +		}
-> > > > +		if (attrs[XFRMA_OFFLOAD_DEV]) {
-> > > > +			xuo = kmemdup(nla_data(attrs[XFRMA_OFFLOAD_DEV]),
-> > > > +				      sizeof(*xuo), GFP_KERNEL);
-> > > > +			if (!xuo) {
-> > > > +				err = -ENOMEM;
-> > > > +				goto error;
-> > > > +			}
-> > > > +		}
-> > > > +		xc = xfrm_state_migrate(x, &m, encap, net, xuo, extack);
-> > > > +		if (xc) {
-> > > > +			xfrm_state_delete(x);
-> > > 
-> > > This xfrm_state_delete() comes too late. You need to synchronize this
-> > > with xfrm_state_clone_and_setup() by holding the state lock.
-> > > Otherwise we might hand out the same sequence number etc. more than
-> > > one time. Unfortunately xfrm_migrate() has the same problem, the
-> > > error recovery mechanism in xfrm_migrate() looks broken.
-> > 
-> > The xfrm_migrate() problem is nasty, looks like we can't recover
-> > if the state migration fails. We probably have to delete the
-> > states and wait for the userspace to insert new ones.
-> 
-> userspace should notice the inconsistany. Most of them are ENOMEM or EMSGSIZE
-> 
-> > 
-> > Another thing, xfrm_user_state_lookup() returns a reference on x,
-> > you should drop it somewhere.
-> 
-> There is a call a few lines bellow, the label was "error:"  I renamed it to  
-> "out:" for clariy.
-> 
-> +out:
-> +       xfrm_state_put(x);
+Since xfrm_dev_{state,policy}_flush() are called from only NETDEV_DOWN and
+NETDEV_UNREGISTER events, making xfrm_dev_{state,policy}_flush() no-op by
+returning an error value from xfrm_dev_{state,policy}_flush_secctx_check()
+is pointless. Especially, if xfrm_dev_{state,policy}_flush_secctx_check()
+returned an error value upon NETDEV_UNREGISTER event, the system will hung
+up with
 
-Yes, this makes it more clear that we hit this even without error.
+  unregister_netdevice: waiting for $dev to become free. Usage count = $count
 
-Maybe you should do a 'if (!X)' check on the retuen value of
-xfrm_user_state_lookup(). This woulds make the structure of
-the function even clearer.
+message because the reference to $dev acquired by
+xfrm_dev_{state,policy}_add() cannot be released.
+
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+---
+ net/xfrm/xfrm_policy.c | 35 -----------------------------------
+ net/xfrm/xfrm_state.c  | 33 ---------------------------------
+ 2 files changed, 68 deletions(-)
+
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index 62486f866975..f4df6491095f 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -1778,41 +1778,12 @@ xfrm_policy_flush_secctx_check(struct net *net, u8 type, bool task_valid)
+ 	}
+ 	return err;
+ }
+-
+-static inline int xfrm_dev_policy_flush_secctx_check(struct net *net,
+-						     struct net_device *dev,
+-						     bool task_valid)
+-{
+-	struct xfrm_policy *pol;
+-	int err = 0;
+-
+-	list_for_each_entry(pol, &net->xfrm.policy_all, walk.all) {
+-		if (pol->walk.dead ||
+-		    xfrm_policy_id2dir(pol->index) >= XFRM_POLICY_MAX ||
+-		    pol->xdo.dev != dev)
+-			continue;
+-
+-		err = security_xfrm_policy_delete(pol->security);
+-		if (err) {
+-			xfrm_audit_policy_delete(pol, 0, task_valid);
+-			return err;
+-		}
+-	}
+-	return err;
+-}
+ #else
+ static inline int
+ xfrm_policy_flush_secctx_check(struct net *net, u8 type, bool task_valid)
+ {
+ 	return 0;
+ }
+-
+-static inline int xfrm_dev_policy_flush_secctx_check(struct net *net,
+-						     struct net_device *dev,
+-						     bool task_valid)
+-{
+-	return 0;
+-}
+ #endif
+ 
+ int xfrm_policy_flush(struct net *net, u8 type, bool task_valid)
+@@ -1861,11 +1832,6 @@ int xfrm_dev_policy_flush(struct net *net, struct net_device *dev,
+ 	struct xfrm_policy *pol;
+ 
+ 	spin_lock_bh(&net->xfrm.xfrm_policy_lock);
+-
+-	err = xfrm_dev_policy_flush_secctx_check(net, dev, task_valid);
+-	if (err)
+-		goto out;
+-
+ again:
+ 	list_for_each_entry(pol, &net->xfrm.policy_all, walk.all) {
+ 		if (pol->walk.dead)
+@@ -1888,7 +1854,6 @@ int xfrm_dev_policy_flush(struct net *net, struct net_device *dev,
+ 		__xfrm_policy_inexact_flush(net);
+ 	else
+ 		err = -ESRCH;
+-out:
+ 	spin_unlock_bh(&net->xfrm.xfrm_policy_lock);
+ 	return err;
+ }
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 98b362d51836..855778177558 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -881,41 +881,12 @@ xfrm_state_flush_secctx_check(struct net *net, u8 proto, bool task_valid)
+ 
+ 	return err;
+ }
+-
+-static inline int
+-xfrm_dev_state_flush_secctx_check(struct net *net, struct net_device *dev, bool task_valid)
+-{
+-	int i, err = 0;
+-
+-	for (i = 0; i <= net->xfrm.state_hmask; i++) {
+-		struct xfrm_state *x;
+-		struct xfrm_dev_offload *xso;
+-
+-		hlist_for_each_entry(x, net->xfrm.state_bydst+i, bydst) {
+-			xso = &x->xso;
+-
+-			if (xso->dev == dev &&
+-			   (err = security_xfrm_state_delete(x)) != 0) {
+-				xfrm_audit_state_delete(x, 0, task_valid);
+-				return err;
+-			}
+-		}
+-	}
+-
+-	return err;
+-}
+ #else
+ static inline int
+ xfrm_state_flush_secctx_check(struct net *net, u8 proto, bool task_valid)
+ {
+ 	return 0;
+ }
+-
+-static inline int
+-xfrm_dev_state_flush_secctx_check(struct net *net, struct net_device *dev, bool task_valid)
+-{
+-	return 0;
+-}
+ #endif
+ 
+ int xfrm_state_flush(struct net *net, u8 proto, bool task_valid)
+@@ -966,9 +937,6 @@ int xfrm_dev_state_flush(struct net *net, struct net_device *dev, bool task_vali
+ 	int i, err = 0, cnt = 0;
+ 
+ 	spin_lock_bh(&net->xfrm.xfrm_state_lock);
+-	err = xfrm_dev_state_flush_secctx_check(net, dev, task_valid);
+-	if (err)
+-		goto out;
+ 
+ 	err = -ESRCH;
+ 	for (i = 0; i <= net->xfrm.state_hmask; i++) {
+@@ -997,7 +965,6 @@ int xfrm_dev_state_flush(struct net *net, struct net_device *dev, bool task_vali
+ 	if (cnt)
+ 		err = 0;
+ 
+-out:
+ 	spin_unlock_bh(&net->xfrm.xfrm_state_lock);
+ 
+ 	spin_lock_bh(&xfrm_state_dev_gc_lock);
+-- 
+2.47.3
+
