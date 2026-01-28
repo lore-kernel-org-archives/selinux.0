@@ -1,83 +1,108 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 872F229A1;
-	Wed, 28 Jan 2026 08:54:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E20F72DF12F;
+	Wed, 28 Jan 2026 10:28:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.181.97.72
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769590442; cv=none; b=pqODf9Fr+XwzPgBCc/en9dsuZEdm0QnSwto1QI4kDdobsk3omjigA08sbGWdyv0VTcclu39tehcynIdyFJHYeKOPWpVynZPQMq/DZ5ls3gNpmBUDMGDnbmhDZGGs7CS9HlQ94OlLcKvRhfz51hf9gWlbQ0Kriw4cvOj16x0jbbA=
+	t=1769596118; cv=none; b=nidTrIorwcjAXPiUCur1Yl2O4AntHW43Xy4UXMb8kAWddh3XxlYtBoIzYqwlxhgm2yamv07O5wktF77lt1vocUOZ3VuPSbfi5vbugCcWzmJZ1KG5ZuC7WAhAlwGSffi+dCYGU3luolyxoAYRHU+9N71Q+VOMubLMrSibFatyOJY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769590442; c=relaxed/simple;
-	bh=sp8ZzgKfLYBf6n5dvtaPV7JJtZoVmZtARJEfnOlvgnA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=R6ZvZr/5mQrosxadFsrLddvF4Vd1H49DEwSoGAr7XYrgEqQnyUbvBpkGWsWfYDxqvrTCXEyU1qUSyIV3vKOpz2WEFSHu0rgrgl56Zuy9kQvOHDqtKpnSBUXhya0AJ9MwrFCtCxl3JAeBBcHacgTynSBnpZh7F1Rf8v61DV6Q68o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=IiNsTsjt; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="IiNsTsjt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75B35C4CEF1;
-	Wed, 28 Jan 2026 08:54:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1769590442;
-	bh=sp8ZzgKfLYBf6n5dvtaPV7JJtZoVmZtARJEfnOlvgnA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=IiNsTsjt7/JJEy7yHNve/JooAIlH0pnM87ZGvmgdHepEWko5EVz56NLPJSRbmXI8w
-	 sxKEPaOCpGXqDtQ0OHpQYWN7Mt9VjqvMvARm+eLYaHLPTNohEerYQif5fI9Qezgjy+
-	 G4XDfI/hst0WjbqQ1xzHMsJI6EzUETgPfOt5Yvr0=
-Date: Wed, 28 Jan 2026 09:53:58 +0100
-From: Greg KH <gregkh@linuxfoundation.org>
-To: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>,
-	Samuel Wu <wusamuel@google.com>, linux-fsdevel@vger.kernel.org,
-	brauner@kernel.org, jack@suse.cz, raven@themaw.net,
-	miklos@szeredi.hu, neil@brown.name, a.hindborg@kernel.org,
-	linux-mm@kvack.org, linux-efi@vger.kernel.org,
-	ocfs2-devel@lists.linux.dev, kees@kernel.org, rostedt@goodmis.org,
-	linux-usb@vger.kernel.org, paul@paul-moore.com,
-	casey@schaufler-ca.com, linuxppc-dev@lists.ozlabs.org,
-	john.johansen@canonical.com, selinux@vger.kernel.org,
-	borntraeger@linux.ibm.com, bpf@vger.kernel.org, clm@meta.com,
-	android-kernel-team <android-kernel-team@google.com>
-Subject: Re: [PATCH v4 00/54] tree-in-dcache stuff
-Message-ID: <2026012812-jurist-whoops-0ef5@gregkh>
-References: <20251118051604.3868588-1-viro@zeniv.linux.org.uk>
- <CAG2KctrjSP+XyBiOB7hGA2DWtdpg3diRHpQLKGsVYxExuTZazA@mail.gmail.com>
- <2026012715-mantra-pope-9431@gregkh>
- <CAHk-=whME4fu2Gn+W7MPiFHqwn51VByhpttf-wHdhAqQAQXpqw@mail.gmail.com>
- <20260127201454.GQ3183987@ZenIV>
+	s=arc-20240116; t=1769596118; c=relaxed/simple;
+	bh=pbVl0ODL9OzExgUwxrbIhZ3mNab1RLmbIY3owANW0Js=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=n4TtWabm5/USR+plThN6a75NYYe5+A48fuRKsHerEiBp4ezQwfKtQYuEmyE/9+XQNP+BPFiOXgn9wugujRhd6XDYirxQ5ogOg38D2KxDop5vtKXtmD7D5VrnqS/ePEpzXazVvfcCKiOrZBk6f0TrWDSPl2eb3kYy312/0UowATo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=I-love.SAKURA.ne.jp; spf=pass smtp.mailfrom=I-love.SAKURA.ne.jp; arc=none smtp.client-ip=202.181.97.72
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=I-love.SAKURA.ne.jp
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=I-love.SAKURA.ne.jp
+Received: from www262.sakura.ne.jp (localhost [127.0.0.1])
+	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 60SAS7W1005303;
+	Wed, 28 Jan 2026 19:28:07 +0900 (JST)
+	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Received: from [192.168.1.10] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
+	(authenticated bits=0)
+	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 60SAS78j005299
+	(version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
+	Wed, 28 Jan 2026 19:28:07 +0900 (JST)
+	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Message-ID: <1bb453af-3ef2-4ab6-a909-0705bd07c136@I-love.SAKURA.ne.jp>
+Date: Wed, 28 Jan 2026 19:28:05 +0900
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260127201454.GQ3183987@ZenIV>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] xfrm: kill xfrm_dev_{state,policy}_flush_secctx_check()
+To: Paul Moore <paul@paul-moore.com>, SELinux <selinux@vger.kernel.org>,
+        linux-security-module <linux-security-module@vger.kernel.org>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+        Network Development <netdev@vger.kernel.org>
+References: <2ec9c137-79a5-4562-8587-43dd2633f116@I-love.SAKURA.ne.jp>
+ <CAHC9VhQikhv+qCyQdnJguvy-qTkGXB+NU7=QZjw5d+WfyVxZhw@mail.gmail.com>
+ <00ed59a3-a9c9-47c3-97da-5a8e3da1ea82@I-love.SAKURA.ne.jp>
+ <CAHC9VhQq6jY63kYEQCp2t89Vv+_PDqv54RV6TO_TePDQyU6Vug@mail.gmail.com>
+Content-Language: en-US
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+In-Reply-To: <CAHC9VhQq6jY63kYEQCp2t89Vv+_PDqv54RV6TO_TePDQyU6Vug@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Anti-Virus-Server: fsav203.rs.sakura.ne.jp
+X-Virus-Status: clean
 
-On Tue, Jan 27, 2026 at 08:14:54PM +0000, Al Viro wrote:
-> On Tue, Jan 27, 2026 at 10:39:04AM -0800, Linus Torvalds wrote:
-> > On Mon, 26 Jan 2026 at 23:42, Greg KH <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > Note that I had to revert commit e5bf5ee26663 ("functionfs: fix the
-> > > open/removal races") from the stable backports, as it was causing issues
-> > > on the pixel devices it got backported to.  So perhaps look there?
-> > 
-> > Hmm. That commit is obviously still upstream, do we understand why it
-> > caused problems in the backports?
-> 
-> This is all I've seen:
-> 
-> | It has been reported to cause test problems in Android devices.  As the
-> | other functionfs changes were not also backported at the same time,
-> | something is out of sync.  So just revert this one for now and it can
-> | come back in the future as a patch series if it is tested.
-> 
-> My apologies for not following up on that one; Greg, could you give some
-> references to those reports?
+On 2026/01/28 6:59, Paul Moore wrote:
+> It sounds like we either need to confirm that
+> security_xfrm_{policy,state}_delete() is already present in all code
+> paths that result in SPD/SAD deletions (in a place that can safely
+> fail and return an error),
 
-Sorry, all I got was a "this commit caused devices to fail" and was
-found from bisection, on the 6.18.y tree.  Samuel has much more
-information as to exactly what is happening here as he can see the test
-results properly, I'll let him work through this, thanks!
+Yes.
 
-greg k-h
+>                            or we need to place
+> xfrm_dev_{policy,state}_flush_secctx_check() in a location that can
+> safely fail.
+
+Did you mean xfrm_{policy,state}_flush_secctx_check() ?
+
+Regarding xfrm_policy_flush() as an example, we can observe that we are
+calling LSM hooks for must-not-fail callers. If the task_valid argument was
+meant to be interpreted as whether to call LSM hooks, xfrm_policy_flush() needs
+below change.
+
+ int xfrm_policy_flush(struct net *net, u8 type, bool task_valid)
+ {
+ (...snipped...)
+-	err = xfrm_policy_flush_secctx_check(net, type, task_valid);
++	err = task_valid ? xfrm_policy_flush_secctx_check(net, type, task_valid) : 0;
+ (...snipped...)
+ }
+
+>               The patch doesn't relocate
+> xfrm_dev_{policy,state}_flush_secctx_check() and I don't really see
+> any mention about security_xfrm_{policy,state}_delete() in the patch
+> or description;
+>                 have you verified that the LSM xfrm hooks are still
+> being called to authorize the removals?
+
+Please distinguish caller for "delete" and caller for "release".
+LSM xfrm hooks need to be called for "delete" callers, but
+LSM xfrm hooks need to be bypassed for "release" callers.
+
+Maybe task_valid == true is for "delete" callers and task_valid == false is
+for "release" callers; though it seems that some locations are passing wrong
+task_valid flag (e.g. xfrm_dev_down() is passing task_valid == true despite
+it is a "release" caller).
+
+If 'task_valid == true is for "delete" callers and task_valid == false is for
+"release" callers' does not hold, we might need to add a "forced" flag
+(which is interpreted as whether LSM hooks must be bypassed) like
+https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit?h=next-20260123&id=fc0f090e41e652d158f946c616cdd82baed3c8f4
+does.
+
+Anyway, this patch which kills xfrm_dev_{state,policy}_flush_secctx_check()
+can be applied as-is because all callers are "release" callers.
+
