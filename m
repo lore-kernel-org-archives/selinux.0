@@ -1,515 +1,212 @@
-Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com [209.85.167.44])
+Received: from mail-lj1-f180.google.com (mail-lj1-f180.google.com [209.85.208.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 100D3337688
-	for <selinux@vger.kernel.org>; Wed, 28 Jan 2026 20:28:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E30C2517AC
+	for <selinux@vger.kernel.org>; Wed, 28 Jan 2026 20:29:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.180
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769632130; cv=pass; b=o93IebF77O/lIaEaLkgUVjbrCIvwDWV02jMjPbmRdl75JrpQxFEXIPVuZrcOmSZ54zpt+2SrwmNdE5rtt0NQeIFNPFEUsBfACF/RccNgbc39NYIYgwF/twDnpFelQnzrgEz7fQOzS25/6aT/XNZAOcL7lZhLuTWWCkZnR3xAuDw=
+	t=1769632156; cv=pass; b=r6kQMbnzTECbsWZ+6wi01GOyaFctBm4lGGYBRJf7ptPKS0bFidofLLQvoxjp5aXRzUIJiWaOPxnfffZEa0vFxxPmjiVrO/5MH+awWL/2mkxB58omhBi08zBmArBiRqt07SqjIjjDU58wjV5ir1TsermV1+LaP8wazSidx/sVWOM=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769632130; c=relaxed/simple;
-	bh=KfADqQ1r/I011khcDJkxlYe9zzM6ptpmnXh0AnGWqBQ=;
+	s=arc-20240116; t=1769632156; c=relaxed/simple;
+	bh=1LfVX3m/LJuSLqMko1w+IAVd8iAuzgqBfAK3t0q/STQ=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=gJKu+8D+gHHJIGQgj4tmShfq1CEJPMtK6id+b5O7ZqsjRUFmGgyqkTgaMeHB/zP5Ebud4y89xQuDlfnEThChFMIktVWyM728FvQiOIka08msTVQmSklISOB7Q5Ydl9sxeWMMJwAsFkMjgmMojL5voVNAaoRuzl0l1wt2d2OWcbA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=apPi6gE6; arc=pass smtp.client-ip=209.85.167.44
+	 To:Content-Type; b=uBKyflBKxIccXzp/+r8uQI6wZBjYZ/4oVtLdPaWuH+BQTBAOkDzviJDprBKD+rtFy77A1Vz984rVzL6IzONHl8T+SUihmTLNTK5PT/PglHdHsX80NOkWKymfjt4uFcXkaYBRibDnRl6KQNK10hSai8fGQsC6yTK3q3L/7AfnW8E=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YJzZdWJW; arc=pass smtp.client-ip=209.85.208.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="apPi6gE6"
-Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-59dd263bf42so254004e87.0
-        for <selinux@vger.kernel.org>; Wed, 28 Jan 2026 12:28:47 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1769632126; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YJzZdWJW"
+Received: by mail-lj1-f180.google.com with SMTP id 38308e7fff4ca-38320cd563aso2829811fa.0
+        for <selinux@vger.kernel.org>; Wed, 28 Jan 2026 12:29:15 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1769632153; cv=none;
         d=google.com; s=arc-20240605;
-        b=JaWmhFjM71WiF8YoADkYY19HZS/RgTJnAhHqKoTDN7bhMJaWv3xsVLQLz+uiGdgKFm
-         /wWmF/G47y57kutXmI9uruhIjVQAv6Dh5H6mRF6lfEukS+uFjeYgnZLuwJ2FpymAnsuI
-         hRvKVRTjokRffLLnzTU1O2fKMLIN8Lde8JzlZQJd9FIqAJz5tIDgas8D6uOpRJmanFVo
-         HLVXTkFIT024cL//h0i/TubxhlNl1WUPpvS5oJdzZtM/+2l0qonhqfkEv/ox2e8+tMyG
-         1TTL47QfhCNh3WjVQA7Hp8if668X3LNpSfuZZtcszY3c5sr7kauYV7eOACVRm0+AQSlR
-         1tJg==
+        b=WXryFEvr+mUaU+pMqIytk5HK/ZQUfqr8Fv/lvC/LY+RtTeZhRUw5iUMKeqpLbHY8SA
+         w4PJdyvjdOSnzywPOUXFM4LoOqZ2plEQ4n3yYvewMyy7l5ZUb0Zodjm7DIdHyzxdMvgo
+         hIv0yiqHzNiTLaGfUW/rH8GWW5g/X2ZT3imCns7vPIxNYLucbXfEf+jHOZqo1s7/sHa5
+         IENaiT6CnmoXGCedm1wWv9WJzrXguBsmNBvARnqtbiLYqcg0JB1ppRCpVNqgOckak0tW
+         8dcVulTgps8WLiJ46wN5saQpg7l4galpasVpZOEy5u66Mdlni32+WYxzORfuHwrB9G8T
+         QeKA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+        h=content-transfer-encoding:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=5T2NzMKbF0nMA8QXa5X3Ssjxft7TdnK/dv4WBkCUQAc=;
-        fh=XCM8fo7IfM89sTn06SjGxcUqBXOhXzH4qY9c7awlrP0=;
-        b=aEsNwoR6F1QBVw3RJa+dALWNtG1psx6nsEkyewGlSs3ex5jhUr86LWe5sv/6OrVT4W
-         yTj//AAs3D39qXgxbOK4eIS7pZzQr15fR/V7DNz4FzyNG3kYAe5Lp0d+ViXTiZYHrv7o
-         ims3DdAUXehFjsNEXWvfOfIe3svWcXYUWhj8o+/KBR6zGKHPWfcPewpsAcvgEqPyoutK
-         hUV08AhklIhtU58DyXI5i9zr5BoHEFLunv8TkkLvvvpmy7ihMNoxbNEVPPaQXwCr8smW
-         l9GvZ0wh4v3gfifVrl37zeOKKHTZ/P0B4tOtVJK1CbGFn1PbKnvipCAQRVS+kxHRqPQZ
-         HAHw==;
+        bh=RuZ1I9QOGghIcrEPZqdsmRPXIXdw0NCxwxo7qCevNIQ=;
+        fh=l2l+BKIhep14i9a5yxIzwDvgNRHYkyJlbYDDp8LiW6o=;
+        b=Ug8A+IF+PRL6vH8H4+GmbA4nto4imFs+PsSAmsa4vMjQ//XUqqpKX+3oHcDEb2OLGH
+         9GMg8nmjBPwmbdRL7vOSMlaROPBhxhUiBzQ58hOeegu0wXAKJ1D4DrJQMhaFovwPMNW9
+         TfM5rNvFKJDKhwpUcUeRG32vgQ7v0toRUM2F3aCRW3eEZ7JRqOcttAG0bolcf6oOZ5yX
+         fAcqZi2vrLssDX5r1GiP7/bLpqt8iBgYn7Q3qAw9mpaGAvuoHnA3hDSiB0zScsIb+IQy
+         al40BINrEJNVpZHh/O+H0nPaaglODgbk8l4JKT18S6LzAzIUVnPVpb4Lb+wYwfawFOCi
+         5ODg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769632126; x=1770236926; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+        d=gmail.com; s=20230601; t=1769632153; x=1770236953; darn=vger.kernel.org;
+        h=content-transfer-encoding:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=5T2NzMKbF0nMA8QXa5X3Ssjxft7TdnK/dv4WBkCUQAc=;
-        b=apPi6gE61QAaQ5bZiRriaU1Xn+07mJDi6KVnSEN7tLqfuQchzLVMqOtFO60h8Yggkd
-         OPfNbxYmtshT4q0o/d5b5gznKtrUUZUmuS+SokNeszBh/mvLcxfbingA4G/8/al61kVT
-         QvSoAykGLCWSG+prVGgSQj/UO9RigzgDD9s3+jQ3w0EM+HSH3N7MnzRO1wUcmRc12U+x
-         XPhWgvR3a77soDsc4dr0fUHjxJhonwVUuA3pLGAemJAWTv5/zeLMvSFX3kPvsdXIwS+q
-         XvhLTQyvEUD2RlKbH60yU0AugoMBVnwxQJPpkv+KGQNWh9igltuJfXGtOgSqgNpY476n
-         e7gA==
+        bh=RuZ1I9QOGghIcrEPZqdsmRPXIXdw0NCxwxo7qCevNIQ=;
+        b=YJzZdWJWgz1GvG3gmIGsKLEpmldJQaeaDuQw7LFodUrBw5Z6W7wHgkZl5v/m6QUJEt
+         JgW+uciv6GKoThPBtkNsEGU6z8ry6fCALna8jHns5uf3+kZhZEQV9hX/f7hpS16QJBxe
+         8laB80Y9RjEZemknB6BotWwptL7JugM3TVLuZSgrpMs0jvbpr8h2XU6jJpysNTMcBo+3
+         oTOIO7D9o3/p4NcYU24qlWuf71U/OuiukGSKIEiE2X8n1fTAIz3UdpmyY4YrWHB0lO8O
+         zMsI3EOXofxqokwAiQ5Aja6nVrOfiCRzLqHuKxqjBqIzPrBn0SsTXXstIbfzuQr6DoRS
+         dsVw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769632126; x=1770236926;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+        d=1e100.net; s=20230601; t=1769632153; x=1770236953;
+        h=content-transfer-encoding:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=5T2NzMKbF0nMA8QXa5X3Ssjxft7TdnK/dv4WBkCUQAc=;
-        b=LbcIG+3g16CIpwW6sBLeNzmssEnD+GdvGK0AuOyNmX8qVZcaNgNUsNwORk/5u0Zos4
-         G4a2W6xdwzaQRbX481pHT96skUjXsJLLIukDbc5zGpSRTOtbeibq2l2f83MfMYCwUww7
-         yISCzItzezB+RpiMCthHjbPlHhTbWD0/umMW8yTkJxaAqKR51MP7lLNIY6CvvzkVUaPj
-         OYyUjL/ddMlLLbuj3P5PxO4vpHQohVONE1wSmbkoa8iNlKZHEv5PzRBs7B1J4IZeohFX
-         VfDjlpNMUfQkLsfZYZjb744nAL93jr5s5FceHzSk0bzuCFXLFdXtfQvN75fG2jFN8src
-         EqdA==
-X-Gm-Message-State: AOJu0YybmGCpbFGZqetV6DNpykMOzpz+CaAClw6NV6aTFdnCQBXJIoOG
-	E94av9wMkaEWMLfieUTPnHT4Z9wrhNMzrn4vjcnuVtpPf1PI/1kbKyL8nL5F7KxBwrThik50VNz
-	y9CS1W2SgChOfPODmV3uFfEBD/+9HqfHJsA==
-X-Gm-Gg: AZuq6aLGz096pdXYPXorWFu1WiPUt6XV7WmxK7e627vkXvZhQ4iGes6nCM8FtU9UsQ/
-	kdF+DcPRPn+6Ek//qx2zgR+XFOaDhgW88sIFLfRHWdlf9WxlwKH0B0RcV4pYAnm2trcMBx/91qb
-	3MkmexT9sDmcpShEqZrdk4GYILUu9oHT0WUGgyfeqHEbMRFq0RBiBA48xn+0XuSQH78oGHCxOiR
-	mfiIqLV6WdKvA2KKfEVKnD8uvQ2kuKEpXpZhLcDAEPMXHsymVQ7sg9XQ+R3vE4Fccf0
-X-Received: by 2002:a05:6512:234e:b0:59d:f812:d490 with SMTP id
- 2adb3069b0e04-59e0403097dmr2438957e87.40.1769632125876; Wed, 28 Jan 2026
- 12:28:45 -0800 (PST)
+        bh=RuZ1I9QOGghIcrEPZqdsmRPXIXdw0NCxwxo7qCevNIQ=;
+        b=YhZJSkpuflwHXZH1jYdG9N+R6G7lD7AVpL1V28Z7wnGWSzwMhqbQdFOVrd7rzNXK+C
+         2PCV9Jjq831UVusUBXbWqmv+Py4XdqS3CuRE5HWyolqFF6Z/vyzwIKkl7QBMO+IiaQyQ
+         KuauSfzBIQXUYij9b0EpabADCHIgQh0oKdkd9FU93V0+BWE3dTSjpc2io3cY9JcCIaz8
+         qIvqASPPRaYvbI2i0sid1sx6ZmK1UezfMucACdBLoaqKQlFYMo/HCnbtSYoggfLBr0pc
+         HXl4ue8sfD2N3Heux/GSL0nwCunTyb8ma+saRo2uxs03a81oqzOKsEed9GNwvay2FqPF
+         pRYw==
+X-Gm-Message-State: AOJu0Yx85o7FK04/PdW89/g9V2IhT604Mbg4V1PsdUmzs3mht/nlGIxn
+	9WrYxe3SKwFzam+7h4cAR4WIuj9WgPp4t1F8IrfyBGOWEflACg3ZlZ4ozq9dI2vxA6ZyrNVwPOx
+	a6q6xbiaWuUTiqFw7GLrlMGc1dwmN147n4w==
+X-Gm-Gg: AZuq6aI5MC/7dJFkBM+JNL5D/Q5b8GKg26+yUHfvtUc/qY6VLfa++nxAmVKcSlx29xh
+	Rdt3gRJ7BHM9TzWi8edMVDJ8r3eyGXKbweSvHchSnCHFMgkdqyPipKjESiFoCD7BDa0RM+AYsEl
+	8f52DJKCU9BDpcM9a/Tifi6D+4d/z5ElY08ZblIpZ6674hyHcGlp+6I0pBwyHKmZXcb30dPOBoQ
+	/AOQZ0Znt+8XqPgv2lOm5HYHrPgS64F088Y9UPqG7L/O+I4kE+5iH7igHO814Knk4OC
+X-Received: by 2002:a05:651c:f19:b0:383:b9d9:3fdd with SMTP id
+ 38308e7fff4ca-3861c913590mr25438471fa.34.1769632153260; Wed, 28 Jan 2026
+ 12:29:13 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <87wm3nemxe.fsf@redhat.com> <20251118201145.984733-1-vmojzis@redhat.com>
- <CAP+JOzS4MHOaNSH1xMhiKGh5fcX3EEKQb42iu6k+A_AGkW4-YA@mail.gmail.com>
-In-Reply-To: <CAP+JOzS4MHOaNSH1xMhiKGh5fcX3EEKQb42iu6k+A_AGkW4-YA@mail.gmail.com>
+References: <20260112184928.58593-1-jwcart2@gmail.com>
+In-Reply-To: <20260112184928.58593-1-jwcart2@gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Wed, 28 Jan 2026 15:28:34 -0500
-X-Gm-Features: AZwV_QjHOQlABbovi7VeQXVBZIyEF2_G-_7upO4gIGWBJSU3r26MnD5cZoDsvIQ
-Message-ID: <CAP+JOzRKwpJn-1jfFB9jmLRmqyHerbDo35r5nTrYc5O5+n9_Mg@mail.gmail.com>
-Subject: Re: [PATCH v3] restorecon: Add option to count relabeled files
-To: Vit Mojzis <vmojzis@redhat.com>
-Cc: selinux@vger.kernel.org
+Date: Wed, 28 Jan 2026 15:29:02 -0500
+X-Gm-Features: AZwV_QjLQiUBkrxgetmbruDSkalfg0slgVYrvTVINVFYx-DLXSk2Xrtk0lKQe0g
+Message-ID: <CAP+JOzS6O7x-yJamCBcqnqWrfD1XdmAGk64fh0Ko-9+1WiHweg@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: Fix possible use-after-free when expanding attributes
+To: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jan 23, 2026 at 10:13=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
-rote:
+On Mon, Jan 12, 2026 at 1:49=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
+ote:
 >
-> On Tue, Nov 18, 2025 at 3:12=E2=80=AFPM Vit Mojzis <vmojzis@redhat.com> w=
-rote:
-> >
-> > This is useful in case we want to check that a remediation using
-> > restorecon was successful (otherwise 0 is always returned, even if no
-> > files were relabeled).
-> >
-> > Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+> Both expand_attributes_in_attributes() and
+> expand_role_attritbutes_in_attributes() have a potential use-after-
+> free bug. The function ebitmap_set_bit(), when used to clear a bit
+> will free an ebitmap node if no other bits are set on that node.
+> This can result in a use-after-free in
+> ebitmap_for_each_positive_bit() which keeps a pointer to the current
+> node.
 >
-> Acked-by: James Carter <jwcart2@gmail.com>
+> Instead, use a temporary ebitmap and update the types or roles after
+> the loop is done. Also move the check for a loop earlier to avoid
+> uneccessary work.
 >
+> Reported-by: oss-fuzz (issue 474561491)
+> Signed-off-by: James Carter <jwcart2@gmail.com>
 
-Merged.
-Thanks,
+This patch has been merged.
 Jim
 
-> > ---
-> >  libselinux/include/selinux/restorecon.h | 15 +++++++++++
-> >  libselinux/src/libselinux.map           |  5 ++++
-> >  libselinux/src/selinux_restorecon.c     | 34 ++++++++++++++++++++++---
-> >  policycoreutils/setfiles/restore.c      | 12 ++++++---
-> >  policycoreutils/setfiles/restore.h      |  3 ++-
-> >  policycoreutils/setfiles/restorecon.8   |  3 +++
-> >  policycoreutils/setfiles/setfiles.c     | 26 ++++++++++++++-----
-> >  7 files changed, 83 insertions(+), 15 deletions(-)
-> >
-> > diff --git a/libselinux/include/selinux/restorecon.h b/libselinux/inclu=
-de/selinux/restorecon.h
-> > index 0ccf73a6..65aaef23 100644
-> > --- a/libselinux/include/selinux/restorecon.h
-> > +++ b/libselinux/include/selinux/restorecon.h
-> > @@ -134,6 +134,11 @@ extern int selinux_restorecon_parallel(const char =
-*pathname,
-> >   */
-> >  #define SELINUX_RESTORECON_SET_USER_ROLE               0x40000
-> >
-> > +/*
-> > + * Count the number of relabeled files (or would be relabeled if "noch=
-ange" was not set).
-> > + */
-> > + #define SELINUX_RESTORECON_COUNT_RELABELED            0x80000
-> > +
-> >  /**
-> >   * selinux_restorecon_set_sehandle - Set the global fc handle.
-> >   * @hndl: specifies handle to set as the global fc handle.
-> > @@ -228,6 +233,16 @@ extern int selinux_restorecon_xattr(const char *pa=
-thname,
-> >   */
-> >  extern long unsigned selinux_restorecon_get_skipped_errors(void);
-> >
-> > +/* selinux_restorecon_get_relabeled_files - Get the number of relabele=
-d files
-> > + *
-> > + * If SELINUX_RESTORECON_COUNT_RELABELED was passed to selinux_restore=
-con(3) or
-> > + * selinux_restorecon_parallel(3), this function returns the number of=
- files
-> > + * that were successfully relabeled.
-> > + * If the SELINUX_RESTORECON_NOCHANGE flag was set, this function retu=
-rns
-> > + * the number of files that would be relabeled.
-> > + */
-> > +extern long unsigned selinux_restorecon_get_relabeled_files(void);
-> > +
-> >  #ifdef __cplusplus
-> >  }
-> >  #endif
-> > diff --git a/libselinux/src/libselinux.map b/libselinux/src/libselinux.=
-map
-> > index ab002f01..95cd53b0 100644
-> > --- a/libselinux/src/libselinux.map
-> > +++ b/libselinux/src/libselinux.map
-> > @@ -262,3 +262,8 @@ LIBSELINUX_3.9 {
-> >    global:
-> >      context_to_str;
-> >  } LIBSELINUX_3.8;
-> > +
-> > +LIBSELINUX_3.10 {
-> > +  global:
-> > +    selinux_restorecon_get_relabeled_files;
-> > +} LIBSELINUX_3.9;
-> > diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selin=
-ux_restorecon.c
-> > index 681c69db..8fadf4d2 100644
-> > --- a/libselinux/src/selinux_restorecon.c
-> > +++ b/libselinux/src/selinux_restorecon.c
-> > @@ -69,6 +69,9 @@ static struct dir_xattr *dir_xattr_last;
-> >  /* Number of errors ignored during the file tree walk. */
-> >  static long unsigned skipped_errors;
-> >
-> > +/* Number of successfully relabeled files or files that would be relab=
-eled */
-> > +static long unsigned relabeled_files;
-> > +
-> >  /* restorecon_flags for passing to restorecon_sb() */
-> >  struct rest_flags {
-> >         bool nochange;
-> > @@ -88,6 +91,7 @@ struct rest_flags {
-> >         bool warnonnomatch;
-> >         bool conflicterror;
-> >         bool count_errors;
-> > +       bool count_relabeled;
-> >  };
-> >
-> >  static void restorecon_init(void)
-> > @@ -650,11 +654,12 @@ out:
-> >  }
-> >
-> >  static int restorecon_sb(const char *pathname, const struct stat *sb,
-> > -                           const struct rest_flags *flags, bool first)
-> > +                           const struct rest_flags *flags, bool first,=
- bool *updated_out)
-> >  {
-> >         char *newcon =3D NULL;
-> >         char *curcon =3D NULL;
-> >         int rc;
-> > +       bool updated =3D false;
-> >         const char *lookup_path =3D pathname;
-> >
-> >         if (rootpath) {
-> > @@ -736,7 +741,6 @@ static int restorecon_sb(const char *pathname, cons=
-t struct stat *sb,
-> >         }
-> >
-> >         if (curcon =3D=3D NULL || strcmp(curcon, newcon) !=3D 0) {
-> > -               bool updated =3D false;
-> >
-> >                 if (!flags->set_specctx && curcon &&
-> >                                     (is_context_customizable(curcon) > =
-0)) {
-> > @@ -796,9 +800,14 @@ static int restorecon_sb(const char *pathname, con=
-st struct stat *sb,
-> >                                 syslog(LOG_INFO, "labeling %s to %s\n",
-> >                                             pathname, newcon);
-> >                 }
-> > +
-> > +               /* Note: relabel counting handled by caller */
-> > +
-> >         }
-> >
-> >  out:
-> > +       if (updated_out)
-> > +               *updated_out =3D updated;
-> >         rc =3D 0;
-> >  out1:
-> >         freecon(curcon);
-> > @@ -887,6 +896,7 @@ struct rest_state {
-> >         bool abort;
-> >         int error;
-> >         long unsigned skipped_errors;
-> > +       long unsigned relabeled_files;
-> >         int saved_errno;
-> >         pthread_mutex_t mutex;
-> >  };
-> > @@ -1010,8 +1020,9 @@ loop_body:
-> >                         if (state->parallel)
-> >                                 pthread_mutex_unlock(&state->mutex);
-> >
-> > +                       bool updated =3D false;
-> >                         error =3D restorecon_sb(ent_path, &ent_st, &sta=
-te->flags,
-> > -                                             first);
-> > +                                             first, &updated);
-> >
-> >                         if (state->parallel) {
-> >                                 pthread_mutex_lock(&state->mutex);
-> > @@ -1030,6 +1041,8 @@ loop_body:
-> >                                         state->skipped_errors++;
-> >                                 else
-> >                                         state->error =3D error;
-> > +                       } else if (updated && state->flags.count_relabe=
-led) {
-> > +                               state->relabeled_files++;
-> >                         }
-> >                         break;
-> >                 }
-> > @@ -1087,6 +1100,8 @@ static int selinux_restorecon_common(const char *=
-pathname_orig,
-> >                     SELINUX_RESTORECON_IGNORE_DIGEST) ? true : false;
-> >         state.flags.count_errors =3D (restorecon_flags &
-> >                     SELINUX_RESTORECON_COUNT_ERRORS) ? true : false;
-> > +       state.flags.count_relabeled =3D (restorecon_flags &
-> > +                   SELINUX_RESTORECON_COUNT_RELABELED) ? true : false;
-> >         state.setrestorecondigest =3D true;
-> >
-> >         state.head =3D NULL;
-> > @@ -1094,6 +1109,7 @@ static int selinux_restorecon_common(const char *=
-pathname_orig,
-> >         state.abort =3D false;
-> >         state.error =3D 0;
-> >         state.skipped_errors =3D 0;
-> > +       state.relabeled_files =3D 0;
-> >         state.saved_errno =3D 0;
-> >
-> >         struct stat sb;
-> > @@ -1215,7 +1231,11 @@ static int selinux_restorecon_common(const char =
-*pathname_orig,
-> >                         goto cleanup;
-> >                 }
-> >
-> > -               error =3D restorecon_sb(pathname, &sb, &state.flags, tr=
-ue);
-> > +               bool updated =3D false;
-> > +               error =3D restorecon_sb(pathname, &sb, &state.flags, tr=
-ue, &updated);
-> > +               if (updated && state.flags.count_relabeled) {
-> > +                       state.relabeled_files++;
-> > +               }
-> >                 goto cleanup;
-> >         }
-> >
-> > @@ -1341,6 +1361,7 @@ out:
-> >         (void) fts_close(state.fts);
-> >         errno =3D state.saved_errno;
-> >  cleanup:
-> > +       relabeled_files =3D state.relabeled_files;
-> >         if (state.flags.add_assoc) {
-> >                 if (state.flags.verbose)
-> >                         filespec_eval();
-> > @@ -1618,3 +1639,8 @@ long unsigned selinux_restorecon_get_skipped_erro=
-rs(void)
-> >  {
-> >         return skipped_errors;
-> >  }
-> > +
-> > +long unsigned selinux_restorecon_get_relabeled_files(void)
-> > +{
-> > +       return relabeled_files;
-> > +}
-> > diff --git a/policycoreutils/setfiles/restore.c b/policycoreutils/setfi=
-les/restore.c
-> > index 2c031ccc..07582e7c 100644
-> > --- a/policycoreutils/setfiles/restore.c
-> > +++ b/policycoreutils/setfiles/restore.c
-> > @@ -43,7 +43,7 @@ void restore_init(struct restore_opts *opts)
-> >                            opts->syslog_changes | opts->log_matches |
-> >                            opts->ignore_noent | opts->ignore_mounts |
-> >                            opts->mass_relabel | opts->conflict_error |
-> > -                          opts->count_errors;
-> > +                          opts->count_errors | opts->count_relabeled;
-> >
-> >         /* Use setfiles, restorecon and restorecond own handles */
-> >         selinux_restorecon_set_sehandle(opts->hnd);
-> > @@ -75,7 +75,7 @@ void restore_finish(void)
-> >  }
-> >
-> >  int process_glob(char *name, struct restore_opts *opts, size_t nthread=
-s,
-> > -                long unsigned *skipped_errors)
-> > +                long unsigned *skipped_errors, long unsigned *relabele=
-d_files)
-> >  {
-> >         glob_t globbuf;
-> >         size_t i, len;
-> > @@ -99,8 +99,12 @@ int process_glob(char *name, struct restore_opts *op=
-ts, size_t nthreads,
-> >                                                  nthreads);
-> >                 if (rc < 0)
-> >                         errors =3D rc;
-> > -               else if (opts->restorecon_flags & SELINUX_RESTORECON_CO=
-UNT_ERRORS)
-> > -                       *skipped_errors +=3D selinux_restorecon_get_ski=
-pped_errors();
-> > +               else {
-> > +                       if (opts->restorecon_flags & SELINUX_RESTORECON=
-_COUNT_ERRORS)
-> > +                               *skipped_errors +=3D selinux_restorecon=
-_get_skipped_errors();
-> > +                       if (opts->restorecon_flags & SELINUX_RESTORECON=
-_COUNT_RELABELED)
-> > +                               *relabeled_files +=3D selinux_restoreco=
-n_get_relabeled_files();
-> > +               }
-> >         }
-> >
-> >         globfree(&globbuf);
-> > diff --git a/policycoreutils/setfiles/restore.h b/policycoreutils/setfi=
-les/restore.h
-> > index 95afb960..36f73059 100644
-> > --- a/policycoreutils/setfiles/restore.h
-> > +++ b/policycoreutils/setfiles/restore.h
-> > @@ -37,6 +37,7 @@ struct restore_opts {
-> >         unsigned int ignore_mounts;
-> >         unsigned int conflict_error;
-> >         unsigned int count_errors;
-> > +       unsigned int count_relabeled;
-> >         /* restorecon_flags holds | of above for restore_init() */
-> >         unsigned int restorecon_flags;
-> >         char *rootpath;
-> > @@ -52,7 +53,7 @@ void restore_init(struct restore_opts *opts);
-> >  void restore_finish(void);
-> >  void add_exclude(const char *directory);
-> >  int process_glob(char *name, struct restore_opts *opts, size_t nthread=
-s,
-> > -                long unsigned *skipped_errors);
-> > +                long unsigned *skipped_errors, long unsigned *relabele=
-d_files);
-> >  extern char **exclude_list;
-> >
-> >  #endif
-> > diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/se=
-tfiles/restorecon.8
-> > index 1134420e..b7ff9715 100644
-> > --- a/policycoreutils/setfiles/restorecon.8
-> > +++ b/policycoreutils/setfiles/restorecon.8
-> > @@ -153,6 +153,9 @@ display warnings about entries that had no matching=
- files by outputting the
-> >  .BR selabel_stats (3)
-> >  results.
-> >  .TP
-> > +.B \-c
-> > +count and display the number of (would be) relabeled files. The exit c=
-ode will be set to 0 only if at least one file is relabeled.
-> > +.TP
-> >  .B \-0
-> >  the separator for the input items is assumed to be the null character
-> >  (instead of the white space).  The quotes and the backslash characters=
- are
-> > diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setf=
-iles/setfiles.c
-> > index 31034316..351940f3 100644
-> > --- a/policycoreutils/setfiles/setfiles.c
-> > +++ b/policycoreutils/setfiles/setfiles.c
-> > @@ -35,8 +35,8 @@ static __attribute__((__noreturn__)) void usage(const=
- char *const name)
-> >  {
-> >         if (iamrestorecon) {
-> >                 fprintf(stderr,
-> > -                       "usage:  %s [-iIDFUmnprRv0xT] [-e excludedir] p=
-athname...\n"
-> > -                       "usage:  %s [-iIDFUmnprRv0xT] [-e excludedir] -=
-f filename\n",
-> > +                       "usage:  %s [-ciIDFUmnprRv0xT] [-e excludedir] =
-pathname...\n"
-> > +                       "usage:  %s [-ciIDFUmnprRv0xT] [-e excludedir] =
--f filename\n",
-> >                         name, name);
-> >         } else {
-> >                 fprintf(stderr,
-> > @@ -146,11 +146,12 @@ int main(int argc, char **argv)
-> >         size_t buf_len, nthreads =3D 1;
-> >         const char *base;
-> >         int errors =3D 0;
-> > -       const char *ropts =3D "e:f:hiIDlmno:pqrsvFURW0xT:";
-> > +       const char *ropts =3D "ce:f:hiIDlmno:pqrsvFURW0xT:";
-> >         const char *sopts =3D "c:de:f:hiIDlmno:pqr:svACEFUR:W0T:";
-> >         const char *opts;
-> >         union selinux_callback cb;
-> >         long unsigned skipped_errors;
-> > +       long unsigned relabeled_files;
-> >
-> >         /* Initialize variables */
-> >         memset(&r_opts, 0, sizeof(r_opts));
-> > @@ -160,6 +161,7 @@ int main(int argc, char **argv)
-> >         request_digest =3D 0;
-> >         policyfile =3D NULL;
-> >         skipped_errors =3D 0;
-> > +       relabeled_files =3D 0;
-> >
-> >         if (!argv[0]) {
-> >                 fprintf(stderr, "Called without required program name!\=
-n");
-> > @@ -223,7 +225,10 @@ int main(int argc, char **argv)
-> >         while ((opt =3D getopt(argc, argv, opts)) > 0) {
-> >                 switch (opt) {
-> >                 case 'c':
-> > -                       {
-> > +                       if (iamrestorecon) {
-> > +                               r_opts.count_relabeled =3D SELINUX_REST=
-ORECON_COUNT_RELABELED;
-> > +                               break;
-> > +                       } else {
-> >                                 FILE *policystream;
-> >
-> >                                 policyfile =3D optarg;
-> > @@ -457,14 +462,14 @@ int main(int argc, char **argv)
-> >                         if (!strcmp(buf, "/"))
-> >                                 r_opts.mass_relabel =3D SELINUX_RESTORE=
-CON_MASS_RELABEL;
-> >                         errors |=3D process_glob(buf, &r_opts, nthreads=
-,
-> > -                                              &skipped_errors) < 0;
-> > +                                              &skipped_errors, &relabe=
-led_files) < 0;
-> >                 }
-> >                 if (strcmp(input_filename, "-") !=3D 0)
-> >                         fclose(f);
-> >         } else {
-> >                 for (i =3D optind; i < argc; i++)
-> >                         errors |=3D process_glob(argv[i], &r_opts, nthr=
-eads,
-> > -                                              &skipped_errors) < 0;
-> > +                                              &skipped_errors, &relabe=
-led_files) < 0;
-> >         }
-> >
-> >         if (r_opts.mass_relabel && !r_opts.nochange)
-> > @@ -479,5 +484,14 @@ int main(int argc, char **argv)
-> >         if (r_opts.progress)
-> >                 fprintf(stdout, "\n");
-> >
-> > +       /* Output relabeled file count if requested */
-> > +       if (r_opts.count_relabeled) {
-> > +               long unsigned relabeled_count =3D selinux_restorecon_ge=
-t_relabeled_files();
-> > +               printf("Relabeled %lu files\n", relabeled_count);
-> > +
-> > +               /* Set exit code to 0 if at least one file was relabele=
-d */
-> > +               exit(errors ? -1 : relabeled_count ? 0 : 1);
-> > +       }
-> > +
-> >         exit(errors ? -1 : skipped_errors ? 1 : 0);
-> >  }
-> > --
-> > 2.51.1
-> >
-> >
+> ---
+>  libsepol/src/expand.c | 37 +++++++++++++++++++++----------------
+>  1 file changed, 21 insertions(+), 16 deletions(-)
+>
+> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+> index 6e0c038e..ed912b57 100644
+> --- a/libsepol/src/expand.c
+> +++ b/libsepol/src/expand.c
+> @@ -245,19 +245,22 @@ static int expand_attributes_in_attributes(sepol_ha=
+ndle_t *handle, policydb_t *p
+>                                 done =3D 0;
+>                                 ebitmap_init(&types);
+>                                 ebitmap_for_each_positive_bit(&td->types,=
+ nj, j) {
+> +                                       if (i =3D=3D j) {
+> +                                               ERR(handle, "Found loop i=
+n type attributes involving: %s", p->p_type_val_to_name[i]);
+> +                                               ebitmap_destroy(&attrs);
+> +                                               ebitmap_destroy(&types);
+> +                                               return -1;
+> +                                       }
+>                                         if (ebitmap_get_bit(&attrs, j)) {
+>                                                 ad =3D p->type_val_to_str=
+uct[j];
+>                                                 ebitmap_union(&types, &ad=
+->types);
+> -                                               ebitmap_set_bit(&td->type=
+s, j, 0);
+> +                                       } else {
+> +                                               ebitmap_set_bit(&types, j=
+, 1);
+>                                         }
+>                                 }
+> -                               ebitmap_union(&td->types, &types);
+> +                               ebitmap_destroy(&td->types);
+> +                               ebitmap_cpy(&td->types, &types);
+>                                 ebitmap_destroy(&types);
+> -                               if (ebitmap_get_bit(&td->types, i)) {
+> -                                       ERR(handle, "Found loop in type a=
+ttributes involving: %s", p->p_type_val_to_name[i]);
+> -                                       ebitmap_destroy(&attrs);
+> -                                       return -1;
+> -                               }
+>                         }
+>                 }
+>         }
+> @@ -925,9 +928,8 @@ static int expand_role_attributes_in_attributes(sepol=
+_handle_t *handle, policydb
+>         ebitmap_init(&attrs);
+>         for (i=3D0; i < p->p_roles.nprim; i++) {
+>                 rd =3D p->role_val_to_struct[i];
+> -               if (rd && rd->flavor =3D=3D ROLE_ATTRIB) {
+> +               if (rd && rd->flavor =3D=3D ROLE_ATTRIB)
+>                         ebitmap_set_bit(&attrs, i, 1);
+> -               }
+>         }
+>
+>         while (!done && reps < p->p_roles.nprim) {
+> @@ -939,19 +941,22 @@ static int expand_role_attributes_in_attributes(sep=
+ol_handle_t *handle, policydb
+>                                 done =3D 0;
+>                                 ebitmap_init(&roles);
+>                                 ebitmap_for_each_positive_bit(&rd->roles,=
+ nj, j) {
+> +                                       if (i =3D=3D j) {
+> +                                               ERR(handle, "Found loop i=
+n role attributes involving: %s", p->p_role_val_to_name[i]);
+> +                                               ebitmap_destroy(&attrs);
+> +                                               ebitmap_destroy(&roles);
+> +                                               return -1;
+> +                                       }
+>                                         if (ebitmap_get_bit(&attrs, j)) {
+>                                                 ad =3D p->role_val_to_str=
+uct[j];
+>                                                 ebitmap_union(&roles, &ad=
+->roles);
+> -                                               ebitmap_set_bit(&rd->role=
+s, j, 0);
+> +                                       } else {
+> +                                               ebitmap_set_bit(&roles, j=
+, 1);
+>                                         }
+>                                 }
+> -                               ebitmap_union(&rd->roles, &roles);
+> +                               ebitmap_destroy(&rd->roles);
+> +                               ebitmap_cpy(&rd->roles, &roles);
+>                                 ebitmap_destroy(&roles);
+> -                               if (ebitmap_get_bit(&rd->roles, i)) {
+> -                                       ERR(handle, "Found loop in role a=
+ttributes involving: %s", p->p_role_val_to_name[i]);
+> -                                       ebitmap_destroy(&attrs);
+> -                                       return -1;
+> -                               }
+>                         }
+>                 }
+>         }
+> --
+> 2.50.0
+>
