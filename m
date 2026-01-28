@@ -1,92 +1,73 @@
-Received: from mail.hallyn.com (mail.hallyn.com [178.63.66.53])
+Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [62.89.141.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F05D02836A6;
-	Wed, 28 Jan 2026 03:26:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.63.66.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 199A72144D7;
+	Wed, 28 Jan 2026 04:58:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.89.141.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769570815; cv=none; b=gHFQdEfN6yZHjIunnkWkxaRB34Eu0p/kr/6L88ci2YQskz6kYm1k/jyD2Yd4A4eCr7LCf8OpqvLeI+cQbCzaaRwQZUDJ9L50pvhoMcmGIciIng+WCyNIsBEkm3BjyvXsZgytevqftSFZurpvhhKE8SyB48/7mNLLV8b4NH7H/z0=
+	t=1769576292; cv=none; b=SUfviBpWro2a8QNRL50Wig6XK8Q1IXe7qu2CYwT1Lzt3eUDJdfXksvZMtvvfc3chHjpchJNmqaL1oS52QnGy7RUsv02qvVLeVmWl0Svq9RTzQ1Qa47Dvtm97EgPn+ljajNRDc2FWg3VmrX4gpXSs6phSGiAO+nfs/gzr1wqezl0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769570815; c=relaxed/simple;
-	bh=WJ4THiX5Nb3E14h0OCaKfi3/fwF9XV0bf5kgr1/Tcwo=;
+	s=arc-20240116; t=1769576292; c=relaxed/simple;
+	bh=HPTDEhsdkkZGj61ILgUyYDUIsm4tG50xsMeSLWhJykw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Jhs90q2x1AKM+Ga4IflBY8ydA578F/VSlm/gnOhVgU1vzkAdCdEkHhgj+NPwnTSs4dn9Cs82IQRwEOk6QlLwbpuS9VPdY1r3LVuTiTnATUva+CgBEtDJIjhstHp6blMMIU0YIoDSidrHMkW7ne16wXpWoeOShmGxjP8NOQ3piTg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=hallyn.com; spf=pass smtp.mailfrom=mail.hallyn.com; dkim=pass (2048-bit key) header.d=hallyn.com header.i=@hallyn.com header.b=LP04l29Y; arc=none smtp.client-ip=178.63.66.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=hallyn.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mail.hallyn.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=bE4b0m0lVKQPg/bCSd1Gzx5EB3eigSx89jAzFBNFfv8dHF/lR2OI8GBOJju4QLQsmvaNtz4iukb3F3gvE2i2fcIcmpm7OGvCipY4v03S09jelZqaJG4M3urF0BhUYK9goJi8gTW9Omz8g5KySB7n0JcSNxADp9Gya1L2vDx3008=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=PKJoiaAI; arc=none smtp.client-ip=62.89.141.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ftp.linux.org.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hallyn.com header.i=@hallyn.com header.b="LP04l29Y"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=hallyn.com; s=mail;
-	t=1769570805; bh=WJ4THiX5Nb3E14h0OCaKfi3/fwF9XV0bf5kgr1/Tcwo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=LP04l29YtSocxgfnNBrAAdN6oR0f4NknK7lA5QVJZoHUXv8FcLMJEujHWC3VZmuA/
-	 FqfiipEq6S5YIK1WX3Nj7UzzPBBRtFCjbf5eJIPm5dfu/RPcv821DsCuRAfMP4s6QQ
-	 g8k3fy4qJKGB6Sb/XpdbdAzdAmHvtEEcHsBQ2roQUTHX0kfshKCR2gsMPXoTlDZsSs
-	 We+6348BtGIqOgIePaGG0NnFSD6Y74Zn43i1D+sGOJGL/HCtNt3ZyYo4dz9DKQzAv+
-	 8mNqN2LWUdP0MxiHCFX4FcpzWjZJyPnRcA7tJG70JfhBm1APehuka2wd+BkTrV293Q
-	 3kU+IXC7duoGQ==
-Received: by mail.hallyn.com (Postfix, from userid 1001)
-	id 7625AAAF; Tue, 27 Jan 2026 21:26:45 -0600 (CST)
-Date: Tue, 27 Jan 2026 21:26:45 -0600
-From: "Serge E. Hallyn" <serge@hallyn.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: "Serge E. Hallyn" <serge@hallyn.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	"Eric W . Biederman" <ebiederm@xmission.com>,
-	Alexey Gladkov <legion@kernel.org>, linux-kernel@vger.kernel.org,
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH] ipc: don't audit capability check in ipc_permissions()
-Message-ID: <aXmB9XIzmRlwSdx4@mail.hallyn.com>
-References: <20260122141303.241133-1-omosnace@redhat.com>
- <CAHC9VhQYLJVweDgBkRo=0_kS1TAUQH_YfT+woSfBW0SjUO4nqg@mail.gmail.com>
- <aXgcd81ktMaAHhwj@mail.hallyn.com>
- <CAHC9VhSLi2-TBUyayML+tAuC+XF7jCAAL48oCB4qQqTrGXcMyA@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="PKJoiaAI"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
+	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=daXjtGTfmlVfqWEsV/tKRDwuwZG19vc4O33UsaVuyC4=; b=PKJoiaAIeJUIezjpIUvwLfhLOU
+	ljSMzyiy8niSruUOPj8Yhae/1tEMXXOfdDkBPWvk228fa+x3gT5ziOetsoIlPS6qPOcomc49/VYEg
+	TXRw9lJUhkDbPABnmZAwnrgsKAmLUH7AQ4AnGZOBwiLlkTJITaGg5cRexxsqxsIPyy0pfvevgI10V
+	EkVCPliHzrpbNBjpdQZtf8BtLMu9Kcsy7J4hQT6WtNuW7LYoAAzyuI/C3HY4Xp5Pm7lL1/zj5aQ3N
+	KpLYJej9U/8afrfofjKQFQuivnbtyPIWzjnE64luVJY6SlrAo9HkNbF8Ew4ypXGp7RUjQj7TvDxC5
+	7aSVGjaw==;
+Received: from viro by zeniv.linux.org.uk with local (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1vkxek-00000007aLd-3OJ0;
+	Wed, 28 Jan 2026 04:59:54 +0000
+Date: Wed, 28 Jan 2026 04:59:54 +0000
+From: Al Viro <viro@zeniv.linux.org.uk>
+To: Samuel Wu <wusamuel@google.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>, linux-fsdevel@vger.kernel.org,
+	torvalds@linux-foundation.org, brauner@kernel.org, jack@suse.cz,
+	raven@themaw.net, miklos@szeredi.hu, neil@brown.name,
+	a.hindborg@kernel.org, linux-mm@kvack.org,
+	linux-efi@vger.kernel.org, ocfs2-devel@lists.linux.dev,
+	kees@kernel.org, rostedt@goodmis.org, linux-usb@vger.kernel.org,
+	paul@paul-moore.com, casey@schaufler-ca.com,
+	linuxppc-dev@lists.ozlabs.org, john.johansen@canonical.com,
+	selinux@vger.kernel.org, borntraeger@linux.ibm.com,
+	bpf@vger.kernel.org, clm@meta.com,
+	android-kernel-team <android-kernel-team@google.com>
+Subject: Re: [PATCH v4 00/54] tree-in-dcache stuff
+Message-ID: <20260128045954.GS3183987@ZenIV>
+References: <20251118051604.3868588-1-viro@zeniv.linux.org.uk>
+ <CAG2KctrjSP+XyBiOB7hGA2DWtdpg3diRHpQLKGsVYxExuTZazA@mail.gmail.com>
+ <2026012715-mantra-pope-9431@gregkh>
+ <CAG2Kctoo=xiVdhRZnLaoePuu2cuQXMCdj2q6L-iTnb8K1RMHkw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHC9VhSLi2-TBUyayML+tAuC+XF7jCAAL48oCB4qQqTrGXcMyA@mail.gmail.com>
+In-Reply-To: <CAG2Kctoo=xiVdhRZnLaoePuu2cuQXMCdj2q6L-iTnb8K1RMHkw@mail.gmail.com>
+Sender: Al Viro <viro@ftp.linux.org.uk>
 
-On Tue, Jan 27, 2026 at 05:06:47PM -0500, Paul Moore wrote:
-> On Mon, Jan 26, 2026 at 9:01 PM Serge E. Hallyn <serge@hallyn.com> wrote:
-> > On Mon, Jan 26, 2026 at 05:50:12PM -0500, Paul Moore wrote:
-> > > On Thu, Jan 22, 2026 at 9:56 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > > >
-> > > > The IPC sysctls implement the ctl_table_root::permissions hook and
-> > > > they override the file access mode based on the CAP_CHECKPOINT_RESTORE
-> > > > capability, which is being checked regardless of whether any access is
-> > > > actually denied or not, so if an LSM denies the capability, an audit
-> > > > record may be logged even when access is in fact granted.
-> > > >
-> > > > It wouldn't be viable to restructure the sysctl permission logic to only
-> > > > check the capability when the access would be actually denied if it's
-> > > > not granted. Thus, do the same as in net_ctl_permissions()
-> > > > (net/sysctl_net.c) - switch from ns_capable() to ns_capable_noaudit(),
-> > > > so that the check never emits an audit record.
-> > > >
-> > > > Fixes: 0889f44e2810 ("ipc: Check permissions for checkpoint_restart sysctls at open time")
-> > > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > > > ---
-> > > >  include/linux/capability.h | 6 ++++++
-> > > >  ipc/ipc_sysctl.c           | 2 +-
-> > > >  2 files changed, 7 insertions(+), 1 deletion(-)
-> > >
-> > > This change seems reasonable to me, but I would make sure Serge has a
-> > > chance to review/ACK this patch as it has a capability impact.
-> >
-> > Acked-by: Serge Hallyn <serge@hallyn.com>
-> >
-> > Thanks - looks good to me.
-> 
-> I don't see a dedicated IPC maintainer/tree, do you want to take this
-> via the capabilities tree Serge?
+On Tue, Jan 27, 2026 at 06:02:25PM -0800, Samuel Wu wrote:
 
-Will do.
+> Thanks for the suggestion. I tried a few different setups, and now I'm
+> fairly confident e5bf5ee26663 ("functionfs: fix the open/removal
+> races") is the culprit. I did have to revert 6ca67378d0e7 ("convert
+> functionfs") and c7747fafaba0 ("functionfs: switch to
+> simple_remove_by_name()") to successfully build, but reverting only
+> those two in isolation did not fix the issue.
 
--serge
+Very interesting...  Does 1544775687f0 (parent of e5bf5ee26663)
+demonstrate that behaviour?
