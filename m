@@ -1,124 +1,135 @@
-Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
+Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 582A229C351
-	for <selinux@vger.kernel.org>; Fri, 30 Jan 2026 21:47:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C773D352C2C
+	for <selinux@vger.kernel.org>; Fri, 30 Jan 2026 21:57:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.182
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769809641; cv=pass; b=Y1OnWCDKhGJYcrKjqfKjG6mRZlp5CjBQQLqgLhRz8vaH8VeDzfowTJ0udx2foEykTCe1yHRVsnT/CUQFhWCfJyM25Px3Rz+HuV+SExlzkIp61wlJx2EFP24jbcmLDgEQ15EuWUnG5odiU21gxK45gnstb2L4FdG9fcHp0+M/uXo=
+	t=1769810233; cv=pass; b=spVazpNCekYuTO7mH+N9gw4BzQVtvlTNlqd2ZdXV2kCxH+Uwe9Sf1T6uW53bsuotSNUz4mgBumdhCPUhuB2CDFHXJWoJj/ejZbhsWVnQMhZNTfMXWWDapQoamZhdDSdoYDxsFoi2DgVayrP0gYOx0o2aLl8Ay1cWpZU1tc4J7uk=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769809641; c=relaxed/simple;
-	bh=11FkUTZuy25BtWzNMx0QQAxU6UKrujVrGtNklmkFr0w=;
+	s=arc-20240116; t=1769810233; c=relaxed/simple;
+	bh=ZAzvDCKA3yoG4zdUql5TXmg3+xq7tSh0DpwLUCCv05M=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=PZ4w0/jc6XbbVwxz2me+irMn4398tDG5bef9SstJYM6OKdeNlOvfGzel/1lpsnPSc6czYuR9qSTOoRhT3VBrWKDB7mNjH9tMN7TMFKNPq9hYRsL4oUcuRVxztfA2vFqZ/B4rW4FxzsifmrgWN8BB003ALO8iu+czpgMUgJ9V2AA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Tl7+ZiIM; arc=pass smtp.client-ip=209.85.215.177
+	 To:Cc:Content-Type; b=CflBee7uUDgP+Pq3FXijMZV8gz2QvEzIKwl+9ehZWkbovfy7v+TSuuUg4e0bktfPeekpTpgvgmXco0WiTQ3ZNB2QeWfqbdLt1hO7kxAA7Q0Ovh8nipPUJwE7E4tuGH8kg9Oa0I8jdZwox1ugn+N85HsgJQ9qp8r7fqrCc1w5VdM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=VpnxvS7I; arc=pass smtp.client-ip=209.85.215.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Tl7+ZiIM"
-Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-c56188aef06so1270601a12.2
-        for <selinux@vger.kernel.org>; Fri, 30 Jan 2026 13:47:20 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1769809639; cv=none;
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="VpnxvS7I"
+Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-c05d66dbab2so1679229a12.0
+        for <selinux@vger.kernel.org>; Fri, 30 Jan 2026 13:57:11 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1769810231; cv=none;
         d=google.com; s=arc-20240605;
-        b=dnCB2a3el8XfxKTAXm8eZuxscOhkIncV0g/7NNzzMQcBx8+JleL1EzkLCYxukdpr1i
-         95wDSg8ByFNs4jvoGcyYl/krL10fz39/2CeU/rJ4f1r37SMWpOpdVGIbQNENpkd/gxEn
-         Tc0QynqA9aG3bwn23O21VT1PD06h7EAp4BbbOpK2kgha08eQ6XsrMaFedZGL//sU5WFy
-         l5B67PzsnzZa06u6Kz8gSDvPXExhqE5HbLf1Hlyds2rhf0+tFGNRdMNHYkQ0VB2XCQIr
-         1G4RMwNiUpi+IWMnPuH9vEVGDvab5KPDe3KQqIL+vJjYBLkialnJH2Ey2xG8ThtBrvUh
-         3/TA==
+        b=IA+gfzsfytjg3rtdnEUeZ5ZT3aTlxl/qEUaHUIvJPDMQv4uFUDlKV8i5VRTHE0Jy2E
+         nXS93BLt2M6k0NFGx5WzWr53+1jVntqTMHvk0GqPbBganLMFN3vXOJOIhhjTkzF8XTWd
+         4/e2bXDV3UNTo6DnUhSKef2gcgpxH0zNxgWx+hr1NZ4dk7dL2rMt2JKGqzcJ1x0m1Qop
+         Puzwmntr+USxoZ1gQ1fPi9NQwiETyBw/Nn7/HaTfCsMXIyBJyW47JIJQ2+zzeMDErV1O
+         ynBhJGTJKcVVtv6vDujvaGTPNhvnjo+FoYvrOnYo/vpEo/dNwglyBLalId/CJzxSLK2t
+         onSg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=11FkUTZuy25BtWzNMx0QQAxU6UKrujVrGtNklmkFr0w=;
-        fh=ajhmblVHq8bNn+C0mBuhadS3q17xsFfqyZFMB2qdUgE=;
-        b=cdyLdqOT9cs+D4lBBOSW7oMZOd+mnxTPDsTdtQO+BtuXTrv0NBPA1xHXqGGJu8i7Il
-         WGK1bZt2GJxK9HLI445HUw80/ZE4GRXb6CoikZcc7XnQivwrM5q8K17QZzs/uhvoW32L
-         4gGGO925gBgukr4Ffq9acg57Y/gsUdD2amyu0bU1xt3ANGF1fWeBjkpDkLVkcn68mZFq
-         dRBnPH6QnWU30hTZeJnOWKuR4HZb/OPTOmbOrhEJltIoI4XOPeS2veo8uKUhQyxbmGJL
-         Y+qBcVvCg6nbnInwCRqHAUW4N88IjEGc3JhsprKvphzxEL6Tw3y78aVcquRBfFZnsion
-         FcGw==;
+        bh=0f81vVRt9lYBgk3/zE7XZDsUfpQnZqBZcRRR2bNgTuI=;
+        fh=h5DwtxXI7e8O/Jsf7s5o7YDLEbe3hcXhw9S8zvuvMeY=;
+        b=gbds8/pNa8/yF0QlhjVx0auFkp6YmrXAhHbzhHmEZIrEMt5/u1qcYXtk9Bl/FNVsQB
+         MHTMYJK7oh7HmGqflUAE9WYeGcqAnzyXCLg1r/JfTpCxj+nKSMi5gTSI0naWI3t7ek8P
+         n2Bm7ybdlAgwB0puCL6dFQa1cWgkmVplol/zJEeiadtp4pis9oLO0A3i3rPI+Fv2yGZT
+         gz0vW6mQhQk7yCIvBzuETDPuECLAYJKlCPlCWGLnrCqAUS6VRog87oQI7GHimgIAfGVW
+         eGzIu9z7xUpDKUIItnOitX83SzEErwBHgqedjG0Nw35Dovvzt2jw83+3ZDdVF8CKS2G8
+         HEvw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1769809639; x=1770414439; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1769810231; x=1770415031; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=11FkUTZuy25BtWzNMx0QQAxU6UKrujVrGtNklmkFr0w=;
-        b=Tl7+ZiIMzDn4RTRI62Ez+QMTKJtR8elzsIG+lPdysno87SSEr8tAwhk4TfwAfGs1UD
-         7P0KV4xDEVJwUG1yEZqSfnu+pkA3zJ+IcwJEYq55j47WXteBbcF8RUw3F9EmwDoi7kza
-         tneUighks/a00U3UubmKcTfMxmuo6+ix2e1O1VYzaADzKtDRizbrj/G4ouIAXPM5AfwJ
-         ziPne8TrDh4xwi71Zyq+Paq8CzqQQTujxsO5/Ko9TqTnnixN0db/nFvsQdfaRlJPuD8v
-         o5x2a6A3Gt9Q8tgHBYSrs92shEmvdyoWCs5H0pQvozS5Xkxsu+13I6637KVznc5pD73Y
-         lLOg==
+        bh=0f81vVRt9lYBgk3/zE7XZDsUfpQnZqBZcRRR2bNgTuI=;
+        b=VpnxvS7IHTGPLMs2SEC80XwggxREItMuAM1sJ6KYKkMkMzcwvL+drAx8C7btlboKxi
+         Uln4MB0I2BqeiGXLpBaXLA3eEI3FL1k6/XS+LtXEgHQYSh++vFCwH2r0gPTbbJuKSfEJ
+         DhXk0ec+IN2sqWJR2VrqGh3wz+RDNs1dshIYqzrI57ysXyKyTtfahMnhHY6+PxgTfZvD
+         6rjr+VVy9r7auQ318sPUXShHQAMkD6Bi50k2fv9ORIZkARWfrhCJwsG8XzU4ucoRoOEI
+         C91VEe1//QfNPIinWW68n88bO+Ml8rdU9jJWNb+jzFujJIhG5SsTIwWA6Kf2ODunhLfO
+         eoiQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769809639; x=1770414439;
+        d=1e100.net; s=20230601; t=1769810231; x=1770415031;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=11FkUTZuy25BtWzNMx0QQAxU6UKrujVrGtNklmkFr0w=;
-        b=QK++jg1BM/UQP6kWFM5uQqc2+GuHel1VBseK3qemWunjIpAbGeTRTBtE1AvtZh+4l5
-         vZkcGOre55NblTiNQBxWs0OA8yt6dhNfkRu7GBuzzFkBPCBanQ5yI6g9uR9cPZavpA9f
-         Z6xproj12ZaWPr7kic3f0G7r8QPv5SYwJ+tbtSCskVSgJQmSkPUqpVELpEdd2HMICE/B
-         aZXqkmD0H734Czwp/PN0QGRPbj35If3pQGDIY5mpjMTNm/2yy6DSSO7CV8ItA7VW/AY/
-         n0J/Njl9BrJmn7Y+T1iuNrFJlsX4CegLMbTnUKeC7wDl7puGMHuWH8RZEfysGP/+/njW
-         8T5w==
-X-Forwarded-Encrypted: i=1; AJvYcCWwKNUTw/unSrcq95hWZcauh2/Z7YkWWblQxtIlw2Bgq/IukZl4rboEhL5s13V5kxcCMNQGbKRT@vger.kernel.org
-X-Gm-Message-State: AOJu0YxGawZUYjO74qxexokevqGvQp2M5gsg4ELHZtgSeEXrzzh9ozps
-	OfrQvcJb9Lus5sTHAG0YcvBtUmHgeU7QbjXz3LPsSr7XI3fmpX8MutbTKiY7eSEHGEL2iJ4ba8S
-	90sjenPYbO9cLUYufYtQmRKOnfRmi6XE0uh58Qeii
-X-Gm-Gg: AZuq6aKRPs4joUo1xI3PPZMUKRcMfmUoiz++XrNExrrmEI7ffTRM9tmUb0sWui/Jw3A
-	xcxJHGBROvan7eSYPsW7SJYdUlZrfcZY07fVDHnFkp8xB2RzPX1lupSth30JCc096wz4Cq1IxYQ
-	hLo03sAsBnB0Dahl2bwJPJU6kloEb0YAaK02vpKwhxFWd7zTub1iEFMOIe6Rr0yrvW6468dJKrp
-	4i91p7d/mnT/gW3KkQ5QqRk2juNGysiKTdQIXR5roCeBcwDiCby2F4Ne0SZARgvQO2UxP80kCTE
-	NDuYeg==
-X-Received: by 2002:a17:90a:e710:b0:353:5c16:aa7 with SMTP id
- 98e67ed59e1d1-3543b4007c8mr4355226a91.25.1769809639674; Fri, 30 Jan 2026
- 13:47:19 -0800 (PST)
+        bh=0f81vVRt9lYBgk3/zE7XZDsUfpQnZqBZcRRR2bNgTuI=;
+        b=Cvqw/358OHmZXyW6ovNIx56KbLEMZrtJ8KW1fFkXuNAAOCrAHDhjN+SIcCEu5+JkQF
+         zlbtH37TbEyUTfyGYtjl2nVX11Doc15GsNkTD2DFF5lZnT24SMXLtls2MTTChgNZUOMV
+         jpgnf2Ocb8pQo37aSNUahY+pr6nC0LquNwv+KthTffVAvb0X3YpJYJyYoK6qvIhOquVW
+         fQ+mDyqXxMdIy9nJ9s2e6jTz6jY+zkG63kHi8c6zANMGcZKVVhCuk8E4tZ5Bm9mOKlJm
+         xunhPmiaaUq5s2MIGru8tnI8zHl04QqmB2wZ6AnEuQp0FU3QvBVRT/YOd5kkzarscboQ
+         iYaQ==
+X-Gm-Message-State: AOJu0Yyg/wxVMnJSKSyZMg+YIKL31KOYlXqcLIbLUk9LQlZlbKrmCD+l
+	qxCx1EErtCtKoUk+yaDWIHaQ7yrZwJioMrw3/uAvjlWZf7ADLWVkOUqwnmMsEUOLhJJIGWEeLS0
+	jsGg+pR4er0utdZUdlv5+JK86GHnVbWRxnMvJ0Cy/KUp2LxSRzX0TdQ==
+X-Gm-Gg: AZuq6aLDxHtG90Smp8HxQHIV8BKJnPvrjyMvLbBDDm1ZXOvZJrNYe9euuGMS0WCg+kK
+	99bSemuPZpvPdaq8Z2v07eR5TmGLLjKAPBfHFVD3H+UTdJLfp9p88cNjeDY53c39hYrZcAqEOwi
+	EyQP3ndwhIIlkFAnIlWxa1vB1b2I8Zuh1JbB2kTUYC/qEJADDj5AqATfGX8d3ozhLm0+/dIoThd
+	E/GV16hQ+izSTr5W8LJwo8bSk5UMJklwMWuI28goZbRbC1LH0fpMnGNCQiOz/r+vJEjmi+sodif
+	3uqiEg==
+X-Received: by 2002:a05:6a21:6f88:b0:38b:e398:b9fd with SMTP id
+ adf61e73a8af0-392e003c0a9mr4572431637.20.1769810231121; Fri, 30 Jan 2026
+ 13:57:11 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260130171140.90966-1-cgoettsche@seltendoof.de> <CAEjxPJ7GTB9=-rZOkKe1uiq3G4pdSzPKVcSpYBH9hrhufDq0=A@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7GTB9=-rZOkKe1uiq3G4pdSzPKVcSpYBH9hrhufDq0=A@mail.gmail.com>
+References: <2ec9c137-79a5-4562-8587-43dd2633f116@I-love.SAKURA.ne.jp>
+ <CAHC9VhQikhv+qCyQdnJguvy-qTkGXB+NU7=QZjw5d+WfyVxZhw@mail.gmail.com>
+ <00ed59a3-a9c9-47c3-97da-5a8e3da1ea82@I-love.SAKURA.ne.jp>
+ <CAHC9VhQq6jY63kYEQCp2t89Vv+_PDqv54RV6TO_TePDQyU6Vug@mail.gmail.com> <1bb453af-3ef2-4ab6-a909-0705bd07c136@I-love.SAKURA.ne.jp>
+In-Reply-To: <1bb453af-3ef2-4ab6-a909-0705bd07c136@I-love.SAKURA.ne.jp>
 From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 30 Jan 2026 16:47:08 -0500
-X-Gm-Features: AZwV_QiKS2R_PQ9Zsa4m9dl5l5Q61p96gHFm0Qwskc06xe3Ssej-aJNxxOblYT0
-Message-ID: <CAHC9VhRODBvRXGh+c5LBCwS2=pfxYpTfc-Wrt3DXD93wgq5yxQ@mail.gmail.com>
-Subject: Re: [RFC PATCH] selinux: prevent truncation of status map
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: cgzones@googlemail.com, selinux@vger.kernel.org, 
-	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org
+Date: Fri, 30 Jan 2026 16:56:59 -0500
+X-Gm-Features: AZwV_Qj982ND7TJxgyw6A2KozmEAmOpS-qJ0nHC9KARsT_E53n9R8n-IFelzO3k
+Message-ID: <CAHC9VhQEKfxXzFgYShojESpQn10LES5zL6Ua0YV9b8seEKFqyA@mail.gmail.com>
+Subject: Re: [PATCH] xfrm: kill xfrm_dev_{state,policy}_flush_secctx_check()
+To: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: SELinux <selinux@vger.kernel.org>, 
+	linux-security-module <linux-security-module@vger.kernel.org>, 
+	Steffen Klassert <steffen.klassert@secunet.com>, Herbert Xu <herbert@gondor.apana.org.au>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Network Development <netdev@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jan 30, 2026 at 4:08=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Fri, Jan 30, 2026 at 12:11=E2=80=AFPM Christian G=C3=B6ttsche
-> <cgoettsche@seltendoof.de> wrote:
-> >
-> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> >
-> > Currently the SELinux status map can be truncated, given the necessary
-> > permissions, leading to foreign user space processes getting a bus erro=
-r
-> > (SIGBUS) while concurrently making use of the status map.
-> > For example systemd can be killed that way, see [1].
-> >
-> > Override the setattr inode handler and check for O_TRUNC in the open
-> > handler to prevent truncations.
-> >
-> > Link [1]: https://github.com/systemd/systemd/issues/37349
-> > Closes: https://github.com/SELinuxProject/selinux/issues/475
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+On Wed, Jan 28, 2026 at 5:28=E2=80=AFAM Tetsuo Handa
+<penguin-kernel@i-love.sakura.ne.jp> wrote:
+> On 2026/01/28 6:59, Paul Moore wrote:
+> > It sounds like we either need to confirm that
+> > security_xfrm_{policy,state}_delete() is already present in all code
+> > paths that result in SPD/SAD deletions (in a place that can safely
+> > fail and return an error),
 >
-> This issue can't be limited to just the status node, so if we care
-> about preventing this, we ought to do it for them all.
-> When would we want to allow truncation of _any_ selinuxfs file?
+> Yes.
 
-Fair point.
+To clarify, do you mean "yes, I agree", or "yes, I've already checked
+this and can confirm that the LSM hooks are already being called"?
+
+> >                            or we need to place
+> > xfrm_dev_{policy,state}_flush_secctx_check() in a location that can
+> > safely fail.
+>
+> Did you mean xfrm_{policy,state}_flush_secctx_check() ?
+
+They both call into the security_xfrm_policy_delete() LSM hook which
+is what I care about as that hook is what authorizes the operation.
+
+> Regarding xfrm_policy_flush() as an example, we can observe that we are
+> calling LSM hooks for must-not-fail callers ...
+
+We need to make sure the LSM hooks are being called to authorize the
+removal of SPD and SAD entries.  If you are going to remove LSM hooks
+from the existing code, please document how that code path you are
+changing is still subject to authorization by the LSM hooks or explain
+in great detail how that authorization is not necessary.
 
 --=20
 paul-moore.com
