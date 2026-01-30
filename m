@@ -1,135 +1,126 @@
-Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
+Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C773D352C2C
-	for <selinux@vger.kernel.org>; Fri, 30 Jan 2026 21:57:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFCF738A2A1
+	for <selinux@vger.kernel.org>; Fri, 30 Jan 2026 22:32:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.47
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769810233; cv=pass; b=spVazpNCekYuTO7mH+N9gw4BzQVtvlTNlqd2ZdXV2kCxH+Uwe9Sf1T6uW53bsuotSNUz4mgBumdhCPUhuB2CDFHXJWoJj/ejZbhsWVnQMhZNTfMXWWDapQoamZhdDSdoYDxsFoi2DgVayrP0gYOx0o2aLl8Ay1cWpZU1tc4J7uk=
+	t=1769812329; cv=pass; b=PIoKEAbPCUtlOIiU8VHdcYVTWOgc0sm3rl27wok0heSYmeZcFh4fmPq/0jDWDw83xxozK/uRiTeIVuj0I/hD+Yv43ajtBYl12X4Iw6cdHMxzI10G872Yc0X2NNRyFf67mdm7RW47wHveGi4NUzTcZlK+FidMToknL9dE98L/f1I=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769810233; c=relaxed/simple;
-	bh=ZAzvDCKA3yoG4zdUql5TXmg3+xq7tSh0DpwLUCCv05M=;
+	s=arc-20240116; t=1769812329; c=relaxed/simple;
+	bh=1L9Z4WjLTMd/nETiB4o0uKotvQN4Rh7dUtNkmBInouo=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=CflBee7uUDgP+Pq3FXijMZV8gz2QvEzIKwl+9ehZWkbovfy7v+TSuuUg4e0bktfPeekpTpgvgmXco0WiTQ3ZNB2QeWfqbdLt1hO7kxAA7Q0Ovh8nipPUJwE7E4tuGH8kg9Oa0I8jdZwox1ugn+N85HsgJQ9qp8r7fqrCc1w5VdM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=VpnxvS7I; arc=pass smtp.client-ip=209.85.215.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=o5InNCttlg/jhPUBnWvOdbiqXZdad9HRryrzSuOXjW6w3xb5OLNt/IGcigbg9KamsuhsdzmCMJeDPhDbnKkp42sOmzQoRLwQAdaNqhynMpUVs14vAeoeKXJFOgFz0ERJQ1sdyMOtlcJcSOB31B94E2u7jKVRXzIwTb8VVGUr9x0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=xSsduIhT; arc=pass smtp.client-ip=209.85.218.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="VpnxvS7I"
-Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-c05d66dbab2so1679229a12.0
-        for <selinux@vger.kernel.org>; Fri, 30 Jan 2026 13:57:11 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1769810231; cv=none;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="xSsduIhT"
+Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-b885e8c6700so425047566b.0
+        for <selinux@vger.kernel.org>; Fri, 30 Jan 2026 14:32:07 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1769812326; cv=none;
         d=google.com; s=arc-20240605;
-        b=IA+gfzsfytjg3rtdnEUeZ5ZT3aTlxl/qEUaHUIvJPDMQv4uFUDlKV8i5VRTHE0Jy2E
-         nXS93BLt2M6k0NFGx5WzWr53+1jVntqTMHvk0GqPbBganLMFN3vXOJOIhhjTkzF8XTWd
-         4/e2bXDV3UNTo6DnUhSKef2gcgpxH0zNxgWx+hr1NZ4dk7dL2rMt2JKGqzcJ1x0m1Qop
-         Puzwmntr+USxoZ1gQ1fPi9NQwiETyBw/Nn7/HaTfCsMXIyBJyW47JIJQ2+zzeMDErV1O
-         ynBhJGTJKcVVtv6vDujvaGTPNhvnjo+FoYvrOnYo/vpEo/dNwglyBLalId/CJzxSLK2t
-         onSg==
+        b=TYex/Y4De4+lRepQGEIePZzpfDumZTF3U9MBXvDl6GDwxqxxEwx0y3d8VzCuzOmTWn
+         S79SZHt/AatOVYPS4mGVdyaY41f3Xu7NbYaLfwOX1FmfssqQRA0CIx+fgB4DBfWwNRBc
+         lK/2Aj4S7PcsVLrNWETXcop7NjyoSv+Zjo1creD29twyYPawgaBDoO6YxoP6EAYiof7g
+         7YK68tGabTaD+ngR5YG75pwRfEwoEI7Pw7RmpUt9ntAQstYJCXsXU02jpNH7gB5qpPA0
+         3InFGS1Jj/wOvURAW0HzQqTWhOfvepqyipoLCcXGgxDU9bYoqS9/G00gzd/WQY07zu/I
+         fE8g==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=0f81vVRt9lYBgk3/zE7XZDsUfpQnZqBZcRRR2bNgTuI=;
-        fh=h5DwtxXI7e8O/Jsf7s5o7YDLEbe3hcXhw9S8zvuvMeY=;
-        b=gbds8/pNa8/yF0QlhjVx0auFkp6YmrXAhHbzhHmEZIrEMt5/u1qcYXtk9Bl/FNVsQB
-         MHTMYJK7oh7HmGqflUAE9WYeGcqAnzyXCLg1r/JfTpCxj+nKSMi5gTSI0naWI3t7ek8P
-         n2Bm7ybdlAgwB0puCL6dFQa1cWgkmVplol/zJEeiadtp4pis9oLO0A3i3rPI+Fv2yGZT
-         gz0vW6mQhQk7yCIvBzuETDPuECLAYJKlCPlCWGLnrCqAUS6VRog87oQI7GHimgIAfGVW
-         eGzIu9z7xUpDKUIItnOitX83SzEErwBHgqedjG0Nw35Dovvzt2jw83+3ZDdVF8CKS2G8
-         HEvw==;
+        bh=V5nbc6oPm8LRFAHxRjfK4s+TrvKdniacoUK6JWeX1CM=;
+        fh=PDwYkyvICiD8WeVP0bxM9CLmOPZxk7NVh9bZ+kCRmZE=;
+        b=KI/wC00KWKPRYBcuneH2I8WIGTJBZicU6Xj45vpyXyt3us+j2dLQxuzU49XVPli5Rs
+         XOasUVngVPen3Sov3+sTK1uydae7kgMPpqSmuVhHA9JWoUWhExa2xTPyuNDUtnvfZUDD
+         RBUq1CY/rbrdOoybYJjengyvv6fmf4bb2xrFXLjsCyC0rlEQexuGHTC7SYl2Keo9h0Wl
+         2f4JpF7GXQxdZw/RKqbi2nVCKvTjb8gbgLwAz2ncmOpBJtXst9QpUXujb9G81JM9NJOB
+         l39HG/WBttbgVQUhz/gqGSUjfn2FnunP8KklMpnQF3ETfLQ/q2ZqDTqxDKoatmrp8dvO
+         kcqg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1769810231; x=1770415031; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1769812326; x=1770417126; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=0f81vVRt9lYBgk3/zE7XZDsUfpQnZqBZcRRR2bNgTuI=;
-        b=VpnxvS7IHTGPLMs2SEC80XwggxREItMuAM1sJ6KYKkMkMzcwvL+drAx8C7btlboKxi
-         Uln4MB0I2BqeiGXLpBaXLA3eEI3FL1k6/XS+LtXEgHQYSh++vFCwH2r0gPTbbJuKSfEJ
-         DhXk0ec+IN2sqWJR2VrqGh3wz+RDNs1dshIYqzrI57ysXyKyTtfahMnhHY6+PxgTfZvD
-         6rjr+VVy9r7auQ318sPUXShHQAMkD6Bi50k2fv9ORIZkARWfrhCJwsG8XzU4ucoRoOEI
-         C91VEe1//QfNPIinWW68n88bO+Ml8rdU9jJWNb+jzFujJIhG5SsTIwWA6Kf2ODunhLfO
-         eoiQ==
+        bh=V5nbc6oPm8LRFAHxRjfK4s+TrvKdniacoUK6JWeX1CM=;
+        b=xSsduIhTCrRwZ3JLNdbKh8tE+MdhFL5H9uFQ+5tllsHBric51bEYgyU7uP/nPJVuVm
+         PXBuoZbGBGhd9jC11zRL1GU483f7Fvm6uslzLapeb6QBFVPq0QqUEi22Yh4za+kn63ZO
+         VYPzScWvoAqGFSaLLyA8MHrbxgl4Go5rekjKE33pKIWosCL170UwdnhFMbcWW6Jy1nHl
+         BTUoIyOiMwtb7w1k7xMz4I30jgy1NoIFY4KeyxuPTUlWRVzku48qag4B+Mw5y3wg9X4J
+         7qYXltKRhjuTRa93Kg/i5KMrUJXJP9GaY7mIYlek1UyxtuCoSVeghV/7vYzm2MaotHdL
+         Ekpg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769810231; x=1770415031;
+        d=1e100.net; s=20230601; t=1769812326; x=1770417126;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=0f81vVRt9lYBgk3/zE7XZDsUfpQnZqBZcRRR2bNgTuI=;
-        b=Cvqw/358OHmZXyW6ovNIx56KbLEMZrtJ8KW1fFkXuNAAOCrAHDhjN+SIcCEu5+JkQF
-         zlbtH37TbEyUTfyGYtjl2nVX11Doc15GsNkTD2DFF5lZnT24SMXLtls2MTTChgNZUOMV
-         jpgnf2Ocb8pQo37aSNUahY+pr6nC0LquNwv+KthTffVAvb0X3YpJYJyYoK6qvIhOquVW
-         fQ+mDyqXxMdIy9nJ9s2e6jTz6jY+zkG63kHi8c6zANMGcZKVVhCuk8E4tZ5Bm9mOKlJm
-         xunhPmiaaUq5s2MIGru8tnI8zHl04QqmB2wZ6AnEuQp0FU3QvBVRT/YOd5kkzarscboQ
-         iYaQ==
-X-Gm-Message-State: AOJu0Yyg/wxVMnJSKSyZMg+YIKL31KOYlXqcLIbLUk9LQlZlbKrmCD+l
-	qxCx1EErtCtKoUk+yaDWIHaQ7yrZwJioMrw3/uAvjlWZf7ADLWVkOUqwnmMsEUOLhJJIGWEeLS0
-	jsGg+pR4er0utdZUdlv5+JK86GHnVbWRxnMvJ0Cy/KUp2LxSRzX0TdQ==
-X-Gm-Gg: AZuq6aLDxHtG90Smp8HxQHIV8BKJnPvrjyMvLbBDDm1ZXOvZJrNYe9euuGMS0WCg+kK
-	99bSemuPZpvPdaq8Z2v07eR5TmGLLjKAPBfHFVD3H+UTdJLfp9p88cNjeDY53c39hYrZcAqEOwi
-	EyQP3ndwhIIlkFAnIlWxa1vB1b2I8Zuh1JbB2kTUYC/qEJADDj5AqATfGX8d3ozhLm0+/dIoThd
-	E/GV16hQ+izSTr5W8LJwo8bSk5UMJklwMWuI28goZbRbC1LH0fpMnGNCQiOz/r+vJEjmi+sodif
-	3uqiEg==
-X-Received: by 2002:a05:6a21:6f88:b0:38b:e398:b9fd with SMTP id
- adf61e73a8af0-392e003c0a9mr4572431637.20.1769810231121; Fri, 30 Jan 2026
- 13:57:11 -0800 (PST)
+        bh=V5nbc6oPm8LRFAHxRjfK4s+TrvKdniacoUK6JWeX1CM=;
+        b=CCaSpocogWv6xsdJwkzwn0KtN3cgfIUevQSoRErGr8InX2hOPmleneEbMtJfyu2iBh
+         /U3uzCLO8ZRL43ifVsq5CJx5JVc7FzVGRkLtXyJF00MY/vrUWEf9F15VCoPGpUO3evgL
+         5STZD38vCS4B96lRwNVR1Q/5p1AO+doac+RCfV7eYrBgQTp7Kwd8FPcu1jBOAFaQuBS5
+         H1toOos8/pn5nk6So0Meugo0az0LdsZp2RkcDhoGy0tIcMDs0stmBtcMte7q444WPQke
+         KP3GFAe7yZHwKyKKNHMRhNYAQab9M3//3tXBzAzWxv0ABzN/I4iOgicwsHWljpqcu+G1
+         RAnw==
+X-Forwarded-Encrypted: i=1; AJvYcCXHfg2w5JuFQlnyKaVVFJGHMZPJcxGkg2SCduQuK9UXupNe/N5xDsE2Puf6QFm4oS97jHrgA08D@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywa+SkMFzP1luL8Neqx1zT5EOl5lUbidlfVpEpwbZipIb9AxotM
+	uUIRDvCS5r9zh33Bo0Z5jEbPRe3PaGf4zbIm8WE3izuoA1Bz/8yxHA0ycpndnKh98e+D8mTkVxM
+	ehweL06qKiO27U9Rz4KLfSJiZM41XXmWsGbCLXbpy
+X-Gm-Gg: AZuq6aJSPrhznzGy73lTuEy9TwMs/n71rQ1SWTX2OQ0i+X+mizrCnS+TDn806vqFbsE
+	MkgTusKts3cR1CQA0zfJPeTWyQPF4am7qXcWNjk7Yo9bLdhGh/GIj9D1pVH3OGmjYEy1rOnJDqT
+	KbG5QxJ06s7pYPtmGEPTNDxcKWIwzRnbSbss6tvBFoEc0/gM+Vqa/emVrDambCupVoyR6CkNpJQ
+	1PpiOg2qKE8s457U1FlPVMu2YXmkwRKeuUp75DBMm4qjNR9UyTwWh5laZq9cL4nfWEP
+X-Received: by 2002:a17:907:e0d8:b0:b8e:14cc:9197 with SMTP id
+ a640c23a62f3a-b8e14cca990mr91520566b.15.1769812325869; Fri, 30 Jan 2026
+ 14:32:05 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <2ec9c137-79a5-4562-8587-43dd2633f116@I-love.SAKURA.ne.jp>
- <CAHC9VhQikhv+qCyQdnJguvy-qTkGXB+NU7=QZjw5d+WfyVxZhw@mail.gmail.com>
- <00ed59a3-a9c9-47c3-97da-5a8e3da1ea82@I-love.SAKURA.ne.jp>
- <CAHC9VhQq6jY63kYEQCp2t89Vv+_PDqv54RV6TO_TePDQyU6Vug@mail.gmail.com> <1bb453af-3ef2-4ab6-a909-0705bd07c136@I-love.SAKURA.ne.jp>
-In-Reply-To: <1bb453af-3ef2-4ab6-a909-0705bd07c136@I-love.SAKURA.ne.jp>
-From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 30 Jan 2026 16:56:59 -0500
-X-Gm-Features: AZwV_Qj982ND7TJxgyw6A2KozmEAmOpS-qJ0nHC9KARsT_E53n9R8n-IFelzO3k
-Message-ID: <CAHC9VhQEKfxXzFgYShojESpQn10LES5zL6Ua0YV9b8seEKFqyA@mail.gmail.com>
-Subject: Re: [PATCH] xfrm: kill xfrm_dev_{state,policy}_flush_secctx_check()
-To: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc: SELinux <selinux@vger.kernel.org>, 
-	linux-security-module <linux-security-module@vger.kernel.org>, 
-	Steffen Klassert <steffen.klassert@secunet.com>, Herbert Xu <herbert@gondor.apana.org.au>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Network Development <netdev@vger.kernel.org>
+References: <20251118051604.3868588-1-viro@zeniv.linux.org.uk>
+ <CAG2KctrjSP+XyBiOB7hGA2DWtdpg3diRHpQLKGsVYxExuTZazA@mail.gmail.com>
+ <2026012715-mantra-pope-9431@gregkh> <CAG2Kctoo=xiVdhRZnLaoePuu2cuQXMCdj2q6L-iTnb8K1RMHkw@mail.gmail.com>
+ <20260128045954.GS3183987@ZenIV> <CAG2KctqWy-gnB4o6FAv3kv6+P2YwqeWMBu7bmHZ=Acq+4vVZ3g@mail.gmail.com>
+ <20260129032335.GT3183987@ZenIV> <20260129225433.GU3183987@ZenIV>
+ <CAG2KctoNjktJTQqBb7nGeazXe=ncpwjsc+Lm+JotcpaO3Sf9gw@mail.gmail.com> <20260130070424.GV3183987@ZenIV>
+In-Reply-To: <20260130070424.GV3183987@ZenIV>
+From: Samuel Wu <wusamuel@google.com>
+Date: Fri, 30 Jan 2026 14:31:54 -0800
+X-Gm-Features: AZwV_QjYrhpLENkXIfDxcZ9u-zvP7f57lE4mcVebqUxFVKgl6ULvCT7XG0RHQoc
+Message-ID: <CAG2Kctoqja9R1bBzdEAV15_yt=sBGkcub6C2nGE6VHMJh13=FQ@mail.gmail.com>
+Subject: Re: [PATCH v4 00/54] tree-in-dcache stuff
+To: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Greg KH <gregkh@linuxfoundation.org>, linux-fsdevel@vger.kernel.org, 
+	torvalds@linux-foundation.org, brauner@kernel.org, jack@suse.cz, 
+	raven@themaw.net, miklos@szeredi.hu, neil@brown.name, a.hindborg@kernel.org, 
+	linux-mm@kvack.org, linux-efi@vger.kernel.org, ocfs2-devel@lists.linux.dev, 
+	kees@kernel.org, rostedt@goodmis.org, linux-usb@vger.kernel.org, 
+	paul@paul-moore.com, casey@schaufler-ca.com, linuxppc-dev@lists.ozlabs.org, 
+	john.johansen@canonical.com, selinux@vger.kernel.org, 
+	borntraeger@linux.ibm.com, bpf@vger.kernel.org, clm@meta.com, 
+	android-kernel-team <android-kernel-team@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 28, 2026 at 5:28=E2=80=AFAM Tetsuo Handa
-<penguin-kernel@i-love.sakura.ne.jp> wrote:
-> On 2026/01/28 6:59, Paul Moore wrote:
-> > It sounds like we either need to confirm that
-> > security_xfrm_{policy,state}_delete() is already present in all code
-> > paths that result in SPD/SAD deletions (in a place that can safely
-> > fail and return an error),
+On Thu, Jan 29, 2026 at 11:02=E2=80=AFPM Al Viro <viro@zeniv.linux.org.uk> =
+wrote:
+> OK.  Could you take a clone of mainline repository and in there run
+> ; git fetch git://git.kernel.org:/pub/scm/linux/kernel/git/viro/vfs.git f=
+or-wsamuel:for-wsamuel
+> then
+> ; git diff for-wsamuel e5bf5ee26663
+> to verify that for-wsamuel is identical to tree you've seen breakage on
+> ; git diff for-wsamuel-base 1544775687f0
+> to verify that for-wsamuel-base is the tree where the breakage did not re=
+produce
+> Then bisect from for-wsamuel-base to for-wsamuel.
 >
-> Yes.
+> Basically, that's the offending commit split into steps; let's try to fig=
+ure
+> out what causes the breakage with better resolution...
 
-To clarify, do you mean "yes, I agree", or "yes, I've already checked
-this and can confirm that the LSM hooks are already being called"?
-
-> >                            or we need to place
-> > xfrm_dev_{policy,state}_flush_secctx_check() in a location that can
-> > safely fail.
->
-> Did you mean xfrm_{policy,state}_flush_secctx_check() ?
-
-They both call into the security_xfrm_policy_delete() LSM hook which
-is what I care about as that hook is what authorizes the operation.
-
-> Regarding xfrm_policy_flush() as an example, we can observe that we are
-> calling LSM hooks for must-not-fail callers ...
-
-We need to make sure the LSM hooks are being called to authorize the
-removal of SPD and SAD entries.  If you are going to remove LSM hooks
-from the existing code, please document how that code path you are
-changing is still subject to authorization by the LSM hooks or explain
-in great detail how that authorization is not necessary.
-
---=20
-paul-moore.com
+Confirming that bisect points to this patch: 09e88dc22ea2 (serialize
+ffs_ep0_open() on ffs->mutex)
