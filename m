@@ -1,120 +1,150 @@
-Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [62.89.141.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBAAC24337B;
-	Sat, 31 Jan 2026 00:58:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.89.141.173
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769821087; cv=none; b=N56xULbDAvBaoZ4KCOVgO5BcERqkWyPoYbulrgUdrAvQWe49m6KaRcFU5V9lLHS/FB+BoDqELD8aqUj+20kF2VSoAkfZamgJ+evFNVRa2nTrp9R3EBHZhtXkaR6gSs31zGF8oBLtu12xiESDCFdznwD0+14L4FTNCCkYjrJb7s0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769821087; c=relaxed/simple;
-	bh=qauTqKHGto8i5EEkgwEAfw5OJmnWY9nGSftYNvMTteM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tPb/UmhMw0YerphG5j1eG8fPIaQpz5/rCyYce659p4v0S9JK7f59sB+5HnzrdYA1bO/FuAWm5IPC0ThspdugnaxLapiAvtOH8oL2uvH8XFf+AHs7eFCKmD2ShlNEt9vkLL6aF9wc/jeaKs7CSyBffcki3d9tsKCDaJCHLfMizF0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=UM/ksZZW; arc=none smtp.client-ip=62.89.141.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ftp.linux.org.uk
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D16EF3164BB
+	for <selinux@vger.kernel.org>; Sat, 31 Jan 2026 01:05:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.46
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1769821549; cv=pass; b=VgQBh+kDOZKtLWfJVt9nE9URD6ESsqjaeVsVicqVRY6CTpeUdf8GOCzGHB+Bs5ltnIrbGKKu190nML/UvimEpqIv20KUsjDB0lqJcUURRZd3IWD5+8az1CLd2pceQl8fQFxK8Vy3htcZD/JkV0kXSP9DoLfrWgMfYGVA89ljgsM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1769821549; c=relaxed/simple;
+	bh=xauAVDrNEqxXuQQDfkuXjcLzA9iR5d/8KDCLj8SlAUk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=YDltHPvMioGoQDdjwGqQvGWchvZkN/V8ydBjc7aNjWscTi97C5s3IpgsADXDD7Wns9A3KGgsOGGilDyaiDM22JepMNZ7jDkN4QyzjyO2R2qF7cZF8SyP5gvwWE5UfJ6PoxegRDIU6It4DKZ9Ne3Q14bfyRKsz+9tbe2o7I8Vzuk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=HllqAs+/; arc=pass smtp.client-ip=209.85.218.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="UM/ksZZW"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
-	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=6wn5ysU0YfloeA6exMYYK6iQpv2UsqLmSW+HgYt8Lvk=; b=UM/ksZZWv++c+yQ2Z0BCZkfn/S
-	HjTROjfZP9usvFLH2AozqIKT5BfvGCplmb5PT/OrqOxyIcxn1AnMzXsSeyOPcgbqqK7NMoXLYcvD+
-	AiRLG7sl+WVpci94VwwaRDPiyv+ALu0PW0AOh4CiNKrQBg0ntaI7j9YVDXwgHCt8rFkuXFoQG/qMG
-	eM8x2UZHeYYWXCwshzBNpx/h2uX9YYt6vLnLMjgpBNC6Py3sbsH1CGWkWSNnpJz82lWdW9yjSFjyo
-	D5jPNPQHtBTk91smKSHKmFupg6W69tzPTg2LBnAVeU/tacJaM4FNWwWmfNA5hRayFruPqi7yXGApP
-	RaQL9bWw==;
-Received: from viro by zeniv.linux.org.uk with local (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1vlzL8-0000000D2NM-1MYL;
-	Sat, 31 Jan 2026 00:59:54 +0000
-Date: Sat, 31 Jan 2026 00:59:54 +0000
-From: Al Viro <viro@zeniv.linux.org.uk>
-To: Samuel Wu <wusamuel@google.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>, linux-fsdevel@vger.kernel.org,
-	torvalds@linux-foundation.org, brauner@kernel.org, jack@suse.cz,
-	raven@themaw.net, miklos@szeredi.hu, neil@brown.name,
-	a.hindborg@kernel.org, linux-mm@kvack.org,
-	linux-efi@vger.kernel.org, ocfs2-devel@lists.linux.dev,
-	kees@kernel.org, rostedt@goodmis.org, linux-usb@vger.kernel.org,
-	paul@paul-moore.com, casey@schaufler-ca.com,
-	linuxppc-dev@lists.ozlabs.org, john.johansen@canonical.com,
-	selinux@vger.kernel.org, borntraeger@linux.ibm.com,
-	bpf@vger.kernel.org, clm@meta.com,
-	android-kernel-team <android-kernel-team@google.com>
-Subject: Re: [PATCH v4 00/54] tree-in-dcache stuff
-Message-ID: <20260131005954.GX3183987@ZenIV>
-References: <2026012715-mantra-pope-9431@gregkh>
- <CAG2Kctoo=xiVdhRZnLaoePuu2cuQXMCdj2q6L-iTnb8K1RMHkw@mail.gmail.com>
- <20260128045954.GS3183987@ZenIV>
- <CAG2KctqWy-gnB4o6FAv3kv6+P2YwqeWMBu7bmHZ=Acq+4vVZ3g@mail.gmail.com>
- <20260129032335.GT3183987@ZenIV>
- <20260129225433.GU3183987@ZenIV>
- <CAG2KctoNjktJTQqBb7nGeazXe=ncpwjsc+Lm+JotcpaO3Sf9gw@mail.gmail.com>
- <20260130070424.GV3183987@ZenIV>
- <CAG2Kctoqja9R1bBzdEAV15_yt=sBGkcub6C2nGE6VHMJh13=FQ@mail.gmail.com>
- <20260130235743.GW3183987@ZenIV>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="HllqAs+/"
+Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-b884ad1026cso429821566b.2
+        for <selinux@vger.kernel.org>; Fri, 30 Jan 2026 17:05:47 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1769821546; cv=none;
+        d=google.com; s=arc-20240605;
+        b=bfkHyuPh/GWxCnXSVj1rgks3Ze6KkHCExq+dKi1azzfViaDfN2B1wDYY6AVlecsB7G
+         pqCpOw22ZzRBPo0dTd8FnJZM5J3NGVSEQT0J9vg3/bEPmUTQlqQWFyYYLB+kG+gAqDMW
+         uUB+NDb+0rpVPNpoM/rufQuY213HQwnZQb0mx1F77TBSk86ESaZgC6FBwgibBkFLr4UO
+         ycilTvZYQ+7TflfIKWMpy7ICinB7b5pMubUPt6pMTEBhwUPF1zluz1AH0FPTPYrZFDuy
+         HoMEJRlyUQF0B1nwKcHtKBo1jCPbMvInRawkNSnjzRFj6dQVWnBEoFPyNHUZdWaKhaR0
+         11+w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=WR8rpY2KGV4n5Wdzx9LxUGbuZ8iHOgSWcj67TDHRUAg=;
+        fh=a8unZEgRDGSc/RdYooNPefoHlckOFPC/+N1yQgRa2SQ=;
+        b=BZWF7egbmAXMRCr5rQLCF5WOt4lwz2XvmKwi1U72FIkAdqp7hukoQ5Z4QFZAILtAUw
+         nLBDkZ3sOJIzSiDgX9WlJoa1KNi14K39nYniJEZFuEVHEpJSFqaBPiA0pHwv3lki4pD0
+         bcW/ESa4YUXwoIfKhpbMWME+EEJRs+Hza3QJUyPBewrilyflAYBsAfTCNEvwW8AUFX5d
+         Aq4kw0RWbIAJ7Pa2BzQEZY/StiBACt2g0sryck8GDsbI+iSBgX/gSIpofHEJD2uatdH3
+         dVFhUY30YttE1lK1+ZPXIk8jPgZQk4hqYFIc5Csi9Ud6dwdsxbLQEzyK1zGqpwhf+Ad1
+         1igQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1769821546; x=1770426346; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=WR8rpY2KGV4n5Wdzx9LxUGbuZ8iHOgSWcj67TDHRUAg=;
+        b=HllqAs+/IWHE2+kQ9ii8b5Gtko1h7Ik70Pwl45FY+prbj2XSVoNyELK+flYSa2NQo8
+         EXfzD6mw0oX/ZlcIu3rfD3gSpUvxACQGYIH/Tl36lScTzSqGPf7KX8gtg3w/jdI+zaqh
+         b70RFAKtyAAsDtS1eh60MRioJEW4g53yrxfS3kn8JvPA1T8gyDJ3TbalXssoUOVJkQbB
+         jvGjJObfMMQbMdMBdGn+zwg4BMNPdymUx9VX9d4oC/MnBUwn5iYrXwM6DX/OcGYm3wZH
+         /zCPYr3iPl0vH84xBlQRUFtR3PnsqszdSt7W3HzHNo81Di8s17L3tMFO2MgvOo+9Qs0Y
+         at9Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769821546; x=1770426346;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=WR8rpY2KGV4n5Wdzx9LxUGbuZ8iHOgSWcj67TDHRUAg=;
+        b=iACwIA2GBwdTlNBDiXkBPutLHvdf6SDiR1r/hvSYsoOdI849OTjU9TzxOn+17vHZA7
+         mx9FzYpcGe6nyvoTsPu8HLhVq8NMFhKC9a3/cedtDanyuS/RacRDUkMhADP0jBzTyNFb
+         4OFHV3RINjX/XubWsxfKvVgfnltT3ywBa5FInfq74LL0FwCLxdEa/xDgyGBgCjM/DXMT
+         a9DRDer4CrOlaw4L3sZxwax5l7rUj4UWXj3YddDhyRHyc+UdtswnvDsF6Z7VYxFz8WJ4
+         rQi/SwpSetgwk8ycJy+Aug7nqBGdg6je2hfjh7MYmW0QFlR0ojqC8sM0F5aYytceSY3B
+         jloA==
+X-Forwarded-Encrypted: i=1; AJvYcCWVjsnexlD54vgp5Mccz6Q0DI50mQnGbRGktE9Qw+hQipCqj7gFGSXG5nDDRoa6XBN+ZHI05n6k@vger.kernel.org
+X-Gm-Message-State: AOJu0YzlNYOil/b2eu9KvIF2eABBKDsq/UvQ/VZS0rZOeS+eViI3zdbU
+	X/wNN+1zgely18qVcN1T73XBIZ4hVbEu4Q1UG+2dQwirAPMA3xyXL2XWowl3wqOdo7WbfiJXdNr
+	dMBN+R985rE4lA8hfR1w8JpvHdzGh49dGWk26JO9Z
+X-Gm-Gg: AZuq6aLZmaLgL6tZ0IkTJMxw/rj2YlRmgISC2ansIeLIfvZTJD9/Xcdqv8JzPoSpqKI
+	D7cu94XQu80eqv63iShKDgS7T0qomMTRnvTw7EF/Y+q44/XMFCZThA2yqHcq4RRlPKo/uCcqbTd
+	xvp24YVN0DrG7vW/t8i+mOWxLp9RM8JOXlwRplQgM3zPVIE6kl4yBNLTR1FsnQW/374JeweLD6F
+	x20Zra8kUQHIMqb0cB8guHaLelAHz27zpQWL095COmvRrfOu9DsfIUToB6F2rKmsm8OON9iZ157
+	/3U=
+X-Received: by 2002:a17:907:3e0d:b0:b87:322d:a8bc with SMTP id
+ a640c23a62f3a-b8dff696c0fmr254282166b.31.1769821545900; Fri, 30 Jan 2026
+ 17:05:45 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <CAG2KctrjSP+XyBiOB7hGA2DWtdpg3diRHpQLKGsVYxExuTZazA@mail.gmail.com>
+ <2026012715-mantra-pope-9431@gregkh> <CAG2Kctoo=xiVdhRZnLaoePuu2cuQXMCdj2q6L-iTnb8K1RMHkw@mail.gmail.com>
+ <20260128045954.GS3183987@ZenIV> <CAG2KctqWy-gnB4o6FAv3kv6+P2YwqeWMBu7bmHZ=Acq+4vVZ3g@mail.gmail.com>
+ <20260129032335.GT3183987@ZenIV> <20260129225433.GU3183987@ZenIV>
+ <CAG2KctoNjktJTQqBb7nGeazXe=ncpwjsc+Lm+JotcpaO3Sf9gw@mail.gmail.com>
+ <20260130070424.GV3183987@ZenIV> <CAG2Kctoqja9R1bBzdEAV15_yt=sBGkcub6C2nGE6VHMJh13=FQ@mail.gmail.com>
+ <20260130235743.GW3183987@ZenIV>
 In-Reply-To: <20260130235743.GW3183987@ZenIV>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+From: Samuel Wu <wusamuel@google.com>
+Date: Fri, 30 Jan 2026 17:05:34 -0800
+X-Gm-Features: AZwV_Qi-TVApb-UR_yhUuzDZcqy8acCYfKVdTsorIhJOL99wmGwpM0Som40uK5A
+Message-ID: <CAG2KctotL+tpHQMWWAFOQEy=3NX-7fa9YroqsjnxKmTuunJ2AQ@mail.gmail.com>
+Subject: Re: [PATCH v4 00/54] tree-in-dcache stuff
+To: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Greg KH <gregkh@linuxfoundation.org>, linux-fsdevel@vger.kernel.org, 
+	torvalds@linux-foundation.org, brauner@kernel.org, jack@suse.cz, 
+	raven@themaw.net, miklos@szeredi.hu, neil@brown.name, a.hindborg@kernel.org, 
+	linux-mm@kvack.org, linux-efi@vger.kernel.org, ocfs2-devel@lists.linux.dev, 
+	kees@kernel.org, rostedt@goodmis.org, linux-usb@vger.kernel.org, 
+	paul@paul-moore.com, casey@schaufler-ca.com, linuxppc-dev@lists.ozlabs.org, 
+	john.johansen@canonical.com, selinux@vger.kernel.org, 
+	borntraeger@linux.ibm.com, bpf@vger.kernel.org, clm@meta.com, 
+	android-kernel-team <android-kernel-team@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jan 30, 2026 at 11:57:43PM +0000, Al Viro wrote:
+On Fri, Jan 30, 2026 at 3:55=E2=80=AFPM Al Viro <viro@zeniv.linux.org.uk> w=
+rote:
 
-> Another thing to try (not as a suggestion of a fix, just an attempt to figure
+> So we have something that does O_NDELAY opens of ep0 *and* does not retry=
+ on
+> EAGAIN?
+>
+> How lovely...  Could you slap
+>         WARN_ON(ret =3D=3D -EAGAIN);
+> right before that
+>         if (ret < 0)
+>                 return ret;
+
+Surprisingly ret =3D=3D 0 every time, so no difference in dmesg logs with
+this addition.
+
+> in there and see which process is doing that?  Regression is a regression=
+,
+> odd userland or not, but I would like to see what is that userland actual=
+ly
+> trying to do there.
+>
+> *grumble*
+>
+> IMO at that point we have two problems - one is how to avoid a revert of =
+the
+> tail of tree-in-dcache series, another is how to deal with quite real
+> preexisting bugs in functionfs.
+>
+> Another thing to try (not as a suggestion of a fix, just an attempt to fi=
+gure
 > out how badly would the things break): in current mainline replace that
-> 	ffs_mutex_lock(&ffs->mutex, file->f_flags & O_NONBLOCK)
+>         ffs_mutex_lock(&ffs->mutex, file->f_flags & O_NONBLOCK)
 > in ffs_ep0_open() with
-> 	ffs_mutex_lock(&ffs->mutex, false)
-> and see how badly do the things regress for userland.  Again, I'm not saying
+>         ffs_mutex_lock(&ffs->mutex, false)
+> and see how badly do the things regress for userland.  Again, I'm not say=
+ing
 > that this is a fix - just trying to get some sense of what's the userland
 > is doing.
 
-At a guess, quite badly.  ffs->mutex *is* way too heavy for that purpose -
-that's a geniune bug.
-
-State transitions in that thing are messy; AFAICS, the state is a combination
-of ->opened and ->state, and transitions assume atomicity that just isn't there.
-
-All updates of ->opened are process-synchronous; the nasty part is in the
-FFS_DEACTIVATED handling.  We don't want it to coexist with ->opened > 0;
-normally decrement of ->opened to 0 gets us into FFS_CLOSING immediately
-and follows that with ffs_data_reset().  In -o no_disconnect mounts we switch
-to FFS_DEACTIVATED instead.  On the next open() after that we want it to
-transition to the same FFS_CLOSING + the same call of ffs_data_reset().
-
-open() running into FFS_CLOSING fails; that happens until ffs_data_reset()
-switches ->state to FFS_READ_DESCRIPTORS.
-
-Things are complicated by ffs_func_set_alt() and ffs_func_disable() - these
-can come with ->opened being zero and both contain this:
-        if (ffs->state == FFS_DEACTIVATED) {
-		ffs->state = FFS_CLOSING;
-		INIT_WORK(&ffs->reset_work, ffs_reset_work);
-		schedule_work(&ffs->reset_work);
-		return -ENODEV;
-	}
-with s/return -ENODEV;/return;/ for ffs_func_disable().  The point, AFAICT,
-is to avoid deadlocks from having ffs_data_reset() called in the locking
-environment these two are called in.  At least ->set_alt() can be called
-under a spinlock and ffs_data_reset() is blocking.
-
-Another potentially troubling part is the check for FFS_ACTIVE in the
-same functions, seeing that
-                        ffs->state = FFS_ACTIVE;
-                        mutex_unlock(&ffs->mutex);
- 
-                        ret = ffs_ready(ffs);
-                        if (ret < 0) {
-                                ffs->state = FFS_CLOSING;
-                                return ret;
-                        }
-in ep0 write() happens with no exclusion with those (as the matter of
-fact, that transition to FFS_CLOSING holds no locks at all)...
+Ergo this didn't make a difference either.
