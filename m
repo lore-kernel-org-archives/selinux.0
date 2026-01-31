@@ -1,214 +1,413 @@
-Received: from mail-yx1-f52.google.com (mail-yx1-f52.google.com [74.125.224.52])
+Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com [209.85.208.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6776930F957
-	for <selinux@vger.kernel.org>; Sat, 31 Jan 2026 17:20:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7175A36AB79
+	for <selinux@vger.kernel.org>; Sat, 31 Jan 2026 19:49:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.54
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769880045; cv=pass; b=m/c4Du9zSUCtW9mKtDSi/ORo5FB5mYjnxlcA3xr43D7q82w7jeHTyZTe5Qko0xWajk7mgvam90vr7JhIlcjZ5CNHkQKUxOdyMG5DngmButbyAr+oRhC5Sg4mcNd+JX48RZAqccVw5OCT3M7oAVOg6mrBAQsZ2yXVx10/ttQPenk=
+	t=1769888944; cv=pass; b=FsKerasUp4V8VXM7B9ZBxMJaMw3nKP/CdOmk64GlSHW7rqxJsaizyxatw6iwnwTJlX2UIZsrQX/MtKrPRaiafe1O/V3SL7OSXJuABTCgG3wAtgDE3lWciOCC/idGEOmm4+uPUMtlXU6g4i9GOjzt8f+Kxt0X6rsiKQlMV5uzIfA=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769880045; c=relaxed/simple;
-	bh=IuOdbt/SWNU0NxkqhNIhUORbwpDk2hGiaRiFcMYrDJg=;
+	s=arc-20240116; t=1769888944; c=relaxed/simple;
+	bh=9NhDPjT9NleZWRaZ1J3BDr5j3u7k2ymA7VxTgRJOjCk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=giaP7CDpMl+nL7a4ziHp/JqltTUA0wLOK/VLp4oFx4BCTMYBmt8gIWmiG0IHvvMxrY6EUBIhJ/u/7FFvH1fQNXf8nhgX34q5ohdkR+Xl9GpKOJKKzEmwgNWC6HqN3ESq7rdYPv8ySI9IInRB7Ng65Tdw0fak2T4gJftD5RhovcA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=PZL51LxP; arc=pass smtp.client-ip=74.125.224.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
+	 To:Cc:Content-Type; b=WS7wN2QTJGMtsu7vpzjRRXvmY88TagbWxdegSI2v8chvh2q4ZynlIdmdgOSlZusgdjdsovSi8iNixdmJNb/6QTZP5FrxhrrIJ4dTBo520zDLeiu45vcCpQx9GX12bvNp/KTdqd+ca7mDZcF8Pev2hpOmmtptGHEaixSZRCo4NdI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=MrZzAnm4; arc=pass smtp.client-ip=209.85.208.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="PZL51LxP"
-Received: by mail-yx1-f52.google.com with SMTP id 956f58d0204a3-6481bd173c0so2762627d50.2
-        for <selinux@vger.kernel.org>; Sat, 31 Jan 2026 09:20:44 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1769880043; cv=none;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="MrZzAnm4"
+Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-658d3d3ac37so5375527a12.1
+        for <selinux@vger.kernel.org>; Sat, 31 Jan 2026 11:49:02 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1769888941; cv=none;
         d=google.com; s=arc-20240605;
-        b=flNfQWONp6PLdZQIf/f6lj3hTjsJI7dtoyZaNrgOA9OSgNy/EYJEaTf/ao9gdBayp9
-         x435ASF8xFToSrTgfV/TLDHw97FQVonjr+DwTRDEtzzqzOSOuRzKyq29aeGA2IMNxpIW
-         OWgbXxQ4z82sUqzVJlm0/fnvSexdd0IVcSA4J3aomgqDbjQ8Pz3HA/40okrunYy1xGsy
-         3VzPJjHiV+klk4Ri+WArJ8XEFzq91qBjMlsZxDuHi2/6BUq+vPu/eddh0naRjHXd0Aar
-         8DCDriEWYg6cgIv9f5a/3XWkVN3BOdtASrJKe5QXBse949YWicjs4Hvns23UdXOMlIa+
-         zYXA==
+        b=UpCpZYMmSDgYziEzraCP8CWKiKbG01iaPVoUMS2FW4LTzvfWUw2UqltjW/UXnXWGWd
+         RtDpKa0nSXJYPHoYkR5zZB2j+Z26KazXrTws3uRe+tDis4eW5JmIkTLDSfSKmJwbiIKK
+         nASBiIWNHpcu1H3uJM/oeBoUjyih+TB/IBr3GTnDPVOSeTjxkJZDDrq4PJzHzhU7GlNY
+         XCMDJb5i31WYKrTQUnURa6e93d2vG836ZrtebIOioMVxSYk/738vNLZ0TtrHNvLEGgy6
+         NRELn8Z8lctBg69C7ZOPuQwyC+o8WxLT2m7Bevu0DRo/NVdzDUf/ILSOtnLqNl9qd9oR
+         BClg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=/evgr1yg/S4AL9vkDNjb/QYCD+xGcg7cl5w7K0n6axQ=;
-        fh=PkcZWdIcZ81Ewm9knZxjpZf89vc9T9q3qCRFSok3Df8=;
-        b=NLpTTzop+pSvo1Fcsmxc7zvYJ8SwPqq6nxk2o08T9rMi687C78D6PqiQqJIjbeJJzU
-         vEaz438kHBfBu4ToU/IX+5tozH5l6obSGwIhOJVX6i7WJCxKZKNHbLHi6fP023Of6ap6
-         ZFbdGm1c2lC+dWpnkbwK6T80YhGyAxNZPY60MExWWsBvm3ZAFac2OpD0soXad3wwaVEj
-         w/Sg3w6rSS2RfDPZPo3slXGMHPtnJ30EWh0Ay2bHGYdb+pconXNnlGOzIy53fyvVkHXJ
-         6XbeWoN5MMYdhPquXY/T1iQPkFwnGkfbvSVCanuxgcbRSilTKDIE88IUrK2ZuDyTIoJF
-         Y+1A==;
+        bh=pvJH79c3ek4UlgvkC3XFusrRWLJlCUgDtsKCKKtm5AI=;
+        fh=qeO7HOTmgqb9HKH5i87C51BQ98V2TNc+2odo0Gb+APQ=;
+        b=PnF9OsefSQLCp/Ai0pMd3f8Hh84RmBUit+INK6ZviY/GGHXNelJohsf4ctJLNEfNfM
+         vEvfBvXt6CyJX18NKOHuHw/LJ1kdcc0CKj/AZ8rguFH9Hquysn5C85FR5I/QXZ2ymaKr
+         8aqsit8m+vjkDxE95hzTv71g6s0DaFyhRHIqHaSjhhAMcFdqlhhlnfTMT92MFoTzLD9c
+         /UeDojsz88FlMNsRrrsqMHTwrz3k9HMXPsrX7THZ4ROzZz7AMyC8lnONaEFga84L0FW0
+         rvQyu/YlgiQMUZh2CBQ0POXgTl8kpXp0cSIf0nSUqih1gSJXe6vTv7aO8v6qguOMHCm3
+         14qg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1769880043; x=1770484843; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1769888941; x=1770493741; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=/evgr1yg/S4AL9vkDNjb/QYCD+xGcg7cl5w7K0n6axQ=;
-        b=PZL51LxPiEHBnVghX1bpkIvmqkiS4ovWrasblVlX1rwjvJsceiLKRo0+X49OEnwrzm
-         3OcjmE+NBuc0g6k//hFWkA5+EtKLMfyI75MPdKtzEOR0FIp/qegKlHalhOMZAFgzph1Z
-         YuunKvgq7FhmXTYT/US86OLysg7eKHsqKXPiDTQYkZvl6OI0Di7hEDcObuvEw0Sqiy5u
-         pgsLWLpTunrDSaAK47rM+EQzE9bBeob5ewyUFzfiL95c3zZJZSBi5D4Ci9bwuZdsUKA0
-         5/BmUs9ljg3niIAxzcCLqOCr954kWHNF0ozFaA4xtJwhOeRX7HEiVVkPtkrJUGQ3pi9F
-         v/Kg==
+        bh=pvJH79c3ek4UlgvkC3XFusrRWLJlCUgDtsKCKKtm5AI=;
+        b=MrZzAnm4xg410ODFP112+fAdfKXV9OfgE0okV1aFRtNGiMQlDgQaqTqJraNXtPS0Xu
+         DzhHvSi8dHu/i8jEURbaWAGf1H0f6d16f6gP+PCOPUFed2XWVVG+ntDKlGQPAh7gLSVa
+         I0X69y4HLDI83OZlY1nXXNRc+7aaVgJXOskCAQE5I3OOHp3I4M1NwgRTn/3erQkc7bDL
+         r6Woqq70N3PyAMoBDZVK/+NM49SO20bYSnymAT4VPJGJWK0qOo3OyRiKPCl/+5RQpZhu
+         QFqfLtpn1iY9vFqa7Bj42Z1/LqK+qzUdb87t2rfuXkaMCuMfWrg46GxomrboY4XcH25C
+         6f0w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769880043; x=1770484843;
+        d=1e100.net; s=20230601; t=1769888941; x=1770493741;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=/evgr1yg/S4AL9vkDNjb/QYCD+xGcg7cl5w7K0n6axQ=;
-        b=hn+EpO43lyAwmNr4LypxsjJa5Ud4Z4142N8BwIsKRy8m27Ymeyrov0vdCiu7Dnps+g
-         mac9LxCe6uA76d0B+1sFo548/bunRbIr5JyHVsg5CZz19PI9EO0qcBbx8cv5PrydmAGh
-         x97pousL2IyruotmYUlg0CywrKkdClWUAPP+6KZogEa+sxcg4GygRfPVJE9ZRGQbpQ2O
-         468Ncm9O5Dctqp5cNUtDZ78rStJ7Tfe0NolxleHF583JQiafmxlUyx+eQfijY2+zhZKe
-         N6/16qzc/rTcNUS+zRak5677Jg9MRUdqoUcN2P6EzXysWhvDF4ZP7DYiqyR5aqjxER67
-         Tw0Q==
-X-Gm-Message-State: AOJu0YxWml3TlnwddX7KmlC2qzAF/aLBDlwhYV2b45kaAh8ze09YyQet
-	KXsnRqHhUZUNShIzGA6hCuTrGjmy7bZmDDoZ0noIFefAYKp6Keix/f0NLjtKIM9FN0SFg5IMsi8
-	wzS7Ld1SXdiF3gmvDXa4C/7JVJd0IhVdyLag6
-X-Gm-Gg: AZuq6aLjwKd2MmoVS/wd/uEfPJ8+Nx6bTabDBIqumUMK/hs8SM7MNVVk5kwVDMK2Get
-	BS+h69Yy7SGCVnJGrJIeTJWYMFrIqyX/bSGVRicSb5MCewJ48aSz0kTag+tcW8WzEmr5O+xJXuN
-	fuLZshXbn/LaJOmDiIrVHGHtv2d5M/fYAmPLhnySDo0XBgm0dTcDWJYXSaUMLg4McbRGyNOZTrL
-	udSdYvFB/NX4+caFQ0f6dNkS1ks26pxLZR7qURenMuY24958yIDzAcQwpc0lQKAdb0=
-X-Received: by 2002:a05:690e:4107:b0:647:2160:143 with SMTP id
- 956f58d0204a3-649a8525a4dmr4974220d50.90.1769880043460; Sat, 31 Jan 2026
- 09:20:43 -0800 (PST)
+        bh=pvJH79c3ek4UlgvkC3XFusrRWLJlCUgDtsKCKKtm5AI=;
+        b=nuFSR356A48I1+AA/+jLbWME8R8n+ZvrtiIa/efixAD3ior+qJfQIO9QOl6bt88fq0
+         nHXZ3iqtyuyITHh/4YSpLiEZCRGDUrmSQ8dW7Q5CwI1ldREJ61tH306rpzaemS03H5Ch
+         c8PZh/kKCrWpBltwV1Ib3O1r7XqcpBUQgMxdUdElcnIkZ2oqk0srk2Fddj6UcMMxW1LG
+         CKYySU+kanM9BPUXCJ8daIgSDy7gTrtrDkGw3WWKqQeAOBi8BiMQX5CU8QrAwKj8AZGu
+         BdF176H/8HvLx1OcGCFWawjldqcJBJkreTGVgXSh7PCiuB8rFHllVIG6MgpqCcGvxPdO
+         dwZQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXxCPmwxUg15u2hizlZTJe0eNvu3ZbRx6OaR0vwZtUkilTXYX2jlbB7tebpChRWOFpDpdBn8FGR@vger.kernel.org
+X-Gm-Message-State: AOJu0YwzJU/Affh5sod+4ChundrY1nleYxrBkqFL5UXc8+vD2WZQOx4Y
+	A7OLP84XrKJ16IrnsCLKY1rR88m7EGXWGCpuoUlZfPzDphpcPBSCROWWfxyY39Q1/OGXRh6pze0
+	d7pufHJTI0Qz7z3vjozTqAIM31DktBhc9dadisZ8K
+X-Gm-Gg: AZuq6aLfpEF8hBrhzqutrSxp9MUKm6z+XL6jBtNMbcdX68XSo43i1Yl81T1MvHSoWsZ
+	HB0tO9jJb6fMqo8f/6ZrLgyMkGtYJexDBZ2yDS/xSW2KBVTOc87MXOBoQ/JbE3I3eiRvqeQJFIY
+	wHdrkxzeMBqA0xVSIjb8ynagLW+UhTxfK8cDRrHD6Fsrye+gKU3sJZqoHKZV2blJ/DOKpT0UnL7
+	CwtbWVUs1taloD0MW3vWgEcx3onUzCgFBcAneRp9802csfkxXoMvF4kEJyRZXLvVyIm
+X-Received: by 2002:a17:906:794b:b0:b73:6d56:7332 with SMTP id
+ a640c23a62f3a-b8dff5288a2mr467832866b.13.1769888940424; Sat, 31 Jan 2026
+ 11:49:00 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260130171140.90966-1-cgoettsche@seltendoof.de> <CAEjxPJ7GTB9=-rZOkKe1uiq3G4pdSzPKVcSpYBH9hrhufDq0=A@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7GTB9=-rZOkKe1uiq3G4pdSzPKVcSpYBH9hrhufDq0=A@mail.gmail.com>
-From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date: Sat, 31 Jan 2026 18:20:31 +0100
-X-Gm-Features: AZwV_Qj4cTXCNnQN0ZNiayvJ_STfbzvXMAQ6SDfITNbno7ycP-c6vATAc4zATAE
-Message-ID: <CAJ2a_Dc6OWGTz+SONHZphoFt+Z=mTqWuvZHgufxqCyyr8Ywubg@mail.gmail.com>
-Subject: Re: [RFC PATCH] selinux: prevent truncation of status map
-To: selinux@vger.kernel.org
-Cc: Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org
+References: <CAG2KctqWy-gnB4o6FAv3kv6+P2YwqeWMBu7bmHZ=Acq+4vVZ3g@mail.gmail.com>
+ <20260129032335.GT3183987@ZenIV> <20260129225433.GU3183987@ZenIV>
+ <CAG2KctoNjktJTQqBb7nGeazXe=ncpwjsc+Lm+JotcpaO3Sf9gw@mail.gmail.com>
+ <20260130070424.GV3183987@ZenIV> <CAG2Kctoqja9R1bBzdEAV15_yt=sBGkcub6C2nGE6VHMJh13=FQ@mail.gmail.com>
+ <20260130235743.GW3183987@ZenIV> <CAG2KctotL+tpHQMWWAFOQEy=3NX-7fa9YroqsjnxKmTuunJ2AQ@mail.gmail.com>
+ <20260131011831.GZ3183987@ZenIV> <CAG2KctoKDsfbyopQYq3-nJBg3fG+7Nrer17S6HqQ+nCWEcHeWQ@mail.gmail.com>
+ <20260131024324.GA3183987@ZenIV>
+In-Reply-To: <20260131024324.GA3183987@ZenIV>
+From: Samuel Wu <wusamuel@google.com>
+Date: Sat, 31 Jan 2026 11:48:49 -0800
+X-Gm-Features: AZwV_Qix7s2zR2ubTIU666aQNHaAYNz5LepZwEs2cPS3Y4RZWye8TClZc5UBZ0c
+Message-ID: <CAG2KctoJoBevAM=2F=dNnM3VUUcHX9VV-vhKDx5ydOwa4a6zUA@mail.gmail.com>
+Subject: Re: [PATCH v4 00/54] tree-in-dcache stuff
+To: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Greg KH <gregkh@linuxfoundation.org>, linux-fsdevel@vger.kernel.org, 
+	torvalds@linux-foundation.org, brauner@kernel.org, jack@suse.cz, 
+	raven@themaw.net, miklos@szeredi.hu, neil@brown.name, a.hindborg@kernel.org, 
+	linux-mm@kvack.org, linux-efi@vger.kernel.org, ocfs2-devel@lists.linux.dev, 
+	kees@kernel.org, rostedt@goodmis.org, linux-usb@vger.kernel.org, 
+	paul@paul-moore.com, casey@schaufler-ca.com, linuxppc-dev@lists.ozlabs.org, 
+	john.johansen@canonical.com, selinux@vger.kernel.org, 
+	borntraeger@linux.ibm.com, bpf@vger.kernel.org, clm@meta.com, 
+	android-kernel-team <android-kernel-team@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, 30 Jan 2026 at 22:08, Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Fri, Jan 30, 2026 at 6:41=E2=80=AFPM Al Viro <viro@zeniv.linux.org.uk> w=
+rote:
 >
-> On Fri, Jan 30, 2026 at 12:11=E2=80=AFPM Christian G=C3=B6ttsche
-> <cgoettsche@seltendoof.de> wrote:
+> On Fri, Jan 30, 2026 at 06:09:00PM -0800, Samuel Wu wrote:
+> > On Fri, Jan 30, 2026 at 5:16=E2=80=AFPM Al Viro <viro@zeniv.linux.org.u=
+k> wrote:
+> > >
+> > > On Fri, Jan 30, 2026 at 05:05:34PM -0800, Samuel Wu wrote:
+> > >
+> > > > > How lovely...  Could you slap
+> > > > >         WARN_ON(ret =3D=3D -EAGAIN);
+> > > > > right before that
+> > > > >         if (ret < 0)
+> > > > >                 return ret;
+> > > >
+> > > > Surprisingly ret =3D=3D 0 every time, so no difference in dmesg log=
+s with
+> > > > this addition.
+> > >
+> > > What the hell?  Other than that mutex_lock(), the only change in ther=
+e
+> > > is the order of store to file->private_data and call of ffs_data_open=
+ed();
+> > > that struct file pointer is not visible to anyone at that point...
 > >
-> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > Agree, 09e88dc22ea2 (serialize ffs_ep0_open() on ffs->mutex) in itself
+> > is quite straightforward. Not familiar with this code path so just
+> > speculating, but is there any interaction with previous patches (e.g.
+> > refcounting)?
 > >
-> > Currently the SELinux status map can be truncated, given the necessary
-> > permissions, leading to foreign user space processes getting a bus erro=
-r
-> > (SIGBUS) while concurrently making use of the status map.
-> > For example systemd can be killed that way, see [1].
+> > > Wait, it also brings ffs_data_reset() on that transition under ffs->m=
+utex...
+> > > For a quick check: does
+> > > git fetch git://git.kernel.org/pub/scm/linux/kernel/git/viro/vfs.git =
+for-wsamuel2
+> > > git switch --detach FETCH_HEAD
+> > > demonstrate the same breakage?
 > >
-> > Override the setattr inode handler and check for O_TRUNC in the open
-> > handler to prevent truncations.
-> >
-> > Link [1]: https://github.com/systemd/systemd/issues/37349
-> > Closes: https://github.com/SELinuxProject/selinux/issues/475
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > Had to adjust forward declaration of ffs_data_reset() to build, but
+> > unfortunately same breakage.
 >
-> This issue can't be limited to just the status node, so if we care
-> about preventing this, we ought to do it for them all.
-> When would we want to allow truncation of _any_ selinuxfs file?
+> That really looks like a badly racy userland on top of everything else...
+> I mean, it smells like userland open() from one process while another
+> is in the middle of configuring that stuff getting delayed too much
+> for the entire thing to work.  Bloody wonderful...
+>
+> OK, let's see if a variant with serialization on spinlock works - how doe=
+s
+> the following do on top of mainline?
 
-Probably not, but - at least to my quick overview - the status map is
-the only file-object backed up by real memory and the only file
-commonly mapped by userspace.
+Excellent, this is working consistently for me on the latest 6.19-rc7.
 
 >
-> > ---
-> >  security/selinux/selinuxfs.c | 43 ++++++++++++++++++++++++++++++++++--
-> >  1 file changed, 41 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.=
-c
-> > index 896acad1f5f7..df079a35a02d 100644
-> > --- a/security/selinux/selinuxfs.c
-> > +++ b/security/selinux/selinuxfs.c
-> > @@ -214,10 +214,30 @@ static const struct file_operations sel_handle_un=
-known_ops =3D {
-> >         .llseek         =3D generic_file_llseek,
-> >  };
-> >
-> > +static int sel_setattr_handle_status(struct mnt_idmap *idmap,
-> > +                                    struct dentry *dentry,
-> > +                                    struct iattr *iattr)
-> > +{
-> > +       /* Prevent truncation to avoid raising SIGBUS */
-> > +       if (iattr->ia_valid & ATTR_SIZE)
-> > +               return -EINVAL;
-> > +
-> > +       return simple_setattr(idmap, dentry, iattr);
-> > +}
-> > +
-> > +static const struct inode_operations sel_handle_status_iops =3D {
-> > +       .setattr        =3D sel_setattr_handle_status,
-> > +};
-> > +
-> >  static int sel_open_handle_status(struct inode *inode, struct file *fi=
-lp)
-> >  {
-> > -       struct page    *status =3D selinux_kernel_status_page();
-> > +       struct page *status;
-> >
-> > +       /* Prevent truncation to avoid raising SIGBUS */
-> > +       if (filp->f_flags & O_TRUNC)
-> > +               return -EINVAL;
-> > +
-> > +       status =3D selinux_kernel_status_page();
-> >         if (!status)
-> >                 return -ENOMEM;
-> >
-> > @@ -1980,7 +2000,6 @@ static int sel_fill_super(struct super_block *sb,=
- struct fs_context *fc)
-> >                 [SEL_CHECKREQPROT] =3D {"checkreqprot", &sel_checkreqpr=
-ot_ops, S_IRUGO|S_IWUSR},
-> >                 [SEL_REJECT_UNKNOWN] =3D {"reject_unknown", &sel_handle=
-_unknown_ops, S_IRUGO},
-> >                 [SEL_DENY_UNKNOWN] =3D {"deny_unknown", &sel_handle_unk=
-nown_ops, S_IRUGO},
-> > -               [SEL_STATUS] =3D {"status", &sel_handle_status_ops, S_I=
-RUGO},
-> >                 [SEL_POLICY] =3D {"policy", &sel_policy_ops, S_IRUGO},
-> >                 [SEL_VALIDATE_TRANS] =3D {"validatetrans", &sel_transit=
-ion_ops,
-> >                                         S_IWUGO},
-> > @@ -1995,6 +2014,26 @@ static int sel_fill_super(struct super_block *sb=
-, struct fs_context *fc)
-> >         if (ret)
-> >                 goto err;
-> >
-> > +       /* Create "status" separately to assign a custom inode_operatio=
-ns */
-> > +       {
-> > +               ret =3D -ENOMEM;
-> > +
-> > +               dentry =3D d_alloc_name(sb->s_root, "status");
-> > +               if (!dentry)
-> > +                       goto err;
-> > +               inode =3D new_inode(sb);
-> > +               if (!inode) {
-> > +                       dput(dentry);
-> > +                       goto err;
-> > +               }
-> > +               inode->i_mode =3D S_IFREG | 0444;
-> > +               simple_inode_init_ts(inode);
-> > +               inode->i_fop =3D &sel_handle_status_ops;
-> > +               inode->i_op =3D &sel_handle_status_iops;
-> > +               inode->i_ino =3D SEL_STATUS;
-> > +               d_add(dentry, inode);
-> > +       }
-> > +
-> >         fsi =3D sb->s_fs_info;
-> >         fsi->bool_dir =3D sel_make_dir(sb->s_root, BOOL_DIR_NAME, &fsi-=
->last_ino);
-> >         if (IS_ERR(fsi->bool_dir)) {
-> > --
-> > 2.51.0
-> >
+> diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/func=
+tion/f_fs.c
+> index 05c6750702b6..fa467a40949d 100644
+> --- a/drivers/usb/gadget/function/f_fs.c
+> +++ b/drivers/usb/gadget/function/f_fs.c
+> @@ -59,7 +59,6 @@ static struct ffs_data *__must_check ffs_data_new(const=
+ char *dev_name)
+>         __attribute__((malloc));
+>
+>  /* Opened counter handling. */
+> -static void ffs_data_opened(struct ffs_data *ffs);
+>  static void ffs_data_closed(struct ffs_data *ffs);
+>
+>  /* Called with ffs->mutex held; take over ownership of data. */
+> @@ -636,23 +635,25 @@ static ssize_t ffs_ep0_read(struct file *file, char=
+ __user *buf,
+>         return ret;
+>  }
+>
+> +
+> +static void ffs_data_reset(struct ffs_data *ffs);
+> +
+>  static int ffs_ep0_open(struct inode *inode, struct file *file)
+>  {
+>         struct ffs_data *ffs =3D inode->i_sb->s_fs_info;
+> -       int ret;
+>
+> -       /* Acquire mutex */
+> -       ret =3D ffs_mutex_lock(&ffs->mutex, file->f_flags & O_NONBLOCK);
+> -       if (ret < 0)
+> -               return ret;
+> -
+> -       ffs_data_opened(ffs);
+> +       spin_lock_irq(&ffs->eps_lock);
+>         if (ffs->state =3D=3D FFS_CLOSING) {
+> -               ffs_data_closed(ffs);
+> -               mutex_unlock(&ffs->mutex);
+> +               spin_unlock_irq(&ffs->eps_lock);
+>                 return -EBUSY;
+>         }
+> -       mutex_unlock(&ffs->mutex);
+> +       if (!ffs->opened++ && ffs->state =3D=3D FFS_DEACTIVATED) {
+> +               ffs->state =3D FFS_CLOSING;
+> +               spin_unlock_irq(&ffs->eps_lock);
+> +               ffs_data_reset(ffs);
+> +       } else {
+> +               spin_unlock_irq(&ffs->eps_lock);
+> +       }
+>         file->private_data =3D ffs;
+>
+>         return stream_open(inode, file);
+> @@ -1202,15 +1203,10 @@ ffs_epfile_open(struct inode *inode, struct file =
+*file)
+>  {
+>         struct ffs_data *ffs =3D inode->i_sb->s_fs_info;
+>         struct ffs_epfile *epfile;
+> -       int ret;
+> -
+> -       /* Acquire mutex */
+> -       ret =3D ffs_mutex_lock(&ffs->mutex, file->f_flags & O_NONBLOCK);
+> -       if (ret < 0)
+> -               return ret;
+>
+> -       if (!atomic_inc_not_zero(&ffs->opened)) {
+> -               mutex_unlock(&ffs->mutex);
+> +       spin_lock_irq(&ffs->eps_lock);
+> +       if (!ffs->opened) {
+> +               spin_unlock_irq(&ffs->eps_lock);
+>                 return -ENODEV;
+>         }
+>         /*
+> @@ -1220,11 +1216,11 @@ ffs_epfile_open(struct inode *inode, struct file =
+*file)
+>          */
+>         epfile =3D smp_load_acquire(&inode->i_private);
+>         if (unlikely(ffs->state !=3D FFS_ACTIVE || !epfile)) {
+> -               mutex_unlock(&ffs->mutex);
+> -               ffs_data_closed(ffs);
+> +               spin_unlock_irq(&ffs->eps_lock);
+>                 return -ENODEV;
+>         }
+> -       mutex_unlock(&ffs->mutex);
+> +       ffs->opened++;
+> +       spin_unlock_irq(&ffs->eps_lock);
+>
+>         file->private_data =3D epfile;
+>         return stream_open(inode, file);
+> @@ -2092,8 +2088,6 @@ static int ffs_fs_init_fs_context(struct fs_context=
+ *fc)
+>         return 0;
+>  }
+>
+> -static void ffs_data_reset(struct ffs_data *ffs);
+> -
+>  static void
+>  ffs_fs_kill_sb(struct super_block *sb)
+>  {
+> @@ -2150,15 +2144,6 @@ static void ffs_data_get(struct ffs_data *ffs)
+>         refcount_inc(&ffs->ref);
+>  }
+>
+> -static void ffs_data_opened(struct ffs_data *ffs)
+> -{
+> -       if (atomic_add_return(1, &ffs->opened) =3D=3D 1 &&
+> -                       ffs->state =3D=3D FFS_DEACTIVATED) {
+> -               ffs->state =3D FFS_CLOSING;
+> -               ffs_data_reset(ffs);
+> -       }
+> -}
+> -
+>  static void ffs_data_put(struct ffs_data *ffs)
+>  {
+>         if (refcount_dec_and_test(&ffs->ref)) {
+> @@ -2176,28 +2161,29 @@ static void ffs_data_put(struct ffs_data *ffs)
+>
+>  static void ffs_data_closed(struct ffs_data *ffs)
+>  {
+> -       if (atomic_dec_and_test(&ffs->opened)) {
+> -               if (ffs->no_disconnect) {
+> -                       struct ffs_epfile *epfiles;
+> -                       unsigned long flags;
+> -
+> -                       ffs->state =3D FFS_DEACTIVATED;
+> -                       spin_lock_irqsave(&ffs->eps_lock, flags);
+> -                       epfiles =3D ffs->epfiles;
+> -                       ffs->epfiles =3D NULL;
+> -                       spin_unlock_irqrestore(&ffs->eps_lock,
+> -                                                       flags);
+> -
+> -                       if (epfiles)
+> -                               ffs_epfiles_destroy(ffs->sb, epfiles,
+> -                                                ffs->eps_count);
+> -
+> -                       if (ffs->setup_state =3D=3D FFS_SETUP_PENDING)
+> -                               __ffs_ep0_stall(ffs);
+> -               } else {
+> -                       ffs->state =3D FFS_CLOSING;
+> -                       ffs_data_reset(ffs);
+> -               }
+> +       spin_lock_irq(&ffs->eps_lock);
+> +       if (--ffs->opened) {    // not the last opener?
+> +               spin_unlock_irq(&ffs->eps_lock);
+> +               return;
+> +       }
+> +       if (ffs->no_disconnect) {
+> +               struct ffs_epfile *epfiles;
+> +
+> +               ffs->state =3D FFS_DEACTIVATED;
+> +               epfiles =3D ffs->epfiles;
+> +               ffs->epfiles =3D NULL;
+> +               spin_unlock_irq(&ffs->eps_lock);
+> +
+> +               if (epfiles)
+> +                       ffs_epfiles_destroy(ffs->sb, epfiles,
+> +                                        ffs->eps_count);
+> +
+> +               if (ffs->setup_state =3D=3D FFS_SETUP_PENDING)
+> +                       __ffs_ep0_stall(ffs);
+> +       } else {
+> +               ffs->state =3D FFS_CLOSING;
+> +               spin_unlock_irq(&ffs->eps_lock);
+> +               ffs_data_reset(ffs);
+>         }
+>  }
+>
+> @@ -2214,7 +2200,7 @@ static struct ffs_data *ffs_data_new(const char *de=
+v_name)
+>         }
+>
+>         refcount_set(&ffs->ref, 1);
+> -       atomic_set(&ffs->opened, 0);
+> +       ffs->opened =3D 0;
+>         ffs->state =3D FFS_READ_DESCRIPTORS;
+>         mutex_init(&ffs->mutex);
+>         spin_lock_init(&ffs->eps_lock);
+> @@ -2266,6 +2252,7 @@ static void ffs_data_reset(struct ffs_data *ffs)
+>  {
+>         ffs_data_clear(ffs);
+>
+> +       spin_lock_irq(&ffs->eps_lock);
+>         ffs->raw_descs_data =3D NULL;
+>         ffs->raw_descs =3D NULL;
+>         ffs->raw_strings =3D NULL;
+> @@ -2289,6 +2276,7 @@ static void ffs_data_reset(struct ffs_data *ffs)
+>         ffs->ms_os_descs_ext_prop_count =3D 0;
+>         ffs->ms_os_descs_ext_prop_name_len =3D 0;
+>         ffs->ms_os_descs_ext_prop_data_len =3D 0;
+> +       spin_unlock_irq(&ffs->eps_lock);
+>  }
+>
+>
+> @@ -3756,6 +3744,7 @@ static int ffs_func_set_alt(struct usb_function *f,
+>  {
+>         struct ffs_function *func =3D ffs_func_from_usb(f);
+>         struct ffs_data *ffs =3D func->ffs;
+> +       unsigned long flags;
+>         int ret =3D 0, intf;
+>
+>         if (alt > MAX_ALT_SETTINGS)
+> @@ -3768,12 +3757,15 @@ static int ffs_func_set_alt(struct usb_function *=
+f,
+>         if (ffs->func)
+>                 ffs_func_eps_disable(ffs->func);
+>
+> +       spin_lock_irqsave(&ffs->eps_lock, flags);
+>         if (ffs->state =3D=3D FFS_DEACTIVATED) {
+>                 ffs->state =3D FFS_CLOSING;
+> +               spin_unlock_irqrestore(&ffs->eps_lock, flags);
+>                 INIT_WORK(&ffs->reset_work, ffs_reset_work);
+>                 schedule_work(&ffs->reset_work);
+>                 return -ENODEV;
+>         }
+> +       spin_unlock_irqrestore(&ffs->eps_lock, flags);
+>
+>         if (ffs->state !=3D FFS_ACTIVE)
+>                 return -ENODEV;
+> @@ -3791,16 +3783,20 @@ static void ffs_func_disable(struct usb_function =
+*f)
+>  {
+>         struct ffs_function *func =3D ffs_func_from_usb(f);
+>         struct ffs_data *ffs =3D func->ffs;
+> +       unsigned long flags;
+>
+>         if (ffs->func)
+>                 ffs_func_eps_disable(ffs->func);
+>
+> +       spin_lock_irqsave(&ffs->eps_lock, flags);
+>         if (ffs->state =3D=3D FFS_DEACTIVATED) {
+>                 ffs->state =3D FFS_CLOSING;
+> +               spin_unlock_irqrestore(&ffs->eps_lock, flags);
+>                 INIT_WORK(&ffs->reset_work, ffs_reset_work);
+>                 schedule_work(&ffs->reset_work);
+>                 return;
+>         }
+> +       spin_unlock_irqrestore(&ffs->eps_lock, flags);
+>
+>         if (ffs->state =3D=3D FFS_ACTIVE) {
+>                 ffs->func =3D NULL;
+> diff --git a/drivers/usb/gadget/function/u_fs.h b/drivers/usb/gadget/func=
+tion/u_fs.h
+> index 4b3365f23fd7..6a80182aadd7 100644
+> --- a/drivers/usb/gadget/function/u_fs.h
+> +++ b/drivers/usb/gadget/function/u_fs.h
+> @@ -176,7 +176,7 @@ struct ffs_data {
+>         /* reference counter */
+>         refcount_t                      ref;
+>         /* how many files are opened (EP0 and others) */
+> -       atomic_t                        opened;
+> +       int                             opened;
+>
+>         /* EP0 state */
+>         enum ffs_state                  state;
