@@ -1,172 +1,158 @@
-Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41EB71DED63
-	for <selinux@vger.kernel.org>; Mon,  2 Feb 2026 02:21:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 679EF1FC110
+	for <selinux@vger.kernel.org>; Mon,  2 Feb 2026 02:40:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769998874; cv=none; b=VANDcbnWqQoZhaHCNsZdePXqsd9gsj53kbJR4DDhQe0C2bwpnLHfeZw3biH5LrgTEw7Cg2bSxJG0n0h681DvEStSCzTtdjV7L6j1H8nv3jlYUiJZI+DOYs9zvENkZrnVJiD9A9cMHkYtNtLwdZRQpTNyxclz772MP5Bsq9xMigU=
+	t=1770000032; cv=none; b=OqCYdR2OFck6tB+1WWSSnc5wvBm/p8UPJ+oIWVJ253wq3wXLsQoy2W5f7S/ToA9dwpbYEgNEQyWy/XDHEUQ/uyU8pKpHj63bdA5hfs+7bMdxfGquwh4TWTbgB91dEbyeMqegcFgTcHi5gcWhr/gf9lM0I34wVH1Eg6RIGJtovws=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769998874; c=relaxed/simple;
-	bh=JLbbBGBMTBwg16kYuxnH/xxmxbL4TUOMuBXANCKt/oE=;
-	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ctKoYiASJY/z3Ga8HOZScdZprFU+vOvssNPcElibW3rsLOHgVTy9KH+z6lAFKXJeO8X377Gg5uH8Qqz/X1Gijij1XLqJwyS9xfK2aWnwDEEWaix0O+RaF3jPLPlvEwbhuTLR196bPBcWkZ+5flDE6lHTT8T61Yd1+v9n6dTDX7Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=perfinion.com; spf=none smtp.mailfrom=perfinion.com; dkim=pass (2048-bit key) header.d=perfinion-com.20230601.gappssmtp.com header.i=@perfinion-com.20230601.gappssmtp.com header.b=W37NsuTb; arc=none smtp.client-ip=74.125.82.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=perfinion.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=perfinion.com
+	s=arc-20240116; t=1770000032; c=relaxed/simple;
+	bh=WI9XaiffVEyIp94CbMZOvzo+SJKN3gBnZw+mxQA4LEU=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:
+	 References:In-Reply-To; b=YNOsm7mEl3s9k2Bbhd8SKskZtbfSNY+ufy1G9R1QUP3cSilAin4Hi6RiMsTfH/PyHH0vJG2T8jysBJwmmsCFOlMMyCM4juZuSQQOjY5zaAayxnjGe9bcXbbvnB2JA4q6owVCIqUSG1bUoFuPc6dY6gelENEmdcY5TWqRVMKEtgs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Sa5Mbyrt; arc=none smtp.client-ip=209.85.128.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=perfinion-com.20230601.gappssmtp.com header.i=@perfinion-com.20230601.gappssmtp.com header.b="W37NsuTb"
-Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-2b6b0500e06so5842937eec.1
-        for <selinux@vger.kernel.org>; Sun, 01 Feb 2026 18:21:09 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Sa5Mbyrt"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-47fedb7c68dso40059965e9.2
+        for <selinux@vger.kernel.org>; Sun, 01 Feb 2026 18:40:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=perfinion-com.20230601.gappssmtp.com; s=20230601; t=1769998868; x=1770603668; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=JLbbBGBMTBwg16kYuxnH/xxmxbL4TUOMuBXANCKt/oE=;
-        b=W37NsuTbeygVAS1bxb83Pu6dCBQDnBMw0xP+fQlojM9sGiysC825FZKhXaQPsEnXXg
-         mvI3Qo3Ne+l93Xk+aH3PTce/SzcV9Z/6s2Zuv30tkuiZ3hwRzjlIqndlrcRY6bVGkxUx
-         bQCAHAzMA0GkYDPCDvV3wsQpUNUdxYjqDqXKw54KqnegNpxQkbTAwb9Y6QtmryicncSz
-         agauqDKyxNiQaEQXd/ePX+1hoeqIi3mnOSKPX6RmKWBtWN4h3EENMqzcDpqJtKI8gcl0
-         4TNKzYaLBrrs1XU0NSTL9RRJEa5cUrVvjOasN2EIO9w/XvGRaPq6ovajrevNsg4OjXLP
-         Al+w==
+        d=gmail.com; s=20230601; t=1770000030; x=1770604830; darn=vger.kernel.org;
+        h=in-reply-to:references:to:from:subject:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=WI9XaiffVEyIp94CbMZOvzo+SJKN3gBnZw+mxQA4LEU=;
+        b=Sa5MbyrtU3fS/2M31lx0ffpIWVVm0oxuLPSAhOO+JQMKDvKbNasr6Z5g4Mv1Lt6VaZ
+         1idcyQTWuG34lKReSdIl517q0LgMMwjVwQlvzEBX/FlO25FC8yQW1duLjp19WQ+au2i7
+         J3K+wiYEpLy5lSo5Sp5migqNqjbPCfybVawEg6oiiGFArfRDsw53fwGFuKDQHL8d8Y+Z
+         K0fYCpQT22HtJoCq1Bc7C8wAJKbh5g1wTxGmvt16rTuCgaqaTvhB6+yhS2nLqeVmMHCI
+         ah7T/bLkUsmtJbDZV1qLd8scj3JOnbggU/3kbVVKRMn3TZUyrxZjmdZkoVOtndAghveH
+         3vTg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769998868; x=1770603668;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=JLbbBGBMTBwg16kYuxnH/xxmxbL4TUOMuBXANCKt/oE=;
-        b=sdysiKUd5y0K9Usnt4qn842kj0X8vNB38Olj5ePI35Vv4aBzsT0SKJG7/VSBpECNXV
-         xIEkecgQkjwl9BdFKKcllQhIOwtuoLb+GJwDr0Vz8igfMkBvVOcyFoSdhpHiFvGIJ43j
-         816bRtYOXeh92E6N/TENToQw9y8fI+Si1wAvI+h4OEJddH8AeXqy3flnWxQI4FDzf4Wk
-         W/55/CzuErOw7SltTOyKX+p4nD7TyQKlc7Lx4yZM345PfHLAP3j160yT4kRsiqPYsKln
-         qkNUfj3z6scuZ3j664CbQmFmS/bvjRezo2RJHLwJSkc/blcY1DBqND4U9kVQGpK16ZtP
-         pCPg==
-X-Gm-Message-State: AOJu0YzXUdF6011vhMoiJ0t22m+npRUJyUSIOton7JtMi+fXNTGaDoQ1
-	WPilDK5HpCvbtA87y/webk3sFglUSByGVeIXyjB43ZjVzOMY+PXR/bGRaxwhLPFuJwoar4cWJM5
-	rqc/l
-X-Gm-Gg: AZuq6aJoMIPUtg1bWXDyxRbiG3gcvkZAz5ZINfm32WpKntUbQEWVG8mpFJPzbzl0HdJ
-	4RX9DTEpbU5HuK+GZnNO6E6cZ9BZfmEKe2vqpZKNBV1TbI6lsAAzGVn3xWLLvjvyNY7B8Ut0JP/
-	/A+XYX7NACSHRCTGpRUD3pNqLCXMxO5amBfpG5It22NtW37atuQbKcZLvfY/IsJGF7ROAovbk45
-	PWJ1gHXkeyntIAsx9+hStD73d+9dL4gdwFwPDMWiEwixva4Mrs/M+KHCb25XYjc5i0WQEdTc4jL
-	txfpyAqss10c50dal9t5fZNU6thQeFvhpRHcSQh6L8AJYmy1GT6HXHKuFnwaJVqC/sxRTPNuD04
-	Qy12HQaNmEGu+bVZCJy5gjF38LBC33m9JHkTCMqYTWOphExzV0RoO+KVTdNBBfRghi712SqTFpz
-	FHcJBQzMoM8fO7mywlX48+z/bJ7O6zCZF++bpGhYAWzM9V9wc=
-X-Received: by 2002:a05:7300:4354:b0:2b7:a3a9:9c2d with SMTP id 5a478bee46e88-2b7c86550d8mr3774268eec.10.1769998868250;
-        Sun, 01 Feb 2026 18:21:08 -0800 (PST)
-Received: from localhost (142-254-17-81.fiber.dynamic.sonic.net. [142.254.17.81])
-        by smtp.gmail.com with UTF8SMTPSA id 5a478bee46e88-2b7a1abe57csm22318095eec.22.2026.02.01.18.21.07
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 01 Feb 2026 18:21:07 -0800 (PST)
-Date: Sun, 1 Feb 2026 18:21:06 -0800
-From: Jason Zaman <jason@perfinion.com>
-To: selinux@vger.kernel.org
-Subject: Re: SELinux userspace release 3.10
-Message-ID: <aYAKEjlKxwVWGgrw@anduin.perfinion.com>
-References: <aXbPKpbIXh7_fpTM@anduin.perfinion.com>
+        d=1e100.net; s=20230601; t=1770000030; x=1770604830;
+        h=in-reply-to:references:to:from:subject:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-gg:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=WI9XaiffVEyIp94CbMZOvzo+SJKN3gBnZw+mxQA4LEU=;
+        b=a2mms9DKm2Vwm6MHGrBRITgbwwdz6nC0ICFnSmOX+Sb0lrNfJ2/w++t1hK6HdzCb4e
+         0nNNJadb4SageaPgz5lh9FzfCnh2L1fvybipT+bx+vJ02lj6vKdvtjw9AJDdNrv03bYC
+         IrOPuWmHaRGGxXByXUuvloOgorKwHLDTFpMO/ehDA6+8NOgSSCliB+JZOqEwz4RpgE4k
+         ClaQRl2TWQzdND9Lc6s5Y1GWHiBlL68S1HUcXjelCyYXHhV4cMbIUyZSIbEXYtBJrB9d
+         JV2Nyer56vG0EJSd6jUCptZ4f0ny5tlvZXGcK7nYeJdzVRvuvbLvL/jBqd9WY6B/S6r4
+         Vmqw==
+X-Forwarded-Encrypted: i=1; AJvYcCUSuQtYis6KdsPDIt23eQ8xfus5zukI9wX6YCfwpPhiPsydBbQ9UDxIu1qut7zUiJIi9YpZaVVR@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz+KLnsPF4MXHJ84Yl9XCujClS+KYZ80I3IjoLHj+QSmlR7a6Xl
+	Z1blKDyH+SlKqu8NCfN1ch7+XwRHmiB2A6qKse7xunqtE/oEbQf35+9+eVEmcA==
+X-Gm-Gg: AZuq6aLz2sPZabr6Fu9wwLhSlewSY+Uewrr8jJafayKi8e0xEPAMnGalmLmzqnv4Q11
+	vU3nCxrQlLrUSURHat8CyzW/CC4ZtKWGI8iEGVfLlKYBSCMUGpcZVQxcMIcNORqtn2MOZoJAs4A
+	gAdhzTPMQqBaIjTsIZHD7UNsccnCcmrY3rl6Z2sHchai9lSMcVC8WU+ydjjryIKAnkYgzrJdg7K
+	d3UgmHG4JmYPA6kB7l2F+K5WnqyWpC2erwpKDkPnCkmKLfkxDpFvuBgBDHApc+j7bM5Dbq6HlOf
+	nmLjV6FbhDWLAS45kxqvTNpD1JOjku8PK8+pqSBixeIz4OCTpzEbKRJsOQvYpubQ8d+GoohgdpG
+	u8qFzakC95Z5lzXPwDbUaK/Zv76Jk6eEyNzuZC5L4IZa5btMXfZBzszwJnSgrXClztMauXibo
+X-Received: by 2002:a05:600c:c4a3:b0:47e:e9c9:23bc with SMTP id 5b1f17b1804b1-482db49d765mr146041475e9.30.1770000029542;
+        Sun, 01 Feb 2026 18:40:29 -0800 (PST)
+Received: from localhost ([2a0a:ef40:90a:9600:de8b:28ff:fe7c:941c])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4806cdd78d3sm373912705e9.1.2026.02.01.18.40.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 01 Feb 2026 18:40:29 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="d2zXHIiXd7NeLdE7"
-Content-Disposition: inline
-In-Reply-To: <aXbPKpbIXh7_fpTM@anduin.perfinion.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Mon, 02 Feb 2026 02:40:28 +0000
+Message-Id: <DG44N7XQP94D.2E7L9CFJ7PTXR@gmail.com>
+Subject: Re: SELinux userspace release 3.10
+From: "Rahul Sandhu" <nvraxn@gmail.com>
+To: "Jason Zaman" <jason@perfinion.com>, <selinux@vger.kernel.org>
+X-Mailer: aerc 0.21.0
+References: <aXbPKpbIXh7_fpTM@anduin.perfinion.com>
+ <aYAKEjlKxwVWGgrw@anduin.perfinion.com>
+In-Reply-To: <aYAKEjlKxwVWGgrw@anduin.perfinion.com>
 
+Earlier on the ML, I think we concluded that once 3.10 was released,
+we would format all the code in the repo with clang-format[1]. Should
+we do this now? After, we should be able to merge the formatting CI
+patch[2].
 
---d2zXHIiXd7NeLdE7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+[1] https://lore.kernel.org/selinux/CAEjxPJ7T-xTyPhbNnC5GgC4d9wMtMD+pkPF0Jg=
+RmOdMvM6opUg@mail.gmail.com/
+[2] https://lore.kernel.org/selinux/CAEjxPJ4jsZ_bWrLF=3D1si18f09p2Q_TEPWf1r=
+d_a9=3D_kCb6iTEw@mail.gmail.com/
 
-Hi All,
+Best Regards,
+Rahul
 
-The SELinux userspace 3.10 release is now on github:
-https://github.com/SELinuxProject/selinux/releases/tag/3.10
+On Mon Feb 2, 2026 at 2:21 AM GMT, Jason Zaman wrote:
+> Hi All,
+>
+> The SELinux userspace 3.10 release is now on github:
+> https://github.com/SELinuxProject/selinux/releases/tag/3.10
+>
+> Thanks to everyone that contributed to this release!
+>
+> With Kind Regards,
+> Jason Zaman
+>
+> RELEASE 3.10
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> User-visible changes since 3.9
+> ------------------------------
+>
+> * libsepol: fix TARGET and LIBSO on Darwin
+>
+> * secilc: use correct long option name for -X
+>
+> * Fix problem with bounds statements in optional blocks
+>
+> * libsepol: Fix processing of levels for user rule in an optional block
+>
+> * libsepol: Fix problem with handling type attributes in role-types rule
+>
+> * libsepol: Fix expand_role_attributes_in_attributes()
+>
+> * Allow type attributes to be associated with other type attributes
+>
+> * libsepol: Support functionfs_seclabel policycap
+>
+> * improve semanage man pages: Add examples for -r RANGE flag usage
+>
+> * libselinux: fix parsing of the enforcing kernel cmdline parameter
+>
+> * seunshare: always use translations when printing
+>
+> * treewide: add .clang-format configuration file
+>
+> * setfiles: Add -A option to disable SELINUX_RESTORECON_ADD_ASSOC
+>
+> * libsepol: add memfd_class capability
+>
+> * semanage: Reset active value when deleting boolean customizations
+>
+> * python/sepolicy: Add support for DNF5
+>
+> * sandbox/seunshare: Replace system() with execv() to prevent shell injec=
+tion
+>
+> * libsepol: Tighten checks on MLS range and level when validating
+>
+> * libsepol: Fix potential NULL dereference in policydb_read()
+>
+> * libsepol: Fix potential use of an uninitialized value in link.c
+>
+> * libsepol: add bpf_token_perms polcap
+>
+> * libsepol: Fix possible use-after-free when expanding attributes
+>
+> * libselinux/src/Makefile: build python module without isolation
+>
+> * restorecon: Add option to count relabeled files
+>
+> * Bug fixes
 
-Thanks to everyone that contributed to this release!
-
-With Kind Regards,
-Jason Zaman
-
-RELEASE 3.10
-============
-
-User-visible changes since 3.9
-------------------------------
-
-* libsepol: fix TARGET and LIBSO on Darwin
-
-* secilc: use correct long option name for -X
-
-* Fix problem with bounds statements in optional blocks
-
-* libsepol: Fix processing of levels for user rule in an optional block
-
-* libsepol: Fix problem with handling type attributes in role-types rule
-
-* libsepol: Fix expand_role_attributes_in_attributes()
-
-* Allow type attributes to be associated with other type attributes
-
-* libsepol: Support functionfs_seclabel policycap
-
-* improve semanage man pages: Add examples for -r RANGE flag usage
-
-* libselinux: fix parsing of the enforcing kernel cmdline parameter
-
-* seunshare: always use translations when printing
-
-* treewide: add .clang-format configuration file
-
-* setfiles: Add -A option to disable SELINUX_RESTORECON_ADD_ASSOC
-
-* libsepol: add memfd_class capability
-
-* semanage: Reset active value when deleting boolean customizations
-
-* python/sepolicy: Add support for DNF5
-
-* sandbox/seunshare: Replace system() with execv() to prevent shell injection
-
-* libsepol: Tighten checks on MLS range and level when validating
-
-* libsepol: Fix potential NULL dereference in policydb_read()
-
-* libsepol: Fix potential use of an uninitialized value in link.c
-
-* libsepol: add bpf_token_perms polcap
-
-* libsepol: Fix possible use-after-free when expanding attributes
-
-* libselinux/src/Makefile: build python module without isolation
-
-* restorecon: Add option to count relabeled files
-
-* Bug fixes
-
---d2zXHIiXd7NeLdE7
-Content-Type: application/pgp-signature; name=signature.asc
-
------BEGIN PGP SIGNATURE-----
-
-iQKvBAABCgCZFiEE4WLerRzN0RPwSz1JK77Zyxpo71UFAmmAChEbFIAAAAAABAAO
-bWFudTIsMi41KzEuMTEsMiwyXxSAAAAAAC4AKGlzc3Vlci1mcHJAbm90YXRpb25z
-Lm9wZW5wZ3AuZmlmdGhob3JzZW1hbi5uZXRFMTYyREVBRDFDQ0REMTEzRjA0QjNE
-NDkyQkJFRDlDQjFBNjhFRjU1AAoJECu+2csaaO9Va7YP/RGELp2Ga0SC0kcS85pT
-0N8Vzd5wVSmE5Z6BG5LWpRzqNrKJOoVWB+iKRukMrevFhAI0/c2ZC/BcedTJw1w7
-MSRS++NYmg2A1BUQ7rPipuqGL/i9dfYobgNyq0zPKdm5BCsdx25SJlOqM9dewbMr
-c5gkQXwaBcXb1LOG7gyM9Kit7H0PPt7pOumEGQTzZROd+jaxMUHGazRvPsv9W1bL
-xcyH1x+Z0I5pmfvCVTzKEpfmtyt4/5k84Y6tU/zDiADDKBuf2JCGbnfP2Q138FjZ
-TuMtQVBZPcFnoRD34yL/SI/EdESm0X1kxbzabH+C18InL93eUPH07WQtarlnONzG
-TvMvrzeFfJ8aO23G1PlRRFHIxyi+u1Kz46mqYsrqS/k9WFcFPGwDqB5Fs2SE3grj
-7+k2J0VfWDWOvLZiEisL3uBMoOmOJduEF9zkaYlObnLbZVUa2SmAiMF3yI4YIyXa
-PFMik4WYJ9JSuJ3FfGt5IZ3m9NJd+yrJw6pxZC5FiOL42mTFgW0lE5lzjluogf8W
-CBxNDSyWPG0ai2UfZISPXgyG/VRJvSwSt1yA9SrWM7+Y5jvuwiJHBRijEsw2jc/q
-GaV7q2xdpRn4kGodmgzn4+AdcUyfPcvbuQugAnWCWTvJRAB4D4ro1A7swV+1Mx6m
-H/myMUwYOyeKouNJ0JJVyYYM
-=TNP+
------END PGP SIGNATURE-----
-
---d2zXHIiXd7NeLdE7--
