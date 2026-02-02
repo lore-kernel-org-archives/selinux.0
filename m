@@ -1,158 +1,150 @@
-Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
+Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 679EF1FC110
-	for <selinux@vger.kernel.org>; Mon,  2 Feb 2026 02:40:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770000032; cv=none; b=OqCYdR2OFck6tB+1WWSSnc5wvBm/p8UPJ+oIWVJ253wq3wXLsQoy2W5f7S/ToA9dwpbYEgNEQyWy/XDHEUQ/uyU8pKpHj63bdA5hfs+7bMdxfGquwh4TWTbgB91dEbyeMqegcFgTcHi5gcWhr/gf9lM0I34wVH1Eg6RIGJtovws=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770000032; c=relaxed/simple;
-	bh=WI9XaiffVEyIp94CbMZOvzo+SJKN3gBnZw+mxQA4LEU=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:
-	 References:In-Reply-To; b=YNOsm7mEl3s9k2Bbhd8SKskZtbfSNY+ufy1G9R1QUP3cSilAin4Hi6RiMsTfH/PyHH0vJG2T8jysBJwmmsCFOlMMyCM4juZuSQQOjY5zaAayxnjGe9bcXbbvnB2JA4q6owVCIqUSG1bUoFuPc6dY6gelENEmdcY5TWqRVMKEtgs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Sa5Mbyrt; arc=none smtp.client-ip=209.85.128.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51A1927B34C
+	for <selinux@vger.kernel.org>; Mon,  2 Feb 2026 04:08:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.182
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770005284; cv=pass; b=CSY1j0qbnkcI6akvQOwNTtKy8Q8lFHs+4/hQ10HYwUcx/2AwPGSt7GaVnUazL9D5pCC/LSiZyKtGEtReKjYAdaJ+WyUAW0oU5+NqDi6miTL6nqMimR+HjqQwZxyf9AaJOF2KymQ3LyGdCo+hBtlI2Db72vbs/9pU1VlaB0/2DQU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770005284; c=relaxed/simple;
+	bh=YOKr40N5NMnJSSsWi5gI3boLeIf3C3Tjpjo+QN3HJjg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=qdfz9T3v2Fzp0hQ0nRipZPzZ5o3ceLbYqEYX3PQOSls19WqvuP2HQ3Bodzvb9GCUBSCx//XO7PviZ8dmA1mGMx5Qp3ZrDEXkhbnFZf5riEopzx3xfUHzkwAeuXAz+PYn40LUoVvgvfVnUnNgRa0bXgTwCPbXsWgMGzubaQGskzs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=IvWIS+Xz; arc=pass smtp.client-ip=209.85.215.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Sa5Mbyrt"
-Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-47fedb7c68dso40059965e9.2
-        for <selinux@vger.kernel.org>; Sun, 01 Feb 2026 18:40:31 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="IvWIS+Xz"
+Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-c227206e6dcso2498685a12.2
+        for <selinux@vger.kernel.org>; Sun, 01 Feb 2026 20:08:03 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1770005283; cv=none;
+        d=google.com; s=arc-20240605;
+        b=W8IkSI8BAe4cFkaiFbNQbEmTy8XHaVTR8Z6D6R5DQpZjGM68wngT7pV4dyiJWeVKeD
+         ltiyvSByp1AMIycIGgvwkK6towdNh6cjcIClUpBZ/ud72CdIhvYq2vgHBcu9uSp+wjSJ
+         01m7kLlHETfz0zK+5xi5+3ikHG5D+qUsmCbusp5uZ0FCHPzL2AK4WRj9Ea4ilp3DM8lW
+         4X32ScfQBRYgnpwwWmQW9GPQj90esA0gld06sR1XyrO6I/ybkXW0V6j/wcb8c3fPqTtM
+         e/w0Cqdae/3nofVMyVj/yI7L+bZDbtUdxJrQT2ILFpkY8jNnEPGTZlI+tjEwtqL+iewX
+         yYFw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=V0H+rWHAjETqi9RQMu+lWQENmuwh8JTpCpYCQS4X1u8=;
+        fh=h5DwtxXI7e8O/Jsf7s5o7YDLEbe3hcXhw9S8zvuvMeY=;
+        b=J6CJ+iIuIi75C/BCtJd5jX1Z1vU0SfJoP+lPyI7iaP1eHJVIY1r8IElOJNvez6u+Wr
+         0+Xf6kksmkAWmfgQsQgSnjXjK/t6WTX++0Fa4ULAVS+oKKm7Tgw1UAhiVJY7LCTfTI0N
+         XhhMJq2QzKh5Uqhvr2nlYewMIX4TFNhDur+m179x3tB0Tu3T8LbbofAi6T3i2MyrWKkn
+         36MO4e1lKWMFMfL6mrgRk5dXF9ERpXHglPHbHp9kn+i+wpt8R03XnhkDCm3MPAzfpjYl
+         ipCaqkaGe62o+QYjn9a8nRu8zGS1NFDK7rc3LI5aN3mJJckuLcqGIgBiHVReEksQYFZk
+         EUbA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770000030; x=1770604830; darn=vger.kernel.org;
-        h=in-reply-to:references:to:from:subject:message-id:date
-         :content-transfer-encoding:mime-version:from:to:cc:subject:date
+        d=paul-moore.com; s=google; t=1770005283; x=1770610083; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=WI9XaiffVEyIp94CbMZOvzo+SJKN3gBnZw+mxQA4LEU=;
-        b=Sa5MbyrtU3fS/2M31lx0ffpIWVVm0oxuLPSAhOO+JQMKDvKbNasr6Z5g4Mv1Lt6VaZ
-         1idcyQTWuG34lKReSdIl517q0LgMMwjVwQlvzEBX/FlO25FC8yQW1duLjp19WQ+au2i7
-         J3K+wiYEpLy5lSo5Sp5migqNqjbPCfybVawEg6oiiGFArfRDsw53fwGFuKDQHL8d8Y+Z
-         K0fYCpQT22HtJoCq1Bc7C8wAJKbh5g1wTxGmvt16rTuCgaqaTvhB6+yhS2nLqeVmMHCI
-         ah7T/bLkUsmtJbDZV1qLd8scj3JOnbggU/3kbVVKRMn3TZUyrxZjmdZkoVOtndAghveH
-         3vTg==
+        bh=V0H+rWHAjETqi9RQMu+lWQENmuwh8JTpCpYCQS4X1u8=;
+        b=IvWIS+XzZ6U7rFPnUSWCGO8Q3sknl0BedpgeIZL6i8mAFEWGtcK5Efs2l8bT8pM6PV
+         SGcDQmHDZ2mURMsU9hej5blJxnPZ3iNIuBcZPQy6nXkhztPJdB6dDkQCtYefYPl30Puo
+         /DJPPseUGvDG0ijkPFAo4Nzv49LIKIxHY+DYElnW2U9NIhfj7cLnyodQWno48Oem4hJA
+         SmS2rCOdhbxZpedZMgomtz8EnynLBJDX5PFDpRy83dJ/JMADB5zhhdFQbEcLabIFADqL
+         QpDxWjfjVjeaxnwUdbnXriMMXSU6JrOnIcbyOzlsfYYvmlpXoBJ1MftB7Nu4VlgNhZQk
+         +SBA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770000030; x=1770604830;
-        h=in-reply-to:references:to:from:subject:message-id:date
-         :content-transfer-encoding:mime-version:x-gm-gg:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=WI9XaiffVEyIp94CbMZOvzo+SJKN3gBnZw+mxQA4LEU=;
-        b=a2mms9DKm2Vwm6MHGrBRITgbwwdz6nC0ICFnSmOX+Sb0lrNfJ2/w++t1hK6HdzCb4e
-         0nNNJadb4SageaPgz5lh9FzfCnh2L1fvybipT+bx+vJ02lj6vKdvtjw9AJDdNrv03bYC
-         IrOPuWmHaRGGxXByXUuvloOgorKwHLDTFpMO/ehDA6+8NOgSSCliB+JZOqEwz4RpgE4k
-         ClaQRl2TWQzdND9Lc6s5Y1GWHiBlL68S1HUcXjelCyYXHhV4cMbIUyZSIbEXYtBJrB9d
-         JV2Nyer56vG0EJSd6jUCptZ4f0ny5tlvZXGcK7nYeJdzVRvuvbLvL/jBqd9WY6B/S6r4
-         Vmqw==
-X-Forwarded-Encrypted: i=1; AJvYcCUSuQtYis6KdsPDIt23eQ8xfus5zukI9wX6YCfwpPhiPsydBbQ9UDxIu1qut7zUiJIi9YpZaVVR@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz+KLnsPF4MXHJ84Yl9XCujClS+KYZ80I3IjoLHj+QSmlR7a6Xl
-	Z1blKDyH+SlKqu8NCfN1ch7+XwRHmiB2A6qKse7xunqtE/oEbQf35+9+eVEmcA==
-X-Gm-Gg: AZuq6aLz2sPZabr6Fu9wwLhSlewSY+Uewrr8jJafayKi8e0xEPAMnGalmLmzqnv4Q11
-	vU3nCxrQlLrUSURHat8CyzW/CC4ZtKWGI8iEGVfLlKYBSCMUGpcZVQxcMIcNORqtn2MOZoJAs4A
-	gAdhzTPMQqBaIjTsIZHD7UNsccnCcmrY3rl6Z2sHchai9lSMcVC8WU+ydjjryIKAnkYgzrJdg7K
-	d3UgmHG4JmYPA6kB7l2F+K5WnqyWpC2erwpKDkPnCkmKLfkxDpFvuBgBDHApc+j7bM5Dbq6HlOf
-	nmLjV6FbhDWLAS45kxqvTNpD1JOjku8PK8+pqSBixeIz4OCTpzEbKRJsOQvYpubQ8d+GoohgdpG
-	u8qFzakC95Z5lzXPwDbUaK/Zv76Jk6eEyNzuZC5L4IZa5btMXfZBzszwJnSgrXClztMauXibo
-X-Received: by 2002:a05:600c:c4a3:b0:47e:e9c9:23bc with SMTP id 5b1f17b1804b1-482db49d765mr146041475e9.30.1770000029542;
-        Sun, 01 Feb 2026 18:40:29 -0800 (PST)
-Received: from localhost ([2a0a:ef40:90a:9600:de8b:28ff:fe7c:941c])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4806cdd78d3sm373912705e9.1.2026.02.01.18.40.29
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 01 Feb 2026 18:40:29 -0800 (PST)
+        d=1e100.net; s=20230601; t=1770005283; x=1770610083;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=V0H+rWHAjETqi9RQMu+lWQENmuwh8JTpCpYCQS4X1u8=;
+        b=l4wNX2Rc9R1+hzzogTPl9CyFPgmshECD+F/h0xqekzUCxo0Jn1QMp1/bSYNNvz5b5R
+         mGGmK5q74zm/7/7eFLdYfPvDeltqnF1wA3hodyrV1zN/yF2Th1EEgPRVvMWwjV3mKKDi
+         aPbe5rQj/Y0WIa0TZyBXwJYB88FcJ3ciORAMqfKqsS8/yuX6FJlZxxzzCbXRKibs4yi1
+         80Yw3m0u2Cv0GrgnZ97yYd1Tbm9PhvH5Hxa1z+bxukXROvCznnvei12+MIjJNulz8eOs
+         yyuu56+nnmwoAW6zft0rkx4nL0xnOdKf0yMIrXdbelJIBEBqTFbw2KaBfoNL079eMAkH
+         +oMA==
+X-Gm-Message-State: AOJu0Yy0kZVEu/hKGIc21wbbWsFezzcizVSB0QZKqDQMw1xA0Wmf9/yR
+	aXSoTshTiHInbvjT18JcLMBdY6IswMV8NsFqqn4M4P4BjkFSTb6UmqDIFTnf7gRRf8+7lIc3OnP
+	O/V3euSs/xfNu7ChvmfTpCveRoCcwkRhJwb3RPyrW
+X-Gm-Gg: AZuq6aKoOnJe3yLnb4T30PNDE/bv4Q0r/7EF9GgqiMK815XhVex4gi3g42jJ/lI+1gp
+	74wN+6KkW0mUYpwGIvzBitfHr2xycVLLAbQZxOQqdSFFJK8ABIV4SlYZ3fV5FcaUorKZtzE+5I1
+	iismuxnskL3XbAVIRacSxdrlkJzjxKgUikqiueDRSuogAyVOVjI1pKF3aWqqaY5k3KE3n7Ur1et
+	P76mNyGzjMze0Qv9PpJ8uCqI/y+d9p6ar+PdDI/2yzM4u2SS+r+JPq5agmoGyPNksotG1I=
+X-Received: by 2002:a17:90b:2e47:b0:34a:b8fc:f1d8 with SMTP id
+ 98e67ed59e1d1-3543b3e3a6amr10303423a91.37.1770005282654; Sun, 01 Feb 2026
+ 20:08:02 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
+MIME-Version: 1.0
+References: <2ec9c137-79a5-4562-8587-43dd2633f116@I-love.SAKURA.ne.jp>
+ <CAHC9VhQikhv+qCyQdnJguvy-qTkGXB+NU7=QZjw5d+WfyVxZhw@mail.gmail.com>
+ <00ed59a3-a9c9-47c3-97da-5a8e3da1ea82@I-love.SAKURA.ne.jp>
+ <CAHC9VhQq6jY63kYEQCp2t89Vv+_PDqv54RV6TO_TePDQyU6Vug@mail.gmail.com>
+ <1bb453af-3ef2-4ab6-a909-0705bd07c136@I-love.SAKURA.ne.jp>
+ <CAHC9VhQEKfxXzFgYShojESpQn10LES5zL6Ua0YV9b8seEKFqyA@mail.gmail.com> <93d291db-4175-48c4-830c-e83bab373ae2@I-love.SAKURA.ne.jp>
+In-Reply-To: <93d291db-4175-48c4-830c-e83bab373ae2@I-love.SAKURA.ne.jp>
+From: Paul Moore <paul@paul-moore.com>
+Date: Sun, 1 Feb 2026 23:07:51 -0500
+X-Gm-Features: AZwV_Qj0ZPr30GBIZpy2KTBmQCeMzIbAaQJB4ILIbQRznBk2H145kQkQiYyOBUA
+Message-ID: <CAHC9VhQPKU5DqG-ryZsiCV2vZeGGf_a-JStR_LVVCCn03C4usQ@mail.gmail.com>
+Subject: Re: [PATCH] xfrm: kill xfrm_dev_{state,policy}_flush_secctx_check()
+To: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: SELinux <selinux@vger.kernel.org>, 
+	linux-security-module <linux-security-module@vger.kernel.org>, 
+	Steffen Klassert <steffen.klassert@secunet.com>, Herbert Xu <herbert@gondor.apana.org.au>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Network Development <netdev@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Mon, 02 Feb 2026 02:40:28 +0000
-Message-Id: <DG44N7XQP94D.2E7L9CFJ7PTXR@gmail.com>
-Subject: Re: SELinux userspace release 3.10
-From: "Rahul Sandhu" <nvraxn@gmail.com>
-To: "Jason Zaman" <jason@perfinion.com>, <selinux@vger.kernel.org>
-X-Mailer: aerc 0.21.0
-References: <aXbPKpbIXh7_fpTM@anduin.perfinion.com>
- <aYAKEjlKxwVWGgrw@anduin.perfinion.com>
-In-Reply-To: <aYAKEjlKxwVWGgrw@anduin.perfinion.com>
 
-Earlier on the ML, I think we concluded that once 3.10 was released,
-we would format all the code in the repo with clang-format[1]. Should
-we do this now? After, we should be able to merge the formatting CI
-patch[2].
+On Sat, Jan 31, 2026 at 1:01=E2=80=AFAM Tetsuo Handa
+<penguin-kernel@i-love.sakura.ne.jp> wrote:
+> On 2026/01/31 6:56, Paul Moore wrote:
+> > On Wed, Jan 28, 2026 at 5:28=E2=80=AFAM Tetsuo Handa
+> > <penguin-kernel@i-love.sakura.ne.jp> wrote:
+> >> On 2026/01/28 6:59, Paul Moore wrote:
+> >>> It sounds like we either need to confirm that
+> >>> security_xfrm_{policy,state}_delete() is already present in all code
+> >>> paths that result in SPD/SAD deletions (in a place that can safely
+> >>> fail and return an error),
+> >>
+> >> Yes.
+> >
+> > To clarify, do you mean "yes, I agree", or "yes, I've already checked
+> > this and can confirm that the LSM hooks are already being called"?
+>
+> I mean "yes, I agree".
+>
+> >
+> >>>                            or we need to place
+> >>> xfrm_dev_{policy,state}_flush_secctx_check() in a location that can
+> >>> safely fail.
+> >>
+> >> Did you mean xfrm_{policy,state}_flush_secctx_check() ?
+> >
+> > They both call into the security_xfrm_policy_delete() LSM hook which
+> > is what I care about as that hook is what authorizes the operation.
+>
+> I can't understand what your authorization is.
 
-[1] https://lore.kernel.org/selinux/CAEjxPJ7T-xTyPhbNnC5GgC4d9wMtMD+pkPF0Jg=
-RmOdMvM6opUg@mail.gmail.com/
-[2] https://lore.kernel.org/selinux/CAEjxPJ4jsZ_bWrLF=3D1si18f09p2Q_TEPWf1r=
-d_a9=3D_kCb6iTEw@mail.gmail.com/
+I'm asking you to verify that we have the LSM xfrm hooks in all of the
+necessary locations to ensure that we are safely and comprehensively
+gating all of the operations that result in removal of SPD and SAD
+entries.
 
-Best Regards,
-Rahul
+> No authorization can be placed during must-not-fail operation.
 
-On Mon Feb 2, 2026 at 2:21 AM GMT, Jason Zaman wrote:
-> Hi All,
->
-> The SELinux userspace 3.10 release is now on github:
-> https://github.com/SELinuxProject/selinux/releases/tag/3.10
->
-> Thanks to everyone that contributed to this release!
->
-> With Kind Regards,
-> Jason Zaman
->
-> RELEASE 3.10
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
->
-> User-visible changes since 3.9
-> ------------------------------
->
-> * libsepol: fix TARGET and LIBSO on Darwin
->
-> * secilc: use correct long option name for -X
->
-> * Fix problem with bounds statements in optional blocks
->
-> * libsepol: Fix processing of levels for user rule in an optional block
->
-> * libsepol: Fix problem with handling type attributes in role-types rule
->
-> * libsepol: Fix expand_role_attributes_in_attributes()
->
-> * Allow type attributes to be associated with other type attributes
->
-> * libsepol: Support functionfs_seclabel policycap
->
-> * improve semanage man pages: Add examples for -r RANGE flag usage
->
-> * libselinux: fix parsing of the enforcing kernel cmdline parameter
->
-> * seunshare: always use translations when printing
->
-> * treewide: add .clang-format configuration file
->
-> * setfiles: Add -A option to disable SELINUX_RESTORECON_ADD_ASSOC
->
-> * libsepol: add memfd_class capability
->
-> * semanage: Reset active value when deleting boolean customizations
->
-> * python/sepolicy: Add support for DNF5
->
-> * sandbox/seunshare: Replace system() with execv() to prevent shell injec=
-tion
->
-> * libsepol: Tighten checks on MLS range and level when validating
->
-> * libsepol: Fix potential NULL dereference in policydb_read()
->
-> * libsepol: Fix potential use of an uninitialized value in link.c
->
-> * libsepol: add bpf_token_perms polcap
->
-> * libsepol: Fix possible use-after-free when expanding attributes
->
-> * libselinux/src/Makefile: build python module without isolation
->
-> * restorecon: Add option to count relabeled files
->
-> * Bug fixes
+Of course, but that means that we simply need to make sure we have the
+authorization hooks placed elsewhere to ensure that users can not
+remove SPD and SAD entries if they are not allowed.  I'm not arguing
+about if returning an error in a place that can not handle an error
+condition is correct or not, I'm arguing that you should audit the SPD
+and SAD removal code paths to ensure that they all have the proper LSM
+xfrm hook authorizations.
 
+--=20
+paul-moore.com
