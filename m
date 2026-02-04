@@ -1,133 +1,150 @@
-Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from flow-a6-smtp.messagingengine.com (flow-a6-smtp.messagingengine.com [103.168.172.141])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03A82314B93
-	for <selinux@vger.kernel.org>; Wed,  4 Feb 2026 04:10:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 042B734F27D;
+	Wed,  4 Feb 2026 05:08:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.141
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770178243; cv=none; b=Bzsxm5NQgx91pumHZksoMIRV9OVMdWCn6c1cXZoi34RF5sHBfxyAr1WKcLWgslxRz3WZvfqfjPyBRvJOXO8d/2AKcX6ob9HIrouS8t7NB6QyBmXfBXLDv1wQZwW6etXbPFZkuh4irnDRAFw7+Opg/vUe+Nh5xttEfISZ5c5mVKc=
+	t=1770181688; cv=none; b=CAIU4rDl4axAOlIVwqtBhxAJVbHRmjEsVPv6ah1jv8LxBlkXLaqcQjaCyq3ECgByoxL2JwGYRe+KsANfnWxc6Axiy9EPlauYFxljqC64umfeNBRUy6awOCKSn8hGxe8ib02I/bpLexCbcLz5KD/KjtTdgFn/OaCvBzYxi3AZjqY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770178243; c=relaxed/simple;
-	bh=zAl0WGrVOlcwJ6+0E2cEBC6ivgIn3WmGzzpnAjoaClQ=;
-	h=Date:Message-ID:From:To:Cc:Subject; b=nC5Bxp2++BCoSchEKFWHEDBHp1E4wnfjN/bTGJauKAQz21LwH6ptaBDLLaktbmBp/ThjoDdtsYUecPP0YtGDHQeNxvCw86ahggsp7ipQIFsBqd7l54uus9KJM/DAp2C220U2dixmiTay98+20njjwtrOnjmgUElMj0Y1ON3zVkQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=FbIsUqCD; arc=none smtp.client-ip=209.85.222.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1770181688; c=relaxed/simple;
+	bh=dC323i3a5pzLmkG4eSohnUBpRgc+HMW7uI7HFtwc31Y=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tP5TdREN3KPScYzXW7dBou+cOTknhAbmMSSPpVY0YFYEQxL2wXq/pNAHRJaNa6vbvVq081Uq+DwX7uflLdW8pDWzkPUjMN9n3sM8+WSTLa6z9alzUiKccK+TZLI/3etTaxSTc+u59ZS9ocwbk+lVAhEmwVPCbGg3JxyGbYpn1tA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ownmail.net; spf=pass smtp.mailfrom=ownmail.net; dkim=pass (2048-bit key) header.d=ownmail.net header.i=@ownmail.net header.b=CiEJ6Hua; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=pgfRNb3G; arc=none smtp.client-ip=103.168.172.141
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ownmail.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ownmail.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="FbIsUqCD"
-Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-8c70ce93afaso683047885a.0
-        for <selinux@vger.kernel.org>; Tue, 03 Feb 2026 20:10:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1770178239; x=1770783039; darn=vger.kernel.org;
-        h=subject:cc:to:from:message-id:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=n9X0znTAy1Uzid+CyhH1GZFisTMJ2hpyJjos5mdZiPA=;
-        b=FbIsUqCDeOJuv0FXM7HYFAcXBTxTnmKqqeMitiTSzY/JJwkHTY17Lu9KcUZpJNqfvR
-         FDKlBbL9/uIvklW1ZMQ2U8bZuVttuKqPs8iISpVfq+MuLxbt0e8WBszHnBmUoVDdevDg
-         H+i73VzB6+t4oqauQGpQH6m6xaFf7hNKOAYtUtyfCaxfJy+ql/XcUVQJVHdBgAnWTr4A
-         7iBDoBBw7lRYRzje475WOeJsOTkYnjlMwu31SRxGYpmrCbm9Zn/Qmt8iX+df+snCSTPu
-         7x/9+9Gtj3f6B5g/6ad1LFpRMCFMftZnouio8IXIxHYtOVjsYEI/KgYem7J9l2WCoe3Y
-         /vrA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770178239; x=1770783039;
-        h=subject:cc:to:from:message-id:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=n9X0znTAy1Uzid+CyhH1GZFisTMJ2hpyJjos5mdZiPA=;
-        b=UtXAgHaFzfB0PyyQuTHpdt5Vgz4G8Vlli1bF4Pib5qwcJZvgk5JnEWRgiXxjRg0MUl
-         XOtXaDe85vnoYBKHSTuJI9M3NW/LBnOuNuGtKJJXysGKWpR4/q9W48O7Ddgj5zZbgmmo
-         im7uw/fFnmJGOY3nxjgV31/I15nrsc4UgA3y18gVsJdivCQtyIOyf4Q8/usTvo9EvWWk
-         3ZDAkWEiFbPI9tLlJY2a7yfv1gTS40NnAqK1aq3chd0MkzTjjJVSPr/nj4FmnaLimcX8
-         REfOo294PMcJdeOnwYLeuycjlOKhjBzpSWLEQaHYMBBjwGpO6L/9gLlOa+e1Hzxcm1Om
-         ZuJA==
-X-Gm-Message-State: AOJu0YxlC4RGpujWGNVzDTPlAQLXGL/+MLeLHGj1euM0yR20GQ6VRYgj
-	FUqfulLAa8SuipHk2K10OugIn6df1YPgR+CLrXln+4j8lz07SfeS4n1bId7MPKfOXg==
-X-Gm-Gg: AZuq6aIbnOMyNhhty+hbUlqyI3y21Wvpd6ubOLmBCcn1JlGMfYp1Pd6Dd/gaiaP4nMA
-	0wLxLrrO0VtDFR/YBiLB7DJoAkHsiSoHTm/wVEm13+4a1tDCTmfq7Z4xnLN1QqOKZQhB/UEMNZO
-	6hAEVbVbZHpPuhdDUYCJw4NXK8Ne98tbSAkyowK588zMmGZ01S8OXbFsSVHy1ARWqRn4AzYAPk9
-	xlZBxAWspCtChPW1Y0XBFqjakwyMpCL//NpfoTSpiCWE30MBHYYlJgtsVwI8J+zGI802Lc8YmTi
-	plfghaz/IuyEK23RD0iyZyi3Njsxah301JOf4+xWIbxqYFtm2ybXdpnX5HP46VaxTMqGYxxTK3n
-	J7T+AxXJSnVpZVJn7bYbOW4UD6PF6xhXLjp9Trl1W41iC3yPaz3Doy60EFXuy7THAc6mF9rOzz+
-	b0DxOcgnjeI9Sk0uoX5gfs1dhwrGQ55y0876C9Imxdz2bR9IfjY/9moxQd
-X-Received: by 2002:a05:620a:3181:b0:8c6:a64e:928d with SMTP id af79cd13be357-8ca2fa9055dmr231363385a.83.1770178239556;
-        Tue, 03 Feb 2026 20:10:39 -0800 (PST)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8ca2fd2e971sm107019585a.35.2026.02.03.20.10.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Feb 2026 20:10:38 -0800 (PST)
-Date: Tue, 03 Feb 2026 23:10:38 -0500
-Message-ID: <74f395ba13926ab0391bd8714abc6036@paul-moore.com>
-From: Paul Moore <paul@paul-moore.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: selinux@vger.kernel.org, linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [GIT PULL] selinux/selinux-pr-20260203
+	dkim=pass (2048-bit key) header.d=ownmail.net header.i=@ownmail.net header.b="CiEJ6Hua";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="pgfRNb3G"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailflow.phl.internal (Postfix) with ESMTP id 033571380778;
+	Wed,  4 Feb 2026 00:08:07 -0500 (EST)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-04.internal (MEProxy); Wed, 04 Feb 2026 00:08:07 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ownmail.net; h=
+	cc:cc:content-transfer-encoding:content-type:date:date:from:from
+	:in-reply-to:message-id:mime-version:reply-to:reply-to:subject
+	:subject:to:to; s=fm3; t=1770181686; x=1770188886; bh=XrOETrfLvn
+	IX9izHaz3N3kjXjvH1wtHjpHJBz8OfYz8=; b=CiEJ6HuaYbyBncQK0Lqj0/lNF8
+	DhAmxjQyJmxvozS5jXPzzY+XP7IqzDOshTUQIx5F8q3jdVkAJYIqxAnNmTKZc1Gc
+	Rz6Gaz9g7gPNDWVQt/eBmoyqW1ED0k4S51L6PgC88F91vhkAkANrbidvxi4Ft6kn
+	Z2QnDJeyZyYC7DOrS8xQ4bely67rhZsZ1nPcgZbLnLAfZTV0geZRruUBh41QxYNj
+	RMHAnpZjEY2jeseKrnxpnBqyZa169DbRKrWWyH1qV5TRi5qaQv0Q/gzB/4Frw3Sj
+	gqXeBzBZPeZAkYNF4LZQWDkWzdvk596wFMvuBn/FtrqS50DqnP9FXdCRp3DQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:date:date:feedback-id:feedback-id:from:from
+	:in-reply-to:message-id:mime-version:reply-to:reply-to:subject
+	:subject:to:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+	fm3; t=1770181686; x=1770188886; bh=XrOETrfLvnIX9izHaz3N3kjXjvH1
+	wtHjpHJBz8OfYz8=; b=pgfRNb3GFaNvHPggUPmqU3BzhV1DYsxFsfCeubzJ34Z2
+	IAXUcDPPY6B4jFTc/sHFd+FFVWOCN61ZY1n4FSp/lZ/Gm8OL3IoxKdmtGG4mwtRB
+	0cvuLMaVwfbCkuk6RJ2Z63jD94vV4qNep/luiPmUR+3LvEv6P8s37xlYrISuSGuK
+	wEYDRQ498aJsPgxTcI5zvZ6ka/ASQo1kuhn1czQJTHfYm1VOYKS8UMSqyacqcxV7
+	WNLo000OpWyqHhPs34vOA0xlHoFgXDDUMaUZybJyVpOdqP0l7sYl91BeFNKbwqHN
+	X25D7DUOSE4gBsH5flU2yCWtokXqSMsawaOX095y/A==
+X-ME-Sender: <xms:NdSCacyHAcWi0GB6-jJHZwbkg7Gp-Z8lim-4rJwYDEn4tUsEpVVp5A>
+    <xme:NdSCaUi2sidAli4k4HESJm4YuHT-yfhGDUFNfA9wk6-Xew_E4Id6MUquzyDqQgKWj
+    6oVs_Or_AOLCF3MayEIM7vc75zzFysDBEkNd25_ItQdv_Uc0w>
+X-ME-Received: <xmr:NdSCaR5AjfPMw9UHtqMCUY3gZiF0HwOinEkXMxQrj_q1sM-SP-zb0drYuARdpjKpES6FgKhhf7urx73AS9dGuMBwFTAN-m-EErtLCvsusGkf>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddukedukeeiucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhephffvvefufffkofhrggfgsedtkeertdertddtnecuhfhrohhmpefpvghilheurhho
+    fihnuceonhgvihhlsgesohifnhhmrghilhdrnhgvtheqnecuggftrfgrthhtvghrnhepge
+    etfeegtddtvdeigfegueevfeelleelgfejueefueektdelieeikeevtdelveelnecuvehl
+    uhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepnhgvihhlsgesoh
+    ifnhhmrghilhdrnhgvthdpnhgspghrtghpthhtohepvddupdhmohguvgepshhmthhpohhu
+    thdprhgtphhtthhopehvihhrohesiigvnhhivhdrlhhinhhugidrohhrghdruhhkpdhrtg
+    hpthhtohepshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthho
+    pehlihhnuhigqdhunhhiohhnfhhssehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpth
+    htoheplhhinhhugidqshgvtghurhhithihqdhmohguuhhlvgesvhhgvghrrdhkvghrnhgv
+    lhdrohhrghdprhgtphhtthhopehlihhnuhigqdhnfhhssehvghgvrhdrkhgvrhhnvghlrd
+    horhhgpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghl
+    rdhorhhgpdhrtghpthhtoheplhhinhhugidqfhhsuggvvhgvlhesvhhgvghrrdhkvghrnh
+    gvlhdrohhrghdprhgtphhtthhopehmihhklhhoshesshiivghrvgguihdrhhhupdhrtghp
+    thhtohepjhgrtghksehsuhhsvgdrtgii
+X-ME-Proxy: <xmx:NdSCaZpRkxJWPNmIpcpGeNAy50vMwvTXVXySj4QxXdsBDVBq8ly_5w>
+    <xmx:NdSCaXXqpBY4J628Zt1MD0CWCDQFIjb_nD-zpyZCDCVuAS2xOS78Aw>
+    <xmx:NdSCaQ5LAQWkq85YI4N5auTuRMssrLuYMh8Grxsq06CB1xQnOGG43A>
+    <xmx:NdSCaV3QDW52SEeAdjmfBcdJhYLQR-XjBl5pKwa3C3AKajI2bStWiA>
+    <xmx:NtSCaTz-dtrlfjILOYM9GTMXnZa_VQglEYUC71RT6cu45HHOJ53g7HKW>
+Feedback-ID: iab3e480c:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 4 Feb 2026 00:08:00 -0500 (EST)
+From: NeilBrown <neilb@ownmail.net>
+To: Christian Brauner <brauner@kernel.org>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	David Howells <dhowells@redhat.com>,
+	Jan Kara <jack@suse.cz>,
+	Chuck Lever <chuck.lever@oracle.com>,
+	Jeff Layton <jlayton@kernel.org>,
+	Miklos Szeredi <miklos@szeredi.hu>,
+	Amir Goldstein <amir73il@gmail.com>,
+	John Johansen <john.johansen@canonical.com>,
+	Paul Moore <paul@paul-moore.com>,
+	James Morris <jmorris@namei.org>,
+	"Serge E. Hallyn" <serge@hallyn.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: linux-kernel@vger.kernel.org,
+	netfs@lists.linux.dev,
+	linux-fsdevel@vger.kernel.org,
+	linux-nfs@vger.kernel.org,
+	linux-unionfs@vger.kernel.org,
+	apparmor@lists.ubuntu.com,
+	linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org
+Subject: [PATCH 00/13] Further centralising of directory locking for name ops.
+Date: Wed,  4 Feb 2026 15:57:44 +1100
+Message-ID: <20260204050726.177283-1-neilb@ownmail.net>
+X-Mailer: git-send-email 2.50.0.107.gf914562f5916.dirty
+Reply-To: NeilBrown <neil@brown.name>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Linus,
+I am working towards changing the locking rules for name-operations: locking
+the name rather than the whole directory.
 
-This is a bit early, but due to some personal scheduling I'd rather send
-this to you now, and you always mention you prefer to get pull requests
-early (perhaps not this early?) so here is hoping this is a win-win.
+The current part of this process is centralising all the locking so that
+it can be changed in one place.
 
-Here are the highlights for the SELinux changes queued for the Linux v7.0
-merge window:
+Recently "start_creating", "start_removing", "start_renaming" and related
+interaces were added which combine the locking and the lookup.  At that time
+many callers were changed to use the new interfaces.  However there are still
+an assortment of places out side of fs/namei.c where the directory is locked
+explictly, whether with inode_lock() or lock_rename() or similar.  These were
+missed in the first pass for an assortment of uninteresting reasons.
 
-- Add support for SELinux based access control of BPF tokens
+This series addresses the remaining places where explicit locking is
+used, and changes them to use the new interfaces, or otherwise removes
+the explicit locking.
 
-We worked with the BPF devs to add the necessary LSM hooks when the BPF
-token code was first introduced, but it took us a bit longer to add the
-SELinux wiring and support.  In order to preserve existing token-unaware
-SELinux policies, the new code is gated by the new "bpf_token_perms"
-policy capability.
+The biggest changes are in overlayfs.  The other changes are quite
+simple, though maybe the cachefiles changes is the least simple of those.
 
-Additional details regarding the new permissions, and behaviors can be
-found in the associated commit.
+I'm running the --overlay tests in xfstests and nothing has popped yet.
+I'll continue with this and run some NFS tests too.
 
-- Remove a BUG() from the SELinux capability code
+Thanks for your review of these patches!
 
-We now perform a similar check during compile time so we can safely
-remove the BUG() call.
+NeilBrown
 
-Paul
 
---
-The following changes since commit 8f0b4cce4481fb22653697cced8d0d04027cb1e8:
-
-  Linux 6.19-rc1 (2025-12-14 16:05:07 +1200)
-
-are available in the Git repository at:
-
-  https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
-    tags/selinux-pr-20260203
-
-for you to fetch changes up to ea64aa57d596c4cbe518ffd043c52ef64089708d:
-
-  selinux: drop the BUG() in cred_has_capability()
-    (2026-01-14 16:26:21 -0500)
-
-----------------------------------------------------------------
-selinux/stable-7.0 PR 20260203
-----------------------------------------------------------------
-
-Eric Suen (1):
-      selinux: add support for BPF token access control
-
-Paul Moore (3):
-      selinux: move the selinux_blob_sizes struct
-      selinux: fix a capabilities parsing typo in
-         selinux_bpf_token_capable()
-      selinux: drop the BUG() in cred_has_capability()
-
- security/selinux/hooks.c                   |  163 +++++++++++++++++----
- security/selinux/include/classmap.h        |    2 
- security/selinux/include/objsec.h          |    3 
- security/selinux/include/policycap.h       |    1 
- security/selinux/include/policycap_names.h |    1 
- security/selinux/include/security.h        |    6 
- 6 files changed, 151 insertions(+), 25 deletions(-)
-
---
-paul-moore.com
+ [PATCH 01/13] fs/proc: Don't lock root inode when creating "self" and
+ [PATCH 02/13] VFS: move the start_dirop() kerndoc comment to before
+ [PATCH 03/13] libfs: change simple_done_creating() to use
+ [PATCH 04/13] Apparmor: Use simple_start_creating() /
+ [PATCH 05/13] selinux: Use simple_start_creating() /
+ [PATCH 06/13] nfsd: switch purge_old() to use start_removing_noperm()
+ [PATCH 07/13] VFS: make lookup_one_qstr_excl() static.
+ [PATCH 08/13] ovl: Simplify ovl_lookup_real_one()
+ [PATCH 09/13] cachefiles: change cachefiles_bury_object to use
+ [PATCH 10/13] ovl: change ovl_create_real() to get a new lock when
+ [PATCH 11/13] ovl: use is_subdir() for testing if one thing is a
+ [PATCH 12/13] ovl: remove ovl_lock_rename_workdir()
+ [PATCH 13/13] VFS: unexport lock_rename(), lock_rename_child(),
