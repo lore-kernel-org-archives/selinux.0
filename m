@@ -1,150 +1,133 @@
-Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
+Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8150A31B83B
-	for <selinux@vger.kernel.org>; Tue,  3 Feb 2026 22:40:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.174
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770158460; cv=pass; b=C5XaL6uAgZPVtLunkB0IzYzJ0hjWCjtF9+DMsYUK5TsAO7dJYwxe8N82riMOfc+uFiUzXQ0FpwvxNTfsv7Rm4tjtG5EDiiMzL+lh+42yRqAXw4zSSogihedM6z7AuyZFxpYMvZq6P5PoV9J6u9gwobI/KBCyb8fbITF8z2/6h0c=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770158460; c=relaxed/simple;
-	bh=mNxsZIpO12xYwIPhpNLEYqg3xGCJpxHU05Vm1/bMpH4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=t7V7K881DNknw9CDjwoFTXWgjOkLeuHTUHrL2NEFq2uytU8BP3Nh0kIS/ZmR5oQK/pchl+TRRnzx/0/s0JxOPIsFpTium5mve5Zt2mi+m0cFPEP71XkF9o304TIOSrXIJwAKSQMsFk/w5aTGSnpWQehAM8aIMvEBrJvD/mKGM1U=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=eFHErCUd; arc=pass smtp.client-ip=209.85.214.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03A82314B93
+	for <selinux@vger.kernel.org>; Wed,  4 Feb 2026 04:10:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.178
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770178243; cv=none; b=Bzsxm5NQgx91pumHZksoMIRV9OVMdWCn6c1cXZoi34RF5sHBfxyAr1WKcLWgslxRz3WZvfqfjPyBRvJOXO8d/2AKcX6ob9HIrouS8t7NB6QyBmXfBXLDv1wQZwW6etXbPFZkuh4irnDRAFw7+Opg/vUe+Nh5xttEfISZ5c5mVKc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770178243; c=relaxed/simple;
+	bh=zAl0WGrVOlcwJ6+0E2cEBC6ivgIn3WmGzzpnAjoaClQ=;
+	h=Date:Message-ID:From:To:Cc:Subject; b=nC5Bxp2++BCoSchEKFWHEDBHp1E4wnfjN/bTGJauKAQz21LwH6ptaBDLLaktbmBp/ThjoDdtsYUecPP0YtGDHQeNxvCw86ahggsp7ipQIFsBqd7l54uus9KJM/DAp2C220U2dixmiTay98+20njjwtrOnjmgUElMj0Y1ON3zVkQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=FbIsUqCD; arc=none smtp.client-ip=209.85.222.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="eFHErCUd"
-Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2a102494058so1335525ad.0
-        for <selinux@vger.kernel.org>; Tue, 03 Feb 2026 14:40:59 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1770158459; cv=none;
-        d=google.com; s=arc-20240605;
-        b=kQU8LcQniJlsJLbN0+gROXRLv93E0rFcV8jCMea9vAsoZLsVZhX5iodIMIK/q/BUn+
-         mtwx3LE3i9cgY3bjXc+LF8qmaT32jO/Mj81/DL23SfxWK8WeaukkEfykNs/ILoXw9eal
-         fQlh7twzOFxb5zqiMR1rmfE5fe5Qmd5UZhVX8W3FF1cTJjRLqBfH3/fGrGMDlqYapkg6
-         VY6duzXiqJy++tHX49VyMIAwiN3+p2Cq8R+/LS5KYVvZjJfx7lsJcCE3NB2Zd3romIKV
-         pBVqX/OxKRQIaSdxTFg2rxHEmOyneoHhNvV11V1YG1zL+2fXZXcuurqGr/lCX6ofn1ew
-         ZbcA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=yhF9jJ/5jkA/G3XXwtAD0z04CKPNClOANnWCQ+kHOf0=;
-        fh=h5DwtxXI7e8O/Jsf7s5o7YDLEbe3hcXhw9S8zvuvMeY=;
-        b=LRzVCt22Ky4Ag0kkbnSfiKWuVjpQBMf0t0RaPkBHEbBHrled79nS8ERjPpnT9vKoik
-         U5M34gHlJ1uF1VLeIVl/P9+Vhwcqlg/0X5coVjGtr7eqSj6E4HpB633tmv/f692UmSgv
-         nLRvArB137Kb/E9sVpb3fUxNVbad3MO21cOw2oxXYuoN7m9lL1utKd8txKeLxDm6uPF4
-         lwv1FTwhwaMPsmi/5BM4vA/6PyUI6rwaEpwhD9ViLx7h2Kd57Pjg+R232SzjOFzd/1hm
-         bV6gMnHVdvu2mIGcWXdxGzvYGL6iUULdPdHxc71khcoAE7FlcRtdxfuxKGRp0Qz+ICBx
-         73jw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="FbIsUqCD"
+Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-8c70ce93afaso683047885a.0
+        for <selinux@vger.kernel.org>; Tue, 03 Feb 2026 20:10:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1770158459; x=1770763259; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=paul-moore.com; s=google; t=1770178239; x=1770783039; darn=vger.kernel.org;
+        h=subject:cc:to:from:message-id:date:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=yhF9jJ/5jkA/G3XXwtAD0z04CKPNClOANnWCQ+kHOf0=;
-        b=eFHErCUdhFyWGykHjYB6biTI6lGhkeyvSU+/AGFo++dYiMonR9D2eLErqPy0mkDw4W
-         2xKbh4/DpviR4nmus2RgdGNwaisyKe1eiTPPfwyu2kE7LqIIGidpt/kb68h7YfDfrvgS
-         IrT90nehejOP8NrMiJ3XcHBRhXSczmZTklqN8NWV5swtwLwmX3hTf5d63xFjN01BCv6t
-         wbuAr8OmZIcI4vBEeLTTE/8sesbRpwy4xw26u+/6906sqyWp0UqEv5VRVuFqLS4ZAjYI
-         NgF29kbK+QaYbZ9qaLWDvl7U8mZ0VtIk7dVQ6pXScE/omqo+uz6cRUvzfDm3B37V/jIq
-         NK9w==
+        bh=n9X0znTAy1Uzid+CyhH1GZFisTMJ2hpyJjos5mdZiPA=;
+        b=FbIsUqCDeOJuv0FXM7HYFAcXBTxTnmKqqeMitiTSzY/JJwkHTY17Lu9KcUZpJNqfvR
+         FDKlBbL9/uIvklW1ZMQ2U8bZuVttuKqPs8iISpVfq+MuLxbt0e8WBszHnBmUoVDdevDg
+         H+i73VzB6+t4oqauQGpQH6m6xaFf7hNKOAYtUtyfCaxfJy+ql/XcUVQJVHdBgAnWTr4A
+         7iBDoBBw7lRYRzje475WOeJsOTkYnjlMwu31SRxGYpmrCbm9Zn/Qmt8iX+df+snCSTPu
+         7x/9+9Gtj3f6B5g/6ad1LFpRMCFMftZnouio8IXIxHYtOVjsYEI/KgYem7J9l2WCoe3Y
+         /vrA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770158459; x=1770763259;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20230601; t=1770178239; x=1770783039;
+        h=subject:cc:to:from:message-id:date:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=yhF9jJ/5jkA/G3XXwtAD0z04CKPNClOANnWCQ+kHOf0=;
-        b=PyAfFRWdeCFTPQWwwA52nCltShafTNm6uGIjUGGm+JTDXP2gQW2HJDjfaUSDpd7Wfg
-         pEnQjbGUfA4epDoWhRTUlKTVY20BjhjmVqXb6XrVvTx+f7IjOEp/5ipUws7GaYM6XjVV
-         OdMXjCH985Q1rnkaDwyK+DYwvPLlpHGEj3+PMfrrszvxelU3fQwpP3vLeLa0loXU56bX
-         miQMnjbsySNWgHZGTR0N4UBc3qHX6cDh4F+eRUa1xIeuL3DEG/mWy/9e4IIjsQs+rUMJ
-         Oi0y135ufqD58JNH7lkkQW4CA3zB5fixRY1zgf5FsLVf/DG4bXY2hSNkG2HhoHKrHLsM
-         J6zw==
-X-Gm-Message-State: AOJu0YycU12sijfTbiGExI9fF2hYr6sVFNZc0dIkdyk/WdRvo4o0Ow0d
-	xHwUN5kTpe1ZyJrMYT6pd3CIvah8KrOG+rUVImbScBEEvtDDQtDU85/X8MNUpulOzR7vngEZB3V
-	jAIqvO+tlVAtY1navWwYb/0uLeTUficguAtJdUU2j
-X-Gm-Gg: AZuq6aKjLl8hfmcEub4Hh7hxVMlT4lirIAnLYEAwA6ziGkmpTj2siVFZlFH9Qe/9WnL
-	tt18B8Kg9SBtfuK8MLveQW39xB4VLXN+c/hZlEm4ZIKX+pkrpI1pURaLWG7U+TX/ouDcetnlqUv
-	5VU/3J01byxd9pw58dkDzq+Qv03JkNfrMZA+ij3KHGkK9G9JO5BByR2yrvdRhwB/IuFx3vOLuJ4
-	D1TxEqUudisjx3DfvijfAvtWRA/Scjo0zGjM6KwRx3A+kwWvNK1vAaNqKt9s9fCxpp+ayY=
-X-Received: by 2002:a17:902:cf07:b0:2a0:89c6:1824 with SMTP id
- d9443c01a7336-2a9245acb81mr45534675ad.8.1770158458714; Tue, 03 Feb 2026
- 14:40:58 -0800 (PST)
+        bh=n9X0znTAy1Uzid+CyhH1GZFisTMJ2hpyJjos5mdZiPA=;
+        b=UtXAgHaFzfB0PyyQuTHpdt5Vgz4G8Vlli1bF4Pib5qwcJZvgk5JnEWRgiXxjRg0MUl
+         XOtXaDe85vnoYBKHSTuJI9M3NW/LBnOuNuGtKJJXysGKWpR4/q9W48O7Ddgj5zZbgmmo
+         im7uw/fFnmJGOY3nxjgV31/I15nrsc4UgA3y18gVsJdivCQtyIOyf4Q8/usTvo9EvWWk
+         3ZDAkWEiFbPI9tLlJY2a7yfv1gTS40NnAqK1aq3chd0MkzTjjJVSPr/nj4FmnaLimcX8
+         REfOo294PMcJdeOnwYLeuycjlOKhjBzpSWLEQaHYMBBjwGpO6L/9gLlOa+e1Hzxcm1Om
+         ZuJA==
+X-Gm-Message-State: AOJu0YxlC4RGpujWGNVzDTPlAQLXGL/+MLeLHGj1euM0yR20GQ6VRYgj
+	FUqfulLAa8SuipHk2K10OugIn6df1YPgR+CLrXln+4j8lz07SfeS4n1bId7MPKfOXg==
+X-Gm-Gg: AZuq6aIbnOMyNhhty+hbUlqyI3y21Wvpd6ubOLmBCcn1JlGMfYp1Pd6Dd/gaiaP4nMA
+	0wLxLrrO0VtDFR/YBiLB7DJoAkHsiSoHTm/wVEm13+4a1tDCTmfq7Z4xnLN1QqOKZQhB/UEMNZO
+	6hAEVbVbZHpPuhdDUYCJw4NXK8Ne98tbSAkyowK588zMmGZ01S8OXbFsSVHy1ARWqRn4AzYAPk9
+	xlZBxAWspCtChPW1Y0XBFqjakwyMpCL//NpfoTSpiCWE30MBHYYlJgtsVwI8J+zGI802Lc8YmTi
+	plfghaz/IuyEK23RD0iyZyi3Njsxah301JOf4+xWIbxqYFtm2ybXdpnX5HP46VaxTMqGYxxTK3n
+	J7T+AxXJSnVpZVJn7bYbOW4UD6PF6xhXLjp9Trl1W41iC3yPaz3Doy60EFXuy7THAc6mF9rOzz+
+	b0DxOcgnjeI9Sk0uoX5gfs1dhwrGQ55y0876C9Imxdz2bR9IfjY/9moxQd
+X-Received: by 2002:a05:620a:3181:b0:8c6:a64e:928d with SMTP id af79cd13be357-8ca2fa9055dmr231363385a.83.1770178239556;
+        Tue, 03 Feb 2026 20:10:39 -0800 (PST)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8ca2fd2e971sm107019585a.35.2026.02.03.20.10.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Feb 2026 20:10:38 -0800 (PST)
+Date: Tue, 03 Feb 2026 23:10:38 -0500
+Message-ID: <74f395ba13926ab0391bd8714abc6036@paul-moore.com>
+From: Paul Moore <paul@paul-moore.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: selinux@vger.kernel.org, linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [GIT PULL] selinux/selinux-pr-20260203
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <2ec9c137-79a5-4562-8587-43dd2633f116@I-love.SAKURA.ne.jp>
- <CAHC9VhQikhv+qCyQdnJguvy-qTkGXB+NU7=QZjw5d+WfyVxZhw@mail.gmail.com>
- <00ed59a3-a9c9-47c3-97da-5a8e3da1ea82@I-love.SAKURA.ne.jp>
- <CAHC9VhQq6jY63kYEQCp2t89Vv+_PDqv54RV6TO_TePDQyU6Vug@mail.gmail.com>
- <1bb453af-3ef2-4ab6-a909-0705bd07c136@I-love.SAKURA.ne.jp>
- <CAHC9VhQEKfxXzFgYShojESpQn10LES5zL6Ua0YV9b8seEKFqyA@mail.gmail.com>
- <93d291db-4175-48c4-830c-e83bab373ae2@I-love.SAKURA.ne.jp>
- <CAHC9VhQPKU5DqG-ryZsiCV2vZeGGf_a-JStR_LVVCCn03C4usQ@mail.gmail.com> <f9b88268-03dc-4356-8b31-0bab73cc9b1e@I-love.SAKURA.ne.jp>
-In-Reply-To: <f9b88268-03dc-4356-8b31-0bab73cc9b1e@I-love.SAKURA.ne.jp>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 3 Feb 2026 17:40:46 -0500
-X-Gm-Features: AZwV_Qif3yehzpr-f2ndt231BFo5lijgl4EiKO49mjjc8a7vIRsWIa1o9OOEp3s
-Message-ID: <CAHC9VhRzRAR+hhn4TFADnHWpzjOxjmh0S_Hg_HktkPkKQ35ycg@mail.gmail.com>
-Subject: Re: [PATCH] xfrm: kill xfrm_dev_{state,policy}_flush_secctx_check()
-To: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc: SELinux <selinux@vger.kernel.org>, 
-	linux-security-module <linux-security-module@vger.kernel.org>, 
-	Steffen Klassert <steffen.klassert@secunet.com>, Herbert Xu <herbert@gondor.apana.org.au>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Network Development <netdev@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 2, 2026 at 10:48=E2=80=AFPM Tetsuo Handa
-<penguin-kernel@i-love.sakura.ne.jp> wrote:
-> On 2026/02/02 13:07, Paul Moore wrote:
-> > I'm asking you to verify that we have the LSM xfrm hooks in all of the
-> > necessary locations to ensure that we are safely and comprehensively
-> > gating all of the operations that result in removal of SPD and SAD
-> > entries.
->
-> That is impossible. We can't have the LSM xfrm hooks in all locations
-> that result in removal of SPD and SAD entries.
+Linus,
 
-It's a good thing that isn't what I said.  I said "... LSM xfrm hooks
-in all of the
-necessary locations to ensure that we are safely and COMPREHENSIVELY
-GATING all of the operations that result in removal of SPD and SAD
-entries."  I used the capitalization to emphasize the idea that the
-goal is a comprehensive gating of the operations, not necessarily a
-placement of LSM hooks in all of the functions.  It can be a subtle
-difference, but it is an important one as I think you can understand.
+This is a bit early, but due to some personal scheduling I'd rather send
+this to you now, and you always mention you prefer to get pull requests
+early (perhaps not this early?) so here is hoping this is a win-win.
 
-> It is your role (not my role) to verify that we have the LSM xfrm hooks i=
-n all
-> of the necessary locations, for it is you who is wishing to ensure that w=
-e are
-> safely and comprehensively gating all of the operations that result in re=
-moval
-> of SPD and SAD entries.
+Here are the highlights for the SELinux changes queued for the Linux v7.0
+merge window:
 
-All of us who contribute upstream have a responsibility to ensure the
-proper operation and maintenance of the upstream Linux kernel, this is
-especially true for individuals such as yourself who have accepted a
-maintainer role.
+- Add support for SELinux based access control of BPF tokens
 
-You have identified what appear to be issues with the upstream kernel,
-and have proposed changes to address that.  While reviewing those
-changes I asked you to verify that the LSM hooks associated with your
-proposed change were still working as expected, since it was not clear
-from the discussion, or the patch, that an investigation had taken
-place.  This is not an unusual request for such a proposed change, and
-is something that I would expect a LSM maintainer to do without much
-hesitation.  If you are unwilling to investigate this, can you explain
-why?
+We worked with the BPF devs to add the necessary LSM hooks when the BPF
+token code was first introduced, but it took us a bit longer to add the
+SELinux wiring and support.  In order to preserve existing token-unaware
+SELinux policies, the new code is gated by the new "bpf_token_perms"
+policy capability.
 
---=20
+Additional details regarding the new permissions, and behaviors can be
+found in the associated commit.
+
+- Remove a BUG() from the SELinux capability code
+
+We now perform a similar check during compile time so we can safely
+remove the BUG() call.
+
+Paul
+
+--
+The following changes since commit 8f0b4cce4481fb22653697cced8d0d04027cb1e8:
+
+  Linux 6.19-rc1 (2025-12-14 16:05:07 +1200)
+
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+    tags/selinux-pr-20260203
+
+for you to fetch changes up to ea64aa57d596c4cbe518ffd043c52ef64089708d:
+
+  selinux: drop the BUG() in cred_has_capability()
+    (2026-01-14 16:26:21 -0500)
+
+----------------------------------------------------------------
+selinux/stable-7.0 PR 20260203
+----------------------------------------------------------------
+
+Eric Suen (1):
+      selinux: add support for BPF token access control
+
+Paul Moore (3):
+      selinux: move the selinux_blob_sizes struct
+      selinux: fix a capabilities parsing typo in
+         selinux_bpf_token_capable()
+      selinux: drop the BUG() in cred_has_capability()
+
+ security/selinux/hooks.c                   |  163 +++++++++++++++++----
+ security/selinux/include/classmap.h        |    2 
+ security/selinux/include/objsec.h          |    3 
+ security/selinux/include/policycap.h       |    1 
+ security/selinux/include/policycap_names.h |    1 
+ security/selinux/include/security.h        |    6 
+ 6 files changed, 151 insertions(+), 25 deletions(-)
+
+--
 paul-moore.com
