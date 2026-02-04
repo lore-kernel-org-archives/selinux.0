@@ -1,168 +1,99 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
+Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3B1B39903E;
-	Wed,  4 Feb 2026 10:58:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 989DA27A123;
+	Wed,  4 Feb 2026 13:57:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.181.97.72
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770202721; cv=none; b=DpdIpIKv48+G1be8XRNZ1Y01uf/bErvMnI4bJU+Vj5rWZ6WwTgL8ZE5VmgdKmhvdsypt5xoyDff9OK1a/4yfZL/W54oBGLg4Gr+Nbr9ulsIjdJ30E4azzB/NAA2qV4uV5Fd/jNqJu7MUFZJj4XJT+P4xmiHZZhHmwFMy9XTGV34=
+	t=1770213477; cv=none; b=F/mkU2vW5l2RzSJlyx37ODpG5jkAiRdLEBvivRVLPoHL1g89RlwofIGBhbe+HXFDBnTccAxR94V9QtSznwDBHmL12Fdv7+/v+iVrsFq89mQF2wNjG1ohNVKGwGO2Sr0Rye3Z7XdhuROH5DGg6NliWbcEd5+hcFHlgBhmSzmTzuI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770202721; c=relaxed/simple;
-	bh=e4OYY/P0s+n3f6l0Un+2wnNzSCxA9PSWh2mQE2h/QLI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FfSqTBetpmnUBCBZUYYLO9V3Z35kpksT6kzY+xJhIlpc6tMwbrPvrD18nN/1gu+iHyWhiokZdqENJZl8v+quNXF0FT4eBDWpKS3EnD8lrlGXn7UYGWYfbBeYNzWw9jXpw0Ol6GxMEveGaTVkYYzhhzAFinlC5pbmmHBzcMjSc4k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=P/rXH+g6; arc=none smtp.client-ip=198.175.65.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="P/rXH+g6"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1770202721; x=1801738721;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=e4OYY/P0s+n3f6l0Un+2wnNzSCxA9PSWh2mQE2h/QLI=;
-  b=P/rXH+g67RmGvsKf8fW9NdXPYHiQBhjsXbEl5xs9cdbkru+GcsMpIjPF
-   ZgAZq2ETt877WT5m1Nx94gr4d/N8pblUQCmq0mKcAFYCIgNnY/plSvsix
-   hRJI37HGYUCi6SsOHqLspIZPElnW8hWE1s7I4u8Jn5ukSrBFAhWLIpE3Q
-   /PbylfvfXNN1S6/ThdghhLi0XtxG+ti5kvtasAmdX1ChGVh0jl0Z5jj93
-   EcqXLKNG+XUJW/L18PkEMzfb7RMvEgbHyog1thFe9zVGQxO2yc22+6sth
-   uwrsDhQoDtZsGIHRiQ3nKCCICPIvXqgCFaQPD2nPLnkzN30pOaAj//87J
-   w==;
-X-CSE-ConnectionGUID: Uqeby7skSJGEmc0KRBFotA==
-X-CSE-MsgGUID: qm180nDqQvud+jqMORzq4Q==
-X-IronPort-AV: E=McAfee;i="6800,10657,11691"; a="88807943"
-X-IronPort-AV: E=Sophos;i="6.21,272,1763452800"; 
-   d="scan'208";a="88807943"
-Received: from orviesa006.jf.intel.com ([10.64.159.146])
-  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Feb 2026 02:58:40 -0800
-X-CSE-ConnectionGUID: oBTx9fyySBW7CeLiYKyMow==
-X-CSE-MsgGUID: 6hswnyijS3qwmcCTJ28ksw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,272,1763452800"; 
-   d="scan'208";a="209230824"
-Received: from lkp-server01.sh.intel.com (HELO 765f4a05e27f) ([10.239.97.150])
-  by orviesa006.jf.intel.com with ESMTP; 04 Feb 2026 02:58:17 -0800
-Received: from kbuild by 765f4a05e27f with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1vnaaN-00000000hii-2R8J;
-	Wed, 04 Feb 2026 10:58:15 +0000
-Date: Wed, 4 Feb 2026 18:58:08 +0800
-From: kernel test robot <lkp@intel.com>
-To: NeilBrown <neilb@ownmail.net>, Christian Brauner <brauner@kernel.org>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	David Howells <dhowells@redhat.com>, Jan Kara <jack@suse.cz>,
-	Chuck Lever <chuck.lever@oracle.com>,
-	Jeff Layton <jlayton@kernel.org>,
-	Miklos Szeredi <miklos@szeredi.hu>,
-	Amir Goldstein <amir73il@gmail.com>,
-	John Johansen <john.johansen@canonical.com>,
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
-	"Serge E. Hallyn" <serge@hallyn.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: oe-kbuild-all@lists.linux.dev, linux-kernel@vger.kernel.org,
-	netfs@lists.linux.dev, linux-fsdevel@vger.kernel.org,
-	linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org,
-	apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
-	selinux@vger.kernel.org
-Subject: Re: [PATCH 04/13] Apparmor: Use simple_start_creating() /
- simple_done_creating()
-Message-ID: <202602041851.x2RfFgKO-lkp@intel.com>
-References: <20260204050726.177283-5-neilb@ownmail.net>
+	s=arc-20240116; t=1770213477; c=relaxed/simple;
+	bh=1NY8xj1oVBOa9QdXJ3gXRwK8an5wtbxELhV+G98rDA8=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=NXPjVqg9oROlxJBkqI4e1sL3GAJOA+L2iURbSnyWR/xcCrftoEmaFxH5UcwgofLEORMmC50pCsUBOqcE3Fo94JIx4stqJpC085Fm7juudMUMnkGzMsVt/BmzIHt6r4ZJkcNIOip2w/EdiByq+cKMdevpAt9eyL0Qc7QtA5gVCM0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=I-love.SAKURA.ne.jp; spf=pass smtp.mailfrom=I-love.SAKURA.ne.jp; arc=none smtp.client-ip=202.181.97.72
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=I-love.SAKURA.ne.jp
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=I-love.SAKURA.ne.jp
+Received: from www262.sakura.ne.jp (localhost [127.0.0.1])
+	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 614DvVf5022147;
+	Wed, 4 Feb 2026 22:57:31 +0900 (JST)
+	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Received: from [192.168.1.10] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
+	(authenticated bits=0)
+	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 614DvUCt022144
+	(version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
+	Wed, 4 Feb 2026 22:57:30 +0900 (JST)
+	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Message-ID: <7ef21dab-3805-4eae-80d7-9779aeff3f58@I-love.SAKURA.ne.jp>
+Date: Wed, 4 Feb 2026 22:57:30 +0900
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260204050726.177283-5-neilb@ownmail.net>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] xfrm: kill xfrm_dev_{state,policy}_flush_secctx_check()
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+To: Paul Moore <paul@paul-moore.com>, SELinux <selinux@vger.kernel.org>,
+        linux-security-module <linux-security-module@vger.kernel.org>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+        Network Development <netdev@vger.kernel.org>
+References: <2ec9c137-79a5-4562-8587-43dd2633f116@I-love.SAKURA.ne.jp>
+ <CAHC9VhQikhv+qCyQdnJguvy-qTkGXB+NU7=QZjw5d+WfyVxZhw@mail.gmail.com>
+ <00ed59a3-a9c9-47c3-97da-5a8e3da1ea82@I-love.SAKURA.ne.jp>
+ <CAHC9VhQq6jY63kYEQCp2t89Vv+_PDqv54RV6TO_TePDQyU6Vug@mail.gmail.com>
+ <1bb453af-3ef2-4ab6-a909-0705bd07c136@I-love.SAKURA.ne.jp>
+ <CAHC9VhQEKfxXzFgYShojESpQn10LES5zL6Ua0YV9b8seEKFqyA@mail.gmail.com>
+ <93d291db-4175-48c4-830c-e83bab373ae2@I-love.SAKURA.ne.jp>
+ <CAHC9VhQPKU5DqG-ryZsiCV2vZeGGf_a-JStR_LVVCCn03C4usQ@mail.gmail.com>
+ <f9b88268-03dc-4356-8b31-0bab73cc9b1e@I-love.SAKURA.ne.jp>
+ <CAHC9VhRzRAR+hhn4TFADnHWpzjOxjmh0S_Hg_HktkPkKQ35ycg@mail.gmail.com>
+ <74a70504-8ff8-4d97-b35f-774364779889@I-love.SAKURA.ne.jp>
+Content-Language: en-US
+In-Reply-To: <74a70504-8ff8-4d97-b35f-774364779889@I-love.SAKURA.ne.jp>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Anti-Virus-Server: fsav205.rs.sakura.ne.jp
+X-Virus-Status: clean
 
-Hi NeilBrown,
+On 2026/02/04 19:15, Tetsuo Handa wrote:
+> On 2026/02/04 7:40, Paul Moore wrote:
+>>         This is not an unusual request for such a proposed change, and
+>> is something that I would expect a LSM maintainer to do without much
+>> hesitation.  If you are unwilling to investigate this, can you explain
+>> why?
+> 
+> Because I'm not familiar with how XFRM works; I'm not a user of LSM XFRM hooks.
+> 
+> I can't judge whether the current code is COMPREHENSIVELY GATING;
+> I can't imagine what the state you call COMPREHENSIVELY GATING is.
 
-kernel test robot noticed the following build warnings:
+Steffen Klassert worried that killing xfrm_dev_state_flush_secctx_check() and
+xfrm_dev_policy_flush_secctx_check() might violate a LSM policy and you agreed
+( https://lkml.kernel.org/r/CAHC9VhQ54LRD7k_x6tUju2kPVBEHcdgBh46_hBN8btG0vhfy_w@mail.gmail.com ),
+but the reality is that nobody in the world has enforced an LSM policy for almost 9 years
+that makes xfrm_dev_{state,policy}_flush() no-op. That is, xfrm_dev_state_flush_secctx_check()
+and xfrm_dev_policy_flush_secctx_check() had been effectively unused.
 
-[auto build test WARNING on brauner-vfs/vfs.all]
-[also build test WARNING on viro-vfs/for-next linus/master v6.19-rc8 next-20260203]
-[cannot apply to pcmoore-selinux/next]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+Killing xfrm_dev_state_flush_secctx_check() and xfrm_dev_policy_flush_secctx_check()
+increases "system's stability" without sacrificing "authorization".
 
-url:    https://github.com/intel-lab-lkp/linux/commits/NeilBrown/fs-proc-Don-t-lock-root-inode-when-creating-self-and-thread-self/20260204-131659
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/vfs/vfs.git vfs.all
-patch link:    https://lore.kernel.org/r/20260204050726.177283-5-neilb%40ownmail.net
-patch subject: [PATCH 04/13] Apparmor: Use simple_start_creating() / simple_done_creating()
-config: arm-randconfig-r133-20260204 (https://download.01.org/0day-ci/archive/20260204/202602041851.x2RfFgKO-lkp@intel.com/config)
-compiler: arm-linux-gnueabi-gcc (GCC) 11.5.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260204/202602041851.x2RfFgKO-lkp@intel.com/reproduce)
+It is up to SELinux developers to discuss what actions to take as a compensation for
+killing xfrm_dev_state_flush_secctx_check() and xfrm_dev_policy_flush_secctx_check().
+The compensation might be to add LSM hooks to immediately before the point of no return.
+But I wonder why you want to authorize deleting resources which are going to be "deleted by
+cascade" due to deleting a dependent resource...
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202602041851.x2RfFgKO-lkp@intel.com/
+> 
+> 
+> 
+> P.S. For your investigation, I attach a new report that syzbot found today, and
+> I'll drop "xfrm: always fail xfrm_dev_{state,policy}_flush_secctx_check()"
+> because these three reports will be sufficient for people to understand that
+> we need to kill xfrm_dev_{state,policy}_flush_secctx_check() calls.
 
-sparse warnings: (new ones prefixed by >>)
->> security/apparmor/apparmorfs.c:295:16: sparse: sparse: Using plain integer as NULL pointer
-
-vim +295 security/apparmor/apparmorfs.c
-
-   247	
-   248	/**
-   249	 * aafs_create - create a dentry in the apparmorfs filesystem
-   250	 *
-   251	 * @name: name of dentry to create
-   252	 * @mode: permissions the file should have
-   253	 * @parent: parent directory for this dentry
-   254	 * @data: data to store on inode.i_private, available in open()
-   255	 * @link: if symlink, symlink target string
-   256	 * @fops: struct file_operations that should be used for
-   257	 * @iops: struct of inode_operations that should be used
-   258	 *
-   259	 * This is the basic "create a xxx" function for apparmorfs.
-   260	 *
-   261	 * Returns a pointer to a dentry if it succeeds, that must be free with
-   262	 * aafs_remove(). Will return ERR_PTR on failure.
-   263	 */
-   264	static struct dentry *aafs_create(const char *name, umode_t mode,
-   265					  struct dentry *parent, void *data, void *link,
-   266					  const struct file_operations *fops,
-   267					  const struct inode_operations *iops)
-   268	{
-   269		struct dentry *dentry;
-   270		struct inode *dir;
-   271		int error;
-   272	
-   273		AA_BUG(!name);
-   274		AA_BUG(!parent);
-   275	
-   276		if (!(mode & S_IFMT))
-   277			mode = (mode & S_IALLUGO) | S_IFREG;
-   278	
-   279		error = simple_pin_fs(&aafs_ops, &aafs_mnt, &aafs_count);
-   280		if (error)
-   281			return ERR_PTR(error);
-   282	
-   283		dir = d_inode(parent);
-   284	
-   285		dentry = simple_start_creating(parent, name);
-   286		if (IS_ERR(dentry)) {
-   287			error = PTR_ERR(dentry);
-   288			goto fail;
-   289		}
-   290	
-   291		error = __aafs_setup_d_inode(dir, dentry, mode, data, link, fops, iops);
-   292		simple_done_creating(dentry);
-   293		if (error)
-   294			goto fail;
- > 295		return 0;
-   296	fail:
-   297		simple_release_fs(&aafs_mnt, &aafs_count);
-   298		return ERR_PTR(error);
-   299	}
-   300	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
