@@ -1,124 +1,118 @@
-Received: from mx1.secunet.com (mx1.secunet.com [62.96.220.36])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E74F2331205;
-	Mon,  9 Feb 2026 11:22:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.96.220.36
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21A4C22B8BD;
+	Mon,  9 Feb 2026 14:01:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770636128; cv=none; b=pJ0lqgP6KwiQMwOQUEvDs2M68jez1SSqOEsDHM/1ByQX2UHYbCbtgeoYysLQBUQDtrB5x/wiB43fSzQaaeJx9irx3R0Fl9PKTs89ftBSZvs+TvFLhzeUir3yEe3B3Dzcnhhpy4ZJ3/yGDpTfPCfV3Rj43T3tSXxyaI0gyN4np9I=
+	t=1770645686; cv=none; b=rHeud/xV2aq0FVx8npXqUKx0wXPWzN3gKOlHbkXHiFiwfEcRxoBGbiv8S81Hp5QFsxuxTbnIS2Xs54okjDO4RiHYd2Lsy+ppFg8MS50K4mlwZkpGxskAOZCZBcS9J8pZXzjdvYxBDwLh5lWbITH1GHR99HvgQznupzycPsR1E0w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770636128; c=relaxed/simple;
-	bh=/4vP3oQ0KZ3dUwcxXnlCQqQFTAUTGZpSvH9ZWjuUv4w=;
-	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ReOc2GFZMmkAldXL4J7n25eKoNmyNMybIdiIYKNE8bN5w+8ORhgGuExQJGcAiXaGWFae+sDSpM/wfrVfVtDC0un4DWdAliC1cizQyrQfzeD9RpNUD/cZGUxtBYlj6MPr/eAhJQOLaYezV6snLn2dOsJAr4h3BH7/69Gf1Oizmwk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com; spf=pass smtp.mailfrom=secunet.com; dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b=Y45XC0kZ; arc=none smtp.client-ip=62.96.220.36
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=secunet.com
+	s=arc-20240116; t=1770645686; c=relaxed/simple;
+	bh=okR+EAtZhjqHaf6qo/7UrQbLty7TTHO1yWpP4wFCTMU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ektc+xEXwultlHhwdBvfUzxsZNIYmMJlOPRBOc7uiqlAr+ghXJyIpBVIYd1Gdc37xuGx/ywKcFt835TIdDDrkw2scWC9rOeehKdM/pVLkDdBNpIZ5B5BtfBw/Y2yO6l4X75iD7eVbWo29zmlYR4SQceEf7XJW3l/hVDvYxgwErs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=p5JHx7Pg; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b="Y45XC0kZ"
-Received: from localhost (localhost [127.0.0.1])
-	by mx1.secunet.com (Postfix) with ESMTP id 8C91F207BB;
-	Mon,  9 Feb 2026 12:22:04 +0100 (CET)
-X-Virus-Scanned: by secunet
-Received: from mx1.secunet.com ([127.0.0.1])
- by localhost (mx1.secunet.com [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id G5el-hgALqPx; Mon,  9 Feb 2026 12:22:03 +0100 (CET)
-Received: from EXCH-01.secunet.de (rl1.secunet.de [10.32.0.231])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.secunet.com (Postfix) with ESMTPS id A80BC2064C;
-	Mon,  9 Feb 2026 12:22:03 +0100 (CET)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.secunet.com A80BC2064C
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=secunet.com;
-	s=202301; t=1770636123;
-	bh=+No82JChBDhuYfPnY/XEp9tK1idnhcI1+B2RVGHAvXs=;
-	h=Date:From:To:CC:Subject:References:In-Reply-To:From;
-	b=Y45XC0kZcMA3u5SrSaJl1iekhO2OjtTmf0J/S4GmoYVHbyH42y+NR1PSSYi/Vm6qH
-	 lo/3K1+mBHEkEFThrq6iyBcmYQRXoxhf+zYWbvieCNbKkvId5BVUU1QPKwZcfyeH+g
-	 Iy8Jj1J85H675GCytdoSYu1mU0t71ouLrSxd7vqQhGZM5rTu/OvzYBmVYADjq549x5
-	 yZ+gw6v18WNQrUWvlPfbG0kCtlqwrAC76kowqFWf3Ye83mH0uaD3rQDY5j2Pv9dJH9
-	 WTEjvgJ8SszdyTLwjV/I/KSPj4ejw50XYvlYNXiqJoY0eAEBLv6+JJy6eQ57R3oO71
-	 Un1LKF2F/33rg==
-Received: from secunet.com (10.182.7.193) by EXCH-01.secunet.de (10.32.0.171)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Mon, 9 Feb
- 2026 12:22:02 +0100
-Received: (nullmailer pid 1538112 invoked by uid 1000);
-	Mon, 09 Feb 2026 11:22:01 -0000
-Date: Mon, 9 Feb 2026 12:22:01 +0100
-From: Steffen Klassert <steffen.klassert@secunet.com>
-To: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-CC: Paul Moore <paul@paul-moore.com>, SELinux <selinux@vger.kernel.org>,
-	linux-security-module <linux-security-module@vger.kernel.org>, Herbert Xu
-	<herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>, Eric
- Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Network Development
-	<netdev@vger.kernel.org>
-Subject: Re: [PATCH] xfrm: kill xfrm_dev_{state,policy}_flush_secctx_check()
-Message-ID: <aYnDWbxo-jAzR4ca@secunet.com>
-References: <1bb453af-3ef2-4ab6-a909-0705bd07c136@I-love.SAKURA.ne.jp>
- <CAHC9VhQEKfxXzFgYShojESpQn10LES5zL6Ua0YV9b8seEKFqyA@mail.gmail.com>
- <93d291db-4175-48c4-830c-e83bab373ae2@I-love.SAKURA.ne.jp>
- <CAHC9VhQPKU5DqG-ryZsiCV2vZeGGf_a-JStR_LVVCCn03C4usQ@mail.gmail.com>
- <f9b88268-03dc-4356-8b31-0bab73cc9b1e@I-love.SAKURA.ne.jp>
- <CAHC9VhRzRAR+hhn4TFADnHWpzjOxjmh0S_Hg_HktkPkKQ35ycg@mail.gmail.com>
- <74a70504-8ff8-4d97-b35f-774364779889@I-love.SAKURA.ne.jp>
- <7ef21dab-3805-4eae-80d7-9779aeff3f58@I-love.SAKURA.ne.jp>
- <aYmoDwO-YXrc4W1c@secunet.com>
- <85546d35-c7bd-49bf-b0c3-9677bde25859@I-love.SAKURA.ne.jp>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="p5JHx7Pg"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AEC7C116C6;
+	Mon,  9 Feb 2026 14:01:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1770645685;
+	bh=okR+EAtZhjqHaf6qo/7UrQbLty7TTHO1yWpP4wFCTMU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=p5JHx7Pglta9XrUEaylUygInEiRiWXmfPPLfeI2KtvQbPYTnk4Ro1akxcHmoMu4xu
+	 a3rPUUA06pM1HLn+V8WQmnrtQB3P/O/mPbO7svaVwr5hwKY91nd8iaoeZcKL0PSYvB
+	 ut9T4TmWe70bsxgxDMg1lC3+qiXmrWOT8+pcw35qxrX2NW3EMRbCFe3XN0iH833rRv
+	 xDj19Jt4Du8LUu5kMl2q2uMOa7u+B42cNl0palnEv8OpSkyp8BO3Bqg7TfHnVeK8Xf
+	 ZCY4/xPIoJbBLVieSTAXEiUcphSRlerLDo70TWnv+PIZ+a8heIljkD/SQF3Dx85r+v
+	 uJaMv5Xr/qy/A==
+Date: Mon, 9 Feb 2026 15:01:20 +0100
+From: Christian Brauner <brauner@kernel.org>
+To: danieldurning.work@gmail.com
+Cc: linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org, viro@zeniv.linux.org.uk, jack@suse.cz, paul@paul-moore.com, 
+	stephen.smalley.work@gmail.com, omosnace@redhat.com, Oleg Nesterov <oleg@redhat.com>
+Subject: Re: [RFC PATCH] fs/pidfs: Add permission check to pidfd_info()
+Message-ID: <20260209-spanplatten-zerrt-73851db30f18@brauner>
+References: <20260206180248.12418-1-danieldurning.work@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <85546d35-c7bd-49bf-b0c3-9677bde25859@I-love.SAKURA.ne.jp>
-X-ClientProxiedBy: EXCH-04.secunet.de (10.32.0.184) To EXCH-01.secunet.de
- (10.32.0.171)
+In-Reply-To: <20260206180248.12418-1-danieldurning.work@gmail.com>
 
-On Mon, Feb 09, 2026 at 07:02:47PM +0900, Tetsuo Handa wrote:
-> On 2026/02/09 18:25, Steffen Klassert wrote:
-> > The problem is that, with adding IPsec offloads to netdevices, security
-> > critical resources came into the netdevices. Someone who has no
-> > capabilities to delete xfrm states or xfrm policies should not be able
-> > to unregister the netdevice if xfrm states or xfrm policies are
-> > offloaded. Unfortunately, unregistering can't be canceled at this stage
-> > anymore. So I think we need some netdevice unregistration hook for
-> > the LSM subsystem so it can check for xfrm states or xfrm policies
-> > and refuse the unregistration before we actually start to remove
-> > the device.
+On Fri, Feb 06, 2026 at 06:02:48PM +0000, danieldurning.work@gmail.com wrote:
+> From: Daniel Durning <danieldurning.work@gmail.com>
 > 
-> Unfortunately, unregistering is not always triggered by a user's request. ;-)
-
-As far as I remember, a security context is not always tied to a
-user request. It can also be attached to system tasks or objects.
-
-> For example, we don't check permission for unmount when a mount is deleted
-> due to teardown of a mount namespace. I wonder why you want to check permission
-> for unregistering a net_device when triggered by a teardown path.
-
-I just try to find out what's the right thing to do here.
-If a policy goes away, packets that match this policy will
-find another path through the network stack. As best, they
-are dropped somewhere, but they can also leave on some other
-device without encryption. A LSM that implements xfrm hooks
-must be able to check the permission to delete the xfrm policy
-or state.
-
+> Added a permission check to pidfd_info(). Originally, process info
+> could be retrieved with a pidfd even if proc was mounted with hidepid
+> enabled, allowing pidfds to be used to bypass those protections. We
+> now call ptrace_may_access() to perform some DAC checking as well
+> as call the appropriate LSM hook.
 > 
-> > 
-> > The same happened btw. when xfrm was made per network namespace.
-> > Here we just leak the xfrm states and xfrm policies if some
-> > LSM refuses to remove them.
-> > 
-> > I guess we need a solution for both cases.
-> 
-> Is replacing the NETDEV_UNREGISTER net_device with the blackhole_netdev applicable
-> ( https://elixir.bootlin.com/linux/v6.19-rc5/source/net/xfrm/xfrm_policy.c#L3948 ) ?
-> If no, there is no choice but break SELinux's expectation.
+> The downside to this approach is that there are now more restrictions
+> on accessing this info from a pidfd than when just using proc (without
+> hidepid). I am open to suggestions if anyone can think of a better way
+> to handle this.
 
-That could be an option to not accidentally send out
-unencrypted packets. But finding the right place for
-these checks would be preferable IMO.
+This isn't really workable since this would regress userspace quite a
+bit. I think we need a different approach. I've given it some thought
+and everything's kinda ugly but this might work.
+
+In struct pid_namespace record whether anyone ever mounted a procfs
+with hidepid turned on for this pidns. In pidfd_info() we check whether
+hidepid was ever turned on. If it wasn't we're done and can just return
+the info. This will be the common case. If hidepid was ever turned on
+use kern_path("/proc") to lookup procfs. If not found check
+ptrace_may_access() to decide whether to return the info or not. If
+/proc is found check it's hidepid settings and make a decision based on
+that.
+
+You can probably reorder this to call ptrace_may_access() first and then
+do the procfs lookup dance. Thoughts?
+
+> I have also noticed that it is possible to use pidfds to poll on any
+> process regardless of whether the process is a child of the caller,
+> has a different UID, or has a different security context. Is this
+> also worth addressing? If so, what exactly should the DAC checks be?
+
+Oleg and I had discusses this and decided that such polling isn't
+sensitive information so by default this should just work and it's
+relied upon in Android and in a bunch of other workloads. An LSM can of
+course restrict access via security_file_ioctl().
+
+Fwiw, pidfds now support persistent trusted extended attributes so if
+the LSM folks wanted we can add security.* extended attribute support
+and they can mark pidfds with persistent security labels - persistent as
+in for the lifetime of the task.
+
+> Signed-off-by: Daniel Durning <danieldurning.work@gmail.com>
+> ---
+>  fs/pidfs.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/fs/pidfs.c b/fs/pidfs.c
+> index dba703d4ce4a..058a7d798bca 100644
+> --- a/fs/pidfs.c
+> +++ b/fs/pidfs.c
+> @@ -365,6 +365,13 @@ static long pidfd_info(struct file *file, unsigned int cmd, unsigned long arg)
+>  		goto copy_out;
+>  	}
+>  
+> +	/*
+> +	 * Do a filesystem cred ptrace check to verify access
+> +	 * to the task's info.
+> +	 */
+> +	if (!ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS))
+> +		return -EACCES;
+> +
+>  	c = get_task_cred(task);
+>  	if (!c)
+>  		return -ESRCH;
+> -- 
+> 2.52.0
+> 
