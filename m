@@ -1,123 +1,88 @@
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 533753570BA
-	for <selinux@vger.kernel.org>; Wed, 11 Feb 2026 09:40:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.51
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770802839; cv=pass; b=MGyyOV32TacMbzQrizPmo50ku2pBHJpX+sOv8jCGE/G8VZ2t71wURyyZ/Ea1YGwg+t++ijzZQleA2MxCrO/r26Iw0GtCNikWPiWda4OwNMEqgB7W7lHJIINT4ZTT9S0Foixc0HW0xGVxMopDTla7i3rPJnZIFwY2RO1j1J1W/Hw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770802839; c=relaxed/simple;
-	bh=pbVPPGED0aNtILMDfwpVZIRFZ7UPYVQrurrGmCKJz5M=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=c3ST00qKk9p/b1l9FgOgzMxV29/hJ7JPvg8akUOaNuuQrCp5u2lewQ0JCDhZ5g8D6pPGQ2szAucUlJlMQcbFXdFfPb2lTY+mE05aa19oIIHRoqmkpxuKoL7mVL0a5pMfLOjKmskBlV+yiY3txNE0eJfAVONyL1Qy3YLlz9uPyag=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=FGosEWPV; arc=pass smtp.client-ip=209.85.216.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 588BC1F09A8;
+	Wed, 11 Feb 2026 17:20:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770830433; cv=none; b=e9/uxSDzpJR3JSNW9Bl9ntgMYHGC+oItFJwMWxKDJqnqvzQPRT7kJxmF3qP56FUFQ1ZhzFDzAStsBRJOsfb2jQVeVoYNGSEM96aAE7zQnfoGXkRzUuj7uC24CDj8JlqFushBDLoZldVdbkul4CV1JM+FOmFUDrUeqasmF2LhHUY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770830433; c=relaxed/simple;
+	bh=rDSxVoUqlCob1134dE/I8Idt+0slLPa+P7T12+XN680=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=uWbyAiWMuQF18cNzNksqCi9Hjj8rJlQOdwVpH6YKzJlrTgH7X/Icc56LLQmQyW+bm1FxNVNFmAl2PaBeUa+IjUWJjDfRtAQOFuruxidwJpVR+UUsNOaO3aHx8bFg1PvugsqjglNq551PzVpTe6GpfkqMcTi4pgY0S+ChAL8Prfs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XzjJXyDK; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="FGosEWPV"
-Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-3567e2b4159so301988a91.0
-        for <selinux@vger.kernel.org>; Wed, 11 Feb 2026 01:40:38 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1770802837; cv=none;
-        d=google.com; s=arc-20240605;
-        b=lDpHGzM3pIrx70OStCoABDWTNmiXxo7i7AXqppxsbQJY9tDNIK/ANowSKM8WnlpYaD
-         JqIgUaumd/Q3KcmjkAEQG2/i5CG/RWt/KxzzPsTmSnWK96wjDFcMm9qjeBtpWYVt38LV
-         h9Ys6a4c1fumRo5pFoWzYW0i4IEBqa/QGYSUeFf/JvMDxj35Wqy9m+xunBVPYzeXpIla
-         pcJ1iL7+CUzusip2ThHUrvax/vfXL9CQnK22yL3Gow+3yGuhDNfGDoC46qqVZhZ73Psi
-         vnYu4gvvj77vhChs/QstnokC0E6PrJIWhtAQP9soUh+HgfvU55ZlWg58V7KdSpq3vwxH
-         lHLQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=BjXKhFTfJiM005W8+dX7G5EuIxJHf1ws6Z7GJMib1BM=;
-        fh=gxN+tW+bB78pFrIXdVRVMhq8TwLlRkuWCG8hXm2ZwDE=;
-        b=OuEqiGU7W8At+aA1+GqQ5K5cl6Mz1VkoIvgw3iezIW9JB4J8I+4v11F49v1dXXgLdr
-         O8/qwTapW8ebzH4rT4ALIlRV3DWoHa/HlOiy2EvKXC/zQNmes+i9ArWYJEDRdV0kdYQU
-         ZFmGbm/nhQnbKoHzzyxY/fYAbJX/j/xOEjET3INPFNG4+wtG5EkgRbyPPkSD2pRodaZT
-         HYZQ8LS6v4MNuEZOGiPetiuaGZrIJMjVKy4uSStHQ9atdJS5NFT5/EeibfR9aSyHtch0
-         wGWLtfCXKfhWwmVPj0lhJ3zZXY57JPu5WvB9PK1zH5n3auf9chPf2ME0PuoJONuf+y/q
-         eccg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1770802837; x=1771407637; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=BjXKhFTfJiM005W8+dX7G5EuIxJHf1ws6Z7GJMib1BM=;
-        b=FGosEWPVhZ/U0wGEPzNfTKCRUOJQAN6IwnK8TWZX2lkpvVU0QXuplmLnPyfQbYor+W
-         vL7e2abptR4jXqM1F1kHA0crHysWelORM/zkOWhVUYTKoT603qQpNH6wAOaxdn6t1vZ5
-         73AFaEJQARUTZBVrZO+ghstIKhoUVcI2cIufKaOnkD0whAvFsZj9dBaMQvu/euccf4dy
-         zZIXJKTsElxQzO8i89g6LLEzkNBdgsHshuPH6f3e0y4O28kNsZTThjeUtkeuRB1alYM/
-         LW4IlsaScVBYw3GWWuy/FjtX5FfIICvcNjbyIgWk+ifx+qnEmOcjAxUp/bNC95kyNPqy
-         lK1w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770802837; x=1771407637;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=BjXKhFTfJiM005W8+dX7G5EuIxJHf1ws6Z7GJMib1BM=;
-        b=f2siPILA2Hi9e+GxDxK8la2FlWsvl1eOBCwu6kwV8elB35M9wnhpJ9oAqY2QTcBcaI
-         0LQnKk7fKzOiojXS2DMy3q8RvvRMv94FpC3fuSOBKCTDhsGae9Ge3K+V9/1Kov4ei6Rt
-         u85p3ujpnzCZqB6zr3mIviJGM+lIL1os7mM1oDAxrWn38WKAbXg4Z3xgrmWyQivlvnnq
-         71fGmMWVbt3ZUXwNNQtpCpGZk7lI4mCI32gwTnFp6bKMfqt2BC6ryHCmUa57GR6fXGv3
-         jNOJZdT3R7HrWzCvxMeqiQhgtSlmfK4so/2xxiHNzpq+j/DD3NJfs3akTVX6UgoFe29H
-         mNuw==
-X-Forwarded-Encrypted: i=1; AJvYcCVl9NWOyy8kUv3wiuH6o8CUXrxNSL0no+woETIC+BbPlUZNCbYWv0KGiC12WyxBDJIY4JzrB02S@vger.kernel.org
-X-Gm-Message-State: AOJu0YzkGhepxSeP/YqmqofKDCgXrID3VEJzkhmBc4CpU60jHmE3Pep8
-	FZAAvsEpdZvm89QEZrHqZCXP34QcDV7iWM6DP1hjzz9yHRiOJX8aDaabqSvJfzeuqm3MhFlHM/w
-	jB6hRTVBzoM1SYEtO1mecjDjjPqmHF7rsa/kBze+B
-X-Gm-Gg: AZuq6aLgEmvKVqrfKM1OscUSHTZYwjvAaitvOcdoNohQaxna++Ri6qmiSiDxCqC/HpU
-	/Ta8DSDj5n1HWuOVGHFnFpn8Q5ojvxUP/OI9sUV4l2HoxNZ3A428hMdSRVEAqOG3GbmH60INZf8
-	amjA0+DBrrtU4c5F67bmhzn5q6zxKYDfGDL31uI3dYAzalK4C9Y9DZ1jp9NVttT6lI1zOhXpaqW
-	KsXE1l/HhggdxN2OEYUaXR0aLa4nsuatJ9TbsSHoBmreF8hUqEKRv79UJY+LPkNaw8WPtU9pvTM
-	ApguEg==
-X-Received: by 2002:a17:90b:240e:b0:356:1edc:b68 with SMTP id
- 98e67ed59e1d1-3561edc10a7mr9435155a91.12.1770802837659; Wed, 11 Feb 2026
- 01:40:37 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XzjJXyDK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77E24C4CEF7;
+	Wed, 11 Feb 2026 17:20:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1770830432;
+	bh=rDSxVoUqlCob1134dE/I8Idt+0slLPa+P7T12+XN680=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=XzjJXyDKkuMiD1TWTrSWYbgn9kffOgIbfvI3AhVPguFvdeEFAsv5bcCmE6XwkItrA
+	 r21jXe6CGUPUOLBsRjAbfePMJvbYopIzISGZIo1JgYMMM4LvPDTHrFJyjXwJNgppqR
+	 P4C9udt9AFqzgxIoCPz7xmXXyqrQdUgT7ANoqJtC648qAsPBAO1s1HCbiCuqAu5fWi
+	 KNdjJmx95Id7CbPmu/VIpG8XqbdJwG1EUg7TubBQ5NjPb/GrFbw+NbcftIaz9y7tIV
+	 ffs0+iieazDbiCY4m0CCufiSaVM9mdMYn2Fx0Xrz+ysSMUp99JqUpvd5w40SGmzCTy
+	 +pAUV/swTzY7g==
+Date: Wed, 11 Feb 2026 22:50:24 +0530
+From: Manivannan Sadhasivam <mani@kernel.org>
+To: Jakub Kicinski <kuba@kernel.org>, Paul Moore <paul@paul-moore.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
+Cc: Vishnu Santhosh <vishnu.santhosh@oss.qualcomm.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, linux-arm-msm@vger.kernel.org, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bjorn.andersson@oss.qualcomm.com, 
+	chris.lew@oss.qualcomm.com, Deepak Kumar Singh <deepak.singh@oss.qualcomm.com>
+Subject: Re: [PATCH] net: qrtr: Expand control port access to root
+Message-ID: <5b2fm4nbceqdmeu532vsr26il7jroli2sh6azcwirzm43b32da@grqzpgmmdvyp>
+References: <20260205-qrtr-control-port-access-permission-v1-1-e900039e92d5@oss.qualcomm.com>
+ <20260206183657.0477e50a@kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251205033328.1644-1-ericsu@linux.microsoft.com>
- <CAKrb_fEFhHRuSW7M2W+CF_B0ocSg4=3+PiG8iqb3HYbZAZ9a-Q@mail.gmail.com> <CAEjxPJ5DRgdLriX2A7CZAD7cHkmmf9PtvgkWbF2yoScpOZG1BA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5DRgdLriX2A7CZAD7cHkmmf9PtvgkWbF2yoScpOZG1BA@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 11 Feb 2026 04:40:25 -0500
-X-Gm-Features: AZwV_QgEC2cskBs-30v0WddD2B0D4yKp1KQbGtpw8KTiBwKldzYSGBcBeB_-qOw
-Message-ID: <CAHC9VhQ6NLJR3d7qrpVs20h59uU+os1344YS+WAHQAV-g6H0ww@mail.gmail.com>
-Subject: Re: [PATCH testsuite v7] tests/bpf: Add tests for SELinux BPF token
- access control
-To: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org
-Cc: Daniel Durning <danieldurning.work@gmail.com>, Eric Suen <ericsu@linux.microsoft.com>, 
-	omosnace@redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260206183657.0477e50a@kernel.org>
 
-On Mon, Feb 9, 2026 at 3:43=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Mon, Feb 9, 2026 at 1:02=E2=80=AFPM Daniel Durning
-> <danieldurning.work@gmail.com> wrote:
-> > On Thu, Dec 4, 2025 at 10:33=E2=80=AFPM Eric Suen <ericsu@linux.microso=
-ft.com> wrote:
->
-> ... This won't get exercised by the automated testing
-> until/unless someone updates the tmt configuration to apply the
-> necessary policy changes above or until these get defined in Fedora
-> policy.
++ SELinux folks
 
-I'm thinking out loud here ... it would be nice if we had a set of
-Fedora Rawhide packages (COPR anyone?) for the SELinux userspace and
-policy that tracked the upstream development tree (somewhat similar to
-linux-next for the kernel) so that people could easily test these new
-features.  I don't think this would be too difficult to automate, but
-it's been a bit since I've looked at it.
+On Fri, Feb 06, 2026 at 06:36:57PM -0800, Jakub Kicinski wrote:
+> On Thu, 05 Feb 2026 13:51:31 +0530 Vishnu Santhosh wrote:
+> > When qrtr is loaded as module, qrtr-ns runs from SELinux kmod_t
+> > domain. On targets using upstream SELinux policies, this domain
+> > does not receive CAP_NET_ADMIN, which prevents it from binding
+> > control port even though qrtr-ns is a trusted system component.
+> > 
+> > Granting kmod_t the CAP_NET_ADMIN capability in policy is possible,
+> > but not desirable, as kmod_t is not expected to perform networking
+> > operations and widening its capability set is discouraged.
+> > 
+> > To address this in a contained way within qrtr, extend the control
+> > port permission check to allow binding when either:
+> > 
+> >   - the process has CAP_NET_ADMIN, or
+> >   - the process belongs to GLOBAL_ROOT_GID (root-equivalent tasks)
+> > 
+> > This permits qrtr-ns to successfully bind its control port in
+> > kmod_t restricted environments without broadening SELinux capability
+> > assignments.
+> 
+> This really feels like a one-off hack, but it's far from my area
+> of expertise.. Could you get an ack or review tag from some kernel
+> maintainer working on security, capabilities or permissions?
 
-What do others think?
+I'm also not too sure about the problem because it looks like kmod_t has almost
+near root privileges, but cannot do network administration.
 
-Or has this already been done and I simply missed it?
+Maybe there is a valid reason for that?
 
---=20
-paul-moore.com
+- Mani
+
+-- 
+மணிவண்ணன் சதாசிவம்
