@@ -1,146 +1,183 @@
-Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+Received: from mail-ua1-f65.google.com (mail-ua1-f65.google.com [209.85.222.65])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F7F5350A1E
-	for <selinux@vger.kernel.org>; Wed, 11 Feb 2026 18:37:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9745C3542CE
+	for <selinux@vger.kernel.org>; Wed, 11 Feb 2026 19:43:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.222.65
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770835077; cv=pass; b=ooIFl+fehBxyQGP3TNe/QBnc7kahRHTd0jSY/7EpvPWo1dQMP8bTxU3nE0XJQEG9umvgAVlAM5xFemWz73mLEcn4to8JMcvCHz7LrEyUf/zV7IJhQg8bqtRqWSAX3SznbxeRsALY7cHCN5a4fVU66MbmOQbaAtNDL7zmhqi5Xek=
+	t=1770839014; cv=pass; b=YUPpQxOXmqGwsU5tvqvZWYzfg4Fq6p7f84Ix45PeB3Fz9A1Lw8izTyk8uOlAXeLFjX8pOKPqSRmJ5EXa4h2Tko0C/mcM9qoweuXD9cgK5fIw+EuUoFwMjymyZ8r4IjWY044rOJ79NQJB7gP3AkigZJfit7nsbiBOb0mUFAHBxLY=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770835077; c=relaxed/simple;
-	bh=9ZWLjOloP1Q5uHjLNR70INYP0pXvmwZRE/FY/ppnIWc=;
+	s=arc-20240116; t=1770839014; c=relaxed/simple;
+	bh=oXQ1XB8B3wClH1fLqpgOnCS78LK40SPPGujDt6bxq94=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Rwit4o9QhJQIR2uqbBOPKMCu0A/hYv7FfwtvIwEjkmrohBoltv7MxM+9VKoaUXtFb1jWHS+V97D9kDszti9BR5so9DvJDm+i57EhOlX8brsidSrhe6BTeekYJnZV/RkOwJRZWWgQf/fe/xS6Oat+SBppQ45g8HAoKEXisrQ5bkQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dD4Bysm8; arc=pass smtp.client-ip=209.85.210.179
+	 To:Cc:Content-Type; b=G6iNYv1OFwBuSYaifGrQzTf8El999KgtGnmHugX5n64aXCbOb5b/gyteqnY8navME69+F9T5jykfIbr0vo8RTqy2CEaQdH4CSnGAZyNxfhs9fifD6KeNdGZh96QVVEH4CfpPx7rKPGEKI8lUSsW1SQLvPSLWJOYV6jU7UalAF90=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PowYvJbT; arc=pass smtp.client-ip=209.85.222.65
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dD4Bysm8"
-Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-81f4f4d4822so1104681b3a.3
-        for <selinux@vger.kernel.org>; Wed, 11 Feb 2026 10:37:56 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1770835075; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PowYvJbT"
+Received: by mail-ua1-f65.google.com with SMTP id a1e0cc1a2514c-94ac8cbf3feso1272377241.0
+        for <selinux@vger.kernel.org>; Wed, 11 Feb 2026 11:43:33 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1770839013; cv=none;
         d=google.com; s=arc-20240605;
-        b=bUy/N0UGc6lRQhwwenUHz0GQ9Q4lQgkJ7jlTvACb33DGfJ4CJdVYR+v+xOXvNKx6Tr
-         M/AeWuGQyfPTuMriydjhftf2BMDC4OCBhH8BqP1K4zkQSX/bX4cf3rgDN+HbCk41i3+D
-         Y7rwOj2jM7X1K1AFoL//CcRLKj40/WCYU4SWL7XrAHU1PgVhWWqq6n0RRi6oLso3N+tr
-         Eq2V6+BwkvCwnPKYLk9ieRJTSwaS+uP/gMFy/NodjxU46TlMJHB0I44C4t1ca29OFLpQ
-         YjvYGr2b89kmCxepS6sYW/2BRXtyBuyhp79FzI9b8ziunNQvj/8FvE8XK+lgdYip77rx
-         0L3A==
+        b=VT94Vzu/0v0jq9Vg5TcEtoU4teL9AzXSxCVFhv+b23IehA5s4Xm+/LGzRT10mJ07mf
+         k/ZCTujVpo4kAnbNyDugwiWytBtJELnty54dhCgdUBiHRxNGAV0/bvtLk/MA3b2LGjbe
+         cmczFmzMNcMs177y6fm3rsbHAcS157THrSU3VMs5FChZ4sFvuNkTIW94hQtj/jBfQIyR
+         qY9sCK0M4VddVc4ZaILoEfQ/A4gEJZQOfyNlscjA+IPVGE8WHOZ/yYZklaIYk7VmXO3z
+         Ft23XloXsUa7w7T0OYQU5JX/aPnXnbdwdrp09KHKs19f8LF7Ao4+gCWi5nAbVblrsEek
+         M8Xg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=NMPWpykIwqzVnKpU0MqZGbLM8pCJKBxgV4mw17dHpGg=;
-        fh=E0A8+em6npvRcGGPb9pxrP3qzM+o8SIV5md0L6qIY20=;
-        b=UQctBoD7jm2oBngsMznLbGv/gHBU2EZ05gVJ47CHpmbdE6BzTRKrEpHi8BkRCA20vL
-         qSwNb1reSruyaeLnJ2AHHv4+Fvk39KGZQo3sn5Uo5sXUBo7Rgfo0LMHYKrLeljX62iGX
-         gYHxTNTdeZug5Dq/tvJum2V2pX8wb3RhtxK2a2N4JwMtBfsWU+EsKHBFO/fA1ljUISRk
-         5wz0IFlLaod+HHc2KdTlJf1+sNNOR98SpY+3Po4dQy6RhyZwv2HxwB59oU+A0y7kUT0d
-         AK5BMqAKn2y9k2p/TotVHKwJSt7pLCn8IAf+w8Bgyo6LGHb9mdddMF6WZ3pRvRgksD7U
-         c8GQ==;
+        bh=gHntEFiFJWWh+7XoaBNqKXQpADrwgSFaOdTDNIvp++o=;
+        fh=iReHhgpadxpn78WMn80rWuNr8Z27fHvCxXiFKNnO4Ko=;
+        b=SLym43QyWfhH4xNkI9stRAgN7DSxyh7MsZjxfrGcRbELWcnEkPHZ6FQ0i8UJm/cEox
+         27/BEUDpG6nHhqKP8/X98+Q8qtfuviAsxp5IPzVArId8ZEX+MAKqqWCTcHf61LKd3Git
+         0XXJ5tgj+xjnUn1tBPqNlwHhuUxrlN07QfyFA3eIKJTX4W6oPcx5mhP1rsVvdPXQKDGu
+         H9KhoBC2c2OZDLydhj/4NT4q1iJu8TxbxPp6lTAAw50KFImop7cTMj19xTghGAkQDADT
+         45PS7fnLoMNEqSGkotFNBe5o7QHHQL186g72Pz1T9dvUiD7ZJ3elRHHHGfyqbeDZTS/P
+         kRuQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770835075; x=1771439875; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1770839013; x=1771443813; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=NMPWpykIwqzVnKpU0MqZGbLM8pCJKBxgV4mw17dHpGg=;
-        b=dD4Bysm8qx2oNt/ljYK2dY+kw68Z2xBUGiI0IXibgjRxcMEVvrlAUFoHXtwbDrscd4
-         3bbAWi/WA7yXun3eogVkRIca5PJYESQuIeDF3pTW5GFXqt24PGzOq7OK+u0hiHrk9GGn
-         d/BYnuxs5gunbHQntQ5QV5y9KiWksyLfJgP3dPiDJZI5D+Uzq9fQlzV+VVgNAUL1cVT6
-         C2t26hPMMmIkLOGmPBw+Ko9eL8cvflZ/D4s5J14PGOmx9h7tZX9xLNviXi5pzhhMZkDX
-         dvsC6t4X5H2tKmh0gmhUDoRB+bpRtAiIYFrn2qNaXoTlilkJyv+rWnRChdQF/jW7I726
-         ZtGw==
+        bh=gHntEFiFJWWh+7XoaBNqKXQpADrwgSFaOdTDNIvp++o=;
+        b=PowYvJbTJPD5aOP9KtNXgpElGAHlayOJtccZi17gLCiV7NklgomQwPWvFL+tS/F06+
+         a4IHJWMKWcQOCMuG0V5Y1S7C3NMpWRRazWJSMGJ/+lW0n8XplZ7g7PHPZvoIPWr7ddC6
+         kBURI9c6WeteHacV61ibMk9mDDzli28UvAOwlslzqHBLPbUBqJzca/m0c5JolC7p1VcV
+         qs5+NNIx3MrvmcDaY/OsicJhdP7sZwy9m5emE/013J9SvcxjRvFzxDsyfLjLcjyYInMY
+         HBHhumq6HhVkgF0CZKb1GWABndE+59YlInwq0nEKWZ3tZaa6o+GwTjhAB8RDB0zcOK4h
+         ee1Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770835075; x=1771439875;
+        d=1e100.net; s=20230601; t=1770839013; x=1771443813;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=NMPWpykIwqzVnKpU0MqZGbLM8pCJKBxgV4mw17dHpGg=;
-        b=xLqlNmG41GsENdYEJGYIbWeDlTJyNRBU0ixjl8r298sIPFW1DSTUZGZhgKPnTSPhER
-         jiovPPNtSHFEFdvUuiZf+g0WX3qjARo0gPLzs9NFeXyVq1UqG8ICe7wBSuhj/j3Lu5Hj
-         sgOKPl10yDcR8JSJxmyoy02Sj/fFKHqclFJmY0x7RCrd88O53Z4v2SB2eE4BwakZU0/a
-         yO/2FwZJz+66vsWZIfJXit2Ut54KGG4jaYCp7BQjlkIUiL0r6vUX3bJ47IKQgLsEiEKl
-         G+2mbAoQbGh3J0Z+eoDRL4+YS/8/Gop5lY8EUL1XE+wpK8Xm8zv8nRz7rb4JHQ1lrrpH
-         62BA==
-X-Forwarded-Encrypted: i=1; AJvYcCU89XU0BLF5AzeEzO7cG447SnsIYrxvMlu+2+gwlu9edXBrX9BiJBz9ycdhaDEigVqGmasL3rkq@vger.kernel.org
-X-Gm-Message-State: AOJu0YxNZ2K/X2JUG2feKuRsHynvwbJNdu4oCOWFtBMx5eBKv5yJvp3X
-	zOyusJdSHgfwx5xnv9YL7yPqh4dAw0+bd9bjldSsZLG1CKHIBaaxq7uYSlAuzoVKR5V6bOENQJo
-	wI6ao7OsKiCb76pKzsCagW4zGI440snM=
-X-Gm-Gg: AZuq6aLNUiQCMW6ZQQ35torcRrjgMVr1Zbv/+xl0KndtKSbBqrvFhLOfpOSxJOmleZL
-	3p6OOcqrugkwDwFk7G3VB2gXmjrUQXcXqud4a/zJr2TKsR2Zx7DRevCWc4yHR/pSUtdHeNPNdTp
-	zTEh83fM6ogXLI3c8npxPGipvCcxuicvX7lOd2aj6CqVjRcE+YwyzwylZDYsXkglvnk7/r22vBu
-	t8lQGt61EiPVWMCdIwm03Qgiozm1W3/JERAVdTuBdzN7YZfzPHV/d8fDQihUFRGjVrkuaZ1ugUb
-	EG2t+N0=
-X-Received: by 2002:a17:90b:5211:b0:356:282e:7eb5 with SMTP id
- 98e67ed59e1d1-3568f3f7f89mr227816a91.24.1770835075473; Wed, 11 Feb 2026
- 10:37:55 -0800 (PST)
+        bh=gHntEFiFJWWh+7XoaBNqKXQpADrwgSFaOdTDNIvp++o=;
+        b=HNlNXbFPCLIP3Xd9O1ZgPZ1ZYVz9Kq0nbFsG852tKzSnlZm1aewG5VXpzrXMU86t0r
+         W69Bsf33Kil6I+9BJhkjqBY5UbDyVvnNeUrZDblOHmLP2YEhIeEnXtnawLdi9BkGSqY2
+         9yDkFC2N5+919VfFGYgDj2dPyR+U1Q5dIec8LvjqUvE9N78PS1+ZDalwasW3uMss0NtP
+         +a0oIiljfsq31ztjF6+X/167kpjMVTOjWwIUlxCEXMqqwfujSu7DIMMrRZiYFuYxF3cG
+         Tp1rDQtyKbcTYLSDZIMmN8Mx55YWr32mQFJzDZ1XxdXLYir/P+7TjHpJzjAKomLJzwyb
+         nbJQ==
+X-Forwarded-Encrypted: i=1; AJvYcCX6iRnRA0f6ecqtVtN0GaIRSazbxEon+6meauN7xOPUHbfHnCYeAJPoI25gdMPP17CUtC8IJBcy@vger.kernel.org
+X-Gm-Message-State: AOJu0YwOmKZ+Pxe9XZoi5bukaj3QgR+B0o7SZfde0/i8RqUNYXv0P/w8
+	KfbCw70U050lTMdjZ7jyUp9PHmt3Mfj9CD7qP6Gkq48bAM05+iRxVghbKRhOYXZaHujOPNcrYI4
+	j9uWbeJh2zuG+AY9lK9NhNUV/qHorIAo=
+X-Gm-Gg: AZuq6aISDUaQ9O/ZTfTqo321CLxvtn2yE8jFRwtOdW20VpdClVPmeyKLav3M/vxk9Fm
+	Sajp40Ovv96RJFNUanXT0QpeaxrLFMSrqVfmSuUYLwosSb027YcnYYwnq5SasySctGYkB7Av+pv
+	ZmHDGO+w0nVYga06Qxlh61E3JuaCq/IUonFB4X9QzuxpVsLCpT52b2EDOc4QCP9MdPJMT03ytCv
+	U8UG7z6tvPgcvw/NGf7WEIAGDVVt01fU2FS5IvmjutWNwiUmB++6FI2uO7znqZ1z51UaiLZactV
+	6ZyKVXQ=
+X-Received: by 2002:a05:6102:b03:b0:5fd:faf5:bc7a with SMTP id
+ ada2fe7eead31-5fdfbe41f38mr144483137.41.1770839012601; Wed, 11 Feb 2026
+ 11:43:32 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260205-qrtr-control-port-access-permission-v1-1-e900039e92d5@oss.qualcomm.com>
- <20260206183657.0477e50a@kernel.org> <5b2fm4nbceqdmeu532vsr26il7jroli2sh6azcwirzm43b32da@grqzpgmmdvyp>
-In-Reply-To: <5b2fm4nbceqdmeu532vsr26il7jroli2sh6azcwirzm43b32da@grqzpgmmdvyp>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 11 Feb 2026 13:37:44 -0500
-X-Gm-Features: AZwV_QiEMEu8q-izEMqXgVPWSyu-zfy2ppyFTX5F5JMm-3LkhB33GLI1JN_qEvc
-Message-ID: <CAEjxPJ4VA58rtSEEZpxeUZHMjURtrUbZCvV8kAkWwJaoR1YN2A@mail.gmail.com>
-Subject: Re: [PATCH] net: qrtr: Expand control port access to root
-To: Manivannan Sadhasivam <mani@kernel.org>
-Cc: Jakub Kicinski <kuba@kernel.org>, Paul Moore <paul@paul-moore.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org, 
-	Vishnu Santhosh <vishnu.santhosh@oss.qualcomm.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	linux-arm-msm@vger.kernel.org, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, bjorn.andersson@oss.qualcomm.com, 
-	chris.lew@oss.qualcomm.com, 
-	Deepak Kumar Singh <deepak.singh@oss.qualcomm.com>
+References: <20260206180248.12418-1-danieldurning.work@gmail.com> <20260209-spanplatten-zerrt-73851db30f18@brauner>
+In-Reply-To: <20260209-spanplatten-zerrt-73851db30f18@brauner>
+From: Daniel Durning <danieldurning.work@gmail.com>
+Date: Wed, 11 Feb 2026 14:43:21 -0500
+X-Gm-Features: AZwV_Qhs3SxVp8P05lu1S3k0H4-gjDRINJd9WaPk3va07O3EBGHdjmRA3KZwHck
+Message-ID: <CAKrb_fEXR0uQnX5iK-ACH=amKMQ8qBSPGXmJb=1PgvEq8qsDEQ@mail.gmail.com>
+Subject: Re: [RFC PATCH] fs/pidfs: Add permission check to pidfd_info()
+To: Christian Brauner <brauner@kernel.org>
+Cc: linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org, viro@zeniv.linux.org.uk, jack@suse.cz, 
+	paul@paul-moore.com, stephen.smalley.work@gmail.com, omosnace@redhat.com, 
+	Oleg Nesterov <oleg@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Feb 11, 2026 at 12:20=E2=80=AFPM Manivannan Sadhasivam <mani@kernel=
-.org> wrote:
+On Mon, Feb 9, 2026 at 9:01=E2=80=AFAM Christian Brauner <brauner@kernel.or=
+g> wrote:
 >
-> + SELinux folks
->
-> On Fri, Feb 06, 2026 at 06:36:57PM -0800, Jakub Kicinski wrote:
-> > On Thu, 05 Feb 2026 13:51:31 +0530 Vishnu Santhosh wrote:
-> > > When qrtr is loaded as module, qrtr-ns runs from SELinux kmod_t
-> > > domain. On targets using upstream SELinux policies, this domain
-> > > does not receive CAP_NET_ADMIN, which prevents it from binding
-> > > control port even though qrtr-ns is a trusted system component.
-> > >
-> > > Granting kmod_t the CAP_NET_ADMIN capability in policy is possible,
-> > > but not desirable, as kmod_t is not expected to perform networking
-> > > operations and widening its capability set is discouraged.
-> > >
-> > > To address this in a contained way within qrtr, extend the control
-> > > port permission check to allow binding when either:
-> > >
-> > >   - the process has CAP_NET_ADMIN, or
-> > >   - the process belongs to GLOBAL_ROOT_GID (root-equivalent tasks)
-> > >
-> > > This permits qrtr-ns to successfully bind its control port in
-> > > kmod_t restricted environments without broadening SELinux capability
-> > > assignments.
+> On Fri, Feb 06, 2026 at 06:02:48PM +0000, danieldurning.work@gmail.com wr=
+ote:
+> > From: Daniel Durning <danieldurning.work@gmail.com>
 > >
-> > This really feels like a one-off hack, but it's far from my area
-> > of expertise.. Could you get an ack or review tag from some kernel
-> > maintainer working on security, capabilities or permissions?
+> > Added a permission check to pidfd_info(). Originally, process info
+> > could be retrieved with a pidfd even if proc was mounted with hidepid
+> > enabled, allowing pidfds to be used to bypass those protections. We
+> > now call ptrace_may_access() to perform some DAC checking as well
+> > as call the appropriate LSM hook.
+> >
+> > The downside to this approach is that there are now more restrictions
+> > on accessing this info from a pidfd than when just using proc (without
+> > hidepid). I am open to suggestions if anyone can think of a better way
+> > to handle this.
 >
-> I'm also not too sure about the problem because it looks like kmod_t has =
-almost
-> near root privileges, but cannot do network administration.
+> This isn't really workable since this would regress userspace quite a
+> bit. I think we need a different approach. I've given it some thought
+> and everything's kinda ugly but this might work.
 >
-> Maybe there is a valid reason for that?
+> In struct pid_namespace record whether anyone ever mounted a procfs
+> with hidepid turned on for this pidns. In pidfd_info() we check whether
+> hidepid was ever turned on. If it wasn't we're done and can just return
+> the info. This will be the common case. If hidepid was ever turned on
+> use kern_path("/proc") to lookup procfs. If not found check
+> ptrace_may_access() to decide whether to return the info or not. If
+> /proc is found check it's hidepid settings and make a decision based on
+> that.
+>
+> You can probably reorder this to call ptrace_may_access() first and then
+> do the procfs lookup dance. Thoughts?
 
-On Fedora, kmod_t is an unconfined domain and is allowed all capabilities.
-Upstream refpolicy likely hasn't encountered a need for net_admin
-during module initialization previously and thus doesn't allow it just
-as a matter of least privilege.
-Since you referenced kmod_t, I assume this is just for Linux, not
-Android (which has an entirely different policy).
-I would fix this in policy rather than changing the kernel module code.
+Thanks for the feedback. I think your solution makes sense.
+
+Unfortunately, it seems like systemd mounts procfs with hidepid enabled on
+boot for services with the ProtectProc option enabled. This means that
+procfs will always have been mounted with hidepid in the init pid namespace=
+.
+Do you think it would be viable to record whether or not procfs was mounted
+with hidepid enabled in the mount namespace instead?
+
+> > I have also noticed that it is possible to use pidfds to poll on any
+> > process regardless of whether the process is a child of the caller,
+> > has a different UID, or has a different security context. Is this
+> > also worth addressing? If so, what exactly should the DAC checks be?
+>
+> Oleg and I had discusses this and decided that such polling isn't
+> sensitive information so by default this should just work and it's
+> relied upon in Android and in a bunch of other workloads. An LSM can of
+> course restrict access via security_file_ioctl().
+>
+> Fwiw, pidfds now support persistent trusted extended attributes so if
+> the LSM folks wanted we can add security.* extended attribute support
+> and they can mark pidfds with persistent security labels - persistent as
+> in for the lifetime of the task.
+>
+> > Signed-off-by: Daniel Durning <danieldurning.work@gmail.com>
+> > ---
+> >  fs/pidfs.c | 7 +++++++
+> >  1 file changed, 7 insertions(+)
+> >
+> > diff --git a/fs/pidfs.c b/fs/pidfs.c
+> > index dba703d4ce4a..058a7d798bca 100644
+> > --- a/fs/pidfs.c
+> > +++ b/fs/pidfs.c
+> > @@ -365,6 +365,13 @@ static long pidfd_info(struct file *file, unsigned=
+ int cmd, unsigned long arg)
+> >               goto copy_out;
+> >       }
+> >
+> > +     /*
+> > +      * Do a filesystem cred ptrace check to verify access
+> > +      * to the task's info.
+> > +      */
+> > +     if (!ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS))
+> > +             return -EACCES;
+> > +
+> >       c =3D get_task_cred(task);
+> >       if (!c)
+> >               return -ESRCH;
+> > --
+> > 2.52.0
+> >
