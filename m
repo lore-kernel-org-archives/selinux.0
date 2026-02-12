@@ -1,183 +1,229 @@
-Received: from mail-ua1-f65.google.com (mail-ua1-f65.google.com [209.85.222.65])
+Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9745C3542CE
-	for <selinux@vger.kernel.org>; Wed, 11 Feb 2026 19:43:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.222.65
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4871A3451CE
+	for <selinux@vger.kernel.org>; Thu, 12 Feb 2026 13:59:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.52
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770839014; cv=pass; b=YUPpQxOXmqGwsU5tvqvZWYzfg4Fq6p7f84Ix45PeB3Fz9A1Lw8izTyk8uOlAXeLFjX8pOKPqSRmJ5EXa4h2Tko0C/mcM9qoweuXD9cgK5fIw+EuUoFwMjymyZ8r4IjWY044rOJ79NQJB7gP3AkigZJfit7nsbiBOb0mUFAHBxLY=
+	t=1770904789; cv=pass; b=i0FdilcG6/WQPtq1bh4VVukDRTvWg0eZR2v75MH2lAJQcU1ukdJ32OyE1/FmRYvDHt/hWINxNwPvUS29SYj2RngxfaBOP2i4du//GoxfU8OUA8DwhVRYKJY9Wzm+7znqQPnIn3as2CtfRE/WHPUBg0JhgIeY86+LOWVy0mLKCIo=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770839014; c=relaxed/simple;
-	bh=oXQ1XB8B3wClH1fLqpgOnCS78LK40SPPGujDt6bxq94=;
+	s=arc-20240116; t=1770904789; c=relaxed/simple;
+	bh=IqCZ4Mizx77EA39MKx3svqkTnUf5Q4CHAXyUHMO0TAQ=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=G6iNYv1OFwBuSYaifGrQzTf8El999KgtGnmHugX5n64aXCbOb5b/gyteqnY8navME69+F9T5jykfIbr0vo8RTqy2CEaQdH4CSnGAZyNxfhs9fifD6KeNdGZh96QVVEH4CfpPx7rKPGEKI8lUSsW1SQLvPSLWJOYV6jU7UalAF90=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PowYvJbT; arc=pass smtp.client-ip=209.85.222.65
+	 To:Cc:Content-Type; b=Pwychg8HeOzFFoRyuSHlVKuZCRXDdsxtANufqzKun1/+941U8hlgnBASg0zzBTMI6t7gPyBDco40f9OJk3/XI3SIgKeG9sF/gytvaGmWdkUbDsRCbkp4ziYzGJo3SDlk52pD7oRKTxWdysn+o5EdM3Nh8TEPTF0WVSFI5el/12s=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KX4u5Tm9; arc=pass smtp.client-ip=209.85.216.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PowYvJbT"
-Received: by mail-ua1-f65.google.com with SMTP id a1e0cc1a2514c-94ac8cbf3feso1272377241.0
-        for <selinux@vger.kernel.org>; Wed, 11 Feb 2026 11:43:33 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1770839013; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KX4u5Tm9"
+Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-352e3d18fa7so4417737a91.1
+        for <selinux@vger.kernel.org>; Thu, 12 Feb 2026 05:59:48 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1770904788; cv=none;
         d=google.com; s=arc-20240605;
-        b=VT94Vzu/0v0jq9Vg5TcEtoU4teL9AzXSxCVFhv+b23IehA5s4Xm+/LGzRT10mJ07mf
-         k/ZCTujVpo4kAnbNyDugwiWytBtJELnty54dhCgdUBiHRxNGAV0/bvtLk/MA3b2LGjbe
-         cmczFmzMNcMs177y6fm3rsbHAcS157THrSU3VMs5FChZ4sFvuNkTIW94hQtj/jBfQIyR
-         qY9sCK0M4VddVc4ZaILoEfQ/A4gEJZQOfyNlscjA+IPVGE8WHOZ/yYZklaIYk7VmXO3z
-         Ft23XloXsUa7w7T0OYQU5JX/aPnXnbdwdrp09KHKs19f8LF7Ao4+gCWi5nAbVblrsEek
-         M8Xg==
+        b=Vd5FLM1p8gjAlJKL0szWYaX4EmPFStigNOBU8Mfy1jTb3X/ci1bTy49zfkuVk2Ybu2
+         MnYD8tFUYuoTwEZkK2bv1UlBW0bsfwZFBuO6wvUSYsB4vjUdR5+VJuqubInYmzFUlfHR
+         NE4zKQ1Z7g5MmGocMAXstXnH6kw/8bkCnm1cpLbxyrwnDoufZV/WFU3f6xP3UA3vUega
+         wX/f8DHgihvopj6cZuHun+48NBNePz00JpgdsBvAycrBIk/EqDcIbu/wY9I2+z7MKhbK
+         EbKPIMfd2/RnS9fk8o1dPcmIh5a2UupQkCUSxatuZ1t2WyErrGMO9B2ISvNH86Ng5bU+
+         D7mg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=gHntEFiFJWWh+7XoaBNqKXQpADrwgSFaOdTDNIvp++o=;
-        fh=iReHhgpadxpn78WMn80rWuNr8Z27fHvCxXiFKNnO4Ko=;
-        b=SLym43QyWfhH4xNkI9stRAgN7DSxyh7MsZjxfrGcRbELWcnEkPHZ6FQ0i8UJm/cEox
-         27/BEUDpG6nHhqKP8/X98+Q8qtfuviAsxp5IPzVArId8ZEX+MAKqqWCTcHf61LKd3Git
-         0XXJ5tgj+xjnUn1tBPqNlwHhuUxrlN07QfyFA3eIKJTX4W6oPcx5mhP1rsVvdPXQKDGu
-         H9KhoBC2c2OZDLydhj/4NT4q1iJu8TxbxPp6lTAAw50KFImop7cTMj19xTghGAkQDADT
-         45PS7fnLoMNEqSGkotFNBe5o7QHHQL186g72Pz1T9dvUiD7ZJ3elRHHHGfyqbeDZTS/P
-         kRuQ==;
+        bh=xxGkfO4jfhyRAPyQr9O4TZiMU+0MvJk8e6aMPtFiBUA=;
+        fh=zf4NyQ+bW52Ej1xQR1BXDeZfxd0vBxCoiyXAdQbD9To=;
+        b=aPCALHjwIpROINW7gKO8/3igKQTiXRlXvN6DRoBOyga0zoOn0DdPFO29U0/RhCr/te
+         Ln8vWEKvCs3L01t7XS6P4RqMrs3LGMjyF7Y10XzZtwBY1k1EJJnw6aL0sR2kbDqwRs0b
+         Hn865nHCzk+KjIwdH1ri9Bwxph/CL+UZoaHecI9wywon3UYfTVdSdi3QNRtWwkbtK4y8
+         mxpVc1X4zvkeNAY0JIhS4dwyE0YCMMxb5jMLt5UU6bYQD20ANyHrXVKmXACqIxmKmuyw
+         5N+Kl8Osyi1H4uiTstl9S4QpD9Y7YKwDHx0pXqqYbY8ep0qVMqjkALDLocARrzX5Q3YS
+         XhSQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770839013; x=1771443813; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1770904788; x=1771509588; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=gHntEFiFJWWh+7XoaBNqKXQpADrwgSFaOdTDNIvp++o=;
-        b=PowYvJbTJPD5aOP9KtNXgpElGAHlayOJtccZi17gLCiV7NklgomQwPWvFL+tS/F06+
-         a4IHJWMKWcQOCMuG0V5Y1S7C3NMpWRRazWJSMGJ/+lW0n8XplZ7g7PHPZvoIPWr7ddC6
-         kBURI9c6WeteHacV61ibMk9mDDzli28UvAOwlslzqHBLPbUBqJzca/m0c5JolC7p1VcV
-         qs5+NNIx3MrvmcDaY/OsicJhdP7sZwy9m5emE/013J9SvcxjRvFzxDsyfLjLcjyYInMY
-         HBHhumq6HhVkgF0CZKb1GWABndE+59YlInwq0nEKWZ3tZaa6o+GwTjhAB8RDB0zcOK4h
-         ee1Q==
+        bh=xxGkfO4jfhyRAPyQr9O4TZiMU+0MvJk8e6aMPtFiBUA=;
+        b=KX4u5Tm9A9GoyN6H8zgZ93bKviM+dn+lKIgWb1Dlnu36yQSmFgwLAXpFDkHjZbgoAg
+         ZUYuwAqzh5HmUKi3e5jQmLO6qjgPk2aViVHdzwlFcoXaJPr5jeJ7LtfnRB+z0wWyem6E
+         0JNvmkQ/2vGarB/b2P3cdJD7tKAnsoPU8Zu7R11d8TBKjQppJ95I6C/09a5pdmMsJrJZ
+         A2VaTi5aY3nfiyo3qeVqPBl66liMPTTbzPt+UQDF2WP3pCFs76m7tCJSBwZ1QpDbIA6r
+         RBIcHBL2t69TAgxl4SH4BMhkwRHiSqVUP2+LZZOq2dbnXyfs1VNnZ84dQGWfV+07SEjY
+         B2MA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770839013; x=1771443813;
+        d=1e100.net; s=20230601; t=1770904788; x=1771509588;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=gHntEFiFJWWh+7XoaBNqKXQpADrwgSFaOdTDNIvp++o=;
-        b=HNlNXbFPCLIP3Xd9O1ZgPZ1ZYVz9Kq0nbFsG852tKzSnlZm1aewG5VXpzrXMU86t0r
-         W69Bsf33Kil6I+9BJhkjqBY5UbDyVvnNeUrZDblOHmLP2YEhIeEnXtnawLdi9BkGSqY2
-         9yDkFC2N5+919VfFGYgDj2dPyR+U1Q5dIec8LvjqUvE9N78PS1+ZDalwasW3uMss0NtP
-         +a0oIiljfsq31ztjF6+X/167kpjMVTOjWwIUlxCEXMqqwfujSu7DIMMrRZiYFuYxF3cG
-         Tp1rDQtyKbcTYLSDZIMmN8Mx55YWr32mQFJzDZ1XxdXLYir/P+7TjHpJzjAKomLJzwyb
-         nbJQ==
-X-Forwarded-Encrypted: i=1; AJvYcCX6iRnRA0f6ecqtVtN0GaIRSazbxEon+6meauN7xOPUHbfHnCYeAJPoI25gdMPP17CUtC8IJBcy@vger.kernel.org
-X-Gm-Message-State: AOJu0YwOmKZ+Pxe9XZoi5bukaj3QgR+B0o7SZfde0/i8RqUNYXv0P/w8
-	KfbCw70U050lTMdjZ7jyUp9PHmt3Mfj9CD7qP6Gkq48bAM05+iRxVghbKRhOYXZaHujOPNcrYI4
-	j9uWbeJh2zuG+AY9lK9NhNUV/qHorIAo=
-X-Gm-Gg: AZuq6aISDUaQ9O/ZTfTqo321CLxvtn2yE8jFRwtOdW20VpdClVPmeyKLav3M/vxk9Fm
-	Sajp40Ovv96RJFNUanXT0QpeaxrLFMSrqVfmSuUYLwosSb027YcnYYwnq5SasySctGYkB7Av+pv
-	ZmHDGO+w0nVYga06Qxlh61E3JuaCq/IUonFB4X9QzuxpVsLCpT52b2EDOc4QCP9MdPJMT03ytCv
-	U8UG7z6tvPgcvw/NGf7WEIAGDVVt01fU2FS5IvmjutWNwiUmB++6FI2uO7znqZ1z51UaiLZactV
-	6ZyKVXQ=
-X-Received: by 2002:a05:6102:b03:b0:5fd:faf5:bc7a with SMTP id
- ada2fe7eead31-5fdfbe41f38mr144483137.41.1770839012601; Wed, 11 Feb 2026
- 11:43:32 -0800 (PST)
+        bh=xxGkfO4jfhyRAPyQr9O4TZiMU+0MvJk8e6aMPtFiBUA=;
+        b=iWPbUeSF1VwfyH3jcAWGBtsBKsbitfnd7DQJMalnCVXT67R9quSHDgC6TXRgMv1Zji
+         GIInH+DkH6lGhI7si4KQOmTg2GbDMWsDEE8tRVXrO+AYUf3c+n3ibG0NdPuWAG1aplRA
+         BHxciM/ZWwnf8R1C+uf36EP1N32jrCGHZged8sIkxs+rkRVBcBO7PPObH3sfxnCOyaeC
+         41hGIXweVX63nSQiEYHHHOvUKdUo+PF+pNtWDIYkADtbHc+sNB2u8nW9or21eUR/aIZo
+         WBH12aSIhMyIPUzWXM8qb9mIlp0bDGoVq9rohYNjr8RYggas5f/o3bbZLJZ8MJprRNSy
+         88Gg==
+X-Gm-Message-State: AOJu0YwuPa64+pIgeARO0vvLkK4By+bv1FB3lw1P7yJ3Wd1Rf4Cqw5xb
+	rj1YSq6+RHmbT4ksi6ObnAQU1P6PCHAILMKO+2zvDJsRNzLtzhiWNR84J3x7VXA5ugtnaKoof67
+	kao90OcmRHVCU/v+whISqli+9SSqdRKg=
+X-Gm-Gg: AZuq6aKJljCQ1nhFD74gwDQloNsk+i4nlrD7J6lEXWyKtXsfZuQMkEztdnkRRcjqWpN
+	i6E64hH2iMbvn4bBjPHtd9J0gUOPEFXCKHQxvGTM+T899yHGSpSjU4eLYKAkKreUqIVua7Qj3CL
+	RXLHwBR78RU1T9jKh63dJKryabrXAzJn6+JVQBB5RN2o0TafMBm5lqa4mn5fKIErsPNrHlQnlnQ
+	XfORVszTNTIyzab2wUSUfT06t4wCe93aLF07p6f0dxwTDJIkSNp0TJ7FZUopjvOzKJKCciTj0Eq
+	2kVb5xI=
+X-Received: by 2002:a17:90b:1e44:b0:356:2eff:deff with SMTP id
+ 98e67ed59e1d1-3568f314a5emr2512120a91.15.1770904787559; Thu, 12 Feb 2026
+ 05:59:47 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260206180248.12418-1-danieldurning.work@gmail.com> <20260209-spanplatten-zerrt-73851db30f18@brauner>
-In-Reply-To: <20260209-spanplatten-zerrt-73851db30f18@brauner>
-From: Daniel Durning <danieldurning.work@gmail.com>
-Date: Wed, 11 Feb 2026 14:43:21 -0500
-X-Gm-Features: AZwV_Qhs3SxVp8P05lu1S3k0H4-gjDRINJd9WaPk3va07O3EBGHdjmRA3KZwHck
-Message-ID: <CAKrb_fEXR0uQnX5iK-ACH=amKMQ8qBSPGXmJb=1PgvEq8qsDEQ@mail.gmail.com>
-Subject: Re: [RFC PATCH] fs/pidfs: Add permission check to pidfd_info()
-To: Christian Brauner <brauner@kernel.org>
-Cc: linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org, viro@zeniv.linux.org.uk, jack@suse.cz, 
-	paul@paul-moore.com, stephen.smalley.work@gmail.com, omosnace@redhat.com, 
-	Oleg Nesterov <oleg@redhat.com>
+References: <20260130171140.90966-1-cgoettsche@seltendoof.de>
+ <CAEjxPJ7GTB9=-rZOkKe1uiq3G4pdSzPKVcSpYBH9hrhufDq0=A@mail.gmail.com> <CAJ2a_Dc6OWGTz+SONHZphoFt+Z=mTqWuvZHgufxqCyyr8Ywubg@mail.gmail.com>
+In-Reply-To: <CAJ2a_Dc6OWGTz+SONHZphoFt+Z=mTqWuvZHgufxqCyyr8Ywubg@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 12 Feb 2026 08:59:36 -0500
+X-Gm-Features: AZwV_QjtpaHsD-OcEiw8Ha8XU7ZY79whDEcZVKvYD7QpyC6__IAS97v4pUnvkao
+Message-ID: <CAEjxPJ5SgaESJ_NyKfHHLd_zo1hHtYvQ9DW7sv_jZgn+=zgWcA@mail.gmail.com>
+Subject: Re: [RFC PATCH] selinux: prevent truncation of status map
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc: selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>, 
+	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 9, 2026 at 9:01=E2=80=AFAM Christian Brauner <brauner@kernel.or=
-g> wrote:
+On Sat, Jan 31, 2026 at 12:20=E2=80=AFPM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
 >
-> On Fri, Feb 06, 2026 at 06:02:48PM +0000, danieldurning.work@gmail.com wr=
-ote:
-> > From: Daniel Durning <danieldurning.work@gmail.com>
+> On Fri, 30 Jan 2026 at 22:08, Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
 > >
-> > Added a permission check to pidfd_info(). Originally, process info
-> > could be retrieved with a pidfd even if proc was mounted with hidepid
-> > enabled, allowing pidfds to be used to bypass those protections. We
-> > now call ptrace_may_access() to perform some DAC checking as well
-> > as call the appropriate LSM hook.
+> > On Fri, Jan 30, 2026 at 12:11=E2=80=AFPM Christian G=C3=B6ttsche
+> > <cgoettsche@seltendoof.de> wrote:
+> > >
+> > > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > >
+> > > Currently the SELinux status map can be truncated, given the necessar=
+y
+> > > permissions, leading to foreign user space processes getting a bus er=
+ror
+> > > (SIGBUS) while concurrently making use of the status map.
+> > > For example systemd can be killed that way, see [1].
+> > >
+> > > Override the setattr inode handler and check for O_TRUNC in the open
+> > > handler to prevent truncations.
+> > >
+> > > Link [1]: https://github.com/systemd/systemd/issues/37349
+> > > Closes: https://github.com/SELinuxProject/selinux/issues/475
+> > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 > >
-> > The downside to this approach is that there are now more restrictions
-> > on accessing this info from a pidfd than when just using proc (without
-> > hidepid). I am open to suggestions if anyone can think of a better way
-> > to handle this.
+> > This issue can't be limited to just the status node, so if we care
+> > about preventing this, we ought to do it for them all.
+> > When would we want to allow truncation of _any_ selinuxfs file?
 >
-> This isn't really workable since this would regress userspace quite a
-> bit. I think we need a different approach. I've given it some thought
-> and everything's kinda ugly but this might work.
->
-> In struct pid_namespace record whether anyone ever mounted a procfs
-> with hidepid turned on for this pidns. In pidfd_info() we check whether
-> hidepid was ever turned on. If it wasn't we're done and can just return
-> the info. This will be the common case. If hidepid was ever turned on
-> use kern_path("/proc") to lookup procfs. If not found check
-> ptrace_may_access() to decide whether to return the info or not. If
-> /proc is found check it's hidepid settings and make a decision based on
-> that.
->
-> You can probably reorder this to call ptrace_may_access() first and then
-> do the procfs lookup dance. Thoughts?
+> Probably not, but - at least to my quick overview - the status map is
+> the only file-object backed up by real memory and the only file
+> commonly mapped by userspace.
 
-Thanks for the feedback. I think your solution makes sense.
+/sys/fs/selinux/policy would be another one.
 
-Unfortunately, it seems like systemd mounts procfs with hidepid enabled on
-boot for services with the ProtectProc option enabled. This means that
-procfs will always have been mounted with hidepid in the init pid namespace=
-.
-Do you think it would be viable to record whether or not procfs was mounted
-with hidepid enabled in the mount namespace instead?
+I would expect this to be an issue for other pseudo filesystems using
+libfs, so would ask on linux-fsdevel and cc the VFS maintainers on
+whether there is a general solution for this problem.
 
-> > I have also noticed that it is possible to use pidfds to poll on any
-> > process regardless of whether the process is a child of the caller,
-> > has a different UID, or has a different security context. Is this
-> > also worth addressing? If so, what exactly should the DAC checks be?
 >
-> Oleg and I had discusses this and decided that such polling isn't
-> sensitive information so by default this should just work and it's
-> relied upon in Android and in a bunch of other workloads. An LSM can of
-> course restrict access via security_file_ioctl().
->
-> Fwiw, pidfds now support persistent trusted extended attributes so if
-> the LSM folks wanted we can add security.* extended attribute support
-> and they can mark pidfds with persistent security labels - persistent as
-> in for the lifetime of the task.
->
-> > Signed-off-by: Daniel Durning <danieldurning.work@gmail.com>
-> > ---
-> >  fs/pidfs.c | 7 +++++++
-> >  1 file changed, 7 insertions(+)
 > >
-> > diff --git a/fs/pidfs.c b/fs/pidfs.c
-> > index dba703d4ce4a..058a7d798bca 100644
-> > --- a/fs/pidfs.c
-> > +++ b/fs/pidfs.c
-> > @@ -365,6 +365,13 @@ static long pidfd_info(struct file *file, unsigned=
- int cmd, unsigned long arg)
-> >               goto copy_out;
-> >       }
-> >
-> > +     /*
-> > +      * Do a filesystem cred ptrace check to verify access
-> > +      * to the task's info.
-> > +      */
-> > +     if (!ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS))
-> > +             return -EACCES;
-> > +
-> >       c =3D get_task_cred(task);
-> >       if (!c)
-> >               return -ESRCH;
-> > --
-> > 2.52.0
-> >
+> > > ---
+> > >  security/selinux/selinuxfs.c | 43 ++++++++++++++++++++++++++++++++++=
+--
+> > >  1 file changed, 41 insertions(+), 2 deletions(-)
+> > >
+> > > diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxf=
+s.c
+> > > index 896acad1f5f7..df079a35a02d 100644
+> > > --- a/security/selinux/selinuxfs.c
+> > > +++ b/security/selinux/selinuxfs.c
+> > > @@ -214,10 +214,30 @@ static const struct file_operations sel_handle_=
+unknown_ops =3D {
+> > >         .llseek         =3D generic_file_llseek,
+> > >  };
+> > >
+> > > +static int sel_setattr_handle_status(struct mnt_idmap *idmap,
+> > > +                                    struct dentry *dentry,
+> > > +                                    struct iattr *iattr)
+> > > +{
+> > > +       /* Prevent truncation to avoid raising SIGBUS */
+> > > +       if (iattr->ia_valid & ATTR_SIZE)
+> > > +               return -EINVAL;
+> > > +
+> > > +       return simple_setattr(idmap, dentry, iattr);
+> > > +}
+> > > +
+> > > +static const struct inode_operations sel_handle_status_iops =3D {
+> > > +       .setattr        =3D sel_setattr_handle_status,
+> > > +};
+> > > +
+> > >  static int sel_open_handle_status(struct inode *inode, struct file *=
+filp)
+> > >  {
+> > > -       struct page    *status =3D selinux_kernel_status_page();
+> > > +       struct page *status;
+> > >
+> > > +       /* Prevent truncation to avoid raising SIGBUS */
+> > > +       if (filp->f_flags & O_TRUNC)
+> > > +               return -EINVAL;
+> > > +
+> > > +       status =3D selinux_kernel_status_page();
+> > >         if (!status)
+> > >                 return -ENOMEM;
+> > >
+> > > @@ -1980,7 +2000,6 @@ static int sel_fill_super(struct super_block *s=
+b, struct fs_context *fc)
+> > >                 [SEL_CHECKREQPROT] =3D {"checkreqprot", &sel_checkreq=
+prot_ops, S_IRUGO|S_IWUSR},
+> > >                 [SEL_REJECT_UNKNOWN] =3D {"reject_unknown", &sel_hand=
+le_unknown_ops, S_IRUGO},
+> > >                 [SEL_DENY_UNKNOWN] =3D {"deny_unknown", &sel_handle_u=
+nknown_ops, S_IRUGO},
+> > > -               [SEL_STATUS] =3D {"status", &sel_handle_status_ops, S=
+_IRUGO},
+> > >                 [SEL_POLICY] =3D {"policy", &sel_policy_ops, S_IRUGO}=
+,
+> > >                 [SEL_VALIDATE_TRANS] =3D {"validatetrans", &sel_trans=
+ition_ops,
+> > >                                         S_IWUGO},
+> > > @@ -1995,6 +2014,26 @@ static int sel_fill_super(struct super_block *=
+sb, struct fs_context *fc)
+> > >         if (ret)
+> > >                 goto err;
+> > >
+> > > +       /* Create "status" separately to assign a custom inode_operat=
+ions */
+> > > +       {
+> > > +               ret =3D -ENOMEM;
+> > > +
+> > > +               dentry =3D d_alloc_name(sb->s_root, "status");
+> > > +               if (!dentry)
+> > > +                       goto err;
+> > > +               inode =3D new_inode(sb);
+> > > +               if (!inode) {
+> > > +                       dput(dentry);
+> > > +                       goto err;
+> > > +               }
+> > > +               inode->i_mode =3D S_IFREG | 0444;
+> > > +               simple_inode_init_ts(inode);
+> > > +               inode->i_fop =3D &sel_handle_status_ops;
+> > > +               inode->i_op =3D &sel_handle_status_iops;
+> > > +               inode->i_ino =3D SEL_STATUS;
+> > > +               d_add(dentry, inode);
+> > > +       }
+> > > +
+> > >         fsi =3D sb->s_fs_info;
+> > >         fsi->bool_dir =3D sel_make_dir(sb->s_root, BOOL_DIR_NAME, &fs=
+i->last_ino);
+> > >         if (IS_ERR(fsi->bool_dir)) {
+> > > --
+> > > 2.51.0
+> > >
