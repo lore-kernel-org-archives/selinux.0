@@ -1,412 +1,205 @@
-Received: from mail-lj1-f178.google.com (mail-lj1-f178.google.com [209.85.208.178])
+Received: from mail-lf1-f54.google.com (mail-lf1-f54.google.com [209.85.167.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C8F017ADE0
-	for <selinux@vger.kernel.org>; Fri, 13 Feb 2026 15:25:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12A2C17ADE0
+	for <selinux@vger.kernel.org>; Fri, 13 Feb 2026 15:26:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.54
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770996328; cv=pass; b=K9oC3RR3Clzza16q1wGRfOYNb0GnlJA3GtsIawKGeHybyiYoiCnCWUiSQcEScGs0iBueTLC/+IGSPFUXb/ZCxEiKhSSi6ma9dtLo2ZImDpIpRmZUwWBQUUrMG0VhoPn7sSd9t3uc3kDubLoQP57EiAD7Af3Rl36ClsFqHmT3uBo=
+	t=1770996384; cv=pass; b=MLR4nJRde9nwAZ2aa6lDWrG8KKFlwUwgJV/ZVghGfr4B7DidW/oJjMf5u7qBtzfzjFfEivzBiE6Jm/jvVKIFd5altXu3zQDzTiRX035xTonosPIeAoX4pE/LbctCurztCeUJhiw279vgl+MKIS9cuHqgRqgxXdu2+LeOjj1GhDs=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770996328; c=relaxed/simple;
-	bh=3PtLdDDFiF9mK43GbgdvqQrMkkKBv1AEr/tsxlgWLJc=;
+	s=arc-20240116; t=1770996384; c=relaxed/simple;
+	bh=lHAibJwCR3ROVj1G3YEx5JjwR1DAABVokI1OcLW3E+s=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Sg6hJj9Utc2lm614WOrTVfzcXy0szNEQO5HxvM6aHJFAGOjD0UyTxhnZv7n7c4KiXoSHXfSZiuPH8DFecbDL7tM1Hssr3zIyaORUVTllotAmz44ahZFMajuxpbtJxFS18/hEDd024idMIwBLG/rfmR32lsC+AAV5VNlcG++wNCA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Wx9Z1jwK; arc=pass smtp.client-ip=209.85.208.178
+	 To:Cc:Content-Type; b=eYJh/8sJdTENtMd2klzWNa1rRLIEz7CokNEgA8r0fXr4IsbPfGnIEctopCDuhpcWojpUFDCxTfXyjmKmquQV7z6wwntBZEKAuZKlmtt200dAdkfEsJL2jNJi0w624Vh+mWhG9wb6uvKNBS3poD3fQTcYn+fbCOL2cGFyWxljZ8A=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DSEYSSYQ; arc=pass smtp.client-ip=209.85.167.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Wx9Z1jwK"
-Received: by mail-lj1-f178.google.com with SMTP id 38308e7fff4ca-3871017fea2so18383431fa.0
-        for <selinux@vger.kernel.org>; Fri, 13 Feb 2026 07:25:26 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1770996325; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DSEYSSYQ"
+Received: by mail-lf1-f54.google.com with SMTP id 2adb3069b0e04-59e6b736b84so860462e87.1
+        for <selinux@vger.kernel.org>; Fri, 13 Feb 2026 07:26:22 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1770996381; cv=none;
         d=google.com; s=arc-20240605;
-        b=GwTSTNBikVzv+swdYDs6i4bp939NBCA1NgPZ6/tRcDGk0OUWHwLx9qdB9Xa7iDJ9g1
-         K6iYPwSQGeOIChZKmODkB88x3Okr43pG9fazfieodYzkgZb2VY+UWTgOtn5BLBCVSo65
-         yDW6gZsK84hXVzAFrb4B1T2Y5a42WHahZuYfGlZVg9Sg8s67VrlG0xNX6Q4MRRliD1AZ
-         TlOOhu/UaZuCK7XLCU0AOupRN6obvbV4lXTAn/eyjTHF+XCvRwZn5eh0LhwegvxBb8eq
-         SPFm0bp0INmRNBgjhMJ1GWQNPM7gM7hETzrOZGIkqYmvypdeF0D2TbAS3TOrgBqdKmpd
-         d5XA==
+        b=C1pRYVcMT36DBEFl7OOpeO9HS5EZtX4WEQuXE0qYcEoyWA1DO+4AyWA/0cApmJ2fNp
+         t9JhVlES9E59ZWPq/n53gZfuvXd7NFz3jUYHlwMBMaDp9qd938//Ra0sosl+1B6raXWn
+         iUBJfParaUR9ejDeGdRcxZoegHtWNr1uQdS0MNMK5feJU0D2J122oXKOpkQFvet6yGnq
+         RPhjC1PIf85TuwtdBAkEWZIRmefuC7fQnlgP1BbGyNf9orexX+xLT8H+woWhlaCs5JmS
+         XBL9PiOpbntSYjFIfJQFUtdQvzSzHIvPBj59GSNahdxWLKaH6ucXqU6VzKHGvL8QX+da
+         +s2Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=rQNh1aLHxxd97Dq+kPC5hIpDEbVzTi1acjl8McSk9bo=;
+        bh=CvSVc1XKPzRtRHtm5mJrlmxpnb7osDM86Eav0MUbsxU=;
         fh=5BxwEK/iVIzhs7kNCBs0/zEkT4yGKFLka6Po5B0u4CY=;
-        b=R7K/0RiztGjFyLwrBExW6NXOqEjE5eRiOqyfVgyHv4ADS7JHKzZ6Oc3/tvJ6SitKQk
-         ItOhpJzY0GU8yp2FW8eNhb+1Nm4DDjhyPydzpvbFVFBsO6ro+PprDzydEd3lLtJHrwyT
-         E1wU0YiOup6+3xpflBEPlKY0/e5E3eaTEatW8g78hr9ZapQ5vJs+YctWt3by07I2vhvT
-         4xPItGqKxWMfQ6y0AurEdIOdfD/gDkoTOqwaRVNWJCMIyFh7bEuWmhKOEKL7fnFdmMWv
-         YnkvWDVXmZQOnYKu6OxW82LMO/nvxt1tRgemUGRGQbZxBRZ1cpPb9ZAsDyqRU3BDfvdT
-         O3RQ==;
+        b=jcf8wfqEDEL6hcFUIDPyqxPHt6TbB+5Smkha001g+7XNzUaAh33GnbarwTdmqExOt5
+         crxPjbtNxIkfR9U1VcvrlzWIFCurkbJcSF/W2L4uJ1waiSuXLYuYB86sgRrUoj+B5ycZ
+         CO512kYi5u+0FcbVABs7oLx9HdepffDv/BMqlqRjgeFr4CdvC7J4iRjO00GsXEL2EHua
+         RNRyo4i+B93xPA8nyR3dhvfkF8ugC+EnTrffuoCWWZNRalw2z9H33FzeGn42YRhduxJv
+         XFTt9ufF2/sA9ftz1JRy8Q54LCh/0bPHnn0TuY7ICRbeRwlLrL87uhcPSc1zMr6ditDB
+         j/YQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770996325; x=1771601125; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1770996381; x=1771601181; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=rQNh1aLHxxd97Dq+kPC5hIpDEbVzTi1acjl8McSk9bo=;
-        b=Wx9Z1jwKOk/AkCQMWYIL114f9CZ4++A4kYr/0IOl4WDv1Kcu4I38/+ZQMw1aW20yE6
-         k1voXwJhm/ekbqFOR3iHaXEzwmlK6Bc0dbrDFyQFlNhL1QHL7ZaD4BIs3r39hvouUGbk
-         OkXvOyiVhnkrwLdMGyWowgnZbfNe7Xkb5oKEGB59BgVvAn6meJkWhb5I6j2s0LjcHzGn
-         FURwJcYN9NBrSX1YObojr83sbI/yeyiOapiDekm4uC4096HT/1knLM/iH6EvwJzxBS0K
-         RNwltqCjhCH79ViRTm8yED+76jFcJwGsPyEk01yTC/ku0zkoE4dEzqMkgYkc3PhAPKl0
-         vOWA==
+        bh=CvSVc1XKPzRtRHtm5mJrlmxpnb7osDM86Eav0MUbsxU=;
+        b=DSEYSSYQIFJmNoLOWtLcTYQYa7FVFw23M6ii+fkAaR8AkRn4COmoP/r7P/xyIc9jqT
+         LWqOSt8sunNjqceaKPkigirE6TQYw8oYg9NocfqKvbuqm9+MSDB6i8vdLATGx0JeKhNw
+         qZHQKbposbtdEbTzOyBljvVOrYCqBXLpJPJDzAde0WHZqsyF4NKUGzN2+OxVke0KwwQ5
+         04VpWyCEoaLNUMazHGKEnd74VScKYAhwPLew8RGnV8yKKKqj7XE4mE5+LQcdJE+p1qPN
+         /KRnaLU/2nwptiBczpolFpjK06xp4g4mDf/c/qJAfmm44KBWv23IjYbswC53FDND54FC
+         miJQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770996325; x=1771601125;
+        d=1e100.net; s=20230601; t=1770996381; x=1771601181;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=rQNh1aLHxxd97Dq+kPC5hIpDEbVzTi1acjl8McSk9bo=;
-        b=up0IZnyhqfYSylKLZUUTWUzmyGlZhgAyskWIuttw3d2OAFtgrLpGk3WQzLMB6iAmFX
-         wMq36V3+USK5Vsz8jPtz7VCkebviCVwcJakqZybx3xEDO7d3VHy9UjL5BQsQ+NkcLHdg
-         GSoBcu2JL5Qe2Ih5UnTWRU0jsqLVZxduiVDRNBHlAJ97qFmqLX7ffNidBgbYaT6kKS3v
-         5t+TrhEMmEEMppCN6YKq/pDmhl8sRQ41l5XrOn9tgRwUn5bwwtdX9rLIG1VOEo2ynAcl
-         7MJV63zdJzh/n/Zjq2wjYFG7sfFXSLAREFIk8KHWEvlUHfJ8QXhlc40Rlcz9kA6GMgDw
-         +8Dg==
-X-Gm-Message-State: AOJu0Yzt/2r8ju4ZMA5DzpEqnK3yJvk2yNr30okHevH5acNSaD+YZw/k
-	7FFXh2t4Z2aRa4WEpE+M+iRK6W5n1ZGqRCi4S2y5TWzQlhPEaNUe/L7rK5rFUnOa4XPKov18FF8
-	/lcExwGIs3KDUku/YBV0BSPLGIKHqvcU=
-X-Gm-Gg: AZuq6aIzRgHDKtWB7rBPMOBXiq0OOCYaj4LdHjF8Ous+uvbI5xcZtRupGA8vtdPXrFw
-	hcpCjCyLmjxbMumFoRiZC9foISX6ZzrSilcGX1BXCEp+o007OQd+LdERqiR/Au77DtrtpkwCRH9
-	EbnjZ7gqLpQZ+2jG6dHrbHbjOvdrGmR5NhiRcdFHTem9jD2wxzNjP7FDXEF0IROcoxq67Pzus0c
-	gGlNsYRK9CNoYAraWNtmNyVgkTdrLFNTXb9mdlVubB9YCgAuFw/2iK/eytN5fVe+A7sHK/sr6zi
-	7wv9
-X-Received: by 2002:ac2:5b4b:0:b0:59e:5589:26c6 with SMTP id
- 2adb3069b0e04-59f6cfa4851mr123447e87.9.1770996324915; Fri, 13 Feb 2026
- 07:25:24 -0800 (PST)
+        bh=CvSVc1XKPzRtRHtm5mJrlmxpnb7osDM86Eav0MUbsxU=;
+        b=MIVqTObBDlj81fEgxkjF24F22himOz6haKVIMAyeU0WoJra87boHq5Y8hT1Berkwtj
+         0P5mNid+xYV5Uf+1JXt7V7iHDPoXTimjLx9y5cypmykAX2GDH1IAskEmqMTCImiVo16d
+         2cHNXJkiHeMahFouGHTT57ZYa5L0Zrl70WPAr82XsDvAC5WBZP9054D4tmUTukBjt7+x
+         pzSBdSkThn0W6tYAJD0YaFAJDj33AKxIsYWo/2q59/4XImTjXiWL//iBb5seb3vYa46W
+         7HBTOF7FMSWdEKu9g6Yk3zI+NilEsbNISj9BstxbA/JSkCfp6esCC3J6OU4GXkSU14F0
+         Rfpg==
+X-Gm-Message-State: AOJu0YzuP7A8fj7mhIz716/AW/KZE2AePQUeMZdenqSn4OdYjfz8vqnq
+	ECQJW6m6flxbLttZat45mWcosec10CoPW3cSuLDpncrna3uT1rkQlgPrPPLqFM+zVHNIE0TzrQC
+	z1t+0auv8GQJUPgWSpmxJ2MOo+SWozfc=
+X-Gm-Gg: AZuq6aIPBf9QZQb/rIJ0OviShHq3z5+HVa0C3w3RywBwvpsIyvraLmQOK6KQtVhWjdl
+	cZWhNvvLceyZ6FEghDAVRhbrxVdvjXP0/HZM7f9RNc96jzlB6OiJ172JahsFGMVn8orysX9Npaf
+	dy+WUJoJ3hZAC1/kPe8N8rg+YFjA44kscbTzR+tqR+KM8jopuG6K7AWXfBu2mLEGxEo4ok5cVlO
+	2NDK/+hUr8YAkcb9LpX+OSBSUuw3qGm6in28SlC86U6jF/R1IxL3BHxofRVd3+HqMOQ0hj3LAKI
+	GiuOTEcljXFlTVQ=
+X-Received: by 2002:a05:6512:b12:b0:59d:fac0:3a14 with SMTP id
+ 2adb3069b0e04-59f69c6240amr813201e87.28.1770996381074; Fri, 13 Feb 2026
+ 07:26:21 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260202143554.97209-1-cgoettsche@seltendoof.de> <20260202143554.97209-2-cgoettsche@seltendoof.de>
-In-Reply-To: <20260202143554.97209-2-cgoettsche@seltendoof.de>
+References: <20260202143554.97209-1-cgoettsche@seltendoof.de> <20260202143554.97209-3-cgoettsche@seltendoof.de>
+In-Reply-To: <20260202143554.97209-3-cgoettsche@seltendoof.de>
 From: James Carter <jwcart2@gmail.com>
-Date: Fri, 13 Feb 2026 10:25:13 -0500
-X-Gm-Features: AZwV_QjiOchh3OVBcRvdLIDLF9BNbQkv2_kaDyYKvwBF3_9ktNQTGaMJXiJTpWU
-Message-ID: <CAP+JOzR4nhWSie-jfVe81810aQNoUsnQPnKDeEc3_8Q1qE6JFw@mail.gmail.com>
-Subject: Re: [PATCH 3/4] libselinux: use C11 atomics
+Date: Fri, 13 Feb 2026 10:26:10 -0500
+X-Gm-Features: AZwV_QhfvgEsoHAwrodQBvLBUg2SHtlWKAwBeWYsDW5S6aNgiYnn6Q7zIKN3Ids
+Message-ID: <CAP+JOzRedj2Fd5jt74cVpro7Soo8dTmDHneCSFOMPH1v9VhT3A@mail.gmail.com>
+Subject: Re: [PATCH 4/4] libselinux: improve restorecon progress locking
 To: cgzones@googlemail.com
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 2, 2026 at 3:59=E2=80=AFPM Christian G=C3=B6ttsche
+On Mon, Feb 2, 2026 at 3:21=E2=80=AFPM Christian G=C3=B6ttsche
 <cgoettsche@seltendoof.de> wrote:
 >
 > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Use standard C11 atomics for compatibility.
-> Also explicitly use atomic types to ensure well-defined behavior even on
-> obscure platforms.
+> Use an atomic counter to avoid acquiring the synchronizing mutex for
+> each file.  Only acquire when actually writing to stdout.
 >
+> Also reset the scanned file count at startup in case the calling process
+> calls selinux_restorecon(3) multiple times during its lifetime.
+>
+> Suggested-by: Copilot
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 > ---
->  libselinux/src/label.c          | 12 ++++++------
->  libselinux/src/label_file.c     | 31 +++++++------------------------
->  libselinux/src/label_file.h     | 32 ++++++--------------------------
->  libselinux/src/label_internal.h |  5 +++--
->  4 files changed, 22 insertions(+), 58 deletions(-)
+>  libselinux/src/selinux_restorecon.c | 28 +++++++++++++++++-----------
+>  1 file changed, 17 insertions(+), 11 deletions(-)
 >
-> diff --git a/libselinux/src/label.c b/libselinux/src/label.c
-> index 2c510290..40ba9f0b 100644
-> --- a/libselinux/src/label.c
-> +++ b/libselinux/src/label.c
-> @@ -127,14 +127,14 @@ int selabel_validate(struct selabel_lookup_rec *con=
-texts)
->         bool validated;
->         int rc;
->
-> -       validated =3D __atomic_load_n(&contexts->validated, __ATOMIC_ACQU=
-IRE);
-> +       validated =3D atomic_load_explicit(&contexts->validated, memory_o=
-rder_acquire);
->         if (validated)
->                 return 0;
->
->         __pthread_mutex_lock(&contexts->lock);
->
->         /* Check if another thread validated the context while we waited =
-on the mutex */
-> -       validated =3D __atomic_load_n(&contexts->validated, __ATOMIC_ACQU=
-IRE);
-> +       validated =3D atomic_load_explicit(&contexts->validated, memory_o=
-rder_acquire);
->         if (validated) {
->                 __pthread_mutex_unlock(&contexts->lock);
->                 return 0;
-> @@ -142,7 +142,7 @@ int selabel_validate(struct selabel_lookup_rec *conte=
-xts)
->
->         rc =3D selinux_validate(&contexts->ctx_raw);
->         if (rc =3D=3D 0)
-> -               __atomic_store_n(&contexts->validated, true, __ATOMIC_REL=
-EASE);
-> +               atomic_store_explicit(&contexts->validated, true, memory_=
-order_release);
->
->         __pthread_mutex_unlock(&contexts->lock);
->
-> @@ -166,14 +166,14 @@ static int selabel_fini(const struct selabel_handle=
- *rec,
->         if (!translating)
->                 return 0;
->
-> -       ctx_trans =3D __atomic_load_n(&lr->ctx_trans, __ATOMIC_ACQUIRE);
-> +       ctx_trans =3D atomic_load_explicit(&lr->ctx_trans, memory_order_a=
-cquire);
->         if (ctx_trans)
->                 return 0;
->
->         __pthread_mutex_lock(&lr->lock);
->
->         /* Check if another thread translated the context while we waited=
- on the mutex */
-> -       ctx_trans =3D __atomic_load_n(&lr->ctx_trans, __ATOMIC_ACQUIRE);
-> +       ctx_trans =3D atomic_load_explicit(&lr->ctx_trans, memory_order_a=
-cquire);
->         if (ctx_trans) {
->                 __pthread_mutex_unlock(&lr->lock);
->                 return 0;
-> @@ -181,7 +181,7 @@ static int selabel_fini(const struct selabel_handle *=
-rec,
->
->         rc =3D selinux_raw_to_trans_context(lr->ctx_raw, &ctx_trans);
->         if (rc =3D=3D 0)
-> -               __atomic_store_n(&lr->ctx_trans, ctx_trans, __ATOMIC_RELE=
-ASE);
-> +               atomic_store_explicit(&lr->ctx_trans, ctx_trans, memory_o=
-rder_release);
->
->         __pthread_mutex_unlock(&lr->lock);
->
-> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-> index b785eab6..de6937f5 100644
-> --- a/libselinux/src/label_file.c
-> +++ b/libselinux/src/label_file.c
-> @@ -578,6 +578,7 @@ static int load_mmap_regex_spec(struct mmap_area *mma=
-p_area, bool validating, bo
->         uint32_t data_u32, ctx_id, lineno;
->         uint16_t data_u16, regex_len;
->         uint8_t data_u8;
-> +       bool compiled;
->         int rc;
->
->         rspec->from_mmap =3D true;
-> @@ -663,8 +664,8 @@ static int load_mmap_regex_spec(struct mmap_area *mma=
-p_area, bool validating, bo
->         /*
->          * Read pcre regex related data
->          */
-> -       rc =3D regex_load_mmap(mmap_area, &rspec->regex, do_load_precompr=
-egex,
-> -                            &rspec->regex_compiled);
-> +       rc =3D regex_load_mmap(mmap_area, &rspec->regex, do_load_precompr=
-egex, &compiled);
-> +       rspec->regex_compiled =3D compiled;
->         if (rc < 0)
->                 return -1;
->
-> @@ -1637,11 +1638,7 @@ static struct lookup_result *lookup_check_node(str=
-uct spec_node *node, const cha
->                                         if (file_kind =3D=3D LABEL_FILE_K=
-IND_ALL || lspec->file_kind =3D=3D LABEL_FILE_KIND_ALL || lspec->file_kind =
-=3D=3D file_kind) {
->                                                 struct lookup_result *r;
->
-> -#ifdef __ATOMIC_RELAXED
-> -                                               __atomic_store_n(&lspec->=
-any_matches, true, __ATOMIC_RELAXED);
-> -#else
-> -#error "Please use a compiler that supports __atomic builtins"
-> -#endif
-> +                                               atomic_store_explicit(&ls=
-pec->any_matches, true, memory_order_relaxed);
->
->                                                 if (strcmp(lspec->lr.ctx_=
-raw, "<<none>>") =3D=3D 0) {
->                                                         errno =3D ENOENT;
-> @@ -1704,11 +1701,7 @@ static struct lookup_result *lookup_check_node(str=
-uct spec_node *node, const cha
->                                 struct lookup_result *r;
->
->                                 if (rc =3D=3D REGEX_MATCH) {
-> -#ifdef __ATOMIC_RELAXED
-> -                                       __atomic_store_n(&rspec->any_matc=
-hes, true, __ATOMIC_RELAXED);
-> -#else
-> -#error "Please use a compiler that supports __atomic builtins"
-> -#endif
-> +                                       atomic_store_explicit(&rspec->any=
-_matches, true, memory_order_relaxed);
->                                 }
->
->                                 if (strcmp(rspec->lr.ctx_raw, "<<none>>")=
- =3D=3D 0) {
-> @@ -2123,12 +2116,7 @@ static void spec_node_stats(const struct spec_node=
- *node)
->         for (uint32_t i =3D 0; i < node->literal_specs_num; i++) {
->                 const struct literal_spec *lspec =3D &node->literal_specs=
-[i];
->
-> -#ifdef __ATOMIC_RELAXED
-> -               any_matches =3D __atomic_load_n(&node->literal_specs[i].a=
-ny_matches, __ATOMIC_RELAXED);
-> -#else
-> -#error "Please use a compiler that supports __atomic builtins"
-> -#endif
-> -
-> +               any_matches =3D atomic_load_explicit(&node->literal_specs=
-[i].any_matches, memory_order_relaxed);
->                 if (!any_matches) {
->                         COMPAT_LOG(SELINUX_WARNING,
->                                 "Warning!  No matches for (%s, %s, %s)\n"=
-,
-> @@ -2141,12 +2129,7 @@ static void spec_node_stats(const struct spec_node=
- *node)
->         for (uint32_t i =3D 0; i < node->regex_specs_num; i++) {
->                 const struct regex_spec *rspec =3D &node->regex_specs[i];
->
-> -#ifdef __ATOMIC_RELAXED
-> -               any_matches =3D __atomic_load_n(&rspec->any_matches, __AT=
-OMIC_RELAXED);
-> -#else
-> -#error "Please use a compiler that supports __atomic builtins"
-> -#endif
-> -
-> +               any_matches =3D atomic_load_explicit(&rspec->any_matches,=
- memory_order_relaxed);
->                 if (!any_matches) {
->                         COMPAT_LOG(SELINUX_WARNING,
->                                 "Warning!  No matches for (%s, %s, %s)\n"=
-,
-> diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
-> index 8fcf74e3..5c17fe41 100644
-> --- a/libselinux/src/label_file.h
-> +++ b/libselinux/src/label_file.h
-> @@ -85,8 +85,8 @@ struct regex_spec {
->         uint16_t prefix_len;                    /* length of fixed path p=
-refix */
->         uint8_t inputno;                        /* Input number of source=
- file */
->         uint8_t file_kind;                      /* file type */
-> -       bool regex_compiled;                    /* whether the regex is c=
-ompiled */
-> -       bool any_matches;                       /* whether any pathname m=
-atch */
-> +       atomic_bool regex_compiled;             /* whether the regex is c=
-ompiled */
-> +       atomic_bool any_matches;                /* whether any pathname m=
-atch */
->         bool from_mmap;                         /* whether this spec is f=
-rom an mmap of the data */
->  };
->
-> @@ -98,7 +98,7 @@ struct literal_spec {
->         uint16_t prefix_len;                    /* length of fixed path p=
-refix, i.e. length of the literal match */
->         uint8_t inputno;                        /* Input number of source=
- file */
->         uint8_t file_kind;                      /* file type */
-> -       bool any_matches;                       /* whether any pathname m=
-atch */
-> +       atomic_bool any_matches;                /* whether any pathname m=
-atch */
->         bool from_mmap;                         /* whether this spec is f=
-rom an mmap of the data */
->  };
->
-> @@ -410,14 +410,7 @@ static int compile_regex(struct regex_spec *spec, ch=
-ar *errbuf, size_t errbuf_si
->          * init_routine does not take a parameter, it's not possible
->          * to use, so we generate the same effect with atomics and a
->          * mutex */
-> -#ifdef __ATOMIC_RELAXED
-> -       regex_compiled =3D
-> -               __atomic_load_n(&spec->regex_compiled, __ATOMIC_ACQUIRE);
-> -#else
-> -       /* GCC <4.7 */
-> -       __sync_synchronize();
-> -       regex_compiled =3D spec->regex_compiled;
-> -#endif
-> +       regex_compiled =3D atomic_load_explicit(&spec->regex_compiled, me=
-mory_order_acquire);
->         if (regex_compiled) {
->                 return 0; /* already done */
->         }
-> @@ -425,14 +418,7 @@ static int compile_regex(struct regex_spec *spec, ch=
-ar *errbuf, size_t errbuf_si
->         __pthread_mutex_lock(&spec->regex_lock);
->         /* Check if another thread compiled the regex while we waited
->          * on the mutex */
-> -#ifdef __ATOMIC_RELAXED
-> -       regex_compiled =3D
-> -               __atomic_load_n(&spec->regex_compiled, __ATOMIC_ACQUIRE);
-> -#else
-> -       /* GCC <4.7 */
-> -       __sync_synchronize();
-> -       regex_compiled =3D spec->regex_compiled;
-> -#endif
-> +       regex_compiled =3D atomic_load_explicit(&spec->regex_compiled, me=
-mory_order_acquire);
->         if (regex_compiled) {
->                 __pthread_mutex_unlock(&spec->regex_lock);
->                 return 0;
-> @@ -474,13 +460,7 @@ static int compile_regex(struct regex_spec *spec, ch=
-ar *errbuf, size_t errbuf_si
->         }
->
->         /* Done. */
-> -#ifdef __ATOMIC_RELAXED
-> -       __atomic_store_n(&spec->regex_compiled, true, __ATOMIC_RELEASE);
-> -#else
-> -       /* GCC <4.7 */
-> -       spec->regex_compiled =3D true;
-> -       __sync_synchronize();
-> -#endif
-> +       atomic_store_explicit(&spec->regex_compiled, true, memory_order_r=
-elease);
->         __pthread_mutex_unlock(&spec->regex_lock);
->         return 0;
->  }
-> diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_inter=
-nal.h
-> index 743dbf94..dd233533 100644
-> --- a/libselinux/src/label_internal.h
-> +++ b/libselinux/src/label_internal.h
-> @@ -10,6 +10,7 @@
->
->  #include <stdlib.h>
->  #include <stdarg.h>
+> diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux=
+_restorecon.c
+> index b1f6f672..a512a669 100644
+> --- a/libselinux/src/selinux_restorecon.c
+> +++ b/libselinux/src/selinux_restorecon.c
+> @@ -17,6 +17,7 @@
+>  #include <fts.h>
+>  #include <inttypes.h>
+>  #include <limits.h>
 > +#include <stdatomic.h>
 
-My understanding is that musl does not support C11 atomics. Its
-compatibility pages lists everything under stdatomic.h as "missing".
-Since we have people compiling the SELinux userspace on systems using
-musl, we can't switch to C11 atomics until musl supports them.
-The patch looks fine to me otherwise.
+Again, musl doesn't support C11 atomics, so we can't make the switch yet.
 
 Thanks,
 Jim
 
->  #include <stdio.h>
->  #include <selinux/selinux.h>
->  #include <selinux/label.h>
-> @@ -70,10 +71,10 @@ extern void digest_gen_hash(struct selabel_digest *di=
-gest);
+>  #include <stdint.h>
+>  #include <sys/types.h>
+>  #include <sys/stat.h>
+> @@ -39,8 +40,6 @@
+>  #include "label_file.h"
+>  #include "sha1.h"
 >
->  struct selabel_lookup_rec {
->         char * ctx_raw;
-> -       char * ctx_trans;
-> +       char * _Atomic ctx_trans;
->         pthread_mutex_t lock;   /* lock for validation and translation */
->         unsigned int lineno;
-> -       bool validated;
-> +       atomic_bool validated;
->  };
+> -#define STAR_COUNT 1024
+> -
+>  static struct selabel_handle *fc_sehandle =3D NULL;
+>  static bool selabel_no_digest;
+>  static char *rootpath =3D NULL;
+> @@ -58,8 +57,8 @@ static bool ignore_mounts;
+>  static uint64_t exclude_non_seclabel_mounts(void);
+>  static int exclude_count =3D 0;
+>  static struct edir *exclude_lst =3D NULL;
+> -static uint64_t fc_count =3D 0;  /* Number of files processed so far */
+> -static uint64_t efile_count;   /* Estimated total number of files */
+> +static atomic_uint_fast64_t fc_count =3D 0;      /* Number of files proc=
+essed so far */
+> +static uint64_t efile_count;                   /* Estimated total number=
+ of files */
+>  static pthread_mutex_t progress_mutex =3D PTHREAD_MUTEX_INITIALIZER;
 >
->  struct selabel_handle {
+>  /* Store information on directories with xattr's. */
+> @@ -687,19 +686,24 @@ static int restorecon_sb(const char *pathname, cons=
+t struct stat *sb,
+>         }
+>
+>         if (flags->progress) {
+> -               __pthread_mutex_lock(&progress_mutex);
+> -               fc_count++;
+> -               if (fc_count % STAR_COUNT =3D=3D 0) {
+> +               uint64_t fc_count_local;
+> +               const unsigned STAR_COUNT =3D 1024;
+> +
+> +               fc_count_local =3D atomic_fetch_add_explicit(&fc_count, 1=
+, memory_order_relaxed);
+> +               fc_count_local++;
+> +
+> +               if (fc_count_local % STAR_COUNT =3D=3D 0) {
+> +                       __pthread_mutex_lock(&progress_mutex);
+>                         if (flags->mass_relabel && efile_count > 0) {
+> -                               float pc =3D (fc_count < efile_count) ? (=
+100.0 *
+> -                                            fc_count / efile_count) : 10=
+0;
+> +                               float pc =3D (fc_count_local < efile_coun=
+t) ? (100.0 *
+> +                                            fc_count_local / efile_count=
+) : 100;
+>                                 fprintf(stdout, "\r%-.1f%%", (double)pc);
+>                         } else {
+> -                               fprintf(stdout, "\r%" PRIu64 "k", fc_coun=
+t / STAR_COUNT);
+> +                               fprintf(stdout, "\r%" PRIu64 "k", fc_coun=
+t_local / STAR_COUNT);
+>                         }
+>                         fflush(stdout);
+> +                       __pthread_mutex_unlock(&progress_mutex);
+>                 }
+> -               __pthread_mutex_unlock(&progress_mutex);
+>         }
+>
+>         if (flags->add_assoc) {
+> @@ -1111,6 +1115,8 @@ static int selinux_restorecon_common(const char *pa=
+thname_orig,
+>         int fts_flags, error;
+>         struct dir_hash_node *current =3D NULL;
+>
+> +       fc_count =3D 0;
+> +
+>         if (state.flags.verbose && state.flags.progress)
+>                 state.flags.verbose =3D false;
+>
 > --
 > 2.51.0
 >
