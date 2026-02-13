@@ -1,83 +1,125 @@
-Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3C021684BE;
-	Fri, 13 Feb 2026 13:59:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.181.97.72
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770991199; cv=none; b=XeieFXyb/pg3oxVumzvv2Q8I5Qhsq+PzV/io4XgQ36rfMsoQ74ssUX1lO28WrjgG2uHAx5wG2emnR9wZygZJ8M3wv+JHewCFDdXezF9eabrzdceqvD5A41fIa+WtvN+e/A0GswGj+kErab19t3Mcy/n8YH9yKQuw7f9dUI40b+M=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770991199; c=relaxed/simple;
-	bh=oIITJHToT3jgpyMYTOKivfMG2iGdep9oSi1Q7sfvBzI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nmXFAOsZsFWhD+9m2mYRC/FQzerOR/vkML9iXi8vgm9h2aOnh8Qm9cu6esSnTBXIDf0izxDuRnZYlxDDcg2ymZupNu51G9zI7Wd1RCxHfM/ECYPQZsgPLUGisGlxzZW5ocEY31ktC88DR5CNcj/y+jmhnFvA7ESoFZuRQY4A21Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=I-love.SAKURA.ne.jp; spf=pass smtp.mailfrom=I-love.SAKURA.ne.jp; arc=none smtp.client-ip=202.181.97.72
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=I-love.SAKURA.ne.jp
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=I-love.SAKURA.ne.jp
-Received: from www262.sakura.ne.jp (localhost [127.0.0.1])
-	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 61DDxGKm000148;
-	Fri, 13 Feb 2026 22:59:16 +0900 (JST)
-	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
-Received: from [192.168.1.10] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
-	(authenticated bits=0)
-	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 61DDxGgJ000145
-	(version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
-	Fri, 13 Feb 2026 22:59:16 +0900 (JST)
-	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
-Message-ID: <d20f1b63-714f-48ba-9bee-cd074205404f@I-love.SAKURA.ne.jp>
-Date: Fri, 13 Feb 2026 22:59:15 +0900
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88BE61E32D6
+	for <selinux@vger.kernel.org>; Fri, 13 Feb 2026 15:16:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.176
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770995765; cv=pass; b=OV9qVdgnsMzFRn33+kUdXitRuCXB+touchTCXAZhx+bNkoYOM/N8MHaI3tnR5arF7k69IsO2XMDOa8yiTaQu08yhKM3yL2O0POKxXzBSL0J7c+aP1B2DoHntHneIlSZLPyTE/xTU/zTgQB/ehdsKwFWdLwl2ncNG8Tm2MUcukbA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770995765; c=relaxed/simple;
+	bh=iLhGMHCbhM+stZaGFe8/YxJ3YzZfHTNAguZKixvafTc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=HK1W3KNEPctusH5ehvKrS0AYSLJin5tgAvIYPxBdqWaEOrt20ewcQNf92qZXPO6pdDt4GKMKJiXDHpiHkTWSZgvWuBVIJiwNeuiBmAG2qnx6FuNvyQ9gMCo+mqRWT/XFFwqsB0/ljoNpWw+wHEjIMCgopLpbXfzB+P+REi9Gsj8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Gmm+d1jI; arc=pass smtp.client-ip=209.85.208.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Gmm+d1jI"
+Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-38706b63929so8634761fa.3
+        for <selinux@vger.kernel.org>; Fri, 13 Feb 2026 07:16:04 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1770995763; cv=none;
+        d=google.com; s=arc-20240605;
+        b=Mg8hKXUh1ya63G4EVDdQIJ2SHw02Hr3hUZR4rZCq0KLsDYbGD842M62zaU/Br6kuBZ
+         JJMeA0d9E/cCTrsCZQ3lfEty9ztYJN/1DR251Y7ADwYB9fqv2i/kYRczGs+T01VnJIKf
+         5CRPbZOjnpUCEfGPa1Zcm0gVo/cOaNwN4h6GM4MOnwLs/nDfdr8TCpp5XgNEnw+gHtlE
+         YpcM0dQLY8GFfp796wZM8afBocgqrK6MwK7OzAECYWBx9nFO6HiVuKO2lzSLY0uizPYF
+         oPdUXANgb3VUgmFud3UCjqD/gpiRlxeOLnlotNYn9dXHCEhgfncN2i1BvddhTI45V6Sc
+         CWKQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=78MsiaTUhsRFguXDPsBnBf7X9mY2549hwib3UoG7aMc=;
+        fh=5BxwEK/iVIzhs7kNCBs0/zEkT4yGKFLka6Po5B0u4CY=;
+        b=Bm9cNneokw1IqvCAnNDm6k9V8Vl+ekKvlaHcSJabxOz8aG4swMgWRoDDi1/+WBJEW3
+         1dPec8IiUkiAAvRr+MWEeGDgwBxDfhvWcAi0PCMvCdn+HBZ55tSsjHCGG+xt53H6CMrc
+         PIPQpNzAuI/KBPxN9VC3abKU4skWjYV8jwM7G02SIEnYZPQb1T2FpwmiCwIhSSTNKm/b
+         BaFOCd9Hd36IlZOIzmdeB763uvw5gP/psBSJK/sguBmGEZhulQ5S5ar7d2oPj4izQpwr
+         JHmrv9B45ce258HMcObQr1+mY5C4dbEB7mYbAWjRY180psBXY6EynMfCx2Vlk9GtAOSi
+         0uew==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1770995763; x=1771600563; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=78MsiaTUhsRFguXDPsBnBf7X9mY2549hwib3UoG7aMc=;
+        b=Gmm+d1jIeB8BslRKqaGhIrwq9TSyqkdlWpHxhItWG4OJWS8hYY137NSC9EVdtU+DGS
+         f2Bw5SzfzqTKetEuAJ5qpo+TJUw9z9Lh/4Sg9BLi7chl9B4TffjOGmTsQ7E/LhIjEjJt
+         AQ2YibjO6GexAbEV9YCcaAzCrYPmugywjHLCiUkoxlMgmBIUlqvC5lKxmGtgDhzdZ9Ql
+         y3wDf4jqtuudS0CxeMW9a2Qq+kkMZYTrs7vHThjWR1jYz/06mxeuVsZ6I7Ln/QTRVeXU
+         4IebF0wZCQpJKx7Zw177A4XzkSR8ikRmig+ify4iXb4skmggHsURMtEZobgIBXMoqCJm
+         nueg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770995763; x=1771600563;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=78MsiaTUhsRFguXDPsBnBf7X9mY2549hwib3UoG7aMc=;
+        b=cOH9rbpiHkkdpgxYphzaCh183Gp8z6ANFV7mZCQ2Ob5vNJlVKNNYCop+8aAKvnFn3J
+         mdldzoqdnfUlbkoG6uaq3xq1vo1TcmYlPoHHZuo/wctBPK6YVNjmIcfBDxvm+okPYFvJ
+         InD5eXhzJu0UnBDPliy95OyPvUKbicobtu6BsP8/ecJsfCQzbZPHQG+NLF9jJxHK68wi
+         7Ws1nYTcjZGieTj7GNU/jidxX3yYYFnNAGA7Wt43J13viCsUbYNy1Nm2DUOleyyorn8e
+         6oEkUzTQG1PqcpdwjDKvb+Hp6soj9XCQdOMxLb8QEdC4ZDXpyTAjwGTeD2c95hETSE3u
+         6kfg==
+X-Gm-Message-State: AOJu0YyO3mA3RCKfnyf/XQbJyuhzfN84osdoIRqLit/sc0Mztgj0VSm+
+	86Szs4gIzCKZO5XVepANOiOn53dShIe3StwDskZsfUVAKHpuSwaZ2oZVnZfNIhrtvn0yPnqJRia
+	tganrxta3uRW7ZGTBx/tUaZmAMVTVdaB3xvuh
+X-Gm-Gg: AZuq6aKO3eHLMfdrSUTxwVDBSlJRMnYlEv9dEkJpjgLpfkvf5FjtDas6im9L9W5c53f
+	N/eQiZ1nZ8xuF16mMBG8WnMTYS2czMtpXEN+xsuGainucRd1SAnGxjlsb8poKv0eBjv8VPVBa42
+	fo9nK1GJ71K8JhcdVkDKxivgnzeJFJPClZ6fYld9DC7yP0IpFUULJoPfN9WCWSs3iPix7KTmt6E
+	+YcbVDhYbrHMFk9nfidMLv7X44X7n7sbb+L/6MkXhyzRisUFNpOT72CB83VUPp2+679yAlV5utv
+	KPHz
+X-Received: by 2002:a2e:bc0f:0:b0:385:ed8d:b7f4 with SMTP id
+ 38308e7fff4ca-38810570a1dmr7090871fa.34.1770995762208; Fri, 13 Feb 2026
+ 07:16:02 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] xfrm: kill xfrm_dev_{state,policy}_flush_secctx_check()
-To: Steffen Klassert <steffen.klassert@secunet.com>,
-        Paul Moore <paul@paul-moore.com>, SELinux <selinux@vger.kernel.org>,
-        linux-security-module <linux-security-module@vger.kernel.org>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
-        Network Development <netdev@vger.kernel.org>
-References: <93d291db-4175-48c4-830c-e83bab373ae2@I-love.SAKURA.ne.jp>
- <CAHC9VhQPKU5DqG-ryZsiCV2vZeGGf_a-JStR_LVVCCn03C4usQ@mail.gmail.com>
- <f9b88268-03dc-4356-8b31-0bab73cc9b1e@I-love.SAKURA.ne.jp>
- <CAHC9VhRzRAR+hhn4TFADnHWpzjOxjmh0S_Hg_HktkPkKQ35ycg@mail.gmail.com>
- <74a70504-8ff8-4d97-b35f-774364779889@I-love.SAKURA.ne.jp>
- <7ef21dab-3805-4eae-80d7-9779aeff3f58@I-love.SAKURA.ne.jp>
- <aYmoDwO-YXrc4W1c@secunet.com>
- <85546d35-c7bd-49bf-b0c3-9677bde25859@I-love.SAKURA.ne.jp>
- <aYnDWbxo-jAzR4ca@secunet.com>
- <7c17884d-dbf1-4c2c-9813-0c5369cfdcc9@I-love.SAKURA.ne.jp>
- <aY76t_xYCHmLq6Ur@secunet.com>
-Content-Language: en-US
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-In-Reply-To: <aY76t_xYCHmLq6Ur@secunet.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Virus-Status: clean
-X-Anti-Virus-Server: fsav101.rs.sakura.ne.jp
+References: <20260202142404.92347-1-cgoettsche@seltendoof.de> <20260202142404.92347-8-cgoettsche@seltendoof.de>
+In-Reply-To: <20260202142404.92347-8-cgoettsche@seltendoof.de>
+From: James Carter <jwcart2@gmail.com>
+Date: Fri, 13 Feb 2026 10:15:50 -0500
+X-Gm-Features: AZwV_Qh-rgFyfQxVegmbo0Suz45i-rV6kHPxmZrR7IzEVLldi2N-dOim4oiyHYM
+Message-ID: <CAP+JOzQJybDw21=q1_NODitUp3v4-MV+3Qzv4ONpqXKE=RaH+w@mail.gmail.com>
+Subject: Re: [PATCH 1/8] libselinux: drop duplicate include header
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 2026/02/13 19:19, Steffen Klassert wrote:
-On 2026/02/13 19:19, Steffen Klassert wrote:
->> The NETDEV_UNREGISTER path can be triggered by just doing "unshare -n ip addr show"
->> (i.e. implicit cleanup of a network namespace due to termination of init process in
->> that namespace). We are not allowed to reject the cleanup_net() route.
-> 
-> And here we come to the other problem I mentioned. When a LSM policy
-> rejects to flush the xfrm states and policies on network namespace
-> exit, we leak all the xfrm states and policies in that namespace.
-> Here we have no other option, we must flush the xfrm states and
-> policies regardless of any LSM policy. This can be fixed with
-> something like that:
+On Mon, Feb 2, 2026 at 4:14=E2=80=AFPM Christian G=C3=B6ttsche
+<cgoettsche@seltendoof.de> wrote:
+>
+> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-This something is what I explained at
-https://lkml.kernel.org/r/1bb453af-3ef2-4ab6-a909-0705bd07c136@I-love.SAKURA.ne.jp .
-The "task_valid" argument does not always reflect whether LSM policy can reject or not.
+For these eight patches:
+Acked-by: James Carter <jwcart2@gmail.com>
 
-Anyway, the patch to add xfrm_dev_unregister(dev) seems OK if we do like
-https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit?h=next-20260123&id=fc0f090e41e652d158f946c616cdd82baed3c8f4 ?
-
+> ---
+>  libselinux/utils/selinux_check_securetty_context.c | 1 -
+>  1 file changed, 1 deletion(-)
+>
+> diff --git a/libselinux/utils/selinux_check_securetty_context.c b/libseli=
+nux/utils/selinux_check_securetty_context.c
+> index 5581dde1..0abbdfb9 100644
+> --- a/libselinux/utils/selinux_check_securetty_context.c
+> +++ b/libselinux/utils/selinux_check_securetty_context.c
+> @@ -3,7 +3,6 @@
+>  #include <stdio.h>
+>  #include <stdlib.h>
+>  #include <getopt.h>
+> -#include <errno.h>
+>  #include <string.h>
+>  #include <sys/types.h>
+>  #include <sys/stat.h>
+> --
+> 2.51.0
+>
+>
