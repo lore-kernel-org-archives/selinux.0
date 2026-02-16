@@ -1,165 +1,181 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com [209.85.208.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C4EB3164A1
-	for <selinux@vger.kernel.org>; Mon, 16 Feb 2026 15:06:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771254396; cv=none; b=JtFHx+LG4gONM2mEZGMiAkFBlN34bHxnUk3G9o6Wk/xxnKC01BunHG2YoPXjLcscpzURYtg1d/lPwXlhd5vz3uJlj4Bo4hLikaScr5IU6mAQ14ozzxhQIGB6imNKO6KYLXLwkqS1rfMjf9zvUHpybhgTzx2401LsdOoXOUkoonM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771254396; c=relaxed/simple;
-	bh=zx3WubZPys3qQZ9hjzoig3BrUfn76syHM4LUOku80x4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=L7u0Q4Ka9A4EelABPxCr2XZVRmsd+SUSJrYdaWrlhuyrEWRojUv5zmKdA/qiEa3qYP7NsQF18/WDj1uC5auvF/VgWFyvGjmj1wXIkAt8JLKNDzplItmPXtMBofddqjpkAVYDiktHWpVSwAJ036BmxsVzmFOwrKNjCuXAe9TbbME=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cuFzr/K3; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=rJo1z+9+; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A5E2328633
+	for <selinux@vger.kernel.org>; Mon, 16 Feb 2026 15:25:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.45
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1771255545; cv=pass; b=drSXDe0Rqi/q0JNXvKkVpzG3+lQUXG1vvlyCrv9HFY9niepCWW2kLvR18cJkgeGI5QD0F0F2pARnGB6zdefbZaXyJeX5AVzmNFmmO4prNxiBCrpnKjMGxcELVQkVaaeTKCgNhcabPE2OESuCk/j+bcnDAmlA7O3ccJ0OAtnWD8o=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1771255545; c=relaxed/simple;
+	bh=0WdtWYEHI09V+05DDbCwX5t6QJHUAd3cuf9OggMni3M=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=q665FbFc/U7RJD2Hgp1LlMYAVsQQoPtCnUQk49NKBL8Cia+OnxQdtf2cTINw7RpJ3txr/amrXXBDn/AQ6QXemcJPK5UEwmBrz0OdZ4+l+NTUVHq6RxFB4Q5ViJBlkHrzpM9+KP0XNfrXjv1nuxPPQuXPj9U4jSuWcdy7zvzt+vk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CsNuEOh5; arc=pass smtp.client-ip=209.85.208.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cuFzr/K3";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="rJo1z+9+"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1771254394;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=aIxEocxEapJW7yU9OtfyLhPCnRBq6fT8ce1CcmY6sug=;
-	b=cuFzr/K3/lCCNtXG9TWhKNqpWtuEBrQD8jPV3o6pv52qBZxjwahEFo/uOAaIsAFQhaqjIo
-	NjyFGCLpVymV/0325dM3aEhd3YLHHSW7S57yKdqlLkjAPJWkfjZ2kr8NOqyh+vktnKL016
-	ihNfMfd7M+PkFRqeu/fgEDMPV1XYaKI=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-175-OIjn5z7DPTmUYuWiOzPFPQ-1; Mon, 16 Feb 2026 10:06:33 -0500
-X-MC-Unique: OIjn5z7DPTmUYuWiOzPFPQ-1
-X-Mimecast-MFC-AGG-ID: OIjn5z7DPTmUYuWiOzPFPQ_1771254392
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-4376b624589so3254730f8f.3
-        for <selinux@vger.kernel.org>; Mon, 16 Feb 2026 07:06:33 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CsNuEOh5"
+Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-658b6757f7fso6432855a12.1
+        for <selinux@vger.kernel.org>; Mon, 16 Feb 2026 07:25:44 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1771255543; cv=none;
+        d=google.com; s=arc-20240605;
+        b=HjBhuiwS5srMnOjDpXzgBmPuc0R0i/tUUOzD3SUEddOW8nhdsDT3dTlN9b44sXno0T
+         bvwvVEXir6+6axGKfJNmirxyGDCJOklheAx+kMRV/sukPLIPa1MRCwM5hl4xnFjVHf+/
+         DPp0WJ6zV/4NSTBjIyN0b1eoVo+b1p52zsPmw+eaysB1ZGYrCVokI0oqCnmlrSsb2WkO
+         BxFsUnBs0hwoOk4YpSsxwXMSStYnAFTa6t2D3LfNd22MHDTtTL+f6BhdgFtWgwYf61Tt
+         1y/gyW7pwYRhtL4W8A4CgeR7OU0eLge8STDjzLuZD8AB5zST6uSJb6i5TvA1CZXzL58k
+         eU1w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=a8y53YFMQ+PYRig6TGH6tdnzevZp9DGRe/1ufZbEm3k=;
+        fh=Hgewe6MGyg78SuqPEUsWp9HjjYzolG7+X9N+8WslGPs=;
+        b=BGSl+8lGQH9Dw5olkdguIz7jHOfbP/ljO2a8pIewKkpfXRdhjfBBPcjV151zeW7fNr
+         nZHYn5OiduPoeEb8e1CNSIP6+nrUDwnqr523jnCNobvo9Rjm8dN7sMV+zAfiSh9DbDKB
+         Bhzh9UhRLTQ1NrYz7U7GytxH7mA/LbSjWd9Gkt21f5ldRfaK7q/N5p3v5+y+UEQ7eUAG
+         G2L4gfrVI8HfgHN9ly8pSf+dEjI/jY+A2MkwpaKBmcnN1eotRWGizQW6COjCP4MWvT38
+         JkaODociooFUC1MP/YQORfvtX0gdCStEvWgQn6raz0SsRgaw9qKn6IwCOsKd+fl9bYIW
+         FYlA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1771254392; x=1771859192; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1771255543; x=1771860343; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=aIxEocxEapJW7yU9OtfyLhPCnRBq6fT8ce1CcmY6sug=;
-        b=rJo1z+9+eVKxNpXT8hTbok3DlMsug39L9ZmZyXs8HXxMd5/qwbco2B5rsHfcj0DZK9
-         l4dTUsA+rf1eHjjv9PBumTPUlfehW2Iyx6NjDvxxUQub90GfycXtkcrdkuzzp0Zprglc
-         eOl8DHs8/ZZiamLGufa7JU8q6lxi/Nyu1t5yitPT5QJFs9Yh8hHckRxTwVP2Z5b8DQY0
-         LkDJM5sjXzbsNSO2RaYHLtetNaXYr3TrjL/vPnXKQZUjcPx0ezMq2ybtGQ3N/7PIMy8u
-         hREpb4n9EBeXeeH7pZF9kIE88FhagCxpQzaJWrY+bITz8g9JrMs7ipDRF+e3pvgXfT0d
-         HrOw==
+        bh=a8y53YFMQ+PYRig6TGH6tdnzevZp9DGRe/1ufZbEm3k=;
+        b=CsNuEOh52WRAGxSHidc+/x9Gnktz/c9FVE5FB1EcKq1X9mrZrVMnqgwwh21NcidTTu
+         lMVJvD7djqUYMQcasW0KFtKnh3U152DI28pgBxdTM3ooGNF0khPKIzo0XUutevw6XX+J
+         5EBgE0bASqwwrydhQcfX8kR9hcRhqXZIAIzz3OfDcSuV1ElT2PMuIOohhVP+h8QKzz6b
+         HmZ3n4Rk941Y9SSVKdnENzPcwkqYa/g64gU35Kz4JAOJlzDIIu/HtDyyUTFHGzICPd8u
+         cjwt/VbtSgStIRPj0BC7+/bJlAk/tuijL3J8AOH5jeNug1XPnxkQJSs1hRYea9EL38Xn
+         GT3g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771254392; x=1771859192;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20230601; t=1771255543; x=1771860343;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=aIxEocxEapJW7yU9OtfyLhPCnRBq6fT8ce1CcmY6sug=;
-        b=fhrmilMGyQaRqEfb6yybRMdBGkmIOLwCD2BrLpf3Kw97V2z1Ui03zDHb+onSYDQ0yI
-         nWlx1ddYAKQuN+hjNre601sDK4S5C2yP01JDd0WXyNYTcfLMoA/jSb1LyQ4Qt+4j0wpT
-         ZAeGF2qCq0hW8BxeCiXQAiAU752E/UH9KAOQjltss9dNV6FXIIP+ORiJtOpT1YXj2UHm
-         YH0PCkUa+hp34wKhpQvowC6S3b3T6IixU8Dg5LYnypz4Hm19h21h0hWynrwAvw7oNueX
-         0vOIY9D+bomF4UbBg5TPgrIQQk4Qb8k66v6afDxF1FyoGlMskfnYiSHwr6B+31Xc7aZf
-         7Wow==
-X-Forwarded-Encrypted: i=1; AJvYcCVAF+dw7mctFPfPT7OFqEfalQNuyPdVHDXzKAucXDgcob2JN6EGueIXctLsLzuk48rNtqz2mwJL@vger.kernel.org
-X-Gm-Message-State: AOJu0YyMK2kRk4uLLdURbNWbCOrpQr1pcplalB2CP/fCgbNgyutJjB13
-	0stAIEsyDri1QhM6p0LYZ4eusGAOYeR8FyTlVXpljS1HDle6c/Xnu1KIYfqO1kNkQMqZ5fLyQiN
-	LuM+O0MgZ4flmWgkbD+kIyMNcYXoEPVGfFLncu/h96vZmciYvZPr+wKdCYDQ=
-X-Gm-Gg: AZuq6aJeUY+FXPjI+rJApRtT8OWys2I17wv0C5Tp09VroH7d8C1ZKh9ZobQji3heahs
-	PKoI8qIhmcy9gF+Tbg3xxWEHLxADsVEgiKUiCjslvixrAUCv855vCI5N7MSRDh2XWJISzpd0pLK
-	BgZ/mmM4qHahvEGLHF5rr9NjIumh8FW9KU4BGi2tuu/HLysTHkaWY8cmFgG7JhNV5XJHN+w6hDw
-	L3Fvvnrd0TPd0UV7XUWo8j3PHzzRIEhEsWzuy/G8gNh522skL5kh3nxQuah2LbL8UF/Eo1D2OZX
-	5eMyLjVhh4leAZtxoaJJ8vbmkhkN50f/ASrRurH+AWRugRTY6iDGnUs9e7bfQIHaRanBTPVICLM
-	TsrnT9pC7d9EUI8hLU2IbvGqDmS6AiKXkClzuKq/tqhMg6N23
-X-Received: by 2002:a05:6000:420a:b0:437:6758:ce75 with SMTP id ffacd0b85a97d-43796ac216amr22698933f8f.23.1771254392019;
-        Mon, 16 Feb 2026 07:06:32 -0800 (PST)
-X-Received: by 2002:a05:6000:420a:b0:437:6758:ce75 with SMTP id ffacd0b85a97d-43796ac216amr22698863f8f.23.1771254391533;
-        Mon, 16 Feb 2026 07:06:31 -0800 (PST)
-Received: from fedora.redhat.com (109-81-17-58.rct.o2.cz. [109.81.17.58])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43796abc9b2sm25631899f8f.21.2026.02.16.07.06.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Feb 2026 07:06:30 -0800 (PST)
-From: Ondrej Mosnacek <omosnace@redhat.com>
-To: Jan Kara <jack@suse.cz>
-Cc: Amir Goldstein <amir73il@gmail.com>,
-	Matthew Bobrowski <repnop@google.com>,
-	linux-fsdevel@vger.kernel.org,
-	linux-security-module@vger.kernel.org,
-	selinux@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] fanotify: call fanotify_events_supported() before path_permission() and security_path_notify()
-Date: Mon, 16 Feb 2026 16:06:25 +0100
-Message-ID: <20260216150625.793013-3-omosnace@redhat.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260216150625.793013-1-omosnace@redhat.com>
-References: <20260216150625.793013-1-omosnace@redhat.com>
+        bh=a8y53YFMQ+PYRig6TGH6tdnzevZp9DGRe/1ufZbEm3k=;
+        b=IZIOw8tftu0SAqgUa6OpAy+ncuwOhINASd9bCDYzUPs60JKtT8rUNG2myW1hgXvxkN
+         LE6GPSs2gGEBbYx5HAfychjplU4hjvhFw9yQwkJQYaxiz+8iYoTUQrKyH04FWOf95xBd
+         XwSBZsxfA0k5PuLaLke0jSIFEi7AHYoXqD7QsPzyq/FyWrn0l/dA1O8FLshbjJXoF1EI
+         4L2f7vusMKdi3NNt85kf2GZOmnRjJ6d2K+2tLmcPIL0mFT2czdFBZ1H77D/iTVB57yLC
+         zkZ1+jnjd3iXSbsI1+J9v1k8zRF6FF90Snkk1/gtlA8UqeNQxL75xr6crHHnD5aBQXuf
+         aHmA==
+X-Forwarded-Encrypted: i=1; AJvYcCWEHhcxD9GWGQcYQDPNzjCuEqKIZFpjx+Qo2CV5ZIQlWgnKBUPkrJ6ZqEp/pSBggZNkFEHKjpW5@vger.kernel.org
+X-Gm-Message-State: AOJu0YwM9HIDu7UzojDtnqW9dKaqjS2WUDnzUkfHOXkJdK8FeLMz9z2b
+	hoxHh4VPLoXl3HKJ5BB2I/Lr4uuXufNXi5aJ7DPS/mLSTTeDfsKgn6zDJ1BiauTOhipwU1MAok1
+	3DQflfcYZB044gSxQEc/52KBIOi3J/B8=
+X-Gm-Gg: AZuq6aIKMJrjKwBQSlSpKGlmQDJhUbPtkMWsUmE8p/5pksOX2sA5Lz3yWAcUo7aNxo6
+	4oL8uNfLC73RjzWKFBaW1NwuKSdXl0zRzrOtC5z3QVkMVgSXaZ9J1nldm7Kx6Dp76Su/1l0IxMW
+	gVvN9pB3bDAZ0V5UGhTJyeLJD5NfiKtRHEFGFqx8oKOH4vN91R2dd7k+P82wdvlQb2wriiZhVCy
+	MLmmXDMvvEniZUywtr/FiC6aXOyC1FynMXdfA3MpZB/TGxk92EL6aLiciSQ08xV2qSpMptHWYvI
+	wefp78rH
+X-Received: by 2002:a17:907:2684:b0:b88:1e2:ed49 with SMTP id
+ a640c23a62f3a-b8fc053d4a8mr461131666b.8.1771255542306; Mon, 16 Feb 2026
+ 07:25:42 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260216150625.793013-1-omosnace@redhat.com> <20260216150625.793013-2-omosnace@redhat.com>
+In-Reply-To: <20260216150625.793013-2-omosnace@redhat.com>
+From: Amir Goldstein <amir73il@gmail.com>
+Date: Mon, 16 Feb 2026 16:25:31 +0100
+X-Gm-Features: AaiRm509zvV_5nztV_clDc8zDOEZuzPTyg08_yWfQUzaOuSbDQzEo3YOHZWR_N4
+Message-ID: <CAOQ4uxiggWbj6p4giuXgKkjdV1aOB5SO-4grEW_H7FCE6iw1=w@mail.gmail.com>
+Subject: Re: [PATCH 1/2] fanotify: avoid/silence premature LSM capability checks
+To: Ondrej Mosnacek <omosnace@redhat.com>
+Cc: Jan Kara <jack@suse.cz>, Matthew Bobrowski <repnop@google.com>, linux-fsdevel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The latter trigger LSM (e.g. SELinux) checks, which will log a denial
-when permission is denied, so it's better to do them after validity
-checks to avoid logging a denial when the operation would fail anyway.
+On Mon, Feb 16, 2026 at 5:06=E2=80=AFPM Ondrej Mosnacek <omosnace@redhat.co=
+m> wrote:
+>
+> Make sure calling capable()/ns_capable() actually leads to access denied
+> when false is returned, because these functions emit an audit record
+> when a Linux Security Module denies the capability, which makes it
+> difficult to avoid allowing/silencing unnecessary permissions in
+> security policies (namely with SELinux).
+>
+> Where the return value just used to set a flag, use the non-auditing
+> ns_capable_noaudit() instead.
+>
+> Fixes: 7cea2a3c505e ("fanotify: support limited functionality for unprivi=
+leged users")
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
+>  fs/notify/fanotify/fanotify_user.c | 25 +++++++++++++------------
+>  1 file changed, 13 insertions(+), 12 deletions(-)
+>
+> diff --git a/fs/notify/fanotify/fanotify_user.c b/fs/notify/fanotify/fano=
+tify_user.c
+> index d0b9b984002fe..9c9fca2976d2b 100644
+> --- a/fs/notify/fanotify/fanotify_user.c
+> +++ b/fs/notify/fanotify/fanotify_user.c
+> @@ -1615,17 +1615,18 @@ SYSCALL_DEFINE2(fanotify_init, unsigned int, flag=
+s, unsigned int, event_f_flags)
+>         pr_debug("%s: flags=3D%x event_f_flags=3D%x\n",
+>                  __func__, flags, event_f_flags);
+>
+> -       if (!capable(CAP_SYS_ADMIN)) {
+> -               /*
+> -                * An unprivileged user can setup an fanotify group with
+> -                * limited functionality - an unprivileged group is limit=
+ed to
+> -                * notification events with file handles or mount ids and=
+ it
+> -                * cannot use unlimited queue/marks.
+> -                */
+> -               if ((flags & FANOTIFY_ADMIN_INIT_FLAGS) ||
+> -                   !(flags & (FANOTIFY_FID_BITS | FAN_REPORT_MNT)))
+> -                       return -EPERM;
+> +       /*
+> +        * An unprivileged user can setup an fanotify group with
+> +        * limited functionality - an unprivileged group is limited to
+> +        * notification events with file handles or mount ids and it
+> +        * cannot use unlimited queue/marks.
 
-Fixes: 0b3b094ac9a7 ("fanotify: Disallow permission events for proc filesystem")
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- fs/notify/fanotify/fanotify_user.c | 25 ++++++++++---------------
- 1 file changed, 10 insertions(+), 15 deletions(-)
+Please extend line breaks to 80 chars
 
-diff --git a/fs/notify/fanotify/fanotify_user.c b/fs/notify/fanotify/fanotify_user.c
-index 9c9fca2976d2b..bfc4d09e6964a 100644
---- a/fs/notify/fanotify/fanotify_user.c
-+++ b/fs/notify/fanotify/fanotify_user.c
-@@ -1210,6 +1210,7 @@ static int fanotify_find_path(int dfd, const char __user *filename,
- 
- 		*path = fd_file(f)->f_path;
- 		path_get(path);
-+		ret = 0;
- 	} else {
- 		unsigned int lookup_flags = 0;
- 
-@@ -1219,22 +1220,7 @@ static int fanotify_find_path(int dfd, const char __user *filename,
- 			lookup_flags |= LOOKUP_DIRECTORY;
- 
- 		ret = user_path_at(dfd, filename, lookup_flags, path);
--		if (ret)
--			goto out;
- 	}
--
--	/* you can only watch an inode if you have read permissions on it */
--	ret = path_permission(path, MAY_READ);
--	if (ret) {
--		path_put(path);
--		goto out;
--	}
--
--	ret = security_path_notify(path, mask, obj_type);
--	if (ret)
--		path_put(path);
--
--out:
- 	return ret;
- }
- 
-@@ -2058,6 +2044,15 @@ static int do_fanotify_mark(int fanotify_fd, unsigned int flags, __u64 mask,
- 			goto path_put_and_out;
- 	}
- 
-+	/* you can only watch an inode if you have read permissions on it */
-+	ret = path_permission(&path, MAY_READ);
-+	if (ret)
-+		goto path_put_and_out;
-+
-+	ret = security_path_notify(&path, mask, obj_type);
-+	if (ret)
-+		goto path_put_and_out;
-+
- 	if (fid_mode) {
- 		ret = fanotify_test_fsid(path.dentry, flags, &__fsid);
- 		if (ret)
--- 
-2.53.0
+> +        */
+> +       if (((flags & FANOTIFY_ADMIN_INIT_FLAGS) ||
+> +            !(flags & (FANOTIFY_FID_BITS | FAN_REPORT_MNT))) &&
+> +           !capable(CAP_SYS_ADMIN))
+> +               return -EPERM;
+>
+> +       if (!ns_capable_noaudit(&init_user_ns, CAP_SYS_ADMIN)) {
 
+Not super pretty, but I don't have a better idea, so with line breaks fix
+feel free to add:
+
+Reviewed-by: Amir Goldstein <amir73il@gmail.com>
+
+Thanks,
+Amir.
+
+>                 /*
+>                  * Setting the internal flag FANOTIFY_UNPRIV on the group
+>                  * prevents setting mount/filesystem marks on this group =
+and
+> @@ -1990,8 +1991,8 @@ static int do_fanotify_mark(int fanotify_fd, unsign=
+ed int flags, __u64 mask,
+>          * A user is allowed to setup sb/mount/mntns marks only if it is
+>          * capable in the user ns where the group was created.
+>          */
+> -       if (!ns_capable(group->user_ns, CAP_SYS_ADMIN) &&
+> -           mark_type !=3D FAN_MARK_INODE)
+> +       if (mark_type !=3D FAN_MARK_INODE &&
+> +           !ns_capable(group->user_ns, CAP_SYS_ADMIN))
+>                 return -EPERM;
+>
+>         /*
+> --
+> 2.53.0
+>
