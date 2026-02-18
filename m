@@ -1,109 +1,142 @@
-Received: from mx1.secunet.com (mx1.secunet.com [62.96.220.36])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 409FA2F12DA;
-	Wed, 18 Feb 2026 09:22:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.96.220.36
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771406563; cv=none; b=GA+YZ2AQ6kecBXnmgCiVsmlbnT/W7Ec3RdCN3hZGBZ6qF0nxpTDapIABcg/6LriUqAgNkdQr7J9bn7Qcy3XlvVa8f/B62V335fZisn2mV1BFh3DwktrJjFuA910tsfy7obKWrqqmkLBgRyZ9JrNtK4Xy879Xd2xoYYb2hIqcO6Y=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771406563; c=relaxed/simple;
-	bh=QRP7P7HRDTjKaJCK7nZalWkI+8t9AnotE0IPAlsvm+Y=;
-	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Iwi0Z/NRxbvtswHBCZb0xDwTmVX2iOWkTMMwPrgFwtsnVZPnHFivrs+aQ2jB0wySp9YzOkexbVakpf0rNBrKDAilmlgROlHe0zM7utw9+dOkRObRjQpYS7wt7SjfOevlxU8q5gAvLzF+d1SSf46dEdBpNwsXVJyUGelYDtoHvOs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com; spf=pass smtp.mailfrom=secunet.com; dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b=Ws+9EyYY; arc=none smtp.client-ip=62.96.220.36
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=secunet.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76E5A3191CF
+	for <selinux@vger.kernel.org>; Wed, 18 Feb 2026 12:36:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.129.124
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1771418197; cv=pass; b=CuEm8WTQiVYgdliLZDXIJf0Pvj6rUoc5KLJd5s17YL6OEtv9Zg25RLs6qD2jXCyf4kG3Xag92x15QDTF9WBnYRUO3UGloj3Re5VXUk+Td0zdy+7CLl7lY9Ic6LxbFXoGMHGULMF7fT6MfU4pDXDdoNGA0hv7uGNLZXtiscGEgL4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1771418197; c=relaxed/simple;
+	bh=0fG8sI+zWvMFlOr7IghYSSJ1KnweFDqAywl+kGXxNz4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=lNglF6XFYe/EIC3q0XjgNFHMWGJqhJwuVB9CLRhMrOMUjUPc8FFC0WRh+tUbmEGZVvaT8n8UFRppH4xFE8QGe4CxXc1nnRgXEdK3/G4yGXa+m5wlEWpQbHgfCkOzdVQc/818VBYg//MBthlrOHpAKTpwrN4Po0arBUXt2BXxHLE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CfF9nROM; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=FOPvrSFF; arc=pass smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b="Ws+9EyYY"
-Received: from localhost (localhost [127.0.0.1])
-	by mx1.secunet.com (Postfix) with ESMTP id 1F5F2206DF;
-	Wed, 18 Feb 2026 10:22:39 +0100 (CET)
-X-Virus-Scanned: by secunet
-Received: from mx1.secunet.com ([127.0.0.1])
- by localhost (mx1.secunet.com [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 5g7Yrxvle39P; Wed, 18 Feb 2026 10:22:38 +0100 (CET)
-Received: from EXCH-01.secunet.de (rl1.secunet.de [10.32.0.231])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.secunet.com (Postfix) with ESMTPS id 43460201D3;
-	Wed, 18 Feb 2026 10:22:38 +0100 (CET)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.secunet.com 43460201D3
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=secunet.com;
-	s=202301; t=1771406558;
-	bh=DX/NNPfsIZ+Oe102Ohr9kgE/Q+rSKqtQyPHB3ln9zdE=;
-	h=Date:From:To:CC:Subject:References:In-Reply-To:From;
-	b=Ws+9EyYYlL1LR4zicdaAQl1zDc6n39Nh0luR0bmbQ1fg+G7BQLIYcsqW/K/Am9i9X
-	 5XTvw+F5X6NDI+OYGxtUjFNhWqdDXi+8+AejjAkAMAOBQ93Zv6eUw+N3cU52mQe+SP
-	 Kk4P15i+iv1TfNUY4JjsrXtUseAuAJTWSMDkudXWJI4gmVlz3LNd2tA9Hu7g85Cade
-	 7OGfW1IGS2z/69PUZ5PJrFR+1ZIy/6BD+RGs5YQxSY4hp9kb9R3DoNFhwiQi2wyuKr
-	 EyNwg6+v7z0iG+zPjDgrzmO6JVA2BgId917gSBsGxERDGBgdh7n2QN7Xby/DlP4YF7
-	 2dVMOlxYskL1A==
-Received: from secunet.com (10.182.7.193) by EXCH-01.secunet.de (10.32.0.171)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Wed, 18 Feb
- 2026 10:22:37 +0100
-Received: (nullmailer pid 3178201 invoked by uid 1000);
-	Wed, 18 Feb 2026 09:22:36 -0000
-Date: Wed, 18 Feb 2026 10:22:36 +0100
-From: Steffen Klassert <steffen.klassert@secunet.com>
-To: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-CC: Paul Moore <paul@paul-moore.com>, SELinux <selinux@vger.kernel.org>,
-	linux-security-module <linux-security-module@vger.kernel.org>, Herbert Xu
-	<herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>, Eric
- Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Network Development
-	<netdev@vger.kernel.org>
-Subject: Re: [PATCH] xfrm: kill xfrm_dev_{state,policy}_flush_secctx_check()
-Message-ID: <aZWE3F8ppQgN3Gwe@secunet.com>
-References: <f9b88268-03dc-4356-8b31-0bab73cc9b1e@I-love.SAKURA.ne.jp>
- <CAHC9VhRzRAR+hhn4TFADnHWpzjOxjmh0S_Hg_HktkPkKQ35ycg@mail.gmail.com>
- <74a70504-8ff8-4d97-b35f-774364779889@I-love.SAKURA.ne.jp>
- <7ef21dab-3805-4eae-80d7-9779aeff3f58@I-love.SAKURA.ne.jp>
- <aYmoDwO-YXrc4W1c@secunet.com>
- <85546d35-c7bd-49bf-b0c3-9677bde25859@I-love.SAKURA.ne.jp>
- <aYnDWbxo-jAzR4ca@secunet.com>
- <7c17884d-dbf1-4c2c-9813-0c5369cfdcc9@I-love.SAKURA.ne.jp>
- <aY76t_xYCHmLq6Ur@secunet.com>
- <d20f1b63-714f-48ba-9bee-cd074205404f@I-love.SAKURA.ne.jp>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CfF9nROM";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="FOPvrSFF"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1771418195;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=/lUydylowWncnRbTO/OJoTPHGFixcaTcELf8O4xesYA=;
+	b=CfF9nROMhuopjBBssjZcKFYAaRdQXuToNQzmtAUnKcprTRbhRVe1ZnfO/Z4BzCb1FgOzqK
+	WEl8vDRUe45ZkArUSlaGMrwGDn0TOHLy16t8ELG/O9x0c/7GTWl3TkN93636tvv21mZ72b
+	XSvzMEle6d6ndT/4nlMvCiLb9QoLNX8=
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
+ [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-193-NzUEU9t-PWWvHphmn3r4PA-1; Wed, 18 Feb 2026 07:36:32 -0500
+X-MC-Unique: NzUEU9t-PWWvHphmn3r4PA-1
+X-Mimecast-MFC-AGG-ID: NzUEU9t-PWWvHphmn3r4PA_1771418191
+Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2a76f2d7744so57981905ad.3
+        for <selinux@vger.kernel.org>; Wed, 18 Feb 2026 04:36:32 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1771418191; cv=none;
+        d=google.com; s=arc-20240605;
+        b=Ro5/hd8i2alpt7OhjG+qnBjgtpyGjO0HohfI6vmqlQF9p7pOcwNEPGhKlLY0Qusuwj
+         epLSCNM7fJ9IRg8QhZZ+BdxIQBz12EuhzurcIgh6wd17X60iWLU9c0c/mLZfWKCFMd+h
+         9Kyc4fr2CEht7hRRFzenuoCyhYtWjwYFs3riWG5d0IhsEIVojEehut3O1IsbXgHLwtQL
+         n7TdR+LEAJwqGmRxazYEU7REfGILP5DMMImIjaDelT84+OBbL27M+127g/BQjPXN6gQK
+         6wBisbhnOSjIhLXhGZYImmjfhbaOW6pfxyeSR3zRfNTXvvzFJJ97c/20bKxXOaNkCCgp
+         Qj2w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=/lUydylowWncnRbTO/OJoTPHGFixcaTcELf8O4xesYA=;
+        fh=sL0qrILDRdj7tZB2HROVegoVj8ciL7CFIwuAvWctTuc=;
+        b=QsIQgHORQJMYFQzTEqXM4y0125CZbbVPd7Qdo6dPku7q/A/fWrWcK/VRXIqtaGMvHA
+         TPDUEhVHc70eAGgesfSEGKwJ6mqzC7ifBJ8YFC8dWR2ttqTgeL0I5T7p3J0Air7ZI7vO
+         /b+aOts+b01rRlZLIJm/zlez+VdQs/jWKDfn5W/xJBukCGtCQbRUzuoBh6DBi1F975L2
+         CebISAX7yXmhpp/9BncgynHCVXb4ziLAGH+6PsZzYfcslH55TzWt4eg0AOyMn2fV7J/u
+         bgym6FEdIiPJyfBgaJy46gRNUh+Ca8EFhAtmDDuUKiPhpHVRSf5rHGxWK9mmf9NckyFH
+         duUg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=redhat.com; s=google; t=1771418191; x=1772022991; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=/lUydylowWncnRbTO/OJoTPHGFixcaTcELf8O4xesYA=;
+        b=FOPvrSFF8bzz1Ja+OiZEv+rXfuVir/toA3cAmiieNqo1OgDIlCdscjGZKV9DnluXtT
+         KkRkT8Weg1vgmFhTagcYY17mLgRXBP9mSyHuycCDkasVyh19FUeqnLhylWRGjtPF0tGA
+         ypszko3iyjVMYLOBQQ4Mz6ivTUatho5zNWtgIV6tt8KtsXvnSzs+J4mZ339oqLLrGxr+
+         4fwW3AO+5aAy/9uVXbMtxXpW4eHuyg3YVlmOGPY/vM/tiiQWfGhLQnLiGKwjhIPYI/+R
+         YWS6P4d8e+TUc1LT/enVZuHOFv7JnOZHXoz4zlpj6ygw82Q9Iy7wUqoR0j244cUxr7cE
+         Nvng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771418191; x=1772022991;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=/lUydylowWncnRbTO/OJoTPHGFixcaTcELf8O4xesYA=;
+        b=p6nYB+PyrSuowrg1sGF6KLdGRqUKRDw1OzmJy4GVrpZDf1YeeZiBUWiUwByGmKIiQR
+         7HXmZZP8a4Z+I7WEKTuyRkcn69tPjyAcwMI65GNIK+uUQgG3b++9z6R8Bi6YAvVqRp4X
+         s5ACavFwGCDdI97Wccuk2FTd5S+K87xZj7hYnkmjVoAPJhuevQQC7oNMvxph6yvjvbey
+         v9tkEd4RFxrrFHNRjpXTc+rXTHA+cmNQ9BNSx9ScBVcyEIwzdTzVJNW5z+fyLx2jWLKU
+         eMeV+Nr3w/SQ5N7WkHzvAqSXRYk9VpYkTG2isLben9om3ce270Oj77XGq8JpM4+4xDem
+         52EA==
+X-Forwarded-Encrypted: i=1; AJvYcCXUmPjia4Sz3J2E/dmBDeMgEeb9YW1Czc0rBKZPFqQmR8UXhBSTrPA9ryQvYvUNsVZdIpvsIJNK@vger.kernel.org
+X-Gm-Message-State: AOJu0YwfoWJsCDKdFXhdtruy59HD327Tge6KLN3PmgbRURnlwtctHMyM
+	tY3AYI1wfx1Qyeoqfzpc8zujNw08Xc/JmmM54F33udfwGzAmR+CJEzgVdJIn46hQljSZ7BqByYE
+	maoGsLZFW11mSX2HtyjCdrNBpjiM6ineMuu39EYhZVFs5fv/vGND8yUd0FfHQGotsmsXQPhwQtE
+	9sFP1UATZnbi/i94Bi3as/m30bsxaPUNjIlQ==
+X-Gm-Gg: AZuq6aIxLBLl4SOlWCde+7+VYjzI0NhN9jkECJY1mKf56H3/6Kwsv+zXuD80s28ZM1a
+	B/H8Sax9GMBkNEyfmHN9z5A4JY1xY/6gGszucudPGzz8YZ3wwSJgzmt/lDHwEeCgCMy3i8lgyCG
+	3g+JPV6inAtKLaQ7NogF6y3d2V92rFResakPtLpEPrYwpzjrtsL7dlRcU4B8RTaGIwlyMyMJWmo
+	i/V
+X-Received: by 2002:a17:903:1a10:b0:29d:a26c:34b6 with SMTP id d9443c01a7336-2ad50fbc316mr16329885ad.50.1771418191212;
+        Wed, 18 Feb 2026 04:36:31 -0800 (PST)
+X-Received: by 2002:a17:903:1a10:b0:29d:a26c:34b6 with SMTP id
+ d9443c01a7336-2ad50fbc316mr16329765ad.50.1771418190809; Wed, 18 Feb 2026
+ 04:36:30 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <d20f1b63-714f-48ba-9bee-cd074205404f@I-love.SAKURA.ne.jp>
-X-ClientProxiedBy: EXCH-04.secunet.de (10.32.0.184) To EXCH-01.secunet.de
- (10.32.0.171)
+References: <20260216150625.793013-1-omosnace@redhat.com> <yk2qcux2ee7afr24xw6p7wp4t3islu64ttfsrheac2zwr6odnw@kmagnqbldb3f>
+In-Reply-To: <yk2qcux2ee7afr24xw6p7wp4t3islu64ttfsrheac2zwr6odnw@kmagnqbldb3f>
+From: Ondrej Mosnacek <omosnace@redhat.com>
+Date: Wed, 18 Feb 2026 13:36:18 +0100
+X-Gm-Features: AaiRm51HYWR6w0-EcsphJc410XncNKnjGKv9rOIgL6E3XvZhdcve7uAr9h1HcsM
+Message-ID: <CAFqZXNswp_bKq_78PgVpToK1Zm36ZL4atqiid2Lstaqa0sKnBA@mail.gmail.com>
+Subject: Re: [PATCH 0/2] fanotify: avid some premature LSM checks
+To: Jan Kara <jack@suse.cz>
+Cc: Amir Goldstein <amir73il@gmail.com>, Matthew Bobrowski <repnop@google.com>, linux-fsdevel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Feb 13, 2026 at 10:59:15PM +0900, Tetsuo Handa wrote:
-> On 2026/02/13 19:19, Steffen Klassert wrote:
-> On 2026/02/13 19:19, Steffen Klassert wrote:
-> >> The NETDEV_UNREGISTER path can be triggered by just doing "unshare -n ip addr show"
-> >> (i.e. implicit cleanup of a network namespace due to termination of init process in
-> >> that namespace). We are not allowed to reject the cleanup_net() route.
-> > 
-> > And here we come to the other problem I mentioned. When a LSM policy
-> > rejects to flush the xfrm states and policies on network namespace
-> > exit, we leak all the xfrm states and policies in that namespace.
-> > Here we have no other option, we must flush the xfrm states and
-> > policies regardless of any LSM policy. This can be fixed with
-> > something like that:
-> 
-> This something is what I explained at
-> https://lkml.kernel.org/r/1bb453af-3ef2-4ab6-a909-0705bd07c136@I-love.SAKURA.ne.jp .
-> The "task_valid" argument does not always reflect whether LSM policy can reject or not.
+On Tue, Feb 17, 2026 at 12:09=E2=80=AFPM Jan Kara <jack@suse.cz> wrote:
+>
+> On Mon 16-02-26 16:06:23, Ondrej Mosnacek wrote:
+> > Restructure some of the validity and security checks in
+> > fs/notify/fanotify/fanotify_user.c to avoid generating LSM access
+> > denials in the audit log where hey shouldn't be.
+> >
+> > Ondrej Mosnacek (2):
+> >   fanotify: avoid/silence premature LSM capability checks
+> >   fanotify: call fanotify_events_supported() before path_permission()
+> >     and security_path_notify()
+> >
+> >  fs/notify/fanotify/fanotify_user.c | 50 ++++++++++++++----------------
+> >  1 file changed, 23 insertions(+), 27 deletions(-)
+>
+> The series looks good to me as well. Thanks! I'll commit the series to my
+> tree once the merge window closes and fixup the comment formatting on
+> commit. No need to resend.
 
-That was to fix the memleak on network namespace exit.
-The task_valid check should be ok for xfrm_policy_flush()
-and xfrm_state_flush().
+Great, thanks!
 
-> 
-> Anyway, the patch to add xfrm_dev_unregister(dev) seems OK if we do like
-> https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit?h=next-20260123&id=fc0f090e41e652d158f946c616cdd82baed3c8f4 ?
+--=20
+Ondrej Mosnacek
+Senior Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
 
-That would be OK as a first fix. Later we should
-just unlink policies and states from the device,
-as explained in my last mail.
