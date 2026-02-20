@@ -1,93 +1,94 @@
-Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 578942BD030
-	for <selinux@vger.kernel.org>; Fri, 20 Feb 2026 22:15:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66CA02BD030
+	for <selinux@vger.kernel.org>; Fri, 20 Feb 2026 22:16:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.53
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771625757; cv=pass; b=aNXtS/3eHJ75by4hX8kc4/peMONCGiUsBbfIOfQPKXIpZmczjQJ7abmSZf7bH3VqCWsjA0Sn8GkQQXPxlnPAlGF1QkZxjoLP80oSTyHBev+jb93j5LlljnVx+XOOC7diDLXDLeEnDua1KnaS54M0vD3S/tUR0FoKqn2K59vBI/k=
+	t=1771625787; cv=pass; b=tvxu2aVLX4jVd8zmsBcCX5wgKKwzlQoAkecoxukuQSp4RTt3yhJMgbfG3YYMxRwCcU5s+gB6J9tuK6iWP+NPlJMA1UvkJoSd6zN+UXkEi8UPRPQhjzqAp15+hUx4fnZwKkelaCUDG2weBOHKTBcI7xV+vE0R7LCbYKU3huyh16E=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771625757; c=relaxed/simple;
-	bh=j2FvKpOUAlz++LQtlLxLTnYm0ZHmX0REwKDmOP9aiII=;
+	s=arc-20240116; t=1771625787; c=relaxed/simple;
+	bh=I2pkF5QAewPTXXJtz0yw3qpr9uypN+JI71t0BKuPbOg=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=eOnC7Ixy1jlL0sEsei6ZfXV2uqfmW27/IO2gKirElbF99+AIhtqiEChK1mfWGuqqWIHlF24kD9y9sWucCVWdy9mvTKecTAzjDreBGr2VHjNRzANFDHW31M38lxc1DQ7Kvh4cmm/MMK50hKPbBVuQXORJWDKl8Q3ENDVHEY8kj9s=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=GxS1yFxb; arc=pass smtp.client-ip=209.85.210.179
+	 To:Cc:Content-Type; b=kYYFpOGOFtkPUDbIT784oXAV2Q8ZCl5HqHFAIyQldS4/YbiPji9DhFiBQ3IwHNAwN0LiHUGI7nI0wBWfx0S3azL/Qwr+BmWHamZZLfkrIYvDVQqPRExZUvCWSPD8A1de+g7gODD0iBMGHwBYoRGK2gMlvXELca+0m24xdnW0hNk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Bme1k1jC; arc=pass smtp.client-ip=209.85.216.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="GxS1yFxb"
-Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-8230f2140beso2014321b3a.1
-        for <selinux@vger.kernel.org>; Fri, 20 Feb 2026 14:15:55 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1771625755; cv=none;
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Bme1k1jC"
+Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-354bc7c2c46so1697395a91.0
+        for <selinux@vger.kernel.org>; Fri, 20 Feb 2026 14:16:26 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1771625786; cv=none;
         d=google.com; s=arc-20240605;
-        b=kmNMEIzQcWlPS/uewJolhpcYWI1Uzfage+iQoF/j1VBR8HMf01Qv5rRK/Lje/YD7iE
-         8PVy/MTCVkN1+ZZTkJmCA+fpYTgk7Q5Xh9SBtthIQQZ30b28d6g4PRKr/GtF/k+AT8mt
-         w1m2FrQoVB5r2X7mwUXM8fLOOpFXlP2kQQjPM0iPOKhYgLGyla9OPCw1EaCBIZJ5Ptig
-         kT5tvnhbkkroFGyWeQf33+xPJ67T+tB/QQ/vJwCuJewus16uEl+ZYsIhe+nonFE3RRj2
-         ++lGVCzafSekg2YY3vbiNazY3EuvzETxOghUl82KGWodoADUj7+BMNJceGYK4EGCAVYN
-         WmUA==
+        b=jvyT9MFtoxzsGGz5vH7pCw/5noI4aUxn0f4J9aqe5Z5XVBY5GsV8exqb4hITfbreKI
+         ZxmAR69JXHunfAb13buy3Wwu23Wr++3xGRsTXuk7f12qAf/pjo9SmmGMXKdAoqDrflly
+         bCAHkvKa6N7iDRdu2sfYHS7dTSzSgZ62La+yWANB1PjuWV3QqunN//TxQkCSSjzkCQuf
+         s9XyYVUwfABSCQNk1xZipozCShLQlx8yLlYgeLJ1YwZ5ujQHIy3CdyN9S0x0PtBPjrLH
+         /tjVtgrMxRVymFRtSqOnD3mPLXkAWzitVB8WRmvubT8gX1tA7mnr6fguzXbdHi6VM4Ln
+         4eug==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=BHhdAwx80mhHQaO0rCUoaLA5wCfJXcsgYrbpluCJs5s=;
-        fh=sJHm58n+53a5f4Yvx6/+ZtfcGMmB8QDvVF1Dx66aRmI=;
-        b=MfldBpvfN1MleEAZD3l86yTPK7nadnjUrem9oOk6i7SnQuP+AB18H7mba4/UMHogAb
-         hNqB5J/Bel5FgKFY/BP5LOTjAlgHQWZvQuHRHl74wxRtRe+uuS9TKVwNcQ+RHLMbFSLj
-         xFdxI/n4bls0SPs00sFSop/Pcuro/lIq40/sW6tjourXrHPw8aI/C4QZhYDdQ83VECwD
-         BmHNAoPUCImEz73AXH25Zm3g7jOx/tT9QrUpBWEMfRgUj0smAkDvX/YURcj4WGOoiJxd
-         ymM0FTC3ELsv3otkbjkgX4mEZoVPGGycS+1bWdEclFlkKCN6o0QJ0byAKk4h1DvArMxN
-         m1qg==;
+        bh=6FTdyxXDyRNWNKUIC2l8l3tftf8jJbcicbeOU9cdsjQ=;
+        fh=8flLdicEROyWKwUyQTFUJC0zGQot6CuPWOp8aPuasg8=;
+        b=lZGsXWKGWQZMzgk3ri++xjWt7+6DSWQDzqn+4+GQHSDHPfXOe0+BhWK6VSLJDycv3f
+         N8Uy4fAn7aTCdxw8F04soutM1PfVnRMKPiHtNm4C+S19rPZp0FHDFnpK2nx/Ljqr/tv6
+         aYl9QUfY7po6qmd1d2EsO9wfjbNa/c303XO7ah8M+Qbnci7c9wKQ7SDOntttMtMgjGjH
+         I5HA2L0dVmLphkZUVO6nkJwc4+/Mkrbzn8vUZh58RlKYKWUATVNlA1QBu4KAqgtw7iCr
+         hPqB6kojyW+leLSFpbLZL3CN7gOFjI0I+BUyV5+YWwyJenp6pCecEz7G603A+rbW1MI9
+         Htnw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1771625755; x=1772230555; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1771625786; x=1772230586; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=BHhdAwx80mhHQaO0rCUoaLA5wCfJXcsgYrbpluCJs5s=;
-        b=GxS1yFxbMbDV1VgMssO4X/h5IrLqOjr9uvNzwdF4mwF5cmVoE+ZEOSFkmWaKDlKd5C
-         6LnUrQ4jY4ppgMmO+EyapjaqqKVdXdteUuBTZjavR2UYT1QAYke7pzDTOZ4e1s5dkG0R
-         fodiCoVW6svow+f021AA5D4XDQTlV5svzccPg1zsd9Qrd9b4DY4zmSYM4ojUGUyjjAiM
-         MdzVFb0+YxL0hWDOp3DFLYTHXbKGhoDcrLYA4urKNHkDoQJxE7jdKTZWkjyCD9drPzdr
-         BURLdLA9MwHAZmWZb/NN18BTSLdgjIzuCc1UIXZ1UgGYQ4U174+RTzTCbOu28JQtn/gP
-         KuHg==
+        bh=6FTdyxXDyRNWNKUIC2l8l3tftf8jJbcicbeOU9cdsjQ=;
+        b=Bme1k1jC2cFEcSNQxgaL9wQHB7SvEZ/gabSWPoX6xzBCzNnNAoDHxMFzNkqxoGd5xg
+         IC7cXkvJYE5GUrxifnj712uMQk7EhVg+Gvc+dEDpdX1i2+c4ZSvCzN8yD+CyU/qY5kKG
+         XuCGmKshY1ecwBV+TSr97U/Y93qorzP5MXpN0dlePVzLcwx1Wi+4biRnnnhg4r9rKAV5
+         5MEMf+bHYwZbltfFcC+HL4u2JjoeVGTv1TYuUBN5TsXjxy/VkSQ/tDKWE4E826dtMeaI
+         vUINoNH5r0MoTSDxJOinvodgbGlyehDpU4q/1S5wfwlC7m4m5jnOrGhycBNTXFyQGB52
+         XeWQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771625755; x=1772230555;
+        d=1e100.net; s=20230601; t=1771625786; x=1772230586;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=BHhdAwx80mhHQaO0rCUoaLA5wCfJXcsgYrbpluCJs5s=;
-        b=D3LED3r6oGK0I8kfXYsjKRoEwwbmLTS45nc6fugmniT2+aChlPlxk5FAkqo/KUKUz/
-         y29kfykZbs5mhc/WJ1Str53PvuQjhmwqsAP4is4PAaSusyUrd5nZWOVofE8H0WEPQ3Z9
-         eB35gvZUe3IHhpBfSpYKRRNDlHzZs0UGFJvq1Frq0X9x+6cckmxBWokzxgsO74RgtjSL
-         or/q/rGtHDEIcIar9/PbrfqoHVSVWRescJ6USf9OOeOwx1U4WWfRKPrThW2p7CfRW5Tj
-         RMJnwV9JCnS4bTq94C7sMogRuU0eV5ikNyrpZlwPVUesMAfiKGBSMl1F4SLGplXvZupK
-         cj1g==
-X-Forwarded-Encrypted: i=1; AJvYcCVcYBPTV9IwLHnE8I+TPNGdgo6y7ofS5QPeqQ/tK7lyaglY+BFGl9QqAW/A+D2DRmlDoht5zz2B@vger.kernel.org
-X-Gm-Message-State: AOJu0YwNfklTUKKR5igcIkiULjQlk+wYjkLW2jCgkh2TST5lfNuZPSFg
-	3JTsP32wmknViibdxNiEgdgOb9xV8IyQYVmXlZ6YX/Rk68IHXVfDFgoTzWpordvHUTpUzwPzltZ
-	2K5RbWKIKXc7NjxjM2YTvvvNtZdfh0tG3MgRd9PLf
-X-Gm-Gg: AZuq6aKguZhQBG3ofjGSmUDuqtiHIzZsZvt8MB7/NP+KEApofoCc8YF42gOl6aiamv5
-	XsepVgJtNoWwZzBYHokyDPPzSCEBQcwIZg2QvfsAUNxwIHs5PNe26O8WsrZhYV8gUht+wQbpJwB
-	dr+Y0oSwzpQ7dAF7rAuf1a3ht4bFVfp9kXsYvzfoY4fw2bjZ1ds8/SG5ExrP2n1ZRAyM2dOY8mk
-	t5AAOyjPwHtYTiFaw7uwuYD2ngLf9qGY7xZAEE0lYJ5FwShE4AkbkiofbW5v180te5wQfMoXaik
-	3N0bFvE=
-X-Received: by 2002:a17:90b:57c7:b0:354:7e46:4a8e with SMTP id
- 98e67ed59e1d1-358aeacd536mr799506a91.7.1771625754671; Fri, 20 Feb 2026
- 14:15:54 -0800 (PST)
+        bh=6FTdyxXDyRNWNKUIC2l8l3tftf8jJbcicbeOU9cdsjQ=;
+        b=d1OJ5gdduMBrYA2431KCCxvfb/NKli2dlcrjOLjkkvWJKKEG6qhrsI5BhBniDgeaoH
+         qbGY+/tHGHqJTfDZ8J48Ds1RvIm7Lg5fpbRfLvkx/WbYyf1pA1R24djz7pQ+zZXjxIuS
+         fcWnBHja5ldh4CcBZNlIue2ug9qyfF2GggoPhYpcLhynBMKQQMwb2OzTjEYBm7QXoMUY
+         Qltu09EDWOljVth+NJSMDr0OeuMSurIOyBCGNUDTmmF/UEVDnfxXVyDPagkl8m3e+5vw
+         JmHNQP14v9XqwYDCmOqCBHw5+axX/nZ693UttKYDfKAlmVlt6a58ryXyAM7RbuA7TjA0
+         8Z4g==
+X-Forwarded-Encrypted: i=1; AJvYcCVv1xlhJcoI0TM5aFY40/yWJS6avxqwJ/Hr+rR8WkAVgMqgK7r5PJFpvs3R3F6Lm7GaYHVf/rN5@vger.kernel.org
+X-Gm-Message-State: AOJu0YzatpcM6KjVcKdyDJnx9oKe2Nuey6JI6MoU5sCwf5pZutqszWpg
+	WU06pjjHQ/F+n/Adr1KT0z2cqELvG7S5dNz36KE2liNvT7aqT84yLhTTZQYP8yuegEGBIouuYeF
+	hJ2BkCJm8Zw8gtsB2k2V4RXnfpkI7E4mhFUC1Edsc
+X-Gm-Gg: AZuq6aIwqvOB9Ia9aplycAOs02kBgDsIt9V/ibxY9LGyAG2S3dleiAL9uPA39mrpJG4
+	3FvmZwBn4o+r28u8Tr7GKlogObOxQ4gTyMELfa0KZF/Y+Xb0zf1w9TO2uCn1qQ9k/J4O18vLAmX
+	p886IQe/DlwAcSgVnSTdt+PjSjYFkZXH4Txxtz3ZJFeB0KZOUaaaQb+0hrDp+3eQgCz5Mmj7AOE
+	Cl0d6ojkEDgRcZ4gg2sES5TCmYDMBMROvWlg3yTW2AxuglVzFU6YyG6ERmIVEFGsoGPh7NRGjbH
+	3fuK1Tw=
+X-Received: by 2002:a17:90b:3809:b0:356:1edc:b38 with SMTP id
+ 98e67ed59e1d1-358ae8c0f04mr1044426a91.24.1771625785809; Fri, 20 Feb 2026
+ 14:16:25 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260216150625.793013-1-omosnace@redhat.com> <20260216150625.793013-2-omosnace@redhat.com>
-In-Reply-To: <20260216150625.793013-2-omosnace@redhat.com>
+References: <20260216150625.793013-1-omosnace@redhat.com> <20260216150625.793013-3-omosnace@redhat.com>
+In-Reply-To: <20260216150625.793013-3-omosnace@redhat.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 20 Feb 2026 17:15:43 -0500
-X-Gm-Features: AaiRm51NzP7pLbkxnmuQ3vMkAzifx0h6WMPLv9aK6B5e9dNw3jFzqT1KPgQ_5Xk
-Message-ID: <CAHC9VhTxkgEnU5nP+7zs9eXOn18PXc7vBCUfY1vNd6qM+N5uAg@mail.gmail.com>
-Subject: Re: [PATCH 1/2] fanotify: avoid/silence premature LSM capability checks
+Date: Fri, 20 Feb 2026 17:16:14 -0500
+X-Gm-Features: AaiRm50rzPOdaKhOCRDQhwiojB-mAL3ILUNVZIdIhAPsr9Z69VQz2AhP1HaIvAk
+Message-ID: <CAHC9VhQU3aMHYdvp_Af88iBVdiOzZv2gWjFABUpvCxF37YJBPQ@mail.gmail.com>
+Subject: Re: [PATCH 2/2] fanotify: call fanotify_events_supported() before
+ path_permission() and security_path_notify()
 To: Ondrej Mosnacek <omosnace@redhat.com>
 Cc: Jan Kara <jack@suse.cz>, Amir Goldstein <amir73il@gmail.com>, 
 	Matthew Bobrowski <repnop@google.com>, linux-fsdevel@vger.kernel.org, 
@@ -96,24 +97,19 @@ Cc: Jan Kara <jack@suse.cz>, Amir Goldstein <amir73il@gmail.com>,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 16, 2026 at 10:13=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.c=
+On Mon, Feb 16, 2026 at 10:14=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.c=
 om> wrote:
 >
-> Make sure calling capable()/ns_capable() actually leads to access denied
-> when false is returned, because these functions emit an audit record
-> when a Linux Security Module denies the capability, which makes it
-> difficult to avoid allowing/silencing unnecessary permissions in
-> security policies (namely with SELinux).
+> The latter trigger LSM (e.g. SELinux) checks, which will log a denial
+> when permission is denied, so it's better to do them after validity
+> checks to avoid logging a denial when the operation would fail anyway.
 >
-> Where the return value just used to set a flag, use the non-auditing
-> ns_capable_noaudit() instead.
->
-> Fixes: 7cea2a3c505e ("fanotify: support limited functionality for unprivi=
-leged users")
+> Fixes: 0b3b094ac9a7 ("fanotify: Disallow permission events for proc files=
+ystem")
 > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 > ---
->  fs/notify/fanotify/fanotify_user.c | 25 +++++++++++++------------
->  1 file changed, 13 insertions(+), 12 deletions(-)
+>  fs/notify/fanotify/fanotify_user.c | 25 ++++++++++---------------
+>  1 file changed, 10 insertions(+), 15 deletions(-)
 
 Reviewed-by: Paul Moore <paul@paul-moore.com>
 
