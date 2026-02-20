@@ -1,131 +1,228 @@
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
+Received: from mail-pg1-f175.google.com (mail-pg1-f175.google.com [209.85.215.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A11230FC23
-	for <selinux@vger.kernel.org>; Fri, 20 Feb 2026 22:47:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06CCC189B84
+	for <selinux@vger.kernel.org>; Fri, 20 Feb 2026 23:13:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.175
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771627677; cv=pass; b=HBOaP8ey71TWdPqVC/TkvE/RNtUTZETIPxDBEj2UsXF9dwbzShW7RKKxVZigMlG6zYQrY7aForRGxSh12kvjvxEWZAr9SxHaWY34XBGJZHg7lc+unWLvQDEIZi3XXrN39IfY9W0b2/alS3cQy/GURgQnxFStp1Aav5PutujCQOw=
+	t=1771629220; cv=pass; b=KwW9p5OsVXtOwdsd+VaQvFvqG3gQJRCM2YwOMXXQJTi1Adf85RYIHhKrWriKP3kOaiamf+BOv8rjubcHm10lyoY9/g0pLfrC+dPs4Aa9evYxWv3PxfdwQYRbn9zxlbsxCTRVcNUOXxBO2tnGwzkrbbIYAgkdwonQf8YhCfxmDoc=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771627677; c=relaxed/simple;
-	bh=cSO5ddvam+3etx0tA+nKexvNvZkPWOiJ4oLj72nGz0o=;
+	s=arc-20240116; t=1771629220; c=relaxed/simple;
+	bh=8TyeUjWUBsvVvs0xB0Sjl9ta8Ea1dP8hIsN5OQehrms=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=BQVygIfmmGjHQ5g1z4yv2ctJ+3z+d/NIAjTlZ5l/k3Clm+0f8T9pYWRVErDRXs5U8+iqilOsXy21uH7CyamsLAoMk5iv0zjWLCdQxc9YvQhg9oReQh0Q/NP84AEsczF3BfBwAfIo5cn1dnkLlyhHxWQcDkKzQs40EajtAEVSuT4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=YdaW2WuQ; arc=pass smtp.client-ip=209.85.216.51
+	 To:Cc:Content-Type; b=Fub+LDLiSNfbfescwnOXH7P4C8UTgUSZ48ppNWe+YkBpHHgQUJK+5duS05m8LWRyhEwKcJ1Rfi4IB280/91fnfHoTqROYPQyPSx4nNVONvKHcsttIpw3kpufJLDWr9Vj2VceRY1jAwrODh1eRbMVLVNQqZTHDDK+sBAS42E+790=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=FfKeMzzs; arc=pass smtp.client-ip=209.85.215.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="YdaW2WuQ"
-Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-352dda4a34eso1100042a91.1
-        for <selinux@vger.kernel.org>; Fri, 20 Feb 2026 14:47:56 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1771627676; cv=none;
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="FfKeMzzs"
+Received: by mail-pg1-f175.google.com with SMTP id 41be03b00d2f7-c648bc907ebso1434128a12.3
+        for <selinux@vger.kernel.org>; Fri, 20 Feb 2026 15:13:38 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1771629218; cv=none;
         d=google.com; s=arc-20240605;
-        b=XE1gS7KIPfgJP00IDSk10RGij1l1Yi6lLDu0YjwhT1tu6rkg+wwFtofqiYWH7DiPBG
-         KkTcsW3B7fHkIkJB+VE19ukfLz1PRNU9vdB2u1hnIivO4Ify1p9dhIP9W6in/mwbCkpl
-         YzhgL0lWnkXiySLBZi4RGgzG4jJpf2qNN2JVCJYpoMGoB678mo9E9ihU8WnSFksXy/9v
-         zkLrSMRqyCuV/GeXwmLyKmXBkU2kwzMKCpbHlhzDIHuGYAJquZRdinO+7y6ZBDluql1P
-         OnvlA2NyXyRvOUq7E3nLuygZwp75n6qAPq5riC/CizRUtEGaIztS2R2JiJ83i+cTJwdr
-         PnJg==
+        b=JNRn5cGVwTlPrejrviNc1qDaq4QIyNAhMPHno7OyrYB0Hi29Z4fwkjH0F62+QOoF3L
+         Fhshl9DZD19nLB9YXUuF2iNBu5RZqxE1eTFgWxF0K9zWJKJuICruDltAihs/q1Z00j4s
+         uhUQNesTh8hPNoueD9fXlA9sAKpmrXYwPqxiUuEOQaJsVh6eY94XoC4AyZDlvh0Pf9me
+         YO/J8vvJkQmwhxep4/2nTYttu/hT/DMXO5/FT9GfFOkiZ3R9KyY2EtS9Dgm2ZklaELFW
+         Thxqa4WQ1FqC+oQxmRsoL04EeRvUhGyEz5YsQbUNqb/FdIZyPR9hQIk0Go3S08O8jMj9
+         mHmg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=DDXd3tXPluWk2oCytZ/1RJVm/UKOezpDOPY6avX6ips=;
-        fh=uHHNURaDqYguAgBgRH472tP/TzEYBqI7/Mo3MebKSgU=;
-        b=P57suCMygsPMUkOhsS0gVBpv/7xbOCv2GjVRJm+gPF5CcYQ4ODU9n/twAq4Uk/lZfn
-         q60IPl6XRXG1N5XL/Xf1oMWJ883bNvUSo76rrOlP6fZdOQEPmNaXRGOGZOWPvJFuUQ6m
-         3tGPoTV7j3y5gpppXy7oPque6vP3RVDmLSQfZ1GshU3CJuqzCKjJF9AliDgZOyENmPu+
-         MgGWNr+9K9ADg4LwvA5uLXsyHNscCLuwotm18bZmoY8b2VbTLIUbWgxpl2u8lnwhwRbm
-         1jDiHB8UaqDm0HtcWBEsx/+PvKgGSHkCcJI9YTuxAEv76QogSR+7dBnsd7mpUL8xJy9I
-         7xvQ==;
+        bh=nGcrSV6uZdEkBWLqKB8+5vB2QHnqtHACt2PC7ynbF8Q=;
+        fh=HlRVsSPisoSqhx4cBXuIPfGr5fdEPl5adWy5mM9+kpA=;
+        b=jl47XuniLj1KHmaDJKEh43ohYin92yeNbsq1IFbtgUEsN5EvrSvj2rKK0/rhILBEFe
+         Pjju4gg1nk3RqdkKIqkmVlqwQVboDJwNOBl0biirYZ69+cBXCz2nCNSlVcs8rY+VD54t
+         z7cBya50gcbCOwLMSOcvK/G3M/lQByZCGabV+dEIhd6eJgDqsuFLfzNQ1fjSEX/0ysd0
+         hFLWuUj8EAUqK6N41IDJyi6D9ESTAn94Z8NF/sVX7TgU9MZDTFGmuTWZLHSkYdsln0D0
+         tdkofD7EBGly6FzMrMhYZFvjAVnsVxKNxhy02ymMujK9VwGDLHanvPgSTYP3u6wEM9VG
+         7YCQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1771627676; x=1772232476; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1771629218; x=1772234018; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=DDXd3tXPluWk2oCytZ/1RJVm/UKOezpDOPY6avX6ips=;
-        b=YdaW2WuQ41wM5N1ATcsiXfFOfi8o+6IN5OMQAoEAgbdAjJkGfZ63rBEdcJ8rnXF3yy
-         zZPc6a4bONe+ldk+YsvYsyF2kj29Z3wp3gNZOieGr1bx02kYKEQmVczXkyhrdPBmsOu+
-         02nizDc9/b0WQGtrOR1H3GqDf0CUX/xKMH2X8B4mZpv+1BEK8dbBgL7id+rR5kElX7Bx
-         n0PhraKR1StZolJE3zbIKZZSH2znoCletYgDWkfimFsMFY3R/x3k3KRCEkMEvmLYEC89
-         hBRTOgyFJXJMoXD0XtDvmQ6JKkjmqmwBDtqojqDUbUMVLPW7sn6eTqD1FLjRPj4//pn+
-         8/jQ==
+        bh=nGcrSV6uZdEkBWLqKB8+5vB2QHnqtHACt2PC7ynbF8Q=;
+        b=FfKeMzzsUidcHTMIWzE1ALB2yQTdX8sVaiSQIu+wQSRpjR5rUBC75JFaLKjW1T4kBf
+         59rX6rZE1RwfM7CPezsaql6CHo/i2MH4W4mvElxEIeRh8D/fyoC7VKCikZQqfNA/xFC+
+         yt8cx7Ch3IKhJsILtyG3q9nRP7Z3GYVPLs2ypx/ljQhnJqpPPo1AX5mDeh+OFH26JoBU
+         N4ZZTsJlXkAEDIzJbfyB/dv91kZCbGktichpyxNQ5X7LwxAgmU5sLgeT7w5p0aKV+H9j
+         0o0EFR88yNa3Fobm4PhQBRH7ze2gMU7RRZWD8ZmJOOfxdXo6lf0NTwOYzw7xH3qrS+W6
+         Ni2g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771627676; x=1772232476;
+        d=1e100.net; s=20230601; t=1771629218; x=1772234018;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=DDXd3tXPluWk2oCytZ/1RJVm/UKOezpDOPY6avX6ips=;
-        b=w6fZnsjMpq1hC4K6DGgu/HjLtMYKIr/N9vRzNWT29areZOPLuYljVcEidQxZoMxQZj
-         UE7oxYx4Kg4CTJzwjzd9hRtjUDFjX7co2D18alXQr64Cwv/EeflF5jfF4mlGSg6K0mBA
-         2ynYOLVQ82Pd4qAl4gAfeB2LWad2Sg6/34XRNv+ErWSqJHY65LrEQKznalS6UzcHQ6cw
-         mr9+xlDGemC7PuQiQmWKU8Y2lWdMlYTMyd5OTpgriojB5FmNVqD9hWNpBaup92zVR0/f
-         NAwR5oK8/IYU7ecG7bnJMOCoW0ywoVrDKaNIwZISaW1K1BcRWB/7FmDp9qdML/2pL7UN
-         0Rtg==
-X-Forwarded-Encrypted: i=1; AJvYcCVk7sb0vLlFWDis7BLCRfzM1RDB89XIr+pYe19K+QEb1vhXcvFeD8j1Ycf4ZaCmRCXfYYZ04PDI@vger.kernel.org
-X-Gm-Message-State: AOJu0YxbRVDxrMFY3g+RusFwSQ+11ZYRQ7BoRv8vvngYW2TFVnHpeVTl
-	wfIRjA3qHNv4gskLBen+dPcf6URkDg9FQTZvGiyaSRLluvrBVeki5HX3UFrpQrCWGJUUjJOuQBC
-	6HU7aEdSNTC8WnxS8SIr4uyKFo3KRtoNHPqZ3PIpG
-X-Gm-Gg: AZuq6aILOUOkm0fslIkADvT7DLMmVqkhoYQH15+w3sW108aqly3ej5O/l+P3K3QzPpU
-	lWRJDxjs7nBbU5C6u5BZ+iNzd9Nrs41s5VuSm+Q2xYUGcEMK1Bpv/sb9q9jtAt0+au8wFjdi8gX
-	aIetccL2eC5wc3cDYT27i9iPkuY3KhLbMN9GU5oiXXPlchBP9WC7pEEBcWroBQnVNB7eVt4qK+o
-	yX+jrQd+9PDnaBIM6b52BhTs1jG6RdmYshpdyEfjPtJPMes/5DK/QW1gOOe7994TrvYbCHxVRgC
-	w4sDAik=
-X-Received: by 2002:a17:90b:3a08:b0:34c:fe7e:84fe with SMTP id
- 98e67ed59e1d1-358ae8c0983mr894544a91.28.1771627675691; Fri, 20 Feb 2026
- 14:47:55 -0800 (PST)
+        bh=nGcrSV6uZdEkBWLqKB8+5vB2QHnqtHACt2PC7ynbF8Q=;
+        b=PQBiByWid7i5je3ylDneW0YSobk4j8KjL093D1gpoD+utSfrogpvhrHHEt7RIo8YvN
+         kAUgypzliOgz2DCGFjgKsEOObXDXU4sUHeKR8Eunom9GFvTauw5W9vlXsX/eEu4gydp4
+         1mrCCy8yHU9RUpPMQGWEhciNb1a6G1WtFDwhbWJaiy55+D930KKxVDZ/GQn/ERoCXKlo
+         RsRBrhNp0FK51uCiM3K5q0Ip7v/hWnX8cVZkPXuvyY0JGHHeoHBnYguXuSdIIL5c99DW
+         hK4aCAXeKezb+kKNNgZwttbhuUe9Kfjr7h+x05z2ywnfVbTZn1b1fUDbWrXF6Qw0YwPG
+         Uifg==
+X-Gm-Message-State: AOJu0YykqbtW/c0L/sZb41WcCLVHlAtQl6Ja67IfGBIFkk4BsmIs5nHi
+	s45fxL46sLErkjhS3UKitvVewb/NqeLe3HDwLzVWWiy2xBbXetfzz73PsFXzrmriktQ7x25tGsE
+	beY+YhCEqZ/W5XAPqKcXuHFjC0hpupEubwQLbfeES+Yn0imSiF/I=
+X-Gm-Gg: AZuq6aJ+wXyr+sfvyDU81+FsbgF0QYsX1y+zAwwjO3hcWcw4nAfNKRjVxpD1KEMy4vA
+	9kOxsiqX2N0qM8BQIFXeV+/PQcRgqTYqUNIHdNqm+0pAic15tl6SLriq7i4aLfRxTFtyHN7PTPK
+	L+kUNYwNeH4ETiIcVJGDqGXUuRstiom1phSqEVIqZz4Yf+GCqcIHR5AjjaDUVaPPx6atYzBaiOO
+	qOLM96XrTsP8XiEUUrbx1gaqr/L1gh+/7SKImRr5ntV2R91NSgx5bnQF213+j53SDDMEGCfpd5D
+	1Oe/zso=
+X-Received: by 2002:a17:90b:52cf:b0:353:883:affc with SMTP id
+ 98e67ed59e1d1-358ae8c1c02mr1155214a91.18.1771629218380; Fri, 20 Feb 2026
+ 15:13:38 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260204050726.177283-1-neilb@ownmail.net> <20260204050726.177283-6-neilb@ownmail.net>
-In-Reply-To: <20260204050726.177283-6-neilb@ownmail.net>
+References: <20260130171140.90966-1-cgoettsche@seltendoof.de>
+ <5893d15993a809a3b1b80deb0c27bf1e@paul-moore.com> <CAJ2a_Dddd=u9zGB0KB2-YeAbteByVa__4+S21mYxcPJi0DFm3g@mail.gmail.com>
+In-Reply-To: <CAJ2a_Dddd=u9zGB0KB2-YeAbteByVa__4+S21mYxcPJi0DFm3g@mail.gmail.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 20 Feb 2026 17:47:42 -0500
-X-Gm-Features: AaiRm531rz23NInLiaMybHfJxR35OGBc7KTvM6WC-U0WofFc5pma3F6ygsFUv1A
-Message-ID: <CAHC9VhThChVk1Dk+f-KANGj7Tu7zzHCiA==taeQ+=nQaH6a7sg@mail.gmail.com>
-Subject: Re: [PATCH 05/13] selinux: Use simple_start_creating() / simple_done_creating()
-To: NeilBrown <neil@brown.name>
-Cc: Christian Brauner <brauner@kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	David Howells <dhowells@redhat.com>, Jan Kara <jack@suse.cz>, Chuck Lever <chuck.lever@oracle.com>, 
-	Jeff Layton <jlayton@kernel.org>, Miklos Szeredi <miklos@szeredi.hu>, 
-	Amir Goldstein <amir73il@gmail.com>, John Johansen <john.johansen@canonical.com>, 
-	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, linux-kernel@vger.kernel.org, 
-	netfs@lists.linux.dev, linux-fsdevel@vger.kernel.org, 
-	linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org, 
-	apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org
+Date: Fri, 20 Feb 2026 18:13:26 -0500
+X-Gm-Features: AaiRm51eX-U3hDrBFzShcv0bgudCn6oy16DyMVCLMaMSmwmKykh_tUBjHw5VaPc
+Message-ID: <CAHC9VhRu-bhodSjzmDDZmZebHwCa6C8OUNWd0NtdJoeUJPVS3A@mail.gmail.com>
+Subject: Re: [PATCH RFC] selinux: prevent truncation of status map
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc: selinux@vger.kernel.org, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Feb 4, 2026 at 12:08=E2=80=AFAM NeilBrown <neilb@ownmail.net> wrote=
-:
+On Sat, Jan 31, 2026 at 12:18=E2=80=AFPM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+> On Fri, 30 Jan 2026 at 21:46, Paul Moore <paul@paul-moore.com> wrote:
+> > On Jan 30, 2026 =3D?UTF-8?q?Christian=3D20G=3DC3=3DB6ttsche?=3D <cgoett=
+sche@seltendoof.de> wrote:
+> > >
+> > > Currently the SELinux status map can be truncated, given the necessar=
+y
+> > > permissions, leading to foreign user space processes getting a bus er=
+ror
+> > > (SIGBUS) while concurrently making use of the status map.
+> > > For example systemd can be killed that way, see [1].
+> > >
+> > > Override the setattr inode handler and check for O_TRUNC in the open
+> > > handler to prevent truncations.
+> > >
+> > > Link [1]: https://github.com/systemd/systemd/issues/37349
+> > >
+> > > Closes: https://github.com/SELinuxProject/selinux/issues/475
+> > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > > ---
+> > >  security/selinux/selinuxfs.c | 43 ++++++++++++++++++++++++++++++++++=
+--
+> > >  1 file changed, 41 insertions(+), 2 deletions(-)
+> > >
+> > > diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxf=
+s.c
+> > > index 896acad1f5f7..df079a35a02d 100644
+> > > --- a/security/selinux/selinuxfs.c
+> > > +++ b/security/selinux/selinuxfs.c
+> > > @@ -214,10 +214,30 @@ static const struct file_operations sel_handle_=
+unknown_ops =3D {
+> > >       .llseek         =3D generic_file_llseek,
+> > >  };
+> > >
+> > > +static int sel_setattr_handle_status(struct mnt_idmap *idmap,
+> > > +                                  struct dentry *dentry,
+> > > +                                  struct iattr *iattr)
+> > > +{
+> > > +     /* Prevent truncation to avoid raising SIGBUS */
+> > > +     if (iattr->ia_valid & ATTR_SIZE)
+> > > +             return -EINVAL;
+> >
+> > Do we want this as -EINVAL or -EPERM?  However, see my comments below
+> > about how to handle the ATTR_SIZE case.
 >
-> From: NeilBrown <neil@brown.name>
->
-> Instead of explicitly locking the parent and performing a lookup in
-> selinux, use simple_start_creating(), and then use
-> simple_done_creating() to unlock.
->
-> This extends the region that the directory is locked for, and also
-> performs a lookup.
-> The lock extension is of no real consequence.
-> The lookup uses simple_lookup() and so always succeeds.  Thus when
-> d_make_persistent() is called the dentry will already be hashed.
-> d_make_persistent() handles this case.
->
-> Signed-off-by: NeilBrown <neil@brown.name>
-> ---
->  security/selinux/selinuxfs.c | 15 +++++++--------
->  1 file changed, 7 insertions(+), 8 deletions(-)
+> I did not choose EPERM because it is not a matter of missing
+> permissions of the caller.
+> The status page should just not support truncation and EINVAL seemed
+> more natural than ENOTSUP.
 
-Unless I'm missing something, there is no reason why I couldn't take
-just this patch into the SELinux tree once the merge window closes,
-yes?
+Okay, I can understand that argument.
+
+> > > @@ -1995,6 +2014,26 @@ static int sel_fill_super(struct super_block *=
+sb, struct fs_context *fc)
+> > >       if (ret)
+> > >               goto err;
+> > >
+> > > +     /* Create "status" separately to assign a custom inode_operatio=
+ns */
+> > > +     {
+> > > +             ret =3D -ENOMEM;
+> > > +
+> > > +             dentry =3D d_alloc_name(sb->s_root, "status");
+> > > +             if (!dentry)
+> > > +                     goto err;
+> > > +             inode =3D new_inode(sb);
+> > > +             if (!inode) {
+> > > +                     dput(dentry);
+> > > +                     goto err;
+> > > +             }
+> > > +             inode->i_mode =3D S_IFREG | 0444;
+> > > +             simple_inode_init_ts(inode);
+> > > +             inode->i_fop =3D &sel_handle_status_ops;
+> > > +             inode->i_op =3D &sel_handle_status_iops;
+> > > +             inode->i_ino =3D SEL_STATUS;
+> > > +             d_add(dentry, inode);
+> > > +     }
+> >
+> > I worry a little about duplicating and open coding the per-file loop fr=
+om
+> > simple_fill_super(), I can see things slowly getting out of sync and ba=
+d
+> > things happening.  Unfortunately, I don't see anything in libfs that wo=
+uld
+> > allow us to supply our own inode_operations either.
+>
+> We could ask the FS people if they would be fine with the following patch=
+:
+
+We probably need to give them another week or so to look at your
+proposal and reply.   I'm very curious to hear what they have to say
+on the issue.
+
+> > What do you think about using selinux_inode_setattr() as shown below,
+> > would this work?
+> >
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index feda34b18d83..8e4374f22a18 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -106,6 +106,7 @@
+> >  #include "netlabel.h"
+> >  #include "audit.h"
+> >  #include "avc_ss.h"
+> > +#include "selinuxfs.h"
+> >
+> >  #define SELINUX_INODE_INIT_XATTRS 1
+> >
+> > @@ -3291,6 +3292,12 @@ static int selinux_inode_setattr(struct mnt_idma=
+p *idmap, struct dentry *dentry,
+> >                         return 0;
+> >         }
+> >
+> > +       if (inode->i_sb->s_magic =3D=3D SELINUX_MAGIC) {
+> > +               int rc =3D selinuxfs_inode_setattr(idmap, inode, iattr)=
+;
+> > +               if (rc)
+> > +                       return rc;
+> > +       }
+> > +
+>
+> I don't like that approach, since up to now selinux_inode_setattr() is
+> only for SELinux permission checking and this would add some behavior
+> modification into it.
+
+I disagree with that characterization, but I'm not in love with that
+solution either; special-casing specific filesystems always feels ugly
+to me.  Let's see what vfs folks have to say about your proposal.
 
 --=20
 paul-moore.com
