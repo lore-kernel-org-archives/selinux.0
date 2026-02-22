@@ -1,77 +1,133 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C141516F288;
-	Sun, 22 Feb 2026 19:58:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771790305; cv=none; b=AlIYgkxkOqLjGBQESFrEuQN4uLsB4YdDUO4RuHQYxlnjems76MHQTk5GWIjCuBt2SQRI75eCIN7cdhFdt6rENgQ8nJcMG4TqNpIFL8295CiFZAgu7TQQi6duzX8plHcgnHhh4O5rKoEJos0WBYxRAIgvJ3b/yjg4uHISGlrBGk4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771790305; c=relaxed/simple;
-	bh=wEZ2iXj9fKWRKgqv3okN8kg0V6cL2BHzXcExwQymWNs=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=MSwJ67Ngk6ZVZkDb7SIfu6NKCSoEhFPo3/ihEKq9ltN48b2Er6/pv3cp+7FSVBzBY7Yu2zuNZMwTF56DknF1zzYDGO1+bnCc74pc6Zt2bH4Hq3Dw115xTpLiHsc84WfiUglrLQPeVxZW8Zk3UGjif9qjllxzcG5+JY2k6+KkxmE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=SBJ+6oAl; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3C1F359705
+	for <selinux@vger.kernel.org>; Sun, 22 Feb 2026 20:44:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.169
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1771793082; cv=pass; b=YfEmGAsxfBTRdGJKx/6ZtEpKE+ZBUuTAX+2Q/0mzBUiK4Z6+26Vb5iRtLOx8sS32X0sHCExoZMkP5ELwNmUizut3XSpmFsY4YvTAORq505Aytl4nIpeVe1Fj+0g1HhciE1rPvwWrHj4xN9oZWRX2jX7RWP8ooYhszoZwR/BiiMQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1771793082; c=relaxed/simple;
+	bh=hp7f/xcQLM4YKqC46AX9x0C8T1QSRpBd0PokasCrG+Q=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=aF2I3xrpxgEau8CZ9nh4kHx8BaN2QvWhgCUFQk1qLuglAZBp3khdqSL6x9hD/K9RX/uEVe9wZIP19OawInykI6GSRvTfm3yrm+d/aOpfcpKQ7cURUJUUAYr9RxJEaBFY/7vn2xYZOgl5gkYkXSuhUqs14t0JOsFB3cV9dCAuAo8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Y460imou; arc=pass smtp.client-ip=209.85.214.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="SBJ+6oAl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 112FAC116D0;
-	Sun, 22 Feb 2026 19:58:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-	s=korg; t=1771790305;
-	bh=wEZ2iXj9fKWRKgqv3okN8kg0V6cL2BHzXcExwQymWNs=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=SBJ+6oAlEn3KD3oKjm0R0Qv0TZ+RgCxgFZs5XghOt3Q6e1QrG7zURCQuASPxzgpHd
-	 mfQHZ7gxSHpUT+2Gpijv81i4vFcqm6/7F0y90Cdj/9GnkTPmubXRth9subktg5LFgK
-	 EIi9yPWuYxw2/hUAcAfPmJPn/QLkxBppPcqifBUg=
-Date: Sun, 22 Feb 2026 11:58:24 -0800
-From: Andrew Morton <akpm@linux-foundation.org>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Ondrej Mosnacek <omosnace@redhat.com>, "Serge E. Hallyn"
- <serge@hallyn.com>, "Eric W . Biederman" <ebiederm@xmission.com>,
- linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
- selinux@vger.kernel.org
-Subject: Re: [PATCH] ucount: check for CAP_SYS_RESOURCE using
- ns_capable_noaudit()
-Message-Id: <20260222115824.37ae0de1eb183997a23669ae@linux-foundation.org>
-In-Reply-To: <CAHC9VhQOW4BQR+UCvrcXa_yiSqADN0HC2Xp0pMKs3FtnjcVaOQ@mail.gmail.com>
-References: <20260122140745.239428-1-omosnace@redhat.com>
-	<CAHC9VhSgbHx4NcMVjMMk0D332b0DTEQi6dD_wO1fvQne-JVisw@mail.gmail.com>
-	<aXgZI1td0Hremulj@mail.hallyn.com>
-	<CAFqZXNve_7oKFWydUrskOcvsfbRZVKyWRmLvHKsTzBhG+RmEmQ@mail.gmail.com>
-	<CAHC9VhQOW4BQR+UCvrcXa_yiSqADN0HC2Xp0pMKs3FtnjcVaOQ@mail.gmail.com>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Y460imou"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2ad617d5b80so21809775ad.1
+        for <selinux@vger.kernel.org>; Sun, 22 Feb 2026 12:44:39 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1771793079; cv=none;
+        d=google.com; s=arc-20240605;
+        b=fF2wquEY30CCyNSlOJMQRIh2+zajUfa3j68CYoPaH04nUyNEJ+ey0fj4zceu/VC0EH
+         SLikHsjyKlDZYXOqrgCx3CP4syWOCTbf+o2+Sopos9wdxvc1OsBbwm5vfHWjVfUEgo5n
+         C52Tuc5s3KLvu7CsVLGyirTeYNB+TmOkiEluzbF3wwBhfXBZ0AsULOg7ziFUO6FLYSqi
+         3t6d1vTZFdli2AWlthKVjCXtfzubcOlaTxVhtSHN3W13ymXPkKzyvReSwO/WY+P09RcQ
+         7Ao9vuzbMK7xbE3sXeU8ig3TlmnEGqLtKAFpZ//ALs5NTI9aRnLIHzV0CnIVwDz4yHCK
+         VSlQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=SZS3ht6qpZxvXlxvBozprXgo1676sf/FcqaXKyi4R0M=;
+        fh=LDaLhg2osnCBQwY7XCvvmAvWYvF+t2wkN4zG8asxRy4=;
+        b=AvCK23yEikY0l1RANxI5Y2YyUSnvjYgipdTzDbQQKtgc3TRPvLXg3mL/aPA2j5tUjY
+         D1jwDtr2QI3jcMaMAj38mHbpxH3XcAXgLDx62mV+5+EKj6Amdt+RifpoJuVkWr34OSG0
+         C/ye9xu099Ao1lGvwARPE5X0nrC+5WpsGVBhb0fuCLRsyiNYvpmxOJdTGhR6OVtatMC2
+         /DDs/naRTSyXa6rutQw9XZQme4g/hfM5xNkJ6Zbos8JpN8YGDsZAFzrsp6xd9f1b0+fc
+         jrSqvmYETUKIZGWcyc8ujqXhnMCn37ygohjwjuc/8HsIPl+r34okJ7emgbdxDGzHrs1y
+         yrhw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1771793079; x=1772397879; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=SZS3ht6qpZxvXlxvBozprXgo1676sf/FcqaXKyi4R0M=;
+        b=Y460imouQRWnRkg4aeW4mXXIInl8JrXhI2L2st6sInuLFIlBhiFosX1OMGoUAhEkVe
+         uVomRuUsqjEgFbzjIxciRZO0hCyQTBGc+DpjtPuEe20QDxm+rbTqp2pa5M52/5aygnQK
+         xr6sWLF2oCuXSM65vtMHnNRjRScbIS1WTFTLwSuzSz3BPQTapLczRsotfjmOdttMFWmg
+         WTi/U/rMTGHIWfzj1EPlarXetNAyEY58rADg1Xol5uydmjcmeZSlBgs8hZ4Egg+PnTgf
+         XyPd/aUstU3bVSXxkCFkc9r1IJdxw5jElEmmXcR/z8uMO5LrgEVtsWL71WeslrJIMrdz
+         GjOg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771793079; x=1772397879;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=SZS3ht6qpZxvXlxvBozprXgo1676sf/FcqaXKyi4R0M=;
+        b=bj72VWRYRJ5QKPx4W/5rATvsLN55ZPQNsplwk/h1iuEYa1bB1yVHmAwHZWUDdn5M9G
+         p64oCLC9uFJe0BwJ5anAF63+pvEmrTvjr8/uZI16P0mIFHPqPrysxd6n05UvvAByfBaZ
+         zQul7OdtXXKkaWXyC/V488O8mKsXt9Elp12c6oMyWSdCmBU0W2URbluQ7lCDAxDdQhny
+         SoyXU80JCOjIqlr9JDgKP4a/aEvXCR0rHoV03J/fg1GwrcWi8llFyC6R5FwPVeRCfvWG
+         nyaxlf+l1+SPrHMlzbcJidAIxusGAoVbyWJPp7uukUun48oeEdq84g8KJivmuOeT15TQ
+         LPWQ==
+X-Forwarded-Encrypted: i=1; AJvYcCU6roVGrhMNst/xguwWC0HZvEC0zIpFDv87gfXT1X4m2aDgeFnCvyTo9sVoJN0ZMeNUnHosUJ89@vger.kernel.org
+X-Gm-Message-State: AOJu0YwWKn9dBRXbOTQdfn2BjtbUp/jd8qcALU/4WWDo5s4tGXuRb1IJ
+	O0qlwLRuSZHPIvQ5ssVtRLkbiu3kd8/QQT43US6oFVs+ybEv9aU4e0QrvG0m5nEk6sRmFG9r4os
+	jFje2rfd/SM18ggt/9E5+4/B4lkxQ/+HMvTnpRVDZ
+X-Gm-Gg: AZuq6aKyeAlZeML7R5mnG4jY+MJfZCAai8CwHYSEmD6GMqPwYBezXon5FjfgNn4BHcq
+	dhJz1jWDOdyuq8R4efTvh5Mi1/RKmLXmQq6j6Cav5mFkfq1htUdrCzjtPR4MluxM1B20QqHYjeJ
+	NUs78ZCUw8FTcuuNOlDgrbXMLRjy/wMop2hThmuea6IuQqM4twPs9922gyYUYLUT/sQrZawY13h
+	ktZd801Um55VXCDigbks9iXvoqatInTPft0ng+DvzBbgxjmAwwO1X1DO2FmvIAlKPBAMhgEiJT2
+	S+t/rwA=
+X-Received: by 2002:a17:902:ea0f:b0:298:485d:556e with SMTP id
+ d9443c01a7336-2ad74419faemr67616305ad.11.1771793079051; Sun, 22 Feb 2026
+ 12:44:39 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+References: <20260122140745.239428-1-omosnace@redhat.com> <CAHC9VhSgbHx4NcMVjMMk0D332b0DTEQi6dD_wO1fvQne-JVisw@mail.gmail.com>
+ <aXgZI1td0Hremulj@mail.hallyn.com> <CAFqZXNve_7oKFWydUrskOcvsfbRZVKyWRmLvHKsTzBhG+RmEmQ@mail.gmail.com>
+ <CAHC9VhQOW4BQR+UCvrcXa_yiSqADN0HC2Xp0pMKs3FtnjcVaOQ@mail.gmail.com> <20260222115824.37ae0de1eb183997a23669ae@linux-foundation.org>
+In-Reply-To: <20260222115824.37ae0de1eb183997a23669ae@linux-foundation.org>
+From: Paul Moore <paul@paul-moore.com>
+Date: Sun, 22 Feb 2026 15:44:27 -0500
+X-Gm-Features: AaiRm529BwI7MTcZeMtMwIdjiMFYT8r8qV_tonLYGDsJ05o-JBxp1asG2tQIdao
+Message-ID: <CAHC9VhQzjCrLv7c5hsumkEzM5jfDVn93dF4tGkKqGzeJnNuCXw@mail.gmail.com>
+Subject: Re: [PATCH] ucount: check for CAP_SYS_RESOURCE using ns_capable_noaudit()
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Ondrej Mosnacek <omosnace@redhat.com>, "Serge E. Hallyn" <serge@hallyn.com>, 
+	"Eric W . Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, 27 Jan 2026 17:09:40 -0500 Paul Moore <paul@paul-moore.com> wrote:
-
-> > > > > Fixes: dbec28460a89 ("userns: Add per user namespace sysctls.")
-> > > > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > > > > ---
-> > > > >  kernel/ucount.c | 2 +-
-> > > > >  1 file changed, 1 insertion(+), 1 deletion(-)
+On Sun, Feb 22, 2026 at 2:58=E2=80=AFPM Andrew Morton <akpm@linux-foundatio=
+n.org> wrote:
+>
+> On Tue, 27 Jan 2026 17:09:40 -0500 Paul Moore <paul@paul-moore.com> wrote=
+:
+>
+> > > > > > Fixes: dbec28460a89 ("userns: Add per user namespace sysctls.")
+> > > > > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > > > > > ---
+> > > > > >  kernel/ucount.c | 2 +-
+> > > > > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > > >
+> > > > > Reviewed-by: Paul Moore <paul@paul-moore.com>
 > > > >
-> > > > Reviewed-by: Paul Moore <paul@paul-moore.com>
+> > > > Acked-by: Serge Hallyn <serge@hallyn.com>
+> > > >
+> > > > Looks good to me.  What tree should this go through?  Network?
 > > >
-> > > Acked-by: Serge Hallyn <serge@hallyn.com>
-> > >
-> > > Looks good to me.  What tree should this go through?  Network?
+> > > Andrew has already applied the two patches I posted into his
+> > > mm-nonmm-unstable branch, so I assume they are set to go through his
+> > > tree.
 > >
-> > Andrew has already applied the two patches I posted into his
-> > mm-nonmm-unstable branch, so I assume they are set to go through his
-> > tree.
-> 
-> Andrew, any chance we can get a reply to these threads when you merge
-> a patch into your tree?
+> > Andrew, any chance we can get a reply to these threads when you merge
+> > a patch into your tree?
+>
+> I already spray out soooo much email.
+>
+> A better approach would be for me to become more chatty.  Reply
+> "thanks, applied <reasons> <caveats> <etc>".  Shall do this.
 
-I already spray out soooo much email.
+Appreciated, thank you.
 
-A better approach would be for me to become more chatty.  Reply
-"thanks, applied <reasons> <caveats> <etc>".  Shall do this.
-
+--=20
+paul-moore.com
