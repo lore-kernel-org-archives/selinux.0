@@ -1,187 +1,255 @@
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
+Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 664FB3328E1
-	for <selinux@vger.kernel.org>; Mon, 23 Feb 2026 17:31:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BCDF3396E9
+	for <selinux@vger.kernel.org>; Mon, 23 Feb 2026 18:16:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.49
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771867918; cv=pass; b=BTgtpoJegT9hPXtutpsCqZ1JGjL7UxEpEp0M7o/AgcjgHNsDxtdlTA0lEfT1l/1xf1okmSPhEzGRqCOsb7OMy7E7gFOyYWxNRvq4LiQReWgcR/KskZbLeE6IMy6riqmv4Z55zxArlg3b9vEnZSoVsIQsYd6lS6ijH+tsG68rnZA=
+	t=1771870611; cv=pass; b=Hi+iZrrFCny1MO+oSr/TrJbd4kGyYAVPZZ/SrfQqsUyY80VvwSZBs8upWLfoLjPYKr+u34RzmKD36QJA7NlE+llbcL26oj7MUoQEZW9tROXipXpLs8GUxTk4UOBefVavwAAmEcm9j8lO52iVmV+9HwmCw//xDINMw5UV/PUi/WA=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771867918; c=relaxed/simple;
-	bh=hK/0jeoKCkucbRZSvX1AYVctVojQdWNjxRFJpKPT85c=;
+	s=arc-20240116; t=1771870611; c=relaxed/simple;
+	bh=ccMr0y5dim90uRB9hZgV/H0P3HJMVHu7XUE6+oVOavU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=grjlGxhE+g1KnfZY499G6l+kmFyHsHlCjW10e/t38CshGHoyh5bk7jlCXeH/CrLHU3ECXOfKWsVRBszIBzNIwjSZS/kLB4j9OarSJU4xmpjXVw9dc/kSem3qdbDjdAtrmt8ek+SOvfzzYuWsqBumCNo1lUxCCcKPPShzwhVmlB4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=F+M8ReRS; arc=pass smtp.client-ip=209.85.216.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=Mx0KBewp2Cz7FeIh6piMAmA10uYlsRv863LfrfMHht5pvnUuZGHUnixazmkD8GMQoatvgcG2j+49EHNurxjHmSx1+TJjBSesE6eOtQrp+/ZgkJ/E5W7OnPn/GqN/MQ9fiDcJ18MmB8KgxMng4QbjEkSnU5xmiCrGODzCm5MPXJo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AIBY3H2J; arc=pass smtp.client-ip=209.85.216.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="F+M8ReRS"
-Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-354a7b089bbso2628270a91.2
-        for <selinux@vger.kernel.org>; Mon, 23 Feb 2026 09:31:55 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1771867915; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AIBY3H2J"
+Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-3530715386cso3818672a91.2
+        for <selinux@vger.kernel.org>; Mon, 23 Feb 2026 10:16:50 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1771870610; cv=none;
         d=google.com; s=arc-20240605;
-        b=fJGeNI1Ew5ZTL0lzJkAJmL34M6bpnsXiiPcaDwNzcn9NhcigvoAaYg97u63nhmrPlu
-         scolLWJn7WvgVxuHyuRIWQfyXGsEOmdMIRXTC9wBVMmvMjq1eS/RNBjW8dClfAKAS3z3
-         TYrXyfeYIlnPPpnu4EhZdwxD0Gsq0tPri7/efIUypoarhk62FlVU7gT/AiNv5j+ShI1e
-         lmpYv6fzwJEq5UxSqPV2ss/p8YjjBi7f4Sot4BZaZ06EvexvBkdnmoP73ueDU9k7Dz04
-         jlQIATU7QDZRqgLiooiQzyfu5ie9bK2XYgMFhSSKlfgbz4fHkA8EkXo6tQ9F29FTBy85
-         HbYA==
+        b=GkyzKXRSf49+O241/SelgB45Zj7V1x4s/DIMPDSuXqwnlfozGoUdQx+KlspKVN5JWn
+         X7wsPx6v/JLx5BdCsLzR0+5mfx392MaYjdPa6MQaz8KQ42uAnCdBIG2Oq3qVrJQrwySD
+         HEVf/nLX0C8UVL2AWAsoNVZg24F8jRgRfB/Mb14GnbBelwFfhaT5uAiadzqqTAatjbza
+         wuduLmBzq8HyyUoEJ2uyNSyNGwPCwud11pFYxwdalWEv42VpFTwr+efwJBGtNjUOPxEa
+         GXJ5Hor/ceBmmB4kxIsilDWjbictvz38WhDa1t0bh8XxPjyKlxv9ZkrxyKrFFrjjHhHD
+         5+HQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=6UKo5s8UZQoKFDeeGaREA8NHzO9NWVOgEQkt9hAvBaw=;
-        fh=/FF2rFqtTEW4zC+J/0E6h0DmcS+846lDbqPdySvvnw4=;
-        b=QCbSOD/GE1NWrNJP5w0CzTWLmJLDVw1xRlVwMb/qAXpA7ac575ygALVZdaHYYlYJSr
-         DOeyKTBPH54PGAJOIEtk93fLTcbFQyKF+0NLXma5jR1RgjCakfwA6Gz8sAzCkU1gZjGy
-         03715u+nvgui8WNvrPAv4Ai1Nc+LAiXADkh70uiTnkEtmBxo6x2tzjAEjLE5ep3giV33
-         5zh0YDlnrAz0ln9xenkkRwDBLC7jd5Jm3B5qwjVUxSrLjnRginZRibiaYMvNBFv7rSU5
-         Xp673SwwEJ1JaXCdAjQU0JXhgpBf3KfRr6ytSBVobrZi2hjp8ybffwt6JlKJfqiAq8gb
-         rwlw==;
+        bh=WR5/isHJi+p+zaqIgVM6heHWbx8BffiQCVHOVHy8bls=;
+        fh=BawarOUyYa4MjdWkcdupHeXlGj90HG96LMuvxJG17Po=;
+        b=jp79aALfgLMCJf9SzG1XxlaouOm+1mAx7z8xhiACNvBNaTReWw5qQcJElK8pyjTEAE
+         AcVDMM2ioT8Lyl8LyOnjVKtEPjYuQu7ppC2+wrc4jY6r7gS6RNj9EAzQyPq2gon9k+J5
+         0hFsxTeZwmZxj2vJQHdkzqFZux/HRgyy7ketXYQ92Aei/uA6KpLRVLor1i2lqCttzc8j
+         1KbzTFNy8bL33RCSj/V7MFkl7xNl9fDfdpSxAPg5eyJsNelk/jwcR4rfILVFcwgfnZrs
+         7Ykp/FKNh0EriUYbk9s/I0IFWir/P9MOnu1VsY5nJLawyDTH1DWvlWrz12TxkuUB18Mn
+         FhbA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1771867915; x=1772472715; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1771870610; x=1772475410; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=6UKo5s8UZQoKFDeeGaREA8NHzO9NWVOgEQkt9hAvBaw=;
-        b=F+M8ReRSjHBcODwL6YMsB62k5KM9tS8sOWzeJ5+cgWNwRgCriw3XQa/eD8Yx/Hni30
-         IdB+LiB/ApJjquQB5KcxVEI5HLkLWuZ1vTpKyL0E0HUfvIQZRWdXowU9+z67g7Gwx52C
-         +oyHQZzV3WLMrQboFAG7U9dC2B2apXVJrFgLqbBoeCt8vO8eZLDHjMm8iii0dsQnf5WW
-         Z+IHssdjgGYFzkGRQY1XVAsJ4gq0CVWEFyPOg2QbuYKPHrO7FhEUN0jl57qhGgMjZ2bq
-         zTkZ+QXwpKHtOYw10dJFzE57zltv532RD2Y3Hk+vJDyanvg3sI0G/4PpvFt2TNvnCaPd
-         NKxw==
+        bh=WR5/isHJi+p+zaqIgVM6heHWbx8BffiQCVHOVHy8bls=;
+        b=AIBY3H2JLRtwac9dG5bObXu9PgN5gsN5zkhckcMd5Kgjf6Ssy1K1TfQQugnBgV7/cd
+         HG8VuYdv8AYAR037yvoSz09eC/yFRePyXnSwOBtdCBQPsFqH+SWtV9okM/p2zNRX+X28
+         7gJGwKkfjYqjtSlMCmydera85E9yxgAaFEGEHXelS8YymxnD5nIUSmBL6wKyc0/6iBt1
+         15oQfz0Qu1s2KTvJoEtcYf76QF71PWNZAgx8KBK8AE2I3ooB4L4kG++cwjsWA9JYR51v
+         PpO1pbVip6sWxmvxW2+4Q48DGrgDDuvmIg98B/1RC47O0OBY+iw9fXnnEgxiSU2dVYfD
+         SbKQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771867915; x=1772472715;
+        d=1e100.net; s=20230601; t=1771870610; x=1772475410;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=6UKo5s8UZQoKFDeeGaREA8NHzO9NWVOgEQkt9hAvBaw=;
-        b=RPK9ivV5Yf3JfhZZCm77f9UjigiHZmUyv8w82fD5j9ouE9XQqvRj5qqSxlPYwLjq7v
-         0cJR+Njjl4jJkQpMt7+/FH7Yk9ypKPwUuyKKKQiIx+pvLL9QfxQPxU6CF6JhoGwDmIJx
-         SkkEyJUaN0tgsMo0qiRvXgqk5Fr5LC8Yqm+YmUOibDIiRPC9zE/r3f2B/6U3KodUUxuX
-         4pCWqdtMetUNhRtYKFluDBWAdz+UQZEP1CFG+/WijRpnXB3apHnkJYO/qFP8R222AX0g
-         arTH1U0UvDy3JVGZM5S3tY0afWHHYZzNN1QX9Xq8/95VjIO3MYD93fA2rlSsj8iyMWHb
-         +gvQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXvYu7CvQku8rdDGZPo+t/7MpwiqBOhhcFPReUUOVq8ZJsl5Hm3Xjb1SASEDfyrWGL4PrDqzXzw@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxas/P4RJY+iXkVireus94FQctpmk7jCowX8Qcm8kSN5pC8GF4e
-	rJPSVNpPGFzp4j5fmt4c7BbazAwilBW0SGaVcoUe+zxptefSiTvcg6hzYDLFkLuTSbCuse6DTIP
-	zDk8kSMNHyn7pr4DkR6ChkFLv/b70HG4ARxtKml7o
-X-Gm-Gg: ATEYQzxmmkTYA4vCgU30XnX010kipidaSXMxXIk7yYT4jicCMj0Vew4wtpLSUAXHqPQ
-	6cZWbWULfD8TRWjPOcbW5kK5iEkLyIiYXvfdTEkXRKHAmxuc77kXsqQ8ZjYJ8K4JSlvorAS6lBu
-	LSRgBQejPxoXbUa0IyBHEUo7gSSCRgYkslNjD5jG4Ir8DrxBPCcndohZcZj570dPiH6BkAvd+5i
-	MKiMGbR+Ukyk/pVr0cGE55SOLvdfxNzuin/69a93tEkzQ7TPiqToBaSWuRKTDDhY+NkmYUFldSi
-	nSeiwCo=
-X-Received: by 2002:a17:90b:2543:b0:352:b674:2592 with SMTP id
- 98e67ed59e1d1-358ae7c3605mr8357173a91.7.1771867914678; Mon, 23 Feb 2026
- 09:31:54 -0800 (PST)
+        bh=WR5/isHJi+p+zaqIgVM6heHWbx8BffiQCVHOVHy8bls=;
+        b=jrxvUYwyhtfMeFwA/z0x+5byoaiQnAA0/BI7l60ojPapet/zbBVAntoQLalnC37UF/
+         WgFyNRPjM4gHOwxCyNhWFq3UpeunsRrB5nybHSdX7MCob/IJ8jwkeEDc9PkXZmFsO6NP
+         9al09TXvNMtbHJLBhY3yN0mA332Ki03iGwdTITDAknc0On1l0mYy2Malr0vBAGBSQmI8
+         SNJipfbV7rhFIWBgi+c03P4LE2j0fio4JEIR3h0qOUM/ZD4HaVA2fnF/2IWHAIJWhxby
+         9J8jTaJHiZXx5+snwyWuQaSJLXXf3V35UzU3fxE25tq1YnJZmP/dd0990mP+wC/zNh0Q
+         qRbA==
+X-Gm-Message-State: AOJu0YzlFrAvk6BLu8eqzNd+pTJuPzoLeM2U640bg12VLijoHyOT/LRi
+	CV0Fg04TAGfQ3HkBjwtgJgXlgWtbxj/Nis6u1c//tWETrwx/rQbnkKgWq6fHgROqkAChKEu/s68
+	JsitpIfXfA6D8HTmdI2D47Zl8hWXHhf13Qw==
+X-Gm-Gg: ATEYQzzhEN9e77rO+IxMdwO8n1O5TMT3DA15AyzN7DkiyBZPMTj9+o07abnbC4OZoyY
+	oMLnwrxWJ6d7etE0F1fb0sNd0rV69zZ1AQUt833Wojc6Z8PswVmh87TXApmeVjZg3yfbqTncIe5
+	Fy6YMJGJpfqIy1YmWFA9yrBUU6pKIz0Wmkg3tldeu+pKncAg2ddTF2w/wkXmNJEmlzWth0Wt64g
+	XtyTSj24aDKyPudjbfR0rerROk0zvYkp6xBuBK4Y1g2G+xU+LBOozKASU+xFR7GtwhwsGf7SZTb
+	NFyMcZqa3PquxSJJ/Q==
+X-Received: by 2002:a17:90b:5410:b0:340:ca7d:936a with SMTP id
+ 98e67ed59e1d1-358ae8a87e3mr9084711a91.18.1771870609620; Mon, 23 Feb 2026
+ 10:16:49 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260223011210.3853517-1-neilb@ownmail.net> <20260223011210.3853517-7-neilb@ownmail.net>
- <20260223132533.136328-1-clm@meta.com>
-In-Reply-To: <20260223132533.136328-1-clm@meta.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 23 Feb 2026 12:31:40 -0500
-X-Gm-Features: AaiRm52jwDH7iM8Njra-WDPg6xnZ2flvbCTBnLCHZ5MkdIrvbyo0z9crRKbktmQ
-Message-ID: <CAHC9VhSVjLNeTdxHmwYsGX75Z4FOAP+26=PjVdFxpmEkTrPvxA@mail.gmail.com>
-Subject: Re: [PATCH v2 06/15] selinux: Use simple_start_creating() / simple_done_creating()
-To: Chris Mason <clm@meta.com>
-Cc: NeilBrown <neil@brown.name>, Christian Brauner <brauner@kernel.org>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, David Howells <dhowells@redhat.com>, Jan Kara <jack@suse.cz>, 
-	Chuck Lever <chuck.lever@oracle.com>, Jeff Layton <jlayton@kernel.org>, 
-	Miklos Szeredi <miklos@szeredi.hu>, Amir Goldstein <amir73il@gmail.com>, 
-	John Johansen <john.johansen@canonical.com>, James Morris <jmorris@namei.org>, 
-	"Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	"Darrick J. Wong" <djwong@kernel.org>, linux-kernel@vger.kernel.org, netfs@lists.linux.dev, 
-	linux-fsdevel@vger.kernel.org, linux-nfs@vger.kernel.org, 
-	linux-unionfs@vger.kernel.org, apparmor@lists.ubuntu.com, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+References: <PH3PPF7A88A980A236C1D23F1FDB87FAA2CF39BA@PH3PPF7A88A980A.namprd11.prod.outlook.com>
+ <CAEjxPJ4BP1isHT2T0sL1K58bLycwocG8FGFK2OSrkA6Qc3Pxag@mail.gmail.com> <PH3PPF7A88A980A2ECF46C2CF01AF290FEBF377A@PH3PPF7A88A980A.namprd11.prod.outlook.com>
+In-Reply-To: <PH3PPF7A88A980A2ECF46C2CF01AF290FEBF377A@PH3PPF7A88A980A.namprd11.prod.outlook.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 23 Feb 2026 13:16:38 -0500
+X-Gm-Features: AaiRm52xFkAbHqCH8hhpu8gFFApnIzLS9OxFaBA4Kub7RuqYfflLGTite7PxZCE
+Message-ID: <CAEjxPJ6_kQDikuPi6uYZBg2UmPV0v5KR48N7rskBQ5HPnr22pQ@mail.gmail.com>
+Subject: Re: [EXTERNAL] Re: Missing audits
+To: Martin Bonner <Martin.Bonner@entrust.com>
+Cc: "selinux@vger.kernel.org" <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 23, 2026 at 8:26=E2=80=AFAM Chris Mason <clm@meta.com> wrote:
-> NeilBrown <neilb@ownmail.net> wrote:
-> > From: NeilBrown <neil@brown.name>
+On Mon, Feb 23, 2026 at 11:47=E2=80=AFAM Martin Bonner
+<Martin.Bonner@entrust.com> wrote:
+>
+> I'd like to start by apologizing for how long it has taken me to get back=
+ to
+> you.  I got distracted onto other, higher priority, tasks, and then it to=
+ok
+> ages to get back to being able to reproduce the problem.
+>
+> Answers inline below:
+>
+> > From: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > Sent: 03 February 2026 20:19
+> > To: Martin Bonner <Martin.Bonner@entrust.com>
+> > Cc: selinux@vger.kernel.org
+> > Subject: [EXTERNAL] Re: Missing audits
 > >
-> > Instead of explicitly locking the parent and performing a lookup in
-> > selinux, use simple_start_creating(), and then use
-> > simple_done_creating() to unlock.
+> > On Tue, Feb 3, 2026 at 5:29=E2=80=AFAM Martin Bonner <mailto:Martin.Bon=
+ner@entrust.com> wrote:
+> >>
+> >> Complete SELinux newbie here.  If I use a word that has a specific tec=
+hnical
+> >> meaning in the context of SELinux, please don't assume I understand wh=
+at it
+> >> means.
+> >>
+> >> I am working on an embedded system using buildroot with SELinux.  I ha=
+ve
+> >> changed a directory permission from world-read-search to world-no-acce=
+ss,
+> >> and my device now fails to start up correctly if SELinux is set to enf=
+orcing.
+> >> I know it is SELinux because if I don't set enforcing, everything is
+> >> perfectly happy.
+> >>
+> >> Well, this is easy to diagnose you say - just look at the audit logs. =
+ The
+> >> trouble is, that the only thing in the audit logs is a bunch of audits=
+ from
+> >> all the "ls -laR" commands I was invoking, trying to debug what was go=
+ing
+> >> wrong with the permissions.
+> >>
+> >> Next try:  comment out all the "dontaudit" rules we had added (I left =
+the
+> >> ones in the base rule set alone).  These were mostly rules concerning =
+fifo
+> >> access -processes are invoking sub-processes, switching domains (is th=
+at the
+> >> right word?), and then they no longer have access to stdin/stdout/stde=
+rr of
+> >> the calling process (they don't actually need such access).  The freak=
+y
+> >> thing here was that although I got lots of audits about fifo accesses,=
+ _all
+> >> the audits about the debugging had disappeared_!
+> >>
+> >> What is going on here?  Is there some sort of configuration that will
+> >> suppress an audit if another audit has been sent "too recently"?  Any
+> >> suggestions to debug this?
+> >>
+> >> One additional complexity:  the access to the directory is (or should =
+be)
+> >> happening inside an lxc container (with luck this is irrelevant).
 > >
+> > audit messages can be lost on OOM or hitting the rate limit or backlog =
+limit.
 >
-> Hi everyone,
->
-> Amir suggested I run these through, and this commit was flagged:
->
-> commit bc981629767980bbaee2ca3c7348b5a648665a9d
-> Author: NeilBrown <neil@brown.name>
->
-> selinux: Use simple_start_creating() / simple_done_creating()
->
-> Instead of explicitly locking the parent and performing a lookup in
-> selinux, use simple_start_creating(), and then use
-> simple_done_creating() to unlock.
->
-> This extends the region that the directory is locked for, and also
-> performs a lookup. The lock extension is of no real consequence.
-> The lookup uses simple_lookup() and so always succeeds. Thus when
-> d_make_persistent() is called the dentry will already be hashed.
-> d_make_persistent() handles this case.
->
-> Reviewed-by: Jeff Layton <jlayton@kernel.org>
-> Acked-by: Paul Moore <paul@paul-moore.com>
->
-> > diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.=
-c
-> > index 3245cc531555b..7d4f90e5b12a0 100644
-> > --- a/security/selinux/selinuxfs.c
-> > +++ b/security/selinux/selinuxfs.c
-> > @@ -1931,15 +1931,16 @@ static const struct inode_operations swapover_d=
-ir_inode_operations =3D {
-> >  static struct dentry *sel_make_swapover_dir(struct super_block *sb,
-> >                                               unsigned long *ino)
-> >  {
-> > -     struct dentry *dentry =3D d_alloc_name(sb->s_root, ".swapover");
-> > +     struct dentry *dentry;
-> >       struct inode *inode;
-> >
-> > -     if (!dentry)
-> > +     inode =3D sel_make_inode(sb, S_IFDIR);
-> > +     if (!inode)
-> >               return ERR_PTR(-ENOMEM);
-> >
-> > -     inode =3D sel_make_inode(sb, S_IFDIR);
-> > -     if (!inode) {
-> > -             dput(dentry);
-> > +     dentry =3D simple_start_creating(sb->s_root, ".swapover");
-> > +     if (!dentry) {
-> > +             iput(inode);
-> >               return ERR_PTR(-ENOMEM);
-> >       }
->
-> Can this cause a kernel crash when simple_start_creating() fails?
->
-> The function simple_start_creating() returns ERR_PTR on failure, not
-> NULL. The check `if (!dentry)` only catches NULL values. When
-> simple_start_creating() fails and returns an ERR_PTR value like
-> ERR_PTR(-ENOMEM), this value is non-NULL and the error check is bypassed.
->
-> Execution would continue to d_make_persistent(dentry, inode), which
-> attempts to lock dentry->d_lock, dereferencing the ERR_PTR value and
-> causing a kernel crash.
->
-> The old code used d_alloc_name() which returns NULL on error. The new
-> code uses simple_start_creating() which returns ERR_PTR on error, but
-> the error checking pattern wasn't updated to match.
->
-> Should the check be `if (IS_ERR(dentry))` instead, and return dentry
-> rather than ERR_PTR(-ENOMEM) to preserve the actual error code?
+> I don't _think_ I am out of memory.  (It's embedded, but I've got about
+> 8GBytes.)  What's the rate limit, what's the backlog limit?  Can I change
+> either?
 
-Good catch Chris, yes, please change this Neil and feel free to preserve my=
- ACK.
+If set to non-zero (default is 0), the audit rate limit is the limit
+of audit messages sent per second. If set to non-zero (default is 64),
+the audit backlog limit is the limit of outstanding audit buffers,
+i.e. buffers not yet processed by auditd. Both settable via auditctl
+or in /etc/audit/audit.rules -r and/or -b options.
+audit_backlog_limit can also be set via a kernel parameter. Probably
+not your issue though if you aren't even seeing messages about audit
+messages being lost.
 
---=20
-paul-moore.com
+>
+> > When you say you looked at the audit logs, are you only looking at
+> > what auditd has written out under /var/log/audit or also checking
+> > journalctl, dmesg, or cat /proc/kmsg for any messages.
+>
+> I was only looking at /var/log/audit (well, the location we shifted that =
+to).
+>
+> I don't have journalctl (that's a systemd thing isn't it - I'm not runnin=
+g
+> systemd).
+>
+> dmesg, and /var/log/messages, and the console output, all show the same f=
+ew
+> audit: messages - but none of them seem to be relevant, and they are all
+> present regardless of the directory mode
+>
+> > Was the system working with SELinux in enforcing mode before you made
+> > the change to the directory mode, or you hadn't tried it yet?
+> Yes it was.  (Good question though.)
+>
+> >
+> > Does your system look basically sane in terms of process and file
+> > labels? If you have sestatus installed, what does sestatus -v report?
+>
+> Yes, the labels look reasonable.
+>
+> It reports as follows:  Note, I am running in permissive mode here becaus=
+e
+> that makes debugging much simpler, and I currently just want to find the
+> text of the ***** audit.
+>
+> # sestatus -v
+> SELinux status:                 enabled
+> SELinuxfs mount:                /sys/fs/selinux
+> SELinux root directory:         /etc/selinux
+> Loaded policy name:             targeted
+> Current mode:                   permissive
+> Mode from config file:          permissive
+> Policy MLS status:              enabled
+> Policy deny_unknown status:     denied
+
+deny_unknown means deny any permissions not defined by your policy.
+Did you get any SELinux: messages during policy load about unknown
+permissions? Can you share all messages that start with SELinux: or
+avc: from your dmesg or /var/log/messages or console output?
+
+> Memory protection checking:     actual (secure)
+> Max kernel policy version:      33
+>
+> Process contexts:
+> Current context:                root:sysadm_r:sysadm_t:s0
+> Init context:                   system_u:system_r:kernel_t:s0
+
+The init process should re-exec or dynamically switch its context to
+init_t after loading policy rather than staying in kernel_t.
+
+> /usr/sbin/sshd                  system_u:system_r:sshd_t:s0
+>
+> File contexts:
+> Controlling terminal:           root:object_r:user_tty_device_t:s0
+> /etc/passwd                     system_u:object_r:etc_t:s0
+> /etc/shadow                     system_u:object_r:shadow_t:s0
+> /bin/login                      system_u:object_r:login_exec_t:s0
+> /bin/sh                         system_u:object_r:shell_exec_t:s0
+> /sbin/init                      system_u:object_r:init_exec_t:s0
+> /usr/sbin/sshd                  system_u:object_r:sshd_exec_t:s0
+>
+> --
+> Martin Bonner
+
+> Any email and files/attachments transmitted with it are intended solely f=
+or the use of the individual or entity to whom they are addressed. If this =
+message has been sent to you in error, you must not copy, distribute or dis=
+close of the information it contains. Please notify Entrust immediately and=
+ delete the message from your system.
+
+Please remove such statements from emails you post to public mailing
+lists if you are able to do so.
