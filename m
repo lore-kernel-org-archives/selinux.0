@@ -1,93 +1,94 @@
-Received: from mail-ej1-f42.google.com (mail-ej1-f42.google.com [209.85.218.42])
+Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FADB34EF02
-	for <selinux@vger.kernel.org>; Mon, 23 Feb 2026 09:35:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9218034F48F
+	for <selinux@vger.kernel.org>; Mon, 23 Feb 2026 09:39:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.54
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771839328; cv=pass; b=laA3S1nBAL1c3WrquDG0jgSIfUw8OvsFU5Q7CtXGT0Qmlc1rcIhb1v2K16/DS/gJ+LoYU5N9N50ekXEP9Y5dL6rKP/50UjygmhxxpBToD2u6vU9RSrD4hzhR1/4mQgtmPhuyQ7bST1f79Ii3MsBGswXtFHk/XRR62ZCebvXjV94=
+	t=1771839596; cv=pass; b=A3EZNs4BuWBD8WF1O0ie9WV50AGE/CgTZgEmyAaIrH9g0Gz9tQUTeBmTw/UYjXorgg97zlbfWkl9G6H25jnnDIHIMcqyCUIhOYhiqeCQjt+4rzsG16hUxYeoE2gDKQI6TfKhg5T5l8bu5iE3ZpfkYRhH7egIkAQ9YS4EeH07mcw=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771839328; c=relaxed/simple;
-	bh=mAAOjC5VpT1HkXsRAwtGw0eUE/35I2Skqe677nArRZE=;
+	s=arc-20240116; t=1771839596; c=relaxed/simple;
+	bh=NJ1uYV6m2U72UBoxmR+vF6VYrkEMBf80jlLMxt8Gixw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tvgkJLyGgNlE1jxFTKHuF08XuXeEBoAUS0TNyQ8C92mJWOkTP7B5gJU5lp8sLYPO1kpmLGclvSLrKHfdfAs+Ubh/L9pS4wrXmXL//b23kWDu+uvxuXxVklM4Lrc947eLv1Zz+dk4skdPpfBcJPUEcbgWivlCGjjmcSlDDsdyjfc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lvjUXwJM; arc=pass smtp.client-ip=209.85.218.42
+	 To:Cc:Content-Type; b=H8bHBk0xoZhQSvc+Quf2gbuUfvhOb463E/MAV8WBm65uQ7ndx0eUhGjORjy1NLGzgZ6OlRTF1Zf/+4vmjvxl3TMO9lsYp8u+DndjWELKiyVAuaTZdLqlav1WhzNSrJ0ouEN3nF7wZp+X3QBLqYAuhMSFaQDtWlRDKipXu6VizKo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XlcmmsH0; arc=pass smtp.client-ip=209.85.218.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lvjUXwJM"
-Received: by mail-ej1-f42.google.com with SMTP id a640c23a62f3a-b8f9b5240a2so524393166b.0
-        for <selinux@vger.kernel.org>; Mon, 23 Feb 2026 01:35:27 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1771839326; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XlcmmsH0"
+Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-b8fa449e618so652812866b.0
+        for <selinux@vger.kernel.org>; Mon, 23 Feb 2026 01:39:54 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1771839593; cv=none;
         d=google.com; s=arc-20240605;
-        b=VWGkMJWTciFexoadK/t4GnieO/kAn7JXn6vZXGkCrpjc+r3CePDE6l0DAHNY5fBO6W
-         LBKLopZHlgtqtv/jgYKaYm+tz+IZHVLfXwWcaZREla/kBqP1L4SDbhVbAEstrREZtMzY
-         fX/qJwv8TfPA0knxmi3C55DHnPNnZQE7BeaFYZ2Emnn4Dj9irsBnMhsrZ8Uv9lyDXM2T
-         AImbUoyAHIjB3i7lufVFooAKcuIK0OoeJ9X8lsRhoC9YGUXLurYigDtgyNxOGkmDdKqp
-         JcnOGmbPx6qC22F5ZYvugUZsnbS5rsva6H7ZfpiWEGtu6hHkm3lOUYws4R+7yxodiZnI
-         QOjw==
+        b=R8N47z3yDrQL50Nt5WjREb6p9M+ST6XikcYDbUoGx8S82kraGgw3yjueDy4/xBSb61
+         fmHt1aWPhTIIwAtTfA1cL2lLd99u5VPIX7sqXq7PPysADqtXjkHdqvSMX7uQWfKrIaX9
+         FkizhYul/W4yHoI6AKUlPRURo1R+N9cRp1n8PooqW8Sdkc4Y8nS975pKjVxFHZZgZDMa
+         WJoZJWFU9GM2oiNd9+kUi08EATcU4eC74zpzJo0gpw6q8dZ7leZqSykfI7NO/eReu/DA
+         3unsb4UVvmQAwY5m/Q8fBWq3CvXVVXnYrksqI6T0rT/yFflQzGnzCOVZdUxP3dXlqVQm
+         dBaw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=5/tsVKpvOF9hjEuBModNYiVpSPXtrrKrMQ519faKcis=;
-        fh=Rsl+Mo7aHIHSp3AN4M/qglOZZpIG/2Y00l8GBZRrbhQ=;
-        b=ADYPf1TS8iHu8Ya1PSrvAIq/hPf07zVRTwmU0evVmTFE9wCITpOtxSjSNNAM4YyJ4f
-         3uzL0lHhMmFDGlmjs35ssP1rMQfJsKi8bsgVbBjFBw1kLGBkEcScpZIDi82wu+/lEpOf
-         v0QZ0C8WnYiQRaxF9i38J5JQ7Yygr5HDvELpjeMMnjo90ZGKTg4ovs1ikg6xlzAka/a5
-         Z6UgX6ur9udA9hA2r4DZiZm9zXcC6IV/Y6caQABg437+0VJJyYrfbtzPYHWxdGMfSC9m
-         wsc3PkR1YWmTaSjQ1SC7xmLZ/1xM5Vuv4BMfIu8omJPCZUZYP8BtHYKNiSgwEAjtZMh8
-         iXvw==;
+        bh=CdIlV/ChuwGIF+GC1fBCbGy0HUmwCjEnTpmiQxTAsXA=;
+        fh=xvJNz2m2A35Vgwg+KWaLYnp1gLwrn1DiZjPyoTCfmqk=;
+        b=XPIr6P4do4nEV17BQh/WdZ+hQ4oxDDVgAS1rTSNYn+65/dufpvZu0P1rxDYY9uX77c
+         /r/xLGAWERrWJKbDG4U6suf3+eNSm18G4KIZ7e0Q7C67Q8MReDmDhsppeD8KQOKW0yKk
+         Fq8GLV+xW2x3yZic+zSlW+MSTpIiwrx7qnGGakgch8D4sCjEHHk+77f027Lr1eUIhOkN
+         OPm0P8oZ/Pa/GS5zyaeaB7obOgStcwD2XZkpietp91mtD0r6OVj6rWc8rTdsgxk3CSed
+         Jt37KfH6l14pexvrNxiEazEMR6VKWeRVGQ2bcmiW8xE1++yFnxITH5oU5eMieQ2zL9VY
+         ZgvA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771839326; x=1772444126; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1771839593; x=1772444393; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=5/tsVKpvOF9hjEuBModNYiVpSPXtrrKrMQ519faKcis=;
-        b=lvjUXwJMFDUVNdE9/6JGFIIEgXAr+NW/nxJYiNKP83A2h2rSdOYnS2Qap5SEi8qvuc
-         Xvv8mX7Ib5UTjZ2Ntgfe8sP1Y8sbStPRBVlVXYlUG96b6S34FcSJuKZLdABzCTwQSawB
-         6kEeAv1Xy3QQTZBXYrCOuzdG6KW4vFjs2HUXgSqvz4TtzIzp1VaFIlsTAa6b5Sp1Jd34
-         8+G7qchOZolFb2NrtqZ2ma6izvwW8ElQncc0YNDtZAtfeVwNdlTIquDlE1K/HvvMVBW5
-         MVSWix+ReYo/KfT3GNcH4MXXhrxRSIQZW2RW+9DJtcTlAkJOfHQiKIYj+U2ejfaspoaD
-         g7tA==
+        bh=CdIlV/ChuwGIF+GC1fBCbGy0HUmwCjEnTpmiQxTAsXA=;
+        b=XlcmmsH0zYD1X+yTHYMl0DcVs05x8iUOXogK5G9f8wY0DEuF25CYT0GMXhDFKEuj24
+         RTwLnoN0prIew4m/ZpnwcNyNFGlMTLSCAb7e8KwXpSSqE9cLUNifwRVfQq69l4alOrO1
+         2QispWmwpHhMj2NREr2qGt6mxiCJ0HsjhyRHukTMp3fwZq4Nv5WLeHKhI9qb3I1PsLBK
+         4vyDryBbgKURNa31EE63S2dvlHwbem47p1xQHyzuTSdE7Ai0FynjEovHgY9aECY5Ymrf
+         pVQUBeHDK6s3jt3Qf+L99uK6Vx5jog8HVabECYxA8zYQdSdJfSkOFLvEfQAruRD62wlR
+         2rYg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771839326; x=1772444126;
+        d=1e100.net; s=20230601; t=1771839593; x=1772444393;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=5/tsVKpvOF9hjEuBModNYiVpSPXtrrKrMQ519faKcis=;
-        b=i1Tcj0WQe9EZ2CEUwhVCyq3dUHW9mVnT0Ox3Fi76TREyvKi37uJHxgqtkmx/DMxvSr
-         jVYPGQY809yhzM0fXAoHYj0PGwzZklVVC8vy9ejLvuCLlR1+nt+nYrNioLpaJ/BhkBTd
-         ZmMeoLL4eDZ/M2pdwHJ1+gcr4RNBYXHZVcV92EmQkbUTprF+yOnk6Yis6Y6PPl7/YqQe
-         NPTpxOEQDNSZGbstz6JkJPceeLclgCMW0huDOA/eR37YG4a7YBH1Q5B6WlRD6SJ3dwSE
-         qLmymxmL/AGstPkMkxQVANiUjKx+1mA2z6cvBUK8Tr24nBqoaE8HBwM88DNbe9fKLkEY
-         YwEQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUSIfKBmPtf7TicbNChKw/EYEqA3r3XvPGYIlwdLjBjrN2N7LzE8kolgK0fSWihcBAl4D4ahJQh@vger.kernel.org
-X-Gm-Message-State: AOJu0YyjVvujN6qIx4FHhGxFb1Zw6sd/H/A5Cdkij0w5pSqfPKrIiHex
-	uWCiNLQ6BHxDdlJhP9pUQvJwfVmS4OqQksSW8+N8W/Na9Zjb0ooWcAWkqjk5FYNTDh+GtoWlPnK
-	aLJE4emN3NUEX1r6LAy5ReRhj1iJ9sAA=
-X-Gm-Gg: AZuq6aLG8/CXCt1XgqMfdotgVY9sMeeIn4WWkQel/hlnMHayeudbM48VbqdnVBV1KwP
-	7G39mNwXhwrB6tfjqFyFdPl+kQodjHAomWKWNZ500UzTwqVK8si57IPqBNbtGEn8bgjgSarXv1W
-	vOgtlTzAPRp4bWbxjPrjqfLDOPQP+Rq3W6YMBc33QVY6IRPs4/Ni9AusOB0joS4JqcCI8ZE7x2A
-	HR9/eQp/qj4ImXM0qxqnuefYjTU3Qll8I8VgOoyjdogV5wll6i98JMt2NIcwyrsb9f46+vXkti2
-	GW35TH3a2jCSB1R7YfkQ0HdeSpNCU2+Y4gULnnAc8g==
-X-Received: by 2002:a17:906:7307:b0:b88:5002:50c0 with SMTP id
- a640c23a62f3a-b90819db296mr564028666b.20.1771839325394; Mon, 23 Feb 2026
- 01:35:25 -0800 (PST)
+        bh=CdIlV/ChuwGIF+GC1fBCbGy0HUmwCjEnTpmiQxTAsXA=;
+        b=GKFCllXPO2uvPUMLuxRA93iUwkMT4FhvTzQazuJ153QFuBaOd0O4MBMTjY7UIKmTtz
+         AGcBYtbDgQSypWlFbsGs6cqe6qzICD55bAVnMozaGucYSE1BdA2BxUbAzCFQ1sB4Pzza
+         2H5oaX2AalzSnBmZsxQqzuGEtvAZs1vKj/oMxH3nlT4LHpYJpkJQBCzECtIPX+1dZZRR
+         CO8kFPQl3GKog2ZooStPh61RgzrvEUSA1Tw0mdV2L5wb5oEHPSXjMPQiwvj0rsQgvM/X
+         502gw/I+TjLzqZIq4f51vhBK/bGlVmozC/ieoQ6xa1WU+eRkPcmK8hE6NVT5uisBbxv5
+         5Uqw==
+X-Forwarded-Encrypted: i=1; AJvYcCXKGpadQhkGydPZ4BDUu7k8/NRNnIIax7nG4k7kJkiKtku/jAMf9ccwjIHaaD91BmC5EcrxN1wD@vger.kernel.org
+X-Gm-Message-State: AOJu0YyTXorc20Ob60yYwExkkYokqqbjO+AOIsggtSIs2LPOhCX+SrL6
+	ddE3lNtuk/GbJO+/yMoTM85zoY3QPquIJYVHvsnQ7jPeD7/myu4HZ8CSVLUZEQN3HNG8NxnUK8B
+	amlhRew2bHL1ojkPTMb+NOhNE0emSJ49pXTRPeJU=
+X-Gm-Gg: AZuq6aLJMRw66BT2eA72EIco9Ks1WnukQ7DdUi4mL4c0aNbX2icAO+uCPv1ff3YoY/A
+	oznKALLD1iJGbMWrkc1p/S0TNwftuiWjiJfxU8OiNsDe2YCfs3fifD2y3Hj/apLE8SkVkzuB6GK
+	VRknlzViUF2fbGbw+PNQk72N3FGU+GDj7gLmKGJ/4e0z6Qhr05/WOKf8I7+t0D7k/DfRCTrv7mo
+	9UQzZL0N+GfbYlBIAl4+Fv2DLCJ/JqNkqqHfqs3U31jeUCK8v5x4V0t1L7Fvxnq+VX77WYqzbEJ
+	+MmDSEGMrQDGB4i0DC8kVyRu+OTtSVq2dhVbS+pEDQ==
+X-Received: by 2002:a17:907:1c82:b0:b8e:9d66:f5fb with SMTP id
+ a640c23a62f3a-b9081740d0dmr424886666b.0.1771839592396; Mon, 23 Feb 2026
+ 01:39:52 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260223011210.3853517-1-neilb@ownmail.net> <20260223011210.3853517-12-neilb@ownmail.net>
-In-Reply-To: <20260223011210.3853517-12-neilb@ownmail.net>
+References: <20260223011210.3853517-1-neilb@ownmail.net> <20260223011210.3853517-13-neilb@ownmail.net>
+In-Reply-To: <20260223011210.3853517-13-neilb@ownmail.net>
 From: Amir Goldstein <amir73il@gmail.com>
-Date: Mon, 23 Feb 2026 11:35:14 +0200
-X-Gm-Features: AaiRm51zLgcrRbPb_4HmwkH5uY0J9aukMWrvlX2vP_E-cCHRJFMZshxY7_A02Xw
-Message-ID: <CAOQ4uxibL=2Z0FZMz5wMAo=JMaJouOVo3p7t3Fi3FR59U5Tu=g@mail.gmail.com>
-Subject: Re: [PATCH v2 11/15] ovl: pass name buffer to ovl_start_creating_temp()
+Date: Mon, 23 Feb 2026 11:39:39 +0200
+X-Gm-Features: AaiRm520yGF-zG-sk2MFqVbrXx4CSPHjFRw_GQJQRDsdMUgjtqZIz9W0G6HtkPM
+Message-ID: <CAOQ4uxg0k2TMdmxoTL5-HW=5njZijX=FzMgWgVBa2GuHYV3-Zg@mail.gmail.com>
+Subject: Re: [PATCH v2 12/15] ovl: change ovl_create_real() to get a new lock
+ when re-opening created file.
 To: NeilBrown <neil@brown.name>
 Cc: Christian Brauner <brauner@kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, 
 	David Howells <dhowells@redhat.com>, Jan Kara <jack@suse.cz>, Chuck Lever <chuck.lever@oracle.com>, 
@@ -107,71 +108,195 @@ On Mon, Feb 23, 2026 at 2:14=E2=80=AFAM NeilBrown <neilb@ownmail.net> wrote=
 >
 > From: NeilBrown <neil@brown.name>
 >
-> Now ovl_start_creating_temp() is passed a buffer in which to store the
-> temp name.  This will be useful in a future patch were ovl_create_real()
-> will need access to that name.
+> When ovl_create_real() is used to create a file on the upper filesystem
+> it needs to return the resulting dentry - positive and hashed.
+> It is usually the case the that dentry passed to the create function
+> (e.g.  vfs_create()) will be suitable but this is not guaranteed.  The
+> filesystem may unhash that dentry forcing a repeat lookup next time the
+> name is wanted.
+>
+> So ovl_create_real() must be (and is) aware of this and prepared to
+> perform that lookup to get a hash positive dentry.
+>
+> This is currently done under that same directory lock that provided
+> exclusion for the create.  Proposed changes to locking will make this
+> not possible - as the name, rather than the directory, will be locked.
+> The new APIs provided for lookup and locking do not and cannot support
+> this pattern.
+>
+> The lock isn't needed.  ovl_create_real() can drop the lock and then get
+> a new lock for the lookup - then check that the lookup returned the
+> correct inode.  In a well-behaved configuration where the upper
+> filesystem is not being modified by a third party, this will always work
+> reliably, and if there are separate modification it will fail cleanly.
+>
+> So change ovl_create_real() to drop the lock and call
+> ovl_start_creating_upper() to find the correct dentry.  Note that
+> start_creating doesn't fail if the name already exists.
+>
+> The lookup previously used the name from newdentry which was guaranteed
+> to be stable because the parent directory was locked.  As we now drop
+> the lock we lose that guarantee.  As newdentry is unhashed it is
+> unlikely for the name to change, but safest not to depend on that.  So
+> the expected name is now passed in to ovl_create_real() and that is
+> used.
+>
+> This removes the only remaining use of ovl_lookup_upper, so it is
+> removed.
 >
 > Signed-off-by: NeilBrown <neil@brown.name>
+
 Reviewed-by: Amir Goldstein <amir73il@gmail.com>
 
 > ---
->  fs/overlayfs/dir.c | 14 ++++++++------
->  1 file changed, 8 insertions(+), 6 deletions(-)
+>  fs/overlayfs/dir.c       | 36 ++++++++++++++++++++++++------------
+>  fs/overlayfs/overlayfs.h |  8 +-------
+>  fs/overlayfs/super.c     |  1 +
+>  3 files changed, 26 insertions(+), 19 deletions(-)
 >
 > diff --git a/fs/overlayfs/dir.c b/fs/overlayfs/dir.c
-> index ff3dbd1ca61f..c4feb89ad1e3 100644
+> index c4feb89ad1e3..6285069ccc59 100644
 > --- a/fs/overlayfs/dir.c
 > +++ b/fs/overlayfs/dir.c
-> @@ -66,10 +66,9 @@ void ovl_tempname(char name[OVL_TEMPNAME_SIZE])
+> @@ -159,7 +159,8 @@ int ovl_cleanup_and_whiteout(struct ovl_fs *ofs, stru=
+ct dentry *dir,
 >  }
 >
->  static struct dentry *ovl_start_creating_temp(struct ovl_fs *ofs,
-> -                                             struct dentry *workdir)
-> +                                             struct dentry *workdir,
-> +                                             char name[OVL_TEMPNAME_SIZE=
-])
+>  struct dentry *ovl_create_real(struct ovl_fs *ofs, struct dentry *parent=
+,
+> -                              struct dentry *newdentry, struct ovl_cattr=
+ *attr)
+> +                              struct dentry *newdentry, struct qstr *qna=
+me,
+> +                              struct ovl_cattr *attr)
 >  {
-> -       char name[OVL_TEMPNAME_SIZE];
-> -
->         ovl_tempname(name);
->         return start_creating(ovl_upper_mnt_idmap(ofs), workdir,
->                               &QSTR(name));
-> @@ -81,11 +80,12 @@ static struct dentry *ovl_whiteout(struct ovl_fs *ofs=
-)
->         struct dentry *whiteout, *link;
->         struct dentry *workdir =3D ofs->workdir;
->         struct inode *wdir =3D workdir->d_inode;
-> +       char name[OVL_TEMPNAME_SIZE];
->
->         guard(mutex)(&ofs->whiteout_lock);
->
->         if (!ofs->whiteout) {
-> -               whiteout =3D ovl_start_creating_temp(ofs, workdir);
-> +               whiteout =3D ovl_start_creating_temp(ofs, workdir, name);
->                 if (IS_ERR(whiteout))
->                         return whiteout;
->                 err =3D ovl_do_whiteout(ofs, wdir, whiteout);
-> @@ -97,7 +97,7 @@ static struct dentry *ovl_whiteout(struct ovl_fs *ofs)
->         }
->
->         if (!ofs->no_shared_whiteout) {
-> -               link =3D ovl_start_creating_temp(ofs, workdir);
-> +               link =3D ovl_start_creating_temp(ofs, workdir, name);
->                 if (IS_ERR(link))
->                         return link;
->                 err =3D ovl_do_link(ofs, ofs->whiteout, wdir, link);
-> @@ -247,7 +247,9 @@ struct dentry *ovl_create_temp(struct ovl_fs *ofs, st=
-ruct dentry *workdir,
->                                struct ovl_cattr *attr)
->  {
->         struct dentry *ret;
-> -       ret =3D ovl_start_creating_temp(ofs, workdir);
-> +       char name[OVL_TEMPNAME_SIZE];
+>         struct inode *dir =3D parent->d_inode;
+>         int err;
+> @@ -221,19 +222,29 @@ struct dentry *ovl_create_real(struct ovl_fs *ofs, =
+struct dentry *parent,
+>                 struct dentry *d;
+>                 /*
+>                  * Some filesystems (i.e. casefolded) may return an unhas=
+hed
+> -                * negative dentry from the ovl_lookup_upper() call befor=
+e
+> +                * negative dentry from the ovl_start_creating_upper() ca=
+ll before
+>                  * ovl_create_real().
+>                  * In that case, lookup again after making the newdentry
+>                  * positive, so ovl_create_upper() always returns a hashe=
+d
+> -                * positive dentry.
+> +                * positive dentry.  We lookup using qname which should b=
+e
+> +                * the same name as newentry, but is certain not to chang=
+e.
+> +                * As we have to drop the lock before the lookup a race
+> +                * could result in a lookup failure.  In that case we ret=
+urn
+> +                * an error.
+>                  */
+> -               d =3D ovl_lookup_upper(ofs, newdentry->d_name.name, paren=
+t,
+> -                                    newdentry->d_name.len);
+> -               dput(newdentry);
+> -               if (IS_ERR_OR_NULL(d))
+> +               end_creating_keep(newdentry);
+> +               d =3D ovl_start_creating_upper(ofs, parent, qname);
 > +
-> +       ret =3D ovl_start_creating_temp(ofs, workdir, name);
+> +               if (IS_ERR_OR_NULL(d)) {
+>                         err =3D d ? PTR_ERR(d) : -ENOENT;
+> -               else
+> +               } else if (d->d_inode !=3D newdentry->d_inode) {
+> +                       err =3D -EIO;
+> +                       dput(newdentry);
+> +               } else {
+> +                       dput(newdentry);
+>                         return d;
+> +               }
+> +               return ERR_PTR(err);
+>         }
+>  out:
+>         if (err) {
+> @@ -252,7 +263,7 @@ struct dentry *ovl_create_temp(struct ovl_fs *ofs, st=
+ruct dentry *workdir,
+>         ret =3D ovl_start_creating_temp(ofs, workdir, name);
 >         if (IS_ERR(ret))
 >                 return ret;
->         ret =3D ovl_create_real(ofs, workdir, ret, attr);
+> -       ret =3D ovl_create_real(ofs, workdir, ret, attr);
+> +       ret =3D ovl_create_real(ofs, workdir, ret, &QSTR(name), attr);
+>         return end_creating_keep(ret);
+>  }
+>
+> @@ -352,14 +363,15 @@ static int ovl_create_upper(struct dentry *dentry, =
+struct inode *inode,
+>         struct ovl_fs *ofs =3D OVL_FS(dentry->d_sb);
+>         struct dentry *upperdir =3D ovl_dentry_upper(dentry->d_parent);
+>         struct dentry *newdentry;
+> +       struct qstr qname =3D QSTR_LEN(dentry->d_name.name,
+> +                                    dentry->d_name.len);
+>         int err;
+>
+>         newdentry =3D ovl_start_creating_upper(ofs, upperdir,
+> -                                            &QSTR_LEN(dentry->d_name.nam=
+e,
+> -                                                      dentry->d_name.len=
+));
+> +                                            &qname);
+>         if (IS_ERR(newdentry))
+>                 return PTR_ERR(newdentry);
+> -       newdentry =3D ovl_create_real(ofs, upperdir, newdentry, attr);
+> +       newdentry =3D ovl_create_real(ofs, upperdir, newdentry, &qname, a=
+ttr);
+>         if (IS_ERR(newdentry))
+>                 return PTR_ERR(newdentry);
+>
+> diff --git a/fs/overlayfs/overlayfs.h b/fs/overlayfs/overlayfs.h
+> index cad2055ebf18..714a1cec3709 100644
+> --- a/fs/overlayfs/overlayfs.h
+> +++ b/fs/overlayfs/overlayfs.h
+> @@ -406,13 +406,6 @@ static inline struct file *ovl_do_tmpfile(struct ovl=
+_fs *ofs,
+>         return file;
+>  }
+>
+> -static inline struct dentry *ovl_lookup_upper(struct ovl_fs *ofs,
+> -                                             const char *name,
+> -                                             struct dentry *base, int le=
+n)
+> -{
+> -       return lookup_one(ovl_upper_mnt_idmap(ofs), &QSTR_LEN(name, len),=
+ base);
+> -}
+> -
+>  static inline struct dentry *ovl_lookup_upper_unlocked(struct ovl_fs *of=
+s,
+>                                                        const char *name,
+>                                                        struct dentry *bas=
+e,
+> @@ -888,6 +881,7 @@ struct ovl_cattr {
+>
+>  struct dentry *ovl_create_real(struct ovl_fs *ofs,
+>                                struct dentry *parent, struct dentry *newd=
+entry,
+> +                              struct qstr *qname,
+>                                struct ovl_cattr *attr);
+>  int ovl_cleanup(struct ovl_fs *ofs, struct dentry *workdir, struct dentr=
+y *dentry);
+>  #define OVL_TEMPNAME_SIZE 20
+> diff --git a/fs/overlayfs/super.c b/fs/overlayfs/super.c
+> index d4c12feec039..109643930b9f 100644
+> --- a/fs/overlayfs/super.c
+> +++ b/fs/overlayfs/super.c
+> @@ -634,6 +634,7 @@ static struct dentry *ovl_lookup_or_create(struct ovl=
+_fs *ofs,
+>         if (!IS_ERR(child)) {
+>                 if (!child->d_inode)
+>                         child =3D ovl_create_real(ofs, parent, child,
+> +                                               &QSTR(name),
+>                                                 OVL_CATTR(mode));
+>                 end_creating_keep(child);
+>         }
 > --
 > 2.50.0.107.gf914562f5916.dirty
 >
