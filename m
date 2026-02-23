@@ -1,171 +1,338 @@
-Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from flow-a3-smtp.messagingengine.com (flow-a3-smtp.messagingengine.com [103.168.172.138])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0BF0378D74
-	for <selinux@vger.kernel.org>; Mon, 23 Feb 2026 22:21:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.49
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771885303; cv=pass; b=mVDfV8us3sPiW50Y1xzLamU/JMSt0XeRrcgp/7gevjW2zawuskA3GznVDPJDcwXfs1DoyyVoUsMH7+LQe7Xy0p7UGE9nmyZIMN/DCHBuaviSkdkZ2gJe00sRigy85OopsuYCzkp1Rp4rNFIQFOVey9Q2LMQErmivYDyJh6TnWJ0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771885303; c=relaxed/simple;
-	bh=laA8fxKUOs+Cw7EhbSLmhA3l6QzLfOUFVFuQ38rQLqQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=X+gG2TtzOz6rfFYo+cyttx0FETQWAJJeXmFBH37QMBi4pooxFXfiK4Y6XYj2p1sse5Gn/MPDupWMImuEBSD2LfohijpwCtG14DzBt7acF3E2iYBlCjqKNYbt5pJhAxwDQReTJYgSudSvbe5n9jzLfNL57Gx/ldoJexQjLjJh5Zs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=CSZuTDLt; arc=pass smtp.client-ip=209.85.216.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA374379971;
+	Mon, 23 Feb 2026 22:21:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.138
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1771885311; cv=none; b=SJnmTCMSUT/Yn2YNDcIzk7jYrfdeFMFKdLbm2sNL4ajCaHC81wHssmTW7ZkNXwD6RE8q/MPztmunM8XYiq9ETZp3XWcKXN0KaR4Qp07kVbgu6oeXoYzl9Hzsv0iShtbIJjnT8IBHGbdVLzLIa6Jssubu57sO53/1ASBp1pE7lCg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1771885311; c=relaxed/simple;
+	bh=dM+orVg1M+gx4gejhpXDmj9vF5lhOO92gKDAcM5f5Yw=;
+	h=Content-Type:MIME-Version:From:To:Cc:Subject:In-reply-to:
+	 References:Date:Message-id; b=DxadUWur/E3sjyrnqW6+rk3xXNLCbUrkm+cSIeUYARbpRRuRrWKq0CUJAY/w3Ow3PUjlPz9Y4XtoZybRcnSa62FPJB9DrCnoMYWEzPyGmObkaMwQ6plw5wibE+KzIwKCcdxa3Cfp+dqOVJGaYrZ2qcet4B8xYf6clxtpeoKOlFQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ownmail.net; spf=pass smtp.mailfrom=ownmail.net; dkim=pass (2048-bit key) header.d=ownmail.net header.i=@ownmail.net header.b=TEIwR9nl; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=RyOg2bLr; arc=none smtp.client-ip=103.168.172.138
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ownmail.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ownmail.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="CSZuTDLt"
-Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-35851eadc17so2726805a91.2
-        for <selinux@vger.kernel.org>; Mon, 23 Feb 2026 14:21:41 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1771885301; cv=none;
-        d=google.com; s=arc-20240605;
-        b=CLHVHrGkOh/ESASTp2L6ZyT4TYTfi3OKvSp9ny3m4nG2+CZxsCeg/n31cclODEFhLl
-         VFJnyTsoe6xBmSQs8P2qQEb/X5nu5X3+JQAbg6vZP7YxwwMVDjJBMSgGUxkuD/j/+uyt
-         pdo217TnottlFoh86D0ger4UVOjEMoW8vRXvT3buXSA218OBmgni7THZrV4xCTHgkcrr
-         4b1LSumCEc+S2s+YgQG9zar4YQwUtSJ7fiGp09Eu37raaKgyVvhVgG0dmvpIrDjRJbtp
-         E7vqa2BMYLPhIk2pTTFP1al8dYDiCkL7lgM2Bi3+r9N7pqI8qos/UQUCHPKIVYcVgj0t
-         /dZg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=k9ZYfImaDpyTe2L1+2pEtc6yTABcUBTwYO7vVYurX8o=;
-        fh=uwfBbX4asEBojNmjZxypqUwI6Ij513eoL27uCYuHf1k=;
-        b=dFrgO2qkUwuG/4lEeI4OrB0VG1Z6Qll1kLVhRH8BHuLIEGjt+cWjDnjYair9vPgfgS
-         R8PMwzJ/APII0UN4rbI0Fa7I2cE5oeS6ylSALz/egwOTZpgNVua5mkGhXKlgPOSh0BG6
-         +CKAaiz/sBtSA2UJVCmMSFUjMJKnB5XSaUwz8NabEHL5Tvas7yJiwGaFHKm8uRzCQpGh
-         KyHUzt3OLMct+yaxP4yuLCCcQZ+E5TB3+nrzlZQulBWszOsD8V9ZDWb5rtRo+qYIldF1
-         yOYvzBgo+3DLAg6nBCMcZYDDhB7jpWfYZzQZ6j5s9Mc8KwkmWjuioo0eyqADe+NZxEd0
-         6Oow==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1771885301; x=1772490101; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=k9ZYfImaDpyTe2L1+2pEtc6yTABcUBTwYO7vVYurX8o=;
-        b=CSZuTDLt22UDdxVqNRHk0BvF8nUM5UfBRwe4Uxyi4a+mE/iwe803jR5iN3CHGpRJZR
-         +N9/vcbV+OT/trIi/0KyeVgobl2NBvdBXSvNbkllMzXUp02ba7IyJmQEyQjfY4P8BmqL
-         oK1qN8nlmBECXM02OXCowJ7hX8JrHqAi67bdM13E3SCXTu1VBoej2T49757ojsgWWbTi
-         /xksj1wJqb9xAKaq9EfBKOWp37fuhfBxP92oo7hpP0uzdnBnhwrzaEWPEIcHjDo4hhDM
-         lvhahe2Mei4ot98C0QgSdJn33e41ILmeDh5uGtsWQtxKZKEqO9aleiuB3aUKTp/d88Th
-         4OrA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771885301; x=1772490101;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=k9ZYfImaDpyTe2L1+2pEtc6yTABcUBTwYO7vVYurX8o=;
-        b=fMNJC0WOTKvrp6jUWj/SlE8QIr/AdAeHo0Oce2rSTu49nar0Y4dFDsmhuLt0eaX39H
-         E2Gz5rSVS/cZeYmwLJjnh3Fp5fVbK/++Fzp+4ZdunRU2wCLRWLjsMzcsfzzX3gLO9PF0
-         qBag+xzda3KDA3WaaGOOzEuThdcy7W933p8XM5PtsK8ZgcGuKztt/Rv5X5e72YKIap24
-         hHmJF+VUGf2FxeDfr4PQmn+AXJbO8ht7oO1pUJLRp7YNl+ShWOVPkPpHt/dhjM3TT5XR
-         NfuqR7rKl8sFuIqtgtOYB1DhvNRxzjv4cNgpxETxSSuCSkihmo4kIXDRIy12mHtwhCrq
-         ggFg==
-X-Forwarded-Encrypted: i=1; AJvYcCUNHo635G/WjaZCZwfwRWZ+jQOYR2uU46+ZLTxBntQAgGGESawBsW12A6DnYmmklzdS+PAJwJPQ@vger.kernel.org
-X-Gm-Message-State: AOJu0YylM3xd9trqYJ+WcHvrPHLXVbDPN8UKRFD+uR4UQdQtaCG1wbUV
-	qXFmyw0z/1zvtDXr5W1srSR32HEMmV+s9UNkGhkS4k0KfXUa8cdaeTTqA64qaooXB/VRR57Qu+0
-	0/E6Zqu2AMFrGQwHssFp1fFz4lS5tNbJzUoQY0EIU
-X-Gm-Gg: ATEYQzzN+LP/hVOWlh1EUkxDMDQVNDsYy9C7VoKHgSGc6Fyh4wixA5ZwhFehrDowfBK
-	/Nhn6/b+7fduc/wxRpFk1WyzvytZQ6S6s0b9GxIqN1idZoP3AXgYg84dSAYjF1QEvBUAlfq0R3E
-	SSaO9rXia6tYpmxyN+V4H1gpuKeamTNnwfLyPIA+sO1Do8vGaD9Mi5Px6vYfA8X/nRIJcWFWCJ6
-	zC1zlbJsU9gBuIv0zOSY+tUXVEnWG84DCWEEAXsEvjlH0hKhndNdgVRLszIZhhOJMmjVKXelqXa
-	e14U7CPvOxboTOMzNw==
-X-Received: by 2002:a17:90b:3d46:b0:356:2fee:92cb with SMTP id
- 98e67ed59e1d1-358ae80a6b5mr7566836a91.8.1771885301191; Mon, 23 Feb 2026
- 14:21:41 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ownmail.net header.i=@ownmail.net header.b="TEIwR9nl";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="RyOg2bLr"
+Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
+	by mailflow.phl.internal (Postfix) with ESMTP id 27B3213805B8;
+	Mon, 23 Feb 2026 17:21:49 -0500 (EST)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-02.internal (MEProxy); Mon, 23 Feb 2026 17:21:49 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ownmail.net; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:reply-to:subject:subject:to:to; s=fm3; t=
+	1771885309; x=1771892509; bh=QscLC93BCn/K88HS4BcmEHkBzeHFa+prXXF
+	RZ+3co+s=; b=TEIwR9nlLLMV+a+XHjbRROsUBUFvaWn70jzOTYE2XRa265wyOEY
+	1rbgL0QDDpuda2vuAdDAZPH9f5+Kq4LZLdiM7kj1w5zdygzX8zkA7UCO6RcIcjoJ
+	/3heBBGePEEore6u0lcs4UtP7l+tfbApYauxqUhZR6TulhKVKKnTCq6AMh9j2cBb
+	Hd4zENKPxXTC/uRtvYOKWSwMCBuP7Y3HoVrmCHDUX7HcYLdyyojwrlse2ojhRmQk
+	GGsvhtfHhdGnH936x5+IeiDBvs1DceF/T5s1TDt3Sgb85ZasmPNAnJxuSU7U9nZr
+	TTczRqJilh8Rj6azBSAmgAQWWJRnLNggrYw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1771885309; x=
+	1771892509; bh=QscLC93BCn/K88HS4BcmEHkBzeHFa+prXXFRZ+3co+s=; b=R
+	yOg2bLr4RvOTTU69B+aGgK+C+dOAniXOCtg2ornrFxNiuvCQTddKrb21ux9az24W
+	pBdSDY2ZSAXcZi7SabD8oRbO5/GN8QdiUiFe0rNjeb0ZRnUWio6njA+9KBrhmz/M
+	gDFGRk30ISrl4YWh8k433WITg7J8MmDQcpQJYrlpNI+2RyCSmMchuNCRFabxm/0p
+	QrvMztF9UFcbtOS6FpmnpMeQE7RZnYs9sX/iUd77Hn1D7OarZU/M8Qn3MbNHR9WG
+	90v3uGmE5Nr7JTsittQ0aI1o6HnIz2DB/z2bpcenvrwqpcOjfT4lr40mUOJRv96N
+	/PUeBH+/xvwPj9X3K5Yhw==
+X-ME-Sender: <xms:_NKcaRt_XOTF-o-_5LjLDIrqYbEREM-Zl4DokEDYYYnME9GvDAVqxQ>
+    <xme:_NKcaWmPGkUvLJaJbwEGgg4EevvAGRPvCOUjUKeeTAxkcRsVOQl5OH0E5FGj76H0x
+    ltEvYhObscVTqef0cyE-RI3W781BP9H4BYUDEirx_cxLojrdg>
+X-ME-Received: <xmr:_NKcaQmyPbTYgcEutw4lhHx6bPlo43rUcOxtVQ2Pn8rRqwrV2HikKa_FqJuEMFw7WjZN1wuTqCS-ZoXIr5sCX7yPikmOPg07T_b-e5XgGHuD>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddvfeekgeefucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurheptgfgggfhvfevufgjfhffkfhrsehtqhertddttdejnecuhfhrohhmpefpvghilheu
+    rhhofihnuceonhgvihhlsgesohifnhhmrghilhdrnhgvtheqnecuggftrfgrthhtvghrnh
+    epieefhedthfefgfeigfefgeeujeetkefhleffkedvfeffieejudekueefheegtddtnecu
+    ffhomhgrihhnpehgihhthhhusgdrtghomhdpvhhfshdrmhgunecuvehluhhsthgvrhfuih
+    iivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepnhgvihhlsgesohifnhhmrghilhdr
+    nhgvthdpnhgspghrtghpthhtohepvdefpdhmohguvgepshhmthhpohhuthdprhgtphhtth
+    hopehvihhrohesiigvnhhivhdrlhhinhhugidrohhrghdruhhkpdhrtghpthhtohepshgv
+    lhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqd
+    hunhhiohhnfhhssehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhu
+    gidqshgvtghurhhithihqdhmohguuhhlvgesvhhgvghrrdhkvghrnhgvlhdrohhrghdprh
+    gtphhtthhopehlihhnuhigqdhnfhhssehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghp
+    thhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtg
+    hpthhtoheplhhinhhugidqfhhsuggvvhgvlhesvhhgvghrrdhkvghrnhgvlhdrohhrghdp
+    rhgtphhtthhopehmihhklhhoshesshiivghrvgguihdrhhhupdhrtghpthhtohepjhgrtg
+    hksehsuhhsvgdrtgii
+X-ME-Proxy: <xmx:_NKcaRh_4a1NmDcThYSlt8o_SSi7gFLj9gjFEXGrKcxWZ2ox9udfOg>
+    <xmx:_NKcaSFeUZhSxrGOpi0bN5ef_NkRBr2Sf-JtVuhPIXeiTOBJVWYZZw>
+    <xmx:_NKcacavEbPR0orVJuQ27EGmxygwZIRZKvsrOd8XroQehwPD9jaKxA>
+    <xmx:_NKcaVMYaOWkqj7U9AIjEqMPtT1TkFOBUmnNbg5G684jXpoIdR_40A>
+    <xmx:_dKcaYkCkSSTDZx1SUaAwVyI1claiFN0jBCTiIsXy7GgOwOyBJdkdsP9>
+Feedback-ID: i9d664b8f:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 23 Feb 2026 17:21:41 -0500 (EST)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260220195405.30612-1-danieldurning.work@gmail.com> <9229d70d-aa7a-459f-b005-695e99888783@schaufler-ca.com>
-In-Reply-To: <9229d70d-aa7a-459f-b005-695e99888783@schaufler-ca.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 23 Feb 2026 17:21:29 -0500
-X-Gm-Features: AaiRm52qgdM1-bPMDqdvit-s0syTJEbYBD7y07LXgBdLcQeQROdMVa1XCyRpsj4
-Message-ID: <CAHC9VhSp+X8YNocS7sDz+UyhdJh2yY8CRoi6dwV1eOGdCu9f9w@mail.gmail.com>
-Subject: Re: [PATCH] lsm: move inode IS_PRIVATE checks to individual LSMs
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: danieldurning.work@gmail.com, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org, linux-integrity@vger.kernel.org, 
-	stephen.smalley.work@gmail.com, jmorris@namei.org, serge@hallyn.com, 
-	john.johansen@canonical.com, zohar@linux.ibm.com, roberto.sassu@huawei.com, 
-	dmitry.kasatkin@gmail.com, mic@digikod.net, takedakn@nttdata.co.jp, 
-	penguin-kernel@i-love.sakura.ne.jp
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+From: NeilBrown <neilb@ownmail.net>
+To: "Amir Goldstein" <amir73il@gmail.com>
+Cc: "Chris Mason" <clm@meta.com>, "Christian Brauner" <brauner@kernel.org>,
+ "Alexander Viro" <viro@zeniv.linux.org.uk>,
+ "David Howells" <dhowells@redhat.com>, "Jan Kara" <jack@suse.cz>,
+ "Chuck Lever" <chuck.lever@oracle.com>, "Jeff Layton" <jlayton@kernel.org>,
+ "Miklos Szeredi" <miklos@szeredi.hu>,
+ "John Johansen" <john.johansen@canonical.com>,
+ "Paul Moore" <paul@paul-moore.com>, "James Morris" <jmorris@namei.org>,
+ "Serge E. Hallyn" <serge@hallyn.com>,
+ "Stephen Smalley" <stephen.smalley.work@gmail.com>,
+ "Darrick J. Wong" <djwong@kernel.org>, linux-kernel@vger.kernel.org,
+ netfs@lists.linux.dev, linux-fsdevel@vger.kernel.org,
+ linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org,
+ apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
+ selinux@vger.kernel.org
+Subject: Re: [PATCH v2 09/15] ovl: Simplify ovl_lookup_real_one()
+In-reply-to:
+ <CAOQ4uxirM8dW9rOw4SvGtfH-s0Eg9LGuFk1aZooMvEDc=2tbyA@mail.gmail.com>
+References: <20260223011210.3853517-1-neilb@ownmail.net>,
+ <20260223011210.3853517-10-neilb@ownmail.net>,
+ <20260223132027.4165509-1-clm@meta.com>,
+ <CAOQ4uxirM8dW9rOw4SvGtfH-s0Eg9LGuFk1aZooMvEDc=2tbyA@mail.gmail.com>
+Date: Tue, 24 Feb 2026 09:21:40 +1100
+Message-id: <177188530015.8396.7140929443922458208@noble.neil.brown.name>
+Reply-To: NeilBrown <neil@brown.name>
 
-On Fri, Feb 20, 2026 at 4:13=E2=80=AFPM Casey Schaufler <casey@schaufler-ca=
-.com> wrote:
-> On 2/20/2026 11:54 AM, danieldurning.work@gmail.com wrote:
-> > From: Daniel Durning <danieldurning.work@gmail.com>
+On Tue, 24 Feb 2026, Amir Goldstein wrote:
+> On Mon, Feb 23, 2026 at 2:20=E2=80=AFPM Chris Mason <clm@meta.com> wrote:
 > >
-> > Move responsibility of bypassing S_PRIVATE inodes to the
-> > individual LSMs. Originally the LSM framework would skip calling
-> > the hooks on any inode that was marked S_PRIVATE. This would
-> > prevent the LSMs from controlling access to any inodes marked as
-> > such (ie. pidfds). We now perform the same IS_PRIVATE checks
-> > within the LSMs instead. This is consistent with the general goal
-> > of deferring as much as possible to the individual LSMs.
->
-> Um ... ick?
->
-> Sure, we generally want the LSMs to be responsible for their own
-> decisions, but that doesn't look like the point to me. What appears
-> to be the issue is that pidfs isn't using S_PRIVATE in a way that
-> conveys the necessary information to the LSMs.
+> > NeilBrown <neilb@ownmail.net> wrote:
+> > > From: NeilBrown <neil@brown.name>
+> > >
+> > > The primary purpose of this patch is to remove the locking from
+> > > ovl_lookup_real_one() as part of centralising all locking of directories
+> > > for name operations.
+> > >
+> > > The locking here isn't needed.  By performing consistency tests after
+> > > the lookup we can be sure that the result of the lookup was valid at
+> > > least for a moment, which is all the original code promised.
+> > >
+> > > lookup_noperm_unlocked() is used for the lookup and it will take the
+> > > lock if needed only where it is needed.
+> > >
+> > > Also:
+> > >  - don't take a reference to real->d_parent.  The parent is
+> > >    only use for a pointer comparison, and no reference is needed for
+> > >    that.
+> > >  - Several "if" statements have a "goto" followed by "else" - the
+> > >    else isn't needed: the following statement can directly follow
+> > >    the "if" as a new statement
+> > >  - Use a consistent pattern of setting "err" before performing a test
+> > >    and possibly going to "fail".
+> > >  - remove the "out" label (now that we don't need to dput(parent) or
+> > >    unlock) and simply return from fail:.
+> >
+> > Hi everyone,
+> >
+> > Amir asked me to run these through, and this commit was flagged.  I recen=
+tly
+> > changed the prompts to include some vfs knowledge:
+>=20
+> Thanks Chris!
+>=20
+> >
+> > https://github.com/masoncl/review-prompts/blob/main/kernel/subsystem/vfs.=
+md
+> >
+> > And I also put in some words to make it prefer reporting problems that mi=
+ght
+> > not be bugs, but that do violate some rule in the .md files.  This might
+> > be a false positive from that new shift toward blindly trusting the guide=
+s,
+> > but I'll let everyone here decide:
+> >
+> > commit d1bfcef048896cdc9e4c57e3249b6ad344d64c02
+> > Author: NeilBrown <neil@brown.name>
+> >
+> > ovl: Simplify ovl_lookup_real_one()
+> >
+> > This patch removes locking from ovl_lookup_real_one() and reorganizes the
+> > control flow. The function now uses lookup_noperm_unlocked() instead of
+> > lookup_noperm() and performs consistency validation after the lookup rath=
+er
+> > than holding a lock during the operation.
+> >
+> > > diff --git a/fs/overlayfs/export.c b/fs/overlayfs/export.c
+> > > index 83f80fdb15674..b448fc9424b64 100644
+> > > --- a/fs/overlayfs/export.c
+> > > +++ b/fs/overlayfs/export.c
+> > > @@ -349,69 +349,64 @@ static struct dentry *ovl_dentry_real_at(struct d=
+entry *dentry, int idx)
+> > >       return NULL;
+> > >  }
+> > >
+> > > -/*
+> > > - * Lookup a child overlay dentry to get a connected overlay dentry who=
+se real
+> > > - * dentry is @real. If @real is on upper layer, we lookup a child over=
+lay
+> > > - * dentry with the same name as the real dentry. Otherwise, we need to=
+ consult
+> > > - * index for lookup.
+> > > +/**
+> > > + * ovl_lookup_real_one -  Lookup a child overlay dentry to get an over=
+lay dentry whose real dentry is given
+> > > + * @connected: parent overlay dentry
+> > > + * @real: given child real dentry
+> > > + * @layer: layer in which @real exists
+> > > + *
+> > > + *
+> > > + * Lookup a child overlay dentry in @connected with the same name as t=
+he @real
+> > > + * dentry.  Then check that the parent of the result is the real dentr=
+y for
+> > > + * @connected, and @real is the real dentry for the result.
+> > > + *
+> > > + * Returns:
+> > > + *   %-ECHILD if the parent of @real is no longer the real dentry for =
+@connected.
+> > > + *   %-ESTALE if @real is no the real dentry of the found dentry.
+> >                                        ^^
+> > There's a typo here: "is no the" should be "is not the".
+> >
+> > > + *   Otherwise the found dentry is returned.
+> > >   */
+> > >  static struct dentry *ovl_lookup_real_one(struct dentry *connected,
+> > >                                         struct dentry *real,
+> > >                                         const struct ovl_layer *layer)
+> > >  {
+> > > -     struct inode *dir =3D d_inode(connected);
+> > > -     struct dentry *this, *parent =3D NULL;
+> > > +     struct dentry *this;
+> > >       struct name_snapshot name;
+> > >       int err;
+> > >
+> > >       /*
+> > > -      * Lookup child overlay dentry by real name. The dir mutex protec=
+ts us
+> > > -      * from racing with overlay rename. If the overlay dentry that is=
+ above
+> > > -      * real has already been moved to a parent that is not under the
+> > > -      * connected overlay dir, we return -ECHILD and restart the looku=
+p of
+> > > -      * connected real path from the top.
+> > > -      */
+> > > -     inode_lock_nested(dir, I_MUTEX_PARENT);
+> > > -     err =3D -ECHILD;
+> > > -     parent =3D dget_parent(real);
+> > > -     if (ovl_dentry_real_at(connected, layer->idx) !=3D parent)
+> > > -             goto fail;
+> > > -
+> > > -     /*
+> > > -      * We also need to take a snapshot of real dentry name to protect=
+ us
+> > > +      * We need to take a snapshot of real dentry name to protect us
+> > >        * from racing with underlying layer rename. In this case, we don=
+'t
+> > >        * care about returning ESTALE, only from dereferencing a free na=
+me
+> > >        * pointer because we hold no lock on the real dentry.
+> > >        */
+> > >       take_dentry_name_snapshot(&name, real);
+> > > -     /*
+> > > -      * No idmap handling here: it's an internal lookup.
+> > > -      */
+> > > -     this =3D lookup_noperm(&name.name, connected);
+> > > +     this =3D lookup_noperm_unlocked(&name.name, connected);
+> > >       release_dentry_name_snapshot(&name);
+> > > +
+> > > +     err =3D -ECHILD;
+> > > +     if (ovl_dentry_real_at(connected, layer->idx) !=3D real->d_parent)
+> > > +             goto fail;
+> > > +
+> >
+> > A subsystem pattern flags this as potentially concerning: the VFS subsyst=
+em
+> > guide indicates that TOCTOU validation checking d_parent should also check
+> > d_unhashed() because a dentry can be unhashed (removed from dcache by
+> > concurrent operations) while its d_parent pointer remains unchanged.
+> >
+> > The old code held inode_lock_nested(dir, I_MUTEX_PARENT) during the entire
+> > lookup and validation, which serialized with operations that could unhash=
+ the
+> > dentry. The new lockless pattern creates a window where:
+> >
+> > 1. lookup_noperm_unlocked() completes and returns dentry `this`
+> > 2. A concurrent unlink/remove operation unhashes `this`
+> > 3. The d_parent validation passes (parent pointer unchanged)
+> > 4. The function returns an unhashed dentry
+> >
+> > Other overlayfs code uses the complete pattern. For example, in
+> > ovl_lock_rename_workdir() at fs/overlayfs/util.c:
+> >
+> >     if (work->d_parent !=3D workdir || d_unhashed(work)) {
+> >         ...
+> >     }
+> >
+> > Could this validation miss a race where the dentry is unhashed but d_pare=
+nt
+> > still matches? The subsequent checks (!this->d_inode for -ENOENT,
+> > wrong real dentry for -ESTALE) might catch some cases, but is that
+> > sufficient for all the scenarios where an unhashed dentry could cause
+> > problems?
+> >
+>=20
+> It's a very good comment and very important rule to check, since
+> we have at least 3 fix commits on breaking this rule, but as this
+> code is utterly confusing to most human I do not blame LLM for getting
+> confused here.
+>=20
+> The lock not taken on 'dir' which is the overlayfs inode and the checked
+> 'real' dentry is on the underlying fs.
+>=20
+> Therefore, the check of real->d_parent was not protected in old code as
+> well as in new code - it is a mere best effort sanity check, so I think
+> there is no added risk here.
+>=20
+> Neil, do you agree?
 
-First off, consider this the annual reminder for everyone to *please*
-trim their replies when discussing things on-list.  Everything is
-archived on lore, we're not losing anything, and it makes things *so*
-much easier to read if we don't have to skim over the entire email to
-make sure we haven't missed any comments.
+Yes, I agree.
 
-Now, back to the S_PRIVATE issue ...
+The relevant part of Chris' prompt is:
 
-I was the one who first suggested (it may have been on the SELinux
-list, or in an off-list discussion, not sure?) that moving the
-S_PRIVATE check into the individual LSMs was a way to work around the
-issue with pidfd/pidfs, so please don't blame Daniel for this, he has
-been doing good work trying to solve a rather ugly problem.
+ When a dentry reference is obtained without holding the parent inode
+ lock (e.g., via lookup, creation, or cached reference), and the lock is
+ acquired later, a TOCTOU window exists=20
 
-> > This reorganization enables the LSMs to eventually implement
-> > checks or labeling for some specific S_PRIVATE inodes like pidfds.
->
-> We could consider these or similar changes when that eventuality occurs.
+"the lock is acquired later" is significant.  In this code the lock
+hasn't been acquired so the rule doesn't apply.
 
-To be clear, that time is now, that is just a dependency of that which
-needs to be sorted out first.
+In this code I don't think we are testing real->d_parent, we are testing
+ovl_dentry_real_at(connected, layer->idx) and making sure it is
+consistent.
+It is true that "real" might have been renamed and that would cause a
+failure too, but that isn't really interesting.  It could be renamed
+just after the test just as easily (as we don't hold any locks).
+In general overlayfs doesn't try to handle independent changes in the
+underlying filesystems beyond "don't crash".
 
-> I would strongly suggest that this is a pidfs issue, not an LSM
-> infrastructure issue.
+So it was a good comment to get, but I don't think there is any need to
+change the code (though I have fixed the typo).
 
-I'm not going to argue with that, and perhaps that is a good next
-step: send a quick RFC patch to the VFS folks, with the LSM list CC'd,
-that drops setting the S_PRIVATE flag to see if they complain too
-loudly.  Based on other threads, Christian is aware that we are
-starting to look at better/proper handling of pidfds/pidfs so he may
-be open to dropping S_PRIVATE since it doesn't really have much impact
-outside of the LSM, but who knows; the VFS folks have been growing a
-bit more anti-LSM as of late.
+Thanks,
+NeilBrown
 
-diff --git a/fs/pidfs.c b/fs/pidfs.c
-index 318253344b5c..4cec73b4cbcf 100644
---- a/fs/pidfs.c
-+++ b/fs/pidfs.c
-@@ -921,7 +921,7 @@ static int pidfs_init_inode(struct inode *inode, void *=
-data)
-       const struct pid *pid =3D data;
 
-       inode->i_private =3D data;
--       inode->i_flags |=3D S_PRIVATE | S_ANON_INODE;
-+       inode->i_flags |=3D S_ANON_INODE;
-       /* We allow to set xattrs. */
-       inode->i_flags &=3D ~S_IMMUTABLE;
-       inode->i_mode |=3D S_IRWXU;
+>=20
+> Thanks,
+> Amir.
+>=20
 
---=20
-paul-moore.com
