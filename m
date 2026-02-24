@@ -1,130 +1,153 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA46137BE91;
-	Tue, 24 Feb 2026 11:18:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771931936; cv=none; b=Ldl3Iq5xQJ5pc55x5JMuVhJ5bhp7oDGHXZvDED4pPscpgAt9JJhNSD2W+iQrz9utC8vndy+N7Q9y32EKv2aoigXY3myLQIj4Qccd1xhzNDTKGp4TsXoh6TprJLGoc0YjqkiSJvBGrdpqwy4O/OTM+XYeEoTkipsLbOwrFRd43z8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771931936; c=relaxed/simple;
-	bh=CATKDKa2uGpd7sHZMSNUih88RUZlznJauHdO/GUeTF4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WjWew3+v3xljY8KSLFkqd3i6TazsdCwMefn3Pws/rRjkbKaNDXt1224rrhkWTGB4hYGRRxshDgi3rJUz73UiFT6a5PmoeEx4N3xoNKXNIsDfg1AB3oXTmgUG0HeLIEtgFvGhYELUfcGeu730HOnhBP/Sb+7PoPnl9RSkqGy5Z6E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Wxf1lCXl; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DB613A0B18
+	for <selinux@vger.kernel.org>; Tue, 24 Feb 2026 14:44:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.181
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1771944298; cv=pass; b=qRPze/N3Q/i5Z7uNjZ3XCf4GpC/Uyq5PgEuIobwpgpPCtBXShQTBiVducVKS/UQXE49iMv4vspGXDF3uMGr7HfefmLktmkWtw/uIhBSSgtz0NhJ0P7PlOp87MmkbcuTo2BsFNu+XiCimnVomBWNZF3AG7WAOKjTtnlQKs8f9M4s=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1771944298; c=relaxed/simple;
+	bh=NpXDBXAqbPlLtzWPxOL/h0QZP9LJz3X72C7AQTPy0jA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=rZmXiDz66dEoZrvSGdukOF1N79Cbo1vVF+AltpkcSV9nNlKF5pfeLS6KJb2eaBnhyVvGWfLZ7gRVgD1pN5jLzoZ3hMIfJ6woGDMxxrUUekfTvtZCoCxrMru5XdqKCmPscrlXhjC7e9Ctov0wogbOwosLxYONdDKfIXGmlOWogS8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LBOcavK0; arc=pass smtp.client-ip=209.85.215.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Wxf1lCXl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98C26C19424;
-	Tue, 24 Feb 2026 11:18:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771931936;
-	bh=CATKDKa2uGpd7sHZMSNUih88RUZlznJauHdO/GUeTF4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Wxf1lCXl+lJ0Co7kXivrfwAqGXijzoffhjR9eZU+NmPDftcplF9o3Qsw5NFAiBIhR
-	 0kIMnNjSYLlwFUxNvP9VY0YhI0gn06UvM2j05Z5DYQeDJJfkYTrB0xoAin3gEKBNeJ
-	 UvoI7s+Rvujr5r/TOT9tKA5/v+VslFKJXjdQCzobvuGAfg1Ggw9ezB1Z8/ZICGQAFd
-	 bwhMnOqnAK7amG7auTuDHZ6m+D4WfEgI54SYKfP1d3mCn6NYw4EmvNnIqmdjKDulx2
-	 4QpTGbSOdVsr8mHI3+zrBbM4Yar3zCS2W5f0rTEfJwIS+YZjalFEh+7IZo/2drV9HZ
-	 UiaoNkcmBtyEA==
-Date: Tue, 24 Feb 2026 12:18:51 +0100
-From: Christian Brauner <brauner@kernel.org>
-To: Daniel Durning <danieldurning.work@gmail.com>
-Cc: linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org, viro@zeniv.linux.org.uk, jack@suse.cz, paul@paul-moore.com, 
-	stephen.smalley.work@gmail.com, omosnace@redhat.com, Oleg Nesterov <oleg@redhat.com>
-Subject: Re: [RFC PATCH] fs/pidfs: Add permission check to pidfd_info()
-Message-ID: <20260224-wohle-abarbeiten-25effeed0479@brauner>
-References: <20260206180248.12418-1-danieldurning.work@gmail.com>
- <20260209-spanplatten-zerrt-73851db30f18@brauner>
- <CAKrb_fEXR0uQnX5iK-ACH=amKMQ8qBSPGXmJb=1PgvEq8qsDEQ@mail.gmail.com>
- <20260217-abgedankt-eilte-2386c98b3ef7@brauner>
- <CAKrb_fFEvf5VzY_-zcc800wjVGOFbiGrpzC7S6Ghy9qhYJrZ1w@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LBOcavK0"
+Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-c6e1e748dc1so1542047a12.1
+        for <selinux@vger.kernel.org>; Tue, 24 Feb 2026 06:44:56 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1771944296; cv=none;
+        d=google.com; s=arc-20240605;
+        b=Z04HgzeEyYWuG+pWYeDueHk9jAiCBHu4/C6eiwwLEiOX3DiVpWl5DcV+YGTiGwtMww
+         m9gQrVJJMtSaQH3zosEK/SuHDyEQ18D8yrCkL2u4YZ08AMjgmbSIjQfuJUKiL5tFVB06
+         PPql0w2vr7QXpD3qlsGAyfac8vfLkz56itavYxieGk8jGPHUU+lRnkVQyvGFjKg3OIRW
+         1To2yG56cPLs6hfr2mUWx5Pvx/xYbTmeFFtgFKyztexluoqRf3eRFfjyU55BP/2tmIUa
+         c51v0AnC248SdHmZgmZcXHTwz08FfkvESjZH/LaKo1bLTwcJ6OliDpknw9FO6EKyUI7L
+         74EQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=g3vFWFpXe0pZI7fYc1bsMNxvQ7fGJt0aDflHuDb/YTs=;
+        fh=ShtU1g3JYjTfICXzx1DEbJsWls8pCMNYpLxxqR6sf+0=;
+        b=D4BPSn6akuNNqtaEi6gLs0syGWlVU8BuhvyPCd8hwkurL+ckmBgViQLdCNP+HNmNbn
+         gs+JEmp5Cvh07iykF/hzezOgGd7nvUa+/mF/v58UYFNgFANWWyi2cwGvLTf1W9EGYY9K
+         namDgeOyattpVfxUyeIJwQjEmdkPhKd9UMBQF0EqfOCJxH6stMtuc2iaKfZTI58wL7+W
+         ZCFx6nNtuEh5h20U8Qzieny2yvp2lm8u24uD7kZDCMbbt4rDNhNaaTp4DXS/2IvJoVKj
+         6cyG57s9EkZDvb+WGM1hUwpBmSL6AOHM4H9K9ybJ/orMbbU2wbzImfd9iJEpB4D5/Red
+         0wFA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1771944296; x=1772549096; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=g3vFWFpXe0pZI7fYc1bsMNxvQ7fGJt0aDflHuDb/YTs=;
+        b=LBOcavK0uZWARHpfwTPAPRL5N89Z1QVZ43J6IN1qDaESM80vqGti73ZLcQ2HqG8aLQ
+         FP4xrvcPMnUTPHoo+zyhHmBSI6Q0wLvzsoh5iVk3aifVv0xFKbCeuAkeQYp5Vc9FrYni
+         5LSl679JJ0OP7GlIqLGhgA57/k+40Mu6UHwz3k4Fx94frpv4tQItF5rFAA7XVGoH2q8n
+         OhP8N71bZ4OtpTypA9Z8inSlfz/QYYT04pnSWEX9LMRe3/gP7IsrDOd6Mj19H2NAO2zK
+         7xv0bp3GMOxqTSyG+sx0m0Tg+n24tMxDiiGlsi4qzxfLC1/81hu+Pp6I55JIwNNbLALT
+         /byg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771944296; x=1772549096;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=g3vFWFpXe0pZI7fYc1bsMNxvQ7fGJt0aDflHuDb/YTs=;
+        b=uDnf3yu4gVRXrF39iLavqAq6hvN9doSAA35DddGY57qXpBXJ2udErGpgbAGPCiwcsD
+         0cbwRtO9L2My6lFK8KGOVOsVwObpsdIoW/8YZsBXhf0lxuZqdHj69PCXOQYR+N/6XN/D
+         qFlaD7eAAs52kZydAM4/5/+VhJI8ZsSmEznrRTkrz5alREjTAwYdtv0wCZ0qghF3LE+X
+         fxgqVCNGsyEAgK0b9hSUTBSqQb+AsC4qHqj0PjU1zKvublE37Jd8LL6hf+84d2tdf3JV
+         mxtLcuu0E/e0U8ciO4ixz8CrzhFF5N7y4ECk3gFK/jbBXzqt3ON4LOXBlerRJGh68MED
+         5zlg==
+X-Forwarded-Encrypted: i=1; AJvYcCW6b7IgBj5OPzJdJg44BLYz+zr0Vi8ApC3w1BN6OmJAY3pjqd4U74DEvZlMPb2PNfbEfQybVeTz@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy30PpdQH6xj0M0gFd88CBpiVhsbPRHuUF1XCoEmuJk2ybS/Csr
+	Z2xAtzk4mRWdUeKHILj7bzDSnXrRC4ee3GS32//FcQESDwCfY88RQJmbteB35/yEBogd9jsO/hx
+	ob1kmWZpl96N2ALdXzyGLke6IWywnU4k=
+X-Gm-Gg: ATEYQzylznG850wR5lgg3/ECiPxu4ZXYuzatREugKSdLGAh5sfj8f81GU0JV4qBQFHd
+	CArZoRJ5pXJ72ip5fHc/f4mVR1r8xZXniaQDJXhaBG0OIOgGZhFXRvLB/mMC4egcI+0IZngMte2
+	x1BwnWLAQZd5UpL/fnTrVQb4cD9niUXHEP4yUAOxzpUkw8pG5KR2WMsbFt4UdhLETnGZWdbizP6
+	MdmJX66ZDmu5PB/0weoF+pPQ4GSukp1TR8JPp4WhbjeAaPvdin6e/0RvmUYJjC2ckuvIGw63Tzm
+	iu8stfU=
+X-Received: by 2002:a17:90a:e7d1:b0:343:3898:e7c7 with SMTP id
+ 98e67ed59e1d1-35903849c76mr121288a91.12.1771944296292; Tue, 24 Feb 2026
+ 06:44:56 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAKrb_fFEvf5VzY_-zcc800wjVGOFbiGrpzC7S6Ghy9qhYJrZ1w@mail.gmail.com>
+References: <20260220195405.30612-1-danieldurning.work@gmail.com>
+ <9229d70d-aa7a-459f-b005-695e99888783@schaufler-ca.com> <CAHC9VhSp+X8YNocS7sDz+UyhdJh2yY8CRoi6dwV1eOGdCu9f9w@mail.gmail.com>
+In-Reply-To: <CAHC9VhSp+X8YNocS7sDz+UyhdJh2yY8CRoi6dwV1eOGdCu9f9w@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Tue, 24 Feb 2026 09:44:45 -0500
+X-Gm-Features: AaiRm50Bs0-On7LLkESDz1iNdkf3h1DBjn6hYvjZSdJVINzCMBHE_JQir6F04Vo
+Message-ID: <CAEjxPJ79V7hM=VnbB1dVA96jjr1yeN9qsLjXb4ALv1VmcRfJ-A@mail.gmail.com>
+Subject: Re: [PATCH] lsm: move inode IS_PRIVATE checks to individual LSMs
+To: Paul Moore <paul@paul-moore.com>
+Cc: Casey Schaufler <casey@schaufler-ca.com>, danieldurning.work@gmail.com, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+	linux-integrity@vger.kernel.org, jmorris@namei.org, serge@hallyn.com, 
+	john.johansen@canonical.com, zohar@linux.ibm.com, roberto.sassu@huawei.com, 
+	dmitry.kasatkin@gmail.com, mic@digikod.net, takedakn@nttdata.co.jp, 
+	penguin-kernel@i-love.sakura.ne.jp
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Feb 20, 2026 at 03:45:00PM -0500, Daniel Durning wrote:
-> On Tue, Feb 17, 2026 at 7:01 AM Christian Brauner <brauner@kernel.org> wrote:
-> >
-> > On Wed, Feb 11, 2026 at 02:43:21PM -0500, Daniel Durning wrote:
-> > > On Mon, Feb 9, 2026 at 9:01 AM Christian Brauner <brauner@kernel.org> wrote:
-> > > >
-> > > > On Fri, Feb 06, 2026 at 06:02:48PM +0000, danieldurning.work@gmail.com wrote:
-> > > > > From: Daniel Durning <danieldurning.work@gmail.com>
-> > > > >
-> > > > > Added a permission check to pidfd_info(). Originally, process info
-> > > > > could be retrieved with a pidfd even if proc was mounted with hidepid
-> > > > > enabled, allowing pidfds to be used to bypass those protections. We
-> > > > > now call ptrace_may_access() to perform some DAC checking as well
-> > > > > as call the appropriate LSM hook.
-> > > > >
-> > > > > The downside to this approach is that there are now more restrictions
-> > > > > on accessing this info from a pidfd than when just using proc (without
-> > > > > hidepid). I am open to suggestions if anyone can think of a better way
-> > > > > to handle this.
-> > > >
-> > > > This isn't really workable since this would regress userspace quite a
-> > > > bit. I think we need a different approach. I've given it some thought
-> > > > and everything's kinda ugly but this might work.
-> > > >
-> > > > In struct pid_namespace record whether anyone ever mounted a procfs
-> > > > with hidepid turned on for this pidns. In pidfd_info() we check whether
-> > > > hidepid was ever turned on. If it wasn't we're done and can just return
-> > > > the info. This will be the common case. If hidepid was ever turned on
-> > > > use kern_path("/proc") to lookup procfs. If not found check
-> > > > ptrace_may_access() to decide whether to return the info or not. If
-> > > > /proc is found check it's hidepid settings and make a decision based on
-> > > > that.
-> > > >
-> > > > You can probably reorder this to call ptrace_may_access() first and then
-> > > > do the procfs lookup dance. Thoughts?
-> > >
-> > > Thanks for the feedback. I think your solution makes sense.
-> > >
-> > > Unfortunately, it seems like systemd mounts procfs with hidepid enabled on
-> > > boot for services with the ProtectProc option enabled. This means that
-> > > procfs will always have been mounted with hidepid in the init pid namespace.
-> > > Do you think it would be viable to record whether or not procfs was mounted
-> > > with hidepid enabled in the mount namespace instead?
-> >
-> > I guess we can see what it looks like.
-> 
-> Having looked into this some more I am not sure if the mount
-> namespace is viable either since a single proc instance could be in
-> multiple mount namespaces. In addition the mount namespace
-> does not seem to be easily accessible in the function where proc
-> mount options are applied. I also considered adding an option
-> similar to hidepid to pidfs, but since pidfs is not userspace-mounted
-> I do not think that is possible without some significant changes.
-> 
-> Doing a proc lookup with kern_path() does work, but it does not seem
-> practical in terms of performance unless we had some other way to
-> skip it in the common case.
-> 
-> Curious if anyone else has any ideas or suggestions on how this
-> could be implemented.
+On Mon, Feb 23, 2026 at 5:21=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+> I'm not going to argue with that, and perhaps that is a good next
+> step: send a quick RFC patch to the VFS folks, with the LSM list CC'd,
+> that drops setting the S_PRIVATE flag to see if they complain too
+> loudly.  Based on other threads, Christian is aware that we are
+> starting to look at better/proper handling of pidfds/pidfs so he may
+> be open to dropping S_PRIVATE since it doesn't really have much impact
+> outside of the LSM, but who knows; the VFS folks have been growing a
+> bit more anti-LSM as of late.
 
-Ok, so there's another series that adds support for allowing to mount
-procfs with subset=pid. That series currently uses an arcane mechanism
-where it walks all mounts in the caller mounts namespace to find procfs
-mounts and check its mount options (mount_too_revealing()). To get away
-from this barbaric hack I proposed recording all fully visible procfs
-mounts in a separate list on struct mnt_namespace that it can walk
-whenever a new procfs mount gets plugged in. Once we've done that work
-we effectively track whenever a procfs mount comes and goes from a given
-mount namespace. When we plug in that mount we simply remember the
-option used for the least restrictive procfs mount in that namespace in
-a per-mntns "proc_visiblity" field or something.
+Adding S_PRIVATE to pidfs inodes was originally motivated by this bug repor=
+t:
+https://lore.kernel.org/linux-fsdevel/20240222190334.GA412503@dev-arch.thel=
+io-3990X/
+when pidfs was first introduced as its own distinct filesystem type.
+Otherwise, Fedora (and likely any other system enforcing SELinux)
+stopped working.
+So we can't unconditionally remove S_PRIVATE from pidfs inodes without brea=
+king
+existing userspace/policy. If we want to introduce controls over pidfs
+inodes and do so in a
+backward-compatible manner, we have to either move the S_PRIVATE
+handling into the
+individual LSMs or introduce a new hook in pidfs_init_inode() to
+determine whether or not to
+set S_PRIVATE. Such a hook might also handle labeling the pidfs inode
+although we'd have to
+see if we have enough information there to do so fully. Note that such
+an approach will still likely
+end up leaving pidfs inodes created before initial policy load with
+the S_PRIVATE flag and hence
+uncontrolled; not sure if that is a problem in practice.
 
-Then in pidfs we simply do a:
-
-visibility_restricted = READ_ONCE(current->ns_proxy->mnt_ns);
-
-and be done with it. No locks, no lookup, no perf hit. Thoughts?
+>
+> diff --git a/fs/pidfs.c b/fs/pidfs.c
+> index 318253344b5c..4cec73b4cbcf 100644
+> --- a/fs/pidfs.c
+> +++ b/fs/pidfs.c
+> @@ -921,7 +921,7 @@ static int pidfs_init_inode(struct inode *inode, void=
+ *data)
+>        const struct pid *pid =3D data;
+>
+>        inode->i_private =3D data;
+> -       inode->i_flags |=3D S_PRIVATE | S_ANON_INODE;
+> +       inode->i_flags |=3D S_ANON_INODE;
+>        /* We allow to set xattrs. */
+>        inode->i_flags &=3D ~S_IMMUTABLE;
+>        inode->i_mode |=3D S_IRWXU;
+>
+> --
+> paul-moore.com
