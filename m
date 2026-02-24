@@ -1,153 +1,171 @@
-Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DB613A0B18
-	for <selinux@vger.kernel.org>; Tue, 24 Feb 2026 14:44:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.181
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771944298; cv=pass; b=qRPze/N3Q/i5Z7uNjZ3XCf4GpC/Uyq5PgEuIobwpgpPCtBXShQTBiVducVKS/UQXE49iMv4vspGXDF3uMGr7HfefmLktmkWtw/uIhBSSgtz0NhJ0P7PlOp87MmkbcuTo2BsFNu+XiCimnVomBWNZF3AG7WAOKjTtnlQKs8f9M4s=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771944298; c=relaxed/simple;
-	bh=NpXDBXAqbPlLtzWPxOL/h0QZP9LJz3X72C7AQTPy0jA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=rZmXiDz66dEoZrvSGdukOF1N79Cbo1vVF+AltpkcSV9nNlKF5pfeLS6KJb2eaBnhyVvGWfLZ7gRVgD1pN5jLzoZ3hMIfJ6woGDMxxrUUekfTvtZCoCxrMru5XdqKCmPscrlXhjC7e9Ctov0wogbOwosLxYONdDKfIXGmlOWogS8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LBOcavK0; arc=pass smtp.client-ip=209.85.215.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AFA13A0E99
+	for <selinux@vger.kernel.org>; Tue, 24 Feb 2026 14:59:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1771945148; cv=none; b=tgLM71krW7eWaYywmvM9SNq7SBUiJsTiQwkYH+Kq0gybQyVuqWiNG4jiECz/wcsk6hUletjADE7jKo5vI/4gonz5J4KUTApBxMujoPH2/R7QsStL18K+jGJgcrXS1kn8lbdTVgBUXxh8mtwIIfCgqVZ+QzoWX/AwUzLB41cvaK0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1771945148; c=relaxed/simple;
+	bh=IbQr8UKhKqmHH1wbnLW0iV5cJVpNxUwmxaBBBspdtqk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ysb6DG1vsjEIlYlWouqFsOm4/gGJ+9ffv7HBo7SwKoavyHR/j4KwWE8jtymMMxDAra7uV6w1PiYXNIbaLBhqR/IWK1IM5Ic2SxPUghWQz4js99wcAzga9S9YoBtN6ZsfWIqB9ypuHIFRVWNipAJWW8F3YjJIN1Sy1y4z3Hhadzc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=NH3oTHoq; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=S8AIfK4B; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=NH3oTHoq; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=S8AIfK4B; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LBOcavK0"
-Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-c6e1e748dc1so1542047a12.1
-        for <selinux@vger.kernel.org>; Tue, 24 Feb 2026 06:44:56 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1771944296; cv=none;
-        d=google.com; s=arc-20240605;
-        b=Z04HgzeEyYWuG+pWYeDueHk9jAiCBHu4/C6eiwwLEiOX3DiVpWl5DcV+YGTiGwtMww
-         m9gQrVJJMtSaQH3zosEK/SuHDyEQ18D8yrCkL2u4YZ08AMjgmbSIjQfuJUKiL5tFVB06
-         PPql0w2vr7QXpD3qlsGAyfac8vfLkz56itavYxieGk8jGPHUU+lRnkVQyvGFjKg3OIRW
-         1To2yG56cPLs6hfr2mUWx5Pvx/xYbTmeFFtgFKyztexluoqRf3eRFfjyU55BP/2tmIUa
-         c51v0AnC248SdHmZgmZcXHTwz08FfkvESjZH/LaKo1bLTwcJ6OliDpknw9FO6EKyUI7L
-         74EQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=g3vFWFpXe0pZI7fYc1bsMNxvQ7fGJt0aDflHuDb/YTs=;
-        fh=ShtU1g3JYjTfICXzx1DEbJsWls8pCMNYpLxxqR6sf+0=;
-        b=D4BPSn6akuNNqtaEi6gLs0syGWlVU8BuhvyPCd8hwkurL+ckmBgViQLdCNP+HNmNbn
-         gs+JEmp5Cvh07iykF/hzezOgGd7nvUa+/mF/v58UYFNgFANWWyi2cwGvLTf1W9EGYY9K
-         namDgeOyattpVfxUyeIJwQjEmdkPhKd9UMBQF0EqfOCJxH6stMtuc2iaKfZTI58wL7+W
-         ZCFx6nNtuEh5h20U8Qzieny2yvp2lm8u24uD7kZDCMbbt4rDNhNaaTp4DXS/2IvJoVKj
-         6cyG57s9EkZDvb+WGM1hUwpBmSL6AOHM4H9K9ybJ/orMbbU2wbzImfd9iJEpB4D5/Red
-         0wFA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771944296; x=1772549096; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=g3vFWFpXe0pZI7fYc1bsMNxvQ7fGJt0aDflHuDb/YTs=;
-        b=LBOcavK0uZWARHpfwTPAPRL5N89Z1QVZ43J6IN1qDaESM80vqGti73ZLcQ2HqG8aLQ
-         FP4xrvcPMnUTPHoo+zyhHmBSI6Q0wLvzsoh5iVk3aifVv0xFKbCeuAkeQYp5Vc9FrYni
-         5LSl679JJ0OP7GlIqLGhgA57/k+40Mu6UHwz3k4Fx94frpv4tQItF5rFAA7XVGoH2q8n
-         OhP8N71bZ4OtpTypA9Z8inSlfz/QYYT04pnSWEX9LMRe3/gP7IsrDOd6Mj19H2NAO2zK
-         7xv0bp3GMOxqTSyG+sx0m0Tg+n24tMxDiiGlsi4qzxfLC1/81hu+Pp6I55JIwNNbLALT
-         /byg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771944296; x=1772549096;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=g3vFWFpXe0pZI7fYc1bsMNxvQ7fGJt0aDflHuDb/YTs=;
-        b=uDnf3yu4gVRXrF39iLavqAq6hvN9doSAA35DddGY57qXpBXJ2udErGpgbAGPCiwcsD
-         0cbwRtO9L2My6lFK8KGOVOsVwObpsdIoW/8YZsBXhf0lxuZqdHj69PCXOQYR+N/6XN/D
-         qFlaD7eAAs52kZydAM4/5/+VhJI8ZsSmEznrRTkrz5alREjTAwYdtv0wCZ0qghF3LE+X
-         fxgqVCNGsyEAgK0b9hSUTBSqQb+AsC4qHqj0PjU1zKvublE37Jd8LL6hf+84d2tdf3JV
-         mxtLcuu0E/e0U8ciO4ixz8CrzhFF5N7y4ECk3gFK/jbBXzqt3ON4LOXBlerRJGh68MED
-         5zlg==
-X-Forwarded-Encrypted: i=1; AJvYcCW6b7IgBj5OPzJdJg44BLYz+zr0Vi8ApC3w1BN6OmJAY3pjqd4U74DEvZlMPb2PNfbEfQybVeTz@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy30PpdQH6xj0M0gFd88CBpiVhsbPRHuUF1XCoEmuJk2ybS/Csr
-	Z2xAtzk4mRWdUeKHILj7bzDSnXrRC4ee3GS32//FcQESDwCfY88RQJmbteB35/yEBogd9jsO/hx
-	ob1kmWZpl96N2ALdXzyGLke6IWywnU4k=
-X-Gm-Gg: ATEYQzylznG850wR5lgg3/ECiPxu4ZXYuzatREugKSdLGAh5sfj8f81GU0JV4qBQFHd
-	CArZoRJ5pXJ72ip5fHc/f4mVR1r8xZXniaQDJXhaBG0OIOgGZhFXRvLB/mMC4egcI+0IZngMte2
-	x1BwnWLAQZd5UpL/fnTrVQb4cD9niUXHEP4yUAOxzpUkw8pG5KR2WMsbFt4UdhLETnGZWdbizP6
-	MdmJX66ZDmu5PB/0weoF+pPQ4GSukp1TR8JPp4WhbjeAaPvdin6e/0RvmUYJjC2ckuvIGw63Tzm
-	iu8stfU=
-X-Received: by 2002:a17:90a:e7d1:b0:343:3898:e7c7 with SMTP id
- 98e67ed59e1d1-35903849c76mr121288a91.12.1771944296292; Tue, 24 Feb 2026
- 06:44:56 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="NH3oTHoq";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="S8AIfK4B";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="NH3oTHoq";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="S8AIfK4B"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id A377F5BCE9;
+	Tue, 24 Feb 2026 14:59:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1771945145; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=+REox0L2o6BS8Jz0OP3WDWZg8gT4PHYB4QsCQ9mQj/c=;
+	b=NH3oTHoqEW3jazckapqjjQQkuzpf5Wv7Y7ZNXH0coQ56yGZSSffFMKcxZjwO5YCV8hXiHC
+	5NLySYhEnoAn6Nx1Ada74wbs3i/Zr5uiloxgv7Da9+1Wy3BbJUy6htZPpnGGltqFhoAwWb
+	jmFU1Rh/Obv+vnjxF+M6ncWkvSBnMYU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1771945145;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=+REox0L2o6BS8Jz0OP3WDWZg8gT4PHYB4QsCQ9mQj/c=;
+	b=S8AIfK4BQ6pefqAPnwHADr58VfSdAQP9PzVKI+XgvoBe48OQZk78wqIBlK5OS5mui0CWSP
+	+iqwG6yBs6OEs5BQ==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=NH3oTHoq;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=S8AIfK4B
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1771945145; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=+REox0L2o6BS8Jz0OP3WDWZg8gT4PHYB4QsCQ9mQj/c=;
+	b=NH3oTHoqEW3jazckapqjjQQkuzpf5Wv7Y7ZNXH0coQ56yGZSSffFMKcxZjwO5YCV8hXiHC
+	5NLySYhEnoAn6Nx1Ada74wbs3i/Zr5uiloxgv7Da9+1Wy3BbJUy6htZPpnGGltqFhoAwWb
+	jmFU1Rh/Obv+vnjxF+M6ncWkvSBnMYU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1771945145;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=+REox0L2o6BS8Jz0OP3WDWZg8gT4PHYB4QsCQ9mQj/c=;
+	b=S8AIfK4BQ6pefqAPnwHADr58VfSdAQP9PzVKI+XgvoBe48OQZk78wqIBlK5OS5mui0CWSP
+	+iqwG6yBs6OEs5BQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 832593EA68;
+	Tue, 24 Feb 2026 14:59:05 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id huQHH7m8nWlWbAAAD6G6ig
+	(envelope-from <jsegitz@suse.de>); Tue, 24 Feb 2026 14:59:05 +0000
+Date: Tue, 24 Feb 2026 15:59:04 +0100
+From: Johannes Segitz <jsegitz@suse.de>
+To: Vit Mojzis <vmojzis@redhat.com>
+Cc: selinux@vger.kernel.org
+Subject: Re: [PATCH] Ignore files that vanish during relabeling if
+ ignore_noent is set
+Message-ID: <aZ28uLmUa4nn3HAa@suse.com>
+References: <aWe3J9UVT9WIBiuF@suse.com>
+ <f4f9d222-6d93-4fe4-a3c5-94abf58def03@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260220195405.30612-1-danieldurning.work@gmail.com>
- <9229d70d-aa7a-459f-b005-695e99888783@schaufler-ca.com> <CAHC9VhSp+X8YNocS7sDz+UyhdJh2yY8CRoi6dwV1eOGdCu9f9w@mail.gmail.com>
-In-Reply-To: <CAHC9VhSp+X8YNocS7sDz+UyhdJh2yY8CRoi6dwV1eOGdCu9f9w@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 24 Feb 2026 09:44:45 -0500
-X-Gm-Features: AaiRm50Bs0-On7LLkESDz1iNdkf3h1DBjn6hYvjZSdJVINzCMBHE_JQir6F04Vo
-Message-ID: <CAEjxPJ79V7hM=VnbB1dVA96jjr1yeN9qsLjXb4ALv1VmcRfJ-A@mail.gmail.com>
-Subject: Re: [PATCH] lsm: move inode IS_PRIVATE checks to individual LSMs
-To: Paul Moore <paul@paul-moore.com>
-Cc: Casey Schaufler <casey@schaufler-ca.com>, danieldurning.work@gmail.com, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
-	linux-integrity@vger.kernel.org, jmorris@namei.org, serge@hallyn.com, 
-	john.johansen@canonical.com, zohar@linux.ibm.com, roberto.sassu@huawei.com, 
-	dmitry.kasatkin@gmail.com, mic@digikod.net, takedakn@nttdata.co.jp, 
-	penguin-kernel@i-love.sakura.ne.jp
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="hY8i2x6UAahQQAk7"
+Content-Disposition: inline
+In-Reply-To: <f4f9d222-6d93-4fe4-a3c5-94abf58def03@redhat.com>
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-6.61 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SIGNED_PGP(-2.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MIME_GOOD(-0.20)[multipart/signed,text/plain];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MX_GOOD(-0.01)[];
+	MIME_TRACE(0.00)[0:+,1:+,2:~];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	MISSING_XM_UA(0.00)[];
+	ARC_NA(0.00)[];
+	TO_DN_SOME(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	RCVD_TLS_ALL(0.00)[];
+	RCPT_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:mid,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:dkim];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	DKIM_TRACE(0.00)[suse.de:+]
+X-Rspamd-Queue-Id: A377F5BCE9
+X-Spam-Flag: NO
+X-Spam-Score: -6.61
+X-Spam-Level: 
+
+
+--hY8i2x6UAahQQAk7
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 23, 2026 at 5:21=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
-> I'm not going to argue with that, and perhaps that is a good next
-> step: send a quick RFC patch to the VFS folks, with the LSM list CC'd,
-> that drops setting the S_PRIVATE flag to see if they complain too
-> loudly.  Based on other threads, Christian is aware that we are
-> starting to look at better/proper handling of pidfds/pidfs so he may
-> be open to dropping S_PRIVATE since it doesn't really have much impact
-> outside of the LSM, but who knows; the VFS folks have been growing a
-> bit more anti-LSM as of late.
+Sorry for the late reply, was on long term sick leave
 
-Adding S_PRIVATE to pidfs inodes was originally motivated by this bug repor=
-t:
-https://lore.kernel.org/linux-fsdevel/20240222190334.GA412503@dev-arch.thel=
-io-3990X/
-when pidfs was first introduced as its own distinct filesystem type.
-Otherwise, Fedora (and likely any other system enforcing SELinux)
-stopped working.
-So we can't unconditionally remove S_PRIVATE from pidfs inodes without brea=
-king
-existing userspace/policy. If we want to introduce controls over pidfs
-inodes and do so in a
-backward-compatible manner, we have to either move the S_PRIVATE
-handling into the
-individual LSMs or introduce a new hook in pidfs_init_inode() to
-determine whether or not to
-set S_PRIVATE. Such a hook might also handle labeling the pidfs inode
-although we'd have to
-see if we have enough information there to do so fully. Note that such
-an approach will still likely
-end up leaving pidfs inodes created before initial policy load with
-the S_PRIVATE flag and hence
-uncontrolled; not sure if that is a problem in practice.
+On Wed, Jan 21, 2026 at 04:25:19PM +0100, Vit Mojzis wrote:
+> does this still happen with https://github.com/SELinuxProject/selinux/com=
+mit/54c79a74f5b9154762abaadf8194665598b24115
+> applied?
 
->
-> diff --git a/fs/pidfs.c b/fs/pidfs.c
-> index 318253344b5c..4cec73b4cbcf 100644
-> --- a/fs/pidfs.c
-> +++ b/fs/pidfs.c
-> @@ -921,7 +921,7 @@ static int pidfs_init_inode(struct inode *inode, void=
- *data)
->        const struct pid *pid =3D data;
->
->        inode->i_private =3D data;
-> -       inode->i_flags |=3D S_PRIVATE | S_ANON_INODE;
-> +       inode->i_flags |=3D S_ANON_INODE;
->        /* We allow to set xattrs. */
->        inode->i_flags &=3D ~S_IMMUTABLE;
->        inode->i_mode |=3D S_IRWXU;
->
-> --
-> paul-moore.com
+no, doesn't happen with that, thanks
+
+Johannes
+--=20
+GPG Key                EE16 6BCE AD56 E034 BFB3  3ADD 7BF7 29D5 E7C8 1FA0
+Subkey fingerprint:    250F 43F5 F7CE 6F1E 9C59  4F95 BC27 DD9D 2CC4 FD66
+SUSE Software Solutions Germany GmbH, Frankenstr. 146, 90461 N=FCrnberg, Ge=
+rmany
+Gesch=E4ftsf=FChrer: Jochen Jaser, Andrew McDonald, Werner Knoblich, (HRB 3=
+6809, AG N=FCrnberg)
+
+--hY8i2x6UAahQQAk7
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQJPBAEBCgA5FiEEJQ9D9ffObx6cWU+VvCfdnSzE/WYFAmmdvLgbFIAAAAAABAAO
+bWFudTIsMi41KzEuMTEsMiwyAAoJELwn3Z0sxP1mydAP/0bCYT1KFFqmFIr9U8Yc
+Dn/oMXxmwGqYsZVDMRHWLlw18VfxS2nZ+SSrZOsRqcKKx7jlf0pS77Ps8IcgtX6S
++AxonxBDEYRrie58cZS/E+v++Nc4LGiawRBPCzqoaASXxFuLCWq/VKDGSOeEjINo
+D5WXxCO50vrI73mIskThvsrtvHXShkgq2gwgxpGafod/7Q8DpWslH/LLKwgGDqwx
+LCERGl0D55Es7sX2XhkjD04O7y2fGDBjOrv96gUOiLu2HazX5mqA2HFulyZ6eRtj
+pJIPk0Tw5QrFW+hcvY5U+UfQuJw0x53pkJOFgGGy7J7tSK14IhRMSdWiE8x/8m8D
+ZBvwQjrae6G4MVj72E+8ecRABond4mjgYd5gv16MAmhBamZoGrAAr5iE8/iwZc8J
+HGa+YhiAtwaX8Lfwm2mWQ41qgW6KwfqGwcalhS7OcHi34a/hrJ5NM4i0PDmxFlRg
+xM1bc4FLt47DkixkQLj7Mv+gFWl3JUAiCXSQ/mb94FZrl9uDXRSzV7Lvmso3rn64
+fJPsloTN0z47jZEw+6oqNbDTk1VYa5aplg9SiywTKtsT0lMkwGcd9geINWcmCX2t
+CM3qWSzjB5GZsSRe+7OLFOU4KbRgIJ2GsBEI7dT3bNs9nUDU/2ZZ5HsFWv7m+EQZ
+GYe8oFukvhsLqqEHfXgws3oY
+=DZ9C
+-----END PGP SIGNATURE-----
+
+--hY8i2x6UAahQQAk7--
