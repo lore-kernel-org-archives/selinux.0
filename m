@@ -1,49 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 367DB36B05C;
-	Tue, 24 Feb 2026 09:20:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA46137BE91;
+	Tue, 24 Feb 2026 11:18:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771924854; cv=none; b=anxpV3M16Ykh8djxUbvR7USPr80VrFiqF/3ktXc+ndKijX1ebgGeRp0IiLAiU2MaAsBn3gWhoCuPJPQTriRbfuhbq5zrXqyC/QKXffiaIy2p4hHBD744o44yBCCBDhIsM9JQH+HNcuMvvnDadSQ6KDM6adgPMeApIY1MubZW99o=
+	t=1771931936; cv=none; b=Ldl3Iq5xQJ5pc55x5JMuVhJ5bhp7oDGHXZvDED4pPscpgAt9JJhNSD2W+iQrz9utC8vndy+N7Q9y32EKv2aoigXY3myLQIj4Qccd1xhzNDTKGp4TsXoh6TprJLGoc0YjqkiSJvBGrdpqwy4O/OTM+XYeEoTkipsLbOwrFRd43z8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771924854; c=relaxed/simple;
-	bh=zQsck/PbdutrfjuyGfWsZrSGCznNVHiinSu2WQcwhXM=;
+	s=arc-20240116; t=1771931936; c=relaxed/simple;
+	bh=CATKDKa2uGpd7sHZMSNUih88RUZlznJauHdO/GUeTF4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qUlHm2UqmPRIGoPnjlvQb0GhPbYirJt677h9/a20VDdnvOS7zWc5xGdc+osxAyGSKHU+rF6XVJU6qCQfcNawb5UUEtyy0lWs56V5kgkuoAWGTkimCmapEt6eBscPVqakFri6twkSO5IZWIdCWOlkbf3GUfzL5JlqdGZUxDWZK6Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=d33MvPat; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=WjWew3+v3xljY8KSLFkqd3i6TazsdCwMefn3Pws/rRjkbKaNDXt1224rrhkWTGB4hYGRRxshDgi3rJUz73UiFT6a5PmoeEx4N3xoNKXNIsDfg1AB3oXTmgUG0HeLIEtgFvGhYELUfcGeu730HOnhBP/Sb+7PoPnl9RSkqGy5Z6E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Wxf1lCXl; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="d33MvPat"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFC04C116D0;
-	Tue, 24 Feb 2026 09:20:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Wxf1lCXl"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98C26C19424;
+	Tue, 24 Feb 2026 11:18:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771924853;
-	bh=zQsck/PbdutrfjuyGfWsZrSGCznNVHiinSu2WQcwhXM=;
+	s=k20201202; t=1771931936;
+	bh=CATKDKa2uGpd7sHZMSNUih88RUZlznJauHdO/GUeTF4=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=d33MvPatWU9dWg+Iyd8o/6Y/ldYwKOH8cRg0Twmt0370/HtNEBoWP3z5uOe6wmFXJ
-	 YM9ycD9PQCBY6f2pUjrO96/u5KF7xm8ivKI2Fh9vCGLwg5th0xGGx+/N3bPn616+er
-	 dlPZiqPuHcSGvxYT6sAfWt7q6WkwtO/P0RFeZQS+YU296u3wkl+HM6Pc0aQp5zvzEE
-	 X6nxMKN1zyPs4ALdzch6DfnAy/FTnYRsMnHX+NVzC9EriWNJBe5KoE1zL64sE0Qrsj
-	 no9HXBs4Wj5/XGONNbVLX4l0ye+IcMDVik2w/nSZhnQyRG+ywegsYDlZMV36f9l8VM
-	 i7cfOC2T30jgw==
-Date: Tue, 24 Feb 2026 10:20:46 +0100
+	b=Wxf1lCXl+lJ0Co7kXivrfwAqGXijzoffhjR9eZU+NmPDftcplF9o3Qsw5NFAiBIhR
+	 0kIMnNjSYLlwFUxNvP9VY0YhI0gn06UvM2j05Z5DYQeDJJfkYTrB0xoAin3gEKBNeJ
+	 UvoI7s+Rvujr5r/TOT9tKA5/v+VslFKJXjdQCzobvuGAfg1Ggw9ezB1Z8/ZICGQAFd
+	 bwhMnOqnAK7amG7auTuDHZ6m+D4WfEgI54SYKfP1d3mCn6NYw4EmvNnIqmdjKDulx2
+	 4QpTGbSOdVsr8mHI3+zrBbM4Yar3zCS2W5f0rTEfJwIS+YZjalFEh+7IZo/2drV9HZ
+	 UiaoNkcmBtyEA==
+Date: Tue, 24 Feb 2026 12:18:51 +0100
 From: Christian Brauner <brauner@kernel.org>
-To: Chris Mason <clm@meta.com>
-Cc: NeilBrown <neil@brown.name>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	David Howells <dhowells@redhat.com>, Jan Kara <jack@suse.cz>, Chuck Lever <chuck.lever@oracle.com>, 
-	Jeff Layton <jlayton@kernel.org>, Miklos Szeredi <miklos@szeredi.hu>, 
-	Amir Goldstein <amir73il@gmail.com>, John Johansen <john.johansen@canonical.com>, 
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
-	"Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	"Darrick J. Wong" <djwong@kernel.org>, linux-kernel@vger.kernel.org, netfs@lists.linux.dev, 
-	linux-fsdevel@vger.kernel.org, linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org, 
-	apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH v2 12/15] ovl: change ovl_create_real() to get a new lock
- when re-opening created file.
-Message-ID: <20260224-granulat-joggen-cd082d178959@brauner>
-References: <20260223011210.3853517-1-neilb@ownmail.net>
- <20260223011210.3853517-13-neilb@ownmail.net>
- <20260223132424.105125-1-clm@meta.com>
+To: Daniel Durning <danieldurning.work@gmail.com>
+Cc: linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org, viro@zeniv.linux.org.uk, jack@suse.cz, paul@paul-moore.com, 
+	stephen.smalley.work@gmail.com, omosnace@redhat.com, Oleg Nesterov <oleg@redhat.com>
+Subject: Re: [RFC PATCH] fs/pidfs: Add permission check to pidfd_info()
+Message-ID: <20260224-wohle-abarbeiten-25effeed0479@brauner>
+References: <20260206180248.12418-1-danieldurning.work@gmail.com>
+ <20260209-spanplatten-zerrt-73851db30f18@brauner>
+ <CAKrb_fEXR0uQnX5iK-ACH=amKMQ8qBSPGXmJb=1PgvEq8qsDEQ@mail.gmail.com>
+ <20260217-abgedankt-eilte-2386c98b3ef7@brauner>
+ <CAKrb_fFEvf5VzY_-zcc800wjVGOFbiGrpzC7S6Ghy9qhYJrZ1w@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -52,36 +47,84 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260223132424.105125-1-clm@meta.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAKrb_fFEvf5VzY_-zcc800wjVGOFbiGrpzC7S6Ghy9qhYJrZ1w@mail.gmail.com>
 
-On Mon, Feb 23, 2026 at 05:23:00AM -0800, Chris Mason wrote:
-> NeilBrown <neilb@ownmail.net> wrote:
-> > From: NeilBrown <neil@brown.name>
-> > 
-> > When ovl_create_real() is used to create a file on the upper filesystem
-> > it needs to return the resulting dentry - positive and hashed.
-> > It is usually the case the that dentry passed to the create function
-> > (e.g.  vfs_create()) will be suitable but this is not guaranteed.  The
-> > filesystem may unhash that dentry forcing a repeat lookup next time the
-> > name is wanted.
-> > 
+On Fri, Feb 20, 2026 at 03:45:00PM -0500, Daniel Durning wrote:
+> On Tue, Feb 17, 2026 at 7:01 AM Christian Brauner <brauner@kernel.org> wrote:
+> >
+> > On Wed, Feb 11, 2026 at 02:43:21PM -0500, Daniel Durning wrote:
+> > > On Mon, Feb 9, 2026 at 9:01 AM Christian Brauner <brauner@kernel.org> wrote:
+> > > >
+> > > > On Fri, Feb 06, 2026 at 06:02:48PM +0000, danieldurning.work@gmail.com wrote:
+> > > > > From: Daniel Durning <danieldurning.work@gmail.com>
+> > > > >
+> > > > > Added a permission check to pidfd_info(). Originally, process info
+> > > > > could be retrieved with a pidfd even if proc was mounted with hidepid
+> > > > > enabled, allowing pidfds to be used to bypass those protections. We
+> > > > > now call ptrace_may_access() to perform some DAC checking as well
+> > > > > as call the appropriate LSM hook.
+> > > > >
+> > > > > The downside to this approach is that there are now more restrictions
+> > > > > on accessing this info from a pidfd than when just using proc (without
+> > > > > hidepid). I am open to suggestions if anyone can think of a better way
+> > > > > to handle this.
+> > > >
+> > > > This isn't really workable since this would regress userspace quite a
+> > > > bit. I think we need a different approach. I've given it some thought
+> > > > and everything's kinda ugly but this might work.
+> > > >
+> > > > In struct pid_namespace record whether anyone ever mounted a procfs
+> > > > with hidepid turned on for this pidns. In pidfd_info() we check whether
+> > > > hidepid was ever turned on. If it wasn't we're done and can just return
+> > > > the info. This will be the common case. If hidepid was ever turned on
+> > > > use kern_path("/proc") to lookup procfs. If not found check
+> > > > ptrace_may_access() to decide whether to return the info or not. If
+> > > > /proc is found check it's hidepid settings and make a decision based on
+> > > > that.
+> > > >
+> > > > You can probably reorder this to call ptrace_may_access() first and then
+> > > > do the procfs lookup dance. Thoughts?
+> > >
+> > > Thanks for the feedback. I think your solution makes sense.
+> > >
+> > > Unfortunately, it seems like systemd mounts procfs with hidepid enabled on
+> > > boot for services with the ProtectProc option enabled. This means that
+> > > procfs will always have been mounted with hidepid in the init pid namespace.
+> > > Do you think it would be viable to record whether or not procfs was mounted
+> > > with hidepid enabled in the mount namespace instead?
+> >
+> > I guess we can see what it looks like.
 > 
-> Hi everyone,
+> Having looked into this some more I am not sure if the mount
+> namespace is viable either since a single proc instance could be in
+> multiple mount namespaces. In addition the mount namespace
+> does not seem to be easily accessible in the function where proc
+> mount options are applied. I also considered adding an option
+> similar to hidepid to pidfs, but since pidfs is not userspace-mounted
+> I do not think that is possible without some significant changes.
 > 
-> Amir suggested I run these through, and this commit was flagged:
+> Doing a proc lookup with kern_path() does work, but it does not seem
+> practical in terms of performance unless we had some other way to
+> skip it in the common case.
 > 
-> commit 62d49d1e44667e4f93bec415faabec5526992ac0
-> Author: NeilBrown <neil@brown.name>
-> 
-> ovl: change ovl_create_real() to get a new lock when re-opening created file.
-> 
-> This commit changes ovl_create_real() to drop the directory lock and
-> reacquire a new lock for lookup when the created dentry is unhashed. It
-> also removes ovl_lookup_upper() which is no longer used.
-> 
-> Signed-off-by: NeilBrown <neil@brown.name>
+> Curious if anyone else has any ideas or suggestions on how this
+> could be implemented.
 
-Fwiw, all patches that are applied go through AI review. My plan is to
-have a discussion on getting automation set up for this at LSFMM so that
-we can have the bot directly reply to reviews but under our control so
-we can vet reviews.
+Ok, so there's another series that adds support for allowing to mount
+procfs with subset=pid. That series currently uses an arcane mechanism
+where it walks all mounts in the caller mounts namespace to find procfs
+mounts and check its mount options (mount_too_revealing()). To get away
+from this barbaric hack I proposed recording all fully visible procfs
+mounts in a separate list on struct mnt_namespace that it can walk
+whenever a new procfs mount gets plugged in. Once we've done that work
+we effectively track whenever a procfs mount comes and goes from a given
+mount namespace. When we plug in that mount we simply remember the
+option used for the least restrictive procfs mount in that namespace in
+a per-mntns "proc_visiblity" field or something.
+
+Then in pidfs we simply do a:
+
+visibility_restricted = READ_ONCE(current->ns_proxy->mnt_ns);
+
+and be done with it. No locks, no lookup, no perf hit. Thoughts?
