@@ -1,60 +1,60 @@
-Received: from sonic313-15.consmr.mail.ne1.yahoo.com (sonic313-15.consmr.mail.ne1.yahoo.com [66.163.185.38])
+Received: from sonic311-30.consmr.mail.ne1.yahoo.com (sonic311-30.consmr.mail.ne1.yahoo.com [66.163.188.211])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A89673BFE40
-	for <selinux@vger.kernel.org>; Wed, 25 Feb 2026 19:22:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.185.38
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A05D2D7DE1
+	for <selinux@vger.kernel.org>; Wed, 25 Feb 2026 19:22:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.188.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772047329; cv=none; b=SB1JDHFLwWebFngIfcQb788DUdIeSH5bwdKPcGvB8AqqNjEB2k57H9EZ4MLjbaK+zkixSoILMh+csy8P8CrTghKHHPm7n4FqG7VFJtw14ab4DOEAL+vHmJ5zmnSzNgTSiRmXAjX0FKktjm95mHCFEDPRULRG1M+nqiqBUilHZbw=
+	t=1772047335; cv=none; b=Pa1UVZd9TeCDvwo5CuIsWgB79mCoB+0s8b4Os8Q2k3ru19ThUN87aFABkvQGoXmcpNSYMiaj2dQvQpPbmg5tz9LC3GHqN5/s/lW1m5IwAWpZuJHoGVMW++O0nWGnovYAzM8Pkhb5XVKIYk1mHjfZPyCuVXE5BNY/cGVANO3Kik8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772047329; c=relaxed/simple;
-	bh=Z4Fg7fjgA4jR59lvCAx89NIhEyoK6SenrnlArDkRdXU=;
+	s=arc-20240116; t=1772047335; c=relaxed/simple;
+	bh=Ugm29/8cN+3G81MnTiss0pGa1d4IdO7Qaf5n3sbJy0s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=LPyvHMXhJWP1UjtFPgARjeviXD/uvqZI9VvkQwo9zSsShLGhcnaQVzatp10Xaf/7rFayR3wfxJMRV2HZO+RS4veTpM2c5xsGG8jIZVhIHtq49lbeGs9EAoz7x3bih1Bt9Ni7IrBgdlLanFX2ZlsEY/tZ6f0bkEjDmn0+vFfVuWQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=XwNCzbJB; arc=none smtp.client-ip=66.163.185.38
+	 MIME-Version; b=mbUwxMXMR+aPb5GAwwZyHg9KFYN4ZYcp36hGB/l8OCHoE83XeGPNsH3lobZkWfIn3zuJI9Nzc5wyO5746a8aNB4izWatg8/3++Y0IWad1m5nmiskDDwqkq0tSNTV7AmYMY0aUVpZHdnxgodz4czw0OzCiOpszry6XYEPbo75Moo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=b8LLCBDE; arc=none smtp.client-ip=66.163.188.211
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="XwNCzbJB"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1772047320; bh=Kx3lh50URtTVDmhOk7GDZVYFUsygTADgtUtzLNOgH9I=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=XwNCzbJBt60W6lzwiqJKfI/qO7ytA8AxF96G1nhXyemU2iQqubCpceAyO/oIDuuMhvuoYFiJmfbOqehuGqcQMtmAY1lk+nrgjiKblqLk7aj8kFfRdH0oMIUDRPivuZ8iTh7Qe4t5lE4Cg/DfvBzXjN7CK81ChOCf/cmtyRXhrZkQgB9xSknZ3tr9wyjR31jK87VoF/4ulClgpTFyXu/DyNsQEPs218EmxBww0ULoDrnIxgzfhBObMQIrRUQBFBTSwAis/lDtNYUfBXWHHsdv4awjVr99JrPhgpsGkcaj2llTkpKe3okZvyhoV5c5hcR7OnD4nTDl4cpp/RwjuwRV9A==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1772047320; bh=JdkqazoaizM6Vd2IFvPZanpxSEVzkq8VEUpkKhdBh8V=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=JlRSU83E9cykGYR370buH6f7iwi/JMyGF1DuVn4CPBG7WuGGYLY3+mGK42WPK48YdJ261kI65hEWHBP3+mapBU96znUDIwtYobeYF9helayf5yHvhetOu2IoeIHdmmeDDtVvuDY+tFKQSlab2mHSevXFTy+kttqVaRFM1mlOobn4sad7XORf8VuJwlbbo3cLNElglSUucjB+fff4AzW7gx4dbzo9KlT6YAy4DSuRT9cdIzwtpFPFqeYDj1JmP6q9JJBeoZ3VD0em193uvthX+6RA7aJVCV/wm9T45EPEWUWTY9X9QvQS903zK9NHV0Y6PGbLRy9qKP4ypdEAcKRRaQ==
-X-YMail-OSG: RLgCmfMVM1llhEcOgee41RLvbHrM9Q9tlvaKHFqatZfqmUhgx7F7tFGhY3XBxxK
- bJ9_hMeDO7j4MJRVueZv14EwCOSgEboBUO96UnlraMzZ_hkUdeETh1J4axfoPAc9xe8LoxTNiHDC
- YeZga2wt1ojWLqrnfRXKEIr7qYWqH_7AdvZ5qKZh6oAsHj7woUUAoKiG3M.pQAy51Pge6LyqvGFz
- k8rKl83WcflNNYJyVJ7QRdEB7DONFiWqyOFsFc3Xnm9Z6n38y.8WpaX8CKeKq811vNxUwBk87mCs
- q8jXNrh3QlCYnP1tLmIN92QvAVod2gcjkPuqgo4kKAXMiILmZ2OZuCN1XhQPjTzHY4uuGaokTMhj
- 52AWECyCZrSaHUdeHPttmamvxT8szAkxe6rAlR4swA4jtHM4Q5MrsY5gsrv5u25mdTh5syIsd6od
- _UX4u4xl8md5vxKs7cQKpid2qAjxc4_cpMCuL4Sr3.41AOyN4pUkwKJSBg2NhpAOKqgco_36TKLY
- dU0s8Hxb.DyYEIr2yEYeak.Ko3k9RpwUtNjXGHbTO1UxbRRnCr533ZSACO9SDBCCAuP55r8MKlCp
- pFSfWCELanT5bxIzuUb2VLka8ALib3q0RaIT6XF8U63lBMnIGuIRBzkYnfAbAknwN9jqQLtGepZc
- E_Bdu0YexOAIqyiR7mrfG49fY9AnYzENxtgmnF3Dv8oQATHWMmb2OXfFrY5vUdHwR410SLo9hAVT
- Bxzv9Z1FLLhxfNkF2O_fBC_aMEiIFIIkejJH..bBD.aPZaAaiQ3DTs.2HKR6uiHg5BCDpx4lcVSn
- trD6e.HuP4K6e0Ovrcwv7aqMW9oY5QxgbCJLsn4_Oi2M6zT5vCElUOBdba9W0hB7fXzDjLgUf1Tu
- TMcEzEzfu2ae5nBash4pqNW5snEnxkNlQct.qrUyXxPI0xtqKYSKKu2hSCjSviKDpWf_ulgWDHvY
- HN4aQFw.jG9VRmF8KFeOcdrzH3MSHacenYyZdT5WLKcg88XVbmHKq.2JfvQJtGYzk1iGmGfHurof
- ooJLn3hn9kZseYgFXynrgAAQLM9Hdhp9S1ff.wMQ8d_3kaPbayfZzswBWLeIfoMhhkxgciQkWMB8
- gWR7F5GHkKp1Y5DDkhwvI7w6RpN2yvzVwVSTqpXRbZ7enYD9kAbgaaXHv.yhmk9VLN6Vv9VvfYYt
- 1BZG4H6vYE2icGRqHolpqhVmQop5_i1YXSoOxpBL7v2ytMuWa9u6z3b6fgzF08MO1nelYAcTZAnI
- s0AUeNlwEkc.LB4OhTeOmePWWOhwyqaBzEuoyOFOfbjc_STjc3FexHcuF1lqfScWOLVNi5C.cbHM
- iegtR6RViRlbbO8NTvwiLB5bwr0IdZIO1XvDV_b8_7opjAeCdaYJ68.OQoNry4Zs3oI6B3rzR9lu
- .s6vrS3anONpobc47hc8rxewwFmj5VysSoltgQ3nVa9GF7McHmip1OJRt4YK17Buf93DVZa_Gj3o
- QEWK3BGf5Ws3FIFsxy_1jLav3C9q46DjiMnhADLf4fMB7syKp60b0.oowLN9yvVGhzjWtbxc8pSG
- rlFw0HwBBsap9fIrqSjLoaYuf7b_EIIhYyJk9819J5Ct6KlgufMKahYayKsnlqglrQzlCYvyXT_T
- ij0TwPjDZo97GpIG9HGYZ1Mto3SI82HNREcLeSDqU8esAIslPMAlkL7ozu5RQmtHFJw5C65H7m_l
- hNOs5Ipt2rocCrmH8B6kZFeP5DzvddAUoo.ZCAQDcvoUK63C67Z9W83G5ea2bEzMT4CreNJOBh78
- Uh4YKWXYzN1fsF1MhjTsgKTY_MCRTGzDuPRH2y_F2Q7d0LZUvRiz4tlr87jYUfeCBE0Z41jW3uRi
- VSBlIBAp.0TaPs1ptcv35.96U0KXv4BrCRa7moEZiAzTb_UlBe_zeJfgCw9qfsUwTeH1hzzc0plw
- rL09PLROddRKIfCL_msI77rhScXz9.9CXZxAUvZUR673OFa9Ocy0C1YmIKFCo__bSJkzlMawmdCz
- __OD94J50MOCMRY_CUKFKrQh.u9asjWWmHM1WA8W4Ae9RMv.OeGoj9svOSsWsnXSHtzR5OZuJGCK
- lQaKxhVnDmbS2Mtkq5sfZR_Ira0WCBqYTxNRO5nKT.DbJkvlk.CjqTjHq11LVd5Y6cHhz8kj7Xwb
- 885v8Q4yHjzVU4rbU6DT8Nr3I6N1EcKPU0BD1YX9Lj9sBSp6UcrW0GRjp33AtkKPXkVRgUBWyndc
- CqfJxI7l05FSnSEV4x466O224TWrEKPiyeAwoy3.zU6u.Ww_KPp4Q5Rz8dGb8sv6p0eeYlaBki41
- zfXBagfsoZVtmPlzIgSzmiw--
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="b8LLCBDE"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1772047326; bh=Z43PNb06pzZtCLUlarDHLUOJAGWD6uFtJOlYdsVZrfE=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=b8LLCBDE72mWnOYS22DrLCTBC0atWBpf/8HmGeLu1Hk55a+ftcTcdxzfpUwITYWKRAVvyE04cod0wS0YDsBacq8ighR5JA2NRER/oXWIeEzgHALE8iZcuBgd7ITByTc6ntjs9MnzaqqYfGYaTtneOfXAVCQIwBU3nsgmsRCy/Htd2UDPg6ncMQBwuVpf2+nPs6o3iW5QblGFyThpfDOmTyiDEmqy/m4eArGQwbErO6W8TiY2naJyW1KXM21DDG3/gl73QUDE9K0+W40z6poYUeF4BUUiKEIRQgpG8xCQ0H/TJyHhk84XJqjloEd+NmchXu7J0olWhn2E0jcvrIKbLQ==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1772047326; bh=OCb8IwyAqFgRAA3oPQRu8S1E29/mN0mX+uZUOpnO9HB=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=KKxgTDeY5VRaswB7yP7Abapuog0Z0MSO4w/jlo2+vinWDd5naA77jo/xhRbiUfH5fEU+aV3WksxN9glqtX42X01RrmDUZvKBDU6F3PK+cXpOE1l1Gb741sEku114bQOaDuuFR4nXohTa6PnodT4tBDC0glwxV4WEN3mpuzXV8ouSpaGuCvA+UAbyewuSH80MeJAYobilT3GwULh2811VWmcW9u4fw6Gdt4XdqaRaTzOBU8xxVtRW58HMkZhjKFFG7GHDXik4lVlKdqDPC1kN+xxCCJdeQDcGSVQDRpuwLCBM0v5B3QT1bSPWwfxxZ4RlglZZGYkldIMtmOMLqOFkaw==
+X-YMail-OSG: OQ6kNm0VM1l18xVJ.VaayufrF71Sq.A3vGc9MQJdDhGUAKrbl3HSVqSzdf2NC_S
+ leNjzd2nU9uzcAiVO0yajKzjrV2TZWc9mM.t5gAOg5h1gv.TCyXz.OuNg3d9gaQajFvmuzD5YaN2
+ 9W63y9HEfXqhW4bcCvDoWcXucuH21NF8iyScSZJpnYKyxcfmlLjy7sakp7Pz42xu.fNR.W7ZX1Rb
+ e.TT8cz8EkRhmfcjBgv7.bQxoRSNWzh2BVU8FmLF8AenMvVqEkulbvhcHPDcLcNA864BdPv4SPhX
+ UxCA6eNnkEiDa0u3U3rDO60u372RyA0MmoPsTxk.GrciEYK5Qsg0ppfrTVa2hpgMdpIPUFyvuzVI
+ sZZ7UKFwJebbSF_93U8Xf.e56hwZp8d.OZ0arfj9GIl2hH9r9wQI8p5GDl0vJHfo.eAhtot8oCfP
+ pKglN4n.F828Xvm7YcgWkzPMBQpEPuMMLyPhfuKwtMGGx70SgFCOJJ5Nvj75Vog2aLMgSE3N6JK.
+ ZI8XuFAK2geN5BbQquT4qSXZWD12S14vYGOIyo6hbg6P.By3e8Hn9lG6hcdB27Ami32Jgpprh4qW
+ 0Utw3Sh861pi2NVan6GzG6Y1.2HtYCA8aph0V_7AaQGZwE1cXb.ysxBKgPg.FQ6pbpbull00xc00
+ FSPFInMqU1i2SrOXIjyWPZBg8nJuyYvjyVeSbOeLLtUgUPoW6cBZDZLZhxAt50Akj_Z95ASDwiU7
+ SGItKLJM.EA7N6RMUUk_Zu5V_uQvambvEE5hyEyW82O610Fv.UJOkh9PmWxxav4Gi9A_Pz42do._
+ ckqBqT1VlJkQ4mQRr6nZSDmj2v6TRacfyHhOBiWpXa8FEUcYjkCrocUzls1TQs1qDD8haP1GcqUw
+ phYSg9tQCuLInQqnQ4Tace1OOikTONvC_TgIOBszYHg5vkfok2v6_yyYgnmGk0Av1hOxX9HvqDlL
+ VrN4SxQdGjAEZ.tvq20QOFNY4DvARUn8DbdO0l4ASACXMhFIMRqu7ussw3c30u98Oe5eGQ5Fddgv
+ nMfITAowmmDOUF9XdQSpsgn0Qb7uceUMGzJSpMidMev9ur0P0m2l3VhJV8R8yuCMtbtIl78hISP.
+ Pma2dAJTEnM6Xfu57tYHK5zpUdGXX0.SWScKpFp6k1x8vIHasB038oe.SbbtVOH.vTTiksMNKwSP
+ _sHBqUGfy8GkMJzhONZp2l_5d1hDRuuvpnvP3RqpJrok69CLQPACBm8brfE3ORBbc3SkKAO7D.aY
+ EEsLmkUPGd9lMF1EsUjcNobg8C1gP4sgs2NfvLdhJAL1rr591WiJM2UeEkcNK1PKmhiBlZHhX54R
+ i.vOboj_6J9g0YuUIZomj1qAiP09Yn2Oxy4iwJrdiwi6.E1sQnz_i3VIiBVj4iyibEJj0T500cFY
+ 95VJTLqVf.LIl7Zm5gXXn4uAYy15Verxg5ZSbOWYgRFoAmUdpodz3fg9bA5kaNO2oZM49yYxTH9A
+ EVpqOKk4OHTY1JmM1gmqF3UXQRDpSm.gYs2K2Ihq5hhaQkbyGp9JwtXhR9sTrts9unX8ppvIGQAY
+ S_w8XX97APc6d_t4cUNdM6HbQTy_OAAtG1TTJP3sxfYo5lBAEruez8.tysY.9rlB.MN_tXSon4lY
+ F2RAtr_nLPLiOab5Vx1rqcWZpqIIalSoHqux48l2i8MRIgDHRvad4yqz7lUlSRZrsVKJTQN6.7gg
+ imP7KUSvNR9h2Fa8vJJzlXuxCNmi454fbcYf_8lOYmzW6X8MU15wt666cQuQxW8eS63DUfgaSm1X
+ LTMtOs30BbHhHaDs_wu0ZpUT29NCudlQkNXtIjaiwvTrZirB0ERjgPqt8fGspxRUNNdxfCcdGe8H
+ TCamv.67oTo071fNwggWP5VJ.AlyuvO4QaNCqkbN0FNWp1xe.S_Q2BREELbGDQpnl9wdITqXz4kY
+ P9146r7B3vd6sh1QjAJ4XkzuYdE7SxkdEV1aK1UDjucBoxeOel1NmoKEjkoiA3vkajwQE4rsE_TC
+ dKPGWRUJzxTbWy6Yj4qEvFPIIMlzMTKZOaQgHr0vIKv2Ihxk6LTSLt_T97KcixbaU61jVuB7vmPK
+ .fkgvEU.LM2ZG2UO5qoU8BzdmP3l3yo5.5ccMtzynHO3jXxj5xG7vDb7VC_hEQ2Kx9FKjh4xti_W
+ E3Ug8vmct8i0mkkW9Rl6aJR.6h_7BfgxxZn2VVJes8imP7lwpmEBns0bn3rMsp.o9SuvUp3szFX9
+ B8UiegflNtGa1GnjN4eitWGf4y6sxmul1yLD0DdotSVSahMeU94GRjPWc3oHWZeta4uZBxKEAaTL
+ 48JElKvMmAsOpPeuJKLQHGA--
 X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: f020e702-9882-4f19-893c-4f81fd581431
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic313.consmr.mail.ne1.yahoo.com with HTTP; Wed, 25 Feb 2026 19:22:00 +0000
+X-Sonic-ID: 4c7c1ae8-1394-4802-b1a1-a20162ce0607
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Wed, 25 Feb 2026 19:22:06 +0000
 Received: by hermes--production-gq1-6dfcf9f8b-5skm9 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 34de27226d18fbed2fa1781e81910440;
-          Wed, 25 Feb 2026 19:21:57 +0000 (UTC)
+          Wed, 25 Feb 2026 19:22:00 +0000 (UTC)
 From: Casey Schaufler <casey@schaufler-ca.com>
 To: casey@schaufler-ca.com,
 	paul@paul-moore.com,
@@ -66,9 +66,9 @@ Cc: jmorris@namei.org,
 	penguin-kernel@i-love.sakura.ne.jp,
 	stephen.smalley.work@gmail.com,
 	selinux@vger.kernel.org
-Subject: [RFC PATCH 1/3] LSM: add a flags field to the LSM hook definitions
-Date: Wed, 25 Feb 2026 11:21:41 -0800
-Message-ID: <20260225192143.14448-2-casey@schaufler-ca.com>
+Subject: [RFC PATCH 3/3] LSM: Reserve use of secmarks
+Date: Wed, 25 Feb 2026 11:21:43 -0800
+Message-ID: <20260225192143.14448-4-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260225192143.14448-1-casey@schaufler-ca.com>
 References: <20260225192143.14448-1-casey@schaufler-ca.com>
@@ -80,900 +80,376 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add a field for flags to the definition of LSM hooks.  This allows
-for hooks to be identified at system initialization for special
-processing.
+Use of "exclusive" LSM hooks are limited to the first LSM registering
+them. These hooks include those use to process network secmarks.
+The hooks required to process secmarks are flagged with LSM_FLAG_EXCLUSIVE
+in their definitions. This includes secid_to_secctx and secctx_to_secid,
+which are used by netfilter.
+
+The various LSMs that use secmarks are updated to detect whether
+they are providing exclusive hooks, and to eschew the use of secmarks
+if they are not.
+
+SELinux has a peculiar behavior in that it may decide that it
+must have network controls, but only after policy is loaded.
+This patch includes a warning should policy capability alwaysnetwork
+be set when another LSM holds the exclusive hooks. It has been
+suggested that SELinux would consider this a fatal condition, in
+which case a panic might be a favored, if draconian, option.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- include/linux/bpf_lsm.h       |   2 +-
- include/linux/lsm_hook_defs.h | 614 ++++++++++++++++++----------------
- include/linux/lsm_hooks.h     |   4 +-
- kernel/bpf/bpf_lsm.c          |  10 +-
- security/bpf/hooks.c          |   2 +-
- security/security.c           |   6 +-
- 6 files changed, 331 insertions(+), 307 deletions(-)
+ include/linux/lsm_hook_defs.h    | 12 +++++------
+ include/linux/security.h         |  1 +
+ security/apparmor/lsm.c          | 24 ++++++++++++++++------
+ security/security.c              | 15 ++++++++++++++
+ security/selinux/hooks.c         | 35 ++++++++++++++++++++++++--------
+ security/selinux/ss/services.c   |  3 +++
+ security/smack/smack_lsm.c       |  6 ++++--
+ security/smack/smack_netfilter.c |  6 ++++++
+ 8 files changed, 80 insertions(+), 22 deletions(-)
 
-diff --git a/include/linux/bpf_lsm.h b/include/linux/bpf_lsm.h
-index 643809cc78c3..d71ba8c87e79 100644
---- a/include/linux/bpf_lsm.h
-+++ b/include/linux/bpf_lsm.h
-@@ -14,7 +14,7 @@
- 
- #ifdef CONFIG_BPF_LSM
- 
--#define LSM_HOOK(RET, DEFAULT, NAME, ...) \
-+#define LSM_HOOK(RET, DEFAULT, FLAGS, NAME, ...) \
- 	RET bpf_lsm_##NAME(__VA_ARGS__);
- #include <linux/lsm_hook_defs.h>
- #undef LSM_HOOK
 diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index 8c42b4bde09c..acda3a02da97 100644
+index acda3a02da97..e6d4d9c80ac6 100644
 --- a/include/linux/lsm_hook_defs.h
 +++ b/include/linux/lsm_hook_defs.h
-@@ -18,451 +18,475 @@
-  * The macro LSM_HOOK is used to define the data structures required by
-  * the LSM framework using the pattern:
-  *
-- *	LSM_HOOK(<return_type>, <default_value>, <hook_name>, args...)
-+ *	LSM_HOOK(<return_type>, <default_value>, <flags>, <single>,
-+ *		 <hook_name>, args...)
-  *
-  * struct security_hook_heads {
-- *   #define LSM_HOOK(RET, DEFAULT, NAME, ...) struct hlist_head NAME;
-+ *   #define LSM_HOOK(RET, DEFAULT, FLAGS, NAME, ...) struct hlist_head NAME;
-  *   #include <linux/lsm_hook_defs.h>
-  *   #undef LSM_HOOK
-  * };
-  */
--LSM_HOOK(int, 0, binder_set_context_mgr, const struct cred *mgr)
--LSM_HOOK(int, 0, binder_transaction, const struct cred *from,
-+LSM_HOOK(int, 0, 0, binder_set_context_mgr, const struct cred *mgr)
-+LSM_HOOK(int, 0, 0, binder_transaction, const struct cred *from,
- 	 const struct cred *to)
--LSM_HOOK(int, 0, binder_transfer_binder, const struct cred *from,
-+LSM_HOOK(int, 0, 0, binder_transfer_binder, const struct cred *from,
- 	 const struct cred *to)
--LSM_HOOK(int, 0, binder_transfer_file, const struct cred *from,
-+LSM_HOOK(int, 0, 0, binder_transfer_file, const struct cred *from,
- 	 const struct cred *to, const struct file *file)
--LSM_HOOK(int, 0, ptrace_access_check, struct task_struct *child,
-+LSM_HOOK(int, 0, 0, ptrace_access_check, struct task_struct *child,
- 	 unsigned int mode)
--LSM_HOOK(int, 0, ptrace_traceme, struct task_struct *parent)
--LSM_HOOK(int, 0, capget, const struct task_struct *target, kernel_cap_t *effective,
--	 kernel_cap_t *inheritable, kernel_cap_t *permitted)
--LSM_HOOK(int, 0, capset, struct cred *new, const struct cred *old,
-+LSM_HOOK(int, 0, 0, ptrace_traceme, struct task_struct *parent)
-+LSM_HOOK(int, 0, 0, capget, const struct task_struct *target,
-+	 kernel_cap_t *effective, kernel_cap_t *inheritable,
-+	 kernel_cap_t *permitted)
-+LSM_HOOK(int, 0, 0, capset, struct cred *new, const struct cred *old,
- 	 const kernel_cap_t *effective, const kernel_cap_t *inheritable,
- 	 const kernel_cap_t *permitted)
--LSM_HOOK(int, 0, capable, const struct cred *cred, struct user_namespace *ns,
--	 int cap, unsigned int opts)
--LSM_HOOK(int, 0, quotactl, int cmds, int type, int id, const struct super_block *sb)
--LSM_HOOK(int, 0, quota_on, struct dentry *dentry)
--LSM_HOOK(int, 0, syslog, int type)
--LSM_HOOK(int, 0, settime, const struct timespec64 *ts,
-+LSM_HOOK(int, 0, 0, capable, const struct cred *cred,
-+	 struct user_namespace *ns, int cap, unsigned int opts)
-+LSM_HOOK(int, 0, 0, quotactl, int cmds, int type, int id,
-+	 const struct super_block *sb)
-+LSM_HOOK(int, 0, 0, quota_on, struct dentry *dentry)
-+LSM_HOOK(int, 0, 0, syslog, int type)
-+LSM_HOOK(int, 0, 0, settime, const struct timespec64 *ts,
- 	 const struct timezone *tz)
--LSM_HOOK(int, 0, vm_enough_memory, struct mm_struct *mm, long pages)
--LSM_HOOK(int, 0, bprm_creds_for_exec, struct linux_binprm *bprm)
--LSM_HOOK(int, 0, bprm_creds_from_file, struct linux_binprm *bprm, const struct file *file)
--LSM_HOOK(int, 0, bprm_check_security, struct linux_binprm *bprm)
--LSM_HOOK(void, LSM_RET_VOID, bprm_committing_creds, const struct linux_binprm *bprm)
--LSM_HOOK(void, LSM_RET_VOID, bprm_committed_creds, const struct linux_binprm *bprm)
--LSM_HOOK(int, 0, fs_context_submount, struct fs_context *fc, struct super_block *reference)
--LSM_HOOK(int, 0, fs_context_dup, struct fs_context *fc,
-+LSM_HOOK(int, 0, 0, vm_enough_memory, struct mm_struct *mm, long pages)
-+LSM_HOOK(int, 0, 0, bprm_creds_for_exec, struct linux_binprm *bprm)
-+LSM_HOOK(int, 0, 0, bprm_creds_from_file, struct linux_binprm *bprm,
-+	 const struct file *file)
-+LSM_HOOK(int, 0, 0, bprm_check_security, struct linux_binprm *bprm)
-+LSM_HOOK(void, LSM_RET_VOID, 0, bprm_committing_creds,
-+	 const struct linux_binprm *bprm)
-+LSM_HOOK(void, LSM_RET_VOID, 0, bprm_committed_creds,
-+	 const struct linux_binprm *bprm)
-+LSM_HOOK(int, 0, 0, fs_context_submount, struct fs_context *fc,
-+	 struct super_block *reference)
-+LSM_HOOK(int, 0, 0, fs_context_dup, struct fs_context *fc,
- 	 struct fs_context *src_sc)
--LSM_HOOK(int, -ENOPARAM, fs_context_parse_param, struct fs_context *fc,
-+LSM_HOOK(int, -ENOPARAM, 0, fs_context_parse_param, struct fs_context *fc,
- 	 struct fs_parameter *param)
--LSM_HOOK(int, 0, sb_alloc_security, struct super_block *sb)
--LSM_HOOK(void, LSM_RET_VOID, sb_delete, struct super_block *sb)
--LSM_HOOK(void, LSM_RET_VOID, sb_free_security, struct super_block *sb)
--LSM_HOOK(void, LSM_RET_VOID, sb_free_mnt_opts, void *mnt_opts)
--LSM_HOOK(int, 0, sb_eat_lsm_opts, char *orig, void **mnt_opts)
--LSM_HOOK(int, 0, sb_mnt_opts_compat, struct super_block *sb, void *mnt_opts)
--LSM_HOOK(int, 0, sb_remount, struct super_block *sb, void *mnt_opts)
--LSM_HOOK(int, 0, sb_kern_mount, const struct super_block *sb)
--LSM_HOOK(int, 0, sb_show_options, struct seq_file *m, struct super_block *sb)
--LSM_HOOK(int, 0, sb_statfs, struct dentry *dentry)
--LSM_HOOK(int, 0, sb_mount, const char *dev_name, const struct path *path,
-+LSM_HOOK(int, 0, 0, sb_alloc_security, struct super_block *sb)
-+LSM_HOOK(void, LSM_RET_VOID, 0, sb_delete, struct super_block *sb)
-+LSM_HOOK(void, LSM_RET_VOID, 0, sb_free_security, struct super_block *sb)
-+LSM_HOOK(void, LSM_RET_VOID, 0, sb_free_mnt_opts, void *mnt_opts)
-+LSM_HOOK(int, 0, 0, sb_eat_lsm_opts, char *orig, void **mnt_opts)
-+LSM_HOOK(int, 0, 0, sb_mnt_opts_compat, struct super_block *sb, void *mnt_opts)
-+LSM_HOOK(int, 0, 0, sb_remount, struct super_block *sb, void *mnt_opts)
-+LSM_HOOK(int, 0, 0, sb_kern_mount, const struct super_block *sb)
-+LSM_HOOK(int, 0, 0, sb_show_options, struct seq_file *m, struct super_block *sb)
-+LSM_HOOK(int, 0, 0, sb_statfs, struct dentry *dentry)
-+LSM_HOOK(int, 0, 0, sb_mount, const char *dev_name, const struct path *path,
- 	 const char *type, unsigned long flags, void *data)
--LSM_HOOK(int, 0, sb_umount, struct vfsmount *mnt, int flags)
--LSM_HOOK(int, 0, sb_pivotroot, const struct path *old_path,
-+LSM_HOOK(int, 0, 0, sb_umount, struct vfsmount *mnt, int flags)
-+LSM_HOOK(int, 0, 0, sb_pivotroot, const struct path *old_path,
- 	 const struct path *new_path)
--LSM_HOOK(int, 0, sb_set_mnt_opts, struct super_block *sb, void *mnt_opts,
-+LSM_HOOK(int, 0, 0, sb_set_mnt_opts, struct super_block *sb, void *mnt_opts,
- 	 unsigned long kern_flags, unsigned long *set_kern_flags)
--LSM_HOOK(int, 0, sb_clone_mnt_opts, const struct super_block *oldsb,
-+LSM_HOOK(int, 0, 0, sb_clone_mnt_opts, const struct super_block *oldsb,
- 	 struct super_block *newsb, unsigned long kern_flags,
- 	 unsigned long *set_kern_flags)
--LSM_HOOK(int, 0, move_mount, const struct path *from_path,
-+LSM_HOOK(int, 0, 0, move_mount, const struct path *from_path,
- 	 const struct path *to_path)
--LSM_HOOK(int, -EOPNOTSUPP, dentry_init_security, struct dentry *dentry,
-+LSM_HOOK(int, -EOPNOTSUPP, 0, dentry_init_security, struct dentry *dentry,
- 	 int mode, const struct qstr *name, const char **xattr_name,
+@@ -309,12 +309,12 @@ LSM_HOOK(int, -EINVAL, 0, getprocattr, struct task_struct *p, const char *name,
+ LSM_HOOK(int, -EINVAL, 0, setprocattr, const char *name, void *value,
+ 	 size_t size)
+ LSM_HOOK(int, 0, 0, ismaclabel, const char *name)
+-LSM_HOOK(int, -EOPNOTSUPP, 0, secid_to_secctx, u32 secid,
++LSM_HOOK(int, -EOPNOTSUPP, LSM_FLAG_EXCLUSIVE, secid_to_secctx, u32 secid,
  	 struct lsm_context *cp)
--LSM_HOOK(int, 0, dentry_create_files_as, struct dentry *dentry, int mode,
-+LSM_HOOK(int, 0, 0, dentry_create_files_as, struct dentry *dentry, int mode,
- 	 const struct qstr *name, const struct cred *old, struct cred *new)
- 
- #ifdef CONFIG_SECURITY_PATH
--LSM_HOOK(int, 0, path_unlink, const struct path *dir, struct dentry *dentry)
--LSM_HOOK(int, 0, path_mkdir, const struct path *dir, struct dentry *dentry,
-+LSM_HOOK(int, 0, 0, path_unlink, const struct path *dir, struct dentry *dentry)
-+LSM_HOOK(int, 0, 0, path_mkdir, const struct path *dir, struct dentry *dentry,
- 	 umode_t mode)
--LSM_HOOK(int, 0, path_rmdir, const struct path *dir, struct dentry *dentry)
--LSM_HOOK(int, 0, path_mknod, const struct path *dir, struct dentry *dentry,
-+LSM_HOOK(int, 0, 0, path_rmdir, const struct path *dir, struct dentry *dentry)
-+LSM_HOOK(int, 0, 0, path_mknod, const struct path *dir, struct dentry *dentry,
- 	 umode_t mode, unsigned int dev)
--LSM_HOOK(void, LSM_RET_VOID, path_post_mknod, struct mnt_idmap *idmap,
-+LSM_HOOK(void, LSM_RET_VOID, 0, path_post_mknod, struct mnt_idmap *idmap,
- 	 struct dentry *dentry)
--LSM_HOOK(int, 0, path_truncate, const struct path *path)
--LSM_HOOK(int, 0, path_symlink, const struct path *dir, struct dentry *dentry,
--	 const char *old_name)
--LSM_HOOK(int, 0, path_link, struct dentry *old_dentry,
-+LSM_HOOK(int, 0, 0, path_truncate, const struct path *path)
-+LSM_HOOK(int, 0, 0, path_symlink, const struct path *dir,
-+	 struct dentry *dentry, const char *old_name)
-+LSM_HOOK(int, 0, 0, path_link, struct dentry *old_dentry,
- 	 const struct path *new_dir, struct dentry *new_dentry)
--LSM_HOOK(int, 0, path_rename, const struct path *old_dir,
-+LSM_HOOK(int, 0, 0, path_rename, const struct path *old_dir,
- 	 struct dentry *old_dentry, const struct path *new_dir,
- 	 struct dentry *new_dentry, unsigned int flags)
--LSM_HOOK(int, 0, path_chmod, const struct path *path, umode_t mode)
--LSM_HOOK(int, 0, path_chown, const struct path *path, kuid_t uid, kgid_t gid)
--LSM_HOOK(int, 0, path_chroot, const struct path *path)
-+LSM_HOOK(int, 0, 0, path_chmod, const struct path *path, umode_t mode)
-+LSM_HOOK(int, 0, 0, path_chown, const struct path *path, kuid_t uid, kgid_t gid)
-+LSM_HOOK(int, 0, 0, path_chroot, const struct path *path)
- #endif /* CONFIG_SECURITY_PATH */
- 
- /* Needed for inode based security check */
--LSM_HOOK(int, 0, path_notify, const struct path *path, u64 mask,
-+LSM_HOOK(int, 0, 0, path_notify, const struct path *path, u64 mask,
- 	 unsigned int obj_type)
--LSM_HOOK(int, 0, inode_alloc_security, struct inode *inode)
--LSM_HOOK(void, LSM_RET_VOID, inode_free_security, struct inode *inode)
--LSM_HOOK(void, LSM_RET_VOID, inode_free_security_rcu, void *inode_security)
--LSM_HOOK(int, -EOPNOTSUPP, inode_init_security, struct inode *inode,
-+LSM_HOOK(int, 0, 0, inode_alloc_security, struct inode *inode)
-+LSM_HOOK(void, LSM_RET_VOID, 0, inode_free_security, struct inode *inode)
-+LSM_HOOK(void, LSM_RET_VOID, 0, inode_free_security_rcu, void *inode_security)
-+LSM_HOOK(int, -EOPNOTSUPP, 0, inode_init_security, struct inode *inode,
- 	 struct inode *dir, const struct qstr *qstr, struct xattr *xattrs,
- 	 int *xattr_count)
--LSM_HOOK(int, 0, inode_init_security_anon, struct inode *inode,
-+LSM_HOOK(int, 0, 0, inode_init_security_anon, struct inode *inode,
- 	 const struct qstr *name, const struct inode *context_inode)
--LSM_HOOK(int, 0, inode_create, struct inode *dir, struct dentry *dentry,
-+LSM_HOOK(int, 0, 0, inode_create, struct inode *dir, struct dentry *dentry,
- 	 umode_t mode)
--LSM_HOOK(void, LSM_RET_VOID, inode_post_create_tmpfile, struct mnt_idmap *idmap,
--	 struct inode *inode)
--LSM_HOOK(int, 0, inode_link, struct dentry *old_dentry, struct inode *dir,
-+LSM_HOOK(void, LSM_RET_VOID, 0, inode_post_create_tmpfile,
-+	 struct mnt_idmap *idmap, struct inode *inode)
-+LSM_HOOK(int, 0, 0, inode_link, struct dentry *old_dentry, struct inode *dir,
- 	 struct dentry *new_dentry)
--LSM_HOOK(int, 0, inode_unlink, struct inode *dir, struct dentry *dentry)
--LSM_HOOK(int, 0, inode_symlink, struct inode *dir, struct dentry *dentry,
-+LSM_HOOK(int, 0, 0, inode_unlink, struct inode *dir, struct dentry *dentry)
-+LSM_HOOK(int, 0, 0, inode_symlink, struct inode *dir, struct dentry *dentry,
- 	 const char *old_name)
--LSM_HOOK(int, 0, inode_mkdir, struct inode *dir, struct dentry *dentry,
-+LSM_HOOK(int, 0, 0, inode_mkdir, struct inode *dir, struct dentry *dentry,
- 	 umode_t mode)
--LSM_HOOK(int, 0, inode_rmdir, struct inode *dir, struct dentry *dentry)
--LSM_HOOK(int, 0, inode_mknod, struct inode *dir, struct dentry *dentry,
-+LSM_HOOK(int, 0, 0, inode_rmdir, struct inode *dir, struct dentry *dentry)
-+LSM_HOOK(int, 0, 0, inode_mknod, struct inode *dir, struct dentry *dentry,
- 	 umode_t mode, dev_t dev)
--LSM_HOOK(int, 0, inode_rename, struct inode *old_dir, struct dentry *old_dentry,
--	 struct inode *new_dir, struct dentry *new_dentry)
--LSM_HOOK(int, 0, inode_readlink, struct dentry *dentry)
--LSM_HOOK(int, 0, inode_follow_link, struct dentry *dentry, struct inode *inode,
--	 bool rcu)
--LSM_HOOK(int, 0, inode_permission, struct inode *inode, int mask)
--LSM_HOOK(int, 0, inode_setattr, struct mnt_idmap *idmap, struct dentry *dentry,
--	 struct iattr *attr)
--LSM_HOOK(void, LSM_RET_VOID, inode_post_setattr, struct mnt_idmap *idmap,
-+LSM_HOOK(int, 0, 0, inode_rename, struct inode *old_dir,
-+	 struct dentry *old_dentry, struct inode *new_dir,
-+	 struct dentry *new_dentry)
-+LSM_HOOK(int, 0, 0, inode_readlink, struct dentry *dentry)
-+LSM_HOOK(int, 0, 0, inode_follow_link, struct dentry *dentry,
-+	 struct inode *inode, bool rcu)
-+LSM_HOOK(int, 0, 0, inode_permission, struct inode *inode, int mask)
-+LSM_HOOK(int, 0, 0, inode_setattr, struct mnt_idmap *idmap, struct dentry *dentry, struct iattr *attr)
-+LSM_HOOK(void, LSM_RET_VOID, 0, inode_post_setattr, struct mnt_idmap *idmap,
- 	 struct dentry *dentry, int ia_valid)
--LSM_HOOK(int, 0, inode_getattr, const struct path *path)
--LSM_HOOK(int, 0, inode_xattr_skipcap, const char *name)
--LSM_HOOK(int, 0, inode_setxattr, struct mnt_idmap *idmap,
-+LSM_HOOK(int, 0, 0, inode_getattr, const struct path *path)
-+LSM_HOOK(int, 0, 0, inode_xattr_skipcap, const char *name)
-+LSM_HOOK(int, 0, 0, inode_setxattr, struct mnt_idmap *idmap,
- 	 struct dentry *dentry, const char *name, const void *value,
- 	 size_t size, int flags)
--LSM_HOOK(void, LSM_RET_VOID, inode_post_setxattr, struct dentry *dentry,
-+LSM_HOOK(void, LSM_RET_VOID, 0, inode_post_setxattr, struct dentry *dentry,
- 	 const char *name, const void *value, size_t size, int flags)
--LSM_HOOK(int, 0, inode_getxattr, struct dentry *dentry, const char *name)
--LSM_HOOK(int, 0, inode_listxattr, struct dentry *dentry)
--LSM_HOOK(int, 0, inode_removexattr, struct mnt_idmap *idmap,
-+LSM_HOOK(int, 0, 0, inode_getxattr, struct dentry *dentry, const char *name)
-+LSM_HOOK(int, 0, 0, inode_listxattr, struct dentry *dentry)
-+LSM_HOOK(int, 0, 0, inode_removexattr, struct mnt_idmap *idmap,
- 	 struct dentry *dentry, const char *name)
--LSM_HOOK(void, LSM_RET_VOID, inode_post_removexattr, struct dentry *dentry,
-+LSM_HOOK(void, LSM_RET_VOID, 0, inode_post_removexattr, struct dentry *dentry,
- 	 const char *name)
--LSM_HOOK(int, 0, inode_file_setattr, struct dentry *dentry, struct file_kattr *fa)
--LSM_HOOK(int, 0, inode_file_getattr, struct dentry *dentry, struct file_kattr *fa)
--LSM_HOOK(int, 0, inode_set_acl, struct mnt_idmap *idmap,
-+LSM_HOOK(int, 0, 0, inode_file_setattr, struct dentry *dentry,
-+	 struct file_kattr *fa)
-+LSM_HOOK(int, 0, 0, inode_file_getattr, struct dentry *dentry,
-+	 struct file_kattr *fa)
-+LSM_HOOK(int, 0, 0, inode_set_acl, struct mnt_idmap *idmap,
- 	 struct dentry *dentry, const char *acl_name, struct posix_acl *kacl)
--LSM_HOOK(void, LSM_RET_VOID, inode_post_set_acl, struct dentry *dentry,
-+LSM_HOOK(void, LSM_RET_VOID, 0, inode_post_set_acl, struct dentry *dentry,
- 	 const char *acl_name, struct posix_acl *kacl)
--LSM_HOOK(int, 0, inode_get_acl, struct mnt_idmap *idmap,
-+LSM_HOOK(int, 0, 0, inode_get_acl, struct mnt_idmap *idmap,
- 	 struct dentry *dentry, const char *acl_name)
--LSM_HOOK(int, 0, inode_remove_acl, struct mnt_idmap *idmap,
-+LSM_HOOK(int, 0, 0, inode_remove_acl, struct mnt_idmap *idmap,
- 	 struct dentry *dentry, const char *acl_name)
--LSM_HOOK(void, LSM_RET_VOID, inode_post_remove_acl, struct mnt_idmap *idmap,
-+LSM_HOOK(void, LSM_RET_VOID, 0, inode_post_remove_acl, struct mnt_idmap *idmap,
- 	 struct dentry *dentry, const char *acl_name)
--LSM_HOOK(int, 0, inode_need_killpriv, struct dentry *dentry)
--LSM_HOOK(int, 0, inode_killpriv, struct mnt_idmap *idmap,
-+LSM_HOOK(int, 0, 0, inode_need_killpriv, struct dentry *dentry)
-+LSM_HOOK(int, 0, 0, inode_killpriv, struct mnt_idmap *idmap,
- 	 struct dentry *dentry)
--LSM_HOOK(int, -EOPNOTSUPP, inode_getsecurity, struct mnt_idmap *idmap,
-+LSM_HOOK(int, -EOPNOTSUPP, 0, inode_getsecurity, struct mnt_idmap *idmap,
- 	 struct inode *inode, const char *name, void **buffer, bool alloc)
--LSM_HOOK(int, -EOPNOTSUPP, inode_setsecurity, struct inode *inode,
-+LSM_HOOK(int, -EOPNOTSUPP, 0, inode_setsecurity, struct inode *inode,
- 	 const char *name, const void *value, size_t size, int flags)
--LSM_HOOK(int, 0, inode_listsecurity, struct inode *inode, char *buffer,
-+LSM_HOOK(int, 0, 0, inode_listsecurity, struct inode *inode, char *buffer,
- 	 size_t buffer_size)
--LSM_HOOK(void, LSM_RET_VOID, inode_getlsmprop, struct inode *inode,
-+LSM_HOOK(void, LSM_RET_VOID, 0, inode_getlsmprop, struct inode *inode,
- 	 struct lsm_prop *prop)
--LSM_HOOK(int, 0, inode_copy_up, struct dentry *src, struct cred **new)
--LSM_HOOK(int, -EOPNOTSUPP, inode_copy_up_xattr, struct dentry *src,
-+LSM_HOOK(int, 0, 0, inode_copy_up, struct dentry *src, struct cred **new)
-+LSM_HOOK(int, -EOPNOTSUPP, 0, inode_copy_up_xattr, struct dentry *src,
- 	 const char *name)
--LSM_HOOK(int, 0, inode_setintegrity, const struct inode *inode,
-+LSM_HOOK(int, 0, 0, inode_setintegrity, const struct inode *inode,
- 	 enum lsm_integrity_type type, const void *value, size_t size)
--LSM_HOOK(int, 0, kernfs_init_security, struct kernfs_node *kn_dir,
-+LSM_HOOK(int, 0, 0, kernfs_init_security, struct kernfs_node *kn_dir,
- 	 struct kernfs_node *kn)
--LSM_HOOK(int, 0, file_permission, struct file *file, int mask)
--LSM_HOOK(int, 0, file_alloc_security, struct file *file)
--LSM_HOOK(void, LSM_RET_VOID, file_release, struct file *file)
--LSM_HOOK(void, LSM_RET_VOID, file_free_security, struct file *file)
--LSM_HOOK(int, 0, file_ioctl, struct file *file, unsigned int cmd,
-+LSM_HOOK(int, 0, 0, file_permission, struct file *file, int mask)
-+LSM_HOOK(int, 0, 0, file_alloc_security, struct file *file)
-+LSM_HOOK(void, LSM_RET_VOID, 0, file_release, struct file *file)
-+LSM_HOOK(void, LSM_RET_VOID, 0, file_free_security, struct file *file)
-+LSM_HOOK(int, 0, 0, file_ioctl, struct file *file, unsigned int cmd,
- 	 unsigned long arg)
--LSM_HOOK(int, 0, file_ioctl_compat, struct file *file, unsigned int cmd,
-+LSM_HOOK(int, 0, 0, file_ioctl_compat, struct file *file, unsigned int cmd,
- 	 unsigned long arg)
--LSM_HOOK(int, 0, mmap_addr, unsigned long addr)
--LSM_HOOK(int, 0, mmap_file, struct file *file, unsigned long reqprot,
-+LSM_HOOK(int, 0, 0, mmap_addr, unsigned long addr)
-+LSM_HOOK(int, 0, 0, mmap_file, struct file *file, unsigned long reqprot,
- 	 unsigned long prot, unsigned long flags)
--LSM_HOOK(int, 0, file_mprotect, struct vm_area_struct *vma,
-+LSM_HOOK(int, 0, 0, file_mprotect, struct vm_area_struct *vma,
- 	 unsigned long reqprot, unsigned long prot)
--LSM_HOOK(int, 0, file_lock, struct file *file, unsigned int cmd)
--LSM_HOOK(int, 0, file_fcntl, struct file *file, unsigned int cmd,
-+LSM_HOOK(int, 0, 0, file_lock, struct file *file, unsigned int cmd)
-+LSM_HOOK(int, 0, 0, file_fcntl, struct file *file, unsigned int cmd,
- 	 unsigned long arg)
--LSM_HOOK(void, LSM_RET_VOID, file_set_fowner, struct file *file)
--LSM_HOOK(int, 0, file_send_sigiotask, struct task_struct *tsk,
-+LSM_HOOK(void, LSM_RET_VOID, 0, file_set_fowner, struct file *file)
-+LSM_HOOK(int, 0, 0, file_send_sigiotask, struct task_struct *tsk,
- 	 struct fown_struct *fown, int sig)
--LSM_HOOK(int, 0, file_receive, struct file *file)
--LSM_HOOK(int, 0, file_open, struct file *file)
--LSM_HOOK(int, 0, file_post_open, struct file *file, int mask)
--LSM_HOOK(int, 0, file_truncate, struct file *file)
--LSM_HOOK(int, 0, task_alloc, struct task_struct *task,
--	 u64 clone_flags)
--LSM_HOOK(void, LSM_RET_VOID, task_free, struct task_struct *task)
--LSM_HOOK(int, 0, cred_alloc_blank, struct cred *cred, gfp_t gfp)
--LSM_HOOK(void, LSM_RET_VOID, cred_free, struct cred *cred)
--LSM_HOOK(int, 0, cred_prepare, struct cred *new, const struct cred *old,
-+LSM_HOOK(int, 0, 0, file_receive, struct file *file)
-+LSM_HOOK(int, 0, 0, file_open, struct file *file)
-+LSM_HOOK(int, 0, 0, file_post_open, struct file *file, int mask)
-+LSM_HOOK(int, 0, 0, file_truncate, struct file *file)
-+LSM_HOOK(int, 0, 0, task_alloc, struct task_struct *task, u64 clone_flags)
-+LSM_HOOK(void, LSM_RET_VOID, 0, task_free, struct task_struct *task)
-+LSM_HOOK(int, 0, 0, cred_alloc_blank, struct cred *cred, gfp_t gfp)
-+LSM_HOOK(void, LSM_RET_VOID, 0, cred_free, struct cred *cred)
-+LSM_HOOK(int, 0, 0, cred_prepare, struct cred *new, const struct cred *old,
- 	 gfp_t gfp)
--LSM_HOOK(void, LSM_RET_VOID, cred_transfer, struct cred *new,
-+LSM_HOOK(void, LSM_RET_VOID, 0, cred_transfer, struct cred *new,
- 	 const struct cred *old)
--LSM_HOOK(void, LSM_RET_VOID, cred_getsecid, const struct cred *c, u32 *secid)
--LSM_HOOK(void, LSM_RET_VOID, cred_getlsmprop, const struct cred *c,
-+LSM_HOOK(void, LSM_RET_VOID, 0, cred_getsecid, const struct cred *c, u32 *secid)
-+LSM_HOOK(void, LSM_RET_VOID, 0, cred_getlsmprop, const struct cred *c,
- 	 struct lsm_prop *prop)
--LSM_HOOK(int, 0, kernel_act_as, struct cred *new, u32 secid)
--LSM_HOOK(int, 0, kernel_create_files_as, struct cred *new, struct inode *inode)
--LSM_HOOK(int, 0, kernel_module_request, char *kmod_name)
--LSM_HOOK(int, 0, kernel_load_data, enum kernel_load_data_id id, bool contents)
--LSM_HOOK(int, 0, kernel_post_load_data, char *buf, loff_t size,
-+LSM_HOOK(int, 0, 0, kernel_act_as, struct cred *new, u32 secid)
-+LSM_HOOK(int, 0, 0, kernel_create_files_as, struct cred *new,
-+	 struct inode *inode)
-+LSM_HOOK(int, 0, 0, kernel_module_request, char *kmod_name)
-+LSM_HOOK(int, 0, 0, kernel_load_data, enum kernel_load_data_id id,
-+	 bool contents)
-+LSM_HOOK(int, 0, 0, kernel_post_load_data, char *buf, loff_t size,
- 	 enum kernel_load_data_id id, char *description)
--LSM_HOOK(int, 0, kernel_read_file, struct file *file,
-+LSM_HOOK(int, 0, 0, kernel_read_file, struct file *file,
- 	 enum kernel_read_file_id id, bool contents)
--LSM_HOOK(int, 0, kernel_post_read_file, struct file *file, char *buf,
-+LSM_HOOK(int, 0, 0, kernel_post_read_file, struct file *file, char *buf,
- 	 loff_t size, enum kernel_read_file_id id)
--LSM_HOOK(int, 0, task_fix_setuid, struct cred *new, const struct cred *old,
-+LSM_HOOK(int, 0, 0, task_fix_setuid, struct cred *new, const struct cred *old,
- 	 int flags)
--LSM_HOOK(int, 0, task_fix_setgid, struct cred *new, const struct cred * old,
-+LSM_HOOK(int, 0, 0, task_fix_setgid, struct cred *new, const struct cred *old,
- 	 int flags)
--LSM_HOOK(int, 0, task_fix_setgroups, struct cred *new, const struct cred * old)
--LSM_HOOK(int, 0, task_setpgid, struct task_struct *p, pid_t pgid)
--LSM_HOOK(int, 0, task_getpgid, struct task_struct *p)
--LSM_HOOK(int, 0, task_getsid, struct task_struct *p)
--LSM_HOOK(void, LSM_RET_VOID, current_getlsmprop_subj, struct lsm_prop *prop)
--LSM_HOOK(void, LSM_RET_VOID, task_getlsmprop_obj,
--	 struct task_struct *p, struct lsm_prop *prop)
--LSM_HOOK(int, 0, task_setnice, struct task_struct *p, int nice)
--LSM_HOOK(int, 0, task_setioprio, struct task_struct *p, int ioprio)
--LSM_HOOK(int, 0, task_getioprio, struct task_struct *p)
--LSM_HOOK(int, 0, task_prlimit, const struct cred *cred,
-+LSM_HOOK(int, 0, 0, task_fix_setgroups, struct cred *new,
-+	 const struct cred *old)
-+LSM_HOOK(int, 0, 0, task_setpgid, struct task_struct *p, pid_t pgid)
-+LSM_HOOK(int, 0, 0, task_getpgid, struct task_struct *p)
-+LSM_HOOK(int, 0, 0, task_getsid, struct task_struct *p)
-+LSM_HOOK(void, LSM_RET_VOID, 0, current_getlsmprop_subj, struct lsm_prop *prop)
-+LSM_HOOK(void, LSM_RET_VOID, 0, task_getlsmprop_obj, struct task_struct *p,
-+	 struct lsm_prop *prop)
-+LSM_HOOK(int, 0, 0, task_setnice, struct task_struct *p, int nice)
-+LSM_HOOK(int, 0, 0, task_setioprio, struct task_struct *p, int ioprio)
-+LSM_HOOK(int, 0, 0, task_getioprio, struct task_struct *p)
-+LSM_HOOK(int, 0, 0, task_prlimit, const struct cred *cred,
- 	 const struct cred *tcred, unsigned int flags)
--LSM_HOOK(int, 0, task_setrlimit, struct task_struct *p, unsigned int resource,
--	 struct rlimit *new_rlim)
--LSM_HOOK(int, 0, task_setscheduler, struct task_struct *p)
--LSM_HOOK(int, 0, task_getscheduler, struct task_struct *p)
--LSM_HOOK(int, 0, task_movememory, struct task_struct *p)
--LSM_HOOK(int, 0, task_kill, struct task_struct *p, struct kernel_siginfo *info,
--	 int sig, const struct cred *cred)
--LSM_HOOK(int, -ENOSYS, task_prctl, int option, unsigned long arg2,
-+LSM_HOOK(int, 0, 0, task_setrlimit, struct task_struct *p,
-+	 unsigned int resource, struct rlimit *new_rlim)
-+LSM_HOOK(int, 0, 0, task_setscheduler, struct task_struct *p)
-+LSM_HOOK(int, 0, 0, task_getscheduler, struct task_struct *p)
-+LSM_HOOK(int, 0, 0, task_movememory, struct task_struct *p)
-+LSM_HOOK(int, 0, 0, task_kill, struct task_struct *p,
-+	 struct kernel_siginfo *info, int sig, const struct cred *cred)
-+LSM_HOOK(int, -ENOSYS, 0, task_prctl, int option, unsigned long arg2,
- 	 unsigned long arg3, unsigned long arg4, unsigned long arg5)
--LSM_HOOK(void, LSM_RET_VOID, task_to_inode, struct task_struct *p,
-+LSM_HOOK(void, LSM_RET_VOID, 0, task_to_inode, struct task_struct *p,
- 	 struct inode *inode)
--LSM_HOOK(int, 0, userns_create, const struct cred *cred)
--LSM_HOOK(int, 0, ipc_permission, struct kern_ipc_perm *ipcp, short flag)
--LSM_HOOK(void, LSM_RET_VOID, ipc_getlsmprop, struct kern_ipc_perm *ipcp,
-+LSM_HOOK(int, 0, 0, userns_create, const struct cred *cred)
-+LSM_HOOK(int, 0, 0, ipc_permission, struct kern_ipc_perm *ipcp, short flag)
-+LSM_HOOK(void, LSM_RET_VOID, 0, ipc_getlsmprop, struct kern_ipc_perm *ipcp,
- 	 struct lsm_prop *prop)
--LSM_HOOK(int, 0, msg_msg_alloc_security, struct msg_msg *msg)
--LSM_HOOK(void, LSM_RET_VOID, msg_msg_free_security, struct msg_msg *msg)
--LSM_HOOK(int, 0, msg_queue_alloc_security, struct kern_ipc_perm *perm)
--LSM_HOOK(void, LSM_RET_VOID, msg_queue_free_security,
-+LSM_HOOK(int, 0, 0, msg_msg_alloc_security, struct msg_msg *msg)
-+LSM_HOOK(void, LSM_RET_VOID, 0, msg_msg_free_security, struct msg_msg *msg)
-+LSM_HOOK(int, 0, 0, msg_queue_alloc_security, struct kern_ipc_perm *perm)
-+LSM_HOOK(void, LSM_RET_VOID, 0, msg_queue_free_security,
- 	 struct kern_ipc_perm *perm)
--LSM_HOOK(int, 0, msg_queue_associate, struct kern_ipc_perm *perm, int msqflg)
--LSM_HOOK(int, 0, msg_queue_msgctl, struct kern_ipc_perm *perm, int cmd)
--LSM_HOOK(int, 0, msg_queue_msgsnd, struct kern_ipc_perm *perm,
-+LSM_HOOK(int, 0, 0, msg_queue_associate, struct kern_ipc_perm *perm, int msqflg)
-+LSM_HOOK(int, 0, 0, msg_queue_msgctl, struct kern_ipc_perm *perm, int cmd)
-+LSM_HOOK(int, 0, 0, msg_queue_msgsnd, struct kern_ipc_perm *perm,
- 	 struct msg_msg *msg, int msqflg)
--LSM_HOOK(int, 0, msg_queue_msgrcv, struct kern_ipc_perm *perm,
-+LSM_HOOK(int, 0, 0, msg_queue_msgrcv, struct kern_ipc_perm *perm,
- 	 struct msg_msg *msg, struct task_struct *target, long type, int mode)
--LSM_HOOK(int, 0, shm_alloc_security, struct kern_ipc_perm *perm)
--LSM_HOOK(void, LSM_RET_VOID, shm_free_security, struct kern_ipc_perm *perm)
--LSM_HOOK(int, 0, shm_associate, struct kern_ipc_perm *perm, int shmflg)
--LSM_HOOK(int, 0, shm_shmctl, struct kern_ipc_perm *perm, int cmd)
--LSM_HOOK(int, 0, shm_shmat, struct kern_ipc_perm *perm, char __user *shmaddr,
--	 int shmflg)
--LSM_HOOK(int, 0, sem_alloc_security, struct kern_ipc_perm *perm)
--LSM_HOOK(void, LSM_RET_VOID, sem_free_security, struct kern_ipc_perm *perm)
--LSM_HOOK(int, 0, sem_associate, struct kern_ipc_perm *perm, int semflg)
--LSM_HOOK(int, 0, sem_semctl, struct kern_ipc_perm *perm, int cmd)
--LSM_HOOK(int, 0, sem_semop, struct kern_ipc_perm *perm, struct sembuf *sops,
-+LSM_HOOK(int, 0, 0, shm_alloc_security, struct kern_ipc_perm *perm)
-+LSM_HOOK(void, LSM_RET_VOID, 0, shm_free_security, struct kern_ipc_perm *perm)
-+LSM_HOOK(int, 0, 0, shm_associate, struct kern_ipc_perm *perm, int shmflg)
-+LSM_HOOK(int, 0, 0, shm_shmctl, struct kern_ipc_perm *perm, int cmd)
-+LSM_HOOK(int, 0, 0, shm_shmat, struct kern_ipc_perm *perm,
-+	 char __user *shmaddr, int shmflg)
-+LSM_HOOK(int, 0, 0, sem_alloc_security, struct kern_ipc_perm *perm)
-+LSM_HOOK(void, LSM_RET_VOID, 0, sem_free_security, struct kern_ipc_perm *perm)
-+LSM_HOOK(int, 0, 0, sem_associate, struct kern_ipc_perm *perm, int semflg)
-+LSM_HOOK(int, 0, 0, sem_semctl, struct kern_ipc_perm *perm, int cmd)
-+LSM_HOOK(int, 0, 0, sem_semop, struct kern_ipc_perm *perm, struct sembuf *sops,
- 	 unsigned nsops, int alter)
--LSM_HOOK(int, 0, netlink_send, struct sock *sk, struct sk_buff *skb)
--LSM_HOOK(void, LSM_RET_VOID, d_instantiate, struct dentry *dentry,
-+LSM_HOOK(int, 0, 0, netlink_send, struct sock *sk, struct sk_buff *skb)
-+LSM_HOOK(void, LSM_RET_VOID, 0, d_instantiate, struct dentry *dentry,
- 	 struct inode *inode)
--LSM_HOOK(int, -EOPNOTSUPP, getselfattr, unsigned int attr,
-+LSM_HOOK(int, -EOPNOTSUPP, 0, getselfattr, unsigned int attr,
- 	 struct lsm_ctx __user *ctx, u32 *size, u32 flags)
--LSM_HOOK(int, -EOPNOTSUPP, setselfattr, unsigned int attr,
-+LSM_HOOK(int, -EOPNOTSUPP, 0, setselfattr, unsigned int attr,
- 	 struct lsm_ctx *ctx, u32 size, u32 flags)
--LSM_HOOK(int, -EINVAL, getprocattr, struct task_struct *p, const char *name,
-+LSM_HOOK(int, -EINVAL, 0, getprocattr, struct task_struct *p, const char *name,
- 	 char **value)
--LSM_HOOK(int, -EINVAL, setprocattr, const char *name, void *value, size_t size)
--LSM_HOOK(int, 0, ismaclabel, const char *name)
--LSM_HOOK(int, -EOPNOTSUPP, secid_to_secctx, u32 secid, struct lsm_context *cp)
--LSM_HOOK(int, -EOPNOTSUPP, lsmprop_to_secctx, struct lsm_prop *prop,
-+LSM_HOOK(int, -EINVAL, 0, setprocattr, const char *name, void *value,
-+	 size_t size)
-+LSM_HOOK(int, 0, 0, ismaclabel, const char *name)
-+LSM_HOOK(int, -EOPNOTSUPP, 0, secid_to_secctx, u32 secid,
-+	 struct lsm_context *cp)
-+LSM_HOOK(int, -EOPNOTSUPP, 0, lsmprop_to_secctx, struct lsm_prop *prop,
+ LSM_HOOK(int, -EOPNOTSUPP, 0, lsmprop_to_secctx, struct lsm_prop *prop,
  	 struct lsm_context *cp)
--LSM_HOOK(int, 0, secctx_to_secid, const char *secdata, u32 seclen, u32 *secid)
--LSM_HOOK(void, LSM_RET_VOID, release_secctx, struct lsm_context *cp)
--LSM_HOOK(void, LSM_RET_VOID, inode_invalidate_secctx, struct inode *inode)
--LSM_HOOK(int, 0, inode_notifysecctx, struct inode *inode, void *ctx, u32 ctxlen)
--LSM_HOOK(int, 0, inode_setsecctx, struct dentry *dentry, void *ctx, u32 ctxlen)
--LSM_HOOK(int, -EOPNOTSUPP, inode_getsecctx, struct inode *inode,
-+LSM_HOOK(int, 0, 0, secctx_to_secid, const char *secdata, u32 seclen,
-+	 u32 *secid)
-+LSM_HOOK(void, LSM_RET_VOID, 0, release_secctx, struct lsm_context *cp)
-+LSM_HOOK(void, LSM_RET_VOID, 0, inode_invalidate_secctx, struct inode *inode)
-+LSM_HOOK(int, 0, 0, inode_notifysecctx, struct inode *inode, void *ctx,
-+	 u32 ctxlen)
-+LSM_HOOK(int, 0, 0, inode_setsecctx, struct dentry *dentry, void *ctx,
-+	 u32 ctxlen)
-+LSM_HOOK(int, -EOPNOTSUPP, 0, inode_getsecctx, struct inode *inode,
- 	 struct lsm_context *cp)
- 
- #if defined(CONFIG_SECURITY) && defined(CONFIG_WATCH_QUEUE)
--LSM_HOOK(int, 0, post_notification, const struct cred *w_cred,
-+LSM_HOOK(int, 0, 0, post_notification, const struct cred *w_cred,
- 	 const struct cred *cred, struct watch_notification *n)
- #endif /* CONFIG_SECURITY && CONFIG_WATCH_QUEUE */
- 
- #if defined(CONFIG_SECURITY) && defined(CONFIG_KEY_NOTIFICATIONS)
--LSM_HOOK(int, 0, watch_key, struct key *key)
-+LSM_HOOK(int, 0, 0, watch_key, struct key *key)
- #endif /* CONFIG_SECURITY && CONFIG_KEY_NOTIFICATIONS */
- 
- #ifdef CONFIG_SECURITY_NETWORK
--LSM_HOOK(int, 0, unix_stream_connect, struct sock *sock, struct sock *other,
-+LSM_HOOK(int, 0, 0, unix_stream_connect, struct sock *sock, struct sock *other,
- 	 struct sock *newsk)
--LSM_HOOK(int, 0, unix_may_send, struct socket *sock, struct socket *other)
--LSM_HOOK(int, 0, socket_create, int family, int type, int protocol, int kern)
--LSM_HOOK(int, 0, socket_post_create, struct socket *sock, int family, int type,
--	 int protocol, int kern)
--LSM_HOOK(int, 0, socket_socketpair, struct socket *socka, struct socket *sockb)
--LSM_HOOK(int, 0, socket_bind, struct socket *sock, struct sockaddr *address,
--	 int addrlen)
--LSM_HOOK(int, 0, socket_connect, struct socket *sock, struct sockaddr *address,
-+LSM_HOOK(int, 0, 0, unix_may_send, struct socket *sock, struct socket *other)
-+LSM_HOOK(int, 0, 0, socket_create, int family, int type, int protocol,
-+	 int kern)
-+LSM_HOOK(int, 0, 0, socket_post_create, struct socket *sock, int family,
-+	 int type, int protocol, int kern)
-+LSM_HOOK(int, 0, 0, socket_socketpair, struct socket *socka,
-+	 struct socket *sockb)
-+LSM_HOOK(int, 0, 0, socket_bind, struct socket *sock, struct sockaddr *address,
- 	 int addrlen)
--LSM_HOOK(int, 0, socket_listen, struct socket *sock, int backlog)
--LSM_HOOK(int, 0, socket_accept, struct socket *sock, struct socket *newsock)
--LSM_HOOK(int, 0, socket_sendmsg, struct socket *sock, struct msghdr *msg,
-+LSM_HOOK(int, 0, 0, socket_connect, struct socket *sock,
-+	 struct sockaddr *address, int addrlen)
-+LSM_HOOK(int, 0, 0, socket_listen, struct socket *sock, int backlog)
-+LSM_HOOK(int, 0, 0, socket_accept, struct socket *sock, struct socket *newsock)
-+LSM_HOOK(int, 0, 0, socket_sendmsg, struct socket *sock, struct msghdr *msg,
- 	 int size)
--LSM_HOOK(int, 0, socket_recvmsg, struct socket *sock, struct msghdr *msg,
-+LSM_HOOK(int, 0, 0, socket_recvmsg, struct socket *sock, struct msghdr *msg,
- 	 int size, int flags)
--LSM_HOOK(int, 0, socket_getsockname, struct socket *sock)
--LSM_HOOK(int, 0, socket_getpeername, struct socket *sock)
--LSM_HOOK(int, 0, socket_getsockopt, struct socket *sock, int level, int optname)
--LSM_HOOK(int, 0, socket_setsockopt, struct socket *sock, int level, int optname)
--LSM_HOOK(int, 0, socket_shutdown, struct socket *sock, int how)
--LSM_HOOK(int, 0, socket_sock_rcv_skb, struct sock *sk, struct sk_buff *skb)
--LSM_HOOK(int, -ENOPROTOOPT, socket_getpeersec_stream, struct socket *sock,
-+LSM_HOOK(int, 0, 0, socket_getsockname, struct socket *sock)
-+LSM_HOOK(int, 0, 0, socket_getpeername, struct socket *sock)
-+LSM_HOOK(int, 0, 0, socket_getsockopt, struct socket *sock, int level,
-+	 int optname)
-+LSM_HOOK(int, 0, 0, socket_setsockopt, struct socket *sock, int level,
-+	 int optname)
-+LSM_HOOK(int, 0, 0, socket_shutdown, struct socket *sock, int how)
-+LSM_HOOK(int, 0, 0, socket_sock_rcv_skb, struct sock *sk, struct sk_buff *skb)
-+LSM_HOOK(int, -ENOPROTOOPT, 0, socket_getpeersec_stream, struct socket *sock,
- 	 sockptr_t optval, sockptr_t optlen, unsigned int len)
--LSM_HOOK(int, -ENOPROTOOPT, socket_getpeersec_dgram, struct socket *sock,
-+LSM_HOOK(int, -ENOPROTOOPT, 0, socket_getpeersec_dgram, struct socket *sock,
- 	 struct sk_buff *skb, u32 *secid)
--LSM_HOOK(int, 0, sk_alloc_security, struct sock *sk, int family, gfp_t priority)
--LSM_HOOK(void, LSM_RET_VOID, sk_free_security, struct sock *sk)
--LSM_HOOK(void, LSM_RET_VOID, sk_clone_security, const struct sock *sk,
-+LSM_HOOK(int, 0, 0, sk_alloc_security, struct sock *sk, int family,
-+	 gfp_t priority)
-+LSM_HOOK(void, LSM_RET_VOID, 0, sk_free_security, struct sock *sk)
-+LSM_HOOK(void, LSM_RET_VOID, 0, sk_clone_security, const struct sock *sk,
- 	 struct sock *newsk)
--LSM_HOOK(void, LSM_RET_VOID, sk_getsecid, const struct sock *sk, u32 *secid)
--LSM_HOOK(void, LSM_RET_VOID, sock_graft, struct sock *sk, struct socket *parent)
--LSM_HOOK(int, 0, inet_conn_request, const struct sock *sk, struct sk_buff *skb,
--	 struct request_sock *req)
--LSM_HOOK(void, LSM_RET_VOID, inet_csk_clone, struct sock *newsk,
-+LSM_HOOK(void, LSM_RET_VOID, 0, sk_getsecid, const struct sock *sk, u32 *secid)
-+LSM_HOOK(void, LSM_RET_VOID, 0, sock_graft, struct sock *sk,
-+	 struct socket *parent)
-+LSM_HOOK(int, 0, 0, inet_conn_request, const struct sock *sk,
-+	 struct sk_buff *skb, struct request_sock *req)
-+LSM_HOOK(void, LSM_RET_VOID, 0, inet_csk_clone, struct sock *newsk,
+-LSM_HOOK(int, 0, 0, secctx_to_secid, const char *secdata, u32 seclen,
+-	 u32 *secid)
++LSM_HOOK(int, 0, LSM_FLAG_EXCLUSIVE, secctx_to_secid, const char *secdata,
++	 u32 seclen, u32 *secid)
+ LSM_HOOK(void, LSM_RET_VOID, 0, release_secctx, struct lsm_context *cp)
+ LSM_HOOK(void, LSM_RET_VOID, 0, inode_invalidate_secctx, struct inode *inode)
+ LSM_HOOK(int, 0, 0, inode_notifysecctx, struct inode *inode, void *ctx,
+@@ -379,9 +379,9 @@ LSM_HOOK(void, LSM_RET_VOID, 0, inet_csk_clone, struct sock *newsk,
  	 const struct request_sock *req)
--LSM_HOOK(void, LSM_RET_VOID, inet_conn_established, struct sock *sk,
-+LSM_HOOK(void, LSM_RET_VOID, 0, inet_conn_established, struct sock *sk,
+ LSM_HOOK(void, LSM_RET_VOID, 0, inet_conn_established, struct sock *sk,
  	 struct sk_buff *skb)
--LSM_HOOK(int, 0, secmark_relabel_packet, u32 secid)
--LSM_HOOK(void, LSM_RET_VOID, secmark_refcount_inc, void)
--LSM_HOOK(void, LSM_RET_VOID, secmark_refcount_dec, void)
--LSM_HOOK(void, LSM_RET_VOID, req_classify_flow, const struct request_sock *req,
--	 struct flowi_common *flic)
--LSM_HOOK(int, 0, tun_dev_alloc_security, void *security)
--LSM_HOOK(int, 0, tun_dev_create, void)
--LSM_HOOK(int, 0, tun_dev_attach_queue, void *security)
--LSM_HOOK(int, 0, tun_dev_attach, struct sock *sk, void *security)
--LSM_HOOK(int, 0, tun_dev_open, void *security)
--LSM_HOOK(int, 0, sctp_assoc_request, struct sctp_association *asoc,
-+LSM_HOOK(int, 0, 0, secmark_relabel_packet, u32 secid)
-+LSM_HOOK(void, LSM_RET_VOID, 0, secmark_refcount_inc, void)
-+LSM_HOOK(void, LSM_RET_VOID, 0, secmark_refcount_dec, void)
-+LSM_HOOK(void, LSM_RET_VOID, 0, req_classify_flow,
-+	 const struct request_sock *req, struct flowi_common *flic)
-+LSM_HOOK(int, 0, 0, tun_dev_alloc_security, void *security)
-+LSM_HOOK(int, 0, 0, tun_dev_create, void)
-+LSM_HOOK(int, 0, 0, tun_dev_attach_queue, void *security)
-+LSM_HOOK(int, 0, 0, tun_dev_attach, struct sock *sk, void *security)
-+LSM_HOOK(int, 0, 0, tun_dev_open, void *security)
-+LSM_HOOK(int, 0, 0, sctp_assoc_request, struct sctp_association *asoc,
- 	 struct sk_buff *skb)
--LSM_HOOK(int, 0, sctp_bind_connect, struct sock *sk, int optname,
-+LSM_HOOK(int, 0, 0, sctp_bind_connect, struct sock *sk, int optname,
- 	 struct sockaddr *address, int addrlen)
--LSM_HOOK(void, LSM_RET_VOID, sctp_sk_clone, struct sctp_association *asoc,
-+LSM_HOOK(void, LSM_RET_VOID, 0, sctp_sk_clone, struct sctp_association *asoc,
- 	 struct sock *sk, struct sock *newsk)
--LSM_HOOK(int, 0, sctp_assoc_established, struct sctp_association *asoc,
-+LSM_HOOK(int, 0, 0, sctp_assoc_established, struct sctp_association *asoc,
- 	 struct sk_buff *skb)
--LSM_HOOK(int, 0, mptcp_add_subflow, struct sock *sk, struct sock *ssk)
-+LSM_HOOK(int, 0, 0, mptcp_add_subflow, struct sock *sk, struct sock *ssk)
- #endif /* CONFIG_SECURITY_NETWORK */
+-LSM_HOOK(int, 0, 0, secmark_relabel_packet, u32 secid)
+-LSM_HOOK(void, LSM_RET_VOID, 0, secmark_refcount_inc, void)
+-LSM_HOOK(void, LSM_RET_VOID, 0, secmark_refcount_dec, void)
++LSM_HOOK(int, 0, LSM_FLAG_EXCLUSIVE, secmark_relabel_packet, u32 secid)
++LSM_HOOK(void, LSM_RET_VOID, LSM_FLAG_EXCLUSIVE, secmark_refcount_inc, void)
++LSM_HOOK(void, LSM_RET_VOID, LSM_FLAG_EXCLUSIVE, secmark_refcount_dec, void)
+ LSM_HOOK(void, LSM_RET_VOID, 0, req_classify_flow,
+ 	 const struct request_sock *req, struct flowi_common *flic)
+ LSM_HOOK(int, 0, 0, tun_dev_alloc_security, void *security)
+diff --git a/include/linux/security.h b/include/linux/security.h
+index e3c137a1b30a..638436b9b748 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -326,6 +326,7 @@ int unregister_blocking_lsm_notifier(struct notifier_block *nb);
+ extern int security_init(void);
+ extern int early_security_init(void);
+ extern u64 lsm_name_to_attr(const char *name);
++extern u32 lsm_secmark_from_skb(struct sk_buff *skb, const u64 lsmid);
  
- #ifdef CONFIG_SECURITY_INFINIBAND
--LSM_HOOK(int, 0, ib_pkey_access, void *sec, u64 subnet_prefix, u16 pkey)
--LSM_HOOK(int, 0, ib_endport_manage_subnet, void *sec, const char *dev_name,
-+LSM_HOOK(int, 0, 0, ib_pkey_access, void *sec, u64 subnet_prefix, u16 pkey)
-+LSM_HOOK(int, 0, 0, ib_endport_manage_subnet, void *sec, const char *dev_name,
- 	 u8 port_num)
--LSM_HOOK(int, 0, ib_alloc_security, void *sec)
-+LSM_HOOK(int, 0, 0, ib_alloc_security, void *sec)
- #endif /* CONFIG_SECURITY_INFINIBAND */
+ /* Security operations */
+ int security_binder_set_context_mgr(const struct cred *mgr);
+diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+index a87cd60ed206..2ce0d9a73973 100644
+--- a/security/apparmor/lsm.c
++++ b/security/apparmor/lsm.c
+@@ -1511,9 +1511,11 @@ static int apparmor_socket_shutdown(struct socket *sock, int how)
+ static int apparmor_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ {
+ 	struct aa_sk_ctx *ctx = aa_sock(sk);
++	u32 secmark;
+ 	int error;
  
- #ifdef CONFIG_SECURITY_NETWORK_XFRM
--LSM_HOOK(int, 0, xfrm_policy_alloc_security, struct xfrm_sec_ctx **ctxp,
-+LSM_HOOK(int, 0, 0, xfrm_policy_alloc_security, struct xfrm_sec_ctx **ctxp,
- 	 struct xfrm_user_sec_ctx *sec_ctx, gfp_t gfp)
--LSM_HOOK(int, 0, xfrm_policy_clone_security, struct xfrm_sec_ctx *old_ctx,
-+LSM_HOOK(int, 0, 0, xfrm_policy_clone_security, struct xfrm_sec_ctx *old_ctx,
- 	 struct xfrm_sec_ctx **new_ctx)
--LSM_HOOK(void, LSM_RET_VOID, xfrm_policy_free_security,
-+LSM_HOOK(void, LSM_RET_VOID, 0, xfrm_policy_free_security,
- 	 struct xfrm_sec_ctx *ctx)
--LSM_HOOK(int, 0, xfrm_policy_delete_security, struct xfrm_sec_ctx *ctx)
--LSM_HOOK(int, 0, xfrm_state_alloc, struct xfrm_state *x,
-+LSM_HOOK(int, 0, 0, xfrm_policy_delete_security, struct xfrm_sec_ctx *ctx)
-+LSM_HOOK(int, 0, 0, xfrm_state_alloc, struct xfrm_state *x,
- 	 struct xfrm_user_sec_ctx *sec_ctx)
--LSM_HOOK(int, 0, xfrm_state_alloc_acquire, struct xfrm_state *x,
--	 struct xfrm_sec_ctx *polsec, u32 secid)
--LSM_HOOK(void, LSM_RET_VOID, xfrm_state_free_security, struct xfrm_state *x)
--LSM_HOOK(int, 0, xfrm_state_delete_security, struct xfrm_state *x)
--LSM_HOOK(int, 0, xfrm_policy_lookup, struct xfrm_sec_ctx *ctx, u32 fl_secid)
--LSM_HOOK(int, 1, xfrm_state_pol_flow_match, struct xfrm_state *x,
-+LSM_HOOK(int, 0, 0, xfrm_state_alloc_acquire,
-+	 struct xfrm_state *x, struct xfrm_sec_ctx *polsec, u32 secid)
-+LSM_HOOK(void, LSM_RET_VOID, 0, xfrm_state_free_security, struct xfrm_state *x)
-+LSM_HOOK(int, 0, 0, xfrm_state_delete_security, struct xfrm_state *x)
-+LSM_HOOK(int, 0, 0, xfrm_policy_lookup, struct xfrm_sec_ctx *ctx, u32 fl_secid)
-+LSM_HOOK(int, 1, 0, xfrm_state_pol_flow_match, struct xfrm_state *x,
- 	 struct xfrm_policy *xp, const struct flowi_common *flic)
--LSM_HOOK(int, 0, xfrm_decode_session, struct sk_buff *skb, u32 *secid,
-+LSM_HOOK(int, 0, 0, xfrm_decode_session, struct sk_buff *skb, u32 *secid,
- 	 int ckall)
- #endif /* CONFIG_SECURITY_NETWORK_XFRM */
+-	if (!skb->secmark)
++	secmark = lsm_secmark_from_skb(skb, LSM_ID_APPARMOR);
++	if (!secmark)
+ 		return 0;
  
- /* key management security hooks */
- #ifdef CONFIG_KEYS
--LSM_HOOK(int, 0, key_alloc, struct key *key, const struct cred *cred,
-+LSM_HOOK(int, 0, 0, key_alloc, struct key *key, const struct cred *cred,
- 	 unsigned long flags)
--LSM_HOOK(int, 0, key_permission, key_ref_t key_ref, const struct cred *cred,
--	 enum key_need_perm need_perm)
--LSM_HOOK(int, 0, key_getsecurity, struct key *key, char **buffer)
--LSM_HOOK(void, LSM_RET_VOID, key_post_create_or_update, struct key *keyring,
-+LSM_HOOK(int, 0, 0, key_permission, key_ref_t key_ref,
-+	 const struct cred *cred, enum key_need_perm need_perm)
-+LSM_HOOK(int, 0, 0, key_getsecurity, struct key *key, char **buffer)
-+LSM_HOOK(void, LSM_RET_VOID, 0, key_post_create_or_update, struct key *keyring,
- 	 struct key *key, const void *payload, size_t payload_len,
- 	 unsigned long flags, bool create)
- #endif /* CONFIG_KEYS */
+ 	/*
+@@ -1525,7 +1527,7 @@ static int apparmor_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
  
- #ifdef CONFIG_AUDIT
--LSM_HOOK(int, 0, audit_rule_init, u32 field, u32 op, char *rulestr,
-+LSM_HOOK(int, 0, 0, audit_rule_init, u32 field, u32 op, char *rulestr,
- 	 void **lsmrule, gfp_t gfp)
--LSM_HOOK(int, 0, audit_rule_known, struct audit_krule *krule)
--LSM_HOOK(int, 0, audit_rule_match, struct lsm_prop *prop, u32 field, u32 op,
-+LSM_HOOK(int, 0, 0, audit_rule_known, struct audit_krule *krule)
-+LSM_HOOK(int, 0, 0, audit_rule_match, struct lsm_prop *prop, u32 field, u32 op,
- 	 void *lsmrule)
--LSM_HOOK(void, LSM_RET_VOID, audit_rule_free, void *lsmrule)
-+LSM_HOOK(void, LSM_RET_VOID, 0, audit_rule_free, void *lsmrule)
- #endif /* CONFIG_AUDIT */
+ 	rcu_read_lock();
+ 	error = apparmor_secmark_check(rcu_dereference(ctx->label), OP_RECVMSG,
+-				       AA_MAY_RECEIVE, skb->secmark, sk);
++				       AA_MAY_RECEIVE, secmark, sk);
+ 	rcu_read_unlock();
  
- #ifdef CONFIG_BPF_SYSCALL
--LSM_HOOK(int, 0, bpf, int cmd, union bpf_attr *attr, unsigned int size, bool kernel)
--LSM_HOOK(int, 0, bpf_map, struct bpf_map *map, fmode_t fmode)
--LSM_HOOK(int, 0, bpf_prog, struct bpf_prog *prog)
--LSM_HOOK(int, 0, bpf_map_create, struct bpf_map *map, union bpf_attr *attr,
--	 struct bpf_token *token, bool kernel)
--LSM_HOOK(void, LSM_RET_VOID, bpf_map_free, struct bpf_map *map)
--LSM_HOOK(int, 0, bpf_prog_load, struct bpf_prog *prog, union bpf_attr *attr,
-+LSM_HOOK(int, 0, 0, bpf, int cmd, union bpf_attr *attr, unsigned int size,
-+	 bool kernel)
-+LSM_HOOK(int, 0, 0, bpf_map, struct bpf_map *map, fmode_t fmode)
-+LSM_HOOK(int, 0, 0, bpf_prog, struct bpf_prog *prog)
-+LSM_HOOK(int, 0, 0, bpf_map_create, struct bpf_map *map, union bpf_attr *attr,
- 	 struct bpf_token *token, bool kernel)
--LSM_HOOK(void, LSM_RET_VOID, bpf_prog_free, struct bpf_prog *prog)
--LSM_HOOK(int, 0, bpf_token_create, struct bpf_token *token, union bpf_attr *attr,
--	 const struct path *path)
--LSM_HOOK(void, LSM_RET_VOID, bpf_token_free, struct bpf_token *token)
--LSM_HOOK(int, 0, bpf_token_cmd, const struct bpf_token *token, enum bpf_cmd cmd)
--LSM_HOOK(int, 0, bpf_token_capable, const struct bpf_token *token, int cap)
-+LSM_HOOK(void, LSM_RET_VOID, 0, bpf_map_free, struct bpf_map *map)
-+LSM_HOOK(int, 0, 0, bpf_prog_load, struct bpf_prog *prog,
-+	 union bpf_attr *attr, struct bpf_token *token, bool kernel)
-+LSM_HOOK(void, LSM_RET_VOID, 0, bpf_prog_free, struct bpf_prog *prog)
-+LSM_HOOK(int, 0, 0, bpf_token_create, struct bpf_token *token,
-+	 union bpf_attr *attr, const struct path *path)
-+LSM_HOOK(void, LSM_RET_VOID, 0, bpf_token_free, struct bpf_token *token)
-+LSM_HOOK(int, 0, 0, bpf_token_cmd, const struct bpf_token *token,
-+	 enum bpf_cmd cmd)
-+LSM_HOOK(int, 0, 0, bpf_token_capable, const struct bpf_token *token, int cap)
- #endif /* CONFIG_BPF_SYSCALL */
+ 	return error;
+@@ -1640,14 +1642,16 @@ static int apparmor_inet_conn_request(const struct sock *sk, struct sk_buff *skb
+ 				      struct request_sock *req)
+ {
+ 	struct aa_sk_ctx *ctx = aa_sock(sk);
++	u32 secmark;
+ 	int error;
  
--LSM_HOOK(int, 0, locked_down, enum lockdown_reason what)
-+LSM_HOOK(int, 0, 0, locked_down, enum lockdown_reason what)
+-	if (!skb->secmark)
++	secmark = lsm_secmark_from_skb(skb, LSM_ID_APPARMOR);
++	if (!secmark)
+ 		return 0;
  
- #ifdef CONFIG_PERF_EVENTS
--LSM_HOOK(int, 0, perf_event_open, int type)
--LSM_HOOK(int, 0, perf_event_alloc, struct perf_event *event)
--LSM_HOOK(int, 0, perf_event_read, struct perf_event *event)
--LSM_HOOK(int, 0, perf_event_write, struct perf_event *event)
-+LSM_HOOK(int, 0, 0, perf_event_open, int type)
-+LSM_HOOK(int, 0, 0, perf_event_alloc, struct perf_event *event)
-+LSM_HOOK(int, 0, 0, perf_event_read, struct perf_event *event)
-+LSM_HOOK(int, 0, 0, perf_event_write, struct perf_event *event)
- #endif /* CONFIG_PERF_EVENTS */
+ 	rcu_read_lock();
+ 	error = apparmor_secmark_check(rcu_dereference(ctx->label), OP_CONNECT,
+-				       AA_MAY_CONNECT, skb->secmark, sk);
++				       AA_MAY_CONNECT, secmark, sk);
+ 	rcu_read_unlock();
  
- #ifdef CONFIG_IO_URING
--LSM_HOOK(int, 0, uring_override_creds, const struct cred *new)
--LSM_HOOK(int, 0, uring_sqpoll, void)
--LSM_HOOK(int, 0, uring_cmd, struct io_uring_cmd *ioucmd)
--LSM_HOOK(int, 0, uring_allowed, void)
-+LSM_HOOK(int, 0, 0, uring_override_creds, const struct cred *new)
-+LSM_HOOK(int, 0, 0, uring_sqpoll, void)
-+LSM_HOOK(int, 0, 0, uring_cmd, struct io_uring_cmd *ioucmd)
-+LSM_HOOK(int, 0, 0, uring_allowed, void)
- #endif /* CONFIG_IO_URING */
+ 	return error;
+@@ -2359,9 +2363,11 @@ static unsigned int apparmor_ip_postroute(void *priv,
+ {
+ 	struct aa_sk_ctx *ctx;
+ 	struct sock *sk;
++	u32 secmark;
+ 	int error;
  
--LSM_HOOK(void, LSM_RET_VOID, initramfs_populated, void)
-+LSM_HOOK(void, LSM_RET_VOID, 0, initramfs_populated, void)
+-	if (!skb->secmark)
++	secmark = lsm_secmark_from_skb(skb, LSM_ID_APPARMOR);
++	if (!secmark)
+ 		return NF_ACCEPT;
  
--LSM_HOOK(int, 0, bdev_alloc_security, struct block_device *bdev)
--LSM_HOOK(void, LSM_RET_VOID, bdev_free_security, struct block_device *bdev)
--LSM_HOOK(int, 0, bdev_setintegrity, struct block_device *bdev,
-+LSM_HOOK(int, 0, 0, bdev_alloc_security, struct block_device *bdev)
-+LSM_HOOK(void, LSM_RET_VOID, 0, bdev_free_security, struct block_device *bdev)
-+LSM_HOOK(int, 0, 0, bdev_setintegrity, struct block_device *bdev,
- 	 enum lsm_integrity_type type, const void *value, size_t size)
-diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index b92008641242..4411b47f9a8d 100644
---- a/include/linux/lsm_hooks.h
-+++ b/include/linux/lsm_hooks.h
-@@ -36,7 +36,7 @@
- #include <linux/lsm_count.h>
+ 	sk = skb_to_full_sk(skb);
+@@ -2371,7 +2377,7 @@ static unsigned int apparmor_ip_postroute(void *priv,
+ 	ctx = aa_sock(sk);
+ 	rcu_read_lock();
+ 	error = apparmor_secmark_check(rcu_dereference(ctx->label), OP_SENDMSG,
+-				       AA_MAY_SEND, skb->secmark, sk);
++				       AA_MAY_SEND, secmark, sk);
+ 	rcu_read_unlock();
+ 	if (!error)
+ 		return NF_ACCEPT;
+@@ -2399,12 +2405,18 @@ static const struct nf_hook_ops apparmor_nf_ops[] = {
  
- union security_list_options {
--	#define LSM_HOOK(RET, DEFAULT, NAME, ...) RET (*NAME)(__VA_ARGS__);
-+	#define LSM_HOOK(RET, DEFAULT, FLAGS, NAME, ...) RET (*NAME)(__VA_ARGS__);
- 	#include "lsm_hook_defs.h"
- 	#undef LSM_HOOK
- 	void *lsm_func_addr;
-@@ -65,7 +65,7 @@ struct lsm_static_call {
-  * dynamic to adapt the number of static calls to the number of callbacks.
-  */
- struct lsm_static_calls_table {
--	#define LSM_HOOK(RET, DEFAULT, NAME, ...) \
-+	#define LSM_HOOK(RET, DEFAULT, FLAGS, NAME, ...) \
- 		struct lsm_static_call NAME[MAX_LSM_COUNT];
- 	#include <linux/lsm_hook_defs.h>
- 	#undef LSM_HOOK
-diff --git a/kernel/bpf/bpf_lsm.c b/kernel/bpf/bpf_lsm.c
-index 7cb6e8d4282c..53d5c0b69b2c 100644
---- a/kernel/bpf/bpf_lsm.c
-+++ b/kernel/bpf/bpf_lsm.c
-@@ -20,16 +20,16 @@
- /* For every LSM hook that allows attachment of BPF programs, declare a nop
-  * function where a BPF program can be attached.
-  */
--#define LSM_HOOK(RET, DEFAULT, NAME, ...)	\
--noinline RET bpf_lsm_##NAME(__VA_ARGS__)	\
--{						\
--	return DEFAULT;				\
-+#define LSM_HOOK(RET, DEFAULT, FLAGS, NAME, ...)	\
-+noinline RET bpf_lsm_##NAME(__VA_ARGS__)		\
-+{							\
-+	return DEFAULT;					\
+ static int __net_init apparmor_nf_register(struct net *net)
+ {
++	if (lsm_exclusive_hooks != LSM_ID_APPARMOR)
++		return 0;
++
+ 	return nf_register_net_hooks(net, apparmor_nf_ops,
+ 				    ARRAY_SIZE(apparmor_nf_ops));
  }
  
- #include <linux/lsm_hook_defs.h>
- #undef LSM_HOOK
- 
--#define LSM_HOOK(RET, DEFAULT, NAME, ...) BTF_ID(func, bpf_lsm_##NAME)
-+#define LSM_HOOK(RET, DEFAULT, FLAGS, NAME, ...) BTF_ID(func, bpf_lsm_##NAME)
- BTF_SET_START(bpf_lsm_hooks)
- #include <linux/lsm_hook_defs.h>
- #undef LSM_HOOK
-diff --git a/security/bpf/hooks.c b/security/bpf/hooks.c
-index 40efde233f3a..8c4b0ed2b22e 100644
---- a/security/bpf/hooks.c
-+++ b/security/bpf/hooks.c
-@@ -8,7 +8,7 @@
- #include <uapi/linux/lsm.h>
- 
- static struct security_hook_list bpf_lsm_hooks[] __ro_after_init = {
--	#define LSM_HOOK(RET, DEFAULT, NAME, ...) \
-+	#define LSM_HOOK(RET, DEFAULT, FLAGS, NAME, ...) \
- 	LSM_HOOK_INIT(NAME, bpf_lsm_##NAME),
- 	#include <linux/lsm_hook_defs.h>
- 	#undef LSM_HOOK
+ static void __net_exit apparmor_nf_unregister(struct net *net)
+ {
++	if (lsm_exclusive_hooks != LSM_ID_APPARMOR)
++		return;
++
+ 	nf_unregister_net_hooks(net, apparmor_nf_ops,
+ 				ARRAY_SIZE(apparmor_nf_ops));
+ }
 diff --git a/security/security.c b/security/security.c
-index 31a688650601..25e7cfc96f20 100644
+index 25e7cfc96f20..754b16004677 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -117,7 +117,7 @@ do {						\
- 				*((RET(*)(__VA_ARGS__))NULL));		\
- 	DEFINE_STATIC_KEY_FALSE(SECURITY_HOOK_ACTIVE_KEY(NAME, NUM));
+@@ -4509,6 +4509,21 @@ void security_inet_conn_established(struct sock *sk,
+ }
+ EXPORT_SYMBOL(security_inet_conn_established);
  
--#define LSM_HOOK(RET, DEFAULT, NAME, ...)				\
-+#define LSM_HOOK(RET, DEFAULT, FLAGS, NAME, ...)			\
- 	LSM_DEFINE_UNROLL(DEFINE_LSM_STATIC_CALL, NAME, RET, __VA_ARGS__)
- #include <linux/lsm_hook_defs.h>
- #undef LSM_HOOK
-@@ -142,7 +142,7 @@ struct lsm_static_calls_table
- 		.trampoline = LSM_HOOK_TRAMP(NAME, NUM),		\
- 		.active = &SECURITY_HOOK_ACTIVE_KEY(NAME, NUM),		\
- 	},
--#define LSM_HOOK(RET, DEFAULT, NAME, ...)				\
-+#define LSM_HOOK(RET, DEFAULT, FLAGS, NAME, ...)			\
- 	.NAME = {							\
- 		LSM_DEFINE_UNROLL(INIT_LSM_STATIC_CALL, NAME)		\
- 	},
-@@ -422,7 +422,7 @@ int lsm_fill_user_ctx(struct lsm_ctx __user *uctx, u32 *uctx_len,
- #define DECLARE_LSM_RET_DEFAULT_void(DEFAULT, NAME)
- #define DECLARE_LSM_RET_DEFAULT_int(DEFAULT, NAME) \
- 	static const int __maybe_unused LSM_RET_DEFAULT(NAME) = (DEFAULT);
--#define LSM_HOOK(RET, DEFAULT, NAME, ...) \
-+#define LSM_HOOK(RET, DEFAULT, FLAGS, NAME, ...) \
- 	DECLARE_LSM_RET_DEFAULT_##RET(DEFAULT, NAME)
++/**
++ * lsm_secmark_from_skb - secid for the specified LSM from the packet
++ * @skb: the packet
++ * @lsm: which LSM is asking
++ *
++ * If the specified LSM has use of the secmark, return its value.
++ * Otherwise, return the invalid secid 0.
++ */
++u32 lsm_secmark_from_skb(struct sk_buff *skb, const u64 lsmid)
++{
++	if (lsmid == lsm_exclusive_hooks)
++		return skb->secmark;
++	return 0;
++}
++
+ /**
+  * security_secmark_relabel_packet() - Check if setting a secmark is allowed
+  * @secid: new secmark value
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index d053ce562370..1dff2121a834 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -5269,6 +5269,7 @@ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
+ 	int err = 0;
+ 	struct sk_security_struct *sksec = selinux_sock(sk);
+ 	u32 sk_sid = sksec->sid;
++	u32 secmark;
+ 	struct common_audit_data ad;
+ 	struct lsm_network_audit net;
+ 	char *addrp;
+@@ -5279,7 +5280,8 @@ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
+ 		return err;
  
- #include <linux/lsm_hook_defs.h>
+ 	if (selinux_secmark_enabled()) {
+-		err = avc_has_perm(sk_sid, skb->secmark, SECCLASS_PACKET,
++		secmark = lsm_secmark_from_skb(skb, LSM_ID_SELINUX);
++		err = avc_has_perm(sk_sid, secmark, SECCLASS_PACKET,
+ 				   PACKET__RECV, &ad);
+ 		if (err)
+ 			return err;
+@@ -5299,6 +5301,7 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 	struct sk_security_struct *sksec = selinux_sock(sk);
+ 	u16 family = sk->sk_family;
+ 	u32 sk_sid = sksec->sid;
++	u32 secmark;
+ 	struct common_audit_data ad;
+ 	struct lsm_network_audit net;
+ 	char *addrp;
+@@ -5348,7 +5351,8 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 	}
+ 
+ 	if (secmark_active) {
+-		err = avc_has_perm(sk_sid, skb->secmark, SECCLASS_PACKET,
++		secmark = lsm_secmark_from_skb(skb, LSM_ID_SELINUX);
++		err = avc_has_perm(sk_sid, secmark, SECCLASS_PACKET,
+ 				   PACKET__RECV, &ad);
+ 		if (err)
+ 			return err;
+@@ -5850,6 +5854,7 @@ static unsigned int selinux_ip_forward(void *priv, struct sk_buff *skb,
+ 	int ifindex;
+ 	u16 family;
+ 	char *addrp;
++	u32 secmark;
+ 	u32 peer_sid;
+ 	struct common_audit_data ad;
+ 	struct lsm_network_audit net;
+@@ -5883,10 +5888,12 @@ static unsigned int selinux_ip_forward(void *priv, struct sk_buff *skb,
+ 		}
+ 	}
+ 
+-	if (secmark_active)
+-		if (avc_has_perm(peer_sid, skb->secmark,
++	if (secmark_active) {
++		secmark = lsm_secmark_from_skb(skb, LSM_ID_SELINUX);
++		if (avc_has_perm(peer_sid, secmark,
+ 				 SECCLASS_PACKET, PACKET__FORWARD_IN, &ad))
+ 			return NF_DROP;
++	}
+ 
+ 	if (netlbl_enabled())
+ 		/* we do this in the FORWARD path and not the POST_ROUTING
+@@ -5950,6 +5957,7 @@ static unsigned int selinux_ip_postroute_compat(struct sk_buff *skb,
+ 	struct common_audit_data ad;
+ 	struct lsm_network_audit net;
+ 	u8 proto = 0;
++	u32 secmark;
+ 
+ 	sk = skb_to_full_sk(skb);
+ 	if (sk == NULL)
+@@ -5960,10 +5968,12 @@ static unsigned int selinux_ip_postroute_compat(struct sk_buff *skb,
+ 	if (selinux_parse_skb(skb, &ad, NULL, 0, &proto))
+ 		return NF_DROP;
+ 
+-	if (selinux_secmark_enabled())
+-		if (avc_has_perm(sksec->sid, skb->secmark,
++	if (selinux_secmark_enabled()) {
++		secmark = lsm_secmark_from_skb(skb, LSM_ID_SELINUX);
++		if (avc_has_perm(sksec->sid, secmark,
+ 				 SECCLASS_PACKET, PACKET__SEND, &ad))
+ 			return NF_DROP_ERR(-ECONNREFUSED);
++	}
+ 
+ 	if (selinux_xfrm_postroute_last(sksec->sid, skb, &ad, proto))
+ 		return NF_DROP_ERR(-ECONNREFUSED);
+@@ -5978,6 +5988,7 @@ static unsigned int selinux_ip_postroute(void *priv,
+ 	u16 family;
+ 	u32 secmark_perm;
+ 	u32 peer_sid;
++	u32 secmark;
+ 	int ifindex;
+ 	struct sock *sk;
+ 	struct common_audit_data ad;
+@@ -6082,10 +6093,12 @@ static unsigned int selinux_ip_postroute(void *priv,
+ 	if (selinux_parse_skb(skb, &ad, &addrp, 0, NULL))
+ 		return NF_DROP;
+ 
+-	if (secmark_active)
+-		if (avc_has_perm(peer_sid, skb->secmark,
++	if (secmark_active) {
++		secmark = lsm_secmark_from_skb(skb, LSM_ID_SELINUX);
++		if (avc_has_perm(peer_sid, secmark,
+ 				 SECCLASS_PACKET, secmark_perm, &ad))
+ 			return NF_DROP_ERR(-ECONNREFUSED);
++	}
+ 
+ 	if (peerlbl_active) {
+ 		u32 if_sid;
+@@ -7718,12 +7731,18 @@ static const struct nf_hook_ops selinux_nf_ops[] = {
+ 
+ static int __net_init selinux_nf_register(struct net *net)
+ {
++	if (lsm_exclusive_hooks != LSM_ID_SELINUX)
++		return 0;
++
+ 	return nf_register_net_hooks(net, selinux_nf_ops,
+ 				     ARRAY_SIZE(selinux_nf_ops));
+ }
+ 
+ static void __net_exit selinux_nf_unregister(struct net *net)
+ {
++	if (lsm_exclusive_hooks != LSM_ID_SELINUX)
++		return;
++
+ 	nf_unregister_net_hooks(net, selinux_nf_ops,
+ 				ARRAY_SIZE(selinux_nf_ops));
+ }
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 13fc712d5923..269ad09f8dca 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -2189,6 +2189,9 @@ static void security_load_policycaps(struct selinux_policy *policy)
+ 			pr_info("SELinux:  unknown policy capability %u\n",
+ 				i);
+ 	}
++	if (selinux_state.policycap[POLICYDB_CAP_ALWAYSNETWORK] &&
++	    lsm_exclusive_hooks != LSM_ID_SELINUX)
++		pr_warn("SELinux:  policy capability alwaysnetwork is set, but secmark is used by another LSM.\n");
+ }
+ 
+ static int security_preserve_bools(struct selinux_policy *oldpolicy,
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index a0bd4919a9d9..7a98dcc4c67d 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -4195,10 +4195,12 @@ static int smk_skb_to_addr_ipv6(struct sk_buff *skb, struct sockaddr_in6 *sip)
+ #ifdef CONFIG_NETWORK_SECMARK
+ static struct smack_known *smack_from_skb(struct sk_buff *skb)
+ {
+-	if (skb == NULL || skb->secmark == 0)
++	u32 secmark = lsm_secmark_from_skb(skb, LSM_ID_SMACK);
++
++	if (skb == NULL || secmark == 0)
+ 		return NULL;
+ 
+-	return smack_from_secid(skb->secmark);
++	return smack_from_secid(secmark);
+ }
+ #else
+ static inline struct smack_known *smack_from_skb(struct sk_buff *skb)
+diff --git a/security/smack/smack_netfilter.c b/security/smack/smack_netfilter.c
+index 17ba578b1308..47426973843b 100644
+--- a/security/smack/smack_netfilter.c
++++ b/security/smack/smack_netfilter.c
+@@ -54,12 +54,18 @@ static const struct nf_hook_ops smack_nf_ops[] = {
+ 
+ static int __net_init smack_nf_register(struct net *net)
+ {
++	if (lsm_exclusive_hooks != LSM_ID_SMACK)
++		return 0;
++
+ 	return nf_register_net_hooks(net, smack_nf_ops,
+ 				     ARRAY_SIZE(smack_nf_ops));
+ }
+ 
+ static void __net_exit smack_nf_unregister(struct net *net)
+ {
++	if (lsm_exclusive_hooks != LSM_ID_SMACK)
++		return;
++
+ 	nf_unregister_net_hooks(net, smack_nf_ops, ARRAY_SIZE(smack_nf_ops));
+ }
+ 
 -- 
 2.52.0
 
