@@ -1,275 +1,201 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from fhigh-b3-smtp.messagingengine.com (fhigh-b3-smtp.messagingengine.com [202.12.124.154])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12A79355F3D;
-	Thu, 26 Feb 2026 17:53:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF9F83603F1;
+	Thu, 26 Feb 2026 18:06:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.154
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772128437; cv=none; b=M9CRa7p3F8Pci0XbBaivSiBoeVynq657eH5kTAdUFrR3lZTQNVKMTAF0qzHM078/XZ8glPumklSeUTLoFrJqrCt/KGtPVzDymHz756DjABbU//3vZZ2fVkXuDho9GfNmjrwhONQ06y7eaVYEsQJHYPBAu9wOrrBXygzgDFyHke0=
+	t=1772129170; cv=none; b=b2ZON5ylUOTQQbBM2vtsl7uIUeYWY1/yRvl8PKGQiSHG6jGwnLqz0j6DKicw5cBIXZ/rziur9qgFpDu5L+PcuucRWzTaKl6WZB06tJthCC/hrYO7NIz6Edwcq3z/oNO6v0pkbj4Z4iGA/+7bqLEBHjLQ3bD93KA4wL2Gf/JpXxE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772128437; c=relaxed/simple;
-	bh=moWnYE8/Vbpv09X6nITbMhXYVzO985Iymx+6B4LKXtI=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=XMkh+dYkRUxE91EkcBxKCpxEhhuUlTMgGwMS+9I61ZiIsrW/G7QX3XMDDm9YqMtCdH1HQrEkrjw620LgrAoJa5eXPbIqFvSI9uzxcbJdMtKPRh8fPB8/G+u7Sada+C+aKNJwJcygNQOkfvX5F7+tUYY4mobG9rN+FIOK92FIG2g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SSFys7tF; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772129170; c=relaxed/simple;
+	bh=zGyl0dVMrQPdeIbUTyoagNf+Us0VQHjLNTDIi2rlqzA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Dncq/Xq88lXCyvZIwf6XwpbtnkPEgroLgW56LrNvXS3lfRdfljvV8KL3lp0WrX1FJAViJJPtPpqQ79XDCstbRKHL0pyFjxhoTKNTL2BZ5tb1liLM5xoOTZMwzFrqmJnMBVYypTuePHSUC4LU2My1nLsPTojl7HPDEzXYqDiTvo8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net; spf=pass smtp.mailfrom=queasysnail.net; dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b=o5SrI38K; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=X/3exm+q; arc=none smtp.client-ip=202.12.124.154
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=queasysnail.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SSFys7tF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9026C116C6;
-	Thu, 26 Feb 2026 17:53:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772128436;
-	bh=moWnYE8/Vbpv09X6nITbMhXYVzO985Iymx+6B4LKXtI=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-	b=SSFys7tFdXTAyhr+VddviYDQcdIcSNALi0h44vkTTgABjXl2HZOlR+hXAGlAxrBYs
-	 W6y/je/mk2w7IeEvXDvch9OEQs71Mqu4n7+p6GgXpJIOgNvtC+Ka/RS7RtOQGi9t1b
-	 AHfzkCZfJkn4NUfryM17K8KZaL7r6ujmVn0LVfr3+oQhvJSb/vgigxIpqtyQNEDE3z
-	 Kc5lJHajXp11EPVsZ8dEZ4mqRRgBGmO9F6l9L9qtvR0/qAA4MH1H2rlhjay25Lovq+
-	 sdsm8hBVOyD2wkaZcXwjKOnh6ejRtTVlZvNzAY3zouYB43PEzCLkbNWpoKk/MPU5ho
-	 hFMvp9HOHb8eg==
-Message-ID: <353dfa5494f8d83eff01b0c7dc8451c81463ce57.camel@kernel.org>
-Subject: Re: [PATCH 03/61] trace: update VFS-layer trace events for u64 i_ino
-From: Jeff Layton <jlayton@kernel.org>
-To: Jan Kara <jack@suse.cz>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner	
- <brauner@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Masami
- Hiramatsu	 <mhiramat@kernel.org>, Mathieu Desnoyers
- <mathieu.desnoyers@efficios.com>,  Dan Williams <dan.j.williams@intel.com>,
- Matthew Wilcox <willy@infradead.org>, Eric Biggers	 <ebiggers@kernel.org>,
- "Theodore Y. Ts'o" <tytso@mit.edu>, Muchun Song	 <muchun.song@linux.dev>,
- Oscar Salvador <osalvador@suse.de>, David Hildenbrand	 <david@kernel.org>,
- David Howells <dhowells@redhat.com>, Paulo Alcantara	 <pc@manguebit.org>,
- Andreas Dilger <adilger.kernel@dilger.ca>, Jan Kara	 <jack@suse.com>,
- Jaegeuk Kim <jaegeuk@kernel.org>, Chao Yu <chao@kernel.org>,  Trond
- Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, Chuck
- Lever <chuck.lever@oracle.com>,  NeilBrown <neil@brown.name>, Olga
- Kornievskaia <okorniev@redhat.com>, Dai Ngo <Dai.Ngo@oracle.com>,  Tom
- Talpey <tom@talpey.com>, Steve French <sfrench@samba.org>, Ronnie Sahlberg
- <ronniesahlberg@gmail.com>,  Shyam Prasad N <sprasad@microsoft.com>,
- Bharath SM <bharathsm@microsoft.com>, Alexander Aring	
- <alex.aring@gmail.com>, Ryusuke Konishi <konishi.ryusuke@gmail.com>, 
- Viacheslav Dubeyko	 <slava@dubeyko.com>, Eric Van Hensbergen
- <ericvh@kernel.org>, Latchesar Ionkov	 <lucho@ionkov.net>, Dominique
- Martinet <asmadeus@codewreck.org>, Christian Schoenebeck
- <linux_oss@crudebyte.com>, David Sterba <dsterba@suse.com>, Marc Dionne	
- <marc.dionne@auristor.com>, Ian Kent <raven@themaw.net>, Luis de
- Bethencourt	 <luisbg@kernel.org>, Salah Triki <salah.triki@gmail.com>,
- "Tigran A. Aivazian"	 <aivazian.tigran@gmail.com>, Ilya Dryomov
- <idryomov@gmail.com>, Alex Markuze	 <amarkuze@redhat.com>, Jan Harkes
- <jaharkes@cs.cmu.edu>, coda@cs.cmu.edu,  Nicolas Pitre <nico@fluxnic.net>,
- Tyler Hicks <code@tyhicks.com>, Amir Goldstein <amir73il@gmail.com>, 
- Christoph Hellwig	 <hch@infradead.org>, John Paul Adrian Glaubitz
- <glaubitz@physik.fu-berlin.de>,  Yangtao Li <frank.li@vivo.com>, Mikulas
- Patocka <mikulas@artax.karlin.mff.cuni.cz>, David Woodhouse	
- <dwmw2@infradead.org>, Richard Weinberger <richard@nod.at>, Dave Kleikamp	
- <shaggy@kernel.org>, Konstantin Komarov	
- <almaz.alexandrovich@paragon-software.com>, Mark Fasheh <mark@fasheh.com>, 
- Joel Becker <jlbec@evilplan.org>, Joseph Qi <joseph.qi@linux.alibaba.com>,
- Mike Marshall	 <hubcap@omnibond.com>, Martin Brandenburg
- <martin@omnibond.com>, Miklos Szeredi	 <miklos@szeredi.hu>, Anders Larsen
- <al@alarsen.net>, Zhihao Cheng	 <chengzhihao1@huawei.com>, Damien Le Moal
- <dlemoal@kernel.org>, Naohiro Aota	 <naohiro.aota@wdc.com>, Johannes
- Thumshirn <jth@kernel.org>, John Johansen	 <john.johansen@canonical.com>,
- Paul Moore <paul@paul-moore.com>, James Morris	 <jmorris@namei.org>, "Serge
- E. Hallyn" <serge@hallyn.com>, Mimi Zohar	 <zohar@linux.ibm.com>, Roberto
- Sassu <roberto.sassu@huawei.com>, Dmitry Kasatkin
- <dmitry.kasatkin@gmail.com>, Eric Snowberg <eric.snowberg@oracle.com>, Fan
- Wu	 <wufan@kernel.org>, Stephen Smalley <stephen.smalley.work@gmail.com>,
- Ondrej Mosnacek <omosnace@redhat.com>, Casey Schaufler
- <casey@schaufler-ca.com>, Alex Deucher	 <alexander.deucher@amd.com>,
- Christian =?ISO-8859-1?Q?K=F6nig?=	 <christian.koenig@amd.com>, David
- Airlie <airlied@gmail.com>, Simona Vetter	 <simona@ffwll.ch>, Sumit Semwal
- <sumit.semwal@linaro.org>, Eric Dumazet	 <edumazet@google.com>, Kuniyuki
- Iwashima <kuniyu@google.com>, Paolo Abeni	 <pabeni@redhat.com>, Willem de
- Bruijn <willemb@google.com>, "David S. Miller"	 <davem@davemloft.net>,
- Jakub Kicinski <kuba@kernel.org>, Simon Horman	 <horms@kernel.org>, Oleg
- Nesterov <oleg@redhat.com>, Peter Zijlstra	 <peterz@infradead.org>, Ingo
- Molnar <mingo@redhat.com>, Arnaldo Carvalho de Melo <acme@kernel.org>,
- Namhyung Kim <namhyung@kernel.org>, Mark Rutland	 <mark.rutland@arm.com>,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>,  Jiri Olsa
- <jolsa@kernel.org>, Ian Rogers <irogers@google.com>, Adrian Hunter
- <adrian.hunter@intel.com>,  James Clark <james.clark@linaro.org>, "Darrick
- J. Wong" <djwong@kernel.org>, Martin Schiller <ms@dev.tdt.de>, 
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, nvdimm@lists.linux.dev, 
-	fsverity@lists.linux.dev, linux-mm@kvack.org, netfs@lists.linux.dev, 
-	linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, 
-	linux-nfs@vger.kernel.org, linux-cifs@vger.kernel.org, 
-	samba-technical@lists.samba.org, linux-nilfs@vger.kernel.org, 
-	v9fs@lists.linux.dev, linux-afs@lists.infradead.org,
- autofs@vger.kernel.org, 	ceph-devel@vger.kernel.org,
- codalist@coda.cs.cmu.edu, ecryptfs@vger.kernel.org, 
-	linux-mtd@lists.infradead.org, jfs-discussion@lists.sourceforge.net, 
-	ntfs3@lists.linux.dev, ocfs2-devel@lists.linux.dev,
- devel@lists.orangefs.org, 	linux-unionfs@vger.kernel.org,
- apparmor@lists.ubuntu.com, 	linux-security-module@vger.kernel.org,
- linux-integrity@vger.kernel.org, 	selinux@vger.kernel.org,
- amd-gfx@lists.freedesktop.org, 	dri-devel@lists.freedesktop.org,
- linux-media@vger.kernel.org, 	linaro-mm-sig@lists.linaro.org,
- netdev@vger.kernel.org, 	linux-perf-users@vger.kernel.org,
- linux-fscrypt@vger.kernel.org, 	linux-xfs@vger.kernel.org,
- linux-hams@vger.kernel.org, linux-x25@vger.kernel.org
-Date: Thu, 26 Feb 2026 12:53:42 -0500
-In-Reply-To: <6exhq5gjvef5obfsqwkxfcpl2sjqmlv7klrzolodzpcjolgrmd@ds42ulhod7pw>
-References: <20260226-iino-u64-v1-0-ccceff366db9@kernel.org>
-	 <20260226-iino-u64-v1-3-ccceff366db9@kernel.org>
-	 <6exhq5gjvef5obfsqwkxfcpl2sjqmlv7klrzolodzpcjolgrmd@ds42ulhod7pw>
-Autocrypt: addr=jlayton@kernel.org; prefer-encrypt=mutual;
- keydata=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
- QZIQXVeAA+smfTT0tDrisj1U5x6ZB9b3nBg65kc=
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
+	dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b="o5SrI38K";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="X/3exm+q"
+Received: from phl-compute-12.internal (phl-compute-12.internal [10.202.2.52])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id 0F84C7A011B;
+	Thu, 26 Feb 2026 13:06:03 -0500 (EST)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-12.internal (MEProxy); Thu, 26 Feb 2026 13:06:04 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=queasysnail.net;
+	 h=cc:cc:content-type:content-type:date:date:from:from
+	:in-reply-to:in-reply-to:message-id:mime-version:references
+	:reply-to:subject:subject:to:to; s=fm1; t=1772129163; x=
+	1772215563; bh=HAd4jZnRQqV58u6dnwwRQCl41Ao62HR8EgeasTaiJS0=; b=o
+	5SrI38KvZft5+ceHEBMqOLRfivBn7Wt0eK5Zfe15+zFQzglN/wtDAZghU1TDKj/s
+	YtWofXLJ6Cjrrm783jSFpLzSiDsQ2VV17s+F9kcB53BmqYBsi80TfCe1Sa0IdY2u
+	aLJ8B9ha9XktJut1RboGrzqJ/yVZE8XDpIbYgP0xGYhtoMwcERAOyGBgQ9oPkjON
+	Kk5E2sgAc/QdQ0v0VkwI33jykNNcU1lrfGwE5RVnr7WUTtxDI479lr6SSxqZ4BUP
+	DMELzxHi1u874rtrEOBtRPwVJTQbcp7nO6R9dKSr6JWiTF34dzF4fh8GA528r4tu
+	uTfJs5D8Xizvim/p96cLw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
+	1772129163; x=1772215563; bh=HAd4jZnRQqV58u6dnwwRQCl41Ao62HR8Ege
+	asTaiJS0=; b=X/3exm+qhBQNykcW6Tha1Vc9o8bBAGanopbXsedozYGB/Wz9NiT
+	ew4mZx1URwUKptaDp4s4HPQM1zFK9kf4IUZ9u3fIs3bcUSZRQPygg2IlXTsiwKix
+	6BMuPFNiy6bv4I5H+fFHnAQcY0LF2e/0S698Hcq5JgFA2R4xDgYZDBgLgutyMDn6
+	9T0rd4+7pZXgEEP+pgei3tywgsMt2gXMB+IJGDvbh0V2kT6HcAaYM0FN0eSQpYrE
+	YpEUr/F3d2DvhkgZmInfM65s0iv8lID+Qf2Mz3GRSdCgT/ixdaT3/64txLZMaozA
+	6V9H3yLkg/pdL3/mGWdlG4RHsvjN8Z5YBcg==
+X-ME-Sender: <xms:iougaUyhXDLmY5IztmJfljrXkzKxoEUclu0IJiuyxYdRrxRiK1-knQ>
+    <xme:iougaZqMhaZl-5-ujIsqul7Li_vMnxRi3v0jjPT47gjiUuXVXlJ1_8OoEv_bX-HHt
+    0Rn1QLpvzyA0jZW3oW9F8aikFtgVzkvfaO9kQUtHlKwQW6-6m6h4sWr>
+X-ME-Received: <xmr:iougafn43ag-dxl8ghmU6mtHHrN31L6xBnF0wkqpxrjfdkHcNSLiSngLMk93>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddvgeeijedvucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepfffhvfevuffkfhggtggujgesthdtredttddtjeenucfhrhhomhepufgrsghrihhn
+    rgcuffhusghrohgtrgcuoehsugesqhhuvggrshihshhnrghilhdrnhgvtheqnecuggftrf
+    grthhtvghrnhepuefhhfffgfffhfefueeiudegtdefhfekgeetheegheeifffguedvueff
+    fefgudffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
+    epshgusehquhgvrghshihsnhgrihhlrdhnvghtpdhnsggprhgtphhtthhopedukedpmhho
+    uggvpehsmhhtphhouhhtpdhrtghpthhtoheprghnthhonhihsehphhgvnhhomhgvrdhorh
+    hgpdhrtghpthhtoheprghnthhonhihrdgrnhhtohhnhiesshgvtghunhgvthdrtghomhdp
+    rhgtphhtthhopehsthgvfhhfvghnrdhklhgrshhsvghrthesshgvtghunhgvthdrtghomh
+    dprhgtphhtthhopehhvghrsggvrhhtsehgohhnughorhdrrghprghnrgdrohhrghdrrghu
+    pdhrtghpthhtohepnhgvthguvghvsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpth
+    htohepuggrvhgvmhesuggrvhgvmhhlohhfthdrnhgvthdprhgtphhtthhopegvughumhgr
+    iigvthesghhoohhglhgvrdgtohhmpdhrtghpthhtohepkhhusggrsehkvghrnhgvlhdroh
+    hrghdprhgtphhtthhopehprggsvghnihesrhgvughhrghtrdgtohhm
+X-ME-Proxy: <xmx:iougaaxutct568Q7vu5p6zXr-n5o7ypZymEKm9wdmrVlDrdRc4hBng>
+    <xmx:iougac2w5AG_mdqCPBlY_nox3VDRbtanyEgA80X7LIfHqzot61BslA>
+    <xmx:iougaeDSFh086ans__hRTcTlLLT-rVvHSXSqhr9o8aASrAbebkuiew>
+    <xmx:iougaZ9bnDyb7a73VQ2Y6X3BtG3r26O6abaxtoiEVJR0-icUIo8PWw>
+    <xmx:i4ugaRNcuXcD6rBbfxOtMfMGVmby_LxDcM3-s787r-EaNAx5LvW3YE7s>
+Feedback-ID: i934648bf:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
+ 26 Feb 2026 13:06:01 -0500 (EST)
+Date: Thu, 26 Feb 2026 19:05:59 +0100
+From: Sabrina Dubroca <sd@queasysnail.net>
+To: Antony Antony <antony@phenome.org>
+Cc: Antony Antony <antony.antony@secunet.com>,
+	Steffen Klassert <steffen.klassert@secunet.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>, netdev@vger.kernel.org,
+	"David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Chiachang Wang <chiachangwang@google.com>,
+	Yan Yan <evitayan@google.com>, devel@linux-ipsec.org,
+	Simon Horman <horms@kernel.org>, Paul Moore <paul@paul-moore.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org,
+	selinux@vger.kernel.org
+Subject: Re: [PATCH ipsec-next v5 8/8] xfrm: add XFRM_MSG_MIGRATE_STATE for
+ single SA migration
+Message-ID: <aaCLh-FXAqbQ6y9q@krikkit>
+References: <cover.1769509130.git.antony.antony@secunet.com>
+ <b7b1bee9456ac4ada8941c93c2cc17f07d0b1912.1769509131.git.antony.antony@secunet.com>
+ <aYJnuw5mB8qn236R@krikkit>
+ <aaBq6RtWZXYdvhQY@Antony2201.local>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <aaBq6RtWZXYdvhQY@Antony2201.local>
 
-On Thu, 2026-02-26 at 18:11 +0100, Jan Kara wrote:
-> On Thu 26-02-26 10:55:05, Jeff Layton wrote:
-> > Update trace event definitions in VFS-layer trace headers to use u64
-> > instead of ino_t/unsigned long for inode number fields, and change
-> > format strings from %lu/%lx to %llu/%llx to match.
-> >=20
-> > This is needed because i_ino is now u64. Changing trace event field
-> > types changes the binary trace format, but the self-describing format
-> > metadata handles this transparently for modern trace-cmd and perf.
-> >=20
-> > Files updated:
-> >   - cachefiles.h, filelock.h, filemap.h, fs_dax.h, fsverity.h,
-> >     hugetlbfs.h, netfs.h, readahead.h, timestamp.h, writeback.h
-> >=20
-> > Signed-off-by: Jeff Layton <jlayton@kernel.org>
->=20
-> ...
->=20
-> > diff --git a/include/trace/events/writeback.h b/include/trace/events/wr=
-iteback.h
-> > index 4d3d8c8f3a1bc3e5ef10fc96e3c6dbbd0cf00c98..cc7651749eb3ce1123cb3ea=
-9496f0803a0f4c1a0 100644
-> > --- a/include/trace/events/writeback.h
-> > +++ b/include/trace/events/writeback.h
-> > @@ -67,7 +67,7 @@ DECLARE_EVENT_CLASS(writeback_folio_template,
-> > =20
-> >  	TP_STRUCT__entry (
-> >  		__array(char, name, 32)
-> > -		__field(ino_t, ino)
-> > +		__field(u64, ino)
-> >  		__field(pgoff_t, index)
-> >  	),
-> > =20
-> > @@ -79,9 +79,9 @@ DECLARE_EVENT_CLASS(writeback_folio_template,
-> >  		__entry->index =3D folio->index;
-> >  	),
-> > =20
-> > -	TP_printk("bdi %s: ino=3D%lu index=3D%lu",
-> > +	TP_printk("bdi %s: ino=3D%llu index=3D%lu",
-> >  		__entry->name,
-> > -		(unsigned long)__entry->ino,
-> > +		(unsigned long long)__entry->ino,
->=20
-> No need for explicit typing to ULL?
->
-> >  		__entry->index
-> >  	)
-> >  );
-> > @@ -108,7 +108,7 @@ DECLARE_EVENT_CLASS(writeback_dirty_inode_template,
-> > =20
-> >  	TP_STRUCT__entry (
-> >  		__array(char, name, 32)
-> > -		__field(ino_t, ino)
-> > +		__field(u64, ino)
-> >  		__field(unsigned long, state)
-> >  		__field(unsigned long, flags)
-> >  	),
-> > @@ -123,9 +123,9 @@ DECLARE_EVENT_CLASS(writeback_dirty_inode_template,
-> >  		__entry->flags		=3D flags;
-> >  	),
-> > =20
-> > -	TP_printk("bdi %s: ino=3D%lu state=3D%s flags=3D%s",
-> > +	TP_printk("bdi %s: ino=3D%llu state=3D%s flags=3D%s",
-> >  		__entry->name,
-> > -		(unsigned long)__entry->ino,
-> > +		(unsigned long long)__entry->ino,
->=20
-> And here as well? And many times below as well...
->=20
-> 								Honza
+2026-02-26, 16:46:49 +0100, Antony Antony wrote:
+> Hi Sabrina,
+> 
+> Thanks for your extensive review. Along the way I also noticed a couple of 
+> more minor issues and fixed them. I will send
+> a v6 addressing the points from this email.
 
-Good catch. I'll clean those up.
+Thanks Antony.
 
-Thanks,
---=20
-Jeff Layton <jlayton@kernel.org>
+Just a few things related to your reply:
+
+> On Tue, Feb 03, 2026 at 10:25:15PM +0100, Sabrina Dubroca via Devel wrote:
+> > 2026-01-27, 11:44:11 +0100, Antony Antony wrote:
+> > > diff --git a/include/uapi/linux/xfrm.h b/include/uapi/linux/xfrm.h
+> > > index a23495c0e0a1..60b1f201b237 100644
+> > > --- a/include/uapi/linux/xfrm.h
+> > > +++ b/include/uapi/linux/xfrm.h
+> > [...]
+> > > +struct xfrm_user_migrate_state {
+> > > +	struct xfrm_usersa_id id;
+> > > +	xfrm_address_t new_saddr;
+> > > +	xfrm_address_t new_daddr;
+> > > +	__u16 new_family;
+> > > +	__u32 new_reqid;
+> > > +};
+> > 
+> > I'm not entirely clear on why this struct has those fields (maybe, in
+> > particular, new_saddr but no old_saddr, assuming that id.daddr is
+> > old_daddr). My guess is:
+> > 
+> >   - usersa_id because it's roughly equivalent to a GETSA request,
+> >     which makes the old_saddr unnecessary (id uniquely identifies the
+> >     target SA)
+> > 
+> >   - new_{saddr,daddr,family,reqid}
+> >     equivalent to the new_* from xfrm_user_migrate (+reqid)
+> > 
+> > Is that correct?
+> 
+> Yes, exactly. The SA is looked up via xfrm_usersa_id, which uniquely
+> identifies it, so old_saddr is not needed. old_daddr is carried in
+> xfrm_usersa_id.daddr.
+
+Thanks. Maybe worth adding a small note in the commit message to
+describe the behavior of that new op? (pretty much what you wrote
+here)
+
+I know the old stuff isn't documented much, I'm not asking for an
+extensive new file in Documentation.
+
+
+[...]
+> > > +	err = xfrm_state_migrate_install(x, xc, &m, xuo, extack);
+> > > +	if (err < 0) {
+> > > +		/*
+> > > +		 * In this rare case both the old SA and the new SA
+> > > +		 * will disappear.
+> > > +		 * Alternatives risk duplicate SN/IV usage which must not occur.
+> > > +		 * Userspace must handle this error, -EEXIST.
+> > > +		 */
+> > > +		goto out;
+> > > +	}
+> > > +
+> > > +	err = xfrm_send_migrate_state(um, encap, xuo, nlh->nlmsg_pid,
+> > > +				      nlh->nlmsg_seq);
+> > > +	if (err < 0)
+> > > +		NL_SET_ERR_MSG(extack, "Failed to send migration notification");
+> > 
+> > I feel this is a bit problematic as it will look like the operation
+> > failed, but in reality only the notification has not been sent (but
+> > the MIGRATE_STATE operation itself succeeded).
+> 
+> It is not critical, however, the best choice is let the userspace decide.
+> How about this 
+> 
+> if (err < 0) {
+>                 NL_SET_ERR_MSG(extack, "Failed to send migration notification");
+>                 err = 0
+> } 
+> 
+> most likely cause is out of memory.
+
+Does userspace really check the extack it gets back when the operation
+succeeds? But ok, that seems fine to me.
+
+[Looking at the existing callers of xfrm_nlmsg_multicast, many
+existing calls seem to completely ignore the return value
+(km_state_notify -> xfrm_send_state_notify, km_policy_notify ->
+xfrm_send_policy_notify, which are called from the main NETLINK_XFRM
+ops), so at least returning 0 would be consistent with those (but
+there's no extack on failing to notify for the other ops)]
+
+-- 
+Sabrina
