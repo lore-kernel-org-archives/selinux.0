@@ -1,303 +1,450 @@
-Received: from oak.phenome.org (unknown [193.110.157.52])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5F1D372B3D;
-	Thu, 26 Feb 2026 15:46:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.110.157.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B07D423A8B;
+	Thu, 26 Feb 2026 15:56:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772120815; cv=none; b=nIzOtrfd72yv7TWlMLB7YZMM9CqCCyYM8kopSh+7LC9ocSN2CtULowrdxAigWQQ1nETzVVo6gaxTq+Ry3EeA523v9179tZ6/LAZ3tV1kEgelEX8GS8W5AkomQNsC3BKEguWvYcEkLsS5TYes+fCIfQTH0LTkmjAf40gXPQ8UnC8=
+	t=1772121377; cv=none; b=U/ubmFhjZik6XpVigA+1rclN303SSvYHBmuLyLHlKNjHt599I2cDTXQ1WBwKBW80HmKAp6r7mT0Pv4HVuQpFZa0rNkRS/OzXAtahpw3dsoOFgjffcql3+psIqwY90wRjNJ+Antlpl74AZcwv+L9u37TZXdQzbRDwa8FeWjY1RpM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772120815; c=relaxed/simple;
-	bh=Sg9Rejxo873wnXgB7FQIKx5XI+HK9ciPu3aOtetz09s=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JBEGVrT/szeStGnbZ5JB7+XQ66TjCnq8rLqQK20viI0/ptzuFtAmh+eijjT1shng8AhSw02d3rpkW3cAOJ//OuCIH2mq/jsfdoGtMlkyqBjKSQTr9XvXcU0FofRHO7HnyNLP7Ho8n7D7BjaCHZvJANFlOHn7QCnrAI7jQtokE7o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=phenome.org; spf=pass smtp.mailfrom=phenome.org; dkim=pass (2048-bit key) header.d=phenome.org header.i=@phenome.org header.b=emKI5/GZ; arc=none smtp.client-ip=193.110.157.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=phenome.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=phenome.org
+	s=arc-20240116; t=1772121377; c=relaxed/simple;
+	bh=bm8lqWJV39M4eG7U+QbchhnID3rpkEPNWqFnFcK9h50=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=SArB4fHCzTSvJpdjU3t1ozneVbpNj7AKIvYmkZBzQanGbGvToPgjpn5e5EzzhjxYBh2xDpNBbSvAB8sB0FKdWZYndeQ4I24ZTS8Vd9ypbaOCSqP4GFqXhFijfQsqMMupRR3ZPIj5BUuPOJtcx4s6woyozg6ZXwKNMFYd2lyOgjg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pqfxb/JP; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=phenome.org header.i=@phenome.org header.b="emKI5/GZ"
-Authentication-Results: oak.phenome.org (amavisd); dkim=pass (2048-bit key)
- reason="pass (just generated, assumed good)" header.d=phenome.org
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=phenome.org; h=
-	in-reply-to:content-disposition:content-type:content-type
-	:mime-version:references:message-id:subject:subject:from:from
-	:date:date:received; s=oak1; t=1772120810; x=1772984811; bh=Sg9R
-	ejxo873wnXgB7FQIKx5XI+HK9ciPu3aOtetz09s=; b=emKI5/GZtdqNs80W9MMy
-	Re3Z4UnM64Q+0/qnYITiDFpo2biEiFZ/TW5h/ViBkJytoWNRlp7/UAbMzpl8zDzu
-	LegeQwZ1uFn2zNt72wM7nJJsNKiS8/HnpMWuC7PX/34pzVEAUyl3La2J7FegZ5dI
-	+o0qySutSRgUcxPxSYSktaIsxULLcb79guhkE6bI++Qm4Yt7MDae7zLLY1++TUE+
-	uPbu6Txru3c7kwPWEbcLsw5G507eCBxgqA8KvXKdD8jQzgACBa0jNcOwmPY2e/FS
-	q1BqPsO6gx5/H96sXWvjj1nj+L4GJkg6D9wN3npyx5rg49GXjv5Jsoyhl4DB/Y4o
-	hg==
-X-Virus-Scanned: amavisd at oak.phenome.org
-Received: by oak.phenome.org (Postfix);
-	Thu, 26 Feb 2026 16:46:50 +0100 (CET)
-Date: Thu, 26 Feb 2026 16:46:49 +0100
-From: Antony Antony <antony@phenome.org>
-To: Sabrina Dubroca <sd@queasysnail.net>
-Cc: Antony Antony <antony.antony@secunet.com>,
-	Steffen Klassert <steffen.klassert@secunet.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>, netdev@vger.kernel.org,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Chiachang Wang <chiachangwang@google.com>,
-	Yan Yan <evitayan@google.com>, devel@linux-ipsec.org,
-	Simon Horman <horms@kernel.org>, Paul Moore <paul@paul-moore.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org,
-	selinux@vger.kernel.org
-Subject: Re: [PATCH ipsec-next v5 8/8] xfrm: add XFRM_MSG_MIGRATE_STATE for
- single SA migration
-Message-ID: <aaBq6RtWZXYdvhQY@Antony2201.local>
-References: <cover.1769509130.git.antony.antony@secunet.com>
- <b7b1bee9456ac4ada8941c93c2cc17f07d0b1912.1769509131.git.antony.antony@secunet.com>
- <aYJnuw5mB8qn236R@krikkit>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pqfxb/JP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2E25C116C6;
+	Thu, 26 Feb 2026 15:56:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772121376;
+	bh=bm8lqWJV39M4eG7U+QbchhnID3rpkEPNWqFnFcK9h50=;
+	h=From:Subject:Date:To:Cc:From;
+	b=pqfxb/JPB+9A0DdEmihrSR1od+MmqlePtV5ia1XT3Jxe4lyCPW63Y66CQyfmzEb+v
+	 /IwagyED23uEKn4TYUZRNJnRnzyAzafzpIpu059iFAlMlm/x6UJP5UIoKuK0QE7RhI
+	 s1kPeLnP3jKq5b8ff3bxDEpvrtkxU8Zgy3TCX1glQSBbvp4px1/TkOpbmgXtPTs1R0
+	 q1QzY0eaxDQZXfRYvjWH4D1U5yoYKNeZfYi6SDnln/tU2EKvzr8b03UGXLRmEptBnE
+	 k7ngVYFF3PiaogbYG0gVKmtphsJjGy6IEOhC8woyjLWgWHnKfDthZuKCKyDXQwwi5j
+	 EgBHsyvn9gmMA==
+From: Jeff Layton <jlayton@kernel.org>
+Subject: [PATCH 00/61] vfs: change inode->i_ino from unsigned long to u64
+Date: Thu, 26 Feb 2026 10:55:02 -0500
+Message-Id: <20260226-iino-u64-v1-0-ccceff366db9@kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aYJnuw5mB8qn236R@krikkit>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
+ vPSU3UzU4B8JSMDIzMDIyMT3czMvHzdUjMT3SQTk0TjRHMjUxPjZCWg8oKi1LTMCrBR0bG1tQA
+ SGtUlWgAAAA==
+X-Change-ID: 20260224-iino-u64-b44a3a72543c
+To: Alexander Viro <viro@zeniv.linux.org.uk>, 
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+ Steven Rostedt <rostedt@goodmis.org>, 
+ Masami Hiramatsu <mhiramat@kernel.org>, 
+ Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
+ Dan Williams <dan.j.williams@intel.com>, 
+ Matthew Wilcox <willy@infradead.org>, Eric Biggers <ebiggers@kernel.org>, 
+ "Theodore Y. Ts'o" <tytso@mit.edu>, Muchun Song <muchun.song@linux.dev>, 
+ Oscar Salvador <osalvador@suse.de>, David Hildenbrand <david@kernel.org>, 
+ David Howells <dhowells@redhat.com>, Paulo Alcantara <pc@manguebit.org>, 
+ Andreas Dilger <adilger.kernel@dilger.ca>, Jan Kara <jack@suse.com>, 
+ Jaegeuk Kim <jaegeuk@kernel.org>, Chao Yu <chao@kernel.org>, 
+ Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, 
+ Chuck Lever <chuck.lever@oracle.com>, NeilBrown <neil@brown.name>, 
+ Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo <Dai.Ngo@oracle.com>, 
+ Tom Talpey <tom@talpey.com>, Steve French <sfrench@samba.org>, 
+ Ronnie Sahlberg <ronniesahlberg@gmail.com>, 
+ Shyam Prasad N <sprasad@microsoft.com>, 
+ Bharath SM <bharathsm@microsoft.com>, 
+ Alexander Aring <alex.aring@gmail.com>, 
+ Ryusuke Konishi <konishi.ryusuke@gmail.com>, 
+ Viacheslav Dubeyko <slava@dubeyko.com>, 
+ Eric Van Hensbergen <ericvh@kernel.org>, 
+ Latchesar Ionkov <lucho@ionkov.net>, 
+ Dominique Martinet <asmadeus@codewreck.org>, 
+ Christian Schoenebeck <linux_oss@crudebyte.com>, 
+ David Sterba <dsterba@suse.com>, Marc Dionne <marc.dionne@auristor.com>, 
+ Ian Kent <raven@themaw.net>, Luis de Bethencourt <luisbg@kernel.org>, 
+ Salah Triki <salah.triki@gmail.com>, 
+ "Tigran A. Aivazian" <aivazian.tigran@gmail.com>, 
+ Ilya Dryomov <idryomov@gmail.com>, Alex Markuze <amarkuze@redhat.com>, 
+ Jan Harkes <jaharkes@cs.cmu.edu>, coda@cs.cmu.edu, 
+ Nicolas Pitre <nico@fluxnic.net>, Tyler Hicks <code@tyhicks.com>, 
+ Amir Goldstein <amir73il@gmail.com>, Christoph Hellwig <hch@infradead.org>, 
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
+ Yangtao Li <frank.li@vivo.com>, 
+ Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>, 
+ David Woodhouse <dwmw2@infradead.org>, Richard Weinberger <richard@nod.at>, 
+ Dave Kleikamp <shaggy@kernel.org>, 
+ Konstantin Komarov <almaz.alexandrovich@paragon-software.com>, 
+ Mark Fasheh <mark@fasheh.com>, Joel Becker <jlbec@evilplan.org>, 
+ Joseph Qi <joseph.qi@linux.alibaba.com>, 
+ Mike Marshall <hubcap@omnibond.com>, 
+ Martin Brandenburg <martin@omnibond.com>, 
+ Miklos Szeredi <miklos@szeredi.hu>, Anders Larsen <al@alarsen.net>, 
+ Zhihao Cheng <chengzhihao1@huawei.com>, Damien Le Moal <dlemoal@kernel.org>, 
+ Naohiro Aota <naohiro.aota@wdc.com>, Johannes Thumshirn <jth@kernel.org>, 
+ John Johansen <john.johansen@canonical.com>, 
+ Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
+ "Serge E. Hallyn" <serge@hallyn.com>, Mimi Zohar <zohar@linux.ibm.com>, 
+ Roberto Sassu <roberto.sassu@huawei.com>, 
+ Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, 
+ Eric Snowberg <eric.snowberg@oracle.com>, Fan Wu <wufan@kernel.org>, 
+ Stephen Smalley <stephen.smalley.work@gmail.com>, 
+ Ondrej Mosnacek <omosnace@redhat.com>, 
+ Casey Schaufler <casey@schaufler-ca.com>, 
+ Alex Deucher <alexander.deucher@amd.com>, 
+ =?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
+ Sumit Semwal <sumit.semwal@linaro.org>, Eric Dumazet <edumazet@google.com>, 
+ Kuniyuki Iwashima <kuniyu@google.com>, Paolo Abeni <pabeni@redhat.com>, 
+ Willem de Bruijn <willemb@google.com>, 
+ "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, 
+ Simon Horman <horms@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
+ Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, 
+ Arnaldo Carvalho de Melo <acme@kernel.org>, 
+ Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>, 
+ Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>, 
+ Adrian Hunter <adrian.hunter@intel.com>, 
+ James Clark <james.clark@linaro.org>, "Darrick J. Wong" <djwong@kernel.org>, 
+ Martin Schiller <ms@dev.tdt.de>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-trace-kernel@vger.kernel.org, nvdimm@lists.linux.dev, 
+ fsverity@lists.linux.dev, linux-mm@kvack.org, netfs@lists.linux.dev, 
+ linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, 
+ linux-nfs@vger.kernel.org, linux-cifs@vger.kernel.org, 
+ samba-technical@lists.samba.org, linux-nilfs@vger.kernel.org, 
+ v9fs@lists.linux.dev, linux-afs@lists.infradead.org, autofs@vger.kernel.org, 
+ ceph-devel@vger.kernel.org, codalist@coda.cs.cmu.edu, 
+ ecryptfs@vger.kernel.org, linux-mtd@lists.infradead.org, 
+ jfs-discussion@lists.sourceforge.net, ntfs3@lists.linux.dev, 
+ ocfs2-devel@lists.linux.dev, devel@lists.orangefs.org, 
+ linux-unionfs@vger.kernel.org, apparmor@lists.ubuntu.com, 
+ linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, 
+ selinux@vger.kernel.org, amd-gfx@lists.freedesktop.org, 
+ dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, 
+ linaro-mm-sig@lists.linaro.org, netdev@vger.kernel.org, 
+ linux-perf-users@vger.kernel.org, linux-fscrypt@vger.kernel.org, 
+ linux-xfs@vger.kernel.org, linux-hams@vger.kernel.org, 
+ linux-x25@vger.kernel.org, Jeff Layton <jlayton@kernel.org>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=15312; i=jlayton@kernel.org;
+ h=from:subject:message-id; bh=bm8lqWJV39M4eG7U+QbchhnID3rpkEPNWqFnFcK9h50=;
+ b=owEBbQKS/ZANAwAKAQAOaEEZVoIVAcsmYgBpoG0E7ak+Mylvq4N32bK1I3/WSmlri3O20ntel
+ ynlDCAf5J+JAjMEAAEKAB0WIQRLwNeyRHGyoYTq9dMADmhBGVaCFQUCaaBtBAAKCRAADmhBGVaC
+ FQNaD/99dNIe9GktLTBzwopZ9yEGFrRTFIcmxisOkvFnYrxs7pvyJguByZr/T9eX2cNVUEpdjzD
+ C1iuOte5SQ45dD0PjwPJPiK3FG0CQk+EHKxp/XFvwWOmR5Notnj4PjXsZsPE9vkoKAPRoo7N/+E
+ VhGmfuR2DDecDqDhM4BKt90HenRbGbgxjDDJnBbJAOJWg4Bg/EdjF6biS3LVebOFBuUe0YdUwrs
+ u5/8rzD+AE1IstmFVsGHrvkZ1s+IUCm5IqXQuym9YwDN8keTlmAiG502esniJ/r61Q1E5EKsaDG
+ tGZQEhXHmQSQk24ELJUdDAekMGRh8xxQ9WjLMbddWAT6yozs1bgm/Qc25vJln0H8tyL+MdruE0R
+ EZaHTaxm7ejC8n7zzOriY4b5BJyyD+HU8ejrE0SzdrYu2cZ/9JbanXHyfkk8aPs6QdtHGt9RpQc
+ lqjS9fIuX5sgbILJnQ4puht3XSoRWE3+3ggHZOF62lEIEy286MWX2QEdHC88LXHGVni64VZ/LEX
+ SBsBmZgyyTnusTh9cFSX0ZBvyy5ULBbHQVwmznONmCsIhpfuyJGn9lqADtLZieII+rvq/1kGKpF
+ rg1YwXdTIQ/z/gW3X6vOUv4fg4/y9G6DWzvdmr8IKkQeoOg2P0242rvkp+nvgUTXwsUOjUbMovD
+ z2z7t40oREOfaVA==
+X-Developer-Key: i=jlayton@kernel.org; a=openpgp;
+ fpr=4BC0D7B24471B2A184EAF5D3000E684119568215
 
-Hi Sabrina,
+Christian said [1] to "just do it" when I proposed this, so here we are!
 
-Thanks for your extensive review. Along the way I also noticed a couple of 
-more minor issues and fixed them. I will send
-a v6 addressing the points from this email.
+For historical reasons, the inode->i_ino field is an unsigned long,
+which means that it's 32 bits on 32 bit architectures. This has caused a
+number of filesystems to implement hacks to hash a 64-bit identifier
+into a 32-bit field, and deprives us of a universal identifier field for
+an inode.
 
-On Tue, Feb 03, 2026 at 10:25:15PM +0100, Sabrina Dubroca via Devel wrote:
-> 2026-01-27, 11:44:11 +0100, Antony Antony wrote:
-> > diff --git a/include/uapi/linux/xfrm.h b/include/uapi/linux/xfrm.h
-> > index a23495c0e0a1..60b1f201b237 100644
-> > --- a/include/uapi/linux/xfrm.h
-> > +++ b/include/uapi/linux/xfrm.h
-> [...]
-> > +struct xfrm_user_migrate_state {
-> > +	struct xfrm_usersa_id id;
-> > +	xfrm_address_t new_saddr;
-> > +	xfrm_address_t new_daddr;
-> > +	__u16 new_family;
-> > +	__u32 new_reqid;
-> > +};
-> 
-> I'm not entirely clear on why this struct has those fields (maybe, in
-> particular, new_saddr but no old_saddr, assuming that id.daddr is
-> old_daddr). My guess is:
-> 
->   - usersa_id because it's roughly equivalent to a GETSA request,
->     which makes the old_saddr unnecessary (id uniquely identifies the
->     target SA)
-> 
->   - new_{saddr,daddr,family,reqid}
->     equivalent to the new_* from xfrm_user_migrate (+reqid)
-> 
-> Is that correct?
+This patchset changes the inode->i_ino field from an unsigned long to a
+u64. This shouldn't make any material difference on 64-bit hosts, but
+32-bit hosts will see struct inode grow by at least 4 bytes. This could
+have effects on slabcache sizes and field alignment.
 
-Yes, exactly. The SA is looked up via xfrm_usersa_id, which uniquely
-identifies it, so old_saddr is not needed. old_daddr is carried in
-xfrm_usersa_id.daddr.
+The bulk of the changes are to format strings and tracepoints, since the
+kernel itself doesn't care that much about the i_ino field. The first
+patch changes some vfs function arguments, so check that one out
+carefully.
 
-> > diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-> > index 2e03871ae872..945e0e470c0f 100644
-> > --- a/net/xfrm/xfrm_state.c
-> > +++ b/net/xfrm/xfrm_state.c
-> [...]
-> > @@ -2159,9 +2158,10 @@ int xfrm_state_migrate_install(const struct xfrm_state *x,
-> >  			       struct xfrm_user_offload *xuo,
-> >  			       struct netlink_ext_ack *extack)
-> >  {
-> > -	if (xfrm_addr_equal(&x->id.daddr, &m->new_daddr, m->new_family)) {
-> > +	if (xfrm_addr_equal(&x->id.daddr, &m->new_daddr, m->new_family) ||
-> 
-> [piggy-backing on this patch review, but it's an older issue, and may
-> also be present in a few other places]
-> 
-> Is it valid to call xfrm_addr_equal without checking new_family ==
-> old_family? My feeling is "no", addresses of different families can't
-> be equal at all.
-> 
-> What we end up doing here:
-> old_family = AF_INET, new_family = AF_INET6
-> old_daddr has only 4B containing valid data, we're comparing the whole
-> 16B to new_daddr (but what's in the other 12B?)
-> 
-> old_family = AF_INET6, new_family = AF_INET
-> we're comparing using new_family, so we only compare the first 4B of
-> old_daddr to the new address
+With this change, we may be able to shrink some inode structures. For
+instance, struct nfs_inode has a fileid field that holds the 64-bit
+inode number. With this set of changes, that field could be eliminated.
+I'd rather leave that sort of cleanups for later just to keep this
+simple.
 
-good catch. It existed before. I will send a fix as part of this series.
+Much of this set was generated by LLM, but I attributed it to myself
+since I consider this to be in the "menial tasks" category of LLM usage.
 
-> 
-> 
-> > +	    x->props.reqid != xc->props.reqid) {
-> >  		/*
-> > -		 * Care is needed when the destination address
-> > +		 * Care is needed when the destination address or reqid
-> >  		 * of the state is to be updated as it is a part of triplet.
-> 
-> I'm quite confused by this bit. The existing code is "unchanged daddr,
-> use _insert, otherwise _add" (to let _add check for collisions that
-> are irrelevant with an unchanged daddr?). The new code is for a change
-> of reqid. Why does reqid need to be handled with care? And should the
-> reqid condition be reversed (same reqid => use _insert)?
+[1]: https://lore.kernel.org/linux-fsdevel/20260219-portrait-winkt-959070cee42f@brauner/
 
-I revisited it and reqid change does not need insert. _add is good enough.  
-Fixed. Thanks.
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+---
+Jeff Layton (61):
+      vfs: widen inode hash/lookup functions to u64
+      vfs: change i_ino from unsigned long to u64
+      trace: update VFS-layer trace events for u64 i_ino
+      ext4: update for u64 i_ino
+      jbd2: update format strings for u64 i_ino
+      f2fs: update for u64 i_ino
+      lockd: update format strings for u64 i_ino
+      nfs: update for u64 i_ino
+      nfs: remove nfs_fattr_to_ino_t() and nfs_fileid_to_ino_t()
+      nfs: remove nfs_compat_user_ino64()
+      nfs: remove enable_ino64 module parameter
+      nfsd: update format strings for u64 i_ino
+      smb: store full 64-bit uniqueid in i_ino
+      smb: remove cifs_uniqueid_to_ino_t()
+      locks: update /proc/locks format for u64 i_ino
+      proc: update /proc/PID/maps for u64 i_ino
+      nilfs2: update for u64 i_ino
+      9p: update format strings for u64 i_ino
+      affs: update format strings for u64 i_ino
+      afs: update format strings for u64 i_ino
+      autofs: update format strings for u64 i_ino
+      befs: update format strings for u64 i_ino
+      bfs: update format strings for u64 i_ino
+      cachefiles: update format strings for u64 i_ino
+      ceph: update format strings for u64 i_ino
+      coda: update format strings for u64 i_ino
+      cramfs: update format strings for u64 i_ino
+      ecryptfs: update format strings for u64 i_ino
+      efs: update format strings for u64 i_ino
+      exportfs: update format strings for u64 i_ino
+      ext2: update format strings for u64 i_ino
+      freevxfs: update format strings for u64 i_ino
+      hfs: update format strings for u64 i_ino
+      hfsplus: update format strings for u64 i_ino
+      hpfs: update format strings for u64 i_ino
+      isofs: update format strings for u64 i_ino
+      jffs2: update format strings for u64 i_ino
+      jfs: update format strings for u64 i_ino
+      minix: update format strings for u64 i_ino
+      nsfs: update format strings for u64 i_ino
+      ntfs3: update format strings for u64 i_ino
+      ocfs2: update format strings for u64 i_ino
+      orangefs: update format strings for u64 i_ino
+      overlayfs: update format strings for u64 i_ino
+      qnx4: update format strings for u64 i_ino
+      qnx6: update format strings for u64 i_ino
+      ubifs: update format strings for u64 i_ino
+      udf: update format strings for u64 i_ino
+      ufs: update format strings for u64 i_ino
+      zonefs: update format strings for u64 i_ino
+      security: update audit format strings for u64 i_ino
+      drm/amdgpu: update for u64 i_ino
+      fsnotify: update fdinfo format strings for u64 i_ino
+      net: update socket dname format for u64 i_ino
+      uprobes: update format strings for u64 i_ino
+      dma-buf: update format string for u64 i_ino
+      fscrypt: update format strings for u64 i_ino
+      fsverity: update format string for u64 i_ino
+      iomap: update format string for u64 i_ino
+      net: update legacy protocol format strings for u64 i_ino
+      vfs: update core format strings for u64 i_ino
 
-> > diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
-> > index 26b82d94acc1..79e65e3e278a 100644
-> > --- a/net/xfrm/xfrm_user.c
-> > +++ b/net/xfrm/xfrm_user.c
-> [...]
-> > +static int xfrm_do_migrate_state(struct sk_buff *skb, struct nlmsghdr *nlh,
-> > +				 struct nlattr **attrs, struct netlink_ext_ack *extack)
-> > +{
-> > +	int err = -ESRCH;
-> > +	struct xfrm_state *x;
-> > +	struct xfrm_state *xc;
-> > +	struct net *net = sock_net(skb->sk);
-> > +	struct xfrm_encap_tmpl *encap = NULL;
-> > +	struct xfrm_user_offload *xuo = NULL;
-> > +	struct xfrm_migrate m = {};
-> > +	struct xfrm_user_migrate_state *um = nlmsg_data(nlh);
-> 
-> I don't know if Steffen requires it, but networking normally uses
-> reverse xmas tree order. 
+ drivers/dma-buf/dma-buf.c                  |   2 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_object.c |   4 +-
+ fs/9p/vfs_addr.c                           |   4 +-
+ fs/9p/vfs_inode.c                          |   6 +-
+ fs/9p/vfs_inode_dotl.c                     |   6 +-
+ fs/affs/amigaffs.c                         |   8 +-
+ fs/affs/bitmap.c                           |   2 +-
+ fs/affs/dir.c                              |   2 +-
+ fs/affs/file.c                             |  20 +-
+ fs/affs/inode.c                            |  12 +-
+ fs/affs/namei.c                            |  14 +-
+ fs/affs/symlink.c                          |   2 +-
+ fs/afs/dir.c                               |  10 +-
+ fs/afs/dir_search.c                        |   2 +-
+ fs/afs/dynroot.c                           |   2 +-
+ fs/afs/inode.c                             |   2 +-
+ fs/autofs/inode.c                          |   2 +-
+ fs/befs/linuxvfs.c                         |  28 +-
+ fs/bfs/dir.c                               |   4 +-
+ fs/cachefiles/io.c                         |   6 +-
+ fs/cachefiles/namei.c                      |  12 +-
+ fs/cachefiles/xattr.c                      |   2 +-
+ fs/ceph/crypto.c                           |   4 +-
+ fs/coda/dir.c                              |   2 +-
+ fs/coda/inode.c                            |   2 +-
+ fs/cramfs/inode.c                          |   2 +-
+ fs/crypto/crypto.c                         |   2 +-
+ fs/crypto/hooks.c                          |   2 +-
+ fs/crypto/keysetup.c                       |   2 +-
+ fs/dcache.c                                |   4 +-
+ fs/ecryptfs/crypto.c                       |   6 +-
+ fs/ecryptfs/file.c                         |   2 +-
+ fs/efs/inode.c                             |   6 +-
+ fs/eventpoll.c                             |   2 +-
+ fs/exportfs/expfs.c                        |   4 +-
+ fs/ext2/dir.c                              |  10 +-
+ fs/ext2/ialloc.c                           |   9 +-
+ fs/ext2/inode.c                            |   2 +-
+ fs/ext2/xattr.c                            |  14 +-
+ fs/ext4/dir.c                              |   2 +-
+ fs/ext4/ext4.h                             |   4 +-
+ fs/ext4/extents.c                          |   8 +-
+ fs/ext4/extents_status.c                   |  28 +-
+ fs/ext4/fast_commit.c                      |   8 +-
+ fs/ext4/ialloc.c                           |  10 +-
+ fs/ext4/indirect.c                         |   2 +-
+ fs/ext4/inline.c                           |  14 +-
+ fs/ext4/inode.c                            |  22 +-
+ fs/ext4/ioctl.c                            |   4 +-
+ fs/ext4/mballoc.c                          |   6 +-
+ fs/ext4/migrate.c                          |   2 +-
+ fs/ext4/move_extent.c                      |  20 +-
+ fs/ext4/namei.c                            |  10 +-
+ fs/ext4/orphan.c                           |  16 +-
+ fs/ext4/page-io.c                          |  10 +-
+ fs/ext4/super.c                            |  22 +-
+ fs/ext4/xattr.c                            |  10 +-
+ fs/f2fs/compress.c                         |   4 +-
+ fs/f2fs/dir.c                              |   2 +-
+ fs/f2fs/extent_cache.c                     |   8 +-
+ fs/f2fs/f2fs.h                             |   6 +-
+ fs/f2fs/file.c                             |  12 +-
+ fs/f2fs/gc.c                               |   2 +-
+ fs/f2fs/inline.c                           |   4 +-
+ fs/f2fs/inode.c                            |  48 ++--
+ fs/f2fs/namei.c                            |   8 +-
+ fs/f2fs/node.c                             |  12 +-
+ fs/f2fs/recovery.c                         |  10 +-
+ fs/f2fs/xattr.c                            |  10 +-
+ fs/freevxfs/vxfs_bmap.c                    |   4 +-
+ fs/fserror.c                               |   2 +-
+ fs/hfs/catalog.c                           |   2 +-
+ fs/hfs/extent.c                            |   4 +-
+ fs/hfs/inode.c                             |   4 +-
+ fs/hfsplus/attributes.c                    |  10 +-
+ fs/hfsplus/catalog.c                       |   2 +-
+ fs/hfsplus/dir.c                           |   6 +-
+ fs/hfsplus/extents.c                       |   6 +-
+ fs/hfsplus/inode.c                         |   8 +-
+ fs/hfsplus/super.c                         |   6 +-
+ fs/hfsplus/xattr.c                         |  10 +-
+ fs/hpfs/dir.c                              |   4 +-
+ fs/hpfs/dnode.c                            |   4 +-
+ fs/hpfs/ea.c                               |   4 +-
+ fs/hpfs/inode.c                            |   4 +-
+ fs/inode.c                                 |  46 ++--
+ fs/iomap/ioend.c                           |   2 +-
+ fs/isofs/compress.c                        |   2 +-
+ fs/isofs/dir.c                             |   2 +-
+ fs/isofs/inode.c                           |   6 +-
+ fs/isofs/namei.c                           |   2 +-
+ fs/jbd2/journal.c                          |   4 +-
+ fs/jbd2/transaction.c                      |   2 +-
+ fs/jffs2/dir.c                             |   4 +-
+ fs/jffs2/file.c                            |   4 +-
+ fs/jffs2/fs.c                              |  18 +-
+ fs/jfs/inode.c                             |   2 +-
+ fs/jfs/jfs_imap.c                          |   2 +-
+ fs/jfs/jfs_metapage.c                      |   2 +-
+ fs/lockd/svclock.c                         |   8 +-
+ fs/lockd/svcsubs.c                         |   2 +-
+ fs/locks.c                                 |   6 +-
+ fs/minix/inode.c                           |  10 +-
+ fs/nfs/dir.c                               |  22 +-
+ fs/nfs/file.c                              |   8 +-
+ fs/nfs/filelayout/filelayout.c             |   8 +-
+ fs/nfs/flexfilelayout/flexfilelayout.c     |   8 +-
+ fs/nfs/inode.c                             |  54 +---
+ fs/nfs/nfs4proc.c                          |   4 +-
+ fs/nfs/pnfs.c                              |  12 +-
+ fs/nfsd/export.c                           |   2 +-
+ fs/nfsd/nfs4state.c                        |   4 +-
+ fs/nfsd/nfsfh.c                            |   4 +-
+ fs/nfsd/vfs.c                              |   2 +-
+ fs/nilfs2/alloc.c                          |  10 +-
+ fs/nilfs2/bmap.c                           |   2 +-
+ fs/nilfs2/btnode.c                         |   2 +-
+ fs/nilfs2/btree.c                          |  12 +-
+ fs/nilfs2/dir.c                            |  12 +-
+ fs/nilfs2/direct.c                         |   4 +-
+ fs/nilfs2/gcinode.c                        |   2 +-
+ fs/nilfs2/inode.c                          |   8 +-
+ fs/nilfs2/mdt.c                            |   2 +-
+ fs/nilfs2/namei.c                          |   2 +-
+ fs/nilfs2/segment.c                        |   2 +-
+ fs/notify/fdinfo.c                         |   4 +-
+ fs/nsfs.c                                  |   4 +-
+ fs/ntfs3/super.c                           |   2 +-
+ fs/ocfs2/alloc.c                           |   2 +-
+ fs/ocfs2/aops.c                            |   4 +-
+ fs/ocfs2/dir.c                             |   8 +-
+ fs/ocfs2/dlmfs/dlmfs.c                     |  10 +-
+ fs/ocfs2/extent_map.c                      |  12 +-
+ fs/ocfs2/inode.c                           |   2 +-
+ fs/ocfs2/quota_local.c                     |   2 +-
+ fs/ocfs2/refcounttree.c                    |  10 +-
+ fs/ocfs2/xattr.c                           |   4 +-
+ fs/orangefs/inode.c                        |   2 +-
+ fs/overlayfs/export.c                      |   2 +-
+ fs/overlayfs/namei.c                       |   4 +-
+ fs/overlayfs/util.c                        |   2 +-
+ fs/pipe.c                                  |   2 +-
+ fs/proc/fd.c                               |   2 +-
+ fs/proc/task_mmu.c                         |   4 +-
+ fs/qnx4/inode.c                            |   4 +-
+ fs/qnx6/inode.c                            |   2 +-
+ fs/smb/client/cifsfs.h                     |  17 --
+ fs/smb/client/inode.c                      |   6 +-
+ fs/smb/client/readdir.c                    |   2 +-
+ fs/ubifs/debug.c                           |   8 +-
+ fs/ubifs/dir.c                             |  28 +-
+ fs/ubifs/file.c                            |  28 +-
+ fs/ubifs/journal.c                         |   6 +-
+ fs/ubifs/super.c                           |  16 +-
+ fs/ubifs/tnc.c                             |   4 +-
+ fs/ubifs/xattr.c                           |  14 +-
+ fs/udf/directory.c                         |  18 +-
+ fs/udf/file.c                              |   2 +-
+ fs/udf/inode.c                             |  12 +-
+ fs/udf/namei.c                             |   8 +-
+ fs/udf/super.c                             |   2 +-
+ fs/ufs/balloc.c                            |   6 +-
+ fs/ufs/dir.c                               |  10 +-
+ fs/ufs/ialloc.c                            |   6 +-
+ fs/ufs/inode.c                             |  18 +-
+ fs/ufs/ufs_fs.h                            |   6 +-
+ fs/ufs/util.c                              |   2 +-
+ fs/verity/init.c                           |   2 +-
+ fs/zonefs/super.c                          |   8 +-
+ include/linux/fs.h                         |  28 +-
+ include/linux/nfs_fs.h                     |  10 -
+ include/trace/events/cachefiles.h          |  18 +-
+ include/trace/events/ext4.h                | 427 +++++++++++++++--------------
+ include/trace/events/f2fs.h                | 172 ++++++------
+ include/trace/events/filelock.h            |  16 +-
+ include/trace/events/filemap.h             |  20 +-
+ include/trace/events/fs_dax.h              |  20 +-
+ include/trace/events/fsverity.h            |  30 +-
+ include/trace/events/hugetlbfs.h           |  28 +-
+ include/trace/events/netfs.h               |   4 +-
+ include/trace/events/nilfs2.h              |  12 +-
+ include/trace/events/readahead.h           |  12 +-
+ include/trace/events/timestamp.h           |  12 +-
+ include/trace/events/writeback.h           | 148 +++++-----
+ kernel/events/uprobes.c                    |   4 +-
+ net/netrom/af_netrom.c                     |   4 +-
+ net/rose/af_rose.c                         |   4 +-
+ net/socket.c                               |   2 +-
+ net/x25/x25_proc.c                         |   4 +-
+ security/apparmor/apparmorfs.c             |   4 +-
+ security/integrity/integrity_audit.c       |   2 +-
+ security/ipe/audit.c                       |   2 +-
+ security/lsm_audit.c                       |  10 +-
+ security/selinux/hooks.c                   |   4 +-
+ security/smack/smack_lsm.c                 |  12 +-
+ 195 files changed, 1101 insertions(+), 1166 deletions(-)
+---
+base-commit: 2bf35e96cf6c6c3a290b69b777d34be15888e364
+change-id: 20260224-iino-u64-b44a3a72543c
 
-It is good to keep that style. Fixed.
+Best regards,
+-- 
+Jeff Layton <jlayton@kernel.org>
 
-> > +	if (!um->id.spi) {
-> > +		NL_SET_ERR_MSG(extack, "Invalid SPI 0x0");
-> > +		return -EINVAL;
-> > +	}
-> > +
-> > +	copy_from_user_migrate_state(&m, um);
-> > +
-> > +	x = xfrm_user_state_lookup(net, &um->id, attrs, &err);
-> > +	if (!x) {
-> > +		NL_SET_ERR_MSG(extack, "Can not find state");
-> > +		return err;
-> > +	}
-> > +
-> > +	if (!x->dir) {
-> > +		NL_SET_ERR_MSG(extack, "State direction is invalid");
-> 
-> Why this restriction?
-> Also, should there be a match against XFRMA_SA_DIR? (I don't see one in
-> xfrm_user_state_lookup)
-
-The !x->dir check is not strictly necessary. It was a leftover from an 
-earlier iteration that was dropped. I removed it
-
- 
-> I think we should also reject attributes that we're not handling for
-> all new netlink message types. This would give us more freedom of
-> interpretation in future updates to this code.
-
-good idea. I have added new validate attributes patch
-
-
-> > +		err = -EINVAL;
-> > +		goto out;
-> > +	}
-> > +
-> > +	if (attrs[XFRMA_ENCAP]) {
-> > +		encap = kmemdup(nla_data(attrs[XFRMA_ENCAP]), sizeof(*encap),
-> 
-> I guess you c/p'd this from the old migrate code but... do we really
-> need a kmemdup here? xfrm_state_clone_and_setup() will make another
-> copy to assign to x->encap so here encap could just point to
-> nla_data(attrs[XFRMA_ENCAP])?
-
-why not:) It is time to change, though it is a widely used pattern in the 
-same file.
-
-> 
-> 
-> > +				GFP_KERNEL);
-> > +		if (!encap) {
-> > +			err = -ENOMEM;
-> > +			goto out;
-> > +		}
-> > +	}
-> > +
-> > +	if (attrs[XFRMA_OFFLOAD_DEV]) {
-> > +		xuo = kmemdup(nla_data(attrs[XFRMA_OFFLOAD_DEV]),
-> > +			      sizeof(*xuo), GFP_KERNEL);
-> 
-> And same here, I don't think we actually need a copy of that memory.
-
-changed. thanks.
-
-> 
-> > +		if (!xuo) {
-> > +			err = -ENOMEM;
-> > +			goto out;
-> > +		}
-> > +	}
-> > +
-> > +	xc = xfrm_state_migrate_create(x, &m, encap, net, xuo, extack);
-> > +	if (!xc) {
-> > +		if (extack && !extack->_msg)
-> > +			NL_SET_ERR_MSG(extack, "State migration clone failed");
-> 
-> NL_SET_ERR_MSG_WEAK(...)
-
-thanks I was looking for this!
-
-> 
-> > +		err = -EINVAL;
-> > +		goto out;
-> > +	}
-> > +
-> > +	spin_lock_bh(&x->lock);
-> > +	/* synchronize to prevent SN/IV reuse */
-> > +	xfrm_migrate_sync(xc, x);
-> > +	__xfrm_state_delete(x);
-> > +	spin_unlock_bh(&x->lock);
-> > +
-> > +	err = xfrm_state_migrate_install(x, xc, &m, xuo, extack);
-> > +	if (err < 0) {
-> > +		/*
-> > +		 * In this rare case both the old SA and the new SA
-> > +		 * will disappear.
-> > +		 * Alternatives risk duplicate SN/IV usage which must not occur.
-> > +		 * Userspace must handle this error, -EEXIST.
-> > +		 */
-> > +		goto out;
-> > +	}
-> > +
-> > +	err = xfrm_send_migrate_state(um, encap, xuo, nlh->nlmsg_pid,
-> > +				      nlh->nlmsg_seq);
-> > +	if (err < 0)
-> > +		NL_SET_ERR_MSG(extack, "Failed to send migration notification");
-> 
-> I feel this is a bit problematic as it will look like the operation
-> failed, but in reality only the notification has not been sent (but
-> the MIGRATE_STATE operation itself succeeded).
-
-It is not critical, however, the best choice is let the userspace decide.
-How about this 
-
-if (err < 0) {
-                NL_SET_ERR_MSG(extack, "Failed to send migration notification");
-                err = 0
-} 
-
-most likely cause is out of memory.
-
-> 
-> > +out:
-> > +	xfrm_state_put(x);
-> > +	kfree(encap);
-> > +	kfree(xuo);
-> > +	return err;
-> > +}
-> > +
-> 
-
--antony
