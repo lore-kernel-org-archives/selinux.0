@@ -1,455 +1,194 @@
-Received: from sonic311-30.consmr.mail.ne1.yahoo.com (sonic311-30.consmr.mail.ne1.yahoo.com [66.163.188.211])
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A05D2D7DE1
-	for <selinux@vger.kernel.org>; Wed, 25 Feb 2026 19:22:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.188.211
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772047335; cv=none; b=Pa1UVZd9TeCDvwo5CuIsWgB79mCoB+0s8b4Os8Q2k3ru19ThUN87aFABkvQGoXmcpNSYMiaj2dQvQpPbmg5tz9LC3GHqN5/s/lW1m5IwAWpZuJHoGVMW++O0nWGnovYAzM8Pkhb5XVKIYk1mHjfZPyCuVXE5BNY/cGVANO3Kik8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772047335; c=relaxed/simple;
-	bh=Ugm29/8cN+3G81MnTiss0pGa1d4IdO7Qaf5n3sbJy0s=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=mbUwxMXMR+aPb5GAwwZyHg9KFYN4ZYcp36hGB/l8OCHoE83XeGPNsH3lobZkWfIn3zuJI9Nzc5wyO5746a8aNB4izWatg8/3++Y0IWad1m5nmiskDDwqkq0tSNTV7AmYMY0aUVpZHdnxgodz4czw0OzCiOpszry6XYEPbo75Moo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=b8LLCBDE; arc=none smtp.client-ip=66.163.188.211
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 494D015A864
+	for <selinux@vger.kernel.org>; Thu, 26 Feb 2026 00:05:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.48
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772064314; cv=pass; b=Ygp5ueqWDpVdyPX8mBZDZSHZLVOQ+aKTeJrRqcNiEGXykJ2oW73Rfve2hWxOYD+ixWhSdo7MfS4VW1fsZSQcTn7hwWlZCpbsHGI64dnxgNzGIulxxEXGSXOarbURKLGUz3EapctNPLvkvECHFWBGldvgd366cAOiDbmH0rhb2/c=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772064314; c=relaxed/simple;
+	bh=be7FPiPWe1/11EBo1DumJ14D6YL2yIf6xGwLC8NbK1E=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=gL/O3B6DvxJVUUsrdJvduh4t7yX6HKzVcOH6lgCA3ij/tzhsrHlGgm0sEpDHKZ4Q84nnAnIBs0/90abdfx5H7Obh1XyEZc6rPuZfC4UgX8I5xwrOyFtyY/xM+7lJs6BE31iv8w0jGcVjb4zX5DvF7bIlm4TYbQEC4g/b5Kt/SN8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Ywoj3TGD; arc=pass smtp.client-ip=209.85.216.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="b8LLCBDE"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1772047326; bh=Z43PNb06pzZtCLUlarDHLUOJAGWD6uFtJOlYdsVZrfE=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=b8LLCBDE72mWnOYS22DrLCTBC0atWBpf/8HmGeLu1Hk55a+ftcTcdxzfpUwITYWKRAVvyE04cod0wS0YDsBacq8ighR5JA2NRER/oXWIeEzgHALE8iZcuBgd7ITByTc6ntjs9MnzaqqYfGYaTtneOfXAVCQIwBU3nsgmsRCy/Htd2UDPg6ncMQBwuVpf2+nPs6o3iW5QblGFyThpfDOmTyiDEmqy/m4eArGQwbErO6W8TiY2naJyW1KXM21DDG3/gl73QUDE9K0+W40z6poYUeF4BUUiKEIRQgpG8xCQ0H/TJyHhk84XJqjloEd+NmchXu7J0olWhn2E0jcvrIKbLQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1772047326; bh=OCb8IwyAqFgRAA3oPQRu8S1E29/mN0mX+uZUOpnO9HB=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=KKxgTDeY5VRaswB7yP7Abapuog0Z0MSO4w/jlo2+vinWDd5naA77jo/xhRbiUfH5fEU+aV3WksxN9glqtX42X01RrmDUZvKBDU6F3PK+cXpOE1l1Gb741sEku114bQOaDuuFR4nXohTa6PnodT4tBDC0glwxV4WEN3mpuzXV8ouSpaGuCvA+UAbyewuSH80MeJAYobilT3GwULh2811VWmcW9u4fw6Gdt4XdqaRaTzOBU8xxVtRW58HMkZhjKFFG7GHDXik4lVlKdqDPC1kN+xxCCJdeQDcGSVQDRpuwLCBM0v5B3QT1bSPWwfxxZ4RlglZZGYkldIMtmOMLqOFkaw==
-X-YMail-OSG: OQ6kNm0VM1l18xVJ.VaayufrF71Sq.A3vGc9MQJdDhGUAKrbl3HSVqSzdf2NC_S
- leNjzd2nU9uzcAiVO0yajKzjrV2TZWc9mM.t5gAOg5h1gv.TCyXz.OuNg3d9gaQajFvmuzD5YaN2
- 9W63y9HEfXqhW4bcCvDoWcXucuH21NF8iyScSZJpnYKyxcfmlLjy7sakp7Pz42xu.fNR.W7ZX1Rb
- e.TT8cz8EkRhmfcjBgv7.bQxoRSNWzh2BVU8FmLF8AenMvVqEkulbvhcHPDcLcNA864BdPv4SPhX
- UxCA6eNnkEiDa0u3U3rDO60u372RyA0MmoPsTxk.GrciEYK5Qsg0ppfrTVa2hpgMdpIPUFyvuzVI
- sZZ7UKFwJebbSF_93U8Xf.e56hwZp8d.OZ0arfj9GIl2hH9r9wQI8p5GDl0vJHfo.eAhtot8oCfP
- pKglN4n.F828Xvm7YcgWkzPMBQpEPuMMLyPhfuKwtMGGx70SgFCOJJ5Nvj75Vog2aLMgSE3N6JK.
- ZI8XuFAK2geN5BbQquT4qSXZWD12S14vYGOIyo6hbg6P.By3e8Hn9lG6hcdB27Ami32Jgpprh4qW
- 0Utw3Sh861pi2NVan6GzG6Y1.2HtYCA8aph0V_7AaQGZwE1cXb.ysxBKgPg.FQ6pbpbull00xc00
- FSPFInMqU1i2SrOXIjyWPZBg8nJuyYvjyVeSbOeLLtUgUPoW6cBZDZLZhxAt50Akj_Z95ASDwiU7
- SGItKLJM.EA7N6RMUUk_Zu5V_uQvambvEE5hyEyW82O610Fv.UJOkh9PmWxxav4Gi9A_Pz42do._
- ckqBqT1VlJkQ4mQRr6nZSDmj2v6TRacfyHhOBiWpXa8FEUcYjkCrocUzls1TQs1qDD8haP1GcqUw
- phYSg9tQCuLInQqnQ4Tace1OOikTONvC_TgIOBszYHg5vkfok2v6_yyYgnmGk0Av1hOxX9HvqDlL
- VrN4SxQdGjAEZ.tvq20QOFNY4DvARUn8DbdO0l4ASACXMhFIMRqu7ussw3c30u98Oe5eGQ5Fddgv
- nMfITAowmmDOUF9XdQSpsgn0Qb7uceUMGzJSpMidMev9ur0P0m2l3VhJV8R8yuCMtbtIl78hISP.
- Pma2dAJTEnM6Xfu57tYHK5zpUdGXX0.SWScKpFp6k1x8vIHasB038oe.SbbtVOH.vTTiksMNKwSP
- _sHBqUGfy8GkMJzhONZp2l_5d1hDRuuvpnvP3RqpJrok69CLQPACBm8brfE3ORBbc3SkKAO7D.aY
- EEsLmkUPGd9lMF1EsUjcNobg8C1gP4sgs2NfvLdhJAL1rr591WiJM2UeEkcNK1PKmhiBlZHhX54R
- i.vOboj_6J9g0YuUIZomj1qAiP09Yn2Oxy4iwJrdiwi6.E1sQnz_i3VIiBVj4iyibEJj0T500cFY
- 95VJTLqVf.LIl7Zm5gXXn4uAYy15Verxg5ZSbOWYgRFoAmUdpodz3fg9bA5kaNO2oZM49yYxTH9A
- EVpqOKk4OHTY1JmM1gmqF3UXQRDpSm.gYs2K2Ihq5hhaQkbyGp9JwtXhR9sTrts9unX8ppvIGQAY
- S_w8XX97APc6d_t4cUNdM6HbQTy_OAAtG1TTJP3sxfYo5lBAEruez8.tysY.9rlB.MN_tXSon4lY
- F2RAtr_nLPLiOab5Vx1rqcWZpqIIalSoHqux48l2i8MRIgDHRvad4yqz7lUlSRZrsVKJTQN6.7gg
- imP7KUSvNR9h2Fa8vJJzlXuxCNmi454fbcYf_8lOYmzW6X8MU15wt666cQuQxW8eS63DUfgaSm1X
- LTMtOs30BbHhHaDs_wu0ZpUT29NCudlQkNXtIjaiwvTrZirB0ERjgPqt8fGspxRUNNdxfCcdGe8H
- TCamv.67oTo071fNwggWP5VJ.AlyuvO4QaNCqkbN0FNWp1xe.S_Q2BREELbGDQpnl9wdITqXz4kY
- P9146r7B3vd6sh1QjAJ4XkzuYdE7SxkdEV1aK1UDjucBoxeOel1NmoKEjkoiA3vkajwQE4rsE_TC
- dKPGWRUJzxTbWy6Yj4qEvFPIIMlzMTKZOaQgHr0vIKv2Ihxk6LTSLt_T97KcixbaU61jVuB7vmPK
- .fkgvEU.LM2ZG2UO5qoU8BzdmP3l3yo5.5ccMtzynHO3jXxj5xG7vDb7VC_hEQ2Kx9FKjh4xti_W
- E3Ug8vmct8i0mkkW9Rl6aJR.6h_7BfgxxZn2VVJes8imP7lwpmEBns0bn3rMsp.o9SuvUp3szFX9
- B8UiegflNtGa1GnjN4eitWGf4y6sxmul1yLD0DdotSVSahMeU94GRjPWc3oHWZeta4uZBxKEAaTL
- 48JElKvMmAsOpPeuJKLQHGA--
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 4c7c1ae8-1394-4802-b1a1-a20162ce0607
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Wed, 25 Feb 2026 19:22:06 +0000
-Received: by hermes--production-gq1-6dfcf9f8b-5skm9 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 34de27226d18fbed2fa1781e81910440;
-          Wed, 25 Feb 2026 19:22:00 +0000 (UTC)
-From: Casey Schaufler <casey@schaufler-ca.com>
-To: casey@schaufler-ca.com,
-	paul@paul-moore.com,
-	linux-security-module@vger.kernel.org
-Cc: jmorris@namei.org,
-	serge@hallyn.com,
-	keescook@chromium.org,
-	john.johansen@canonical.com,
-	penguin-kernel@i-love.sakura.ne.jp,
-	stephen.smalley.work@gmail.com,
-	selinux@vger.kernel.org
-Subject: [RFC PATCH 3/3] LSM: Reserve use of secmarks
-Date: Wed, 25 Feb 2026 11:21:43 -0800
-Message-ID: <20260225192143.14448-4-casey@schaufler-ca.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260225192143.14448-1-casey@schaufler-ca.com>
-References: <20260225192143.14448-1-casey@schaufler-ca.com>
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Ywoj3TGD"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-3566af9900eso53807a91.2
+        for <selinux@vger.kernel.org>; Wed, 25 Feb 2026 16:05:13 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1772064312; cv=none;
+        d=google.com; s=arc-20240605;
+        b=e9OgUXc+jAcL7bwy0eMBS9Z14Dd2uiD5D58hOTQXne5b7zsYAWLXl7wJQWR/HaEXkT
+         09IrJwWSeggu5R2Q64VDKfec3BTW2kpe6BhHGDmf0tVI+kBuq6N7wcIujeUtK3rJTIV8
+         PbfobT6GdcWWo0u7JWXV/bplkMZSSP+dcFwiRW6Vza9SuJI2KCK+n7jEIQcdmvFotFKT
+         LnqLBG0mqjZ38/OMIlpIL6R3V75G+GKyjm6uz+XYra0/+2Va9ZdJDii3OQq1ea7CoKx5
+         IXt4OYqcIO5eEXiGLfkvMSgSnWSO+79yBXlvdpW/70l03n9eJIRAXWdjOAtCE/dThap2
+         K56g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=fSqoYbYsLK/wCGwHLYUJNGeDrLmFi7g+s8IszrO9hvs=;
+        fh=Gy51sUQ6eW18CC5Jy9f7lz6dlXv/YEHeQ8BzHF/WGzw=;
+        b=TQ9Wk48QxyT+M/qG4kwzHZUpTJyGyDPvB/pXHoiiG7akSEOlb/iEC6BrY7j7/AEBet
+         EMdyd2vB9zpjW9o3tPUSiIc+9eVKrJCdHF37ARBTCS14ZlGmnyV0zSounPv5h3INGJbK
+         OpHD0wi2hwhVBhPH+yS/wIsDqLPsnmPqHTvIHhUpmCfBOu/fRAIwiqhGUxJSkdW6mtZO
+         L9JW8plp2W/jn1SGGMDB18dZ5fGiN4KdW5gsJlMt9aEGwzKC+qBiPDw6DQ3FMSGiChTL
+         DlSO7H8s3/nZCsNd/AnlRCUrAJzjAxILiKKn162iMWVNNXLwnJ8lTHpMZT8l+OXAn2V8
+         V1ig==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1772064312; x=1772669112; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=fSqoYbYsLK/wCGwHLYUJNGeDrLmFi7g+s8IszrO9hvs=;
+        b=Ywoj3TGDpqLyuiOjvkC7+ZjN8a9xQZ3e8MIVgsAofq69tc0acw6Cs5/6I92WL2bLeQ
+         etGejhj4+g3HiSMhmnQVMSWGp3CRj5ipsrnR1NcNOdwNekVGS22IEjwrPO362Nwyy9YL
+         tEt9TYw+mgu1svp8KkxmiEXfm4Zp+Kl/eOqo/b6Vj2/okz1B9URW3XnBnvEHAfj2YKUD
+         MiZ5nedzuDGjRTcjVzuDXicXdzsdtIpZD0zLfHb/Kr4CB7+A+FAR+gkO4PTdncyqCZXX
+         kOKi61967uk7fsO0B7n1BvS5i0N3G9++cv4Vph/5achC4RteAE/13JBE8usjFvr1xVug
+         AEpQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772064312; x=1772669112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=fSqoYbYsLK/wCGwHLYUJNGeDrLmFi7g+s8IszrO9hvs=;
+        b=sqzPmMjSGEFOlfnihtXIxJicvtrxJKMlsFpMoe3Ek7qKQxIHPCqzUbv+VIhpMErGVG
+         spKhbGPqiCuhAgC0MptJ+hzWwJC8TqBPFp3t4lMGIjPo3rgKsW1oW8Er96NI6bM/4y2h
+         KOHiyiJSiRL1Eo7ZO9V8X4uy48q2PAuoDweYrRaxLKn2eJTj/9+BzWGlScA32ix9YYUP
+         vrewPaB8SGTOUi0CFGu3YkpaGT2OWWwbilDbsDy73K1DDslbXTtLYBJdbbDP2OzK1Nfd
+         BlLvUbvquVRuJjMNdxvb/yJce/XqPYSRk7gaz+CvuASP7AfiGHqB8LSHIZhKo1il4RWD
+         NUzQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXPzvRLmEI/8LmV60vEaVev2s/J+1RIquJMcN6spadC2Vz53+/vwOzYp89hRqo1rV0x96VytMdb@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyc7SZGsry454zmMAyJyQQefFKuCHUVa0sK24Lnxs6sVUE52zFG
+	7icAgfRltSsh00xjenIdCxXbIfEyYwV4aYaXWJFwDRe8ZBbcq/q6XZluxEnS4FGPDRKCdiuIJ0n
+	6CqHQ6XrHkToEBi733qz7etxvAloH9EV/fyjvez+f
+X-Gm-Gg: ATEYQzz9tQutLrAaD4KfC/l2BtdPQAVcRwhXjs08pQi7QG1ryYPtMTIJy2ASpt47rWu
+	23AZnp3NZ/w8S8XtiKXQqf0a8Y+Phn7QK6kFX0YoG5S+SCtLsIihK6S5ZBiGSvyaWec+dJSBw4K
+	tEcOUCa9dERN7rlE28JpdWT9xK8ETnT7hxa6ewZxXJlegGmkxJAOKESxvYI7wFzt3PGQ3uRKS4r
+	NytemrYaT2ElWt735qKQsjEKxoWaiTohrBixqkPAYIRWcLq6qxdfU/KpeObgiJSZpK4h+spz7hT
+	17zTIps=
+X-Received: by 2002:a17:90b:4a05:b0:354:bf10:e6a4 with SMTP id
+ 98e67ed59e1d1-3593dadfe0emr390882a91.9.1772064312452; Wed, 25 Feb 2026
+ 16:05:12 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <CAHC9VhRGMmhxbajwQNfGFy+ZFF1uN=UEBjqQZQ4UBy7yds3eVQ@mail.gmail.com>
+In-Reply-To: <CAHC9VhRGMmhxbajwQNfGFy+ZFF1uN=UEBjqQZQ4UBy7yds3eVQ@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 25 Feb 2026 19:05:00 -0500
+X-Gm-Features: AaiRm514ql28YykxQ8HO37LZr8RwO7Lk9Xi6HuiY0qbXHJIk_QejzgpYvk-NvTo
+Message-ID: <CAHC9VhTeVs7kS9hzukukZRfGu6CC6=Dq4KP69tpEtiFpBJ+jOQ@mail.gmail.com>
+Subject: Re: LSM namespacing API
+To: linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc: John Johansen <john.johansen@canonical.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Use of "exclusive" LSM hooks are limited to the first LSM registering
-them. These hooks include those use to process network secmarks.
-The hooks required to process secmarks are flagged with LSM_FLAG_EXCLUSIVE
-in their definitions. This includes secid_to_secctx and secctx_to_secid,
-which are used by netfilter.
+On Tue, Aug 19, 2025 at 10:56=E2=80=AFAM Paul Moore <paul@paul-moore.com> w=
+rote:
+>
+> Hello all,
+>
+> As most of you are likely aware, Stephen Smalley has been working on
+> adding namespace support to SELinux, and the work has now progressed
+> to the point where a serious discussion on the API is warranted ...
 
-The various LSMs that use secmarks are updated to detect whether
-they are providing exclusive hooks, and to eschew the use of secmarks
-if they are not.
+I spent a few hours this afternoon re-reading this thread and tweaking
+the original proposal to address everything discussed.  The revised
+proposal is below, with a bit more detail than before, please take a
+look and let us all know what you think ...
 
-SELinux has a peculiar behavior in that it may decide that it
-must have network controls, but only after policy is loaded.
-This patch includes a warning should policy capability alwaysnetwork
-be set when another LSM holds the exclusive hooks. It has been
-suggested that SELinux would consider this a fatal condition, in
-which case a panic might be a favored, if draconian, option.
+* lsm_set_self_attr(LSM_ATTR_CLONE_NEWLSM) and clone(CLONE_NEWLSM)
 
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
----
- include/linux/lsm_hook_defs.h    | 12 +++++------
- include/linux/security.h         |  1 +
- security/apparmor/lsm.c          | 24 ++++++++++++++++------
- security/security.c              | 15 ++++++++++++++
- security/selinux/hooks.c         | 35 ++++++++++++++++++++++++--------
- security/selinux/ss/services.c   |  3 +++
- security/smack/smack_lsm.c       |  6 ++++--
- security/smack/smack_netfilter.c |  6 ++++++
- 8 files changed, 80 insertions(+), 22 deletions(-)
+We would define a new LSM_ATTR flag, LSM_ATTR_CLONE_NEWLSM, which
+could be used with lsm_set_self_attr() to request that an individual
+LSM create a new LSM specific namespace on the next
+clone(CLONE_NEWLSM) call.  LSMs may choose to perform various sanity
+and authorization checks at lsm_set_self_attr() time, but they must
+refrain from creating a new LSM namespace until clone() is called.
+LSMs may also want to ensure that any state associated with an
+lsm_set_self_attr(LSM_ATTR_CLONE_NEWLSM) request is not carried across
+an exec() boundary, however, that decision is left to the individual
+LSMs.
 
-diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index acda3a02da97..e6d4d9c80ac6 100644
---- a/include/linux/lsm_hook_defs.h
-+++ b/include/linux/lsm_hook_defs.h
-@@ -309,12 +309,12 @@ LSM_HOOK(int, -EINVAL, 0, getprocattr, struct task_struct *p, const char *name,
- LSM_HOOK(int, -EINVAL, 0, setprocattr, const char *name, void *value,
- 	 size_t size)
- LSM_HOOK(int, 0, 0, ismaclabel, const char *name)
--LSM_HOOK(int, -EOPNOTSUPP, 0, secid_to_secctx, u32 secid,
-+LSM_HOOK(int, -EOPNOTSUPP, LSM_FLAG_EXCLUSIVE, secid_to_secctx, u32 secid,
- 	 struct lsm_context *cp)
- LSM_HOOK(int, -EOPNOTSUPP, 0, lsmprop_to_secctx, struct lsm_prop *prop,
- 	 struct lsm_context *cp)
--LSM_HOOK(int, 0, 0, secctx_to_secid, const char *secdata, u32 seclen,
--	 u32 *secid)
-+LSM_HOOK(int, 0, LSM_FLAG_EXCLUSIVE, secctx_to_secid, const char *secdata,
-+	 u32 seclen, u32 *secid)
- LSM_HOOK(void, LSM_RET_VOID, 0, release_secctx, struct lsm_context *cp)
- LSM_HOOK(void, LSM_RET_VOID, 0, inode_invalidate_secctx, struct inode *inode)
- LSM_HOOK(int, 0, 0, inode_notifysecctx, struct inode *inode, void *ctx,
-@@ -379,9 +379,9 @@ LSM_HOOK(void, LSM_RET_VOID, 0, inet_csk_clone, struct sock *newsk,
- 	 const struct request_sock *req)
- LSM_HOOK(void, LSM_RET_VOID, 0, inet_conn_established, struct sock *sk,
- 	 struct sk_buff *skb)
--LSM_HOOK(int, 0, 0, secmark_relabel_packet, u32 secid)
--LSM_HOOK(void, LSM_RET_VOID, 0, secmark_refcount_inc, void)
--LSM_HOOK(void, LSM_RET_VOID, 0, secmark_refcount_dec, void)
-+LSM_HOOK(int, 0, LSM_FLAG_EXCLUSIVE, secmark_relabel_packet, u32 secid)
-+LSM_HOOK(void, LSM_RET_VOID, LSM_FLAG_EXCLUSIVE, secmark_refcount_inc, void)
-+LSM_HOOK(void, LSM_RET_VOID, LSM_FLAG_EXCLUSIVE, secmark_refcount_dec, void)
- LSM_HOOK(void, LSM_RET_VOID, 0, req_classify_flow,
- 	 const struct request_sock *req, struct flowi_common *flic)
- LSM_HOOK(int, 0, 0, tun_dev_alloc_security, void *security)
-diff --git a/include/linux/security.h b/include/linux/security.h
-index e3c137a1b30a..638436b9b748 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -326,6 +326,7 @@ int unregister_blocking_lsm_notifier(struct notifier_block *nb);
- extern int security_init(void);
- extern int early_security_init(void);
- extern u64 lsm_name_to_attr(const char *name);
-+extern u32 lsm_secmark_from_skb(struct sk_buff *skb, const u64 lsmid);
- 
- /* Security operations */
- int security_binder_set_context_mgr(const struct cred *mgr);
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index a87cd60ed206..2ce0d9a73973 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -1511,9 +1511,11 @@ static int apparmor_socket_shutdown(struct socket *sock, int how)
- static int apparmor_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- {
- 	struct aa_sk_ctx *ctx = aa_sock(sk);
-+	u32 secmark;
- 	int error;
- 
--	if (!skb->secmark)
-+	secmark = lsm_secmark_from_skb(skb, LSM_ID_APPARMOR);
-+	if (!secmark)
- 		return 0;
- 
- 	/*
-@@ -1525,7 +1527,7 @@ static int apparmor_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 
- 	rcu_read_lock();
- 	error = apparmor_secmark_check(rcu_dereference(ctx->label), OP_RECVMSG,
--				       AA_MAY_RECEIVE, skb->secmark, sk);
-+				       AA_MAY_RECEIVE, secmark, sk);
- 	rcu_read_unlock();
- 
- 	return error;
-@@ -1640,14 +1642,16 @@ static int apparmor_inet_conn_request(const struct sock *sk, struct sk_buff *skb
- 				      struct request_sock *req)
- {
- 	struct aa_sk_ctx *ctx = aa_sock(sk);
-+	u32 secmark;
- 	int error;
- 
--	if (!skb->secmark)
-+	secmark = lsm_secmark_from_skb(skb, LSM_ID_APPARMOR);
-+	if (!secmark)
- 		return 0;
- 
- 	rcu_read_lock();
- 	error = apparmor_secmark_check(rcu_dereference(ctx->label), OP_CONNECT,
--				       AA_MAY_CONNECT, skb->secmark, sk);
-+				       AA_MAY_CONNECT, secmark, sk);
- 	rcu_read_unlock();
- 
- 	return error;
-@@ -2359,9 +2363,11 @@ static unsigned int apparmor_ip_postroute(void *priv,
- {
- 	struct aa_sk_ctx *ctx;
- 	struct sock *sk;
-+	u32 secmark;
- 	int error;
- 
--	if (!skb->secmark)
-+	secmark = lsm_secmark_from_skb(skb, LSM_ID_APPARMOR);
-+	if (!secmark)
- 		return NF_ACCEPT;
- 
- 	sk = skb_to_full_sk(skb);
-@@ -2371,7 +2377,7 @@ static unsigned int apparmor_ip_postroute(void *priv,
- 	ctx = aa_sock(sk);
- 	rcu_read_lock();
- 	error = apparmor_secmark_check(rcu_dereference(ctx->label), OP_SENDMSG,
--				       AA_MAY_SEND, skb->secmark, sk);
-+				       AA_MAY_SEND, secmark, sk);
- 	rcu_read_unlock();
- 	if (!error)
- 		return NF_ACCEPT;
-@@ -2399,12 +2405,18 @@ static const struct nf_hook_ops apparmor_nf_ops[] = {
- 
- static int __net_init apparmor_nf_register(struct net *net)
- {
-+	if (lsm_exclusive_hooks != LSM_ID_APPARMOR)
-+		return 0;
-+
- 	return nf_register_net_hooks(net, apparmor_nf_ops,
- 				    ARRAY_SIZE(apparmor_nf_ops));
- }
- 
- static void __net_exit apparmor_nf_unregister(struct net *net)
- {
-+	if (lsm_exclusive_hooks != LSM_ID_APPARMOR)
-+		return;
-+
- 	nf_unregister_net_hooks(net, apparmor_nf_ops,
- 				ARRAY_SIZE(apparmor_nf_ops));
- }
-diff --git a/security/security.c b/security/security.c
-index 25e7cfc96f20..754b16004677 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -4509,6 +4509,21 @@ void security_inet_conn_established(struct sock *sk,
- }
- EXPORT_SYMBOL(security_inet_conn_established);
- 
-+/**
-+ * lsm_secmark_from_skb - secid for the specified LSM from the packet
-+ * @skb: the packet
-+ * @lsm: which LSM is asking
-+ *
-+ * If the specified LSM has use of the secmark, return its value.
-+ * Otherwise, return the invalid secid 0.
-+ */
-+u32 lsm_secmark_from_skb(struct sk_buff *skb, const u64 lsmid)
-+{
-+	if (lsmid == lsm_exclusive_hooks)
-+		return skb->secmark;
-+	return 0;
-+}
-+
- /**
-  * security_secmark_relabel_packet() - Check if setting a secmark is allowed
-  * @secid: new secmark value
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index d053ce562370..1dff2121a834 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -5269,6 +5269,7 @@ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
- 	int err = 0;
- 	struct sk_security_struct *sksec = selinux_sock(sk);
- 	u32 sk_sid = sksec->sid;
-+	u32 secmark;
- 	struct common_audit_data ad;
- 	struct lsm_network_audit net;
- 	char *addrp;
-@@ -5279,7 +5280,8 @@ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
- 		return err;
- 
- 	if (selinux_secmark_enabled()) {
--		err = avc_has_perm(sk_sid, skb->secmark, SECCLASS_PACKET,
-+		secmark = lsm_secmark_from_skb(skb, LSM_ID_SELINUX);
-+		err = avc_has_perm(sk_sid, secmark, SECCLASS_PACKET,
- 				   PACKET__RECV, &ad);
- 		if (err)
- 			return err;
-@@ -5299,6 +5301,7 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 	struct sk_security_struct *sksec = selinux_sock(sk);
- 	u16 family = sk->sk_family;
- 	u32 sk_sid = sksec->sid;
-+	u32 secmark;
- 	struct common_audit_data ad;
- 	struct lsm_network_audit net;
- 	char *addrp;
-@@ -5348,7 +5351,8 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 	}
- 
- 	if (secmark_active) {
--		err = avc_has_perm(sk_sid, skb->secmark, SECCLASS_PACKET,
-+		secmark = lsm_secmark_from_skb(skb, LSM_ID_SELINUX);
-+		err = avc_has_perm(sk_sid, secmark, SECCLASS_PACKET,
- 				   PACKET__RECV, &ad);
- 		if (err)
- 			return err;
-@@ -5850,6 +5854,7 @@ static unsigned int selinux_ip_forward(void *priv, struct sk_buff *skb,
- 	int ifindex;
- 	u16 family;
- 	char *addrp;
-+	u32 secmark;
- 	u32 peer_sid;
- 	struct common_audit_data ad;
- 	struct lsm_network_audit net;
-@@ -5883,10 +5888,12 @@ static unsigned int selinux_ip_forward(void *priv, struct sk_buff *skb,
- 		}
- 	}
- 
--	if (secmark_active)
--		if (avc_has_perm(peer_sid, skb->secmark,
-+	if (secmark_active) {
-+		secmark = lsm_secmark_from_skb(skb, LSM_ID_SELINUX);
-+		if (avc_has_perm(peer_sid, secmark,
- 				 SECCLASS_PACKET, PACKET__FORWARD_IN, &ad))
- 			return NF_DROP;
-+	}
- 
- 	if (netlbl_enabled())
- 		/* we do this in the FORWARD path and not the POST_ROUTING
-@@ -5950,6 +5957,7 @@ static unsigned int selinux_ip_postroute_compat(struct sk_buff *skb,
- 	struct common_audit_data ad;
- 	struct lsm_network_audit net;
- 	u8 proto = 0;
-+	u32 secmark;
- 
- 	sk = skb_to_full_sk(skb);
- 	if (sk == NULL)
-@@ -5960,10 +5968,12 @@ static unsigned int selinux_ip_postroute_compat(struct sk_buff *skb,
- 	if (selinux_parse_skb(skb, &ad, NULL, 0, &proto))
- 		return NF_DROP;
- 
--	if (selinux_secmark_enabled())
--		if (avc_has_perm(sksec->sid, skb->secmark,
-+	if (selinux_secmark_enabled()) {
-+		secmark = lsm_secmark_from_skb(skb, LSM_ID_SELINUX);
-+		if (avc_has_perm(sksec->sid, secmark,
- 				 SECCLASS_PACKET, PACKET__SEND, &ad))
- 			return NF_DROP_ERR(-ECONNREFUSED);
-+	}
- 
- 	if (selinux_xfrm_postroute_last(sksec->sid, skb, &ad, proto))
- 		return NF_DROP_ERR(-ECONNREFUSED);
-@@ -5978,6 +5988,7 @@ static unsigned int selinux_ip_postroute(void *priv,
- 	u16 family;
- 	u32 secmark_perm;
- 	u32 peer_sid;
-+	u32 secmark;
- 	int ifindex;
- 	struct sock *sk;
- 	struct common_audit_data ad;
-@@ -6082,10 +6093,12 @@ static unsigned int selinux_ip_postroute(void *priv,
- 	if (selinux_parse_skb(skb, &ad, &addrp, 0, NULL))
- 		return NF_DROP;
- 
--	if (secmark_active)
--		if (avc_has_perm(peer_sid, skb->secmark,
-+	if (secmark_active) {
-+		secmark = lsm_secmark_from_skb(skb, LSM_ID_SELINUX);
-+		if (avc_has_perm(peer_sid, secmark,
- 				 SECCLASS_PACKET, secmark_perm, &ad))
- 			return NF_DROP_ERR(-ECONNREFUSED);
-+	}
- 
- 	if (peerlbl_active) {
- 		u32 if_sid;
-@@ -7718,12 +7731,18 @@ static const struct nf_hook_ops selinux_nf_ops[] = {
- 
- static int __net_init selinux_nf_register(struct net *net)
- {
-+	if (lsm_exclusive_hooks != LSM_ID_SELINUX)
-+		return 0;
-+
- 	return nf_register_net_hooks(net, selinux_nf_ops,
- 				     ARRAY_SIZE(selinux_nf_ops));
- }
- 
- static void __net_exit selinux_nf_unregister(struct net *net)
- {
-+	if (lsm_exclusive_hooks != LSM_ID_SELINUX)
-+		return;
-+
- 	nf_unregister_net_hooks(net, selinux_nf_ops,
- 				ARRAY_SIZE(selinux_nf_ops));
- }
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 13fc712d5923..269ad09f8dca 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -2189,6 +2189,9 @@ static void security_load_policycaps(struct selinux_policy *policy)
- 			pr_info("SELinux:  unknown policy capability %u\n",
- 				i);
- 	}
-+	if (selinux_state.policycap[POLICYDB_CAP_ALWAYSNETWORK] &&
-+	    lsm_exclusive_hooks != LSM_ID_SELINUX)
-+		pr_warn("SELinux:  policy capability alwaysnetwork is set, but secmark is used by another LSM.\n");
- }
- 
- static int security_preserve_bools(struct selinux_policy *oldpolicy,
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index a0bd4919a9d9..7a98dcc4c67d 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -4195,10 +4195,12 @@ static int smk_skb_to_addr_ipv6(struct sk_buff *skb, struct sockaddr_in6 *sip)
- #ifdef CONFIG_NETWORK_SECMARK
- static struct smack_known *smack_from_skb(struct sk_buff *skb)
- {
--	if (skb == NULL || skb->secmark == 0)
-+	u32 secmark = lsm_secmark_from_skb(skb, LSM_ID_SMACK);
-+
-+	if (skb == NULL || secmark == 0)
- 		return NULL;
- 
--	return smack_from_secid(skb->secmark);
-+	return smack_from_secid(secmark);
- }
- #else
- static inline struct smack_known *smack_from_skb(struct sk_buff *skb)
-diff --git a/security/smack/smack_netfilter.c b/security/smack/smack_netfilter.c
-index 17ba578b1308..47426973843b 100644
---- a/security/smack/smack_netfilter.c
-+++ b/security/smack/smack_netfilter.c
-@@ -54,12 +54,18 @@ static const struct nf_hook_ops smack_nf_ops[] = {
- 
- static int __net_init smack_nf_register(struct net *net)
- {
-+	if (lsm_exclusive_hooks != LSM_ID_SMACK)
-+		return 0;
-+
- 	return nf_register_net_hooks(net, smack_nf_ops,
- 				     ARRAY_SIZE(smack_nf_ops));
- }
- 
- static void __net_exit smack_nf_unregister(struct net *net)
- {
-+	if (lsm_exclusive_hooks != LSM_ID_SMACK)
-+		return;
-+
- 	nf_unregister_net_hooks(net, smack_nf_ops, ARRAY_SIZE(smack_nf_ops));
- }
- 
--- 
-2.52.0
+We would define a new clone() flag, CLONE_NEWLSM, which would trigger
+a call into the LSM framework to invoke LSM specific callbacks to
+perform namespace actions specified either by the LSM's policy or an
+explicit lsm_set_self_attr(LSM_ATTR_CLONE_NEWLSM) request.
 
+As with the existing LSM_ATTR support, this is strictly an opt-in
+mechanism and individual LSMs are left to handle this request as they
+see fit.
+
+The lsm_get_self_attr() syscall could be used to get the
+LSM_ATTR_CLONE_NEWLSM value(s) for the current process just like any
+other LSM_ATTR flag.
+
+* lsm_set_self_attr(LSM_ATTR_UNSHARE_NEWLSM) and unshare(CLONE_NEWLSM)
+
+This would behave similarly to LSM_ATTR_CLONE_NEWLSM, but the LSM
+namespace changes would take place during an unshare() call as opposed
+to a clone() call.  This is kept separate from the
+LSM_ATTR_CLONE_NEWLSM flag because the behaviors are quite different:
+one creates a process with a new LSM namespace set, while the other
+changes the LSM namespace set of a running process.
+
+LSMs are free to implement support for either LSM_ATTR flag, both, or
+none at all.
+
+* /proc/pid/ns/lsm and setns(CLONE_NEWLSM)
+
+The /proc/pid/ns/lsm file serves as a link/handle to the specific LSM
+namespace set in use for the given process.  A process wishing to move
+into the same LSM namespace set as another process can use this
+link/handle (or a pidfd) and setns(CLONE_NEWLSM) to change its own LSM
+namespace set.  It is important to note that using setns() it should
+not be possible to change the individual LSMs that are part of the LSM
+namespace set, the calling process' LSM namespace is set to the exact
+same LSM namespace set as the specified process.
+
+Affected LSMs may choose to enforce access controls on the
+setns(CLONE_NEWLSM) operation according to their own policy.
+
+* Policy considerations
+
+The mechanisms above provide for three different scenarios: a new
+process creating a new LSM namespace set (the clone case), an existing
+process creating a new LSM namespace set (the unshare case), and an
+existing process joining an existing LSM namespace set (the setns
+case).
+
+In the clone case a new LSM namespace set will be created when the
+process itself is created.  It is up to the individual LSMs to
+properly initialize their own namespaces and load any required
+policies.  Since the new LSM namespaces are created at clone() time
+and before exec(), the calling process, or another trusted process
+using a new yet-to-be-finalized API, should be able to configure the
+newly created LSM namespace before exec().
+
+The unshare case is similar to clone because a new LSM namespace set
+is created, but it is a bit more challenging because unshare()
+modifies the calling process's LSM namespace set, not a newly created
+child process'.  For simpler LSMs this might not pose a problem, but
+for more complex LSMs, developing meaningful applications that use
+unshare(CLONE_NEWLSM) and properly initialize/setup the new LSM
+namespace set may prove challenging. Developing applications that use
+clone(CLONE_NEWLSM) will likely be much easier.
+
+In the setns case the process joins a properly configured LSM
+namespace set with all necessary LSM policies loaded, there shouldn't
+be any additional LSM setup required (although the work to change the
+individual LSM namespaces on a running process may prove difficult).
+
+--=20
+paul-moore.com
