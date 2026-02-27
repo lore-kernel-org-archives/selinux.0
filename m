@@ -1,522 +1,637 @@
-Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com [209.85.160.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from canpmsgout05.his.huawei.com (canpmsgout05.his.huawei.com [113.46.200.220])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 633F2274FD0
-	for <selinux@vger.kernel.org>; Fri, 27 Feb 2026 01:45:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.181
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772156707; cv=pass; b=Yt9EvVY+y+TwgKsfv25W+0LnLxVrW6dqPxeCPhQ/OkQiy9wQQHDQ0yLB1dr63OjlnEKNx52JowHzWmICrWYkYS0qU0hnvz6Wtw6Xr81e0m5Wxqt0rsSLvh8IGg5r/K354L6QbjSeC2c2a+ltJQjDXiJTXCxVLtZArgw15f/vczs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772156707; c=relaxed/simple;
-	bh=A9/FuuRodWBdA/YCNxdboEFB1nPkr9fFGj5+n2QE7r4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=t5XDn9WXTmKoSCaBYSa1357ydZXc+TotcYxSlyWoZ12EXAUYtmo6S+hBLZ2Tv8C1h2xG/VtgVdsDgbSD6aCGHgXk5HwGdOo7JNX0C7qeRUpidgTWCmxZ8Ng8hkxw9awOD33J8SRuYOo32TLgpeVPjRJImfuW+9DVfXw735xiucA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=iuFJTO9D; arc=pass smtp.client-ip=209.85.160.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1F59389DF0;
+	Fri, 27 Feb 2026 08:16:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.220
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772180197; cv=none; b=sSFydXTGAu2f0yv8SjhRi0ujQBVzlQLaOMaK+jSmOgFdiMh73dPYGQYLNwY13YA1bF9DwymDw++fcS9A8X1HrWXm/HKdmeDBwgkyW0Ol0cs653anmBuU56tqg6tcXMtqZ2mC17WT9PCcevTh4iPeaYTF+23Ok55mDtDpK5xLlUc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772180197; c=relaxed/simple;
+	bh=zBGgejWbGCuCK3ckMD02UY00VnuFtAyQ1cM7M5mvQ/8=;
+	h=Subject:To:CC:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=oZUjjjgK/O2g5BReQLbwUkUcpjAdhYDX4iP7+l6VDfGi8z0cBD1Pn9qyRFDBWItyuXGNgtW3LATXRb3YUf7xv4bXb1seLAI8bQSibVz29xTh0T5U8d8zFFSM+ogAIAAE5IaKhaK/MSHq/waYQs5M2z/wWCqnnVukxRoLZldLeNU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=FexkOtUa; arc=none smtp.client-ip=113.46.200.220
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="iuFJTO9D"
-Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-5069a785ed2so147301cf.1
-        for <selinux@vger.kernel.org>; Thu, 26 Feb 2026 17:45:04 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1772156704; cv=none;
-        d=google.com; s=arc-20240605;
-        b=eRz2zryEJTWQfSy+P4lTaQT8xS5bXPl7+MJshbAs1DDTpUcoLdgMt7nDtL0O+5TrtS
-         Fu9QazOMPiUOLnvQvCVi4+1OLI/5c8mMdedOQbHYC53pprKRcyMQRHgQLFGnivJE1PjG
-         3l8aCfWmomi6L61A7EnuJ6dBsHPwRV3O6V3IMx2MCYnPZmeXQf3F1p5Q7zZ9tJEWO7vL
-         s35nImjLDTeXbEvbk4l/4XoAtcSRgdqqVbvxmUkPjE3K3mhWlO8umouG+bxqD+CD0dH0
-         X/aJR1x/3jmiLMmsECK5aG3BVr/BIRUNdvCPhi7PWQMURtGF0gCbECgqDK/BJ/WTBYOR
-         Smcw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=Gd8Or4jw+KaN2n4zfa69DEJe3MtMYrG1oPRqq6BDF7o=;
-        fh=FZBClHCJ7Bz8JyHHT1l8EiHNpzHHf3Y7B+1qnofyGmc=;
-        b=PPoDkwHHfYcVBWklvc35AuCEE6yNAPP5Xxg+Qvoilzq91Zt3H4FaqkAez4kJzuHNUB
-         TKFczBPpZ/nX7TpoprsbOAVjQ3jrAT0T6shCLLvh3y+TYU4wWMns5aqT6OHwRIUHgnZE
-         Oe+FglhwIcNmMf6xBxG2AO86vDl8fLm2PTmPP4mQ5HZPiKBG4y2Qilfd9dUc4SoTMBAl
-         gG+C2bxvM254zDX3JCjuVSBLOq6xzngCqlGgP/jB3xLo14f/ItsakN/BVfr8dUwHNfEF
-         2IxeJZKlG1bMQ/I2VfCCVwu76v41H3JD0FwAUbxf/td6WJ+Sy0iQ8r/5zs5uDj99qNjY
-         ZG7w==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1772156704; x=1772761504; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Gd8Or4jw+KaN2n4zfa69DEJe3MtMYrG1oPRqq6BDF7o=;
-        b=iuFJTO9DbdGjG4OvKuWk4If3FJ0gGrAHoecGtwpVcimJmjewgXFgfz3PHhZPUE0V0v
-         7EcpHH6CepGotyILGoOceTjE3sViKeBY8n2K9xorNnM/IQtnlwzgFQn3PbwxU3hNQ1iK
-         SjKMQ8feQzqH6cZgNjbx/CyZTbo03oUXl2EORN6HpCgd19KxZgKQGEi6IbA+V72M8sGU
-         RJ2SgDlHP0QTwDZP12k12pABftzdyJypuQHzyQ1QrjEsuAc/zxglLpavYUQ0lSw7tPjv
-         yLbShlaA++ffgtAuOQjprzxvPl1PRDR763JEcRb4a6LvORWwaKJt4P7zSP95OxZ8R8kh
-         kEVA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772156704; x=1772761504;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=Gd8Or4jw+KaN2n4zfa69DEJe3MtMYrG1oPRqq6BDF7o=;
-        b=mCeqwVRrk5GvPdBKS13volxljuhZmBtS78j9t2AYDsWd3gQy6fNkOMo4r/6KA5lf7Z
-         wWKbNnyhcsUZ31ZMD4lwrad5GDyIYDP6QIy6/mWEteX3ZD8xaaMGRqJQEE9NkGv+hQBw
-         O2oYNDTcTKZSL07di1tGswYybNzREU5LLzRUAjGGW/CazD5vRCkaqJ4SSoClA5P4RBYs
-         J5OUBJYYBLzgiBhSAZzaDmgH5mtdPG7oasLG5FGuyq5qI06778bOAfiTFqzq9fAZjmuO
-         RwQqoDtUW4aZmGRTrclgI0zCpyRJw77q/fu0R2etIZfWTma4y3rEowg+X27ASt3+/xP6
-         zAAA==
-X-Forwarded-Encrypted: i=1; AJvYcCWJK8PeLYv7VZP6pmyh0MdvGXpYDCNIq5eL4BLr3MHkXB9SzmUlya6FgmYjtQoVYlgefgzL2BFg@vger.kernel.org
-X-Gm-Message-State: AOJu0YxR2HqS7pkC5vGLFXrFb1pGU8q1WS280jBlgwkPq7bCG8hy4EwO
-	dEk3gSd+Y/Z4X6Wau6gjOPjW2ACQP4l9v58Fhv76qARcMcaN0TFqcF0n1zolfq97b7GBMqQqkm+
-	a3gBdZerct6or9iTcyOYD6Fo4BT1gEVN2isJwEvaR
-X-Gm-Gg: ATEYQzw+b3xKCU1qZJWO/oAqJPp3MqtP1d8NhRDEWy1/iqXttsAWwJViynwrGQFWFht
-	7MMYggsJOD+5Sl9CvnQUGhfrWUytLYLrzH4FKu6BLdnV+3p+h/SbMlTULKyzAt4rUuTyyFlTBSj
-	pB6rVoBKLSx72YOgx1f/PwtfU/DAu3XqdfELLvKlr5kyDJfXKSTACOjTV6zNH+ZrI64mTgWZtTo
-	sK0fr0ECgGfw8E1F1tQ1lPe3Ed7Ow1vtnI5JFX9ehCIO/Hy+E2UJS3PEFQqDz6HpqCv1ye9Jr6T
-	MP0abH4b/tI65eXbQvsUK+mz4iF6xLM9DRjPQA==
-X-Received: by 2002:a05:622a:1b88:b0:501:5180:3c90 with SMTP id
- d75a77b69052e-50745532dfemr18764911cf.15.1772156703182; Thu, 26 Feb 2026
- 17:45:03 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="FexkOtUa"
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=Wmv8uJ7HJDbZV50M+x838HOhuGm9CcXmr7O5DxYmnaA=;
+	b=FexkOtUagAcXDFcLvanuYXCxG6VsB4YyIX20qg20gGlU56RQBvPIdX5JmmfvAen1kl9Xcad9P
+	BxTzvSbaMCfK6x/I533upYv8dB5mDxS3zN0xsMCDpaP2BLxgIVtISPyXXJDdxnYqn2e9mf1ZnD9
+	Jm8up2Sq/fbakpqcesMqrt8=
+Received: from mail.maildlp.com (unknown [172.19.162.197])
+	by canpmsgout05.his.huawei.com (SkyGuard) with ESMTPS id 4fMgyt43ckz12LD1;
+	Fri, 27 Feb 2026 16:11:50 +0800 (CST)
+Received: from kwepemk500005.china.huawei.com (unknown [7.202.194.90])
+	by mail.maildlp.com (Postfix) with ESMTPS id DB9DD40363;
+	Fri, 27 Feb 2026 16:16:29 +0800 (CST)
+Received: from [10.174.178.46] (10.174.178.46) by
+ kwepemk500005.china.huawei.com (7.202.194.90) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Fri, 27 Feb 2026 16:16:23 +0800
+Subject: Re: [PATCH 47/61] ubifs: update format strings for u64 i_ino
+To: Jeff Layton <jlayton@kernel.org>, Alexander Viro
+	<viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara
+	<jack@suse.cz>, Steven Rostedt <rostedt@goodmis.org>, Masami Hiramatsu
+	<mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Dan Williams <dan.j.williams@intel.com>, Matthew Wilcox
+	<willy@infradead.org>, Eric Biggers <ebiggers@kernel.org>, "Theodore Y. Ts'o"
+	<tytso@mit.edu>, Muchun Song <muchun.song@linux.dev>, Oscar Salvador
+	<osalvador@suse.de>, David Hildenbrand <david@kernel.org>, David Howells
+	<dhowells@redhat.com>, Paulo Alcantara <pc@manguebit.org>, Andreas Dilger
+	<adilger.kernel@dilger.ca>, Jan Kara <jack@suse.com>, Jaegeuk Kim
+	<jaegeuk@kernel.org>, Chao Yu <chao@kernel.org>, Trond Myklebust
+	<trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, Chuck Lever
+	<chuck.lever@oracle.com>, NeilBrown <neil@brown.name>, Olga Kornievskaia
+	<okorniev@redhat.com>, Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey
+	<tom@talpey.com>, Steve French <sfrench@samba.org>, Ronnie Sahlberg
+	<ronniesahlberg@gmail.com>, Shyam Prasad N <sprasad@microsoft.com>, Bharath
+ SM <bharathsm@microsoft.com>, Alexander Aring <alex.aring@gmail.com>, Ryusuke
+ Konishi <konishi.ryusuke@gmail.com>, Viacheslav Dubeyko <slava@dubeyko.com>,
+	Eric Van Hensbergen <ericvh@kernel.org>, Latchesar Ionkov <lucho@ionkov.net>,
+	Dominique Martinet <asmadeus@codewreck.org>, Christian Schoenebeck
+	<linux_oss@crudebyte.com>, David Sterba <dsterba@suse.com>, Marc Dionne
+	<marc.dionne@auristor.com>, Ian Kent <raven@themaw.net>, Luis de Bethencourt
+	<luisbg@kernel.org>, Salah Triki <salah.triki@gmail.com>, "Tigran A.
+ Aivazian" <aivazian.tigran@gmail.com>, Ilya Dryomov <idryomov@gmail.com>,
+	Alex Markuze <amarkuze@redhat.com>, Jan Harkes <jaharkes@cs.cmu.edu>,
+	<coda@cs.cmu.edu>, Nicolas Pitre <nico@fluxnic.net>, Tyler Hicks
+	<code@tyhicks.com>, Amir Goldstein <amir73il@gmail.com>, Christoph Hellwig
+	<hch@infradead.org>, John Paul Adrian Glaubitz
+	<glaubitz@physik.fu-berlin.de>, Yangtao Li <frank.li@vivo.com>, Mikulas
+ Patocka <mikulas@artax.karlin.mff.cuni.cz>, David Woodhouse
+	<dwmw2@infradead.org>, Richard Weinberger <richard@nod.at>, Dave Kleikamp
+	<shaggy@kernel.org>, Konstantin Komarov
+	<almaz.alexandrovich@paragon-software.com>, Mark Fasheh <mark@fasheh.com>,
+	Joel Becker <jlbec@evilplan.org>, Joseph Qi <joseph.qi@linux.alibaba.com>,
+	Mike Marshall <hubcap@omnibond.com>, Martin Brandenburg
+	<martin@omnibond.com>, Miklos Szeredi <miklos@szeredi.hu>, Anders Larsen
+	<al@alarsen.net>, Damien Le Moal <dlemoal@kernel.org>, Naohiro Aota
+	<naohiro.aota@wdc.com>, Johannes Thumshirn <jth@kernel.org>, John Johansen
+	<john.johansen@canonical.com>, Paul Moore <paul@paul-moore.com>, James Morris
+	<jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, Mimi Zohar
+	<zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, Dmitry
+ Kasatkin <dmitry.kasatkin@gmail.com>, Eric Snowberg
+	<eric.snowberg@oracle.com>, Fan Wu <wufan@kernel.org>, Stephen Smalley
+	<stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>,
+	Casey Schaufler <casey@schaufler-ca.com>, Alex Deucher
+	<alexander.deucher@amd.com>, =?UTF-8?Q?Christian_K=c3=b6nig?=
+	<christian.koenig@amd.com>, David Airlie <airlied@gmail.com>, Simona Vetter
+	<simona@ffwll.ch>, Sumit Semwal <sumit.semwal@linaro.org>, Eric Dumazet
+	<edumazet@google.com>, Kuniyuki Iwashima <kuniyu@google.com>, Paolo Abeni
+	<pabeni@redhat.com>, Willem de Bruijn <willemb@google.com>, "David S. Miller"
+	<davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Simon Horman
+	<horms@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Peter Zijlstra
+	<peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Arnaldo Carvalho de
+ Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, Mark Rutland
+	<mark.rutland@arm.com>, Alexander Shishkin
+	<alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>, Ian
+ Rogers <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>, James
+ Clark <james.clark@linaro.org>, "Darrick J. Wong" <djwong@kernel.org>, Martin
+ Schiller <ms@dev.tdt.de>
+CC: <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<linux-trace-kernel@vger.kernel.org>, <nvdimm@lists.linux.dev>,
+	<fsverity@lists.linux.dev>, <linux-mm@kvack.org>, <netfs@lists.linux.dev>,
+	<linux-ext4@vger.kernel.org>, <linux-f2fs-devel@lists.sourceforge.net>,
+	<linux-nfs@vger.kernel.org>, <linux-cifs@vger.kernel.org>,
+	<samba-technical@lists.samba.org>, <linux-nilfs@vger.kernel.org>,
+	<v9fs@lists.linux.dev>, <linux-afs@lists.infradead.org>,
+	<autofs@vger.kernel.org>, <ceph-devel@vger.kernel.org>,
+	<codalist@coda.cs.cmu.edu>, <ecryptfs@vger.kernel.org>,
+	<linux-mtd@lists.infradead.org>, <jfs-discussion@lists.sourceforge.net>,
+	<ntfs3@lists.linux.dev>, <ocfs2-devel@lists.linux.dev>,
+	<devel@lists.orangefs.org>, <linux-unionfs@vger.kernel.org>,
+	<apparmor@lists.ubuntu.com>, <linux-security-module@vger.kernel.org>,
+	<linux-integrity@vger.kernel.org>, <selinux@vger.kernel.org>,
+	<amd-gfx@lists.freedesktop.org>, <dri-devel@lists.freedesktop.org>,
+	<linux-media@vger.kernel.org>, <linaro-mm-sig@lists.linaro.org>,
+	<netdev@vger.kernel.org>, <linux-perf-users@vger.kernel.org>,
+	<linux-fscrypt@vger.kernel.org>, <linux-xfs@vger.kernel.org>,
+	<linux-hams@vger.kernel.org>, <linux-x25@vger.kernel.org>
+References: <20260226-iino-u64-v1-0-ccceff366db9@kernel.org>
+ <20260226-iino-u64-v1-47-ccceff366db9@kernel.org>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
+Message-ID: <def8c48d-495c-9942-c66b-4e91d81a8e28@huawei.com>
+Date: Fri, 27 Feb 2026 16:16:21 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <cover.1769509130.git.antony.antony@secunet.com> <b7b1bee9456ac4ada8941c93c2cc17f07d0b1912.1769509131.git.antony.antony@secunet.com>
-In-Reply-To: <b7b1bee9456ac4ada8941c93c2cc17f07d0b1912.1769509131.git.antony.antony@secunet.com>
-From: Yan Yan <evitayan@google.com>
-Date: Thu, 26 Feb 2026 17:44:51 -0800
-X-Gm-Features: AaiRm53RIy5a1ijBLPj6Ygqdb2JxFNfGepc651c7uIHrwPbAadO3XxmZ9r_l9Xk
-Message-ID: <CADHa2dAxVFQULCKnsjSmSPrK+VTJyyT-5P5BAYGdhO5wKDKqig@mail.gmail.com>
-Subject: Re: [PATCH ipsec-next v5 8/8] xfrm: add XFRM_MSG_MIGRATE_STATE for
- single SA migration
-To: Antony Antony <antony.antony@secunet.com>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>, Herbert Xu <herbert@gondor.apana.org.au>, 
-	netdev@vger.kernel.org, "David S . Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Chiachang Wang <chiachangwang@google.com>, devel@linux-ipsec.org, 
-	Simon Horman <horms@kernel.org>, Paul Moore <paul@paul-moore.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	linux-kernel@vger.kernel.org, selinux@vger.kernel.org, 
-	Nathan Harold <nharold@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20260226-iino-u64-v1-47-ccceff366db9@kernel.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: kwepems100002.china.huawei.com (7.221.188.206) To
+ kwepemk500005.china.huawei.com (7.202.194.90)
 
-Hi Antony,
-
-May I request that we also support updating the XFRMA_SET_MARK as part
-of the new XFRM_MSG_MIGRATE_STATE message?
-
-In Android, the primary use case for migration is switching the
-underlying physical network for an IPsec tunnel (e.g. VPN, Wifi
-calling). Currently, due to the limits of XFRM_MSG_MIGRATE, we are
-forced to use a separate UPDSA call to update the set-mark. Supporting
-XFRMA_SET_MARK within the migrate message would allow us to update the
-addresses and the routing mark together in one atomic call.
-
-Regarding the logic, I believe the set-mark can follow the same
-omit-to-clear pattern as XFRMA_ENCAP and XFRMA_OFFLOAD_DEV.
-
-What do you think?
-
-Yan and Nathan
-
-
-On Tue, Jan 27, 2026 at 2:44=E2=80=AFAM Antony Antony <antony.antony@secune=
-t.com> wrote:
->
-> Add a new netlink method to migrate a single xfrm_state.
-> Unlike the existing migration mechanism (SA + policy), this
-> supports migrating only the SA and allows changing the reqid.
->
-> The reqid is invariant in the old migration.
->
-> Signed-off-by: Antony Antony <antony.antony@secunet.com>
+在 2026/2/26 23:55, Jeff Layton 写道:
+> Update format strings and local variable types in ubifs for the
+> i_ino type change from unsigned long to u64.
+> 
+> Signed-off-by: Jeff Layton <jlayton@kernel.org>
 > ---
-> v1->v2: merged next patch here to fix use uninitialized value
->         - removed unnecessary inline
->         - added const when possible
->
-> v2->v3: free the skb on the error path
->
-> v3->v4: preserve reqid invariant for each state migrated
->
-> v4->v5: - set portid, seq in XFRM_MSG_MIGRATE_STATE netlink notification
->         - rename error label to out for clarity
->         - add locking and synchronize after cloning
->         - change some if(x) to if(!x) for clarity
->         - call __xfrm_state_delete() inside the lock
->         - return error from xfrm_send_migrate_state() instead of always
->           returning 0
-> ---
->  include/net/xfrm.h          |   1 +
->  include/uapi/linux/xfrm.h   |  11 +++
->  net/xfrm/xfrm_policy.c      |   1 +
->  net/xfrm/xfrm_state.c       |   8 +-
->  net/xfrm/xfrm_user.c        | 176 ++++++++++++++++++++++++++++++++++++
->  security/selinux/nlmsgtab.c |   3 +-
->  6 files changed, 195 insertions(+), 5 deletions(-)
->
-> diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-> index 6064ea0a6f2b..906027aec40b 100644
-> --- a/include/net/xfrm.h
-> +++ b/include/net/xfrm.h
-> @@ -686,6 +686,7 @@ struct xfrm_migrate {
->         u8                      mode;
->         u16                     reserved;
->         u32                     old_reqid;
-> +       u32                     new_reqid;
->         u16                     old_family;
->         u16                     new_family;
->  };
-> diff --git a/include/uapi/linux/xfrm.h b/include/uapi/linux/xfrm.h
-> index a23495c0e0a1..60b1f201b237 100644
-> --- a/include/uapi/linux/xfrm.h
-> +++ b/include/uapi/linux/xfrm.h
-> @@ -227,6 +227,9 @@ enum {
->  #define XFRM_MSG_SETDEFAULT XFRM_MSG_SETDEFAULT
->         XFRM_MSG_GETDEFAULT,
->  #define XFRM_MSG_GETDEFAULT XFRM_MSG_GETDEFAULT
-> +
-> +       XFRM_MSG_MIGRATE_STATE,
-> +#define XFRM_MSG_MIGRATE_STATE XFRM_MSG_MIGRATE_STATE
->         __XFRM_MSG_MAX
->  };
->  #define XFRM_MSG_MAX (__XFRM_MSG_MAX - 1)
-> @@ -507,6 +510,14 @@ struct xfrm_user_migrate {
->         __u16                           new_family;
->  };
->
-> +struct xfrm_user_migrate_state {
-> +       struct xfrm_usersa_id id;
-> +       xfrm_address_t new_saddr;
-> +       xfrm_address_t new_daddr;
-> +       __u16 new_family;
-> +       __u32 new_reqid;
-> +};
-> +
->  struct xfrm_user_mapping {
->         struct xfrm_usersa_id           id;
->         __u32                           reqid;
-> diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
-> index 854dfc16ed55..72678053bd69 100644
-> --- a/net/xfrm/xfrm_policy.c
-> +++ b/net/xfrm/xfrm_policy.c
-> @@ -4672,6 +4672,7 @@ int xfrm_migrate(const struct xfrm_selector *sel, u=
-8 dir, u8 type,
->                 if ((x =3D xfrm_migrate_state_find(mp, net, if_id))) {
->                         x_cur[nx_cur] =3D x;
->                         nx_cur++;
-> +                       mp->new_reqid =3D x->props.reqid; /* reqid is inv=
-ariant in XFRM_MSG_MIGRATE */
->                         xc =3D xfrm_state_migrate(x, mp, encap, net, xuo,=
- extack);
->                         if (xc) {
->                                 x_new[nx_new] =3D xc;
-> diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-> index 2e03871ae872..945e0e470c0f 100644
-> --- a/net/xfrm/xfrm_state.c
-> +++ b/net/xfrm/xfrm_state.c
-> @@ -1979,7 +1979,6 @@ static struct xfrm_state *xfrm_state_clone_and_setu=
-p(struct xfrm_state *orig,
->         memcpy(&x->lft, &orig->lft, sizeof(x->lft));
->         x->props.mode =3D orig->props.mode;
->         x->props.replay_window =3D orig->props.replay_window;
-> -       x->props.reqid =3D orig->props.reqid;
->
->         if (orig->aalg) {
->                 x->aalg =3D xfrm_algo_auth_clone(orig->aalg);
-> @@ -2053,7 +2052,7 @@ static struct xfrm_state *xfrm_state_clone_and_setu=
-p(struct xfrm_state *orig,
->                         goto error;
->         }
->
-> -
-> +       x->props.reqid =3D m->new_reqid;
->         x->props.family =3D m->new_family;
->         memcpy(&x->id.daddr, &m->new_daddr, sizeof(x->id.daddr));
->         memcpy(&x->props.saddr, &m->new_saddr, sizeof(x->props.saddr));
-> @@ -2159,9 +2158,10 @@ int xfrm_state_migrate_install(const struct xfrm_s=
-tate *x,
->                                struct xfrm_user_offload *xuo,
->                                struct netlink_ext_ack *extack)
->  {
-> -       if (xfrm_addr_equal(&x->id.daddr, &m->new_daddr, m->new_family)) =
-{
-> +       if (xfrm_addr_equal(&x->id.daddr, &m->new_daddr, m->new_family) |=
-|
-> +           x->props.reqid !=3D xc->props.reqid) {
->                 /*
-> -                * Care is needed when the destination address
-> +                * Care is needed when the destination address or reqid
->                  * of the state is to be updated as it is a part of tripl=
-et.
->                  */
->                 xfrm_state_insert(xc);
-> diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
-> index 26b82d94acc1..79e65e3e278a 100644
-> --- a/net/xfrm/xfrm_user.c
-> +++ b/net/xfrm/xfrm_user.c
-> @@ -3052,6 +3052,20 @@ static int xfrm_add_acquire(struct sk_buff *skb, s=
-truct nlmsghdr *nlh,
->  }
->
->  #ifdef CONFIG_XFRM_MIGRATE
-> +static void copy_from_user_migrate_state(struct xfrm_migrate *ma,
-> +                                        const struct xfrm_user_migrate_s=
-tate *um)
-> +{
-> +       memcpy(&ma->old_daddr, &um->id.daddr, sizeof(ma->old_daddr));
-> +       memcpy(&ma->new_daddr, &um->new_daddr, sizeof(ma->new_daddr));
-> +       memcpy(&ma->new_saddr, &um->new_saddr, sizeof(ma->new_saddr));
-> +
-> +       ma->proto =3D um->id.proto;
-> +       ma->new_reqid =3D um->new_reqid;
-> +
-> +       ma->old_family =3D um->id.family;
-> +       ma->new_family =3D um->new_family;
-> +}
-> +
->  static int copy_from_user_migrate(struct xfrm_migrate *ma,
->                                   struct xfrm_kmaddress *k,
->                                   struct nlattr **attrs, int *num,
-> @@ -3154,7 +3168,167 @@ static int xfrm_do_migrate(struct sk_buff *skb, s=
-truct nlmsghdr *nlh,
->         kfree(xuo);
->         return err;
->  }
-> +
-> +static int build_migrate_state(struct sk_buff *skb,
-> +                              const struct xfrm_user_migrate_state *m,
-> +                              const struct xfrm_encap_tmpl *encap,
-> +                              const struct xfrm_user_offload *xuo,
-> +                              u32 portid, u32 seq)
-> +{
-> +       int err;
-> +       struct nlmsghdr *nlh;
-> +       struct xfrm_user_migrate_state *um;
-> +
-> +       nlh =3D nlmsg_put(skb, portid, seq, XFRM_MSG_MIGRATE_STATE,
-> +                       sizeof(struct xfrm_user_migrate_state), 0);
-> +       if (!nlh)
-> +               return -EMSGSIZE;
-> +
-> +       um =3D nlmsg_data(nlh);
-> +       *um =3D *m;
-> +
-> +       if (encap) {
-> +               err =3D nla_put(skb, XFRMA_ENCAP, sizeof(*encap), encap);
-> +               if (err)
-> +                       goto out_cancel;
-> +       }
-> +
-> +       if (xuo) {
-> +               err =3D nla_put(skb, XFRMA_OFFLOAD_DEV, sizeof(*xuo), xuo=
-);
-> +               if (err)
-> +                       goto out_cancel;
-> +       }
-> +
-> +       nlmsg_end(skb, nlh);
-> +       return 0;
-> +
-> +out_cancel:
-> +       nlmsg_cancel(skb, nlh);
-> +       return err;
-> +}
-> +
-> +static unsigned int xfrm_migrate_state_msgsize(bool with_encap, bool wit=
-h_xuo)
-> +{
-> +       return NLMSG_ALIGN(sizeof(struct xfrm_user_migrate_state)) +
-> +               (with_encap ? nla_total_size(sizeof(struct xfrm_encap_tmp=
-l)) : 0) +
-> +               (with_xuo ? nla_total_size(sizeof(struct xfrm_user_offloa=
-d)) : 0);
-> +}
-> +
-> +static int xfrm_send_migrate_state(const struct xfrm_user_migrate_state =
-*um,
-> +                                  const struct xfrm_encap_tmpl *encap,
-> +                                  const struct xfrm_user_offload *xuo,
-> +                                  u32 portid, u32 seq)
-> +{
-> +       int err;
-> +       struct sk_buff *skb;
-> +       struct net *net =3D &init_net;
-> +
-> +       skb =3D nlmsg_new(xfrm_migrate_state_msgsize(!!encap, !!xuo), GFP=
-_ATOMIC);
-> +       if (!skb)
-> +               return -ENOMEM;
-> +
-> +       err =3D build_migrate_state(skb, um, encap, xuo, portid, seq);
-> +       if (err < 0) {
-> +               kfree_skb(skb);
-> +               return err;
-> +       }
-> +
-> +       return xfrm_nlmsg_multicast(net, skb, 0, XFRMNLGRP_MIGRATE);
-> +}
-> +
-> +static int xfrm_do_migrate_state(struct sk_buff *skb, struct nlmsghdr *n=
-lh,
-> +                                struct nlattr **attrs, struct netlink_ex=
-t_ack *extack)
-> +{
-> +       int err =3D -ESRCH;
-> +       struct xfrm_state *x;
-> +       struct xfrm_state *xc;
-> +       struct net *net =3D sock_net(skb->sk);
-> +       struct xfrm_encap_tmpl *encap =3D NULL;
-> +       struct xfrm_user_offload *xuo =3D NULL;
-> +       struct xfrm_migrate m =3D {};
-> +       struct xfrm_user_migrate_state *um =3D nlmsg_data(nlh);
-> +
-> +       if (!um->id.spi) {
-> +               NL_SET_ERR_MSG(extack, "Invalid SPI 0x0");
-> +               return -EINVAL;
-> +       }
-> +
-> +       copy_from_user_migrate_state(&m, um);
-> +
-> +       x =3D xfrm_user_state_lookup(net, &um->id, attrs, &err);
-> +       if (!x) {
-> +               NL_SET_ERR_MSG(extack, "Can not find state");
-> +               return err;
-> +       }
-> +
-> +       if (!x->dir) {
-> +               NL_SET_ERR_MSG(extack, "State direction is invalid");
-> +               err =3D -EINVAL;
-> +               goto out;
-> +       }
-> +
-> +       if (attrs[XFRMA_ENCAP]) {
-> +               encap =3D kmemdup(nla_data(attrs[XFRMA_ENCAP]), sizeof(*e=
-ncap),
-> +                               GFP_KERNEL);
-> +               if (!encap) {
-> +                       err =3D -ENOMEM;
-> +                       goto out;
-> +               }
-> +       }
-> +
-> +       if (attrs[XFRMA_OFFLOAD_DEV]) {
-> +               xuo =3D kmemdup(nla_data(attrs[XFRMA_OFFLOAD_DEV]),
-> +                             sizeof(*xuo), GFP_KERNEL);
-> +               if (!xuo) {
-> +                       err =3D -ENOMEM;
-> +                       goto out;
-> +               }
-> +       }
-> +
-> +       xc =3D xfrm_state_migrate_create(x, &m, encap, net, xuo, extack);
-> +       if (!xc) {
-> +               if (extack && !extack->_msg)
-> +                       NL_SET_ERR_MSG(extack, "State migration clone fai=
-led");
-> +               err =3D -EINVAL;
-> +               goto out;
-> +       }
-> +
-> +       spin_lock_bh(&x->lock);
-> +       /* synchronize to prevent SN/IV reuse */
-> +       xfrm_migrate_sync(xc, x);
-> +       __xfrm_state_delete(x);
-> +       spin_unlock_bh(&x->lock);
-> +
-> +       err =3D xfrm_state_migrate_install(x, xc, &m, xuo, extack);
-> +       if (err < 0) {
-> +               /*
-> +                * In this rare case both the old SA and the new SA
-> +                * will disappear.
-> +                * Alternatives risk duplicate SN/IV usage which must not=
- occur.
-> +                * Userspace must handle this error, -EEXIST.
-> +                */
-> +               goto out;
-> +       }
-> +
-> +       err =3D xfrm_send_migrate_state(um, encap, xuo, nlh->nlmsg_pid,
-> +                                     nlh->nlmsg_seq);
-> +       if (err < 0)
-> +               NL_SET_ERR_MSG(extack, "Failed to send migration notifica=
-tion");
-> +out:
-> +       xfrm_state_put(x);
-> +       kfree(encap);
-> +       kfree(xuo);
-> +       return err;
-> +}
-> +
->  #else
-> +static int xfrm_do_migrate_state(struct sk_buff *skb, struct nlmsghdr *n=
-lh,
-> +                                struct nlattr **attrs, struct netlink_ex=
-t_ack *extack)
-> +{
-> +       NL_SET_ERR_MSG(extack, "XFRM_MSG_MIGRATE_STATE is not supported")=
-;
-> +       return -ENOPROTOOPT;
-> +}
-> +
->  static int xfrm_do_migrate(struct sk_buff *skb, struct nlmsghdr *nlh,
->                            struct nlattr **attrs, struct netlink_ext_ack =
-*extack)
->  {
-> @@ -3307,6 +3481,7 @@ const int xfrm_msg_min[XFRM_NR_MSGTYPES] =3D {
->         [XFRM_MSG_GETSPDINFO  - XFRM_MSG_BASE] =3D sizeof(u32),
->         [XFRM_MSG_SETDEFAULT  - XFRM_MSG_BASE] =3D XMSGSIZE(xfrm_userpoli=
-cy_default),
->         [XFRM_MSG_GETDEFAULT  - XFRM_MSG_BASE] =3D XMSGSIZE(xfrm_userpoli=
-cy_default),
-> +       [XFRM_MSG_MIGRATE_STATE - XFRM_MSG_BASE] =3D XMSGSIZE(xfrm_user_m=
-igrate_state),
->  };
->  EXPORT_SYMBOL_GPL(xfrm_msg_min);
->
-> @@ -3400,6 +3575,7 @@ static const struct xfrm_link {
->         [XFRM_MSG_GETSPDINFO  - XFRM_MSG_BASE] =3D { .doit =3D xfrm_get_s=
-pdinfo   },
->         [XFRM_MSG_SETDEFAULT  - XFRM_MSG_BASE] =3D { .doit =3D xfrm_set_d=
-efault   },
->         [XFRM_MSG_GETDEFAULT  - XFRM_MSG_BASE] =3D { .doit =3D xfrm_get_d=
-efault   },
-> +       [XFRM_MSG_MIGRATE_STATE - XFRM_MSG_BASE] =3D { .doit =3D xfrm_do_=
-migrate_state },
->  };
->
->  static int xfrm_reject_unused_attr(int type, struct nlattr **attrs,
-> diff --git a/security/selinux/nlmsgtab.c b/security/selinux/nlmsgtab.c
-> index 2c0b07f9fbbd..655d2616c9d2 100644
-> --- a/security/selinux/nlmsgtab.c
-> +++ b/security/selinux/nlmsgtab.c
-> @@ -128,6 +128,7 @@ static const struct nlmsg_perm nlmsg_xfrm_perms[] =3D=
- {
->         { XFRM_MSG_MAPPING, NETLINK_XFRM_SOCKET__NLMSG_READ },
->         { XFRM_MSG_SETDEFAULT, NETLINK_XFRM_SOCKET__NLMSG_WRITE },
->         { XFRM_MSG_GETDEFAULT, NETLINK_XFRM_SOCKET__NLMSG_READ },
-> +       { XFRM_MSG_MIGRATE_STATE, NETLINK_XFRM_SOCKET__NLMSG_WRITE },
->  };
->
->  static const struct nlmsg_perm nlmsg_audit_perms[] =3D {
-> @@ -203,7 +204,7 @@ int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, =
-u32 *perm)
->                  * structures at the top of this file with the new mappin=
-gs
->                  * before updating the BUILD_BUG_ON() macro!
->                  */
-> -               BUILD_BUG_ON(XFRM_MSG_MAX !=3D XFRM_MSG_GETDEFAULT);
-> +               BUILD_BUG_ON(XFRM_MSG_MAX !=3D XFRM_MSG_MIGRATE_STATE);
->
->                 if (selinux_policycap_netlink_xperm()) {
->                         *perm =3D NETLINK_XFRM_SOCKET__NLMSG;
-> --
-> 2.39.5
->
+>   fs/ubifs/debug.c   |  8 ++++----
+>   fs/ubifs/dir.c     | 28 ++++++++++++++--------------
+>   fs/ubifs/file.c    | 28 ++++++++++++++--------------
+>   fs/ubifs/journal.c |  6 +++---
+>   fs/ubifs/super.c   | 16 ++++++++--------
+>   fs/ubifs/tnc.c     |  4 ++--
+>   fs/ubifs/xattr.c   | 14 +++++++-------
+>   7 files changed, 52 insertions(+), 52 deletions(-)
 
+Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
+> 
+> diff --git a/fs/ubifs/debug.c b/fs/ubifs/debug.c
+> index 160c16aa7b6e7088355582670357262ab3930225..5794de5a9069f20302b6630c39c1452183137acc 100644
+> --- a/fs/ubifs/debug.c
+> +++ b/fs/ubifs/debug.c
+> @@ -230,7 +230,7 @@ void ubifs_dump_inode(struct ubifs_info *c, const struct inode *inode)
+>   	int count = 2;
+>   
+>   	pr_err("Dump in-memory inode:");
+> -	pr_err("\tinode          %lu\n", inode->i_ino);
+> +	pr_err("\tinode          %llu\n", inode->i_ino);
+>   	pr_err("\tsize           %llu\n",
+>   	       (unsigned long long)i_size_read(inode));
+>   	pr_err("\tnlink          %u\n", inode->i_nlink);
+> @@ -1101,7 +1101,7 @@ int dbg_check_synced_i_size(const struct ubifs_info *c, struct inode *inode)
+>   	if (ui->ui_size != ui->synced_i_size && !ui->dirty) {
+>   		ubifs_err(c, "ui_size is %lld, synced_i_size is %lld, but inode is clean",
+>   			  ui->ui_size, ui->synced_i_size);
+> -		ubifs_err(c, "i_ino %lu, i_mode %#x, i_size %lld", inode->i_ino,
+> +		ubifs_err(c, "i_ino %llu, i_mode %#x, i_size %lld", inode->i_ino,
+>   			  inode->i_mode, i_size_read(inode));
+>   		dump_stack();
+>   		err = -EINVAL;
+> @@ -1163,7 +1163,7 @@ int dbg_check_dir(struct ubifs_info *c, const struct inode *dir)
+>   	kfree(pdent);
+>   
+>   	if (i_size_read(dir) != size) {
+> -		ubifs_err(c, "directory inode %lu has size %llu, but calculated size is %llu",
+> +		ubifs_err(c, "directory inode %llu has size %llu, but calculated size is %llu",
+>   			  dir->i_ino, (unsigned long long)i_size_read(dir),
+>   			  (unsigned long long)size);
+>   		ubifs_dump_inode(c, dir);
+> @@ -1171,7 +1171,7 @@ int dbg_check_dir(struct ubifs_info *c, const struct inode *dir)
+>   		return -EINVAL;
+>   	}
+>   	if (dir->i_nlink != nlink) {
+> -		ubifs_err(c, "directory inode %lu has nlink %u, but calculated nlink is %u",
+> +		ubifs_err(c, "directory inode %llu has nlink %u, but calculated nlink is %u",
+>   			  dir->i_ino, dir->i_nlink, nlink);
+>   		ubifs_dump_inode(c, dir);
+>   		dump_stack();
+> diff --git a/fs/ubifs/dir.c b/fs/ubifs/dir.c
+> index 4c9f57f3b2adbbd396b288878cb18fa87cdbd0df..86d41e077e4d621dbb8c448acd0065c8ac7ae225 100644
+> --- a/fs/ubifs/dir.c
+> +++ b/fs/ubifs/dir.c
+> @@ -223,7 +223,7 @@ static struct dentry *ubifs_lookup(struct inode *dir, struct dentry *dentry,
+>   	struct ubifs_info *c = dir->i_sb->s_fs_info;
+>   	struct fscrypt_name nm;
+>   
+> -	dbg_gen("'%pd' in dir ino %lu", dentry, dir->i_ino);
+> +	dbg_gen("'%pd' in dir ino %llu", dentry, dir->i_ino);
+>   
+>   	err = fscrypt_prepare_lookup(dir, dentry, &nm);
+>   	if (err == -ENOENT)
+> @@ -281,7 +281,7 @@ static struct dentry *ubifs_lookup(struct inode *dir, struct dentry *dentry,
+>   	if (IS_ENCRYPTED(dir) &&
+>   	    (S_ISDIR(inode->i_mode) || S_ISLNK(inode->i_mode)) &&
+>   	    !fscrypt_has_permitted_context(dir, inode)) {
+> -		ubifs_warn(c, "Inconsistent encryption contexts: %lu/%lu",
+> +		ubifs_warn(c, "Inconsistent encryption contexts: %llu/%llu",
+>   			   dir->i_ino, inode->i_ino);
+>   		iput(inode);
+>   		inode = ERR_PTR(-EPERM);
+> @@ -318,7 +318,7 @@ static int ubifs_create(struct mnt_idmap *idmap, struct inode *dir,
+>   	 * parent directory inode.
+>   	 */
+>   
+> -	dbg_gen("dent '%pd', mode %#hx in dir ino %lu",
+> +	dbg_gen("dent '%pd', mode %#hx in dir ino %llu",
+>   		dentry, mode, dir->i_ino);
+>   
+>   	err = ubifs_budget_space(c, &req);
+> @@ -386,7 +386,7 @@ static struct inode *create_whiteout(struct inode *dir, struct dentry *dentry)
+>   	 * atomically.
+>   	 */
+>   
+> -	dbg_gen("dent '%pd', mode %#hx in dir ino %lu",
+> +	dbg_gen("dent '%pd', mode %#hx in dir ino %llu",
+>   		dentry, mode, dir->i_ino);
+>   
+>   	inode = ubifs_new_inode(c, dir, mode, false);
+> @@ -460,7 +460,7 @@ static int ubifs_tmpfile(struct mnt_idmap *idmap, struct inode *dir,
+>   	 * be released via writeback.
+>   	 */
+>   
+> -	dbg_gen("dent '%pd', mode %#hx in dir ino %lu",
+> +	dbg_gen("dent '%pd', mode %#hx in dir ino %llu",
+>   		dentry, mode, dir->i_ino);
+>   
+>   	err = fscrypt_setup_filename(dir, &dentry->d_name, 0, &nm);
+> @@ -589,7 +589,7 @@ static int ubifs_readdir(struct file *file, struct dir_context *ctx)
+>   	bool encrypted = IS_ENCRYPTED(dir);
+>   	struct ubifs_dir_data *data = file->private_data;
+>   
+> -	dbg_gen("dir ino %lu, f_pos %#llx", dir->i_ino, ctx->pos);
+> +	dbg_gen("dir ino %llu, f_pos %#llx", dir->i_ino, ctx->pos);
+>   
+>   	if (ctx->pos > UBIFS_S_KEY_HASH_MASK || ctx->pos == 2)
+>   		/*
+> @@ -764,7 +764,7 @@ static int ubifs_link(struct dentry *old_dentry, struct inode *dir,
+>   	 * changing the parent inode.
+>   	 */
+>   
+> -	dbg_gen("dent '%pd' to ino %lu (nlink %d) in dir ino %lu",
+> +	dbg_gen("dent '%pd' to ino %llu (nlink %d) in dir ino %llu",
+>   		dentry, inode->i_ino,
+>   		inode->i_nlink, dir->i_ino);
+>   	ubifs_assert(c, inode_is_locked(dir));
+> @@ -836,7 +836,7 @@ static int ubifs_unlink(struct inode *dir, struct dentry *dentry)
+>   	 * deletions.
+>   	 */
+>   
+> -	dbg_gen("dent '%pd' from ino %lu (nlink %d) in dir ino %lu",
+> +	dbg_gen("dent '%pd' from ino %llu (nlink %d) in dir ino %llu",
+>   		dentry, inode->i_ino,
+>   		inode->i_nlink, dir->i_ino);
+>   
+> @@ -941,7 +941,7 @@ static int ubifs_rmdir(struct inode *dir, struct dentry *dentry)
+>   	 * because we have extra space reserved for deletions.
+>   	 */
+>   
+> -	dbg_gen("directory '%pd', ino %lu in dir ino %lu", dentry,
+> +	dbg_gen("directory '%pd', ino %llu in dir ino %llu", dentry,
+>   		inode->i_ino, dir->i_ino);
+>   	ubifs_assert(c, inode_is_locked(dir));
+>   	ubifs_assert(c, inode_is_locked(inode));
+> @@ -1018,7 +1018,7 @@ static struct dentry *ubifs_mkdir(struct mnt_idmap *idmap, struct inode *dir,
+>   	 * directory inode.
+>   	 */
+>   
+> -	dbg_gen("dent '%pd', mode %#hx in dir ino %lu",
+> +	dbg_gen("dent '%pd', mode %#hx in dir ino %llu",
+>   		dentry, mode, dir->i_ino);
+>   
+>   	err = ubifs_budget_space(c, &req);
+> @@ -1096,7 +1096,7 @@ static int ubifs_mknod(struct mnt_idmap *idmap, struct inode *dir,
+>   	 * directory inode.
+>   	 */
+>   
+> -	dbg_gen("dent '%pd' in dir ino %lu", dentry, dir->i_ino);
+> +	dbg_gen("dent '%pd' in dir ino %llu", dentry, dir->i_ino);
+>   
+>   	if (S_ISBLK(mode) || S_ISCHR(mode)) {
+>   		dev = kmalloc_obj(union ubifs_dev_desc, GFP_NOFS);
+> @@ -1183,7 +1183,7 @@ static int ubifs_symlink(struct mnt_idmap *idmap, struct inode *dir,
+>   					.dirtied_ino = 1 };
+>   	struct fscrypt_name nm;
+>   
+> -	dbg_gen("dent '%pd', target '%s' in dir ino %lu", dentry,
+> +	dbg_gen("dent '%pd', target '%s' in dir ino %llu", dentry,
+>   		symname, dir->i_ino);
+>   
+>   	err = fscrypt_prepare_symlink(dir, symname, len, UBIFS_MAX_INO_DATA,
+> @@ -1349,7 +1349,7 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
+>   	 *   ino_req: marks the target inode as dirty and does not write it.
+>   	 */
+>   
+> -	dbg_gen("dent '%pd' ino %lu in dir ino %lu to dent '%pd' in dir ino %lu flags 0x%x",
+> +	dbg_gen("dent '%pd' ino %llu in dir ino %llu to dent '%pd' in dir ino %llu flags 0x%x",
+>   		old_dentry, old_inode->i_ino, old_dir->i_ino,
+>   		new_dentry, new_dir->i_ino, flags);
+>   
+> @@ -1597,7 +1597,7 @@ static int ubifs_xrename(struct inode *old_dir, struct dentry *old_dentry,
+>   	 * parent directory inodes.
+>   	 */
+>   
+> -	dbg_gen("dent '%pd' ino %lu in dir ino %lu exchange dent '%pd' ino %lu in dir ino %lu",
+> +	dbg_gen("dent '%pd' ino %llu in dir ino %llu exchange dent '%pd' ino %llu in dir ino %llu",
+>   		old_dentry, fst_inode->i_ino, old_dir->i_ino,
+>   		new_dentry, snd_inode->i_ino, new_dir->i_ino);
+>   
+> diff --git a/fs/ubifs/file.c b/fs/ubifs/file.c
+> index cd04755e792a7f8e7d33ed4e67806cd202c71fad..e73c28b12f97fd1fbeb67510434e499eab84da70 100644
+> --- a/fs/ubifs/file.c
+> +++ b/fs/ubifs/file.c
+> @@ -90,7 +90,7 @@ static int read_block(struct inode *inode, struct folio *folio, size_t offset,
+>   	return 0;
+>   
+>   dump:
+> -	ubifs_err(c, "bad data node (block %u, inode %lu)",
+> +	ubifs_err(c, "bad data node (block %u, inode %llu)",
+>   		  block, inode->i_ino);
+>   	ubifs_dump_node(c, dn, UBIFS_MAX_DATA_NODE_SZ);
+>   	return -EINVAL;
+> @@ -106,7 +106,7 @@ static int do_readpage(struct folio *folio)
+>   	loff_t i_size = i_size_read(inode);
+>   	size_t offset = 0;
+>   
+> -	dbg_gen("ino %lu, pg %lu, i_size %lld, flags %#lx",
+> +	dbg_gen("ino %llu, pg %lu, i_size %lld, flags %#lx",
+>   		inode->i_ino, folio->index, i_size, folio->flags.f);
+>   	ubifs_assert(c, !folio_test_checked(folio));
+>   	ubifs_assert(c, !folio->private);
+> @@ -162,7 +162,7 @@ static int do_readpage(struct folio *folio)
+>   			dbg_gen("hole");
+>   			err = 0;
+>   		} else {
+> -			ubifs_err(c, "cannot read page %lu of inode %lu, error %d",
+> +			ubifs_err(c, "cannot read page %lu of inode %llu, error %d",
+>   				  folio->index, inode->i_ino, err);
+>   		}
+>   	}
+> @@ -212,7 +212,7 @@ static int write_begin_slow(struct address_space *mapping,
+>   	int err, appending = !!(pos + len > inode->i_size);
+>   	struct folio *folio;
+>   
+> -	dbg_gen("ino %lu, pos %llu, len %u, i_size %lld",
+> +	dbg_gen("ino %llu, pos %llu, len %u, i_size %lld",
+>   		inode->i_ino, pos, len, inode->i_size);
+>   
+>   	/*
+> @@ -526,7 +526,7 @@ static int ubifs_write_end(const struct kiocb *iocb,
+>   	loff_t end_pos = pos + len;
+>   	int appending = !!(end_pos > inode->i_size);
+>   
+> -	dbg_gen("ino %lu, pos %llu, pg %lu, len %u, copied %d, i_size %lld",
+> +	dbg_gen("ino %llu, pos %llu, pg %lu, len %u, copied %d, i_size %lld",
+>   		inode->i_ino, pos, folio->index, len, copied, inode->i_size);
+>   
+>   	if (unlikely(copied < len && !folio_test_uptodate(folio))) {
+> @@ -599,7 +599,7 @@ static int populate_page(struct ubifs_info *c, struct folio *folio,
+>   	size_t offset = 0;
+>   	pgoff_t end_index;
+>   
+> -	dbg_gen("ino %lu, pg %lu, i_size %lld, flags %#lx",
+> +	dbg_gen("ino %llu, pg %lu, i_size %lld, flags %#lx",
+>   		inode->i_ino, folio->index, i_size, folio->flags.f);
+>   
+>   	end_index = (i_size - 1) >> PAGE_SHIFT;
+> @@ -680,7 +680,7 @@ static int populate_page(struct ubifs_info *c, struct folio *folio,
+>   	return 0;
+>   
+>   out_err:
+> -	ubifs_err(c, "bad data node (block %u, inode %lu)",
+> +	ubifs_err(c, "bad data node (block %u, inode %llu)",
+>   		  page_block, inode->i_ino);
+>   	return -EINVAL;
+>   }
+> @@ -913,7 +913,7 @@ static int do_writepage(struct folio *folio, size_t len)
+>   	}
+>   	if (err) {
+>   		mapping_set_error(folio->mapping, err);
+> -		ubifs_err(c, "cannot write folio %lu of inode %lu, error %d",
+> +		ubifs_err(c, "cannot write folio %lu of inode %llu, error %d",
+>   			  folio->index, inode->i_ino, err);
+>   		ubifs_ro_mode(c, err);
+>   	}
+> @@ -987,7 +987,7 @@ static int ubifs_writepage(struct folio *folio, struct writeback_control *wbc)
+>   	loff_t i_size =  i_size_read(inode), synced_i_size;
+>   	int err, len = folio_size(folio);
+>   
+> -	dbg_gen("ino %lu, pg %lu, pg flags %#lx",
+> +	dbg_gen("ino %llu, pg %lu, pg flags %#lx",
+>   		inode->i_ino, folio->index, folio->flags.f);
+>   	ubifs_assert(c, folio->private != NULL);
+>   
+> @@ -1106,7 +1106,7 @@ static int do_truncation(struct ubifs_info *c, struct inode *inode,
+>   	int offset = new_size & (UBIFS_BLOCK_SIZE - 1), budgeted = 1;
+>   	struct ubifs_inode *ui = ubifs_inode(inode);
+>   
+> -	dbg_gen("ino %lu, size %lld -> %lld", inode->i_ino, old_size, new_size);
+> +	dbg_gen("ino %llu, size %lld -> %lld", inode->i_ino, old_size, new_size);
+>   	memset(&req, 0, sizeof(struct ubifs_budget_req));
+>   
+>   	/*
+> @@ -1258,7 +1258,7 @@ int ubifs_setattr(struct mnt_idmap *idmap, struct dentry *dentry,
+>   	struct inode *inode = d_inode(dentry);
+>   	struct ubifs_info *c = inode->i_sb->s_fs_info;
+>   
+> -	dbg_gen("ino %lu, mode %#x, ia_valid %#x",
+> +	dbg_gen("ino %llu, mode %#x, ia_valid %#x",
+>   		inode->i_ino, inode->i_mode, attr->ia_valid);
+>   	err = setattr_prepare(&nop_mnt_idmap, dentry, attr);
+>   	if (err)
+> @@ -1308,7 +1308,7 @@ int ubifs_fsync(struct file *file, loff_t start, loff_t end, int datasync)
+>   	struct ubifs_info *c = inode->i_sb->s_fs_info;
+>   	int err;
+>   
+> -	dbg_gen("syncing inode %lu", inode->i_ino);
+> +	dbg_gen("syncing inode %llu", inode->i_ino);
+>   
+>   	if (c->ro_mount)
+>   		/*
+> @@ -1495,7 +1495,7 @@ static vm_fault_t ubifs_vm_page_mkwrite(struct vm_fault *vmf)
+>   	struct ubifs_budget_req req = { .new_page = 1 };
+>   	int err, update_time;
+>   
+> -	dbg_gen("ino %lu, pg %lu, i_size %lld",	inode->i_ino, folio->index,
+> +	dbg_gen("ino %llu, pg %lu, i_size %lld",	inode->i_ino, folio->index,
+>   		i_size_read(inode));
+>   	ubifs_assert(c, !c->ro_media && !c->ro_mount);
+>   
+> @@ -1531,7 +1531,7 @@ static vm_fault_t ubifs_vm_page_mkwrite(struct vm_fault *vmf)
+>   	err = ubifs_budget_space(c, &req);
+>   	if (unlikely(err)) {
+>   		if (err == -ENOSPC)
+> -			ubifs_warn(c, "out of space for mmapped file (inode number %lu)",
+> +			ubifs_warn(c, "out of space for mmapped file (inode number %llu)",
+>   				   inode->i_ino);
+>   		return VM_FAULT_SIGBUS;
+>   	}
+> diff --git a/fs/ubifs/journal.c b/fs/ubifs/journal.c
+> index e28ab4395e5ca404d8e8d8f735c3113b58bcc941..40a95a2fad50039f39917e71da7b71a735237469 100644
+> --- a/fs/ubifs/journal.c
+> +++ b/fs/ubifs/journal.c
+> @@ -982,7 +982,7 @@ int ubifs_jnl_write_inode(struct ubifs_info *c, const struct inode *inode)
+>   	int kill_xattrs = ui->xattr_cnt && last_reference;
+>   	u8 hash[UBIFS_HASH_ARR_SZ];
+>   
+> -	dbg_jnl("ino %lu, nlink %u", inode->i_ino, inode->i_nlink);
+> +	dbg_jnl("ino %llu, nlink %u", inode->i_ino, inode->i_nlink);
+>   
+>   	if (kill_xattrs && ui->xattr_cnt > ubifs_xattr_max_cnt(c)) {
+>   		ubifs_err(c, "Cannot delete inode, it has too many xattrs!");
+> @@ -1743,7 +1743,7 @@ int ubifs_jnl_truncate(struct ubifs_info *c, const struct inode *inode,
+>   			int dn_len = le32_to_cpu(dn->size);
+>   
+>   			if (dn_len <= 0 || dn_len > UBIFS_BLOCK_SIZE) {
+> -				ubifs_err(c, "bad data node (block %u, inode %lu)",
+> +				ubifs_err(c, "bad data node (block %u, inode %llu)",
+>   					  blk, inode->i_ino);
+>   				ubifs_dump_node(c, dn, dn_size);
+>   				err = -EUCLEAN;
+> @@ -1987,7 +1987,7 @@ int ubifs_jnl_change_xattr(struct ubifs_info *c, const struct inode *inode,
+>   	u8 hash_host[UBIFS_HASH_ARR_SZ];
+>   	u8 hash[UBIFS_HASH_ARR_SZ];
+>   
+> -	dbg_jnl("ino %lu, ino %lu", host->i_ino, inode->i_ino);
+> +	dbg_jnl("ino %llu, ino %llu", host->i_ino, inode->i_ino);
+>   	ubifs_assert(c, inode->i_nlink > 0);
+>   	ubifs_assert(c, mutex_is_locked(&host_ui->ui_mutex));
+>   
+> diff --git a/fs/ubifs/super.c b/fs/ubifs/super.c
+> index 03bf924756ca003809d229837a970d5935450f23..9a77d8b64ffa70f9d5b695fb3d87c22cb223704f 100644
+> --- a/fs/ubifs/super.c
+> +++ b/fs/ubifs/super.c
+> @@ -92,7 +92,7 @@ static int validate_inode(struct ubifs_info *c, const struct inode *inode)
+>   		return 5;
+>   
+>   	if (!ubifs_compr_present(c, ui->compr_type)) {
+> -		ubifs_warn(c, "inode %lu uses '%s' compression, but it was not compiled in",
+> +		ubifs_warn(c, "inode %llu uses '%s' compression, but it was not compiled in",
+>   			   inode->i_ino, ubifs_compr_name(c, ui->compr_type));
+>   	}
+>   
+> @@ -248,14 +248,14 @@ struct inode *ubifs_iget(struct super_block *sb, unsigned long inum)
+>   	return inode;
+>   
+>   out_invalid:
+> -	ubifs_err(c, "inode %lu validation failed, error %d", inode->i_ino, err);
+> +	ubifs_err(c, "inode %llu validation failed, error %d", inode->i_ino, err);
+>   	ubifs_dump_node(c, ino, UBIFS_MAX_INO_NODE_SZ);
+>   	ubifs_dump_inode(c, inode);
+>   	err = -EINVAL;
+>   out_ino:
+>   	kfree(ino);
+>   out:
+> -	ubifs_err(c, "failed to read inode %lu, error %d", inode->i_ino, err);
+> +	ubifs_err(c, "failed to read inode %llu, error %d", inode->i_ino, err);
+>   	iget_failed(inode);
+>   	return ERR_PTR(err);
+>   }
+> @@ -316,12 +316,12 @@ static int ubifs_write_inode(struct inode *inode, struct writeback_control *wbc)
+>   	 * As an optimization, do not write orphan inodes to the media just
+>   	 * because this is not needed.
+>   	 */
+> -	dbg_gen("inode %lu, mode %#x, nlink %u",
+> +	dbg_gen("inode %llu, mode %#x, nlink %u",
+>   		inode->i_ino, (int)inode->i_mode, inode->i_nlink);
+>   	if (inode->i_nlink) {
+>   		err = ubifs_jnl_write_inode(c, inode);
+>   		if (err)
+> -			ubifs_err(c, "can't write inode %lu, error %d",
+> +			ubifs_err(c, "can't write inode %llu, error %d",
+>   				  inode->i_ino, err);
+>   		else
+>   			err = dbg_check_inode_size(c, inode, ui->ui_size);
+> @@ -357,7 +357,7 @@ static void ubifs_evict_inode(struct inode *inode)
+>   		 */
+>   		goto out;
+>   
+> -	dbg_gen("inode %lu, mode %#x", inode->i_ino, (int)inode->i_mode);
+> +	dbg_gen("inode %llu, mode %#x", inode->i_ino, (int)inode->i_mode);
+>   	ubifs_assert(c, !icount_read(inode));
+>   
+>   	truncate_inode_pages_final(&inode->i_data);
+> @@ -375,7 +375,7 @@ static void ubifs_evict_inode(struct inode *inode)
+>   		 * Worst case we have a lost orphan inode wasting space, so a
+>   		 * simple error message is OK here.
+>   		 */
+> -		ubifs_err(c, "can't delete inode %lu, error %d",
+> +		ubifs_err(c, "can't delete inode %llu, error %d",
+>   			  inode->i_ino, err);
+>   
+>   out:
+> @@ -399,7 +399,7 @@ static void ubifs_dirty_inode(struct inode *inode, int flags)
+>   	ubifs_assert(c, mutex_is_locked(&ui->ui_mutex));
+>   	if (!ui->dirty) {
+>   		ui->dirty = 1;
+> -		dbg_gen("inode %lu",  inode->i_ino);
+> +		dbg_gen("inode %llu",  inode->i_ino);
+>   	}
+>   }
+>   
+> diff --git a/fs/ubifs/tnc.c b/fs/ubifs/tnc.c
+> index 694b08d27d7d9c7d9d7d9039f406637c702f8613..52c758c5290d8cc425fdc6d49c608d0cb0ba7ff7 100644
+> --- a/fs/ubifs/tnc.c
+> +++ b/fs/ubifs/tnc.c
+> @@ -3561,8 +3561,8 @@ int dbg_check_inode_size(struct ubifs_info *c, const struct inode *inode,
+>   
+>   out_dump:
+>   	block = key_block(c, key);
+> -	ubifs_err(c, "inode %lu has size %lld, but there are data at offset %lld",
+> -		  (unsigned long)inode->i_ino, size,
+> +	ubifs_err(c, "inode %llu has size %lld, but there are data at offset %lld",
+> +		  (unsigned long long)inode->i_ino, size,
+>   		  ((loff_t)block) << UBIFS_BLOCK_SHIFT);
+>   	mutex_unlock(&c->tnc_mutex);
+>   	ubifs_dump_inode(c, inode);
+> diff --git a/fs/ubifs/xattr.c b/fs/ubifs/xattr.c
+> index c21a0c2b3e907c1572780d4a3e48cc9d2a11b9d6..b5a9ab9d8a10adcf49e6d7228d385cb986e6e75e 100644
+> --- a/fs/ubifs/xattr.c
+> +++ b/fs/ubifs/xattr.c
+> @@ -76,7 +76,7 @@ static int create_xattr(struct ubifs_info *c, struct inode *host,
+>   				.dirtied_ino_d = ALIGN(host_ui->data_len, 8) };
+>   
+>   	if (host_ui->xattr_cnt >= ubifs_xattr_max_cnt(c)) {
+> -		ubifs_err(c, "inode %lu already has too many xattrs (%d), cannot create more",
+> +		ubifs_err(c, "inode %llu already has too many xattrs (%d), cannot create more",
+>   			  host->i_ino, host_ui->xattr_cnt);
+>   		return -ENOSPC;
+>   	}
+> @@ -88,7 +88,7 @@ static int create_xattr(struct ubifs_info *c, struct inode *host,
+>   	 */
+>   	names_len = host_ui->xattr_names + host_ui->xattr_cnt + fname_len(nm) + 1;
+>   	if (names_len > XATTR_LIST_MAX) {
+> -		ubifs_err(c, "cannot add one more xattr name to inode %lu, total names length would become %d, max. is %d",
+> +		ubifs_err(c, "cannot add one more xattr name to inode %llu, total names length would become %d, max. is %d",
+>   			  host->i_ino, names_len, XATTR_LIST_MAX);
+>   		return -ENOSPC;
+>   	}
+> @@ -390,7 +390,7 @@ ssize_t ubifs_listxattr(struct dentry *dentry, char *buffer, size_t size)
+>   	int err, len, written = 0;
+>   	struct fscrypt_name nm = {0};
+>   
+> -	dbg_gen("ino %lu ('%pd'), buffer size %zd", host->i_ino,
+> +	dbg_gen("ino %llu ('%pd'), buffer size %zd", host->i_ino,
+>   		dentry, size);
+>   
+>   	down_read(&host_ui->xattr_sem);
+> @@ -498,7 +498,7 @@ int ubifs_purge_xattrs(struct inode *host)
+>   	if (ubifs_inode(host)->xattr_cnt <= ubifs_xattr_max_cnt(c))
+>   		return 0;
+>   
+> -	ubifs_warn(c, "inode %lu has too many xattrs, doing a non-atomic deletion",
+> +	ubifs_warn(c, "inode %llu has too many xattrs, doing a non-atomic deletion",
+>   		   host->i_ino);
+>   
+>   	down_write(&ubifs_inode(host)->xattr_sem);
+> @@ -641,7 +641,7 @@ int ubifs_init_security(struct inode *dentry, struct inode *inode,
+>   					   &init_xattrs, NULL);
+>   	if (err) {
+>   		struct ubifs_info *c = dentry->i_sb->s_fs_info;
+> -		ubifs_err(c, "cannot initialize security for inode %lu, error %d",
+> +		ubifs_err(c, "cannot initialize security for inode %llu, error %d",
+>   			  inode->i_ino, err);
+>   	}
+>   	return err;
+> @@ -652,7 +652,7 @@ static int xattr_get(const struct xattr_handler *handler,
+>   			   struct dentry *dentry, struct inode *inode,
+>   			   const char *name, void *buffer, size_t size)
+>   {
+> -	dbg_gen("xattr '%s', ino %lu ('%pd'), buf size %zd", name,
+> +	dbg_gen("xattr '%s', ino %llu ('%pd'), buf size %zd", name,
+>   		inode->i_ino, dentry, size);
+>   
+>   	name = xattr_full_name(handler, name);
+> @@ -665,7 +665,7 @@ static int xattr_set(const struct xattr_handler *handler,
+>   			   const char *name, const void *value,
+>   			   size_t size, int flags)
+>   {
+> -	dbg_gen("xattr '%s', host ino %lu ('%pd'), size %zd",
+> +	dbg_gen("xattr '%s', host ino %llu ('%pd'), size %zd",
+>   		name, inode->i_ino, dentry, size);
+>   
+>   	name = xattr_full_name(handler, name);
+> 
 
---=20
---
-Best,
-Yan
