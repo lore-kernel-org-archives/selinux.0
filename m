@@ -1,166 +1,641 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f202.google.com (mail-pl1-f202.google.com [209.85.214.202])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7A5D1AF0BB;
-	Mon,  2 Mar 2026 22:58:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDDEA282F35
+	for <selinux@vger.kernel.org>; Mon,  2 Mar 2026 23:25:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772492325; cv=none; b=EBRc9RMugsG2mws+5YLJdV9rqOPNxSCjd60tKKOOBrEqxhNiLRPOjB9QyD00GLRcQ001ZR9smbEjjsQKJL+kdFHqenN815Y4Gm12INjFsqdm8ylHNPFdGZOGMzQa7Nmecpv813Z96etf2/qS7UpBQMYwMamN5YtJjVmiXGf/vu8=
+	t=1772493944; cv=none; b=JLpU76EDOPwpvjVduMw2T80RvtaEac1axbciiAu+6+ckiSllE8MErfWY2By0Idr4YSg7dsIBQbK64lpT02o1jsCNIouVYLYzPSZr340bImUfr02n2POoXXW/A4eKsaUz6XgM6VPnKhO2bkAISraO3rYKsBtQ01Hfh4jjArqOq4w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772492325; c=relaxed/simple;
-	bh=Aim55mS4QOPHiq3lGIrwAq6clR3sCfuIHZBW63a7sLU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nrreVvIPaJWJVnl10WEyz7b9U1JoyWqOsXWlg/uMvlyfryUXBINA4l98h2NdLFeBYopcuLtjGdNzJXyejyv08pyC2Q6vgDYRKy25a+xixa/SlSVYjsvqbaJJCIXhQJIO5AYQfXKiMviibzfLbF+0W8FlOonm1Mu+sfNujrn9hDE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=efMzfnop; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772493944; c=relaxed/simple;
+	bh=80Zd56D2wAPpLQevYHuU39EgENJb4zbWBzleXz/9PTQ=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=BhAhWGPS4LFHjFoHmMH+gqfjuRJpvQRcVppZx++d8Q4yHUdQyZlhef+iMvbZiTYMF0P6j4O5tBqhLyXd69RbRP7tnh2q3kH3R2/3okzxijz5SRQcCcDpmWKGCbVNsx/fJSv3RVj6hVS7zbCbXY1kEhAZh/fFImwpyoruFn8rqSU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=vZ1u4Y1C; arc=none smtp.client-ip=209.85.214.202
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="efMzfnop"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 998A6C19425;
-	Mon,  2 Mar 2026 22:58:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772492325;
-	bh=Aim55mS4QOPHiq3lGIrwAq6clR3sCfuIHZBW63a7sLU=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=efMzfnopH2WSmNEYj3Hb820DIXfhzmcNJQ+sj/RP5P5QhetapCfR9yKeXE3Q32qWL
-	 YVb9vOAaaOxUE3OlnOU5qf5pp6AHKS/GqlvGT2NTaXOtfg8ico+u9+NLobylZ9jGe5
-	 LIRJTz6mbzZrhcM3c/rF6WYhaGgyQIy0R+sbukSxUfdpvrrZqMaAAPwWkFe+MDR+Vo
-	 V/3L9nVrysUo3+FPRD9XrnVjqJAs9NpsT26I97mvOAs/um3Zb5oulM1EyoABscyNmC
-	 z6PR0/q/hUZXduKPkmtA4rzmBEcDgyq0zy09oPANN6tF4vzCXJvY2VgdQ9jrOAeA8T
-	 /AhcQbZn+87sw==
-Message-ID: <d13b3907-3bdf-4a13-bebd-dc6081d40600@kernel.org>
-Date: Tue, 3 Mar 2026 07:58:10 +0900
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="vZ1u4Y1C"
+Received: by mail-pl1-f202.google.com with SMTP id d9443c01a7336-2adef9d486bso45228345ad.2
+        for <selinux@vger.kernel.org>; Mon, 02 Mar 2026 15:25:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1772493942; x=1773098742; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=mvy5Z6sYzx19OO36u86AKgB5UQZlG/Ztb6kPEweMngo=;
+        b=vZ1u4Y1CLjwT6Fl+qh+ajVudhEWa569Zs9CkxBAUkGIr2OpZRG7fcmOfimFNCrvObS
+         7qycSgiGn8QfdIqwbraQxVOoy23dJjxhTrlXr/OWw+RChumTpRsCG4jro8PmzjMMcDub
+         /JZdpM+SeFhQ52bOk7njMwCeID13h2Cf16A974WCPTWJ4ji6lzOU88ySndRFj8q66X3J
+         pitgledDUJ1Y+7imQAdPIP2XGG9WtORJSdRvEZUWigO5qUj5S4GjN+HtrNTob3UOdCoN
+         dKF5n4IpZ7PoQg4vR731yW4S9kZw8qRzMyyUu+09iuWrBYzqhyzS7rs/YmLD+GUQkDkC
+         x+XA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772493942; x=1773098742;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=mvy5Z6sYzx19OO36u86AKgB5UQZlG/Ztb6kPEweMngo=;
+        b=aL1NJql+LPqXbTwnZ3lJYvTqxGdFo5uBlGrcUVNFUzHDlcdrpGsOvNkA1BSMJk7MRg
+         Xqn2TAues+E9FC1k09QOI6e//b5Na8J3yiGd+h8EjQEL5OBq+sZoQwEZBfpx6C62uFz0
+         XppS6pGHehk4oOvzk3U403EYaeP5l6jTX7ZFV9PXrr8qdjFCl4wxmv5leOl6+qrjj/lI
+         DQnbwamDy1S47OR4XFAUHY7i0L5nsqu+OFVZREzeaumRUirR5DmGT5ePA1MzuuXZ5yp/
+         3GF/qTu4sIZrroudXTtJPisTyHFceoXoKfIyNAjwv4Yvo34CXOhN/zpSTnrEn2yHXdqp
+         qFrA==
+X-Gm-Message-State: AOJu0YwcGQFZuiHFN3K5GB8ESZO8ypLWPMXq7KN2OqNYJI1OnnQaXwrj
+	UfHO82Fg1g3rmfzN+/z0Gm1qQ5K0vcYb5QEBC0afuQjNHkVpn81a/HiBcCDkAHU3tQrO9pOfWc8
+	W4fq9Stt4wgbZ1bVI8IMOcZ0xvtl+zhribORSJorsoIs4kUXlQAHwyHreNW4q2zHcNxkPPgu9ck
+	L7WYWhPSejo9zc9Fv+rVvjDzdoDLwrLKj+
+X-Received: from pldb18.prod.google.com ([2002:a17:902:ed12:b0:2ae:3e34:8024])
+ (user=tweek job=prod-delivery.src-stubby-dispatcher) by 2002:a17:903:350d:b0:2ae:5ec4:2f80
+ with SMTP id d9443c01a7336-2ae5ec43552mr7853795ad.47.1772493941903; Mon, 02
+ Mar 2026 15:25:41 -0800 (PST)
+Date: Tue,  3 Mar 2026 10:24:39 +1100
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 100/110] zonefs: replace PRIino with %llu/%llx format
- strings
-To: Jeff Layton <jlayton@kernel.org>, Alexander Viro
- <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>,
- Jan Kara <jack@suse.cz>, Steven Rostedt <rostedt@goodmis.org>,
- Masami Hiramatsu <mhiramat@kernel.org>,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- Dan Williams <dan.j.williams@intel.com>, Matthew Wilcox
- <willy@infradead.org>, Eric Biggers <ebiggers@kernel.org>,
- "Theodore Y. Ts'o" <tytso@mit.edu>, Muchun Song <muchun.song@linux.dev>,
- Oscar Salvador <osalvador@suse.de>, David Hildenbrand <david@kernel.org>,
- David Howells <dhowells@redhat.com>, Paulo Alcantara <pc@manguebit.org>,
- Andreas Dilger <adilger.kernel@dilger.ca>, Jan Kara <jack@suse.com>,
- Jaegeuk Kim <jaegeuk@kernel.org>, Chao Yu <chao@kernel.org>,
- Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>,
- Chuck Lever <chuck.lever@oracle.com>, NeilBrown <neil@brown.name>,
- Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo <Dai.Ngo@oracle.com>,
- Tom Talpey <tom@talpey.com>, Steve French <sfrench@samba.org>,
- Ronnie Sahlberg <ronniesahlberg@gmail.com>,
- Shyam Prasad N <sprasad@microsoft.com>, Bharath SM
- <bharathsm@microsoft.com>, Alexander Aring <alex.aring@gmail.com>,
- Ryusuke Konishi <konishi.ryusuke@gmail.com>,
- Viacheslav Dubeyko <slava@dubeyko.com>,
- Eric Van Hensbergen <ericvh@kernel.org>, Latchesar Ionkov
- <lucho@ionkov.net>, Dominique Martinet <asmadeus@codewreck.org>,
- Christian Schoenebeck <linux_oss@crudebyte.com>,
- David Sterba <dsterba@suse.com>, Marc Dionne <marc.dionne@auristor.com>,
- Ian Kent <raven@themaw.net>, Luis de Bethencourt <luisbg@kernel.org>,
- Salah Triki <salah.triki@gmail.com>,
- "Tigran A. Aivazian" <aivazian.tigran@gmail.com>,
- Ilya Dryomov <idryomov@gmail.com>, Alex Markuze <amarkuze@redhat.com>,
- Jan Harkes <jaharkes@cs.cmu.edu>, coda@cs.cmu.edu,
- Nicolas Pitre <nico@fluxnic.net>, Tyler Hicks <code@tyhicks.com>,
- Amir Goldstein <amir73il@gmail.com>, Christoph Hellwig <hch@infradead.org>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- Yangtao Li <frank.li@vivo.com>,
- Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
- David Woodhouse <dwmw2@infradead.org>, Richard Weinberger <richard@nod.at>,
- Dave Kleikamp <shaggy@kernel.org>,
- Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
- Mark Fasheh <mark@fasheh.com>, Joel Becker <jlbec@evilplan.org>,
- Joseph Qi <joseph.qi@linux.alibaba.com>, Mike Marshall
- <hubcap@omnibond.com>, Martin Brandenburg <martin@omnibond.com>,
- Miklos Szeredi <miklos@szeredi.hu>, Anders Larsen <al@alarsen.net>,
- Zhihao Cheng <chengzhihao1@huawei.com>, Naohiro Aota <naohiro.aota@wdc.com>,
- Johannes Thumshirn <jth@kernel.org>,
- John Johansen <john.johansen@canonical.com>, Paul Moore
- <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
- "Serge E. Hallyn" <serge@hallyn.com>, Mimi Zohar <zohar@linux.ibm.com>,
- Roberto Sassu <roberto.sassu@huawei.com>,
- Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
- Eric Snowberg <eric.snowberg@oracle.com>, Fan Wu <wufan@kernel.org>,
- Stephen Smalley <stephen.smalley.work@gmail.com>,
- Ondrej Mosnacek <omosnace@redhat.com>,
- Casey Schaufler <casey@schaufler-ca.com>,
- Alex Deucher <alexander.deucher@amd.com>,
- =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
- Sumit Semwal <sumit.semwal@linaro.org>, Eric Dumazet <edumazet@google.com>,
- Kuniyuki Iwashima <kuniyu@google.com>, Paolo Abeni <pabeni@redhat.com>,
- Willem de Bruijn <willemb@google.com>, "David S. Miller"
- <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
- Simon Horman <horms@kernel.org>, Oleg Nesterov <oleg@redhat.com>,
- Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
- Arnaldo Carvalho de Melo <acme@kernel.org>,
- Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>,
- Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
- Adrian Hunter <adrian.hunter@intel.com>, James Clark
- <james.clark@linaro.org>, "Darrick J. Wong" <djwong@kernel.org>,
- Martin Schiller <ms@dev.tdt.de>, Eric Paris <eparis@redhat.com>,
- Joerg Reuter <jreuter@yaina.de>, Marcel Holtmann <marcel@holtmann.org>,
- Johan Hedberg <johan.hedberg@gmail.com>,
- Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
- Oliver Hartkopp <socketcan@hartkopp.net>,
- Marc Kleine-Budde <mkl@pengutronix.de>, David Ahern <dsahern@kernel.org>,
- Neal Cardwell <ncardwell@google.com>,
- Steffen Klassert <steffen.klassert@secunet.com>,
- Herbert Xu <herbert@gondor.apana.org.au>,
- Remi Denis-Courmont <courmisch@gmail.com>,
- Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
- Xin Long <lucien.xin@gmail.com>, Magnus Karlsson
- <magnus.karlsson@intel.com>,
- Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
- Stanislav Fomichev <sdf@fomichev.me>, Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-trace-kernel@vger.kernel.org, nvdimm@lists.linux.dev,
- fsverity@lists.linux.dev, linux-mm@kvack.org, netfs@lists.linux.dev,
- linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
- linux-nfs@vger.kernel.org, linux-cifs@vger.kernel.org,
- samba-technical@lists.samba.org, linux-nilfs@vger.kernel.org,
- v9fs@lists.linux.dev, linux-afs@lists.infradead.org, autofs@vger.kernel.org,
- ceph-devel@vger.kernel.org, codalist@coda.cs.cmu.edu,
- ecryptfs@vger.kernel.org, linux-mtd@lists.infradead.org,
- jfs-discussion@lists.sourceforge.net, ntfs3@lists.linux.dev,
- ocfs2-devel@lists.linux.dev, devel@lists.orangefs.org,
- linux-unionfs@vger.kernel.org, apparmor@lists.ubuntu.com,
- linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org,
- selinux@vger.kernel.org, amd-gfx@lists.freedesktop.org,
- dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org,
- linaro-mm-sig@lists.linaro.org, netdev@vger.kernel.org,
- linux-perf-users@vger.kernel.org, linux-fscrypt@vger.kernel.org,
- linux-xfs@vger.kernel.org, linux-hams@vger.kernel.org,
- linux-x25@vger.kernel.org, audit@vger.kernel.org,
- linux-bluetooth@vger.kernel.org, linux-can@vger.kernel.org,
- linux-sctp@vger.kernel.org, bpf@vger.kernel.org
-References: <20260302-iino-u64-v2-0-e5388800dae0@kernel.org>
- <20260302-iino-u64-v2-100-e5388800dae0@kernel.org>
-Content-Language: en-US
-From: Damien Le Moal <dlemoal@kernel.org>
-Organization: Western Digital Research
-In-Reply-To: <20260302-iino-u64-v2-100-e5388800dae0@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.53.0.473.g4a7958ca14-goog
+Message-ID: <20260302232439.1930003-1-tweek@google.com>
+Subject: [PATCH testsuite] Add tests for selabel_file backend
+From: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+To: selinux@vger.kernel.org
+Cc: "=?UTF-8?q?Christian=20G=C3=B6ttsche?=" <cgzones@googlemail.com>, James Carter <jwcart2@gmail.com>, 
+	Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Ondrej Mosnacek <omosnace@redhat.com>, Jeffrey Vander Stoep <jeffv@google.com>, 
+	"=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-On 3/3/26 05:25, Jeff Layton wrote:
-> Now that i_ino is u64 and the PRIino format macro has been removed,
-> replace all uses in zonefs with the concrete format strings.
-> 
-> Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Add basic set of tests to validate the behaviour of the selabel_file
+backend. The parsing and usage of file_contexts is confirmed, in the
+following scenarios:
 
-Acked-by: Damien Le Moal <dlemoal@kernel.org>
+ - selabel_open with no options,
+ - selabel_open with a NULL SELABEL_OPT_PATH,
+ - selabel_open with a valid SELABEL_OPT_PATH,
+ - selabel_open with a valid SELABEL_OPT_PATH and SELABEL_OPT_BASEONLY,
+ - selabel_open with SELABEL_OPT_VALIDATE and known types,
+ - selabel_open with SELABEL_OPT_VALIDATE and unknown types.
 
+Validate that substitutions and local customizations are loaded
+according to selabel_file(5).
+---
+Some more context on this change: we are currently trying to upstream
+some of our internal changes to libselinux. A major difference is our
+support for multiple SELABEL_OPT_PATH options which was discussed in
+[1]. The intent is to follow up with an updated patch and tests which
+will build on this commit.
+
+It is not clear to me if this is the best location for these tests. Some
+could be implemented directly in libselinux, but the ability to load a
+test policy was required to confirm the behaviour of
+SELABEL_OPT_VALIDATE.
+
+[1] https://lore.kernel.org/selinux/20171017163328.117702-1-dcashman@android.com/
+
+ policy/Makefile                      |  3 +-
+ policy/test_file_contexts.te         |  6 ++
+ tests/Makefile                       |  2 +-
+ tests/file_contexts/Makefile         | 10 +++
+ tests/file_contexts/f1.fc            |  1 +
+ tests/file_contexts/f2.fc            |  4 ++
+ tests/file_contexts/f3.fc            |  2 +
+ tests/file_contexts/f3.fc.homedirs   |  1 +
+ tests/file_contexts/f3.fc.local      |  1 +
+ tests/file_contexts/f3.fc.subs       |  1 +
+ tests/file_contexts/f3.fc.subs_dist  |  1 +
+ tests/file_contexts/internal.c       | 41 +++++++++++++
+ tests/file_contexts/internal.h       | 16 +++++
+ tests/file_contexts/test             | 25 ++++++++
+ tests/file_contexts/test_lookup.c    | 46 ++++++++++++++
+ tests/file_contexts/test_open.c      | 82 +++++++++++++++++++++++++
+ tests/file_contexts/test_open_base.c | 92 ++++++++++++++++++++++++++++
+ tests/file_contexts/test_validate.c  | 56 +++++++++++++++++
+ 18 files changed, 388 insertions(+), 2 deletions(-)
+ create mode 100644 policy/test_file_contexts.te
+ create mode 100644 tests/file_contexts/Makefile
+ create mode 100644 tests/file_contexts/f1.fc
+ create mode 100644 tests/file_contexts/f2.fc
+ create mode 100644 tests/file_contexts/f3.fc
+ create mode 100644 tests/file_contexts/f3.fc.homedirs
+ create mode 100644 tests/file_contexts/f3.fc.local
+ create mode 100644 tests/file_contexts/f3.fc.subs
+ create mode 100644 tests/file_contexts/f3.fc.subs_dist
+ create mode 100644 tests/file_contexts/internal.c
+ create mode 100644 tests/file_contexts/internal.h
+ create mode 100755 tests/file_contexts/test
+ create mode 100644 tests/file_contexts/test_lookup.c
+ create mode 100644 tests/file_contexts/test_open.c
+ create mode 100644 tests/file_contexts/test_open_base.c
+ create mode 100644 tests/file_contexts/test_validate.c
+
+diff --git a/policy/Makefile b/policy/Makefile
+index 40bf393..bf1ea76 100644
+--- a/policy/Makefile
++++ b/policy/Makefile
+@@ -29,7 +29,8 @@ TARGETS = \
+ 	test_task_getsid.te test_task_setpgid.te test_task_setsched.te \
+ 	test_transition.te test_unix_socket.te \
+ 	test_mmap.te test_overlayfs.te test_mqueue.te \
+-	test_ibpkey.te test_atsecure.te test_cgroupfs.te
++	test_ibpkey.te test_atsecure.te test_cgroupfs.te \
++	test_file_contexts.te
+ 
+ ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
+ SUPPORTS_CIL = n
+diff --git a/policy/test_file_contexts.te b/policy/test_file_contexts.te
+new file mode 100644
+index 0000000..c61f3b1
+--- /dev/null
++++ b/policy/test_file_contexts.te
+@@ -0,0 +1,6 @@
++####### Policy for testing file_contexts #########
++
++type test_base_t;
++type test_base_wildcard_t;
++type test_base_sub_t;
++type test_file_list_t;
+diff --git a/tests/Makefile b/tests/Makefile
+index 6df220c..07403be 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -28,7 +28,7 @@ SUBDIRS:= domain_trans entrypoint execshare exectrace execute_no_trans \
+ 	task_getpgid task_setpgid file ioctl capable_file capable_net \
+ 	capable_sys dyntrans dyntrace bounds nnp_nosuid mmap unix_socket \
+ 	inet_socket/tcp inet_socket/udp overlay checkreqprot mqueue \
+-	mac_admin atsecure infiniband_endport infiniband_pkey
++	mac_admin atsecure infiniband_endport infiniband_pkey file_contexts
+ 
+ ifeq ($(shell grep -q cap_userns $(POLDEV)/include/support/all_perms.spt && echo true),true)
+ ifneq ($(shell ./kvercmp $$(uname -r) 4.7),-1)
+diff --git a/tests/file_contexts/Makefile b/tests/file_contexts/Makefile
+new file mode 100644
+index 0000000..592a65f
+--- /dev/null
++++ b/tests/file_contexts/Makefile
+@@ -0,0 +1,10 @@
++TARGETS=test_open test_lookup test_open_base test_validate
++CFLAGS += -O2 -Werror -Wall
++LDLIBS += -lselinux
++
++all: $(TARGETS)
++
++$(TARGETS): internal.o
++
++clean:
++	rm -f $(TARGETS) *.o
+diff --git a/tests/file_contexts/f1.fc b/tests/file_contexts/f1.fc
+new file mode 100644
+index 0000000..6672a49
+--- /dev/null
++++ b/tests/file_contexts/f1.fc
+@@ -0,0 +1 @@
++/       system_u:object_r:rootfs:s0
+diff --git a/tests/file_contexts/f2.fc b/tests/file_contexts/f2.fc
+new file mode 100644
+index 0000000..0d8c087
+--- /dev/null
++++ b/tests/file_contexts/f2.fc
+@@ -0,0 +1,4 @@
++/base             system_u:object_r:test_base_t:s0
++/base(/.*)?       system_u:object_r:test_base_wildcard_t:s0
++/base/sub         system_u:object_r:test_base_sub_t:s0
++/base/file\.list  system_u:object_r:test_file_list_t:s0
+diff --git a/tests/file_contexts/f3.fc b/tests/file_contexts/f3.fc
+new file mode 100644
+index 0000000..a7361cd
+--- /dev/null
++++ b/tests/file_contexts/f3.fc
+@@ -0,0 +1,2 @@
++/        system_u:object_r:rootfs:s0
++/subbed  system_u:object_r:test_subbed:s0
+diff --git a/tests/file_contexts/f3.fc.homedirs b/tests/file_contexts/f3.fc.homedirs
+new file mode 100644
+index 0000000..d1878ce
+--- /dev/null
++++ b/tests/file_contexts/f3.fc.homedirs
+@@ -0,0 +1 @@
++/homedirs  system_u:object_r:test_homedirs:s0
+diff --git a/tests/file_contexts/f3.fc.local b/tests/file_contexts/f3.fc.local
+new file mode 100644
+index 0000000..96e432b
+--- /dev/null
++++ b/tests/file_contexts/f3.fc.local
+@@ -0,0 +1 @@
++/local    system_u:object_r:test_local:s0
+diff --git a/tests/file_contexts/f3.fc.subs b/tests/file_contexts/f3.fc.subs
+new file mode 100644
+index 0000000..922ed96
+--- /dev/null
++++ b/tests/file_contexts/f3.fc.subs
+@@ -0,0 +1 @@
++/sub /subbed
+diff --git a/tests/file_contexts/f3.fc.subs_dist b/tests/file_contexts/f3.fc.subs_dist
+new file mode 100644
+index 0000000..abe31fe
+--- /dev/null
++++ b/tests/file_contexts/f3.fc.subs_dist
+@@ -0,0 +1 @@
++/sub_dist /subbed
+diff --git a/tests/file_contexts/internal.c b/tests/file_contexts/internal.c
+new file mode 100644
+index 0000000..22b5790
+--- /dev/null
++++ b/tests/file_contexts/internal.c
+@@ -0,0 +1,41 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/stat.h>
++#include <sys/types.h>
++#include <unistd.h>
++
++#include <selinux/label.h>
++#include <selinux/selinux.h>
++
++#include "internal.h"
++
++void assertContextsMatch(struct selabel_handle *hnd, struct test_t *tests,
++			 size_t n)
++{
++	for (int i = 0; i < n; i++) {
++		char *context = NULL;
++		struct test_t test = tests[i];
++
++		if (selabel_lookup(hnd, &context, test.path, S_IFREG)) {
++			if (test.context) {
++				perror("file_contexts:selabel_lookup");
++				fprintf(stderr, "Lookup for %s failed\n", test.path);
++				exit(2);
++			}
++			// Expected failure. Continue to the next test.
++			continue;
++		} else if (!test.context) {
++			fprintf(stderr, "Lookup for %s was supposed to failed\n", test.path);
++			exit(2);
++		}
++
++		if (strcmp(context, tests[i].context)) {
++			fprintf(stderr, "Lookup for %s returned %s, expected %s\n",
++				tests[i].path, context, tests[i].context);
++			exit(2);
++		}
++
++		free(context);
++	}
++}
+diff --git a/tests/file_contexts/internal.h b/tests/file_contexts/internal.h
+new file mode 100644
+index 0000000..a07548f
+--- /dev/null
++++ b/tests/file_contexts/internal.h
+@@ -0,0 +1,16 @@
++#include <selinux/label.h>
++#include <selinux/selinux.h>
++
++#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
++
++/* Structure to capture a test. The |path| will be resolved and expected to
++ * match the |context|. If |context| is NULL, the lookup is expected to fail. */
++struct test_t {
++	const char *path;
++	const char *context;
++};
++
++/* Assert that all paths described in |tests| resolve appropriately. |hnd| must
++ * be opened. |n| is the number of tests in |tests|. */
++void assertContextsMatch(struct selabel_handle *hnd, struct test_t *tests,
++			 size_t n);
+diff --git a/tests/file_contexts/test b/tests/file_contexts/test
+new file mode 100755
+index 0000000..0f698e9
+--- /dev/null
++++ b/tests/file_contexts/test
+@@ -0,0 +1,25 @@
++#!/usr/bin/perl
++#
++# This test validates the parsing of file_contexts.
++#
++
++use Test;
++
++BEGIN { plan tests => 4; }
++
++$basedir = $0;
++$basedir =~ s|(.*)/[^/]*|$1|;
++
++$result = system "$basedir/test_open $basedir";
++ok( $result, 0 );
++
++$result = system "$basedir/test_lookup $basedir";
++ok( $result, 0 );
++
++$result = system "$basedir/test_open_base $basedir";
++ok( $result, 0 );
++
++$result = system "$basedir/test_validate $basedir";
++ok( $result, 0 );
++
++exit;
+diff --git a/tests/file_contexts/test_lookup.c b/tests/file_contexts/test_lookup.c
+new file mode 100644
+index 0000000..9a54d1d
+--- /dev/null
++++ b/tests/file_contexts/test_lookup.c
+@@ -0,0 +1,46 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <sys/stat.h>
++#include <sys/types.h>
++#include <unistd.h>
++
++#include <selinux/label.h>
++#include <selinux/selinux.h>
++
++#include "internal.h"
++
++int main(int argc, char **argv)
++{
++	struct selabel_handle *hnd;
++
++	if (argc != 2) {
++		fprintf(stderr, "basedir not provided\n");
++		exit(1);
++	}
++
++	char *path;
++	asprintf(&path, "%s/f2.fc", argv[1]);
++	struct selinux_opt f2_opts[] = {
++		{ .type = SELABEL_OPT_PATH, .value = path }
++	};
++
++	hnd = selabel_open(SELABEL_CTX_FILE, f2_opts, ARRAY_SIZE(f2_opts));
++
++	free(path);
++
++	if (!hnd) {
++		perror("file_context:f2_options");
++		exit(2);
++	}
++
++	struct test_t tests[] = {
++		{ .path = "/base", .context = "system_u:object_r:test_base_t:s0" },
++		{ .path = "/base/unkown", .context = "system_u:object_r:test_base_wildcard_t:s0" },
++		{ .path = "/base/sub", .context = "system_u:object_r:test_base_sub_t:s0" },
++		{ .path = "/base/file.list", .context = "system_u:object_r:test_file_list_t:s0" },
++		{ .path = "/base/file_list", .context = "system_u:object_r:test_base_wildcard_t:s0" },
++	};
++	assertContextsMatch(hnd, tests, ARRAY_SIZE(tests));
++
++	return 0;
++}
+diff --git a/tests/file_contexts/test_open.c b/tests/file_contexts/test_open.c
+new file mode 100644
+index 0000000..eae5691
+--- /dev/null
++++ b/tests/file_contexts/test_open.c
+@@ -0,0 +1,82 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/stat.h>
++#include <sys/types.h>
++#include <unistd.h>
++
++#include <selinux/label.h>
++#include <selinux/selinux.h>
++
++int main(int argc, char **argv)
++{
++	bool has_default_path = false;
++	struct selabel_handle *hnd;
++	struct stat default_stat;
++
++	if (argc != 2) {
++		fprintf(stderr, "basedir not provided\n");
++		exit(1);
++	}
++
++	const char *default_path = selinux_file_context_path();
++	if (!stat(default_path, &default_stat)) {
++		has_default_path = true;
++	}
++
++	if (has_default_path) {
++		/* Empty options */
++		hnd = selabel_open(SELABEL_CTX_FILE, /* options= */ NULL, /* nopt= */ 0);
++
++		if (!hnd) {
++			perror("file_context:no_options");
++			exit(2);
++		}
++		selabel_close(hnd);
++
++		/* Default options */
++		struct selinux_opt null_opts[] = {
++			{ .type = SELABEL_OPT_PATH, .value = NULL }
++		};
++
++		hnd = selabel_open(SELABEL_CTX_FILE, /* options= */ null_opts, /* nopt= */ 1);
++
++		if (!hnd) {
++			perror("file_context:default_options");
++			exit(2);
++		}
++		selabel_close(hnd);
++	}
++
++	/* f1.fc file */
++	char *path;
++	asprintf(&path, "%s/f1.fc", argv[1]);
++	struct selinux_opt f1_opts[] = {
++		{ .type = SELABEL_OPT_PATH, .value = path }
++	};
++
++	hnd = selabel_open(SELABEL_CTX_FILE, /* options= */ f1_opts, /* nopt= */ 1);
++	free(path);
++
++	if (!hnd) {
++		perror("file_context:f1_options");
++		exit(2);
++	}
++
++	char *context = NULL;
++	if (selabel_lookup(hnd, &context, "/", S_IFREG)) {
++		perror("file_contexts:f1_lookup");
++		exit(2);
++	}
++
++	if (strcmp(context, "system_u:object_r:rootfs:s0")) {
++		perror("file_contexts:f1_strcmp");
++		exit(2);
++	}
++
++	free(context);
++
++	selabel_close(hnd);
++
++	return 0;
++}
+diff --git a/tests/file_contexts/test_open_base.c b/tests/file_contexts/test_open_base.c
+new file mode 100644
+index 0000000..33b0cac
+--- /dev/null
++++ b/tests/file_contexts/test_open_base.c
+@@ -0,0 +1,92 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <sys/stat.h>
++#include <sys/types.h>
++#include <unistd.h>
++
++#include <selinux/label.h>
++#include <selinux/selinux.h>
++
++#include "internal.h"
++
++/*
++ * Validate the behaviour of the SELABEL_OPT_BASEONLY option. That is, if set,
++ * the .local and .homedirs part of the policy should not be loaded.
++ *
++ * Also validates the path substitutions (.subs and .subs_dist).
++ */
++
++void test_default_options(const char *basedir)
++{
++	struct selabel_handle *hnd;
++
++	char *path;
++	asprintf(&path, "%s/f3.fc", basedir);
++	struct selinux_opt f3_opts[] = {
++		{ .type = SELABEL_OPT_PATH, .value = path }
++	};
++
++	hnd = selabel_open(SELABEL_CTX_FILE, f3_opts, ARRAY_SIZE(f3_opts));
++	free(path);
++
++	if (!hnd) {
++		perror("file_context:f3_default_options");
++		exit(2);
++	}
++
++	struct test_t tests[] = {
++		{ .path = "/", .context = "system_u:object_r:rootfs:s0" },
++		{ .path = "/local", .context = "system_u:object_r:test_local:s0" },
++		{ .path = "/homedirs", .context = "system_u:object_r:test_homedirs:s0" },
++		{ .path = "/sub", .context = "system_u:object_r:test_subbed:s0" },
++		{ .path = "/sub_dist", .context = "system_u:object_r:test_subbed:s0" },
++	};
++	assertContextsMatch(hnd, tests, ARRAY_SIZE(tests));
++
++	selabel_close(hnd);
++}
++
++void test_base_only_option(const char *basedir)
++{
++	struct selabel_handle *hnd;
++
++	char *path;
++	asprintf(&path, "%s/f3.fc", basedir);
++	struct selinux_opt f3_with_base_only_opts[] = {
++		{ .type = SELABEL_OPT_PATH, .value = path },
++		{ .type = SELABEL_OPT_BASEONLY, .value = "1" }
++	};
++
++	hnd = selabel_open(SELABEL_CTX_FILE, f3_with_base_only_opts,
++			   ARRAY_SIZE(f3_with_base_only_opts));
++	free(path);
++
++	if (!hnd) {
++		perror("file_context:f3_base_only_options");
++		exit(2);
++	}
++
++	struct test_t tests[] = {
++		{ .path = "/", .context = "system_u:object_r:rootfs:s0" },
++		{ .path = "/local", .context = NULL },
++		{ .path = "/homedirs", .context = NULL },
++		{ .path = "/sub", .context = "system_u:object_r:test_subbed:s0" },
++		{ .path = "/sub_dist", .context = "system_u:object_r:test_subbed:s0" },
++	};
++	assertContextsMatch(hnd, tests, ARRAY_SIZE(tests));
++
++	selabel_close(hnd);
++}
++
++int main(int argc, char **argv)
++{
++	if (argc != 2) {
++		fprintf(stderr, "basedir not provided\n");
++		exit(1);
++	}
++
++	test_default_options(argv[1]);
++	test_base_only_option(argv[1]);
++
++	return 0;
++}
+diff --git a/tests/file_contexts/test_validate.c b/tests/file_contexts/test_validate.c
+new file mode 100644
+index 0000000..8abefed
+--- /dev/null
++++ b/tests/file_contexts/test_validate.c
+@@ -0,0 +1,56 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/stat.h>
++#include <sys/types.h>
++#include <unistd.h>
++
++#include <selinux/label.h>
++#include <selinux/selinux.h>
++
++#include "internal.h"
++
++int main(int argc, char **argv)
++{
++	char *path;
++	struct selabel_handle *hnd;
++
++	if (argc != 2) {
++		fprintf(stderr, "basedir not provided\n");
++		exit(1);
++	}
++
++	asprintf(&path, "%s/f1.fc", argv[1]);
++	struct selinux_opt f1_opts[] = {
++		{ .type = SELABEL_OPT_PATH, .value = path },
++		{ .type = SELABEL_OPT_VALIDATE, .value = "1" }
++	};
++
++	/* f1 types are not defined in the test policy. */
++	hnd = selabel_open(SELABEL_CTX_FILE, f1_opts, ARRAY_SIZE(f1_opts));
++	free(path);
++
++	if (hnd) {
++		fprintf(stderr, "The validation of f1 should have failed.\n");
++		exit(2);
++	}
++
++	asprintf(&path, "%s/f2.fc", argv[1]);
++	struct selinux_opt f2_opts[] = {
++		{ .type = SELABEL_OPT_PATH, .value = path },
++		{ .type = SELABEL_OPT_VALIDATE, .value = "1" }
++	};
++
++	/* f2 types are defined in the test policy. */
++	hnd = selabel_open(SELABEL_CTX_FILE, f2_opts, ARRAY_SIZE(f2_opts));
++	free(path);
++
++	if (!hnd) {
++		perror("Unable to read valid file_contexts");
++		exit(2);
++	}
++
++	selabel_close(hnd);
++
++	return 0;
++}
 -- 
-Damien Le Moal
-Western Digital Research
+2.53.0.473.g4a7958ca14-goog
+
