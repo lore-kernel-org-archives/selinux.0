@@ -1,168 +1,257 @@
-Received: from kylie.crudebyte.com (kylie.crudebyte.com [5.189.157.229])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E1AF33FE06;
-	Tue,  3 Mar 2026 12:14:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=5.189.157.229
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EB70347C6
+	for <selinux@vger.kernel.org>; Tue,  3 Mar 2026 12:24:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772540097; cv=none; b=pbGopzdmEdcMLJlHZZvt7h0kzV00ZUROfvIsqb1ehrxwGUnNztT4mNADf0GTemAC/H1Apsg0UkyCwPrDU4rIGD8xe5CYbHynKeqjqdQgjiQjYfD3fSabLbaZ8K5mlnFaH5g4kX/QBz3UpjXa1V6gqTlEfwYrsI7QYBK9ku70A7c=
+	t=1772540686; cv=none; b=UQMhUpUz9fM9/2hUlYuC57veMnH1DQI3MNXd1Rw3SRpTA0uaCHVckBCC2XO14qbgN2ti1T6zrEtqS9+LG1UlQ4JrpcHj/v1lyWSvso5JLZ5H4GKawvGkzNqPXE41dFg2HQ1mPq+3mFvQjfTrhejejBQqLFTzlksBi+G+Rn8Evcs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772540097; c=relaxed/simple;
-	bh=Py8Zp69P5/J1BlQCksfycmAarkSiVopSUaC0+sAz+Yc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=fc2KqkoCld3v9f+4/QuviZs+j7pLDwkOgGYxrBw3iv7pGnhecygJgIJ0ugBZ0D62BRrCblDEfUsrO+tgSCc0yI6JivG5v749wZgQUWDSMiU7TOIee8iJmCk1mNZIpQATSV30yTWm7YYAVnaIYeZm3KgDQzx41MUCrGZOSljYGPo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=crudebyte.com; spf=pass smtp.mailfrom=crudebyte.com; dkim=pass (4096-bit key) header.d=crudebyte.com header.i=@crudebyte.com header.b=b45/xuqs; arc=none smtp.client-ip=5.189.157.229
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=crudebyte.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=crudebyte.com
+	s=arc-20240116; t=1772540686; c=relaxed/simple;
+	bh=PuuUfJd4ExTI1JbLf8C5JJrcOeDMU3FX3bohChTY2yw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=SvlfUQco8Pdg7semzZphbyvnWUYScEACq1NhRgHykUP3mTANAo1PJssKWQkqGSptWvr1dzXlctZkj6FW4tiyGZ3Wm+W0GybAI/wr25NruWlx8/JRKPjj6PcsGQXJ5yZ5ihMegwg04OCE7gC18hTgSgrLU7F5vQjliKAJ80U551I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JQkO4O20; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=crudebyte.com header.i=@crudebyte.com header.b="b45/xuqs"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=crudebyte.com; s=kylie; h=Content-Type:Content-Transfer-Encoding:
-	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:
-	Content-ID:Content-Description;
-	bh=sEoIOy08sNDPM7R5rm77ylqbd67+xSmbEywB7fDE1l0=; b=b45/xuqsDe3UOPQGaSOC3QVfXK
-	OUdoPRzyNDl+yB4fHKVaFWk8VF87HMtM4PYj4R2Fj4RpvcBDUY2ZRib9drn+oqZiRxQCtGar4RuAz
-	RYpsEbooDPugVAlnLrqpLhL+RChtlDNEybUZnd2yTo6Y9uqRr+1WKo0xl+84dQj8eWwrm7umz7n0w
-	S0EXkqOXa2C/JE8ObWOt92H0I3bqxVdgJ9TfYidSDZtw7bmGYFyYek8qwJZQAKn3MZmmf/FUVClZB
-	QWCtVuugHhF8BNOyUJFLJSfWPIXAHjH3TLcWIb8OST54dg+7vIizA1SPKkby0pw/QTg0kPbnj4Wj9
-	VeB+nqiUcTgosudQMsEBFy4QC+CVa0DVQMYM3UhAhXRVcGAw2OrwsIYL9SNJioU6URY8vyDA6TwfM
-	CFYsOZ3h1lK3cnDA5o2cflFeZC32omihqCAVM51Ge0wTTskASCR9w0ENeA5eVA/akwkz+TZ5d3AsE
-	7f82uN5RuzZACblKcmQqEKYQjiNJSERv0YAwUBb/EiPVB4IwaXQdg3R2xm5FyvBpIz+8+5sqHHPrp
-	714s96tE/7YqJbu0kX52r+TMH8FczKREFdRsqPG+YK+I8GIlGaziiB8fLP6RTgOHSdf3lUuYeXzdb
-	ttbE75RJ/SInwkaKpg3BOdQZ8WJQK3Z8q+sKFDgvs=;
-From: Christian Schoenebeck <linux_oss@crudebyte.com>
-To: Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
- Steven Rostedt <rostedt@goodmis.org>, Masami Hiramatsu <mhiramat@kernel.org>,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- Dan Williams <dan.j.williams@intel.com>,
- Matthew Wilcox <willy@infradead.org>, Eric Biggers <ebiggers@kernel.org>,
- "Theodore Y. Ts'o" <tytso@mit.edu>, Muchun Song <muchun.song@linux.dev>,
- Oscar Salvador <osalvador@suse.de>, David Hildenbrand <david@kernel.org>,
- David Howells <dhowells@redhat.com>, Paulo Alcantara <pc@manguebit.org>,
- Andreas Dilger <adilger.kernel@dilger.ca>, Jan Kara <jack@suse.com>,
- Jaegeuk Kim <jaegeuk@kernel.org>, Chao Yu <chao@kernel.org>,
- Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>,
- Chuck Lever <chuck.lever@oracle.com>, NeilBrown <neil@brown.name>,
- Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo <Dai.Ngo@oracle.com>,
- Tom Talpey <tom@talpey.com>, Steve French <sfrench@samba.org>,
- Ronnie Sahlberg <ronniesahlberg@gmail.com>,
- Shyam Prasad N <sprasad@microsoft.com>, Bharath SM <bharathsm@microsoft.com>,
- Alexander Aring <alex.aring@gmail.com>,
- Ryusuke Konishi <konishi.ryusuke@gmail.com>,
- Viacheslav Dubeyko <slava@dubeyko.com>,
- Eric Van Hensbergen <ericvh@kernel.org>, Latchesar Ionkov <lucho@ionkov.net>,
- Dominique Martinet <asmadeus@codewreck.org>, David Sterba <dsterba@suse.com>,
- Marc Dionne <marc.dionne@auristor.com>, Ian Kent <raven@themaw.net>,
- Luis de Bethencourt <luisbg@kernel.org>, Salah Triki <salah.triki@gmail.com>,
- "Tigran A. Aivazian" <aivazian.tigran@gmail.com>,
- Ilya Dryomov <idryomov@gmail.com>, Alex Markuze <amarkuze@redhat.com>,
- Jan Harkes <jaharkes@cs.cmu.edu>, coda@cs.cmu.edu,
- Nicolas Pitre <nico@fluxnic.net>, Tyler Hicks <code@tyhicks.com>,
- Amir Goldstein <amir73il@gmail.com>, Christoph Hellwig <hch@infradead.org>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- Yangtao Li <frank.li@vivo.com>,
- Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
- David Woodhouse <dwmw2@infradead.org>, Richard Weinberger <richard@nod.at>,
- Dave Kleikamp <shaggy@kernel.org>,
- Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
- Mark Fasheh <mark@fasheh.com>, Joel Becker <jlbec@evilplan.org>,
- Joseph Qi <joseph.qi@linux.alibaba.com>, Mike Marshall <hubcap@omnibond.com>,
- Martin Brandenburg <martin@omnibond.com>, Miklos Szeredi <miklos@szeredi.hu>,
- Anders Larsen <al@alarsen.net>, Zhihao Cheng <chengzhihao1@huawei.com>,
- Damien Le Moal <dlemoal@kernel.org>, Naohiro Aota <naohiro.aota@wdc.com>,
- Johannes Thumshirn <jth@kernel.org>,
- John Johansen <john.johansen@canonical.com>,
- Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
- "Serge E. Hallyn" <serge@hallyn.com>, Mimi Zohar <zohar@linux.ibm.com>,
- Roberto Sassu <roberto.sassu@huawei.com>,
- Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
- Eric Snowberg <eric.snowberg@oracle.com>, Fan Wu <wufan@kernel.org>,
- Stephen Smalley <stephen.smalley.work@gmail.com>,
- Ondrej Mosnacek <omosnace@redhat.com>,
- Casey Schaufler <casey@schaufler-ca.com>,
- Alex Deucher <alexander.deucher@amd.com>,
- Christian =?UTF-8?B?S8O2bmln?= <christian.koenig@amd.com>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
- Sumit Semwal <sumit.semwal@linaro.org>, Eric Dumazet <edumazet@google.com>,
- Kuniyuki Iwashima <kuniyu@google.com>, Paolo Abeni <pabeni@redhat.com>,
- Willem de Bruijn <willemb@google.com>,
- "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
- Simon Horman <horms@kernel.org>, Oleg Nesterov <oleg@redhat.com>,
- Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
- Arnaldo Carvalho de Melo <acme@kernel.org>,
- Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>,
- Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
- Adrian Hunter <adrian.hunter@intel.com>,
- James Clark <james.clark@linaro.org>, "Darrick J. Wong" <djwong@kernel.org>,
- Martin Schiller <ms@dev.tdt.de>, Eric Paris <eparis@redhat.com>,
- Joerg Reuter <jreuter@yaina.de>, Marcel Holtmann <marcel@holtmann.org>,
- Johan Hedberg <johan.hedberg@gmail.com>,
- Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
- Oliver Hartkopp <socketcan@hartkopp.net>,
- Marc Kleine-Budde <mkl@pengutronix.de>, David Ahern <dsahern@kernel.org>,
- Neal Cardwell <ncardwell@google.com>,
- Steffen Klassert <steffen.klassert@secunet.com>,
- Herbert Xu <herbert@gondor.apana.org.au>,
- Remi Denis-Courmont <courmisch@gmail.com>,
- Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
- Xin Long <lucien.xin@gmail.com>, Magnus Karlsson <magnus.karlsson@intel.com>,
- Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
- Stanislav Fomichev <sdf@fomichev.me>, Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>, Jeff Layton <jlayton@kernel.org>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-trace-kernel@vger.kernel.org, nvdimm@lists.linux.dev,
- fsverity@lists.linux.dev, linux-mm@kvack.org, netfs@lists.linux.dev,
- linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
- linux-nfs@vger.kernel.org, linux-cifs@vger.kernel.org,
- samba-technical@lists.samba.org, linux-nilfs@vger.kernel.org,
- v9fs@lists.linux.dev, linux-afs@lists.infradead.org, autofs@vger.kernel.org,
- ceph-devel@vger.kernel.org, codalist@coda.cs.cmu.edu,
- ecryptfs@vger.kernel.org, linux-mtd@lists.infradead.org,
- jfs-discussion@lists.sourceforge.net, ntfs3@lists.linux.dev,
- ocfs2-devel@lists.linux.dev, devel@lists.orangefs.org,
- linux-unionfs@vger.kernel.org, apparmor@lists.ubuntu.com,
- linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org,
- selinux@vger.kernel.org, amd-gfx@lists.freedesktop.org,
- dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org,
- linaro-mm-sig@lists.linaro.org, netdev@vger.kernel.org,
- linux-perf-users@vger.kernel.org, linux-fscrypt@vger.kernel.org,
- linux-xfs@vger.kernel.org, linux-hams@vger.kernel.org,
- linux-x25@vger.kernel.org, audit@vger.kernel.org,
- linux-bluetooth@vger.kernel.org, linux-can@vger.kernel.org,
- linux-sctp@vger.kernel.org, bpf@vger.kernel.org,
- Jeff Layton <jlayton@kernel.org>
-Subject: Re: [PATCH v2 016/110] 9p: use PRIino format for i_ino
-Date: Tue, 03 Mar 2026 12:52:39 +0100
-Message-ID: <12847641.O9o76ZdvQC@weasel>
-In-Reply-To: <20260302-iino-u64-v2-16-e5388800dae0@kernel.org>
-References:
- <20260302-iino-u64-v2-0-e5388800dae0@kernel.org>
- <20260302-iino-u64-v2-16-e5388800dae0@kernel.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JQkO4O20"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1772540684;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=DGZC5kjUgrMXNi7H7O9ThIWdig9gl3ptG1k8IjUmG/8=;
+	b=JQkO4O20wiSClaysLi2u5H+kVYhnnwUqHIKX2oDzYMjKUDCU1fZ4/2Z+nL09BuVyJlhfSi
+	gT7l8Z0wgWDZcmFYkIhmcezBnMcXuca2N1YTBcki6kJ2wlieOg1PkdndAJVJ5GxnK5VJ2a
+	WJuwIpjxU/tlsWzdYvgsUPzviDDVjCI=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-416-JaH7FHXnMxyWe47uaiF2Sg-1; Tue,
+ 03 Mar 2026 07:24:42 -0500
+X-MC-Unique: JaH7FHXnMxyWe47uaiF2Sg-1
+X-Mimecast-MFC-AGG-ID: JaH7FHXnMxyWe47uaiF2Sg_1772540681
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id CEFD01956063
+	for <selinux@vger.kernel.org>; Tue,  3 Mar 2026 12:24:41 +0000 (UTC)
+Received: from p16v.redhat.com (unknown [10.45.226.22])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id B1D761800348;
+	Tue,  3 Mar 2026 12:24:40 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: selinux@vger.kernel.org
+Cc: Petr Lautrbach <lautrbach@redhat.com>
+Subject: [PATCH] Add support for UTF-8 in file context labels
+Date: Tue,  3 Mar 2026 13:23:30 +0100
+Message-ID: <20260303122412.1596047-2-lautrbach@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-On Monday, 2 March 2026 21:24:00 CET Jeff Layton wrote:
-> Convert 9p i_ino format strings to use the PRIino format
-> macro in preparation for the widening of i_ino via kino_t.
-> 
-> Signed-off-by: Jeff Layton <jlayton@kernel.org>
-> ---
->  fs/9p/vfs_addr.c       | 4 ++--
->  fs/9p/vfs_inode.c      | 6 +++---
->  fs/9p/vfs_inode_dotl.c | 6 +++---
->  3 files changed, 8 insertions(+), 8 deletions(-)
+- libselinux to be able to read UTF-8 spec entries
+- libselinux to compile regexes with UTF strings and unicode properties
+- initialize locales in setfiles, sefcontext_compile, semodule
+- semanage_exec_prog to execute external programs with LC_CTYPE set to
+the current environment
 
-Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
+Fixes:
+    # cat unicode.cil
+    (filecon "/opt/žluťoučký(/.*)?" any (system_u object_r user_home_t ((s0) (s0))))
 
+    # semodule -i unicode.cil
+    /sbin/setfiles: /var/lib/selinux/final/targeted/contexts/files/file_contexts:  line 2145 error due to: Non-ASCII characters found
+    /sbin/setfiles: /var/lib/selinux/final/targeted/contexts/files/file_contexts:  line 2145 error due to: Non-ASCII characters found
+    /var/lib/selinux/final/targeted/contexts/files/file_contexts: Invalid argument
+    libsemanage.semanage_validate_and_compile_fcontexts: setfiles returned error code 1.
+    semodule:  Failed!
 
+    # semanage fcontext --add -t user_home_t "/opt/žluťoučký(/.*)?"
+    /sbin/setfiles: /var/lib/selinux/final/targeted/contexts/files/file_contexts.local:  line 4 error due to: Non-ASCII characters found
+    /sbin/setfiles: /var/lib/selinux/final/targeted/contexts/files/file_contexts.local:  line 4 error due to: Non-ASCII characters found
+    /var/lib/selinux/final/targeted/contexts/files/file_contexts: Invalid argument
+    libsemanage.semanage_validate_and_compile_fcontexts: setfiles returned error code 1.
+    OSError: Error
+
+Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+---
+ libselinux/src/label_support.c        | 15 +++++++++++----
+ libselinux/src/regex.c                |  8 +++++---
+ libselinux/utils/sefcontext_compile.c |  5 +++++
+ libsemanage/src/semanage_store.c      | 10 +++++++++-
+ policycoreutils/semodule/semodule.c   |  5 +++++
+ policycoreutils/setfiles/setfiles.c   |  4 ++++
+ 6 files changed, 39 insertions(+), 8 deletions(-)
+
+diff --git a/libselinux/src/label_support.c b/libselinux/src/label_support.c
+index 57e191c8eb77..2eed5b8cea51 100644
+--- a/libselinux/src/label_support.c
++++ b/libselinux/src/label_support.c
+@@ -11,6 +11,7 @@
+ #include <string.h>
+ #include <stdio.h>
+ #include <errno.h>
++#include <wchar.h>
+ #include "label_internal.h"
+ 
+ /*
+@@ -35,13 +36,19 @@ static inline int read_spec_entry(char **entry, const char **ptr, size_t *len, c
+ 	*len = 0;
+ 
+ 	while (!isspace((unsigned char)**ptr) && **ptr != '\0') {
+-		if (!isascii((unsigned char)**ptr)) {
++		size_t char_len;
++
++		char_len = mbrtowc(NULL, *ptr, MB_CUR_MAX, NULL);
++
++		if ((char_len == (size_t) -1) || (char_len == (size_t) -2)) {
+ 			errno = EINVAL;
+-			*errbuf = "Non-ASCII characters found";
++			*errbuf = "Invalid UTF-8 encoding";
+ 			return -1;
+ 		}
+-		(*ptr)++;
+-		(*len)++;
++
++		*ptr += char_len;
++		*len += char_len;
++
+ 	}
+ 
+ 	if (*len) {
+diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
+index 976f00d4806d..a6e3e899f397 100644
+--- a/libselinux/src/regex.c
++++ b/libselinux/src/regex.c
+@@ -85,9 +85,11 @@ int regex_prepare_data(struct regex_data **regex, char const *pattern_string,
+ 	if (!(*regex))
+ 		return -1;
+ 
+-	(*regex)->regex = pcre2_compile(
+-	    (PCRE2_SPTR)pattern_string, PCRE2_ZERO_TERMINATED, PCRE2_DOTALL,
+-	    &errordata->error_code, &errordata->error_offset, NULL);
++	(*regex)->regex = pcre2_compile((PCRE2_SPTR)pattern_string,
++					PCRE2_ZERO_TERMINATED,
++					PCRE2_DOTALL | PCRE2_UTF | PCRE2_UCP,
++					&errordata->error_code,
++					&errordata->error_offset, NULL);
+ 	if (!(*regex)->regex) {
+ 		goto err;
+ 	}
+diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/sefcontext_compile.c
+index 811b2a1a6a98..fb848ff112ca 100644
+--- a/libselinux/utils/sefcontext_compile.c
++++ b/libselinux/utils/sefcontext_compile.c
+@@ -1,6 +1,7 @@
+ #include <endian.h>
+ #include <errno.h>
+ #include <getopt.h>
++#include <locale.h>
+ #include <stdint.h>
+ #include <stdio.h>
+ #include <string.h>
+@@ -551,6 +552,10 @@ int main(int argc, char *argv[])
+ 	struct spec_node *root = NULL;
+ 	struct sidtab stab = {};
+ 
++	/* Initialize locale for UTF-8 support */
++	setlocale(LC_ALL, "");
++
++
+ 	if (argc < 2)
+ 		usage(argv[0]);
+ 
+diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+index e3048c08df0e..21ee6dfb78b0 100644
+--- a/libsemanage/src/semanage_store.c
++++ b/libsemanage/src/semanage_store.c
+@@ -57,6 +57,7 @@ typedef struct dbase_policydb dbase_t;
+ #include <sys/wait.h>
+ #include <limits.h>
+ #include <libgen.h>
++#include <locale.h>
+ 
+ #include "debug.h"
+ #include "utilities.h"
+@@ -1479,6 +1480,11 @@ static int semanage_exec_prog(semanage_handle_t * sh,
+ 	char **argv;
+ 	pid_t forkval;
+ 	int status = 0;
++	char *envp[] = { NULL, NULL};
++
++	/* we expect that locales are already initialized */
++	if (asprintf(&envp[0], "LC_CTYPE=%s", setlocale(LC_CTYPE, NULL)) == -1)
++		envp[0] = NULL;
+ 
+ 	argv = split_args(e->path, e->args, new_name, old_name);
+ 	if (argv == NULL) {
+@@ -1492,11 +1498,13 @@ static int semanage_exec_prog(semanage_handle_t * sh,
+ 	if (forkval == 0) {
+ 		/* child process.  file descriptors will be closed
+ 		 * because they were set as close-on-exec. */
+-		execve(e->path, argv, NULL);
++		execve(e->path, argv, envp);
+ 		_exit(EXIT_FAILURE);	/* if execve() failed */
+ 	}
+ 
+ 	free_argv(argv);
++	if (envp[0])
++		free(envp[0]);
+ 
+ 	if (forkval == -1) {
+ 		ERR(sh, "Error while forking process.");
+diff --git a/policycoreutils/semodule/semodule.c b/policycoreutils/semodule/semodule.c
+index ab5168ebdc00..aea22f6e94e8 100644
+--- a/policycoreutils/semodule/semodule.c
++++ b/policycoreutils/semodule/semodule.c
+@@ -21,6 +21,7 @@
+ #include <sys/types.h>
+ #include <libgen.h>
+ #include <limits.h>
++#include <locale.h>
+ 
+ #include <sepol/cil/cil.h>
+ #include <semanage/modules.h>
+@@ -418,6 +419,10 @@ int main(int argc, char *argv[])
+ 	int i, commit = 0;
+ 	int result;
+ 	int status = EXIT_FAILURE;
++
++	/* Initialize locale for UTF-8 support */
++	setlocale(LC_ALL, "");
++
+ 	const char *genhomedirconargv[] = { "genhomedircon", "-B", "-n" };
+ 	create_signal_handlers();
+ 	if (strcmp(basename(argv[0]), "genhomedircon") == 0) {
+diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
+index 351940f33a9b..7824cffe460e 100644
+--- a/policycoreutils/setfiles/setfiles.c
++++ b/policycoreutils/setfiles/setfiles.c
+@@ -7,6 +7,7 @@
+ #include <regex.h>
+ #include <sys/vfs.h>
+ #include <libgen.h>
++#include <locale.h>
+ #ifdef USE_AUDIT
+ #include <libaudit.h>
+ 
+@@ -153,6 +154,9 @@ int main(int argc, char **argv)
+ 	long unsigned skipped_errors;
+ 	long unsigned relabeled_files;
+ 
++	/* Initialize locale for UTF-8 support */
++	setlocale(LC_ALL, "");
++
+ 	/* Initialize variables */
+ 	memset(&r_opts, 0, sizeof(r_opts));
+ 	altpath = NULL;
+-- 
+2.53.0
 
