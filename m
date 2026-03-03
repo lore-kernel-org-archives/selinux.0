@@ -1,257 +1,222 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EB70347C6
-	for <selinux@vger.kernel.org>; Tue,  3 Mar 2026 12:24:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772540686; cv=none; b=UQMhUpUz9fM9/2hUlYuC57veMnH1DQI3MNXd1Rw3SRpTA0uaCHVckBCC2XO14qbgN2ti1T6zrEtqS9+LG1UlQ4JrpcHj/v1lyWSvso5JLZ5H4GKawvGkzNqPXE41dFg2HQ1mPq+3mFvQjfTrhejejBQqLFTzlksBi+G+Rn8Evcs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772540686; c=relaxed/simple;
-	bh=PuuUfJd4ExTI1JbLf8C5JJrcOeDMU3FX3bohChTY2yw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=SvlfUQco8Pdg7semzZphbyvnWUYScEACq1NhRgHykUP3mTANAo1PJssKWQkqGSptWvr1dzXlctZkj6FW4tiyGZ3Wm+W0GybAI/wr25NruWlx8/JRKPjj6PcsGQXJ5yZ5ihMegwg04OCE7gC18hTgSgrLU7F5vQjliKAJ80U551I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JQkO4O20; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8022B1552FD
+	for <selinux@vger.kernel.org>; Tue,  3 Mar 2026 13:30:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.171
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772544637; cv=pass; b=RAWvh15YqM18BaCnes9Dsd+z1yx2j2dz9ucLJqJvybRyljxy4lQb2V0rTTfWAQh4uQ1xfxIh1OI3hVno4sCCzllWBbx2th+saftmPu8MeO2UByFaWdxnn4383iLIASJRFmL25I4gEznzsP26NKiOny97NNb+vJyjiFUCdGxIOi4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772544637; c=relaxed/simple;
+	bh=TPmZuENf+xpPALFd+K4N9NZreHNFZW4jsYUsnEcVgMY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=MzpU85f5QbUkuRCLR5bmyRpU8RM+wSg7efP3qO7Kl4LyIETri1uaWFgmwCJo1nQObV6gmUKsZHwWvr2QkS9uqVi5Vw4/0a+WG7IPypZb09fw58IRLI36Ps+ZGVNw6fsOEWdb8rVqcd7p2ZTcZF53VMxexmBDM3TnP1bVzd8X1oI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cd7bNDFr; arc=pass smtp.client-ip=209.85.215.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JQkO4O20"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1772540684;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=DGZC5kjUgrMXNi7H7O9ThIWdig9gl3ptG1k8IjUmG/8=;
-	b=JQkO4O20wiSClaysLi2u5H+kVYhnnwUqHIKX2oDzYMjKUDCU1fZ4/2Z+nL09BuVyJlhfSi
-	gT7l8Z0wgWDZcmFYkIhmcezBnMcXuca2N1YTBcki6kJ2wlieOg1PkdndAJVJ5GxnK5VJ2a
-	WJuwIpjxU/tlsWzdYvgsUPzviDDVjCI=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-416-JaH7FHXnMxyWe47uaiF2Sg-1; Tue,
- 03 Mar 2026 07:24:42 -0500
-X-MC-Unique: JaH7FHXnMxyWe47uaiF2Sg-1
-X-Mimecast-MFC-AGG-ID: JaH7FHXnMxyWe47uaiF2Sg_1772540681
-Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id CEFD01956063
-	for <selinux@vger.kernel.org>; Tue,  3 Mar 2026 12:24:41 +0000 (UTC)
-Received: from p16v.redhat.com (unknown [10.45.226.22])
-	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id B1D761800348;
-	Tue,  3 Mar 2026 12:24:40 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
-To: selinux@vger.kernel.org
-Cc: Petr Lautrbach <lautrbach@redhat.com>
-Subject: [PATCH] Add support for UTF-8 in file context labels
-Date: Tue,  3 Mar 2026 13:23:30 +0100
-Message-ID: <20260303122412.1596047-2-lautrbach@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cd7bNDFr"
+Received: by mail-pg1-f171.google.com with SMTP id 41be03b00d2f7-c70f191313cso2225923a12.3
+        for <selinux@vger.kernel.org>; Tue, 03 Mar 2026 05:30:36 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1772544636; cv=none;
+        d=google.com; s=arc-20240605;
+        b=OVCuy6sHyJ66VUoYFgMmO4ggwlXNukOimIGyIOErAdtb3XuvH+BbrEHwTdrz0q0WKF
+         hf2x7xI8hsrmpQMHJXgWbYI3tb6xsZt8+dFY7yVzvCDJD5AdBkWkJ6hGcDhBwI2trryN
+         t1tn2TrsYcvCk4ry2mTylZ0kC1Ks5lfHQrKjhC9HiuJOIGfserZgaRS4C5/A/e0igaNY
+         d61F+6FpT0Kaad6NjynPFsl7CBEwTKD99iX337f8IzOsFCkjS2EWc+SbiEVPCuEVBf32
+         kwIORmtUXgDfnZPXHjmIIIwDwlA8RW/DSjOFLr7NHnGqUvzLuiiDIW7+bSmcWEHs0OyR
+         YDhQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=im8ZctEmpsXdkeky12LRTuORqacf4TX4RzgYY97Ceb0=;
+        fh=KsxfYpTYcXQfr2Kycoa6gYsBNJr38IRpKkMHPIo6oCM=;
+        b=YSglJaxgvvX4YVBIjgFQASdxeUC0hNYA4gpRhcYx55es3YM3W5xVHdo42eDSQ+BFCY
+         BEUKf+zJehw6tx249sYDiaA/n4OtlBoQVWijksABVErMQmOqf6NwMGSGcu2ADWfFSXqK
+         sMkRri6GixgKpQPAxi3gNeQ9LmcAYyCpzkZ5NE0BS0KkPuNzU5u8S6BajtkeJGno/duY
+         x+r8i9rEPNaOZSfqajWLy8TuOiBWxtVx5gR3Hsi88X+G1w9CCyWcRbOUEf80Dj2/+Cdc
+         K8+Q54uFxqiYRLxxT24IsAfdXGY27nyh/4PCvT+XF4dCYJ1mOle+J4qxVQkbOVbmUK22
+         q4OQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1772544636; x=1773149436; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=im8ZctEmpsXdkeky12LRTuORqacf4TX4RzgYY97Ceb0=;
+        b=cd7bNDFrtZ9DOd7Hf7c9wgs0c2t3rBvGgP9FILNdX3drqHcO8BnxYbOwGtDTMn0egR
+         he6kb6ov1USUpQpAp7iSZQj7ByX35/mnI2r3oeIvISrc28JFPFE6ZwNwm+r0NgsyBm0C
+         c84StJFOU0+q+E9gwM0BfcGP7CqIhSvp9bczi5mcZ/uleiOCnX2xKJ+NylgF1RfeYVhO
+         EH6XqwLjVIfzKqp5Gfz2oDDEPGUX4ihrMc4W1SGZiL9Q1V7bYfOfz3920rZW/QXRY2ND
+         sX0CTy5sZB149obp2Pi66apFo6cJIZFa8uYSI1CH2WCOTSXaDhOa5iTS4B3/SCOeCh8m
+         0eIQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772544636; x=1773149436;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=im8ZctEmpsXdkeky12LRTuORqacf4TX4RzgYY97Ceb0=;
+        b=Eb/6rkt0njs1VPtEXe3Hvqw8Xns4PEFwD1oiQIaAYAbsqkV1VN3vfMXz1cc3mvJ+sY
+         Bz4fBMQLQb7ir4zL+q72Nul8c1ePy5f9JQ78GBTPLyxGJu/C5a8Qip4zHAVZE+NncX3U
+         ccCg0vlpIfETF6UppJSiQAGYcTf9nX3IJScq6VRmfpRn8qrUe3JzjO9rqhShHWjfxFrt
+         zZz/C5gPk17wbT9Z2kBymz9gKDR42t2R3T1NpgBP48xQaQu8470rPAZs0BgcB6Fi7dYj
+         DBrE6/pYPCKQC5IFhx9ciYWEpLtyG9QBmhGEs5YRxHoMOtVqwuGKBvouFdjBUp44qamQ
+         wcUQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVgEht3lkknYLb3gsO/bXGvtKuKYoxUCeSPcvAAKDDGVMWuuSLVv+mJOGn977gG7rwCZXRLe5PB@vger.kernel.org
+X-Gm-Message-State: AOJu0YyBNzhh2kAmRhXdBPDehwOpjnvkgCN2IuvpBp3fwAMm5HXtpgQI
+	TFKekhE4A6IKROWlQ18mqhr8F53FZwgfrRpPH44idWgPoB90ChW6FvXg/pYld0NxaFOUOmetEnc
+	VHqeXjhIHhDq2YCDnn2fvOqrJQlis75g=
+X-Gm-Gg: ATEYQzy3S/373gNUU34mKzOt1D4EYj7P/y8Lq5lOb44sKycvGP2m4EEwJ1VTcj+cWka
+	dFA9T9+8rukO2y5H2a/AI6VGCbgySdnvbtrC5CnGxhE3wxFmv+tzRAdWBhgx60O0gHJJtSNUXeK
+	nutusPqQBoeptcN+86gw49lsmd4Sb/CpOM9c2L02ncZHc9e9AEIQG6J0bd9Lf1YGfb1u+LIU4qv
+	sz37yEPUjOQF4AYw4gEpQBoDleLdEK4U6DVPcF/UJsSykvztmab0v/oRJhmV/LvdqDo2ZXxjtbf
+	dChKCqo=
+X-Received: by 2002:a17:903:22ca:b0:2a9:42ba:b093 with SMTP id
+ d9443c01a7336-2ae2e417b93mr176357345ad.25.1772544635624; Tue, 03 Mar 2026
+ 05:30:35 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
+References: <CAHC9VhRGMmhxbajwQNfGFy+ZFF1uN=UEBjqQZQ4UBy7yds3eVQ@mail.gmail.com>
+ <CAHC9VhTeVs7kS9hzukukZRfGu6CC6=Dq4KP69tpEtiFpBJ+jOQ@mail.gmail.com>
+In-Reply-To: <CAHC9VhTeVs7kS9hzukukZRfGu6CC6=Dq4KP69tpEtiFpBJ+jOQ@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Tue, 3 Mar 2026 08:30:24 -0500
+X-Gm-Features: AaiRm51B24m8BS1lm-W8zAv3yrpHDogeldeLu1r_WUIc-okMyPG_92haWYA0IL8
+Message-ID: <CAEjxPJ4urh7mUbDJEi-DbdiAifMM_uDH3m35tLeTdx6z+qhPyg@mail.gmail.com>
+Subject: Re: LSM namespacing API
+To: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>
+Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+	John Johansen <john.johansen@canonical.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-- libselinux to be able to read UTF-8 spec entries
-- libselinux to compile regexes with UTF strings and unicode properties
-- initialize locales in setfiles, sefcontext_compile, semodule
-- semanage_exec_prog to execute external programs with LC_CTYPE set to
-the current environment
+On Wed, Feb 25, 2026 at 7:05=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+> I spent a few hours this afternoon re-reading this thread and tweaking
+> the original proposal to address everything discussed.  The revised
+> proposal is below, with a bit more detail than before, please take a
+> look and let us all know what you think ...
+>
+> * lsm_set_self_attr(LSM_ATTR_CLONE_NEWLSM) and clone(CLONE_NEWLSM)
+>
+> We would define a new LSM_ATTR flag, LSM_ATTR_CLONE_NEWLSM, which
+> could be used with lsm_set_self_attr() to request that an individual
+> LSM create a new LSM specific namespace on the next
+> clone(CLONE_NEWLSM) call.  LSMs may choose to perform various sanity
+> and authorization checks at lsm_set_self_attr() time, but they must
+> refrain from creating a new LSM namespace until clone() is called.
+> LSMs may also want to ensure that any state associated with an
+> lsm_set_self_attr(LSM_ATTR_CLONE_NEWLSM) request is not carried across
+> an exec() boundary, however, that decision is left to the individual
+> LSMs.
+>
+> We would define a new clone() flag, CLONE_NEWLSM, which would trigger
+> a call into the LSM framework to invoke LSM specific callbacks to
+> perform namespace actions specified either by the LSM's policy or an
+> explicit lsm_set_self_attr(LSM_ATTR_CLONE_NEWLSM) request.
+>
+> As with the existing LSM_ATTR support, this is strictly an opt-in
+> mechanism and individual LSMs are left to handle this request as they
+> see fit.
+>
+> The lsm_get_self_attr() syscall could be used to get the
+> LSM_ATTR_CLONE_NEWLSM value(s) for the current process just like any
+> other LSM_ATTR flag.
+>
+> * lsm_set_self_attr(LSM_ATTR_UNSHARE_NEWLSM) and unshare(CLONE_NEWLSM)
+>
+> This would behave similarly to LSM_ATTR_CLONE_NEWLSM, but the LSM
+> namespace changes would take place during an unshare() call as opposed
+> to a clone() call.  This is kept separate from the
+> LSM_ATTR_CLONE_NEWLSM flag because the behaviors are quite different:
+> one creates a process with a new LSM namespace set, while the other
+> changes the LSM namespace set of a running process.
+>
+> LSMs are free to implement support for either LSM_ATTR flag, both, or
+> none at all.
 
-Fixes:
-    # cat unicode.cil
-    (filecon "/opt/žluťoučký(/.*)?" any (system_u object_r user_home_t ((s0) (s0))))
+I think my only caveat here is that your proposal is quite a bit more
+complex than what I implemented here:
+[1] https://lore.kernel.org/selinux/20251003190959.3288-2-stephen.smalley.w=
+ork@gmail.com/
+[2] https://lore.kernel.org/selinux/20251003191328.3605-1-stephen.smalley.w=
+ork@gmail.com/
+and I'm not sure the extra complexity is worth it.
 
-    # semodule -i unicode.cil
-    /sbin/setfiles: /var/lib/selinux/final/targeted/contexts/files/file_contexts:  line 2145 error due to: Non-ASCII characters found
-    /sbin/setfiles: /var/lib/selinux/final/targeted/contexts/files/file_contexts:  line 2145 error due to: Non-ASCII characters found
-    /var/lib/selinux/final/targeted/contexts/files/file_contexts: Invalid argument
-    libsemanage.semanage_validate_and_compile_fcontexts: setfiles returned error code 1.
-    semodule:  Failed!
+In particular:
+1. Immediately unsharing the namespace upon lsm_set_self_attr() allows
+the caller to immediately and unambiguously know if the operation is
+supported and allowed, versus having to wait until a later
+clone/unshare call and decipher whether any failure is due to the
+unsharing of the LSM namespace or something else,
+2. Immediately unsharing the namespace upon lsm_set_self_attr() allows
+the caller to perform the operation in any desired order relative to
+creating a new process or unsharing other namespaces via explicit
+ordering of the call with other clone or unshare calls, providing
+maximal flexibility/control,
+3. We don't need to introduce a new CLONE_* flag at all or introduce
+new or changed LSM hooks to clone/unshare,
+4. Implementing unshare-like behavior was in fact quite simple for
+SELinux namespaces and no more complex than doing so at clone time,
+4. Any perceived atomicity benefits of delaying the operation until
+the next clone/unshare system call and doing it at the same time as
+creating a new process or unsharing another namespace are unclear -
+unless we were to change unshare/clone to completely rollback all
+changes if any of them fail, they won't actually be atomic and
+unshare/clone could fail with an intermediate state left behind.
 
-    # semanage fcontext --add -t user_home_t "/opt/žluťoučký(/.*)?"
-    /sbin/setfiles: /var/lib/selinux/final/targeted/contexts/files/file_contexts.local:  line 4 error due to: Non-ASCII characters found
-    /sbin/setfiles: /var/lib/selinux/final/targeted/contexts/files/file_contexts.local:  line 4 error due to: Non-ASCII characters found
-    /var/lib/selinux/final/targeted/contexts/files/file_contexts: Invalid argument
-    libsemanage.semanage_validate_and_compile_fcontexts: setfiles returned error code 1.
-    OSError: Error
+All that said, I'm willing to wire up the SELinux namespaces
+implementation to the proposed interface if someone implements the
+necessary plumbing, but I'm not sure it's better.
 
-Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
----
- libselinux/src/label_support.c        | 15 +++++++++++----
- libselinux/src/regex.c                |  8 +++++---
- libselinux/utils/sefcontext_compile.c |  5 +++++
- libsemanage/src/semanage_store.c      | 10 +++++++++-
- policycoreutils/semodule/semodule.c   |  5 +++++
- policycoreutils/setfiles/setfiles.c   |  4 ++++
- 6 files changed, 39 insertions(+), 8 deletions(-)
-
-diff --git a/libselinux/src/label_support.c b/libselinux/src/label_support.c
-index 57e191c8eb77..2eed5b8cea51 100644
---- a/libselinux/src/label_support.c
-+++ b/libselinux/src/label_support.c
-@@ -11,6 +11,7 @@
- #include <string.h>
- #include <stdio.h>
- #include <errno.h>
-+#include <wchar.h>
- #include "label_internal.h"
- 
- /*
-@@ -35,13 +36,19 @@ static inline int read_spec_entry(char **entry, const char **ptr, size_t *len, c
- 	*len = 0;
- 
- 	while (!isspace((unsigned char)**ptr) && **ptr != '\0') {
--		if (!isascii((unsigned char)**ptr)) {
-+		size_t char_len;
-+
-+		char_len = mbrtowc(NULL, *ptr, MB_CUR_MAX, NULL);
-+
-+		if ((char_len == (size_t) -1) || (char_len == (size_t) -2)) {
- 			errno = EINVAL;
--			*errbuf = "Non-ASCII characters found";
-+			*errbuf = "Invalid UTF-8 encoding";
- 			return -1;
- 		}
--		(*ptr)++;
--		(*len)++;
-+
-+		*ptr += char_len;
-+		*len += char_len;
-+
- 	}
- 
- 	if (*len) {
-diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
-index 976f00d4806d..a6e3e899f397 100644
---- a/libselinux/src/regex.c
-+++ b/libselinux/src/regex.c
-@@ -85,9 +85,11 @@ int regex_prepare_data(struct regex_data **regex, char const *pattern_string,
- 	if (!(*regex))
- 		return -1;
- 
--	(*regex)->regex = pcre2_compile(
--	    (PCRE2_SPTR)pattern_string, PCRE2_ZERO_TERMINATED, PCRE2_DOTALL,
--	    &errordata->error_code, &errordata->error_offset, NULL);
-+	(*regex)->regex = pcre2_compile((PCRE2_SPTR)pattern_string,
-+					PCRE2_ZERO_TERMINATED,
-+					PCRE2_DOTALL | PCRE2_UTF | PCRE2_UCP,
-+					&errordata->error_code,
-+					&errordata->error_offset, NULL);
- 	if (!(*regex)->regex) {
- 		goto err;
- 	}
-diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/sefcontext_compile.c
-index 811b2a1a6a98..fb848ff112ca 100644
---- a/libselinux/utils/sefcontext_compile.c
-+++ b/libselinux/utils/sefcontext_compile.c
-@@ -1,6 +1,7 @@
- #include <endian.h>
- #include <errno.h>
- #include <getopt.h>
-+#include <locale.h>
- #include <stdint.h>
- #include <stdio.h>
- #include <string.h>
-@@ -551,6 +552,10 @@ int main(int argc, char *argv[])
- 	struct spec_node *root = NULL;
- 	struct sidtab stab = {};
- 
-+	/* Initialize locale for UTF-8 support */
-+	setlocale(LC_ALL, "");
-+
-+
- 	if (argc < 2)
- 		usage(argv[0]);
- 
-diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-index e3048c08df0e..21ee6dfb78b0 100644
---- a/libsemanage/src/semanage_store.c
-+++ b/libsemanage/src/semanage_store.c
-@@ -57,6 +57,7 @@ typedef struct dbase_policydb dbase_t;
- #include <sys/wait.h>
- #include <limits.h>
- #include <libgen.h>
-+#include <locale.h>
- 
- #include "debug.h"
- #include "utilities.h"
-@@ -1479,6 +1480,11 @@ static int semanage_exec_prog(semanage_handle_t * sh,
- 	char **argv;
- 	pid_t forkval;
- 	int status = 0;
-+	char *envp[] = { NULL, NULL};
-+
-+	/* we expect that locales are already initialized */
-+	if (asprintf(&envp[0], "LC_CTYPE=%s", setlocale(LC_CTYPE, NULL)) == -1)
-+		envp[0] = NULL;
- 
- 	argv = split_args(e->path, e->args, new_name, old_name);
- 	if (argv == NULL) {
-@@ -1492,11 +1498,13 @@ static int semanage_exec_prog(semanage_handle_t * sh,
- 	if (forkval == 0) {
- 		/* child process.  file descriptors will be closed
- 		 * because they were set as close-on-exec. */
--		execve(e->path, argv, NULL);
-+		execve(e->path, argv, envp);
- 		_exit(EXIT_FAILURE);	/* if execve() failed */
- 	}
- 
- 	free_argv(argv);
-+	if (envp[0])
-+		free(envp[0]);
- 
- 	if (forkval == -1) {
- 		ERR(sh, "Error while forking process.");
-diff --git a/policycoreutils/semodule/semodule.c b/policycoreutils/semodule/semodule.c
-index ab5168ebdc00..aea22f6e94e8 100644
---- a/policycoreutils/semodule/semodule.c
-+++ b/policycoreutils/semodule/semodule.c
-@@ -21,6 +21,7 @@
- #include <sys/types.h>
- #include <libgen.h>
- #include <limits.h>
-+#include <locale.h>
- 
- #include <sepol/cil/cil.h>
- #include <semanage/modules.h>
-@@ -418,6 +419,10 @@ int main(int argc, char *argv[])
- 	int i, commit = 0;
- 	int result;
- 	int status = EXIT_FAILURE;
-+
-+	/* Initialize locale for UTF-8 support */
-+	setlocale(LC_ALL, "");
-+
- 	const char *genhomedirconargv[] = { "genhomedircon", "-B", "-n" };
- 	create_signal_handlers();
- 	if (strcmp(basename(argv[0]), "genhomedircon") == 0) {
-diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-index 351940f33a9b..7824cffe460e 100644
---- a/policycoreutils/setfiles/setfiles.c
-+++ b/policycoreutils/setfiles/setfiles.c
-@@ -7,6 +7,7 @@
- #include <regex.h>
- #include <sys/vfs.h>
- #include <libgen.h>
-+#include <locale.h>
- #ifdef USE_AUDIT
- #include <libaudit.h>
- 
-@@ -153,6 +154,9 @@ int main(int argc, char **argv)
- 	long unsigned skipped_errors;
- 	long unsigned relabeled_files;
- 
-+	/* Initialize locale for UTF-8 support */
-+	setlocale(LC_ALL, "");
-+
- 	/* Initialize variables */
- 	memset(&r_opts, 0, sizeof(r_opts));
- 	altpath = NULL;
--- 
-2.53.0
-
+> * /proc/pid/ns/lsm and setns(CLONE_NEWLSM)
+>
+> The /proc/pid/ns/lsm file serves as a link/handle to the specific LSM
+> namespace set in use for the given process.  A process wishing to move
+> into the same LSM namespace set as another process can use this
+> link/handle (or a pidfd) and setns(CLONE_NEWLSM) to change its own LSM
+> namespace set.  It is important to note that using setns() it should
+> not be possible to change the individual LSMs that are part of the LSM
+> namespace set, the calling process' LSM namespace is set to the exact
+> same LSM namespace set as the specified process.
+>
+> Affected LSMs may choose to enforce access controls on the
+> setns(CLONE_NEWLSM) operation according to their own policy.
+>
+> * Policy considerations
+>
+> The mechanisms above provide for three different scenarios: a new
+> process creating a new LSM namespace set (the clone case), an existing
+> process creating a new LSM namespace set (the unshare case), and an
+> existing process joining an existing LSM namespace set (the setns
+> case).
+>
+> In the clone case a new LSM namespace set will be created when the
+> process itself is created.  It is up to the individual LSMs to
+> properly initialize their own namespaces and load any required
+> policies.  Since the new LSM namespaces are created at clone() time
+> and before exec(), the calling process, or another trusted process
+> using a new yet-to-be-finalized API, should be able to configure the
+> newly created LSM namespace before exec().
+>
+> The unshare case is similar to clone because a new LSM namespace set
+> is created, but it is a bit more challenging because unshare()
+> modifies the calling process's LSM namespace set, not a newly created
+> child process'.  For simpler LSMs this might not pose a problem, but
+> for more complex LSMs, developing meaningful applications that use
+> unshare(CLONE_NEWLSM) and properly initialize/setup the new LSM
+> namespace set may prove challenging. Developing applications that use
+> clone(CLONE_NEWLSM) will likely be much easier.
+>
+> In the setns case the process joins a properly configured LSM
+> namespace set with all necessary LSM policies loaded, there shouldn't
+> be any additional LSM setup required (although the work to change the
+> individual LSM namespaces on a running process may prove difficult).
+>
+> --
+> paul-moore.com
