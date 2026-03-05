@@ -1,181 +1,93 @@
-Received: from flow-a7-smtp.messagingengine.com (flow-a7-smtp.messagingengine.com [103.168.172.142])
+Received: from oak.phenome.org (unknown [193.110.157.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFF1516A395;
-	Thu,  5 Mar 2026 01:24:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.142
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5D8532B981;
+	Thu,  5 Mar 2026 07:51:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.110.157.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772673892; cv=none; b=HUNGic+pbZouFe+KSkUfL2tW5TQ8+Ml8khUJ+epidq2oiLEcDvFmZ7Vsl4NqmT6FHCEv09ZJah5DE0kWHQYmU+9o+VGdDbZkdGV7PT616behYBbc4Mr3OhNNuGwYTPC1mNFFLNjrlVw3osIIYYZQzX0b4vh6bPfgTI7C1AzR8Bk=
+	t=1772697099; cv=none; b=EbtLZszRmV3AJw/Vz5N81uRuAy7CRrekdnjagEdort4wcTpdTDgMT50bTjdfcIqTyQ+J0cYoH0lf60m3/MAUNDBTTofziFrGv1GVB9055bCA5HnV4Mjox5RjnwYWEWpfe5gWpwOZ9CmYpjNN2dOQZU00L/3JHYzo/SOhez1vtIg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772673892; c=relaxed/simple;
-	bh=PMX6JyRSnu2E5Zy7NOXER9HT8+AOuMaqShL4u2efzKc=;
-	h=Content-Type:MIME-Version:From:To:Cc:Subject:In-reply-to:
-	 References:Date:Message-id; b=QLmUCPH9PaXLPZ637KqL69LpR+Qt0Ad+xDWrQ+UlT7uYVuQezD+sPGUP2Tbo73hzo13uwZrfqK2LmqeDJnO+4omLu8Qwnrt7OwyCBnT/fPJLQYWpb4Zi820rPIJlrHWQBPPg0zMxXRktZ4aYtq51fV5iqmrCB3FCJO6rcBxlhRc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ownmail.net; spf=pass smtp.mailfrom=ownmail.net; dkim=pass (2048-bit key) header.d=ownmail.net header.i=@ownmail.net header.b=fS1CK1OA; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=zUZbV8qF; arc=none smtp.client-ip=103.168.172.142
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ownmail.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ownmail.net
+	s=arc-20240116; t=1772697099; c=relaxed/simple;
+	bh=DXb6Q+j9M90TXOArdiNg5D427m8pr/vCLDYd9DVf+U4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=L00EQybSxN9B6yxuQTu+gaRLTAz5lrL/cDtnyfY0oQoEV84cA86vMURHnQEvh28K3e1lZta9Fcm1qkaN93ZQ7BfmxxXOGPEHKDuW/MF2VEVOas/CdZ1NwaUebp0WtWlYtu+p2kuxJ6BZt2guPx3d8OqqY9C2oBljBV8hnFCEoLE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=phenome.org; spf=pass smtp.mailfrom=phenome.org; dkim=pass (2048-bit key) header.d=phenome.org header.i=@phenome.org header.b=R5IThJm5; arc=none smtp.client-ip=193.110.157.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=phenome.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=phenome.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ownmail.net header.i=@ownmail.net header.b="fS1CK1OA";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="zUZbV8qF"
-Received: from phl-compute-08.internal (phl-compute-08.internal [10.202.2.48])
-	by mailflow.phl.internal (Postfix) with ESMTP id 0F5ED1380E14;
-	Wed,  4 Mar 2026 20:24:49 -0500 (EST)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-08.internal (MEProxy); Wed, 04 Mar 2026 20:24:49 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ownmail.net; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:reply-to:subject:subject:to:to; s=fm1; t=
-	1772673889; x=1772681089; bh=pHow27CTfPDvgGL29iyDc6nQ4fjpzyYL5lv
-	mt+hLriQ=; b=fS1CK1OAQhIegJ19aVS0NBBw14oXk8mzezIRJvAKaXQt6wZk1QN
-	QyLs07K4449ND+SR7dhuFNaz+DkpMCENe9edX65fMOZE8vNIETM4ctq15oQJ1xAj
-	IASPRLB3GuikAUa+P85jb1NzwDHQVSJaLr3PiCo5pjUpXgZMT6tUnaKsZPUpMoTB
-	q4MuZ1PkwcVP0wuHrDCy1sq1os7WCw2al7Ao5rBGZjtk4WImMh25cAcGYH7IzMYt
-	qUGQwsG1Gl/qRF+/hfqX5Go7tCF6J2Eg4mWLzByuGIWjbhm60CkTkyu3nsAFg5gh
-	QsB62PwimFCALvZrNF8SuGoR2RASKF+9N9A==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1772673889; x=
-	1772681089; bh=pHow27CTfPDvgGL29iyDc6nQ4fjpzyYL5lvmt+hLriQ=; b=z
-	UZbV8qF1pUA4oX+oEhgbjXEd6Qz84vUCLWVNrmELGTAt7XsjDqlWTNaFfPpHE3bJ
-	kMNZTY8rLo9r5EDXJxEyZ3A1QJS87loj+JnftGi9XEKIpAJQVpo11yA5L0nVKBbb
-	1UyY7juYTNfIaFa7hWHhHDfDhoXGb4g6P1eBDBFXNOWDwoTu5tDWOsMK+UfDlsJ3
-	8BXfwlGl8fvuqlXSD6JbeESKC/r2tbA+X5Ib8Ao6050Wenr8ysEYn6SF1uPhd7m3
-	oM4l2EDbDeEQoQmu734V1MTKW1dg57hrCOO9MPgWK0xcwEz5ZsIsMSk0rPkOz1nl
-	C08mNGz1OuRmU4Mnj/mOQ==
-X-ME-Sender: <xms:X9uoaZyO8jjwzvZMObvAu_oGj1IqHp_V3PfAvAnBAuUZkRw8xP3l4Q>
-    <xme:X9uoadMnYbkMLjUd7fzbzl4AMAvZQ8WNnha6k3Czu0U52hyQQonXEZLS12MaLKN2C
-    MfhzvgweCg0JiTEgSIDO8Vk741TqUiGR_ieVtepTGiwddvfEQ>
-X-ME-Received: <xmr:X9uoab3GZjHMqCmmD6HykudsWGTS1J0FNhd6kvBf8XStgOYIntA2X2d8AdRjB-PjdvYSry1kxymqO-MTcopwZgHWFz-z3NynmgT-IKGCm4BC>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddvieehtdeiucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurheptgfgggfhvfevufgjfhffkfhrsehtqhertddttdejnecuhfhrohhmpefpvghilheu
-    rhhofihnuceonhgvihhlsgesohifnhhmrghilhdrnhgvtheqnecuggftrfgrthhtvghrnh
-    epleejtdefgeeukeeiteduveehudevfeffvedutefgteduhfegvdfgtdeigeeuudejnecu
-    vehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepnhgvihhlsg
-    esohifnhhmrghilhdrnhgvthdpnhgspghrtghpthhtohepvddvpdhmohguvgepshhmthhp
-    ohhuthdprhgtphhtthhopehvihhrohesiigvnhhivhdrlhhinhhugidrohhrghdruhhkpd
-    hrtghpthhtohepshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphht
-    thhopehlihhnuhigqdhunhhiohhnfhhssehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtg
-    hpthhtoheplhhinhhugidqshgvtghurhhithihqdhmohguuhhlvgesvhhgvghrrdhkvghr
-    nhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhnfhhssehvghgvrhdrkhgvrhhnvg
-    hlrdhorhhgpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhn
-    vghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqfhhsuggvvhgvlhesvhhgvghrrdhkvg
-    hrnhgvlhdrohhrghdprhgtphhtthhopehmihhklhhoshesshiivghrvgguihdrhhhupdhr
-    tghpthhtohepjhgrtghksehsuhhsvgdrtgii
-X-ME-Proxy: <xmx:X9uoaVF9aO2rFJfMo9ZYL-rjkjx-_hWBa1Y12rAj2w8CayyWtOGBWw>
-    <xmx:X9uoaSh0iIkn877feRTUOzlbn3ySdhcr3gz3o8Kxm7eMSJUmXq0DRg>
-    <xmx:X9uoaed2nuv1cxb9PBp9Rv7ou0Gkx-R2lM9ok6f10GCTojgs9qF02A>
-    <xmx:X9uoaYxQMfDOzeYFQ4QFTCd42scQ48clntS8IR4tMTF1ZFP2AxKpCA>
-    <xmx:YduoaeI_V-Uu4J5ku4xeQFzYsT6m2VzogBuSJbtMi1at18Dh4rQfWEYV>
-Feedback-ID: i9d664b8f:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 4 Mar 2026 20:24:41 -0500 (EST)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=phenome.org header.i=@phenome.org header.b="R5IThJm5"
+Authentication-Results: oak.phenome.org (amavisd); dkim=pass (2048-bit key)
+ reason="pass (just generated, assumed good)" header.d=phenome.org
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=phenome.org; h=
+	in-reply-to:content-disposition:content-type:content-type
+	:mime-version:references:message-id:subject:subject:from:from
+	:date:date:received; s=oak1; t=1772697095; x=1773561096; bh=DXb6
+	Q+j9M90TXOArdiNg5D427m8pr/vCLDYd9DVf+U4=; b=R5IThJm5qrA8YhhFrGyH
+	sWwdVZ0Bse+PmNyiOSB2Mghl2rvfqwrjH8IhL756vyzcFSoPjrD7MXpRbpXEXAz5
+	9+AFjS1gISBxsyU9OOqPdVvLpmBzDkpDhEdQJ01ZoaVfD3ivBJLifM61ENe2tSiU
+	pWoss9+x2cFomS/gBZJ6zEW+g0gvwS89W3PW3B2t8JALkkV1u8E6m2yDBjbQDRek
+	vbmNiWDll0vbe7tbpXls/ka876Q3iFg7plJmikpZSUXE8ajgYmDNJS/anFRvkKG6
+	LwlADYBAiQhKdbIS5OXVUENYAwkKG8e6xBoG28fYBELc3j80VOfrO9FrpD6qLywS
+	UA==
+X-Virus-Scanned: amavisd at oak.phenome.org
+Received: by oak.phenome.org (Postfix);
+	Thu, 05 Mar 2026 08:51:35 +0100 (CET)
+Date: Thu, 5 Mar 2026 08:51:33 +0100
+From: Antony Antony <antony@phenome.org>
+To: Yan Yan <evitayan@google.com>
+Cc: Antony Antony <antony.antony@secunet.com>,
+	Steffen Klassert <steffen.klassert@secunet.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>, netdev@vger.kernel.org,
+	"David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Chiachang Wang <chiachangwang@google.com>, devel@linux-ipsec.org,
+	Simon Horman <horms@kernel.org>, Paul Moore <paul@paul-moore.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org,
+	selinux@vger.kernel.org, Nathan Harold <nharold@google.com>
+Subject: Re: [devel-ipsec] Re: [PATCH ipsec-next v5 8/8] xfrm: add
+ XFRM_MSG_MIGRATE_STATE for single SA migration
+Message-ID: <aak2BWlUbCCGbhp4@Antony2201.local>
+References: <cover.1769509130.git.antony.antony@secunet.com>
+ <b7b1bee9456ac4ada8941c93c2cc17f07d0b1912.1769509131.git.antony.antony@secunet.com>
+ <CADHa2dAxVFQULCKnsjSmSPrK+VTJyyT-5P5BAYGdhO5wKDKqig@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: NeilBrown <neilb@ownmail.net>
-To: "Christian Brauner" <brauner@kernel.org>,
- "Alexander Viro" <viro@zeniv.linux.org.uk>,
- "David Howells" <dhowells@redhat.com>, "Jan Kara" <jack@suse.cz>,
- "Chuck Lever" <chuck.lever@oracle.com>, "Jeff Layton" <jlayton@kernel.org>,
- "Miklos Szeredi" <miklos@szeredi.hu>, "Amir Goldstein" <amir73il@gmail.com>,
- "John Johansen" <john.johansen@canonical.com>,
- "Paul Moore" <paul@paul-moore.com>, "James Morris" <jmorris@namei.org>,
- "Serge E. Hallyn" <serge@hallyn.com>,
- "Stephen Smalley" <stephen.smalley.work@gmail.com>,
- "Darrick J. Wong" <djwong@kernel.org>
-Cc: linux-kernel@vger.kernel.org, netfs@lists.linux.dev,
- linux-fsdevel@vger.kernel.org, linux-nfs@vger.kernel.org,
- linux-unionfs@vger.kernel.org, apparmor@lists.ubuntu.com,
- linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Subject:
- Re: [PATCH v3 00/15] Further centralising of directory locking for name ops.
-In-reply-to: <20260224222542.3458677-1-neilb@ownmail.net>
-References: <20260224222542.3458677-1-neilb@ownmail.net>
-Date: Thu, 05 Mar 2026 12:24:38 +1100
-Message-id: <177267387855.7472.13497219877141601891@noble.neil.brown.name>
-Reply-To: NeilBrown <neil@brown.name>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CADHa2dAxVFQULCKnsjSmSPrK+VTJyyT-5P5BAYGdhO5wKDKqig@mail.gmail.com>
 
+On Thu, Feb 26, 2026 at 05:44:51PM -0800, Yan Yan via Devel wrote:
+> Hi Antony,
+> 
+> May I request that we also support updating the XFRMA_SET_MARK as part
+> of the new XFRM_MSG_MIGRATE_STATE message?
 
-Hi Christian,
- do you have thoughts about this series?  Any idea when you might have
- time to review and (hopefully) apply them?
+yes I can add that. I would add XFRMA_SET_MARK/XFRMA_SET_MARK_MASK together.  
+If you set only the SET_MARK mask will be 0xffffffff.
 
-Thanks,
-NeilBrown
+I am actually using xfrm_smark_init() which will accept both. 
 
+> In Android, the primary use case for migration is switching the
+> underlying physical network for an IPsec tunnel (e.g. VPN, Wifi
+> calling). Currently, due to the limits of XFRM_MSG_MIGRATE, we are
+> forced to use a separate UPDSA call to update the set-mark. Supporting
+> XFRMA_SET_MARK within the migrate message would allow us to update the
+> addresses and the routing mark together in one atomic call.
+>
+> Regarding the logic, I believe the set-mark can follow the same
+> omit-to-clear pattern as XFRMA_ENCAP and XFRMA_OFFLOAD_DEV.
+>
+>
+> What do you think?
 
-On Wed, 25 Feb 2026, NeilBrown wrote:
-> Following Chris Mason's tool-based review, here is v3 with some fixes.
-> Particularly 06/15 mistakenly tested the result of start_creating for NULL
-> and 09/15 had some really messed up flow in error handling.
-> Also human-language typos fixed.
->=20
-> This code is in=20
->   github.com:neilbrown/linux.git
->   branch pdirops
->=20
-> For anyone interested, my next batch is in branch pdirops-next
->=20
-> Original patch description below.
->=20
-> Thanks,
-> NeilBrown
->=20
-> I am working towards changing the locking rules for name-operations: locking
-> the name rather than the whole directory.
->=20
-> The current part of this process is centralising all the locking so that
-> it can be changed in one place.
->=20
-> Recently "start_creating", "start_removing", "start_renaming" and related
-> interaces were added which combine the locking and the lookup.  At that time
-> many callers were changed to use the new interfaces.  However there are sti=
-ll
-> an assortment of places out side of fs/namei.c where the directory is locked
-> explictly, whether with inode_lock() or lock_rename() or similar.  These we=
-re
-> missed in the first pass for an assortment of uninteresting reasons.
->=20
-> This series addresses the remaining places where explicit locking is
-> used, and changes them to use the new interfaces, or otherwise removes
-> the explicit locking.
->=20
-> The biggest changes are in overlayfs.  The other changes are quite
-> simple, though maybe the cachefiles changes is the least simple of those.
->=20
-> I'm running the --overlay tests in xfstests and nothing has popped yet.
-> I'll continue with this and run some NFS tests too.
->=20
-> Thanks for your review of these patches!
->=20
-> NeilBrown
->=20
->  [PATCH v3 01/15] VFS: note error returns in documentation for various
->  [PATCH v3 02/15] fs/proc: Don't lock root inode when creating "self"
->  [PATCH v3 03/15] VFS: move the start_dirop() kerndoc comment to
->  [PATCH v3 04/15] libfs: change simple_done_creating() to use
->  [PATCH v3 05/15] Apparmor: Use simple_start_creating() /
->  [PATCH v3 06/15] selinux: Use simple_start_creating() /
->  [PATCH v3 07/15] nfsd: switch purge_old() to use
->  [PATCH v3 08/15] VFS: make lookup_one_qstr_excl() static.
->  [PATCH v3 09/15] ovl: Simplify ovl_lookup_real_one()
->  [PATCH v3 10/15] cachefiles: change cachefiles_bury_object to use
->  [PATCH v3 11/15] ovl: pass name buffer to ovl_start_creating_temp()
->  [PATCH v3 12/15] ovl: change ovl_create_real() to get a new lock when
->  [PATCH v3 13/15] ovl: use is_subdir() for testing if one thing is a
->  [PATCH v3 14/15] ovl: remove ovl_lock_rename_workdir()
->  [PATCH v3 15/15] VFS: unexport lock_rename(), lock_rename_child(),
->=20
->=20
+good idea. I would try to test, otherwise please review/test this sepcific 
+part xfrm_smark_init() set 0/0 when there is no SET_MASK.
 
+Thanks.
+-antony
