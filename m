@@ -1,124 +1,116 @@
-Received: from flow-a5-smtp.messagingengine.com (flow-a5-smtp.messagingengine.com [103.168.172.140])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from sonic316-27.consmr.mail.ne1.yahoo.com (sonic316-27.consmr.mail.ne1.yahoo.com [66.163.187.153])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FFD41FF7B3;
-	Fri,  6 Mar 2026 21:16:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE8C33016E3
+	for <selinux@vger.kernel.org>; Fri,  6 Mar 2026 21:31:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.187.153
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772831785; cv=none; b=j5N1aU1JXZGRI10hRE+xSfpQ1Sd7LIJ5F4kE5l7bmYzxUhfLLbD4Wkg8AndmeL1MpCKrD3Z6ZqEYs1/CTP10KLnq9/c2HXm8ZuG4HgLf9031mpwT9yIvnpzHRzh+NzAc5RvK7b4wnB+r5C3FGgH1tTC5Ul7L7zaNscZSTQewmKE=
+	t=1772832717; cv=none; b=D/hxTcxc096gpjXznKu1F2SExHZ3qHoOVZ6UgHIDoHcNEIbFx2JgVa4eQXrni0gjrNNJ7BIgyljxK4x4FHMxL5WLRYn7VJ0M8HjBLki5ZJ6q0mF4tk0ut33ICjiV1hvseEnkuXO+0n9un+ai9HlPjwgytNPu53cnvXWsriUl77Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772831785; c=relaxed/simple;
-	bh=p8V4FHrQC4m8637OVnfjLNcJnocBX1xyNi6aeXzGHlI=;
-	h=Content-Type:MIME-Version:From:To:Cc:Subject:In-reply-to:
-	 References:Date:Message-id; b=sM29lII4JGX1mG/QMSmSxvHcldmdHqc/7PTXsUWFQrBqKjeJ01phGpw7Hrt/UBK5Rm9oymWoni+oNCUpo63ITZ1YEqKeKgjmrMD62HuidL1P+3OY6fspP3TmbpRrfYFt38LppgjCWer/vBQXiHcKYc9HfD+WLRI6qTvTJz5qroc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ownmail.net; spf=pass smtp.mailfrom=ownmail.net; dkim=pass (2048-bit key) header.d=ownmail.net header.i=@ownmail.net header.b=UVAQhacP; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=Vy0WAoWA; arc=none smtp.client-ip=103.168.172.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ownmail.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ownmail.net
+	s=arc-20240116; t=1772832717; c=relaxed/simple;
+	bh=DkhHXsS6gMF0c2zp638LypIrNx0MI8kizoulUI3kThc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=cVLONR8ifTyEoGB/2t+ItRSx6WxMybzJzhm6Tmb+2L4r8MrKxHpMBSVY10I8eC9UC2VWvNFcxgGhBbm83jX6RJ5xGK7o9Y1EGDUxNYbzrbqZpGkQoGU30yZ7Fbmt3n5yXxGlO6Ez2rr5cqpx+uwlpw+vcqcqrqNuRZgPLD4vKRs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=s5VRLBcT; arc=none smtp.client-ip=66.163.187.153
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ownmail.net header.i=@ownmail.net header.b="UVAQhacP";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="Vy0WAoWA"
-Received: from phl-compute-06.internal (phl-compute-06.internal [10.202.2.46])
-	by mailflow.phl.internal (Postfix) with ESMTP id 7C033138098B;
-	Fri,  6 Mar 2026 16:16:23 -0500 (EST)
-Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-06.internal (MEProxy); Fri, 06 Mar 2026 16:16:23 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ownmail.net; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:reply-to:subject:subject:to:to; s=fm1; t=
-	1772831783; x=1772838983; bh=Ab8MrdB2xn5ObAHYuc8S2EbzsQbqvnFcs2E
-	SbOGqQKc=; b=UVAQhacPc5XIYM9fEieLMrbbP4mz7xOBtKxVB+jA3mYd94wd+dF
-	jEXzQY3ONA0MGR3X5WwGY4b7q3XwxeFX3wq2coJUKuMI96TEIRRqFJ+/qNdjDNWv
-	Gd5FHc2PbfPSrd9O+gW0JjxQfKgvbV98ORq6w0G9LV4Wz418LzdeNcly0jWOCgqw
-	DJh1DbmjKcx/mEMpsLNvubkQonu2mWGxmt2mgSnuAgo9fz2MXyLLO/W6MXEP0/at
-	ESNsMh7IlfoSXol1+A5Ex7PhnyysuWIqn1IOSLvDFQwWeCeRU3haz3CvAr9+ifa0
-	23GiQZwCsMsd8eZnEJQjDWRuPrUvZsAxEyg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1772831783; x=
-	1772838983; bh=Ab8MrdB2xn5ObAHYuc8S2EbzsQbqvnFcs2ESbOGqQKc=; b=V
-	y0WAoWAK7T67vqma/jdF1OOgiymtNP7nJANg1VtrdE5A9t5fjGaHY1G5WZWPw9LC
-	UiAKagfYVdA4frDZhs56+nrazJiwuxj32lU8pX1X9X8raFvHJcQA7VqpX9L1pPph
-	NOk+XxSIeFJoj45+mUB9k4hl0A8dUFhMCEQpyvoNqSMl9wvELeh4PROXQ4y1vYP9
-	t1sB23ze6OXSU0MomtZcUvcbNSAvI4nnZPa1UJNUBS+lc/dIJpOw9jUyJfLvHm9t
-	TigJFbwN5k6U8BlRsbrrI7VJetauC4ewDNo/1G+5NqaJHVPNM4jcFUnnhMbeWtpM
-	vSfsxGoaLrqC+Bk1bDwLA==
-X-ME-Sender: <xms:JkSrafQhLITjPiq0amdhmpkUbxlxXCSbJ5MOMQyZYLD3hDiEgFk-Wg>
-    <xme:JkSraUv0ZaCvsdoVLliqEx6OVARx3ampkfHw1dOYOSfQlp_cM2YYaswN8z9nHJG-6
-    -wfvgocjC0P4YJaX0MLF8jyeqJjMQwnCjlNrvVA8VWKA0BF6g>
-X-ME-Received: <xmr:JkSradWlxWyX1LDdEVNr_gqJIbQypMFQscxHyziJ5Y-602V3lU_PrZTKVRqTO72vRywD61jqdDZ4QyBqx02GFPQKvWWviVoq1djZkcQ1hR-A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddvjedtfeehucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurheptgfgggfhvfevufgjfhffkfhrsehtjeertddttdejnecuhfhrohhmpefpvghilheu
-    rhhofihnuceonhgvihhlsgesohifnhhmrghilhdrnhgvtheqnecuggftrfgrthhtvghrnh
-    epudetfefhudevhedvfeeufedvffekveekgfdtfefggfekheejgefhteeihffggfelnecu
-    vehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepnhgvihhlsg
-    esohifnhhmrghilhdrnhgvthdpnhgspghrtghpthhtohepvddvpdhmohguvgepshhmthhp
-    ohhuthdprhgtphhtthhopehvihhrohesiigvnhhivhdrlhhinhhugidrohhrghdruhhkpd
-    hrtghpthhtohepshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphht
-    thhopehlihhnuhigqdhunhhiohhnfhhssehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtg
-    hpthhtoheplhhinhhugidqshgvtghurhhithihqdhmohguuhhlvgesvhhgvghrrdhkvghr
-    nhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhnfhhssehvghgvrhdrkhgvrhhnvg
-    hlrdhorhhgpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhn
-    vghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqfhhsuggvvhgvlhesvhhgvghrrdhkvg
-    hrnhgvlhdrohhrghdprhgtphhtthhopehmihhklhhoshesshiivghrvgguihdrhhhupdhr
-    tghpthhtohepjhgrtghksehsuhhsvgdrtgii
-X-ME-Proxy: <xmx:JkSraYkKXev7nWHoUUKReSkmUFpmphxn6OD05b8LjrKgcrxUQ9_7JQ>
-    <xmx:JkSraQDlKCGfhubivZyvPvLT40RSy0qS6U3eQy-tWOT86jED3JoiVQ>
-    <xmx:JkSrad-ScPeN4sl-OA9v-z2Mxc4yIE6WEbDzhlshfakRoInVDU8fkQ>
-    <xmx:JkSraSQJaJb6gkiuPjPftwxA1nSbRkeSmCnEylob_GFzeruPj3JPVA>
-    <xmx:J0SraZprheB4umpetfSLW72QN1aB3Al_WZnhyU5Cvq7SVszou5SM_T0h>
-Feedback-ID: i9d664b8f:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 6 Mar 2026 16:16:16 -0500 (EST)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="s5VRLBcT"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1772832715; bh=RWHa4kBONMFmFBcTzzY16yZMHVhKSyvVBBu97xTYIw8=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=s5VRLBcTi2v7eUhk6MztPblHTB6YPjKiDjjT4rwdZpK7UcmA7IYTI9St3mYDGRxlcs3ytAhdBww/z4kKYVYx4Rs0BM322ealuJ62E8dutQsZAQU9p2GOfD064Mh9bfr+lQh1p0MFYh4nr4NYTb1vcAfcBNWEPti/wbU4o9L69wWsqrXK+Wt9KsewajOh5V4idDDBOpp/n+YkX55/tO2DfF5ipnl8u+TDN4i9b5UXiW3YHvk/DoxZzNd/OP0qVMtEIl5yiAjWyCIz8m4U/MGwegp1dsYZYeqWv9ERaCWwnZgHWZkJyZu7Z3bfLXwyDpJL/tRdVvdfKU1esVeRbicPFg==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1772832715; bh=LtwAmCCmCcth0xZG2Nm5CX2tr+anM2dPej6Secig1k+=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=dhMRAlRPeIiKdOd1GEv1iD6CYzom+vp/GxwP35n9+yPb2iTP2CoetrXWPDSMSHoeRpVBPq65UxpSxdj29aaK0EBdX8ViC3ctB5OVIsl24hmLGYIvYftHyF1WEU6KAwGBHdGTSgLsPmjORkilj3kxyAWSoP3kMXwMDh8/yr1hQoQDnbSqU69IAYIbEZMSaNt+Pze9onp9yrp3zjfZqRrC6Lx1qQbrSuhtvFsWhlIj2j1WgMw2sLQS+RFKgwyY806bt3GdXZ0mwnH3dBHXmDyTXMxNdI2NLrfQTeUybMXXiShzHpEB4aZxBDHZFUqAbikRUxT4KX0dB2UnOPkXILwRvw==
+X-YMail-OSG: 7XhMbdIVM1ltSZv4p8H2w_MFMnrq45mp01GhhxDLn_JL8CnsKc7AqqetP.t6_6U
+ fPzHBV2KyUFNmUM_YULBvooxURlp3oml_3ytUKJDZs43MIvJmKV7Ph4UUi0K9T0.oLjhBdkElEwf
+ E_P7zyFiqC1tWuEw81lxh3CXuCRyFyukpLeOjABgsdYH0ywiny4Ww_.j.lzEbvf.3D0O9TLNIgZU
+ MCOgUHAJZxvLzDng_DSkB_K4y3RyO6rsU5ye_hggDLPggfwINgW4ebrEDXQ0owjk2_h3szCmBRlv
+ 9zulIniQcAO0aA1EAZwyNu76aTA0X9W_zIscqVLNG8rbydgFLGBHxT_eBObHpVQ9RNgLUtlq5cSG
+ StTdcASOZYxjkiD.Ycc0aDQgVnfYlayHckahVh750dVsFdYEzDNiwdJas4RtOltH1i.Q5ZDWH7.X
+ gItkhLFBTnKu4wwLv.pg4254Rf.yGlsnVXqBaNygOOV2PmJxXVDmYMLNcfWFQc4iTmEnscUW00ek
+ Nzp20mRWjJ1unjOqxHRWB1S9QhalJE.85Gyy1edZUKo15vxXz8ki3vNS8y4eLKBxGOUqHdG_5LsF
+ fNXmMTNwegPUzbqilKTliwF3MVcysPH0rD7sNQk6Ej1L9tTr64oNcFC5jlp51l.eF2FwiftVKX1_
+ kZerRN09oQ1kwNikUwlJb0GzNcjORnN3Ao7bzmydikm2uYxvhFNo07TPU_oAk6mfZ2paTaqBDs45
+ WNvoP3F5rG6w.sge2gTg5EP7QYchAHS6.CrRBrRddcBbQf36iSNMPasml5wYZrHkef8mABKqxpH8
+ SS.4zYlh5mOdQlB8F0B5C0Ci5sbFaNB4peOApgUg_AQlGJG4Occhp9zZXWcKotyHXBUgdchHCIt7
+ .B92ala0N2kyI5AprP7VX0O.rbwJQdiijVomI.FAroAW5L_tuzPMhGLIt6wm6luL10B4RheAeo3k
+ bzsFZ4kT1Gr1jhXwR8gDG_9jDzYsIcSfy__3KN1JdQFA7TuH6gFvkG3XLyemYb9tmOz4o0dHFHOC
+ 8pC.2nhFLhKJEG_DOeVGuaEekkCp7RhuB7C96jbdRbh.PnuhEQ8yky409qVqYiqQrcIgFqeUZrlz
+ CxOFif0BtXUUBBXQz8uHkkLTQdiUvd4sfBkPYcksUiMRL.g.KpurwM5D7AGA.qNkcCbCl..vdfvJ
+ w91.MsiKcUGMFnwQHOiuv.RVL_r.GvunFDVW2jAqk0H5qzQRk3iYi5p1hfAPE4aeJq9tFgqBVhIT
+ ipiERh79OOpBbR11UbePaVMwWRu9rszBq1xrZ6tVAFDfWHyjwr9wdXCCivZeYPJdX9eUwkZwwlR0
+ 6KYYCJ7S7Siny6xrYBbUPnHa4msTMrH3cH6lyuXQhe2qN7e_NUJ3rycAAgCFrNg4zmfUWD.Sv9n_
+ KP6Lq7TUOGUMVcbuDqRf86c9IT.vF7pm1mliwsKaB4YKpqZm1akkFN7WyI40GhCo9O4eNWFQfj1U
+ 9cTbH3N0b18RekyLlOK7Oha.rhx5mfkEmjSDJl0NGOT9rE65Ahn0Kg2l3PNbDUi.oMJolji9AvvG
+ HkxiS5qV9NcU2.Q17PLRBd7w5uKxG0ViTxi1NE0w38TtdLArPVrw.InWnDZu5.3cXIYxwhYf7mhE
+ 4Z61vdO_.1IHRlqSgXknIFMqa7mEOvCGelRRRuC0vK9nqFVsC4EQJeK0g4gCVKqN6iq90EPvEuiV
+ AA9cSDLLClcLfsnWqiHF0znr9fPtxrhrQKwDPkNAYM_ZtRFY0HO8Zngyz1RR4klyDAjKGFQhlGML
+ .cfHqmNSSy3n9s_0H1Ur2Ya7Y_GtUdhEvobToi_CDt1PKpOp_b.gB.5Ml9xJ.JG2BexFCfx7.ilO
+ OfABH2Vt4Gi4NB_dCLGfymBewQBPRz3E24m7YzRwC_EqgE4lRH.lg61HhoHymPFkB3.mdyzY5qBu
+ VDmlrSvO5bAErEpU2HZ5T6LVxlnx0xsqW7S_Eaoce.t5nVsddV5nJkJHa6z7KzDlEUvYnggNmykY
+ btBwhfuWnXFev9.eZ2MvLffYG4d1YAaBTH6_G19ziO1IWNLAiLBRQl8t3KIcfXvHaiPAUvy31NDd
+ VgCDCGaOAcRdG174otCPCBJxrP1IxQYkoOeLpn22YMokUav_fClQkuEUWKPGFPtokpduMJuJugRZ
+ u6khNvf0L4Ri6NSaWnMqdUgUZRKR3Vc3PGHZBySypl3mmkC84diZroWXdxBz4Rmq75q_fgfC_qm_
+ 1L3QilF5tf9rqa5cPnujQPek87B_jnQE5tuXu4.dWT0XUGCGENr7DCwGGvgzNCrSP9y5ln5pOi4U
+ wKUiga3S0oSjYQ08-
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: 089228bc-47ae-44c6-9a3a-c863a2947ce6
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Fri, 6 Mar 2026 21:31:55 +0000
+Received: by hermes--production-gq1-6dfcf9f8b-m4k66 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID b49a5db42688b0ae6e7eb7714645b814;
+          Fri, 06 Mar 2026 21:01:33 +0000 (UTC)
+Message-ID: <ae5e9c1b-d0cd-476b-87d2-70c0bc8ba09c@schaufler-ca.com>
+Date: Fri, 6 Mar 2026 13:01:31 -0800
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: NeilBrown <neilb@ownmail.net>
-To: "Christian Brauner" <brauner@kernel.org>
-Cc: "Alexander Viro" <viro@zeniv.linux.org.uk>,
- "David Howells" <dhowells@redhat.com>, "Jan Kara" <jack@suse.cz>,
- "Chuck Lever" <chuck.lever@oracle.com>, "Jeff Layton" <jlayton@kernel.org>,
- "Miklos Szeredi" <miklos@szeredi.hu>, "Amir Goldstein" <amir73il@gmail.com>,
- "John Johansen" <john.johansen@canonical.com>,
- "Paul Moore" <paul@paul-moore.com>, "James Morris" <jmorris@namei.org>,
- "Serge E. Hallyn" <serge@hallyn.com>,
- "Stephen Smalley" <stephen.smalley.work@gmail.com>,
- "Darrick J. Wong" <djwong@kernel.org>, linux-kernel@vger.kernel.org,
- netfs@lists.linux.dev, linux-fsdevel@vger.kernel.org,
- linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org,
- apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
- selinux@vger.kernel.org
-Subject:
- Re: [PATCH v3 00/15] Further centralising of directory locking for name ops.
-In-reply-to: <20260306-wildfremd-wildfremd-43848a9e91cd@brauner>
-References: <20260224222542.3458677-1-neilb@ownmail.net>,
- <177267387855.7472.13497219877141601891@noble.neil.brown.name>,
- <20260306-wildfremd-wildfremd-43848a9e91cd@brauner>
-Date: Sat, 07 Mar 2026 08:16:14 +1100
-Message-id: <177283177498.7472.3648884661239054468@noble.neil.brown.name>
-Reply-To: NeilBrown <neil@brown.name>
+User-Agent: Mozilla Thunderbird
+Subject: Re: LSM namespacing API
+To: "Dr. Greg" <greg@enjellic.com>, Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>,
+ Ondrej Mosnacek <omosnace@redhat.com>,
+ linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+ John Johansen <john.johansen@canonical.com>
+References: <CAHC9VhRGMmhxbajwQNfGFy+ZFF1uN=UEBjqQZQ4UBy7yds3eVQ@mail.gmail.com>
+ <CAHC9VhTeVs7kS9hzukukZRfGu6CC6=Dq4KP69tpEtiFpBJ+jOQ@mail.gmail.com>
+ <CAEjxPJ4urh7mUbDJEi-DbdiAifMM_uDH3m35tLeTdx6z+qhPyg@mail.gmail.com>
+ <CAHC9VhTGruOPJ+NWZT8vw1bjXzkB4DSPFmWd1pC=J2jTYHP5BA@mail.gmail.com>
+ <20260306174815.GA9953@wind.enjellic.com>
+Content-Language: en-US
+From: Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <20260306174815.GA9953@wind.enjellic.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebService/1.1.25198 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-On Fri, 06 Mar 2026, Christian Brauner wrote:
-> On Thu, Mar 05, 2026 at 12:24:38PM +1100, NeilBrown wrote:
-> > 
-> > Hi Christian,
-> >  do you have thoughts about this series?  Any idea when you might have
-> >  time to review and (hopefully) apply them?
-> 
-> Sorry, for the delay I picked it up but have two minor comments.
-> 
+On 3/6/2026 9:48 AM, Dr. Greg wrote:
+> On Tue, Mar 03, 2026 at 11:46:53AM -0500, Paul Moore wrote:
+>
+> Good morning, I hope the week is winding down well for everyone.
+>
+>> On Tue, Mar 3, 2026 at 8:30???AM Stephen Smalley
+>>> I think my only caveat here is that your proposal is quite a bit more
+>>> complex than what I implemented here:
+>>> [1] https://lore.kernel.org/selinux/20251003190959.3288-2-stephen.smalley.work@gmail.com/
+>>> [2] https://lore.kernel.org/selinux/20251003191328.3605-1-stephen.smalley.work@gmail.com/
+>>> and I'm not sure the extra complexity is worth it.
+>>>
+>>> In particular:
+>>> 1. Immediately unsharing the namespace upon lsm_set_self_attr() allows
+>>> the caller to immediately and unambiguously know if the operation is
+>>> supported and allowed ...
+>> Performing the unshare operation immediately looks much less like a
+>> LSM attribute and more like its own syscall.  That isn't a problem
+>> in my eyes, it just means if this is the direction we want to go we
+>> should implement a lsm_unshare(2) API, or something similar.
+> Stephen's take on this is correct, the least complicated path forward
+> is a simple call, presumably lsm_unshare(2), that instructs the LSM(s)
+> to carry out whatever is needed to create a new security namespace.
+>
+> There are only two public implementations of what can be referred to
+> as major security namespacing efforts; Stephen's work with SeLinux and
+> our TSEM implementation.
 
-Thanks!  I'll take a little while to examine the cachefiles code.
-Thanks for the thorough review!
+Please be just a tiny bit careful before you make this sort of assertion:
 
-NeilBrown
+	https://lwn.net/Articles/645403/
+
