@@ -1,180 +1,144 @@
-Received: from wind.enjellic.com (wind.enjellic.com [67.230.224.160])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id E13E234B662;
-	Fri,  6 Mar 2026 18:08:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.230.224.160
+Received: from flow-a5-smtp.messagingengine.com (flow-a5-smtp.messagingengine.com [103.168.172.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFDD0377029;
+	Fri,  6 Mar 2026 21:13:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772820539; cv=none; b=tasmeYJmbEtZXUqP9qdSja7P6ZU8zEtk0jxxqoTRE9C4VQ1Dyj8RuRjNf4i6oeS2yUssMPdgwxBreWp0o27F6HOdArvJAlosyQJmPHQxVpfw8Co0FtlzkQx7mkoiCZmzYHEVDkxnfV3e7paR6Rj5kfjPW4nwc29MJcDIJnYBEIE=
+	t=1772831584; cv=none; b=XFnUoSWXPP6kRf5qKtlTyzjCEQTi7AelXL3KiIFeVG1SpxpwL+A34cRVQU78YnFdNBOX5dR92AVyRvn62896TdBAo8SHif4QRaIoLJAHf3VwaCmfXwav05SJ6OM2uDpt0I6RWJKzMxVzC2WX1M6rBX7hjYYGbHpD3mlJX69H9Fk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772820539; c=relaxed/simple;
-	bh=PoW2Hmsa3XJr2dYEOm5XJGVqWQqGKLvCDFKjYYNzGWE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Mime-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FtSwdhU2M+vgleuT6w8EI0RRwoA5SKsNlaHxxjxh9+sxon8y8bS3+txCknMJZrArH4nmjSrECbG0UwPuafG2EaQDRJ7tArJgmGfP0l6ohjE4HEiZUcbpDR15OWBGvaVlemOUXyKqeSpijQErj1GvUr5nSG1mDAkBrsMJcy1NzME=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=enjellic.com; spf=pass smtp.mailfrom=wind.enjellic.com; arc=none smtp.client-ip=67.230.224.160
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=enjellic.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wind.enjellic.com
-Received: from wind.enjellic.com (localhost [127.0.0.1])
-	by wind.enjellic.com (8.15.2/8.15.2) with ESMTP id 626HmJCB010007;
-	Fri, 6 Mar 2026 11:48:19 -0600
-Received: (from greg@localhost)
-	by wind.enjellic.com (8.15.2/8.15.2/Submit) id 626HmFf3010004;
-	Fri, 6 Mar 2026 11:48:15 -0600
-Date: Fri, 6 Mar 2026 11:48:15 -0600
-From: "Dr. Greg" <greg@enjellic.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        John Johansen <john.johansen@canonical.com>
-Subject: Re: LSM namespacing API
-Message-ID: <20260306174815.GA9953@wind.enjellic.com>
-Reply-To: "Dr. Greg" <greg@enjellic.com>
-References: <CAHC9VhRGMmhxbajwQNfGFy+ZFF1uN=UEBjqQZQ4UBy7yds3eVQ@mail.gmail.com> <CAHC9VhTeVs7kS9hzukukZRfGu6CC6=Dq4KP69tpEtiFpBJ+jOQ@mail.gmail.com> <CAEjxPJ4urh7mUbDJEi-DbdiAifMM_uDH3m35tLeTdx6z+qhPyg@mail.gmail.com> <CAHC9VhTGruOPJ+NWZT8vw1bjXzkB4DSPFmWd1pC=J2jTYHP5BA@mail.gmail.com>
+	s=arc-20240116; t=1772831584; c=relaxed/simple;
+	bh=kjmPUaFdMQaOpT6T4pJliZ8LP9HIoceT2uUfixiPc3o=;
+	h=Content-Type:MIME-Version:From:To:Cc:Subject:In-reply-to:
+	 References:Date:Message-id; b=shUYbSHEOmZaN1kznJyVT2vnHxZa3fsU5/m6T95SiD2Fn7kq0q4l9+ILnIJeJlxahlpChtscmObA2ehBfR0u1V5I5QqZ04yF6dfFnWsEiBwt5Cbg0mjj5f21jp15C/ZgmwviFjxyaq+PWvgiGfXTqWjH1NVXJyy5oVV8/AA/T5o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ownmail.net; spf=pass smtp.mailfrom=ownmail.net; dkim=pass (2048-bit key) header.d=ownmail.net header.i=@ownmail.net header.b=HlxTIAze; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=Ta2Ad3ig; arc=none smtp.client-ip=103.168.172.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ownmail.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ownmail.net
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ownmail.net header.i=@ownmail.net header.b="HlxTIAze";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="Ta2Ad3ig"
+Received: from phl-compute-06.internal (phl-compute-06.internal [10.202.2.46])
+	by mailflow.phl.internal (Postfix) with ESMTP id 079EF1380802;
+	Fri,  6 Mar 2026 16:13:02 -0500 (EST)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-06.internal (MEProxy); Fri, 06 Mar 2026 16:13:02 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ownmail.net; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:reply-to:subject:subject:to:to; s=fm1; t=
+	1772831582; x=1772838782; bh=SUz8M1egzctlh1WXyoTdVp/oTcO7/zgWIgK
+	98brzsm4=; b=HlxTIAzeLS2uNNVP+RhNxfBe+oZpDrCU4n70ZiojrnYqFeFbIM7
+	uAz2lCKYh1dAymJFvhnBTsBgyEt+dmuY41WMv8rp7n0lDXIt+7r4NxFcn/tPz833
+	QG0yH8lHIFYL3mhBfIAy72GQlEO33gH0pjqlR2D8mgBti69354Pp7B73Vmw7XWa4
+	Zp3LdOKao48M2COj5V5ffdNHBKxXnvMUZvcgMdb/c6nZkA8hDiwy9DnqsJnoIf9a
+	HgRT5JB6VIqIUWVEMIJblkbADV7CLltVMf0e22zae31NU0zlq6RsTdMH1XEszwMK
+	3rcPPF2t0dgeYbG4mxDdStPempiEi0PLn5Q==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1772831582; x=
+	1772838782; bh=SUz8M1egzctlh1WXyoTdVp/oTcO7/zgWIgK98brzsm4=; b=T
+	a2Ad3ig3nQaJ45wPtCUpa0DzgXbM3NSNcxG/j9dA2aOzd1ybn6RvWA3lhj6rdaK2
+	ilp9E6GRTPZDvfarKILUN341YIMkCy5f2ASgf49qPW1Uw7YVoF6GtOjW7tTOr0sl
+	us7U4Ekty5uwdZAcvFe0uW8FT0EX8dqJgmhvgjOusmrlz9RVpzOL8vB8QuJTzi13
+	bDBlokf2tdXv9RCgVUvSz33n8s1N489VTANDALSXFaT1amXae1LMlh17bhePcsSV
+	Vq2/x9zwasamvDKfLWEWq97XQPXuZUJfYv1bICYbcCLlJqpgwKYCpSy1NgFLoMma
+	y2zapZ3xdmM7S+DTAS8GQ==
+X-ME-Sender: <xms:XUOraZKmAHFhOFLXtoq1DnCXSe4kN_oyU5asJsD7r8s_WLkFo5yLtg>
+    <xme:XUOraZFfsKsS5Bm-1qYg7nTzBwR__oF37VwH6npkTm08xdxkcSrEbzrDvJpbEB8i7
+    2ztHcrpTcfe-f4DImJcbPTyRoYb8eqMyqcazsUQWIrmGlP3Zg>
+X-ME-Received: <xmr:XUOraaM2XrAU1gJY5t1PIsX89jcVHFJfEXO_Ok2AbUIhVYVbw_bctxxLSQH8UBSb6Qzje2l_AcE3nQ4pDhuO_XKgOjpMqFxfx0_KrO6tJKxt>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddvjedtfeegucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurheptgfgggfhvfevufgjfhffkfhrsehtjeertddttdejnecuhfhrohhmpefpvghilheu
+    rhhofihnuceonhgvihhlsgesohifnhhmrghilhdrnhgvtheqnecuggftrfgrthhtvghrnh
+    epudetfefhudevhedvfeeufedvffekveekgfdtfefggfekheejgefhteeihffggfelnecu
+    vehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepnhgvihhlsg
+    esohifnhhmrghilhdrnhgvthdpnhgspghrtghpthhtohepvddvpdhmohguvgepshhmthhp
+    ohhuthdprhgtphhtthhopehvihhrohesiigvnhhivhdrlhhinhhugidrohhrghdruhhkpd
+    hrtghpthhtohepshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphht
+    thhopehlihhnuhigqdhunhhiohhnfhhssehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtg
+    hpthhtoheplhhinhhugidqshgvtghurhhithihqdhmohguuhhlvgesvhhgvghrrdhkvghr
+    nhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhnfhhssehvghgvrhdrkhgvrhhnvg
+    hlrdhorhhgpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhn
+    vghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqfhhsuggvvhgvlhesvhhgvghrrdhkvg
+    hrnhgvlhdrohhrghdprhgtphhtthhopehmihhklhhoshesshiivghrvgguihdrhhhupdhr
+    tghpthhtohepjhgrtghksehsuhhsvgdrtgii
+X-ME-Proxy: <xmx:XUOraT_GU-eRpH9KjbQUxaeFH3Ik-X2YnIknIPEpYLe3LAAFu5cuMg>
+    <xmx:XUOraX5VpPUBfROPEJ8o3FBE6KmlXfSQKgogNn2tecZhXCtQc5cxEA>
+    <xmx:XUOraYWsOE9k6kp7pvWeY0jS8GZtsY7Dxvg3Yw3BK7Mbj8qd82IZvg>
+    <xmx:XUOradIYrlYpCmTlBrPeFiMRjUCjvZcXllQ0Dos_cDuzwpR0fIUA1Q>
+    <xmx:XkOraXAuoiNIIXbw0nIirtgzAtoSS2j1NQ5_WUd18Tl9iwt-WLLSABX7>
+Feedback-ID: i9d664b8f:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 6 Mar 2026 16:12:55 -0500 (EST)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHC9VhTGruOPJ+NWZT8vw1bjXzkB4DSPFmWd1pC=J2jTYHP5BA@mail.gmail.com>
-User-Agent: Mutt/1.4i
-X-Greylist: Sender passed SPF test, not delayed by milter-greylist-4.2.3 (wind.enjellic.com [127.0.0.1]); Fri, 06 Mar 2026 11:48:19 -0600 (CST)
+MIME-Version: 1.0
+From: NeilBrown <neilb@ownmail.net>
+To: "Christian Brauner" <brauner@kernel.org>
+Cc: "Alexander Viro" <viro@zeniv.linux.org.uk>,
+ "David Howells" <dhowells@redhat.com>, "Jan Kara" <jack@suse.cz>,
+ "Chuck Lever" <chuck.lever@oracle.com>, "Jeff Layton" <jlayton@kernel.org>,
+ "Miklos Szeredi" <miklos@szeredi.hu>, "Amir Goldstein" <amir73il@gmail.com>,
+ "John Johansen" <john.johansen@canonical.com>,
+ "Paul Moore" <paul@paul-moore.com>, "James Morris" <jmorris@namei.org>,
+ "Serge E. Hallyn" <serge@hallyn.com>,
+ "Stephen Smalley" <stephen.smalley.work@gmail.com>,
+ "Darrick J. Wong" <djwong@kernel.org>, linux-kernel@vger.kernel.org,
+ netfs@lists.linux.dev, linux-fsdevel@vger.kernel.org,
+ linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org,
+ apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
+ selinux@vger.kernel.org
+Subject: Re: [PATCH v3 05/15] Apparmor: Use simple_start_creating() /
+ simple_done_creating()
+In-reply-to: <20260306-fastnacht-kernig-3b350bd2fab0@brauner>
+References: <20260224222542.3458677-1-neilb@ownmail.net>,
+ <20260224222542.3458677-6-neilb@ownmail.net>,
+ <20260306-fastnacht-kernig-3b350bd2fab0@brauner>
+Date: Sat, 07 Mar 2026 08:12:50 +1100
+Message-id: <177283157032.7472.10017547355182129224@noble.neil.brown.name>
+Reply-To: NeilBrown <neil@brown.name>
 
-On Tue, Mar 03, 2026 at 11:46:53AM -0500, Paul Moore wrote:
-
-Good morning, I hope the week is winding down well for everyone.
-
-> On Tue, Mar 3, 2026 at 8:30???AM Stephen Smalley
-> > I think my only caveat here is that your proposal is quite a bit more
-> > complex than what I implemented here:
-> > [1] https://lore.kernel.org/selinux/20251003190959.3288-2-stephen.smalley.work@gmail.com/
-> > [2] https://lore.kernel.org/selinux/20251003191328.3605-1-stephen.smalley.work@gmail.com/
-> > and I'm not sure the extra complexity is worth it.
-> >
-> > In particular:
-> > 1. Immediately unsharing the namespace upon lsm_set_self_attr() allows
-> > the caller to immediately and unambiguously know if the operation is
-> > supported and allowed ...
-
-> Performing the unshare operation immediately looks much less like a
-> LSM attribute and more like its own syscall.  That isn't a problem
-> in my eyes, it just means if this is the direction we want to go we
-> should implement a lsm_unshare(2) API, or something similar.
-
-Stephen's take on this is correct, the least complicated path forward
-is a simple call, presumably lsm_unshare(2), that instructs the LSM(s)
-to carry out whatever is needed to create a new security namespace.
-
-There are only two public implementations of what can be referred to
-as major security namespacing efforts; Stephen's work with SeLinux and
-our TSEM implementation.  Given that both initiatives, which are
-significantly different, independently settled on the same approach
-seems to suggest it is a mechanism that enjoys successful field
-experience.
-
-The larger and more important question would seem to be what type of
-common namespace infrastructure actions would be amortizable across
-all the different types of security models that are supported by the
-LSM infrastructure.
-
-We haven't seen any further comments or patches out of what Christian
-and Lennart are attempting to implement with respect to the concept of
-a security namespace in order to support their Amutable initiative.
-It seems reasonable that one of the common pieces of infrastructure
-would be the allocation of a security namespace specific context of
-data, i.e. an LSM security blob, that Christian had proposed patches
-for.
-
-Given the potential security implications of creating a security
-namespace, we assume that the 'unshare' operation would call an LSM
-hook that interrogated the current LSM stack for permission to do so.
-
-For example, it would seem reasonable that the Lockdown LSM would want
-the ability to block attempts to create alternate security namespaces.
-
-> > 3. We don't need to introduce a new CLONE_* flag at all or introduce
-> > new or changed LSM hooks to clone/unshare,
+On Fri, 06 Mar 2026, Christian Brauner wrote:
+> On Wed, Feb 25, 2026 at 09:16:50AM +1100, NeilBrown wrote:
+> > From: NeilBrown <neil@brown.name>
+> > 
+> > Instead of explicitly locking the parent and performing a look up in
+> > apparmor, use simple_start_creating(), and then simple_done_creating()
+> > to unlock and drop the dentry.
+> > 
+> > This removes the need to check for an existing entry (as
+> > simple_start_creating() acts like an exclusive create and can return
+> > -EEXIST), simplifies error paths, and keeps dir locking code
+> > centralised.
+> > 
+> > Reviewed-by: Jeff Layton <jlayton@kernel.org>
+> > Signed-off-by: NeilBrown <neil@brown.name>
+> > ---
 > 
-> While I think we could get away with a new lsm_unshare(2) syscall, I
-> have zero interest in an lsm_clone(2) syscall.  If we do away with the
-> namespace related LSM attributes and rely entirely on a lsm_unshare(2)
-> syscall, would everyone be okay with that?
+> Fwiw, I think this fixes a reference count leak:
+> 
+> The old aafs_create returned dentries with refcount=2 (one from
+> lookup_noperm, one from dget in __aafs_setup_d_inode). The cleanup path
+> aafs_remove puts one reference leaving one reference that didn't get
+> cleaned up.
+> 
+> After your changes this is now correct as simple_done_creating() puts
+> the lookup reference.
+> 
 
-We assume that there is agreement on the fact that an orchestrator
-needs to have the ability to specify attributes or policy for the new
-namespace that is being created.
+Yes, I think you are correct.  I remember reviewing how ->dents was used
+to confirm that the new refcounting was correct.  I didn't notice at the
+time that the old was wrong.
 
-Given that, there will be a need to be able specify the
-characteristics that configure the new namespace which will go into
-effect, atomically, at the time the proposed lsm_unshare(s) system
-call executes.
-
-For example, now that IMA is an LSM, it would be reasonable to assume
-that the cryptographic hash function used for the integrity
-measurements could be specified as part of the namespace setup call
-for a new IMA namespace.
-
-> (I think we would still want/need the procfs API)
-
-That is only needed if there is a desire to support the ability of a
-process to enter a security namespace that it is not part of.
-
-That is potentially a useful feature, suffice it to say however, there
-are a host of issues involved with this.  We've had significant field
-experience with this concept and its implications, we don't get the
-sense that the mainline LSM's have had the opportunity to understand
-the implications of what this would mean.
-
-> > All that said, I'm willing to wire up the SELinux namespaces
-> > implementation to the proposed interface if someone implements the
-> > necessary plumbing, but I'm not sure it's better.
-
-> I'd really like to hear from some of the other LSMs before we start
-> diving into the code.  It may sound funny, but from my perspective
-> doing the work to get the API definition "right" is far more
-> important than implementing it.
-
-It isn't funny, it is pragmatic, particularily in this case.
-
-The primary challenge will be the tension that exists between the fact
-that there is no practical field experience with security namespacing,
-particularily with respect to its security implications, in the
-mainline kernel and the Linux userspace guarantee policy, that once an
-API/ABI becomes visible to userspace it cannot be changed.
-
-At this point in time the most basic and common security namespace
-infrastructure to get right and lay down would seem to be three fold:
-
-1.) A security check for whether or not namespace creation should be
-allowed.
-
-2.) The ability to specify characteristics of a new security namespace
-and to invoke those atomically when a process requests that a new
-security namespace be created.
-
-3.) Allocation of an LSM namespace 'blob' of memory that can be used
-to implement the security context for the new namespace.
-
-TSEM obviously isn't in the kernel, so understandably, our perspective
-may not hold much value in these quarters.
-
-It is, however, the most significant security namespace implementation
-that has been done for Linux, with respect to its scope and
-capabilities.  Perhaps most importantly, we have had ten years of
-experience dealing with all of these issues and their implications,
-particularly from a security perspective.
-
-Given that, we would be happy to test fire TSEM against any proposed
-infrastructure changes that focus on the generic needs of security
-namespacing.
-
-> paul-moore.com
-
-Have a good weekend.
-
-As always,
-Dr. Greg
-
-The Quixote Project - Flailing at the Travails of Cybersecurity
-              https://github.com/Quixote-Project
+Thanks,
+NeilBrown
