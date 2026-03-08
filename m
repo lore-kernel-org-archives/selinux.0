@@ -1,199 +1,171 @@
-Received: from oak.phenome.org (unknown [193.110.157.52])
+Received: from flow-a8-smtp.messagingengine.com (flow-a8-smtp.messagingengine.com [103.168.172.143])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B324B640;
-	Sun,  8 Mar 2026 14:43:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.110.157.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAAA22DC76A;
+	Sun,  8 Mar 2026 20:58:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.143
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772980993; cv=none; b=NpCDi9jJeuvoJWugDxMZ3AFJgbkPqBI2/8IrBPb1+OLKNzGHshdvcGqtd9ATFGDMPARjJ0XpfJE6hVGC+uustUdUyp19bOrslW0sXKRCRHSAOUdz68v16FeOdOiFAXxUfzJ7YOwtUlog0wCQepPK6KbzzCIy09vZGUJKJJA15Yw=
+	t=1773003493; cv=none; b=B297i3ac83a5LtfAnTu3QFoAx73NrDezv0WPCCdQDnNvZRRpKusj/PbsUypdprXyGYdwpq1rPQn+2EJM0tVq6GE6s+JcLapx1t7ZGNqeZFNMtElaPXZ/ZoTgvoQjgDVX3O1H5lFmDvTHelvofJDHjyWz5aHhtUmAYkiNOywHR8s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772980993; c=relaxed/simple;
-	bh=VHqO/1tDQXmHHWssGWnPwminlmEdPs2EWuCGTKD/2O8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ac5tZ7ijQOE+KWqG3y9E9SgEsBwAplC+K4sSKJiBQal3TEs3O3cvHX6Jl2nqqlrhEPqSjGRGJq71/hZKpmzydRIxw0ypNSxb0nJiGK8dR4JiaxwSeNAiVj/wbI/Iu5FMkD1ZgOiPQh8Ryd51vpOBzKioFwSSU8XmXDfgNJoBslI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=phenome.org; spf=pass smtp.mailfrom=phenome.org; dkim=pass (2048-bit key) header.d=phenome.org header.i=@phenome.org header.b=KJIwxlGW; arc=none smtp.client-ip=193.110.157.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=phenome.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=phenome.org
+	s=arc-20240116; t=1773003493; c=relaxed/simple;
+	bh=YvwnwHgyC3oEQa0I1j525crmDtzyCfGyFwtXdz585BU=;
+	h=Content-Type:MIME-Version:From:To:Cc:Subject:In-reply-to:
+	 References:Date:Message-id; b=JGIWJJs+q6wT81end9ZjfD6AqjuQ9n0tTyTG0nSJUtrnZ5xYp3HPxcYa5qYbDfuAo1+c067qa6AH9vbBSM1vfagItGITJjlWtnMdCZMnFx3vt09TEHahhYTFXJFZ17emeQj8GRz7WcMpAUa3YvQoL73sV65tfvajw6D2LRhFrhI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ownmail.net; spf=pass smtp.mailfrom=ownmail.net; dkim=pass (2048-bit key) header.d=ownmail.net header.i=@ownmail.net header.b=Nyy1fGep; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=GHGSibMw; arc=none smtp.client-ip=103.168.172.143
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ownmail.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ownmail.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=phenome.org header.i=@phenome.org header.b="KJIwxlGW"
-Authentication-Results: oak.phenome.org (amavisd); dkim=pass (2048-bit key)
- reason="pass (just generated, assumed good)" header.d=phenome.org
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=phenome.org; h=
-	in-reply-to:content-transfer-encoding:content-disposition
-	:content-type:content-type:mime-version:references:message-id
-	:subject:subject:from:from:date:date:received; s=oak1; t=
-	1772980982; x=1773844983; bh=VHqO/1tDQXmHHWssGWnPwminlmEdPs2EWuC
-	GTKD/2O8=; b=KJIwxlGWr5LFt8uufjFmkUMxMUJdgifZgVie/S1xutMWQuYpaVW
-	DGmlTDhevW/Mf3FGRyVaJdbzR7GCt6o6LiZaojlUTeibV0DFlIPJuaYiquTELZuL
-	7fzUDem+B7VW7yycml/nw2Laedy2EEP9AIDhyxgzwYt7b7KDCPX32w3rG5gnfpPa
-	Ecbsv6ut2knxGrqInsPq+ermsdohS/Q3cTCTBa6BWt35+YlVENNE/nZFmYqACzDc
-	fHvunwa5KuR+6JdvX3NDqGQtPr8fIXCIMzjXR81DLEUFFA4Nmek5khdptOMqRVaK
-	/KEzTdTVPvJRBeDZzv91uakPNPgyxbICyGg==
-X-Virus-Scanned: amavisd at oak.phenome.org
-Received: by oak.phenome.org (Postfix);
-	Sun, 08 Mar 2026 15:43:00 +0100 (CET)
-Date: Sun, 8 Mar 2026 15:42:58 +0100
-From: Antony Antony <antony@phenome.org>
-To: Yan Yan <evitayan@google.com>
-Cc: Sabrina Dubroca <sd@queasysnail.net>,
-	Antony Antony <antony.antony@secunet.com>,
-	Steffen Klassert <steffen.klassert@secunet.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>, netdev@vger.kernel.org,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Chiachang Wang <chiachangwang@google.com>, devel@linux-ipsec.org,
-	Simon Horman <horms@kernel.org>, Paul Moore <paul@paul-moore.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org,
-	selinux@vger.kernel.org, Nathan Harold <nharold@google.com>
-Subject: Re: [devel-ipsec] Re: [PATCH ipsec-next v5 8/8] xfrm: add
- XFRM_MSG_MIGRATE_STATE for single SA migration
-Message-ID: <aa2K8pXXipCH8cke@Antony2201.local>
-References: <cover.1769509130.git.antony.antony@secunet.com>
- <b7b1bee9456ac4ada8941c93c2cc17f07d0b1912.1769509131.git.antony.antony@secunet.com>
- <CADHa2dAxVFQULCKnsjSmSPrK+VTJyyT-5P5BAYGdhO5wKDKqig@mail.gmail.com>
- <aaF_SAQj4WT8jRaO@krikkit>
- <CADHa2dCF=Cq2SMYgjHcs71VedwYaDmUXPWnNbv=46+11Mz0otA@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=ownmail.net header.i=@ownmail.net header.b="Nyy1fGep";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="GHGSibMw"
+Received: from phl-compute-09.internal (phl-compute-09.internal [10.202.2.49])
+	by mailflow.phl.internal (Postfix) with ESMTP id E5D3B13808ED;
+	Sun,  8 Mar 2026 16:58:09 -0400 (EDT)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-09.internal (MEProxy); Sun, 08 Mar 2026 16:58:09 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ownmail.net; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:reply-to:subject:subject:to:to; s=fm1; t=
+	1773003489; x=1773010689; bh=+iypvS0zaTSKL0sJFSGnV+90rJ7NwnakODh
+	88UBVbxc=; b=Nyy1fGep1NAOdoC4ys0fihQQOAa4IL42zfq0IvtSw9HwYJLZAur
+	Ps92XTBfup1MiJY2jk4/AQz2th5KZLEBqfMaYNhvwb99g0LBwKnM8xUEEKXdgKTn
+	iEZgi2XRPUc5mOsju+U1SsZ0XuTk97e1G+TvaUs0UgEWuCEpGvKxHub7Fr8NzePQ
+	F6jc70Xi+GLzG48D6AKuJRyzr/qNVEz6PSACk6zG7NyURmA+z9W+GYGQUz9Sequ0
+	MDP8DWX9s7NcXZnQ17acBLw3uNCm42d4dV4qgFTfdT/1lWc1ZOIsJxzbxZXjIvWM
+	uVaaeebTvdn1kw4vaeRvQyoQY4+vkAqWiiQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1773003489; x=
+	1773010689; bh=+iypvS0zaTSKL0sJFSGnV+90rJ7NwnakODh88UBVbxc=; b=G
+	HGSibMweZXfcFPVEa8qTAg1920mH8b3M5plTJQ4y5f96lM0ypf27HM4c/UAySBmm
+	DZNhGy5ImsPGICRiTdhRP+TGXvBFmWPZY17dh7fXetsdhXCks4IMB/rP6iNp1iaU
+	LK91YfzxM0GOGNH9+s3glVWI7DpuSJrqrRuxGMPR04EVCO/4tRv4OyVYYCSthsLo
+	hVCdX/pAxOcMFN6CQkYecarwAp2sSGJQEDC2Nu+eqjJ5ZgA6455m7flLIqp54XFo
+	jil7fvItfzmz1OnLWw0UW+svzSwXlPLSAQBfEev4w8rFBaDivkzKy7ULy0nxmm+M
+	KgkBFxXdL2RO4I2Y5xVNQ==
+X-ME-Sender: <xms:3-KtaSVctBSQ0SV_4hXsjWRkglm51vBgsco7eLnJzRkXOELG71FzoQ>
+    <xme:3-KtaSjB2rGOr7OFkyfnq7Dp2t1nYH99sV9ZG2WLPsYFsLSdpnH6BKGWxcSwcl7o1
+    oNTwtE7rLcKtqp-tzupFwXpCKt77cRv4Z4yxSfn4e5V4MeQvxs>
+X-ME-Received: <xmr:3-Ktae5tS02XwBv-i39mfEyQVpaoQ-u3VFqQO8y4dRUul7KOwa5yqttp3ypt5BxZU3mf45hpnrzPGzLEU1_5oKoiZkHPceyr5LfUBLIaf1ix>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddvjeeivddvucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurheptgfgggfhvfevufgjfhffkfhrsehtqhertddttdejnecuhfhrohhmpefpvghilheu
+    rhhofihnuceonhgvihhlsgesohifnhhmrghilhdrnhgvtheqnecuggftrfgrthhtvghrnh
+    epffetfedvgeevjeelhffhkefgffejvddtvefftdegueeiveffjeeukeffkeefkefhnecu
+    ffhomhgrihhnpehmshhgihgurdhlihhnkhenucevlhhushhtvghrufhiiigvpedtnecurf
+    grrhgrmhepmhgrihhlfhhrohhmpehnvghilhgssehofihnmhgrihhlrdhnvghtpdhnsggp
+    rhgtphhtthhopedvvddpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtohepvhhirhhose
+    iivghnihhvrdhlihhnuhigrdhorhhgrdhukhdprhgtphhtthhopehsvghlihhnuhigsehv
+    ghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidquhhnihhonhhfsh
+    esvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhsvggtuhhr
+    ihhthidqmhhoughulhgvsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplh
+    hinhhugidqnhhfshesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhn
+    uhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlih
+    hnuhigqdhfshguvghvvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohep
+    mhhikhhlohhssehsiigvrhgvughirdhhuhdprhgtphhtthhopehjrggtkhesshhushgvrd
+    gtii
+X-ME-Proxy: <xmx:3-KtaS6zJduiAbAHq99KcsXa77lpCopPadKmwp3x8ZIfGmkzNTCohA>
+    <xmx:3-KtaUHxOA8u3U6E4eLAbRpC0yb57cCfAxRA4ha_pVtvmLiUgg9e7w>
+    <xmx:3-KtaYwwNGnKGgahf3vu9ylTclTI_dSyC-frB-eGtBIC_WzxhkiWWA>
+    <xmx:3-Ktac2Z1yfOcKeBZZnd8l7Su01udxDrDDt7_G5Nnt_T2jF2UNTW8g>
+    <xmx:4eKtaa8I7VALp6o1nHvBb2BSlMCJyvLkZlfOMwwpOLNHk0sla81lLmFr>
+Feedback-ID: i9d664b8f:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
+ 8 Mar 2026 16:58:01 -0400 (EDT)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CADHa2dCF=Cq2SMYgjHcs71VedwYaDmUXPWnNbv=46+11Mz0otA@mail.gmail.com>
-
-On Fri, Feb 27, 2026 at 03:14:21PM -0800, Yan Yan via Devel wrote:
-> > Anything that we leave as implicit copy will have to be "forever"
-> > implicitly copied with this new MIGRATE_STATE op -- unless we find a
-> > way to pass a new "clear these properties" flag (probably via a list
-> > of XFRMA_* attribute names)
-
-that is a limitation we should avoid. It would be nice to extend it
-over time. We have been there before and it is a pain point. So it is
-worth investigating alternatives if there is momentum here, otherwise
-I would keep it simple:)
-
-> That is true. I also have the concern that if all updatable attributes
-> follow the "omit-to-clear" pattern, we lose the extensibility. Thus
-> ideally we should switch to an "omit-to-inherit" model for some, if
-> not all, attributes to ensure that adding new SA properties doesn't
-> break backward compatibility.
-
-Here is my proposal. I extended the code and am testing it now; I hope
-to send out v6 soon.
-
-How would omit-to-inherit look in practice? Specify almost all XFRMA
-attributes supported in XFRM_MSG_NEWSA, minus some immutable ones.
-The immutable attributes that come to mind are:
-
-    - XFRMA_ALG_*      : crypto must not change during the life of an SA;
-                         also *swan userspace does not keep this in memory
-                         after the SA is installed, which is correct
-                         behaviour.
-    - XFRMA_SA_DIR     : direction is fixed at SA creation.
-    - XFRMA_SEC_CTX    : security context is immutable.
-
-currently supported attributes, using omit-to-inherit semantics:
-
-    sentinel value to clear, omit to inherit:
-    - XFRMA_ENCAP              : encap_type=0 to clear
-    - XFRMA_OFFLOAD_DEV        : ifindex=0 to clear
-
-omit to inherit; send attr with value 0/0 to clear:
-    - XFRMA_SET_MARK / XFRMA_SET_MARK_MASK
-    - XFRMA_MARK               : omit-to-inherit old_mark; note XFRMA_MARK
-                                 serves dual purpose -- old_mark in the
-                                 fixed header is the SA lookup key, and
-                                 XFRMA_MARK attribute sets the new mark.
-
-set to zero to move from NAT to no-NAT; inherit when absent:
-    - XFRMA_NAT_KEEPALIVE_INTERVAL
-    - XFRMA_MTIMER_THRESH
-
-omit to inherit; send 0 to clear:
-    - XFRMA_TFCPAD             : TFC padding
-    - XFRMA_SA_EXTRA_FLAGS     : e.g. DONT_ENCAP_DSCP, OSEQ_MAY_WRAP;
-                                 yes, these can change.
-    - XFRMA_IF_ID              : xfrm interface ID; relevant when the SA
-                                 moves to a different xfrm interface.
-    - XFRMA_COADDR             : Care-of Address (Mobile IPv6).
-
-    - XFRMA_REPLAY_ESN_VAL / XFRMA_REPLAY_VAL : may be later replay type 
-      should not change.
+From: NeilBrown <neilb@ownmail.net>
+To: "Christian Brauner" <brauner@kernel.org>
+Cc: "Alexander Viro" <viro@zeniv.linux.org.uk>,
+ "David Howells" <dhowells@redhat.com>, "Jan Kara" <jack@suse.cz>,
+ "Chuck Lever" <chuck.lever@oracle.com>, "Jeff Layton" <jlayton@kernel.org>,
+ "Miklos Szeredi" <miklos@szeredi.hu>, "Amir Goldstein" <amir73il@gmail.com>,
+ "John Johansen" <john.johansen@canonical.com>,
+ "Paul Moore" <paul@paul-moore.com>, "James Morris" <jmorris@namei.org>,
+ "Serge E. Hallyn" <serge@hallyn.com>,
+ "Stephen Smalley" <stephen.smalley.work@gmail.com>,
+ "Darrick J. Wong" <djwong@kernel.org>, linux-kernel@vger.kernel.org,
+ netfs@lists.linux.dev, linux-fsdevel@vger.kernel.org,
+ linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org,
+ apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
+ selinux@vger.kernel.org
+Subject: [PATCH] FIXUP: cachefiles: change cachefiles_bury_object to use
+ start_renaming_dentry()
+In-reply-to: <20260306-stolz-verzichten-2ee626da4503@brauner>
+References: <20260224222542.3458677-1-neilb@ownmail.net>,
+ <20260224222542.3458677-11-neilb@ownmail.net>,
+ <20260306-stolz-verzichten-2ee626da4503@brauner>
+Date: Mon, 09 Mar 2026 07:57:58 +1100
+Message-id: <177300347820.5556.314358492166337403@noble.neil.brown.name>
+Reply-To: NeilBrown <neil@brown.name>
 
 
-Basic migration supported via fixed header fields (new_* fields):
-    - src and dst address family
-    - src and/or dst address
-    - reqid
+From: NeilBrown <neil@brown.name>
 
-I also added old_mark to the SA lookup alongside the SPI, so the SA
-can be uniquely identified when marks are in use. XFRMA_MARK can then
-be used to set the new mark value independently.
+[[This fixup for f242581e611e in vfs/vfs-7.1.directory provides a new
+commit description has preserves the error returns and log message, and
+importantly calls cachefiles_io_error() in exactly the same
+circumstances as the original - thanks]]
 
-regards,
--antony
+Rather then using lock_rename() and lookup_one() etc we can use
+the new start_renaming_dentry().  This is part of centralising dir
+locking and lookup so that locking rules can be changed.
 
-> 
-> On Fri, Feb 27, 2026 at 3:26 AM Sabrina Dubroca <sd@queasysnail.net> wrote:
-> >
-> > 2026-02-26, 17:44:51 -0800, Yan Yan via Devel wrote:
-> > > Hi Antony,
-> > >
-> > > May I request that we also support updating the XFRMA_SET_MARK as part
-> > > of the new XFRM_MSG_MIGRATE_STATE message?
-> > >
-> > > In Android, the primary use case for migration is switching the
-> > > underlying physical network for an IPsec tunnel (e.g. VPN, Wifi
-> > > calling). Currently, due to the limits of XFRM_MSG_MIGRATE, we are
-> > > forced to use a separate UPDSA call to update the set-mark. Supporting
-> > > XFRMA_SET_MARK within the migrate message would allow us to update the
-> > > addresses and the routing mark together in one atomic call.
-> > >
-> > > Regarding the logic, I believe the set-mark can follow the same
-> > > omit-to-clear pattern as XFRMA_ENCAP and XFRMA_OFFLOAD_DEV.
-> >
-> > I think this raises a wider question: clearly definining and
-> > documenting which attributes need to be explicitly provided
-> > ("omit-to-clear" as you write), and which will be implicitly copied.
-> >
-> > Currently it looks like we copy:
-> >  - all the crypto stuff (aalg/aead/etc)
-> >  - security context stuff
-> >  - coaddr
-> >  - replay/replay_esn
-> >  - pcpu_num, if_id, tfcpad
-> >  - dir
-> >  - mark
-> >  - extra_flags
-> >
-> > but not
-> >  - nat_keepalive_interval
-> >  - offload
-> >  - encap
-> >
-> > [gathered from a quick read of xfrm_state_clone_and_setup + the
-> > definition of xfrma_policy]
-> >
-> > Anything that we leave as implicit copy will have to be "forever"
-> > implicitly copied with this new MIGRATE_STATE op -- unless we find a
-> > way to pass a new "clear these properties" flag (probably via a list
-> > of XFRMA_* attribute names), but then we could also implement that
-> > with the existing MIGRATE code.
-> >
-> > --
-> > Sabrina
-> 
-> 
-> 
-> --
-> --
-> Best,
-> Yan
-> -- 
-> Devel mailing list -- devel@lists.linux-ipsec.org
-> To unsubscribe send an email to devel-leave@lists.linux-ipsec.org
+Some error conditions are checked in start_renaming_dentry() but need to
+be re-checked when an error is reported to ensure correct handling.
+The check that ->graveyard is still d_can_lookup() is dropped as this
+was checked when ->graveyard was assigned, and it cannot be changed.
+
+Signed-off-by: NeilBrown <neil@brown.name>
+Link: https://patch.msgid.link/20260224222542.3458677-11-neilb@ownmail.net
+---
+ fs/cachefiles/namei.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
+
+diff --git a/fs/cachefiles/namei.c b/fs/cachefiles/namei.c
+index 3af42ec78411..c464c72a51cb 100644
+--- a/fs/cachefiles/namei.c
++++ b/fs/cachefiles/namei.c
+@@ -309,7 +309,26 @@ int cachefiles_bury_object(struct cachefiles_cache *cach=
+e,
+ 	rd.flags =3D 0;
+ 	ret =3D start_renaming_dentry(&rd, 0, rep, &QSTR(nbuffer));
+ 	if (ret) {
+-		cachefiles_io_error(cache, "Cannot lock/lookup in graveyard");
++		/* Some errors aren't fatal */
++		if (ret =3D=3D -EXDEV)
++			/* double-lock failed */
++			return ret;
++		if (d_unhashed(rep) || rep->d_parent !=3D dir || IS_DEADDIR(d_inode(rep)))=
+ {
++			/* the entry was probably culled when we dropped the parent dir
++			 * lock */
++			_leave(" =3D 0 [culled?]");
++			return 0;
++		}
++		if (ret =3D=3D -EINVAL || ret =3D=3D -ENOTEMPTY) {
++			cachefiles_io_error(cache, "May not make directory loop");
++			return -EIO;
++		}
++		if (ret =3D=3D -ENOMEM) {
++			_leave(" =3D -ENOMEM");
++			return -ENOMEM;
++		}
++
++		cachefiles_io_error(cache, "Lookup error %d", ret);
+ 		return -EIO;
+ 	}
+=20
+--=20
+2.50.0.107.gf914562f5916.dirty
+
