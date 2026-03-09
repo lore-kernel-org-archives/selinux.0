@@ -1,48 +1,48 @@
 Received: from mx1.secunet.com (mx1.secunet.com [62.96.220.36])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DE6535CB81;
-	Mon,  9 Mar 2026 18:45:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E92013ECBEA;
+	Mon,  9 Mar 2026 18:45:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.96.220.36
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773081947; cv=none; b=EjwOx9EuJ0pySUgCzVnTb3l7Beo0pXYQ3Lsw3epEW4LoH5Hq9CmoQEK/bXFXf1RUPL0rrbfsl2Dx38fFJD2Hnvtr3E1JR2t4C2D6J8LK9U9L36boa/fvjkLOPTFr0RypnBlhT6mBT+zAWhoy5CHKZRv6Z7Wp2Dg8cY5HIYRK/hc=
+	t=1773081957; cv=none; b=SheInSRxKy3zddlhq9+1QKFeaC2K+JA4rfQr2SuK/cYYhgqUH9EhafxfA6sKk8Bz9bOm2SDdiJzvnwHwxNuQX3Cx7emuZ7V/Cz5Hts8b001rJhmzTJ9tjkja2GcOJLUP63rX2oAtXe1eYKHpfS7f7c/47FYNsJBaiZ8r0We1JRI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773081947; c=relaxed/simple;
-	bh=wM6uobAnAoo5xQn4dIJ0SBIgrzWpN7p+zFnXk2g9xKo=;
+	s=arc-20240116; t=1773081957; c=relaxed/simple;
+	bh=Ilc0cZ4ZdMcO9ZbhLSwBoRO6ZeOpJyHVCLVkXaLuurM=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=P+nfl8w4NuFXcxLnkrm0YURMT0xHyFOxVZS4JbPKNbEcwjmbX1IgQ6o3m+899NTJCHBbA9jLlJVBSiCyIxniSfm6BH1ZZf9F5xc7Qx2Qp4VQSEcW1rPFieiwZxYDRuYA5OOFd8QxPF0AluahYWCrP+4icvHgtX1nGULu0LtjxHo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com; spf=pass smtp.mailfrom=secunet.com; dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b=WPsbTlVj; arc=none smtp.client-ip=62.96.220.36
+	 MIME-Version:Content-Type; b=UF1bA7tSJaIKg/jgTlR+zy6DmJOv3dGBy22vzKq8wyDkm5pm+iL7+XNJiJxGKCZr9NeTIdsgtp0FvzM//vTAr+yYgMNFSOQJU+QyvxKAmNaYdWHdqiT66LT/3IyxdfY/jXep4kthb6u9LAqOBQKPpdA1zOkNtUmt3SZLdbQzkpw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com; spf=pass smtp.mailfrom=secunet.com; dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b=R3+a195b; arc=none smtp.client-ip=62.96.220.36
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=secunet.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b="WPsbTlVj"
+	dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b="R3+a195b"
 Received: from localhost (localhost [127.0.0.1])
-	by mx1.secunet.com (Postfix) with ESMTP id 99733206DF;
-	Mon,  9 Mar 2026 19:45:44 +0100 (CET)
+	by mx1.secunet.com (Postfix) with ESMTP id 7A38D206DF;
+	Mon,  9 Mar 2026 19:45:54 +0100 (CET)
 X-Virus-Scanned: by secunet
 Received: from mx1.secunet.com ([127.0.0.1])
  by localhost (mx1.secunet.com [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ootJ5XkLFXiG; Mon,  9 Mar 2026 19:45:44 +0100 (CET)
+ with ESMTP id ZUEzoKh_hJox; Mon,  9 Mar 2026 19:45:54 +0100 (CET)
 Received: from EXCH-02.secunet.de (rl2.secunet.de [10.32.0.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mx1.secunet.com (Postfix) with ESMTPS id EAB57206D2;
-	Mon,  9 Mar 2026 19:45:43 +0100 (CET)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.secunet.com EAB57206D2
+	by mx1.secunet.com (Postfix) with ESMTPS id E4887206D2;
+	Mon,  9 Mar 2026 19:45:53 +0100 (CET)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.secunet.com E4887206D2
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=secunet.com;
-	s=202301; t=1773081944;
-	bh=ugjF8zLtHT+1aJu4bEmfiSl/JBIN5l5CeuLS252rV30=;
+	s=202301; t=1773081953;
+	bh=fTTx/UWXnuTyYhpaDBxeCcxbUeejTWlcGCeniaDAIck=;
 	h=From:To:CC:Subject:Date:In-Reply-To:References:From;
-	b=WPsbTlVjC6OIoI+nVFXl7gMl23AEK3DL0ZuSYOsnpv772V3jT3qY+2bmpOs9uprFy
-	 4G4fqEOvijlJnhiSAN+CZOOKtP6g82aQG9xhnBj+ryLdMP2A6dRYjo7MLWNxiUcFga
-	 rQq3PIeVXrRwHZEM7rmHaCp7YD3ldCpJSn/AJpL5hYb1VrPAOLGQwHQM/uYYFtyeBD
-	 B8gbohLQMQX0sg4Qlr2FPbhlK1FZ6ltTAb7N/EVWL41TnFjnWW0CKEEVDDZUR3Cjkq
-	 Z3hay6FTXaanY71M6G6XzJiFXbga8BkqWNbBFOxkLkk+G5/ZzxCP2P2pzlPsoJutkI
-	 tvAxrdJ41fLZg==
+	b=R3+a195bQi4xZVw+hrCebIoOpacsAS4guunHcOaaZs69SFRuc/6o05d8z2yJrgA9L
+	 qwsraNs53GP/Cnq6zljTQFQU4zFKCCO6RXvJ6H7KyvvWKbhdxD3y3KJFAJahIwVBmj
+	 llwxURZxTp36n4KLvR491uqQovw9xOAmX5Gzrhnz09c4ZT2JKrajZ8tU6S0OhEHtD8
+	 fY7WnMNI2/OaHfIhdQj26IRnZ1npjzj3EHzUBAb7q52fM1V/9WV4jKl3MkQTa0kQUV
+	 WJq5jVQF2deNYADWBzCXcNOsNsUimqNItmZj2mVpeOEYBKPi6LkxQqGmVzOgDOsFfn
+	 we6S38oVPzXHA==
 Received: from moon.secunet.de (172.18.149.1) by EXCH-02.secunet.de
  (10.32.0.172) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Mon, 9 Mar
- 2026 19:45:43 +0100
+ 2026 19:45:52 +0100
 From: Antony Antony <antony.antony@secunet.com>
 To: Antony Antony <antony.antony@secunet.com>, Steffen Klassert
 	<steffen.klassert@secunet.com>, Herbert Xu <herbert@gondor.apana.org.au>,
@@ -57,9 +57,9 @@ CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
 	<selinux@vger.kernel.org>, <linux-doc@vger.kernel.org>, Chiachang Wang
 	<chiachangwang@google.com>, Yan Yan <evitayan@google.com>,
 	<devel@linux-ipsec.org>
-Subject: [PATCH ipsec-next v6 02/14] xfrm: add extack to xfrm_init_state
-Date: Mon, 9 Mar 2026 19:45:29 +0100
-Message-ID: <migrate-state-v6-2-9df9764ddb9e@secunet.com>
+Subject: [PATCH ipsec-next v6 03/14] xfrm: allow migration from UDP encapsulated to non-encapsulated ESP
+Date: Mon, 9 Mar 2026 19:45:41 +0100
+Message-ID: <migrate-state-v6-3-9df9764ddb9e@secunet.com>
 X-Mailer: git-send-email 2.39.5
 In-Reply-To: <migrate-state-v6-0-9df9764ddb9e@secunet.com>
 References: <migrate-state-v6-0-9df9764ddb9e@secunet.com>
@@ -72,109 +72,46 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 X-Mailer: b4 0.14.2
 Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: EXCH-02.secunet.de (10.32.0.172) To EXCH-02.secunet.de
+X-ClientProxiedBy: EXCH-03.secunet.de (10.32.0.183) To EXCH-02.secunet.de
  (10.32.0.172)
 
-Add a struct extack parameter to xfrm_init_state() and pass it
-through to __xfrm_init_state(). This allows validation errors detected
-during state initialization to propagate meaningful error messages back
-to userspace.
+The current code prevents migrating an SA from UDP encapsulation to
+plain ESP. This is needed when moving from a NATed path to a non-NATed
+one, for example when switching from IPv4+NAT to IPv6.
 
-xfrm_state_migrate_create() now passes extack so that errors from the
-XFRM_MSG_MIGRATE_STATE path are properly reported. Callers without an
-extack context (af_key, ipcomp4, ipcomp6) pass NULL, preserving their
-existing behaviour.
+Only copy the existing encapsulation during migration if the encap
+attribute is explicitly provided.
+
+Note: PF_KEY's SADB_X_MIGRATE always passes encap=NULL and never
+supported encapsulation in migration. PF_KEY is deprecated and was
+in feature freeze when UDP encapsulation was added to xfrm.
 
 Signed-off-by: Antony Antony <antony.antony@secunet.com>
 ---
-v5->v6: added this patch
----
- include/net/xfrm.h    | 2 +-
- net/ipv4/ipcomp.c     | 2 +-
- net/ipv6/ipcomp6.c    | 2 +-
- net/key/af_key.c      | 2 +-
- net/xfrm/xfrm_state.c | 6 +++---
- 5 files changed, 7 insertions(+), 7 deletions(-)
+ net/xfrm/xfrm_state.c | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
-diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index 10d3edde6b2fa76af15eba562d2f583c4d689069..0c035955d87da289846fd3a9ad59ec4c8599eec9 100644
---- a/include/net/xfrm.h
-+++ b/include/net/xfrm.h
-@@ -1774,7 +1774,7 @@ u32 xfrm_replay_seqhi(struct xfrm_state *x, __be32 net_seq);
- int xfrm_init_replay(struct xfrm_state *x, struct netlink_ext_ack *extack);
- u32 xfrm_state_mtu(struct xfrm_state *x, int mtu);
- int __xfrm_init_state(struct xfrm_state *x, struct netlink_ext_ack *extack);
--int xfrm_init_state(struct xfrm_state *x);
-+int xfrm_init_state(struct xfrm_state *x, struct netlink_ext_ack *extack);
- int xfrm_input(struct sk_buff *skb, int nexthdr, __be32 spi, int encap_type);
- int xfrm_input_resume(struct sk_buff *skb, int nexthdr);
- int xfrm_trans_queue_net(struct net *net, struct sk_buff *skb,
-diff --git a/net/ipv4/ipcomp.c b/net/ipv4/ipcomp.c
-index 9a45aed508d193de4f443a58a4d41cc8f6f93c85..b1ea2d37e8c5df0616765ef50dee7536216809ac 100644
---- a/net/ipv4/ipcomp.c
-+++ b/net/ipv4/ipcomp.c
-@@ -77,7 +77,7 @@ static struct xfrm_state *ipcomp_tunnel_create(struct xfrm_state *x)
- 	memcpy(&t->mark, &x->mark, sizeof(t->mark));
- 	t->if_id = x->if_id;
- 
--	if (xfrm_init_state(t))
-+	if (xfrm_init_state(t, NULL))
- 		goto error;
- 
- 	atomic_set(&t->tunnel_users, 1);
-diff --git a/net/ipv6/ipcomp6.c b/net/ipv6/ipcomp6.c
-index 8607569de34f3af5aa6354bec28746388b5d0c0f..b340d67eb1d907905a29f23ed2ddf63d915a343e 100644
---- a/net/ipv6/ipcomp6.c
-+++ b/net/ipv6/ipcomp6.c
-@@ -95,7 +95,7 @@ static struct xfrm_state *ipcomp6_tunnel_create(struct xfrm_state *x)
- 	memcpy(&t->mark, &x->mark, sizeof(t->mark));
- 	t->if_id = x->if_id;
- 
--	if (xfrm_init_state(t))
-+	if (xfrm_init_state(t, NULL))
- 		goto error;
- 
- 	atomic_set(&t->tunnel_users, 1);
-diff --git a/net/key/af_key.c b/net/key/af_key.c
-index 571200433aa90c6fcab5779e3b0491e2ffe759bc..41afb9e82a586bfe796a9181273fd92a055166be 100644
---- a/net/key/af_key.c
-+++ b/net/key/af_key.c
-@@ -1283,7 +1283,7 @@ static struct xfrm_state * pfkey_msg2xfrm_state(struct net *net,
- 		}
- 	}
- 
--	err = xfrm_init_state(x);
-+	err = xfrm_init_state(x, NULL);
- 	if (err)
- 		goto out;
- 
 diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index 3ee92f93dbd2f3e3a8807b9cbd4d0a9880e5c9a4..86f21a19a0eed04325b2ea26b5fe4fbb3527b2e4 100644
+index 86f21a19a0eed04325b2ea26b5fe4fbb3527b2e4..20ebd10dbee5cf0ee29c81c9cc3839fb031597c2 100644
 --- a/net/xfrm/xfrm_state.c
 +++ b/net/xfrm/xfrm_state.c
-@@ -2143,7 +2143,7 @@ struct xfrm_state *xfrm_state_migrate(struct xfrm_state *x,
- 	if (!xc)
- 		return NULL;
+@@ -2008,14 +2008,8 @@ static struct xfrm_state *xfrm_state_clone_and_setup(struct xfrm_state *orig,
+ 	}
+ 	x->props.calgo = orig->props.calgo;
  
--	if (xfrm_init_state(xc) < 0)
-+	if (xfrm_init_state(xc, extack) < 0)
- 		goto error;
- 
- 	/* configure the hardware if offload is requested */
-@@ -3236,11 +3236,11 @@ int __xfrm_init_state(struct xfrm_state *x, struct netlink_ext_ack *extack)
- 
- EXPORT_SYMBOL(__xfrm_init_state);
- 
--int xfrm_init_state(struct xfrm_state *x)
-+int xfrm_init_state(struct xfrm_state *x, struct netlink_ext_ack *extack)
- {
- 	int err;
- 
--	err = __xfrm_init_state(x, NULL);
-+	err = __xfrm_init_state(x, extack);
- 	if (err)
- 		return err;
- 
+-	if (encap || orig->encap) {
+-		if (encap)
+-			x->encap = kmemdup(encap, sizeof(*x->encap),
+-					GFP_KERNEL);
+-		else
+-			x->encap = kmemdup(orig->encap, sizeof(*x->encap),
+-					GFP_KERNEL);
+-
++	if (encap) {
++		x->encap = kmemdup(encap, sizeof(*x->encap), GFP_KERNEL);
+ 		if (!x->encap)
+ 			goto error;
+ 	}
 
 -- 
 2.47.3
