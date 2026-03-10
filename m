@@ -1,317 +1,661 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f201.google.com (mail-pg1-f201.google.com [209.85.215.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A2403101CE;
-	Mon,  9 Mar 2026 20:50:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF4E5303A18
+	for <selinux@vger.kernel.org>; Tue, 10 Mar 2026 01:55:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773089429; cv=none; b=sMDYiC5z5bSouw68gXDQbLrjp+fGc6qGf9o8ZNhysFv49J0iyLguaDtu281ziuEgaBX8Nfa/WNmxD/VwPMydEb6DTsqS0yiPPYoEA1pQcC3RzimKK5N3B050vhZglPf20oNMeIs6OnADLmwC287PmI3UHzwY0LtSzqcz9GTsULc=
+	t=1773107713; cv=none; b=Zws4IXfCIwhmNl/mLfK06fYlBzGrBrssk+8ZOP+KEnDv67oKtvtmpb2G/O3faoSN5VZL8oIW9S5Z24QVfk08EGluXh+eOScPR+RTZ5VmVfMgAcDtEFYT/KToaC9uDx2tEq3ILDbeAsGJ8Bf1F243Ssvf2ExUlT6gXgausMX/B+8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773089429; c=relaxed/simple;
-	bh=dtJOBl9/lJmcpYvbt08qDt0E/SeVly7fcddIRcZqnXs=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=AJPVnNUdlca8x2O6/5aCP3oaGxrL924rQ+avQsGKoCk7UEbcP/78B/Ma/w/UvpTu/MY8J0lwzXC3KXVgF7RCOPZqQniU8i2eRjhEwWzcfthO2oTdrBbhkwYQGIjINlbvluOeoVtZ4CGOeOevXsn/jeTF0tlDqfPVqoRdvJZ9vmY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GN2SfUIA; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773107713; c=relaxed/simple;
+	bh=n6dkxvgnNQw19HnbZvy2PRtBnBGQ5adEXgGHBER1hs0=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=nTLlgU9ItkPgLwZ8bZ3YFzIkUqFGP4US2D6ba6FIKoar3Ff7m7TkKDzyMy3H3y79M79thzAVORBLyQCA+Thb3mV0z/MQVgVz25UEu0IFbQoGiG3ZDsWQwzbITkJrghatC9vqbpPUZpdiuILk9HLV91S7gvpGuHmhQkeF3iqivT4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=yTBFZgOH; arc=none smtp.client-ip=209.85.215.201
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GN2SfUIA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A60CEC4CEF7;
-	Mon,  9 Mar 2026 20:50:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773089428;
-	bh=dtJOBl9/lJmcpYvbt08qDt0E/SeVly7fcddIRcZqnXs=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-	b=GN2SfUIAcDhD4LMxiprRsW1sf9W9hWt/GriG8kxe1xaqweJf5Ad0KV2IQqbnKeTyL
-	 wWgNTFwCzpkw1wLZNbhHc+2MqKf/Z5AfIr4lf142GsKzSa2EBP7p7YMVUIwha2Toyp
-	 QeAdfA46F5M9KdAZ9NqbfwqR7WLYOKZp6BuhnBmCp93RoSkDgeQX6CfOQF/qXKKRkC
-	 tUICS2GIaGfT5Wif6XTDVX9vS/5QIFO6tWNB5fBJfpBKaJ+v9nPTCcYqnFcfZEqzL7
-	 BYgvspEDX+I9WWwoK4CrNBKnM/WSG7vQmkbE1cvlYpnfpqrD0OjbUjRZq5pDVtqLDe
-	 0gLIDSTfrP25g==
-Message-ID: <71ea5f9ce0f0013f914fcd5fb87bdeb1646143cf.camel@kernel.org>
-Subject: Re: [PATCH v3 00/12] vfs: change inode->i_ino from unsigned long to
- u64
-From: Jeff Layton <jlayton@kernel.org>
-To: Mimi Zohar <zohar@linux.ibm.com>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, nvdimm@lists.linux.dev, 
-	fsverity@lists.linux.dev, linux-mm@kvack.org, netfs@lists.linux.dev, 
-	linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, 
-	linux-nfs@vger.kernel.org, linux-cifs@vger.kernel.org, 
-	samba-technical@lists.samba.org, linux-nilfs@vger.kernel.org, 
-	v9fs@lists.linux.dev, linux-afs@lists.infradead.org,
- autofs@vger.kernel.org, 	ceph-devel@vger.kernel.org,
- codalist@coda.cs.cmu.edu, ecryptfs@vger.kernel.org, 
-	linux-mtd@lists.infradead.org, jfs-discussion@lists.sourceforge.net, 
-	ntfs3@lists.linux.dev, ocfs2-devel@lists.linux.dev,
- devel@lists.orangefs.org, 	linux-unionfs@vger.kernel.org,
- apparmor@lists.ubuntu.com, 	linux-security-module@vger.kernel.org,
- linux-integrity@vger.kernel.org, 	selinux@vger.kernel.org,
- amd-gfx@lists.freedesktop.org, 	dri-devel@lists.freedesktop.org,
- linux-media@vger.kernel.org, 	linaro-mm-sig@lists.linaro.org,
- netdev@vger.kernel.org, 	linux-perf-users@vger.kernel.org,
- linux-fscrypt@vger.kernel.org, 	linux-xfs@vger.kernel.org,
- linux-hams@vger.kernel.org, linux-x25@vger.kernel.org, 
-	audit@vger.kernel.org, linux-bluetooth@vger.kernel.org, 
-	linux-can@vger.kernel.org, linux-sctp@vger.kernel.org, bpf@vger.kernel.org
-Date: Mon, 09 Mar 2026 16:50:22 -0400
-In-Reply-To: <0bd92b4fce00a6111a0fc7764904f7e6ae0ece3a.camel@linux.ibm.com>
-References: <20260304-iino-u64-v3-0-2257ad83d372@kernel.org>
-					 <05b5d55c49b5a1bbc43a5315e3c84872e7e634b3.camel@linux.ibm.com>
-				 <f22758116dabd3c135a833bcb5cfcd2ea4f6ecf4.camel@kernel.org>
-			 <c9500adc562665d44feaca9206f23a5ba07432c1.camel@linux.ibm.com>
-		 <dd3f9873c7939fba0ca2366effd24e4b6326f17b.camel@kernel.org>
-	 <0bd92b4fce00a6111a0fc7764904f7e6ae0ece3a.camel@linux.ibm.com>
-Autocrypt: addr=jlayton@kernel.org; prefer-encrypt=mutual;
- keydata=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
- QZIQXVeAA+smfTT0tDrisj1U5x6ZB9b3nBg65kc=
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="yTBFZgOH"
+Received: by mail-pg1-f201.google.com with SMTP id 41be03b00d2f7-c738662b963so3478373a12.0
+        for <selinux@vger.kernel.org>; Mon, 09 Mar 2026 18:55:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1773107706; x=1773712506; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=VmrS/WCqsOsYbR/mhEwjI+rSEHSa3cBWLgjuR1fKT1w=;
+        b=yTBFZgOHD9oIWozvn2ITJkhWi9K4cx8StuygehrBfL8NvkQKH+FUP951piBQBuY1rK
+         t61PhNVFgwMh8DsWUGyvbZvaVsjMJgl7bLxZf4Ira+u3PjrJkSTE3hZZkDRp903V6L7J
+         MJevIUJdB6knvmTEl8dR7wtaWzJOYj1Yd9UyRa/KzW8gnCviBcfKB77A8UGTeyZJNZOK
+         NdgR3wTJl25jixJEjHD6NGVLo43VcjsOonW5jZxbyrkO9FPl4EcKkNDiL1m1iK5c3kZ4
+         NG3SvzCiTSNuLKYA4m2MoFL+OgOJz61hPgihFAe13rdifLh7fT+gHcXE6o7tmUTslZEp
+         QyFA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773107706; x=1773712506;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=VmrS/WCqsOsYbR/mhEwjI+rSEHSa3cBWLgjuR1fKT1w=;
+        b=vVNVJ6nWsGmhmRJ1ZhsyeBy1GVzLqyS1ckcbj3GvgZM5v8WemqUIoacZs3shXcRcMM
+         +mjG9Zm3dgawENoPnTEseN5Q8clwtjZP3rUQcQGgm/tY2YWgEI7wInjvlytwpC9N1NJX
+         1xUZeP5eFrFfV/8R6hFvTXGBHso3eXkbypm7kjw4eIB2KbyqZlp5g3l6Uoli0KtoI9DU
+         mrmzjXLE70JZzQ7uElICmaoCOJ6cH6YYbm90GZKGm97TcDwyXy+dH6GvsPL6GzKiFDbb
+         opNYqrl/ql9miQ0HRO1AldU5SaOQTuDaNuqfzr1a35vDMuiz1IUJpn/V7nb2z9YQuMul
+         THnw==
+X-Gm-Message-State: AOJu0Yxygc8pX/UFZeYMazsHKAmEsXq/dRtryeRLz8YS1Wox0zu/fI4M
+	Ulj4vjF7RtrcbHDz3yq1Jzbw+qvrSL+CvfjPZQAzvC/TFKAAs6uiDQ/r2U5OehH1keQ4+EX9YBx
+	TQRNM3RKSkAqBU+Fzv1jGKy1ClWgSOyoMwRuAmhDjDVphXNMw6g6JSXlNUEVtuC772E5RveNtte
+	ChKh4lYNBRF+B2KifUgAjHgGHZ5IdCRCfs
+X-Received: from pfll9.prod.google.com ([2002:a05:6a00:1589:b0:829:8a2d:1907])
+ (user=tweek job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:1783:b0:829:822e:cdce
+ with SMTP id d2e1a72fcca58-829a2d8ac70mr12449777b3a.6.1773107705330; Mon, 09
+ Mar 2026 18:55:05 -0700 (PDT)
+Date: Tue, 10 Mar 2026 12:54:53 +1100
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.53.0.473.g4a7958ca14-goog
+Message-ID: <20260310015453.1978412-1-tweek@google.com>
+Subject: [PATCH testsuite v2] Add tests for selabel_file backend
+From: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+To: selinux@vger.kernel.org
+Cc: "=?UTF-8?q?Christian=20G=C3=B6ttsche?=" <cgzones@googlemail.com>, James Carter <jwcart2@gmail.com>, 
+	Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Ondrej Mosnacek <omosnace@redhat.com>, Jeffrey Vander Stoep <jeffv@google.com>, 
+	"=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, 2026-03-09 at 16:11 -0400, Mimi Zohar wrote:
-> On Mon, 2026-03-09 at 15:33 -0400, Jeff Layton wrote:
-> > On Mon, 2026-03-09 at 15:00 -0400, Mimi Zohar wrote:
-> > > On Mon, 2026-03-09 at 13:59 -0400, Jeff Layton wrote:
-> > > > On Mon, 2026-03-09 at 13:47 -0400, Mimi Zohar wrote:
-> > > > > [ I/O socket time out.  Trimming the To list.]
-> > > > >=20
-> > > > > On Wed, 2026-03-04 at 10:32 -0500, Jeff Layton wrote:
-> > > > > > This version squashes all of the format-string changes and the =
-i_ino
-> > > > > > type change into the same patch. This results in a giant 600+ l=
-ine patch
-> > > > > > at the end of the series, but it does remain bisectable.  Becau=
-se the
-> > > > > > patchset was reorganized (again) some of the R-b's and A-b's ha=
-ve been
-> > > > > > dropped.
-> > > > > >=20
-> > > > > > The entire pile is in the "iino-u64" branch of my tree, if anyo=
-ne is
-> > > > > > interested in testing this.
-> > > > > >=20
-> > > > > >     https://git.kernel.org/pub/scm/linux/kernel/git/jlayton/lin=
-ux.git/
-> > > > > >=20
-> > > > > > Original cover letter follows:
-> > > > > >=20
-> > > > > > ----------------------8<-----------------------
-> > > > > >=20
-> > > > > > Christian said [1] to "just do it" when I proposed this, so her=
-e we are!
-> > > > > >=20
-> > > > > > For historical reasons, the inode->i_ino field is an unsigned l=
-ong,
-> > > > > > which means that it's 32 bits on 32 bit architectures. This has=
- caused a
-> > > > > > number of filesystems to implement hacks to hash a 64-bit ident=
-ifier
-> > > > > > into a 32-bit field, and deprives us of a universal identifier =
-field for
-> > > > > > an inode.
-> > > > > >=20
-> > > > > > This patchset changes the inode->i_ino field from an unsigned l=
-ong to a
-> > > > > > u64. This shouldn't make any material difference on 64-bit host=
-s, but
-> > > > > > 32-bit hosts will see struct inode grow by at least 4 bytes. Th=
-is could
-> > > > > > have effects on slabcache sizes and field alignment.
-> > > > > >=20
-> > > > > > The bulk of the changes are to format strings and tracepoints, =
-since the
-> > > > > > kernel itself doesn't care that much about the i_ino field. The=
- first
-> > > > > > patch changes some vfs function arguments, so check that one ou=
-t
-> > > > > > carefully.
-> > > > > >=20
-> > > > > > With this change, we may be able to shrink some inode structure=
-s. For
-> > > > > > instance, struct nfs_inode has a fileid field that holds the 64=
--bit
-> > > > > > inode number. With this set of changes, that field could be eli=
-minated.
-> > > > > > I'd rather leave that sort of cleanups for later just to keep t=
-his
-> > > > > > simple.
-> > > > > >=20
-> > > > > > Much of this set was generated by LLM, but I attributed it to m=
-yself
-> > > > > > since I consider this to be in the "menial tasks" category of L=
-LM usage.
-> > > > > >=20
-> > > > > > [1]: https://lore.kernel.org/linux-fsdevel/20260219-portrait-wi=
-nkt-959070cee42f@brauner/
-> > > > > >=20
-> > > > > > Signed-off-by: Jeff Layton <jlayton@kernel.org>
-> > > > >=20
-> > > > > Jeff, missing from this patch set is EVM.  In hmac_add_misc() EVM=
- copies the
-> > > > > i_ino and calculates either an HMAC or file meta-data hash, which=
- is then
-> > > > > signed.=20
-> > > > >=20
-> > > > >=20
-> > > >=20
-> > > > Thanks Mimi, good catch.
-> > > >=20
-> > > > It looks like we should just be able to change the ino field to a u=
-64
-> > > > alongside everything else. Something like this:
-> > > >=20
-> > > > diff --git a/security/integrity/evm/evm_crypto.c b/security/integri=
-ty/evm/evm_crypto.c
-> > > > index c0ca4eedb0fe..77b6c2fa345e 100644
-> > > > --- a/security/integrity/evm/evm_crypto.c
-> > > > +++ b/security/integrity/evm/evm_crypto.c
-> > > > @@ -144,7 +144,7 @@ static void hmac_add_misc(struct shash_desc *de=
-sc, struct inode *inode,
-> > > >                           char type, char *digest)
-> > > >  {
-> > > >         struct h_misc {
-> > > > -               unsigned long ino;
-> > > > +               u64 ino;
-> > > >                 __u32 generation;
-> > > >                 uid_t uid;
-> > > >                 gid_t gid;
-> > > >=20
-> > >=20
-> > > Agreed.
-> > >=20
-> > > >=20
-> > > > That should make no material difference on 64-bit hosts. What's the
-> > > > effect on 32-bit? Will they just need to remeasure everything or wo=
-uld
-> > > > the consequences be more dire? Do we have any clue whether anyone i=
+Add basic set of tests to validate the behaviour of the selabel_file
+backend. The parsing and usage of file_contexts is confirmed, in the
+following scenarios:
+
+ - selabel_open with no options,
+ - selabel_open with a NULL SELABEL_OPT_PATH,
+ - selabel_open with a valid SELABEL_OPT_PATH,
+ - selabel_open with a valid SELABEL_OPT_PATH and SELABEL_OPT_BASEONLY,
+ - selabel_open with SELABEL_OPT_VALIDATE and known types,
+ - selabel_open with SELABEL_OPT_VALIDATE and unknown types.
+
+Validate that substitutions and local customizations are loaded
+according to selabel_file(5).
+
+Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+---
+Changes since v1:
+- Redirect stderr to stdout in test
+
+ policy/Makefile                      |  3 +-
+ policy/test_file_contexts.te         |  6 ++
+ tests/Makefile                       |  2 +-
+ tests/file_contexts/Makefile         | 10 +++
+ tests/file_contexts/f1.fc            |  1 +
+ tests/file_contexts/f2.fc            |  4 ++
+ tests/file_contexts/f3.fc            |  2 +
+ tests/file_contexts/f3.fc.homedirs   |  1 +
+ tests/file_contexts/f3.fc.local      |  1 +
+ tests/file_contexts/f3.fc.subs       |  1 +
+ tests/file_contexts/f3.fc.subs_dist  |  1 +
+ tests/file_contexts/internal.c       | 41 +++++++++++++
+ tests/file_contexts/internal.h       | 16 +++++
+ tests/file_contexts/test             | 25 ++++++++
+ tests/file_contexts/test_lookup.c    | 46 ++++++++++++++
+ tests/file_contexts/test_open.c      | 82 +++++++++++++++++++++++++
+ tests/file_contexts/test_open_base.c | 92 ++++++++++++++++++++++++++++
+ tests/file_contexts/test_validate.c  | 56 +++++++++++++++++
+ 18 files changed, 388 insertions(+), 2 deletions(-)
+ create mode 100644 policy/test_file_contexts.te
+ create mode 100644 tests/file_contexts/Makefile
+ create mode 100644 tests/file_contexts/f1.fc
+ create mode 100644 tests/file_contexts/f2.fc
+ create mode 100644 tests/file_contexts/f3.fc
+ create mode 100644 tests/file_contexts/f3.fc.homedirs
+ create mode 100644 tests/file_contexts/f3.fc.local
+ create mode 100644 tests/file_contexts/f3.fc.subs
+ create mode 100644 tests/file_contexts/f3.fc.subs_dist
+ create mode 100644 tests/file_contexts/internal.c
+ create mode 100644 tests/file_contexts/internal.h
+ create mode 100755 tests/file_contexts/test
+ create mode 100644 tests/file_contexts/test_lookup.c
+ create mode 100644 tests/file_contexts/test_open.c
+ create mode 100644 tests/file_contexts/test_open_base.c
+ create mode 100644 tests/file_contexts/test_validate.c
+
+diff --git a/policy/Makefile b/policy/Makefile
+index 40bf393..bf1ea76 100644
+--- a/policy/Makefile
++++ b/policy/Makefile
+@@ -29,7 +29,8 @@ TARGETS =3D \
+ 	test_task_getsid.te test_task_setpgid.te test_task_setsched.te \
+ 	test_transition.te test_unix_socket.te \
+ 	test_mmap.te test_overlayfs.te test_mqueue.te \
+-	test_ibpkey.te test_atsecure.te test_cgroupfs.te
++	test_ibpkey.te test_atsecure.te test_cgroupfs.te \
++	test_file_contexts.te
+=20
+ ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
+ SUPPORTS_CIL =3D n
+diff --git a/policy/test_file_contexts.te b/policy/test_file_contexts.te
+new file mode 100644
+index 0000000..c61f3b1
+--- /dev/null
++++ b/policy/test_file_contexts.te
+@@ -0,0 +1,6 @@
++####### Policy for testing file_contexts #########
++
++type test_base_t;
++type test_base_wildcard_t;
++type test_base_sub_t;
++type test_file_list_t;
+diff --git a/tests/Makefile b/tests/Makefile
+index 6df220c..07403be 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -28,7 +28,7 @@ SUBDIRS:=3D domain_trans entrypoint execshare exectrace e=
+xecute_no_trans \
+ 	task_getpgid task_setpgid file ioctl capable_file capable_net \
+ 	capable_sys dyntrans dyntrace bounds nnp_nosuid mmap unix_socket \
+ 	inet_socket/tcp inet_socket/udp overlay checkreqprot mqueue \
+-	mac_admin atsecure infiniband_endport infiniband_pkey
++	mac_admin atsecure infiniband_endport infiniband_pkey file_contexts
+=20
+ ifeq ($(shell grep -q cap_userns $(POLDEV)/include/support/all_perms.spt &=
+& echo true),true)
+ ifneq ($(shell ./kvercmp $$(uname -r) 4.7),-1)
+diff --git a/tests/file_contexts/Makefile b/tests/file_contexts/Makefile
+new file mode 100644
+index 0000000..592a65f
+--- /dev/null
++++ b/tests/file_contexts/Makefile
+@@ -0,0 +1,10 @@
++TARGETS=3Dtest_open test_lookup test_open_base test_validate
++CFLAGS +=3D -O2 -Werror -Wall
++LDLIBS +=3D -lselinux
++
++all: $(TARGETS)
++
++$(TARGETS): internal.o
++
++clean:
++	rm -f $(TARGETS) *.o
+diff --git a/tests/file_contexts/f1.fc b/tests/file_contexts/f1.fc
+new file mode 100644
+index 0000000..6672a49
+--- /dev/null
++++ b/tests/file_contexts/f1.fc
+@@ -0,0 +1 @@
++/       system_u:object_r:rootfs:s0
+diff --git a/tests/file_contexts/f2.fc b/tests/file_contexts/f2.fc
+new file mode 100644
+index 0000000..0d8c087
+--- /dev/null
++++ b/tests/file_contexts/f2.fc
+@@ -0,0 +1,4 @@
++/base             system_u:object_r:test_base_t:s0
++/base(/.*)?       system_u:object_r:test_base_wildcard_t:s0
++/base/sub         system_u:object_r:test_base_sub_t:s0
++/base/file\.list  system_u:object_r:test_file_list_t:s0
+diff --git a/tests/file_contexts/f3.fc b/tests/file_contexts/f3.fc
+new file mode 100644
+index 0000000..a7361cd
+--- /dev/null
++++ b/tests/file_contexts/f3.fc
+@@ -0,0 +1,2 @@
++/        system_u:object_r:rootfs:s0
++/subbed  system_u:object_r:test_subbed:s0
+diff --git a/tests/file_contexts/f3.fc.homedirs b/tests/file_contexts/f3.fc=
+.homedirs
+new file mode 100644
+index 0000000..d1878ce
+--- /dev/null
++++ b/tests/file_contexts/f3.fc.homedirs
+@@ -0,0 +1 @@
++/homedirs  system_u:object_r:test_homedirs:s0
+diff --git a/tests/file_contexts/f3.fc.local b/tests/file_contexts/f3.fc.lo=
+cal
+new file mode 100644
+index 0000000..96e432b
+--- /dev/null
++++ b/tests/file_contexts/f3.fc.local
+@@ -0,0 +1 @@
++/local    system_u:object_r:test_local:s0
+diff --git a/tests/file_contexts/f3.fc.subs b/tests/file_contexts/f3.fc.sub=
 s
-> > > > using EVM in 32-bit environments?
-> > >=20
-> > > All good questions. Unfortunately I don't know the answer to most of =
-them. What
-> > > we do know: changing the size of the i_ino field would affect EVM fil=
-e metadata
-> > > verification and would require relabeling the filesystem.  Even packa=
-ges
-> > > containing EVM portable signatures, which don't include or verify the=
- i_ino
-> > > number, would be affected.
-> > >=20
-> >=20
-> > Ouch. Technically, I guess this is ABI...
-> >=20
-> > While converting to u64 seems like the ideal thing to do, the other
-> > option might be to just keep this as an unsigned long for now.
-> >=20
-> > No effect on 64-bit, but that could keep things working 32-bit when the
-> > i_ino casts properly to a u32. ext4 would be fine since they don't
-> > issue inode numbers larger than UINT_MAX. xfs and btrfs are a bit more
-> > iffy, but worst case they'd just need to be relabeled (which is what
-> > they'll need to do anyway).
-> >=20
-> > If we do that, then we should probably add a comment to this function
-> > explaining why it's an unsigned long.
->=20
-> Agreed.
->=20
-
-For now, I think that's the best approach. I'll spin up a patch to add
-the comment.
-
-> >=20
-> > Thoughts?
->=20
-> My concern would be embedded/IoT devices, but I don't have any insight in=
-to who
-> might be using it on 32 bit.
->=20
-
-Yep. This LWN article on Arnd's talk lays out the state of things:
-
-    https://lwn.net/Articles/1035727/
-
-The upshot is that it's hard to buy 32-bit CPUs these days, and will
-only get harder. But, there are still a fair number of 32-bit devices
-out in the field and will be for some time.
-
-The big question is how many of those EVM users that intend to run new
-kernels. I have no idea how to answer that.
-
+new file mode 100644
+index 0000000..922ed96
+--- /dev/null
++++ b/tests/file_contexts/f3.fc.subs
+@@ -0,0 +1 @@
++/sub /subbed
+diff --git a/tests/file_contexts/f3.fc.subs_dist b/tests/file_contexts/f3.f=
+c.subs_dist
+new file mode 100644
+index 0000000..abe31fe
+--- /dev/null
++++ b/tests/file_contexts/f3.fc.subs_dist
+@@ -0,0 +1 @@
++/sub_dist /subbed
+diff --git a/tests/file_contexts/internal.c b/tests/file_contexts/internal.=
+c
+new file mode 100644
+index 0000000..22b5790
+--- /dev/null
++++ b/tests/file_contexts/internal.c
+@@ -0,0 +1,41 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/stat.h>
++#include <sys/types.h>
++#include <unistd.h>
++
++#include <selinux/label.h>
++#include <selinux/selinux.h>
++
++#include "internal.h"
++
++void assertContextsMatch(struct selabel_handle *hnd, struct test_t *tests,
++			 size_t n)
++{
++	for (int i =3D 0; i < n; i++) {
++		char *context =3D NULL;
++		struct test_t test =3D tests[i];
++
++		if (selabel_lookup(hnd, &context, test.path, S_IFREG)) {
++			if (test.context) {
++				perror("file_contexts:selabel_lookup");
++				fprintf(stderr, "Lookup for %s failed\n", test.path);
++				exit(2);
++			}
++			// Expected failure. Continue to the next test.
++			continue;
++		} else if (!test.context) {
++			fprintf(stderr, "Lookup for %s was supposed to failed\n", test.path);
++			exit(2);
++		}
++
++		if (strcmp(context, tests[i].context)) {
++			fprintf(stderr, "Lookup for %s returned %s, expected %s\n",
++				tests[i].path, context, tests[i].context);
++			exit(2);
++		}
++
++		free(context);
++	}
++}
+diff --git a/tests/file_contexts/internal.h b/tests/file_contexts/internal.=
+h
+new file mode 100644
+index 0000000..a07548f
+--- /dev/null
++++ b/tests/file_contexts/internal.h
+@@ -0,0 +1,16 @@
++#include <selinux/label.h>
++#include <selinux/selinux.h>
++
++#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
++
++/* Structure to capture a test. The |path| will be resolved and expected t=
+o
++ * match the |context|. If |context| is NULL, the lookup is expected to fa=
+il. */
++struct test_t {
++	const char *path;
++	const char *context;
++};
++
++/* Assert that all paths described in |tests| resolve appropriately. |hnd|=
+ must
++ * be opened. |n| is the number of tests in |tests|. */
++void assertContextsMatch(struct selabel_handle *hnd, struct test_t *tests,
++			 size_t n);
+diff --git a/tests/file_contexts/test b/tests/file_contexts/test
+new file mode 100755
+index 0000000..1534925
+--- /dev/null
++++ b/tests/file_contexts/test
+@@ -0,0 +1,25 @@
++#!/usr/bin/perl
++#
++# This test validates the parsing of file_contexts.
++#
++
++use Test;
++
++BEGIN { plan tests =3D> 4; }
++
++$basedir =3D $0;
++$basedir =3D~ s|(.*)/[^/]*|$1|;
++
++$result =3D system "$basedir/test_open $basedir 2>&1";
++ok( $result, 0 );
++
++$result =3D system "$basedir/test_lookup $basedir 2>&1";
++ok( $result, 0 );
++
++$result =3D system "$basedir/test_open_base $basedir 2>&1";
++ok( $result, 0 );
++
++$result =3D system "$basedir/test_validate $basedir 2>&1";
++ok( $result, 0 );
++
++exit;
+diff --git a/tests/file_contexts/test_lookup.c b/tests/file_contexts/test_l=
+ookup.c
+new file mode 100644
+index 0000000..9a54d1d
+--- /dev/null
++++ b/tests/file_contexts/test_lookup.c
+@@ -0,0 +1,46 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <sys/stat.h>
++#include <sys/types.h>
++#include <unistd.h>
++
++#include <selinux/label.h>
++#include <selinux/selinux.h>
++
++#include "internal.h"
++
++int main(int argc, char **argv)
++{
++	struct selabel_handle *hnd;
++
++	if (argc !=3D 2) {
++		fprintf(stderr, "basedir not provided\n");
++		exit(1);
++	}
++
++	char *path;
++	asprintf(&path, "%s/f2.fc", argv[1]);
++	struct selinux_opt f2_opts[] =3D {
++		{ .type =3D SELABEL_OPT_PATH, .value =3D path }
++	};
++
++	hnd =3D selabel_open(SELABEL_CTX_FILE, f2_opts, ARRAY_SIZE(f2_opts));
++
++	free(path);
++
++	if (!hnd) {
++		perror("file_context:f2_options");
++		exit(2);
++	}
++
++	struct test_t tests[] =3D {
++		{ .path =3D "/base", .context =3D "system_u:object_r:test_base_t:s0" },
++		{ .path =3D "/base/unkown", .context =3D "system_u:object_r:test_base_wi=
+ldcard_t:s0" },
++		{ .path =3D "/base/sub", .context =3D "system_u:object_r:test_base_sub_t=
+:s0" },
++		{ .path =3D "/base/file.list", .context =3D "system_u:object_r:test_file=
+_list_t:s0" },
++		{ .path =3D "/base/file_list", .context =3D "system_u:object_r:test_base=
+_wildcard_t:s0" },
++	};
++	assertContextsMatch(hnd, tests, ARRAY_SIZE(tests));
++
++	return 0;
++}
+diff --git a/tests/file_contexts/test_open.c b/tests/file_contexts/test_ope=
+n.c
+new file mode 100644
+index 0000000..eae5691
+--- /dev/null
++++ b/tests/file_contexts/test_open.c
+@@ -0,0 +1,82 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/stat.h>
++#include <sys/types.h>
++#include <unistd.h>
++
++#include <selinux/label.h>
++#include <selinux/selinux.h>
++
++int main(int argc, char **argv)
++{
++	bool has_default_path =3D false;
++	struct selabel_handle *hnd;
++	struct stat default_stat;
++
++	if (argc !=3D 2) {
++		fprintf(stderr, "basedir not provided\n");
++		exit(1);
++	}
++
++	const char *default_path =3D selinux_file_context_path();
++	if (!stat(default_path, &default_stat)) {
++		has_default_path =3D true;
++	}
++
++	if (has_default_path) {
++		/* Empty options */
++		hnd =3D selabel_open(SELABEL_CTX_FILE, /* options=3D */ NULL, /* nopt=3D=
+ */ 0);
++
++		if (!hnd) {
++			perror("file_context:no_options");
++			exit(2);
++		}
++		selabel_close(hnd);
++
++		/* Default options */
++		struct selinux_opt null_opts[] =3D {
++			{ .type =3D SELABEL_OPT_PATH, .value =3D NULL }
++		};
++
++		hnd =3D selabel_open(SELABEL_CTX_FILE, /* options=3D */ null_opts, /* no=
+pt=3D */ 1);
++
++		if (!hnd) {
++			perror("file_context:default_options");
++			exit(2);
++		}
++		selabel_close(hnd);
++	}
++
++	/* f1.fc file */
++	char *path;
++	asprintf(&path, "%s/f1.fc", argv[1]);
++	struct selinux_opt f1_opts[] =3D {
++		{ .type =3D SELABEL_OPT_PATH, .value =3D path }
++	};
++
++	hnd =3D selabel_open(SELABEL_CTX_FILE, /* options=3D */ f1_opts, /* nopt=
+=3D */ 1);
++	free(path);
++
++	if (!hnd) {
++		perror("file_context:f1_options");
++		exit(2);
++	}
++
++	char *context =3D NULL;
++	if (selabel_lookup(hnd, &context, "/", S_IFREG)) {
++		perror("file_contexts:f1_lookup");
++		exit(2);
++	}
++
++	if (strcmp(context, "system_u:object_r:rootfs:s0")) {
++		perror("file_contexts:f1_strcmp");
++		exit(2);
++	}
++
++	free(context);
++
++	selabel_close(hnd);
++
++	return 0;
++}
+diff --git a/tests/file_contexts/test_open_base.c b/tests/file_contexts/tes=
+t_open_base.c
+new file mode 100644
+index 0000000..33b0cac
+--- /dev/null
++++ b/tests/file_contexts/test_open_base.c
+@@ -0,0 +1,92 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <sys/stat.h>
++#include <sys/types.h>
++#include <unistd.h>
++
++#include <selinux/label.h>
++#include <selinux/selinux.h>
++
++#include "internal.h"
++
++/*
++ * Validate the behaviour of the SELABEL_OPT_BASEONLY option. That is, if =
+set,
++ * the .local and .homedirs part of the policy should not be loaded.
++ *
++ * Also validates the path substitutions (.subs and .subs_dist).
++ */
++
++void test_default_options(const char *basedir)
++{
++	struct selabel_handle *hnd;
++
++	char *path;
++	asprintf(&path, "%s/f3.fc", basedir);
++	struct selinux_opt f3_opts[] =3D {
++		{ .type =3D SELABEL_OPT_PATH, .value =3D path }
++	};
++
++	hnd =3D selabel_open(SELABEL_CTX_FILE, f3_opts, ARRAY_SIZE(f3_opts));
++	free(path);
++
++	if (!hnd) {
++		perror("file_context:f3_default_options");
++		exit(2);
++	}
++
++	struct test_t tests[] =3D {
++		{ .path =3D "/", .context =3D "system_u:object_r:rootfs:s0" },
++		{ .path =3D "/local", .context =3D "system_u:object_r:test_local:s0" },
++		{ .path =3D "/homedirs", .context =3D "system_u:object_r:test_homedirs:s=
+0" },
++		{ .path =3D "/sub", .context =3D "system_u:object_r:test_subbed:s0" },
++		{ .path =3D "/sub_dist", .context =3D "system_u:object_r:test_subbed:s0"=
+ },
++	};
++	assertContextsMatch(hnd, tests, ARRAY_SIZE(tests));
++
++	selabel_close(hnd);
++}
++
++void test_base_only_option(const char *basedir)
++{
++	struct selabel_handle *hnd;
++
++	char *path;
++	asprintf(&path, "%s/f3.fc", basedir);
++	struct selinux_opt f3_with_base_only_opts[] =3D {
++		{ .type =3D SELABEL_OPT_PATH, .value =3D path },
++		{ .type =3D SELABEL_OPT_BASEONLY, .value =3D "1" }
++	};
++
++	hnd =3D selabel_open(SELABEL_CTX_FILE, f3_with_base_only_opts,
++			   ARRAY_SIZE(f3_with_base_only_opts));
++	free(path);
++
++	if (!hnd) {
++		perror("file_context:f3_base_only_options");
++		exit(2);
++	}
++
++	struct test_t tests[] =3D {
++		{ .path =3D "/", .context =3D "system_u:object_r:rootfs:s0" },
++		{ .path =3D "/local", .context =3D NULL },
++		{ .path =3D "/homedirs", .context =3D NULL },
++		{ .path =3D "/sub", .context =3D "system_u:object_r:test_subbed:s0" },
++		{ .path =3D "/sub_dist", .context =3D "system_u:object_r:test_subbed:s0"=
+ },
++	};
++	assertContextsMatch(hnd, tests, ARRAY_SIZE(tests));
++
++	selabel_close(hnd);
++}
++
++int main(int argc, char **argv)
++{
++	if (argc !=3D 2) {
++		fprintf(stderr, "basedir not provided\n");
++		exit(1);
++	}
++
++	test_default_options(argv[1]);
++	test_base_only_option(argv[1]);
++
++	return 0;
++}
+diff --git a/tests/file_contexts/test_validate.c b/tests/file_contexts/test=
+_validate.c
+new file mode 100644
+index 0000000..8abefed
+--- /dev/null
++++ b/tests/file_contexts/test_validate.c
+@@ -0,0 +1,56 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/stat.h>
++#include <sys/types.h>
++#include <unistd.h>
++
++#include <selinux/label.h>
++#include <selinux/selinux.h>
++
++#include "internal.h"
++
++int main(int argc, char **argv)
++{
++	char *path;
++	struct selabel_handle *hnd;
++
++	if (argc !=3D 2) {
++		fprintf(stderr, "basedir not provided\n");
++		exit(1);
++	}
++
++	asprintf(&path, "%s/f1.fc", argv[1]);
++	struct selinux_opt f1_opts[] =3D {
++		{ .type =3D SELABEL_OPT_PATH, .value =3D path },
++		{ .type =3D SELABEL_OPT_VALIDATE, .value =3D "1" }
++	};
++
++	/* f1 types are not defined in the test policy. */
++	hnd =3D selabel_open(SELABEL_CTX_FILE, f1_opts, ARRAY_SIZE(f1_opts));
++	free(path);
++
++	if (hnd) {
++		fprintf(stderr, "The validation of f1 should have failed.\n");
++		exit(2);
++	}
++
++	asprintf(&path, "%s/f2.fc", argv[1]);
++	struct selinux_opt f2_opts[] =3D {
++		{ .type =3D SELABEL_OPT_PATH, .value =3D path },
++		{ .type =3D SELABEL_OPT_VALIDATE, .value =3D "1" }
++	};
++
++	/* f2 types are defined in the test policy. */
++	hnd =3D selabel_open(SELABEL_CTX_FILE, f2_opts, ARRAY_SIZE(f2_opts));
++	free(path);
++
++	if (!hnd) {
++		perror("Unable to read valid file_contexts");
++		exit(2);
++	}
++
++	selabel_close(hnd);
++
++	return 0;
++}
 --=20
-Jeff Layton <jlayton@kernel.org>
+2.53.0.473.g4a7958ca14-goog
+
