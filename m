@@ -1,174 +1,167 @@
-Received: from oak.phenome.org (unknown [193.110.157.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C87203CFF74;
-	Tue, 10 Mar 2026 16:52:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.110.157.52
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773161533; cv=none; b=TP5dcL0q3Qw2aJqVTO6Om7SlyswP8ZdPzUUYbEMruVhkDdeNUDrV0MxQO229Gh8WN/ilvTX180yOpchbsgM7nrA6yXdD0mUakGDD8eyBVcMdBU/mP9Epj9oBmYOtKz9AHX/LcW6iIIco6R8oISNMspkReQIOIMrXCAJ66baZ0ZU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773161533; c=relaxed/simple;
-	bh=qCCpDaL9t68wwaimcdy210aFh2IuYNoS23y6q1PkTPU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DhMKG+t8o+dr5C/ffQWYV5W9aPMGwYSqc75BL75R25O3LQXDzfmn60DXJQPhDKbdm1zPAyNll4Nfb39mxtubl+0zRRzeBNcNlT0srvnyegkXFSeoFBQ8JUkHg1Ux5HTAuKGw6izwclkXX0bvDI59+awBJQD636iyxrnHXKMhchU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=phenome.org; spf=pass smtp.mailfrom=phenome.org; dkim=pass (2048-bit key) header.d=phenome.org header.i=@phenome.org header.b=i4oc/69g; arc=none smtp.client-ip=193.110.157.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=phenome.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=phenome.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F13C391E58
+	for <selinux@vger.kernel.org>; Tue, 10 Mar 2026 22:24:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.170
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773181454; cv=pass; b=E2J4+6tp67MYxCS43aYY17Rp5mf3wUCVRX7ZJS8Yw9d0hgSQ2vxLrSlLsdSFQTxwTF76aSyIJKdKYZqr42Lol6gh6kSc0JLVnqaufXFsJWhDEsAaKEKy8b8cbGd/v/+HKdCzMsLm+Abcb20BqVrtRA+g759YFik4h1ghZwnWH0I=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773181454; c=relaxed/simple;
+	bh=ce8M4iQB2sfXuv+VW5IdZIix7XjmRWFlfNgAN6eimes=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Z928wyApUErGZJS0vyB14jYrXD3fgD2gv2skJuapwMGeklL4Ej3NnB6rYwMbh/wDPYyApF3GcH1lxyj8W3HuEv/LEk0M7WGJSMyNTpFRU7Xv4dA7GUdAUyAkb5YjgMuh33wHAUIEehzbN7DPUVMeFnwtES+PXY2+0DoR7wo0BBI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=4D5djThn; arc=pass smtp.client-ip=209.85.160.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=phenome.org header.i=@phenome.org header.b="i4oc/69g"
-Authentication-Results: oak.phenome.org (amavisd); dkim=pass (2048-bit key)
- reason="pass (just generated, assumed good)" header.d=phenome.org
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=phenome.org; h=
-	in-reply-to:content-disposition:content-type:content-type
-	:mime-version:references:message-id:subject:subject:from:from
-	:date:date:received; s=oak1; t=1773161525; x=1774025526; bh=qCCp
-	DaL9t68wwaimcdy210aFh2IuYNoS23y6q1PkTPU=; b=i4oc/69gTuEDw0tQ6/Ot
-	OZXHfl/aFwyS4drjBE9rjoUzKZmJ434cBW9ndUlww3DCrdJ8jFVvHv11AhsAvJw7
-	0a9F9OH35fnLJtG1wTpdJU/fClwgltJ8+UlkcCJx04XnG2YGOPTaIb8NOtD07SdZ
-	ID+r6B2s/T2CNPSrf7ZKjcyNErBmRxRV1DVKUPDWHIGXhPwl5geTF0mq2bzSjutu
-	3YShtmwUqSX3tS80rzJbklOICPt+gKCGlqtXwsYfrezK3z4Wk2mGddmexZQN2iYz
-	XN1CUc3NWwHnjra9NnC+gnTetHiMSoa8I7cK+85p4K0nbjZR4OqkBN2hoEZPx+E0
-	5A==
-X-Virus-Scanned: amavisd at oak.phenome.org
-Received: by oak.phenome.org (Postfix);
-	Tue, 10 Mar 2026 17:52:03 +0100 (CET)
-Date: Tue, 10 Mar 2026 17:52:01 +0100
-From: Antony Antony <antony@phenome.org>
-To: Sabrina Dubroca <sd@queasysnail.net>
-Cc: Antony Antony <antony@phenome.org>, Yan Yan <evitayan@google.com>,
-	Antony Antony <antony.antony@secunet.com>,
-	Steffen Klassert <steffen.klassert@secunet.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>, netdev@vger.kernel.org,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Chiachang Wang <chiachangwang@google.com>, devel@linux-ipsec.org,
-	Simon Horman <horms@kernel.org>, Paul Moore <paul@paul-moore.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org,
-	selinux@vger.kernel.org, Nathan Harold <nharold@google.com>
-Subject: Re: [devel-ipsec] Re: [PATCH ipsec-next v5 8/8] xfrm: add
- XFRM_MSG_MIGRATE_STATE for single SA migration
-Message-ID: <abBMMZWNp_zN23xL@Antony2201.local>
-References: <cover.1769509130.git.antony.antony@secunet.com>
- <b7b1bee9456ac4ada8941c93c2cc17f07d0b1912.1769509131.git.antony.antony@secunet.com>
- <CADHa2dAxVFQULCKnsjSmSPrK+VTJyyT-5P5BAYGdhO5wKDKqig@mail.gmail.com>
- <aaF_SAQj4WT8jRaO@krikkit>
- <CADHa2dCF=Cq2SMYgjHcs71VedwYaDmUXPWnNbv=46+11Mz0otA@mail.gmail.com>
- <aa2K8pXXipCH8cke@Antony2201.local>
- <aa_750R5Jm5qPbNs@krikkit>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="4D5djThn"
+Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-50906a98ffeso233341cf.0
+        for <selinux@vger.kernel.org>; Tue, 10 Mar 2026 15:24:13 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1773181452; cv=none;
+        d=google.com; s=arc-20240605;
+        b=LANN3B7ey265HKaH3L/r7pQp4hWcu5r1RPPeB22ATiBylXoGnhBlBZ9gl2sLVDDMD2
+         EBGl2xPr54N/W5dZx3qtgHj7r9W5EeTzDoLOssP/YBlaPHlXj+D5B98Qc6Xt+HRAVOq+
+         8y5LBvi1TB8u/wJyb+kdSG7FS59/M7TDktT6F5LmY+iE8n6G6D8JOBa+nKip+8sgQ36v
+         326Ft8IN8nMwbLHI5euNNnYUZZUvlqSU8Hx2udoxCZJH80RPjc/lwhofydht7AV36mDG
+         Qj1oXcmzmKg9ZB4yxEYpIzq/jfs+SPK7L9Y6xOgDT+iixBM9iAiguHZhKCT92RRpo4z6
+         RGbA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=3wjkPqFcZwOeTko9ndBTsuLAzvQ/RVQG4Lk48M2Y4tM=;
+        fh=eEvyUB7eLKLVncGrRst/NPbBCpcu+8xTByENGfaJ43o=;
+        b=fv2NqBglS5IsHgbiKpbdlB5rdAsqu3lxW89tjoK86P1ZRcKlwZ02aaMJJVoboOznfF
+         rdNz0uBhoaA4uEgUenuIuo0Ke8+DFv+7f1nvbsqKY7/Cp80iT7v8oU3zEOz1vQq4Yiln
+         7I3o8uNpBLQvBZ0E/CZRni9dNBiSXLj8PUNq8B3P3kniW0+pkX2KwpoZI30icuGmL3r6
+         R78M8Xz30eA9hUOmbPQFrkpDolDQ1RqaEpSFPE5KnQZMNGDIS1Dr8oidNJa9hCxLdcjn
+         /D+R6iVxxIxLxpVkQMpOMnddXimrkQkVXQi23ELeZRODXh557U3GTi5GKFcDPDhVRuE1
+         QvMA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1773181452; x=1773786252; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=3wjkPqFcZwOeTko9ndBTsuLAzvQ/RVQG4Lk48M2Y4tM=;
+        b=4D5djThnuTh22uL6rz+c0PMXzUZlq5JorzmL7VHgvq1j4WUHXRLJuFCG5WiN+vzeBh
+         +6Bb0Ri7xgVBhaMCVCIlAthjZ8eIrL0nmWuSAr+RyB6FOEL4seL2TW/xA7mhqiTIUbaE
+         f5DC4pkOu8RbumHdy5nzEN8JYQ0DIyV2qyGhuwZ6TeCZBhS3ywdKPtO6nbse6IES6E32
+         iARJpe8dAArchBV9zYJ76Rhc+cUc7uIw+Foe4fgh0x0Xwd14G9N6YipG8SIZ44xVywGo
+         hA0YaJ2K6N9OitExQmZuv4SEEamK06/wy3O/J0DEyspyUDCChEAfnLD4SE2zGfiqyezY
+         16vA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773181452; x=1773786252;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=3wjkPqFcZwOeTko9ndBTsuLAzvQ/RVQG4Lk48M2Y4tM=;
+        b=V0C1rN1f9qOAaUwvnkqKUdjEHXS6aVxbQGzP8qyTOZToKFB8y+dIosCZmln/CG2zXv
+         tclE297t/vmxPQKjmfHIgRMXbLnhotcWBTY7gblmdU84eNTPpWzY4M0oTQofk+L/dNRv
+         STZzVOI4uL44TkUqHbrrZjld7pqYVZ3O/d739O1zXAUN5g4swfc4fqVNKAl82Rv0P37y
+         tELT3Nax4wErYAkZ2IYqL3aXrC8Wx7rwxhW/mcSL17WDk30U1EXveBv6P+bazzSJTUln
+         mum0NXsRmMmxjMwDHgdWveNx80hI1cor3zpj0VpEZzEmkbMu5HQARQagAfql+bbKpH2i
+         G78w==
+X-Forwarded-Encrypted: i=1; AJvYcCXQcG/Mbzd1sdb/pBD6cSp6wFYLFOm7aCKLqTu1VxZOXBxQix+4uB1+cb5KZuUHWNMoacYyWVqw@vger.kernel.org
+X-Gm-Message-State: AOJu0YxsW/aMVq/JlhsFO+ziKEmGJobAMOFr3++d8jjuyIuGByMZ4YBD
+	1yOlEyil9NT65nxSAorZ3dd9yF+lf3VABfa86xG8oT1TaIV0F4H5gisNmGcStZQH41npzkgvmz/
+	mksK2wF2NZLrXasxAJVv5l1x52tOUCePqx0oeVvXg
+X-Gm-Gg: ATEYQzzExmTkCy8zuB08rr6MLsatPuMLyHPlEygHpIq0LjvKxDLvqre0IYuz5NVGnnm
+	ssW+SxIGz5L/xusyQHCfKL1uPdZlgu9dsoV8QASK3d988r2pjDpBh/sPENUgyRAXNy/eMkfsGx/
+	Ch7wSE84+lflbpilcnI7cMWdWwX6dxm06eqmIKKQa4M/zYOygnCsFQjAxC/9KTpXZfLTZdDgcqk
+	O1Xx6eWk7y4MI2F3QQz9QfvePOQ0XT14Si/M7Zhxg8p7WdacmeNgXbiddsqi9eUESNejHDSbKNP
+	Hlytw0hl82ihcTlo9U3VTZSx0hfCffkS5CPlxw2u8aZDfg==
+X-Received: by 2002:a05:622a:11d5:b0:509:174d:3224 with SMTP id
+ d75a77b69052e-50939a12f0amr2336211cf.11.1773181451647; Tue, 10 Mar 2026
+ 15:24:11 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aa_750R5Jm5qPbNs@krikkit>
+References: <20260306131941.106248-1-cgoettsche@seltendoof.de> <CAEjxPJ5woS1uBHPE_69rcootf3Z3ZRjnZijAk2PWnNzHNYx_jg@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5woS1uBHPE_69rcootf3Z3ZRjnZijAk2PWnNzHNYx_jg@mail.gmail.com>
+From: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Date: Wed, 11 Mar 2026 09:23:54 +1100
+X-Gm-Features: AaiRm51rpFmY6glGBje6IlqMwM7uqpGQH6Ki2WzVl2EcAiUG4oq7xpplwUib6RY
+Message-ID: <CA+zpnLeX1XrH9ZsockEG9U4f6F4ZhHvYzsL3GAoPHspcWaKKHA@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: correctly find partial matches
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: cgzones@googlemail.com, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 10, 2026 at 12:09:27PM +0100, Sabrina Dubroca wrote:
-> 2026-03-08, 15:42:58 +0100, Antony Antony wrote:
-> > On Fri, Feb 27, 2026 at 03:14:21PM -0800, Yan Yan via Devel wrote:
-> > > > Anything that we leave as implicit copy will have to be "forever"
-> > > > implicitly copied with this new MIGRATE_STATE op -- unless we find a
-> > > > way to pass a new "clear these properties" flag (probably via a list
-> > > > of XFRMA_* attribute names)
-> > 
-> > that is a limitation we should avoid. It would be nice to extend it
-> > over time. We have been there before and it is a pain point. So it is
-> > worth investigating alternatives if there is momentum here, otherwise
-> > I would keep it simple:)
-> 
-> Well, because it's a known pain point, we shouldn't just jump into an
-> implementation.
-> 
-> (FWIW, as a kernel-only developer, ie not involved at all in the *swan
-> code, I don't have much of an opinion on which property should behave
-> which way, just that we know what we're getting into)
+On Tue, Mar 10, 2026 at 11:46=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Fri, Mar 6, 2026 at 8:39=E2=80=AFAM Christian G=C3=B6ttsche
+> <cgoettsche@seltendoof.de> wrote:
+> >
+> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> >
+> > The current lookup for file labels first searches for the deepest node
+> > matching the lookup-key.  Then all definitions of that node and its
+> > parents are considered.
+> > For partial lookups also consider child nodes matching the lookup-key
+> > portion that did not match any node-stem.
+> >
+> > Example:
+> > The lookup-key "/sys/de" will result in the deepest node being "sys" (a
+> > parent of the root node).  Non-partial lookups don't care about the
+> > child nodes "dev" and "devices" but partial lookup does.
+> >
+> > Fixes: 92306daf521 ("libselinux: rework selabel_file(5) database")
+> > Reported-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+>
+> Where was this reported?
 
-Understandable. Partly *swan world, Android, IETF RFC guidelines, NIST et 
-al. The *swan world usually wakes late after the time the kernel
-reaches distributions.This is too late to fix kernel without breaking ABI.
-standards world has its own path. Kernel often implements that what
-makes practical sense in the moment and hard depreciate/remove ABI:)
+Apologies. I sent an email to Christian on Friday evening directly. We
+were observing that bug internally, but I wanted to confirm my
+understanding of how nodes are used in the new lookup_check_node
+function first.
 
-I feel these days there are more interactions such as this, which is a good 
-sign!
+Here is the content of my email:
 
-> > > That is true. I also have the concern that if all updatable attributes
-> > > follow the "omit-to-clear" pattern, we lose the extensibility. Thus
-> > > ideally we should switch to an "omit-to-inherit" model for some, if
-> > > not all, attributes to ensure that adding new SA properties doesn't
-> > > break backward compatibility.
-> 
-> Implicit copy ("omit-to-inherit") gets us in the situation we have
-> with the old MIGRATE code, we don't have a way to _not inherit_
-> properties. Well, apparently we do, based on what Antony wrote below.
-> 
-> 
-> 
-> > Here is my proposal. I extended the code and am testing it now; I hope
-> > to send out v6 soon.
-> 
-> I think it would have been nice to postpone v6 a little bit so that
-> others had time to answer here (and avoid a respin if there's some
-> disagreement on what the behavior should be).
-> 
-> > How would omit-to-inherit look in practice? Specify almost all XFRMA
-> > attributes supported in XFRM_MSG_NEWSA, minus some immutable ones.
-> > The immutable attributes that come to mind are:
-> > 
-> >     - XFRMA_ALG_*      : crypto must not change during the life of an SA;
-> >                          also *swan userspace does not keep this in memory
-> >                          after the SA is installed, which is correct
-> >                          behaviour.
-> >     - XFRMA_SA_DIR     : direction is fixed at SA creation.
-> >     - XFRMA_SEC_CTX    : security context is immutable.
-> 
-> So we should be rejecting an attempt to pass those attributes in a
-> MIGRATE_STATE request.
+Hi Christian,
 
-yes. I added it o v6.It reject all unused attributes.  
-NL_SET_ERR_MSG_ATTR(extack, attrs[i], "Unsupported attribute in 
-XFRM_MSG_MIGRATE_STATE");
+We've been looking at importing the latest libselinux into Android and
+we've noticed a regression, which I believe was introduced in commit
+92306daf521 ("libselinux: rework selabel_file(5) database").
 
-> > currently supported attributes, using omit-to-inherit semantics:
-> > 
-> >     sentinel value to clear, omit to inherit:
-> >     - XFRMA_ENCAP              : encap_type=0 to clear
-> 
-> That would be a new special case value for that attribute, ok.
-> 
-> >     - XFRMA_OFFLOAD_DEV        : ifindex=0 to clear
-> 
-> OFFLOAD_DEV with xuo.ifindex=0 is a valid attribute to request offload
-> and let the kernel figure out which device to use. We can't use that
-> to clear/disable offload of an SA.
+Basically, we are running a recursive restorecon on /sys during boot
+[2]. We have only a small set of entries in file_contexts [1], mainly:
 
-Good catch, thanks.
+/sys/devices/pci0000:00/0000:00:[0-9a-fA-F]{2}\.[0-7]/virtio[0-9]+/net(/.*)=
+?
+     u:object_r:sysfs_net:s0
 
-Two options to fix this:
+The issue we have noticed is that entries are not relabelled anymore.
+From my understanding, the /sys recursion is stopped early because
+selabel_partial_match [3] does not return any matched entry. The tree
+has the right nodes, but it starts at the node with the stem "/sys"
+and goes to the parent. But it never goes down to the "/sys/devices"
+child node and below to check that partial match.
 
-Option 1: add XFRM_OFFLOAD_CLEAR to xfrm_user_offload flags in uapi xfrm.h:
+Could you confirm that this is consistent with your understanding of
+the new implementation of lookup_check_node?
 
-#define XFRM_OFFLOAD_CLEAR  (1 << 7)
-When set in XFRMA_OFFLOAD_DEV, it means remove offload rather than configure it.
+Thanks,
+Thiebaud
 
-Option 2: add a __u32 flags field to xfrm_user_migrate_state in uapi xfrm.h.
-There is a __u16 reserved currently used for alignment, but 16 bits feels
-too small if we want to cover clearing other attributes in the future.
-A __u32 at the end of the struct avoids that constraint.
+[1] file_contexts:
+https://cs.android.com/android/platform/superproject/+/android-latest-relea=
+se:device/google/cuttlefish/shared/sepolicy/vendor/file_contexts;l=3D65
 
-I am leaning toward option 2. Any preference? 
+[2] coldboot, restorecon call:
+https://cs.android.com/android/platform/superproject/+/android-latest-relea=
+se:system/core/init/coldboot.cpp;l=3D112;drc=3D188decdba910079c26a87a713685=
+701644800ff9
 
-
-> For the rest, it seems that passing 0 is equivalent to omitting the
-> attribute in the current code. Except XFRMA_SA_PCPU, where we consider
-> UINT_MAX as "disable" (default value for x->pcpu_num), but we reject
-> userspace passing us that value, and XFRMA_SA_PCPU containing 0 is a
-> valid value.
-
-yes XFRMA_SA_PCPU that would be UINT_MAX.
-
--antony
+[3] libselinux, call to selabel_partial_match:
+https://cs.android.com/android/platform/superproject/main/+/main:external/s=
+elinux/libselinux/src/android/android_device.c;l=3D558;drc=3De25bf403671b2f=
+61fe18c6a4edf8470c9294236e
+(this is Android-specific, but there is a similar path in
+selinux_restorecon.c).
