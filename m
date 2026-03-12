@@ -1,195 +1,186 @@
-Received: from oak.phenome.org (unknown [193.110.157.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com [209.85.160.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF42233D501;
-	Wed, 11 Mar 2026 20:43:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.110.157.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02C96374E5F
+	for <selinux@vger.kernel.org>; Thu, 12 Mar 2026 14:47:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773261800; cv=none; b=T7iyAoD5QrJBZ+2c2n3I73ggv89CyZjrjD2ofmybgfqIHMgE7uvR0u6ITYV/ttrV3u62EPpKFrvCFWmhnXoHd8k7KHhcJdbCh4x2A2m2AEA7PXDw6LKdko2olFdrWiUCd1i13WBTicx1+hui65ipvGMyzy+0l+1ZE7gcbPXFDAs=
+	t=1773326873; cv=none; b=Pgc5DO+dOYEAyuuuxEKMGnAaaY4Dmo5B0anf4I9vPBOzPIUscOfSeFxkW2dGPJ13KzGPObnZYSs4X+dopbGuSKfermEQ0km4RIcAGeHp9rKYnFIhiFPNdU5cqD5uRGdYn6DLX1HKVMzw6QWCUjILlp+4Ab/83HKeB944j93HvPI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773261800; c=relaxed/simple;
-	bh=K2UPoZ3AQus8f8/byrx4bf7R8jiPRJuprbDp/3VZiuY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HvjCINcrmCctBJJXcxoIiyVdZYvTP4kf7SABvL03WhFGl5Rj51WKQcbW1E/KzU9nxoogHyGMjqo3G/ed6KuZlvCj8sgPfB1Df4x3Q0HMyRmEbK+uzYLfq5l93kjq3nM51Ezf1U4wQrjAoM7vBnCD3Se4ZU/Y4Ghul54yWSDfd0c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=phenome.org; spf=pass smtp.mailfrom=phenome.org; dkim=pass (2048-bit key) header.d=phenome.org header.i=@phenome.org header.b=Rl6bTBVQ; arc=none smtp.client-ip=193.110.157.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=phenome.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=phenome.org
+	s=arc-20240116; t=1773326873; c=relaxed/simple;
+	bh=fkyhjfgsmTh776YsFA3LAi6BTIKbmJInt/vr7G44iBs=;
+	h=Message-ID:Date:MIME-Version:To:From:Subject:Content-Type; b=Lh/zZ4aFZfg+wLrgNtoVHNikBS7LsWPNa0IpPhP1XAq78yFrvDriHIMK7GEYGJsy6fWsKak1WSQTFPnAfsjMOwJDI82vkOT00ZAEQMF+WoAgWtvN+aFnfhwIMryPRGRCWMJ+x8YqrCTxzBsD3mbyBPImh5xVdZSwLboXHYcdeXo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ieee.org; spf=pass smtp.mailfrom=ieee.org; dkim=pass (1024-bit key) header.d=ieee.org header.i=@ieee.org header.b=YPK2Oha1; arc=none smtp.client-ip=209.85.160.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ieee.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ieee.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=phenome.org header.i=@phenome.org header.b="Rl6bTBVQ"
-Authentication-Results: oak.phenome.org (amavisd); dkim=pass (2048-bit key)
- reason="pass (just generated, assumed good)" header.d=phenome.org
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=phenome.org; h=
-	in-reply-to:content-disposition:content-type:content-type
-	:mime-version:references:message-id:subject:subject:from:from
-	:date:date:received; s=oak1; t=1773261789; x=1774125790; bh=K2UP
-	oZ3AQus8f8/byrx4bf7R8jiPRJuprbDp/3VZiuY=; b=Rl6bTBVQXERqYGBuW+Ci
-	OyRuddDOwsNd6zvhTeZxE+OzIwXXKKTB+DmyIj2VzopxB0vteqoHhQAUBtA309ci
-	CSmm4ICnS7nWSviYBRSFaKDtuFjHwFuG+8lE0R0gkU7aHLoPl7I6wSX+CxQY9bbm
-	XEqcDe63ugf3mG+/DOrr1EOiSUROjiFcfRVX/8+2KO3ix/2IcC5pn5hNqacmvVvP
-	YFOqyLid/bm8G1VTWqG11O2PiqMplH4MvMhyYDX5vMA4pRDCJRWyrb6WHEnhfbXt
-	ja6QpyP7qDMdeQ0cimuw/JSzwgACt97gxGjxoCio5Wjoteb71Dc1gLvarkpXwPLP
-	lg==
-X-Virus-Scanned: amavisd at oak.phenome.org
-Received: by oak.phenome.org (Postfix);
-	Wed, 11 Mar 2026 21:43:06 +0100 (CET)
-Date: Wed, 11 Mar 2026 21:43:04 +0100
-From: Antony Antony <antony@phenome.org>
-To: Simon Horman <horms@kernel.org>
-Cc: antony.antony@secunet.com, evitayan@google.com,
-	linux-kernel@vger.kernel.org, kuba@kernel.org, pabeni@redhat.com,
-	herbert@gondor.apana.org.au, paul@paul-moore.com,
-	devel@linux-ipsec.org, davem@davemloft.net, nakam@linux-ipv6.org,
-	netdev@vger.kernel.org, edumazet@google.com,
-	stephen.smalley.work@gmail.com, steffen.klassert@secunet.com,
-	selinux@vger.kernel.org, linux-doc@vger.kernel.org,
-	chiachangwang@google.com, omosnace@redhat.com, corbet@lwn.net,
-	dsahern@kernel.org, skhan@linuxfoundation.org
-Subject: Re: [devel-ipsec] Re: [ipsec-next,v6,12/14] xfrm: add
- XFRM_MSG_MIGRATE_STATE for single SA migration
-Message-ID: <abHT2HLx-BvKnu-c@Antony2201.local>
-References: <migrate-state-v6-12-9df9764ddb9e@secunet.com>
- <20260311195731.1147919-1-horms@kernel.org>
+	dkim=pass (1024-bit key) header.d=ieee.org header.i=@ieee.org header.b="YPK2Oha1"
+Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-509046c5c7fso14802061cf.1
+        for <selinux@vger.kernel.org>; Thu, 12 Mar 2026 07:47:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ieee.org; s=google; t=1773326870; x=1773931670; darn=vger.kernel.org;
+        h=autocrypt:subject:from:content-language:to:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=fkyhjfgsmTh776YsFA3LAi6BTIKbmJInt/vr7G44iBs=;
+        b=YPK2Oha1tIx/7mQeXcVZ8PPgk8nCTreT2nEwPKwmV8wVhF8tvabHSVGZ9bM40ixHpD
+         cXzD0T+cocRZmDxmlHo2Tp9EX1va9kjD/EgQdGRWpY5F0J5yvY3zQ/rRVR13wlWBKNTU
+         dWhf+JGDA8atN/gGDTdiUTYaXBGs5JgXbbx3E=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773326870; x=1773931670;
+        h=autocrypt:subject:from:content-language:to:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=fkyhjfgsmTh776YsFA3LAi6BTIKbmJInt/vr7G44iBs=;
+        b=Jtga3O1rhBQMp54r4eFme4B57LMawW5QDVf/Ti3GyGCLB9PEuPEFhO/MotxvOcuTmM
+         0fxlnqP/i2LrjGI3LGQEd0C1dQE0llRLRaQ+PcIVNsj8c3Gp2oXvyXtZ7fw4cf7GFpKG
+         LwATS0JsMVngBM+6FfixVA5Ofit2UX78/aGCECh/tdQ53LH81q17wFQMl63Hns8/Q8V5
+         p4fs2yG/LMAVWPX3VNeFYd37PV/UyE9lYCYvNLnGUqo1Sejg75JxYo+H0HPADcLxJwty
+         dYterpEIwevAxVU8gejfmj2MvNr8YZm9tffQMVAnY8771T+4l1SIACUL6sJMDSN3sKll
+         AydA==
+X-Gm-Message-State: AOJu0YzMfePISRTPe5HMB4fnbvJ68aZ6seK94ansuMktOx26/EZunmdl
+	vuAwvo81hb7P0L5G5gCse3UF6NMg8kNoXso/UU+eM1yjx8V3pgUIjQDBECbc7v8pX463JSju+je
+	dmYdPSuK8Pe4Hz2n6g5raZDGPgkzaS/9qYz8EfH5/em5ZnZR7Ck9NG+Q9QnbsFKxhfzUWDdneoS
+	DSQ6fjPoiRkLfMNN9zH2wv2hb7cKmsoA2IvEUFjJw=
+X-Gm-Gg: ATEYQzyq7w0CzTBkbQOLAW2/GqYo9NOW1jpfhh6NcyaA/CKVl/euMem96BY7O3luWe7
+	qvpW/Gc4JZgdp+n8S0tMu4YDKsNXz40PumL7Xekh8/Or9fXwm+SUfvmpgaXndew0aMgOc8Z1W9b
+	x980tyaQH43UJX6mbJJAy6BTDl7OyOQzvONkig34BzWwcH8IkQvypLbh2CPwyHRMslBOLSIneww
+	VO9tJhRWRx7NKrP7glrGM0MXqxLEelMvYB/mGCeeNbR01XZIEF8eCBVFLAdgTyQot4cuIGUPogU
+	NcgvIf2exfUdKVEtLYbAd5mKY0v/zoD3iSKqVEhuzkZs0ImAbLa8sG0a72N2YgyRM5E7FKBCt3U
+	zeFnI/BK+wrNmxSO8TJ6H7fUSY8iClT0zrw9IoE7t1qGLc0nQjn45YShfd88dyWEh/gWNkuWoag
+	X7aMouuzAQAHvubzO5K8WxbWlaT7xIVSzR9uCCZ9uRCUbsIjQzhK4NQD9FEaB/PpseSg==
+X-Received: by 2002:a05:622a:28a:b0:509:2b02:c1b5 with SMTP id d75a77b69052e-5093a17ff2amr88373451cf.44.1773326869723;
+        Thu, 12 Mar 2026 07:47:49 -0700 (PDT)
+Received: from ?IPV6:2601:145:c282:5650:71bd:20d:33ea:4d98? ([2601:145:c282:5650:71bd:20d:33ea:4d98])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-50939ce2f3dsm35017281cf.0.2026.03.12.07.47.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 12 Mar 2026 07:47:49 -0700 (PDT)
+Message-ID: <f2fab9c7-df4c-4753-a495-c71af5f34d99@ieee.org>
+Date: Thu, 12 Mar 2026 10:47:42 -0400
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260311195731.1147919-1-horms@kernel.org>
+User-Agent: Mozilla Thunderbird
+To: selinux@vger.kernel.org, selinux-refpolicy@vger.kernel.org
+Content-Language: en-US
+From: "Christopher J. PeBenito" <pebenito@ieee.org>
+Subject: ANN: Reference Policy 2.20260312
+Autocrypt: addr=pebenito@ieee.org; keydata=
+ xjMEZuhGfhYJKwYBBAHaRw8BAQdADz/tF/gexoZlGld9hGmv5HXcHP95b15YoRSbsznX8EHN
+ K0NocmlzdG9waGVyIEouIFBlQmVuaXRvIDxwZWJlbml0b0BpZWVlLm9yZz7CmQQTFgoAQQUJ
+ Bi93EgULCQgHAwUVCgkICwUWAwIBAAIeBQIXgAIZARYhBMTGKxZwwt8zFEjyhsY2PvHJaXsU
+ BQJm+wuYAhsDAAoJEMY2PvHJaXsUENsBAO8TrrQXhCKCpNQUWvDto13w55ofDKHA3SVlCtzP
+ zzzhAQCvGb8h5fPcw5eTjgLZbXAAG95uMtxYZzs66FNorxUVCM44BGboSckSCisGAQQBl1UB
+ BQEBB0DUELErM3F1hWb3j/Wm3vDku3kdA2YVLxZtonOkF6XOUgMBCAfCfgQYFgoAJhYhBMTG
+ KxZwwt8zFEjyhsY2PvHJaXsUBQJm6EnJAhsMBQkDwmcAAAoJEMY2PvHJaXsU+x4BAMeSfc01
+ SUt1eNtWAEj/caCS4ako0iZd7QZT8recX3zfAP0crszn37KtEaiHb5vHy38tym3+cSzDzvb8
+ +9wp84UkAg==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------TjRCaQu0wt4Por0uO2DszTrh"
 
-Hi Simon,
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------TjRCaQu0wt4Por0uO2DszTrh
+Content-Type: multipart/mixed; boundary="------------GZcuAEEZY5ZGzYlwkiW8ZWJy";
+ protected-headers="v1"
+Message-ID: <f2fab9c7-df4c-4753-a495-c71af5f34d99@ieee.org>
+Date: Thu, 12 Mar 2026 10:47:42 -0400
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+To: selinux@vger.kernel.org, selinux-refpolicy@vger.kernel.org
+Content-Language: en-US
+From: "Christopher J. PeBenito" <pebenito@ieee.org>
+Subject: ANN: Reference Policy 2.20260312
+Autocrypt: addr=pebenito@ieee.org; keydata=
+ xjMEZuhGfhYJKwYBBAHaRw8BAQdADz/tF/gexoZlGld9hGmv5HXcHP95b15YoRSbsznX8EHN
+ K0NocmlzdG9waGVyIEouIFBlQmVuaXRvIDxwZWJlbml0b0BpZWVlLm9yZz7CmQQTFgoAQQUJ
+ Bi93EgULCQgHAwUVCgkICwUWAwIBAAIeBQIXgAIZARYhBMTGKxZwwt8zFEjyhsY2PvHJaXsU
+ BQJm+wuYAhsDAAoJEMY2PvHJaXsUENsBAO8TrrQXhCKCpNQUWvDto13w55ofDKHA3SVlCtzP
+ zzzhAQCvGb8h5fPcw5eTjgLZbXAAG95uMtxYZzs66FNorxUVCM44BGboSckSCisGAQQBl1UB
+ BQEBB0DUELErM3F1hWb3j/Wm3vDku3kdA2YVLxZtonOkF6XOUgMBCAfCfgQYFgoAJhYhBMTG
+ KxZwwt8zFEjyhsY2PvHJaXsUBQJm6EnJAhsMBQkDwmcAAAoJEMY2PvHJaXsU+x4BAMeSfc01
+ SUt1eNtWAEj/caCS4ako0iZd7QZT8recX3zfAP0crszn37KtEaiHb5vHy38tym3+cSzDzvb8
+ +9wp84UkAg==
 
-On Wed, Mar 11, 2026 at 07:57:31PM +0000, Simon Horman via Devel wrote:
-> This is an AI-generated review of your patch. The human sending this
-> email has considered the AI review valid, or at least plausible.
-> 
-> For local reproduction steps see https://netdev-ai.bots.linux.dev/ai-local.html
-> ---
-> xfrm: add XFRM_MSG_MIGRATE_STATE for single SA migration
-> 
-> This patch adds a new netlink method to migrate a single xfrm_state.
-> Unlike the existing migration mechanism (SA + policy), this supports
-> migrating only the SA and allows changing the reqid.
-> 
-> > diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-> > index 4b29ab92c2a7..ae2a1cf2311a 100644
-> > --- a/include/net/xfrm.h
-> > +++ b/include/net/xfrm.h
-> > @@ -683,11 +683,17 @@ struct xfrm_migrate {
-> >  	xfrm_address_t		new_daddr;
-> >  	xfrm_address_t		new_saddr;
-> >  	struct xfrm_encap_tmpl *encap;
-> > -	struct xfrm_user_offload *xuo;
-> > +	struct xfrm_user_offload xuo;
-> 
-> [ ... ]
-> 
-> > diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
-> > index 2f23ca5b62a9..de8b038fc08c 100644
-> > --- a/net/xfrm/xfrm_policy.c
-> > +++ b/net/xfrm/xfrm_policy.c
-> > @@ -4642,6 +4642,19 @@ static int xfrm_migrate_check(const struct xfrm_migrate *m, int num_migrate,
-> >  	return 0;
-> >  }
-> >
-> > +/* Fill migrate fields that are invariant in XFRM_MSG_MIGRATE: inherited
-> > + * from the existing SA unchanged.
-> > + */
-> > +static void xfrm_migrate_copy_old(struct xfrm_migrate *mp,
-> > +				  const struct xfrm_state *x)
-> > +{
-> > +	mp->smark                  = x->props.smark;
-> > +	mp->new_reqid              = x->props.reqid;
-> > +	mp->nat_keepalive_interval = x->nat_keepalive_interval;
-> > +	mp->mapping_maxage         = x->mapping_maxage;
-> > +	mp->new_mark               = x->mark;
-> > +}
-> > +
-> >  int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
-> >  		 struct xfrm_migrate *m, int num_migrate,
-> >  		 struct xfrm_kmaddress *k, struct net *net,
-> > @@ -4680,7 +4693,10 @@ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
-> >  			x_cur[nx_cur] = x;
-> >  			nx_cur++;
-> >  			mp->encap = encap;
-> > -			mp->xuo = xuo;
-> > +			if (xuo)
-> > +				mp->xuo = *xuo;
->                                      ^^^^
-> >  			xfrm_migrate_copy_old(mp, x);
-> >
-> 
-> What happens to mp->xuo when xuo is NULL?
+--------------GZcuAEEZY5ZGzYlwkiW8ZWJy
+Content-Type: multipart/mixed; boundary="------------JunSYbJ000Uhe7nIlaRp86nH"
 
-thanks. I also red this on NIPA AI reviews. I will fix it in the next 
-version.
+--------------JunSYbJ000Uhe7nIlaRp86nH
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-> 
-> The xfrm_migrate structure changed its xuo field from a pointer
-> (struct xfrm_user_offload *xuo) to an embedded value
-> (struct xfrm_user_offload xuo).
-> 
-> In xfrm_migrate(), when the xuo parameter is NULL (PF_KEY path via
-> pfkey_migrate, or XFRM_MSG_MIGRATE without XFRMA_OFFLOAD_DEV), the
-> 'if (xuo) mp->xuo = *xuo' branch is skipped, leaving mp->xuo with
-> uninitialized stack data.
-> 
-> Both callers declare 'struct xfrm_migrate m[XFRM_MAX_DEPTH]' on the
-> stack without zeroing:
-> 
-> net/key/af_key.c:pfkey_migrate() {
->     struct xfrm_migrate m[XFRM_MAX_DEPTH];
->     ...
->     err = xfrm_migrate(&sel, dir, XFRM_POLICY_TYPE_MAIN, m, i,
->                        k.local && k.remote ? &k : NULL, net,
->                        NULL, 0, NULL);
-> }
-> 
-> net/xfrm/xfrm_user.c:xfrm_do_migrate() {
->     struct xfrm_migrate m[XFRM_MAX_DEPTH];
+QSBuZXcgcmVsZWFzZSBvZiBTRUxpbnV4IFJlZmVyZW5jZSBQb2xpY3kgaXMgYXZhaWxhYmxl
+Og0KDQpodHRwczovL2dpdGh1Yi5jb20vU0VMaW51eFByb2plY3QvcmVmcG9saWN5L3JlbGVh
+c2VzL3RhZy9SRUxFQVNFXzJfMjAyNjAzMTINCg0KVGhpcyByZWxlYXNlIGNvbnNpc3RzIG1h
+aW5seSBvZiBzbWFsbCBmaXhlcyBpbiB0aGUgcG9saWN5Lg0KDQpOZXcgbW9kdWxlcw0KKiBv
+Zm9ubw0KKiBwZF9tYXBwZXINCiogdGVlX3N1cHBsaWNhbnQNCiogeGRzcHJwY2QNCiogd2F5
+bGFuZA0KDQpOb24gdXNlci12aXNpYmxlIGNoYW5nZXMNCiogQWRkIEdpdEh1YiBhY3Rpb25z
+IHRlc3QgZm9yIG1vZHVsZSBpbnN0YWxscw0KDQpGdWxsIENoYW5nZWxvZzoNCg0KaHR0cHM6
+Ly9naXRodWIuY29tL1NFTGludXhQcm9qZWN0L3JlZnBvbGljeS9jb21wYXJlL1JFTEVBU0Vf
+Ml8yMDI1MDkyMy4uLlJFTEVBU0VfMl8yMDI2MDMxMg0KDQotLSANCkNocmlzIFBlQmVuaXRv
+DQoNCg==
+--------------JunSYbJ000Uhe7nIlaRp86nH
+Content-Type: application/pgp-keys; name="OpenPGP_0xC6363EF1C9697B14.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xC6363EF1C9697B14.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
 
--  struct xfrm_migrate m[XFRM_MAX_DEPTH];
-+  struct xfrm_migrate m[XFRM_MAX_DEPTH] = {};
+-----BEGIN PGP PUBLIC KEY BLOCK-----
 
-this should fix it.
+xjMEZuhGfhYJKwYBBAHaRw8BAQdADz/tF/gexoZlGld9hGmv5HXcHP95b15YoRSb
+sznX8EHNK0NocmlzdG9waGVyIEouIFBlQmVuaXRvIDxwZWJlbml0b0BpZWVlLm9y
+Zz7CmQQTFgoAQQUJBi93EgULCQgHAwUVCgkICwUWAwIBAAIeBQIXgAIZARYhBMTG
+KxZwwt8zFEjyhsY2PvHJaXsUBQJm+wuYAhsDAAoJEMY2PvHJaXsUENsBAO8TrrQX
+hCKCpNQUWvDto13w55ofDKHA3SVlCtzPzzzhAQCvGb8h5fPcw5eTjgLZbXAAG95u
+MtxYZzs66FNorxUVCMKZBBMWCgBBAhsBBQkGL3cSBQsJCAcDBRUKCQgLBRYDAgEA
+Ah4FAheAFiEExMYrFnDC3zMUSPKGxjY+8clpexQFAmboRsMCGQEACgkQxjY+8clp
+exQmkgEA5ovWr8Z/JJetRd5Pk8ftayHyd63PkcmjYKMadgOJpTkA/2JeR7lNWNxX
+lJpjpxVfa8C0c8pXrp3RbMA2OBs+M5QDzTBDaHJpc3RvcGhlciBKLiBQZUJlbml0
+byA8Y2hwZWJlbmlAbWljcm9zb2Z0LmNvbT7ClgQTFgoAPhYhBMTGKxZwwt8zFEjy
+hsY2PvHJaXsUBQJm6EahAhsBBQkGL3cSBQsJCAcDBRUKCQgLBRYDAgEAAh4FAheA
+AAoJEMY2PvHJaXsUYVIA/jiBubsOCGfxTGGkeR+6f9ZBHQ9/Qoxocuvce3HSSk7X
+AQDASqRpXcaMcm8ZaKSOm6wXAa8J7NguD2Ov8QEsZDA9BM02Q2hyaXN0b3BoZXIg
+Si4gUGVCZW5pdG8gPGNocGViZW5pQGxpbnV4Lm1pY3Jvc29mdC5jb20+wpYEExYK
+AD4WIQTExisWcMLfMxRI8obGNj7xyWl7FAUCZuhGqwIbAQUJBi93EgULCQgHAwUV
+CgkICwUWAwIBAAIeBQIXgAAKCRDGNj7xyWl7FHGqAQDoYxvOhcDSkqepRvqN3atJ
+iSyc+UhpAus/XdT9c1DjbAD5AePq0cqojwoT3xX4/GreCWjFrY+/U7FN9kPYyNiA
+4gjNPENocmlzdG9waGVyIEouIFBlQmVuaXRvIDxDaHJpc3RvcGhlci5QZUJlbml0
+b0BtaWNyb3NvZnQuY29tPsKWBBMWCgA+FiEExMYrFnDC3zMUSPKGxjY+8clpexQF
+AmboRrsCGwEFCQYvdxIFCwkIBwMFFQoJCAsFFgMCAQACHgUCF4AACgkQxjY+8clp
+exQVqQD/d5sFwtor33Sn28CPpVC0mD1n42Pk4j60y2Ou03fCi00BAOzorOfT4Z6Q
+R18yclt3Fqz7zfsBGbDfT+cqC5oMpFQDzjMEZuhJtBYJKwYBBAHaRw8BAQdAkOL3
+h+dom2WgVxLqMNs9yDjG4kHdMSiNOqXw35YGVMDCwJYEGBYKACYWIQTExisWcMLf
+MxRI8obGNj7xyWl7FAUCZuhJtAIbAgUJA8JnAADiCRDGNj7xyWl7FMAWIAQZFgoA
+fRYhBIVkkInJ84WzX0BWjSFpj9KdQ1WkBQJm6Em0XxSAAAAAAC4AKGlzc3Vlci1m
+cHJAbm90YXRpb25zLm9wZW5wZ3AuZmlmdGhob3JzZW1hbi5uZXQ4NTY0OTA4OUM5
+RjM4NUIzNUY0MDU2OEQyMTY5OEZEMjlENDM1NUE0AAoJECFpj9KdQ1WkWDkA/1Jl
+rRTYapmAnipWKhTIK7gnkDs1VVbvArKUASmFEYb3AQDgRPKsX3R1T9kz63Lhu5ay
+c+JgV/wjPJMIhieVcKLIA135AP4nUfNz6gHgn6fazlln+IDgBp/GqhmxERgmYegr
+btxWUgD/Y1GPqoEDw80ewNXEiXGJzsNZT4oQXbwE7dRBDp+oRQbOOARm6EnJEgor
+BgEEAZdVAQUBAQdA1BCxKzNxdYVm94/1pt7w5Lt5HQNmFS8WbaJzpBelzlIDAQgH
+wn4EGBYKACYWIQTExisWcMLfMxRI8obGNj7xyWl7FAUCZuhJyQIbDAUJA8JnAAAK
+CRDGNj7xyWl7FPseAQDHkn3NNUlLdXjbVgBI/3GgkuGpKNImXe0GU/K3nF983wD9
+HK7M59+yrRGoh2+bx8t/Lcpt/nEsw872/PvcKfOFJAI=3D
+=3D1NtU
+-----END PGP PUBLIC KEY BLOCK-----
 
->     ...
->     err = xfrm_migrate(&sel, dir, type, m, n, k, net, encap, xuo, extack);
-> }
-> 
-> The uninitialized mp->xuo.ifindex is later read in
-> xfrm_state_migrate_create() and xfrm_state_migrate_install():
-> 
-> net/xfrm/xfrm_state.c:xfrm_state_migrate_create() {
->     ...
->     /* configure the hardware if offload is requested */
->     if (m->xuo.ifindex && xfrm_dev_state_add(net, xc, &m->xuo, extack))
->         goto error;
-> }
-> 
-> net/xfrm/xfrm_state.c:xfrm_state_migrate_install() {
->     ...
->     if (xfrm_state_add(xc) < 0) {
->         NL_SET_ERR_MSG(extack, "Failed to add migrated state");
->         if (m->xuo.ifindex)
->             xfrm_dev_state_delete(xc);
->         ...
->     }
-> }
-> 
-> If the stack garbage contains a non-zero ifindex value,
-> xfrm_dev_state_add() will be called with random ifindex and flags,
-> potentially causing spurious hardware offload attempts or migration
-> failures.
-> 
-> Previously, 'mp->xuo = xuo' unconditionally set the pointer to NULL in
-> these paths, which was then properly checked as 'if (m->xuo)'.
-> 
-> Should mp->xuo be zero-initialized when xuo is NULL, either by adding
-> 'else memset(&mp->xuo, 0, sizeof(mp->xuo))' after the if-block, or by
-> zero-initializing the m[] arrays in the callers?
+--------------JunSYbJ000Uhe7nIlaRp86nH--
 
-thanks,
--antony
+--------------GZcuAEEZY5ZGzYlwkiW8ZWJy--
+
+--------------TjRCaQu0wt4Por0uO2DszTrh
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEARYKAB0WIQTExisWcMLfMxRI8obGNj7xyWl7FAUCabLSDgAKCRDGNj7xyWl7
+FLXSAQD3d/TC20v8BrymT6SCc0pR01wwgxsv/1wiLUXXSFjaZgEA/Y7bRvyAMbs0
+PlhnG57EQ7lKNisWFc5yuxeVyHTekAQ=
+=uleQ
+-----END PGP SIGNATURE-----
+
+--------------TjRCaQu0wt4Por0uO2DszTrh--
