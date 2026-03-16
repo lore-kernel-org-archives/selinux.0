@@ -1,64 +1,63 @@
-Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
+Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96A6A3659E8
-	for <selinux@vger.kernel.org>; Mon, 16 Mar 2026 21:36:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D4FA36607A
+	for <selinux@vger.kernel.org>; Mon, 16 Mar 2026 21:36:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773696988; cv=none; b=tLHy1NIp2O6gwl/TBpwKgxX/1ArBp6vTH1a7pTP3r+e0KEw8YUK0kgwv3EcsY/GCDaqGV1UIUyK+nAhkxCZEUMyapOBwz6DXiCFg033PIZC/c7yuG1V1Pc4UkFTgy0lDRe8f7hI6sHpQ+TBEqVbIbSGED7oYjTY01U/QcVXRiMw=
+	t=1773696989; cv=none; b=Kn5V1Q3//8cE8G+5JlMHgmlEqW43RYXP2CW+be3qnVXB0kAKuGDZQgX5spIOTS/+Ixg4JoYTixOMfPeBgjfyXXSFUdmFYJTRSSH3IgtpP3Y++Js9+rhx3OpayxhlEvxbDQNiQoLzuU65VZxExJ6QLcXk59M5FvGv8r1ONY5Lg1c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773696988; c=relaxed/simple;
-	bh=dX3vSVluZ2sVFC8E0ytSSXIe/yQh8rLeBSsPIlH/scU=;
+	s=arc-20240116; t=1773696989; c=relaxed/simple;
+	bh=WtafcBhkNjwN/vp7IcaPNnu/9+5NgIh+9C6Xc3B9scE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=oSGfVCM7CII3LgTCDPpQGjLakNf4VizvO4+T6Y10DxvnTyRy755yDHyr65q8WkVY1YCjgWt7IVxe0wGi5K/LqvS+avHWGAwBNILyXEYIr0EsE7J52LdnIh+R14PTsxdpt+AKbrPwVAwp2Nsr94L8i6Z7/dM6H71UlHdNtpzsl4I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=YoFjP/vR; arc=none smtp.client-ip=209.85.222.169
+	 MIME-Version; b=H9Doc1UpINUTeN6UpUBP/oRESWiLlgdh4P+seJmKOS3mMqmM0LEkYFRuPtIAIEi0qEmUWkc3nQLpSJKwkq+j8VU62P6kc6AiVOjULOWTiRQ5nQxukXNkBA3NfzRiqOiqwVQ4iUT5pAl+QpKJ/8UQiayaQYGuqsFzVpAk7A1sN+U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=JhNKs3y8; arc=none smtp.client-ip=209.85.222.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="YoFjP/vR"
-Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-8cd8d97aa2eso660974785a.3
-        for <selinux@vger.kernel.org>; Mon, 16 Mar 2026 14:36:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="JhNKs3y8"
+Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-8cd79e43da3so531334885a.1
+        for <selinux@vger.kernel.org>; Mon, 16 Mar 2026 14:36:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1773696984; x=1774301784; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1773696986; x=1774301786; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=K65XnocK8kG+6tfBdzIF+tZj3LHNhmW0Q9HX3G1TK3M=;
-        b=YoFjP/vRg4GbwmZpAMpyVyGhtaI1y0P+VUP7nue/0rB/DSOZuJbdDSwC3tfXX19yzC
-         JeftJmSGDlEKE0nI/X52UH43pXKhyJgrN/Xqr5OnQho8juWBvn3+xpMoaq+ck9Bu7fUu
-         FNorIcDvW4y7sThn0l5HCBEk3PXHowaztFykL3vsXthKbzNAONyxNJe0GcMyt9eBXZvq
-         Qn8a+ktKb03FiNSr5lWK0tPzTLxKGyHllp5s3NQN1VA0wiwWh8Eaj+Hx2CnM1a7y1xwd
-         Bz795ZkXsdq5p7ronPzlEo4aNquC14xT0eSoR427+BzK4VhELJMEYvfGtMtD+BlG36YM
-         AbAA==
+        bh=hTsLH1MNdb+4eQsSukde0PobQXZ5LXJ2xbUvSGeH18E=;
+        b=JhNKs3y8FPHUZHUJGjxluqZy1QEXQPIWb3FgYwtRFXEEy4w+Cix2+ALecLON7F6tId
+         9AxRblbiUEif00M89utGZXCw2wCX+e1/qoSbtxK6FDI0ofAu6mhsfYjQDHh0bJecDSLu
+         6uMJg1dRA9685gHuMeIe64Lwx8kW6+VZCV3tiifywn3fFUrYvivkFT8k0V8lQFbtZDGF
+         X5Cjz0O7LYwDs3COLatjHfF0OUQm/lgzZLF4Feho/QO8CFIcxN0v6LcwUK56Nzyysxb0
+         y8/Uo7EJBRxtoQeUL+Zr4DcpvEDG+Kpx4ocTLTAuyPQYybR7ouRFDmDpgTmU+wK+SNYt
+         UUhw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773696984; x=1774301784;
+        d=1e100.net; s=20251104; t=1773696986; x=1774301786;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=K65XnocK8kG+6tfBdzIF+tZj3LHNhmW0Q9HX3G1TK3M=;
-        b=hNrFzYVR3iCIF+FQNizx1zXhUfBm+8mICaxPgMUyuKo5mMG/JVOSxq4HykWmsoGq8B
-         qNVERBSStJQEpMlSEk4Ne0t7AnurFKPcrfTHPYAVLLIYAxlhZxW+mOjb1YDCkEQtA3pr
-         rMcDqnwRFUcW7Vt8Tfea7MgnHYQTBYeO5DAEldCVLbbLT4ccrBKWVhTtqLJxRRLnxCiT
-         wHL/wxGqJxKel8S8h13qR5H5ZB5BXs3LLljj/pXEaGASkceDXQARyR7AbpGJeiHvguCS
-         gN2ec2EszTyW15hxBfOyUU93AFebLgL6k4hRt3cBV9MyTS2Ux+0PysLFn5RwHm8gAAJI
-         HEPQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVAHyW9O0gZUFZLoUMYXJaXMqTb4LVlRUR7t7isu3Pl6bcVBkt3HIXsYpCgH9ueYmlscGP5jrOO@vger.kernel.org
-X-Gm-Message-State: AOJu0YxDn8OHfakwG8fLJLxvyEspSl/+fEYbtQO1mIEdplN2XcQ8N4r1
-	WbeHoDyYXDCroeRiNnJoiTaYkoi0omTslMqKqW0kGVi+PeJq83tzZwgGVvL/sbLQOA==
-X-Gm-Gg: ATEYQzydx95IFmr9ZSWfHZ2E8N60Oks0GOyUdNNiml6wNI4KiNOyZsLRRabHJYAtR/m
-	PRjeAkDVM5HRkU0kbScZWMRgiCKRxDWoqk0hlqLpX7QJ02XSOD/Mw++cVAH1KckHYTYVvtSSiO6
-	Du92xuGcMk5/d4MH49X0IqGMJj6ZwWhfyF8pvsc4R9MvsdMIqKsyBZQ2lgi2cOQqzfbFd0WdTXI
-	fgTY/1zVE5bDwH1OVYc6+OJQSMMy91oJeFun561eOSj1YKs1iDYttC6barjfR7hxa1zcEoQRt6a
-	sKiW0vjihVkLc1yx51FQ1eVfDpR57On/laumgGDqNVcEKUOmawXYOTX81MRwBdgcd/TKDye0YBk
-	jhEC7g5D8SsXGS6FikLc7IDUjqwz5tfEXGp6nWJIH9puzQ2ttr8o73NNK7FhN6lxjRYYpNiqzGG
-	iNaXHbJZeBSQf2M73uRLvSg28nlukQfVZTkWMNp5HEHk+lfDZ0N/0RLdOemnP+KIqlYMZ5p/jj/
-	wjadks=
-X-Received: by 2002:a05:620a:4713:b0:8cd:92c5:b3e5 with SMTP id af79cd13be357-8cdb5a76411mr1964899185a.20.1773696984421;
-        Mon, 16 Mar 2026 14:36:24 -0700 (PDT)
+        bh=hTsLH1MNdb+4eQsSukde0PobQXZ5LXJ2xbUvSGeH18E=;
+        b=aSbE4XdTwcL9yJOOGF4juoo6e0eDjmRlLE3j2BpE2MV4mk4Pq3RuI02FVlMDS0QqCU
+         e5iHRbK8uwREMf3f1d155VyCVTAWrT0z8clDQO5t3YBgB0hfMuMeUyw36V9281TXj+dS
+         7OECLA81FcwbLE2BWJPnMQs//L5M4zIryOW/fpaWiKERomZJKHotVWumtw7kIwGjTvnL
+         4VlEu27STbro/of5gcG0Il3ralxIfRoXV6/wraxetIDKVNBFAFWr+l+F4i7KmYA7hCDU
+         h/WHAidm4bMXYvzKdU1ulB/FYZA3m3EStN7ObuQMNcbX+WZBaqXRTr8Ogzrp1/YhNCEl
+         VNsQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUxwQZDrpNBdkSkbIO/IvmJCOVo/9H6zq0X6pqBqtIcXKN1qXMxgWns585YlupxhUDlgrwLektB@vger.kernel.org
+X-Gm-Message-State: AOJu0YzvtiGCR+Ei0j8QMqgmJvIusA5lfPW4KwjoOLWV0Bo1BCl9+L0e
+	1DfyMcAV0h9cSnCIAi9L0GBOj+FsPp5RGlWvdaaIpyGk+YaLbMnHhitfglrrmQJaJA==
+X-Gm-Gg: ATEYQzyVkLrzOTA3vwnxJ9S8D+hFcLyJTWcMrFCW37VDCFfbzPrNfvwdGLX5nzVp0GO
+	QMhtB+bR4ynwzPjSZsXmxJqNr4TSH5KdPJcwWRZTN84PRDd8Tmty9iz7EIAKuQdHlgN3dCdtomN
+	EkkKpzTgHpMBQvzytpOIG3jmKFb+zajUykbMqdpBP5jdvmMXb0hpH8pWNAE/0alzhDJ+JlW4nhQ
+	ucoAxX9KXpOG3ISOkaGh9KH5lRr/xAZUIZeuCPwgRfWBi9P333UF7veL6eUJkU2iWReDxJXoVyf
+	rAW48W1LcyIgE22fwFgsRMzkhfImXyU5fQmh+lwGRVa3ehzgjR+qJVv2uxWbzqnAa1ZctR4EeCy
+	7frM/QMaK0xKD6pNB4WZxxdxSXWuFxBc9lVB7Tobyons2MjHNAmNYz6amxlWErG3JO9cp7J67jH
+	URnCao+LLPKMQ29SV3MS1vIOhGc1WX0Dgt3QwJHD+KWMsOJdfDWHvPn1RA/CxCEfDRzD1x
+X-Received: by 2002:a05:620a:4452:b0:8cd:91b4:8225 with SMTP id af79cd13be357-8cdb5b21c1bmr1920572085a.40.1773696986434;
+        Mon, 16 Mar 2026 14:36:26 -0700 (PDT)
 Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8cda1fc09efsm1371730385a.2.2026.03.16.14.36.23
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8cda2151db2sm1241918285a.44.2026.03.16.14.36.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Mar 2026 14:36:23 -0700 (PDT)
+        Mon, 16 Mar 2026 14:36:25 -0700 (PDT)
 From: Paul Moore <paul@paul-moore.com>
 To: linux-security-module@vger.kernel.org,
 	selinux@vger.kernel.org,
@@ -67,9 +66,9 @@ To: linux-security-module@vger.kernel.org,
 	linux-erofs@lists.ozlabs.org
 Cc: Amir Goldstein <amir73il@gmail.com>,
 	Gao Xiang <xiang@kernel.org>
-Subject: [PATCH 2/3] lsm: add the security_mmap_backing_file() hook
-Date: Mon, 16 Mar 2026 17:35:57 -0400
-Message-ID: <20260316213606.374109-7-paul@paul-moore.com>
+Subject: [PATCH 3/3] selinux: fix overlayfs mmap() and mprotect() access checks
+Date: Mon, 16 Mar 2026 17:35:58 -0400
+Message-ID: <20260316213606.374109-8-paul@paul-moore.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260316213606.374109-5-paul@paul-moore.com>
 References: <20260316213606.374109-5-paul@paul-moore.com>
@@ -79,172 +78,217 @@ List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=6049; i=paul@paul-moore.com; h=from:subject; bh=dX3vSVluZ2sVFC8E0ytSSXIe/yQh8rLeBSsPIlH/scU=; b=kA0DAAoB6iDy2pc3iXMByyZiAGm4d8rIUmXCtbyU0o7TJ7z5uf6AVXhPQq3cnyUX5r9tfC3LR YkCMwQAAQoAHRYhBEtCqM8H8pnVVJd+7+og8tqXN4lzBQJpuHfKAAoJEOog8tqXN4lzt/AQAJQ4 93OpEdrzoe5s8FEXqefSpadTyy9aCf1lD2hYDQom/uhTtgtFk0ejVnnNHEd3BH5Ahabe1zTSkiU xFVqhuFscJLhMnMyFn0LbSScm5RLHoeG1F6FeX5eP7sA1lAIvT/mGqcwmCgl9xjVo/jHmUJNejf uBJ+Evjm6HhsjwF6PTnUUq2PPe6rIw19nBXe4kdVYPJRvA5448OWAoilV/wKyZCkwDNUom1/hQL olnRSWOw3kJrAJOh4foNnttrL3ioEghpuR86GghSrDQN/NTXwGkJ+3saoBxs0O6XAGDIdN97gHQ Q3tsRKj976wEgQmgdHGlmB3wJ32QQeYwgf8czLMeUtmH0uGnnYoeqqpKJB6Ki5yaK73ShIHWe4M a5ipcP2h4n8EfLjMiWBYTrpnlB47cvROjFTw2jguEyx4pc//qH0Tx/UzTQQaXnSv7MCsKrQQJdc 0t1aYYB+P/n56XVxbBT3irEdG4YzrR5tay6NaZwFSRNobPS+ndq3uzQJuJDR1+OC3OcfJVbKhNb fFH+nEDz0XvTvIlt95afWFahx0/brtnNXNLPII8WqXW2NVLWuyS5v+TP9ovgUkRBHpd/TBIRgJa n26i59ei9ei7tEFlHVG7ADkfVx3UHbwn5hJ4YhRtZGvpPaE/TI8yluMVcr2t7oFr0GVX1tYRN74 SLbqr
+X-Developer-Signature: v=1; a=openpgp-sha256; l=7434; i=paul@paul-moore.com; h=from:subject; bh=WtafcBhkNjwN/vp7IcaPNnu/9+5NgIh+9C6Xc3B9scE=; b=owEBbQKS/ZANAwAKAeog8tqXN4lzAcsmYgBpuHfNl2n7U5d3uCSuiCJ0pcaLH2KBlzhET15UZ /VXba2LXguJAjMEAAEKAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCabh3zQAKCRDqIPLalzeJ c/r4D/43yZPGbaF4C/icZgs1GQN6W84UpGasnfPDaWHYaEJPvywAnFA/BsR9Bx56Ag5xdtx9/Gj 1auuQ3dKUwZS19EMzIG/0XLs2KN4lHJsN/1ZMGDfeurZXRkkGO+gpirLiOcUJT3cW6WXL3FEOMB M+vpqKVfywXWnm9AjtHKbBUneccnmqTtLn+PhnWleJBieZBFsQu1fVLduG7Xpdywl0ZJmrfFYYc Wc0Mlj3LfLhJ4COyiolcKYaT2rJxP2m3KOo4VmFAJc5OLOklkG1e6xbLyrbrkMajrDfMCVW8lDa /84AlvlfHOhUtTruAM11fynwQa508e7MVti0Z+MeOSd+9o5TgQYrV3/8rvHmEfcbxgHXoL71dTX wuC24MPUfUZoZ+X6gujHb8MOC4uSa+e3bEEQBW/zHzQlVAK+xl8ptCQeqkG5cu1KPyor30J6oLK eVTvnl1jRU0GWLC2Nx9Whi8uY1g4zkh3i/9FQ/cxuzQ/w3wRb8J5odeMtC4COYPFfu1qYog8TLF KdPKH+qNJGu/uer+B/hQoG/MkU6jCtrRIafiP7floG+bc5w64CGButwO4TLstTemt0Fb8vjaQ8f K3Gr/Hc3rN3SXFQm+1hjRWdfKjExHcH/lyCYwAWuyg+P2/0xXbx9bGmasehfhFpqAFY+6H3qC6z EFYJs2NeuiSWSUQ==
 X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
 Content-Transfer-Encoding: 8bit
 
-Add the security_mmap_backing_file() hook to allow LSMs to properly
-enforce access controls on mmap() operations on stacked filesystems
-such as overlayfs.
+The existing SELinux security model for overlayfs is to allow access if
+the current task is able to access the top level file (the "user" file)
+and the mounter's credentials are sufficient to access the lower
+level file (the "backing" file).  Unfortunately, the current code does
+not properly enforce these access controls for both mmap() and mprotect()
+operations on overlayfs filesystems.
 
-The existing security_mmap_file() hook exists as an access control point
-for mmap() but on stacked filesystems it only provides a way to enforce
-access controls on the user visible file.  In order to enforce access
-controls on the underlying backing file, the new
-security_mmap_backing_file() hook is needed.
+This patch makes use of the newly created security_mmap_backing_file()
+LSM hook to provide the missing backing file enforcement for mmap()
+operations on overlayfs files, and leverages the new
+backing_file_user_path_file() VFS API to provide an equivalent to the
+missing user file in mprotect().
 
-In addition the LSM hook additions, this patch also constifies the file
-struct field in the LSM common_audit_data struct to better support LSMs
-that will likely need to pass a const file struct pointer from the new
-backing_file_user_path_file() API into the common LSM audit code.
-
-Reviewed-by: Amir Goldstein <amir73il@gmail.com>
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- fs/backing-file.c             |  8 +++++++-
- fs/erofs/ishare.c             |  6 ++++++
- include/linux/lsm_audit.h     |  2 +-
- include/linux/lsm_hook_defs.h |  2 ++
- include/linux/security.h      | 10 ++++++++++
- security/security.c           | 25 +++++++++++++++++++++++++
- 6 files changed, 51 insertions(+), 2 deletions(-)
+ security/selinux/hooks.c | 108 ++++++++++++++++++++++++++++++++-------
+ 1 file changed, 90 insertions(+), 18 deletions(-)
 
-diff --git a/fs/backing-file.c b/fs/backing-file.c
-index acabeea7efff..cfc7f6611313 100644
---- a/fs/backing-file.c
-+++ b/fs/backing-file.c
-@@ -13,6 +13,7 @@
- #include <linux/splice.h>
- #include <linux/uio.h>
- #include <linux/mm.h>
-+#include <linux/security.h>
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index d8224ea113d1..013e1e35a1ff 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -94,6 +94,7 @@
+ #include <linux/io_uring/cmd.h>
+ #include <uapi/linux/lsm.h>
+ #include <linux/memfd.h>
++#include <linux/backing-file.h>
  
- #include "internal.h"
+ #include "initcalls.h"
+ #include "avc.h"
+@@ -1754,7 +1755,7 @@ static int bpf_fd_pass(const struct file *file, u32 sid);
+    access to the file is not checked, e.g. for cases
+    where only the descriptor is affected like seek. */
+ static int file_has_perm(const struct cred *cred,
+-			 struct file *file,
++			 const struct file *file,
+ 			 u32 av)
+ {
+ 	struct file_security_struct *fsec = selinux_file(file);
+@@ -3942,9 +3943,9 @@ static int selinux_file_ioctl_compat(struct file *file, unsigned int cmd,
  
-@@ -338,8 +339,13 @@ int backing_file_mmap(struct file *file, struct vm_area_struct *vma,
+ static int default_noexec __ro_after_init;
  
- 	vma_set_file(vma, file);
+-static int file_map_prot_check(struct file *file, unsigned long prot, int shared)
++static int file_map_prot_check(const struct cred *cred, const struct file *file,
++			       unsigned long prot, bool shared)
+ {
+-	const struct cred *cred = current_cred();
+ 	u32 sid = cred_sid(cred);
+ 	int rc = 0;
  
--	scoped_with_creds(ctx->cred)
-+	scoped_with_creds(ctx->cred) {
-+		ret = security_mmap_backing_file(vma, file, user_file);
-+		if (ret)
-+			return ret;
+@@ -3993,36 +3994,86 @@ static int selinux_mmap_addr(unsigned long addr)
+ 	return rc;
+ }
+ 
+-static int selinux_mmap_file(struct file *file,
+-			     unsigned long reqprot __always_unused,
+-			     unsigned long prot, unsigned long flags)
++static int selinux_mmap_file_common(const struct cred *cred, struct file *file,
++				    unsigned long prot, bool shared)
+ {
+-	struct common_audit_data ad;
+-	int rc;
+-
+ 	if (file) {
++		int rc;
++		struct common_audit_data ad;
 +
- 		ret = vfs_mmap(vma->vm_file, vma);
+ 		ad.type = LSM_AUDIT_DATA_FILE;
+ 		ad.u.file = file;
+-		rc = inode_has_perm(current_cred(), file_inode(file),
+-				    FILE__MAP, &ad);
++		rc = inode_has_perm(cred, file_inode(file), FILE__MAP, &ad);
+ 		if (rc)
+ 			return rc;
+ 	}
+ 
+-	return file_map_prot_check(file, prot,
+-				   (flags & MAP_TYPE) == MAP_SHARED);
++	return file_map_prot_check(cred, file, prot, shared);
++}
++
++static int selinux_mmap_file(struct file *file,
++			     unsigned long reqprot __always_unused,
++			     unsigned long prot, unsigned long flags)
++{
++	return selinux_mmap_file_common(current_cred(), file, prot,
++					(flags & MAP_TYPE) == MAP_SHARED);
++}
++
++/**
++ * selinux_mmap_backing_file - Check mmap permissions on a backing file
++ * @vma: memory region
++ * @backing_file: stacked filesystem backing file
++ * @user_file: user visible file
++ *
++ * This is called after selinux_mmap_file() on stacked filesystems, and it
++ * is this function's responsibility to verify access to @backing_file and
++ * setup the SELinux state for possible later use in the mprotect() code path.
++ *
++ * By the time this function is called, mmap() access to @user_file has already
++ * been authorized and @vma->vm_file has been set to point to @backing_file.
++ *
++ * Return zero on success, negative values otherwise.
++ */
++static int selinux_mmap_backing_file(struct vm_area_struct *vma,
++				     struct file *backing_file,
++				     struct file *user_file __always_unused)
++{
++	unsigned long prot = 0;
++
++	/* translate vma->vm_flags perms into PROT perms */
++	if (vma->vm_flags & VM_READ)
++		prot |= PROT_READ;
++	if (vma->vm_flags & VM_WRITE)
++		prot |= PROT_WRITE;
++	if (vma->vm_flags & VM_EXEC)
++		prot |= PROT_EXEC;
++
++	return selinux_mmap_file_common(backing_file->f_cred, backing_file,
++					prot, vma->vm_flags & VM_SHARED);
+ }
+ 
+ static int selinux_file_mprotect(struct vm_area_struct *vma,
+ 				 unsigned long reqprot __always_unused,
+ 				 unsigned long prot)
+ {
++	int rc;
+ 	const struct cred *cred = current_cred();
+ 	u32 sid = cred_sid(cred);
++	const struct file *file = vma->vm_file;
++	const struct file *backing_file = NULL;
++
++	/* check if adjustments are needed for stacked filesystems */
++	if (file && (file->f_mode & FMODE_BACKING)) {
++		backing_file = vma->vm_file;
++		file = backing_file_user_path_file(backing_file);
++
++		/* sanity check the special O_PATH user file */
++		if (WARN_ON(!(file->f_mode & FMODE_OPENED)))
++			return -EPERM;
 +	}
  
- 	if (ctx->accessed)
- 		ctx->accessed(user_file);
-diff --git a/fs/erofs/ishare.c b/fs/erofs/ishare.c
-index 17a4941d4518..d66c3a935d83 100644
---- a/fs/erofs/ishare.c
-+++ b/fs/erofs/ishare.c
-@@ -150,8 +150,14 @@ static ssize_t erofs_ishare_file_read_iter(struct kiocb *iocb,
- static int erofs_ishare_mmap(struct file *file, struct vm_area_struct *vma)
- {
- 	struct file *realfile = file->private_data;
-+	int err;
- 
- 	vma_set_file(vma, realfile);
+ 	if (default_noexec &&
+ 	    (prot & PROT_EXEC) && !(vma->vm_flags & VM_EXEC)) {
+-		int rc = 0;
+ 		/*
+ 		 * We don't use the vma_is_initial_heap() helper as it has
+ 		 * a history of problems and is currently broken on systems
+@@ -4036,11 +4087,15 @@ static int selinux_file_mprotect(struct vm_area_struct *vma,
+ 		    vma->vm_end <= vma->vm_mm->brk) {
+ 			rc = avc_has_perm(sid, sid, SECCLASS_PROCESS,
+ 					  PROCESS__EXECHEAP, NULL);
+-		} else if (!vma->vm_file && (vma_is_initial_stack(vma) ||
++			if (rc)
++				return rc;
++		} else if (!file && (vma_is_initial_stack(vma) ||
+ 			    vma_is_stack_for_current(vma))) {
+ 			rc = avc_has_perm(sid, sid, SECCLASS_PROCESS,
+ 					  PROCESS__EXECSTACK, NULL);
+-		} else if (vma->vm_file && vma->anon_vma) {
++			if (rc)
++				return rc;
++		} else if (file && vma->anon_vma) {
+ 			/*
+ 			 * We are making executable a file mapping that has
+ 			 * had some COW done. Since pages might have been
+@@ -4048,13 +4103,29 @@ static int selinux_file_mprotect(struct vm_area_struct *vma,
+ 			 * modified content.  This typically should only
+ 			 * occur for text relocations.
+ 			 */
+-			rc = file_has_perm(cred, vma->vm_file, FILE__EXECMOD);
++			rc = file_has_perm(cred, file, FILE__EXECMOD);
++			if (rc)
++				return rc;
++			if (backing_file) {
++				rc = file_has_perm(backing_file->f_cred,
++						   backing_file, FILE__EXECMOD);
++				if (rc)
++					return rc;
++			}
+ 		}
++	}
 +
-+	err = security_mmap_backing_file(vma, realfile, file);
-+	if (err)
-+		return err;
-+
- 	return generic_file_readonly_mmap(file, vma);
- }
++	rc = file_map_prot_check(cred, file, prot, vma->vm_flags & VM_SHARED);
++	if (rc)
++		return rc;
++	if (backing_file) {
++		rc = file_map_prot_check(backing_file->f_cred, backing_file,
++					 prot, vma->vm_flags & VM_SHARED);
+ 		if (rc)
+ 			return rc;
+ 	}
  
-diff --git a/include/linux/lsm_audit.h b/include/linux/lsm_audit.h
-index 382c56a97bba..584db296e43b 100644
---- a/include/linux/lsm_audit.h
-+++ b/include/linux/lsm_audit.h
-@@ -94,7 +94,7 @@ struct common_audit_data {
- #endif
- 		char *kmod_name;
- 		struct lsm_ioctlop_audit *op;
--		struct file *file;
-+		const struct file *file;
- 		struct lsm_ibpkey_audit *ibpkey;
- 		struct lsm_ibendport_audit *ibendport;
- 		int reason;
-diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index 8c42b4bde09c..4150c50a0482 100644
---- a/include/linux/lsm_hook_defs.h
-+++ b/include/linux/lsm_hook_defs.h
-@@ -198,6 +198,8 @@ LSM_HOOK(int, 0, file_ioctl_compat, struct file *file, unsigned int cmd,
- LSM_HOOK(int, 0, mmap_addr, unsigned long addr)
- LSM_HOOK(int, 0, mmap_file, struct file *file, unsigned long reqprot,
- 	 unsigned long prot, unsigned long flags)
-+LSM_HOOK(int, 0, mmap_backing_file, struct vm_area_struct *vma,
-+	 struct file *backing_file, struct file *user_file)
- LSM_HOOK(int, 0, file_mprotect, struct vm_area_struct *vma,
- 	 unsigned long reqprot, unsigned long prot)
- LSM_HOOK(int, 0, file_lock, struct file *file, unsigned int cmd)
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 83a646d72f6f..4017361d8cba 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -476,6 +476,9 @@ int security_file_ioctl_compat(struct file *file, unsigned int cmd,
- 			       unsigned long arg);
- int security_mmap_file(struct file *file, unsigned long prot,
- 			unsigned long flags);
-+int security_mmap_backing_file(struct vm_area_struct *vma,
-+			       struct file *backing_file,
-+			       struct file *user_file);
- int security_mmap_addr(unsigned long addr);
- int security_file_mprotect(struct vm_area_struct *vma, unsigned long reqprot,
- 			   unsigned long prot);
-@@ -1159,6 +1162,13 @@ static inline int security_mmap_file(struct file *file, unsigned long prot,
- 	return 0;
- }
- 
-+static inline int security_mmap_backing_file(struct vm_area_struct *vma,
-+					     struct file *backing_file,
-+					     struct file *user_file)
-+{
+-	return file_map_prot_check(vma->vm_file, prot, vma->vm_flags&VM_SHARED);
 +	return 0;
-+}
-+
- static inline int security_mmap_addr(unsigned long addr)
- {
- 	return cap_mmap_addr(addr);
-diff --git a/security/security.c b/security/security.c
-index 67af9228c4e9..8d10b184ce25 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -2505,6 +2505,31 @@ int security_mmap_file(struct file *file, unsigned long prot,
- 			     flags);
  }
  
-+/**
-+ * security_mmap_backing_file - Check if mmap'ing a backing file is allowed
-+ * @vma: the vm_area_struct for the mmap'd region
-+ * @backing_file: the backing file being mmap'd
-+ * @user_file: the user file being mmap'd
-+ *
-+ * Check permissions for a mmap operation on a stacked filesystem.  This hook
-+ * is called after the security_mmap_file() and is responsible for authorizing
-+ * the mmap on @backing_file.  It is important to note that the mmap operation
-+ * on @user_file has already been authorized and the @vma->vm_file has been
-+ * set to @backing_file.
-+ *
-+ * Return: Returns 0 if permission is granted.
-+ */
-+int security_mmap_backing_file(struct vm_area_struct *vma,
-+			       struct file *backing_file,
-+			       struct file *user_file)
-+{
-+	/* recommended by the stackable filesystem devs */
-+	if (WARN_ON_ONCE(!(backing_file->f_mode & FMODE_BACKING)))
-+		return -EIO;
-+
-+	return call_int_hook(mmap_backing_file, vma, backing_file, user_file);
-+}
-+
- /**
-  * security_mmap_addr() - Check if mmap'ing an address is allowed
-  * @addr: address
+ static int selinux_file_lock(struct file *file, unsigned int cmd)
+@@ -7501,6 +7572,7 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
+ 	LSM_HOOK_INIT(file_ioctl, selinux_file_ioctl),
+ 	LSM_HOOK_INIT(file_ioctl_compat, selinux_file_ioctl_compat),
+ 	LSM_HOOK_INIT(mmap_file, selinux_mmap_file),
++	LSM_HOOK_INIT(mmap_backing_file, selinux_mmap_backing_file),
+ 	LSM_HOOK_INIT(mmap_addr, selinux_mmap_addr),
+ 	LSM_HOOK_INIT(file_mprotect, selinux_file_mprotect),
+ 	LSM_HOOK_INIT(file_lock, selinux_file_lock),
 -- 
 2.53.0
 
