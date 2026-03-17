@@ -1,207 +1,225 @@
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
+Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43EA8379986
-	for <selinux@vger.kernel.org>; Mon, 16 Mar 2026 23:23:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4ECCF38E126
+	for <selinux@vger.kernel.org>; Tue, 17 Mar 2026 07:26:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.51
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773703398; cv=pass; b=IqGyzC6cVpLFEf7kTijBD2D1fCIsVnruhwtUe4lHSAHQEw5HHIF/M6U0sS2E9bU7SsgYAAsorC3vKO8bV+vkkPHSS0+hg9nO1SWZqtI1p/UuM5cxe5CMWeGB/DBN4fEwIeVQny4/JmXh4wBfuGeDLyIquMcMlbGhx4w70Dq9IhQ=
+	t=1773732375; cv=pass; b=ROFyQ1T357MXM/f9hHzAIGxTvgjG+vjiBnK/zdYE2q7aL1LdgBk0kIwmzP/Oiz7TW1BEUBmJt4Mxf4HNykWPPxIiZFYKREIgjjftSJ3JRWESeC1V4Z8/SGFMtZZpr14UDyir3ejOzEaRRBBVSsZsJFvw5/RNNOzCidCbXf/9tOA=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773703398; c=relaxed/simple;
-	bh=XTOZYOCHUctLkYMS5qNPCkNocPEUYtAP2iODWNe7Wt4=;
+	s=arc-20240116; t=1773732375; c=relaxed/simple;
+	bh=f8UETNxqUQnzPIAZtG43HfP4bjrDwk0GJJOmlIbeQc8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=U/QX0kU12U++MGM/3kr+kpy07J/+hshOOVmtEkOc7t7+yDfr8ZtQ3av7jOx50t717oyyKEJbJGJCCxdZA9Dhuy4yi7rrPT1I1iB0gEtytcGIrrQoDGxUOF4fwHR9PNpIxiByDM7lf0tTvXCkou/MuDapTaQ+STIXHp/rCrxzNBQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=eZ2/MpmH; arc=pass smtp.client-ip=209.85.214.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=KeaSPdVNbqxyezzS+eFTHd1xZxyY//w8vkc+W3tDwbOr2uGbnYjNM3JbVVZl++EL4rXEno4phTaehxRy6rrDqgSfpnMQO+kxCh2d2R8ofz6DyajZCZZwYsAPDsvqmA3DeURs/Tv39oZ/ovGh9nICMBrKEtgHcsxV2805PyNmmIw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TGjkNiln; arc=pass smtp.client-ip=209.85.218.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="eZ2/MpmH"
-Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2ab39b111b9so21638225ad.1
-        for <selinux@vger.kernel.org>; Mon, 16 Mar 2026 16:23:17 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1773703396; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TGjkNiln"
+Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-b93698bb57aso77314766b.0
+        for <selinux@vger.kernel.org>; Tue, 17 Mar 2026 00:26:13 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1773732372; cv=none;
         d=google.com; s=arc-20240605;
-        b=LoVM59dfHczRZKa+ItulyZyGNGi9SzndK0msZn0jzqrAAWss+yH+FcUGHKATbkIcBZ
-         worHJ+BTssw8zTWH6cLrDG2ZGq5p+9SOqWxiqh6xNbaWIu31PL2vOeBtAIebbZLJ4rM+
-         4OULDzYRRzoLBdsMyLzYg5ue1wGL0c75HPZIz//mySdY32+SZUsXNoB3BkC0NYimA0pk
-         ad1l+7ZqwQgMnwNJxBr/gwBWqEhPRkVD8ue1M5TgNkAYHUUg583PCkVsZHhgEn+eKG+W
-         YrclGSZhwOxURU4GNlfc45Scaaxuo+rZH89LQe2ZISllBVDKJhq7W9eyuKOScaCrXYxd
-         YFGg==
+        b=hapJ9wIriH6LbNGtqfYOzb0JcQaQR3i1e+k2ocMlDhZlmgDlvZ5yxRRQ7OJkm6pOuz
+         nyKpNDPY5m1S2bSMhjUJp3gFe5el+zmbxwjXQfz2IV3K5s3nKOpiMD+zZvqJuo5DNuQR
+         xTlgSH1llmPZ4E6KV/tWEMcjn7JJOPyWDuKzDVs9hIugCI7cydWqIDC8nBpKvcP2QB2c
+         bM5trPtFkTPB/t/FgUExRvPKqguIgBaN9DwBf8vE9Jj4JV8yQoCQhdznQBpnKJ6QwwPD
+         0D65HtMouqPgHAO7ZcM9E1qIOW4+Z+51+QrZQno25UT6Xm9hQRFuJ77fnKLvq4MqklWa
+         bTQQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=OjoL/xI+JfK24mJlLYQ/qQdhvwGI+GcsV2kW/9vszrY=;
-        fh=WOtLCZMwgmtAzwYwFinhb8oIwQC5iwVWaL4145IjO0Q=;
-        b=SjxI+he7V2ujlqUy6ODiFVfp6v51XaCiQwkt/+EZGghCHFRojhdiBH523jtSz8xG1d
-         Km3kZ6iG3PDDbLACUEeUw4cwjcfTac6Ypfuyg1blbX1iTvpeGYxxp3kf79Yrw4Rptdes
-         otLlEL96RCB7RtRYebKmdIttB3V4yCuON1xcTC8+6uqO3CS1ru8u4C0yZEOcX7DRclNL
-         iruNvgLIdlwSwr4oShUemB/SVj5mn+8FeUQ6t65T7LGl6VH2yvqUXBy//8NM4WnYd1EP
-         CggNI5m5UIy9OOw1o9fPw4a/ZSzuqS1ToGHR11q2RzFJ5aAw2M2RqMp9ooxfJEfSvQTJ
-         8Umg==;
+        bh=i3xav1WzJK9rzK57tlDdYAfYY5vgZYqApatQD+1lTTc=;
+        fh=ttGxSgu5sm/ficehsndJVEAkvnZRI00qMXJdBV3SALw=;
+        b=eGWoitCsIGQnYFn3FBE+Rq95n8R/j/K7wYA/VQy1lMsq9Y/VRx0APXzGrEOS+7V8Cf
+         3IHOBGAVLGDE86204y2vYRMPgm8gDgtmXlONEmZ+/MIScDHEUykzYSC4dyxKQyiWiuvI
+         kIz4LfX2A5gILY0VZaJJE9I9wuKGWQ+u7jhvFyoBmR1htTlNfb3e7AGC6OC7ZvtvI5dW
+         d/DDR8WGkrJnIlsxz9cNtw38nwl0gP0BFQQKsxQih+kJYUZAj7mY5g/Icli3kLwqlM0D
+         rreHOkTFucicXLcSGUhBqQSiX41WmNX9UM9cWXbxJBSR1BM0p6kmDvjjAygb19o/RBD+
+         VQYQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1773703396; x=1774308196; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1773732372; x=1774337172; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=OjoL/xI+JfK24mJlLYQ/qQdhvwGI+GcsV2kW/9vszrY=;
-        b=eZ2/MpmHOTbFFzLcyxFQukFAMHAT6YzxNyylE8gye2eZalHZH61rGfghB43hOFP5Xv
-         i8LhnDq4eVj23kn8GYeN6ZuTHEnAtMqLvYP09F5fURs+lpwlM3ncS4FXsfjjksGdZXZV
-         9yjImmUjtDqg7ttiY4suwVHEZ7MAy1KjYM+0rSeHBMpOY3NWRyv7xLZdiy2DaYBIu66y
-         s01hTO2v+R0ZTDj9a4iTTP6Bb3UMZ40Y9cer+/SzSmu6By5v2qA9I/rfZuhJQM6P5IN7
-         sDRDxWgE2TUkrdSS43j55tIFZuKCmHxFtrHB3fL8Z7Gg1rjgs/kYO9IDpoPQRvu7wc6e
-         sW0g==
+        bh=i3xav1WzJK9rzK57tlDdYAfYY5vgZYqApatQD+1lTTc=;
+        b=TGjkNilnWLGvnVVETbbI+TTJD6At4Tcc0N2XhWRm162KPV0KehCLfltBPpboGCf1hF
+         SDTakddI2G70h2P4hVJeZK01D3T3VYvWyHqk2fUlvp76PMKf0DNpM6022lpEQ/cTWBYe
+         UkR6rhiIEOXqAGK6105CDMUD8J+H+4LspFV0iFVLaDyEV8UTMej0KWYOzvHw+VGp5WDK
+         ne3ViYov1uuldf3cOs6mfG/h/gWnbmJwe+f+MgpCbjX/RSzxPFUhIS+aNSnTOmlFbcSB
+         du9b2n/b3n8NyZG3TrPWmna6zi2Brh1voYaRbHegojj2qDyV/5fOS59gXorYFiSy8cbJ
+         26kw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773703396; x=1774308196;
+        d=1e100.net; s=20251104; t=1773732372; x=1774337172;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=OjoL/xI+JfK24mJlLYQ/qQdhvwGI+GcsV2kW/9vszrY=;
-        b=QD4R/9ooy4gGPN9eJUWGiuzEzTXJZ8ZL7rtDEVJC5LqX29SWiJDoEDJiLFu0w5zLP/
-         4C1tIwK6UFmP5+moW1HVoJRRRGGzHCWGED2vZTWI19D+GnR2P5iTcDCOnrA9igrEco2m
-         MK4h65X77+GStgDgyt/S2Zf9xMZD/9HNsDZVubXN+JI703yA8swczvSt40g8e4VFiFuy
-         PfAk3WPf1b3M9afBK9d8z/94FRzOLI+AS8pti9V48NBvDc6wfyXARjHCvy2dBHOmkSKx
-         fAwjBZZfaHZbjNfcpo5XD3di/XJgZkmBwYg/qr9TZWo5CS9rCeS3MzZfkisA4Qh24Sew
-         HjOw==
-X-Forwarded-Encrypted: i=1; AJvYcCX0x+qCrq7DxXAsc6tNZc0DvQnB0oBxabop+QVSdNtjlP3d3EeZ4oP39J+VHVVGjymsM3XPaMAj@vger.kernel.org
-X-Gm-Message-State: AOJu0YxwFs61QEifO1WCQZUtvW3RQPfHDgEsrpsv3yw++O3ldHPN4q6o
-	UGc1geTd1yMyg311YaWbiWTEA6IZMbnEkEtR3+JWUVCD+TcMRTpkVXlfJlPqsPaltLr7EsehYBe
-	2NC0qvJHHrjWI8Bi+6S6xddKdH7uhQ8hIv5pK7Flt
-X-Gm-Gg: ATEYQzwPA8wY3qZllX5Rip40uXUtXgaVldgb3iBetdfKSXg7BHmZ++ImUx9IA4jJuHe
-	Tp2pDvmus+IVUXTFgHycmi1ywUcpVJn52L6uPqVEG2l4LSvsKJNqIaGfCWCuf7ClYW9DIzplhKi
-	tXu5n778l5Qde5m6TqpNIWZ7QhEEJ1Onq+c1U5dRPxmaIpSRT+sDnxsA18VF3znKGdfDfP1C5+L
-	wUUsamRKN/d4G1zn2NKsj8hU4lg/Ve08rSrDSoAurqTOOSTjXskQQokzvatcTPuuokSOvPbU08o
-	MciHKt8SSnOvyIHmkA==
-X-Received: by 2002:a17:902:ea06:b0:2b0:5c3f:c0d8 with SMTP id
- d9443c01a7336-2b05c3fc4damr40223235ad.47.1773703396327; Mon, 16 Mar 2026
- 16:23:16 -0700 (PDT)
+        bh=i3xav1WzJK9rzK57tlDdYAfYY5vgZYqApatQD+1lTTc=;
+        b=stm4wekvsk1DyFye5SGJLfbnJPCGoiNeNfiWxtdfy+1SBqye9Xbp8Lu5RYKR6WvZYX
+         G+CH9EdfRp9AzMcVnG4KecNrxfy3EI+x4CqhMtXE0mPRwNj3iqwYDYFO1merCL/gKfW+
+         wNzHgp6V/BEkGe4IzJHoOZjU9okMOOnVDQ+fvcxoJsi3gZCnj/aeixPKknCT3GK/5pk1
+         BrdijFdAW4RZNS+xfNH6fU/7YhH6mYCdXhwrlB40UKv4NkqlE29nUa05loyYAKDmYM24
+         JOH3NZr0qRCi57Uxkb8kQJc3ZfG63AkKvPRYKzG36Yyb8DLMy/wb9irPAb2r8VTzKj3S
+         4JTg==
+X-Forwarded-Encrypted: i=1; AJvYcCX/nNzyjyCPI4xdVQX8D9OSwkMOpblXnJkZs5VSjmFW22qcwNgumnnhgemvl6E42vCL4BUxlqLt@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw05J+LS3ysfu0KMswloNWglJmbvEVX81duzb9uqJXSsvHez7EN
+	N6iVLE3YV9+XQ15LJTTLbJ/K8CEDEaJcr9xxhf+Vqv/4+sJr1r+T9j96yuiLafMzJTvuTMWkIZV
+	M/QOGh7mKABtXNUdTn5q/D2znC/B2WZDa6f6a010=
+X-Gm-Gg: ATEYQzxwTJycuWDCz/NILMr2befF7DLl9K5RJLdLF8HX4ZcmMUmy1RNNEh4ora+q3h2
+	UttTWVWQJ0YGaAMpZWRp1dwDVUf8nEgkinLyT0veg7w2/hoWXbbn3SHLHGSmqz8NBfOdb9veUGv
+	z1Aq1OrVAo6+g42u7rXJK78b3lx6h63Kpl+eMUjdyUEyljddWV51093qgrJ37Zx1QysEnop3x2A
+	UTe19VMmVQV8txZ5zljx8F8RbOOR6x6v3v1jGEDmvzHP4woCuRJ1m3Nlgp+P7MW9lLDURyzm7lw
+	UDRVT9sSZg9F9GZxfEJFMh9W01B8g3/u25ofV2v+
+X-Received: by 2002:a17:907:3d03:b0:b94:231f:26ca with SMTP id
+ a640c23a62f3a-b97d6d99d0fmr133734066b.20.1773732371166; Tue, 17 Mar 2026
+ 00:26:11 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <cover.1773665966.git.ljs@kernel.org> <063af0422d99bee0195589aa63f8f44edaf409fa.1773665966.git.ljs@kernel.org>
-In-Reply-To: <063af0422d99bee0195589aa63f8f44edaf409fa.1773665966.git.ljs@kernel.org>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 16 Mar 2026 19:23:04 -0400
-X-Gm-Features: AaiRm50DdYFqfixz3H6HRwMmLfdf5osoLUZfr0b1blDqz3IzGNPvd_xOI_ajOas
-Message-ID: <CAHC9VhR2T8ujtfvz-HgkgSFByptTLmhbCYS+scY53aYg=sgfqw@mail.gmail.com>
-Subject: Re: [PATCH v2 17/23] mm: convert do_brk_flags() to use vma_flags_t
-To: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@kernel.org>, 
-	"Liam R . Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@kernel.org>, 
-	Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, Mike Rapoport <rppt@kernel.org>, 
-	Suren Baghdasaryan <surenb@google.com>, Kees Cook <kees@kernel.org>, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, Vineet Gupta <vgupta@kernel.org>, 
-	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Will Deacon <will@kernel.org>, Brian Cain <bcain@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, 
-	WANG Xuerui <kernel@xen0n.name>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	Dinh Nguyen <dinguyen@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
-	Christophe Leroy <chleroy@kernel.org>, Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
-	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	"H . Peter Anvin" <hpa@zytor.com>, Richard Weinberger <richard@nod.at>, 
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
-	Xu Xin <xu.xin16@zte.com.cn>, Chengming Zhou <chengming.zhou@linux.dev>, 
-	Michal Hocko <mhocko@suse.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, linux-snps-arc@lists.infradead.org, 
-	linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, 
-	loongarch@lists.linux.dev, linux-mips@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, linux-um@lists.infradead.org, 
-	linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org
+References: <20260316213606.374109-5-paul@paul-moore.com> <CAHC9VhTEX-sRjyVi2p9j_jFjyWbzy54b=iteiTKGq-mnBaHkrg@mail.gmail.com>
+In-Reply-To: <CAHC9VhTEX-sRjyVi2p9j_jFjyWbzy54b=iteiTKGq-mnBaHkrg@mail.gmail.com>
+From: Amir Goldstein <amir73il@gmail.com>
+Date: Tue, 17 Mar 2026 08:25:58 +0100
+X-Gm-Features: AaiRm50sF1v33VMxCQO8F4CAvv3PlKmjLZTCcf_1PYwrrTaEu5VQoATkjlrFBkw
+Message-ID: <CAOQ4uxi7+6Qt5K9s6Fq8deN-ep2gnxqJ6-wJy9pXJzszpfn-6A@mail.gmail.com>
+Subject: Re: [PATCH 0/3] Fix incorrect overlayfs mmap() and mprotect() LSM
+ access controls
+To: Paul Moore <paul@paul-moore.com>
+Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-unionfs@vger.kernel.org, 
+	linux-erofs@lists.ozlabs.org, Gao Xiang <xiang@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 16, 2026 at 9:09=E2=80=AFAM Lorenzo Stoakes (Oracle) <ljs@kerne=
-l.org> wrote:
+On Mon, Mar 16, 2026 at 10:59=E2=80=AFPM Paul Moore <paul@paul-moore.com> w=
+rote:
 >
-> In order to be able to do this, we need to change VM_DATA_DEFAULT_FLAGS a=
-nd
-> friends and update the architecture-specific definitions also.
+> On Mon, Mar 16, 2026 at 5:36=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
+wrote:
+> >
+> > The existing mmap() and mprotect() LSM access control points for the
+> > overlayfs filesystem are incomplete in that they do not cover both the
+> > user and backing files.  This patchset corrects this through the additi=
+on
+> > of a new backing file specific LSM hook, security_mmap_backing_file(),
+> > a new user path file associated with a backing file that can be used by
+> > LSMs in the security_file_mprotect() code path, and the associated
+> > SELinux code changes.
+> >
+> > The security_mmap_backing_file() hook is intended to allow LSMs to appl=
+y
+> > access controls on mmap() operations accessing a backing file, similar =
+to
+> > the security_mmap_file() for user files.  Due to the details around the
+> > accesses and the desire to distinguish between the two types of accesse=
+s,
+> > a new LSM hook was needed.  More information on this new hook can be
+> > found in the associated patch.
+> >
+> > The new user path file replaces the existing user path stored in the
+> > backing file.  This change was necessary to support LSM based access
+> > controls in the mprotect() code path where only one file is accessible
+> > via the vma->vm_file field.  Unfortunately, storing a reference to the
+> > user file inside the backing file does not work due to the cyclic
+> > ref counting so a stand-in was necessary, the new user O_PATH file.
+> > This new O_PATH file is intended to be representative of the original
+> > user file and can be used by LSMs to make access control decisions base=
+d
+> > on both the backing and user files.
+> >
+> > The SELinux changes in this patchset involve making use of the new
+> > security_mmap_backing_file() hook and updating the existing mprotect()
+> > access controls to take into account both the backing and user files.
+> > These changes preserve the existing SELinux approach of allowing access
+> > on overlayfs files if the current task has the necessary rights to the
+> > user file and the mounting process has the necessary rights to the
+> > underlying backing file.
+> >
+> > --
+> > Amir Goldstein (1):
+> >       backing_file: store user_path_file
+> >
+> > Paul Moore (2):
+> >       lsm: add the security_mmap_backing_file() hook
+> >       selinux: fix overlayfs mmap() and mprotect() access checks
+> >
+> >  fs/backing-file.c             |   28 +++++---
+> >  fs/erofs/ishare.c             |   12 ++-
+> >  fs/file_table.c               |   53 +++++++++++++---
+> >  fs/fuse/passthrough.c         |    3
+> >  fs/internal.h                 |    5 -
+> >  fs/overlayfs/dir.c            |    3
+> >  fs/overlayfs/file.c           |    1
+> >  include/linux/backing-file.h  |   29 ++++++++-
+> >  include/linux/file_ref.h      |   10 ---
+> >  include/linux/lsm_audit.h     |    2
+> >  include/linux/lsm_hook_defs.h |    2
+> >  include/linux/security.h      |   10 +++
+> >  security/security.c           |   25 +++++++
+> >  security/selinux/hooks.c      |  108 ++++++++++++++++++++++++++++-----=
+-
+> >  14 files changed, 231 insertions(+), 60 deletions(-)
 >
-> We then have to update some KSM logic to handle VMA flags, and introduce
-> VMA_STACK_FLAGS to define the vma_flags_t equivalent of VM_STACK_FLAGS.
+> Due to the nature of the issue, I'm going to merge this into
+> lsm/stable-7.0 in a few moments so the changes can get some testing in
+> linux-next with the idea of sending this up to Linus' later in the
+> week.  If anyone has any concerns over this patchset, please let me
+> know as soon as possible.
 >
-> We also introduce two helper functions for use during the time we are
-> converting legacy flags to vma_flags_t values - vma_flags_to_legacy() and
-> legacy_to_vma_flags().
->
-> This enables us to iteratively make changes to break these changes up int=
-o
-> separate parts.
->
-> We use these explicitly here to keep VM_STACK_FLAGS around for certain
-> users which need to maintain the legacy vm_flags_t values for the time
-> being.
->
-> We are no longer able to rely on the simple VM_xxx being set to zero if t=
-he
-> feature is not enabled, so in the case of VM_DROPPABLE we introduce
-> VMA_DROPPABLE as the vma_flags_t equivalent, which is set to
-> EMPTY_VMA_FLAGS if the droppable flag is not available.
->
-> While we're here, we make the description of do_brk_flags() into a kdoc
-> comment, as it almost was already.
->
-> We use vma_flags_to_legacy() to not need to update the vm_get_page_prot()
-> logic as this time.
->
-> Note that in create_init_stack_vma() we have to replace the BUILD_BUG_ON(=
-)
-> with a VM_WARN_ON_ONCE() as the tested values are no longer build time
-> available.
->
-> We also update mprotect_fixup() to use VMA flags where possible, though w=
-e
-> have to live with a little duplication between vm_flags_t and vma_flags_t
-> values for the time being until further conversions are made.
->
-> Finally, we update the VMA tests to reflect these changes.
->
-> Signed-off-by: Lorenzo Stoakes (Oracle) <ljs@kernel.org>
-> ---
->  arch/arc/include/asm/page.h        |  2 +-
->  arch/arm/include/asm/page.h        |  2 +-
->  arch/arm64/include/asm/page.h      |  3 +-
->  arch/hexagon/include/asm/page.h    |  2 +-
->  arch/loongarch/include/asm/page.h  |  2 +-
->  arch/mips/include/asm/page.h       |  2 +-
->  arch/nios2/include/asm/page.h      |  2 +-
->  arch/powerpc/include/asm/page.h    |  4 +--
->  arch/powerpc/include/asm/page_32.h |  2 +-
->  arch/powerpc/include/asm/page_64.h | 12 ++++----
->  arch/riscv/include/asm/page.h      |  2 +-
->  arch/s390/include/asm/page.h       |  2 +-
->  arch/x86/include/asm/page_types.h  |  2 +-
->  arch/x86/um/asm/vm-flags.h         |  4 +--
->  include/linux/ksm.h                | 10 +++----
->  include/linux/mm.h                 | 47 ++++++++++++++++++------------
->  mm/internal.h                      |  3 ++
->  mm/ksm.c                           | 43 ++++++++++++++-------------
->  mm/mmap.c                          | 13 +++++----
->  mm/mprotect.c                      | 46 +++++++++++++++++------------
->  mm/mremap.c                        |  6 ++--
->  mm/vma.c                           | 34 +++++++++++----------
->  mm/vma.h                           | 14 +++++++--
->  mm/vma_exec.c                      |  5 ++--
->  security/selinux/hooks.c           |  4 ++-
->  tools/testing/vma/include/custom.h |  3 --
->  tools/testing/vma/include/dup.h    | 42 ++++++++++++++------------
->  tools/testing/vma/include/stubs.h  |  9 +++---
->  tools/testing/vma/tests/merge.c    |  3 +-
->  29 files changed, 186 insertions(+), 139 deletions(-)
 
-Not that the SELinux changes are really all that significant, but they
-look fine to me.
+Since previous 4 revisions were not posted to public list,
+let me repeat my concern from v4:
 
-Acked-by: Paul Moore <paul@paul-moore.com> (SELinux)
+On Fri, Mar 6, 2026 at 5:24=E2=80=AFPM Paul Moore <paul@paul-moore.com> wro=
+te:
+>
+> On Fri, Mar 6, 2026 at 3:24=E2=80=AFAM Amir Goldstein <amir73il@gmail.com=
+> wrote:
+...
+> > My expectation is that the merge of this patch will be collaborated
+> > with Christian ...
+>
+> Of course, that is one reason he is on the To/CC line.  More on this
+> in my reply to your 0/4 comments.
+>
 
---=20
-paul-moore.com
+I am sorry Paul. This must be a misunderstanding.
+
+My expectation for collaborating the merge of my patch with
+Christian was that an agreement would be reached regarding
+which way it would be routed to Linus.
+
+CC to Christian and sending the patch to Linus without getting any
+ACK from Christian was not the way I expected this to go.
+
+> > and that it will NOT be auto selected or rushed into stable.
+>
+> I haven't marked it with a 'Fixes:' tag or a stable Cc which in my
+> experience are the two quickest ways to get pulled into a stable tree.
+> I'm not sure what stable policy Al or Christian have for the VFS tree,
+> but LSM and SELinux commits are not pulled into the stable trees
+> unless explicitly marked with a stable Cc or requested by a dev after
+> the fact.
+>
+> > I don't mind if you want to route the security_mmap_backing_file() hook=
+s to
+> > stable to use it for some simpler bandaid for stable, but rushing this
+> > one to stable is not a good idea IMO.
+>
+> Once again, see my (upcoming) reply to your 0/4 comments.
+>
+
+TBH, I don't understand the logic of placing patches in lsm/stable-7.0
+without the intent of backporting them to stable.
+
+I perceive my patch as a risky patch for overlayfs and the vfs
+this is why I wanted Christian do be part of the decision if and when
+my patch is sent to Linus.
+
+Thanks,
+Amir.
