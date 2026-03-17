@@ -1,116 +1,138 @@
-Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FF413F54C6
-	for <selinux@vger.kernel.org>; Tue, 17 Mar 2026 18:39:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76F7337F73E
+	for <selinux@vger.kernel.org>; Tue, 17 Mar 2026 18:55:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.44
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773772794; cv=pass; b=gmGvhPzU3oCijG766SBRI/+3QH1/JGFbG1RP4JpoPSigHNx1pq7SRe90iinz/8z16dIwi3P+qee1XnrNkhjyjvC+X/fOX4QWaco9R/LO8s7dTUBBYAKnmTYIEO/m+r0Jmj6y3fw1Ncj8HoC//Eij7Imp3AjtZmtCTeCEW4dBc84=
+	t=1773773747; cv=pass; b=qFk94EHi3Mc0sqtW4EF8kmUxIQ7rbpgZWJy0tC+WCH8vFTt+J2bV7Ge5RYFBVZeS9xB/wescdrxozzUDA7ZTtM9uZ5ztwGX+rxBbggx7d8ZjScfqa5FS5tPSYrRu5IlssENt5Ty1k5dzg3WQRd7l4qzDyEqYEiLsQ17XfsPGn6w=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773772794; c=relaxed/simple;
-	bh=NPpeZAWfnOdI1uHGGY3LCnZtVp8nE5Ty3myJpBAiqSs=;
+	s=arc-20240116; t=1773773747; c=relaxed/simple;
+	bh=etSz9j8qVjzmI1unubyh8NUg+Q8k204aq0jG22wPMjM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=X0JoW6opk438REhmUsKZE9L0aO3JSseAJcmrIZXJP2AzPjtnex1NkbLmLas46oikbGmDBLJ4CAytDL6W6qZdX/nNJC53HyM7PAh8db2tPR6cvEppkt1n9UG4dqX8teufMOWPgT2uRLa5wL+kBP11b3ENWkcIlvoja1lkadoSSxU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IQOv28tE; arc=pass smtp.client-ip=209.85.210.174
+	 To:Cc:Content-Type; b=acZt17JpbGeP/IqNT195xUJY6HqtCKK8oUx3V0wiWICTb/8uex49P+O7nCU6LQK1s93YrAueYCHSOApTZGwi96kJf9DSikcF0oCeWB0ITliHcHvaRM34JsOnaJmV4UjScgUX1fcsm7+j3E/0WfaK0jx3LSmTxnrVPHftNs2RqVI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=b/VEzvrp; arc=pass smtp.client-ip=209.85.216.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IQOv28tE"
-Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-8296d553142so2855161b3a.3
-        for <selinux@vger.kernel.org>; Tue, 17 Mar 2026 11:39:53 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1773772793; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="b/VEzvrp"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-35bb7afdc38so317477a91.1
+        for <selinux@vger.kernel.org>; Tue, 17 Mar 2026 11:55:45 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1773773745; cv=none;
         d=google.com; s=arc-20240605;
-        b=cen+U3+qxmD2NdUqI7rXP1RrNDIy7KfRlKmNHyrWHcTj6K9cSzsMTVCdT5Gy76OEXn
-         bvdASHGvmEVUZ4WkKn102n7PpqWXTckGOLC6MD7Htn9H2pRWCBOS09yNpVtQ929LETOP
-         XjY8Y4kihgXKPYEzKxSbPVXgfyYqHNWnIch17gFBWem2aUlT3eTJAumtfcah2gDFUGtV
-         gxbrPtO2liBjQdMBABQ3KhJYF/iRfIvwh0ZXoqllW8lrQjWpJ6zXi9sdco3XmkF7WONE
-         yQe4yBQdFKMieC32Uz21TGW6TbJXMq+k+ol0Imor0u+QSvZQc2EBwXE5jXZIxG+nKiJ1
-         GRAg==
+        b=lZxCMy3n8ODO4hFxjNd/93WpXBB4gySmxfyhlhAOsISsrVB10xloadlQUAYVrkLJvR
+         gQDTf4K5QVbdHoC/694mCQDs+IatCNLAjy4BcyedATDdzjFP5y4Y5EUD2uJu5B5nVWRL
+         oBz4dp6axhas9rQjUsAUn80vYfc8gtU7c0rGu4tu351FsQJBa6S9VOpEZHSTLFfen08N
+         YqBoMn6rReWmRqI1sPjTBuSHeCCDp3So/XJ52O6vT7uLuOKOi5PJG4D1oo8Kyub9K/h8
+         UeCQtyD/S9Q54L5JkQxXOxFS+hO8IcFC9hWhuwYSWTXdXkT0pWZx/ZPeEpx4ll2VuLuI
+         +Qxg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=0UxcPkaT/sVF9hRfH4zjki72izcgKGz2NvNqlhp6Ct8=;
-        fh=x2Mhf3hCaWx+ktIpQCoss3dkJF3mceq6IEg7nlK3baY=;
-        b=YkCIfCczmmujJx6s+E0n2w4F2nrSpNF9QsV4HG9VWeH7lk6NrlmC8Phsk1EhA3lffk
-         npUYlALt87r3nxqH5uMN+m5t7EyHJPiwsuBHGuJf8mmE1J8CQ3KOfVv7UnhNB+EHM+BC
-         IyxnkHicdEHbNgzptzTu22seIqz4V/LhAofLKhBdt5sZm1Pulpd9U/zEIXkWWSwi2TG5
-         BgBcAnH2wXKgUvmLPW9LiEUNUu1ha/TCez9g3SH++xRrILBp/fQnP6NBkY0u+yT5RM+D
-         kpHSPoJxk0JkoEYjGqwAfFYxYOMx89nA5zi5I9IdLiprWyNu7YN/2nHa4xWPS2jIadBs
-         MnSA==;
+        bh=m4wc4mQlSZeWIY8AotHFKek4AUzZbGuiSunnPmRXmWw=;
+        fh=9JV8FEExFAbKechmDTd1Jz5Dmbu9LnenH6n7Cwl4roE=;
+        b=dn+6of2vhyrH4v7NKpffXp9yEdrS8Qk+RKr5SSym/Cfxi1eiqoM5QK/jd/NCOEKBFx
+         GULDAoe8D06J0Dx8+ZDVe3bh9lJyeo/vLt6De5pK2zT2SM06infckaKunSPh4xHfGyxH
+         40PWaVaz/UgIhtdB51tqxyxfgG7Eo4iz+PfjEW+XS0xyavjhho2PH6g84V3TH24ih33J
+         qBjYA6K68+cVM7KfHsFqJvIzafr/MuE/dnhQ0kRElbx+mpmVbwI6uTNGjGzmrgRLNLTr
+         +fEr5mml6ibzVr2ein/VL8SRHOR9JJIKAaSWBX9SpxDwbx8AMou9qa4BqZoKkJ4kJrdV
+         p2+A==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773772793; x=1774377593; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1773773745; x=1774378545; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=0UxcPkaT/sVF9hRfH4zjki72izcgKGz2NvNqlhp6Ct8=;
-        b=IQOv28tE8rg4OJHqP4CDERVd54UnizOYobLZpPn14L4Oz1b1cs7rDsHPJnbxnhhxu0
-         Pw84ykUDjhTKZmiGuqaX1YxQtWttuEmsiDeIE7cZZRAbo6cZ+kgz7hxHX7oiQu2xYHyi
-         JB91dTfKaifXT3iJ2/qWCnS0O8UkOlorZ4zTeuF50WkZqcySmZ1kdjPK10sBk7sAB/+2
-         aUp9nV9D5NPh+znMhQNIVdVSLMKasCcCU0yXN+9lKbZxKiNtZK3ZytPpfj2SFq4hvdTr
-         DE/LQ9PK5sh8hzcC7DcpCndkY1CyVogVs8eDH0sUIsK3H4Fu0LswccPhDB0mttVDcwyl
-         G/KQ==
+        bh=m4wc4mQlSZeWIY8AotHFKek4AUzZbGuiSunnPmRXmWw=;
+        b=b/VEzvrpv4+daeV6eQU2I6sBMEPyMZcDjPLqPltebFcniaoGaBIHsfmDK5GjaMIAUP
+         6aRt/ybC92VztiLdvKnAUmhvKybX/JJorTQiNK4vj54AfOEZu3NQ+UFV9USkH3A/ljRJ
+         kD8Te4F+AXGCfjjd5Iv1tZrNDKA0jOzUbN4GO7glc6AJmPZTYnJjzg3Za7rXwdUBVNuo
+         HlZNOR63r3ZAgVlLLJD6Fj0XZOL1GVFnan5s1GzcKLSv8EJW8d6udGRvLSAfLViGOuzG
+         E0FD+Dxb7BHYZmsHQrjAPnFRhCiGh5f8l+xPVUp4namOSEWAfeEGChCaWipWYNKdU3Ga
+         h0Dg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773772793; x=1774377593;
+        d=1e100.net; s=20251104; t=1773773745; x=1774378545;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=0UxcPkaT/sVF9hRfH4zjki72izcgKGz2NvNqlhp6Ct8=;
-        b=BV5q8ePofe9aVuaPI/U1Rl+sdUz8uWc8KbbTzVR7CGA+IOACv1RcUbNO94konfLI9E
-         MkmXzsjttAGs2JOyVkZC0MEKyZF/jDLm/k1CBOwSyy31lcwdKjr9SIF4uIjiLz0uaheo
-         ouVKYbRb2Hz9CEiptcw4qz6YqXDNOrEIYKnkp2QgoLjaZMv5i64qOgkGWH87sfp/QBSc
-         hyVDj6hEZSUyDzGLoJXlEewB50cnOTGhCxYCTnFwW6gIjjBctB1dMaS+woe+7SCzN3DD
-         xdQg3givQTNLbm4LNf/Y5BCIKvgUA3JEE97oWKsEjVHyzS9aE+2BTTN3F/DK07tiKzRT
-         sTKQ==
-X-Gm-Message-State: AOJu0YyE0X29rDpHkerT1Kcer0pA8fnefRhoxqz3w7fIpjx7ZhiQxvLy
-	ZneXShdUHTsVsSGIlR99nWBGGortE4D9P5FUQ/WeK4ZSD9frxCMy2GBjLJf0BgR4LhqgJ+PG5IA
-	tZ/wrkQhHNdSTxv6xfGg2u/WMHL1ALhzUaw==
-X-Gm-Gg: ATEYQzzikqP9v75AjgnoLsz+Sl9UySXP0OemwVa0gPfqtzdLXVCdwPIOpxnNRXFo8oB
-	52ytFLNG7U5WKeFVJr1L6OARYK3ElwnJZOAXWLc/nhrTVVJdd4oUI3Q/c5RoJtEdAMuOTfw+n+i
-	P6/xx/NV79p642WCXjRya352ovjXf7OdCN9/NF1bf82488agTmDpT541pDXAnHOeIQ5R83+7EFF
-	itmKUaPcLwqeP6zyg64Qa+hSLxcIlBtsgaIjjdyrnxcCDrVmwB9DcpXdEBUZb7aAoCGEStFtq5w
-	KQ5k/AkqiEQz2WzUQQ==
-X-Received: by 2002:a05:6a00:4208:b0:82a:88a:1363 with SMTP id
- d2e1a72fcca58-82a6adc7e22mr342970b3a.2.1773772792946; Tue, 17 Mar 2026
- 11:39:52 -0700 (PDT)
+        bh=m4wc4mQlSZeWIY8AotHFKek4AUzZbGuiSunnPmRXmWw=;
+        b=lqfCrDbwkOvp9omBaKrR323OXzge6f02na7okgepu9+jsjG9Dawro1LpYdEAAI7bmF
+         8s/9wWFWn9Kr7JEr/Yn8OdW7GIyX3xGppnihSZDbENldg2XrCLj6sFzmcPTzpNGAdqOg
+         P5cYT1OKekXsOn/bk49/lGN+0K4SHx1tqO934POPJUGQU/gLjlhOlDFliq+W0Jt1Cqkt
+         BJhn65HHA0sBknsLZlkXYAe1f0dEQM1lBHrrmUFM7HXquMTr1ZV8RqDIDyVvU7o03s4I
+         61LcYElPMYCjrsuUJpSIjb/Dgfqo1NP+qPUrImUFrfw9/8Eh15HZBuJBma4i/eNsVpKn
+         rveA==
+X-Gm-Message-State: AOJu0Yw6YQ+5h3izEv0db4fO9oUyqY6fdB+Q3iEmHjZ5Eegb6PYyE9P7
+	XsQkrk9PtgqYfiI2LFSvxRLe5YBO8KX7bKHTrTbXo0P5MdvGOz+mJ/Y4CftfZuzsaKTgbZHMKpo
+	NiNTRhmj0uh/jODXjCwfHPzsVdlivyA0Kug==
+X-Gm-Gg: ATEYQzxzmeSwpOrPxqYmZnXWqNFvye82AqhyYBW1jJXGM3EeInS81dKinO2880QWpUW
+	i7QNf/XQCNmO7cbmBrECtm6qfe8mOnQwQwI1kndmSQgMAL5koNoi373K18CU32qTQ7RtORF3q5X
+	AKx6Y/nWkq8HCWKDx2roweVgm+R8+iqBy//SoiRnOBwLsnuNMKU/Gi74+SlT+x6Jdnk0Sei0zAf
+	vJCYppp4a7/ExCLbYSY4qmmw7WHpPy2lIp8cTyVebL0QTSlS5MYu+gt+R5ibcKvhHk93DsdAuii
+	K6zH3ok=
+X-Received: by 2002:a17:90b:4ccb:b0:359:fd50:e733 with SMTP id
+ 98e67ed59e1d1-35bb9f4075fmr440240a91.31.1773773745464; Tue, 17 Mar 2026
+ 11:55:45 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260310015453.1978412-1-tweek@google.com>
-In-Reply-To: <20260310015453.1978412-1-tweek@google.com>
+References: <20260216160734.126597-1-cathy.hu@suse.com>
+In-Reply-To: <20260216160734.126597-1-cathy.hu@suse.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 17 Mar 2026 14:39:41 -0400
-X-Gm-Features: AaiRm53hsWY81hmN8ONk96wC8wN3IicpeKqwsZLsaD6PYnyS5WEgO9ibRZ_Vfec
-Message-ID: <CAEjxPJ4LyCvazGuviyuPw7rVrzNdugQEukK=WMo2=SXdF4gRzw@mail.gmail.com>
-Subject: Re: [PATCH testsuite v2] Add tests for selabel_file backend
-To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Cc: selinux@vger.kernel.org, =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>, 
-	James Carter <jwcart2@gmail.com>, Paul Moore <paul@paul-moore.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, Jeffrey Vander Stoep <jeffv@google.com>
+Date: Tue, 17 Mar 2026 14:55:33 -0400
+X-Gm-Features: AaiRm52cM6nu5B_8eT3kGsZS1BMwfYmhCXiEwfVjhQUmYZLMjq6HMRmxZkucSRo
+Message-ID: <CAEjxPJ5Q0=bK-Q+Nig6Rhtu1oJaow3yfsZ06K0_CY8OVEx166g@mail.gmail.com>
+Subject: Re: [PATCH] Disable build isolation for sepolicy python module
+To: Cathy Hu <cathy.hu@suse.com>
+Cc: selinux@vger.kernel.org, Cathy Hu <cahu@suse.de>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 9, 2026 at 9:55=E2=80=AFPM Thi=C3=A9baud Weksteen <tweek@google=
-.com> wrote:
+On Mon, Feb 16, 2026 at 11:08=E2=80=AFAM Cathy Hu <cathy.hu@suse.com> wrote=
+:
 >
-> Add basic set of tests to validate the behaviour of the selabel_file
-> backend. The parsing and usage of file_contexts is confirmed, in the
-> following scenarios:
+> From: Cathy Hu <cahu@suse.de>
 >
->  - selabel_open with no options,
->  - selabel_open with a NULL SELABEL_OPT_PATH,
->  - selabel_open with a valid SELABEL_OPT_PATH,
->  - selabel_open with a valid SELABEL_OPT_PATH and SELABEL_OPT_BASEONLY,
->  - selabel_open with SELABEL_OPT_VALIDATE and known types,
->  - selabel_open with SELABEL_OPT_VALIDATE and unknown types.
+> same justification as:
+> https://github.com/SELinuxProject/selinux/commit/17a9372391ad2c9bf0e44039=
+1d6fd13cb8cfdaf3
 >
-> Validate that substitutions and local customizations are loaded
-> according to selabel_file(5).
+> Used patch by Daniel Garcia <daniel.garcia@suse.com>:
+> https://build.opensuse.org/requests/1333291
 >
-> Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+> Signed-off-by: Cathy Hu <cahu@suse.de>
 
-Thanks, applied.
+NB I would prefer the justification be included inline in the commit
+message rather than requiring following a link, but otherwise:
+
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+
+> ---
+>  python/sepolicy/Makefile | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/python/sepolicy/Makefile b/python/sepolicy/Makefile
+> index 1a26cfdc..ccb22fe7 100644
+> --- a/python/sepolicy/Makefile
+> +++ b/python/sepolicy/Makefile
+> @@ -27,7 +27,7 @@ test:
+>         @$(PYTHON) test_sepolicy.py -v
+>
+>  install:
+> -       $(PYTHON) -m pip install --prefix=3D$(PREFIX) `test -n "$(DESTDIR=
+)" && echo --root $(DESTDIR) --ignore-installed --no-deps` $(PYTHON_SETUP_A=
+RGS) .
+> +       $(PYTHON) -m pip install --no-build-isolation --prefix=3D$(PREFIX=
+) `test -n "$(DESTDIR)" && echo --root $(DESTDIR) --ignore-installed --no-d=
+eps` $(PYTHON_SETUP_ARGS) .
+>         [ -d $(DESTDIR)$(BINDIR) ] || mkdir -p $(DESTDIR)$(BINDIR)
+>         install -m 755 sepolicy.py $(DESTDIR)$(BINDIR)/sepolicy
+>         (cd $(DESTDIR)$(BINDIR); ln -sf sepolicy sepolgen)
+> --
+> 2.52.0
+>
+>
