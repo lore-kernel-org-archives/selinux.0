@@ -1,142 +1,115 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEFA8322B88
-	for <selinux@vger.kernel.org>; Wed, 18 Mar 2026 13:34:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.45
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773840862; cv=pass; b=VunNBszqlX25QZzlkcvlaBNXrvAd746z3UckQ2FfBhfFV3FfprcT3p1f8A0lWcOj9yswHC1iKaJVcj5qEAqTYc+LPMynb9j71oLNAt+54d2Q3kdOJMYPQhl5KOh0L7tajrUC7pHwB4pWLLHO4/moTyviTvRNSYCk46a6rgldyNU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773840862; c=relaxed/simple;
-	bh=e7H2ZIcRWVJ72qR026CL6hxw0ryC+gDGLopbXqipdd8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hZQzT6FWlf4uumgJh3qq4WVzj9jO8WCkMaYs55bgUu4kbLhJUMDg6xyOZovfdFfkc4/nIKjzZ3wC5oHqONk7eqaz3g6Db6OcR9WzehSM4u2hp5i2aKQ4JECxD+yo6OQF9R1jObxHx/bruMqDaGF/+zNW3HZd7KkP2EwO3SQb4eU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Y1onY0Zp; arc=pass smtp.client-ip=209.85.216.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1B533DB62A;
+	Wed, 18 Mar 2026 14:40:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773844858; cv=none; b=nZQ/jopyEzpbiq7tWWaVe5u66VSHC51rB+VQUWofsxotJGz+fbcVXN+XkNXz9akVuHWMMKoOzdR9/MI526Y6vc3zYqcrO1GDNhfg4j2YbX71tIqPft24Hclk5bLIARfbWavKKdAsKZMBQm3kweYxLHbr7mQ/OyeiHXLkqtoxON8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773844858; c=relaxed/simple;
+	bh=QPe6wXvdAXZ1WsVrzW/I1Ea8rZgbDN6tCubJm34Z2So=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=OmUOdMzDTBbdp2/SUG8PDRUWe80WdGY6WTrYrIJ55kGncC3z/sULkLzF4fmv0BxO+5S2oGpE/aB2YPaqBURGD4I2ALVrGCHfJpQdvPxPbLFPuK5q71z9DhunGb9CSCWKp3ZPuGHTDDiD6xZmnPoVwGjwKuntxsSUi+byJ8gcVIA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ngbdPPAx; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y1onY0Zp"
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-35b97ed057cso2222126a91.1
-        for <selinux@vger.kernel.org>; Wed, 18 Mar 2026 06:34:20 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1773840860; cv=none;
-        d=google.com; s=arc-20240605;
-        b=hmQdekLENaDOUdI70eCadMJ0cC2UhrvKyIaFkYLK0KWO/sqlfkeqiw0+SDTF0xMPDf
-         ydFx9li5981BmIEEyPs9OlGxBYD62G77O22qwPa4cakSJO9OP1R+OPZ0aG90PQgz6NMD
-         /2CVAbY+zWJoqc0EN/KugV0EleOFQxGKHTpHlM1ydkkIRTlOplh0cwxxWkQ8tP+WyvKd
-         nC36ag5S6gmHpxbDsFJmcGTvrtXt/VUZJg0sdPlLDVIS3KdWP/UA5goe/M7Eb8xoiiAK
-         vmMzaCvtmMjQbURBSsfjZ5xDMOxtOuVfa3GdHc+a6x1AKKBXrMhTSjRLOMVtPXdbgzCf
-         ljHw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=/nbawSEZ7e+WZAtjkmZOj6zd2ypvtdTSjQvlR3NQLEU=;
-        fh=XCM8fo7IfM89sTn06SjGxcUqBXOhXzH4qY9c7awlrP0=;
-        b=OBLaoPLfdHfbLEoJYAV73K4l0C1R7Jo4aHlVMRlLAWqs8YvcMk1Z08O9OekWZtgkZ9
-         KJg8awfd+q9uASrB/ZeihjsEL3wig1ek6EDyZrxD0ysAvOo8hpJ/g9N84NNQtD22238G
-         YMrj6ld7Zi6/LLCPVyL0ofR7mwRnAnYtPLvSyfOcMgl+cuSH0PYu3rCt2f5LUk00lNyC
-         nwlQwWM3JTeBS6J49cBQ7d9I7v9q0scj0c/T317amG2NYlWlFIkEigQvzPr9H702TkFE
-         xgbYkP5Lxi6gaj8xwAEzyW9kgTUX+nsLlK/VEvk72Jah9K2FPfPnkPk2zFcdgQwX4nGM
-         6egA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773840860; x=1774445660; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/nbawSEZ7e+WZAtjkmZOj6zd2ypvtdTSjQvlR3NQLEU=;
-        b=Y1onY0ZpO4czLbK8x22ppolIAo/lR46WhlcemwzYilCPvHxItHgtBal+iuBdlCIkf/
-         9/bd8mkFEjn51i2IpkjH1UDHuBw1IeHGF1SbCV+cZySKMYPEyRCX7hRyqidUHW/I1OCe
-         ahLoACRiGT7MK2a5uyAU2MV7Rkx7iQoVOr0JpTtkc1c6CatY5+0AArb0884Wwz7BvoCZ
-         7ZilXnEVOEpoM3ejQiRPiTcMpeyJNUzFakJoxHUQuVDCRZG0jCKyZQlu763IJGffguBc
-         S81G6BwzXqPkEZm+QvxOOssHrrRzLSG/sqoUFSLFjRcTRpbfXmARp22RFoELHZMxPZpj
-         L6Zg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773840860; x=1774445660;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=/nbawSEZ7e+WZAtjkmZOj6zd2ypvtdTSjQvlR3NQLEU=;
-        b=ZRLbIH7cqJacZCrvuY+smjDhIROBBlfKUnOtv1ZmMad79HKdwqJ9ZcW1V4lE6B7/bO
-         H+lz7Ulkgy3VSO3R4ZmrZtSlvf2+qBNO/dLkwsL2edqS53X3XQykJ/yL0yQmILzcuOgc
-         Ghlnst/kCDns3eECrPJLRANY9wALqSVVvwknhUTBKpbToDcKdpk7jImP4XQHIzr1Bt5e
-         mIWaVS/FW/NrLEJqyooQNpwXZa83PQcoh4ZJDImSPpv07mrFcwAWdX2HXABqm3RVLLA/
-         hFV8O1xuNS2a+jjdc8/D35090ysmSa/SAMB3HS968ea/jK2CgFYGkyLfjDgzx+7B98xi
-         xr3Q==
-X-Gm-Message-State: AOJu0YxvGva28g2Y/z1sSJzc9hgtiFl0ZMlQvOqYmWeU+526jtntXVF7
-	6EwIZ6bOTL7ZU2GqxYObr56c87GzHIcKC98LN4Pcos3EONlxFGyv0T7JVBUdgzDgE3ylI6HtFl9
-	PKepGpfjXB5kl+GeaOIVauQeCWn7X9ggMVvy0
-X-Gm-Gg: ATEYQzwV2E6Ms9o8UbyondXqRxCilwSVmANCZ5G80/7PtR3gDC2d7xUg1dLaWS8tcyO
-	xSj1aON1SBTjjTxXC/8rl3esp7roW9OaGdjvqwjIqIVmW91osJ7cZVxRY4KOvvrT2g2mmW57Afn
-	Ql2HPG/EzMFU/Xes/HOhIsrw1OW7BAjF1oDcNsxyMR7mgklxHAkFfeOUV72UYIMXPSxKT5W6s33
-	mQmB1bl28yD5wXHKnRHTP84TQ4JTd7VWQ+ymo5Jv/zziGftrqCeCNSKB2B0mRn3s3zsvQ/+G3fS
-	Exbgopc=
-X-Received: by 2002:a17:90b:1d52:b0:35b:982a:28c7 with SMTP id
- 98e67ed59e1d1-35bb9e3cf19mr3086302a91.5.1773840860244; Wed, 18 Mar 2026
- 06:34:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ngbdPPAx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00F29C2BC87;
+	Wed, 18 Mar 2026 14:40:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773844858;
+	bh=QPe6wXvdAXZ1WsVrzW/I1Ea8rZgbDN6tCubJm34Z2So=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=ngbdPPAxWjFSAiZvMouaeaCI+yNsZe/5Ks8XfwK23bbuJ+JwMl7yKx8wLk1AN3mNT
+	 TMgJMbhcekeQl6cZDmfGyt8APhVYsofGCMvUz7w5d4VSUqCEDHmA0FWwHmr908obc6
+	 Ca6I5aFuRQUI1yi4z3tpGvtErfL8rr5nKPdU3xQY3LcDhPRgWknRM3aO06irdxNWBm
+	 2TlgtJ0ipwGbJWHORKvyo/BwbM/qZgR2EjBk9w3ApuIqc+XrUbVpU21pCoE11NYSNq
+	 L1oljmENCVJ0s9YwPt8FVfCFDTEwjEsGgigo721LFalxDK0WN06IRwXdh82jFvxUSk
+	 UiZTvvvmHDYJQ==
+Message-ID: <4620167c-bcfe-414b-85f6-a5d28563b9af@kernel.org>
+Date: Wed, 18 Mar 2026 15:40:45 +0100
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260130153229.2422340-1-vmojzis@redhat.com>
-In-Reply-To: <20260130153229.2422340-1-vmojzis@redhat.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 18 Mar 2026 09:34:08 -0400
-X-Gm-Features: AaiRm52fS8tuPX8Imr3UiwJkyst3phVnArBdrvCq7vRIAGLcV8Kb4GLdlAG60w4
-Message-ID: <CAEjxPJ48XM7pe+W2Am14uAqz7t8a-yfCZ5Zwq33YGJdm6oYNLQ@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: Ignore directories removed during relabeling
-To: Vit Mojzis <vmojzis@redhat.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 01/23] mm/vma: add vma_flags_empty(), vma_flags_and(),
+ vma_flags_diff_pair()
+Content-Language: en-US
+To: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>
+Cc: David Hildenbrand <david@kernel.org>,
+ "Liam R . Howlett" <Liam.Howlett@oracle.com>, Jann Horn <jannh@google.com>,
+ Pedro Falcato <pfalcato@suse.de>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Kees Cook <kees@kernel.org>,
+ linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+ Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Brian Cain <bcain@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+ WANG Xuerui <kernel@xen0n.name>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Dinh Nguyen <dinguyen@kernel.org>, Madhavan Srinivasan
+ <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>,
+ Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <chleroy@kernel.org>,
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "H . Peter Anvin" <hpa@zytor.com>, Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ Xu Xin <xu.xin16@zte.com.cn>, Chengming Zhou <chengming.zhou@linux.dev>,
+ Michal Hocko <mhocko@suse.com>, Paul Moore <paul@paul-moore.com>,
+ Stephen Smalley <stephen.smalley.work@gmail.com>,
+ Ondrej Mosnacek <omosnace@redhat.com>, linux-snps-arc@lists.infradead.org,
+ linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-um@lists.infradead.org,
+ linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org
+References: <cover.1773665966.git.ljs@kernel.org>
+ <ede9b0f8a2e2dc72e7fbc1a0ddbeb513364c28a2.1773665966.git.ljs@kernel.org>
+From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
+In-Reply-To: <ede9b0f8a2e2dc72e7fbc1a0ddbeb513364c28a2.1773665966.git.ljs@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Fri, Jan 30, 2026 at 10:33=E2=80=AFAM Vit Mojzis <vmojzis@redhat.com> wr=
-ote:
->
-> Extend 54c79a74f5b9154762abaadf8194665598b24115 to directories, since
-> users will expect them to be ignored as well.
+On 3/16/26 14:07, Lorenzo Stoakes (Oracle) wrote:
+> Firstly, add the ability to determine if VMA flags are empty, that is no
+> flags are set in a vma_flags_t value.
+> 
+> Next, add the ability to obtain the equivalent of the bitwise and of two
+> vma_flags_t values, via vma_flags_and().
 
-For future reference, please include the one-line summary of the
-commit along with the hash, and feel free to shorten the hash, ala:
-commit 54c79a74f5b91547 ("libselinux: Ignore files removed during relabelin=
-g")
+Nit: "two values" is vma_flags_and_mask(), while vma_flags_and() takes one
+value and list of flags, no?
 
->
-> In case ignore_noent is specified, ignore directories removed during
-> relabeling (race condition between directory read and removal after
-> parent directory read).
->
-> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+> Next, add the ability to obtain the difference between two sets of VMA
+> flags, that is the equivalent to the exclusive bitwise OR of the two sets
+> of flags, via vma_flags_diff_pair().
+> 
+> vma_flags_xxx_mask() typically operates on a pointer to a vma_flags_t
+> value, which is assumed to be an lvalue of some kind (such as a field in a
+> struct or a stack variable) and an rvalue of some kind (typically a
+> constant set of VMA flags obtained e.g. via mk_vma_flags() or equivalent).
+> 
+> However vma_flags_diff_pair() is intended to operate on two lvalues, so use
+> the _pair() suffix to make this clear.
+> 
+> Finally, update VMA userland tests to add these helpers.
+> 
+> We also port bitmap_xor() and __bitmap_xor() to the tools/ headers and
+> source to allow the tests to work with vma_flags_diff_pair().
+> 
+> Signed-off-by: Lorenzo Stoakes (Oracle) <ljs@kernel.org>
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Acked-by: Vlastimil Babka (SUSE) <vbabka@kernel.org>
 
-> ---
->  libselinux/src/selinux_restorecon.c | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
->
-> diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux=
-_restorecon.c
-> index 681c69db..2e605b5a 100644
-> --- a/libselinux/src/selinux_restorecon.c
-> +++ b/libselinux/src/selinux_restorecon.c
-> @@ -932,9 +932,10 @@ loop_body:
->                 case FTS_DNR:
->                         error =3D errno;
->                         errno =3D ftsent->fts_errno;
-> -                       selinux_log(SELINUX_ERROR,
-> -                                   "Could not read %s: %m.\n",
-> -                                   ftsent->fts_path);
-> +                       if (!state->flags.ignore_noent || errno !=3D ENOE=
-NT)
-> +                               selinux_log(SELINUX_ERROR,
-> +                                           "Could not read %s: %m.\n",
-> +                                           ftsent->fts_path);
->                         errno =3D error;
->                         fts_set(fts, ftsent, FTS_SKIP);
->                         continue;
-> --
-> 2.52.0
->
->
