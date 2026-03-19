@@ -1,148 +1,154 @@
-Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+Received: from mail-ej1-f41.google.com (mail-ej1-f41.google.com [209.85.218.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B0E933E35B
-	for <selinux@vger.kernel.org>; Wed, 18 Mar 2026 23:47:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.177
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773877625; cv=pass; b=sj/gtksrcJ0jUdodOtDxKjcxhxRXIlOWtPt8yL2LNaYlTVg7naM4dQ3gqenL1jfSecmmHoHfAW7GZqzZebqJ3M34Rs3VZdLw6UWQlmKkeW1BbJyi1iAAj7F7rvpMipWEpLSAzXoO4ilj17fWddTpeXc1dPguL/Si0iY6VymE4OQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773877625; c=relaxed/simple;
-	bh=goPdRYRb1QYfjLs/QmPDwV3Kh5LoPgcZM/xi+f3fGd0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qdOb8dL9g9hWuXMEaGMEZoLvIw6oYNspkdPmgAuDpTcBE2utkmjMYB5lWgUHd1aGWGetldvh1LhsEo+vAjQ/hRqFdaDdx6VQcJ3TL8BHZ9TYP0BDuFWydKBhvSxjdzOmpF2xw6ItNKVQ4GhANiR2r6LvarX8bPAd1viHKnr2ilQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=AKLsHbzP; arc=pass smtp.client-ip=209.85.214.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75CF1202F71
+	for <selinux@vger.kernel.org>; Thu, 19 Mar 2026 12:46:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.41
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773924381; cv=none; b=SaSIwgOI39TorZpkclkPrA6gtrFof5vgMJOW5gFeUXOo/pylZuhBmW2e77GzLAfTw1z2sfKfdagCUTvQNy0CuQJHlx846m0NIF1Wx3P/961IEkaVzjt+ZXfQi0kM+VXMmIWB/oIII+jeOA+KNv2ZopglgI8Zpt3ide+4lqD4KRo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773924381; c=relaxed/simple;
+	bh=m/WKbd6NVVEZ0mhFDkimg6c4YST8HATJJv/9RaC/Me0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=idMnNbA0wAHo+pEYsrxs5QZC8ueAmbVlswaKVv4t5YAZYV1OYIFlPlmD0/jrx0iJhCUWFESqtGZuJZSLt+wRkGVdVaiAHrTLWS3fTU74MtvyPjyqdsQrkPlX9wKiZzm0UyBISkXxbM0ZtNWJabjiObREPbVmGZo97LWFSHQ7dIo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BwkJ+vbZ; arc=none smtp.client-ip=209.85.218.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="AKLsHbzP"
-Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2ad9f316d68so1667645ad.2
-        for <selinux@vger.kernel.org>; Wed, 18 Mar 2026 16:47:03 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1773877622; cv=none;
-        d=google.com; s=arc-20240605;
-        b=SYGHHokxD/bDQ/cRi9BwOLnoENlvuhpVwHZUoX5Bf0//CVcC9qaJNGvUxR7ZvlwBY+
-         Q7xXY3/YCM5CC2c1ahZOWk2UTsVjwYoZ/btD3dyc6VmNLldRq5x61AsALmH9XbtUTVlQ
-         /MLXqJzPijuEjVeR9fxxGTS9mSOsriigsScKixdJQB64PNH9GRSqvANDI4etu1SZBSkQ
-         GBHM9cNOcGRwLvNq9R36r0EtAKDTmKsrv1g4fz5S/JFWEQzKvIZPp0rgr3vZy6L7MgAR
-         o5/gNbP1RHIPdhLwTPL/Hh9ib1QrsVX3iNRy4+BqaPJEzbDnlyYU27uV72A1Tc0jczl+
-         KweQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=SKdeu+6dCkvAUwBQTZO2KRv3z1lv0eoszoXVMxx1Rl8=;
-        fh=YbbCUspLrJXnUaG8uuj8zvTtO1TZLBFPlp9H+oNxDiA=;
-        b=Aw3dOuKJRkF51bDanrehs1zi4ZOUCk15r2wEfwd9eFQ+SdngfYZ03oq3JVxRPgjwun
-         zzONa8SXhLuT00WGaKz54B5usTo+rdGBqqLueUAkGQgkEYz3EivZPGQuuVwmeALrfzP8
-         C6L7SFft/NUPEA+SOkaSHGz+RvWwSitgqmcazya38Nur4ZCbIhMfV5armPPtrbWJfGIQ
-         vyvnK+X++h46H9anjzbh6iLYzl4qtkpzkJfUGRrWctn4wY3moUgA49KbHdgBWXnbGN56
-         YhbN1JsdKqfa6CjCBvKZjIZB67RXDyaEX4vjr+6LI39NBOR4mJP/oFgK648sMbZdG+6t
-         r5PQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BwkJ+vbZ"
+Received: by mail-ej1-f41.google.com with SMTP id a640c23a62f3a-b97d5b790cbso102171866b.0
+        for <selinux@vger.kernel.org>; Thu, 19 Mar 2026 05:46:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1773877622; x=1774482422; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=SKdeu+6dCkvAUwBQTZO2KRv3z1lv0eoszoXVMxx1Rl8=;
-        b=AKLsHbzPe/UFGdaly4ZmKWfwEwmrHjd1DkZL4IVkQuzIErZyEfHo63QiPdDZocQ1er
-         TDQuBHxvJGfj7ByZiLM4PkfV8rNk5V/3NumordXmOjXxnaeC+X32rN8w4u++FYqMJ922
-         qiHl419cOnkMprBN228Xaq+2531KkoPltl6Xoo3Vp6WW2pPtOlttG1dg8+rgq8J+7Dml
-         4EjE2vHGePmPhTt2w4gTd6ctMcC6LeWCMahkdppjXGiyBMeMN+uX9UjHwZhkMaO5oXpt
-         utlaZH6uQCma0rd7bqSMOrjCIguHzeb4LLkVoaJxpS4oP3XYJDepNYXITJJxfvyktN/S
-         yLig==
+        d=gmail.com; s=20230601; t=1773924379; x=1774529179; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=fAG2luJkX4J4bz7jFU3CZc/r+PYOsZHvj5H6b+VrVUA=;
+        b=BwkJ+vbZIA1W0YS3//MkKxxPbkkPUBkkBYDDkQWVyhGKbrKzHyH046806TrGN/OOyW
+         DP9NdOLppQUj17bZISKzzOrPQHbKRbrqloPu87KXRQiYrnXW0j02EMNPWIMz+Np42kxI
+         4QpadysWpcRhH85wzELDebhIpOZlQfBUaV74KtHv856LYeJXVn/TsZPGA3n2KqBL8xai
+         3rxCtu7ZfQsnCUcX89sMjQ6uJ7XbsOmsoLJv6PA6EHABzrmHQppEe7/yHrdolkVfbbql
+         B3jeCZ5doNqnBXspXYL+u02W30208LBSGhlh1elJkBIJIXcQpgRR/BiYw3HW2604jr7b
+         UEHQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773877622; x=1774482422;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=SKdeu+6dCkvAUwBQTZO2KRv3z1lv0eoszoXVMxx1Rl8=;
-        b=YaNZoHudLsNMH/qBITPRibDrwI+HpEyb4MWUVUFvhpCzjepCcHqtdnAPPHudVn8mLh
-         6I6CNr6+U+HoCdbSjbwB/bPxlTa3/+ZdPjplotGlWemqZvGS4VZ/wStxDQEpxD8TdzRK
-         MnV4SJa+tFR9BEm094qfMdniU7gvC3lyElghQfTd2oRidM11B49qpI3cafH3c1EWQUNw
-         Jm4nPsQ2p62haY/MAp9JKIldCP4FPsOdPXG9ovX7HGo8yVtZsecZfWzXoohi2Lk+QSHA
-         xXSMjLX9RHA5wQiko0X5scXFMVFjRn/fgrOExOeqnCqQJeUYhWZXGoUyCj5Scn2flk+R
-         UFsA==
-X-Forwarded-Encrypted: i=1; AJvYcCUt9tsDKubAMdMrS2lFKmjSWLEe8fGdiJmeeLi4RRHqhnouGxuOIGtW1lX1WpSz1l5C/zZcHjqU@vger.kernel.org
-X-Gm-Message-State: AOJu0YzSjQQrKXpwt/HOLL/B5JVoY3NzAZhwaTqrazsThFvAQrTcyw+c
-	JU9/uDOzR8j3ByxNSAkyvuRJtQleHnSS9Ok8KQYvqb03VTmlva7e42tM9MTpn++zTZ4wU2iZ0Vo
-	u9zSeUtNn8lvtNnfYEZ2eVehbfrmTHUJiZNxgmRBw
-X-Gm-Gg: ATEYQzxYCtKxdZtTOt1gtPRRnRDu9487HHdnpWea4r2fBskERuymI/cUBE3tAx11cWQ
-	bGGoMapmCLIZ6SqFdwKkXolMrLXmDcpWO6dBNjw6hZyGI/eOb5xj7rWvQcW0nQCKBRcZhoyriI5
-	4xgyiHl8122cThjC5o6yG/K0Skak0OTvoQRMcVLD7uCR5dc4LO4eboA99t3FCocf0SpzLc3vb8K
-	JF4Q3yPFMtXwv7oPbBmIW0VUIkuDArchsHhftIyRevlDEKXIwGh9J0b8QQ/zCRlzgnOKw7cUXyz
-	IscAtIE=
-X-Received: by 2002:a17:902:f547:b0:2b0:7177:d5e5 with SMTP id
- d9443c01a7336-2b07177dc04mr35425715ad.43.1773877622532; Wed, 18 Mar 2026
- 16:47:02 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1773924379; x=1774529179;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=fAG2luJkX4J4bz7jFU3CZc/r+PYOsZHvj5H6b+VrVUA=;
+        b=SX5iMviUnu9Lpgt3aQ2aNViImmzzJWEixu9G5gvJpVtAKjrRj8pp/O65KPMGwRTtPq
+         lsgft229JL66kKP8w6etBiz7wyZXl/lDOmXC+CYcN2MSFzuxuVGID4A5sbMNPyjqVR6X
+         XWy5Ke7FWRrN0LXldCmuNf/EMYBm1C0pwo5kfBqzXwaERX4nJoPFFmOnx2HGAeysfbWJ
+         PwaiIS7OaZAm5ol3IhnBOkUTZjY43Co/yBhFlICli36irXeXxH0ysg5sfl8cPp39n1dp
+         l0dGsG6NKrEGCs+R5r7NLOc94+yrsixsa9cjHGlWfDKrteodRg45RBHb7ZMBpivBpFeR
+         T5YA==
+X-Forwarded-Encrypted: i=1; AJvYcCV7uuEcocuzS7lPzywP2vAo6vEMgbvav3T83NShSiuCBocrtSXGfsXyk0IPWDSPTZ4NIt03fT9b@vger.kernel.org
+X-Gm-Message-State: AOJu0YwJ29L0/12HqBNdNBqWznhrlXIwp/eCGbUjGb9Spdhf3SBzc5e6
+	RpWe0112W5dufTfJH4UIw78Vu1Vy/z9//8I67I18+WcCekfvPgDQBH/c
+X-Gm-Gg: ATEYQzxMhskcbMSwl0CB2708qu4qlNxN6p4SeshUjtXW1vX+WNfevRDRvxiQHyCOQeu
+	MSBy+3zVnFEVhqYuDDipcaxPvUF7FoyQiGMrvUHfJcY2e0dCNu3hs/Md+pZoLD7x/OZ8XSGcjS3
+	MdnqMuG8eLkjyuiJS5dRPfHBUpzFOXkddaUxykdDkvGv8mV3QvdAS2j3vVmHdoFh9yaSLS7M3wq
+	t/FUQwWXzyfqGuimXBuITwP2uMboXaAzjKJAkso/8pSn4dbkskRcHLyuBQqsObknrEaZU8aBeIn
+	eMS3/O8WW1l5qNLma53z3JCLGTuxZ9MwV/4I8Qa2gtLD/ZUIKlLvZ8JlE+6vlCZZlLXP1IGicsN
+	QFy7oK7xuqBn6Tgu4JUxMAhVazWchnhf5RTHCc/yq4BMPm7YHW5GORyySVC2yrlPI0H0v+Z2TMD
+	ZLjPQAXOkdWvIPcJGGqaSQWh4ReSudVYIgpqrU5iv00+H8AHV+5xlc23p2FJjIVntlVX15NedkU
+	9NoA8l7rFHdrvXQnlaHu6gqL/rA
+X-Received: by 2002:a17:906:eec7:b0:b97:3bbe:e42b with SMTP id a640c23a62f3a-b97f4a7c85amr459473066b.28.1773924378353;
+        Thu, 19 Mar 2026 05:46:18 -0700 (PDT)
+Received: from localhost (2001-1c00-570d-ee00-769d-2f77-d166-4700.cable.dynamic.v6.ziggo.nl. [2001:1c00:570d:ee00:769d:2f77:d166:4700])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b97f168c141sm430902766b.40.2026.03.19.05.46.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 19 Mar 2026 05:46:17 -0700 (PDT)
+From: Amir Goldstein <amir73il@gmail.com>
+To: Christian Brauner <brauner@kernel.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>,
+	Miklos Szeredi <miklos@szeredi.hu>,
+	Paul Moore <paul@paul-moore.com>,
+	Gao Xiang <xiang@kernel.org>,
+	linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org,
+	linux-erofs@lists.ozlabs.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-unionfs@vger.kernel.org,
+	syzbot+f34aab278bf5d664e2be@syzkaller.appspotmail.com
+Subject: [PATCH] fs: allow vfs code to open an O_PATH file with negative dentry
+Date: Thu, 19 Mar 2026 13:46:16 +0100
+Message-ID: <20260319124616.1544415-1-amir73il@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260318131258.1457101-1-amir73il@gmail.com>
-In-Reply-To: <20260318131258.1457101-1-amir73il@gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 18 Mar 2026 19:46:51 -0400
-X-Gm-Features: AaiRm50UCF1CurPQjVXbzqdFj4rL7YmqoTti-AfxH9o9diMwAaN1iIjAFrpAzkY
-Message-ID: <CAHC9VhTKvOzMS2ZyawE=qBN-EpyucfxvwcHZYjXF5zugRhE2rw@mail.gmail.com>
-Subject: Re: [PATCH v6] backing_file: store user_path_file
-To: Amir Goldstein <amir73il@gmail.com>
-Cc: Christian Brauner <brauner@kernel.org>, Miklos Szeredi <miklos@szeredi.hu>, Gao Xiang <xiang@kernel.org>, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
-	linux-erofs@lists.ozlabs.org, linux-fsdevel@vger.kernel.org, 
-	linux-unionfs@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Wed, Mar 18, 2026 at 9:13=E2=80=AFAM Amir Goldstein <amir73il@gmail.com>=
- wrote:
->
-> Instead of storing the user_path, store an O_PATH file for the
-> user_path with the original user file creds and a security context.
->
-> The user_path_file is only exported as a const pointer and its refcnt
-> is initialized to FILE_REF_DEAD, because it is not a refcounted object.
->
-> The file_ref_init() helper was changed to accept the FILE_REF_ constant
-> instead of the fake +1 integer count.
->
-> Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-> ---
->
-> Christian,
->
-> My v5 patch was sent by Paul along with his LSM/selinux pataches [1].
-> Here are the changes you requested.
->
-> I removed the ACKs and Tested-by because of the changes.
->
-> Thanks,
-> Amir.
->
-> Changes since v5:
-> - Restore file_ref_init() helper without refcnt -1 offset
-> - Future proofing errors from backing_file_open_user_path()
->
-> [1] https://lore.kernel.org/r/20260316213606.374109-6-paul@paul-moore.com=
-/
->
->  fs/backing-file.c            | 26 ++++++++++--------
->  fs/erofs/ishare.c            | 13 +++++++--
->  fs/file_table.c              | 53 ++++++++++++++++++++++++++++--------
->  fs/fuse/passthrough.c        |  3 +-
->  fs/internal.h                |  5 ++--
->  fs/overlayfs/dir.c           |  3 +-
->  fs/overlayfs/file.c          |  1 +
->  include/linux/backing-file.h | 29 ++++++++++++++++++--
->  include/linux/file_ref.h     |  4 +--
->  9 files changed, 103 insertions(+), 34 deletions(-)
+The fields f_mapping, f_wb_err, f_sb_err are irrelevant for O_PATH file.
+Skip setting them for O_PATH file, so that the O_PATH file could be
+opened with a negative dentry.
 
-Still works for me.  I'm going to update lsm/stable-7.0 with this
-patch so we can get some more linux-next testing.
+This is not something that a user should be able to do, but vfs code,
+such as ovl_tmpfile() can use this to open a backing O_PATH tmpfile
+before instantiating the dentry.
 
-Tested-by: Paul Moore <paul@paul-moore.com>
+Reported-by: syzbot+f34aab278bf5d664e2be@syzkaller.appspotmail.com
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+---
 
---=20
-paul-moore.com
+Christian,
+
+This patch fixes the syzbot report [1] that the
+backing_file_user_path_file() patch [2] introduces.
+
+This is not the only possible fix, but it is the cleanest one IMO.
+There is a small risk in introducing a state of an O_PATH file with
+NULL f_inode, but I (and the bots that I asked) did not find any
+obvious risk in this state.
+
+Note that specifically, the user path inode is accessed via d_inode()
+and not via file_inode(), which makes this safe for file_user_inode()
+callers.
+
+BTW, I missed this regression with the original patch because I
+only ran the quick overlayfs sanity test.
+
+Now I ran a full quick fstest cycle and verified that the O_TMPFILE
+test case is covered and that the bug is detected.
+
+WDYT?
+
+Thanks,
+Amir.
+
+[1] https://syzkaller.appspot.com/bug?extid=f34aab278bf5d664e2be
+[2] https://lore.kernel.org/linux-fsdevel/20260318131258.1457101-1-amir73il@gmail.com/
+
+ fs/open.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/fs/open.c b/fs/open.c
+index 91f1139591abe..2004a8c0d9c97 100644
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -893,9 +893,6 @@ static int do_dentry_open(struct file *f,
+ 
+ 	path_get(&f->f_path);
+ 	f->f_inode = inode;
+-	f->f_mapping = inode->i_mapping;
+-	f->f_wb_err = filemap_sample_wb_err(f->f_mapping);
+-	f->f_sb_err = file_sample_sb_err(f);
+ 
+ 	if (unlikely(f->f_flags & O_PATH)) {
+ 		f->f_mode = FMODE_PATH | FMODE_OPENED;
+@@ -904,6 +901,10 @@ static int do_dentry_open(struct file *f,
+ 		return 0;
+ 	}
+ 
++	f->f_mapping = inode->i_mapping;
++	f->f_wb_err = filemap_sample_wb_err(f->f_mapping);
++	f->f_sb_err = file_sample_sb_err(f);
++
+ 	if ((f->f_mode & (FMODE_READ | FMODE_WRITE)) == FMODE_READ) {
+ 		i_readcount_inc(inode);
+ 	} else if (f->f_mode & FMODE_WRITE && !special_file(inode->i_mode)) {
+-- 
+2.53.0
+
