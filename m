@@ -1,593 +1,219 @@
-Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBED93B9DA1
-	for <selinux@vger.kernel.org>; Fri, 20 Mar 2026 13:53:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3256301704;
+	Fri, 20 Mar 2026 15:06:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774014806; cv=none; b=UvvuRmM9ATycEa6f24xktPTWungcAsltq9oRfsdr08rseDN1HfjY5FyIIr/m1fLiwcujyfgpjRciEX15oiIPMa2Ge25XsPFnL4LydF8gZg7F/C6xDt9uVeoTiJg72KhVDbpUcvlMOya+ypg0q/a1DrbMCa/A7OYRn5tX5Gh2kgo=
+	t=1774019189; cv=none; b=Lsg6u0i9gcdRLBIRb5iS/LvWuNWiUKmD5qjHkGLGycNvWvvoz0N2r8xWDF2Ih91Hr2wghg2lkexpNQjT5aazfS5Vpop04SXwmB7Pmkgg0jnfyHkfc2doTNo01oQhGRVEMuxJvlXYD6JSLg7CMER29zKLJ0x3AL6Q6/OiZVtfYdU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774014806; c=relaxed/simple;
-	bh=yHl+B1AOud++XfXBqYXRiSpYxbw9Mct48dzUUXuIwiM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=V3EoV1EHrgwaKhWEVmaZ+xRRyC1bhMxAvUjFOQOK8hPGfPUq8/9tHn3BOAEGRUTs74hBvBc99eFDrQOrolW33/4h/zxA9oicrGgviJRv4/G95GBvi/0BiVJX4GvzOy3G7afq+jDd9ZBbItn3GS346FGZwRxRUsIyRT6Yj/bPyKs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lQ8+NpdR; arc=none smtp.client-ip=209.85.218.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1774019189; c=relaxed/simple;
+	bh=4U/RLB5BQTlqqUA+aRxQ/uoxRsEa6t8UeWu6iGAM7vU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Wi2a+jkxt2UOQtnM8ELryjGQrVZ8+4qwmPnmmciJ6k7gPUEY/5EVwXqsmTrNPpgIVnsaZAhicL5jvWREve3JPhBnZ4vA8Bom0ewruPga4oKZpoY5HF5+KsGbu3QzvatxgQUOm1oeAEateAXWl0+3bcUUCTkwklAhTF0apmP2Frw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=c11vSApR; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lQ8+NpdR"
-Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-b886fc047d5so338843866b.3
-        for <selinux@vger.kernel.org>; Fri, 20 Mar 2026 06:53:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1774014797; x=1774619597; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=+Pm+eEQ60JIMUuvkrTDt/cbZSgeK8toOkUpeH6Q+x4Q=;
-        b=lQ8+NpdRNpBmTNr0z2RMtUshCgJBYMxf4VdYNA89vClT3bhdCL48qsc0/9ckuGWm1Z
-         a+p2YC7MPE4z66QfLXUXcSGmvHOmAP6oGQ+mewg9+aammukc/t9VKuxq2pzt3e/hTtMo
-         ryYvgCQSg52PvVkd3V72pebcmulb9wnrNBcgPiN3Kp8SEkSDm5K9sxDLGBipE/2KSvz5
-         sDE4+LQwz3ejM+WTfKWUQIoC9unR8zGtxinsxAKr2dHP0gCWzcgdZGGsA5rZkwYEPAf5
-         wy8qZ1sHgRBlq2ajL1biCVtDHMPJYUw5LqhmHREedYfLlbeZvfQDIgxd1OPHq3kLEi1f
-         RL7w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774014797; x=1774619597;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=+Pm+eEQ60JIMUuvkrTDt/cbZSgeK8toOkUpeH6Q+x4Q=;
-        b=q7m0ROuT4bAgYj9awU4FQp7NX3P20y0p+skHDGUoxdUvqpqDYPYTxG/eAvcWX5kTHT
-         tRpxjuUO146hyChHcY/eq8zvElpnsLafcFIPfETsk4ErSkP/Dvf0jUzgd3gQYP58Dlbc
-         bZxnF0iYgCZplj9gmhFTBeQWSx1O/ZKeYkNXpwFf3FM6izM4ok6cpR50SvL1y/bIM0bt
-         HEIis+ZOWTDv6kB701SPmYWE9kDvehqZ8QCUQfjVWdzaO8YM4YQGiqKcqnrGSutus1+r
-         qfi38W0KJey5Oz9YuusVKc/M7cPtCe0PYjvlyVn4Jn7uZbYExsG15A9egztjA4gwtnR9
-         DvSQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWLNE0LUXLNgK/UJPc1wxniNPdzPpMdYUnO/pcbjSKCh91JK9LvEbweBIRSRYOhRTc2qWoENJ+3@vger.kernel.org
-X-Gm-Message-State: AOJu0YwbbgoW7Fi281Z+n24J/wtP5SDHUbN0jBmrJLVFLCZF8E8lXsBI
-	kq5kL/BqDPQGguT4ypenCsyFL5Rpf0c5tF8mN3jSsb09jZY2TZO6XuTcCwsTnE0e
-X-Gm-Gg: ATEYQzzDRKBpzkF8FjWs6SHeiJFMyr+7npyjzK+cWloyLRwlgSVFO3OJLabkhEtM2we
-	o2/NnhmSgoVGGzIG8LDd3V6gRhDJ5bDgDB6GUAxhDrLxL2ep+JWDBiYhp4CJX3lx4qynUMY91s6
-	Kt08Vg1JP1IfojNXPh98mOGbLahztP42yxm/ebcPbul4uGB/xcTTKWYpeAvjhiG5KzIhWiYwhzX
-	BcrbncUJI5+qJ2yhJu9+f3Aqs0yNOc9ixjlyvMx/IUJcXsRsi+CYxXWbYpEsUNJBTGKZERuNQUa
-	QYgsDd2jGtGkJdsHidyQdzcQojaKZICEbhnd3a3jWsAH/S7ZGp26G7FSnQiU5r4om5mO0Kza4eZ
-	WRJfnj2jpCDD8CESOdmcoY5t++C77fOHpTwDH+UlvnkYvRywaGHandYhetS3v7w0FJZBnyaPGg9
-	xkikkBX/qJslrXTPRpg1o1bKAX+DDHyvcuwR4ava211+CIaJePd211UrgaLcgAMESYYls3xdUXq
-	C4JDai1BxLXi0dVApEW8WNvlg66
-X-Received: by 2002:a17:907:c70c:b0:b96:eb7e:bc55 with SMTP id a640c23a62f3a-b982f1edf01mr232203466b.10.1774014796546;
-        Fri, 20 Mar 2026 06:53:16 -0700 (PDT)
-Received: from localhost (2001-1c00-570d-ee00-e98d-b8f7-8d95-53b2.cable.dynamic.v6.ziggo.nl. [2001:1c00:570d:ee00:e98d:b8f7:8d95:53b2])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b983365a159sm158826466b.44.2026.03.20.06.53.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Mar 2026 06:53:16 -0700 (PDT)
-From: Amir Goldstein <amir73il@gmail.com>
-To: Christian Brauner <brauner@kernel.org>
-Cc: Al Viro <viro@zeniv.linux.org.uk>,
-	Miklos Szeredi <miklos@szeredi.hu>,
-	Paul Moore <paul@paul-moore.com>,
-	Gao Xiang <xiang@kernel.org>,
-	linux-security-module@vger.kernel.org,
-	selinux@vger.kernel.org,
-	linux-erofs@lists.ozlabs.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-unionfs@vger.kernel.org
-Subject: [PATCH v7] backing_file: store an internal O_PATH user_path_file
-Date: Fri, 20 Mar 2026 14:53:15 +0100
-Message-ID: <20260320135315.1731572-1-amir73il@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="c11vSApR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BB13C2BCB0;
+	Fri, 20 Mar 2026 15:06:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774019189;
+	bh=4U/RLB5BQTlqqUA+aRxQ/uoxRsEa6t8UeWu6iGAM7vU=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=c11vSApRocA25rRA6R1Rg5PoZbJKYkvTzPDMmIS8hDyX2AXYHd8mYvTvGHczpbW0e
+	 ZICqmAxAG7qjbn/OIwttlwgweqfJ3T6xWbF6Jn4Ykx0PlThw+3A3UFYPQkowwyM+MR
+	 xph2xDZ24qQOpQjw0PB/HBpsqSQshv8HCPxdObcRx0m/O9B6JgKfWn2YSzucm3bNUO
+	 LGc+GK60aJmwylKmXisUdB28GjM0TrMGRhwdo3hoTW7hoBzOgalk4j+n72KHrlUXBf
+	 swr5E6qUe0gXbEloU8Cxg7ZJR5ROhpNrWzLfTbBhCZSP8AXpxr+lme2+aRUwijSnnb
+	 jet5knkPIKlag==
+Message-ID: <7e2aea13-e047-4891-bd6f-ff6705c4fc28@kernel.org>
+Date: Fri, 20 Mar 2026 16:06:15 +0100
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 17/23] mm: convert do_brk_flags() to use vma_flags_t
+Content-Language: en-US
+To: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+ David Hildenbrand <david@kernel.org>,
+ "Liam R . Howlett" <Liam.Howlett@oracle.com>, Jann Horn <jannh@google.com>,
+ Pedro Falcato <pfalcato@suse.de>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Kees Cook <kees@kernel.org>,
+ linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+ Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Brian Cain <bcain@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+ WANG Xuerui <kernel@xen0n.name>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Dinh Nguyen <dinguyen@kernel.org>, Madhavan Srinivasan
+ <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>,
+ Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <chleroy@kernel.org>,
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "H . Peter Anvin" <hpa@zytor.com>, Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ Xu Xin <xu.xin16@zte.com.cn>, Chengming Zhou <chengming.zhou@linux.dev>,
+ Michal Hocko <mhocko@suse.com>, Paul Moore <paul@paul-moore.com>,
+ Stephen Smalley <stephen.smalley.work@gmail.com>,
+ Ondrej Mosnacek <omosnace@redhat.com>, linux-snps-arc@lists.infradead.org,
+ linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-um@lists.infradead.org,
+ linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org
+References: <cover.1773846935.git.ljs@kernel.org>
+ <981ed1afcd19115432e61778e7d226a36f8f5c2b.1773846935.git.ljs@kernel.org>
+ <1d300b3b-2476-4381-b8df-a680f486b284@kernel.org>
+ <f47e24c4-3a11-4a58-96f5-871443660246@lucifer.local>
+From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
+In-Reply-To: <f47e24c4-3a11-4a58-96f5-871443660246@lucifer.local>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Instead of storing the user_path, store an internal O_PATH file,
-embedded in the backing_file struct for the user_path with a copy of
-the original user file creds and with an independent a security context.
+On 3/20/26 14:42, Lorenzo Stoakes (Oracle) wrote:
+>>
+>> More nits below:
+>>
+>> > diff --git a/arch/arm64/include/asm/page.h b/arch/arm64/include/asm/page.h
+>> > index b39cc1127e1f..e25d0d18f6d7 100644
+>> > --- a/arch/arm64/include/asm/page.h
+>> > +++ b/arch/arm64/include/asm/page.h
+>> > @@ -46,7 +46,12 @@ int pfn_is_map_memory(unsigned long pfn);
+>> >
+>> >  #endif /* !__ASSEMBLER__ */
+>> >
+>> > -#define VM_DATA_DEFAULT_FLAGS	(VM_DATA_FLAGS_TSK_EXEC | VM_MTE_ALLOWED)
+>> > +#ifdef CONFIG_ARM64_MTE
+>> > +#define VMA_DATA_DEFAULT_FLAGS	append_vma_flags(VMA_DATA_FLAGS_TSK_EXEC, \
+>> > +						 VMA_MTE_ALLOWED_BIT)
+>>
+>> I wonder what's the bloat-o-meter impact of these #define's (this
+>> arm64-specific one isn't the only one) being no longer compile-time-constants?
+> 
+> I mean there's a precedent for this, but the compiler _should_ figure out this
+> as a constant value, I have repeatedly confirmed that it's good at that in
+> godbolt, via make foo/bar.S etc.
 
-This internal O_PATH file is going to be used by LSM mprotect hooks
-to check the permissions to mprotect against a copy of the original
-mmaped file credentials.
+Great, thanks!
 
-The internal user_path_file is only exported as a const pointer and
-its refcnt is initialized to FILE_REF_DEAD, because it is not an actual
-refcounted object.  The file_ref_init() helper was changed to accept
-the FILE_REF_ constant instead of the fake +1 integer count.
+> 
+>>
+>> >   */
+>> >  #define vma_desc_set_flags(desc, ...) \
+>> >  	vma_desc_set_flags_mask(desc, mk_vma_flags(__VA_ARGS__))
+>> > @@ -4059,7 +4071,6 @@ extern int replace_mm_exe_file(struct mm_struct *mm, struct file *new_exe_file);
+>> >  extern struct file *get_mm_exe_file(struct mm_struct *mm);
+>> >  extern struct file *get_task_exe_file(struct task_struct *task);
+>> >
+>> > -extern bool may_expand_vm(struct mm_struct *, vm_flags_t, unsigned long npages);
+>> >  extern void vm_stat_account(struct mm_struct *, vm_flags_t, long npages);
+>> >
+>> >  extern bool vma_is_special_mapping(const struct vm_area_struct *vma,
+>> > diff --git a/mm/internal.h b/mm/internal.h
+>> > index f98f4746ac41..80d8651441a7 100644
+>>
+>> > diff --git a/mm/mprotect.c b/mm/mprotect.c
+>> > index 9681f055b9fc..eaa724b99908 100644
+>> > --- a/mm/mprotect.c
+>> > +++ b/mm/mprotect.c
+>>
+>> > @@ -773,19 +778,24 @@ mprotect_fixup(struct vma_iterator *vmi, struct mmu_gather *tlb,
+>> >
+>> >  	change_protection(tlb, vma, start, end, mm_cp_flags);
+>> >
+>> > -	if ((oldflags & VM_ACCOUNT) && !(newflags & VM_ACCOUNT))
+>> > +	if (vma_flags_test(&old_vma_flags, VMA_ACCOUNT_BIT) &&
+>> > +	    !vma_flags_test(&new_vma_flags, VMA_ACCOUNT_BIT))
+>> >  		vm_unacct_memory(nrpages);
+>> >
+>> >  	/*
+>> >  	 * Private VM_LOCKED VMA becoming writable: trigger COW to avoid major
+>> >  	 * fault on access.
+>> >  	 */
+>> > -	if ((oldflags & (VM_WRITE | VM_SHARED | VM_LOCKED)) == VM_LOCKED &&
+>> > -			(newflags & VM_WRITE)) {
+>> > -		populate_vma_page_range(vma, start, end, NULL);
+>> > +	if (vma_flags_test(&new_vma_flags, VMA_WRITE_BIT)) {
+>> > +		const vma_flags_t mask =
+>> > +			vma_flags_and(&old_vma_flags, VMA_WRITE_BIT,
+>> > +				      VMA_SHARED_BIT, VMA_LOCKED_BIT);
+>> > +
+>> > +		if (vma_flags_same(&mask, VMA_LOCKED_BIT))
+>>
+>> That converts the original logic 1:1, but I wonder if it's now feasible to
+>> write it more obviously as "VMA_LOCKED_BIT must be set, VM_WRITE_BIT and
+>> VM_SHARED_BIT must not" ?
+> 
+> Hmm, I'm not sure if I can express this more clearly, it's a pain either
+> way. Could do:
+> 
+> 	if (vma_flags_test(&new_vma_flags, VMA_WRITE_BIT) &&
+> 	    !vma_flags_test_any(&old_vma_flags, VMA_WRITE_BIT, VMA_SHARED_BIT))
+> 		populate_vma_page_range(vma, start, end, NULL);
 
-The internal O_PATH file is opened using a new kernel helper
-kernel_path_file_open(), which skips all the generic code in
-do_dentry_open() and does only the essentials, so that the internal
-O_PATH file could be opened with a negative dentry.
+It would be a bit more:
 
-This is needed for backing_tmpfile_open() to open a backing O_PATH
-tmpfile before instantiating the dentry.
-The callers of backing_tmpfile_open() are responsible for calling
-backing_tmpfile_finish() after making the path positive.
+	if (vma_flags_test(&new_vma_flags, VMA_WRITE_BIT) &&
+	    vma_flags_test(&old_vma_flags, VMA_LOCKED_BIT) &&
+ 	    !vma_flags_test_any(&old_vma_flags, VMA_WRITE_BIT, VMA_SHARED_BIT))
+ 		populate_vma_page_range(vma, start, end, NULL);
 
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
----
+(or reordered in whatever way the short circuting works best here, the original
+code tested oldflags first).
 
-Christian,
+But yeah, at least to me it's more clear what that's testing and doesn't need to
+set up the intermediate mask variable, and VMA_LOCKED_BIT is there only once
+in the code now. The number of vma_flags_* operations is the same.
+ 
+>>
+>> > +			populate_vma_page_range(vma, start, end, NULL);
+>> >  	}
+>> >
+>> > -	vm_stat_account(mm, oldflags, -nrpages);
+>> > +	vm_stat_account(mm, vma_flags_to_legacy(old_vma_flags), -nrpages);
+>> >  	vm_stat_account(mm, newflags, nrpages);
+>> >  	perf_event_mmap(vma);
+>> >  	return 0;
+>>
+>> > diff --git a/mm/vma.h b/mm/vma.h
+>> > index cf8926558bf6..1f2de6cb3b97 100644
+>> > --- a/mm/vma.h
+>> > +++ b/mm/vma.h
+>>
+>> > +static inline bool is_data_mapping_vma_flags(const vma_flags_t *vma_flags)
+>> > +{
+>> > +	const vma_flags_t mask = vma_flags_and(vma_flags,
+>> > +			VMA_WRITE_BIT, VMA_SHARED_BIT, VMA_STACK_BIT);
+>> > +
+>> > +	return vma_flags_same(&mask, VMA_WRITE_BIT);
+>>
+>> Ditto?
+> 
+> I may do both as a follow up patch given the series is a pain to rework at this point
+> and I want at least the first version to be like-for-like intentionally.
 
-7th time is a charm (?).
+OK sure.
 
-Here is another try to introduce backing_file_user_path_file(),
-after dealing with the the syzbot report [1] v6 [2] introduces.
-
-Thanks,
-Amir.
-
-Changes since v6:
-- Create helper for internal O_PATH open with negative path
-- Create backing_tmpfile_finish() API to fixup the negative path
-
-[1] https://syzkaller.appspot.com/bug?extid=f34aab278bf5d664e2be
-[2] https://lore.kernel.org/linux-fsdevel/20260318131258.1457101-1-amir73il@gmail.com/
-
- fs/backing-file.c            | 32 +++++++++++-------
- fs/erofs/ishare.c            | 13 ++++++--
- fs/file_table.c              | 63 +++++++++++++++++++++++++++++-------
- fs/fuse/passthrough.c        |  3 +-
- fs/internal.h                | 12 +++++--
- fs/open.c                    | 34 ++++++++++++++++---
- fs/overlayfs/dir.c           |  5 ++-
- fs/overlayfs/file.c          |  1 +
- include/linux/backing-file.h | 30 +++++++++++++++--
- include/linux/file_ref.h     |  4 +--
- 10 files changed, 159 insertions(+), 38 deletions(-)
-
-diff --git a/fs/backing-file.c b/fs/backing-file.c
-index 45da8600d5644..77935c93333ab 100644
---- a/fs/backing-file.c
-+++ b/fs/backing-file.c
-@@ -11,6 +11,7 @@
- #include <linux/fs.h>
- #include <linux/backing-file.h>
- #include <linux/splice.h>
-+#include <linux/uio.h>
- #include <linux/mm.h>
- 
- #include "internal.h"
-@@ -18,9 +19,10 @@
- /**
-  * backing_file_open - open a backing file for kernel internal use
-  * @user_path:	path that the user reuqested to open
-+ * @user_cred:	credentials that the user used for open
-  * @flags:	open flags
-  * @real_path:	path of the backing file
-- * @cred:	credentials for open
-+ * @cred:	credentials for open of the backing file
-  *
-  * Open a backing file for a stackable filesystem (e.g., overlayfs).
-  * @user_path may be on the stackable filesystem and @real_path on the
-@@ -29,20 +31,21 @@
-  * returned file into a container structure that also stores the stacked
-  * file's path, which can be retrieved using backing_file_user_path().
-  */
--struct file *backing_file_open(const struct path *user_path, int flags,
-+struct file *backing_file_open(const struct path *user_path,
-+			       const struct cred *user_cred, int flags,
- 			       const struct path *real_path,
- 			       const struct cred *cred)
- {
- 	struct file *f;
- 	int error;
- 
--	f = alloc_empty_backing_file(flags, cred);
-+	f = alloc_empty_backing_file(flags, cred, user_cred);
- 	if (IS_ERR(f))
- 		return f;
- 
--	path_get(user_path);
--	backing_file_set_user_path(f, user_path);
--	error = vfs_open(real_path, f);
-+	error = backing_file_open_user_path(f, user_path);
-+	if (!error)
-+		error = vfs_open(real_path, f);
- 	if (error) {
- 		fput(f);
- 		f = ERR_PTR(error);
-@@ -52,7 +55,8 @@ struct file *backing_file_open(const struct path *user_path, int flags,
- }
- EXPORT_SYMBOL_GPL(backing_file_open);
- 
--struct file *backing_tmpfile_open(const struct path *user_path, int flags,
-+struct file *backing_tmpfile_open(const struct path *user_path,
-+				  const struct cred *user_cred, int flags,
- 				  const struct path *real_parentpath,
- 				  umode_t mode, const struct cred *cred)
- {
-@@ -60,13 +64,13 @@ struct file *backing_tmpfile_open(const struct path *user_path, int flags,
- 	struct file *f;
- 	int error;
- 
--	f = alloc_empty_backing_file(flags, cred);
-+	f = alloc_empty_backing_file(flags, cred, user_cred);
- 	if (IS_ERR(f))
- 		return f;
- 
--	path_get(user_path);
--	backing_file_set_user_path(f, user_path);
--	error = vfs_tmpfile(real_idmap, real_parentpath, f, mode);
-+	error = backing_file_open_user_path(f, user_path);
-+	if (!error)
-+		error = vfs_tmpfile(real_idmap, real_parentpath, f, mode);
- 	if (error) {
- 		fput(f);
- 		f = ERR_PTR(error);
-@@ -75,6 +79,12 @@ struct file *backing_tmpfile_open(const struct path *user_path, int flags,
- }
- EXPORT_SYMBOL(backing_tmpfile_open);
- 
-+void backing_tmpfile_finish(struct file *file)
-+{
-+	backing_file_set_user_path_inode(file);
-+}
-+EXPORT_SYMBOL_GPL(backing_tmpfile_finish);
-+
- struct backing_aio {
- 	struct kiocb iocb;
- 	refcount_t ref;
-diff --git a/fs/erofs/ishare.c b/fs/erofs/ishare.c
-index 829d50d5c717d..f3a5fb0bffaf0 100644
---- a/fs/erofs/ishare.c
-+++ b/fs/erofs/ishare.c
-@@ -103,18 +103,25 @@ static int erofs_ishare_file_open(struct inode *inode, struct file *file)
- {
- 	struct inode *sharedinode = EROFS_I(inode)->sharedinode;
- 	struct file *realfile;
-+	int err;
- 
- 	if (file->f_flags & O_DIRECT)
- 		return -EINVAL;
--	realfile = alloc_empty_backing_file(O_RDONLY|O_NOATIME, current_cred());
-+	realfile = alloc_empty_backing_file(O_RDONLY|O_NOATIME, current_cred(),
-+					    file->f_cred);
- 	if (IS_ERR(realfile))
- 		return PTR_ERR(realfile);
-+
-+	err = backing_file_open_user_path(realfile, &file->f_path);
-+	if (err) {
-+		fput(realfile);
-+		return err;
-+	}
-+
- 	ihold(sharedinode);
- 	realfile->f_op = &erofs_file_fops;
- 	realfile->f_inode = sharedinode;
- 	realfile->f_mapping = sharedinode->i_mapping;
--	path_get(&file->f_path);
--	backing_file_set_user_path(realfile, &file->f_path);
- 
- 	file_ra_state_init(&realfile->f_ra, file->f_mapping);
- 	realfile->private_data = EROFS_I(inode);
-diff --git a/fs/file_table.c b/fs/file_table.c
-index aaa5faaace1e9..a4d1064d50896 100644
---- a/fs/file_table.c
-+++ b/fs/file_table.c
-@@ -27,6 +27,7 @@
- #include <linux/task_work.h>
- #include <linux/swap.h>
- #include <linux/kmemleak.h>
-+#include <linux/backing-file.h>
- 
- #include <linux/atomic.h>
- 
-@@ -43,11 +44,11 @@ static struct kmem_cache *bfilp_cachep __ro_after_init;
- 
- static struct percpu_counter nr_files __cacheline_aligned_in_smp;
- 
--/* Container for backing file with optional user path */
-+/* Container for backing file with optional user path file */
- struct backing_file {
- 	struct file file;
- 	union {
--		struct path user_path;
-+		struct file user_path_file;
- 		freeptr_t bf_freeptr;
- 	};
- };
-@@ -56,24 +57,54 @@ struct backing_file {
- 
- const struct path *backing_file_user_path(const struct file *f)
- {
--	return &backing_file(f)->user_path;
-+	return &backing_file(f)->user_path_file.f_path;
- }
- EXPORT_SYMBOL_GPL(backing_file_user_path);
- 
--void backing_file_set_user_path(struct file *f, const struct path *path)
-+const struct file *backing_file_user_path_file(const struct file *f)
- {
--	backing_file(f)->user_path = *path;
-+	return &backing_file(f)->user_path_file;
- }
--EXPORT_SYMBOL_GPL(backing_file_set_user_path);
-+EXPORT_SYMBOL_GPL(backing_file_user_path_file);
- 
--static inline void file_free(struct file *f)
-+int backing_file_open_user_path(struct file *f, const struct path *path)
-+{
-+	if (WARN_ON(!(f->f_mode & FMODE_BACKING)))
-+		return -EIO;
-+	kernel_path_file_open(&backing_file(f)->user_path_file, path);
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(backing_file_open_user_path);
-+
-+void backing_file_set_user_path_inode(struct file *f)
-+{
-+	if (WARN_ON(!(f->f_mode & FMODE_BACKING)))
-+		return;
-+	file_set_d_inode(&backing_file(f)->user_path_file);
-+}
-+EXPORT_SYMBOL_GPL(backing_file_set_user_path_inode);
-+
-+static void destroy_file(struct file *f)
- {
- 	security_file_free(f);
-+	put_cred(f->f_cred);
-+}
-+
-+static inline void file_free(struct file *f)
-+{
-+	destroy_file(f);
- 	if (likely(!(f->f_mode & FMODE_NOACCOUNT)))
- 		percpu_counter_dec(&nr_files);
--	put_cred(f->f_cred);
- 	if (unlikely(f->f_mode & FMODE_BACKING)) {
--		path_put(backing_file_user_path(f));
-+		struct file *user_path_file = &backing_file(f)->user_path_file;
-+
-+		/*
-+		 * no refcount on the user_path_file - they die together,
-+		 * so __fput() is not called for user_path_file. path_put()
-+		 * is the only relevant cleanup from __fput().
-+		 */
-+		destroy_file(user_path_file);
-+		path_put(&user_path_file->__f_path);
- 		kmem_cache_free(bfilp_cachep, backing_file(f));
- 	} else {
- 		kmem_cache_free(filp_cachep, f);
-@@ -201,7 +232,7 @@ static int init_file(struct file *f, int flags, const struct cred *cred)
- 	 * fget-rcu pattern users need to be able to handle spurious
- 	 * refcount bumps we should reinitialize the reused file first.
- 	 */
--	file_ref_init(&f->f_ref, 1);
-+	file_ref_init(&f->f_ref, FILE_REF_ONEREF);
- 	return 0;
- }
- 
-@@ -290,7 +321,8 @@ struct file *alloc_empty_file_noaccount(int flags, const struct cred *cred)
-  * This is only for kernel internal use, and the allocate file must not be
-  * installed into file tables or such.
-  */
--struct file *alloc_empty_backing_file(int flags, const struct cred *cred)
-+struct file *alloc_empty_backing_file(int flags, const struct cred *cred,
-+				      const struct cred *user_cred)
- {
- 	struct backing_file *ff;
- 	int error;
-@@ -305,6 +337,15 @@ struct file *alloc_empty_backing_file(int flags, const struct cred *cred)
- 		return ERR_PTR(error);
- 	}
- 
-+	error = init_file(&ff->user_path_file, O_PATH, user_cred);
-+	/* user_path_file is not refcounterd - it dies with the backing file */
-+	file_ref_init(&ff->user_path_file.f_ref, FILE_REF_DEAD);
-+	if (unlikely(error)) {
-+		destroy_file(&ff->file);
-+		kmem_cache_free(bfilp_cachep, ff);
-+		return ERR_PTR(error);
-+	}
-+
- 	ff->file.f_mode |= FMODE_BACKING | FMODE_NOACCOUNT;
- 	return &ff->file;
- }
-diff --git a/fs/fuse/passthrough.c b/fs/fuse/passthrough.c
-index 72de97c03d0ee..60018c6359342 100644
---- a/fs/fuse/passthrough.c
-+++ b/fs/fuse/passthrough.c
-@@ -10,6 +10,7 @@
- #include <linux/file.h>
- #include <linux/backing-file.h>
- #include <linux/splice.h>
-+#include <linux/uio.h>
- 
- static void fuse_file_accessed(struct file *file)
- {
-@@ -167,7 +168,7 @@ struct fuse_backing *fuse_passthrough_open(struct file *file, int backing_id)
- 		goto out;
- 
- 	/* Allocate backing file per fuse file to store fuse path */
--	backing_file = backing_file_open(&file->f_path, file->f_flags,
-+	backing_file = backing_file_open(&file->f_path, file->f_cred, file->f_flags,
- 					 &fb->file->f_path, fb->cred);
- 	err = PTR_ERR(backing_file);
- 	if (IS_ERR(backing_file)) {
-diff --git a/fs/internal.h b/fs/internal.h
-index cbc384a1aa096..4a9e5e00678d9 100644
---- a/fs/internal.h
-+++ b/fs/internal.h
-@@ -106,8 +106,16 @@ extern void chroot_fs_refs(const struct path *, const struct path *);
-  */
- struct file *alloc_empty_file(int flags, const struct cred *cred);
- struct file *alloc_empty_file_noaccount(int flags, const struct cred *cred);
--struct file *alloc_empty_backing_file(int flags, const struct cred *cred);
--void backing_file_set_user_path(struct file *f, const struct path *path);
-+struct file *alloc_empty_backing_file(int flags, const struct cred *cred,
-+				      const struct cred *user_cred);
-+int backing_file_open_user_path(struct file *f, const struct path *path);
-+void backing_file_set_user_path_inode(struct file *f);
-+void kernel_path_file_open(struct file *f, const struct path *path);
-+
-+static inline void file_set_d_inode(struct file *f)
-+{
-+	f->f_inode = d_inode(f->f_path.dentry);
-+}
- 
- static inline void file_put_write_access(struct file *file)
- {
-diff --git a/fs/open.c b/fs/open.c
-index 91f1139591abe..a7b3b04cd9ae7 100644
---- a/fs/open.c
-+++ b/fs/open.c
-@@ -884,10 +884,38 @@ static inline int file_get_write_access(struct file *f)
- 	return error;
- }
- 
-+static const struct file_operations empty_fops = {};
-+
-+static void do_path_file_open(struct file *f)
-+{
-+	f->f_mode = FMODE_PATH | FMODE_OPENED;
-+	file_set_fsnotify_mode(f, FMODE_NONOTIFY);
-+	f->f_op = &empty_fops;
-+}
-+
-+/**
-+ * kernel_path_file_open - open an O_PATH file for kernel internal use
-+ * @f:		pre-allocated file with f_flags and f_cred initialized
-+ * @path:	path to reference (may have a negative dentry)
-+ *
-+ * Open a minimal O_PATH file that only references a path.
-+ * Unlike vfs_open(), this does not require a positive dentry and does not
-+ * set up f_mapping and other fields not needed for O_PATH.
-+ * If path is negative at the time of this call, the caller is responsible for
-+ * callingn backing_file_set_user_path_inode() after making the path positive.
-+
-+ */
-+void kernel_path_file_open(struct file *f, const struct path *path)
-+{
-+	f->__f_path = *path;
-+	path_get(&f->f_path);
-+	file_set_d_inode(f);
-+	do_path_file_open(f);
-+}
-+
- static int do_dentry_open(struct file *f,
- 			  int (*open)(struct inode *, struct file *))
- {
--	static const struct file_operations empty_fops = {};
- 	struct inode *inode = f->f_path.dentry->d_inode;
- 	int error;
- 
-@@ -898,9 +926,7 @@ static int do_dentry_open(struct file *f,
- 	f->f_sb_err = file_sample_sb_err(f);
- 
- 	if (unlikely(f->f_flags & O_PATH)) {
--		f->f_mode = FMODE_PATH | FMODE_OPENED;
--		file_set_fsnotify_mode(f, FMODE_NONOTIFY);
--		f->f_op = &empty_fops;
-+		do_path_file_open(f);
- 		return 0;
- 	}
- 
-diff --git a/fs/overlayfs/dir.c b/fs/overlayfs/dir.c
-index ff3dbd1ca61f2..24e961f165a78 100644
---- a/fs/overlayfs/dir.c
-+++ b/fs/overlayfs/dir.c
-@@ -1374,7 +1374,8 @@ static int ovl_create_tmpfile(struct file *file, struct dentry *dentry,
- 				return PTR_ERR(cred);
- 
- 			ovl_path_upper(dentry->d_parent, &realparentpath);
--			realfile = backing_tmpfile_open(&file->f_path, flags, &realparentpath,
-+			realfile = backing_tmpfile_open(&file->f_path, file->f_cred,
-+							flags, &realparentpath,
- 							mode, current_cred());
- 			err = PTR_ERR_OR_ZERO(realfile);
- 			pr_debug("tmpfile/open(%pd2, 0%o) = %i\n", realparentpath.dentry, mode, err);
-@@ -1392,6 +1393,8 @@ static int ovl_create_tmpfile(struct file *file, struct dentry *dentry,
- 			err = ovl_instantiate(dentry, inode, newdentry, false, file);
- 			if (!err) {
- 				file->private_data = of;
-+				/* user_path_file was opened with a negative path */
-+				backing_tmpfile_finish(realfile);
- 			} else {
- 				dput(newdentry);
- 				ovl_file_free(of);
-diff --git a/fs/overlayfs/file.c b/fs/overlayfs/file.c
-index 97bed2286030d..767c128407fcc 100644
---- a/fs/overlayfs/file.c
-+++ b/fs/overlayfs/file.c
-@@ -49,6 +49,7 @@ static struct file *ovl_open_realfile(const struct file *file,
- 				flags &= ~O_NOATIME;
- 
- 			realfile = backing_file_open(file_user_path(file),
-+						     file_user_cred(file),
- 						     flags, realpath, current_cred());
- 		}
- 	}
-diff --git a/include/linux/backing-file.h b/include/linux/backing-file.h
-index 1476a6ed1bfd7..52ac51ada6ff9 100644
---- a/include/linux/backing-file.h
-+++ b/include/linux/backing-file.h
-@@ -9,21 +9,45 @@
- #define _LINUX_BACKING_FILE_H
- 
- #include <linux/file.h>
--#include <linux/uio.h>
- #include <linux/fs.h>
- 
-+/*
-+ * When mmapping a file on a stackable filesystem (e.g., overlayfs), the file
-+ * stored in ->vm_file is a backing file whose f_inode is on the underlying
-+ * filesystem.
-+ *
-+ * LSM can use file_user_path_file() to store context related to the user path
-+ * that was opened and mmaped.
-+ */
-+const struct file *backing_file_user_path_file(const struct file *f);
-+
-+static inline const struct file *file_user_path_file(const struct file *f)
-+{
-+	if (f && unlikely(f->f_mode & FMODE_BACKING))
-+		return backing_file_user_path_file(f);
-+	return f;
-+}
-+
-+static inline const struct cred *file_user_cred(const struct file *f)
-+{
-+	return file_user_path_file(f)->f_cred;
-+}
-+
- struct backing_file_ctx {
- 	const struct cred *cred;
- 	void (*accessed)(struct file *file);
- 	void (*end_write)(struct kiocb *iocb, ssize_t);
- };
- 
--struct file *backing_file_open(const struct path *user_path, int flags,
-+struct file *backing_file_open(const struct path *user_path,
-+			       const struct cred *user_cred, int flags,
- 			       const struct path *real_path,
- 			       const struct cred *cred);
--struct file *backing_tmpfile_open(const struct path *user_path, int flags,
-+struct file *backing_tmpfile_open(const struct path *user_path,
-+				  const struct cred *user_cred, int flags,
- 				  const struct path *real_parentpath,
- 				  umode_t mode, const struct cred *cred);
-+void backing_tmpfile_finish(struct file *file);
- ssize_t backing_file_read_iter(struct file *file, struct iov_iter *iter,
- 			       struct kiocb *iocb, int flags,
- 			       struct backing_file_ctx *ctx);
-diff --git a/include/linux/file_ref.h b/include/linux/file_ref.h
-index 31551e4cb8f34..c7512ce70f9c4 100644
---- a/include/linux/file_ref.h
-+++ b/include/linux/file_ref.h
-@@ -54,11 +54,11 @@ typedef struct {
- /**
-  * file_ref_init - Initialize a file reference count
-  * @ref: Pointer to the reference count
-- * @cnt: The initial reference count typically '1'
-+ * @cnt: The initial reference count typically FILE_REF_ONEREF
-  */
- static inline void file_ref_init(file_ref_t *ref, unsigned long cnt)
- {
--	atomic_long_set(&ref->refcnt, cnt - 1);
-+	atomic_long_set(&ref->refcnt, cnt);
- }
- 
- bool __file_ref_put(file_ref_t *ref, unsigned long cnt);
--- 
-2.53.0
+>>
+>> > +}
+>> >
+>> >  static inline void vma_iter_config(struct vma_iterator *vmi,
+>> >  		unsigned long index, unsigned long last)
+>> > diff --git a/mm/vma_exec.c b/mm/vma_exec.c
+>> > index 8134e1afca68..5cee8b7efa0f 100644
+> 
+> Thanks, Lorenzo
 
