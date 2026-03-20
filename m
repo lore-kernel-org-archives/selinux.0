@@ -1,326 +1,298 @@
-Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE10E3AEF52
-	for <selinux@vger.kernel.org>; Fri, 20 Mar 2026 12:34:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.52
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774010052; cv=pass; b=XRzqYpmzGgfHk2yCg5RAKtVVxxgCNoC7OOYl2sLTKhKdl3sPszS8Qqus8KvNc0a6OZA5mly2t6DaCtaQugd9ZufKJTKTHuZGAm0cUfW9Y4oiZLN/1GWDFpa+a5wCp8+Y9BshgyuWOGAjNDl26DZqt7yPSn/VmNoYUDnFEBQpsqE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774010052; c=relaxed/simple;
-	bh=XLaoLqDtanoExFeuxa0YKat22sa9hJ9P+EPmS3WvgL8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Fq5cZUWMGlO2ak+ahXOkYyCxZU/WGqScZXWeoRzGCTlwlTSJo23uveMtmxNTYIdJJZmqUIx7aax/WMVZMoXWtzkv0vF2oSYpj0cGCsQ1JXipZ51XwaccsWItlud2Cmg2agpWX6X2SnC6VDF1qairEWMVFh5VoM1BwYVJx6IBmiA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Kgp7Fjyb; arc=pass smtp.client-ip=209.85.208.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 501B03A641D;
+	Fri, 20 Mar 2026 13:43:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774014192; cv=none; b=Il58Ys0Z2o3/crpw2ppt47TjgaAr0t0DVLzxUoq+W2YDNn0E9jb3p6+Vc3Oj3e8vBOiRIaEHC5pFiL93edOWl0ThCSQfA1AJqXUL+HwRzQeWQx62eS3nX1GIcgq4db3Y8ul1V0i9xrvZ9KK8ry2zYoWQ6gRk6SzVNxYxAaARz3U=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774014192; c=relaxed/simple;
+	bh=DyFuJFml7YVo8+/hTBGS9GQt/nh4Xv5125sbhWsDy3w=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=FqIvPF2aJygMemwHxnC5J4OnNP/+XK7fGpUhUnseKbsRt/vmb+oUs+zHBaaVZshqJuaCYtX48rIk21gU7jDAhiJZK1wUu97c4GaPPHOL51rhhFZE6My9UJCcTyY7phsyQ5i/h7V2+ma8Dr4UATgTZ6eVfBqZZR1f8Fkvx/kKvWs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gK3cDFvh; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Kgp7Fjyb"
-Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-6676d55d01dso2056012a12.3
-        for <selinux@vger.kernel.org>; Fri, 20 Mar 2026 05:34:09 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1774010048; cv=none;
-        d=google.com; s=arc-20240605;
-        b=TI8lrGfvQM5pIElbBkb8vrA824yWe6w7Pq3eZrCMCSnFK7yGqMpN763gFpA5Y0WfEI
-         wicvqrdAvRJAPL7TvSw7GohK1kL/5eAmMzi7sMETeW1P5tHLUGVLMCTpomflhFzrXNuR
-         gkpo8hmbrUmyeaIpRpV2SBPoRz4TpvSoItYl19F9EMuG+61JFP4KLCYiYD+z+sLqAoFj
-         9nBsjBn+JczOB+kAPLrYjbkNcnr3o12NEK/DrDU/1Dmn6IQCJeoEU3WDNAZs6XEXuuPJ
-         dvZK8Fyc7OP84VzCbf3ONFuWaogh/o0+WMOivc81ONOORdrc9u5XqJliDYFHXrKfhs1L
-         5/9Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=3K8SJZxerjn7Jv5y3gL2e2Dax0E0bqqyMdQ4wn7A4ls=;
-        fh=+6LfcOX//oZdMkY7LJnHxqkv5aJHwDKCcXue86aS90U=;
-        b=jS/wJlNkcUM2WXSXf6dYTzYuJxjVkq4y5gaV9ldXwkrElhqZVzSWB/azduoJwgLXbB
-         vGgIdLCfANDtPAV2auQPMZmOQtY4h12kSxGar2kBzpcPkoRe53B6Xj9fDVmnrMoKjnwm
-         Nqd6Pkp72WIGorhXykvRC1HHSXi0FEauUF10RN4N0ziUaKlIQWMKobsryiqeXEdyiJu0
-         173oFrkhVYI3O+ChKyCMVK86HZQ6ZYGWIQ7er6A2YKK6KN3rMVXxrjFQwEix73S5Htzy
-         Lyl7ojbInOzO76uSV2zvoduKmFgZuGAHwncp6bYyPCVYMV+jDE3oB7dVO6IyGdM32iTi
-         aH5g==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1774010048; x=1774614848; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=3K8SJZxerjn7Jv5y3gL2e2Dax0E0bqqyMdQ4wn7A4ls=;
-        b=Kgp7FjybKjpTHrOOpyYircgze9ZH96xU05e3De1KUvI/TdyyUVIjPMKzxB7DsAzuI8
-         YXpHJMZh3qeeCFYhZDlOqSRjecMsxdF1T3zRuK7ZcjwNqOO6OEEjiBwnuAv8L+YWOblK
-         1mAHi1SSgNSqMaUWhuRtsy5vCy0tuY0Ubt/Onbtdqp2a1WTUE+hBxHsqUZHCNDncCf+H
-         KT5XCyx9kSOQeR4x/A/WxegzfdXHRW3AZnWO1068MMNXWbPOtOzegXsjSJQj6NmArNSY
-         UIheDaHBuuXhcbacJzxUev/6V5ANMlV0dmuV49mdBKzjL4n3kN/4HF/FcPSkmSem49Sb
-         HpdA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774010048; x=1774614848;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=3K8SJZxerjn7Jv5y3gL2e2Dax0E0bqqyMdQ4wn7A4ls=;
-        b=tNKB7W/CIVVJPPReqb7dR4Vl6BSW/0dWAjL/uBXcsczW/Iy9ABLCFFWegfoYieR150
-         G4uU/cuvUc3GeMKcTdj/uq/nvcnWUC4GB8Guw1q9d8L+Pa2KmDhAhx4wdHVWhCT9Z1Yt
-         XKyvi0h3AB8nS1H3VYtbHAyBLAYsa5NB32t+H15X7B/g0bzBGM8Bsnp/feygzpAVIw2N
-         QDUBnJG5X14evnA2GFk/rDl0oZm/onWTIdiQF224Z2T3X3IT8gmzX0xIZEfGwqhcgL3k
-         d7GjV2uTRrbjl3GOUwKOe69aP4vZStSKJosF9vHPIwxmi5tuVx6KDOfCS2wG/IoMFjIH
-         GIRQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU8pA8yTzaJzcLUY0NzlkLecRxDTb7OtotWzpRv0qJ+DT2JChHWqdMJ5ukcOOpZkHAIjCVMBbQ7@vger.kernel.org
-X-Gm-Message-State: AOJu0YyWuMdn3zEfqn/q91ns61WYSCILbymY8VcZTtAuzugR/4XHdm34
-	2+XjuZEKcO11g7MQVoAjc5qzA+iAhsW5RkXpNkbXdiDbvjNBbP6m9X7GTxcT+cfIlGaBOXnBZna
-	UO//aKteCdkac2aiSQZPHBf3rUfPHPQU=
-X-Gm-Gg: ATEYQzz15GJytUz5qSyqhP6f3okmzjQCWbg2AJa1M1r99pg+vpIVktof1eNbDvKHatk
-	D3vba9zoih+7EGJy/o6xfiyyxkKYvMEuXARocPZIp3SuiqDtvc0cp1pGF64vrxTDocez78nYK6c
-	xOiFKSeDeMA/70LYwm6FXLdqRzpGVW95ePBPm/bilkatbdE42pBJg2A8BZfcGdK5DGOfmPwkbX1
-	GnOOHN9mI2rLFx1tn2F8VJPWmqJDs5QbWKy/jlGcjz9r1qp9C8iIRHoS1cRFWYx3swWgwNBglQ2
-	MQnkFJ75b87LTW5ihaQy+cfOYH5s3sVAMRfm5DSNTw==
-X-Received: by 2002:a17:907:1604:b0:b97:fe6d:2e4a with SMTP id
- a640c23a62f3a-b982f0a95fbmr232459366b.10.1774010047484; Fri, 20 Mar 2026
- 05:34:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gK3cDFvh"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADD9AC2BCB2;
+	Fri, 20 Mar 2026 13:42:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774014192;
+	bh=DyFuJFml7YVo8+/hTBGS9GQt/nh4Xv5125sbhWsDy3w=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=gK3cDFvh7dEcs9L3VC7fj0P6IM5YMZ5Mdb7e1aiwqcjRMNtOygIPq2gaIILFuUtTM
+	 vmqMlCjBU/8YqWSrn8GlSD1mbnyZvleBSG4NBi3zJJ69IUJMAI0DEdStZKy+UW0TaS
+	 RKgp2laFc8jVyXbKre2JResrGO8+VbexZHvQVEUDnIaYf1/UBEaFtXzWQkyAGtWvAC
+	 EC8EOzLMExEfD4QvcP/5iHkGjSQVu/uJiaSVg5HYyjsbtJBNdghidoAN6SiQA2nRu6
+	 m51U9AIWacLgoG0wrPS7G6Dn4d7v54+3rpqqUTSWe8f3RYfxZqr7UHrfRbAGSUWvmM
+	 y4Zk3Ov3DoF0w==
+Date: Fri, 20 Mar 2026 13:42:57 +0000
+From: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
+To: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, 
+	David Hildenbrand <david@kernel.org>, "Liam R . Howlett" <Liam.Howlett@oracle.com>, 
+	Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
+	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+	Kees Cook <kees@kernel.org>, linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+	Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Brian Cain <bcain@kernel.org>, 
+	Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Dinh Nguyen <dinguyen@kernel.org>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <chleroy@kernel.org>, 
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>, 
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H . Peter Anvin" <hpa@zytor.com>, 
+	Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
+	Johannes Berg <johannes@sipsolutions.net>, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, Xu Xin <xu.xin16@zte.com.cn>, 
+	Chengming Zhou <chengming.zhou@linux.dev>, Michal Hocko <mhocko@suse.com>, Paul Moore <paul@paul-moore.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
+	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
+	linux-um@lists.infradead.org, linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org
+Subject: Re: [PATCH v3 17/23] mm: convert do_brk_flags() to use vma_flags_t
+Message-ID: <f47e24c4-3a11-4a58-96f5-871443660246@lucifer.local>
+References: <cover.1773846935.git.ljs@kernel.org>
+ <981ed1afcd19115432e61778e7d226a36f8f5c2b.1773846935.git.ljs@kernel.org>
+ <1d300b3b-2476-4381-b8df-a680f486b284@kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260320122918.1726043-1-amir73il@gmail.com>
-In-Reply-To: <20260320122918.1726043-1-amir73il@gmail.com>
-From: Amir Goldstein <amir73il@gmail.com>
-Date: Fri, 20 Mar 2026 13:33:55 +0100
-X-Gm-Features: AaiRm50yxSl-GpcT9aAyYPhbaKvhkBm3eNaH28AUrvLwA3Ejcz4sEkf5zVBNIlU
-Message-ID: <CAOQ4uxhsTG0mQCeiAw-8qGqjQo9HjRYfdRYQzPGXSgKb4udOiw@mail.gmail.com>
-Subject: Re: [PATCH v2] fs: allow backing file code to open an O_PATH file
- with negative dentry
-To: Christian Brauner <brauner@kernel.org>
-Cc: Al Viro <viro@zeniv.linux.org.uk>, Miklos Szeredi <miklos@szeredi.hu>, 
-	Paul Moore <paul@paul-moore.com>, Gao Xiang <xiang@kernel.org>, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
-	linux-erofs@lists.ozlabs.org, linux-fsdevel@vger.kernel.org, 
-	linux-unionfs@vger.kernel.org, 
-	syzbot+f34aab278bf5d664e2be@syzkaller.appspotmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1d300b3b-2476-4381-b8df-a680f486b284@kernel.org>
 
-On Fri, Mar 20, 2026 at 1:29=E2=80=AFPM Amir Goldstein <amir73il@gmail.com>=
- wrote:
+On Fri, Mar 20, 2026 at 10:57:32AM +0100, Vlastimil Babka (SUSE) wrote:
+> On 3/18/26 16:50, Lorenzo Stoakes (Oracle) wrote:
+> > In order to be able to do this, we need to change VM_DATA_DEFAULT_FLAGS
+> > and friends and update the architecture-specific definitions also.
+> >
+> > We then have to update some KSM logic to handle VMA flags, and introduce
+> > VMA_STACK_FLAGS to define the vma_flags_t equivalent of VM_STACK_FLAGS.
+> >
+> > We also introduce two helper functions for use during the time we are
+> > converting legacy flags to vma_flags_t values - vma_flags_to_legacy() and
+> > legacy_to_vma_flags().
 >
-> The fields f_mapping and f_wb_err are irrelevant for the O_PATH file
-> in backing_file_user_path_file().
->
-> Create a dedicated helper kernel_path_file_open(), which skips all the
-> generic code in do_dentry_open() and does only the essentials, so that
-> the internal O_PATH file could be opened with a negative dentry.
->
-> This is needed for backing_tmpfile_open() to open a backing O_PATH
-> tmpfile before instantiating the dentry.
->
-> The callers of backing_tmpfile_open() are responsible for calling
-> backing_tmpfile_finish() after making the path positive.
->
-> Reported-by: syzbot+f34aab278bf5d664e2be@syzkaller.appspotmail.com
-> Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-> ---
->
-> Christian,
->
-> This patch fixes the syzbot report [1] that the
-> backing_file_user_path_file() patch [2] introduces.
+> Nit: this was done by an earlier patch.
 
-Sorry, forgot to mention that this patch applies on top of [2]
-so the vfs CI is likely to fail to apply it.
-
-The previous patch + fix are also available on my github
-https://github.com/amir73il/linux/commits/user_path_file/
-
-Thanks,
-Amir.
+Ack will fix up.
 
 >
-> Following your feedback on v1, this version makes an effort to stay
-> out of the way of main vfs execution paths and restrict the changes
-> to backing_file users.
+> > This enables us to iteratively make changes to break these changes up into
+> > separate parts.
+> >
+> > We use these explicitly here to keep VM_STACK_FLAGS around for certain
+> > users which need to maintain the legacy vm_flags_t values for the time
+> > being.
+> >
+> > We are no longer able to rely on the simple VM_xxx being set to zero if
+> > the feature is not enabled, so in the case of VM_DROPPABLE we introduce
+> > VMA_DROPPABLE as the vma_flags_t equivalent, which is set to
+> > EMPTY_VMA_FLAGS if the droppable flag is not available.
+> >
+> > While we're here, we make the description of do_brk_flags() into a kdoc
+> > comment, as it almost was already.
+> >
+> > We use vma_flags_to_legacy() to not need to update the vm_get_page_prot()
+> > logic as this time.
+> >
+> > Note that in create_init_stack_vma() we have to replace the BUILD_BUG_ON()
+> > with a VM_WARN_ON_ONCE() as the tested values are no longer build time
+> > available.
+> >
+> > We also update mprotect_fixup() to use VMA flags where possible, though we
+> > have to live with a little duplication between vm_flags_t and vma_flags_t
+> > values for the time being until further conversions are made.
+> >
+> > Finally, we update the VMA tests to reflect these changes.
+> >
+> > Acked-by: Paul Moore <paul@paul-moore.com>	[SELinux]
+> > Signed-off-by: Lorenzo Stoakes (Oracle) <ljs@kernel.org>
 >
-> This still introduced a temporary state of an O_PATH file with negative
-> path, but only for a short time and only for backing_file users and
-> ones that use backing_tmpfile_open() (i.e. only overlayfs), so the
-> risk is minimal.
+> Acked-by: Vlastimil Babka (SUSE) <vbabka@kernel.org>
+
+Thanks!
+
 >
-> WDYT?
+> More nits below:
 >
-> Thanks,
-> Amir.
+> > diff --git a/arch/arm64/include/asm/page.h b/arch/arm64/include/asm/page.h
+> > index b39cc1127e1f..e25d0d18f6d7 100644
+> > --- a/arch/arm64/include/asm/page.h
+> > +++ b/arch/arm64/include/asm/page.h
+> > @@ -46,7 +46,12 @@ int pfn_is_map_memory(unsigned long pfn);
+> >
+> >  #endif /* !__ASSEMBLER__ */
+> >
+> > -#define VM_DATA_DEFAULT_FLAGS	(VM_DATA_FLAGS_TSK_EXEC | VM_MTE_ALLOWED)
+> > +#ifdef CONFIG_ARM64_MTE
+> > +#define VMA_DATA_DEFAULT_FLAGS	append_vma_flags(VMA_DATA_FLAGS_TSK_EXEC, \
+> > +						 VMA_MTE_ALLOWED_BIT)
 >
-> Changes since v1:
-> - Create helper for internal O_PATH open with negative path
-> - Create backing_tmpfile_finish() API to fixup the negative path
+> I wonder what's the bloat-o-meter impact of these #define's (this
+> arm64-specific one isn't the only one) being no longer compile-time-constants?
+
+I mean there's a precedent for this, but the compiler _should_ figure out this
+as a constant value, I have repeatedly confirmed that it's good at that in
+godbolt, via make foo/bar.S etc.
+
+So it should have no measureable impact at 64-bit VMA flags anyway, but I can
+give it a go and see before/after.
+
 >
-> [1] https://syzkaller.appspot.com/bug?extid=3Df34aab278bf5d664e2be
-> [2] https://lore.kernel.org/linux-fsdevel/20260318131258.1457101-1-amir73=
-il@gmail.com/
+> > +#else
+> > +#define VMA_DATA_DEFAULT_FLAGS	VMA_DATA_FLAGS_TSK_EXEC
+> > +#endif
+> >
+> >  #include <asm-generic/getorder.h>
+> >
 >
->  fs/backing-file.c            |  6 ++++++
->  fs/file_table.c              | 14 ++++++++++++--
->  fs/internal.h                |  7 +++++++
->  fs/open.c                    | 34 ++++++++++++++++++++++++++++++----
->  fs/overlayfs/dir.c           |  2 ++
->  include/linux/backing-file.h |  1 +
->  6 files changed, 58 insertions(+), 6 deletions(-)
+> > --- a/include/linux/mm.h
+> > +++ b/include/linux/mm.h
 >
-> diff --git a/fs/backing-file.c b/fs/backing-file.c
-> index d0a64c2103907..3357d624eac96 100644
-> --- a/fs/backing-file.c
-> +++ b/fs/backing-file.c
-> @@ -80,6 +80,12 @@ struct file *backing_tmpfile_open(const struct path *u=
-ser_path,
->  }
->  EXPORT_SYMBOL(backing_tmpfile_open);
+> >
+> > +#define VMA_STACK_FLAGS	append_vma_flags(VMA_STACK_DEFAULT_FLAGS,	\
+> > +		VMA_STACK_BIT, VMA_ACCOUNT_BIT)
+> > +
+> > +/* Temporary until VMA flags conversion complete. */
+> > +#define VM_STACK_FLAGS vma_flags_to_legacy(VMA_STACK_FLAGS)
+> > +
+> >  #define VM_STARTGAP_FLAGS (VM_GROWSDOWN | VM_SHADOW_STACK)
+> >
+> >  #ifdef CONFIG_MSEAL_SYSTEM_MAPPINGS
+> > @@ -536,8 +547,6 @@ enum {
+> >  #define VM_SEALED_SYSMAP	VM_NONE
+> >  #endif
+> >
+> > -#define VM_STACK_FLAGS	(VM_STACK | VM_STACK_DEFAULT_FLAGS | VM_ACCOUNT)
+> > -
+> >  /* VMA basic access permission flags */
+> >  #define VM_ACCESS_FLAGS (VM_READ | VM_WRITE | VM_EXEC)
+> >  #define VMA_ACCESS_FLAGS mk_vma_flags(VMA_READ_BIT, VMA_WRITE_BIT, VMA_EXEC_BIT)
+> > @@ -547,6 +556,9 @@ enum {
+> >   */
+> >  #define VM_SPECIAL (VM_IO | VM_DONTEXPAND | VM_PFNMAP | VM_MIXEDMAP)
+> >
+> > +#define VMA_SPECIAL_FLAGS mk_vma_flags(VMA_IO_BIT, VMA_DONTEXPAND_BIT, \
+> > +				       VMA_PFNMAP_BIT, VMA_MIXEDMAP_BIT)
 >
-> +void backing_tmpfile_finish(struct file *file)
-> +{
-> +       backing_file_set_user_path_inode(file);
-> +}
-> +EXPORT_SYMBOL_GPL(backing_tmpfile_finish);
-> +
->  struct backing_aio {
->         struct kiocb iocb;
->         refcount_t ref;
-> diff --git a/fs/file_table.c b/fs/file_table.c
-> index e8b4eb2bbff85..a4d1064d50896 100644
-> --- a/fs/file_table.c
-> +++ b/fs/file_table.c
-> @@ -69,11 +69,21 @@ EXPORT_SYMBOL_GPL(backing_file_user_path_file);
+> Should VM_SPECIAL be also redefined using vma_flags_to_legacy()?
+
+Could do! It should be a pretty clear indicator this is legacy.
+
 >
->  int backing_file_open_user_path(struct file *f, const struct path *path)
->  {
-> -       /* open an O_PATH file to reference the user path - should not fa=
-il */
-> -       return WARN_ON(vfs_open(path, &backing_file(f)->user_path_file));
-> +       if (WARN_ON(!(f->f_mode & FMODE_BACKING)))
-> +               return -EIO;
-> +       kernel_path_file_open(&backing_file(f)->user_path_file, path);
-> +       return 0;
->  }
->  EXPORT_SYMBOL_GPL(backing_file_open_user_path);
+> > +
+> >  /*
+> >   * Physically remapped pages are special. Tell the
+> >   * rest of the world about it:
+> > @@ -1412,7 +1424,7 @@ static __always_inline void vma_desc_set_flags_mask(struct vm_area_desc *desc,
+> >   * vm_area_desc object describing a proposed VMA, e.g.:
+> >   *
+> >   * vma_desc_set_flags(desc, VMA_IO_BIT, VMA_PFNMAP_BIT, VMA_DONTEXPAND_BIT,
+> > - *		VMA_DONTDUMP_BIT);
+> > + *              VMA_DONTDUMP_BIT);
 >
-> +void backing_file_set_user_path_inode(struct file *f)
-> +{
-> +       if (WARN_ON(!(f->f_mode & FMODE_BACKING)))
-> +               return;
-> +       file_set_d_inode(&backing_file(f)->user_path_file);
-> +}
-> +EXPORT_SYMBOL_GPL(backing_file_set_user_path_inode);
-> +
->  static void destroy_file(struct file *f)
->  {
->         security_file_free(f);
-> diff --git a/fs/internal.h b/fs/internal.h
-> index 7c44a58627ba3..4a9e5e00678d9 100644
-> --- a/fs/internal.h
-> +++ b/fs/internal.h
-> @@ -109,6 +109,13 @@ struct file *alloc_empty_file_noaccount(int flags, c=
-onst struct cred *cred);
->  struct file *alloc_empty_backing_file(int flags, const struct cred *cred=
-,
->                                       const struct cred *user_cred);
->  int backing_file_open_user_path(struct file *f, const struct path *path)=
-;
-> +void backing_file_set_user_path_inode(struct file *f);
-> +void kernel_path_file_open(struct file *f, const struct path *path);
-> +
-> +static inline void file_set_d_inode(struct file *f)
-> +{
-> +       f->f_inode =3D d_inode(f->f_path.dentry);
-> +}
+> Looks like spurious tabs-to-space change inconsistent with other instances.
+
+Yeah that's a mistake, will fixup.
+
 >
->  static inline void file_put_write_access(struct file *file)
->  {
-> diff --git a/fs/open.c b/fs/open.c
-> index 91f1139591abe..a7b3b04cd9ae7 100644
-> --- a/fs/open.c
-> +++ b/fs/open.c
-> @@ -884,10 +884,38 @@ static inline int file_get_write_access(struct file=
- *f)
->         return error;
->  }
+> >   */
+> >  #define vma_desc_set_flags(desc, ...) \
+> >  	vma_desc_set_flags_mask(desc, mk_vma_flags(__VA_ARGS__))
+> > @@ -4059,7 +4071,6 @@ extern int replace_mm_exe_file(struct mm_struct *mm, struct file *new_exe_file);
+> >  extern struct file *get_mm_exe_file(struct mm_struct *mm);
+> >  extern struct file *get_task_exe_file(struct task_struct *task);
+> >
+> > -extern bool may_expand_vm(struct mm_struct *, vm_flags_t, unsigned long npages);
+> >  extern void vm_stat_account(struct mm_struct *, vm_flags_t, long npages);
+> >
+> >  extern bool vma_is_special_mapping(const struct vm_area_struct *vma,
+> > diff --git a/mm/internal.h b/mm/internal.h
+> > index f98f4746ac41..80d8651441a7 100644
 >
-> +static const struct file_operations empty_fops =3D {};
-> +
-> +static void do_path_file_open(struct file *f)
-> +{
-> +       f->f_mode =3D FMODE_PATH | FMODE_OPENED;
-> +       file_set_fsnotify_mode(f, FMODE_NONOTIFY);
-> +       f->f_op =3D &empty_fops;
-> +}
-> +
-> +/**
-> + * kernel_path_file_open - open an O_PATH file for kernel internal use
-> + * @f:         pre-allocated file with f_flags and f_cred initialized
-> + * @path:      path to reference (may have a negative dentry)
-> + *
-> + * Open a minimal O_PATH file that only references a path.
-> + * Unlike vfs_open(), this does not require a positive dentry and does n=
-ot
-> + * set up f_mapping and other fields not needed for O_PATH.
-> + * If path is negative at the time of this call, the caller is responsib=
-le for
-> + * callingn backing_file_set_user_path_inode() after making the path pos=
-itive.
-> +
-> + */
-> +void kernel_path_file_open(struct file *f, const struct path *path)
-> +{
-> +       f->__f_path =3D *path;
-> +       path_get(&f->f_path);
-> +       file_set_d_inode(f);
-> +       do_path_file_open(f);
-> +}
-> +
->  static int do_dentry_open(struct file *f,
->                           int (*open)(struct inode *, struct file *))
->  {
-> -       static const struct file_operations empty_fops =3D {};
->         struct inode *inode =3D f->f_path.dentry->d_inode;
->         int error;
+> > diff --git a/mm/mprotect.c b/mm/mprotect.c
+> > index 9681f055b9fc..eaa724b99908 100644
+> > --- a/mm/mprotect.c
+> > +++ b/mm/mprotect.c
 >
-> @@ -898,9 +926,7 @@ static int do_dentry_open(struct file *f,
->         f->f_sb_err =3D file_sample_sb_err(f);
+> > @@ -773,19 +778,24 @@ mprotect_fixup(struct vma_iterator *vmi, struct mmu_gather *tlb,
+> >
+> >  	change_protection(tlb, vma, start, end, mm_cp_flags);
+> >
+> > -	if ((oldflags & VM_ACCOUNT) && !(newflags & VM_ACCOUNT))
+> > +	if (vma_flags_test(&old_vma_flags, VMA_ACCOUNT_BIT) &&
+> > +	    !vma_flags_test(&new_vma_flags, VMA_ACCOUNT_BIT))
+> >  		vm_unacct_memory(nrpages);
+> >
+> >  	/*
+> >  	 * Private VM_LOCKED VMA becoming writable: trigger COW to avoid major
+> >  	 * fault on access.
+> >  	 */
+> > -	if ((oldflags & (VM_WRITE | VM_SHARED | VM_LOCKED)) == VM_LOCKED &&
+> > -			(newflags & VM_WRITE)) {
+> > -		populate_vma_page_range(vma, start, end, NULL);
+> > +	if (vma_flags_test(&new_vma_flags, VMA_WRITE_BIT)) {
+> > +		const vma_flags_t mask =
+> > +			vma_flags_and(&old_vma_flags, VMA_WRITE_BIT,
+> > +				      VMA_SHARED_BIT, VMA_LOCKED_BIT);
+> > +
+> > +		if (vma_flags_same(&mask, VMA_LOCKED_BIT))
 >
->         if (unlikely(f->f_flags & O_PATH)) {
-> -               f->f_mode =3D FMODE_PATH | FMODE_OPENED;
-> -               file_set_fsnotify_mode(f, FMODE_NONOTIFY);
-> -               f->f_op =3D &empty_fops;
-> +               do_path_file_open(f);
->                 return 0;
->         }
+> That converts the original logic 1:1, but I wonder if it's now feasible to
+> write it more obviously as "VMA_LOCKED_BIT must be set, VM_WRITE_BIT and
+> VM_SHARED_BIT must not" ?
+
+Hmm, I'm not sure if I can express this more clearly, it's a pain either
+way. Could do:
+
+	if (vma_flags_test(&new_vma_flags, VMA_WRITE_BIT) &&
+	    !vma_flags_test_any(&old_vma_flags, VMA_WRITE_BIT, VMA_SHARED_BIT))
+		populate_vma_page_range(vma, start, end, NULL);
+
 >
-> diff --git a/fs/overlayfs/dir.c b/fs/overlayfs/dir.c
-> index 5fd32ccc134d2..4010c87e10196 100644
-> --- a/fs/overlayfs/dir.c
-> +++ b/fs/overlayfs/dir.c
-> @@ -1408,6 +1408,8 @@ static int ovl_create_tmpfile(struct file *file, st=
-ruct dentry *dentry,
->                         err =3D ovl_instantiate(dentry, inode, newdentry,=
- false, file);
->                         if (!err) {
->                                 file->private_data =3D of;
-> +                               /* user_path_file was opened with a negat=
-ive path */
-> +                               backing_tmpfile_finish(realfile);
->                         } else {
->                                 dput(newdentry);
->                                 ovl_file_free(of);
-> diff --git a/include/linux/backing-file.h b/include/linux/backing-file.h
-> index 8afba93f3ce07..52ac51ada6ff9 100644
-> --- a/include/linux/backing-file.h
-> +++ b/include/linux/backing-file.h
-> @@ -47,6 +47,7 @@ struct file *backing_tmpfile_open(const struct path *us=
-er_path,
->                                   const struct cred *user_cred, int flags=
-,
->                                   const struct path *real_parentpath,
->                                   umode_t mode, const struct cred *cred);
-> +void backing_tmpfile_finish(struct file *file);
->  ssize_t backing_file_read_iter(struct file *file, struct iov_iter *iter,
->                                struct kiocb *iocb, int flags,
->                                struct backing_file_ctx *ctx);
-> --
-> 2.53.0
+> > +			populate_vma_page_range(vma, start, end, NULL);
+> >  	}
+> >
+> > -	vm_stat_account(mm, oldflags, -nrpages);
+> > +	vm_stat_account(mm, vma_flags_to_legacy(old_vma_flags), -nrpages);
+> >  	vm_stat_account(mm, newflags, nrpages);
+> >  	perf_event_mmap(vma);
+> >  	return 0;
 >
+> > diff --git a/mm/vma.h b/mm/vma.h
+> > index cf8926558bf6..1f2de6cb3b97 100644
+> > --- a/mm/vma.h
+> > +++ b/mm/vma.h
+>
+> > +static inline bool is_data_mapping_vma_flags(const vma_flags_t *vma_flags)
+> > +{
+> > +	const vma_flags_t mask = vma_flags_and(vma_flags,
+> > +			VMA_WRITE_BIT, VMA_SHARED_BIT, VMA_STACK_BIT);
+> > +
+> > +	return vma_flags_same(&mask, VMA_WRITE_BIT);
+>
+> Ditto?
+
+I may do both as a follow up patch given the series is a pain to rework at this point
+and I want at least the first version to be like-for-like intentionally.
+
+>
+> > +}
+> >
+> >  static inline void vma_iter_config(struct vma_iterator *vmi,
+> >  		unsigned long index, unsigned long last)
+> > diff --git a/mm/vma_exec.c b/mm/vma_exec.c
+> > index 8134e1afca68..5cee8b7efa0f 100644
+
+Thanks, Lorenzo
