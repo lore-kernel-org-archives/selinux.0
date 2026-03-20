@@ -1,38 +1,38 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 697B73CD8C3
-	for <selinux@vger.kernel.org>; Fri, 20 Mar 2026 17:24:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EDAE3D349F
+	for <selinux@vger.kernel.org>; Fri, 20 Mar 2026 17:25:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774027496; cv=none; b=RdFUAUSR16h1OsI5CzSPPyQILXezIgWD+MM0YHZor1LkX/ebVE8gyDsi8FQA81A8WDzJ4ZCyu1NCUDvcvy4MtX3wO/V47T07dAbRNfVFCjumfwsRH6OKd8C/kIjf7ETLZLln2CcC1QQG24YwqUHdZuXkfGvMZKpy/B7xxuYmjxM=
+	t=1774027557; cv=none; b=cP4EHAVvCuLDAaljA2cq7Pu241cWkGEqZjK285jz9wDHuXNjy2F0+4dIWn2lYgBhKYOVN7JaIrsrOu8BIIgdg5n+VnRjbT2QxRd6LbTTuvDVHOyGjlv/qKQKdQLXtlfVgprWlNoVf4pRh5fLmP3YbEChZKv36e5fiGi8nIE5pnA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774027496; c=relaxed/simple;
-	bh=fbHdWEXVl4dSx96Ry7N9SwsNx+5EIKA7Am8pynq5Sek=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=W2V0mNa5NPZcZm9n1sWz2tSvkz3Bu2twzwm4jxs4m+pu5A18QzvzSz6xbpbGVfjJpUfS5pzwaZfKse6hW4DBGWSPkyH9QA7v1aOuVhHdh9zArxKfqwDh6WIlp82cGg5wiH3p09PcGu+7fFo7MdyWDJtoxqE3lHQ6ieHcgOCw6e4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=ChiTztwV; arc=none smtp.client-ip=168.119.48.163
+	s=arc-20240116; t=1774027557; c=relaxed/simple;
+	bh=ZgGFTV+9iIXytfnilD5u8n7l7+vRSzf7oBhVer5PBs4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=k8dfgIMQxagP+nQkYeeZJ7anBWbYVMt/yID1xsMXPProQYRpxHPjVeIRe5QgCR7NNuXdthYyHxMXPNl7f0GlQUYQnZDyA7dFKjgZVod27ROlDiOVA4makYim/phhx6pUZtKgCRUCTKNW3DdpVOwN/h2VNtS7UsMXz9olhU4qXyE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=JbHR80cQ; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="ChiTztwV"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="JbHR80cQ"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1774027490;
+	s=2023072701; t=1774027189;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-	bh=BZ4s8utpjzCOpnNBYMwYHj8cUoBpTB1VK9LOWid1YK0=;
-	b=ChiTztwVHj8EDpUCGqcyCV4k3EbJfNmdkECeCJqttMJIK0kcZ0hA4fQLBO+R6hWIe1pMSd
-	qxxEHSRw6q2I8fKyvV4mp6FSZ9OXYMqcMj/FJXh5KA4utwlLhU74DZAlyxQ+mm4LQx6S3A
-	fxLnPA2leJMDsAVFdzMtW7odSl12jxZnmHj/ldxct5xUWbIb9k05hLEnDBkf0rWgfH+8o2
-	Oh37FDGHgqswX/YorPfJqZHl5QPnItRkdVrHsrOHs9oE/0Y+FKE/Fc4vHoMuJDUubY30X4
-	HSai0Tp/fSRdMARuaJvj7v94bfNEwMk1Vjosuc2fPFQ2rf+rSH/MlaDci7Q0ug==
+	bh=F3z1qjzfVgEVsIUBYDEli5Fx8q3YjAcFhmbHramuRq8=;
+	b=JbHR80cQm1Wu7CA7UbxDbpzkvEdPMNoADm+nTSzSt1PjVYRmv41+Pmy1ch0mA9AzPxYr/9
+	MbnnOzBfWDZ55aeIO3PHNiDPyfRmcr3Cg/Hv1dsEiAFgpqvR4Gow/SIpmbEteksMmJFDjX
+	ZnpJoyJpBfs0R7b2K9oDxCXiOycsvSng9IyZ7zRlNH4+lumCoDqAc5a0oR2i5vzfEhdUfk
+	qDs/V4xyBDYrQWkpMu3CIWzLJqaI53l0sDPjxxB99OqCawIpkPubES2rXYiQzStQQAeZ07
+	shEebw0XKhFwLXb/2Bro+WrF2KKJaSIQ83/qwlm9S3Gc3HFpjEVZREeN9s3ZNg==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
 	=?UTF-8?q?Thi=C3=A9baud=20Weksteen?= <tweek@google.com>
 Subject: [PATCH v2] libselinux: correctly find partial matches
-Date: Fri, 20 Mar 2026 18:24:46 +0100
-Message-ID: <20260320172446.96634-1-cgoettsche@seltendoof.de>
+Date: Fri, 20 Mar 2026 18:19:43 +0100
+Message-ID: <20260320171943.93088-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -58,14 +58,12 @@ child nodes "dev" and "devices" but partial lookup does.
 
 Fixes: 92306daf521 ("libselinux: rework selabel_file(5) database")
 Reported-by: Thiébaud Weksteen <tweek@google.com>
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
 v2:
  - fix documentation of find_all parameter
  - fix linked-list handling: always add at the end
  - pass child to the root call of all_node_specs() not node
  - continue on <<none>> context definitions in partial mode
- - add Signed-off-by
 ---
  libselinux/src/label_file.c | 162 ++++++++++++++++++++++++++++++++++--
  1 file changed, 154 insertions(+), 8 deletions(-)
