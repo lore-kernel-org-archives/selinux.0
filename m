@@ -1,108 +1,340 @@
-Received: from mail-qt1-f176.google.com (mail-qt1-f176.google.com [209.85.160.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBFB914884C
-	for <selinux@vger.kernel.org>; Tue, 24 Mar 2026 01:05:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.176
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774314321; cv=pass; b=eW7GAookqQhxbTSlMgYXSIAh9E83DVSHXM5N+1uDUvBQ5kdyfqOWKI8GcG+CmL9wxa8G2eUPifrBuiG2Txg+l7yQbMYO0YMB1hSZHDbcll9+Y70OOnUBsWOJFIjKnm/NMsnNd9h/pNZuYDu71E5jIl5n+odKKIUWm5i+G8rZHWo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774314321; c=relaxed/simple;
-	bh=jeU39LXhyUJTRy/sUBGYZMPlGdwDQ482SEjwsqUB9vk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=CyyNcJdcXfmvZwitYQSv6MQ6UMTrU+qeiq/pIvJTtslgIPRy/VccdbW4vc9CKjQMaLG3SHWu6Uyqj/4NQyfPyqyJcnS/r6B/LJI0ziNXR27K2r9LqrKKAt8COZUAfVLarkLX7J6NaoYjb1OoDXGSI6OmP1uhFhLk6ngz8d6d/hQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=kUDC2unE; arc=pass smtp.client-ip=209.85.160.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="kUDC2unE"
-Received: by mail-qt1-f176.google.com with SMTP id d75a77b69052e-509069a7a7fso269651cf.0
-        for <selinux@vger.kernel.org>; Mon, 23 Mar 2026 18:05:19 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1774314319; cv=none;
-        d=google.com; s=arc-20240605;
-        b=OU4bp8aaFfQA5T8OBuq/vqeb+/QKjfdqaKjCSPqty5WRlvIBdq+biZOjB2cP2GZn8B
-         5EWTdSIZA6193sYdj/9Vqcqqyc9wrj9t8DoXFfsNxGR2IO3S2tkn7C368LRp0gROgj3n
-         AFog5yHastcfq30xAnnWXtJVLM0k9+yJW6JLTH0K2lUob7M6HSIR51pkaEPOqOX0qswx
-         ObxG/bDcZhv+408HB+uObLsfLZZ4p0Do2pWw3sra9eXiB16lWNZWhZbJo7lzLCqAsrsz
-         sOZXuDA7RiSoAOz1dGoQ6kDlJiLalAHxtuyf6hG8yCIppD77pJRkrk6QnFsmgSwSBjHA
-         Ckxg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=jeU39LXhyUJTRy/sUBGYZMPlGdwDQ482SEjwsqUB9vk=;
-        fh=XPfnPeS4wglRmelDXjWECDrUzh1HlzFzhPotAf04/Ag=;
-        b=XzjjhJjN9w321RhDiGrSQ+wn88mev8jtQji8u+RNhQ3Dx8x5+hrIy5k6ggBoAAtYrc
-         BsMOIgm6yEJioNnKaLzp09/KueRQQ1m8ayBLhVwrQ5ArNdWyVnEehX7NFPSBiI1uMMSr
-         vBzX5QtGoXNZm50t6NChbC3GJ2HhreCB4YDgsgoClSzH5fhnL6/AyG6/oAURLhLGrFju
-         MCWZxD/TOOSupsN6Y1jtGMc38UST/dk5Ipdd6fQvpRUfXGDQWVRDSWWCSPRukpnjJgV6
-         EiAluBm6diBmhG/xRakEjSfP0k6jX8kd/gU3v81933kE/wq8Kkse7OxovcOo/1tEZErT
-         Yasw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1774314319; x=1774919119; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jeU39LXhyUJTRy/sUBGYZMPlGdwDQ482SEjwsqUB9vk=;
-        b=kUDC2unEIEfJJtcEEqCIIbrCHrqVgydUSXrB2bwlspRGlJFb3gdZueOLkPtr85QR14
-         6Ektoa5OKTxWVLTx8SzNX4aIDUNZLEfqfQ9WcV0+zcLfoUruJaoPUQEpd5Omk3EQaTCV
-         ASh3pb/iouQS5E+Nj0j6ry4Oz5TOCzLdluz4kNOZWpblZmUy8PRLvtrBX1D8qReTu85O
-         HlPZEcHL00GPTxsG3+lS4nmPKHIbP9Zijgp6c5WnTVhKTepsrgmRr3NZxnG9i4cAHFFj
-         W/rC3B1XImXLy/57D2Zi1qO95F2Pk71RFSttr8FO8Zb5BFO76/6knG+sWoKB1bwtNpVu
-         V/9A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774314319; x=1774919119;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=jeU39LXhyUJTRy/sUBGYZMPlGdwDQ482SEjwsqUB9vk=;
-        b=AKwb1d5RjH7S2Nz63x2KPGTNv0PKU8eT2HJao9LKOCkh09MWkOcbRs4zW3GrmVMFzT
-         F1m6ryyna/JeI8QCQpxEa2BbLUh3VofLdSOKaiCWWNDltmDVqM7OarTM7s9/wIpPSzLm
-         KdcQIURsWS6JmKMejNkAltPAB/aTJfk91zSyDB4UaIHPv7OwbwRku2GftFGIvOZHupQQ
-         nBwPxU3CNFvay2Mpn4Fj8uPwclq91pFg8IHIXYz2AEm+bjXFHbYwr+duOQbVAIAhm5fx
-         yk+hBlepfdwsbIwBot8WkvuB2d1iToUhgVtKwgL/YlY9u7Q1eUnYdST+H1hNTlt8iRZp
-         Xs+A==
-X-Gm-Message-State: AOJu0Yxv/pQ3UXzw4s1tAUqplL572c045N+00qPVcHG03hpsvnOXiwes
-	MDELLhEq5Dggdd8+ZABnmVE+VxmS5sAB87bKnYnm+v8+ZA+MgYjjbb4F+eRImYQ87gANjITxyO2
-	o2YUV/Xo/2Zby36uoAsds+z3CxZ1kYuljUK9iK+KIqlyks7R9yafnVaS+
-X-Gm-Gg: ATEYQzxZnXIZhuMSIa8kHcx8SKcbbNGikdhlw+Jk9SCR3CWr1PR5DT7MV2H/EcrB8cY
-	RzgVqcVni8O3nr1NHxCQ33mVmCHZ2NivpULptK0GccV7RIee+RYUPSsWMOqaXx/AXKINUIkx2PG
-	ddF+WM6QIPi1Tj/ScP4JRL5BV2D8Rm7JwsCjOnoTyP8nKTZyFNto28sG72yWHcBEBiMz/1aqHCU
-	1dLPteY6Tp6ZIgCtB9atIL1lr8ggt6T+Ow+IgZKx3SZko+oOWEhi2iZ1ZhZjZ8a+Jf1dFpjhlkv
-	KfSNKORR3tb/2CmN2q5wj3L8mlIvBbzelyE=
-X-Received: by 2002:a05:622a:9009:b0:506:1f23:e22c with SMTP id
- d75a77b69052e-50b6fb9bd95mr7220931cf.6.1774314318173; Mon, 23 Mar 2026
- 18:05:18 -0700 (PDT)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A2BB38239F;
+	Tue, 24 Mar 2026 06:13:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.181.97.72
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774332800; cv=none; b=JPlUoXRdGMNjhwhFKkuDsL3kA6JkjVcnnuKJRX6DGcFJ3jln1oXvgVi2MnaMjSaAm9l0sog1Vt/W92sYVhC0HbL4EhHgev7vRtCk5dz5cx/nJkZrBrEgKHEExLN10N+5k7adyfnKU44kZZwACaA+lszEry58q+7l5ojcw92V2Kg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774332800; c=relaxed/simple;
+	bh=OU4vfz7zbxS9ufJdrX2zlp2IrxwsLcxjxRhwAfhHEnU=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=NCKSlxMciWEuHfyhtzkTN6u4OOyKf2G/PQZy36nXLAKg4kifGJJNqr6PLWxGc8cP0g727GRhQUfItcNOTPBYyM4ll9OjXT/hGdNVZO4b64kkOyvsfB7ua53noJ8pCj6Uwiw6xx9QAdLvV+ioedvq+HayFN00wwOoMBZCDDDVl3I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=I-love.SAKURA.ne.jp; spf=pass smtp.mailfrom=I-love.SAKURA.ne.jp; arc=none smtp.client-ip=202.181.97.72
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=I-love.SAKURA.ne.jp
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=I-love.SAKURA.ne.jp
+Received: from www262.sakura.ne.jp (localhost [127.0.0.1])
+	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 62O6C6MJ020335;
+	Tue, 24 Mar 2026 15:12:06 +0900 (JST)
+	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Received: from [192.168.1.2] (M106072072000.v4.enabler.ne.jp [106.72.72.0])
+	(authenticated bits=0)
+	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 62O6C6wv020332
+	(version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
+	Tue, 24 Mar 2026 15:12:06 +0900 (JST)
+	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Message-ID: <6609e11e-90aa-4021-974e-e9937688dd49@I-love.SAKURA.ne.jp>
+Date: Tue, 24 Mar 2026 15:12:08 +0900
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260306131941.106248-1-cgoettsche@seltendoof.de>
- <CA+zpnLd0awdRwt=MERAN-xuZBsYYbY1+YDHxN4TrWw_PrEMx7w@mail.gmail.com> <CAJ2a_DcOYVcREmxXaReiWX1d5Zt-2aeU=m=goyvjisKNsY4KCA@mail.gmail.com>
-In-Reply-To: <CAJ2a_DcOYVcREmxXaReiWX1d5Zt-2aeU=m=goyvjisKNsY4KCA@mail.gmail.com>
-From: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Date: Tue, 24 Mar 2026 12:05:00 +1100
-X-Gm-Features: AaiRm52ukOB-bvGpvq9cNWGwAZpDA7Aa0rfVTdnjmLFs9DWFg6tDAjz1Ga0lLqc
-Message-ID: <CA+zpnLeRq-jkip_se50dR8DP9S-cFHAFAyf9yA6=+A4RLcTnsQ@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: correctly find partial matches
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Subject: Re: [PATCH 6/7] tomoyo: Convert from sb_mount to granular mount hooks
+To: Song Liu <songliubraving@meta.com>
+Cc: Christian Brauner <brauner@kernel.org>,
+        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
+        Song Liu <song@kernel.org>,
+        "paul@paul-moore.com" <paul@paul-moore.com>,
+        "jmorris@namei.org" <jmorris@namei.org>,
+        "serge@hallyn.com"
+ <serge@hallyn.com>, "jack@suse.cz" <jack@suse.cz>,
+        "john.johansen@canonical.com" <john.johansen@canonical.com>,
+        "stephen.smalley.work@gmail.com" <stephen.smalley.work@gmail.com>,
+        "omosnace@redhat.com" <omosnace@redhat.com>,
+        "mic@digikod.net" <mic@digikod.net>,
+        "gnoack@google.com"
+ <gnoack@google.com>,
+        "takedakn@nttdata.co.jp" <takedakn@nttdata.co.jp>,
+        "herton@canonical.com" <herton@canonical.com>,
+        Kernel Team <kernel-team@meta.com>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "apparmor@lists.ubuntu.com" <apparmor@lists.ubuntu.com>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>
+References: <20260318184400.3502908-1-song@kernel.org>
+ <20260318184400.3502908-7-song@kernel.org>
+ <b720f521-e930-4f35-9505-1bfdf9e2818c@I-love.SAKURA.ne.jp>
+ <4DF5C4A8-7C92-4F76-9B34-2262089E7289@meta.com>
+ <33abcf34-13e2-4a37-83f3-78bb27ecbc11@I-love.SAKURA.ne.jp>
+ <F0A0D13E-8208-49A4-9AC6-89AC4BF3F4FB@meta.com>
+ <20260323-klappen-atemschutz-7a0af8c6b087@brauner>
+ <714a614b-cfb4-4b20-af8c-df3cc56dfb92@I-love.SAKURA.ne.jp>
+ <CAAeYb7k+TWArOKyOomkLZ8fwqUPjha9iORpJaj4nMyN=o4ZRQg@mail.gmail.com>
+Content-Language: en-US
+In-Reply-To: <CAAeYb7k+TWArOKyOomkLZ8fwqUPjha9iORpJaj4nMyN=o4ZRQg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Anti-Virus-Server: fsav305.rs.sakura.ne.jp
+X-Virus-Status: clean
 
-On Sat, Mar 21, 2026 at 4:13=E2=80=AFAM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> Does android have a context definition of `/.+` or `/.*`?
+On 2026/03/24 4:31, Song Liu wrote:
+>> Then, how can LSM modules know that how the requested filesystem resolves
+>> the dev_name argument, without embedding filesystem specific resolution
+>> logic into individual LSM module?
+> 
+> IIUC, if an LSM cares about the dev_name of a new mount, it will have to look
+> into each individual filesystem. We can add a LSM hook for the filesystems to
+> call. But this will require changes to individual filesystem code. OTOH,
+> dev_name can probably bridge the gap as we change filesystems.
+> 
+> Would this work?
 
-No, we don't. This forces us to declare an entry for all files and
-directories at the root.
+I guess something like untested diff shown below would work.
 
-Thanks
+ block/bdev.c               |   26 ++++++++++++++------------
+ fs/fs_context.c            |    4 ++++
+ fs/namespace.c             |   10 ++++++----
+ fs/super.c                 |    2 +-
+ include/linux/blkdev.h     |   12 +++++++++++-
+ include/linux/fs_context.h |    1 +
+ security/tomoyo/mount.c    |   26 ++------------------------
+ security/tomoyo/tomoyo.c   |    2 +-
+ 8 files changed, 40 insertions(+), 43 deletions(-)
 
-> Then that definition would be returned from lookup_check_node() with a
-> provided static buffer for the result and since find_all is false,
-> all_node_specs() will never be called.
+diff --git a/block/bdev.c b/block/bdev.c
+index ed022f8c48c7..35707a6144fa 100644
+--- a/block/bdev.c
++++ b/block/bdev.c
+@@ -1199,44 +1199,46 @@ void bdev_fput(struct file *bdev_file)
+ EXPORT_SYMBOL(bdev_fput);
+ 
+ /**
+- * lookup_bdev() - Look up a struct block_device by name.
++ * lookup_bdev_path() - Look up a struct block_device by name.
+  * @pathname: Name of the block device in the filesystem.
+  * @dev: Pointer to the block device's dev_t, if found.
++ * @path: Pointer to the block device's path, if found.
+  *
+- * Lookup the block device's dev_t at @pathname in the current
+- * namespace if possible and return it in @dev.
++ * Lookup the block device's dev_t and path at @pathname in the current
++ * namespace if possible and return these in @dev and @path
+  *
+  * Context: May sleep.
+  * Return: 0 if succeeded, negative errno otherwise.
++ * Caller must call path_put(@path) if this function returned 0.
+  */
+-int lookup_bdev(const char *pathname, dev_t *dev)
++int lookup_bdev_path(const char *pathname, dev_t *dev, struct path *path)
+ {
+ 	struct inode *inode;
+-	struct path path;
+ 	int error;
+ 
+ 	if (!pathname || !*pathname)
+ 		return -EINVAL;
+ 
+-	error = kern_path(pathname, LOOKUP_FOLLOW, &path);
++	error = kern_path(pathname, LOOKUP_FOLLOW, path);
+ 	if (error)
+ 		return error;
+ 
+-	inode = d_backing_inode(path.dentry);
++	inode = d_backing_inode(path->dentry);
+ 	error = -ENOTBLK;
+ 	if (!S_ISBLK(inode->i_mode))
+ 		goto out_path_put;
+ 	error = -EACCES;
+-	if (!may_open_dev(&path))
++	if (!may_open_dev(path))
+ 		goto out_path_put;
+-
+ 	*dev = inode->i_rdev;
+-	error = 0;
++	return 0;
+ out_path_put:
+-	path_put(&path);
++	path_put(path);
++	path->dentry = NULL;
++	path->mnt = NULL;
+ 	return error;
+ }
+-EXPORT_SYMBOL(lookup_bdev);
++EXPORT_SYMBOL(lookup_bdev_path);
+ 
+ /**
+  * bdev_mark_dead - mark a block device as dead
+diff --git a/fs/fs_context.c b/fs/fs_context.c
+index a37b0a093505..e5294f48eb32 100644
+--- a/fs/fs_context.c
++++ b/fs/fs_context.c
+@@ -377,6 +377,8 @@ struct fs_context *vfs_dup_fs_context(struct fs_context *src_fc)
+ 	fc->fs_private	= NULL;
+ 	fc->s_fs_info	= NULL;
+ 	fc->source	= NULL;
++	fc->source_path.dentry = NULL;
++	fc->source_path.mnt = NULL;
+ 	fc->security	= NULL;
+ 	get_filesystem(fc->fs_type);
+ 	get_net(fc->net_ns);
+@@ -504,6 +506,8 @@ void put_fs_context(struct fs_context *fc)
+ 	put_cred(fc->cred);
+ 	put_fc_log(fc);
+ 	put_filesystem(fc->fs_type);
++	if (fc->source_path.dentry)
++		path_put(&fc->source_path);
+ 	kfree(fc->source);
+ 	kfree(fc);
+ }
+diff --git a/fs/namespace.c b/fs/namespace.c
+index ba5baccdde67..621b8205a0af 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -3777,7 +3777,7 @@ static bool mount_too_revealing(const struct super_block *sb, int *new_mnt_flags
+  * be added to the namespace tree.
+  */
+ static int do_new_mount_fc(struct fs_context *fc, const struct path *mountpoint,
+-			   unsigned int mnt_flags)
++			   unsigned int mnt_flags, void *data, unsigned long flags)
+ {
+ 	struct super_block *sb;
+ 	struct vfsmount *mnt __free(mntput) = fc_mount(fc);
+@@ -3786,6 +3786,10 @@ static int do_new_mount_fc(struct fs_context *fc, const struct path *mountpoint,
+ 	if (IS_ERR(mnt))
+ 		return PTR_ERR(mnt);
+ 
++	error = security_mount_new(fc, mountpoint, mnt_flags, flags, data);
++	if (error)
++		return error;
++
+ 	sb = fc->root->d_sb;
+ 	error = security_sb_kern_mount(sb);
+ 	if (unlikely(error))
+@@ -3857,9 +3861,7 @@ static int do_new_mount(const struct path *path, const char *fstype,
+ 		err = -EPERM;
+ 
+ 	if (!err)
+-		err = security_mount_new(fc, path, mnt_flags, flags, data);
+-	if (!err)
+-		err = do_new_mount_fc(fc, path, mnt_flags);
++		err = do_new_mount_fc(fc, path, mnt_flags, data, flags);
+ 
+ 	put_fs_context(fc);
+ 	return err;
+diff --git a/fs/super.c b/fs/super.c
+index 378e81efe643..588f207f26ae 100644
+--- a/fs/super.c
++++ b/fs/super.c
+@@ -1670,7 +1670,7 @@ int get_tree_bdev_flags(struct fs_context *fc,
+ 	if (!fc->source)
+ 		return invalf(fc, "No source specified");
+ 
+-	error = lookup_bdev(fc->source, &dev);
++	error = lookup_bdev_path(fc->source, &dev, &fc->source_path);
+ 	if (error) {
+ 		if (!(flags & GET_TREE_BDEV_QUIET_LOOKUP))
+ 			errorf(fc, "%s: Can't lookup blockdev", fc->source);
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index d463b9b5a0a5..c38d538f2a07 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -1723,7 +1723,17 @@ static inline void bio_end_io_acct(struct bio *bio, unsigned long start_time)
+ int bdev_validate_blocksize(struct block_device *bdev, int block_size);
+ int set_blocksize(struct file *file, int size);
+ 
+-int lookup_bdev(const char *pathname, dev_t *dev);
++int lookup_bdev_path(const char *pathname, dev_t *dev, struct path *path);
++static inline int lookup_bdev(const char *pathname, dev_t *dev)
++{
++	struct path path = {};
++	int ret = lookup_bdev_path(pathname, dev, &path);
++
++	if (!ret)
++		path_put(&path);
++	return ret;
++}
++
+ 
+ void blkdev_show(struct seq_file *seqf, off_t offset);
+ 
+diff --git a/include/linux/fs_context.h b/include/linux/fs_context.h
+index 0d6c8a6d7be2..0dfa6b6fc256 100644
+--- a/include/linux/fs_context.h
++++ b/include/linux/fs_context.h
+@@ -99,6 +99,7 @@ struct fs_context {
+ 	const struct cred	*cred;		/* The mounter's credentials */
+ 	struct p_log		log;		/* Logging buffer */
+ 	const char		*source;	/* The source name (eg. dev path) */
++	struct path		source_path;    /* Fields are NULL unless resolved from the source name. */
+ 	void			*security;	/* LSM options */
+ 	void			*s_fs_info;	/* Proposed s_fs_info */
+ 	unsigned int		sb_flags;	/* Proposed superblock flags (SB_*) */
+diff --git a/security/tomoyo/mount.c b/security/tomoyo/mount.c
+index 82ffe7d02814..3a384b698557 100644
+--- a/security/tomoyo/mount.c
++++ b/security/tomoyo/mount.c
+@@ -84,7 +84,6 @@ static int tomoyo_mount_acl(struct tomoyo_request_info *r,
+ 	__must_hold_shared(&tomoyo_ss)
+ {
+ 	struct tomoyo_obj_info obj = { };
+-	struct file_system_type *fstype = NULL;
+ 	const char *requested_type = NULL;
+ 	const char *requested_dir_name = NULL;
+ 	const char *requested_dev_name = NULL;
+@@ -124,32 +123,16 @@ static int tomoyo_mount_acl(struct tomoyo_request_info *r,
+ 	} else if (type == tomoyo_mounts[TOMOYO_MOUNT_BIND] ||
+ 		   type == tomoyo_mounts[TOMOYO_MOUNT_MOVE]) {
+ 		need_dev = -1; /* dev_name is a directory */
+-	} else {
+-		fstype = get_fs_type(type);
+-		if (!fstype) {
+-			error = -ENODEV;
+-			goto out;
+-		}
+-		if (fstype->fs_flags & FS_REQUIRES_DEV)
+-			/* dev_name is a block device file. */
+-			need_dev = 1;
++	} else if (dev_path) {
++		need_dev = 1; /* dev_name is a block device file. */
+ 	}
+ 	if (need_dev) {
+ 		if (dev_path) {
+ 			/* Use pre-resolved path to avoid TOCTOU issues. */
+ 			obj.path1 = *dev_path;
+-			path_get(&obj.path1);
+ 		} else if (!dev_name) {
+ 			error = -ENOENT;
+ 			goto out;
+-		} else {
+-			struct path path;
+-
+-			if (kern_path(dev_name, LOOKUP_FOLLOW, &path)) {
+-				error = -ENOENT;
+-				goto out;
+-			}
+-			obj.path1 = path;
+ 		}
+ 		requested_dev_name = tomoyo_realpath_from_path(&obj.path1);
+ 		if (!requested_dev_name) {
+@@ -181,12 +164,7 @@ static int tomoyo_mount_acl(struct tomoyo_request_info *r,
+  out:
+ 	kfree(requested_dev_name);
+ 	kfree(requested_dir_name);
+-	if (fstype)
+-		put_filesystem(fstype);
+ 	kfree(requested_type);
+-	/* Drop refcount obtained by kern_path() or path_get(). */
+-	if (obj.path1.dentry)
+-		path_put(&obj.path1);
+ 	return error;
+ }
+ 
+diff --git a/security/tomoyo/tomoyo.c b/security/tomoyo/tomoyo.c
+index ac84e1f03d5e..6235e527cc20 100644
+--- a/security/tomoyo/tomoyo.c
++++ b/security/tomoyo/tomoyo.c
+@@ -413,7 +413,7 @@ static int tomoyo_mount_new(struct fs_context *fc, const struct path *mp,
+ {
+ 	/* Use original MS_* flags for policy matching */
+ 	return tomoyo_mount_permission(fc->source, mp, fc->fs_type->name,
+-				       flags, NULL);
++				       flags, &fc->source_path);
+ }
+ 
+ static int tomoyo_mount_remount(struct fs_context *fc, const struct path *mp,
