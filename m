@@ -1,146 +1,181 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDE3A239E6C
-	for <selinux@vger.kernel.org>; Wed, 25 Mar 2026 01:35:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774402535; cv=none; b=AeC+FMDADKAiLi48bf5QGMC1W3T3ruLi8yGVXJj4tHJxaaFp9d4Fv3jbxnYYo1zt12lZF0jOoy0sqDeFi1uzVrMtlCGomu2RGFq9yCbAzx6fFPaURkivHIyDk7OF+cZCYJy/+3J1ur+ETEMLYZcT77Kyy9Qn6b92eZt+eOWrTG8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774402535; c=relaxed/simple;
-	bh=4xDuZMlV9e8lExmR4AbKxuLD7XwJlcqYoE+mf8VIJIc=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C95B1402432
+	for <selinux@vger.kernel.org>; Wed, 25 Mar 2026 17:36:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.179
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774460212; cv=pass; b=o2dBGNc1BoD1M8cKBpvX9KmvUZMevJHUYxuLgsG/T8qACEZsjF5ZOjXSub+jiHrk9mPC52Ii4H3MP3CP5ToTiD1UuNxwSC6JRgH8UvrKHmagqewNN4OC9HbQYAzcxaRdWu1IQNHORTr+nO4vner+1gEeG+IH2tJS1zySOFyk474=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774460212; c=relaxed/simple;
+	bh=SXXvNMm4OOeTVI5sEJNC7nVh6MOtnfj6hXf10537/DU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=dMzMurNX5wIjoNRIGNcORxK5QcKjPbuIbvzKZQmbxiNjUF/UmEuLPhOEngv2ZdUOEy0v24pLf033Nt6KFPQBk0aTMv3TdPzI5wuuPwMG050YW0hNuKw4tv4Rtzju5/tCLkHQMzDkbcGgM8TCNPlmsos1Flo/GebUTUH/CVXHovU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OPT6VNEg; arc=none smtp.client-ip=10.30.226.201
+	 To:Cc:Content-Type; b=RXc7PI009GCVj8n5FCpCk1KySvSQ4Kh3FrHeQm1pqCeP6kxn+4Kqo5t0p0rPUGHkv6C5zEZvDBZN0uL9LE7Ggd+kXgv0DVVTHV3Oy9rLkxb/sokGIfHyqrWCvyuq40F166vOtNARR/Kj4khhPzLE6ava0aezzFg34aps1Fr7L9I=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=DD0nH9KQ; arc=pass smtp.client-ip=209.85.210.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OPT6VNEg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3F8BC2BCB6
-	for <selinux@vger.kernel.org>; Wed, 25 Mar 2026 01:35:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774402534;
-	bh=4xDuZMlV9e8lExmR4AbKxuLD7XwJlcqYoE+mf8VIJIc=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=OPT6VNEgSp49B7SzieME+r0RdMr6DcX3TBWBxOMq4nctzJS1QhSaWpvD81GchzZpH
-	 VO8xodud0fb50cOsaSgghn4TsiGpX6cDRGo6dlXtVFQSOQr1TmaQEmJ52VTeDyG+lB
-	 tryrRhj1Ma3YjpdJFcsVRphMcTYVx1Tgh71yGkL4CIbjsfpf9TLCsBWP3sd2Qbwfhy
-	 s0KM6NYQlENSCHdHKpy+rO62f5mDqNvl8gDpFFkzqfGC+WuLI+jXS8nwX3/zrZt8DA
-	 SWZ+ZZKWADTYMMZQ/3AF+cCtwRmin9qZhfwj/jm/t0o1ON+49TOhdIvbi+rQAfoyBd
-	 7l3zkLCWWoCjA==
-Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-899e87b04d8so65359986d6.3
-        for <selinux@vger.kernel.org>; Tue, 24 Mar 2026 18:35:34 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCXv2TQ9ViqKYHn1BC37bWZUQ3fwZ3aY+jRjCaoppKHgaIkLJCt3OgveVvMmVxTu3sK1Rgi5wn/R@vger.kernel.org
-X-Gm-Message-State: AOJu0YyokzLeq4Chqo2fHkby/IFANsBHXZ04b8/nXCW9d6upDdYZZDya
-	Y8VIBYpC7MrKx8vfQVI9N8Bdc8DcoUWYBH0CHkgZd+3qmIIgueQRPwecgz9Hzuh6bMp127lT7MO
-	9+eSvEWOdcIsEu0wE+V0pmAvvee3W+aU=
-X-Received: by 2002:a05:6214:1245:b0:89a:b7:9a9b with SMTP id
- 6a1803df08f44-89cc4b5569cmr31645146d6.58.1774402533738; Tue, 24 Mar 2026
- 18:35:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="DD0nH9KQ"
+Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-82c70e4654eso53646b3a.2
+        for <selinux@vger.kernel.org>; Wed, 25 Mar 2026 10:36:50 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1774460210; cv=none;
+        d=google.com; s=arc-20240605;
+        b=X+6OI8OdqKyRXIndj1jE8hxgPER4vlhBSG2ih08B80RstRJ9yKKBUlzZmmRUyXPhXI
+         MUFeFSwuJsHYACrDXH8IA4aWLQEwtandO/AWsd/eUEsdi7iToicYA4dyGvLxWPHrNQFb
+         PFXy34hWEz74RGJwlElMkWdT8w5c7wX4joDmndXFnzq7tes73GK95/RIJ/NGR/OPDuOt
+         d48SiXLvC/6KZEmQCWED0WTMCT5kEEq552akoDvWOir+ojsOivar3gSZCWI3lnbuVTYd
+         KAbFscUobEsk2VnpTTYllznEkwAZviS63kZIM+f0Dq0FKbeqWFxSzb9XETDqs3dSI91G
+         LXKA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=560A6QjyhPKgUbe2CXEHtEc1ptAHKSEox2yVMb4TCwU=;
+        fh=FZr4OH9eqYEJx3RSc4aFtebDcJMBnrhCSekP4Bk24As=;
+        b=EixgX1bAb82g/L9BMOihTOs3ClFy2rZ635uaTf0UDuaUFBPyz57L08IFwlaHDkzRGT
+         PLZrB06lf2ZmUxq4qjSJPRBLwBWjytU/dclNqDc5Bw3XBlKgWMrD9mlKV4VFE42K0Wm6
+         h7jsXV79Qhw4cjX5T8d7VaQEIWFydpR8RLChVQXZq5urlZYZ6Uz5WLcWVTRziEIy9JYt
+         Za66pjAoMPs9vCcaXdgfya69ejVCayANkhdqM8sAg2aWTmMJ2mS5wmNW46LLMHO68rVo
+         xWvHSJcxl6yHsUWWkh3NPXdQsLhDPm1yV5LRTvgBIh23iYfDYGr6qAb1L8tJ2wj6uw0t
+         5WiA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1774460210; x=1775065010; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=560A6QjyhPKgUbe2CXEHtEc1ptAHKSEox2yVMb4TCwU=;
+        b=DD0nH9KQl1IYWPF404uwuX/UIwWdC4xPMi7UnOVf1ppDz5q3jCBTjDJdhfdvWPI3fc
+         LIMP3cOmjdPwlRGycoQlHYGk6rQH1RpOqPJjt0IC3iuDQNkNvVVQm/dbKPGlD1UAFZhR
+         qdV0RHP73WosmwNpT1GlSz253J1A7GAjwLQQTg2qKjVBpdCL36jNUDIg2HvU2yCbYsSp
+         BFYp8s4s4jAA/bI7fyHZZlUCTxYKQcdqCHiP9gQ+ATwH7EDOe/X+8fVlRnWhnVEGLpMn
+         MVKvZdmsOlbEjJpKgFV+ZoDBcFnPs6I+9PxG6rxAFW04FS/tT2DuUskI5BxjIV5s/DLO
+         1GLQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774460210; x=1775065010;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=560A6QjyhPKgUbe2CXEHtEc1ptAHKSEox2yVMb4TCwU=;
+        b=YdpzxABBkcsm/usI5IW2fEF7Kyrd+k8OjqJnWfs1VMw03vAMiNhEkgpM0YaXrAvXIO
+         PBe8/UYsefoqvzgG61jzllFFxNv0C+W55TMLkOabLCW+LCYtqWbiqMV3SEP+CV0EQV95
+         YcWUpQ4uSAHiLUEayIca22hKtpyObDEv5PZUcdmaktRFBbbLB66FoqQo8FQ6Qs79+5Zg
+         D/0bCcPkOEvhfsYxlmDEW28QINuhZty1fvfmLDPplwK/8dl8iNJiIqiOoTApcP9m89S6
+         R2pRy0pSnS1oHYkKkFrCcIbD1YKhEZlgoJFOt8E9D1lTqLJcD3NNSpINUmmntM0TzCn6
+         CdSQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUJRTgOoVvZlyR0jp6vFs4GGEuW/l6+Bq/bhjAq5FEThPfs8aCVdttF6PfTECCqMHZf3QqbAzFZ@vger.kernel.org
+X-Gm-Message-State: AOJu0YyYOQeBuBw24GTzaXBZRkUQZz9/kJEVF5YVrx1e5zWv/B2r1Q2e
+	owXfBG9V+oXRPdlqLSQXF/gA/waZ78N3hUrXUQA8AA9ccfkAe9zpnn2JPDlZzxNyt3mcPM2Z4Lr
+	RasYbyRhVuLehhqB3nhXLD27nkoZc49Iro27wpTXZ
+X-Gm-Gg: ATEYQzyDkdrCBpAp00ZbSmiL25U8v9vpBOGRy+g7jO0kEek0IEK1fc1HWVYMyWxxNmk
+	bqbae4+bmlcpeM6X0aV8daxoGJ73yiFPGgTC8dBJ0wvCOHUS+XlXJJ4vCkhfx2xIF1ltZow5Q6Z
+	4QljbI0wWF/0tTUpv9O9gUpbEaG9cdSBpxVszN1vWaGZNTxqMSC51YUb5rQ+xfK4XBgC+wMuYU7
+	ZEO0pe8QRHaDALpdRD0aRh5ZF1uME+SO+T/iaJZi/jDLTRYbfSTovz9+JsbmipPq7f3A0Kvmeje
+	YdFMfxM=
+X-Received: by 2002:a05:6a00:4219:b0:827:2ee0:411f with SMTP id
+ d2e1a72fcca58-82c6de7aa7cmr3962195b3a.4.1774460210073; Wed, 25 Mar 2026
+ 10:36:50 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260318184400.3502908-1-song@kernel.org> <20260318184400.3502908-7-song@kernel.org>
- <b720f521-e930-4f35-9505-1bfdf9e2818c@I-love.SAKURA.ne.jp>
- <4DF5C4A8-7C92-4F76-9B34-2262089E7289@meta.com> <33abcf34-13e2-4a37-83f3-78bb27ecbc11@I-love.SAKURA.ne.jp>
- <F0A0D13E-8208-49A4-9AC6-89AC4BF3F4FB@meta.com> <20260323-klappen-atemschutz-7a0af8c6b087@brauner>
- <714a614b-cfb4-4b20-af8c-df3cc56dfb92@I-love.SAKURA.ne.jp>
- <CAAeYb7k+TWArOKyOomkLZ8fwqUPjha9iORpJaj4nMyN=o4ZRQg@mail.gmail.com>
- <6609e11e-90aa-4021-974e-e9937688dd49@I-love.SAKURA.ne.jp>
- <CAPhsuW4G7vo-JZqenZ-sFHw9z02wZUJa1-+9U81U--vQhnfG_Q@mail.gmail.com>
- <6c298238-8d87-4c41-84a7-e0373d466a15@I-love.SAKURA.ne.jp>
- <CAPhsuW4E_BrF0ap5yg_6TbRAna=2Ajk2nuoT6WGwkS5cyyYB3w@mail.gmail.com> <4f5d1b1f-ecb2-421a-8a46-36c7a12d48de@I-love.SAKURA.ne.jp>
-In-Reply-To: <4f5d1b1f-ecb2-421a-8a46-36c7a12d48de@I-love.SAKURA.ne.jp>
-From: Song Liu <song@kernel.org>
-Date: Tue, 24 Mar 2026 18:35:22 -0700
-X-Gmail-Original-Message-ID: <CAPhsuW7+EMzgCHAVm3XiVy1A7+EVQPxqi0hBqbq5ZsKeAWaXJw@mail.gmail.com>
-X-Gm-Features: AaiRm530ufNvd5819opx61Zyxwl96gRjG09W7nRQkfMrynp8a4TROET-huwTlyg
-Message-ID: <CAPhsuW7+EMzgCHAVm3XiVy1A7+EVQPxqi0hBqbq5ZsKeAWaXJw@mail.gmail.com>
-Subject: Re: [PATCH 6/7] tomoyo: Convert from sb_mount to granular mount hooks
-To: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc: Song Liu <songliubraving@meta.com>, Christian Brauner <brauner@kernel.org>, 
-	"viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>, "paul@paul-moore.com" <paul@paul-moore.com>, 
-	"jmorris@namei.org" <jmorris@namei.org>, "serge@hallyn.com" <serge@hallyn.com>, "jack@suse.cz" <jack@suse.cz>, 
-	"john.johansen@canonical.com" <john.johansen@canonical.com>, 
-	"stephen.smalley.work@gmail.com" <stephen.smalley.work@gmail.com>, 
-	"omosnace@redhat.com" <omosnace@redhat.com>, "mic@digikod.net" <mic@digikod.net>, 
-	"gnoack@google.com" <gnoack@google.com>, "takedakn@nttdata.co.jp" <takedakn@nttdata.co.jp>, 
-	"herton@canonical.com" <herton@canonical.com>, Kernel Team <kernel-team@meta.com>, 
-	"selinux@vger.kernel.org" <selinux@vger.kernel.org>, 
-	"apparmor@lists.ubuntu.com" <apparmor@lists.ubuntu.com>, 
-	"linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, 
-	"linux-security-module@vger.kernel.org" <linux-security-module@vger.kernel.org>
+References: <20260323042510.3331778-4-paul@paul-moore.com> <20260323042510.3331778-5-paul@paul-moore.com>
+ <CAKCV-6t=m-8eu1xoTORnLwhG4kQB5u1v5diJDQDFcat=tH8WgA@mail.gmail.com>
+In-Reply-To: <CAKCV-6t=m-8eu1xoTORnLwhG4kQB5u1v5diJDQDFcat=tH8WgA@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 25 Mar 2026 13:36:37 -0400
+X-Gm-Features: AaiRm53RXGI_5fUjjLSR_a0KxLZyxKMzyTIPSX8PFvRbx9JxRVkJ2AR_0Hlvr9w
+Message-ID: <CAHC9VhRNOGk0dGERbD+RRLTWebZu1-7cbvB0a2D0njbnqBRNXQ@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 1/2] lsm: add backing_file LSM hooks
+To: Ryan Lee <ryan.lee@canonical.com>
+Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-unionfs@vger.kernel.org, 
+	linux-erofs@lists.ozlabs.org, Amir Goldstein <amir73il@gmail.com>, 
+	Gao Xiang <xiang@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 24, 2026 at 6:02=E2=80=AFPM Tetsuo Handa
-<penguin-kernel@i-love.sakura.ne.jp> wrote:
-[...]
-> >>>> I guess something like untested diff shown below would work.
-> >>>
-> >>> I think this doesn't work with erofs on file (requires
-> >>> CONFIG_EROFS_FS_BACKED_BY_FILE). erofs may not be the
-> >>> only one that has this problem.
-> >>
-> >> This is incomplete but I think this is better than now because current=
-ly
-> >> mount() operation likely fails with -ENOENT if the requested filesyste=
-m
-> >> does not interpret fc->source as a pathname despite tomoyo_mount_acl()
-> >> always interprets fc->source as a pathname when FS_REQUIRES_DEV is set=
-.
-> >
-> > If I understand Christian correctly, the main challenge here is that
-> > FS_REQUIRES_DEV doesn't imply fc->source is the path of a device.
+On Tue, Mar 24, 2026 at 7:01=E2=80=AFPM Ryan Lee <ryan.lee@canonical.com> w=
+rote:
 >
-> Correct. FS_REQUIRES_DEV no longer implies that fc->source is a pathname.
+> Hi Paul,
 >
-> > Changing this assumption is a major change between VFS and many
-> > filesystems.
->
-> Wrong. I'm not trying to change this assumption. I'm trying to move LSM h=
-ook
-> to a location after fc->source was interpreted by individual filesystem.
+> I'm currently looking at the patch more closely to implement the hooks
+> for AppArmor, but here are some typofixes and the like below:
 
-OK, I can understand your point now. And I don't see a big red flag with it=
-.
+Thanks Ryan, I appreciate the extra eyes.
 
+> > diff --git a/include/linux/security.h b/include/linux/security.h
+> > index 83a646d72f6f..1e4c68d5877f 100644
+> > --- a/include/linux/security.h
+> > +++ b/include/linux/security.h                          unsigned long p=
+rot);
+> > @@ -1140,6 +1146,15 @@ static inline void security_file_release(struct =
+file *file)
+> >  static inline void security_file_free(struct file *file)
+> >  { }
 > >
-> > I was thinking about something like:
-> >
-> > diff --git i/fs/super.c w/fs/super.c
-> > index 378e81efe643..91ce3003bc23 100644
-> > --- i/fs/super.c
-> > +++ w/fs/super.c
-> > @@ -1676,6 +1676,9 @@ int get_tree_bdev_flags(struct fs_context *fc,
-> >                         errorf(fc, "%s: Can't lookup blockdev", fc->sou=
-rce);
-> >                 return error;
-> >         }
-> > +       error =3D security_mount_dev(fc, dev);
-> > +       if (error)
-> > +               return error;
-> >         fc->sb_flags |=3D SB_NOSEC;
-> >         s =3D sget_dev(fc, dev);
-> >         if (IS_ERR(s))
-> >
-> > This allows the LSMs to monitor the dev being mounted in a new mount.
+> > +int security_backing_file_alloc(void **backing_file_blobp,
+> > +                               const struct file *user_file)
+> > +{
+> > +       return 0;
+> > +}
+> > +
+> > +void security_backing_file_free(void **backing_file_blobp)
+> > +{ }
+> > +
 >
-> Splitting into multiple LSM hooks does not work, for TOMOYO wants to chec=
-k
-> all parameters (parameters currently passed to security_mount_new() + the
-> "struct path" which was resolved by individual filesystem from fc->source
-> parameter) in one location.
+> Should these two placeholders be static inline functions, like the
+> other ones around them?
+
+Yes :)  The kernel test robot found the same problem yesterday, I've
+already fixed it in my working branch.
+
+> > diff --git a/security/lsm_init.c b/security/lsm_init.c
+> > index 573e2a7250c4..020eace65973 100644
+> > --- a/security/lsm_init.c
+> > +++ b/security/lsm_init.c
+> > @@ -293,6 +293,8 @@ static void __init lsm_prepare(struct lsm_info *lsm=
+)
+> >         blobs =3D lsm->blobs;
+> >         lsm_blob_size_update(&blobs->lbs_cred, &blob_sizes.lbs_cred);
+> >         lsm_blob_size_update(&blobs->lbs_file, &blob_sizes.lbs_file);
+> > +       lsm_blob_size_update(&blobs->lbs_backing_file,
+> > +                            &blob_sizes.lbs_backing_file);
+> >         lsm_blob_size_update(&blobs->lbs_ib, &blob_sizes.lbs_ib);
+> >         /* inode blob gets an rcu_head in addition to LSM blobs. */
+> >         if (blobs->lbs_inode && blob_sizes.lbs_inode =3D=3D 0)
+> > @@ -441,6 +443,8 @@ int __init security_init(void)
+> >         if (lsm_debug) {
+> >                 lsm_pr("blob(cred) size %d\n", blob_sizes.lbs_cred);
+> >                 lsm_pr("blob(file) size %d\n", blob_sizes.lbs_file);
+> > +               lsm_pr("blob(backing_file) size %d\n",
+> > +                      blob_sizes.lbs_backing_file);
+> >                 lsm_pr("blob(ib) size %d\n", blob_sizes.lbs_ib);
+> >                 lsm_pr("blob(inode) size %d\n", blob_sizes.lbs_inode);
+> >                 lsm_pr("blob(ipc) size %d\n", blob_sizes.lbs_ipc);
+> > @@ -462,6 +466,11 @@ int __init security_init(void)
+> >                 lsm_file_cache =3D kmem_cache_create("lsm_file_cache",
+> >                                                    blob_sizes.lbs_file,=
+ 0,
+> >                                                    SLAB_PANIC, NULL);
+> > +       if (blob_sizes.lbs_backing_file)
+> > +               lsm_backing_file_cache =3D kmem_cache_create(
+> > +                                                  "lsm_backing_file_ca=
+che",
+> > +                                                  blob_sizes.lbs_file,=
+ 0,
+> > +                                                  SLAB_PANIC, NULL);
 >
-> I'm not sure how security_mount_new() is called for fsconfig() case.
-> Does https://man7.org/linux/man-pages/man2/fsconfig.2.html#EXAMPLES mean
-> TOMOYO cannot check all parameters until move_mount() is called?
+> Shouldn't blob_sizes.lbs_file here be blob_sizes.lbs_backing_file instead=
+?
 
-We need to add hooks for fsopen(), fsconfig(), etc. I have some basic code
-for these. But I would rather we address this set first. After this, the ot=
-her
-hooks should be more straightforward.
+Good catch, thank you!  I'll have the fix in the next posting.  I'm
+hoping to do some more testing today/tomorrow and post a non-RFC patch
+by the end of the week.  If you find anything else that looks awry, or
+just doesn't work, please let me know.
 
-Thanks,
-Song
+--=20
+paul-moore.com
