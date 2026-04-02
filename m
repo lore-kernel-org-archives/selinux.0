@@ -1,100 +1,122 @@
-Received: from sonic316-26.consmr.mail.ne1.yahoo.com (sonic316-26.consmr.mail.ne1.yahoo.com [66.163.187.152])
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE1F43E3C53
-	for <selinux@vger.kernel.org>; Thu,  2 Apr 2026 17:59:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.187.152
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775152769; cv=none; b=VogEIOOKVOjEGLhnKInll4TgcaFFkN58FC8/DppaeEL75G2sfmJUMzRJwb8dJOjpvtzhMFtuQTn7TbwRNNTTiq5ikK6cwOQHQqDdngpDJkinEtKGBEod9DDwIy5PsfxlXK86LFM0OV7fuJ+BBdb4/+sPVCnOhzjxV72gaHui/0c=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775152769; c=relaxed/simple;
-	bh=5GZ0g3FSLnxS8kHbyMl57UkANLIDdgpK/fkqjTQu4EE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=pMB1q3WoANzDx2TnqJBxeMTt3pM515QyZoNq+/NhDFj2nd6RlVfQH+jB6L9rSx5Cv0KlGh0KR08i3rnI526op1Bir4xQRLNYZl5ZcapyiQKq/Pn+asG9+2LVKZEyEot6H6mxPGvxmPa5kyjNE2HEhWKhg886Ww323gFCe+7wjnw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=AZMQVcsf; arc=none smtp.client-ip=66.163.187.152
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3687137A49D
+	for <selinux@vger.kernel.org>; Thu,  2 Apr 2026 19:31:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.176
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775158309; cv=pass; b=VNpQZj9dRgFagYNqZpj8kSPgJCj0tjc+wwX074z+uDALmD6ShCByNI5p0LO1Lx0vshmC0wewfQd5jZmQ8e1JDqEST5onF2TlCIzA5Nezul5e9wfs5dvqiCC6YaqlkusC2M3pJ8VqlSqrPyPooqaErhSClaDNpbtbDTTnoQlHHV0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775158309; c=relaxed/simple;
+	bh=h4Q0Y5YHf5nDQ1C9hTkU/4FOQDfs8Yi/kGtNKAxFubE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=f0I7xTDTNr8XLAthGJd7HFUhHjQOg0DqJamNxyoWNUoAiU+t8gr/QVCJzsMqnFCxlyq9GOwmvqIHUACApRYolf453ekESaCP0++F/Dmm3xN1KgjJ3m67UD4S3lOIfogZiadTCDHZVDjEviRTXw/24wbnW8+7y4r+Ap4/kmTF6Gg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=F/Bo8Ef1; arc=pass smtp.client-ip=209.85.214.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="AZMQVcsf"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1775152767; bh=5GZ0g3FSLnxS8kHbyMl57UkANLIDdgpK/fkqjTQu4EE=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=AZMQVcsfCDAOtV6KWEwzdbuhU98ZZ4WsmxlSzIbIKCZMVoFWphVjBuptkl8nY5jsqi6Tx20LUwtcfcNXGcJ6FVYNf3QfW+/kWcMp3x1g6i3DjFekOH/rj3Rc/eDkEkE6T79YEw2Q5EnxXCt78uoGYB8M7z8N2KsC+R4KUVC099db3FbfZzYUMDpJ7CBI2PhU2UpmIyGO+H1BmjBAjkiFxjexosh5r6bYgRzJ7h4qjRYvCO+CYz92ckuFX0jrsDk0lYO4vHiLsv72AdisZ6ytLkHXbpFU4ZRcowTHBHV9fygpeSpLjUbSS2EfoG1uAw+gGINbPx087yn1QAqJISJu4A==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1775152767; bh=MoDeoikwSVXx+Bp3hmA37xwUyKsqRNCBhNyafhn4bd8=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=aEM2ePu6nPKjo7ftEw4/WJNWRlXk7rzk0N1VoQFBj44IXBXaxVH7lLNe1ABAjVHry5T1fmnmjxvvrT3unDQxKpl+9SziEbxy7UOtGBgHNobb98X3KS/c4X5up8oCdZTHPrNp/FUkMEKpk+iUWXlqpYhCdB2V6PVgUXEu7ZnsYioNkoQLFQCBooRS/YT6Nh8dqc8I+d8etzwWOZJyZaYcRHo1LTPPUTfTmTcGX8kPNK7em8XtGXeMv37wrEXHI3XI3Cw3kwmD+rjMlPf1BOvbXUTVBNc8mZxkCrf+hoN33sWI8FhecIG/B6UfG5KZcQJ0YoGLcpQHAltEWFYyfFRaBA==
-X-YMail-OSG: 6tFpofUVM1mvuP86l8kOx3ZaLW3AVM.T3vmMKF2R.8hIn6nYK.oCL70m5C0mxxl
- VdFkaDZ9RSRyf6xyGcifps3azg6adKe2iY74Pr8l80HEK4YA9vfmZkqyu0wG0crdO2NzYJO4n5B_
- pV5b.rVGjyTLglYB5H1ixnyJbpGsbo18JrJQ6SVed5vkDJkluyLCo1mKdmjJFHdunXmr5zgH74H_
- jjERNB_tK13cc54_UEgsaTYspU.LcSYqJFnBRm7LiNqclbsJCBFqw6Tt.15nRmHH1ZF9XF3HDF5A
- gxcFfXrV6g8.J9e1oMJPENJiRi_3aB051muorFo1Dja7806NfewAHy59Z6uExOUYK4jWQpnj5fAR
- RTg42LCBW60GO3Ww2rNiuy0Jfni.YaFgsAsDLi9g1ImJuD4RP7grYqXSiaK10sCuZkJnFX_siogk
- 8ESNa0GPpnLL0ca11ZDYCNObEyurrUNc.jFLREk.6gO78fp1YhlLv2iT9hTKL49QcRzpgvzvO.gZ
- 8qQUHl6mu0RpoB383obftpu1uKdb0mTRnmP_G.MxQzr1PtECQCDL7Tdq1s7PyHWYBE3LAgcix.hJ
- MBdSk3tgrWFPOJNQlNprhRWj9rbonmE8Xp3urgxQqHc8p5oCpFVjJG_vaWACPdzTWStNuVRDZU8S
- 0RCLywqHMN5LZCrst4lTJuANwkVVTutmc0y0QPZ6fiuSW9ST_O9wcDW.N91GqXGTkqbvL0UQ1sfM
- IsOLAFQc8GcVmsNcqZDRisG97bi8KfN_WJXkrkKkZh1UcIFrw1LWdlkQPZEHf8cUFUGsiQFe2N2g
- mRhwSqMsoK2KmvF8T5txQc97VB8AJHgdtocq1ufPv2CwzvAxUCqMNz7VPpnQvXreo1KAA2MhsU6a
- eP.DVkqcuDj4TrAw_y8Ulr4ZRL70MD9UzELyBbLoUG2IsuTZKKOc9E3Ltzx8O_0tDPvqG8fwWXqy
- 4EGTqY5anpqK7zwwaUngxbkSSs.N14iACrOZtPCJ9KvYevIPmVhaQ.4dIjjjsiHPrMLqDtoZ1vU9
- PlHI5WfLtjiAerOZ_X8sd3qYtn76LcDKcN30EPSxNF1X.WJclcuiLg1FBDC_BuNfUGmHotIIvmuA
- 57kCBWbY35WxAwqualKZqfhEx3_Y6agq_3shdYVyfOk7kAUIbAwDtc9XwZUkezNd4RZAXxIfouwT
- bNLSesyCzeSNYooFgDRjqCAFvUyz3utOu.2whZwctmYVm2smA1ZrLjwCgP3qH2Jpw2HVE_dijgzu
- GkpGTd_S8iHn3bSRjU3t6EHq8K7Q9vRIRbM3OXZ.Qo2Cc_z1Ps7zl6mZN4D_ep3qjWnujl.yTOLV
- eDXza0uoToqlGu3XhgVNeb7OkK2h23QO0jov0a8YtRsKEbPWlTzlKnzezjFyl7C4dVnY6O7sl5bF
- 7ugSkDL4ColSunytYNExBVZWtYYqmj5c_IzmujAIt9VSv3RAc_3MzjICeG3OkvDhICAR8.y5YaZa
- n3bYe27iEfYqfFiWqQdb_Bt2M2oMo1X2YISHkW.BfdA8QMu9JoV.uzVWsV.Uq_Z6AOHxQ7ont_iO
- .qaFF3PVt4Le4zheP8.eorvqxIRM2ewk6RwBAlpTh0g0FN8q9q8Be3TI0CGdnuzWUwYeWkDbilM.
- ybOQl1aK9JrEN4EuIm8QoeU_PzNuhka.uu1KpqaUtHSvpB9g0FDPq3K5NzEfjyq8vGb2ZJ_h9GNr
- KZ7KEtFRHThmHzWw6G67NLKr5QZonU3NCXDloEuCs.ulYkjcqbUqOM0LOhRgCETaXaHPw6ddqfE5
- JNju7V9t3igFzbtlyJTmmcVoMfbEzmIREdhmSEcSl5ZTlWbdsGqeiuiyo2HOvKCJEehr_1nhY8Ds
- LYRCV9whmwua3a8e2uPWLgPYHqiIWPR1msMF8Bvqe.EcWLfrLRIr9XgInB04ap0F6IywxN2d3yBv
- 2qTrEUDWfs0zeWA0YnZag5FVx8ZCCldbiPl2EWNE3RpSBZeIqAeNnr1lKXWXkl8.u5.70.SBObVS
- YB1e9F5Qm7bWUO0BKJhdTiOYytDdzZdPFVLIEoHBHkYiuZ.GQI4z2SPj1j8apKmMAqhluxz5QChM
- FxP0cWBGe4l_PMus1.L9a2J48So2rID4xQ4Zc5rCYma5G3UV7sHlISRcjtt8b89Da5N2viilglKp
- N_WhoMIBTjUOOvgSSbUr81RyB0aQRmewxCg50KNOm.7nvNOUITOy02HBYmrripM36HclfgrQNOU.
- HY2FJ6.dPaQNaPhw3tFj8zjgl8c65Hspbd41QQjHBbTwxLVaY5UtYiPtHzCpWAIuPRg_rpttXqA-
- -
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: bbb0ac71-81c0-47e3-bdc2-07f5cb1c536e
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Thu, 2 Apr 2026 17:59:27 +0000
-Received: by hermes--production-gq1-6dfcf9f8b-b9zl5 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID e2854c90b467af2a2bc094afd898ee69;
-          Thu, 02 Apr 2026 17:49:17 +0000 (UTC)
-Message-ID: <5e210223-f9a4-4613-8c4b-bea5eea7f8c0@schaufler-ca.com>
-Date: Thu, 2 Apr 2026 10:49:14 -0700
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="F/Bo8Ef1"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2b258d93ffeso7424285ad.3
+        for <selinux@vger.kernel.org>; Thu, 02 Apr 2026 12:31:46 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1775158306; cv=none;
+        d=google.com; s=arc-20240605;
+        b=VQGDELpp+Hs/E83NCz+IPM8IPphUoN//1cdBbgknrau1P2q/CYMKddTNq1SGk682HE
+         BjapUTO67NUJ4pqwVnrVYMbyoPHko4ItCRCSjTLIcxYn8O6W/FxY9lUyEv6PkevjTiC2
+         UTLKAb/C0EFqEWW2dtMjVVbaPS5KnsHZ8cEe3r8tDDAWy2DQFMhLs0na4lZlOSArq3jM
+         BAH2HKoKFOujdUdwxxv80+V4N9WzA2tgFiNljbpvyNWgDcSAhk/UnSGxqNHbl69AN3El
+         VmwYu+O9QJgEZ7ZATtdAETtAcEAZK7UasleUHn3gS9UeKHGE5XGDHy5EpvY5gNNpt+0c
+         hJ8g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=h4Q0Y5YHf5nDQ1C9hTkU/4FOQDfs8Yi/kGtNKAxFubE=;
+        fh=48DJpVtj3pLvUezlGSRjwxxqu+s4oikmr7+jpHgl024=;
+        b=FXbdUuQp8VDFLZwmIK7MIH8lwwWLuVCQgq2ls3nk/ye4PeZYFVVuk9zZyzcEBarzt2
+         WUd4AdNTr39AqEBQfK8YmylUOJbx1PqBrN0ecq/5BXMlZP3nqqrAyH8Wk9mk7zn+EJcD
+         2Bxr/ix9FA7QrrECOrw362Xk0+txPauh/iExhd43mZeDUyc82x3OlvYzqhhjmvONHOD9
+         ldvj+EB/06LWu+CVaKw7BAWFQ4mOysrfcuI3xbKrRIi1PNh/QMWGnIgehsLqtMr4EXUc
+         OMPqJCTNBSwXQdhhDqd/fioM7DR+nFdnVPTh2rko1BxAl0tGeBrBWqCPHAHzf8LK7GFp
+         HE2A==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1775158306; x=1775763106; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=h4Q0Y5YHf5nDQ1C9hTkU/4FOQDfs8Yi/kGtNKAxFubE=;
+        b=F/Bo8Ef1ix/Ip+36dzOWPBR/iRqCVgHYlnI4Lx1gj6WAjW21NzMiSUomGjwE4Kes+D
+         EH2kFo36k4WMSuZkipKHnM1GIVU4lCfdS4q0fy7P8rB6v2dqPNVSEdTqB7T3+oSr/Evr
+         BgX9YOknQCwI16TVGytJZ50PSwFqRHI6Ae5RYItot5F7Rb23GbFzuq8qr6CAq7wnfKrs
+         DfqWbBXcUqt1VxRP9J4cXHE3UFWOJrhW7MJPLCtavTC48ClkMrTlXP9NqUknbFvF/2g/
+         EVBxZIcgWuw8t3j3f4RniUtE8GM1yhoU9eN8V6ZiZApKP6rCnCe0iYPIJaC3ITb8xpZB
+         Kb8Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775158306; x=1775763106;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=h4Q0Y5YHf5nDQ1C9hTkU/4FOQDfs8Yi/kGtNKAxFubE=;
+        b=Nucl2+aD8OBOQifdmFK15fEDr5U65I02eBtFmUPZH45ER0GF2UDCOzvmYZL+EUGWCU
+         sFsu9VqKk7oG53mw0zV9vOby0n7noWxU/fQDPEnq/TEbNqPFdMz76sBnzfSBiuZU8GyF
+         wXqt9bVwwhu1neY3W59d/xLqPDRe+sLpeNVHDPNxod6GrJLTw58r5/jj/uhp5pywSD7f
+         X14HBdCxC2RYQw7SjTKnEj8cd324apavVJn47bj1+B5RBTXVNtKwGqhu21Uo4JICes17
+         5G+MxF1jkcXPd4jrcoNU+cA8uvZVN1Mlh1U4c15v2l/KmgD5oDbF/nxcPlQsb718VTb8
+         29VQ==
+X-Forwarded-Encrypted: i=1; AJvYcCV/DWwlqR96E6/PqtBOTBqepNjfSuMzYuGS8TxTWN5dd3PA8hAGS5sgmBMCzPbtkaJd/2Jy80Mh@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw9+cuYtwjhLTlqXQwT93tyBuBqibzli4FyfiisGV0h/BmNXtSx
+	Fcatsr9Q3Nm5e6/c+ruY1cBIhxN8bj8KDayTg8BdJEG65IotizZ1cDTv5EuLe9pIWoKKsLfZezu
+	BnOvEY7/m6tjN4VzGpXaMojp1HRH12hio6qExUEDq
+X-Gm-Gg: AeBDiev4mLp42zFSxWjSxjblXgTc/Y3JdTBWLQZtETL4JdF2khiAbxI8aHsiY9lv2Ta
+	4Si+58ETlXHklvN4/FPAIMkGwCwSgS/rS+29o7zssgf33EAd13secryXadW00sIf+jLaaJ+r1iL
+	xMxDYG+xMPIY1M48ICNPCt/ifssxn1ktt5zQ6dcfrV/kXN7zBvzbPWaC1hlB6tkOHpDAULzxYGC
+	8lavbm4i4/1SPLbNm8WEUSUY+zRRcbW3t8RCLDMnsTMmnq1r5o5jgYWjMFexjl/gI2ZZgX0xRCX
+	VWNvb5c=
+X-Received: by 2002:a17:903:17cb:b0:2b2:5a5a:4f2d with SMTP id
+ d9443c01a7336-2b28176a472mr5113795ad.31.1775158306102; Thu, 02 Apr 2026
+ 12:31:46 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: LSM namespacing API
-To: "Dr. Greg" <greg@enjellic.com>, Paul Moore <paul@paul-moore.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>,
- Ondrej Mosnacek <omosnace@redhat.com>,
- linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
- John Johansen <john.johansen@canonical.com>,
- Casey Schaufler <casey@schaufler-ca.com>
 References: <CAHC9VhRGMmhxbajwQNfGFy+ZFF1uN=UEBjqQZQ4UBy7yds3eVQ@mail.gmail.com>
  <CAHC9VhTeVs7kS9hzukukZRfGu6CC6=Dq4KP69tpEtiFpBJ+jOQ@mail.gmail.com>
  <CAEjxPJ4urh7mUbDJEi-DbdiAifMM_uDH3m35tLeTdx6z+qhPyg@mail.gmail.com>
  <CAHC9VhTGruOPJ+NWZT8vw1bjXzkB4DSPFmWd1pC=J2jTYHP5BA@mail.gmail.com>
  <CAHC9VhRgi8_gdx0nKwkOws1VD6EFG+bHNTN5Q8YCxZ3HOCu5PQ@mail.gmail.com>
- <aclOtS61nbG5Wf3p@wind.enjellic.com>
- <CAHC9VhR1R7TcC2a2wZ9-G8dmXTuhcDK1YedDduq0sFgPC8QxFw@mail.gmail.com>
- <ac5MKr4lFQhc44i6@wind.enjellic.com>
-Content-Language: en-US
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <ac5MKr4lFQhc44i6@wind.enjellic.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.25449 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+ <aclOtS61nbG5Wf3p@wind.enjellic.com> <CAHC9VhR1R7TcC2a2wZ9-G8dmXTuhcDK1YedDduq0sFgPC8QxFw@mail.gmail.com>
+ <ac5MKr4lFQhc44i6@wind.enjellic.com> <5e210223-f9a4-4613-8c4b-bea5eea7f8c0@schaufler-ca.com>
+In-Reply-To: <5e210223-f9a4-4613-8c4b-bea5eea7f8c0@schaufler-ca.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 2 Apr 2026 15:31:34 -0400
+X-Gm-Features: AQROBzCKlDtIgICtjmoltlMzQQF_LTufdSQcW4goNdwWquqG4-w9OR3uTEvjvgU
+Message-ID: <CAHC9VhQn1=pSPF=n0SnUAKFnsnyTr52OqCCGc0a32LVqx5JfLQ@mail.gmail.com>
+Subject: Re: LSM namespacing API
+To: "Dr. Greg" <greg@enjellic.com>
+Cc: Casey Schaufler <casey@schaufler-ca.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+	John Johansen <john.johansen@canonical.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 4/2/2026 3:59 AM, Dr. Greg wrote:
-> That still leaves the question of whether or not CAP_MAC_ADMIN is
-> appropriate for gating the creation of a new security namespace.
+On Thu, Apr 2, 2026 at 1:49=E2=80=AFPM Casey Schaufler <casey@schaufler-ca.=
+com> wrote:
+>
+> On 4/2/2026 3:59 AM, Dr. Greg wrote:
+> > That still leaves the question of whether or not CAP_MAC_ADMIN is
+> > appropriate for gating the creation of a new security namespace.
+>
+> That will have to be up to the individual LSMs.
 
-That will have to be up to the individual LSMs. Not all LSMs implement
-Mandatory Access Controls. It would be inappropriate for an LSM that
-provides finer grain privilege than capabilities do to be gated by
-CAP_MAC_ADMIN. An LSM that implements a novel access control list scheme
-would fall under CAP_DAC_SOMETHING, not CAP_MAC_ADMIN. While a time-of-day
-access scheme might require CAP_MAC_ADMIN, it might not. Implying that all
-LSMs enforce a MAC policy is not a good idea.
+Yes, exactly.
 
+> Not all LSMs implement Mandatory Access Controls.
+
+... and not all LSMs that implement mandatory access controls rely on
+CAP_MAC_ADMIN to gate configuration changes.
+
+--=20
+paul-moore.com
