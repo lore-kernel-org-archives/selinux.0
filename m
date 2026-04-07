@@ -1,121 +1,119 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from oak.phenome.org (unknown [193.110.157.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A97C53A8FE9
-	for <selinux@vger.kernel.org>; Tue,  7 Apr 2026 12:14:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.54
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775564090; cv=pass; b=JfjyCoFIy6Rsed/cgjeZroIT4TF7KhWu8Bq50dQ8+3ss/wqFz4RRktSfjgB8uEkcYl/venOOQ2dWXKVTGEYU188JC36TQXdf7iiW5r7vUWd2LeXdT0K3Kmp3hZNBIugiEkhwQ2bYvrwl/xb2ldr3Jl9uoRUvjtQt5eMveUZOYGo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775564090; c=relaxed/simple;
-	bh=DYtH3ovqeZiNqkreX7Nz4nkPWobgUXsJ5dwCB2BpWgA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=lh/9rPVw3IDOM6n6Lku37lQXGzyjsM5Tzl6anSZ4KMVE5EnfV53tWkhhMTUUKthwoL4YQlS5N8KoXdMD4hRos902GN9L0n7sSLtfFusvIeRNijrA22oI1hyrH/4MLiUT4qLT2RvUy6sSTCyPJtlPVesT4CeCBNiTczQeCo1CRz8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mVZPYGFy; arc=pass smtp.client-ip=209.85.216.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C03413AD506;
+	Tue,  7 Apr 2026 13:37:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.110.157.52
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775569042; cv=none; b=eXKYFNx99iegf2/SwHeunlo68tp2mDujlU7luvHGpvHCbY0/uFxEDOI7dYhg1B0hZJfFuv0m+Tm6GBf15Tvn0f9mrB4QYGsFFLvY8FXFvvUUcA8NB3MyyYKVwecl6JtJhSySrlKl5T05HUS8MHjacDv4T1l/49tC/tsbpZVZ2lM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775569042; c=relaxed/simple;
+	bh=I8Yh8w5RqR2TlarL0EXjxRT50/mPd1NH/1bFddxO9JE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=C2kNSXvcaHxlPquWMbzdMZg+KuFzk8U3XW/JoGk39/fPXv2MSPfleBx6kAFspzOlQR3I0Nbcr5zVOTM78gF8AGCNDqorjmreHG4e7xQ6ynLpWQyriNBdJk837dqGN7i800IcbqGJCBJ1vOFoIemrDJ5NurK2pABi8o450bLJNvA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=phenome.org; spf=pass smtp.mailfrom=phenome.org; dkim=pass (2048-bit key) header.d=phenome.org header.i=@phenome.org header.b=UKxbmTUD; arc=none smtp.client-ip=193.110.157.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=phenome.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=phenome.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mVZPYGFy"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-358ed696623so2112244a91.0
-        for <selinux@vger.kernel.org>; Tue, 07 Apr 2026 05:14:48 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1775564088; cv=none;
-        d=google.com; s=arc-20240605;
-        b=Rafd/GT99RQzmd2ASgxlei9z4KMjXSj6skEYOc+mQVS6QCsdi+leKE5Zhv45J0ERBd
-         KSAspnn8tcfOR4/mGBuSA3cNIbd65KyWKVHF1SkTHoTstGIfv7aB+C/xa1yIC4wBqmyu
-         lccn1Mbjk7bLwjaPKWs3SwIVifWjWgteI7v4LzMMom0UfurDM2++xOwBM9SenT5FlPJa
-         6+q8G7qqcs4DeKHek3+VWKCObuRZPsiRzdRk+bzUiT6UKtRbuBn4U3LE5olq7+5+8DfI
-         wWYDQEKRw2wa2YzSJWzvjAJkEjcdswQyu2qe7kQ7t8tLHDco7NqvlkCsF0LRTXHuSHWr
-         7gyw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=zTDkABRGJ7UHzKZMFM6DSH1URUE3mRRr3uWbQhi8EKg=;
-        fh=v/RO0NxkSjYRN7Z/gFyfJkX8O1hXr/WuNS4jvZ1QCFM=;
-        b=dlKxT4BxDGdTk2kcEZ6KZbNwX/OxcZlombqEjK1awqZIf3ZME31ffSF34A1FF/9Dot
-         giGLW8qWmYcvWRMyR5aHp+GIHbUXm8GET4x2ZrPCEL0oW5CdGKNn7d59UbmzxdfyMnmJ
-         G4coKKVMIB5xjlXs1K5/6OBhz3u+T0SS0kP5lqtOU5ZuGrPb4C710s97k1i4how0YG7t
-         dj/rSnH6IseDQs7RhzcyleCna6A3iGbZykmYetyR+3rO0HGHmNzpTg7uxJ1GQ0QVidPF
-         t49pWT+CGVDIxECEupN9IXs37uVqfX0yAimqbivwUi/eucruz9L9XjFbQANqssw/yHtB
-         jejA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775564088; x=1776168888; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=zTDkABRGJ7UHzKZMFM6DSH1URUE3mRRr3uWbQhi8EKg=;
-        b=mVZPYGFyBgGtpWk4sX37nuVl392e96R4bjfs0ORNcxHmm4repjBBJl6wER9s05QPRx
-         u9yMmyrIxhKtFPIgahhJkUem9XXnOt0Y4udHqUe5ZV5JLiunPgHbLwuF5YVLX9xOMwfS
-         SHajj6jRYt56S5BkSVItPD2zTTs+S886TqgSWf6wGsfmVf48l/adO1vgGfcBxFHMUdKk
-         98zAae8oxZWozMTxhB3oIy7PG5AaxmT0a1YdtlKIlVFcGbOdculw91xtDE6pfiAGsJ+L
-         dEx4POQKFfhhxVSIboL7SSA5JB8IVPNytMGFiSoathMYqf1+sLX8Za9GGxj7OoZpqzGF
-         gAug==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775564088; x=1776168888;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=zTDkABRGJ7UHzKZMFM6DSH1URUE3mRRr3uWbQhi8EKg=;
-        b=RMYs+SdeeqVAQZcNSwTCMFFyRRAm+jPgoeM5u9FxBS7Hg34YHHm/szLd960LRhxDvl
-         txRdSpvMObLDdTBsyBjUcNr33rnLnrj7f7WQGX0fNr5de+m71TqT1KttGoh7V5JUQEvZ
-         WvAAQDtdw2uQPrzdcX7lB8X1izm4AaWlSxcbdjVfBMKK4SXWfGMpehIc60EFBWFbC+Nz
-         aDBJ0Q+wmyVFIsQaro0EbfvU6g92nQR72rhVmm8EZkxOi4rp2PXeU8cDXot0eNGuj0ja
-         T3GxsAJTppkGIgEJG3ET4WjWpiusXsELdYzbxM3OYtTcJ2pdSD+LQbYknbNYZ24ZgRbj
-         kgMQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXd7DdZUmhJgqxPXRjJpmlfz0Kc0JEzLXGRAk6fe2rMWvu1bNlR4cmUlNpSQw+WZbrob2railBd@vger.kernel.org
-X-Gm-Message-State: AOJu0YyaCEM1pWCMHETQ2Rj7MVdtu0BjZMMsxhICsG0iq/9LZc2yZQje
-	xQDZMOncsGMUgyFYpjIM23GXD2MxLYPoRVqwdvm4iA7/y/wIbPHH2OkxCVU+TV3PvAVX7ihVrW4
-	hyGZRm/aVGedPC/Xra/8GpTTLIp47rhY=
-X-Gm-Gg: AeBDieup4Ld8IyyLWHz5eUbzCJPsEzZuYYILlOJGMx7q58HEaAUmlqGxgvzAXHlSYJ8
-	LGFa1Mdf3W+HAbqL+hHp6ZN9tFMLk1lqIy1u34YZZujfVhnUEs0C5YMGOFxZfki5S1Lod78v2rT
-	XIpDOKjbz5ywmYn8MAr6/QK8gf2SFRUxS4/P7sZFRzE84TUIpzA/ahr2Jejzx3MKBTX+wNUNHk0
-	xwYVTLZJrxeGt09Vra/mh82IxWwONQBQ/UakHqiMJfV7bdAMqRERVg095m5/+0TqkEztGOOfZtG
-	Ye/fjys=
-X-Received: by 2002:a17:90b:3d4d:b0:35c:d37:6024 with SMTP id
- 98e67ed59e1d1-35de67ea9d5mr15645164a91.11.1775564088070; Tue, 07 Apr 2026
- 05:14:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=phenome.org header.i=@phenome.org header.b="UKxbmTUD"
+Authentication-Results: oak.phenome.org (amavisd); dkim=pass (2048-bit key)
+ reason="pass (just generated, assumed good)" header.d=phenome.org
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=phenome.org; h=
+	in-reply-to:content-disposition:content-type:content-type
+	:mime-version:references:message-id:subject:subject:from:from
+	:date:date:received; s=oak1; t=1775568606; x=1776432607; bh=I8Yh
+	8w5RqR2TlarL0EXjxRT50/mPd1NH/1bFddxO9JE=; b=UKxbmTUD+fmcX5k+eTUD
+	ThP7rBvbdkC3CCwEa2YCki2xsX9xRnkOsx1UKeM5H+umHGLAXiom3erEUc9jM7mG
+	eFQzqm2vELwrkSe4E2wHOGGRDvz9kVZhiJOUhNrBsVl86WVR1i3k+/PtGbcuGpyQ
+	28LYiUbPKRNvm2YcYV8dfdFMnjrmyTtlyRhLIBmuqUISaYsnJW8e+FyfpbG8DFyc
+	9FEA5k/5MZ8wFlrqtR4rbEwBYhuxLdMBDmFiZqtTNFukMISLzv+M5mMfLzoIMaqT
+	HrMsNe+afPwJGNartsca2d/zpUpCTNb+sc1ibYZGNKyDd7BBEckNm4/HG42FpVbS
+	BQ==
+X-Virus-Scanned: amavisd at oak.phenome.org
+Received: by oak.phenome.org (Postfix);
+	Tue, 07 Apr 2026 15:29:59 +0200 (CEST)
+Date: Tue, 7 Apr 2026 15:29:37 +0200
+From: Antony Antony <antony@phenome.org>
+To: Antony Antony <antony@phenome.org>
+Cc: Sabrina Dubroca <sd@queasysnail.net>,
+	Antony Antony <antony.antony@secunet.com>,
+	Steffen Klassert <steffen.klassert@secunet.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>, netdev@vger.kernel.org,
+	"David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Chiachang Wang <chiachangwang@google.com>, devel@linux-ipsec.org,
+	Simon Horman <horms@kernel.org>, Paul Moore <paul@paul-moore.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org,
+	selinux@vger.kernel.org, Nathan Harold <nharold@google.com>,
+	Yan Yan <evitayan@google.com>
+Subject: Re: [devel-ipsec] Re: [PATCH ipsec-next v5 8/8] xfrm: add
+ XFRM_MSG_MIGRATE_STATE for single SA migration
+Message-ID: <adUGwQbs3L6esfZv@Antony2201.local>
+References: <cover.1769509130.git.antony.antony@secunet.com>
+ <b7b1bee9456ac4ada8941c93c2cc17f07d0b1912.1769509131.git.antony.antony@secunet.com>
+ <CADHa2dAxVFQULCKnsjSmSPrK+VTJyyT-5P5BAYGdhO5wKDKqig@mail.gmail.com>
+ <aaF_SAQj4WT8jRaO@krikkit>
+ <CADHa2dCF=Cq2SMYgjHcs71VedwYaDmUXPWnNbv=46+11Mz0otA@mail.gmail.com>
+ <aa2K8pXXipCH8cke@Antony2201.local>
+ <aa_750R5Jm5qPbNs@krikkit>
+ <abBMMZWNp_zN23xL@Antony2201.local>
+ <CADHa2dCdFKE4Wg-uSmYLmh1-JEf=rZOA2WUmRbTy0S0rp+rz+A@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260403030848.731867-5-paul@paul-moore.com> <20260403030848.731867-8-paul@paul-moore.com>
-In-Reply-To: <20260403030848.731867-8-paul@paul-moore.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 7 Apr 2026 08:14:36 -0400
-X-Gm-Features: AQROBzAHeiE5r-KOh8TmARe6SlYgAd0n8yvhwUwHmTAae_PdDX5ZmAScFcPTcfU
-Message-ID: <CAEjxPJ4nqeuPhve3Fe-tFuNW9R5grnWwfYJv7q2cRu+UPQ5c4A@mail.gmail.com>
-Subject: Re: [PATCH v4 3/3] selinux: fix overlayfs mmap() and mprotect()
- access checks
-To: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>
-Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-unionfs@vger.kernel.org, 
-	linux-erofs@lists.ozlabs.org, Amir Goldstein <amir73il@gmail.com>, 
-	Gao Xiang <xiang@kernel.org>, Christian Brauner <brauner@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CADHa2dCdFKE4Wg-uSmYLmh1-JEf=rZOA2WUmRbTy0S0rp+rz+A@mail.gmail.com>
 
-On Thu, Apr 2, 2026 at 11:09=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
->
-> The existing SELinux security model for overlayfs is to allow access if
-> the current task is able to access the top level file (the "user" file)
-> and the mounter's credentials are sufficient to access the lower
-> level file (the "backing" file).  Unfortunately, the current code does
-> not properly enforce these access controls for both mmap() and mprotect()
-> operations on overlayfs filesystems.
->
-> This patch makes use of the newly created security_mmap_backing_file()
-> LSM hook to provide the missing backing file enforcement for mmap()
-> operations, and leverages the backing file API and new LSM blob to
-> provide the necessary information to properly enforce the mprotect()
-> access controls.
->
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
+On Fri, Mar 13, 2026 at 05:32:15PM -0700, Yan Yan via Devel wrote:
+> > yes I can add that. I would add XFRMA_SET_MARK/XFRMA_SET_MARK_MASK together.
+> > If you set only the SET_MARK mask will be 0xffffffff.
+> 
+> > I am actually using xfrm_smark_init() which will accept both.
+> 
+> Great! Thanks for supporting that.
+> 
+> > Option 1: add XFRM_OFFLOAD_CLEAR to xfrm_user_offload flags in uapi xfrm.h:
+> >
+> > #define XFRM_OFFLOAD_CLEAR  (1 << 7)
+> > When set in XFRMA_OFFLOAD_DEV, it means remove offload rather than configure it.
+> >
+> > Option 2: add a __u32 flags field to xfrm_user_migrate_state in uapi xfrm.h.
+> > There is a __u16 reserved currently used for alignment, but 16 bits feels
+> > too small if we want to cover clearing other attributes in the future.
+> > A __u32 at the end of the struct avoids that constraint.
+> >
+> > I am leaning toward option 2. Any preference?
+> 
+> I'm also in favor of option 2 for better extensibility.
+> 
+> >     - XFRMA_REPLAY_ESN_VAL / XFRMA_REPLAY_VAL : may be later replay type
+> >       should not change.
+> 
+> I agree we should keep the replay type immutable. Changing ESN flag on
+> the fly would make it hard to keep both sides synced, and I'm not
+> aware of any use case for this.
 
-Do you have tests for these changes showing the before and after (i.e.
-failing without your patches, passing with them)? I tried running an
-earlier set from Ondrej but they failed.
+While testing XFRM_MSG_MIGRATE_STATE we ran into an issue with x->sel
+migration in transport mode. In transport mode the selector is typically
+a single-host entry matching the SA's saddr and daddr, so after
+migration it only needs to be updated with the new addresses.
+
+For this common case I added XFRM_MIGRATE_STATE_UPDATE_SEL to
+xfrm_user_migrate_state.flags. When set, the kernel validates that the
+existing selector is a single-host match for the SA addresses and
+derives the new selector from new_daddr/new_saddr with the appropriate
+mask for the new family.
+
+I think this is the main use case. However, for corner cases out there,
+the selector is not a simple single-host entry,
+struct xfrm_user_migrate_state now carries a new_sel field. When
+XFRM_MIGRATE_STATE_UPDATE_SEL is not set, new_sel is used as-is for
+the migrated SA.
+
+-antony
