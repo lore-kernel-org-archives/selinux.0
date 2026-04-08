@@ -1,213 +1,131 @@
-Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 499B23D88F4
-	for <selinux@vger.kernel.org>; Wed,  8 Apr 2026 17:58:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DF7E2494F0
+	for <selinux@vger.kernel.org>; Wed,  8 Apr 2026 18:20:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.169
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775671101; cv=pass; b=aXpv3RbQecE4DuWHDsKeNgFvTQat1VoJxiRQKooSkA+LpK2DJ06ZMyvzMfoIK0GYhOzLmSJEnvy70aYIrhXEdi9q/HrMx/o4vf5wIoJ3TXfO1bNA1qSi7u1L+jx07Fe4dEb053eyT5dPCJ+ebJclwgeXuK8MmkuByVPgrvbJFhU=
+	t=1775672460; cv=pass; b=L7vintTsHYLvD7gYvt+SZHk30jcMeI/BLwxWhZ4S8n8Ow2evzQNBtnem6CZmx2XenSD+qsKZiJhgjkR1kXE3Mz981l2mGGvCmeDiMZaXBqq8a14k+9m9u7tm+J90SPdaF5Z07mn9T1VdTIHxqPFLKpe5uDGKyatAf6NIuC3wCFk=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775671101; c=relaxed/simple;
-	bh=e5GW/bRLMUaStgI3L1Yet361w5rKDZTWJeh1qhII0E4=;
+	s=arc-20240116; t=1775672460; c=relaxed/simple;
+	bh=Kw7r0no+BNgI1Vif5OjXlYkMWlh/9ou8ANwenCHkkzY=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Y+tunhx/elYdIIaIXeyDFdLcuRdmAPnTWO1KZ3QHddyEGjKTId0BH1dFvaeRac14PuehYNcioRTsncGCcV9JuuGINt0c8fVmmQLHr/FzQSXVRf74aSMEmYrKm9iIu8UjhmULmVfcNivXj4vxlhRRWxxypZi1wfsE6Z3lOU97AMQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Euf2jiZG; arc=pass smtp.client-ip=209.85.216.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=jmOlTbOjqe+DYU217CMits2D7KcfJ7SWtxuIPEFoY8COdKLwQk2VmeX/LmLsxPLF/2fF/KMZ0xN9smoQuQcUI57axqUkDJd4581rHMporUMlqwiTx/E7UaG2ZrjQdQ+DLMJxN1RxD/M/FGNXa2pWr1tNzkYYTy4Odro37VRnxKo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=T8kfKoqk; arc=pass smtp.client-ip=209.85.214.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Euf2jiZG"
-Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-35d971fbcddso10349a91.1
-        for <selinux@vger.kernel.org>; Wed, 08 Apr 2026 10:58:19 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1775671099; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T8kfKoqk"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2a9296b3926so310305ad.1
+        for <selinux@vger.kernel.org>; Wed, 08 Apr 2026 11:20:58 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1775672458; cv=none;
         d=google.com; s=arc-20240605;
-        b=SqMNxXN3IdH0mvribI+IDIyZl2XQtzKEDVRZg2CNPAATZoBNxrYD402m2L2Gtu2GSP
-         As+ytCywI25UaiJ5X7GmNF3KWQZQWPtn2UqvIlNToy5MbKbz3uP+dfY4o91/AHi2XxuC
-         6SJe9oFviJJjd0+ASpgWwL2p1NE+vOk+t4yAQLpKmIVr3QxATfFIK00tuCBZgTVTqJ6J
-         QWFpaemX3bmqyzGS9wZC4swTV5YLFX/QB1cHqLJJIdDpTGAzLx3VGHdFYOnZuAp4ZiC6
-         4Aq5DsxG4wsMg6Z+7STaP5MRHyWZG5EASGGh2IF4S4HCGtdh9L7URdeYbggx+sBUviw4
-         FL+Q==
+        b=Sdl7X0D2PG6areKX6mQ6wWvCCikAk6Te2Cre/o9uINdDItcqc5DrZaLRVd0Yt8cWUu
+         q+2bQcNCzhsKk1fGHAbA9qorFXpn1cbhKe6DO9Ek073Vstb4mkhbCG91K1i0VSildSfM
+         wF7StzULBs8oR1f1HvAzw4KRa1whU4YEW76uKREP80KzeEYN5dZ8cVFZapDYvT7kCwA3
+         /C1cv507qYdReTvio+wjK6jVR5SX6/aG5SwQNMnmyRNLlXWxa6QLcLOgaMtN5Zd+KdZI
+         DtFCp6haA7W/TnBDJ7N7nywXK6zOp0eBu358jNJVdHS3euXZWU4pLvxjRGHMZIhij4JT
+         QEWw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=SyuF2Md+isiLowR8SUIW8ahKPK9TwpzzN+gXSBxcH1Q=;
-        fh=lOev/QwE9DXSi83P/KluQ9UjJBSvfLYOVkCl5H1rM0Y=;
-        b=W7yFtuqKh9OPv80y8IUszN/SAAPCj6q4vV2Snz6yVP1SBBcp+lAzEkXjbZOG5kYuDD
-         gZ2Lg6AeL29er5A3a5VfajaNpfOTwyNCxOgOcVVcbQOi6BbUX/ZiBzMZFnQvDGxbupmr
-         ErTCZjE6S/rRp7o+KA+DLlA0xk0zgYazsnP/rA5PZY5X3Nl4jSexv1pUCBIcGDDnOR8U
-         7EwqkZdubrptBhNacNDag9o3+jDmXAl5KQHNSiSmCJm5ewNjCW2YPqK/O3vF4HWBRblb
-         LZzKsTcDpYwOFoSBrF35PUNPWX0xifLfBLqH6MCpqoq1W2yD4j/CvcsHIlC1oHHwG46I
-         1oVQ==;
+        bh=w+emXKINMFidjYfaKe99oJpqLvInCaqrOikEInQ539M=;
+        fh=PQ9c0cqNZEx8z6DXNbb0bdcSA3mtTzKxO1NP01n5Va0=;
+        b=gykFlOAAsrO1dDNpU28+ySaMZRTyYPAO9Yil32tBmA6S1ADBLaqITQ1/rFFxbBVeDC
+         JTa5NK13/3l16O6kPEtOOEjnKq1+pjQd7YfKzk4oko2fbB9DLTyT/4lk4iiG5t8MCYS6
+         knha6RqISF9IYdcslXCayi7XCc3Zc/CZdkwkziIypagfnbrkUCc7Dc5gO5UNLv8zfiyj
+         XUno7xi1tU4NsdYkp584O/HYhSiyD5ipcv/7KjavoBTinctzi6gHiBt0GmrYu+ladxwv
+         EQMHz/gFNotNABnh5v96EuvUjmfgIXRiGc7BzDdU+sl3VuO1h+u0LGo6V+3ewKsvr7SH
+         cp5w==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1775671099; x=1776275899; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1775672458; x=1776277258; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=SyuF2Md+isiLowR8SUIW8ahKPK9TwpzzN+gXSBxcH1Q=;
-        b=Euf2jiZGXNABWo2isEAJLvYEGC9YYrE1XtReD0TTEevxfmOG6J4SMgYLVGa/Trznri
-         U3gkO3FM4Dz7bfuG+znhRAiV4cg1ZatsnjTpW6NrPgqTzw9yRoSeYX7QLlKgw+3cOcVw
-         0d/b3eJXuaOsOthBAXWpQCYLSevEphDc+qLfnVr9t+mN5PQPQ6yOGoiDL+bWFJWEXBU4
-         kUvza5cxwgi/Gc819TBHj3Q7qFG89Uy01j82waFN4FUPo9BBtk5n/Lc3rxf1G906FB9B
-         dzi+ji5SdEzVwmS1TUupKBUIdPHtxC4bm5j6egAQdTog4UzE2X6um2JCTrAwoOqgLYbH
-         Cdfw==
+        bh=w+emXKINMFidjYfaKe99oJpqLvInCaqrOikEInQ539M=;
+        b=T8kfKoqkPgchFhnpaNTXF217v8VwEz5S9E1rpuhDZBFznyauEq2jy3sCT1Dyf8IFyb
+         gOv8Pn+q8CIN+7bqCQ/3gUeznJKw+5nSx38ml5+lIJbBCvFsmYz1zBHlW8WJv4C1R74Q
+         PR/OAwpZ7sGvJTHPrrC8JcCSh0/YB1/VfNaCrp9IN1RfeDwa3/3f2iluvkB65P9/Lj5P
+         ZU5WFX9zskqN9lNaHU3aU2RoaeZTyNdgLaKUJ43w5vZS4dIN+4SYy8oH/0LePg4pQmsC
+         RQd7VIgviIgQSaU/15cyzncBQpr8MggP2XMlqDfR34P+qt1uu1qZ13HqpK8v8R/Qy0cp
+         Un1A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775671099; x=1776275899;
+        d=1e100.net; s=20251104; t=1775672458; x=1776277258;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=SyuF2Md+isiLowR8SUIW8ahKPK9TwpzzN+gXSBxcH1Q=;
-        b=UwLDGKgAABFYbCCwzfu6cTblwNBGb9KHZMBIOeo/jJ5DxBjEs0vEHu6pmDXFx9KYt5
-         Bj5XFiVV0l0+CdYKi/xKWMGKRDoQLJNAzb8/zz0/Si+4vfwAFM7T9AnJCfocxeahVwrG
-         ha5Ie4TCy/EGHiQp0WwZC3uvJJwZ2Zry1QtH1wsKdUL6ZvnHACiGZfT4aUtGaBEJ6WQO
-         SnUTFrhW/KsJTc9BGrBnEucKg/13swV3W0Aod6t4Fn+YzEWywPNm0cBzWiL6FjH/Sy9l
-         TUZ0AT4IJDdYg4sdkFFi1TzGb4TBCs+wPLiZJub7OvGe1es0njAOHZpbUrA2DY/T6lGx
-         TH2Q==
-X-Gm-Message-State: AOJu0YztqKKCgSEp9bIFfSngb0crbV9EBQZNX9J8REHZGQdggvDzKIG3
-	q2uGadMuZAef9JpJNXUe+eCcj4+KyXiLCAKHX7iNwP7TqfBnaNGuvuTcvQ7nnRKCCVO5nZZWHOL
-	rmTDMqgc+RWiOPSRSsl8BB0Bjf4l1mwg3t8Em/+S0
-X-Gm-Gg: AeBDiesyZB3Wd2l13s/jqJqy9vf2Bdij8LikBJ+F44u0c5TC8VITm+/yHAQcLG+IRYa
-	Mkx2E0A+skFdkBn8aq2XJpqSBbJHy5a07gsoblnEBeEqM0mhC9dXxfUV232qrFbv8y1T71e1vkf
-	kb6gAg+w4EU0iYjZiHHVa5niSAaayZ/w0hxbbzusQ2sYqzcbpsI0fd2RR/93ypyIs4eYI3F9qZA
-	HIKfEbGAiBstbgMeMN1DCMr8LmF/fZK7DWbQkjAR4l/YGL5CCOebK+m4INl7MIT/j0eECnGuraF
-	EKW5sC7bIGzp9jh2CQ==
-X-Received: by 2002:a17:90b:2b4e:b0:35b:e4d4:8290 with SMTP id
- 98e67ed59e1d1-35e3543bb82mr343855a91.9.1775671098653; Wed, 08 Apr 2026
- 10:58:18 -0700 (PDT)
+        bh=w+emXKINMFidjYfaKe99oJpqLvInCaqrOikEInQ539M=;
+        b=iYFc7WtOkm+qyDpqXGJY//oBLlwSUJ0ZEUqvTZcCrUQ9C5RWxlCo3LsBtYFKHSctqM
+         pjItRVE9pS2UvAur8Pw53YUo4SiFemAO7/fqQ6QIp9xYcy7Zpwilz+BDsIsf5kQOQFI3
+         FJwqd5Y7c4LXCM0e4fz5sNvC5tCU76MyJgnz4PQsWwRMZ8M43kVD1sR1h99pB7Lqyvah
+         xLrFkAb930OVtM34F+ozNsKHvPTbvq5U9PLM2Cu2Y7RnuNT6gkljMpMvuBugXUwGC4XA
+         fpYNXQG5HWafR356fULqDwdIp7n23Ktn4iZAlkICEcxBGkrJD0j8FU2n+Duhf8gZrCqA
+         r/WA==
+X-Gm-Message-State: AOJu0Yxaei/Mqt4eGcqOKN9OBOaI6YvWIHST/gqJ9VU/tn8g+jU/sL0t
+	EnjSEN5T0ujyX0LJrK9wbxi+PBIHxJ7N52x/+/0r5aZUW5G88Ky3pJ8AkTnKHOqyl1Cr3Uq8WIn
+	9IXf/fdtLTY3eQWoatsJ5lcGPIyh1lsJWYg==
+X-Gm-Gg: AeBDieuyctRQpMBAHwKPUJKPsz/8OpP4az4AhnP7c1EUPQzE/12TqmA0VdA6fKarTm0
+	1AqZ5rhZjiNb3sc5Sv5/jGON0pn5Iiy7xj2AqMAn4Apa5RmZ63u6xA08tM3rIIaBuj1Swk0plHs
+	Vqdfet1sS66TEfezxVtsSrZ/BOI0jqYGqNwyVRl3uKHkA9UqbAsvwC13vOqqsFwm8ZTjyrE5kNs
+	pD0pYw0emqgpQ6sWDD5ZV9kGXQQ5SuYGqFZvd0pmQTZB9aLcM5sXGzgSTDnozefM/tWxIPiOpHd
+	dtGVKZh1SsTq/lqUBQ==
+X-Received: by 2002:a17:903:17cb:b0:2b2:497e:3f6d with SMTP id
+ d9443c01a7336-2b2817d960bmr240241235ad.8.1775672458288; Wed, 08 Apr 2026
+ 11:20:58 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260408174510.16051-2-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260408174510.16051-2-stephen.smalley.work@gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 8 Apr 2026 13:58:07 -0400
-X-Gm-Features: AQROBzC68wyQ4cXK3xfrHPcrGnN_qmw01rpPcxywYZ-k_ajBGFRsUI2FYmSMU6w
-Message-ID: <CAHC9VhT29U5TGMNgqJ3xz7rW8xe0SEFHa-Tk8ngw=Zn1k3Fm_w@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: fix avdcache auditing
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
+References: <20260408165106.15820-1-stephen.smalley.work@gmail.com> <CAHC9VhTz7cMmK-iHFk53YiB0cstyz7Cq_kKKc=C+7mx7evFMzA@mail.gmail.com>
+In-Reply-To: <CAHC9VhTz7cMmK-iHFk53YiB0cstyz7Cq_kKKc=C+7mx7evFMzA@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Wed, 8 Apr 2026 14:20:46 -0400
+X-Gm-Features: AQROBzD5V-bIsjMXBUUgdsxKlqw2rh3Yd6yaD9ORW_k5Zu5-ZV4K9-_V7EeQ_6s
+Message-ID: <CAEjxPJ6s74LeJBMP38RWJUqaxgSO7gDzEeNDiDU6NtkkLrVzfg@mail.gmail.com>
+Subject: Re: [PATCH] selinux: fix avdcache auditing
+To: Paul Moore <paul@paul-moore.com>
 Cc: selinux@vger.kernel.org, omosnace@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 8, 2026 at 1:45=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> The per-task avdcache was incorrectly saving and reusing the
-> audited vector computed by avc_audit_required() rather than
-> recomputing based on the currently requested permissions and
-> distinguishing the denied versus allowed cases. As a result,
-> some permission checks were not being audited, e.g.
-> directory write checks after a previously cached directory
-> search check. This manifests as unaudited permission denials
-> even after removing all dontaudit rules.
->
-> Fixes: dde3a5d0f4dce ("selinux: move avdcache to per-task security struct=
-")
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
->  security/selinux/hooks.c          | 25 +++++++++++++++----------
->  security/selinux/include/objsec.h |  3 ++-
->  2 files changed, 17 insertions(+), 11 deletions(-)
+On Wed, Apr 8, 2026 at 1:56=E2=80=AFPM Paul Moore <paul@paul-moore.com> wro=
+te:
+> I obviously trust what you've written above, and I'm only quickly
+> looking at this, but off the top of my head I would have expected the
+> policy sequence number check to catch a change in the dontaudit rules.
+> Perhaps the sequence number check is actually different than I
+> remember, or I simply was thinking about wrong in the first place ...
+> need to look at that again.
 
-Of course I hit send on my reply to your v1 patch only to see a v2 in
-my inbox :)
+The last clause was probably confusing - dontaudit rules are a red
+herring; I was just noting that this bug silences audit messages
+_regardless_ of whether they are dontaudit'd. It's not that we don't
+detect a change in dontaudit rules; it is that we are using a
+previously cached "audited" result from avc_audit_required() that was
+originally computed on one permission check (e.g. search) for a later,
+different permission check (e.g. read or write). Since
+avc_audit_required() only returns the subset of the "requested"
+permissions that should be audited and uses different logic depending
+on whether permission is denied or allowed, we can't cache and reuse
+this "audited" result on later permission checks.
 
-Do you have a quick changelog of the changes between v1 and v2?  It
-looks like the inode permission code changed ...
+> Out of curiosity, have you re-run Linus' kernel build perf test with
+> this patch?  We obviously need to fix this problem, it's a correctness
+> issue, but I'm curious about the perf impact of the change.
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 6ef9c1aade65..c279ebdb3a33 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -3185,15 +3185,13 @@ static inline int task_avdcache_search(struct tas=
-k_security_struct *tsec,
->   * @tsec: the task's security state
->   * @isec: the inode associated with the cache entry
->   * @avd: the AVD to cache
-> - * @audited: the permission audit bitmask to cache
->   *
-> - * Update the AVD cache in @tsec with the @avdc and @audited info associ=
-ated
-> + * Update the AVD cache in @tsec with the @avd info associated
->   * with @isec.
->   */
->  static inline void task_avdcache_update(struct task_security_struct *tse=
-c,
->                                         struct inode_security_struct *ise=
-c,
-> -                                       struct av_decision *avd,
-> -                                       u32 audited)
-> +                                       struct av_decision *avd)
->  {
->         int spot;
->
-> @@ -3205,7 +3203,8 @@ static inline void task_avdcache_update(struct task=
-_security_struct *tsec,
->         spot =3D (tsec->avdcache.dir_spot + 1) & (TSEC_AVDC_DIR_SIZE - 1)=
-;
->         tsec->avdcache.dir_spot =3D spot;
->         tsec->avdcache.dir[spot].isid =3D isec->sid;
-> -       tsec->avdcache.dir[spot].audited =3D audited;
-> +       tsec->avdcache.dir[spot].auditallow =3D avd->auditallow;
-> +       tsec->avdcache.dir[spot].auditdeny =3D avd->auditdeny;
->         tsec->avdcache.dir[spot].allowed =3D avd->allowed;
->         tsec->avdcache.dir[spot].permissive =3D avd->flags & AVD_FLAGS_PE=
-RMISSIVE;
->         tsec->avdcache.permissive_neveraudit =3D
-> @@ -3249,11 +3248,17 @@ static int selinux_inode_permission(struct inode =
-*inode, int requested)
->         rc =3D task_avdcache_search(tsec, isec, &avdc);
->         if (likely(!rc)) {
->                 /* Cache hit. */
-> -               audited =3D perms & avdc->audited;
->                 denied =3D perms & ~avdc->allowed;
-> -               if (unlikely(denied && enforcing_enabled() &&
-> -                            !avdc->permissive))
-> -                       rc =3D -EACCES;
-> +               if (unlikely(denied)) {
-> +                       if (enforcing_enabled() && !avdc->permissive)
-> +                               rc =3D -EACCES;
-> +                       audited =3D denied & avdc->auditdeny;
-> +                       if ((requested & MAY_ACCESS) &&
-> +                               !(FILE__AUDIT_ACCESS & avdc->auditdeny))
-> +                               audited =3D 0;
-> +               } else {
-> +                       audited =3D requested & avdc->auditallow;
-> +               }
->         } else {
->                 struct av_decision avd;
->
-> @@ -3263,7 +3268,7 @@ static int selinux_inode_permission(struct inode *i=
-node, int requested)
->                 audited =3D avc_audit_required(perms, &avd, rc,
->                         (requested & MAY_ACCESS) ? FILE__AUDIT_ACCESS : 0=
-,
->                         &denied);
-> -               task_avdcache_update(tsec, isec, &avd, audited);
-> +               task_avdcache_update(tsec, isec, &avd);
->         }
->
->         if (likely(!audited))
-> diff --git a/security/selinux/include/objsec.h b/security/selinux/include=
-/objsec.h
-> index 5bddd28ea5cb..baf7564c6a2f 100644
-> --- a/security/selinux/include/objsec.h
-> +++ b/security/selinux/include/objsec.h
-> @@ -33,7 +33,8 @@
->  struct avdc_entry {
->         u32 isid; /* inode SID */
->         u32 allowed; /* allowed permission bitmask */
-> -       u32 audited; /* audited permission bitmask */
-> +       u32 auditallow; /* auditallow permission bitmask */
-> +       u32 auditdeny; /* auditdeny aka ~dontaudit permission bitmask */
->         bool permissive; /* AVC permissive flag */
->  };
->
-> --
-> 2.53.0
+I have not but this doesn't introduce any extra function calls to the fast =
+path.
 
---=20
-paul-moore.com
+> I also wonder if there is a cleaner way to do the above?  Maybe not, I
+> need to look at the exact code we have in-tree, but it seems like we
+> have some not-exactly-the-same-but-very-similar calculations in both
+> the hit and miss cases.
+
+I would have reused avc_audit_required() in both code paths but that
+would require saving a complete avd in the task avdcache or changing
+avc_audit_required() to split out the fields as separate arguments.
+Certainly doable but not the minimal fix.
