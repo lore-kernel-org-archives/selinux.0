@@ -1,154 +1,169 @@
-Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36B2835EDBD
-	for <selinux@vger.kernel.org>; Tue,  7 Apr 2026 20:21:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.179
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775593314; cv=pass; b=qmYy43eJk8DzRL+CI409Ihb7nIl4IYv7RYSVvYlcS0ehSfLefesjQjf7mDJ9V/cc5HlO9flLOgKJopGaF4jvuM52GLKsN3mYfJwbwMeiJZ6LvEPiTgSoR0haMm0lyp4PEWkNdXaB+79wdUuk8Y15X46EPeoYcrmeAyraNq5dsmo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775593314; c=relaxed/simple;
-	bh=s8r+Vr1ig1OhurHXWjJkYiIRQ8nvrWmPw/5iPQbFVX4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ovH01Wc+xE51dbD0Bi2TbE2M2tAN13Mg0iD1q/UOHmUD/GRliEmqve7zZhNgpEjwW6n5OP0Z9nVduKw2ccC6O0Pz1j+yLvmCwXTzgpeO9iCGd+QaQtgsMBbvldAjfgTWbPQ+OJ/fyLLYOhzo1DjJodFw5Q2DV/WEEjXJU4ND93c=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=IC2Mf/76; arc=pass smtp.client-ip=209.85.210.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11FE63C65FF
+	for <selinux@vger.kernel.org>; Wed,  8 Apr 2026 16:51:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775667110; cv=none; b=fL6awJ4W9j0VxrwP91rztjEJx51UBIPhd4IF/8akyb+XnfuN2jLejb1JjdKLKyJwUNF+Q+bsYY9VvJKKEL16iGgiKwEXxG794ETGywIzQc5v9g5gRIZnjLV+BCiP6R6TDdxY46JNlJaEt/VxY/JdzWFVCLt6lcz832ODfL9V6Ps=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775667110; c=relaxed/simple;
+	bh=vtKku1Q0Q32dZCxN4CzzeYB6M2HOQ8uM7htpFs4pWL0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=HRVJW7T2d/kJXesJeWpXjufOnF3bspQ4QodXJmi2yIHv6KBUOgcfhqvzeS4DUH0VFHW1/RvMCKDE0Zsys1qBelToWpWQGbiP50dKA5BmP0nyugiz2MZMr6e9hLJ1v3YUWFuZwxVTXtkrSm1eewQsIDuhUpwa/VDPExQmOv4JM0c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EWQhjPo7; arc=none smtp.client-ip=209.85.222.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="IC2Mf/76"
-Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-82d0b68837aso2315827b3a.2
-        for <selinux@vger.kernel.org>; Tue, 07 Apr 2026 13:21:53 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1775593312; cv=none;
-        d=google.com; s=arc-20240605;
-        b=i5jPQqIf2CiBgfrBszc3f+0ai0WzV0eid5tZchpI1MF46OlQgTUoBFBws+IEh/HNrm
-         b9pZtUIVtESM2vIa+RWA2sbBGJZdk8nNNNHYig7tCL96sj/yHmCdZxecoSmN8dYxVLxe
-         ZzsdUsS7UvHfoZVbDqjFaqxaWUueYGQBhAV6XzaS+JaOaSdVFfvIPVD56rRYuxDjYeOQ
-         6D+27ejqnayUnfhEBINq2Of4dvwH5rPlgEwrIvVbzPyRfu21lcnZfXfEbdRvn4ONIQ9+
-         6h2WgJanVZKitf0qJGdpW73HxW3nux6/PtoJwHQjzCRiXOdn19MhevUutNvrjAqLBwCE
-         VuEA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=/8nRFvW3dvzP0f1HI4A52To34cw9HB6EK5c+K6burZQ=;
-        fh=7T/Kz9KD8RCHByrKxptK3cqsLvVI4FRNv+MXiflWHyg=;
-        b=Q4Vk5lb5/h2lxCND8mv1NKcz5aR+liA3ulw8TzETHptNHMHQCyMpCLHKX/nRx/E9m7
-         HfEmCDznlxxLUh8hcBG9AB/PJZmr9Vi5QkawYwA3pgBHsrxYlYMjgYKX4ACA0vBmKy7W
-         iPBhhBwORpIuBOPfkXfi18fqmpfrDTRUd4N+25bBtpMsx7hcHI7+rDGQbY4BKWF+VbPv
-         QPJrqYwxyszokZ5BovG6K6FYwsZ6gOy8NwLePs0RfiERPK0omdKgMWO5iahGW/VGFK58
-         6MUCW0k5voQAqoZKsRcj+HOL3u94y1EVgLFyWlVMASypeaibKWz01ZhMxB0tIZ47YRvx
-         3msg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EWQhjPo7"
+Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-8d67a483d3eso11983885a.1
+        for <selinux@vger.kernel.org>; Wed, 08 Apr 2026 09:51:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1775593312; x=1776198112; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/8nRFvW3dvzP0f1HI4A52To34cw9HB6EK5c+K6burZQ=;
-        b=IC2Mf/76v9d/4+Vh6KzdO1wOwI2ty3/6KLd9aw31Jtecua/uQWbW5+nbP4siULJXMu
-         6WeZ1BfHZ68bJ22X9VtLypqRXjl5TwOS05KNkt2SbxiZchp30K2/GorVjvcNyKmbIPU9
-         nnnIuWJeqVhuZJmechP9u8OQX238BxxuBGR8k+bJosBBkwvg1eOOAIWdz02ujgKD2EnO
-         QXSsuX0SyQ2T+plZugFMZaXTvgf8v3+ULApDpbgmCr/IcrTr3eslMgmePJRq0n+iZO0c
-         pqfSpiQEmQlmb0/EhCC8SEAUleZLDhRSmcB0Exsg60oNRTQyjVLuIEgm4TsxM8845Nuf
-         ccvQ==
+        d=gmail.com; s=20251104; t=1775667108; x=1776271908; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=eCR1SbxvQZPysvYdIa1VHu4dYE+BHkfNSIgxIK9At8I=;
+        b=EWQhjPo7NPDkf6Ipt0B5knGtNv346BpkzPCaxBPRgmcPw95V79WQjKfAM/UAUZ+oIb
+         25wsvCNSqZZcxZ4ZQcieEfTiFSTqQwR2cdjQgk/CjBRPmqPG6zWE17LTfJUJtMFaKXjK
+         dPZwWr6YQk+HIZzCS8A+bNjEjuzBMuRSFS6gOw0zNBHgLZhXP9YlS/2VVyeH3sa6/wPU
+         dgbY5IOz53hRrRb0i6IAqnP6uwAl/psPjSJZSe1aMncvGZ2RQ/kqBOaHKB9O7FEa6aMO
+         SYjLnVtjCMRf0t0rK6K8om5sVl7n6+vBUj9XPjapreSXoohmOV/i0BekMjFeuzK6FEyA
+         IKSA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775593312; x=1776198112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=/8nRFvW3dvzP0f1HI4A52To34cw9HB6EK5c+K6burZQ=;
-        b=n91fRhKf0ybI2grIVqivhv+hjkVgV5co5kbRzCuXfwUfJRJKKqv1Caoe58/EWUrN/4
-         2V8/clKlpkgPFm6++beSLIzxKyerBeQlhw/kBte7QKbPOLo+JItXPjvG33Ruds2qz8VD
-         BFhVejFmezxdoH96uS5hFJ0MDbo4PJpqfMPpPEWAQxS8XPqB78spdCCc4WwIR9u8ttHy
-         f4KYUme6uJDWouN+TP9p+2CLjkWMHb/1Pmfbt77sS8aAMndN9W41AScdu3L70czn3Ntc
-         KOb6K+Y0ktRz5GCErnQknQZjId86Ry18Nhk3Y1jTefC6A5yeY6OAdqpf7o/dpS1t7gX4
-         FT0A==
-X-Forwarded-Encrypted: i=1; AJvYcCVVLdPbF1FmID7fPLvrKWlrKoGNLPmvTufvVVuTdikub187vll91aBxhj3horVpJLsQPmqjQKZL@vger.kernel.org
-X-Gm-Message-State: AOJu0YyOPwqNJN4VnVSZECapC+ETBpgOcTNJ9hHXbXx2awfpQFlGXWHa
-	hbdYqjfA/oVncDRuP8YAO+UdcAHtk0B5WL7lNBrrhWVf1BinviyQvpxn1qY06XobE8gGMgvBDxs
-	9TcSfkIMz6yh7IWIQ1m/ZEKVnuTJ2AoCqFe4Kk/Gp
-X-Gm-Gg: AeBDieuy9Q6DOLyy7wWaFs8Yc8eWfKuen3k+oZMXC7XgyAjhmdbQjizjppmr0WhaECa
-	vY+pDDigaAHwRgeCNqSe7ay4Z0FGiGHazNDo3WrGvks89Yw2H+s4kJQBZxhP/GK+aWlgORxj965
-	lTBMUpdlLjDvazMfFMZ9vl7xl74rq3tnzCK9EjS8+7E8Yz/LbHSKPm66PgYGkjsEbpVFltjgWiC
-	J2ynESzBSF9g8cS86CiLMq7kNELNw9aJRsgObIPcryX7TQPi/34H0Rc9BjkYjj5JTb8+4Rpbemp
-	SZXexPIv/VF0ahkLGQ==
-X-Received: by 2002:a05:6a00:1a89:b0:81f:4a36:1c7c with SMTP id
- d2e1a72fcca58-82d0da74ce9mr18411507b3a.23.1775593312517; Tue, 07 Apr 2026
- 13:21:52 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1775667108; x=1776271908;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=eCR1SbxvQZPysvYdIa1VHu4dYE+BHkfNSIgxIK9At8I=;
+        b=Ica/9jB1oCFdqMNrOtfKVEueKI5zDuS/OzpBi1E683uY0f5G7zcgDHKdSR7Ebn0ycX
+         GpSnhA8ACDhHT5dZDtizT1ClbOYlHLiEjF1ZcCrIhpCesbsNQp0iUoFG2pgfIV58sPqr
+         UDs35Xwkk6v6DpF7vQFeD2xYHi8l8KwYhkAOH5ytGM2L07Xts0honYBK9a66Nks0WVh7
+         QswaKzmgOFzzgoEaVXi8t8hDPEfC1cKun1TbPy/DMUlKUfqVn+3/f8xTY3KZ8pnOxm/0
+         MsobwcARpbI/uMlYhmAdtcnLUiXniidiUPvY+L9ecHF0zIkRYBjcl0hNLfElDbKYWXiz
+         qoRg==
+X-Gm-Message-State: AOJu0YydT6tqSZLsubuMpzsmfk8GFVWvYckxIqg0QpUfTVR9sQCJJUpJ
+	gtAjz63Qwh0X8Sx4q+Pfb7/y9cFpuZLYvGiuJkGZ2fwn0LtZbAzGTMU7vaJzUQ==
+X-Gm-Gg: AeBDieunk8g3oPSnS4wvTACiCq1niJJ01h3oTAO74cYtUZczH4M/1fov5jYarbXc+Oy
+	Wgs30KBjyf/ut1N2U40c0mammWBWin2wGA0pyT9O6FCfKZaNNcoKjCqmHoWLNOVE9mpUX5bfpg7
+	0UaYCFmmEPaOzfs4RFt8Ea5VGu6TsLgMqekYfkMVt9NB0pPSDSdjzG6nvn45LwPwFCAoF8kKb6+
+	cSMqJ08Xt7lsGI8TyoGeRQ7hPJIlMHN/FYcD/hJnTyPm7BMbffyz0D5FVtsqioNGL18nhtn9AXO
+	ns/SbmoP0E/lqctcXbgst4xmMYkgnpknZmMXteqPbWFvi2RCvSS/2Lfu2objX+oExTtgWsadO5e
+	UPGGOScJjcGI659jhkHLmkym7oOYtBtV8hzZJwm+IdYXaNfYSMRIsp/olCs1GwW64Yl+rfLATq6
+	WukNeoMoS0C3pOtCDCk5L8x0WKNuDLpSFH2RQlyCZTPvlrJxJSqA6CqMZByS3CW8QwB8260ItYP
+	etbgiY19bOR7oynsMCy8vWzkfBykPus8g73SEF4Lz0ZiD1ZywAEpxE=
+X-Received: by 2002:a05:620a:3707:b0:8c5:2ce6:db1 with SMTP id af79cd13be357-8d41b8df39dmr3162690585a.3.1775667107691;
+        Wed, 08 Apr 2026 09:51:47 -0700 (PDT)
+Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8d43e17d30esm1336578785a.6.2026.04.08.09.51.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Apr 2026 09:51:47 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com,
+	omosnace@redhat.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] selinux: fix avdcache auditing
+Date: Wed,  8 Apr 2026 12:51:06 -0400
+Message-ID: <20260408165106.15820-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260403030848.731867-5-paul@paul-moore.com> <20260403030848.731867-8-paul@paul-moore.com>
- <CAEjxPJ4nqeuPhve3Fe-tFuNW9R5grnWwfYJv7q2cRu+UPQ5c4A@mail.gmail.com>
- <CAHC9VhQnA38-9wDeVmOMxAFPHnd9y6x5LXtD3cSquGiL_MDDpA@mail.gmail.com> <CAEjxPJ62=0v9QYJ6s0DrwRp4WZna8f9wnuM_DUUNrcz2dd_kog@mail.gmail.com>
-In-Reply-To: <CAEjxPJ62=0v9QYJ6s0DrwRp4WZna8f9wnuM_DUUNrcz2dd_kog@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 7 Apr 2026 16:21:40 -0400
-X-Gm-Features: AQROBzC_mkg1V6Olu64dm2ucorBxgS86oz5XW-KOWVbdzobSFYHPihrj_73P3oU
-Message-ID: <CAHC9VhQ5PH99EQBuYq4c7Jf82UXiDfC7qzM2kvnZuyH6yFPL_Q@mail.gmail.com>
-Subject: Re: [PATCH v4 3/3] selinux: fix overlayfs mmap() and mprotect()
- access checks
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Ondrej Mosnacek <omosnace@redhat.com>, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-unionfs@vger.kernel.org, linux-erofs@lists.ozlabs.org, 
-	Amir Goldstein <amir73il@gmail.com>, Gao Xiang <xiang@kernel.org>, 
-	Christian Brauner <brauner@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, Apr 7, 2026 at 3:20=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Tue, Apr 7, 2026 at 10:35=E2=80=AFAM Paul Moore <paul@paul-moore.com> =
-wrote:
-> > On Tue, Apr 7, 2026 at 8:14=E2=80=AFAM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > > On Thu, Apr 2, 2026 at 11:09=E2=80=AFPM Paul Moore <paul@paul-moore.c=
-om> wrote:
-> > > >
-> > > > The existing SELinux security model for overlayfs is to allow acces=
-s if
-> > > > the current task is able to access the top level file (the "user" f=
-ile)
-> > > > and the mounter's credentials are sufficient to access the lower
-> > > > level file (the "backing" file).  Unfortunately, the current code d=
-oes
-> > > > not properly enforce these access controls for both mmap() and mpro=
-tect()
-> > > > operations on overlayfs filesystems.
-> > > >
-> > > > This patch makes use of the newly created security_mmap_backing_fil=
-e()
-> > > > LSM hook to provide the missing backing file enforcement for mmap()
-> > > > operations, and leverages the backing file API and new LSM blob to
-> > > > provide the necessary information to properly enforce the mprotect(=
-)
-> > > > access controls.
-> > > >
-> > > > Cc: stable@vger.kernel.org
-> > > > Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > >
-> > > Do you have tests for these changes showing the before and after (i.e=
-.
-> > > failing without your patches, passing with them)? I tried running an
-> > > earlier set from Ondrej but they failed.
-> >
-> > A few months ago I sent you and Ondrej some feedback on those early
-> > tests from Ondrej, but yes, I also had problems with Ondrej's tests.
-> > I've been using a hacked up combination of the existing tests, some of
-> > Ondrej's additions, and an additional debug/test patch to ensure the
-> > labeling is correct.  It's far from ideal, but I didn't invest time in
-> > test development as I assumed Ondrej would continue his efforts there
-> > (unfortunately it doesn't appear that he has?), and I wanted to focus
-> > on getting a solution as soon as possible for obvious reasons.
->
-> Ok, I'm happy to look at even unpolished tests - just want something I
-> can use to exercise the before and after states.
+The per-task avdcache was incorrectly saving and reusing the
+audited vector computed by avc_audit_required() rather than
+recomputing based on the currently requested permissions and
+distinguishing the denied versus allowed cases. As a result,
+some permission checks were not being audited, e.g.
+directory write checks after a previously cached directory
+search check. This manifests as unaudited permission denials
+even after removing all dontaudit rules.
 
-Hopefully Ondrej can provide an updated patch.
+Fixes: dde3a5d0f4dce ("selinux: move avdcache to per-task security struct")
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ security/selinux/hooks.c          | 21 +++++++++++++--------
+ security/selinux/include/objsec.h |  3 ++-
+ 2 files changed, 15 insertions(+), 9 deletions(-)
 
---=20
-paul-moore.com
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 6ef9c1aade65..a77a9aa43ea7 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3185,15 +3185,13 @@ static inline int task_avdcache_search(struct task_security_struct *tsec,
+  * @tsec: the task's security state
+  * @isec: the inode associated with the cache entry
+  * @avd: the AVD to cache
+- * @audited: the permission audit bitmask to cache
+  *
+- * Update the AVD cache in @tsec with the @avdc and @audited info associated
++ * Update the AVD cache in @tsec with the @avd info associated
+  * with @isec.
+  */
+ static inline void task_avdcache_update(struct task_security_struct *tsec,
+ 					struct inode_security_struct *isec,
+-					struct av_decision *avd,
+-					u32 audited)
++					struct av_decision *avd)
+ {
+ 	int spot;
+ 
+@@ -3205,7 +3203,8 @@ static inline void task_avdcache_update(struct task_security_struct *tsec,
+ 	spot = (tsec->avdcache.dir_spot + 1) & (TSEC_AVDC_DIR_SIZE - 1);
+ 	tsec->avdcache.dir_spot = spot;
+ 	tsec->avdcache.dir[spot].isid = isec->sid;
+-	tsec->avdcache.dir[spot].audited = audited;
++	tsec->avdcache.dir[spot].auditallow = avd->auditallow;
++	tsec->avdcache.dir[spot].auditdeny = avd->auditdeny;
+ 	tsec->avdcache.dir[spot].allowed = avd->allowed;
+ 	tsec->avdcache.dir[spot].permissive = avd->flags & AVD_FLAGS_PERMISSIVE;
+ 	tsec->avdcache.permissive_neveraudit =
+@@ -3249,11 +3248,17 @@ static int selinux_inode_permission(struct inode *inode, int requested)
+ 	rc = task_avdcache_search(tsec, isec, &avdc);
+ 	if (likely(!rc)) {
+ 		/* Cache hit. */
+-		audited = perms & avdc->audited;
+ 		denied = perms & ~avdc->allowed;
+ 		if (unlikely(denied && enforcing_enabled() &&
+-			     !avdc->permissive))
++				!avdc->permissive)) {
+ 			rc = -EACCES;
++			audited = denied & avdc->auditdeny;
++			if ((requested & MAY_ACCESS) &&
++				!(FILE__AUDIT_ACCESS & avdc->auditdeny))
++				audited = 0;
++		} else {
++			audited = requested & avdc->auditallow;
++		}
+ 	} else {
+ 		struct av_decision avd;
+ 
+@@ -3263,7 +3268,7 @@ static int selinux_inode_permission(struct inode *inode, int requested)
+ 		audited = avc_audit_required(perms, &avd, rc,
+ 			(requested & MAY_ACCESS) ? FILE__AUDIT_ACCESS : 0,
+ 			&denied);
+-		task_avdcache_update(tsec, isec, &avd, audited);
++		task_avdcache_update(tsec, isec, &avd);
+ 	}
+ 
+ 	if (likely(!audited))
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 5bddd28ea5cb..baf7564c6a2f 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -33,7 +33,8 @@
+ struct avdc_entry {
+ 	u32 isid; /* inode SID */
+ 	u32 allowed; /* allowed permission bitmask */
+-	u32 audited; /* audited permission bitmask */
++	u32 auditallow; /* auditallow permission bitmask */
++	u32 auditdeny; /* auditdeny aka ~dontaudit permission bitmask */
+ 	bool permissive; /* AVC permissive flag */
+ };
+ 
+-- 
+2.53.0
+
