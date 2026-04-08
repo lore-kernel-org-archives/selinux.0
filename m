@@ -1,224 +1,152 @@
-Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
+Received: from mail-qv1-f47.google.com (mail-qv1-f47.google.com [209.85.219.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 786413D9DB1
-	for <selinux@vger.kernel.org>; Wed,  8 Apr 2026 18:23:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.173
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775672597; cv=pass; b=YSCacjDn0eG8/Y7BcxsTCXEZJyps5wkhm7JAy8gihMbjQlryqdk4shIXVzzmpvIA47Agssbh9plCHpWyorYWx5JwuCj2/HE/horcntxREkkdarUEXjp6R192SPq7ecqYrYPNhFgry4EStl+8F3Ms8TDE6l2iPjrb93R5j/o4UJo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775672597; c=relaxed/simple;
-	bh=Kk2+dP44UCAXbh1I1BEijucJumgyTn1CfOLUdd2rsws=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=TVXCMgNLmZKDn69VfGa6PnSw75En8GMCNX4EoiK6V1wN9T12mL92WOpFfh2QHFfSOEP0mooDjmxggYbz2DkcXGPxzmIyU9VLKsERBsmHSsRECCw9jhgXbQ/VrM6bV8jX0vz1vRxbfiAkJ1EzXhO1PtxLRf6w7W3XtrEN/CC7uBQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TEVnDsID; arc=pass smtp.client-ip=209.85.214.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FD0E38F94A
+	for <selinux@vger.kernel.org>; Wed,  8 Apr 2026 20:23:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.47
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775679782; cv=none; b=koUyAbMLXkQcHANqdUfrj6XUY7VNfwzBby94doalbJTdx89/UEij+sccoyC5YeJr1Bkm6tj6E4qjKIK4z8bJQOjdHF46Y0i9QDHEo+Ii8QxynGRIP+WkdOZYkPIRpFyxkmH6CQyfUIfJ+ufPbpBx6zrENkzr2S+fw32RbVbGsFg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775679782; c=relaxed/simple;
+	bh=zH+750UCTw5Sk+5/9IeJsmlho/AP3YTPUl3ugzzcwI0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=UR7uvqYDu89E6x52QD8iECcEwRCJzz7R0TqsTJhEgGXMFlfS5pGvWkyPc3Zz7m3gir0H6SVL7lbp+f83HxGM/cqiW+y21xr9M+VNrz0II2PWiyETDKZXS2HnDGSeQrUcveZg/xsxiqjca7fxptUMna2USceofdhM2KFG1FhiyYs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IimsxKUJ; arc=none smtp.client-ip=209.85.219.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TEVnDsID"
-Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-2aaed195901so354385ad.0
-        for <selinux@vger.kernel.org>; Wed, 08 Apr 2026 11:23:16 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1775672596; cv=none;
-        d=google.com; s=arc-20240605;
-        b=HBkNrbNnxr1F0aQu4DVfqofnaSEFf1Ti+NIsIPITpBBmLBD184ZpCBKU8mi0DTx/FM
-         WTg6kmiabRb6Kv+6SbTsKA6raFg3GVmLYvirRbwj1X2s0VJxZg473CGFpKM4FlZIHnCk
-         LrS69VuyoDovWhMaXpLQde30s5861zEgiG2fXbjJ/xf0PrHU6FgJj9LJ/hC3Ldp5YOFX
-         p7BXg0Z7IQ/thgNcNeRqhwYjM5aXiluYMQXqoR7/sZ8IfeXwIZuJH5GkhAx0rautd1j9
-         NhAIzPLWFvhwRSarFdDgObik1+vtbxVefWDSEhA1M/B59JkmOw7LVW7cU1ak0cKNXEYt
-         HaaQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=leq3cPTcAMRWmqjASpRrveogKnxWbRjBcRWMID4Uc3I=;
-        fh=PQ9c0cqNZEx8z6DXNbb0bdcSA3mtTzKxO1NP01n5Va0=;
-        b=fkoehZ8DZ6WQEs2wXRd5bAmRaNMcF5DhjjrXsjOvfEWO0svqiVei2JVeGjADkp0mm3
-         Z4uxxMnf9LUcK0QcXS+s4bx1RYPOref7q1F9MVIweanzHZktctDRPnvcOx3YjvC8bqkb
-         Eu6o5en6KbYtU0NM4cQUQW7g01IKwR1kXSHzhhb76RjxeFZIaAbngcQGXXXxDyeK3YVH
-         xOcYj2QjE6MzZGehfD/h7X39eYpwrox7ONRtYqZjurdGdN9YFhXpqeGq/c3lwUXRUa4K
-         Bz/5zC9r/GUKsEWqfgn8qG1IIsFt+uyiCoDCFskuoAM1362wORxJA0xyrUa+Y3daOrMk
-         PKsw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IimsxKUJ"
+Received: by mail-qv1-f47.google.com with SMTP id 6a1803df08f44-8a00566c11bso2132166d6.2
+        for <selinux@vger.kernel.org>; Wed, 08 Apr 2026 13:23:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775672596; x=1776277396; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=leq3cPTcAMRWmqjASpRrveogKnxWbRjBcRWMID4Uc3I=;
-        b=TEVnDsID8lAtc/UWJDkG1Xnb90ycuHJ0sM9lT6brTrcpQhHQ+0IFTwaKTGJDSvePXq
-         gYytmCrYQ13YTO3xSu5oeXmsz1MTjLhH5R4yQS9aVfd65UJILuRE3NPnToGL1KpZwQXn
-         Ee6raW/iUKQb9pKVdIYyDlsqjZt1FwEmzo01/c0Hc8pKTOwR0JvJFZQj8PaTxBEVHJEg
-         z1WqS2TDce3arc/P6mDFL8CZkQgHtR7vuzx2MF8kv2WiXkNCVdBELI+m58kmCN4Q3/DY
-         iXfj30bU09A0n3FRIFfrlGrAmrvZd0lQ/jKOXNGovzZrWDL67B9KBEtenJpy6+2XZeuh
-         sdIA==
+        d=gmail.com; s=20251104; t=1775679779; x=1776284579; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=goChYZrT+p9dB9akj+uJa+BCXnatXKHq+bAWFgK0NvQ=;
+        b=IimsxKUJ+qheiAXafkB/Zdqef0JiNu1LFCjP1fnC/qY0qMhR4wH5yc2bYQpdOdM7cy
+         DNVrdNw+bK43t4BZkMv94coc5ceGdAM4wQ3F9LP5oA3VUv94PigPI8ymcXHCzX3baeT/
+         LDT2+tj2980WxXfj1uhBgdsqPmlkB7BKz04Na1Mq4hwKgBWJiqJVE40MSqGFPIEL5XXM
+         J03L1AbugoYCJz5CiA6J4L/CcvEPoQ5iz+UYwZTU5EHienl9pKgC3CVbtk6VO1xVC0mK
+         /ZOBKv6fRyzeVmKfqSPVfZjw5GjLo6f4+LOrM8UTrmTR7MsLvDQxnZTa79Pk97xcxs6m
+         aO+A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775672596; x=1776277396;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=leq3cPTcAMRWmqjASpRrveogKnxWbRjBcRWMID4Uc3I=;
-        b=ADWYohn62jdfVk3wsORBjA7nm6CBHbvPASq76XifzmJA+bpDBEWwrBFkQxRVK1PFqi
-         l6FtK+qSbB/mN2ei2SZk7gs+SphF3RS/citxlNz2lxWTIdLXlRNWak3SMBx1adGYwieI
-         ExKLptr9UlRAjA0p6NIbwPzDPomMiQWIYpvfmu/92NDlQ/mKKtSYPTv7lz/1l7KaHUGd
-         p8C/9PXDlcVIkMZtt4BG700Lt+ccyDum40eloPOlBAUOMzXGUZ350NbCAF/FY5sXHo5H
-         /fcrmcINVZ2fxyGARXZVE5pBp3EiBAc8Hcqc34iJeSUnqEkWl2aXGOGg+9lZnAy4CFF6
-         lzWA==
-X-Gm-Message-State: AOJu0YynVFEYfza8EgVKEMN475AhGy9drbDPe4iPiJ+/v7jp6tmN+L4Y
-	UONWp35QpGZc6XLo7MNF4Fc8mfPPYNt+uNt8VetcRBSU1ExXRUcIDrInea1am4KIlp29fgjBp4V
-	qn7P8oVyqCAOf0zxaIVjyu9AgNQPQKqmA/g==
-X-Gm-Gg: AeBDietgtdDFxnQBcB+T3U2n/Jw00q6c690v2cB+9ybKpUPqpQbmBvVK3LwJRIgDKOT
-	Fr++iS+IWaEW8o8TUNpGpk0ZHw2cCkWLZkGaOtO5Y41X4gpvk3UNYuj6h5/y2VwEW9i3H67vp4d
-	7Bh50qm/PVlZcRTpyiOTOga0Y7LuQJyObab9FZX9mL7kmxg0szXHJfiWbpMB+y0AKws4/gljt7g
-	bNSZYnww19AM5arF1CoFwGxgXYfcdVPTfmkfO0PZlzSbaEHs0zzaYeFCnZMj1C+urjYPV9ao9O5
-	QAGA7Fo=
-X-Received: by 2002:a17:903:3b84:b0:2b0:4579:ae6 with SMTP id
- d9443c01a7336-2b28186a051mr205204855ad.38.1775672595771; Wed, 08 Apr 2026
- 11:23:15 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1775679779; x=1776284579;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=goChYZrT+p9dB9akj+uJa+BCXnatXKHq+bAWFgK0NvQ=;
+        b=DX9yMW5uIOsrzzbf606fNkSt9IaXX1tCXuBkgyvamDfzpLnedoGC60vCRP4JkoHQMB
+         x91dfPrKpHL3rSzTEc00Sfr2rC4P9hxdFoF4PMCtz14i2rpUtO8oFqUyBjteyX3DVmsx
+         H0kDiThKaP97+lTErbaIuOLty4ATJHfo4fNR36aCWLrMRPVftoZp9c4/Hpfm4UOERLzH
+         asRNl14gTS0CephSBV2Hi+CWLngUkYW6ag+9cKv7yJELj+PLvfMx+EHb06aM8NZCqw4E
+         fCniqIX8C4/lH12fVF006O3mPvw0Oe4VzNhC+4yi9JLLREecusr4tQxshsfMJejmflRV
+         T1Ng==
+X-Gm-Message-State: AOJu0Yz5e/EasHLFyA0O9tCKQ1QQiaaC3GnFFdIYiwUo6C3oZQG7W9yr
+	U/iF1MkHSZE7exIObcbgGgqU5AOPUcNB9BtaiBNxpqUWpEnfkajlVthm02vW8g==
+X-Gm-Gg: AeBDiet7WEu3f+RkzZCGUFKvdNUs4hJxl9rwnrysjFzgM2gHvgxVf9wPJ9wTpJP3l+e
+	nDvfwgBd20KmnEvceQW+8JJ/ytkQwt0nOPp3Hi4rgw2Y/fAX4DQ4BqfZfNQQJrDd8hzYe2PSaPC
+	rWVDQT01x/YmHxwbz6qKqRUCzVKd+VJYLq6VnLtL1RCvv1yrVHSjdaViAo5qfVmiqIlAD0v41UM
+	teukTMaSk7ul97+01gV2cgY7JB1r8kCMgrFpDzw+oI6IRwalu96QCkmjM7FZFnWtq0ABur+Fj1H
+	p5T7C6PiXyMpoOuWyXF9tQa3H/5GWlrC6nmcTLXgbtiVRnK3YB5HP6ssnI1dGfKrtaLIazthNV9
+	BN5HlBpw/yATbuaJe3RbqzdWqu80RyopIlpgtnM+9TvU8QWjXJIazugWwjoxvW6OEieawwtxGqh
+	tLA75+uAQGiJPjY2s4N9UJ1+EIgINm0PzFtPYwP5NJcvU2yk8xU66Munm/7EL8gEzVghjLuy9eM
+	MdWbKKog/e7T5IyQh+9/7DnG1ozwUFUdMoOlufrmjZv5MpzUZs0h2M=
+X-Received: by 2002:a05:622a:590:b0:50d:8293:c53b with SMTP id d75a77b69052e-50dc2332e0amr12891981cf.61.1775679779341;
+        Wed, 08 Apr 2026 13:22:59 -0700 (PDT)
+Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-50d4b1a739dsm169203691cf.1.2026.04.08.13.22.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Apr 2026 13:22:58 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com,
+	omosnace@redhat.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH testsuite] rename: explicitly test directory write checks
+Date: Wed,  8 Apr 2026 16:22:16 -0400
+Message-ID: <20260408202215.2723-2-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260408174510.16051-2-stephen.smalley.work@gmail.com> <CAHC9VhT29U5TGMNgqJ3xz7rW8xe0SEFHa-Tk8ngw=Zn1k3Fm_w@mail.gmail.com>
-In-Reply-To: <CAHC9VhT29U5TGMNgqJ3xz7rW8xe0SEFHa-Tk8ngw=Zn1k3Fm_w@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 8 Apr 2026 14:23:03 -0400
-X-Gm-Features: AQROBzCjqzoHKwrRdOjHo-co7ieWR3mpj-1dL_cE6ihpXp7hwB9zCjShStKKQfY
-Message-ID: <CAEjxPJ6S2QFWogwMB7itdLzFdesqygNK+Hz2PUvDB1Sj7JnPjQ@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: fix avdcache auditing
-To: Paul Moore <paul@paul-moore.com>
-Cc: selinux@vger.kernel.org, omosnace@redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Wed, Apr 8, 2026 at 1:58=E2=80=AFPM Paul Moore <paul@paul-moore.com> wro=
-te:
->
-> On Wed, Apr 8, 2026 at 1:45=E2=80=AFPM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > The per-task avdcache was incorrectly saving and reusing the
-> > audited vector computed by avc_audit_required() rather than
-> > recomputing based on the currently requested permissions and
-> > distinguishing the denied versus allowed cases. As a result,
-> > some permission checks were not being audited, e.g.
-> > directory write checks after a previously cached directory
-> > search check. This manifests as unaudited permission denials
-> > even after removing all dontaudit rules.
-> >
-> > Fixes: dde3a5d0f4dce ("selinux: move avdcache to per-task security stru=
-ct")
-> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > ---
-> >  security/selinux/hooks.c          | 25 +++++++++++++++----------
-> >  security/selinux/include/objsec.h |  3 ++-
-> >  2 files changed, 17 insertions(+), 11 deletions(-)
->
-> Of course I hit send on my reply to your v1 patch only to see a v2 in
-> my inbox :)
->
-> Do you have a quick changelog of the changes between v1 and v2?  It
-> looks like the inode permission code changed ...
+After applying this change:
+      make -C policy load
+      ./tests/rename/test
 
-v2 splits out the enforcing_enabled && !avdc->permissive test from the
-unlikely(denied) test because we only set rc =3D -EACCES if enforcing
-but we want to use the auditdeny vector for computing audited
-regardless if this is a permission denial.
+Then run ausearch -m AVC -ts recent -i and look at the last few audit
+messages.
 
->
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index 6ef9c1aade65..c279ebdb3a33 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -3185,15 +3185,13 @@ static inline int task_avdcache_search(struct t=
-ask_security_struct *tsec,
-> >   * @tsec: the task's security state
-> >   * @isec: the inode associated with the cache entry
-> >   * @avd: the AVD to cache
-> > - * @audited: the permission audit bitmask to cache
-> >   *
-> > - * Update the AVD cache in @tsec with the @avdc and @audited info asso=
-ciated
-> > + * Update the AVD cache in @tsec with the @avd info associated
-> >   * with @isec.
-> >   */
-> >  static inline void task_avdcache_update(struct task_security_struct *t=
-sec,
-> >                                         struct inode_security_struct *i=
-sec,
-> > -                                       struct av_decision *avd,
-> > -                                       u32 audited)
-> > +                                       struct av_decision *avd)
-> >  {
-> >         int spot;
-> >
-> > @@ -3205,7 +3203,8 @@ static inline void task_avdcache_update(struct ta=
-sk_security_struct *tsec,
-> >         spot =3D (tsec->avdcache.dir_spot + 1) & (TSEC_AVDC_DIR_SIZE - =
-1);
-> >         tsec->avdcache.dir_spot =3D spot;
-> >         tsec->avdcache.dir[spot].isid =3D isec->sid;
-> > -       tsec->avdcache.dir[spot].audited =3D audited;
-> > +       tsec->avdcache.dir[spot].auditallow =3D avd->auditallow;
-> > +       tsec->avdcache.dir[spot].auditdeny =3D avd->auditdeny;
-> >         tsec->avdcache.dir[spot].allowed =3D avd->allowed;
-> >         tsec->avdcache.dir[spot].permissive =3D avd->flags & AVD_FLAGS_=
-PERMISSIVE;
-> >         tsec->avdcache.permissive_neveraudit =3D
-> > @@ -3249,11 +3248,17 @@ static int selinux_inode_permission(struct inod=
-e *inode, int requested)
-> >         rc =3D task_avdcache_search(tsec, isec, &avdc);
-> >         if (likely(!rc)) {
-> >                 /* Cache hit. */
-> > -               audited =3D perms & avdc->audited;
-> >                 denied =3D perms & ~avdc->allowed;
-> > -               if (unlikely(denied && enforcing_enabled() &&
-> > -                            !avdc->permissive))
-> > -                       rc =3D -EACCES;
-> > +               if (unlikely(denied)) {
-> > +                       if (enforcing_enabled() && !avdc->permissive)
-> > +                               rc =3D -EACCES;
-> > +                       audited =3D denied & avdc->auditdeny;
-> > +                       if ((requested & MAY_ACCESS) &&
-> > +                               !(FILE__AUDIT_ACCESS & avdc->auditdeny)=
-)
-> > +                               audited =3D 0;
-> > +               } else {
-> > +                       audited =3D requested & avdc->auditallow;
-> > +               }
-> >         } else {
-> >                 struct av_decision avd;
-> >
-> > @@ -3263,7 +3268,7 @@ static int selinux_inode_permission(struct inode =
-*inode, int requested)
-> >                 audited =3D avc_audit_required(perms, &avd, rc,
-> >                         (requested & MAY_ACCESS) ? FILE__AUDIT_ACCESS :=
- 0,
-> >                         &denied);
-> > -               task_avdcache_update(tsec, isec, &avd, audited);
-> > +               task_avdcache_update(tsec, isec, &avd);
-> >         }
-> >
-> >         if (likely(!audited))
-> > diff --git a/security/selinux/include/objsec.h b/security/selinux/inclu=
-de/objsec.h
-> > index 5bddd28ea5cb..baf7564c6a2f 100644
-> > --- a/security/selinux/include/objsec.h
-> > +++ b/security/selinux/include/objsec.h
-> > @@ -33,7 +33,8 @@
-> >  struct avdc_entry {
-> >         u32 isid; /* inode SID */
-> >         u32 allowed; /* allowed permission bitmask */
-> > -       u32 audited; /* audited permission bitmask */
-> > +       u32 auditallow; /* auditallow permission bitmask */
-> > +       u32 auditdeny; /* auditdeny aka ~dontaudit permission bitmask *=
-/
-> >         bool permissive; /* AVC permissive flag */
-> >  };
-> >
-> > --
-> > 2.53.0
->
-> --
-> paul-moore.com
+Expected:
+avc:  denied  { write } for  pid=2275 comm=mv name=src_dir dev="dm-0" ino=369112042 scontext=unconfined_u:unconfined_r:test_norename7_t:s0-s0:c0.c1023 tcontext=unconfined_u:object_r:test_rename_src_dir_t:s0 tclass=dir permissive=0
+
+avc:  denied  { write } for  pid=2276 comm=mv name=dst_dir dev="dm-0" ino=377910481 scontext=unconfined_u:unconfined_r:test_norename8_t:s0-s0:c0.c1023 tcontext=unconfined_u:object_r:test_rename_dst_dir_t:s0 tclass=dir permissive=0
+
+This highlights the difference in behavior before and after:
+https://lore.kernel.org/selinux/CAEjxPJ6S2QFWogwMB7itdLzFdesqygNK+Hz2PUvDB1Sj7JnPjQ@mail.gmail.com/
+
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ policy/test_rename.te | 20 ++++++++++++++++++++
+ tests/rename/test     | 14 ++++++++++++++
+ 2 files changed, 34 insertions(+)
+
+diff --git a/policy/test_rename.te b/policy/test_rename.te
+index 0b9a839..6314930 100644
+--- a/policy/test_rename.te
++++ b/policy/test_rename.te
+@@ -92,3 +92,23 @@ typeattribute test_norename6_t test_rename_domain;
+ allow test_norename6_t test_rename_src_dir_t:dir { search getattr write remove_name };
+ allow test_norename6_t test_rename_dst_dir_t:dir { search getattr write add_name };
+ allow test_norename6_t test_rename_dir_t:dir { getattr rename write };
++
++# Domain for process that cannot rename the test file, because
++# it lacks write permission to the src_dir.
++type test_norename7_t;
++testsuite_domain_type(test_norename7_t)
++typeattribute test_norename7_t test_rename_domain;
++allow test_norename7_t test_rename_src_dir_t:dir { search getattr remove_name };
++allow test_norename7_t test_rename_dst_dir_t:dir { search getattr write add_name };
++allow test_norename7_t test_rename_dir_t:dir { getattr search };
++allow test_norename7_t test_rename_file_t:file { getattr rename };
++
++# Domain for process that cannot rename the test file, because
++# it lacks write permission to the dst_dir.
++type test_norename8_t;
++testsuite_domain_type(test_norename8_t)
++typeattribute test_norename8_t test_rename_domain;
++allow test_norename8_t test_rename_src_dir_t:dir { search getattr write remove_name };
++allow test_norename8_t test_rename_dst_dir_t:dir { search getattr add_name };
++allow test_norename8_t test_rename_dir_t:dir { getattr search };
++allow test_norename8_t test_rename_file_t:file { getattr rename };
+diff --git a/tests/rename/test b/tests/rename/test
+index 2001f16..8d069c6 100755
+--- a/tests/rename/test
++++ b/tests/rename/test
+@@ -101,6 +101,20 @@ $result = system(
+ );
+ ok($result);
+ 
++# Verify that test_norename7_t cannot rename the test dir.
++# Should fail on the write check to src_dir.
++$result = system(
++"runcon -t test_norename7_t mv $basedir/src_dir/test_dir $basedir/dst_dir 2>&1"
++);
++ok($result);
++
++# Verify that test_norename8_t cannot rename the test dir.
++# Should fail on the write check to dst_dir.
++$result = system(
++"runcon -t test_norename8_t mv $basedir/src_dir/test_dir $basedir/dst_dir 2>&1"
++);
++ok($result);
++
+ # Cleanup.
+ system("rm -rf $basedir/src_dir $basedir/dst_dir");
+ 
+-- 
+2.53.0
+
