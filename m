@@ -1,547 +1,655 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB9013A9639
-	for <selinux@vger.kernel.org>; Thu,  9 Apr 2026 09:42:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E1B12C15A9;
+	Thu,  9 Apr 2026 13:32:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775727761; cv=none; b=AQTYAL+n8BxVbo+IclDCrQeZNL60j/oLgZFEEGbzI8aPJ5wIDCvVd0ngzSXbOQ8GOtOC+RXEz0WodSGs1njWk208VpyoXigfqkC0CLV7PnfAMo+2QsvcfPUWuAzoHn6KYUvM6Fuo9+qwDWxOMOMgjFzb+4OLVEiMSZE9zUspTu0=
+	t=1775741568; cv=none; b=DgD5bzJoMGbXFlzzjM3rOBAiuDE7m+XE32o96aukMhNO0qLW+vd2uQzRXSyg5v35rjseoJEtRArpNNZQzNqZ2hh5jZRbUOpMHkoc+J9jZaAU1WNxA6XrEzTDPMsrXXfhzugXSQGS7FbvZmnJLXaPKmOt7PnCujgVaM19fO/GBAY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775727761; c=relaxed/simple;
-	bh=rsE0LTD685aS6Z1huGGDmkbHQbewOxMEshpGCV9HUdA=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=XcZPfdDx3WW1yT5AttBDIq1K5SaplqyHZFcWFSoIiNgzTOnASM6Dkv59NiUc61+R5+LBGxQlBrc1xQW5pj/2kGQLewDZtQ03pzNEm4txmE+mhzlEG0atkS/evpEZ1Kqi1vG9UK4fFqTlorW8ss67xUowDSxEpA0JHsx7x1pQs6g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WqxcQiHV; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=iCPI6DU3; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1775741568; c=relaxed/simple;
+	bh=ut5UKN2lbHqoFtkX/le261tj5/mL7d+kOLj3AH1+438=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UOCi9COT6UUIfR2J2uNpDc5vIub+BBVvnKEANK4fvhnS9xom1saFe37+Mn347SYSV9rZNspMXdlvfBehj4HbFyU0TfieOtZH7wZyluaXgbIPfvJaKfeKMWtkL9CxYGuocgx21tROFAabITUVY0xAO3XAtMto3vaU1etzMoJW1ds=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R7OQcSi1; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WqxcQiHV";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="iCPI6DU3"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1775727755;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=iLbpDz/urbvNPdnFywbcOARHWRYUPVUUS1lS65TX6Vs=;
-	b=WqxcQiHVGv59flgqk8EZTdooGK0eXulH1JGLt3hHQ73WqKGP7/8lngzFYdfQH+QQO4e6xC
-	FkbDZ4Q0Gud/YykjNuz29l3D3qne7YGL4p43UjB5m6FgjkcwP+bQB/WeK/xN022v8RaE2c
-	2+Ciw55UdivhCm3YDwDDMx779F9Ag+c=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-632-Ddq_AoYuM_WuNTviyMoA7w-1; Thu, 09 Apr 2026 05:42:34 -0400
-X-MC-Unique: Ddq_AoYuM_WuNTviyMoA7w-1
-X-Mimecast-MFC-AGG-ID: Ddq_AoYuM_WuNTviyMoA7w_1775727753
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-488ac66236bso3884155e9.1
-        for <selinux@vger.kernel.org>; Thu, 09 Apr 2026 02:42:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1775727752; x=1776332552; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=iLbpDz/urbvNPdnFywbcOARHWRYUPVUUS1lS65TX6Vs=;
-        b=iCPI6DU3lZ/Z3B9sFUq6NbqP2OCqXhBGReS8J1R30v8dMToTGvhLUEy9e/Ac1qEFtF
-         QJ30PQr72iL/iDTRDjy58KnXFz9IsxYVhSLaHvdqfIGSR59JPaOJ94cQ3tSSklhVTTiL
-         Fg0D5v4NsyM0Fs+ZzctcDnO4H6kBtgvu0b78N3+y8LLbGMUOGGTnu3/6a65UGMKd7Uxc
-         VWqDExdg+7I5JxHs6UjY89kdAV+yuGJ/D5BdzF/Fz8YF9SFDOUC7xuniGHdyUfjRjSr1
-         flp+PlYkfYMXrHMj0kUURbn03tV1hJqThJqPZ37LCQOvggRH38VXeEdEOdtTy7B3sCGW
-         gqlA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775727752; x=1776332552;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=iLbpDz/urbvNPdnFywbcOARHWRYUPVUUS1lS65TX6Vs=;
-        b=pSpt3QRAoQUyaYAjRU6e1KA3Bn587RgH2qb0DryLGUc/VB5nrcsfNRnBPZS60RdM6h
-         VB0Gc6ddzIEOqzxZY7OPErl3ZWMXFXfV4HdpWF/T9FDRyYBhtxKkwoEb8OavvKBe4HFY
-         eFikXB2FAqzh6Oe5BDJE76FLpgFV4YIJqi73lVALSMiC/hSilR82pztRNTxOtMHjkpCn
-         v5q+ms/4ToCpLLbRHhOl5poWVAmyQDuBLQ8MS92rQkVKF8aOcXF2yWDMmlk5L7LN2NNH
-         w0OmYhgww15pSAM097/Ij57W/L/UHy/CVf17Wzt2f/F2mWSNkQRe6fwhgu2ncw8+qYRP
-         P7uQ==
-X-Gm-Message-State: AOJu0Yx2Cuj3GOlx8W/mmmfQ3z3fW4FQ9poLWCglUUcuhiSImIhhbfK2
-	x/KLulaAVZMSxEr04Czs/CtSx/cY04+RxmM17/lnqRGUIWun5g6siZG6v2iVNznZyY3ZSlSL2ZH
-	w6uVM+3I5AphZFIY2s4a3ChpUk5htXP6GnslII4C/eimX4qftPyfC3vthtmxdjPPsltcItcQ6Z0
-	4kRFstNx8rEtr4llXIXPBPryNvCJvlSfby0nQ3pnpF6MbZMw==
-X-Gm-Gg: AeBDieuUQyypFFMIegozEi32qzaNVx7mg4xNbBe4Y9sdnxaWFy5K0F4GUN9FqjzyOqV
-	uA5dFc+P/0LhvhgDFcqa9lcAAIoVEHrXCteyVYYGm76i1G6QLsk7WhjKKFwyNopTZnGIRlH7dIs
-	V+rXzBAtyhYjJQImH3yDtjZxNm/G+1DCAoismJiIeEiagh++CIK+yhdabOVHRucEBDnKTdEIDNh
-	xtL7tKDSTOWf8YGJ3By1vJvJ+dWVWX/sv9C3UbxETrE5292bJYdWHuDeZxpRFklCllZ688Fl8BL
-	L8+QK0Uh7RF06gh7JOIQd9oytXC1T2QE9LukdQ7FM2C9Cu/B8iPiJaBdkH12j4DcuYar5k3MRqD
-	b5NA=
-X-Received: by 2002:a05:600c:4e89:b0:485:3428:774c with SMTP id 5b1f17b1804b1-488cd5282c4mr33770175e9.4.1775727752271;
-        Thu, 09 Apr 2026 02:42:32 -0700 (PDT)
-X-Received: by 2002:a05:600c:4e89:b0:485:3428:774c with SMTP id 5b1f17b1804b1-488cd5282c4mr33769785e9.4.1775727751592;
-        Thu, 09 Apr 2026 02:42:31 -0700 (PDT)
-Received: from fedora ([213.175.46.86])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488ccfbbb7fsm33802065e9.0.2026.04.09.02.42.30
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Apr 2026 02:42:31 -0700 (PDT)
-From: Ondrej Mosnacek <omosnace@redhat.com>
-To: selinux@vger.kernel.org
-Subject: [PATCH testsuite v2] tests/overlay: add tests for mmap(2) and mprotect(2)
-Date: Thu,  9 Apr 2026 11:42:22 +0200
-Message-ID: <20260409094222.2859087-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R7OQcSi1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D780FC4CEF7;
+	Thu,  9 Apr 2026 13:32:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1775741568;
+	bh=ut5UKN2lbHqoFtkX/le261tj5/mL7d+kOLj3AH1+438=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=R7OQcSi1q5hAI+Ikh0ou9dBKObXMWU3P2MCdzEWDvr76Fzx6TPOcJgpRDFLBDxlLc
+	 EnYX/ov6Ad9SwwbFPCWqT8MATBKKBD+eWcg+oyoU68+19iov+WDda3JNiX3PB50s8j
+	 CrYsXs0SeE47ooZjMirhnVGsjew5f5zsULjlQ+z5hnv7GDncdkOzf6Ptr0RVXT38zv
+	 8Cn6PxxOZEv18o6RcYMkgteqoNwbwUokuzXRu5agYokJx5cBOvzbceWSvxJHFA6dg7
+	 ZbkJhUAjo1kYgyovtxA3dd8hXw7pl3uiYCBcK9J82WJ93REMniFFeUNbW5y8qskoLY
+	 Od0S54tTyzMWQ==
+Date: Thu, 9 Apr 2026 15:32:43 +0200
+From: Christian Brauner <brauner@kernel.org>
+To: Paul Moore <paul@paul-moore.com>
+Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-unionfs@vger.kernel.org, linux-erofs@lists.ozlabs.org, 
+	Amir Goldstein <amir73il@gmail.com>, Gao Xiang <xiang@kernel.org>
+Subject: Re: [PATCH v4 2/3] lsm: add backing_file LSM hooks
+Message-ID: <20260409-wertung-regung-2e9170f99ed4@brauner>
+References: <20260403030848.731867-5-paul@paul-moore.com>
+ <20260403030848.731867-7-paul@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260403030848.731867-7-paul@paul-moore.com>
 
-Add asserts that verify the expected behavior of mmap(2) and mprotect(2)
-on overlayfs files.
+On Thu, Apr 02, 2026 at 11:08:34PM -0400, Paul Moore wrote:
+> Stacked filesystems such as overlayfs do not currently provide the
+> necessary mechanisms for LSMs to properly enforce access controls on the
+> mmap() and mprotect() operations.  In order to resolve this gap, a LSM
+> security blob is being added to the backing_file struct and the following
+> new LSM hooks are being created:
+> 
+>  security_backing_file_alloc()
+>  security_backing_file_free()
+>  security_mmap_backing_file()
+> 
+> The first two hooks are to manage the lifecycle of the LSM security blob
+> in the backing_file struct, while the third provides a new mmap() access
+> control point for the underlying backing file.  It is also expected that
+> LSMs will likely want to update their security_file_mprotect() callback
+> to address issues with their mprotect() controls, but that does not
+> require a change to the security_file_mprotect() LSM hook.
+> 
+> There are a three other small changes to support these new LSM hooks:
+> * Pass the user file associated with a backing file down to
+> alloc_empty_backing_file() so it can be included in the
+> security_backing_file_alloc() hook.
+> * Add getter and setter functions for the backing_file struct LSM blob
+> as the backing_file struct remains private to fs/file_table.c.
+> * Constify the file struct field in the LSM common_audit_data struct to
+> better support LSMs that need to pass a const file struct pointer into
+> the common LSM audit code.
+> 
+> Thanks to Arnd Bergmann for identifying the missing EXPORT_SYMBOL_GPL()
+> and supplying a fixup.
+> 
+> Cc: stable@vger.kernel.org
+> Cc: linux-fsdevel@vger.kernel.org
+> Cc: linux-unionfs@vger.kernel.org
+> Cc: linux-erofs@lists.ozlabs.org
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> ---
 
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
+This looks very palatable now, thanks.
+Reviewed-by: Christian Brauner <brauner@kernel.org>
 
-v2: style fixes
-
- policy/test_overlayfs.te    |  45 ++++++++++--
- tests/overlay/.gitignore    |   1 +
- tests/overlay/map_access.c  |  55 ++++++++++++++
- tests/overlay/setup-overlay |  10 ++-
- tests/overlay/test          | 139 +++++++++++++++++++++++++++++++++---
- 5 files changed, 233 insertions(+), 17 deletions(-)
- create mode 100644 tests/overlay/map_access.c
-
-diff --git a/policy/test_overlayfs.te b/policy/test_overlayfs.te
-index c09b577..787685c 100644
---- a/policy/test_overlayfs.te
-+++ b/policy/test_overlayfs.te
-@@ -21,6 +21,12 @@ files_type(test_overlay_files_ro_t)
- type test_overlay_files_rwx_t;
- files_type(test_overlay_files_rwx_t)
- 
-+type test_overlay_files_map_ro_t;
-+files_type(test_overlay_files_map_ro_t)
-+
-+type test_overlay_files_map_rwx_t;
-+files_type(test_overlay_files_map_rwx_t)
-+
- type test_overlay_mounter_files_t;
- files_type(test_overlay_mounter_files_t)
- 
-@@ -60,7 +66,11 @@ allow test_overlay_mounter_t test_overlay_files_ro_t:file mounton;
- allow test_overlay_mounter_t test_overlay_files_ro_t:filesystem { mount relabelfrom relabelto };
- allow test_overlay_mounter_t test_overlay_files_rwx_t:{dir file} mounton;
- allow test_overlay_mounter_t test_overlay_files_rwx_t:filesystem { mount relabelfrom relabelto };
--can_exec(test_overlay_mounter_t, test_overlay_files_ro_t)
-+allow test_overlay_mounter_t test_overlay_files_map_ro_t:file mounton;
-+allow test_overlay_mounter_t test_overlay_files_map_ro_t:filesystem { mount relabelfrom relabelto };
-+allow test_overlay_mounter_t test_overlay_files_map_rwx_t:{dir file} mounton;
-+allow test_overlay_mounter_t test_overlay_files_map_rwx_t:filesystem { mount relabelfrom relabelto };
-+can_exec(test_overlay_mounter_t, test_overlay_files_map_ro_t)
- 
- #
- # Mounter should be allowed to search/read r/o directories and files
-@@ -70,10 +80,14 @@ read_files_pattern(test_overlay_mounter_t, test_overlay_files_ro_t, test_overlay
- read_chr_files_pattern(test_overlay_mounter_t, test_overlay_files_ro_t, test_overlay_files_ro_t)
- read_blk_files_pattern(test_overlay_mounter_t, test_overlay_files_ro_t, test_overlay_files_ro_t)
- read_lnk_files_pattern(test_overlay_mounter_t, test_overlay_files_ro_t, test_overlay_files_ro_t)
-+list_dirs_pattern(test_overlay_mounter_t, test_overlay_files_map_ro_t, test_overlay_files_map_ro_t)
-+read_files_pattern(test_overlay_mounter_t, test_overlay_files_map_ro_t, test_overlay_files_map_ro_t)
-+allow_map(test_overlay_mounter_t, test_overlay_files_map_ro_t, file)
- allow test_overlay_mounter_t test_overlay_files_ro_t:dir mounton;
- allow test_overlay_mounter_t test_overlay_mounter_files_t:dir mounton;
--allow test_overlay_mounter_t test_overlay_files_rwx_t:filesystem unmount;
-+allow test_overlay_mounter_t test_overlay_files_map_rwx_t:filesystem unmount;
- manage_files_pattern(test_overlay_mounter_t, test_overlay_mounter_files_t, test_overlay_mounter_files_t)
-+allow_map(test_overlay_mounter_t, test_overlay_mounter_files_t, file)
- # Needed for transition
- manage_dirs_pattern(test_overlay_mounter_t, test_overlay_mounter_files_t, test_overlay_mounter_files_t)
- #
-@@ -90,6 +104,10 @@ manage_dirs_pattern(test_overlay_mounter_t, test_overlay_files_rwx_t, test_overl
- manage_lnk_files_pattern(test_overlay_mounter_t, test_overlay_files_rwx_t, test_overlay_files_rwx_t)
- manage_sock_files_pattern(test_overlay_mounter_t, test_overlay_files_rwx_t, test_overlay_files_rwx_t)
- 
-+manage_files_pattern(test_overlay_mounter_t, test_overlay_files_map_rwx_t, test_overlay_files_map_rwx_t)
-+manage_dirs_pattern(test_overlay_mounter_t, test_overlay_files_map_rwx_t, test_overlay_files_map_rwx_t)
-+allow_map(test_overlay_mounter_t, test_overlay_files_map_rwx_t, file)
-+
- manage_files_pattern(test_overlay_mounter_t, test_overlay_transition_files_t, test_overlay_transition_files_t)
- 
- #
-@@ -121,7 +139,11 @@ list_dirs_pattern(test_overlay_client_t, test_overlay_files_ro_t, test_overlay_f
- read_lnk_files_pattern(test_overlay_client_t, test_overlay_files_ro_t, test_overlay_files_ro_t)
- read_chr_files_pattern(test_overlay_client_t, test_overlay_files_ro_t, test_overlay_files_ro_t)
- read_sock_files_pattern(test_overlay_client_t, test_overlay_files_ro_t, test_overlay_files_ro_t)
--can_exec(test_overlay_client_t, test_overlay_files_ro_t)
-+
-+read_files_pattern(test_overlay_client_t, test_overlay_files_map_ro_t, test_overlay_files_map_ro_t)
-+allow_map(test_overlay_client_t, test_overlay_files_map_ro_t, file)
-+can_exec(test_overlay_client_t, test_overlay_files_map_ro_t)
-+allow test_overlay_client_t test_overlay_files_map_ro_t:file entrypoint;
- 
- #
- # Client should be allowed to execute/write/search/read r/w/x directories and files
-@@ -131,15 +153,22 @@ manage_dirs_pattern(test_overlay_client_t, test_overlay_files_rwx_t, test_overla
- manage_lnk_files_pattern(test_overlay_client_t, test_overlay_files_rwx_t, test_overlay_files_rwx_t)
- rw_chr_files_pattern(test_overlay_client_t, test_overlay_files_rwx_t, test_overlay_files_rwx_t)
- manage_sock_files_pattern(test_overlay_client_t, test_overlay_files_rwx_t, test_overlay_files_rwx_t)
--can_exec(test_overlay_client_t, test_overlay_files_rwx_t)
--allow test_overlay_client_t test_overlay_files_rwx_t:file entrypoint;
-+
-+manage_files_pattern(test_overlay_client_t, test_overlay_files_map_rwx_t, test_overlay_files_map_rwx_t)
-+manage_dirs_pattern(test_overlay_client_t, test_overlay_files_map_rwx_t, test_overlay_files_map_rwx_t)
-+manage_lnk_files_pattern(test_overlay_client_t, test_overlay_files_map_rwx_t, test_overlay_files_map_rwx_t)
-+rw_chr_files_pattern(test_overlay_client_t, test_overlay_files_map_rwx_t, test_overlay_files_map_rwx_t)
-+manage_sock_files_pattern(test_overlay_client_t, test_overlay_files_map_rwx_t, test_overlay_files_map_rwx_t)
-+allow_map(test_overlay_client_t, test_overlay_files_map_rwx_t, file)
-+can_exec(test_overlay_client_t, test_overlay_files_map_rwx_t)
-+allow test_overlay_client_t test_overlay_files_map_rwx_t:file entrypoint;
- 
- #
- # Client needs to manage test_overlay_transition_files_t and transition on file named "transition"
- #
- manage_files_pattern(test_overlay_client_t, test_overlay_transition_files_t, test_overlay_transition_files_t)
- manage_dirs_pattern(test_overlay_client_t, test_overlay_transition_files_t, test_overlay_transition_files_t)
--filetrans_pattern(test_overlay_client_t, test_overlay_files_rwx_t, test_overlay_transition_files_t, file, "transition")
-+filetrans_pattern(test_overlay_client_t, test_overlay_files_map_rwx_t, test_overlay_transition_files_t, file, "transition")
- 
- #
- # Client needs to search test_file_t directory and execute tests
-@@ -153,7 +182,9 @@ can_exec(test_overlay_client_t,test_file_t)
- #
- allow test_overlay_client_t test_overlay_files_rwx_t:file { relabelto relabelfrom };
- allow test_overlay_mounter_t test_overlay_files_rwx_t:file { relabelto relabelfrom };
--can_exec(test_overlay_mounter_t, test_overlay_files_rwx_t)
-+allow test_overlay_client_t test_overlay_files_map_rwx_t:file { relabelto relabelfrom };
-+allow test_overlay_mounter_t test_overlay_files_map_rwx_t:file { relabelto relabelfrom };
-+can_exec(test_overlay_mounter_t, test_overlay_files_map_rwx_t)
- 
- #
- # Server needs to manage socket files
-diff --git a/tests/overlay/.gitignore b/tests/overlay/.gitignore
-index 73bc322..dc61362 100644
---- a/tests/overlay/.gitignore
-+++ b/tests/overlay/.gitignore
-@@ -1 +1,2 @@
- access
-+map_access
-diff --git a/tests/overlay/map_access.c b/tests/overlay/map_access.c
-new file mode 100644
-index 0000000..da1ae36
---- /dev/null
-+++ b/tests/overlay/map_access.c
-@@ -0,0 +1,55 @@
-+#include <unistd.h>
-+#include <fcntl.h>
-+
-+#include <sys/mman.h>
-+
-+#include <stdio.h>
-+#include <string.h>
-+#include <errno.h>
-+
-+int main(int argc, const char **argv)
-+{
-+	const char *file;
-+	void *ptr;
-+	int rdonly, fd, ret;
-+
-+	if (argc != 3 || (strcmp(argv[2], "R_OK") && strcmp(argv[2], "W_OK"))) {
-+		fprintf(stderr, "Usage %s <file> R_OK|W_OK\n", argv[0]);
-+		return EINVAL;
-+	}
-+
-+	file = argv[1];
-+	rdonly = strcmp(argv[2], "R_OK") == 0;
-+
-+	fd = open(file, rdonly ? O_RDONLY : O_RDWR);
-+	if (fd == -1) {
-+		perror("open");
-+		return 2;
-+	}
-+
-+	/* try direct mmap */
-+	ptr = mmap(NULL, 1, rdonly ? PROT_READ : PROT_READ | PROT_WRITE,
-+		   MAP_SHARED, fd, 0);
-+	if (ptr == MAP_FAILED) {
-+		perror("mmap");
-+		return 3;
-+	}
-+	munmap(ptr, 1);
-+
-+	/* try mmap with PROT_NONE followed by mprotect with full access */
-+	ptr = mmap(NULL, 1, PROT_NONE, MAP_SHARED, fd, 0);
-+	if (ptr == MAP_FAILED) {
-+		perror("mmap PROT_NONE");
-+		return 4;
-+	}
-+
-+	ret = mprotect(ptr, 1, rdonly ? PROT_READ : PROT_READ | PROT_WRITE);
-+	if (ret == -1) {
-+		perror("mprotect");
-+		return 5;
-+	}
-+
-+	munmap(ptr, 1);
-+	close(fd);
-+	return 0;
-+}
-diff --git a/tests/overlay/setup-overlay b/tests/overlay/setup-overlay
-index 3f33499..ae817a1 100755
---- a/tests/overlay/setup-overlay
-+++ b/tests/overlay/setup-overlay
-@@ -12,6 +12,8 @@ setup () {
-     mkdir -p $BASEDIR/lower/readdir $BASEDIR/lower/writedir $BASEDIR/lower/noaccessdir $BASEDIR/lower/mounterdir
-     echo read > $BASEDIR/lower/readfile
-     echo write > $BASEDIR/lower/writefile
-+    echo mapread > $BASEDIR/lower/mapreadfile
-+    echo mapwrite > $BASEDIR/lower/mapwritefile
-     echo noaccess > $BASEDIR/lower/noaccessfile
-     echo client_nounlink > $BASEDIR/lower/client_nounlinkfile
-     echo mounter > $BASEDIR/lower/mounterfile
-@@ -35,7 +37,11 @@ setup () {
-     chcon -t test_overlay_mounter_files_t $BASEDIR/lower/mounterfile $BASEDIR/lower/mounterdir $BASEDIR/lower/null_mounter
-     # Label writefile on lower with a type that is writable by the client which
-     # should allow copy up and write.
--    chcon -t test_overlay_files_rwx_t $BASEDIR/lower/writefile $BASEDIR/lower/writedir $BASEDIR/lower/null_write $BASEDIR/lower/transition $BASEDIR/lower/goodentrypoint
-+    chcon -t test_overlay_files_rwx_t $BASEDIR/lower/writefile $BASEDIR/lower/writedir $BASEDIR/lower/null_write $BASEDIR/lower/transition
-+    # Label mapreadfile and mapwritefile with the appropriate types that
-+    # allow map access
-+    chcon -t test_overlay_files_map_ro_t $BASEDIR/lower/mapreadfile $BASEDIR/lower/goodentrypoint
-+    chcon -t test_overlay_files_map_rwx_t $BASEDIR/lower/mapwritefile
-     # Create a directory per container.
-     mkdir -p $BASEDIR/container1
- 
-@@ -48,7 +54,7 @@ setup () {
-     # creation and to prevent permission problems when overlayfs
-     # internally creates files on behalf of the current process.
-     chcon -R -t test_overlay_mounter_files_t $BASEDIR/container1/work $BASEDIR/container1/merged
--    chcon -R -t test_overlay_files_rwx_t  $BASEDIR/container1/upper
-+    chcon -R -t test_overlay_files_map_rwx_t  $BASEDIR/container1/upper
- }
- 
- # Mount the overlays.
-diff --git a/tests/overlay/test b/tests/overlay/test
-index c8367dd..2d0555a 100755
---- a/tests/overlay/test
-+++ b/tests/overlay/test
-@@ -19,7 +19,7 @@ BEGIN {
-         plan skip_all => "overlayfs upperdir not supported on NFS";
-     }
-     else {
--        plan tests => 119;
-+        plan tests => 135;
-     }
- }
- 
-@@ -44,6 +44,14 @@ sub access {
-     return $result >> 8;
- }
- 
-+sub mmap {
-+    my ( $filename, $accesstype ) = @_;
-+    $result = system(
-+"runcon -t test_overlay_client_t -l s0:c10,c20 $basedir/map_access $filename $accesstype 2>&1"
-+    );
-+    return $result >> 8;
-+}
-+
- sub xattr_test_setup {
-     print "Setting up xattr test\n";
-     system("touch $basedir/container1/merged/writefile >/dev/null");
-@@ -104,7 +112,7 @@ sub test_4_0_ctx {
-     $output = getfilecon("$basedir/container1/upper/writefile");
- 
-     # Newly created writefile should have s0 MCS Label since it was copied up
--    ok( $output eq "$seuser:object_r:test_overlay_files_rwx_t:s0:c10,c20" );
-+    ok( $output eq "$seuser:object_r:test_overlay_files_map_rwx_t:s0:c10,c20" );
- }
- 
- sub test_5 {
-@@ -130,7 +138,7 @@ sub test_5_1 {
-     $output = getfilecon("$basedir/container1/upper/newdir");
- 
-     # Newly created writedir should have s0:c10,c20 since it was created new
--    ok( $output eq "$seuser:object_r:test_overlay_files_rwx_t:s0:c10,c20" );
-+    ok( $output eq "$seuser:object_r:test_overlay_files_map_rwx_t:s0:c10,c20" );
- }
- 
- sub test_5_2 {
-@@ -148,7 +156,7 @@ sub test_5_3 {
-     $output = getfilecon("$basedir/container1/upper/newdir/touchlink");
- 
-     # Newly created writelink should have s0:c10,c20 since it was created new
--    ok( $output eq "$seuser:object_r:test_overlay_files_rwx_t:s0:c10,c20" );
-+    ok( $output eq "$seuser:object_r:test_overlay_files_map_rwx_t:s0:c10,c20" );
- }
- 
- sub test_6 {
-@@ -182,7 +190,7 @@ sub test_7_0_ctx {
-     $output = getfilecon("$basedir/container1/upper/writedir/bar");
- 
-     # Newly created bar should have s0:c10,c20 since it was created new
--    ok( $output eq "$seuser:object_r:test_overlay_files_rwx_t:s0:c10,c20" );
-+    ok( $output eq "$seuser:object_r:test_overlay_files_map_rwx_t:s0:c10,c20" );
- }
- 
- sub test_7_1 {
-@@ -208,7 +216,7 @@ sub test_7_1_0_ctx {
-     $output = getfilecon("$basedir/container1/upper/writedir/writelink");
- 
-     # Newly created writelink should have s0:c10,c20 since it was created new
--    ok( $output eq "$seuser:object_r:test_overlay_files_rwx_t:s0:c10,c20" );
-+    ok( $output eq "$seuser:object_r:test_overlay_files_map_rwx_t:s0:c10,c20" );
- }
- 
- sub test_7_2 {
-@@ -452,7 +460,7 @@ sub test_42_ctx {
-     $output = getfilecon("$basedir/container1/upper/transition");
- 
-     # Newly created writeout should have s0:c10,c20 since it was created new
--    ok( $output eq "$seuser:object_r:test_overlay_files_rwx_t:s0:c10,c20" );
-+    ok( $output eq "$seuser:object_r:test_overlay_files_map_rwx_t:s0:c10,c20" );
- }
- 
- sub test_43 {
-@@ -554,6 +562,85 @@ sub test_67 {
-     return;
- }
- 
-+sub test_68_1 {
-+    print "Check read map access on noaccessfile, should fail\n";
-+    $result = mmap( "$basedir/container1/merged/noaccessfile", "R_OK" );
-+    ok( $result eq 2 );
-+    return;
-+}
-+
-+sub test_68_2 {
-+    print "Check write map access on noaccessfile, should fail\n";
-+    $result = mmap( "$basedir/container1/merged/noaccessfile", "W_OK" );
-+    ok( $result eq 2 );
-+    return;
-+}
-+
-+sub test_68_3 {
-+    print "Check read map access on readfile, should fail\n";
-+    $result = mmap( "$basedir/container1/merged/readfile", "R_OK" );
-+    ok( $result eq 3 );
-+    return;
-+}
-+
-+sub test_68_4 {
-+    print "Check write map access on writefile, should fail\n";
-+    $result = mmap( "$basedir/container1/merged/writefile", "W_OK" );
-+    ok( $result eq 3 );
-+    return;
-+}
-+
-+# In the context mount case, this will create a new file in upperdir,
-+# which will be mappable by mounter.
-+sub test_68_4_ctx {
-+    print "Check write map access on writefile, should succeed\n";
-+    $result = mmap( "$basedir/container1/merged/writefile", "W_OK" );
-+    ok( $result eq 0 );
-+    return;
-+}
-+
-+sub test_68_5 {
-+    print "Check read map access on mapreadfile, should succeed\n";
-+    $result = mmap( "$basedir/container1/merged/mapreadfile", "R_OK" );
-+    ok( $result eq 0 );
-+    return;
-+}
-+
-+sub test_68_6 {
-+    print "Check write map access on mapwritefile, should succeed\n";
-+    $result = mmap( "$basedir/container1/merged/mapwritefile", "W_OK" );
-+    ok( $result eq 0 );
-+    return;
-+}
-+
-+sub test_68_7 {
-+    print "Check read map access on mounterfile, should fail\n";
-+    $result = mmap( "$basedir/container1/merged/mounterfile", "R_OK" );
-+    ok( $result eq 2 );
-+    return;
-+}
-+
-+sub test_68_7_ctx {
-+    print "Check read map access on mounterfile, should succeed\n";
-+    $result = mmap( "$basedir/container1/merged/mounterfile", "R_OK" );
-+    ok( $result eq 0 );
-+    return;
-+}
-+
-+sub test_68_8 {
-+    print "Check write map access on mounterfile, should fail\n";
-+    $result = mmap( "$basedir/container1/merged/mounterfile", "W_OK" );
-+    ok( $result eq 2 );
-+    return;
-+}
-+
-+sub test_68_8_ctx {
-+    print "Check write map access on mounterfile, should succeed\n";
-+    $result = mmap( "$basedir/container1/merged/mounterfile", "W_OK" );
-+    ok( $result eq 0 );
-+    return;
-+}
-+
- sub test_70 {
-     print "Check unlink access on client_nounlinkfile, should fail.\n";
-     $result = system(
-@@ -793,6 +880,18 @@ sub nocontext_test {
-     test_66();
-     test_67();
- 
-+    print "=====================================================\n";
-+    print "map access tests.\n";
-+    print "=====================================================\n";
-+    test_68_1();
-+    test_68_2();
-+    test_68_3();
-+    test_68_4();
-+    test_68_5();
-+    test_68_6();
-+    test_68_7();
-+    test_68_8();
-+
-     print "=====================================================\n";
-     print "unlink tests.\n";
-     print "=====================================================\n";
-@@ -820,7 +919,7 @@ sub nocontext_test {
- sub context_test {
- 
-     cleanup();
--    $context = "$seuser:object_r:test_overlay_files_rwx_t:s0:c10,c20";
-+    $context = "$seuser:object_r:test_overlay_files_map_rwx_t:s0:c10,c20";
-     print "\n\n=====================================================\n";
-     print "Testing mounting overlayfs with context switch\n";
-     print "context=$context\n";
-@@ -911,6 +1010,30 @@ sub context_test {
-     test_66();
-     test_67();
- 
-+    print "=====================================================\n";
-+    print "map access tests.\n";
-+    print "=====================================================\n";
-+
-+    # Reset the overlay to clear any upperdir files created by previous tests.
-+    # This is needed for some tests below to accurately test mounter checks.
-+    cleanup();
-+    if ( system("$basedir/setup-overlay $basedir '$context'") == 0 ) {
-+        print "Mounted overlay with context=$context.\n";
-+    }
-+    else {
-+        print "setup-overlay failed. Cleaning up.\n";
-+        cleanup();
-+        exit;
-+    }
-+    test_68_1();
-+    test_68_2();
-+    test_68_3();
-+    test_68_4_ctx();
-+    test_68_5();
-+    test_68_6();
-+    test_68_7_ctx();
-+    test_68_8_ctx();
-+
-     print "=====================================================\n";
-     print "unlink tests.\n";
-     print "=====================================================\n";
--- 
-2.53.0
-
+>  fs/backing-file.c             |  18 ++++--
+>  fs/erofs/ishare.c             |  10 +++-
+>  fs/file_table.c               |  27 +++++++--
+>  fs/fuse/passthrough.c         |   2 +-
+>  fs/internal.h                 |   3 +-
+>  fs/overlayfs/dir.c            |   2 +-
+>  fs/overlayfs/file.c           |   2 +-
+>  include/linux/backing-file.h  |   4 +-
+>  include/linux/fs.h            |  13 +++++
+>  include/linux/lsm_audit.h     |   2 +-
+>  include/linux/lsm_hook_defs.h |   5 ++
+>  include/linux/lsm_hooks.h     |   1 +
+>  include/linux/security.h      |  22 ++++++++
+>  security/lsm.h                |   1 +
+>  security/lsm_init.c           |   9 +++
+>  security/security.c           | 102 ++++++++++++++++++++++++++++++++++
+>  16 files changed, 206 insertions(+), 17 deletions(-)
+> 
+> diff --git a/fs/backing-file.c b/fs/backing-file.c
+> index 45da8600d564..1f3bbfc75882 100644
+> --- a/fs/backing-file.c
+> +++ b/fs/backing-file.c
+> @@ -12,6 +12,7 @@
+>  #include <linux/backing-file.h>
+>  #include <linux/splice.h>
+>  #include <linux/mm.h>
+> +#include <linux/security.h>
+>  
+>  #include "internal.h"
+>  
+> @@ -29,14 +30,15 @@
+>   * returned file into a container structure that also stores the stacked
+>   * file's path, which can be retrieved using backing_file_user_path().
+>   */
+> -struct file *backing_file_open(const struct path *user_path, int flags,
+> +struct file *backing_file_open(const struct file *user_file, int flags,
+>  			       const struct path *real_path,
+>  			       const struct cred *cred)
+>  {
+> +	const struct path *user_path = &user_file->f_path;
+>  	struct file *f;
+>  	int error;
+>  
+> -	f = alloc_empty_backing_file(flags, cred);
+> +	f = alloc_empty_backing_file(flags, cred, user_file);
+>  	if (IS_ERR(f))
+>  		return f;
+>  
+> @@ -52,15 +54,16 @@ struct file *backing_file_open(const struct path *user_path, int flags,
+>  }
+>  EXPORT_SYMBOL_GPL(backing_file_open);
+>  
+> -struct file *backing_tmpfile_open(const struct path *user_path, int flags,
+> +struct file *backing_tmpfile_open(const struct file *user_file, int flags,
+>  				  const struct path *real_parentpath,
+>  				  umode_t mode, const struct cred *cred)
+>  {
+>  	struct mnt_idmap *real_idmap = mnt_idmap(real_parentpath->mnt);
+> +	const struct path *user_path = &user_file->f_path;
+>  	struct file *f;
+>  	int error;
+>  
+> -	f = alloc_empty_backing_file(flags, cred);
+> +	f = alloc_empty_backing_file(flags, cred, user_file);
+>  	if (IS_ERR(f))
+>  		return f;
+>  
+> @@ -336,8 +339,13 @@ int backing_file_mmap(struct file *file, struct vm_area_struct *vma,
+>  
+>  	vma_set_file(vma, file);
+>  
+> -	scoped_with_creds(ctx->cred)
+> +	scoped_with_creds(ctx->cred) {
+> +		ret = security_mmap_backing_file(vma, file, user_file);
+> +		if (ret)
+> +			return ret;
+> +
+>  		ret = vfs_mmap(vma->vm_file, vma);
+> +	}
+>  
+>  	if (ctx->accessed)
+>  		ctx->accessed(user_file);
+> diff --git a/fs/erofs/ishare.c b/fs/erofs/ishare.c
+> index ec433bacc592..6ed66b17359b 100644
+> --- a/fs/erofs/ishare.c
+> +++ b/fs/erofs/ishare.c
+> @@ -4,6 +4,7 @@
+>   */
+>  #include <linux/xxhash.h>
+>  #include <linux/mount.h>
+> +#include <linux/security.h>
+>  #include "internal.h"
+>  #include "xattr.h"
+>  
+> @@ -106,7 +107,8 @@ static int erofs_ishare_file_open(struct inode *inode, struct file *file)
+>  
+>  	if (file->f_flags & O_DIRECT)
+>  		return -EINVAL;
+> -	realfile = alloc_empty_backing_file(O_RDONLY|O_NOATIME, current_cred());
+> +	realfile = alloc_empty_backing_file(O_RDONLY|O_NOATIME, current_cred(),
+> +					    file);
+>  	if (IS_ERR(realfile))
+>  		return PTR_ERR(realfile);
+>  	ihold(sharedinode);
+> @@ -150,8 +152,14 @@ static ssize_t erofs_ishare_file_read_iter(struct kiocb *iocb,
+>  static int erofs_ishare_mmap(struct file *file, struct vm_area_struct *vma)
+>  {
+>  	struct file *realfile = file->private_data;
+> +	int err;
+>  
+>  	vma_set_file(vma, realfile);
+> +
+> +	err = security_mmap_backing_file(vma, realfile, file);
+> +	if (err)
+> +		return err;
+> +
+>  	return generic_file_readonly_mmap(file, vma);
+>  }
+>  
+> diff --git a/fs/file_table.c b/fs/file_table.c
+> index 3b3792903185..d19d879b6efc 100644
+> --- a/fs/file_table.c
+> +++ b/fs/file_table.c
+> @@ -50,6 +50,9 @@ struct backing_file {
+>  		struct path user_path;
+>  		freeptr_t bf_freeptr;
+>  	};
+> +#ifdef CONFIG_SECURITY
+> +	void *security;
+> +#endif
+>  };
+>  
+>  #define backing_file(f) container_of(f, struct backing_file, file)
+> @@ -66,8 +69,21 @@ void backing_file_set_user_path(struct file *f, const struct path *path)
+>  }
+>  EXPORT_SYMBOL_GPL(backing_file_set_user_path);
+>  
+> +#ifdef CONFIG_SECURITY
+> +void *backing_file_security(const struct file *f)
+> +{
+> +	return backing_file(f)->security;
+> +}
+> +
+> +void backing_file_set_security(struct file *f, void *security)
+> +{
+> +	backing_file(f)->security = security;
+> +}
+> +#endif /* CONFIG_SECURITY */
+> +
+>  static inline void backing_file_free(struct backing_file *ff)
+>  {
+> +	security_backing_file_free(&ff->file);
+>  	path_put(&ff->user_path);
+>  	kmem_cache_free(bfilp_cachep, ff);
+>  }
+> @@ -288,10 +304,12 @@ struct file *alloc_empty_file_noaccount(int flags, const struct cred *cred)
+>  	return f;
+>  }
+>  
+> -static int init_backing_file(struct backing_file *ff)
+> +static int init_backing_file(struct backing_file *ff,
+> +			     const struct file *user_file)
+>  {
+>  	memset(&ff->user_path, 0, sizeof(ff->user_path));
+> -	return 0;
+> +	backing_file_set_security(&ff->file, NULL);
+> +	return security_backing_file_alloc(&ff->file, user_file);
+>  }
+>  
+>  /*
+> @@ -301,7 +319,8 @@ static int init_backing_file(struct backing_file *ff)
+>   * This is only for kernel internal use, and the allocate file must not be
+>   * installed into file tables or such.
+>   */
+> -struct file *alloc_empty_backing_file(int flags, const struct cred *cred)
+> +struct file *alloc_empty_backing_file(int flags, const struct cred *cred,
+> +				      const struct file *user_file)
+>  {
+>  	struct backing_file *ff;
+>  	int error;
+> @@ -318,7 +337,7 @@ struct file *alloc_empty_backing_file(int flags, const struct cred *cred)
+>  
+>  	/* The f_mode flags must be set before fput(). */
+>  	ff->file.f_mode |= FMODE_BACKING | FMODE_NOACCOUNT;
+> -	error = init_backing_file(ff);
+> +	error = init_backing_file(ff, user_file);
+>  	if (unlikely(error)) {
+>  		fput(&ff->file);
+>  		return ERR_PTR(error);
+> diff --git a/fs/fuse/passthrough.c b/fs/fuse/passthrough.c
+> index 72de97c03d0e..f2d08ac2459b 100644
+> --- a/fs/fuse/passthrough.c
+> +++ b/fs/fuse/passthrough.c
+> @@ -167,7 +167,7 @@ struct fuse_backing *fuse_passthrough_open(struct file *file, int backing_id)
+>  		goto out;
+>  
+>  	/* Allocate backing file per fuse file to store fuse path */
+> -	backing_file = backing_file_open(&file->f_path, file->f_flags,
+> +	backing_file = backing_file_open(file, file->f_flags,
+>  					 &fb->file->f_path, fb->cred);
+>  	err = PTR_ERR(backing_file);
+>  	if (IS_ERR(backing_file)) {
+> diff --git a/fs/internal.h b/fs/internal.h
+> index cbc384a1aa09..77e90e4124e0 100644
+> --- a/fs/internal.h
+> +++ b/fs/internal.h
+> @@ -106,7 +106,8 @@ extern void chroot_fs_refs(const struct path *, const struct path *);
+>   */
+>  struct file *alloc_empty_file(int flags, const struct cred *cred);
+>  struct file *alloc_empty_file_noaccount(int flags, const struct cred *cred);
+> -struct file *alloc_empty_backing_file(int flags, const struct cred *cred);
+> +struct file *alloc_empty_backing_file(int flags, const struct cred *cred,
+> +				      const struct file *user_file);
+>  void backing_file_set_user_path(struct file *f, const struct path *path);
+>  
+>  static inline void file_put_write_access(struct file *file)
+> diff --git a/fs/overlayfs/dir.c b/fs/overlayfs/dir.c
+> index ff3dbd1ca61f..f2f20a611af3 100644
+> --- a/fs/overlayfs/dir.c
+> +++ b/fs/overlayfs/dir.c
+> @@ -1374,7 +1374,7 @@ static int ovl_create_tmpfile(struct file *file, struct dentry *dentry,
+>  				return PTR_ERR(cred);
+>  
+>  			ovl_path_upper(dentry->d_parent, &realparentpath);
+> -			realfile = backing_tmpfile_open(&file->f_path, flags, &realparentpath,
+> +			realfile = backing_tmpfile_open(file, flags, &realparentpath,
+>  							mode, current_cred());
+>  			err = PTR_ERR_OR_ZERO(realfile);
+>  			pr_debug("tmpfile/open(%pd2, 0%o) = %i\n", realparentpath.dentry, mode, err);
+> diff --git a/fs/overlayfs/file.c b/fs/overlayfs/file.c
+> index 97bed2286030..27cc07738f33 100644
+> --- a/fs/overlayfs/file.c
+> +++ b/fs/overlayfs/file.c
+> @@ -48,7 +48,7 @@ static struct file *ovl_open_realfile(const struct file *file,
+>  			if (!inode_owner_or_capable(real_idmap, realinode))
+>  				flags &= ~O_NOATIME;
+>  
+> -			realfile = backing_file_open(file_user_path(file),
+> +			realfile = backing_file_open(file,
+>  						     flags, realpath, current_cred());
+>  		}
+>  	}
+> diff --git a/include/linux/backing-file.h b/include/linux/backing-file.h
+> index 1476a6ed1bfd..c939cd222730 100644
+> --- a/include/linux/backing-file.h
+> +++ b/include/linux/backing-file.h
+> @@ -18,10 +18,10 @@ struct backing_file_ctx {
+>  	void (*end_write)(struct kiocb *iocb, ssize_t);
+>  };
+>  
+> -struct file *backing_file_open(const struct path *user_path, int flags,
+> +struct file *backing_file_open(const struct file *user_file, int flags,
+>  			       const struct path *real_path,
+>  			       const struct cred *cred);
+> -struct file *backing_tmpfile_open(const struct path *user_path, int flags,
+> +struct file *backing_tmpfile_open(const struct file *user_file, int flags,
+>  				  const struct path *real_parentpath,
+>  				  umode_t mode, const struct cred *cred);
+>  ssize_t backing_file_read_iter(struct file *file, struct iov_iter *iter,
+> diff --git a/include/linux/fs.h b/include/linux/fs.h
+> index 8b3dd145b25e..d0d0e8f55589 100644
+> --- a/include/linux/fs.h
+> +++ b/include/linux/fs.h
+> @@ -2475,6 +2475,19 @@ struct file *dentry_create(struct path *path, int flags, umode_t mode,
+>  			   const struct cred *cred);
+>  const struct path *backing_file_user_path(const struct file *f);
+>  
+> +#ifdef CONFIG_SECURITY
+> +void *backing_file_security(const struct file *f);
+> +void backing_file_set_security(struct file *f, void *security);
+> +#else
+> +static inline void *backing_file_security(const struct file *f)
+> +{
+> +	return NULL;
+> +}
+> +static inline void backing_file_set_security(struct file *f, void *security)
+> +{
+> +}
+> +#endif /* CONFIG_SECURITY */
+> +
+>  /*
+>   * When mmapping a file on a stackable filesystem (e.g., overlayfs), the file
+>   * stored in ->vm_file is a backing file whose f_inode is on the underlying
+> diff --git a/include/linux/lsm_audit.h b/include/linux/lsm_audit.h
+> index 382c56a97bba..584db296e43b 100644
+> --- a/include/linux/lsm_audit.h
+> +++ b/include/linux/lsm_audit.h
+> @@ -94,7 +94,7 @@ struct common_audit_data {
+>  #endif
+>  		char *kmod_name;
+>  		struct lsm_ioctlop_audit *op;
+> -		struct file *file;
+> +		const struct file *file;
+>  		struct lsm_ibpkey_audit *ibpkey;
+>  		struct lsm_ibendport_audit *ibendport;
+>  		int reason;
+> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+> index 8c42b4bde09c..b4958167e381 100644
+> --- a/include/linux/lsm_hook_defs.h
+> +++ b/include/linux/lsm_hook_defs.h
+> @@ -191,6 +191,9 @@ LSM_HOOK(int, 0, file_permission, struct file *file, int mask)
+>  LSM_HOOK(int, 0, file_alloc_security, struct file *file)
+>  LSM_HOOK(void, LSM_RET_VOID, file_release, struct file *file)
+>  LSM_HOOK(void, LSM_RET_VOID, file_free_security, struct file *file)
+> +LSM_HOOK(int, 0, backing_file_alloc, struct file *backing_file,
+> +	 const struct file *user_file)
+> +LSM_HOOK(void, LSM_RET_VOID, backing_file_free, struct file *backing_file)
+>  LSM_HOOK(int, 0, file_ioctl, struct file *file, unsigned int cmd,
+>  	 unsigned long arg)
+>  LSM_HOOK(int, 0, file_ioctl_compat, struct file *file, unsigned int cmd,
+> @@ -198,6 +201,8 @@ LSM_HOOK(int, 0, file_ioctl_compat, struct file *file, unsigned int cmd,
+>  LSM_HOOK(int, 0, mmap_addr, unsigned long addr)
+>  LSM_HOOK(int, 0, mmap_file, struct file *file, unsigned long reqprot,
+>  	 unsigned long prot, unsigned long flags)
+> +LSM_HOOK(int, 0, mmap_backing_file, struct vm_area_struct *vma,
+> +	 struct file *backing_file, struct file *user_file)
+>  LSM_HOOK(int, 0, file_mprotect, struct vm_area_struct *vma,
+>  	 unsigned long reqprot, unsigned long prot)
+>  LSM_HOOK(int, 0, file_lock, struct file *file, unsigned int cmd)
+> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> index d48bf0ad26f4..b4f8cad53ddb 100644
+> --- a/include/linux/lsm_hooks.h
+> +++ b/include/linux/lsm_hooks.h
+> @@ -104,6 +104,7 @@ struct security_hook_list {
+>  struct lsm_blob_sizes {
+>  	unsigned int lbs_cred;
+>  	unsigned int lbs_file;
+> +	unsigned int lbs_backing_file;
+>  	unsigned int lbs_ib;
+>  	unsigned int lbs_inode;
+>  	unsigned int lbs_sock;
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index ee88dd2d2d1f..8d2d4856934e 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -472,11 +472,17 @@ int security_file_permission(struct file *file, int mask);
+>  int security_file_alloc(struct file *file);
+>  void security_file_release(struct file *file);
+>  void security_file_free(struct file *file);
+> +int security_backing_file_alloc(struct file *backing_file,
+> +				const struct file *user_file);
+> +void security_backing_file_free(struct file *backing_file);
+>  int security_file_ioctl(struct file *file, unsigned int cmd, unsigned long arg);
+>  int security_file_ioctl_compat(struct file *file, unsigned int cmd,
+>  			       unsigned long arg);
+>  int security_mmap_file(struct file *file, unsigned long prot,
+>  			unsigned long flags);
+> +int security_mmap_backing_file(struct vm_area_struct *vma,
+> +			       struct file *backing_file,
+> +			       struct file *user_file);
+>  int security_mmap_addr(unsigned long addr);
+>  int security_file_mprotect(struct vm_area_struct *vma, unsigned long reqprot,
+>  			   unsigned long prot);
+> @@ -1141,6 +1147,15 @@ static inline void security_file_release(struct file *file)
+>  static inline void security_file_free(struct file *file)
+>  { }
+>  
+> +static inline int security_backing_file_alloc(struct file *backing_file,
+> +					      const struct file *user_file)
+> +{
+> +	return 0;
+> +}
+> +
+> +static inline void security_backing_file_free(struct file *backing_file)
+> +{ }
+> +
+>  static inline int security_file_ioctl(struct file *file, unsigned int cmd,
+>  				      unsigned long arg)
+>  {
+> @@ -1160,6 +1175,13 @@ static inline int security_mmap_file(struct file *file, unsigned long prot,
+>  	return 0;
+>  }
+>  
+> +static inline int security_mmap_backing_file(struct vm_area_struct *vma,
+> +					     struct file *backing_file,
+> +					     struct file *user_file)
+> +{
+> +	return 0;
+> +}
+> +
+>  static inline int security_mmap_addr(unsigned long addr)
+>  {
+>  	return cap_mmap_addr(addr);
+> diff --git a/security/lsm.h b/security/lsm.h
+> index db77cc83e158..32f808ad4335 100644
+> --- a/security/lsm.h
+> +++ b/security/lsm.h
+> @@ -29,6 +29,7 @@ extern struct lsm_blob_sizes blob_sizes;
+>  
+>  /* LSM blob caches */
+>  extern struct kmem_cache *lsm_file_cache;
+> +extern struct kmem_cache *lsm_backing_file_cache;
+>  extern struct kmem_cache *lsm_inode_cache;
+>  
+>  /* LSM blob allocators */
+> diff --git a/security/lsm_init.c b/security/lsm_init.c
+> index 573e2a7250c4..7c0fd17f1601 100644
+> --- a/security/lsm_init.c
+> +++ b/security/lsm_init.c
+> @@ -293,6 +293,8 @@ static void __init lsm_prepare(struct lsm_info *lsm)
+>  	blobs = lsm->blobs;
+>  	lsm_blob_size_update(&blobs->lbs_cred, &blob_sizes.lbs_cred);
+>  	lsm_blob_size_update(&blobs->lbs_file, &blob_sizes.lbs_file);
+> +	lsm_blob_size_update(&blobs->lbs_backing_file,
+> +			     &blob_sizes.lbs_backing_file);
+>  	lsm_blob_size_update(&blobs->lbs_ib, &blob_sizes.lbs_ib);
+>  	/* inode blob gets an rcu_head in addition to LSM blobs. */
+>  	if (blobs->lbs_inode && blob_sizes.lbs_inode == 0)
+> @@ -441,6 +443,8 @@ int __init security_init(void)
+>  	if (lsm_debug) {
+>  		lsm_pr("blob(cred) size %d\n", blob_sizes.lbs_cred);
+>  		lsm_pr("blob(file) size %d\n", blob_sizes.lbs_file);
+> +		lsm_pr("blob(backing_file) size %d\n",
+> +		       blob_sizes.lbs_backing_file);
+>  		lsm_pr("blob(ib) size %d\n", blob_sizes.lbs_ib);
+>  		lsm_pr("blob(inode) size %d\n", blob_sizes.lbs_inode);
+>  		lsm_pr("blob(ipc) size %d\n", blob_sizes.lbs_ipc);
+> @@ -462,6 +466,11 @@ int __init security_init(void)
+>  		lsm_file_cache = kmem_cache_create("lsm_file_cache",
+>  						   blob_sizes.lbs_file, 0,
+>  						   SLAB_PANIC, NULL);
+> +	if (blob_sizes.lbs_backing_file)
+> +		lsm_backing_file_cache = kmem_cache_create(
+> +						   "lsm_backing_file_cache",
+> +						   blob_sizes.lbs_backing_file,
+> +						   0, SLAB_PANIC, NULL);
+>  	if (blob_sizes.lbs_inode)
+>  		lsm_inode_cache = kmem_cache_create("lsm_inode_cache",
+>  						    blob_sizes.lbs_inode, 0,
+> diff --git a/security/security.c b/security/security.c
+> index a26c1474e2e4..048560ef6a1a 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -82,6 +82,7 @@ const struct lsm_id *lsm_idlist[MAX_LSM_COUNT];
+>  struct lsm_blob_sizes blob_sizes;
+>  
+>  struct kmem_cache *lsm_file_cache;
+> +struct kmem_cache *lsm_backing_file_cache;
+>  struct kmem_cache *lsm_inode_cache;
+>  
+>  #define SECURITY_HOOK_ACTIVE_KEY(HOOK, IDX) security_hook_active_##HOOK##_##IDX
+> @@ -173,6 +174,30 @@ static int lsm_file_alloc(struct file *file)
+>  	return 0;
+>  }
+>  
+> +/**
+> + * lsm_backing_file_alloc - allocate a composite backing file blob
+> + * @backing_file: the backing file
+> + *
+> + * Allocate the backing file blob for all the modules.
+> + *
+> + * Returns 0, or -ENOMEM if memory can't be allocated.
+> + */
+> +static int lsm_backing_file_alloc(struct file *backing_file)
+> +{
+> +	void *blob;
+> +
+> +	if (!lsm_backing_file_cache) {
+> +		backing_file_set_security(backing_file, NULL);
+> +		return 0;
+> +	}
+> +
+> +	blob = kmem_cache_zalloc(lsm_backing_file_cache, GFP_KERNEL);
+> +	backing_file_set_security(backing_file, blob);
+> +	if (!blob)
+> +		return -ENOMEM;
+> +	return 0;
+> +}
+> +
+>  /**
+>   * lsm_blob_alloc - allocate a composite blob
+>   * @dest: the destination for the blob
+> @@ -2418,6 +2443,57 @@ void security_file_free(struct file *file)
+>  	}
+>  }
+>  
+> +/**
+> + * security_backing_file_alloc() - Allocate and setup a backing file blob
+> + * @backing_file: the backing file
+> + * @user_file: the associated user visible file
+> + *
+> + * Allocate a backing file LSM blob and perform any necessary initialization of
+> + * the LSM blob.  There will be some operations where the LSM will not have
+> + * access to @user_file after this point, so any important state associated
+> + * with @user_file that is important to the LSM should be captured in the
+> + * backing file's LSM blob.
+> + *
+> + * LSM's should avoid taking a reference to @user_file in this hook as it will
+> + * result in problems later when the system attempts to drop/put the file
+> + * references due to a circular dependency.
+> + *
+> + * Return: Return 0 if the hook is successful, negative values otherwise.
+> + */
+> +int security_backing_file_alloc(struct file *backing_file,
+> +				const struct file *user_file)
+> +{
+> +	int rc;
+> +
+> +	rc = lsm_backing_file_alloc(backing_file);
+> +	if (rc)
+> +		return rc;
+> +	rc = call_int_hook(backing_file_alloc, backing_file, user_file);
+> +	if (unlikely(rc))
+> +		security_backing_file_free(backing_file);
+> +
+> +	return rc;
+> +}
+> +
+> +/**
+> + * security_backing_file_free() - Free a backing file blob
+> + * @backing_file: the backing file
+> + *
+> + * Free any LSM state associate with a backing file's LSM blob, including the
+> + * blob itself.
+> + */
+> +void security_backing_file_free(struct file *backing_file)
+> +{
+> +	void *blob = backing_file_security(backing_file);
+> +
+> +	call_void_hook(backing_file_free, backing_file);
+> +
+> +	if (blob) {
+> +		backing_file_set_security(backing_file, NULL);
+> +		kmem_cache_free(lsm_backing_file_cache, blob);
+> +	}
+> +}
+> +
+>  /**
+>   * security_file_ioctl() - Check if an ioctl is allowed
+>   * @file: associated file
+> @@ -2506,6 +2582,32 @@ int security_mmap_file(struct file *file, unsigned long prot,
+>  			     flags);
+>  }
+>  
+> +/**
+> + * security_mmap_backing_file - Check if mmap'ing a backing file is allowed
+> + * @vma: the vm_area_struct for the mmap'd region
+> + * @backing_file: the backing file being mmap'd
+> + * @user_file: the user file being mmap'd
+> + *
+> + * Check permissions for a mmap operation on a stacked filesystem.  This hook
+> + * is called after the security_mmap_file() and is responsible for authorizing
+> + * the mmap on @backing_file.  It is important to note that the mmap operation
+> + * on @user_file has already been authorized and the @vma->vm_file has been
+> + * set to @backing_file.
+> + *
+> + * Return: Returns 0 if permission is granted.
+> + */
+> +int security_mmap_backing_file(struct vm_area_struct *vma,
+> +			       struct file *backing_file,
+> +			       struct file *user_file)
+> +{
+> +	/* recommended by the stackable filesystem devs */
+> +	if (WARN_ON_ONCE(!(backing_file->f_mode & FMODE_BACKING)))
+> +		return -EIO;
+> +
+> +	return call_int_hook(mmap_backing_file, vma, backing_file, user_file);
+> +}
+> +EXPORT_SYMBOL_GPL(security_mmap_backing_file);
+> +
+>  /**
+>   * security_mmap_addr() - Check if mmap'ing an address is allowed
+>   * @addr: address
+> -- 
+> 2.53.0
+> 
