@@ -1,48 +1,48 @@
 Received: from mx1.secunet.com (mx1.secunet.com [62.96.220.36])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 541CB2D2488;
-	Sun, 12 Apr 2026 11:16:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B0C11D5151;
+	Sun, 12 Apr 2026 11:16:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.96.220.36
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775992575; cv=none; b=ooFvL1Yluw/VeJCFYqLR8UTgygQl+aqLT82sfT+wEoQH4xLvsKskOCX5SItbG6JqgR61eN0bq7jMFsd0D7IpCGoJzBH9HOaFw9+1+SrlsLF3yn1AKViUtkwOfXgrkp/MMasad19jQnwcC6xVY7MmU0N6oP1IIDMK1pQPgBYltMs=
+	t=1775992588; cv=none; b=pIS14WO8iLLNNTYDntk2Lv564QIsCpfScVoTIC+mPjZMzu2Pw/PnNPTW5EZvX8fOMc1QyWixCZ6cF75rkzjkWIUiTsZ+3YOb8QEBhYsrUpp9bqyqmWcQbTW09wd0oKpHVmsO5Kjm/T/qBnJe4pvBnO+oBxt7qKK1g1LTqNUg4ZQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775992575; c=relaxed/simple;
-	bh=XGbVT5+MgmOrUWyIsLj3C2XbhobYyDSPIakykgdW9fs=;
+	s=arc-20240116; t=1775992588; c=relaxed/simple;
+	bh=VHX+q1GKMuBaEydZlbjNIo4XPJsONPN+X9Z9Go23a9o=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ili9UyhUelRPQjlracmThGjh+0/FRnfsjoQwhzF0lP7X524p6K+kJ2l9XQW9hgORRb4oOpFf8y7oEUHWyiCr4GaLDDw1T8z5RAkFDgvOpS6onTT0t3x6ZwIV6TwWOocVVUuaL/ALFpsQ6Kb0H4KagAT/FBdvmWZZGpWoYxDO2qM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com; spf=pass smtp.mailfrom=secunet.com; dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b=TaBgN/to; arc=none smtp.client-ip=62.96.220.36
+	 MIME-Version:Content-Type; b=DZPEvqP8eaGzuY4lxI9XMkraMxPhGdcrSVd47rmdoxNyaAycw7GlTMA5HtphiTdJL2s1XkauEiDvPdHvIx2sG1vVbWRQ3r3pRXYnC3xSYLEVF9jPsQuXlwXnVmcCIIz3lYuKhJL07CLzSzytNPvTQhw7skQH9PtIdVdtIigGrjY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com; spf=pass smtp.mailfrom=secunet.com; dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b=I8DViuZ9; arc=none smtp.client-ip=62.96.220.36
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=secunet.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b="TaBgN/to"
+	dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b="I8DViuZ9"
 Received: from localhost (localhost [127.0.0.1])
-	by mx1.secunet.com (Postfix) with ESMTP id F0FB720764;
-	Sun, 12 Apr 2026 13:16:12 +0200 (CEST)
+	by mx1.secunet.com (Postfix) with ESMTP id 46B6A20764;
+	Sun, 12 Apr 2026 13:16:25 +0200 (CEST)
 X-Virus-Scanned: by secunet
 Received: from mx1.secunet.com ([127.0.0.1])
  by localhost (mx1.secunet.com [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 4t8FCIJZpJ-1; Sun, 12 Apr 2026 13:16:12 +0200 (CEST)
+ with ESMTP id noTLse6UxDR9; Sun, 12 Apr 2026 13:16:24 +0200 (CEST)
 Received: from EXCH-02.secunet.de (rl2.secunet.de [10.32.0.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mx1.secunet.com (Postfix) with ESMTPS id 5BC732074F;
-	Sun, 12 Apr 2026 13:16:12 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.secunet.com 5BC732074F
+	by mx1.secunet.com (Postfix) with ESMTPS id DE86B2074F;
+	Sun, 12 Apr 2026 13:16:23 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.secunet.com DE86B2074F
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=secunet.com;
-	s=202301; t=1775992572;
-	bh=acKr4mOZaJTSy0PfL+1ws1QiSPyE3W5VnkJOLxP/49Q=;
+	s=202301; t=1775992583;
+	bh=exT7lPwJU9Et6naG08TRpbLTVZcEOR6qY+KHeZX6ESU=;
 	h=From:To:CC:Subject:Date:In-Reply-To:References:From;
-	b=TaBgN/toH/LsX6ezYiP2a7mCnVZHsybSTGhxicZ5+YUsAMBK96DKVDDLRkhaITQxk
-	 LCEZ+zOc/Kwml7nM0BIGFVeVR4xt0Dq/4RGw3cIYCax1sv4rVo77GiuAixUFQm8n3T
-	 ABjYXmsOnNEamcgQgPxAlJgIN0J0zx7vRhKvuh47+2UPiW5t1a2nFmnqgrAGptjjRI
-	 m5Z96ZFQR+aQjFT3iZFxjHz20xVc3jEfaHFe1tkq1B7ZYs7mCjLf70RNuAPtkSwexL
-	 55lWCK0FelcQUc4z1xpXqpLmiQE9j9S/aYbuFmneeH0WGeGjls3B2wxnw3KR+aFNT9
-	 GW2yQVmmiBtbA==
+	b=I8DViuZ9GAwGGJ5folbUgaZRmdcEzzvuXsylN1TZphafHbXy70a00lOGtY3ZUNbW2
+	 ap0SEHAr6Qxzn77HziiBJ0VzDp12J68mJMD6zEoVUD0GYoz1uOEo8AZ8X/YXIST2iW
+	 VV5XuE+6mKuJlLlFmnG4MVvDVsIoVKiVfDUCPtxwgVp1PojfG46Pwhusx6qApoPjqK
+	 x8nIDFsXn1zHgzZSZaq8G69IrMhovn2VpTNx1HwpgO859TirJtV44LX81U3b0jeyGv
+	 9elu+CngeX2OvkZHAcEjtuAmct0qBb21oHw9T1VjG8iEmsDfq4rhMKny5pyTdJ9DSd
+	 oKPEwIxu/RjKQ==
 Received: from moon.secunet.de (172.18.149.1) by EXCH-02.secunet.de
  (10.32.0.172) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Sun, 12 Apr
- 2026 13:16:10 +0200
+ 2026 13:16:20 +0200
 From: Antony Antony <antony.antony@secunet.com>
 To: Antony Antony <antony.antony@secunet.com>, Steffen Klassert
 	<steffen.klassert@secunet.com>, Herbert Xu <herbert@gondor.apana.org.au>,
@@ -57,9 +57,9 @@ CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
 	<selinux@vger.kernel.org>, <linux-doc@vger.kernel.org>, Chiachang Wang
 	<chiachangwang@google.com>, Yan Yan <evitayan@google.com>,
 	<devel@linux-ipsec.org>
-Subject: [PATCH ipsec-next v7 11/14] xfrm: refactor XFRMA_MTIMER_THRESH validation into a helper
-Date: Sun, 12 Apr 2026 13:15:56 +0200
-Message-ID: <migrate-state-v7-11-44eb2440b91c@secunet.com>
+Subject: [PATCH ipsec-next v7 12/14] xfrm: add XFRM_MSG_MIGRATE_STATE for single SA migration
+Date: Sun, 12 Apr 2026 13:16:12 +0200
+Message-ID: <migrate-state-v7-12-44eb2440b91c@secunet.com>
 X-Mailer: git-send-email 2.39.5
 In-Reply-To: <migrate-state-v7-0-44eb2440b91c@secunet.com>
 References: <migrate-state-v7-0-44eb2440b91c@secunet.com>
@@ -72,67 +72,626 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 X-Mailer: b4 0.15-dev
 Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: EXCH-04.secunet.de (10.32.0.184) To EXCH-02.secunet.de
+X-ClientProxiedBy: EXCH-03.secunet.de (10.32.0.183) To EXCH-02.secunet.de
  (10.32.0.172)
 
-Extract verify_mtimer_thresh() to consolidate the XFRMA_MTIMER_THRESH
-validation logic shared between the add_sa and upcoming patch.
+Add a new netlink method to migrate a single xfrm_state.
+Unlike the existing migration mechanism (SA + policy), this
+supports migrating only the SA and allows changing the reqid.
+
+The SA is looked up via xfrm_usersa_id, which uniquely
+identifies it, so old_saddr is not needed. old_daddr is carried in
+xfrm_usersa_id.daddr.
+
+The reqid is invariant in the old migration.
 
 Signed-off-by: Antony Antony <antony.antony@secunet.com>
 ---
-v5->v6: added this patch
+v6->v7: - add flags field to xfrm_user_migrate_state (based on Sabrina's feedback)
+  - add XFRM_MIGRATE_STATE_NO_OFFLOAD (bit 0): suppresses offload
+  - omit-to-inherit; mutually exclusive with XFRMA_OFFLOAD_DEV
+  - zero-initialize struct xfrm_migrate m[XFRM_MAX_DEPTH]
+  - add struct xfrm_selector new_sel to xfrm_user_migrate_state
+  - add XFRM_MIGRATE_STATE_UPDATE_SEL: derive new selector
+    from SA addresses when old selector is a single-host match
+v5->v6: - (Feedback from Sabrina's review)
+  - reqid change: use xfrm_state_add, not xfrm_state_insert
+  - encap and xuo: use nla_data() directly, no kmemdup needed
+  - notification failure is non-fatal: set extack warning, return 0
+  - drop state direction, x->dir, check, not required
+  - reverse xmas tree local variable ordering
+  - use NL_SET_ERR_MSG_WEAK for clone failure message
+  - fix implicit padding in xfrm_user_migrate_state uapi struct
+  - support XFRMA_SET_MARK/XFRMA_SET_MARK_MASK in XFRM_MSG_MIGRATE_STATE
+v4->v5: - set portid, seq in XFRM_MSG_MIGRATE_STATE netlink notification
+  - rename error label to out for clarity
+  - add locking and synchronize after cloning
+  - change some if(x) to if(!x) for clarity
+  - call __xfrm_state_delete() inside the lock
+  - return error from xfrm_send_migrate_state() instead of always returning 0
+v3->v4: preserve reqid invariant for each state migrated
+v2->v3: free the skb on the error path
+v1->v2: merged next patch here to fix use uninitialized value
+  - removed unnecessary inline
+  - added const when possible
 ---
- net/xfrm/xfrm_user.c | 29 ++++++++++++++++++-----------
- 1 file changed, 18 insertions(+), 11 deletions(-)
+ include/net/xfrm.h          |  16 ++-
+ include/uapi/linux/xfrm.h   |  21 ++++
+ net/xfrm/xfrm_device.c      |   2 +-
+ net/xfrm/xfrm_policy.c      |  19 +++
+ net/xfrm/xfrm_state.c       |  29 +++--
+ net/xfrm/xfrm_user.c        | 287 +++++++++++++++++++++++++++++++++++++++++++-
+ security/selinux/nlmsgtab.c |   3 +-
+ 7 files changed, 363 insertions(+), 14 deletions(-)
 
-diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
-index 26b82d94acc1..fe0cf824f072 100644
---- a/net/xfrm/xfrm_user.c
-+++ b/net/xfrm/xfrm_user.c
-@@ -239,6 +239,22 @@ static inline int verify_replay(struct xfrm_usersa_info *p,
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index 4b29ab92c2a7..e33e524cd909 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -684,12 +684,20 @@ struct xfrm_migrate {
+ 	xfrm_address_t		new_saddr;
+ 	struct xfrm_encap_tmpl *encap;
+ 	struct xfrm_user_offload *xuo;
++	struct xfrm_mark        old_mark;
++	struct xfrm_mark       *new_mark;
++	struct xfrm_mark        smark;
+ 	u8			proto;
+ 	u8			mode;
+-	u16			reserved;
++	u16			msg_type; /* XFRM_MSG_MIGRATE or XFRM_MSG_MIGRATE_STATE */
++	u32			flags;
+ 	u32			old_reqid;
++	u32			new_reqid;
++	u32			nat_keepalive_interval;
++	u32			mapping_maxage;
+ 	u16			old_family;
+ 	u16			new_family;
++	const struct xfrm_selector *new_sel;
+ };
+ 
+ #define XFRM_KM_TIMEOUT                30
+@@ -2104,7 +2112,7 @@ void xfrm_dev_resume(struct sk_buff *skb);
+ void xfrm_dev_backlog(struct softnet_data *sd);
+ struct sk_buff *validate_xmit_xfrm(struct sk_buff *skb, netdev_features_t features, bool *again);
+ int xfrm_dev_state_add(struct net *net, struct xfrm_state *x,
+-		       struct xfrm_user_offload *xuo,
++		       const struct xfrm_user_offload *xuo,
+ 		       struct netlink_ext_ack *extack);
+ int xfrm_dev_policy_add(struct net *net, struct xfrm_policy *xp,
+ 			struct xfrm_user_offload *xuo, u8 dir,
+@@ -2175,7 +2183,9 @@ static inline struct sk_buff *validate_xmit_xfrm(struct sk_buff *skb, netdev_fea
+ 	return skb;
+ }
+ 
+-static inline int xfrm_dev_state_add(struct net *net, struct xfrm_state *x, struct xfrm_user_offload *xuo, struct netlink_ext_ack *extack)
++static inline int xfrm_dev_state_add(struct net *net, struct xfrm_state *x,
++				     const struct xfrm_user_offload *xuo,
++				     struct netlink_ext_ack *extack)
+ {
+ 	return 0;
+ }
+diff --git a/include/uapi/linux/xfrm.h b/include/uapi/linux/xfrm.h
+index a23495c0e0a1..34d8ad5c4818 100644
+--- a/include/uapi/linux/xfrm.h
++++ b/include/uapi/linux/xfrm.h
+@@ -227,6 +227,9 @@ enum {
+ #define XFRM_MSG_SETDEFAULT XFRM_MSG_SETDEFAULT
+ 	XFRM_MSG_GETDEFAULT,
+ #define XFRM_MSG_GETDEFAULT XFRM_MSG_GETDEFAULT
++
++	XFRM_MSG_MIGRATE_STATE,
++#define XFRM_MSG_MIGRATE_STATE XFRM_MSG_MIGRATE_STATE
+ 	__XFRM_MSG_MAX
+ };
+ #define XFRM_MSG_MAX (__XFRM_MSG_MAX - 1)
+@@ -507,6 +510,24 @@ struct xfrm_user_migrate {
+ 	__u16				new_family;
+ };
+ 
++struct xfrm_user_migrate_state {
++	struct xfrm_usersa_id id;
++	xfrm_address_t new_daddr;
++	xfrm_address_t new_saddr;
++	struct xfrm_mark old_mark;
++	struct xfrm_selector new_sel;
++	__u32 new_reqid;
++	__u32 flags;
++	__u16 new_family;
++	__u16 reserved;
++};
++
++/* Flags for xfrm_user_migrate_state.flags */
++enum xfrm_migrate_state_flags {
++	XFRM_MIGRATE_STATE_NO_OFFLOAD = 1, /* do not inherit offload from existing SA */
++	XFRM_MIGRATE_STATE_UPDATE_SEL = 2, /* update host-to-host selector from saddr and daddr */
++};
++
+ struct xfrm_user_mapping {
+ 	struct xfrm_usersa_id		id;
+ 	__u32				reqid;
+diff --git a/net/xfrm/xfrm_device.c b/net/xfrm/xfrm_device.c
+index 52ae0e034d29..9d4c1addb98f 100644
+--- a/net/xfrm/xfrm_device.c
++++ b/net/xfrm/xfrm_device.c
+@@ -229,7 +229,7 @@ struct sk_buff *validate_xmit_xfrm(struct sk_buff *skb, netdev_features_t featur
+ EXPORT_SYMBOL_GPL(validate_xmit_xfrm);
+ 
+ int xfrm_dev_state_add(struct net *net, struct xfrm_state *x,
+-		       struct xfrm_user_offload *xuo,
++		       const struct xfrm_user_offload *xuo,
+ 		       struct netlink_ext_ack *extack)
+ {
+ 	int err;
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index 0b5c7b51183a..3d6c778d8645 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -4635,6 +4635,22 @@ static int xfrm_migrate_check(const struct xfrm_migrate *m, int num_migrate,
  	return 0;
  }
  
-+static int verify_mtimer_thresh(bool has_encap, u8 dir,
-+				struct netlink_ext_ack *extack)
++/*
++ * Fill migrate fields that are invariant in XFRM_MSG_MIGRATE: inherited
++ * from the existing SA unchanged. XFRM_MSG_MIGRATE_STATE can update these.
++ */
++static void xfrm_migrate_copy_old(struct xfrm_migrate *mp,
++				  const struct xfrm_state *x,
++				  struct xfrm_mark *new_mark_buf)
 +{
-+	if (!has_encap) {
-+		NL_SET_ERR_MSG(extack,
-+			       "MTIMER_THRESH requires encapsulation");
-+		return -EINVAL;
-+	}
-+	if (dir == XFRM_SA_DIR_OUT) {
-+		NL_SET_ERR_MSG(extack,
-+			       "MTIMER_THRESH should not be set on output SA");
-+		return -EINVAL;
-+	}
-+	return 0;
++	mp->smark                  = x->props.smark;
++	mp->new_reqid              = x->props.reqid;
++	mp->nat_keepalive_interval = x->nat_keepalive_interval;
++	mp->mapping_maxage         = x->mapping_maxage;
++	*new_mark_buf              = x->mark;
++	mp->new_mark               = new_mark_buf;
 +}
 +
- static int verify_newsa_info(struct xfrm_usersa_info *p,
- 			     struct nlattr **attrs,
- 			     struct netlink_ext_ack *extack)
-@@ -446,18 +462,9 @@ static int verify_newsa_info(struct xfrm_usersa_info *p,
- 	err = 0;
+ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
+ 		 struct xfrm_migrate *m, int num_migrate,
+ 		 struct xfrm_kmaddress *k, struct net *net,
+@@ -4642,6 +4658,7 @@ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
+ 		 struct netlink_ext_ack *extack, struct xfrm_user_offload *xuo)
+ {
+ 	int i, err, nx_cur = 0, nx_new = 0;
++	struct xfrm_mark new_marks[XFRM_MAX_DEPTH] = {};
+ 	struct xfrm_policy *pol = NULL;
+ 	struct xfrm_state *x, *xc;
+ 	struct xfrm_state *x_cur[XFRM_MAX_DEPTH];
+@@ -4674,6 +4691,8 @@ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
+ 			nx_cur++;
+ 			mp->encap = encap;
+ 			mp->xuo = xuo;
++			xfrm_migrate_copy_old(mp, x, &new_marks[i]);
++
+ 			xc = xfrm_state_migrate(x, mp, net, extack);
+ 			if (xc) {
+ 				x_new[nx_new] = xc;
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 1ee114f8515d..25d54c44fd94 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -1974,11 +1974,25 @@ static struct xfrm_state *xfrm_state_clone_and_setup(struct xfrm_state *orig,
+ 		goto out;
  
- 	if (attrs[XFRMA_MTIMER_THRESH]) {
--		if (!attrs[XFRMA_ENCAP]) {
--			NL_SET_ERR_MSG(extack, "MTIMER_THRESH attribute can only be set on ENCAP states");
--			err = -EINVAL;
--			goto out;
--		}
--
--		if (sa_dir == XFRM_SA_DIR_OUT) {
--			NL_SET_ERR_MSG(extack,
--				       "MTIMER_THRESH attribute should not be set on output SA");
--			err = -EINVAL;
-+		err = verify_mtimer_thresh(!!attrs[XFRMA_ENCAP], sa_dir, extack);
-+		if (err)
- 			goto out;
--		}
+ 	memcpy(&x->id, &orig->id, sizeof(x->id));
+-	memcpy(&x->sel, &orig->sel, sizeof(x->sel));
++	if (m->msg_type == XFRM_MSG_MIGRATE_STATE) {
++		if (m->flags & XFRM_MIGRATE_STATE_UPDATE_SEL) {
++			u8 prefixlen = (m->new_family == AF_INET6) ? 128 : 32;
++
++			memcpy(&x->sel, &orig->sel, sizeof(x->sel));
++			x->sel.family      = m->new_family;
++			x->sel.prefixlen_d = prefixlen;
++			x->sel.prefixlen_s = prefixlen;
++			memcpy(&x->sel.daddr, &m->new_daddr, sizeof(x->sel.daddr));
++			memcpy(&x->sel.saddr, &m->new_saddr, sizeof(x->sel.saddr));
++		} else {
++			x->sel = *m->new_sel;
++		}
++	} else {
++		memcpy(&x->sel, &orig->sel, sizeof(x->sel));
++	}
+ 	memcpy(&x->lft, &orig->lft, sizeof(x->lft));
+ 	x->props.mode = orig->props.mode;
+ 	x->props.replay_window = orig->props.replay_window;
+-	x->props.reqid = orig->props.reqid;
+ 
+ 	if (orig->aalg) {
+ 		x->aalg = xfrm_algo_auth_clone(orig->aalg);
+@@ -2011,8 +2025,8 @@ static struct xfrm_state *xfrm_state_clone_and_setup(struct xfrm_state *orig,
+ 		x->encap = kmemdup(m->encap, sizeof(*x->encap), GFP_KERNEL);
+ 		if (!x->encap)
+ 			goto error;
+-		x->mapping_maxage = orig->mapping_maxage;
+-		x->nat_keepalive_interval = orig->nat_keepalive_interval;
++		x->mapping_maxage = m->mapping_maxage;
++		x->nat_keepalive_interval = m->nat_keepalive_interval;
  	}
  
- 	if (sa_dir == XFRM_SA_DIR_OUT) {
+ 	if (orig->security)
+@@ -2029,8 +2043,9 @@ static struct xfrm_state *xfrm_state_clone_and_setup(struct xfrm_state *orig,
+ 	if (xfrm_replay_clone(x, orig))
+ 		goto error;
+ 
+-	memcpy(&x->mark, &orig->mark, sizeof(x->mark));
+-	memcpy(&x->props.smark, &orig->props.smark, sizeof(x->props.smark));
++	x->mark = m->new_mark ? *m->new_mark : m->old_mark;
++
++	x->props.smark = m->smark;
+ 
+ 	x->props.flags = orig->props.flags;
+ 	x->props.extra_flags = orig->props.extra_flags;
+@@ -2053,7 +2068,7 @@ static struct xfrm_state *xfrm_state_clone_and_setup(struct xfrm_state *orig,
+ 			goto error;
+ 	}
+ 
+-
++	x->props.reqid = m->new_reqid;
+ 	x->props.family = m->new_family;
+ 	memcpy(&x->id.daddr, &m->new_daddr, sizeof(x->id.daddr));
+ 	memcpy(&x->props.saddr, &m->new_saddr, sizeof(x->props.saddr));
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index fe0cf824f072..46e506548122 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -1318,7 +1318,7 @@ static int copy_to_user_encap(struct xfrm_encap_tmpl *ep, struct sk_buff *skb)
+ 	return 0;
+ }
+ 
+-static int xfrm_smark_put(struct sk_buff *skb, struct xfrm_mark *m)
++static int xfrm_smark_put(struct sk_buff *skb, const struct xfrm_mark *m)
+ {
+ 	int ret = 0;
+ 
+@@ -3059,6 +3059,25 @@ static int xfrm_add_acquire(struct sk_buff *skb, struct nlmsghdr *nlh,
+ }
+ 
+ #ifdef CONFIG_XFRM_MIGRATE
++static void copy_from_user_migrate_state(struct xfrm_migrate *ma,
++					 const struct xfrm_user_migrate_state *um)
++{
++	memcpy(&ma->old_daddr, &um->id.daddr, sizeof(ma->old_daddr));
++	memcpy(&ma->new_daddr, &um->new_daddr, sizeof(ma->new_daddr));
++	memcpy(&ma->new_saddr, &um->new_saddr, sizeof(ma->new_saddr));
++
++	ma->proto = um->id.proto;
++	ma->new_reqid = um->new_reqid;
++
++	ma->old_family = um->id.family;
++	ma->new_family = um->new_family;
++
++	ma->old_mark = um->old_mark;
++	ma->flags    = um->flags;
++	ma->new_sel  = &um->new_sel;
++	ma->msg_type = XFRM_MSG_MIGRATE_STATE;
++}
++
+ static int copy_from_user_migrate(struct xfrm_migrate *ma,
+ 				  struct xfrm_kmaddress *k,
+ 				  struct nlattr **attrs, int *num,
+@@ -3098,6 +3117,7 @@ static int copy_from_user_migrate(struct xfrm_migrate *ma,
+ 
+ 		ma->old_family = um->old_family;
+ 		ma->new_family = um->new_family;
++		ma->msg_type   = XFRM_MSG_MIGRATE;
+ 	}
+ 
+ 	*num = i;
+@@ -3108,7 +3128,7 @@ static int xfrm_do_migrate(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 			   struct nlattr **attrs, struct netlink_ext_ack *extack)
+ {
+ 	struct xfrm_userpolicy_id *pi = nlmsg_data(nlh);
+-	struct xfrm_migrate m[XFRM_MAX_DEPTH];
++	struct xfrm_migrate m[XFRM_MAX_DEPTH] = {};
+ 	struct xfrm_kmaddress km, *kmp;
+ 	u8 type;
+ 	int err;
+@@ -3161,7 +3181,268 @@ static int xfrm_do_migrate(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 	kfree(xuo);
+ 	return err;
+ }
++
++static int build_migrate_state(struct sk_buff *skb,
++			       const struct xfrm_user_migrate_state *um,
++			       const struct xfrm_migrate *m,
++			       u8 dir, u32 portid, u32 seq)
++{
++	int err;
++	struct nlmsghdr *nlh;
++	struct xfrm_user_migrate_state *hdr;
++
++	nlh = nlmsg_put(skb, portid, seq, XFRM_MSG_MIGRATE_STATE,
++			sizeof(struct xfrm_user_migrate_state), 0);
++	if (!nlh)
++		return -EMSGSIZE;
++
++	hdr = nlmsg_data(nlh);
++	*hdr = *um;
++	hdr->new_sel = *m->new_sel;
++
++	if (m->encap) {
++		err = nla_put(skb, XFRMA_ENCAP, sizeof(*m->encap), m->encap);
++		if (err)
++			goto out_cancel;
++	}
++
++	if (m->xuo) {
++		err = nla_put(skb, XFRMA_OFFLOAD_DEV, sizeof(*m->xuo), m->xuo);
++		if (err)
++			goto out_cancel;
++	}
++
++	if (m->new_mark) {
++		err = nla_put(skb, XFRMA_MARK, sizeof(*m->new_mark),
++			      m->new_mark);
++		if (err)
++			goto out_cancel;
++	}
++
++	err = xfrm_smark_put(skb, &m->smark);
++	if (err)
++		goto out_cancel;
++
++	if (m->mapping_maxage) {
++		err = nla_put_u32(skb, XFRMA_MTIMER_THRESH, m->mapping_maxage);
++		if (err)
++			goto out_cancel;
++	}
++
++	if (m->nat_keepalive_interval) {
++		err = nla_put_u32(skb, XFRMA_NAT_KEEPALIVE_INTERVAL,
++				  m->nat_keepalive_interval);
++		if (err)
++			goto out_cancel;
++	}
++
++	if (dir) {
++		err = nla_put_u8(skb, XFRMA_SA_DIR, dir);
++		if (err)
++			goto out_cancel;
++	}
++
++	nlmsg_end(skb, nlh);
++	return 0;
++
++out_cancel:
++	nlmsg_cancel(skb, nlh);
++	return err;
++}
++
++static unsigned int xfrm_migrate_state_msgsize(const struct xfrm_migrate *m,
++					       u8 dir)
++{
++	return NLMSG_ALIGN(sizeof(struct xfrm_user_migrate_state)) +
++		(m->encap ? nla_total_size(sizeof(struct xfrm_encap_tmpl)) : 0) +
++		(m->xuo ? nla_total_size(sizeof(struct xfrm_user_offload)) : 0) +
++		(m->new_mark ? nla_total_size(sizeof(struct xfrm_mark)) : 0) +
++		(m->smark.v ? nla_total_size(sizeof(u32)) * 2 : 0) + /* SET_MARK + SET_MARK_MASK */
++		(m->mapping_maxage ? nla_total_size(sizeof(u32)) : 0) +
++		(m->nat_keepalive_interval ? nla_total_size(sizeof(u32)) : 0) +
++		(dir ? nla_total_size(sizeof(u8)) : 0); /* XFRMA_SA_DIR */
++}
++
++static int xfrm_send_migrate_state(const struct xfrm_user_migrate_state *um,
++				   const struct xfrm_migrate *m,
++				   u8 dir, u32 portid, u32 seq)
++{
++	int err;
++	struct sk_buff *skb;
++	struct net *net = &init_net;
++
++	skb = nlmsg_new(xfrm_migrate_state_msgsize(m, dir), GFP_ATOMIC);
++	if (!skb)
++		return -ENOMEM;
++
++	err = build_migrate_state(skb, um, m, dir, portid, seq);
++	if (err < 0) {
++		kfree_skb(skb);
++		return err;
++	}
++
++	return xfrm_nlmsg_multicast(net, skb, 0, XFRMNLGRP_MIGRATE);
++}
++
++static int xfrm_do_migrate_state(struct sk_buff *skb, struct nlmsghdr *nlh,
++				 struct nlattr **attrs, struct netlink_ext_ack *extack)
++{
++	struct xfrm_user_migrate_state *um = nlmsg_data(nlh);
++	struct net *net = sock_net(skb->sk);
++	struct xfrm_user_offload xuo = {};
++	struct xfrm_migrate m = {};
++	struct xfrm_state *xc;
++	struct xfrm_state *x;
++	int err;
++
++	if (!um->id.spi) {
++		NL_SET_ERR_MSG(extack, "Invalid SPI 0x0");
++		return -EINVAL;
++	}
++
++	if (um->reserved) {
++		NL_SET_ERR_MSG(extack, "Reserved field must be zero");
++		return -EINVAL;
++	}
++
++	if (um->flags & ~(XFRM_MIGRATE_STATE_NO_OFFLOAD |
++			  XFRM_MIGRATE_STATE_UPDATE_SEL)) {
++		NL_SET_ERR_MSG(extack, "Unknown flags in XFRM_MSG_MIGRATE_STATE");
++		return -EINVAL;
++	}
++
++	if ((um->flags & XFRM_MIGRATE_STATE_NO_OFFLOAD) &&
++	    attrs[XFRMA_OFFLOAD_DEV]) {
++		NL_SET_ERR_MSG(extack,
++			       "XFRM_MIGRATE_STATE_NO_OFFLOAD and XFRMA_OFFLOAD_DEV are mutually exclusive");
++		return -EINVAL;
++	}
++
++	copy_from_user_migrate_state(&m, um);
++
++	x = xfrm_state_lookup(net, m.old_mark.v & m.old_mark.m,
++			      &um->id.daddr, um->id.spi,
++			      um->id.proto, um->id.family);
++	if (!x) {
++		NL_SET_ERR_MSG(extack, "Can not find state");
++		return -ESRCH;
++	}
++
++	if (um->flags & XFRM_MIGRATE_STATE_UPDATE_SEL) {
++		u8 prefixlen = (x->sel.family == AF_INET6) ? 128 : 32;
++
++		if (x->sel.prefixlen_s != x->sel.prefixlen_d ||
++		    x->sel.prefixlen_d != prefixlen ||
++		    !xfrm_addr_equal(&x->sel.daddr, &x->id.daddr, x->sel.family) ||
++		    !xfrm_addr_equal(&x->sel.saddr, &x->props.saddr, x->sel.family)) {
++			NL_SET_ERR_MSG(extack,
++				       "SA selector is not a single-host match for SA addresses");
++			err = -EINVAL;
++			goto out;
++		}
++	}
++
++	if (attrs[XFRMA_ENCAP]) {
++		m.encap = nla_data(attrs[XFRMA_ENCAP]);
++		if (m.encap->encap_type == 0) {
++			m.encap = NULL; /* sentinel: remove encap */
++		} else if (m.encap->encap_type != UDP_ENCAP_ESPINUDP) {
++			NL_SET_ERR_MSG(extack, "Unsupported encapsulation type");
++			err = -EINVAL;
++			goto out;
++		}
++	} else {
++		m.encap = x->encap; /* omit-to-inherit */
++	}
++
++	if (attrs[XFRMA_MTIMER_THRESH]) {
++		err = verify_mtimer_thresh(!!m.encap, x->dir, extack);
++		if (err)
++			goto out;
++	}
++
++	if (attrs[XFRMA_NAT_KEEPALIVE_INTERVAL] &&
++	    nla_get_u32(attrs[XFRMA_NAT_KEEPALIVE_INTERVAL]) && !m.encap) {
++		NL_SET_ERR_MSG(extack,
++			       "NAT_KEEPALIVE_INTERVAL requires encapsulation");
++		err = -EINVAL;
++		goto out;
++	}
++
++	if (attrs[XFRMA_OFFLOAD_DEV]) {
++		m.xuo = nla_data(attrs[XFRMA_OFFLOAD_DEV]);
++	} else if (!(um->flags & XFRM_MIGRATE_STATE_NO_OFFLOAD) && x->xso.dev) {
++		xuo.ifindex = x->xso.dev->ifindex;
++		if (x->xso.dir == XFRM_DEV_OFFLOAD_IN)
++			xuo.flags = XFRM_OFFLOAD_INBOUND;
++		if (x->xso.type == XFRM_DEV_OFFLOAD_PACKET)
++			xuo.flags |= XFRM_OFFLOAD_PACKET;
++		m.xuo = &xuo;
++	}
++
++	if (attrs[XFRMA_MARK])
++		m.new_mark = nla_data(attrs[XFRMA_MARK]);
++
++	if (attrs[XFRMA_SET_MARK])
++		xfrm_smark_init(attrs, &m.smark);
++	else
++		m.smark = x->props.smark;
++
++	m.mapping_maxage = attrs[XFRMA_MTIMER_THRESH] ?
++		nla_get_u32(attrs[XFRMA_MTIMER_THRESH]) : x->mapping_maxage;
++	m.nat_keepalive_interval = attrs[XFRMA_NAT_KEEPALIVE_INTERVAL] ?
++		nla_get_u32(attrs[XFRMA_NAT_KEEPALIVE_INTERVAL]) :
++		x->nat_keepalive_interval;
++
++	xc = xfrm_state_migrate_create(x, &m, net, extack);
++	if (!xc) {
++		NL_SET_ERR_MSG_WEAK(extack, "State migration clone failed");
++		err = -EINVAL;
++		goto out;
++	}
++
++	spin_lock_bh(&x->lock);
++	xfrm_migrate_sync(xc, x); /* to prevent SN/IV reuse */
++	__xfrm_state_delete(x);
++	spin_unlock_bh(&x->lock);
++
++	err = xfrm_state_migrate_install(x, xc, &m, extack);
++	if (err < 0) {
++		/*
++		 * In this rare case both the old SA and the new SA
++		 * will disappear.
++		 * Alternatives risk duplicate SN/IV usage which must not occur.
++		 * Userspace must handle this error, -EEXIST.
++		 */
++		goto out;
++	}
++
++	/* Restore encap cleared by sentinel (type=0) during migration. */
++	if (attrs[XFRMA_ENCAP])
++		m.encap = nla_data(attrs[XFRMA_ENCAP]);
++
++	m.new_sel = &xc->sel;
++
++	err = xfrm_send_migrate_state(um, &m, xc->dir,
++				      nlh->nlmsg_pid, nlh->nlmsg_seq);
++	if (err < 0) {
++		NL_SET_ERR_MSG(extack, "Failed to send migration notification");
++		err = 0;
++	}
++
++out:
++	xfrm_state_put(x);
++	return err;
++}
++
+ #else
++static int xfrm_do_migrate_state(struct sk_buff *skb, struct nlmsghdr *nlh,
++				 struct nlattr **attrs, struct netlink_ext_ack *extack)
++{
++	NL_SET_ERR_MSG(extack, "XFRM_MSG_MIGRATE_STATE is not supported");
++	return -ENOPROTOOPT;
++}
++
+ static int xfrm_do_migrate(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 			   struct nlattr **attrs, struct netlink_ext_ack *extack)
+ {
+@@ -3314,6 +3595,7 @@ const int xfrm_msg_min[XFRM_NR_MSGTYPES] = {
+ 	[XFRM_MSG_GETSPDINFO  - XFRM_MSG_BASE] = sizeof(u32),
+ 	[XFRM_MSG_SETDEFAULT  - XFRM_MSG_BASE] = XMSGSIZE(xfrm_userpolicy_default),
+ 	[XFRM_MSG_GETDEFAULT  - XFRM_MSG_BASE] = XMSGSIZE(xfrm_userpolicy_default),
++	[XFRM_MSG_MIGRATE_STATE - XFRM_MSG_BASE] = XMSGSIZE(xfrm_user_migrate_state),
+ };
+ EXPORT_SYMBOL_GPL(xfrm_msg_min);
+ 
+@@ -3407,6 +3689,7 @@ static const struct xfrm_link {
+ 	[XFRM_MSG_GETSPDINFO  - XFRM_MSG_BASE] = { .doit = xfrm_get_spdinfo   },
+ 	[XFRM_MSG_SETDEFAULT  - XFRM_MSG_BASE] = { .doit = xfrm_set_default   },
+ 	[XFRM_MSG_GETDEFAULT  - XFRM_MSG_BASE] = { .doit = xfrm_get_default   },
++	[XFRM_MSG_MIGRATE_STATE - XFRM_MSG_BASE] = { .doit = xfrm_do_migrate_state },
+ };
+ 
+ static int xfrm_reject_unused_attr(int type, struct nlattr **attrs,
+diff --git a/security/selinux/nlmsgtab.c b/security/selinux/nlmsgtab.c
+index 2c0b07f9fbbd..655d2616c9d2 100644
+--- a/security/selinux/nlmsgtab.c
++++ b/security/selinux/nlmsgtab.c
+@@ -128,6 +128,7 @@ static const struct nlmsg_perm nlmsg_xfrm_perms[] = {
+ 	{ XFRM_MSG_MAPPING, NETLINK_XFRM_SOCKET__NLMSG_READ },
+ 	{ XFRM_MSG_SETDEFAULT, NETLINK_XFRM_SOCKET__NLMSG_WRITE },
+ 	{ XFRM_MSG_GETDEFAULT, NETLINK_XFRM_SOCKET__NLMSG_READ },
++	{ XFRM_MSG_MIGRATE_STATE, NETLINK_XFRM_SOCKET__NLMSG_WRITE },
+ };
+ 
+ static const struct nlmsg_perm nlmsg_audit_perms[] = {
+@@ -203,7 +204,7 @@ int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm)
+ 		 * structures at the top of this file with the new mappings
+ 		 * before updating the BUILD_BUG_ON() macro!
+ 		 */
+-		BUILD_BUG_ON(XFRM_MSG_MAX != XFRM_MSG_GETDEFAULT);
++		BUILD_BUG_ON(XFRM_MSG_MAX != XFRM_MSG_MIGRATE_STATE);
+ 
+ 		if (selinux_policycap_netlink_xperm()) {
+ 			*perm = NETLINK_XFRM_SOCKET__NLMSG;
 
 -- 
 2.47.3
