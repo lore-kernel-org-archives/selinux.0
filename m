@@ -1,108 +1,116 @@
-Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx1.secunet.com (mx1.secunet.com [62.96.220.36])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E3603876A9
-	for <selinux@vger.kernel.org>; Fri, 10 Apr 2026 23:26:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3839019067C;
+	Sun, 12 Apr 2026 11:13:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.96.220.36
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775863574; cv=none; b=I/KbaXfVeCFCkfgd4YMnhyOZHBuwy+WdnT/YJ7fyn5Q7iq/qulQuqeR4QJHeYIb7IFgfInQxCND6KDh+Ma0ralKN4YQ1VyNdxlELeYhW6I6b37O1gSkRXzANJGGMiqTusY2JYxSkns2FA2+p9JvylH+QLPACZ1ZNbbqOQFUssmI=
+	t=1775992438; cv=none; b=myjhudreM05jpv8xnePeEIUbdHYdkQobLJ/csfsVp8RUAO8ftkHuvQUAzDtPPfNF1LYJsojx8bTvb7ZIv0w2W2nFbeZwC2xWYUG6MHVluJUmQqh146iHfYOClrys1E5imbqxVN1LGKQj8c7HGx0XqQ0TjYQdkjRHalYu4IYe1qo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775863574; c=relaxed/simple;
-	bh=RjKD6/7f0V5Pv8dDCdBDZirn9vm90RAC+82O3MrCRRU=;
-	h=Date:Message-ID:From:To:Cc:Subject; b=fOT14to6NA0AwxFkqDGOxCe3BKs8yEaacUNMwFRSm4HMziyh6SRa2864UgWVjRjaeA2clzTPAYvFr8AgX8K+H4SEkrLE82JNjbVKQBNX56nOuJ05u08kS5POMAUMkySCpNDOTgHNaEoQ9E7Uxa81YsUEG30LQc+mhoO5mswVMUk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=BMH8lXfl; arc=none smtp.client-ip=209.85.160.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1775992438; c=relaxed/simple;
+	bh=njpPzO0I4NINQuUd3TXRel4fUwi8HQxwuXkW+uQWdmw=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=SZVRgkHm4yBRPEEGH0Y4CSQvylrFXhCH2pdOViB2T/IwNX3eSPKmnazDzHQh2Iw+3cMCuGpFytYnjV8Dm8IRvvNqIrhDQJOZ33/TuuB9rjHDhU6JL68EGhLTw9Ih4Qfq144lEnZLOf79wfe9zkGWdKNE9sVH1NbiZ/eRlUqu24Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com; spf=pass smtp.mailfrom=secunet.com; dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b=0ErTPBcw; arc=none smtp.client-ip=62.96.220.36
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=secunet.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="BMH8lXfl"
-Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-50bbc41677dso34478501cf.0
-        for <selinux@vger.kernel.org>; Fri, 10 Apr 2026 16:26:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1775863572; x=1776468372; darn=vger.kernel.org;
-        h=subject:cc:to:from:message-id:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=WKeEg/Y0drNcc2Fnb+CIsFkFz7BP00BXAJeV9myWHSc=;
-        b=BMH8lXfl4nHqxsnBJVqLTP9jrD/+5fkMOJxB/Znhmp0DO+4Jb21IHM/aW2KZZWseVM
-         VCIfAafNwRWsinzuGCrfesC7ysy2J0jX8BDmFyBI1N5cCmHESqXCcYEb5F5paW1U1mJN
-         mKEfBa1rky1FrRLCviQ3/O9m0n2GNmmqSTJm76dwxQlnn/LT++cngXGXN7wiaMAAsNJ0
-         Y+bqoEr1jAEPORBeXqLKcvSAHFCnGzrWlejOqYEv7hCQStX9cOy6C6gJ8Mqui14OwNSW
-         Rd0LXgOeKMQk10cIrWayAY0STjTZMpaj6j2taeAZox8j+r7hv7FkKp1BG5kZBNRJ4GeZ
-         7D3A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775863572; x=1776468372;
-        h=subject:cc:to:from:message-id:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=WKeEg/Y0drNcc2Fnb+CIsFkFz7BP00BXAJeV9myWHSc=;
-        b=YZyeWqBJgsA/inokWliGWngEzO7oxBnoctlxBTLNCDtw3Uwjk/DewnURV1mYGkwZ/B
-         gHVM150jq/gPqHSh2R8bo4DWPADq9/8irqEnNMebamc3JxerdQYiPnHjdy778qcIU2Hn
-         lfxBxfU7sO8Nwtd5sNMu1qlUcYe1GAivOM5PZv9Mi/0J0GuiL3+HhcX0eh3g6EhLOTAL
-         kFm+RJeTtWdkdFHfoEwIQ+Fx0rGGDomEmTx6BGIlEIC7ZEz9H8wdtUwq6E4++76HCk19
-         GaAcA2O/1D14lw8uHfwhKulSgPjxz/5ztJeA+4GC9S3sneHu0B6Z5wZNl1uPB3FitlGO
-         DbtA==
-X-Gm-Message-State: AOJu0YwOYeUevVuJVqk8bdi4rsINQfxHVDhmyNf5L3p9yl7ABohORsFb
-	R1sUd7Q+eSreckjje3H0566g+KK2OF6CgTQU1kSyPw3Xi+aVnyk4GV+AfYCaD/24ApKsqZcyh5p
-	U/GE=
-X-Gm-Gg: AeBDieuAyNrN5zmYMjx0KPfMKxJxKdHrb+gephL4BTxhMZBm17duuAl5O2l/f6AoQIL
-	fz2osW9onc8JMkhLSqZQqhTYrcayLSy1JH1ratcc4k1PWN7TbiReFskUr3VgjmtxcyXjTBLpEhi
-	z1A5o9wFINLOw4gRfQQ7rBGgJLr3lEUn/ls/35IDYXON6e3oPkB1iYtFX5rX+CW8ImrC/gsRXfa
-	pH5eWW8NnP5HdIEFDBG9bdkx45U4IMlnvFWbz+x/JCNbetfhNWCokvrq6chbnyTCSqqZhUJCSAp
-	QYuLv1jd4L8Ja0ahEMOVqOqK8x/8n4CAGemHxL82nz2TQDb4J/BXALr2fgNNe66KutkGDrBDQCx
-	fLBWthJtfb9VMqFWLgYH8Puu2nozB3XqpviSnV/6PcoBwqAfUJoWjBQAFZlYDds3XO/B/YqiE0/
-	rSQ9rCnz7cfE1w/3A1f0TI3WOc/wuaqcQ7P6uYEtHIcm9ClQHEFJcu2Xnuz7IAdYSKru6OR7nzv
-	uHurug=
-X-Received: by 2002:ac8:5d89:0:b0:50d:6d90:31fc with SMTP id d75a77b69052e-50dd5b95d29mr83445011cf.13.1775863572287;
-        Fri, 10 Apr 2026 16:26:12 -0700 (PDT)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ac84c4af3dsm33861406d6.31.2026.04.10.16.26.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Apr 2026 16:26:11 -0700 (PDT)
-Date: Fri, 10 Apr 2026 19:26:11 -0400
-Message-ID: <60af9bced9ea23be5deffcb469805ff5@paul-moore.com>
-From: Paul Moore <paul@paul-moore.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: selinux@vger.kernel.org, linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [GIT PULL] selinux/selinux-pr-20260410
+	dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b="0ErTPBcw"
+Received: from localhost (localhost [127.0.0.1])
+	by mx1.secunet.com (Postfix) with ESMTP id 2769320799;
+	Sun, 12 Apr 2026 13:13:54 +0200 (CEST)
+X-Virus-Scanned: by secunet
+Received: from mx1.secunet.com ([127.0.0.1])
+ by localhost (mx1.secunet.com [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id oeHULxhk0E0v; Sun, 12 Apr 2026 13:13:53 +0200 (CEST)
+Received: from EXCH-02.secunet.de (rl2.secunet.de [10.32.0.232])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mx1.secunet.com (Postfix) with ESMTPS id 6ED412084B;
+	Sun, 12 Apr 2026 13:13:53 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.secunet.com 6ED412084B
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=secunet.com;
+	s=202301; t=1775992433;
+	bh=6rlJRpiY9QKBK7+Qr9FGrYyMXsvCl5MBxOaLAwh5Ptc=;
+	h=From:To:CC:Subject:Date:In-Reply-To:References:From;
+	b=0ErTPBcwNXl+dbptndupjkB6b69ATU3XdhM7O6GcfTnttJkWwTszTSdgvrhCTMg/1
+	 srGjbrEf9xwHiN3NGYhIhK5Vbwa/yVUxWofI6s3zr4RK10srqZyDeNXAb709PltE7B
+	 kgi6Dfk4xHL6rUoHHhxKgsi09022UZliNBa6XtFXzdfBub7deLFvoBDQDByKFwsOZT
+	 4H+uJyvzZBG26Zh9jqDU64TufwE5Cm1yYxlutC9xtDpzUk4CwOxFOFG9JMPaXhWwLz
+	 0G/6VXTDscEngyTJi9iQoA6xRqvYIvdL2aEzAqVSCcZPK9xHtoIWPuMkHMGC5YYIcw
+	 lG7p47+b0PaBg==
+Received: from moon.secunet.de (172.18.149.1) by EXCH-02.secunet.de
+ (10.32.0.172) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Sun, 12 Apr
+ 2026 13:13:51 +0200
+From: Antony Antony <antony.antony@secunet.com>
+To: Antony Antony <antony.antony@secunet.com>, Steffen Klassert
+	<steffen.klassert@secunet.com>, Herbert Xu <herbert@gondor.apana.org.au>,
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon
+ Horman <horms@kernel.org>, David Ahern <dsahern@kernel.org>, Masahide
+ NAKAMURA <nakam@linux-ipv6.org>, Paul Moore <paul@paul-moore.com>, Stephen
+ Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek
+	<omosnace@redhat.com>, Jonathan Corbet <corbet@lwn.net>, Shuah Khan
+	<skhan@linuxfoundation.org>
+CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<selinux@vger.kernel.org>, <linux-doc@vger.kernel.org>, Chiachang Wang
+	<chiachangwang@google.com>, Yan Yan <evitayan@google.com>,
+	<devel@linux-ipsec.org>
+Subject: [PATCH ipsec-next v7 01/14] xfrm: remove redundant assignments
+Date: Sun, 12 Apr 2026 13:13:41 +0200
+Message-ID: <migrate-state-v7-1-44eb2440b91c@secunet.com>
+X-Mailer: git-send-email 2.39.5
+In-Reply-To: <migrate-state-v7-0-44eb2440b91c@secunet.com>
+References: <migrate-state-v7-0-44eb2440b91c@secunet.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+X-Mailer: b4 0.15-dev
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: EXCH-03.secunet.de (10.32.0.183) To EXCH-02.secunet.de
+ (10.32.0.172)
 
-Linus,
+These assignments are overwritten within the same function further down
 
-Just a single patch from the SELinux tree for v7.1, although you will find
-an important SELinux fix in the LSM pull request (if you haven't processed
-that already).
+commit e8961c50ee9cc ("xfrm: Refactor migration setup
+during the cloning process")
+x->props.family = m->new_family;
 
-- Annotate a known race condition to soothe KCSAN
+Which actually moved it in the
+commit e03c3bba351f9 ("xfrm: Fix xfrm migrate issues when address family changes")
 
-Paul
+And the initial
+commit 80c9abaabf428 ("[XFRM]: Extension for dynamic update of endpoint address(es)")
 
---
-The following changes since commit 6de23f81a5e08be8fbf5e8d7e9febc72a5b5f27f:
+added x->props.saddr = orig->props.saddr; and
+memcpy(&xc->props.saddr, &m->new_saddr, sizeof(xc->props.saddr));
 
-  Linux 7.0-rc1 (2026-02-22 13:18:59 -0800)
+Signed-off-by: Antony Antony <antony.antony@secunet.com>
+---
+v1->v2: remove extra saddr copy, previous line
+---
+ net/xfrm/xfrm_state.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-are available in the Git repository at:
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 98b362d51836..3ee92f93dbd2 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -1980,8 +1980,6 @@ static struct xfrm_state *xfrm_state_clone_and_setup(struct xfrm_state *orig,
+ 	x->props.mode = orig->props.mode;
+ 	x->props.replay_window = orig->props.replay_window;
+ 	x->props.reqid = orig->props.reqid;
+-	x->props.family = orig->props.family;
+-	x->props.saddr = orig->props.saddr;
+ 
+ 	if (orig->aalg) {
+ 		x->aalg = xfrm_algo_auth_clone(orig->aalg);
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
-    tags/selinux-pr-20260410
+-- 
+2.47.3
 
-for you to fetch changes up to 8dc51459ef702bcc0ef5fb26bb4d362b38aa56c2:
-
-  selinux: annotate intentional data race in inode_doinit_with_dentry()
-    (2026-02-23 11:14:29 -0500)
-
-----------------------------------------------------------------
-selinux/stable-7.1 PR 20260410
-----------------------------------------------------------------
-
-Christian Göttsche (1):
-      selinux: annotate intentional data race in
-         inode_doinit_with_dentry()
-
- security/selinux/hooks.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
---
-paul-moore.com
