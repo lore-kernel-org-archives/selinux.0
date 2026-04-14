@@ -1,183 +1,180 @@
 Received: from mail-lj1-f180.google.com (mail-lj1-f180.google.com [209.85.208.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 230991FF7C8
-	for <selinux@vger.kernel.org>; Tue, 14 Apr 2026 17:35:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FE8A1FF7C8
+	for <selinux@vger.kernel.org>; Tue, 14 Apr 2026 17:36:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.180
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776188147; cv=pass; b=TpR94iedMpER78p4G0njCiuJUjdMquHWMaiM276pzdSrpKT1qfGO/zTlqtDBAbJgH/zS4vbfmW3D5KGaRabfpZOFunh9Bh9IRPfcqhp/Vv2bmWhJq7S7BcnHj5zKHKlITpyA0llNZKKmHkaD9U/8xWrQL6XnD4sfowxxjTFIIIY=
+	t=1776188175; cv=pass; b=iVJKOlgGIkKFy8Asml3JcWrsAR9LWNaszQv7V4jGDWWYl4vaDiPuUz3lljsFDWWdFIUlDpx1WR+7R19rRQSJicO4CMXXiJStjy5YbVrTwEEHa2WoViVXJnwaOQaXn5cLns7rgAcLYhYGuwbdH8QJ04jKO9dgDe9XKqVgfK2Vyc4=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776188147; c=relaxed/simple;
-	bh=LlZSu35SdEkFTchoJeKClehaFsncgBpKk6kiwf2T3jY=;
+	s=arc-20240116; t=1776188175; c=relaxed/simple;
+	bh=kvCyd8kBnsltpXayPwWH2jMNe+55z7BCIzdbGCTekv8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=BSGpHHB/DYnGLFyE0Z2MwIZPiyt25oy9lDlWU6pxPv2YKyfUt6JoQnK6CaCx82UGQvAPawo+ocyBvZC0+4x0atyOIEuo9DaL1XqrU8P4LZ2cArEarHnXgfDde4j+qdSTw2qNQFDAXJ+WJd15XvMeDbqsAEobO8IcRBC9X4pt0dY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PezknRGD; arc=pass smtp.client-ip=209.85.208.180
+	 To:Cc:Content-Type; b=MmG4T9LEKuSEAfYrdoZwyTWPDSWoQUirznG5P3BWmKExIU0ZUbC1QbZ9QzyXVZWfqvxI632Ynt7u0sqGoakPtGYGdI9YdvOfnI300Xc5yEpAUcCs0ryU5P7MmoyBL6FPQS3Dk0XesVcGZldu2tPkQJKfXXwvY7TwnL9DvfbRN34=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sKMCzho/; arc=pass smtp.client-ip=209.85.208.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PezknRGD"
-Received: by mail-lj1-f180.google.com with SMTP id 38308e7fff4ca-3870778358aso49291331fa.1
-        for <selinux@vger.kernel.org>; Tue, 14 Apr 2026 10:35:45 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1776188144; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sKMCzho/"
+Received: by mail-lj1-f180.google.com with SMTP id 38308e7fff4ca-38e7c3a2deaso20147661fa.2
+        for <selinux@vger.kernel.org>; Tue, 14 Apr 2026 10:36:13 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1776188172; cv=none;
         d=google.com; s=arc-20240605;
-        b=h0spfKIiqFPVvCeq3PGglc3UkJUL8usuxjcw9kilekzlQgeES8ICLKSoQ4Ee1r1NJm
-         ra28+oOesiz4GnsB0AkP+ZdHbFESjZzPs8m4WOlgMGKoe/JPnR6Z+Vo1LyBxSiqYYgdt
-         qHBYU+bwiQJwdH36gHJ3fzjAK4WBg6nC78rrUjFylbMQ/Vu4xM8EfspE5d6UQwgaAjgG
-         WkL/pejOicMo7ShbqY9d3znpdf5kBFzZ0cGgIClgLmAbzdSN38Pn9r9rYpRNClU3QrGe
-         z39mdyqK9aTstBss/KmYcbVIcOFb/Qld41Rb5xSMgfv6OT3TQgX8JV3vfPlPw37klVks
-         PI6w==
+        b=JcJ9OdF8uPBK2dtAIdv0jn1QswvwkjIlB4w7o/fcysY+O0sr2VSlPOrOKK3oihTeis
+         YoBRb6vk1NprKl0P4w+yHrnINT+7WfxtuKLPTCFjXcnoWiMMdDdK0QDjz+zaYFRCR4jv
+         o1zOThGtYMXcKQTGMFrEVWNxNNy8g11Kb7T1+s15tXnyQu3nMrM2thQk/MX8HlkGHuSk
+         LIqV+6+t6UijFQULsiKleyL/DJ4TEcICfkIa7nn4oI/MCqm7+KROqlBE7a84Gz4D8XuH
+         2KyOB3yIuMzWAQwv4O9prNwW1tMV1NF3w4vsGxVYWc9kVZBHJrdX0aGk08IIVdTS3kt0
+         G7mg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=aB/EAVQKarIzpcrYQq2dFwiCwXmkFzsYSdr1UxATpfQ=;
-        fh=5BxwEK/iVIzhs7kNCBs0/zEkT4yGKFLka6Po5B0u4CY=;
-        b=Tc9bp+BBvQINC2L51/RaGVcl6XxbxRN0dZkHTHu8S9BX3Ef7/vGHfAyTqLqbGUniij
-         l+KI1XPrFqa6RJ7RgV+HH6eiaBGz3GqbqSf4I2uYmwKVu9I5ZLTmlKVgk1CUYwyzdEGU
-         4VOY5toyx98WLbV7o+BUv3EhV3X6N+z0Vvm5ALGx3Ex0P4GJVL0eQHKK65Y7P6JyE6M0
-         S3QW0S7m59Hcc92rQTxyYdT439XceFDZezQNjECH0HsEInDiVmnGGgMV+LqfcianO5n/
-         eONsWoVYJwggUYA219SXAJBORgw+qMAVgLFnik0csyW42YfgUpiwnZUN+EnCJ+hIPnVA
-         DquA==;
+        bh=U5sP+UBRm4y14HNkk2/jUsIoyOMycak9HFVNylxsIKo=;
+        fh=nwsqwOmSYbkRgz7zW0weM3MmDX4ivPZDtWjpngAj+NA=;
+        b=ibd4wmazo3YNFRr4KDiZ9joOudQE8TfBd7AqH6KBT+a5f2dL8TPHqmGbTvXJIUqCJn
+         x9+5NRHJVJqMXxG4nJcrymX/U+hUyPmpkoKdDQM2x64WJldmr13xdPqw1n08twP64OhD
+         d09YmHUtQoO5Lqp6XHNbz0n0hpCgvtguoa5R009HDshvBxdUnIZgDyxiema9+RNuYXop
+         4aXPzTvkFqw1wErawapOKvsLaKO+e+YQQAa+EgdlLbapHahQsXbczimsmglFiW8wkwd2
+         3KPVImCVdWcqb0+fLFvFYLKpJsaWAA5P10vrhqLK59RAcdRP9dUcj6rg5k4P20+SVW1Q
+         GYGQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776188144; x=1776792944; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1776188172; x=1776792972; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=aB/EAVQKarIzpcrYQq2dFwiCwXmkFzsYSdr1UxATpfQ=;
-        b=PezknRGDvQ4RpFIMa/zMEChjfXkae6HQMPPmK15uycrYbKa1GJ7aJvl5xstBRjmPZs
-         cHlKRp7o7QPxrv8JgZZVqDkjXwSh89VbOT3ZL/BOl8i8eWw6fckc8Xp+s08ZIVtbrhBq
-         Fwi9VOPK33yXclTXDqR6f1L7PMPCiLatCLFePupR7WLiavDRvQjmAhLpUlvGnd6o4VGE
-         dFCqqja51WLAfbIGNz97X2N72f+bZJQ8hKt11Ke5WZ76lHvtfEqmUH5uOkYR2Yd39Hvw
-         Sz/aUsCsE1HjNQ7tXv/7uy3dwqaF5BvENEo+J0mWfKsgEE8duPBSDzTqb42nbemjWesi
-         7eQQ==
+        bh=U5sP+UBRm4y14HNkk2/jUsIoyOMycak9HFVNylxsIKo=;
+        b=sKMCzho/c0i/4ciIs5Mfsa+BQw9YxwEzJQH5LGEiYu5yBxmX9XcyDAwYmVWOfRt62J
+         xjfZZbbshjF5Mww4Km44NigkOp8GwQcSycsljfyyl9oh4FrcERq8/fvu6L2qoSmQKyKZ
+         KjNMHJoBPGvLvJe7P8Cn+3VXuQSGTfkgj33wRyDlzcaO4uXPkk9Lcbb8fBwr/S9ye2CB
+         aM9naJImEIOJX6vcJv/fRreaKQGkjJC779/X6WmFCT73dupcko/9QYnZEUMIYrKft0yf
+         RTqKOeYo2SCgvAY7DMON80HqQ7QwBPtRYWEFm1BHdnttW4Lr9lbN/uzY36sd0wEYwt0/
+         7QPw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776188144; x=1776792944;
+        d=1e100.net; s=20251104; t=1776188172; x=1776792972;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=aB/EAVQKarIzpcrYQq2dFwiCwXmkFzsYSdr1UxATpfQ=;
-        b=RzZ0H3U6cyyi2BdQ5xQTPbEgzgvmbhfMSrYRw9OSCS6RgevtfH50mChxi6docTF2XQ
-         alHYw8MNPqh8wKRcWAkO2fkp3O62HYiaff5Sn8ZTKjm9hoZOIS2jR0nTyj42CPfc/TUI
-         1pyGZG5nPCsO2cmHHvY/83khnpZGEF+gf7DggJKHKwOXdQaHtrpvBzGI7Re7o6/r7o0g
-         fIfoEm+hT5j8lovAJf7hsFHs+T9J5QvDh7PV+ukOzoVZyH9swDPHIEkU5fpkGjuevkP9
-         XO2rzwXdOKzG4jT7QAW6T/MYgcBT5Bc2NcRAaIadBGLFTf43fHvGuqmQ8oTdPDNGyBJJ
-         Qs5w==
-X-Gm-Message-State: AOJu0YygCqN0CIappyCAnvREGkBF32lF65ZBZzf5mp6BcirMspcAu1DE
-	FKaU245WkC8Iux3QtwgmLxzeQicrus49CFu5YzP6vaY25ymCPAIuyASz2b3ljvcB5sip7KX5rmI
-	UGmBCRMi7ggIzr120/mVQtn+hoWnggnd2og==
-X-Gm-Gg: AeBDieuLwyStMj8J1lSglMg1WNH/2DbPoGwSg3aaXaiBmUacOWL2KUuW/m0Km0OwKtz
-	ibAocB5Qe4gPz7LfUlZrnLProveD9lgzWs1J9xsmWuiX+MLI3wr2sGL8fiTTqZiUFbxrqzfRio4
-	k8NS6vy0RIewTc4WutDDwAsKRBOYFVou5/jWTnQcVm3uGiCtgkA0dUjKNqQVrGxSn28SY58t5vG
-	/dsq3cnKzYq6bQCrV8/o9/5TTwpmMsJwTAcyQhdB3HfXI97jle3M2Pl8JEr1FXnYk9Wf/3M5eYd
-	v0Zd
-X-Received: by 2002:a05:651c:410c:b0:38e:7b10:fdc6 with SMTP id
- 38308e7fff4ca-38e7b110147mr20843321fa.21.1776188143990; Tue, 14 Apr 2026
- 10:35:43 -0700 (PDT)
+        bh=U5sP+UBRm4y14HNkk2/jUsIoyOMycak9HFVNylxsIKo=;
+        b=IyT859rqehLLuohRoqPcm8RhnmovFJZth2VSK3ZHrT3OxSlU1qGEcGYioFdSDd/QXZ
+         PivEndfPI1+MKBgsDn+2Tkz2WjjAoOxhQc7UwEXnXRdnPaibNKiZ2g/u7G5aRr4LoA4S
+         Jj0msLOz073MomYHa1WbHHHnR9UQ1UCaikfmKcbQ8fafx9QGyXBkMUF2eCe6dvlYzwcR
+         8VOSYuWjXVJvXuyKK9SuApZy1QrszCr7pyeEuUa9hg1r3atb+1WE9GAhRTsILrPgpxmx
+         j+gbWpZx4XCFLIxGdq5mudaCN2qMOaBLV4m0jRg8ZyzgKFOqQ3z6Mj2ELIEDodXnGua3
+         1jvA==
+X-Forwarded-Encrypted: i=1; AFNElJ/1TU/zughNRok/kPXvyVEGuQx68GHp0iBvhac0S46kmDQbE0UEXlAkGf47liUwZFnOzG8T61TE@vger.kernel.org
+X-Gm-Message-State: AOJu0YygQzMr2WFtBgJYYJAIZv3omO0LCOBa0byZnLyuzjm4L0l4gOzT
+	t0A3Jq63T59zk2tfaqx6r2gstUZynl2+i70fVwXbKHre5THiBktluSj6lEBbBHXfAzkH/wA6wlL
+	l1alfRedxetpjskMdmfa7OXCDwBSc6X8=
+X-Gm-Gg: AeBDies0XKhR7s0n7Gh+OkZ1jTDmKgNCy0rxNo6nOrnqE9Kyj2LaLtkf9usjOZk7Arn
+	9nyyMr3oKNal2HwRpLE9guM1brCMs6x4VNH+28atZkQFu+6KnwY8K4UXIRZUAYJXY1F3hBhbc64
+	dV4L8487nbZA9QRvXxq6FIWWKy1GLZDi7dAuETLIGxy7pqTFR6EUn8O8v0GZfuGipYWVo260wdn
+	tEhOfdKHokRifK0qxORiVaGjk6tofdUvPiu2VtZ/EG2jhD4jbADLn+BhTyAu/b7EnGur+9yqscx
+	VPJC
+X-Received: by 2002:a2e:8092:0:b0:38e:88fd:95f3 with SMTP id
+ 38308e7fff4ca-38e88fd9883mr14880731fa.9.1776188172072; Tue, 14 Apr 2026
+ 10:36:12 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260202143554.97209-1-cgoettsche@seltendoof.de> <CAP+JOzT4pYTE4AZf3mRrrNJnX0y6r_Nd7-+day7yM=O_B5+HBQ@mail.gmail.com>
-In-Reply-To: <CAP+JOzT4pYTE4AZf3mRrrNJnX0y6r_Nd7-+day7yM=O_B5+HBQ@mail.gmail.com>
+References: <20260311042511.2975567-1-tweek@google.com> <CAJ2a_Dd5JT14okamnSXq20pooM66RZ0HxmO97d1X2bZXJLXBGw@mail.gmail.com>
+In-Reply-To: <CAJ2a_Dd5JT14okamnSXq20pooM66RZ0HxmO97d1X2bZXJLXBGw@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Tue, 14 Apr 2026 13:35:32 -0400
-X-Gm-Features: AQROBzALrzKxXzBp2-lAQQ9QIRy1Djf3wiRkWdIKYKRuUyPMSnJID5XRmWMCL3Y
-Message-ID: <CAP+JOzT0goR9yNyKj0PcjVRTMp34vxgJ18_K9tmRLFgwPMMOdg@mail.gmail.com>
-Subject: Re: [PATCH 2/4] libselinux: support non-pthread build
-To: cgzones@googlemail.com
-Cc: selinux@vger.kernel.org
+Date: Tue, 14 Apr 2026 13:36:01 -0400
+X-Gm-Features: AQROBzC38YX9h71LtGdtng-caIAzEQ926Wi439ffOFaWgYLieMwlX4z4qJHSqRU
+Message-ID: <CAP+JOzSq71Ty0Eb1HdxiXB1YeduL9DuuYaYKe2istsuU4rh8_g@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: do not log on unexpected escaped character
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
+	selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Feb 13, 2026 at 10:19=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
+On Fri, Mar 20, 2026 at 11:58=E2=80=AFAM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> On Wed, 11 Mar 2026 at 05:25, Thi=C3=A9baud Weksteen <tweek@google.com> w=
 rote:
+> >
+> > For file_contexts entries relying on PCRE2, there are multiple escaped
+> > characters that are valid (e.g., \d). If such a character is identified=
+,
+> > a log message is emitted. While this may have been useful for debugging=
+,
+> > there is nothing actionable from that info message. Remove it.
+> >
+> > Fixes: 92306daf521 ("libselinux: rework selabel_file(5) database")
+> > Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
 >
-> On Mon, Feb 2, 2026 at 3:21=E2=80=AFPM Christian G=C3=B6ttsche
-> <cgoettsche@seltendoof.de> wrote:
-> >
-> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> >
-> > Consistently use libselinux-internal __pthread wrappers to re-
-> > instantiate support for non-pthread builds.
-> >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
->
-> Acked-by: James Carter <jwcart2@gmail.com>
+> Acked-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
 
-Merged.
+This patch has been merged.
 Thanks,
 Jim
 
 > > ---
-> >  libselinux/src/selinux_restorecon.c | 12 ++++++------
-> >  1 file changed, 6 insertions(+), 6 deletions(-)
+> >  libselinux/src/label_file.h | 8 +++-----
+> >  1 file changed, 3 insertions(+), 5 deletions(-)
 > >
-> > diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selin=
-ux_restorecon.c
-> > index 34927126..b1f6f672 100644
-> > --- a/libselinux/src/selinux_restorecon.c
-> > +++ b/libselinux/src/selinux_restorecon.c
-> > @@ -905,7 +905,7 @@ static void *selinux_restorecon_thread(void *arg)
-> >         bool first =3D false;
-> >
-> >         if (state->parallel)
-> > -               pthread_mutex_lock(&state->mutex);
-> > +               __pthread_mutex_lock(&state->mutex);
-> >
-> >         if (state->ftsent_first) {
-> >                 ftsent =3D state->ftsent_first;
-> > @@ -1011,14 +1011,14 @@ loop_body:
-> >
-> >                         ent_st =3D *ftsent->fts_statp;
-> >                         if (state->parallel)
-> > -                               pthread_mutex_unlock(&state->mutex);
-> > +                               __pthread_mutex_unlock(&state->mutex);
-> >
-> >                         bool updated =3D false;
-> >                         error =3D restorecon_sb(ent_path, &ent_st, &sta=
-te->flags,
-> >                                               first, &updated);
-> >
-> >                         if (state->parallel) {
-> > -                               pthread_mutex_lock(&state->mutex);
-> > +                               __pthread_mutex_lock(&state->mutex);
-> >                                 if (state->abort)
-> >                                         goto unlock;
+> > diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+> > index 8fcf74e3..13451680 100644
+> > --- a/libselinux/src/label_file.h
+> > +++ b/libselinux/src/label_file.h
+> > @@ -231,7 +231,7 @@ static inline const char* file_kind_to_string(uint8=
+_t file_kind)
+> >   * Determine whether the regular expression specification has any meta=
+ characters
+> >   * or any unsupported escape sequence.
+> >   */
+> > -static bool regex_has_meta_chars(const char *regex, size_t *prefix_len=
+, const char *path, unsigned int lineno)
+> > +static bool regex_has_meta_chars(const char *regex, size_t *prefix_len=
+)
+> >  {
+> >         const char *p =3D regex;
+> >         size_t plen =3D 0;
+> > @@ -275,8 +275,7 @@ static bool regex_has_meta_chars(const char *regex,=
+ size_t *prefix_len, const ch
+> >                         case ',':
+> >                                 continue;
+> >                         default:
+> > -                               COMPAT_LOG(SELINUX_INFO, "%s:  line %u =
+has unsupported escaped character %c (%#x) for literal matching, continuing=
+ using regex\n",
+> > -                                          path, lineno, isprint((unsig=
+ned char)*p) ? *p : '?', *p);
+> > +                               /* Unsupported escaped character, conti=
+nuing using regex */
+> >                                 *prefix_len =3D plen;
+> >                                 return true;
 > >                         }
-> > @@ -1046,7 +1046,7 @@ finish:
-> >                 state->saved_errno =3D errno;
-> >  unlock:
-> >         if (state->parallel)
-> > -               pthread_mutex_unlock(&state->mutex);
-> > +               __pthread_mutex_unlock(&state->mutex);
-> >         return NULL;
-> >  }
-> >
-> > @@ -1279,7 +1279,7 @@ static int selinux_restorecon_common(const char *=
-pathname_orig,
-> >                 pthread_t self =3D pthread_self();
-> >                 pthread_t *threads =3D NULL;
-> >
-> > -               pthread_mutex_init(&state.mutex, NULL);
-> > +               __pthread_mutex_init(&state.mutex, NULL);
-> >
-> >                 threads =3D calloc(nthreads - 1, sizeof(*threads));
-> >                 if (!threads)
-> > @@ -1316,7 +1316,7 @@ static int selinux_restorecon_common(const char *=
-pathname_orig,
-> >                 }
-> >                 free(threads);
-> >
-> > -               pthread_mutex_destroy(&state.mutex);
-> > +               __pthread_mutex_destroy(&state.mutex);
+> > @@ -343,7 +342,6 @@ static int regex_simplify(const char *regex, size_t=
+ len, char **out, const char
+> >                                 *p++ =3D regex[i++];
+> >                                 break;
+> >                         default:
+> > -                               /* regex_has_meta_chars() reported alre=
+ady the notable occurrences */
+> >                                 free(result);
+> >                                 return 0;
+> >                         }
+> > @@ -523,7 +521,7 @@ static int insert_spec(const struct selabel_handle =
+*rec, struct saved_data *data
+> >                 return -1;
 > >         }
 > >
-> >         error =3D state.error;
+> > -       has_meta =3D regex_has_meta_chars(regex, &prefix_len, path, lin=
+eno);
+> > +       has_meta =3D regex_has_meta_chars(regex, &prefix_len);
+> >
+> >         /* Ensured by read_spec_entry() */
+> >         assert(prefix_len < UINT16_MAX);
 > > --
-> > 2.51.0
+> > 2.53.0.473.g4a7958ca14-goog
 > >
-> >
+>
