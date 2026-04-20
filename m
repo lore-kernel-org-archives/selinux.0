@@ -1,159 +1,148 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7F5F1799F
-	for <selinux@vger.kernel.org>; Mon, 20 Apr 2026 12:41:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776688893; cv=none; b=cZYAFttZ6l9F+T1drsPbnvvE//yj47Jq0zS52+K7w7donO0RVBKE6ivVhiBRsb3fIWdoeUQKO6X1zrEWOA6LCO1mtBkXXQtKDapV0jHClDdOY3wJ/z7b5Aa7VNnOol2NFje+CvBO2U4OThLmO2jHOP4KCXuyi3oZ071QtSEKtTk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776688893; c=relaxed/simple;
-	bh=3jw70MxijpyI87dVt+kSg+earFp/tYVetdkjip33LH8=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=jPJrUJaAdCPWOCO1wr/ZDCrQXYbp264FjCuRMEKzHf1wxpvXSfSG9X7h5619dvnmfYe7vO/JWP2VDxV2OgIbK+fBuaZml8uEeKQtMVF5qSIGISC3C+D5eCoL0lEsKjTbrSXSWhu4o9tttXGIAATI99QlV7I3UTDr5eVitDp1HWI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dotYbdpQ; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 143263BFE4C
+	for <selinux@vger.kernel.org>; Mon, 20 Apr 2026 19:13:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.43
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1776712431; cv=pass; b=SClDKvUKCCWLGUQwjD8wk+FYeTlY15Yio/lnBZfp9JpMy0MsnOnJeIpspKQQvOCMbSEMkZoCyjKpK8quxb3WGhjEKfLE5Ed4kfAj6DWzoDxDcEi+QoUXen+dsdgeuriOrp6pol0aGC/ecmHzQkGjP+bGDms2KX3WAtq1AK+UJg8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1776712431; c=relaxed/simple;
+	bh=6XrUTyBrOXjBXUlmaa4CjfWuCMlMFVQi65AlYMPIWcA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=MoYVTRM7Uqf5ewbpV6eg6yYv0c7kQXLcL9VsUqWdvj4WQ6uZbRYNmeSe2XxrYQBlIPO1JJPrTuKW41oAbKfY9RDzIERNeQ42CKZsd1TkJMw/gcVbcsgGwlODCs+LhnHMucGj2j0AXOVeork2FyZPugVBV0u5Y3ftStAusvrqzIM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=h2poIBUh; arc=pass smtp.client-ip=209.85.216.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dotYbdpQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1776688890;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=oxw/8xSYEIkkndkf3V7+h2zHmYQWw4wlgZU3MyXn0bE=;
-	b=dotYbdpQA8tQmY3bQsOh1FwNm+xO+Jd+m2DyYwbwDTCWHyaZSvi/lx2wvCJnhgle65kBfP
-	iJWmEOKg0IaNmpegpzklewTN/bVT5WYP46lUuFNDKoSYVc6g8xYyb5yLT9zx33Qy9T+4QZ
-	hvc0kn66PXfd7Wr6179Ytymu+kRZYag=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-231-kPhsd984O_GabbKIyjLWhg-1; Mon,
- 20 Apr 2026 08:41:29 -0400
-X-MC-Unique: kPhsd984O_GabbKIyjLWhg-1
-X-Mimecast-MFC-AGG-ID: kPhsd984O_GabbKIyjLWhg_1776688888
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id A9E321956095
-	for <selinux@vger.kernel.org>; Mon, 20 Apr 2026 12:41:28 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.44.50.248])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id F018F1956095
-	for <selinux@vger.kernel.org>; Mon, 20 Apr 2026 12:41:27 +0000 (UTC)
-From: Vit Mojzis <vmojzis@redhat.com>
-To: selinux@vger.kernel.org
-Subject: [PATCH] checkpolicy/test: Show all options for dispol and dismod in -h
-Date: Mon, 20 Apr 2026 14:41:22 +0200
-Message-ID: <20260420124124.324404-1-vmojzis@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="h2poIBUh"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-35d965648a2so2925354a91.0
+        for <selinux@vger.kernel.org>; Mon, 20 Apr 2026 12:13:47 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1776712427; cv=none;
+        d=google.com; s=arc-20240605;
+        b=IzTEz+jnbuHsq8PJtosDMFqEfQEUfRxCR6ae+e80M+A/fJqPZF+juwny+85bRiJdmW
+         jniZ02TkIpDO4ziuLMytA5KLBW51Lgd8/VMt7Pq9lxPhSIh33GLOjqSWsZYNEAHoXowP
+         U3PkN1fiTuRVBOwOnBxfBCa+XPI3ShStAAvHEwjjtKetrnj//T8BsL/JNaWEWEoJBdo7
+         XWzkzBpUlRuQC7HcMfF1gzEj+ouMJS5YYVkkpULJIRkx0ZQYX0925oXbXhEHFbDqz1iE
+         se6T1pcXNy1h98bjLbq8ARSBPVK1Y8nHoMZCV016WhjdzlxYctdr5AqFRYLpDRgHII/p
+         2EvQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=qSo8vX2qikE52zM6FzGP6h93z6La62XsOeyMxjd3Vvo=;
+        fh=K0P3yueWX+9wvznQ61j7DXol8naVFvlsq/Ek+LAYujo=;
+        b=cqdnxkqsW1OtQ0f+0MhbxvhX44gWtIxSBRzv7zx9bgfa6dKJb0sjYPppxicmzp3MP2
+         V3TN6iyWJX6JqkLgoUP+qEGB+JUiMqzlNGPhGc+UkOktKBuGaHCxPfmtFc7Y2Ris0Ccb
+         +Y2m87kuoCFcSY0z6M07KPXN9TQBo/KCtzeYtdbnVVS80yubRB+3x6L5fg4NKgRNCEWE
+         7Ovsm1mxoMPy137Dj97uFSgqNAiUVdm5US0p/A9aS0nIg7CEbnSr/yDkUlYFCAsKPlQk
+         tnLZDbm9gatNrsSAYX89q7XB8fraERFDfHfno4/Q8Q+tQNeZY2l5hV6w7J8Lld0Stgjg
+         YsNw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1776712427; x=1777317227; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=qSo8vX2qikE52zM6FzGP6h93z6La62XsOeyMxjd3Vvo=;
+        b=h2poIBUhMoq/u507QxMEItD63SLy42WI+koKguYziVE7VbT7cNMQkw8xsJRACcwDqT
+         bKyNSJdsXPaiyDYeDiNP16noJLkvTFrplVkddDSskHc8gpSfWHn/lcUVFX+qLKN2QjFL
+         t8MiHgID5iruQa22ICflHCULd4StTy7dSN+4cyQgKhkJ/PeORWfpti/uKTGH+hAZaLiy
+         B2zHSCKS3+ny7gRO8YB6lcVmYddXDx465owa53YtskTlAzhM3tt+Ac3MVOzFUwMEmzTp
+         7kOSDmnq8fEVf++C+SvHtzgAA97PrsyW2euxz+E82Az82vvgeYJKb0yChi3GanjLF49D
+         gOrg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776712427; x=1777317227;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=qSo8vX2qikE52zM6FzGP6h93z6La62XsOeyMxjd3Vvo=;
+        b=etZUI0Xs4LcNuQdtBDPiTocycxVB5kqYTJ9LRy2V9IOhDGC4bHMa/iQBvkZzss82B6
+         hjOjLapYl4qGcSAkbOPalJxbQNuAy/fwVpCw56TZMkWGShwxEVCyJpiwWsHgNKmj2O2M
+         YDmgmFnSCDjB53amhAnH0/1vzEt8iCrvXV6oWjUzUl+MUHvC4dRdAJL/LLHz2p6PmNhG
+         UO1ZpFBCrVfFuZabeuZVdE2NP53gRVzCpRdmibqnl1wuXyIAKw//8/YOVJfW9kKJ03p8
+         cKJRf0wFmmFDe72E/Ip+lboSIkTE1YrQiRtWAeVUdxOOi4DGpQfZy96KIcZ034VQCLXo
+         bxeA==
+X-Gm-Message-State: AOJu0YxNR0voVcKhgPRgdiMCKD2NJn0qpbgBzBhxlBPoKIt6j8nMRFos
+	dxG1Jgw5hCDgMnVYYfAc7FEqVBb+aHZQ6nNbe+kZuYJCjUcBO5onCPq/y43/y7CKUaXP91/DX3w
+	CdQ7tNszIx6N8VdhBOzXZQotk3nR6EsIzd67Z
+X-Gm-Gg: AeBDiethzThAwTpnaBrCt50LwyIX6ISSqrQ03zmx6jTRnF52N6FRtWiO7jBOQKO5XyQ
+	E6BuBeZHhF4cQRQiyM2wo9g9VtLYdweOOf5hKKu/yKgu1o23s36M3pv1l+V81+HzEUuqt+4cO71
+	jJke4h6n0iWIKarUo4Lbxvy1x2qMJaOs8msb/jGxzQ+tsEYcUTCOk74bKfwKq+48m6nOAvb7ro5
+	meK/yZ7BtDnUHXN/UrWGhYaAaIbYjSDhu0cXwZNG8p4clvk+SL0RWScCR1XvCBDaGAOpO+/hqOi
+	KNKzxdnDhk9e2MsRYLmrzBlRIIZM
+X-Received: by 2002:a17:90b:3d01:b0:35f:b75e:fff5 with SMTP id
+ 98e67ed59e1d1-3614048b7admr16602269a91.22.1776712427043; Mon, 20 Apr 2026
+ 12:13:47 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+References: <20260410192949.16542-2-stephen.smalley.work@gmail.com> <CAEjxPJ6y9p0gs17s7090UcbAcA2KtGcj2nKqi-hBtNZ3zgwKDQ@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6y9p0gs17s7090UcbAcA2KtGcj2nKqi-hBtNZ3zgwKDQ@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 20 Apr 2026 15:13:35 -0400
+X-Gm-Features: AQROBzBwNKzXApQyLBG1S8WjxynHR-8mvYehppHp3p_iUjjqDf8V8eEg9kHcfN0
+Message-ID: <CAEjxPJ4fPyXO6MWef7kA=gM3HTDhYjvhEbZNRoU=AG__K6havw@mail.gmail.com>
+Subject: Re: [PATCH v4] selinux: fix avdcache auditing
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com, omosnace@redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Show the following options, which were hidden in the usage message,
-because they require additional input:
+On Fri, Apr 10, 2026 at 3:49=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Fri, Apr 10, 2026 at 3:32=E2=80=AFPM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > The per-task avdcache was incorrectly saving and reusing the
+> > audited vector computed by avc_audit_required() rather than
+> > recomputing based on the currently requested permissions and
+> > distinguishing the denied versus allowed cases. As a result,
+> > some permission checks were not being audited, e.g.
+> > directory write checks after a previously cached directory
+> > search check.
+> >
+> > Fixes: dde3a5d0f4dce ("selinux: move avdcache to per-task security stru=
+ct")
+> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > ---
+> > v4 changes struct avdc_entry to contain a complete struct av_decision
+> > rather than individual fields copied from it. This allows the use
+> > of avc_audit_required() for both the cache hit and miss cases.
+>
+> Entirely up to you whether you want to proceed with v3 or v4 (or
+> something else altogether).
+> Just offering up options. Shouldn't be any behavioral difference, just
+> a question of whether we want
+> to keep the change as minimal and streamlined in the cache hit case
+> (v3) or prioritize ease of
+> maintenance of the logic (v4).
 
-dispol:
-  7    change a boolean value
-  f    set output file
-  m    display menu
-  q    quit
+Here is some perf data, using default Fedora kconfig:
+v7.0, unmodified:
+   2.03%  [k] __d_lookup_rcu
+   0.80%  [k] selinux_inode_permission
+Ratio: 39%
 
-dismod:
-  l    Link in a module
-  f    set output file
-  m    display menu
-  q    quit
+v7.0 with v3 patch:
+   1.95%  [k] __d_lookup_rcu
+   0.81%  [k] selinux_inode_permission
+Ratio: 41%
 
-Fixes:
-  $dispol -h
-  Usage:
-   sedispol [OPTIONS] binary_pol_file
+v7.0 with v4 patch:
+   1.89%  [k] __d_lookup_rcu
+   0.92%  [k] selinux_inode_permission
+Ratio: 49%
 
-  Options:
-   -h, --help   print this help message
-   -a, --actions ACTIONS   run non-interactively
-
-  Actions:
-    1    display unconditional AVTAB
-    2    display conditional AVTAB (entirely)
-    3    display conditional AVTAB (only ENABLED rules)
-    4    display conditional AVTAB (only DISABLED rules)
-    5    display booleans
-    6    display conditional expressions
-    8    display role transitions
-    c    display policy capabilities
-    C    display classes
-    u    display users
-    r    display roles
-    t    display types
-    a    display type attributes
-    p    display the list of permissive types
-    U    display unknown handling setting
-    F    display filename_trans rules
-
-  With the patch:
-
-  Actions:
-    1    display unconditional AVTAB
-    2    display conditional AVTAB (entirely)
-    3    display conditional AVTAB (only ENABLED rules)
-    4    display conditional AVTAB (only DISABLED rules)
-    5    display booleans
-    6    display conditional expressions
-    7    change a boolean value
-    8    display role transitions
-    c    display policy capabilities
-    C    display classes
-    u    display users
-    r    display roles
-    t    display types
-    a    display type attributes
-    p    display the list of permissive types
-    U    display unknown handling setting
-    F    display filename_trans rules
-    f    set output file
-    m    display menu
-    q    quit
-
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
- checkpolicy/test/dismod.c | 3 +--
- checkpolicy/test/dispol.c | 3 +--
- 2 files changed, 2 insertions(+), 4 deletions(-)
-
-diff --git a/checkpolicy/test/dismod.c b/checkpolicy/test/dismod.c
-index 4868190f..ed5aaa45 100644
---- a/checkpolicy/test/dismod.c
-+++ b/checkpolicy/test/dismod.c
-@@ -106,8 +106,7 @@ static __attribute__((__noreturn__)) void usage(const char *progname)
- 	puts("");
- 	puts("Actions:");
- 	for (unsigned int i = 0; commands[i].meta != EOL; i++) {
--		if (commands[i].meta == HEADER
--		    || commands[i].meta & NOOPT)
-+		if (!(commands[i].meta & CMD))
- 			continue;
- 		printf("  %c    %s\n", commands[i].cmd, commands[i].desc);
- 	}
-diff --git a/checkpolicy/test/dispol.c b/checkpolicy/test/dispol.c
-index 3f80c1a2..c3339b88 100644
---- a/checkpolicy/test/dispol.c
-+++ b/checkpolicy/test/dispol.c
-@@ -79,8 +79,7 @@ static __attribute__((__noreturn__)) void usage(const char *progname)
- 	puts("");
- 	puts("Actions:");
- 	for (unsigned int i = 0; commands[i].meta != EOL; i++) {
--		if (commands[i].meta == HEADER
--		    || commands[i].meta & NOOPT)
-+		if (!(commands[i].meta & CMD))
- 			continue;
- 		printf("  %c    %s\n", commands[i].cmd, commands[i].desc);
- 	}
--- 
-2.53.0
-
+I only compared the percentage spent in selinux_inode_permission to
+__d_lookup_rcu since the changes were localized to
+selinux_inode_permission. Aside from the fact that v4 is measurably
+worse than v3, I also noticed that even the baseline seems measurably
+worse than the selinux_inode_permission() percentages reported in
+earlier commit messages, although I guess we didn't re-measure when we
+switched from the per-cred cache to the per-task cache (but that was
+necessary regardless).
