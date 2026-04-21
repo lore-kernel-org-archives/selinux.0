@@ -1,148 +1,202 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 143263BFE4C
-	for <selinux@vger.kernel.org>; Mon, 20 Apr 2026 19:13:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.43
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776712431; cv=pass; b=SClDKvUKCCWLGUQwjD8wk+FYeTlY15Yio/lnBZfp9JpMy0MsnOnJeIpspKQQvOCMbSEMkZoCyjKpK8quxb3WGhjEKfLE5Ed4kfAj6DWzoDxDcEi+QoUXen+dsdgeuriOrp6pol0aGC/ecmHzQkGjP+bGDms2KX3WAtq1AK+UJg8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776712431; c=relaxed/simple;
-	bh=6XrUTyBrOXjBXUlmaa4CjfWuCMlMFVQi65AlYMPIWcA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MoYVTRM7Uqf5ewbpV6eg6yYv0c7kQXLcL9VsUqWdvj4WQ6uZbRYNmeSe2XxrYQBlIPO1JJPrTuKW41oAbKfY9RDzIERNeQ42CKZsd1TkJMw/gcVbcsgGwlODCs+LhnHMucGj2j0AXOVeork2FyZPugVBV0u5Y3ftStAusvrqzIM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=h2poIBUh; arc=pass smtp.client-ip=209.85.216.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57B7E3D5659
+	for <selinux@vger.kernel.org>; Tue, 21 Apr 2026 12:45:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1776775526; cv=none; b=ZCd3wModbPKck3VwhbwwpmeTz4q7ZsaL8NLmBQCxMsg7ikci7ESEJY+D8DkfU/v7AQ9NBNYu6jH6OWLKhf+K8bzGDNEP7qf4+BcvS+KrRvFeLF0AXWe4b21Ea/6Q2XUCvduUTjDJ9TNFE0aYCLPuqfTnrkP0HUgTrtFLti2UwnE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1776775526; c=relaxed/simple;
+	bh=H3gOlQKumAABRLxD/VfDQjp6VcWHzCT+fVawLWVbSVE=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=FahAyPiTFyAete2ihs5fLLLjNEr7M3EmhKf8/IDLWhN4lbjWic7EEaRJrZzh2wmIoRDQN2/CKrIGCVPUPUB0F/EmhYYKYj3xJmZ3hE/l3sdPB15ymHKWomfIOaAhsvzP1PA6ZAvPi3NeDTcBNAiiTM9Q+NYjSYTep/Lgy+VgkZg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=b90pgmGG; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="h2poIBUh"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-35d965648a2so2925354a91.0
-        for <selinux@vger.kernel.org>; Mon, 20 Apr 2026 12:13:47 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1776712427; cv=none;
-        d=google.com; s=arc-20240605;
-        b=IzTEz+jnbuHsq8PJtosDMFqEfQEUfRxCR6ae+e80M+A/fJqPZF+juwny+85bRiJdmW
-         jniZ02TkIpDO4ziuLMytA5KLBW51Lgd8/VMt7Pq9lxPhSIh33GLOjqSWsZYNEAHoXowP
-         U3PkN1fiTuRVBOwOnBxfBCa+XPI3ShStAAvHEwjjtKetrnj//T8BsL/JNaWEWEoJBdo7
-         XWzkzBpUlRuQC7HcMfF1gzEj+ouMJS5YYVkkpULJIRkx0ZQYX0925oXbXhEHFbDqz1iE
-         se6T1pcXNy1h98bjLbq8ARSBPVK1Y8nHoMZCV016WhjdzlxYctdr5AqFRYLpDRgHII/p
-         2EvQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=qSo8vX2qikE52zM6FzGP6h93z6La62XsOeyMxjd3Vvo=;
-        fh=K0P3yueWX+9wvznQ61j7DXol8naVFvlsq/Ek+LAYujo=;
-        b=cqdnxkqsW1OtQ0f+0MhbxvhX44gWtIxSBRzv7zx9bgfa6dKJb0sjYPppxicmzp3MP2
-         V3TN6iyWJX6JqkLgoUP+qEGB+JUiMqzlNGPhGc+UkOktKBuGaHCxPfmtFc7Y2Ris0Ccb
-         +Y2m87kuoCFcSY0z6M07KPXN9TQBo/KCtzeYtdbnVVS80yubRB+3x6L5fg4NKgRNCEWE
-         7Ovsm1mxoMPy137Dj97uFSgqNAiUVdm5US0p/A9aS0nIg7CEbnSr/yDkUlYFCAsKPlQk
-         tnLZDbm9gatNrsSAYX89q7XB8fraERFDfHfno4/Q8Q+tQNeZY2l5hV6w7J8Lld0Stgjg
-         YsNw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776712427; x=1777317227; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=qSo8vX2qikE52zM6FzGP6h93z6La62XsOeyMxjd3Vvo=;
-        b=h2poIBUhMoq/u507QxMEItD63SLy42WI+koKguYziVE7VbT7cNMQkw8xsJRACcwDqT
-         bKyNSJdsXPaiyDYeDiNP16noJLkvTFrplVkddDSskHc8gpSfWHn/lcUVFX+qLKN2QjFL
-         t8MiHgID5iruQa22ICflHCULd4StTy7dSN+4cyQgKhkJ/PeORWfpti/uKTGH+hAZaLiy
-         B2zHSCKS3+ny7gRO8YB6lcVmYddXDx465owa53YtskTlAzhM3tt+Ac3MVOzFUwMEmzTp
-         7kOSDmnq8fEVf++C+SvHtzgAA97PrsyW2euxz+E82Az82vvgeYJKb0yChi3GanjLF49D
-         gOrg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776712427; x=1777317227;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=qSo8vX2qikE52zM6FzGP6h93z6La62XsOeyMxjd3Vvo=;
-        b=etZUI0Xs4LcNuQdtBDPiTocycxVB5kqYTJ9LRy2V9IOhDGC4bHMa/iQBvkZzss82B6
-         hjOjLapYl4qGcSAkbOPalJxbQNuAy/fwVpCw56TZMkWGShwxEVCyJpiwWsHgNKmj2O2M
-         YDmgmFnSCDjB53amhAnH0/1vzEt8iCrvXV6oWjUzUl+MUHvC4dRdAJL/LLHz2p6PmNhG
-         UO1ZpFBCrVfFuZabeuZVdE2NP53gRVzCpRdmibqnl1wuXyIAKw//8/YOVJfW9kKJ03p8
-         cKJRf0wFmmFDe72E/Ip+lboSIkTE1YrQiRtWAeVUdxOOi4DGpQfZy96KIcZ034VQCLXo
-         bxeA==
-X-Gm-Message-State: AOJu0YxNR0voVcKhgPRgdiMCKD2NJn0qpbgBzBhxlBPoKIt6j8nMRFos
-	dxG1Jgw5hCDgMnVYYfAc7FEqVBb+aHZQ6nNbe+kZuYJCjUcBO5onCPq/y43/y7CKUaXP91/DX3w
-	CdQ7tNszIx6N8VdhBOzXZQotk3nR6EsIzd67Z
-X-Gm-Gg: AeBDiethzThAwTpnaBrCt50LwyIX6ISSqrQ03zmx6jTRnF52N6FRtWiO7jBOQKO5XyQ
-	E6BuBeZHhF4cQRQiyM2wo9g9VtLYdweOOf5hKKu/yKgu1o23s36M3pv1l+V81+HzEUuqt+4cO71
-	jJke4h6n0iWIKarUo4Lbxvy1x2qMJaOs8msb/jGxzQ+tsEYcUTCOk74bKfwKq+48m6nOAvb7ro5
-	meK/yZ7BtDnUHXN/UrWGhYaAaIbYjSDhu0cXwZNG8p4clvk+SL0RWScCR1XvCBDaGAOpO+/hqOi
-	KNKzxdnDhk9e2MsRYLmrzBlRIIZM
-X-Received: by 2002:a17:90b:3d01:b0:35f:b75e:fff5 with SMTP id
- 98e67ed59e1d1-3614048b7admr16602269a91.22.1776712427043; Mon, 20 Apr 2026
- 12:13:47 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="b90pgmGG"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1776775524;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=EErRR+shC2/Y+rWjtXFfH+yI7waqzApbqU85UGFhb+Q=;
+	b=b90pgmGGnsEejfvPdBe7DQT8K+ozylPIwITXjSlPjXyxcAP5CLIfTMQ2pN5c/toWEWM4E6
+	6KmP1B8OGUGd6l8sYY+51qEtS0Hr2jyxnvu0d1tfRnBwF6ZrOCLbtIPxSG6Wu8Ai9JUYQx
+	XkeauPHaeLhhYo24AGZqG2cqkLC62H8=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-54-CuJTXwTXP2y0otH7bx69ew-1; Tue,
+ 21 Apr 2026 08:45:21 -0400
+X-MC-Unique: CuJTXwTXP2y0otH7bx69ew-1
+X-Mimecast-MFC-AGG-ID: CuJTXwTXP2y0otH7bx69ew_1776775520
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 0D29818003FC;
+	Tue, 21 Apr 2026 12:45:20 +0000 (UTC)
+Received: from localhost (unknown [10.44.32.127])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 902C1195608E;
+	Tue, 21 Apr 2026 12:45:19 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: selinux@vger.kernel.org
+Cc: James Carter <jwcart2@gmail.com>, Vit Mojzis <vmojzis@redhat.com>
+Subject: Re: [PATCH] mcstrans: Fix translation for uncached entries
+In-Reply-To: <CAP+JOzRs-+oW0jXiEGpPz4qg=mDix_9=tXBMMmkJ9P=wPyA16w@mail.gmail.com>
+References: <20260216194829.3372622-1-vmojzis@redhat.com>
+ <CAP+JOzRs-+oW0jXiEGpPz4qg=mDix_9=tXBMMmkJ9P=wPyA16w@mail.gmail.com>
+Date: Tue, 21 Apr 2026 14:45:18 +0200
+Message-ID: <875x5kh481.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260410192949.16542-2-stephen.smalley.work@gmail.com> <CAEjxPJ6y9p0gs17s7090UcbAcA2KtGcj2nKqi-hBtNZ3zgwKDQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6y9p0gs17s7090UcbAcA2KtGcj2nKqi-hBtNZ3zgwKDQ@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 20 Apr 2026 15:13:35 -0400
-X-Gm-Features: AQROBzBwNKzXApQyLBG1S8WjxynHR-8mvYehppHp3p_iUjjqDf8V8eEg9kHcfN0
-Message-ID: <CAEjxPJ4fPyXO6MWef7kA=gM3HTDhYjvhEbZNRoU=AG__K6havw@mail.gmail.com>
-Subject: Re: [PATCH v4] selinux: fix avdcache auditing
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com, omosnace@redhat.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-On Fri, Apr 10, 2026 at 3:49=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+James Carter <jwcart2@gmail.com> writes:
+
+> On Mon, Feb 16, 2026 at 2:48=E2=80=AFPM Vit Mojzis <vmojzis@redhat.com> w=
+rote:
+>>
+>> trans_context:
+>> In case the raw context is not found in cache (find_in_hashtable returns
+>> NULL) and the context does not contain a dash (dashp =3D=3D NULL),
+>> compute_trans_from_raw gets executed, but the translation (trans) gets
+>> freed immediately after caching, at the end of the "for" loop.
+>>
+>> untrans_context:
+>> Same as trans_context, if the translation is not cached and "range" does
+>> not contain a dash, compute_raw_from_trans is called, but the
+>> translation (raw) gets freed right after the reverse translation is
+>> computed and cached.
+>>
+>> Also, fix the README for "nato" example and add README for "pipes"
+>> example of setrans configuration.
+>>
+>> Fixes:
+>>   Pipes/NATO examples from /usr/share/mcstrans/examples
+>>
+>>   $ /usr/share/mcstrans/util/mlstrans-test pipes.test
+>> untrans: 'a:b:c:Restricted Handle Via Iron Pipes Only' -> 'a:b:c:Restric=
+ted Handle Via Iron Pipes Only' !=3D 'a:b:c:s2:c102,c200.c511' FAILED
+>> untrans: 'a:b:c:Restricted Handle Via Copper Pipes Only' -> 'a:b:c:Restr=
+icted Handle Via Copper Pipes Only' !=3D 'a:b:c:s2:c103,c200.c511' FAILED
+>> untrans: 'a:b:c:Restricted Handle Via Plastic Pipes Only' -> 'a:b:c:Rest=
+ricted Handle Via Plastic Pipes Only' !=3D 'a:b:c:s2:c101,c200.c511' FAILED
+>> untrans: 'a:b:c:Restricted Handle Via Galvanized Pipes Only' -> 'a:b:c:R=
+estricted Handle Via Galvanized Pipes Only' !=3D 'a:b:c:s2:c104,c200.c511' =
+FAILED
+>> untrans: 'a:b:c:Restricted Handle Via Plastic,Iron,Copper Pipes Only' ->=
+ 'a:b:c:Restricted Handle Via Plastic,Iron,Copper Pipes Only' !=3D 'a:b:c:s=
+2:c101.c103,c200.c511' FAILED
+>> untrans: 'a:b:c:Restricted Handle Via Iron,Plastic,Copper Pipes Only' ->=
+ 'a:b:c:Restricted Handle Via Iron,Plastic,Copper Pipes Only' !=3D 'a:b:c:s=
+2:c101.c103,c200.c511' FAILED
+>> mlstrans-test done with 6 errors
+>>
+>> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 >
-> On Fri, Apr 10, 2026 at 3:32=E2=80=AFPM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > The per-task avdcache was incorrectly saving and reusing the
-> > audited vector computed by avc_audit_required() rather than
-> > recomputing based on the currently requested permissions and
-> > distinguishing the denied versus allowed cases. As a result,
-> > some permission checks were not being audited, e.g.
-> > directory write checks after a previously cached directory
-> > search check.
-> >
-> > Fixes: dde3a5d0f4dce ("selinux: move avdcache to per-task security stru=
-ct")
-> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > ---
-> > v4 changes struct avdc_entry to contain a complete struct av_decision
-> > rather than individual fields copied from it. This allows the use
-> > of avc_audit_required() for both the cache hit and miss cases.
->
-> Entirely up to you whether you want to proceed with v3 or v4 (or
-> something else altogether).
-> Just offering up options. Shouldn't be any behavioral difference, just
-> a question of whether we want
-> to keep the change as minimal and streamlined in the cache hit case
-> (v3) or prioritize ease of
-> maintenance of the logic (v4).
+> Acked-by: James Carter <jwcart2@gmail.com>
 
-Here is some perf data, using default Fedora kconfig:
-v7.0, unmodified:
-   2.03%  [k] __d_lookup_rcu
-   0.80%  [k] selinux_inode_permission
-Ratio: 39%
+Merged.
 
-v7.0 with v3 patch:
-   1.95%  [k] __d_lookup_rcu
-   0.81%  [k] selinux_inode_permission
-Ratio: 41%
+>> ---
+>>
+>> While working on this patch, I also noticed that s0 is treated
+>> differently in the mcstrans code (as also noted by [1] and [2]).
+>> Could anyone help shed some light on the reason for this?
+>>
+>> Thank you.
+>>
+>> [1] - https://github.com/SELinuxProject/selinux/issues/191#issuecomment-=
+566124541
+>> [2] - https://lore.kernel.org/selinux/0f7263c2-b16e-2979-cc55-9454a402b6=
+a4@gmail.com/
+>>
+>>  mcstrans/share/examples/nato/README  |  8 +++-----
+>>  mcstrans/share/examples/pipes/README | 10 ++++++++++
+>>  mcstrans/src/mcstrans.c              |  5 ++++-
+>>  3 files changed, 17 insertions(+), 6 deletions(-)
+>>  create mode 100644 mcstrans/share/examples/pipes/README
+>>
+>> diff --git a/mcstrans/share/examples/nato/README b/mcstrans/share/exampl=
+es/nato/README
+>> index b8b30bf7..7d75e0d6 100644
+>> --- a/mcstrans/share/examples/nato/README
+>> +++ b/mcstrans/share/examples/nato/README
+>> @@ -1,12 +1,10 @@
+>>  NATO example test setrans.conf
+>>
+>>  To use:
+>> -mkdir /etc/selinux/mls/mcstrand.d
+>> -cp rel.conf /etc/selinux/mls/mcstrand.d
+>> -cp eyes-only.conf /etc/selinux/mls/mcstrand.d
+>> -cp constraints.conf /etc/selinux/mls/mcstrand.d
+>> +rm -f /etc/selinux/mls/setrans.d/*
+>> +cp setrans.d/*  /etc/selinux/mls/setrans.d
+>>  cp setrans.conf /etc/selinux/mls/setrans.conf
+>> -sudo run_init /etc/init.d/mcstrans restart
+>> +run_init /etc/init.d/mcstrans restart
+>>
+>>  To test:
+>>  /usr/share/mcstrans/util/mlstrans-test nato.test
+>> diff --git a/mcstrans/share/examples/pipes/README b/mcstrans/share/examp=
+les/pipes/README
+>> new file mode 100644
+>> index 00000000..3963d300
+>> --- /dev/null
+>> +++ b/mcstrans/share/examples/pipes/README
+>> @@ -0,0 +1,10 @@
+>> +PIPES example test setrans.conf
+>> +
+>> +To use:
+>> +rm -f /etc/selinux/mls/setrans.d/*
+>> +cp setrans.d/*  /etc/selinux/mls/setrans.d
+>> +cp setrans.conf /etc/selinux/mls/setrans.conf
+>> +run_init /etc/init.d/mcstrans restart
+>> +
+>> +To test:
+>> +/usr/share/mcstrans/util/mlstrans-test pipes.test
+>> diff --git a/mcstrans/src/mcstrans.c b/mcstrans/src/mcstrans.c
+>> index f18f9da9..5ef6a0b9 100644
+>> --- a/mcstrans/src/mcstrans.c
+>> +++ b/mcstrans/src/mcstrans.c
+>> @@ -1578,12 +1578,14 @@ trans_context(const char *incon, char **rcon) {
+>>                         urange =3D dashp+1;
+>>                 } else {
+>>                         trans =3D compute_trans_from_raw(range, domain);
+>> -                       if (trans)
+>> +                       if (trans) {
+>>                                 if (add_cache(domain, range, trans) < 0)=
+ {
+>>                                         free(trans);
+>>                                         free(range);
+>>                                         return -1;
+>>                                 }
+>> +                               break;
+>> +                       }
+>>                 }
+>>
+>>                 if (lrange && urange) {
+>> @@ -1728,6 +1730,7 @@ untrans_context(const char *incon, char **rcon) {
+>>                                         free(raw);
+>>                                         return -1;
+>>                                 }
+>> +                               break;
+>>                         } else {
+>>                                 log_debug("untrans_context unable to com=
+pute raw context %s\n", range);
+>>                         }
+>> --
+>> 2.52.0
+>>
+>>
 
-v7.0 with v4 patch:
-   1.89%  [k] __d_lookup_rcu
-   0.92%  [k] selinux_inode_permission
-Ratio: 49%
-
-I only compared the percentage spent in selinux_inode_permission to
-__d_lookup_rcu since the changes were localized to
-selinux_inode_permission. Aside from the fact that v4 is measurably
-worse than v3, I also noticed that even the baseline seems measurably
-worse than the selinux_inode_permission() percentages reported in
-earlier commit messages, although I guess we didn't re-measure when we
-switched from the per-cred cache to the per-task cache (but that was
-necessary regardless).
