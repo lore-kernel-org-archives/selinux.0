@@ -1,143 +1,177 @@
-Received: from sonic304-27.consmr.mail.ne1.yahoo.com (sonic304-27.consmr.mail.ne1.yahoo.com [66.163.191.153])
+Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA086388377
-	for <selinux@vger.kernel.org>; Fri, 24 Apr 2026 15:35:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.191.153
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777044909; cv=none; b=kpQ5NJUYqiScXycnNJV6NXQdUVMwM1JFVnkpJvULwIvEI5Uj/yoEaZdVWKiHLRiX0BSQRPxRtSlgvF4PbV9odWSXvXQJWBhJ6kwNQuZuaNTnFYbYz2nmcXxfaUNaFSD7rll3gvDDL5fjOlDAzW1ZByd0Y1BZcb4302VtU0BV9x8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777044909; c=relaxed/simple;
-	bh=lqyUDD7ztKlfNJgYcsY/h6LyhwGnYYhak6HU3rIEeqo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=o/OfHzjqUokVQRNFsFWIQsBNx3FgvkEdTtMoERfVHZ7TMQ879ZfyA8dJJuFurNPvSFsZ551CntG+3BRKdJQM2+nzd0NztmaY1x26Gtf4AWpE4g78CdRGxlef/5E1BaNvA6AzfaO2EMxxx/OdgrjDLqZ18N6BSLSabfQ054mVSac=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=ef6TZx6i; arc=none smtp.client-ip=66.163.191.153
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EB643E0C6B
+	for <selinux@vger.kernel.org>; Fri, 24 Apr 2026 20:29:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.172
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777062595; cv=pass; b=S7r7wLUgiO+XA9VbeWiKxouPpPPNi/j3dO3g2tN9r/EeVr7BLtB+I4/EP0wJ7m8sS2lpjIkh8RZ/x4/eBye50bdYlEi7k7g3302hPJbJmbLvEvrGBICwp8BUZr6/d9Ss6tu2PXxWNMJT0lrYTTXehf38tTUZNvEbJEJ/yAXbnls=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777062595; c=relaxed/simple;
+	bh=+T4F0uNh5J6jVmx6oy3qBJn+uIleAsU3LmMjgFHY7kE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=BZl49mrssVtc8mQFFzmstPXAEHJvzpMbE62dCkui3b3zMxs/+COsXBuhJqMhdPnqDc7noXdWIpEylqq5zC1yDJ8fRydW1vEK1r2866nicb1B4k/RY1v4XfTLOQhUYeSYMFIAVN9iQPCKbJvL3FyUdQklXBcwPKEs+OnYzkX6/I8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=c1G2CN1C; arc=pass smtp.client-ip=209.85.215.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="ef6TZx6i"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1777044906; bh=7dSD6msxq0MtTnFW9/Zr2XwD+k3DdYey7Hcuan8qcVE=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=ef6TZx6i7glHUI9QH8UM/Qg/BJh2E4b37Gv25KxHlXGD7Vvj13/4exWHSvO+cmh4tG/KQGr8qefdFv5lAJt8WNtBnpCt3PegU6lZUxS52a3+XBySZ2lG0DLd9LMBbDh3O/9+PtKWaRHhw+/b0sYTBpHca7ajDklteFGtONW89R/fpz5virWpESooPrBWmGT3vNKjtXIdUDlwvonaGv1f0Duj7hKls47HmdWt/UfJzsgcbmSpd8+f70pEjx7/Y2tYQuwabb5lpJG+WTsbli83XFD4Hbw86YTqBGaDjCiSJJYBcawZ/2xzpotd8lvCPLjuDFIyM65A80dKP5rg9WDQPw==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1777044906; bh=jSKXP6cnm4SureImxU8wY9qegmLpg9XzAn+7F0yOw8B=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=B5731fmB3F5QYv/0xirkdRgiiwDzDmg8Ix/WZXTvSpCNHg0M9kdZMrJ0fRGcOdoFnW5dv8AQQT1R9fcyUro8mHjqDdNUFX5tFHtYz+LlXxr/OxGSSLqGmDEOsj1cGMOKDPjZuU36GMk7ju0UEURpL8Bs92mPuQ3lUReVP8yh4R47IXk74JNbqkxLpSc7esFoK25S0fbX4YZiud38pFRO6qvjXzq6xrO8VZL79Zn8Rr2ertRlNIXWrtpSl6HdtiOHfCev1mf26kejB3acvnp+uNyTmTvGxGdui6UNytIG9lzK7w0WGK9/aGwmJ13fiB+57RTW42Eq0TBf8K/0PFV+MA==
-X-YMail-OSG: XrwMWEMVM1mDXwj6n5NY4wlp.zMbK_Dedonk03sU8PEEknaROj0jkGsU.OYalRm
- T_bAJCi7aYKaviHWTLimRsYko4UwZKuw3T2kxTajkdhloxB1uu54sidk7kpk2QMEdXg848MLGc3k
- EER.S2OaGEIrtlU4I7Qeyz9tUG7_7J2S8rl.U6U3KK.7C9OuHQ3assBSQ6n4IGznQUuA28eRvgTl
- amzCqu9xwVUkp9pRdYvYKcbz2zSzt4eDi6iQYkHzrEU16vAxICZmLmomLT7LLjb0HZCBMhuK.6J.
- fS8xv40nW.GTQTTfEVGcr_yyOCOCCQbpIBmfpMPMiFiMwqYSD55Fdes6ikneHbB05rlFFqzfTQ9d
- LWaOpKltrnwl6IrKpoQkU2tGUh5AmJWqzVS76amFK1HokS8FEDPnLoW8r2JxmUVpQ2glSTCFkRrw
- FYi1_fVKVvTcZPXUxjQWqO7lBb6nLt.y5mmha63rUcfg_KLloZmn3a6U4U1lUX40HZd1AkQXRUpe
- 0Xc3j.LdbLs_rrsbf3iAu_rgHokfTr9iwc_zm6J_LouCwTwDIxLWFBkMIuMMIRrv7ldzCpiR8KSJ
- C4FrcJ0HIrTCIpJMT_9wyeDl.yT.sqfuSwx8xJaV6nZv.oT5uRuVl.CQkwVYSgX568nHx29k5oFg
- QmoevN1HquTK5ySUdT7PMFhGbV7Q9pjBgchBiqM10Em51Kdfgvt3s9LoQQYquWSzs_cAwxZtsGsk
- l63gc7JNzAVCOParlCvYqwLVFG0DbSjFpROo23F0.P3ZDlWPqNnKq4ku_JgaKxNYrYfDtfyE.rKv
- THGpD3RFMd0q33M6u2Aay8DcEWS7KAPyYQhbGXRad80XfmsdNXZUGOhohK9gawX9i7sN_wYdHOvh
- hfyJZI4yCQF2kW_kjrZhSY5K1x5cLNmE5OHTgrG8aDvx.IyFX_iU_TSgI8xwGG4uL.oajpmlAHuu
- PSJvhA3Xf7pxqKhnAWvQZYCrwISCQHv9MbNSfWl_KxN5cL3qN6lzeo4I6aZKMy1xyBIhEx7IlwSb
- hY74o5IashH4_oWMdgYLa14PV7vxKb0iBMjB6ayFc7rnmBj7akJSpAiulDeLbT.Rceosya28mIuO
- rsoSsf5maX_pRPZgdoRkFOYkJt2bP0cjt3tMzxdccK0IIARC8zI_6Ww.YEVKTmUWmZ6g9heRr0RQ
- 2PiK7iBhkjLX3hRgn73mX3u1qobntidlsHqKg__pGzOtS_vm1YcbcNEli6dOJEykm2aKd9LkPhGX
- p7v03tXsQ22J7GFrowMqDgzlmiamXqr7AXLwa6uGaVPq9ZeRXPDsNGXawRPEcSJTKr_wI5srVh.S
- KAvV9zAh_aNnzBoXlAKpk4iqB701s6ZaFIKT2gniTxA4rYAIdfkPwn4eGqconPNLahRGv6usSuhC
- 2p7BX_EGz5V8C6KJ4KdxIpg9DrExMqC4c2V5amOKVLgS9oOl9iDyPOKOhgcT78H1FQFhhrxl36fO
- a68Mf5kdPaPRuJMjgwJ1BFQut5XX.7dPfJNqIoQF9.ZRm88clR43Csvx6JDwKqZBvD4R9Ai.iSWM
- suDrWYloBjdLmiabp5UCbSt0fSApgQdf3xPBYVw05QWXjRF0CsqxCV3tMSghDRn16GgFl6FKejj.
- fHlC.dRHWJv0IIpWrLnvRa8bRR4wRRxVXrr9oYgQzHikrcTdQG2RV1bd.KDiW1D1bM9TreJPGqA4
- dGeEnBsi0Sj4yJyl8s1l2GR6IEUZDqcRaM9U4jMQYOcHy7p4mpBwEgl7mZoVnisT5tEVlHkeCQ6t
- SquUbVqiquN61sfQ7KdzPxV.Y56ZNR7WThZnlI1u_bq_CRJqs2Xo9Mb8MbcB7TxlY2vnqikYoxLH
- qB0i8LZpXDmZG45qkmp4yRHRK_5gdo5BCzJCeu_ggIZzcgsN7DfOCIbcvPHwmNao2y4WviwfgSWe
- N2mZE_rOZ.RWQarUwlXU8SUwbHm1Tn2jYCYaqKqXgedkaN0nPaOHnCoVMqQWC_IUB17E7b.Ol.zQ
- Jai0SI7fVwx_YtnIjPh7oWYuXynSYmkq.IgexenIRouZNeswRwkqaID3ajalJPHoDc6Mb6aa6C3H
- KDWm4f2TJeIHeE4W6bIsQwqUEGoP7M12q6lQxJ_fgqJW3Ea1bFqfoeEKB08KKhLpAi3CflUX2KjY
- .8t39Y7KSVrTGfSfHZYfbwiPK4pFCsXbX.HQ0jFACtzH7JhB24RuOfKub4R3cTXllZOqWnMbkJV5
- 3GwJfsUmxGO1rdBr7HDFmxGYCVp3354DVvKtN3lepVbINCXpZKoTNevqIvErMlnfg8wig5ZuP6Q-
- -
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 06473df4-40eb-45cf-8c6b-a8f65af37946
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic304.consmr.mail.ne1.yahoo.com with HTTP; Fri, 24 Apr 2026 15:35:06 +0000
-Received: by hermes--production-gq1-7bb7df5c46-m4r75 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 1936fd73ca784ac34a7d0b313199a5ba;
-          Fri, 24 Apr 2026 15:24:46 +0000 (UTC)
-Message-ID: <fadac326-d6cc-4d28-8ebe-b4ed3a06ddd0@schaufler-ca.com>
-Date: Fri, 24 Apr 2026 08:24:44 -0700
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="c1G2CN1C"
+Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-c79467f128cso3164725a12.3
+        for <selinux@vger.kernel.org>; Fri, 24 Apr 2026 13:29:54 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1777062594; cv=none;
+        d=google.com; s=arc-20240605;
+        b=R4k0l3Hko2bg7e6gKlwP4d06oVFXvlxpPD8w1IJhpzffG/S73fwU1lXSHwO00/T0TJ
+         iJapbPC7Q1kFWOXMVJKYxA419Ge5OAniPzM2RwUwlU6HdzIV1lAlfP25f/u3zv66PgOn
+         zCsfSXV8qDlWH+Bls7tKbz1b15qRhesZUKLID4JIW8QfcwZP8TpMU59L/VEVVAoXKTA6
+         9VqlcRE6ZXq9nDvLDIiZUxEMjpEMfmjj+O/bt/qVGXUXParLpz9bzpLTZaYN+23CrX1F
+         5aBdkjnqmcMUBFHnWOZhYtoSzvvJuunSaq9O0fyRa7LBPdVx9PvUj/Q70+ToK0W0EGM3
+         xRpQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=LMhwv8B42Oswf/FXJKVpTMSL/MUmT8hvMVU/KqHGQy4=;
+        fh=MOZiDNDzQLn3hHHHpSLxu33dKYenvT7+A+JVm+cVcU4=;
+        b=heEgrXAfnzjMvt/xj7kk+GqQUyJrKGdHT4Z63+E5BNq82/x5l5nzr8cWroD6WIzaOZ
+         RV5FhZrDcUtgUnOwb846PeikhXORBLswcLhaZPqwxgxfB354Q97XqJgYFeYDQ+0jQG9E
+         lP6hNe6Ipr6uKmYAy9VsyIy0xvymyfr+TUiTXACTPc1qy90Im1VEoqE0oz18oSj19Q5s
+         jn+0LfPma6jgDEMXT+LF3WzVxlnySd/U/dRvDIeUE9LHGp3Mh/NhIFOpYvupUKvrDAI+
+         RA0To0qkx+vVkJBrop7IWCzascbqUmDQskBYhMm09r41Yxy/EuvsefWtGMLhHIJHLO05
+         fu/w==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1777062594; x=1777667394; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=LMhwv8B42Oswf/FXJKVpTMSL/MUmT8hvMVU/KqHGQy4=;
+        b=c1G2CN1CkneFjh8oFfUBALGPUhj5INybitdCwnI0cky12C0x+V0zOvxmwng8KJt4XO
+         VZODtdockWiBywa0Vc7xGPsou6698PC+UZQm903TGLBLj3ixGVyu2BbzjGjPv6THQoX8
+         n6sLRlyi8sVgnJtH7mDmFANbVl97tBR2RSZpNQhHR/y8nE7f8S48PxFCflHDhwuAKk/i
+         4fXyROZr9pwSsR8xDiRIr9/W5BP1Gj6svPBlsmfMY+40Sj2z2GxoVEbQS0JywQDNpVrF
+         mKNfsCC4uj8y5OPwb+Y9zEe3SL/M/Dksj50osRHW8KJUJYDlgpOMxeDJFLj9nX+Ykp3o
+         4aXA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777062594; x=1777667394;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=LMhwv8B42Oswf/FXJKVpTMSL/MUmT8hvMVU/KqHGQy4=;
+        b=W7WMpXqCWvcadXAvmsrv071SH4JFH955lRuPFBYmPdrvfjMl8+P97DfYrNhkSaSKXj
+         q0f31SiVGzqcnmspkBoRKAqWkM+RiGxdJwvOIhQ857ZRVrnmyzP/j5rjGHQaQnCmBPqi
+         Mr5v2un7IO+cbLXof8D5MoJN4k5r+4JDykEd7y2C8M8CX3PmEg9+BNdF5l+wo9OkBUyv
+         ktJ1e+80GgpoLidXOExlYPUwrlSQx+KmWe0K5Vl9lF5/CBdiZ6rDKTNMvwzctW9G/j/v
+         fmviVlQW8hOo1cpkzamN7tpy93K8ZqZT+26KtZlhcaFr+tRrP+UxUusiC/ns3VCIn6lJ
+         zyYw==
+X-Forwarded-Encrypted: i=1; AFNElJ9bCnSCuMhRXyNUs8G74O5+KRE147fxGK7t6nPcPuQ8WH0Q94RAaimje/bUbrqMq1RzY7AbATju@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywc+5YzKwcnumrqEZ1lYmeTnJtMcVjcI2GMRO8HA1zgxr+qsfbP
+	eS8cShQDuMdlK2HhQDz/kE3KmQda6SYQKivvEzp9bT3JZG+c0BLBr5HALkv7pslPCoFRo6b0/hi
+	FKNsjHU3Op7BIg92bQIntIOGuq1w2+Dma34tSL9VQ
+X-Gm-Gg: AeBDievjVubzzD9ypPv+d0r16AXqdIMWhJ9vXu+PAHXjRlwKT/WUMNg3NW3IDb3vTgq
+	xANfbv1QW7be4UDrqE8vBIY+rjsLPjgOZ4r6nqgovqM8HYk5HA0Natz79XDqeSxm9gQ58KsV1LA
+	uzkgIQrSnR9nufaLKwrAOyG71eVcqCJDFgl9VK9JD8zIXW6fAipo40AeDtEfwd35UXh0YDRbl13
+	q5l764wgLH0dxq/bTeBuiRURGEeTkORZMBNplttM0+qSFjdu8n4KVjqjyovC0jubKM4wDzwestS
+	Txo/rDEdrW953iawdQ==
+X-Received: by 2002:a05:6a20:e211:b0:3a2:7ef4:81df with SMTP id
+ adf61e73a8af0-3a27ef485b0mr27995081637.26.1777062593995; Fri, 24 Apr 2026
+ 13:29:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC 1/3] LSM: add a flags field to the LSM hook
- definitions
-To: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org
-Cc: jmorris@namei.org, serge@hallyn.com, keescook@chromium.org,
- john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
- stephen.smalley.work@gmail.com, selinux@vger.kernel.org,
- Casey Schaufler <casey@schaufler-ca.com>
 References: <20260225192143.14448-2-casey@schaufler-ca.com>
- <c25833f447e6c00868b352cfea50d2b2@paul-moore.com>
-Content-Language: en-US
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <c25833f447e6c00868b352cfea50d2b2@paul-moore.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.25559 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+ <c25833f447e6c00868b352cfea50d2b2@paul-moore.com> <fadac326-d6cc-4d28-8ebe-b4ed3a06ddd0@schaufler-ca.com>
+In-Reply-To: <fadac326-d6cc-4d28-8ebe-b4ed3a06ddd0@schaufler-ca.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Fri, 24 Apr 2026 16:29:40 -0400
+X-Gm-Features: AQROBzA0OT_v6zCGlJnHnfaAeWLqvw1KB9PbY7WrmJzxL-y-1ou3DTCM5FkLECM
+Message-ID: <CAHC9VhRkup6GSj_wXp26_8PmjgBZSZK7Fk=F6RPy+bjbCRgJyQ@mail.gmail.com>
+Subject: Re: [PATCH RFC 1/3] LSM: add a flags field to the LSM hook definitions
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: linux-security-module@vger.kernel.org, jmorris@namei.org, serge@hallyn.com, 
+	keescook@chromium.org, john.johansen@canonical.com, 
+	penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com, 
+	selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 4/23/2026 6:19 PM, Paul Moore wrote:
-> On Feb 25, 2026 Casey Schaufler <casey@schaufler-ca.com> wrote:
->> Add a field for flags to the definition of LSM hooks.  This allows
->> for hooks to be identified at system initialization for special
->> processing.
->>
->> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
->> ---
->>  include/linux/bpf_lsm.h       |   2 +-
->>  include/linux/lsm_hook_defs.h | 614 ++++++++++++++++++----------------
->>  include/linux/lsm_hooks.h     |   4 +-
->>  kernel/bpf/bpf_lsm.c          |  10 +-
->>  security/bpf/hooks.c          |   2 +-
->>  security/security.c           |   6 +-
->>  6 files changed, 331 insertions(+), 307 deletions(-)
->>
->> diff --git a/include/linux/bpf_lsm.h b/include/linux/bpf_lsm.h
->> index 643809cc78c3..d71ba8c87e79 100644
->> --- a/include/linux/bpf_lsm.h
->> +++ b/include/linux/bpf_lsm.h
->> @@ -14,7 +14,7 @@
->>  
->>  #ifdef CONFIG_BPF_LSM
->>  
->> -#define LSM_HOOK(RET, DEFAULT, NAME, ...) \
->> +#define LSM_HOOK(RET, DEFAULT, FLAGS, NAME, ...) \
->>  	RET bpf_lsm_##NAME(__VA_ARGS__);
->>  #include <linux/lsm_hook_defs.h>
->>  #undef LSM_HOOK
->> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
->> index 8c42b4bde09c..acda3a02da97 100644
->> --- a/include/linux/lsm_hook_defs.h
->> +++ b/include/linux/lsm_hook_defs.h
->> @@ -18,451 +18,475 @@
->>   * The macro LSM_HOOK is used to define the data structures required by
->>   * the LSM framework using the pattern:
->>   *
->> - *	LSM_HOOK(<return_type>, <default_value>, <hook_name>, args...)
->> + *	LSM_HOOK(<return_type>, <default_value>, <flags>, <single>,
->> + *		 <hook_name>, args...)
->>   *
->>   * struct security_hook_heads {
->> - *   #define LSM_HOOK(RET, DEFAULT, NAME, ...) struct hlist_head NAME;
->> + *   #define LSM_HOOK(RET, DEFAULT, FLAGS, NAME, ...) struct hlist_head NAME;
->>   *   #include <linux/lsm_hook_defs.h>
->>   *   #undef LSM_HOOK
->>   * };
->>   */
->> -LSM_HOOK(int, 0, binder_set_context_mgr, const struct cred *mgr)
->> -LSM_HOOK(int, 0, binder_transaction, const struct cred *from,
->> +LSM_HOOK(int, 0, 0, binder_set_context_mgr, const struct cred *mgr)
->> +LSM_HOOK(int, 0, 0, binder_transaction, const struct cred *from,
->>  	 const struct cred *to)
-> I think adding a flag field to the LSM_HOOK() macro/definitions is a good
-> and useful addition, but I'd prefer if we created a LSM_FLAG_NONE #define
-> and used it here just so we could avoid the back-to-back 0's and do a bit
-> of self-documentation.
+On Fri, Apr 24, 2026 at 11:24=E2=80=AFAM Casey Schaufler <casey@schaufler-c=
+a.com> wrote:
+> On 4/23/2026 6:19 PM, Paul Moore wrote:
+> > On Feb 25, 2026 Casey Schaufler <casey@schaufler-ca.com> wrote:
+> >> Add a field for flags to the definition of LSM hooks.  This allows
+> >> for hooks to be identified at system initialization for special
+> >> processing.
+> >>
+> >> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> >> ---
+> >>  include/linux/bpf_lsm.h       |   2 +-
+> >>  include/linux/lsm_hook_defs.h | 614 ++++++++++++++++++---------------=
+-
+> >>  include/linux/lsm_hooks.h     |   4 +-
+> >>  kernel/bpf/bpf_lsm.c          |  10 +-
+> >>  security/bpf/hooks.c          |   2 +-
+> >>  security/security.c           |   6 +-
+> >>  6 files changed, 331 insertions(+), 307 deletions(-)
+> >>
+> >> diff --git a/include/linux/bpf_lsm.h b/include/linux/bpf_lsm.h
+> >> index 643809cc78c3..d71ba8c87e79 100644
+> >> --- a/include/linux/bpf_lsm.h
+> >> +++ b/include/linux/bpf_lsm.h
+> >> @@ -14,7 +14,7 @@
+> >>
+> >>  #ifdef CONFIG_BPF_LSM
+> >>
+> >> -#define LSM_HOOK(RET, DEFAULT, NAME, ...) \
+> >> +#define LSM_HOOK(RET, DEFAULT, FLAGS, NAME, ...) \
+> >>      RET bpf_lsm_##NAME(__VA_ARGS__);
+> >>  #include <linux/lsm_hook_defs.h>
+> >>  #undef LSM_HOOK
+> >> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_de=
+fs.h
+> >> index 8c42b4bde09c..acda3a02da97 100644
+> >> --- a/include/linux/lsm_hook_defs.h
+> >> +++ b/include/linux/lsm_hook_defs.h
+> >> @@ -18,451 +18,475 @@
+> >>   * The macro LSM_HOOK is used to define the data structures required =
+by
+> >>   * the LSM framework using the pattern:
+> >>   *
+> >> - *  LSM_HOOK(<return_type>, <default_value>, <hook_name>, args...)
+> >> + *  LSM_HOOK(<return_type>, <default_value>, <flags>, <single>,
+> >> + *           <hook_name>, args...)
+> >>   *
+> >>   * struct security_hook_heads {
+> >> - *   #define LSM_HOOK(RET, DEFAULT, NAME, ...) struct hlist_head NAME=
+;
+> >> + *   #define LSM_HOOK(RET, DEFAULT, FLAGS, NAME, ...) struct hlist_he=
+ad NAME;
+> >>   *   #include <linux/lsm_hook_defs.h>
+> >>   *   #undef LSM_HOOK
+> >>   * };
+> >>   */
+> >> -LSM_HOOK(int, 0, binder_set_context_mgr, const struct cred *mgr)
+> >> -LSM_HOOK(int, 0, binder_transaction, const struct cred *from,
+> >> +LSM_HOOK(int, 0, 0, binder_set_context_mgr, const struct cred *mgr)
+> >> +LSM_HOOK(int, 0, 0, binder_transaction, const struct cred *from,
+> >>       const struct cred *to)
+> > I think adding a flag field to the LSM_HOOK() macro/definitions is a go=
+od
+> > and useful addition, but I'd prefer if we created a LSM_FLAG_NONE #defi=
+ne
+> > and used it here just so we could avoid the back-to-back 0's and do a b=
+it
+> > of self-documentation.
+>
+> I had LSM_FLAG_NONE initially, but removed it when I saw the amount of co=
+de
+> churn it introduced. I'm happy to put it back.
 
-I had LSM_FLAG_NONE initially, but removed it when I saw the amount of code
-churn it introduced. I'm happy to put it back.
+You're already touching every LSM_HOOK() definition to add a another
+parameter, changing that parameter from 0 to LSM_FLAG_NONE shouldn't
+make it that much worse.
 
+--=20
+paul-moore.com
