@@ -1,149 +1,192 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2CB73B27C4
-	for <selinux@vger.kernel.org>; Mon, 27 Apr 2026 18:17:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E52BB41C2F1
+	for <selinux@vger.kernel.org>; Mon, 27 Apr 2026 19:55:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777313835; cv=none; b=o7XQjvrP++4V8EBevlIfVEig6hMThjIG7XL7O7BGXjEsYf/Du91Rp7D+LtwGBAJTINZW+2Pwrc7db+fohqfn/wHRC2ot2MTWBwlRV/54kDgCnsf4U3YwCnYxrg6WgZy/VWkgaoSaPkXXT1204Imli1sgRVv3chksbOr/+IZVJE8=
+	t=1777319761; cv=none; b=eaqaywbvi49U5HYDjoS6h3Y1DitsAxIt1TpM+4xv9UqG+ZJVrXHy3VgNzjfiePZPd/efcySXEcgOn3AtDOq+RhWC1AemqbITaUVuyrgagtPWyi5NBg+8OylScVloIK2HGLegmdzKJZvc6TxXgR6/hEdDtU9QArd6aNaDGSpbXwo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777313835; c=relaxed/simple;
-	bh=VEiFmODUdd6yvO46npIpiypfae9WjFkyozXHht+t/Cg=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=HtjtCSoGlmTmYDjBpiyTn+RCqYVVI8TLTn58I0+YJyEbyrs4Sv+e1U/ctWHV+CgsHvxIn2PWvJnPfsab8laqqwpQ8/8mG5bLs+hocgHLTzHHhcqBTK3xS7vJEyGG35SZPOWis/ofkb02EiZDdj+sTbjxiB2naDm/22q9iQ2hAJw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LaI3QhvP; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1777319761; c=relaxed/simple;
+	bh=6AKA9Ec8tLzMBmpKlpeoR/AjxAphLXg6hiEFnMLuo2s=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=n9TQrqooTMli7+Bu4sE90Qi4FIIoYWHBOxR2jS1LB/n3Rt1cUpXfpxFkyaqZMAVngNBWHNrjAjVAwDYlWEn7siK1xMBZDdZlaZPPWAxbgkNubvdw26f9Z01QljW/UCv8XI1WmDPUfLVWR71NPMTCfaDs+jcBhAJDrI7t3UFvCiQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=py6qu92l; arc=none smtp.client-ip=209.85.160.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LaI3QhvP"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1777313832;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=YUnffk2U5zLunBxG9nTCf5EmVPyLXlUuZjw1tSm2uKA=;
-	b=LaI3QhvPcMP8T7xFybmXucvaBO5bjdPv6FeeJVI/uNkIBJllw1Ys3DbVGWgaUAwFh33YpF
-	DdITU+xEJ+S6ql1i4JThg4xda4s4etA2n4cGsmhPELq8xO7+ff17IYKptG0Rz7VOcUKR/R
-	MZAdZuwuQxmgyelDcW/2VScHWxbwptE=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-245-dUGKXchoMiyDo65woUuu3A-1; Mon,
- 27 Apr 2026 14:17:11 -0400
-X-MC-Unique: dUGKXchoMiyDo65woUuu3A-1
-X-Mimecast-MFC-AGG-ID: dUGKXchoMiyDo65woUuu3A_1777313830
-Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id D0AF419560B8;
-	Mon, 27 Apr 2026 18:17:09 +0000 (UTC)
-Received: from localhost (unknown [10.44.48.171])
-	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 614401801551;
-	Mon, 27 Apr 2026 18:17:09 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
-To: James Carter <jwcart2@gmail.com>, selinux@vger.kernel.org
-Cc: James Carter <jwcart2@gmail.com>
-Subject: Re: [PATCH 2/3] libsepol: When resolving names check if a block is
- abstract
-In-Reply-To: <20260414191120.29067-2-jwcart2@gmail.com>
-References: <20260414191120.29067-1-jwcart2@gmail.com>
- <20260414191120.29067-2-jwcart2@gmail.com>
-Date: Mon, 27 Apr 2026 20:17:08 +0200
-Message-ID: <87340gtgij.fsf@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="py6qu92l"
+Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-50faeb8317bso62415761cf.2
+        for <selinux@vger.kernel.org>; Mon, 27 Apr 2026 12:55:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1777319759; x=1777924559; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=KBVtDRZxOMahLqkkUoKcq69JtFGC/9Rond7PNbwpn5g=;
+        b=py6qu92lJv56+yW+5GMRKkRNWAtxEoOtAvWkXx/gX1Bi781NeDvDc0y14Q1GA9urhC
+         PY1eFblHb+ul3uLzlCZH7Hug1CasJaK193c+vNaGm5Q4bNcc3sqY3LehmRqoGJ+acp0j
+         IDTUYWkb2KoNzda4YYhGmI5n5PccpObCxp9sEibrSm+rlBICc3YK4MWOPAdG/wmrviGT
+         EkxwP14D8595VMgjoeEzCDU3Iy8eVJAse4x9cCg9UcnIxWxYUyyvR6rUpSveTZZiXvnI
+         N5paBMYuz2os1QSMqxyv2szfvVib8Hq8rwRBUJ8rEo8hQ3Cs77PDegsLuY6/DHubcTh7
+         QQtQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777319759; x=1777924559;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=KBVtDRZxOMahLqkkUoKcq69JtFGC/9Rond7PNbwpn5g=;
+        b=B6QlO25Srp6/ogWQP/6m7YmXJH1PGiN2ZoOVXlGN/lAUHlaN4d7zB8Lf4IkfQfv2PN
+         WiGNr+zrvn7Ko8a/leNF7E6Lnqn3DdEc/aRfLf/QfKmjWGWoN3MNnSEow+CPfrwoDMdH
+         IhnBweisNh/EqvsHRj6yt0d+itBZDtegRKYy7qRjnGu340yWVfPRoDmqjEtoulbDY2uQ
+         QF87Lqi8sdY/K0V23M7spJO4J7qWAgW2lWObG5G5kxQYdzGjCKVVF7eW9nf1lITaGhZE
+         slhQ5XjKqfMTZFlX7wmWLg0bZy2RjeG9gP8na3hRv3Q1wrOSgHNab3/Ol86Ss3lSK0x7
+         4cAg==
+X-Gm-Message-State: AOJu0YwFsFYGY5fSbIBTTPHMo4dmwL/knH/A5aBEb+PChPhvhRllC8sl
+	5xjrglB3sE76swqxE3i0uaxNWVrua5pM6CYQureHfQP27bmGYm1N6DcfStcjvw==
+X-Gm-Gg: AeBDietDTdqBbIeoF/AcI8pRN3dTNKKe2O6RnDY+PlwVK+dWqdiHumANG/sqeidKowT
+	TdLIZgejeDaoybKlFMXE45tfhjgrNDvuoCFqGE5VT8KIgVJeeGJEnpma+v0kAH33Y0GRgL9vaQN
+	d1oXFGF/DyOvCNP3NsqtU/U99UtlGtVbJlnqMvmSVBwvvrkmOip5JSU7kbRUYQ6Bc0VgPRmzkkO
+	9DPAToveel7YKC5PQZ1AyEzq8h+j2EV5eZqviuViU5RkqEKLKgkmmFj6/0xc6di+7SLkaMltqgE
+	GOE4n/SS3lMuWZ/G6aSA/8oaYDEXnvdU6yRHhy5VH8P4Cn/Wflek8DSuIZVCI2YzKoOgMhX2ZNC
+	i2/stfNJuxc14nrsqrtlREiNcnN8SDtdfvvaCEkXrOM/hq57WnPgFaEqbeoc2zteqpnBZOOhy0m
+	XCBqxJQpoRaUFk6dGIoCVdULdn35bZo0sAe2sNdOWrxgx8OSS/ts29VtVQ
+X-Received: by 2002:a05:622a:a990:10b0:50d:a4e6:997f with SMTP id d75a77b69052e-5100c88a9d9mr9898091cf.15.1777319758866;
+        Mon, 27 Apr 2026 12:55:58 -0700 (PDT)
+Received: from Fedora43-SELinux ([144.51.8.27])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-5100db1ffd1sm1047601cf.14.2026.04.27.12.55.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Apr 2026 12:55:58 -0700 (PDT)
+From: James Carter <jwcart2@gmail.com>
+To: selinux@vger.kernel.org
+Cc: tweek@google.com,
+	James Carter <jwcart2@gmail.com>
+Subject: [RFC PATCH 1/3] libsepol/cil: Add function to check CIL neverallows against binary policy
+Date: Mon, 27 Apr 2026 15:55:44 -0400
+Message-ID: <20260427195546.91395-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
+Content-Transfer-Encoding: 8bit
 
-James Carter <jwcart2@gmail.com> writes:
+Add the function cil_check_neverallows_against_pdb() that will extract
+the neverallows from a CIL db and check them against a kernel policydb.
 
-> Nothing in an abstract block in CIL is instantiated until the block
-> is inherited. No declartion, macro, or optional block within an
-> abstract block should ever be referred to from outside of the block.
->
-> Check for abstract blocks when resolving names and return an error
-> if one is found.
->
-> This patch is based on a report from the security firm Trail of Bits.
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libsepol/cil/include/cil/cil.h |  1 +
+ libsepol/cil/src/cil_binary.c  | 46 ++++++++++++++++++++++++++++++++++
+ libsepol/cil/src/cil_binary.h  | 12 +++++++++
+ libsepol/src/libsepol.map.in   |  5 ++++
+ 4 files changed, 64 insertions(+)
 
-
-Since this commit, it's not possible to build Fedora selinux-policy:
-
-# semodule -B -n
-Failed to resolve pcp_var_lib_t at /var/lib/selinux/targeted/tmp/modules/100/abrt/cil:1241
-Failed to resolve pcp_var_lib_t at /var/lib/selinux/targeted/tmp/modules/100/abrt/cil:1244
-Failed to resolve pcp_var_lib_t at /var/lib/selinux/targeted/tmp/modules/100/abrt/cil:1245
-Failed to resolve dirsrvadmin_config_t at /var/lib/selinux/targeted/tmp/modules/100/apache/cil:2384
-Failed to resolve dirsrvadmin_tmp_t at /var/lib/selinux/targeted/tmp/modules/100/apache/cil:2385
-Failed to resolve dirsrvadmin_unconfined_script_t at /var/lib/selinux/targeted/tmp/modules/100/apache/cil:2386
-...
-
-
-
->
-> Signed-off-by: James Carter <jwcart2@gmail.com>
-> ---
->  libsepol/cil/src/cil_resolve_ast.c | 15 +++++++++++----
->  1 file changed, 11 insertions(+), 4 deletions(-)
->
-> diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-> index bcac4026..b0965f1d 100644
-> --- a/libsepol/cil/src/cil_resolve_ast.c
-> +++ b/libsepol/cil/src/cil_resolve_ast.c
-> @@ -4355,7 +4355,7 @@ int cil_resolve_name_keep_aliases(struct cil_tree_node *ast_node, char *name, en
->  		node = ast_node;
->  		if (*name == '.') {
->  			/* Leading '.' */
-> -			symtab = &((struct cil_root *)db->ast->root->data)->symtab[CIL_SYM_BLOCKS];
-> +			symtab = ((struct cil_root *)db->ast->root->data)->symtab;
->  		} else {
->  			rc = __cil_resolve_name_helper(db, node->parent, current, CIL_SYM_BLOCKS, datum);
->  			if (rc != SEPOL_OK) {
-> @@ -4366,14 +4366,20 @@ int cil_resolve_name_keep_aliases(struct cil_tree_node *ast_node, char *name, en
->  		}
->  		/* Keep looking up blocks by name until only last part of name remains */
->  		while (next != NULL) {
-> -			rc = cil_symtab_get_datum(symtab, current, datum);
-> +			rc = cil_symtab_get_datum(&(symtab[CIL_SYM_BLOCKS]), current, datum);
->  			if (rc != SEPOL_OK) {
->  				free(name_dup);
->  				goto exit;
->  			}
->  			node = NODE(*datum);
->  			if (node->flavor == CIL_BLOCK) {
-> -				symtab = &((struct cil_block*)node->data)->symtab[CIL_SYM_BLOCKS];
-> +				if (((struct cil_block *)node->data)->is_abstract) {
-> +					cil_log(CIL_WARN, "Found %s which is an abstract block and invalid for name resolution\n", current);
-> +					free(name_dup);
-> +					rc = SEPOL_ERR;
-> +					goto exit;
-> +				}
-> +				symtab = ((struct cil_block*)node->data)->symtab;
->  			} else {
->  				if (ast_node->flavor != CIL_IN) {
->  					cil_log(CIL_WARN, "Can only use %s name for name resolution in \"in\" blocks\n", cil_node_to_string(node));
-> @@ -4383,7 +4389,7 @@ int cil_resolve_name_keep_aliases(struct cil_tree_node *ast_node, char *name, en
->  				}
->  				if (node->flavor == CIL_MACRO) {
->  					struct cil_macro *macro = node->data;
-> -					symtab = &macro->symtab[sym_index];
-> +					symtab = macro->symtab;
->  				}
->  			}
->  			current = next;
-> @@ -4401,6 +4407,7 @@ int cil_resolve_name_keep_aliases(struct cil_tree_node *ast_node, char *name, en
->  
->  exit:
->  	if (rc != SEPOL_OK) {
-> +		cil_tree_log(ast_node, CIL_ERR, "Failed to resolve %s", name);
->  		*datum = NULL;
->  	}
->  
-> -- 
-> 2.53.0
+diff --git a/libsepol/cil/include/cil/cil.h b/libsepol/cil/include/cil/cil.h
+index 88e47e79..fc9cc504 100644
+--- a/libsepol/cil/include/cil/cil.h
++++ b/libsepol/cil/include/cil/cil.h
+@@ -65,6 +65,7 @@ extern int cil_write_parse_ast(FILE *out, cil_db_t *db);
+ extern int cil_write_build_ast(FILE *out, cil_db_t *db);
+ extern int cil_write_resolve_ast(FILE *out, cil_db_t *db);
+ extern int cil_write_post_ast(FILE *out, cil_db_t *db);
++extern int cil_check_neverallows_against_pdb(const struct cil_db *db, policydb_t *pdb, int *violation);
+ 
+ enum cil_log_level {
+ 	CIL_ERR = 1,
+diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+index 74ec3cd5..21cb07ad 100644
+--- a/libsepol/cil/src/cil_binary.c
++++ b/libsepol/cil/src/cil_binary.c
+@@ -5143,6 +5143,52 @@ exit:
+ 	return rc;
+ }
+ 
++static int __cil_collect_neverallows_helper(struct cil_tree_node *node, uint32_t *finished, void *extra_args)
++{
++	if (node->flavor == CIL_BLOCK) {
++		struct cil_block *blk = node->data;
++		if (blk->is_abstract == CIL_TRUE) {
++			*finished = CIL_TREE_SKIP_HEAD;
++		}
++	} else if (node->flavor == CIL_MACRO) {
++		*finished = CIL_TREE_SKIP_HEAD;
++	} else if (node->flavor == CIL_BOOLEANIF) {
++		*finished = CIL_TREE_SKIP_HEAD;
++	} else if (node->flavor == CIL_AVRULE || node->flavor == CIL_AVRULEX) {
++		struct cil_avrule *rule = node->data;
++		if (rule->rule_kind == CIL_AVRULE_NEVERALLOW) {
++			struct cil_list *neverallows = extra_args;
++			cil_list_prepend(neverallows, CIL_LIST_ITEM, node);
++		}
++	}
++
++	return SEPOL_OK;
++}
++
++int cil_check_neverallows_against_pdb(const struct cil_db *db, policydb_t *pdb, int *violation)
++{
++	int rc = SEPOL_OK;
++	struct cil_list *neverallows;
++
++	if (db == NULL || pdb == NULL) {
++		cil_log(CIL_ERR,"CIL db and/or Policy db is NULL\n");
++		return SEPOL_ERR;
++	}
++
++	cil_list_init(&neverallows, CIL_LIST_ITEM);
++	rc = cil_tree_walk(db->ast->root, __cil_collect_neverallows_helper, NULL, NULL, neverallows);
++	if (rc != SEPOL_OK) {
++		cil_log(CIL_INFO, "Failure collecting neverallows\n");
++		goto exit;
++	}
++
++	rc = cil_check_neverallows(db, pdb, neverallows, violation);
++
++exit:
++	cil_list_destroy(&neverallows, CIL_FALSE);
++	return rc;
++}
++
+ static struct cil_list *cil_classperms_from_sepol(policydb_t *pdb, uint16_t class, uint32_t data, struct cil_class *class_value_to_cil[], struct cil_perm **perm_value_to_cil[])
+ {
+ 	struct cil_classperms *cp;
+diff --git a/libsepol/cil/src/cil_binary.h b/libsepol/cil/src/cil_binary.h
+index e6826221..e8fff9b4 100644
+--- a/libsepol/cil/src/cil_binary.h
++++ b/libsepol/cil/src/cil_binary.h
+@@ -36,6 +36,18 @@
+ #include "cil_tree.h"
+ #include "cil_list.h"
+ 
++
++/**
++ * Check neverallows from a cil database against a policy database
++ *
++ * @param[in] db The cil database.
++ * @param[in] pdb The policy database.
++ * @param[out] violation 1 if a neverallow violation was found, 0 otherwise
++ *
++ * @return SEPOL_OK upon success or an error otherwise.
++ */
++int cil_check_neverallows_against_pdb(const struct cil_db *db, policydb_t *pdb, int *violation);
++
+ /**
+  * Create a binary policydb from the cil db.
+  *
+diff --git a/libsepol/src/libsepol.map.in b/libsepol/src/libsepol.map.in
+index e5e6608c..2b103993 100644
+--- a/libsepol/src/libsepol.map.in
++++ b/libsepol/src/libsepol.map.in
+@@ -294,3 +294,8 @@ LIBSEPOL_3.6 {
+   global:
+ 	cil_write_post_ast;
+ } LIBSEPOL_3.4;
++
++LIBSEPOL_3.11 {
++  global:
++	cil_check_neverallows_against_pdb;
++} LIBSEPOL_3.6;
+-- 
+2.53.0
 
