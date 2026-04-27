@@ -1,66 +1,66 @@
-Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com [209.85.222.171])
+Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B99E370D5C
-	for <selinux@vger.kernel.org>; Mon, 27 Apr 2026 23:26:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BD9D382F0B
+	for <selinux@vger.kernel.org>; Mon, 27 Apr 2026 23:32:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777332419; cv=none; b=WhI4dYkYkA+AEJOk5yv8DD+m5aE5GiASSK5yMX3XFjSwoilnIaFALajIkJJDbx0OJIPyajLhS+Qr7fH57MBmDQNuLN20UFU1qgqU6dGIrsCZOHYYkGvJVMC3J1/dtnu1320/fxJq8ZW2aBgFEttGlMlFJj67Lr31coO3Ve2UQIQ=
+	t=1777332778; cv=none; b=LhHHkPOsdTt7rjvh8gDuTCmPr4kVSAtX7U5tp635YVEyGlFmWBvqQrQMu21HeLo1+Rq80OG/9+QicraeikH06qf2ma8ygiYrl74b/dnmdvHjWutbHctsatLNZ3NAhm9wdlIfiVl4OVFhd2f2StnkWTofFrVjpbp2YGxkBFb8Ic8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777332419; c=relaxed/simple;
-	bh=NGxHlATYjKaulZPUmn1JJtc+VHzOp4saFiBfRB+cviU=;
+	s=arc-20240116; t=1777332778; c=relaxed/simple;
+	bh=26JcQONhsnOoI3eYTKhqy18PwJWdR4v9SHzJaJb9hhI=;
 	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=N1WlKHiRogv6oczUJkx/BUULZiG5aY2/lgclBvXCZp4LziKQlMKkOdlkUiTbluanMCbfyiLlFTpZSw5x13fdvmNvOCO7ai8YmZ8j2uMdrwl9SDjZs/j6uwF3ADxijwCKW2j5zXY8eFdubkqYXWpdSxe4FdGYQB7Gn4q52CoJCeY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Ly8zdmvf; arc=none smtp.client-ip=209.85.222.171
+	 References:In-Reply-To; b=bzBoSjGJxuJntnjhVjMqFvruIcEyIqroaamFhpS7JMwwKzXioZR6kNBlurPnwStw7RKmXVWkBr9B6o2xgxhKgI8CBBGWgTBrtYH7H3S234i2VKrMJlBZ/Vlomzgl3kwgIvCbgEUG/0Im5uo/a96DDl79ayMLe+lLo487gD5Myco=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=PGECWZjM; arc=none smtp.client-ip=209.85.222.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Ly8zdmvf"
-Received: by mail-qk1-f171.google.com with SMTP id af79cd13be357-8cb38e86cf2so980552585a.1
-        for <selinux@vger.kernel.org>; Mon, 27 Apr 2026 16:26:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="PGECWZjM"
+Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-8eb5ad01402so960691385a.2
+        for <selinux@vger.kernel.org>; Mon, 27 Apr 2026 16:32:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1777332417; x=1777937217; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1777332776; x=1777937576; darn=vger.kernel.org;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :mime-version:message-id:date:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=P0OMb6OHqfZz5VEv6dI2eSHAi7ca6Clc6AMsQDmvakA=;
-        b=Ly8zdmvfhPDVJT0uw7rTcxq13pdoMeSpePwJzOf1WNctjoQn4Fr7IbVvQ0qjvwc+9Y
-         FzKgCSK8ZPVvoZ5sw8qgNz0Zg+Tw1X3/x7++BTRhp7FzggUu642WP3svV7A5k+YtKE6Z
-         dok21NqgSWOCYa9yyO9uwtklwz1jZzthSRvjvrAvFJ2/zCgBdISLhLrfAfLvSbERABPZ
-         6XSGAYN08UIp4fnFTxpQgseUa5/j4EChcVbGt9HSIHSqbq3X1HKRFW6COIiXRNGThwkt
-         wQXWUN0lxgYWYBHHDmtre4mugNnpBRueUXd2wi3/+FI90K07T5ReIq6NMbNHMr66TPq/
-         yhww==
+        bh=AacrbQWeONsXwYeqMAMp8ZNpTduvDnpFQOhYm8v5DdI=;
+        b=PGECWZjMVMuvoHZEqtbcT9v16+X5abPB6pFB+QMndGI/JN3GIG0J2s6/R/1ir23f9z
+         Rnx1dk84bc/GRU4Q6LDApegzMdvstZEW/bjUcUEtIRR9xKaWO5Oj6wGaLauocTTGuoRh
+         DWvvYx6P31mcZborlxcUm13iRU2S8aO5AIsYhVSzwuPRPH6UgJdZHCyhYtete7ZojZu1
+         cRQf9nnX8HqOJHrnmOt3WNOKO04bAJMQqB0hSJpLTdnhhozP/Z6OSc/nYQhJrHR9c0DS
+         eiE3+RXp1ef2jFxL77nf5iM3BdB7F/I+jjbCYV0L3e2quvuVKqnBCU9MsqtnkuqCCd96
+         ShjA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777332417; x=1777937217;
+        d=1e100.net; s=20251104; t=1777332776; x=1777937576;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :mime-version:message-id:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=P0OMb6OHqfZz5VEv6dI2eSHAi7ca6Clc6AMsQDmvakA=;
-        b=HpEbJej9QEpCTWtIAAD63AejOstDcDeutCFYx2VxcLPjdRJnsJ7VxSpmhga9+rv8Mn
-         vJtwLIYenmT8DaR1XikHcxVUjm7QmsFtMTxNYuc9+2ePImycJXHwDlLN5sKxHCyMemqB
-         JHNpXl+4GZysm8c6DHPZBUB1eM2XANODwWFMFXqQOvbct9DZm1lkWxX7UCaznRNZsme5
-         mRCP7K2qD64JbHFe6pwJKVwgBWwIkMi1aZL6WvZXWrbcARx58bY5QThug6ooCs0yyyrZ
-         Gc9JtyD3UkYGkYC7qO6tiYhNXJTwIqHCcMqXiwBh1MP0E8Y4m0t1Z+AJxjclggss5AAC
-         XXBw==
-X-Forwarded-Encrypted: i=1; AFNElJ/smUNAGiJnDaj9FDjmWgWMOJoW6E1E7b/wWzsakvsauV12qG6IHky4mobCKCMJ2/EBg9R8r1vB@vger.kernel.org
-X-Gm-Message-State: AOJu0YyhTHQVSmgmrHDYfp+s1U3X68kBpauv5s5qAUX2siJkh7UXhtFq
-	Xoa9WWEpHlcTPh7ZPpJDRODMzT8NwBc53VsyUblE0ZCgqXSjCwyb/Fmy3hsqX/M+iw==
-X-Gm-Gg: AeBDieuFh2mERn6cZ0UHSzWscBvGVa5XiecbOdDm36SXxVy81TTsiQ/a0B4e3izKPMi
-	mOBX5LXMdLicd7991pNp4fLv7idLNkF2UC62/awpfoPI846cglN64XCOy41rAiYr047SzdwLNI3
-	ua2TOZtQ1l2HKQKirb4F8ThfQhRRL6QkR8LdRgXPUWwWRK0BaBec1QkzP+P1v3eemXxYHbbSmVg
-	EjjPmv38A8SSVGuzXaQUp39vFxXTwAcm3s/1wYy189A2U6CqlGFgZs3Elk9as7x4iVuVwjvJmjF
-	G1kig/127+OFPvMSsSxHhpt36qpfiLIbnfq8OuzKwzVFs9kt1vbUHsCK79L7h4cB5JyaxxWa9Kd
-	xaMnvD0B90w0Rp8fxb3Bnre3TlOa4nTogz+28oUY/ndEX9X3TIWPMXB403hAACxCLLi0t65rIDt
-	mFwEuUoqnPVeL2sxFVuoZePSgNK8YDLXl2gSRVrvdja6oa+My+uVqnZBNPCcUQjPhbmKHS9wixZ
-	rTZ4DM=
-X-Received: by 2002:a05:620a:bc7:b0:8ef:74c9:daa7 with SMTP id af79cd13be357-8f7d6e3d8aamr106579085a.8.1777332417052;
-        Mon, 27 Apr 2026 16:26:57 -0700 (PDT)
+        bh=AacrbQWeONsXwYeqMAMp8ZNpTduvDnpFQOhYm8v5DdI=;
+        b=L6AHCwjrT/ZYvNE8TwUpqdEgGOuIthvSoHlg2O/hjFZ30pmDlrPQe+OkjHJqPN0qmy
+         4gBGFnvoEa8dkzsMFd5TmOtJrbE9NHODQNV6eqHMGtfi2HcP1lWIqKefN3P8HKhr7QAT
+         nFWOWqDb3X7lgvpOd4DUMe71gLYZfS2x4kYBTiq/WN9Uje2H6kNYGje/L175k2EaL2X6
+         H670J+gJ1tinev/0BlzHNT0f8bCHoybC8+Z71VEGelzGQQxGqJfXb3wgqbM2WZRMrl5/
+         hRLuDZc7kszw9TpbWZEHGW26gQKqu6++/Jk8DPGNA6FdlvhPjTx6mbET1Z7vkQWpUiM7
+         47+g==
+X-Forwarded-Encrypted: i=1; AFNElJ/h7rGNmx4pfOZZy0ZfGROkBZbYu3t68ArRojqiHnGaXD8XXOHnqRxP7/7Lud/u6nsfCCmF4m6p@vger.kernel.org
+X-Gm-Message-State: AOJu0YzxpOS1cW4A7Asu8/DiozUSpJNiJYmFhcKDm0WGWCMqfQtF/uA6
+	p7FI45Ecwfc3M3zww7Tv6wNgspPYBjO5HcSE8yzW0Qk1VVEHgygRfYkDRhNAioGMhg==
+X-Gm-Gg: AeBDieu/NDnkSOmnK9/P2JCqPs5D74FFzcr7Dn4bGx+UZXC6KyaXA8Dx/KfYgzXfoo+
+	Dc+Q9jhugWMd5my9eMYvpvcpSF6piH8HonUi2TIqk70Lk2nrp5zOBqb9xORWi/1apd8tWT+0YGu
+	BTgUM1+kpZq+2DIP4CnBhGa7Ba9fCCo8RHv3QnXyJApVZrVdpUfh1Pj4Ook7uGeszCEC5IjJUm0
+	u58h9ykcgUxEr5OLpmXUL1Cq8Ze6vC2SlEZw2xKjuDWLnAmlBP4bp+/HzhU2KJm4WOvUt2A7sSR
+	ulkNeuyyxJtoBe9VyvAhFhI4G3wTLvPqGR/dIGbO4SX7y3eHc2MKV8vOUt8pS9Qw/tYt9CILrav
+	dFVepONzg7hQtnBpnhBRDe6ltXqJJVuo3cHuRfKlynOtQOC8NeFGo5GxrUI4ExTStKPgPxyh1o2
+	gnqTfxk7AGolUuUr+RxgnlCtbCcdTiO30ACM5dYjwKQOufi5/Ia+DYdk9qSnomY7mYoecAaWQ1y
+	ulAosI=
+X-Received: by 2002:a05:620a:7111:b0:8ce:5a30:9523 with SMTP id af79cd13be357-8f7d6f3dd9bmr106905485a.4.1777332776436;
+        Mon, 27 Apr 2026 16:32:56 -0700 (PDT)
 Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8f7c4fb6176sm56265985a.16.2026.04.27.16.26.56
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8f7c49c4953sm52474885a.3.2026.04.27.16.32.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Apr 2026 16:26:56 -0700 (PDT)
-Date: Mon, 27 Apr 2026 19:26:55 -0400
-Message-ID: <38a93d9bff736d54254593922fb13a5f@paul-moore.com>
+        Mon, 27 Apr 2026 16:32:55 -0700 (PDT)
+Date: Mon, 27 Apr 2026 19:32:55 -0400
+Message-ID: <0a65e27845468d7b0b57810086a563d3@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -71,62 +71,53 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit 
 X-Mailer: pstg-pwork:20260427_1759/pstg-lib:20260427_ 820/pstg-pwork:20260427_1759
 From: Paul Moore <paul@paul-moore.com>
-To: ZongYao.Chen@linux.alibaba.com
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, =?UTF-8?q?Bram=20Bonn=C3=A9?= <brambonne@google.com>, =?UTF-8?q?Thi=C3=A9baud=20Weksteen?= <tweek@google.com>, selinux@vger.kernel.org, linux-kernel@vger.kernel.org, Tianjia Zhang <tianjia.zhang@linux.alibaba.com>, ZongYao Chen <ZongYao.Chen@linux.alibaba.com>
-Subject: Re: [PATCH] selinux: use sk blob accessor in socket permission helpers
-References: <20260424073753.2012574-1-ZongYao.Chen@linux.alibaba.com>
-In-Reply-To: <20260424073753.2012574-1-ZongYao.Chen@linux.alibaba.com>
+To: David Windsor <dwindsor@gmail.com>, Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org, linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] selinux: don't reserve xattr slot when we won't fill it
+References: <20260426232349.844289-1-dwindsor@gmail.com>
+In-Reply-To: <20260426232349.844289-1-dwindsor@gmail.com>
 
-On Apr 24, 2026 ZongYao.Chen@linux.alibaba.com wrote:
+On Apr 26, 2026 David Windsor <dwindsor@gmail.com> wrote:
 > 
-> SELinux socket state lives in the composite LSM socket blob.
+> Move lsm_get_xattr_slot() below the SBLABEL_MNT check so we don't leave
+> a NULL-named slot in the array when returning -EOPNOTSUPP; filesystem
+> initxattrs() callbacks stop iterating at the first NULL ->name, silently
+> dropping xattrs installed by later LSMs.
 > 
-> sock_has_perm() and nlmsg_sock_has_extended_perms() currently
-> dereference sk->sk_security directly, which assumes the SELinux socket
-> blob is at offset zero.
-> 
-> In stacked configurations that assumption does not hold. If another LSM
-> allocates socket blob storage before SELinux, these helpers may read the
-> wrong blob and feed invalid SID and class values into AVC checks.
-> 
-> Use selinux_sock() instead of accessing sk->sk_security directly.
-> 
-> Fixes: d1d991efaf34 ("selinux: Add netlink xperm support")
-> Cc: stable@vger.kernel.org # v6.13+
-> Signed-off-by: Zongyao Chen <ZongYao.Chen@linux.alibaba.com>
+> Signed-off-by: David Windsor <dwindsor@gmail.com>
 > ---
->  security/selinux/hooks.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>  security/selinux/hooks.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 
-Nice catch, thanks.  Merged into selinux/stable-7.1 and I'll send it up
-to Linus later this week.
+Good catch, thanks.  These seems like a stable candidate so I've merged
+it into selinux/stable-7.1 and we likely send it up to Linus later this
+week.
 
 > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 97801966bf32..49c482e3fa3f 100644
+> index 97801966bf32..4ff118a9395f 100644
 > --- a/security/selinux/hooks.c
 > +++ b/security/selinux/hooks.c
-> @@ -4920,7 +4920,7 @@ static bool sock_skip_has_perm(u32 sid)
->  
->  static int sock_has_perm(struct sock *sk, u32 perms)
+> @@ -2966,7 +2966,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
 >  {
-> -	struct sk_security_struct *sksec = sk->sk_security;
-> +	struct sk_security_struct *sksec = selinux_sock(sk);
->  	struct common_audit_data ad;
->  	struct lsm_network_audit net;
+>  	const struct cred_security_struct *crsec = selinux_cred(current_cred());
+>  	struct superblock_security_struct *sbsec;
+> -	struct xattr *xattr = lsm_get_xattr_slot(xattrs, xattr_count);
+> +	struct xattr *xattr;
+>  	u32 newsid, clen;
+>  	u16 newsclass;
+>  	int rc;
+> @@ -2992,6 +2992,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+>  	    !(sbsec->flags & SBLABEL_MNT))
+>  		return -EOPNOTSUPP;
 >  
-> @@ -6227,7 +6227,7 @@ static unsigned int selinux_ip_postroute(void *priv,
->  
->  static int nlmsg_sock_has_extended_perms(struct sock *sk, u32 perms, u16 nlmsg_type)
->  {
-> -	struct sk_security_struct *sksec = sk->sk_security;
-> +	struct sk_security_struct *sksec = selinux_sock(sk);
->  	struct common_audit_data ad;
->  	u8 driver;
->  	u8 xperm;
+> +	xattr = lsm_get_xattr_slot(xattrs, xattr_count);
+>  	if (xattr) {
+>  		rc = security_sid_to_context_force(newsid,
+>  						   &context, &clen);
 > 
-> base-commit: dd6c438c3e64a5ff0b5d7e78f7f9be547803ef1b
+> base-commit: 254f49634ee16a731174d2ae34bc50bd5f45e731
 > -- 
-> 2.47.3
+> 2.53.0
 
 --
 paul-moore.com
