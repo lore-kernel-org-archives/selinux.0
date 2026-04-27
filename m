@@ -1,114 +1,105 @@
-Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 407C3314D2D
-	for <selinux@vger.kernel.org>; Sun, 26 Apr 2026 23:23:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFBF4384250
+	for <selinux@vger.kernel.org>; Mon, 27 Apr 2026 12:33:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777245832; cv=none; b=rw03dtEfVmC4F52aQaLHME2u/S8ix2DnXTGaAUCPO7kOw/ih5VfqkcFDc8RfH0x5STOiODERzNA5xzdv1Lq4FlIoECb8xp1M74beoR1vXmof6shNBIFzM9LwdkB+83yytFlFRzHuSNNWCZNY8VCpIY8L7ru5H2jMIKkBXoPfwdE=
+	t=1777293198; cv=none; b=HkIc5jBPrCtSoVzlQqiupHTkUCSdQrmZODIthAGwZl5SVYIeIR0YK2d0PRbJPt9hxXhaUWgVFZFQw2c8cEmdVWHQeS6p9Ics1o/aleX/G6EvyM9Ws7oJfblTRrMfXAvCJEzKbA+ygzN4fzffS0nZmTkM9pwjKp7v5pa+mrctYcQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777245832; c=relaxed/simple;
-	bh=3PfpSsq9PVqlOFmWLAB5WPbcbb7zy7cmiuYW1YK3Yac=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sE0ZW+MsVjRl3XjkD4MbahUME6SlhpPqzx0hViEnaRj9lTrkDHF6mxd021017TK+GBkacnFeMveORqmgdSyEtsgqBcW1T5A2RbftUG+dDiLyZTUaF9lssRf/caq+EyKJfVNsll2wMNpRSIey4QvB0/eLZSqQHD4lC82FXdH7xcg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R83f3coU; arc=none smtp.client-ip=209.85.222.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1777293198; c=relaxed/simple;
+	bh=Xzp7ewrin0nZoFg9Nq1yKXiH5I1FfaqFyVbc4poY6uU=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-type; b=BPDnkLonGk2gz2NffZFsIYvRRlNjnoIxjVjaedeYz4nLEFhInR9qmJvU5mjUoBb6llYmIkaV6K6mI+McF/KliYRNaVeQDUTBl6K2ZF1aLRiZJOouzs3k79o1GP9je4KI90QZzzD5aOFTIpRzN7dLnrp1LF1I2Zezihn6XSWAJis=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=feKLKmqi; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R83f3coU"
-Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-8f0a87e23daso501829685a.1
-        for <selinux@vger.kernel.org>; Sun, 26 Apr 2026 16:23:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777245830; x=1777850630; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=SMcVPLr/wbi2Q8Kaqf49orEV0Xtu1ZF/I9pLdpkPlEs=;
-        b=R83f3coU1bE3WufNsrV+dbv02EBiCFDAJuGnn9wQEDCs7kjA+Yhud5f0dWS9S52VlR
-         Ydyoo41RB51h1BOttZd0CaG+Ip62cX26fmzspW3tVo/kJ4ZOE9UqEodJfKxsSwqpwWIy
-         Vn7yFD1JIONuHVCCd3dJX/WoJCKOuIKSQrqkOosuRZMVFINgENxHk0cIaxIFndf4EfwF
-         GpnobeWEZOydLUDEdN0FLcmq+jsxTSIcPs4s2v8MJjTpuKL689Zaejse0rrO+ZjSb/mp
-         ddTjJqBW4tgiTuthSsrqF4NVFnI4fO248ZN8IOu9/VHRXYn5aMfwiUYMrFJ9dbRbEcTJ
-         eSCg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777245830; x=1777850630;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=SMcVPLr/wbi2Q8Kaqf49orEV0Xtu1ZF/I9pLdpkPlEs=;
-        b=gsfPk/IrHweud5EF/6/GDGrhCRbyC9MkTzPAmkdCWcHCtXTyY1SZ8H1cazuSQr7dwX
-         9WeEXYL7Qr6vgVICYaShJIGx7UiklRRKDLQ15l1orgprsiBZQvb6Vvm+xKizcMP59hbQ
-         TqpstH64Lw9MJL3a+pgcp9GFuHIDZZa9rUFJoSAS5opk0Qu7AMNMvxkkXdgMufLWHkq3
-         VS5AdorGIKi9V3Kd3u3d0ByXBZRJpnXZOJncO9Jk6cFBgHwUUsrUq6S2tJ3xAYB6ChXg
-         rjsiK8zmWU5EDt5An/aw0kEq6JXJaefxZOEdSRjPFxdjX+NHv9OTIpSnchY6XsXlieQV
-         hhCQ==
-X-Forwarded-Encrypted: i=1; AFNElJ/cE7PxfppLkvovDjmWUXq5/0Gi4+9KKbjmaPOvzzLG7mX/J1XaJ0Krf8a4Z2WC0TtkqXoGX6Rk@vger.kernel.org
-X-Gm-Message-State: AOJu0YyNJ5ysp5Nrl1uanyYGAtMvj2F4yOaLS0UXk9We7FHlNAit4MW3
-	9QgKxVgCsANq/DPMRsZBmmkT+fHno6a/GGwkW2EcjpiWjYJYHjKFpVCp
-X-Gm-Gg: AeBDies8IGf/nbL/Re1vXHRpTCnyj9U7/uW2M2dMvkS599bRwyezczG/hsWSaATp3us
-	Jx7cbLGPzEE+Ay6PzsHt5BfwvwjrNTXSfK3R2IZB/Bp9S2yJXs0bGbD8AcS1EY/Sv3nsyZvqDrL
-	CU8OOxPPwFwZaFjhUCpqU6easQzW8OIF2oq3LvjIiPtq7ZW3vXNGQssrA1o8XXLyEwcc5SMoG9F
-	cffGT61CG+BvWvVfBTxIE/9YKSm0e0gO/PwCoy9WBzYEN6PI5upQkh57AIwdPofjMKaJCfKIbRx
-	J6jGhQqh0cm/ZvQisMSf1rv8pbsvwg9ONG/VGOyRYpGJgfRxeh9wukk5lRWwXY5ubwK6sRIrxJP
-	4ZDlle2GxAb3CrzMhPKcOTUC3dJpmSBFSIjlF3uUpaNub8d8ANQeB8/fZ/KM6yPO7gQM1QdEi32
-	qydsEUyS7GtMXsWX9y/OIt8nmYQMz0ZxYRPUEOmxZL2VczygxwRvn2pbk+dJG83P3sw37KY+Tc2
-	ApM3G9qOMQb2onNv0xv6VVt6vcrnaTKiug1ThT5kvqaWO3JcDjn
-X-Received: by 2002:a05:620a:46a9:b0:8db:de3:92a1 with SMTP id af79cd13be357-8e79208594dmr5861913385a.48.1777245830182;
-        Sun, 26 Apr 2026 16:23:50 -0700 (PDT)
-Received: from battery.lan (pool-100-15-227-251.washdc.fios.verizon.net. [100.15.227.251])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8e7d93c2fffsm2383899085a.36.2026.04.26.16.23.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 26 Apr 2026 16:23:49 -0700 (PDT)
-From: David Windsor <dwindsor@gmail.com>
-To: Paul Moore <paul@paul-moore.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Ondrej Mosnacek <omosnace@redhat.com>,
-	selinux@vger.kernel.org,
-	linux-security-module@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] selinux: don't reserve xattr slot when we won't fill it
-Date: Sun, 26 Apr 2026 19:23:49 -0400
-Message-ID: <20260426232349.844289-1-dwindsor@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="feKLKmqi"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1777293195;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=tCA/Vw8FEZwkiq5C9vWH/ypQDVXERBBVNHpV9opkpxw=;
+	b=feKLKmqieqHc3ItO3dcWVCJ2AzymcfP/qGZmdtn1Z/lAOGy4C+Ale/He/0Q5MBzE6DU6mE
+	qo8WVHyq+CcAPSI34IdqSTH+sozEYO43H9CgaOJFo98XlJnjxXwsRezUv3EccyGqx031yD
+	ewJb0KspQHDEhkZl8zMUe1d6Bevb+PI=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-595-YpJ_D_2DP22tz8tAr1RF4g-1; Mon,
+ 27 Apr 2026 08:33:14 -0400
+X-MC-Unique: YpJ_D_2DP22tz8tAr1RF4g-1
+X-Mimecast-MFC-AGG-ID: YpJ_D_2DP22tz8tAr1RF4g_1777293193
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 126F61956056;
+	Mon, 27 Apr 2026 12:33:13 +0000 (UTC)
+Received: from p16v.redhat.com (unknown [10.44.48.171])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id E75991800446;
+	Mon, 27 Apr 2026 12:33:11 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: selinux@vger.kernel.org
+Cc: Dustin Kirkland <dustin.kirkland@chainguard.dev>
+Subject: [PATCH] policycoreutils/secon: fix discarded-qualifiers warning with glibc 2.43
+Date: Mon, 27 Apr 2026 14:32:06 +0200
+Message-ID: <20260427123304.74899-1-lautrbach@redhat.com>
+In-Reply-To: <CAC-oOXP04oBE7ciLr7eZBx857uw8sQm6u5v1DpjwYzfzY8vvVA@mail.gmail.com>
+References: <CAC-oOXP04oBE7ciLr7eZBx857uw8sQm6u5v1DpjwYzfzY8vvVA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-type: text/plain
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-Move lsm_get_xattr_slot() below the SBLABEL_MNT check so we don't leave
-a NULL-named slot in the array when returning -EOPNOTSUPP; filesystem
-initxattrs() callbacks stop iterating at the first NULL ->name, silently
-dropping xattrs installed by later LSMs.
+From: Dustin Kirkland <dustin.kirkland@chainguard.dev>
 
-Signed-off-by: David Windsor <dwindsor@gmail.com>
+In my_getXcon_raw(), ptr is declared as const char * but is assigned
+from fgets(), which returns char *. With glibc 2.43, strchr(const char
+*, int) now returns const char *, so the subsequent assignment to
+char *tmp triggers:
+
+  secon.c:365:18: error: initialization discards 'const' qualifier
+  from pointer target type [-Werror=discarded-qualifiers]
+
+The const on ptr was always incorrect: fgets() returns a mutable
+pointer into buf (a char[4096]), and the result of strchr() through
+ptr is written to via *tmp = 0. Remove the erroneous const.
+
+This is the same class of bug reported in issue #506
+(libselinux/src/selinux_config.c:284). The fix here is analogous:
+the variable should not have been const-qualified in the first place.
+
+Signed-off-by: Dustin Kirkland <dustin.kirkland@chainguard.dev>
 ---
- security/selinux/hooks.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 97801966bf32..4ff118a9395f 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2966,7 +2966,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+Resent of the original patch downloaded from githu as the original patch in the
+email was slightly broken.
+
+ policycoreutils/secon/secon.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/policycoreutils/secon/secon.c b/policycoreutils/secon/secon.c
+index d624fa136f3e..9a05cf1959ba 100644
+--- a/policycoreutils/secon/secon.c
++++ b/policycoreutils/secon/secon.c
+@@ -348,7 +348,7 @@ static int my_getXcon_raw(pid_t pid, char  **con, const char *val)
  {
- 	const struct cred_security_struct *crsec = selinux_cred(current_cred());
- 	struct superblock_security_struct *sbsec;
--	struct xattr *xattr = lsm_get_xattr_slot(xattrs, xattr_count);
-+	struct xattr *xattr;
- 	u32 newsid, clen;
- 	u16 newsclass;
- 	int rc;
-@@ -2992,6 +2992,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
- 	    !(sbsec->flags & SBLABEL_MNT))
- 		return -EOPNOTSUPP;
+ 	char buf[4096];
+ 	FILE *fp = NULL;
+-	const char *ptr = NULL;
++	char *ptr = NULL;
  
-+	xattr = lsm_get_xattr_slot(xattrs, xattr_count);
- 	if (xattr) {
- 		rc = security_sid_to_context_force(newsid,
- 						   &context, &clen);
-
-base-commit: 254f49634ee16a731174d2ae34bc50bd5f45e731
+ 	snprintf(buf, sizeof(buf), "%s/%ld/attr/%s", "/proc", (long int)pid,
+ 		 val);
 -- 
-2.53.0
+2.54.0
 
