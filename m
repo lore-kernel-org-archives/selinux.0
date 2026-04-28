@@ -1,278 +1,131 @@
-Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
+Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com [209.85.210.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94E2C2FA0C6
-	for <selinux@vger.kernel.org>; Tue, 28 Apr 2026 19:21:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777404088; cv=none; b=J0blMTzBd25XwuK5DmU3xoRq25THgzcNI1yDt2t1QiFMIHxgXHwo093qryAs/D+YPa8NuIyVKQZJ+BqFIyjRbf9+7T6WgxirhAol37DlZPGHoO5yOBNXuIikuPDB+DvxswrIgEdawgH7SAVT6VA691SMUIeVBqRV1NhBVQ9YDNM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777404088; c=relaxed/simple;
-	bh=rADsMyQZW7KYZ4YfdbvpqFxHzHaQXlVKJ1dK2uBWxRs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=h+5uN+70FZ4np4rUIjkKMxl8qglo5ElbiSTm+tOHzdLaUQpfWq8ZpnIoYRibEmAw/786ZJo+VX4VOvJNjCEZDbDsUNkZAIWgF4OMMGDUhoe5zDL3tnOeVTLE2Xn9mCZ5/QxN9gNq8LrXNV6QzOsTWupxExXtTeFme9ElkCVBzmk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=AjpyRrIV; arc=none smtp.client-ip=209.85.222.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39E8D47D938
+	for <selinux@vger.kernel.org>; Tue, 28 Apr 2026 19:26:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.175
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777404393; cv=pass; b=MVOaoVhyl/xAiMUm0OsIrX5yI23RqGbSj1CWM9upPeFXtq67n+0rOI/j+j2VH1NWlSu5h9cnLeZEcgC+djsg6Wd0A8ZQz2eumSJEO+8kez60QaKtsqVnTaaMdkeoVrGlc2LVPAHC1lOJO09SXxOc4k9Ny/HEysxJAVPURo2wBXs=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777404393; c=relaxed/simple;
+	bh=U/O8kY35FSPyilg0S9fhApP710nRPp9xFdci0TwAFQY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=I+hlc3l5hgYs5T4RGou65hIoXNNZD+M3KSWFTa3uBurlL1dm52A6MP13JaVnjf6cHShpnFa6y3tT0Z/DuclBikrsq1NsPaT0LPB1qkbkDTyVjtPLPu7kktyCBVrT6v5ifViEylh4YJYMq0IugzCCDbxoVGxeQ2HNUMrfE52Rlwk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Q7vwjsmM; arc=pass smtp.client-ip=209.85.210.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="AjpyRrIV"
-Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-8d4f78fc9f6so1284988685a.3
-        for <selinux@vger.kernel.org>; Tue, 28 Apr 2026 12:21:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Q7vwjsmM"
+Received: by mail-pf1-f175.google.com with SMTP id d2e1a72fcca58-82fbdd60b64so6583080b3a.3
+        for <selinux@vger.kernel.org>; Tue, 28 Apr 2026 12:26:29 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1777404388; cv=none;
+        d=google.com; s=arc-20240605;
+        b=gYuPn6K/Jjam1+T78LRXvh8NcdpGKv0IlhIp7pNPTfcS9DJSIsa92C9fqQ23MCdeF2
+         So/GPoTa17jYH3ZVhI8fqPNMZCq2uSopJ5KFjFx1x79Wcyh7VI+DuX08erc7L3LhFCcl
+         XoD3TEKbvUm2KP+uiiQvRLtCpdDdLSlemSm7Vbz7ExHb4m+m+TZUE4aiIthUpO9eCsJL
+         ez4FAkZhqNNtomrXkNdNv5zGwiUpQ35jjeUxgnyvDIoskH7wd20gwg5hLXSfMDLSHG/Q
+         G1HlYZSwk2qbZnf9XPXR9kDovSkNs1TimWXB3iR7/6r9fdu3Fr8Xk36987/WkqmYIXAv
+         H4JQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=AnfM8zUa1lWAp+XFfhTnKVtdHMyqVSknxxMlh2RVx+s=;
+        fh=ZpjR0YBreWerwjFTOToXoZvBgPF5u0kQIBqSbLVmbQQ=;
+        b=Pbb1V1r52MnddmW75DgsFz3nHr/vJG6IlqSyCLUjy1L8TgF0qxSyHOjBrTzT/fGJey
+         UYYcye7G9sWf90AE0RSd3ZYDVgu9CYtI6KiRwNi9XYkgcl+TlX2/PhdqOnqLdEV0Vq5h
+         YtmjR0wnyCNHe1e7mCH6KgNxp4gEbb1Z69W4sxHLPB2yK2aTYfa0UPGAOHq06beP9aHk
+         LhxWrh+qvWZ5uwfqOFseYlzBczFTlp0KKeF55VAhUOL1a4rWl7i3XgTU8WF9W9OXEIrA
+         7rtwBFKIUiyCswKZQkiidUhNOQ8wYpRY9b2FYwTJPnAUU5ywbc0k65HnohpUeY24dwVa
+         sEuA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1777404085; x=1778008885; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=paul-moore.com; s=google; t=1777404388; x=1778009188; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=7HsRQzwddKIQadLpTvf+1Rg5IrK/BcQTm8bGEwPFxUs=;
-        b=AjpyRrIV8EAauo76IpD94fxmP8PgxZwLOa9Vua4I3n8fU9kr6nSInXHyYhMHOitS9J
-         AFfF+c7bJ2Y8v9IHBC+DbmdkJtSXfT/E2RC3CyAPcKsnC3ftO5LG452FeXaNtf28VXcu
-         6KmYmqExqbUqP2zseOyAFiyHHMe3e91Nf7g2+yT+SvMzYEhKJKCZ5C/WwGAyAlDOh2t4
-         aX2nQIxENNGZNlSwkCJT6Ye99JY4D6ggW5GgSgXgk5vxpaCIPSmPg+abyK6a0o3vmlKR
-         mikf7f5DYKYQaoRp+MXwM/fnkLeP4r343YS0EF3id0lQfgNidb761CVD58pCoffy2GKQ
-         wRfw==
+        bh=AnfM8zUa1lWAp+XFfhTnKVtdHMyqVSknxxMlh2RVx+s=;
+        b=Q7vwjsmMKcT1l9AXMv9x+KpTvpFxUKicUV6cTZMYhfBbNByB0fZF26MMPg+TFYXldO
+         wAJnS+xEWXJ9B32JBTBrBIiic2/TeFFLzWJgSXX971s8U5GdjVU5swP5jQNe/htLdkI3
+         ZdgeBBL205oAlmG8o0ZHP3gwEnRf6+CuAq1bnKD7K0LesxTfN2B6HATKPShdePiNxe9l
+         5IKU/kkmPcPleMi63gfxcs/0a3ucVgI8dCjkUP2X6731EBcWvHp3wHrzOUzZpdkcqCUB
+         hKkLZBo5SE7N74E8O4Q5Nvc3gLmrBdIjySsJTh6B0ctBuAz0XLTvOffHG0QD5sJswMLI
+         q6/Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777404085; x=1778008885;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20251104; t=1777404388; x=1778009188;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=7HsRQzwddKIQadLpTvf+1Rg5IrK/BcQTm8bGEwPFxUs=;
-        b=Uzk3kepqmBCaaEaxbRH472EzJWAyvWVPhkT/YFw8/pNaH+jdJEel/DT3myLAfcKDmt
-         inNmMTnd76NDLdMmaXMR55hSAfDXvG8B2FD+YVSuL2wzP1/vOfXwHCDUXKdnH/ha15nd
-         HiVp0q+zKQmq6G9qlR0JcVC8skYDJJgyRm7bLsX9ApP8BL7JqrlOy3a300/sSSdaU4Sm
-         NQatk6MIsVLmqocekCzekZ+jXSSd5nJOLzfIqzxSJbsxSGugqmllkZysh1p2ICEIAntY
-         bBniNDrxR+6kiaw3VhS0u0EginA6Y2kFJPDWrHFnfsVs8zKy91GuOsnbxggkFmiSwkDU
-         ZiDw==
-X-Gm-Message-State: AOJu0Yw9jT18GE4mBr+5Z6g2zCoqs3G9bSNhelrTESzDwDSkoJiL6bMC
-	lPFmXTQqiRrDRZLgYfRhJPUaPjJv7w/ElEX72CV6rnj60Cpb0JQwE8Fx97jL7XEQR/EWYTdK1P7
-	50hI=
-X-Gm-Gg: AeBDieuqq3cXjUDLr45Bm/GZU5k2M+dNaZHmKnGJgvsfosn6M1/YuyR6Be3Vn15V13T
-	pXKACfPT+Z7gVkrQOBlS39c21xVvHpPpfcy003cg1CCpHY1p6cZIACOZzTc8V7xa85Qe9QxbkR6
-	6Nz0IGfPeLvLX+sUVfM0TcgD2c8uuWI+40Ldj/9qW8iTf4LwvCrOT2UTaY8i2p2Z747OMPv6cHr
-	0FdAxvMDlDP+gQmh3tqd0qo+q9N4kO+kQGlptiY8AeLvdfn6Ev9TSxrd3UIIcLFBBeW3U9l5gxD
-	88Ga2EWRGGhcmsoKlu5RWKRptRXXNWuP9K5ClB2HxZ3xKqUPXYlP4b+MQsRYAduEwXcweyvgEB1
-	QEFMChXNvitRrtRq82tHE+6DT9NO9r4t69x2IRdgiUJrC2AsJ1IfRW1oqatWVK7EKLc3jGUf/Tm
-	7JJl3Cqfr3XptpAdCrzhTPQrcvDQM+16EsFnryI4rvgxy99cVbZrt57ZTBenN4fvATQTV+FiOvv
-	LQWCB4=
-X-Received: by 2002:a05:620a:4456:b0:8d6:bd01:a67a with SMTP id af79cd13be357-8f7d7e171a8mr634934685a.26.1777404084901;
-        Tue, 28 Apr 2026 12:21:24 -0700 (PDT)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8f7c84b1d92sm263877485a.38.2026.04.28.12.21.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Apr 2026 12:21:23 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: selinux@vger.kernel.org,
-	linux-security-module@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-nfs@vger.kernel.org
-Cc: stephen.smalley.work@gmail.com
-Subject: [PATCH ported/repost v2] security,fs,nfs,net: update security_inode_listsecurity() interface
-Date: Tue, 28 Apr 2026 15:21:20 -0400
-Message-ID: <20260428192119.226244-2-paul@paul-moore.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20250428195022.24587-2-stephen.smalley.work@gmail.com>
-References: <20250428195022.24587-2-stephen.smalley.work@gmail.com>
+        bh=AnfM8zUa1lWAp+XFfhTnKVtdHMyqVSknxxMlh2RVx+s=;
+        b=ToX4ZHEBDOzwHwPRmGyAq4rlqqD4EmenaetLjIROKp0avNb/Of9JBy68QkNIZ6hOjQ
+         M7/9Ysc/mrYlq4WhwK3ztb3i6TxZs93M8Txfk9proLtOYvTLkljcp7AzI8Ugt5g0ucNI
+         wfDR9pEnUcMdXN3FjwcTsz4gYwnk/Yxg61jU72rcdfil+KYWx2h6A23OOpyqr2avyrdc
+         3a7hEhkIw31ks/5aCrf52DKo66g7liEhTK1kxD+Ldc1wGNAg3tVlE5vAhotkyy2u1DaZ
+         HwxL8Aj7XIn0Z8AgC3pRtjyACmktn3jLspF3pYveEvdQYb2AylF46nghfPruDhRYGBsY
+         m5SA==
+X-Gm-Message-State: AOJu0YyO6hhxnoICDDmTb0Ivcnyfktn1+alf+8LdqGu1bZWK0D7JaCx8
+	0ARIUHN8eJS8Sc+0uebje8n/z49auJDseujefN3xNgfSr6GX3Dwv/3L2ee7zVSuwbD0bZ2iaLrC
+	rDx2h8ljq81YXng9547DgV4yl4IDMScai96BdKssTIFGzA8cXTeBBlw==
+X-Gm-Gg: AeBDiet/A935GsSGtcliNYVp5Eo0Ci0PZYZyQaWPJ3C6P8xGl004foovzhNCKWh9Y9R
+	70cO8Y51QOhnmEKhBcmAVSS4d5498MUDsk260yVa+BC0W0mTU8XnJZIVm/wpmCKzeomHVjynPAB
+	AVze9sq8lpo9tIuu7KhaEUygGbnUAP2saweXM1gSsgVbrs+KrdLr8F16VFnLsJ+kVwBWoMKKiKq
+	pFlR414DT7BStv5L+fmSDEf5z3arXCq2jwelNwUUDyV3fpKMLCxMQBlolvoTce9rtMqX1rYxmwb
+	ZFNkWw1AGUz0InbNOQ==
+X-Received: by 2002:a05:6a00:b610:b0:82f:5f2c:dc1e with SMTP id
+ d2e1a72fcca58-834ddbefc48mr4513385b3a.30.1777404388228; Tue, 28 Apr 2026
+ 12:26:28 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=7674; i=paul@paul-moore.com; h=from:subject; bh=TIBYVxpxKKE5XNqm2t5t5Zkc1qweb5gcM/rYatRhygg=; b=owEBbQKS/ZANAwAKAeog8tqXN4lzAcsmYgBp8Qivtdaz8kIJzR5ih/0JRGEl15mQnHjbbXmKU Vd1awybi5uJAjMEAAEKAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCafEIrwAKCRDqIPLalzeJ c39KD/0QmxerRTCNDDzPUzdXuWLg0P0l7CVvmGWX5e/vy0NKGMNoVoY0Bk7iW9cGIjR7xjQH40h oAvirMrk2niZSjVWCjT88PyzeIZxkbKM4eVBA2swvkssSdKC53MPMS/eJTpVIA17X+23Z+Vi8LM 4/neLwI3AYZgDxdGP1E0UQ0ZlWzzode+fR6qOEzWvTLMmtfn9Nd/RB/5tKxno9uC5k83lfP+SZD ptADRIgGSQsiqOUtbCjkAAOyUG4u83Xb545DVQtdYP/ULVwkAgsDxCbfvCY6CJumTCgiZSUnHTS uoAACC/zM5m/ikPD3sQCj60R0zNQPKCNs5TZ2uqEJmD1m5NoJ+8uOKRqZyTOtnBaOSKWGcrPZ/U NbfLLcN62Jcgom4ac9vtnfBZmv8LhrI3DzlHSMPmrSEyfZidxVqcXPG3Ger0sTQLVUPxGfHxp0u Ed4GeJeuN9vipb6pVf6mXueJaVp50sZWE+9CIW5InxEsW5ZohGrjsl2zLn1cpW3Iur4F/YkAQul wfffjgvcZQkcfXo6dUpCPQPyNx6/BcimCZV5tUGiYFWyn10JlaRQ0YEIJUVFaO6c522I6UpydDF n0ccg2sBWPlVrv++GSjfWp1Ss/DumQDrUBsWzkX/dqSI02nRNuA7Fk5VJ/gM/5nwDILWvHMOXAW BLtroLvFvBsoslQ==
-X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
-Content-Transfer-Encoding: 8bit
+References: <20250428195022.24587-2-stephen.smalley.work@gmail.com> <20260428192119.226244-2-paul@paul-moore.com>
+In-Reply-To: <20260428192119.226244-2-paul@paul-moore.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 28 Apr 2026 15:26:15 -0400
+X-Gm-Features: AVHnY4JfXj5rdz057afaM2yOoDKKiXKQXh_FDv64DRP8yW2NVR2QdpNqmASHI1Q
+Message-ID: <CAHC9VhSDPg2U9UYZ7Na_A8RA-KN8OsNj5S+QwscW6X20tojhjA@mail.gmail.com>
+Subject: Re: [PATCH ported/repost v2] security,fs,nfs,net: update
+ security_inode_listsecurity() interface
+To: selinux@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-nfs@vger.kernel.org
+Cc: stephen.smalley.work@gmail.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
+On Tue, Apr 28, 2026 at 3:21=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+>
+> From: Stephen Smalley <stephen.smalley.work@gmail.com>
+>
+> Update the security_inode_listsecurity() interface to allow
+> use of the xattr_list_one() helper and update the hook
+> implementations.
+>
+> Link: https://lore.kernel.org/selinux/20250424152822.2719-1-stephen.small=
+ey.work@gmail.com
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> [PM: forward porting to bring this patch up to v7.1-rc1+]
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> ---
+>  fs/nfs/nfs4proc.c             |  7 ++-----
+>  fs/xattr.c                    | 11 +++++++----
+>  include/linux/lsm_hook_defs.h |  4 ++--
+>  include/linux/security.h      |  5 +++--
+>  security/security.c           | 16 ++++++++--------
+>  security/selinux/hooks.c      | 10 +++-------
+>  security/smack/smack_lsm.c    | 13 ++++---------
+>  7 files changed, 29 insertions(+), 37 deletions(-)
 
-Update the security_inode_listsecurity() interface to allow
-use of the xattr_list_one() helper and update the hook
-implementations.
+With the security_inode_listsecurity() cleanup shipping in Linux v7.0,
+I wanted to get this patch ready for the next merge window.  As
+expected, some borderline non-trivial porting was needed, so I'm
+posting the ported version in case anyone wants to review the patch
+again.  If I don't hear anything over the next few days, I'll plan to
+merge this into lsm/dev later this week.
 
-Link: https://lore.kernel.org/selinux/20250424152822.2719-1-stephen.smalley.work@gmail.com
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-[PM: forward porting to bring this patch up to v7.1-rc1+]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
----
- fs/nfs/nfs4proc.c             |  7 ++-----
- fs/xattr.c                    | 11 +++++++----
- include/linux/lsm_hook_defs.h |  4 ++--
- include/linux/security.h      |  5 +++--
- security/security.c           | 16 ++++++++--------
- security/selinux/hooks.c      | 10 +++-------
- security/smack/smack_lsm.c    | 13 ++++---------
- 7 files changed, 29 insertions(+), 37 deletions(-)
+The SELinux test suite runs clean for both local and NFS test runs.
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index a9b8d482d289..a16342056ae5 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -10562,13 +10562,10 @@ static ssize_t nfs4_listxattr(struct dentry *dentry, char *list, size_t size)
- 		left -= error;
- 	}
- 
--	error2 = security_inode_listsecurity(d_inode(dentry), list, left);
-+	error2 = security_inode_listsecurity(d_inode(dentry), &list, &left);
- 	if (error2 < 0)
- 		return error2;
--	if (list) {
--		list += error2;
--		left -= error2;
--	}
-+	error2 = size - error - left;
- 
- 	error3 = nfs4_listxattr_nfs4_user(d_inode(dentry), list, left);
- 	if (error3 < 0)
-diff --git a/fs/xattr.c b/fs/xattr.c
-index 09ecbaaa1660..0bc3b47e6936 100644
---- a/fs/xattr.c
-+++ b/fs/xattr.c
-@@ -510,9 +510,12 @@ vfs_listxattr(struct dentry *dentry, char *list, size_t size)
- 	if (inode->i_op->listxattr) {
- 		error = inode->i_op->listxattr(dentry, list, size);
- 	} else {
--		error = security_inode_listsecurity(inode, list, size);
--		if (size && error > size)
--			error = -ERANGE;
-+		ssize_t remaining = size;
-+
-+		error = security_inode_listsecurity(inode, &list, &remaining);
-+		if (error)
-+			return error;
-+		error = size - remaining;
- 	}
- 	return error;
- }
-@@ -1540,7 +1543,7 @@ ssize_t simple_xattr_list(struct inode *inode, struct simple_xattrs *xattrs,
- 	if (err)
- 		return err;
- 
--	err = security_inode_listsecurity(inode, buffer, remaining_size);
-+	err = security_inode_listsecurity(inode, &buffer, &remaining_size);
- 	if (err < 0)
- 		return err;
- 
-diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index 2b8dfb35caed..65c9609ec207 100644
---- a/include/linux/lsm_hook_defs.h
-+++ b/include/linux/lsm_hook_defs.h
-@@ -176,8 +176,8 @@ LSM_HOOK(int, -EOPNOTSUPP, inode_getsecurity, struct mnt_idmap *idmap,
- 	 struct inode *inode, const char *name, void **buffer, bool alloc)
- LSM_HOOK(int, -EOPNOTSUPP, inode_setsecurity, struct inode *inode,
- 	 const char *name, const void *value, size_t size, int flags)
--LSM_HOOK(int, 0, inode_listsecurity, struct inode *inode, char *buffer,
--	 size_t buffer_size)
-+LSM_HOOK(int, 0, inode_listsecurity, struct inode *inode, char **buffer,
-+	 ssize_t *remaining_size)
- LSM_HOOK(void, LSM_RET_VOID, inode_getlsmprop, struct inode *inode,
- 	 struct lsm_prop *prop)
- LSM_HOOK(int, 0, inode_copy_up, struct dentry *src, struct cred **new)
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 41d7367cf403..153e9043058f 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -459,7 +459,7 @@ int security_inode_getsecurity(struct mnt_idmap *idmap,
- 			       struct inode *inode, const char *name,
- 			       void **buffer, bool alloc);
- int security_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags);
--int security_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer_size);
-+int security_inode_listsecurity(struct inode *inode, char **buffer, ssize_t *remaining_size);
- void security_inode_getlsmprop(struct inode *inode, struct lsm_prop *prop);
- int security_inode_copy_up(struct dentry *src, struct cred **new);
- int security_inode_copy_up_xattr(struct dentry *src, const char *name);
-@@ -1097,7 +1097,8 @@ static inline int security_inode_setsecurity(struct inode *inode, const char *na
- 	return -EOPNOTSUPP;
- }
- 
--static inline int security_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer_size)
-+static inline int security_inode_listsecurity(struct inode *inode,
-+					char **buffer, ssize_t *remaining_size)
- {
- 	return 0;
- }
-diff --git a/security/security.c b/security/security.c
-index 4e999f023651..71aea8fdf014 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -2258,22 +2258,22 @@ int security_inode_setsecurity(struct inode *inode, const char *name,
- /**
-  * security_inode_listsecurity() - List the xattr security label names
-  * @inode: inode
-- * @buffer: buffer
-- * @buffer_size: size of buffer
-+ * @buffer: pointer to buffer
-+ * @remaining_size: pointer to remaining size of buffer
-  *
-  * Copy the extended attribute names for the security labels associated with
-- * @inode into @buffer.  The maximum size of @buffer is specified by
-- * @buffer_size.  @buffer may be NULL to request the size of the buffer
-- * required.
-+ * @inode into *(@buffer).  The remaining size of @buffer is specified by
-+ * *(@remaining_size).  *(@buffer) may be NULL to request the size of the
-+ * buffer required. Updates *(@buffer) and *(@remaining_size).
-  *
-- * Return: Returns number of bytes used/required on success.
-+ * Return: Returns 0 on success, or -errno on failure.
-  */
- int security_inode_listsecurity(struct inode *inode,
--				char *buffer, size_t buffer_size)
-+				char **buffer, ssize_t *remaining_size)
- {
- 	if (unlikely(IS_PRIVATE(inode)))
- 		return 0;
--	return call_int_hook(inode_listsecurity, inode, buffer, buffer_size);
-+	return call_int_hook(inode_listsecurity, inode, buffer, remaining_size);
- }
- EXPORT_SYMBOL(security_inode_listsecurity);
- 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 97801966bf32..4ae736755557 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3684,16 +3684,12 @@ static int selinux_inode_setsecurity(struct inode *inode, const char *name,
- 	return 0;
- }
- 
--static int selinux_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer_size)
-+static int selinux_inode_listsecurity(struct inode *inode, char **buffer,
-+				ssize_t *remaining_size)
- {
--	const int len = sizeof(XATTR_NAME_SELINUX);
--
- 	if (!selinux_initialized())
- 		return 0;
--
--	if (buffer && len <= buffer_size)
--		memcpy(buffer, XATTR_NAME_SELINUX, len);
--	return len;
-+	return xattr_list_one(buffer, remaining_size, XATTR_NAME_SELINUX);
- }
- 
- static void selinux_inode_getlsmprop(struct inode *inode, struct lsm_prop *prop)
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 3f9ae05039a2..ff115068c5c0 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -1665,17 +1665,12 @@ static int smack_inode_getsecurity(struct mnt_idmap *idmap,
-  * smack_inode_listsecurity - list the Smack attributes
-  * @inode: the object
-  * @buffer: where they go
-- * @buffer_size: size of buffer
-+ * @remaining_size: size of buffer
-  */
--static int smack_inode_listsecurity(struct inode *inode, char *buffer,
--				    size_t buffer_size)
-+static int smack_inode_listsecurity(struct inode *inode, char **buffer,
-+				    ssize_t *remaining_size)
- {
--	int len = sizeof(XATTR_NAME_SMACK);
--
--	if (buffer != NULL && len <= buffer_size)
--		memcpy(buffer, XATTR_NAME_SMACK, len);
--
--	return len;
-+	return xattr_list_one(buffer, remaining_size, XATTR_NAME_SMACK);
- }
- 
- /**
--- 
-2.54.0
-
+--=20
+paul-moore.com
