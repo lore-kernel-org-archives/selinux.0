@@ -1,160 +1,108 @@
-Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B71A02EBBA9
-	for <selinux@vger.kernel.org>; Tue, 28 Apr 2026 22:16:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.180
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777414619; cv=pass; b=M4IpqXER1aLwkgZGgh22XjgvnKCemMVfULKMlN56U/HA97jZRRoJIBmljIK16XOaPPNJ6kQc5w59ubTrTTEg1fXVrVEXV2jkRTLQU7bARClu28j9krtZz66aOVZUndHQ9vgqnC5d1tFJN9LYrGwAqR2FsUs0862/WkQYhAahhGg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777414619; c=relaxed/simple;
-	bh=F5UG19CyofsdmD4XoErBxuH/D0TQE82baneEu6I1HJc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=lQOwtdU9CARy8S7kxRPcl4oYtc3FHvQYoYuRywfFD/imnIptQkTBZwjJuEeYnPwD4TPdGYzTiEcGmVbfTnMxV2myPISDnC+FM2jGTNLLaxrZOX3Dqml3X6rDwrWzikQ7FD2uLutExLnNlw3tRm2ZSolcDLi4ahNNvlDLZF222yQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=cGgH49/d; arc=pass smtp.client-ip=209.85.214.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC3223FD14E
+	for <selinux@vger.kernel.org>; Wed, 29 Apr 2026 13:32:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777469533; cv=none; b=RXlkjfXwZlS0TTtOsQDUUXU7DPUirbNMGQsmCH4n8QOmIiZMNenmCO5xgCPgDW/R39ChAju6x3uQ6Tw3G9+UHWXDx7KL1Ed3f2z2Hh7KREy/JBDiIVHQeHZ81Hpb8vWibjnYNUKLpc+4HZzkR8EXBuQkSDo8kGolhxU7XxuZyAI=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777469533; c=relaxed/simple;
+	bh=T4asm63qqY8qTcoRA9z3TN/UaiEY3ZHLucVm74NOJS4=;
+	h=From:To:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=SoRcaszqmqt9CfhWMBViZ5Fn+auhMf0p/8o9fwdbF5h+VhFHg/cA8Sry60dJXwqFV10nDtsoJGW9LDaWhh3YeN0G1TqMAO6og2jBboTl+VrJoJxdgoQEApV7dOSjl0ydKeCZ5roT8MWWAsJrapsmZtMGOipzcF1U7iDFzP8/ydQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MJXbEbxF; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="cGgH49/d"
-Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2ad9516a653so60624265ad.0
-        for <selinux@vger.kernel.org>; Tue, 28 Apr 2026 15:16:57 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1777414617; cv=none;
-        d=google.com; s=arc-20240605;
-        b=cNiplCjgoUc9oYavBaCdGeLPsD1SFwrrAtEn5hr+2fegRFCVOUIW0x6C7IROSPNk11
-         wri7S8tPixffzJzUq5Nti6MwdgJ48Ck2frFmj5EcUoaTPYSjdbMaD//tJ5PgFnk6DhA0
-         e3nAObvfR2YJF11P+jfMgvCwLIbfGug9vu0fLuX1HwWxuL1CxLyvLAxT93LiA/QvVZY1
-         OaI/Nhl3JsgVVSTksP1wQTIAuKyQzdVb411qlO/x/mXZTv3O2lNZhQ6t6XlxCIV1ZDZA
-         AVwsETN4m8hzOhV29p+QorOk9B/jSWuXsbr+cWhf/h+mMQIvAInw4zxryjvcKh0YzcKO
-         p2wQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=36tfPcpNoTI5mvMC+2/ZfW8ifo4NlBsINqpt0zh3R3w=;
-        fh=lOev/QwE9DXSi83P/KluQ9UjJBSvfLYOVkCl5H1rM0Y=;
-        b=MvE1v0Ui7K0rf32cZWlQk4BgmoWVLktKNFo+7Z+onhjQhwBcBlvskBgaUuBeHnKGwx
-         F/2ib99PRAyf/b0nEWfYTg+7aMlg3aMElJ7N2JruzX3+gRlLUxd9HZtzXpzQaaeOyNRg
-         yamMOSsV0caUntUjRknibOjrG3gdEsusKij75UgMFmXCvk+LaXoUNj0JPmwUlVMVZrRX
-         uEfT0IgfUA24AtBHT3/eqvw7rj+JlvFFxRrRMNtT/N+7EBtmGVLoAaoetmTrsjegyGpD
-         VVRRRnfgBd2XCkd+vGiKVY/nfJ9njJdr5rMm/36bxUZI12u7iBK03KGBsknvvFUjhPiL
-         twzg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1777414617; x=1778019417; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=36tfPcpNoTI5mvMC+2/ZfW8ifo4NlBsINqpt0zh3R3w=;
-        b=cGgH49/d4W3dukfjePGGKO6hyDhCHrAJwBIEyCq28dKKoGIGsYi1DA4/GEn1Lwqidb
-         DAtnqFaip9myqye+fUtdLQ/92/VeE/VQ+fVEyRafy+j81COQ1Qk6I0yQfDY9kfrqTc6B
-         igcusun6tPznvURSmkXxv2eP9iMpgBQMjR29uFn9gDcXN6Mq/UfIOjmtFViCJwN2GA8E
-         O292UyuC5Wsc1+wxOrHLZ9K1tVjlZiXZysBMjmS9GpF1CAL7tbjarhxL2iswIS/z/H6a
-         EW34fQgBXpmfury80bnT5wyR9Xg0xjLweeuq3hAS2NguGgpfIUE1QX+8NGqjjYkSJM2r
-         P1rg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777414617; x=1778019417;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=36tfPcpNoTI5mvMC+2/ZfW8ifo4NlBsINqpt0zh3R3w=;
-        b=aFNWg7zxTV6OJRX+50yV6PX7oXpUGrXIhzJs7nibGWvqteNHVh1y48xbkRita/OQln
-         MQ2FYDZdpVbSOj2WjkjpW5gYMKINdWwCwVNOQ4djddMzLvU6IeI+e+zRj8kkBCVWXW8C
-         GqplNKhpc+zZS7WNpr/klj5TgX9sOSpg7jWyyIN9yrmNgvoXBoBq7YnGKqCNejpHcqR1
-         /Xf02wP4A/UVQsUeVOrjMsnpQmvVsha2G8qJRqtp7BvEZu5ercyhRaq23ilsKP29Qq2K
-         hpIomcKcqFEdhlwnquhGHtJq6rAud5ZS+QFJEubnYWuhrAPsAYXOi9DDlpa3I/GqhVTW
-         z/gA==
-X-Gm-Message-State: AOJu0YyN9ue+OMf7IcY283ZMRK90H1Tq4+rQrjT6WkcnpfmrASH3Hhu3
-	Ek0NN6ipdmA1LLt+odQBRNsk2YrlbwIQsKLI9JZrCayvf8uGq30q7D8vPlT5Toymk9y8ZBwreDA
-	3/x+hb2LqUZ0MdW29RNsLGkQCufgQfNHPii3iuO2J
-X-Gm-Gg: AeBDieu3Zi+VwNVhlSkILEKxc+9KQdDk4WxykybUREOVF0ef712rBD9sIdKldaHoKZC
-	w5tEZJzam/MQz4Jz14AME1wUSOHHQ533N00H0BTJt2P2qNzuHmWo8fvL8EhEu9UYTY/V6Aaqk5c
-	nCKGmEl/5sfkOrq8YF0X8ZnqT9FXxTlxsRcnfhGarHrakyCu0t4d2AAOAO9cz4pb0PZ1sRSiwID
-	ZndRv/Cahbz+4DUhFbd7NDLow3YuIXVZAOJFI6EdjyVvecIf65wwheT5/luHUQC9VAWq96KHKey
-	03YP+UfxxHBh1SaKmg==
-X-Received: by 2002:a17:903:390d:b0:2b2:4fe3:7b89 with SMTP id
- d9443c01a7336-2b98747c348mr9970885ad.38.1777414617060; Tue, 28 Apr 2026
- 15:16:57 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MJXbEbxF"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1777469530;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=tdEJqU594wHdwSCbSYivSXwMMJ7gi6Bb81x0yF6wIdA=;
+	b=MJXbEbxFP405SeKndp1xdo3og+VRuKqlovCl9V300GjJ5kesoOU4cOaKvN3/2F+qqiSrNV
+	hWNvP+ji65fCmj4O8BHQyfT5ElrnOZsz3re2Cbu45nr3uJCNTm1OJpimYAtpmYwu0B+xcx
+	rrGiMDcJO77D3YX4t4p69zYesO69u/k=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-675-FxxD_9m-P0GIHGoHF_YIeQ-1; Wed,
+ 29 Apr 2026 09:32:06 -0400
+X-MC-Unique: FxxD_9m-P0GIHGoHF_YIeQ-1
+X-Mimecast-MFC-AGG-ID: FxxD_9m-P0GIHGoHF_YIeQ_1777469525
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B9901180059A
+	for <selinux@vger.kernel.org>; Wed, 29 Apr 2026 13:32:05 +0000 (UTC)
+Received: from localhost (unknown [10.44.48.113])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 4476D18001CD;
+	Wed, 29 Apr 2026 13:32:05 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: Vit Mojzis <vmojzis@redhat.com>, selinux@vger.kernel.org
+Subject: Re: [PATCH v2] libsepol: Fix memory leak in
+ role_dominates_copy_callback
+In-Reply-To: <20260428213444.907701-1-vmojzis@redhat.com>
+References: <87zf2nsl6g.fsf@redhat.com>
+ <20260428213444.907701-1-vmojzis@redhat.com>
+Date: Wed, 29 Apr 2026 15:32:04 +0200
+Message-ID: <87qznxsxij.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260410192949.16542-2-stephen.smalley.work@gmail.com>
- <CAEjxPJ6y9p0gs17s7090UcbAcA2KtGcj2nKqi-hBtNZ3zgwKDQ@mail.gmail.com>
- <CAEjxPJ4fPyXO6MWef7kA=gM3HTDhYjvhEbZNRoU=AG__K6havw@mail.gmail.com>
- <CAEjxPJ7ASrJSLOMrryvHGQT7R7rTvfZdfdTPu6z9SmCRUX_wDQ@mail.gmail.com>
- <CAHC9VhSDYr60mZSasYR+_0rGJ7_SNfL_O3FJmB_nFPQciVQ64g@mail.gmail.com> <CAEjxPJ4971km7W_MsJ3CzG_dL=_wMoLwzSpkZ+g2yrY-s+8f4Q@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4971km7W_MsJ3CzG_dL=_wMoLwzSpkZ+g2yrY-s+8f4Q@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 28 Apr 2026 18:16:44 -0400
-X-Gm-Features: AVHnY4KTNo39EYExHvShLuRphUYgOKuDOXC4ER4KWqQZz8h1r7tZ3wkxsATSNu4
-Message-ID: <CAHC9VhRpb2XT7X9JUDf1FGi9aiYLG3UP7B-0nVU2UkbkwkgvVw@mail.gmail.com>
-Subject: Re: [PATCH v4] selinux: fix avdcache auditing
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, omosnace@redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-On Tue, Apr 28, 2026 at 8:53=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Mon, Apr 27, 2026 at 7:38=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
-wrote:
-> > On Tue, Apr 21, 2026 at 12:25=E2=80=AFPM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > > On Mon, Apr 20, 2026 at 3:13=E2=80=AFPM Stephen Smalley
-> > > <stephen.smalley.work@gmail.com> wrote:
-> > > > Here is some perf data, using default Fedora kconfig:
-> > > > v7.0, unmodified:
-> > > >    2.03%  [k] __d_lookup_rcu
-> > > >    0.80%  [k] selinux_inode_permission
-> > > > Ratio: 39%
-> > > >
-> > > > v7.0 with v3 patch:
-> > > >    1.95%  [k] __d_lookup_rcu
-> > > >    0.81%  [k] selinux_inode_permission
-> > > > Ratio: 41%
-> > > >
-> > > > v7.0 with v4 patch:
-> > > >    1.89%  [k] __d_lookup_rcu
-> > > >    0.92%  [k] selinux_inode_permission
-> > > > Ratio: 49%
-> > > >
-> > > > I only compared the percentage spent in selinux_inode_permission to
-> > > > __d_lookup_rcu since the changes were localized to
-> > > > selinux_inode_permission. Aside from the fact that v4 is measurably
-> > > > worse than v3, I also noticed that even the baseline seems measurab=
-ly
-> > > > worse than the selinux_inode_permission() percentages reported in
-> > > > earlier commit messages, although I guess we didn't re-measure when=
- we
-> > > > switched from the per-cred cache to the per-task cache (but that wa=
-s
-> > > > necessary regardless).
-> > >
-> > > Actually, re-running the perf commands on the older commits show
-> > > similar results for selinux_inode_permission() as I am seeing now, so
-> > > something else must have changed in my VM or the kconfig.
-> >
-> > To clarify, are you now seeing similar results with both v7.0+v3 and v7=
-.0+v4?
-> >
-> > (v7.0+v3 looks pretty much like noise when compared to v7.0)
+Vit Mojzis <vmojzis@redhat.com> writes:
+
+> Free memory allocated by map_ebitmap in case ebitmap_union fails.
 >
-> No, v7.0+v4 appears to be worse than v7.0+v3. My comment above was
-> with regard to re-testing older (pre-v7.0) commits where we had
-> reported lower overheads for selinux_inode_permission relative to
-> __d_lookup_rcu.  On my current test VM, those commits are now showing
-> similar overheads to v7.0+v3, so I think the difference is just some
-> change in my test VM, kernel config, or noise.
+> Fixes:
+>   Defect type: RESOURCE_LEAK
+>   libsepol-3.10/src/expand.c:828:2: alloc_arg: "map_ebitmap" allocates memory that is stored into "mapped.node".
+>   libsepol-3.10/src/expand.c:68:3: alloc_arg: "ebitmap_set_bit" allocates memory that is stored into "dst->node".
+>   libsepol-3.10/src/ebitmap.c:420:2: alloc_fn: Storage is returned from allocation function "malloc".
+>   libsepol-3.10/src/ebitmap.c:420:2: assign: Assigning: "new" = "(ebitmap_node_t *)malloc(24UL)".
+>   libsepol-3.10/src/ebitmap.c:437:3: assign: Assigning: "e->node" = "new".
+>   libsepol-3.10/src/expand.c:831:3: leaked_storage: Variable "mapped" going out of scope leaks the storage "mapped.node" points to.
+>   \#   829|   		return -1;
+>   \#   830|   	if (ebitmap_union(&new_role->dominates, &mapped))
+>   \#   831|-> 		return -1;
+>   \#   832|   	ebitmap_destroy(&mapped);
+>   \#   833|
+>
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 
-Okay, thanks for clarifying.  Let's go with v4, it may be a bit
-slower, but as you already said, it should be easier to maintain and
-slightly less fragile.  I'm going to merge this into
-selinux/stable-7.1 now and send it up to Linus later this week
-assuming all goes well.
+Acked-by: Petr Lautrbach <lautrbach@redhat.com>
 
-Thanks!
+> ---
+> No changes, only added "Signed-off-by".
+>
+>  libsepol/src/expand.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+>
+> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+> index 5b2b7b03..c7978948 100644
+> --- a/libsepol/src/expand.c
+> +++ b/libsepol/src/expand.c
+> @@ -827,8 +827,10 @@ static int role_dominates_copy_callback(hashtab_key_t key __attribute__ ((unused
+>  
+>  	if (map_ebitmap(&role->dominates, &mapped, state->rolemap))
+>  		return -1;
+> -	if (ebitmap_union(&new_role->dominates, &mapped))
+> +	if (ebitmap_union(&new_role->dominates, &mapped)) {
+> +		ebitmap_destroy(&mapped);
+>  		return -1;
+> +	}
+>  	ebitmap_destroy(&mapped);
+>  
+>  	return 0;
+> -- 
+> 2.53.0
 
---=20
-paul-moore.com
