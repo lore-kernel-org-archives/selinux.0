@@ -1,71 +1,71 @@
-Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
+Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3760D3ACA46
-	for <selinux@vger.kernel.org>; Wed, 29 Apr 2026 21:13:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 374D9372EFF
+	for <selinux@vger.kernel.org>; Wed, 29 Apr 2026 21:13:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777497186; cv=none; b=POFOg43Qfgdi8LY7MsywQw05Zf/QaOHMOUCTfiOFTV5ecSPoWDgQc80nBVwCCfZHi7mIJT3yHN8odPS5lV08xUM4d6+v/Xd7l11ac/bN3nHmrRW30MDjhAZ/YOxcAih3LmaYzo67JhJyHUNurt7Kp2ZRWYIhbnldGm9ZGJqeoz0=
+	t=1777497189; cv=none; b=A8+psdROJndlZ6uP0jb5WXOUmnM80BRNhPPkZDXAdA2fbswcJIyNWtop06x2Hj2eykRAMihjoloXwYl9rpsiildIFs2GdzSxOXSdw0x9RjfRX+FPbUknDwLCxQLSJJUeonCZ45Fk4V5pCBJGBE582JM4/tnjKsv3wPrZNgBsgJk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777497186; c=relaxed/simple;
-	bh=UiGSmUYxOMO4uMdqETkPqLmv/Nnqe4LJn6Gn9ttHw0s=;
+	s=arc-20240116; t=1777497189; c=relaxed/simple;
+	bh=w0DOQLXVIMZ4xZR0ZB7xkP0RHLWpAIKOLq5ziV833oU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=GtStUKbY4cfAy8+YHLkzNd7Wc7ClV1YMj1CVZvWQUBGs6O4A1640zPRwORZi79KgRpW3IdDIjCLCnuickf1c9AAvAp83Cg1qPMN/O7sre8QsiBShQ8p7dHKaMaBs6ZziL1kEebVPmEqOIB8naILa2DheWkLohx7/Ngfp0xPcqaA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=i6OA3n60; arc=none smtp.client-ip=209.85.222.180
+	 MIME-Version; b=Fb2K4iWac2EVYMFaAb3rGvldrK0QteePROE63/atY6YKEhqdhQkzT6SLqernirzZOh3r9eRkXWkzYV569Wa/nDF2dY6AmKfcq84DxnI0HEbJNsvBlWc0XfPVHT7cxmvMcb7BCGPynAkTgbDDm0mPiP/ARAMl4+i/4JxYXq8f/DU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kuEHYHXk; arc=none smtp.client-ip=209.85.222.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i6OA3n60"
-Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-8f0579401c4so20217085a.3
-        for <selinux@vger.kernel.org>; Wed, 29 Apr 2026 14:13:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kuEHYHXk"
+Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-8ed4dd182efso13002085a.3
+        for <selinux@vger.kernel.org>; Wed, 29 Apr 2026 14:13:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777497184; x=1778101984; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1777497187; x=1778101987; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=l/d6zkx7NKPUXdGKIfW/EZhJzXWtCzUMx94HJuI6ADg=;
-        b=i6OA3n60GCFxwuRsHIygvSceCNGiFLMw5mHj0eOb3c7Y4NaS3L9lm1l4BZqLqPuedE
-         SwOLieXtjOZx2s0W+JXytmBJKFMuBSbMEoGvL84lzQGXdfMX4E6AC7xxABeFVZec21OH
-         t1AuJcGbjga0vnLcBp+HsEWYsIModf4xnDhRVhj1Nt358oX/Q7hfxaiHFuochHuUzgWP
-         LUT2U8GA76eYYmrru1t5LMhT42g4z+WwTHRzd2piVn1HyjHSchUz4Hv4+tMFe4Mzal+U
-         RHgHntwwNIspWf3/JgHYTDoym9OQVefq06vIf7WHdoMVuT2B7Vlshhknw3tvVbraakkj
-         N+nw==
+        bh=quSVpldBOdx/+N6opObR8cdyXnx/jtISeOo4Z67e2U4=;
+        b=kuEHYHXkvnh4wItck0lIoiEBSWRBLny4VCJnsXgiUmCJSBQUMCsMYHoe7ByhyknQaW
+         pSAX2MGqsj/liFv0HdRcFbJN4AHYiPjwGFmbRaTvmHncqJW3DYi13YS++HsPgsJvRV1P
+         2ZvhW4dBuhkCvJqwTLeiObjaH8ZxKURDnYrzAYIKHxR/sWiPg2BvKvVo6ILGrRI0I/oG
+         zKOs0DcoxH1QkQNZm0LDgAxO01b2K76hJQGNvEJIsDiVQnK/1Z0pQXZiw3nHEocweEp/
+         KTtZ9g2xrCYgBbo1YrVPL1NZKXqgy5ehq1nY3SO3QQDBZkkYVLCE5h8Nrw4bAFFwGC+i
+         HcTA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777497184; x=1778101984;
+        d=1e100.net; s=20251104; t=1777497187; x=1778101987;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=l/d6zkx7NKPUXdGKIfW/EZhJzXWtCzUMx94HJuI6ADg=;
-        b=nSlZ1YIxg1zcEkXPs5w8xSDjC2riD1sVg6jjAsB2KQ3xi2R/HDwxo15SS6fFcliV2n
-         qBCoXK6qrcfBb9rQO7gqUKCjXwtfDPCZdOD9YeqWQXILS6iRkyZnGQo82+SKMWRbuN9j
-         lUlxdgMNa8Cnw4RKU3WrpBbbTf+KGpD/oIoAUZJJmv1yx/PSZmhmoaT+e8lEpM3HiJzC
-         y2LU/jfTMbX3BvvwxmPZWMb0PTS+Aya9YYnazeOKmKn5GSk19u5PF+iSNFQ804jZxJ9s
-         A2Zfg5Ug+rLJPzHX5frythTFxaNjV8W/D0oEBgCq9rc8TIkB6svFaBFjKRhe+qm+A42s
-         2YFg==
-X-Gm-Message-State: AOJu0YwD0TM5xmwj/XfmvyGW+BGHRUSkUklOPzffbmdVZPhJyG1fo9l/
-	WWobsN6znqw+5pvku43VvFIRLRdWZo9vz6xE7WJKGcp5sK08iKjwSFnVTr+KFQ==
-X-Gm-Gg: AeBDievK9VDv2UI4RctkLrd1EaPaqLQhLYa6NtvkrRhg16tOi+TvRg0ZBgCQWxPe6By
-	r11JScNqETEpCEDwOeOQxNsyYjkQoTHXenO7wlKQKgq0H1r15Ga92Rm32CYGnJWPpTwFDrdFNOF
-	kPh8RdbWIH4Dh2I6n1Bn6WuQmt8q5zlY4yQ07A84IJ56D0zeiD83U21rksKo629RG+KBmz9BWl0
-	7XJi+yvLDxXnY8OMoiDGhuTgftzEK9Rrft3dmGaadxmoO3GlpC+N0nkkPFWWBPLS3SQ6RjYL1F5
-	ThDxYzY6PXicdp6Ef082TlMPIDDPbRGvVgD3uWufjdvs63S8/qbx45RXm3bzsnoMeV2OO/Xh+rk
-	wpj7+RVp12CL/3E4WxoniRX2OVqXhvgZvrYxboytqYkO8T2xER2UNaa1NsPfnZmOF3uLMhTtBbB
-	6SkWC2l6fUgD8j3SNQKyIzO2I53HaygZhfWqJFqiQRtSZ+6LwV2dGeZ08haFBkno92sqQJ9IkDX
-	6AoGQ3U3V7SdsXQ0Y2klG7zmIygcnNENhiTnJBpqi+26i/YsMzgGidFI5otQhFexg==
-X-Received: by 2002:a05:620a:1788:b0:8c9:fb69:e708 with SMTP id af79cd13be357-8fa86fa814cmr78830085a.25.1777497183939;
-        Wed, 29 Apr 2026 14:13:03 -0700 (PDT)
+        bh=quSVpldBOdx/+N6opObR8cdyXnx/jtISeOo4Z67e2U4=;
+        b=PSf0ED8ZEG+shCqF2xOg6vuyeKbEw4atKNEB4Swmh7SLMBYWgP9yG3q47Ta2XoSsYm
+         sgUpsntIQmPrG7Tlv/mNG1LutZ+hYHrexONeyd7pvm9/Smsg/U3Qz2GAxe+GrYl2Y5XY
+         IqGMg2GrzwCgOLD7BEMuytD/V9G2E0Z5DiUc8Yp+mOqq3CW+0faAUVu0MYsFfsia9TfF
+         SyghndCrslEs5vVzEcLYqL2Cr+Co5SHps9hlEq0zBts748qxhE37CXhPblJitLbkmlIB
+         rCq0YzPb9Acblz2UvEDLFcsjzmmpfPMRCw2zggpZcatHa5WCWVWrYtv3DySwgy3kINHJ
+         wbBQ==
+X-Gm-Message-State: AOJu0YxN4EJDGE3CxfpEyV/KQkoeY6nqfAmbMRvz6amlWd0fCkQaZAAt
+	kw8j7xMazVAKkxKWdM5/o85B7tGWO8IpfScAYQiG+yKn2WGQ1V54wYhIh/Kfdg==
+X-Gm-Gg: AeBDietyC5e0v/nEjeFbOcdZVrbwMfm0DqdDobiZR57nYimNf5bCHmTjDFxtn7U8LtF
+	YUaykOASiE2Sp4k3suPTYAocM9hXkR8F05E5m+ss7Tqn4ou6JnayVDcOygSvcgwpH+wGOIHbX3t
+	+D7L8eYwSZtnwJhVZPTpOnFLBV4YP5p3i/1mwsRmeD5q9KCjchWU9prmB8Kd2Y1u7v+b3vd55PJ
+	JnTEaxxfubxksX+gIg4THMQ6grlt9iF5PsPisFA1sDtgzFEr2qJdjtkeYq/rjh/ONjUSGphtf1a
+	g430PSHtKEo9Bcu8ycFl2joQvLyMcIvdjmAe1f+80yaD7YobE949JI9IVnxNDQPuPdM17lUoM44
+	QUd7jZZHHAk1AZdLHTuOLtqz5L32fssb8pYpwknkjf4+x5xlEtLpLG+7s5bF64Rh+5zIV+hPSRR
+	NiOCDwolK3Q5h+UynlqY71N8bgUi1QAPVC/BIJjaMehu9G3ECvKOfk6umofCuFxJ8/TPHKe3f0G
+	6YUNzmEoPawpvrC9EGan199ltLaBoSvD39qFpKa8OJz/gxvkZDtD3WCDFpO+RegN09NHYoOlCaw
+X-Received: by 2002:a05:620a:4886:b0:8ef:7934:22d8 with SMTP id af79cd13be357-8fa89bfc3f2mr71495185a.54.1777497186664;
+        Wed, 29 Apr 2026 14:13:06 -0700 (PDT)
 Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8f93cff8e85sm280355885a.17.2026.04.29.14.13.03
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8f93cff8e85sm280355885a.17.2026.04.29.14.13.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Apr 2026 14:13:03 -0700 (PDT)
+        Wed, 29 Apr 2026 14:13:06 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: paul@paul-moore.com,
 	omosnace@redhat.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2 2/3] selinux: prune /sys/fs/selinux/disable
-Date: Wed, 29 Apr 2026 17:12:28 -0400
-Message-ID: <20260429211229.3750-3-stephen.smalley.work@gmail.com>
+Subject: [PATCH v2 3/3] selinux: prune /sys/fs/selinux/user
+Date: Wed, 29 Apr 2026 17:12:29 -0400
+Message-ID: <20260429211229.3750-4-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260429211229.3750-1-stephen.smalley.work@gmail.com>
 References: <20260429211229.3750-1-stephen.smalley.work@gmail.com>
@@ -77,64 +77,267 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Commit f22f9aaf6c3d ("selinux: remove the runtime disable
-functionality") removed the SELinux runtime disable functionality but
-left everything except the actual runtime disable functionality intact
-and started logging an error message to warn any residual users.
+Finish removal of the /sys/fs/selinux/user interface aside from a
+residual stub for userspace compatibility.
 
-Prune it to just return count (i.e. all bytes written successfully) to
-avoid breaking userspace. This also fixes a local DoS from logspam.
+Commit d7b6918e22c7 ("selinux: Deprecate /sys/fs/selinux/user") started
+the deprecation process for /sys/fs/selinux/user:
+
+    The selinuxfs "user" node allows userspace to request a list
+    of security contexts that can be reached for a given SELinux
+    user from a given starting context. This was used by libselinux
+    when various login-style programs requested contexts for
+    users, but libselinux stopped using it in 2020.
+    Kernel support will be removed no sooner than Dec 2025.
+
+A pr_warn() message has been in place since Linux v6.13, and a 5
+second sleep was introduced since Linux v6.17 to help make it more
+noticeable.
+
+We are now past the stated deadline of Dec 2025, so remove the
+underlying functionality and replace it with a stub that returns a
+'0\0' buffer to avoid breaking userspace. This also avoids a local DoS
+from logspam.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- security/selinux/selinuxfs.c | 34 +++++-----------------------------
- 1 file changed, 5 insertions(+), 29 deletions(-)
+ .../{obsolete => removed}/sysfs-selinux-user  |   0
+ security/selinux/include/security.h           |   2 -
+ security/selinux/selinuxfs.c                  |  66 +--------
+ security/selinux/ss/services.c                | 125 ------------------
+ 4 files changed, 3 insertions(+), 190 deletions(-)
+ rename Documentation/ABI/{obsolete => removed}/sysfs-selinux-user (100%)
 
+diff --git a/Documentation/ABI/obsolete/sysfs-selinux-user b/Documentation/ABI/removed/sysfs-selinux-user
+similarity index 100%
+rename from Documentation/ABI/obsolete/sysfs-selinux-user
+rename to Documentation/ABI/removed/sysfs-selinux-user
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index d1f16d7f684d..0babb8992181 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -312,8 +312,6 @@ int security_context_to_sid_default(const char *scontext, u32 scontext_len,
+ int security_context_to_sid_force(const char *scontext, u32 scontext_len,
+ 				  u32 *sid);
+ 
+-int security_get_user_sids(u32 fromsid, const char *username, u32 **sids, u32 *nel);
+-
+ int security_port_sid(u8 protocol, u16 port, u32 *out_sid);
+ 
+ int security_ib_pkey_sid(u64 subnet_prefix, u16 pkey_num, u32 *out_sid);
 diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 71ffa64b15a6..2181c82b5159 100644
+index 2181c82b5159..fe84901ffb8e 100644
 --- a/security/selinux/selinuxfs.c
 +++ b/security/selinux/selinuxfs.c
-@@ -272,35 +272,11 @@ static ssize_t sel_write_disable(struct file *file, const char __user *buf,
- 				 size_t count, loff_t *ppos)
+@@ -1014,69 +1014,9 @@ static ssize_t sel_write_relabel(struct file *file, char *buf, size_t size)
  
+ static ssize_t sel_write_user(struct file *file, char *buf, size_t size)
  {
--	char *page;
+-	char *con = NULL, *user = NULL, *ptr;
+-	u32 sid, *sids = NULL;
 -	ssize_t length;
--	int new_value;
+-	char *newcon;
+-	int rc;
+-	u32 i, len, nsids;
 -
--	if (count >= PAGE_SIZE)
--		return -ENOMEM;
+-	pr_warn_ratelimited("SELinux: %s (%d) wrote to /sys/fs/selinux/user!"
+-		" This will not be supported in the future; please update your"
+-		" userspace.\n", current->comm, current->pid);
+-	ssleep(5);
 -
--	/* No partial writes. */
--	if (*ppos != 0)
--		return -EINVAL;
--
--	page = memdup_user_nul(buf, count);
--	if (IS_ERR(page))
--		return PTR_ERR(page);
--
--	if (sscanf(page, "%d", &new_value) != 1) {
--		length = -EINVAL;
+-	length = avc_has_perm(current_sid(), SECINITSID_SECURITY,
+-			      SECCLASS_SECURITY, SECURITY__COMPUTE_USER,
+-			      NULL);
+-	if (length)
 -		goto out;
--	}
--	length = count;
 -
--	if (new_value) {
--		pr_err("SELinux: https://github.com/SELinuxProject/selinux-kernel/wiki/DEPRECATE-runtime-disable\n");
--		pr_err("SELinux: Runtime disable is not supported, use selinux=0 on the kernel cmdline.\n");
--	}
+-	length = -ENOMEM;
+-	con = kzalloc(size + 1, GFP_KERNEL);
+-	if (!con)
+-		goto out;
 -
+-	length = -ENOMEM;
+-	user = kzalloc(size + 1, GFP_KERNEL);
+-	if (!user)
+-		goto out;
+-
+-	length = -EINVAL;
+-	if (sscanf(buf, "%s %s", con, user) != 2)
+-		goto out;
+-
+-	length = security_context_str_to_sid(con, &sid, GFP_KERNEL);
+-	if (length)
+-		goto out;
+-
+-	length = security_get_user_sids(sid, user, &sids, &nsids);
+-	if (length)
+-		goto out;
+-
+-	length = sprintf(buf, "%u", nsids) + 1;
+-	ptr = buf + length;
+-	for (i = 0; i < nsids; i++) {
+-		rc = security_sid_to_context(sids[i], &newcon, &len);
+-		if (rc) {
+-			length = rc;
+-			goto out;
+-		}
+-		if ((length + len) >= SIMPLE_TRANSACTION_LIMIT) {
+-			kfree(newcon);
+-			length = -ERANGE;
+-			goto out;
+-		}
+-		memcpy(ptr, newcon, len);
+-		kfree(newcon);
+-		ptr += len;
+-		length += len;
+-	}
 -out:
--	kfree(page);
+-	kfree(sids);
+-	kfree(user);
+-	kfree(con);
 -	return length;
-+	/*
-+	 * Setting disable is no longer supported, see
-+	 * https://github.com/SELinuxProject/selinux-kernel/wiki/DEPRECATE-runtime-disable
-+	 */
-+	return count;
++	buf[0] = '0';
++	buf[1] = 0;
++	return 2;
  }
  
- static const struct file_operations sel_disable_ops = {
+ static ssize_t sel_write_member(struct file *file, char *buf, size_t size)
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index e8e7ccbd1e44..143021c5e326 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -2746,131 +2746,6 @@ int security_node_sid(u16 domain,
+ 	return rc;
+ }
+ 
+-#define SIDS_NEL 25
+-
+-/**
+- * security_get_user_sids - Obtain reachable SIDs for a user.
+- * @fromsid: starting SID
+- * @username: username
+- * @sids: array of reachable SIDs for user
+- * @nel: number of elements in @sids
+- *
+- * Generate the set of SIDs for legal security contexts
+- * for a given user that can be reached by @fromsid.
+- * Set *@sids to point to a dynamically allocated
+- * array containing the set of SIDs.  Set *@nel to the
+- * number of elements in the array.
+- */
+-
+-int security_get_user_sids(u32 fromsid,
+-			   const char *username,
+-			   u32 **sids,
+-			   u32 *nel)
+-{
+-	struct selinux_policy *policy;
+-	struct policydb *policydb;
+-	struct sidtab *sidtab;
+-	struct context *fromcon, usercon;
+-	u32 *mysids = NULL, *mysids2, sid;
+-	u32 i, j, mynel, maxnel = SIDS_NEL;
+-	struct user_datum *user;
+-	struct role_datum *role;
+-	struct ebitmap_node *rnode, *tnode;
+-	int rc;
+-
+-	*sids = NULL;
+-	*nel = 0;
+-
+-	if (!selinux_initialized())
+-		return 0;
+-
+-	mysids = kcalloc(maxnel, sizeof(*mysids), GFP_KERNEL);
+-	if (!mysids)
+-		return -ENOMEM;
+-
+-retry:
+-	mynel = 0;
+-	rcu_read_lock();
+-	policy = rcu_dereference(selinux_state.policy);
+-	policydb = &policy->policydb;
+-	sidtab = policy->sidtab;
+-
+-	context_init(&usercon);
+-
+-	rc = -EINVAL;
+-	fromcon = sidtab_search(sidtab, fromsid);
+-	if (!fromcon)
+-		goto out_unlock;
+-
+-	rc = -EINVAL;
+-	user = symtab_search(&policydb->p_users, username);
+-	if (!user)
+-		goto out_unlock;
+-
+-	usercon.user = user->value;
+-
+-	ebitmap_for_each_positive_bit(&user->roles, rnode, i) {
+-		role = policydb->role_val_to_struct[i];
+-		usercon.role = i + 1;
+-		ebitmap_for_each_positive_bit(&role->types, tnode, j) {
+-			usercon.type = j + 1;
+-
+-			if (mls_setup_user_range(policydb, fromcon, user,
+-						 &usercon))
+-				continue;
+-
+-			rc = sidtab_context_to_sid(sidtab, &usercon, &sid);
+-			if (rc == -ESTALE) {
+-				rcu_read_unlock();
+-				goto retry;
+-			}
+-			if (rc)
+-				goto out_unlock;
+-			if (mynel < maxnel) {
+-				mysids[mynel++] = sid;
+-			} else {
+-				rc = -ENOMEM;
+-				maxnel += SIDS_NEL;
+-				mysids2 = kcalloc(maxnel, sizeof(*mysids2), GFP_ATOMIC);
+-				if (!mysids2)
+-					goto out_unlock;
+-				memcpy(mysids2, mysids, mynel * sizeof(*mysids2));
+-				kfree(mysids);
+-				mysids = mysids2;
+-				mysids[mynel++] = sid;
+-			}
+-		}
+-	}
+-	rc = 0;
+-out_unlock:
+-	rcu_read_unlock();
+-	if (rc || !mynel) {
+-		kfree(mysids);
+-		return rc;
+-	}
+-
+-	rc = -ENOMEM;
+-	mysids2 = kcalloc(mynel, sizeof(*mysids2), GFP_KERNEL);
+-	if (!mysids2) {
+-		kfree(mysids);
+-		return rc;
+-	}
+-	for (i = 0, j = 0; i < mynel; i++) {
+-		struct av_decision dummy_avd;
+-		rc = avc_has_perm_noaudit(fromsid, mysids[i],
+-					  SECCLASS_PROCESS, /* kernel value */
+-					  PROCESS__TRANSITION, AVC_STRICT,
+-					  &dummy_avd);
+-		if (!rc)
+-			mysids2[j++] = mysids[i];
+-		cond_resched();
+-	}
+-	kfree(mysids);
+-	*sids = mysids2;
+-	*nel = j;
+-	return 0;
+-}
+-
+ /**
+  * __security_genfs_sid - Helper to obtain a SID for a file in a filesystem
+  * @policy: policy
 -- 
 2.54.0
 
