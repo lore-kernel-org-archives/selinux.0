@@ -1,343 +1,119 @@
-Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 374D9372EFF
-	for <selinux@vger.kernel.org>; Wed, 29 Apr 2026 21:13:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777497189; cv=none; b=A8+psdROJndlZ6uP0jb5WXOUmnM80BRNhPPkZDXAdA2fbswcJIyNWtop06x2Hj2eykRAMihjoloXwYl9rpsiildIFs2GdzSxOXSdw0x9RjfRX+FPbUknDwLCxQLSJJUeonCZ45Fk4V5pCBJGBE582JM4/tnjKsv3wPrZNgBsgJk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777497189; c=relaxed/simple;
-	bh=w0DOQLXVIMZ4xZR0ZB7xkP0RHLWpAIKOLq5ziV833oU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Fb2K4iWac2EVYMFaAb3rGvldrK0QteePROE63/atY6YKEhqdhQkzT6SLqernirzZOh3r9eRkXWkzYV569Wa/nDF2dY6AmKfcq84DxnI0HEbJNsvBlWc0XfPVHT7cxmvMcb7BCGPynAkTgbDDm0mPiP/ARAMl4+i/4JxYXq8f/DU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kuEHYHXk; arc=none smtp.client-ip=209.85.222.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BA02277C9D
+	for <selinux@vger.kernel.org>; Wed, 29 Apr 2026 21:30:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.48
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777498230; cv=pass; b=GQWUxTTUbPWknA1gFWKiYFM5TZkEKxrH1HnY86b6Mzfa4/FdQGhjDj8y7ZTK48mYKBKbrTIKwIK/V+gKiNJVkDkiLmI3kLd2SoZYY9YAShQdfdbQOpUCPdySDPSNM/yjwmZGERqZ9rSGj3GDU2IOpWrymonYSaBPZn1PKyXiioQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777498230; c=relaxed/simple;
+	bh=Lws4CDGTu6nqMNiQIuyXjQ1EEXJp1bcj3PDFAIkdRpQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=tXumCGnHS32fcoUUVrsLLNbHin+3vDQwaPbIUbi8hD3gPmZnWa6QZvbhnmGk4feWY8q1fr8Oq9j+0Gy2Rmf5cl/ICKu+qqcpjeJOUmFCWuhrgUL6npgVrwbzh/zVUxAPMHqUoJszPHNXFo6w9/VCtdqq1ZGoPdWaBBF2WPYgD0k=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=N2IjEPFZ; arc=pass smtp.client-ip=209.85.216.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kuEHYHXk"
-Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-8ed4dd182efso13002085a.3
-        for <selinux@vger.kernel.org>; Wed, 29 Apr 2026 14:13:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="N2IjEPFZ"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-3614826eca4so178793a91.1
+        for <selinux@vger.kernel.org>; Wed, 29 Apr 2026 14:30:28 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1777498228; cv=none;
+        d=google.com; s=arc-20240605;
+        b=a0x0rqIZ2CS+10GWuqIWcZzp6VJBMc4xMMW0pd+RgHrRfM+CFHu8JkvujjoeMgChLw
+         1KiaP5UL5VsIDsvR0gUjPsmzx26+Wv6xnPfz74Fo6UlZGl5jlB/6Wx11dWBuUeg5e5Gm
+         HCbzWWboBPF0Wy1F8DWkNywABj++60B9lsPDuOATeVrXApLV/pWEYQle/APeKi6nsPJW
+         bYrzapFFRkth9vWIwxVHGAL/oGBMuu5CEPjdIFOscIznF28PZM2CxQN25zGGL4KlMS8/
+         WZ4UezBZOk3UE4jtf3I1M9it+biKY7kLZPwiK3ylZpruu0zqkjT9ni6pswuXWWIW9zFu
+         lVDw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=qRTNQuUyjyeZ6dbq3SmAK2mE3mPknwDxnABQRi26dIg=;
+        fh=lOev/QwE9DXSi83P/KluQ9UjJBSvfLYOVkCl5H1rM0Y=;
+        b=EixzqumJp9oyeiOXtVqmjcK53KLG3yoSCAxKR95YhgIB2dB6ED5SIfioI9giwxUEWM
+         aYkcyje6NAIA7BM5QQg4r3jDuQfu2FCKwOtTYVTZUabCe0JXUjJP8rnQVU14d0zi5h6g
+         MVV0GySKxzXHWbmR3QzAKurMQN3pKIgZoYV0c63i18Ngz42RlSqTd2ahgNK5IDJntTXa
+         /l1LpHGhrCdmx1szE4txhl3oaseqkZ5ZXNud2iU6rNUlGHjltSvH73323nXPGabVZIzi
+         3XtjLO/U4hqwFpS/vBW3cYZnKEUGg4PKKeuOVsgNzbtgAsFOY3gWWBH4fu9TxLegv2dk
+         jgjw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777497187; x=1778101987; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=paul-moore.com; s=google; t=1777498228; x=1778103028; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=quSVpldBOdx/+N6opObR8cdyXnx/jtISeOo4Z67e2U4=;
-        b=kuEHYHXkvnh4wItck0lIoiEBSWRBLny4VCJnsXgiUmCJSBQUMCsMYHoe7ByhyknQaW
-         pSAX2MGqsj/liFv0HdRcFbJN4AHYiPjwGFmbRaTvmHncqJW3DYi13YS++HsPgsJvRV1P
-         2ZvhW4dBuhkCvJqwTLeiObjaH8ZxKURDnYrzAYIKHxR/sWiPg2BvKvVo6ILGrRI0I/oG
-         zKOs0DcoxH1QkQNZm0LDgAxO01b2K76hJQGNvEJIsDiVQnK/1Z0pQXZiw3nHEocweEp/
-         KTtZ9g2xrCYgBbo1YrVPL1NZKXqgy5ehq1nY3SO3QQDBZkkYVLCE5h8Nrw4bAFFwGC+i
-         HcTA==
+        bh=qRTNQuUyjyeZ6dbq3SmAK2mE3mPknwDxnABQRi26dIg=;
+        b=N2IjEPFZrltCiJaesBR3DfBwCJczH9xrYIylFa8GSvOHuexoR5dSj4xfkYzUCBrNRF
+         Md8H/MgOn1A+dpz76uDJzDIcVRBGzTJcvNtj4gceljP6obvC5LVTPTAQWFUwaWfr4MC2
+         4lGLUPALq9eeO3Dfh6qvju9PtFvaNMB+5k6Tju6BubC2Rd2fNSkfnGH7KAMEqc3zBQqW
+         Uo6FK1kOXrmFM27f2bZqnVmgHmnYAXIghzgVJERx5VqW62lHm02KMCgtZxK0fNMfbuVy
+         L0k47TYMq6Y8bDRRk5go2/NmmY5IaMjlgpWAlsmrLTd5aCI988OjTSdPGkff7riWjYGV
+         dFdQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777497187; x=1778101987;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20251104; t=1777498228; x=1778103028;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=quSVpldBOdx/+N6opObR8cdyXnx/jtISeOo4Z67e2U4=;
-        b=PSf0ED8ZEG+shCqF2xOg6vuyeKbEw4atKNEB4Swmh7SLMBYWgP9yG3q47Ta2XoSsYm
-         sgUpsntIQmPrG7Tlv/mNG1LutZ+hYHrexONeyd7pvm9/Smsg/U3Qz2GAxe+GrYl2Y5XY
-         IqGMg2GrzwCgOLD7BEMuytD/V9G2E0Z5DiUc8Yp+mOqq3CW+0faAUVu0MYsFfsia9TfF
-         SyghndCrslEs5vVzEcLYqL2Cr+Co5SHps9hlEq0zBts748qxhE37CXhPblJitLbkmlIB
-         rCq0YzPb9Acblz2UvEDLFcsjzmmpfPMRCw2zggpZcatHa5WCWVWrYtv3DySwgy3kINHJ
-         wbBQ==
-X-Gm-Message-State: AOJu0YxN4EJDGE3CxfpEyV/KQkoeY6nqfAmbMRvz6amlWd0fCkQaZAAt
-	kw8j7xMazVAKkxKWdM5/o85B7tGWO8IpfScAYQiG+yKn2WGQ1V54wYhIh/Kfdg==
-X-Gm-Gg: AeBDietyC5e0v/nEjeFbOcdZVrbwMfm0DqdDobiZR57nYimNf5bCHmTjDFxtn7U8LtF
-	YUaykOASiE2Sp4k3suPTYAocM9hXkR8F05E5m+ss7Tqn4ou6JnayVDcOygSvcgwpH+wGOIHbX3t
-	+D7L8eYwSZtnwJhVZPTpOnFLBV4YP5p3i/1mwsRmeD5q9KCjchWU9prmB8Kd2Y1u7v+b3vd55PJ
-	JnTEaxxfubxksX+gIg4THMQ6grlt9iF5PsPisFA1sDtgzFEr2qJdjtkeYq/rjh/ONjUSGphtf1a
-	g430PSHtKEo9Bcu8ycFl2joQvLyMcIvdjmAe1f+80yaD7YobE949JI9IVnxNDQPuPdM17lUoM44
-	QUd7jZZHHAk1AZdLHTuOLtqz5L32fssb8pYpwknkjf4+x5xlEtLpLG+7s5bF64Rh+5zIV+hPSRR
-	NiOCDwolK3Q5h+UynlqY71N8bgUi1QAPVC/BIJjaMehu9G3ECvKOfk6umofCuFxJ8/TPHKe3f0G
-	6YUNzmEoPawpvrC9EGan199ltLaBoSvD39qFpKa8OJz/gxvkZDtD3WCDFpO+RegN09NHYoOlCaw
-X-Received: by 2002:a05:620a:4886:b0:8ef:7934:22d8 with SMTP id af79cd13be357-8fa89bfc3f2mr71495185a.54.1777497186664;
-        Wed, 29 Apr 2026 14:13:06 -0700 (PDT)
-Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8f93cff8e85sm280355885a.17.2026.04.29.14.13.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Apr 2026 14:13:06 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com,
-	omosnace@redhat.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2 3/3] selinux: prune /sys/fs/selinux/user
-Date: Wed, 29 Apr 2026 17:12:29 -0400
-Message-ID: <20260429211229.3750-4-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260429211229.3750-1-stephen.smalley.work@gmail.com>
-References: <20260429211229.3750-1-stephen.smalley.work@gmail.com>
+        bh=qRTNQuUyjyeZ6dbq3SmAK2mE3mPknwDxnABQRi26dIg=;
+        b=AsI7owifNougz72ZF1zg836906cpRuHabI0nHUONfk6fkzo8+yADSOgs64SxfXp7/9
+         rJE9iiPaEq0Fl6jCnz+8S3q/ILSf87ARFnF7SjPRmGMYVdYEO1piq1Xzsmlc8Z02NSP+
+         KlIp4o7QQUEoXS9IhTgWlq58ftOc609NG645O/E2XJSOq7WxVu6m4Hknnlrarx5b88CL
+         2AuAcNrm8mzRWEYLmO1ux+ZXQZHjcMOgKj/geO/pWz3oaPa1PxISjJCJxeyipFo930dB
+         8nsa5O65eduTd+3yT8LDRDUprlg4lQhxouFrW6YrIDAozr0hnKAzBvcy5iIOi5Y0PFHm
+         /qHg==
+X-Gm-Message-State: AOJu0YxfOCu8o1twZRkLppkVYNpMY/cmPSzi7sRZEq1qgxa07lXM+Wu+
+	Nw2IQqhny/Ammso6xbh1t3WvnbjG5smPt/G5Xnp28ESabxDWvMYS48SH0WYCTHRcQ3EQ6+5nlc2
+	/v6knrtfOF5EjOAI7F0yc8sef6ddMSN+HiIkW0FyrbhUnvkDiaA0=
+X-Gm-Gg: AeBDietm2bzsFWVHdaCQiwX1awBONzzx6opx49M5UxFfX2vGllAyGhSvSSNe8DpKv0p
+	gD6K3oHtvkMmEY/Kmz36XxywYi4GzpIES55OUF6g1abkZXEKo8N033KWGKu+MRkpXa4IkhF+ZR3
+	IfazHnNx9VaQNbmfJtZTuUOKiihg7LgHk4LmNaXdi675RwYGAoRw5rUqjDVeywUeWxMik4LTL5f
+	p5zjUR/Mnj+5FTD57S3QzkLjeVwD9GwTS5SVQ4OWuG31tVIw9mr5ffNjuWFTZmMBMfLR04Xotz8
+	P2ypbiIozzBQVYn4YQ==
+X-Received: by 2002:a17:90a:fc4f:b0:362:ef2e:5ff6 with SMTP id
+ 98e67ed59e1d1-364c3462ab4mr7844a91.27.1777498228499; Wed, 29 Apr 2026
+ 14:30:28 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260429211229.3750-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260429211229.3750-1-stephen.smalley.work@gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 29 Apr 2026 17:30:16 -0400
+X-Gm-Features: AVHnY4IQ9zqh0CkebWCT0w1Y_ASft3S3CPnh_QMF12ObRvmeHv3IeinmOX3sfhY
+Message-ID: <CAHC9VhRZ6Y5BvzUd_D+oeqRnaYk1NdfK-FpXELK00VkpHZBzGA@mail.gmail.com>
+Subject: Re: [PATCH v2 0/3] selinux: prune deprecated interfaces
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, omosnace@redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Finish removal of the /sys/fs/selinux/user interface aside from a
-residual stub for userspace compatibility.
+On Wed, Apr 29, 2026 at 5:12=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> *** BLURB HERE ***
 
-Commit d7b6918e22c7 ("selinux: Deprecate /sys/fs/selinux/user") started
-the deprecation process for /sys/fs/selinux/user:
+*** REPLY HERE ***
 
-    The selinuxfs "user" node allows userspace to request a list
-    of security contexts that can be reached for a given SELinux
-    user from a given starting context. This was used by libselinux
-    when various login-style programs requested contexts for
-    users, but libselinux stopped using it in 2020.
-    Kernel support will be removed no sooner than Dec 2025.
+> Stephen Smalley (3):
+>   selinux: prune /sys/fs/selinux/checkreqprot
+>   selinux: prune /sys/fs/selinux/disable
+>   selinux: prune /sys/fs/selinux/user
+>
+>  .../{obsolete =3D> removed}/sysfs-selinux-user  |   0
+>  security/selinux/include/security.h           |   2 -
+>  security/selinux/selinuxfs.c                  | 145 ++----------------
+>  security/selinux/ss/services.c                | 125 ---------------
+>  4 files changed, 13 insertions(+), 259 deletions(-)
+>  rename Documentation/ABI/{obsolete =3D> removed}/sysfs-selinux-user (100=
+%)
+>
+> --
+> 2.54.0
 
-A pr_warn() message has been in place since Linux v6.13, and a 5
-second sleep was introduced since Linux v6.17 to help make it more
-noticeable.
-
-We are now past the stated deadline of Dec 2025, so remove the
-underlying functionality and replace it with a stub that returns a
-'0\0' buffer to avoid breaking userspace. This also avoids a local DoS
-from logspam.
-
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- .../{obsolete => removed}/sysfs-selinux-user  |   0
- security/selinux/include/security.h           |   2 -
- security/selinux/selinuxfs.c                  |  66 +--------
- security/selinux/ss/services.c                | 125 ------------------
- 4 files changed, 3 insertions(+), 190 deletions(-)
- rename Documentation/ABI/{obsolete => removed}/sysfs-selinux-user (100%)
-
-diff --git a/Documentation/ABI/obsolete/sysfs-selinux-user b/Documentation/ABI/removed/sysfs-selinux-user
-similarity index 100%
-rename from Documentation/ABI/obsolete/sysfs-selinux-user
-rename to Documentation/ABI/removed/sysfs-selinux-user
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index d1f16d7f684d..0babb8992181 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -312,8 +312,6 @@ int security_context_to_sid_default(const char *scontext, u32 scontext_len,
- int security_context_to_sid_force(const char *scontext, u32 scontext_len,
- 				  u32 *sid);
- 
--int security_get_user_sids(u32 fromsid, const char *username, u32 **sids, u32 *nel);
--
- int security_port_sid(u8 protocol, u16 port, u32 *out_sid);
- 
- int security_ib_pkey_sid(u64 subnet_prefix, u16 pkey_num, u32 *out_sid);
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 2181c82b5159..fe84901ffb8e 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -1014,69 +1014,9 @@ static ssize_t sel_write_relabel(struct file *file, char *buf, size_t size)
- 
- static ssize_t sel_write_user(struct file *file, char *buf, size_t size)
- {
--	char *con = NULL, *user = NULL, *ptr;
--	u32 sid, *sids = NULL;
--	ssize_t length;
--	char *newcon;
--	int rc;
--	u32 i, len, nsids;
--
--	pr_warn_ratelimited("SELinux: %s (%d) wrote to /sys/fs/selinux/user!"
--		" This will not be supported in the future; please update your"
--		" userspace.\n", current->comm, current->pid);
--	ssleep(5);
--
--	length = avc_has_perm(current_sid(), SECINITSID_SECURITY,
--			      SECCLASS_SECURITY, SECURITY__COMPUTE_USER,
--			      NULL);
--	if (length)
--		goto out;
--
--	length = -ENOMEM;
--	con = kzalloc(size + 1, GFP_KERNEL);
--	if (!con)
--		goto out;
--
--	length = -ENOMEM;
--	user = kzalloc(size + 1, GFP_KERNEL);
--	if (!user)
--		goto out;
--
--	length = -EINVAL;
--	if (sscanf(buf, "%s %s", con, user) != 2)
--		goto out;
--
--	length = security_context_str_to_sid(con, &sid, GFP_KERNEL);
--	if (length)
--		goto out;
--
--	length = security_get_user_sids(sid, user, &sids, &nsids);
--	if (length)
--		goto out;
--
--	length = sprintf(buf, "%u", nsids) + 1;
--	ptr = buf + length;
--	for (i = 0; i < nsids; i++) {
--		rc = security_sid_to_context(sids[i], &newcon, &len);
--		if (rc) {
--			length = rc;
--			goto out;
--		}
--		if ((length + len) >= SIMPLE_TRANSACTION_LIMIT) {
--			kfree(newcon);
--			length = -ERANGE;
--			goto out;
--		}
--		memcpy(ptr, newcon, len);
--		kfree(newcon);
--		ptr += len;
--		length += len;
--	}
--out:
--	kfree(sids);
--	kfree(user);
--	kfree(con);
--	return length;
-+	buf[0] = '0';
-+	buf[1] = 0;
-+	return 2;
- }
- 
- static ssize_t sel_write_member(struct file *file, char *buf, size_t size)
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index e8e7ccbd1e44..143021c5e326 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -2746,131 +2746,6 @@ int security_node_sid(u16 domain,
- 	return rc;
- }
- 
--#define SIDS_NEL 25
--
--/**
-- * security_get_user_sids - Obtain reachable SIDs for a user.
-- * @fromsid: starting SID
-- * @username: username
-- * @sids: array of reachable SIDs for user
-- * @nel: number of elements in @sids
-- *
-- * Generate the set of SIDs for legal security contexts
-- * for a given user that can be reached by @fromsid.
-- * Set *@sids to point to a dynamically allocated
-- * array containing the set of SIDs.  Set *@nel to the
-- * number of elements in the array.
-- */
--
--int security_get_user_sids(u32 fromsid,
--			   const char *username,
--			   u32 **sids,
--			   u32 *nel)
--{
--	struct selinux_policy *policy;
--	struct policydb *policydb;
--	struct sidtab *sidtab;
--	struct context *fromcon, usercon;
--	u32 *mysids = NULL, *mysids2, sid;
--	u32 i, j, mynel, maxnel = SIDS_NEL;
--	struct user_datum *user;
--	struct role_datum *role;
--	struct ebitmap_node *rnode, *tnode;
--	int rc;
--
--	*sids = NULL;
--	*nel = 0;
--
--	if (!selinux_initialized())
--		return 0;
--
--	mysids = kcalloc(maxnel, sizeof(*mysids), GFP_KERNEL);
--	if (!mysids)
--		return -ENOMEM;
--
--retry:
--	mynel = 0;
--	rcu_read_lock();
--	policy = rcu_dereference(selinux_state.policy);
--	policydb = &policy->policydb;
--	sidtab = policy->sidtab;
--
--	context_init(&usercon);
--
--	rc = -EINVAL;
--	fromcon = sidtab_search(sidtab, fromsid);
--	if (!fromcon)
--		goto out_unlock;
--
--	rc = -EINVAL;
--	user = symtab_search(&policydb->p_users, username);
--	if (!user)
--		goto out_unlock;
--
--	usercon.user = user->value;
--
--	ebitmap_for_each_positive_bit(&user->roles, rnode, i) {
--		role = policydb->role_val_to_struct[i];
--		usercon.role = i + 1;
--		ebitmap_for_each_positive_bit(&role->types, tnode, j) {
--			usercon.type = j + 1;
--
--			if (mls_setup_user_range(policydb, fromcon, user,
--						 &usercon))
--				continue;
--
--			rc = sidtab_context_to_sid(sidtab, &usercon, &sid);
--			if (rc == -ESTALE) {
--				rcu_read_unlock();
--				goto retry;
--			}
--			if (rc)
--				goto out_unlock;
--			if (mynel < maxnel) {
--				mysids[mynel++] = sid;
--			} else {
--				rc = -ENOMEM;
--				maxnel += SIDS_NEL;
--				mysids2 = kcalloc(maxnel, sizeof(*mysids2), GFP_ATOMIC);
--				if (!mysids2)
--					goto out_unlock;
--				memcpy(mysids2, mysids, mynel * sizeof(*mysids2));
--				kfree(mysids);
--				mysids = mysids2;
--				mysids[mynel++] = sid;
--			}
--		}
--	}
--	rc = 0;
--out_unlock:
--	rcu_read_unlock();
--	if (rc || !mynel) {
--		kfree(mysids);
--		return rc;
--	}
--
--	rc = -ENOMEM;
--	mysids2 = kcalloc(mynel, sizeof(*mysids2), GFP_KERNEL);
--	if (!mysids2) {
--		kfree(mysids);
--		return rc;
--	}
--	for (i = 0, j = 0; i < mynel; i++) {
--		struct av_decision dummy_avd;
--		rc = avc_has_perm_noaudit(fromsid, mysids[i],
--					  SECCLASS_PROCESS, /* kernel value */
--					  PROCESS__TRANSITION, AVC_STRICT,
--					  &dummy_avd);
--		if (!rc)
--			mysids2[j++] = mysids[i];
--		cond_resched();
--	}
--	kfree(mysids);
--	*sids = mysids2;
--	*nel = j;
--	return 0;
--}
--
- /**
-  * __security_genfs_sid - Helper to obtain a SID for a file in a filesystem
-  * @policy: policy
--- 
-2.54.0
-
+--=20
+paul-moore.com
