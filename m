@@ -1,110 +1,117 @@
-Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93834221721
-	for <selinux@vger.kernel.org>; Wed, 29 Apr 2026 19:19:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.169
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777490347; cv=none; b=hW2xA4P0VLbZZ3Ya2D+UFfH5cbYvgsHgZ0PTNcH9/Z8SyXvGD8LnlwItBhsQCDNtsEdiPAAY7zoKuC+DRvbV6+EMCVPpjdOci2BSAhHwopgWGaiL7q7L+518lwORS8BW2xRswjmKdzj6R5P4YJG76J5MIFENI7drV1ocFdQPX1c=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777490347; c=relaxed/simple;
-	bh=/5RL88Ap0L/fmbjMcyDB97bFoI07RRFVyAbG8NM+jbw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WAp1GHrJbZSE7DM47viW18xRf7BXIDqF6owj+JeGtC++QaCUIsriyvvUgOAY7DQLw4ONrO0D4myzCwPIhGK17dj+CIIshNsCky9GF8OM6fO8ORlCcV6vFrzytt7O3zAOOR0E4Xpa0bxUr5aRXGeHjIi00B4UrOkRxF7b4j3QwCs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JPM4rbDP; arc=none smtp.client-ip=209.85.222.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8430338F94C
+	for <selinux@vger.kernel.org>; Wed, 29 Apr 2026 20:35:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.44
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777494902; cv=pass; b=l8w9niyyrHZCwMI3X6RkqOkybBEHAHFT3mcipMMKGwoACTrB/nHTRVBlLU1AqdTQLWzUykZx0fJ4nVkxvWFENtEasW4p96Bo7cWm0f4BzDuI00EZa3heIRZDozSg4yR9fyl5v9g7t8NDv69+lpk+/TxsKG3LIa5x6HQh223GGfA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777494902; c=relaxed/simple;
+	bh=6wpGa1fsx9NLzyOlfHBmVnU0r1qh5pcOBUa2bmgndTc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Ncka3PpBt/TyVeSgDANKVqChX2cCnq5hoX9H6+ZcZDrQMdRyMIGiDJjPpoSi6LQnLTonhRrXyUCWuBN6NhNfo2d7fIYEIp1z0hzw1eRswYFOJnYoXFep9ZNh6/hxEUOY9KmX27ca2TcD3JB3hZ8oYHgb+bBs8dew69q7DHi8BgM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Q6olaRKi; arc=pass smtp.client-ip=209.85.216.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JPM4rbDP"
-Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-8f15e900586so6052885a.1
-        for <selinux@vger.kernel.org>; Wed, 29 Apr 2026 12:19:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Q6olaRKi"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-364ad762ef8so82156a91.1
+        for <selinux@vger.kernel.org>; Wed, 29 Apr 2026 13:35:00 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1777494900; cv=none;
+        d=google.com; s=arc-20240605;
+        b=ZtVYft6T+ufZgUN/CswBR16Jq9YIV0jSm0q7Bqp+OhBMJiZWuAEx8aKRB6HYGAOOCA
+         KW1ld53h/S/2vQz/g/v/yupN4c+/JpbfLtiQK7UHQByJ5+4oWep5EFDxPSJxI/fIh2eB
+         AvllkC7yTjQRWv5VNlWGGdq+0+HWqy+xLFI2dhncaCorwmbuxAiulpTxlHKEjELI3fI9
+         Fs+sK/Rhaq32y3m/cDtlz+MYPf5hcCMrdHX1zUdrRJC9O6RTLiHDU9DGXT9JAijN2HK5
+         QEwJLdSUpJ5Q71V5oleSvGRcNdaNmNJxJGrxH1BnPv3IrIOivZkUpxZ2UEQKmJRSi+oX
+         Ay6g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=H6jxswxEYCw3i52crz1IUC4JJi7bSs1bGookV/umaGo=;
+        fh=lOev/QwE9DXSi83P/KluQ9UjJBSvfLYOVkCl5H1rM0Y=;
+        b=LUbvxZJgolqp2IaWRvUiAgHF9Lifi4p7hjBpPctvKNEC5nUZGI5yTrJNnZn4/JDUyr
+         f5/Ey/LEoeS4oR9op1oaMUAHdQy/Isy6rWIpuHAhzSSmNBe5PUICiANYBI0uZfSyNR5J
+         t5v7/Lud1SFoDmaBNVvCqnsfAIIB49FVTUVFm+Oyx9QsQfgyYueuvXixrTsjiCP45q8j
+         7LCFQPDFytDGbyte5u0cUfINJ6C8LTo9saw2MCakN07oS+Nbq7zH2MiaZ2sjosEDP4aH
+         suHsOVuNSm+KsDWfL3rUY1AnxE7Z0AuGL0jIneD08dIc/l5k/R/rMW9ehebmtSFYiJLE
+         qUOA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777490344; x=1778095144; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=5Ok7fXkpil8v850pWGkPCXHYe4IvgzM5pTbtZdSypQI=;
-        b=JPM4rbDPjB4kVRTRm1bQxO6/tVhEDinsFQ5fB5/VZ2L2u/ykXm3kkGKaneD3CNZJrb
-         lOjMD4x/AamlPvxwita9AMEDq57Y4Tje8VcFEoROA34wiG+q10YVX/qETk2KYtLgOxIY
-         KXTPh5zCzDMp0i+CrUHLL25M15fdt2R1iOrEMmNSCFCtjIDGgJZBrhFt6DaIJy9PEEY1
-         FoWS2mxv7Bjbe2CKLRlLCYKz4r4GGQsJlNalxCbBLyXtzD97UXaie1ODmif+CRveDm1Q
-         iHJeeLPW4VwNRECG8/PbeQsEPWnEwIFRspiUa9R5QYmkx7r3XXsvGw1iKRb9PXj4zn3Y
-         B9lA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777490344; x=1778095144;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=paul-moore.com; s=google; t=1777494900; x=1778099700; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=5Ok7fXkpil8v850pWGkPCXHYe4IvgzM5pTbtZdSypQI=;
-        b=ogNNY0WEumco6rthUJaFb+V18d8CJdkcvNKdh8E32ZSfJWd8144+HZ/B/PJmI49PhY
-         lOJDAmRxEooWBet2k+ACoFACRYRbSJOVgE8qjeDCNpX7OZUo0ySljR3wZQZJX/8K4b9W
-         RGxOJgsfcKe142pclbo0WJ6S7L1Ij+nxLsfK4TeYUyovzoIG9wimfPxIMym1jFBY3QAp
-         1iUh+vvP+C12Zv21mG7Y0qEP2fPV8wFt5MGXXqJZX7XabCqeRu4u5yN17M2xIUJL2ac1
-         MmyzXM7mH0R0+XX4K0vKaBgl2flSv4HwyQTXU8Tj6tvUzrSuL8WK8sjZC0r1dXBD041Q
-         SCYg==
-X-Gm-Message-State: AOJu0YwmTEERhq6mNxcltWc0qbdbkeQUBnPaMyYwEZZJFEWPf1tu+XmG
-	riBApFHVpHwUME0JjmBLtbJ7qFX4hcSg0wV0x9H9WPVX6/uUIsj0OLOB2oOjKQ==
-X-Gm-Gg: AeBDietLYH9DsG8cJnvU/32pgbYMfRrAwhfjDRntdj02NvQX3zuobug1vQO8Aefe6n3
-	o7v9Yi5NvU3avK42jwqz5psZsuApkSiutXUwL6HWd3+712eeRi3ESFvNuQJdXKN9DNFwB/BTAYK
-	8leWTc5atiAkUjHsyXKKx6wdFblkXY/VkUG+8eX2j/OJd8N9ZHt80/URx5ZCEqKvJMcXRNUxoS5
-	uwKQAjatHzEalXkQh8Fn2WD6JKntIe/o8Ox7TjHlLnBa/g+4eQI4cgHTn6/sperOezHRfFBFzwx
-	US+leMYJIVsy4qD2n6ivDAgB/WDF2+UWpzWR60OnU23UriIQjvaYemrOkbknJiv5ZDMpFQfTmRG
-	gqkNHs2PMktjcjcv/Xy4/IMy2tyKXAsOKbgNbli7Lw+Pts/K7odAB+pdWj+IiRD6wMX9Eo5jKjx
-	dqVNi9irVsBj2VAQ4hiAhHHOyPCrgn4pMlda4nRBG/7fQq8PM0SEf/Vofaif02lilPD0VGGKPNt
-	hEpTOzzdCQWnLJy9WldbOo6sixQE0SolPMARUzOrN7LdHzyvcaCbUAUgjjjTxG3/Q==
-X-Received: by 2002:a05:620a:4447:b0:8de:c429:552d with SMTP id af79cd13be357-8fa872a882amr11087885a.20.1777490344091;
-        Wed, 29 Apr 2026 12:19:04 -0700 (PDT)
-Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8f93c712c24sm256754185a.10.2026.04.29.12.19.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Apr 2026 12:19:03 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com,
-	omosnace@redhat.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] selinux: switch two allocations to use kzalloc_objs()
-Date: Wed, 29 Apr 2026 15:18:40 -0400
-Message-ID: <20260429191840.13959-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.54.0
+        bh=H6jxswxEYCw3i52crz1IUC4JJi7bSs1bGookV/umaGo=;
+        b=Q6olaRKiiIH77gpYJ4Kfk0TJCs2lfh39ejN2So4ZI+rWWYPFCkPbDE/jMigb56AyqJ
+         +lj0VMhMwKUCw5u/p0x3XKkPKLMqGmFScbCYGBR5UuEuKFlU8wFBkI540OEQwK9and/n
+         Haqoo4IGqsshsjlmk7eI+QyIjvadl8xCml5UV4FttMQUQIZgndIjY/SzomMc22AMPbMu
+         3lGYef68+ZfNJO4Qh9B9SiDu37FzZjkf0aqfX21Kq4s3YLq6yO/g32WQaCnkLOPkTuQd
+         yBMb0yzPM7/l+1EPa9T8ue9K8t07l06Lr991lVKhQBw2fo+MC4KXSZtYZflF+TPLbYZ3
+         DsgQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777494900; x=1778099700;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=H6jxswxEYCw3i52crz1IUC4JJi7bSs1bGookV/umaGo=;
+        b=oXi1tfFVlWX0w/N3kZCG0J9T20PSzSj2XhJISH+W29aH6EUU/vvOhV+DHUitpIekt8
+         6yWyC1T/6djCG1tR2EDX03eA/qFYo8rc97I2OzfERYgCScQAolwIh/nyp43lXQ0hmsJZ
+         k4rXFzfTTcJwOiXVtRHo0tv7/1BPVGTiIyqt0k2hH63/Uh5BC2JWFw8jce74nmnAg0AD
+         IWbQ7dHUeSjn7Bc8CWP2DlskFj5dYyotazqf/hUkMCeNwgbNS9tGo6u0ZawzYTMh2D33
+         KHH34eA9sw7LW4KOEOaAXk3vJ1AuzMz6ihUfED37JjuvYmBSUo/eLnynPeVbWeUqslxR
+         rQAQ==
+X-Gm-Message-State: AOJu0YwSIobgG30uMkqIOYrOXcHIpeP6p1lqESOGMnAVehzQsNXstOxV
+	DFJkE1dT411mQoLJLocQ4jn0m0oYHWr5kuxWGQuW09O/kv4rddALr0ofRiFhhxCL4MEtuSB0kMd
+	8b1Fcgw/aGRXb326UdPbcl2L4mOd8EyhMGoP39dVw
+X-Gm-Gg: AeBDietgmmNeKoec+hMlzmucGLCQOlRZwTuZnNqG8Rzb3hk+dcU0scWoqOeshRUeOF8
+	3nhwA+0ntS9pogx+yMelwTLo37X6h1ihu/gsaUtVyoxvLAP59+BPvhoUx3180AHtiFcZmolbwvn
+	CiOwzuI1QgZAXzzAVg8YnqSnnFOG5aGa+PkGxITSjx4t/BIGGx/7qSNoYEB20esvySmCQ8GqBIf
+	RJj/6GY7yUpLDBsSWYOJMfUEVfgTiqzgmLazlJQcCCI1M4wZbTf8CYfmd1D3hMmyqXC6UBrq+Ij
+	ZD9UsaXdRcdjVGps8A==
+X-Received: by 2002:a17:90b:57cb:b0:35a:cf:64a6 with SMTP id
+ 98e67ed59e1d1-36492084423mr9778399a91.23.1777494899682; Wed, 29 Apr 2026
+ 13:34:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260429170833.2581-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260429170833.2581-1-stephen.smalley.work@gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 29 Apr 2026 16:34:47 -0400
+X-Gm-Features: AVHnY4LffzrFhRaAzlMn9ywHelpMe4AWSPwe8d-boGG-rCIo3_1kCo3xzgsJWhQ
+Message-ID: <CAHC9VhToLesLLRpjtiiUTO9BvhzzxYBb9T2nZdu_DbzCeO_6yg@mail.gmail.com>
+Subject: Re: [PATCH 0/3] selinux: remove deprecated interfaces
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, omosnace@redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-These were the only two allocations in the policy loading logic
-that were not already using kzalloc_objs() for the policy
-data structures. Fix these to be consistent with the rest and
-to protect against ill-formed policy.
+On Wed, Apr 29, 2026 at 1:08=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> Several selinuxfs interfaces have been deprecated for some time.
+> Let's finish removing them entirely.
+>
+> Stephen Smalley (3):
+>   selinux: remove /sys/fs/selinux/user
+>   selinux: remove /sys/fs/selinux/disable
+>   selinux: remove /sys/fs/selinux/checkreqprot
+>
+>  .../{obsolete =3D> removed}/sysfs-selinux-user  |   0
+>  security/selinux/selinuxfs.c                  | 176 ------------------
+>  2 files changed, 176 deletions(-)
+>  rename Documentation/ABI/{obsolete =3D> removed}/sysfs-selinux-user (100=
+%)
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- security/selinux/ss/conditional.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+I'd be much happier if we continued to expose the selinuxfs files to
+limit the impact to old userspace, but if you wanted to hollow out the
+handlers I would be okay with that.
 
-diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
-index 824c3f896151..64f1bbb8caa0 100644
---- a/security/selinux/ss/conditional.c
-+++ b/security/selinux/ss/conditional.c
-@@ -165,7 +165,7 @@ void cond_policydb_destroy(struct policydb *p)
- int cond_init_bool_indexes(struct policydb *p)
- {
- 	kfree(p->bool_val_to_struct);
--	p->bool_val_to_struct = kmalloc_objs(*p->bool_val_to_struct,
-+	p->bool_val_to_struct = kzalloc_objs(*p->bool_val_to_struct,
- 					     p->p_bools.nprim);
- 	if (!p->bool_val_to_struct)
- 		return -ENOMEM;
-@@ -709,7 +709,7 @@ static int duplicate_policydb_bools(struct policydb *newdb,
- 	struct cond_bool_datum **cond_bool_array;
- 	int rc;
- 
--	cond_bool_array = kmalloc_objs(*orig->bool_val_to_struct,
-+	cond_bool_array = kzalloc_objs(*orig->bool_val_to_struct,
- 				       orig->p_bools.nprim);
- 	if (!cond_bool_array)
- 		return -ENOMEM;
--- 
-2.54.0
-
+--=20
+paul-moore.com
