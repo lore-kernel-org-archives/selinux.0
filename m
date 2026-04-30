@@ -1,162 +1,93 @@
-Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com [209.85.219.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from cloud35.hostingpalvelu.fi (mail35.hostingpalvelu.fi [31.217.192.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F16A63822BB
-	for <selinux@vger.kernel.org>; Thu, 30 Apr 2026 20:21:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DA523AF66F
+	for <selinux@vger.kernel.org>; Thu, 30 Apr 2026 21:05:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=31.217.192.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777580466; cv=none; b=igfYh8JuxO4RPvTBmQCvomhoxyRqzI+WTQ7mUFeeppyJPIIYVrKwbWQRuP9eZzP7EFIRL+t9buh68ZywAtmX0ER8U6sSoYSAGPjnB/lR9twPYM4oxFBJ6v+C1bEG3OAuTBIXr7SCBNBqFBbXUCN+aNvBkZ7ZmW3Eh1eIv/OTg2c=
+	t=1777583105; cv=none; b=FwU7F/SIEclmveZKgyoX99g6xmciuylPpuwh9ymMu8oGj6Sj4UNa1YOvbbJXMTEFZiYGBPDTxeVMX0WUGXT8I4vRToN/kmDPbNx5gb15qbsH0NPxJ9E5uLRYX2MAzw2H89LunBvfSW7M4tiPhRwbJCL9N8wZb3AzSUKNTRqTYgs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777580466; c=relaxed/simple;
-	bh=Z45k+S+XmTgQL1TzA4nvvzYokZL2egbBE2OT+UpTc1A=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=o+pc0fvVB9jqQljH9gFJgddbEqGBAnkl6lkLKefkftYfWWAOpa7HlJovUgDFuxPOdIbjoY5NxvO1ofqXqyvY73PEhv1wwbRTUTFbMUcBmaMvX1+iOkozwENRp7YmH79ctTYgU2B/waILjuVegizJEL8YVfxDgnyMbcjOEg/EUT4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=P7mGx8Ct; arc=none smtp.client-ip=209.85.219.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1777583105; c=relaxed/simple;
+	bh=j7r7FU7PUvwJX7ba+XZIA7lLvirV5wUQ1BpGam8tLG4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=dysmx+/iOWyvYA7OxN8LQg/LAOLBI6wcU5qznn6MhL8X2eHDmyeHVceZ32F3QIpxDHwMYlqmV/+2G+no21I/K6gdkux+3+oMB+CxyS1nGeGlrQousiYlDoLLPdIrH2C1uxzUlXwumfUXw7IKQoqLaY7I4udZN4j2Ea8k5IvqPE4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=cxWTfciq; arc=none smtp.client-ip=31.217.192.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kolttonen.fi
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P7mGx8Ct"
-Received: by mail-qv1-f49.google.com with SMTP id 6a1803df08f44-8a016799d2cso13976506d6.1
-        for <selinux@vger.kernel.org>; Thu, 30 Apr 2026 13:21:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777580464; x=1778185264; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=EDWuc8iCLn+DsVI1GelkdKNJgWnmzYlirzwwdVzktVA=;
-        b=P7mGx8CtoRylAMabtDWJHfllKiSLXGV2ZGWBjIZ8xphZoey4H8ThQHDgqxZkw1bACa
-         PLrYbhHbsqXLwVTk7FgJNYdscrILL3LXUiDrh91aO42GRSfMC7gVn7YuNuMnLpuGswoM
-         kzl9bp77flPu+Ga5rPReSBDRuNu92/2hz4jc0z8acGSm07dOwl2ueyHhyJphqphbciVR
-         wTMnPlQdi9hB0d+grUfuZaklxZBjt1lw3B5q94QJrfFvUdrQLOBh8vBX6FGhQfxgxq50
-         4hjxgDZO15AjulKemnbmF9+Zax5Pv8rOEK9zEfXYA0C4oy+KXXTjejx2yb5bAfbPs+1K
-         7D8A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777580464; x=1778185264;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=EDWuc8iCLn+DsVI1GelkdKNJgWnmzYlirzwwdVzktVA=;
-        b=Jq/9YHKMIWlfaRuU//wwCiyonIypqBHnETAcTeStQTxKpR/2L1dtrGHcKG7qKFXCLx
-         hgzUCA4bYllgG4d6jxR10PXcOen4CUERJgxUWqaWjAKCmLrbo4NvMy9GjZ9mNuE62bQU
-         KOfagv7B+mQtvGPSSYE54371fQKOKHafXa6a4HdvVmKkRufKUc7soQA53NbYyNKAqQq2
-         9PzuCfLsxujiYSFzFofySRikOe8cpT38vg7aU1QU2KVaDgVZ6ljlFJGG00+0IVouCgaF
-         8mZfNfO0RalsI1wIchY+KYa3Ld12YYUyYOAndyStgZVMLpPIcegrFZlZKpgk/BpW8Oj7
-         7PYA==
-X-Gm-Message-State: AOJu0Yz7UqHFwoT7bkwUqc3fYjjWOGDjn7U0ARn2NDzq5Ybj0/Rowxjn
-	uqjGl95fwShpmbEaTYWPlZB7e2cSk6QMn90asPOSxtjjAEDwmhSSfrvZxQBH6g==
-X-Gm-Gg: AeBDieuTnz05eN8CQ7TxMOzid/eHdHcjLVsJTjh0RyXh3ZeqCisIU/xzf+li/WcQGGr
-	hFJyR5zSUDF5RVKEj+pbCS1fHCrDJi7W1+HwdwOAxUFovXUR3iwWWeXd4tJyj8DGuAMJIQXF6JE
-	d7cSgqRqZ41mf5G/yz0mO4J2ytF1UxuLFT0KSH5zte39TCii4VL7drXqNj9s4SUYKWkMgpXBi2M
-	pJsAGXc5SUxKC8trRyIOE3NtJwZs5HJtuzzNJUJH2rHsh1Wqyi7W50ThFMXMVHMWZ6Gvg1BXeVy
-	iKDGCjNaFcaaqIJvhvD+wX6MTbKH3uskbylsZbKTvYwXayf/FKeB/9MPmGOIK+YtV6mRRezT2at
-	kofHsx4gV3IkDbwKhduI/gXdVK5W0i15F86jJV4plYFPRayjK7TDKQUYwbwwjL+qGN99Gr+7Ht6
-	7F+hsP8WY9fPMeiodQj813EHZ2QU0R0+PaQ71/X92+e6BNdTjF0C3HTbYsUY6Vcf/3EszwzQuA8
-	Dkma3EzTXmoO4Bklx1qgyIKIqD0E0qUyDf1lg==
-X-Received: by 2002:ac8:5c8d:0:b0:50d:7568:b904 with SMTP id d75a77b69052e-5102aae8e7emr68015341cf.2.1777580463585;
-        Thu, 30 Apr 2026 13:21:03 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8b53d831ac7sm682246d6.49.2026.04.30.13.21.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Apr 2026 13:21:03 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com,
-	omosnace@redhat.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] selinux: tighten type and boolean validation
-Date: Thu, 30 Apr 2026 16:20:32 -0400
-Message-ID: <20260430202033.1865-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="cxWTfciq"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=kolttonen.fi; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
+	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
+	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=HJNWEtNOQqxM4UEtYkIu8yOQr1o0vsCFtQG6Y4AthJQ=; b=cxWTfciqq1O8yJY/hK9tuOXVB/
+	0975vLQFX5sZU2XPwW67Hzo+M1r0mcbDdUL8MZZT5H5cluRcg70lUKvLI54utWinFNiObB6q7DxN2
+	NvDzfNwiZ7XBzN7S3OwjWxR1wNc/6V+MZM1J5g7K8HAxJH40jcSOqBLq9sv1ugcZxfdWwRcNf5L0Q
+	zEaruLlmxPGoNR7XlF8FweHOU5a9wV6Qcw1maldUAOSGkpF0GL6Tr/Gi/gxxZijnov40P1OAjzrfc
+	uFSDluSC7ZnxC99xCwh03jauTK+BWZie8v5ZaTFSV3w/1hQmVmwDLUg1YUT9BnP8P0VcD8NB9z+I0
+	hNOs8ksw==;
+Received: from 37-33-136-133.bb.dnainternet.fi ([37.33.136.133]:13482 helo=14-5A-FC-31-E8-67)
+	by cloud35.hostingpalvelu.fi with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.99.1)
+	(envelope-from <kalevi@kolttonen.fi>)
+	id 1wIYZ9-00000008qnB-0wxg;
+	Fri, 01 May 2026 00:04:59 +0300
+Date: Fri, 1 May 2026 00:04:56 +0300
+From: Kalevi Kolttonen <kalevi@kolttonen.fi>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, paul@paul-moore.com, omosnace@redhat.com
+Subject: Re: [PATCH] selinux: tighten type and boolean validation
+Message-ID: <afPD-AGMyVacgwDK@14-5A-FC-31-E8-67>
+References: <20260430202033.1865-1-stephen.smalley.work@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260430202033.1865-1-stephen.smalley.work@gmail.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - cloud35.hostingpalvelu.fi
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - kolttonen.fi
+X-Get-Message-Sender-Via: cloud35.hostingpalvelu.fi: authenticated_id: kalevi@kolttonen.fi
+X-Authenticated-Sender: cloud35.hostingpalvelu.fi: kalevi@kolttonen.fi
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 
-Tighten type and boolean validation during policy load
-to improve robustness in the face of ill-formed policies.
+On Thu, Apr 30, 2026 at 04:20:32PM -0400, Stephen Smalley wrote:
+> Tighten type and boolean validation during policy load
+> to improve robustness in the face of ill-formed policies.
+> 
+> Some or all of this might be redundant with the patches
+> previously posted in the series linked below:
+> https://lore.kernel.org/all/20250511173055.406906-15-cgoettsche@seltendoof.de/
+> 
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+>  security/selinux/ss/conditional.c |  7 +++++--
+>  security/selinux/ss/policydb.c    | 23 +++++++++++++++++++----
+>  2 files changed, 24 insertions(+), 6 deletions(-)
+> 
+> diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
+> index 64f1bbb8caa0..342153ecdcb3 100644
+> --- a/security/selinux/ss/conditional.c
+> +++ b/security/selinux/ss/conditional.c
+> @@ -357,12 +357,15 @@ static int cond_read_av_list(struct policydb *p, struct policy_file *fp,
+>  
+>  static int expr_node_isvalid(struct policydb *p, struct cond_expr_node *expr)
+>  {
+> -	if (expr->expr_type <= 0 || expr->expr_type > COND_LAST) {
+> +	if (!expr->expr_type || expr->expr_type > COND_LAST) {
 
-Some or all of this might be redundant with the patches
-previously posted in the series linked below:
-https://lore.kernel.org/all/20250511173055.406906-15-cgoettsche@seltendoof.de/
+Is this correct? Previous check included the '< 0' case but your
+new test omits it.
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- security/selinux/ss/conditional.c |  7 +++++--
- security/selinux/ss/policydb.c    | 23 +++++++++++++++++++----
- 2 files changed, 24 insertions(+), 6 deletions(-)
-
-diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
-index 64f1bbb8caa0..342153ecdcb3 100644
---- a/security/selinux/ss/conditional.c
-+++ b/security/selinux/ss/conditional.c
-@@ -357,12 +357,15 @@ static int cond_read_av_list(struct policydb *p, struct policy_file *fp,
- 
- static int expr_node_isvalid(struct policydb *p, struct cond_expr_node *expr)
- {
--	if (expr->expr_type <= 0 || expr->expr_type > COND_LAST) {
-+	if (!expr->expr_type || expr->expr_type > COND_LAST) {
- 		pr_err("SELinux: conditional expressions uses unknown operator.\n");
- 		return 0;
- 	}
- 
--	if (expr->boolean > p->p_bools.nprim) {
-+	if (expr->expr_type != COND_BOOL)
-+		return 1;
-+
-+	if (!expr->boolean || expr->boolean > p->p_bools.nprim) {
- 		pr_err("SELinux: conditional expressions uses unknown bool.\n");
- 		return 0;
- 	}
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 738fd47f33e6..33ed75b92fa4 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -603,10 +603,15 @@ static int type_index(void *key, void *datum, void *datap)
- 	typdatum = datum;
- 	p = datap;
- 
-+	if (!typdatum->value || typdatum->value > p->p_types.nprim ||
-+		typdatum->bounds > p->p_types.nprim) {
-+		pr_err("SELinux: %s had value %u bounds %u nprim %u\n",
-+			(char *)key, typdatum->value, typdatum->bounds,
-+			p->p_types.nprim);
-+		return -EINVAL;
-+	}
-+
- 	if (typdatum->primary) {
--		if (!typdatum->value || typdatum->value > p->p_types.nprim ||
--		    typdatum->bounds > p->p_types.nprim)
--			return -EINVAL;
- 		p->sym_val_to_name[SYM_TYPES][typdatum->value - 1] = key;
- 		p->type_val_to_struct[typdatum->value - 1] = typdatum;
- 	}
-@@ -1736,6 +1741,12 @@ static int role_bounds_sanity_check(void *key, void *datum, void *datap)
- 		}
- 
- 		upper = p->role_val_to_struct[upper->bounds - 1];
-+		if (!upper) {
-+			pr_err("SELinux: role %s: bounds wasn't defined\n",
-+			       (char *)key);
-+			return -EINVAL;
-+		}
-+
- 		ebitmap_for_each_positive_bit(&role->types, node, bit)
- 		{
- 			if (ebitmap_get_bit(&upper->types, bit))
-@@ -1770,7 +1781,11 @@ static int type_bounds_sanity_check(void *key, void *datum, void *datap)
- 		}
- 
- 		upper = p->type_val_to_struct[upper->bounds - 1];
--		BUG_ON(!upper);
-+		if (!upper) {
-+			pr_err("SELinux: type %s: bounds wasn't defined\n",
-+				(char *)key);
-+			return -EINVAL;
-+		}
- 
- 		if (upper->attribute) {
- 			pr_err("SELinux: type %s: "
--- 
-2.53.0
-
+br,
+KK
