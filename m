@@ -1,153 +1,156 @@
-Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
+Received: from mail-lj1-f173.google.com (mail-lj1-f173.google.com [209.85.208.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAEFA477981
-	for <selinux@vger.kernel.org>; Thu, 30 Apr 2026 18:41:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777574513; cv=none; b=cBRewBtA8gpqFdCpQhC0LMhhkQcHCuP/mM28BfQL5YqCA0LGIgNYuuNWPH8pawpCCypMwaZJ2GIvVh1lvb3NOUNazhfje94n3+v1NDk8J/zwrY+6w1IbMuUAYYiaQPprVleX3OcT9QNpxVS+YxJSED2ADCIYYczY2UdVnZ5Tv3A=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777574513; c=relaxed/simple;
-	bh=s/GGy8+MJ9Ezpqc9akjkP6PXOMy4vI9QuMaNQPJmFNk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Oc/kQw9EtcZIrf8Y9sd0KHXu8n0dMpXN1BQHrguVQz3PsEb7X8Rjfj+GhT3f0xWp4pjvhOBBdYQyxsD6c2hkmILwLJjnM6wwiR719c6bXq3OqouLsHoAVmEXxKPI5vM7pSs+cHBE+jM3am0Xa8n/eBAE338iQ0zg5zMz/i8GrrA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gkc4nioR; arc=none smtp.client-ip=209.85.222.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AC6347DD4F
+	for <selinux@vger.kernel.org>; Thu, 30 Apr 2026 19:10:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.173
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777576226; cv=pass; b=Ls6tXOzUFdrX++KO7N7+BxpSWkdgOzfc/upNPMUFP7Ce8JWP/3Pj7MDqKTXP+11MmVJHO8JEdoRyySOzPzYFTD+fuj44c+xc4A4uX1olljf8H4Ofy4TLDvulEzandwHrzUvnoacwk5dJQ2nshDc/gVPHFnlaUM7P4r/n0gN8BoE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777576226; c=relaxed/simple;
+	bh=5ZLsC6am+km3e9KwxJbwccIegRCsR96E/kBXnaehfRo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=DsKuBsCHfnNM0zBTP+suMUr412Rhy/iwCkpwWg8W6h4+g5u9wvQi3Wxror1/Yd2sT4BtyvP0gy6CTMcY5qWDQI62+u1gc9u/wjpTTwMNyCdN+QE/+4Oi9yRwzWJu+BeNdLovHaoDzibuimvE/b763a22OwOu1+HZ5zte5cbVUvo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GB9M807K; arc=pass smtp.client-ip=209.85.208.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gkc4nioR"
-Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-8eb5ad01402so133081685a.2
-        for <selinux@vger.kernel.org>; Thu, 30 Apr 2026 11:41:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GB9M807K"
+Received: by mail-lj1-f173.google.com with SMTP id 38308e7fff4ca-38dfb789d7fso12039761fa.2
+        for <selinux@vger.kernel.org>; Thu, 30 Apr 2026 12:10:23 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1777576222; cv=none;
+        d=google.com; s=arc-20240605;
+        b=RkVd/bowgfAu/3AUvlpL0gV/L0+oRROmrEMrQG9uDFkA9ZeuG5x27cD5YdIHYv/8Ac
+         S0nW2uQt/EnU08mMRdJkoStQuskEk2gTb0R2cwvaztibhWiD21NJdAPTB848U2ggJwt7
+         wxbeNPF+XmjgaE2F729viYYSeT6pKzM54UCnl/sz7BpDxvAs+M5fjUpog9tuIx2PVrkD
+         MIslzdGFM5k/In2M7W0U0kjCcoW7LHbOVfvnvQndUxmc9AYsS4zucsZ9MigEkJMpquEf
+         GgI3GD+vwq2uS5xmCSib7EjzM98RusTgrsCyuLQR0xcHDhnIm7nk1lKfRXcxsMlFDaKi
+         Kvqg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=Sy7VEcqKe3FdFkHbHlLA/RWUr721I3cClaFNv9/k/pM=;
+        fh=ZNZELwumJQzyBj6xGReJmxggiBuuIaCagxwYYjTHZAE=;
+        b=J2FffVfFKy1YuMITabXue3Bwv4gvk39erqAkynBFVEoq9dfxn6ubP8PgoSV1Ib7FqE
+         x6phPft8Qp+MQotT3mAPA9A5jh+JpPJj+rxqXBFkggKf/VXspPDk2NvqVdxEwolp9ju8
+         em+vcsOCsAlGPVq584YQ7HflKlJduw8V0r0pWTj13WEJYoNSnG8A31m9i/Cl+ZY3LKsP
+         ypUvEsPiuSrovSlmUR2ZJe+wruNOgVpvAwRjONba0VIZb+jZAxhHqTQgEm/DwUH2CsSu
+         KesN0fjZK+XkTJM5m18oFqyVAdyFVbfBbU8d4+BVyhL5M721g+YecUzRZlA8j5aWe+wG
+         qsWg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777574510; x=1778179310; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=INEGn37U2FYpqBwYygR3k5kN7Lv8e4dmkzF0VKnzodM=;
-        b=gkc4nioRuIuY0XA3DAKE2u6S2vx/3wS4fJAwqHZ/QK7Id0TJJkYFj9ZEN6tAI1jRYo
-         LSldp9IDNu6Sd0zTsyLJRX2JU6lCUJ3M2v9i/W917t0AdpEKMy4PBL4bfLMkXixkucyV
-         bc75Ig/j6ceKpOQgshQ6alsMPZt6gFy8x3s6/KZmuw+jzbxVcBV3NR/bHEwM/Vi/NpDB
-         tkxCL4BPQFRemmG8X2qzo8qNX/yF6gwNchaeARSljCIC5IjJbL7m6HwFgcdWPP4MLbfE
-         KCQN+O4fqua6zslZQ/dWyA2pvxTwUBCcZ1eZS23vsIGQypPnl3MspUcvuBF4OunQmHlK
-         znoQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777574510; x=1778179310;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1777576222; x=1778181022; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=INEGn37U2FYpqBwYygR3k5kN7Lv8e4dmkzF0VKnzodM=;
-        b=grM9q4TZcT1E7ewnNgymlKPReCGmYnhBBpnDiTYsTbqs3SpO3cYft2eX7e1+D6WhsP
-         evv1cf5QnnHbgmeBeMCu+JaW3xzO4ryORv1Mr+f8ewgSzPSp/mdhfPL4OkXediCb6VBU
-         iLoN4ekQikpmmRkVb99QoU9JT/K66fz3/73CMnYQobcpSmNfVqZm4L8FBHvrEmFcEGwd
-         cV2vVdWZ1rA4xDOzTyregk84thaE0BUoErwS5T7ifn/wTti0TV86PvZONKHa7BrFO40V
-         3pY8/LVc59773uH37RuP3bYkj9Pm0Ubse3AXK3EfePgslwPBYGxc1CANTNiOhjxz0Zqs
-         Evxg==
-X-Gm-Message-State: AOJu0Yya6AWACJSvD8lQ02E02XbuEwaNiCqP0+nfGjdq7mIilCbSb2Dk
-	KNotoNN8JrZroQHJwT6JYwShohT15IHHdocFk93fivBHT9v3QEyaPy1ZzZytOg==
-X-Gm-Gg: AeBDievIbiRhbpaSJtmub4F9OeVeooDPTK2UZDxq+ubXXidfMmTKgC38TI5XpU6jwKp
-	8zNAiG3bn7Oi1vgnjj/oYvyIBnUOG8NCuGZEgKxdTOfkSj4lCksKlcP/6Q/ICsY7XfIk61ELYkN
-	KXCAqIddLVtXdzMcm38EBxHHEuMxut6UNdcFtxGhgaW/NpybaXbjlvHSJezEzqP46rtbwh6JA5B
-	iibZCG43aKKV2wlyrpcHW+L7uQJ//TDuBmV718vaekI27rb0CcaHazft29UyBCHV4hEdC2Anj+i
-	tW0DlbQ4lGp6eDddEB4r2WAJNVyhG09dz/2BFB+6c960KX3tbHBijeqSlI/08Eay7mBVTcPY6Mv
-	ZITmEfhizPbvcJY/Xh3Nqkpv34xR2n8e1MxGzrdd1UWcRsXM89XdYAn1i9olM2BQMJ/mCzsv4pe
-	+5SGOopPcmd5Co2IbHzeOu4ATpz7RGtxCOQSM9mUuJPm1YlJEUnA0nTFCflSHd8y8t9qPH20JR0
-	DfGPXu91iAz+gd4wJAZjlLjuXVZby0M38sEOA==
-X-Received: by 2002:a05:620a:454b:b0:8f8:eee1:9bf1 with SMTP id af79cd13be357-8fa862e633bmr615768885a.10.1777574510226;
-        Thu, 30 Apr 2026 11:41:50 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8b3ff057fb7sm25505086d6.0.2026.04.30.11.41.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Apr 2026 11:41:49 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com,
-	omosnace@redhat.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2] selinux: shrink critical section in sel_write_load()
-Date: Thu, 30 Apr 2026 14:36:52 -0400
-Message-ID: <20260430183651.1707-2-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.53.0
+        bh=Sy7VEcqKe3FdFkHbHlLA/RWUr721I3cClaFNv9/k/pM=;
+        b=GB9M807KBCoOGi2PXW0RTiHzg7UiOxvlCFr8TqStd/KuP866KsaJ57sjapGb+jBYVF
+         cdy6tQBGMfYLhSidHQfH5Jj6um3XFgRQ56ChTUIuUrGqrGpQY//p/HzJXndDU3wQ2WtK
+         4Nwz+MotqcD/+CBYuo5oCKnuEq75ZdC2SUAXHdRBVkWDrHSjslizHKmVXnnQ9zaEXydh
+         i9sK++UvZFAt1QUrM7dyE6/kBMS/QhNzJnImykm8wtOc1A06QwXdSvEMBx3N5mboxz1C
+         ApJZfRvL52Ara38p1us764RzD4R//p4wG0zLQWEZ3Zzf2iCWwbDXFF+xY+lMnDXX3iP4
+         C5fw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777576222; x=1778181022;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=Sy7VEcqKe3FdFkHbHlLA/RWUr721I3cClaFNv9/k/pM=;
+        b=Ir0T6OVUJUged9+IRg27C4J8aKn0/LfrJH80kJRLLcdjZgV/GAnPhoJSzyeuFVhyAz
+         iiFzvSJ1w/bTsONM8IEGO/uOpRFO8o2jxm+Xomi/nQarhSzZ1EbbEDbGP5H4FmR+AYAE
+         JTwtakZEuI+u3ahmC3meEbNQCceRItFYf4Ep8sxud97htUiw4GpiCfQIjGTvzlHayXP8
+         P8nzij/IicHNWiXr6+ZUyTDOlDQSSk8wWLlr3OFsRs35mVhGIYyMOdwzJ0m7oo10aUIz
+         s/qK6qTe+vWGBCofBvo2Q01Or4fxDGtMRp/mySmhJiJWG88Vndfb5h4gtIOUEd8lgMkV
+         QoAw==
+X-Gm-Message-State: AOJu0Yyxge8QYPvXv8ER1IgyjMhu5Dmoxyyupr0QrXwrxh0cvcVORGw9
+	CKFq5tYOIO8UCdJGGLHS9HFvDDEKIsx0iquZJCKgqt8yBDB4w4RIC71NFy9IRicmxLI9m+CfdFe
+	RHQnIg+6sIIltfhyqkqJk4YVVvw8V3i4fr/7J
+X-Gm-Gg: AeBDieuwhlvVwHxRWykoy6MS9RYbypG5UfcuPdF0QUbi/Z70cbfv1mydukZ6njJRtwr
+	2GDoQBWkeWpKcpuD0UDaKEgsBW7+kJrAbvLqTBO0vo/4TlFJ03B1kIXe6jJMfAmx1HjSWQ2j4De
+	AvoyM1E6McwhALfqwmGDQHNWm6EIh8ImLQ0yDBkLVCUIPj7/Y5jR8GHWJY8dB2B6KeTpTQtNdT8
+	dI/kW8PFXJlLPoHLNNCycIf3g22AqYEmPtbqyqxB8jROkhCxODJDbUPd96xWs3YNvQ6U1FmyOTi
+	bsqCRbjRU5NSfYI=
+X-Received: by 2002:a05:651c:41d7:b0:38c:6a46:b98d with SMTP id
+ 38308e7fff4ca-3934deb8d39mr14976591fa.1.1777576221786; Thu, 30 Apr 2026
+ 12:10:21 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260330015148.1482594-1-tweek@google.com>
+In-Reply-To: <20260330015148.1482594-1-tweek@google.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Thu, 30 Apr 2026 15:10:10 -0400
+X-Gm-Features: AVHnY4LFUhwlAjA_lSSqGT9yp80noCYUTNlEzCYPp84Rq4FFRQT4-m_pztxyryI
+Message-ID: <CAP+JOzS0p2d=43EiumHpe9ESQTjaYuk4tAhyD8Er44p7HUAjgg@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: Fix off-by-one error in cats_ebitmap_len
+To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Cc: selinux@vger.kernel.org, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Jeffrey Vander Stoep <jeffv@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Currently sel_write_load() takes the policy mutex earlier than
-necessary. Move the taking of the mutex later. This avoids
-holding it unnecessarily across the vmalloc() and copy_from_user()
-of the policy data.
+On Sun, Mar 29, 2026 at 9:51=E2=80=AFPM Thi=C3=A9baud Weksteen <tweek@googl=
+e.com> wrote:
+>
+> In cats_ebitmap_len(), i-1 was incorrectly used instead of i for looking =
+up
+> category names at the end of a range. This resulted in an under-allocatio=
+n
+> of the buffer for the CIL representation of category ranges, which causes
+> cats_ebitmap_to_str() to fail its safety check and return (null).
+>
+> This fix correctly uses i (the current bit index) to look up the name for
+> the category at the end of the range.
+>
+> Proof of Concept (PoC) Policy:
+>   class p sid kernel class p { f }
+>   sensitivity s0; dominance { s0 }
+>   category c0; category c1_very_long_category_name;
+>   level s0:c0.c1_very_long_category_name;
+>   mlsconstrain p { f } l1 =3D=3D l2;
+>   type t; allow t self:p { f };
+>   role r; role r types { t };
+>   user u roles r level s0 range s0 - s0:c0.c1_very_long_category_name;
+>   sid kernel u:r:t:s0 - s0:c0.c1_very_long_category_name
+>
+> Reproduction steps:
+>   1. checkpolicy -M -o poc.bin poc.conf
+>   2. checkpolicy -M -b -C -o poc.cil poc.bin
+>   3. cat poc.cil | grep userrange
+>      Before: (userrange u ((s0) (s0 (null))))
+>      After: (userrange u ((s0) (s0 (c0 c1_very_long_category_name))))
+>
+> Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
-v2 moves the taking of the policy mutex just before
-security_load_policy() is called. This is required by
-security_load_policy() to protect the old policy during
-its own operation and until the new policy is committed.
-There is already a lockdep_is_held() check for this 
-inside of security_load_policy(). v2 also simplifies and
-unifies the error paths, at a cost of not releasing the
-policy mutex until after the audit message is logged.
+Signed-off-by: James Carter <jwcart2@gmail.com>
 
- security/selinux/selinuxfs.c | 18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
-
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index c4a68d623d40..d34649cbe228 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -592,34 +592,31 @@ static ssize_t sel_write_load(struct file *file, const char __user *buf,
- 	if (!count)
- 		return -EINVAL;
- 
--	mutex_lock(&selinux_state.policy_mutex);
--
- 	length = avc_has_perm(current_sid(), SECINITSID_SECURITY,
- 			      SECCLASS_SECURITY, SECURITY__LOAD_POLICY, NULL);
- 	if (length)
--		goto out;
-+		return length;
- 
- 	data = vmalloc(count);
--	if (!data) {
--		length = -ENOMEM;
--		goto out;
--	}
-+	if (!data)
-+		return -ENOMEM;
- 	if (copy_from_user(data, buf, count) != 0) {
- 		length = -EFAULT;
- 		goto out;
- 	}
- 
-+	mutex_lock(&selinux_state.policy_mutex);
- 	length = security_load_policy(data, count, &load_state);
- 	if (length) {
- 		pr_warn_ratelimited("SELinux: failed to load policy\n");
--		goto out;
-+		goto out_unlock;
- 	}
- 	fsi = file_inode(file)->i_sb->s_fs_info;
- 	length = sel_make_policy_nodes(fsi, load_state.policy);
- 	if (length) {
- 		pr_warn_ratelimited("SELinux: failed to initialize selinuxfs\n");
- 		selinux_policy_cancel(&load_state);
--		goto out;
-+		goto out_unlock;
- 	}
- 
- 	selinux_policy_commit(&load_state);
-@@ -629,8 +626,9 @@ static ssize_t sel_write_load(struct file *file, const char __user *buf,
- 		from_kuid(&init_user_ns, audit_get_loginuid(current)),
- 		audit_get_sessionid(current));
- 
--out:
-+out_unlock:
- 	mutex_unlock(&selinux_state.policy_mutex);
-+out:
- 	vfree(data);
- 	return length;
- }
--- 
-2.53.0
-
+> ---
+>  libsepol/src/kernel_to_cil.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+> index 06cf4498..49040ae4 100644
+> --- a/libsepol/src/kernel_to_cil.c
+> +++ b/libsepol/src/kernel_to_cil.c
+> @@ -1018,9 +1018,9 @@ static size_t cats_ebitmap_len(struct ebitmap *cats=
+, char **val_to_name)
+>
+>                 len +=3D strlen(val_to_name[start]);
+>                 if (range > 2) {
+> -                       len +=3D strlen(val_to_name[i-1]) + strlen("(rang=
+e  ) ");
+> +                       len +=3D strlen(val_to_name[i]) + strlen("(range =
+ ) ");
+>                 } else if (range =3D=3D 2) {
+> -                       len +=3D strlen(val_to_name[i-1]) + 2;
+> +                       len +=3D strlen(val_to_name[i]) + 2;
+>                 } else if (range =3D=3D 1) {
+>                         len +=3D 1;
+>                 }
+> --
+> 2.53.0.1018.g2bb0e51243-goog
+>
