@@ -1,180 +1,135 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4E783A6417
-	for <selinux@vger.kernel.org>; Thu, 30 Apr 2026 11:34:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777548873; cv=none; b=VrVg9vh6vJ+ehY6vm7kUrXSoYzxMYNWsiSZlLK/NeXaLV+hLmTzAM08Qb1m8GRih21mkIADFt5vG3igOmPLReOs4txGYmggwYjK0YostvhzV0/Osufu1Ce60XAgNtNWRagWr8LntlgJre/q9OwXK16csPO8U1NQ/r41IiqXvYvM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777548873; c=relaxed/simple;
-	bh=doxA2VtI3OEEMZwjrd8EX8i4emZjwEmRCDLGMVkjTSQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YoZnme8WFypFwKCtNEFkp7Qt8rV43647zYWMehNNVewm2YuorM2vfPWQBHExmG5WjZPwJhms0UyzgpJdtEcIV/EfYZty5yD3rkhr91wfwC/JuKrxP0ZiQW6jktGMuAj6gktBvj1X5GKF3njC8BS86D5lmlzM7LniHYzMUc/Vo44=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=0Otqv74L; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=caT8PONZ; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=omCpFnCE; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Skyz/hLT; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 586743A453D
+	for <selinux@vger.kernel.org>; Thu, 30 Apr 2026 12:01:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.177
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777550494; cv=pass; b=LXO8HLAhwl6HjR2Nwr+AxnbrgExSPIWdDJmNrOt8EICZ/9FHbkn5PrhARlFwLHz1nKj/hRZCVAuUDEJhMzdC5FAbfFN+wtnUXnIvl83Q2noyvEIgyNFl3vX/37hWXjqPORRCXAN+JOvW4BcLRoFWQtXt3ZC6zXnvqdFa9rirh74=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777550494; c=relaxed/simple;
+	bh=TdOcc5Gwv0N9S7lwc1uqHi6G0LeDEuDaN0k+eIwg1v4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=mDFRoi+lYCyzTScyyqKIZWVwAoFoe6BvODDoRq8T53U9M5ArWcsuQmapP14aAEKOO1kwnESW+3eS0P/JkORTLJSdTqv6JjCpo5u0xK6DZtVaKo6VHizmwG1gYi1KNhQoVidhOLudO3ymuamtez2A2MosfMq5z9LGMLR03PalRvY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=T78OYH5g; arc=pass smtp.client-ip=209.85.210.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="0Otqv74L";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="caT8PONZ";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="omCpFnCE";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Skyz/hLT"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id EDBE86A803;
-	Thu, 30 Apr 2026 11:34:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1777548869; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=/LWDnJEq5phILeVke1TT+m/gUSJFn3AuIALbnd8YtAc=;
-	b=0Otqv74LcrAdJaTd0YAM5vawMdHVFAZ7REMlkal7Kh1Kd3TaQFdqZN0pWBkjv4e6oxx2Cs
-	K6IturJQu1Ul58ted0jqibzgVLoffnL/2BYWmCOk+v8ko18dl5s9imzB/BcktPjDafNrfD
-	+P5XoRTxRErS6BohuMrApF1RRKWqNCY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1777548869;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=/LWDnJEq5phILeVke1TT+m/gUSJFn3AuIALbnd8YtAc=;
-	b=caT8PONZFgaWGzKrhhV4z+egqL5pgg7h6t1u3/XWdArZgdW0spc8nK6yMDocteyeJ0VJeV
-	gXEs7aA3fXcszrBQ==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1777548868; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=/LWDnJEq5phILeVke1TT+m/gUSJFn3AuIALbnd8YtAc=;
-	b=omCpFnCEMV9TFSSuTlTtE7ycDgwxpcyF0XzFA5HxF0Wtgy0BJaLMxnFj5/Ii3f6NJSmvKV
-	/Xw6dT7fHBmNBMJia/2u5adPi/Gr2vDu7mreqS2GcvHvlBxcCyDb1mwKYCaK1MSRUrD9uX
-	NzfU94t42VMI3KTc0/N29xSLwV6xqR4=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1777548868;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=/LWDnJEq5phILeVke1TT+m/gUSJFn3AuIALbnd8YtAc=;
-	b=Skyz/hLTHPhzMYNxBc2QU4L5DyIvRooU9DfRexf04MKKn0AAO2CzNVLbOPNObSUWletb7h
-	5+RB7sbCQVssrTAw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id CA7EF593B0;
-	Thu, 30 Apr 2026 11:34:28 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 5i5PMEQ+82msQgAAD6G6ig
-	(envelope-from <cahu@suse.de>); Thu, 30 Apr 2026 11:34:28 +0000
-From: Cathy Hu <cahu@suse.de>
-To: selinux@vger.kernel.org,
-	lautrbach@redhat.com,
-	fvogt@suse.com
-Cc: Cathy Hu <cahu@suse.de>
-Subject: [PATCH v2] restorecon: Only log error on readonly fs (bsc#1232226)
-Date: Thu, 30 Apr 2026 13:29:45 +0200
-Message-ID: <20260430113302.2841721-2-cahu@suse.de>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T78OYH5g"
+Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-827270d50d4so836952b3a.3
+        for <selinux@vger.kernel.org>; Thu, 30 Apr 2026 05:01:33 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1777550493; cv=none;
+        d=google.com; s=arc-20240605;
+        b=fES2xiLVgJ8vlk0TlExm1YIk2x0g+mSv0MCiY/3wboTde7ukP/SKbBypN1y7vDAwr8
+         ISwsd5rvt1TdRPQxG2h3wIfcTSNWLgj/VWbvfRE7DMBnYr0wEqkgF5PPle6+coI2j5qb
+         fs022a04+wzmuNfhKS0KU7pBDS+HelE5rbMmuEfikVUIq3XgPv+UQgza4jCRt4524MPC
+         vjVMlxVLiNltYaSpDZc+qA+79oCyRzHatG7xL/dIEhqSibhVnrbdNGrCgV9T4haYLyJ9
+         n6Mzz1/hD3G+1PqsxYAB5YqPNJHys+9gXaGtnCREXU7xCHAC9Efw02Xkr0r9wtsMQwIT
+         0vGQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=2DBRIQMT1XbgyA9f4wWh7nOtRauw2eKlXWKYGShdvB8=;
+        fh=ZlKqpZpQp1DJ5c3Br8OchqalgDubFg3PTgpCIbXBxN4=;
+        b=dCTctEFgnANGhih3LnGxPODYJPVG9jaXdgzuU5NgQBdZSETisCrDCUBfOiVq/dX3IC
+         SW2J1zilo+2iMonYtkHPV6ZPe3z1ssfRJknuHzdaTPBmtC8z7N5zb9Yxggj35PZf/fzS
+         kCrMTIt7EgJ7wN65ZaKmYY4RCItzQdf7+Bxup0heLHlh5qyo/0SMGKqYIV1ZnCbUDHPF
+         9BXc9tUgj3Dro3y8kRxsFkxyGpeHxtoRPQGzxgtKLlhd7V2awLgrM3+VmX7kr4yQeZt6
+         I5JwBl9b7loPyQkc/rgQi41ibFe3GnMrprG7IQsQa3zOZUgCPgjTN80Vk7zBhBqUBFIJ
+         o+Zw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1777550493; x=1778155293; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=2DBRIQMT1XbgyA9f4wWh7nOtRauw2eKlXWKYGShdvB8=;
+        b=T78OYH5gfBysRNGiKNh+9W4UkdHmZq9unEpqJcp7+xdSNUbs/gYjHVc+Aub/hlaNRn
+         9qA9s6sASl/owcgbdRgEO5XKnLHLG9I5elWCIgaGP5QA8GMsYzW+rhvGOSVvu0A5+CoO
+         EE73TaWTXpcJjedasrEsssveX83laUVt+L7KTbjfRsYhsmGI2m3AaVwK2RzWWvhIwtmP
+         GSuMsGtDEuhsAPLQgQSz+MHTg9uQ5g0nf3Gb1Uzk+UVIMKyey02vV7XdulXatIZbqt2x
+         EDpZaz4qmzCzOmq+/c8xlAh4jz0jJhIIp6ki7Ta2mIj0i1nTWx3EwpvmIJwbVHjPj9YQ
+         FaAw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777550493; x=1778155293;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=2DBRIQMT1XbgyA9f4wWh7nOtRauw2eKlXWKYGShdvB8=;
+        b=PUsetuV7NhbOPYrq3Cd93iNI3ezlQMI8qxH53kpIYMXPuEbDY5sTjGf/sxKcOcssnH
+         /hgKpEqpPP647Y0svWT0WuWvae9rfxfU0pZ46x9H9R649C5bVoihhbs1+d16LutTF6Cp
+         NLGeG+NMz2u/WmlvGHgpjj76NgaOoDQQbONGiwmqmNlwT0o9RvfeKWA2YldOkY9kQQTx
+         EiCNreSZB0V7S3MhLQYYyHTomf2Sbg5IBfo4nFq62UFV1YjqH/e8ORIsT40I6k3MMqjB
+         dCf5JxPOKZ2zmhme3JZzGstQf38LcHAlqvVUYQeunrxPVps6tyIT8I8IdJpiTT4+WVKJ
+         O9Cw==
+X-Gm-Message-State: AOJu0Yyhvoq0Pvw+nIT27dPjKqgJzdsDZ+5OABX7fESiZuIIyc3KBBh+
+	LkEXJgR3q7vEdcjfD5gIYESBpsHdzIe05P6MXbfyNsqMOnxEPxq/Q/bTFD4tlKMirUKWj6MMfLf
+	AGnGpe7t2VTalqhygnyTPDtE50Iyh8mc=
+X-Gm-Gg: AeBDieurd3EckyHaRTuYYh066yop9ldTMpn1ty8qHruJXNPfcwTNNcIDI6jTwcWpL0N
+	8ISbtcmxQc79NDSyTjC+0wT0s+J+Ua+CkcUhof58yiR/+gP2/T9uTMpRQ8HFNuJfNB18snz7V4m
+	A37bJ5xyMj/PHrqjgEx6xGSRM6FgvNi2aHeYg3IxOCuw5t8sZfS09fZoic5wivyTeyusiD7Wh3z
+	XsylNTVJUw5rdsPS6Xpiyn1vDCNB3JNXT74p3GurSqOJkMj152Dduri8RV1RB7WIJPfQUEWruf0
+	IVxj4fljW/DKb6OMYpcQxZGXU7xI
+X-Received: by 2002:a05:6a00:92a7:b0:82f:91f:bf35 with SMTP id
+ d2e1a72fcca58-834fdb078b0mr3373412b3a.3.1777550492650; Thu, 30 Apr 2026
+ 05:01:32 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: -2.80
-X-Spam-Level: 
-X-Spamd-Result: default: False [-2.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_CONTAINS_FROM(1.00)[];
-	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	TO_DN_SOME(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:url,suse.de:mid,suse.de:email,imap1.dmz-prg2.suse.org:helo];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	RCPT_COUNT_THREE(0.00)[4];
-	RCVD_TLS_ALL(0.00)[]
-X-Spam-Flag: NO
+References: <20260429211229.3750-1-stephen.smalley.work@gmail.com> <CAHC9VhRZ6Y5BvzUd_D+oeqRnaYk1NdfK-FpXELK00VkpHZBzGA@mail.gmail.com>
+In-Reply-To: <CAHC9VhRZ6Y5BvzUd_D+oeqRnaYk1NdfK-FpXELK00VkpHZBzGA@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 30 Apr 2026 08:01:21 -0400
+X-Gm-Features: AVHnY4KF_uyWgCKuUnQDkvHRrAukp1mX8hcxu0p2H-XYBiCiXu45HBF9mbAnFk4
+Message-ID: <CAEjxPJ4UjVCvrMeT3nF5YvzKGdHgk3nMxBisXt=vzA26r8K6cg@mail.gmail.com>
+Subject: Re: [PATCH v2 0/3] selinux: prune deprecated interfaces
+To: Paul Moore <paul@paul-moore.com>
+Cc: selinux@vger.kernel.org, omosnace@redhat.com, 
+	Petr Lautrbach <plautrba@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Problem:
+On Wed, Apr 29, 2026 at 5:30=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+>
+> On Wed, Apr 29, 2026 at 5:12=E2=80=AFPM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > *** BLURB HERE ***
+>
+> *** REPLY HERE ***
 
-Before this change, when restorecon encountered a read-only filesystem,
-it would set the error code to 255, not continue traversing, but
-continue with other paths:
-"restorecon: Could not set context for <path>:  Read-only file system"
+Sorry about that - thought it would pick up the same cover note that I
+used previously. Don't think it is worth re-posting just for the cover
+letter.
+As before, this series prunes already deprecated selinuxfs interfaces
+but unlike the previous version leaves the selinuxfs nodes intact and
+just returns a non-error status of the appropriate form to avoid
+breaking userspace. Only one I'm not 100% sure about is
+/sys/fs/selinux/user;
+I didn't have a system with an old enough libselinux to test its
+effect on e.g. pam_selinux and friends.
 
-For callers there is no way to distinguish from that error code if it
-encountered a serious error, or a read-only fs was not relabelled, or
-both. However, not failing when a read-only fs is traversed is
-acceptable in most if not all cases.
-
-This caused issues when e.g. restorecon was used in autorelabel
-mechanisms during boot to relabel the file system. When it encountered
-a read-only BTRFS subvolume, the return code would be set to 255 and
-we had to fail the relabel service, as it might be a more severe issue.
-
-Behaviour change in this commit:
-
-With this change, restorecon logs the encounter of a ro file system, continues and finishes with return code 0:
-"Read only filesystem, relabel not possible: <path>"
-
-Other mechanims that were considered to fix this issue and why they were
-not used:
-
-- -x skip all subvolumes: break cases of subvolumes which aren't mounted explicitly but still need to be relabelled
-- caller generates skippable locations and these get automatically fed
-  into restorecon: error prone and needs to be manually maintained in
-certain scenarios
-- caller ignores non-zero return code: not good idea, it would cover up
-  issues that would be hard to debug in the future
-- skip only ro btrfs subvolumes: I started writing a poc and discovered it is not easily
-  possible without either pulling libbtrfs in as dependency or having
-  a lot of ioctl calls which likely will lead to performance degradation
-  or tracking the btrfs status inside of restorecon, which would be a
-  big code change for a problem that might be also there on other file
-  systems
-
-Discussion and context:
-
-- "Question regarding restorecon and btrfs read-only snapshots" Thread:
-https://lore.kernel.org/selinux/98f87fd6-6d3e-4539-ad8f-1a0dc09aa890@suse.de/
-
-- (open)SUSE bug: https://bugzilla.suse.com/show_bug.cgi?id=1232226
-
-Signed-off-by: Cathy Hu <cahu@suse.de>
----
- libselinux/src/selinux_restorecon.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
-diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
-index 8fadf4d2..e8545e27 100644
---- a/libselinux/src/selinux_restorecon.c
-+++ b/libselinux/src/selinux_restorecon.c
-@@ -774,10 +774,14 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
- 		if (!flags->nochange) {
- 			if (lsetfilecon(pathname, newcon) < 0) {
- 				/* Ignore files removed during relabeling if ignore_noent is set */
--				if (flags->ignore_noent && errno == ENOENT)
-+				if (flags->ignore_noent && errno == ENOENT) {
- 					goto out;
--				else
-+				} else if (errno == EROFS) {
-+					selinux_log(SELINUX_INFO, "Read only filesystem, relabel not possible: %s\n", pathname);
-+					goto out;
-+				} else {
- 					goto err;
-+				}
- 			}
- 
- 			updated = true;
--- 
-2.53.0
-
+>
+> > Stephen Smalley (3):
+> >   selinux: prune /sys/fs/selinux/checkreqprot
+> >   selinux: prune /sys/fs/selinux/disable
+> >   selinux: prune /sys/fs/selinux/user
+> >
+> >  .../{obsolete =3D> removed}/sysfs-selinux-user  |   0
+> >  security/selinux/include/security.h           |   2 -
+> >  security/selinux/selinuxfs.c                  | 145 ++----------------
+> >  security/selinux/ss/services.c                | 125 ---------------
+> >  4 files changed, 13 insertions(+), 259 deletions(-)
+> >  rename Documentation/ABI/{obsolete =3D> removed}/sysfs-selinux-user (1=
+00%)
+> >
+> > --
+> > 2.54.0
+>
+> --
+> paul-moore.com
