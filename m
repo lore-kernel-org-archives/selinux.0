@@ -1,52 +1,56 @@
 Received: from cloud35.hostingpalvelu.fi (mail35.hostingpalvelu.fi [31.217.192.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D43B26FDBF
-	for <selinux@vger.kernel.org>; Fri,  1 May 2026 23:10:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADC8630E834
+	for <selinux@vger.kernel.org>; Fri,  1 May 2026 23:43:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=31.217.192.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777677008; cv=none; b=mYgsYlnsYgBAaX2o1FCICZGKvRnsoyBcNVHrn3LfLEeLlIZBtZHp7lNynVPq195hbmwboD8+7gZCFslNcQyJyGk6g2WlC+uRv8xCWowuFg20BS7KJVzgTq9z2ZYKNRICM1vQlebmMSxjsGin6+Xq97DHXf6qeHa9vp6tc4J7xWY=
+	t=1777679040; cv=none; b=jbZ7RE0kTVfQ75JOv/V2NnMiYQgvBbk/9gKO0k6uwz2c8ocn7ZSRk/qHET12aQ7t2+NH2MqfMmrms1DSCuVZqc+iq94WrgH8y6K44dikctgjMrF4jhVSPrl8RUqgXoaXOla4TYPn1gzPQwQQAb9j9AvgLbd7vJqSWVL9wRBzGJI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777677008; c=relaxed/simple;
-	bh=xHfKITfWxbQ6j5zjSDTRHWlKIXCd/zyk1Wy8vncb6ho=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=E61YOBUT/OHBQWgFhh+IT9IEupviT41pIsnzRSxLcA4jfsn7IHYad9/AaPbPCjBukm0UvAN9Wrrqfcf2ifa101IrYjKhspSZvpbx5xtBWDFh2ie8adnw1XpfUNK8ATJPnaA2zDSPOdr6YKhFGWmxhYRwQoxj/oRxx84rBV/BS8c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=tZ7z9MS9; arc=none smtp.client-ip=31.217.192.49
+	s=arc-20240116; t=1777679040; c=relaxed/simple;
+	bh=7KmIKNRqMDttW4grmPTzHF8oaPe63b143Ind7z1orZQ=;
+	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rShogOKxd6yJmgQOBdVONZKQy6izPu9GkVNz4yNMR634KkvvDn/9tqdZCL0Om0v3kiHLdhI56y0O1giNGyWZN3NxzqzI7wyeqYh5OVMGkHdp4Hy1dRVa2SBNZgVtytLfDYLnKdy3lUhL9nlDywNsxbgyZbZEL7xMdO1pKKkpi7M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=UTEKq81x; arc=none smtp.client-ip=31.217.192.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kolttonen.fi
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="tZ7z9MS9"
+	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="UTEKq81x"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=kolttonen.fi; s=default; h=Content-Transfer-Encoding:MIME-Version:
-	Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+	d=kolttonen.fi; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
+	:Message-ID:Subject:To:From:Date:Sender:Reply-To:Cc:Content-Transfer-Encoding
+	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
 	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=rkAGmLcfvtM42EhtWn0yviFdsWkMqEP+LUKtIJvTglQ=; b=tZ7z9MS99zdvKNKnQeLcP/o27n
-	KXA4vY6TeKruvdq/OHz64FyRb30gqxxc/aIUFH5rbK3ZEyY+FelmzzhlD9S9Jz8XKOSZwS9mtP2VF
-	H0x454ex2HQis/R8l+G3h2RVliPszxiDXZNiqSedWbxo+U8TtFspuRIsBPYNraV9LtqAeX/T7uO84
-	XVAgV9zn/7DgGsB9znoDnP7Zzz4VJko4qxIg4DKSVZlaj7tl0S0mIoucSp46kiVGnGXSn6iW72/Dq
-	3MCZTmAKMzVijKp8y8uQyCiCJL9ouEgEh9rDT52o123Ew1+6Yd0A/bDJ/uEBmkffpDBAtH5H0gWm9
-	T+1wsdBQ==;
-Received: from 37-33-160-15.bb.dnainternet.fi ([37.33.160.15]:53460 helo=fbsd15.local)
+	bh=3FEyGqvUrifD/8cSqg8wzAqNxaH9mRyf57iR/ACEafU=; b=UTEKq81x4HYlKnAUyQOCoBieEQ
+	5i0176sN0GTDDFV8QCZMRtyNoQscMCpRnnGsVrVxAFO+NcH4VEdB4zgDw6TWgg2/V+6NaLgWF8Pry
+	4w8UcIqnhHljMF9KmS1HzcQoRLzvne50iVNdbuA5GKDQSXcXKtLwDNG4Ic4+Mx4xXMpsMBHzovqKL
+	rQNa9ePoGXCyqQfJKMo4H+AIIDWwZh4suy4gSmE1U9swVUpzJQeao52X/KovBG291w2PivxKOa36D
+	YAqw1yV40fOPdNIqA+LxZTuycEavbHOO5X+d8iMHPK654NRPEhjEJOqSX7Pb28aD8s3GHXglXeMoD
+	7Do0Z23Q==;
+Received: from 37-33-160-15.bb.dnainternet.fi ([37.33.160.15]:53640 helo=2001-14bb-678-1e30-88bf-e40e-789b-2.rev.dnainternet.fi)
 	by cloud35.hostingpalvelu.fi with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
 	(Exim 4.99.1)
 	(envelope-from <kalevi@kolttonen.fi>)
-	id 1wIwzl-0000000DWcK-0gbN;
-	Sat, 02 May 2026 02:10:04 +0300
+	id 1wIxWV-0000000Dbn2-4AjE
+	for selinux@vger.kernel.org;
+	Sat, 02 May 2026 02:43:55 +0300
+Date: Sat, 2 May 2026 02:43:53 +0300
 From: Kalevi Kolttonen <kalevi@kolttonen.fi>
 To: selinux@vger.kernel.org
-Cc: Kalevi Kolttonen <kalevi@kolttonen.fi>
-Subject: [PATCH v2] checkpolicy: use calloc() so no need to do memset()
-Date: Sat,  2 May 2026 02:09:59 +0300
-Message-ID: <20260501230959.65581-1-kalevi@kolttonen.fi>
-X-Mailer: git-send-email 2.53.0
+Subject: Re: [PATCH] checkpolicy: use calloc() so no need to do memset()
+ afterwards
+Message-ID: <afU6uezlxzYv7SH1@2001-14bb-678-1e30-88bf-e40e-789b-2.rev.dnainternet.fi>
+References: <20260501221751.49065-1-kalevi@kolttonen.fi>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260501221751.49065-1-kalevi@kolttonen.fi>
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - cloud35.hostingpalvelu.fi
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -58,49 +62,15 @@ X-Source:
 X-Source-Args: 
 X-Source-Dir: 
 
-Signed-off-by: Kalevi Kolttonen <kalevi@kolttonen.fi>
----
- checkpolicy/checkpolicy.c     | 4 +---
- checkpolicy/module_compiler.c | 3 +--
- 2 files changed, 2 insertions(+), 5 deletions(-)
+On Sat, May 02, 2026 at 01:17:51AM +0300, Kalevi Kolttonen wrote:
+> -	type_rules = malloc(sizeof(struct avtab_node) * policydb.p_types.nprim);
+> +	type_rules = calloc(sizeof(struct avtab_node) * policydb.p_types.nprim);
 
-diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
-index b808e4d0..34c21199 100644
---- a/checkpolicy/checkpolicy.c
-+++ b/checkpolicy/checkpolicy.c
-@@ -235,13 +235,11 @@ static int identify_equiv_types(void)
- 	 * Create a list of access vector rules for each type
- 	 * from the access vector table.
- 	 */
--	type_rules = malloc(sizeof(struct avtab_node) * policydb.p_types.nprim);
-+	type_rules = calloc(1, sizeof(struct avtab_node) * policydb.p_types.nprim);
- 	if (!type_rules) {
- 		fprintf(stderr, "out of memory\n");
- 		exit(1);
- 	}
--	memset(type_rules, 0,
--	       sizeof(struct avtab_node) * policydb.p_types.nprim);
- 	if (avtab_map(&policydb.te_avtab, create_type_rules, type_rules))
- 		exit(1);
- 
-diff --git a/checkpolicy/module_compiler.c b/checkpolicy/module_compiler.c
-index 4b2f98d8..a6ecc939 100644
---- a/checkpolicy/module_compiler.c
-+++ b/checkpolicy/module_compiler.c
-@@ -842,12 +842,11 @@ int require_class(int pass)
- 				return -1;
- 			}
- 			allocated = 1;
--			if ((perm = malloc(sizeof(*perm))) == NULL) {
-+			if ((perm = calloc(1, sizeof(*perm))) == NULL) {
- 				yyerror("Out of memory!");
- 				free(perm_id);
- 				return -1;
- 			}
--			memset(perm, 0, sizeof(*perm));
- 			ret =
- 			    hashtab_insert(datum->permissions.table, perm_id,
- 					   perm);
--- 
-2.54.0
+Please ignore this trash and my other message too. I did
+not remember that calloc()'s signature differs from malloc()'s.
 
+I just sent v2 combining these two patches into one, with the
+correct calloc() signature.
+
+br,
+KK
