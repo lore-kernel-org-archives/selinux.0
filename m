@@ -1,69 +1,72 @@
-Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com [209.85.222.172])
+Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58CBC272803
-	for <selinux@vger.kernel.org>; Tue,  5 May 2026 14:07:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EE5F346AC0
+	for <selinux@vger.kernel.org>; Tue,  5 May 2026 18:50:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777990060; cv=none; b=SLp3ta+HqadjzOeIAKeWlOz2fGsWXL6ZReRfmEyw4WQr9w1b7nxg2YKMklv8IWRC5+4Mx+nB/2GGiRkUC55cOQu0Bm6eYYuoCiBeBSO16vzivA3o9fpNyLA04HP6QjxTo8I7p3NfVwfeHRcMmVuVtaQfORVoAQ0K/0ctxscZ320=
+	t=1778007045; cv=none; b=k7YVTFe6/oVWFLgtCrl5FskVEp5cBNdGlkj+bdr5sJwh5z6YCneJT/66iD+LV/isRFRY3a/vGXLUF/MPOGJzvfV/3jBGaozA87qXpGcUFBegu/3bcsEbO8eE8BJJ37LbT8oDO2yWKxXt9jJkh6GJK2GH7537A3HxqEySQUDqYWs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777990060; c=relaxed/simple;
-	bh=QS9Lk0GCl1GMgDrzpU9+FPJb/HrG/fUjFB0jvEymjp8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=oEWtG+voECI+7aVnFI7qav/EreOYAuzxq23m6sX9U3wRzqiZ7ycC9mNO7t5sBuU4eN3xu7HiwsG5oJYS3LPZqXrcXY4jZfRhA29T00As/LjcVBsCm3wtAOVTAxXPh8zDtjOkNBTNyl65pY6GpjlAoONBQEHPxQ5lciUnwPeVl3M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=INdokUvK; arc=none smtp.client-ip=209.85.222.172
+	s=arc-20240116; t=1778007045; c=relaxed/simple;
+	bh=F/WLavOdPlQldrSzNHBv4Rt/vEixI6aF01mFI38lCno=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=UQZRxdgag8vuUAX8pfgy86p+MIVkvkaLuHJzrmRi9VE46wS+2ehtflZfX8zYA2K46x1KoCvpfw5SsW8sVHalTOF+cYBomvUGq9EkKmRRRLlIjGlEUeY+wAhmzbo7Iox3+2RugRmPs6My9uKMfhm4jA6DORe+4zIp8R2euRNv2Hg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=J4XHYyEE; arc=none smtp.client-ip=209.85.222.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="INdokUvK"
-Received: by mail-qk1-f172.google.com with SMTP id af79cd13be357-8ee63e91acfso412260185a.2
-        for <selinux@vger.kernel.org>; Tue, 05 May 2026 07:07:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J4XHYyEE"
+Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-8eae9229110so904959985a.1
+        for <selinux@vger.kernel.org>; Tue, 05 May 2026 11:50:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777990058; x=1778594858; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1778007043; x=1778611843; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=f01fKGYnxqOpgOEYpAT17E10j56IAu8gBtbdm4zSPuk=;
-        b=INdokUvKzm/ja6JEeYLiwqtsJi5zqAXK5Y8hY0EK3n0emUWk0ooPDAmpxa+2Drfv4/
-         DtwGst0OOCHvU2RYVW+LaZp44BMIHM8S/B5ATzloR6S+nd4cLVlFOZOpu4tPL0CPaGj2
-         NJuIOAjBkMHfMBVBzf/Qx3+l87GO9Viri2k72Z8GcCsu9ps5xiTKfKBCtwi1vfVtdXTH
-         YCJHIlp+RzUzQS5fqKllX3CLZsSFoQZPFViQcc7+SLtXgauWP8F7WAscp+kqee+g6kOz
-         4ug0so95iTvOC4GoZk6Bz1Ebe5YaRtD96HLrgc+PDoky0RB7t8xqWeRvOaj9phvRuK/S
-         B0oA==
+        bh=DA6YJataZd8hUVQendVD0CrmtngJXZywZfuekyBK05g=;
+        b=J4XHYyEE8HGd/u43ur42BycBmmu7/+6IPxfmMaRYkDDzkIGqmmTi20BoZ3Aee1Fv8j
+         ARUgTkeI3ESmGnivaIo43KABr2UGrZO51qQpvInlcwlC9FlLO9EHq2KtoC5z83afQk5v
+         cCzqxsAWArr6I5Xl8qhexwWx6iqQ6kWbitxpcPCXBFptyeQRL+cXEQmQyspS6vWdxMX5
+         uhvu5Pq7Cysa3SR6ZHOxevfYRlN5K632216I3uu7+GyeSEdA2E3RXj5i4lKeEtBSG+0a
+         nVl01z236BbmSoTlGC4Ag792vu+s+t5cQ+K2jKGpjMC1/EqInra9JQ3Lu3PhlV1KKktx
+         RfPQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777990058; x=1778594858;
+        d=1e100.net; s=20251104; t=1778007043; x=1778611843;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=f01fKGYnxqOpgOEYpAT17E10j56IAu8gBtbdm4zSPuk=;
-        b=i+69188mk/2Vf9FigrUYNShBQFvHJZ7GCDPKBCDQiEmMtwMgiUn2MZ8cx8FE/0+5vt
-         ciW0sHfq9QobJJEKJPdDHuLQc6toIUys+zCTX8Sq2XDx8/Y7En6adhVx5Uj9BmAc+3HV
-         k/Z0shB3az9+twxMbiJ6YB4brOzCMk3EWkLMJDldP8tOu/lpirFeOPbzyaQbq1+T/i3j
-         dVFcklIuiOmo5gSz/FInKvl/FwdnE1+dHAR0ZT/uW1ZXqHGc+suepU1xbAJpe4bV7j0R
-         cHCF8Q3YxE6/1XC1DrWUdpS30deg3CN5GaoewTHPEnthZG6nBU7aEzZ5mVHz9ciom5sx
-         UP/w==
-X-Gm-Message-State: AOJu0YzSPfxlbkciF/16t6fMzEsFycGMJ48PnFexO745X7urShZc8a2M
-	HFYiARJ4zmXxmwYrVi+JSKpukXq/RVwCPrHX92wgs76vMiSkvvBUJgepNpoKlQ==
-X-Gm-Gg: AeBDiesOordtDH3kYhy5wJ2FbsEjTVJEEqgE96aGlLaXEo8v7+D1ebf2I66B3JDf/rb
-	osZCLMVkLiwhO/X1rrOZvqMH4GTPhZtev7OM2sFsajfMYY70qHjz7lcgrZyTQ2JmYwxjXUTFuGR
-	lTMzi6IZPCJha7vP7m3FzTS/M6cNi2Lmf3PJToTar2kxPlSov5/JsiEjActrPJCWlhtgJngU2LC
-	Lf2MA7A1tic4UWpjNfNNrLZEjGASiAnsnBXoVxwEideM78N1nxaBbMHRFA1jF41YnmNGxIw2kkD
-	rmxcVFHrntrP+cCKpp2Gv/KiPpwZH6B8cQ5pu2MyhJmRSp93e2n5WIZgPC7BHbVJ4ZPnHbtzquZ
-	0nfYvChIFdHU5gvSGYlSx7ihrMKVpe8oeP/SA+PtvSjoj06pmc6zFfgqluH30ObFYa35yycO4rX
-	N3b+QQP/q8w7EB+KnAw2JFBO7ZWxUYyXEnwbH+NWfs+NsZo+h4OFxVd8QmUkvmJV/DDJwfnzDbP
-	rrJhezrKiekBrveRRgTCCotYM3/k5o85vgOunEfvjKNTgq6FEdifwedZT5ySfF0zg==
-X-Received: by 2002:a05:620a:2996:b0:8ee:dc47:3b70 with SMTP id af79cd13be357-8fd18137bb2mr2155773985a.39.1777990057765;
-        Tue, 05 May 2026 07:07:37 -0700 (PDT)
+        bh=DA6YJataZd8hUVQendVD0CrmtngJXZywZfuekyBK05g=;
+        b=bTM2Tytvy/wLKrk1O2k18gAw9rjMzWmk0llYb6mLi/vRKkccBF8JotGcI1pKxxCNOs
+         IKa6Pxo5SUzkZ4VUTGoQFnrPEBhvKvQdxj4Qf/J1D63rkmi6q+S0bvVWybuWtsqhIdOp
+         wAHcWSbrHZfXEnTg6o1Q8fRr2oJ9uNF39oCiZYBnna/5Ffzthp498/mz9eikD3jskVKF
+         A8/idwgz1wplAG7qxiQ7elCphyYAEF47LX754YIVfunHILQnR+jRvPmE9an/DNESw31R
+         24cP1trva8t3eLfo9g0PgzcDBOgX9gxDwp8KpGaXDIAUkuyn8Skaqf2hbNkMc8fMBPZn
+         NLnw==
+X-Gm-Message-State: AOJu0YwOKx144R9e3sFsw1qTQXFMoOAk4RXYFVvEC8xlyL3jA8r+t65C
+	c+4JuACjMHkE99nOxysbukjnPOLUYhpsRegd4UuGkEZn4kDcUVsAKyP3Ar63yQ==
+X-Gm-Gg: AeBDieupxWvHfRwioZ0klO1OvOk72EgOUYG6YN0LEvxAMW81vbjleryf0DPAKezpQyR
+	4NWtujta0a6SBGyr2eyg9vt7hL91zUdlKOhy4clFaP48sCU669gFBDQ0/O3wSnW8Z+f81wRxloV
+	mX0CXH/S+Fe1d/Ie4IDTcd9KW0STUgAYozSjyg6Ab6VK4nPwTwNH+XcaDuL0ShLcdWppNsQwuZ1
+	uxVmgaAvEljhbdxXxG4mSiRmvwmfMc/3y3SLpMkgZAqZI5yTH0sYriSvahcHArNKIxrGgZUil3c
+	9UmeIoDvyjSMGmBY9KHctR0QRnkfaxWReAIVJlHr29mK2dW/h0SgHntCdRdmPFSsDAeFuefsYfM
+	NG2xB9TtXilNcb5SRwaTQdmKPVJ03ZVe20z9MFVxwWe9SBN8FtEv18UawFTBA8CnjTKXFGUTyPj
+	rGMvRbOzZurQ3sAsBlahQackUdj/VDfX5fkJq+8X+IAG3FJUBDUgYqGG+qZbYdI9zbV46GTVAnm
+	ezvyExJeZBBw1uhFiynqjlxs3oyB6iPmAfd5c3TVfRGzbzlK6Ypawf2lVSGwJDcHg==
+X-Received: by 2002:a05:620a:f0c:b0:8f8:8860:fbad with SMTP id af79cd13be357-904d72c3634mr37977585a.57.1778007042774;
+        Tue, 05 May 2026 11:50:42 -0700 (PDT)
 Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8fc2c91cdfbsm1385589885a.34.2026.05.05.07.07.36
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8fc2c253bc9sm1583934885a.27.2026.05.05.11.50.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 May 2026 07:07:37 -0700 (PDT)
+        Tue, 05 May 2026 11:50:42 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com,
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
 	omosnace@redhat.com,
+	paul@paul-moore.com,
+	perfinion@gentoo.org,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2] selinux: allow multiple opens of /sys/fs/selinux/policy
-Date: Tue,  5 May 2026 10:06:38 -0400
-Message-ID: <20260505140637.2468-2-stephen.smalley.work@gmail.com>
+Subject: [PATCH] libselinux: restorecon: revisit pinning files to avoid TOCTOU issues
+Date: Tue,  5 May 2026 14:50:17 -0400
+Message-ID: <20260505185017.18428-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -73,99 +76,315 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Currently there can only be a single open of /sys/fs/selinux/policy at
-any time. This allows any process to block any other process from
-reading the kernel policy. The original motivation seems to have been
-a mix of preventing an inconsistent view of the policy size and
-preventing userspace from allocating kernel memory without bound, but
-this is arguably equally bad. Eliminate the policy_opened flag and
-shrink the critical section that the policy mutex is held. While we
-are making changes here, drop a couple of extraneous BUG_ONs.
+selinux_restorecon(3) is currently susceptible to TOCTOU issues since
+it looks up pathnames multiple times when getting and setting the
+SELinux contexts. Commit 7e979b56fd2cee ("libselinux: restorecon: pin
+file to avoid TOCTOU issues") tried to fix this problem by opening an
+O_PATH descriptor for each directory/file once and using this
+descriptor for all subsequent operations on the file. However, this
+commit was reverted by commit de285252a1801 ('Revert "libselinux:
+restorecon: pin file to avoid TOCTOU issues"') due to it breaking
+setfiles (and any other user of selinux_restorecon) when it is run
+from a chroot (or mount namespace) without /proc mounted. The
+dependency on /proc is a side effect of the fact that
+fgetxattr/fsetxattr cannot be used with O_PATH descriptors, so glibc
+internally falls back to trying to call getxattr/setxattr on
+/proc/self/fd/<n> instead, which works iff /proc is mounted. This
+change revives the earlier changes but provides a fallback for the
+case where /proc is not mounted. This change also cover the handling
+of the original pathname passed into selinux_restorecon(3).
 
-Link: https://lore.kernel.org/selinux/20100726193414.19538.64028.stgit@paris.rdu.redhat.com/
+NB I also tried using getxattrat/setxattrat(2) but these also seem
+to fail with EBADF on the O_PATH descriptors.
+
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
-v2 shrinks the critical section that the policy mutex is held and
-removes a couple of extraneous BUG_ONs.
+ libselinux/src/selinux_restorecon.c | 173 ++++++++++++++++++++++++++--
+ 1 file changed, 162 insertions(+), 11 deletions(-)
 
- security/selinux/selinuxfs.c | 27 ++++-----------------------
- 1 file changed, 4 insertions(+), 23 deletions(-)
-
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index c4a68d623d40..407052d0ddcf 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -76,7 +76,6 @@ struct selinux_fs_info {
- 	int *bool_pending_values;
- 	struct dentry *class_dir;
- 	unsigned long last_class_ino;
--	bool policy_opened;
- 	unsigned long last_ino;
- 	struct super_block *sb;
+diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
+index 35dd6441..12199200 100644
+--- a/libselinux/src/selinux_restorecon.c
++++ b/libselinux/src/selinux_restorecon.c
+@@ -21,6 +21,7 @@
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <sys/xattr.h>
++#include <sys/syscall.h>
+ #include <sys/vfs.h>
+ #include <sys/statvfs.h>
+ #include <sys/utsname.h>
+@@ -94,6 +95,45 @@ struct rest_flags {
+ 	bool count_relabeled;
  };
-@@ -360,44 +359,31 @@ struct policy_load_memory {
  
- static int sel_open_policy(struct inode *inode, struct file *filp)
++static int have_proc;
++
++static int probe_proc(void)
++{
++	struct statfs sb;
++
++	if (statfs("/proc", &sb) < 0)
++		return 0;
++	if (sb.f_type != PROC_SUPER_MAGIC)
++		return 0;
++	return 1;
++}
++
++static int fd_path_getfilecon(int fd, const char *pathname, char **con)
++{
++	int rc;
++
++	if (have_proc) {
++		rc = fgetfilecon_raw(fd, con);
++		if (rc >= 0 || errno != EBADF)
++			return rc;
++	}
++
++	return lgetfilecon_raw(pathname, con);
++}
++
++static int fd_path_setfilecon(int fd, const char *pathname, char *con)
++{
++	int rc;
++
++	if (have_proc) {
++		rc = fsetfilecon_raw(fd, con);
++		if (rc >= 0 || errno != EBADF)
++			return rc;
++	}
++
++	return lsetfilecon_raw(pathname, con);
++}
++
+ static void restorecon_init(void)
  {
--	struct selinux_fs_info *fsi = inode->i_sb->s_fs_info;
- 	struct policy_load_memory *plm = NULL;
- 	int rc;
+ 	struct selabel_handle *sehandle = NULL;
+@@ -106,6 +146,8 @@ static void restorecon_init(void)
+ 	efile_count = 0;
+ 	if (!ignore_mounts)
+ 		efile_count = exclude_non_seclabel_mounts();
++
++	have_proc = probe_proc();
+ }
  
--	BUG_ON(filp->private_data);
--
--	mutex_lock(&selinux_state.policy_mutex);
--
- 	rc = avc_has_perm(current_sid(), SECINITSID_SECURITY,
- 			  SECCLASS_SECURITY, SECURITY__READ_POLICY, NULL);
- 	if (rc)
--		goto err;
--
--	rc = -EBUSY;
--	if (fsi->policy_opened)
--		goto err;
-+		return rc;
+ static pthread_once_t fc_once = PTHREAD_ONCE_INIT;
+@@ -646,8 +688,9 @@ out:
+ 	return rc;
+ }
  
--	rc = -ENOMEM;
- 	plm = kzalloc_obj(*plm);
- 	if (!plm)
--		goto err;
-+		return -ENOMEM;
+-static int restorecon_sb(const char *pathname, const struct stat *sb,
+-			    const struct rest_flags *flags, bool first, bool *updated_out)
++static int restorecon_sb(int fd, const char *pathname, const struct stat *sb,
++			 const struct rest_flags *flags, bool first,
++			 bool *updated_out)
+ {
+ 	char *newcon = NULL;
+ 	char *curcon = NULL;
+@@ -723,7 +766,7 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
+ 		selinux_log(SELINUX_INFO, "%s matched by %s\n",
+ 			    pathname, newcon);
  
-+	mutex_lock(&selinux_state.policy_mutex);
- 	rc = security_read_policy(&plm->data, &plm->len);
- 	if (rc)
- 		goto err;
--
- 	if ((size_t)i_size_read(inode) != plm->len) {
- 		inode_lock(inode);
- 		i_size_write(inode, plm->len);
- 		inode_unlock(inode);
+-	if (lgetfilecon_raw(pathname, &curcon) < 0) {
++	if (fd_path_getfilecon(fd, pathname, &curcon) < 0) {
+ 		/* Ignore files removed during relabeling if ignore_noent is set */
+ 		if (flags->ignore_noent && errno == ENOENT)
+ 			goto out;
+@@ -765,7 +808,7 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
+ 		}
+ 
+ 		if (!flags->nochange) {
+-			if (lsetfilecon(pathname, newcon) < 0) {
++			if (fd_path_setfilecon(fd, pathname, newcon) < 0) {
+ 				/* Ignore files removed during relabeling if ignore_noent is set */
+ 				if (flags->ignore_noent && errno == ENOENT)
+ 					goto out;
+@@ -894,6 +937,87 @@ struct rest_state {
+ 	pthread_mutex_t mutex;
+ };
+ 
++static int open_final(int dfd, const char *name, struct stat *sb)
++{
++	int fd;
++
++	if (name)
++		fd = openat(dfd, name, O_PATH | O_NOFOLLOW | O_CLOEXEC);
++	else
++		fd = fcntl(dfd, F_DUPFD_CLOEXEC, 0);
++	if (fd < 0)
++		return -1;
++
++	if (fstat(fd, sb) < 0) {
++		close(fd);
++		return -1;
++	}
++
++	return fd;
++}
++
++static int safe_open(const char *path, struct stat *sb)
++{
++	char *copy, *cur, *slash;
++	int dfd, nfd;
++
++	if (!path || path[0] == '\0') {
++		errno = ENOENT;
++		return -1;
++	}
++
++	copy = strdup(path);
++	if (!copy)
++		return -1;
++
++	if (copy[0] == '/') {
++		dfd = open("/", O_PATH | O_DIRECTORY | O_CLOEXEC);
++		cur = copy + 1;
++	} else {
++		dfd = open(".", O_PATH | O_DIRECTORY | O_CLOEXEC);
++		cur = copy;
++	}
++	if (dfd < 0) {
++		free(copy);
++		return -1;
++	}
++
++	while (*cur == '/')
++		cur++;
++
++	while (*cur != '\0') {
++		slash = strchr(cur, '/');
++		if  (slash) {
++			*slash = '\0';
++			char *next = slash + 1;
++			while (*next == '/')
++				next++;
++			if (*next != '\0') {
++				nfd = openat(dfd, cur, O_PATH | O_NOFOLLOW |
++					O_DIRECTORY | O_CLOEXEC);
++				close(dfd);
++				if (nfd < 0) {
++					free(copy);
++					return -1;
++				}
++				dfd = nfd;
++				cur = next;
++				continue;
++			}
++		}
++
++		nfd = open_final(dfd, cur, sb);
++		close(dfd);
++		free(copy);
++		return nfd;
++	}
++
++	nfd = open_final(dfd, NULL, sb);
++	close(dfd);
++	free(copy);
++	return nfd;
++}
++
+ static void *selinux_restorecon_thread(void *arg)
+ {
+ 	struct rest_state *state = arg;
+@@ -1010,13 +1134,34 @@ loop_body:
+ 				goto finish;
+ 			}
+ 
+-			ent_st = *ftsent->fts_statp;
++			int ent_fd = safe_open(ent_path, &ent_st);
++			if (ent_fd < 0) {
++				fts_set(fts, ftsent, FTS_SKIP);
++				if (state->flags.ignore_noent && errno == ENOENT)
++					continue;
++				selinux_log(SELINUX_ERROR, "Could not safely open %s: %m.\n", ent_path);
++				if (state->flags.count_errors)
++					state->skipped_errors++;
++				else
++					state->error = -1;
++				continue;
++			}
++
++			if (ent_st.st_ino != ftsent->fts_statp->st_ino ||
++				ent_st.st_dev != ftsent->fts_statp->st_dev) {
++				selinux_log(SELINUX_WARNING, "Skipping %s: changed inodes during relabel.\n", ent_path);
++				close(ent_fd);
++				fts_set(fts, ftsent, FTS_SKIP);
++				continue;
++			}
++
+ 			if (state->parallel)
+ 				__pthread_mutex_unlock(&state->mutex);
+ 
+ 			bool updated = false;
+-			error = restorecon_sb(ent_path, &ent_st, &state->flags,
+-					      first, &updated);
++			error = restorecon_sb(ent_fd, ent_path, &ent_st,
++					      &state->flags, first, &updated);
++			close(ent_fd);
+ 
+ 			if (state->parallel) {
+ 				__pthread_mutex_lock(&state->mutex);
+@@ -1056,6 +1201,7 @@ static int selinux_restorecon_common(const char *pathname_orig,
+ 				     size_t nthreads)
+ {
+ 	struct rest_state state;
++	int top_fd;
+ 
+ 	state.flags.nochange = (restorecon_flags &
+ 		    SELINUX_RESTORECON_NOCHANGE) ? true : false;
+@@ -1201,14 +1347,15 @@ static int selinux_restorecon_common(const char *pathname_orig,
+ 
+ 	paths[0] = pathname;
+ 
+-	if (lstat(pathname, &sb) < 0) {
++	top_fd = safe_open(pathname, &sb);
++	if (top_fd < 0) {
+ 		if (state.flags.ignore_noent && errno == ENOENT) {
+ 			free(pathdnamer);
+ 			free(pathname);
+ 			return 0;
+ 		} else {
+ 			selinux_log(SELINUX_ERROR,
+-				    "lstat(%s) failed: %m\n",
++				    "open(%s) failed: %m\n",
+ 				    pathname);
+ 			error = -1;
+ 			goto cleanup;
+@@ -1221,27 +1368,31 @@ static int selinux_restorecon_common(const char *pathname_orig,
+ 
+ 	if (!state.flags.recurse) {
+ 		if (check_excluded(pathname)) {
++			close(top_fd);
+ 			error = 0;
+ 			goto cleanup;
+ 		}
+ 
+ 		bool updated = false;
+-		error = restorecon_sb(pathname, &sb, &state.flags, true, &updated);
++		error = restorecon_sb(top_fd, pathname, &sb, &state.flags,
++				      true, &updated);
+ 		if (updated && state.flags.count_relabeled) {
+ 			state.relabeled_files++;
+ 		}
++		close(top_fd);
+ 		goto cleanup;
  	}
--
--	fsi->policy_opened = 1;
-+	mutex_unlock(&selinux_state.policy_mutex);
  
- 	filp->private_data = plm;
+ 	/* Obtain fs type */
+ 	memset(&state.sfsb, 0, sizeof(state.sfsb));
+-	if (!S_ISLNK(sb.st_mode) && statfs(pathname, &state.sfsb) < 0) {
++	if (!S_ISLNK(sb.st_mode) && fstatfs(top_fd, &state.sfsb) < 0) {
+ 		selinux_log(SELINUX_ERROR,
+ 			    "statfs(%s) failed: %m\n",
+ 			    pathname);
+ 		error = -1;
+ 		goto cleanup;
+ 	}
++	close(top_fd);
  
--	mutex_unlock(&selinux_state.policy_mutex);
--
- 	return 0;
- err:
- 	mutex_unlock(&selinux_state.policy_mutex);
-@@ -410,13 +396,8 @@ static int sel_open_policy(struct inode *inode, struct file *filp)
- 
- static int sel_release_policy(struct inode *inode, struct file *filp)
- {
--	struct selinux_fs_info *fsi = inode->i_sb->s_fs_info;
- 	struct policy_load_memory *plm = filp->private_data;
- 
--	BUG_ON(!plm);
--
--	fsi->policy_opened = 0;
--
- 	vfree(plm->data);
- 	kfree(plm);
- 
+ 	/* Skip digest on in-memory filesystems and /sys */
+ 	if ((uint32_t)state.sfsb.f_type == (uint32_t)RAMFS_MAGIC ||
 -- 
 2.54.0
 
