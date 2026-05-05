@@ -1,116 +1,194 @@
-Received: from mail-qt1-f177.google.com (mail-qt1-f177.google.com [209.85.160.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx1.secunet.com (mx1.secunet.com [62.96.220.36])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6E3F35CB76
-	for <selinux@vger.kernel.org>; Tue,  5 May 2026 02:36:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 543663176E4;
+	Tue,  5 May 2026 04:31:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.96.220.36
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777948562; cv=none; b=RDXxy6Gy/zK5VLdWC5wHrwFLfyA230zPCs9yqaXrBN7FFU3aWbAuvIokhEoRGr//BMBXHGWgSX/nR+gvZaSS6HX0NGGZ4SJfo3ihukLFe6glk5szlppGbVi4rbBNhPV6QAkmW2+p87nHiy5bD658NgvHv8y1HVJtckXW6LQyKYA=
+	t=1777955496; cv=none; b=Y/fLei0nEp6/IW7jhFbMopVObCGXHpylsigVuy9PClLe9E2eIfeNBAyeBYzF+DhXnHGwXd/Qdd1eSKgw12NzJa74dlJIvxxRB2ndnRZV16HwIg/egEmKDfHXrgPf1hcmnezxgVZpx8YR4ZVbx8x4G4+q41xvth/GzBT74+N23Ko=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777948562; c=relaxed/simple;
-	bh=oMQkrJVzjvGDzRf1TBvQnxsy7RIYnIH9CMiQBh6tMxE=;
-	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=ITLSJmJ/tD+5xoALaKoWAHAbKWJdrj2JO+HCswvCx3tlHY0BDcIpezmc1GUrye+s5bTK/9L/fb2EEtTjs5V/UiC0pHT+UydxLjNpt02YumNZH91zp/iST+0xophEmwYWrJPOXUdXQjHwih6uRaDVS7cR29JqVYEvUvdI/o7LXBc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=T68EB+2w; arc=none smtp.client-ip=209.85.160.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1777955496; c=relaxed/simple;
+	bh=2zCjpI/xwBE9jOHjtkQ5ZvXYiHO/nlN1PF3E9L0R0Js=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=a2jZVbcLlLEzu/c1D7Djo6hMkoaQWO3w1G5a83zxyO6cUWxUEc47xQ5w88PIjJtaWO2qqJlHHEC5BrBb1JnNvX8xSCikUpuN1jeA4RlB8bY6jK02EM8Vy7v4P5z0XqhO21N3/ItPDIHZBM5hDmGlWjpbAWolYoOwgiwFU6Vz/tI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com; spf=pass smtp.mailfrom=secunet.com; dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b=GLXesWEk; arc=none smtp.client-ip=62.96.220.36
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=secunet.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="T68EB+2w"
-Received: by mail-qt1-f177.google.com with SMTP id d75a77b69052e-50d7c12e48eso39916141cf.1
-        for <selinux@vger.kernel.org>; Mon, 04 May 2026 19:36:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1777948560; x=1778553360; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=wxv5WBJCMVGAsJWOha+l6tyIZFQRuwjg7MIsnEx1ulY=;
-        b=T68EB+2wcBgYA878D2BwQABRowWoPnhahLX2DY6iT+RPE0ZafCPZhaHK2ypstACTtv
-         LOr76OEQrkxFu1qMGch+jN5xAG4oBqpLPpzqCxehglWFIVr4bvkgXdxX9bcffsJOE/U4
-         WN3u2VwXaWiFD7GTI4oe4xKzyEC5+IfgOHNXmwLvBfogaUhcTd72iI0dx52oC00JyE3S
-         cvi1tCGYKJwW0jGXy0hLOBiwWmS5HJrlVcP4WB+VQHc0Inku7asQX9FTJOysnlfmZbsB
-         jeyytertFIuevS49sFdEsEY6bYFK8coD/ARitcXxklDieAaqjmjzx/sXpOw2ivlBuIFw
-         BDPA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777948560; x=1778553360;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=wxv5WBJCMVGAsJWOha+l6tyIZFQRuwjg7MIsnEx1ulY=;
-        b=nouj9Q0lluiQCKsxH6gOOI90qfQmIeroTV/ENiljGhEYLGmF56MreDRBbHyKXj+3GW
-         PozDDdP+b/MAt0+y8J0yvfo1BwgNXyEMX0MSzOsutbWduTRT4HhqK1dtpEaKPkRr0ErY
-         tWtLvo+pw4gL6lfqltVjwAPDUPuSGhBRMsCDxdPmLPua0iDu337h68f2SYAgMvM7S0hS
-         3KafGwPyQ+suFhYag8YgkfatxLAA6bv86OS67MzVwKyGuJdDCLdvvpzCmL7gt0zy9Mvi
-         BongWvhknvnY58xfuqF/+1tZ5DRPoc6XYO5qAeKXBP+WBJV4jvbPo+3qx6jxgPl8NTA9
-         lyvA==
-X-Forwarded-Encrypted: i=1; AFNElJ9PTwY9Z4NLI2n/EFLN7QAyyilB0QPGCcEKssiY0c5enNr/Yx7P/UGdKQNxcspXRcsc3jsro10L@vger.kernel.org
-X-Gm-Message-State: AOJu0YwUa9uvfNnXNQokuWGKElTA6a+Q+jqdhryE0gS9tdQKZbVrUUDW
-	chXuO8sWo+uRRxXNFd1FozpXNrHUD9d7y7fA/e/q4TXgrTFkHjztx5IIebOSdfUzyQ==
-X-Gm-Gg: AeBDieshAMLvkkFaq5psxZ+LcKpBIsCmpomej4ZlPGyJjHRaVh3BfKgsQvnGWCEgjeT
-	u/0Syccf1xrptJW0qqHUOlnCSSL8FXD8zplE1lJNHFl+Nx5YRmvi0nPTckaHmQ0cSQD0NQnEQad
-	pcm21IIdYdGMG1ITugz2Q6aHQxXh8et8jEDVMu3uMkQGWdbyHdwssqjYmejEvB77qUUAoQHs6CU
-	oteOskOeJ35iH9NOvHkYcl7RZIizfQevLErWY6AW56ssT94TfClkJg0TyOOq87qFB3AmgLvptX2
-	GSwPT5dlGh4ymjT3cfuF8LFZvKQ4vcuZeUx/JOchk1wOwCskYDrchvNfgIXi12TT5Pci9MDJddT
-	c4g1Gx2iO+NYaV+XjYV6KV3eZdFxxGLvNBi41h80XbZA1ScgnVLEjfZs52Se9Ph4USLRRss/KpT
-	DUSc4tBJSUvhrHwCcwDNlb74XZ6o+Z+s61I7TBjaqQIR2GESzCUz0C0tOBJiVQX7qR3FPIRxF1j
-	g/9Hyk=
-X-Received: by 2002:a05:622a:408e:b0:50f:a53b:9d3 with SMTP id d75a77b69052e-5130535deb0mr29676211cf.27.1777948559759;
-        Mon, 04 May 2026 19:35:59 -0700 (PDT)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-51040b8550esm113244871cf.26.2026.05.04.19.35.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 May 2026 19:35:57 -0700 (PDT)
-Date: Mon, 04 May 2026 22:35:56 -0400
-Message-ID: <366b06e622a590399fc41298bc291c21@paul-moore.com>
+	dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b="GLXesWEk"
+Received: from localhost (localhost [127.0.0.1])
+	by mx1.secunet.com (Postfix) with ESMTP id 40624206DF;
+	Tue,  5 May 2026 06:31:31 +0200 (CEST)
+X-Virus-Scanned: by secunet
+Received: from mx1.secunet.com ([127.0.0.1])
+ by localhost (mx1.secunet.com [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Dlr17Uwrl_Ao; Tue,  5 May 2026 06:31:30 +0200 (CEST)
+Received: from EXCH-02.secunet.de (rl2.secunet.de [10.32.0.232])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mx1.secunet.com (Postfix) with ESMTPS id 2600A201E4;
+	Tue,  5 May 2026 06:31:30 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.secunet.com 2600A201E4
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=secunet.com;
+	s=202301; t=1777955490;
+	bh=ApfnqOPBF7MVbC6Z9iIjMHTNA58M+AihQHA53n5cg9U=;
+	h=From:To:CC:Subject:Date:From;
+	b=GLXesWEkBDLOoTgolCNvgNJWgMcAxunrqzTorBy78YSi7H2LFlHvcLCPXx0zG45u3
+	 E+LFIWTW7RnwG9rcy8arvbhduqsZK0XVT7xgR1dA+MepyXvHDjUPXOHsbcJQOopUp8
+	 UophsW4Gt1SU9HXakCK44ScpLRt4JsRsPWYA8Q8GxuJtHh0VuG//rikaYr/S1gfQup
+	 92ZNd/bgIFyiIF1J2S/OviiaDVe1tGZztFj73tjKsNq0JhPJYi+qCM9RrJz1U+COBu
+	 WE3GNatNUtQXQSmairbQYaQMmaXfri7jK6/FfuBew6zI03E5/4iUE9YzTK/VBZa9Mx
+	 1soHRPAt4PBtA==
+Received: from moon.secunet.de (172.18.149.1) by EXCH-02.secunet.de
+ (10.32.0.172) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Tue, 5 May
+ 2026 06:31:25 +0200
+From: Antony Antony <antony.antony@secunet.com>
+To: Antony Antony <antony.antony@secunet.com>, Steffen Klassert
+	<steffen.klassert@secunet.com>, Herbert Xu <herbert@gondor.apana.org.au>,
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon
+ Horman <horms@kernel.org>, David Ahern <dsahern@kernel.org>, Masahide
+ NAKAMURA <nakam@linux-ipv6.org>, Paul Moore <paul@paul-moore.com>, Stephen
+ Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek
+	<omosnace@redhat.com>, Jonathan Corbet <corbet@lwn.net>, Shuah Khan
+	<skhan@linuxfoundation.org>
+CC: Sabrina Dubroca <sd@queasysnail.net>, <netdev@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <selinux@vger.kernel.org>,
+	<linux-doc@vger.kernel.org>, Chiachang Wang <chiachangwang@google.com>, Yan
+ Yan <evitayan@google.com>, <devel@linux-ipsec.org>
+Subject: [PATCH ipsec-next v8 00/14] xfrm: XFRM_MSG_MIGRATE_STATE new netlink message
+Date: Tue, 5 May 2026 06:31:09 +0200
+Message-ID: <migrate-state-v8-0-4578fb016965@secunet.com>
+X-Mailer: git-send-email 2.39.5
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=UTF-8 
-Content-Transfer-Encoding: 8bit 
-X-Mailer: pstg-pwork:20260504_2038/pstg-lib:20260504_1547/pstg-pwork:20260504_2038
-From: Paul Moore <paul@paul-moore.com>
-To: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org
-Cc: omosnace@redhat.com, Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: Re: [PATCH v2 3/3] selinux: prune /sys/fs/selinux/user
-References: <20260429211229.3750-4-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260429211229.3750-4-stephen.smalley.work@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+X-Change-ID: migrate-state-063ee0342680
+X-Mailer: b4 0.15-dev
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: EXCH-03.secunet.de (10.32.0.183) To EXCH-02.secunet.de
+ (10.32.0.172)
 
-On Apr 29, 2026 Stephen Smalley <stephen.smalley.work@gmail.com> wrote:
-> 
-> Finish removal of the /sys/fs/selinux/user interface aside from a
-> residual stub for userspace compatibility.
-> 
-> Commit d7b6918e22c7 ("selinux: Deprecate /sys/fs/selinux/user") started
-> the deprecation process for /sys/fs/selinux/user:
-> 
->     The selinuxfs "user" node allows userspace to request a list
->     of security contexts that can be reached for a given SELinux
->     user from a given starting context. This was used by libselinux
->     when various login-style programs requested contexts for
->     users, but libselinux stopped using it in 2020.
->     Kernel support will be removed no sooner than Dec 2025.
-> 
-> A pr_warn() message has been in place since Linux v6.13, and a 5
-> second sleep was introduced since Linux v6.17 to help make it more
-> noticeable.
-> 
-> We are now past the stated deadline of Dec 2025, so remove the
-> underlying functionality and replace it with a stub that returns a
-> '0\0' buffer to avoid breaking userspace. This also avoids a local DoS
-> from logspam.
-> 
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
->  .../{obsolete => removed}/sysfs-selinux-user  |   0
->  security/selinux/include/security.h           |   2 -
->  security/selinux/selinuxfs.c                  |  66 +--------
->  security/selinux/ss/services.c                | 125 ------------------
->  4 files changed, 3 insertions(+), 190 deletions(-)
->  rename Documentation/ABI/{obsolete => removed}/sysfs-selinux-user (100%)
+The current XFRM_MSG_MIGRATE interface is tightly coupled to policy and
+SA migration, and it lacks the information required to reliably migrate
+individual SAs. This makes it unsuitable for IKEv2 deployments,
+dual-stack setups (IPv4/IPv6), and scenarios where policies are managed
+externally (e.g., by daemons other than the IKE daemon).
 
-Again, please do the same thing here that was suggested in patch 1/3.
+Mandatory SA selector list
+The current API requires a non-empty SA selector list, which does not
+reflect the IKEv2 use case.
+A single Child SA may correspond to multiple policies,
+and SA discovery already occurs via address and reqid matching. With
+dual-stack Child SAs this leads to excessive churn: the current method
+would have to be called up to six times (in/out/fwd × v4/v6) on SA,
+while the new method only requires two calls.
 
---
-paul-moore.com
+Selectors lack SPI (and marks)
+XFRM_MSG_MIGRATE cannot uniquely identify an SA when multiple SAs share
+the same policies (per-CPU SAs, SELinux label-based SAs, etc.). Without
+the SPI, the kernel may update the wrong SA instance.
+
+Reqid cannot be changed
+Some implementations allocate reqids based on traffic selectors. In
+host-to-host or selector-changing scenarios, the reqid must change,
+which the current API cannot express.
+
+Because strongSwan and other implementations manage policies
+independently of the kernel, an interface that updates only a specific
+SA - with complete and unambiguous identification - is required.
+
+SA Selector, x->sel, can't be changed, especially Transport mode.
+
+XFRM_MSG_MIGRATE_STATE provides that interface. It supports migration
+of a single SA via xfrm_usersa_id (including SPI) and we fix
+encap removal in this patch set, reqid updates, address changes,
+and other SA-specific parameters. It avoids the structural limitations
+of XFRM_MSG_MIGRATE and provides a simpler, extensible mechanism for
+precise per-SA migration without involving policies.
+This method also allows migtrating SA selectors typically used with
+host-to-host in Transport mode.
+
+New migration steps: first install block policy, remove the old policy,
+call XFRM_MSG_MIGRATE_STATE for each state, then re-install the
+policies and remove the block policy.
+
+If the target SA tuple (daddr, SPI, proto, family) is already
+occupied, the operation returns -EEXIST. In this case the original
+SA is not preserved. Userspace must handle -EEXIST by
+re-establishing the SA at the IKE level and manage policies.
+
+---
+v7->v8: - removed the unknown-flags validation block
+
+Link to v7: https://patch.msgid.link/migrate-state-v7-14-44eb2440b91c@secunet.com
+v6->v7: - add SA selectoor migration
+	- fixes to commit messages
+	- white space removal
+
+Link to v6: https://lore.kernel.org/r/migrate-state-v6-0-9df9764ddb9e@secunet.com
+v5->v6: - add mark to look up SA.
+	- restrict netlink attributes in new method
+	- address review feedback from Sabrina
+	- add new patch to fix existing inter-family address comparison
+	- add extack xfrm_state_init()
+	- Feedback from Yan : omit-to-inherit add migrating marks
+	- Drop missing __rcu annotation on nlsk, Sabrina has a better patch
+
+Link to v5: https://lore.kernel.org/all/cover.1769509130.git.antony.antony@secunet.com/
+v4->v5: add synchronize after migrate and delete it inside a lock
+	- split xfrm_state_migrate into create and install functions
+Link to v4: https://lore.kernel.org/all/cover.1768811736.git.antony.antony@secunet.com/
+
+v3->v4: add patch to fix pre-existing missing __rcu annotation on nlsk
+
+v2->v3: - fix commit message formatting
+
+v1->v2: dropped 6/6. That check is already there where the func is called
+	- merged patch 4/6 and 5/6, to fix use uninitialized value
+	- fix commit messages
+
+---
+
+---
+Antony Antony (14):
+      xfrm: remove redundant assignments
+      xfrm: add extack to xfrm_init_state
+      xfrm: allow migration from UDP encapsulated to non-encapsulated ESP
+      xfrm: fix NAT-related field inheritance in SA migration
+      xfrm: rename reqid in xfrm_migrate
+      xfrm: split xfrm_state_migrate into create and install functions
+      xfrm: check family before comparing addresses in migrate
+      xfrm: add state synchronization after migration
+      xfrm: add error messages to state migration
+      xfrm: move encap and xuo into struct xfrm_migrate
+      xfrm: refactor XFRMA_MTIMER_THRESH validation into a helper
+      xfrm: add XFRM_MSG_MIGRATE_STATE for single SA migration
+      xfrm: restrict netlink attributes for XFRM_MSG_MIGRATE_STATE
+      xfrm: add documentation for XFRM_MSG_MIGRATE_STATE
+
+ Documentation/networking/xfrm/index.rst            |   1 +
+ .../networking/xfrm/xfrm_migrate_state.rst         | 231 ++++++++++++++
+ include/net/xfrm.h                                 |  78 ++++-
+ include/uapi/linux/xfrm.h                          |  21 ++
+ net/ipv4/ipcomp.c                                  |   2 +-
+ net/ipv6/ipcomp6.c                                 |   2 +-
+ net/key/af_key.c                                   |  12 +-
+ net/xfrm/xfrm_device.c                             |   2 +-
+ net/xfrm/xfrm_policy.c                             |  27 +-
+ net/xfrm/xfrm_state.c                              | 144 +++++----
+ net/xfrm/xfrm_user.c                               | 338 ++++++++++++++++++++-
+ security/selinux/nlmsgtab.c                        |   3 +-
+ 12 files changed, 764 insertions(+), 97 deletions(-)
+---
+base-commit: a77d172177f3754ebd70123c78c75a6efa9eec2a
+change-id: migrate-state-063ee0342680
+
+Best regards,
+--  
+Antony Antony <antony.antony@secunet.com>
+
