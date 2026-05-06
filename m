@@ -1,73 +1,138 @@
-Received: from cloud35.hostingpalvelu.fi (mail35.hostingpalvelu.fi [31.217.192.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f46.google.com (mail-yx1-f46.google.com [74.125.224.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 393AD31A81C
-	for <selinux@vger.kernel.org>; Wed,  6 May 2026 18:07:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=31.217.192.49
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778090858; cv=none; b=bAdfEMJZpLGGJwysCa58g8Z8h0IFMfaDLGI/moOYtcCWEbjvyd6GEyPwr4jEBKurql7CO/wOfIuT767+ZuEAnYSaCXlg7wepa37rh5qv4AjtC6CHsScNCYGm3FUCYZnjrE7Vwq6zDQS9Ml3B+v+5jaOMULzzwirkSU8EHthIm+k=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778090858; c=relaxed/simple;
-	bh=FD89W0tw9S9nhZ8GPROr5BO+TUuyYBS+B3CqV+o40Pg=;
-	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=l+gJ0JR67oT4s97cFWhY1s/kXP1v0Cj48uBKksqNJNFcx2qZwQBLjjkJJ8Fkw9Fk00Nbt3SuYXn5CVmVHeyCoVAGcx71iMJeGxDlVplM6QZHrQGkZFhGAuBdDQrX5XTlxFOIhTDgPOOgJHCm8BjmHOeEA97+1f9Ekci8Xo5v9k4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=dQEu/5OG; arc=none smtp.client-ip=31.217.192.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kolttonen.fi
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66C9E359A6C
+	for <selinux@vger.kernel.org>; Wed,  6 May 2026 18:31:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.46
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778092297; cv=pass; b=qJYZuDws8RVij6cYTYXlA6K1Z+HMe+JCOhKhmemy8gs6ErfaQ8uiMJvZGkuURr9j7+Ym7boatG54VPZPm0wwQ3h99o/PAl6i9+X7ZubbKNva88SQZs3hP3xDEiEqCznLFbECwjPp/ZnICLdUp1JpXiGqKhhMOvu/RWHfzWIJbYs=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778092297; c=relaxed/simple;
+	bh=K+DQeIHhDYeEgAWeAYkQESZiAh03A8T09tWWEkqBzKs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=TvKPjMBNw+Jw1hS63RNGHGTnuTUOlKKXlswSeWZ8MZxVbkqeHqb5axhGnhk7V0OxT3D9afDhYfGw41Xud63Y7eSi06UoD0j68VGiervLQwGJD2ApCjgznivWu+pNFYbC0JXpsS3BL/U1qJK5jJ5C/tF2iZG/Lvead/1bJ6jxbzc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GAIo3PMX; arc=pass smtp.client-ip=74.125.224.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="dQEu/5OG"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=kolttonen.fi; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
-	:Message-ID:Subject:To:From:Date:Sender:Reply-To:Cc:Content-Transfer-Encoding
-	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=FD89W0tw9S9nhZ8GPROr5BO+TUuyYBS+B3CqV+o40Pg=; b=dQEu/5OGGubXCnyh1bVthfzh+z
-	BgxSb0p/7ARBSsg2L6LnPP4GjOcJg2SAGMJBOEoUvkLe0+nbhlW9uYJoANuEG0+PwCR0BY4/aFKDS
-	WcgzpsK/EAdOTXNE6ZOv7EU6vHd9SuEU8Vc1qLSgrEnUqsFwLutwE+Q8OgRju1B2FKyMHV7aMilhx
-	sm8PnfUmJ+ZNTHvnNwehLd+Wq6n1sodP3o3v3vir15XCfxiJuL0DYA4lD9rW36r/07sOIIIeO2z7R
-	0dqpMsv1ouF0vbO2Y5dF9eg+Sj0sn7ztDtiayt1cJL9swAGBys4OuO7plg4cJQAF3U0dSY08jIg0F
-	SMtTTM5w==;
-Received: from 176-93-144-62.bb.dnainternet.fi ([176.93.144.62]:11544 helo=14-5A-FC-31-E8-67)
-	by cloud35.hostingpalvelu.fi with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.99.2)
-	(envelope-from <kalevi@kolttonen.fi>)
-	id 1wKgek-00000002moV-0uRw
-	for selinux@vger.kernel.org;
-	Wed, 06 May 2026 21:07:34 +0300
-Date: Wed, 6 May 2026 21:07:32 +0300
-From: Kalevi Kolttonen <kalevi@kolttonen.fi>
-To: selinux@vger.kernel.org
-Subject: Re: [PATCH] libsemanage: use 'bool' for boolean options
-Message-ID: <afuDZJgFhEZrkdlJ@14-5A-FC-31-E8-67>
-References: <20260506163042.83573-1-kalevi@kolttonen.fi>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GAIo3PMX"
+Received: by mail-yx1-f46.google.com with SMTP id 956f58d0204a3-6587cee8b57so7786100d50.2
+        for <selinux@vger.kernel.org>; Wed, 06 May 2026 11:31:36 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1778092295; cv=none;
+        d=google.com; s=arc-20240605;
+        b=jjOHP8j2Bag8eJlb8YLFHXxAOVp9glJELCuOQxMZkQsqmeKvTzKOy6bAA2XaKI1Yop
+         3OU/2HjAi7cA9Epo6IK4VA+sYuuPD8yTOy1L2BZE0ZBBNYcW7o9osuAiTVrNdZt3k9Dj
+         0c05eC1KVlPTh5eZOAnGZC3Csd5tnPzcDZDXBn9a4CLUTBV9vBK4tC0i84rOCVJRTUwD
+         vZqJEUjc4mRBIJSKryytofRYMGUjzB5cBhOWYTpIBRzlvXt3ZoqIrvR0tu35rStVCJ2M
+         CWWuKTdPDP/cjGW+LskyE9sCBBl/r3RTMrYqmArGArkauWa05QCcP/aPmwmODII16P81
+         iwhA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=9akTSwlreNemjDDl/tav+BImCnfp28vxpIgpi93G6Ek=;
+        fh=RcJrr7O3svp8K5gZfgCjK7Xv0tA8i0VIpUekoWsmIc8=;
+        b=ZnUr3Ov6zmhRhJe0XpGYC/ACqeNf+k0dVPa2HEDGCItEiMkic8WyuAmhaWwaVrgsBO
+         +Imq+ILlg+UiiizRHNVDzwOR8x72KucQW+fUW71+ZnHFkQasnqiArzgq7s8soUC0lwd4
+         yficjssTO75jAEf8qlz3WwNoZA/LMC1f3RhKZg/G7D8zIFvtBeY+vRgeIBGxGXO3026E
+         L6lZATa9wDqsPCxDpkN9QUEu8UyAYRmw11Nc646+oWWTDGeHjCQ3soIgmFwFWmX/Z8mn
+         qtaj0iexJoWR/C7IMvX8JSwK5d05fnzNjv4EKf1a7BHL9wVh7IwfiMHCZG1ofWsgq18B
+         DHRw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778092295; x=1778697095; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=9akTSwlreNemjDDl/tav+BImCnfp28vxpIgpi93G6Ek=;
+        b=GAIo3PMXfYwj6sLJ/rOabPZQcJSDQ4O+MZ/iFNclypNGkvv4PdtqmjnCp93gORwZBU
+         6FOyfWwevSdXCuw6uBZ4JGzsAkM7Hs9R+4lPsQvNNVcAg/pzPclXQsmyG54U3kGwq+4o
+         5YYzx55jUHVZ9x1dSdQThuxuV4S3RzSccW85tKrszzgzFOBbLfModfSzfJITNydQnfw0
+         OJAXnaPa9naTq1/QSpdYATIVWqIuqzYk+7OCqKu04R3eZWc5Vl+rdhPYOHMfGK1f8gmM
+         7FgZw0xuunfF/fPWM4u35vNNJjUjpa1D6cc6Np6+LsoWy/gxBDLG1T2ZuO1HmlAyaQgn
+         qDMQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778092295; x=1778697095;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=9akTSwlreNemjDDl/tav+BImCnfp28vxpIgpi93G6Ek=;
+        b=NPE/WAGGNnB9ttBEJ1/llqWjjrO3jUzIMt9EKc/7ChkKp72nJ2aFNrk3n+4NxVtFDV
+         zXTkffO5ADPJpf34XNS94HLv6VOowz+7NKDncbENqtFbcfwZJVDQhh20QMA5pwvf9RQt
+         x1kMa2Euh3HwLDRFDncXYspMcojVZ/Y9oHEepCg/738k7nRHVTXXRcJuNHTKhHCPrYAW
+         KgsXGEIvsXMJvY5v4hDBPSRMLPznTXoyBIppDEr2WwBD47GR57Xb1lZ4mX3Act9nKWwo
+         2GY5bJl+Joi1gmfGGRjwwOlJqO7THzZEIFyQPTu/bMJIg6vzQJ/gnEpRVrWLvy24xuef
+         kZsQ==
+X-Gm-Message-State: AOJu0Yyq4w7yOjlZoebpqy0KuhPZTHt7SL2Nmwpv1ZLLDf5Q+uxRHq6Z
+	EpagF5+V0UbHoYZ421QUgJyvv5377AkkHgEDE5Lz0KbeObEk6LqvoPnNWt12M6832Mly1ef20Hx
+	PVN4kPJuCZVS+NoY/dMZE7SZiyzkO2szDaQ==
+X-Gm-Gg: AeBDieunzMB2o0qtebdjqV4HXQqNr91/y1zZ5NrFaSwFllydBjmnVk8wN6WAJA6Qwh8
+	AB8H0ZH43s9+Qq+0Fm2c9R/7PoPxMTJbIiZ3r2UIMePQIOok0fdBelFW8ASdfdjjvv1MPRpwewQ
+	pJRqogMNq55avBrJ454gxMFbaGzaeDIZ2h3gwsIj8p9QwrWop6FhiHtp0i7hLLkta3wXhWXWVsN
+	VPvvfZV3RlO+Sg0sihHYutSJ1YJMes5FzxbgS/8mw2tLxAWb4jLDlNLeDQU89Id/NNXf1II/ejy
+	CaF+E4xFuII1qEZDoA==
+X-Received: by 2002:a05:690e:14cf:b0:65c:febd:c0db with SMTP id
+ 956f58d0204a3-65cfebdc973mr1904540d50.60.1778092295323; Wed, 06 May 2026
+ 11:31:35 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260506163042.83573-1-kalevi@kolttonen.fi>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - cloud35.hostingpalvelu.fi
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - kolttonen.fi
-X-Get-Message-Sender-Via: cloud35.hostingpalvelu.fi: authenticated_id: kalevi@kolttonen.fi
-X-Authenticated-Sender: cloud35.hostingpalvelu.fi: kalevi@kolttonen.fi
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+References: <aftvCdG7qZ5TeQhI@14-5A-FC-31-E8-67>
+In-Reply-To: <aftvCdG7qZ5TeQhI@14-5A-FC-31-E8-67>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Wed, 6 May 2026 14:31:23 -0400
+X-Gm-Features: AVHnY4IZ8uoqHEjqcuCjOUptM_Pca0wQUBEQI8S-Egig0RPws4MWk-lj8daPMk8
+Message-ID: <CAEjxPJ5PVu=ypZ1coyq5B9kNNFkyE2s2HM2m+fmBSBv=ObxwHg@mail.gmail.com>
+Subject: Re: libsemanage: why is expand_check integer?
+To: Kalevi Kolttonen <kalevi@kolttonen.fi>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 06, 2026 at 07:30:42PM +0300, Kalevi Kolttonen wrote:
-> Use 'bool' for boolean options. Check strdup() failures.
-> Add explicit 'conf->disable_genhomedircon = false' default
-> initialization.
+On Wed, May 6, 2026 at 12:42=E2=80=AFPM Kalevi Kolttonen <kalevi@kolttonen.=
+fi> wrote:
+>
+> Hello!
+>
+> libsemanage/src/conf-parse.y: why is 'expand_check' conf
+> option type 'int' even though it is really a boolean?
+>
+> expand_check:   EXPAND_CHECK '=3D' ARG  {
+>                         char *endptr;
+>                         long value;
+>                         errno =3D 0;
+>                         value =3D strtol($3, &endptr, 10);
+>                         if (*endptr !=3D '\0' || errno !=3D 0 || (value !=
+=3D 0 && value !=3D 1))
+>                                 yyerror("expand-check can only be '1' or =
+'0'");
+>                         else
+>                                 current_conf->expand_check =3D value;
+>                         free($3);
+>                 }
+>         ;
+>
+> Many other boolean conf options are handled like this:
+>
+> disable_genhomedircon: DISABLE_GENHOMEDIRCON '=3D' ARG {
+>         if (strcasecmp($3, "false") =3D=3D 0) {
+>                 current_conf->disable_genhomedircon =3D 0;
+>         } else if (strcasecmp($3, "true") =3D=3D 0) {
+>                 current_conf->disable_genhomedircon =3D 1;
+>         } else {
+>                 yyerror("disable-genhomedircon can only be 'true' or 'fal=
+se'");
+>         }
+>         free($3);
+>  }
+>
+> Is it worth converting 'expand_check' to be like this too or
+> is it wrong to break the existing configurations that use '0'
+> or '1' as values?
 
-My apologies, I blew it again, forgot '-s' to git commit. Have
-resent the patch with Signed-off-by added.
-
-br,
-KK
+We should definitely preserve backward-compatibility for all existing
+userspace configuration files and APIs/ABIs.
+Some of us predate stdbool ;)
