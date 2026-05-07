@@ -1,128 +1,106 @@
-Received: from flow-a3-smtp.messagingengine.com (flow-a3-smtp.messagingengine.com [103.168.172.138])
+Received: from mx208.easyname.com (mx208.easyname.com [212.232.28.126])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 804973D5673;
-	Thu,  7 May 2026 10:11:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC7C3346AFB
+	for <selinux@vger.kernel.org>; Thu,  7 May 2026 10:12:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.232.28.126
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778148689; cv=none; b=k7iv+/luLUCGOts+bcIMkgQnvlQdSwiystPz+jkTDY5by9ex0MkcI0mM69zoqV7uLujwMeiFLRTO+VGfUW5m1oZYOGSXJd1gkcwU22J6S8R6qU4jSMQgF3zQpfAOVMo3UXq+8+de5APiZlXdruFOUqWhjSQsDsXqnXc+yVaE1ns=
+	t=1778148732; cv=none; b=cG9UAHVVr7Q6Er/9mAV2/keMCrmlKSQStFtOSuS5KlfDjSRmNu8hN7N1YopfEtnFxEM4QIBT9PYX4bePYOYNRGq8uQ5XpO4elDbvc+40HypHZGndbQAMdy/FNWtCf4qZjxDnr6Hdbn1lE9s/MydkFGqWdIOaIJ+fkQgjms7aFoQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778148689; c=relaxed/simple;
-	bh=aADs9oSMSK8Xza/MsQNzBwuvvMeXhlpveKI0n7J8k9k=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DunZCVoKiovm4z0FtKymhm9ouANTQGFL7hTG/BQCRQsYq5PRqsSKbg3jxeC0uDhGCzzsqGpafqv3f9TNCsrWgoXqlLF9YxrZWafBcxKaqwioFqAxf8QdGidNpBykNjm/bLJ7IAh59/FAXnBHSXho7PDsuSpimeyZM//TibT/WHw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net; spf=pass smtp.mailfrom=queasysnail.net; dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b=ARiC8uE4; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=M9/p6hCF; arc=none smtp.client-ip=103.168.172.138
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=queasysnail.net
+	s=arc-20240116; t=1778148732; c=relaxed/simple;
+	bh=J4FHcQWhhaU7wOaeTVMzT3aSylFfIz1qeXi1zrRdC2w=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=gQNGMqTKi4C5xvZI5bf5vRNZDC90o3O4LzMxhHw4Wxt2idksMmb+kgMs/H+mhiBl7kGPJOAE7nT7AQNRHZ7IrPpHx3J585KfgqR7E2S4r3xDDyUUU8KofmnWIXy2T7HMvjWuVi/6rsFG7gM/C2uHUel5qxhPz50JXIyNXav0qEQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=peppergray.xyz; spf=pass smtp.mailfrom=peppergray.xyz; dkim=pass (2048-bit key) header.d=peppergray.xyz header.i=@peppergray.xyz header.b=o/4hYSGm; dkim=pass (2048-bit key) header.d=peppergray.xyz header.i=@peppergray.xyz header.b=o/4hYSGm; arc=none smtp.client-ip=212.232.28.126
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=peppergray.xyz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=peppergray.xyz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b="ARiC8uE4";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="M9/p6hCF"
-Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
-	by mailflow.phl.internal (Postfix) with ESMTP id CF0201380220;
-	Thu,  7 May 2026 06:11:17 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-02.internal (MEProxy); Thu, 07 May 2026 06:11:17 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=queasysnail.net;
-	 h=cc:cc:content-type:content-type:date:date:from:from
-	:in-reply-to:in-reply-to:message-id:mime-version:references
-	:reply-to:subject:subject:to:to; s=fm1; t=1778148677; x=
-	1778155877; bh=3t4hXUjheiudoU94vji1xmcdKSOZDuXpqBx7T7981lQ=; b=A
-	RiC8uE4p074LLDMZ9uy6+rdSgBjE/LRekvWY52Cf4F9Ws/OZUPyo+KPWITgG0BeZ
-	e9rX4TazJAehkNL7FND0H8I9zRjZAvpUbwxGFdv1jkqAllf/MhEHLfx7KqC7nb6O
-	L4PvdkRHYd38SODSVm995Po5fXSoY01tDchwIduL5V9PXEu00u0BMROq3CKTJw8a
-	RTOUo1xAGFqezSoAUG5a6u6p2lJS1MTD5PRaGUNBkvOGsv++QCSVnnYBwXkOgeOc
-	uITtTnWVIb6G52anNq7gBxxjzMjzzULkgjUI5drBgEFnTNpxOQxWL1NcF69jGsaD
-	6gS4Kpto5lcjOySdgxKgQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
-	1778148677; x=1778155877; bh=3t4hXUjheiudoU94vji1xmcdKSOZDuXpqBx
-	7T7981lQ=; b=M9/p6hCF/cWtftPX5I7qR5Kial1YEF++HRZ8h1ftDUbeS6lkax4
-	ce2Mc0MqRuMZ9WBPdM+E2Fc+NzIosjOAt5i1l2S6vdHn9fiyzwOQhi9+amUcioOy
-	puYDIURm0EO0FZiNxAs9QVAdVh09qrdhlYnacnNy0KQojPfdtTtK+7//FjtN3Xa1
-	KswdClZrATuAh+DnSWokmPpqNSmTqZpbb9x+DrUyWwtY+PIcmwgCuZXXU01CvS/c
-	Qhvo+9+Iz3L4Z/Db1MtaaIUeBAEjunXX+P9ys0n3zjNYemMhkHSCdvYgZ5SlgsY1
-	07uAcfT8cQmly+tvICuJ+zUdO0XSXVZRqSg==
-X-ME-Sender: <xms:RWX8aRMxgrvola_k7v81qEW8RU3nk89esctVCFzz5AYFQZwpcZa3Sw>
-    <xme:RWX8aVn-0puaVkpZzkf7PK621Y95vHFDb5b43Y0bCDZdtg-rPLB7BvC1RT4Aduw2T
-    cwRHC4MPoA7lqX5cc5zzDwZ0z36uJd_hf54o-5rPIulkAhLfy6acgjK>
-X-ME-Received: <xmr:RWX8aUUnKPjst1kMh22CP7LRuZHlER1ovPb1YN77-rtYjNHU5BqcYumgj0c5>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgddutdejvddtucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepfffhvfevuffkfhggtggujgesthdtredttddtjeenucfhrhhomhepufgrsghrihhn
-    rgcuffhusghrohgtrgcuoehsugesqhhuvggrshihshhnrghilhdrnhgvtheqnecuggftrf
-    grthhtvghrnhepuefhhfffgfffhfefueeiudegtdefhfekgeetheegheeifffguedvueff
-    fefgudffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
-    epshgusehquhgvrghshihsnhgrihhlrdhnvghtpdhnsggprhgtphhtthhopedvvddpmhho
-    uggvpehsmhhtphhouhhtpdhrtghpthhtoheprghnthhonhihrdgrnhhtohhnhiesshgvtg
-    hunhgvthdrtghomhdprhgtphhtthhopehsthgvfhhfvghnrdhklhgrshhsvghrthesshgv
-    tghunhgvthdrtghomhdprhgtphhtthhopehhvghrsggvrhhtsehgohhnughorhdrrghprg
-    hnrgdrohhrghdrrghupdhrtghpthhtohepuggrvhgvmhesuggrvhgvmhhlohhfthdrnhgv
-    thdprhgtphhtthhopegvughumhgriigvthesghhoohhglhgvrdgtohhmpdhrtghpthhtoh
-    epkhhusggrsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehprggsvghnihesrhgvughh
-    rghtrdgtohhmpdhrtghpthhtohephhhorhhmsheskhgvrhhnvghlrdhorhhgpdhrtghpth
-    htohepughsrghhvghrnheskhgvrhhnvghlrdhorhhg
-X-ME-Proxy: <xmx:RWX8aUJdDozCiOCnIu8US_njQ4CRRaD1IGLG8ZTm7ULwmS7PDljccQ>
-    <xmx:RWX8aYaduYwOXo21T6Ex6eSsFQ9z0uWL_t3wM2sleAX-ib6Db2vYVA>
-    <xmx:RWX8aYRpZxz4eSHAeS1MiIdvLwF0GM2sZblt3Bux2G4c84qe2XLsng>
-    <xmx:RWX8aQiWsBYDJh3bF3C9WctJMatIkQhcdvUW3dtFLjPxi0TblPEyDg>
-    <xmx:RWX8aYDRIdGJmiZ8Jjgbuyzazp-GcJVIEIX1U7qU_WVWhs32qRkSmleM>
-Feedback-ID: i934648bf:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 7 May 2026 06:11:16 -0400 (EDT)
-Date: Thu, 7 May 2026 12:11:15 +0200
-From: Sabrina Dubroca <sd@queasysnail.net>
-To: Antony Antony <antony.antony@secunet.com>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>, David Ahern <dsahern@kernel.org>,
-	Masahide NAKAMURA <nakam@linux-ipv6.org>,
-	Paul Moore <paul@paul-moore.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	Chiachang Wang <chiachangwang@google.com>,
-	Yan Yan <evitayan@google.com>, devel@linux-ipsec.org
-Subject: Re: [PATCH ipsec-next v8 06/14] xfrm: split xfrm_state_migrate into
- create and install functions
-Message-ID: <afxlQwq3URiHYXkP@krikkit>
-References: <migrate-state-v8-0-4578fb016965@secunet.com>
- <migrate-state-v8-6-4578fb016965@secunet.com>
+	dkim=pass (2048-bit key) header.d=peppergray.xyz header.i=@peppergray.xyz header.b="o/4hYSGm";
+	dkim=pass (2048-bit key) header.d=peppergray.xyz header.i=@peppergray.xyz header.b="o/4hYSGm"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=peppergray.xyz; s=easyname; h=Content-Type:To:Subject:Message-ID:Date:From:
+	MIME-Version:Sender:Reply-To:Cc:Content-Transfer-Encoding:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=J4FHcQWhhaU7wOaeTVMzT3aSylFfIz1qeXi1zrRdC2w=; b=o/4hYSGmt7FORNJJH8mSAdTlNF
+	uBrzh34/+xqTx4P+FKHe4OChC2zrWS6hlamqXWb4XGIMKXrVLuBj8zqyYtlaXPmiELEsF1bYaFYm9
+	BwVRWJTm+6aWvo2df+DBqzBncBOXhdyBhJA/vCr9uuFoefkCep5h9ygUD9vuTZofsKCqwFEATfnb9
+	mj9x6A2ssb9YKvICzlvNDjTlO1gP6KkA++NlW3lTwS4O/P4iKVin79G5DQxkiuz7Bqb8LEnc5cGaz
+	Kj2MZXkvO3bdOlcj4KXwDH50CeROYZqOfZgV6/h/WqUaGbm33tp/T7AJDpbMwlR3JaJCG/e7dvrqJ
+	tvvEOszQ==;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=peppergray.xyz; s=easyname; h=Content-Type:To:Subject:Message-ID:Date:From:
+	MIME-Version:Sender:Reply-To:Cc:Content-Transfer-Encoding:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=J4FHcQWhhaU7wOaeTVMzT3aSylFfIz1qeXi1zrRdC2w=; b=o/4hYSGmt7FORNJJH8mSAdTlNF
+	uBrzh34/+xqTx4P+FKHe4OChC2zrWS6hlamqXWb4XGIMKXrVLuBj8zqyYtlaXPmiELEsF1bYaFYm9
+	BwVRWJTm+6aWvo2df+DBqzBncBOXhdyBhJA/vCr9uuFoefkCep5h9ygUD9vuTZofsKCqwFEATfnb9
+	mj9x6A2ssb9YKvICzlvNDjTlO1gP6KkA++NlW3lTwS4O/P4iKVin79G5DQxkiuz7Bqb8LEnc5cGaz
+	Kj2MZXkvO3bdOlcj4KXwDH50CeROYZqOfZgV6/h/WqUaGbm33tp/T7AJDpbMwlR3JaJCG/e7dvrqJ
+	tvvEOszQ==;
+Received: from mail-ed1-f45.google.com ([209.85.208.45])
+	by mx.easyname.com with esmtpsa (TLSv1.3:TLS_AES_128_GCM_SHA256:128)
+	(Exim 4.92)
+	(envelope-from <hello@peppergray.xyz>)
+	id 1wKvPc-000F6i-KC
+	for selinux@vger.kernel.org; Thu, 07 May 2026 09:52:57 +0000
+Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-678adefbd26so1127296a12.3
+        for <selinux@vger.kernel.org>; Thu, 07 May 2026 02:52:54 -0700 (PDT)
+X-Gm-Message-State: AOJu0Yz42ALJWEzfV8gojCeZTohItFkdCGYv18bXj8RAGEPJoOXONCvs
+	E+p4ozPFaeVw7TwUlEMaxoL64MUFYSQdninq3zyB5VxMUbbWPOUgobxszLOgu+78up6bGiZhE5g
+	ihm/TawHCgNvx3pLpfVYghJwPGuWdX6ydhZtfsFngwQ==
+X-Received: by 2002:a17:907:3e0a:b0:b98:50b:e94a with SMTP id
+ a640c23a62f3a-bc56c92eda4mr460193066b.16.1778147574304; Thu, 07 May 2026
+ 02:52:54 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <migrate-state-v8-6-4578fb016965@secunet.com>
+From: Pepper Gray <hello@peppergray.xyz>
+Date: Thu, 7 May 2026 11:52:43 +0200
+X-Gmail-Original-Message-ID: <CAHLDejyMAktQhBkfJrvz5OrS=d7WSSe4pFA33qKJALtH_nWafw@mail.gmail.com>
+X-Gm-Features: AVHnY4JXMtUVDJvf8NVYToQRrkeaLlD4a0skpjDV1c8AaJYLTMHFUZ_hJFVEsEc
+Message-ID: <CAHLDejyMAktQhBkfJrvz5OrS=d7WSSe4pFA33qKJALtH_nWafw@mail.gmail.com>
+Subject: [PATCH] expose alias for stat64 and lstat64 on musl
+To: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-2026-05-05, 06:33:07 +0200, Antony Antony wrote:
-> To prepare for subsequent patches, split
-> xfrm_state_migrate() into two functions:
-> - xfrm_state_migrate_create(): creates the migrated state
-> - xfrm_state_migrate_install(): installs it into the state table
-> 
-> splitting will help to avoid SN/IV reuse when migrating AEAD SA.
-> 
-> And add const whenever possible.
-> No functional change.
-> 
-> Signed-off-by: Antony Antony <antony.antony@secunet.com>
+From 0471d76499aae8f44cb21c7faa1609e0387abafb Mon Sep 17 00:00:00 2001
+From: Pepper Gray <hello@peppergray.xyz>
+Date: Sat, 11 Apr 2026 15:08:26 +0200
+Subject: [PATCH] expose alias for stat64 and lstat64 on musl
 
-Reviewed-by: Sabrina Dubroca <sd@queasysnail.net>
+fix: #477
+Signed-off-by: Pepper Gray <hello@peppergray.xyz>
+---
+ libselinux/src/selinux_restorecon.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-(I was going to mention xuo, but I see it's handled later on)
+diff --git a/libselinux/src/selinux_restorecon.c
+b/libselinux/src/selinux_restorecon.c
+index 8425a3c5f..2ccda300e 100644
+--- a/libselinux/src/selinux_restorecon.c
++++ b/libselinux/src/selinux_restorecon.c
+@@ -19,7 +19,6 @@
+ #include <limits.h>
+ #include <stdint.h>
+ #include <sys/types.h>
+-#include <sys/stat.h>
+ #include <sys/xattr.h>
+ #include <sys/vfs.h>
+ #include <sys/statvfs.h>
+@@ -29,6 +28,10 @@
+ #include <syslog.h>
+ #include <assert.h>
 
--- 
-Sabrina
++// expose alias for stat64 and lstat64 on musl
++#define _LARGEFILE64_SOURCE 1
++#include <sys/stat.h>
++
+ #include <selinux/selinux.h>
+ #include <selinux/context.h>
+ #include <selinux/label.h>
