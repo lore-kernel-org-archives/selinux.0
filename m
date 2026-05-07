@@ -1,315 +1,146 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx208.easyname.com (mx208.easyname.com [212.232.28.126])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71AA83C3BED
-	for <selinux@vger.kernel.org>; Thu,  7 May 2026 09:33:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4917E2FA0C6
+	for <selinux@vger.kernel.org>; Thu,  7 May 2026 09:53:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.232.28.126
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778146437; cv=none; b=hdCA23EVIT4qHl+fpIJlzCIHNBmtIS6Ndogkgxe0sLnctzPsoCkOgTPI6FvLbfq+78fqGvFrRFIeJgy840XHkmvEgD2HSjvkpPQQfhWIT0X6v2pDiqYMv4jDiw5FWnwMOfjNbE11fAXxdGQ/xI7vmwK6EpMRSQLreGwseLFoTbs=
+	t=1778147595; cv=none; b=cRRQB4ougSX+KdfospSsZZ4b0FKmcQ3czujtOBxpQNsDNQD8GUqMCp90YYSiYNlWJaORl7NyBmEa4JdX0O5AD5jxl9An15UJIz9njdoAXJ+vbbBfRwOQSfeJutusPanBiZLXkuYAgp6bS7yt7s++YGCqVmEfnnd3dBoUk8mcEto=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778146437; c=relaxed/simple;
-	bh=xq2xI5xzSWcEABH9xoR7CekpUSu/Qmhly2A0IJSS3H4=;
-	h=From:To:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=S89+46CdN+IvJBo0yiq5guaA81Xd0kwmuYj6yukps/4NUZP/GNXpuHoO8whhc7aIMKY7/rybCHem93lyKmFjfyL7n14jFdfd4g5U1DSE3xs7BKj3g6QCYOu0EgiVn1bpdu55GEb/3joib4NorSyIocu/Imncc/6mvLcEU9YBKEE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=flqKWfdR; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1778147595; c=relaxed/simple;
+	bh=+LELZDBKz4GsAjLlYRaqkJGwMp5fd0qB1bBSki/gSgA=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=ffXEanT0dEz+BXyiOg62vwcjabM0CO72fChJ1j3tp+3BPURw6tzPwKuWAXRi6IxDnNWqW7o49m6FSgm1u69m9WH43d2x1KVDUm4CoNQgp5GK4HY2ER3J3j98FNumvUiWYPLRw2I2k26L/amCQ8dKwN6YxEFcb2HmcmyvuNviZuk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=peppergray.xyz; spf=pass smtp.mailfrom=peppergray.xyz; dkim=pass (2048-bit key) header.d=peppergray.xyz header.i=@peppergray.xyz header.b=bNoaomby; dkim=pass (2048-bit key) header.d=peppergray.xyz header.i=@peppergray.xyz header.b=bNoaomby; arc=none smtp.client-ip=212.232.28.126
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=peppergray.xyz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=peppergray.xyz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="flqKWfdR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778146434;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=IU7ylZl/g21JR76xnSdwRjb1E9k+H7LNOhkftLIMqIo=;
-	b=flqKWfdRK3HwZvC2gj5r4FppJbGK71do+sTIopXi+i15w5BehDl5O+svJCPHedo9cu+aeP
-	QgecYimCa1j3JpJcW8W1eqB2GHLcdsTDIVxjldg0EVVwtDiJl18aeOIdOmC8HoL6Grgb3R
-	Yko2e30l3PdWe4QTHycLCUN84NdvJ8U=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-574-BN1YAFrZNimX9JCZ_9PNjg-1; Thu,
- 07 May 2026 05:33:52 -0400
-X-MC-Unique: BN1YAFrZNimX9JCZ_9PNjg-1
-X-Mimecast-MFC-AGG-ID: BN1YAFrZNimX9JCZ_9PNjg_1778146432
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id A6F55180034A;
-	Thu,  7 May 2026 09:33:51 +0000 (UTC)
-Received: from localhost (unknown [10.44.32.117])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 36E4D3002D2D;
-	Thu,  7 May 2026 09:33:50 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
-To: Kalevi Kolttonen <kalevi@kolttonen.fi>, selinux-list
- <selinux@vger.kernel.org>
-Subject: Re: SELinux userspace does not build on Fedora 44
-In-Reply-To: <afvtC0DVQkt6rtAD@14-5A-FC-31-E8-67>
-References: <afvtC0DVQkt6rtAD@14-5A-FC-31-E8-67>
-Date: Thu, 07 May 2026 11:33:49 +0200
-Message-ID: <878q9v8sxu.fsf@redhat.com>
+	dkim=pass (2048-bit key) header.d=peppergray.xyz header.i=@peppergray.xyz header.b="bNoaomby";
+	dkim=pass (2048-bit key) header.d=peppergray.xyz header.i=@peppergray.xyz header.b="bNoaomby"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=peppergray.xyz; s=easyname; h=Content-Type:To:Subject:Message-ID:Date:From:
+	MIME-Version:Sender:Reply-To:Cc:Content-Transfer-Encoding:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=XGoWQBEsd+DU+vQNSnXoJI1yTElpsZJVohedkJlAuT8=; b=bNoaombyvYJY7twENVTYu2dTuL
+	d/ITc0tJl0I+CxHZsIb+HTJKkFO3DZ+kk8tI6HTW+Psb2QL1SDZNgEDPZ43LSoFSl7v4JSbrndoJh
+	zXa3/O5aJw9dLxhINgT8skB236mD2x+i2W9Ys0I/hYXlvfL6Ak/CpgU5wd8snDjMbhBI5zBHqdN5a
+	FnFsQNr+1PFxe+5IyIEhmZZFsjxqEIu+ATVURh2Akb38sH4BcWSPNvg2Z7yDAg4x7SC0jKyZznOTB
+	QoYtXklAR/l/BgKM/VlVGszvecoVzbMsYHLn9DuXRVZUW6mJ36NMJ82oV3TXUd6kk0nXhE1rsejbT
+	Ge3JCToA==;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=peppergray.xyz; s=easyname; h=Content-Type:To:Subject:Message-ID:Date:From:
+	MIME-Version:Sender:Reply-To:Cc:Content-Transfer-Encoding:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=XGoWQBEsd+DU+vQNSnXoJI1yTElpsZJVohedkJlAuT8=; b=bNoaombyvYJY7twENVTYu2dTuL
+	d/ITc0tJl0I+CxHZsIb+HTJKkFO3DZ+kk8tI6HTW+Psb2QL1SDZNgEDPZ43LSoFSl7v4JSbrndoJh
+	zXa3/O5aJw9dLxhINgT8skB236mD2x+i2W9Ys0I/hYXlvfL6Ak/CpgU5wd8snDjMbhBI5zBHqdN5a
+	FnFsQNr+1PFxe+5IyIEhmZZFsjxqEIu+ATVURh2Akb38sH4BcWSPNvg2Z7yDAg4x7SC0jKyZznOTB
+	QoYtXklAR/l/BgKM/VlVGszvecoVzbMsYHLn9DuXRVZUW6mJ36NMJ82oV3TXUd6kk0nXhE1rsejbT
+	Ge3JCToA==;
+Received: from mail-ed1-f44.google.com ([209.85.208.44])
+	by mx.easyname.com with esmtpsa (TLSv1.3:TLS_AES_128_GCM_SHA256:128)
+	(Exim 4.92)
+	(envelope-from <hello@peppergray.xyz>)
+	id 1wKvPl-000Ftw-Rl
+	for selinux@vger.kernel.org; Thu, 07 May 2026 09:53:06 +0000
+Received: by mail-ed1-f44.google.com with SMTP id 4fb4d7f45d1cf-6746d0b2b4aso995120a12.3
+        for <selinux@vger.kernel.org>; Thu, 07 May 2026 02:53:01 -0700 (PDT)
+X-Gm-Message-State: AOJu0YwQtZ1jiTtyN1tbccJzPOtDmh5zQKcncDfSTNi+mqMkFMSEgJwl
+	ar+BxpnpUzjSuQPWth7SdSW4+AZt1R5EiZu+qKH6XOkvLxWNdY196iOtfR8LcG6GtHnhcxTcato
+	oZyNqSujCDBjW4K+gcr86ZFmZAurRPNdg80fRBj+ZrQ==
+X-Received: by 2002:a05:6402:913:b0:67c:e014:464c with SMTP id
+ 4fb4d7f45d1cf-67d638a7675mr3362725a12.5.1778147580731; Thu, 07 May 2026
+ 02:53:00 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
+From: Pepper Gray <hello@peppergray.xyz>
+Date: Thu, 7 May 2026 11:52:48 +0200
+X-Gmail-Original-Message-ID: <CAHLDejxCCVr1kH7JNFnvQM+ct6_mn89rAc+OdVbLaP=cCNkbeA@mail.gmail.com>
+X-Gm-Features: AVHnY4L-Ohczuy8QLywmHfIy7wcRr4QRuVVLOCDNj_J_3XmScQDqMsKRpbNthRA
+Message-ID: <CAHLDejxCCVr1kH7JNFnvQM+ct6_mn89rAc+OdVbLaP=cCNkbeA@mail.gmail.com>
+Subject: [PATCH] define matchpathcon_filespec_add/add64
+To: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Kalevi Kolttonen <kalevi@kolttonen.fi> writes:
+From ce907fb1daa4d165b29f2d91b3d0958e2eb7f044 Mon Sep 17 00:00:00 2001
+From: Pepper Gray <hello@peppergray.xyz>
+Date: Sat, 11 Apr 2026 15:55:17 +0200
+Subject: [PATCH] define matchpathcon_filespec_add/add64
 
-> Hello!
->
-> I have problems compiling SELinux userspace on Fedora 44.
-> I mean the main branch. The compiler is:
->
-> gcc (GCC) 16.1.1 20260501 (Red Hat 16.1.1-1)
-> Copyright (C) 2026 Free Software Foundation, Inc.
-> This is free software; see the source for copying conditions.  There is NO
-> warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOS=
-E.
->
->
-> The first error is:
->
-> -------------------------------------------------------------------------=
-------
-> selinux_config.c: In function =E2=80=98selinux_set_policy_root=E2=80=99:
-> selinux_config.c:284:29: error: initialization discards =E2=80=98const=E2=
-=80=99 qualifier from pointer target type [-Werror=3Ddiscarded-qualifiers]
->   284 |         char *policy_type =3D strrchr(path, '/');
->       |                             ^~~~~~~
-> cc1: all warnings being treated as errors
-> make[2]: *** [Makefile:179: selinux_config.o] Error 1
-> -------------------------------------------------------------------------=
-------
->
-> It can be fixed by this:
->
-> -------------------------------------------------------------------------=
-------
-> --- selinux/libselinux/src/selinux_config.c	2026-05-02 01:09:23.084896619=
- +0300
-> +++ selinux-buildaus/libselinux/src/selinux_config.c	2026-05-07 03:52:10.=
-344519900 +0300
-> @@ -281,7 +281,7 @@
->  int selinux_set_policy_root(const char *path)
->  {
->  	int i;
-> -	char *policy_type =3D strrchr(path, '/');
-> +	const char *policy_type =3D strrchr(path, '/');
->  	if (!policy_type) {
->  		errno =3D EINVAL;
->  		return -1;
-> -------------------------------------------------------------------------=
-------
->
-> The second error is:
->
-> -------------------------------------------------------------------------=
-------
-> direct_api.c: In function =E2=80=98semanage_direct_install_file=E2=80=99:
-> direct_api.c:1781:27: error: assignment discards =E2=80=98const=E2=80=99 =
-qualifier from pointer target type [-Werror=3Ddiscarded-qualifiers]
->  1781 |                 separator =3D strrchr(filename, '.');
->       |                           ^
-> direct_api.c:1791:19: error: assignment discards =E2=80=98const=E2=80=99 =
-qualifier from pointer target type [-Werror=3Ddiscarded-qualifiers]
->  1791 |         separator =3D strrchr(filename, '.');
->       |                   ^
-> cc1: all warnings being treated as errors
-> make[2]: *** [Makefile:114: direct_api.o] Error 1
-> -------------------------------------------------------------------------=
-------
->
-> It can be fixed by this. Note: I did not add 'const' qualifier to
-> 'separator' because the string is modified in the function.
->
-> -------------------------------------------------------------------------=
-------
-> --- selinux/libsemanage/src/direct_api.c	2026-05-02 01:09:23.095896604 +0=
-300
-> +++ selinux-buildaus/libsemanage/src/direct_api.c	2026-05-07 04:01:26.969=
-729078 +0300
-> @@ -1755,7 +1755,7 @@
->=20=20
->  	int retval =3D -1;
->  	char *path =3D NULL;
-> -	const char *filename;
-> +	char *filename;
->  	const char *lang_ext =3D NULL;
->  	char *module_name =3D NULL;
->  	char *separator;
-> -------------------------------------------------------------------------=
-------
->
-> The third error is:
->
-> -------------------------------------------------------------------------=
-------
-> semanage_store.c: In function =E2=80=98semanage_exec_prog=E2=80=99:
-> semanage_store.c:1307:16: error: variable =E2=80=98a=E2=80=99 might be cl=
-obbered by =E2=80=98longjmp=E2=80=99 or =E2=80=98vfork=E2=80=99 [-Werror=3D=
-clobbered]
->  1307 |         char **a;
->       |                ^
-> semanage_store.c:1265:15: error: variable =E2=80=98new_s=E2=80=99 might b=
-e clobbered by =E2=80=98longjmp=E2=80=99 or =E2=80=98vfork=E2=80=99 [-Werro=
-r=3Dclobbered]
->  1265 |         char *new_s =3D realloc(s, len + 2);
->       |               ^~~~~
-> semanage_store.c:1265:15: error: variable =E2=80=98new_s=E2=80=99 might b=
-e clobbered by =E2=80=98longjmp=E2=80=99 or =E2=80=98vfork=E2=80=99 [-Werro=
-r=3Dclobbered]
-> cc1: all warnings being treated as errors
-> make[2]: *** [Makefile:114: semanage_store.o] Error 1
-> -------------------------------------------------------------------------=
-------
->
-> I see a vfork() there I but am unable to determine whether this
-> error is for real or not. As temporary work-around I added:
->
->   -Wno-clobbered=20
->
-> to the Makefile.
->
->
-> -------------------------------------------------------------------------=
-------
->
-> The fourth error is:
->
-> -------------------------------------------------------------------------=
-------
->
-> utilities.c: In function =E2=80=98semanage_str_replace=E2=80=99:
-> utilities.c:248:16: error: assignment discards =E2=80=98const=E2=80=99 qu=
-alifier from pointer target type [-Werror=3Ddiscarded-qualifiers]
->   248 |         for (p =3D strstr(src, search); p !=3D NULL; p =3D strstr=
-(p + slen, search)) {
->       |                ^
-> utilities.c:265:16: error: assignment discards =E2=80=98const=E2=80=99 qu=
-alifier from pointer target type [-Werror=3Ddiscarded-qualifiers]
->   265 |         for (p =3D strstr(src, search); p !=3D NULL; p =3D strstr=
-(psrc, search)) {
->       |                ^
-> utilities.c:265:52: error: assignment discards =E2=80=98const=E2=80=99 qu=
-alifier from pointer target type [-Werror=3Ddiscarded-qualifiers]
->   265 |         for (p =3D strstr(src, search); p !=3D NULL; p =3D strstr=
-(psrc, search)) {
->       |                                                    ^
-> utilities.c: In function =E2=80=98semanage_basename=E2=80=99:
-> utilities.c:358:19: error: initialization discards =E2=80=98const=E2=80=
-=99 qualifier from pointer target type [-Werror=3Ddiscarded-qualifiers]
->   358 |         char *p =3D strrchr(filename, '/');
->       |                   ^~~~~~~
->
-> -------------------------------------------------------------------------=
-------
->
-> I did the following to fix:
->
-> -------------------------------------------------------------------------=
-------
-> --- selinux/libsemanage/src/utilities.c 2026-05-02 01:09:23.099896599 +03=
-00
-> +++ selinux-buildaus/libsemanage/src/utilities.c        2026-05-07 04:24:=
-08.992732849 +0300
-> @@ -234,7 +234,8 @@
->                            const char *src, size_t lim)
->  {
->         size_t count =3D 0, slen, rlen, newsize;
-> -       char *p, *pres, *result;
-> +       const char *p;
-> +       char *pres, *result;
->         const char *psrc;
->=20=20
->         slen =3D strlen(search);
-> @@ -353,8 +354,8 @@
->  #ifdef __GNUC__
->  __attribute__((nonnull))
->  #endif
-> -char *semanage_basename(const char *filename)
-> +const char *semanage_basename(const char *filename)
->  {
-> -       char *p =3D strrchr(filename, '/');
-> -       return p ? p + 1 : (char *)filename;
-> +       const char *p =3D strrchr(filename, '/');
-> +       return p ? p + 1 : filename;
->  }
-> -------------------------------------------------------------------------=
-------
-> --- selinux/libsemanage/src/utilities.h 2026-05-02 01:09:23.099896599 +03=
-00
-> +++ selinux-buildaus/libsemanage/src/utilities.h        2026-05-07 04:25:=
-03.279160082 +0300
-> @@ -167,6 +167,6 @@
->  #ifdef __GNUC__
->  __attribute__((nonnull))
->  #endif
-> -char *semanage_basename(const char *filename);
-> +const char *semanage_basename(const char *filename);
->=20=20
->  #endif
-> -------------------------------------------------------------------------=
-------
->
-> The fifth error:
->
-> -------------------------------------------------------------------------=
-------
-> secon.c: In function =E2=80=98my_getXcon_raw=E2=80=99:
-> secon.c:365:29: error: initialization discards =E2=80=98const=E2=80=99 qu=
-alifier from pointer target type [-Werror=3Ddiscarded-qualifiers]
->   365 |                 char *tmp =3D strchr(ptr, '\n');
->       |                             ^~~~~~
-> cc1: all warnings being treated as errors
-> make[2]: *** [<builtin>: secon.o] Error 1
-> -------------------------------------------------------------------------=
-------
->
-> Fix:
->
-> -------------------------------------------------------------------------=
-------
-> --- selinux/policycoreutils/secon/secon.c       2026-05-02 01:09:23.15259=
-7184 +0300
-> +++ selinux-buildaus/policycoreutils/secon/secon.c      2026-05-07 04:30:=
-27.330279405 +0300
-> @@ -348,7 +348,7 @@
->  {
->         char buf[4096];
->         FILE *fp =3D NULL;
-> -       const char *ptr =3D NULL;
-> +       char *ptr =3D NULL;
->=20=20
->         snprintf(buf, sizeof(buf), "%s/%ld/attr/%s", "/proc", (long int)p=
-id,
->                  val);
-> -------------------------------------------------------------------------=
-------
->
-> After these changes, the build completed, but I am not at all
-> sure whether the fixes are correct.
->
+matchpathcon_filespec_add and matchpathcon_filespec_add64 are
+exported in libselinux.map, so both need to be linker-visible
+symbols
 
-Look at these patches and provide Tested-by if they work for you:
+fix: #512
+Signed-off-by: Pepper Gray <hello@peppergray.xyz>
+---
+ libselinux/include/selinux/selinux.h |  4 +---
+ libselinux/src/matchpathcon.c        | 17 ++++++-----------
+ 2 files changed, 7 insertions(+), 14 deletions(-)
 
-https://patchwork.kernel.org/project/selinux/list/?series=3D1086260
-https://patchwork.kernel.org/project/selinux/patch/20260427123304.74899-1-l=
-autrbach@redhat.com/
+diff --git a/libselinux/include/selinux/selinux.h
+b/libselinux/include/selinux/selinux.h
+index b1431e5d0d..241bb54a94 100644
+--- a/libselinux/include/selinux/selinux.h
++++ b/libselinux/include/selinux/selinux.h
+@@ -537,10 +537,8 @@ extern int matchpathcon_index(const char *path,
+    with the same inode (e.g. due to multiple hard links).  If so, then
+    use the latter of the two specifications based on their order in the
+    file contexts configuration.  Return the used specification index. */
+-#if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS == 64 &&
+defined(__INO64_T_TYPE) && !defined(__INO_T_MATCHES_INO64_T)
+-#define matchpathcon_filespec_add matchpathcon_filespec_add64
+-#endif
+ extern int matchpathcon_filespec_add(ino_t ino, int specind, const char *file);
++extern int matchpathcon_filespec_add64(ino_t ino, int specind, const
+char *file);
 
+ /* Destroy any inode associations that have been added, e.g. to restart
+    for a new filesystem. */
+diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
+index 240c9fa76d..df4cabf597 100644
+--- a/libselinux/src/matchpathcon.c
++++ b/libselinux/src/matchpathcon.c
+@@ -261,25 +261,20 @@ int matchpathcon_filespec_add(ino_t ino, int
+specind, const char *file)
+  return -1;
+ }
 
-As a workaround you set build flags used in Fedora to avoid -Werror:
++int matchpathcon_filespec_add64(unsigned long ino, int specind,
++                              const char *file)
++{
++ return matchpathcon_filespec_add(ino, specind, file);
++}
++
+ #if (defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS == 64) &&
+defined(__INO64_T_TYPE) && !defined(__INO_T_MATCHES_INO64_T)
+-/* alias defined in the public header but we undefine it here */
+-#undef matchpathcon_filespec_add
 
-$ sudo dnf install redhat-rpm-config
-$ source <( rpm --eval '%{set_build_flags}' )
-$ make DESTDIR=3D/home/user/tmp/obj install install-rubywrap install-pywrap
+ /* ABI backwards-compatible shim for non-LFS 32-bit systems */
+-
+ static_assert(sizeof(unsigned long) == sizeof(__ino_t), "inode size mismatch");
+ static_assert(sizeof(unsigned long) == sizeof(uint32_t), "inode size
+mismatch");
+ static_assert(sizeof(ino_t) == sizeof(ino64_t), "inode size mismatch");
+ static_assert(sizeof(ino64_t) == sizeof(uint64_t), "inode size mismatch");
 
+-extern int matchpathcon_filespec_add(unsigned long ino, int specind,
+-                                     const char *file);
+-
+-int matchpathcon_filespec_add(unsigned long ino, int specind,
+-                              const char *file)
+-{
+- return matchpathcon_filespec_add64(ino, specind, file);
+-}
+ #elif (defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS == 64) ||
+defined(__INO_T_MATCHES_INO64_T)
 
-Petr
-
+ static_assert(sizeof(uint64_t) == sizeof(ino_t), "inode size mismatch");
