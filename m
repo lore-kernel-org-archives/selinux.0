@@ -1,124 +1,249 @@
-Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from cloud35.hostingpalvelu.fi (mail35.hostingpalvelu.fi [31.217.192.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 113273D34BC
-	for <selinux@vger.kernel.org>; Wed,  6 May 2026 23:43:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4149261B70
+	for <selinux@vger.kernel.org>; Thu,  7 May 2026 01:38:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=31.217.192.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778111000; cv=none; b=eaL4K9HMpYqf6SGcpZe6bfPyYHJL5Q5GH8UL7w1pNXAk27u7q5l5+FxRJ4SAeN1/htYV1NCD/hknaYZfBCmz6PdwdOnXIBxhILgD1QWki0p1xFoOjXKQM3S+J56Ru3RTdA0LN9p49aGFF2dpElJpDIKyXv7BGD5sqpCWAPPGyLQ=
+	t=1778117907; cv=none; b=UVccRsqENxtuyoDfh9qW8MxEExcPd0+NAH/IXspOQ0r39p/WGBWvWQUCp10aHQfVDR6eQ7tGTIzqCqQgzTbwAndThySg9p6l47RuQk3/OMQV1b6A+pmIeiZbVXulPRd5HYXt73gaVoEhKmhUYBL8NmCg/DbNOmNFfkhSL/sPH6M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778111000; c=relaxed/simple;
-	bh=VrhtxDHUUeFu0o5VmnJwmZF5v65oeWz1aqO85RgV8C8=;
-	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=eza3/T+MFIwE+4oFnG/KkKLBDCVXGUWmWEY5DtVLFhXjs/lbSfIpwvcMKExKQ0dCq9nxAElHUPsvm1pj3UvG4RFv7l/HroqZ+/HfeMgDkYp0aowYce2cQD/bXFiS3UB7y+cXYDefkQgi+yi60R8VSia2Uy8R47uLufgPjhzjZYs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Ae/wsCkH; arc=none smtp.client-ip=209.85.222.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1778117907; c=relaxed/simple;
+	bh=gy+tlqX6VFYkUMbYENwo/xRwkmawlRW8uR4E0tOo/Eg=;
+	h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=UJOtJwnar/hQAHkFWrz8QC+2afJi9O2oB1t+ns2GOmAwQjvlH5Mb3dg7bU1y55y0XRgDMteTL9WWxwTnP29BPCUySUKVua4dq3/lqdeAMixZf+fHcCn6eWuNUC/7sSTRzzKPevwZx5tu14tIM3SuevYbni9eBtoMyxZDPlA8OT0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=R17+zjeM; arc=none smtp.client-ip=31.217.192.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kolttonen.fi
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Ae/wsCkH"
-Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-8e0a768331cso159893685a.0
-        for <selinux@vger.kernel.org>; Wed, 06 May 2026 16:43:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1778110996; x=1778715796; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=JoTC/lw/OUWxpldadyRFLcKS56uCYY4dboDv240sPdE=;
-        b=Ae/wsCkHlYO6nkFDB3q14KPZmWcAxXsIkn8tlmGWziI86zH6j/g93jptOfTZFWCdmY
-         6XWGBXWOt/fSYF4FrfHj7qYLsyIfxmHpGPL4/iaikWWqd+noPoLuuDeCwTpJKcJ1TVsh
-         U+0UATOgx6IOFrEyoxXJ2SggOBm+GTBIIk3cH2sG5DciySfgyGRNdDPRWkGjw/WqJKXk
-         C7bbF+ecKPDfBgYKV2Eib72s2IwXoCJ/T++Lls+LYWCx9f8FgYkrTEVgSxGif/jbCKZ0
-         G9EsQL4eFVPbJ3VKrGsNzqRNGgzZgpPj1fzMPLk9tM74TdihhYpwhJ1rmEIosadG49Lg
-         KpdQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778110996; x=1778715796;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=JoTC/lw/OUWxpldadyRFLcKS56uCYY4dboDv240sPdE=;
-        b=bWHYHm562YbTCdGnys8AkMoDl9fJuh/UuHeK1SOoHhgyzvUNXscRnqjyrr5jDQWfzB
-         nEtGuc9+7WXtlXVFDOc1IpkEi+2S+l+mQZe6cb+o0cMx1+UpsTbLbSRVmzdQz7LY5vM6
-         2MtqM8SvZVjEFlheAgwGAp4biDuvTViJOwIGsu2MJiL3geKVeu39W+IqTPPnvBdUHqHG
-         Va7Q5aVHVdTc7QC/dT4ez2H0/lX4Z8/cAkiyaxxgCGhoDV6V2YSHxk4Edl+cpbnQSCoT
-         dEiVARGdxCZn9g1pJmxfEbqYgQPdWPXf+mAKrxwKAe6gMYOPYDCR0SZUuBBsmf23SdUH
-         WqMw==
-X-Forwarded-Encrypted: i=1; AFNElJ9fHBhhsCcOVUnnTvCsL/O7iuvQQR5QjnM0OoyFwSwnBqTOUj2S+DgdVvpU64gAYLDq93Tpx6PK@vger.kernel.org
-X-Gm-Message-State: AOJu0YzGtgRVqSxFMwLdy7U5+vYndrGRqPXE95MhYhFF1Wmm0kqmo2uj
-	ONllL8TdVJ7PRmwP76DcHAoP9i+7l6sK6eYdAXIepXwbYS/qaig7wJX/sbGE8nwGog==
-X-Gm-Gg: AeBDieuCrsIQj75+XvT8Gn4rxHbX5TJsTETPFk92i0/Xy0uWQ2OvMZGPlHRiI9SGbMj
-	nOTrQroKulACkdoxg9h1f/HXYkBjg3q2GgISihsfTh5PWNL5PXaWsl1xzBNTPZSnGHrtjREvpKH
-	1SyjOdqI+MeIh9/6wetS+3XWIkQK7CwV08u6ZJTXL31aZpig0E2Te1ygIA7vjR4Tl85Wo5zvC+a
-	lsR7AAztZel8PmrnjsIMdJoFvYksK6kOK7LJvDyG1/9C5bFuwY5aZJJLgSKx03Yhzd9RjJUcdw7
-	Gx+F11zce3adGO6X2Rz0apotA/UHzLx/dhTBC8OYnjX28aakdgqzc91B1qH0PFZ6i2/AhBxIszb
-	stBAVP3aItUgKGkXeitbzsFU1tP2fdwVVOejblX1YpvG6TOy48zLwIzV8dL7GSBFW//6m4s+2Fs
-	KNXfQyH2yI71bqIcZMojnUs1kjcpjzeB54fTAPUf+cHGfIff5DLfVmSkwXqRzCdO0QQJXTeuIOB
-	4zEEqswKV3itZ8vUw==
-X-Received: by 2002:a05:620a:45a6:b0:8d6:6db0:88de with SMTP id af79cd13be357-90653728e7emr91239285a.44.1778110995685;
-        Wed, 06 May 2026 16:43:15 -0700 (PDT)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8b53c1dc62csm211275276d6.23.2026.05.06.16.43.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 May 2026 16:43:14 -0700 (PDT)
-Date: Wed, 06 May 2026 19:43:14 -0400
-Message-ID: <ba12d905fe53bfee14017bc3353144af@paul-moore.com>
+	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="R17+zjeM"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=kolttonen.fi; s=default; h=Content-Transfer-Encoding:Content-Type:
+	MIME-Version:Message-ID:Subject:To:From:Date:Sender:Reply-To:Cc:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=EyBzMH9OzF4rvOH/LhKjdntxjW9ZvYbQgpqgG9ofTPI=; b=R17+zjeMz/AGnvHwcPjRW+IOEF
+	Pd9JgqDTdALeIdMwFUTWGmLctgc223i+nHMNlDeBhfrtsNejsLt+KD78HEiizH5YieQiYkWC4DrFh
+	UWnPKFZqhczA/VFcC1s6wYS1nfK2Ww0/acPeZlvudNYD3n5D1qVcJYJrTJKjZXInlf6j5aUYLk1NU
+	PamwRsydaIWWTdfY8D9tePg2EcI3HAvAg9MUA5lSatm+deWsovrazUsLVxXucMwI9+eroopPQREFT
+	H/pgUSxyVd4I4rFGSNPy+SesbJU2WT2hU1Q5nWseiNvXtmIQ2KWiQMNef3ZKSFMQSae/pkZzad7QT
+	iZJZx4Nw==;
+Received: from 176-93-144-62.bb.dnainternet.fi ([176.93.144.62]:11288 helo=14-5A-FC-31-E8-67)
+	by cloud35.hostingpalvelu.fi with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.99.2)
+	(envelope-from <kalevi@kolttonen.fi>)
+	id 1wKngz-00000005AQY-25RK
+	for selinux@vger.kernel.org;
+	Thu, 07 May 2026 04:38:21 +0300
+Date: Thu, 7 May 2026 04:38:19 +0300
+From: Kalevi Kolttonen <kalevi@kolttonen.fi>
+To: selinux-list <selinux@vger.kernel.org>
+Subject: SELinux userspace does not build on Fedora 44
+Message-ID: <afvtC0DVQkt6rtAD@14-5A-FC-31-E8-67>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=UTF-8 
-Content-Transfer-Encoding: 8bit 
-X-Mailer: pstg-pwork:20260506_1600/pstg-lib:20260506_1556/pstg-pwork:20260506_1600
-From: Paul Moore <paul@paul-moore.com>
-To: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>, selinux@vger.kernel.org
-Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>, Nick Desaulniers <nick.desaulniers+lkml@gmail.com>, Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>, llvm@lists.linux.dev
-Subject: Re: [PATCH v3 10/14] selinux: validate symbols
-References: <20250511173055.406906-10-cgoettsche@seltendoof.de>
-In-Reply-To: <20250511173055.406906-10-cgoettsche@seltendoof.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - cloud35.hostingpalvelu.fi
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - kolttonen.fi
+X-Get-Message-Sender-Via: cloud35.hostingpalvelu.fi: authenticated_id: kalevi@kolttonen.fi
+X-Authenticated-Sender: cloud35.hostingpalvelu.fi: kalevi@kolttonen.fi
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 
-On May 11, 2025 =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de> wrote:
-> 
-> Some symbol tables need to be validated after indexing, since during
-> indexing their referenced entries might not yet have been indexed.
-> 
-> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
->  security/selinux/ss/policydb.c | 94 ++++++++++++++++++++++++++++++++++
->  1 file changed, 94 insertions(+)
+Hello!
 
-...
+I have problems compiling SELinux userspace on Fedora 44.
+I mean the main branch. The compiler is:
 
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index f8d6e993ce89..4559c8918134 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-> @@ -765,6 +843,16 @@ static int policydb_index(struct policydb *p)
->  		if (rc)
->  			goto out;
->  	}
-> +
-> +	for (i = 0; i < SYM_NUM; i++) {
-> +		if (!validate_f[i])
-> +			continue;
-> +
-> +		rc = hashtab_map(&p->symtab[i].table, validate_f[i], p);
-> +		if (rc)
-> +			goto out;
-> +	}
+gcc (GCC) 16.1.1 20260501 (Red Hat 16.1.1-1)
+Copyright (C) 2026 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-Is there a reason why we need a second loop to do the validation?  Can we
-simply do the validation in the indexing loop above this?
 
-  for (i = 0; i < SYM_NUM; i++) {
-    p->table[i] = kvcalloc(...);
+The first error is:
 
-    hashtab_map(p->table, index_f[i]);
+-------------------------------------------------------------------------------
+selinux_config.c: In function ‘selinux_set_policy_root’:
+selinux_config.c:284:29: error: initialization discards ‘const’ qualifier from pointer target type [-Werror=discarded-qualifiers]
+  284 |         char *policy_type = strrchr(path, '/');
+      |                             ^~~~~~~
+cc1: all warnings being treated as errors
+make[2]: *** [Makefile:179: selinux_config.o] Error 1
+-------------------------------------------------------------------------------
 
-    if (validate_f[i])
-      hashtab_map(p->table, validate_f[i]);
-  }
+It can be fixed by this:
 
---
-paul-moore.com
+-------------------------------------------------------------------------------
+--- selinux/libselinux/src/selinux_config.c	2026-05-02 01:09:23.084896619 +0300
++++ selinux-buildaus/libselinux/src/selinux_config.c	2026-05-07 03:52:10.344519900 +0300
+@@ -281,7 +281,7 @@
+ int selinux_set_policy_root(const char *path)
+ {
+ 	int i;
+-	char *policy_type = strrchr(path, '/');
++	const char *policy_type = strrchr(path, '/');
+ 	if (!policy_type) {
+ 		errno = EINVAL;
+ 		return -1;
+-------------------------------------------------------------------------------
+
+The second error is:
+
+-------------------------------------------------------------------------------
+direct_api.c: In function ‘semanage_direct_install_file’:
+direct_api.c:1781:27: error: assignment discards ‘const’ qualifier from pointer target type [-Werror=discarded-qualifiers]
+ 1781 |                 separator = strrchr(filename, '.');
+      |                           ^
+direct_api.c:1791:19: error: assignment discards ‘const’ qualifier from pointer target type [-Werror=discarded-qualifiers]
+ 1791 |         separator = strrchr(filename, '.');
+      |                   ^
+cc1: all warnings being treated as errors
+make[2]: *** [Makefile:114: direct_api.o] Error 1
+-------------------------------------------------------------------------------
+
+It can be fixed by this. Note: I did not add 'const' qualifier to
+'separator' because the string is modified in the function.
+
+-------------------------------------------------------------------------------
+--- selinux/libsemanage/src/direct_api.c	2026-05-02 01:09:23.095896604 +0300
++++ selinux-buildaus/libsemanage/src/direct_api.c	2026-05-07 04:01:26.969729078 +0300
+@@ -1755,7 +1755,7 @@
+ 
+ 	int retval = -1;
+ 	char *path = NULL;
+-	const char *filename;
++	char *filename;
+ 	const char *lang_ext = NULL;
+ 	char *module_name = NULL;
+ 	char *separator;
+-------------------------------------------------------------------------------
+
+The third error is:
+
+-------------------------------------------------------------------------------
+semanage_store.c: In function ‘semanage_exec_prog’:
+semanage_store.c:1307:16: error: variable ‘a’ might be clobbered by ‘longjmp’ or ‘vfork’ [-Werror=clobbered]
+ 1307 |         char **a;
+      |                ^
+semanage_store.c:1265:15: error: variable ‘new_s’ might be clobbered by ‘longjmp’ or ‘vfork’ [-Werror=clobbered]
+ 1265 |         char *new_s = realloc(s, len + 2);
+      |               ^~~~~
+semanage_store.c:1265:15: error: variable ‘new_s’ might be clobbered by ‘longjmp’ or ‘vfork’ [-Werror=clobbered]
+cc1: all warnings being treated as errors
+make[2]: *** [Makefile:114: semanage_store.o] Error 1
+-------------------------------------------------------------------------------
+
+I see a vfork() there I but am unable to determine whether this
+error is for real or not. As temporary work-around I added:
+
+  -Wno-clobbered 
+
+to the Makefile.
+
+
+-------------------------------------------------------------------------------
+
+The fourth error is:
+
+-------------------------------------------------------------------------------
+
+utilities.c: In function ‘semanage_str_replace’:
+utilities.c:248:16: error: assignment discards ‘const’ qualifier from pointer target type [-Werror=discarded-qualifiers]
+  248 |         for (p = strstr(src, search); p != NULL; p = strstr(p + slen, search)) {
+      |                ^
+utilities.c:265:16: error: assignment discards ‘const’ qualifier from pointer target type [-Werror=discarded-qualifiers]
+  265 |         for (p = strstr(src, search); p != NULL; p = strstr(psrc, search)) {
+      |                ^
+utilities.c:265:52: error: assignment discards ‘const’ qualifier from pointer target type [-Werror=discarded-qualifiers]
+  265 |         for (p = strstr(src, search); p != NULL; p = strstr(psrc, search)) {
+      |                                                    ^
+utilities.c: In function ‘semanage_basename’:
+utilities.c:358:19: error: initialization discards ‘const’ qualifier from pointer target type [-Werror=discarded-qualifiers]
+  358 |         char *p = strrchr(filename, '/');
+      |                   ^~~~~~~
+
+-------------------------------------------------------------------------------
+
+I did the following to fix:
+
+-------------------------------------------------------------------------------
+--- selinux/libsemanage/src/utilities.c 2026-05-02 01:09:23.099896599 +0300
++++ selinux-buildaus/libsemanage/src/utilities.c        2026-05-07 04:24:08.992732849 +0300
+@@ -234,7 +234,8 @@
+                           const char *src, size_t lim)
+ {
+        size_t count = 0, slen, rlen, newsize;
+-       char *p, *pres, *result;
++       const char *p;
++       char *pres, *result;
+        const char *psrc;
+ 
+        slen = strlen(search);
+@@ -353,8 +354,8 @@
+ #ifdef __GNUC__
+ __attribute__((nonnull))
+ #endif
+-char *semanage_basename(const char *filename)
++const char *semanage_basename(const char *filename)
+ {
+-       char *p = strrchr(filename, '/');
+-       return p ? p + 1 : (char *)filename;
++       const char *p = strrchr(filename, '/');
++       return p ? p + 1 : filename;
+ }
+-------------------------------------------------------------------------------
+--- selinux/libsemanage/src/utilities.h 2026-05-02 01:09:23.099896599 +0300
++++ selinux-buildaus/libsemanage/src/utilities.h        2026-05-07 04:25:03.279160082 +0300
+@@ -167,6 +167,6 @@
+ #ifdef __GNUC__
+ __attribute__((nonnull))
+ #endif
+-char *semanage_basename(const char *filename);
++const char *semanage_basename(const char *filename);
+ 
+ #endif
+-------------------------------------------------------------------------------
+
+The fifth error:
+
+-------------------------------------------------------------------------------
+secon.c: In function ‘my_getXcon_raw’:
+secon.c:365:29: error: initialization discards ‘const’ qualifier from pointer target type [-Werror=discarded-qualifiers]
+  365 |                 char *tmp = strchr(ptr, '\n');
+      |                             ^~~~~~
+cc1: all warnings being treated as errors
+make[2]: *** [<builtin>: secon.o] Error 1
+-------------------------------------------------------------------------------
+
+Fix:
+
+-------------------------------------------------------------------------------
+--- selinux/policycoreutils/secon/secon.c       2026-05-02 01:09:23.152597184 +0300
++++ selinux-buildaus/policycoreutils/secon/secon.c      2026-05-07 04:30:27.330279405 +0300
+@@ -348,7 +348,7 @@
+ {
+        char buf[4096];
+        FILE *fp = NULL;
+-       const char *ptr = NULL;
++       char *ptr = NULL;
+ 
+        snprintf(buf, sizeof(buf), "%s/%ld/attr/%s", "/proc", (long int)pid,
+                 val);
+-------------------------------------------------------------------------------
+
+After these changes, the build completed, but I am not at all
+sure whether the fixes are correct.
+
+br,
+KK
