@@ -1,69 +1,69 @@
-Received: from mail-ua1-f46.google.com (mail-ua1-f46.google.com [209.85.222.46])
+Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB40316F27F
-	for <selinux@vger.kernel.org>; Thu,  7 May 2026 16:11:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A600378D77
+	for <selinux@vger.kernel.org>; Thu,  7 May 2026 16:18:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778170312; cv=none; b=Hv3rnWL3awVD1upUWn4WbJLfOSGmN8Cwgozxq6qNjYUmpnMe7kSBJFU5hkNL0BznNNmtFZPOvJzi13Hn3ouigBu73ohVTArCYDHx/3m7BHSRS7fTmDZwhNkFeCQE50sK5GCbK+G1/2bEtO9a8uNfmob/rEcA67HXSmZl4Wm0C2g=
+	t=1778170696; cv=none; b=gxduNXFUaqr65dHA3UFC9LXz2zWJ6FJsPyjcbsbZObo3EFjhtpOwQWBHQN4RxvnTaAyiJ4fiZS52AU+O/0cNbcE5AqlEqtXx5z7UdbMtJbyN1vbaG2bUZ6x++dAT2Ioe1QJGoXa9QJCgkstGXXRlxeQdwXe7vlP7rMg3Tpn4JQE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778170312; c=relaxed/simple;
-	bh=QpH37QsuRyGgUDQH+nP+7yE1SV9Gq1ZSevbnmjDpOGw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=XFrPx4vCy2LxKcoPYUmoYFcZBtkfmu0rVB0yCK8PHTOdSjkup5clDs6aarJyaWq+djBmHXsn28cewf+kN2KwrG3Y09h13HMEn6IeCE8fVvSioPPQOeZx3D7b8GTo3r72DJSOrsISfkOjaaIVaITWn33gU5YJAOwrZSeIvsIlj4U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dkVOkq6Z; arc=none smtp.client-ip=209.85.222.46
+	s=arc-20240116; t=1778170696; c=relaxed/simple;
+	bh=s27z7TLLi8wWvja4zWzC3wg9X0ip5MHYd0J3kAmJpX8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jV9s23Xg7oRsBjaSMPC+4gRiNcBaq28XsZ8iI75hrRr0LcY82hBycYzDb8VsNHeMaOWYtZyTaDLqejzZQv7XDsBfR+lHL1RGgQO8a+WFn2Q9JGEyPoTdSJYWy7B38wus7/kXNAf/YKKtJgAlATEp8Watn8D6rJs/JpFp4sd+K8M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SmG3ISII; arc=none smtp.client-ip=209.85.219.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dkVOkq6Z"
-Received: by mail-ua1-f46.google.com with SMTP id a1e0cc1a2514c-95695190911so305451241.2
-        for <selinux@vger.kernel.org>; Thu, 07 May 2026 09:11:50 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SmG3ISII"
+Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-8b7105dfb35so10310006d6.3
+        for <selinux@vger.kernel.org>; Thu, 07 May 2026 09:18:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778170309; x=1778775109; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1778170694; x=1778775494; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=DMD5jnsrdwJe2I64QkNxrm/AbXdW0ur9KsowfIycIMU=;
-        b=dkVOkq6ZABL9zjwpP2HLNMuAcp33GADza+8HNy/cBhkYVA3+cvr7Fo+bd9sK5cQ3JB
-         N2Fyn+TqBGIk/0lDkyI/uKpjKeGtb3JqXv1dtC7d+SCUbbpbHrzAwowTyklJnibv0t0t
-         9G46D8inSdoAS+i/eAHRh0OApswTWfvvlK4ApuF0zykpsUFsv4UmiO5xbTbqnsz9FFs7
-         RRfFmBSrLdyC54dR/SUoMZqw1qhz1okqMjxkdHJVoBsqcvuEDWDcTJjGrAfDWiGkEmH8
-         rWfJ8/bXyAOgAU/LcSg0nyEGVlc7MjH74StKiG6ulIGsRBOt3feImQFRVHZrJzUBYd+O
-         HHkg==
+        bh=6EqFu5ktYK3L46sGn6giVtaRcRZrltSkXtrNhZFCdJc=;
+        b=SmG3ISIIBepoZOfMuzGrl0RovmzJIdEJP4pKPFCHJJ6jlMOprRJjQSy/Jx4nB9xoJW
+         /fOOUhKc/g0exgGnC+wM+vc64rymzfD5YviJY8uTfbCmYNoji46jSVuaLruHqwXLN4Di
+         NP3zAe7vL1+Qx076AmnTQSZTEwXVdBBgYS7YudToohm6DBFhxFI1akX0AVYcXiCayvll
+         6xcXywgF7e5TFXkY4wrLDXvBS2zxTZ/QqdkHfpsLc/96M57A3gCy2s/z3ChQw6pcx0u2
+         EryMrgs23EDXqS4qiRlumYf1+z4b5/DEylAmIhXlMcLw6J+ztGBaFCcSZTEsA6Nk9TUC
+         APQQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778170309; x=1778775109;
+        d=1e100.net; s=20251104; t=1778170694; x=1778775494;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=DMD5jnsrdwJe2I64QkNxrm/AbXdW0ur9KsowfIycIMU=;
-        b=in6ehxK8Gl1/8Noe/Z2kfR7qeKVQF4BnlqTlLlM/p3bKEOsBVmOY3ZEYIulHwiNyOA
-         keWMNor6h/XRBS9G57L92nSeQ55BJy+nkvJopwDtKDw+RZgpwLC38F6hvq8Zy3FHDpa2
-         1NYurGRIDaWV9B5StqaQUOcrdeCUgobpPdT3aYNAtOx8YTZ5nYoo7qdjA3Yt+2wUiVU0
-         8tR70d78WAMVYHDV3KqZYGsbhdyFASmW5/cmI9IiQak6xalPSql2D9d2E1tqycn1g+73
-         RGvQdEl9LGnI9a2rfoU+aR+meavUHN/J3CaX4Ou0ItZw0EK9I3wXrJ2Q4Mu0DDoiuWOV
-         +9pQ==
-X-Gm-Message-State: AOJu0Yx4zaYMOeAgExkUhIC9ifsJS3Sz/fjV0OXQxd0ffJlK47TIN6QN
-	EucsZyIwfvuVW0q+JrAuKOlyk9dS1eNg4QtjeW1t/jSsJMvY2y7mz6f0HEKE3Q==
-X-Gm-Gg: AeBDietpcEpAreXCuoYTKMoXuHEA7ZKbRPTJj6E2nJq406opL2WdApuF3Iwd/rkB18o
-	pSZ0qMNjIkvEAyhrYTs7WWTHrRLET+iFfjzdYf1TlZMSng1O9jEw5c1ZuK6CrvY6d6pzSFN1yLj
-	7ZMZCETl/hgE2iftCN8+4ggz+k6grx+cVb3p6pxiwzKTBCkHyDIrAFqwSfwpUli7WZhFE+y63AS
-	/3n3W61CteaZLel5WLAAwDQpXygB+NZElf/1K3DeTB8nucLuPXE7rhzuKxnvjDmUVeHdijJjXiT
-	FF+y0VfW6h7EIMvt2jnW33P+UU+1DtyCAQGALTnbTEHLQzCCK/Jl8K4epTcUCs4wmQRZCuf9v7w
-	yRCkXX3wWz8iQItafz/EEqUq59VjWMwAS+XnuCvOwS1vrw9IYp/MvRxtMMWxgxeQHORK7HCu0vf
-	grLh3cImQZ05NTmeCu8sP1hEEAyhydZlzqqOMHr2cxAGbUQEycGGSrbTnC0L2wkS02sZRN4nB4I
-	L/ZgCwlcTkZgVrKsAi7BANLrsiX9z9YHCaMTq4g13uOTbnmf4WdYsA=
-X-Received: by 2002:a67:e102:0:b0:5f5:40ab:2d65 with SMTP id ada2fe7eead31-630f902387amr4598268137.22.1778170309350;
-        Thu, 07 May 2026 09:11:49 -0700 (PDT)
+        bh=6EqFu5ktYK3L46sGn6giVtaRcRZrltSkXtrNhZFCdJc=;
+        b=WnaEN50cCzWWCH+4ZITKXxS3zvK15etWs4LeWGThnw3wvCiNcoi73BSnV4vvhO1S+r
+         /J14sWZoN5cMmTK5+AF7UsqQMFGzcq6ja7ZJgyuEMgvuQl7Ebo+nUAoWPwfz8FGk+SIN
+         PQ3XLCt2uJnIuRiMifP07S+yDcBK56FLfcLaz9OIk/kqw1ptLTeyqornfxK5AHuBItmX
+         vzHOHYaVfBYHxXDeNUgLyfxpwW81m1tnu9LkNPvgfp49jI0KIKqXSTwmjkbU+VIVrrwL
+         ZiN01MtGmo8UYTadKCFLsT71WfmBopZQbhjWjSaBtiTN3Jj0HOO8CNk09ZPoWZbQXZmE
+         gwgg==
+X-Gm-Message-State: AOJu0YxRa8fL4IIoS1NvbsLpgTbSmNGQ252Z+nYD3sBlwrQXVMP65kFr
+	YBznIdYHdUMxp4MhS5YPG5oOQCxlbYlSbnl1B9glY3H2KbqW+VmLAnrB3xL7tw==
+X-Gm-Gg: AeBDiesaUidkFn765M7H85fSZ8jBJTKFC8sjbtEfYXzHLlMTvhqpT/HmPV1P2Nw6U/y
+	25zuTpuahFcps5fsRwH9ZKd3lhCJmlYd+zqx5vDu9q+VL+ZHlECN3N0HZcMZUi2/SRX4/yWPWcs
+	BnPJNmxRYup0n483v5TeenHscQ8iqB+4FNUrTzR52Npl6IJ/UqJctTIDuRRttHGIJiTBlqFiU18
+	J3VijrnicPYN8Hz7bcq9DpqXZAycvYnkXiVgBdboT//+c48LyJA6IFddsDpg8qzBrWKwpoN0T8b
+	Fib/lIQ7iEUkHLR9GLDnBAb35qUg8BlaIl4h1Tr2/UQ8qCtWK/yrr7iXaEPH/fXBbTp/R9R/l+Z
+	mRIHkh/oWYSb9Au4L3cbRNxSHh3A+7CqN6kmXe6gx7CuHQSM2HGpO8eJs+XqHRlmEt5QxtbwJ0s
+	o+mQWFcN1YLZc2ivUZHPeeJDGlRCRJ2QtX9IbMX0vThK3JkrckCD2LWR8hoS+1R+lpagvFbOBV1
+	DG6lFTaORWvVKMjgA7r4nixLGnVwlkv1DTHueWvs7X2WaChakrUKgs=
+X-Received: by 2002:a05:6214:5508:b0:8a2:d93c:993a with SMTP id 6a1803df08f44-8bc41cc2e8dmr122961666d6.3.1778170693908;
+        Thu, 07 May 2026 09:18:13 -0700 (PDT)
 Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8fc2c253e04sm1965155985a.31.2026.05.07.09.11.48
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8b539aa7293sm207160226d6.22.2026.05.07.09.18.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 May 2026 09:11:48 -0700 (PDT)
+        Thu, 07 May 2026 09:18:12 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: paul@paul-moore.com,
 	omosnace@redhat.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2] selinux: tighten type validation during policy load
-Date: Thu,  7 May 2026 12:06:16 -0400
-Message-ID: <20260507160615.3218-2-stephen.smalley.work@gmail.com>
+Subject: [PATCH v3] selinux: tighten type validation during policy load
+Date: Thu,  7 May 2026 12:16:34 -0400
+Message-ID: <20260507161633.15947-2-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -78,14 +78,15 @@ the face of ill-formed policies.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
-v2 re-bases on top of selinux/dev and drops the checks covered by
-the merged patches from Christian.
+v3 removes a spurious empty line leftover from one of the changes
+dropped due to Christian's patches and adds the word "type" to the
+error message for clarity.
 
- security/selinux/ss/policydb.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ security/selinux/ss/policydb.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
 diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index ead504a639e3..994c78536cc4 100644
+index ead504a639e3..ba1c9bd9e29f 100644
 --- a/security/selinux/ss/policydb.c
 +++ b/security/selinux/ss/policydb.c
 @@ -604,10 +604,15 @@ static int type_index(void *key, void *datum, void *datap)
@@ -94,7 +95,7 @@ index ead504a639e3..994c78536cc4 100644
  
 +	if (!typdatum->value || typdatum->value > p->p_types.nprim ||
 +		typdatum->bounds > p->p_types.nprim) {
-+		pr_err("SELinux: %s had value %u bounds %u nprim %u\n",
++		pr_err("SELinux: type %s had value %u bounds %u nprim %u\n",
 +			(char *)key, typdatum->value, typdatum->bounds,
 +			p->p_types.nprim);
 +		return -EINVAL;
@@ -107,14 +108,6 @@ index ead504a639e3..994c78536cc4 100644
  		p->sym_val_to_name[SYM_TYPES][typdatum->value - 1] = key;
  		p->type_val_to_struct[typdatum->value - 1] = typdatum;
  	}
-@@ -1861,6 +1866,7 @@ static int role_bounds_sanity_check(void *key, void *datum, void *datap)
- 		}
- 
- 		upper = p->role_val_to_struct[upper->bounds - 1];
-+
- 		ebitmap_for_each_positive_bit(&role->types, node, bit)
- 		{
- 			if (ebitmap_get_bit(&upper->types, bit))
 -- 
 2.54.0
 
