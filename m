@@ -1,77 +1,96 @@
-Received: from cloud35.hostingpalvelu.fi (mail35.hostingpalvelu.fi [31.217.192.49])
+Received: from mx1.secunet.com (mx1.secunet.com [62.96.220.36])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 356ED35E92B
-	for <selinux@vger.kernel.org>; Thu,  7 May 2026 09:54:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=31.217.192.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B98FF379ED7;
+	Thu,  7 May 2026 09:57:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.96.220.36
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778147655; cv=none; b=SejuCThlLp9uCyVf9Yhv3ueU5rcLYJWFQTXxJytORPBIYoePZs9G/ddparF+iEcgjwP8+tl4zqulOyhFNPT9jmbJ8oJCEpv9fBwrvle8bux4vi7TJ9flMTpAhV3PKueM3QgQQcmhZH/D0pPzi5D4vhbKS/LVJFgq+jXMPGVzmCQ=
+	t=1778147828; cv=none; b=elv2RLTHEe4uFZRpY3fubtsKvVQFAQmHHkrTPyc+R4W5W5ELl0H/EaCNeSAFSG5CJfBhTIMpi8NH5WWlyvU3Pf3oVcDX+qvQ4lmAJbLTEYNeK2aTHR0swJBV1vMGK0TPyEK1SCMFzon4rzZUeEVZ0abNBF7zFCRNVl+wHMnduxQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778147655; c=relaxed/simple;
-	bh=HiXXAN+7k8d7FsScP3gz24vMYHhixho4Z66l/TQ2CwQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JcUmf2xsp04Gy1KeyZP1EMUrqlPYndJjWnfkZvan40RiTXE82j9wbMoioXRchDGi8JroO1XdyzZ55vS8/P2ck7X/4YPKp8041fHbxiFsOZUG0peKIydWAayUipbO8pGopiqgGR9hBfXn2dF6XW0DD2mLRNeCjxTzWVi6DlAlpAM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=e1tUoz/d; arc=none smtp.client-ip=31.217.192.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kolttonen.fi
+	s=arc-20240116; t=1778147828; c=relaxed/simple;
+	bh=O+5jgUrWPjry/W0UJbvzKTQMNjti2z78IZOE8hKG+Zo=;
+	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=IbEap+WcYtb9VcN4hGWsJFIfM8uX49VZ10brU1IDmOMiOKS7ToUe24+kAHt2ui2Eg/aSA/CFByfTiuvsmMUgnDRSDwvVlqUuuW1x9cgqawTB3hH19H13S/1a0D3duaItCFnY6v7IMwOtuq9BOUHFi0qXdcygJPQwSjTUZ8uG3hA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com; spf=pass smtp.mailfrom=secunet.com; dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b=x8C7C6+Q; arc=none smtp.client-ip=62.96.220.36
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=secunet.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="e1tUoz/d"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=kolttonen.fi; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
-	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
-	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=4nLO63WWY+w3JdPn8NbUSWgLTghcCZZZ3dAcZbYg+zM=; b=e1tUoz/da1ETC1hTs9Rp9quQqW
-	WM56f9Cqty2sXboL4UI2/WpEoBkCYilLyTP+en51HDs/G9oBdlc0J+yXyLC4osf1+5VVDIzDT54ZH
-	dyx825eKRArIZvF6bS+cjF4/0D2wx8GuklYTMehVIrIoKUiBo8xnJJBgD/MGno5QpdBhw9qgYU+Oy
-	PYKsyu9SBnJHLkk8T7Kc91cowrC/SgclR+pTh4fRySu+Niz5GCK+5egQ+qTStDJ6n/Yy20swNsM4f
-	G/0+aDJtNgfYDwUnkm948raJGuHqmp7zc3JG1P0qfld1y1pL86kXCUF9f7g7Ci8z066FjLmUELWHe
-	skfQuL/w==;
-Received: from 176-93-144-62.bb.dnainternet.fi ([176.93.144.62]:11489 helo=2001-14bb-cc-ed64-88bf-e40e-789b-2.rev.dnainternet.fi)
-	by cloud35.hostingpalvelu.fi with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.99.2)
-	(envelope-from <kalevi@kolttonen.fi>)
-	id 1wKvQn-00000006kiK-3Yv6;
-	Thu, 07 May 2026 12:54:09 +0300
-Date: Thu, 7 May 2026 12:54:07 +0300
-From: Kalevi Kolttonen <kalevi@kolttonen.fi>
-To: Petr Lautrbach <lautrbach@redhat.com>
-Cc: selinux-list <selinux@vger.kernel.org>
-Subject: Re: SELinux userspace does not build on Fedora 44
-Message-ID: <afxhPzcQkwVErusv@2001-14bb-cc-ed64-88bf-e40e-789b-2.rev.dnainternet.fi>
-References: <afvtC0DVQkt6rtAD@14-5A-FC-31-E8-67>
- <878q9v8sxu.fsf@redhat.com>
+	dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b="x8C7C6+Q"
+Received: from localhost (localhost [127.0.0.1])
+	by mx1.secunet.com (Postfix) with ESMTP id 8BF21207E4;
+	Thu,  7 May 2026 11:57:03 +0200 (CEST)
+X-Virus-Scanned: by secunet
+Received: from mx1.secunet.com ([127.0.0.1])
+ by localhost (mx1.secunet.com [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id vB-CUbQZBU4X; Thu,  7 May 2026 11:57:03 +0200 (CEST)
+Received: from EXCH-01.secunet.de (rl1.secunet.de [10.32.0.231])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mx1.secunet.com (Postfix) with ESMTPS id EF44520704;
+	Thu,  7 May 2026 11:57:02 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.secunet.com EF44520704
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=secunet.com;
+	s=202301; t=1778147823;
+	bh=MOYDlUqeISiGGsbkC1yMJoUSWt54w/2P59yNM6sgj+4=;
+	h=Date:From:To:CC:Subject:References:In-Reply-To:From;
+	b=x8C7C6+QFhWbuLOlA4f2TLqiJMhlazJt2gYIt//j0sqPsJ1u3xUKKcidONFWViTmT
+	 lJu132TWKWkxmVHz8nriv8AIBrMaRLkd0Qmu+cAuQkZMLk5OSsCNbkrijh1glWPcbe
+	 BvVLC60aJ9Yt1jsan8m/3mWMYZMaFIyzSPWez5YB/c1sgtfKS/eDK6bBJy/qJctuM/
+	 Vzuel4ZWycS+xUSPq6QOFP6UQqDxDqosGpetYk8AOAgwn2tpE80wOd50q3e9XYAkgY
+	 B9tFnw5bdoqqHXb91Imk683M6f7JgEsrHJ4OEo+YkHGnCqXo9PHDJH/Fk6Syisj+i2
+	 N3nLAHNjqhdhg==
+Received: from secunet.com (10.182.7.193) by EXCH-01.secunet.de (10.32.0.171)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Thu, 7 May
+ 2026 11:56:59 +0200
+Received: (nullmailer pid 1537037 invoked by uid 1000);
+	Thu, 07 May 2026 09:56:58 -0000
+Date: Thu, 7 May 2026 11:56:58 +0200
+From: Steffen Klassert <steffen.klassert@secunet.com>
+To: Sabrina Dubroca <sd@queasysnail.net>
+CC: Antony Antony <antony.antony@secunet.com>, Herbert Xu
+	<herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>, Eric
+ Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>, Simon Horman <horms@kernel.org>, David Ahern
+	<dsahern@kernel.org>, Masahide NAKAMURA <nakam@linux-ipv6.org>, Paul Moore
+	<paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>, Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>, <netdev@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <selinux@vger.kernel.org>,
+	<linux-doc@vger.kernel.org>, Chiachang Wang <chiachangwang@google.com>, Yan
+ Yan <evitayan@google.com>, <devel@linux-ipsec.org>
+Subject: Re: [PATCH ipsec-next v8 04/14] xfrm: fix NAT-related field
+ inheritance in SA migration
+Message-ID: <afxh6tZDV7RwXQ_a@secunet.com>
+References: <migrate-state-v8-0-4578fb016965@secunet.com>
+ <migrate-state-v8-4-4578fb016965@secunet.com>
+ <afxcVV83k7CxImwC@krikkit>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <878q9v8sxu.fsf@redhat.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - cloud35.hostingpalvelu.fi
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - kolttonen.fi
-X-Get-Message-Sender-Via: cloud35.hostingpalvelu.fi: authenticated_id: kalevi@kolttonen.fi
-X-Authenticated-Sender: cloud35.hostingpalvelu.fi: kalevi@kolttonen.fi
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+In-Reply-To: <afxcVV83k7CxImwC@krikkit>
+X-ClientProxiedBy: EXCH-03.secunet.de (10.32.0.183) To EXCH-01.secunet.de
+ (10.32.0.171)
 
-On Thu, May 07, 2026 at 11:33:49AM +0200, Petr Lautrbach wrote:
-> Look at these patches and provide Tested-by if they work for you:
+On Thu, May 07, 2026 at 11:33:09AM +0200, Sabrina Dubroca wrote:
+> 2026-05-05, 06:32:43 +0200, Antony Antony wrote:
+> > During SA migration via xfrm_state_clone_and_setup(),
+> > nat_keepalive_interval was silently dropped and never copied to the new
+> > SA. mapping_maxage was unconditionally copied even when migrating to a
+> > non-encapsulated SA.
 > 
-> https://patchwork.kernel.org/project/selinux/list/?series=1086260
-> https://patchwork.kernel.org/project/selinux/patch/20260427123304.74899-1-lautrbach@redhat.com/
+> mapping_maxage should be harmless (0/unused on non-encap), but I think
+> migrating nat_keepalive_interval should be considered a fix:
+> 
+> Fixes: f531d13bdfe3 ("xfrm: support sending NAT keepalives in ESP in UDP states")
+> 
+> (maybe even split out of this series, but that would cause a conflict
+> with the previous patch)
 
-Yes, applying those 4 patches did the trick. Thanks. Feel free to
-add my confirmation.
-
-Tested-by: Kalevi Kolttonen <kalevi@kolttonen.fi>
-
-br,
-KK
+Can this be backported without the previous patches?
+If not, we might need to split it out.
