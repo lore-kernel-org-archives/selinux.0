@@ -1,97 +1,101 @@
-Received: from cloud35.hostingpalvelu.fi (mail35.hostingpalvelu.fi [31.217.192.49])
+Received: from mout02.posteo.de (mout02.posteo.de [185.67.36.66])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F1C5175A74
-	for <selinux@vger.kernel.org>; Thu,  7 May 2026 17:32:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=31.217.192.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA17A44CF5B
+	for <selinux@vger.kernel.org>; Thu,  7 May 2026 17:57:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.66
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778175152; cv=none; b=FJ3t5qoHE27Vh9UE0qIHl0GzKzjt3FYd/uZ/a4k4CsAfl6jPuLt7ZRjsy3kbcI1rE3M39enAdf6y6f0KgTgykuECh+yIWCz/ZUA289yarwozUVXeIG0k6DmXvT6MNJVwbBkYwpRghnbS+tDjrsilIfJT2SxpDs/05ygt3Pkjc/8=
+	t=1778176671; cv=none; b=mK8t12OoTIt5tRPGCoSQlLY8wj15NucO5Xuq3LpA8TS+yoDGEZvJaKyhBShLzdNgjDfH+0GNn1oPfQfqV/4FiGmB9hwiYT93ZxvnsTSMcRXdqXovrrNnxdYUjJ8E8PMu9FuR8dn6j3HoFXWg8QyrTHTiv63ZFETKvM7t4hqaekc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778175152; c=relaxed/simple;
-	bh=GskZk7FS8FtRN1/SaRRvT8KxcdCL8rUc0yPMur5XFTc=;
-	h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=lniozZSO1dDqfPGmxvzrHMvsuOmfsmyzZmqvecfut39SpvxBcA8p3mPs1ROJefV+02wKWxQNFUNuh2bVWgaL1A6j54B6Zi7XnpmHovfyWUCzcU1pXl7KNSEOGYIHRVJo00uaYPMeMbVHDNqQyyEgrbQpxlYkRpyTwMKSzaCz0Gs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=aTsmlvWQ; arc=none smtp.client-ip=31.217.192.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kolttonen.fi
+	s=arc-20240116; t=1778176671; c=relaxed/simple;
+	bh=kCJf7OBpSGwNrO8oLxIKvtU+M1OUuDPDPvAZEdcpLCs=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:
+	 References:In-Reply-To; b=FAyw/xXI35JRifla+Yw2yUEiBheG8ZxqDbDXJz4VXJLdgNg/hdk0kaLYIr/5bIpPao6KQ42m+DJoRtEejlMLDza6nXrHiMdX3K3zAat+pKjDwjJJo+JUXost61/PvUmT2QiHZnS3Fu1+QxjoNEFp62aeQ6DHXfsSFyxQo5WtCVo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.uk; spf=pass smtp.mailfrom=posteo.uk; dkim=pass (2048-bit key) header.d=posteo.uk header.i=@posteo.uk header.b=g6VZge0r; arc=none smtp.client-ip=185.67.36.66
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="aTsmlvWQ"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=kolttonen.fi; s=default; h=Content-Type:MIME-Version:Message-ID:Subject:To:
-	From:Date:Sender:Reply-To:Cc:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
-	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=u8E0M58FVMfsZgNnSVlNk5zn7CZG9dGyJySCM6dA3j0=; b=aTsmlvWQQdISogcv9SWj7DDb2n
-	CkBmTTZeNQdo4X22+OcGNmD3nEWDm3EL2mt11Y+ehdOE7nvzQdyt+GJihM6nT7ghnI7UlJpBwyDn8
-	Sc3D62IcK5idiOHVjRs8JtbJj3HLoMNilMExFrr7RtiCP05OIcXWbR5MTAMrjSFnwpbEPGO0CY5Im
-	cW6GRhTpNMreHUAAQjTdAiJHE6VAMJD4E9fv3JikyuHbXy+G98+vRRAA1ymr53viA2ddicncELzEB
-	MNLFrZbTJqLuczib+zsuHRH5WwSzbSIs3fCMIt5qA6f8JjHGYhq9kFolcFDfIe5cr520y+Pq7Dfg4
-	C3bJA1og==;
-Received: from 176-93-144-62.bb.dnainternet.fi ([176.93.144.62]:11685 helo=2001-14bb-cc-ed64-88bf-e40e-789b-2.rev.dnainternet.fi)
-	by cloud35.hostingpalvelu.fi with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.99.2)
-	(envelope-from <kalevi@kolttonen.fi>)
-	id 1wL2aJ-00000008FCj-1geV
-	for selinux@vger.kernel.org;
-	Thu, 07 May 2026 20:32:27 +0300
-Date: Thu, 7 May 2026 20:32:25 +0300
-From: Kalevi Kolttonen <kalevi@kolttonen.fi>
-To: selinux-list <selinux@vger.kernel.org>
-Subject: SELinux userspace coding style
-Message-ID: <afzMqTAtz3aHEx9f@2001-14bb-cc-ed64-88bf-e40e-789b-2.rev.dnainternet.fi>
+	dkim=pass (2048-bit key) header.d=posteo.uk header.i=@posteo.uk header.b="g6VZge0r"
+Received: from submission (posteo.de [185.67.36.169]) 
+	by mout02.posteo.de (Postfix) with ESMTPS id 2787E24196C
+	for <selinux@vger.kernel.org>; Thu,  7 May 2026 19:57:47 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.uk; s=2017;
+	t=1778176667; bh=18Yz7rTpsysNrEtzIFyv1jub6baLxA8qbz0vTa5f+BM=;
+	h=Mime-Version:Content-Transfer-Encoding:Content-Type:Date:
+	 Message-Id:Subject:From:To:From;
+	b=g6VZge0rRLQh4cLdcUg8ROcMzml3HETHANUmPWnInw2eQIpteLCKaxQ9QLcNkx1lH
+	 3Ck9J2hnnKNse9k1OKu+nElii4y2l5G9m7aZ7BZRkrnLW6tmFYk3eu5SfxPMD4BV9L
+	 rXgGdF55Ab98KW7UZh+bQx5G9++I2QKUaOdW7kE+LJPGLq0Gb5rVOztFY4DS8k5+B0
+	 KGQiJffyMivR1b54x/6GH3hqid47skdFdyflcmg63914g8jPAIeOB68ffBkUD8HJcG
+	 odjEJY8vl5sqkuMrZrd43PGVRZaIaPw4cZQ93C7S+7lfwvYu002SCQMudDj/739+IN
+	 qZHiiidhqRtTQ==
+Received: from customer (localhost [127.0.0.1])
+	by submission (posteo.de) with ESMTPSA id 4gBKj655hhz9rxL;
+	Thu,  7 May 2026 19:57:46 +0200 (CEST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - cloud35.hostingpalvelu.fi
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - kolttonen.fi
-X-Get-Message-Sender-Via: cloud35.hostingpalvelu.fi: authenticated_id: kalevi@kolttonen.fi
-X-Authenticated-Sender: cloud35.hostingpalvelu.fi: kalevi@kolttonen.fi
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Thu, 07 May 2026 17:57:46 +0000
+Message-Id: <DICN0RAL27J0.HFQFGZOGMV07@posteo.uk>
+Subject: Re: SELinux userspace coding style
+From: "Rahul Sandhu" <nvraxn@posteo.uk>
+To: "Kalevi Kolttonen" <kalevi@kolttonen.fi>, "selinux-list"
+ <selinux@vger.kernel.org>
+References: <afzMqTAtz3aHEx9f@2001-14bb-cc-ed64-88bf-e40e-789b-2.rev.dnainternet.fi>
+In-Reply-To: <afzMqTAtz3aHEx9f@2001-14bb-cc-ed64-88bf-e40e-789b-2.rev.dnainternet.fi>
 
-Hello!
+On Thu May 7, 2026 at 6:32 PM BST, Kalevi Kolttonen wrote:
+> Hello!
+>
+> According to CONTRIBUTING.md, the following applies to
+> the SELinux userspace code:
+>
+> "C code should be formatted using clang-format, using the
+> .clang-format configuration file at the root of this repository."
+>
+> I guess this only applies to the new code, right?
+>
+> Inspecting the userspace code shows it is really a terrible
+> mess of conflicting coding styles.  Of course the correctness
+> of the code is the top priority, but compared to the kernel
+> side code, the userspace looks almost like a jungle that
+> developed without any consistent coding style during the
+> past 20+ years: e.g. sometimes people use braces with short
+> if-clauses, sometimes not (even within the same function!),
+> sometimes goto labels are indented, sometimes not,
+> pointer definitions vary with their use of space or not, etc.
+> =20
+> To be honest, this is *most annoying*, but realistically
+> fixing the whole codebase would probably create a chaos
+> of patches that would be unmanageable. Especially for
+> the security related code, one would wish the situation
+> were different, but there is no time machine and so it
+> is what it is...
+>
+> I randomly picked just one C file and tried:
+>
+>   clang-format-17 -style=3Dfile < load_policy.c > l2.c
+>   diff -u load_policy.c l2.c
+>
+> It sure produced lots of changes.
+>
+> br,
+> KK
 
-According to CONTRIBUTING.md, the following applies to
-the SELinux userspace code:
 
-"C code should be formatted using clang-format, using the
-.clang-format configuration file at the root of this repository."
+Hi Kalevi,
 
-I guess this only applies to the new code, right?
+Yes, this is a bit of a mess right now. We forgot to reformat all the code
+for the last release so my understanding is that it will be done for the ne=
+xt
+one. Until then, feel free to ignore the instructions pertaining to that pa=
+rt
+of the code style guide. :)
 
-Inspecting the userspace code shows it is really a terrible
-mess of conflicting coding styles.  Of course the correctness
-of the code is the top priority, but compared to the kernel
-side code, the userspace looks almost like a jungle that
-developed without any consistent coding style during the
-past 20+ years: e.g. sometimes people use braces with short
-if-clauses, sometimes not (even within the same function!),
-sometimes goto labels are indented, sometimes not,
-pointer definitions vary with their use of space or not, etc.
- 
-To be honest, this is *most annoying*, but realistically
-fixing the whole codebase would probably create a chaos
-of patches that would be unmanageable. Especially for
-the security related code, one would wish the situation
-were different, but there is no time machine and so it
-is what it is...
-
-I randomly picked just one C file and tried:
-
-  clang-format-17 -style=file < load_policy.c > l2.c
-  diff -u load_policy.c l2.c
-
-It sure produced lots of changes.
-
-br,
-KK
+--=20
+Rahul Sandhu
