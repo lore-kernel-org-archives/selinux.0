@@ -1,194 +1,171 @@
-Received: from cloud35.hostingpalvelu.fi (mail35.hostingpalvelu.fi [31.217.192.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B985733A029
-	for <selinux@vger.kernel.org>; Fri,  8 May 2026 12:13:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=31.217.192.49
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778242438; cv=none; b=mHqh5Nf4jl6FuQ472lVFOAkcVkt3VSdWH9DbO0PVrhBOcJDfUCv8HoinWB3/8EdJ+OLJdt2ivkGjVDhLQIzpIAb2g/DON2Akxt3H6jWLT5TzRJ4bijQjbPfZFFYQNiD92ZIHvhG8nUlwdIgvX0ryCEejJhFpNCJp4fRmA5FUruE=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778242438; c=relaxed/simple;
-	bh=tG9okbunzSEmi+Og9Q3a5a36TL2Qjp2a4WJtEGrleFs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=BwW3zOY2lwjttchCMU/PwS+t2T5NCmeBW7Twod6YLmfnGU2UBiVcS6oSsmWaiBEyDfu1es/ZZpxyU55tdT3uhHUSLBVNrykwEnczWMAhOaDxD0xlz10cZbC7oZG8KhPVchS348N3/ytFa8znRnJXXOrB0StadKZ2mr68kNBmUmo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=l2cHcMPf; arc=none smtp.client-ip=31.217.192.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kolttonen.fi
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 966483D7D70
+	for <selinux@vger.kernel.org>; Fri,  8 May 2026 20:10:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.44
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778271048; cv=pass; b=M/+rXINGZOWHzsrAid+s5xF8r5driDsBvjryQDCoLljS0lLW8rdxIu0OI7ie5drk/L6LkE/rDHgTkzTLFUBX9wWBIEbK8dwtjWqQP2Pf4BggNoI8LSJtxJfqgihdf+jYoP/lwkmmOYCB9J8pK7AKmHR+EgrhvErid5wqLPmrHaU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778271048; c=relaxed/simple;
+	bh=TFrVhtXRzGaWgGBXsdmPjdMWa4luc0ZPlbhrFgpSi0g=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=EQqH+RqO+aLipMzzjiPJWvHL7J98XNvdElT82ptk20z+3WPmUYfbp4wQcouFdfj8VgAEsRJFHTJ2VMcm3DZ423vJLdUiCwfgmbe1+xLJw+XDx8J7BQwuPMxbh5F26OMZmSU8zOrl5ElJmOWrCm4b84b+0SEXZ9QQGSytRO3kN20=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Dilxkrhk; arc=pass smtp.client-ip=209.85.216.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="l2cHcMPf"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=kolttonen.fi; s=default; h=Content-Transfer-Encoding:MIME-Version:
-	References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:
-	Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=wqKfWGD1FAS29MI8BOR1Oau3xdGFDQapQdXdWJlCyio=; b=l2cHcMPfq7rxttnDVHssSlzoaJ
-	gX5ArHbVxhdaa9KoVTTlejUbKzKk/92OFK4w2l6SkjONNoBg7UYNfIU/uuKag6sIHu2lQSXMzoMQe
-	qu9RtGIWkR5Vc0HX1VJtUMyQzO3JoJAgsrkw/OQdd2q1Kqu5l1uu980gvJZk796TYwBQ2dro4R5BL
-	McrKLeeu6a+bBvPA6fHtpbP/EpRTxr85zwrn597mnoRR739CME+r6lJyDzlF8IiSpPeUH4WbeO4dq
-	KSlsRcZ0qDlhAJzdeWIiFIOtn4PlWZiYkDeqkVgoUH27/lfY6PFpJTFViZ1evB3Opicc5X04FTru0
-	85Vmz0eQ==;
-Received: from 176-93-144-62.bb.dnainternet.fi ([176.93.144.62]:11426 helo=fbsd15.local)
-	by cloud35.hostingpalvelu.fi with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.99.2)
-	(envelope-from <kalevi@kolttonen.fi>)
-	id 1wLK5b-0000000BmhC-1WBr;
-	Fri, 08 May 2026 15:13:54 +0300
-From: Kalevi Kolttonen <kalevi@kolttonen.fi>
-To: selinux@vger.kernel.org
-Cc: Kalevi Kolttonen <kalevi@kolttonen.fi>
-Subject: [PATCH 4/4] checkpolicy: remove unneeded malloc() casts
-Date: Fri,  8 May 2026 15:13:27 +0300
-Message-ID: <20260508121327.91410-5-kalevi@kolttonen.fi>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260508121327.91410-1-kalevi@kolttonen.fi>
-References: <20260508121327.91410-1-kalevi@kolttonen.fi>
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Dilxkrhk"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-36608b2f2dcso1595839a91.2
+        for <selinux@vger.kernel.org>; Fri, 08 May 2026 13:10:47 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1778271047; cv=none;
+        d=google.com; s=arc-20240605;
+        b=eULI1NEbnDfncjYZboDSMuGWogGGr9FcQYKNQDVvnKwMRhfnHd6oZn/9WYy2cFxBK6
+         6Fyjke0ZNZATwFrF6cG+yMJEeZE/49hoZXwZwwVpF9KhcwYJtD5Blx9g+gYwaJfwJA3B
+         IkHStnGZISOl1Y4KT3rxvkP7URq/IFTwY1k83us1LPkxHN0EtTOUWdxz0Xmd+r8Y3JDO
+         o0L94RVP0OQPoNv8gKsmhLo21a5c1MPteZiMnTNh1Wlf/kxtbRqa6CU4MFdrR2Y4YXgP
+         Zda1epG90lVXismn1bh37fHE0lSziAw1zZFMbzVC+RY0hNb9LLFngtFuyEgXHd88G0lI
+         ZxAA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=RHUkpCYBtC8f1kSrbyE8l06+fmWuae05jJfS+5AeM9M=;
+        fh=jG8BA0Yd8bZ/j1wrbXCpkGAGoC4cxFegb9LmwtfPp9I=;
+        b=VjhmLFUgkGuyAAchAvIU3HjTXyJ9angEO38c4V/MOf2mpOy2kPJEgfd79QYO/TLREC
+         QG/+2+7FOaJr+GeYR/7s7ZpfbmIHm5B+kQVuBZYbJygtAEEW2GJNL4EzkM4SWjJ63xsH
+         2/67UTYUrZns55G8aWTLDrlwXjAzTJjySqBJQFPqwSBR4SxygzqP2nNBlXZmkvwsut+M
+         mNIMaQbEt3cRI8Gb28MEFaHm3pjXgs0s2d9scf7xNRqlUCo7jl5SmailhAIcZZmam2QE
+         iELvjM2SZuQUKrChTWLCOGekYXmcWvajKi7nT5kzg6iKzOtDZfPiJvp8MyI+VnH0Myd0
+         fdQQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1778271047; x=1778875847; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=RHUkpCYBtC8f1kSrbyE8l06+fmWuae05jJfS+5AeM9M=;
+        b=DilxkrhkAC0uzjjPyGt0+4VO4px4J2U/CkzkF2kqx27AeLOR08LHs5M3UWt2Kvvquo
+         fMVYkhrJSw4aaKmdrPFCDeBTD2AHlTFEgj3YRXdyMqmCrQQfG7VgO/izsfsJ0ZymU7bb
+         zJz4aDeqeyFHYcqlJDbqh9mdzu1gX/Ig/C6s3Ag51ph3iAEo07QUkIjSPcO0MZ/jL118
+         wDyKByZuiGPjFI7X47aK5YlQUBYb1AbSNy0h/1vexTm3tXxZVG9nzk7sCCnrw3Bif39+
+         pjedrbaWmIYZ/9st1s2dXfCj+9M+6KQ6eoxgjWIIJq0UHQo8gABcnLG241siBBnikFbe
+         Asug==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778271047; x=1778875847;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=RHUkpCYBtC8f1kSrbyE8l06+fmWuae05jJfS+5AeM9M=;
+        b=nBFBX8+jJi6GhVG+WmDPYbo29tHGMm4aMTeLaX/QUj/ZJyxt02s68Oz9vzLDGXtdzk
+         VxXvJiWtJUnWWEgs/JuufscGgsw9Gdi/reuXtQ9k45FYPM5rXmpidWDfP5vIsfCu4wkz
+         Bzj4I1mz8u+I+WkWywy/imdp1REujZS2aZ84NbKwy+6vVZYPpIeOh3aPhTpNxD+7DxOj
+         gKpV4AxyMDNmY7cfTz5bt63unG85ATLBJgS/TslW43ILh4T8C+tE6uwcz82HEm+gh9sL
+         PrnQYqxfGmTqr5ThugUqdpjhAQ/xQJ8cIpXEk6vm8BqflHcY8AfaUfZJogru+o1iN+ty
+         G9EA==
+X-Forwarded-Encrypted: i=1; AFNElJ9r83c2WGV9nNMt6Eu0RPPsFo5m7ucINGXEsFVo/f8G/tp1Gcw4+kT0e2YX7WcsEUqxCeh7fFYs@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw34BDxFzAcNt7icSoNGINzV87xyZfPUCUlvLSzrw1t2TVC2LU8
+	Nv8Dgcs7WxnLMekvWHHWUsxFqptQTZRiZiUAeecpdmMEZTNZsnKz8sju4nFtUrwH4as/efBtWKp
+	1uXnJb/AiGMVx0V56oj33gdrDzA/OIDmrDTuyj5g3
+X-Gm-Gg: Acq92OFMBjm7wqV0FMdTpooUkVBUIV4oKA5Fg5IvnqfMplO5Ay4z1F1nluLOOCtr6BL
+	43Vq+HzG78DYYmzJ6iYRrAQHRzFmPS3Wq8amOpJD+e27Ux6Cryg1WhWHK3aLFBbvKu/gmzQoJop
+	gAiHEO/KNRZAlKiAoZ5kJr6VlkAxwDGMqPraPSFq8DN7yeNM9qOVULxpxxEQ8tKZX3Wv1SCcpAL
+	hUKFWcD3Odm/y9TLOtJPhhRMEX6EGe7x9qpPLzYWt4JrmQkTylTurIJ0bmkn+EqGoqlgDenqZxZ
+	7DEw9vxfL/mAWsjJBw==
+X-Received: by 2002:a17:90a:509:b0:366:3ac:f730 with SMTP id
+ 98e67ed59e1d1-36603ad3f55mr6058264a91.25.1778271046680; Fri, 08 May 2026
+ 13:10:46 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - cloud35.hostingpalvelu.fi
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - kolttonen.fi
-X-Get-Message-Sender-Via: cloud35.hostingpalvelu.fi: authenticated_id: kalevi@kolttonen.fi
-X-Authenticated-Sender: cloud35.hostingpalvelu.fi: kalevi@kolttonen.fi
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+References: <20260430000315.918964-1-song@kernel.org> <20260430000315.918964-2-song@kernel.org>
+In-Reply-To: <20260430000315.918964-2-song@kernel.org>
+From: Paul Moore <paul@paul-moore.com>
+Date: Fri, 8 May 2026 16:10:34 -0400
+X-Gm-Features: AVHnY4JzYJuAYc9q9BmVnJzCXV6FuyRu5-uJafEtOUSW60YQOAJP4PpQpgO2G2Y
+Message-ID: <CAHC9VhT6YxJQqSkBbSeACFL6+AoL0031u2VT4fuRqPxDkGzSfw@mail.gmail.com>
+Subject: Re: [PATCH v2 1/7] lsm: Add granular mount hooks to replace security_sb_mount
+To: Song Liu <song@kernel.org>
+Cc: linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	selinux@vger.kernel.org, apparmor@lists.ubuntu.com, jmorris@namei.org, 
+	serge@hallyn.com, viro@zeniv.linux.org.uk, brauner@kernel.org, jack@suse.cz, 
+	john.johansen@canonical.com, stephen.smalley.work@gmail.com, 
+	omosnace@redhat.com, mic@digikod.net, gnoack@google.com, 
+	takedakn@nttdata.co.jp, penguin-kernel@i-love.sakura.ne.jp, 
+	herton@canonical.com, kernel-team@meta.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Kalevi Kolttonen <kalevi@kolttonen.fi>
----
- checkpolicy/policy_define.c | 28 +++++++++++++---------------
- 1 file changed, 13 insertions(+), 15 deletions(-)
+On Wed, Apr 29, 2026 at 8:03=E2=80=AFPM Song Liu <song@kernel.org> wrote:
+>
+> Add six new LSM hooks for mount operations:
+>
+> - mount_bind(from, to, recurse): bind mount with pre-resolved
+>   struct path for source and destination.
+> - mount_new(fc, mp, mnt_flags, flags, data): new mount, called after
+>   mount options are parsed. The flags and data parameters carry the
+>   original mount(2) flags and data for LSMs that need them (AppArmor,
+>   Tomoyo).
+> - mount_remount(fc, mp, mnt_flags, flags, data): filesystem remount,
+>   called after mount options are parsed into the fs_context.
+> - mount_reconfigure(mp, mnt_flags, flags): mount flag reconfiguration
+>   (MS_REMOUNT|MS_BIND path).
+> - mount_move(from, to): move mount with pre-resolved paths.
+> - mount_change_type(mp, ms_flags): propagation type changes.
+>
+> These replace the monolithic security_sb_mount() which conflates
+> multiple distinct operations into a single hook, and suffers from
+> TOCTOU issues where LSMs re-resolve string-based dev_name via
+> kern_path().
+>
+> The mount_move hook is added alongside the existing move_mount hook.
+> During the transition, LSMs register for both hooks. The move_mount
+> hook will be removed once all LSMs have been converted.
+>
+> Some LSMs, such as apparmor and tomoyo, audit the original input passed
+> in the mount syscall. To keep the same behavior, argument data and flags
+> are passed in do_* functions. These can be removed if these LSMs no
+> longer need these information.
+>
+> All new hooks are registered as sleepable BPF LSM hooks.
+>
+> Code generated with the assistance of Claude, reviewed by human.
+>
+> Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Tested-by: Stephen Smalley <stephen.smalley.work@gmail.com> # for selinux=
+ only
+> Signed-off-by: Song Liu <song@kernel.org>
+> ---
+>  fs/namespace.c                |  35 ++++++++++--
+>  include/linux/lsm_hook_defs.h |  12 ++++
+>  include/linux/security.h      |  50 +++++++++++++++++
+>  kernel/bpf/bpf_lsm.c          |   7 +++
+>  security/security.c           | 101 ++++++++++++++++++++++++++++++++++
+>  5 files changed, 199 insertions(+), 6 deletions(-)
 
-diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index 755a8428..0a553a1f 100644
---- a/checkpolicy/policy_define.c
-+++ b/checkpolicy/policy_define.c
-@@ -786,7 +786,7 @@ int define_sens(void)
- 		yyerror2("sensitivity identifier %s may not contain periods", id);
- 		goto bad;
- 	}
--	level = (mls_level_t *) malloc(sizeof(mls_level_t));
-+	level = malloc(sizeof(mls_level_t));
- 	if (!level) {
- 		yyerror("out of memory");
- 		goto bad;
-@@ -795,7 +795,7 @@ int define_sens(void)
- 	level->sens = 0;	/* actual value set in define_dominance */
- 	ebitmap_init(&level->cat);	/* actual value set in define_level */
- 
--	datum = (level_datum_t *) malloc(sizeof(level_datum_t));
-+	datum = malloc(sizeof(level_datum_t));
- 	if (!datum) {
- 		yyerror("out of memory");
- 		goto bad;
-@@ -839,7 +839,7 @@ int define_sens(void)
- 			free(id);
- 			return -1;
- 		}
--		aliasdatum = (level_datum_t *) malloc(sizeof(level_datum_t));
-+		aliasdatum = malloc(sizeof(level_datum_t));
- 		if (!aliasdatum) {
- 			yyerror("out of memory");
- 			free(id);
-@@ -976,7 +976,7 @@ int define_category(void)
- 		yyerror2("category identifier %s may not contain periods", id);
- 		goto bad;
- 	}
--	datum = (cat_datum_t *) malloc(sizeof(cat_datum_t));
-+	datum = malloc(sizeof(cat_datum_t));
- 	if (!datum) {
- 		yyerror("out of memory");
- 		goto bad;
-@@ -1019,7 +1019,7 @@ int define_category(void)
- 			free(id);
- 			return -1;
- 		}
--		aliasdatum = (cat_datum_t *) malloc(sizeof(cat_datum_t));
-+		aliasdatum = malloc(sizeof(cat_datum_t));
- 		if (!aliasdatum) {
- 			yyerror("out of memory");
- 			free(id);
-@@ -1091,7 +1091,7 @@ static int clone_level(hashtab_key_t key __attribute__ ((unused)), hashtab_datum
- 			levdatum->notdefined = FALSE;
- 			return 0;
- 		}
--		newlevel = (mls_level_t *) malloc(sizeof(mls_level_t));
-+		newlevel = malloc(sizeof(mls_level_t));
- 		if (!newlevel)
- 			return -1;
- 		if (mls_level_cpy(newlevel, level)) {
-@@ -2167,7 +2167,7 @@ static int define_te_avtab_xperms_helper(int which, avrule_t ** rule)
- 	unsigned int i;
- 	int add = 1, ret;
- 
--	avrule = (avrule_t *) malloc(sizeof(avrule_t));
-+	avrule = malloc(sizeof(avrule_t));
- 	if (!avrule) {
- 		yyerror("out of memory");
- 		goto out;
-@@ -2231,8 +2231,7 @@ static int define_te_avtab_xperms_helper(int which, avrule_t ** rule)
- 	perms = NULL;
- 	id = queue_head(id_queue);
- 	ebitmap_for_each_positive_bit(&tclasses, node, i) {
--		cur_perms =
--		    (class_perm_node_t *) malloc(sizeof(class_perm_node_t));
-+		cur_perms = malloc(sizeof(class_perm_node_t));
- 		if (!cur_perms) {
- 			yyerror("out of memory");
- 			goto out2;
-@@ -2779,7 +2778,7 @@ static int define_te_avtab_helper(int which, avrule_t ** rule)
- 
- 	ebitmap_init(&tclasses);
- 
--	avrule = (avrule_t *) malloc(sizeof(avrule_t));
-+	avrule = malloc(sizeof(avrule_t));
- 	if (!avrule) {
- 		yyerror("memory error");
- 		ret = -1;
-@@ -2848,8 +2847,7 @@ static int define_te_avtab_helper(int which, avrule_t ** rule)
- 
- 	perms = NULL;
- 	ebitmap_for_each_positive_bit(&tclasses, node, i) {
--		cur_perms =
--		    (class_perm_node_t *) malloc(sizeof(class_perm_node_t));
-+		cur_perms = malloc(sizeof(class_perm_node_t));
- 		if (!cur_perms) {
- 			yyerror("out of memory");
- 			ret = -1;
-@@ -4390,7 +4388,7 @@ static int mls_semantic_cats_merge(mls_semantic_cat_t ** dst,
- 	mls_semantic_cat_t *new;
- 
- 	while (src) {
--		new = (mls_semantic_cat_t *) malloc(sizeof(mls_semantic_cat_t));
-+		new = malloc(sizeof(mls_semantic_cat_t));
- 		if (!new)
- 			return -1;
- 
-@@ -4467,7 +4465,7 @@ static int parse_semantic_categories(char *id, level_datum_t * levdatum __attrib
- 		range_start = range_end = cdatum->s.value;
- 	}
- 
--	newcat = (mls_semantic_cat_t *) malloc(sizeof(mls_semantic_cat_t));
-+	newcat = malloc(sizeof(mls_semantic_cat_t));
- 	if (!newcat) {
- 		yyerror("out of memory");
- 		return -1;
-@@ -4859,7 +4857,7 @@ int define_fs_context(unsigned int major, unsigned int minor)
- 		return -1;
- 	}
- 
--	newc->u.name = (char *)malloc(6);
-+	newc->u.name = malloc(6);
- 	if (!newc->u.name) {
- 		yyerror("out of memory");
- 		free(newc);
--- 
-2.54.0
+...
 
+> @@ -3708,6 +3724,10 @@ static int do_move_mount_old(const struct path *pa=
+th, const char *old_name)
+>         if (err)
+>                 return err;
+>
+> +       err =3D security_mount_move(&old_path, path);
+> +       if (err)
+> +               return err;
+> +
+>         return do_move_mount(&old_path, path, 0);
+>  }
+
+While the security_sb_mount() hook calls into do_move_mount_old(), the
+security_move_mount() hook calls into do_mount_mount().  As you remove
+both of these LSM hooks in patch 7/7, should we consider moving the
+new security_mount_move() into do_move_mount()?  If not, how do we
+ensure that we don't lose coverage when removing the
+security_move_mount() hook, or can you explain why it is not needed?
+
+--=20
+paul-moore.com
