@@ -1,61 +1,52 @@
 Received: from cloud35.hostingpalvelu.fi (mail35.hostingpalvelu.fi [31.217.192.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31AC9397E9D
-	for <selinux@vger.kernel.org>; Fri,  8 May 2026 11:19:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24D6928B4E1
+	for <selinux@vger.kernel.org>; Fri,  8 May 2026 12:13:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=31.217.192.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778239198; cv=none; b=GgXNPrJBO/nVshBXcarX8cDyU5BRjf6zngzGVnppjWIvIvXoNvImUXbpodvL+ALXWxnSnL0jQc3XJOGJmL8P4pRLJFOjioTS8vxCaVppE+cC0vNCycs4rgQGZNDIwKYCawofj8VGIVfeUgSrl+bbWEGrpbbD3Qoelka4bqP0Dg0=
+	t=1778242420; cv=none; b=RcDPiNiRHVca/03aaQ/3knRndN1lpKIbGTt1SAjy2eYoGgiTZVPWf7G3ImQO20auoabMksyOoymjxTq4Plf4vwGLbG9LOxWrUrEJc02CSbPn4tkxYohgFQsKhREKsIfDxKoY1taWgolqJd/djDQ1mgvhUNdeav8s6UvF9ZkkYpA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778239198; c=relaxed/simple;
-	bh=v50hzPFibZ14TB2WdC7fmauJrMVQg1aVcktbwwXTXkE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LYnN24ROqulOg7pfLycIqVcS5dF1b8B0cPL3LIAOqDRqr4CictryxFF20dNP6DNAQf/Gdyc2W9sL0khixdRJ25Ee5uAiSx1+dUxOfWm+b+JkIZnKkv0mowX9i5cabCNsmuPkJNhiZRsU158WNy6XjSlFkBEylxy4BvZiLkl1OEk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=SjRtGiyL; arc=none smtp.client-ip=31.217.192.49
+	s=arc-20240116; t=1778242420; c=relaxed/simple;
+	bh=VekHy5yKik3l1qgiuyzIGt9xWlxFJ86tWM9+TxSUUeA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=t5vWTNjDGxAc48igRcMZQ0kHMUeRHb7PzVmMjhH8wTiAHh9GgXRWGUjeVkinGD3YxfsFAKz3pC5VqjCkViHyNx5K+AtmgwTdhrws5B/VwBzgqpyIPPfGzomMDjKcWBjZpO0PCJRiH2C5Ai2ixisvsHmPSz6v4MZOFtTXNBVxxm4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=By7xnrQf; arc=none smtp.client-ip=31.217.192.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kolttonen.fi
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="SjRtGiyL"
+	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="By7xnrQf"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=kolttonen.fi; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
-	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
-	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+	d=kolttonen.fi; s=default; h=Content-Transfer-Encoding:MIME-Version:
+	Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
 	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=v50hzPFibZ14TB2WdC7fmauJrMVQg1aVcktbwwXTXkE=; b=SjRtGiyLygK2T6RmOeRlhzyWir
-	IoPTOzUY5JCbhfnBj6A9RRYgI3REAcEZZau41dw+dtJQzbQEtnCC55iarYe1RP18QPfnW2oHvurFV
-	GriO9G6GctyaHP9DxIqL0qeYT+sbcxxQ/Yicd0Mn+JGBBZ0DYFLsGbCNkOgABnXLr2LhaNUr0ylzd
-	lOGGWvDLCk6gH0JWoMHnxbCU+nmv9EbWk00z26fs5GB0Nvpml4s6XKN+JYKxfcBWyv5C5Rs0fHAnJ
-	kIacRLCHBVL/rfzaqEFhP4CQtku5Q0j5e31DnxEwB4G03xP3URV0kgvDXN7Wg+ntJ8VOtbll6ALfK
-	Oz+S4gPg==;
-Received: from 176-93-144-62.bb.dnainternet.fi ([176.93.144.62]:11504 helo=2001-14bb-cc-ed64-88bf-e40e-789b-2.rev.dnainternet.fi)
+	bh=3i6j8bL7F3/x7awokBdVaqjeKDQVnu4UxTGaLpOpIEU=; b=By7xnrQfDBOoQ1fcUqHszRJM82
+	n+Xyzdd439vTMn2Zu5shb0B4LhWMDZUxioX92QQBb3QetrCnln8BSm/Kg6DEEfXqgXnctQLviWvjw
+	2JamC/AwmxI52QshBTcwLCgOVkj/bMfzvHnSGRM2EcwgqUwDA2TY9dpZI5zYKW/ctifUvpSSKFxO+
+	7KzB12oEKYF+dNVaoFkxyE3m+vxvKGXnmmgd0+9Oye4JwwbMigmsk0D0h7KitVKvQhWv20wUDemFX
+	RDwSjQfjSMis7yNCLDUGAqHMLM81rd3MVYmf/u+zvEWGu8PkAnZUQBToFFJgOJj3ibiuV5CWGO/BP
+	jcvV0n0Q==;
+Received: from 176-93-144-62.bb.dnainternet.fi ([176.93.144.62]:11426 helo=fbsd15.local)
 	by cloud35.hostingpalvelu.fi with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
 	(Exim 4.99.2)
 	(envelope-from <kalevi@kolttonen.fi>)
-	id 1wLJFJ-0000000BaoU-17Qp;
-	Fri, 08 May 2026 14:19:52 +0300
-Date: Fri, 8 May 2026 14:19:50 +0300
+	id 1wLK5J-0000000BmhC-1q4W;
+	Fri, 08 May 2026 15:13:37 +0300
 From: Kalevi Kolttonen <kalevi@kolttonen.fi>
-To: Rahul Sandhu <nvraxn@posteo.uk>
-Cc: selinux@vger.kernel.org
-Subject: Re: [PATCH] checkpolicy: replace malloc()+memset() with calloc()
-Message-ID: <af3G1iurbABukq3H@2001-14bb-cc-ed64-88bf-e40e-789b-2.rev.dnainternet.fi>
-References: <20260507213838.85273-1-kalevi@kolttonen.fi>
- <DICRV1S9SASW.2NQC19L5E71QA@posteo.uk>
- <af0KxyCu_hVF0EuH@2001-14bb-cc-ed64-88bf-e40e-789b-2.rev.dnainternet.fi>
- <af0ox3uY6I1LQSDp@2001-14bb-cc-ed64-88bf-e40e-789b-2.rev.dnainternet.fi>
- <DICX9I4V9L7C.3KJTX0MUJ9CEM@posteo.uk>
- <af2K83UGkQhVYEJz@2001-14bb-cc-ed64-88bf-e40e-789b-2.rev.dnainternet.fi>
- <DID8QJHTR64F.1P933P9Z03623@posteo.uk>
+To: selinux@vger.kernel.org
+Cc: Kalevi Kolttonen <kalevi@kolttonen.fi>
+Subject: [PATCH 0/4] checkpolicy: minor miscellaneous code cleanups
+Date: Fri,  8 May 2026 15:13:23 +0300
+Message-ID: <20260508121327.91410-1-kalevi@kolttonen.fi>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <DID8QJHTR64F.1P933P9Z03623@posteo.uk>
+Content-Transfer-Encoding: 8bit
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - cloud35.hostingpalvelu.fi
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -67,15 +58,17 @@ X-Source:
 X-Source-Args: 
 X-Source-Dir: 
 
-On Fri, May 08, 2026 at 10:58:50AM +0000, Rahul Sandhu wrote:
-> If you're making a number of refactors, you might prefer to send a patch series
-> for them given that they seem to be related.
+Here are some minor miscellaneous code cleanups.
 
-The common feature of my forthcoming patches is that all of them
-are minor fixes that are safe to apply without fearing regressions,
-but I can certainly split the changes to be a series. I just need
-to base the patches on my previous branch with those calloc() changes
-and not the main branch.
+Kalevi Kolttonen (4):
+  checkpolicy: use strcasecmp() instead of two strcmp() calls
+  checkpolicy: remove unneeded tests before free() calls
+  checkpolicy: add missing strdup() failure checks
+  checkpolicy: remove unneeded malloc() casts
 
-br,
-KK
+ checkpolicy/policy_define.c | 98 ++++++++++++++++++-------------------
+ 1 file changed, 47 insertions(+), 51 deletions(-)
+
+-- 
+2.54.0
+
