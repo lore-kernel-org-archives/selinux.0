@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE4C8284662;
-	Sat,  9 May 2026 01:52:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C50DB2848AA;
+	Sat,  9 May 2026 01:53:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778291575; cv=none; b=aM5gtZkNzKMlH87ucEfiOlqeGElhIM1xEAnsVKdG5wh19XrXuzeqxpWyWidNMvqD+CODOeQPpbZOHaSKyNfnBIOAfsJieeunuTh3vja80x/coaiT9k6C+qc3ypyJpsANLi644Os2r0YMhbdFBK7fH0rno5gDPR6i0+4xzV7Y8/E=
+	t=1778291582; cv=none; b=hIR0QCImWq7wkkVPBNasBxmLdpyTu2tPAVj+1A2JuDaFBfig0IYjmA/4f+eIZ08794rqWlGJK4w2uiiqHhCJuNZEsXrmu5eWtbhjLftVqVvpABNRQ3tMMVZ78JiMeRINsCQub/H4lu5Wd//UtAFscTGyzTNLtT2WkxrVF5c4vic=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778291575; c=relaxed/simple;
-	bh=AtrOkJUBiJw15BHd9exFumAP4R9M99uCBNgnQ+ZQ5FU=;
+	s=arc-20240116; t=1778291582; c=relaxed/simple;
+	bh=j+Hg74GJ9gDoPp6XW0hVXgVeb0TGHQLnt63G9h/UKEY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=IUtx8YbaCrIzhZvBRnXoTYHPD3PHFEaxVnqs3zPOwZYQAo353Y3a9ft3EvDc2rfO4nFlvpJnTPthFzajKW7Mfh5IKQz9eZW7kDqCXXeFFlwbbgVbwzCUdXWkSMO/WukCn9yJngTI+n7EhNO3t7fFmi0vs6T9Vu3YuuLqpaBIBL8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LxbhM+Ft; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=Wn9PG2xbHKucRHJhqJJY4vVLFO9Yk9OCaUqHF46j2DyhQLtK3ukvoxlqs7L+3DwY3AcHnnoJfNCRV7bBh/xMwhbSL88KnGzpUK68s+XYKa5Jx/E+0sBGlxnPeXrOGKK4At0y5QlZLekGXdomchcf4GjZwCBMNFtIzyYw5b6NfQw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=T2h0bE4p; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LxbhM+Ft"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5886C2BCB4;
-	Sat,  9 May 2026 01:52:53 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="T2h0bE4p"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBE44C2BCB4;
+	Sat,  9 May 2026 01:52:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778291575;
-	bh=AtrOkJUBiJw15BHd9exFumAP4R9M99uCBNgnQ+ZQ5FU=;
+	s=k20201202; t=1778291582;
+	bh=j+Hg74GJ9gDoPp6XW0hVXgVeb0TGHQLnt63G9h/UKEY=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=LxbhM+FttoH5/6Ck7glfu96/9h4Lj7wrkU+rn26m1TKiQyjyUe/dMYDzE09kD5TH5
-	 6gI0omZ7agXTze0nbQuw6C6FAmZmuIFLpVUH0tss2PN4oJhUacQEXh9y800sDPyi5u
-	 V7h+5o4Y1BRueL3JNxH3aOyRa4L78iDK6Z8BkfGG1lL09R33XmtsZTgxlh1Yf9T1zB
-	 y0g9nU6W+Flae3bJaipeaslizOd1TKTmHyp9tKJW1LqtoBfe3tmheVRKmoet4MLAgY
-	 3slPcuUKvC8m+gN+3do8pBTdsNAA8LkWc4IhM5uBIuvL4vY0waHgEJLjeJfzzJ/tod
-	 bhhuOaWx+RDag==
+	b=T2h0bE4pWdUXVUec8zWZC0xg+NcEyQqzMzckNX4iXgdd7k9ZifdwZuedxh0kqmqzA
+	 t/atTkwZ72hQ7XqlzEBNUxzrjERSJc689QdR4gwGsHfKofgz6dlXuYo7cbhD27y2Ew
+	 Q02oMoxnn6JcODFD2E9w6xRfl2FzVNzE9vucD/gMBSZ49XTdOF3g1CFDmCMaaaLTRw
+	 /osjzcZvRnr1+8O/WoPNVQE5Rgs+HJ8G7/3fFa9dFsznth+d3z6tXy43IQqnTw5vo0
+	 pLGso1naq1pGjaDbo/RQDGAko2K7NIzxZLD0i1IYAU8TQ2oIhS75zBAxq/MZOkxQ84
+	 jOEZIxAsEFixQ==
 From: Song Liu <song@kernel.org>
 To: linux-security-module@vger.kernel.org,
 	linux-fsdevel@vger.kernel.org,
@@ -47,9 +47,9 @@ Cc: paul@paul-moore.com,
 	herton@canonical.com,
 	kernel-team@meta.com,
 	Song Liu <song@kernel.org>
-Subject: [PATCH v3 5/7] landlock: Convert from sb_mount to granular mount hooks
-Date: Fri,  8 May 2026 18:52:06 -0700
-Message-ID: <20260509015208.3853132-6-song@kernel.org>
+Subject: [PATCH v3 6/7] tomoyo: Convert from sb_mount to granular mount hooks
+Date: Fri,  8 May 2026 18:52:07 -0700
+Message-ID: <20260509015208.3853132-7-song@kernel.org>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260509015208.3853132-1-song@kernel.org>
 References: <20260509015208.3853132-1-song@kernel.org>
@@ -61,83 +61,223 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Replace hook_sb_mount() with granular mount hooks. Landlock denies
-all mount operations for sandboxed processes regardless of flags,
-so all new hooks share a common hook_mount_deny() helper. The
-mount_move hook reuses hook_move_mount().
+Replace tomoyo_sb_mount() with granular mount hooks. Each hook
+reconstructs the MS_* flags expected by tomoyo_mount_permission()
+using the original flags parameter where available.
+
+Key changes:
+- mount_bind: passes the pre-resolved source path to
+  tomoyo_mount_acl() via a new dev_path parameter, instead of
+  re-resolving dev_name via kern_path(). This eliminates a TOCTOU
+  vulnerability.
+- mount_new, mount_remount, mount_reconfigure: use the original
+  mount(2) flags for policy matching.
+- mount_move: passes pre-resolved paths for both source and
+  destination.
+- mount_change_type: passes raw ms_flags directly.
+
+Also removes the unused data_page parameter from
+tomoyo_mount_permission().
 
 Code generated with the assistance of Claude, reviewed by human.
 
 Signed-off-by: Song Liu <song@kernel.org>
 ---
- security/landlock/fs.c | 40 ++++++++++++++++++++++++++++++++++++----
- 1 file changed, 36 insertions(+), 4 deletions(-)
+ security/tomoyo/common.h |  2 +-
+ security/tomoyo/mount.c  | 31 +++++++++++++-------
+ security/tomoyo/tomoyo.c | 63 ++++++++++++++++++++++++++++++----------
+ 3 files changed, 70 insertions(+), 26 deletions(-)
 
-diff --git a/security/landlock/fs.c b/security/landlock/fs.c
-index c1ecfe239032..4547e736e496 100644
---- a/security/landlock/fs.c
-+++ b/security/landlock/fs.c
-@@ -1416,9 +1416,7 @@ static void log_fs_change_topology_dentry(
-  * inherit these new constraints.  Anyway, for backward compatibility reasons,
-  * a dedicated user space option would be required (e.g. as a ruleset flag).
-  */
--static int hook_sb_mount(const char *const dev_name,
--			 const struct path *const path, const char *const type,
--			 const unsigned long flags, void *const data)
-+static int hook_mount_deny(const struct path *const path)
+diff --git a/security/tomoyo/common.h b/security/tomoyo/common.h
+index d098cf8aae61..9241034cfede 100644
+--- a/security/tomoyo/common.h
++++ b/security/tomoyo/common.h
+@@ -1013,7 +1013,7 @@ int tomoyo_mkdev_perm(const u8 operation, const struct path *path,
+ 		      const unsigned int mode, unsigned int dev);
+ int tomoyo_mount_permission(const char *dev_name, const struct path *path,
+ 			    const char *type, unsigned long flags,
+-			    void *data_page);
++			    const struct path *dev_path);
+ int tomoyo_open_control(const u8 type, struct file *file);
+ int tomoyo_path2_perm(const u8 operation, const struct path *path1,
+ 		      const struct path *path2);
+diff --git a/security/tomoyo/mount.c b/security/tomoyo/mount.c
+index 322dfd188ada..82ffe7d02814 100644
+--- a/security/tomoyo/mount.c
++++ b/security/tomoyo/mount.c
+@@ -70,6 +70,7 @@ static bool tomoyo_check_mount_acl(struct tomoyo_request_info *r,
+  * @dir:      Pointer to "struct path".
+  * @type:     Name of filesystem type.
+  * @flags:    Mount options.
++ * @dev_path: Pre-resolved device/source path. Maybe NULL.
+  *
+  * Returns 0 on success, negative value otherwise.
+  *
+@@ -78,11 +79,11 @@ static bool tomoyo_check_mount_acl(struct tomoyo_request_info *r,
+ static int tomoyo_mount_acl(struct tomoyo_request_info *r,
+ 			    const char *dev_name,
+ 			    const struct path *dir, const char *type,
+-			    unsigned long flags)
++			    unsigned long flags,
++			    const struct path *dev_path)
+ 	__must_hold_shared(&tomoyo_ss)
  {
- 	size_t handle_layer;
- 	const struct landlock_cred_security *const subject =
-@@ -1432,6 +1430,35 @@ static int hook_sb_mount(const char *const dev_name,
- 	return -EPERM;
+ 	struct tomoyo_obj_info obj = { };
+-	struct path path;
+ 	struct file_system_type *fstype = NULL;
+ 	const char *requested_type = NULL;
+ 	const char *requested_dir_name = NULL;
+@@ -134,13 +135,23 @@ static int tomoyo_mount_acl(struct tomoyo_request_info *r,
+ 			need_dev = 1;
+ 	}
+ 	if (need_dev) {
+-		/* Get mount point or device file. */
+-		if (!dev_name || kern_path(dev_name, LOOKUP_FOLLOW, &path)) {
++		if (dev_path) {
++			/* Use pre-resolved path to avoid TOCTOU issues. */
++			obj.path1 = *dev_path;
++			path_get(&obj.path1);
++		} else if (!dev_name) {
+ 			error = -ENOENT;
+ 			goto out;
++		} else {
++			struct path path;
++
++			if (kern_path(dev_name, LOOKUP_FOLLOW, &path)) {
++				error = -ENOENT;
++				goto out;
++			}
++			obj.path1 = path;
+ 		}
+-		obj.path1 = path;
+-		requested_dev_name = tomoyo_realpath_from_path(&path);
++		requested_dev_name = tomoyo_realpath_from_path(&obj.path1);
+ 		if (!requested_dev_name) {
+ 			error = -ENOENT;
+ 			goto out;
+@@ -173,7 +184,7 @@ static int tomoyo_mount_acl(struct tomoyo_request_info *r,
+ 	if (fstype)
+ 		put_filesystem(fstype);
+ 	kfree(requested_type);
+-	/* Drop refcount obtained by kern_path(). */
++	/* Drop refcount obtained by kern_path() or path_get(). */
+ 	if (obj.path1.dentry)
+ 		path_put(&obj.path1);
+ 	return error;
+@@ -186,13 +197,13 @@ static int tomoyo_mount_acl(struct tomoyo_request_info *r,
+  * @path:      Pointer to "struct path".
+  * @type:      Name of filesystem type. Maybe NULL.
+  * @flags:     Mount options.
+- * @data_page: Optional data. Maybe NULL.
++ * @dev_path:  Pre-resolved device/source path. Maybe NULL.
+  *
+  * Returns 0 on success, negative value otherwise.
+  */
+ int tomoyo_mount_permission(const char *dev_name, const struct path *path,
+ 			    const char *type, unsigned long flags,
+-			    void *data_page)
++			    const struct path *dev_path)
+ {
+ 	struct tomoyo_request_info r;
+ 	int error;
+@@ -236,7 +247,7 @@ int tomoyo_mount_permission(const char *dev_name, const struct path *path,
+ 	if (!type)
+ 		type = "<NULL>";
+ 	idx = tomoyo_read_lock();
+-	error = tomoyo_mount_acl(&r, dev_name, path, type, flags);
++	error = tomoyo_mount_acl(&r, dev_name, path, type, flags, dev_path);
+ 	tomoyo_read_unlock(idx);
+ 	return error;
+ }
+diff --git a/security/tomoyo/tomoyo.c b/security/tomoyo/tomoyo.c
+index c66e02ed8ee3..ac84e1f03d5e 100644
+--- a/security/tomoyo/tomoyo.c
++++ b/security/tomoyo/tomoyo.c
+@@ -6,6 +6,8 @@
+  */
+ 
+ #include <linux/lsm_hooks.h>
++#include <linux/fs_context.h>
++#include <uapi/linux/mount.h>
+ #include <uapi/linux/lsm.h>
+ #include "common.h"
+ 
+@@ -398,21 +400,47 @@ static int tomoyo_path_chroot(const struct path *path)
+ 	return tomoyo_path_perm(TOMOYO_TYPE_CHROOT, path, NULL);
  }
  
-+static int hook_mount_bind(const struct path *const from,
-+			   const struct path *const to, bool recurse)
+-/**
+- * tomoyo_sb_mount - Target for security_sb_mount().
+- *
+- * @dev_name: Name of device file. Maybe NULL.
+- * @path:     Pointer to "struct path".
+- * @type:     Name of filesystem type. Maybe NULL.
+- * @flags:    Mount options.
+- * @data:     Optional data. Maybe NULL.
+- *
+- * Returns 0 on success, negative value otherwise.
+- */
+-static int tomoyo_sb_mount(const char *dev_name, const struct path *path,
+-			   const char *type, unsigned long flags, void *data)
++static int tomoyo_mount_bind(const struct path *from, const struct path *to,
++			     bool recurse)
 +{
-+	return hook_mount_deny(to);
++	unsigned long flags = MS_BIND | (recurse ? MS_REC : 0);
++
++	return tomoyo_mount_permission(NULL, to, NULL, flags, from);
 +}
 +
-+static int hook_mount_new(struct fs_context *fc, const struct path *const mp,
-+			  int mnt_flags, unsigned long flags, void *data)
++static int tomoyo_mount_new(struct fs_context *fc, const struct path *mp,
++			    int mnt_flags, unsigned long flags, void *data)
 +{
-+	return hook_mount_deny(mp);
++	/* Use original MS_* flags for policy matching */
++	return tomoyo_mount_permission(fc->source, mp, fc->fs_type->name,
++				       flags, NULL);
 +}
 +
-+static int hook_mount_remount(struct fs_context *fc, const struct path *mp,
-+			      int mnt_flags, unsigned long flags, void *data)
++static int tomoyo_mount_remount(struct fs_context *fc, const struct path *mp,
++				int mnt_flags, unsigned long flags, void *data)
 +{
-+	return hook_mount_deny(mp);
++	/* Use original MS_* flags for policy matching */
++	return tomoyo_mount_permission(NULL, mp, NULL, flags, NULL);
 +}
 +
-+static int hook_mount_reconfigure(const struct path *const mp,
-+				  unsigned int mnt_flags, unsigned long flags)
++static int tomoyo_mount_reconfigure(const struct path *mp,
++				    unsigned int mnt_flags,
++				    unsigned long flags)
 +{
-+	return hook_mount_deny(mp);
++	/* Use original MS_* flags for policy matching */
++	return tomoyo_mount_permission(NULL, mp, NULL, flags, NULL);
 +}
 +
-+static int hook_mount_change_type(const struct path *const mp, int ms_flags)
++static int tomoyo_mount_change_type(const struct path *mp, int ms_flags)
 +{
-+	return hook_mount_deny(mp);
++	return tomoyo_mount_permission(NULL, mp, NULL, ms_flags, NULL);
 +}
 +
- static int hook_move_mount(const struct path *const from_path,
- 			   const struct path *const to_path)
++static int tomoyo_move_mount(const struct path *from_path,
++			     const struct path *to_path)
  {
-@@ -1950,7 +1977,12 @@ static struct security_hook_list landlock_hooks[] __ro_after_init = {
- 	LSM_HOOK_INIT(inode_free_security_rcu, hook_inode_free_security_rcu),
+-	return tomoyo_mount_permission(dev_name, path, type, flags, data);
++	return tomoyo_mount_permission(NULL, to_path, NULL, MS_MOVE,
++				       from_path);
+ }
  
- 	LSM_HOOK_INIT(sb_delete, hook_sb_delete),
--	LSM_HOOK_INIT(sb_mount, hook_sb_mount),
-+	LSM_HOOK_INIT(mount_bind, hook_mount_bind),
-+	LSM_HOOK_INIT(mount_new, hook_mount_new),
-+	LSM_HOOK_INIT(mount_remount, hook_mount_remount),
-+	LSM_HOOK_INIT(mount_reconfigure, hook_mount_reconfigure),
-+	LSM_HOOK_INIT(mount_change_type, hook_mount_change_type),
-+	LSM_HOOK_INIT(mount_move, hook_move_mount),
- 	LSM_HOOK_INIT(move_mount, hook_move_mount),
- 	LSM_HOOK_INIT(sb_umount, hook_sb_umount),
- 	LSM_HOOK_INIT(sb_remount, hook_sb_remount),
+ /**
+@@ -576,7 +604,12 @@ static struct security_hook_list tomoyo_hooks[] __ro_after_init = {
+ 	LSM_HOOK_INIT(path_chmod, tomoyo_path_chmod),
+ 	LSM_HOOK_INIT(path_chown, tomoyo_path_chown),
+ 	LSM_HOOK_INIT(path_chroot, tomoyo_path_chroot),
+-	LSM_HOOK_INIT(sb_mount, tomoyo_sb_mount),
++	LSM_HOOK_INIT(mount_bind, tomoyo_mount_bind),
++	LSM_HOOK_INIT(mount_new, tomoyo_mount_new),
++	LSM_HOOK_INIT(mount_remount, tomoyo_mount_remount),
++	LSM_HOOK_INIT(mount_reconfigure, tomoyo_mount_reconfigure),
++	LSM_HOOK_INIT(mount_change_type, tomoyo_mount_change_type),
++	LSM_HOOK_INIT(mount_move, tomoyo_move_mount),
+ 	LSM_HOOK_INIT(sb_umount, tomoyo_sb_umount),
+ 	LSM_HOOK_INIT(sb_pivotroot, tomoyo_sb_pivotroot),
+ 	LSM_HOOK_INIT(socket_bind, tomoyo_socket_bind),
 -- 
 2.53.0-Meta
 
