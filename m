@@ -1,238 +1,175 @@
-Received: from LO3P265CU004.outbound.protection.outlook.com (mail-uksouthazon11020121.outbound.protection.outlook.com [52.101.196.121])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C66C939A06E;
-	Sat,  9 May 2026 21:38:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.196.121
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778362715; cv=fail; b=AKbK2u2k+tjW2ZbS6dEyh+LD3iXkLewCdnFoJVEKn1xwRDRhqfW4VYOL0g0ucJ5l+nyxC6h8v3HC78/qcaCYrAD1Kex5SwJicfZy77Jdh05sAheXYxu+d4p9EqYpGUJTg+IF4axPGbKfDibdFdjCBL4LiRMiRqlXmiHLuhEq79s=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778362715; c=relaxed/simple;
-	bh=gXW2tVK2rJvKbLAJlvlVKysbS7f/ATAI7+8OxIqKdw8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=r01/ro0ayVDSFDtOoeW5SSFiodhDsJqBXjdhxa1mX71bF23gzoabOIcaJyoEM2+5e9LYmiX40DtsOOf+ST8cyuoyFC7SnOuiVcBzTXwZ3SybSn028VL4bKHbCgm2HeMAndLOSPPakQxcBRDtYOg0cBpOMSu5kkUhe97a31jpENQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com; spf=pass smtp.mailfrom=atomlin.com; arc=fail smtp.client-ip=52.101.196.121
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=atomlin.com
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=NEz7NqhLAP0eWCRzLaMgfKZCOVSp1dNiY01FQiYaCgxg9JFan94Bh0x5bVO49IotLgONUmhiZSQ32HaM8US+nnUdInmtC5o5/TTqk8AZCRp8n8gDLlUZbCgxwpELwc/O2aE7/5nQ7sfSfg6wNYE+awMHITVzyRXef48cezHsFQax57yCIOjESFI2bSRqNpCOL4DgdMoX+l8c44M9qjCOVER6UDrcTALMnSvP/Gkp9YuZ3je4kBqjApWEwAa6amDyd5uqzYCTtCsU8xXuHf0LHcMVkBj+/At3OeJChceg7Pzik3iHnNP0MzYBo9iE+WN9c85UNI8uA/AmHEweut/XXw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=nTfz3Hj7ujVDdcvZYOI+m/9GV8/fXk4bGlAUsh9uTKc=;
- b=WImePblvfYwKwhR2eX4vZWM4tDzGZPUbMgAvHOUFKOEY646gT3l/Ys7Ty69LZWRQwsRibk10JGaF3OFmYOpFG2kNScK3B02pUEcRx1Llr0jonXdPD0z8t0qVlw5TP5p6hiB/IeqGPwWc8zoORzucj5lsR4FW4o6bADdLcbdiQNQ1DFVowq6kAqWcHh23k9BYMTaytnz2JnOIUz4NJDZ4GbU+b8jqNzCMRQWImk3+BbZS7ijd+96TO94RfQB7xdhF+AocOElvS/ALS9PEkdF7TwKQkowx83Yz2sDF3YyR3oXZUd+TCEOO64ym8GeWVKPkdJSllgElxm84SBys2h3IEg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=atomlin.com; dmarc=pass action=none header.from=atomlin.com;
- dkim=pass header.d=atomlin.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=atomlin.com;
-Received: from CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM (2603:10a6:400:70::10)
- by LO2P123MB5888.GBRP123.PROD.OUTLOOK.COM (2603:10a6:600:254::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9891.21; Sat, 9 May
- 2026 21:38:22 +0000
-Received: from CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
- ([fe80::de8e:2e4f:6c6:f3bf]) by CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
- ([fe80::de8e:2e4f:6c6:f3bf%2]) with mapi id 15.20.9846.025; Sat, 9 May 2026
- 21:38:22 +0000
-From: Aaron Tomlin <atomlin@atomlin.com>
-To: tsbogend@alpha.franken.de,
-	paul@paul-moore.com,
-	jmorris@namei.org,
-	serge@hallyn.com,
-	mingo@redhat.com,
-	peterz@infradead.org,
-	juri.lelli@redhat.com,
-	vincent.guittot@linaro.org,
-	stephen.smalley.work@gmail.com,
-	casey@schaufler-ca.com,
-	longman@redhat.com,
-	tj@kernel.org,
-	hannes@cmpxchg.org,
-	mkoutny@suse.com
-Cc: chenridong@huaweicloud.com,
-	dietmar.eggemann@arm.com,
-	rostedt@goodmis.org,
-	bsegall@google.com,
-	mgorman@suse.de,
-	vschneid@redhat.com,
-	kprateek.nayak@amd.com,
-	omosnace@redhat.com,
-	kees@kernel.org,
-	atomlin@atomlin.com,
-	neelx@suse.com,
-	sean@ashe.io,
-	chjohnst@gmail.com,
-	steve@abita.co,
-	mproche@gmail.com,
-	nick.lange@gmail.com,
-	cgroups@vger.kernel.org,
-	linux-mips@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-security-module@vger.kernel.org,
-	selinux@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 3/3] mips: sched: Fix CPUMASK_OFFSTACK memory corruption
-Date: Sat,  9 May 2026 17:38:03 -0400
-Message-ID: <20260509213803.968464-5-atomlin@atomlin.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260509213803.968464-1-atomlin@atomlin.com>
-References: <20260509213803.968464-1-atomlin@atomlin.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: BN9PR03CA0339.namprd03.prod.outlook.com
- (2603:10b6:408:f6::14) To CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
- (2603:10a6:400:70::10)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A350C2DAFCB;
+	Sun, 10 May 2026 21:22:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778448142; cv=none; b=n0/qxwJGUXZytptONiMsrKAB0yZNfS0d1XVFk/Cpd72ES1JgOq1797YmTzXkXOFaaoLQdXYQZ/sBPi0K3mOLgkOG06VROENCTF6R5KYBgJreCc0gVlFLaeH9hl2smqPBAIXUmUF8HS7GheO97A90TCq8IsYYj2QXz7X3yylp94s=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778448142; c=relaxed/simple;
+	bh=Etw09K4c4jgIYgmvTDI47MxrR7HyAX/8xJ/w2oTn5f0=;
+	h=Content-Type:MIME-Version:Message-Id:In-Reply-To:References:
+	 Subject:From:To:Cc:Date; b=T5QNsXSnEd6G41L20BbptjFXo0eYW6ZIQal5VWbMYBEdxiJdHYqf2kjvdUU3Bda4KLxIArkp1Wj8VHpH/hkOX+lSWR0vdO+N03w2AAw8hbXsYdw6yGjNlC9C28WgcQz8dHvGz31B9iYeGqsgirQFwuZEtNUE//CoC7JQn69Uwxc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PDqLHOwd; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PDqLHOwd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3842C2BCB8;
+	Sun, 10 May 2026 21:22:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778448142;
+	bh=Etw09K4c4jgIYgmvTDI47MxrR7HyAX/8xJ/w2oTn5f0=;
+	h=In-Reply-To:References:Subject:From:To:Cc:Date:From;
+	b=PDqLHOwdYzB2nels2qlTva38HBD2Zz3uSnDWDuPXHLhc8+v/8650r7hjgwZbEjM1i
+	 UPPi9yv3uakWTX8LKRVLtAEAZ4RWOEJvaLgAkUtsa/y/JHxiGqz2EQNNsjxMT6JbRn
+	 +WeP3wCIIT+3b5dXyeEhLoqUwOP1e/nNtP5lsdEfQ3NYuUpRSKJrMzdHzjrnQtur/q
+	 2pVGN6nqZb9jM94oy4sVuybis237hOaCbtwART8TYekGD5AGgR96m4MHHH8OT168SY
+	 wwaiwzmymH72nSs3HEa3YnX+KQ4PBPWOvEF0ov9/L6U4S/Y7/za8c0S4HYSuMD7nJH
+	 0G5Yitvk5NR4A==
+Content-Type: multipart/mixed; boundary="===============7312132321681857088=="
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CWLP123MB3523:EE_|LO2P123MB5888:EE_
-X-MS-Office365-Filtering-Correlation-Id: a204499a-417c-4622-ee2b-08deae134b41
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|7416014|376014|921020|56012099003|3023799003|22082099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	GpD4ssci5kzb4xPkoDw5ISube3AFq2KFTAEIlg2Sz1xss9+8iXVDTDlRdNQLuQEh/Lwk3GWpSeo+oVqYQOmnnifBgDLa9AO8Fdm3oUZnG77gs2OJ2s4Oq8ma/cACIaDxKdmVJuYqUh2TB27yxBBMvo7Gu1RYOyYiZnt8OEP/O5Worg6YhfldfcHAcHe2oBd1EwT8oxIp4pcDbpDHdyYidI8pnlK2ty2pmDqmUbhh8qyXjqfucbyKTOJKCsNgBZf4IAHBySjQqQWr0mkg/bBV6DZqDH9dsPmhw+8IFZUPWRi4qGobaXP25PioEjncv4rKgOiwZP9ZOSbL8M/jyCp2ggHO2ZY3hDOPb3kS0eay4y2x6Nzskl75evB+bxMfWiN7R7BY4n7y0wQRdPfYCtkaidT6Hh6NrdWpoc2sHJ38+aM9sokg0O3gqKFNcmpT7S3DmAaEUOAHYyLcEbo3IQ9OvfYKixddP4Gu92ZcD0FVLC6xSFbdgAX9oUNycNvnOx+RdlZ/d8oRiLOl2MrRiQuUS/cNSd5sd3nIxbCHK5iko9khS5lcntrO0UzhmVckzOXRxrS96Lsl2A5ZObOU4QrNab1u87lqNp7kjVYZcdgOzRsrL9wqgQbYJ6vZJyqwbbXJsugWTkfgl3j5+dsmOpQPoRdzzjxSGIeCC0wcMAM4ZaUX9kpgdGgivIrx9nCsJ2h85UR5q6F3uXFnoO8Xt6QC3/cUUiIkhJnfZOXjH6s/r08=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(376014)(921020)(56012099003)(3023799003)(22082099003)(18002099003);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?ARD8GmRRRpPSXJ0CFYzT7AjfrCJkkIUpZFGbx3LHvEk3YYz/iiZbJG2OLRLx?=
- =?us-ascii?Q?PRA22bFob0+sufcfHXBQs7gGEKILp+DlG1lRrV8Qqre3nLCuDB/xa0z0L65R?=
- =?us-ascii?Q?QkaabB3pG3l0dWkeuwTStPuL8nAudVvRPA3sGzGPTFylx9sunDf5eH/nl5Nd?=
- =?us-ascii?Q?rf5qxW2ahLpS5zKHp0mwSedqM3FMZvD1qSMyYZKZOAf0fDVw0UgtkpYrCkva?=
- =?us-ascii?Q?OJ0Uw1sEXiG3aAVT3Mo9tSjwd/fJKFYy+XlmpwHFrHAjiFRdHmjik/KSQC40?=
- =?us-ascii?Q?J6A4Kp+lY4wWe7ZufX18z//ejETze4uv+FnclJuyhJqtpFWk9J2pRDZfzcEJ?=
- =?us-ascii?Q?OMZksXIBIsTm5YNYipymm0hGmc8Hs57WtQErYATVs3aZo5lqUDMwdO5H/R9L?=
- =?us-ascii?Q?q4/TdMRq+priM0h16i3CORYUYjbh1rI5PI8uLYZ8p1FTu0FW02RObn6WRVUY?=
- =?us-ascii?Q?RgMhzyjmUIF7CCpyEfHaxeUFQM5d3TJNpj2YS3qtG66ZHP2vUzHLL2yGVXwv?=
- =?us-ascii?Q?B9sbpyhPDylZqFd6VPppXkHiiS2RmQYy4p05ZDASWm1PyYTUFYtOGbfOoPjN?=
- =?us-ascii?Q?uxYgxHOtpNyUFQKPIaAHG8879OxP4jE0xBSVRN64Q0LrYk8qhXSgF7gM4MPV?=
- =?us-ascii?Q?c8A4GIdo+IvVyX95vxJ9Lv/OYbfsMjwUVCqvVAp2+BY9VS7CQW2yzqo15FJj?=
- =?us-ascii?Q?M8lFG00QOlfonjDCMPK/hEQVIAv0BpNJEUJj4iWxRW0YA4G2lkHucwqgab05?=
- =?us-ascii?Q?H0dN0TDeyFfKfhrX+GO3BsCHdTw/VIX7t1qJU84qRPs6cIMg9OXC4R5ixltq?=
- =?us-ascii?Q?eMt7p/yuZgfzcONJRR+2z+pG/J0O3EMlJoDbuHdrmhdGLf1G/xS49VWPX98Z?=
- =?us-ascii?Q?fkRLrKM6UJyCQZluTcO0j+fV8k/TnSJyVKhB+A1qTAiAKtcruYB/Khc2vcBW?=
- =?us-ascii?Q?SQ3qGiNNSYruQSMCAbShpVPMgvgOmeXII/UlMtTVA4H8+Nh9ht1kiG50MdGD?=
- =?us-ascii?Q?KyZSywTT4JRMQWkrNLuoPtggkhsB2yt/eTaefbP6lVfMRth7kdl3Dy7jFns0?=
- =?us-ascii?Q?YjOcCQyVqhHzrkC6yhMb3utCLnKKusER7ILaiyv5F04uNf5xR3bdiIjPHXkU?=
- =?us-ascii?Q?7Po9tMS5A6Te5+fxNFF0kNgMDlKJUHG+xbuopx2fWhKAJ3misrBePqYdEVMW?=
- =?us-ascii?Q?SDme7tTCDJu3eEj0zhg7YJkuD79Flwbuy3YVaDb7TitLCgMISE/chGPieVev?=
- =?us-ascii?Q?NJTXef1u6Hth0c9vT9IvT0RkNHaAZEhZvTE+ZyeJLNjSMatCBAy8vCCLr9yr?=
- =?us-ascii?Q?jIsCk/yVwDAlJC4wUfmlIGS2rvGt5PoYqRyjAq63TYbz5x+J3wp3XNmA9RRo?=
- =?us-ascii?Q?RdCSfAq15uAVlHkhNK8q662MaLg2lTYnrFEDhB8wjbdK4OsOZWUKBoligJ0Y?=
- =?us-ascii?Q?53VgtXUwxTtyeFsy2cWJPPn7T7hO9yLa05U2ZTETyHRIk0iBmt0ziIk0QJE8?=
- =?us-ascii?Q?GOlnUSLoToEw/NIzo+XvsrZ4ssuBURcntzvcpLOl2BicFv433MujF5Abrxlr?=
- =?us-ascii?Q?2Cjqi+zfH8Rpk1V/BamNkZ7hUt/B7L5Sp8V56RHVUjSTeWCIUWPP+lUlr78T?=
- =?us-ascii?Q?LYjBB5GJqiUUystUztNnwcJy1YMKM4e5LhfLRhsoRLYanPRQKGEWtIdNf2BZ?=
- =?us-ascii?Q?1/t2JeDuPD/YZnYrCBb29kol2P0lQ4pF55bVe0io+ToLxwr7SvxHj7Hsxka6?=
- =?us-ascii?Q?pJkboHTMlw=3D=3D?=
-X-OriginatorOrg: atomlin.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a204499a-417c-4622-ee2b-08deae134b41
-X-MS-Exchange-CrossTenant-AuthSource: CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 May 2026 21:38:22.5704
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: e6a32402-7d7b-4830-9a2b-76945bbbcb57
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: SVYC+Ee+mMtkrdwocnsqDqEmIhdLFgA0M+SWtjZ/rLJt4rDBt7x1RfoNyi6LnVxi6Vcnqy80387WkDbbDOEoNA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LO2P123MB5888
+Message-Id: <47fc3e52ae9aa9e81ea220235cc62bdc0a3bf01696ad40e3a2f020851c048507@mail.kernel.org>
+In-Reply-To: <20260503211835.16103-2-dwindsor@gmail.com>
+References: <20260503211835.16103-2-dwindsor@gmail.com>
+Subject: Re: [PATCH v2 1/2] bpf: add bpf_init_inode_xattr kfunc for atomic inode labeling
+From: bot+bpf-ci@kernel.org
+To: dwindsor@gmail.com,viro@zeniv.linux.org.uk,brauner@kernel.org,ast@kernel.org,daniel@iogearbox.net,andrii@kernel.org,eddyz87@gmail.com,memxor@gmail.com,kpsingh@kernel.org,mattbobrowski@google.com,paul@paul-moore.com,jmorris@namei.org,serge@hallyn.com,zohar@linux.ibm.com,roberto.sassu@huawei.com,dmitry.kasatkin@gmail.com,stephen.smalley.work@gmail.com,casey@schaufler-ca.com
+Cc: song@kernel.org,jack@suse.cz,john.fastabend@gmail.com,martin.lau@linux.dev,yonghong.song@linux.dev,jolsa@kernel.org,eric.snowberg@oracle.com,omosnace@redhat.com,linux-fsdevel@vger.kernel.org,linux-kernel@vger.kernel.org,bpf@vger.kernel.org,linux-security-module@vger.kernel.org,linux-integrity@vger.kernel.org,selinux@vger.kernel.org,ast@kernel.org,andrii@kernel.org,daniel@iogearbox.net,martin.lau@kernel.org,eddyz87@gmail.com,yonghong.song@linux.dev,clm@meta.com,ihor.solodrai@linux.dev
+Date: Sun, 10 May 2026 21:22:21 +0000 (UTC)
 
-This patch addresses a critical memory management flaw.
+--===============7312132321681857088==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 
-When CONFIG_CPUMASK_OFFSTACK is enabled, cpumask_var_t is a pointer.
-Consequently, sizeof(new_mask) evaluates to the pointer size, causing
-copy_from_user() to clobber the stack pointer. The subsequent
-alloc_cpumask_var() overwrites this with an uninitialised heap address,
-discarding the user's mask and risking data leaks. Fix this by
-allocating masks first, and using cpumask_size() to copy data directly
-into the allocated buffer.
+> diff --git a/fs/bpf_fs_kfuncs.c b/fs/bpf_fs_kfuncs.c
+> index e4e51a1d0de2..38b1b54d14c6 100644
+> --- a/fs/bpf_fs_kfuncs.c
+> +++ b/fs/bpf_fs_kfuncs.c
 
-Fixes: 295cbf6d63165 ("[MIPS] Move FPU affinity code into separate file.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Aaron Tomlin <atomlin@atomlin.com>
+[ ... ]
+
+> @@ -353,6 +354,97 @@ __bpf_kfunc int bpf_cgroup_read_xattr(struct cgroup *cgroup, const char *name__s
+>  }
+>  #endif /* CONFIG_CGROUPS */
+>
+> +static int bpf_xattrs_used(const struct lsm_xattr_ctx *ctx)
+> +{
+> +	const size_t prefix_len = sizeof(XATTR_BPF_LSM_SUFFIX) - 1;
+> +	int i, n = 0;
+> +
+> +	for (i = 0; i < *ctx->xattr_count; i++) {
+> +		const char *name = ctx->xattrs[i].name;
+> +
+> +		if (name && !strncmp(name, XATTR_BPF_LSM_SUFFIX, prefix_len))
+> +			n++;
+> +	}
+> +	return n;
+> +}
+> +
+> +static int __bpf_init_inode_xattr(struct lsm_xattr_ctx *xattr_ctx,
+> +				  const char *name__str,
+> +				  const struct bpf_dynptr *value_p)
+> +{
+> +	struct bpf_dynptr_kern *value_ptr = (struct bpf_dynptr_kern *)value_p;
+> +	size_t name_len;
+> +	void *xattr_value;
+> +	struct xattr *xattr;
+> +	struct xattr *xattrs;
+> +	int *xattr_count;
+> +	const void *value;
+> +	u32 value_len;
+> +
+> +	if (!xattr_ctx || !name__str)
+> +		return -EINVAL;
+> +
+> +	xattrs = xattr_ctx->xattrs;
+> +	xattr_count = xattr_ctx->xattr_count;
+> +	if (!xattrs || !xattr_count)
+> +		return -EINVAL;
+> +	if (bpf_xattrs_used(xattr_ctx) >= BPF_LSM_INODE_INIT_XATTRS)
+> +		return -ENOSPC;
+
+With only 1 xattr slot reserved (BPF_LSM_INODE_INIT_XATTRS = 1), can
+multiple BPF LSM programs coexist safely? Paul Moore raised this concern
+in v2, noting that with the BPF LSM only reserving a single xattr slot,
+multiple loaded BPF LSM programs providing security_inode_init_security()
+callbacks will be a problem.
+
+Song Liu acknowledged this issue and noted that even a single BPF LSM
+function may call the kfunc multiple times, which is also problematic.
+He suggested increasing the default and introducing a realloc mechanism
+for the worst case scenario.
+
+The check at this point returns -ENOSPC if the slot is already used, but
+is there proper coordination between multiple BPF programs to prevent
+slot conflicts?
+
+Reference: https://lore.kernel.org/bpf/CAHC9VhSy5K5nQTtFUE4BScy1Ur61v7eZW067vTcUYDQeJb13Bw@mail.gmail.com/
+
+> +
+> +	name_len = strlen(name__str);
+> +	if (name_len == 0 || name_len > XATTR_NAME_MAX)
+> +		return -EINVAL;
+> +	if (strncmp(name__str, XATTR_BPF_LSM_SUFFIX,
+> +		    sizeof(XATTR_BPF_LSM_SUFFIX) - 1))
+> +		return -EPERM;
+> +
+> +	value_len = __bpf_dynptr_size(value_ptr);
+> +	if (value_len == 0 || value_len > XATTR_SIZE_MAX)
+> +		return -EINVAL;
+> +
+> +	value = __bpf_dynptr_data(value_ptr, value_len);
+> +	if (!value)
+> +		return -EINVAL;
+> +
+> +	/* Combine xattr value + name into one allocation. */
+> +	xattr_value = kmalloc(value_len + name_len + 1, GFP_KERNEL);
+> +	if (!xattr_value)
+> +		return -ENOMEM;
+> +
+> +	memcpy(xattr_value, value, value_len);
+> +	memcpy(xattr_value + value_len, name__str, name_len);
+> +	((char *)xattr_value)[value_len + name_len] = '\0';
+> +
+> +	xattr = lsm_get_xattr_slot(xattr_ctx);
+> +	if (!xattr) {
+> +		kfree(xattr_value);
+> +		return -ENOSPC;
+> +	}
+> +
+> +	xattr->value = xattr_value;
+> +	xattr->name = (const char *)xattr_value + value_len;
+> +	xattr->value_len = value_len;
+> +
+> +	return 0;
+> +}
+
+[ ... ]
+
+> diff --git a/include/linux/bpf_lsm.h b/include/linux/bpf_lsm.h
+> index 643809cc78c3..b97a3d79529d 100644
+> --- a/include/linux/bpf_lsm.h
+> +++ b/include/linux/bpf_lsm.h
+> @@ -19,6 +19,9 @@
+>  #include <linux/lsm_hook_defs.h>
+>  #undef LSM_HOOK
+>
+> +/* max bpf xattrs per inode */
+> +#define BPF_LSM_INODE_INIT_XATTRS 1
+> +
+
+[ ... ]
+
+
 ---
- arch/mips/kernel/mips-mt-fpaff.c | 32 +++++++++++++++-----------------
- 1 file changed, 15 insertions(+), 17 deletions(-)
+AI reviewed your patch. Please fix the bug or email reply why it's not a bug.
+See: https://github.com/kernel-patches/vmtest/blob/master/ci/claude/README.md
 
-diff --git a/arch/mips/kernel/mips-mt-fpaff.c b/arch/mips/kernel/mips-mt-fpaff.c
-index 6424152d9091..7c215372c5e8 100644
---- a/arch/mips/kernel/mips-mt-fpaff.c
-+++ b/arch/mips/kernel/mips-mt-fpaff.c
-@@ -71,17 +71,23 @@ asmlinkage long mipsmt_sys_sched_setaffinity(pid_t pid, unsigned int len,
- 	struct task_struct *p;
- 	int retval;
- 
-+	if (len < cpumask_size())
-+		return -EINVAL;
-+
- 	if (!alloc_cpumask_var(&new_mask, GFP_KERNEL))
- 		return -ENOMEM;
--
--	if (len < sizeof(new_mask)) {
--		retval = -EINVAL;
-+	if (!alloc_cpumask_var(&cpus_allowed, GFP_KERNEL)) {
-+		retval = -ENOMEM;
- 		goto out_free_new_mask;
- 	}
-+	if (!alloc_cpumask_var(&effective_mask, GFP_KERNEL)) {
-+		retval = -ENOMEM;
-+		goto out_free_cpus_allowed;
-+	}
- 
--	if (copy_from_user(&new_mask, user_mask_ptr, sizeof(new_mask))) {
-+	if (copy_from_user(new_mask, user_mask_ptr, cpumask_size())) {
- 		retval = -EFAULT;
--		goto out_free_new_mask;
-+		goto out_free_effective_mask;
- 	}
- 
- 	cpus_read_lock();
-@@ -92,21 +98,13 @@ asmlinkage long mipsmt_sys_sched_setaffinity(pid_t pid, unsigned int len,
- 		rcu_read_unlock();
- 		cpus_read_unlock();
- 		retval = -ESRCH;
--		goto out_free_new_mask;
-+		goto out_free_effective_mask;
- 	}
- 
- 	/* Prevent p going away */
- 	get_task_struct(p);
- 	rcu_read_unlock();
- 
--	if (!alloc_cpumask_var(&cpus_allowed, GFP_KERNEL)) {
--		retval = -ENOMEM;
--		goto out_put_task;
--	}
--	if (!alloc_cpumask_var(&effective_mask, GFP_KERNEL)) {
--		retval = -ENOMEM;
--		goto out_free_cpus_allowed;
--	}
- 	if (!check_same_owner(p) && !capable(CAP_SYS_NICE)) {
- 		retval = -EPERM;
- 		goto out_unlock;
-@@ -145,12 +143,12 @@ asmlinkage long mipsmt_sys_sched_setaffinity(pid_t pid, unsigned int len,
- 		}
- 	}
- out_unlock:
-+	put_task_struct(p);
-+	cpus_read_unlock();
-+out_free_effective_mask:
- 	free_cpumask_var(effective_mask);
- out_free_cpus_allowed:
- 	free_cpumask_var(cpus_allowed);
--out_put_task:
--	put_task_struct(p);
--	cpus_read_unlock();
- out_free_new_mask:
- 	free_cpumask_var(new_mask);
- 	return retval;
--- 
-2.51.0
-
+CI run summary: https://github.com/kernel-patches/bpf/actions/runs/25639388555
+--===============7312132321681857088==--
