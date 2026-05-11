@@ -1,89 +1,112 @@
-Received: from vmicros1.altlinux.org (vmicros1.altlinux.org [194.107.17.57])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 93A27318EDC;
-	Sun, 10 May 2026 21:24:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.107.17.57
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B21E6366065
+	for <selinux@vger.kernel.org>; Mon, 11 May 2026 05:10:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778448255; cv=none; b=VmF5THk7F8wkqQKhZDuw/4RwIt4JGTl5viaq3+uL8CpYjHqbjDB8si+Fh5d1r6nx6DVe/VSiaVep6AUeMrkNGPNBzY3lvKDnyFg3ixhreiyCqsGhMM+SiJxQ0lDDM9HzRxzsS/QHLOzYVQS4EOoT5no3Jruqjk6iTelOLwIz4oA=
+	t=1778476225; cv=none; b=nYeaMouW8T5afEk+DXZMVYX3tzwIw3a7l7i/MYs9QcCS83f4wiFZ2RlR+OkBa74y3uyd4d5+Gqp7ieaHkdRAXRXxbKC8EWIlgu9ISz7sDYS5K7/ab48lyZ9MQxmTMFtANlCiEpK9KBZjZ204rgxMV9U7zjvLspg6bvINJC6BaZk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778448255; c=relaxed/simple;
-	bh=CfqG1HDz554gP6Ehyw1aqEQGiKBXaSvv3zzpuKbIOds=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=gtrd1lIdWOQ7C+rBx/FKdeTbuCqfaSCuw6YJTTMxJQ05J0D9KCdqPACIa+//dHwuDU9fnnjSjX/RDkMx6w42gPK80SgsbE47AEVAwBtrDsgtr90PgCeAXnlM4pegxdSLJsrdZgiKVMBULICjyTsb2huzbuLZpWQXx1v4+B+jGaI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=altlinux.org; spf=pass smtp.mailfrom=altlinux.org; arc=none smtp.client-ip=194.107.17.57
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=altlinux.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=altlinux.org
-Received: from imap.altlinux.org (imap.altlinux.org [194.107.17.38])
-	by vmicros1.altlinux.org (Postfix) with ESMTP id 4E0D372C8CC;
-	Mon, 11 May 2026 00:17:15 +0300 (MSK)
-Received: from altlinux.org (unknown [193.43.10.9])
-	by imap.altlinux.org (Postfix) with ESMTPSA id 3722E36D016E;
-	Mon, 11 May 2026 00:17:15 +0300 (MSK)
-Date: Mon, 11 May 2026 00:17:15 +0300
-From: Vitaly Chikunov <vt@altlinux.org>
-To: linux-security-module@vger.kernel.org, bpf@vger.kernel.org, 
-	selinux@vger.kernel.org
-Cc: Paul Moore <paul@paul-moore.com>, KP Singh <kpsingh@kernel.org>, 
-	Matt Bobrowski <mattbobrowski@google.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org
-Subject: [BUG] lsm= with bpf before selinux breaks fscreate with EINVAL
-Message-ID: <agDuCdGIeM-6z-j-@altlinux.org>
+	s=arc-20240116; t=1778476225; c=relaxed/simple;
+	bh=9bPgUgowYtDZvwWDaDvH9GE08BbGRUl9XHTtvYleq54=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=RhsMOSGONqZuB8QvWZlhgiIqx5E4QbXltmm46oVuqn3qxznP01S7vQMPnBqZhEIvoksKAKu1+rDILMljNf+/i7Q0S2edL3L/H/XhtZyB4fuZQ/hU8QthAlw6tzDzzrUtwhzSu59qtq+l3LOsqSGA0HCR/JQbbETDrBwe7wA7mAE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dCRo5XzO; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dCRo5XzO"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1778476222;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=3tz4VshiSjvGUhY3dhtN6lD+p4cKMAlBefoUW+XXMHE=;
+	b=dCRo5XzO9wyELR5/hRGRkIMTcRJz9nxW9lWQES3RZ51w4GKsZDY3LmKYtoovgj5mD1wHzt
+	gCtvfwWmLVLezUd4s+YdDhoiR15xXdKS+EqCg+WSh0ATG9jyOVn7A5k/HVh2rGBzooJoA1
+	FutTVQhRrqsCXHXakQlS3CGxVvdqur8=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-422-w6iTBQSwOBK7DQjDiHYbAg-1; Mon,
+ 11 May 2026 01:10:18 -0400
+X-MC-Unique: w6iTBQSwOBK7DQjDiHYbAg-1
+X-Mimecast-MFC-AGG-ID: w6iTBQSwOBK7DQjDiHYbAg_1778476215
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 51FEF19560B4;
+	Mon, 11 May 2026 05:10:13 +0000 (UTC)
+Received: from [10.2.16.21] (unknown [10.2.16.21])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 3A09030001BE;
+	Mon, 11 May 2026 05:10:04 +0000 (UTC)
+Message-ID: <8aaa7dd9-2426-475c-af64-85ef5f2aa855@redhat.com>
+Date: Mon, 11 May 2026 01:10:02 -0400
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/3] cgroup/cpuset: Fix deadline bandwidth leak in
+ cpuset_can_attach()
+To: Aaron Tomlin <atomlin@atomlin.com>, tsbogend@alpha.franken.de,
+ paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com, mingo@redhat.com,
+ peterz@infradead.org, juri.lelli@redhat.com, vincent.guittot@linaro.org,
+ stephen.smalley.work@gmail.com, casey@schaufler-ca.com, tj@kernel.org,
+ hannes@cmpxchg.org, mkoutny@suse.com
+Cc: chenridong@huaweicloud.com, dietmar.eggemann@arm.com,
+ rostedt@goodmis.org, bsegall@google.com, mgorman@suse.de,
+ vschneid@redhat.com, kprateek.nayak@amd.com, omosnace@redhat.com,
+ kees@kernel.org, neelx@suse.com, sean@ashe.io, chjohnst@gmail.com,
+ steve@abita.co, mproche@gmail.com, nick.lange@gmail.com,
+ cgroups@vger.kernel.org, linux-mips@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
+ selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20260509164847.939294-1-atomlin@atomlin.com>
+ <20260509164847.939294-2-atomlin@atomlin.com>
+Content-Language: en-US
+From: Waiman Long <longman@redhat.com>
+In-Reply-To: <20260509164847.939294-2-atomlin@atomlin.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-Hi,
 
-We have boot failure when CONFIG_LSM has "bpf" listed before "selinux"
-(without bpf lsm scripts loaded). (This also happens with a boot with
-"security=selinux" if selinux was not in LSM= list but bpf is.)
+On 5/9/26 12:48 PM, Aaron Tomlin wrote:
+> During a cgroup migration, cpuset_can_attach() iterates over the
+> provided taskset. If a task within the batch is a deadline (DL) task,
+> the destination cpuset's DL metrics (i.e., nr_migrate_dl_tasks and
+> sum_migrate_dl_bw) are appropriately incremented.
+>
+> However, if a subsequent task in the same migration batch fails the
+> task_can_attach() check, the loop aborts and jumps directly to
+> out_unlock. Consequently, any DL metrics accumulated from previously
+> processed tasks in the batch remain permanently inflated in the
+> destination cpuset. Because the migration is subsequently aborted by the
+> cgroup core, cpuset_cancel_attach() is never invoked to unwind these
+> specific increments.
+>
+> This behaviour results in a permanent leak of deadline bandwidth, which
+> incorrectly restricts the admission control capacity of the destination
+> cpuset.
+>
+> To resolve this, introduce an out_unlock_reset failure path that
+> conditionally invokes reset_migrate_dl_data(). This guarantees that if a
+> batch migration is aborted for any reason, the pending DL metrics are
+> safely reset before returning the error.
+>
+> Fixes: 0a67b847e1f06 ("cpuset: Allow setscheduler regardless of manipulated task")
 
-systemd reports on the failing boot attempt:
+That is not the commit that introduced the bug. Anyway, there is already 
+another patch sent recently to fix this bug. See
 
-  Failed to set SELinux security context generic_u:object_r:device:s0 for /dev/shm: Invalid argument
-  Mounting tmpfs to /dev/shm of type tmpfs with options mode=01777.
-  Mounting tmpfs (tmpfs) on /dev/shm (MS_NOSUID|MS_NODEV|MS_STRICTATIME "mode=01777")...
-  Failed to mount tmpfs (type tmpfs) on /dev/shm (MS_NOSUID|MS_NODEV|MS_STRICTATIME "mode=01777"): No such file or directory
-  Failed to set SELinux security context generic_u:object_r:device:s0 for /dev/pts: Invalid argument
-  Mounting devpts to /dev/pts of type devpts with options mode=0620,gid=5.
-  Mounting devpts (devpts) on /dev/pts (MS_NOSUID|MS_NOEXEC "mode=0620,gid=5")...
-  Failed to mount devpts (type devpts) on /dev/pts (MS_NOSUID|MS_NOEXEC "mode=0620,gid=5"): No such file or directory
-  No filesystem is currently mounted on /sys/fs/cgroup.
-  Failed to set SELinux security context generic_u:object_r:def_t:s0 for /sys/fs/cgroup: Invalid argument
-  Mounting cgroup2 to /sys/fs/cgroup of type cgroup2 with options nsdelegate,memory_recursiveprot.
-  Mounting cgroup2 (cgroup2) on /sys/fs/cgroup (MS_NOSUID|MS_NODEV|MS_NOEXEC "nsdelegate,memory_recursiveprot")...
-  Failed to set SELinux security context generic_u:object_r:def_t:s0 for /sys/fs/pstore: Invalid argument
-  Mounting pstore to /sys/fs/pstore of type pstore with options n/a.
-  Mounting pstore (pstore) on /sys/fs/pstore (MS_NOSUID|MS_NODEV|MS_NOEXEC "")...
-  Failed to set SELinux security context generic_u:object_r:def_t:s0 for /sys/fs/bpf: Invalid argument
-  Mounting bpf to /sys/fs/bpf of type bpf with options mode=0700.
-  Mounting bpf (bpf) on /sys/fs/bpf (MS_NOSUID|MS_NODEV|MS_NOEXEC "mode=0700")...
-  [!!!!!!] Failed to mount API filesystems.
-  Freezing execution
+https://lore.kernel.org/lkml/20260509102031.97608-2-zhangguopeng@kylinos.cn/
 
-'Invalid arguments' seems from setfscreatecon_raw.
+Cheers,
+Longman
 
-Reproducer:
-
-  Boot with lsm=lockdown,capability,landlock,yama,safesetid,bpf,selinux,ima,evm
-
-  (none):~# cat /proc/thread-self/attr/current
-  cat: /proc/thread-self/attr/current: Invalid argument
-  (none):~# echo > /proc/thread-self/attr/fscreate
-  bash: echo: write error: Invalid argument
-
-This appears to be caused by security_getprocattr / security_setprocattr
-iterating until the first hook defined (which is bpf) and returning with
-default value -EINVAL before selinux even sees them.
-
-Perhaps, bpf LSM should avoid registering getprocattr/setprocattr hooks
-that it does not implement, or the legacy LSM_ID_UNDEF procattr dispatch
-should skip LSMs that cannot handle the requested attribute and continue
-to seLinux (or whatever).
-
-Thanks,
 
