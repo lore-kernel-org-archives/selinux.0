@@ -1,129 +1,95 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F45D47CC96
-	for <selinux@vger.kernel.org>; Mon, 11 May 2026 17:55:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 727FC37DEB7
+	for <selinux@vger.kernel.org>; Mon, 11 May 2026 19:52:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778522102; cv=none; b=alHzEN48rGjm55WAIW4pHgFQAk9WfFoSHB7BGqMe6TDQu2ccvtlSI1VmqHoeADuu5Fke7FchzC6rHnt2SAuim6WSLbDsTkKo+KZa7RDbihbKtJaSrQwWMyNNG1XI0aKwLIGKb3qiRiYmHPdYyvmJbypw27vgkaQKpLY0UIt2aIk=
+	t=1778529168; cv=none; b=j85ilghR3vaExNyRQBRWQUX5eYTTpim2IEH6N7TkZAd+aQC8Nn9xMlwECwkq0TmXVMhDQHBG3DAXqekMMFX/nktRa1IiBQZjUqXaOsyHeyOFYekv1qpR6XM6NMU7DmELmKcpMn9yKXTANGAk7iTrgnxuIo83PCLp4FMArtvsvQM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778522102; c=relaxed/simple;
-	bh=0iTg+leX0j2qT7Fm8ZWc0NcP/PDd5Medeqon2RI8VYQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=W5SXIWvzMOIanGL+GmH3T7v5wdV76+KEhC9vb9HfbH5fV6emOTY29zkc2aSalSqpBXZeNqmYFGPbW4Ex47Pofj2V2pvSw9gKI6JvlAQ6vb3Bg1UFLutg1Xq3HZ7GEx1Je4kmffXO42f0QbpkpZ+nr0bZRZv6ZzE6Z2Yri3iffHI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IXDLxosu; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1778529168; c=relaxed/simple;
+	bh=rKxh87Y4Rj2/mJmQycKYsxIgVUIAEj71pDy+b5FX/ow=;
+	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
+	 References:In-Reply-To; b=rVVasqkWTJKEtFwVJupwSp0SYg6hMvVM5hqn2buMfBKJcDZl+/f3i6nJmhBtUViPH/wxZD0oEqKhDqTMSiw2UKdyQDKLcr8Kapw/SBVWQ/91agkTECZAaKWMLiH9stTG8xvoS5CahUfVOyo9ygK3R2AC9ciWcWTu39Qw2LWQqLU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=E9lVJyLD; arc=none smtp.client-ip=209.85.222.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IXDLxosu"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778522099;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=GKvjdJ57xbDNtz0/ef8xqKSCc51OBN1WOr77UzgegmY=;
-	b=IXDLxosuSxb12ppGMKdF782hEpiUt07ucGpQHn9Z5Bl3kpudC0XVAgdROlJeAsLtOv4SX6
-	kLwOYZIMcn45BvIK40kDlpy4NwJo3F6R8oLp56x9scOYGHXzm5By3baIpDmooT0J5OaG5/
-	BKTMJexnz3n6/iHvqUiVEYMmXRTnTqU=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-647-DDlwY3Z8OlqsCjfisEs3DA-1; Mon,
- 11 May 2026 13:54:54 -0400
-X-MC-Unique: DDlwY3Z8OlqsCjfisEs3DA-1
-X-Mimecast-MFC-AGG-ID: DDlwY3Z8OlqsCjfisEs3DA_1778522090
-Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 0D5941956080;
-	Mon, 11 May 2026 17:54:49 +0000 (UTC)
-Received: from [10.2.17.16] (unknown [10.2.17.16])
-	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 5F33B18004A3;
-	Mon, 11 May 2026 17:54:39 +0000 (UTC)
-Message-ID: <354af9fc-1c70-4ee4-a0ff-8821bebec7b8@redhat.com>
-Date: Mon, 11 May 2026 13:54:37 -0400
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="E9lVJyLD"
+Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-90ce49af8easo8597285a.3
+        for <selinux@vger.kernel.org>; Mon, 11 May 2026 12:52:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1778529164; x=1779133964; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=QhgeQ/Hv8h2FLNPnpqx7Nq4djCqVR8s71dQNMbQD8h8=;
+        b=E9lVJyLD68P9mb02OeDiuxB5mMUgH5x8C9eKQQXBi/kUsedChlQRKN28FBaldSCv51
+         3MwfG4uglNXTJjoQORG1jvzmokZMB1zTDwCdmAALZToHJ4jEmUDTIK77fGVGaxGuv45s
+         7oMTunZMG0fStvlKBpPxoxbtA5JV8dzbkFn4dwZL57ikpdXKjn0sQTdWkkFWIbsyHNdV
+         gDlQPMutxdJ1m5CVO3wiiE56/6gf9+al5sqf+QJrAf38IiPwDTdHYaKgKp1MloaCqNMj
+         Vyd7gx6VEdNGfOQYiMvMcvSBvCzZBfPfVzMwkkfiJbynwNQ2tVq9KF1f304SRsmECtYN
+         MeTQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778529164; x=1779133964;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=QhgeQ/Hv8h2FLNPnpqx7Nq4djCqVR8s71dQNMbQD8h8=;
+        b=Y9S1mVmGWuprQNCeia7MFAAV0JMACdWOTfsdsEuLxrcA0FWUt3rKMjPNIcYrZ0Ry6i
+         d5/cOBfV0LBIod6ijWmsTNK4er/e9uQfhYIgDm+aW5T+1wbkW4qtm42L/1In2hR31uQe
+         J1ufLA+2mxJwfB4+ll1HceHVrc/cRMS+6FKSZx10+Kta6+1Q8RfRb1HoWp4UQlpeVpW5
+         OwS2QbOk8jp7LX4/cgyutJ6ZzrC0Um29/H5vxIGHbAn0VE+EH30z5RJu05Mr6ghOgc2H
+         O8NDoNIVs5S2aEOV0xwIWIHjXvQbKBEGnma1gihKV87AJC+zrV479Q3nDLr17dOV2oaO
+         u+Kg==
+X-Forwarded-Encrypted: i=1; AFNElJ/e/bk+bXirC22BuaM/IH5b/jxf4XXx1M1DpYX56XWhQA4Y4a+y7CTV/zqw7VGLCj2iD5Z4FvrH@vger.kernel.org
+X-Gm-Message-State: AOJu0YyCJcMEDGBwY1oH2H22avvabYsH6OlqeAV3x1B24aYAKOgt12o1
+	53OquTvzxZQUITtpeeQIr44cRKuh2jAwxG2BbhjS60hbrpGu8jIU+ErZ4G0gVocGxA==
+X-Gm-Gg: Acq92OFFugB461lg8JwPyrOvJn/g9R9n+Pp33IH5BVSFRxRiAS3zL5LLW+KQHT2jKQZ
+	INZcxaLVzzEbo4Os/8YuB8IVT3w+XhM8sEcte7qecubus55ZwEUjtNOkKAJC7IcGPRUzZHk+QGQ
+	LPARJFTNUxHWWckGIo2oEsoFE905SWOgErEo6nWik2vgbh6eDxCHpij6SlP4aoUNyzq9rR74uKS
+	6jLYuZ1DIy6yCm0Fv0a5mZiUoLETi8hxGgkq1kQ20dBJfG/cx68dlE45gmfR90YZhP4VGkcAvbP
+	tXeSpfMtoeqAfDYpg/pQCmkofH//nw3yr+XeNW0QRmLuAFaEyCQZDTJuw0Uvgl0v5Y333dAGNOh
+	v+OXLxXYPsXLHrH/DbnrUNPsRtKDCUVtMdmBP5vc9XRNkjUhAyGKby3JR1AFm1X//4OIwOjtuEN
+	sQr1K7zY3Ehmz5KO3DAp2XLXvutA9djLZ0osGZMIeRK2SMIhEZ4wvfz6kuXllJW0gI+PQO
+X-Received: by 2002:a05:620a:318d:b0:8e8:ffd2:ef90 with SMTP id af79cd13be357-907b8d9e67dmr2467034385a.3.1778529164314;
+        Mon, 11 May 2026 12:52:44 -0700 (PDT)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-907b9286f22sm1151090885a.13.2026.05.11.12.52.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 11 May 2026 12:52:43 -0700 (PDT)
+Date: Mon, 11 May 2026 15:52:42 -0400
+Message-ID: <b32ee44eb833fad926f4667892f2259f@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/3] cgroup/cpuset: Fix deadline bandwidth leak in
- cpuset_can_attach()
-To: Aaron Tomlin <atomlin@atomlin.com>
-Cc: tsbogend@alpha.franken.de, paul@paul-moore.com, jmorris@namei.org,
- serge@hallyn.com, mingo@redhat.com, peterz@infradead.org,
- juri.lelli@redhat.com, vincent.guittot@linaro.org,
- stephen.smalley.work@gmail.com, casey@schaufler-ca.com, tj@kernel.org,
- hannes@cmpxchg.org, mkoutny@suse.com, chenridong@huaweicloud.com,
- dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
- mgorman@suse.de, vschneid@redhat.com, kprateek.nayak@amd.com,
- omosnace@redhat.com, kees@kernel.org, neelx@suse.com, sean@ashe.io,
- chjohnst@gmail.com, steve@abita.co, mproche@gmail.com, nick.lange@gmail.com,
- cgroups@vger.kernel.org, linux-mips@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
- selinux@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260509164847.939294-1-atomlin@atomlin.com>
- <20260509164847.939294-2-atomlin@atomlin.com>
- <8aaa7dd9-2426-475c-af64-85ef5f2aa855@redhat.com>
- <aihz6zlfmcaxwb3ef4luisfpwqibwsajpphy5vzuksy3ftfkms@whhv2ax5plpb>
-Content-Language: en-US
-From: Waiman Long <longman@redhat.com>
-In-Reply-To: <aihz6zlfmcaxwb3ef4luisfpwqibwsajpphy5vzuksy3ftfkms@whhv2ax5plpb>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=UTF-8 
+Content-Transfer-Encoding: 8bit 
+X-Mailer: pstg-pwork:20260511_1539/pstg-lib:20260511_1103/pstg-pwork:20260511_1539
+From: Paul Moore <paul@paul-moore.com>
+To: john.johansen@canonical.com, georgia.garcia@canonical.com, Song Liu <song@kernel.org>, linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org, apparmor@lists.ubuntu.com
+Cc: jmorris@namei.org, serge@hallyn.com, viro@zeniv.linux.org.uk, brauner@kernel.org, jack@suse.cz, stephen.smalley.work@gmail.com, omosnace@redhat.com, mic@digikod.net, gnoack@google.com, takedakn@nttdata.co.jp, penguin-kernel@I-love.SAKURA.ne.jp, herton@canonical.com, kernel-team@meta.com, Song Liu <song@kernel.org>
+Subject: Re: [PATCH v3 2/7] apparmor: Remove redundant MS_MGC_MSK stripping in  apparmor_sb_mount
+References: <20260509015208.3853132-3-song@kernel.org>
+In-Reply-To: <20260509015208.3853132-3-song@kernel.org>
 
-On 5/11/26 7:08 AM, Aaron Tomlin wrote:
-> On Mon, May 11, 2026 at 01:10:02AM -0400, Waiman Long wrote:
->> On 5/9/26 12:48 PM, Aaron Tomlin wrote:
->>> During a cgroup migration, cpuset_can_attach() iterates over the
->>> provided taskset. If a task within the batch is a deadline (DL) task,
->>> the destination cpuset's DL metrics (i.e., nr_migrate_dl_tasks and
->>> sum_migrate_dl_bw) are appropriately incremented.
->>>
->>> However, if a subsequent task in the same migration batch fails the
->>> task_can_attach() check, the loop aborts and jumps directly to
->>> out_unlock. Consequently, any DL metrics accumulated from previously
->>> processed tasks in the batch remain permanently inflated in the
->>> destination cpuset. Because the migration is subsequently aborted by the
->>> cgroup core, cpuset_cancel_attach() is never invoked to unwind these
->>> specific increments.
->>>
->>> This behaviour results in a permanent leak of deadline bandwidth, which
->>> incorrectly restricts the admission control capacity of the destination
->>> cpuset.
->>>
->>> To resolve this, introduce an out_unlock_reset failure path that
->>> conditionally invokes reset_migrate_dl_data(). This guarantees that if a
->>> batch migration is aborted for any reason, the pending DL metrics are
->>> safely reset before returning the error.
->>>
->>> Fixes: 0a67b847e1f06 ("cpuset: Allow setscheduler regardless of manipulated task")
->> That is not the commit that introduced the bug. Anyway, there is already
->> another patch sent recently to fix this bug. See
->>
->> https://lore.kernel.org/lkml/20260509102031.97608-2-zhangguopeng@kylinos.cn/
->>
-> Hi Waiman,
->
-> Thank you for the follow up.
->
-> Acknowledged. I will drop this patch in the next iteration due to [1].
->
-> Please note, the sashiko AI Review bot reported: cpuset_can_attach()
-> incorrectly assumes all migrating tasks originate from the same source
-> cpuset. At first glance, this feedback is valid. I plan to submit a patch,
-> if no solution was already proposed.
->
-> [1]: https://lore.kernel.org/lkml/20260509102031.97608-2-zhangguopeng@kylinos.cn/
+On May  8, 2026 Song Liu <song@kernel.org> wrote:
+> 
+> path_mount() already strips the magic number from flags before
+> calling security_sb_mount(), so this check in apparmor_sb_mount()
+> is a no-op. Remove it.
+> 
+> Code generated with the assistance of Claude, reviewed by human.
+> 
+> Signed-off-by: Song Liu <song@kernel.org>
+> ---
+>  security/apparmor/lsm.c | 4 ----
+>  1 file changed, 4 deletions(-)
 
-Yes, it does look like the AI feedback is valid. I will take a further 
-look into this.
+John, Georgia, are you okay with this patch?
 
-Thanks,
-Longman
-
+--
+paul-moore.com
