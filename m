@@ -1,127 +1,220 @@
-Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from flow-a4-smtp.messagingengine.com (flow-a4-smtp.messagingengine.com [103.168.172.139])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEDCE3A16AE
-	for <selinux@vger.kernel.org>; Mon, 11 May 2026 12:48:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.170
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778503700; cv=pass; b=WUnT84vn1MyKh6gxsokhXigLGkAJJ1CjFUw5a75cU2Qpt+zaRJ/YMTjSSwjxksIYGYkXalq7sa8qslejexitV3lp3AcmWBGDZ5FAcIg9BZTo0vWXXlgXbtbSMJ9VrYZ8qbnq0YOr4iLiBa0Y2YTWcBZByVl8Mv0cpBuN92IXvqw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778503700; c=relaxed/simple;
-	bh=koDKSPOlw7gobS7LqMnkDOoTLFp8XX1iHonQSRvuZlw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=j6Ch+nnWPJQlGowxqvn+4TgWTmjt5O1u3CIPC1w5MUe8SrmifOTEBqRMd3lBnfflbx4NfAtItqr8XYIeUtOEmghWOG9iXDWci3wMUo6vrba6MnqcKe3tOCG/kfLDr4egwdkCc2Ech73ZXe75GztR4wa/lJaKPN541QU6evclwAQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZnvOWZxm; arc=pass smtp.client-ip=209.85.214.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AB7838F25F;
+	Mon, 11 May 2026 12:57:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.139
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778504262; cv=none; b=M0oGt5RKcsorw0314GBsNmAfdjqUsazoCXfGe/FV83dY0zs8urDAPfwQFATechpTKzEFDbaC4f/Ibx6g3CQulkkK6I8dAL3R3g54eFZj/mncn1v8J65pRGbMJ0KSBXF09iob+uHie/xfmsl3BkO87eqeHDF8tLOFb2pAMM0ESss=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778504262; c=relaxed/simple;
+	bh=T+zncbAmIN2Y8Xk2STET9vNGfkNEwsoAfL1FFMPW80E=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=kOVDD+QQ+qWsdgFi0hPzek9gZoW1Y8CLHchsk5KyEpez2nCu5ZGVOGy/VJF7xPLbPgKVtTNFeEkne3Zn+ItMcsm2R7oE5x53oKcKWt0y3DGZTFpcbC1751FrC0JvmbY2zKq7NoUNBk5YuE0+eyib6Si++s7A6vXxSFWcNSAD14Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net; spf=pass smtp.mailfrom=queasysnail.net; dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b=UHfU/ReE; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=RFwEd2rv; arc=none smtp.client-ip=103.168.172.139
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=queasysnail.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZnvOWZxm"
-Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2ba21d32776so28378915ad.2
-        for <selinux@vger.kernel.org>; Mon, 11 May 2026 05:48:18 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1778503698; cv=none;
-        d=google.com; s=arc-20240605;
-        b=W5aFoqHYbqX2Gryz0I8kDj5TwcCAeOMbN3yjFd0Wy88hVEokm7zhV2/KDcB9hj+BgT
-         0CAbw4W+BXU+Nn6UOqmtDhgVJJRCk7C8mv286UbT7PwwAEQFDME811g+ZNT0Le5tl7/G
-         oJLAu9V+oWQ3nlruCA3o6/Flc0+GTqnazUiAA4Ucg7BHwNx6f1LZhpdzQIt3gsZKB1kD
-         bQZcmRlQSYBUIFp5eOQN9MCPGWl9hZKeoMZ+2uygNwNMedylyUHjvbZYoatF9Snof/9G
-         j/kg2scuVUDiDEoU9WhwwfVgACmdyllU8qM7OTi1SeapmCnW8KzPBoO0rxoVEp36VNNf
-         zsEA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=MvYhX5f2D0K2DOJZw2jeuTbDQ2n37dPV4ljEjI8QK3c=;
-        fh=YIXy62M684+xkHbnDTi4GQOeNbn0oP/q82f8eoFcz2M=;
-        b=iayExtGqgCg08hgTLQ8oE8TMN/dLYZyA7/7nNNUhZQjeOiJQ9XD+OteLp7D+hZY3gS
-         Cx6kKrh2JBo4mbBPX390oRJJR2VIoNZJBrw7sUndV19rZt9hYPkFs1P8niinx/tUr5H0
-         /Vvr7MFdvv1t1yV2ue43lcs6qoXNk5r6I/uV+GyjpI6fNNmDJTtuhMXJf5QZM7ChCfao
-         FPlbdtDZu/nsNOwKaiUsKE4V+JEvtfdNXCeBMQ17RIexYNiCwbrQjiawhQ4eVrVScQcS
-         uadvsctka8qKzK3WwGQmh7BIR+gHvaHOeSh1+tZ3T7B540+A8jWbm1ud0wzvRnX5u8GB
-         wiGA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778503698; x=1779108498; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=MvYhX5f2D0K2DOJZw2jeuTbDQ2n37dPV4ljEjI8QK3c=;
-        b=ZnvOWZxmoUTuvRM8kLAETnXNMGcQCXwLI2hbinOYenqn+f0+Pk9C4IlalUc74np+1H
-         GeuXPae99S0EtPQPNE8J0UDlhpeVU7WY5EVLpw2q2/dHS4i3UfERiQ4+yPwkGLES8M3b
-         CnRWY6rcc23Zj9Dlaj4P3NQnkHZY7Eqa/8ivkvQTCeUTUvOsyUV5g62Hsynq/F2l9z6Z
-         o8mwy3VNlR44axmkYODvE6A96MuNw3b1uTvXrTx9UQ0YEL3PRrJSU1L+i8oL5qS3wnh3
-         HNRv7uec6K5Xip4u5/ELFIMVooX0kDNgd4GyooyC0QIwy+E5ydXtSARJinabwBPoT3Uf
-         ssjg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778503698; x=1779108498;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=MvYhX5f2D0K2DOJZw2jeuTbDQ2n37dPV4ljEjI8QK3c=;
-        b=Z2bz/r03tLjOgyq+cq6lyrKBqSP0xCd8Sam5t7VMQ6UBhCn1bVXUTCrQjYtsy73V2H
-         NrzlgDWF3uUPyLTfVcNjNxA64chbPwBFdylV+778PkvCzBp2C32d6fxtPIMF0iRkMNMX
-         gphAfuFJIoFqkx56awaeErkKsKEsIB9EAVe+dkm6Sy5ke8HVfsU1cnB2kqxAXZez9Rb2
-         MH0TX7JdS8UedByq9aCAT97jZCXvZzWyFV+umxwciEtWSf/V/+YJucBQlfXzGU6tDa+G
-         tkP5e7P58+eFwqzvf6ndLuZsHUZKZhQ/qeM2v3mVmghOaKzIKJG9UntwSG+I/HaUmzx1
-         BhOA==
-X-Forwarded-Encrypted: i=1; AFNElJ/O4wZF8UuVb/EWPoBqHIOSmz4QIGRh4QAuEKb8Bxx5BBdwK4FzVllCustW0ferdnu0ZXGsRSP2@vger.kernel.org
-X-Gm-Message-State: AOJu0YxSyLfnhe4AZQJtkXMGabQvqlwZRqw79AEy9zecqUA2qc9gAJs8
-	3Nm+ZSnGASLzzNCQxdsv5bS39j/5Pu7QD8HqpUVT8cw4VEkJ1jU20s0RvnduuG1FMiZEZovJ+GB
-	M/z8orWsO2+CYQmhuSf+Y4NTnKIM0p/8=
-X-Gm-Gg: Acq92OFI3DOz3RM27g9G6rF/0Y8WhUtW8KJOD8QzT6f9S3Zl7booqvQ1WGuEPV+DlS7
-	5BdGHd02fiO9JJJGOs0Rse3J4XjRGyTtbyivcAllPFFBXtZnQA7OSa5jaw9nG6A+WWJHCNTjHni
-	ZLN94fd+yArJwriqTWvAaPu6U+uxAtqx1GW0e6OfkSonH87jPlx7vddgbRb7Vp4WXJuS3Y4TfeJ
-	CYC3Uh/1xmlnK3mRR4+NnX+gC9H8c8YCVR3rKbj+eRuI29YOWd7RuNkv96qLchAgVK9ki8lQAFb
-	rwZxibg=
-X-Received: by 2002:a17:902:e747:b0:2b9:ef36:434b with SMTP id
- d9443c01a7336-2ba78c40a85mr258904045ad.12.1778503698220; Mon, 11 May 2026
- 05:48:18 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b="UHfU/ReE";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="RFwEd2rv"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailflow.phl.internal (Postfix) with ESMTP id 6C2A91380432;
+	Mon, 11 May 2026 08:57:37 -0400 (EDT)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-04.internal (MEProxy); Mon, 11 May 2026 08:57:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=queasysnail.net;
+	 h=cc:cc:content-type:content-type:date:date:from:from
+	:in-reply-to:in-reply-to:message-id:mime-version:references
+	:reply-to:subject:subject:to:to; s=fm1; t=1778504257; x=
+	1778511457; bh=9ZylBAjhvDw36cIdH/cZimW58y/qeCfbSIMHarjSv/E=; b=U
+	HfU/ReE0eGF0atBgOVUXv4OilVhWJfQhktDLokRaQ55xfUQ5nXHW8ABWP1v1700i
+	WPmjNbrZbuP9U685Q7Hzn+Jqkpe41FauBl+EauqDf0TkWtJfJJsf/bSUl08hUXgQ
+	f1cuNj9EBiy8zG7mzbGaJlckDqlbCu6WPfeXcN2VV1ifggZmUfB0Tl92ZyeBp9EK
+	VyWBxzaNQ6Eo2p3ogMz9XBTb/F8PzGVq6ItuCOhWKPSaBS1fL+BPiO/eFt5UnHRJ
+	s+TOEQ6TN5BR0QvS3GWbEBifHZHXTVt/HzANrpVeBnnEXr3eA7O4GCi95kTl2mDy
+	NKI3nmMSceAp3X2ZWkxcw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
+	1778504257; x=1778511457; bh=9ZylBAjhvDw36cIdH/cZimW58y/qeCfbSIM
+	HarjSv/E=; b=RFwEd2rvJl4W6cfGdJlaHfoXglNAWuooBpTU6Bv0s2AeZ765qZ3
+	QDX8aHiO1lXER05/ccuGIqrULUU167isaAzKCmRBNHVLVxTp5dK82m+jvKiSdSfL
+	IZXdsNcgNxUWTFt7ZuNq5WZn9083cVlHqR8VTNEb4TFswc1Qk0nTOdr8mfcwDxAx
+	DwPUzMX8aThwC9LOljcna9LX0RocZkLfv46cvr8hFlA2m7kqIYMVuVMMDXNyGvWz
+	UlOB4uCnpSm2A+ed6I1fq5HdvH+dzgUDf4Vc9yzLpnn0Zd0nOkMzgn2ktwib1g9D
+	98jc4eETMWkqtagCTL9IKTm9SgQkqXf4emA==
+X-ME-Sender: <xms:P9IBaiIa6ok3fBrwWxfukwjcaK6AvNR5gI2o8Yl-x308N_W-hwU_oA>
+    <xme:P9IBaryzSLU6j_74eOGxkvKt2V_9t2LYKPmgkI6z8KeK8MLCKKhEvsESfx0v5rAE0
+    aC-sl9Zd7gBQBMSvcTHQgQxZkjriVrNoYHxlcD5uxC_QSxKQesAzA-A>
+X-ME-Received: <xmr:P9IBamxUgaFvD4OQe44zdJz1waE1axIN3-ae8cyVxjf1XbJq6yQ5h2tnpt0Iq3LJE49fvkgvIBawLDx_0kVgksU>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdduudekleelucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepfffhvfevuffkfhggtggujgesthdtredttddtjeenucfhrhhomhepufgrsghrihhn
+    rgcuffhusghrohgtrgcuoehsugesqhhuvggrshihshhnrghilhdrnhgvtheqnecuggftrf
+    grthhtvghrnhepuefhhfffgfffhfefueeiudegtdefhfekgeetheegheeifffguedvueff
+    fefgudffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
+    epshgusehquhgvrghshihsnhgrihhlrdhnvghtpdhnsggprhgtphhtthhopedvvddpmhho
+    uggvpehsmhhtphhouhhtpdhrtghpthhtoheprghnthhonhihrdgrnhhtohhnhiesshgvtg
+    hunhgvthdrtghomhdprhgtphhtthhopehsthgvfhhfvghnrdhklhgrshhsvghrthesshgv
+    tghunhgvthdrtghomhdprhgtphhtthhopehhvghrsggvrhhtsehgohhnughorhdrrghprg
+    hnrgdrohhrghdrrghupdhrtghpthhtohepuggrvhgvmhesuggrvhgvmhhlohhfthdrnhgv
+    thdprhgtphhtthhopegvughumhgriigvthesghhoohhglhgvrdgtohhmpdhrtghpthhtoh
+    epkhhusggrsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehprggsvghnihesrhgvughh
+    rghtrdgtohhmpdhrtghpthhtohephhhorhhmsheskhgvrhhnvghlrdhorhhgpdhrtghpth
+    htohepughsrghhvghrnheskhgvrhhnvghlrdhorhhg
+X-ME-Proxy: <xmx:P9IBat2gizePE2hTqULqNwpw4FauESLg4RYoOOrJb0cJf_xFpje1XQ>
+    <xmx:P9IBaoWosNg2YqzmWXKxrQ7V58Q7Gfk8x2aCUpq18PO3e6VjAeD-Fw>
+    <xmx:P9IBahcyjK0jrzMydfaJDtMXvCoyPhdI8DUZCizgg92rT5b5P63CvQ>
+    <xmx:P9IBap8OElGSCzktMKVkdzF4otyYXnVwr6nGm_P0qbEfJMu7I-RbUQ>
+    <xmx:QdIBaouFlNyjobY9-si-kDTjl4P1jCpiO77iw-tT3vbL-0Xt00NPbteL>
+Feedback-ID: i934648bf:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 11 May 2026 08:57:35 -0400 (EDT)
+Date: Mon, 11 May 2026 14:57:33 +0200
+From: Sabrina Dubroca <sd@queasysnail.net>
+To: Antony Antony <antony.antony@secunet.com>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>, David Ahern <dsahern@kernel.org>,
+	Masahide NAKAMURA <nakam@linux-ipv6.org>,
+	Paul Moore <paul@paul-moore.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	Chiachang Wang <chiachangwang@google.com>,
+	Yan Yan <evitayan@google.com>, devel@linux-ipsec.org
+Subject: Re: [PATCH ipsec-next v8 14/14] xfrm: add documentation for
+ XFRM_MSG_MIGRATE_STATE
+Message-ID: <agHSPUBZg0tHezM-@krikkit>
+References: <migrate-state-v8-0-4578fb016965@secunet.com>
+ <migrate-state-v8-14-4578fb016965@secunet.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260409094222.2859087-1-omosnace@redhat.com> <CAHC9VhQBfXhB8KZK1W25mqVbzQyj6zEGwtRF0Mse3Pm5P-tYqA@mail.gmail.com>
-In-Reply-To: <CAHC9VhQBfXhB8KZK1W25mqVbzQyj6zEGwtRF0Mse3Pm5P-tYqA@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 11 May 2026 08:48:06 -0400
-X-Gm-Features: AVHnY4Jk3j261TbJ8KhwPBpIPHquF9rJPDGS3AYsu2iv67oidclP-4r8YG_MMrM
-Message-ID: <CAEjxPJ51wQ3LWNCKe93QzWbXn2M6ZaY3MhfqZvpQAQ6OgBQn1w@mail.gmail.com>
-Subject: Re: [PATCH testsuite v2] tests/overlay: add tests for mmap(2) and mprotect(2)
-To: Paul Moore <paul@paul-moore.com>
-Cc: Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <migrate-state-v8-14-4578fb016965@secunet.com>
 
-On Thu, Apr 9, 2026 at 2:52=E2=80=AFPM Paul Moore <paul@paul-moore.com> wro=
-te:
->
-> On Thu, Apr 9, 2026 at 5:42=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.c=
-om> wrote:
-> >
-> > Add asserts that verify the expected behavior of mmap(2) and mprotect(2=
-)
-> > on overlayfs files.
-> >
-> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > ---
-> >
-> > v2: style fixes
-> >
-> >  policy/test_overlayfs.te    |  45 ++++++++++--
-> >  tests/overlay/.gitignore    |   1 +
-> >  tests/overlay/map_access.c  |  55 ++++++++++++++
-> >  tests/overlay/setup-overlay |  10 ++-
-> >  tests/overlay/test          | 139 +++++++++++++++++++++++++++++++++---
-> >  5 files changed, 233 insertions(+), 17 deletions(-)
-> >  create mode 100644 tests/overlay/map_access.c
->
-> Two test failures on the overlayfs test running an unpatched kernel,
-> and a clean run on a fixed kernel.
->
-> Tested-by: Paul Moore <paul@paul-moore.com>
+Overall a very document, thanks. Some comments:
 
-I went ahead and merged this since it now passes on the current
-upstream kernel and Fedora kernels but we may need/want to add a
-conditional on kernel version to keep it from breaking on older
-kernels.
+2026-05-05, 06:34:55 +0200, Antony Antony wrote:
+> +    struct xfrm_user_migrate_state {
+> +        struct xfrm_usersa_id  id;       /* spi, daddr, proto, family */
+> +        xfrm_address_t         new_daddr;
+> +        xfrm_address_t         new_saddr;
+> +        struct xfrm_mark       old_mark; /* SA lookup: key = v & m */
+> +        struct xfrm_selector   new_sel;  /* new selector (see Flags) */
+> +        __u32                  new_reqid;
+> +        __u32                  flags;    /* XFRM_MIGRATE_STATE_* */
+> +        __u16                  new_family;
+> +        __u16                  reserved;
+> +    };
+
+Thinking about the UAPI a bit more, maybe this would be a good time to
+start introducing a "proper" netlink API for XFRM? Instead of having
+the main properties in a fixed struct, and a few attributes as an
+afterthought, use attributes as the main way to exchange information?
+
+Then we can start adding the attributes as alternative to the fixed
+headers in some other ops, and later start deprecating the current
+API?
+
+(for some reason this thought only popped up when I had the html
+rendering in front of me, sorry it's so late in the process)
+
+[...]
+> +Flags
+> +=====
+> +
+> +The ``flags`` field in ``xfrm_user_migrate_state`` controls optional
+> +migration behaviour. Unknown flag bits are ignored.
+
+Maybe better to reject unknown flag bits (as well as unknown
+attributes beyond XFRMA_MAX), so that we can fully control their
+behavior, and not risk incorrectly migrating an SA if a "too-recent"
+userspace passes attributes we don't know (then if we fail to handle
+them in the kernel, the SA may not handle the traffic).
+
+(Steffen and you will have a much better understanding of the security
+risks here than me)
+
+
+
+> +Migration Steps
+> +===============
+
+maybe add:
+
+Userspace is expected to:
+
+> +#. Install a block policy to drop traffic on the affected selector.
+> +#. Remove the old policy.
+> +#. Call ``XFRM_MSG_MIGRATE_STATE`` for each SA.
+> +#. Reinstall the policies.
+> +#. Remove the block policy.
+> +
+> +Block Policy and IV Safety
+> +--------------------------
+> +
+> +Installing a block policy before migration is required to prevent
+> +traffic leaks and IV reuse in counter mode.
+> +
+> +AES-GCM IV uniqueness is critical: reusing a (key, IV) pair allows
+> +an attacker to recover the authentication subkey and forge
+> +authentication tags, breaking both confidentiality and integrity.
+> +
+> +``XFRM_MSG_MIGRATE_STATE`` atomically copies the sequence number and
+> +replay window from the old SA to the new SA and deletes the old SA.
+> +The block policy ensures no outgoing packets are sent in the migration
+> +window, preventing IV reuse under the same key.
+
+Does it matter that the copy is done atomically if we expect userspace
+to install a block policy? (without the block, I'll have to recheck to
+convince myself whether it would be safe, and TBH I'm still a bit
+confused by patch 8)
+
+> +Feature Detection
+> +=================
+> +
+> +Userspace can probe for kernel support by sending a minimal
+> +``XFRM_MSG_MIGRATE_STATE`` message with a non-existent SPI:
+> +
+> +- ``-ENOPROTOOPT``: not supported (``CONFIG_XFRM_MIGRATE`` not enabled)
+> +- any other error: supported
+
+
+xfrm_user_rcv_msg
+
+if (type > XFRM_MSG_MAX)
+        return -EINVAL;
+
+
+Userspace will hit that on a kernel that may have migrate but not
+XFRM_MSG_MIGRATE_STATE, no?
+
+
+[...]
+> +Error Handling
+> +==============
+> +
+> +If the target SA tuple (daddr, SPI, proto, family) is occupied by an existing
+> +unrelated SA, the operation returns ``-EEXIST``.
+
+All this happens under xfrm_cfg_mutex, so if we did an initial lookup
+for the new SA before starting the operation, we could ensure there's
+no dupe, and the mutex would guarantee no insertion. No?
+
+-- 
+Sabrina
