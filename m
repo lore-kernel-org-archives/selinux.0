@@ -1,131 +1,129 @@
-Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF7EC441037
-	for <selinux@vger.kernel.org>; Mon, 11 May 2026 17:34:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.173
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778520881; cv=pass; b=PAiAZ0lbRQpRkXLuKPBGncuOqjBVy/82/DqSYz89wyAZDV0zO1rMRsLT+UMXXWTVevdpQgASvh7Udp9FXL1TCtIvhIxlYUQb3YBPSmBWHxuYno8uocYDCuT93RxYS+dY5M0cHXaI2P+tfHdIXKB+9x53qBmcAEcCDqJ4VJgvMDw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778520881; c=relaxed/simple;
-	bh=f+h1qH+MV4OXIaSJfoveUxAcdSp1iGmgkRsnQol/sio=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Eo22CawygCvi9LIgQXBaQBzwMQggdy3a4o3kMzXxOty5aWUyNKvE7c+LeANgejBb/2mReNXHBJPG868+0RBdCFt4g9hXmmSGr/9CRl31dEgw3fI62nDBr/c+t3r/sV9hH0Ph8PW8YlXG4rlybPvMr3YlHQICLVITwHIVAqiaaKo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FFIW1GOE; arc=pass smtp.client-ip=209.85.214.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F45D47CC96
+	for <selinux@vger.kernel.org>; Mon, 11 May 2026 17:55:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778522102; cv=none; b=alHzEN48rGjm55WAIW4pHgFQAk9WfFoSHB7BGqMe6TDQu2ccvtlSI1VmqHoeADuu5Fke7FchzC6rHnt2SAuim6WSLbDsTkKo+KZa7RDbihbKtJaSrQwWMyNNG1XI0aKwLIGKb3qiRiYmHPdYyvmJbypw27vgkaQKpLY0UIt2aIk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778522102; c=relaxed/simple;
+	bh=0iTg+leX0j2qT7Fm8ZWc0NcP/PDd5Medeqon2RI8VYQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=W5SXIWvzMOIanGL+GmH3T7v5wdV76+KEhC9vb9HfbH5fV6emOTY29zkc2aSalSqpBXZeNqmYFGPbW4Ex47Pofj2V2pvSw9gKI6JvlAQ6vb3Bg1UFLutg1Xq3HZ7GEx1Je4kmffXO42f0QbpkpZ+nr0bZRZv6ZzE6Z2Yri3iffHI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IXDLxosu; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FFIW1GOE"
-Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-2ba17c8cfacso47400575ad.2
-        for <selinux@vger.kernel.org>; Mon, 11 May 2026 10:34:39 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1778520879; cv=none;
-        d=google.com; s=arc-20240605;
-        b=Kc1uaA3B1/8RCa9NtTFRZS00otU+tiolo4CPo8jvHRLD4NQzGrZZzcZ/EXrIgp8nhR
-         IHZNlQveCRYd7gH0HCX6nPOmqL7P4NVAwZC0MhN0SXGx6fzsd6EF4DULvYWMm0vt3LeP
-         gK079cAK0yLiVLJFqbCSI8lmjIFZcpsTabbnGOpCfB55ahAee+aktGeLUQdWPtMOBqcB
-         XzJhLEMWf52cnizogHskZVOJt4QpWaJ2a/n+KKyk3apc8HzrF/U1WExsznd4kRGRxsqC
-         VnhuU6hz08Hd0olpXW0+ACspy5Xg/ijCpmtO3nl3cAphbb0Yo/0j1hdNVAM29awUcF45
-         MzSg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=cS+p8qwM85YES2usQyitNMhM4oF15lCKHM72161PXoQ=;
-        fh=5PmA0VN68TeM8KUKgIvMjrYEu0mBYbIu3rwsths/CuA=;
-        b=AF++lHv+D32/WZobkQ7n7WHQyLwsadsq3v8EllgUB8fhUT6L8dDHNtt8HGVTb2BBHM
-         VEfazTYHK18gRQF054mZYUyc2dZHMiNVWyiKbmxXskfq58/Za5XNRZYTsjKiEQwQBH44
-         rRuqb4ywm2Sc+b/jVIMMCGtkVjVgNEDZoScqmFa5mi9V6038Z0kiZFza/0UfulyMQ/NS
-         MexupzaUri5CEMdQCNxLXoKtvbfhQAoFXg4JbOpx610LkvRTB0bnvK6s7kgkimQArTEv
-         sdyRE9Z7tCIkFBANGPyjbMQuQinmKGA/cqyZvguvvYKrsvFa3DPvzyZPopcJvRXDSLTq
-         yz1A==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778520879; x=1779125679; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=cS+p8qwM85YES2usQyitNMhM4oF15lCKHM72161PXoQ=;
-        b=FFIW1GOEHdmNk1NCDkWVbqtKW4hqAIrJBzQrxNz0INtcYxmCqKsrePpzIJ+f7NCX6j
-         aw1CKDGElo07sd1xt4GZXORMmhRsZ4bH5v37iMU0OxJBdlqI66/22rMVts2xg8wlwIWw
-         LjgYHtVzVd7bNh1fpYzQ1W6lMCGJS2BbmrpnLr0gM6lwzD+Kj5JTvXkyLmPby4wwof9d
-         8fwhWlzso4C0+gGFmN8YEkaQ/VzbgiIVknAWfVcR1GmadFovJYl1Mgp+7/a5tuTisBQu
-         V7qOUQtj0TiY+vsRVD/OxvU2XvYwdToOOlqV0AFTudR8JGzztgLXk3XEvzBvBSG9p0pp
-         cXOw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778520879; x=1779125679;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=cS+p8qwM85YES2usQyitNMhM4oF15lCKHM72161PXoQ=;
-        b=hr0qlBF1xwbBBnmfLmWUMBjrZa376IAN9BTRBmjegQn7mYGRTvYemvwWzq6jI2r7x8
-         gZRa/mldekSJ8HJaXpZ2XyaL9oEJvIcg4sy+ww3FRnOQCnxHEgMMq84ZmGBlhigLvQOg
-         jBuFJZg/UtxjaX2KCBCOFM4VdeFh30u9nm9Cam4gDQOZBAoN5GYWQCcbTAf1QWo9lBVH
-         x5CRbmvO1MZ28knJuSgdWhtCV8/K8vHVgPG9rvR+JrLdi3kaoGQyCJDABKnNbGrAqHtn
-         3NFmwczCH88ZNRVg8y303xrwMMC4CyGeGCztnslx7309OcT01zd9CoDGwoKM0rmF5VKd
-         4kHQ==
-X-Gm-Message-State: AOJu0YwYAw5ReLbjG/Fs73xM8XnMjBZydOYPXAaR22o7CtdleMXk5F1c
-	7lBV58OZ3M1hSX+e2T8R0Jee9ft4LAw/uliotJ5t/8nWzVXXRDflnS1Js3+riby/C8jjH13D2wl
-	ZaPS98ryGNH0iC5C/47Oz/U16UTh6uW4=
-X-Gm-Gg: Acq92OHo0sP9srMG3kZoJuj69H+zFp0WYNPvvV2woCKwhk9KO+Y1F/L76XifBFQMxDT
-	55wE0PEQO0vyDdp6WaAg5djgXMmB41Y80yvikKzAnwJYKMdi3SDD6f6EAMedeOyan6UFQJKgO+n
-	951L4NRDsKoZBhfdUIesQQ4rW1u50oansTEOz4N9Gum3W0Q55z2j+u8sByProo6+SL5Efyk8JiW
-	h4Ub02z0K0CIY77fIJQXXDNbwS+H5frhFWL1YcOAOrDBViDPVn5MEkX/iBrRgtjZuGhqHZ210+z
-	7S5SYksqWFJWA+I2Xw==
-X-Received: by 2002:a17:903:2d0:b0:2bc:7aff:7486 with SMTP id
- d9443c01a7336-2bc7aff75b4mr115789745ad.32.1778520879163; Mon, 11 May 2026
- 10:34:39 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IXDLxosu"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1778522099;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=GKvjdJ57xbDNtz0/ef8xqKSCc51OBN1WOr77UzgegmY=;
+	b=IXDLxosuSxb12ppGMKdF782hEpiUt07ucGpQHn9Z5Bl3kpudC0XVAgdROlJeAsLtOv4SX6
+	kLwOYZIMcn45BvIK40kDlpy4NwJo3F6R8oLp56x9scOYGHXzm5By3baIpDmooT0J5OaG5/
+	BKTMJexnz3n6/iHvqUiVEYMmXRTnTqU=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-647-DDlwY3Z8OlqsCjfisEs3DA-1; Mon,
+ 11 May 2026 13:54:54 -0400
+X-MC-Unique: DDlwY3Z8OlqsCjfisEs3DA-1
+X-Mimecast-MFC-AGG-ID: DDlwY3Z8OlqsCjfisEs3DA_1778522090
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 0D5941956080;
+	Mon, 11 May 2026 17:54:49 +0000 (UTC)
+Received: from [10.2.17.16] (unknown [10.2.17.16])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 5F33B18004A3;
+	Mon, 11 May 2026 17:54:39 +0000 (UTC)
+Message-ID: <354af9fc-1c70-4ee4-a0ff-8821bebec7b8@redhat.com>
+Date: Mon, 11 May 2026 13:54:37 -0400
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260320172446.96634-1-cgoettsche@seltendoof.de> <CAEjxPJ6QRisP9s2QBXvt73+s1KFAYcmtoLWMnOz=VPwDhT=Qug@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6QRisP9s2QBXvt73+s1KFAYcmtoLWMnOz=VPwDhT=Qug@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 11 May 2026 13:34:27 -0400
-X-Gm-Features: AVHnY4Lwatl45dGxfb0mUN5dUY-aa6UHkInq1uucQG1fduRi6eC508q7TKCjkSY
-Message-ID: <CAEjxPJ79UwFyiDj=iZ+u4EEVJ8LjDhuV70wd72HWwU5iKmGvvw@mail.gmail.com>
-Subject: Re: [PATCH v2] libselinux: correctly find partial matches
-To: cgzones@googlemail.com
-Cc: selinux@vger.kernel.org, =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/3] cgroup/cpuset: Fix deadline bandwidth leak in
+ cpuset_can_attach()
+To: Aaron Tomlin <atomlin@atomlin.com>
+Cc: tsbogend@alpha.franken.de, paul@paul-moore.com, jmorris@namei.org,
+ serge@hallyn.com, mingo@redhat.com, peterz@infradead.org,
+ juri.lelli@redhat.com, vincent.guittot@linaro.org,
+ stephen.smalley.work@gmail.com, casey@schaufler-ca.com, tj@kernel.org,
+ hannes@cmpxchg.org, mkoutny@suse.com, chenridong@huaweicloud.com,
+ dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
+ mgorman@suse.de, vschneid@redhat.com, kprateek.nayak@amd.com,
+ omosnace@redhat.com, kees@kernel.org, neelx@suse.com, sean@ashe.io,
+ chjohnst@gmail.com, steve@abita.co, mproche@gmail.com, nick.lange@gmail.com,
+ cgroups@vger.kernel.org, linux-mips@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
+ selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20260509164847.939294-1-atomlin@atomlin.com>
+ <20260509164847.939294-2-atomlin@atomlin.com>
+ <8aaa7dd9-2426-475c-af64-85ef5f2aa855@redhat.com>
+ <aihz6zlfmcaxwb3ef4luisfpwqibwsajpphy5vzuksy3ftfkms@whhv2ax5plpb>
+Content-Language: en-US
+From: Waiman Long <longman@redhat.com>
+In-Reply-To: <aihz6zlfmcaxwb3ef4luisfpwqibwsajpphy5vzuksy3ftfkms@whhv2ax5plpb>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-On Thu, May 7, 2026 at 9:49=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On 5/11/26 7:08 AM, Aaron Tomlin wrote:
+> On Mon, May 11, 2026 at 01:10:02AM -0400, Waiman Long wrote:
+>> On 5/9/26 12:48 PM, Aaron Tomlin wrote:
+>>> During a cgroup migration, cpuset_can_attach() iterates over the
+>>> provided taskset. If a task within the batch is a deadline (DL) task,
+>>> the destination cpuset's DL metrics (i.e., nr_migrate_dl_tasks and
+>>> sum_migrate_dl_bw) are appropriately incremented.
+>>>
+>>> However, if a subsequent task in the same migration batch fails the
+>>> task_can_attach() check, the loop aborts and jumps directly to
+>>> out_unlock. Consequently, any DL metrics accumulated from previously
+>>> processed tasks in the batch remain permanently inflated in the
+>>> destination cpuset. Because the migration is subsequently aborted by the
+>>> cgroup core, cpuset_cancel_attach() is never invoked to unwind these
+>>> specific increments.
+>>>
+>>> This behaviour results in a permanent leak of deadline bandwidth, which
+>>> incorrectly restricts the admission control capacity of the destination
+>>> cpuset.
+>>>
+>>> To resolve this, introduce an out_unlock_reset failure path that
+>>> conditionally invokes reset_migrate_dl_data(). This guarantees that if a
+>>> batch migration is aborted for any reason, the pending DL metrics are
+>>> safely reset before returning the error.
+>>>
+>>> Fixes: 0a67b847e1f06 ("cpuset: Allow setscheduler regardless of manipulated task")
+>> That is not the commit that introduced the bug. Anyway, there is already
+>> another patch sent recently to fix this bug. See
+>>
+>> https://lore.kernel.org/lkml/20260509102031.97608-2-zhangguopeng@kylinos.cn/
+>>
+> Hi Waiman,
 >
-> On Fri, Mar 20, 2026 at 1:29=E2=80=AFPM Christian G=C3=B6ttsche
-> <cgoettsche@seltendoof.de> wrote:
-> >
-> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> >
-> > The current lookup for file labels first searches for the deepest node
-> > matching the lookup-key.  Then all definitions of that node and its
-> > parents are considered.
-> > For partial lookups also consider child nodes matching the lookup-key
-> > portion that did not match any node-stem.
-> >
-> > Example:
-> > The lookup-key "/sys/de" will result in the deepest node being "sys" (a
-> > child of the root node).  Non-partial lookups don't care about the "sys=
-"
-> > child nodes "dev" and "devices" but partial lookup does.
-> >
-> > Fixes: 92306daf521 ("libselinux: rework selabel_file(5) database")
-> > Reported-by: Thi=C3=A9baud Weksteen <tweek@google.com>
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > ---
-> > v2:
-> >  - fix documentation of find_all parameter
-> >  - fix linked-list handling: always add at the end
-> >  - pass child to the root call of all_node_specs() not node
-> >  - continue on <<none>> context definitions in partial mode
-> >  - add Signed-off-by
+> Thank you for the follow up.
 >
-> Thiebaud - can you please confirm that this v2 patch fixes the issue
-> you reported?
+> Acknowledged. I will drop this patch in the next iteration due to [1].
+>
+> Please note, the sashiko AI Review bot reported: cpuset_can_attach()
+> incorrectly assumes all migrating tasks originate from the same source
+> cpuset. At first glance, this feedback is valid. I plan to submit a patch,
+> if no solution was already proposed.
+>
+> [1]: https://lore.kernel.org/lkml/20260509102031.97608-2-zhangguopeng@kylinos.cn/
 
-I've gone ahead and merged this but would welcome testing by the
-Android team and ideally a corresponding test added to
-selinux-testsuite to prevent future regressions.
+Yes, it does look like the AI feedback is valid. I will take a further 
+look into this.
+
+Thanks,
+Longman
+
