@@ -1,424 +1,214 @@
-Received: from flow-a8-smtp.messagingengine.com (flow-a8-smtp.messagingengine.com [103.168.172.143])
+Received: from LO2P265CU024.outbound.protection.outlook.com (mail-uksouthazon11021105.outbound.protection.outlook.com [52.101.95.105])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EA293AA1A1;
-	Mon, 11 May 2026 09:13:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.143
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778490827; cv=none; b=LPFJKUCvEFB6TZAYzcucmgQuFZXjPL7k3wVFufHtw2YJD7fqEyx94NhW4crxSxLawSQJLPQCtdrXDJxfKL52jr/XuZ36ghIVVSt5Z37RJpHnR3Kz7RDSwKmWMNmtknzlElbmIQGAiChGdzAw6A4RQZwXoSZewqZF4X7d9pReS/s=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778490827; c=relaxed/simple;
-	bh=qf/SbQn1jGFBBGGSETlOsx5iiJ1jHVImvSbUVVSTUB0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UGLVnFf3KiQkaQhlE0zu0kU6TQZR07FdmSSKtq8mJaTUfXz04nchjHLbtlEs3QSS6bWmlqAMgu0i9cZMBOqrEUrBQSs/vmiRRUdFADSwRU063ePgGD4IYnE6E0rvKqHxLcBu6QDE7BHP9VIjoAyDq4g+fycTOh4VdWsSfe4Hq/k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net; spf=pass smtp.mailfrom=queasysnail.net; dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b=YGWPYOSG; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=Q/il3wTy; arc=none smtp.client-ip=103.168.172.143
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=queasysnail.net
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b="YGWPYOSG";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="Q/il3wTy"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailflow.phl.internal (Postfix) with ESMTP id DD31813801C3;
-	Mon, 11 May 2026 05:13:41 -0400 (EDT)
-Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-04.internal (MEProxy); Mon, 11 May 2026 05:13:41 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=queasysnail.net;
-	 h=cc:cc:content-type:content-type:date:date:from:from
-	:in-reply-to:in-reply-to:message-id:mime-version:references
-	:reply-to:subject:subject:to:to; s=fm1; t=1778490821; x=
-	1778498021; bh=oG1CScb7r9i2f+vs6+tHiK4YQ7SVJ+GUiKslUmUQvBw=; b=Y
-	GWPYOSGLBR0jTihk3TMfP6Sm2Nm1e8xVTJOUf09OvI8Y5f5u+pDstgK5mXrUjIhv
-	v/1RhkAnf/9O5sPaonypIUiMgJYZu2CNVu/yyAyE0xQdB3kNZRxuf+sTpJ7cqW60
-	t29fJkbTlUBzK52Bc+S92HEichTYhAksJD5NXjBCPtD5GTln9IFMVgvycgQnam9X
-	yeGZWFhvSGAj3Qq4h+4UMQHZizOoX+cAgsSXMr54hRffXDbS8MAIFgfgJid2ugfW
-	LblU8lPZBnMC7hMr5+CLjaKSs9PQO2EzwsPmbPc7myKNiZsoRaXJK2ugwGfjj6cB
-	G/zmwTShkVKiIdBLx4fyw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
-	1778490821; x=1778498021; bh=oG1CScb7r9i2f+vs6+tHiK4YQ7SVJ+GUiKs
-	lUmUQvBw=; b=Q/il3wTyZZuc86xDqbBYJuIlFR92dwM7unbc59UANniNRwbMGt+
-	jyuanN/I7L6fSWbmdzaPYevCOyPH3lv0V+tKAuxgzQ90ikgipOXqP6WQKacFY80C
-	43FP4dQsHjcTIdUmRd4A4RvlGBRmQqwfGyFbzG1fIpq8oYVgonKMEl7RoDqxBZQq
-	hrrc8fBz3bjeUWX2SHIMqFOBLkObTNBkigbnCP9ne+eKKE4CfBLl6sDqCmXgm+/1
-	JEqsIYgwjaVD1qHlOTfWuAXXWxSenwxp8bZmblLxZrbvh6XQ47q/1RwVgDaIzBZX
-	xv9gfrhxn5VIcCip6+dDMekk5Q2dReBGP0g==
-X-ME-Sender: <xms:xJ0BagiZ-zAQ-3goGft4Gk4WFXYb-km9TaORQhkmRh-ErRk9UJsmmw>
-    <xme:xJ0Baqpfxv_OVcPMPK4WLnZSP8bcKj9wQhuHYNz6cffrbw72Fgnn6pmDhFjFMM2KP
-    OhIJUzPlF8EA4BNG2EQGdnhNo_j4lJDHatRr63L7owjEcWUzKiNhYj_>
-X-ME-Received: <xmr:xJ0BasJc4yTSxSiTsPaSZ19zEQbRGHwyE5bWjHJaQzuUwLuTqhq-QH-G8sZZBvxfVqowqc_0sJTe7PGgWyGjNsE>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdduudekheeiucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepfffhvfevuffkfhggtggujgesthdtredttddtjeenucfhrhhomhepufgrsghrihhn
-    rgcuffhusghrohgtrgcuoehsugesqhhuvggrshihshhnrghilhdrnhgvtheqnecuggftrf
-    grthhtvghrnhepuefhhfffgfffhfefueeiudegtdefhfekgeetheegheeifffguedvueff
-    fefgudffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
-    epshgusehquhgvrghshihsnhgrihhlrdhnvghtpdhnsggprhgtphhtthhopedvvddpmhho
-    uggvpehsmhhtphhouhhtpdhrtghpthhtoheprghnthhonhihrdgrnhhtohhnhiesshgvtg
-    hunhgvthdrtghomhdprhgtphhtthhopehsthgvfhhfvghnrdhklhgrshhsvghrthesshgv
-    tghunhgvthdrtghomhdprhgtphhtthhopehhvghrsggvrhhtsehgohhnughorhdrrghprg
-    hnrgdrohhrghdrrghupdhrtghpthhtohepuggrvhgvmhesuggrvhgvmhhlohhfthdrnhgv
-    thdprhgtphhtthhopegvughumhgriigvthesghhoohhglhgvrdgtohhmpdhrtghpthhtoh
-    epkhhusggrsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehprggsvghnihesrhgvughh
-    rghtrdgtohhmpdhrtghpthhtohephhhorhhmsheskhgvrhhnvghlrdhorhhgpdhrtghpth
-    htohepughsrghhvghrnheskhgvrhhnvghlrdhorhhg
-X-ME-Proxy: <xmx:xJ0BantxDn8HL-wKBcK7i8TiJPbjYn1ipV1xLJdW0XVEQh68BWo-Xw>
-    <xmx:xJ0BastveSgh53GwbB3MVostjOGt0UL7AL4velhiHsrE5uPHWRghJQ>
-    <xmx:xJ0BauXumXHy5dUw2OdT7_b18fjaVbk1Eb5bZGM4nAkfFZCoTPc3Jw>
-    <xmx:xJ0BalWGdNS61BK3nnQ3Adf6ftQ7rwD2_hp5lDIRZAz45kwYpMQjJg>
-    <xmx:xZ0BaomnMoVObO4lyaHS0RWsUvtAQgLDpIxObW6yA8bi6rvisxhEun5O>
-Feedback-ID: i934648bf:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 11 May 2026 05:13:39 -0400 (EDT)
-Date: Mon, 11 May 2026 11:13:37 +0200
-From: Sabrina Dubroca <sd@queasysnail.net>
-To: Antony Antony <antony.antony@secunet.com>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>, David Ahern <dsahern@kernel.org>,
-	Masahide NAKAMURA <nakam@linux-ipv6.org>,
-	Paul Moore <paul@paul-moore.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	Chiachang Wang <chiachangwang@google.com>,
-	Yan Yan <evitayan@google.com>, devel@linux-ipsec.org
-Subject: Re: [PATCH ipsec-next v8 12/14] xfrm: add XFRM_MSG_MIGRATE_STATE for
- single SA migration
-Message-ID: <agGdwbo2GFhPP78z@krikkit>
-References: <migrate-state-v8-0-4578fb016965@secunet.com>
- <migrate-state-v8-12-4578fb016965@secunet.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F367A3630A9;
+	Mon, 11 May 2026 11:08:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.95.105
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778497735; cv=fail; b=ovtQemJQXyiNeftofEKOXj3ReJlYd/0nvHBdUD0i/OB80+IgQwIlxPaCgfZyc1mjY/tRLAk2mgW3/jr/itpwIGkvWDJZmpxeVG970G/FtGxfMeRwhxkE9Ai8ySd9Zw9fgPinxKm7afo74KeyTHBgxXWlYnlPV6ZuAazHlydqq6M=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778497735; c=relaxed/simple;
+	bh=mXBacL2oEggFrNHuEUSCEndhkqPPWvGDzHk0v0lmO6w=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=rcvloaLwTQD2/BgXHEuofPcD8o6rNp8xYmpYSNWqefd6uXuQqFCkQW/mtNVisyCdQewvW9EKPBA+klTXK4DpQBoIPH20ifTvyTxDVGh+YzaDc6XVn/V/0Uu2CqXPaxAwtmIsZp1qQXZoudSSWj2tmaHV8/GjBS357kcfQn0TtY8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com; spf=pass smtp.mailfrom=atomlin.com; arc=fail smtp.client-ip=52.101.95.105
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=atomlin.com
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=wGmSGrM6PgITfIcUAkBmJYvZBNjS+HR42Nmh1lwVh1sQFhUA8rplBcKpx/cVsNA8jB8UYvicHxTtidjirR+k1lnAMJHEBtP9VkhTiBxM5rVNXFpvSLMnqu5uME+RP2+i2jXreuPw4CkV6qZmJ41+SBZNl+gEYsHIeB50QgWSZ1rceSpIhxQBO3xkbLcwfmp0VmgUHujwSinfoQp7XNQCLAeiDsuEoRCKz/xN5cTdDjTpGOnofhmrKNSyoRx56BToXuOcyqz+zuqSFfyIkE+TdCx4xDfijioJcQvi5hf9VP4u7bxTnM2Sve+RgwyoQiTv0l4ToVfz5XIAzbvw2LJGsA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=mXBacL2oEggFrNHuEUSCEndhkqPPWvGDzHk0v0lmO6w=;
+ b=iw6Ys615R7YE9El9u5Gu/2AAsOdCEOyD2JXiOiUCC0Oep4tgzQhq71kmKU2hs6Z3HaIPpg50YRLFTS4QTw+Wx8d+4XuXeoadirNEl4A166RYi6rGRZd/0MlzVtgkD2wyEohpQiHak19nC7KS9IhdGPWvPMKEMRwZQ+Qdc0aL1UClS6yzjSAYKFasRav9QN7K7FEiXP0Dzec2KM+exnTLFZtT7Mmm4Iwx3UOgqdPe/kWO0hbp+m+eHQbqNGHw+le3rAL0hcss3KaPhytOhOqZrHWKNmC52KSWVz4kcmDHk6Ne9f//pHkDnclrYUlNO5WfZ5yGIDvKXJVEKMnizS4maQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=atomlin.com; dmarc=pass action=none header.from=atomlin.com;
+ dkim=pass header.d=atomlin.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=atomlin.com;
+Received: from CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM (2603:10a6:400:70::10)
+ by LO7P123MB7647.GBRP123.PROD.OUTLOOK.COM (2603:10a6:600:411::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9891.23; Mon, 11 May
+ 2026 11:08:50 +0000
+Received: from CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
+ ([fe80::de8e:2e4f:6c6:f3bf]) by CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
+ ([fe80::de8e:2e4f:6c6:f3bf%2]) with mapi id 15.20.9846.025; Mon, 11 May 2026
+ 11:08:49 +0000
+Date: Mon, 11 May 2026 07:08:45 -0400
+From: Aaron Tomlin <atomlin@atomlin.com>
+To: Waiman Long <longman@redhat.com>
+Cc: tsbogend@alpha.franken.de, paul@paul-moore.com, jmorris@namei.org, 
+	serge@hallyn.com, mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com, 
+	vincent.guittot@linaro.org, stephen.smalley.work@gmail.com, casey@schaufler-ca.com, 
+	tj@kernel.org, hannes@cmpxchg.org, mkoutny@suse.com, chenridong@huaweicloud.com, 
+	dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com, mgorman@suse.de, 
+	vschneid@redhat.com, kprateek.nayak@amd.com, omosnace@redhat.com, kees@kernel.org, 
+	neelx@suse.com, sean@ashe.io, chjohnst@gmail.com, steve@abita.co, 
+	mproche@gmail.com, nick.lange@gmail.com, cgroups@vger.kernel.org, 
+	linux-mips@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] cgroup/cpuset: Fix deadline bandwidth leak in
+ cpuset_can_attach()
+Message-ID: <aihz6zlfmcaxwb3ef4luisfpwqibwsajpphy5vzuksy3ftfkms@whhv2ax5plpb>
+References: <20260509164847.939294-1-atomlin@atomlin.com>
+ <20260509164847.939294-2-atomlin@atomlin.com>
+ <8aaa7dd9-2426-475c-af64-85ef5f2aa855@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="34mfdjxs7nhcxtld"
+Content-Disposition: inline
+In-Reply-To: <8aaa7dd9-2426-475c-af64-85ef5f2aa855@redhat.com>
+X-ClientProxiedBy: BL1P223CA0033.NAMP223.PROD.OUTLOOK.COM
+ (2603:10b6:208:5b6::8) To CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
+ (2603:10a6:400:70::10)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CWLP123MB3523:EE_|LO7P123MB7647:EE_
+X-MS-Office365-Filtering-Correlation-Id: d7f18010-87f7-42a6-44ab-08deaf4dada2
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|376014|7416014|1800799024|366016|13003099007|3023799003|18002099003|56012099003|22082099003;
+X-Microsoft-Antispam-Message-Info:
+	AlcqtfPgtZUAVDnEkc/91P3vzIKDLRoL1N/Oveyi3hklcNvgQhTJjRs+rEMSI2JvPDmyz/wNlgFAY+qLoyDEAhb8MvS26wqxT/VfwbzZhSNxVOLellJddgtNj2UaBDgsDQmbsEm2d95UjjVBqA1M+cpoCZ+GsqYcIxvnqGD5KWympSIFBOzYVqu09YBIUkzJXjucUNKkBuPY2/04vYW6J3YwfSHMbCztfSn5/q6gRChGrmgxMsrpLzqo7XInb0iG6+lRa3HvI2RnmOOoz5UXqlQbJOb4gcDQbK4gZbU93Ti6IsALLXpV8kX9JeHEIcWofQVbf640pKsjBoY4tmXyjN87bGm3ER1XFdtR17BVenbJlaJk7cs9N6bQGB0GwrDDW+qOlRlFK1NBNsMMTMYTZTzhMLIcAOCdymbQexlpJMlNT9km+Jv5YaPKH6bkq6RQ854OCNhZNtbePrp6EencTHV4Jc0i+9Wsho/I30aNgGjSooIA92ew9j2PumWA3CLCIYuJWogXiy2HSYZNlJc6YeViiAhPu+alm+YQZYfpB61lhNezIexiTXOIRnwXtwmxmiKnc99LE6ykj3cORH8D7UVRZPCocYJovC0EQNocOCl6doPJGFVp7fYw704Ofi+E3qQ76+jNEb+mI9+Mj1vf3/Ui1Nh1w7CJlldtnHipebCZ7MWn099C2aqNmyobY5OB1BPqMXK1aYh91ERBdDcQjQ==
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(1800799024)(366016)(13003099007)(3023799003)(18002099003)(56012099003)(22082099003);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?bVc5cHplUU40aTNLNW1hSnlxanV1RlQydGN4TW8wRmJrMUZ5eDZPUzVyZmZx?=
+ =?utf-8?B?RU53ZDFGRk1ieG1hYUVCYVVUcFR3MVNJdTRjUzh0WG5BajBPenN5Y3hvUTkr?=
+ =?utf-8?B?Um9id29QaFNlaGtSZzM1U3BBK0FNR21SQUdYTFl1ejZYQ3FwSFh6WktRY1Ft?=
+ =?utf-8?B?MVVtS3YvT21EVmVQNThYbWpmU1kvOWxtWGNtalNVZzBkTExqOVJIdlBmK3Ri?=
+ =?utf-8?B?VDJhWXlyQkxRbml5N3BJRDZ1WFR6bGJiZHJTcjQ0NjRQMk5kUDIwQjV5TEFR?=
+ =?utf-8?B?WUladHRLWVMrN29tTVlESTZkRy8ydS8rdjZ3QjYvNUZrczd0VVlNVUtzUG1L?=
+ =?utf-8?B?RHRQL0kxY0d6aFJiNkhYY05UeDkwK3ZvNVBRZ2lxZDBXSVBaRWV6dTViMWYw?=
+ =?utf-8?B?d1RZakg2ak1vMEM4TVhiYUE2RFJ3SGVielR5UVZsR25NeHpVWGU1bFcwRlJR?=
+ =?utf-8?B?djlaMXNDMlNmRmxHTzNJdkYwTHVYWEtOdllpSVlUWHFVSzJLM3M0R0xsdnUw?=
+ =?utf-8?B?aHVBcWxXbTNySkw0MENSRXBleEZXb3VQWEdzUjJpemh4NWRqUmtIbXo2dzRn?=
+ =?utf-8?B?TDBmUnl0Ri9ZQUV0dUUrakEyajFRcmtaNmNrdXROcHdLWmpTR1NxUHdtYjUw?=
+ =?utf-8?B?WkJjNjRDS2dES201QTlpblFiREpUSjBTc0NvS09FeTVDem0xQ1dtTG9HV2NY?=
+ =?utf-8?B?RkJ0cGhXNTVqK2FsejB3RHdvUkJNL2hTK3h5NEFNVWFNUTIzeE1KS21oNDFw?=
+ =?utf-8?B?d21ncUtWYlgwM1E5RXIvSW1iTSsxRHlZdWlicEc0NDFrNVNYZVZKeGsrVXpF?=
+ =?utf-8?B?Sm5JWmo4UFIvZDVNbWZrdjVxQy9rd2tPU3JwbkxUQklOb0xEMGQ5VE5BQ0xZ?=
+ =?utf-8?B?QWdNRWtiekJPcGRrdzNtZjNtR0N4bUVnR0JGcGVjN29jL0ZxbnZwVVBXWmpD?=
+ =?utf-8?B?OHdSNzdIZzR5NGQyME8yWmpOS2ZDRWJWWXZPWG5uYTNRUG9PenpwVVBETVBS?=
+ =?utf-8?B?WHM1WFZ5RWxZTU8zRlBLcmcxem1rRUorRlNLRkV3V3U4R3NCNVpWYlpXMSsr?=
+ =?utf-8?B?Y0MwSmJEVlF6a1JBdVNFbjFURmlVQ2xkUE5rU3JVRVFiZjAxbGFFVGRWb1Bs?=
+ =?utf-8?B?dmFSVDZCY0Ixc2RnTmI1TnVtTlA1ZnZ4VFRTUHo2R1h1ZERuU0l0bmVvRmx2?=
+ =?utf-8?B?R296ZjNNbFppRDlSaTNwSFR1S3dQbkdRdjRQSlVhc0NIL05WMmdnNWJKQThU?=
+ =?utf-8?B?MXpPa1FKcEcwSCs3WUplcytOYjlDdVh1TmtBVFdYRTVZd0RvTk9jL01xTTlO?=
+ =?utf-8?B?Vy9oeXZWYTVuZG1IN1VXN1QwWVVReXN3QkR4MDFSM0IwNmNvN1g3bEZ6bWdp?=
+ =?utf-8?B?VHJZMy96Mkp2VWZ2bGdmMkp5UFJVNEs3TXlOSkNTdTQvZy9JU1IvNGtzaWht?=
+ =?utf-8?B?djMvR0tLUmVCUzk0cm9PUlhudGlZSVZaN3Q3dVZQQVRmb1ZkNlQrQTlVUGY1?=
+ =?utf-8?B?enB0NWF3VzlKOVN2d0RscG1nZTJNa0Vvc3NqaXM3bE9TQ1Q2MjZVeXA1RHRB?=
+ =?utf-8?B?UnYxamlORmZJd3dUTFJ5QlM5aDNodUF2M08vbHZGVkkxczh6T1d3c1Robmtx?=
+ =?utf-8?B?dkRsWGk5R0dYN0pibWRibVlHT2VEbkkraHlmYW9QcC85bElFNVlqamxIUzQz?=
+ =?utf-8?B?VlRvTzdseEtHL3NUc29KTkgwY0V1eHpGWFlidjV4akpKNTBYdE9nbVZsS2ht?=
+ =?utf-8?B?UTk4dnJpdWxUM01GOG0zS1VJRDUwMUNGSnlabEI3SXRhMjh3ZEFDV1hEdXVj?=
+ =?utf-8?B?eVFWdk9zaXJNTHE4RGNwN3FtZXBhbXduZ1Rjb0c1a0pQKzYvSnhjR2tZZ2hR?=
+ =?utf-8?B?NlJhdFRBbkNWby9PSUtzVHZjUWtnZ0NQK2VGYk9pV2lyM2JwRDdlT0xxMWFz?=
+ =?utf-8?B?Y1hZNDVvTzNNa2E2RlVMamRobUlpTHZVaGhXaXF4MTUvTFJqR0dSZ3lnYkUz?=
+ =?utf-8?B?Ym8zRHVrYVFET3VmT204K3puTmNMZUtNS3dXZlZtMldkZHdLMkJDK3VHTi82?=
+ =?utf-8?B?aXF6VEZJTGtpNXJkbzdyMjZzUHlIK1dQWWhGb3U0SDd1aTZrZjBlN3gvby9r?=
+ =?utf-8?B?Q1p1aE1DSUl0QjJZamhuSHRlMlNkSjdGN2pLU0FYRnc3QU5tRkFhaFBkcjU0?=
+ =?utf-8?B?T3RFQTZXbHdhekNnWGxyc3Bwbm12L1dLMk5pZ0FFczI1WDlWLytlcThOQjB3?=
+ =?utf-8?B?Zjdydkd3V1djaHJYTDgxTUVickV4ZU0yY0NIWHJnbk92R2xvd0k0UERySVVx?=
+ =?utf-8?B?anZCYWRXaHVueTg5VjB3K2ZqbXRxSis1VVZsenlyNkNKcm9NZXBYdz09?=
+X-OriginatorOrg: atomlin.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: d7f18010-87f7-42a6-44ab-08deaf4dada2
+X-MS-Exchange-CrossTenant-AuthSource: CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 May 2026 11:08:49.8036
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: e6a32402-7d7b-4830-9a2b-76945bbbcb57
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: rVqJ3ajHA/79KQJUj9AgQO0wYpi9H+afQh5/R+nKV3l8TYaEoFuksVfN8nNRceTf9pWLQvKiNJZX+hrGOm1lrg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LO7P123MB7647
+
+--34mfdjxs7nhcxtld
+Content-Type: text/plain; protected-headers=v1; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <migrate-state-v8-12-4578fb016965@secunet.com>
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH 1/3] cgroup/cpuset: Fix deadline bandwidth leak in
+ cpuset_can_attach()
+MIME-Version: 1.0
 
-2026-05-05, 06:34:29 +0200, Antony Antony wrote:
-> Add a new netlink method to migrate a single xfrm_state.
-> Unlike the existing migration mechanism (SA + policy), this
-> supports migrating only the SA and allows changing the reqid.
-> 
-> The SA is looked up via xfrm_usersa_id, which uniquely
-> identifies it, so old_saddr is not needed. old_daddr is carried in
-> xfrm_usersa_id.daddr.
-> 
-> The reqid is invariant in the old migration.
-> 
-> Signed-off-by: Antony Antony <antony.antony@secunet.com>
-> 
+On Mon, May 11, 2026 at 01:10:02AM -0400, Waiman Long wrote:
+>=20
+> On 5/9/26 12:48 PM, Aaron Tomlin wrote:
+> > During a cgroup migration, cpuset_can_attach() iterates over the
+> > provided taskset. If a task within the batch is a deadline (DL) task,
+> > the destination cpuset's DL metrics (i.e., nr_migrate_dl_tasks and
+> > sum_migrate_dl_bw) are appropriately incremented.
+> >=20
+> > However, if a subsequent task in the same migration batch fails the
+> > task_can_attach() check, the loop aborts and jumps directly to
+> > out_unlock. Consequently, any DL metrics accumulated from previously
+> > processed tasks in the batch remain permanently inflated in the
+> > destination cpuset. Because the migration is subsequently aborted by the
+> > cgroup core, cpuset_cancel_attach() is never invoked to unwind these
+> > specific increments.
+> >=20
+> > This behaviour results in a permanent leak of deadline bandwidth, which
+> > incorrectly restricts the admission control capacity of the destination
+> > cpuset.
+> >=20
+> > To resolve this, introduce an out_unlock_reset failure path that
+> > conditionally invokes reset_migrate_dl_data(). This guarantees that if a
+> > batch migration is aborted for any reason, the pending DL metrics are
+> > safely reset before returning the error.
+> >=20
+> > Fixes: 0a67b847e1f06 ("cpuset: Allow setscheduler regardless of manipul=
+ated task")
+>=20
+> That is not the commit that introduced the bug. Anyway, there is already
+> another patch sent recently to fix this bug. See
+>=20
+> https://lore.kernel.org/lkml/20260509102031.97608-2-zhangguopeng@kylinos.=
+cn/
+>=20
+Hi Waiman,
 
-[...]
->  include/net/xfrm.h          |  16 ++-
->  include/uapi/linux/xfrm.h   |  21 ++++
->  net/xfrm/xfrm_device.c      |   2 +-
->  net/xfrm/xfrm_policy.c      |  19 +++
->  net/xfrm/xfrm_state.c       |  29 +++--
->  net/xfrm/xfrm_user.c        | 281 +++++++++++++++++++++++++++++++++++++++++++-
->  security/selinux/nlmsgtab.c |   3 +-
->  7 files changed, 357 insertions(+), 14 deletions(-)
+Thank you for the follow up.
 
-If the omission of xfrm_compat.c is intentional, maybe worth
-making a note of that?
+Acknowledged. I will drop this patch in the next iteration due to [1].
 
+Please note, the sashiko AI Review bot reported: cpuset_can_attach()
+incorrectly assumes all migrating tasks originate from the same source
+cpuset. At first glance, this feedback is valid. I plan to submit a patch,
+if no solution was already proposed.
 
-> diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-> index 4b29ab92c2a7..e33e524cd909 100644
-> --- a/include/net/xfrm.h
-> +++ b/include/net/xfrm.h
-> @@ -684,12 +684,20 @@ struct xfrm_migrate {
->  	xfrm_address_t		new_saddr;
->  	struct xfrm_encap_tmpl *encap;
->  	struct xfrm_user_offload *xuo;
-> +	struct xfrm_mark        old_mark;
-> +	struct xfrm_mark       *new_mark;
-> +	struct xfrm_mark        smark;
->  	u8			proto;
->  	u8			mode;
-> -	u16			reserved;
-> +	u16			msg_type; /* XFRM_MSG_MIGRATE or XFRM_MSG_MIGRATE_STATE */
-> +	u32			flags;
->  	u32			old_reqid;
-> +	u32			new_reqid;
-> +	u32			nat_keepalive_interval;
-> +	u32			mapping_maxage;
->  	u16			old_family;
->  	u16			new_family;
-> +	const struct xfrm_selector *new_sel;
->  };
+[1]: https://lore.kernel.org/lkml/20260509102031.97608-2-zhangguopeng@kylin=
+os.cn/
 
-afkey doesn't zero its array of xfrm_migrate, so those new fields will
-contain garbage there. Hopefully nobody is using it, but...
+Kind regards,
+--=20
+Aaron Tomlin
 
+--34mfdjxs7nhcxtld
+Content-Type: application/pgp-signature; name="signature.asc"
 
-> @@ -2104,7 +2112,7 @@ void xfrm_dev_resume(struct sk_buff *skb);
->  void xfrm_dev_backlog(struct softnet_data *sd);
->  struct sk_buff *validate_xmit_xfrm(struct sk_buff *skb, netdev_features_t features, bool *again);
->  int xfrm_dev_state_add(struct net *net, struct xfrm_state *x,
-> -		       struct xfrm_user_offload *xuo,
-> +		       const struct xfrm_user_offload *xuo,
->  		       struct netlink_ext_ack *extack);
+-----BEGIN PGP SIGNATURE-----
 
-nit: unrelated clean up
+iQIzBAEBCgAdFiEEeQaE6/qKljiNHm6b4t6WWBnMd9YFAmoBuL0ACgkQ4t6WWBnM
+d9bsww//Xwh+Wwf6l9x/WxaqjQG+15NRi711h1Q2u+jCojNhOzmupUhEngRTlL50
+mJ8UXgEFkIicGL9POYhvUVzRcv+xa3/vRqG7O26Ruxk4Xtv+7iNf7B3ye6OZ0eKd
+HvKkaPxkhok4B2xIa3Vycx/lepgwTKqZ3ChHS7h/b0Z1aalK7TifwipOqmUdqYLk
+z8CYfQwwaKo3lMY2EE+iiwWui+i3ImJ3nH1PFLPoeYMEsWs3g7Yi+WJYaDtI5vbN
+bKbMKvb1tH7DpGNmxtyKWVKM4EBSxpUmqa5vDeZO+mXD0gLK/y8Zq5FPwNrGlEqZ
+glRvYu3xhF2tgtYYP2CvHDdHR8zZONkihkgx7/6gEWBBY5iH920MD9lz2wzvA8N0
+buDBQHpVphCsGeKAbIpRsK/ZVRam5q2X93pLYZOvLZq52Mh7Do+l2rZjZoIcWnaa
+Hs0823Jb/Ls+zT6Hf3FRPNlWKkeBSvqPjXPKvXFIkPGQpG+ZEYoybhAY94tErf5o
+3ficumJeXB4+TA+A1HHuKfxDFoGwdk0D8AcbPMwUKrMVQEQzeGwXyzEdAOYWcAsv
+TyodxBXm4iqHElbsLogZQ7VkGI3LlOxxzvmpv8jpGVDUR5LQA3oaoBOGSk+3uCA/
+PYJNO4je5KCys/K2EYObAy84d4riVFIJZ8JFSSJaYMTAGr5DMmA=
+=gQ4g
+-----END PGP SIGNATURE-----
 
-
-> diff --git a/include/uapi/linux/xfrm.h b/include/uapi/linux/xfrm.h
-> index a23495c0e0a1..34d8ad5c4818 100644
-> --- a/include/uapi/linux/xfrm.h
-> +++ b/include/uapi/linux/xfrm.h
-[...]
-> +/* Flags for xfrm_user_migrate_state.flags */
-> +enum xfrm_migrate_state_flags {
-> +	XFRM_MIGRATE_STATE_NO_OFFLOAD = 1, /* do not inherit offload from existing SA */
-
-nit: maybe XFRM_MIGRATE_STATE_CLEAR_OFFLOAD?
-
-> +	XFRM_MIGRATE_STATE_UPDATE_SEL = 2, /* update host-to-host selector from saddr and daddr */
-
-"update sel" to me sounds more like "overwrite the whole thing" than
-"copy some bits, fix up others". The name is already long, but maybe
-"XFRM_MIGRATE_STATE_UPDATE_H2H_SEL"? (if only so that userspace devs
-don't think they know what "update sel" means, so they have to read
-the doc instead of possibly guessing wrong :))
-
-
-> diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
-> index cf05d778e2dd..9ecc4c8ba693 100644
-> --- a/net/xfrm/xfrm_policy.c
-> +++ b/net/xfrm/xfrm_policy.c
-> @@ -4643,6 +4643,22 @@ static int xfrm_migrate_check(const struct xfrm_migrate *m, int num_migrate,
->  	return 0;
->  }
->  
-> +/*
-> + * Fill migrate fields that are invariant in XFRM_MSG_MIGRATE: inherited
-> + * from the existing SA unchanged. XFRM_MSG_MIGRATE_STATE can update these.
-> + */
-> +static void xfrm_migrate_copy_old(struct xfrm_migrate *mp,
-> +				  const struct xfrm_state *x,
-> +				  struct xfrm_mark *new_mark_buf)
-> +{
-> +	mp->smark                  = x->props.smark;
-> +	mp->new_reqid              = x->props.reqid;
-> +	mp->nat_keepalive_interval = x->nat_keepalive_interval;
-> +	mp->mapping_maxage         = x->mapping_maxage;
-> +	*new_mark_buf              = x->mark;
-> +	mp->new_mark               = new_mark_buf;
-
-Do you really need a separate buffer for that? Or could you just use
-
-    mp->new_mark = &x->mark;
-
-and skip the new_marks array in xfrm_migrate()?
-
-I find that new_marks array quite ugly, so I'd like to get rid of
-it. If that doesn't work, I'd prefer to stuff new_mark_buf directly
-inside struct xfrm_migrate, and then set mp->new_mark pointing to it.
-
-
-> +}
-> +
->  int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
->  		 struct xfrm_migrate *m, int num_migrate,
->  		 struct xfrm_kmaddress *k, struct net *net,
-> @@ -4650,6 +4666,7 @@ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
->  		 struct netlink_ext_ack *extack, struct xfrm_user_offload *xuo)
->  {
->  	int i, err, nx_cur = 0, nx_new = 0;
-> +	struct xfrm_mark new_marks[XFRM_MAX_DEPTH] = {};
->  	struct xfrm_policy *pol = NULL;
->  	struct xfrm_state *x, *xc;
->  	struct xfrm_state *x_cur[XFRM_MAX_DEPTH];
-> @@ -4682,6 +4699,8 @@ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
->  			nx_cur++;
->  			mp->encap = encap;
->  			mp->xuo = xuo;
-> +			xfrm_migrate_copy_old(mp, x, &new_marks[i]);
-
-nit: maybe swap mp and x, just to match the order of xfrm_state_migrate()?
-
-It would also be a bit easier to review if you split this refactoring
-(and the corresponding changes to xfrm_state_clone_and_setup) into a
-separate patch.
-
-
-> diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-> index 043e573c4f32..44244bd323ea 100644
-> --- a/net/xfrm/xfrm_state.c
-> +++ b/net/xfrm/xfrm_state.c
-> @@ -1974,11 +1974,25 @@ static struct xfrm_state *xfrm_state_clone_and_setup(struct xfrm_state *orig,
->  		goto out;
->  
->  	memcpy(&x->id, &orig->id, sizeof(x->id));
-> -	memcpy(&x->sel, &orig->sel, sizeof(x->sel));
-> +	if (m->msg_type == XFRM_MSG_MIGRATE_STATE) {
-> +		if (m->flags & XFRM_MIGRATE_STATE_UPDATE_SEL) {
-> +			u8 prefixlen = (m->new_family == AF_INET6) ? 128 : 32;
-> +
-> +			memcpy(&x->sel, &orig->sel, sizeof(x->sel));
-> +			x->sel.family      = m->new_family;
-> +			x->sel.prefixlen_d = prefixlen;
-> +			x->sel.prefixlen_s = prefixlen;
-> +			memcpy(&x->sel.daddr, &m->new_daddr, sizeof(x->sel.daddr));
-> +			memcpy(&x->sel.saddr, &m->new_saddr, sizeof(x->sel.saddr));
-> +		} else {
-> +			x->sel = *m->new_sel;
-
-nit: the mix of copy styles (memcpy and struct assignment) within this
-function, but especially here for x->sel, is a bit unpleasant.
-
-> +		}
-> +	} else {
-> +		memcpy(&x->sel, &orig->sel, sizeof(x->sel));
-> +	}
->  	memcpy(&x->lft, &orig->lft, sizeof(x->lft));
-
-[...]
-> diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
-> index 03fa4cabf601..a49edf7d6f78 100644
-> --- a/net/xfrm/xfrm_user.c
-> +++ b/net/xfrm/xfrm_user.c
-[...]
-> @@ -3125,7 +3145,7 @@ static int xfrm_do_migrate(struct sk_buff *skb, struct nlmsghdr *nlh,
->  			   struct nlattr **attrs, struct netlink_ext_ack *extack)
->  {
->  	struct xfrm_userpolicy_id *pi = nlmsg_data(nlh);
-> -	struct xfrm_migrate m[XFRM_MAX_DEPTH];
-> +	struct xfrm_migrate m[XFRM_MAX_DEPTH] = {};
-
-I'm not really opposed to this change, but what prompted it?
-
-
-[...]
-> +static int xfrm_do_migrate_state(struct sk_buff *skb, struct nlmsghdr *nlh,
-> +				 struct nlattr **attrs, struct netlink_ext_ack *extack)
-> +{
-> +	struct xfrm_user_migrate_state *um = nlmsg_data(nlh);
-> +	struct net *net = sock_net(skb->sk);
-> +	struct xfrm_user_offload xuo = {};
-> +	struct xfrm_migrate m = {};
-> +	struct xfrm_state *xc;
-> +	struct xfrm_state *x;
-> +	int err;
-> +
-> +	if (!um->id.spi) {
-> +		NL_SET_ERR_MSG(extack, "Invalid SPI 0x0");
-> +		return -EINVAL;
-> +	}
-> +
-> +	if (um->reserved) {
-> +		NL_SET_ERR_MSG(extack, "Reserved field must be zero");
-> +		return -EINVAL;
-> +	}
-> +
-> +	if ((um->flags & XFRM_MIGRATE_STATE_NO_OFFLOAD) &&
-> +	    attrs[XFRMA_OFFLOAD_DEV]) {
-> +		NL_SET_ERR_MSG(extack,
-> +			       "XFRM_MIGRATE_STATE_NO_OFFLOAD and XFRMA_OFFLOAD_DEV are mutually exclusive");
-
-Not a strong objection, but they don't really have to be? "don't
-inherit and set it from the one provided" sounds ok. (it's a bit
-unnecessary to say "don't inherit", but not an issue)
-
-XFRMA_OFFLOAD_DEV with !XFRM_MIGRATE_STATE_NO_OFFLOAD (inherit and
-also set from request) seems more problematic.
-
-> +		return -EINVAL;
-> +	}
-> +
-> +	copy_from_user_migrate_state(&m, um);
-> +
-> +	x = xfrm_state_lookup(net, m.old_mark.v & m.old_mark.m,
-> +			      &um->id.daddr, um->id.spi,
-> +			      um->id.proto, um->id.family);
-> +	if (!x) {
-> +		NL_SET_ERR_MSG(extack, "Can not find state");
-> +		return -ESRCH;
-> +	}
-> +
-> +	if (um->flags & XFRM_MIGRATE_STATE_UPDATE_SEL) {
-> +		u8 prefixlen = (x->sel.family == AF_INET6) ? 128 : 32;
-> +
-> +		if (x->sel.prefixlen_s != x->sel.prefixlen_d ||
-> +		    x->sel.prefixlen_d != prefixlen ||
-> +		    !xfrm_addr_equal(&x->sel.daddr, &x->id.daddr, x->sel.family) ||
-> +		    !xfrm_addr_equal(&x->sel.saddr, &x->props.saddr, x->sel.family)) {
-
-I think we need to be careful about families here too. id and sel
-could have different ones.
-
-[...]
-> +	if (attrs[XFRMA_MTIMER_THRESH]) {
-> +		err = verify_mtimer_thresh(!!m.encap, x->dir, extack);
-> +		if (err)
-> +			goto out;
-> +	}
-> +
-> +	if (attrs[XFRMA_NAT_KEEPALIVE_INTERVAL] &&
-> +	    nla_get_u32(attrs[XFRMA_NAT_KEEPALIVE_INTERVAL]) && !m.encap) {
-
-if (nla_get_u32_default(attrs[XFRMA_NAT_KEEPALIVE_INTERVAL], 0) && !m.encap)
-
-> +		NL_SET_ERR_MSG(extack,
-> +			       "NAT_KEEPALIVE_INTERVAL requires encapsulation");
-> +		err = -EINVAL;
-> +		goto out;
-> +	}
-> +
-> +	if (attrs[XFRMA_OFFLOAD_DEV]) {
-> +		m.xuo = nla_data(attrs[XFRMA_OFFLOAD_DEV]);
-> +	} else if (!(um->flags & XFRM_MIGRATE_STATE_NO_OFFLOAD) && x->xso.dev) {
-
-nit: this would be a bit more readable with
-
-    bool inherit_offload = !(um->flags & XFRM_MIGRATE_STATE_NO_OFFLOAD);
-
-> +		xuo.ifindex = x->xso.dev->ifindex;
-> +		if (x->xso.dir == XFRM_DEV_OFFLOAD_IN)
-> +			xuo.flags = XFRM_OFFLOAD_INBOUND;
-> +		if (x->xso.type == XFRM_DEV_OFFLOAD_PACKET)
-> +			xuo.flags |= XFRM_OFFLOAD_PACKET;
-
-copy_user_offload is doing almost exactly the same thing (copy from
-and xso to an xuo). It would be better to extract some helper
-(xso_to_xuo() ?) and use it in both places, otherwise they'll almost
-certainly get out of sync.
-
-> +		m.xuo = &xuo;
-> +	}
-> +
-> +	if (attrs[XFRMA_MARK])
-> +		m.new_mark = nla_data(attrs[XFRMA_MARK]);
-> +
-> +	if (attrs[XFRMA_SET_MARK])
-> +		xfrm_smark_init(attrs, &m.smark);
-> +	else
-> +		m.smark = x->props.smark;
-> +
-> +	m.mapping_maxage = attrs[XFRMA_MTIMER_THRESH] ?
-> +		nla_get_u32(attrs[XFRMA_MTIMER_THRESH]) : x->mapping_maxage;
-
-m.mapping_maxage = nla_get_u32_default(attrs[XFRMA_MTIMER_THRESH], x->mapping_maxage);
-
-> +	m.nat_keepalive_interval = attrs[XFRMA_NAT_KEEPALIVE_INTERVAL] ?
-> +		nla_get_u32(attrs[XFRMA_NAT_KEEPALIVE_INTERVAL]) :
-> +		x->nat_keepalive_interval;
-
-m.nat_keepalive_interval = nla_get_u32_default(attrs[XFRMA_NAT_KEEPALIVE_INTERVAL], x->nat_keepalive_interval);
-
-
--- 
-Sabrina
+--34mfdjxs7nhcxtld--
