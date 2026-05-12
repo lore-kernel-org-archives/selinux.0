@@ -1,185 +1,89 @@
-Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com [209.85.208.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FA0B3EDE68
-	for <selinux@vger.kernel.org>; Tue, 12 May 2026 18:06:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.172
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778609216; cv=pass; b=n3HP+DBkST3OI20GHm9ig2KEOu1NGHm6ajIJchdmAberbaYcga8si4fG4+IAY8YjvhmrQPo/fmoREoXdSqlq17V11R+xmJrl5nboF2qD8nBMt0sDJ15TQlSeP9q71UzGlPOZ2c4gHUImW+7u6fj/aJis382sH8DNf7Fy4FoeQNk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778609216; c=relaxed/simple;
-	bh=RsepkVlOQwK8tJflDJd+Bpgw+IpXVpQvgHN2zuwiyGU=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 145A43EDE61
+	for <selinux@vger.kernel.org>; Tue, 12 May 2026 18:07:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778609255; cv=none; b=hz3ZXyVT19TL5cu0MIPmvbH4+Ot4SDcd/pDiuLiEHeOTWAeWviRYrQSy8Si25kj8eUB4H2vW7259rpX6zpPa8dlqbtPeFK66GTULNFU70luXMLe9pwfgIlB6Lfdg2ECAzLWijLLqO+dByaWbYHq+U7fH9ftEFUbP+00OihLJeBc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778609255; c=relaxed/simple;
+	bh=1+WG2MzbBw4FYQ+ZqlnfYUFJjE67o+yVompxx5/7iXE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=OaqzF+iIlgqRiYVP6+nRh0R7YqZDqyzepc/53rmofHkRnyjr3Hz5mGm9vAqBu5Xtia7O0J6jg8DtGjeqBPLq2Vsg3OBBByPNyLAKI/f9aLsk156jvyzzJKlKtlNsG5hhRBHaPphukMSm7RilDBttpWe4hzUpfjniVECAqj4qiPs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=I7LIrER/; arc=pass smtp.client-ip=209.85.208.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=D0z/2Y8TKmQ9MguCZjRwxX+/9IFIqCipZ/ckspfOXKH/R8YTUhEio5Ec7TQnV0QScfq8DxOjGpALwosc+EfMsCuD5gdD1fEdAIkSFRKSF7m+W4EJLYRo5xsAONGmQamDsrp62cJcJyfygkb6+z3gXJ9+KmwRCgoQ5pRFzAMz4cA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H5T962cI; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="I7LIrER/"
-Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-39378db197aso59768271fa.3
-        for <selinux@vger.kernel.org>; Tue, 12 May 2026 11:06:55 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1778609214; cv=none;
-        d=google.com; s=arc-20240605;
-        b=S4pdQ9DUPg2Onz4NUfQTmCWnr5FumRmGhbjh74CghNzjSh5977qrpLmmkulSYWtfRD
-         tq73iLkDMi32yQSMmvRy4QnTu1lhq4wnY406it/wWwDmspsLZVOvRemgMbnQzRn0YbqH
-         oiRc67nwjDBj8exEXYxeZyLjXTSGy7m/ekjcsH1eIqSDKjdEmhA+xFwOLOdFnAgDwZ61
-         tnLBh8uTE68XIi4ob1exQX2W1t++BBewdnMNSdMAI1vLsE6OgX5Bn7v+upix8kSqMgo1
-         WUaQQuratxdMvdovTn0zTiRpybOiuoahCGD+n0QeBJ7pN7BzdBUDyEBdjCMIvUGbaXSa
-         TOtg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=P1RVcvH4nW/DRoZyk/ZmWs6zImOhmWezrI70+SM1q4o=;
-        fh=bDTdOLWha1wSJ80FIQlGMR6lDDvw+8q6Rg7De9t/wfA=;
-        b=K5SNg51LDyhy0K6fK6AoOEmro+Uf3nFXBSl/90FqfDlllkbXX6asKjKpB81GN63DJN
-         Qbg1oVbbYg1O1HfLMPGcziEL/yR+wuKbhyA5ZZUD2wAmfTdqj61YWJzjFhkEkxh/ldJs
-         K7RNh+XP+szeoA5xjlqqFNpTbdrZxRmBlWJJUm2mYuk7AhrNpHID3uj13fSo+50wmpj2
-         +uT9AuJ6uFCZpMqJRzkNttqkcttcCvJBTTWCbIb/KbDAYXkZN/fndMqY9CRyN3suF4Fw
-         pj9fm/rlfbpdiOXKbMPD/ymsQIedCb6WBqcbYP+7igwtMlcSmNa/on/IbGZ8QULWk85D
-         uldw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778609214; x=1779214014; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=P1RVcvH4nW/DRoZyk/ZmWs6zImOhmWezrI70+SM1q4o=;
-        b=I7LIrER/vwOIbx/OKBjAHr6ShPAgx56IWASR7eQP72476EXVUNVM0n8pUMZ9Xp823S
-         ti+he6wEAeg40QbiMTpPTIYbxVKwk1Ti9NJMLjg5ti5iSTFmjZ3hQKQkjQBj9Kq21eCE
-         X6vfnLkV9l/fraWMsTgfC6xIFNjKpPg49jLUM03lM0GCS7WvZ4xxCsvoBIyGMC2+ibeL
-         3FvayzJ9nbn64K+qEyt4w8S1aZXjjcD3V376n0XQWkIBeX4yh5asTz1gY+UD+OVMhegt
-         cMZJBBPgzh8z1IuoZpPOu0GV3skJmYs+Gt3pKPAIFLzZH7kUmq0ew+YJKpUz5v7ciPqy
-         U2gg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778609214; x=1779214014;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=P1RVcvH4nW/DRoZyk/ZmWs6zImOhmWezrI70+SM1q4o=;
-        b=IFRUwhg7IjyHoGRCe/6p/6rr/rgHKpNGXF5J4Jmd6O4WK9hhDgcGmrfjlnd/zzBi8o
-         J5QtvAWB8llSQUMI8r3Dxbrlnr4zOdFdBFWCL6lTQDD379eGJIfzYd0fOT2/3r9ChpF5
-         tVY2THaz5FydlxMsMKrnVX6YFSV8XjwTIdOGEYfCHMczrNwvPExl1iuDr9m0w0H5rwuI
-         ICcing8WuPqVWvCpVInS8t9fXWg5ANclu2zOrL839hQk/X5hFFlfxygpMTf9iATnrsGs
-         rRg1y8PmwADE+DhjKtIxiqA5o1mjW+FG11IU7DARitf/xw/N4+mNWmUq430aZdFPL05E
-         gWOw==
-X-Forwarded-Encrypted: i=1; AFNElJ/Avk/h3zJ7f5VFnXZb+kvywd1Tni5Lpr8zfnOsDOxpZwH8W9ydf9ne6Hwlhf9LzyWnUySc5asb@vger.kernel.org
-X-Gm-Message-State: AOJu0YzxqkW++pEWI5iRILl6ejKVivGWwGeX63valxk4Igfqooi0c/+Y
-	jCYcE9xrrI/iERxoeSGKT4E+L8NgwtW8rlxxc23AguAf5plUIA6BNpXr+9Uh9kLffEJo1u8v9VO
-	+ehp+CfFMSuoV05UVR/Bynjx1RB+LLa8=
-X-Gm-Gg: Acq92OGgw4v9B/WjSkmI9kX0haBBPHiH9ZuIi8iQHq0ng/+2l9+TrkYOs+XB3pd22R9
-	8WPz5RANhb2025ctDYAjbAQSfrXDnf8+B5WLgEYVnGhnU61bYVvF9fUchGRHTvEXtCLPdZ3nkSI
-	JD0nJVVRM7BJiBWANwUy7Idbx49rX/X+mihQOW2kcApQd/1b91tsCNEYhorjc1LB9rNtIBof4x9
-	QLeMXIjp06gBzrtsGJ/EgrB2x7f0S7v9JSMpTnAhBajxHRWd2Y8Kcgvyjez1u2fX+CttGAZoq3U
-	zj0vGG9eNUXFuyw=
-X-Received: by 2002:a05:651c:f07:b0:393:a639:49fd with SMTP id
- 38308e7fff4ca-3944b586188mr7841fa.22.1778609213383; Tue, 12 May 2026 11:06:53
- -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H5T962cI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D92C8C2BCF6
+	for <selinux@vger.kernel.org>; Tue, 12 May 2026 18:07:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778609254;
+	bh=1+WG2MzbBw4FYQ+ZqlnfYUFJjE67o+yVompxx5/7iXE=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=H5T962cIa5YQAKbg2JMJpLHLXX0LIX4A/vsslTENuD40PviRXPDpCD1h2FG+Hc6h+
+	 ClBj2aow5t3Uz0i6CoiVlmus+bX6E2j8L55/02Ho4CAzSRDsR9z3zam3QD8j9XBq9x
+	 6Cr2zmoVJJJnhuC39AvIcDA6m66GNbMaPUaPmTfCagciAIFFlCgAA/0/ejUM8hmait
+	 qWrXjjl0lS9+RJRtLVYic1P3T8/1bk28oBEapxMvuwuT27xzXSkpFWvr79YkCFqSAV
+	 laF9tsuPrMN2TCCBLlDSJVWJKUh7ZEQa5GnDO0Nczt9ZME1RGNwWOkqpRopB4mEpnZ
+	 CHtihsKXtf6jg==
+Received: by mail-qv1-f54.google.com with SMTP id 6a1803df08f44-8b3d6b215cfso91847676d6.3
+        for <selinux@vger.kernel.org>; Tue, 12 May 2026 11:07:34 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ/muRgWw1pQ8Fmhdc8bu/38p+HX/wVtAVwtRHgtRV9/N5Jm/KT7MOu/m5jwp0BPfBpFMeyfrm9Q@vger.kernel.org
+X-Gm-Message-State: AOJu0YxaDTYe5ko8ZcnoNJPAD759+KmkyBABwXNWghgFnPkKFePJrEey
+	oSRwLWZ1n8Fj4QetxN3QUXeIiZerkdAhaFXmwwCbfKWZsehGP8wkSSASJZZF2clnoSRiFhpYIrn
+	F2jQeiDgeqsZZKcOKLQ5KR4Hy3mHoz+8=
+X-Received: by 2002:a05:6214:5981:b0:8c6:2245:3f49 with SMTP id
+ 6a1803df08f44-8c6632d9dd5mr59505866d6.32.1778609254036; Tue, 12 May 2026
+ 11:07:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260330015148.1482594-1-tweek@google.com> <CAP+JOzS0p2d=43EiumHpe9ESQTjaYuk4tAhyD8Er44p7HUAjgg@mail.gmail.com>
- <87pl3b8o99.fsf@redhat.com> <CAP+JOzRNDtiagk0AG_WjX_weaNLJetTrHd+CazTVWuv+knhzaw@mail.gmail.com>
-In-Reply-To: <CAP+JOzRNDtiagk0AG_WjX_weaNLJetTrHd+CazTVWuv+knhzaw@mail.gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Tue, 12 May 2026 14:06:41 -0400
-X-Gm-Features: AVHnY4KCXIK7PYjwBatZeyFefnR_J_pIdXutIICdim67OVeqKqOqraHCvEt9rhE
-Message-ID: <CAP+JOzQSwABaGDUZGo+NK+_zqpm0e+0RONz+siFJcTZaC0oN1Q@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: Fix off-by-one error in cats_ebitmap_len
-To: Petr Lautrbach <lautrbach@redhat.com>
-Cc: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
-	selinux@vger.kernel.org, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Jeffrey Vander Stoep <jeffv@google.com>
+References: <20260509015208.3853132-1-song@kernel.org> <20260509015208.3853132-7-song@kernel.org>
+ <42a9075e-a4b4-4eb7-b96e-48e5c0cd2f3a@I-love.SAKURA.ne.jp> <CAHC9VhT9vvaoYpRX4fPZ_H13+PaqG72CpRbS+d=9xgMBaKHo8w@mail.gmail.com>
+In-Reply-To: <CAHC9VhT9vvaoYpRX4fPZ_H13+PaqG72CpRbS+d=9xgMBaKHo8w@mail.gmail.com>
+From: Song Liu <song@kernel.org>
+Date: Tue, 12 May 2026 11:07:22 -0700
+X-Gmail-Original-Message-ID: <CAPhsuW6c4kbVmBJ+4=J2WgD8JKv7q_cZqXSE3+EPkWKro0dh1g@mail.gmail.com>
+X-Gm-Features: AVHnY4LZp5deom77-xEaW01b2jRxtdWLWeWdvcHJesrle08Ns_ME_r63-071_KQ
+Message-ID: <CAPhsuW6c4kbVmBJ+4=J2WgD8JKv7q_cZqXSE3+EPkWKro0dh1g@mail.gmail.com>
+Subject: Re: [PATCH v3 6/7] tomoyo: Convert from sb_mount to granular mount hooks
+To: Paul Moore <paul@paul-moore.com>
+Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, 
+	linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	jmorris@namei.org, serge@hallyn.com, viro@zeniv.linux.org.uk, 
+	brauner@kernel.org, jack@suse.cz, john.johansen@canonical.com, 
+	stephen.smalley.work@gmail.com, omosnace@redhat.com, mic@digikod.net, 
+	gnoack@google.com, takedakn@nttdata.co.jp, herton@canonical.com, 
+	kernel-team@meta.com, selinux@vger.kernel.org, apparmor@lists.ubuntu.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, May 4, 2026 at 9:47=E2=80=AFAM James Carter <jwcart2@gmail.com> wro=
-te:
+On Tue, May 12, 2026 at 6:32=E2=80=AFAM Paul Moore <paul@paul-moore.com> wr=
+ote:
 >
-> On Mon, May 4, 2026 at 6:25=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.c=
-om> wrote:
+> On Tue, May 12, 2026 at 7:03=E2=80=AFAM Tetsuo Handa
+> <penguin-kernel@i-love.sakura.ne.jp> wrote:
+> > On 2026/05/09 10:52, Song Liu wrote:
+> > > Replace tomoyo_sb_mount() with granular mount hooks. Each hook
+> > > reconstructs the MS_* flags expected by tomoyo_mount_permission()
+> > > using the original flags parameter where available.
 > >
-> > James Carter <jwcart2@gmail.com> writes:
+> > Please fold below diff into this patch. Then,
 > >
-> > > On Sun, Mar 29, 2026 at 9:51=E2=80=AFPM Thi=C3=A9baud Weksteen <tweek=
-@google.com> wrote:
-> > >>
-> > >> In cats_ebitmap_len(), i-1 was incorrectly used instead of i for loo=
-king up
-> > >> category names at the end of a range. This resulted in an under-allo=
-cation
-> > >> of the buffer for the CIL representation of category ranges, which c=
-auses
-> > >> cats_ebitmap_to_str() to fail its safety check and return (null).
-> > >>
-> > >> This fix correctly uses i (the current bit index) to look up the nam=
-e for
-> > >> the category at the end of the range.
-> > >>
-> > >> Proof of Concept (PoC) Policy:
-> > >>   class p sid kernel class p { f }
-> > >>   sensitivity s0; dominance { s0 }
-> > >>   category c0; category c1_very_long_category_name;
-> > >>   level s0:c0.c1_very_long_category_name;
-> > >>   mlsconstrain p { f } l1 =3D=3D l2;
-> > >>   type t; allow t self:p { f };
-> > >>   role r; role r types { t };
-> > >>   user u roles r level s0 range s0 - s0:c0.c1_very_long_category_nam=
-e;
-> > >>   sid kernel u:r:t:s0 - s0:c0.c1_very_long_category_name
-> > >>
-> > >> Reproduction steps:
-> > >>   1. checkpolicy -M -o poc.bin poc.conf
-> > >>   2. checkpolicy -M -b -C -o poc.cil poc.bin
-> > >>   3. cat poc.cil | grep userrange
-> > >>      Before: (userrange u ((s0) (s0 (null))))
-> > >>      After: (userrange u ((s0) (s0 (c0 c1_very_long_category_name)))=
-)
-> > >>
-> > >> Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
-> > >
-> > > Signed-off-by: James Carter <jwcart2@gmail.com>
-> >
-> > Was this supposes to be Acked-by?
-> >
+> > Acked-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> > ---
+> >  security/tomoyo/tomoyo.c | 60 ++++++++++++++++++++++++++++++++++++++--
+> >  1 file changed, 58 insertions(+), 2 deletions(-)
 >
-> Yes, sorry about that.
+> Thanks Tetsuo.
 >
-> Acked-by: James Carter <jwcart2@gmail.com>
->
+> Song, assuming you have no objections to the comment blocks, please
+> fold in Tetsuo's additions in your next version and add his ACK to
+> this patch.
 
-Merged.
-Thanks,
-Jim
+Updated 6/7 with these changes. Thanks to both of you!
 
-> > >> ---
-> > >>  libsepol/src/kernel_to_cil.c | 4 ++--
-> > >>  1 file changed, 2 insertions(+), 2 deletions(-)
-> > >>
-> > >> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_c=
-il.c
-> > >> index 06cf4498..49040ae4 100644
-> > >> --- a/libsepol/src/kernel_to_cil.c
-> > >> +++ b/libsepol/src/kernel_to_cil.c
-> > >> @@ -1018,9 +1018,9 @@ static size_t cats_ebitmap_len(struct ebitmap =
-*cats, char **val_to_name)
-> > >>
-> > >>                 len +=3D strlen(val_to_name[start]);
-> > >>                 if (range > 2) {
-> > >> -                       len +=3D strlen(val_to_name[i-1]) + strlen("=
-(range  ) ");
-> > >> +                       len +=3D strlen(val_to_name[i]) + strlen("(r=
-ange  ) ");
-> > >>                 } else if (range =3D=3D 2) {
-> > >> -                       len +=3D strlen(val_to_name[i-1]) + 2;
-> > >> +                       len +=3D strlen(val_to_name[i]) + 2;
-> > >>                 } else if (range =3D=3D 1) {
-> > >>                         len +=3D 1;
-> > >>                 }
-> > >> --
-> > >> 2.53.0.1018.g2bb0e51243-goog
-> > >>
-> >
+Song
