@@ -1,182 +1,173 @@
-Received: from vmicros1.altlinux.org (vmicros1.altlinux.org [194.107.17.57])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 5BA0635675E;
-	Mon, 11 May 2026 22:43:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.107.17.57
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 622AF3A9D8D
+	for <selinux@vger.kernel.org>; Tue, 12 May 2026 09:11:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778539412; cv=none; b=XH+C5Y5YCbQGJQ5kw0mRN/WuwYm2/qlQcjXAzyRVdXob6C1l0BplOsd7ix5+sg8VYKDPcQF/Y9A4f4X4BjV6Qm+JH/aIZVmby3Vou7mg2fTELJma4KM9Zn747mjsHjBJ8NB3mnC6iipdIJRUI3KvoaW2CeAEqCPvVO65pR2lr5o=
+	t=1778577098; cv=none; b=XuNWATSqe+qvpJV2djDeaTR5cmIghPXOADppRf0TaqS2oNe0vj63YPwB4YLs1DEOCzpLpWvJ9BSMWJZSE+Qb3y0ueMKu4uPCTFrTZw/4PTGpevEuP5CN2igkrzGSMzNDhkXQCqwDGsnBV8lqnozkGWvmO6uv2Flx4uOme0yRQpM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778539412; c=relaxed/simple;
-	bh=vdQIJIYlf56t9ak7ABaKlG7aKUUD3JExwr5e4ZpbG3Y=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Y6aa0/n2bvSISyP/5ruWoM/0yMd64ep57pYkRwAy641HR368EjLHa/xR98a9nRBRAdq7j+L7TTbO8DlGLHeAWq1rBhs21gw3nVd7bgDHYh0D40SmVZn38n4p+YSLyT8ne28KnFIs+IJoJrSHr2dWdOGhG7H5yjK6J0zPf3XPFg8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=altlinux.org; spf=pass smtp.mailfrom=altlinux.org; arc=none smtp.client-ip=194.107.17.57
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=altlinux.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=altlinux.org
-Received: from imap.altlinux.org (imap.altlinux.org [194.107.17.38])
-	by vmicros1.altlinux.org (Postfix) with ESMTP id 8AA0F72C8CC;
-	Tue, 12 May 2026 01:43:28 +0300 (MSK)
-Received: from altlinux.org (unknown [193.43.10.9])
-	by imap.altlinux.org (Postfix) with ESMTPSA id 755B636D016E;
-	Tue, 12 May 2026 01:43:28 +0300 (MSK)
-Date: Tue, 12 May 2026 01:43:28 +0300
-From: Vitaly Chikunov <vt@altlinux.org>
-To: Paul Moore <paul@paul-moore.com>
-Cc: linux-security-module@vger.kernel.org, bpf@vger.kernel.org, 
-	selinux@vger.kernel.org, KP Singh <kpsingh@kernel.org>, 
-	Matt Bobrowski <mattbobrowski@google.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] lsm= with bpf before selinux breaks fscreate with EINVAL
-Message-ID: <agJajS11YK1XGB-y@altlinux.org>
-References: <agDuCdGIeM-6z-j-@altlinux.org>
- <CAHC9VhQ4VyAvG-z2h2NFpPx9PcJP4Ot2Ap=MPbCRk2TosJWOTA@mail.gmail.com>
- <agI9Rdi-72f8dNbB@altlinux.org>
- <CAHC9VhRWNEzYx3Xxtxv_0BBkM7skisVdnKXx3CGn3S=aoBCiyQ@mail.gmail.com>
- <agJPqiSKvHrrg6Qn@altlinux.org>
+	s=arc-20240116; t=1778577098; c=relaxed/simple;
+	bh=J/qTQA7WOSp0NDpJTrrE9CeifCSS0KYK7Fhqb5IuZRE=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=q9SM/QPbdZyucm5Tnzj2nd7PrXlvlWYvXkFZiuZFO/Ax5aj600kCvOshfpCRAKnDxP5q5K+8/JpL/OSTkApP3IOxmWJ/aH+bz+hPLDvFobqVCmIgl3+g3P+FpRy1uhG60iVGIx1bAT2teiTvCU8jrj0plrxNd/DxbVmPyw3ULAE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PWHZXjeI; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PWHZXjeI"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1778577095;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=p80uB9ppx8DS0thaGwc0VH0L36R/21WsbTghYE9KDbw=;
+	b=PWHZXjeIrSy+VsffKsMKeLjOC3+O1hMqczZMEHI3xV7U2mDBv55yFhaytySeHU9aIoKVEN
+	WY5rd8KpaGkNsJy7CB0fH/XRZzX7GVM+y4MMdkyOYIFwv4oM94ihSGdUsdjbXV6kPtNXbA
+	SrlVIiwKWZdxavxnvlw88cTfuc1L2pA=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-540-EieOxPp9O_ajxHZeof5XwA-1; Tue,
+ 12 May 2026 05:11:32 -0400
+X-MC-Unique: EieOxPp9O_ajxHZeof5XwA-1
+X-Mimecast-MFC-AGG-ID: EieOxPp9O_ajxHZeof5XwA_1778577088
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 228A618005B4;
+	Tue, 12 May 2026 09:11:27 +0000 (UTC)
+Received: from [192.168.1.153] (headnet01.pony-001.prod.iad2.dc.redhat.com [10.2.32.101])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 09A6130001BB;
+	Tue, 12 May 2026 09:11:17 +0000 (UTC)
+From: Albert Esteve <aesteve@redhat.com>
+Subject: [PATCH RFC 0/5] memcg: dma-buf per-cgroup accounting via pid_fd
+Date: Tue, 12 May 2026 11:10:42 +0200
+Message-Id: <20260512-v2_20230123_tjmercier_google_com-v1-0-6326701c3691@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <agJPqiSKvHrrg6Qn@altlinux.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x2NQQqDMBAAvyJ7bmCTqEivhT7Aa5HQxk3cUk3Zi
+ BTEvzd4m7nM7JBJmDJcqx2ENs6cliL6UoGfnkskxWNxMGhabLBTm3GFLWpj3fqeSTyTuJhS/JD
+ zaVahroMPL902FqFkvkKBf+fiAf39BsNx/AFCOWAcdwAAAA==
+X-Change-ID: 20260508-v2_20230123_tjmercier_google_com-f44fcfb16530
+To: Tejun Heo <tj@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>, 
+ =?utf-8?q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, 
+ Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, 
+ Sumit Semwal <sumit.semwal@linaro.org>, 
+ =?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
+ Michal Hocko <mhocko@kernel.org>, Roman Gushchin <roman.gushchin@linux.dev>, 
+ Shakeel Butt <shakeel.butt@linux.dev>, Muchun Song <muchun.song@linux.dev>, 
+ Andrew Morton <akpm@linux-foundation.org>, 
+ Benjamin Gaignard <benjamin.gaignard@collabora.com>, 
+ Brian Starkey <Brian.Starkey@arm.com>, John Stultz <jstultz@google.com>, 
+ "T.J. Mercier" <tjmercier@google.com>, 
+ Christian Brauner <brauner@kernel.org>, Paul Moore <paul@paul-moore.com>, 
+ James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+ Stephen Smalley <stephen.smalley.work@gmail.com>, 
+ Ondrej Mosnacek <omosnace@redhat.com>, Shuah Khan <shuah@kernel.org>
+Cc: cgroups@vger.kernel.org, linux-doc@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, 
+ dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, 
+ linux-mm@kvack.org, linux-security-module@vger.kernel.org, 
+ selinux@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+ Albert Esteve <aesteve@redhat.com>, mripard@kernel.org, echanude@redhat.com
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1778577077; l=4167;
+ i=aesteve@redhat.com; s=20260303; h=from:subject:message-id;
+ bh=J/qTQA7WOSp0NDpJTrrE9CeifCSS0KYK7Fhqb5IuZRE=;
+ b=w9BOSU+QzmBOQFJx39er3JufOMU+NTrwANFwrY1GjbF+ilD6YeDqgSMvjLwB7Lz3uKINM9vQE
+ qrkVFKK2zfBDqr0ZUk82SaBAThNIU7vg1o9c6Q1zxh0DX4Y13wK5MeR
+X-Developer-Key: i=aesteve@redhat.com; a=ed25519;
+ pk=YSFz6sOHd2L45+Fr8DIvHTi6lSIjhLZ5T+rkxspJt1s=
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-Paul,
+This RFC builds on T.J. Mercier's earlier series [1] which added
+a memory.stat counter for exported dma-bufs and a binder-backed
+mechanism to transfer charges between cgroups.
 
-On Tue, May 12, 2026 at 12:54:21AM +0300, Vitaly Chikunov wrote:
-> On Mon, May 11, 2026 at 05:49:39PM -0400, Paul Moore wrote:
-> > On Mon, May 11, 2026 at 5:03 PM Vitaly Chikunov <vt@altlinux.org> wrote:
-> > > On Mon, May 11, 2026 at 04:19:34PM -0400, Paul Moore wrote:
-> > > > On Sun, May 10, 2026 at 5:17 PM Vitaly Chikunov <vt@altlinux.org> wrote:
-> > > > >
-> > > > > Hi,
-> > > > >
-> > > > > We have boot failure when CONFIG_LSM has "bpf" listed before "selinux"
-> > > > > (without bpf lsm scripts loaded). (This also happens with a boot with
-> > > > > "security=selinux" if selinux was not in LSM= list but bpf is.)
-> > > > >
-> > > > > systemd reports on the failing boot attempt:
-> > > > >
-> > > > >   Failed to set SELinux security context generic_u:object_r:device:s0 for /dev/shm: Invalid argument
-> > > > >   Mounting tmpfs to /dev/shm of type tmpfs with options mode=01777.
-> > > > >   Mounting tmpfs (tmpfs) on /dev/shm (MS_NOSUID|MS_NODEV|MS_STRICTATIME "mode=01777")...
-> > > > >   Failed to mount tmpfs (type tmpfs) on /dev/shm (MS_NOSUID|MS_NODEV|MS_STRICTATIME "mode=01777"): No such file or directory
-> > > > >   Failed to set SELinux security context generic_u:object_r:device:s0 for /dev/pts: Invalid argument
-> > > > >   Mounting devpts to /dev/pts of type devpts with options mode=0620,gid=5.
-> > > > >   Mounting devpts (devpts) on /dev/pts (MS_NOSUID|MS_NOEXEC "mode=0620,gid=5")...
-> > > > >   Failed to mount devpts (type devpts) on /dev/pts (MS_NOSUID|MS_NOEXEC "mode=0620,gid=5"): No such file or directory
-> > > > >   No filesystem is currently mounted on /sys/fs/cgroup.
-> > > > >   Failed to set SELinux security context generic_u:object_r:def_t:s0 for /sys/fs/cgroup: Invalid argument
-> > > > >   Mounting cgroup2 to /sys/fs/cgroup of type cgroup2 with options nsdelegate,memory_recursiveprot.
-> > > > >   Mounting cgroup2 (cgroup2) on /sys/fs/cgroup (MS_NOSUID|MS_NODEV|MS_NOEXEC "nsdelegate,memory_recursiveprot")...
-> > > > >   Failed to set SELinux security context generic_u:object_r:def_t:s0 for /sys/fs/pstore: Invalid argument
-> > > > >   Mounting pstore to /sys/fs/pstore of type pstore with options n/a.
-> > > > >   Mounting pstore (pstore) on /sys/fs/pstore (MS_NOSUID|MS_NODEV|MS_NOEXEC "")...
-> > > > >   Failed to set SELinux security context generic_u:object_r:def_t:s0 for /sys/fs/bpf: Invalid argument
-> > > > >   Mounting bpf to /sys/fs/bpf of type bpf with options mode=0700.
-> > > > >   Mounting bpf (bpf) on /sys/fs/bpf (MS_NOSUID|MS_NODEV|MS_NOEXEC "mode=0700")...
-> > > > >   [!!!!!!] Failed to mount API filesystems.
-> > > > >   Freezing execution
-> > > > >
-> > > > > 'Invalid arguments' seems from setfscreatecon_raw.
-> > > > >
-> > > > > Reproducer:
-> > > > >
-> > > > >   Boot with lsm=lockdown,capability,landlock,yama,safesetid,bpf,selinux,ima,evm
-> > > > >
-> > > > >   (none):~# cat /proc/thread-self/attr/current
-> > > > >   cat: /proc/thread-self/attr/current: Invalid argument
-> > > > >   (none):~# echo > /proc/thread-self/attr/fscreate
-> > > > >   bash: echo: write error: Invalid argument
-> > > > >
-> > > > > This appears to be caused by security_getprocattr / security_setprocattr
-> > > > > iterating until the first hook defined (which is bpf) and returning with
-> > > > > default value -EINVAL before selinux even sees them.
-> > > >
-> > > > Thanks for the problem report, the general recommendation is to place
-> > > > the BPF LSM towards the end of the list (see the CONFIG_LSM Kconfig
-> > > > help text), but we're trying to ensure that the BPF LSM works properly
-> > > > when placed anywhere in that list.
-> > >
-> > > I think if the order is important it should be handled in the code like
-> > > for capabilities and ima/evm LSMs, not by forcing the user to discover
-> > > the correct order with trial and error.
-> > 
-> > Patches are always welcome, although as I mentioned to you previously
-> > we are working towards supporting arbitrary ordering for BPF LSMs.
-> > 
-> > > > My apologies if you're abilities are well beyond this, but if you are
-> > > > familiar with patching and building your own kernel, have you tried
-> > > > changing the LSM_RET_DEFAULT value for those functions to zero/0?
-> > > > Assuming userspace is happy with that, I believe it may solve this
-> > > > problem.
-> > >
-> > > I can patch and test if this is useful to find the correct solution, but
-> > > the description is a bit vague. Did you mean
-> > >
-> > >   include/linux/lsm_hook_defs.h:301:LSM_HOOK(int, -EINVAL, getprocattr, struct task_struct *p, const char *name,
-> > >   include/linux/lsm_hook_defs.h:303:LSM_HOOK(int, -EINVAL, setprocattr, const char *name, void *value, size_t size)
-> > >
-> > > In these lines to replace -EINVAL with 0?
-> > 
-> > The patch below is what I had in mind (although be warned that was
-> > just a cut-n-paste into this email so it is likely whitespace
-> > damaged).  If you are able to give that a test it would be great, if
-> > not, I can throw it on the todo pile.
-> > 
-> > diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-> > index 2b8dfb35caed..12724e259900 100644
-> > --- a/include/linux/lsm_hook_defs.h
-> > +++ b/include/linux/lsm_hook_defs.h
-> > @@ -298,9 +298,9 @@ LSM_HOOK(int, -EOPNOTSUPP, getselfattr, unsigned int attr,
-> >         struct lsm_ctx __user *ctx, u32 *size, u32 flags)
-> > LSM_HOOK(int, -EOPNOTSUPP, setselfattr, unsigned int attr,
-> >         struct lsm_ctx *ctx, u32 size, u32 flags)
-> > -LSM_HOOK(int, -EINVAL, getprocattr, struct task_struct *p, const char *name,
-> > +LSM_HOOK(int, 0, getprocattr, struct task_struct *p, const char *name,
-> >         char **value)
-> > -LSM_HOOK(int, -EINVAL, setprocattr, const char *name, void *value, size_t size)
-> > +LSM_HOOK(int, 0, setprocattr, const char *name, void *value, size_t size)
-> > LSM_HOOK(int, 0, ismaclabel, const char *name)
-> > LSM_HOOK(int, -EOPNOTSUPP, secid_to_secctx, u32 secid, struct lsm_context *cp)
-> > LSM_HOOK(int, -EOPNOTSUPP, lsmprop_to_secctx, struct lsm_prop *prop,
-> 
-> We will test it and report, but this may take some time.
+The first commit is taken almost verbatim from TJ's series:
+it introduces MEMCG_DMABUF as a dedicated per-cgroup stat, so that
+the total exported dma-buf footprint is visible both system-wide
+(via the root cgroup) and per-application (via per-process cgroups).
+This avoids the overhead of DMABUF_SYSFS_STATS and integrates
+naturally into the existing cgroup memory hierarchy.
 
-Before trying the full system boot test, I tried to reproducer I posted
-before. With this patch applied (just ensure it's correct) over v6.12.87:
+The rest of the series departs from TJ's approach. While the first
+commit introduces the memcg stat infrastructure for dmabufs, the
+export-time charging it introduces in dma_buf_export() is then
+superseded: we charge at dma_heap_ioctl_allocate() time, using a
+new charge_pid_fd field in struct dma_heap_allocation_data. The
+allocator opens a pidfd for its client (e.g., from binder's
+sender_pid), passes it to the ioctl, and the kernel charges the
+buffer directly to the client's cgroup at allocation time, so no
+transfer step is needed.
 
-diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index 9eca013aa5e1..b38f6194699b 100644
---- a/include/linux/lsm_hook_defs.h
-+++ b/include/linux/lsm_hook_defs.h
-@@ -288,9 +288,9 @@ LSM_HOOK(int, -EOPNOTSUPP, getselfattr, unsigned int attr,
-          struct lsm_ctx __user *ctx, u32 *size, u32 flags)
- LSM_HOOK(int, -EOPNOTSUPP, setselfattr, unsigned int attr,
-          struct lsm_ctx *ctx, u32 size, u32 flags)
--LSM_HOOK(int, -EINVAL, getprocattr, struct task_struct *p, const char *name,
-+LSM_HOOK(int, 0, getprocattr, struct task_struct *p, const char *name,
-          char **value)
--LSM_HOOK(int, -EINVAL, setprocattr, const char *name, void *value, size_t size)
-+LSM_HOOK(int, 0, setprocattr, const char *name, void *value, size_t size)
- LSM_HOOK(int, 0, ismaclabel, const char *name)
- LSM_HOOK(int, -EOPNOTSUPP, secid_to_secctx, u32 secid, char **secdata,
-          u32 *seclen)
+This decouples the accounting path from binder entirely:
+any allocator that knows its client's PID can use the pid_fd
+mechanism regardless of the IPC transport in use.
 
-1. `cat /proc/thread-self/attr/current` does not report `kernel` as before.
-2. `echo > /proc/thread-self/attr/fscreate` process hangs in R state, with strace
-showing infinite loop of
-  write(1, "\n", 1)                       = 0
-  write(1, "\n", 1)                       = 0
-  write(1, "\n", 1)                       = 0
+The cross-cgroup charging capability requires access control.
+Patches #3 and #4 add a generic LSM hook (security_dma_heap_alloc)
+and an SELinux implementation based on a new dma_heap object class
+with a charge_to permission, so policy authors can express which
+domains are allowed to charge memory to another domain's cgroup.
 
-Thanks,
+Last patch adds some tests to verify the new charge_pid_fd field.
 
-> 
-> Thanks,
-> 
-> > 
-> > -- 
-> > paul-moore.com
+We are sending it as an RFC to spark broader discussion. It may or
+may not be the right path forward, and we welcome feedback on the
+trade-offs.
+
+Collision note: Eric Chanudet's series [2] adds __GFP_ACCOUNT to
+system_heap page allocations as an opt-in module parameter. That
+approach charges pages to the allocator's own kmem, which overlaps with
+MEMCG_DMABUF. This series explicitly removes __GFP_ACCOUNT from system
+heap allocations and routes all accounting through the MEMCG_DMABUF
+path to avoid double-counting.
+
+[1] https://lore.kernel.org/cgroups/20230109213809.418135-1-tjmercier@google.com/
+[2] https://lore.kernel.org/r/20260113-dmabuf-heap-system-memcg-v2-0-e85722cc2f24@redhat.com
+
+Signed-off-by: Albert Esteve <aesteve@redhat.com>
+---
+Albert Esteve (4):
+      dma-heap: charge dma-buf memory via explicit memcg
+      security: dma-heap: Add dma_heap_alloc LSM hook
+      selinux: Restrict cross-cgroup dma-heap charging
+      selftests/dmabuf-heaps: Add dma-buf memcg accounting tests
+
+T.J. Mercier (1):
+      memcg: Track exported dma-buffers
+
+ Documentation/admin-guide/cgroup-v2.rst            |   5 +
+ drivers/dma-buf/dma-buf.c                          |   7 +
+ drivers/dma-buf/dma-heap.c                         |  54 +++++-
+ drivers/dma-buf/heaps/system_heap.c                |   2 -
+ include/linux/dma-buf.h                            |   4 +
+ include/linux/lsm_hook_defs.h                      |   1 +
+ include/linux/memcontrol.h                         |  37 ++++
+ include/linux/security.h                           |   7 +
+ include/uapi/linux/dma-heap.h                      |   6 +
+ mm/memcontrol.c                                    |  19 ++
+ security/security.c                                |  16 ++
+ security/selinux/hooks.c                           |   7 +
+ security/selinux/include/classmap.h                |   1 +
+ tools/testing/selftests/cgroup/Makefile            |   2 +-
+ tools/testing/selftests/cgroup/test_memcontrol.c   | 143 +++++++++++++-
+ tools/testing/selftests/dmabuf-heaps/config        |   1 +
+ tools/testing/selftests/dmabuf-heaps/dmabuf-heap.c | 126 ++++++++++++-
+ tools/testing/selftests/dmabuf-heaps/vmtest.sh     | 205 +++++++++++++++++++++
+ 18 files changed, 633 insertions(+), 10 deletions(-)
+---
+base-commit: 74fe02ce122a6103f207d29fafc8b3a53de6abaf
+change-id: 20260508-v2_20230123_tjmercier_google_com-f44fcfb16530
+
+Best regards,
+-- 
+Albert Esteve <aesteve@redhat.com>
+
