@@ -1,141 +1,115 @@
-Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
+Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B99BB3B841B
-	for <selinux@vger.kernel.org>; Tue, 12 May 2026 15:39:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.182
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778600385; cv=pass; b=qBgMFwWxKMUf14OL5oMFEw7ORR8PVShNqElajgGiaYkcOB20RV4Whv/gLD9tJ3q8WfyA2ISmpWmqB572abZj2T9CALRVAVSfB7HAZSUYTWWn3H9cgxxK+11dGwxhER2WZvp4zzRUCroxHdGoQuQvJ52q5sjxArR78PVZiJDCOYk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778600385; c=relaxed/simple;
-	bh=bwWeruTmqY+g1Dne5zVi+IQagJadoWacOUnx83e5aFs=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=VZnWYXLzYsWC5TXTDy/dg4i7buPZ731Um45YuzVFX81Av9khsBpxRXlUfR4FnBif2REMz27HZJSWEpStVvj+b0loEcnvs/0vwAv1J/oMlTXWdM8+elpg2NKfZRC5FnxFY7D23ok9YKie0vGMru51tXtoqEd8q4JH+1s4w1SosO8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LO1VOstT; arc=pass smtp.client-ip=209.85.214.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E6552BEC55
+	for <selinux@vger.kernel.org>; Tue, 12 May 2026 16:13:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.169
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778602433; cv=none; b=oOwVYkDa9CW9dJZChd7rdCNz6KE4I0mic+ibimFTvRmCVTJBHaj4x9f56qK5Yxz7mdmYW0QocU7vj9HZkgGqntErQNzrr89MlpGI7mMBb5oQ8yFS9ECtoVe7cwierClLWeIFnAfyXA9hbOq6sQIwhiASa9tZvwGZMOm1Ft/gaO8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778602433; c=relaxed/simple;
+	bh=ceXtDnacQWRwgM932xO4Txd25Ve2lQvnBFh1G7f/ir4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KYvzUFNl56vumTWAHctD3wBtKxbkNXfim5dgkDEttdhi1u761126e5NebU9LaErVLksAZ0yTg9BA6+nB6vHHPYyyWt6FDCSEpcJz+hGvjqnzJD0RGHLE6My3W9brogB4BmQuWi++n51U42jd7A1++xXOK7RkUYrOSxeP2dFPYAY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hlwqI5BJ; arc=none smtp.client-ip=209.85.160.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LO1VOstT"
-Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2b9fcf7c91bso56790815ad.0
-        for <selinux@vger.kernel.org>; Tue, 12 May 2026 08:39:43 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1778600383; cv=none;
-        d=google.com; s=arc-20240605;
-        b=M0cMT3VYEQUqtUeAjI6MuYKDBZfYx7+6aBywvCRxi2xQbeBVrceXX9nBgKe8zsckt9
-         zR2EE/vWYLk/c5DbzDGegwZaVpcK5+14TVv1VSWpJaXhXUeUgu6pGgtVv44ulE+0PesX
-         +4vTsN+H2t6TVsYC6AK4SpQSsgH0L2uztuzlpRgn02ltG+wZZf4gfOHH3EWGNwMUuIz8
-         dy9nOXmPmnja+csZlDlROySlCE8WvNsBJga+/uCznxB+BiE1HnRHmtLC7bt7Uh5Qjvht
-         bM+Z6pjfsA5M29g9AeIl2RoJiGOPdjOOWwf4J1Pw18lF3/BRp6acYzRBmR9g5ZsUoO5M
-         BJ5g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=QxfO3PWax/OepqpzsmliNGo1en+SXf5nsZZ2i6kCODg=;
-        fh=VWwbX+H1Sc8ilbX5LEN836EN17/lKaPP6kwZv2JuZcs=;
-        b=TPJpsntZlvHFvmjKdIV1vzsJ9ctM3FoI1mZM/Z9DlenuoUrwhUT2UIBmtcFEk942Ne
-         C4FnLGqL/ETSc58MhCxhSpzV0+r+eMFDwmRV4zCUTV0vkO61SITK51QvsM6iC+1uPM4/
-         D5wqwRfKBg72QIR/hgKO+RDoXOikGhKTP5IRJyCr8UuX4Mdy2XOMjmU+krCQu5NvX/Wa
-         1qiLjplJj/oSQn6zk6gM0v+BGNO79B/Ogeud0ge9blsrVGJFUTih7x15XZ0tkqf8VDuy
-         dQjUbuzN/wgV1mCFCoc4KgSbyFe/Rf2vg5wL2XJluh+HVFma3LE4dPfJV1nWqrwZJ8s5
-         HeEQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hlwqI5BJ"
+Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-51306c9f2a8so59221321cf.1
+        for <selinux@vger.kernel.org>; Tue, 12 May 2026 09:13:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778600383; x=1779205183; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=QxfO3PWax/OepqpzsmliNGo1en+SXf5nsZZ2i6kCODg=;
-        b=LO1VOstTmi7yLW+tJRjAbPs8TeEoybe/7o9mgRNjdI8a3DW5YAUONfqaCp73PCES9J
-         w/ebn19KlYMBMUSEIbsvLXsh0hWj+j3oYK1eH8mCHsVPmDDaGuhufyETkV7nsHH/tFV8
-         galebIXIkyxjeP/lNoPc27fHWlAjZtve4J4g9N1bjykyDn03mTcQL5rIWrbgAtMcGaBH
-         YboAdE5FwxTydjQt8VVqtlTD7BYZtOoeZOYFyY9hnihfKHhXX6QZrRfV2VTmaaHGfYDo
-         2Xm4C16uIFQWGEZc3rG0oTm5hHI/GpdJqhPwJelmcr+vw+wfFZ+J7yal253kqw2CAvxT
-         YArg==
+        d=gmail.com; s=20251104; t=1778602431; x=1779207231; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=beUqFfGPpOLXnWhbwTaEHTDjCZjLrpa8E38Jwtigsgo=;
+        b=hlwqI5BJbD5TtPf388+9dW18xp174XlAi5k3QUoHSCaouN5tZR/I6WjtXV3g2BgL2N
+         7c/tqRb4m9mcrhq3g6PTX1PuMBPgS0w5wnHRJjtJsmo6IeWg1RXrgC8+7a6vxwxd1Es8
+         Tq/2SixPmf+DICUjMsB0BpEOIH3ZOCxM9CshW8r7V2nIDJ+fqXc/LUR+KXupt1N9Az0h
+         mIEiPbSLQ+rBDWTzDCCtcj0QQ/baBAVmNgwULAkBE0uGFU6bxyWz5N0qjrl5kTe5UuXP
+         1O2X9lfD7Pm60753ILGjQoy228lCZPI9oIjw8R1NPhoU17FuHbrcpuZge+kQ4ID9jam/
+         ettg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778600383; x=1779205183;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=QxfO3PWax/OepqpzsmliNGo1en+SXf5nsZZ2i6kCODg=;
-        b=ESp5jWn9Kk04YLF6rMUQi73eWWe1sBIoF3rO5fdlP9E99QHxjH1X+beHQk5xEm1FuE
-         TQing78fzHRhuGfJw2azDfc7hSXGoJ9hMwaUgRxQDEneT3xoNQGHUjcWtE+nOdiM9QdM
-         cvijZO3X88JfuCojEHwJaSahV9nfni3/vr1Elyb+mCU2lfkcJ8Ri+wP9+LGqqurKfIop
-         pXEpi4pWBuxrxeJnMPS7cs//UJcrmcJKmk8koElmgiXgKD790axO2WjT1ZYJyEGP7o1Z
-         6YAnOCgLSNfuERgfWAEFn98UvbLbcw4H4SRXB8ZTecvcvsHpLHK6zydig3ZkGNZ9s39d
-         9e0g==
-X-Gm-Message-State: AOJu0YwWkZhDxWdBjNxLkD9luy9eLUEfpxrGCLcm0T36ae6IdDOodl5U
-	ybl3erpsdXLohDvfDSoXDUOnZHIa87MqRzpjYAJ8GcpIqqRM3+IzRC3We6WTBV/zvVIRRxcueOy
-	YCUUTOq48fEcn4g8UqIWphy91Lk0BCaY=
-X-Gm-Gg: Acq92OHYk1D9IrKHpLrf4K6v7zuTga3t/BCYOvP6xFoDwqWt+rp7rN2KWKsy3GjBE47
-	kEv2AyJ8iU09p4cwBBiXIgpu/4Ony2aICBPbxjF/Jy0xlSYZRWWsgpTn+JWPxfooE7JUp3aqhZH
-	koFwNspwLcJ01vhUFEcQhCZwack1k4DghF3bb+XK4lTwk9wIt7Eryd+3s8p02cO3O5rT4F0p2Sp
-	LYiMlMD5fc5/c+7CmdfMbSFWAj+Ov2F/DkFkQwqUJGzY3Vf69yP+P6u5TPJNqA5XLxxJ/3fxn6c
-	djttB7I=
-X-Received: by 2002:a17:902:7489:b0:2bc:dd58:3db7 with SMTP id
- d9443c01a7336-2bcdd584281mr54380405ad.34.1778600383008; Tue, 12 May 2026
- 08:39:43 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1778602431; x=1779207231;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=beUqFfGPpOLXnWhbwTaEHTDjCZjLrpa8E38Jwtigsgo=;
+        b=Fu1+gBeLJeJ+veEpLooDaqz71QpB8fY4msIVcxYofL6yGDaNNqJgaENRlL0XwO+GNK
+         KKuU9uoFXOsaHCrFVlcLA112ZP9K70gISI/cW6ouWI2C3vzayzezJMcPCjwGMgkRb83H
+         pbe7/qklsv642Mom936K6FLKaGK+aEUB0oGVfDmti4m4KRx5ZAAkytjnR+h9bPkCWfxt
+         rpgOxMkbIGi2zLGq/M6ij9OHBENshUd/RFa1k25i9qVtkQj65oeFJ5B15G8U0Rilz/Mi
+         uio0fDwtdtS3i7Ytx5MqqUXNd42TD3+qw3J+/De5VACC85pFx8HsPOtx5coLNpRlwiqE
+         sguQ==
+X-Gm-Message-State: AOJu0Yyo3XXjacrUQC5uSZgyx3z0WEpJSrxNqMWsTbUG/hKO6QSZNEk+
+	v6Tzhg+jRm9l2+D4EorMpF9Jl1F+u5/r1CUpBNxomvNg+RSEcyNcfjZQlWpUjA==
+X-Gm-Gg: Acq92OH0scbknFLWVklHRizEv/0F0PND12yBrEiIDHjsRS2bkSmAGM6wvif08dJnmoW
+	YazAPw08kMRUfR4ls5KuMq3aYwHrRSyM3641y+f7RSAGtVBAYyUtFUbYHhOXgm/hrh3ScfJk8OB
+	GGXS2Th84DZke1QM6XcTfeyNj9/CIu/pQ0MAC9KJ1CLN21v+fIINDWUEUULqUyP22PB6r9kQ0o2
+	4AlvhZ5oloBUS5I6/i6Vd47Yqrl8O/YzEfYkh7Y5D2EaJdIdnMPNUbgjsij4NJJhob5yGPQhLHV
+	rWhGdRXpSR67MQjzy3oU76v/bWcLuqbFqHtSf2OWtaHIa3F0kz1HI/+Ij8KRFVaGnij5m/Aawtc
+	2/cvd3oLn8rR8Kg/WetIaqhFvqzdmeiNRrizdsdd8ZvuWVhfOKtLK3YV3tMRGhMPWHApGM0x9Py
+	xTUW8lKTX4OPxbqQ8qPWh8tGqnegBGMcxZ/mdcJF8cOZ2Gx9MRU3A6cUmtc42KQJ1MqNFpJdlag
+	ym247d70RaJaT6rZY91Vv1zqNAhAXGc2j/awTzCcL8m0DEyE+7qMGg=
+X-Received: by 2002:ac8:5ad0:0:b0:50d:a987:89b2 with SMTP id d75a77b69052e-5148e94fde5mr278675701cf.31.1778602430574;
+        Tue, 12 May 2026 09:13:50 -0700 (PDT)
+Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-5149ed7747dsm111482321cf.5.2026.05.12.09.13.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 12 May 2026 09:13:50 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	paul@paul-moore.com,
+	perfinion@gentoo.org,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] restorecond: NUL-terminate ut_user before use
+Date: Tue, 12 May 2026 12:13:37 -0400
+Message-ID: <20260512161337.733958-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260427162452.132118-1-lautrbach@redhat.com> <20260427162452.132118-3-lautrbach@redhat.com>
-In-Reply-To: <20260427162452.132118-3-lautrbach@redhat.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 12 May 2026 11:39:31 -0400
-X-Gm-Features: AVHnY4JpDVI7ShUbXpY-yZ6mDsr3C7eWCJxzbSO8-Kd-n0-RgFHmBde7JNC-JJQ
-Message-ID: <CAEjxPJ6n9wJWMree_=eZnPmyinoAESzLezFF_BrwiXdvsxK1Tw@mail.gmail.com>
-Subject: Re: [PATCH 3/3] libsemanage: Do not use vfork()
-To: Petr Lautrbach <lautrbach@redhat.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, Apr 27, 2026 at 12:29=E2=80=AFPM Petr Lautrbach <lautrbach@redhat.c=
-om> wrote:
->
-> Fixes:
->     semanage_store.c: In function =E2=80=98semanage_exec_prog=E2=80=99:
->     semanage_store.c:1307:16: error: variable =E2=80=98a=E2=80=99 might b=
-e clobbered by =E2=80=98longjmp=E2=80=99 or =E2=80=98vfork=E2=80=99 [-Werro=
-r=3Dclobbered]
->      1307 |         char **a;
->           |                ^
->     semanage_store.c:1265:15: error: variable =E2=80=98new_s=E2=80=99 mig=
-ht be clobbered by =E2=80=98longjmp=E2=80=99 or =E2=80=98vfork=E2=80=99 [-W=
-error=3Dclobbered]
->      1265 |         char *new_s =3D realloc(s, len + 2);
->           |               ^~~~~
->     semanage_store.c:1265:15: error: variable =E2=80=98new_s=E2=80=99 mig=
-ht be clobbered by =E2=80=98longjmp=E2=80=99 or =E2=80=98vfork=E2=80=99 [-W=
-error=3Dclobbered]
->     cc1: all warnings being treated as errors
->
-> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+utmp.ut_user is not guaranteed to be NUL-terminated, so
+copy it to a NUL-terminated buffer before using it.
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ restorecond/utmpwatcher.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-> ---
->  libsemanage/src/semanage_store.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_=
-store.c
-> index e3048c08df0e..99d55d9813c9 100644
-> --- a/libsemanage/src/semanage_store.c
-> +++ b/libsemanage/src/semanage_store.c
-> @@ -1488,7 +1488,7 @@ static int semanage_exec_prog(semanage_handle_t * s=
-h,
->
->         /* no need to use pthread_atfork() -- child will not be using
->          * any mutexes. */
-> -       forkval =3D vfork();
-> +       forkval =3D fork();
->         if (forkval =3D=3D 0) {
->                 /* child process.  file descriptors will be closed
->                  * because they were set as close-on-exec. */
-> --
-> 2.54.0
->
->
+diff --git a/restorecond/utmpwatcher.c b/restorecond/utmpwatcher.c
+index 86605203..140af546 100644
+--- a/restorecond/utmpwatcher.c
++++ b/restorecond/utmpwatcher.c
+@@ -49,6 +49,7 @@ unsigned int utmpwatcher_handle(int inotify_fd, int wd)
+ {
+ 	int changed = 0;
+ 	struct utmp u;
++	char name[UT_NAMESIZE+1];
+ 	const char *utmp_path = "/run/utmp";
+ 	struct stringsList *prev_utmp_ptr = utmp_ptr;
+ 	if (wd != utmp_wd)
+@@ -60,8 +61,11 @@ unsigned int utmpwatcher_handle(int inotify_fd, int wd)
+ 		exitApp("Error reading utmp file.");
+ 
+ 	while (fread(&u, sizeof(struct utmp), 1, cfg) > 0) {
+-		if (u.ut_type == USER_PROCESS)
+-			strings_list_add(&utmp_ptr, u.ut_user);
++		if (u.ut_type == USER_PROCESS) {
++			strncpy(name, u.ut_user, UT_NAMESIZE);
++			name[UT_NAMESIZE] = '\0';
++			strings_list_add(&utmp_ptr, name);
++		}
+ 	}
+ 	fclose(cfg);
+ 	if (utmp_wd >= 0)
+-- 
+2.54.0
+
