@@ -1,129 +1,109 @@
-Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com [209.85.167.42])
+Received: from mail-lj1-f170.google.com (mail-lj1-f170.google.com [209.85.208.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55A033EDE4A
-	for <selinux@vger.kernel.org>; Tue, 12 May 2026 18:05:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B41683EDE68
+	for <selinux@vger.kernel.org>; Tue, 12 May 2026 18:06:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.170
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778609159; cv=pass; b=c8cfPys2RVpeDX8kK/CCO3SoJKem/SvJfkU/8kBcNSIT0CUmM2BGk5IQ0AJUirla+puPaCOADCvJkBGFSTPzXCLAylpckF+Dbs2IKLuu0sN64kS4wMhLOqnUiKXkpvYrgt3HhrA68roPserf2WpKGobgMFRw0KzVsLSev/kJAxk=
+	t=1778609187; cv=pass; b=WUEu42YjCQYr+rwfqKdTPHUnMkMSe67I7lCrblNBSE7HAcr7k1AApF9WOFL1hKOoAm12pi4rUDx0Ayg7vNJ0eDv4kTsghmZ9l6dW/rC5j/gz3xackvuETn0+gbd2oRG+vDlvOU7s9umzuyHASYY4+JUt5t45c/Ibrq/7IXhuItw=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778609159; c=relaxed/simple;
-	bh=HpLV/6xUDKu4BKASY245kQRzrdjjZDp3OIuAumUI1Qc=;
+	s=arc-20240116; t=1778609187; c=relaxed/simple;
+	bh=DOGqpU+U6yn9yFezDB/pjTkLwbsezMB4lsCS8zTcSmc=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=QoA3I7MyXahOR+zEZkySHzPlkN8ozNyx4iddF9dTxiUtLbvUbJS9ZbrS8/sZVC/NzSMq+LddMIh3WzKcBWP1ifb6ywZOwPggStNUfAmnVLyH/D7byShhWJUocwRGAj9bkFgCEeSZl3BwQ8AOQ/VLmrH2yXRuiFpj8XqCa2YhN68=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DVHUpFEG; arc=pass smtp.client-ip=209.85.167.42
+	 To:Cc:Content-Type; b=sZoum/fjT90HSZm7sSx6WdBKQ44MOWyl/9vEMsVRAv6O+7y/nSizpmlwUbIllRLhyBJ1NvPX9iGtCD5OM+YfyqlaoSjZ10EJymsLRonL9yUdKA6dX1Xo4KysJThNIoA2Es3+8tBd5YY+HJoLFVA+p87qOaQ0Ff2OzOokbSsaP/A=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=r7hMP/dn; arc=pass smtp.client-ip=209.85.208.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DVHUpFEG"
-Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-5a8738c178dso4057094e87.1
-        for <selinux@vger.kernel.org>; Tue, 12 May 2026 11:05:58 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1778609156; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="r7hMP/dn"
+Received: by mail-lj1-f170.google.com with SMTP id 38308e7fff4ca-394095009beso25610311fa.3
+        for <selinux@vger.kernel.org>; Tue, 12 May 2026 11:06:25 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1778609184; cv=none;
         d=google.com; s=arc-20240605;
-        b=PoAqX7h+Ym2s663UPvaTGz3PWWTXk3tAP9w3zMq9pkHSPEpy+MtBLZCJmf8gigjnDT
-         C0vKRKIpLLOIBgaCmYmbXoN4nod5wWKTkJ8DoouxfKiHuiU+xvffziGL4vz5XyKtONsS
-         RLo+3oAH1jAGzUG4ZZabSLBPEyF+yHgqWS0eunQRZSIr1TWe7GABBEPoITzKJEFZZjdQ
-         ULH1o1q9ebsvLEdf40rzVTx/ig3zSRRdZMhPfTIrCOaUtqlvyZ9P8qPThS4uMbf0WKr3
-         wL3P/IQ72oRDniRavNA8NJE1dwFVObssvTAO5ONhYt7DhWlV+lGV61GLWPBPvVMRl3uL
-         TTnA==
+        b=KpObktV1qtcMMbOagqLuO8XVm50yMmsIdQ9rCyitNCRt5SpNnOxvGl4QB+E7QAGcDf
+         UhCYcuWqlHV1q1IwokXnmI2SfCmNUaPHvWLhEy1HZc21DeEf0RHd5lPqaP2LEQoqIsMt
+         QzzrUi6l5LsCjxj8q0t9xcvMjI9tFGdh9xLC7HySpRpt0fsHd7tmp2U/vYqSMKYCa7tl
+         SxFO+k15lkAHnPXW5IRD83ppPJbniHZkJK5cPND1czLTn3btpc3kERAILRAdUuB29yP6
+         eWFRaJKHxALmMNGXId++fW+A6TP+Iaqe5+ANgIrD+3Dl7nLYDEqcK88LmP2AP4QgqoBx
+         eFIA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=RfjYyrC6spm2x8JAGRUw1pw462UyLev5bm+sj6Pl6Ug=;
-        fh=dcS4OfzG3KKFMsdn+JV6f4ljbDQ0+DiEqv1NPzdqZq4=;
-        b=C7FfUSgg7GK7kvizDGgUF/mcCdLZ4F8HwCwrGvOwYKVZV6f64kXbH8tdtCRQS4N359
-         CwKamOCquWPWBz0PqEnBKo6Yqqvh8wNWrt5T/v8kSgimZRCSoghRbQ3vkiCScEBuTvCW
-         ti2AUVeYx36hBy3zql8SF+NqIbtXj9o+PE/vmVyvOEe/Qs6Pt3DI7OVqC5/OBgHZKH6B
-         kDCq5Y36enMuaN4cZOhFLoyPgg/PXWkbE8hIsyQn+OwQsLk8eHFjh6T5rNtGSVMvHw1c
-         fE6W07+VkFaVc4RUPy2eDVadv0XdYbV20JyIp+Q8EtWeA1TTUK7uXU8z2BDsXUf1kn/z
-         Uozw==;
+        bh=pq0Db8IswKhWVxsUpPHom/KtbfcJVmBb/BSJZDubT/k=;
+        fh=VWwbX+H1Sc8ilbX5LEN836EN17/lKaPP6kwZv2JuZcs=;
+        b=d/3EQRYCKFk/PMSwbCvdGACTwnPm23Soe9OllKKBiPVJ2M5MYoIqtrbg2SKxQGMRqn
+         UNGQimoGV8GhzOKEH1oIQPWdchpBosNPkP6s8GtFMJz+nZIWdSZlDt++RS94uKfOerEv
+         31/3/Pv0CVNhEQkV8ox5n7ehJQQeur8sS167q0T5NT+v0oGCD122II2XoCq/Bvzw79Ci
+         onLBn4bacjBI7KqMIFYdV3fqk2RJs26fNQoD9n78/OJak+yQ5FmhL9BbknWONNl1Xf4p
+         ClzLX8eTqM2+9SIjwLFF1k2do335wt/mtLltFGgvny8AUEjd7szdf0UJaCobTEiP4t3W
+         cOzQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778609156; x=1779213956; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1778609184; x=1779213984; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=RfjYyrC6spm2x8JAGRUw1pw462UyLev5bm+sj6Pl6Ug=;
-        b=DVHUpFEG0WXC+3E92KGeRCfvPBjQ3ZLZYqiK1hlx8sjsSWLGIqC3/PnfoCh0zC5750
-         hZZCkNx0afhTXgUHdOPhdkXxd+LMiuqStriohH+sFZbn8ZPZMhsdyS7XrUn66VFQfRcd
-         0hFUwt7ZluyIzEzOs/ZzHZVbpgglBHT0uZeWcExAmeTGT+JF0RFnOaIoVDk2s579CFLS
-         av4aeKCWp/Uwm84ANuTE/jKZKYTEYRAUzhHHJQzGT5QcxR+zYGJS3PZPojXduV+HG6N4
-         YhF7gE+b+QkvBqDL5csL854qJ11P7e/r9nM7sd4RUkiyAgJ5GuO+wFWi8qd7G39urk+h
-         Jvog==
+        bh=pq0Db8IswKhWVxsUpPHom/KtbfcJVmBb/BSJZDubT/k=;
+        b=r7hMP/dnSB2Eo112qIR+TI/y6cPLUWSrA6YHVo+Wfy5kyU4H6TkYxStE6tJqqLdUAi
+         08vzz5s7PzwVA979SHTYKR+3jwLU4XO1JFvfqg+0G4+wB2aVGE5qRugoEpMYl6Q+6rjC
+         H1OYmCQv8IUMYUNzPZ3OUyzTrlloULo69CkVhkPjif2+wifZc+jTl/zEvkeUXBwdaoE2
+         YUMW8qlF9ljAze7sNbxlA4d0bySbUWF4ywMPfNvgWLtAl3V1lkHhsxROZfW3e51QV28v
+         cnVlQQk9TR6G3/VmRVIVwmwQBWORHySNAT39S5WVuLXgcUK7Xm4eWTXktZzzogsUz1Ev
+         +dQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778609156; x=1779213956;
+        d=1e100.net; s=20251104; t=1778609184; x=1779213984;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=RfjYyrC6spm2x8JAGRUw1pw462UyLev5bm+sj6Pl6Ug=;
-        b=UKWy4NGVLu7s4Z+wV+JFQge/+P0QIhPJ+xwhiirlr4Fa8AopTxMi7Bl1HRniMa90jC
-         647uISE9kmwFN0rmgYnbacQ3glg4YyJLHP5xqSTPplZ9A/cWmVV65Bfv2aV0mL6onKYC
-         O6ahu1Nz6E16vJZ39SSHkvll5xmqfnGNukkPwIeExXFecH4AtZIc9p8t1YabO7+yJv0O
-         PPoaC5ZiFtlL5PDyEvltui3NdGWkOK1NHzRe/JzP+2igJRPZdGyNXnKfkGrBZ/+vdElH
-         RaF2sWJwmYocgFIVUtXv5HRHTEAmdR4VspCWkLT00btU9bBtv43JlmaqXhy6fUPBoq7E
-         dOWQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+pNhwrC1rrV7JbD5tuWHC+yFskx5bWosKQ6Z5fG+HyyJvk56m+oAkfNEjZooMvUTF84HbpWqHE@vger.kernel.org
-X-Gm-Message-State: AOJu0YyPCb+pmtv/S13TLhei8AtntXWZ3/HRzwqwaVJH1E3tQyLTmW2H
-	zdCZFBi2z7TUhmSZlpVzfWI8rg1UGaWflQEzlcfiu6v8WB0sKNBF1chyWNHqtvJxiFwQyiZKyMW
-	TtqxSe0mGJqx6Ie3KsuCGGcQOzdfT7m4=
-X-Gm-Gg: Acq92OHy7wS06QwL7dzFnKz7cCP1sq6eItR00g+AUuwb+0XEa8ZqMXi1EuyAOBwPMmT
-	51pLx501HmT/UFkuNAb6NGZoVNptTFg/B3Nx4ateazj+jCMFjsu7IJ5vczzawOJdHsZEC9ras7J
-	Io+HUovPYtX6tapaQNLxd7NwKXJZPeFOaBw8g0B2o4HLD1lVTanOdGCd5l3UiL2hlYIkowTYZZp
-	XNZqHG7DQ9CxxAc3FAYeD1OlB1d8N7YYha0TCjCn2TGSZx8ibTvfHTGHTEKcSulYuILhIw33hSO
-	mS5Y
-X-Received: by 2002:a05:6512:23a2:b0:5a8:a754:f9d5 with SMTP id
- 2adb3069b0e04-5a8ef99d5ecmr32458e87.39.1778609156169; Tue, 12 May 2026
- 11:05:56 -0700 (PDT)
+        bh=pq0Db8IswKhWVxsUpPHom/KtbfcJVmBb/BSJZDubT/k=;
+        b=tTYdZfBaw3wxSPJBzTrhB+VH1ZDQjGgxUqplPjhydbI0uDRb++vWIa0jhUc6jyVDbg
+         UO3f1ZbfP/o47cCjYKke5zTDVVjkExJqk8rQBP6bMurFCeBhCSuNdraSV1tEoBKIyDbM
+         BCoVP4ess4Sz5QREaacE/OyYAzr60gV45RkofoVqUW085I5qdDtV/r80FFS9Kg7+n4+c
+         UDPFtg465ndUYWqs8bRD3l/zDl1ov9Ol1BX0C2eT9Gb8+DLvyhcHTLgVTqSB5x7Hq1Zt
+         fQYxs2izz030ISkInhPuWmpBcK/WJjLRa40gJEveW3ouzznC5bA8tX2yN3TYPRls9D7y
+         CAiQ==
+X-Gm-Message-State: AOJu0Yzk9tGb5Z59opTmqIP2u6WhUPulbPs6ZgNRrYDkZRW97ttS2mvr
+	030tPk+KeaceiE0NjBUMXdmxCCuo0qiM6biNud103P6m9u94bBoWhiGAoZ69E5szXaMIrZlyJsr
+	g68IoaTFGFW34Vr0sKaCIEqeavu6WcDwGRQ==
+X-Gm-Gg: Acq92OGUllZBLaqOQ6Tn0Sg5jGT863SJhnN9bNDCNACDSIjIdsZStMzKkmWbWEvO6qN
+	YRxoRn6BxWMsd8OMuzD4paAlFa3rXXZNyamKqk1fgyL0HyCsxFEHl9oPqtW8FQaHe7Xv9HlhZmi
+	x1fE6w2nh7MLpJ4jWPWyRLl5L9AdGjdew3o14Bmj1EwmaGv765YWfl3jjawStmFQ3zF0i4jIKma
+	RU0zuZz+40bj9mUtypUsuZkwm06JjyGTgEKtnvsTWXfbfyPGQLWPXsS3J3g6j9bAZMlEmI6XdL9
+	zMJmyCn20Q9x0zQ=
+X-Received: by 2002:a2e:bc03:0:b0:394:1e7:6448 with SMTP id
+ 38308e7fff4ca-3943ce74fecmr14909191fa.29.1778609183880; Tue, 12 May 2026
+ 11:06:23 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <87zf2nsl6g.fsf@redhat.com> <20260428213444.907701-1-vmojzis@redhat.com>
- <87qznxsxij.fsf@redhat.com>
-In-Reply-To: <87qznxsxij.fsf@redhat.com>
+References: <20260309165432.3137132-1-lautrbach@redhat.com> <CAP+JOzTPFyYRK40QFfS2Yur3r0ZnGy05zH1BDU8fQzo2hUpm9Q@mail.gmail.com>
+In-Reply-To: <CAP+JOzTPFyYRK40QFfS2Yur3r0ZnGy05zH1BDU8fQzo2hUpm9Q@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Tue, 12 May 2026 14:05:44 -0400
-X-Gm-Features: AVHnY4L_t9HTClAQOWTzvaD6esl5UtJLAAkCzNXQhy6xvdXHRPqb7JscxboYh_8
-Message-ID: <CAP+JOzSwySZZ_opCmRA9n+mOnXbuS9MY1TLJHBKoWETqBv+BqQ@mail.gmail.com>
-Subject: Re: [PATCH v2] libsepol: Fix memory leak in role_dominates_copy_callback
+Date: Tue, 12 May 2026 14:06:12 -0400
+X-Gm-Features: AVHnY4JULAQOSgH87nZkwvfTAfBZGCbtt_SF1eRATwQD_XEEe41L1-DAVIcWvt4
+Message-ID: <CAP+JOzQscTzkaxx66C6b6d+t-9vzgbNenQm_2rY-zXV_CCRmFw@mail.gmail.com>
+Subject: Re: [PATCH v2] semanage-fcontext(8): improve -e documentation
 To: Petr Lautrbach <lautrbach@redhat.com>
-Cc: Vit Mojzis <vmojzis@redhat.com>, selinux@vger.kernel.org
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 29, 2026 at 9:35=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.co=
-m> wrote:
+On Wed, Apr 29, 2026 at 1:47=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
+ote:
 >
-> Vit Mojzis <vmojzis@redhat.com> writes:
->
-> > Free memory allocated by map_ebitmap in case ebitmap_union fails.
+> On Mon, Mar 9, 2026 at 1:02=E2=80=AFPM Petr Lautrbach <lautrbach@redhat.c=
+om> wrote:
 > >
-> > Fixes:
-> >   Defect type: RESOURCE_LEAK
-> >   libsepol-3.10/src/expand.c:828:2: alloc_arg: "map_ebitmap" allocates =
-memory that is stored into "mapped.node".
-> >   libsepol-3.10/src/expand.c:68:3: alloc_arg: "ebitmap_set_bit" allocat=
-es memory that is stored into "dst->node".
-> >   libsepol-3.10/src/ebitmap.c:420:2: alloc_fn: Storage is returned from=
- allocation function "malloc".
-> >   libsepol-3.10/src/ebitmap.c:420:2: assign: Assigning: "new" =3D "(ebi=
-tmap_node_t *)malloc(24UL)".
-> >   libsepol-3.10/src/ebitmap.c:437:3: assign: Assigning: "e->node" =3D "=
-new".
-> >   libsepol-3.10/src/expand.c:831:3: leaked_storage: Variable "mapped" g=
-oing out of scope leaks the storage "mapped.node" points to.
-> >   \#   829|                   return -1;
-> >   \#   830|           if (ebitmap_union(&new_role->dominates, &mapped))
-> >   \#   831|->                 return -1;
-> >   \#   832|           ebitmap_destroy(&mapped);
-> >   \#   833|
+> > Document that substitution based on another substitution does not work
+> > in semanage-fcontext(8) man page
 > >
-> > Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+> > Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
 >
-> Acked-by: Petr Lautrbach <lautrbach@redhat.com>
+> Acked-by: James Carter <jwcart2@gmail.com>
 >
 
 Merged.
@@ -131,29 +111,51 @@ Thanks,
 Jim
 
 > > ---
-> > No changes, only added "Signed-off-by".
+> >  python/semanage/semanage-fcontext.8 | 6 +++++-
+> >  1 file changed, 5 insertions(+), 1 deletion(-)
 > >
-> >  libsepol/src/expand.c | 4 +++-
-> >  1 file changed, 3 insertions(+), 1 deletion(-)
+> > diff --git a/python/semanage/semanage-fcontext.8 b/python/semanage/sema=
+nage-fcontext.8
+> > index a29b74994763..b037491e3394 100644
+> > --- a/python/semanage/semanage-fcontext.8
+> > +++ b/python/semanage/semanage-fcontext.8
+> > @@ -67,7 +67,7 @@ Extract customizable commands, for use within a trans=
+action
+> >  Remove all local customizations
+> >  .TP
+> >  .I   \-e TARGET_PATH, \-\-equal TARGET_PATH
+> > -Substitute FILE_SPEC with TARGET_PATH for file label lookup. This is u=
+sed with fcontext. Requires source and target path arguments to be path pre=
+fixes and does not support regular expressions. The context labeling for th=
+e target subtree is made equivalent to that defined for the source.
+> > +Substitute FILE_SPEC with TARGET_PATH for file label lookup. This is u=
+sed with fcontext. Requires source and target path arguments to be path pre=
+fixes and does not support regular expressions. The context labeling for th=
+e target subtree is made equivalent to that defined for the source. Note th=
+at substitution based on another substitution does not work.
+> >  .TP
+> >  .I   \-f [{a,f,d,c,b,s,l,p}], \-\-ftype [{a,f,d,c,b,s,l,p}]
+> >  File Type. This is used with fcontext. Requires a file type as shown i=
+n the mode field by ls, e.g. use 'd' to match only directories or 'f' to ma=
+tch only regular files. The following file type options can be passed: f (r=
+egular file),d (directory),c (character device), b (block device),s (socket=
+),l (symbolic link),p (named pipe).  If you do not specify a file type, the=
+ file type will default to "all files".
+> > @@ -94,6 +94,10 @@ i.e. label everything under /home1 the same way /hom=
+e is labeled
+> >  # semanage fcontext \-a \-e /home /home1
+> >  # restorecon \-R \-v /home1
 > >
-> > diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-> > index 5b2b7b03..c7978948 100644
-> > --- a/libsepol/src/expand.c
-> > +++ b/libsepol/src/expand.c
-> > @@ -827,8 +827,10 @@ static int role_dominates_copy_callback(hashtab_ke=
-y_t key __attribute__ ((unused
-> >
-> >       if (map_ebitmap(&role->dominates, &mapped, state->rolemap))
-> >               return -1;
-> > -     if (ebitmap_union(&new_role->dominates, &mapped))
-> > +     if (ebitmap_union(&new_role->dominates, &mapped)) {
-> > +             ebitmap_destroy(&mapped);
-> >               return -1;
-> > +     }
-> >       ebitmap_destroy(&mapped);
-> >
-> >       return 0;
+> > +If you substitute /home2 with /home1 from the example above it will no=
+t work. You must use direct substitution
+> > +# semanage fcontext \-a \-e /home /home2
+> > +# restorecon \-R \-v /home2
+> > +
+> >  For home directories under top level directory, for example /disk6/hom=
+e,
+> >  execute the following commands.
+> >  # semanage fcontext \-a \-t home_root_t "/disk6"
 > > --
 > > 2.53.0
->
->
+> >
+> >
