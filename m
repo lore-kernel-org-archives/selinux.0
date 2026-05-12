@@ -1,219 +1,156 @@
-Received: from CWXP265CU008.outbound.protection.outlook.com (mail-ukwestazon11020096.outbound.protection.outlook.com [52.101.195.96])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com [209.85.222.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75CE03EDE47;
-	Tue, 12 May 2026 19:49:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.195.96
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778615348; cv=fail; b=FW2fB8BLgNEJJ2Yos9GWCS4MmcAeDKNMJleNbfVzIv9ldqYGcB0hYxTmopvaJgv6zDs+un9shnx4o0mAiy3yDivMBU/vBU5uRWtB/JKsy2t6j4l/sn7pspThfhhMCAPDKQV547UkJsqTbH2hfi9TW8byo1a1C6vOarc8rLMKj+w=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778615348; c=relaxed/simple;
-	bh=05nVaklWlKnuIj99XCcMvQvEsBiL0FTCTRQFqK4oLV0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=LjD7DtYoOkcf/GApjsqSYnp3G4FNv5HRdRMlCe5Bv5JPjELqkD1BsprCrAA4LthAPlHKxQ1iIPjrucowj62SfBzGU9Lz7YvGva3je3CMr+oeQ3TRWKAkrGs2OkCmmfakxXE4DkZyp1IhVEYxK5l72XVDRRnCXToY+dmGa/sZ9x8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com; spf=pass smtp.mailfrom=atomlin.com; arc=fail smtp.client-ip=52.101.195.96
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=atomlin.com
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=UkFkIGu0TNu1vDWVrVtQh5oyt+RKGRxLNv/WKRuiR+rM/qjo3SxRKJQnIkQIM+9PRhaR3YviqS1D8WkXfulzf9korjU/Wag2P/whALmmat8PxmrwbvN4uROMLfZ9OOjXUyWkQuMlIKbYcwTWkUVzjE6UtKxRhwv/OrrF1B3oE30yaRSJDEOlBcVYP+kZ8vThMHyM7s6qNbNgXgoYRlov5YVE8Nnd3YIuawCPew+DCifo8AKHlZffFY46EyIPattW5UsdHp6nd1MhoQczCaWPHPr0RyE62j8Wc6NG7x20MNvaMRFgSf2TNKo7XFxbx0iTNIqE3I57Ng2huS5AGuh/Fg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=oQs8FaRhvhOz02LcZ5XSa+oW4AR/KbhNCfkmbmgySo8=;
- b=ZGh+jBAyae8HlFLMZWkCfpcHTP3LXdL3hewdaHw7Yy/S5cc4Wn6MY22tnV+fsMEe1hJeTpby9uvjtiuFOWWZhPiQ7/ZtdssMQe0Eyjn1kgal1Lugl1FtZwzHakRhxzovM4la89jNJPK3SbJwLMsD+4i8gSp2iB81JXHW9HyKtUrTuxw/9/veLBpVlqfEuidUxDlTkX0HHQbClO4uCd6NJKEtO5IMjV0CVX9pJn40lpVAJzsw/ppqtVo3jrPoubHWKSYSi4rc/uP4wq54t3CqoAdaTvWnO5Ya4NUX2kx0OjYC1GeUFumrYfqfzlaOb1X5DTEPwdSYtCf3CnrJE92u+g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=atomlin.com; dmarc=pass action=none header.from=atomlin.com;
- dkim=pass header.d=atomlin.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=atomlin.com;
-Received: from CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM (2603:10a6:400:70::10)
- by LOAP123MB8340.GBRP123.PROD.OUTLOOK.COM (2603:10a6:600:43a::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9913.11; Tue, 12 May
- 2026 19:49:03 +0000
-Received: from CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
- ([fe80::de8e:2e4f:6c6:f3bf]) by CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
- ([fe80::de8e:2e4f:6c6:f3bf%2]) with mapi id 15.20.9846.025; Tue, 12 May 2026
- 19:49:03 +0000
-Date: Tue, 12 May 2026 15:48:59 -0400
-From: Aaron Tomlin <atomlin@atomlin.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: tsbogend@alpha.franken.de, jmorris@namei.org, serge@hallyn.com, 
-	mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com, 
-	vincent.guittot@linaro.org, stephen.smalley.work@gmail.com, casey@schaufler-ca.com, 
-	longman@redhat.com, tj@kernel.org, hannes@cmpxchg.org, mkoutny@suse.com, 
-	chenridong@huaweicloud.com, dietmar.eggemann@arm.com, rostedt@goodmis.org, 
-	bsegall@google.com, mgorman@suse.de, vschneid@redhat.com, kprateek.nayak@amd.com, 
-	omosnace@redhat.com, kees@kernel.org, neelx@suse.com, sean@ashe.io, 
-	chjohnst@gmail.com, steve@abita.co, mproche@gmail.com, nick.lange@gmail.com, 
-	cgroups@vger.kernel.org, linux-mips@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 2/3] security: Expand task_setscheduler LSM hook to
- include CPU affinity mask
-Message-ID: <bscbywzzx4nmxzbuw2bkzltb7rrmgmzy5u4gqy5pfpmafcnlto@eznniiguusqb>
-References: <20260509213803.968464-1-atomlin@atomlin.com>
- <20260509213803.968464-4-atomlin@atomlin.com>
- <CAHC9VhQthq7y2akbQSdJwBEex1MQYWG49wcJK3b8gSQuQ_d1cQ@mail.gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="xpeaqr7xbl7sve5l"
-Content-Disposition: inline
-In-Reply-To: <CAHC9VhQthq7y2akbQSdJwBEex1MQYWG49wcJK3b8gSQuQ_d1cQ@mail.gmail.com>
-X-ClientProxiedBy: BLAP220CA0008.NAMP220.PROD.OUTLOOK.COM
- (2603:10b6:208:32c::13) To CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
- (2603:10a6:400:70::10)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 552853AA4EB
+	for <selinux@vger.kernel.org>; Tue, 12 May 2026 20:06:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.171
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778616377; cv=none; b=EOU3R1wylBO2w/koFZFfPJ4eeqRaKmB75HBlTSpdVJn4vLkFI4NNR0h4U6XmtTn58qjv3m9JNlNZ9IG8UqUh7ovDDDvAGqAnu3/cn+PBlMwwXrReP7DO8PyRWB9vHNb22yx7QKdr3ZheLbGmtgtaNAEy+Pdr9+serTFH4f14IaE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778616377; c=relaxed/simple;
+	bh=+08r8pXDnz4/IwWlwzAugBzdyujJDzvTRFNjkPsibNw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=opS1qWLxcaZfEbXj5+l5sLJnOfRf8Ss+UUOALNx4jW7xwiLQMtT/Ck7m4VETzSDjSXkDcivEZIA+4zZvVwRRWo1pZ5Rh6F95T0CeTGI/lzEDE/9f+96EJTkl+3/53Lz1kf7bAl6w7+yE4AUcrHa9iPkphJYLQinQpgXpib6esQA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fmPQ6ynE; arc=none smtp.client-ip=209.85.222.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fmPQ6ynE"
+Received: by mail-qk1-f171.google.com with SMTP id af79cd13be357-8d560ede296so657847685a.0
+        for <selinux@vger.kernel.org>; Tue, 12 May 2026 13:06:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778616375; x=1779221175; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ORbKqvXZvTKWCvXD+AML840TdfL2JRKAq0WxLwp4k+c=;
+        b=fmPQ6ynEsygu0BJpl7jyPH+2pyCmuTrTIQHs38Te43YE1FJFH1pvtcNU640lwp3ipw
+         H222L2A8RfJk2O3Bo/InaPro3igC8t3w5ljGVpEKk3bJ+4/Rq7jzEzF/xvco1mA9zTdR
+         6bKXdnM4BRKykMgigB0FI7kg3ZiYihfdQYweM/casd6QxehVB1yqmczi+6mcfjohe6v7
+         fp3MmRiovmkSkbzrmyou3bgbjOzYvnP0yqWgtS4GFjBcV8XpbGlMnbgXFry6oypSJ/HZ
+         UAqeXiRmwrNlybdCUQrIiAulVxW9mCALu8da3EEFNBzGQzhZKel1bPi0zZh9L87sG/nJ
+         Y4sA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778616375; x=1779221175;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ORbKqvXZvTKWCvXD+AML840TdfL2JRKAq0WxLwp4k+c=;
+        b=hv5KWCkjKdG5p1pYebnC0sg4yuX1zBS9wx3d65ymuRLB5oySwZXjsnJKlJ3vo0HSNI
+         HIhLdDNCJAEO7zBn3KD+2HYupm04I7+ub/m+E1oUrmlD5PHGGtqefnSgggPmH2ykZidc
+         0O0z55TG7vzqM7dPIM3I53xfx3LX7B6Tt7j8QWvMelPc+pavYH+iArOWzMfx241gDGEl
+         sE4pVVObbTMVwJK3GonoQ7LtyKn1hcIDeWCPPam8vlwcU6I7i2c6FIwBjraweEt2GtcW
+         w1vraJGH/WjyWEtYWv4NSCc0HAj/kevCAuCacvBj0hw7b+oWxR9O9D/j4r28Qw9Cko83
+         /fLg==
+X-Gm-Message-State: AOJu0YznCdwoHCEg5Q7AKu/2XcAags8BW7g3snu4KohWb4JgY0C9RVZh
+	+XOo740yJcG2zI3EeW463838vnHROKxvaN9gBqpQI5xtzytLeaiFELo/2z2M+Q==
+X-Gm-Gg: Acq92OEYai3ADSUuGAnxyBLkNnnDLfM+/gBLl5vdC4kSyCaXRg33D5VcgdVDueAgkx2
+	0OnMH8ABAQDrVxvrKqTAISR7CJ6xyPV3BlNoCFX9zdaZJVVULgKmZ4QyCQiV2STDZtA5UpUGQe2
+	gsafz8XJA75HKYWs4/3aCBfd8bd1rIYQ41E/yOUjXjKU5XchLafFEVwaVCYmNeQUUMitjZO+xOj
+	p6b7kWLxR0VjcUrH4PSu+nI9D0UhN114oFKJb9wIR4FSgrHvCY043tA2gd9yFLkRig7/ZwMwIWk
+	h1HMjq9ua7oJSxxCwlMVS0AKUwk9IKcI/rcgmjWBDAbN4sbclxRYRSbdGqs1Aqcw/NssX2o6pzx
+	qj3BSy9dPJk3tdmbQETpe+GePkjAYL6Yo3u0M2Wc3mS+MBb2+QQ/UNt9xhKO4L9Oj5y/nE6cj9X
+	OWRNbMaSDALUJysHOUOjUG6lU8rdAts54+P25RthTcLsJRzQACk7heYBOU1WUTwKGhuYtQnefIk
+	sTnnRzl2P9/RVAs4xBMsQzPPnqHeBfOvhDCRX5O0Rfwt8YyjWvu01M=
+X-Received: by 2002:a05:620a:440a:b0:8cf:c106:faca with SMTP id af79cd13be357-90f8ac08836mr69078685a.36.1778616374772;
+        Tue, 12 May 2026 13:06:14 -0700 (PDT)
+Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8fc2cd057acsm3815526985a.47.2026.05.12.13.06.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 12 May 2026 13:06:13 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	paul@paul-moore.com,
+	perfinion@gentoo.org,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] sandbox/seunshare: remount /tmp and /var/tmp with the proper flags
+Date: Tue, 12 May 2026 16:06:05 -0400
+Message-ID: <20260512200605.753172-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CWLP123MB3523:EE_|LOAP123MB8340:EE_
-X-MS-Office365-Filtering-Correlation-Id: 0e33a71d-cca0-482e-1ad2-08deb05f84cd
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|7416014|376014|1800799024|56012099003|22082099003|18002099003|27256017;
-X-Microsoft-Antispam-Message-Info:
-	5EtELfs15bpnFovr0XXWZJ4xRdfcydtMwVQTZs7rkjSABREqlgThz6OnHQHFAiJffyxR1tG+XA/r9hTrj75x3WhfuqNSi1jQt81znmBsDpJB6GtC2EbhASWwCTKHCBw3fzyFhlcC2917Jac1l/fCyARo34L25PGnGvqRADLGCHVHqNuYVdYiwlL41kSro1gIsn+R/YUFLpH6EDS5BsEzI0hQmZhdXvZYlkbe0Hzq1uHhgNIQjnuSLfVMA4wjvD90+ixuqn71wJRKwuoQXk083Di0Whz1Hv6xrpmAgx9vRG8u9U4zYXxgRaoUquq/of0ZLdJk4mNKeeFtxuNnFMVYi6TSM16Ar6t7BrMwi7kewYgk6A2DyrjQJ1+HMObNkj0S6PEQklIIJqYHJGNxXQiE7fiFwlgo14oVI7qtPjBXoOQgqPAYrmt2Mxx978bmW0ymVdhdftvLqJromNO/toXhNJS8kzvdZDlWfKo7akg5e5ZeuqpVTdJNql1DLoyYgc60/zLEW4LtMn7uO56Mbn+Pg46aqoublJuEGhhGXzTJ/20rqBV+rcwdc13L0XXtqd2hNhuPLq0EAXss9kIIpkR2jXl4bCkHGH6vAXy1JL8HFXqPups4uJYcFUiVLvfj4KvchouGyK3Q8Px5ZAXQDUjd58szQoH6v3VDIeDvwX2XCcg2HkjsM3u2isa30fM/X+96J08bCGVa0CbksK8+YehRjs7NEq7CXzgfI6yM+mjrrETU/07uQWP9Ji78JchFoejH
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(376014)(1800799024)(56012099003)(22082099003)(18002099003)(27256017);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?NnFzTy9ibWoxTldvYTF0dEhHbFUzWUVzbDArSDhORHRRM25xMG15L1hpd3JB?=
- =?utf-8?B?dEVlU2JNK1E1VHFJZjU1Vzl4ZCthOFRVdkNLZFJydkF2Q0VHcWp5VVRpUGNu?=
- =?utf-8?B?UkZNZW1nUWRaMXFXbk1hcE8vbmNWdXVjV3E1a0NnTklWUWZwckpsSkRtUklw?=
- =?utf-8?B?WlVMc1JXNitsUVRaZEJsYjRkVy9kMkhjY1hVaXpwSjFBTWZlZnZBMjRKa2dI?=
- =?utf-8?B?S09Qb0VGY1JOcUdKRVJNMnNLR2dMQXRKWnZ3NGtaclFBTjNPL1dsd1k1U1Fl?=
- =?utf-8?B?dlcvQ25RY1RPWG5FcThsaCt3NEdwdkVHZ1QxTUY0Y3NvTFJOWGcyZmpHQ1RS?=
- =?utf-8?B?enNRcGxWdGZsUkUvOUpFVkdWNnpQUlo4Y0p2MW1pTWtyU010ejN0Ym9DMUFP?=
- =?utf-8?B?V21LbzJJVU5ReWg3V090OHBEZlF4UUQ3NmZodWZsRUVNM2IwUUhxa1VZVDd2?=
- =?utf-8?B?OSs1YzFiSCtuR1ZYa2U4SFN5MG1kMlV1bURLMExQUFdJZTlaVE9zVno4Y1A2?=
- =?utf-8?B?MzM5aXFycWZ4Uno2YnFGSUJvNGtEdUxYWlNNblB0RnZoQVBkcDVlY0JtQW9M?=
- =?utf-8?B?WEtGcTBETlBMUCtpMEE3cVdzQ2RKeTN3OGNDbmZTeURleHRSanNObHBMTGVO?=
- =?utf-8?B?TGJyQUp4UjRXNW14VzV2dzFIUXVDa3pmSmg1ZjNmd3doclBDOXd3WTM3WkNv?=
- =?utf-8?B?SmJyYXdNcHJDcXVKUUxoMGIyRGFicDcxU0FMbTJlMEVURDJGQ0VHWTR6Z3Vu?=
- =?utf-8?B?WmZ0akRUaGdxdTVZVGVVb1ZySWtuSFVtTXhwa2cvalVZSnlKaStqWGs2TnF0?=
- =?utf-8?B?bFdIZ3puUmxGM1hqYVZIU1Z0eEVmVlU2YUhyOFo0T0gzUTJYcE1vV0VsYnor?=
- =?utf-8?B?Q1NweTV6WlVLZ3ZMNi9NSzU5UFNtSmVQUkpENzJVemJwRkkyMWhGRXFnUlRv?=
- =?utf-8?B?TGpYSC80OFBLUGd1YXliQXVPZ3h2bVFWSUcwa0QrbkY4UzVTVTBMVkhsTEZV?=
- =?utf-8?B?NjNWSXlkZmV5QW50VG9KZGUvRmdjWVRQbHpMVUpGcFBpak1LNkYrWm1pMUJl?=
- =?utf-8?B?QWg5dmMwcW5qU1lKVFRJZWhPMGdGakZzUUxnMlY5UmJwWE9MOGVkYXJHalRv?=
- =?utf-8?B?T05kQXFVcUlPN2dDWnJhOVVkWWtMbml2NFNDSGUzNEJqeVpsc25IaGpudTMy?=
- =?utf-8?B?S21CWjM1MzBVaktYZEdFcXZYRHJrUWpEcWo5eXNLOVc4OXBVa0dRa2hYM29u?=
- =?utf-8?B?NUZKcjVSSjJQaTJZTytDNlMvL3pXZ1NtdHlvb1E1L2l2NmI4MGVYRkJCQlNx?=
- =?utf-8?B?MmpsSUtQbUdoZGZWSTlPU2JLZFluajRQd0Q5bzZZZFBHeDN5R2k1SG1RYW5r?=
- =?utf-8?B?ZjhxRm5MK3gxTGlHOTFOQmVlV1BMMHhpUXVoZHhtdVlndkRzS2hkaFB2RjVu?=
- =?utf-8?B?ZUc5WUZBN1R0THMvRFQrSFl1VDFHWTltWTBPWStRRHpSeDJJRXBGV0dFeS9G?=
- =?utf-8?B?bktDa1IvM21ZTUlRNE9OOHd2aUdJVTJOMGJxYkpMMkFtUDRkamdodVlQUHpB?=
- =?utf-8?B?OXRaT2xsRDVGalBZU0tEUXhWRjM0enFtaEpSZ0ZIeVp2RlprbkkxeGdLNndR?=
- =?utf-8?B?OWVkYUdqbnE3WFJoR1dmcitlWHpQUDZLQmtFektkTkNEVWdoMU9jMTUxdGl1?=
- =?utf-8?B?dHV1UTZ4eWZMMkE2STEvdUJRR08wRTlid1llVW50RGJlM3YvVUlGdWlvMERD?=
- =?utf-8?B?c3kxdWVxZUdUMGwxUDc3WnJXS3NXa0Zwc29XSFRkRTBRcFVpQkV6WDNUTVRw?=
- =?utf-8?B?eUc0ZHVBZlZFYnZmZXgwT1ZFUGhKWFM1Y1RNenFKcHp4S0p1dDI0UEtBL1Bw?=
- =?utf-8?B?TFBocmJ1YTRsbkoxbURqUUFMT3o1SHIzS3U3ZjZpV2E1TDFpTGdsQ2JuUEgx?=
- =?utf-8?B?OGFoU3hQVHFTdGtZbjI1NHlyOHBEbEJkS09nalBwOHNqYnhIQ3ZKeHdnUjB6?=
- =?utf-8?B?MEFTQVNMSUxCVzBmZGhjQWk3dE4yZ295OFBpUjdHUG9ZeFhNWTRHOWYraGV0?=
- =?utf-8?B?T0lGZmxnaXovZjRrOFlPNmJ1R1RUUGovUGFsdXhBWGFic2hUN1JLTFN0MkJ5?=
- =?utf-8?B?cytjSW9rTC9qUDBCNkRydGJFWWdUbDc1OVpWOUxLYmR5N1lZQkNXd1Ewb0l6?=
- =?utf-8?B?OFFQN3c2UXFNRHdMeG8zd0poU2I3S29YNFR2dis0aDNSV3kyMXNERmwzbHBw?=
- =?utf-8?B?OU82YjJnMTVISFQ0RE9JVm1sNlVlWVJBNXNuMmY0UFc5MDZlNlhTbG9CTUUy?=
- =?utf-8?B?NTR4U1R1WG4wMXNNK2RkeGYwa3lTS2VCSDdIRC9JSnpheDFqMmh2dz09?=
-X-OriginatorOrg: atomlin.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0e33a71d-cca0-482e-1ad2-08deb05f84cd
-X-MS-Exchange-CrossTenant-AuthSource: CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 May 2026 19:49:03.1580
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: e6a32402-7d7b-4830-9a2b-76945bbbcb57
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: SfmR3zccs0ooXRVxUZljzdu4j5Me5PrdcExdF5L/CPN3EItzmXNzBHRNgjPjGXCH0yHDs39H2P5WAXQv8rxxrw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LOAP123MB8340
+Content-Transfer-Encoding: 8bit
 
---xpeaqr7xbl7sve5l
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH v2 2/3] security: Expand task_setscheduler LSM hook to
- include CPU affinity mask
-MIME-Version: 1.0
+mount(2) with MS_BIND ignores any nosuid/nodev/noexec flags, so
+seunshare_mount() was never setting those on the /tmp and
+/var/tmp mounts. Fix seunshare_mount() to remount them
+with those flags after the bind mount, which does
+set them properly.
 
-On Mon, May 11, 2026 at 04:28:09PM -0400, Paul Moore wrote:
-[ ... ]
-> > Signed-off-by: Aaron Tomlin <atomlin@atomlin.com>
-> > ---
-> >  arch/mips/kernel/mips-mt-fpaff.c | 30 +++++++++++++++++-------------
-> >  fs/proc/base.c                   |  2 +-
-> >  include/linux/lsm_hook_defs.h    |  3 ++-
-> >  include/linux/security.h         | 11 +++++++----
-> >  kernel/cgroup/cpuset.c           |  4 ++--
-> >  kernel/sched/syscalls.c          |  4 ++--
-> >  security/commoncap.c             |  7 +++++--
-> >  security/security.c              | 11 ++++++-----
-> >  security/selinux/hooks.c         |  3 ++-
-> >  security/smack/smack_lsm.c       | 11 +++++++++--
-> >  10 files changed, 53 insertions(+), 33 deletions(-)
->=20
-> I haven't looked too closely at this patch yet, but based on a quick
-> glance, can you help me understand why it is included with the other
-> two patches in one patchset?  The other two patches look like stable
-> level kernel bug fixes, while this patch introduces functionality to
-> an existing LSM hook; one of these is not like the others :)
->=20
-> Unless there is something critical that I'm missing here, I would
-> suggest splitting this patch out from the other two bugfixes for
-> separate handling.  If there is a patch dependency issue you can
-> always mention that in the cover letter.
+Test:
+mkdir tmp
+seunshare -t tmp /bin/bash
+cp /bin/bash /tmp
+/tmp/bash
 
-Hi Paul,
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ sandbox/seunshare.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-Thank you for taking the time to have a look.
+diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
+index b9c85bf2..985e0cfb 100644
+--- a/sandbox/seunshare.c
++++ b/sandbox/seunshare.c
+@@ -260,26 +260,32 @@ static int verify_shell(const char *shell_name)
+  */
+ static int seunshare_mount(const char *src, const char *dst, struct stat *src_st)
+ {
+-	int flags = 0;
++	int bind_flags = MS_BIND;
++	int sec_flags = 0;
+ 	int is_tmp = 0;
+ 
+ 	if (verbose)
+ 		printf(_("Mounting %s on %s\n"), src, dst);
+ 
+ 	if (strcmp("/tmp", dst) == 0) {
+-		flags = flags | MS_NODEV | MS_NOSUID | MS_NOEXEC;
++		sec_flags = MS_NODEV | MS_NOSUID | MS_NOEXEC;
+ 		is_tmp = 1;
+ 	}
+ 
+ 	if (strncmp("/run/user", dst, 9) == 0) {
+-		flags = flags | MS_REC;
++		bind_flags |= MS_REC;
+ 	}
+ 
+ 	/* mount directory */
+-	if (mount(src, dst, NULL, MS_BIND | flags, NULL) < 0) {
++	if (mount(src, dst, NULL, bind_flags, NULL) < 0) {
+ 		fprintf(stderr, _("Failed to mount %s on %s: %s\n"), src, dst, strerror(errno));
+ 		return -1;
+ 	}
++	/* remount with security flags, ignored on original bind mount */
++	if (sec_flags && mount(NULL, dst, NULL, MS_BIND | MS_REMOUNT | sec_flags, NULL) < 0) {
++		fprintf(stderr, _("Failed to remount %s: %m\n"), dst);
++		return -1;
++	}
+ 
+ 	/* verify whether we mounted what we expected to mount */
+ 	if (verify_directory(dst, src_st, NULL) < 0) return -1;
+@@ -289,10 +295,15 @@ static int seunshare_mount(const char *src, const char *dst, struct stat *src_st
+ 		if (verbose)
+ 			printf(_("Mounting /tmp on /var/tmp\n"));
+ 
+-		if (mount("/tmp", "/var/tmp",  NULL, MS_BIND | flags, NULL) < 0) {
++		if (mount("/tmp", "/var/tmp",  NULL, MS_BIND, NULL) < 0) {
+ 			fprintf(stderr, _("Failed to mount /tmp on /var/tmp: %s\n"), strerror(errno));
+ 			return -1;
+ 		}
++		/* remount with security flags, ignored on original bind mount */
++		if (mount(NULL, "/var/tmp", NULL, MS_BIND | MS_REMOUNT | sec_flags, NULL) < 0) {
++			fprintf(stderr, _("Failed to remount /var/tmp: %m\n"));
++			return -1;
++		}
+ 	}
+ 
+ 	return 0;
+-- 
+2.54.0
 
-You raise a perfectly valid point.
-
-Please note, the cgroup-related BUG fix will be dropped from the next
-iteration of this series. As per Waiman Long (on Cc), a solution for the
-BUG was already proposed here [1].
-
-However, I suspect the MIPS-related patch will need to remain coupled with
-this feature patch. Because the first patch fundamentally alters the
-signature of the security_task_setscheduler() hook, the MIPS FPU affinity
-code must be updated concurrently to accommodate the new parameter.
-Separating them into entirely different series would likely invite
-bisection breakages or awkward merge conflicts, depending on the order in
-which they are applied, no?
-
-If this approach sounds sensible to you, I shall prepare a v2 series
-reflecting this restructured grouping.
-
-Please let me know your thoughts.
-
-[1]: https://lore.kernel.org/lkml/20260509102031.97608-2-zhangguopeng@kylin=
-os.cn/
-
-Kind regards,
---=20
-Aaron Tomlin
-
---xpeaqr7xbl7sve5l
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEEeQaE6/qKljiNHm6b4t6WWBnMd9YFAmoDhCcACgkQ4t6WWBnM
-d9YfiA/9HVuly40Im7Pag5DmcL6QtcWejvKWzWzyGGWllLsUtmdpOl+o2S0aQTrD
-tUj2t2nq9lrYORqzv6xr0iiTVkstPEYXSV+tQyTTqFo7rs6lnU9FGGqrR4+diWJz
-x2Bf1lvW9N8cxfuDPJc096OT30CPL/GXGiXCAou3G5Y5zCVyF74M+njA31+yhove
-9dIUI5HRCbat2rftSkOXhvqpub9lII5dCEg0vYPJZcrwZcbCc0tgb5y3Yq8svnwu
-6RNOab4rPz7jydPefTO+nVN/LSW9Ic1Ih4ZX417MX7rWxUo3by3HTwASqyDqcoFw
-ddFKEImoNGNsQ2ahQLp2ZXm1OSqxRwRRRtffwhg08aaPtq3tplpg8OX5iKIs8blo
-DomXShOYMGiXaEqaMFoBIFsDf33JzdG4OfP5AY2U7UEzDB5NnAX8RDx4y7fl64sc
-Nx749lttC8BpO8E9eNMXyxP21H65P+PDbYsBgzGKuYagPu4kOWR+6CzJ01BsF7K+
-Oe13s52km5HMs1e9v7Dd7/hyIunXyr4/h/MS6tY2DYQdrMYkatgof05Le3TSd/bs
-hURMBZc4tDBhqiZ/tE5nw/Z6Xgg+1hTpAINcIEiK+T3JAKaPmfILihr7mQ78q1m8
-sKgAMfEIPmO+kSFZQY9JTRU0PbvEJIM5XY4gY8blK1oc4a0lhtM=
-=68b7
------END PGP SIGNATURE-----
-
---xpeaqr7xbl7sve5l--
