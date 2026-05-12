@@ -1,188 +1,122 @@
-Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
+Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9C9B368D42
-	for <selinux@vger.kernel.org>; Tue, 12 May 2026 19:18:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.169
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778613493; cv=pass; b=FrUXNhdVz5I+j0RpVVma7l5QFuwH/9zvKjlCxgX+qnVbX27TZZL9230YrdH7Tl1n/yu8LvFS0V4uXApC6rDTFzUB3rrV623vjuVSBA/iRS596FKgQMYiA7CVUur875iYBfJEOFrJvvbF2qSbgYa9j5ZzY8TfPUAr5mp5tDzKe28=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778613493; c=relaxed/simple;
-	bh=x0EJ9IIQlmLp0s2Di6cqa87rcp0GEiNnoqauM01YemM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=L5YX+FLFvdVw+TO+MPVi6zj0XjdUR4K/S85halxLvrJ9XPLxBTP/UzH1t0MGwls8+7tKxhb/yQPOcpDzofN8aO5/sVxuzjQEmoqN7k5cp1xIdLo9x6nxvz8owoP6dF6NGc3/LpX0czxCF0hGsvmi1xXggNfnvRfcit/kvlwYtFU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=VzaSG/zY; arc=pass smtp.client-ip=209.85.214.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21D13368D42
+	for <selinux@vger.kernel.org>; Tue, 12 May 2026 19:26:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.50
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778614015; cv=none; b=at9regwMsF6iPhkQGrllgvLmuVDBXRaLyFN+w+mqH8wVmb2nh7TGI6QkzJ8j1j+NYz0sIIuedke+hgBG03401XatYhKE6zQmkTV3rSYVY3G32D1UzWBj+2tiwt+f2s0k3uVie5LQneE3QUrj0yqU1BoIJzgpWno2pK56D1XLX4E=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778614015; c=relaxed/simple;
+	bh=wrzm3FBO8yhFp0asx5D6jmOR1grUfwFb//IpS7HLG20=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Zr8CHdhwBn3cCOeVHgC5/q6nbdhxEE/hou8c/rt0aO1I2Vrxddmh6E1ZYV3Wiq/YugLgG4XhUJgP4fUDjyhCszwnQW13s3iv5PY8PIc6shJdSzBX3Av3a/J+ROlW0O2ETAO53kbWxixz1Hes3K2K2BYFcndJyoO6v5gITpdM7RA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DSDLQ5Fi; arc=none smtp.client-ip=209.85.219.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="VzaSG/zY"
-Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2ba6485d219so38844825ad.3
-        for <selinux@vger.kernel.org>; Tue, 12 May 2026 12:18:11 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1778613491; cv=none;
-        d=google.com; s=arc-20240605;
-        b=WK1qneCn9GG3/QvXuMDIwxS9CP/WjIJI7zrtK7ylx2lgywTD7H4v69PrSt/7Wy5wco
-         E723L0npeKT52cYxepNC6HGjXkyICsOXeq6DkcmC9RYD2SI3ooQwoWwWm5SbHXFWOdAs
-         O6p/bmPcY092C4TfcQ2Yr3goI5GBsJy2r3cAQ9ru2dkT9jID/vNl7D04bVVF+XjKyezr
-         jnrPHYiOriZAwWHVXxUvjTBmymErOgn36q6RFwRIYgP6rOWPUYq5TRAKtnlRA5J0V4ql
-         VRrSMGQiHfQwZMQfSvX/S70gkMDHTjJgoad6qrTsG9fbokVwaNZDtGdJJ03fYSLPOUbS
-         ZPBg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=EvRcW1Qh/576NOLilmJxxhESnWbBM64hf3VFbtNvDPg=;
-        fh=t/I6j64kgHfLh5efk1GRoLkEwsHVRMCvelxj6drWAQg=;
-        b=DDb+kDcqqM17Y44kUb2rxDnjlo0+ul+doxlDNA4KdqwAwmyhWIUb2B5JfuSYuABlY2
-         mIwZgj6fJ3dHaoeA3uvScoIbGmhrg9fTvp5b/LpfxecpSZ8cwUqi1GSptVWIowNnGYNI
-         IMNuWSreyHWmF3XfLY3lpZoXE2YPRCvrz7j0y797SY25OzDGjcG3wOpY2tFEBQaSERZ1
-         J13hZhk0CgYx43JBJ17znHtk0h9JuWktLS9wAeT6prFg3IAg9ZIFczqeroa4w1keNVdc
-         Yh1PlWbkNdkKrA4pECPxGTHjNSJm+jog2q0Es0oiAr3H0lfssv/4cbE0HYXN+744nYQD
-         FYLw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DSDLQ5Fi"
+Received: by mail-qv1-f50.google.com with SMTP id 6a1803df08f44-8b62ca1d28eso52329316d6.2
+        for <selinux@vger.kernel.org>; Tue, 12 May 2026 12:26:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1778613491; x=1779218291; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=EvRcW1Qh/576NOLilmJxxhESnWbBM64hf3VFbtNvDPg=;
-        b=VzaSG/zY21rzktdtMYdicKzLpl/YoFm7iv3uzlED+W1CLf0OX7D9vnHpRbX8v/JN8O
-         0QO7LwC2GJ/CqzCCfVtawFHkZplgFF/LgAe65N/MQSGAczPaFltFEbxseJrGd5CW5W89
-         rAdQJj0e/w42EuDkCHdNePJV/wlZZfSB5NjaRAkx2XXTA7lp4WXvHiUvFpsBTVbxio+/
-         tSxgNoli+vuOOfFJZeAceCHCoPthBWLCqDu1NTh2y3a1RgsgOUD/AtkoDdwIHEGZndvN
-         j4WtdPqsKhk7Dt8z8XNFaQ0MKF2uKSDeIa8+7uC1ZTVE1s8ZzgiK5kuAMKgZMvhAKfzC
-         QPLA==
+        d=gmail.com; s=20251104; t=1778614013; x=1779218813; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=YnZRPshhqXE2QCMttwCx1N7PS54ZQJ8ISi7kWmYzTQ0=;
+        b=DSDLQ5FioU5r9dRvoQ+avWQ2AxWTcJbAdX3evLeGftgjA+JkzK+aMEo6qDJZ0Td5H6
+         tE4DfbvYc1oeYf+B/mnIi0o1/HEgbH/RER6PNcRbtNXPkdMxemzjThuwKdPvCNKitNJY
+         1A8cCBk6R5fLZmQnO28f7iej4fv04jIRkLG9YCCXKSmMme9qfHq0wtyWQgx43B1L8Xp4
+         kA932OQjMc4dUbdH5/mIKWuvbUybtsdzVk8VcWlOocHm2/8vwYQ7vOsQnB07/m6nWjBO
+         NZ/PFx1tzN2qRfPeE9LRqw8ttmx5brM1m684RZMqTzg5M9EtTDrPgu5EmfAAOD+eWsVb
+         +wZA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778613491; x=1779218291;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=EvRcW1Qh/576NOLilmJxxhESnWbBM64hf3VFbtNvDPg=;
-        b=Lu9A7wX9V1Edp3XL4TZ+0abWpsraoYTOHvMzD5OETXEfqK6Cgi6KbFOKwx3wM6ItqB
-         HNeXtqHtd89yeNFafjgNvVWsGRRjcxQRVsq4hTukVDbB6jNar03HzvrxRaPgiTutowP0
-         MvbusKtho60ld9cZ78JQI1RtKsc6AfwEtXJ7LtwE5cv2WYgbizKUEQ84S3xpS9q/+IAX
-         4NXgROXkp9GdsnIC/lD2o5xyD/H4ALVnbh0V+8UvEVJpKAw7GbSMuUzwh4na4AHybLuZ
-         Umxrr23568QE1aXDrAw0pBr5JDZCpKJmdSoWCCviSCKQRfb2SnmVkaAag+ybKzbDxprA
-         3LLQ==
-X-Forwarded-Encrypted: i=1; AFNElJ893tPuI0FYDUc/nDANzFiMXYvHo0jzdotvs1807YImoH9PdXEK0BE4xIBJl0QdI5t61LfAMmDH@vger.kernel.org
-X-Gm-Message-State: AOJu0YwuhB5f22D9tzOQP/iIXQCFI5GXTSrCu8S0hTDcjLDIuLpeN1r+
-	i7wRn1cug5fWG6bfP6WTB0w6EH3EGrQpTSdkgSer5w7pzt3KU2WMjVvtFlqlA8gdls8v1dSLvng
-	NyqWFCAkIH7cxhc01UdtMGflQLTVTPl4T66XPOKf5TheN7q8ZCTQ=
-X-Gm-Gg: Acq92OHdFUXaQRRkxHnnGu39nCMwA5peIuNon0phZ132cxjai87lJmXseeUAHu+0cjd
-	zSAXncZTDnkLlwxLFNBHtBZRkMCErbAkQ9RbcxX6EVWXP88wJEgFhlroKddq3subzeirKZdMUoy
-	GygmSNdg0XRQmK0ngCYlYWYcJfgLkqptt3bGzve9hhO2DkGDerGxFHvhw/zPZ9uwpkQ72KRu/2F
-	3RbOLa4eQtCAl+I7euYJlEZpCvx3S3ayg83b13RII8VVMKEwtDF5Al+m8NR/TQB0S1blo8DXkN/
-	QN2wmls=
-X-Received: by 2002:a17:902:ea0b:b0:2bc:6784:525f with SMTP id
- d9443c01a7336-2bd2711a4e2mr3804045ad.15.1778613491141; Tue, 12 May 2026
- 12:18:11 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1778614013; x=1779218813;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=YnZRPshhqXE2QCMttwCx1N7PS54ZQJ8ISi7kWmYzTQ0=;
+        b=KDk2Cy+jFZbCDOSpM7v3ucdvCx0Nh9aabsmHSkTMhr9SKq7kxGS1OE3DOE5TyU22pW
+         vxvhmrGzfQKMBxQgwFf+0dTEG+oqk9gEwfzo/K4fo0rD02pruhNZxkL9yuw+0xd5VPa9
+         OTUOA/Bqr5H0PihBMjw/qGAeLz919uIK5ik/KV1W0zJH53ndiswIDrj9pIHO6Sg5l9pK
+         4LXJ/CoWiGVJBF0ELLZyVSpEHG0ht4WGCwS3179lbXTBot8NB6OoM/FpxKKQkoMp4R+P
+         dKovcZ6nW4YgESV159rb9T2qe+ZXiBE8wRcmbiJrUm/KwGEak0NvLh59JGiMxeWTUu5O
+         1WrA==
+X-Gm-Message-State: AOJu0Yyug1dja4Ur09Uib8FbL7WMooQ71DChdT5pe4SEwgCQnAu8KeQd
+	XaOJDsb87d4ywL3/nTRNcDaP5s0U1uzoZrenxKvXARadUQjaGVF28U5vm7wB5A==
+X-Gm-Gg: Acq92OHiTatmIiBRZ6Uod+KFWVRCcunt3bA/pbjB0Digg9rXOEXrlDMbjEha9/Pkf4C
+	nwl84tPMP5TowsoOJ29GTBjESSrhDngTe6XRpwBp+KwhbT4Hqpax7A3JKMfTwGEvQvqBqYhp2ve
+	L7xUER9In8BDx5hOezDi1kIvbmCdWrVqurfXHBwVsdC01e2RG/SoKQ7zSfNRW11M4yPr9LctdQJ
+	12n0nVGQ9/r4bj3SFJLo/KdWZyQuNcu9YAWASc9pjRlHQnMTDeN8nQpu9gL9xkvwdCHdJ4Hh3py
+	xw34Rd7/gke+t5f6tjLDJ0rNDx54hEaWZT2gP6VWgGaBrVVfVGasEHvlo7T7e4x4tI4kFqkiE03
+	/m/DHA/6+JNiOe0S1zBISM3hMLLhSp/B1TPinCTFlDi85QmaZGi3LUccwQBNmJroOCRD1179yH5
+	njxpMqgEMOnChMXAon6Qy7WdnSsI4PEP4ydsIL6r3zkSTvW3hXmwo2NnR9NBsfmNb8EltuJFxj8
+	9UiZVznh053qZpYaEIY6O4Mhr2ZPNUCzAb0QmHdGZgM1oWjEAbbUUM=
+X-Received: by 2002:a05:6214:4f02:b0:8ac:7d43:f88d with SMTP id 6a1803df08f44-8c7b5d3eff1mr6659886d6.0.1778614012833;
+        Tue, 12 May 2026 12:26:52 -0700 (PDT)
+Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8b53d83114fsm346136056d6.48.2026.05.12.12.26.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 12 May 2026 12:26:52 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	paul@paul-moore.com,
+	perfinion@gentoo.org,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] sandbox/seunshare: switch seunshare_mount_file() to use open()
+Date: Tue, 12 May 2026 15:26:31 -0400
+Message-ID: <20260512192631.751908-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <agDuCdGIeM-6z-j-@altlinux.org> <CAHC9VhQ4VyAvG-z2h2NFpPx9PcJP4Ot2Ap=MPbCRk2TosJWOTA@mail.gmail.com>
- <agI9Rdi-72f8dNbB@altlinux.org> <CAHC9VhRWNEzYx3Xxtxv_0BBkM7skisVdnKXx3CGn3S=aoBCiyQ@mail.gmail.com>
- <agJPqiSKvHrrg6Qn@altlinux.org> <agJajS11YK1XGB-y@altlinux.org>
-In-Reply-To: <agJajS11YK1XGB-y@altlinux.org>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 12 May 2026 15:17:59 -0400
-X-Gm-Features: AVHnY4IItDSDQ_dFikFYv9ElTowZ6XiRLaS1GWsgcMI4Py0or-SaDs883yt9alk
-Message-ID: <CAHC9VhT1d6xSboPErjrNqx41YefJ-fzs+FKnF5hDAhCWCGMfdw@mail.gmail.com>
-Subject: Re: [BUG] lsm= with bpf before selinux breaks fscreate with EINVAL
-To: Vitaly Chikunov <vt@altlinux.org>
-Cc: linux-security-module@vger.kernel.org, bpf@vger.kernel.org, 
-	selinux@vger.kernel.org, KP Singh <kpsingh@kernel.org>, 
-	Matt Bobrowski <mattbobrowski@google.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, May 11, 2026 at 6:43=E2=80=AFPM Vitaly Chikunov <vt@altlinux.org> w=
-rote:
-> On Tue, May 12, 2026 at 12:54:21AM +0300, Vitaly Chikunov wrote:
-> > On Mon, May 11, 2026 at 05:49:39PM -0400, Paul Moore wrote:
-> > > On Mon, May 11, 2026 at 5:03=E2=80=AFPM Vitaly Chikunov <vt@altlinux.=
-org> wrote:
-> > > > On Mon, May 11, 2026 at 04:19:34PM -0400, Paul Moore wrote:
-> > > > > On Sun, May 10, 2026 at 5:17=E2=80=AFPM Vitaly Chikunov <vt@altli=
-nux.org> wrote:
+seunshare_mount_file() currently uses fopen() to create the dst
+if it doesn't already exist. Switch to using open() with
+explicitly specified flags including O_NOFOLLOW and an explicitly
+specified mode for the new file.
 
-...
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ sandbox/seunshare.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-> > > The patch below is what I had in mind (although be warned that was
-> > > just a cut-n-paste into this email so it is likely whitespace
-> > > damaged).  If you are able to give that a test it would be great, if
-> > > not, I can throw it on the todo pile.
-> > >
-> > > diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_d=
-efs.h
-> > > index 2b8dfb35caed..12724e259900 100644
-> > > --- a/include/linux/lsm_hook_defs.h
-> > > +++ b/include/linux/lsm_hook_defs.h
-> > > @@ -298,9 +298,9 @@ LSM_HOOK(int, -EOPNOTSUPP, getselfattr, unsigned =
-int attr,
-> > >         struct lsm_ctx __user *ctx, u32 *size, u32 flags)
-> > > LSM_HOOK(int, -EOPNOTSUPP, setselfattr, unsigned int attr,
-> > >         struct lsm_ctx *ctx, u32 size, u32 flags)
-> > > -LSM_HOOK(int, -EINVAL, getprocattr, struct task_struct *p, const cha=
-r *name,
-> > > +LSM_HOOK(int, 0, getprocattr, struct task_struct *p, const char *nam=
-e,
-> > >         char **value)
-> > > -LSM_HOOK(int, -EINVAL, setprocattr, const char *name, void *value, s=
-ize_t size)
-> > > +LSM_HOOK(int, 0, setprocattr, const char *name, void *value, size_t =
-size)
-> > > LSM_HOOK(int, 0, ismaclabel, const char *name)
-> > > LSM_HOOK(int, -EOPNOTSUPP, secid_to_secctx, u32 secid, struct lsm_con=
-text *cp)
-> > > LSM_HOOK(int, -EOPNOTSUPP, lsmprop_to_secctx, struct lsm_prop *prop,
-> >
-> > We will test it and report, but this may take some time.
->
-> Before trying the full system boot test, I tried to reproducer I posted
-> before. With this patch applied (just ensure it's correct) over v6.12.87:
->
-> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.=
-h
-> index 9eca013aa5e1..b38f6194699b 100644
-> --- a/include/linux/lsm_hook_defs.h
-> +++ b/include/linux/lsm_hook_defs.h
-> @@ -288,9 +288,9 @@ LSM_HOOK(int, -EOPNOTSUPP, getselfattr, unsigned int =
-attr,
->           struct lsm_ctx __user *ctx, u32 *size, u32 flags)
->  LSM_HOOK(int, -EOPNOTSUPP, setselfattr, unsigned int attr,
->           struct lsm_ctx *ctx, u32 size, u32 flags)
-> -LSM_HOOK(int, -EINVAL, getprocattr, struct task_struct *p, const char *n=
-ame,
-> +LSM_HOOK(int, 0, getprocattr, struct task_struct *p, const char *name,
->           char **value)
-> -LSM_HOOK(int, -EINVAL, setprocattr, const char *name, void *value, size_=
-t size)
-> +LSM_HOOK(int, 0, setprocattr, const char *name, void *value, size_t size=
-)
->  LSM_HOOK(int, 0, ismaclabel, const char *name)
->  LSM_HOOK(int, -EOPNOTSUPP, secid_to_secctx, u32 secid, char **secdata,
->           u32 *seclen)
->
-> 1. `cat /proc/thread-self/attr/current` does not report `kernel` as befor=
-e.
-> 2. `echo > /proc/thread-self/attr/fscreate` process hangs in R state, wit=
-h strace
-> showing infinite loop of
->   write(1, "\n", 1)                       =3D 0
->   write(1, "\n", 1)                       =3D 0
->   write(1, "\n", 1)                       =3D 0
+diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
+index a1900eaa..17a727e7 100644
+--- a/sandbox/seunshare.c
++++ b/sandbox/seunshare.c
+@@ -304,18 +304,20 @@ static int seunshare_mount(const char *src, const char *dst, struct stat *src_st
+  */
+ static int seunshare_mount_file(const char *src, const char *dst)
+ {
+-	int flags = 0;
+-
+ 	if (verbose)
+ 		printf(_("Mounting %s on %s\n"), src, dst);
+ 
+ 	if (access(dst, F_OK) == -1) {
+-		 FILE *fptr;
+-         fptr = fopen(dst, "w");
+-		 fclose(fptr);
++		int fd = open(dst, O_WRONLY | O_CREAT | O_NOFOLLOW | O_CLOEXEC, 0600);
++		if (fd < 0) {
++			fprintf(stderr, _("Failed to create mount point %s: %m\n"), dst);
++			return -1;
++		}
++		close(fd);
+ 	}
++
+ 	/* mount file */
+-	if (mount(src, dst, NULL, MS_BIND | flags, NULL) < 0) {
++	if (mount(src, dst, NULL, MS_BIND, NULL) < 0) {
+ 		fprintf(stderr, _("Failed to mount %s on %s: %s\n"), src, dst, strerror(errno));
+ 		return -1;
+ 	}
+-- 
+2.54.0
 
-Bummer, I was worried userspace would be expecting something, but wasn't su=
-re.
-
-Thanks for giving that a test, it looks like we'll need some special
-handling for these hooks (which is okay, you'll see they already have
-special handling if you look at the code).  In the meantime the
-workaround would be to place the BPF LSM after SELinux in your LSM
-ordering.
-
---=20
-paul-moore.com
