@@ -1,175 +1,126 @@
-Received: from mail-lj1-f177.google.com (mail-lj1-f177.google.com [209.85.208.177])
+Received: from mail-lj1-f182.google.com (mail-lj1-f182.google.com [209.85.208.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0ECC9383C94
-	for <selinux@vger.kernel.org>; Tue, 12 May 2026 19:14:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E0AA37F742
+	for <selinux@vger.kernel.org>; Tue, 12 May 2026 19:15:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.182
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778613260; cv=pass; b=eimzaHpjx78G1XGKZgBswpzDoLdyylTDaI4DVIUSd77GjatpM9bRORwWN0eqExcJSUHeGC9SFDrd09UGc9dBi3WjHYSI1RvpS3ZHv5Uqx36mkyT9Lewr2ew+Qp48M0/X6NUQCGqaETLZTAFjCBuUE7UI46ZnV8dcVjeEAuRdxJ8=
+	t=1778613302; cv=pass; b=QT4xB1sRPSjrEyz8iiIC+0s//vJw41DA+joxrfD77XPSrN7ib65DRiw8XlcSBYdDSOzZqpcyszO07zhGa725EFLdd0tFZ7DuYKxgmJC7l3tfeCRvqe9dnY+BX3noj94v8wMASy6v4PlCHlTWiwyNbpLlmeDdStxz0FPz8MoPQfI=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778613260; c=relaxed/simple;
-	bh=bh4rTBxc+k2k9I7ILgQv9jbnkPh36rocdpnK9Kqt3/g=;
+	s=arc-20240116; t=1778613302; c=relaxed/simple;
+	bh=LPcRp3WDNkFHSwT3fYcG7mTQ95C0umGk59DiBshj1ys=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=BtxDf3AiEStt2Kn/vc08qixmVo6ZHB1izI792rQlyzsAUj7zM3i6x2qmm/UhBCc8qPmZ6SrZ8f58M+8lnRRLv25ydhd9DzLuaOytnecJbAvnHVmTxW/kNDMyCqQNF46ZcaFQ795uqigHK9FPeloi1l1nPvQY0czYDBCypiUQIoU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=g3YWQH2o; arc=pass smtp.client-ip=209.85.208.177
+	 To:Cc:Content-Type; b=sGinTfab6/JZPPOkG0dFSRq3eUDAMytTEMxjSEoArLgHVk4mSbbwNDQ2OmOvliq0wLtRlzOorecQIKOMUO/VfFighBsq0YciDRb1db4ZLbtm3bBEPvq8PEqpCd75spEoaq8EEg5afRsq+muSd/QGmORgIISwAjOXu8wcSLHe+eQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=euB4o8LG; arc=pass smtp.client-ip=209.85.208.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="g3YWQH2o"
-Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-393d07e8938so54545421fa.2
-        for <selinux@vger.kernel.org>; Tue, 12 May 2026 12:14:16 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1778613255; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="euB4o8LG"
+Received: by mail-lj1-f182.google.com with SMTP id 38308e7fff4ca-3938cc204a7so47374821fa.1
+        for <selinux@vger.kernel.org>; Tue, 12 May 2026 12:15:01 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1778613300; cv=none;
         d=google.com; s=arc-20240605;
-        b=fVWcQi6i3X04OcmQ7619KvX+q4/rHkk17okSR/SuvQP0W3EpWjZd5MzC1QBC/YistK
-         fTZK4ezAruAtJg8A2+Atnd81YDjgu4FwfQmEHPFOpXvUA5p5Ia40eBNG9FwTq/a1WBRn
-         awcz4k3wmOJVgzHN04+3rzvWTL89dguUY4hVWtrhKz9gM4j9fIl48QstgoZoNkuk46vi
-         0Cr4fcV3ihvhK0Dj24hLVwxVqjaRmA8IqO49XhRF57g0DZIq2r06pXYwFxkLHm9sTBXA
-         6fMI8ZcVXKqnpj44EucmFiWdaADGbW1/iqXH0doEyhYbxooSzQCSFws6zMiq0f1Koi2k
-         etSA==
+        b=GGC5G9nlrorG52CpUYUkreWSdm8fiWzOdUBiHRvjKcUr72fCJX1NtFdvVP9HlzJ7Jw
+         BKsBxq0TD3DSMOhp0OwHXZ4ssLCOgLYA2X6g2yUg66lKO6/G984EZtcfFjKg4YQp8Cr6
+         XOJutNKI791McDbfnqQ515J1r9hZOEc/KJnmbYNTZKTruBpH4a1RwGSB7aHhxBIVi0v7
+         bj/RHRXDhx+f+hmfIyvYVNRrEo89vsWXsNyLYKtgdDQnPEXCptzMViurnotgadZIkBUP
+         fLqoFwh/C+GA36Xej2n8FiFAfw5dPlmSDaGgOZqYXf5G6XpAxg0XB2iIkVWsX73HAChD
+         PfIg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=eY4L4zZ2ftAYr9nNlQkOXxq55FO3UPDBdg4zXEggkZM=;
-        fh=mFQboJxWocvAtOma6DaRcuQcCUuideATZmTdRNfolWk=;
-        b=VPgx86AITTxpVwG8G3IOGjFJBg7VqJaX6xLfoNl/QRtLfalbMTJwLbMhmReNV0C59P
-         os5UhpjTvaO3qsgVPiagdBP9+XCXMx4NVEuUPCLT/Lev9PH8HHqYvclZ+KC5rCTCWMcb
-         DHLomQchaEX8VuCzgV00f4DP3ciYcaGmLI24Dh/0Vh+3suWWA5EOSlE6E3NaZTmJ/pBb
-         abgD02QqXfAswlEnjPbADR26xqFnRPc6a7rKV0Vb0CrmQSstID9CKKEUmsgdQqY5YAOa
-         UXjtDIHnjnaDs0X04PT2zWW2V/OWip1ok2eSk3ZRQ+6SJSirQWwRCZ/ttwp2is8+hi10
-         ExiA==;
+        bh=EgYFCXIAxe43Qg073vRR2oG3WBDoVPR/DCogTMe3ZQo=;
+        fh=biLNIbUdiVI+HWgqVoISrU2pQus1fZiQi7u7sC8l6as=;
+        b=YUSqH7o/+K/Nzr6kbuJ64iX7Dgno60pEfCRnR1HfZEEIWXWN/MHK8dqfGlFv9bOlSR
+         LcebSwl7ruWUBhZ9fGlYfcwQLu1tIxs4OnknIgQfB3PjOu9ouypf0KuBrpXV2EVdGz2a
+         kmThxAS4l3AKEGswvu2l4xqYtofuk35l2r6LaUuSJ+DAMen6aI2F6zH4rRNowjc7xRfl
+         bB4fJe0BpdjKWdwKuejCUfm+KvJBMyy78UvKUC8Ap645JEKWmpKBWzZ5zlT9wFeSriff
+         xYV1H1ntSGfEYXivCWXA0umaJ/laPnMhlXyJUQ3Rk5sTrCdnTDGLer+QiDifRYuTRs+2
+         /pEw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778613255; x=1779218055; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1778613300; x=1779218100; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=eY4L4zZ2ftAYr9nNlQkOXxq55FO3UPDBdg4zXEggkZM=;
-        b=g3YWQH2ox9PrlDAOxG2Fd7a4kF7PurHVo4NwbCXNedeaGDbCjdOXzgyuFoj5zhis9G
-         2rrP0qbzsTNu0YwGTO/q2mq75/I+EaVi2/H1Q7kEAKkQHWl0YqCAnpVqHxm2plLcXQFs
-         bFthd0nvXx+CXYsfowe1v/NB739X2vZfw/6WK6uMQEudM/+Y4vQa2nmapvew+cNgvMAQ
-         ZJ3efP6ynkY8muJfk7KHU4Dvdcgx2WGBvK0hxphAp4bjnFRpBco+Bg4w9MI3L/mVk96w
-         Z314XK/5pSPZW3OLL30fh+EC+35DcyGKQ3WxE5J91NYihl+wudnGgpoXiVTaoznJVKND
-         neUg==
+        bh=EgYFCXIAxe43Qg073vRR2oG3WBDoVPR/DCogTMe3ZQo=;
+        b=euB4o8LGmwCbGb1vtFQCnJqZ2BDmCt0qLYctjWY4maC4Z8A7ehfdeFpMQzT0dVc//s
+         qDoYBQfGky/giwpt/xl/kHtMY6071JyK4GW0UBPmB9H8Ch1x3j17NKNuYt8gJ2AWBN+p
+         A5wq86g7LMS6fHu6LXaVBmw0k0k0VWk96IVRg8G36Nx8/FISgC4MgFJSQKcXxkl5g9Va
+         kyBC9ZUBpENVzSIxT++12jGU75hu6J0oDuYoiYkPfBoT0DheUhYc/KoNXF6y1dH2dPZE
+         yuzh7POhjjTwPKC86wp5i9B8UcwO+WwKrAshIqGC1kt78T0JdyhJ2bFSQYldw+FPubWY
+         jZ1Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778613255; x=1779218055;
+        d=1e100.net; s=20251104; t=1778613300; x=1779218100;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=eY4L4zZ2ftAYr9nNlQkOXxq55FO3UPDBdg4zXEggkZM=;
-        b=E5ouCG1IOC3APd8LBRkrfqKt0ot7o3VFsVLuzkXd3jH83u641xkXird7T9h7LdyQFz
-         7ipsWssrDXVjkRtr6VnK0LyZ5x6TTLygP45/Kp6Zz4T2Bku5CzpyJnN6jvI4W9DhpwWn
-         Q/aqKpFREbHxN1s2DNnqr1IadpaesGa8LGOh87EUvEg2KIe7iK44/knwhB+eqkUaVQaN
-         L1L+BL4x1jnKsYswrnz+ynpgQ5yL5GQCwS/e75NW2kJVBAmTAXuWjXGf+s76ZDWNILiu
-         BUu8TDXrsW/EpY3emo0KKX38xl7YP9scdZbktjSskTq6Dq5YOs7tQHe6r0pmxYtp+hjA
-         mtmg==
-X-Forwarded-Encrypted: i=1; AFNElJ/zyl2Da56fVVJeNxp6hqaVS07IrhuUlU5yGd2xDL4Hq1QcHpPSk3bD+lPO3VhfxoNkS2kiAX7j@vger.kernel.org
-X-Gm-Message-State: AOJu0YxpNtHV1xGnyXMWlI9GBXcMRFSdY774WBdRBXFGu4qZKVJ/sS6d
-	zkgcLScu58F1DGG9OqnNzuoPG5l4j1XbFpcZXVwA2yVvj4P3f0lsGxspnfIrFoDMaCx/5AL7UIo
-	XDmpivbW9GwJ8JWCvwIcecity0YEn/KuXwrR3
-X-Gm-Gg: Acq92OFnm8mh5o5fIx0aHzqyNN6U8mYrQ+isbyDrhk7rV5cMnqIvY6MVZyzXMifTe/K
-	m5C+5o0wXqb/y5nRHdmt4LkDEokLA4p5lRJXi9ciq2Cl8R+AEMh7ORSo1eXfZmlOaSLa7A6jnk0
-	LEZgZE2lYZPHSwGpMUR8JRmlhKSQ+3l5sdZdbrjwStVEI5SXgm9Wwln8z+4E2gzELlHCbNOqAfI
-	VQ0faCS5ZnJ5KWxzAY91lzqUrqMO0U+uiv0PcS6S1+QHZJlCna/PD6mMt4dQQr7bxJ6KIwntKth
-	micy
-X-Received: by 2002:a2e:9784:0:b0:38e:a00e:2bb5 with SMTP id
- 38308e7fff4ca-3944b604ee3mr493421fa.19.1778613254544; Tue, 12 May 2026
- 12:14:14 -0700 (PDT)
+        bh=EgYFCXIAxe43Qg073vRR2oG3WBDoVPR/DCogTMe3ZQo=;
+        b=BRuY94O+lCorwq9KuIdlUZ3L0AWQAMivtHovuu4t0ujYGA/D16mmow34cAe6ansRLl
+         tQBm2q9D/9Ws1c1/nNVKLHWk6oWNHDB/y9NnxjmHa1KV4Zw4MiyCuBDJsj5M1F83S28X
+         YPN1wqvdeRz3w3PWu8HuwR0P3O3F8gbtRB9Rs2wMnTj5d/FgWUiMuxUXVhxenctfTUHl
+         mg0hpuRAivZ9muzfMv0Cf5eDy+6r2su9CHiOhq2DagkZFuDrHarxLg+MwadwRq2v1yYI
+         JI9kHt0lCMt1QCPcDBiOgS7zt+/eEvai36gVUQ/LiH7J03ci1d3RtkTnKxZ9ZBqAZlEj
+         x5Ug==
+X-Gm-Message-State: AOJu0YwHQ0gHW8mrzuLDyESX3o8az6OYQ4ZnuhgGwEb+/BJNAcMc/ntl
+	ffPav2UVjGCeImjZfvwcQb167wuAaTo9JMx5fdISO24UU8fk+n05TD+s4mLxoRWSML9yiZlDgzl
+	loWltfviL+mpKBkEd79ytvlzVwls43F6DtLv1
+X-Gm-Gg: Acq92OEpg7vjo4OUzPE9LXs6VRivwTOlbzaM8YKh7Kif9bZKUmP7v0XfGmFrGZnOBGh
+	WtTaPisdoJW6vwM5lX6b3ORGHUJU32dVdX661wTW8Lwu+GImsStNbeZjOIJtWUuAHdfSZ07Mns+
+	/0FR0JGVarz+WX3xeeRPJl4p+WPooqXRO+TdvyTMXtB5cdqvJVza625acaQLiDT9MFyqudibx6S
+	ShDW+jmFMaz94vbySW3f/ZlObix26Pz4mb0PUMSOfLn5jEW0U2BQSTHfnOB7FAVFjUUELgYrX+e
+	ITXG
+X-Received: by 2002:a05:651c:41ca:b0:38e:ecd7:a5ad with SMTP id
+ 38308e7fff4ca-3944b5ab4d9mr569841fa.20.1778613299282; Tue, 12 May 2026
+ 12:14:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260403065234.2172150-2-nvraxn@posteo.uk> <20260403065618.2172556-2-nvraxn@posteo.uk>
-In-Reply-To: <20260403065618.2172556-2-nvraxn@posteo.uk>
+References: <20260512183402.751341-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260512183402.751341-1-stephen.smalley.work@gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Tue, 12 May 2026 15:14:02 -0400
-X-Gm-Features: AVHnY4Ij8XdMSBEbmwUN-zNym9Fo0ZSeuc0i8FJNairY9czB3sTWPWSXlzDvFNg
-Message-ID: <CAP+JOzR4bmbSTwyxV6W0awuOQH+jJwCokp=T9s4UuPMuOM0tKQ@mail.gmail.com>
-Subject: Re: [PATCH v3] libsepol: policydb_read(): use a static string for policydb_str
-To: Rahul Sandhu <nvraxn@posteo.uk>
-Cc: nvraxn@gmail.com, selinux@vger.kernel.org
+Date: Tue, 12 May 2026 15:14:47 -0400
+X-Gm-Features: AVHnY4KL6WLUXNj22EGCgeC_suAZ03NBlFhV3yxhvFRGI0rGvf1LXfIJtUoT79Q
+Message-ID: <CAP+JOzSJc926t7oSXyRc=TKtmtr643tLBmv1HgwR2405Mi3nHA@mail.gmail.com>
+Subject: Re: [PATCH] sandbox/seunshare: pass O_NOFOLLOW to openat()
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
+	paul@paul-moore.com, perfinion@gentoo.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Apr 3, 2026 at 2:56=E2=80=AFAM Rahul Sandhu <nvraxn@posteo.uk> wrot=
-e:
+On Tue, May 12, 2026 at 2:34=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> We know the maximum possible size of policydb_str at compile time; it's
-> POLICYDB_STRING_MAX_LENGTH + 1 (with + 1 accounting for the null term).
-> As POLICYDB_STRING_MAX_LENGTH is trivially small, make it a static str,
-> avoiding an extra allocation.
+> We do not want to follow symlinks here.
 >
-> Signed-off-by: Rahul Sandhu <nvraxn@posteo.uk>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  libsepol/src/policydb.c | 15 +--------------
->  1 file changed, 1 insertion(+), 14 deletions(-)
+>  sandbox/seunshare.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> v3: fix authorship mess
->
-> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-> index 9760b164..8d290d86 100644
-> --- a/libsepol/src/policydb.c
-> +++ b/libsepol/src/policydb.c
-> @@ -4192,7 +4192,7 @@ int policydb_read(policydb_t * p, struct policy_fil=
-e *fp, unsigned verbose)
->         unsigned int i, j, r_policyvers;
->         uint32_t buf[5], nprim;
->         size_t len, nel;
-> -       char *policydb_str;
-> +       char policydb_str[POLICYDB_STRING_MAX_LENGTH + 1];
->         const struct policydb_compat_info *info;
->         unsigned int policy_type, bufindex;
->         ebitmap_node_t *tnode;
-> @@ -4222,16 +4222,9 @@ int policydb_read(policydb_t * p, struct policy_fi=
-le *fp, unsigned verbose)
->                 return POLICYDB_ERROR;
+> diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
+> index 2512a18c..4e441b3c 100644
+> --- a/sandbox/seunshare.c
+> +++ b/sandbox/seunshare.c
+> @@ -428,7 +428,7 @@ static bool rm_rf(int targetfd, const char *path) {
 >         }
 >
-> -       policydb_str =3D malloc(len + 1);
-> -       if (!policydb_str) {
-> -               ERR(fp->handle, "unable to allocate memory for policydb "
-> -                   "string of length %zu", len);
-> -               return POLICYDB_ERROR;
-> -       }
->         rc =3D next_entry(policydb_str, fp, len);
->         if (rc < 0) {
->                 ERR(fp->handle, "truncated policydb string identifier");
-> -               free(policydb_str);
->                 return POLICYDB_ERROR;
->         }
->         policydb_str[len] =3D 0;
-> @@ -4248,22 +4241,16 @@ int policydb_read(policydb_t * p, struct policy_f=
-ile *fp, unsigned verbose)
->                 if (i =3D=3D POLICYDB_TARGET_SZ) {
->                         ERR(fp->handle, "cannot find a valid target for p=
-olicy "
->                                 "string %s", policydb_str);
-> -                       free(policydb_str);
->                         return POLICYDB_ERROR;
->                 }
->         } else {
->                 if (strcmp(policydb_str, POLICYDB_MOD_STRING)) {
->                         ERR(fp->handle, "invalid string identifier %s",
->                                 policydb_str);
-> -                       free(policydb_str);
->                         return POLICYDB_ERROR;
->                 }
->         }
->
-> -       /* Done with policydb_str. */
-> -       free(policydb_str);
-> -       policydb_str =3D NULL;
-> -
->         /* Read the version, config, and table sizes (and policy type if =
-it's a module). */
->         if (policy_type =3D=3D POLICY_KERN)
->                 nel =3D 4;
+>         if (S_ISDIR(statbuf.st_mode)) {
+> -               const int newfd =3D openat(targetfd, path, O_RDONLY | O_D=
+IRECTORY | O_CLOEXEC);
+> +               const int newfd =3D openat(targetfd, path, O_RDONLY | O_D=
+IRECTORY | O_NOFOLLOW | O_CLOEXEC);
+>                 if (newfd < 0) {
+>                         perror("openat");
+>                         return false;
 > --
-> 2.53.0
->
+> 2.54.0
 >
