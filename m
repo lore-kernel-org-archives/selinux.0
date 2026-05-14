@@ -1,66 +1,66 @@
-Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
+Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DF303C378F
-	for <selinux@vger.kernel.org>; Thu, 14 May 2026 20:44:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43D553F413B
+	for <selinux@vger.kernel.org>; Thu, 14 May 2026 20:48:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778791453; cv=none; b=ORn1Mcg3tcEcktp+N9GJKJK4ZKrWckjRt8Q4WMDOZ9XS4Heyv4FcPOR668B5JZLQthjsCOOVq1++rWRJyMeN7gP5AvM76wYd0Tbh73y+j362c2f7RiwDudVlvmqsNUULdzOvBl4FOYUJ9jk5V3js5pt7rUd+FPbEh3AzzJ7vxfo=
+	t=1778791681; cv=none; b=rRsvKBhkEnwwRBxlmbz4YGfTG0lKVV2CM6c0QLk9UiwGwu3g+GAY74aYUOejuVZOcwiEzZAcA/ghl4Ww/PN02Hptnt4byNcisxcU/lCfqE3u8m23xN31x2ITHXsoPdjXJdBq2yko8EZjrsM6eyXNOb+cmrGn1UN1aDA5bkPXQ28=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778791453; c=relaxed/simple;
-	bh=bhsOuUIaNixFGUNouO+flDtH1Ol7OJbIIYt+9nRn+ow=;
+	s=arc-20240116; t=1778791681; c=relaxed/simple;
+	bh=4y79Kl8WzXCr5Rk9Zb629M35maQPDXeKDyl7nj8DYVc=;
 	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=f62nP7qGWrYMn9Nh+kNGTalopTmnA1btAtPFcTd2xYYzkC6TOKD60rli4mcHO2BhvMiHz967xcSVVx33KUGmaJaAiceqK2uMyc2/BqQZ0ADFWUpaybIF9h9WSfArH9kdXoNwDnhhs9/HK60PMmhEJAOp6ugLYPrNSpWax3uKFos=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=OSc1CYb0; arc=none smtp.client-ip=209.85.219.41
+	 References:In-Reply-To; b=IcUCPaWReX09jEJvABBNAnLqS4/hG0DcxQHQ6Rsi3GrJYoq4EhefpPsnzLvSn9JGDmRN/g0AXWn/HDT28E212nNkuQUxtAC1kEvQ0xQexJqM0JILpePrwXgZELgPACiYftQtQuSE1Q3wSHT4rgk3YlN/pneORoxl0m9/TvTb2Gs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=QhOYmp9n; arc=none smtp.client-ip=209.85.222.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="OSc1CYb0"
-Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-8b5de17382cso61437356d6.1
-        for <selinux@vger.kernel.org>; Thu, 14 May 2026 13:44:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="QhOYmp9n"
+Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-902deb2412fso938470485a.3
+        for <selinux@vger.kernel.org>; Thu, 14 May 2026 13:48:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1778791451; x=1779396251; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1778791679; x=1779396479; darn=vger.kernel.org;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :mime-version:message-id:date:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=iIn517qMFa/72Ee/XGTDeeK9Cq6VJiGDpV2GCDJOS7E=;
-        b=OSc1CYb0LA2hDiDhS0KeITKEVBykeYFWm5mB0F2ke+6PQDCnTZXwjSXfPcFZ2NjxZh
-         Ud8DZ2Pn80kJgStc5aPzDIhYLMhcN1gBuV634XDMewUMWFm1C4TCCf85M8NSRiX1eLv7
-         zr2glp2nDXnD4JkJPtYxTMuKBslrojKLiTEHAcm3EH6FwxYhOdc0MwS1z8EnASGXUNdh
-         qhqkOHGuzzpUceCeCbvLtRLmYW42xUzlK1M6PLl6EmmgsVevWHKple3NmFdra+FfED0d
-         w7cz8MNWx7gA9pA1tPMPQc/OFjkj/Fy1Lz2cu5g15GIezPqAP5ftUK5m0p3AWAzVxQZa
-         4dLQ==
+        bh=jOlLQlTi3o05frdZLbYuVm1cEc621rSLbOtr/H5CI6U=;
+        b=QhOYmp9nyqmC94Wp3oB3TUXOXtz1bYLmQOz6aLV7W75XW/oibX6gOdIK0E0TYmR+dm
+         TGuwwt+hJGyi2qfMLU6Uk7QzIpC4OD/aes8oVwd3pccTwGxmrZFdT3rQ7Xe+/cYXVOIM
+         6tqXJVsxmUWCkkH7KL/Gd2AEMme00x6F8DRuem5QtsGMt14UvI34200eavM/4mKvvLj1
+         C8f6ti9pPJkUyqXB10TQPMhYmvT2NBEOO+6mLfAkwsSHPi4aiMfHQiyq4t6eIUvak1rC
+         xHNCY+IDXHfrE3LpJmKI86dqhzxcTqA2h5V6hKLA+X05BtDfi9id823dE5yy9z6k6dJ8
+         JmQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778791451; x=1779396251;
+        d=1e100.net; s=20251104; t=1778791679; x=1779396479;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :mime-version:message-id:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=iIn517qMFa/72Ee/XGTDeeK9Cq6VJiGDpV2GCDJOS7E=;
-        b=MA/Z0dLkpx08nmtlWT2G3nKWjgHpClhkFgQCQx8/1ij2mS+sP9B7y70n8OGBsX8uha
-         Y77nRNUJ+xEOjPWfZTLXYqU4eHQNHXm7LzRhQPUV+6O+a/2aHLAl/GvVO53vKc7LTFxx
-         8GuBxcxUML2ElG2/NMFad6KeooUmQOwsO6QEnVjMbytwvT7kr1dkfRYPbeEr2vPH1z/k
-         eKAlmJZFi2YBO20pvxLdZt2ESkaNjihJFlVFBQoG2Dm8/K5THEHodehicnpBgZ/UXhFD
-         jNnjevXyzlHtZ9VCxjXbUtpoXCgH0pBxxbY+cD6V6GUSa/G4H9qVovLELjaJh90cmAKf
-         WLYA==
-X-Forwarded-Encrypted: i=1; AFNElJ/UsSvU7uTArYxMB+AaUtquJBCal6Ni+97Qihh5N+yeryBOS+8WG4l7eymOmAozkJZG4AQM8I+A@vger.kernel.org
-X-Gm-Message-State: AOJu0YzoK1V5W6ag9uV/hyq8sbqDRIG0B2Uih18gMZWs+GPAI5fBKu/F
-	J+mX2RoOycBsGHnO1x/V4d7YOTjPZdQSZck6UD5huypoj0s0ixz6klU86s7bTp9sRw==
-X-Gm-Gg: Acq92OEl3TVdwXOS9XISeRHYxUeF3zQkvX12zWRKuFSIBhK46EjR55cV2sDvB948z2a
-	n2tyFfmAPtW52lRrSEIlab+ofSdMzZ33qIaPNNumvRo6a/Uzz79hlgWHAH8Re/ndOIiiKW1Ha6z
-	9OxhpUtBoJVyVHSIfjUhlI1G0iC/9gm4Ff6w3PocByKK7cbBqOdXlxX1S/nd7QxS5FO5KqcYmRH
-	F8gvuDvKIqKi3rX1Lve2ZjdLDsEMY6sEWpNhQXi+IVMHgevd33YRPiWbGFB6waFI2iQQDWHujAb
-	zdPiQVAUCrr+c4OnA1W7JGCz4Wi6mMuoomMlypRiD/W22y0Xw4rv+8f2jnjhOvRlZrzAZ/slAnL
-	uuROr9gzbTvDmngkURYHZvR7XN359vlCnzX0j+cqaejKOvLEvTuDpG/3YEFTB6oeECzKaD0Fc5R
-	/LTWx9rod6T9eNy/BCY3gt+9Rr1xrXxiIiCZY9EmmylyDXTN6I0x9+thmsRbFugs6TTyTWW29KY
-	VYxBYs=
-X-Received: by 2002:ad4:5e88:0:b0:8ac:b70c:8a9b with SMTP id 6a1803df08f44-8ca0f70f697mr20146116d6.44.1778791451056;
-        Thu, 14 May 2026 13:44:11 -0700 (PDT)
+        bh=jOlLQlTi3o05frdZLbYuVm1cEc621rSLbOtr/H5CI6U=;
+        b=YnAyU6LOUHgcZ5E7iSmO0xk47lFqUbRnLp2i85VZis43g6/UI4UeDLT5IblBDZmstS
+         SOj84gCMYY8VyqDwsuGCYOdbYMxK0ClRvB3ZTVB0Kcz3TVPjamUqHpWTjgG87Z9KKuQ9
+         HmHeTBbQkdvHzIDdEbxygV0mp3bsOSzlNkL7VJRyhhZQkI5z8ZsJZNyAYGB9yVBERoNM
+         wDYypzauAF1EwP7rZo54VG4mo3RxwwwP9ZHx+isDgUZBNwrbFQiRR6cHfi/52nAFyasp
+         3nhnJqa5Hoi2QSzHZgYGd0e/oJeWUidOBpw+sI9zN5Ln/ixqqv9Yt3BeCvtK3wq9ZzXG
+         +NcQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+fummOuPkkkH/gMBkTpmuLCSyInudV+uTEK/Z/FrXNc6l9sTic9EQWoJAA/CvzVbG4BHkISQbn@vger.kernel.org
+X-Gm-Message-State: AOJu0YzouQgTTyB2NTgoA6bXR3Utt8WNqOMayYzLTttACjmR4sM0iflS
+	MDrGJ+xn07CBG9w72mplhud9oMJxV4eUZ8tbmfBWBtmiTyt9lTvGggtkyfLlQy8npglwzk6YwpT
+	tLxjm6ZhQ
+X-Gm-Gg: Acq92OH1tGtjXzMWkK4RLCdk/5c8FxPREwYYMcvVnWpKVSnROLWgN7uuZF9hhuv6mCZ
+	SpNKVc7WWQWXakmHG/pWzC5d0cQBzRykzFbgYAkV5zJlSGkZw7XYemaXDCZnYx+WQ/c5DnbfYeu
+	p/aeEOmidjQt6TxNST2JGEQY8iGc6IojEUT86mNCSZUqXK39n70Y018ZFu0U1ZDSqyuHA8pcOw2
+	iB90L2+dTfTTWofsauCNHDc10Ze1rQI4LN03/u1C/dmVb6e9354kuWy0gSwe6uZY19LzC/wudcD
+	WGzB+7yia1gBO8WSHdbRCmKxxmrcPyfOg0fRNzlNcxiHBpYMF5HQcVFmmovnhcsppu6inluzlyF
+	R2dLmaEytckM3ccuaKDAPNb32L+57imDH9qCQg7CfS/oYJO6dF1JPsds8hM8yvMG8ZS292WrZJZ
+	Vcku690AYxLokWZVdWpN8gI4adFwbDTB2fbsmaKe14qpcLLu7vxNpVLLEte/lw7FNpTgEH
+X-Received: by 2002:a05:620a:469e:b0:90f:6153:3eaa with SMTP id af79cd13be357-911cf002797mr205705485a.51.1778791679135;
+        Thu, 14 May 2026 13:47:59 -0700 (PDT)
 Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8c90c358539sm32474826d6.41.2026.05.14.13.44.10
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-910bc83bbf5sm339202985a.28.2026.05.14.13.47.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 May 2026 13:44:10 -0700 (PDT)
-Date: Thu, 14 May 2026 16:44:09 -0400
-Message-ID: <16093a0278a6d7d1a0a8bc055c228bed@paul-moore.com>
+        Thu, 14 May 2026 13:47:58 -0700 (PDT)
+Date: Thu, 14 May 2026 16:47:58 -0400
+Message-ID: <b99c011e6d988fb98ad017265115b323@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -71,85 +71,29 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit 
 X-Mailer: pstg-pwork:20260514_1634/pstg-lib:20260514_1359/pstg-pwork:20260514_1634
 From: Paul Moore <paul@paul-moore.com>
-To: Albert Esteve <aesteve@redhat.com>, Tejun Heo <tj@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>, =?utf-8?q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, Sumit Semwal <sumit.semwal@linaro.org>, =?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, Michal Hocko <mhocko@kernel.org>, Roman Gushchin <roman.gushchin@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, Muchun Song <muchun.song@linux.dev>, Andrew Morton <akpm@linux-foundation.org>, Benjamin Gaignard <benjamin.gaignard@collabora.com>, Brian Starkey <Brian.Starkey@arm.com>, John Stultz <jstultz@google.com>, "T.J. Mercier" <tjmercier@google.com>, Christian Brauner <brauner@kernel.org>, James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, Shuah Khan <shuah@kernel.org>
-Cc: cgroups@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-mm@kvack.org, linux-security-module@vger.kernel.org, selinux@vger.kernel.org, linux-kselftest@vger.kernel.org, Albert Esteve <aesteve@redhat.com>, mripard@kernel.org, echanude@redhat.com
-Subject: Re: [PATCH RFC 4/5] selinux: Restrict cross-cgroup dma-heap charging
-References: <20260512-v2_20230123_tjmercier_google_com-v1-4-6326701c3691@redhat.com>
-In-Reply-To: <20260512-v2_20230123_tjmercier_google_com-v1-4-6326701c3691@redhat.com>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org
+Cc: omosnace@redhat.com, casey@schaufler-ca.com, serge@hallyn.com, john.johansen@canonical.com, linux-security-module@vger.kernel.org, Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: Re: [PATCH] lsm: hold cred_guard_mutex for lsm_set_self_attr()
+References: <20260513180506.760657-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260513180506.760657-1-stephen.smalley.work@gmail.com>
 
-On May 12, 2026 Albert Esteve <aesteve@redhat.com> wrote:
+On May 13, 2026 Stephen Smalley <stephen.smalley.work@gmail.com> wrote:
 > 
-> The security_dma_heap_alloc() hook allows security modules
-> to control which processes may charge dma-buf allocations
-> to another process's cgroup via the charge_pid_fd field of
-> DMA_HEAP_IOCTL_ALLOC. Without a policy implementation, the
-> hook is a no-op and the restriction is not enforced.
+> Just as proc_pid_attr_write() already does before calling the LSM
+> hook. This only matters for SELinux and AppArmor which check
+> whether the process is being ptraced and if so, whether to
+> allow the transition.
 > 
-> On SELinux-managed systems any domain with access to a
-> dma-heap device node can therefore exhaust another cgroup's
-> memory budget without restriction.
-> 
-> Implement selinux_dma_heap_alloc() using avc_has_perm() with
-> a new dma_heap object class and a charge_to permission. Policy
-> authors can then grant cross-cgroup charging selectively,
-> for example:
-> 
->   allow allocator_app_t client_app_t:dma_heap charge_to;
-> 
-> Signed-off-by: Albert Esteve <aesteve@redhat.com>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Acked-by: Casey Schaufler <casey@schaufler-ca.com>
 > ---
->  security/selinux/hooks.c            | 7 +++++++
->  security/selinux/include/classmap.h | 1 +
->  2 files changed, 8 insertions(+)
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 0f704380a8c81..ea1f410b9f619 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -2189,6 +2189,12 @@ static int selinux_capable(const struct cred *cred, struct user_namespace *ns,
->  	return cred_has_capability(cred, cap, opts, ns == &init_user_ns);
->  }
->  
-> +static int selinux_dma_heap_alloc(const struct cred *from, const struct cred *to)
-> +{
-> +	return avc_has_perm(cred_sid(from), cred_sid(to),
-> +			    SECCLASS_DMA_HEAP, DMA_HEAP__CHARGE_TO, NULL);
-> +}
-> +
->  static int selinux_quotactl(int cmds, int type, int id, const struct super_block *sb)
->  {
->  	const struct cred *cred = current_cred();
-> @@ -7541,6 +7547,7 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
->  	LSM_HOOK_INIT(capget, selinux_capget),
->  	LSM_HOOK_INIT(capset, selinux_capset),
->  	LSM_HOOK_INIT(capable, selinux_capable),
-> +	LSM_HOOK_INIT(dma_heap_alloc, selinux_dma_heap_alloc),
->  	LSM_HOOK_INIT(quotactl, selinux_quotactl),
->  	LSM_HOOK_INIT(quota_on, selinux_quota_on),
->  	LSM_HOOK_INIT(syslog, selinux_syslog),
-> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-> index 90cb61b164256..d232f7808f6b8 100644
-> --- a/security/selinux/include/classmap.h
-> +++ b/security/selinux/include/classmap.h
-> @@ -181,6 +181,7 @@ const struct security_class_mapping secclass_map[] = {
->  	{ "user_namespace", { "create", NULL } },
->  	{ "memfd_file",
->  	  { COMMON_FILE_PERMS, "execute_no_trans", "entrypoint", NULL } },
-> +	{ "dma_heap", { "charge_to", NULL } },
->  	/* last one */ { NULL, {} }
->  };
+>  security/lsm_syscalls.c | 9 ++++++++-
+>  1 file changed, 8 insertions(+), 1 deletion(-)
 
-While we have seen some one-off patches to add specific resource/cgroups
-controls in the past, much like this one, we've yet to see a patchset
-that provides a more comprehensive set of resource/cgroup access controls
-for SELinux.
-
-I'm not opposed to a patch like this, but I would like to see it as part
-of a larger effort to introduce access controls across all of the
-existing cgroup control points where it makes sense.  In other words,
-let's see a design for cgroup access controls so that we can ensure we
-have something that is meaningful and makes sense from a policy
-developer's perspective.
+Thanks Stephen.  I'm going to merge this into lsm/stable-7.1 now, but
+hold on to it until next week before sending it to Linus.  While I
+can't see why John would have any objections to this, the extra time
+should give him a chance to respond.
 
 --
 paul-moore.com
