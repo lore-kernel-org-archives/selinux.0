@@ -1,61 +1,61 @@
-Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com [209.85.160.181])
+Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A18D33DFC6B
-	for <selinux@vger.kernel.org>; Thu, 14 May 2026 14:37:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F190E40245C
+	for <selinux@vger.kernel.org>; Thu, 14 May 2026 15:06:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778769454; cv=none; b=uuz+k71KlulEUOLXLG8KD17PUp7k7VvggKwo87oajlkSkm2bQCu7h0mi4SXceIwPQWgVNBZA1Db1fxzlpgHkLSgw23bqydXxAl0PE7uK28LWq+2k1J8eXvSGcx7b0maMTrNjMboIw7M7ePDim9QwXP41LhUSPVIvSh5/MOptVX8=
+	t=1778771165; cv=none; b=FSB1MhAO5eG6a+X2zZz+emaFiZsxgVq67L97CAR0p5hwYG0N/S/w3ulQSnnM0EKSjAqIPH9hVdI4Lzy2sr656qrR3Dw2khukroomamqHdlK7L1DQWs7e1nKPPLWRzxne95loj1GcJk4n1Aqbza22878lJObIIsxlKtfT1fHCaOc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778769454; c=relaxed/simple;
-	bh=DzUgEIayL0lbl3Ykn8GEA5pIk2hCDv9koGXbCpx1jsg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NseuAryQuoiB/vQ259TOs/mv3vcoBiiynWMusE2lkvfSxjZkbOXIQ4lUFgV7ZroGB8WNPnp92S+b3IGtAmDi6WuBqzd4xe/VsF3Z4lLM7bVcN2Yzk23SDMorUYKBQonQIavUEsUgsERFAZv2o5bRZT7QzrYd7tfYyDKTBy+MIJo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LdyhMB8B; arc=none smtp.client-ip=209.85.160.181
+	s=arc-20240116; t=1778771165; c=relaxed/simple;
+	bh=1HOJU1oRea00XeihFOVwkERIS/nbmIX69G/oQyX6ZPo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rjv1EeSJvrv3TIGvPYUqaSjS5VcJot/LjNl2ENkS2jOEVIo7AeL/dLERKCjgPeALfxRBrwoBeNp6/Dftqw+uXkvFfxmInj6v+9qhw2BcmozgzvgayOrh1p+7up98+nIuJgLj1eI/Ed0bf9cRcRWpJi1GhHhydZQKG4OQU494f5E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gY1BW1rn; arc=none smtp.client-ip=209.85.160.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LdyhMB8B"
-Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-50e5ad864a6so78928061cf.0
-        for <selinux@vger.kernel.org>; Thu, 14 May 2026 07:37:32 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gY1BW1rn"
+Received: by mail-qt1-f180.google.com with SMTP id d75a77b69052e-50e594413c2so52945081cf.0
+        for <selinux@vger.kernel.org>; Thu, 14 May 2026 08:06:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778769452; x=1779374252; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1778771159; x=1779375959; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=zdOLBaxLYIZ4diTg0xe7MnxQ04TcL3hAuYo9NNJj1Fk=;
-        b=LdyhMB8BBeZSyO9aOP9l0DF8/ClA5oUVlJJIFcJNLy4TyQF0f6ZMkCqhjoEq7dgtYL
-         DMgt8A35G1pFdAUkYRe4o2jt03tV5XsA3DOP0Vuw6RFnnp+bW2NWvXTFS4ZKmg1uiJjG
-         rT3sPH7Lq5iF60/rxxU56kBOdz4BcbJylldTYL+0suGFmq2SSrMAW5pbm1Nqb2UytYsU
-         vJg/xOkclW1hX5DfRz4lWHdlgW1xrQy3OTIRLy+ee9BpTeRGbsi2VkgGjjh0GyB35yL8
-         nTjNostmpterJ8pWAgsFsmMDlkpUuaqJj4Wi0QFxRHdsgKlJRhAsT7p2IuTQhcl8aqAY
-         9oFA==
+        bh=q7typ5ifOGeB/utZQZSnTynIlEcBXms2cMi5ljxddaY=;
+        b=gY1BW1rnXv6Z2qh/h8ZC1EWKv8T+Pxoaf7omS5AMUaPeCMelj9telo0ziifUf2hPMU
+         DXKYZ2wHbLKJNdGU5E6dI+wGZ98xh+u5Wvv5G/cjt9oHvKYbqaE5CQUxynFv560+TuXJ
+         km6JI/dRHdwfSbrs5q7lgbBDCuWjFTrthf8u/Hg0HXxb+ZfU3xCwhWCMYsv+Jfi+uGT6
+         SAdVKVPovae4aD26AEvMIZc1badQuxn8CealdmAchUeyjlFMkjaw+wpnEyjn/3z2MCtt
+         E4cjG9KZDHkkNiGoaNm1UwUuK+uRYCgt1f52UdcATMo3ZY5K1SBvnLtF9EUTKTtVc2xK
+         4vUQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778769452; x=1779374252;
+        d=1e100.net; s=20251104; t=1778771159; x=1779375959;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=zdOLBaxLYIZ4diTg0xe7MnxQ04TcL3hAuYo9NNJj1Fk=;
-        b=d7IdpjH/usox57yt4DfEFJYrgdxrSL0TZkom9Fysk8D2Botia/jgM6WMEHBfWU1OYA
-         6AzQEWJjGNHCtLiPN2dmWANVsV0Am8WKsz6aD4YjDaLRW7+hkkjy9dS6sKKZR0GEisR5
-         5tYNFGyMzDVzCIDPA8Osr8tBY/lRLpcQCez118mzYbnJ0X8+Jx5seTr+VZw4OWzuxNY7
-         KvPO+OrxfUkwoHde6Xy3IsCR5J9H1VKhz6togfdgVQ1w5OufnGkq+ayGPTxjZ1OS8/Vo
-         d2XdltT+EhyrbcIkJulOQoLXHhvSXe3gICxD6o5TRmU+zZyQtKdRoZvusI+dVsL4H0YX
-         FWiA==
-X-Gm-Message-State: AOJu0YxZzXVcw1VibPI7U8QYPsZRbw9JvUh6Llo3e9ap5vwIqsVbavBZ
-	8GpB53aOr0cztDDG6jIebqGXMv9tf9WPbXPf7gltxttMi07+NqnQ9uokCJ9fNg==
-X-Gm-Gg: Acq92OEsfsNRGcV2pv2Oa/ETccZn/31Fa33HYncwmm5xggA6a3qBDr3JBDvNrtW5gkB
-	mrQ/dfnL9eHIT56Vg1LXzjUb4pphshFsYZOhWg4y8VE17dPcQemwm46WEpXYuvv52t6MWiVXj+s
-	RsU8HxBI3u6hngTrEBniMDviXua22HSD5RSasR26JhYU6/PV4y9t0I+rMJxjFf7qL1W9Rt6dAEb
-	N/qAuaaVS1gA9X4WFC8nqpxOk+qOjBlnLL/fV5+HVl4jzf41Svx+4qsULoOe/93zLLS5oO7dWxa
-	X7/hO+QbRlm3DuRPO6AHSGE1EPAKZHP+Kp6hxoPAsQGP/xXtc9GjRcXgWWX2NGswQ5atvm+0y6f
-	abC7N3JVvWEqVDhytpi+2pz+pVnCHt1ZMMxJvrlbsn9pDqeVVlRMr/z4M1CcZdbP6qalRyMcG3d
-	eEzW0CpCwesNfPrwqNunKQf0H/uhVhvY3rwPNw0oGMILEx3c70uHmDu7DUV8b6kzRs/CZQr1dHR
-	31mrCMYnDL0Eoh/l7IwC88B3P0=
-X-Received: by 2002:ac8:59d2:0:b0:514:d48c:f628 with SMTP id d75a77b69052e-5162f5d1f80mr109329731cf.40.1778769451559;
-        Thu, 14 May 2026 07:37:31 -0700 (PDT)
+        bh=q7typ5ifOGeB/utZQZSnTynIlEcBXms2cMi5ljxddaY=;
+        b=J7t2LyGHTuOA8ImYpWsZ5Xm+E+rDRIseYtnzR7rWbjG7+SzdUintC9B2xUM2aBPab2
+         Y6e3Sm9AHxCTcCVeY5/WZSEBy0cU1Z6jyzl1ZdF2LMPkltJrqfKM0RxJOn7cb85aXcBb
+         QYl6njBRguivlmILFViaVsJfYuFGhKPLJDXsGvWAJSyHu6CnSf1LyGqop0xdhALj6hPn
+         eRCn00vUZahF4YWkvXxZR9ovShHaLXpzzomDQ14m2LTzGLyTWLMkWGAOkHOYfRN3apRl
+         UbS1Iw/o1rgArsTv2coy2QRYmPUdfLZvYY6NfO0LwIYUlqpiPqfIPYGMxfu6awJR+KmV
+         bMrQ==
+X-Gm-Message-State: AOJu0YwN1VQAcSpQTo0XIfnrUGyokuPsnLrcM+iRIanRWikygBaqVTSI
+	PVAkYpGdb0W2zouAxV8cZgignzGmEw1IHrsYDmHVlPiVDKqXayyQJeIZE4zfpw==
+X-Gm-Gg: Acq92OG9kaTyDSX/6MTsu90twHiuVVj0JMKN8svVO4JiQJGuaILYXAoWubU1vM3RNnX
+	Tb4paqHxhIILWSgtA4MWB9gE/mD/Z07iZLd/RoaLUVFUSUCoNXiIIliHy18KQholS4C7/yXmtmC
+	RlExqKJba86Hx5sGEPxFzJFp+4wgLRfCcjeg44qMr2gaWcgK1wfU3Tr+j6Qy2D3tvee5EMCShWB
+	VeiNF7f1b0J0GknVnpvA53nlk59wW3TxnpIVN7GxyWS+aA2lOQU65KCKTG8DTOGQhEcprLoOxK8
+	BTvyIZ5vLLAQDtDXW9FJsuyZxW6Pfzcx+8dfsjYhWkcuHG/jpLVRG+Sm7gnAtsKKpkz7Hcp7KXu
+	t6k9b54+KRM4LORXyCDqMORTL5bsfSASLrVABEyBUvPxMaMtF8DBvds0nX3mgJzyPe7LOjuzSXx
+	nc7biPZDreFw3Y1ZIi2BsX4NOLJ1wqqCeDydTcsydDmxm83ew5fWtX920TRPkeXGJlQMwX/94tp
+	4R3LB5ibKjieJKczboehLwEnXE=
+X-Received: by 2002:a05:622a:8302:b0:50d:815e:7977 with SMTP id d75a77b69052e-516419365d7mr42200671cf.34.1778771158584;
+        Thu, 14 May 2026 08:05:58 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-516514e0b91sm6942141cf.15.2026.05.14.07.37.30
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-516457d630csm18296351cf.14.2026.05.14.08.05.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 May 2026 07:37:31 -0700 (PDT)
+        Thu, 14 May 2026 08:05:57 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -64,9 +64,9 @@ Cc: jwcart2@gmail.com,
 	paul@paul-moore.com,
 	perfinion@gentoo.org,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] sandbox/seunshare: rewrite to pin directories before use
-Date: Thu, 14 May 2026 10:37:15 -0400
-Message-ID: <20260514143715.54632-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH] sandbox/seunshare: fully check setfsuid() calls
+Date: Thu, 14 May 2026 11:05:42 -0400
+Message-ID: <20260514150542.55256-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -76,603 +76,155 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-To fully eliminate TOCTOU issues in seunshare, we need to pin the
-directories and pass them via /proc/self/fd/N to mount(2).
-This is complicated further by the unsharing of the mount namespace
-in the child process and the need to remount in order to apply
-nosuid/nodev/noexec flags. Do the best we can with the legacy
-mount(2) API for compatibility on old kernels and revisit if/when
-we make kernels with the new mount API the minimum required for
-SELinux userspace.
+setfsuid() returns the old fsuid value and doesn't always
+set errno. The existing code was checking that it did
+successfully return the old fsuid value but not explicitly
+checking that the new one was set, which can be done by
+a second call to setfsuid() with -1 and checking its
+return value. Add a wrapper for setfsuid() and use it
+throughout to ensure complete checking.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- sandbox/seunshare.c | 406 ++++++++++++++++++++++++++------------------
- 1 file changed, 241 insertions(+), 165 deletions(-)
+ sandbox/seunshare.c | 60 ++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 48 insertions(+), 12 deletions(-)
 
 diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
-index e20c0f87..44557d4d 100644
+index 44557d4d..0e5107e4 100644
 --- a/sandbox/seunshare.c
 +++ b/sandbox/seunshare.c
-@@ -197,35 +197,33 @@ static int check_owner_gid(gid_t gid, const char *file, struct stat *st) {
- 	return 0;
+@@ -486,6 +486,44 @@ static bool rm_rf(int targetfd, const char *path) {
+ 	return true;
  }
  
--#define equal_stats(one,two) \
--	((one)->st_dev == (two)->st_dev && (one)->st_ino == (two)->st_ino && \
--	 (one)->st_uid == (two)->st_uid && (one)->st_gid == (two)->st_gid && \
--	 (one)->st_mode == (two)->st_mode)
--
- /**
-- * Sanity check specified directory.  Store stat info for future comparison, or
-- * compare with previously saved info to detect replaced directories.
-- * Note: This function does not perform owner checks.
-+ * Open directory with O_DIRECTORY|O_NOFOLLOW and return its fd
-+ * and fstat() results. The returned fd and its /proc/self/fd/N
-+ * path can be used for all subsequent operations on the directory.
-+ * NB Any non-final components in the @dir pathname are resolved
-+ * as usual but will be checked against the fsuid of the caller.
-  */
--static int verify_directory(const char *dir, struct stat *st_in, struct stat *st_out) {
-+static int pin_dir(const char *dir, struct stat *st_out)
++/*
++ * setfsuid() returns the previous fsuid value,
++ * and does not reliably set errno on errors.
++ * Let's do better.
++ */
++static int setfsuid_checked(uid_t old, uid_t new)
 +{
-+	int fd;
- 	struct stat sb;
- 
--	if (st_out == NULL) st_out = &sb;
--
--	if (lstat(dir, st_out) == -1) {
--		fprintf(stderr, _("Failed to stat %s: %s\n"), dir, strerror(errno));
-+	fd = open(dir, O_RDONLY|O_DIRECTORY|O_NOFOLLOW|O_CLOEXEC);
-+	if (fd < 0) {
-+		fprintf(stderr, _("Failed to open %s: %m\n"), dir);
- 		return -1;
- 	}
--	if (! S_ISDIR(st_out->st_mode)) {
--		fprintf(stderr, _("Error: %s is not a directory: %s\n"), dir, strerror(errno));
--		return -1;
--	}
--	if (st_in && !equal_stats(st_in, st_out)) {
--		fprintf(stderr, _("Error: %s was replaced by a different directory\n"), dir);
++	int rc;
 +
-+	if (fstat(fd, &sb) < 0) {
-+		fprintf(stderr, _("Failed to stat %s: %m\n"), dir);
-+		close(fd);
- 		return -1;
- 	}
- 
--	return 0;
-+	if (st_out)
-+		*st_out = sb;
-+	return fd;
- }
- 
- /**
-@@ -256,85 +254,90 @@ static int verify_shell(const char *shell_name)
- }
- 
- /**
-- * Mount directory and check that we mounted the right directory.
-+ * Bind-mount directory @src (using @src_fd) on directory @dst (using @dst_fd),
-+ * applying @bind_flags for the initial bind mount and @sec_flags if
-+ * non-zero via remount.
-  */
--static int seunshare_mount(const char *src, const char *dst, struct stat *src_st)
-+static int seunshare_mount(const char *src, int src_fd,
-+			   const char *dst, int dst_fd,
-+			   int bind_flags, int sec_flags)
- {
--	int bind_flags = MS_BIND;
--	int sec_flags = 0;
--	int is_tmp = 0;
-+	char srcprocfd[32], dstprocfd[32];
-+
-+	bind_flags |= MS_BIND;
- 
- 	if (verbose)
- 		printf(_("Mounting %s on %s\n"), src, dst);
- 
--	if (strcmp("/tmp", dst) == 0) {
--		sec_flags = MS_NODEV | MS_NOSUID | MS_NOEXEC;
--		is_tmp = 1;
--	}
-+	snprintf(srcprocfd, sizeof(srcprocfd), "/proc/self/fd/%d", src_fd);
-+	snprintf(dstprocfd, sizeof(dstprocfd), "/proc/self/fd/%d", dst_fd);
- 
--	if (strncmp("/run/user", dst, 9) == 0) {
--		bind_flags |= MS_REC;
--	}
--
--	/* mount directory */
--	if (mount(src, dst, NULL, bind_flags, NULL) < 0) {
--		fprintf(stderr, _("Failed to mount %s on %s: %s\n"), src, dst, strerror(errno));
-+	/* bind mount directory */
-+	if (mount(srcprocfd, dstprocfd, NULL, bind_flags, NULL) < 0) {
-+		fprintf(stderr, _("Failed to mount %s on %s: %m\n"), src, dst);
- 		return -1;
- 	}
--	/* remount with security flags, ignored on original bind mount */
--	if (sec_flags && mount(NULL, dst, NULL, MS_BIND | MS_REMOUNT | sec_flags, NULL) < 0) {
-+
-+	/*
-+	 * Remount with security flags set - requires use of dst path again.
-+	 * Revisit when we migrate to open_tree()/move_mount().
-+	 */
-+	if (sec_flags &&
-+	    mount(NULL, dst, NULL, MS_BIND | MS_REMOUNT | sec_flags, NULL) < 0) {
- 		fprintf(stderr, _("Failed to remount %s: %m\n"), dst);
- 		return -1;
- 	}
- 
--	/* verify whether we mounted what we expected to mount */
--	if (verify_directory(dst, src_st, NULL) < 0) return -1;
--
--	/* bind mount /tmp on /var/tmp too */
--	if (is_tmp) {
--		if (verbose)
--			printf(_("Mounting /tmp on /var/tmp\n"));
--
--		if (mount("/tmp", "/var/tmp",  NULL, MS_BIND, NULL) < 0) {
--			fprintf(stderr, _("Failed to mount /tmp on /var/tmp: %s\n"), strerror(errno));
--			return -1;
--		}
--		/* remount with security flags, ignored on original bind mount */
--		if (mount(NULL, "/var/tmp", NULL, MS_BIND | MS_REMOUNT | sec_flags, NULL) < 0) {
--			fprintf(stderr, _("Failed to remount /var/tmp: %m\n"));
--			return -1;
--		}
--	}
--
- 	return 0;
--
- }
- 
- /**
-- * Mount directory and check that we mounted the right directory.
-+ * Bind-mount a file named @src_name in directory @src_dirfd on
-+ * a file named @dst_name in directory @dst_dirfd, creating @dst_name
-+ * if it doesn't already exist.
-  */
--static int seunshare_mount_file(const char *src, const char *dst)
-+static int seunshare_mount_file(int src_dirfd, const char *src_name,
-+				int dst_dirfd, const char *dst_name)
- {
-+	char srcprocfd[32], dstprocfd[32];
-+	int src_fd = -1, dst_fd = -1, rc = -1;
-+
- 	if (verbose)
--		printf(_("Mounting %s on %s\n"), src, dst);
-+		printf(_("Mounting %s on %s\n"), src_name, dst_name);
- 
--	if (access(dst, F_OK) == -1) {
--		int fd = open(dst, O_WRONLY | O_CREAT | O_NOFOLLOW | O_CLOEXEC, 0600);
--		if (fd < 0) {
--			fprintf(stderr, _("Failed to create mount point %s: %m\n"), dst);
--			return -1;
--		}
--		close(fd);
-+	src_fd = openat(src_dirfd, src_name, O_PATH | O_NOFOLLOW | O_CLOEXEC);
-+	if (src_fd < 0) {
-+		fprintf(stderr, _("Failed to open %s: %m\n"), src_name);
-+		goto out;
- 	}
- 
--	/* mount file */
--	if (mount(src, dst, NULL, MS_BIND, NULL) < 0) {
--		fprintf(stderr, _("Failed to mount %s on %s: %s\n"), src, dst, strerror(errno));
--		return -1;
-+	dst_fd = openat(dst_dirfd, dst_name, O_PATH | O_NOFOLLOW | O_CLOEXEC);
-+	if (dst_fd < 0 && errno == ENOENT)
-+		dst_fd = openat(dst_dirfd, dst_name,
-+				O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW |
-+				O_CLOEXEC);
-+	if (dst_fd < 0) {
-+		fprintf(stderr, _("Failed to open/create %s: %m\n"), dst_name);
-+		goto out;
- 	}
- 
--	return 0;
-+	snprintf(srcprocfd, sizeof(srcprocfd), "/proc/self/fd/%d", src_fd);
-+	snprintf(dstprocfd, sizeof(dstprocfd), "/proc/self/fd/%d", dst_fd);
- 
-+	/* mount file */
-+	if (mount(srcprocfd, dstprocfd, NULL, MS_BIND, NULL) < 0) {
-+		fprintf(stderr, _("Failed to mount %s on %s: %m\n"), src_name,
-+			dst_name);
-+		goto out;
++	rc = setfsuid(new);
++	if ((uid_t)rc != old) {
++		int save_errno = errno;
++		fprintf(stderr,
++			"setfsuid(%u): Returned unexpected old uid %u\n",
++			new, (uid_t)rc);
++		if (save_errno)
++			errno = save_errno;
++		else
++			errno = EPERM;
++		return -1;
 +	}
 +
-+	rc = 0;
-+out:
-+	if (src_fd >= 0)
-+		close(src_fd);
-+	if (dst_fd >= 0)
-+		close(dst_fd);
-+	return rc;
- }
++	rc = setfsuid(-1);
++	if ((uid_t)rc != new) {
++		int save_errno = errno;
++		fprintf(stderr,
++			"setfsuid(%u): Produced unexpected new uid %u\n",
++			new,(uid_t)rc);
++		if (save_errno)
++			errno = save_errno;
++		else
++			errno = EPERM;
++		return -1;
++	}
++
++	return 0;
++}
++
+ /**
+  * Clean up runtime temporary directory.  Returns 0 if no problem was detected,
+  * >0 if some error was detected, but errors here are treated as non-fatal and
+@@ -529,10 +567,8 @@ static int cleanup_tmpdir(const char *tmpdir, const char *src,
+ 		free_args(args);
+ 	}
  
- /*
-@@ -556,7 +559,8 @@ err:
-  * to clean it up.
-  */
- static char *create_tmpdir(const char *src, struct stat *src_st,
--	struct stat *out_st, struct passwd *pwd, const char *execcon)
-+			struct stat *out_st, struct passwd *pwd,
-+			const char *execcon)
- {
- 	char *tmpdir = NULL;
- 	char **cmd = NULL;
-@@ -564,29 +568,23 @@ static char *create_tmpdir(const char *src, struct stat *src_st,
- 	struct stat tmp_st;
- 	char *con = NULL;
+-	if ((uid_t)setfsuid(0) != 0) {
+-		/* setfsuid does not return error, but this check makes code checkers happy */
++	if (setfsuid_checked(0, 0) < 0)
+ 		rc++;
+-	}
  
--	/* get selinux context */
-+	/* get selinux context of source directory */
+ 	/* Recursively remove the runtime temp directory.  */
+ 	if (!rm_rf(AT_FDCWD, tmpdir)) {
+@@ -540,7 +576,7 @@ static int cleanup_tmpdir(const char *tmpdir, const char *src,
+ 		rc++;
+ 	}
+ 
+-	if ((uid_t)setfsuid(pwd->pw_uid) != 0) {
++	if (setfsuid_checked(0, pwd->pw_uid) < 0) {
+ 		fprintf(stderr, _("unable to switch back to user after clearing tmp dir\n"));
+ 		rc++;
+ 	}
+@@ -570,7 +606,7 @@ static char *create_tmpdir(const char *src, struct stat *src_st,
+ 
+ 	/* get selinux context of source directory */
  	if (execcon) {
- 		if ((uid_t)setfsuid(pwd->pw_uid) != 0)
+-		if ((uid_t)setfsuid(pwd->pw_uid) != 0)
++		if (setfsuid_checked(0, pwd->pw_uid))
  			goto err;
--
--		if ((fd_s = open(src, O_RDONLY)) < 0) {
--			fprintf(stderr, _("Failed to open directory %s: %s\n"), src, strerror(errno));
--			goto err;
--		}
--		if (fstat(fd_s, &tmp_st) == -1) {
--			fprintf(stderr, _("Failed to stat directory %s: %s\n"), src, strerror(errno));
-+		if ((fd_s = pin_dir(src, &tmp_st)) < 0)
+ 		if ((fd_s = pin_dir(src, &tmp_st)) < 0)
  			goto err;
--		}
--		if (!equal_stats(src_st, &tmp_st)) {
--			fprintf(stderr, _("Error: %s was replaced by a different directory\n"), src);
-+		if (tmp_st.st_dev != src_st->st_dev ||
-+		    tmp_st.st_ino != src_st->st_ino) {
-+			fprintf(stderr,
-+				_("%s was replaced by a different directory\n"),
-+				src);
+@@ -585,7 +621,7 @@ static char *create_tmpdir(const char *src, struct stat *src_st,
+ 			fprintf(stderr, _("Failed to get context of the directory %s: %m\n"), src);
  			goto err;
  		}
- 		if (fgetfilecon(fd_s, &con) == -1) {
--			fprintf(stderr, _("Failed to get context of the directory %s: %s\n"), src, strerror(errno));
-+			fprintf(stderr, _("Failed to get context of the directory %s: %m\n"), src);
+-		if ((uid_t)setfsuid(0) != pwd->pw_uid)
++		if (setfsuid_checked(pwd->pw_uid, 0) < 0)
  			goto err;
+ 	}
+ 
+@@ -629,7 +665,7 @@ static char *create_tmpdir(const char *src, struct stat *src_st,
  		}
+ 	}
+ 
+-	if ((uid_t)setfsuid(pwd->pw_uid) != 0)
++	if (setfsuid_checked(0, pwd->pw_uid) < 0)
+ 		goto err;
+ 
+ 	if (rsynccmd(src, tmpdir, &cmd) < 0) {
+@@ -637,7 +673,7 @@ static char *create_tmpdir(const char *src, struct stat *src_st,
+ 	}
+ 
+ 	/* ok to not reach this if there is an error */
+-	if ((uid_t)setfsuid(0) != pwd->pw_uid)
++	if (setfsuid_checked(pwd->pw_uid, 0) < 0)
+ 		goto err;
+ 
+ 	if (spawn_command(cmd, pwd->pw_uid) != 0) {
+@@ -874,9 +910,8 @@ int main(int argc, char **argv) {
+ 	/* Changing fsuid is usually required when user-specified directory is
+ 	 * on an NFS mount.  It's also desired to avoid leaking info about
+ 	 * existence of the files not accessible to the user. */
+-	if ((uid_t)setfsuid(uid) != 0) {
++	if (setfsuid_checked(0, uid) < 0) {
+ 		fprintf(stderr, _("Error: unable to setfsuid\n"));
 -
--		/* ok to not reach this if there is an error */
- 		if ((uid_t)setfsuid(0) != pwd->pw_uid)
- 			goto err;
- 	}
-@@ -602,9 +600,9 @@ static char *create_tmpdir(const char *src, struct stat *src_st,
- 	}
- 
- 	/* temporary directory must be owned by root:user */
--	if (verify_directory(tmpdir, NULL, out_st) < 0) {
-+	fd_t = pin_dir(tmpdir, out_st);
-+	if (fd_t < 0)
- 		goto err;
--	}
- 
- 	if (check_owner_uid(0, tmpdir, out_st) < 0)
- 		goto err;
-@@ -613,18 +611,6 @@ static char *create_tmpdir(const char *src, struct stat *src_st,
- 		goto err;
- 
- 	/* change permissions of the temporary directory */
--	if ((fd_t = open(tmpdir, O_RDONLY)) < 0) {
--		fprintf(stderr, _("Failed to open directory %s: %s\n"), tmpdir, strerror(errno));
--		goto err;
--	}
--	if (fstat(fd_t, &tmp_st) == -1) {
--		fprintf(stderr, _("Failed to stat directory %s: %s\n"), tmpdir, strerror(errno));
--		goto err;
--	}
--	if (!equal_stats(out_st, &tmp_st)) {
--		fprintf(stderr, _("Error: %s was replaced by a different directory\n"), tmpdir);
--		goto err;
--	}
- 	if (fchmod(fd_t, 01770) == -1) {
- 		fprintf(stderr, _("Unable to change mode on %s: %s\n"), tmpdir, strerror(errno));
- 		goto err;
-@@ -664,10 +650,10 @@ static char *create_tmpdir(const char *src, struct stat *src_st,
- err:
- 	free(tmpdir); tmpdir = NULL;
- good:
--	free_args(cmd);
--	freecon(con); con = NULL;
- 	if (fd_t >= 0) close(fd_t);
- 	if (fd_s >= 0) close(fd_s);
-+	free_args(cmd);
-+	freecon(con); con = NULL;
- 	return tmpdir;
- }
- 
-@@ -776,12 +762,13 @@ int main(int argc, char **argv) {
- 	char *tmpdir_r = NULL;	/* tmpdir created by seunshare */
- 	char *runuserdir_s = NULL;	/* /var/run/user/UID spec'd by user in argv[] */
- 
--	struct stat st_curhomedir;
- 	struct stat st_homedir;
- 	struct stat st_tmpdir_s;
- 	struct stat st_tmpdir_r;
- 	struct stat st_runuserdir_s;
- 
-+	int fd;
-+
- 	const struct option long_options[] = {
- 		{"homedir", 1, 0, 'h'},
- 		{"tmpdir", 1, 0, 't'},
-@@ -893,24 +880,49 @@ int main(int argc, char **argv) {
  		return -1;
  	}
  
--	/* verify homedir and tmpdir */
--	if (homedir_s && (
--		verify_directory(homedir_s, NULL, &st_homedir) < 0 ||
--		check_owner_uid(uid, homedir_s, &st_homedir))) return -1;
--	if (tmpdir_s && (
--		verify_directory(tmpdir_s, NULL, &st_tmpdir_s) < 0 ||
--		check_owner_uid(uid, tmpdir_s, &st_tmpdir_s))) return -1;
--	if (runuserdir_s && (
--		verify_directory(runuserdir_s, NULL, &st_runuserdir_s) < 0 ||
--		check_owner_uid(uid, runuserdir_s, &st_runuserdir_s))) return -1;
-+	/*
-+	 * Perform early validation of the caller-provided directories so we
-+	 * can fail fast, but we unfortunately have to redo this after
-+	 * unsharing the mount namespace in the child so that it can use
-+	 * the descriptors for subsequent mount(2) calls. Otherwise,
-+	 * they end up with a different mount namespace and mount(2) fails
-+	 * with errno EINVAL.
-+	 */
-+	if (homedir_s) {
-+		fd = pin_dir(homedir_s, &st_homedir);
-+		if (fd < 0)
-+			return -1;
-+		if (check_owner_uid(uid, homedir_s, &st_homedir))
-+			return -1;
-+		close(fd);
-+	}
-+	if (tmpdir_s) {
-+		fd = pin_dir(tmpdir_s, &st_tmpdir_s);
-+		if (fd < 0)
-+			return -1;
-+		if (check_owner_uid(uid, tmpdir_s, &st_tmpdir_s))
-+			return -1;
-+		close(fd);
-+	}
-+	if (runuserdir_s) {
-+		fd = pin_dir(runuserdir_s, &st_runuserdir_s);
-+		if (fd < 0)
-+			return -1;
-+		if (check_owner_uid(uid, runuserdir_s, &st_runuserdir_s))
-+			return -1;
-+		close(fd);
-+	}
+@@ -913,7 +948,8 @@ int main(int argc, char **argv) {
+ 		close(fd);
+ 	}
  
- 	if ((uid_t)setfsuid(0) != uid) return -1;
+-	if ((uid_t)setfsuid(0) != uid) return -1;
++	if (setfsuid_checked(uid, 0) < 0)
++		return -1;
  
  	/* create runtime tmpdir */
--	if (tmpdir_s && (tmpdir_r = create_tmpdir(tmpdir_s, &st_tmpdir_s,
--						  &st_tmpdir_r, pwd, execcon)) == NULL) {
--		fprintf(stderr, _("Failed to create runtime temporary directory\n"));
--		return -1;
-+	if (tmpdir_s) {
-+		tmpdir_r = create_tmpdir(tmpdir_s, &st_tmpdir_s, &st_tmpdir_r,
-+					 pwd, execcon);
-+		if (!tmpdir_r) {
-+			fprintf(stderr, _("Failed to create runtime temporary directory\n"));
-+			return -1;
-+		}
- 	}
- 
- 	/* spawn child process */
-@@ -927,11 +939,10 @@ int main(int argc, char **argv) {
- 		char *XDG_SESSION_TYPE = NULL;
- 		int rc = -1;
- 		char *resolved_path = NULL;
--		char *wayland_path_s = NULL; /* /tmp/.../wayland-0 */
--		char *wayland_path = NULL; /* /run/user/UID/wayland-0 */
--		char *pipewire_path_s = NULL; /* /tmp/.../pipewire-0 */
--		char *pipewire_path = NULL; /* /run/user/UID/pipewire-0 */
--
-+		int fd_homedir_s = -1, fd_curhomedir = -1;
-+		int fd_runuserdir_s = -1, fd_runtime_dir = -1;
-+		int fd_tmpdir_r = -1, fd_tmp = -1, fd_var_tmp = -1;
-+		struct stat sb;
- 
- 		if (unshare(CLONE_NEWNS) < 0) {
- 			perror(_("Failed to unshare"));
-@@ -941,19 +952,67 @@ int main(int argc, char **argv) {
- 		/* Remount / as SLAVE so that nothing mounted in the namespace 
- 		   shows up in the parent */
- 		if (mount("none", "/", NULL, MS_SLAVE | MS_REC , NULL) < 0) {
--			perror(_("Failed to make / a SLAVE mountpoint\n"));
-+
- 			goto childerr;
+ 	if (tmpdir_s) {
+@@ -957,7 +993,7 @@ int main(int argc, char **argv) {
  		}
  
  		/* assume fsuid==ruid after this point */
- 		if ((uid_t)setfsuid(uid) != 0) goto childerr;
+-		if ((uid_t)setfsuid(uid) != 0) goto childerr;
++		if (setfsuid_checked(0, uid) < 0) goto childerr;
  
-+		/*
-+		 * Now we can pin the source directories in this namespace
-+		 * for later use by mount(2). We recheck that each
-+		 * directory is the same inode and still has the
-+		 * expected ownership as the early validation.
-+		 */
-+		if (homedir_s) {
-+			fd_homedir_s = pin_dir(homedir_s, &sb);
-+			if (fd_homedir_s < 0)
-+				goto childerr;
-+			if (sb.st_dev != st_homedir.st_dev ||
-+				sb.st_ino != st_homedir.st_ino)
-+				goto childerr;
-+			if (check_owner_uid(uid, homedir_s, &sb))
-+				goto childerr;
-+		}
-+		/*
-+		 * NB We don't need to re-pin tmpdir_s, just tmpdir_r,
-+		 * since the child never uses tmpdir_s.
-+		 */
-+		if (tmpdir_r) {
-+			fd_tmpdir_r = pin_dir(tmpdir_r, &sb);
-+			if (fd < 0)
-+				goto childerr;
-+			/*
-+			 * tmpdir_r checks differ in that it is
-+			 * root-owned and we also want to validate
-+			 * that the mode is still correct.
-+			 */
-+			if (sb.st_dev != st_tmpdir_r.st_dev ||
-+				sb.st_ino != st_tmpdir_r.st_ino ||
-+				sb.st_mode != st_tmpdir_r.st_mode)
-+				goto childerr;
-+			if (check_owner_uid(0, tmpdir_r, &sb))
-+				goto childerr;
-+		}
-+		if (runuserdir_s) {
-+			fd_runuserdir_s = pin_dir(runuserdir_s, &sb);
-+			if (fd_runuserdir_s < 0)
-+				goto childerr;
-+			if (sb.st_dev != st_runuserdir_s.st_dev ||
-+				sb.st_ino != st_runuserdir_s.st_ino)
-+				goto childerr;
-+			if (check_owner_uid(uid, runuserdir_s, &sb))
-+				goto childerr;
-+		}
-+
- 		resolved_path = realpath(pwd->pw_dir,NULL);
- 		if (! resolved_path) goto childerr;
- 
--		if (verify_directory(resolved_path, NULL, &st_curhomedir) < 0)
-+		fd_curhomedir = pin_dir(resolved_path, &sb);
-+		if (fd_curhomedir < 0)
- 			goto childerr;
--		if (check_owner_uid(uid, resolved_path, &st_curhomedir) < 0)
-+		if (check_owner_uid(uid, resolved_path, &sb) < 0)
- 			goto childerr;
- 
- 		if ((RUNTIME_DIR = getenv("XDG_RUNTIME_DIR")) != NULL) {
-@@ -969,12 +1028,11 @@ int main(int argc, char **argv) {
- 		}
- 
- 		if (runuserdir_s) {
--			struct stat sb;
--
--			if (verify_directory(RUNTIME_DIR, NULL, &sb) < 0 ||
--				check_owner_uid(uid, RUNTIME_DIR, &sb) < 0)
-+			fd_runtime_dir = pin_dir(RUNTIME_DIR, &sb);
-+			if (fd_runtime_dir < 0)
-+				goto childerr;
-+			if (check_owner_uid(uid, RUNTIME_DIR, &sb) < 0)
- 				goto childerr;
--
- 		}
- 
- 		if ((XDG_SESSION_TYPE = getenv("XDG_SESSION_TYPE")) != NULL) {
-@@ -985,42 +1043,57 @@ int main(int argc, char **argv) {
- 		}
- 
- 		if (runuserdir_s && (wayland_display || pipewire_socket)) {
--			if (wayland_display) {
--				if (asprintf(&wayland_path_s, "%s/%s", runuserdir_s, wayland_display) == -1) {
--					perror(_("Out of memory"));
-+			if (wayland_display &&
-+			    seunshare_mount_file(fd_runtime_dir,
-+					    wayland_display,
-+					    fd_runuserdir_s,
-+					    wayland_display) == -1)
- 					goto childerr;
--				}
- 
--				if (asprintf(&wayland_path, "%s/%s", RUNTIME_DIR, wayland_display) == -1) {
--					perror(_("Out of memory"));
--					goto childerr;
--				}
-+			if (pipewire_socket &&
-+			    seunshare_mount_file(fd_runtime_dir,
-+					    "pipewire-0",
-+					    fd_runuserdir_s,
-+					    pipewire_socket) == -1)
-+				goto childerr;
-+		}
- 
--				if (seunshare_mount_file(wayland_path, wayland_path_s) == -1)
--					goto childerr;
-+		/* mount homedir, runuserdir and tmpdir, in this order */
-+		if (runuserdir_s &&
-+			seunshare_mount(runuserdir_s, fd_runuserdir_s,
-+					RUNTIME_DIR, fd_runtime_dir,
-+					MS_REC, 0) != 0)
-+			goto childerr;
-+		if (homedir_s &&
-+			seunshare_mount(homedir_s, fd_homedir_s,
-+					resolved_path, fd_curhomedir,
-+					0, 0) != 0)
-+			goto childerr;
-+		if (tmpdir_s) {
-+			fd_tmp = open("/tmp", O_RDONLY | O_DIRECTORY |
-+				      O_NOFOLLOW | O_CLOEXEC);
-+			if (fd_tmp < 0) {
-+				perror(_("Failed to open /tmp"));
-+				goto childerr;
- 			}
- 
--			if (pipewire_socket) {
--				if (asprintf(&pipewire_path_s, "%s/%s", runuserdir_s, pipewire_socket) == -1) {
--					perror(_("Out of memory"));
--					goto childerr;
--				}
--				if (asprintf(&pipewire_path, "%s/pipewire-0", RUNTIME_DIR) == -1) {
--					perror(_("Out of memory"));
--					goto childerr;
--				}
--				if (seunshare_mount_file(pipewire_path, pipewire_path_s) == -1)
--					goto childerr;
-+			if (seunshare_mount(tmpdir_r, fd_tmpdir_r,
-+					    "/tmp", fd_tmp, 0,
-+					    MS_NODEV|MS_NOSUID|MS_NOEXEC) < 0)
-+				goto childerr;
-+
-+			fd_var_tmp = open("/var/tmp", O_RDONLY | O_DIRECTORY |
-+					O_NOFOLLOW | O_CLOEXEC);
-+			if (fd_var_tmp < 0) {
-+				perror(_("Failed to open /var/tmp"));
-+				goto childerr;
- 			}
--		}
- 
--		/* mount homedir, runuserdir and tmpdir, in this order */
--		if (runuserdir_s &&	seunshare_mount(runuserdir_s, RUNTIME_DIR,
--			&st_runuserdir_s) != 0) goto childerr;
--		if (homedir_s && seunshare_mount(homedir_s, resolved_path,
--			&st_homedir) != 0) goto childerr;
--		if (tmpdir_s &&	seunshare_mount(tmpdir_r, "/tmp",
--			&st_tmpdir_r) != 0) goto childerr;
-+			if (seunshare_mount("/tmp", fd_tmpdir_r,
-+					"/var/tmp", fd_var_tmp, 0,
-+					MS_NODEV|MS_NOSUID|MS_NOEXEC) < 0)
-+				goto childerr;
-+		}
- 
- 		if (drop_privs(uid) != 0) goto childerr;
- 
-@@ -1101,11 +1174,14 @@ int main(int argc, char **argv) {
- 		execv(argv[optind], argv + optind);
- 		fprintf(stderr, _("Failed to execute command %s: %s\n"), argv[optind], strerror(errno));
- childerr:
-+		if (fd_homedir_s >= 0) close(fd_homedir_s);
-+		if (fd_curhomedir >= 0) close(fd_curhomedir);
-+		if (fd_runuserdir_s >= 0) close(fd_runuserdir_s);
-+		if (fd_runtime_dir >= 0) close(fd_runtime_dir);
-+		if (fd_tmpdir_r >= 0) close(fd_tmpdir_r);
-+		if (fd_tmp >= 0) close(fd_tmp);
-+		if (fd_var_tmp >= 0) close(fd_var_tmp);
- 		free(resolved_path);
--		free(wayland_path);
--		free(wayland_path_s);
--		free(pipewire_path);
--		free(pipewire_path_s);
- 		free(display);
- 		free(LANG);
- 		free(RUNTIME_DIR);
+ 		/*
+ 		 * Now we can pin the source directories in this namespace
 -- 
 2.53.0
 
