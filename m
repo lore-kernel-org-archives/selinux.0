@@ -1,321 +1,155 @@
-Received: from cloud35.hostingpalvelu.fi (mail35.hostingpalvelu.fi [31.217.192.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B3AA30B509
-	for <selinux@vger.kernel.org>; Thu, 14 May 2026 20:42:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=31.217.192.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DF303C378F
+	for <selinux@vger.kernel.org>; Thu, 14 May 2026 20:44:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778791369; cv=none; b=p7mPl6SK+XUPGuYnjb44F8P1x/jrY78i18KRyTzd53P3vu5q0BQLxW11Bli0waSBgrNTyDhZpvCK++7gJkJxSM5NuXCFUnZrLgmIg5emFy3Uk2JfJ2jkca6fCy0bJdhLzi/rcopEl8X4wiUI+8Ai0J81lX6ladwkdZCzxl8On8U=
+	t=1778791453; cv=none; b=ORn1Mcg3tcEcktp+N9GJKJK4ZKrWckjRt8Q4WMDOZ9XS4Heyv4FcPOR668B5JZLQthjsCOOVq1++rWRJyMeN7gP5AvM76wYd0Tbh73y+j362c2f7RiwDudVlvmqsNUULdzOvBl4FOYUJ9jk5V3js5pt7rUd+FPbEh3AzzJ7vxfo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778791369; c=relaxed/simple;
-	bh=gOqP8gJkGazxosm1lxqUEgsIW29NU02BAmPUxQnhGX0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=p3vpceVYswBVkg8jv4uf3gVKkIddOWHZvSvmkOFbprujSyTZ8rdTV/8yAKuasUkgC25GZEBRsqC8rEWkXyavP2uSqQTZotKKRNUyx+L8hdQeOp1nkRYYyDhnLcBu2D1OooY1I28+TJwEPBdTvLFHGJXimjBIwGyCBQ9ULZjHhV0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=VOMrhLwY; arc=none smtp.client-ip=31.217.192.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kolttonen.fi
+	s=arc-20240116; t=1778791453; c=relaxed/simple;
+	bh=bhsOuUIaNixFGUNouO+flDtH1Ol7OJbIIYt+9nRn+ow=;
+	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
+	 References:In-Reply-To; b=f62nP7qGWrYMn9Nh+kNGTalopTmnA1btAtPFcTd2xYYzkC6TOKD60rli4mcHO2BhvMiHz967xcSVVx33KUGmaJaAiceqK2uMyc2/BqQZ0ADFWUpaybIF9h9WSfArH9kdXoNwDnhhs9/HK60PMmhEJAOp6ugLYPrNSpWax3uKFos=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=OSc1CYb0; arc=none smtp.client-ip=209.85.219.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="VOMrhLwY"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=kolttonen.fi; s=default; h=Content-Transfer-Encoding:MIME-Version:
-	Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
-	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=pJsrGrThrcvUUp/vsLJfh0IOduZLT3SO9OluytBjBwE=; b=VOMrhLwY2MEpH2ZfO/ROpm4SFs
-	H2AN6R8JEpcNOtiQShNnHpkskwLebzIgwmERDkl1qQlxgbWcnIN3HcWq4NkvxSa5Dn3X4X6ecR7wj
-	pmsSh3XxaQmNKRjrb8L7RsLgAxxetfZGiBW4ye/bnHLRx/tPrODpi2MIzBTa8qAHR+r32o5Tk24dR
-	em77Jb8S5WHxEL91aSadj+oT/TNyrmebLmpZYtRAcc6TsZDERpsBJfpiOc4hLJV3MH+th/5EK/5D5
-	CJ8gLDc9ASBNvtOs6rC9kCm6hNMOFRh/puKgyr3i3iwAdNtpNOy7LmoH8aq0hvgKPE/W9S8HbL+Tu
-	3qaLO5Jw==;
-Received: from 176-93-144-62.bb.dnainternet.fi ([176.93.144.62]:11416 helo=fbsd15.local)
-	by cloud35.hostingpalvelu.fi with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.99.2)
-	(envelope-from <kalevi@kolttonen.fi>)
-	id 1wNctO-0000000E1s0-1g5H;
-	Thu, 14 May 2026 23:42:45 +0300
-From: Kalevi Kolttonen <kalevi@kolttonen.fi>
-To: selinux@vger.kernel.org
-Cc: Kalevi Kolttonen <kalevi@kolttonen.fi>
-Subject: [PATCH v3] libsemanage: use 'bool' for boolean options
-Date: Thu, 14 May 2026 23:42:36 +0300
-Message-ID: <20260514204236.96433-1-kalevi@kolttonen.fi>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="OSc1CYb0"
+Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-8b5de17382cso61437356d6.1
+        for <selinux@vger.kernel.org>; Thu, 14 May 2026 13:44:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1778791451; x=1779396251; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=iIn517qMFa/72Ee/XGTDeeK9Cq6VJiGDpV2GCDJOS7E=;
+        b=OSc1CYb0LA2hDiDhS0KeITKEVBykeYFWm5mB0F2ke+6PQDCnTZXwjSXfPcFZ2NjxZh
+         Ud8DZ2Pn80kJgStc5aPzDIhYLMhcN1gBuV634XDMewUMWFm1C4TCCf85M8NSRiX1eLv7
+         zr2glp2nDXnD4JkJPtYxTMuKBslrojKLiTEHAcm3EH6FwxYhOdc0MwS1z8EnASGXUNdh
+         qhqkOHGuzzpUceCeCbvLtRLmYW42xUzlK1M6PLl6EmmgsVevWHKple3NmFdra+FfED0d
+         w7cz8MNWx7gA9pA1tPMPQc/OFjkj/Fy1Lz2cu5g15GIezPqAP5ftUK5m0p3AWAzVxQZa
+         4dLQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778791451; x=1779396251;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=iIn517qMFa/72Ee/XGTDeeK9Cq6VJiGDpV2GCDJOS7E=;
+        b=MA/Z0dLkpx08nmtlWT2G3nKWjgHpClhkFgQCQx8/1ij2mS+sP9B7y70n8OGBsX8uha
+         Y77nRNUJ+xEOjPWfZTLXYqU4eHQNHXm7LzRhQPUV+6O+a/2aHLAl/GvVO53vKc7LTFxx
+         8GuBxcxUML2ElG2/NMFad6KeooUmQOwsO6QEnVjMbytwvT7kr1dkfRYPbeEr2vPH1z/k
+         eKAlmJZFi2YBO20pvxLdZt2ESkaNjihJFlVFBQoG2Dm8/K5THEHodehicnpBgZ/UXhFD
+         jNnjevXyzlHtZ9VCxjXbUtpoXCgH0pBxxbY+cD6V6GUSa/G4H9qVovLELjaJh90cmAKf
+         WLYA==
+X-Forwarded-Encrypted: i=1; AFNElJ/UsSvU7uTArYxMB+AaUtquJBCal6Ni+97Qihh5N+yeryBOS+8WG4l7eymOmAozkJZG4AQM8I+A@vger.kernel.org
+X-Gm-Message-State: AOJu0YzoK1V5W6ag9uV/hyq8sbqDRIG0B2Uih18gMZWs+GPAI5fBKu/F
+	J+mX2RoOycBsGHnO1x/V4d7YOTjPZdQSZck6UD5huypoj0s0ixz6klU86s7bTp9sRw==
+X-Gm-Gg: Acq92OEl3TVdwXOS9XISeRHYxUeF3zQkvX12zWRKuFSIBhK46EjR55cV2sDvB948z2a
+	n2tyFfmAPtW52lRrSEIlab+ofSdMzZ33qIaPNNumvRo6a/Uzz79hlgWHAH8Re/ndOIiiKW1Ha6z
+	9OxhpUtBoJVyVHSIfjUhlI1G0iC/9gm4Ff6w3PocByKK7cbBqOdXlxX1S/nd7QxS5FO5KqcYmRH
+	F8gvuDvKIqKi3rX1Lve2ZjdLDsEMY6sEWpNhQXi+IVMHgevd33YRPiWbGFB6waFI2iQQDWHujAb
+	zdPiQVAUCrr+c4OnA1W7JGCz4Wi6mMuoomMlypRiD/W22y0Xw4rv+8f2jnjhOvRlZrzAZ/slAnL
+	uuROr9gzbTvDmngkURYHZvR7XN359vlCnzX0j+cqaejKOvLEvTuDpG/3YEFTB6oeECzKaD0Fc5R
+	/LTWx9rod6T9eNy/BCY3gt+9Rr1xrXxiIiCZY9EmmylyDXTN6I0x9+thmsRbFugs6TTyTWW29KY
+	VYxBYs=
+X-Received: by 2002:ad4:5e88:0:b0:8ac:b70c:8a9b with SMTP id 6a1803df08f44-8ca0f70f697mr20146116d6.44.1778791451056;
+        Thu, 14 May 2026 13:44:11 -0700 (PDT)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8c90c358539sm32474826d6.41.2026.05.14.13.44.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 May 2026 13:44:10 -0700 (PDT)
+Date: Thu, 14 May 2026 16:44:09 -0400
+Message-ID: <16093a0278a6d7d1a0a8bc055c228bed@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - cloud35.hostingpalvelu.fi
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - kolttonen.fi
-X-Get-Message-Sender-Via: cloud35.hostingpalvelu.fi: authenticated_id: kalevi@kolttonen.fi
-X-Authenticated-Sender: cloud35.hostingpalvelu.fi: kalevi@kolttonen.fi
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=UTF-8 
+Content-Transfer-Encoding: 8bit 
+X-Mailer: pstg-pwork:20260514_1634/pstg-lib:20260514_1359/pstg-pwork:20260514_1634
+From: Paul Moore <paul@paul-moore.com>
+To: Albert Esteve <aesteve@redhat.com>, Tejun Heo <tj@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>, =?utf-8?q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, Sumit Semwal <sumit.semwal@linaro.org>, =?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, Michal Hocko <mhocko@kernel.org>, Roman Gushchin <roman.gushchin@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, Muchun Song <muchun.song@linux.dev>, Andrew Morton <akpm@linux-foundation.org>, Benjamin Gaignard <benjamin.gaignard@collabora.com>, Brian Starkey <Brian.Starkey@arm.com>, John Stultz <jstultz@google.com>, "T.J. Mercier" <tjmercier@google.com>, Christian Brauner <brauner@kernel.org>, James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, Shuah Khan <shuah@kernel.org>
+Cc: cgroups@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-mm@kvack.org, linux-security-module@vger.kernel.org, selinux@vger.kernel.org, linux-kselftest@vger.kernel.org, Albert Esteve <aesteve@redhat.com>, mripard@kernel.org, echanude@redhat.com
+Subject: Re: [PATCH RFC 4/5] selinux: Restrict cross-cgroup dma-heap charging
+References: <20260512-v2_20230123_tjmercier_google_com-v1-4-6326701c3691@redhat.com>
+In-Reply-To: <20260512-v2_20230123_tjmercier_google_com-v1-4-6326701c3691@redhat.com>
 
-Use 'bool' for boolean options. Check strdup() failures.
-Add explicit 'conf->disable_genhomedircon = false' default
-initialization.
+On May 12, 2026 Albert Esteve <aesteve@redhat.com> wrote:
+> 
+> The security_dma_heap_alloc() hook allows security modules
+> to control which processes may charge dma-buf allocations
+> to another process's cgroup via the charge_pid_fd field of
+> DMA_HEAP_IOCTL_ALLOC. Without a policy implementation, the
+> hook is a no-op and the restriction is not enforced.
+> 
+> On SELinux-managed systems any domain with access to a
+> dma-heap device node can therefore exhaust another cgroup's
+> memory budget without restriction.
+> 
+> Implement selinux_dma_heap_alloc() using avc_has_perm() with
+> a new dma_heap object class and a charge_to permission. Policy
+> authors can then grant cross-cgroup charging selectively,
+> for example:
+> 
+>   allow allocator_app_t client_app_t:dma_heap charge_to;
+> 
+> Signed-off-by: Albert Esteve <aesteve@redhat.com>
+> ---
+>  security/selinux/hooks.c            | 7 +++++++
+>  security/selinux/include/classmap.h | 1 +
+>  2 files changed, 8 insertions(+)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 0f704380a8c81..ea1f410b9f619 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -2189,6 +2189,12 @@ static int selinux_capable(const struct cred *cred, struct user_namespace *ns,
+>  	return cred_has_capability(cred, cap, opts, ns == &init_user_ns);
+>  }
+>  
+> +static int selinux_dma_heap_alloc(const struct cred *from, const struct cred *to)
+> +{
+> +	return avc_has_perm(cred_sid(from), cred_sid(to),
+> +			    SECCLASS_DMA_HEAP, DMA_HEAP__CHARGE_TO, NULL);
+> +}
+> +
+>  static int selinux_quotactl(int cmds, int type, int id, const struct super_block *sb)
+>  {
+>  	const struct cred *cred = current_cred();
+> @@ -7541,6 +7547,7 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
+>  	LSM_HOOK_INIT(capget, selinux_capget),
+>  	LSM_HOOK_INIT(capset, selinux_capset),
+>  	LSM_HOOK_INIT(capable, selinux_capable),
+> +	LSM_HOOK_INIT(dma_heap_alloc, selinux_dma_heap_alloc),
+>  	LSM_HOOK_INIT(quotactl, selinux_quotactl),
+>  	LSM_HOOK_INIT(quota_on, selinux_quota_on),
+>  	LSM_HOOK_INIT(syslog, selinux_syslog),
+> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+> index 90cb61b164256..d232f7808f6b8 100644
+> --- a/security/selinux/include/classmap.h
+> +++ b/security/selinux/include/classmap.h
+> @@ -181,6 +181,7 @@ const struct security_class_mapping secclass_map[] = {
+>  	{ "user_namespace", { "create", NULL } },
+>  	{ "memfd_file",
+>  	  { COMMON_FILE_PERMS, "execute_no_trans", "entrypoint", NULL } },
+> +	{ "dma_heap", { "charge_to", NULL } },
+>  	/* last one */ { NULL, {} }
+>  };
 
-Add missing <stdbool.h> include.
+While we have seen some one-off patches to add specific resource/cgroups
+controls in the past, much like this one, we've yet to see a patchset
+that provides a more comprehensive set of resource/cgroup access controls
+for SELinux.
 
-Signed-off-by: Kalevi Kolttonen <kalevi@kolttonen.fi>
----
- libsemanage/src/conf-parse.y    | 68 ++++++++++++++++++---------------
- libsemanage/src/direct_api.c    |  2 +-
- libsemanage/src/handle.c        |  2 +-
- libsemanage/src/semanage_conf.h | 21 +++++-----
- 4 files changed, 51 insertions(+), 42 deletions(-)
+I'm not opposed to a patch like this, but I would like to see it as part
+of a larger effort to introduce access controls across all of the
+existing cgroup control points where it makes sense.  In other words,
+let's see a design for cgroup access controls so that we can ensure we
+have something that is meaningful and makes sense from a policy
+developer's perspective.
 
-diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
-index b69ac75b..0f10546e 100644
---- a/libsemanage/src/conf-parse.y
-+++ b/libsemanage/src/conf-parse.y
-@@ -29,6 +29,7 @@
- 
- #include <errno.h>
- #include <unistd.h>
-+#include <stdbool.h>
- #include <stdio.h>
- #include <stdlib.h>
- #include <string.h>
-@@ -132,9 +133,9 @@ compiler_dir:       COMPILER_DIR '=' ARG  {
- 
- ignore_module_cache:	IGNORE_MODULE_CACHE '=' ARG  {
- 							if (strcasecmp($3, "true") == 0)
--								current_conf->ignore_module_cache = 1;
-+								current_conf->ignore_module_cache = true;
- 							else if (strcasecmp($3, "false") == 0)
--								current_conf->ignore_module_cache = 0;
-+								current_conf->ignore_module_cache = false;
- 							else {
- 								yyerror("disable-caching can only be 'true' or 'false'");
- 							}
-@@ -195,9 +196,9 @@ file_mode:   FILE_MODE '=' ARG  {
- 
- save_previous:    SAVE_PREVIOUS '=' ARG {
- 	                if (strcasecmp($3, "true") == 0)
--		                current_conf->save_previous = 1;
-+		                current_conf->save_previous = true;
- 			else if (strcasecmp($3, "false") == 0)
--				current_conf->save_previous = 0;
-+				current_conf->save_previous = false;
- 			else {
- 				yyerror("save-previous can only be 'true' or 'false'");
- 			}
-@@ -208,9 +209,9 @@ save_previous:    SAVE_PREVIOUS '=' ARG {
- 
- save_linked:    SAVE_LINKED '=' ARG {
- 	                if (strcasecmp($3, "true") == 0)
--		                current_conf->save_linked = 1;
-+		                current_conf->save_linked = true;
- 			else if (strcasecmp($3, "false") == 0)
--				current_conf->save_linked = 0;
-+				current_conf->save_linked = false;
- 			else {
- 				yyerror("save-linked can only be 'true' or 'false'");
- 			}
-@@ -220,9 +221,9 @@ save_linked:    SAVE_LINKED '=' ARG {
- 
- disable_genhomedircon: DISABLE_GENHOMEDIRCON '=' ARG {
- 	if (strcasecmp($3, "false") == 0) {
--		current_conf->disable_genhomedircon = 0;
-+		current_conf->disable_genhomedircon = false;
- 	} else if (strcasecmp($3, "true") == 0) {
--		current_conf->disable_genhomedircon = 1;
-+		current_conf->disable_genhomedircon = true;
- 	} else {
- 		yyerror("disable-genhomedircon can only be 'true' or 'false'");
- 	}
-@@ -231,9 +232,9 @@ disable_genhomedircon: DISABLE_GENHOMEDIRCON '=' ARG {
- 
- usepasswd: USEPASSWD '=' ARG {
- 	if (strcasecmp($3, "false") == 0) {
--		current_conf->usepasswd = 0;
-+		current_conf->usepasswd = false;
- 	} else if (strcasecmp($3, "true") == 0) {
--		current_conf->usepasswd = 1;
-+		current_conf->usepasswd = true;
- 	} else {
- 		yyerror("usepasswd can only be 'true' or 'false'");
- 	}
-@@ -272,9 +273,9 @@ bzip_blocksize:  BZIP_BLOCKSIZE '=' ARG {
- 
- bzip_small:  BZIP_SMALL '=' ARG {
- 	if (strcasecmp($3, "false") == 0) {
--		current_conf->bzip_small = 0;
-+		current_conf->bzip_small = false;
- 	} else if (strcasecmp($3, "true") == 0) {
--		current_conf->bzip_small = 1;
-+		current_conf->bzip_small = true;
- 	} else {
- 		yyerror("bzip-small can only be 'true' or 'false'");
- 	}
-@@ -283,9 +284,9 @@ bzip_small:  BZIP_SMALL '=' ARG {
- 
- remove_hll:  REMOVE_HLL'=' ARG {
- 	if (strcasecmp($3, "false") == 0) {
--		current_conf->remove_hll = 0;
-+		current_conf->remove_hll = false;
- 	} else if (strcasecmp($3, "true") == 0) {
--		current_conf->remove_hll = 1;
-+		current_conf->remove_hll = true;
- 	} else {
- 		yyerror("remove-hll can only be 'true' or 'false'");
- 	}
-@@ -294,9 +295,9 @@ remove_hll:  REMOVE_HLL'=' ARG {
- 
- relabel_store:  RELABEL_STORE'=' ARG {
- 	if (strcasecmp($3, "false") == 0) {
--		current_conf->relabel_store = 0;
-+		current_conf->relabel_store = false;
- 	} else if (strcasecmp($3, "true") == 0) {
--		current_conf->relabel_store = 1;
-+		current_conf->relabel_store = true;
- 	} else {
- 		yyerror("relabel_store can only be 'true' or 'false'");
- 	}
-@@ -305,9 +306,9 @@ relabel_store:  RELABEL_STORE'=' ARG {
- 
- optimize_policy:  OPTIMIZE_POLICY '=' ARG {
- 	if (strcasecmp($3, "false") == 0) {
--		current_conf->optimize_policy = 0;
-+		current_conf->optimize_policy = false;
- 	} else if (strcasecmp($3, "true") == 0) {
--		current_conf->optimize_policy = 1;
-+		current_conf->optimize_policy = true;
- 	} else {
- 		yyerror("optimize-policy can only be 'true' or 'false'");
- 	}
-@@ -316,9 +317,9 @@ optimize_policy:  OPTIMIZE_POLICY '=' ARG {
- 
- multiple_decls:  MULTIPLE_DECLS '=' ARG {
- 	if (strcasecmp($3, "false") == 0) {
--		current_conf->multiple_decls = 0;
-+		current_conf->multiple_decls = false;
- 	} else if (strcasecmp($3, "true") == 0) {
--		current_conf->multiple_decls = 1;
-+		current_conf->multiple_decls = true;
- 	} else {
- 		yyerror("multiple-decls can only be 'true' or 'false'");
- 	}
-@@ -398,26 +399,33 @@ static int semanage_conf_init(semanage_conf_t * conf)
- 	const char *policy_root = selinux_policy_root();
- 	if (policy_root != NULL) {
- 		conf->store_path = strdup(semanage_basename(policy_root));
-+		if (!conf->store_path)
-+			return -1;
- 	}
- 	conf->ignoredirs = NULL;
- 	conf->store_root_path = strdup("/var/lib/selinux");
-+	if (!conf->store_root_path)
-+		return -1;
- 	conf->compiler_directory_path = strdup("/usr/libexec/selinux/hll");
-+	if (!conf->compiler_directory_path)
-+		return -1;
- 	conf->policyvers = sepol_policy_kern_vers_max();
- 	conf->target_platform = SEPOL_TARGET_SELINUX;
- 	conf->expand_check = 1;
- 	conf->handle_unknown = -1;
--	conf->usepasswd = 1;
-+	conf->usepasswd = true;
- 	conf->file_mode = 0644;
- 	conf->bzip_blocksize = 9;
--	conf->bzip_small = 0;
--	conf->ignore_module_cache = 0;
--	conf->remove_hll = 0;
--	conf->relabel_store = 1;
--	conf->optimize_policy = 1;
--	conf->multiple_decls = 1;
--
--	conf->save_previous = 0;
--	conf->save_linked = 0;
-+	conf->bzip_small = false;
-+	conf->ignore_module_cache = false;
-+	conf->remove_hll = false;
-+	conf->relabel_store = true;
-+	conf->optimize_policy = true;
-+	conf->multiple_decls = true;
-+
-+	conf->save_previous = false;
-+	conf->save_linked = false;
-+	conf->disable_genhomedircon = false;
- 
- 	if (!conf->store_path ||
- 	    !conf->store_root_path ||
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index 8f909a3b..9593bf69 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -992,7 +992,7 @@ static int semanage_compile_module(semanage_handle_t *sh,
- 		goto cleanup;
- 	}
- 
--	if (sh->conf->remove_hll == 1) {
-+	if (sh->conf->remove_hll) {
- 		status = unlink(hll_path);
- 		if (status != 0) {
- 			ERR(sh, "Error while removing HLL file %s.", hll_path);
-diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
-index ca57702a..2b3f1e61 100644
---- a/libsemanage/src/handle.c
-+++ b/libsemanage/src/handle.c
-@@ -231,7 +231,7 @@ void semanage_set_ignore_module_cache(semanage_handle_t *sh,
- 				    int ignore_module_cache)
- {
- 	assert(sh != NULL);
--	sh->conf->ignore_module_cache = ignore_module_cache;
-+	sh->conf->ignore_module_cache = !!ignore_module_cache;
- }
- 
- void semanage_set_check_contexts(semanage_handle_t * sh, int do_check_contexts)
-diff --git a/libsemanage/src/semanage_conf.h b/libsemanage/src/semanage_conf.h
-index 2388faad..4df9b195 100644
---- a/libsemanage/src/semanage_conf.h
-+++ b/libsemanage/src/semanage_conf.h
-@@ -21,6 +21,7 @@
- #define SEMANAGE_CONF_H
- 
- #include <semanage/handle.h>
-+#include <stdbool.h>
- #include <sys/types.h>
- #include <sys/stat.h>
- 
-@@ -37,19 +38,19 @@ typedef struct semanage_conf {
- 	int policyvers;		/* version for server generated policies */
- 	int target_platform;
- 	int expand_check;
--	int save_previous;
--	int save_linked;
--	int disable_genhomedircon;
--	int usepasswd;
-+	bool save_previous;
-+	bool save_linked;
-+	bool disable_genhomedircon;
-+	bool usepasswd;
- 	int handle_unknown;
- 	mode_t file_mode;
- 	int bzip_blocksize;
--	int bzip_small;
--	int remove_hll;
--	int ignore_module_cache;
--	int optimize_policy;
--	int multiple_decls;
--	int relabel_store;
-+	bool bzip_small;
-+	bool remove_hll;
-+	bool ignore_module_cache;
-+	bool optimize_policy;
-+	bool multiple_decls;
-+	bool relabel_store;
- 	char *ignoredirs;	/* ";" separated of list for genhomedircon to ignore */
- 	struct external_prog *load_policy;
- 	struct external_prog *setfiles;
--- 
-2.54.0
-
+--
+paul-moore.com
