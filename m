@@ -1,189 +1,154 @@
-Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com [209.85.167.48])
+Received: from mail-qv1-f47.google.com (mail-qv1-f47.google.com [209.85.219.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6B7319A288
-	for <selinux@vger.kernel.org>; Fri, 15 May 2026 20:02:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.48
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778875379; cv=pass; b=BkyVtgdyauXNhTf4Dyv3zoYjah3CZBthIkm+xclwx01l4HvbhVDvksnLKLqyfgFRhJUdV5x19w8N4XtPN7s2fX1sKE3rEwUur4MwVcmPz/hJ8V1RCWQ4gs3C6IOegnHe+dSF+P4Pyew7Th8D3Cg8/rGHHda0aII4TSKZ/5zgefM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778875379; c=relaxed/simple;
-	bh=REwLgVw5IlPiZoqBG6YysTS+F6JS3DuzVi9RXF6MlRs=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=O3j5MeevXLW5e0CtF4eSD8j5YDmabTM1AbNE+re/VI38nAgyaajCe9dUeF39pkq1xRY7YBuePg1jtcsYD9NWhMPWXNd0MvN7WGcKmsyw/PvHU44OXxL4/Nq/nlEFL3UfpqN5L/kDWMj+r4W8lvl4bxKrCklwQPN9hoDXQrUMHcM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IQ0p7yHT; arc=pass smtp.client-ip=209.85.167.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80C2738E8B8
+	for <selinux@vger.kernel.org>; Fri, 15 May 2026 20:12:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.47
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778875924; cv=none; b=PlM70WHnT49zl0w3ah4WMvLdp+L8o/1NHGOvVXlT/6rwxtlQq6giD986rFdAop4aeZLsWCv4nz//MFHrwWOGK/KVaRZhAJl23YK5QCrakJCeApxoYPuCZWIL2s0GK0v+8P2JkNZtjjVUodvAsFXacKsBasW+2m7TeU5VIBimdvM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778875924; c=relaxed/simple;
+	bh=FeF52JJjiwHXPZy9iCtLVquMeFiBLoCTpg2jE/ssRK4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=qVh7ZCmAGv2010Z01PmOUfD7Yx8Lr2RZ/dCSKHoOEQtSFKU9376yCeFnI0E5LBOpt9/TY5IVf8ieCol1+Iw+w3npj1oNQxwN9OxZP0ZlQcjutYFqcfj4aLjqjnPOqmNuRRT5Z/tdpbzdFBS4iFUC7hY2XtmM3Rer6x0x6aM9QFI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SvvEsijo; arc=none smtp.client-ip=209.85.219.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IQ0p7yHT"
-Received: by mail-lf1-f48.google.com with SMTP id 2adb3069b0e04-5a995ab70d1so247649e87.3
-        for <selinux@vger.kernel.org>; Fri, 15 May 2026 13:02:57 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1778875376; cv=none;
-        d=google.com; s=arc-20240605;
-        b=Y1kt9QTo4KS19pPkH85jwdyiG19w1STIfeulMQs3nwIEhUdroH+WWqVzyPgzGK3xx5
-         QJj0kL07ybjBWt7wMiNL4ms/ZNWJgO/Hj6w30/GBBKV/qA8Hgx0dFkvAghQ1aCStSVYw
-         49d0L0uZZSJTU7e3YsUh+4LG1EjugfeiO+lX9qb12Q6aDxFk2GD7lLH30pscYJCa6nJ0
-         2qIEA6ais7UsBVHVmgSiZ5YZFAkuAEoJZrKN6G6latZsUedvCkpQ+hSngr50ocrSe7px
-         lkNisVBpfGW9BXflWG7en/sGAKdz5VG2ug63y7+EDksAJMWIl/yW1jsZkmM9V82I22GD
-         7V5g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=+zDjKJRaEWjKu3M0DWLY0mwc6wkblow8mUoy00tGyQE=;
-        fh=xAsnehjcEFsFxuJ06JOKwj1JA37MI1HiKFpjHvBpcMI=;
-        b=exHzKFRS4x2oG2tBmWWNKEoWXrNtpfqIeCKLxArjxDDgCmF5joXa4b1jlm6GJ6Qpuk
-         u5QvqwF5d0/M9BKh4vTNhNlr0jkmymV4KGx2TFiL1/10W5xwgmS/uhfNxVbo/QC/fKah
-         R+3qOsoOkwz4/Ndqx7Ci5JyMZpsGpedkGN5VloMRX3HNZEsd4o3m13WxtRPaC6TIpnpo
-         swekjtCseXr+EYP6ejKBk0cDJE+Zlo1CWqVgIxHt2tLvDiVGGzapq9WbJnMRNaP0+ULp
-         kw99jMZ9Vwf5kjPdaXac6Ei7rby7cZhsyEFuIdBNXNWQZIJNU8a9BJKrNkRJay8W1oKw
-         a0+Q==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SvvEsijo"
+Received: by mail-qv1-f47.google.com with SMTP id 6a1803df08f44-8ca12973e15so3057536d6.1
+        for <selinux@vger.kernel.org>; Fri, 15 May 2026 13:12:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778875376; x=1779480176; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=+zDjKJRaEWjKu3M0DWLY0mwc6wkblow8mUoy00tGyQE=;
-        b=IQ0p7yHT8MmFfnU6PhDEJ4CaHplZ7Y5t3dE2PIAzH0666TagI8znbWDEiIXHhVZRs+
-         5lc1O1hoqr2TM0AV2//Qx4BP3r9EI7PX9Nn2Q5/3LRl8Ze4l6zQ6bz84OzN/g0JS6qqS
-         cxzpVYlzzmFC1B+de5+Tp0qs1JkLsVdGXAjTmGqPZfAJEqwt4vmT7Au0adymO0fCazsk
-         YlplAdVb6PG3HMzShx8RsZrf6wFSB3QR7CqSUR9pIKNza9zQrS4uUkfiQ6GCvYXegyXf
-         4BNfR/1BmuugZrQuzZtZA2Jdn2uDA0YY9U0P4rC0jwqwuFFbva8cwCkC3UTFGpJ3WiAW
-         FRow==
+        d=gmail.com; s=20251104; t=1778875922; x=1779480722; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=BlMxiOAt7d9nDV+hGoiAzNyDn6YNigLGIM8TzYUhzSQ=;
+        b=SvvEsijoL2iC2ttraHi4Hcff/CxYwIg/f90ThCgNB5qqzGTlyt48/vHHhC/ZYWtZy7
+         Zda2GzJaZjtXk9Lws87cMSzmRON1X7PHzU5AocYsLhvoFSY2gYLVnYaDe+BU32h7/E4D
+         wNbN1oZY3w9W4mKaETumIKbQa+XHjuLqfB8aRrrH5gVVBVcw1PpmbMifWTwmOlV7zw+E
+         X2JnZVlbwt5Y79RB7nOK2lPWqzwzdl1iQ2gJymMGVXEYxb1mvbNzEnAwXpsrJ8Ajw5Gb
+         lB75MwF7ESawixR5mi5cqG7QMJhb6SSZ+ISlbXCwfbC0jDETbZXnCTOptMChbXbpy05k
+         tHCQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778875376; x=1779480176;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=+zDjKJRaEWjKu3M0DWLY0mwc6wkblow8mUoy00tGyQE=;
-        b=Wyfk9thFwvlWMeSNfbIcBrDT+2nOzc2voK7ePAlZkJRaa0TJtEd7hycBR1OnmfxNtK
-         x+8GBoBfFOTlvNCpK+hYdw+fm7eJnNUiOoMnhOjBG1iz1p+jA/5KCx6ikWZV3ekXVeI7
-         OP2Cpb9in86bfPH4phGARrJHQvWxAp+oOMYPY918amWlFmtdAxxudAcAEAwZZMpU9/Rc
-         8NT/qh/oyziD72cVmq8D12MDNuD444Txn+7m0kj4SMn8iud2RAfz1rFRkh1ZFeON0XGT
-         AugjY07u++nWtklZiv4RGW4+d7KH786CZipIxd80nLdXA/E0uj1a0SgBE2penA6fznhP
-         zRrw==
-X-Gm-Message-State: AOJu0YxPxhSj/Z9pHavsJV4pASoKqW6iG9aUsZo2NimxvlvRsKkHxjh7
-	uFXHHGM9CXyRN1uWkI6PklhMoc7ggmPOnymCXWURt+oryzSiyMl6bMO7aTlz++b1iYSki3RskhZ
-	hn+meXwhInYapGl7dW5ShMz46N6F5q6DIcg==
-X-Gm-Gg: Acq92OFkxmH2CB+uRCWc0ZA6noAWVCeyddj7qrpkCg1j3dskZarZ57N2c8gRpwvlqiw
-	Qzho7S39LTPAvoQVZmuGW8NfhT9O/VJb37DAZ2OXMKDLp7pTGmmv54KrJhPxws0i12BLmKJpWso
-	XL0E/+cL5UzBSJZQtUViIUntMZnUT8wCHYowuIMa4Uwf3n5pq+5mkKcpZIvWNGE4WhKzFcURFIF
-	VFpGwbqNXvPRZkMdHnhgfWefI0MwR9QDFlj7k746scmAj/EIH41OaSOzVQaVzbi9sYHrA5WhVc9
-	+OW3
-X-Received: by 2002:a05:6512:220f:b0:5a8:a201:f27f with SMTP id
- 2adb3069b0e04-5aa0e749bd7mr1470197e87.34.1778875375648; Fri, 15 May 2026
- 13:02:55 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1778875922; x=1779480722;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=BlMxiOAt7d9nDV+hGoiAzNyDn6YNigLGIM8TzYUhzSQ=;
+        b=Rhj7C9I6h+TAyXsyCh0wwUJW17HIQUBuRey++avl2zGOATGAI2AUEQVxMqn+oMNr0Y
+         V3HLs5d0jvVWu/Fm7gxcRjoXRmTxvWySUxBFjC2NB6PBM4Khit2HEev/tVPw2EUq5sDW
+         1VPSIa1oa23XoZ6M0RmL8b5oxNnFa1ESMJGWIv+3AiCF4StyGimihmK2F0cx0O+lw680
+         LKIVbxsFV7wRxBFHR5VuXI7LkU0WqQNOLcoGCqYsNUS22EvYQrRmdicibr72BEDeAOaf
+         RV7HQWATCr6my2vuFINOOCm26yqTcsvBs4SJ5DHwyYjLmADZxFtHMzpvm6RmlGwPsATt
+         oHcQ==
+X-Gm-Message-State: AOJu0Yyq8HoJlOJwKDKu00OJmBTeJj8MPnuwDcqdO5T1Cptje7Q2aIiY
+	9LgDtUUpBhBz61Bpp0sE8HW0I27w8zcpXFRoVtexMIiuKaM1ibKNpQ+qt/TdwA==
+X-Gm-Gg: Acq92OESu9u1HEXHZWvgfYesH2qv5j8K5F+JE9t72K2T0XUdqrPQp+wmzBtFugkn4/j
+	A2BkWmGKJjEMK3+ysaPqu8fZ8zmE7n+pNnIVxHWVORSpkdp3YhggOCgl36S1jWRXqDedcBogKaO
+	HJ+0TA21/LXMWl43oadb4Crkwkbhe6hFzFSsO2FGNXx7Zyck2u9kVJd498/8Repz4P7MocyW9EZ
+	6qAcWDC4crPmYTvYP4sXMsIOdSisTR0BIAuWFv+lpEN9ZjDTtx5EJsz85W3OYGPsbPCSaphMD4x
+	7EdWLJmy7EyZthws4hLsvZyT5NgUxBwLJ9kD/x6ECtGS3u1DqpFo8qZa8/dnylCV624UqD5DBie
+	+MfbvAfkDEv7UWHUdSpRm+pdyWR53jU3mkexJIfARdVD8DA13Kn2ITSwL8M5062YLI6ecK+cTk7
+	AwqOvmw9571H5OBbkL93eP2OiV8iuHXaFY/dHNvcf8lxaaefZmK/IufkmBcFA4wSd5e5UMlx7lS
+	J0rkhOnpIXk6/F6rt0jghLgpvVNZz7Vv9thqqfmGKVO3vuLGkzKG1c=
+X-Received: by 2002:a05:6214:5a05:b0:8b1:f784:7ec8 with SMTP id 6a1803df08f44-8ca0f6fcd58mr103836426d6.47.1778875922212;
+        Fri, 15 May 2026 13:12:02 -0700 (PDT)
+Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ca1188c2c3sm32200826d6.5.2026.05.15.13.12.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 May 2026 13:12:01 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	paul@paul-moore.com,
+	perfinion@gentoo.org,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH v2 1/2] libselinux: update pywrap targets for modern python builds
+Date: Fri, 15 May 2026 16:09:52 -0400
+Message-ID: <20260515200952.35857-2-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAHLDejxCCVr1kH7JNFnvQM+ct6_mn89rAc+OdVbLaP=cCNkbeA@mail.gmail.com>
-In-Reply-To: <CAHLDejxCCVr1kH7JNFnvQM+ct6_mn89rAc+OdVbLaP=cCNkbeA@mail.gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Fri, 15 May 2026 16:02:44 -0400
-X-Gm-Features: AVHnY4IaZToarFSoroUclgZVSHSDxF5FpZXeEX1ThZl3dhITt6oRbfOjiPngBRs
-Message-ID: <CAP+JOzRSBYSjUQBjv8+Nt6KrJG-H=g3azyVD9dnT1GOEQyxAdA@mail.gmail.com>
-Subject: Re: [PATCH] define matchpathcon_filespec_add/add64
-To: Pepper Gray <hello@peppergray.xyz>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-Gremlins seem to have mangled all four of your patches on the way to the li=
-st.
+setup.py build is deprecated and no longer working on GitHub CI
+runners.
 
-Most of it seems to be long lines being wrapped, but there seem to be
-some other issues with some of them as well.
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+v2 finally passes the GitHub build tests for me in combination with
+the libsemanage tests fix.
 
-Sorry,
-Jim
+ libselinux/src/.gitignore     |  1 +
+ libselinux/src/Makefile       |  8 ++++----
+ libselinux/src/pyproject.toml | 11 +++++++++++
+ 3 files changed, 16 insertions(+), 4 deletions(-)
+ create mode 100644 libselinux/src/pyproject.toml
 
+diff --git a/libselinux/src/.gitignore b/libselinux/src/.gitignore
+index 94400e81..5413ccf0 100644
+--- a/libselinux/src/.gitignore
++++ b/libselinux/src/.gitignore
+@@ -2,3 +2,4 @@ selinux.py
+ selinuxswig_python_wrap.c
+ selinuxswig_ruby_wrap.c
+ selinux.egg-info/
++dist/
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index 6fce9fa5..c62ad1ed 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -151,7 +151,8 @@ all: $(LIBSO)
+ endif
+ 
+ pywrap: all selinuxswig_python_exception.i
+-	CFLAGS="$(CPPFLAGS) $(CFLAGS) $(SWIG_CFLAGS)" $(PYTHON) setup.py build_ext
++	$(PYTHON) -m pip install build wheel
++	CFLAGS="$(CPPFLAGS) $(CFLAGS) $(SWIG_CFLAGS)" $(PYTHON) -m build --no-isolation --wheel .
+ 
+ rubywrap: all $(SWIGRUBYSO)
+ 
+@@ -196,7 +197,7 @@ ifneq ($(DISABLE_SHARED),y)
+ endif
+ 
+ install-pywrap: pywrap
+-	CFLAGS="$(CPPFLAGS) $(CFLAGS) $(SWIG_CFLAGS)" $(PYTHON) -m pip install --no-build-isolation --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR) --ignore-installed --no-deps` $(PYTHON_SETUP_ARGS) .
++	$(PYTHON) -m pip install --no-build-isolation --force-reinstall --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR) --ignore-installed --no-deps` dist/*.whl
+ 	install -m 644 $(SWIGPYOUT) $(DESTDIR)$(PYTHONLIBDIR)/selinux/__init__.py
+ 	ln -sf --relative $(DESTDIR)$(PYTHONLIBDIR)/selinux/_selinux$(PYCEXT) $(DESTDIR)$(PYTHONLIBDIR)/_selinux$(PYCEXT)
+ 
+@@ -209,8 +210,7 @@ relabel:
+ 
+ clean-pywrap:
+ 	-rm -f $(SWIGLOBJ) $(SWIGSO) $(AUDIT2WHYLOBJ) $(AUDIT2WHYSO)
+-	$(PYTHON) setup.py clean
+-	-rm -rf build *~ \#* *pyc .#* selinux.egg-info/
++	-rm -rf build dist *.egg-info *~ \#* *pyc .#*
+ 
+ clean-rubywrap:
+ 	-rm -f $(SWIGRUBYLOBJ) $(SWIGRUBYSO)
+diff --git a/libselinux/src/pyproject.toml b/libselinux/src/pyproject.toml
+new file mode 100644
+index 00000000..74dbbc34
+--- /dev/null
++++ b/libselinux/src/pyproject.toml
+@@ -0,0 +1,11 @@
++[build-system]
++requires = ["setuptools", "wheel"]
++build-backend = "setuptools.build_meta"
++
++[project]
++name = "selinux"
++version = "3.10"
++description = "SELinux python 3 bindings"
++authors = [
++  { name = "SELinux Project", email = "selinux@vger.kernel.org" }
++]
+-- 
+2.54.0
 
-On Thu, May 7, 2026 at 5:57=E2=80=AFAM Pepper Gray <hello@peppergray.xyz> w=
-rote:
->
-> From ce907fb1daa4d165b29f2d91b3d0958e2eb7f044 Mon Sep 17 00:00:00 2001
-> From: Pepper Gray <hello@peppergray.xyz>
-> Date: Sat, 11 Apr 2026 15:55:17 +0200
-> Subject: [PATCH] define matchpathcon_filespec_add/add64
->
-> matchpathcon_filespec_add and matchpathcon_filespec_add64 are
-> exported in libselinux.map, so both need to be linker-visible
-> symbols
->
-> fix: #512
-> Signed-off-by: Pepper Gray <hello@peppergray.xyz>
-> ---
->  libselinux/include/selinux/selinux.h |  4 +---
->  libselinux/src/matchpathcon.c        | 17 ++++++-----------
->  2 files changed, 7 insertions(+), 14 deletions(-)
->
-> diff --git a/libselinux/include/selinux/selinux.h
-> b/libselinux/include/selinux/selinux.h
-> index b1431e5d0d..241bb54a94 100644
-> --- a/libselinux/include/selinux/selinux.h
-> +++ b/libselinux/include/selinux/selinux.h
-> @@ -537,10 +537,8 @@ extern int matchpathcon_index(const char *path,
->     with the same inode (e.g. due to multiple hard links).  If so, then
->     use the latter of the two specifications based on their order in the
->     file contexts configuration.  Return the used specification index. */
-> -#if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64 &&
-> defined(__INO64_T_TYPE) && !defined(__INO_T_MATCHES_INO64_T)
-> -#define matchpathcon_filespec_add matchpathcon_filespec_add64
-> -#endif
->  extern int matchpathcon_filespec_add(ino_t ino, int specind, const char =
-*file);
-> +extern int matchpathcon_filespec_add64(ino_t ino, int specind, const
-> char *file);
->
->  /* Destroy any inode associations that have been added, e.g. to restart
->     for a new filesystem. */
-> diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.=
-c
-> index 240c9fa76d..df4cabf597 100644
-> --- a/libselinux/src/matchpathcon.c
-> +++ b/libselinux/src/matchpathcon.c
-> @@ -261,25 +261,20 @@ int matchpathcon_filespec_add(ino_t ino, int
-> specind, const char *file)
->   return -1;
->  }
->
-> +int matchpathcon_filespec_add64(unsigned long ino, int specind,
-> +                              const char *file)
-> +{
-> + return matchpathcon_filespec_add(ino, specind, file);
-> +}
-> +
->  #if (defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64) &&
-> defined(__INO64_T_TYPE) && !defined(__INO_T_MATCHES_INO64_T)
-> -/* alias defined in the public header but we undefine it here */
-> -#undef matchpathcon_filespec_add
->
->  /* ABI backwards-compatible shim for non-LFS 32-bit systems */
-> -
->  static_assert(sizeof(unsigned long) =3D=3D sizeof(__ino_t), "inode size =
-mismatch");
->  static_assert(sizeof(unsigned long) =3D=3D sizeof(uint32_t), "inode size
-> mismatch");
->  static_assert(sizeof(ino_t) =3D=3D sizeof(ino64_t), "inode size mismatch=
-");
->  static_assert(sizeof(ino64_t) =3D=3D sizeof(uint64_t), "inode size misma=
-tch");
->
-> -extern int matchpathcon_filespec_add(unsigned long ino, int specind,
-> -                                     const char *file);
-> -
-> -int matchpathcon_filespec_add(unsigned long ino, int specind,
-> -                              const char *file)
-> -{
-> - return matchpathcon_filespec_add64(ino, specind, file);
-> -}
->  #elif (defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64) ||
-> defined(__INO_T_MATCHES_INO64_T)
->
->  static_assert(sizeof(uint64_t) =3D=3D sizeof(ino_t), "inode size mismatc=
-h");
->
