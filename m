@@ -1,57 +1,57 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EA0848BD45
-	for <selinux@vger.kernel.org>; Fri, 15 May 2026 14:06:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1F7636CDF3
+	for <selinux@vger.kernel.org>; Fri, 15 May 2026 14:07:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778853987; cv=none; b=JLpV5aprfljq5uUDPf8TfeDXzlCXR4OIN3jAN9KRKMEI6DD5yaC3+X6NRtZP5OrakW0KLLiQx6V6vs5pk+jUDwtymR8SKS9BUOIMgiw7vu6vU1dmVchqOes2Ih31W7haRQiNsIlIqIrHelyCQGh4nFyymQd3BHHYSXILoprb8P8=
+	t=1778854071; cv=none; b=oOHsJj5F4u0CsJV/WI/n5G/D5nccIWKVZ2hLqjgQRfAv0iDRLftpq2qop9qP2eQS/SQy3rbJrVeDWrjri4/qNMtE0xa7GQw3nVaqzfndOs6OwGUd4xSmRIQ3CPyrVfj/l1379aBqqY5vUsTb54i3Q35vkshIHTxSR1Vd5kFdf+k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778853987; c=relaxed/simple;
-	bh=pdasrObGHkFwU5oObLbvEbtIUiNxLsNK+a1q8Get4wU=;
+	s=arc-20240116; t=1778854071; c=relaxed/simple;
+	bh=2PmSD7IgKc4XG+sXuS6PvHHWwdB39TZVuJm4VsDu+3Q=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=VPyticwS5FNoOQCq5KZFdsizv+MKAFgjTE6YRFlhHe9Swk9oqaKBm8TxgTh9WkQEzwrakLZtybQPlgj/QfajMtUetu6FYXjktXBAcDVxReRId4prHgXDlG0Hpqnb5MADYzNEY8zvKzgFSZNJL7A65KMitOnMAAmUqSZUtCH6kaM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dxSx+1Jm; arc=none smtp.client-ip=170.10.129.124
+	 MIME-Version:Content-Type; b=Dlk2AXjgWkQYlraCyanj7g/G2bioXN5Oi2n+IeF+WBE8y1NnIv/edJZ0YntSDwokLg65/dAYerLGmwGMb/mJxxG7mfq5D9MmlESOjuuf9QGHC4j2m/UfNo2P/Mdx/wxTTS3RTKT7H04Wb99e5eXeI//j0MNI7NxKePkflmbNPU8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=G4rNQhFj; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dxSx+1Jm"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G4rNQhFj"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778853983;
+	s=mimecast20190719; t=1778854068;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=CjsbNv1i3xdkvGaiCdxhLjxa/oL+949ASXqPrraQHE0=;
-	b=dxSx+1JmJJkQ50EtlG77epiE384ASjGRcrmY3s3nGHHXmbuYK1QwHDFLbmQFp4TM1ebtMb
-	UVc+XTrHLD4sHnLPMzcOp51SNIiAeBd/a99en6/ofnddWuYm5ER9gU6sBzWhEeimTdXduZ
-	m8Fu6NsaIWdZ08X6RV7GxjeySwZpvlw=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+	bh=NrWTYkMdUqYuqu1Q/8F0A+dodfwRtliVqfwjesoqkUA=;
+	b=G4rNQhFj2a9nTz+nYJtWbq3qIjCvndKOvecu29Oh31xbPZbnyr3IGyu92KntKraBscqE8Q
+	xJPcWNwPQXFwOQPupkmmmh+BcaFfWAjMp5yKNSrwGpJAtGoTSzMH2YGps7ReDGMiL8PwnG
+	jFa8Mo0qtRt9+HXxB0t4U+2f9bM72mo=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-691-Y6e9dC28MKySTOa_5Y1OGg-1; Fri,
- 15 May 2026 10:06:19 -0400
-X-MC-Unique: Y6e9dC28MKySTOa_5Y1OGg-1
-X-Mimecast-MFC-AGG-ID: Y6e9dC28MKySTOa_5Y1OGg_1778853978
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-172-bksGBBJjNM-lk8sR5z6ItA-1; Fri,
+ 15 May 2026 10:07:45 -0400
+X-MC-Unique: bksGBBJjNM-lk8sR5z6ItA-1
+X-Mimecast-MFC-AGG-ID: bksGBBJjNM-lk8sR5z6ItA_1778854063
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id A152B1800616;
-	Fri, 15 May 2026 14:06:18 +0000 (UTC)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 8CD8B195609E;
+	Fri, 15 May 2026 14:07:43 +0000 (UTC)
 Received: from localhost (unknown [10.44.49.163])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 311891800240;
-	Fri, 15 May 2026 14:06:17 +0000 (UTC)
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id F0C1B30001A2;
+	Fri, 15 May 2026 14:07:42 +0000 (UTC)
 From: Petr Lautrbach <lautrbach@redhat.com>
-To: James Carter <jwcart2@gmail.com>, Vit Mojzis <vmojzis@redhat.com>
-Cc: selinux@vger.kernel.org
-Subject: Re: [PATCH] checkpolicy/test: Show all options for dispol and
- dismod in -h
-In-Reply-To: <CAP+JOzTSxCP9LASNMKS=QT4TdKpb3ri9NKsu09hdtE5++UV=fw@mail.gmail.com>
-References: <20260420124124.324404-1-vmojzis@redhat.com>
- <CAP+JOzTSxCP9LASNMKS=QT4TdKpb3ri9NKsu09hdtE5++UV=fw@mail.gmail.com>
-Date: Fri, 15 May 2026 16:06:17 +0200
-Message-ID: <87h5o8hina.fsf@redhat.com>
+To: selinux@vger.kernel.org, James Carter <jwcart2@gmail.com>, Cathy Hu
+ <cahu@suse.de>
+Cc: fvogt@suse.com
+Subject: Re: [PATCH v2] restorecon: Only log error on readonly fs (bsc#1232226)
+In-Reply-To: <CAP+JOzT7y0dMq5oseWN+86Dq0Mzv0MOK=EUquhLVLnvkDNna-w@mail.gmail.com>
+References: <20260430113302.2841721-2-cahu@suse.de>
+ <CAP+JOzT7y0dMq5oseWN+86Dq0Mzv0MOK=EUquhLVLnvkDNna-w@mail.gmail.com>
+Date: Fri, 15 May 2026 16:07:41 +0200
+Message-ID: <87ecjchiky.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -60,122 +60,99 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
 James Carter <jwcart2@gmail.com> writes:
 
-> On Mon, Apr 20, 2026 at 8:41=E2=80=AFAM Vit Mojzis <vmojzis@redhat.com> w=
-rote:
+> On Thu, Apr 30, 2026 at 7:34=E2=80=AFAM Cathy Hu <cahu@suse.de> wrote:
 >>
->> Show the following options, which were hidden in the usage message,
->> because they require additional input:
+>> Problem:
 >>
->> dispol:
->>   7    change a boolean value
->>   f    set output file
->>   m    display menu
->>   q    quit
+>> Before this change, when restorecon encountered a read-only filesystem,
+>> it would set the error code to 255, not continue traversing, but
+>> continue with other paths:
+>> "restorecon: Could not set context for <path>:  Read-only file system"
 >>
->> dismod:
->>   l    Link in a module
->>   f    set output file
->>   m    display menu
->>   q    quit
+>> For callers there is no way to distinguish from that error code if it
+>> encountered a serious error, or a read-only fs was not relabelled, or
+>> both. However, not failing when a read-only fs is traversed is
+>> acceptable in most if not all cases.
 >>
->> Fixes:
->>   $dispol -h
->>   Usage:
->>    sedispol [OPTIONS] binary_pol_file
+>> This caused issues when e.g. restorecon was used in autorelabel
+>> mechanisms during boot to relabel the file system. When it encountered
+>> a read-only BTRFS subvolume, the return code would be set to 255 and
+>> we had to fail the relabel service, as it might be a more severe issue.
 >>
->>   Options:
->>    -h, --help   print this help message
->>    -a, --actions ACTIONS   run non-interactively
+>> Behaviour change in this commit:
 >>
->>   Actions:
->>     1    display unconditional AVTAB
->>     2    display conditional AVTAB (entirely)
->>     3    display conditional AVTAB (only ENABLED rules)
->>     4    display conditional AVTAB (only DISABLED rules)
->>     5    display booleans
->>     6    display conditional expressions
->>     8    display role transitions
->>     c    display policy capabilities
->>     C    display classes
->>     u    display users
->>     r    display roles
->>     t    display types
->>     a    display type attributes
->>     p    display the list of permissive types
->>     U    display unknown handling setting
->>     F    display filename_trans rules
+>> With this change, restorecon logs the encounter of a ro file system, con=
+tinues and finishes with return code 0:
+>> "Read only filesystem, relabel not possible: <path>"
 >>
->>   With the patch:
+>> Other mechanims that were considered to fix this issue and why they were
+>> not used:
 >>
->>   Actions:
->>     1    display unconditional AVTAB
->>     2    display conditional AVTAB (entirely)
->>     3    display conditional AVTAB (only ENABLED rules)
->>     4    display conditional AVTAB (only DISABLED rules)
->>     5    display booleans
->>     6    display conditional expressions
->>     7    change a boolean value
->>     8    display role transitions
->>     c    display policy capabilities
->>     C    display classes
->>     u    display users
->>     r    display roles
->>     t    display types
->>     a    display type attributes
->>     p    display the list of permissive types
->>     U    display unknown handling setting
->>     F    display filename_trans rules
->>     f    set output file
->>     m    display menu
->>     q    quit
+>> - -x skip all subvolumes: break cases of subvolumes which aren't mounted=
+ explicitly but still need to be relabelled
+>> - caller generates skippable locations and these get automatically fed
+>>   into restorecon: error prone and needs to be manually maintained in
+>> certain scenarios
+>> - caller ignores non-zero return code: not good idea, it would cover up
+>>   issues that would be hard to debug in the future
+>> - skip only ro btrfs subvolumes: I started writing a poc and discovered =
+it is not easily
+>>   possible without either pulling libbtrfs in as dependency or having
+>>   a lot of ioctl calls which likely will lead to performance degradation
+>>   or tracking the btrfs status inside of restorecon, which would be a
+>>   big code change for a problem that might be also there on other file
+>>   systems
 >>
->> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+>> Discussion and context:
+>>
+>> - "Question regarding restorecon and btrfs read-only snapshots" Thread:
+>> https://lore.kernel.org/selinux/98f87fd6-6d3e-4539-ad8f-1a0dc09aa890@sus=
+e.de/
+>>
+>> - (open)SUSE bug: https://bugzilla.suse.com/show_bug.cgi?id=3D1232226
+>>
+>> Signed-off-by: Cathy Hu <cahu@suse.de>
 >
 > Acked-by: James Carter <jwcart2@gmail.com>
+
 
 Merged, thanks!
 
 >> ---
->>  checkpolicy/test/dismod.c | 3 +--
->>  checkpolicy/test/dispol.c | 3 +--
->>  2 files changed, 2 insertions(+), 4 deletions(-)
+>>  libselinux/src/selinux_restorecon.c | 8 ++++++--
+>>  1 file changed, 6 insertions(+), 2 deletions(-)
 >>
->> diff --git a/checkpolicy/test/dismod.c b/checkpolicy/test/dismod.c
->> index 4868190f..ed5aaa45 100644
->> --- a/checkpolicy/test/dismod.c
->> +++ b/checkpolicy/test/dismod.c
->> @@ -106,8 +106,7 @@ static __attribute__((__noreturn__)) void usage(cons=
-t char *progname)
->>         puts("");
->>         puts("Actions:");
->>         for (unsigned int i =3D 0; commands[i].meta !=3D EOL; i++) {
->> -               if (commands[i].meta =3D=3D HEADER
->> -                   || commands[i].meta & NOOPT)
->> +               if (!(commands[i].meta & CMD))
->>                         continue;
->>                 printf("  %c    %s\n", commands[i].cmd, commands[i].desc=
-);
->>         }
->> diff --git a/checkpolicy/test/dispol.c b/checkpolicy/test/dispol.c
->> index 3f80c1a2..c3339b88 100644
->> --- a/checkpolicy/test/dispol.c
->> +++ b/checkpolicy/test/dispol.c
->> @@ -79,8 +79,7 @@ static __attribute__((__noreturn__)) void usage(const =
-char *progname)
->>         puts("");
->>         puts("Actions:");
->>         for (unsigned int i =3D 0; commands[i].meta !=3D EOL; i++) {
->> -               if (commands[i].meta =3D=3D HEADER
->> -                   || commands[i].meta & NOOPT)
->> +               if (!(commands[i].meta & CMD))
->>                         continue;
->>                 printf("  %c    %s\n", commands[i].cmd, commands[i].desc=
-);
->>         }
+>> diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinu=
+x_restorecon.c
+>> index 8fadf4d2..e8545e27 100644
+>> --- a/libselinux/src/selinux_restorecon.c
+>> +++ b/libselinux/src/selinux_restorecon.c
+>> @@ -774,10 +774,14 @@ static int restorecon_sb(const char *pathname, con=
+st struct stat *sb,
+>>                 if (!flags->nochange) {
+>>                         if (lsetfilecon(pathname, newcon) < 0) {
+>>                                 /* Ignore files removed during relabelin=
+g if ignore_noent is set */
+>> -                               if (flags->ignore_noent && errno =3D=3D =
+ENOENT)
+>> +                               if (flags->ignore_noent && errno =3D=3D =
+ENOENT) {
+>>                                         goto out;
+>> -                               else
+>> +                               } else if (errno =3D=3D EROFS) {
+>> +                                       selinux_log(SELINUX_INFO, "Read =
+only filesystem, relabel not possible: %s\n", pathname);
+>> +                                       goto out;
+>> +                               } else {
+>>                                         goto err;
+>> +                               }
+>>                         }
+>>
+>>                         updated =3D true;
 >> --
 >> 2.53.0
 >>
