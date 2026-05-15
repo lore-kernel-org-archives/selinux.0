@@ -1,152 +1,135 @@
-Received: from cloud35.hostingpalvelu.fi (mail35.hostingpalvelu.fi [31.217.192.49])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD9D93ACEE6
-	for <selinux@vger.kernel.org>; Thu, 14 May 2026 20:56:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=31.217.192.49
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778792201; cv=none; b=fHq42Kef7x8pFIdXvJ07qFcUJaot/uW/Iix7so3fBYPqNwdOxqJcpa2kSv4O76brBwwrnKFI276Xw2StwaB2bLw0uUmyQLGxoHwJQiRHgCzf3NsneswToxlaymcm81oNFQ8LClFkAFmQwi1SIfB2HkrjIXGhCWRsRCOYkmvn1xA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778792201; c=relaxed/simple;
-	bh=bZh37FBBn6exK/XwnzSwThjXC0FvLa7kdujNEJhSKPs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=g01TG6NLRV3Y///hFJ+066HCMCtJG5peMbIW+g4CheR3EtrvmDStOrfU6GUFvKHe+UpiThU8R+PJVjuCtV9t8m9HzIRc9jMlC3HXoZUNRozHeFhFL9UB/33/UTuZjTJbHOW4MTUg5mQ8qKfFpJnBw42j5UYxmFNzqBw7DKCG5bg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=JMfzLy0E; arc=none smtp.client-ip=31.217.192.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kolttonen.fi
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E74DC2868B4
+	for <selinux@vger.kernel.org>; Fri, 15 May 2026 05:57:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.133.124
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778824624; cv=pass; b=BPaDXAzTuke5W8SMGolJajNuzSyac4UyG+K7710AA/OWQjly9qAWX36hZRXNFM04PP+FH1YXdmd6lZfZNYIX9U5Ijp3NHC/q9J+p1DXYAEjVrfTl0w0q0o6FS+BRg8+jenPeHI7YVT7pogUMAdYP4tyo+yF17D35CvJFus/eTXg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778824624; c=relaxed/simple;
+	bh=1N9WJNlfbqWYxWXXPCwWvzPYe+PYUl/CABuFBFOwmJU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=q913Xz9XeLziqLb9yEwudoVxrJ3qLC3fkIxIJ4kZTFr3xWj+ARIoDZeuiHWCOUPXLTfnob4WOHKYN5AS7QzSZNWAowhVHYtjMXk7k5PExvY3BLC5kszrJ3NxZtVEHOrQ9cDAblYkW/reyFF0yQRAEnJGJqP/H9lZZdQGf7UGRKk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZPjFyQvA; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=iy/jKuwt; arc=pass smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="JMfzLy0E"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=kolttonen.fi; s=default; h=Content-Transfer-Encoding:MIME-Version:
-	Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
-	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=YTL0Q9puqH/tAdM5ky4pq5c4GJ3OI1/aspkapzKoJWQ=; b=JMfzLy0EW6osysN51tvrGkG8q+
-	M2+pHJJa92RGbuaoNkggqfgy3LWIWAKhBuobbo/vMT2rvyhXTzkoSkCq5ksvN2hAHnW7wWs6UP/kB
-	MSn5GifhDoObOrBxPTBixkyLsFhKByXuhnczJvQt3MXludEcF0qclT3bbX7gZxOERHsXYVld0sYzJ
-	NhKRUsez8fY4zQqMz3MmWr4XK6nhL1kEp8XZ5JPvflNHjMX3Izj49oNUireKiLjqn3Nz9+HMo3Cn+
-	pL9YzgUkxcUgX9ZtBy7vKWMKntrB+PVAbxELCJtV7UxsuMm9mk6FN6EfKeaszpJjymVQS2e9/ui6f
-	NFiQdxqQ==;
-Received: from 176-93-144-62.bb.dnainternet.fi ([176.93.144.62]:11310 helo=fbsd15.local)
-	by cloud35.hostingpalvelu.fi with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.99.2)
-	(envelope-from <kalevi@kolttonen.fi>)
-	id 1wNd6o-0000000E48B-3weh;
-	Thu, 14 May 2026 23:56:38 +0300
-From: Kalevi Kolttonen <kalevi@kolttonen.fi>
-To: selinux@vger.kernel.org
-Cc: Kalevi Kolttonen <kalevi@kolttonen.fi>
-Subject: [PATCH v3] libsemanage: make expand-check a proper boolean option
-Date: Thu, 14 May 2026 23:56:31 +0300
-Message-ID: <20260514205631.76858-1-kalevi@kolttonen.fi>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZPjFyQvA";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="iy/jKuwt"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1778824621;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=1N9WJNlfbqWYxWXXPCwWvzPYe+PYUl/CABuFBFOwmJU=;
+	b=ZPjFyQvATgX/MgPTKUH0pHrw9iaZDyLDj87YAam1JY7j9Oedvhy/gPj52MNW+VUvRpYdLN
+	DRzbWeB6SzatQUv0G3EvnlMM3O/9jyPphW2J0fNXPq9phVfX/9uH1m3gC0wpbscvFyi2vY
+	y1GlYz8TINr84txBTe+YYGPo7VYPvls=
+Received: from mail-yx1-f70.google.com (mail-yx1-f70.google.com
+ [74.125.224.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-456-ceW_cYk6N0CK01XTgjhJfg-1; Fri, 15 May 2026 01:57:00 -0400
+X-MC-Unique: ceW_cYk6N0CK01XTgjhJfg-1
+X-Mimecast-MFC-AGG-ID: ceW_cYk6N0CK01XTgjhJfg_1778824620
+Received: by mail-yx1-f70.google.com with SMTP id 956f58d0204a3-65db7715a7fso15036455d50.0
+        for <selinux@vger.kernel.org>; Thu, 14 May 2026 22:57:00 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1778824620; cv=none;
+        d=google.com; s=arc-20240605;
+        b=RCqlx5Gt+InDanebiqR2p6YraO+2ufFLBFLRGz9W9SxjGML917yrTsXAEmVB8DH9C+
+         pAL7969ggGd/hIJtTG9acp3zV5OKl6qJWUDqP2e3LywMwMa6KgX9/KSk94t1lHLKKoUK
+         Xx2ifVZqLTLOAvOgRAX+HVafeRap9LUSWga2aseOz+Epd31ns9KA+YnnV98XRWBv7+42
+         5iDkyNlaXJNQFXuOpnAo98wr2AvTorP4201BnjsS4nVl1NMXG8MsHkMWrdCti8M2Z+Ec
+         862l7Bz/V9xcC+GpCKlmdJLIay5mKuZFxyPKLsrZB54v655R2sk4komNlIhAdCfR/hzf
+         HtFg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=1N9WJNlfbqWYxWXXPCwWvzPYe+PYUl/CABuFBFOwmJU=;
+        fh=PvVq3dmv8yvnCRJYSTWWanBfOaJzW2R+gufroGOSnBQ=;
+        b=f1GqHgqokPMCdS+LYFHdUtxNFMsqaGhP7SZEP8oiWlsDIAb8+WzWwLf5S6XRXTzxOf
+         SVrpHgjKsMRP+TOSM/HPCidc4/RR9rFqa5avrMA3ifbwwxdtWQZT4aKw5FAyrGECx+Hq
+         4mNNjuv4hVKDvbwFn/s02nmfoMy1+CkwL+kjXq/8h93cz48cWxWAFR7tfvpXEznx2jR8
+         QcXRUSNcbkcvHg1KDJEcvwHksb8eibzhtyC7TgHC5vgbQ8duUl//HL8aqvnYZ5wsRuZ5
+         wyYb1A4QRUuqtWlC5k9jaEg3QqB/353ryre2ixxe0vKvpTeXoWgk5W/DN2P8jr2z9x2n
+         F7BQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=redhat.com; s=google; t=1778824620; x=1779429420; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=1N9WJNlfbqWYxWXXPCwWvzPYe+PYUl/CABuFBFOwmJU=;
+        b=iy/jKuwtcV9wISmKJi6ut3muraKHuHq8Juc+8KRR3FySHarhTfB743L28j76Bkaijs
+         yBe3mqlLPZgPmuEgIpBssDqVRa/g/TYZy/Yq0FN8J3KG5Oa7rmDKpXOHfPQnS/Mfavsv
+         8B1ETEHDsg08SfT5MAXBtJ+jUeeV7yHHv5Nyjast85PfF2H/hUpKGobm128nD4qiI2SI
+         4ej29TDtNKZhuogV13U2kBjD9mw/30LgNjW+mBBCJ+l3uyTORopZstpf385QnqBWt5V6
+         PxYq0FLojioVq6U+RnwgYsr/oYnzENA44ZcP0PJ2kK+jPBbWupN0rg1K5Eyz07zRJBrP
+         urcg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778824620; x=1779429420;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=1N9WJNlfbqWYxWXXPCwWvzPYe+PYUl/CABuFBFOwmJU=;
+        b=P0zOmzShwvEPMKkiyC8kKrw6s2hzvl6e+5cBpvMo4eQrD4OfzzX4tRKqoaV4viEm+U
+         5Ck7ove91eWUNcCs1ASQzHt3kU7cmbRdfnzvgo8Qju2PBQs7CcJbBJxL5a8LwJxCpGAU
+         UI5Of4LpCIdIF42SvHz92GbkhUN6zXDOjr4rqiv1VgCAYQw+s+Mwz4fWQ7lKEfxePHJb
+         ejDnBTPvGfFL/jLUanzQAnH+Zqlw0VfIsBpRsHHz54PGvVXcwthB42gxszT9EgAYp2rs
+         MFpyoQ/ROT3WygdaPvwp3heNhQB5F1dVy7qMVWidJ2KuadrZy7ipaElfiPWHJUOMQEDZ
+         abFg==
+X-Gm-Message-State: AOJu0Yy+niVxeP6wh0oPUIzehjJW+IsufAyKQg1HJEx9ruJL2bGKLXfH
+	Rqzys8ZZ/wUS8EJ3M+DcFv/RWkz5e80h8OVnCKfgTBCvxJF1l4tkQaXvRNay1Ix9A0TQIJVtQgG
+	DejWbcXe55GHOIwJaB55D8G7zgbmFZxrzg5l6kUWxxVahzglFE1wN6pBXkym/Zp0xlfFAqXwzGW
+	D8d1MLsVti2zB9xWxruoTU0pg6EOcAuxqh5zBfnUv7nw==
+X-Gm-Gg: Acq92OH//qnY2298/O1XATH/nkETFoRLc+fqYFvS4UdrILXx5lPA4PL4VGiT1MMzyt8
+	mUwulrPTYNGO8EAuP9lMxypWqNeM1UUvQsjOOmzK6xKkP7uspsgjtnKlSimGnVqmuDkSWiq+YUQ
+	zp/Ed88MUd9jx2XXOKh0QIPBYa0cEgHFmNV/m4SZl+OeVEIbXXjzm5FDos6A46gGVqk/Z/74xoI
+	yG5GA==
+X-Received: by 2002:a05:690c:610d:b0:7c7:5111:5f05 with SMTP id 00721157ae682-7c95caea271mr29099527b3.48.1778824620161;
+        Thu, 14 May 2026 22:57:00 -0700 (PDT)
+X-Received: by 2002:a05:690c:610d:b0:7c7:5111:5f05 with SMTP id
+ 00721157ae682-7c95caea271mr29099377b3.48.1778824619810; Thu, 14 May 2026
+ 22:56:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - cloud35.hostingpalvelu.fi
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - kolttonen.fi
-X-Get-Message-Sender-Via: cloud35.hostingpalvelu.fi: authenticated_id: kalevi@kolttonen.fi
-X-Authenticated-Sender: cloud35.hostingpalvelu.fi: kalevi@kolttonen.fi
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+References: <CAOssrKcz2w1A465OUGr9jnWDAd+AN-Mt_AL_xxuWQOqAz8PRAA@mail.gmail.com>
+ <CAHC9VhTzDERE4phHRXTOFmaRJp_xuX3HgGwwRU0sxJJierPUDg@mail.gmail.com>
+In-Reply-To: <CAHC9VhTzDERE4phHRXTOFmaRJp_xuX3HgGwwRU0sxJJierPUDg@mail.gmail.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
+Date: Fri, 15 May 2026 07:56:49 +0200
+X-Gm-Features: AVHnY4LOoZPPlj-04icCXH3v8hpRVc9RSjaAQpks9YHF38FFDLFIDKjXSSys6m4
+Message-ID: <CAOssrKfT3vojCZheoR9R3KR2qZ76b4Ob4SzEPCb3K=oYP2jVqg@mail.gmail.com>
+Subject: Re: selinux_inode_init_security() weirdness
+To: Paul Moore <paul@paul-moore.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Make expand-check configuration option accept values
-'true' and 'false' for consistency with the rest of
-the boolean options. Preserve backwards compatibility
-with old configuration file settings by still accepting
-the values "1" and "0". Edit man page to reflect the changes.
+On Thu, May 14, 2026 at 9:00=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+>
+> On Thu, May 14, 2026 at 9:47=E2=80=AFAM Miklos Szeredi <mszeredi@redhat.c=
+om> wrote:
+> >
+> > This calls lsm_get_xattr_slot() at the very top of the function, which
+> > increments *xattr_count, but can later return -EOPNOTSUPP, signalling
+> > "ignore this LSM".
+> >
+> > At this point, there's an empty slot at the front and any xattr added
+> > by other LSMs will be ignored by the filesystem.
+>
+> Take a look at commit 1e5a8eed7821 (" selinux: don't reserve xattr
+> slot when we won't fill it") in Linus' tree.
 
-Add missing <stdbool.h> include.
+Great!
 
-Signed-off-by: Kalevi Kolttonen <kalevi@kolttonen.fi>
----
- libsemanage/man/man5/semanage.conf.5 |  2 +-
- libsemanage/src/conf-parse.y         | 22 +++++++++++++---------
- libsemanage/src/semanage_conf.h      |  3 ++-
- 3 files changed, 16 insertions(+), 11 deletions(-)
-
-diff --git a/libsemanage/man/man5/semanage.conf.5 b/libsemanage/man/man5/semanage.conf.5
-index b22e65bd..74f0d34f 100644
---- a/libsemanage/man/man5/semanage.conf.5
-+++ b/libsemanage/man/man5/semanage.conf.5
-@@ -59,7 +59,7 @@ The target platform to generate policies for. Valid values are "selinux" and "xe
- .B expand-check
- Whether or not to check "neverallow" rules when executing all
- .BR semanage
--command. It can be set to either "0" (disabled) or "1" (enabled) and by default it is enabled. There might be a large
-+command. It can be set to either "0" / "false" (disabled) or "1" / "true" (enabled) and by default it is enabled. There might be a large
- penalty in execution time if this option is enabled.
- 
- .TP
-diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
-index b69ac75b..70691fa5 100644
---- a/libsemanage/src/conf-parse.y
-+++ b/libsemanage/src/conf-parse.y
-@@ -29,6 +29,7 @@
- 
- #include <errno.h>
- #include <unistd.h>
-+#include <stdbool.h>
- #include <stdio.h>
- #include <stdlib.h>
- #include <string.h>
-@@ -168,15 +169,18 @@ target_platform: TARGET_PLATFORM '=' ARG  {
-         ;
- 
- expand_check:   EXPAND_CHECK '=' ARG  {
--                        char *endptr;
--                        long value;
--                        errno = 0;
--                        value = strtol($3, &endptr, 10);
--                        if (*endptr != '\0' || errno != 0 || (value != 0 && value != 1))
--                                yyerror("expand-check can only be '1' or '0'");
--                        else
--                                current_conf->expand_check = value;
--                        free($3);
-+	                if (strcasecmp($3, "true") == 0)
-+		                current_conf->expand_check = true;
-+			else if (strcmp($3, "1") == 0)
-+		                current_conf->expand_check = true;
-+			else if (strcasecmp($3, "false") == 0)
-+		                current_conf->expand_check = false;
-+			else if (strcmp($3, "0") == 0)
-+		                current_conf->expand_check = false;
-+			else {
-+				yyerror("expand-check can only be 'true', '1', 'false' or '0'");
-+			}
-+			free($3);
-                 }
-         ;
- 
-diff --git a/libsemanage/src/semanage_conf.h b/libsemanage/src/semanage_conf.h
-index 2388faad..f9e330b7 100644
---- a/libsemanage/src/semanage_conf.h
-+++ b/libsemanage/src/semanage_conf.h
-@@ -21,6 +21,7 @@
- #define SEMANAGE_CONF_H
- 
- #include <semanage/handle.h>
-+#include <stdbool.h>
- #include <sys/types.h>
- #include <sys/stat.h>
- 
-@@ -36,7 +37,7 @@ typedef struct semanage_conf {
- 	int server_port;
- 	int policyvers;		/* version for server generated policies */
- 	int target_platform;
--	int expand_check;
-+	bool expand_check;
- 	int save_previous;
- 	int save_linked;
- 	int disable_genhomedircon;
--- 
-2.54.0
+Thanks,
+Miklos
 
