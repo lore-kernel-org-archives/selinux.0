@@ -1,73 +1,55 @@
-Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B063B1F3B8A
-	for <selinux@vger.kernel.org>; Fri, 15 May 2026 19:20:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90F32413D70;
+	Fri, 15 May 2026 20:02:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778872803; cv=none; b=q2niaKwFnZ+TZ6ae4CtgTXdltxmcdwQx7PjUQaMmU36QHMBvlaths0087fCou1dkkQNRlNkuO3nvSisvl4rocemsKKTcIftJIqId2WDATRzYIQX+PyxEFykLDEAvRdPQ60ENJSuFS5YKqayRq3H9wkE0MmNErPIhq7XpkFP/Ee8=
+	t=1778875324; cv=none; b=V6Ycp/5+ijFaFB/atJGaCYfVcpB38n2Xt+Ky2l15EK7LXBE8v9E2UrYDjV4CDa2PNA7K/uc23gva4nEZlJ76misMrKqdODZgZG6dEq0zCRg14IVM+2eiw3X83vs+q73YlmGPcIfu0p5Kuto9ozWu3LQr8AyS57r8EzUrOHmVNSc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778872803; c=relaxed/simple;
-	bh=3rAOtqlc2A/PQHXZRskmigmnfDN2eBbbw9qJ3iAJohE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=g1CF29ecvCb0P8OtS/EJLc9nlqt5a1JP5AxfmOrNAAX/0XFMl2K58XQ7P/ISyyLXAtyOvKtkv/HYI4ZxYhxwVAZyZ5NXHKNxkG+H9qdLvqj/EeaWQmc/MFhuNwku2ycdgsF4SE9tvSpmT+ordZLgFZaYiQfRsfz/GhoDIWIyvi8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TkU06pDd; arc=none smtp.client-ip=209.85.219.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778875324; c=relaxed/simple;
+	bh=H3mauhjxXzt3MNQ8wiMIz9gf//TGdRnFjHyrwfsKtKk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=diUVOip1dYPMzYkJoFaeyGKPYSVBhIT9qsRG26JP9BJJp9LnEQxGwwr6nCK1lhgrniGb3xcZD6E46VZF+uFcWLSDy+yK8pzIBaV7HKlRiDG6ZqQaPjXD3jyA4+/Sp0D1XlR3U2XtwdCEyQNQwlgMEUn/Ns4m23oABXk3IaOwuKc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ymr48TPh; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TkU06pDd"
-Received: by mail-qv1-f50.google.com with SMTP id 6a1803df08f44-8b4298d271fso2865696d6.3
-        for <selinux@vger.kernel.org>; Fri, 15 May 2026 12:20:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778872801; x=1779477601; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=3fN0WHZSYgyHf4VKX0VL5GDyz/OhF/9Sm5wmAA26u6k=;
-        b=TkU06pDdYeFFyR7/hhdY5MUmtYecU4uqaOd9F8zQbAokwEXjMWLhgf4Rm7y95D6sGJ
-         8lAdlXWz9RrPhrnrc5VnxMdQWACttmT/yKgIqzrFpYILF+WYFYD3wF8vhc3/AkdKuZlK
-         FcTHf2GVsQMHV1ub2Dxh+xa4GMva0tJvay7EtqRCTkKzLRRayuJ50BgTcMot0a8p0VYI
-         8k28ShryFxxJrvKq3tFPOfO2VRNV2X379OgfzBWpakLrmnyjSdEL7U3sC6w+Vag9xJGC
-         JujY44Kii+jXWcPG3m4rYR5FWhkGwytNOjWwDpu0SEjbSYcPw9HYbFCc/lVefzQl4DC6
-         7LKw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778872801; x=1779477601;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=3fN0WHZSYgyHf4VKX0VL5GDyz/OhF/9Sm5wmAA26u6k=;
-        b=dJtANBsYqslslNEGvwgB4QYWpm4bAU2ihQB2eSfYOzN7Dr14M52khcMjOecCUAwO7X
-         5uk+ie/QC1NMaJMjQbXzxap8sDLEi9Z9VqM3nlX2N+D54Nmi4aBxOnKd0rbhzkFDnYlP
-         XqjyRcGOP+N3cSqe99aj2/6um26/2HLGR35y4P8vwYkTS7Qe9CnPkWMnIJTCUICMI74s
-         CkU1gCBe/24esYF1DW9p9EqQeKjxw7+VWYkrtTiFhmnjczSYrcI1SKKBG+DWfpMCLo9y
-         5VLHGfexC3MkJX72L403tbpKyX980fNM+1mGoAAhavcTPFlgKO9fr7ujJg8QZekt4ueS
-         c/rQ==
-X-Gm-Message-State: AOJu0Yw77wHSYRc1xXfixS0QHBYBuXVu1XCjNWsXROy+YgrUMxzVe9BV
-	d9oDvJ5hn3r8vqOREJFTvle5ldFVaKAFmSseQOGeoNY7uA8+NKQuEoIwCVw4wg==
-X-Gm-Gg: Acq92OFLY5oQ4OeiDrWDVD6z9TmN3cE60qu6Q9Nqex14fTlTbxk9fO40aWfdiB1xdFr
-	iWxefcmHmOMSvhAnmhVNMoZ94YO90Yz6N0L9DDoKHNy25fhU9UUx0bo6mpejsWGAgnPLwh0n7rI
-	V/Fr7ux8td++Drl+Y1qmpADXxtHQmSES+yWYlBqVo9HoZ6uo3luhMcpXponCf1DJ8ELOj9rlLlp
-	EFMwDM0Lw4mzC8y6wJ8adxLGsmp/lrYpd7SUocw42pAh9pwqogGEKnKzZeJbpD+i/QvH3J+12Or
-	SolLgmhK0ZtyO5nm8FM27uYgSNzzM2r9d08cinCsOgDVFRVWJJikyBRqPpuYuGxP1+qakDB/Das
-	XIowsZm81lSiWZHMGV0C1DIIZ4szQaqYZBYCUAhIbO7XObDNYPJS/OWxy74T/NI1FopRVxJgtYY
-	PMCqGptMDkcA6t3S1B1mZc6S2CNG3R6t8jTUVH7/tnsB/grA1h1TVCl97LqSjAkx3L2Vye0K9fN
-	ZaVNAmLOacxT64jDqUQpT5/lGGxH4rlnkZlFegpo8E3GVGeqQOn2gU=
-X-Received: by 2002:a05:6214:3a83:b0:8c9:53bd:ec78 with SMTP id 6a1803df08f44-8ca0f627db8mr83819326d6.19.1778872800556;
-        Fri, 15 May 2026 12:20:00 -0700 (PDT)
-Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8c90c161928sm60815266d6.44.2026.05.15.12.19.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 May 2026 12:20:00 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	plautrba@redhat.com,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ymr48TPh"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9ABD9C2BCB3;
+	Fri, 15 May 2026 20:02:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778875324;
+	bh=H3mauhjxXzt3MNQ8wiMIz9gf//TGdRnFjHyrwfsKtKk=;
+	h=From:To:Cc:Subject:Date:From;
+	b=Ymr48TPha+NxkbyIp7QknXbyjmcq/HjAkmjWfswQCWmTL7/oS3qXgEI9njVSL396g
+	 WqM+TsEtwDcaHrgpzJnvYALMccS+ryprcdU+OKq+HSP0cY4Gbht/La0b9z+hRCE/Up
+	 05iI+J3jKERBWBQeEsyGCYwLM6xXdAdYO31ev1gRuo/d82Jj2e4pEniz4mj7gHB7zc
+	 khZDBQ96fro0UTs3qmo5OrgotHiUrlWK5sBWmBV6g+xXVgpmRUF5FoZkrm/gdn35kY
+	 3YgT/EtwXExE/vQBPBG1y5NONPW/iCvGx+R9wzePHgGSkmZOjv+/7yH6iCb7FPns/K
+	 vGi1+MHS0WRoA==
+From: Song Liu <song@kernel.org>
+To: linux-security-module@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org,
+	selinux@vger.kernel.org,
+	apparmor@lists.ubuntu.com
+Cc: paul@paul-moore.com,
+	jmorris@namei.org,
+	serge@hallyn.com,
+	viro@zeniv.linux.org.uk,
+	brauner@kernel.org,
+	jack@suse.cz,
+	john.johansen@canonical.com,
+	stephen.smalley.work@gmail.com,
 	omosnace@redhat.com,
-	paul@paul-moore.com,
-	perfinion@gentoo.org,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] python/sepolicy: update for modern python builds
-Date: Fri, 15 May 2026 15:19:45 -0400
-Message-ID: <20260515191945.34125-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.54.0
+	mic@digikod.net,
+	gnoack@google.com,
+	takedakn@nttdata.co.jp,
+	penguin-kernel@I-love.SAKURA.ne.jp,
+	herton@canonical.com,
+	kernel-team@meta.com,
+	Song Liu <song@kernel.org>
+Subject: [PATCH v4 0/7] lsm: Replace security_sb_mount with granular mount hooks
+Date: Fri, 15 May 2026 13:01:51 -0700
+Message-ID: <20260515200158.4081915-1-song@kernel.org>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -76,104 +58,96 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-setup.py build is deprecated and no longer working on GitHub
-CI runners.
+This series replaces the monolithic security_sb_mount() hook with
+per-operation mount hooks, addressing two main issues:
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- python/sepolicy/Makefile       |  9 ++++-----
- python/sepolicy/pyproject.toml | 23 +++++++++++++++++++++++
- python/sepolicy/setup.py       | 21 ++-------------------
- 3 files changed, 29 insertions(+), 24 deletions(-)
- create mode 100644 python/sepolicy/pyproject.toml
+1. TOCTOU: security_sb_mount() receives dev_name as a string, which
+   LSMs like AppArmor and Tomoyo re-resolve via kern_path(). The new
+   hooks pass pre-resolved struct path pointers where possible (bind
+   mount, move mount), eliminating the double-resolution.
 
-diff --git a/python/sepolicy/Makefile b/python/sepolicy/Makefile
-index ccb22fe7..51812980 100644
---- a/python/sepolicy/Makefile
-+++ b/python/sepolicy/Makefile
-@@ -14,11 +14,10 @@ BASHCOMPLETIONS=sepolicy-bash-completion.sh
- all: python-build
- 
- python-build:
--	$(PYTHON) setup.py build
-+	$(PYTHON) -m build --no-isolation --wheel .
- 
- clean:
--	$(PYTHON) setup.py clean
--	-rm -rf build *~ \#* *pyc .#* sepolicy.egg-info/
-+	-rm -rf build dist *.egg-info *~ \#* *pyc .#*
- 
- sepolgen:
- 	ln -sf sepolicy sepolgen
-@@ -26,8 +25,8 @@ sepolgen:
- test:
- 	@$(PYTHON) test_sepolicy.py -v
- 
--install:
--	$(PYTHON) -m pip install --no-build-isolation --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR) --ignore-installed --no-deps` $(PYTHON_SETUP_ARGS) .
-+install: python-build
-+	$(PYTHON) -m pip install --no-build-isolation --force-reinstall --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR) --ignore-installed --no-deps` dist/*.whl
- 	[ -d $(DESTDIR)$(BINDIR) ] || mkdir -p $(DESTDIR)$(BINDIR)
- 	install -m 755 sepolicy.py $(DESTDIR)$(BINDIR)/sepolicy
- 	(cd $(DESTDIR)$(BINDIR); ln -sf sepolicy sepolgen)
-diff --git a/python/sepolicy/pyproject.toml b/python/sepolicy/pyproject.toml
-new file mode 100644
-index 00000000..00a6f69a
---- /dev/null
-+++ b/python/sepolicy/pyproject.toml
-@@ -0,0 +1,23 @@
-+[build-system]
-+requires = ["setuptools>=61.0", "wheel"]
-+build-backend = "setuptools.build_meta"
-+
-+[project]
-+name = "sepolicy"
-+version = "3.10"
-+description = "SELinux Policy python bindings"
-+authors = [
-+  { name = "SELinux Project", email = "selinux@vger.kernel.org" }
-+]
-+
-+[project.scripts]
-+sepolicy = "sepolicy:main"
-+sepolgen = "sepolicy:main"
-+
-+[tool.setuptools]
-+packages = ["sepolicy", "sepolicy.templates", "sepolicy.help"]
-+
-+[tool.setuptools.package-data]
-+sepolicy = ["*.glade"]
-+"sepolicy.help" = ["*.txt", "*.png"]
-+
-diff --git a/python/sepolicy/setup.py b/python/sepolicy/setup.py
-index a57f1ff1..8999a841 100644
---- a/python/sepolicy/setup.py
-+++ b/python/sepolicy/setup.py
-@@ -1,22 +1,5 @@
- #!/usr/bin/python3
--
--# Author: Thomas Liu <tliu@redhat.com>
--# Author: Dan Walsh <dwalsh@redhat.com>
- from setuptools import setup
- 
--setup(
--    name="sepolicy",
--    version="3.10",
--    description="Python SELinux Policy Analyses bindings",
--    author="Daniel Walsh",
--    author_email="dwalsh@redhat.com",
--    packages=[
--        "sepolicy",
--        "sepolicy.templates",
--        "sepolicy.help"
--    ],
--    package_data={
--        'sepolicy': ['*.glade'],
--        'sepolicy.help': ['*.txt', '*.png']
--    }
--)
-+# Everything handled via pyproject.toml now
-+setup()
--- 
-2.54.0
+2. Conflation: security_sb_mount() handles bind, new mount, remount,
+   move, propagation changes, and mount reconfiguration through a
+   single hook, requiring LSMs to dispatch on flags internally. The
+   new hooks are called at the operation level with appropriate
+   context.
 
+The new hooks are:
+  mount_bind        - bind mount (pre-resolved source path)
+  mount_new         - new filesystem mount (with fs_context)
+  mount_remount     - filesystem remount (with fs_context)
+  mount_reconfigure - mount flag reconfiguration (MS_REMOUNT|MS_BIND)
+  mount_move        - move mount (pre-resolved paths)
+  mount_change_type - propagation type changes
+
+mount_new and mount_remount are called after parse_monolithic_mount_data(),
+so LSMs have access to the fs_context with parsed mount options. They also
+receive the original mount(2) flags and data pointer for LSMs (AppArmor,
+Tomoyo) that need them for policy matching.
+
+The series also replaces security_move_mount() with the new mount_move
+hook, unifying the old mount(2) MS_MOVE path with the move_mount(2)
+syscall path.
+
+All existing LSM behaviors are preserved:
+  AppArmor: same policy matching, TOCTOU fixed for bind/move
+  SELinux:  same permission checks (FILE__MOUNTON, FILESYSTEM__REMOUNT)
+  Landlock: same deny-all for sandboxed processes
+  Tomoyo:   same policy matching, TOCTOU fixed for bind/move, unused
+            data_page parameter removed
+
+
+This work is inspired by earlier discussions:
+
+[1] https://lore.kernel.org/bpf/20251127005011.1872209-1-song@kernel.org/
+[2] https://lore.kernel.org/linux-security-module/20250708230504.3994335-1-song@kernel.org/
+
+
+Changes v3 => v4:
+1. Move LSM_HOOK_INIT(move_mount, ...) removal from patch 7/7 to each
+   per-LSM conversion patch (3/7, 4/7, 5/7). (Paul Moore)
+2. Add kdoc comments to tomoyo mount hook functions and rename
+   tomoyo_move_mount to tomoyo_mount_move in patch 6/7. (Tetsuo Handa)
+3. Add Acked-by from Tetsuo Handa to patch 6/7.
+
+v3: https://lore.kernel.org/linux-security-module/20260509015208.3853132-1-song@kernel.org/
+
+Changes v2 => v3:
+1. Rebase.
+2. Move security_mount_move() call in vfs_move_mount() from patch 7/7
+   to patch 1/7. (Paul Moore)
+
+v2: https://lore.kernel.org/linux-security-module/20260430000315.918964-1-song@kernel.org/
+
+Changes v1 => v2:
+1. Rebase.
+2. Add Reviewed-by and Tested-by from Stephen Smalley.
+
+v1: https://lore.kernel.org/linux-security-module/20260318184400.3502908-1-song@kernel.org/
+
+Song Liu (7):
+  lsm: Add granular mount hooks to replace security_sb_mount
+  apparmor: Remove redundant MS_MGC_MSK stripping in apparmor_sb_mount
+  apparmor: Convert from sb_mount to granular mount hooks
+  selinux: Convert from sb_mount to granular mount hooks
+  landlock: Convert from sb_mount to granular mount hooks
+  tomoyo: Convert from sb_mount to granular mount hooks
+  lsm: Remove security_sb_mount and security_move_mount
+
+ fs/namespace.c                    |  41 +++++++---
+ include/linux/lsm_hook_defs.h     |  14 +++-
+ include/linux/security.h          |  56 +++++++++++---
+ kernel/bpf/bpf_lsm.c              |   7 +-
+ security/apparmor/include/mount.h |   5 +-
+ security/apparmor/lsm.c           | 102 ++++++++++++++++++-------
+ security/apparmor/mount.c         |  37 ++--------
+ security/landlock/fs.c            |  41 ++++++++--
+ security/security.c               | 119 +++++++++++++++++++++++-------
+ security/selinux/hooks.c          |  49 ++++++++----
+ security/tomoyo/common.h          |   2 +-
+ security/tomoyo/mount.c           |  31 +++++---
+ security/tomoyo/tomoyo.c          | 109 ++++++++++++++++++++++++---
+ 13 files changed, 457 insertions(+), 156 deletions(-)
+
+--
+2.53.0-Meta
