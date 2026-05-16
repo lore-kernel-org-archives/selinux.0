@@ -1,150 +1,112 @@
-Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E4D4394493
-	for <selinux@vger.kernel.org>; Fri, 15 May 2026 20:23:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.180
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778876581; cv=pass; b=Y/YPEgyzHPwtdKWU0EN01id+NUXKT+Vi5xDn6xUZKLrZdpwzD9rv0L1TmZ/ufiXXXVSllD3tE09sKs0zQTF19oiOIVbN+8T5khGNWAnjW5iOd8XXw7gqbMNdFnW7Z74ahBwt1TZwLFlMgNfQr1qA45i1+t9oobxotlNT/TmxvgY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778876581; c=relaxed/simple;
-	bh=f5QeAc10pFKXolEP/cjzVqQZl6adPOV0K87O8mMQP7A=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BB8930C165
+	for <selinux@vger.kernel.org>; Sat, 16 May 2026 07:37:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778917028; cv=none; b=kKQ+W5zV/6fUK4UnB1Je9VjkILhRhgLMs44ndW+qOah8dhNX1eA8nvK27+VLUoilaq+FoYL4CsDOWmEaeq1U22wLEhuacOZ3HTkMTC2w7TD7xM3sDuij4WgEfs+pKtsK54yLvtEgpm2k21ux4Kby2dbZVDWGNVxYRNBkh/zaZ74=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778917028; c=relaxed/simple;
+	bh=P3vqgwHwD6iLuiEKYHBc9rKUdaJI1VWv+dxZinDZG8M=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=F5BdiW0zm8DRy78hhrl+logIiWWmYrJOXfQ0609x5kUwaQrrW06TCdTZTu2q5U13RwQ0+0KjAZll7M+qJMDc3oGsdFcoGPurQtWELpn/Z5F9yOUARKBx3t7j2NSKwr2NqWBuwCHbkVmiCt0GJ4EyccwlblTLjx22pW5qloNQEX4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lmmjm3Is; arc=pass smtp.client-ip=209.85.215.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=f7s8yj97p0DECCbosMDEoA7SxlBwZd/W/QV2UHVkohlad3SMMi27EyXXYYHaW513XPp5swXv22R+X4y+UFBlHReiRAaUaFjIj+XWzdE0mT3DD2MJ22mR9ez7sV1SN8d+TCqbAiq6B+NDRLvqtLwfrXfZUn20d9cvzH3dh3El2fs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nNpNtXRG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lmmjm3Is"
-Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-c80170db7d6so91835a12.0
-        for <selinux@vger.kernel.org>; Fri, 15 May 2026 13:23:00 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1778876579; cv=none;
-        d=google.com; s=arc-20240605;
-        b=gZXzhapsYfXfclFsOK/+JVzOhL6zOJVsNg6RM6+/CMTRZZZkWbAnm305b/JUL5pXk/
-         42L3dVFst3n+9Y5YHZ03KL7n1nI+1HifOvfU+jvYQOAwRdcph+NgNLlZQlrupp9POqcJ
-         m+MtQkZHyTrUFR0z/q698XM2YsWwllJR/klJHMrl7gaF2MZVx+0zkga62Bn/7G8//3ma
-         UvOIi8r8s9aC6XhsrwADLDavkeqfgF8AZjVmxn1wHpcaCO4CQStRlCXvb+LmxpSbm7OR
-         msRcKR4wCfNEqg5m63MffVGZ1FLvnIOuC3FyE4Fw20z9sFJZnyQMZ3VsD3M3EsyKf9s1
-         +6PQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=az49owAL5ebgzubP/ZxHATt9ZywH+RvNlenDfmwpanY=;
-        fh=5O/C79wO42cQf6w/vh3W7FviilpJ0XtrrgBkDvem/c8=;
-        b=jBMKg9Nu5/qVSUGUgOn++J7UElPGNQ8Ly3+CeMA+Bua0oqtg+uogcapW2aFKo5eGRV
-         q2545C26ydOZof+rXsXOSujR9A//wPNoRP5LxvBy0ZHm6hZ8KfAt8THpTKqoJtfkp9g5
-         x/MQn7iBFQDM9DANVjhkwfQSIB+CXZYIzyG4GqrrnVNgTkFuoVc1kX/do06T3WxRV8iu
-         ciIMnp9fIXZ+hZjXDoKsGiyF+kVjPhB+u/F9GDXvU17GqJcguRI+KEtv+NHBCDoOxe1L
-         ke70LozwY8hZci1Hq97UGDHmAt6KP0skOcHsyPUCfBq+QYy8hEj0hDGuGRvXX9Koud37
-         rg/g==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778876579; x=1779481379; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=az49owAL5ebgzubP/ZxHATt9ZywH+RvNlenDfmwpanY=;
-        b=lmmjm3IsJijadZp92xNPHAUmfg+lSbaPNGoqGQsqBzPYMOs7aibLMEr3g1qewVKESb
-         bCsRBTo464U4oKWlm26byFUsBAbtrVAx6jklmqmdUjdgTiWpcmMskZ1afROswZ/sBZFh
-         5GpVKKiv+YhBkUX6Qfa+6lQpppF22CzbDKnIvHNdrO8pEl5c+5uDskFB+ppiR7O7EWMu
-         lCplbzsFxkzIxw/uzZ+46uhMJoIHorU50iHyNtNAa2Izm5RrKdM9y4qst2Ea72vdYjnw
-         9YOec6MCjqpzkXMcemTBeCKDTldQgDNyYzGndMPW+HbpCP+8eLWW8E9cpNdVyEy3ciUb
-         mU/g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778876579; x=1779481379;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=az49owAL5ebgzubP/ZxHATt9ZywH+RvNlenDfmwpanY=;
-        b=llQbw4YXRRNPOobGokjF3xCCcMkF5sSI9JeviX12ppQhqUvGbpDE7/8HyoxArkuAn+
-         O5DS/QTg7UkljJaWNYxuP3hIuAw5ZBGCBTKkdzY9YXajQT2N+E+5RupCwfMUssXW2PWu
-         JozwftJtTsuChTU+oD5myqy+WDfb4pdCQnkmwORZpYyZv5Brjznh1sRAcnMG7Yi5v/af
-         cssjmmE4zUOtLITQ6OwSpGRXNreesVbSJ6bhXx7X/Nbf6kiDqajTlV67ML0VNAh6kScf
-         2uxCI2UWpRmlENU5/lMS7lVhC8kQoeKXbmjFyFjmMDJljq/LsAOw+eF1gpZ0pjDt0pXL
-         4WEg==
-X-Gm-Message-State: AOJu0YwI/tTp8Wrb+/DYriAX3H8QAfEHbLjrpsurAZntuCiq3FD94QdY
-	VdiCtZiwiTYgEznrZK4MZjAa/mPxh2St476LmDgxBjJlPma996+3LCj9UHK5k9xSgBQvdEMhded
-	NjFojyq9ZeXy2poaoP7TsPvay0Ws7q9o4niiC
-X-Gm-Gg: Acq92OGP2Hban35QiR8NH4Af+hcErjecH0JWbphbqNDM9P+z18mr70iUXNuXK20v4Ov
-	c8UTVbwDzRVMqIBuzw45ACxTJvHFEwbNiPNupRR9rhCTDEaN1uRbEM8YQnguTycIUgpFD4pMcuu
-	6yl9JrTIY15uGB5+m7IqPcpoAv7Usx5t823fktU5dXUSf8E+jv/RQmRoMjSNKvNOg/p+aIQvXzH
-	DbLvzyunRkktGAqxaB/R8/2ehQI02avSUfx3SUbFo+6OqCQpQeWltlbIxu7wJimk/O3Ad2DuzNU
-	SNH7aG9O5li4iKPxUA==
-X-Received: by 2002:a17:902:f7d1:b0:2b2:67ca:5fff with SMTP id
- d9443c01a7336-2bd7e9adfafmr44030695ad.28.1778876579145; Fri, 15 May 2026
- 13:22:59 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nNpNtXRG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54AB5C2BCC7
+	for <selinux@vger.kernel.org>; Sat, 16 May 2026 07:37:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778917028;
+	bh=P3vqgwHwD6iLuiEKYHBc9rKUdaJI1VWv+dxZinDZG8M=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=nNpNtXRGUw0mf4NnH+yNpsGfoHEeYyd5NHflVOhmZkdo7mVPuYo0Sn7ejcQkpbAdL
+	 Xq4AnHBYR4AGZl8TBwgKc4eBK1jQKV2THXCREwHOk3eNmL2yNugi07+KM4ItzVAMO6
+	 lSPY0Q0dGzv7nMdKXX7wA4HJVc7hGOOjnXN54jcMnyKjaImX35rvGB1CMn7FnXzrEH
+	 ttD1bT9CLBvfDdqqOFFKIZxJh2yhLap9F2AzPm/qZYxfkQWJm8kzSDn2H87s6wQ+fJ
+	 uJXowVoELz8Hq3RAcg3eCdTqAUK/EgUtAJVUnrzr3fZqJNnt9hF+hAPgi/sObhd4Kf
+	 /5dvJQcCOdrpg==
+Received: by mail-qv1-f54.google.com with SMTP id 6a1803df08f44-8acb856a674so11630456d6.0
+        for <selinux@vger.kernel.org>; Sat, 16 May 2026 00:37:08 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ89frv19IN9qfoxQSqfQUtb3K5Lgl97hZkFnEzZCroVpKcQAGx1eZiAZxfTKmi34RqS0QeUoCiZ@vger.kernel.org
+X-Gm-Message-State: AOJu0YzzzTtfnOueE9UNrMlkVbVj1L/XZobyExWEfiBcGvuZRDOMpzI5
+	vRAla8AgvcCzyJi5As0ryTMcYpMUXwwihlJEyn9kTJguWk5EQLxOhQuKEs4flB3jk4z7xN1lJFR
+	eX1pdU2mGN+uQqqw67Dkacn1K/lQGttQ=
+X-Received: by 2002:a05:6214:29ce:b0:8b3:ff3f:5d61 with SMTP id
+ 6a1803df08f44-8c8fda1ccbbmr178745586d6.22.1778917027156; Sat, 16 May 2026
+ 00:37:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260515121329.10807-1-stephen.smalley.work@gmail.com> <CAEjxPJ5zEqUzmF1fzL3Mk-ATXdRkug8uM5ZH8dm9oZ67h2PfgA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5zEqUzmF1fzL3Mk-ATXdRkug8uM5ZH8dm9oZ67h2PfgA@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 15 May 2026 16:22:48 -0400
-X-Gm-Features: AVHnY4KwSciQ3fTl1x0wPlHIEUmOrrS3O-oZSEaIBl3Xn7xUfZtj8H08GNmhwg4
-Message-ID: <CAEjxPJ6A+X8dWhEzAEVURv6n761nN8CL1LD8jSs0LHE66zg6kg@mail.gmail.com>
-Subject: Re: [PATCH] python/sepolicy: Maybe fix CI build failures
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com, 
-	paul@paul-moore.com, perfinion@gentoo.org
+References: <20260512-v2_20230123_tjmercier_google_com-v1-0-6326701c3691@redhat.com>
+ <20260512-v2_20230123_tjmercier_google_com-v1-2-6326701c3691@redhat.com>
+In-Reply-To: <20260512-v2_20230123_tjmercier_google_com-v1-2-6326701c3691@redhat.com>
+From: Barry Song <baohua@kernel.org>
+Date: Sat, 16 May 2026 15:36:56 +0800
+X-Gmail-Original-Message-ID: <CAGsJ_4xfznffbjOaNKwnN6oZk_H6pqOzYqd1zx4Q9XrocdzV8A@mail.gmail.com>
+X-Gm-Features: AVHnY4L9M-s1Neba6WebvB2EkXnslTMMIykTYPVPE3skCvVx5rzQK6ntLSW6W0w
+Message-ID: <CAGsJ_4xfznffbjOaNKwnN6oZk_H6pqOzYqd1zx4Q9XrocdzV8A@mail.gmail.com>
+Subject: Re: [PATCH RFC 2/5] dma-heap: charge dma-buf memory via explicit memcg
+To: Albert Esteve <aesteve@redhat.com>
+Cc: Tejun Heo <tj@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>, 
+	=?UTF-8?Q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, 
+	Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, 
+	Sumit Semwal <sumit.semwal@linaro.org>, =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
+	Michal Hocko <mhocko@kernel.org>, Roman Gushchin <roman.gushchin@linux.dev>, 
+	Shakeel Butt <shakeel.butt@linux.dev>, Muchun Song <muchun.song@linux.dev>, 
+	Andrew Morton <akpm@linux-foundation.org>, 
+	Benjamin Gaignard <benjamin.gaignard@collabora.com>, Brian Starkey <Brian.Starkey@arm.com>, 
+	John Stultz <jstultz@google.com>, "T.J. Mercier" <tjmercier@google.com>, 
+	Christian Brauner <brauner@kernel.org>, Paul Moore <paul@paul-moore.com>, 
+	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	Shuah Khan <shuah@kernel.org>, cgroups@vger.kernel.org, linux-doc@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, 
+	linux-mm@kvack.org, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org, linux-kselftest@vger.kernel.org, mripard@kernel.org, 
+	echanude@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, May 15, 2026 at 10:01=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Tue, May 12, 2026 at 5:18=E2=80=AFPM Albert Esteve <aesteve@redhat.com> =
+wrote:
 >
-> On Fri, May 15, 2026 at 8:13=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > Current GitHub CI builds are failing with:
-> > python -m pip install --no-build-isolation --prefix=3D/usr `test -n "/t=
-mp/destdir" && echo --root /tmp/destdir --ignore-installed --no-deps`  .
-> >   Processing /home/runner/work/selinux/selinux/python/sepolicy
-> >     Preparing metadata (pyproject.toml): started
-> >     Preparing metadata (pyproject.toml): finished with status 'error'
-> >     error: subprocess-exited-with-error
-> >
-> >     =C3=97 Preparing metadata (pyproject.toml) did not run successfully=
-.
-> >     =E2=94=82 exit code: 1
-> >     =E2=95=B0=E2=94=80> [10 lines of output]
-> >         running dist_info
-> >         creating /tmp/pip-modern-metadata-dq7pf_bt/sepolicy.egg-info
-> >         writing /tmp/pip-modern-metadata-dq7pf_bt/sepolicy.egg-info/PKG=
--INFO
-> >         writing dependency_links to /tmp/pip-modern-metadata-dq7pf_bt/s=
-epolicy.egg-info/dependency_links.txt
-> >         writing top-level names to /tmp/pip-modern-metadata-dq7pf_bt/se=
-policy.egg-info/top_level.txt
-> >         writing manifest file '/tmp/pip-modern-metadata-dq7pf_bt/sepoli=
-cy.egg-info/SOURCES.txt'
-> >         reading manifest file '/tmp/pip-modern-metadata-dq7pf_bt/sepoli=
-cy.egg-info/SOURCES.txt'
-> >         writing manifest file '/tmp/pip-modern-metadata-dq7pf_bt/sepoli=
-cy.egg-info/SOURCES.txt'
-> >         creating '/tmp/pip-modern-metadata-dq7pf_bt/sepolicy.dist-info'
-> >         error: invalid command 'bdist_wheel'
-> >         [end of output]
-> >
-> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> On embedded platforms a central process often allocates dma-buf
+> memory on behalf of client applications. Without a way to
+> attribute the charge to the requesting client's cgroup, the
+> cost lands on the allocator, making per-cgroup memory limits
+> ineffective for the actual consumers.
 >
-> Never mind, this doesn't work.
-> Any clues from those more savvy with python building?
+> Add charge_pid_fd to struct dma_heap_allocation_data. When set to
+> a valid pidfd, DMA_HEAP_IOCTL_ALLOC resolves the target task's
+> memcg and charges the buffer there via mem_cgroup_charge_dmabuf()
+> inside dma_heap_buffer_alloc(). Without charge_pid_fd, and with
+> the mem_accounting module parameter enabled, the buffer is charged
+> to the allocator's own cgroup.
+>
+> Additionally, commit 3c227be90659 ("dma-buf: system_heap: account for
+> system heap allocation in memcg") adds __GFP_ACCOUNT to system-heap
+> page allocations. Keeping __GFP_ACCOUNT would charge the same pages
+> twice (once to kmem, once to MEMCG_DMABUF), thus remove it and route
+> all accounting through a single MEMCG_DMABUF path.
+>
+[...]
 
-I finally fixed the GitHub build errors via
-https://lore.kernel.org/selinux/20260515200952.35857-2-stephen.smalley.work=
-@gmail.com/T/#t
-plus https://lore.kernel.org/selinux/20260515120907.10699-1-stephen.smalley=
-.work@gmail.com/T/#u
+> -               if (mem_accounting)
+> -                       flags |=3D __GFP_ACCOUNT;
 
-With those 3 patches applied, the GitHub builds all pass at least,
-don't know about the others.
-I originally tried migrating everything I could over to pyproject.toml
-but that broke (left
-name undefined) so I restored the setup.py files to their original
-state. Not sure whether the pyproject.toml
-files are correct or necessary for anything; can drop if desired but
-figured eventually we'll want to migrate?
+Hi Albert,
+
+would it be better to move this and its description to patch 1? It
+looks like patch 1 already introduces the double accounting changes,
+and patch 2 is mainly just supporting remote charging.
+
+Also, mem_accounting is only used by system_heap.c; has this patchset
+also eliminated its need?
+
+Thanks
+Barry
