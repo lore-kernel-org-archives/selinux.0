@@ -1,153 +1,164 @@
-Received: from mail-24428.protonmail.ch (mail-24428.protonmail.ch [109.224.244.28])
+Received: from LO3P265CU004.outbound.protection.outlook.com (mail-uksouthazon11020083.outbound.protection.outlook.com [52.101.196.83])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18DDF3793D0
-	for <selinux@vger.kernel.org>; Sat, 16 May 2026 10:15:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=109.224.244.28
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778926524; cv=none; b=TNHEcB0AeZc5pK2i85Cv7PBSufeudYsfUC/fhvIsoAXp4BZWbNtovZATi9ME3k2MJJJztZQ9QgNzZOoTZ4BTAV2jwQ46IAIAynh8fMo75Mt3fZt8h/C/eISiB/kb8W1/0VBympZpuX5tFnSOj5yzJiM0dlVnwH8BR0fAyFxPyBw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778926524; c=relaxed/simple;
-	bh=+ugUTdVABa3F/naVBZuQ2lukO0F4jdLleMrEvuq9BoA=;
-	h=Date:To:From:Cc:Subject:Message-ID:MIME-Version:Content-Type; b=dy/y9lqzKkaUTSKUOK/C1Ed72POdyODiH2OmfGbVsbJAQ567xtaE9r+heLwDdWLHEl0bwl3vYwxrny50f8daVG6sk095xwsq5H+Pa1x38WYVh1opellJHyURJYpm9FEgzm9KPWH9ifYTkXQoSbPH+EES1yh5+f8RbRSpztsMBvk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me; spf=pass smtp.mailfrom=proton.me; dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b=MJUKVdEe; arc=none smtp.client-ip=109.224.244.28
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b="MJUKVdEe"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
-	s=protonmail; t=1778926518; x=1779185718;
-	bh=+ugUTdVABa3F/naVBZuQ2lukO0F4jdLleMrEvuq9BoA=;
-	h=Date:To:From:Cc:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
-	 Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
-	b=MJUKVdEeWgAOa88BNWBg4WsDXKM/lvMsuMrYpz4dubg+SYFWQwxMxBAoBxuqiIfni
-	 x5bGaxsPjuwX0lEi08+S3rGN1LVEAgmkNzd5L1xh/7u09/jtoBUg+kgqMxnj/cBb+R
-	 doG514GaS3vCH1fXzgM6fexC13Ep2qJhebJDWndHuOc8+a7vBtHZgDpk3ZZu2GQc2v
-	 w/r+upg53ryF24X+6MyjYlmqI8UDTM94mnXMX5xNhNfiggJv/CbQ7r8ppFaYn3GKRg
-	 adeN28jhlv1tJIQFK0QW7KlQ+boo/9WlT118TAc+0d7/LYrPcF5d7lo8dKZuOZC6tD
-	 SwFsPiCKU+8Lg==
-Date: Sat, 16 May 2026 10:15:15 +0000
-To: "selinux@vger.kernel.org" <selinux@vger.kernel.org>
-From: BoxStrike <BoxStrike@proton.me>
-Cc: "paul@paul-moore.com" <paul@paul-moore.com>, "stephen.smalley.work@gmail.com" <stephen.smalley.work@gmail.com>, "eparis@parisplace.org" <eparis@parisplace.org>
-Subject: [PATCH 0/2] selinuxfs: fix inconsistent policy state and deprecated op return value
-Message-ID: <rKg1X_SSNB9SOzR6jIcabSwbkzTU032ccV6kLwmvjEZzs_syLg3_Ct-Wz0tzhvnXBHlbSiEBXAPL2JnWm6b7aNzs0PRf8eRpUX8aTWEyDAM=@proton.me>
-Feedback-ID: 196754768:user:proton
-X-Pm-Message-ID: a33bf1b1aa11e5475f22b9ae6e3614a048ec63ce
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEFC91B983F;
+	Sat, 16 May 2026 13:36:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.196.83
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778938620; cv=fail; b=Jh4KGXvzH6WNjqc95TEur9TM+ULiQJoOkZoKABFJ+Mu3zTPuVfVjZnifxA7JDUwWm1wq69V9/6fXu0j89rm9hCnwGa07CGpDncW6oOggAZhvcFaorUVUE4CStnkPdamh49u+Cn7cXk56cR6idjbt2f2XFidU4WyT/7hSiDYRciw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778938620; c=relaxed/simple;
+	bh=w3Bty/AqN75+3Iwp1UiBA0ERrHry8kXNaHeML5h1b14=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=o/Q9FIguG8W/GI/vFvDPQ5c2EK9Cq4OQFyhlQwVRdTE/Av5CDRHPKlJRnrP9mnYUeS88v6zA/opZCwbKBlCka/Dn724AvS7T290MAm7CNEBel/sNWRnUf2i09oMrgNGumltHohPFdn46GIQR/Uz1ZZSyuq8sLSf6i+HsztJ2I7A=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com; spf=pass smtp.mailfrom=atomlin.com; arc=fail smtp.client-ip=52.101.196.83
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=atomlin.com
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=i8m2CNKu/oZVLVyAz6vHKsWRew2RyKiEIXFAJIxVkCFR8g19I7mqHHP9UnAzCj9VdhnK5l/oy/8nKPcECIfGIqIo/k9PnBEMipk0smBI15Fc3DOiSuCoTn1L/oWmwwUIEjcQnjjFlATomYWEhYDCoegCBziLsf5QM3Ei8xvRCrjXLGeXARoQHbZA02fRCa05uVZj3wwrMQL0mtKTlxCJCLZTF2nm7eMMuerrBi0AVE/RL+lnXTnqeQYA61GMiTAeX8PnjGb19zLnOCXqUVhromEDzSqyChvaQ9JLThkKKyY/fBfeZ3+gcIk8mYN79dhySpF4az4LpLksP9K5HM9Igw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=FShBEXD+jn80m91TO69ZPVNUTnfnw8RThDkpSg7WbVE=;
+ b=gfYcfgHfjFtWtMaIv7bXLGzyq/kvWX/U4zmZm4hrWfRVLsZQ5ac5qcYtoTzOT95/XCM0GxJbYyIo0pGizFnmX/U9kGXXoKdcrPIqFM9P8Rd28VefYZOJgXN8lOhKCv6/p3Gnoh1Ry/fjDZcRwPjQ3vRfvtV081d3gBCC8rrRkZvyn4an0FQRNov2dRXzJCM9V8eItG9iWB8JGT8agFELBE3U5zS2FNJbBIJC+DgZ5xcUQM4vmA8fhMJMznLz2jMFM2BcrwNz3YgMWxlNbqFPlKvslVUPTOMtLH0g2AYNcdQe4PGs94k/Ey31EaDE04h/ZJsbWV26/Lkc56DcaL55pQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=atomlin.com; dmarc=pass action=none header.from=atomlin.com;
+ dkim=pass header.d=atomlin.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=atomlin.com;
+Received: from CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM (2603:10a6:400:70::10)
+ by LNXP123MB3676.GBRP123.PROD.OUTLOOK.COM (2603:10a6:600:136::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.25.21; Sat, 16 May
+ 2026 13:36:54 +0000
+Received: from CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
+ ([fe80::de8e:2e4f:6c6:f3bf]) by CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
+ ([fe80::de8e:2e4f:6c6:f3bf%2]) with mapi id 15.20.9846.025; Sat, 16 May 2026
+ 13:36:51 +0000
+Date: Sat, 16 May 2026 09:36:47 -0400
+From: Aaron Tomlin <atomlin@atomlin.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: tsbogend@alpha.franken.de, jmorris@namei.org, serge@hallyn.com, 
+	mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com, 
+	vincent.guittot@linaro.org, stephen.smalley.work@gmail.com, casey@schaufler-ca.com, 
+	longman@redhat.com, tj@kernel.org, hannes@cmpxchg.org, mkoutny@suse.com, 
+	chenridong@huaweicloud.com, dietmar.eggemann@arm.com, rostedt@goodmis.org, 
+	bsegall@google.com, mgorman@suse.de, vschneid@redhat.com, kprateek.nayak@amd.com, 
+	omosnace@redhat.com, kees@kernel.org, neelx@suse.com, sean@ashe.io, 
+	chjohnst@gmail.com, steve@abita.co, mproche@gmail.com, nick.lange@gmail.com, 
+	cgroups@vger.kernel.org, linux-mips@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 2/3] security: Expand task_setscheduler LSM hook to
+ include CPU affinity mask
+Message-ID: <ekp6fp7ndac6hdlbzc4ukeh2ioikrf5ymwkeu6t2uegobbsybw@66afrltf6y73>
+References: <20260509213803.968464-1-atomlin@atomlin.com>
+ <20260509213803.968464-4-atomlin@atomlin.com>
+ <CAHC9VhQthq7y2akbQSdJwBEex1MQYWG49wcJK3b8gSQuQ_d1cQ@mail.gmail.com>
+ <bscbywzzx4nmxzbuw2bkzltb7rrmgmzy5u4gqy5pfpmafcnlto@eznniiguusqb>
+ <CAHC9VhSWrJc=aE1Sg4xfv1ZMmh=JqZFLWGeG2SnzOFqXxcUbtQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <CAHC9VhSWrJc=aE1Sg4xfv1ZMmh=JqZFLWGeG2SnzOFqXxcUbtQ@mail.gmail.com>
+X-ClientProxiedBy: BN9PR03CA0707.namprd03.prod.outlook.com
+ (2603:10b6:408:ef::22) To CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
+ (2603:10a6:400:70::10)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CWLP123MB3523:EE_|LNXP123MB3676:EE_
+X-MS-Office365-Filtering-Correlation-Id: 59ff120b-6d6c-4657-00f8-08deb3502fda
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|376014|7416014|366016|56012099003|18002099003|4143699003|22082099003;
+X-Microsoft-Antispam-Message-Info:
+	djItN1ISMS1qmswEkNP78+uCa09q+zZYj20WetJDAVe18px2nZFnD5GX34zA65kK+Qc7UNayJzO+Ab8hWKsqNuPFxZf6enEQxOHzWTcxRQysyOC0fAumnSTJYk2kEJwg0oZatatdUC+v1Jor/4HR5BaNYfiRor0DCocFq7ESZCiaoxZA+G6nRqmKodc1cYb81CdhzpjTV7ty9ACpw07jm6fBu6DAxxsuA2k6ey801LmwYnlaOZLdU/cBkfb+em4kDskBUpVAme0JdD3kImEoLMoCt2SphDP/FAtdL5ugZmQ9/dG25PKpt7ntL+sS/96gA/RTj7kPCuqIeLCYptXnJzgbg/fvO6jceF05CPPQAxuyjt9mqu7jV6cR+SIKwOLoMA8cXy4ucKuJvUKfMyURvgevzP32rFyqfQnWkwoy25Oyc+oF6qtz5i8Mec3jEWtw+Nzo8sbzhLJQK8hs1BP4K30gj0u3hR65eKvfVdBsSlcEZUzN305bKQya7Dqdvvh6e8SYrWAgk5t/3Seq4Df+hYWx+kFXu161Oaf8L1pN59F5X9hYqJES1WQNVnOnKNdPKczGF8UCF24v4nK7weEqOtYI40WWTouZRoDoixCT2D3Sn27Xj4UfeJ3wTm8Bb7mXfIaHDny9FgEnZGvpvU6V1jz1pVTAGeRSU+nigv7jaRaLnNUDWUAt0qvVubKt/gEO
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(7416014)(366016)(56012099003)(18002099003)(4143699003)(22082099003);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?RXd6WDg1bHdPVVpxaTFEb1BnUGtJTnZTbllaOGloc2FlN2w3d0lDUkF4QmVz?=
+ =?utf-8?B?Snk1TnFYZTdhbWNNOFZQM2dPNFdRUEx2OE1ER2JsWG4wWnJTTmp4UnplR2Jw?=
+ =?utf-8?B?Q3lsOWZkYVpQUjZnTVlXTWxVemJ3eVVvNTNuWWp5dW0wckVDS2xJTHgzbE52?=
+ =?utf-8?B?UVNZOE91SjRQZ0w2WHREWkt3Y0NSejlSK0JIQ2xNOUhrWHZsZVB6QzFUdXZB?=
+ =?utf-8?B?Y0tHUTJaTUZzRUZKTklYTjlTNy9kTEJCRldSamh6SWhQc3g0RVhKbUJDbWdj?=
+ =?utf-8?B?L2ZTZm5TeUhsV0pzL21DQmlGUFBpQ3Y0UXg3anJEbjQrMGFJL2lCYlVmTGJs?=
+ =?utf-8?B?UG1zNThpUTRTSkI5ekVtOHl3R20reW0yMVIwL1MyTmJkOEVSQnZkL0RqSU41?=
+ =?utf-8?B?UHFrMWM3N3RQNTRGZ0RCVGw4ME8yV3gzY05WQ045bmxSR1J1aHRoUUc2V05F?=
+ =?utf-8?B?WVc5NG84YW5TVW51cFBMR1NCdVlnMURnWm1PUk1TWnBuaXVxcXJZd0lPbWdy?=
+ =?utf-8?B?WVNzVmVpNGE3b29SRGcyRXFhdWVmMzFMNFN6VG1iNElLaGNpbnhMRkJFV3pk?=
+ =?utf-8?B?R3NCRWNvMWVQeG5paGhDQ3NLK0lmUXpKVWNUdGdWU2FudTloaDBPbGc0NmpX?=
+ =?utf-8?B?dlJjRzFsaXY2K2Rkcm5pWWN1QklidU1vOW1sZTFkM1VyYTlWZDV5UzdVVWZB?=
+ =?utf-8?B?a2NlSzhIakhWSFhQaGhxejYwbjlJRzhWQnJreFU5QWE3M2xpTWhVMzZqb0Nl?=
+ =?utf-8?B?QVVOcHNMVUNMZW9TSEFvTVVyWktaUk9CMk85VG1uVWRSaEJCdjFmNGlpQUVu?=
+ =?utf-8?B?WXg2VEUxeHJERnM5TnpZWTNQMlZhR0M5bWp1cXJBd29FanQzYzBzaVRTdWRB?=
+ =?utf-8?B?bnBDb0lWeU81THhjVzVqc0tNU2g4b1dPWTNrM2JqTDE1dUVveGVhdkRQZjZT?=
+ =?utf-8?B?QXE2ZG1TTGtkS1dYemdOc0pZNTZwanNwS0t0WUltbUNwbkdkelVYck92WnYy?=
+ =?utf-8?B?ZnZVUDVnS1JicnlmS1diVThORGErMTdCM3BqMFc5MnJUQktJUm5xNWc1K0Y1?=
+ =?utf-8?B?SXRtNys5UDJqbmxMOGViT1Q0MEtKUi9NQ0VXN3lOSHFUSkxMbEdlM1FubW9X?=
+ =?utf-8?B?U1hMQTBMMWlwOWQrNHJZK2pybkRMUnpiVVVzbjdObHlLZE9YMUgvQXpkRUcw?=
+ =?utf-8?B?NVBWUmNFQXBmcFVGL1kyanh5Z1J5dE9FNnhQb3ZoaXkzeUtLaFRJY0lrN01S?=
+ =?utf-8?B?TDBQbDkzRWdycVF1TkRabG9XaGNKNHVmV2tqd0Rua2RiZzZXVVZBL2ppd0ht?=
+ =?utf-8?B?WjY2MWhNaUNNK21Kc2J6TVIyZ3RqN2toT0FOQUxWRi9mSm9Ra3BTSmJmc09a?=
+ =?utf-8?B?NmR2SXdmaHJzZjRUNGo2L0VybThvd1F6RVExc3VPZWhzS1dac2t2UWZlTXFU?=
+ =?utf-8?B?RFFDN01KTXFteWNDeGFNTnVkalRPRnJsNTRuT1NmeDlrb09ZTTFLU3ZHcWJl?=
+ =?utf-8?B?bjNLb0lCS2hUdE9hSVRmcTJpTVJjbHNpRzV1WE9aNC93QWU3cCtzckFlVG1D?=
+ =?utf-8?B?ZEl4cFE0NVpDaHZtamFOSDBCbUJtUzN2eUlSZXVhN08wRjhxaVBSeXJibzB5?=
+ =?utf-8?B?cUxTZGozMkc5TTROeHprY2lKSG9nR0djN2xmYTQydk1tU0lpOXRvb1JtbTZP?=
+ =?utf-8?B?djcxc2ZORWtUNVZ6cFRiSEZFTVBWSHZpVkZTeWxnV3B5aERMa1VXUDhUYmJS?=
+ =?utf-8?B?QzN6emdjQWtXaUJBR3FiZXgvZ0N3T2hpdUZTTm9hN1hsRmJaVGdRQ3FYWmox?=
+ =?utf-8?B?STcvaEJHcGFCckJQOUJuNzVJQ2RlQ1k4VU5MaUw2MTV3UXRVK1MySnovU0Jp?=
+ =?utf-8?B?Ti9pV2pBTlI3Tk9OektNT0x2K3ZKeHkzaEFNMjh5eCt4STdWR0dwcHZvSHZi?=
+ =?utf-8?B?T1I3Mkk2SUdEYmFacGErT3c5bjlRUk83MGtWVlQ5Vkg5UW10SEZmcXVtdVNt?=
+ =?utf-8?B?MitHRXBHOG9zZWRWWGkxTEFldHRORGhxdjdjRGM3ckI5MS8zamFadU1SODFT?=
+ =?utf-8?B?TDdUWktuYTlxeU1HQVFaRFB6czRRZEpFck9oaVVVQjdjTnErdDFWU1BIclVB?=
+ =?utf-8?B?aHA1b1F4S0dkY3ZSdm1LTVo5LzhheU9qZ1ZONXdyVDFabnp3YWJCZzV1TUVR?=
+ =?utf-8?B?YkRONzliTUxWL3lPYWc0RWprdVU1Q0VjZmFPcE1IbnlIcE94ZHhkUWNPUXlK?=
+ =?utf-8?B?NExxRWd5QlNRUHNjNWdjaVEvQWFLc1phcTBjTUFoTTgwNGxualdacXU1U21x?=
+ =?utf-8?B?K0pqRVp2VGVZOE1INDJINVJWcjR5YXBjSzVrL3VKd1NNWXZtZEtCUT09?=
+X-OriginatorOrg: atomlin.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 59ff120b-6d6c-4657-00f8-08deb3502fda
+X-MS-Exchange-CrossTenant-AuthSource: CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 May 2026 13:36:51.8177
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: e6a32402-7d7b-4830-9a2b-76945bbbcb57
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: /MlFpi1mZlfRfNX51AtH/2Jgmfk9sBeBN+XowlaFf7aqVlWTE5iKOH/VQm49RMMh2spoJP6+K+joLvABe5fxag==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LNXP123MB3676
 
-Hi Linux Team
-While reviewing selinuxfs.c I found two bugs. Patches are included below.
+On Thu, May 14, 2026 at 04:15:15PM -0400, Paul Moore wrote:
+> > However, I suspect the MIPS-related patch will need to remain coupled with
+> > this feature patch. Because the first patch fundamentally alters the
+> > signature of the security_task_setscheduler() hook, the MIPS FPU affinity
+> > code must be updated concurrently to accommodate the new parameter.
+> 
+> I generally dislike when bug fixes depend on new functionality; it's
+> backwards in my opinion.  I would much rather see the MIPS bug fix
+> patch submitted as a standalone patch and then have the LSM hook
+> modification patch come separately, perhaps with a note that it
+> depends on the bug fix patch.
 
----
+Hi Paul,
 
-[PATCH 1/2] selinuxfs: fix inconsistent policy state on partial swap failur=
-e
+That is a fair point, and I completely agree with your philosophy.
 
-In sel_make_policy_nodes(), the boolean directory swap and the class
-directory swap are performed as two separate, non-atomic operations.
-If the boolean swap succeeds but the subsequent class swap fails
-(e.g. -ENOMEM from start_renaming_two_dentries), the function jumps
-to 'out' leaving the filesystem in an inconsistent state:
+I will decouple them accordingly. I will submit the MIPS FPU affinity fix
+as a standalone patch first so it can be routed, reviewed, and potentially
+backported independently.
 
-=C2=A0 - fsi->bool_dir points to the newly populated boolean dentries
-=C2=A0 - fsi->class_dir still points to the old class dentries
+Once that is out, I will submit the LSM hook modification and the rest of
+this feature series separately, rebased on top of the MIPS fix, and will
+include a clear note regarding the dependency.
 
-This means /selinux/booleans/ reflects the new policy while
-/selinux/class/ still reflects the previous one. This mismatch
-persists until the next successful policy load.
-
-Fix this by rolling back the boolean swap when the class swap fails,
-so both directories either reflect the new policy or both reflect
-the old one.
+Thanks for the guidance.
 
 
----
-=C2=A0diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxf=
-s.c
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -519,8 +519,22 @@ static int sel_make_policy_nodes(...)
-
-=C2=A0 /* classes */
-=C2=A0 ret =3D start_renaming_two_dentries(&rd, tmp_class_dir, fsi->class_d=
-ir);
-- if (ret)
-- goto out;
-+ if (ret) {
-+ /*
-+ * Bool swap already committed above. Roll it back so
-+ * booleans and classes don't reflect different policies.
-+ */
-+ struct renamedata rd_rollback =3D {};
-+ rd_rollback.old_parent =3D fsi->sb->s_root;
-+ rd_rollback.new_parent =3D tmp_parent;
-+ if (!start_renaming_two_dentries(&rd_rollback,
-+ fsi->bool_dir,
-+ tmp_bool_dir)) {
-+ d_exchange(fsi->bool_dir, tmp_bool_dir);
-+ swap(fsi->bool_num, bool_num);
-+ swap(fsi->bool_pending_names, bool_names);
-+ swap(fsi->bool_pending_values, bool_values);
-+ fsi->bool_dir =3D tmp_bool_dir;
-+ end_renaming(&rd_rollback);
-+ }
-+ goto out;
-+ }
-
-=C2=A0 d_exchange(tmp_class_dir, fsi->class_dir);
-=C2=A0 fsi->class_dir =3D tmp_class_dir;
-
----
-
-[PATCH 2/2] selinuxfs: return -EINVAL from deprecated sel_write_user
-
-sel_write_user() is a deprecated interface that logs an error and
-returns 2 (bytes written). selinux_transaction_write() interprets
-any rv > 0 as success and returns the original write size to
-userspace, making callers believe the operation succeeded.
-
-Return -EINVAL instead to make the deprecation explicit at the
-syscall level, consistent with how sel_write_disable() and
-sel_write_checkreqprot() behave in terms of intent (though those
-also have the same issue -- a follow-up could address them).
-
----
-=C2=A0diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxf=
-s.c
-=C2=A0--- a/security/selinux/selinuxfs.c
-=C2=A0+++ b/security/selinux/selinuxfs.c
-=C2=A0@@ -998,9 +998,7 @@ static ssize_t sel_write_user(...)
-=C2=A0 {
-=C2=A0 pr_err_once("SELinux: %s (%d) wrote to user. This is no longer suppo=
-rted.\n",
-=C2=A0 =C2=A0 =C2=A0current->comm, current->pid);
-=C2=A0- buf[0] =3D '0';
-=C2=A0- buf[1] =3D 0;
-=C2=A0- return 2;
-=C2=A0+ return -EINVAL;
-=C2=A0 }
-
----
-
-Note: I also noticed that sel_make_policycap() assigns the name
-"unknown" to all policy capabilities beyond ARRAY_SIZE(selinux_policycap_na=
-mes),
-resulting in multiple dentries with the same name being passed to
-d_alloc_name(). This may warrant a separate fix (e.g. using a
-formatted name like "unknown_%u"). I can send a patch for that
-separately if useful.
-
-Thanks for your time.
-
-Eneshan Erdo=C4=9Fan Karaca
-
-My github:https://github.com/Kisaca-Enes
-
+Kind regards,
+-- 
+Aaron Tomlin
