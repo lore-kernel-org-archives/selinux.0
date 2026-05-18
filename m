@@ -1,195 +1,243 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 176413FF8BF
-	for <selinux@vger.kernel.org>; Mon, 18 May 2026 12:16:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A041401A17
+	for <selinux@vger.kernel.org>; Mon, 18 May 2026 12:24:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.182
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779106617; cv=pass; b=e0cakmv7pJlMMwKw7UP6X0Elhec0zSDq6auommgKXBsgngv1eFITvErZiCWbxWxQXG3t8q+9E66lEZxvDYiV1WN5UUQxK4bLcl/5fDed3Eub6gqhpdNtx3rbtHLmzeVedRWQmePBX7pueYEeNrTwGvv1TO9vE+PcyZvWUvoRNU4=
+	t=1779107057; cv=pass; b=c1lP7bcCyOMmP3wpn0u6zuOn+Q091kHrfLWJc7yJ9OeXtOLLnbugP62xs6Xxv24/s3ils4qUkKWxDkf7/eTfjxDVyeCj2rdN4fF+i3ukNJCXgSWFJM7Gf5gKS3fiJxUHZ3RrHXFFHe3gSD95VylBZHAAwDGMFLPxFC49lyiNB3c=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779106617; c=relaxed/simple;
-	bh=GxTu0NfteCWY6YUdX16wT/N4BvT3hXjpZN7hbF/PIrM=;
+	s=arc-20240116; t=1779107057; c=relaxed/simple;
+	bh=eEui1lyafBB+ChbIUcOgIAGnx3+5i9tAu3uECLz3JU4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=UVSOG1Sy1dx3kdSBGz9I45dtVdC3bIKhfOhIfna8mfAUsCIL7mW6ZnmYN3EkbSOcTK9DdwbqbwNCyU8JzJjSu0bRyzAMFBCNmvmtzGuKdfnQyEVvZXVG9I321foTpHLQ0+YTY+n1cQCsmF8WIKvyhi84RcTlUErxox7D43LuGaU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WhDsoxB7; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=pJBVJPui; arc=pass smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 To:Cc:Content-Type; b=CGrKdC8E3EQQFQJBFbRgzCblA3DYkIHYJBL9B+n5yFwgMzEJfUMYMi7/nyvuSl09Q8Uo6BlBVcm14rGjJhgp2IjrbdL1SH+qU0KNhJvzRSY24/IDrdk+1FAzFy2s5VjOXJnR8B7zTLPPWQni+g8HM5PxCLazucpfU6HZXwWwDTI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JosvHRfr; arc=pass smtp.client-ip=209.85.215.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WhDsoxB7";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="pJBVJPui"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1779106614;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=nTNxjctaqLUFv9CjPVEgJLujFyB864ku/zdpEqnLvsc=;
-	b=WhDsoxB7L47W8xbX7MDJn5xFkPS7vFUBxSLsjTkdQHpCUvfrZ2macQHMWB5Me9Oz4xFfRy
-	rU83cKpB8CWTcAbKWSg8hKQKNCQ8hlhIYhDmkzl2awUlsQhJES36YB3UMNZPoB3GfPhtaw
-	3OcK3btvZLxFKGwZt6Fh6qdu7EOZEMI=
-Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
- [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-660-OgmEcGvyNkKYdKboYDQ3wA-1; Mon, 18 May 2026 08:16:52 -0400
-X-MC-Unique: OgmEcGvyNkKYdKboYDQ3wA-1
-X-Mimecast-MFC-AGG-ID: OgmEcGvyNkKYdKboYDQ3wA_1779106612
-Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-7bd66ec877aso30127327b3.1
-        for <selinux@vger.kernel.org>; Mon, 18 May 2026 05:16:52 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779106612; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JosvHRfr"
+Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-c7b9f54d3deso1803657a12.1
+        for <selinux@vger.kernel.org>; Mon, 18 May 2026 05:24:16 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1779107055; cv=none;
         d=google.com; s=arc-20240605;
-        b=TFE5+pMe0Cml3AuKwedUzd3zvUIIxRttMXZYA+moy3aKXjYgxuJM87N3Lx4MNQs9Kx
-         xXHuyHOJIVkgFOC71MKVShBKtgBoOioCjfAqLXwqVCZ7VUL+xVC5PS+jJXpKM2KkMrIN
-         njdG9AJUh/c2o5BJUTonsRQ/DlPcAHsQJw+336qRjPR20ah5RgnJZHRukVz81ewKUJy2
-         qzb3SugmWMUSDHh82boshq5yqi+tV2AFmdMWIlC7xEj43ol2DfFkXv+whLiu6mEL7dhU
-         oDbSS84Kg0hSXUcjCQqnJTqFR5OfIscY44tAR8hyk5EDyixKib4XTNKKCWDJQRgVCp/o
-         KZ0Q==
+        b=DazBXkFaQ6+qeG7EQhaWtoDwhBwJv6LsHmwGVEJwv5+mCkj0DMQERDD/E4VKgpCxYX
+         n4IcL8tDCLobhWqLSGMn/h8lO142JaSZeHozVxpWhg86rZukg4YBoblqLuhkVAgcf01G
+         eaQxu9iHI07n58POW1NkCozmfk8+oqeaEk+XcLwh57q27PhTCLBJs8xJwWPXsubaHNf/
+         EDkEBzQyFIKEzytyoO4iIijue95J2fNK0Z4AqHoArQlIBYbJPfZY/G1yqxXZUCDk64Ou
+         HmOJk5sKRfmkJt5p0uO+1GZewVyCcJazzXeVisu4FX73ddy2G8LK95/h+M3RXOU03uu9
+         0+zw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=nTNxjctaqLUFv9CjPVEgJLujFyB864ku/zdpEqnLvsc=;
-        fh=Z8xm4y71OJPXHWckGkF7ekABa9qRZp1HKpG9Ghxr7Rc=;
-        b=cgi8MNLIVcoKf4Zm9NPa9l4mzOG9lHSiZxJLyyQbvMA2+b/Hhs+hB+5P+fH8dWMP8/
-         dbqBnWsvvCNQq3rgtvI2qOyB/htqk9WIk136R9j0uCt3DlFQM5gLmt59VnEiI7pFH/hX
-         ChvOJu2iR+FWfWP3PbJSVZ1u5TJL450R3xGcaMpFkGyyO2ddd0ai+Wt7YM+w9WppOn2h
-         x2A4RzbPWTjW1oV6+ImKBZ9LKiWFCwFQ+hhq1y1X3/RBH7MxnI2XDhKr2jDXKr07QqeN
-         exaEk4UJHk/bw02nt8rxjZIhE2cke5Kt/PXyfbQEjB91wKGguXPhE68qso66V0GqxCWh
-         SNaw==;
+        bh=lvsFKF7ox5hJCZHNanmgc3SKQHFAoo02pJe0Uh8C9jA=;
+        fh=EB0n6i5cCP71V/PmRMQdBjLWPIbyUghkPWCIbv2FTss=;
+        b=Qdbd8cV/xys45kWgFnc23vfFrQFcjbtYd7UOHHBl40s0d1ybcBDBYPXeOJ8PAWMcNz
+         urW5Bs83cmeKflKma1+kCqrCCphoz2jtNnbeQFdNL5BlwNeFqSDP4mPo3ftRv0Bl86dW
+         i82vs5MEJ6gVwq7E3r7NcM/TMnktYhPAPrvs2PjB5OP4YfD05/xq0GKh3T8mHC3z20cj
+         1F5SQhZwscX4RXKPcj+NC5n1qi+HOgTeDX5yQXSSSR11F1W9tDD6iVVQLWnb1EwC6Kv+
+         X3qZcsYK2yjLdeOUHvUqNPlFWUKfrnCHpRBJrPfqGqRhP+4JJXCwUCZMBlkVEMUvWEx+
+         saqg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1779106612; x=1779711412; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1779107055; x=1779711855; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=nTNxjctaqLUFv9CjPVEgJLujFyB864ku/zdpEqnLvsc=;
-        b=pJBVJPuiJ9TppGffJ7/vAPnD/Z2mIYqgiML0AkBYA1lmD/96RwCBB8DnmO7WT60GyV
-         jW3ZI87unkDZDW1xghetk6urrRbI8jcT3MHbs4F036uHvin3DbJvk0wV4UVYhrjx+7OO
-         hJpJgv6Kpa+Voxr33d9/uf64uTHm3+FVc7FyztyY/lG1ypsZBNQLT4nlkOXQDotGpVvw
-         /O6OQltvdVdc9xB5Yh0uKHN4cq1059lXmi/dghfpxCuqIbhEgXnMAVhwkqPbZCvdhj/0
-         K25FscMl+T1/3s0pDQ1A8+NmNuixSyESlMeW/b/5L46HmwbaMFwq3CKrmfq/VEc/wZp2
-         D7aw==
+        bh=lvsFKF7ox5hJCZHNanmgc3SKQHFAoo02pJe0Uh8C9jA=;
+        b=JosvHRfrak+DWd9pd6ZDKZCvTenq9ZYn6EKCvdZJII8ssQJf1U4aMAP00j0Q9V+L6b
+         vGusVZASqgbP/yPLDL3N+15xCyR7QG5K8IIwxs/GRqKhpQKzuQn4mNDV8VDI5nHH9EH0
+         4g2rEIIGugtzB0VKadTEqegpdjADrWkCsHUiytIm+hb5uJyU9hOfmMZnUf/dpzX7K+7U
+         tEM4Kktwj8kTETmHPhkcywX/PHWBXOY4ZnJfpGcAGPnaoZd3VSt1Gfbk3WOLFJC8Vvdo
+         btamy1ReXTC//k40WGvl9/DwU7Ts0KTh1ZuTKYZXqjtpeVPKo288lKSGujKTb3y8ShRM
+         jRZQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779106612; x=1779711412;
+        d=1e100.net; s=20251104; t=1779107055; x=1779711855;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=nTNxjctaqLUFv9CjPVEgJLujFyB864ku/zdpEqnLvsc=;
-        b=QqA59d3QsTQstTcFEjkvHq/2tYfDNVxWgwoeSIrY2oIj2EfqgGyCMV76jp0amjHBgS
-         oLIOR75e2UsghxUjrVGuKR5xPPjEYJtelXMU4G0JrDPuxQiBckbpCsd8JDeY8Bo/fW6S
-         RXu/4zjmB05VeQsmzb1JgZO3cEqcHEFJ3cgDUm/6Nocy/bd+mPPUQpVlNiG51JQWbx2W
-         KGlMWFlzAZMIWUQCLhQR843mjstEGEve9R/ASCjh1hpABy/mvezZV5vjT3QZ11VJapss
-         dMWHG/NErnXU5A0QCdgjf4YpZCsuTTmppAgONNQ7fjMh5OSGBX2rlimVDEyf8dBY9oaD
-         c0jA==
-X-Forwarded-Encrypted: i=1; AFNElJ//1tk2gAgkhwoK0fNIROzRgKNcL7oTMhN3k2nm5KocpYrBJoCU5b0w8EnIXilRS7jvc0Z2oy3j@vger.kernel.org
-X-Gm-Message-State: AOJu0Yztxd/T8R2AvzQBeZCsUpMVj0TeinDRPs8gYNIIUb71D6jWHZpP
-	MYyLJ7Z6GE/lzxeZsg92ZssXQYc0r/g3KIDrx3+UJVFHPoVdFptFkxie/R7fMEEqOF93dHTVw3a
-	di+9bI4lBKphGbbszCiODBZVFGCr2n62CcchzqSP8v48z5iIjPh3W3tC+kb790p6ByyEC8GroRi
-	uSml1vOBzJnxwW5flvGoNdJQOa9YQxNW5AkA==
-X-Gm-Gg: Acq92OGxhBEWJwQeX3b/1G1k4RJjpSqpdg2QctE8CVLc0Nv/B4jzaoR62xkSvFHHxqj
-	9YqWF6QFjOOWf/wr50Pj0cWsjXhFEkeKy3JiHPtJxGPThO4/7giZXEPydFonwJQI5KHVWRJkKRw
-	4J51ZGhiVIysNa25rQS48B6SsPu6YRFW84I1FRTLJmxQ1UF6+1tCiCOwbO7RN2FRNzEA0Jw4TgG
-	jhElQ==
-X-Received: by 2002:a05:690c:18:b0:79a:b440:5c8d with SMTP id 00721157ae682-7c94765b6ecmr126200907b3.11.1779106612306;
-        Mon, 18 May 2026 05:16:52 -0700 (PDT)
-X-Received: by 2002:a05:690c:18:b0:79a:b440:5c8d with SMTP id
- 00721157ae682-7c94765b6ecmr126200267b3.11.1779106611396; Mon, 18 May 2026
- 05:16:51 -0700 (PDT)
+        bh=lvsFKF7ox5hJCZHNanmgc3SKQHFAoo02pJe0Uh8C9jA=;
+        b=cPlTDWqodF6APnD6511KseXJABHV9UDGOxakfcIudx98/UdL0INCfvTw0heFjEiXV2
+         E8Hh2sCZB5gQJQweBdOgLu6aMvLqzmSqxMH9bZowrE6+uRNV49DCigtgkF/4HG0uUQ7x
+         wCWfGwKG8o81mM5fZBrGRueoVrFhV0ia2NLq7I2KZUHzTQ1v6HFCVDqCONEwH85HFYdR
+         DgCuvWB49y929auRsAz7DrvspOyqLlXlvluRqABLL6yFqGiy+gzHA+4xUYbNdno8QAcV
+         DE0HTZq1R7c95j0R8dNEiE6W0fDci8y9AVwrcEpMDGBGk0dCe9AZi6TQYUWMIAzaVUaW
+         erow==
+X-Gm-Message-State: AOJu0YyPBLlZgu001FSqSHK/TjOiuxQfQ5u/osy4lFVJVjN/PgmDGxD7
+	DMP6jk3HH8YXsgARTfMl02z4FFCwv4H2+LuoeT7UQgznxtBDDO2KhXX7AqBs6n2ESTDoaCNL5dm
+	RBulM2VrV3qYcErYFUIIXjX8HEAZ37tY=
+X-Gm-Gg: Acq92OHKzIl8K+NgkhucFuSkrM30MMjH76qwjqlY1VCwJBNmR9Q4x8BAoAtd/GMHYbc
+	1Os15duJ8zY5/juF0DuqlkVahUWwuCVKtsl8cuiJdmwTu5v9EFdgXpvPxWSr5dr75/sDXdKtPqz
+	xCK7UfteIEroq4/unk2pUwxRV16rwZM7A4c/CawmnBiwS3vX0CXp4KXs7slRwTNzcjq09fxXMJa
+	CdwUc3puoNGJTw9hykkgYGHw3JDmkPpQOjlfJYXBLmVoB62OzAchlmKAF+oY1P8FjTsCiz0H1k6
+	esibk8kdLp4sM1z8zQ==
+X-Received: by 2002:a05:6a20:7f9b:b0:3a2:f05a:793f with SMTP id
+ adf61e73a8af0-3b22ee1e06cmr17262372637.51.1779107055404; Mon, 18 May 2026
+ 05:24:15 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260512-v2_20230123_tjmercier_google_com-v1-0-6326701c3691@redhat.com>
- <20260512-v2_20230123_tjmercier_google_com-v1-2-6326701c3691@redhat.com> <CAGsJ_4xfznffbjOaNKwnN6oZk_H6pqOzYqd1zx4Q9XrocdzV8A@mail.gmail.com>
-In-Reply-To: <CAGsJ_4xfznffbjOaNKwnN6oZk_H6pqOzYqd1zx4Q9XrocdzV8A@mail.gmail.com>
-From: Albert Esteve <aesteve@redhat.com>
-Date: Mon, 18 May 2026 14:16:37 +0200
-X-Gm-Features: AVHnY4KtxiMU87dVIS1J63myR0LimTeIXsyDKnE3-mVGrbnQ2cunkdBN5oMYBbg
-Message-ID: <CADSE00LjJcL8P5M-UPEpzZijU70uEmUirnin29N8YR5W5D-oFg@mail.gmail.com>
-Subject: Re: [PATCH RFC 2/5] dma-heap: charge dma-buf memory via explicit memcg
-To: Barry Song <baohua@kernel.org>
-Cc: Tejun Heo <tj@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>, 
-	=?UTF-8?Q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, 
-	Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, 
-	Sumit Semwal <sumit.semwal@linaro.org>, =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
-	Michal Hocko <mhocko@kernel.org>, Roman Gushchin <roman.gushchin@linux.dev>, 
-	Shakeel Butt <shakeel.butt@linux.dev>, Muchun Song <muchun.song@linux.dev>, 
-	Andrew Morton <akpm@linux-foundation.org>, 
-	Benjamin Gaignard <benjamin.gaignard@collabora.com>, Brian Starkey <Brian.Starkey@arm.com>, 
-	John Stultz <jstultz@google.com>, "T.J. Mercier" <tjmercier@google.com>, 
-	Christian Brauner <brauner@kernel.org>, Paul Moore <paul@paul-moore.com>, 
-	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	Shuah Khan <shuah@kernel.org>, cgroups@vger.kernel.org, linux-doc@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, 
-	linux-mm@kvack.org, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org, linux-kselftest@vger.kernel.org, mripard@kernel.org, 
-	echanude@redhat.com
+References: <rKg1X_SSNB9SOzR6jIcabSwbkzTU032ccV6kLwmvjEZzs_syLg3_Ct-Wz0tzhvnXBHlbSiEBXAPL2JnWm6b7aNzs0PRf8eRpUX8aTWEyDAM=@proton.me>
+In-Reply-To: <rKg1X_SSNB9SOzR6jIcabSwbkzTU032ccV6kLwmvjEZzs_syLg3_Ct-Wz0tzhvnXBHlbSiEBXAPL2JnWm6b7aNzs0PRf8eRpUX8aTWEyDAM=@proton.me>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 18 May 2026 08:24:03 -0400
+X-Gm-Features: AVHnY4KzdqLeRHu8kyC8jaifkcbWuQtgxF0rTaalXWT0VNcaTvdn0X5iqu2CUFk
+Message-ID: <CAEjxPJ7ptbECmgo4=3j7YN4G4EP5Fp_ee=Te=FQo8VOxD3VnMg@mail.gmail.com>
+Subject: Re: [PATCH 0/2] selinuxfs: fix inconsistent policy state and
+ deprecated op return value
+To: BoxStrike <BoxStrike@proton.me>
+Cc: "selinux@vger.kernel.org" <selinux@vger.kernel.org>, "paul@paul-moore.com" <paul@paul-moore.com>, 
+	"eparis@parisplace.org" <eparis@parisplace.org>, NeilBrown <neil@brown.name>, 
+	Jeffrey Layton <jlayton@kernel.org>, Amir Goldstein <amir73il@gmail.com>, 
+	Christian Brauner <brauner@kernel.org>, Ondrej Mosnacek <omosnace@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, May 16, 2026 at 9:37=E2=80=AFAM Barry Song <baohua@kernel.org> wrot=
-e:
+On Sat, May 16, 2026 at 6:15=E2=80=AFAM BoxStrike <BoxStrike@proton.me> wro=
+te:
 >
-> On Tue, May 12, 2026 at 5:18=E2=80=AFPM Albert Esteve <aesteve@redhat.com=
-> wrote:
-> >
-> > On embedded platforms a central process often allocates dma-buf
-> > memory on behalf of client applications. Without a way to
-> > attribute the charge to the requesting client's cgroup, the
-> > cost lands on the allocator, making per-cgroup memory limits
-> > ineffective for the actual consumers.
-> >
-> > Add charge_pid_fd to struct dma_heap_allocation_data. When set to
-> > a valid pidfd, DMA_HEAP_IOCTL_ALLOC resolves the target task's
-> > memcg and charges the buffer there via mem_cgroup_charge_dmabuf()
-> > inside dma_heap_buffer_alloc(). Without charge_pid_fd, and with
-> > the mem_accounting module parameter enabled, the buffer is charged
-> > to the allocator's own cgroup.
-> >
-> > Additionally, commit 3c227be90659 ("dma-buf: system_heap: account for
-> > system heap allocation in memcg") adds __GFP_ACCOUNT to system-heap
-> > page allocations. Keeping __GFP_ACCOUNT would charge the same pages
-> > twice (once to kmem, once to MEMCG_DMABUF), thus remove it and route
-> > all accounting through a single MEMCG_DMABUF path.
-> >
-> [...]
+> Hi Linux Team
+> While reviewing selinuxfs.c I found two bugs. Patches are included below.
+
+Thank you for the report. However, please see
+https://github.com/SELinuxProject/selinux-kernel/wiki/Getting-Started
+for information on how to prepare and submit patches for SELinux. Also
+see the comments below.
+
+> ---
 >
-> > -               if (mem_accounting)
-> > -                       flags |=3D __GFP_ACCOUNT;
+> [PATCH 1/2] selinuxfs: fix inconsistent policy state on partial swap fail=
+ure
 >
-> Hi Albert,
+> In sel_make_policy_nodes(), the boolean directory swap and the class
+> directory swap are performed as two separate, non-atomic operations.
+> If the boolean swap succeeds but the subsequent class swap fails
+> (e.g. -ENOMEM from start_renaming_two_dentries), the function jumps
+> to 'out' leaving the filesystem in an inconsistent state:
 >
-> would it be better to move this and its description to patch 1? It
-> looks like patch 1 already introduces the double accounting changes,
-> and patch 2 is mainly just supporting remote charging.
+>   - fsi->bool_dir points to the newly populated boolean dentries
+>   - fsi->class_dir still points to the old class dentries
+>
+> This means /selinux/booleans/ reflects the new policy while
+> /selinux/class/ still reflects the previous one. This mismatch
+> persists until the next successful policy load.
+>
+> Fix this by rolling back the boolean swap when the class swap fails,
+> so both directories either reflect the new policy or both reflect
+> the old one.
+>
+>
+> ---
+>  diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -519,8 +519,22 @@ static int sel_make_policy_nodes(...)
+>
+>   /* classes */
+>   ret =3D start_renaming_two_dentries(&rd, tmp_class_dir, fsi->class_dir)=
+;
+> - if (ret)
+> - goto out;
+> + if (ret) {
+> + /*
+> + * Bool swap already committed above. Roll it back so
+> + * booleans and classes don't reflect different policies.
+> + */
+> + struct renamedata rd_rollback =3D {};
+> + rd_rollback.old_parent =3D fsi->sb->s_root;
+> + rd_rollback.new_parent =3D tmp_parent;
+> + if (!start_renaming_two_dentries(&rd_rollback,
+> + fsi->bool_dir,
+> + tmp_bool_dir)) {
+> + d_exchange(fsi->bool_dir, tmp_bool_dir);
+> + swap(fsi->bool_num, bool_num);
+> + swap(fsi->bool_pending_names, bool_names);
+> + swap(fsi->bool_pending_values, bool_values);
+> + fsi->bool_dir =3D tmp_bool_dir;
+> + end_renaming(&rd_rollback);
+> + }
+> + goto out;
+> + }
 
-Hi Barry,
+Your patch seems to have been whitespace-damaged by your mail client
+and you should only send one patch per email; use git send-email as
+per the getting started guide I referenced above. However, I am not
+sure that this change is necessary or correct. I do not believe that
+start_renaming_two_dentries() can ever actually fail on selinuxfs
+because selinuxfs generally doesn't support userspace modifications of
+the directory tree and the only changes that do occur happen while
+holding the policy_mutex, so they cannot interleave with one another.
 
-Thanks for looking into this series! Yes, in my head I was trying to
-keep patch 1, which was taken from a previous, different series, and
-then diverge from it starting with patch 2. This would clarify the
-difference between the two. But I can see it just added some confusion
-(for example, patch 1 charges on dma_buf_export() and then it is moved
-to dma_heap_buffer_alloc() in patch 2). I will reorganize it better
-for the next version, including your suggestion.
+There may however be a separate issue here in that IIUC userspace can
+see the tree (i.e. perform lookups on it) in the intermediate state
+where bool_dir has been renamed into place but class_dir has not. I
+don't think this was possible before commit 833d2b3a072f7ff ("Add
+start_renaming_two_dentries()") and I missed this at that time. In
+practice however I am unsure that this can cause any real harm because
+there is no inter-dependence between the class and bool definitions,
+sel_read_bool() takes the policy mutex and therefore will wait for the
+policy commit to complete, sel_read_class() doesn't depend on any
+policy state, and we generally only append to the class/perm
+definitions upon policy updates to avoid userspace breakage. That
+said, I may be missing something.
 
 >
-> Also, mem_accounting is only used by system_heap.c; has this patchset
-> also eliminated its need?
+>   d_exchange(tmp_class_dir, fsi->class_dir);
+>   fsi->class_dir =3D tmp_class_dir;
+>
+> ---
+>
+> [PATCH 2/2] selinuxfs: return -EINVAL from deprecated sel_write_user
+>
+> sel_write_user() is a deprecated interface that logs an error and
+> returns 2 (bytes written). selinux_transaction_write() interprets
+> any rv > 0 as success and returns the original write size to
+> userspace, making callers believe the operation succeeded.
+>
+> Return -EINVAL instead to make the deprecation explicit at the
+> syscall level, consistent with how sel_write_disable() and
+> sel_write_checkreqprot() behave in terms of intent (though those
+> also have the same issue -- a follow-up could address them).
+>
+> ---
+>  diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+>  --- a/security/selinux/selinuxfs.c
+>  +++ b/security/selinux/selinuxfs.c
+>  @@ -998,9 +998,7 @@ static ssize_t sel_write_user(...)
+>   {
+>   pr_err_once("SELinux: %s (%d) wrote to user. This is no longer supporte=
+d.\n",
+>      current->comm, current->pid);
+>  - buf[0] =3D '0';
+>  - buf[1] =3D 0;
+>  - return 2;
+>  + return -EINVAL;
 
-No, mem_accounting is still handled in this patch for the general case
-where no `charge_pid_fd` is used. See dma_heap_buffer_alloc() code:
+We explicitly did not want to return an error here to avoid breaking
+userspace. That was explicitly noted
+in the commit message that introduced this change. So NAK to this one.
 
-+       if (memcg)
-+               css_get(&memcg->css);
-+       else if (mem_accounting)
-+               memcg =3D get_mem_cgroup_from_mm(current->mm);
+>   }
+>
+> ---
+>
+> Note: I also noticed that sel_make_policycap() assigns the name
+> "unknown" to all policy capabilities beyond ARRAY_SIZE(selinux_policycap_=
+names),
+> resulting in multiple dentries with the same name being passed to
+> d_alloc_name(). This may warrant a separate fix (e.g. using a
+> formatted name like "unknown_%u"). I can send a patch for that
+> separately if useful.
+
+Arguably that should be a BUG() instead but I'll defer to Paul on that one.
 
 >
-> Thanks
-> Barry
+> Thanks for your time.
 >
-
+> Eneshan Erdo=C4=9Fan Karaca
+>
+> My github:https://github.com/Kisaca-Enes
+>
