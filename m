@@ -1,681 +1,473 @@
-Received: from mail-qv1-f47.google.com (mail-qv1-f47.google.com [209.85.219.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EA7943C06A
-	for <selinux@vger.kernel.org>; Mon, 18 May 2026 12:49:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.47
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779108563; cv=none; b=RtCMGZF7JsZcWPiJAIGg8S/nl41fayG30p35wRekfPdKLCUoORoYUUbDB2um82IfbPuI1r80TTgPupSO13u5/JTI1/0ky1npz2E2gixzSNtLotBYCv3tP9Zo4LOA9lCPQ7J3xfoVHF4fvNqX4LIzAiCjVlTfIchO9+M57yeTgXU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779108563; c=relaxed/simple;
-	bh=KHylpSDeND15IW/SYPCPh2acNbSBvP3TkexjAy8VmVg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=uhwofdewhGo6xnDfOGLb3cUDzBKeFfoVyoBARKiS7lGyz6Ao42zGPzEI+qLwFUmo219cdnzxS2Ax3vYhWNumnm2ODrjhKD6Tfxm8v6k443fdXbUZlcdBt/0cXWoTCjwoKAKWqkEEYDs+mUrlPL+swu8F0nBaxtoRCrbi5NEXGIU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=B33BjUMr; arc=none smtp.client-ip=209.85.219.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C431344A723
+	for <selinux@vger.kernel.org>; Mon, 18 May 2026 12:50:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.129.124
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779108646; cv=pass; b=MbJHR2t59UHE5h087Vi1E2lM49EGPwMK/j7193nyCDQ8gMMwq8ejy3zE/KSxFD8rqALWhiAy//QsZUyJDaF+dREQGwDcxZoG86ozHUY5lLIsGnnC3g7zaRKfNchCxZ+STAHza0CKQbOwggCqoCEebQqcNWbuC4nEMHLv659tq2c=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779108646; c=relaxed/simple;
+	bh=2SxzrS0DGp89vUJWVtqZoEzOzAxn7JVMcHC7WjqbRbY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=kpLJeTJ9zyhhdxxYHlmBUx2UsD76D2Nr5mhq7N66WYx+Nk/80eJ7FoC/EePn0yZOcxWn0h2qcWztEn4vBr0AFki6tTkfIAyEHiJnCUT24zsks1h62rGPuSyI4tOsUDNYmdIIXdIje8SSnBSMrn8JTEWeXXR1wLeORX8b02uJmr0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Rutb5JhI; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=lq0PJ5IT; arc=pass smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="B33BjUMr"
-Received: by mail-qv1-f47.google.com with SMTP id 6a1803df08f44-8b62ca1d28eso28501146d6.2
-        for <selinux@vger.kernel.org>; Mon, 18 May 2026 05:49:20 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Rutb5JhI";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="lq0PJ5IT"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1779108643;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=eRhhMtWag6dFHgJ+9KXfvh39yjXyi0gyNukph7J5ngs=;
+	b=Rutb5JhIBotyupZXhSzppHcXRtDNIw2cb8xWROFQGNqw6Zuok2naNA309LGuApVI6jJIq7
+	onjNRkYoUEoPu2FmbdOEL8FFe9V+twQTylivvkI9HR9VChHK1ml7G+hkQckd+1bSn9UuTl
+	QdF9X+bsqjAoIG+kouBRxEaVhQOZwjc=
+Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
+ [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-269-vStg8gLVPkqzIANXJMr8kA-1; Mon, 18 May 2026 08:50:42 -0400
+X-MC-Unique: vStg8gLVPkqzIANXJMr8kA-1
+X-Mimecast-MFC-AGG-ID: vStg8gLVPkqzIANXJMr8kA_1779108642
+Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-7b3e41a97f0so21418767b3.0
+        for <selinux@vger.kernel.org>; Mon, 18 May 2026 05:50:42 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1779108642; cv=none;
+        d=google.com; s=arc-20240605;
+        b=JLVBujLEw+ourAKRQQ+XiF48rUgcvcum34QfWGfjDNWcuvJzcpvN+pvj+wOqYhIc6T
+         b/Z6HszHwez7w0fblLKYkE041gAIJTH1p4CcY2/ZUSQst5AGALG+bAro3hcgbBcYwBOC
+         johnGm8CeeS/3rbw3X79SIHJ+1NNpcfpiYdJjODt+Lr9xfGLQ7rTAuJHlr8+ZsSjOeXi
+         TLs+QAkEaN1RhDFO0RnrAROddrkbH6HKL7jlKS88shlTzYJfbt7gZ7IbUYwB4tjWl2/s
+         rkKiUAgfPNCIffMl7W8rBTpmi9V3Ucp5Yu+UJcGpPRGja37re4DQKEZPeYfC6GctQm5F
+         ta1Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=eRhhMtWag6dFHgJ+9KXfvh39yjXyi0gyNukph7J5ngs=;
+        fh=mWmvqzoyMNvG9l94Qz+TOkGjOy/I7+A0vML8Jo7+qFs=;
+        b=CxFvmWUoeiA/3CDblXrDwKLVAYzO0LuDvlR/a7xmrmLIZRMS/FXek8bfWh+DzKGIqf
+         AcVz+LYExBMWsC4gKJlKmtEhlX6Q4VYdRH3vbG4nYtX0RCyjLD7f8g2sqFlS4LavGEso
+         /ow9s/eBPb7yE7ixuhxhDH2IwBaEt2zZcqcptmG4tGUW/fgOLwxYohlncuWg+Iv8dv38
+         GOr9m4MjDesYf6GAzJQenzji5RaWdoOfx0Nv7ZKF4sJgNnxOW7oxbzok9R+FLIJ9pyId
+         Litfl6UpSubkXElGM7c2bI0KpN2HQ7PZ6r4fJOeXKXWmwMjnPyvFl5eRPUeOQhMy/k8n
+         Xxxg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779108560; x=1779713360; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=ONvYMzGTEqtf8irHRBqgI1nJb9tsLnHCleDWEGQU7B8=;
-        b=B33BjUMrXh6gYAQ8z+nU3gLXnZ4RFK0RAttXPhJd8ALy1TYWAVNn+AFJYhJc5O806G
-         pnYW1/nyVzkWEpGkt5OwIXM6JpPhLrntAEMsAX6wQ5CeLJfHR58IAJPWrMyfsecJdSMK
-         v5EnhCyhe65LdzW/h1blKnR4IkMkXn0iES6iysA45E6GYOuIQAZNZSg8l9FuSioAJlYu
-         mvnDGeE6+YPyDrIb8wdFWBP+0QqrLQ3b1rpRAkFA1z6AezMG2QRBOy/KASfRP+9ITVif
-         rsS/0rPc4euYcytgbzqq6tTkeOw2jC1FZTfO637IQdK5veo0ddnMuF1hvW4eTMnbP9la
-         ouJw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779108560; x=1779713360;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=redhat.com; s=google; t=1779108642; x=1779713442; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ONvYMzGTEqtf8irHRBqgI1nJb9tsLnHCleDWEGQU7B8=;
-        b=ZFOqlIcYZEO4xA6febeVZIp/EVrTNzvoLmACncu0EcNs7RYWuxcMl/0PtzmKDh5lhj
-         yYVyDrGdSQ5oAr8+0FtdhXDr6Ove8yd+PjIpXDdtANOhk1tGH/Szs9izmTPU+GSDXYTz
-         n7OJnFHCwDXRz2SR7Y3fNX0HYKhPv1aGdpgzk5I7Wm2yOM1hFuJfIByMiT9gvRcPAodE
-         +v7D9mL0nadBQUeLx1hkImwE1duYafBWHwVWZ6iS0mSl/0AWDtnf//wTeVPRMXHDxyRk
-         beXHe1QDMYDM8Vwo/2Cleb20RMMHAt0idEhdgAYPUzDnZUVQXu+LI8IluwlPSliRwHFX
-         WRKw==
-X-Gm-Message-State: AOJu0Yyss05ZBvkWegLbP37N1AIewP8f+86ZbT7Zlb561vl0MJU/ycdk
-	7ZWOe4gha9+DB0Wv668RWJglnYJ76wFGsGtWa0/pfzCDNC6qnYVLjaWr6fST9g==
-X-Gm-Gg: Acq92OHTvwVOfAZ8h6Sg9/YwpXU+RbZCc/1FZoM+Yt/AnaneHifEsL5mxPTcKqePQYE
-	PtQuqVFxLwSICcA9pDgr8peD68K050d6EJaOtSEoHRk6ChLh3hUmDV82mrvSnRAufgLPXtD+xqk
-	sbC3FTBFMlcbM6cDMRAFO8FvGdmSla9jjxSu3yikmZDNK5Tug5q89jmj2+UeJOK7/QUVBTVAKfZ
-	INBpkS/lpWhuPwawGVcP6sU983W0V1x+S7N4MePtG2zLaudQI+MvWtjYiF8bw9pjH+CFKmQRBuc
-	IuKEM1v+2kej4aDDgVAw+DNwEFEgACjdrANaXUjQ/uoIJn7qmUbmFDs16iaE2K7YHmjfhRY+iK9
-	59YyPU6N+NqsQTa6M607odrkaaI9kvkTXXMcqput5Lpmmc/wDBWw50HRUqxEVc0V7qr2kJdN+XH
-	wucOXC8q+3+rgO7iDe6c2j3UTuAV9O5rQlHNMIc3bppFtnj0gIjKgtv+2J7vjzuChG1IDNTc/qU
-	ZtHa+RO5Il6lI5+hxiDYCcywrpFCH4QY/KE5E1B0SB3HdX4X+XMLdRa6k2BPVJp0Q==
-X-Received: by 2002:a05:6214:2f8a:b0:8ca:1dc6:9e23 with SMTP id 6a1803df08f44-8ca1dc6a5femr199100216d6.30.1779108559924;
-        Mon, 18 May 2026 05:49:19 -0700 (PDT)
-Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ca36095326sm55107826d6.14.2026.05.18.05.49.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 May 2026 05:49:19 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	plautrba@redhat.com,
-	omosnace@redhat.com,
-	paul@paul-moore.com,
-	perfinion@gentoo.org,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2] sandbox/seunshare: rewrite to pin directories before use
-Date: Mon, 18 May 2026 08:46:57 -0400
-Message-ID: <20260518124656.353403-2-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.54.0
+        bh=eRhhMtWag6dFHgJ+9KXfvh39yjXyi0gyNukph7J5ngs=;
+        b=lq0PJ5ITc/jbS0p2vTR4r+xln4hrYydzzjXl8vHR807q61LMtMN1KeD2tiLFB3zkPd
+         YNKUDQtTr0hkUcEJqGM1VjpLlyGt5T4RWiI2ipyDpzxkQ9YSv2kdQVBE+zygr8wdOVas
+         twvUYTDNudGAOIdSGLaZPy/R61JZAVVEBIqwiRwhuhTeIjXv8LHmtN3RUgebpggKPpZq
+         sgmaMuLp1dxdwLHf0J89AfMTz6IKIXL7IfhuIigDKuVpbqnascNrjSWx3Yi8dUfmqwvN
+         ScnySXTSVIaE1sFR4Gq5/Cmw85VBQnLWpFLggqV7wHRZ1jWQV8z9FNlfwMKy8r+EPOhb
+         Y+Mg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779108642; x=1779713442;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=eRhhMtWag6dFHgJ+9KXfvh39yjXyi0gyNukph7J5ngs=;
+        b=YasOOzxo9QQ2jZQ6vWvAa6/u9g055X7lGb6V2kc0QinP/sRUm1fxVhn4bQsQaoW2mZ
+         2M4kRqcKlQ5G4xlSCjo0y41Kt87Bn4PMeWZiVkZ5nQ7FzevQsbQr42oB90RqLx8vw6H5
+         Wg5c09pV5rOGrkhN4ecAXmPErEhZ8oJoRAT44Ay6a1vCXWnbGfXR8RXndRpiCumB/cDu
+         VDQxSERyMRJ5iXVe1H4iIbYmgH4UGdz3T760sGD0PFuUjlj0QLHzdfqOrSBznnNF1t4C
+         O7ipD6FRSRefhtr3F77pFEX2SXnhOSVJKuFDJo2ONPdYoSIP3gWpjcqFsyILQqcmQzvK
+         Rsqw==
+X-Forwarded-Encrypted: i=1; AFNElJ/1s09Qu+EvBuYoQ2e7d6OPSb5d7WIRBo808pLwtu0lI/1GCv0ALxV66B3MIdRYON+q1vAwxjVW@vger.kernel.org
+X-Gm-Message-State: AOJu0YxKkBVmyjbwpagEWjjx0BfJhZQZlZYClDTyK76bOfD0362kgiTr
+	sn+xx3OrzFtriKLtp7thU7egi9l+Se2KlAUP34mPDBfKEsX9r/G8RV6W1IR/S4lYIJRigNFcK0X
+	StzARFH+XU8eZ/+ezgSCvXGDN1WsDpRck0Aa8hFXb3DaFAG2/oDAUtaCl3yArg8kmqhJJopk941
+	rx7vOh+mwUvfOcYiIAzFFiD59/hvO0NrLaog==
+X-Gm-Gg: Acq92OHHGi4L+RN0GQTCVy7Ko/NTV+OOYXBMBlZSVtqz1y+5Pqd0BA5CGrVgz2FQ7Fq
+	n5fa1/5+m1AtjseGIdyBPH3TKu8aAGRrtQPxbevYu8H5APAkA13X+DC1QdnWIpcK8+TnzBBvMGS
+	iqcBswnW8E0kVAd5get/SoRf00ZjfxlkI/3TmgR/xJa4M6b4H8Q+5o6nv7vSWwUsYvTNdTj9yX8
+	qTfOA==
+X-Received: by 2002:a05:690c:c504:b0:7ba:f0ed:c5ea with SMTP id 00721157ae682-7c95c202cb8mr151839517b3.39.1779108642046;
+        Mon, 18 May 2026 05:50:42 -0700 (PDT)
+X-Received: by 2002:a05:690c:c504:b0:7ba:f0ed:c5ea with SMTP id
+ 00721157ae682-7c95c202cb8mr151838957b3.39.1779108641320; Mon, 18 May 2026
+ 05:50:41 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260512-v2_20230123_tjmercier_google_com-v1-0-6326701c3691@redhat.com>
+ <20260512-v2_20230123_tjmercier_google_com-v1-2-6326701c3691@redhat.com>
+ <20260515-hinschauen-effizient-9e3a05a94f2e@brauner> <CABdmKX0d6Zsg+_TxXjB80UZR23ZvXzxYoWzORgwmx=ZiuE+Nzw@mail.gmail.com>
+ <208fb820-d8eb-4832-a343-ef8b360e8120@amd.com>
+In-Reply-To: <208fb820-d8eb-4832-a343-ef8b360e8120@amd.com>
+From: Albert Esteve <aesteve@redhat.com>
+Date: Mon, 18 May 2026 14:50:30 +0200
+X-Gm-Features: AVHnY4JVeUZbQl3fJZojeCwshobXzZdw1dcYItf6HM2iKIo4t723byYD2xZMKVg
+Message-ID: <CADSE00Lh95ygoXGKJGsYvQGEsFV8sVmwEC3uvh8M6r3ERzaJwg@mail.gmail.com>
+Subject: Re: [PATCH RFC 2/5] dma-heap: charge dma-buf memory via explicit memcg
+To: =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
+Cc: "T.J. Mercier" <tjmercier@google.com>, Christian Brauner <brauner@kernel.org>, Tejun Heo <tj@kernel.org>, 
+	Johannes Weiner <hannes@cmpxchg.org>, =?UTF-8?Q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, 
+	Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, 
+	Sumit Semwal <sumit.semwal@linaro.org>, Michal Hocko <mhocko@kernel.org>, 
+	Roman Gushchin <roman.gushchin@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, 
+	Muchun Song <muchun.song@linux.dev>, Andrew Morton <akpm@linux-foundation.org>, 
+	Benjamin Gaignard <benjamin.gaignard@collabora.com>, Brian Starkey <Brian.Starkey@arm.com>, 
+	John Stultz <jstultz@google.com>, Paul Moore <paul@paul-moore.com>, 
+	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	Shuah Khan <shuah@kernel.org>, cgroups@vger.kernel.org, linux-doc@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, 
+	linux-mm@kvack.org, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org, linux-kselftest@vger.kernel.org, mripard@kernel.org, 
+	echanude@redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-To fully eliminate TOCTOU issues in seunshare, we need to pin the
-directories and pass them via /proc/self/fd/N to mount(2).
-This is complicated further by the unsharing of the mount namespace
-in the child process and the need to remount in order to apply
-nosuid/nodev/noexec flags. Do the best we can with the legacy
-mount(2) API for compatibility on old kernels and revisit if/when
-we make kernels with the new mount API the minimum required for
-SELinux userspace.
+On Mon, May 18, 2026 at 9:20=E2=80=AFAM Christian K=C3=B6nig
+<christian.koenig@amd.com> wrote:
+>
+> On 5/15/26 19:06, T.J. Mercier wrote:
+> > On Fri, May 15, 2026 at 6:53=E2=80=AFAM Christian Brauner <brauner@kern=
+el.org> wrote:
+> >>
+> >> On Tue, May 12, 2026 at 11:10:44AM +0200, Albert Esteve wrote:
+> >>> On embedded platforms a central process often allocates dma-buf
+> >>> memory on behalf of client applications. Without a way to
+> >>> attribute the charge to the requesting client's cgroup, the
+> >>> cost lands on the allocator, making per-cgroup memory limits
+> >>> ineffective for the actual consumers.
+> >>>
+> >>> Add charge_pid_fd to struct dma_heap_allocation_data. When set to
+> >>
+> >> Please be aware that pidfds come in two flavors:
+> >>
+> >> thread-group pidfds and thread-specific pidfds. Make sure that your AP=
+I
+> >> doesn't implicitly depend on this distinction not existing.
+> >
+> > Hi Christian,
+> >
+> > Memcg is not a controller that supports "thread mode" so all threads
+> > in a group should belong to the same memcg.
+>
+> BTW: Exactly that is the requirement automotive has with their native con=
+text use case.
+>
+> The use case is that you have a deamon which has multiple threads were ea=
+ch one is acting on behalve of some other process.
+>
+> At the moment we basically say they are simply not using cgroups for that=
+ use case, but it would be really nice if we could handle that as well.
+>
+> Summarizing the requirement of that use case: You need a different cgroup=
+ for each thread of a process.
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
-v2 restores the new file mode for the O_CREAT openat() call in
-seunshare_mount_file().
+Hi Christian,
 
- sandbox/seunshare.c | 406 ++++++++++++++++++++++++++------------------
- 1 file changed, 241 insertions(+), 165 deletions(-)
+Thanks for sharing this atuomotive usecase. If I understand correctly,
+the actual requirement is attributing dma-buf charges to the right
+client, not putting each daemon thread in a different cgroup? If so,
+the `charge_pid_fd` approach achieves this directly by passing the
+client's `pid_fd`, without needing to add per-thread cgroup
+infrastructure.
 
-diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
-index e20c0f87..611bfe80 100644
---- a/sandbox/seunshare.c
-+++ b/sandbox/seunshare.c
-@@ -197,35 +197,33 @@ static int check_owner_gid(gid_t gid, const char *file, struct stat *st) {
- 	return 0;
- }
- 
--#define equal_stats(one,two) \
--	((one)->st_dev == (two)->st_dev && (one)->st_ino == (two)->st_ino && \
--	 (one)->st_uid == (two)->st_uid && (one)->st_gid == (two)->st_gid && \
--	 (one)->st_mode == (two)->st_mode)
--
- /**
-- * Sanity check specified directory.  Store stat info for future comparison, or
-- * compare with previously saved info to detect replaced directories.
-- * Note: This function does not perform owner checks.
-+ * Open directory with O_DIRECTORY|O_NOFOLLOW and return its fd
-+ * and fstat() results. The returned fd and its /proc/self/fd/N
-+ * path can be used for all subsequent operations on the directory.
-+ * NB Any non-final components in the @dir pathname are resolved
-+ * as usual but will be checked against the fsuid of the caller.
-  */
--static int verify_directory(const char *dir, struct stat *st_in, struct stat *st_out) {
-+static int pin_dir(const char *dir, struct stat *st_out)
-+{
-+	int fd;
- 	struct stat sb;
- 
--	if (st_out == NULL) st_out = &sb;
--
--	if (lstat(dir, st_out) == -1) {
--		fprintf(stderr, _("Failed to stat %s: %s\n"), dir, strerror(errno));
-+	fd = open(dir, O_RDONLY|O_DIRECTORY|O_NOFOLLOW|O_CLOEXEC);
-+	if (fd < 0) {
-+		fprintf(stderr, _("Failed to open %s: %m\n"), dir);
- 		return -1;
- 	}
--	if (! S_ISDIR(st_out->st_mode)) {
--		fprintf(stderr, _("Error: %s is not a directory: %s\n"), dir, strerror(errno));
--		return -1;
--	}
--	if (st_in && !equal_stats(st_in, st_out)) {
--		fprintf(stderr, _("Error: %s was replaced by a different directory\n"), dir);
-+
-+	if (fstat(fd, &sb) < 0) {
-+		fprintf(stderr, _("Failed to stat %s: %m\n"), dir);
-+		close(fd);
- 		return -1;
- 	}
- 
--	return 0;
-+	if (st_out)
-+		*st_out = sb;
-+	return fd;
- }
- 
- /**
-@@ -256,85 +254,90 @@ static int verify_shell(const char *shell_name)
- }
- 
- /**
-- * Mount directory and check that we mounted the right directory.
-+ * Bind-mount directory @src (using @src_fd) on directory @dst (using @dst_fd),
-+ * applying @bind_flags for the initial bind mount and @sec_flags if
-+ * non-zero via remount.
-  */
--static int seunshare_mount(const char *src, const char *dst, struct stat *src_st)
-+static int seunshare_mount(const char *src, int src_fd,
-+			   const char *dst, int dst_fd,
-+			   int bind_flags, int sec_flags)
- {
--	int bind_flags = MS_BIND;
--	int sec_flags = 0;
--	int is_tmp = 0;
-+	char srcprocfd[32], dstprocfd[32];
-+
-+	bind_flags |= MS_BIND;
- 
- 	if (verbose)
- 		printf(_("Mounting %s on %s\n"), src, dst);
- 
--	if (strcmp("/tmp", dst) == 0) {
--		sec_flags = MS_NODEV | MS_NOSUID | MS_NOEXEC;
--		is_tmp = 1;
--	}
-+	snprintf(srcprocfd, sizeof(srcprocfd), "/proc/self/fd/%d", src_fd);
-+	snprintf(dstprocfd, sizeof(dstprocfd), "/proc/self/fd/%d", dst_fd);
- 
--	if (strncmp("/run/user", dst, 9) == 0) {
--		bind_flags |= MS_REC;
--	}
--
--	/* mount directory */
--	if (mount(src, dst, NULL, bind_flags, NULL) < 0) {
--		fprintf(stderr, _("Failed to mount %s on %s: %s\n"), src, dst, strerror(errno));
-+	/* bind mount directory */
-+	if (mount(srcprocfd, dstprocfd, NULL, bind_flags, NULL) < 0) {
-+		fprintf(stderr, _("Failed to mount %s on %s: %m\n"), src, dst);
- 		return -1;
- 	}
--	/* remount with security flags, ignored on original bind mount */
--	if (sec_flags && mount(NULL, dst, NULL, MS_BIND | MS_REMOUNT | sec_flags, NULL) < 0) {
-+
-+	/*
-+	 * Remount with security flags set - requires use of dst path again.
-+	 * Revisit when we migrate to open_tree()/move_mount().
-+	 */
-+	if (sec_flags &&
-+	    mount(NULL, dst, NULL, MS_BIND | MS_REMOUNT | sec_flags, NULL) < 0) {
- 		fprintf(stderr, _("Failed to remount %s: %m\n"), dst);
- 		return -1;
- 	}
- 
--	/* verify whether we mounted what we expected to mount */
--	if (verify_directory(dst, src_st, NULL) < 0) return -1;
--
--	/* bind mount /tmp on /var/tmp too */
--	if (is_tmp) {
--		if (verbose)
--			printf(_("Mounting /tmp on /var/tmp\n"));
--
--		if (mount("/tmp", "/var/tmp",  NULL, MS_BIND, NULL) < 0) {
--			fprintf(stderr, _("Failed to mount /tmp on /var/tmp: %s\n"), strerror(errno));
--			return -1;
--		}
--		/* remount with security flags, ignored on original bind mount */
--		if (mount(NULL, "/var/tmp", NULL, MS_BIND | MS_REMOUNT | sec_flags, NULL) < 0) {
--			fprintf(stderr, _("Failed to remount /var/tmp: %m\n"));
--			return -1;
--		}
--	}
--
- 	return 0;
--
- }
- 
- /**
-- * Mount directory and check that we mounted the right directory.
-+ * Bind-mount a file named @src_name in directory @src_dirfd on
-+ * a file named @dst_name in directory @dst_dirfd, creating @dst_name
-+ * if it doesn't already exist.
-  */
--static int seunshare_mount_file(const char *src, const char *dst)
-+static int seunshare_mount_file(int src_dirfd, const char *src_name,
-+				int dst_dirfd, const char *dst_name)
- {
-+	char srcprocfd[32], dstprocfd[32];
-+	int src_fd = -1, dst_fd = -1, rc = -1;
-+
- 	if (verbose)
--		printf(_("Mounting %s on %s\n"), src, dst);
-+		printf(_("Mounting %s on %s\n"), src_name, dst_name);
- 
--	if (access(dst, F_OK) == -1) {
--		int fd = open(dst, O_WRONLY | O_CREAT | O_NOFOLLOW | O_CLOEXEC, 0600);
--		if (fd < 0) {
--			fprintf(stderr, _("Failed to create mount point %s: %m\n"), dst);
--			return -1;
--		}
--		close(fd);
-+	src_fd = openat(src_dirfd, src_name, O_PATH | O_NOFOLLOW | O_CLOEXEC);
-+	if (src_fd < 0) {
-+		fprintf(stderr, _("Failed to open %s: %m\n"), src_name);
-+		goto out;
- 	}
- 
--	/* mount file */
--	if (mount(src, dst, NULL, MS_BIND, NULL) < 0) {
--		fprintf(stderr, _("Failed to mount %s on %s: %s\n"), src, dst, strerror(errno));
--		return -1;
-+	dst_fd = openat(dst_dirfd, dst_name, O_PATH | O_NOFOLLOW | O_CLOEXEC);
-+	if (dst_fd < 0 && errno == ENOENT)
-+		dst_fd = openat(dst_dirfd, dst_name,
-+				O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW |
-+				O_CLOEXEC, 0600);
-+	if (dst_fd < 0) {
-+		fprintf(stderr, _("Failed to open/create %s: %m\n"), dst_name);
-+		goto out;
- 	}
- 
--	return 0;
-+	snprintf(srcprocfd, sizeof(srcprocfd), "/proc/self/fd/%d", src_fd);
-+	snprintf(dstprocfd, sizeof(dstprocfd), "/proc/self/fd/%d", dst_fd);
- 
-+	/* mount file */
-+	if (mount(srcprocfd, dstprocfd, NULL, MS_BIND, NULL) < 0) {
-+		fprintf(stderr, _("Failed to mount %s on %s: %m\n"), src_name,
-+			dst_name);
-+		goto out;
-+	}
-+
-+	rc = 0;
-+out:
-+	if (src_fd >= 0)
-+		close(src_fd);
-+	if (dst_fd >= 0)
-+		close(dst_fd);
-+	return rc;
- }
- 
- /*
-@@ -556,7 +559,8 @@ err:
-  * to clean it up.
-  */
- static char *create_tmpdir(const char *src, struct stat *src_st,
--	struct stat *out_st, struct passwd *pwd, const char *execcon)
-+			struct stat *out_st, struct passwd *pwd,
-+			const char *execcon)
- {
- 	char *tmpdir = NULL;
- 	char **cmd = NULL;
-@@ -564,29 +568,23 @@ static char *create_tmpdir(const char *src, struct stat *src_st,
- 	struct stat tmp_st;
- 	char *con = NULL;
- 
--	/* get selinux context */
-+	/* get selinux context of source directory */
- 	if (execcon) {
- 		if ((uid_t)setfsuid(pwd->pw_uid) != 0)
- 			goto err;
--
--		if ((fd_s = open(src, O_RDONLY)) < 0) {
--			fprintf(stderr, _("Failed to open directory %s: %s\n"), src, strerror(errno));
--			goto err;
--		}
--		if (fstat(fd_s, &tmp_st) == -1) {
--			fprintf(stderr, _("Failed to stat directory %s: %s\n"), src, strerror(errno));
-+		if ((fd_s = pin_dir(src, &tmp_st)) < 0)
- 			goto err;
--		}
--		if (!equal_stats(src_st, &tmp_st)) {
--			fprintf(stderr, _("Error: %s was replaced by a different directory\n"), src);
-+		if (tmp_st.st_dev != src_st->st_dev ||
-+		    tmp_st.st_ino != src_st->st_ino) {
-+			fprintf(stderr,
-+				_("%s was replaced by a different directory\n"),
-+				src);
- 			goto err;
- 		}
- 		if (fgetfilecon(fd_s, &con) == -1) {
--			fprintf(stderr, _("Failed to get context of the directory %s: %s\n"), src, strerror(errno));
-+			fprintf(stderr, _("Failed to get context of the directory %s: %m\n"), src);
- 			goto err;
- 		}
--
--		/* ok to not reach this if there is an error */
- 		if ((uid_t)setfsuid(0) != pwd->pw_uid)
- 			goto err;
- 	}
-@@ -602,9 +600,9 @@ static char *create_tmpdir(const char *src, struct stat *src_st,
- 	}
- 
- 	/* temporary directory must be owned by root:user */
--	if (verify_directory(tmpdir, NULL, out_st) < 0) {
-+	fd_t = pin_dir(tmpdir, out_st);
-+	if (fd_t < 0)
- 		goto err;
--	}
- 
- 	if (check_owner_uid(0, tmpdir, out_st) < 0)
- 		goto err;
-@@ -613,18 +611,6 @@ static char *create_tmpdir(const char *src, struct stat *src_st,
- 		goto err;
- 
- 	/* change permissions of the temporary directory */
--	if ((fd_t = open(tmpdir, O_RDONLY)) < 0) {
--		fprintf(stderr, _("Failed to open directory %s: %s\n"), tmpdir, strerror(errno));
--		goto err;
--	}
--	if (fstat(fd_t, &tmp_st) == -1) {
--		fprintf(stderr, _("Failed to stat directory %s: %s\n"), tmpdir, strerror(errno));
--		goto err;
--	}
--	if (!equal_stats(out_st, &tmp_st)) {
--		fprintf(stderr, _("Error: %s was replaced by a different directory\n"), tmpdir);
--		goto err;
--	}
- 	if (fchmod(fd_t, 01770) == -1) {
- 		fprintf(stderr, _("Unable to change mode on %s: %s\n"), tmpdir, strerror(errno));
- 		goto err;
-@@ -664,10 +650,10 @@ static char *create_tmpdir(const char *src, struct stat *src_st,
- err:
- 	free(tmpdir); tmpdir = NULL;
- good:
--	free_args(cmd);
--	freecon(con); con = NULL;
- 	if (fd_t >= 0) close(fd_t);
- 	if (fd_s >= 0) close(fd_s);
-+	free_args(cmd);
-+	freecon(con); con = NULL;
- 	return tmpdir;
- }
- 
-@@ -776,12 +762,13 @@ int main(int argc, char **argv) {
- 	char *tmpdir_r = NULL;	/* tmpdir created by seunshare */
- 	char *runuserdir_s = NULL;	/* /var/run/user/UID spec'd by user in argv[] */
- 
--	struct stat st_curhomedir;
- 	struct stat st_homedir;
- 	struct stat st_tmpdir_s;
- 	struct stat st_tmpdir_r;
- 	struct stat st_runuserdir_s;
- 
-+	int fd;
-+
- 	const struct option long_options[] = {
- 		{"homedir", 1, 0, 'h'},
- 		{"tmpdir", 1, 0, 't'},
-@@ -893,24 +880,49 @@ int main(int argc, char **argv) {
- 		return -1;
- 	}
- 
--	/* verify homedir and tmpdir */
--	if (homedir_s && (
--		verify_directory(homedir_s, NULL, &st_homedir) < 0 ||
--		check_owner_uid(uid, homedir_s, &st_homedir))) return -1;
--	if (tmpdir_s && (
--		verify_directory(tmpdir_s, NULL, &st_tmpdir_s) < 0 ||
--		check_owner_uid(uid, tmpdir_s, &st_tmpdir_s))) return -1;
--	if (runuserdir_s && (
--		verify_directory(runuserdir_s, NULL, &st_runuserdir_s) < 0 ||
--		check_owner_uid(uid, runuserdir_s, &st_runuserdir_s))) return -1;
-+	/*
-+	 * Perform early validation of the caller-provided directories so we
-+	 * can fail fast, but we unfortunately have to redo this after
-+	 * unsharing the mount namespace in the child so that it can use
-+	 * the descriptors for subsequent mount(2) calls. Otherwise,
-+	 * they end up with a different mount namespace and mount(2) fails
-+	 * with errno EINVAL.
-+	 */
-+	if (homedir_s) {
-+		fd = pin_dir(homedir_s, &st_homedir);
-+		if (fd < 0)
-+			return -1;
-+		if (check_owner_uid(uid, homedir_s, &st_homedir))
-+			return -1;
-+		close(fd);
-+	}
-+	if (tmpdir_s) {
-+		fd = pin_dir(tmpdir_s, &st_tmpdir_s);
-+		if (fd < 0)
-+			return -1;
-+		if (check_owner_uid(uid, tmpdir_s, &st_tmpdir_s))
-+			return -1;
-+		close(fd);
-+	}
-+	if (runuserdir_s) {
-+		fd = pin_dir(runuserdir_s, &st_runuserdir_s);
-+		if (fd < 0)
-+			return -1;
-+		if (check_owner_uid(uid, runuserdir_s, &st_runuserdir_s))
-+			return -1;
-+		close(fd);
-+	}
- 
- 	if ((uid_t)setfsuid(0) != uid) return -1;
- 
- 	/* create runtime tmpdir */
--	if (tmpdir_s && (tmpdir_r = create_tmpdir(tmpdir_s, &st_tmpdir_s,
--						  &st_tmpdir_r, pwd, execcon)) == NULL) {
--		fprintf(stderr, _("Failed to create runtime temporary directory\n"));
--		return -1;
-+	if (tmpdir_s) {
-+		tmpdir_r = create_tmpdir(tmpdir_s, &st_tmpdir_s, &st_tmpdir_r,
-+					 pwd, execcon);
-+		if (!tmpdir_r) {
-+			fprintf(stderr, _("Failed to create runtime temporary directory\n"));
-+			return -1;
-+		}
- 	}
- 
- 	/* spawn child process */
-@@ -927,11 +939,10 @@ int main(int argc, char **argv) {
- 		char *XDG_SESSION_TYPE = NULL;
- 		int rc = -1;
- 		char *resolved_path = NULL;
--		char *wayland_path_s = NULL; /* /tmp/.../wayland-0 */
--		char *wayland_path = NULL; /* /run/user/UID/wayland-0 */
--		char *pipewire_path_s = NULL; /* /tmp/.../pipewire-0 */
--		char *pipewire_path = NULL; /* /run/user/UID/pipewire-0 */
--
-+		int fd_homedir_s = -1, fd_curhomedir = -1;
-+		int fd_runuserdir_s = -1, fd_runtime_dir = -1;
-+		int fd_tmpdir_r = -1, fd_tmp = -1, fd_var_tmp = -1;
-+		struct stat sb;
- 
- 		if (unshare(CLONE_NEWNS) < 0) {
- 			perror(_("Failed to unshare"));
-@@ -941,19 +952,67 @@ int main(int argc, char **argv) {
- 		/* Remount / as SLAVE so that nothing mounted in the namespace 
- 		   shows up in the parent */
- 		if (mount("none", "/", NULL, MS_SLAVE | MS_REC , NULL) < 0) {
--			perror(_("Failed to make / a SLAVE mountpoint\n"));
-+
- 			goto childerr;
- 		}
- 
- 		/* assume fsuid==ruid after this point */
- 		if ((uid_t)setfsuid(uid) != 0) goto childerr;
- 
-+		/*
-+		 * Now we can pin the source directories in this namespace
-+		 * for later use by mount(2). We recheck that each
-+		 * directory is the same inode and still has the
-+		 * expected ownership as the early validation.
-+		 */
-+		if (homedir_s) {
-+			fd_homedir_s = pin_dir(homedir_s, &sb);
-+			if (fd_homedir_s < 0)
-+				goto childerr;
-+			if (sb.st_dev != st_homedir.st_dev ||
-+				sb.st_ino != st_homedir.st_ino)
-+				goto childerr;
-+			if (check_owner_uid(uid, homedir_s, &sb))
-+				goto childerr;
-+		}
-+		/*
-+		 * NB We don't need to re-pin tmpdir_s, just tmpdir_r,
-+		 * since the child never uses tmpdir_s.
-+		 */
-+		if (tmpdir_r) {
-+			fd_tmpdir_r = pin_dir(tmpdir_r, &sb);
-+			if (fd < 0)
-+				goto childerr;
-+			/*
-+			 * tmpdir_r checks differ in that it is
-+			 * root-owned and we also want to validate
-+			 * that the mode is still correct.
-+			 */
-+			if (sb.st_dev != st_tmpdir_r.st_dev ||
-+				sb.st_ino != st_tmpdir_r.st_ino ||
-+				sb.st_mode != st_tmpdir_r.st_mode)
-+				goto childerr;
-+			if (check_owner_uid(0, tmpdir_r, &sb))
-+				goto childerr;
-+		}
-+		if (runuserdir_s) {
-+			fd_runuserdir_s = pin_dir(runuserdir_s, &sb);
-+			if (fd_runuserdir_s < 0)
-+				goto childerr;
-+			if (sb.st_dev != st_runuserdir_s.st_dev ||
-+				sb.st_ino != st_runuserdir_s.st_ino)
-+				goto childerr;
-+			if (check_owner_uid(uid, runuserdir_s, &sb))
-+				goto childerr;
-+		}
-+
- 		resolved_path = realpath(pwd->pw_dir,NULL);
- 		if (! resolved_path) goto childerr;
- 
--		if (verify_directory(resolved_path, NULL, &st_curhomedir) < 0)
-+		fd_curhomedir = pin_dir(resolved_path, &sb);
-+		if (fd_curhomedir < 0)
- 			goto childerr;
--		if (check_owner_uid(uid, resolved_path, &st_curhomedir) < 0)
-+		if (check_owner_uid(uid, resolved_path, &sb) < 0)
- 			goto childerr;
- 
- 		if ((RUNTIME_DIR = getenv("XDG_RUNTIME_DIR")) != NULL) {
-@@ -969,12 +1028,11 @@ int main(int argc, char **argv) {
- 		}
- 
- 		if (runuserdir_s) {
--			struct stat sb;
--
--			if (verify_directory(RUNTIME_DIR, NULL, &sb) < 0 ||
--				check_owner_uid(uid, RUNTIME_DIR, &sb) < 0)
-+			fd_runtime_dir = pin_dir(RUNTIME_DIR, &sb);
-+			if (fd_runtime_dir < 0)
-+				goto childerr;
-+			if (check_owner_uid(uid, RUNTIME_DIR, &sb) < 0)
- 				goto childerr;
--
- 		}
- 
- 		if ((XDG_SESSION_TYPE = getenv("XDG_SESSION_TYPE")) != NULL) {
-@@ -985,42 +1043,57 @@ int main(int argc, char **argv) {
- 		}
- 
- 		if (runuserdir_s && (wayland_display || pipewire_socket)) {
--			if (wayland_display) {
--				if (asprintf(&wayland_path_s, "%s/%s", runuserdir_s, wayland_display) == -1) {
--					perror(_("Out of memory"));
-+			if (wayland_display &&
-+			    seunshare_mount_file(fd_runtime_dir,
-+					    wayland_display,
-+					    fd_runuserdir_s,
-+					    wayland_display) == -1)
- 					goto childerr;
--				}
- 
--				if (asprintf(&wayland_path, "%s/%s", RUNTIME_DIR, wayland_display) == -1) {
--					perror(_("Out of memory"));
--					goto childerr;
--				}
-+			if (pipewire_socket &&
-+			    seunshare_mount_file(fd_runtime_dir,
-+					    "pipewire-0",
-+					    fd_runuserdir_s,
-+					    pipewire_socket) == -1)
-+				goto childerr;
-+		}
- 
--				if (seunshare_mount_file(wayland_path, wayland_path_s) == -1)
--					goto childerr;
-+		/* mount homedir, runuserdir and tmpdir, in this order */
-+		if (runuserdir_s &&
-+			seunshare_mount(runuserdir_s, fd_runuserdir_s,
-+					RUNTIME_DIR, fd_runtime_dir,
-+					MS_REC, 0) != 0)
-+			goto childerr;
-+		if (homedir_s &&
-+			seunshare_mount(homedir_s, fd_homedir_s,
-+					resolved_path, fd_curhomedir,
-+					0, 0) != 0)
-+			goto childerr;
-+		if (tmpdir_s) {
-+			fd_tmp = open("/tmp", O_RDONLY | O_DIRECTORY |
-+				      O_NOFOLLOW | O_CLOEXEC);
-+			if (fd_tmp < 0) {
-+				perror(_("Failed to open /tmp"));
-+				goto childerr;
- 			}
- 
--			if (pipewire_socket) {
--				if (asprintf(&pipewire_path_s, "%s/%s", runuserdir_s, pipewire_socket) == -1) {
--					perror(_("Out of memory"));
--					goto childerr;
--				}
--				if (asprintf(&pipewire_path, "%s/pipewire-0", RUNTIME_DIR) == -1) {
--					perror(_("Out of memory"));
--					goto childerr;
--				}
--				if (seunshare_mount_file(pipewire_path, pipewire_path_s) == -1)
--					goto childerr;
-+			if (seunshare_mount(tmpdir_r, fd_tmpdir_r,
-+					    "/tmp", fd_tmp, 0,
-+					    MS_NODEV|MS_NOSUID|MS_NOEXEC) < 0)
-+				goto childerr;
-+
-+			fd_var_tmp = open("/var/tmp", O_RDONLY | O_DIRECTORY |
-+					O_NOFOLLOW | O_CLOEXEC);
-+			if (fd_var_tmp < 0) {
-+				perror(_("Failed to open /var/tmp"));
-+				goto childerr;
- 			}
--		}
- 
--		/* mount homedir, runuserdir and tmpdir, in this order */
--		if (runuserdir_s &&	seunshare_mount(runuserdir_s, RUNTIME_DIR,
--			&st_runuserdir_s) != 0) goto childerr;
--		if (homedir_s && seunshare_mount(homedir_s, resolved_path,
--			&st_homedir) != 0) goto childerr;
--		if (tmpdir_s &&	seunshare_mount(tmpdir_r, "/tmp",
--			&st_tmpdir_r) != 0) goto childerr;
-+			if (seunshare_mount("/tmp", fd_tmpdir_r,
-+					"/var/tmp", fd_var_tmp, 0,
-+					MS_NODEV|MS_NOSUID|MS_NOEXEC) < 0)
-+				goto childerr;
-+		}
- 
- 		if (drop_privs(uid) != 0) goto childerr;
- 
-@@ -1101,11 +1174,14 @@ int main(int argc, char **argv) {
- 		execv(argv[optind], argv + optind);
- 		fprintf(stderr, _("Failed to execute command %s: %s\n"), argv[optind], strerror(errno));
- childerr:
-+		if (fd_homedir_s >= 0) close(fd_homedir_s);
-+		if (fd_curhomedir >= 0) close(fd_curhomedir);
-+		if (fd_runuserdir_s >= 0) close(fd_runuserdir_s);
-+		if (fd_runtime_dir >= 0) close(fd_runtime_dir);
-+		if (fd_tmpdir_r >= 0) close(fd_tmpdir_r);
-+		if (fd_tmp >= 0) close(fd_tmp);
-+		if (fd_var_tmp >= 0) close(fd_var_tmp);
- 		free(resolved_path);
--		free(wayland_path);
--		free(wayland_path_s);
--		free(pipewire_path);
--		free(pipewire_path_s);
- 		free(display);
- 		free(LANG);
- 		free(RUNTIME_DIR);
--- 
-2.54.0
+>
+> Regards,
+> Christian.
+>
+> >
+> > Checking the flags from pidfd_get_pid would be the best way for an
+> > explicit check of the pidfd type?
+> >
+> >>> a valid pidfd, DMA_HEAP_IOCTL_ALLOC resolves the target task's
+> >>> memcg and charges the buffer there via mem_cgroup_charge_dmabuf()
+> >>> inside dma_heap_buffer_alloc(). Without charge_pid_fd, and with
+> >>> the mem_accounting module parameter enabled, the buffer is charged
+> >>> to the allocator's own cgroup.
+> >>>
+> >>> Additionally, commit 3c227be90659 ("dma-buf: system_heap: account for
+> >>> system heap allocation in memcg") adds __GFP_ACCOUNT to system-heap
+> >>> page allocations. Keeping __GFP_ACCOUNT would charge the same pages
+> >>> twice (once to kmem, once to MEMCG_DMABUF), thus remove it and route
+> >>> all accounting through a single MEMCG_DMABUF path.
+> >>>
+> >>> Usage examples:
+> >>>
+> >>>   1. Central allocator charging to a client at allocation time.
+> >>>      The allocator knows the client's PID (e.g., from binder's
+> >>>      sender_pid) and uses pidfd to attribute the charge:
+> >>>
+> >>>        pid_t client_pid =3D txn->sender_pid;
+> >>>        int pidfd =3D pidfd_open(client_pid, 0);
+> >>>
+> >>>        struct dma_heap_allocation_data alloc =3D {
+> >>>            .len             =3D buffer_size,
+> >>>            .fd_flags        =3D O_RDWR | O_CLOEXEC,
+> >>>            .charge_pid_fd   =3D pidfd,
+> >>>        };
+> >>>        ioctl(heap_fd, DMA_HEAP_IOCTL_ALLOC, &alloc);
+> >>>        close(pidfd);
+> >>>        /* alloc.fd is now charged to client's cgroup */
+> >>>
+> >>>   2. Default allocation (no pidfd, mem_accounting=3D1).
+> >>>      When charge_pid_fd is not set and the mem_accounting module
+> >>>      parameter is enabled, the buffer is charged to the allocator's
+> >>>      own cgroup:
+> >>>
+> >>>        struct dma_heap_allocation_data alloc =3D {
+> >>>            .len      =3D buffer_size,
+> >>>            .fd_flags =3D O_RDWR | O_CLOEXEC,
+> >>>        };
+> >>>        ioctl(heap_fd, DMA_HEAP_IOCTL_ALLOC, &alloc);
+> >>>        /* charged to current process's cgroup */
+> >>>
+> >>> Current limitations:
+> >>>
+> >>>  - Single-owner model: a dma-buf carries one memcg charge regardless =
+of
+> >>>    how many processes share it. Means only the first owner (and expor=
+ter)
+> >>>    of the shared buffer bears the charge.
+> >>>  - Only memcg accounting supported. While this makes sense for system
+> >>>    heap buffers, other heaps (e.g., CMA heaps) will require selective=
+ly
+> >>>    charging also for the dmem controller.
+> >>>
+> >>> Signed-off-by: Albert Esteve <aesteve@redhat.com>
+> >>> ---
+> >>>  Documentation/admin-guide/cgroup-v2.rst |  5 ++--
+> >>>  drivers/dma-buf/dma-buf.c               | 16 ++++---------
+> >>>  drivers/dma-buf/dma-heap.c              | 42 +++++++++++++++++++++++=
++++++++---
+> >>>  drivers/dma-buf/heaps/system_heap.c     |  2 --
+> >>>  include/uapi/linux/dma-heap.h           |  6 +++++
+> >>>  5 files changed, 53 insertions(+), 18 deletions(-)
+> >>>
+> >>> diff --git a/Documentation/admin-guide/cgroup-v2.rst b/Documentation/=
+admin-guide/cgroup-v2.rst
+> >>> index 8bdbc2e866430..824d269531eb1 100644
+> >>> --- a/Documentation/admin-guide/cgroup-v2.rst
+> >>> +++ b/Documentation/admin-guide/cgroup-v2.rst
+> >>> @@ -1636,8 +1636,9 @@ The following nested keys are defined.
+> >>>               structures.
+> >>>
+> >>>         dmabuf (npn)
+> >>> -             Amount of memory used for exported DMA buffers allocate=
+d by the cgroup.
+> >>> -             Stays with the allocating cgroup regardless of how the =
+buffer is shared.
+> >>> +             Amount of memory used for exported DMA buffers allocate=
+d by or on
+> >>> +             behalf of the cgroup. Stays with the allocating cgroup =
+regardless
+> >>> +             of how the buffer is shared.
+> >>>
+> >>>         workingset_refault_anon
+> >>>               Number of refaults of previously evicted anonymous page=
+s.
+> >>> diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
+> >>> index ce02377f48908..23fb758b78297 100644
+> >>> --- a/drivers/dma-buf/dma-buf.c
+> >>> +++ b/drivers/dma-buf/dma-buf.c
+> >>> @@ -181,8 +181,11 @@ static void dma_buf_release(struct dentry *dentr=
+y)
+> >>>        */
+> >>>       BUG_ON(dmabuf->cb_in.active || dmabuf->cb_out.active);
+> >>>
+> >>> -     mem_cgroup_uncharge_dmabuf(dmabuf->memcg, PAGE_ALIGN(dmabuf->si=
+ze) / PAGE_SIZE);
+> >>> -     mem_cgroup_put(dmabuf->memcg);
+> >>> +     if (dmabuf->memcg) {
+> >>> +             mem_cgroup_uncharge_dmabuf(dmabuf->memcg,
+> >>> +                                       PAGE_ALIGN(dmabuf->size) / PA=
+GE_SIZE);
+> >>> +             mem_cgroup_put(dmabuf->memcg);
+> >>> +     }
+> >>>
+> >>>       dmabuf->ops->release(dmabuf);
+> >>>
+> >>> @@ -764,13 +767,6 @@ struct dma_buf *dma_buf_export(const struct dma_=
+buf_export_info *exp_info)
+> >>>               dmabuf->resv =3D resv;
+> >>>       }
+> >>>
+> >>> -     dmabuf->memcg =3D get_mem_cgroup_from_mm(current->mm);
+> >>> -     if (!mem_cgroup_charge_dmabuf(dmabuf->memcg, PAGE_ALIGN(dmabuf-=
+>size) / PAGE_SIZE,
+> >>> -                                   GFP_KERNEL)) {
+> >>> -             ret =3D -ENOMEM;
+> >>> -             goto err_memcg;
+> >>> -     }
+> >>> -
+> >>>       file->private_data =3D dmabuf;
+> >>>       file->f_path.dentry->d_fsdata =3D dmabuf;
+> >>>       dmabuf->file =3D file;
+> >>> @@ -781,8 +777,6 @@ struct dma_buf *dma_buf_export(const struct dma_b=
+uf_export_info *exp_info)
+> >>>
+> >>>       return dmabuf;
+> >>>
+> >>> -err_memcg:
+> >>> -     mem_cgroup_put(dmabuf->memcg);
+> >>>  err_file:
+> >>>       fput(file);
+> >>>  err_module:
+> >>> diff --git a/drivers/dma-buf/dma-heap.c b/drivers/dma-buf/dma-heap.c
+> >>> index ac5f8685a6494..ff6e259afcdc0 100644
+> >>> --- a/drivers/dma-buf/dma-heap.c
+> >>> +++ b/drivers/dma-buf/dma-heap.c
+> >>> @@ -7,13 +7,17 @@
+> >>>   */
+> >>>
+> >>>  #include <linux/cdev.h>
+> >>> +#include <linux/cgroup.h>
+> >>>  #include <linux/device.h>
+> >>>  #include <linux/dma-buf.h>
+> >>>  #include <linux/dma-heap.h>
+> >>> +#include <linux/memcontrol.h>
+> >>> +#include <linux/sched/mm.h>
+> >>>  #include <linux/err.h>
+> >>>  #include <linux/export.h>
+> >>>  #include <linux/list.h>
+> >>>  #include <linux/nospec.h>
+> >>> +#include <linux/pidfd.h>
+> >>>  #include <linux/syscalls.h>
+> >>>  #include <linux/uaccess.h>
+> >>>  #include <linux/xarray.h>
+> >>> @@ -55,10 +59,12 @@ MODULE_PARM_DESC(mem_accounting,
+> >>>                "Enable cgroup-based memory accounting for dma-buf hea=
+p allocations (default=3Dfalse).");
+> >>>
+> >>>  static int dma_heap_buffer_alloc(struct dma_heap *heap, size_t len,
+> >>> -                              u32 fd_flags,
+> >>> -                              u64 heap_flags)
+> >>> +                              u32 fd_flags, u64 heap_flags,
+> >>> +                              struct mem_cgroup *charge_to)
+> >>>  {
+> >>>       struct dma_buf *dmabuf;
+> >>> +     unsigned int nr_pages;
+> >>> +     struct mem_cgroup *memcg =3D charge_to;
+> >>>       int fd;
+> >>>
+> >>>       /*
+> >>> @@ -73,6 +79,22 @@ static int dma_heap_buffer_alloc(struct dma_heap *=
+heap, size_t len,
+> >>>       if (IS_ERR(dmabuf))
+> >>>               return PTR_ERR(dmabuf);
+> >>>
+> >>> +     nr_pages =3D len / PAGE_SIZE;
+> >>> +
+> >>> +     if (memcg)
+> >>> +             css_get(&memcg->css);
+> >>> +     else if (mem_accounting)
+> >>> +             memcg =3D get_mem_cgroup_from_mm(current->mm);
+> >>> +
+> >>> +     if (memcg) {
+> >>> +             if (!mem_cgroup_charge_dmabuf(memcg, nr_pages, GFP_KERN=
+EL)) {
+> >>> +                     mem_cgroup_put(memcg);
+> >>> +                     dma_buf_put(dmabuf);
+> >>> +                     return -ENOMEM;
+> >>> +             }
+> >>> +             dmabuf->memcg =3D memcg;
+> >>> +     }
+> >>> +
+> >>>       fd =3D dma_buf_fd(dmabuf, fd_flags);
+> >>>       if (fd < 0) {
+> >>>               dma_buf_put(dmabuf);
+> >>> @@ -102,6 +124,9 @@ static long dma_heap_ioctl_allocate(struct file *=
+file, void *data)
+> >>>  {
+> >>>       struct dma_heap_allocation_data *heap_allocation =3D data;
+> >>>       struct dma_heap *heap =3D file->private_data;
+> >>> +     struct mem_cgroup *memcg =3D NULL;
+> >>> +     struct task_struct *task;
+> >>> +     unsigned int pidfd_flags;
+> >>>       int fd;
+> >>>
+> >>>       if (heap_allocation->fd)
+> >>> @@ -113,9 +138,20 @@ static long dma_heap_ioctl_allocate(struct file =
+*file, void *data)
+> >>>       if (heap_allocation->heap_flags & ~DMA_HEAP_VALID_HEAP_FLAGS)
+> >>>               return -EINVAL;
+> >>>
+> >>> +     if (heap_allocation->charge_pid_fd) {
+> >>> +             task =3D pidfd_get_task(heap_allocation->charge_pid_fd,=
+ &pidfd_flags);
+> >>
+> >> Will always get a thread-group leader pidfd and will fail if this is a
+> >> thread-specific pidfd. pidfd_open(1234, PIDFD_THREAD) can be used to
+> >> open a thread-specific pidfd.
+> >>
+> >>> +             if (IS_ERR(task))
+> >>> +                     return PTR_ERR(task);
+> >>> +
+> >>> +             memcg =3D get_mem_cgroup_from_mm(task->mm);
+> >>> +             put_task_struct(task);
+> >>> +     }
+> >>> +
+> >>>       fd =3D dma_heap_buffer_alloc(heap, heap_allocation->len,
+> >>>                                  heap_allocation->fd_flags,
+> >>> -                                heap_allocation->heap_flags);
+> >>> +                                heap_allocation->heap_flags,
+> >>> +                                memcg);
+> >>> +     mem_cgroup_put(memcg);
+> >>>       if (fd < 0)
+> >>>               return fd;
+> >>>
+> >>> diff --git a/drivers/dma-buf/heaps/system_heap.c b/drivers/dma-buf/he=
+aps/system_heap.c
+> >>> index 03c2b87cb1112..95d7688167b93 100644
+> >>> --- a/drivers/dma-buf/heaps/system_heap.c
+> >>> +++ b/drivers/dma-buf/heaps/system_heap.c
+> >>> @@ -385,8 +385,6 @@ static struct page *alloc_largest_available(unsig=
+ned long size,
+> >>>               if (max_order < orders[i])
+> >>>                       continue;
+> >>>               flags =3D order_flags[i];
+> >>> -             if (mem_accounting)
+> >>> -                     flags |=3D __GFP_ACCOUNT;
+> >>>               page =3D alloc_pages(flags, orders[i]);
+> >>>               if (!page)
+> >>>                       continue;
+> >>> diff --git a/include/uapi/linux/dma-heap.h b/include/uapi/linux/dma-h=
+eap.h
+> >>> index a4cf716a49fa6..e02b0f8cbc6a1 100644
+> >>> --- a/include/uapi/linux/dma-heap.h
+> >>> +++ b/include/uapi/linux/dma-heap.h
+> >>> @@ -29,6 +29,10 @@
+> >>>   *                   handle to the allocated dma-buf
+> >>>   * @fd_flags:                file descriptor flags used when allocat=
+ing
+> >>>   * @heap_flags:              flags passed to heap
+> >>> + * @charge_pid_fd:   optional pidfd of the process whose cgroup shou=
+ld be
+> >>> + *                   charged for this allocation; 0 means charge the=
+ calling
+> >>> + *                   process's cgroup
+> >>> + * @__padding:               reserved, must be zero
+> >>>   *
+> >>>   * Provided by userspace as an argument to the ioctl
+> >>>   */
+> >>> @@ -37,6 +41,8 @@ struct dma_heap_allocation_data {
+> >>>       __u32 fd;
+> >>>       __u32 fd_flags;
+> >>>       __u64 heap_flags;
+> >>> +     __u32 charge_pid_fd;
+> >>> +     __u32 __padding;
+> >>>  };
+> >>>
+> >>>  #define DMA_HEAP_IOC_MAGIC           'H'
+> >>>
+> >>> --
+> >>> 2.53.0
+> >>>
+>
 
