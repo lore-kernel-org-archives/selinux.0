@@ -1,101 +1,94 @@
-Received: from mail-qv1-f53.google.com (mail-qv1-f53.google.com [209.85.219.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA6C04D2EF6
-	for <selinux@vger.kernel.org>; Tue, 19 May 2026 12:15:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADBE932E141
+	for <selinux@vger.kernel.org>; Tue, 19 May 2026 12:34:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779192917; cv=none; b=I1kS793/FTHxkQfDrxHn7izIciCQId78t/9akvlG5g/+c0JNSL9rVGMCjBJm/a1GURfI2rO//wi6et3rJUv6SJjiDkkwqqa6cqNx5XUmTvvgkHXA1XGPUMh3VOJSOVBCjyV8BO7scQ1lO/OJYPcU2xFgoabjN7D//DnE/FnVgqg=
+	t=1779194064; cv=none; b=R6L4VrYG+G3FhvXrT+tdEWBG+xEpFRH7nsiD0P7uGybBLeHEJXiGP+TSCET9nuzhZqhvIhJQFZXiYMm9SJqeQxOpF09ZylICBx3+gkoz+3K4pYDCrjjcz2r0tnRa4jaYQ1XT9wF0GnwuLRiMy8JUonPJ+pWbtKYr/9AVXILof5M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779192917; c=relaxed/simple;
-	bh=cxE0VYZJThTem+IreM9kRUdjY3G+ruWl2CYTkD1m4Fw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jbvHDUNma3rCGTB2F1/oWoSHqkA+MVIsmv8SCl562j+Z9VHKqLQVKR5r53fefLO92imOUlPGb9O8H0Ul7y7LSEdMNTUXEuYzlTe9syEB8zOc5UHnyln8jHIBJaaKkv46ZYTVQZdS61/V89g1lPqSHYypA27b1LvrbqAowREZQnY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cJWSAoHX; arc=none smtp.client-ip=209.85.219.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1779194064; c=relaxed/simple;
+	bh=a+U+VIzTLek2g3jvEbKuQQ5aFvRKaoT9yKSq1sorzuw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Kb+8q4mPz2rWMVHJ8Xc9vEu0VuWLgnmWyiGnOkKQ1/zJg0ilsqIc/OPM/K3B7FMFfW3W1wVestWaoiNAuIQJ9fBhncs3H5lzH5bStoTgr97zsujHAYdy/07+BABIi9H1bjkZZyJIenbdwqi8vksgPDQr/QUEors2pmuwBPJuIYI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=ob02iuoQ; arc=none smtp.client-ip=168.119.48.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cJWSAoHX"
-Received: by mail-qv1-f53.google.com with SMTP id 6a1803df08f44-899d6b7b073so44192516d6.2
-        for <selinux@vger.kernel.org>; Tue, 19 May 2026 05:15:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779192915; x=1779797715; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=OomWtXNhbUl1UdHciBn2d9go/HKuwrVH7DrMskCP0XM=;
-        b=cJWSAoHXeQXR6SMvJJyEiehV3ktKar5U7kgr2hFJUrPzb7fllhAY6T+dyBGN8VRIu9
-         h37XBcwNzataOaOvjxl/o60UO/WytW9KGFH05lQiq2eGeP9EQqrEN98+uVcx6nGgkuPf
-         cE/C3MeVnNPvNW44a1pd0A/MpO00ODQEtD22E6dIMRzLFhY1KoUz/XakR/uas1JT0soO
-         akuhGRLs1O6RkTR07FPc4aHuucNq9DCDyTahxTrQYza/M6zydlPAgiYOEYl/0JZQk8s7
-         07ErwHyrczIQPKzche+3OwVmq08xcNffREZKpVLr6ngDt1KKmCBD0d5FJ8UUpNiaFpAj
-         9GVw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779192915; x=1779797715;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OomWtXNhbUl1UdHciBn2d9go/HKuwrVH7DrMskCP0XM=;
-        b=oUnCab0vA1rwKWFbNvunW5Xz83klAFLh78toM/dP0rKIsuKjEFfGt46RkiWFf4seFr
-         MahtpzLOhokxh/uts0Ts23Y1A8D7n5LfcvZq3opYVaSaqhYsVvn2KJUM1C8l/6ICoCWk
-         gnInw7CbgS9JE/d1j3vhIZshy+5N7Ruy6dCGwoLgi23NKw7yOvkp9cHDtyQbjzERnuMK
-         mEJdULE0b9LUffx2xvnJgfuKmvU0jcSrDemLh8odt4S/dQYYicVUVxO1v4UdpnVg2ipA
-         ggJQhto1RHdwieR+iCqPNLpv3boOH2rF9cmYFJmpwcxX1Ar4UweEIwQFXBnJ33pdeDfh
-         fkUQ==
-X-Gm-Message-State: AOJu0YzZXLaDHbu9909UHzZiYvU5XV7dAQf9zGLCfcwWAUWm822EXpEQ
-	QAVPkhCCXTFv1ZvQycfmf4lqZV3IEb0i4cye/85xyHiAYJTGTdEOZZsV0Bvl/w==
-X-Gm-Gg: Acq92OHi5/H67Nu6lR7dIQKLJSuPGSC8HNihCag0W/MS9n9QOpJQzgkkQ5mMYs1Tb2o
-	tuRvs7i8lMT+uaus3C/Cq01RgEaI5zU2Nm7mO2YQAbgtYYPgEqQh1XH4GUr8c7R+X1xdJcd7cFl
-	GeTfh7L1SazddHne+rAZD8hYiclgXk2KrYUoqkjUzo42IKKQAJhsbvNXS0ITDkWf0WTXpu2I0nq
-	TcCjZEFXkzCHMDmpkkhhOP4GxhqoSEF7SN4bjXBtT3QFkJFxCn5TcV+NRcZfLliUHC0YTnQLbR5
-	vrUu6qTf48H2gcHTLgZ9wTl8piz+evZ3gtPW4UUPtE3mPjfsxnIOOyItteaNQrQvCnJaLy7fHNv
-	Ykff47YsopahOGFJae5m8LIBx4+3na0ntTSXAOuxwie6JeV9nNzDAELcTpHoNP3DUnbeaaSAAuX
-	5h9P3p6HXaSFOW1mkXyZQHu1F+hZc2VuNgTNAeuHvaeHqR65Z2XeszIwIjwZQOiexWSN+h51kH3
-	hGhtWUSG77QD3jTfIalIzmOCyPtOS0WPgYv6KQCzhYz8YZxRH8jlql6U1Xd6Z9qXA==
-X-Received: by 2002:a05:6214:4789:b0:8a0:846e:8850 with SMTP id 6a1803df08f44-8ca0f62a5b4mr279238146d6.20.1779192914683;
-        Tue, 19 May 2026 05:15:14 -0700 (PDT)
-Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8cad98d4e08sm37899346d6.9.2026.05.19.05.15.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 May 2026 05:15:14 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="ob02iuoQ"
+From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
+	s=2023072701; t=1779193459;
+	h=from:from:reply-to:reply-to:subject:subject:date:date:
+	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+	bh=rQmAtADyMPU5b1SF8Oy8p2ZQKdx7s/FtIvZmspi8MgU=;
+	b=ob02iuoQu7neL6fpB9dsEWGpHlGgX6HmmxSYz64MJFwoREGInKIbF02vjoIgdr6BmnDE7Y
+	3so3In2t8/w4gJWDjt8rf5584xK6v4r7mmORvNslh46o67G6/oRn14hqbralHLvVNdSxSY
+	lRzPfvYpji8YSbSsA0lrPU00kKO2SKlsG9FTo82MmEVOOTWNYv05/s0F81NWgguoj6ddou
+	Jf2itfBBh7xmPhbj+UughWlPpBCodZz4rSkWIVJcdS2bBf6wm7L4RI+UTM1fIyDfw+bXeV
+	8N9khhcTmnMYpg4YPgjFI2KzQEth4osHZIMXHDflR+wZDqcEFh7WHi7yLmogcA==
 To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	plautrba@redhat.com,
-	omosnace@redhat.com,
-	paul@paul-moore.com,
-	perfinion@gentoo.org,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] sandbox/seunshare: fix fd_tmpdir_r check
-Date: Tue, 19 May 2026 08:14:56 -0400
-Message-ID: <20260519121456.377096-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.54.0
+Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+Subject: [PATCH] libsepol: link xperm rule permissions correctly
+Date: Tue, 19 May 2026 14:24:01 +0200
+Message-ID: <20260519122401.156311-1-cgoettsche@seltendoof.de>
+Reply-To: cgzones@googlemail.com
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Check fd_tmpdir_r not fd for a failed pin_dir() here.
+From: Christian Göttsche <cgzones@googlemail.com>
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+In copy_avrule_list() the class_perm_node_t::data field is interpreted
+either as a permission bitmap (for AV rules) or as a destination type
+index (for type_transition/_change/_member rules), and is remapped
+accordingly when linking a module into the base.  Extended-permission
+rules (allowxperm/auditallowxperm/dontauditxperm/neverallowxperm) carry
+a permission bitmap in this field just like AV rules -- checkpolicy
+sets it via `data |= 1 << (perdatum->s.value - 1)` in
+define_te_avtab_xperms_helper() -- but the conditional only checks
+AVRULE_AV and so xperm rules fall into the else branch.  That branch
+dereferences module->map[SYM_TYPES][data - 1], where `data` is a perm
+bitmap rather than a type index.  When the underlying ioctl/nlmsg
+permission lives at a high bit position the resulting out-of-bounds
+read segfaults semodule_link; when the bit is low the read silently
+succeeds and the linked policy's xperm class_perm_node->data is
+overwritten with an unrelated type id.
+
+expand.c::expand_rule_helper() already discriminates with
+`specified & (AVRULE_AV | AVRULE_XPERMS)`; apply the same condition
+here so the perm-bitmap branch handles extended-permission rules too.
+
+Reproduced with a modular refpolicy build that emits allowxperm rules
+into non-base modules (XPERM_RULES=y, MONOLITHIC=n); `make validate`
+crashes inside copy_avrule_list at link.c:1298 and succeeds with this
+change.
+
+Fixes: 58962eb3d847 ("libsepol,checkpolicy: add binary module support for xperms")
+Assisted-by: Claude:claude-4.7-opus
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- sandbox/seunshare.c | 2 +-
+ libsepol/src/link.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
-index 3afe1554..7a4233fb 100644
---- a/sandbox/seunshare.c
-+++ b/sandbox/seunshare.c
-@@ -1034,7 +1034,7 @@ int main(int argc, char **argv) {
- 		 */
- 		if (tmpdir_r) {
- 			fd_tmpdir_r = pin_dir(tmpdir_r, &sb);
--			if (fd < 0)
-+			if (fd_tmpdir_r < 0)
- 				goto childerr;
- 			/*
- 			 * tmpdir_r checks differ in that it is
+diff --git a/libsepol/src/link.c b/libsepol/src/link.c
+index 188b4020..de964c92 100644
+--- a/libsepol/src/link.c
++++ b/libsepol/src/link.c
+@@ -1280,7 +1280,7 @@ static int copy_avrule_list(avrule_t * list, avrule_t ** dst,
+ 			    module->map[SYM_CLASSES][cur_perm->tclass - 1];
+ 			assert(new_perm->tclass);
+ 
+-			if (new_rule->specified & AVRULE_AV) {
++			if (new_rule->specified & (AVRULE_AV | AVRULE_XPERMS)) {
+ 				for (i = 0;
+ 				     i <
+ 				     module->perm_map_len[cur_perm->tclass - 1];
 -- 
-2.54.0
+2.53.0
 
