@@ -1,184 +1,112 @@
-Received: from mail-lf1-f54.google.com (mail-lf1-f54.google.com [209.85.167.54])
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C99433D6F9
-	for <selinux@vger.kernel.org>; Wed, 20 May 2026 20:05:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AFE0283CB5
+	for <selinux@vger.kernel.org>; Wed, 20 May 2026 20:13:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.174
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779307556; cv=pass; b=hhiKq6dCcBblaD10baLaH/sjlU1+BHAFEPAA5lxG3cnk0lgmUwxunz0OZEyco7mLw90FUWJ7G5oLodz/GjGK4woP928L04tbmiAg0QQ+GECmy9CNzdmGheZP8NyrqfqRt3knS8wt8w8S9dRRSs9Jy9caP/GjrmCarLCQ+3fwpqA=
+	t=1779307994; cv=pass; b=DX/PF4ZRVSrT1HmAsxu2VsKXzNXOQ8ayPP7qy63+mtZ8lgLKnyzvHnWATGbac47l9zRrNOl1as09vwrwYEqHfgRPEcd5De+f+mfhOTNjGXuDKae7CyJ5txRs5e47ql+hvJ4LuLayiNNKpVB9YKCvnYEPQYRjtGGD7N04xvtegbw=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779307556; c=relaxed/simple;
-	bh=BtSeVz+1vYfojd6IDl9q3iCBFH8FgvM9XJKUESWeHTg=;
+	s=arc-20240116; t=1779307994; c=relaxed/simple;
+	bh=I8XCKLGVNy3KnqNOPfSyDVllnlBDOmCWaEz5KKCpuDk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kRF268lb4m2j0gOjMndyDGn1xewRbxzLXbp0yXutDJ3vAzrVI+3V9uesP0pirD+tpecK4koKI1FEk6w4EyoKptzGU4JBQB3XBgRB2Quo62KlNccU6QIVv++iJosTQ3pAzMtXpOGXA0mlCn8NHLIMxqU3fAe1JU/sFTvqU82daXQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FouGXYb6; arc=pass smtp.client-ip=209.85.167.54
+	 To:Cc:Content-Type; b=Gsv9mXAybK6NamgHMEfbGdNjCk9Fr/SR0LZWL92d1oJXNzhU+6pl2VAnZ4s+YV643JypJIBRMQBuWTUhRdHcyIqSODSfVXwDpQr9ahsMSYbWGJya4yrRp8P/rwm5ckjmOOVItxE4qCC8pAW5suGwm9SstDSYVCCqCnlT8J5bg3I=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=On1bjodV; arc=pass smtp.client-ip=209.85.214.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FouGXYb6"
-Received: by mail-lf1-f54.google.com with SMTP id 2adb3069b0e04-5a8c6fc5fd3so6128444e87.0
-        for <selinux@vger.kernel.org>; Wed, 20 May 2026 13:05:55 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779307553; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="On1bjodV"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2ba17c8cfacso50177525ad.2
+        for <selinux@vger.kernel.org>; Wed, 20 May 2026 13:13:13 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1779307992; cv=none;
         d=google.com; s=arc-20240605;
-        b=Mdg9wDU08a+sc9z5hAUzICziPx3rDuYnIyeCiKQ8zbvBLql7V3w37pwJmZxM7ueIO+
-         DIwfKw4dysQJ2APf1B/673qQTwhctkMMgLwayfkiaskeiP5abQG6+vsW1y6xIgMkaHsD
-         CgkGZ11JoIVSdslOUSZoOEsdP4BBurScFJ3KE9ToJDaKGXWdbkL6wRCUxs30R/VDOf/p
-         DlfGIakmizur8gswjybl7Ph7LgMx4PseSefCEebBIV2zDQ9LlOtqdYX2RzG2OOyms6eD
-         SlonxomEu69+g/kFECWCuDcu2YZd+B/6Wh3FqPN+T404W+OhubOX/gOGBkT8ab8xT55K
-         YIgQ==
+        b=ZcrbOWF++HyXs1kui/+o6feCQ/5ZWW4JGzIpvSmhXrE47+4oj/pyZoNtnV9ZFktmzc
+         C/4MUFd0nUXxkU9UDvHcSjj5nfN7kz2MkeiD3I4QGW7E6OMjurKAERmn+OwevgSPHN9n
+         IyJemyc+GH9mTPTOca+0gFqtt+XIQuJBaTbEkOOlWXJ6D5QC9UmB/P43hSCbyZtw3AvM
+         6W0C+9by9wvlqGc6u8ugZWe92zEKSI0s0opVxtfHfT2T4sZfMZW9hmnro8M9Rz30dFU+
+         Lh700p/aU0S7bkmfzT3EgS0PNmmpAB7pRa/iWaNgrxM8VqalA8894D50zEFZOuW2xImc
+         jN/w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=5/Hc+sN7WhPfu52dJbGtJeYyfKuX8McU4Nd7LhLCxvM=;
-        fh=biLNIbUdiVI+HWgqVoISrU2pQus1fZiQi7u7sC8l6as=;
-        b=jKZnZGgWzuOOlHfcjFlPtwAB3g5V2J5IkqfDOQW7iyEHfdDuShmKGMbViaaTb280UJ
-         oooiIScRtHGdjJJINsX7vjdCr4v/yTQMjQ0/jToOMuz8ukP72Nger3J2mRtPePtaUdH7
-         gLvQz/vgGmOumbwLFxaUatWabsgGuSsQfla0aplsypTMwO5veBo7LYPwqscb3pIdtiCL
-         VyQ3ipE/AkKQMLreaFaYA5l5wuJrt+QpQHXv7Mawpjvl6SsHYRK4S8uW5fpbCY8eNeiz
-         gBEKZiLQTDtCDAJWDc6vGMWLQ1pAs9L/dC4OIyOWJJLFY3wqXDajikHHU6nZXqiU0tBH
-         cAIg==;
+        bh=pIwp8huL/Ggch0//l7rghN+J9tdVMuAFNMvN+fPlMAg=;
+        fh=5BxwEK/iVIzhs7kNCBs0/zEkT4yGKFLka6Po5B0u4CY=;
+        b=IYcXcbzAZb1AuY/D2ZHSGwTbSXskq1ootgTEbHdMnIfmx9xJu5XcFWVMY6piXEe+nV
+         bO0zikHOGLIcaoeqg06nsIXwD/XVYIZ3M0d9Qcx3p8zKDjv5Ac7qn3PMEvzdppI49y2I
+         uK1Z1GivLisXIVr1tEQSbXhS03kFVlFMitUrHine2WubwgWNcvdkFy1sSHUhN8tCQVqm
+         ggScM5cBP1H8w38s6nKdLNMhBznP1TpiOKggzV1tYby03EL/3uqlZuAKaAYCOeliWHtl
+         MO8wMlX90MDMsgtoX/E0ya/qqd3dgrp6lqAFGQQdbAZgcn2u4T9jC3veNRc/XWEgve9e
+         J5oQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779307553; x=1779912353; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1779307992; x=1779912792; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=5/Hc+sN7WhPfu52dJbGtJeYyfKuX8McU4Nd7LhLCxvM=;
-        b=FouGXYb6PDxEaafg2C97AYrhMbUG5pRi+8/BzG9eu9U6C6MjNKYCEVTMlKEKMpmMUE
-         aSSZy3cIY4ZfIRjSHwFmbadj8PHB7cbPz3jlym/Fam2QaflwqzJJ5HtBQ8K1FP3UVOut
-         YLxPBLLIeKFDdI4y/87lYjalJC5cXRqeEGJPxxWiTmfRpPTi4lQo8FDWgg3hKl93JtyS
-         oqm1sORDL8YWR5Fg5hOx8FqovhByWqJXje6H2CyQIU75MqI+5bX1gHPM7ecxzq8zAgPg
-         j6LvKCLvHRAMWYa6y7LBs8suW6QmEsfp92n/sIQmQTPj0GzYdB+RqjbHWggVUu0yESRX
-         Tisg==
+        bh=pIwp8huL/Ggch0//l7rghN+J9tdVMuAFNMvN+fPlMAg=;
+        b=On1bjodVBvLlkS7ShmRJh53XtyITPrkSuy/iacQ2lKrJXKkHDBaG5LOSOEumNPeHA1
+         Lk3Z+WL/p4nJGYzqyyTYQRKPs68G9GfmTipkkQ/gKOthG5IIe+a9B5P8q5uGXsC8piKg
+         P84KA8HcPYCej1nNvWlEqk6EreCbiQAo7qCzAuvvHrY40utwgMgfvQaKIm7w02FzKmVc
+         ILIm/iQKSeMD/AE7MIVSkaStcoivEa0FeN8mpySXOBYtIGZdRCJnaIw8R5BENlsn8nFz
+         uemcb+LFZnTWB12W5EZ/ffIOhhE/m/CpTtdHjF7/CHU0Fhg5fczzNnDd2UcEonXEpvUx
+         odtw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779307553; x=1779912353;
+        d=1e100.net; s=20251104; t=1779307992; x=1779912792;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=5/Hc+sN7WhPfu52dJbGtJeYyfKuX8McU4Nd7LhLCxvM=;
-        b=GSCryqTsNLLswTfOgCM0cIvfryTOaNqNUK65y1AvyMnChXoaFU1MIOAba8gI3qpamm
-         JpWd33T1fENwZbDKEaZC/he81bw82JkyHXkwpqLp1nwB/+GggfmJkKIgc+mJgaeyTlcy
-         J7jujFvto03Z2uCCJwYawwzlAySfMbMgx1lEjz3uU2WyvI4eUiNtuuFtErkJfLtHC9/c
-         cLDe4m7WmJZiyzTg7RUL0CD99CyyGtapteHYKZeZJOe9MRAE+T037QPe+0+zXMQCQkto
-         sL5IDQfhH2ycHWCQSaNNw7K3A5UAGV4rz87N3wBO1sx2TwXd7pZhcr1uhIq41BzWCZUQ
-         SOSg==
-X-Gm-Message-State: AOJu0Yxjh5nnmueKRUFGGjZrx4uSSRFFQCksGTjtcdqQXaDJTGu6tO7F
-	03hbRMYo5OisrenD2QRqXEw8aAay0bUHshJozxKkSN0ZzTMPpjoOaY+eC/Sv1aucDAI0Rx+niA2
-	6b3VX+g0bsWKdeaKQjJoTGyq8b/E8J7Z4ouxy
-X-Gm-Gg: Acq92OFD48wc3ZeHb9PMs23zL2bFtLVXeE5Ey4CPvJ4ZjORppbgk9sFc16Qo7OD9USt
-	axFXDvuUGoqgV5A0h6T72sVn9wGmUytol9wreqti8ZvuipmbNXYAimLQa9DVWWiR3ZbFFfVD5rs
-	TtCyLOsuOUDeN6WEbkhCAfgel0D3CkhZFaBiqpJoCaRhtSJHYOygPoMVsjkTy2I3JexymZvPpj8
-	izRyxSCjKgxdCuF/xMQUsNnax9nQo4jmIfjL9yh67TCn+VK/L4HD5deFRkDeeryqOmUvmwN1jeR
-	yRcD
-X-Received: by 2002:ac2:5bc1:0:b0:5a8:6cd7:3203 with SMTP id
- 2adb3069b0e04-5aa2ae2452cmr228649e87.3.1779307553423; Wed, 20 May 2026
- 13:05:53 -0700 (PDT)
+        bh=pIwp8huL/Ggch0//l7rghN+J9tdVMuAFNMvN+fPlMAg=;
+        b=pVRtKAg/UgMksg90kq7JqscdyB3Zqsladj0y35kBSLg9n7SaVv1H9QjkAxGw6VMiKh
+         yY8LkYTX9j092BFeGUZV2zcejq+MmnkDnkigqnTH/uxDqM5tFEmOJ55V3nvMuNwp4t9d
+         gQjm2YzhQdGqDYdp9bEBCO+YvkI71i+QRbHNpW3lXC6ZwSiL7dA+bOySPkDDp89PPYDc
+         naMnwytNxj0fEs6pxfUvHW5c8LkrwTO7AF2PX4fsHRtYvXKfRXFxL+Nd7BBBLDNmLhRh
+         o3IsNqiNpIbQEdP86C8mcVoT71OwTNLxqYvTRO5Bqo4In9SUZLZnhpNw60KbBX1mJBKl
+         TZQg==
+X-Gm-Message-State: AOJu0YwUffvYoRH5hc1N84ES1EfCgEy/nwK247mbKWB4S71kPJ+y+F8+
+	oQ3xXty1eQqWphVGo3abXaioxyHlahYcAhCLBub1sSxqibIRIqLy62DpditgEeYLnANjdXVfb4k
+	lpeKHTuNa3YIYzsONTrI/Qe93TUfT51M=
+X-Gm-Gg: Acq92OGnIyHwdcTFTWsHnLVUQwoFQZrSEsNnJcYGhQ5s656AeWJEzAHBo5qxMhGf0/P
+	xYmwA0+LOU6OURJ+D2VO4CVyn4h3Um7bp1TVi59j5Zj9M4www+1m2odiSxxG3iJk7x7JFGGL/mO
+	QF5iDZ2s1YDA5BgHgWN+EKj/rJvyMQE7kxXezTO3c1tIDQ2UfDL8dXM/qXU7PsWoK4txTp4DUP6
+	u9bylQb39O/bwYEUUCVb607ZrTUMLyVVvBZXXsK85YNxs7qKueCtvMe/+7FdcP9FZD45CWGmj4a
+	s2El7Oo=
+X-Received: by 2002:a17:902:f547:b0:2ba:3e2f:6883 with SMTP id
+ d9443c01a7336-2bd7e8f9108mr255863325ad.19.1779307992362; Wed, 20 May 2026
+ 13:13:12 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260515144548.13795-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260515144548.13795-1-stephen.smalley.work@gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Wed, 20 May 2026 16:05:42 -0400
-X-Gm-Features: AVHnY4I_9NByPYuZjTgCdxrS9XGR6TDgpBJ-f1ttFVt1RPmZeYQkFfXN3vsVOVk
-Message-ID: <CAP+JOzQsYmrevuw6fKu7LE_Pi0JH1X15wqTqd0zuvv8vJ1s7OA@mail.gmail.com>
-Subject: Re: [PATCH] gui: do not load from cwd and properly quote inputs
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
-	paul@paul-moore.com, perfinion@gentoo.org
+References: <20260520121051.20863-1-cgoettsche@seltendoof.de>
+ <20260520121051.20863-2-cgoettsche@seltendoof.de> <CAEjxPJ6E7k18phrgQGFmezYxp8sgY76ZRaXon3XsajPmw4_Bnw@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6E7k18phrgQGFmezYxp8sgY76ZRaXon3XsajPmw4_Bnw@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Wed, 20 May 2026 16:13:01 -0400
+X-Gm-Features: AVHnY4IbIDk8uoGWSBwfo-asEYqJ5G4tUuPCXn4XEwQJ5h83GbEN3M3G719v654
+Message-ID: <CAEjxPJ68mv59+B+erJg4T=whoNXOPgVMT3qB5ivYAaoaSL=xUQ@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] libselinux: improve restorecon progress locking
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, May 15, 2026 at 10:45=E2=80=AFAM Stephen Smalley
+On Wed, May 20, 2026 at 11:32=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> gui can be called via pkexec and therefore should never trust
-> its cwd. The initial arguments and file names can be
-> user-supplied so ensure they are properly quoted.
+> On Wed, May 20, 2026 at 8:13=E2=80=AFAM Christian G=C3=B6ttsche
+> <cgoettsche@seltendoof.de> wrote:
+> >
+> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> >
+> > Use an atomic counter to avoid acquiring the synchronizing mutex for
+> > each file.  Only acquire when actually writing to stdout.
+> >
+> > Suggested-by: Copilot
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Acked-by: James Carter <jwcart2@gmail.com>
-
-> ---
->  gui/modulesPage.py           | 5 ++++-
->  gui/polgengui.py             | 6 +-----
->  gui/sepolgen                 | 2 +-
->  gui/system-config-selinux.py | 5 +----
->  4 files changed, 7 insertions(+), 11 deletions(-)
->
-> diff --git a/gui/modulesPage.py b/gui/modulesPage.py
-> index 02b79f15..7ae5a80a 100644
-> --- a/gui/modulesPage.py
-> +++ b/gui/modulesPage.py
-> @@ -194,7 +194,10 @@ class modulesPage(semanagePage):
->      def add(self, file):
->          try:
->              self.wait()
-> -            status, output =3D getstatusoutput("semodule -i %s" % file)
-> +            p =3D Popen(["semodule", "-i", file], stdout=3DPIPE, stderr=
-=3DPIPE,
-> +                      universal_newlines=3DTrue)
-> +            out, err =3D p.communicate()
-> +            status, output =3D p.returncode, (out or "") + (err or "")
->              self.ready()
->              if status !=3D 0:
->                  self.error(output)
-> diff --git a/gui/polgengui.py b/gui/polgengui.py
-> index 9c151a11..76751e02 100644
-> --- a/gui/polgengui.py
-> +++ b/gui/polgengui.py
-> @@ -85,7 +85,6 @@ except:
->  version =3D "1.0"
->
->  sys.path.append('/usr/share/system-config-selinux')
-> -sys.path.append('.')
->
->  # From John Hunter http://www.daa.com.au/pipermail/pygtk/2003-February/0=
-04454.html
->
-> @@ -98,10 +97,7 @@ def foreach(model, path, iter, selected):
->  ##
->  xml =3D Gtk.Builder()
->  xml.set_translation_domain(PROGNAME)
-> -if os.access("polgen.ui", os.F_OK):
-> -    xml.add_from_file("polgen.ui")
-> -else:
-> -    xml.add_from_file("/usr/share/system-config-selinux/polgen.ui")
-> +xml.add_from_file("/usr/share/system-config-selinux/polgen.ui")
->
->  FILE =3D 1
->  DIR =3D 2
-> diff --git a/gui/sepolgen b/gui/sepolgen
-> index 2f0c1cc7..f99fd01c 100644
-> --- a/gui/sepolgen
-> +++ b/gui/sepolgen
-> @@ -1,2 +1,2 @@
->  #!/bin/sh
-> -sepolicy generate $*
-> +exec sepolicy generate "$@"
-> diff --git a/gui/system-config-selinux.py b/gui/system-config-selinux.py
-> index 0b6ba4b5..694a791c 100644
-> --- a/gui/system-config-selinux.py
-> +++ b/gui/system-config-selinux.py
-> @@ -74,10 +74,7 @@ version =3D "1.0"
->  ##
->  xml =3D Gtk.Builder()
->  xml.set_translation_domain(PROGNAME)
-> -if os.access("system-config-selinux.ui", os.F_OK):
-> -    xml.add_from_file("system-config-selinux.ui")
-> -else:
-> -    xml.add_from_file("/usr/share/system-config-selinux/system-config-se=
-linux.ui")
-> +xml.add_from_file("/usr/share/system-config-selinux/system-config-selinu=
-x.ui")
->
->
->  class childWindow:
-> --
-> 2.54.0
->
+Merged.
