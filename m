@@ -1,92 +1,92 @@
-Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
+Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com [209.85.167.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99AF354768
-	for <selinux@vger.kernel.org>; Wed, 20 May 2026 15:34:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E40BC54768
+	for <selinux@vger.kernel.org>; Wed, 20 May 2026 15:34:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.51
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779291244; cv=pass; b=ZEhR9S1GhsZtFG39jTeAYTJ3XNSk3rq1MF6R+B9YSj4sTmqkfotTQfWRJJILqARyS6vEfftojsbc3Vj1NHUAwUROFejE2mSNPoNyheKVUnFYjCoQmhr7U41sy60PA3gdD2M4x4rrr0QeKMek4oEHsTIdu8Ve9aqAPEK/4OAT2OA=
+	t=1779291292; cv=pass; b=lrVEgkdNzNGBrZKVy5nkMwpmbTcXqUtX42frQdGPH1TJNpJp6unt5+/fn6uWJdFsnpBlU7JHQGVJ8w3CnculHH27sTYs6xLzOLrxXi4Ps4C1Jpm5YhL7fLB9+BG4eq4x8mdqH4ENarbjVg+Zkbeff/J/+S7pTAM2YfaBBYnzmKo=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779291244; c=relaxed/simple;
-	bh=hr7OTb6hP7aFexWfcr57vDsGevhw9bKqGxqAIUo+860=;
+	s=arc-20240116; t=1779291292; c=relaxed/simple;
+	bh=townmmkuJcH6MiJN8EmWmk5ePDBbuzhJLvNC1Jx5Gl0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=UxuDdtMi8p/5XvHThYtsCsBj8grnCMyCzJTHFbJoccdYHKXIrf03MQvGdb+vZmyGfcnjMgG6tFa1jeqesdAl8yfR+22WMs4VtcTrbLzhpCFDISKJujLsiIskEpbaPK+9IKBrPIGYcJ3oUkOOCj8CMQsBqyIdAEjqHhPCk/XGYAo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QHDWwRSI; arc=pass smtp.client-ip=209.85.208.176
+	 To:Cc:Content-Type; b=GpBT7nxwiKcwBrv8LDwuUP5f5s8X2ZIOMKCQzHrxXcBrv6x1SP0BHQTpLQL7deOKNofZz5/WOHkblZl0YFQBGeJ0GAnynE6VGOjqvPFyI5DIO/PnbuDzeZFhBJQj1POhUrvvooawq6uS5lQ2VoqTf8+s7n0TyPFstvgtxA41frs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kO8PgFta; arc=pass smtp.client-ip=209.85.167.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QHDWwRSI"
-Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-38e84ed22bdso60801301fa.2
-        for <selinux@vger.kernel.org>; Wed, 20 May 2026 08:34:03 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779291242; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kO8PgFta"
+Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-5aa0da74eaaso5840140e87.1
+        for <selinux@vger.kernel.org>; Wed, 20 May 2026 08:34:50 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1779291289; cv=none;
         d=google.com; s=arc-20240605;
-        b=bB5S16mDJe4f5z3VhOd5W3NjNHHbmwawTUmhxhuTfrYOWTaFz2v+8shRbasd/G8jIq
-         fEAI4BgbWXdoUZ1AKm3n4UTjsSB3C//B7mRsefVSOxarJEHcoIdu21L3FaXMuZyqbdom
-         rvS+QxqSkgb5LCsKjZ4yJO983c4exMWPr0M0c2QWH7Nv/8BFPj/Y+JOch3+hFesV+TYw
-         XtYB8IG/Mc1Y8PUGDgqdZ3OCAk803th/fxkQzEehoHZzfreMzXRjOnf27XLNmaUtw/5R
-         TxvRjvZwttZrTWSpFapBBPnNSzGmPgsDchn9t1m1f9chlEREPPLCk30cxLtth/DHBB8c
-         qx+A==
+        b=Db59PjFiTC1etcSRc+sAO9wLBWgIZKwYnbt6jZ2I09scXpxeP+jP3Bc7Gyjxt+Au2d
+         CsGwtCPZuAKO5PxEfe/p/v8RCMGUkptKybTMdkkOnQ4Fl5+69dy+4IE60Dfs45SbkD6F
+         Q5vJwI99qilE0UNRa0GY6qcTb6+2XMLhtI7G9zsO1K202/mDtFgrmqIEvBmxLH47lfXy
+         ouFvny2avm99586fs4CCofIB/VbXo53LD65fgETLbUm0vSDysbyOGww8RG4oL+9QX9zG
+         ZLG5KH8QEenwshrmhaWCQS/V46/diOJRYvjTPk5Ua6LoYKFRKEhvGA1PS+BGI8c4TW9a
+         Mu2w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=/rUulWFfqu17EQ8RGVRHU+T/YX9oMZS9CjWRrzRNb+M=;
+        bh=Bn2jyqm1GYMBlsx/b0cUeJBz90BLEG+3isyvoxaUC5Q=;
         fh=RcJrr7O3svp8K5gZfgCjK7Xv0tA8i0VIpUekoWsmIc8=;
-        b=OzamMuvb7264C0Ot/5/jT/RD9oUFPXHdpuenntJZeXLr7tjuhY83F3k5mTHA+iAdqd
-         C/aK2cDC0eRXywQRezHmwo8IZuHPjGV3542P361hiIwlp5YHuBTeBgNWqqIkwY52qjlC
-         W4W8A7VtIbR8o0DHRj9muc1NJM4Jp/u3C907AaG96DEY2TBqrOQXxvwloRufHaA2Ba2s
-         cdLqGlzbnAMwWkPLfxmibdYFu/QDKfaGMMnLZH1Uf9hNl333kN/b0WMXjvdd/PKLh4If
-         h1Tv+RkgiQSy1B95BMLza7bkODzNgAF2MOaymgSI2cySRiFju99vSL67dXzUu8b+ONHt
-         Havw==;
+        b=birRx+wWfjhseq5KKAvT2sAdPoTSJOu4GGUYnNFHkCDWuZOjtXEGkb/bVRDdCJ7EZd
+         k62Mx1NSydrN6l/NXwZtgKXw0mnpF6RUpQEew+Uv0QWngphvqCav2vT56yBI2Gt78Kf/
+         TWSJizdFbuxc2Dg9CvD5o6FwesybKzlnqndz6F0v6clU1t4qtq7aHs/5ssEhesK75wFE
+         3uEepGUdMIFJGykKBsdGsvvUG1+D7XkneyVRnPM77c/nUFKJnKAW/KKSyCZBXnJcWeBA
+         Pe6Dh021tvcqL7PXpRQdMbWnL4/r2l5bM8Y03ZyZZame4/dN75poKQKEJbrN19aQig3D
+         JRkg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779291242; x=1779896042; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1779291289; x=1779896089; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=/rUulWFfqu17EQ8RGVRHU+T/YX9oMZS9CjWRrzRNb+M=;
-        b=QHDWwRSIiOIi+lPp/f9JnB3TtSBNv3RQGKhjvJMzu/zCJhtKjkzXVnUrLKyXFZaHDA
-         yjTDYDX85bbMv2I7/snXHlskceZc2j9FrYEtFfnXdGAYvR+zuIoeVTNimfIqhP9ZvKPx
-         7nyKwP+6eDKsyibVuqW/jIQi0RmG3TL8jGVDyXIY1a1Il1TcxfHc8UegZUlkl0P5geIC
-         cks3o1XldftKTRkAaAL3J3xeQeOdDebfNqu7x/901zEKYcKHJKNO3kmfr8C83uXSJHAw
-         0ycTW9BCOmseHB0ennrBKoeOr/TMg/UCKqi2fiA2zodtudvSSDxejeyMVtdbGQpRxI4B
-         qqVQ==
+        bh=Bn2jyqm1GYMBlsx/b0cUeJBz90BLEG+3isyvoxaUC5Q=;
+        b=kO8PgFtaiaov+BsLoNeU3s72cr2tuqeJlEZ6CiOBUmOEGdEKytOjd9BgwHnM8gI7TL
+         p6XXch+3fKpXPY8lYo8PX3jsy5KRrIvusS9JcDMCqkqgL8fyEO8Wp637qOZrWir4Vdbo
+         ki1xJE2Es210MYVJ7E0m9rI+eLVxIjafGF8QtShqgw7Eo1VCnWZ2/E5yFBdrhgO30ZMB
+         i6he7B8fRnLj4ojLF7X2/pgVz8XdtSLL0xJanVR583FtQ2QHTeVK2CFq+89NBxu1JkXW
+         07TYWdoNaFC1SL5uz3CGCoaXOJDGXoEd3T8EtRaIrxZf58/7u0SZ2J44ymzhQ7XC0HnB
+         Cz7A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779291242; x=1779896042;
+        d=1e100.net; s=20251104; t=1779291289; x=1779896089;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=/rUulWFfqu17EQ8RGVRHU+T/YX9oMZS9CjWRrzRNb+M=;
-        b=CM/O1V7eX+PMYZ40JbjgJhy94Y4bhH4XTacApN+It91f4Uv57EwfAMAXTwQMoS53Of
-         871PhEcN/AkC6nNt192BoveloFoezFOejUUQF/ersrlZss+eQFBjSs2WBaZ+Obp5+b5z
-         geIzqGZcNkjJSgSQD2b1a195U7aD3BPHR1itmNKxcdizbhLzWkz72gGsdwsjAhIGY1e9
-         OF3QDyCdbEM9sTBOWM7zI1STNqxHsGGTWdudMVQo7TV+qA9L26baKhtexPOzSA4hglou
-         VqnGCGK2GRRSRu97lINP7O4O5WtXWVCuPm7PyMtkFTNbBdxApzGlOFQiTLIr5f7u0QBC
-         2FmA==
-X-Gm-Message-State: AOJu0Yx/WediaSV9mwziOmeYYvGAao8eix7C9VvT+I8qrJvr7ipe3brc
-	VQxFgkhEMHzjCjO4OBtSD8m/wtaSMi+klq30I/9eBhnmPBgrkaO1DqxVtn0Wj9cmQIMUyPCIY4M
-	XBAhpxjtuTr20RVIxnOkYklsa5DaApEU=
-X-Gm-Gg: Acq92OFJ8cmCWaqaQDB/p5xY7RD/C6CDY7osWeM6Mn8g7BHqf7N62jiSjr7tsk1161I
-	cVtdf/LIqRiNyw8rRJeoH4krwkRmXllayjXpyLGZZODPfk+mwwt8p0pc35hJQui8kxzN6blpQ/D
-	TtXBf4J0/5H7/Si1/eEDdU3OT2BwxrdQ6RhezgnaELptcwJJ1TozlCEN6rhw8QVOyq+WCeprldD
-	Q1nyv2NrHRM/TmpzVBHI679oZD+kTlcPmBcVzmwr7wjP4JfXtJu+ai7S6VY27LJ52AAYTvg+r0m
-	ByiHCvWIv7m2vOM=
-X-Received: by 2002:a05:651c:e0a:b0:393:55e1:4bcd with SMTP id
- 38308e7fff4ca-39561f2fb53mr69676101fa.31.1779291241682; Wed, 20 May 2026
- 08:34:01 -0700 (PDT)
+        bh=Bn2jyqm1GYMBlsx/b0cUeJBz90BLEG+3isyvoxaUC5Q=;
+        b=mUhqIRVC3muDsMTcszLQZcJwl8Yx87EluYAacRHQxKsakFp2mKdbdmbnR0W7xLCOQ7
+         GdU4lHAvZCIhOKtTcZ0e3+EwQ4j7yHmKwHu6PkmJGW6h7ybNY9dmo0eDnVWDOTgphFTN
+         q9fV1gvVkrINrPIGVpG6GLetxbd8ZySp1GzYsmPUdC+0PrREGNLZydDKJ67uMjNMDX14
+         ghbIAWK9NOa00KPoeI6RGliHo43xPe4MYzlAlGCeXQJsLS9to2DrpPEbOJxEHGemCEeV
+         jeHI1H7f7ep1S/nsn2S+7TE+AO+8rxwj1krQVZxb8+N6W18MtXjmu7UqPcNdEEUvtC3h
+         GiHQ==
+X-Gm-Message-State: AOJu0YwQ6X7jVK7+rWk1DffiQYkxSBdD0/5U55wkc6vZj/KRhWGDxVx7
+	RWorTIIgvn61nJmwApSI3kvonJYMwE0A13GZZvBv/lLoS3wO/SIUSqV55k56LvCPzEzsZMW91Hp
+	OouaRqWVNZRdozedFX+s3PFJx9E6rt9s=
+X-Gm-Gg: Acq92OFX5CA9du5gUNr/6Djtp6SL8IL6J+/9FqWZNk/3wbiJAX/VwMm/wOHcribW7iM
+	tZqDYjtk3xNMUCp5X6tB8EobB3OvvM5K+2kAaHpRw19GBLFqHUrs9NIKBRl3ByGxyvUpU3LrYvA
+	5jF2q4ri9gA7ASqojwEZV5G0bgXmIHL3nwoihHtExp70eVqRBXqkCajAcl4PdBz27GeMTeyNgvn
+	apFBYcPvZL9CjNTDAwvm0QcZ1Br8S8rwaxDkpx79S4O/iSRA8KMptTwGB5TLkWSwttG1TawVJgy
+	KJNbrhzLb91KZo8=
+X-Received: by 2002:a05:6512:23c6:b0:5a7:4699:9fd8 with SMTP id
+ 2adb3069b0e04-5aa2ae3fb51mr723e87.16.1779291288962; Wed, 20 May 2026 08:34:48
+ -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260508121327.91410-1-kalevi@kolttonen.fi> <20260508121327.91410-4-kalevi@kolttonen.fi>
-In-Reply-To: <20260508121327.91410-4-kalevi@kolttonen.fi>
+References: <20260508121327.91410-1-kalevi@kolttonen.fi> <20260508121327.91410-5-kalevi@kolttonen.fi>
+In-Reply-To: <20260508121327.91410-5-kalevi@kolttonen.fi>
 From: James Carter <jwcart2@gmail.com>
-Date: Wed, 20 May 2026 11:33:50 -0400
-X-Gm-Features: AVHnY4KNGqNwmAZIJcy059YPV-N51IQZKcP6qs0hOAzsb7juKIxc6tGdplA3NSw
-Message-ID: <CAP+JOzSFLvqda8NwEu3x8u5oH5pjfrsxHOvAcPHsRyfGAzDbHA@mail.gmail.com>
-Subject: Re: [PATCH 3/4] checkpolicy: add missing strdup() failure checks
+Date: Wed, 20 May 2026 11:34:37 -0400
+X-Gm-Features: AVHnY4Jj8YfIpsQXMSDnlwfRSie4VPuYWl7oI8XSGyoykcf3M95KXZ8mWRdisnk
+Message-ID: <CAP+JOzR8fLePvbCuG4Rg3qcRwpeJH9HkfLVksN77_M+qNGKpVw@mail.gmail.com>
+Subject: Re: [PATCH 4/4] checkpolicy: remove unneeded malloc() casts
 To: Kalevi Kolttonen <kalevi@kolttonen.fi>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -95,61 +95,155 @@ Content-Transfer-Encoding: quoted-printable
 On Fri, May 8, 2026 at 8:18=E2=80=AFAM Kalevi Kolttonen <kalevi@kolttonen.f=
 i> wrote:
 >
-> add missing strdup() failure checks. Also add one missing
-> 'return -1' statement on error.
->
 > Signed-off-by: Kalevi Kolttonen <kalevi@kolttonen.fi>
 
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  checkpolicy/policy_define.c | 13 +++++++++++++
->  1 file changed, 13 insertions(+)
+>  checkpolicy/policy_define.c | 28 +++++++++++++---------------
+>  1 file changed, 13 insertions(+), 15 deletions(-)
 >
 > diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> index 4f775111..755a8428 100644
+> index 755a8428..0a553a1f 100644
 > --- a/checkpolicy/policy_define.c
 > +++ b/checkpolicy/policy_define.c
-> @@ -1499,10 +1499,15 @@ static int define_typebounds_helper(const char *b=
-ounds_id, const char *type_id)
+> @@ -786,7 +786,7 @@ int define_sens(void)
+>                 yyerror2("sensitivity identifier %s may not contain perio=
+ds", id);
+>                 goto bad;
 >         }
+> -       level =3D (mls_level_t *) malloc(sizeof(mls_level_t));
+> +       level =3D malloc(sizeof(mls_level_t));
+>         if (!level) {
+>                 yyerror("out of memory");
+>                 goto bad;
+> @@ -795,7 +795,7 @@ int define_sens(void)
+>         level->sens =3D 0;        /* actual value set in define_dominance=
+ */
+>         ebitmap_init(&level->cat);      /* actual value set in define_lev=
+el */
 >
->         id =3D strdup(type_id);
-> +       if (!id) {
-> +               yyerror("Out of memory!");
-> +               return -1;
-> +       }
->         value =3D (type->flavor !=3D TYPE_ALIAS) ? type->s.value : type->=
-primary;
->         type =3D get_local_type(id, value, 0);
->         if (!type) {
->                 yyerror("Out of memory!");
-> +               return -1;
->         }
->
->         if (!type->bounds)
-> @@ -3559,6 +3564,10 @@ int define_filename_trans(void)
->                 append_filename_trans(ftr);
->
->                 ftr->name =3D strdup(name);
-> +               if (!ftr->name) {
-> +                       yyerror("out of memory");
-> +                       goto bad;
-> +               }
->                 if (type_set_cpy(&ftr->stypes, &stypes)) {
+> -       datum =3D (level_datum_t *) malloc(sizeof(level_datum_t));
+> +       datum =3D malloc(sizeof(level_datum_t));
+>         if (!datum) {
+>                 yyerror("out of memory");
+>                 goto bad;
+> @@ -839,7 +839,7 @@ int define_sens(void)
+>                         free(id);
+>                         return -1;
+>                 }
+> -               aliasdatum =3D (level_datum_t *) malloc(sizeof(level_datu=
+m_t));
+> +               aliasdatum =3D malloc(sizeof(level_datum_t));
+>                 if (!aliasdatum) {
 >                         yyerror("out of memory");
->                         goto bad;
-> @@ -4510,6 +4519,10 @@ int define_user(void)
+>                         free(id);
+> @@ -976,7 +976,7 @@ int define_category(void)
+>                 yyerror2("category identifier %s may not contain periods"=
+, id);
+>                 goto bad;
+>         }
+> -       datum =3D (cat_datum_t *) malloc(sizeof(cat_datum_t));
+> +       datum =3D malloc(sizeof(cat_datum_t));
+>         if (!datum) {
+>                 yyerror("out of memory");
+>                 goto bad;
+> @@ -1019,7 +1019,7 @@ int define_category(void)
+>                         free(id);
+>                         return -1;
+>                 }
+> -               aliasdatum =3D (cat_datum_t *) malloc(sizeof(cat_datum_t)=
+);
+> +               aliasdatum =3D malloc(sizeof(cat_datum_t));
+>                 if (!aliasdatum) {
+>                         yyerror("out of memory");
+>                         free(id);
+> @@ -1091,7 +1091,7 @@ static int clone_level(hashtab_key_t key __attribut=
+e__ ((unused)), hashtab_datum
+>                         levdatum->notdefined =3D FALSE;
+>                         return 0;
+>                 }
+> -               newlevel =3D (mls_level_t *) malloc(sizeof(mls_level_t));
+> +               newlevel =3D malloc(sizeof(mls_level_t));
+>                 if (!newlevel)
+>                         return -1;
+>                 if (mls_level_cpy(newlevel, level)) {
+> @@ -2167,7 +2167,7 @@ static int define_te_avtab_xperms_helper(int which,=
+ avrule_t ** rule)
+>         unsigned int i;
+>         int add =3D 1, ret;
+>
+> -       avrule =3D (avrule_t *) malloc(sizeof(avrule_t));
+> +       avrule =3D malloc(sizeof(avrule_t));
+>         if (!avrule) {
+>                 yyerror("out of memory");
+>                 goto out;
+> @@ -2231,8 +2231,7 @@ static int define_te_avtab_xperms_helper(int which,=
+ avrule_t ** rule)
+>         perms =3D NULL;
+>         id =3D queue_head(id_queue);
+>         ebitmap_for_each_positive_bit(&tclasses, node, i) {
+> -               cur_perms =3D
+> -                   (class_perm_node_t *) malloc(sizeof(class_perm_node_t=
+));
+> +               cur_perms =3D malloc(sizeof(class_perm_node_t));
+>                 if (!cur_perms) {
+>                         yyerror("out of memory");
+>                         goto out2;
+> @@ -2779,7 +2778,7 @@ static int define_te_avtab_helper(int which, avrule=
+_t ** rule)
+>
+>         ebitmap_init(&tclasses);
+>
+> -       avrule =3D (avrule_t *) malloc(sizeof(avrule_t));
+> +       avrule =3D malloc(sizeof(avrule_t));
+>         if (!avrule) {
+>                 yyerror("memory error");
+>                 ret =3D -1;
+> @@ -2848,8 +2847,7 @@ static int define_te_avtab_helper(int which, avrule=
+_t ** rule)
+>
+>         perms =3D NULL;
+>         ebitmap_for_each_positive_bit(&tclasses, node, i) {
+> -               cur_perms =3D
+> -                   (class_perm_node_t *) malloc(sizeof(class_perm_node_t=
+));
+> +               cur_perms =3D malloc(sizeof(class_perm_node_t));
+>                 if (!cur_perms) {
+>                         yyerror("out of memory");
+>                         ret =3D -1;
+> @@ -4390,7 +4388,7 @@ static int mls_semantic_cats_merge(mls_semantic_cat=
+_t ** dst,
+>         mls_semantic_cat_t *new;
+>
+>         while (src) {
+> -               new =3D (mls_semantic_cat_t *) malloc(sizeof(mls_semantic=
+_cat_t));
+> +               new =3D malloc(sizeof(mls_semantic_cat_t));
+>                 if (!new)
+>                         return -1;
+>
+> @@ -4467,7 +4465,7 @@ static int parse_semantic_categories(char *id, leve=
+l_datum_t * levdatum __attrib
+>                 range_start =3D range_end =3D cdatum->s.value;
 >         }
 >
->         id =3D strdup(username);
-> +       if (!id) {
-> +               yyerror("out of memory");
-> +               return -1;
-> +       }
+> -       newcat =3D (mls_semantic_cat_t *) malloc(sizeof(mls_semantic_cat_=
+t));
+> +       newcat =3D malloc(sizeof(mls_semantic_cat_t));
+>         if (!newcat) {
+>                 yyerror("out of memory");
+>                 return -1;
+> @@ -4859,7 +4857,7 @@ int define_fs_context(unsigned int major, unsigned =
+int minor)
+>                 return -1;
+>         }
 >
->         if ((usrdatum =3D declare_user()) =3D=3D NULL) {
->                 free(id);
+> -       newc->u.name =3D (char *)malloc(6);
+> +       newc->u.name =3D malloc(6);
+>         if (!newc->u.name) {
+>                 yyerror("out of memory");
+>                 free(newc);
 > --
 > 2.54.0
 >
