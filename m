@@ -1,35 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CF003A8FE9;
-	Wed, 20 May 2026 08:19:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F8983AFCEA;
+	Wed, 20 May 2026 08:19:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779265156; cv=none; b=jsU4i5e1ZnhTqIaDCdVh8UlEnIXvP/qeHmWuYYx6JrNFGZP8KuX/V9eFUAwOdHm4q4m5cYXQhFG4SPuPT2wuBwLyg0dJJvj4CGB4uMpFQoRGoum42hd0IGjr25IXHxAg8zHOqduHZP8dleUICcrWodlouf2SSlF42ICIvDiqevM=
+	t=1779265160; cv=none; b=I1oSk146ZiQn+DAt537e84HO8f41OBem9lo2jI2ishaHqBOkFkPQzQ55RYtJLGMI7ZEw957dgkeelViHh3ygRdaQzl2AeqbCYBL1y2a4cRgjUeM7yt03KrygMBa3p01T7JWr6HwsuCECvHCrNy7KHiXUQRSXXyf5d2xEBU7ja8Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779265156; c=relaxed/simple;
-	bh=8sDsVcUg45SCDAbOd4Qy+nlWe7vZVoKzJPYWNem4zG4=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=nnGyr7EX8xUwfpIYB7C2LIPS//iDrvCZa3NQ4eb4ZJUujy2IdnYkkxCiw+IEuPlJScOp74Iw4SDkf6ZoR6zpfrdRlwX6NWR0emSSKcWHRtWKPEqt914DX2BAMDELRzpevKvVW4V1h4r7+i+MjFddBZuWOQfSZDcryWvT/mn9AEk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oqb6SkS5; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779265160; c=relaxed/simple;
+	bh=egsexhbhZMn6N2VNXPeFT9FZiiU9sNsftvujWkJEIxM=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=mPj2tGoNFeM6xI3t5/q81a9yWIs+rXSU9M7gOwjbt34zFcdrLDNJQLfd1+FR0KJOTK/ilL2FG+dKd/SHHf7X91r5hSpEiPA2sPrmtZ+0B4qy2i3fj9iBRcwVB2MNa6zN3zJ8lo0oU8DENpe22mzJdmOjHam70ii9lCUAQQpivIA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QGRWwolu; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oqb6SkS5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3794C1F000E9;
-	Wed, 20 May 2026 08:19:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QGRWwolu"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A23C1F00893;
+	Wed, 20 May 2026 08:19:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779265154;
-	bh=tJOszf5ccvQ8Uj34Ns+l0JyEoj1luDQ1JSgscLEUjH8=;
-	h=From:Subject:Date:To:Cc;
-	b=oqb6SkS5YytIpVTUQsjo2xHQ4SS571cAqH37sjtk3n5/2i0pUW5fADVVxvUdkIAgo
-	 Ei/YzX4Stje++RmND/Sxw+GgF8GkC2YAKmsKtBKgIidtQ3Lnh/GOV8qbAUxWGtMSXM
-	 lArDAXrc0inMaKNgo1ea/d6dZqCLBG03ZFePlkMmRKxUhrbFQqPPJeix9ku4CUhHB0
-	 Sb1SCaw6Q9oKG7uzDNy2Bu9C/uFTiFz7SA1od/3QLL1sWK+kuQhsseNWJtZvEY8AeV
-	 VAb9otpjpJ9Mf2ht2E7QfZB0sMJDWaA2FxwHg9a7aiS1369hhwS97doRMt9y3pWb2V
-	 arJKoZ/lAdSrA==
+	s=k20260515; t=1779265158;
+	bh=GVDlYomtipo4qtAHTcknpPeYaQN/qiVuV/EAqg0FNOE=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc;
+	b=QGRWwoluHB1wxqmq1NnHTwUGrOw0HmNcITLn8Pe3aTepQ46r2jdkcAYNLOmQLC6Ws
+	 fAO7nMcK4IAkEmw7q1Rz88yVzOt27cWANLTYW1boJbIknXERD1KFDTQKy4tYZOuC8K
+	 Xa83/+bLmy01KovNY7i3HHz3XSz0Y55T2cD1454db7Enrehvtwru2MztE1Skbw8C6K
+	 TzwzSQ9MpvS02tzUSDzYmwgI436vCppFZB1Rztx7znFzz5ZPc7GKf2Bv7bJ/FVIRKG
+	 DWbYxGBPnHJkKZKcVSZ0d3B7MBNCEqN4D1I+B9cReO5mepsJHAHs9ie8fqs14ga6GT
+	 +nHHtsTbiaf7Q==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Subject: [PATCH 0/3] security: replace __get_free_pages() call with
- kmalloc()
-Date: Wed, 20 May 2026 11:18:54 +0300
-Message-Id: <20260520-security-v1-0-831bd8e21dd0@kernel.org>
+Date: Wed, 20 May 2026 11:18:55 +0300
+Subject: [PATCH 1/3] selinux: use k[mz]alloc() to allocate temporary
+ buffers
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -38,10 +38,9 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAG5uDWoC/yWM0QrCMAxFf2Xk2WJXtKK/Into0ugiUiXZRBn7d
- 1t9PJdz7gLGKmxw6hZQfonJo1ToNx3QmMqVneTKEHyIfh+8M6ZZZfq4SDlHn9OhD0eo+lP5Iu/
- f1Xn4s814Y5pa3wxMxg41FRrbhLvtXRDW9QtMxMJyhQAAAA==
-X-Change-ID: 20260520-security-6cdd60da7129
+Message-Id: <20260520-security-v1-1-831bd8e21dd0@kernel.org>
+References: <20260520-security-v1-0-831bd8e21dd0@kernel.org>
+In-Reply-To: <20260520-security-v1-0-831bd8e21dd0@kernel.org>
 To: James Morris <jmorris@namei.org>, 
  John Johansen <john.johansen@canonical.com>, 
  Ondrej Mosnacek <omosnace@redhat.com>, Paul Moore <paul@paul-moore.com>, 
@@ -51,41 +50,96 @@ Cc: Mike Rapoport <rppt@kernel.org>, apparmor@lists.ubuntu.com,
  selinux@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, 
  linux-security-module@vger.kernel.org
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=818; i=rppt@kernel.org;
- h=from:subject:message-id; bh=8sDsVcUg45SCDAbOd4Qy+nlWe7vZVoKzJPYWNem4zG4=;
- b=owEBbQGS/pANAwAKATkDhibLDv2RAcsmYgBqDW5yZa7B7j3ohKSc2JgmRG/bo7d/2fltrRWB+
- SeIMUzfGumJATMEAAEKAB0WIQR45VhVpZkvn3TRr+k5A4Ymyw79kQUCag1ucgAKCRA5A4Ymyw79
- kfc/B/4uBqwgyaoh4EWczWSCvk4YvrDw+P5GIcZkmNuCZQCZgn2Hx05kpDcm+rYUwU39QhN7JvA
- tgMGPGR88/BwX8R27raP67u6j1ETp4W+lZ1idGU+icFaOpOgkAUJhNMnoaD/AYaSMcNJIZk5CIr
- dg5H160CUyvtcCaHO7sCSGKOxTBqqG1Qb8w0Dw+ZWEDuplwxznqiP/VegbHSKV8nw60H6hitxX/
- +WYSMij90yhsivt8xYrlLro5YpMLv+Emy4CxwBnYAAtGzmsSjY2kRashqG5odUQ+sRifrYPPbgs
- qiubvcrUP21lk5w02frOGk4LnKpN/uDysCVOPUN4MSQ1pdt1
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2557; i=rppt@kernel.org;
+ h=from:subject:message-id; bh=egsexhbhZMn6N2VNXPeFT9FZiiU9sNsftvujWkJEIxM=;
+ b=owEBbQGS/pANAwAKATkDhibLDv2RAcsmYgBqDW51z/2b9a1wBbACD7Lqy3AESWFSJG96Ft/Fc
+ u9GHWORn7qJATMEAAEKAB0WIQR45VhVpZkvn3TRr+k5A4Ymyw79kQUCag1udQAKCRA5A4Ymyw79
+ kesfB/95neKLPMgBSsir1CVvO5hzi/mjOmpGVmukHgd+jj7BYpflrDOxXDEgBs6XHWLBXr6p9JI
+ xvWliqXNwwYOaRYZrG10Gbl4vCSoFGOQPMOCctQQm9FEIATJM8lY9frjkw41Nd9vpyDWOUNoaB2
+ 3KByTXQIPueuUKZKZxZf990V0FXHun2IroxnjikC7dbpoD+Ok7KlOfCucRjXTKN283DLquejXI/
+ MXWd19xgl5hyQaJR8l/0oPy+zZfbJBFZRt//57o+nv0whqgh4IDwfpdTwytJ50DBSSXdYZ7OH1j
+ GtKAKh+ZMI9rY83yzUXjIC1ZjMGgzVRheIfJSJrbV+SP0mx7
 X-Developer-Key: i=rppt@kernel.org; a=openpgp;
  fpr=B8E96E880C4A40C3C1255AA8C532392DE6DA7CE9
 
-This is a (tiny) part of larger work of replacing page allocator calls
-with kmalloc:
+Several functions in selinuxfs.c allocate temporary buffers using
+__get_free_page() or get_zeroed_page().
 
-Also in git:
-https://git.kernel.org/pub/scm/linux/kernel/git/rppt/linux.git gfp-to-kmalloc/security
+These buffers are used either to store a string generated by snprintf() (in
+sel_make_bools()) or to copy data from user (sel_read_avc_hash_stats() and
+sel_read_sidtab_hash_stats()).
 
+Such usage does not require struct page access and it is better to allocate
+these buffers with kzalloc()/kmalloc() that provide better scalability and
+more debugging possibilities.
+
+Replace use of get_zeroed_page() with kzalloc() and usage of
+__get_free_page() with kmalloc().
+
+Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.com
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
-Mike Rapoport (Microsoft) (3):
-      selinux: use k[mz]alloc() to allocate temporary buffers
-      selinux: hooks: use __getname() to allocate path buffer
-      apparmor: replace get_zeroed_page() with kzalloc()
+ security/selinux/selinuxfs.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
- security/apparmor/apparmorfs.c |  5 +++--
- security/selinux/hooks.c       |  4 ++--
- security/selinux/selinuxfs.c   | 12 ++++++------
- 3 files changed, 11 insertions(+), 10 deletions(-)
----
-base-commit: 5d6919055dec134de3c40167a490f33c74c12581
-change-id: 20260520-security-6cdd60da7129
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 25ca7d714014..e7b884eedf80 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -1244,7 +1244,7 @@ static int sel_make_bools(struct selinux_policy *newpolicy, struct dentry *bool_
+ 	char **names, *page;
+ 	u32 i, num;
+ 
+-	page = (char *)get_zeroed_page(GFP_KERNEL);
++	page = kzalloc(PAGE_SIZE, GFP_KERNEL);
+ 	if (!page)
+ 		return -ENOMEM;
+ 
+@@ -1290,7 +1290,7 @@ static int sel_make_bools(struct selinux_policy *newpolicy, struct dentry *bool_
+ 		ret = sel_attach_file(bool_dir, names[i], inode);
+ 	}
+ out:
+-	free_page((unsigned long)page);
++	kfree(page);
+ 	return ret;
+ }
+ 
+@@ -1349,14 +1349,14 @@ static ssize_t sel_read_avc_hash_stats(struct file *filp, char __user *buf,
+ 	char *page;
+ 	ssize_t length;
+ 
+-	page = (char *)__get_free_page(GFP_KERNEL);
++	page = kmalloc(PAGE_SIZE, GFP_KERNEL);
+ 	if (!page)
+ 		return -ENOMEM;
+ 
+ 	length = avc_get_hash_stats(page);
+ 	if (length >= 0)
+ 		length = simple_read_from_buffer(buf, count, ppos, page, length);
+-	free_page((unsigned long)page);
++	kfree(page);
+ 
+ 	return length;
+ }
+@@ -1367,7 +1367,7 @@ static ssize_t sel_read_sidtab_hash_stats(struct file *filp, char __user *buf,
+ 	char *page;
+ 	ssize_t length;
+ 
+-	page = (char *)__get_free_page(GFP_KERNEL);
++	page = kmalloc(PAGE_SIZE, GFP_KERNEL);
+ 	if (!page)
+ 		return -ENOMEM;
+ 
+@@ -1375,7 +1375,7 @@ static ssize_t sel_read_sidtab_hash_stats(struct file *filp, char __user *buf,
+ 	if (length >= 0)
+ 		length = simple_read_from_buffer(buf, count, ppos, page,
+ 						length);
+-	free_page((unsigned long)page);
++	kfree(page);
+ 
+ 	return length;
+ }
 
-Best regards,
---  
-Sincerely yours,
-Mike.
+-- 
+2.53.0
 
