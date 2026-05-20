@@ -1,202 +1,177 @@
-Received: from mail-lj1-f170.google.com (mail-lj1-f170.google.com [209.85.208.170])
+Received: from mail-lj1-f169.google.com (mail-lj1-f169.google.com [209.85.208.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26CE92367DF
-	for <selinux@vger.kernel.org>; Wed, 20 May 2026 20:02:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73ADB32938D
+	for <selinux@vger.kernel.org>; Wed, 20 May 2026 20:02:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.169
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779307331; cv=pass; b=YHay1WzTtwQdUu65SpfXwOIAO6cRr5dadk6ozvlGPd6sV6kbv6FmVrxMB5fY0kncjBj8yVpp19j1D8hD7nNGilKVhQZ5AClh9TcTunGpcd5SOYwhevoGnpt31aInEOAFhi5bXdMD6pdjZpskGEn7l7/Xqi75UxxrgMgigKOnw50=
+	t=1779307380; cv=pass; b=RQPEKxdLNRFasNTtgs27HIjOgsntmjpijles0V9fcP4pX4ymCWEOxPtQEvPRs01GLbMjMzsu/ZBOZikhAyZxDhZFmWHxjBv3lk8IB5iKRw6cHh864k8q3ErTD6JyuGNQXYTdyReOmAWo+CwpfD9ekd15iQbykygyGNGccSXURxo=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779307331; c=relaxed/simple;
-	bh=RlTXmlu7Dk//TEBKPYg4q8EGkPTv0SO897RDnkYBzgA=;
+	s=arc-20240116; t=1779307380; c=relaxed/simple;
+	bh=M8W57GM0JsyeJ1wv+p8iTGSLOEGTQvHXImt18sf5tFE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=D2Ma1zmoZRUHjb/9h1LwYGAsUwSYuIrIpU2xr4x9hUMHCPRF9WT7W197w0wi9gPEsQCvUEXmoVFRve9RzUvpDJVbKvOVt2dL6jilayVKo4GIrAgARZQkmQ78Se63+Gf8ViUNdkGb05OOexdxCtXMcs9OC5w9ZRxrMPc1wF4IhiI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dWxl5ONK; arc=pass smtp.client-ip=209.85.208.170
+	 To:Cc:Content-Type; b=FBQbJd6agu3uTuB02AqeH9XebtyyqxI00CMOzttQ/NBUuxSSBCIUJzkI/h7xDgkQIjdEMXTNL+/1hbOshFwmeZIZS1IoWQZq3WGYAey3yAGQ6zRshR+QAvWgJyHKqXPyholrGcimTL6PSKdT4syoktpaV6Cdk4n9zCehIHccbxo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=er7WII08; arc=pass smtp.client-ip=209.85.208.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dWxl5ONK"
-Received: by mail-lj1-f170.google.com with SMTP id 38308e7fff4ca-39393c1b5aaso202511fa.3
-        for <selinux@vger.kernel.org>; Wed, 20 May 2026 13:02:09 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779307328; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="er7WII08"
+Received: by mail-lj1-f169.google.com with SMTP id 38308e7fff4ca-394095009beso47163471fa.3
+        for <selinux@vger.kernel.org>; Wed, 20 May 2026 13:02:58 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1779307377; cv=none;
         d=google.com; s=arc-20240605;
-        b=exxOHqz55wxOGto9TWaC5EyZ5kUdSZ7Fxu6LxYTwob3gRDnn7JLaGH5Ny5d5IFzlFa
-         //Gh6EuXU+KBSuUBXa8wpofd+uKkSArN5xog2jmTsgqJtbHX4qCowEJV6WnqkPpNyu18
-         lXyijaH1xf8aBzdbezLNtBP2R5shpIavubk/Hkbu6khr0bMViwG0NrD6NaV4oagxNfSP
-         z4ROYsuVkdkX1oL1eqRPHYfXXdrC9SRKKnhuFwjy5fOOsKRtDYuyIvXO1dndZUZr1lXu
-         RucMsRNxZ/LsqTlotoh4FVz20bIG5sLxFJNIeifkE+sdDSh9DemnUCMVkSpYmeW4OMf8
-         AyKg==
+        b=HOHu+yaGdb/mJxymEhAwmbYfC91+7UM30v0LV/PjIzyuiniY1BSrz1ajEjE2Aq3SVq
+         Vpchja12rzkc1QrQTZeYu4s0R2jTJQUQ1MVRYncQw0u8AIuh48wqcr1wx3xGlAf2xvvH
+         lE1Zz3dS6vR55N96oneA4bPNU1ZT+OS5btdG31cyQ7Eqbb4b2UZHZ8C0d94hZPUcKr8j
+         s/q4KduMZe0t5SnwHacgrsI5kA3kyIybDQBRcGOxsYwgEhOLrIJWCFqMy3aFU6zObgXS
+         IICnUBugaGdkGw0fSaeCSvlWJCfbRCSsLyPzSLXbyQDzyje2PWQYEEyVTFbaRJv39Ew4
+         Y9Gw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=I9lXT+AAYxqIeXTzPLbKFJ+jJg4j83nqrnX7Ocf5+iQ=;
-        fh=RcJrr7O3svp8K5gZfgCjK7Xv0tA8i0VIpUekoWsmIc8=;
-        b=CHN5U91OFYyzUntbD8ABNgylYbo6Ec5gZ4oF69e6o/x+u+isEBXaex02JWW0zyLfG6
-         otSKVLtH4F8DwZzuLb6WwE9IFzMRGPAbYnBlE6xiwHBcaIuKQviPfvi1BrMFWpnU/dIK
-         08Sgb+NZVDBp2/fVCekc9Z08EPLANuXXie6muehkDs4QZkhC5JVnfZTZxcbT1TkDNgpi
-         xnsWtX8I1BI1DNSbqmoBjvcQ1S/k2dcdD9t0ttnRTCitySRxPogL/bIApUwZpKB/3aNN
-         vn5LqTgbjhSKgv03abwKQ3lOPHYFxzKkko2aD78uvhP0S7dUNjr4fiTjxxVhmdDDpxqo
-         wSTQ==;
+        bh=948yzfSK/4Gv9pF12L8Jq7KXkxhyBp7hyAwwZk9Nv30=;
+        fh=biLNIbUdiVI+HWgqVoISrU2pQus1fZiQi7u7sC8l6as=;
+        b=Gl0dGs4S4DeWfq6GB+HPGbH0a0avNIC+nhCwXSR0DKZ2FC88SKcZ3C3yip0WI0bkVE
+         12lac7NBhil79N6Sb+Y6+6KrtJMRysBldzny3b8TZYieEDZoZqGYMbBfGJ1KIr9AasH0
+         rBzo8OkO5e0w//EIEhdkrt9xUDAROH1eeagJeKz7EXMbmMkSyNepbzYPTB9T7uhOy92B
+         UoRXyxrdhW797rUcVAXIFyHMDGLY7JMZZa7JxEM3TwfJ8qVNDsfXExPtNIeJA0mROlg9
+         BNVHwAzAnzeNHOrXjBhktAGcA6tdUNoyaZdekkUlIIzvomb/N87kBwX1wPZD7lX0e/Zh
+         hQKg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779307328; x=1779912128; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1779307377; x=1779912177; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=I9lXT+AAYxqIeXTzPLbKFJ+jJg4j83nqrnX7Ocf5+iQ=;
-        b=dWxl5ONK7W1D+URh6IP+AVqK3kyw6wIr4sV+Ig3/aX73JYO3HYKDPCoNE4pAZ9GLI5
-         tKpylyXDwgBwXRgXqUFzYI4qxWRDK5KxtjD5v5o/uXIT1WHzzY0L7gZ3VnfCRj91A5xj
-         6EHdv6z5cP7mF+Auyw8eLeZsb/u3lT31huEHhtjzgap8CP93J9nx4Va0nS9KHf9VoZPI
-         49ftfVYYhid94Ge0pLkxVLzlkU14lOt/jl6JgX67f9AaCkup5xYMdzQ6wahE5SzW3Bvr
-         efTlem4EH28X4w6EM7QBEdVKKcygAh+gDBL1LVxyA2XaeOudwvFobcM3V6MAzbHxWZh8
-         Yz9w==
+        bh=948yzfSK/4Gv9pF12L8Jq7KXkxhyBp7hyAwwZk9Nv30=;
+        b=er7WII08yu8X86P8Py//qKl+p5gp0/lIP6AQbEyOnnpfF6SNQFTulFJLf2qCHvIjEB
+         Nfzd3mQ6ec0wSSlUIeTWBUJZV27tgxKiMjgQSLipPguONTB3pq52MOTmrBjxMJvoYKS6
+         yd7mchQ66XqVt5LrGrViln72DRQRxlZZooplmMa7hHK5OraJX9v6SJA+e5tAbYFIJIgb
+         gwPjHSUI6mpxyyTP4k/KbIasi7maOJhFTN3fCnlhJYQQOze1O3/15kKvcFjaiVsk54Sz
+         +vGZbCGP26Qg1uYDDJ/fbTQK8OvdCTtjj6ZN4DCc2Ey1xFIz5cNCjQ0px+BQZHZ+2MYI
+         svbw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779307328; x=1779912128;
+        d=1e100.net; s=20251104; t=1779307377; x=1779912177;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=I9lXT+AAYxqIeXTzPLbKFJ+jJg4j83nqrnX7Ocf5+iQ=;
-        b=g+hoIn/S/aYqNYvpZ+uOGHZzGk9u1pKPxA8UusIH9nnDS2slJCqp0U+F/WYSg1DGTu
-         2rnOn1lSX7flBVV+J0yDb34hPN5NN3zmz9urEgyacAi5Y/FZzNR5JY4hNvDhTQu0iJzj
-         Uf+wpcGigtdKqqT4QRy4LJwlmdhUln6PCrCO2rK9HZww8BsC5ZatQVev9T/yreZ8XHnF
-         faIU+75t5bf2bUJpTY4x0rmQovzHH69f/i5VYf9sOJLqaT1mIVnVXEdpkyyC0/VVTNaA
-         6pcbbT/u7Dwr7YLbfetZKPdPRt6DG9xkEbi1KZhActLu47oYZSxAJrOZPP3paFlLC0R5
-         rgPw==
-X-Gm-Message-State: AOJu0YyrQMLpoHW52SY1bq2UC1+zpLlierOA8O0kIgLyz8Gb1G35eYIA
-	KRxa567Vr4l5ycpU11N9jgj7Ckq94wexWsH3G7tgO0lIRwiunKJSfm1OFEcFUIE5sCoBOY23dnA
-	x8ZJ5oyCxX0GAAFi7bQpxTtWYacS2EFQ=
-X-Gm-Gg: Acq92OHgrAr1eB7Od0nEA+nzSEnqunAnbCrFn6gW4Dpny9VFzScPQAZz2r7pzoXj3iR
-	HoZKid7ZPibkyafO9kBjiZ33iA/00Mmuyn0C8eyH4GHOrNU2I2Z62PLTudCOWkf+syBfz1VCyzX
-	lHhko//nNWIBWZd99Bw3JKPLtlVmADwmkF/C+vJ6NJHWQ2JLS1MwKxppg7stABH676ATbb4AP0O
-	aY1isLBM3gjcuN6YIy0z2gJDCQGcsu0xFB2moO0TsAyz/LmVRLPVwM4uDms0Aq7MFAxAbZKbkdS
-	uZpO
-X-Received: by 2002:a05:6512:114c:b0:5a3:fd83:13f7 with SMTP id
- 2adb3069b0e04-5aa0e601254mr7801283e87.6.1779307328061; Wed, 20 May 2026
- 13:02:08 -0700 (PDT)
+        bh=948yzfSK/4Gv9pF12L8Jq7KXkxhyBp7hyAwwZk9Nv30=;
+        b=jzVcTRPdhbN3zab1E7laKgpdJIQlBVNOoGL7XtWb/C9eKNf0SmrLLPj4NtHVp1fDE+
+         L9ulzsO8+t7U0V2+5SmxtnEPv+/4XhuYT4n+wT2j8g0yv8VCeKH9nkcUTw0rz+XkCpcG
+         AjihJSX+XgD80Lp2KipheyaQcQ2KBU4zzTQX+yoa3aGWWHZwvJtqPiPF9YFuMIkxNoio
+         AGBKlQVnJXrZ9b2yNB0GfDOKRvG6SumFOEjbVo6aQSegkCYNo0h/NDbrJt0Uz6015VjV
+         unirPZiQ3hRWlK9Oqx9r8R+90xnAMGbWCFKiLjm4rzAf9sCH709m/AAmPtwojEagybWx
+         z5jA==
+X-Gm-Message-State: AOJu0YxzAOIBFZkA/hKJaNatTDwBQwlWmkYyuPeL+q9/vj0A27nye3fj
+	Ns0qp+YNh8jc1qNhiZMd3h6AzFX9jLMrWQdffED9ju+Gg+MTk1wuZeq2vuqSTkaA6UR6Y7K0h+O
+	7d3zgJMRwxwQ7mfv4KP8Qh+o9fVnPVIQ=
+X-Gm-Gg: Acq92OE6NxALd07C7kzFcEOGYJxIbHBEp26i1j69GSJsFysLFvo0+x4CuaR6gFETMjw
+	E+ogNtHFKPLaJAz/Qrdxk61U8TDAM28UzGEelghANFo9in5/MQom3ktzR+lEMwcp6lAPTUm5MfO
+	lNeDhFn9QF9CEJ1pMlcf95W21yUiofgZvHpcGzBkVuKSKTRGrG4R8UCrF/go5biR8s9x+Pijx9r
+	1eAz/KWrqFuy7BQf4Xkaq19hVbsUYesnHwoE6vVbpB6OsuVPLteNMAOb5VZ/y6QFE5wdSR4E2NB
+	b5cM
+X-Received: by 2002:a05:651c:325b:b0:394:987:9450 with SMTP id
+ 38308e7fff4ca-39561daad40mr76843701fa.31.1779307376584; Wed, 20 May 2026
+ 13:02:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260514205631.76858-1-kalevi@kolttonen.fi>
-In-Reply-To: <20260514205631.76858-1-kalevi@kolttonen.fi>
+References: <20260515143410.13166-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260515143410.13166-1-stephen.smalley.work@gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Wed, 20 May 2026 16:01:56 -0400
-X-Gm-Features: AVHnY4Jn0gOqk73_h_28YMmNcvOMRhHZ_tsgnzMN6DSLMAuxC0Dr9c0j2Z4QF3c
-Message-ID: <CAP+JOzRfnG-fS3Ef=-DZf81Y6YvBKfE8uWB9PpC8nu=yDqqd+Q@mail.gmail.com>
-Subject: Re: [PATCH v3] libsemanage: make expand-check a proper boolean option
-To: Kalevi Kolttonen <kalevi@kolttonen.fi>
-Cc: selinux@vger.kernel.org
+Date: Wed, 20 May 2026 16:02:45 -0400
+X-Gm-Features: AVHnY4K_ROE6hI6QvkhUeYsnQTZdKuRjLZw4ctBOlruNGZP5mOUo4TY0Iiolmkg
+Message-ID: <CAP+JOzSX9P3w-Lr4c=P8HkRWihoaMBQ5UboT9Z1FXeO23B-41A@mail.gmail.com>
+Subject: Re: [PATCH] dbus/selinux_server.py: validate policy config value
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
+	paul@paul-moore.com, perfinion@gentoo.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, May 14, 2026 at 4:56=E2=80=AFPM Kalevi Kolttonen <kalevi@kolttonen.=
-fi> wrote:
+On Fri, May 15, 2026 at 10:34=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> Make expand-check configuration option accept values
-> 'true' and 'false' for consistency with the rest of
-> the boolean options. Preserve backwards compatibility
-> with old configuration file settings by still accepting
-> the values "1" and "0". Edit man page to reflect the changes.
+> Perform basic validation of the policy config value; we could
+> further limit it to only existing subdirectories of /etc/selinux.
+> Also, fix up usage of p.communicate() to avoid potential pipe
+> deadlock issues and distinguish error messages.
 >
-> Add missing <stdbool.h> include.
->
-> Signed-off-by: Kalevi Kolttonen <kalevi@kolttonen.fi>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  libsemanage/man/man5/semanage.conf.5 |  2 +-
->  libsemanage/src/conf-parse.y         | 22 +++++++++++++---------
->  libsemanage/src/semanage_conf.h      |  3 ++-
->  3 files changed, 16 insertions(+), 11 deletions(-)
+>  dbus/selinux_server.py | 16 ++++++++--------
+>  1 file changed, 8 insertions(+), 8 deletions(-)
 >
-> diff --git a/libsemanage/man/man5/semanage.conf.5 b/libsemanage/man/man5/=
-semanage.conf.5
-> index b22e65bd..74f0d34f 100644
-> --- a/libsemanage/man/man5/semanage.conf.5
-> +++ b/libsemanage/man/man5/semanage.conf.5
-> @@ -59,7 +59,7 @@ The target platform to generate policies for. Valid val=
-ues are "selinux" and "xe
->  .B expand-check
->  Whether or not to check "neverallow" rules when executing all
->  .BR semanage
-> -command. It can be set to either "0" (disabled) or "1" (enabled) and by =
-default it is enabled. There might be a large
-> +command. It can be set to either "0" / "false" (disabled) or "1" / "true=
-" (enabled) and by default it is enabled. There might be a large
->  penalty in execution time if this option is enabled.
+> diff --git a/dbus/selinux_server.py b/dbus/selinux_server.py
+> index 469c526f..3da2ef30 100644
+> --- a/dbus/selinux_server.py
+> +++ b/dbus/selinux_server.py
+> @@ -6,6 +6,7 @@ from dbus.mainloop.glib import DBusGMainLoop
+>  from gi.repository import GObject
+>  from gi.repository import GLib
+>  import os
+> +import re
+>  import selinux
+>  from subprocess import Popen, PIPE, STDOUT
 >
->  .TP
-> diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
-> index b69ac75b..70691fa5 100644
-> --- a/libsemanage/src/conf-parse.y
-> +++ b/libsemanage/src/conf-parse.y
-> @@ -29,6 +29,7 @@
+> @@ -33,8 +34,7 @@ class selinux_server(dbus.service.Object):
+>          if not self.is_authorized(sender, "org.selinux.semanage"):
+>              raise dbus.exceptions.DBusException("Not authorized")
+>          p =3D Popen(["/usr/sbin/semanage", "import"], stdout=3DPIPE, std=
+err=3DPIPE, stdin=3DPIPE, universal_newlines=3DTrue)
+> -        p.stdin.write(buf)
+> -        output =3D p.communicate()
+> +        output =3D p.communicate(input=3Dbuf)
+>          if p.returncode and p.returncode !=3D 0:
+>              raise dbus.exceptions.DBusException(output[1])
 >
->  #include <errno.h>
->  #include <unistd.h>
-> +#include <stdbool.h>
->  #include <stdio.h>
->  #include <stdlib.h>
->  #include <string.h>
-> @@ -168,15 +169,18 @@ target_platform: TARGET_PLATFORM '=3D' ARG  {
->          ;
+> @@ -48,10 +48,9 @@ class selinux_server(dbus.service.Object):
+>          if not self.is_authorized(sender, "org.selinux.customized"):
+>              raise dbus.exceptions.DBusException("Not authorized")
+>          p =3D Popen(["/usr/sbin/semanage", "export"], stdout=3DPIPE, std=
+err=3DPIPE, universal_newlines=3DTrue)
+> -        buf =3D p.stdout.read()
+> -        output =3D p.communicate()
+> +        buf, err =3D p.communicate()
+>          if p.returncode and p.returncode !=3D 0:
+> -            raise OSError("Failed to read SELinux configuration: %s", ou=
+tput)
+> +            raise OSError("Failed to read SELinux configuration: %s" % e=
+rr)
+>          return buf
 >
->  expand_check:   EXPAND_CHECK '=3D' ARG  {
-> -                        char *endptr;
-> -                        long value;
-> -                        errno =3D 0;
-> -                        value =3D strtol($3, &endptr, 10);
-> -                        if (*endptr !=3D '\0' || errno !=3D 0 || (value =
-!=3D 0 && value !=3D 1))
-> -                                yyerror("expand-check can only be '1' or=
- '0'");
-> -                        else
-> -                                current_conf->expand_check =3D value;
-> -                        free($3);
-> +                       if (strcasecmp($3, "true") =3D=3D 0)
-> +                               current_conf->expand_check =3D true;
-> +                       else if (strcmp($3, "1") =3D=3D 0)
-> +                               current_conf->expand_check =3D true;
-> +                       else if (strcasecmp($3, "false") =3D=3D 0)
-> +                               current_conf->expand_check =3D false;
-> +                       else if (strcmp($3, "0") =3D=3D 0)
-> +                               current_conf->expand_check =3D false;
-> +                       else {
-> +                               yyerror("expand-check can only be 'true',=
- '1', 'false' or '0'");
-> +                       }
-> +                       free($3);
->                  }
->          ;
+>      #
+> @@ -63,10 +62,9 @@ class selinux_server(dbus.service.Object):
+>          if not self.is_authorized(sender, "org.selinux.semodule_list"):
+>              raise dbus.exceptions.DBusException("Not authorized")
+>          p =3D Popen(["/usr/sbin/semodule", "--list=3Dfull"], stdout=3DPI=
+PE, stderr=3DPIPE, universal_newlines=3DTrue)
+> -        buf =3D p.stdout.read()
+> -        output =3D p.communicate()
+> +        buf, err =3D p.communicate()
+>          if p.returncode and p.returncode !=3D 0:
+> -            raise OSError("Failed to list SELinux modules: %s", output)
+> +            raise OSError("Failed to list SELinux modules: %s" % err)
+>          return buf
 >
-> diff --git a/libsemanage/src/semanage_conf.h b/libsemanage/src/semanage_c=
-onf.h
-> index 2388faad..f9e330b7 100644
-> --- a/libsemanage/src/semanage_conf.h
-> +++ b/libsemanage/src/semanage_conf.h
-> @@ -21,6 +21,7 @@
->  #define SEMANAGE_CONF_H
->
->  #include <semanage/handle.h>
-> +#include <stdbool.h>
->  #include <sys/types.h>
->  #include <sys/stat.h>
->
-> @@ -36,7 +37,7 @@ typedef struct semanage_conf {
->         int server_port;
->         int policyvers;         /* version for server generated policies =
-*/
->         int target_platform;
-> -       int expand_check;
-> +       bool expand_check;
->         int save_previous;
->         int save_linked;
->         int disable_genhomedircon;
+>      #
+> @@ -140,6 +138,8 @@ class selinux_server(dbus.service.Object):
+>      def change_default_policy(self, value, sender):
+>          if not self.is_authorized(sender, "org.selinux.change_default_po=
+licy"):
+>              raise dbus.exceptions.DBusException("Not authorized")
+> +        if not re.fullmatch(r'[A-Za-z0-9_.]+', str(value)):
+> +            raise ValueError("Invalid policy name: %s" % value)
+>          path =3D selinux.selinux_path() + value
+>          if os.path.isdir(path):
+>              return self.write_selinux_config(policy=3Dvalue)
 > --
 > 2.54.0
->
 >
