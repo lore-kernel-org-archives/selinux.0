@@ -1,139 +1,383 @@
-Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
+Received: from mail-lj1-f178.google.com (mail-lj1-f178.google.com [209.85.208.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 772B136A376
-	for <selinux@vger.kernel.org>; Wed, 20 May 2026 17:22:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 110ED32B116
+	for <selinux@vger.kernel.org>; Wed, 20 May 2026 20:01:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.178
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779297740; cv=pass; b=IvXIcT5GUyL6ynKv9cWU2CUTFckldUBj8UV7q+q5R10Ody+Rpw+IWrnDw3HedlbwFnR36EgZZD2Gk3GOBp/KzyQbWfzjJsv/l2fOOp9ISp1mdYnR4kkq59ZvQSsbNvAwV7Wyo8YZTDLXiqRrmuEFovMiiVRm1DxJQ7TRdUXpGPY=
+	t=1779307310; cv=pass; b=WceZ0BLS4R6IfrMWGgQAqpKTjVWQmUeCbNzpEyWYfZcN9r/Klr/0NikK6T7w98dk8qS2ybGctDgir3/9kLuYN65PlCLM2eOv0rBVf/qNIb748h9Gzv4NkH4qv+SGKlquqGa825krvNz6c7JUNsehL4oF0+NuTblUIrSN5d3kywM=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779297740; c=relaxed/simple;
-	bh=C43nW7okAgy6kOJVfY7Y/iTaiAUxLfdPJ5NCEKkegio=;
+	s=arc-20240116; t=1779307310; c=relaxed/simple;
+	bh=CFBXOGih10F4Xw7qeaVW8q97Sba5zM5jBvki4R454V0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=keY4BiaqJ0IrZXXcGYSgS1bj6IxyFowSh8KtuckziYDAcDOOcKad6psjrv8b8DVMckrZKM8sZaPzF0b4TQszNQ0GPujMoIoz9fMKanz7wZpJAATIn46Bue/jCbV1TvVyJrn6ISUjMUfRhHa6aUxV8T0WuQnpKwTU5uZpS51QJog=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EKjtafOD; arc=pass smtp.client-ip=209.85.210.178
+	 To:Cc:Content-Type; b=TJ8V8t0wGzs21nq/xV4PvZqioY9Q8dE79tLVJpg8SKvV6EIoBu/D1O06PRcgiERMqY5vbVzkjJJPTHUKD8m/aUbiIJOwwcrPW1IX/D+Q1YDojAqziMkH99zoXYUaRLtLtNhzy5siAfHvJc96979OyOoV3MuZln3Uit0eB7Wwaz8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AJ3Nk2BH; arc=pass smtp.client-ip=209.85.208.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EKjtafOD"
-Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-82faf871346so4044298b3a.0
-        for <selinux@vger.kernel.org>; Wed, 20 May 2026 10:22:19 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779297739; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AJ3Nk2BH"
+Received: by mail-lj1-f178.google.com with SMTP id 38308e7fff4ca-38e8292423fso37654421fa.0
+        for <selinux@vger.kernel.org>; Wed, 20 May 2026 13:01:47 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1779307306; cv=none;
         d=google.com; s=arc-20240605;
-        b=Sxcnr5qDIfYw4iHWRU+pw8RhXB9EaGT06yZatBQMeKdXMrX3ZKzwsPypJnWA3SrEyf
-         +ZArHW5DT5IQIvyMgDFiqOQSUITOT6+uh7L5+95qzKBDhYXFKzdCf/ok+5RE8hQWA0rB
-         BEP1a67sdtfNGxsk1hTzjI14BTuCf4D56ZLD4FESGZ5tBR8bcpDNQOJ95jgC8EyXald5
-         H/ZNyyj4G6UVuV3/3ngGTGY+CDxEJgoR+lgUByMmK3KhrPJVftC75SDKh25akkO69RxP
-         goQIwo13i/54qfQVhIeoyhsBz3i18kZey31/O9oZ0jL0Lo4d3ZOIjCDOxLxh77bTG0ba
-         FAvg==
+        b=dz+H2mq17d4wAuY2YRIDxg/tV6LLqC+IbdZNvdsMas3Ao4I5h/tWlILduHh59Vj2WI
+         C/207Ss9wmu7awmYxPBWrEdgXcIUyx1afdAvbE/MbKFAMxPSjE88ZlHlwaxWFh9lrmzL
+         kg4ETqAG154/lzMmaHBohFure4Pmz00LZvQZgnYZ3ldOpU6vuqZ92XxIIC8ZASTbBTUD
+         aqNFc4HwbkUXpkH2ubYGT+qLQ+tvoFgCkaV1JNfB1Xj5yqYzlwknJaIU5SDGmamD3Irl
+         ZxZ3BBP8P+PYA1VGJn2INT0PFoPcqwdRQPImw8CGebN6vmOvCUQTrh2GJvyFRJ0tu0zT
+         PqbQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=Sw5MQOJzVFYQ+Ka2DQZ8dp+HxM2y5uQi5qKmmTEnI6Y=;
-        fh=zsSbkEwSh7brMl8sL/6IC3gI3Z2cNOEbDrjKJ7MfXIU=;
-        b=geTwJnPcAlLpxYMM/IAr8R50Cw9cWSPIp6sTUd0HyEHYyRAnztkiCKpI+WRILl7ZWL
-         soHQK4KN37EaClkHzVLVzJl35bmvmJdUuC+NwdW2xqHJqjan9TKvFq8I2EXTLzvB5/1m
-         GyAlqhm+ziQ2HI7z6IpiXVvjr9o4B3VjWwZTVKFxswamYOrj+7ncVc2TRD3zR8l/w6Fj
-         D4pGuVHlMTFUHKjw66SrxC80xhT3tu/hi7XWol9a08PUWMpwDiqD5ueYCJhtFGjyeFX/
-         EZnibzAWgVUUjOqOr12l79dZE359RRuXlh0LuivXawlSq7ruTJq0hl0Rg/BEFC3U7emv
-         cpxw==;
+        bh=uuyI+wAhAKOKygy/ShdfbypQwUN2UVDInt3qxqNjOa8=;
+        fh=RcJrr7O3svp8K5gZfgCjK7Xv0tA8i0VIpUekoWsmIc8=;
+        b=QewjrtPA8uoIPYSILFGASmhqGwWdPCoXCJs6Jxon7eFLLUqPQnRa7aWEciZLyi41mi
+         uri1WvW9BJGfbd5QPCZd9KuxHB/pf2SHeTJO2qsWu6lhRUgtZcUSubGIBkJ1oMSCi8GG
+         rAz/GajR3DVyPSBL1tMl64eJyKWHPM6T0gpcJbRQpr6YbPKIh4gG0zbFLu/1FP1HFOoc
+         7SJDXagQ1LiIWrAwxhnaJVq8v2UT+ngvUDnUiYk2up8CWCHhL+6Q0GsuGslKknWEx+d4
+         vsWhTi/ihPma9Z7A7FZnny59CjOFcPHztvBlgcC/SSi23aGc9mQqGShzGgpfvv5MIbj9
+         WFJg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779297739; x=1779902539; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1779307306; x=1779912106; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Sw5MQOJzVFYQ+Ka2DQZ8dp+HxM2y5uQi5qKmmTEnI6Y=;
-        b=EKjtafODmfIg5zkgzdvmHnUNdCxZxoy/r+46hJJNfTto402gUX5ssOyurhZ0NTipnk
-         Zn8llnIf0KqdiVnn2mQ7PN1NIKSFdkPiGxfGhUFhxej5Zq7tpbdAyzo147fy5P3ORzzK
-         UanGSXzmdoJUM8sZ5A1nDfWhqAg9GaKLzZ9TT8IwemEcCAIBvHCuv7Hgdl+dkV8ZG8eK
-         020MKTn+cUCJyFCyohx25dLyAG8JaJqkBCv7SLlHZ4KKB5+gxuCDunyz8aY9vu92yaqF
-         k7EbmCM6MUV3cjNDTuI9HMi9/dXKQ/XR6v7ZSSL8x3eIrQ7St2E6H8K05YnSAq4Navgf
-         +EVA==
+        bh=uuyI+wAhAKOKygy/ShdfbypQwUN2UVDInt3qxqNjOa8=;
+        b=AJ3Nk2BHblU1xQW+bXLaFaQu/HYjalJ4b7UITYb1/Q47bVZ2WAONr8gRE64hzWzNxm
+         8vbyCy1bCL7BCDWrMHERo639vBx7c3H9yuLrJzUA5DlU4Go9knUfvo5MQkYtOufbt67d
+         KJEogIa441/rpYhLWq3Xyt74TXZrA7yVMqP6PqS1zRlst463V3ALIMK9pjR+T/J63B3o
+         WpITHyhjnDG4mCXT7RD9RPgv27/bh9NEV9IyKNY8rVDKSUNz+zLzOG7gI9JJTeCRCQS6
+         /bpP29nSRLZg1oMBoliB0n3FM4x1owCiF06yr5NtV6L9azAJua/Y5TuJ3w0lWXoce9dB
+         uRYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779297739; x=1779902539;
+        d=1e100.net; s=20251104; t=1779307306; x=1779912106;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=Sw5MQOJzVFYQ+Ka2DQZ8dp+HxM2y5uQi5qKmmTEnI6Y=;
-        b=WCgG03X68dnU1PG1Eqh7qdXpxw+2AgD9WO+3V3B1YmuvmZYc/K15bS58Se5zJdHYCR
-         KNA8AeTQiYj8KpqzJD06wdcfombAeecZqhMbQev/7YIJsXbUFnrBE4u70KpBHDPqSZ5G
-         CpuZtXld96M/1DlXl2teCbVUQYR+HXvJkFGs5ORaxudY+ASIIgEuaccy34b1sh7e3qcJ
-         4ueu3aDd8wTOXJ0DS8RD911KrowjuZ+S0bqQXyTcVomeCIRBkIKtS0Sd6mlrhRga5quo
-         a2hwihQWmXVRt9X4fBFOm0cxEPjADm2oUMwWqhp4uuOfgG7ClvsjD/cd6Golzsd4l25i
-         HWzA==
-X-Forwarded-Encrypted: i=1; AFNElJ9+LZyIWrXjSDIx6HYwc/86aewAhcUYQeafs9hlgFtHiTZidSGaJujFOeU0EsOz7TKFrPQ3snNX@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx5fNhxoEp0ruI5swk65MXt/bPhHcWsWI06BsYApS0B+lit0X6A
-	quZx5vmOcLzDH8HRTT1ta8UVyhwl2iCFNTwRzDXxENrEk9Ze4jvR4rDyJTG4NQ+5DGDxRVWDgIt
-	lr2Rc/G1WgBuCgDpL+6xsHB+cE0ydlpK/SQ==
-X-Gm-Gg: Acq92OGtMFEt0vI117tJXPoVkiZpFqfw59OTiGgDLsvlSzm/xY8ntS+qtyvk2vbB2Aw
-	2cxXAAx4dtl0wr/RSs5lrZT7G5sYGVInudoll6SiXtLrHWyXk+jSWFg7gEipr51b4Yyqbo0K67N
-	Qix3tbCYI86hpq4E4s5sE1DF6XBYZcKq1MzUX2QAN91i7V3Yn/v+Svf+yfDyxNYegI4yf9065uh
-	Vq30rWahdGi6Myso7oWUYsoj6Ox8sSPladUJ6bLB1BvGpZYw8pMNKzRcI+2y+HV3QA0Kn+3z+Et
-	6tyzFSfp97ztnGKaaRf8bySn64BR
-X-Received: by 2002:a05:6a00:240e:b0:83e:d996:92fa with SMTP id
- d2e1a72fcca58-83f33b2d29bmr25685745b3a.11.1779297738607; Wed, 20 May 2026
- 10:22:18 -0700 (PDT)
+        bh=uuyI+wAhAKOKygy/ShdfbypQwUN2UVDInt3qxqNjOa8=;
+        b=NgEt1sXYvnS+z5sKxhIAqzn5qaaC1zmJ+dyRkf/SpVw3X9KCLWV0/dVRmud2oM6mmZ
+         mkuF48Q387JgstsfsdzQZPk2zdX4Dp7PdsJWPxVdmXsWE+9MTrPjm3uLFS93L8rvQ62n
+         qaHZ24ySLOSsEL36godYDB2PM15X5txkzZmRSU7zidSAp2V9zIxsYGr+0m+MxStbbIuo
+         3FGgpEw9JgA3fgmFEDHPVHSX02knpjG4GI7e9tf2o3AFIure0/BU3EBuks6O87x+vf+G
+         NjlWftzy5AMaUVlIXARrnWazOGCGATdesQj9aGNAUYHOfxWtSmzHvC3hyv7vCSaZp5Ng
+         pRtQ==
+X-Gm-Message-State: AOJu0YyatsbFeKMdMiSKk/CczRVqZYccMseHkxVpjaGLqFwymtqHqYeR
+	vYPzxrdunLTwjaExk5YCekUlLInZxOjixqbYQly5oo4djUsezF+uo32XhhdK7smqFSjf4B0QJZf
+	Tdhg3ECliiFfxbh76dTpDB6sV9xCqPyQnVYnh
+X-Gm-Gg: Acq92OFNW99k76whjOLZ0bB+Jdr85/fq9Kcd4le0nD5N0j7KthZTeRTpg8qC0L2RQRQ
+	h8Gv9B5dcxYRWoEZwU/hH1trLikrjjbwJVZNixwe3+1ghSG0QYAdVy1VFQnlZaSUAkWK8LBLpFw
+	KjTGFLhPnLFZuVGi8BrzjHxD9dZZVsF9LRuzbITStAPB//hXDn6vtVctvYK40tMPPedtAaleqCS
+	MOJ5wCql+fDDgwWl7FfGBEj1KQWOwRAUmfMcOclVCPhV7Q0sDbQ10l2fWiv6fe5N36wtlnduUu3
+	k6XQ
+X-Received: by 2002:a2e:8a98:0:b0:393:d706:7bc with SMTP id
+ 38308e7fff4ca-3956193091cmr79016101fa.0.1779307305954; Wed, 20 May 2026
+ 13:01:45 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260507161633.15947-2-stephen.smalley.work@gmail.com>
- <CAEjxPJ7ynbRQ0OAwFUj7RGH17WBpC9Ekwhkadu=wfq13XjAicw@mail.gmail.com>
- <19e462c5110.2843.85c95baa4474aabc7814e68940a78392@paul-moore.com> <CAJ2a_DfJZzZUe7XoYM27gQSPgBsEnXkCL=GX70Nvys6XN7776A@mail.gmail.com>
-In-Reply-To: <CAJ2a_DfJZzZUe7XoYM27gQSPgBsEnXkCL=GX70Nvys6XN7776A@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 20 May 2026 13:22:06 -0400
-X-Gm-Features: AVHnY4KwmaY0WcxcDfbFha8y9jYBSdvcHALJRuh1B5RDLAuc8J1_psGoj6C7_Gs
-Message-ID: <CAEjxPJ5ebd1jhQw6bh84qTc3fNOsmC+HFU_74KATJ4mwdRyaSA@mail.gmail.com>
-Subject: Re: [PATCH v3] selinux: tighten type validation during policy load
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org, omosnace@redhat.com
+References: <20260514204236.96433-1-kalevi@kolttonen.fi>
+In-Reply-To: <20260514204236.96433-1-kalevi@kolttonen.fi>
+From: James Carter <jwcart2@gmail.com>
+Date: Wed, 20 May 2026 16:01:33 -0400
+X-Gm-Features: AVHnY4KVqX6elWFB9hQt0YH00izwnjBsSNw5QS9b9sMKo93pCMiDp0rUNVO5Y4g
+Message-ID: <CAP+JOzQnUGH=8uB9ktzjGOOMh=m-do0zWHhpv3Vu=auhFvCnCA@mail.gmail.com>
+Subject: Re: [PATCH v3] libsemanage: use 'bool' for boolean options
+To: Kalevi Kolttonen <kalevi@kolttonen.fi>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 20, 2026 at 1:12=E2=80=AFPM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On Thu, May 14, 2026 at 4:42=E2=80=AFPM Kalevi Kolttonen <kalevi@kolttonen.=
+fi> wrote:
 >
-> On Wed, 20 May 2026 at 19:02, Paul Moore <paul@paul-moore.com> wrote:
-> >
-> >
-> >
-> > On May 20, 2026 11:45:57 AM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> >
-> > > On Thu, May 7, 2026 at 12:18=E2=80=AFPM Stephen Smalley
-> > > <stephen.smalley.work@gmail.com> wrote:
-> > >>
-> > >> Tighten type validation during policy load to improve robustness in
-> > >> the face of ill-formed policies.
-> > >>
-> > >> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > >
-> > > Ping.
-> >
-> > Pong.
-> >
-> > Just a reminder that there are free things I dislike more than "ping"
-> > nudges. If your patch hit the lore archive and is visible in patchwork,
-> > it's on my list; if I haven't acted upon it yet it is simply because I'=
-ve
-> > been busy with other higher priority things.  Nudging patches like this
-> > simply steals and wastes time that could be better spent elsewhere.
-> >
-> > There were a few of Christian's patches that weren't merged due to feed=
-back
-> > and other concerns, but I need to go back and see if it is preferable t=
-o
-> > fixup and merge those before looking at other patches.  Maybe this is g=
-ood
-> > regardless, we'll see.
+> Use 'bool' for boolean options. Check strdup() failures.
+> Add explicit 'conf->disable_genhomedircon =3D false' default
+> initialization.
 >
-> I'll try to address the comments and rebase *soon*. (Haven't found the ti=
-me yet)
+> Add missing <stdbool.h> include.
+>
+> Signed-off-by: Kalevi Kolttonen <kalevi@kolttonen.fi>
 
-Likely helpful if you can clarify whether your patches add equivalent
-validation; if so, I didn't see it.
+Acked-by: James Carter <jwcart2@gmail.com>
+
+> ---
+>  libsemanage/src/conf-parse.y    | 68 ++++++++++++++++++---------------
+>  libsemanage/src/direct_api.c    |  2 +-
+>  libsemanage/src/handle.c        |  2 +-
+>  libsemanage/src/semanage_conf.h | 21 +++++-----
+>  4 files changed, 51 insertions(+), 42 deletions(-)
+>
+> diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
+> index b69ac75b..0f10546e 100644
+> --- a/libsemanage/src/conf-parse.y
+> +++ b/libsemanage/src/conf-parse.y
+> @@ -29,6 +29,7 @@
+>
+>  #include <errno.h>
+>  #include <unistd.h>
+> +#include <stdbool.h>
+>  #include <stdio.h>
+>  #include <stdlib.h>
+>  #include <string.h>
+> @@ -132,9 +133,9 @@ compiler_dir:       COMPILER_DIR '=3D' ARG  {
+>
+>  ignore_module_cache:   IGNORE_MODULE_CACHE '=3D' ARG  {
+>                                                         if (strcasecmp($3=
+, "true") =3D=3D 0)
+> -                                                               current_c=
+onf->ignore_module_cache =3D 1;
+> +                                                               current_c=
+onf->ignore_module_cache =3D true;
+>                                                         else if (strcasec=
+mp($3, "false") =3D=3D 0)
+> -                                                               current_c=
+onf->ignore_module_cache =3D 0;
+> +                                                               current_c=
+onf->ignore_module_cache =3D false;
+>                                                         else {
+>                                                                 yyerror("=
+disable-caching can only be 'true' or 'false'");
+>                                                         }
+> @@ -195,9 +196,9 @@ file_mode:   FILE_MODE '=3D' ARG  {
+>
+>  save_previous:    SAVE_PREVIOUS '=3D' ARG {
+>                         if (strcasecmp($3, "true") =3D=3D 0)
+> -                               current_conf->save_previous =3D 1;
+> +                               current_conf->save_previous =3D true;
+>                         else if (strcasecmp($3, "false") =3D=3D 0)
+> -                               current_conf->save_previous =3D 0;
+> +                               current_conf->save_previous =3D false;
+>                         else {
+>                                 yyerror("save-previous can only be 'true'=
+ or 'false'");
+>                         }
+> @@ -208,9 +209,9 @@ save_previous:    SAVE_PREVIOUS '=3D' ARG {
+>
+>  save_linked:    SAVE_LINKED '=3D' ARG {
+>                         if (strcasecmp($3, "true") =3D=3D 0)
+> -                               current_conf->save_linked =3D 1;
+> +                               current_conf->save_linked =3D true;
+>                         else if (strcasecmp($3, "false") =3D=3D 0)
+> -                               current_conf->save_linked =3D 0;
+> +                               current_conf->save_linked =3D false;
+>                         else {
+>                                 yyerror("save-linked can only be 'true' o=
+r 'false'");
+>                         }
+> @@ -220,9 +221,9 @@ save_linked:    SAVE_LINKED '=3D' ARG {
+>
+>  disable_genhomedircon: DISABLE_GENHOMEDIRCON '=3D' ARG {
+>         if (strcasecmp($3, "false") =3D=3D 0) {
+> -               current_conf->disable_genhomedircon =3D 0;
+> +               current_conf->disable_genhomedircon =3D false;
+>         } else if (strcasecmp($3, "true") =3D=3D 0) {
+> -               current_conf->disable_genhomedircon =3D 1;
+> +               current_conf->disable_genhomedircon =3D true;
+>         } else {
+>                 yyerror("disable-genhomedircon can only be 'true' or 'fal=
+se'");
+>         }
+> @@ -231,9 +232,9 @@ disable_genhomedircon: DISABLE_GENHOMEDIRCON '=3D' AR=
+G {
+>
+>  usepasswd: USEPASSWD '=3D' ARG {
+>         if (strcasecmp($3, "false") =3D=3D 0) {
+> -               current_conf->usepasswd =3D 0;
+> +               current_conf->usepasswd =3D false;
+>         } else if (strcasecmp($3, "true") =3D=3D 0) {
+> -               current_conf->usepasswd =3D 1;
+> +               current_conf->usepasswd =3D true;
+>         } else {
+>                 yyerror("usepasswd can only be 'true' or 'false'");
+>         }
+> @@ -272,9 +273,9 @@ bzip_blocksize:  BZIP_BLOCKSIZE '=3D' ARG {
+>
+>  bzip_small:  BZIP_SMALL '=3D' ARG {
+>         if (strcasecmp($3, "false") =3D=3D 0) {
+> -               current_conf->bzip_small =3D 0;
+> +               current_conf->bzip_small =3D false;
+>         } else if (strcasecmp($3, "true") =3D=3D 0) {
+> -               current_conf->bzip_small =3D 1;
+> +               current_conf->bzip_small =3D true;
+>         } else {
+>                 yyerror("bzip-small can only be 'true' or 'false'");
+>         }
+> @@ -283,9 +284,9 @@ bzip_small:  BZIP_SMALL '=3D' ARG {
+>
+>  remove_hll:  REMOVE_HLL'=3D' ARG {
+>         if (strcasecmp($3, "false") =3D=3D 0) {
+> -               current_conf->remove_hll =3D 0;
+> +               current_conf->remove_hll =3D false;
+>         } else if (strcasecmp($3, "true") =3D=3D 0) {
+> -               current_conf->remove_hll =3D 1;
+> +               current_conf->remove_hll =3D true;
+>         } else {
+>                 yyerror("remove-hll can only be 'true' or 'false'");
+>         }
+> @@ -294,9 +295,9 @@ remove_hll:  REMOVE_HLL'=3D' ARG {
+>
+>  relabel_store:  RELABEL_STORE'=3D' ARG {
+>         if (strcasecmp($3, "false") =3D=3D 0) {
+> -               current_conf->relabel_store =3D 0;
+> +               current_conf->relabel_store =3D false;
+>         } else if (strcasecmp($3, "true") =3D=3D 0) {
+> -               current_conf->relabel_store =3D 1;
+> +               current_conf->relabel_store =3D true;
+>         } else {
+>                 yyerror("relabel_store can only be 'true' or 'false'");
+>         }
+> @@ -305,9 +306,9 @@ relabel_store:  RELABEL_STORE'=3D' ARG {
+>
+>  optimize_policy:  OPTIMIZE_POLICY '=3D' ARG {
+>         if (strcasecmp($3, "false") =3D=3D 0) {
+> -               current_conf->optimize_policy =3D 0;
+> +               current_conf->optimize_policy =3D false;
+>         } else if (strcasecmp($3, "true") =3D=3D 0) {
+> -               current_conf->optimize_policy =3D 1;
+> +               current_conf->optimize_policy =3D true;
+>         } else {
+>                 yyerror("optimize-policy can only be 'true' or 'false'");
+>         }
+> @@ -316,9 +317,9 @@ optimize_policy:  OPTIMIZE_POLICY '=3D' ARG {
+>
+>  multiple_decls:  MULTIPLE_DECLS '=3D' ARG {
+>         if (strcasecmp($3, "false") =3D=3D 0) {
+> -               current_conf->multiple_decls =3D 0;
+> +               current_conf->multiple_decls =3D false;
+>         } else if (strcasecmp($3, "true") =3D=3D 0) {
+> -               current_conf->multiple_decls =3D 1;
+> +               current_conf->multiple_decls =3D true;
+>         } else {
+>                 yyerror("multiple-decls can only be 'true' or 'false'");
+>         }
+> @@ -398,26 +399,33 @@ static int semanage_conf_init(semanage_conf_t * con=
+f)
+>         const char *policy_root =3D selinux_policy_root();
+>         if (policy_root !=3D NULL) {
+>                 conf->store_path =3D strdup(semanage_basename(policy_root=
+));
+> +               if (!conf->store_path)
+> +                       return -1;
+>         }
+>         conf->ignoredirs =3D NULL;
+>         conf->store_root_path =3D strdup("/var/lib/selinux");
+> +       if (!conf->store_root_path)
+> +               return -1;
+>         conf->compiler_directory_path =3D strdup("/usr/libexec/selinux/hl=
+l");
+> +       if (!conf->compiler_directory_path)
+> +               return -1;
+>         conf->policyvers =3D sepol_policy_kern_vers_max();
+>         conf->target_platform =3D SEPOL_TARGET_SELINUX;
+>         conf->expand_check =3D 1;
+>         conf->handle_unknown =3D -1;
+> -       conf->usepasswd =3D 1;
+> +       conf->usepasswd =3D true;
+>         conf->file_mode =3D 0644;
+>         conf->bzip_blocksize =3D 9;
+> -       conf->bzip_small =3D 0;
+> -       conf->ignore_module_cache =3D 0;
+> -       conf->remove_hll =3D 0;
+> -       conf->relabel_store =3D 1;
+> -       conf->optimize_policy =3D 1;
+> -       conf->multiple_decls =3D 1;
+> -
+> -       conf->save_previous =3D 0;
+> -       conf->save_linked =3D 0;
+> +       conf->bzip_small =3D false;
+> +       conf->ignore_module_cache =3D false;
+> +       conf->remove_hll =3D false;
+> +       conf->relabel_store =3D true;
+> +       conf->optimize_policy =3D true;
+> +       conf->multiple_decls =3D true;
+> +
+> +       conf->save_previous =3D false;
+> +       conf->save_linked =3D false;
+> +       conf->disable_genhomedircon =3D false;
+>
+>         if (!conf->store_path ||
+>             !conf->store_root_path ||
+> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+> index 8f909a3b..9593bf69 100644
+> --- a/libsemanage/src/direct_api.c
+> +++ b/libsemanage/src/direct_api.c
+> @@ -992,7 +992,7 @@ static int semanage_compile_module(semanage_handle_t =
+*sh,
+>                 goto cleanup;
+>         }
+>
+> -       if (sh->conf->remove_hll =3D=3D 1) {
+> +       if (sh->conf->remove_hll) {
+>                 status =3D unlink(hll_path);
+>                 if (status !=3D 0) {
+>                         ERR(sh, "Error while removing HLL file %s.", hll_=
+path);
+> diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
+> index ca57702a..2b3f1e61 100644
+> --- a/libsemanage/src/handle.c
+> +++ b/libsemanage/src/handle.c
+> @@ -231,7 +231,7 @@ void semanage_set_ignore_module_cache(semanage_handle=
+_t *sh,
+>                                     int ignore_module_cache)
+>  {
+>         assert(sh !=3D NULL);
+> -       sh->conf->ignore_module_cache =3D ignore_module_cache;
+> +       sh->conf->ignore_module_cache =3D !!ignore_module_cache;
+>  }
+>
+>  void semanage_set_check_contexts(semanage_handle_t * sh, int do_check_co=
+ntexts)
+> diff --git a/libsemanage/src/semanage_conf.h b/libsemanage/src/semanage_c=
+onf.h
+> index 2388faad..4df9b195 100644
+> --- a/libsemanage/src/semanage_conf.h
+> +++ b/libsemanage/src/semanage_conf.h
+> @@ -21,6 +21,7 @@
+>  #define SEMANAGE_CONF_H
+>
+>  #include <semanage/handle.h>
+> +#include <stdbool.h>
+>  #include <sys/types.h>
+>  #include <sys/stat.h>
+>
+> @@ -37,19 +38,19 @@ typedef struct semanage_conf {
+>         int policyvers;         /* version for server generated policies =
+*/
+>         int target_platform;
+>         int expand_check;
+> -       int save_previous;
+> -       int save_linked;
+> -       int disable_genhomedircon;
+> -       int usepasswd;
+> +       bool save_previous;
+> +       bool save_linked;
+> +       bool disable_genhomedircon;
+> +       bool usepasswd;
+>         int handle_unknown;
+>         mode_t file_mode;
+>         int bzip_blocksize;
+> -       int bzip_small;
+> -       int remove_hll;
+> -       int ignore_module_cache;
+> -       int optimize_policy;
+> -       int multiple_decls;
+> -       int relabel_store;
+> +       bool bzip_small;
+> +       bool remove_hll;
+> +       bool ignore_module_cache;
+> +       bool optimize_policy;
+> +       bool multiple_decls;
+> +       bool relabel_store;
+>         char *ignoredirs;       /* ";" separated of list for genhomedirco=
+n to ignore */
+>         struct external_prog *load_policy;
+>         struct external_prog *setfiles;
+> --
+> 2.54.0
+>
+>
