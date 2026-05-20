@@ -1,224 +1,155 @@
-Received: from mail-lj1-f169.google.com (mail-lj1-f169.google.com [209.85.208.169])
+Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 681BD3D9DBC
-	for <selinux@vger.kernel.org>; Wed, 20 May 2026 15:33:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99AF354768
+	for <selinux@vger.kernel.org>; Wed, 20 May 2026 15:34:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.176
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779291195; cv=pass; b=n26DISIz8VUcsjiNsjYYNyzGirkmvrk7pCJfTzkd0FimZUjebM98JiBsH1a2fcsXKGk10ZuLaL+x5b6wC9ZbiP6FdvdzvfBKHYtEoUXzadz5OBTv1ayzQ276XRV7qbGhJAargYrfWpsEKmzDS9zeSD3Drsh7VDmUDdfATwkATFw=
+	t=1779291244; cv=pass; b=ZEhR9S1GhsZtFG39jTeAYTJ3XNSk3rq1MF6R+B9YSj4sTmqkfotTQfWRJJILqARyS6vEfftojsbc3Vj1NHUAwUROFejE2mSNPoNyheKVUnFYjCoQmhr7U41sy60PA3gdD2M4x4rrr0QeKMek4oEHsTIdu8Ve9aqAPEK/4OAT2OA=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779291195; c=relaxed/simple;
-	bh=UNESf5caJ3hdYQEnLqGr0fCahBKVDoB0PEhNzXkGepU=;
+	s=arc-20240116; t=1779291244; c=relaxed/simple;
+	bh=hr7OTb6hP7aFexWfcr57vDsGevhw9bKqGxqAIUo+860=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YsfiL2yLWy3ZegTr10dhxXA/+slm7qrJymOTtXf0k9ySv0r4sOM7lxa+V1+4OaglB6yM7cNK5C44854fXaaR3KT7li+GgRlFj7mzcpy+b2iVHNxO0d5WIgS+tcFoCbp/yA2x1RZomW78CG0XIx5MyySnrb0q8L6ecv9KOHvbjm0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XW4xS8En; arc=pass smtp.client-ip=209.85.208.169
+	 To:Cc:Content-Type; b=UxuDdtMi8p/5XvHThYtsCsBj8grnCMyCzJTHFbJoccdYHKXIrf03MQvGdb+vZmyGfcnjMgG6tFa1jeqesdAl8yfR+22WMs4VtcTrbLzhpCFDISKJujLsiIskEpbaPK+9IKBrPIGYcJ3oUkOOCj8CMQsBqyIdAEjqHhPCk/XGYAo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QHDWwRSI; arc=pass smtp.client-ip=209.85.208.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XW4xS8En"
-Received: by mail-lj1-f169.google.com with SMTP id 38308e7fff4ca-38e97e73234so45445581fa.1
-        for <selinux@vger.kernel.org>; Wed, 20 May 2026 08:33:14 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779291193; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QHDWwRSI"
+Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-38e84ed22bdso60801301fa.2
+        for <selinux@vger.kernel.org>; Wed, 20 May 2026 08:34:03 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1779291242; cv=none;
         d=google.com; s=arc-20240605;
-        b=N2gLBf0Vw4zNxJnCSppJebPXzGJG/3OapqvzKZGbdANNR9XhQWYFHQ5Zh3bCSIDHBh
-         rEBwBnsnNshpndf9ikGxvsVNUwllx2tE+G078Q3DjzWh/c4uOmRulaPFsEMt8WVbVBmO
-         EQOSAdI0Yj47Y8WRrTYP5mmJv2Zr5lwxdlVPKX/8aF4gE528qnC5VK5tT1vPADai01s9
-         SGO2x6iTmC6rOup+aYKYmbsoirztZZCQ9LMpfKpwXFw2Vc47TQn3Bt5a4cjfYzRJ9Ouk
-         z5YexUk25Y/njLpjfrpxV6VHZOwcvFeV9UbbCnKqJnd0T3yTQwujyzMfI7oLAxtNiK0X
-         exLQ==
+        b=bB5S16mDJe4f5z3VhOd5W3NjNHHbmwawTUmhxhuTfrYOWTaFz2v+8shRbasd/G8jIq
+         fEAI4BgbWXdoUZ1AKm3n4UTjsSB3C//B7mRsefVSOxarJEHcoIdu21L3FaXMuZyqbdom
+         rvS+QxqSkgb5LCsKjZ4yJO983c4exMWPr0M0c2QWH7Nv/8BFPj/Y+JOch3+hFesV+TYw
+         XtYB8IG/Mc1Y8PUGDgqdZ3OCAk803th/fxkQzEehoHZzfreMzXRjOnf27XLNmaUtw/5R
+         TxvRjvZwttZrTWSpFapBBPnNSzGmPgsDchn9t1m1f9chlEREPPLCk30cxLtth/DHBB8c
+         qx+A==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=loPedkJWW5NsxZasmabpsVrzcNqsX8cLULapJHT/QGI=;
+        bh=/rUulWFfqu17EQ8RGVRHU+T/YX9oMZS9CjWRrzRNb+M=;
         fh=RcJrr7O3svp8K5gZfgCjK7Xv0tA8i0VIpUekoWsmIc8=;
-        b=ItMyEwX4b7QtuOU3L+DmPe3Bpf0PdwOa//0h5OC1hDbotFR33l4+gekpLV4+dHOjbS
-         TuKmlgRREew0/sDAOCA6fUylDfSvpUW3t4DcNCIWELeQcEfWHuE6eWupzc9k9itQhdYs
-         wlKE1FAOtTk3fHT4onuhRJ7pIVvhxgOil/Ek06+Imz5OF7lJrUZarBA4MID7QA5SwBYi
-         hvuqgLF2dDeyZkhOL3EU6BBxzVd+OTk9UWG8TaLjfAv0bpeVxBN25jDL10WOykgK3ePE
-         TxiOaGeDryIHwESutNAjFxwiv2SEs/ghotLA8fvqKS8R1EF+jQ8IIpjV1RSVVeOheCsz
-         2C4A==;
+        b=OzamMuvb7264C0Ot/5/jT/RD9oUFPXHdpuenntJZeXLr7tjuhY83F3k5mTHA+iAdqd
+         C/aK2cDC0eRXywQRezHmwo8IZuHPjGV3542P361hiIwlp5YHuBTeBgNWqqIkwY52qjlC
+         W4W8A7VtIbR8o0DHRj9muc1NJM4Jp/u3C907AaG96DEY2TBqrOQXxvwloRufHaA2Ba2s
+         cdLqGlzbnAMwWkPLfxmibdYFu/QDKfaGMMnLZH1Uf9hNl333kN/b0WMXjvdd/PKLh4If
+         h1Tv+RkgiQSy1B95BMLza7bkODzNgAF2MOaymgSI2cySRiFju99vSL67dXzUu8b+ONHt
+         Havw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779291193; x=1779895993; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1779291242; x=1779896042; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=loPedkJWW5NsxZasmabpsVrzcNqsX8cLULapJHT/QGI=;
-        b=XW4xS8EnlJTnyN4am/CTX7f0l6WWLV8Et8QQkN3hor+5il8ablSQdvnJdkciWlC/Fl
-         dRjVJPK0nTofLyT23TDKiaIOcBlLI4idBTcKdS8d/8d+yKs7Rs5BtD/e1RjlwFKSTh1b
-         YICvH9NPPn32gg5WO1BZDGWJYS0BT0KifChMgrxZ/OfQ1caTj4TaVAMlQM3prvq0aQ1v
-         ZO5fYpXAI1BUlXmOzA+0gh0OAw27dYQVJPeb6JP+Un+yNWXEZRHbV8gjhWy8DIjp1ki6
-         vOeR90BUuACRtXPsWgwxVngdrnpZ34S+BkGdDEWSlZat/gFsJSAbzFlYSFnZGextCOfM
-         VoBw==
+        bh=/rUulWFfqu17EQ8RGVRHU+T/YX9oMZS9CjWRrzRNb+M=;
+        b=QHDWwRSIiOIi+lPp/f9JnB3TtSBNv3RQGKhjvJMzu/zCJhtKjkzXVnUrLKyXFZaHDA
+         yjTDYDX85bbMv2I7/snXHlskceZc2j9FrYEtFfnXdGAYvR+zuIoeVTNimfIqhP9ZvKPx
+         7nyKwP+6eDKsyibVuqW/jIQi0RmG3TL8jGVDyXIY1a1Il1TcxfHc8UegZUlkl0P5geIC
+         cks3o1XldftKTRkAaAL3J3xeQeOdDebfNqu7x/901zEKYcKHJKNO3kmfr8C83uXSJHAw
+         0ycTW9BCOmseHB0ennrBKoeOr/TMg/UCKqi2fiA2zodtudvSSDxejeyMVtdbGQpRxI4B
+         qqVQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779291193; x=1779895993;
+        d=1e100.net; s=20251104; t=1779291242; x=1779896042;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=loPedkJWW5NsxZasmabpsVrzcNqsX8cLULapJHT/QGI=;
-        b=VQ1jzkPi4XXSoWnLH1c2o4AC4eErN1WJ0ebX2ppKsWXXd3syRgFEDiyGXsvxA8uf0h
-         khsatCssCeb3efGDu3eclqODQ9CmTCA5RviIhcHCrDcYhIqiqSceR6v3e+lv8g2RzhtS
-         5ZGNNNEbdmyjhMVqTRsN4CPLofsTKPW7Ol6fxbBakwYAuSCrxDARcapx+SKlMgUwd940
-         f0Q4UWtyW7FZX/9mjbcL3BRjT3BQlXxnk/hnrbVb7m6lM+jwN6DjecG5Q2ruaMSlN5Eu
-         q3L+rZH32kUkKK6iKMI8450kXUqA08xa+YUy3RhgyLoBKoqRAR2ZRsVEAMLM1E5LUVjo
-         Kf0Q==
-X-Gm-Message-State: AOJu0Yzgk8CWEx1Ozv7hFaeuYxONvOiqX11BT7nDP50uHvdsPrBdHOLB
-	tNKtRI7qzBayXVvY3zxFEWIdkgkldGTZbGr/H6/wEUo6hDOre6Yd8lBd3RwJBb9WSk4WBCJO49w
-	BrX55+lV9sPnf9jj+qtvGQWk1jP4Pu/AxBDO7
-X-Gm-Gg: Acq92OGu4S0sFgvSTUTg+PjE1bJbQWMrU6j7MapljR5Z1qS1UMB0+nS0mPVu/5EVobP
-	oQW/EZ0SBJ+O+SbAyPDWtm/NcAa78VKXe8E2RAcN1GG5+DjqgQeTbiLDSm2nyIzGo2n64IgbZLk
-	aBB9wN28Y8Clp+Alj/YjFKpOMBwsVtRjOExfvEGFJmLvirfyMmFzzS2kB1b4wWglxFgevA1nfdD
-	e+8Auuaf7YkxODfKwCdS8Wi6AZ5KnaV36jhTO7l+m9agUpLvUTCSqkD7koIw0Uh7AId7YVgGL+z
-	gJwBLK4SnqDH+tE=
-X-Received: by 2002:a05:651c:1108:10b0:38d:e977:5533 with SMTP id
- 38308e7fff4ca-39561cbacb1mr52023801fa.26.1779291192520; Wed, 20 May 2026
- 08:33:12 -0700 (PDT)
+        bh=/rUulWFfqu17EQ8RGVRHU+T/YX9oMZS9CjWRrzRNb+M=;
+        b=CM/O1V7eX+PMYZ40JbjgJhy94Y4bhH4XTacApN+It91f4Uv57EwfAMAXTwQMoS53Of
+         871PhEcN/AkC6nNt192BoveloFoezFOejUUQF/ersrlZss+eQFBjSs2WBaZ+Obp5+b5z
+         geIzqGZcNkjJSgSQD2b1a195U7aD3BPHR1itmNKxcdizbhLzWkz72gGsdwsjAhIGY1e9
+         OF3QDyCdbEM9sTBOWM7zI1STNqxHsGGTWdudMVQo7TV+qA9L26baKhtexPOzSA4hglou
+         VqnGCGK2GRRSRu97lINP7O4O5WtXWVCuPm7PyMtkFTNbBdxApzGlOFQiTLIr5f7u0QBC
+         2FmA==
+X-Gm-Message-State: AOJu0Yx/WediaSV9mwziOmeYYvGAao8eix7C9VvT+I8qrJvr7ipe3brc
+	VQxFgkhEMHzjCjO4OBtSD8m/wtaSMi+klq30I/9eBhnmPBgrkaO1DqxVtn0Wj9cmQIMUyPCIY4M
+	XBAhpxjtuTr20RVIxnOkYklsa5DaApEU=
+X-Gm-Gg: Acq92OFJ8cmCWaqaQDB/p5xY7RD/C6CDY7osWeM6Mn8g7BHqf7N62jiSjr7tsk1161I
+	cVtdf/LIqRiNyw8rRJeoH4krwkRmXllayjXpyLGZZODPfk+mwwt8p0pc35hJQui8kxzN6blpQ/D
+	TtXBf4J0/5H7/Si1/eEDdU3OT2BwxrdQ6RhezgnaELptcwJJ1TozlCEN6rhw8QVOyq+WCeprldD
+	Q1nyv2NrHRM/TmpzVBHI679oZD+kTlcPmBcVzmwr7wjP4JfXtJu+ai7S6VY27LJ52AAYTvg+r0m
+	ByiHCvWIv7m2vOM=
+X-Received: by 2002:a05:651c:e0a:b0:393:55e1:4bcd with SMTP id
+ 38308e7fff4ca-39561f2fb53mr69676101fa.31.1779291241682; Wed, 20 May 2026
+ 08:34:01 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260508121327.91410-1-kalevi@kolttonen.fi> <20260508121327.91410-3-kalevi@kolttonen.fi>
-In-Reply-To: <20260508121327.91410-3-kalevi@kolttonen.fi>
+References: <20260508121327.91410-1-kalevi@kolttonen.fi> <20260508121327.91410-4-kalevi@kolttonen.fi>
+In-Reply-To: <20260508121327.91410-4-kalevi@kolttonen.fi>
 From: James Carter <jwcart2@gmail.com>
-Date: Wed, 20 May 2026 11:33:01 -0400
-X-Gm-Features: AVHnY4LXt_T2YxjGLJPNcU6rn-BMzJ4UZpCFGv8MdJy5vv3gP30IEqJpaPtEVuk
-Message-ID: <CAP+JOzQgrnm=bDCsJ1JwL9RXY_Bz__MUa44LVaffW5x5cVRUcQ@mail.gmail.com>
-Subject: Re: [PATCH 2/4] checkpolicy: remove unneeded tests before free() calls
+Date: Wed, 20 May 2026 11:33:50 -0400
+X-Gm-Features: AVHnY4KNGqNwmAZIJcy059YPV-N51IQZKcP6qs0hOAzsb7juKIxc6tGdplA3NSw
+Message-ID: <CAP+JOzSFLvqda8NwEu3x8u5oH5pjfrsxHOvAcPHsRyfGAzDbHA@mail.gmail.com>
+Subject: Re: [PATCH 3/4] checkpolicy: add missing strdup() failure checks
 To: Kalevi Kolttonen <kalevi@kolttonen.fi>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, May 8, 2026 at 8:13=E2=80=AFAM Kalevi Kolttonen <kalevi@kolttonen.f=
+On Fri, May 8, 2026 at 8:18=E2=80=AFAM Kalevi Kolttonen <kalevi@kolttonen.f=
 i> wrote:
 >
-> ISO C guarantees that free(NULL) is always safe to do so
-> remove unneeded tests before free() calls.
+> add missing strdup() failure checks. Also add one missing
+> 'return -1' statement on error.
 >
 > Signed-off-by: Kalevi Kolttonen <kalevi@kolttonen.fi>
 
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  checkpolicy/policy_define.c | 48 +++++++++++++------------------------
->  1 file changed, 16 insertions(+), 32 deletions(-)
+>  checkpolicy/policy_define.c | 13 +++++++++++++
+>  1 file changed, 13 insertions(+)
 >
 > diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> index d1511a1a..4f775111 100644
+> index 4f775111..755a8428 100644
 > --- a/checkpolicy/policy_define.c
 > +++ b/checkpolicy/policy_define.c
-> @@ -381,10 +381,8 @@ int define_initial_sid(void)
->         return 0;
+> @@ -1499,10 +1499,15 @@ static int define_typebounds_helper(const char *b=
+ounds_id, const char *type_id)
+>         }
 >
->        bad:
-> -       if (id)
-> -               free(id);
-> -       if (newc)
-> -               free(newc);
-> +       free(id);
-> +       free(newc);
->         return -1;
->  }
+>         id =3D strdup(type_id);
+> +       if (!id) {
+> +               yyerror("Out of memory!");
+> +               return -1;
+> +       }
+>         value =3D (type->flavor !=3D TYPE_ALIAS) ? type->s.value : type->=
+primary;
+>         type =3D get_local_type(id, value, 0);
+>         if (!type) {
+>                 yyerror("Out of memory!");
+> +               return -1;
+>         }
 >
-> @@ -632,17 +630,13 @@ int define_common_perms(void)
->         return 0;
+>         if (!type->bounds)
+> @@ -3559,6 +3564,10 @@ int define_filename_trans(void)
+>                 append_filename_trans(ftr);
 >
->        bad:
-> -       if (id)
-> -               free(id);
-> -       if (comdatum)
-> -               free(comdatum);
-> +       free(id);
-> +       free(comdatum);
->         return -1;
+>                 ftr->name =3D strdup(name);
+> +               if (!ftr->name) {
+> +                       yyerror("out of memory");
+> +                       goto bad;
+> +               }
+>                 if (type_set_cpy(&ftr->stypes, &stypes)) {
+>                         yyerror("out of memory");
+>                         goto bad;
+> @@ -4510,6 +4519,10 @@ int define_user(void)
+>         }
 >
->        bad_perm:
-> -       if (perm)
-> -               free(perm);
-> -       if (perdatum)
-> -               free(perdatum);
-> +       free(perm);
-> +       free(perdatum);
->         return -1;
->  }
+>         id =3D strdup(username);
+> +       if (!id) {
+> +               yyerror("out of memory");
+> +               return -1;
+> +       }
 >
-> @@ -759,10 +753,8 @@ int define_av_perms(int inherits)
->         return 0;
->
->        bad:
-> -       if (id)
-> -               free(id);
-> -       if (perdatum)
-> -               free(perdatum);
-> +       free(id);
-> +       free(perdatum);
->         return -1;
->  }
->
-> @@ -892,10 +884,8 @@ int define_sens(void)
->         return 0;
->
->        bad:
-> -       if (id)
-> -               free(id);
-> -       if (level)
-> -               free(level);
-> +       free(id);
-> +       free(level);
->         if (datum) {
->                 level_datum_destroy(datum);
->                 free(datum);
-> @@ -903,8 +893,7 @@ int define_sens(void)
->         return -1;
->
->        bad_alias:
-> -       if (id)
-> -               free(id);
-> +       free(id);
->         if (aliasdatum) {
->                 level_datum_destroy(aliasdatum);
->                 free(aliasdatum);
-> @@ -1076,8 +1065,7 @@ int define_category(void)
->         return 0;
->
->        bad:
-> -       if (id)
-> -               free(id);
-> +       free(id);
->         if (datum) {
->                 cat_datum_destroy(datum);
->                 free(datum);
-> @@ -1085,8 +1073,7 @@ int define_category(void)
->         return -1;
->
->        bad_alias:
-> -       if (id)
-> -               free(id);
-> +       free(id);
->         if (aliasdatum) {
->                 cat_datum_destroy(aliasdatum);
->                 free(aliasdatum);
-> @@ -6129,13 +6116,10 @@ static int define_genfs_context_helper(char *fsty=
-pe, int has_type)
->         free(type);
->         return 0;
->        fail:
-> -       if (type)
-> -               free(type);
-> +       free(type);
->         context_destroy(&newc->context[0]);
-> -       if (fstype)
-> -               free(fstype);
-> -       if (newc->u.name)
-> -               free(newc->u.name);
-> +       free(fstype);
-> +       free(newc->u.name);
->         free(newc);
->         return -1;
->  }
+>         if ((usrdatum =3D declare_user()) =3D=3D NULL) {
+>                 free(id);
 > --
 > 2.54.0
 >
