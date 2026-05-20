@@ -1,35 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F8983AFCEA;
-	Wed, 20 May 2026 08:19:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11FE43AE184;
+	Wed, 20 May 2026 08:19:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779265160; cv=none; b=I1oSk146ZiQn+DAt537e84HO8f41OBem9lo2jI2ishaHqBOkFkPQzQ55RYtJLGMI7ZEw957dgkeelViHh3ygRdaQzl2AeqbCYBL1y2a4cRgjUeM7yt03KrygMBa3p01T7JWr6HwsuCECvHCrNy7KHiXUQRSXXyf5d2xEBU7ja8Y=
+	t=1779265164; cv=none; b=Hr3IIU3u7UG9Oref/KQfis0tgHNwL+21SuQPPIxc13ZObeAmtRWYBDrIoBM/lpJxTQEoB/aWLa3h+zSCAhH9rsTBikh4OeIpw7zqKR+TLobaEIkdZ4K8F6TltIeJQ3+qQD+dB5wTybJeMSTPTkwYXJr5pbSFoJMr7jv2CZJDYaU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779265160; c=relaxed/simple;
-	bh=egsexhbhZMn6N2VNXPeFT9FZiiU9sNsftvujWkJEIxM=;
+	s=arc-20240116; t=1779265164; c=relaxed/simple;
+	bh=F5N75Y8mUQYU1TgbgAwnzxz6xj0Y0zUFBQbr3qsftFc=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=mPj2tGoNFeM6xI3t5/q81a9yWIs+rXSU9M7gOwjbt34zFcdrLDNJQLfd1+FR0KJOTK/ilL2FG+dKd/SHHf7X91r5hSpEiPA2sPrmtZ+0B4qy2i3fj9iBRcwVB2MNa6zN3zJ8lo0oU8DENpe22mzJdmOjHam70ii9lCUAQQpivIA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QGRWwolu; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=MkT3lhNz1Pqm2tnjDRqDGao1JPumYMTGLZWLw5vjH5tFChB7YU4mOxKEu9HeYWnuc2hQRokGsBQbUdqPeo9sBF7w9z8poc2uYcRLssSvQmfaD9UvYZj889HtKJGejaP0jz9aYmIfQzrs1S01I44HZsrlBoLdBi3lw++/bj4lbe8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Fcgnwf+N; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QGRWwolu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A23C1F00893;
-	Wed, 20 May 2026 08:19:15 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Fcgnwf+N"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BBAD1F000E9;
+	Wed, 20 May 2026 08:19:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779265158;
-	bh=GVDlYomtipo4qtAHTcknpPeYaQN/qiVuV/EAqg0FNOE=;
+	s=k20260515; t=1779265161;
+	bh=zQRjpjIyAer953PPORKHqLJlFZ+L04n/ATscYla4KeM=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=QGRWwoluHB1wxqmq1NnHTwUGrOw0HmNcITLn8Pe3aTepQ46r2jdkcAYNLOmQLC6Ws
-	 fAO7nMcK4IAkEmw7q1Rz88yVzOt27cWANLTYW1boJbIknXERD1KFDTQKy4tYZOuC8K
-	 Xa83/+bLmy01KovNY7i3HHz3XSz0Y55T2cD1454db7Enrehvtwru2MztE1Skbw8C6K
-	 TzwzSQ9MpvS02tzUSDzYmwgI436vCppFZB1Rztx7znFzz5ZPc7GKf2Bv7bJ/FVIRKG
-	 DWbYxGBPnHJkKZKcVSZ0d3B7MBNCEqN4D1I+B9cReO5mepsJHAHs9ie8fqs14ga6GT
-	 +nHHtsTbiaf7Q==
+	b=Fcgnwf+NkTvhc7Mit+rAGitTzJZDlSEN/uHXD+gkXTB4npyMOpLlukZugq5ohxYtX
+	 lp6Azi92eVPhKV2Of6k/TAuTwG5evXZE5iWXANKE368n2gb20O7Yk1D8poK4bptGLN
+	 gKe8i674mGmddBOIeCjCdBQZB++cVpQ3pABKGDDtYv1sDVGuBJybOROagMRccDcSYN
+	 IOJ+03oCmUzYmIeuCTV917LSALVXG/MOjKC37dj+ruYComBK3Zm/MddcvAxEHycf0d
+	 5NeR4M53U0lDs0Dt7niUyxN8BHwvrWRr2eCyzFovqPzYoGX+jRtPZSSK5eflbyRre6
+	 JMGR0/leTjL/g==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Wed, 20 May 2026 11:18:55 +0300
-Subject: [PATCH 1/3] selinux: use k[mz]alloc() to allocate temporary
- buffers
+Date: Wed, 20 May 2026 11:18:56 +0300
+Subject: [PATCH 2/3] selinux: hooks: use __getname() to allocate path
+ buffer
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -38,7 +38,7 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260520-security-v1-1-831bd8e21dd0@kernel.org>
+Message-Id: <20260520-security-v1-2-831bd8e21dd0@kernel.org>
 References: <20260520-security-v1-0-831bd8e21dd0@kernel.org>
 In-Reply-To: <20260520-security-v1-0-831bd8e21dd0@kernel.org>
 To: James Morris <jmorris@namei.org>, 
@@ -50,95 +50,51 @@ Cc: Mike Rapoport <rppt@kernel.org>, apparmor@lists.ubuntu.com,
  selinux@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, 
  linux-security-module@vger.kernel.org
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2557; i=rppt@kernel.org;
- h=from:subject:message-id; bh=egsexhbhZMn6N2VNXPeFT9FZiiU9sNsftvujWkJEIxM=;
- b=owEBbQGS/pANAwAKATkDhibLDv2RAcsmYgBqDW51z/2b9a1wBbACD7Lqy3AESWFSJG96Ft/Fc
- u9GHWORn7qJATMEAAEKAB0WIQR45VhVpZkvn3TRr+k5A4Ymyw79kQUCag1udQAKCRA5A4Ymyw79
- kesfB/95neKLPMgBSsir1CVvO5hzi/mjOmpGVmukHgd+jj7BYpflrDOxXDEgBs6XHWLBXr6p9JI
- xvWliqXNwwYOaRYZrG10Gbl4vCSoFGOQPMOCctQQm9FEIATJM8lY9frjkw41Nd9vpyDWOUNoaB2
- 3KByTXQIPueuUKZKZxZf990V0FXHun2IroxnjikC7dbpoD+Ok7KlOfCucRjXTKN283DLquejXI/
- MXWd19xgl5hyQaJR8l/0oPy+zZfbJBFZRt//57o+nv0whqgh4IDwfpdTwytJ50DBSSXdYZ7OH1j
- GtKAKh+ZMI9rY83yzUXjIC1ZjMGgzVRheIfJSJrbV+SP0mx7
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1022; i=rppt@kernel.org;
+ h=from:subject:message-id; bh=F5N75Y8mUQYU1TgbgAwnzxz6xj0Y0zUFBQbr3qsftFc=;
+ b=owEBbQGS/pANAwAKATkDhibLDv2RAcsmYgBqDW55/xeAuypW72Duwu823AN1y512GZtlik/jj
+ f9D/szH8CKJATMEAAEKAB0WIQR45VhVpZkvn3TRr+k5A4Ymyw79kQUCag1ueQAKCRA5A4Ymyw79
+ kZuWB/43kQ89qeDN/5ULkrNOC7BisGyehYajp/+I5dGOiekEQFVDn0eaXHd2QTlf2f+hnv9BbpS
+ fupeiqIj/Ou0trjtruRc0roPfmTRWNl9OxfhUuaSxc9GbFpfOSSmDFlvcmAvuVfqHGwLIFMFssG
+ 8mm454MTwB23N3EFSGJSY2MNo4gGywEW6qmCrvBydmM27UydkD17stPOyxleOIbhjcFw9EU+Tbb
+ +ElbtkFJ9OCCiKpoaEQ2mt0A6m1jr7ibLlu4TaUUYxaBcV2k/0oDtw0F6cQCRfH5oKGirJnU7/p
+ mu1k/3MeSbO7pTCcTcyGil3l1Jnug1PwZNhjPyZbODCzEwv3
 X-Developer-Key: i=rppt@kernel.org; a=openpgp;
  fpr=B8E96E880C4A40C3C1255AA8C532392DE6DA7CE9
 
-Several functions in selinuxfs.c allocate temporary buffers using
-__get_free_page() or get_zeroed_page().
+selinux_genfs_get_sid() allocates memory for a path with __get_free_page()
+although there is a dedicated helper for allocation of file paths:
+__getname().
 
-These buffers are used either to store a string generated by snprintf() (in
-sel_make_bools()) or to copy data from user (sel_read_avc_hash_stats() and
-sel_read_sidtab_hash_stats()).
+Replace __get_free_page() for allocation of a path buffer with __getname().
 
-Such usage does not require struct page access and it is better to allocate
-these buffers with kzalloc()/kmalloc() that provide better scalability and
-more debugging possibilities.
-
-Replace use of get_zeroed_page() with kzalloc() and usage of
-__get_free_page() with kmalloc().
-
-Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.com
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- security/selinux/selinuxfs.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ security/selinux/hooks.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 25ca7d714014..e7b884eedf80 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -1244,7 +1244,7 @@ static int sel_make_bools(struct selinux_policy *newpolicy, struct dentry *bool_
- 	char **names, *page;
- 	u32 i, num;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 0f704380a8c8..05b84b3781e0 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1336,7 +1336,7 @@ static int selinux_genfs_get_sid(struct dentry *dentry,
+ 	struct super_block *sb = dentry->d_sb;
+ 	char *buffer, *path;
  
--	page = (char *)get_zeroed_page(GFP_KERNEL);
-+	page = kzalloc(PAGE_SIZE, GFP_KERNEL);
- 	if (!page)
+-	buffer = (char *)__get_free_page(GFP_KERNEL);
++	buffer = __getname();
+ 	if (!buffer)
  		return -ENOMEM;
  
-@@ -1290,7 +1290,7 @@ static int sel_make_bools(struct selinux_policy *newpolicy, struct dentry *bool_
- 		ret = sel_attach_file(bool_dir, names[i], inode);
+@@ -1361,7 +1361,7 @@ static int selinux_genfs_get_sid(struct dentry *dentry,
+ 			rc = 0;
+ 		}
  	}
- out:
--	free_page((unsigned long)page);
-+	kfree(page);
- 	return ret;
+-	free_page((unsigned long)buffer);
++	__putname(buffer);
+ 	return rc;
  }
  
-@@ -1349,14 +1349,14 @@ static ssize_t sel_read_avc_hash_stats(struct file *filp, char __user *buf,
- 	char *page;
- 	ssize_t length;
- 
--	page = (char *)__get_free_page(GFP_KERNEL);
-+	page = kmalloc(PAGE_SIZE, GFP_KERNEL);
- 	if (!page)
- 		return -ENOMEM;
- 
- 	length = avc_get_hash_stats(page);
- 	if (length >= 0)
- 		length = simple_read_from_buffer(buf, count, ppos, page, length);
--	free_page((unsigned long)page);
-+	kfree(page);
- 
- 	return length;
- }
-@@ -1367,7 +1367,7 @@ static ssize_t sel_read_sidtab_hash_stats(struct file *filp, char __user *buf,
- 	char *page;
- 	ssize_t length;
- 
--	page = (char *)__get_free_page(GFP_KERNEL);
-+	page = kmalloc(PAGE_SIZE, GFP_KERNEL);
- 	if (!page)
- 		return -ENOMEM;
- 
-@@ -1375,7 +1375,7 @@ static ssize_t sel_read_sidtab_hash_stats(struct file *filp, char __user *buf,
- 	if (length >= 0)
- 		length = simple_read_from_buffer(buf, count, ppos, page,
- 						length);
--	free_page((unsigned long)page);
-+	kfree(page);
- 
- 	return length;
- }
 
 -- 
 2.53.0
