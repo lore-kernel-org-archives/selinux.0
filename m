@@ -1,109 +1,103 @@
-Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 668E43C9EE6
-	for <selinux@vger.kernel.org>; Wed, 20 May 2026 12:13:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779279196; cv=none; b=kklJP+nb4VfdCfT73mTODNetuqXPXzTMc0r5nPLlgIee/RBJRRfH4TJQgwExhS9RG5UPclXM+j2XvVppeq0a0jZMYMeBNUCR1tTPEMPqm8qD2SZy7BAM1k7s0PTua46il8RHGrnBDTk702Qr3RLXibPJCsNX7f9GfJ9e/KN1xtI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779279196; c=relaxed/simple;
-	bh=4mcW/RUoV7jcjHeR41S9+qaOcklZH25nZI9958hzmyY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=PrO46y/7Tv3lUF68Jbhoh0IQiZhmFi3e5AUNadgwBDks2kxJm+C5sKSUfHoD4SFbh19B4sPOEilL1rxEKmnmgy6/xlXYu/e4SwfQmnzjwR/ffox4g7PHlsoF2YCMXcouEPkMmEdOskG+E32DWDSqU78pyknyTpOznWzf+oB/iy0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=IEuKfLdB; arc=none smtp.client-ip=168.119.48.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C111C33A033
+	for <selinux@vger.kernel.org>; Wed, 20 May 2026 12:58:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.182
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779281889; cv=pass; b=JwVjsLdxexITmt9PaTq/qjNNDHQBFHzNPtu1r/ellJI8vmVWkKtAwCqyA+ajbN8ZUNEUKg0mUW7NwdSHHUQUCtTDhHDF7ynq2C1uNWVj1QCi+WvzgGh7dtxUc6I7aQI1bG44Kf7POexM58ZaTPw70j9CRGLJd7ze020d/K5nx2k=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779281889; c=relaxed/simple;
+	bh=4Rjy5pOMUJhmxkIeicghpD7jLrdCwFUDkD+1ADzGQYY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=CR9IHF5LevGBnZ++npElygSReQy/K7jjUKJr2UePpkvIcC7/zWAlvbS4/Vi9WQ5GhMgZRudFJgWQ6PVu1M9yJrZihzQON8IFZe2NREvu76E8K5njWNBQK4VeZXKdv6i5r7MF4JVyRjxaWuFhtqdSXwMjznoexgx7pL9eYczBZtQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QKj5AtVq; arc=pass smtp.client-ip=209.85.214.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="IEuKfLdB"
-From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1779279191;
-	h=from:from:reply-to:reply-to:subject:subject:date:date:
-	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=+bcyFFGLnAN+6vBwqf3FXb8mbWEOlQRUe4iKrMCbez0=;
-	b=IEuKfLdBShgtgWhwTR0me/7nwJhASdnvZBNUJNyDwhjua9MkfpwAUDh2US6ny8ET+h71o1
-	MiejXR8wnaghMyT4vzth8L8szDH5LV2Vm0BK4odQDmp6AR6nn/dtcBXp74mnAqrr+pD/4w
-	hlHLiH1RfwppZmT9glOtc1V00MxQAZkM3ZcY+So9Rop3ScEX61S99LKMMlHuQUiYBjqrOL
-	3MwX46U9I1w9i0wfXpgyFeIu66UqfKiSe1ENG2HoWczGawkQvN21tUCO6HWgzv+Bbfx5Kv
-	VzH8kKkGE1fz9NKqlGWSLw+BlehNv+T4H3iEAW741bkneeg32DN1Ey2K2FttOw==
-To: selinux@vger.kernel.org
-Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH v2 1/2] libselinux: improve restorecon progress locking
-Date: Wed, 20 May 2026 14:10:51 +0200
-Message-ID: <20260520121051.20863-2-cgoettsche@seltendoof.de>
-In-Reply-To: <20260520121051.20863-1-cgoettsche@seltendoof.de>
-References: <20260520121051.20863-1-cgoettsche@seltendoof.de>
-Reply-To: cgzones@googlemail.com
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QKj5AtVq"
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2bc7b311e77so20504235ad.0
+        for <selinux@vger.kernel.org>; Wed, 20 May 2026 05:58:08 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1779281888; cv=none;
+        d=google.com; s=arc-20240605;
+        b=lnDhwnJEF1dTPDz5D0rD32ipMLe8uEHfQutPUHY1eWQFX8NECzTaSi5wAskn+lgdH7
+         Z7jQi/mTPlYAcGyE+LMxFY6F16Vq44noEeaZ9uT6YE8JgFDMzAAJoX5hGTc6QVpmNzjj
+         eIC1N7pnk57DMjAAMUJglsXQzqCwec/8UYwp+tPN6WD8tzJiycYxdm+vMLDgcoL8tiB0
+         llKcfzReKjn1vO5afsRu5wkfWEZFiIBKNhA3s1a3yxxG8uE7JjfvgKUUMgEyLDqa6Se8
+         hl10OQtOtd2i5y8C9qV/Pvq8sP0PzSbcnOMsEfj9KWE1KBr8PRlJ4ACWxKc9LsltL8PO
+         sH2g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=4Rjy5pOMUJhmxkIeicghpD7jLrdCwFUDkD+1ADzGQYY=;
+        fh=5O/C79wO42cQf6w/vh3W7FviilpJ0XtrrgBkDvem/c8=;
+        b=VtqXPDxgP+kEVy7Zr0S6PmowoJsNdoyeu+7LNoY4f2+m49Xw4cKt0hV/S6R4O9gbIc
+         rAT0w0YyN+bG0S6rDyJ4XsxJhuZ2Z0JpqT9p6KWrAe06fMo+K4jsVRgeMA4HCGOSOvf0
+         Zp4Vuf7i6yGSn9v04W+YaR/uQzdq+2pexkk/+9TsRgd8jekJ+/7mYBLxd27sZb00rUfn
+         Tz106/aEa5aAU/InaIiyGLWDLfhRbMjRFJ0b4SoTtdS/Bb4hA3N6pBsUS7BXKlFpzb5L
+         dvElt8OYqhlQk90L+FdRBoETQ/UV4zRjtfr5imTUiiUBxjPZX9GAbINRqefvQj20WwRb
+         PXAQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1779281888; x=1779886688; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=4Rjy5pOMUJhmxkIeicghpD7jLrdCwFUDkD+1ADzGQYY=;
+        b=QKj5AtVqDMBurOcXuKZevNKGTGxkQYcX6syzHEweGM5zprIfhZwa6XrpEOWO4BZaQY
+         kl4IyIVYNIFtRVBiBo2NISx3RvFGIoMoaW2PVNTyjMMJuqQbwjqS+p/+sQLkUG9gDFya
+         NkHsnZzZ4TQcDyNHcj4FQM0DvPosxgtXTEQn9xBaaejFwQ+N+k3g9JkB/ykDOXbtjICw
+         ItzCS0qSX0y11r8Ei8wGEY90Ir8n8rP//tYLoP1k2s74pi3Mf2MXRp18TWICESjcyRzg
+         EbBgcBsbo483mr5mErSLkxJ2zGC8EtJkJDp4Qo6UpjHb5YCz+xwlsIB56A1/7xq7HCVv
+         T0fg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779281888; x=1779886688;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=4Rjy5pOMUJhmxkIeicghpD7jLrdCwFUDkD+1ADzGQYY=;
+        b=WSXhu+g3GZiPeP1a8fDKHz3D6a4jmFmRa3snfxGYTdgfWjxPFsbYwaIVmwoHxxl6Me
+         E1VJPGejY5QAZIB/u8PTiV2L37Rp+BLfEMocoQ7O/UeHeOqAeIE9KHUebPiyK7Gq8mCO
+         wKG/88lAluSWlQqLt83sWIKrGRE7iziQv/5d8JgLaeTz2CfRkAbYWdbsJUpFjbC7FJhq
+         vGe4EYA2HzBNCQ5O92izebCxA6kE3cha90U3NrItnTP3e5SMN9DA4RlKv2Lt0Us+n05j
+         1RLBAougZL40AAMfXhQ/3XekqKJOqKAED3Cv/tv9aYSrbMlWXRKelYlxnZZRHALxk5Vp
+         F8LA==
+X-Gm-Message-State: AOJu0YwXt1nJqQhCY8vSZKatT4AV0LyXEy7SRQgHzs/fEF1gAJGzpRYr
+	yAvjVGyOtpmoPw5bJH/5hCJxA/fdkJpRsbn7oxJcjyYLInymy0Lp8MmI1RykP+fPaXSLYxRHe3p
+	8Osdag3bhPT8vM1Mfyfz30AkIWBXST+HBtA==
+X-Gm-Gg: Acq92OHSyNVLUENM7tQMLrwz4cqZKzQ7oElFCf4qWbH+7hpfml9ZioNrs5PWdFrQ5v4
+	gjUzwXvSFw1F1/l+B4dh5AMv+5wlO1Wi+8Hx19RJpNd2PcWU5/Yfw0AGYGokzaLBO2hsgG/KpY/
+	GKgzqWYnuM9GpzcZoVyWvY4xIaMK5lQ35r+ezcFmto4R2MHDK/sk+nget3qHpbP3D5G/GIrBxK7
+	Pfv5I+uD2wMWuLdV+6GWAStBVe8bGJvqE0Gs501GdpBXvpb0zsN8o0CZzBzpTWiEWZcd5YH7BJS
+	4ktIXYRo4Hv5DxIITsBoTh7SEOuO
+X-Received: by 2002:a17:903:283:b0:2b0:91e6:bc18 with SMTP id
+ d9443c01a7336-2bd7e9004e2mr191255015ad.14.1779281887747; Wed, 20 May 2026
+ 05:58:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20260519121456.377096-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260519121456.377096-1-stephen.smalley.work@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Wed, 20 May 2026 08:57:56 -0400
+X-Gm-Features: AVHnY4KdkYkrYYlpGvpNEKG7EZB74b75yrTmHbYZ-tjTdBiTeSgv4gVFa87fzfA
+Message-ID: <CAEjxPJ4=qFbvpSZOyfVthKJfv=6oF+2RHLvy3hCpwJKYijzQaw@mail.gmail.com>
+Subject: Re: [PATCH] sandbox/seunshare: fix fd_tmpdir_r check
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com, 
+	paul@paul-moore.com, perfinion@gentoo.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Christian Göttsche <cgzones@googlemail.com>
+On Tue, May 19, 2026 at 8:15=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> Check fd_tmpdir_r not fd for a failed pin_dir() here.
+>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Use an atomic counter to avoid acquiring the synchronizing mutex for
-each file.  Only acquire when actually writing to stdout.
-
-Suggested-by: Copilot
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
-v2: extract fc_count reset into separate commit
----
- libselinux/src/selinux_restorecon.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
-
-diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
-index 8b6eba0c..b4d58b05 100644
---- a/libselinux/src/selinux_restorecon.c
-+++ b/libselinux/src/selinux_restorecon.c
-@@ -40,8 +40,6 @@
- #include "label_file.h"
- #include "sha1.h"
- 
--#define STAR_COUNT 1024
--
- static struct selabel_handle *fc_sehandle = NULL;
- static bool selabel_no_digest;
- static char *rootpath = NULL;
-@@ -734,19 +732,23 @@ static int restorecon_sb(int fd, const char *pathname, const struct stat *sb,
- 	}
- 
- 	if (flags->progress) {
--		__pthread_mutex_lock(&progress_mutex);
--		fc_count++;
--		if (fc_count % STAR_COUNT == 0) {
-+		const unsigned STAR_COUNT = 1024;
-+		uint64_t fc_count_local;
-+
-+		fc_count_local = __atomic_add_fetch(&fc_count, 1, __ATOMIC_RELAXED);
-+
-+		if (fc_count_local % STAR_COUNT == 0) {
-+			__pthread_mutex_lock(&progress_mutex);
- 			if (flags->mass_relabel && efile_count > 0) {
--				float pc = (fc_count < efile_count) ? (100.0 *
--					     fc_count / efile_count) : 100;
-+				float pc = (fc_count_local < efile_count) ? (100.0 *
-+					     fc_count_local / efile_count) : 100;
- 				fprintf(stdout, "\r%-.1f%%", (double)pc);
- 			} else {
--				fprintf(stdout, "\r%" PRIu64 "k", fc_count / STAR_COUNT);
-+				fprintf(stdout, "\r%" PRIu64 "k", fc_count_local / STAR_COUNT);
- 			}
- 			fflush(stdout);
-+			__pthread_mutex_unlock(&progress_mutex);
- 		}
--		__pthread_mutex_unlock(&progress_mutex);
- 	}
- 
- 	if (flags->add_assoc) {
--- 
-2.53.0
-
+Merged.
