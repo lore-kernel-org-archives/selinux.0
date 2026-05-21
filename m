@@ -1,141 +1,234 @@
-Received: from mail-qv1-f53.google.com (mail-qv1-f53.google.com [209.85.219.53])
+Received: from mail-lj1-f174.google.com (mail-lj1-f174.google.com [209.85.208.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E3863F6C53
-	for <selinux@vger.kernel.org>; Thu, 21 May 2026 13:40:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.53
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779370855; cv=none; b=Z1/sxRaR9vg1J8Xkyd0UKLLdnlPsGU+8Rx0y+pZsZupt+ZSFwbMKsoNQ2/trgwcidEHc4jBxKf6zSbrLT0NM8UVaSbvJMe9XofJB9uSdAAETTkDwB3zduBYxBErZfHEuIvi5rqMYndc/RbbVIwfgIulFFVa19d8OQkHm+B5SU0I=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779370855; c=relaxed/simple;
-	bh=GzQ0X5LIcrDFxqwVsSUa70mWIENU49FZj0Tz1LpIWgk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=HjF65L3XYHPkakayIFTPCjwmK1YZClRO1GzcqhdSIfZTEE1Z3lmec4coSYMWkseCVPgLnt+7RKtYb5tk8ERK1l1G/H2+LCnNyLXG0FXa1Az4C9VXMGTKwobNiEQM4QyFWPGBPMtNe2ZwJ9wEwKv8XRrltYEFABqInzSqBN6L/fU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NmxhycPz; arc=none smtp.client-ip=209.85.219.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 681BC344024
+	for <selinux@vger.kernel.org>; Thu, 21 May 2026 14:22:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.174
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779373354; cv=pass; b=H0xqD1u+u9zTIy4A8GXHPBJjuA3Ldjtxy32vFa8dmQ/TmF852mZGsN7iEJFSSdKEFaQcw1F+SlDIYGF90+w2/yM+B8gIB4a1zsWJdTerIc0Ojf2DpfVXGVCbqswuQc8+x3PieRlP5e5kEnnyR+m7lYUcFz3PHZmfl59goFL1NbI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779373354; c=relaxed/simple;
+	bh=US9LhFVMvZrS1UlcTD7h7IJF50ydMDzqo4gAAPJ7ysQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=dR85ZPPyHdZ5bNO1TFCxqtzpHGhKM/+X/+8xo3v0pQfeaLdD1J4aN3HmsY9Rv+TMVS2xIi+hkmGZcWfrK0qdVEYrFLHLK0Kb8hrMSP+vvwlhGMaNZt1fSXazqfvOPRUBFnegzpg/z6Ez1LnYrKBQIYK23rq/ftz8diSwuOZ5KbE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=E+pB1Uc4; arc=pass smtp.client-ip=209.85.208.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NmxhycPz"
-Received: by mail-qv1-f53.google.com with SMTP id 6a1803df08f44-8ca12973e15so83424076d6.1
-        for <selinux@vger.kernel.org>; Thu, 21 May 2026 06:40:54 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="E+pB1Uc4"
+Received: by mail-lj1-f174.google.com with SMTP id 38308e7fff4ca-39393c1b5aaso8032081fa.3
+        for <selinux@vger.kernel.org>; Thu, 21 May 2026 07:22:32 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1779373350; cv=none;
+        d=google.com; s=arc-20240605;
+        b=AquZzBlCI2278kcWCbSrpky4qHQirKWpKPEQKvZ72E3SvnNhAj746Niinww0bHl200
+         dNxwXWNvFYfCDwkVh3CZ/0cq+WeJKz7myxQMCTeHNhwSbwO7b85+qohMPWxfY0y7Dlxa
+         g92+yzN+BFYhqzKarQ4QVmViVR3nkL13UxS83TNyUP0xXg7St0kXQ7tJ7Q9R87OOh5LG
+         Px1VRg0FCQOxFzpDbfqgGYCqpqjf/Yl2KN+foFlILyKo06I6RRWslBEWwWY+GsoxcZvw
+         852d1nUmab7eh+PjlN62K9ZsyoQ8N4AGR/3EqjCkyQSCKiIdAhhblpmz8WV3LmEHrOIG
+         b+uA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=OnQsTsYpJ+sZAssEcSsAe9HayCINXzjcitiGwxcxNd4=;
+        fh=RcJrr7O3svp8K5gZfgCjK7Xv0tA8i0VIpUekoWsmIc8=;
+        b=E0rWM/cAesS9WIalfT3+Ac2EwwGRHOcjj9g+g2wk5vahcmlHccW2UxxbD/l95Qka1m
+         uRmz742x9v+fu1z6w5V8i7oVz8PKfVXqu7R6c0zDEj8jbQJeSkoRDTJVaHyVZbDZCTjE
+         92cJk3BaihXZ+vE4+f2NvKh6qvZB6Cnr3YFuaBFFHcvbNA0qLHnZZVq2Bv1Tsg5Xi7zz
+         YS59fYYWnxtdkdDVGttcrEM/wtEDeUIQAlPJ8FT36lndUm2tPSqlP4gsTT7T0oZXjO5W
+         eazV+cR+dlHv4N/hh+qunE1FPwYd4PvXsxMvnyTZ71qpyyf4ny4lXycDBpRrb0UoeLjZ
+         DMyQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779370853; x=1779975653; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1779373350; x=1779978150; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ndmegSTdqjtESW/ThYcUsBXIk9ZZK5cU0naq+7CPbDw=;
-        b=NmxhycPzI2YF4Y5xStSosvsvSUmYGDCxF5AwQyGVFf/Nf5txSlGHhp2XVYaMqVZWm7
-         3uDKKB4HjoY995B+6Vs10cjb6vOaXJwvU+U4NwVZ9uL3Q6AO0CP5iao16Y2AWXDrWVCW
-         1z+Zfb1lsKMDy32QVtg4ljuO/LvlG8qtopDBWKeDQ7CRXAv/iKnFkpCP7IKeEs2SkbNW
-         OZBBWdFHovDlRUyiqWxI6cGXH4D7BWcTaAbP6Y+6DhafHwzEF1ANIEAERzOFK0z3TLH5
-         ethdncJR1z4yF/kSCCD0joxF6mgotjmQKn9hAT2FEs2tGc5nXNzJPDONlHN/ENiFcfcU
-         N5Uw==
+        bh=OnQsTsYpJ+sZAssEcSsAe9HayCINXzjcitiGwxcxNd4=;
+        b=E+pB1Uc40ejbk4uoeTot2Qpd93zUUeZTwt0SU61myBIQ0WEwCKJ1/gQUvp/JP8HBYe
+         GRQXZY5eZLa2+j62aVwHgAI/FBAvG8oL5g0qoisOiRyPp4gxzk8n+HzBwyxleNXdG7z6
+         ZNTgENCCGHS+py43rHabcxLXKPqWt76YcEZmViOQKQrB8F5SIdAGRxLNk6gndV/KWriJ
+         Pb0pLHeCX1oJEP69lQyHJOASpUowcn++k0UFf+J4lbfdwY9Jnc0oVeMuTqy5Z5NDZ5w7
+         2RPSKslln9XtxFLuokqJKcBzXtoSudbxesPvPYHQBoRpQ0ppPT4jM1uXksW5lqXR3udr
+         d/yw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779370853; x=1779975653;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20251104; t=1779373350; x=1779978150;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=ndmegSTdqjtESW/ThYcUsBXIk9ZZK5cU0naq+7CPbDw=;
-        b=p6MPDic4p2xUOXCYs0BdvlTCHlhNgCiHNYFfPcm51U6G5gUPvDFC+oMIpWWrqR9peB
-         lL+mzs6w6A5v5XQusEUIJ7aefZL/p5gRXo59f/1x2JpAQJIUgoY7RhrmBpL4MXBhwByB
-         nF3+KGrxLobTDo5qZUP37qsZEe1ikfhO0FsTUuH8JWwNJF9K2A93RbEfEgb2GPbHpfuF
-         4S8HSsMqoZLv5XCaA4tTYuOTVD0kX+3S/JJz+jxfxjvA0AnPObzcPt/eRiphVr1EM6ht
-         Kyn2pXwDZh2LNLv8dLbc8vin5bItxDSbghZgx/yMwYgURGSFdv7/5TrynRORnL/sMoFh
-         ExRA==
-X-Gm-Message-State: AOJu0YynmCqYxbR5QsRZ/vombAZGsUa0GyrWZSTUTMfV0Bp5SY5otLyy
-	Z7a6boPp4Oir9reX5TphJdTLnuSa9icMcMpme781ssXEgWrwizvvvYaGtRB90A==
-X-Gm-Gg: Acq92OEf+itvMyTNmQntr+LDikTtdio/E0iwgaRVeRpoWv5Y5jfzJ+16JSwh+49Za/4
-	yJxRqzeZBbgxjjEi2KpaQnCwcg4wIsDJEeM9tFMj+BJSmG/6OGFSxnGFCVoaxoLOUt6Virg06Vh
-	XZ/egvGkNK0IZ9U98lRbd1fXGVTm2vx0SYmrgnYl4u2HNFT/Dp01TScwQMQrMe/OHQhuPs+3YVh
-	LQlpeg20XGv3UbYV2o7Mt79fUClmmIWL7zezDqP2f7al6gv8r6Mty8nvjYsYsLr+w9ZFJi+42VP
-	UN1ug8bT9Y56wtY8Eqea9fFLewWmPOit+n8Im938yvWKYHi1Yy5go3zbj9MuDCcL3oiVU9USW5v
-	7A+4pGhwHy9YbW1zxRcWBiCWo50F6TMOD/JmGCe2WR25CjPDiBidtVqkSKtaWEDwa3c5pje1eGH
-	7MwI6wXIeOEHWQ//jXR9V2LvVxtotnFT9P+VlrDlItnOF5J9BO1gR2RkS6bLF4G4QSdd/c7Q3v0
-	B0adDmqImNh9FfUgXVJnTX7GLBUIzWYBimb7ETtcGKdKQaLiPpf+5A=
-X-Received: by 2002:a05:6214:4987:b0:8cc:6a81:9ec5 with SMTP id 6a1803df08f44-8cc6e21fe3fmr46937096d6.0.1779370853128;
-        Thu, 21 May 2026 06:40:53 -0700 (PDT)
-Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8cc781b428csm5027756d6.23.2026.05.21.06.40.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 May 2026 06:40:52 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	plautrba@redhat.com,
-	omosnace@redhat.com,
-	paul@paul-moore.com,
-	perfinion@gentoo.org,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 3/3] restorecond: create a separate io channel callback for stdin
-Date: Thu, 21 May 2026 09:40:24 -0400
-Message-ID: <20260521134024.11581-3-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260521134024.11581-1-stephen.smalley.work@gmail.com>
-References: <20260521134024.11581-1-stephen.smalley.work@gmail.com>
+        bh=OnQsTsYpJ+sZAssEcSsAe9HayCINXzjcitiGwxcxNd4=;
+        b=QOIqM9hmLtbcq0zTFKQZjyx5Kq4l1GVM1hjWqSIkP267yww0FNdnxn4QAoabVjMb2h
+         WqzStPfyEdm1Y/ZCr/gTQ6m3mCgL+z/Q2xgFUroQNtXr6zNEH1/YvAOprYR88j7AXkBH
+         dzdfzHzbPlAz7tg3VRkrShooB68cyxN0GTsbr3lztK+CrTmmKvkN7tcnK9V1HVYCI1+3
+         hQ5ejVZnezXazS3XC2ycjEkJG5lduLAA659Wh5JHuIkykCOCUPKHFXgk+q1F76XCBorp
+         N+417QH3de+KsksbVGCOGP14U+5KwX/+Gi50WE1CK6mWpR8EOr5b0FcJBZK3letZLvD+
+         09Tw==
+X-Gm-Message-State: AOJu0YyOCYfTuXT5y2SG22D8jxWEDFELLgYO4BXFn2g4WeeWenvYiM0S
+	G7vDZT0Hu9pSBOHelWLXGDJUd7dDC3UCNjYbL1Mrry94IWyJW1/NRp16RHe7cz5odNjKdkLg5gO
+	I9VLGQao2gbcfTc2mR15uCRLyBfM+ekI=
+X-Gm-Gg: Acq92OF400GHcVvq7KlxkvaKwmGOVJ/KogxsRqzl/I9vaM+kDEHC1tXI99xrwlMhYh1
+	hPGtG/0i5WOsp3qJ9adHIctl1S0onmq1D/Ip5+rDHNzMYz5juP8nuHxY3CfakHK9B5llKrbZvKj
+	ywfZDYPebwoAJT6EVGvzJSsWxVU1XXqkOFlLI0uzLmrN78qF4Snl21fmEtxfkPftNs+pp1vWCKt
+	fF66l4FoJYJI2015laKCfNyYkEuFaU26gU5lHnYEyxn6HZEFXaZBQhHF70kKeSCMbSuxyTLdko7
+	iffO
+X-Received: by 2002:a2e:be20:0:b0:393:bc85:8d80 with SMTP id
+ 38308e7fff4ca-395ca5246e6mr13153151fa.12.1779373350207; Thu, 21 May 2026
+ 07:22:30 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260508121327.91410-1-kalevi@kolttonen.fi> <20260508121327.91410-3-kalevi@kolttonen.fi>
+ <CAP+JOzQgrnm=bDCsJ1JwL9RXY_Bz__MUa44LVaffW5x5cVRUcQ@mail.gmail.com>
+In-Reply-To: <CAP+JOzQgrnm=bDCsJ1JwL9RXY_Bz__MUa44LVaffW5x5cVRUcQ@mail.gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Thu, 21 May 2026 10:22:18 -0400
+X-Gm-Features: AVHnY4IP9i_6UAPspn3-u79hPtiUJM-9MytEAGo2iPDL46zA7axxpOd4UjDAGYw
+Message-ID: <CAP+JOzSriy7g1N4CdriGD61C5ObZUiNEYv5R_Z4-fn3z5oFwgg@mail.gmail.com>
+Subject: Re: [PATCH 2/4] checkpolicy: remove unneeded tests before free() calls
+To: Kalevi Kolttonen <kalevi@kolttonen.fi>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-restorecond registers a single io channel callback that handles
-both inotify events and stdin. This can erroneously end up
-trying to interpret stdin input as an inotify event. Create
-a separate callback for stdin.
+On Wed, May 20, 2026 at 11:33=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
+rote:
+>
+> On Fri, May 8, 2026 at 8:13=E2=80=AFAM Kalevi Kolttonen <kalevi@kolttonen=
+.fi> wrote:
+> >
+> > ISO C guarantees that free(NULL) is always safe to do so
+> > remove unneeded tests before free() calls.
+> >
+> > Signed-off-by: Kalevi Kolttonen <kalevi@kolttonen.fi>
+>
+> Acked-by: James Carter <jwcart2@gmail.com>
+>
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- restorecond/user.c | 28 +++++++++++++++++++++++++++-
- 1 file changed, 27 insertions(+), 1 deletion(-)
+Merged.
+Thanks,
+Jim
 
-diff --git a/restorecond/user.c b/restorecond/user.c
-index 25e70ae1..3191829f 100644
---- a/restorecond/user.c
-+++ b/restorecond/user.c
-@@ -169,6 +169,32 @@ io_channel_callback
-   return TRUE;
- }
- 
-+static gboolean
-+stdin_callback
-+ (GIOChannel *source,
-+  GIOCondition condition,
-+  gpointer data __attribute__((__unused__)))
-+{
-+
-+  char buffer[256];
-+  gsize bytes_read;
-+
-+  if (condition & G_IO_IN) {
-+    /* Data is available. */
-+    while (g_io_channel_read_chars(source, buffer, sizeof (buffer),
-+				    &bytes_read, NULL) == G_IO_STATUS_NORMAL
-+	    && bytes_read > 0)
-+	    ;
-+    if (bytes_read == 0)
-+	    exit(0);
-+  }
-+
-+  if (condition & (G_IO_HUP | G_IO_ERR | G_IO_NVAL))
-+	  exit(0);
-+
-+  return TRUE;
-+}
-+
- int start(void) {
- #ifdef HAVE_DBUS
- 	GDBusConnection *bus;
-@@ -243,7 +269,7 @@ static int local_server(void) {
- 	g_io_add_watch_full( in,
- 			     G_PRIORITY_HIGH,
- 			     G_IO_IN|G_IO_ERR|G_IO_HUP,
--			     io_channel_callback, NULL, NULL);
-+			     stdin_callback, NULL, NULL);
- 
- 	return 0;
- }
--- 
-2.54.0
-
+> > ---
+> >  checkpolicy/policy_define.c | 48 +++++++++++++------------------------
+> >  1 file changed, 16 insertions(+), 32 deletions(-)
+> >
+> > diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+> > index d1511a1a..4f775111 100644
+> > --- a/checkpolicy/policy_define.c
+> > +++ b/checkpolicy/policy_define.c
+> > @@ -381,10 +381,8 @@ int define_initial_sid(void)
+> >         return 0;
+> >
+> >        bad:
+> > -       if (id)
+> > -               free(id);
+> > -       if (newc)
+> > -               free(newc);
+> > +       free(id);
+> > +       free(newc);
+> >         return -1;
+> >  }
+> >
+> > @@ -632,17 +630,13 @@ int define_common_perms(void)
+> >         return 0;
+> >
+> >        bad:
+> > -       if (id)
+> > -               free(id);
+> > -       if (comdatum)
+> > -               free(comdatum);
+> > +       free(id);
+> > +       free(comdatum);
+> >         return -1;
+> >
+> >        bad_perm:
+> > -       if (perm)
+> > -               free(perm);
+> > -       if (perdatum)
+> > -               free(perdatum);
+> > +       free(perm);
+> > +       free(perdatum);
+> >         return -1;
+> >  }
+> >
+> > @@ -759,10 +753,8 @@ int define_av_perms(int inherits)
+> >         return 0;
+> >
+> >        bad:
+> > -       if (id)
+> > -               free(id);
+> > -       if (perdatum)
+> > -               free(perdatum);
+> > +       free(id);
+> > +       free(perdatum);
+> >         return -1;
+> >  }
+> >
+> > @@ -892,10 +884,8 @@ int define_sens(void)
+> >         return 0;
+> >
+> >        bad:
+> > -       if (id)
+> > -               free(id);
+> > -       if (level)
+> > -               free(level);
+> > +       free(id);
+> > +       free(level);
+> >         if (datum) {
+> >                 level_datum_destroy(datum);
+> >                 free(datum);
+> > @@ -903,8 +893,7 @@ int define_sens(void)
+> >         return -1;
+> >
+> >        bad_alias:
+> > -       if (id)
+> > -               free(id);
+> > +       free(id);
+> >         if (aliasdatum) {
+> >                 level_datum_destroy(aliasdatum);
+> >                 free(aliasdatum);
+> > @@ -1076,8 +1065,7 @@ int define_category(void)
+> >         return 0;
+> >
+> >        bad:
+> > -       if (id)
+> > -               free(id);
+> > +       free(id);
+> >         if (datum) {
+> >                 cat_datum_destroy(datum);
+> >                 free(datum);
+> > @@ -1085,8 +1073,7 @@ int define_category(void)
+> >         return -1;
+> >
+> >        bad_alias:
+> > -       if (id)
+> > -               free(id);
+> > +       free(id);
+> >         if (aliasdatum) {
+> >                 cat_datum_destroy(aliasdatum);
+> >                 free(aliasdatum);
+> > @@ -6129,13 +6116,10 @@ static int define_genfs_context_helper(char *fs=
+type, int has_type)
+> >         free(type);
+> >         return 0;
+> >        fail:
+> > -       if (type)
+> > -               free(type);
+> > +       free(type);
+> >         context_destroy(&newc->context[0]);
+> > -       if (fstype)
+> > -               free(fstype);
+> > -       if (newc->u.name)
+> > -               free(newc->u.name);
+> > +       free(fstype);
+> > +       free(newc->u.name);
+> >         free(newc);
+> >         return -1;
+> >  }
+> > --
+> > 2.54.0
+> >
+> >
