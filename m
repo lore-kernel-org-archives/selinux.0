@@ -1,63 +1,63 @@
-Received: from mail-qv1-f51.google.com (mail-qv1-f51.google.com [209.85.219.51])
+Received: from mail-qv1-f53.google.com (mail-qv1-f53.google.com [209.85.219.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F62B3F5BDA
-	for <selinux@vger.kernel.org>; Thu, 21 May 2026 13:40:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E3863F6C53
+	for <selinux@vger.kernel.org>; Thu, 21 May 2026 13:40:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779370854; cv=none; b=nSvw432UIsyTyTBAYMqYzc1iNi2p8cmSFac6+ICBPAUuRehXIqDlH6FhMAnKJbcmt4i2L/BtPwhYVGbwhsvhPpOrEXZkJSWZJRBOtHM4PBzAf7CqUKBxK5m3CETnIbZDVQ6tNus33M/tSt9kO6m7ENfDEhxEovJMc0X4VpAkzAU=
+	t=1779370855; cv=none; b=Z1/sxRaR9vg1J8Xkyd0UKLLdnlPsGU+8Rx0y+pZsZupt+ZSFwbMKsoNQ2/trgwcidEHc4jBxKf6zSbrLT0NM8UVaSbvJMe9XofJB9uSdAAETTkDwB3zduBYxBErZfHEuIvi5rqMYndc/RbbVIwfgIulFFVa19d8OQkHm+B5SU0I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779370854; c=relaxed/simple;
-	bh=vFJYXv/fPdHRdo0K9F/qG+g6yfX92bF4b9JrPeuG6TM=;
+	s=arc-20240116; t=1779370855; c=relaxed/simple;
+	bh=GzQ0X5LIcrDFxqwVsSUa70mWIENU49FZj0Tz1LpIWgk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=D8IuhskuqcI8tTdy+TGGkS7I/e0zaHl/eiGa3I0wlWUAahBeBAnXuGmUnb4Mct/rIVOjLYdtlDe8mWJxIodS6aDJ27bMjQE/hu3GIRFmUIvbOupXqfGNSZkRh2IirGR1Z0IL4bMX7o1ltUyD4vBlm6gmN+v+s0jtjWVEoEWFkl4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PD7Qv7Y5; arc=none smtp.client-ip=209.85.219.51
+	 MIME-Version; b=HjF65L3XYHPkakayIFTPCjwmK1YZClRO1GzcqhdSIfZTEE1Z3lmec4coSYMWkseCVPgLnt+7RKtYb5tk8ERK1l1G/H2+LCnNyLXG0FXa1Az4C9VXMGTKwobNiEQM4QyFWPGBPMtNe2ZwJ9wEwKv8XRrltYEFABqInzSqBN6L/fU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NmxhycPz; arc=none smtp.client-ip=209.85.219.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PD7Qv7Y5"
-Received: by mail-qv1-f51.google.com with SMTP id 6a1803df08f44-8acb09ddbf6so111353936d6.2
-        for <selinux@vger.kernel.org>; Thu, 21 May 2026 06:40:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NmxhycPz"
+Received: by mail-qv1-f53.google.com with SMTP id 6a1803df08f44-8ca12973e15so83424076d6.1
+        for <selinux@vger.kernel.org>; Thu, 21 May 2026 06:40:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779370852; x=1779975652; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1779370853; x=1779975653; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=L2gkfGneT/Im7rGJ+clsda8iq1AihFqVE4NAnePUI+M=;
-        b=PD7Qv7Y5vozvKE/W/Ky/4/w1yziofoBubKTIlgzvu0hU3ApmiiZzbXnXifhmEhSWxA
-         4q/auZWuPprtjpDQmYuepsQSfh9/oQsDhNTHfIPoPVRHJmkhWXbl7PMqtwJv2hzrLxO9
-         yLKD1JiQNiVHaRc55TY6NqcGmb18OVm+RcfEv/shrbNEWEd43igkKS5/T//wUbpVlrky
-         nCnRrfbIOb5dl/SkVvRWlA7dSFxyw66LBU/qpXLxS2PkeCT5Rky+QTHFNcHYv0D4lUYk
-         DYZIJdL7cOqI63BdagU7cS2JDgDJNAu5FugYGMFRkDbvTOJPgTJl38DwNTetJ8hs0j4p
-         eiMg==
+        bh=ndmegSTdqjtESW/ThYcUsBXIk9ZZK5cU0naq+7CPbDw=;
+        b=NmxhycPzI2YF4Y5xStSosvsvSUmYGDCxF5AwQyGVFf/Nf5txSlGHhp2XVYaMqVZWm7
+         3uDKKB4HjoY995B+6Vs10cjb6vOaXJwvU+U4NwVZ9uL3Q6AO0CP5iao16Y2AWXDrWVCW
+         1z+Zfb1lsKMDy32QVtg4ljuO/LvlG8qtopDBWKeDQ7CRXAv/iKnFkpCP7IKeEs2SkbNW
+         OZBBWdFHovDlRUyiqWxI6cGXH4D7BWcTaAbP6Y+6DhafHwzEF1ANIEAERzOFK0z3TLH5
+         ethdncJR1z4yF/kSCCD0joxF6mgotjmQKn9hAT2FEs2tGc5nXNzJPDONlHN/ENiFcfcU
+         N5Uw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779370852; x=1779975652;
+        d=1e100.net; s=20251104; t=1779370853; x=1779975653;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=L2gkfGneT/Im7rGJ+clsda8iq1AihFqVE4NAnePUI+M=;
-        b=RIzPs9ujto5dWjIE7nw5iDftMcN2Dbbshe/v1EyxDI7Z8xJdETnZIi06qhrHmWwjrb
-         hedKWuM6be3/cQyoycwTgpf9oM1aBq2WSb/gIi9lP1QBHSJDVHipDxceNNSSSdmZEB0h
-         TwUb7scvyx5xOGiKtMU59h+hnCr8JRSFnHvtZ+pUK8KpLKDsSAnZuCWMGS3MVkGt94K7
-         dusKDW1frZqkxelWhek4YLY7vaiVSbABDW6U2Ull+iGiLdkWhBlF8FRcyyGHBWLuAc4/
-         3ScJhUg/d+rU/9kh0hLcXHnhFyBXRCKFPru8qXeJUSykxjfXqnUmYzuA4YZ4GPbuS0db
-         1I5Q==
-X-Gm-Message-State: AOJu0YwcakauwR6A+d2VQMuSWk4Q9VUg9cxei30bLeWwCVBfTxdB6tfj
-	kNKNGFPbYwzCQzZPopvXd29PP1KD+p7d4wULQtXFbKslgNwq6hVqRwM0sWVcig==
-X-Gm-Gg: Acq92OEjOgcpD2379oQxY4mSqZLNgptVlf/Nly4UgDn3kHylB+RBgy+YYQqOektJlFG
-	nPZ4rqUfjHzyBndUqJRAjhLVWGQicfwzbOU4Jb9N7uNLmm/vZD37hOtDQX91Z+YLVgRB+uIoFqA
-	fWZSTkPVvrt6bc5+K2FHmMmFsFbxcG/93w6+ydNBBCTxNmGKo7sByDcD3QdAyBD4NAXMb5UhZdj
-	vxaoZ0pg/O1LX1W3u6YsRFWK2vL4n6gO0PU72Glxeeuu2XqzJbUbrXc5DUOKPO+X6W8prbPWwtC
-	7xCWBaHrU5G0TEn1rAmSbFA/YHasX7honQFb8igQUol0n/c+GrhF9vfuJUj5e20J5aDygpwhSAq
-	0YfVhlkHtSk3abjjkklb6rufwEddQMiGMEn6UXfEOzI5L3LxzEkbibxgzdu1VH6Li6AwQ+Eb4BB
-	psjeSzOHiYWGDQOXRF5avffkD8Ow+DWeYbHvjx5xwKdhX7q2nQEkiFKj/xp/gmeiArZmKwnsObf
-	NcuMGn1ZyWc+Y+SX/G75B7x15iLUZOKk5NzVuBOsGBAx5DZ8MbWbvE=
-X-Received: by 2002:a05:6214:3d9c:b0:8c6:2245:3f49 with SMTP id 6a1803df08f44-8cc6e380e43mr45043036d6.32.1779370852360;
-        Thu, 21 May 2026 06:40:52 -0700 (PDT)
+        bh=ndmegSTdqjtESW/ThYcUsBXIk9ZZK5cU0naq+7CPbDw=;
+        b=p6MPDic4p2xUOXCYs0BdvlTCHlhNgCiHNYFfPcm51U6G5gUPvDFC+oMIpWWrqR9peB
+         lL+mzs6w6A5v5XQusEUIJ7aefZL/p5gRXo59f/1x2JpAQJIUgoY7RhrmBpL4MXBhwByB
+         nF3+KGrxLobTDo5qZUP37qsZEe1ikfhO0FsTUuH8JWwNJF9K2A93RbEfEgb2GPbHpfuF
+         4S8HSsMqoZLv5XCaA4tTYuOTVD0kX+3S/JJz+jxfxjvA0AnPObzcPt/eRiphVr1EM6ht
+         Kyn2pXwDZh2LNLv8dLbc8vin5bItxDSbghZgx/yMwYgURGSFdv7/5TrynRORnL/sMoFh
+         ExRA==
+X-Gm-Message-State: AOJu0YynmCqYxbR5QsRZ/vombAZGsUa0GyrWZSTUTMfV0Bp5SY5otLyy
+	Z7a6boPp4Oir9reX5TphJdTLnuSa9icMcMpme781ssXEgWrwizvvvYaGtRB90A==
+X-Gm-Gg: Acq92OEf+itvMyTNmQntr+LDikTtdio/E0iwgaRVeRpoWv5Y5jfzJ+16JSwh+49Za/4
+	yJxRqzeZBbgxjjEi2KpaQnCwcg4wIsDJEeM9tFMj+BJSmG/6OGFSxnGFCVoaxoLOUt6Virg06Vh
+	XZ/egvGkNK0IZ9U98lRbd1fXGVTm2vx0SYmrgnYl4u2HNFT/Dp01TScwQMQrMe/OHQhuPs+3YVh
+	LQlpeg20XGv3UbYV2o7Mt79fUClmmIWL7zezDqP2f7al6gv8r6Mty8nvjYsYsLr+w9ZFJi+42VP
+	UN1ug8bT9Y56wtY8Eqea9fFLewWmPOit+n8Im938yvWKYHi1Yy5go3zbj9MuDCcL3oiVU9USW5v
+	7A+4pGhwHy9YbW1zxRcWBiCWo50F6TMOD/JmGCe2WR25CjPDiBidtVqkSKtaWEDwa3c5pje1eGH
+	7MwI6wXIeOEHWQ//jXR9V2LvVxtotnFT9P+VlrDlItnOF5J9BO1gR2RkS6bLF4G4QSdd/c7Q3v0
+	B0adDmqImNh9FfUgXVJnTX7GLBUIzWYBimb7ETtcGKdKQaLiPpf+5A=
+X-Received: by 2002:a05:6214:4987:b0:8cc:6a81:9ec5 with SMTP id 6a1803df08f44-8cc6e21fe3fmr46937096d6.0.1779370853128;
+        Thu, 21 May 2026 06:40:53 -0700 (PDT)
 Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8cc781b428csm5027756d6.23.2026.05.21.06.40.51
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8cc781b428csm5027756d6.23.2026.05.21.06.40.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 May 2026 06:40:51 -0700 (PDT)
+        Thu, 21 May 2026 06:40:52 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -66,9 +66,9 @@ Cc: jwcart2@gmail.com,
 	paul@paul-moore.com,
 	perfinion@gentoo.org,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 2/3] restorecond: do not pass the same string to basename()/dirname()
-Date: Thu, 21 May 2026 09:40:23 -0400
-Message-ID: <20260521134024.11581-2-stephen.smalley.work@gmail.com>
+Subject: [PATCH 3/3] restorecond: create a separate io channel callback for stdin
+Date: Thu, 21 May 2026 09:40:24 -0400
+Message-ID: <20260521134024.11581-3-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260521134024.11581-1-stephen.smalley.work@gmail.com>
 References: <20260521134024.11581-1-stephen.smalley.work@gmail.com>
@@ -80,51 +80,62 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-basename() and dirname() may modify their argument and may
-return a pointer to some part of their argument so we should
-pass separate copies of path to each one to prevent clobbering.
-For example, if path is "/foo", then:
-   x = strdup(path) = "/foo"
-   file = basename(x) = x+1 = "foo\0"
-   dir = dirname(x) writes '\0' to x+1 = "/\0oo"
-And file will become "\0".
+restorecond registers a single io channel callback that handles
+both inotify events and stdin. This can erroneously end up
+trying to interpret stdin input as an inotify event. Create
+a separate callback for stdin.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- restorecond/watch.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ restorecond/user.c | 28 +++++++++++++++++++++++++++-
+ 1 file changed, 27 insertions(+), 1 deletion(-)
 
-diff --git a/restorecond/watch.c b/restorecond/watch.c
-index 40d30e53..aceb9c5f 100644
---- a/restorecond/watch.c
-+++ b/restorecond/watch.c
-@@ -170,10 +170,12 @@ void watch_list_add(int fd, const char *path)
- 	size_t i = 0;
- 	struct watchList *prev = NULL;
- 	glob_t globbuf;
--	char *x = strdup(path);
--	if (!x) exitApp("Out of Memory");
--	char *file = basename(x);
--	char *dir = dirname(x);
-+	char *xb = strdup(path);
-+	if (!xb) exitApp("Out of Memory");
-+	char *xd = strdup(path);
-+	if (!xd) exitApp("Out of Memory");
-+	char *file = basename(xb);
-+	char *dir = dirname(xd);
- 	ptr = firstDir;
- 	int len;
- 
-@@ -240,7 +242,8 @@ void watch_list_add(int fd, const char *path)
- 		printf("%d: Dir=%s, File=%s\n", ptr->wd, ptr->dir, file);
- 
- end:
--	free(x);
-+	free(xb);
-+	free(xd);
- 	return;
+diff --git a/restorecond/user.c b/restorecond/user.c
+index 25e70ae1..3191829f 100644
+--- a/restorecond/user.c
++++ b/restorecond/user.c
+@@ -169,6 +169,32 @@ io_channel_callback
+   return TRUE;
  }
  
++static gboolean
++stdin_callback
++ (GIOChannel *source,
++  GIOCondition condition,
++  gpointer data __attribute__((__unused__)))
++{
++
++  char buffer[256];
++  gsize bytes_read;
++
++  if (condition & G_IO_IN) {
++    /* Data is available. */
++    while (g_io_channel_read_chars(source, buffer, sizeof (buffer),
++				    &bytes_read, NULL) == G_IO_STATUS_NORMAL
++	    && bytes_read > 0)
++	    ;
++    if (bytes_read == 0)
++	    exit(0);
++  }
++
++  if (condition & (G_IO_HUP | G_IO_ERR | G_IO_NVAL))
++	  exit(0);
++
++  return TRUE;
++}
++
+ int start(void) {
+ #ifdef HAVE_DBUS
+ 	GDBusConnection *bus;
+@@ -243,7 +269,7 @@ static int local_server(void) {
+ 	g_io_add_watch_full( in,
+ 			     G_PRIORITY_HIGH,
+ 			     G_IO_IN|G_IO_ERR|G_IO_HUP,
+-			     io_channel_callback, NULL, NULL);
++			     stdin_callback, NULL, NULL);
+ 
+ 	return 0;
+ }
 -- 
 2.54.0
 
