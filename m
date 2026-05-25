@@ -1,322 +1,343 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C773EADC
-	for <selinux@vger.kernel.org>; Sat, 23 May 2026 00:09:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779494993; cv=none; b=VaEkPvLVbVgdyjbMFQJK8WOLDaEZhe0KsGnFP5F8fucfgNwVybLNXRML4lBNzUr5aOKASpBgfreDn6iLn8wNaa1nklTryooojv9dNiEedgyPgbFlVoUH/aInLl1rpdYrEKHn9XLRvK3vCaHoifISLZtfiGjK5NKSzj/9814o0TI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779494993; c=relaxed/simple;
-	bh=vJJU4GmTY9jmtg0yrZYpivbpmWBSMIctI21fyZ7o2PM=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08A777083C
+	for <selinux@vger.kernel.org>; Mon, 25 May 2026 00:36:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.179
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779669413; cv=pass; b=qJ4+BI2M6vIpYwkk2na9bcdsN8dXcRbt2UPqLWP6mY5nCCiKzSHhKdoTldanzk4hqCwVdQPuW1dMDX2C/m/HVt97nJfmbXzg6Gsgq7ur2A0OQkNQMnTM7BsHclGWPy9uCP/mvsQEjq9ouKO5CXOm1bKnR7HpVlWxG7daAqBSKtY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779669413; c=relaxed/simple;
+	bh=2qrgDN/bBMdQRg9l4KfM/gFB7cu1tJxDosamRpFzYqk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=t78xK/gYYM5iaYRwk44h+3kBtB20eYnsZJE24SicdR7tLRKaJ7lxcipdeeJFxHaj5Il1/QARPKV6vRm+olcQxL4iliNEqdXtZ2aJj0IsGnRKXsnyOH6WwPHDvgDWoX+6GRNkiiDtSMD+lRF4JgmxoMzRWxBKaWF8LxIJkXYPtvk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LLz6OJ2G; arc=none smtp.client-ip=100.103.45.18
+	 To:Cc:Content-Type; b=WuZ9BzeO8FfmA0Dz9hYkr9Cw3V1/kP2KUiNREMhts4fHxyrJv7hikRK/93PLGa36OWG4pbpYYuMhDVF4oWKlPUW0FOm31wMySyymQJnK5ucs8qgzA1WjcsAeoQUup5zE+gQbEblLAV03CUhDoY9/AgKfQt3N75gPs502fOkV8sU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=fYlTHlfF; arc=pass smtp.client-ip=209.85.160.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LLz6OJ2G"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C63E61F01564
-	for <selinux@vger.kernel.org>; Sat, 23 May 2026 00:09:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779494990;
-	bh=3ETkiHyHX86gwae5asX1X/o+svz9W8wf7RwScqd1OB0=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=LLz6OJ2G5VcEwhJ2/c8K+iMqFijT6OnrEV48gzINVrS4k/r+ulK4Q7YINQvQxJaXQ
-	 xrJeY31VCURhP233+u4suSIxLCh3ogsJE3FCGmaFiWWN0O+8ulzprV9okn3Ft+KLFe
-	 dgmPxI0HYxlzuEVTct4whUgy7ntJl6KNaPW5PfOFx4ZJA5Vn163MRAztJYLmz59hew
-	 dxijwqWdlVayWVwLLUlmWVbergjZeABI4ib5iTDnjDruK5jwReWHP92aBQIBPq66KR
-	 HDZ+2aUIP9YQ3PpMClQj8zP/3f2SoXnUPDwO8M+lsu+ojg0/C9vpYJ0X1yzJNS7IfJ
-	 q8YLhxPAHDDUw==
-Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-91080895355so915929385a.3
-        for <selinux@vger.kernel.org>; Fri, 22 May 2026 17:09:50 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ9lN+Pdf8N4nNr89KJC1+irxEMbz/m7jO03/veUTJuCC+YyN6dz2Ra5KP8Csa+rlbeE3JVq304c@vger.kernel.org
-X-Gm-Message-State: AOJu0YzWDQAWYcaHp2kKA007RRzW89/0j//bLkQTGCC96p+Z0t91CziH
-	rh4h8EQApvBISUA2pP8+RtBDPRoQn59W8/nSn+CB3IF+keb6bW8sx39llNJVDr2cqGVr+GUmVt/
-	nRoP6Ncf+C3KNu+qwC9qptft/sbDQWSA=
-X-Received: by 2002:a05:620a:1a19:b0:914:c48c:4ac4 with SMTP id
- af79cd13be357-914c48c4e17mr197578085a.15.1779494989957; Fri, 22 May 2026
- 17:09:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="fYlTHlfF"
+Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-516d6009380so2071cf.0
+        for <selinux@vger.kernel.org>; Sun, 24 May 2026 17:36:51 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1779669411; cv=none;
+        d=google.com; s=arc-20240605;
+        b=a/2nU/sHgeF3zvkka4K/nWI0zx1C21o+NnkCTben+zUWkgnL3EA+0Q615k80KT3mH9
+         KIFDpzeFmrS5tq2/Po1V1dJnqxMtc0Fz0yrXCNMLBw2np0od4RV8r7oU6jkU+a94fdT4
+         6OEmrBs6ANXzGCzwAH0yz1p+/OSVjLq0udFGMTwG94fN93AppIwet0h0AnV6boJOodPA
+         nLKTMRTDXtmERqsyz7vtqRgLMgwNiu8tkyNo/9N8pD4Z6YwQNvkm9kTBAl629FCwKcu/
+         53HbZ1ToksOdecKbTF7/4AmgGmH9XfgCO8yqhijgA9aoNC/kL5gzi0SYd/V805z5KYs0
+         IPPw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=nv3BfyoqNEGY/PdKeSr9wTOUCsbRUgR0jRxdNOgknjE=;
+        fh=FsXghBnyoYbEc42Idnie0oh5A6i9FUng5ntOLhqXIRs=;
+        b=TPwxis5Q8ERaJkhDh3V6YU1Rsr8vJkoYlEAARmNAvFYxiPUHonHhnLUxa2Ys874F7G
+         V0cSWPBqnAaaZI0KRt7F2dDWD2mzxFmOGyRKIHtc5APdd3pmzI1CF+rwV6oqA85qb9wB
+         KF7mlCzrmV1hR3HObmJ8w7RpnSLORZqTbGhIoh3yyivNUy9yg8V/kKoabseDmvB52dKg
+         wr5EHJxXrxygOHbDWQ6CFscIevSzdyzVaUj5TXPdJQGQC3dBfJHYDWRJVoBgp4uIGU6K
+         RMwB2J2qcgqJHaM2nEi889oD+cX0um2EPLEHcY6m7tkZQBky1xShQZ7Or8nOVJkb7I+W
+         yyoA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1779669411; x=1780274211; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=nv3BfyoqNEGY/PdKeSr9wTOUCsbRUgR0jRxdNOgknjE=;
+        b=fYlTHlfFgPVxqH/BzssH4Ye3h0XonPeCwYtWTOat6Y5eZLxV4lTHl6asYdzsYtw5lg
+         0wWnpNt/YvvDFp+qiZuemuBGuIcv9xzYhot+KtM6ONC0V97fDUhLWXYiWmfds+iNABpl
+         JSdTGcUDh5/1h3j/iLkqvLXsEZOwWvueXSkr4fTmI+ypH5W2F9DmeogtlzrH+W76tRrX
+         ueVsnc7/uhCJ6EMaLrUl5aot+yK+97M9Dk6JA2SwYGEK28HXQXTlTUULyUrPzmmHMPVE
+         eYnJ4A27mDiEMGrqI6BLt/r9hzNuk9y6qXgA/TTZZ0/ZLAmq18cOBuGk01Qr+O5HeX8V
+         aCnw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779669411; x=1780274211;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=nv3BfyoqNEGY/PdKeSr9wTOUCsbRUgR0jRxdNOgknjE=;
+        b=blsn+eHlkJZED3vhHDHop7srBquHcpOo5Cwsu5HLlgDTVhqGF81Nd/F08YzxFRupA1
+         Dw6GZuZWq4haN8K9DjAC7qaDYOZjHd21DjtZtl3KTruPPumG1JuPsaANbpwQrjbsy4mY
+         e6lUkPnSnO95UNRWBg0FBmLVwGy3Dmpe1L2Em+KierGj2IJY7vmgg368Hr1pejEa/mM3
+         FTNIQ7bzlgyXMwShIGyj3N2/wkM3MuefFUBJ1pgS36n2upJQMwBemsjigHzVvro63um+
+         /tpOU8VxmVJRNVx7XzESQ14ml2tBDBejQQHpYxcDtrxIE/nmd1LgZTKIGG0ooNA4sdTs
+         AIqw==
+X-Gm-Message-State: AOJu0YyjX8emjw9j8shwIVOFdSKST11ivA7Wyh9vGe/CfgUJpiE3oLPH
+	GH/hQosuAV4zPJ7obgrCd38GStDdaRffnxy5cKsurPhz+S+TuLf8BmUuqOoX+6nYkbijpJn0Nf+
+	zjm3+J9PUkWrxtoYuRxf5xiijDJp6GBwN10xxRj0ZphldtBEjb1LNWi46
+X-Gm-Gg: Acq92OETyWalLdPpt+CcjREOvyJ4M/3eqoSQWSua2d30gpeH8muzcqugga56mnZuus3
+	rM3I5XQ2+nhiTOEcK+ic4D9Wah1YYX9PFCjg7gFipgkAphIWYSzV5S0LK/P995P3UEi4KTQVu+n
+	R0I/yUIWL/qITrMwi0iXA/I3AETwYeffNIGZDxFRqUPdPQctiBJM2ZdgC8rqO4+pfV8L2jxyO4h
+	LlQ61YM0Jm/5jDGsVkhxnOOiLPfR17SrN4jMahvsc2i116hr4lMfspaivWampKFvdoEI3Kw1n+K
+	kJPfC9DItDr3qqPlI7DWek5jJHljPbjV8W/BZPCjBuUo2I7gKuK31lHbb8kymeZWpoXKJn9wPNS
+	fBvL3UiCJOFWV
+X-Received: by 2002:ac8:6a1a:0:b0:516:3b3c:1df2 with SMTP id
+ d75a77b69052e-516e0dbbc51mr10440761cf.14.1779669410251; Sun, 24 May 2026
+ 17:36:50 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260515200158.4081915-1-song@kernel.org> <20260515200158.4081915-2-song@kernel.org>
- <177944135249.2871055.11361892114499566606.b4-review@b4>
-In-Reply-To: <177944135249.2871055.11361892114499566606.b4-review@b4>
-From: Song Liu <song@kernel.org>
-Date: Fri, 22 May 2026 17:09:38 -0700
-X-Gmail-Original-Message-ID: <CAPhsuW4BVSQ6oqyk=kExuZUkB9PWRRqUf_EJ=x3mNmtkT4oH4g@mail.gmail.com>
-X-Gm-Features: AVHnY4LT2cV2r2zWcbI0oZ727WxL46ft_rV_sB6qqeKVssDd55dfD2nDOQXPZeA
-Message-ID: <CAPhsuW4BVSQ6oqyk=kExuZUkB9PWRRqUf_EJ=x3mNmtkT4oH4g@mail.gmail.com>
-Subject: Re: [PATCH v4 1/7] lsm: Add granular mount hooks to replace security_sb_mount
-To: Christian Brauner <brauner@kernel.org>
-Cc: linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	selinux@vger.kernel.org, apparmor@lists.ubuntu.com, paul@paul-moore.com, 
-	jmorris@namei.org, serge@hallyn.com, viro@zeniv.linux.org.uk, jack@suse.cz, 
-	john.johansen@canonical.com, stephen.smalley.work@gmail.com, 
-	omosnace@redhat.com, mic@digikod.net, gnoack@google.com, 
-	takedakn@nttdata.co.jp, penguin-kernel@i-love.sakura.ne.jp, 
-	herton@canonical.com, kernel-team@meta.com
+References: <20260427195546.91395-1-jwcart2@gmail.com> <20260427195546.91395-3-jwcart2@gmail.com>
+ <CA+zpnLf6Od_mM-T57zYjK9wQnO+hwpDZEqbc41jr0anK9Mgmtg@mail.gmail.com> <CAP+JOzT1BOkpwiF_B6kb18scQOL5Ys+Tm+pg4HMTNL8_ZN9Sfw@mail.gmail.com>
+In-Reply-To: <CAP+JOzT1BOkpwiF_B6kb18scQOL5Ys+Tm+pg4HMTNL8_ZN9Sfw@mail.gmail.com>
+From: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Date: Mon, 25 May 2026 10:36:32 +1000
+X-Gm-Features: AVHnY4LM0Mx9SZ-1OXQ059se0v-at7ouhDhKSsAsfkJaOvpEXrvSvbSfFhFyraY
+Message-ID: <CA+zpnLcSQrhaR83D+4mchgLr=W3LucUnfZaYTy3e3mQwQOE69A@mail.gmail.com>
+Subject: Re: [RFC PATCH 3/3] secilc: Add program that checks CIL neverallow
+ rules against a binary policy
+To: James Carter <jwcart2@gmail.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, May 22, 2026 at 2:16=E2=80=AFAM Christian Brauner <brauner@kernel.o=
-rg> wrote:
+On Fri, May 22, 2026 at 11:31=E2=80=AFPM James Carter <jwcart2@gmail.com> w=
+rote:
 >
-> On Fri, 15 May 2026 13:01:52 -0700, Song Liu <song@kernel.org> wrote:
-> > [...]
+> On Thu, May 21, 2026 at 8:00=E2=80=AFPM Thi=C3=A9baud Weksteen <tweek@goo=
+gle.com> wrote:
 > >
-> > Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > Tested-by: Stephen Smalley <stephen.smalley.work@gmail.com> # for selin=
-ux only
-> > Signed-off-by: Song Liu <song@kernel.org>
-> > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
-
-^^^^^ I assume you didn't mean to add this SoB yet.
-
+> > On Tue, Apr 28, 2026 at 5:56=E2=80=AFAM James Carter <jwcart2@gmail.com=
+> wrote:
+> > >
+> > > Add the program secilcheck that takes a binary policy and one or
+> > > more CIL files and checks the binary policy against the neverallow
+> > > rules in the CIL policy.
+> > >
+> > > ex/
+> > > secilcheck policy.bin neverallows.cil
+> > >
+> > > Signed-off-by: James Carter <jwcart2@gmail.com>
+> > > ---
+> > >  secilc/.gitignore       |   2 +
+> > >  secilc/Makefile         |  20 ++-
+> > >  secilc/secilcheck.8.xml |  81 +++++++++++
+> > >  secilc/secilcheck.c     | 301 ++++++++++++++++++++++++++++++++++++++=
+++
+> > >  4 files changed, 402 insertions(+), 2 deletions(-)
+> > >  create mode 100644 secilc/secilcheck.8.xml
+> > >  create mode 100644 secilc/secilcheck.c
+> > >
+> > > diff --git a/secilc/.gitignore b/secilc/.gitignore
+> > > index d2a3daf1..9a5f45e0 100644
+> > > --- a/secilc/.gitignore
+> > > +++ b/secilc/.gitignore
+> > > @@ -4,6 +4,8 @@ secil2conf
+> > >  secil2conf.8
+> > >  secil2tree
+> > >  secil2tree.8
+> > > +secilcheck
+> > > +secilcheck.8
+> > >  policy.*
+> > >  file_contexts
+> > >  docs/html
+> > > diff --git a/secilc/Makefile b/secilc/Makefile
+> > > index ef7bc8cd..ebcc9d7c 100644
+> > > --- a/secilc/Makefile
+> > > +++ b/secilc/Makefile
+> > > @@ -14,9 +14,14 @@ SECIL2TREE =3D secil2tree
+> > >  SECIL2TREE_SRCS :=3D secil2tree.c
+> > >  SECIL2TREE_OBJS :=3D $(patsubst %.c,%.o,$(SECIL2TREE_SRCS))
+> > >
+> > > +SECILCHECK =3D secilcheck
+> > > +SECILCHECK_SRCS :=3D secilcheck.c
+> > > +SECILCHECK_OBJS :=3D $(patsubst %.c,%.o,$(SECILCHECK_SRCS))
+> > > +
+> > >  SECILC_MANPAGE =3D secilc.8
+> > >  SECIL2CONF_MANPAGE =3D secil2conf.8
+> > >  SECIL2TREE_MANPAGE =3D secil2tree.8
+> > > +SECILCHECK_MANPAGE =3D secilcheck.8
+> > >  XMLTO =3D xmlto
+> > >  DIFF =3D diff
+> > >
+> > > @@ -28,7 +33,7 @@ CFLAGS ?=3D -Wall -Wshadow -Wextra -Wundef -Wmissin=
+g-format-attribute -Wcast-align
+> > >  override CFLAGS +=3D -D_GNU_SOURCE -D_FILE_OFFSET_BITS=3D64
+> > >  override LDLIBS +=3D -lsepol
+> > >
+> > > -all: $(SECILC) $(SECIL2CONF) $(SECIL2TREE) man
+> > > +all: $(SECILC) $(SECIL2CONF) $(SECIL2TREE) $(SECILCHECK) man
+> > >
+> > >  $(SECILC): $(SECILC_OBJS)
+> > >         $(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+> > > @@ -45,7 +50,10 @@ $(SECIL2CONF): $(SECIL2CONF_OBJS)
+> > >  $(SECIL2TREE): $(SECIL2TREE_OBJS)
+> > >         $(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+> > >
+> > > -man: $(SECILC_MANPAGE) $(SECIL2CONF_MANPAGE) $(SECIL2TREE_MANPAGE)
+> > > +$(SECILCHECK): $(SECILCHECK_OBJS)
+> > > +       $(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+> > > +
+> > > +man: $(SECILC_MANPAGE) $(SECIL2CONF_MANPAGE) $(SECIL2TREE_MANPAGE) $=
+(SECILCHECK_MANPAGE)
+> > >
+> > >  $(SECILC_MANPAGE): $(SECILC_MANPAGE).xml
+> > >         $(XMLTO) man $(SECILC_MANPAGE).xml
+> > > @@ -56,15 +64,20 @@ $(SECIL2CONF_MANPAGE): $(SECIL2CONF_MANPAGE).xml
+> > >  $(SECIL2TREE_MANPAGE): $(SECIL2TREE_MANPAGE).xml
+> > >         $(XMLTO) man $(SECIL2TREE_MANPAGE).xml
+> > >
+> > > +$(SECILCHECK_MANPAGE): $(SECILCHECK_MANPAGE).xml
+> > > +       $(XMLTO) man $(SECILCHECK_MANPAGE).xml
+> > > +
+> > >  install: all man
+> > >         -mkdir -p $(DESTDIR)$(BINDIR)
+> > >         -mkdir -p $(DESTDIR)$(MANDIR)/man8
+> > >         install -m 755 $(SECILC) $(DESTDIR)$(BINDIR)
+> > >         install -m 755 $(SECIL2CONF) $(DESTDIR)$(BINDIR)
+> > >         install -m 755 $(SECIL2TREE) $(DESTDIR)$(BINDIR)
+> > > +       install -m 755 $(SECILCHECK) $(DESTDIR)$(BINDIR)
+> > >         install -m 644 $(SECILC_MANPAGE) $(DESTDIR)$(MANDIR)/man8
+> > >         install -m 644 $(SECIL2CONF_MANPAGE) $(DESTDIR)$(MANDIR)/man8
+> > >         install -m 644 $(SECIL2TREE_MANPAGE) $(DESTDIR)$(MANDIR)/man8
+> > > +       install -m 644 $(SECILCHECK_MANPAGE) $(DESTDIR)$(MANDIR)/man8
+> > >
+> > >  doc:
+> > >         $(MAKE) -C docs
+> > > @@ -76,11 +89,14 @@ clean:
+> > >         rm -f $(SECIL2CONF_OBJS)
+> > >         rm -f $(SECIL2TREE)
+> > >         rm -f $(SECIL2TREE_OBJS)
+> > > +       rm -f $(SECILCHECK)
+> > > +       rm -f $(SECILCHECK_OBJS)
+> > >         rm -f policy.*
+> > >         rm -f file_contexts
+> > >         rm -f $(SECILC_MANPAGE)
+> > >         rm -f $(SECIL2CONF_MANPAGE)
+> > >         rm -f $(SECIL2TREE_MANPAGE)
+> > > +       rm -f $(SECILCHECK_MANPAGE)
+> > >         rm -f opt-actual.cil
+> > >         rm -f opt-actual.bin
+> > >         $(MAKE) -C docs clean
+> > > diff --git a/secilc/secilcheck.8.xml b/secilc/secilcheck.8.xml
+> > > new file mode 100644
+> > > index 00000000..004e6ccd
+> > > --- /dev/null
+> > > +++ b/secilc/secilcheck.8.xml
+> > > @@ -0,0 +1,81 @@
+> > > +<?xml version=3D"1.0" encoding=3D"UTF-8"?>
+> > > +<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+> > > +               "http://www.oasis-open.org/docbook/xml/4.2/docbookx.d=
+td">
+> > > +
+> > > +<refentry>
+> > > +   <refentryinfo>
+> > > +      <author>
+> > > +         <firstname>James</firstname><surname>Carter</surname><contr=
+ib></contrib>
+> > > +      </author>
+> > > +   </refentryinfo>
+> > > +
+> > > +   <refmeta>
+> > > +      <refentrytitle>SECILCHECK</refentrytitle>
+> > > +      <manvolnum>8</manvolnum>
+> > > +      <refmiscinfo class=3D"date">27 April 2026</refmiscinfo>
+> > > +      <refmiscinfo class=3D"source">secilcheck</refmiscinfo>
+> > > +      <refmiscinfo class=3D"manual">Check binary policy file against=
+ CIL neverallow files</refmiscinfo>
+> > > +   </refmeta>
+> > > +   <refnamediv id=3D"name">
+> > > +      <refname>secilcheck</refname>
+> > > +      <refpurpose>invoke the CIL neverallow checker</refpurpose>
+> > > +   </refnamediv>
+> > > +
+> > > +   <refsynopsisdiv id=3D"synopsis">
+> > > +      <cmdsynopsis>
+> > > +        <command>secilcheck</command>
+> > > +          <arg choice=3D"opt" rep=3D"repeat"><replaceable>OPTION</re=
+placeable></arg>
+> > > +          <arg choice=3D"plain"><replaceable>binary</replaceable></a=
+rg>
+> > > +          <arg choice=3D"plain" rep=3D"repeat"><replaceable>file</re=
+placeable></arg>
+> > > +      </cmdsynopsis>
+> > > +   </refsynopsisdiv>
+> > > +
+> > > +   <refsect1 id=3D"description"><title>DESCRIPTION</title>
+> > > +      <para><emphasis role=3D"italic">secilcheck</emphasis> invokes =
+the CIL neverallow checker with specified <emphasis role=3D"italic">argumen=
+t</emphasis>s.</para>
+> > > +   </refsect1>
+> > > +
+> > > +   <refsect1 id=3D"options"><title>OPTIONS</title>
+> > > +      <variablelist>
+> > > +         <varlistentry>
+> > > +            <term><option>-Q, --qualified-names</option></term>
+> > > +            <listitem><para>Allow names containing dots (qualified n=
+ames). Blocks, blockinherits, blockabstracts, and in-statements will not be=
+ allowed.</para></listitem>
+> > > +         </varlistentry>
+> > > +
+> > > +         <varlistentry>
+> > > +            <term><option>-m, --multiple-decls</option></term>
+> > > +            <listitem><para>Allow some statements to be re-declared.=
+</para></listitem>
+> > > +         </varlistentry>
+> > > +
+> > > +         <varlistentry>
+> > > +            <term><option>-v, --verbose</option></term>
+> > > +            <listitem><para>Increment verbosity level.</para></listi=
+tem>
+> > > +         </varlistentry>
+> > > +
+> > > +         <varlistentry>
+> > > +            <term><option>-h, --help</option></term>
+> > > +            <listitem><para>Display usage information.</para></listi=
+tem>
+> > > +         </varlistentry>
+> > > +      </variablelist>
+> > > +   </refsect1>
+> > > +
+> > > +   <refsect1 id=3D"see_also"><title>SEE ALSO</title>
+> > > +      <para>
+> > > +      <simplelist type=3D"inline">
+> > > +         <member><citerefentry>
+> > > +            <refentrytitle>secilc</refentrytitle>
+> > > +            <manvolnum>8</manvolnum>
+> > > +         </citerefentry></member>
+> > > +         <member><citerefentry>
+> > > +            <refentrytitle>secil2tree</refentrytitle>
+> > > +            <manvolnum>8</manvolnum>
+> > > +         </citerefentry></member>
+> > > +         <member><citerefentry>
+> > > +            <refentrytitle>secil2conf</refentrytitle>
+> > > +            <manvolnum>8</manvolnum>
+> > > +         </citerefentry></member>
+> > > +      </simplelist>
+> > > +      </para>
+> > > +      <para>HTML documentation describing the CIL language statement=
+s is available starting with <emphasis role=3D"italic">docs/html/index.html=
+</emphasis>.</para>
+> > > +      <para>PDF documentation describing the CIL language statements=
+ is available at: <emphasis role=3D"italic">docs/pdf/CIL_Reference_Guide.pd=
+f</emphasis>.</para>
+> > > +   </refsect1>
+> > > +</refentry>
+> > > diff --git a/secilc/secilcheck.c b/secilc/secilcheck.c
+> > > new file mode 100644
+> > > index 00000000..874f6544
+> > > --- /dev/null
+> > > +++ b/secilc/secilcheck.c
+> > > @@ -0,0 +1,301 @@
+> > > +/*
+> > > + * Copyright 2011 Tresys Technology, LLC. All rights reserved.
+> >
+> > Update the date? Is that the correct header here?
 >
-> Please cleanly separate the preparatory work for introducing the new
-> hooks from any changes to fs/namespace.c
+> Since I work for the government, everything that I create is actually
+> in the public domain. We can contribute to code released under open
+> source licenses, but we can't create it.
+> Since this was derived from the secilc.c code, I just kept the
+> copyright notice. That is my usual practice.
 >
-> Once you have all of the new machinery in place, switch fs/namespace.c
-> over to the new hooks.
+> I know there is a lot of duplicate code. One of my long-term todo
+> items is to pull out the common code from the various programs in the
+> secilc directory.
+>
 
-Could you please be more specific on how to arrange these changes?
-Currently, we have
-
-1/7 adds new hooks:
-  lsm: Add granular mount hooks to replace security_sb_mount
-2/7 through 6/7 migrate LSMs from old hooks to new hooks:
-  apparmor: Remove redundant MS_MGC_MSK stripping in apparmor_sb_mount
-  apparmor: Convert from sb_mount to granular mount hooks
-  selinux: Convert from sb_mount to granular mount hooks
-  landlock: Convert from sb_mount to granular mount hooks
-  tomoyo: Convert from sb_mount to granular mount hooks
-7/7 removes old hooks:
-  lsm: Remove security_sb_mount and security_move_mount
-
-Some ideas to change this:
-
-Idea #1:
-Do you mean to split 1/7 and 7/7 into two patches each: one
-for changes in fs/namespace.c, the other for everything else?
-IOW, the set of 9 patches will look like:
-
-1/9 adds new hooks in security/ core code
-2/9 adds calls to new hooks to fs/namespace.c
-3/9 through 7/9 migrate LSMs from old hooks to new hooks
-8/9 removes calls to old hooks from s/namespace.c
-9/9 removes old hooks from security/ core code
-
-Idea #2:
-Or do you mean all the changes to fs/namespace.c have to
-stay in one commit? I am not sure how we can make the
-whole patchset clean with this approach. We will probably
-need 2+ commits for each of the 4 LSMs we update. IOW,
-the set will look like:
-
-Add new hooks in security core code
-Add new hooks in selinux
-Add new hooks in apparmor
-Add new hooks in landlock
-Add new hooks in tamoyo
-Replace old hooks with new hooks in fs/namespace.c
-Remove old hooks from selinux
-Remove old hooks from apparmor
-Remove old hooks from landlock
-Remove old hooks from tamoyo
-Remove old hooks in security core code
-
-This will require at least 11 patches, and it is not
-really clean.
-
-Idea #3:
-Did I miss any other solutions?
-
-> This will make it way easier to review and easier to distribute the
-
-This sentence appears to be incomplete. Do you mean to distribute
-different patches in the patchset to different trees and merge them
-separately?
-
-I actually think the patchset is clean as-is.
-
-The overall change in fs/namespace.c is really minimal:
-    fs/namespace.c                    |  41 +++++++---
-
-We can clearly see what it changed in fs/namespace.c with
-"git diff HEAD~7 -- fs/" (attached below).
-
-Therefore, I don't see a way to make the whole patchset more
-clean. If I missed anything, please let me know.
-
-Thanks,
-Song
-
-
-$ git diff HEAD~7 -- fs/
-diff --git c/fs/namespace.c w/fs/namespace.c
-index fe919abd2f01..43f22c5e2bf4 100644
---- c/fs/namespace.c
-+++ w/fs/namespace.c
-@@ -2888,6 +2888,10 @@ static int do_change_type(const struct path
-*path, int ms_flags)
-        if (!type)
-                return -EINVAL;
-
-+       err =3D security_mount_change_type(path, ms_flags);
-+       if (err)
-+               return err;
-+
-        guard(namespace_excl)();
-
-        err =3D may_change_propagation(mnt);
-@@ -3006,6 +3010,10 @@ static int do_loopback(const struct path *path,
-const char *old_name,
-        if (err)
-                return err;
-
-+       err =3D security_mount_bind(&old_path, path, recurse);
-+       if (err)
-+               return err;
-+
-        if (mnt_ns_loop(old_path.dentry))
-                return -EINVAL;
-
-@@ -3328,7 +3336,8 @@ static void mnt_warn_timestamp_expiry(const
-struct path *mountpoint,
-  * superblock it refers to.  This is triggered by specifying MS_REMOUNT|MS=
-_BIND
-  * to mount(2).
-  */
--static int do_reconfigure_mnt(const struct path *path, unsigned int mnt_fl=
-ags)
-+static int do_reconfigure_mnt(const struct path *path, unsigned int mnt_fl=
-ags,
-+                             unsigned long flags)
- {
-        struct super_block *sb =3D path->mnt->mnt_sb;
-        struct mount *mnt =3D real_mount(path->mnt);
-@@ -3343,6 +3352,10 @@ static int do_reconfigure_mnt(const struct path
-*path, unsigned int mnt_flags)
-        if (!can_change_locked_flags(mnt, mnt_flags))
-                return -EPERM;
-
-+       ret =3D security_mount_reconfigure(path, mnt_flags, flags);
-+       if (ret)
-+               return ret;
-+
-        /*
-         * We're only checking whether the superblock is read-only not
-         * changing it, so only take down_read(&sb->s_umount).
-@@ -3366,7 +3379,7 @@ static int do_reconfigure_mnt(const struct path
-*path, unsigned int mnt_flags)
-  * on it - tough luck.
-  */
- static int do_remount(const struct path *path, int sb_flags,
--                     int mnt_flags, void *data)
-+                     int mnt_flags, void *data, unsigned long flags)
- {
-        int err;
-        struct super_block *sb =3D path->mnt->mnt_sb;
-@@ -3393,6 +3406,9 @@ static int do_remount(const struct path *path,
-int sb_flags,
-        fc->oldapi =3D true;
-
-        err =3D parse_monolithic_mount_data(fc, data);
-+       if (!err)
-+               err =3D security_mount_remount(fc, path, mnt_flags, flags,
-+                                           data);
-        if (!err) {
-                down_write(&sb->s_umount);
-                err =3D -EPERM;
-@@ -3708,6 +3724,10 @@ static int do_move_mount_old(const struct path
-*path, const char *old_name)
-        if (err)
-                return err;
-
-+       err =3D security_mount_move(&old_path, path);
-+       if (err)
-+               return err;
-+
-        return do_move_mount(&old_path, path, 0);
- }
-
-@@ -3786,7 +3806,7 @@ static int do_new_mount_fc(struct fs_context
-*fc, const struct path *mountpoint,
-  */
- static int do_new_mount(const struct path *path, const char *fstype,
-                        int sb_flags, int mnt_flags,
--                       const char *name, void *data)
-+                       const char *name, void *data, unsigned long flags)
- {
-        struct file_system_type *type;
-        struct fs_context *fc;
-@@ -3830,6 +3850,9 @@ static int do_new_mount(const struct path *path,
-const char *fstype,
-                err =3D parse_monolithic_mount_data(fc, data);
-        if (!err && !mount_capable(fc))
-                err =3D -EPERM;
-+
-+       if (!err)
-+               err =3D security_mount_new(fc, path, mnt_flags, flags, data=
-);
-        if (!err)
-                err =3D do_new_mount_fc(fc, path, mnt_flags);
-
-@@ -4080,7 +4103,6 @@ int path_mount(const char *dev_name, const
-struct path *path,
-                const char *type_page, unsigned long flags, void *data_page=
-)
- {
-        unsigned int mnt_flags =3D 0, sb_flags;
--       int ret;
-
-        /* Discard magic */
-        if ((flags & MS_MGC_MSK) =3D=3D MS_MGC_VAL)
-@@ -4093,9 +4115,6 @@ int path_mount(const char *dev_name, const
-struct path *path,
-        if (flags & MS_NOUSER)
-                return -EINVAL;
-
--       ret =3D security_sb_mount(dev_name, path, type_page, flags, data_pa=
-ge);
--       if (ret)
--               return ret;
-        if (!may_mount())
-                return -EPERM;
-        if (flags & SB_MANDLOCK)
-@@ -4141,9 +4160,9 @@ int path_mount(const char *dev_name, const
-struct path *path,
-                            SB_I_VERSION);
-
-        if ((flags & (MS_REMOUNT | MS_BIND)) =3D=3D (MS_REMOUNT | MS_BIND))
--               return do_reconfigure_mnt(path, mnt_flags);
-+               return do_reconfigure_mnt(path, mnt_flags, flags);
-        if (flags & MS_REMOUNT)
--               return do_remount(path, sb_flags, mnt_flags, data_page);
-+               return do_remount(path, sb_flags, mnt_flags, data_page, fla=
-gs);
-        if (flags & MS_BIND)
-                return do_loopback(path, dev_name, flags & MS_REC);
-        if (flags & (MS_SHARED | MS_PRIVATE | MS_SLAVE | MS_UNBINDABLE))
-@@ -4152,7 +4171,7 @@ int path_mount(const char *dev_name, const
-struct path *path,
-                return do_move_mount_old(path, dev_name);
-
-        return do_new_mount(path, type_page, sb_flags, mnt_flags, dev_name,
--                           data_page);
-+                           data_page, flags);
- }
-
- int do_mount(const char *dev_name, const char __user *dir_name,
-@@ -4545,7 +4564,7 @@ static inline int vfs_move_mount(const struct
-path *from_path,
- {
-        int ret;
-
--       ret =3D security_move_mount(from_path, to_path);
-+       ret =3D security_mount_move(from_path, to_path);
-        if (ret)
-                return ret;
+No worries. Thanks for sharing the context. I think the duplication is
+fine for now.
