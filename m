@@ -1,343 +1,138 @@
-Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
+Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08A777083C
-	for <selinux@vger.kernel.org>; Mon, 25 May 2026 00:36:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A30631EEE6
+	for <selinux@vger.kernel.org>; Mon, 25 May 2026 02:29:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.175
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779669413; cv=pass; b=qJ4+BI2M6vIpYwkk2na9bcdsN8dXcRbt2UPqLWP6mY5nCCiKzSHhKdoTldanzk4hqCwVdQPuW1dMDX2C/m/HVt97nJfmbXzg6Gsgq7ur2A0OQkNQMnTM7BsHclGWPy9uCP/mvsQEjq9ouKO5CXOm1bKnR7HpVlWxG7daAqBSKtY=
+	t=1779676143; cv=pass; b=H3m3/06ohen66FkS8A97v8FRlKeLg8HKhkAZb2/FsIYiK9tIuxR75TfiE5GePd6RwJZ/MZISCk2hWuUduB6FKxrylePcWVonW7hkCmiZW7hAU5LuRgqWJHZw40U6Q27WXQRt0u4eBxLn0LGiYDSc8hXgFfuf+kHZi3J7XBC1I2I=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779669413; c=relaxed/simple;
-	bh=2qrgDN/bBMdQRg9l4KfM/gFB7cu1tJxDosamRpFzYqk=;
+	s=arc-20240116; t=1779676143; c=relaxed/simple;
+	bh=m+zuNbLfHxQfoSCgetCkgysN8KqfGoPlk/SB4xEnFac=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WuZ9BzeO8FfmA0Dz9hYkr9Cw3V1/kP2KUiNREMhts4fHxyrJv7hikRK/93PLGa36OWG4pbpYYuMhDVF4oWKlPUW0FOm31wMySyymQJnK5ucs8qgzA1WjcsAeoQUup5zE+gQbEblLAV03CUhDoY9/AgKfQt3N75gPs502fOkV8sU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=fYlTHlfF; arc=pass smtp.client-ip=209.85.160.179
+	 To:Cc:Content-Type; b=H61wyEv8h/IUMaN/X9+wxhdS+1Ac1JtRQrWyPsTW5xPupbuymO+V3hC+nFjexX6IrMVWxXEmDRP3/YyjHfWFbnoGtjPtlzTuYCLsLFAhQLeSCjf8d2iMMBqLpTskQRN9KKdbMze08mpaKz40dzqrg4cfPGTd/qm5+W0VYUNLUac=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=BYL1GZj7; arc=pass smtp.client-ip=209.85.160.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="fYlTHlfF"
-Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-516d6009380so2071cf.0
-        for <selinux@vger.kernel.org>; Sun, 24 May 2026 17:36:51 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779669411; cv=none;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="BYL1GZj7"
+Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-516d1ddcdf4so2461cf.0
+        for <selinux@vger.kernel.org>; Sun, 24 May 2026 19:29:01 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1779676140; cv=none;
         d=google.com; s=arc-20240605;
-        b=a/2nU/sHgeF3zvkka4K/nWI0zx1C21o+NnkCTben+zUWkgnL3EA+0Q615k80KT3mH9
-         KIFDpzeFmrS5tq2/Po1V1dJnqxMtc0Fz0yrXCNMLBw2np0od4RV8r7oU6jkU+a94fdT4
-         6OEmrBs6ANXzGCzwAH0yz1p+/OSVjLq0udFGMTwG94fN93AppIwet0h0AnV6boJOodPA
-         nLKTMRTDXtmERqsyz7vtqRgLMgwNiu8tkyNo/9N8pD4Z6YwQNvkm9kTBAl629FCwKcu/
-         53HbZ1ToksOdecKbTF7/4AmgGmH9XfgCO8yqhijgA9aoNC/kL5gzi0SYd/V805z5KYs0
-         IPPw==
+        b=Wzz35XgZZb9Xt6XX5zo5o9/kN1TIewLmKlwLW/WqO9TWz9IN2zGCEV8W3l3kTSD4nV
+         qa1Ka2TdVJcvZwDfpK/jPHWawTeof0o7VPIXjg5tQ3fiIfRzQTB3+uB/o4bEdEFRLHIr
+         Hw8miDQ4b/AZ6w84ysE4cESAdvsTuB3DiGRLuj+yTaEUkJ2BBUWKHrrAGEblkQIurppC
+         9dUb5yIiTUGnkgPd6v7Kh3TX1GtnsSqoMN4sWaSm8ONO+KzzrrmMWRO6gA5lOVLrs1QD
+         doI5XnY3vpZRs1q628yXOmFzV6IIY+MjSde9+rYG5XPzfe3FDLuYD/RMBjC1rw4sDJZB
+         MrQw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=nv3BfyoqNEGY/PdKeSr9wTOUCsbRUgR0jRxdNOgknjE=;
-        fh=FsXghBnyoYbEc42Idnie0oh5A6i9FUng5ntOLhqXIRs=;
-        b=TPwxis5Q8ERaJkhDh3V6YU1Rsr8vJkoYlEAARmNAvFYxiPUHonHhnLUxa2Ys874F7G
-         V0cSWPBqnAaaZI0KRt7F2dDWD2mzxFmOGyRKIHtc5APdd3pmzI1CF+rwV6oqA85qb9wB
-         KF7mlCzrmV1hR3HObmJ8w7RpnSLORZqTbGhIoh3yyivNUy9yg8V/kKoabseDmvB52dKg
-         wr5EHJxXrxygOHbDWQ6CFscIevSzdyzVaUj5TXPdJQGQC3dBfJHYDWRJVoBgp4uIGU6K
-         RMwB2J2qcgqJHaM2nEi889oD+cX0um2EPLEHcY6m7tkZQBky1xShQZ7Or8nOVJkb7I+W
-         yyoA==;
+        bh=OREPAh8IwIMgJsmZKDOj1MDV0zI3WTPokWMmXxSJ1Vk=;
+        fh=5aqL2tXcD9ENLdTJkyQbLg6w2TOYgLm7OUxmb9gMGec=;
+        b=K8L8lp3gLcz4PCYo/2KLbNa4ya7yifQmX/YOouwUag52zoddze4iSAbuJMXhcrrNW7
+         wit+JDMOBkTRVyinIxNJRXuvTId1ncvKmlajQg0XdTHEZuszG6PIHSwoFvl2r/iDaq9Y
+         t5SV0G0sBMPNBADkbEZ04r4SvxPR/xCvsw51VlR4RhR6syFem15TPXlRjzIGFmcgC1zK
+         +MwVJsN/pE/rOBFohgJW/CFoJwX8xFqIkkD8UPrmF09+dVAOHwd1wVpC21kWrtd1R1+e
+         S2i4X21sITtcmQ3LKsKSIf366T6drzeU2+VxDfpakuDcIdxH871hBOtKLSJBR/4LVmM8
+         egbw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1779669411; x=1780274211; darn=vger.kernel.org;
+        d=google.com; s=20251104; t=1779676140; x=1780280940; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=nv3BfyoqNEGY/PdKeSr9wTOUCsbRUgR0jRxdNOgknjE=;
-        b=fYlTHlfFgPVxqH/BzssH4Ye3h0XonPeCwYtWTOat6Y5eZLxV4lTHl6asYdzsYtw5lg
-         0wWnpNt/YvvDFp+qiZuemuBGuIcv9xzYhot+KtM6ONC0V97fDUhLWXYiWmfds+iNABpl
-         JSdTGcUDh5/1h3j/iLkqvLXsEZOwWvueXSkr4fTmI+ypH5W2F9DmeogtlzrH+W76tRrX
-         ueVsnc7/uhCJ6EMaLrUl5aot+yK+97M9Dk6JA2SwYGEK28HXQXTlTUULyUrPzmmHMPVE
-         eYnJ4A27mDiEMGrqI6BLt/r9hzNuk9y6qXgA/TTZZ0/ZLAmq18cOBuGk01Qr+O5HeX8V
-         aCnw==
+        bh=OREPAh8IwIMgJsmZKDOj1MDV0zI3WTPokWMmXxSJ1Vk=;
+        b=BYL1GZj7loQt4p1Y6PJ82wIAHsjC6iu7ljcmAddJaLe6fum+9nvdrZKjqApfDHiZdD
+         E95iMi3XO9Q16SQGDkrP4jhzCIDutuuqb7M/XTVYSbnt2atW85UkeoI69uFVnEBrwyOD
+         o9NX/hwH0CrT9sCH11xnTpfRcCHfjgecEKrOeM2sRtItwbbziUUoMGGR6gKjynTfy4Rh
+         Kkn2pzsehDd/PQMr6bRyyC0ei0taAhVThLex4xGm69/0Xjb2Qnt3zK7Z7KRn1zpeUcxk
+         nTkBrIU6NDPiaWey6ogRVI2ouXunujbbo8Nild+AIsz1Di6eR5/6T9++xoC+qHGGKmDz
+         dBKA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779669411; x=1780274211;
+        d=1e100.net; s=20251104; t=1779676140; x=1780280940;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=nv3BfyoqNEGY/PdKeSr9wTOUCsbRUgR0jRxdNOgknjE=;
-        b=blsn+eHlkJZED3vhHDHop7srBquHcpOo5Cwsu5HLlgDTVhqGF81Nd/F08YzxFRupA1
-         Dw6GZuZWq4haN8K9DjAC7qaDYOZjHd21DjtZtl3KTruPPumG1JuPsaANbpwQrjbsy4mY
-         e6lUkPnSnO95UNRWBg0FBmLVwGy3Dmpe1L2Em+KierGj2IJY7vmgg368Hr1pejEa/mM3
-         FTNIQ7bzlgyXMwShIGyj3N2/wkM3MuefFUBJ1pgS36n2upJQMwBemsjigHzVvro63um+
-         /tpOU8VxmVJRNVx7XzESQ14ml2tBDBejQQHpYxcDtrxIE/nmd1LgZTKIGG0ooNA4sdTs
-         AIqw==
-X-Gm-Message-State: AOJu0YyjX8emjw9j8shwIVOFdSKST11ivA7Wyh9vGe/CfgUJpiE3oLPH
-	GH/hQosuAV4zPJ7obgrCd38GStDdaRffnxy5cKsurPhz+S+TuLf8BmUuqOoX+6nYkbijpJn0Nf+
-	zjm3+J9PUkWrxtoYuRxf5xiijDJp6GBwN10xxRj0ZphldtBEjb1LNWi46
-X-Gm-Gg: Acq92OETyWalLdPpt+CcjREOvyJ4M/3eqoSQWSua2d30gpeH8muzcqugga56mnZuus3
-	rM3I5XQ2+nhiTOEcK+ic4D9Wah1YYX9PFCjg7gFipgkAphIWYSzV5S0LK/P995P3UEi4KTQVu+n
-	R0I/yUIWL/qITrMwi0iXA/I3AETwYeffNIGZDxFRqUPdPQctiBJM2ZdgC8rqO4+pfV8L2jxyO4h
-	LlQ61YM0Jm/5jDGsVkhxnOOiLPfR17SrN4jMahvsc2i116hr4lMfspaivWampKFvdoEI3Kw1n+K
-	kJPfC9DItDr3qqPlI7DWek5jJHljPbjV8W/BZPCjBuUo2I7gKuK31lHbb8kymeZWpoXKJn9wPNS
-	fBvL3UiCJOFWV
-X-Received: by 2002:ac8:6a1a:0:b0:516:3b3c:1df2 with SMTP id
- d75a77b69052e-516e0dbbc51mr10440761cf.14.1779669410251; Sun, 24 May 2026
- 17:36:50 -0700 (PDT)
+        bh=OREPAh8IwIMgJsmZKDOj1MDV0zI3WTPokWMmXxSJ1Vk=;
+        b=ApuWIymSRIeCjSEHqkflEd3kizS+fpJW2htkuiZi5UixDHZ1oM9c8+onZdsiRzDBu4
+         cIuhoPWlSWb4hAPI3wmn6RpGdHgRu7gxNxHI/6OAso7YWigmMRBtk2d/beEqd4LpbMPM
+         6TdYa4U5mwB9dYTHtbYY+PwHIVQwjl1LCsck+h1fmbE2SL1u7MF3oGoVyVV9tS6kVvUv
+         egjoHio2zMOiWfJTwfvV6AJ0JUNu3fgli7cp3zmb322IX57FANvejAH0w6CJ6sD6pndt
+         DqbdleoQT2CcrZULS8jIxIExsnjTliB27R8F6S5IbH0pc4FDCTKOW7k3eiQ3IBvlSng+
+         k2PQ==
+X-Forwarded-Encrypted: i=1; AFNElJ/3RnUX2oeZkmk+NaNmMzhiBppZ63o8BlgN/yut3YBIGy8PI5ZcvTK3blQ5mZJhiVo3SeKUOlK4@vger.kernel.org
+X-Gm-Message-State: AOJu0YywSKwhbaHZy52whQPmSdj/UR1+xQQgKmD9QhBNTHOgQwdjPTvg
+	Z1XCzlHAMT/lghf+//M5MuJMdYop3ptlb5J3sSAdZy6vrBFhxnMSSDRh/XLvHYoQNI4fxGUXBbx
+	6Q9jd1lHpnCEd4cUj80H/9ckef6pZQpW6Ag3cAm63
+X-Gm-Gg: Acq92OGC3WPDK3f8kVBA1LoUQlGLKGUxONz9e5imztHjXYP3Y+INAPu6pfzsMSs0eSb
+	XFvV6rotCCvB598PY6HMRG37hFLSlI2Oz1eGQpia+fD9uSxQ25381WboJ2IFSdNGZes13r2eCzV
+	JISb8fdsNlqq5cOgcgOQLUYCdXENCvr+bS7PTsysHLxyB6A0d3ADnd9WIuB0mCFViVbPgmMYJeE
+	T2pLpzC96gfjRaApejwnmDWc6TvfKqA45dRcLkcEhAPpnCeWZy//wSRgY6w44s59mDUmthuYd/m
+	XzBS7jguSTopJCcXV+gtGDNuKxhOogprpn2O73XLuKAT1Gui61Gkc1E2s7aWtDY9ApJ+9fMJEHB
+	3ooSqcEDoXvGO
+X-Received: by 2002:a05:622a:1e08:b0:516:4f62:85e6 with SMTP id
+ d75a77b69052e-516e1ec958amr15669241cf.17.1779676140163; Sun, 24 May 2026
+ 19:29:00 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260427195546.91395-1-jwcart2@gmail.com> <20260427195546.91395-3-jwcart2@gmail.com>
- <CA+zpnLf6Od_mM-T57zYjK9wQnO+hwpDZEqbc41jr0anK9Mgmtg@mail.gmail.com> <CAP+JOzT1BOkpwiF_B6kb18scQOL5Ys+Tm+pg4HMTNL8_ZN9Sfw@mail.gmail.com>
-In-Reply-To: <CAP+JOzT1BOkpwiF_B6kb18scQOL5Ys+Tm+pg4HMTNL8_ZN9Sfw@mail.gmail.com>
+References: <20260320172446.96634-1-cgoettsche@seltendoof.de>
+ <CAEjxPJ6QRisP9s2QBXvt73+s1KFAYcmtoLWMnOz=VPwDhT=Qug@mail.gmail.com> <CAEjxPJ79UwFyiDj=iZ+u4EEVJ8LjDhuV70wd72HWwU5iKmGvvw@mail.gmail.com>
+In-Reply-To: <CAEjxPJ79UwFyiDj=iZ+u4EEVJ8LjDhuV70wd72HWwU5iKmGvvw@mail.gmail.com>
 From: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Date: Mon, 25 May 2026 10:36:32 +1000
-X-Gm-Features: AVHnY4LM0Mx9SZ-1OXQ059se0v-at7ouhDhKSsAsfkJaOvpEXrvSvbSfFhFyraY
-Message-ID: <CA+zpnLcSQrhaR83D+4mchgLr=W3LucUnfZaYTy3e3mQwQOE69A@mail.gmail.com>
-Subject: Re: [RFC PATCH 3/3] secilc: Add program that checks CIL neverallow
- rules against a binary policy
-To: James Carter <jwcart2@gmail.com>
-Cc: selinux@vger.kernel.org
+Date: Mon, 25 May 2026 12:28:42 +1000
+X-Gm-Features: AVHnY4Kk11tvWkVnnPKMe_AK2UJE8ogZDS9u8pd2VWvueS7smf64atTGkCkykSo
+Message-ID: <CA+zpnLd7-b+OMeFGeYObNjo=xLWuEN3wcT_KMJSetpXXmhXJgw@mail.gmail.com>
+Subject: Re: [PATCH v2] libselinux: correctly find partial matches
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: cgzones@googlemail.com, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, May 22, 2026 at 11:31=E2=80=AFPM James Carter <jwcart2@gmail.com> w=
-rote:
+On Tue, May 12, 2026 at 3:34=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> On Thu, May 21, 2026 at 8:00=E2=80=AFPM Thi=C3=A9baud Weksteen <tweek@goo=
-gle.com> wrote:
+> On Thu, May 7, 2026 at 9:49=E2=80=AFAM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
 > >
-> > On Tue, Apr 28, 2026 at 5:56=E2=80=AFAM James Carter <jwcart2@gmail.com=
-> wrote:
+> > On Fri, Mar 20, 2026 at 1:29=E2=80=AFPM Christian G=C3=B6ttsche
+> > <cgoettsche@seltendoof.de> wrote:
 > > >
-> > > Add the program secilcheck that takes a binary policy and one or
-> > > more CIL files and checks the binary policy against the neverallow
-> > > rules in the CIL policy.
+> > > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 > > >
-> > > ex/
-> > > secilcheck policy.bin neverallows.cil
+> > > The current lookup for file labels first searches for the deepest nod=
+e
+> > > matching the lookup-key.  Then all definitions of that node and its
+> > > parents are considered.
+> > > For partial lookups also consider child nodes matching the lookup-key
+> > > portion that did not match any node-stem.
 > > >
-> > > Signed-off-by: James Carter <jwcart2@gmail.com>
+> > > Example:
+> > > The lookup-key "/sys/de" will result in the deepest node being "sys" =
+(a
+> > > child of the root node).  Non-partial lookups don't care about the "s=
+ys"
+> > > child nodes "dev" and "devices" but partial lookup does.
+> > >
+> > > Fixes: 92306daf521 ("libselinux: rework selabel_file(5) database")
+> > > Reported-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+> > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 > > > ---
-> > >  secilc/.gitignore       |   2 +
-> > >  secilc/Makefile         |  20 ++-
-> > >  secilc/secilcheck.8.xml |  81 +++++++++++
-> > >  secilc/secilcheck.c     | 301 ++++++++++++++++++++++++++++++++++++++=
-++
-> > >  4 files changed, 402 insertions(+), 2 deletions(-)
-> > >  create mode 100644 secilc/secilcheck.8.xml
-> > >  create mode 100644 secilc/secilcheck.c
-> > >
-> > > diff --git a/secilc/.gitignore b/secilc/.gitignore
-> > > index d2a3daf1..9a5f45e0 100644
-> > > --- a/secilc/.gitignore
-> > > +++ b/secilc/.gitignore
-> > > @@ -4,6 +4,8 @@ secil2conf
-> > >  secil2conf.8
-> > >  secil2tree
-> > >  secil2tree.8
-> > > +secilcheck
-> > > +secilcheck.8
-> > >  policy.*
-> > >  file_contexts
-> > >  docs/html
-> > > diff --git a/secilc/Makefile b/secilc/Makefile
-> > > index ef7bc8cd..ebcc9d7c 100644
-> > > --- a/secilc/Makefile
-> > > +++ b/secilc/Makefile
-> > > @@ -14,9 +14,14 @@ SECIL2TREE =3D secil2tree
-> > >  SECIL2TREE_SRCS :=3D secil2tree.c
-> > >  SECIL2TREE_OBJS :=3D $(patsubst %.c,%.o,$(SECIL2TREE_SRCS))
-> > >
-> > > +SECILCHECK =3D secilcheck
-> > > +SECILCHECK_SRCS :=3D secilcheck.c
-> > > +SECILCHECK_OBJS :=3D $(patsubst %.c,%.o,$(SECILCHECK_SRCS))
-> > > +
-> > >  SECILC_MANPAGE =3D secilc.8
-> > >  SECIL2CONF_MANPAGE =3D secil2conf.8
-> > >  SECIL2TREE_MANPAGE =3D secil2tree.8
-> > > +SECILCHECK_MANPAGE =3D secilcheck.8
-> > >  XMLTO =3D xmlto
-> > >  DIFF =3D diff
-> > >
-> > > @@ -28,7 +33,7 @@ CFLAGS ?=3D -Wall -Wshadow -Wextra -Wundef -Wmissin=
-g-format-attribute -Wcast-align
-> > >  override CFLAGS +=3D -D_GNU_SOURCE -D_FILE_OFFSET_BITS=3D64
-> > >  override LDLIBS +=3D -lsepol
-> > >
-> > > -all: $(SECILC) $(SECIL2CONF) $(SECIL2TREE) man
-> > > +all: $(SECILC) $(SECIL2CONF) $(SECIL2TREE) $(SECILCHECK) man
-> > >
-> > >  $(SECILC): $(SECILC_OBJS)
-> > >         $(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-> > > @@ -45,7 +50,10 @@ $(SECIL2CONF): $(SECIL2CONF_OBJS)
-> > >  $(SECIL2TREE): $(SECIL2TREE_OBJS)
-> > >         $(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-> > >
-> > > -man: $(SECILC_MANPAGE) $(SECIL2CONF_MANPAGE) $(SECIL2TREE_MANPAGE)
-> > > +$(SECILCHECK): $(SECILCHECK_OBJS)
-> > > +       $(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-> > > +
-> > > +man: $(SECILC_MANPAGE) $(SECIL2CONF_MANPAGE) $(SECIL2TREE_MANPAGE) $=
-(SECILCHECK_MANPAGE)
-> > >
-> > >  $(SECILC_MANPAGE): $(SECILC_MANPAGE).xml
-> > >         $(XMLTO) man $(SECILC_MANPAGE).xml
-> > > @@ -56,15 +64,20 @@ $(SECIL2CONF_MANPAGE): $(SECIL2CONF_MANPAGE).xml
-> > >  $(SECIL2TREE_MANPAGE): $(SECIL2TREE_MANPAGE).xml
-> > >         $(XMLTO) man $(SECIL2TREE_MANPAGE).xml
-> > >
-> > > +$(SECILCHECK_MANPAGE): $(SECILCHECK_MANPAGE).xml
-> > > +       $(XMLTO) man $(SECILCHECK_MANPAGE).xml
-> > > +
-> > >  install: all man
-> > >         -mkdir -p $(DESTDIR)$(BINDIR)
-> > >         -mkdir -p $(DESTDIR)$(MANDIR)/man8
-> > >         install -m 755 $(SECILC) $(DESTDIR)$(BINDIR)
-> > >         install -m 755 $(SECIL2CONF) $(DESTDIR)$(BINDIR)
-> > >         install -m 755 $(SECIL2TREE) $(DESTDIR)$(BINDIR)
-> > > +       install -m 755 $(SECILCHECK) $(DESTDIR)$(BINDIR)
-> > >         install -m 644 $(SECILC_MANPAGE) $(DESTDIR)$(MANDIR)/man8
-> > >         install -m 644 $(SECIL2CONF_MANPAGE) $(DESTDIR)$(MANDIR)/man8
-> > >         install -m 644 $(SECIL2TREE_MANPAGE) $(DESTDIR)$(MANDIR)/man8
-> > > +       install -m 644 $(SECILCHECK_MANPAGE) $(DESTDIR)$(MANDIR)/man8
-> > >
-> > >  doc:
-> > >         $(MAKE) -C docs
-> > > @@ -76,11 +89,14 @@ clean:
-> > >         rm -f $(SECIL2CONF_OBJS)
-> > >         rm -f $(SECIL2TREE)
-> > >         rm -f $(SECIL2TREE_OBJS)
-> > > +       rm -f $(SECILCHECK)
-> > > +       rm -f $(SECILCHECK_OBJS)
-> > >         rm -f policy.*
-> > >         rm -f file_contexts
-> > >         rm -f $(SECILC_MANPAGE)
-> > >         rm -f $(SECIL2CONF_MANPAGE)
-> > >         rm -f $(SECIL2TREE_MANPAGE)
-> > > +       rm -f $(SECILCHECK_MANPAGE)
-> > >         rm -f opt-actual.cil
-> > >         rm -f opt-actual.bin
-> > >         $(MAKE) -C docs clean
-> > > diff --git a/secilc/secilcheck.8.xml b/secilc/secilcheck.8.xml
-> > > new file mode 100644
-> > > index 00000000..004e6ccd
-> > > --- /dev/null
-> > > +++ b/secilc/secilcheck.8.xml
-> > > @@ -0,0 +1,81 @@
-> > > +<?xml version=3D"1.0" encoding=3D"UTF-8"?>
-> > > +<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
-> > > +               "http://www.oasis-open.org/docbook/xml/4.2/docbookx.d=
-td">
-> > > +
-> > > +<refentry>
-> > > +   <refentryinfo>
-> > > +      <author>
-> > > +         <firstname>James</firstname><surname>Carter</surname><contr=
-ib></contrib>
-> > > +      </author>
-> > > +   </refentryinfo>
-> > > +
-> > > +   <refmeta>
-> > > +      <refentrytitle>SECILCHECK</refentrytitle>
-> > > +      <manvolnum>8</manvolnum>
-> > > +      <refmiscinfo class=3D"date">27 April 2026</refmiscinfo>
-> > > +      <refmiscinfo class=3D"source">secilcheck</refmiscinfo>
-> > > +      <refmiscinfo class=3D"manual">Check binary policy file against=
- CIL neverallow files</refmiscinfo>
-> > > +   </refmeta>
-> > > +   <refnamediv id=3D"name">
-> > > +      <refname>secilcheck</refname>
-> > > +      <refpurpose>invoke the CIL neverallow checker</refpurpose>
-> > > +   </refnamediv>
-> > > +
-> > > +   <refsynopsisdiv id=3D"synopsis">
-> > > +      <cmdsynopsis>
-> > > +        <command>secilcheck</command>
-> > > +          <arg choice=3D"opt" rep=3D"repeat"><replaceable>OPTION</re=
-placeable></arg>
-> > > +          <arg choice=3D"plain"><replaceable>binary</replaceable></a=
-rg>
-> > > +          <arg choice=3D"plain" rep=3D"repeat"><replaceable>file</re=
-placeable></arg>
-> > > +      </cmdsynopsis>
-> > > +   </refsynopsisdiv>
-> > > +
-> > > +   <refsect1 id=3D"description"><title>DESCRIPTION</title>
-> > > +      <para><emphasis role=3D"italic">secilcheck</emphasis> invokes =
-the CIL neverallow checker with specified <emphasis role=3D"italic">argumen=
-t</emphasis>s.</para>
-> > > +   </refsect1>
-> > > +
-> > > +   <refsect1 id=3D"options"><title>OPTIONS</title>
-> > > +      <variablelist>
-> > > +         <varlistentry>
-> > > +            <term><option>-Q, --qualified-names</option></term>
-> > > +            <listitem><para>Allow names containing dots (qualified n=
-ames). Blocks, blockinherits, blockabstracts, and in-statements will not be=
- allowed.</para></listitem>
-> > > +         </varlistentry>
-> > > +
-> > > +         <varlistentry>
-> > > +            <term><option>-m, --multiple-decls</option></term>
-> > > +            <listitem><para>Allow some statements to be re-declared.=
-</para></listitem>
-> > > +         </varlistentry>
-> > > +
-> > > +         <varlistentry>
-> > > +            <term><option>-v, --verbose</option></term>
-> > > +            <listitem><para>Increment verbosity level.</para></listi=
-tem>
-> > > +         </varlistentry>
-> > > +
-> > > +         <varlistentry>
-> > > +            <term><option>-h, --help</option></term>
-> > > +            <listitem><para>Display usage information.</para></listi=
-tem>
-> > > +         </varlistentry>
-> > > +      </variablelist>
-> > > +   </refsect1>
-> > > +
-> > > +   <refsect1 id=3D"see_also"><title>SEE ALSO</title>
-> > > +      <para>
-> > > +      <simplelist type=3D"inline">
-> > > +         <member><citerefentry>
-> > > +            <refentrytitle>secilc</refentrytitle>
-> > > +            <manvolnum>8</manvolnum>
-> > > +         </citerefentry></member>
-> > > +         <member><citerefentry>
-> > > +            <refentrytitle>secil2tree</refentrytitle>
-> > > +            <manvolnum>8</manvolnum>
-> > > +         </citerefentry></member>
-> > > +         <member><citerefentry>
-> > > +            <refentrytitle>secil2conf</refentrytitle>
-> > > +            <manvolnum>8</manvolnum>
-> > > +         </citerefentry></member>
-> > > +      </simplelist>
-> > > +      </para>
-> > > +      <para>HTML documentation describing the CIL language statement=
-s is available starting with <emphasis role=3D"italic">docs/html/index.html=
-</emphasis>.</para>
-> > > +      <para>PDF documentation describing the CIL language statements=
- is available at: <emphasis role=3D"italic">docs/pdf/CIL_Reference_Guide.pd=
-f</emphasis>.</para>
-> > > +   </refsect1>
-> > > +</refentry>
-> > > diff --git a/secilc/secilcheck.c b/secilc/secilcheck.c
-> > > new file mode 100644
-> > > index 00000000..874f6544
-> > > --- /dev/null
-> > > +++ b/secilc/secilcheck.c
-> > > @@ -0,0 +1,301 @@
-> > > +/*
-> > > + * Copyright 2011 Tresys Technology, LLC. All rights reserved.
+> > > v2:
+> > >  - fix documentation of find_all parameter
+> > >  - fix linked-list handling: always add at the end
+> > >  - pass child to the root call of all_node_specs() not node
+> > >  - continue on <<none>> context definitions in partial mode
+> > >  - add Signed-off-by
 > >
-> > Update the date? Is that the correct header here?
->
-> Since I work for the government, everything that I create is actually
-> in the public domain. We can contribute to code released under open
-> source licenses, but we can't create it.
-> Since this was derived from the secilc.c code, I just kept the
-> copyright notice. That is my usual practice.
->
-> I know there is a lot of duplicate code. One of my long-term todo
-> items is to pull out the common code from the various programs in the
-> secilc directory.
->
+> > Thiebaud - can you please confirm that this v2 patch fixes the issue
+> > you reported?
 
-No worries. Thanks for sharing the context. I think the duplication is
-fine for now.
+Apologies for the delay, I was OOO. I can confirm that this commit
+fixes our issue. Thanks for the patch and the review!
