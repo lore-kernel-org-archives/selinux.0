@@ -1,126 +1,231 @@
-Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
+Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C87F40587D
-	for <selinux@vger.kernel.org>; Tue, 26 May 2026 14:22:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 983343E92AB
+	for <selinux@vger.kernel.org>; Tue, 26 May 2026 14:23:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.47
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779805364; cv=pass; b=R1xEFBrIzQ96WggffOsQbaRPdSbMhrcNQZhS4sMxtH6u/r0qlu58nm+p+scs7nZnai7s1N6TVXxWhcxUb9Gmu6o8/wFwJZgKnEy3F9QoDShQuBS96OwJLV6GpEMc3LMTx+Bz458PmagIQl79CkwNJ0iG/BopoxUS1ikZxXd5Dhk=
+	t=1779805399; cv=pass; b=Ze4zIJYcWqqmAQRLKCSfiAGeIPMX6UP4HvViIuMnUpHYCoyCXgh3xp/FRFr68zrrz3RSpa70r7Oy3u8IiqY9rZ8upB2bVXkwFqr5ANdC2qziTBKtJG/zS+0FfUtnykw77yaMCES3Yfms/BRuFJLz7Yq/Ejw6P0NfeeerJ0QdY1M=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779805364; c=relaxed/simple;
-	bh=8o2ripSRj2xzpTJ8eo+m0VdyVcSLjCM23KeObxP3Amk=;
+	s=arc-20240116; t=1779805399; c=relaxed/simple;
+	bh=yqFKP6OEJtC2hjkarDPgQ8KRWGAgD3dtMcTbTWiHs38=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=JNBUuFbnreMhUCxCdcKu7+oGNiIHqVrhyIN6BfgresvNxXnGCyeRXwfw5k5K3A6HmYcJQPfRAwKEvl8LK4oQXBoy8C+CnA0Jv+p/UEE69V1SCVXuVVG8fFDeNl1RkwNZ6YJeZtpEn4S1sZ+qi0EfJzn5E5FHwYI9/HgwUK+4oNM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gMrv4O6/; arc=pass smtp.client-ip=209.85.215.173
+	 To:Cc:Content-Type; b=Z3ANoZ0pw67BW6PM+cDvigfDFQnmpxexNOKVRYc/UtsRJgFmQF8g3vJZJ03grV0o3luc3FEPvW8nV65UuQLtMNbjoPRdscgSgSmqLVpl/waPU7Jo4JG9/6rLu8M1Iw6TAzS1R1E7LydHCuKFAr3i1e9hizVkGLcdcGzmrBPg2JU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oqm7ndGV; arc=pass smtp.client-ip=209.85.216.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gMrv4O6/"
-Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-c796163fac5so8393881a12.1
-        for <selinux@vger.kernel.org>; Tue, 26 May 2026 07:22:43 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779805362; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oqm7ndGV"
+Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-3680540a6efso5992005a91.2
+        for <selinux@vger.kernel.org>; Tue, 26 May 2026 07:23:18 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1779805398; cv=none;
         d=google.com; s=arc-20240605;
-        b=FSdz2NL+8yKk/ljqZfzS8c/l82+5eDo7WuV18+j3uXKETB5bh2eL/jmVXqB3zLhpCP
-         45ZqJSLbAK6c/3Y+V5PreACOwbw8rQMm86a69ARcaS20XX1NOgVQuE+43d3Bd0MZYqZM
-         EOzTxnxBVcFYfPau3kdNR/dlCEbJK1BwOzovMciD5riWqMFcknDbN9Tr7lcUGiGxGOKA
-         rxa/+rlC9McJcStkZXMvdmmkOxcfVBaqSMlw5NZRwTu/mlj0ioDcEiayNgB5uPjVs7o2
-         wPlQfa86uPCRxjIGlC5GB7x2AMuWQgMyr3xBTiFf7q5hHG9+Oh1p5riP9i/Jk4KQez0k
-         v4uA==
+        b=TtyeI4T0LwuHM5zVgcS74M1FQ6m3zGxl7LRBaNRztEvpysMQ8nPYTmac+FyksGGQRO
+         CisDN6ZlAwjrtrH9UJ5J5Xt1OqrNxXPPziXQgVAmLs9KHG5YKpgBQZPyR7hoDu4yGhUK
+         By0xPnHHrnqrflBEbA/E+wmIsyVWKTFFftaUA4NIURmOzx0zRqt2IeP2mijLZxiOFFje
+         CFG57eMX4Q/kWMuJQAmjs/SQitNgwUaJNNyrNrpMAR41c8Iuq1p2bLoR9RTRgs5Lau/g
+         BrEAI8gIhWqX7ukxoQMOvNJWsnrBPWnxYytIEqZAj9mq+2uIwjd959ObF0p2cQCXmNh0
+         MB3g==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=8StxN88UK2QPOhtx4U8pXD6ludGLZ6wyFYFohFuRuyM=;
+        bh=poVC9PtHCWDB+qzTAu1BZpx/ofC2oDa7j7pRxERRK+M=;
         fh=5O/C79wO42cQf6w/vh3W7FviilpJ0XtrrgBkDvem/c8=;
-        b=U1yxvVyqHThN5pGyhKkpvAO3blttfZGFPOzG+Uz/v7CE1Ai+J+7WhO2PehJvlX70V8
-         q5SGyGyH2z+rZQVQLTuZFl5bt3eNACiSp0WwRWvun+W5ndpdMRcSj4I9d7801tNjnuKy
-         u9UroXvwSBgiV2on9fiop5wLh44Frfr33yWaRIbBlicVT/KwrgGFXk4AG+4XfTa9C5Oj
-         szyK1VQLwrQkRlzzSZ7nYWvzykRIKFOfD9+OHFiQeM2OCqk8nNFJclyJr56ZH7USHVns
-         2BpPJrzTUjnjUyFFBOwJ9LrdVLUksXem0e0T8CebI/lV+MKsZ91HX7Gu5FGNtPudM6Ry
-         ZJBw==;
+        b=Ig6geGsgZaJJYRy27Dlb+33l+C1Glviayw0V6YRibBdlmCyqtQKINYwgNZ/HxGEqgB
+         SbUyBo7Ak9RlQd556GfkeQaSekfa4awkpASVLZcJ6Z6hhwA9KSCNTYKQsA1/g8bHf0Pb
+         3Lqw7yF9YDjqhKQofD8j1IQDhyYR1Kr4kF4omssh5CyKjbMF8Ofx6Egoyki4RGm7c+LT
+         dyFAHnI5wjOm++M2WK/p42d93KIFkjFoHdAyTXeStluwuE/ull30mMjEFW5MXQlARz14
+         A/HctiRvprt5o+dWyYKk9KRtIdXRxI6sBb+I4BKTevzfRIBiNO8xOvNEMsf9XcK9d2VI
+         fo2w==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779805362; x=1780410162; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1779805398; x=1780410198; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=8StxN88UK2QPOhtx4U8pXD6ludGLZ6wyFYFohFuRuyM=;
-        b=gMrv4O6/KBUss3BCIt6ZUl5vZm3+2j9MALOTBi4+6pcJuGSXrLsYnbGMeNO1vNbx2w
-         FPZDNm+oZcWBJ5y2QIdZoSVJZSKU571Xb2xvXccuIa9xmvuVCs6E4ZgJ5KWtMO32jF1q
-         9g9FR6aazVSnBmMB/yKsBgcEtSRPk328jR8EaHyZLNLU8HgxoNJJv1jtcHYwPBrRBdOE
-         2TD9IqVCNHfY0+hHB07AtDoiDVwBHjmi7nnfaKi0HCbTHq5KGO+DUR5jTyCuG/cuDPez
-         2SfA2hYlrr1G7SRuvx9eXMIaydOvMgayPDfdoSATqjS8brtorB6xsiEghyQO2q/p6yMk
-         RA4A==
+        bh=poVC9PtHCWDB+qzTAu1BZpx/ofC2oDa7j7pRxERRK+M=;
+        b=oqm7ndGVUBDZJOBcL69/wFkEl0CF3H96Yh3B2qbMZhdiIRTLbpRKo19Zew2Gvn7RgG
+         8DPi82Rs+kL9gZr6LMUNPcdYdd5PJy8GAZStQIQtk4vk8zx3UECFnJjRyGRGkN460OTZ
+         E+GEzCB8NbOStcZBRuw2vTPD87XzRsjMo5j6vkUv2pFz6ZnB358JjkFgafDmSDBZfYvB
+         +1s1tXjGmi7mE/774EHmzj3GVBbT+ZOR5ZD9wZwN5XYoWB03chuKENhLyzSe+4IEgCh6
+         6tVZ69pkiF839rHDbP/ke8IXfHVbmOYryWDUtY1uLoABCFA9rytGQZr0hGwqbB9L96nY
+         PmVw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779805362; x=1780410162;
+        d=1e100.net; s=20251104; t=1779805398; x=1780410198;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=8StxN88UK2QPOhtx4U8pXD6ludGLZ6wyFYFohFuRuyM=;
-        b=QdZpOUl9G+wI8yDUHXpcXCgSzgI+rXeD1EQkVx1sa6Fy45p0Yqj0gsv3XMOm943/lM
-         MsE84TztEJrDRms4tm7LO0cJDAn0Z06i+YZmATzyTLbZHBPHxRisP+yd79ac/vZIhHsK
-         c4SMQgTpm/5em26BmjIJHCUfFV9SXAAXw5xEwLA3EmpLl+PcRr1OGdIEFSo+zyPdXSXY
-         naZ5FmV16wMNwfenmaFXqm5NoSpzWNE8UCNYXz6lfZcmNtuSwSlhj+imJcMVYpK7bxpo
-         zhuA3PcH+5ZVdijYOljlenMPj20RTig44APiNih0X646MZpnqtFrjCRzEPlE4ypRc7Qj
-         cEdg==
-X-Gm-Message-State: AOJu0Yy+U2fSiyLt3yo8ovru86RrAzew0qFvy9YGZvqMvmb0QKv7Bn6N
-	v4oIYQMom/ZpYZ6RAS1o4KJEgh3+sSVg+TTTxhKEoWswFt1KO3wZkRmBuX2deaNpMExozIPm3Ir
-	Rp0HJqJqwhFAUjLPANYp1kGSiqQlfVeV6Ww==
-X-Gm-Gg: Acq92OGwn1MCQroumYn1uPfBvGSXbuzBn0owobcvjLAYLUGm5yAx0m8ovC/mYxeCbFr
-	VIMJX+ZOqGdimPuIw7nLu0Gn7YixDEHbU5FPh0aV5cydT2rzscvR9Dug5wvZupXhQupoycf/2Pi
-	Db1e/c2FJbc7i4830ru9slSwLsKI+97dBkEMyIa3YcuAFL2+uYFhR3DRV24pxwYWm71KM8jGqrB
-	usgr0IxEIH6FOuJadvZ3T3YGzXc9GDRXvjHtQkmQH/IfrSMocwTrO1MmaRmV4B4XqIpgk5/BI4D
-	aw+5dFE=
-X-Received: by 2002:a05:6a21:a06:b0:3b2:8799:d29 with SMTP id
- adf61e73a8af0-3b328f9ad17mr20106053637.44.1779805362465; Tue, 26 May 2026
- 07:22:42 -0700 (PDT)
+        bh=poVC9PtHCWDB+qzTAu1BZpx/ofC2oDa7j7pRxERRK+M=;
+        b=DD0m2IG9frz3f5GJA/5OzGwwVy3apjwX/AY+Qi3uHatVJtm4RM0WZN4YvxNsaaQCg1
+         FTE+q857c8XxXw8cCiJSLHwzN+Yq5ALyA8n6+/Qc6JsnclnQAlNlU7s4R0QZuuqf7PRz
+         KW6agjV4UopAaODWkK/4E/WJeGjnyjXcEOWnVXc23dQmsOy9FiNS5zAxAAgTi8pWqF5c
+         EElSjDRBlMIB8m6LX8iCj+kgG9a2MXWvduQnaC7t+XLv5/Y1sD+z7Umh+AxRaQKhTo5t
+         fiIQKiwZu8ubei4k13zGG7eo6F+Pbmp3YVg39kL6JI2ct2C7bWkcsR1ZbIGpFot7u+LN
+         eufQ==
+X-Gm-Message-State: AOJu0YypWSaFhnB01tN5YGkTRRZvl5G/vc9+UZGQtQdo83ILI/TGlMHt
+	K8soyUb7cPIdo9gB0NGbxPUCmI5TO4ecviheFhDRCBY36ke10VVdGpMFKoDp/odAm/4qLCqcA0D
+	zUwrrAofGqUwQAgGq0FiigqqQSs2VaBfsVw==
+X-Gm-Gg: Acq92OEoY42p4Pp3SpYsRQdA9pMiAg9UB4ZiAFMoept6oOaVqQmtfYIB4+gIYTWJyPL
+	rhhYgWQj7+N6XAWJTnik+7D9+zxSSK6FHuxAcBQ2Q6cggytcZDSwj8pgz9nw4H7uPSEInaj1nOC
+	SbETAzG7bPRB4/W48+AXokhQFbA2MusHQXL52ljuBiK9Ch8VMhy5JY3fIXT5tAcrdEvfHSshzXP
+	amhrIimLiUte+OdPRSbcGCZf1bMvc/RuNJ1K4Y37gojnWhBXeGlnMDehOrGPEenIjNrjbVVf1Lw
+	YmOKzNBkyTQlup9OAg==
+X-Received: by 2002:a17:90b:2d44:b0:368:ea0c:1b6f with SMTP id
+ 98e67ed59e1d1-36a6741d7afmr17149570a91.5.1779805397893; Tue, 26 May 2026
+ 07:23:17 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260521153133.26631-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260521153133.26631-1-stephen.smalley.work@gmail.com>
+References: <20260521155444.27110-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260521155444.27110-1-stephen.smalley.work@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 26 May 2026 10:22:31 -0400
-X-Gm-Features: AVHnY4ITD-9DWfjOuMsyU8I4OzqefaDAnQE7IfVttidHSNRqhxiau4DYLXvwifY
-Message-ID: <CAEjxPJ4UAAcSDRRz2v1_DVFn73iNW=F+YbPPU0iojQNM0E20xg@mail.gmail.com>
-Subject: Re: [PATCH] sandbox/seunshare: check for errors from parent drop_caps()
+Date: Tue, 26 May 2026 10:23:06 -0400
+X-Gm-Features: AVHnY4I4e3nCWtCgl7DwhMVWAFTL3E7OtXcdy3mWACjaQo13FsE4WJDL0od-9Hk
+Message-ID: <CAEjxPJ77t6o=o44Grm3CcEqdZ1Rn0YjCGaTfW=Vs5f4R=u0gdQ@mail.gmail.com>
+Subject: Re: [PATCH] sandbox/seunshare: drop -k/--kill support
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com, 
 	paul@paul-moore.com, perfinion@gentoo.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, May 21, 2026 at 11:31=E2=80=AFAM Stephen Smalley
+On Thu, May 21, 2026 at 11:54=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> Make sure we don't continue processing in the parent if
-> drop_caps() failed.
+> Drop the -k/--kill support; it is fundamentally racy, redundant
+> with killall -Z, and seemingly unused by sandbox itself.
+> Provide an error message to the user telling them how to achieve
+> the same effect via killall.
 >
 > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 Merged.
 
 > ---
->  sandbox/seunshare.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+>  sandbox/seunshare.c | 93 +--------------------------------------------
+>  1 file changed, 1 insertion(+), 92 deletions(-)
 >
 > diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
-> index 7a4233fb..1d13d261 100644
+> index 1d13d261..a4454027 100644
 > --- a/sandbox/seunshare.c
 > +++ b/sandbox/seunshare.c
-> @@ -1242,7 +1242,8 @@ childerr:
->                 exit(-1);
->         }
+> @@ -710,97 +710,6 @@ good:
+>         return tmpdir;
+>  }
 >
-> -       drop_caps();
-> +       if (drop_caps() =3D=3D -1)
-> +               goto err;
+> -#define PROC_BASE "/proc"
+> -
+> -static int
+> -killall (const char *execcon)
+> -{
+> -       DIR *dir;
+> -       char *scon;
+> -       struct dirent *de;
+> -       pid_t *pid_table, pid, self;
+> -       unsigned int i;
+> -       unsigned int pids, max_pids;
+> -       int running =3D 0;
+> -       self =3D getpid();
+> -       if (!(dir =3D opendir(PROC_BASE))) {
+> -               return -1;
+> -       }
+> -       max_pids =3D 256;
+> -       pid_table =3D malloc(max_pids * sizeof (pid_t));
+> -       if (!pid_table) {
+> -               (void)closedir(dir);
+> -               return -1;
+> -       }
+> -       pids =3D 0;
+> -       context_t con =3D context_new(execcon);
+> -       if (!con) {
+> -               free(pid_table);
+> -               (void)closedir(dir);
+> -               return -1;
+> -       }
+> -       const char *const mcs =3D context_range_get(con);
+> -       const char *const type =3D context_type_get(con);
+> -       if (!mcs || !type) {
+> -               context_free(con);
+> -               free(pid_table);
+> -               (void)closedir(dir);
+> -               return -1;
+> -       }
+> -       if (verbose)
+> -               printf("mcs=3D%s type=3D%s\n", mcs, type);
+> -       while ((de =3D readdir (dir)) !=3D NULL) {
+> -               if (!(pid =3D (pid_t)atoi(de->d_name)) || pid =3D=3D self=
+)
+> -                       continue;
+> -
+> -               if (pids =3D=3D max_pids) {
+> -                       max_pids *=3D 2;
+> -                       if (max_pids <=3D pids)
+> -                       {
+> -                               free(pid_table);
+> -                               (void)closedir(dir);
+> -                               return -1;
+> -                       }
+> -                       pid_t *new_pid_table =3D reallocarray(pid_table, =
+max_pids, sizeof(pid_t));
+> -                       if (!new_pid_table) {
+> -                               free(pid_table);
+> -                               (void)closedir(dir);
+> -                               return -1;
+> -                       }
+> -                       pid_table =3D new_pid_table;
+> -               }
+> -               pid_table[pids++] =3D pid;
+> -       }
+> -
+> -       (void)closedir(dir);
+> -
+> -       for (i =3D 0; i < pids; i++) {
+> -               pid_t id =3D pid_table[i];
+> -
+> -               if (getpidcon(id, &scon) =3D=3D 0) {
+> -
+> -                       context_t pidcon =3D context_new(scon);
+> -                       if (pidcon) {
+> -                               const char *const pmcs =3D context_range_=
+get(pidcon);
+> -                               const char *const ptype =3D context_type_=
+get(pidcon);
+> -
+> -                               /* Attempt to kill remaining processes */
+> -                               if (pmcs && ptype && !strcmp(pmcs, mcs) &=
+&
+> -                                       !strcmp(ptype, type))
+> -                                       kill(id, SIGKILL);
+> -
+> -                               context_free(pidcon);
+> -                       }
+> -                       freecon(scon);
+> -               }
+> -               running++;
+> -       }
+> -
+> -       context_free(con);
+> -       free(pid_table);
+> -       return running;
+> -}
+> -
+>  int main(int argc, char **argv) {
+>         int status =3D -1;
+>         const char *execcon =3D NULL;
+> @@ -1253,7 +1162,7 @@ childerr:
+>         kill(-child,SIGTERM);
 >
->         /* parent waits for child exit to do the cleanup */
->         waitpid(child, &status, 0);
+>         if (execcon && kill_all)
+> -               killall(execcon);
+> +               fprintf(stderr, "-k/--kill no longer supported; run killa=
+ll -Z %s\n", execcon);
+>
+>         if (tmpdir_r) cleanup_tmpdir(tmpdir_r, tmpdir_s, pwd, 1);
+>
 > --
 > 2.54.0
 >
