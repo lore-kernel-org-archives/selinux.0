@@ -1,117 +1,126 @@
-Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
+Received: from mail-yx1-f53.google.com (mail-yx1-f53.google.com [74.125.224.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D46F43B47F5
-	for <selinux@vger.kernel.org>; Tue, 26 May 2026 20:26:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.181
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779827219; cv=none; b=BDgDU3twLXWcdb7YlxNlFupYZlWM+GRSMOyZGCeeafzeBmdgwV6c2T55L60JHPP2NfyJQxMICymaq5ZfUIH4T+jQPXONs/+F/7cBs7lepSrkRqcu+nh4ePLwxfLceeS4Gn6XKKXgNBVb2a1UGUhHtm2uHy3mlbl6yqbgrDVZ1VQ=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779827219; c=relaxed/simple;
-	bh=1ecCMiqOp0v9AURyrgm6M9EolzU6N+b39icOFAzVOhY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=C3Vi06A21PIF+cQY88QffP+S9lbxGnpVea5a6hwius3AxwRhn9hTv6ZyaWdTbztFgxpnfbJ6VFEXpLG2to0xvzhAQsbTy1DMPJmfvvds1uv9UpIhXfAmONHTpNTLO9qpWU8VdCh46f8+vNBhPZCVK098ruIjyuSvAekTyFDw19s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Z6UjTUHl; arc=none smtp.client-ip=209.85.222.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A60683A14
+	for <selinux@vger.kernel.org>; Tue, 26 May 2026 22:39:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.53
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779835178; cv=pass; b=mEs4wv39vIcNLTrJWzl+tXBr4747M63aO8/VGuhLiDWhdXqLLzoGTCQcK9jzhNKD5dFtsOZ+CM7Z2UMImCQ/qqXW6hsvcvQSreXSJbd9UxDLJMw3RgePF+OdVk7D9CcSGoOB276wsAWoredK2rs5CiEFnWNySdGDTd+tiPizVOU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779835178; c=relaxed/simple;
+	bh=GwwBrn+z9SObIvq5sU5oIBL+gVqrYcmXfApHax8UX/4=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=QmuAF176+kJaaCNFcK/xzFMreBHJ2gQKzsAo5x+VY4y+Vt9RWGDAJDo+jAP4PLJJpDUaNLpoBsLE6LQFHCTQ+VBSWsfbmduJ58OclUU7UJ9AlWDmTpnLOeXXUmFMx9nheh2rx3Ep2uHBR51Wz5ITgApY2u7RvsolN3hFW7JpJxE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lceRcue8; arc=pass smtp.client-ip=74.125.224.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Z6UjTUHl"
-Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-914b03e42b2so609602085a.0
-        for <selinux@vger.kernel.org>; Tue, 26 May 2026 13:26:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lceRcue8"
+Received: by mail-yx1-f53.google.com with SMTP id 956f58d0204a3-65c6a2158d3so8093686d50.3
+        for <selinux@vger.kernel.org>; Tue, 26 May 2026 15:39:37 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1779835176; cv=none;
+        d=google.com; s=arc-20240605;
+        b=Zzm2I5TcofH2CeZA9sqhooBVZABWm/NhRLLrhS8uUYQhsrf5hWoHyr9YnpfnMSrux1
+         rVwmi4WH51HpoNdWDAklYtawj9hpe0iL+HYElNfj/tHf0h3IxIc+bweWH9Gc4ZqFmtmc
+         KWHTq6Klu9wXB3PsDhX4ELSNAS3+tMrhcu2Py4xY5hql9TxVj/vTH8nPCs58dJ4JmGit
+         0o47fqvwRI70ALQLBAf97g/uYAixSfwUAV6pFa0hjTeyKWF9y4/PR2Cb8s1oiiewEfZ1
+         1f0jCCtHw/oNLcvwy6dEA0ATMhZ9xkv7LtHPvpoZX48NPn7bGBQTmM21/063Vox7onRO
+         ipAw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=vVAt65K+G8V38AN8GApoYXmDVFMGK2WPPS8C5x4E7bg=;
+        fh=LiqUKi86URF/fNhHEa0UH8qBdBfJanOG1OBywS3XXBU=;
+        b=eCg4WAYUjy3aUgqBSrFOgsP/FCxgyGvXWUr0zROmx7Bah+Fvv9iDG/KxikusNgIgpR
+         mtQ5VoP5/kFzDNl/0qua7mVDprbjRjdqWlZ+HEZ0rsrUPcyczNOlqFYnXxsEWMSiHl9N
+         V8XgpV1AKqkhi1ySlkosCZ4lGh7oIP8yaqHZ2Un8jNllra7FJmtppWOaOe/FdfM3cGM2
+         Zm+lYOLYpQIXpJfuvqtUPziNxw8oautJN0uKOl4rBmT0pr+4d57NzP5GtUGd2iFHHLYQ
+         hQpXKxgZz76bp5AsiHqMIYMTTLPdHZfwARPjv9QkGMzB3Ee+W5t4mV31ZluholAIFaCN
+         NEUw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779827217; x=1780432017; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=oNR5cTy3VgELfAsvoi8jLeN0/UZM0NbvoUfMVTVNeHs=;
-        b=Z6UjTUHlSe9lhqwM8WKg/e7+ELKbtktAr/Z9iM99KC2ifi0lxCAiodCsGzw+Jr9R5c
-         17+Up54j9y8fJG5EByVGelaBuRRruGL1oeA4n/Sn/CdW8BAN71syZlbiaY0vVC9e5sRf
-         cWgkCxE8WlYFNlDB6emygulYtKqXS09c1GO9eyBLnKYViPfUe6MsTrjl0wrs100zrC/v
-         99Q0MiDnuHXlhW6+bA+udc4x8giWipAr9TMeeUitZsBfT8IzIPvY1PUSzEaaTBQturwe
-         LiSew5egYxk4y6uflfGULq3ay3bet/kDXyxvTNNgoIS5wKCXDrnsoVwLojrxTZK/SHw4
-         0QLg==
+        d=gmail.com; s=20251104; t=1779835176; x=1780439976; darn=vger.kernel.org;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=vVAt65K+G8V38AN8GApoYXmDVFMGK2WPPS8C5x4E7bg=;
+        b=lceRcue8aRHW73NI8nB0p3vfOSQGvA23w89Q+9Z9nocCoyu8fz3HnoHwCsTmx0Zpc3
+         QqX0+mOjlI7wCxEioHAArNaCwVT0kt21P1ZNOp/pRDcEGA4BEJp4PXk/vme9xAH9mvm0
+         7lquAODrLG8jTyqAdV5h/eAiEAXD7wvfF/qKHpsFWtcwy4Od/uq3+j/mJarBt3skvUS4
+         7s2Q4vIrmepBu4PBYEon+GxURBBt4wP8rASJUQJ3fyb2QWML24vnbeDON7sGh75RW9yI
+         76Yzrd3jpu5FiG483MUoUaSXzTAXhGHpedvQaI71mXrHOlUFRu+A+iLDN6sAMS7NvNz8
+         KrgA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779827217; x=1780432017;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=oNR5cTy3VgELfAsvoi8jLeN0/UZM0NbvoUfMVTVNeHs=;
-        b=Oll9ZJvVFI/2wiw/obvcqxyfQ+KAgTEsvJHRmNU9r9DC8DgRBk/VkujwTZxlzMmuUB
-         HHmIK5cs+GW49RooMSTtLVxyMo9LEbBU4X61kOK/U5Ch/KB78oywjDl+HcqmG1wFA1WU
-         4pfNA+t9n5lHM+pnB5eHuMz6YirP8uzf6lZH/L00+BhubM1btB3vsvvGMxk/IO6LF5xW
-         YhP5X1eCmZCIzb3COh4pgPJpZRKXCYnZQJRk+M8AA84qW/cr8Ge1Vdom6Ld3QXovf6te
-         W8LNLIn6ChGmI2MGzhF9QAOxcFgB26P1xfm6r2QyadaH1XibD6rzn/Vrlc37HKuH+8dq
-         0alw==
-X-Gm-Message-State: AOJu0YzGYpDfIXFK1w/HQPT4UlMGnvZtgAs4yyNINelwvuqE3B0neTZG
-	+bXu2vm4wuLzOkm5VWEXY4BRRXbN/JVKFipnTJXQgCj5sn7u9AMfy3yLCRyDXQ==
-X-Gm-Gg: Acq92OFydrMkuikgFBUfs6T12kDkeN07z1KtpM5uFR84xxXzd/V+wlx5z+gaSLULMoA
-	FIFRMo/5lukbr/Lsbr/10qx8jYZQLmM/aYx9e494pdiZbSRXWkpaUe21ni13jpN3CTL7OydJzZk
-	ftvTc0GOaJd8/TjYhfs33Ie3+necePJLVwXnV+gDIoARjR2xc2JuFWxpZPTOH9XcQcTgscB1cpf
-	iqIlHLc1mr6erTkdoLIEyavtcz3X01RrbhEbqbw8DY1SHg0WX7v+HORAn0MfwRp86C1r9qyWYyq
-	1vLj0796RILWYrujtFnAkXbf9ar7aWMppspw0tmLaCRpoMSOGYgKKhu8drEB1CKtRJAkm/ewtPb
-	LT9gMuP0Hz6FjR13dKQMZb+mbI3STVpdJ+y8rXhn7p0mKM2XYjI7KT9K93JNDCO2RJJe9a+NgKM
-	REPYbWJcKbgV+AxKxYer2WkY+0Ke9N8X3fqXwt2eJYx7evyZ1mz0SfZyxY/nwOjUJ5kqBf9sbMP
-	Jt//v6Hj2ggRuDgueQ0jhiHzzoROxERhylusA==
-X-Received: by 2002:a05:620a:2b89:b0:914:c316:4608 with SMTP id af79cd13be357-914c3164a2dmr1815923285a.62.1779827216693;
-        Tue, 26 May 2026 13:26:56 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-914f88022e5sm281165085a.37.2026.05.26.13.26.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 May 2026 13:26:56 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	plautrba@redhat.com,
-	omosnace@redhat.com,
-	paul@paul-moore.com,
-	perfinion@gentoo.org,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] mcstrans: avoid size_t underflow
-Date: Tue, 26 May 2026 16:26:40 -0400
-Message-ID: <20260526202640.19141-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.54.0
+        d=1e100.net; s=20251104; t=1779835176; x=1780439976;
+        h=to:subject:message-id:date:from:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=vVAt65K+G8V38AN8GApoYXmDVFMGK2WPPS8C5x4E7bg=;
+        b=K7JL475lfLZQB1/5R4O01+x7Kx9t0v9GlCS3gVPGcO3YbjdAODj0H2vqCB8yqoQoBO
+         hHCvFjLwfjaeAz6CNmQ6WgluTy/4KkNgZv2JFk7tCpjgySOexNu0hF5xNV+NWsXNdJR6
+         WupZiLT6LSeRVSln82nQ9dRVg/+R78BdO3YRMJjasSw8gPxN4m36oTF5FTUVa/k+bkCv
+         mtVgQLKK4Vd+dboPrW5arBIly9aNe59X1hQs0Mvrs4HCYkhFvum9+mNpa8HNpcgY1nSr
+         LlGz/d104o4FKVtHrtX+ahsZmTLilP81bhBCQbCSGQfS7pcQuYTDrSIDx4xo74bkDDc2
+         tAwQ==
+X-Forwarded-Encrypted: i=1; AFNElJ/LIIT8GtVqO7QwsVgssMwRxY5HB6OP/1tmnodfKD4tMw+lAzsjzIymSgCv8xVMslQhD6BUr3oY@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyb/3qIj8lR97CXm/wGvQfjOb9v5q1rcAMabw+r0APTJXiVf6xO
+	EekEARW8hVRSmmeCMkUI83K4biJPmiVQmK2G3N74KzAQ6l1CuV+kFzqIPa7Kk9HZFOrMkkckDh5
+	YAGDucwh9cJ0ygq9zi/iFrge3GiaQ8X1CGbDqT2c=
+X-Gm-Gg: Acq92OEQ/psKVkCsLHd2/dNAQYkQac2oDS66pONculJ0pU20P3IdAk5UhNE/qC/m40b
+	gpyt5B3WOIDDM9qc+9JMyA28iahfksD4lfJmdWVAff+SRu/9ok4oRhNkxP63m6tdLjGD2hPyWe4
+	/PO5aOZATfK8uRRD6vZKPW2sSVMRTdAYTohDRCWsAJcH6ATiD+s7azOul9i0CcZqKBcFGv+ldck
+	97QV4mtdG3+l0q9n2g6Tv+hqOvIQlZF8hVy4JdVMO2m+NKvqUAWeGiuClBKsLFvb8aesMOffQuy
+	hEpKmCmJO5pQ42mhVB4UpqBin0al
+X-Received: by 2002:a53:d057:0:10b0:653:1c2a:94a5 with SMTP id
+ 956f58d0204a3-65ec96184cemr16436623d50.8.1779835176242; Tue, 26 May 2026
+ 15:39:36 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: William Roberts <bill.c.roberts@gmail.com>
+Date: Tue, 26 May 2026 17:39:25 -0500
+X-Gm-Features: AVHnY4LBTBZu9I3pGIJPzVCjSbKmaYPGo3IVDyncqbmQDO-59BE8QXKQiGnEh9g
+Message-ID: <CAFftDdrzV2xC7HBcgS8EPb-YewJyCK9uos4crXOCh5ONm6SxSg@mail.gmail.com>
+Subject: security_task_prctl: why -ENOSYS
+To: LSM <linux-security-module@vger.kernel.org>, 
+	SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 
-Since the prefix and suffix regexes are matched independently
-and unanchored, the matches may overlap such that end < start.
-Prevent size_t underflow in this case.
+Hello,
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- mcstrans/src/mcstrans.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+I am trying to understand the motivation behind having
+security_task_prctl only continue if the return value is -ENOSYS. This
+seems to be very different from other LSM hooks I have investigated.
+For example, in other hooks, the value from SE Linux avc_has_perms is
+used directly. This essentially means that a 0 will cause the check to
+pass, and anything < 0 usually an error.
 
-diff --git a/mcstrans/src/mcstrans.c b/mcstrans/src/mcstrans.c
-index 002877e4..1baf7ba9 100644
---- a/mcstrans/src/mcstrans.c
-+++ b/mcstrans/src/mcstrans.c
-@@ -1280,8 +1280,12 @@ compute_raw_from_trans(const char *level, domain_t *domain) {
- 			     (g->prefixes && prefix) ||
- 			     (g->suffixes && suffix)) &&
- 			     g->word_regexp) {
--				char *s = work + prefix_offset + prefix_len;
--				PCRE2_SIZE len = (suffix_len ? suffix_offset : work_len) - prefix_len - prefix_offset;
-+				PCRE2_SIZE start = prefix_offset + prefix_len;
-+				PCRE2_SIZE end = (suffix_len ? suffix_offset : work_len);
-+				if (end < start)
-+					goto no_word_match;
-+				char *s = work + start;
-+				PCRE2_SIZE len = end - start;
- 				match_data = pcre2_match_data_create_from_pattern(g->word_regexp, NULL);
- 				if (!match_data) {
- 					log_error("allocation error %s", strerror(errno));
-@@ -1342,6 +1346,7 @@ compute_raw_from_trans(const char *level, domain_t *domain) {
- 				pcre2_match_data_free(match_data);
- 				match_data = NULL;
- 			}
-+no_word_match:
- /* YYY */
- 			complete=1;
- 			char *p = work;
--- 
-2.54.0
+In commit:
+----
+commit d84f4f992cbd76e8f39c488cf0c5d123843923b1 ("CRED: Inaugurate COW
+credentials")
 
+(8) security_task_prctl() and cap_task_prctl().
+
+         security_task_prctl() has been modified to return -ENOSYS if it doesn't
+         want to handle a function, or otherwise return the return
+value directly
+         rather than through an argument.
+
+         Additionally, cap_task_prctl() now prepares a new set of
+credentials, even
+         if it doesn't end up using it.
+----
+
+The check in kernel/sys.c is currently:
+        error = security_task_prctl(option, arg2, arg3, arg4, arg5);
+        if (error != -ENOSYS)
+                return error;
+
+Should this be something like, "error && error != -ENOSYS"?
+
+I ask because I am looking to leverage this hook in SE Linux, and it's
+annoying to have to coerce all 0 returns to -ENOSYS.
+
+Thanks,
+Bill
