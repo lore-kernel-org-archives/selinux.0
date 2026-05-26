@@ -1,396 +1,165 @@
-Received: from mx1.secunet.com (mx1.secunet.com [62.96.220.36])
+Received: from LO0P265CU003.outbound.protection.outlook.com (mail-uksouthazon11022116.outbound.protection.outlook.com [52.101.96.116])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 360293C13FC;
-	Tue, 26 May 2026 19:10:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.96.220.36
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779822635; cv=none; b=nnn9w2rt31s75DvaGIwGd2JHNeZwkRdAOnaM/YJnWVqI6ygdyzncPmT+S2X02t3gmh1h01h+eisb7KGjrPCMAZp85oK+AWhGv2VVEk/m6KJMVhDDPKGBU3ew3dj8QYZP+KMH6/LyIZw9NiRxmrIEjPBF74juE3059rQlBSlkNWY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779822635; c=relaxed/simple;
-	bh=qUw+5fB9i2bxU4OKtuYQP9uYATVq9f6fsV0jlZv2PpM=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=UxWP6KStT5KTqqGDhzA9EGE5jlZvUpSEFzF9UusQxzizyt//pI8E5SHz8yQrVX8r6MlmKEG7vuyoyCCGuDVVBw5ZAFYyxxhI5Npo1D3O6CXIGVU9GhyM9+3oqgTI2WjClnWpV7d2KOd3AalsC/ZaFu25jFlZWPOnInTCioIhPZs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com; spf=pass smtp.mailfrom=secunet.com; dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b=t7IsSDvJ; arc=none smtp.client-ip=62.96.220.36
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=secunet.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b="t7IsSDvJ"
-Received: from localhost (localhost [127.0.0.1])
-	by mx1.secunet.com (Postfix) with ESMTP id D1B5A201E4;
-	Tue, 26 May 2026 21:10:31 +0200 (CEST)
-X-Virus-Scanned: by secunet
-Received: from mx1.secunet.com ([127.0.0.1])
- by localhost (mx1.secunet.com [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id z018umT7JiKe; Tue, 26 May 2026 21:10:30 +0200 (CEST)
-Received: from EXCH-02.secunet.de (rl2.secunet.de [10.32.0.232])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.secunet.com (Postfix) with ESMTPS id B5BAE201A7;
-	Tue, 26 May 2026 21:10:30 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.secunet.com B5BAE201A7
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=secunet.com;
-	s=202301; t=1779822630;
-	bh=lXymOI+gS1zghKtLdIYZpI6HbspxCOj3XLly03oz87c=;
-	h=From:To:CC:Subject:Date:In-Reply-To:References:From;
-	b=t7IsSDvJF/tEnX0GXPcp5oQG6d2/KpnRiMvZ/JZhkbErMMKBj230dNnMTShCbutPq
-	 0mvqJtKUOUXhjcZ1yCqhVy3Eu1eCKeEnKsQxiLbR1FROQQm/mjXCaZmhvd2LDhg39X
-	 L2fT/uBPmYRMDFTsDDHu0dOecTcZrzyoz6UjxEGLVwWG3+dnxHeRsrck5elt3KTlzW
-	 t/40q0us/l62LylaWdG7m9FBW70akI4Ie83+hXM5wravxfzLNy2aeQQn7i41jUOD+C
-	 05bpQuXl8geIpHolJwNxGdmkjoVLGp4zPh+g50I9xvHf+JXW7pGq71LqU45PASYlYB
-	 9A+rMOJmV3cWw==
-Received: from moon.secunet.de (172.18.149.1) by EXCH-02.secunet.de
- (10.32.0.172) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.37; Tue, 26 May
- 2026 21:10:28 +0200
-From: Antony Antony <antony.antony@secunet.com>
-To: Antony Antony <antony.antony@secunet.com>, Steffen Klassert
-	<steffen.klassert@secunet.com>, Herbert Xu <herbert@gondor.apana.org.au>,
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon
- Horman <horms@kernel.org>, David Ahern <dsahern@kernel.org>, Masahide
- NAKAMURA <nakam@linux-ipv6.org>, Paul Moore <paul@paul-moore.com>, Stephen
- Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek
-	<omosnace@redhat.com>, Jonathan Corbet <corbet@lwn.net>, Shuah Khan
-	<skhan@linuxfoundation.org>
-CC: Sabrina Dubroca <sd@queasysnail.net>, <netdev@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <selinux@vger.kernel.org>,
-	<linux-doc@vger.kernel.org>, Chiachang Wang <chiachangwang@google.com>, Yan
- Yan <evitayan@google.com>, <devel@linux-ipsec.org>
-Subject: [PATCH ipsec-next v9 16/16] xfrm: add documentation for XFRM_MSG_MIGRATE_STATE
-Date: Tue, 26 May 2026 21:10:17 +0200
-Message-ID: <migrate-state-v9-16-ad9947e4ae74@secunet.com>
-X-Mailer: git-send-email 2.39.5
-In-Reply-To: <migrate-state-v9-0-ad9947e4ae74@secunet.com>
-References: <migrate-state-v9-0-ad9947e4ae74@secunet.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65B023A8739;
+	Tue, 26 May 2026 19:54:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.96.116
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779825249; cv=fail; b=OtTaoRAdqhVw1nmN0uWcPhe8INeN3KUXATbERah5mVDecsMFv/fTdELBY2zn1Gq3TMy6hGHw2v5UUUW9GSkskLhqCvB93JgWgdqE5rARY2vi4yevQj1A2XhwW22hSkvVxNkaY+sQFHtRn3vyggjPtApX2xAB8yZ8zvpFRUQBT3I=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779825249; c=relaxed/simple;
+	bh=F04yg50kkwW5Z04Jn7RhChGbff16mHs7D/aLlMY6xnU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=rlNKS3G8UeFIIhnXY0HG45uEcz4HxXXxl4JWJGNVf10QfIcn+YavafbODJMYeplhHZiwzafiTl2TynWwXlzAqs5eSV3D13lsd06y8J+uikjDQAanoVjzOK0e3A8bYpqJ0H6bFC619eeQUSO5DL0t5wqtBogRvV45T41NYJr2OoE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com; spf=pass smtp.mailfrom=atomlin.com; arc=fail smtp.client-ip=52.101.96.116
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=atomlin.com
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=oKgRl4fxvXF6RTTOV/esHj1vhUk4VpDX15UrQ63FVe8ze6LB0OcdNaRDDtI02zT+6xYkN17+5amuDHRMpzYMgl8j8gsCizU+x64jEBge91Jfx97T9FB/2OLn+Exeq1sSIq00JBXn1BAAbrzLjXjwmabOKJE/SjgKcqf2DW1vFydgECH1Ay4Q2hDc5JmKd9oeg1mvkuldVSLGzbcx3JuABKeOr9zOCfxzTlMscXfFKBT36aAxiHPpZ5aZ5tBXIes4AlesGvt1djJAZ5FjxFneRAzEZVoiwZc2gObXNjTM49hr4hD5D16HigsfpPhIXkn+vKUYTgKb3atiPEEEanc8tg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001; h=From:Date:Subject:Message-ID:MIME-Version;
+ bh=h4yEGomEertXpe0CX0e4veY5Abj3uCdyn95vK31y4cg=;
+ b=xaWscIOkvDviCNpYWFrwRhhNi4COsPOB6DiqjWYjYJJdPzS9FTh2zD6Th0OOfKh9oyrNYGJDM6LUUcNnu+cfjD/PppakDOu2avfgV9ferSIjwQ6+CQ6JDioNzZAtlUEHqmr6Vizd0nsKYs580rCYk5vqjS7QnHKu+tgWvay617RnmOiU2+FK24HfBuwcWvwdOrJFky5I/9leR+wuG+dzHXksUAnNcYvCX8pzHFvUB1AWqjKK+BoWOV4tpKsxkKa7mjKt3VwpQKJpkBT9wODY8QdNen4QRMm5fwioJQZnA64Hrt2eN3re3/tQ+imNo/l2TPCVUUEHT7N1fZMRYVC6FQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=atomlin.com; dmarc=pass action=none header.from=atomlin.com;
+ dkim=pass header.d=atomlin.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=atomlin.com;
+Received: from CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM (2603:10a6:400:183::5)
+ by CW1P123MB8017.GBRP123.PROD.OUTLOOK.COM (2603:10a6:400:24b::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.48.20; Tue, 26 May
+ 2026 19:54:04 +0000
+Received: from CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM
+ ([fe80::cec4:77ab:262e:d230]) by CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM
+ ([fe80::cec4:77ab:262e:d230%4]) with mapi id 15.21.0071.011; Tue, 26 May 2026
+ 19:54:04 +0000
+Date: Tue, 26 May 2026 15:53:59 -0400
+From: Aaron Tomlin <atomlin@atomlin.com>
+To: tsbogend@alpha.franken.de, paul@paul-moore.com, jmorris@namei.org, 
+	serge@hallyn.com, mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com, 
+	vincent.guittot@linaro.org, stephen.smalley.work@gmail.com, casey@schaufler-ca.com, 
+	longman@redhat.com, tj@kernel.org, hannes@cmpxchg.org, mkoutny@suse.com
+Cc: chenridong@huaweicloud.com, dietmar.eggemann@arm.com, 
+	rostedt@goodmis.org, bsegall@google.com, mgorman@suse.de, vschneid@redhat.com, 
+	kprateek.nayak@amd.com, omosnace@redhat.com, kees@kernel.org, neelx@suse.com, 
+	sean@ashe.io, chjohnst@gmail.com, steve@abita.co, mproche@gmail.com, 
+	nick.lange@gmail.com, cgroups@vger.kernel.org, bpf@vger.kernel.org, 
+	linux-mips@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3] security: Expand task_setscheduler LSM hook to
+ include CPU affinity mask
+Message-ID: <5adzrz2gwuyihwcxksok2ix3k64qxhczpbxefl35lohkdt7whs@jclqteh3yr2b>
+References: <20260526142838.774711-1-atomlin@atomlin.com>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260526142838.774711-1-atomlin@atomlin.com>
+X-ClientProxiedBy: MN2PR18CA0002.namprd18.prod.outlook.com
+ (2603:10b6:208:23c::7) To CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM
+ (2603:10a6:400:183::5)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-X-Mailer: b4 0.15-dev
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: EXCH-04.secunet.de (10.32.0.184) To EXCH-02.secunet.de
- (10.32.0.172)
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CWLP123MB6607:EE_|CW1P123MB8017:EE_
+X-MS-Office365-Filtering-Correlation-Id: d2d94856-5663-45c6-cc58-08debb6089be
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|376014|7416014|1800799024|22082099003|18002099003|921020|56012099006|5023799004|6133799003;
+X-Microsoft-Antispam-Message-Info:
+	JELgg8RCiylCfEeTlfop5PEOC+g6gY5tC/iE4AiB8iPoRaLLh611qr8ihzBupPqYjHBRktPxXGSibKETJStGwpk/u3glaFR74TLT2qHFgARHcFYXjirQNHmQ09sJmvUIWCo2LRgxjSc5gzjCjfkNTjFw9/Blf/blEWE+7qxjANMxJ7QNQOLsF2qKWhRB1+iYLEcEc6uDEgMk1vMVEAjbJ2GbFyP/civ5bP6fuyQGLNSWpIQ9mAX73I2FeAv+xhlIN0bI3Nuc7Qgx2LbyHPFLQcYrAd//RtUYg7rg04MM+JwOWOaE4wTZ53ZYB45kGp4UL01gT19+Tc7BGYdYSe1BgOdE9NFv8hOLLzBPfMUyUxMDEo1gx5uwpDW7TXh/QfIlZerhOvyj9RYonU52tTSYZWMH0mtRNDa4yNQxuO1ZwlMRhkrLoZt15IdHPsU18ymAkczQDLVBTLCF20iSE0e4RHtms60DmkYsS0TwO8bgh/6ExescqLEariN40Eci8c6HqceJB1hFNzgF17QgpKFwV/p87i4ceq0TP03nSYzs8L/VpiFNzP3XAf7XFSnwHkUoeCWdZc0IDHC3xIQsRKuHLngkeOyikLJxbWdMhiLn3FBLG51/lTkH5GxIH+7axIt5Cz2+Fz19k7AQKmoBUIxoyT3aCnNXlJ+Dg8BOjJlbkyoPaC9w6ZUyoZqaHc6lSd0GcbpOuTw5hFgFp3TC+kHuqBuT8IlJqtfTUYIlGcjCdao=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(7416014)(1800799024)(22082099003)(18002099003)(921020)(56012099006)(5023799004)(6133799003);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?dnVZT1dyRzZucmNiRUkyeStXY2xBc2lTNDdyZUhvVGx3RnN3TXBhVXBIVEw2?=
+ =?utf-8?B?QkF0YVd4NS85dWVYY3loUEJkNlUyTEp4U3RuL1I4bGtHcUtWSTB0am04SENk?=
+ =?utf-8?B?QkppSHdpNWM1bm5jRmpYanFYMmcxNUZocHN1cTJrMjlOQ2hJbHpWRytBN3Zw?=
+ =?utf-8?B?SEFPTVZDMExRajlEdFR5Yy9tUWo1RjhVTmVxampHYWZsVkExZGlHVFNTWWR1?=
+ =?utf-8?B?NThrWGFMaHVKbkJtTkVIK0lHcENNU1pmZktsWlhWUnA3TU81eHFNSUowSlBQ?=
+ =?utf-8?B?SThYcHJmUzdLUjdGZlI3dCtGSzlKVU1vajVVRzU0clBUTFFuY0VOL2hGNHl6?=
+ =?utf-8?B?aEtzbEZ4THkxTExDL3YvTlU0RzdNU01CNUpkR1NJa2E4TzdwYXNGTENtS2No?=
+ =?utf-8?B?NFRmYVVuSi9McStVSjJvOVI3MDVhOU8vWDVxWWhuOFU5ZXhBcDdhYkxxaFk0?=
+ =?utf-8?B?RnBsZ2FlYXFHeWFmb3RRaHN4ellmVXNzMk8vZVdJUUl0N216UzRVWDNLR0FG?=
+ =?utf-8?B?MCtUcTMxSFB5MFBEZzhGUGQ5OTNjRWRiTTkzeXN2VFRXSXQ3bERyTHdGT1Nm?=
+ =?utf-8?B?d0ZqRDY1aHFwM0J5ZXVQYmI1bXpUbDI3WmQ5Mm5pYllKZDBXbC96QUFGMXpi?=
+ =?utf-8?B?MThhV2RubklGRUxhN0dNTEkxYjBVREF4dC9VdGI1TUJNVTkzenY3RFFnbkdi?=
+ =?utf-8?B?aDhyV09EWUlXckpyR1VrMmlxRitmZWFseHVIdVFaSkk5eVpxVUtUb1lkUVZr?=
+ =?utf-8?B?QVRkeHRvOUZBOWRKY21iQnhROW5sdm5kYTNwU0VPUG44NTlzdThxNkVSTGFX?=
+ =?utf-8?B?R01HT1dwZE9uQ05hVU45aFl0SEdpVmN1Vmp4RGE2RGN2blBLNWNoUDk5dVox?=
+ =?utf-8?B?QnFtTzV4QW8zOGh6dEl4c2JibFZLYlhxdktWL0luUklKbjU4RHpDNUJMa3FI?=
+ =?utf-8?B?SkpqbDZldDRsMWltRmVxSFFrejRNWGJPeWRtdEd1c2N5M2R3dTBvVGxBbFNt?=
+ =?utf-8?B?L2toaXF0d1pHb0FyZlBOaHZaK2FkV1BpMlloVkRHRXpUbnp5d1JDZWc3d3dj?=
+ =?utf-8?B?d2NxZWFlc0hSdDJ6WTVpMnZaVUFuc0JIUHFtS2FmL1pQZVIvQW9ncC80dlNE?=
+ =?utf-8?B?M3hLdlZSQmFaZHA0dWxDcm5PaTd1L3YyTjNyN0JqV1hCZUpuQnZUSkw4Qzcz?=
+ =?utf-8?B?R3MvQ3plTnQ1a3VrZTlkbDFicUxVSGNFYTQvSlpXa3FpU1hsYitNcHVDUmZG?=
+ =?utf-8?B?SGY2QjZhdUNJd2JreUpab25WSFNQWHVic0hQT1pCcGFpV2p3WEc5d1Bzb21D?=
+ =?utf-8?B?cDIwQ1ExL0tRZVpTaVlBNWQweEN1TXRJZHBXaDk3YUFmZ3hvWVJsSjBKYlhn?=
+ =?utf-8?B?d3IvdjBSRWNzSEY1U2ZLcE1kTUFHaVhyYlFQcFVZbWh2WW5OUE9nZ1ZLMURN?=
+ =?utf-8?B?ZkFBNy9rYnlaa0gvTWpHUUV0cXd5RXFjOHZlZTVIMldLOWNuRHRuRTdOdWlJ?=
+ =?utf-8?B?VXFzdWtGZkVPbWh0WWNQcmJqcm9IL21sUnNpYWwzL1BrcGJrOXFxU1pKV0cw?=
+ =?utf-8?B?TEVDV3VYc0l6NWxKaTRZcTNSSzFTSzdrU1kyOE5OdGxDSTJ6WjRkMVZ5N2ll?=
+ =?utf-8?B?ZUV6OVhVZXQxM1Z1UWE0RGFMZEpVTDVBZWxVRGtMSVhTL1N5aVFpSzFJQzRS?=
+ =?utf-8?B?WTQyM0V3ZlBjM0czcW9JaFN5NFBKVE5xd2V4VnNNZ1BvVUErNG9xcjFQS3FJ?=
+ =?utf-8?B?UnhaT3FtLzIvNlI2OE1EYTZBTkVJenBkd05oNjFUalM4U1lQMnlldWxnVzZU?=
+ =?utf-8?B?T3UvbmJ3NnpvQ2tCTFNLOC9lRm51VW0zanpWWThZV25XZnRKSG8vRFZwWWlB?=
+ =?utf-8?B?WWxzM0srQUtDTFNrSTVYU2N3bGNnOE51V28zcUloU0Rjd1g1WWUwbmMvYUM3?=
+ =?utf-8?B?c3dBaGJGSzNmckVIVGpjcEVtZEM3Q0lYS0N3U2c2Mng5Q0xOcDV1RkZSaEli?=
+ =?utf-8?B?N1hXYTlMVE0vTVhzT2N4VUFJME41T2U4a1RscWFxYVF6L2FWVmQ1SlRtZDN6?=
+ =?utf-8?B?K3RnWnNzUlBIVXFCcmtDL3c0RlVtc0hPLzl4TFFuOFViYXN4UTgzTVM3Ujhk?=
+ =?utf-8?B?bjJyRGhHMHl6WnFFMklEWTFMOGU3amNaTktLLzc1Q0NyVHlDMUV6WGFmNnAv?=
+ =?utf-8?B?TTByR21XK1RHcUVLMHJuc2F2YlR0MVdQUG42Qmh2Y2hZUkRZQldOZDJydVM0?=
+ =?utf-8?B?Y2Ztd0dZckxjRkRvWWVPZC90OGdTeWdSTHVUZEg3aEd4ZHg1NjA5K0pyWkJy?=
+ =?utf-8?B?WmJHUVNwMk50eXljQW1UanFRbU9WYzcyaXRuR2dLMkl4QWk1MDNPUT09?=
+X-OriginatorOrg: atomlin.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: d2d94856-5663-45c6-cc58-08debb6089be
+X-MS-Exchange-CrossTenant-AuthSource: CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 May 2026 19:54:03.9615
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: e6a32402-7d7b-4830-9a2b-76945bbbcb57
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 7oGWu3ngG5NzxDfIhcPKf6kRnyrffM0ngMiuCKrJqZYnkSiOckQFIePA4WFskt3nqqNTLqPIdqV9Gd2lqAPhSw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CW1P123MB8017
 
-Add documentation for the new XFRM_MSG_MIGRATE_STATE netlink message,
-which migrates a single SA identified by SPI and mark without involving
-policies.
+On Tue, May 26, 2026 at 10:28:38AM -0400, Aaron Tomlin wrote:
+> At present, the task_setscheduler LSM hook provides security modules
+> with the opportunity to mediate changes to a task's scheduling policy.
+> However, when invoked via sched_setaffinity(), the hook lacks
+> visibility into the actual CPU affinity mask being requested.
+> Consequently, BPF-based security modules are entirely blind to the
+> target CPUs and cannot make granular access control decisions based on
+> spatial isolation.
+> 
+> In modern multi-tenant and real-time environments, CPU isolation is a
+> critical boundary. The inability to audit or restrict specific CPU
+> pinning requests limits the effectiveness of eBPF-driven security
+> policies, particularly when attempting to shield isolated or
+> cryptographic cores from unprivileged or compromised tasks.
+> 
+> This patch expands the security_task_setscheduler() hook signature to
+> include a pointer to the requested cpumask. Because this is a shared
+> hook used for multiple scheduling attribute changes, call sites that do
+> not modify CPU affinity are updated to safely pass NULL.
+> To protect against unverified dereferences, the parameter is annotated
+> with __nullable in the LSM hook definition, ensuring the BPF verifier
+> mandates explicit NULL checks for attached eBPF programs.
+> 
+> This change updates all in-tree security modules (SELinux and Smack) to
+> accommodate the new parameter mechanically, whilst providing BPF LSMs
+> with the necessary context to enforce strict affinity policies.
 
-The document covers the motivation and design differences from the
-existing XFRM_MSG_MIGRATE, the SA lookup mechanism, supported attributes
-with their omit-to-inherit semantics, and usage examples.
 
-Signed-off-by: Antony Antony <antony.antony@secunet.com>
+Adding BPF Core to review the use of annotation "__nullable" in the LSM
+hook definition.
 
----
-v8->v9: document -ESRCH error when SA is deleted before migration completes
-	- reject unknown flags with -EINVAL, report bad bits in extack
-	- split Migration Steps into Outgoing SA and Incoming SA subsections
-	- split migration steps by direction, fix feature detection errors, -EEXIST safe to retry
-	- rename flags
-v7->v8: unknown flags ignored
-v6->v7: update docs to reflect the flags
-v5->v6: added this patch
----
- Documentation/networking/xfrm/index.rst            |   1 +
- .../networking/xfrm/xfrm_migrate_state.rst         | 274 +++++++++++++++++++++
- 2 files changed, 275 insertions(+)
 
-diff --git a/Documentation/networking/xfrm/index.rst b/Documentation/networking/xfrm/index.rst
-index 7d866da836fe..90191848f8db 100644
---- a/Documentation/networking/xfrm/index.rst
-+++ b/Documentation/networking/xfrm/index.rst
-@@ -9,5 +9,6 @@ XFRM Framework
- 
-    xfrm_device
-    xfrm_proc
-+   xfrm_migrate_state
-    xfrm_sync
-    xfrm_sysctl
-diff --git a/Documentation/networking/xfrm/xfrm_migrate_state.rst b/Documentation/networking/xfrm/xfrm_migrate_state.rst
-new file mode 100644
-index 000000000000..9d53cb22b007
---- /dev/null
-+++ b/Documentation/networking/xfrm/xfrm_migrate_state.rst
-@@ -0,0 +1,274 @@
-+.. SPDX-License-Identifier: GPL-2.0
-+
-+=====================
-+XFRM SA Migrate State
-+=====================
-+
-+Overview
-+========
-+
-+``XFRM_MSG_MIGRATE_STATE`` migrates a single SA, looked up using SPI and
-+mark, without involving policies. Unlike ``XFRM_MSG_MIGRATE``, which couples
-+SA and policy migration and allows migrating multiple SAs in one call, this
-+interface identifies the SA unambiguously via SPI and supports changing
-+the reqid, addresses, encapsulation, selector, and offload.
-+
-+Because IKE daemons can manage policies independently of
-+the kernel, this interface allows precise per-SA migration without
-+requiring policy involvement. Optional netlink attributes follow an
-+omit-to-inherit model: omitting an attribute preserves the value from
-+the old SA. The ``flags`` field controls two exceptions: hardware offload
-+is inherited by default and can be suppressed with
-+``XFRM_MIGRATE_STATE_CLEAR_OFFLOAD`` or overridden with ``XFRMA_OFFLOAD_DEV``;
-+the new selector is taken from ``new_sel`` by default and can instead be
-+derived from the new addresses with ``XFRM_MIGRATE_STATE_UPDATE_H2H_SEL``.
-+
-+SA Identification
-+=================
-+
-+The struct is defined in ``include/uapi/linux/xfrm.h``. The SA is looked
-+up using ``xfrm_state_lookup()`` with ``id.spi``,
-+``id.daddr``, ``id.proto``, ``id.family``, and
-+``old_mark.v & old_mark.m`` as the mark key::
-+
-+    struct xfrm_user_migrate_state {
-+        struct xfrm_usersa_id  id;       /* spi, daddr, proto, family */
-+        xfrm_address_t         new_daddr;
-+        xfrm_address_t         new_saddr;
-+        struct xfrm_mark       old_mark; /* SA lookup: key = v & m */
-+        struct xfrm_selector   new_sel;  /* new selector (see Flags) */
-+        __u32                  new_reqid;
-+        __u32                  flags;    /* XFRM_MIGRATE_STATE_* */
-+        __u16                  new_family;
-+        __u16                  reserved;  /* must be zero */
-+    };
-+
-+The ``reserved`` field must be set to zero; the kernel rejects any
-+other value with ``-EINVAL``.
-+
-+Supported Attributes
-+====================
-+
-+The following fields in ``xfrm_user_migrate_state`` are always explicit
-+and are not inherited from the existing SA. Passing zero is not equivalent
-+to "keep unchanged" — zero is used as-is:
-+
-+- ``new_daddr`` - new destination address
-+- ``new_saddr`` - new source address
-+- ``new_family`` - new address family
-+- ``new_reqid`` - new reqid (0 = no reqid)
-+- ``new_sel`` - new selector; used when ``XFRM_MIGRATE_STATE_UPDATE_H2H_SEL`` is
-+  not set (see `Flags`_ below)
-+- ``flags`` - bitmask of ``XFRM_MIGRATE_STATE_*`` flags (see `Flags`_ below)
-+
-+The following netlink attributes are also accepted. Omitting an attribute
-+inherits the value from the existing SA (omit-to-inherit).
-+
-+.. list-table::
-+   :widths: 30 70
-+   :header-rows: 1
-+
-+   * - Attribute
-+     - Description
-+   * - ``XFRMA_MARK``
-+     - Mark on the migrated SA (``struct xfrm_mark``). Absent inherits
-+       ``old_mark``. To use no mark on the new SA, send ``XFRMA_MARK``
-+       with ``{0, 0}``.
-+   * - ``XFRMA_ENCAP``
-+     - UDP encapsulation template; only ``UDP_ENCAP_ESPINUDP`` is supported.
-+       Set ``encap_type=0`` to remove encap.
-+   * - ``XFRMA_OFFLOAD_DEV``
-+     - Hardware offload configuration (``struct xfrm_user_offload``). Absent
-+       copies offload from the existing SA. When
-+       ``XFRM_MIGRATE_STATE_CLEAR_OFFLOAD`` is set in ``flags``, the new SA has
-+       no offload; this flag is mutually exclusive with ``XFRMA_OFFLOAD_DEV``
-+       and sending both returns ``-EINVAL``.
-+   * - ``XFRMA_SET_MARK``
-+     - Output mark on the migrated SA; pair with ``XFRMA_SET_MARK_MASK``.
-+       Send 0 to clear.
-+   * - ``XFRMA_NAT_KEEPALIVE_INTERVAL``
-+     - NAT keepalive interval in seconds. Requires encap. Send 0 to clear.
-+       Automatically cleared when encap is removed; setting a non-zero
-+       value without encap returns ``-EINVAL``.
-+   * - ``XFRMA_MTIMER_THRESH``
-+     - Mapping maxage threshold. Only valid on input SAs; setting on an
-+       output SA returns ``-EINVAL``. Requires encap. Send 0 to clear.
-+       Automatically cleared when encap is removed; setting a non-zero
-+       value without encap returns ``-EINVAL``.
-+
-+The following SA properties are immutable and cannot be changed via
-+``XFRM_MSG_MIGRATE_STATE``: algorithms (``XFRMA_ALG_*``), replay state,
-+direction (``XFRMA_SA_DIR``), and security context (``XFRMA_SEC_CTX``).
-+
-+Flags
-+=====
-+
-+The ``flags`` field in ``xfrm_user_migrate_state`` controls optional
-+migration behaviour. Unknown flag bits are rejected with ``-EINVAL``; the
-+extended ACK message identifies the unrecognised bits (e.g. ``"Unknown flags:
-+0x4"``). Userspace can use ``XFRM_MIGRATE_STATE_KNOWN_FLAGS`` (defined in
-+``<linux/xfrm.h>``) to validate flags before sending; note that this constant
-+reflects the flags known to the header version userspace was compiled against,
-+which may differ from what the running kernel accepts.
-+
-+.. list-table::
-+   :widths: 40 60
-+   :header-rows: 1
-+
-+   * - Flag
-+     - Description
-+   * - ``XFRM_MIGRATE_STATE_CLEAR_OFFLOAD``
-+     - When set, the new SA has no hardware offload even when
-+       ``XFRMA_OFFLOAD_DEV`` is absent. Without this flag, omitting
-+       ``XFRMA_OFFLOAD_DEV`` copies the existing offload to the new SA.
-+       Mutually exclusive with ``XFRMA_OFFLOAD_DEV``; sending both
-+       returns ``-EINVAL``.
-+   * - ``XFRM_MIGRATE_STATE_UPDATE_H2H_SEL``
-+     - When set, the kernel validates that the existing SA selector is a
-+       single-host entry matching the SA addresses (``prefixlen_s ==
-+       prefixlen_d`` equal to 32 for IPv4 or 128 for IPv6, and addresses
-+       matching ``id.daddr`` and ``props.saddr``). If the check passes,
-+       the new selector is derived from ``new_daddr`` and ``new_saddr``
-+       with the single-host mask for ``new_family``. A mismatch returns
-+       ``-EINVAL``. When this flag is not set, ``new_sel`` is used as-is
-+       for the migrated SA.
-+
-+Migration Steps
-+===============
-+
-+Outgoing SA
-+-----------
-+
-+To prevent cleartext traffic leaks, install a block policy before
-+migrating:
-+
-+#. Install a block policy to drop traffic on the affected selector.
-+#. Remove the old policy.
-+#. Call ``XFRM_MSG_MIGRATE_STATE`` for each SA.
-+#. Reinstall the policies.
-+#. Remove the block policy.
-+
-+If AES-GCM is in use, the block policy also prevents IV reuse during
-+the migration window. For other AEADs this step is not required for
-+IV safety, but skipping it allows a brief cleartext window.
-+
-+Incoming SA
-+-----------
-+
-+No block policy is needed. ``XFRM_MSG_MIGRATE_STATE`` atomically
-+transfers the sequence number and replay window from the old SA to
-+the new SA, so the new SA continues replay protection without a gap.
-+Call ``XFRM_MSG_MIGRATE_STATE`` for each SA directly.
-+
-+When accepting incoming traffic, be liberal during the migration
-+window: packets sent by the remote peer before it completed its own
-+migration may arrive out of order or slightly late. Dropping them
-+unnecessarily causes packet loss. A generous replay window reduces
-+the impact of reordering during migration.
-+
-+Block Policy and IV Safety
-+--------------------------
-+
-+AES-GCM IV uniqueness is critical: reusing a (key, IV) pair allows
-+an attacker to recover the authentication subkey and forge
-+authentication tags, breaking both confidentiality and integrity.
-+This concern applies to outgoing SAs only — the remote peer controls
-+IV generation on incoming traffic.
-+
-+``XFRM_MSG_MIGRATE_STATE`` atomically copies the sequence number and
-+replay window from the old SA to the new SA and deletes the old SA.
-+The block policy serves two purposes: it prevents cleartext traffic
-+leaks during the migration window, and for AES-GCM it prevents IV
-+reuse by ensuring no outgoing packets are sent under the same key.
-+The atomic copy of the sequence number and replay window complements
-+this — together they eliminate both risks during migration.
-+The atomic copy also serves incoming SAs, ensuring replay protection
-+continues without a gap across the migration.
-+
-+Feature Detection
-+=================
-+
-+Userspace can probe for kernel support by sending a minimal
-+``XFRM_MSG_MIGRATE_STATE`` message with a non-zero non-existent SPI:
-+
-+- ``-EINVAL``: kernel predates ``XFRM_MSG_MIGRATE_STATE``; message type
-+  is out of range
-+- ``-ENOPROTOOPT``: message type is known but ``CONFIG_XFRM_MIGRATE``
-+  is not enabled
-+- ``-ESRCH``: supported (SPI not found)
-+
-+Userspace Notification on Success
-+=================================
-+
-+On successful migration the kernel multicasts an
-+``XFRM_MSG_MIGRATE_STATE`` message to the ``XFRMNLGRP_MIGRATE`` group.
-+The fixed header is ``struct xfrm_user_migrate_state`` copied from the
-+request, followed by the same set of netlink attributes that are
-+accepted as input, with the differences noted below.
-+
-+Differences from the request
-+-----------------------------
-+
-+.. list-table::
-+   :widths: 25 75
-+   :header-rows: 1
-+
-+   * - Field / Attribute
-+     - Difference
-+   * - ``new_sel``
-+     - Contains the actual selector of the newly installed SA, not the
-+       ``new_sel`` from the request. When
-+       ``XFRM_MIGRATE_STATE_UPDATE_H2H_SEL`` is set the kernel derives the
-+       selector from ``new_daddr`` / ``new_saddr``; the caller's
-+       ``new_sel`` field is ignored in that case. The notification
-+       always carries the real selector of the new SA.
-+   * - ``XFRMA_SA_DIR``
-+     - Present in the notification (set from the direction of the new
-+       SA) but **not accepted as input** — direction is immutable.
-+   * - ``flags``
-+     - Echoed back as-is. ``XFRM_MIGRATE_STATE_CLEAR_OFFLOAD`` and
-+       ``XFRM_MIGRATE_STATE_UPDATE_H2H_SEL`` describe the request that was
-+       made, not a property of the resulting SA.
-+
-+Attributes in the notification
-+-------------------------------
-+
-+.. list-table::
-+   :widths: 30 70
-+   :header-rows: 1
-+
-+   * - Attribute
-+     - Description
-+   * - ``XFRMA_ENCAP``
-+     - UDP encapsulation template, if configured on the new SA.
-+   * - ``XFRMA_OFFLOAD_DEV``
-+     - Hardware offload configuration, if active on the new SA.
-+   * - ``XFRMA_MARK``
-+     - Mark on the new SA, if set.
-+   * - ``XFRMA_SET_MARK``
-+     - Output mark on the new SA, if set.
-+   * - ``XFRMA_SET_MARK_MASK``
-+     - Output mark mask, present together with ``XFRMA_SET_MARK``.
-+   * - ``XFRMA_MTIMER_THRESH``
-+     - Mapping maxage threshold, if non-zero.
-+   * - ``XFRMA_NAT_KEEPALIVE_INTERVAL``
-+     - NAT keepalive interval, if non-zero.
-+   * - ``XFRMA_SA_DIR``
-+     - Direction of the new SA.
-+
-+Error Handling
-+==============
-+
-+If the target SA tuple (new daddr, SPI, proto, new family) is already
-+occupied, the operation returns ``-EEXIST`` before the migration begins.
-+The old SA remains intact and the operation is safe to retry after
-+resolving the conflict.
-+
-+If the target SA is deleted before the migration completes, the operation
-+returns ``-ESRCH``. No new SA is installed. Userspace should verify the
-+current SA state before retrying.
-+
-+If the multicast notification (``XFRMNLGRP_MIGRATE``) fails to send,
-+the migration itself has already completed successfully and the new SA
-+is installed. The operation returns success, 0, with an extack warning,
-+but listeners will not receive the migration event.
 
+Kind regards,
 -- 
-2.47.3
-
+Aaron Tomlin
