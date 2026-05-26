@@ -1,165 +1,162 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78E3C2868A7
-	for <selinux@vger.kernel.org>; Tue, 26 May 2026 14:19:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B8B23FD139
+	for <selinux@vger.kernel.org>; Tue, 26 May 2026 14:20:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.169
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779805196; cv=pass; b=l1a50mWjt2lqyyAp6oaJIft8sAxGuXrpVpnHK4IToaFj+rTYtRudaVp3kumJTQZ+t2HJYojzbh8oL6fkoIOMuUdx/Yv0fi+WLw7GytYhgc/8q8vfJ9UggwF50p5IMi5T/zGjLGW9mmRK7wiGBAK17cEbSxkwa7YuVmID2SV1rRE=
+	t=1779805260; cv=pass; b=t+hnlryww+s2Z2F188gMiiBy0ECXCmsizeAlS4CgV8syX7IUA+d/JmesWCj5qFMiX59PVZ7sWFvjrBJ5LSRo1oaZNLVZIO9N8htVFxkUGr/UyCnI2l/ILfIsncelAvJPRNNjxWaaqddPEfpdL1x6RxA/Ybg0d+ns1pe+zNNnHkc=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779805196; c=relaxed/simple;
-	bh=g0bD3csQKbNphzf2Q7qZg2h9MjDQzUb6S0UgGFuU/6U=;
+	s=arc-20240116; t=1779805260; c=relaxed/simple;
+	bh=rGarESh6foTaRj4HlDn9/zfjy+ZXCI45PyaBTMp1LmI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=SyVBCILzTrKgaGTJIQ46LYWjZjfr6EKmKQKg4xW2pWPYNGZIPdLtZXVzU+JMC9r1ULpNL6o0lA70cpg62Aa6tU2ObXpfhJfBSU4yQYCleOQvEfMlUW5rxqh+mg/8F5ENWo7c8FuQi9qb6Uq9udplKEhbXYjxsyuhkXQPjpGLEcI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JaFvEjkE; arc=pass smtp.client-ip=209.85.216.46
+	 To:Cc:Content-Type; b=GMCJWKkb3Janivd+wjju88qajDxj6IleuOAMEjUBAJE7eo9vRThLGc9tawZ77thyohxnR8lW9w+gDHX2nwPV5L7qjbTxvuXAPvFhVd/MdiZdB5El2AfhEJVjsthGuXnvYnXI4YPjbUGdvltTjHWuz0OwvakJcQN+nRjNJZzpO9I=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZgMQsv4N; arc=pass smtp.client-ip=209.85.210.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JaFvEjkE"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-368f25ff4c4so5961943a91.2
-        for <selinux@vger.kernel.org>; Tue, 26 May 2026 07:19:55 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779805195; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZgMQsv4N"
+Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-837dfccd950so4958886b3a.0
+        for <selinux@vger.kernel.org>; Tue, 26 May 2026 07:20:59 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1779805259; cv=none;
         d=google.com; s=arc-20240605;
-        b=PS4sT1MvEmcpqPLbpsU2gsnrNT/fxw7poS/oulxWBz9OaJ0TXiDNadgA3B/VMYtdpV
-         B5fQ5RhdbazkpxOsFsnk9NKJQie6F01YD1lxHtPUunotzLqyJorI+H+xFauqNb7ZZbLH
-         F0d+xg05K0OHTpY0ZOm6ic9PNthX4nBwho3MwxGWARPOjREfi188OTaV1mvmKrPTGU6w
-         6QW48ar0OJweZgJXPjSC/r7BlUvI3Z7o6Gygofpi+gduUk+algwsI1914ubXEGgW5bu3
-         NOklhfP5Eau8F+yWe5UXyb9vyCevJ26drhPvi+4XOUtizZ8rULqt+la/tbepRjX2gp8b
-         jlTA==
+        b=kDQYft/dysovAu5HW7vNi09Qi8qVDVfHp6WDCc3EQddTLINwxAq0KZ/uMX92/gu2R0
+         VhQ9k2xDOZui8EIX5SWMDN+An9bqz2sivd+ARHesSeppFblomrnk3f51fQtrdgnKNB4F
+         4jTnHI4gN/kiZREAUbyD2X9heV9/yYACflxgxsO5AluGCh4sW6jTANgraUqXU6wRhd81
+         8ESef0jQoDxQIxpRox9P99M/sMRpjKJT12u0ClUO4T8lfxamQZyM72gZee9PGvkyfgjB
+         TUP7t5ufThaAaI72vRXw3m8WJv/wUhciwOKf1/2sH3jgGANouEFBjjWw1wgbDT7BY5gq
+         GDEQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=SQxTArx4dt+TcfNmxAsT/y1Np5GFA3KuP0+rkv8r8iw=;
-        fh=m2dpDAay7t3oBdtDq/iACj3Wi14bX1b+w6l4aB58TUQ=;
-        b=brll9MM6NdYnqqoRjtJDEtt9t38Ykco0j1P5l1bvHuMennfPuIYs/hL3fCitZ0DEkA
-         nAP3hj+oEMyAHvj7Te4szle6oyXc/nmDcnByohR0kwZAAizm9NcXJkpFoZNvOVHhtqTM
-         nQ1qgNpYq3uqQ6QY3rdEasT2gqT172z/6xHHKLhLhIfT6aTqVos2HjtXGhDpO7btpp9E
-         QdouE4jCEf7BKHRcmPmUtTZphWyjkaWaisuhjpYjcQD/HUH11MRNjAuj9nZJLmLiu5mV
-         gzJVqigLUkIy/xrcKYMW3aKX2jcfj4Bg2KH3qcRB7zUTg7ZPU/erMUS6TB8HK8v0zhsI
-         AYsQ==;
+        bh=CyfxBmE530e3wWYkMTHWPydSStB8SfVKsfRtoYIhnJU=;
+        fh=5O/C79wO42cQf6w/vh3W7FviilpJ0XtrrgBkDvem/c8=;
+        b=lmD2RxqIzru3uYgvUxfddljumGVUcJD0wrsBz2rKD+C+y2ip0wRmXSTOEW8Aqmwvyg
+         /EOMHF93mOJGoZLAQhnS25MKMGwohYvj8yw/Y1nI2CTDveCtmM8OUwQ306zzSTi4Sgzc
+         7vLKAbrJD/AwVfQRRfvR4jsjLx7nOPKUqq5DUtTgJhoYwZwL3+EBtopSKE0IGtnHhRZF
+         aJfJN1UOzXoygfbXFFDxlsVmidb078e8sDBSL05zXiZjpvh5hIWHFHsuX2OGDWPr3feZ
+         lI/L1lbtGxMZgeUZdOgslSgWC8k226rPi/yz9NhMHYSrCICCUQqYH1coZNjQHzH/CTyv
+         uDBQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779805195; x=1780409995; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1779805259; x=1780410059; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=SQxTArx4dt+TcfNmxAsT/y1Np5GFA3KuP0+rkv8r8iw=;
-        b=JaFvEjkEw3Ipz/Zpi0EAaIH5vMRzYFWVrc2KvPkXpmNl9aSbNrXQ5gcSy/hs1Bu4f7
-         JyATpxc/7e5oVujHwyhZnSdhiRjNaT9DqRqf5hKW3iSnwmFRlcw91mAi8N9Ak3EqD5pD
-         2/GDjaSLrfeL1KH9c++BB0Im8pGlLMNe0DfFslA3SB9WzQHcwlTYpWHUrf1rqibxdm3A
-         JbF1TgPPL5vwrsefFfQaR1uazMhSEAMuvwErWvoWJuv3Xr/sWf73q0KOWbUYapEJWN/k
-         ejZIOhHr/gBZI5aWzvuaukFkE2vpbY5bmtnDjdEqr+offOF4Fu1AInOZMOLNyWQN2rsN
-         lHNw==
+        bh=CyfxBmE530e3wWYkMTHWPydSStB8SfVKsfRtoYIhnJU=;
+        b=ZgMQsv4NWpssz57Fj3VQiUCzbp9haqe7NsFKV4KdnZ/K1LLtdzE3ChJ/b6iWxD1A2s
+         zrfxjgsQiW9ZEsa5b7AjwbdBFM546PjyFiRU7IgQrpFmIj4ZDnY4Z6iE5tFpjHUVazAa
+         dhnyPuIpfc3RQsGdNih5vdekbtiyjAH8CX5Vo9cumOueBtiDhD4pJxF6a/hhSdlJUywJ
+         beUoL3LeTNSejCXi8Zyw1XaOqYeNAHuK4rOq0IwP2POv25b5TPJRqVcEaXBRn6lZjBQe
+         Jg+lOYaVmNc52y+xB/dNurfxGDytG/+SFVdi/7dVFxcgGQbvoVhIyQKfXHo4s4s1rJKM
+         sUNA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779805195; x=1780409995;
+        d=1e100.net; s=20251104; t=1779805259; x=1780410059;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=SQxTArx4dt+TcfNmxAsT/y1Np5GFA3KuP0+rkv8r8iw=;
-        b=smcIW5Lv3qGEGd1T+l+BA+9WOzBOeT/5BGnvKtXQjBMCkHxRGGLTBHHkfmNXFP+tHl
-         FlzZ9P2uMyOKIh4onAUNOPiJdHprPCJHV2rpwQj0w40xcGJylHAqe5J449QR7S425g5g
-         /adbfvlBrIujPzCDCv/T/wgOSBaXEwa/S6ZvAXAkfa/A+yBLo1RvHpXCi9GpghoFMJuq
-         rAx5ox74pJ54P3WO/RrCddP0haJP8O2Mpe3fsL57Vhdkm+VXjaC1NQqsmS2cwEEjacFa
-         KVqqLcAoBs+lAczC2q1xRNxOMKIvXsTC9j1+ocBn4vkzASxBrakzh+HZKXlYouZzzoMI
-         j4BA==
-X-Forwarded-Encrypted: i=1; AFNElJ8Lev3BA0FwUSRptxuPgeZfKRvivTPS0H3zPXysvpk7+FAVmFLLDhJjaUdomj0hjBDkn55LsOHT@vger.kernel.org
-X-Gm-Message-State: AOJu0YxV02bnbYc0Y/z8qn95l5KUN1/peslEXCNStX8xh2/xKcqdzfHQ
-	gLwBG/8p2nnsuD6YiDcaKhSlO2OPT7WBZsefxTlAe9VWjmlq9EeAf9/0yeLY1PAn5ssNRrcJ3AA
-	g/4/zeLKn00hQyyegfj/3Upv9kWtcQT+65A==
-X-Gm-Gg: Acq92OFI8tizhhyZ1rdcRZM4zMpUifv0xPXt+vCKlYIPxvN95iUwz6OmzsEyBIoCdyQ
-	CKSFoRpd8RHK51cR8Kww6ap5snsS+hvtepjLkUlZ61IVbJPl8Ru/mMWyIOQDiifRs47Lz0tnwkM
-	tA1JKs/yUGFg1Fj+phy3+xeNcrNCsgVokGzQ0mJR22+lsSKtwunDg4+BPb8TxCgTyi05MWsEQLL
-	81pCqQANhg8+J61A2bMac7c/waq9NP98pMO5f9xrJa/S7b5VWchiN+KfEKkY1sh3hcce3hF+ca9
-	RbZEWvY=
-X-Received: by 2002:a17:90b:560d:b0:36b:12b5:e720 with SMTP id
- 98e67ed59e1d1-36b12b5e9dcmr2042005a91.5.1779805194919; Tue, 26 May 2026
- 07:19:54 -0700 (PDT)
+        bh=CyfxBmE530e3wWYkMTHWPydSStB8SfVKsfRtoYIhnJU=;
+        b=iMwdYyT8KY4vUGcTOitsxETcmuwUjHwHa7v/wv1TsOAvNufbRz1/8ZOeLxOE27hpPG
+         xSYtSZb04XJ4qNRgR1MA70VIdBi9GYC3qKbiBAaUVrmsxv2Ib6Jpm8Sj/1K32xDUowYn
+         OQaim7ZYKTP3Itkf82kwzX5iz8EYwfnGUFd8FrvA6Yp3CTCJNyADcNoq5biZjZ3xSyVf
+         8CfhhZLWi2+UTZdsNC+zkqTjTUDEizo0mk7kgmNUn4wa5euw73aMHWssV/zacAYVjObW
+         KmKgRadmcsQnKX/o27pPx/S38L7o7EgrZyUfDDBYk2gMkfjj23MCSOK6hQyl9P35s5pH
+         Hkjw==
+X-Gm-Message-State: AOJu0Yy+5vTY759jPkpcJgEuitBgUDlL6OA8FM0uolQO7MpldGREKm74
+	pFcP8oEC6SmOOlFA7RfSITlxy6ahCYZjZ597PODcrc6j0Lx4Fyuh5hqYMG/ejOnJ9xvdz1QBMF1
+	iC/p/rO1Q3OGhdAKg63nLN0S3fFBaO/5uTg==
+X-Gm-Gg: Acq92OEKbBaKkUEGBeUsto2fBb9A7Ku7571wUIuxPz0CBBGTCH70dqg1UASJTJj9IwZ
+	Nx5avGfu9sTNvqNMAiFbWp1jfduwm/6SXO3qIK+Ou91YaEHjwV5PvBsRW/154M/VQn+XSz+qEBI
+	duoH26Wd1JkeRigLj4ksqnD51RiAHKAee2B/PsNh3aCeMCKCwJGziMNPPiruk4H0M7H6GK8NGDc
+	lm11uINprbBZ0/gSFnyL5eSpApH6dHzLd4FiD6I6lPN/EhqDqhdNHMhWp2F8Lk+XFeg7AvxhuG2
+	rme0dZ0=
+X-Received: by 2002:a05:6a00:2d8c:b0:838:9e25:f128 with SMTP id
+ d2e1a72fcca58-8415f32f29dmr18423924b3a.26.1779805258559; Tue, 26 May 2026
+ 07:20:58 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260519122401.156311-1-cgoettsche@seltendoof.de> <CAP+JOzQ0LYoYStegKak=oS2egG=QQLNYOezhXgXtLPantZM16Q@mail.gmail.com>
-In-Reply-To: <CAP+JOzQ0LYoYStegKak=oS2egG=QQLNYOezhXgXtLPantZM16Q@mail.gmail.com>
+References: <20260521134024.11581-1-stephen.smalley.work@gmail.com> <20260521134024.11581-3-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260521134024.11581-3-stephen.smalley.work@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 26 May 2026 10:19:43 -0400
-X-Gm-Features: AVHnY4L4HcYDFDu-43_knKOxdROsRv8u-wRp_HNGr4lebhbYDPT1zk4ncF4wzzw
-Message-ID: <CAEjxPJ42UBmsiKEVhQM=K=GSauTjib3RF_xzzPnEwyTJFCSiEQ@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: link xperm rule permissions correctly
-To: James Carter <jwcart2@gmail.com>
-Cc: cgzones@googlemail.com, selinux@vger.kernel.org
+Date: Tue, 26 May 2026 10:20:47 -0400
+X-Gm-Features: AVHnY4IWaf4HMgP24dLH0JqT4u-JyCwwgoO212ey_9ZQ0Q5N_hquj4KzE-yZcnQ
+Message-ID: <CAEjxPJ7SRvDtH3_2-Ztg_jePK05dGcLP0VWuyg+89q=49bAyNA@mail.gmail.com>
+Subject: Re: [PATCH 3/3] restorecond: create a separate io channel callback
+ for stdin
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com, 
+	paul@paul-moore.com, perfinion@gentoo.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, May 21, 2026 at 1:34=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
-ote:
+On Thu, May 21, 2026 at 9:40=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> On Tue, May 19, 2026 at 8:39=E2=80=AFAM Christian G=C3=B6ttsche
-> <cgoettsche@seltendoof.de> wrote:
-> >
-> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> >
-> > In copy_avrule_list() the class_perm_node_t::data field is interpreted
-> > either as a permission bitmap (for AV rules) or as a destination type
-> > index (for type_transition/_change/_member rules), and is remapped
-> > accordingly when linking a module into the base.  Extended-permission
-> > rules (allowxperm/auditallowxperm/dontauditxperm/neverallowxperm) carry
-> > a permission bitmap in this field just like AV rules -- checkpolicy
-> > sets it via `data |=3D 1 << (perdatum->s.value - 1)` in
-> > define_te_avtab_xperms_helper() -- but the conditional only checks
-> > AVRULE_AV and so xperm rules fall into the else branch.  That branch
-> > dereferences module->map[SYM_TYPES][data - 1], where `data` is a perm
-> > bitmap rather than a type index.  When the underlying ioctl/nlmsg
-> > permission lives at a high bit position the resulting out-of-bounds
-> > read segfaults semodule_link; when the bit is low the read silently
-> > succeeds and the linked policy's xperm class_perm_node->data is
-> > overwritten with an unrelated type id.
-> >
-> > expand.c::expand_rule_helper() already discriminates with
-> > `specified & (AVRULE_AV | AVRULE_XPERMS)`; apply the same condition
-> > here so the perm-bitmap branch handles extended-permission rules too.
-> >
-> > Reproduced with a modular refpolicy build that emits allowxperm rules
-> > into non-base modules (XPERM_RULES=3Dy, MONOLITHIC=3Dn); `make validate=
-`
-> > crashes inside copy_avrule_list at link.c:1298 and succeeds with this
-> > change.
-> >
-> > Fixes: 58962eb3d847 ("libsepol,checkpolicy: add binary module support f=
-or xperms")
-> > Assisted-by: Claude:claude-4.7-opus
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> restorecond registers a single io channel callback that handles
+> both inotify events and stdin. This can erroneously end up
+> trying to interpret stdin input as an inotify event. Create
+> a separate callback for stdin.
 >
-> Acked-by: James Carter <jwcart2@gmail.com>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Thanks, merged.
+All three merged
 
+> ---
+>  restorecond/user.c | 28 +++++++++++++++++++++++++++-
+>  1 file changed, 27 insertions(+), 1 deletion(-)
 >
-> > ---
-> >  libsepol/src/link.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/libsepol/src/link.c b/libsepol/src/link.c
-> > index 188b4020..de964c92 100644
-> > --- a/libsepol/src/link.c
-> > +++ b/libsepol/src/link.c
-> > @@ -1280,7 +1280,7 @@ static int copy_avrule_list(avrule_t * list, avru=
-le_t ** dst,
-> >                             module->map[SYM_CLASSES][cur_perm->tclass -=
- 1];
-> >                         assert(new_perm->tclass);
-> >
-> > -                       if (new_rule->specified & AVRULE_AV) {
-> > +                       if (new_rule->specified & (AVRULE_AV | AVRULE_X=
-PERMS)) {
-> >                                 for (i =3D 0;
-> >                                      i <
-> >                                      module->perm_map_len[cur_perm->tcl=
-ass - 1];
-> > --
-> > 2.53.0
-> >
-> >
+> diff --git a/restorecond/user.c b/restorecond/user.c
+> index 25e70ae1..3191829f 100644
+> --- a/restorecond/user.c
+> +++ b/restorecond/user.c
+> @@ -169,6 +169,32 @@ io_channel_callback
+>    return TRUE;
+>  }
+>
+> +static gboolean
+> +stdin_callback
+> + (GIOChannel *source,
+> +  GIOCondition condition,
+> +  gpointer data __attribute__((__unused__)))
+> +{
+> +
+> +  char buffer[256];
+> +  gsize bytes_read;
+> +
+> +  if (condition & G_IO_IN) {
+> +    /* Data is available. */
+> +    while (g_io_channel_read_chars(source, buffer, sizeof (buffer),
+> +                                   &bytes_read, NULL) =3D=3D G_IO_STATUS=
+_NORMAL
+> +           && bytes_read > 0)
+> +           ;
+> +    if (bytes_read =3D=3D 0)
+> +           exit(0);
+> +  }
+> +
+> +  if (condition & (G_IO_HUP | G_IO_ERR | G_IO_NVAL))
+> +         exit(0);
+> +
+> +  return TRUE;
+> +}
+> +
+>  int start(void) {
+>  #ifdef HAVE_DBUS
+>         GDBusConnection *bus;
+> @@ -243,7 +269,7 @@ static int local_server(void) {
+>         g_io_add_watch_full( in,
+>                              G_PRIORITY_HIGH,
+>                              G_IO_IN|G_IO_ERR|G_IO_HUP,
+> -                            io_channel_callback, NULL, NULL);
+> +                            stdin_callback, NULL, NULL);
+>
+>         return 0;
+>  }
+> --
+> 2.54.0
 >
