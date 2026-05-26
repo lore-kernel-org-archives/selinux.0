@@ -1,48 +1,48 @@
 Received: from mx1.secunet.com (mx1.secunet.com [62.96.220.36])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1673C3C0A02;
-	Tue, 26 May 2026 19:09:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04E142868A7;
+	Tue, 26 May 2026 19:09:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.96.220.36
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779822578; cv=none; b=WNxjlhc+z5ZFGCwykv0Gu4qBvIUdANSQWS3/gitbSw3+Q0AgYXwtKlDhAeNrmkWCK2J2K//n1jj3op4prt6JfeeiJUxsWtyCpwIhkYfGPn3Y6rhoRtFNeknK8QArsCNNskbNA5nRuwn0h87GhdT8/dEHkUvjDLmN4K1fu8dYOf0=
+	t=1779822595; cv=none; b=RlgpjsWFtioDdHiWfKCk1VSFh4StjQKahzCsyitQVUQiueT650OzqD6uK9TN2p9AiqRibQ0nU6l5DKzVaGf9oVHPkVPl5aFuv1k1yuyJdD9bzghmCNvbgjETUEVC0J3CcQl3kBDFAVt9eFGOxjKonOOCPSuR6A6124SDkDf5Ka8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779822578; c=relaxed/simple;
-	bh=Vd++UfMYvfaF6t5n1K1xAA3H7hqr8weRMZwjufIPc/o=;
+	s=arc-20240116; t=1779822595; c=relaxed/simple;
+	bh=SouvUScu2PCbbpV9Hns0wg8JBsGgSXV8hSDzyx9TX2k=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=t1JBmiheUFz79N6D3gTfofdBue6xDDrdrtIadt7UyDu0ts71dD+JuGtVBKSxxXJYBMAc2k9TmYr20SQoDncsVZdw5sL1qMG2x8TaEZ+rOkgPk9echzpvNSPRP0IXDmIpn7959v5cyAGw8cOiaXfUMdHJXj4WemUnukTCRy4rZZM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com; spf=pass smtp.mailfrom=secunet.com; dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b=vRmAqqkG; arc=none smtp.client-ip=62.96.220.36
+	 MIME-Version:Content-Type; b=Ha+Q+3dD7bdgoJiMKBLPFnVTKr9HyWtbp+LEGlriOumD4xBmEPujjm0I6Ah6NcLllY01MUN1Epm2fARiKPxpKCGBe1aJWKoANOEbuE0M0Tbjy+NMzSVoPiNAqgcmnr1EjXHOre20Uk33x4ziOHHETlsKF4ZfOtzEXQNBbSVErHU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com; spf=pass smtp.mailfrom=secunet.com; dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b=NzCkMfF7; arc=none smtp.client-ip=62.96.220.36
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=secunet.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b="vRmAqqkG"
+	dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b="NzCkMfF7"
 Received: from localhost (localhost [127.0.0.1])
-	by mx1.secunet.com (Postfix) with ESMTP id E2A2B201E4;
-	Tue, 26 May 2026 21:09:35 +0200 (CEST)
+	by mx1.secunet.com (Postfix) with ESMTP id 8A802201E4;
+	Tue, 26 May 2026 21:09:52 +0200 (CEST)
 X-Virus-Scanned: by secunet
 Received: from mx1.secunet.com ([127.0.0.1])
  by localhost (mx1.secunet.com [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id g4rNe8x33Rvj; Tue, 26 May 2026 21:09:35 +0200 (CEST)
+ with ESMTP id ug9bajcQjoPx; Tue, 26 May 2026 21:09:52 +0200 (CEST)
 Received: from EXCH-02.secunet.de (rl2.secunet.de [10.32.0.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mx1.secunet.com (Postfix) with ESMTPS id 41E02201A7;
-	Tue, 26 May 2026 21:09:35 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.secunet.com 41E02201A7
+	by mx1.secunet.com (Postfix) with ESMTPS id 02F34201A7;
+	Tue, 26 May 2026 21:09:52 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.secunet.com 02F34201A7
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=secunet.com;
-	s=202301; t=1779822575;
-	bh=7DPq9/2B4vF3MKSp537Hr2VkAQP5UgbFFSDcpUOeuA4=;
+	s=202301; t=1779822592;
+	bh=MpdTDbyzRfDw9Bco0ldUvXvBd41GjVNe/9C4O6DG+Nc=;
 	h=From:To:CC:Subject:Date:In-Reply-To:References:From;
-	b=vRmAqqkGPhT1N1KtLT7quo+XEkfZ6SKrPFE/YG6Nq3KWWet+STT5VOtntGvYmcLwd
-	 iFujROPs4eMNKba9UGJeaaBBXKWSha+7Ge8b5eewDxNQ6lEufKvC2Ap2UZV97qV61c
-	 Vbs16sTkOre0VP88BUTQUHpnqiRY0XlmpJREHkEQ+1vR/2m+LvCN4hS+Vnr82shRjM
-	 XDWm6X0R+FrAujBw0+gBN7OWYtlb3W7AErJBPeVXKnh2cJV6V3Dpn6yMEpISIZkHlf
-	 Rlkq41oKQ/QkfZaN7aRIWPrgsaX62iuvlsBqXQ4oz1DDv29TDy6KNR4sQwG0rfM0n7
-	 TSiv73/sccTaQ==
+	b=NzCkMfF7YkuMiIHzWAQPcGpmq6idG4n8Osmaz1br5CbotHNFPmIncG4vsK40+6Mbs
+	 6z46G48wFoZTo9m9Lw2J1ysFvSn0FMST3nSfhWWaSJJBZNNnflazj6zbPx+qm1qxWG
+	 jY2Xbdvnxycg5lZv636xx2qbwy1JHuNAtDHyhI804+RGYZTRtSS3Q1jzGgcOBvHeLJ
+	 msetf1a8kL1SpYGAHZ4ad53w7HR5iqCEXNUsyrgy98/4V//t2h8OVYlg322RzPEN2s
+	 kwVh0uH3AFGg+CSZ+rqrg6d4SEOA1yPTDsBtVYsgBGFOeVBqoWptIQqEujrwZUABk/
+	 8yZFLzPNnbVmw==
 Received: from moon.secunet.de (172.18.149.1) by EXCH-02.secunet.de
  (10.32.0.172) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.37; Tue, 26 May
- 2026 21:09:23 +0200
+ 2026 21:09:46 +0200
 From: Antony Antony <antony.antony@secunet.com>
 To: Antony Antony <antony.antony@secunet.com>, Steffen Klassert
 	<steffen.klassert@secunet.com>, Herbert Xu <herbert@gondor.apana.org.au>,
@@ -57,9 +57,9 @@ CC: Sabrina Dubroca <sd@queasysnail.net>, <netdev@vger.kernel.org>,
 	<linux-kernel@vger.kernel.org>, <selinux@vger.kernel.org>,
 	<linux-doc@vger.kernel.org>, Chiachang Wang <chiachangwang@google.com>, Yan
  Yan <evitayan@google.com>, <devel@linux-ipsec.org>
-Subject: [PATCH ipsec-next v9 12/16] xfrm: extract address family and selector validation helpers
-Date: Tue, 26 May 2026 21:09:10 +0200
-Message-ID: <migrate-state-v9-12-ad9947e4ae74@secunet.com>
+Subject: [PATCH ipsec-next v9 13/16] xfrm: make xfrm_dev_state_add xuo parameter const
+Date: Tue, 26 May 2026 21:09:35 +0200
+Message-ID: <migrate-state-v9-13-ad9947e4ae74@secunet.com>
 X-Mailer: git-send-email 2.39.5
 In-Reply-To: <migrate-state-v9-0-ad9947e4ae74@secunet.com>
 References: <migrate-state-v9-0-ad9947e4ae74@secunet.com>
@@ -75,140 +75,53 @@ Content-Transfer-Encoding: 8bit
 X-ClientProxiedBy: EXCH-04.secunet.de (10.32.0.184) To EXCH-02.secunet.de
  (10.32.0.172)
 
-Extract verify_xfrm_family() and verify_selector_prefixlen() from
-verify_newsa_info() to allow reuse by other netlink handlers.
-
-verify_xfrm_family() validates that a given address family is AF_INET
-or AF_INET6 (with CONFIG_IPV6 guard).
-
-verify_selector_prefixlen() validates that the selector prefix lengths
-are within the bounds for the given address family.
-
-No functional change.
+The xuo pointer is not modified by xfrm_dev_state_add(); make it const.
 
 Signed-off-by: Antony Antony <antony.antony@secunet.com>
-
 ---
-v8->v9: added this patch
+v8->v9 : added this patch
 ---
- net/xfrm/xfrm_user.c | 80 +++++++++++++++++++++++++++++-----------------------
- 1 file changed, 44 insertions(+), 36 deletions(-)
+ include/net/xfrm.h     | 6 ++++--
+ net/xfrm/xfrm_device.c | 2 +-
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
-index 03fa4cabf601..c7ae670212a9 100644
---- a/net/xfrm/xfrm_user.c
-+++ b/net/xfrm/xfrm_user.c
-@@ -264,66 +264,74 @@ static int verify_mtimer_thresh(bool has_encap, u8 dir,
- 	return 0;
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index 4b29ab92c2a7..5515c7b10020 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -2104,7 +2104,7 @@ void xfrm_dev_resume(struct sk_buff *skb);
+ void xfrm_dev_backlog(struct softnet_data *sd);
+ struct sk_buff *validate_xmit_xfrm(struct sk_buff *skb, netdev_features_t features, bool *again);
+ int xfrm_dev_state_add(struct net *net, struct xfrm_state *x,
+-		       struct xfrm_user_offload *xuo,
++		       const struct xfrm_user_offload *xuo,
+ 		       struct netlink_ext_ack *extack);
+ int xfrm_dev_policy_add(struct net *net, struct xfrm_policy *xp,
+ 			struct xfrm_user_offload *xuo, u8 dir,
+@@ -2175,7 +2175,9 @@ static inline struct sk_buff *validate_xmit_xfrm(struct sk_buff *skb, netdev_fea
+ 	return skb;
  }
  
--static int verify_newsa_info(struct xfrm_usersa_info *p,
--			     struct nlattr **attrs,
--			     struct netlink_ext_ack *extack)
-+static int verify_xfrm_family(u16 family, struct netlink_ext_ack *extack)
- {
--	int err;
--	u8 sa_dir = nla_get_u8_default(attrs[XFRMA_SA_DIR], 0);
--	u16 family = p->sel.family;
--
--	err = -EINVAL;
--	switch (p->family) {
-+	switch (family) {
- 	case AF_INET:
--		break;
--
-+		return 0;
- 	case AF_INET6:
- #if IS_ENABLED(CONFIG_IPV6)
--		break;
-+		return 0;
- #else
--		err = -EAFNOSUPPORT;
- 		NL_SET_ERR_MSG(extack, "IPv6 support disabled");
--		goto out;
-+		return -EAFNOSUPPORT;
- #endif
--
- 	default:
- 		NL_SET_ERR_MSG(extack, "Invalid address family");
--		goto out;
-+		return -EINVAL;
- 	}
-+}
- 
--	if (!family && !(p->flags & XFRM_STATE_AF_UNSPEC))
--		family = p->family;
--
-+static int verify_selector_prefixlen(u16 family,
-+				     const struct xfrm_selector *sel,
+-static inline int xfrm_dev_state_add(struct net *net, struct xfrm_state *x, struct xfrm_user_offload *xuo, struct netlink_ext_ack *extack)
++static inline int xfrm_dev_state_add(struct net *net, struct xfrm_state *x,
++				     const struct xfrm_user_offload *xuo,
 +				     struct netlink_ext_ack *extack)
-+{
- 	switch (family) {
- 	case AF_UNSPEC:
--		break;
--
-+		return 0;
- 	case AF_INET:
--		if (p->sel.prefixlen_d > 32 || p->sel.prefixlen_s > 32) {
--			NL_SET_ERR_MSG(extack, "Invalid prefix length in selector (must be <= 32 for IPv4)");
--			goto out;
-+		if (sel->prefixlen_d > 32 || sel->prefixlen_s > 32) {
-+			NL_SET_ERR_MSG(extack,
-+				       "Invalid prefix length in selector (must be <= 32 for IPv4)");
-+			return -EINVAL;
- 		}
--
--		break;
--
-+		return 0;
- 	case AF_INET6:
- #if IS_ENABLED(CONFIG_IPV6)
--		if (p->sel.prefixlen_d > 128 || p->sel.prefixlen_s > 128) {
--			NL_SET_ERR_MSG(extack, "Invalid prefix length in selector (must be <= 128 for IPv6)");
--			goto out;
-+		if (sel->prefixlen_d > 128 || sel->prefixlen_s > 128) {
-+			NL_SET_ERR_MSG(extack,
-+				       "Invalid prefix length in selector (must be <= 128 for IPv6)");
-+			return -EINVAL;
- 		}
--
--		break;
-+		return 0;
- #else
- 		NL_SET_ERR_MSG(extack, "IPv6 support disabled");
--		err = -EAFNOSUPPORT;
--		goto out;
-+		return -EAFNOSUPPORT;
- #endif
--
- 	default:
- 		NL_SET_ERR_MSG(extack, "Invalid address family in selector");
--		goto out;
-+		return -EINVAL;
- 	}
-+}
-+
-+static int verify_newsa_info(struct xfrm_usersa_info *p,
-+			     struct nlattr **attrs,
-+			     struct netlink_ext_ack *extack)
-+{
-+	int err;
-+	u8 sa_dir = nla_get_u8_default(attrs[XFRMA_SA_DIR], 0);
-+	u16 family = p->sel.family;
-+
-+	err = verify_xfrm_family(p->family, extack);
-+	if (err)
-+		goto out;
-+
-+	if (!family && !(p->flags & XFRM_STATE_AF_UNSPEC))
-+		family = p->family;
-+
-+	err = verify_selector_prefixlen(family, &p->sel, extack);
-+	if (err)
-+		goto out;
+ {
+ 	return 0;
+ }
+diff --git a/net/xfrm/xfrm_device.c b/net/xfrm/xfrm_device.c
+index 550457e4c4f0..630f3dd31cc5 100644
+--- a/net/xfrm/xfrm_device.c
++++ b/net/xfrm/xfrm_device.c
+@@ -229,7 +229,7 @@ struct sk_buff *validate_xmit_xfrm(struct sk_buff *skb, netdev_features_t featur
+ EXPORT_SYMBOL_GPL(validate_xmit_xfrm);
  
- 	err = -EINVAL;
- 	switch (p->id.proto) {
+ int xfrm_dev_state_add(struct net *net, struct xfrm_state *x,
+-		       struct xfrm_user_offload *xuo,
++		       const struct xfrm_user_offload *xuo,
+ 		       struct netlink_ext_ack *extack)
+ {
+ 	int err;
 
 -- 
 2.47.3
