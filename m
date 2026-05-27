@@ -1,150 +1,155 @@
-Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 996C43AB291
-	for <selinux@vger.kernel.org>; Wed, 27 May 2026 19:47:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.170
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779911258; cv=pass; b=V4aOTsNyu+HUSFiGNIyzaHEgZT3yRbXRR+wMsbmKFKPZj4VTMxwEnZX+y33Lu2YUecfCSRtMBy88bu1ZB4MtZiEPRSp3tubGO9ifORsvmENLQJgtDf1JBTO7LhxAZs7/nm8T8VF9Z6gywnZxI/epL0TfbWXvs37RtFRHcNoOzds=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779911258; c=relaxed/simple;
-	bh=kTywPN3H+0U4+OP12n473DxnMPrPY7zBbBFF2Kp4cTw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=sCcM2FfqVinPqPEqhbS/wBtJVw/27YHsIhzt8huau0WPmqIi6Wd65b/jWU39OEDlhFCpeWqXdpQj0T0sRpdeTgTpJPcekMqWfNXzaD+eLIr6TGhFs6L94iDDs+gdMyI6e/5ZWjCB62vTYLvgfOJECebZ3W848wHvqeVWYsZr6UI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mtPUG1lO; arc=pass smtp.client-ip=209.85.214.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4183E2F3C26;
+	Wed, 27 May 2026 19:59:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779911972; cv=none; b=dHKixEKKKrHCZDAR/a0LUKXrI9REBrkX9nbyC3YUnmEXke6ab/pLHDq9ZAvhm8Clcz3WZJtMGZ2aEK1bySiLbuXEVLeisLhF4hoinaM9kYqF7OMxsvxTQTdeDBHF8IdASh7M2ze/IQQqQTS8Icq3OZTh/9coY2etJ0GOntDvuwE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779911972; c=relaxed/simple;
+	bh=dGLzAB7+QWK1Gwqw39KPEq+ogXaxGhIVT7a7pkAe2yE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=nS4p6eq1l4xNNY+JFbkNDNQMpjNpNgPJ+zujRRbpIzHJG+qoMlVWwOFEMwoWV3BbpQBnd+UEgUt7yh0WHXkTfbMwIBGYqNY5r9vhE682Yl+ybPCzzogoMfiUBQE3mZoE3MaDFk4qLdGs4ByTgK588xPaO0hwq0Bv42OfbxUwQKM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=ELTN3QR6; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mtPUG1lO"
-Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2ba928852a5so84600225ad.1
-        for <selinux@vger.kernel.org>; Wed, 27 May 2026 12:47:37 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779911257; cv=none;
-        d=google.com; s=arc-20240605;
-        b=CCLpYtgIEV7sRVMTxBtn/FdP8pxl4dd9LYunaKXG2X7QgpQcuWZxT3lZt30juQb/Rw
-         Cy6Bo3mtDIqiebL86sfOeGHtTTSq9iDh6LeDtaFB0g5jnkMqv21HhWr8dsaP0wKIhGiS
-         cVf2CAtg/6gejfbtSc6MLmRirv5uh38AbS4YxkFy92aq5el43az11KnQ6Ox+9xhpFuR3
-         pyzaSx7AyMUK7pU+6Ao9uo+55XlDkXyKvIzPQGVH6UtkEOrexh0TFIkEMwx3HLEAkyIg
-         PEKPOABUkjhtjyQIWzVliuOzsDTV//GxiBzUucKBvStb9bd/mGGgDpOuo3U5dGHdphFm
-         brSg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=kTywPN3H+0U4+OP12n473DxnMPrPY7zBbBFF2Kp4cTw=;
-        fh=UyK2yluEfDy/4KqdUzHAPc4sSFHTBxg+D2OXxrc9Nic=;
-        b=axV6g6HVo2Ji7na+1qrMRxAQc022c/LVRN+pIKNPorQ9oC0dZSHe7WFNWT0iuvhEVX
-         zHuND3FK3pV5eIvwI0xriZckdSmtWAygVaPOkSZXlMYfFw3x1v4dve+fhlF+zruGI6Em
-         b8GBADz3KbLbuUePTCiYU+F0EG5ukoHZx+qY5SEqDTfBsYQNL1HAOVOxw5jQ/kZe0p4K
-         thBGd1HgrtMtWqnwolM5Q4CU8FXAUlw9Jn40Mwaym3qBKsujCUf8Lc7aZbDChACtpgKA
-         yH0ZFg4GgsHoGDjci99aRhwH/MXlkfvO1uY41Kv/6aOZv3VVafubSDT25Z9UYmwHl1gB
-         kUaQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779911257; x=1780516057; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kTywPN3H+0U4+OP12n473DxnMPrPY7zBbBFF2Kp4cTw=;
-        b=mtPUG1lOnwvUYpn4aq0JjDsIvidPDJwOxDsKXkpTrlNzm5JT+xKzfkkm8A0RJfLvKl
-         H61Fss8+JFVOjjek/zFdNJG4QtPG7d+zWquEmsEY1gMwps8sPvGSFKr6XIpgvMf4/a5p
-         Ve9oAa/lUyBjqUfjW5vRIRkDFVX509cc+/rcAqx4gBRbUKROcpl7oBT2udNasqncCECG
-         LKai4MEBderyfeeN90FvquTIdAJwrsLsIUJ+C8ODyOrdCpjxH+vn1wrNrkAwF92NhfZZ
-         mEbDGUKGwTRGUu+yP2nijzqliPUOcgmOlIsnPke+yRAL3Z21CXy+44b4czvDcc6G8G9+
-         vtRg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779911257; x=1780516057;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=kTywPN3H+0U4+OP12n473DxnMPrPY7zBbBFF2Kp4cTw=;
-        b=YvP6zd/6ZCFM5yVaoaW9UEaWgYM3O406QNKidoAuAvG7TKgZW8B1ZJhjFERVUdmfg4
-         z4QyUOC/KUkXBtWiy0bGHnCwFzijQSmYHp5zwIYTSXG4rFyBH3Pn1rxzza+V5oo6bnEz
-         Pdvq5+oqegY/Aqb8BniBmCXi2le2iODkQsXd09cmGFRJdI3hbKoopzYccdJGhXtJtRIt
-         uR1ujFkjbvjPZMIlbT+ueQq0aud8jPLTr0VD6aRZvMxthvnGU6irWBUmSWjJgWuYObZm
-         hN9rj/vllGbTryiBp5aBTWsIHkYcmMVregYpAbw/+ftfUBEKtxYkGxrtLB4wzdUb9LNB
-         uwkw==
-X-Gm-Message-State: AOJu0YyX6Af3hTj7xqj7ihfplbQ6NYB9+3+fiHLcefEyFk5oA82A+QSt
-	cPxrj90/ATya2eDbd3uYk8Ge7OtI97fHcGpkA+Dv/vfQ0Df5drY/vHk33DMBRPD8FWDpcLekwiP
-	krWgiskZId/+Hi6BumdX2CwSCZV4p4MQ=
-X-Gm-Gg: Acq92OGH5Owi4rnOK8wZ8SDNOzsYGdou+q1TGuA0/iYK4mqOZmvgveJZmPs2qdSy1CQ
-	N5k0FNqbrZyBQqZHp1K4px94B7ekZhpZAMbf8kPRoncqPhFrYK81nnKg5fypl3nbhBr39CbatkW
-	f0rD4jmAlGbxFy19YF+U1u0zXgPXxkjWdn4eZil6MEN3kmSyY8+do+g7b+P/qdpvygVkKSuXYpq
-	sLI246ROKQPPsyo7d3a/JECfjJzbp8hKIjoR/4qrNTYuR/XbfZdVCnU4lB7IFah6z4O6YR765m+
-	KAiPcdN12bWm9kDXbA==
-X-Received: by 2002:a17:903:4407:b0:2bd:9a27:70f1 with SMTP id
- d9443c01a7336-2beb0804542mr258867455ad.30.1779911256943; Wed, 27 May 2026
- 12:47:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="ELTN3QR6"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=dGLzAB7+QWK1Gwqw39KPEq+ogXaxGhIVT7a7pkAe2yE=; b=ELTN3QR6sMG44bP9QyVSBeLylu
+	8lRV9ni3yRDtklEwyJmFsAeypKQNkkXvFE7GlkSBXjY8sF/U8CFy1tQ0mpAusLZpZTEKzCjOAHypl
+	GjVqkLWx5uykPyxnm3NfS31r4/wADnQww1ntE/gYwJhlEmn9nu9cFgs9yZxE/VFUBQbYqHo0LjUNs
+	8sqjWNdLqqRvj8nf9ADfisaUJnTzne+bIbnMIP9byI2TAhGaMOlwKcruGBWP9liQQtllCFNevGLBn
+	Cp5biHaoWTFBUbgy3liMkWfM1OVjdTb4G7f5ExW9ApcDzqwlUmizXFDn1xd9nD+nSf5R8DJYOZB/J
+	4aRGLMyg==;
+Received: from 2001-1c00-8d85-4b00-266e-96ff-fe07-7dcc.cable.dynamic.v6.ziggo.nl ([2001:1c00:8d85:4b00:266e:96ff:fe07:7dcc] helo=noisy.programming.kicks-ass.net)
+	by desiato.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1wSKP6-0000000ErAf-0irf;
+	Wed, 27 May 2026 19:59:00 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id D3CC6300CB5; Wed, 27 May 2026 21:58:58 +0200 (CEST)
+Date: Wed, 27 May 2026 21:58:58 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: Aaron Tomlin <atomlin@atomlin.com>
+Cc: tsbogend@alpha.franken.de, paul@paul-moore.com, jmorris@namei.org,
+	serge@hallyn.com, mingo@redhat.com, juri.lelli@redhat.com,
+	vincent.guittot@linaro.org, stephen.smalley.work@gmail.com,
+	casey@schaufler-ca.com, longman@redhat.com, tj@kernel.org,
+	hannes@cmpxchg.org, mkoutny@suse.com, chenridong@huaweicloud.com,
+	dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
+	mgorman@suse.de, vschneid@redhat.com, kprateek.nayak@amd.com,
+	omosnace@redhat.com, kees@kernel.org, neelx@suse.com, sean@ashe.io,
+	chjohnst@gmail.com, steve@abita.co, mproche@gmail.com,
+	nick.lange@gmail.com, cgroups@vger.kernel.org,
+	linux-mips@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3] security: Expand task_setscheduler LSM hook to
+ include CPU affinity mask
+Message-ID: <20260527195858.GC3493090@noisy.programming.kicks-ass.net>
+References: <20260526142838.774711-1-atomlin@atomlin.com>
+ <20260527085221.GQ3126523@noisy.programming.kicks-ass.net>
+ <bgjagepcfb7gz6jawatu6kpfmecw46gwg5cvb6r7dl3dn7bt4l@rtymdaslx7ef>
+ <20260527155404.GV3126523@noisy.programming.kicks-ass.net>
+ <ov33cu2wosubbfufcmfyoinfatecskjgmkvqyit33komlcla2d@2qgj45724bql>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAEjxPJ4bb+sBUPPVYbwkay7w6k1NJx_6adiLVbHnYa5vjb5SUA@mail.gmail.com>
- <CAEjxPJ5OLy3NVut1PW_vAVwR+qUBTv+oq2Ngt3R_Rk=Hx2FgXw@mail.gmail.com> <87mrxmnrz5.fsf@redhat.com>
-In-Reply-To: <87mrxmnrz5.fsf@redhat.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 27 May 2026 15:47:25 -0400
-X-Gm-Features: AVHnY4JjyObuqSswXQFvvdC64h3kVXezL7j3UGrsFYCvdB0VoKD4GnMxKcXAkhw
-Message-ID: <CAEjxPJ7y-q=sFpd51ci5OvH9Qvf5-jx-7oTWOrrrhKSvF2YMng@mail.gmail.com>
-Subject: Re: Minimum kernel version for SELinux userspace
-To: Petr Lautrbach <plautrba@redhat.com>
-Cc: SElinux list <selinux@vger.kernel.org>, Paul Moore <paul@paul-moore.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, James Carter <jwcart2@gmail.com>, 
-	Jason Zaman <perfinion@gentoo.org>, Jeffrey Vander Stoep <jeffv@google.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="o0gcLVW1g+NX126n"
+Content-Disposition: inline
+In-Reply-To: <ov33cu2wosubbfufcmfyoinfatecskjgmkvqyit33komlcla2d@2qgj45724bql>
+
+
+--o0gcLVW1g+NX126n
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, May 26, 2026 at 10:52=E2=80=AFAM Petr Lautrbach <plautrba@redhat.co=
-m> wrote:
->
-> Stephen Smalley <stephen.smalley.work@gmail.com> writes:
->
-> > On Thu, May 21, 2026 at 3:33=E2=80=AFPM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> >>
-> >> There are newer kernel APIs we could leverage to further improve the
-> >> SELinux userspace, but doing so would require setting a minimum kernel
-> >> version for new SELinux userspace releases. Not sure we've done that
-> >> previously.
-> >>
-> >> In particular, I'd like to be able to use some or all of the following=
-:
-> >> open_tree() + move_mount(): v5.2
-> >> openat2(RESOLVE_*): v5.6
-> >> mount_setattr(): v5.12
-> >>
-> >> The question is what if any of these can we assume to be the minimum
-> >> kernel version going forward?
-> >> - kernel.org LTS kernels span 5.10 through 6.18 currently.
-> >> - Android common kernels track LTS kernels.
-> >> - RHEL 9 kernel was 5.14-based.
-> >> - Ubuntu 22.04 kernel was 5.15-based.
-> >> - Debian 12 kernel was 6.1-based.
-> >>
-> >> I would guess we could set the minimum kernel version to v5.12 and use
-> >> all of these interfaces, at least in code not used by Android.
-> >> Thoughts?
-> >
-> > As further context, I'm only looking at open_tree(), move_mount(), and
-> > mount_setattr() for sandbox/seunshare.c and at openat2(RESOLVE_*) for
-> > sandbox/seunshare.c, restorecond/watch.c, and
-> > libselinux/src/selinux_restorecon.c. None of these are used today by
-> > Android AFAIK, although selinux_restorecon() was based on
-> > selinux_android_restorecon() and might be re-unified with it some day.
-> >
-> > It would likely also be helpful to understand whether it is worth
-> > further rewriting of sandbox/seunshare.c or if it is likely to be
-> > obsoleted/replaced in the near term.
->
-> We don't have any specific plan other than support it in existing
-> version for release RHELs
->
-> For future, I'd say that using bwrap could make things much easier.
-> And I would not mind to move sandbox out of SELinuxProject/selinux to its
-> own repository like SELinuxProject/sandbox.
+On Wed, May 27, 2026 at 01:41:52PM -0400, Aaron Tomlin wrote:
 
-Ok, do you have an opinion on setting a minimum kernel version for
-future SELinux userspace releases (not 3.11, but say 3.12 and later)
-so we can start using some or all of these interfaces without
-requiring backward-compatibility fallbacks?
+> > > The actual use case here is multi-tenant workload isolation and visib=
+ility.
+> > > Passing the evaluated cpumask to the BPF LSM allows operators to writ=
+e a
+> > > simple eBPF program to detect spatial boundary overlaps (e.g., loggin=
+g an
+> > > event if a requested mask intersects with platform-reserved cores).
+
+Why isn't cgroups good enough to enforce this? If you create a cgroup
+hierarchy per tenant, and constrain them using the cpuset controller,
+they should not be able to escape, rendering this event impossible.
+
+> > > If this justification makes more sense, I will focus strictly on the
+> > > seccomp pointer limitations and multi-tenant workload isolation.
+> >=20
+> > I suppose it does, my only remaining question is if that is indeed
+> > proper use of LSM -- I really don't know much about that.
+> >=20
+>=20
+> We are not creating a bespoke BPF hook here; rather, we are rectifying a
+> historical blind spot within the API. The existing LSM hook is invoked
+> during sched_setaffinity(), yet it presently receives only the task_struct
+> pointer. Consequently, the security module is essentially asked, "Should
+> Process A be permitted to alter Process B's affinity?" without being
+> informed of the proposed affinity itself. Providing in_mask simply
+> furnishes the existing hook with the requisite payload to make an informed
+> decision.
+
+It occurs to me that this same argument would require to also pass in
+the new sched_attr, no? That way the LSM can inspect the new policy
+before it becomes effective.
+
+> Were the objective solely one of observability, a tracepoint would indeed
+> be the most suitable mechanism. However, if the aim within multi-tenant
+> environments is active enforcement (namely, safely returning -EPERM to de=
+ny
+> the pinning request before the scheduler applies it), the LSM layer remai=
+ns
+> the standard, architecturally supported gateway for returning syscall
+> errors in accordance with administrative policy.
+
+Indeed; but being constrained in a cpuset cgroup would result in the
+same, no?
+
+> I shall defer to Paul Moore and the LSM maintainers for their final
+> blessing on the LSM API semantics.
+
+Yes, I think that this is an interesting test-case of the LSM purpose.
+
+You seem to be mostly aiming at resource control, something that is
+traditionally done elsewhere.
+
+> Thank you once again for the thorough review and for keeping the
+> architectural boundaries honest.
+
+No problem, just trying to understand myself ;-)
+
+--o0gcLVW1g+NX126n
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEv3OU3/byMaA0LqWJdkfhpEvA5LoFAmoXTP0ACgkQdkfhpEvA
+5LoosQ//XlaEdrjiSG7UqRemo3EjCKgYC4JnDuk0gK8Jjj7CT4JOA1uvnNt84hC9
+JUsAkRQ984DrAwXrsIkJuPu3D9NziW+8W7Z9vYczAtTVgptyNIkGP15S6cXFX4yC
+0Qd9bBNG0EhB31fLvONobc8iMpCT1zvCtUYJeq+TYvqKAwitQD8smMUpk1PKgZcf
+Ij5E7jrX4WpvD1GsLZn7vd/vGhGvUXz2WABj1urHNyMK3F6itWDpei8uODKK9cJz
+Ea6GUDNenHPMZbXCCRCDJUVfAPQHeeL+zWF8SYyt6+nruQNW561/UjVOD0+bEW5F
+tLLcgYYblXI/BNdVPfs7O8Cu99644DSJxvd2smVS5od0IwZTMe7bqAZ747a7drNu
+B9RwbYTb46/nHRNe1ad1KUpLDSkMOQm2PRjkdpA2OL3HhDdE49KutblbSI1kvLh1
+sOJdZIGIcPvkrNosZTXu/tc2AOfc90Zp/WcaLjfqc+5LY5o8jnHBksn36SohPBqf
+MM8FGqbBrq5DfyVrE/59aCPEJyTYQz25JBT+2NbELDVCFI1sinCA1qIKWBB5iIOK
+Tq5G37nzhDw2WAp/e9BCnF+3adNqUuUbldIL4PsuobrPlIQHgIq6I9rKul3OkhYw
+5L4lfLU/lFF/HfpMY5xlWEHzEO47vS4dG7DpHHlUynEmoLTSu88=
+=rSBb
+-----END PGP SIGNATURE-----
+
+--o0gcLVW1g+NX126n--
