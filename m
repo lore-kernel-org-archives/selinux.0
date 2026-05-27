@@ -1,97 +1,108 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f194.google.com (mail-qk1-f194.google.com [209.85.222.194])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6141A383C66
-	for <selinux@vger.kernel.org>; Wed, 27 May 2026 21:09:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 204DC38C42D
+	for <selinux@vger.kernel.org>; Wed, 27 May 2026 23:42:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.194
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779916150; cv=none; b=TqJ/0U25HokLhkgwTZC+qtJ6CaPwWewkoD8Fq+edvFkR/cnMXWrpRRdD0bQgZQB6OsflBgOZqOcR4ZoEFJNRc7yOjjPmqpr3ysUDFicslmJ5M1/a4FdUgjXuepO5+YCs5J/1TethGFPzLlsvibL/ntr/PW8DJc6xqElquD/z0gk=
+	t=1779925357; cv=none; b=T4kkP6RWFrgVA6B9UoAbPmpxDwp4fFOwtCm/LZ7BmdrZJciMs3m2xrn2UI4cKo0fq65qcrwJS6Te1FmTwWsFgPaxb3Q28E3SaQHXPgfCQfeCZynbI4kXoig1QHu1oNQfhM5/ATutzWC65cDdZ1VXy1NySey2RamWCScoBoVRkd8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779916150; c=relaxed/simple;
-	bh=GEKS06uuuAqcjSg8ihpyB/cxnmd0DZZbElkKKpaHokU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Z5FhaevH1eiTOXXMgTkGvGWPDfKzkAzPA5C9qJumDvTbAZdDp4BRY1LNX3frjjXgNl7ZnzHyVRD1ftO43XGLVFTJ2PzBSsskHjXZhkOJoxPEOO0jhZ2XEy+2TMgGSDMHEDlWNjfNC0Djjm+datrGFi99MvFPhXCkzwXffahZtWE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YYbl47tS; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779925357; c=relaxed/simple;
+	bh=bFhoZtKMfAkJEwxLgJ6/oZuzCLxHsvUxFVvVuDQhd20=;
+	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
+	 References:In-Reply-To; b=c99A8/QHal6AYLMzo3kgUNeowPxdRuywpV5e/INh/Nx8MBX2JY4ziG2uZnRftKMrpxlFGoMyrbTeNAko6UoCqjHCl5kF5aNSIn4vFS7IhKy42kNu+G7TX48HG/hrJ618lo3lIHUTgK6M1mmROJVy/HHUJuFc2/2QYIA61FiL2qI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=MDbxYhSU; arc=none smtp.client-ip=209.85.222.194
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YYbl47tS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0540C1F00A3F
-	for <selinux@vger.kernel.org>; Wed, 27 May 2026 21:09:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779916149;
-	bh=SGNQeth4C737npdaj8qyPJlkY2CV1woEfMjV+LyPpKs=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=YYbl47tSWadaLp25wNd29TyEhD4mDuRPA28dakOeAUi2bdlKLPhX785Mg1CaYsLVE
-	 sD2/UqQMwyaKYORziMsp06JC0jnVFXsmv28Cq6AUsef4IIA4og8Jp30IHGFpcDCxmh
-	 TIH1q1zW3VniIGan5y6fvFl8fQkRzkWDwZ3OHjKXax0ebudOFasMJQQa23pSLWcf/R
-	 qoyK3Q/TewfmY7g3nmlToY+2U48SfjZPF15+bF6ESDIbdeyvyqu5Lw8dU03J7LZzUP
-	 YeJJxhVvVPKVl39qKuc06tiwWWPMT2IgRsnRwrT1bjnpvpOlrVaFq6LhYVYJvPA38H
-	 h0l76bbb6sc0Q==
-Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-914cf9248ceso376157785a.1
-        for <selinux@vger.kernel.org>; Wed, 27 May 2026 14:09:08 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ8zek/wJsjQxyloAt7rSCygBLl9wln8kwARyrLLMDzqorIPpLkhjg6WGL6ZcARAGtNIryPm4Y6a@vger.kernel.org
-X-Gm-Message-State: AOJu0YyW7hBbHrRfjDxDY/TXPoN2FdxhSU10lx9gKRPqhw3TD7aTuN60
-	7YuJPrebLSehgsq2wwSWHVVhIoQ2lYJGoixlmh6tq45olLqVs0wIhn+CJun6xQr3Lm0uZSLpgqt
-	uOn+ZQbHZAm9TdMyCR5xmauYQDeIQ8j8=
-X-Received: by 2002:a05:620a:408f:b0:90c:a08f:c5f0 with SMTP id
- af79cd13be357-914b49cd89fmr3578191385a.33.1779916148247; Wed, 27 May 2026
- 14:09:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="MDbxYhSU"
+Received: by mail-qk1-f194.google.com with SMTP id af79cd13be357-914b03e42b2so746636185a.0
+        for <selinux@vger.kernel.org>; Wed, 27 May 2026 16:42:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1779925355; x=1780530155; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=vWtSF+ZdJPKnDl6l0dlAcmnN+0WDS6LYwhPmb91DFEM=;
+        b=MDbxYhSU8a1NXFKJ4BLckTioTxA6dz/9OKssB30bXmIC2aX9PwG3sb6SyK5dQhT378
+         eYEB4iLolxeC/kIUfeQxaujeoq4VG30rDG2P/wo8uAdSYLUIZSLoDM5y0TSoY5kJmNJx
+         oHsdLuJ6DLJbjnq0DhSuvJgkgjhf5R0bYUXsmpq9Qd7K2Yy7LrjjTKeFpVW5AkstFf/F
+         rbfkEzac9Ci0TFwoxMSQNKaXTrO/Fmekpng+MeiWgmgMzXqgTBYUxNEaocn8shyzyfWI
+         3+lb0W2OqCyTfZK9gT7QNFaGHXB2ZpFOP9lGyGUcwoBV7VEpf4vto10jc1qN7MYeK9tU
+         CLNQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779925355; x=1780530155;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=vWtSF+ZdJPKnDl6l0dlAcmnN+0WDS6LYwhPmb91DFEM=;
+        b=coLYsWePLw0x/CYyyy8xAeCzxnuoyTjsLxZ0ZXtZfZFR5rlcvXb91v9A8b9idR1jLd
+         hyaGZhga1CCd4gZet2UnfiXwxIen7OonZlG4MITXDoIJcT5qNk3uaJ0jEGYF9r8uBJgu
+         +lix/NopyHzZBDA2ujxJ2A6TJwCKwhbg7FSNwxTxRw1ANQVC013aCk0Not1ZtZRLPu4t
+         QPQ66B2jLIszbyu5KY2/oZsifn8/y1u4i0blvjQS1vALozzPRB2jQTs9gQzhYNFhjxuy
+         ZZKsTbxQ7QF/eWjxOsXYx5UFHlcVcusZ6L0rFd3Ubwmz4s4IqA7kaRkWDo7m0uUZsPm+
+         NfJA==
+X-Forwarded-Encrypted: i=1; AFNElJ8i/297D8SNQwcTyX4ic++bUH+1utUQ8PpvlbyTwb/A4xvQnPHJUevop9efj/exgqHqkTDylrG5@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz6NDCb9NG+qvlfjboE7LGk9OnupZ4pEEbizuRTtddqKrOC8cED
+	td/Uxn4+QwH8F/sslF/Z+cZIAHCko3AsG8yTgbtPpZveUMMLzcEmWdZjyjDUi5Tn7w==
+X-Gm-Gg: Acq92OFr05vmdgmedo35yLwtqNTOp3MZR4rgQS9JI44KHMlr/tws+6o4S4s+jX2suA6
+	UvwCp4Fgv3NKuIZ96z/sdEJ5m+PsjEUL9rYV5Dfs3Hm1vWAXyd6qPBGbAe/5OdZBwdONWUJkfok
+	3N2zxqmw2I/MPx2QgET+J4hjGwS/EUwhjxqk87jrBDdWiHD2RK/n9vrNS4/yZBqOIrj/0XIKVqi
+	pc7yHkWD9DgNF439XbyY1W1oB9gWljYvxpvfKvJAtmBuOiaFjHt20pugL6K2/vqKAhUoQYK7rCD
+	Yn8O/D4AT9GQgobkXZ7OSUtRX5PRoeYDd2Itt4R9pKVtCKfosD/6yh5RSua7g64ky8j+qCMkEYY
+	OrMLnBs9pWYgGt9CJpJhohFng4SmIzXpG4gIs9OvzVFvjBK9P21ZRk4mM4mXTh7dzuVMR/cgbTs
+	QSfmGFQ2MlHCn7uWQTg8S+GKsYYl8/0zxdoTnDr3xYSM9cDDEBUU8cf451bJ7llXNSaClIYvOl3
+	YxlSV52wkb7gs+qdQ==
+X-Received: by 2002:a05:620a:290b:b0:910:87f4:9a26 with SMTP id af79cd13be357-914b49937b6mr3695400885a.41.1779925354972;
+        Wed, 27 May 2026 16:42:34 -0700 (PDT)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-914f8706968sm615403785a.17.2026.05.27.16.42.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 27 May 2026 16:42:34 -0700 (PDT)
+Date: Wed, 27 May 2026 19:42:33 -0400
+Message-ID: <c8fb6387f3c1efa126013090f45528c6@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260515200158.4081915-1-song@kernel.org> <20260515200158.4081915-2-song@kernel.org>
- <177944135249.2871055.11361892114499566606.b4-review@b4> <CAPhsuW4BVSQ6oqyk=kExuZUkB9PWRRqUf_EJ=x3mNmtkT4oH4g@mail.gmail.com>
- <20260527-landen-bahnfahren-eckpfeiler-c1e1e9cb73aa@brauner>
-In-Reply-To: <20260527-landen-bahnfahren-eckpfeiler-c1e1e9cb73aa@brauner>
-From: Song Liu <song@kernel.org>
-Date: Wed, 27 May 2026 14:08:56 -0700
-X-Gmail-Original-Message-ID: <CAPhsuW4bwf=G--_gfMZOOAkpRJDfC0FSv=Tq+UAdAOY0euDamg@mail.gmail.com>
-X-Gm-Features: AVHnY4JoTXa2GC7TLUEwE7AqXzVEqSqzeUkn5eeygD5_8kZaIgsnYmpV6LQtVMg
-Message-ID: <CAPhsuW4bwf=G--_gfMZOOAkpRJDfC0FSv=Tq+UAdAOY0euDamg@mail.gmail.com>
-Subject: Re: [PATCH v4 1/7] lsm: Add granular mount hooks to replace security_sb_mount
-To: Christian Brauner <brauner@kernel.org>, paul@paul-moore.com
-Cc: linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	selinux@vger.kernel.org, apparmor@lists.ubuntu.com, jmorris@namei.org, 
-	serge@hallyn.com, viro@zeniv.linux.org.uk, jack@suse.cz, 
-	john.johansen@canonical.com, stephen.smalley.work@gmail.com, 
-	omosnace@redhat.com, mic@digikod.net, gnoack@google.com, 
-	takedakn@nttdata.co.jp, penguin-kernel@i-love.sakura.ne.jp, 
-	herton@canonical.com, kernel-team@meta.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=UTF-8 
+Content-Transfer-Encoding: 8bit 
+X-Mailer: pstg-pwork:20260527_1931/pstg-lib:20260527_1608/pstg-pwork:20260527_1931
+From: Paul Moore <paul@paul-moore.com>
+To: "Mike Rapoport (Microsoft)" <rppt@kernel.org>, James Morris <jmorris@namei.org>, John Johansen <john.johansen@canonical.com>, Ondrej Mosnacek <omosnace@redhat.com>, "Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Mike Rapoport <rppt@kernel.org>, apparmor@lists.ubuntu.com, selinux@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-security-module@vger.kernel.org
+Subject: Re: [PATCH 1/3] selinux: use k[mz]alloc() to allocate temporary  buffers
+References: <20260520-security-v1-1-831bd8e21dd0@kernel.org>
+In-Reply-To: <20260520-security-v1-1-831bd8e21dd0@kernel.org>
 
-On Wed, May 27, 2026 at 5:17=E2=80=AFAM Christian Brauner <brauner@kernel.o=
-rg> wrote:
-[...]
-> > 1/7 adds new hooks:
-> >   lsm: Add granular mount hooks to replace security_sb_mount
-> > 2/7 through 6/7 migrate LSMs from old hooks to new hooks:
-> >   apparmor: Remove redundant MS_MGC_MSK stripping in apparmor_sb_mount
-> >   apparmor: Convert from sb_mount to granular mount hooks
-> >   selinux: Convert from sb_mount to granular mount hooks
-> >   landlock: Convert from sb_mount to granular mount hooks
-> >   tomoyo: Convert from sb_mount to granular mount hooks
-> > 7/7 removes old hooks:
-> >   lsm: Remove security_sb_mount and security_move_mount
-> >
-> > Some ideas to change this:
->
-> My thought had been:
->
-> * Add the new hooks to security/.
-> * add the individual lsm implementations.
-> * Now replace the old hooks with the new hooks in fs/namespace.c
-> * Delete the old hooks in security/
->
-> IOW, why the migration step? It is a full replacement anyway.
+On May 20, 2026 "Mike Rapoport (Microsoft)" <rppt@kernel.org> wrote:
+> 
+> Several functions in selinuxfs.c allocate temporary buffers using
+> __get_free_page() or get_zeroed_page().
+> 
+> These buffers are used either to store a string generated by snprintf() (in
+> sel_make_bools()) or to copy data from user (sel_read_avc_hash_stats() and
+> sel_read_sidtab_hash_stats()).
+> 
+> Such usage does not require struct page access and it is better to allocate
+> these buffers with kzalloc()/kmalloc() that provide better scalability and
+> more debugging possibilities.
+> 
+> Replace use of get_zeroed_page() with kzalloc() and usage of
+> __get_free_page() with kmalloc().
+> 
+> Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.com
+> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> ---
+>  security/selinux/selinuxfs.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
 
-I think having a migration like this doesn't really make
-review more difficult. But I am OK refactoring the patches
-as requested.
+I suspect if we look closer we can probably also trim some of those
+allocations to less then a page, but that can be work for another day.
 
-Paul, do you have a strong preference either way?
+Merged into selinux/dev, thanks Mike.
 
-Thanks,
-Song
+--
+paul-moore.com
