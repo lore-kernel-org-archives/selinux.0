@@ -1,137 +1,102 @@
-Received: from sonic314-27.consmr.mail.ne1.yahoo.com (sonic314-27.consmr.mail.ne1.yahoo.com [66.163.189.153])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04D393A7F4D
-	for <selinux@vger.kernel.org>; Tue, 26 May 2026 23:42:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.189.153
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1325A3E2768;
+	Wed, 27 May 2026 08:52:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779838974; cv=none; b=jWKIdqTlqNNpdeaFl8eo4PFyxibXUqDGnm7oH5FcE1EOtp7CINhS6j0WKiFFXB4K6n5HWchhqOLeia9d9CUdPRlEY2M5mi5dFAla9kixjB426jdxhslFVTyctEU5IKlH1N2Fay8oG1gnwfjiydMGjTRU89dU7wVo8SzlzGIhDyE=
+	t=1779871972; cv=none; b=V73Laogp+s0b/jFzzaIiw/E/Tj4Ro5QMUigwk3ytir0usa41Vivau5F9+81afdG9Kl/LAfQfEilwVsxzS6NByWSuH3yIJdmJ+hl4DfZpyBGwUz2WxpMMBHHFxI1t+rtMsVsjalKK5D2Gs76gsYTHyTsZ9lRYeptb9lI68CndHj8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779838974; c=relaxed/simple;
-	bh=8IfJhhc4hdUyXTPLH1Mg7LrvXqDe/XgQqcHBOzR6Zq8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:Cc:From:
-	 In-Reply-To:Content-Type; b=ErbCLHkG8cw1FxHZ/i6p3FKVcly+xztioxxkM8pCWz2rtKsLy11WIzMuLbe+/U9dsoYFU2J8XEatl7pmiyBoeyJHp9AojfSxxglPJPuj1NAC5jVDGRGSgDAJD5T6K4wnYmBUFWOmJq7ajDtSICVyNAsAkxpGYlnuInG05OZiUOg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=X0S0Rbf7; arc=none smtp.client-ip=66.163.189.153
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+	s=arc-20240116; t=1779871972; c=relaxed/simple;
+	bh=0vP6dAM0qtYEDeOo7lT2iXRxIT57lFamfuJ6xdotRDw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=kugm2MBQJeIktBoecjw/ASngDlElxhJ21P7jpULhIZUTwaSk+5qOtrePcNqJdx6LnSsywnD+ZZTSsnVig/6YJfFVJcfaVQGui09c4/kbwOr7TDFeD4K7TbtCKbRjRYtz8uNLqUzgmGbzi414e7DvnNevJrEQObj7q8HihbKpzRg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=sF9XrJaE; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="X0S0Rbf7"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1779838971; bh=1CDLTs0tZP7QrHGHAUN+uSFZxV9A2b5F458OJqVcWM4=; h=Date:Subject:To:References:Cc:From:In-Reply-To:From:Subject:Reply-To; b=X0S0Rbf7iws/ASuO3SXUHYUmeq4/BFFaPaRJRcVK7uDXp9n71KjL1Qkd9lJWxg0mcBFNSb6aDCGqL5zFxsT0zk9hOS7i3eVLuiybpsL+19ZvdjIB31e96eP60EiPrCB6hBNwBEdRpRpdr1br6I0fQwLwgzbVJUw2VpNotmq5VSkagKvq8Im1lnAxohKKjIM3RIzoyax8gI8V04TeuxbUDRpjxk/asKcz7szwWVVqns2RFXOiRyNXxW0WMhJEs4JqYLalZGb52Mm1sHFXPkWz7YqgJULEvPAIFUHO0TL6SZv/ODk9Nyig7u97l5lTWGLwgq9ICKw6DcbWaG8/O4A8iQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1779838971; bh=kleFoFDyzmh12e4jJAxAKCORffGpTpikl97yE5a7dDQ=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=YRW2S1t0HpoXxdMqLgaXnQDw49KId4DxG2nYsBgBDOi9z/z0giYLBGX/RRI9yvxoFd09exWf4Vtl2awGK5Sji4QRVmMtdbpe2xYO+vnUTspvzulszKKErteSbZeDV5rUi8IxADUDAUeyEsoNiznhd7GLh2wk0aRRwLZpjPd0Z7qM6iSTYu155xFpfCC6Fub45E6IwqFuVvob1WWA+Yk8yWysmFK0Wa3zT7hUeG09iZr+qmrcgPmDCkzvef6SsdKAnpPorhfGEWguuZoTBGonvSDaMJvnPGqxNiqnoakhMs7pjSd2+r2Zs2UCobkAYKyXxnXmYBitF49h87pZ7ecm/g==
-X-YMail-OSG: aNzyOTUVM1kYiJoJwDaIZXRZpPu2fkfAXFjyvkNapXsbIlLkMIomXqHgqrinaO0
- Eru6sgYDbjYJhfRfealnCjwtdomHcxTov6fa6VHEuIQegx135KksteAGF0d0RnQ2wSYlQz4BS0MG
- 4hUATndxTifIm4VTgUyc_ywJFhcIPF8bB4QWn6nQpM62WYLzLq3bo5gupHYK3AGhhTR_1qi76Kbe
- EvTGsxipApaAArytm_oxBcJ7RP5sd9yLjNZV8A4a_0v8_7hFpbNYvur7JBpG_hL2W5xJISFKm40M
- RPWRbUTAYIFq6FTw3IzvnoyJfxRAW1HEm4wub8RFXCmGnjIiHb0TnaRudqQy_dsyGOMFgJFowgAs
- eZEhWQ7YqZSzvdwIw9FYT4aurAog8dGeOm05eL92309eiouI1Rj1bYtpFxm1DYZ6SyhHCISlBq5v
- mVSvHW_xA.4hAGuExt3ywNv070Cv.6XD8.EowbAuR0EGS55BruwdEStmCASboXRkdZu0DtAGCnah
- S9zctke2K46DVHw4AcrTJapl0jrf2RMalOnZbB_2msH_f2Tcw7OJ3P2.ikMfsYgXaIRCkNon5ZYh
- hsnAnWdiLm7t6qo48Z4lTvXL3Yc2yF7oOwWlLmc0lpg6l6gX.0nUnd_61yDsVQKPg4lnEDM4_RxN
- 9.CrXmFvmUKwAJI4ai7GdPBj26QltmsDaqHNWneiw_NyHzVGNp6vEBT7NTfAeQJ7u66h0L4gc0zm
- zuh2LEy2YLO3sp056sxnJ_YLxnrWbOKiwUn1ygl_DhzYrllZhOWydr.maq8ysDMecarD9_WPW9XM
- xTnLCn56MToEYLGzvoH32dbL9lRzkj1Odse64XI6jHT3BwUGiY56uuZ2FDXZ3rfoBHlh2uZ16uOi
- GsZ6TCBd6J1QaE5FaHaNNgrINP_eLnVXV6oRPlncteKAg.Uy1AZ5emqmSBSY90TW.fQVa9U8DxXM
- QLcwlvf4kyJdOKHA9tt_znliwhUr1Ct2n7bi1yIJBPYtnczUEDY7F764L6LkHgkWlk69.mb5zTZi
- .OW20Zy7SaBFgKqVTh7z2Dh4SPpZSXDTwnU_970X7ORgKcd58NMDHyG4Gzsqz7iRtXcLidYVkMlm
- 95fpy2XrF.r1WoHRrixc3oa78zI9tSlDCPC6udX_FTpBxohPAuHzbu9SfSgEvDPcSQz5MBept_Z4
- kLJqiOGwWaAZrGXA4mJ3uG41pndpL_dEvAvhLY_Dg3vcwrh8BqXi2BOxhfcr00Gugk6MQXb2gcQ2
- GaqiR5hmLXlysVLU_gY.dpJ52KNHMQoty_CmjPkF752S7Xm58sXro12jz0U33r4iizbruYKchm8t
- SqB9ZmgB.cHrU9YAauSpNaVur_bCHpRiOX1UUCj_70p7iv3iCrb0MTahYZffb9l2SxvsVel0Gww7
- q0FVw9k0nZbBAD8FKtuGMP3li9x9iXy6zDKVisZlNHEpjIyr.14ol4eD.ZMXmbwWQNieA.yApLRo
- o0EWtBGVcXuBJLfnUhV0MKyrD_jS7_ELb0ltODvNl7XJ04CCoFma0HQy6okyUefb3g.dWmJDBE9n
- k.6COq0RTAY3My_5cDtm39YiSRi7Ne.RJCAQDfSJYq_MHC50pOtTBR_Fr6MEFxxi0lC3xDkU_iEP
- RWVenF89.B9zrP4mrNLOUz5ig2cVyhqiLXBjzCJGQtYTtnCNpW3UAt59lWaDzgAugXXerJ8roYuq
- 2eE.UdJyVvqIBS8sC8u8LKl9zFd20dDa.MzwEFW97dZbaiZTPAfOFNTQuWkLfZbRJqi_t_Gl7WpV
- _lMYie.517CMQapaulY1gsO86zyrk8OQMgR8bhj1Hv8EbAgCV5739rrPyenCqFuGH9P7HQoCZRK6
- 7xS6ZYHNH_6Zo8sR1SL4JUIhd_jAjdwJaoRTZxHFplpt7XRGml591ij8ghOq18Oo2SJBmEK2GPuC
- m3F6GCmPTCLha4i1l90XCNEx31AfZE3BsACn5OBf8lx6c3cnidq1cEGGYC3LIt1gTOoRhWJTuclX
- QsvUZ_Q7hZjrPJnUlt1OWn8.DRHQYMKAqDeiB3L4JVD4zFopcIEsICSzq7GciSbFvQEPDmiqDzuo
- oSzDsNzkHIZa63kRQuz.oErHahbulniwuh3xtQ7iqGuMdy2okO1yZ9sGCTtHHHavba1f3RCVnDLw
- WVRXWPLrsbtVx5D1Ik_OVki13jBTsur30F5IHHULdCA7yXAPSYfopuuYy7kPGqXyqe.z1THCeCJT
- rgdDqW8MkVHYRTKa9FI18qgYo3dHZw46MY_PqkmFswWpnAWUgIuIAQgdE4yndWQgckQ7fSDwm9lY
- -
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: d8f94fa7-f81f-455b-9259-7af97949666d
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic314.consmr.mail.ne1.yahoo.com with HTTP; Tue, 26 May 2026 23:42:51 +0000
-Received: by hermes--production-gq1-7bb7df5c46-2m55j (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 055310fc59bad35d27ec552ff320b8e5;
-          Tue, 26 May 2026 23:42:45 +0000 (UTC)
-Message-ID: <090a355d-3680-4113-a542-ff3b1c565f58@schaufler-ca.com>
-Date: Tue, 26 May 2026 16:42:43 -0700
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="sF9XrJaE"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=5SrhJd8D5kdySamJgDjj4vcaR6oJNFYx6iGp8z9Ljdo=; b=sF9XrJaEIa3q2QUrVJVXpFkrkJ
+	+VEb7zw04rbo+YGauRNWAGaqofL2ZmjQkNVqLfDFRE/slMRdhN7woW1SGlwXk7RrrhN8jgM5kSNcD
+	U1KuBHgMP9JOihHIWcqbZXXaTi2gZJxhz4fI+OVLKxtibDYeUTB/GGm2t48P967isrtfDSNfe6Ir9
+	sfT0oOmpU7rltytq+hA5xXy6cHFCk2TmwrPy3/66VFIxTJTl8EianR0qwL29d8o8aNx45atJrDI25
+	DIpbgBaFSEA7wjVCBACAAgm0/ckup9yvsEF5IsmxQCgeXedwymdEntAHQW8KGIBNJB427Cunfovzi
+	0wDVOKRg==;
+Received: from 2001-1c00-8d85-4b00-266e-96ff-fe07-7dcc.cable.dynamic.v6.ziggo.nl ([2001:1c00:8d85:4b00:266e:96ff:fe07:7dcc] helo=noisy.programming.kicks-ass.net)
+	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1wS9zy-000000028Ul-0UWa;
+	Wed, 27 May 2026 08:52:22 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id 7BB34300673; Wed, 27 May 2026 10:52:21 +0200 (CEST)
+Date: Wed, 27 May 2026 10:52:21 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: Aaron Tomlin <atomlin@atomlin.com>
+Cc: tsbogend@alpha.franken.de, paul@paul-moore.com, jmorris@namei.org,
+	serge@hallyn.com, mingo@redhat.com, juri.lelli@redhat.com,
+	vincent.guittot@linaro.org, stephen.smalley.work@gmail.com,
+	casey@schaufler-ca.com, longman@redhat.com, tj@kernel.org,
+	hannes@cmpxchg.org, mkoutny@suse.com, chenridong@huaweicloud.com,
+	dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
+	mgorman@suse.de, vschneid@redhat.com, kprateek.nayak@amd.com,
+	omosnace@redhat.com, kees@kernel.org, neelx@suse.com, sean@ashe.io,
+	chjohnst@gmail.com, steve@abita.co, mproche@gmail.com,
+	nick.lange@gmail.com, cgroups@vger.kernel.org,
+	linux-mips@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3] security: Expand task_setscheduler LSM hook to
+ include CPU affinity mask
+Message-ID: <20260527085221.GQ3126523@noisy.programming.kicks-ass.net>
+References: <20260526142838.774711-1-atomlin@atomlin.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: security_task_prctl: why -ENOSYS
-To: William Roberts <bill.c.roberts@gmail.com>,
- LSM <linux-security-module@vger.kernel.org>,
- SElinux list <selinux@vger.kernel.org>
-References: <CAFftDdrzV2xC7HBcgS8EPb-YewJyCK9uos4crXOCh5ONm6SxSg@mail.gmail.com>
- <CAFftDdqp8b5n21hdEP6w0-PK+CoG7mmQxgrnhpBLU7-1GZxniw@mail.gmail.com>
-Content-Language: en-US
-Cc: Casey Schaufler <casey@schaufler-ca.com>
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <CAFftDdqp8b5n21hdEP6w0-PK+CoG7mmQxgrnhpBLU7-1GZxniw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Mailer: WebService/1.1.25725 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260526142838.774711-1-atomlin@atomlin.com>
 
-On 5/26/2026 4:21 PM, William Roberts wrote:
-> On Tue, May 26, 2026 at 5:39 PM William Roberts
-> <bill.c.roberts@gmail.com> wrote:
->> Hello,
->>
->> I am trying to understand the motivation behind having
->> security_task_prctl only continue if the return value is -ENOSYS. This
->> seems to be very different from other LSM hooks I have investigated.
->> For example, in other hooks, the value from SE Linux avc_has_perms is
->> used directly. This essentially means that a 0 will cause the check to
->> pass, and anything < 0 usually an error.
->>
->> In commit:
->> ----
->> commit d84f4f992cbd76e8f39c488cf0c5d123843923b1 ("CRED: Inaugurate COW
->> credentials")
->>
->> (8) security_task_prctl() and cap_task_prctl().
->>
->>          security_task_prctl() has been modified to return -ENOSYS if it doesn't
->>          want to handle a function, or otherwise return the return
->> value directly
->>          rather than through an argument.
->>
->>          Additionally, cap_task_prctl() now prepares a new set of
->> credentials, even
->>          if it doesn't end up using it.
->> ----
->>
->> The check in kernel/sys.c is currently:
->>         error = security_task_prctl(option, arg2, arg3, arg4, arg5);
->>         if (error != -ENOSYS)
->>                 return error;
->>
->> Should this be something like, "error && error != -ENOSYS"?
->>
->> I ask because I am looking to leverage this hook in SE Linux, and it's
->> annoying to have to coerce all 0 returns to -ENOSYS.
-> Of course after hours of banging my head and one email sent, it's more clear to
-> me now WHY. This hook isn't meant for making yes or no decisions on an operation
-> but rather to also handle special prctl flags for an LSM in question.
->
-> I guess with the said, do we want this interface to be used for both
-> a, let the lsm handle
-> this prctl flag directed to me, as well as a yes/no security decision
-> or do we want to split
-> this out into two hooks?
+On Tue, May 26, 2026 at 10:28:38AM -0400, Aaron Tomlin wrote:
+> At present, the task_setscheduler LSM hook provides security modules
+> with the opportunity to mediate changes to a task's scheduling policy.
+> However, when invoked via sched_setaffinity(), the hook lacks
+> visibility into the actual CPU affinity mask being requested.
+> Consequently, BPF-based security modules are entirely blind to the
+> target CPUs and cannot make granular access control decisions based on
+> spatial isolation.
+> 
+> In modern multi-tenant and real-time environments, CPU isolation is a
+> critical boundary. The inability to audit or restrict specific CPU
+> pinning requests limits the effectiveness of eBPF-driven security
+> policies, particularly when attempting to shield isolated or
+> cryptographic cores from unprivileged or compromised tasks.
+> 
+> This patch expands the security_task_setscheduler() hook signature to
+> include a pointer to the requested cpumask. Because this is a shared
+> hook used for multiple scheduling attribute changes, call sites that do
+> not modify CPU affinity are updated to safely pass NULL.
+> To protect against unverified dereferences, the parameter is annotated
+> with __nullable in the LSM hook definition, ensuring the BPF verifier
+> mandates explicit NULL checks for attached eBPF programs.
+> 
+> This change updates all in-tree security modules (SELinux and Smack) to
+> accommodate the new parameter mechanically, whilst providing BPF LSMs
+> with the necessary context to enforce strict affinity policies.
 
-The task_prctl hook is used in capability and yama. It is only used to
-provide a place to process LSM specific prctl options. It is not used to
-make security decisions outside of processing the LSM's options. If you
-want to make security decisions on general prctl options you will need
-a new hook.
+I'm not sure I really buy the Real-Time argument here; that really feels
+like a straw man. Real-Time will need to account for the shared resource
+usage inherent in using a single kernel image across the CPUs, affinity
+alone does not Real-Time make in any way shape or form.
 
->
->> Thanks,
->> Bill
+And the compromised task vs crypto thing feels like it wants sandboxing,
+but wasn't that what seccomp is for, rather than lsm?
+
+So while I don't think I object very much to the patch, I do find the
+whole Changelog to be utterly questionable. Which makes me very
+suspicious as to wtf this is actually for.
