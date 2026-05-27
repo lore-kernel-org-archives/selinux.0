@@ -1,179 +1,183 @@
-Received: from mail-yx1-f48.google.com (mail-yx1-f48.google.com [74.125.224.48])
+Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9231E382298
-	for <selinux@vger.kernel.org>; Wed, 27 May 2026 16:06:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.48
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779897969; cv=pass; b=ELVvKGRgZYKzxBU40n0xUAVnG/g0LNQjwT8fT4SwvxlFmXPguRQ2FWlH5tQv+tIgc2UUsnaQ/Ak2PyXRhOg3a+b14N2UNp1SYxzaWfpRo1MMi4BnUSRg2DP8Bdv6nwk2P0ogRvqy6KET6FnCQH8bndSCXpGs3erKLEGkzGhjpCU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779897969; c=relaxed/simple;
-	bh=i1icdQSbLVKb84W8T5OLxldeI4K9rAc4DdjpT+GW458=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=T9XngvPBAQ/uuvBIWTbwIObWH2Kq672ZjA/nEXjPYQ9BQFI3OcV8sTlli950oGcU/0BRNvBi+mf1asO5rRbjEzcGArdGUIxUXpNEzwHVpcDcwJVFvwmFphyh4Or5BacZlBsZLZnO/LQ9PXhNb6eaus1fVngaSy3aRGDDyUVBoDg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GLNhVbzy; arc=pass smtp.client-ip=74.125.224.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03A20242D9B
+	for <selinux@vger.kernel.org>; Wed, 27 May 2026 17:14:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.181
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779902100; cv=none; b=b8mDhFcqcpL916z5TI8SVPpNFokNRwZEvIYtQhLU2VopbC10tyuXBZGuMWXLQU//o9hxgNYdxPEftJrBVJM5xSZxPuIfGyiIQ2lsjeMdbig1orSpeoICb3LVh6z1/NwaN3SldidUimt2JRIxGeduP9YXuBSwadJZWyWRjAqpPUc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779902100; c=relaxed/simple;
+	bh=Z5SrVGTAECUwNA3vdRTCPMRBGhPvX/KD2ja5k4Jz1j0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gFGz1A3zG5ySCzSnmrQWadz95769nCVj8wGN5DqIiNRzuwsJxbMEjvr8Gy4ZtcOpjjW507LMRxQ4VmLbCrGMUBVK+IYeFtdPu/xVbJZuf5//xqz+e3fBDsVnYxipX1QDd9y0Tk063bfwNgKrUfvuS9bhASHFmjqrLUl1sndaS2Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CjsgON9v; arc=none smtp.client-ip=209.85.222.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GLNhVbzy"
-Received: by mail-yx1-f48.google.com with SMTP id 956f58d0204a3-65eb226b1ceso6245810d50.0
-        for <selinux@vger.kernel.org>; Wed, 27 May 2026 09:06:08 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779897968; cv=none;
-        d=google.com; s=arc-20240605;
-        b=GNJ+71Fj0ce83i3biHFoSLRsK5vZ/tt6Kfl04aYmvCY0aPnGCGho2ImbZ0GLG7/3nE
-         clIa2ODJiuQC/exGSBBOSNkl0v8lNVnzh7tDLzydhqIVgu43HEuMRfxEG92RssvYI8iq
-         yUu0ng0+AS0/QNMryOzEOgWVLpaehQYftQmuRNeVoUqKBw+QDPAInLVSbtGUGP7Wq98p
-         FFsieIueAxkXjBKewbk+s5oaDwuEZw9ph53aW6Ny+W4HZZdcaWkl0V7xHJKc/eOxv5Uw
-         yx7wtSGfKZ4Su3ePYESRT+IS3O89TiV5jvKTx6c+2fgUPOs2kpJURz9bJbbT5pzUEua9
-         sf9A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=MFz0JpS9h6a1QbnwdkkCkC2M7duzoq5zRNrxnxL5G8E=;
-        fh=sz1+7I1/MMp1RL8/VkYFLlzcQfRnoqOPVR6yLViC7qE=;
-        b=PhZP9por21miUlVMe0Bo1AGyPFGY8KbzMCWIYZ7AVYqXo/Wvv6GI7rFlTQI46n3EGA
-         fCRB+lfS/nvjrskn59iA0v8feJ0p+J7E4W2TV54gwV8k2LrF3CZqYb48fGMniADySjzj
-         bZ482ucA7f+blxEeuLD8VjJI68u8ayN5w/t5cS0WUOFSkYsXVyVVoO0aDjoDZ8iTN5MN
-         +KzP4sITpDj3P5r9HCIi9uY5zmwUxFbpv9dy4cFrz7BSSey5G/aOdUL0tDbR1Sm4Pkyj
-         mGauto1cFoCwln+Wfqh5VHW7YYpDFJxrvOL/k3P4Hgmr031MoK1vHN68GRTIGfnxGm/w
-         Z41g==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CjsgON9v"
+Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-911dfc86903so1384487585a.3
+        for <selinux@vger.kernel.org>; Wed, 27 May 2026 10:14:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779897968; x=1780502768; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=MFz0JpS9h6a1QbnwdkkCkC2M7duzoq5zRNrxnxL5G8E=;
-        b=GLNhVbzykXj1By6sKduBzX9bIuxZq5cstweJmApT0hJhUcQpJRvziX/u8gC443JLNB
-         Pn+KEPB94oam3RA6eAdMdxdQNsmoxr84pxJaQaixP9gnNX1lIw16oChbRDrmZeWiLyUW
-         Q688DPqK9kBgxpql0x+243bTUa8+kCRJvPC4liYwizU7hq4ywc/imzcZ1y93d2Mde7ah
-         sz5q9ULQgWaxxyR+19TBo4mYqHrwYCGCfKJGHlo7K/WMCR/3Ow05mgv80a0sQi1AGcC+
-         BXaLV9wHgtS5wvxehcsoA3c7Ce8H2I2x9OW83keOPYLBXVxMrGnVBvDlkNqqacZjfID7
-         GUQw==
+        d=gmail.com; s=20251104; t=1779902098; x=1780506898; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=rUnx7R7UMIPFwnMcxHVE4eh9Ru29mkfRC0LMuXm2d70=;
+        b=CjsgON9vnwlq+Z8xir5n1eCiJIkrshVbDeunFU6+r2jIWjKxlP+ATfsg6NOMfD4QaH
+         s49v1R9rXnyxDqWskYFUZ67EYPNSSO8Lq3w2kLna4nNBmPngWYxvLAUV8hizO/H1DBZS
+         9GUemoWaDO6daXou/kT7PJ80Ealtqe5JeA2Qzn1eZ5JBCfVE6vKyInIZiyqn7ry2Pr2y
+         0Eg2PjR8LZXmEkwF2/xB2CTzg5f+Q1YRuft+BgopAWCsLRlFU5YdqZT9J3ktDHjXPlsZ
+         Her7WckpUO3Sd601B3rWqCZ+HbjuC8D2499MEiVmoQnvFyJjixPx6MILJEBWi3M7MwvR
+         6KHQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779897968; x=1780502768;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=MFz0JpS9h6a1QbnwdkkCkC2M7duzoq5zRNrxnxL5G8E=;
-        b=or7FN9GeRwuPLFa67JzYfe/Be34dN1xIE8FJSfGhMG82PryUOUdxJsHy3uJ+tRk2Zb
-         jsJhSCpG/HBfDUxmnvGfBm/mqqF4mX/DkgfX/pBZ2uZ+h3Q9u9tXX1cXjTYOxs0B219g
-         Q302X6XdaMpEYg12K6Nx+i+9c1B/8I3vbnwy9n4QmvLQZouxFTdM3yXtg+hKvIfGJvyG
-         4Ihi9Gaf2i5rel+IbipFTPl7P65ny4iVnH2esiYf+7uRiItt3PYYcMmsCRep9YvSnPA/
-         YCeqyMSSg7/WpUQWsZwBxumxeI0xz9nIQZFTNig7MuTndYFkUO6H+BFOvz1qPJxBRI6l
-         T7Tw==
-X-Forwarded-Encrypted: i=1; AFNElJ9Yfv7KMaNSCfFWSBWEoCRHXBEce+S/piJ45tTOjR1UE2zn3v0FkMel6Z8CBMaFQgjZu/0HDRLD@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzoogto+T9fvClQdAEGeMERuwTpDPwoLl0ym9ITzRWb65thXP/+
-	i2H89nr9LXpIvBjm2GQY3Tz62jY3gMfiz+KQQBdEG7ap/jDx/k8o2DLu8PuTDUWtOVZYX3MOCIZ
-	yU8imYSsTZZuXRO1m6BbWXb+sPZf88Ro=
-X-Gm-Gg: Acq92OGK6H5y15Se6H1gJvlDf+fkVc6uhAUqhAlqSagfQg/lqogsB/wGiKYF+oS+i4j
-	o4BUQdMc45EZrhWbV4eQ6cNmHbvvZ2UvXr5pWPpMuQ85IVfWys8XemApjr8u+BrCSfhqLXmnLYy
-	QW31Ef6SqasRjEmmpsOvwpcWBeYk5onAKW+iZSDe76HHfyUeDfT0Z6JAl/VCeU0XqM8keeeitlc
-	mRekkoRhTPY5YlhrgIz97F13cqeScu6YREV079cLw93ygmh24AHAKeQnYGyzfbHOLm0qy0rsTdu
-	tLN1oeFQALhd8nvxdA==
-X-Received: by 2002:a05:690e:480d:b0:657:a0f4:ac1d with SMTP id
- 956f58d0204a3-65ec95f0ae3mr18086212d50.12.1779897967362; Wed, 27 May 2026
- 09:06:07 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1779902098; x=1780506898;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rUnx7R7UMIPFwnMcxHVE4eh9Ru29mkfRC0LMuXm2d70=;
+        b=eRGZLxdRqr6FWrs7dIjOBc2oKhJbPqJntCOTqiBVjYP+E6QZFZ38cP9q5bBSALPSfk
+         JSBvKhJVJHuDVt5ug8J+z4gFvrPnpMew0+nhfqBUuog6Md5wzc5ObN9WH2o/eGK4Yrqk
+         dY0FDp3NdoqxFqu3DPLgY4Edde1BpJpe+M8GAglIuK3Ele+4c5ah4DQ3XQWCJ0uSKSpA
+         R8U124m577JpCD0cz1EhA7wQQ6wyHSjXQ2o10+fmrUzY4YSYKfoL5uCd4gVVFQxtOFP3
+         E9ZR/ClGhkN8Ft24glygJ5kSp8NB80zl7tl3YwwodGiJZwx60mey9PcQCV83YQBGmywj
+         7f9g==
+X-Gm-Message-State: AOJu0YyLcqEQZv3MpJqj2wnhFTvh1z1LOQDAQ/odHcf0+0ikVFXIb5Zo
+	SvUDuw9v8mAVgqNXlFiAlBQl6+2HCUUHbRWW/naIKpQuLDAldmD+/g3xKCh50Q==
+X-Gm-Gg: Acq92OGKKI8FQTmz0duv7FhEiQdSr2usQqebLTexA/pOCSB87ehkc4UF9/aYr8Hm2et
+	o/Zm7r60HGUhppw7x31G/iQwSe59WBUC69G1tt1/L26eDJHJcldKk47IWej8My6ICQF/FxkRPu0
+	KKmYlldRplwwpQv3M6x4DQt2IbsdcZJ0/E/OJqX37O6IMJAAWCmvl5yw+GSSunetkbbAn19P4Xo
+	0v22uSPu7Z3dbmYelyAAURvrhEO9Kka4kHCo268+sDOVo6GRXERD/0Nmd3iAAOJ+By6Pntwe2vS
+	0nlQjB9EP1ElcAyaHLydIers3PnP/vFxWs0+lboosFnNs9epTr4NpcWF4ZSxo3XReZVQv2mL2m9
+	SGs6YGDftL+8ejxEbiLYGOw04PMA/I8bg9xUSTwXOIuqJ8s0SUPUPXXjRfTv+TVQ54fq1XbZX5i
+	6SFyGT49bs10vPc7BmSRs7pi33XAYEIsVfxdqKDrQ17s3eA5b0iEPvp/sc8hoR8S1I5YJxts+8b
+	O1iY8ENZsuDSCyI4lFo2gUz0tjgSD2NI10huxPr0qe3nqAV
+X-Received: by 2002:a05:620a:6304:10b0:914:c100:6a0b with SMTP id af79cd13be357-914c10071bdmr2247753385a.16.1779902097888;
+        Wed, 27 May 2026 10:14:57 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9150af8487dsm173586085a.3.2026.05.27.10.14.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 27 May 2026 10:14:57 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	paul@paul-moore.com,
+	perfinion@gentoo.org,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] mcstrans: only update maxbit for categories read from config
+Date: Wed, 27 May 2026 13:14:38 -0400
+Message-ID: <20260527171438.29181-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAFftDdrzV2xC7HBcgS8EPb-YewJyCK9uos4crXOCh5ONm6SxSg@mail.gmail.com>
- <CAFftDdqp8b5n21hdEP6w0-PK+CoG7mmQxgrnhpBLU7-1GZxniw@mail.gmail.com> <090a355d-3680-4113-a542-ff3b1c565f58@schaufler-ca.com>
-In-Reply-To: <090a355d-3680-4113-a542-ff3b1c565f58@schaufler-ca.com>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Wed, 27 May 2026 11:05:56 -0500
-X-Gm-Features: AVHnY4K9DobnEhOiqOKEKCFAfQjNn8RffoFCvgjm5aUjo7D7Cai83DC0JmhlLS8
-Message-ID: <CAFftDdqvvqrbm=+XsDdkJHdm12jxK9799_A=Txz6Q5goYC2ALQ@mail.gmail.com>
-Subject: Re: security_task_prctl: why -ENOSYS
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: LSM <linux-security-module@vger.kernel.org>, 
-	SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, May 26, 2026 at 6:42=E2=80=AFPM Casey Schaufler <casey@schaufler-ca=
-.com> wrote:
->
-> On 5/26/2026 4:21 PM, William Roberts wrote:
-> > On Tue, May 26, 2026 at 5:39=E2=80=AFPM William Roberts
-> > <bill.c.roberts@gmail.com> wrote:
-> >> Hello,
-> >>
-> >> I am trying to understand the motivation behind having
-> >> security_task_prctl only continue if the return value is -ENOSYS. This
-> >> seems to be very different from other LSM hooks I have investigated.
-> >> For example, in other hooks, the value from SE Linux avc_has_perms is
-> >> used directly. This essentially means that a 0 will cause the check to
-> >> pass, and anything < 0 usually an error.
-> >>
-> >> In commit:
-> >> ----
-> >> commit d84f4f992cbd76e8f39c488cf0c5d123843923b1 ("CRED: Inaugurate COW
-> >> credentials")
-> >>
-> >> (8) security_task_prctl() and cap_task_prctl().
-> >>
-> >>          security_task_prctl() has been modified to return -ENOSYS if =
-it doesn't
-> >>          want to handle a function, or otherwise return the return
-> >> value directly
-> >>          rather than through an argument.
-> >>
-> >>          Additionally, cap_task_prctl() now prepares a new set of
-> >> credentials, even
-> >>          if it doesn't end up using it.
-> >> ----
-> >>
-> >> The check in kernel/sys.c is currently:
-> >>         error =3D security_task_prctl(option, arg2, arg3, arg4, arg5);
-> >>         if (error !=3D -ENOSYS)
-> >>                 return error;
-> >>
-> >> Should this be something like, "error && error !=3D -ENOSYS"?
-> >>
-> >> I ask because I am looking to leverage this hook in SE Linux, and it's
-> >> annoying to have to coerce all 0 returns to -ENOSYS.
-> > Of course after hours of banging my head and one email sent, it's more =
-clear to
-> > me now WHY. This hook isn't meant for making yes or no decisions on an =
-operation
-> > but rather to also handle special prctl flags for an LSM in question.
-> >
-> > I guess with the said, do we want this interface to be used for both
-> > a, let the lsm handle
-> > this prctl flag directed to me, as well as a yes/no security decision
-> > or do we want to split
-> > this out into two hooks?
->
-> The task_prctl hook is used in capability and yama. It is only used to
-> provide a place to process LSM specific prctl options. It is not used to
-> make security decisions outside of processing the LSM's options. If you
-> want to make security decisions on general prctl options you will need
-> a new hook.
+maxbit was intended to float to the highest category used by
+the setrans.conf configuration. It should never be modified
+as a result of a client-provided raw context.
 
-Yeah I finally saw that after I sent the email, as always :-p, but thanks
-Casey for confirming my understanding.
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ mcstrans/src/mcstrans.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
-So now for naming... We have security_task_prctl for handling random
-prctl interface calls into LSMs. So what should this hook be called?
-Perhaps security_task_prctl_check? Should we rename the old hook to
-something else?
+diff --git a/mcstrans/src/mcstrans.c b/mcstrans/src/mcstrans.c
+index 5056f86e..ee99a19e 100644
+--- a/mcstrans/src/mcstrans.c
++++ b/mcstrans/src/mcstrans.c
+@@ -17,6 +17,7 @@
+ #include <values.h>
+ #include <unistd.h>
+ #include <fcntl.h>
++#include <stdbool.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #include <stdio.h>
+@@ -178,7 +179,8 @@ numdigits(unsigned int n)
+ }
+ 
+ static int
+-parse_category(ebitmap_t *e, const char *raw, int allowinverse)
++parse_category(ebitmap_t *e, const char *raw, bool allowinverse,
++	       bool fromconfig)
+ {
+ 	int inverse = 0;
+ 	unsigned int low, high;
+@@ -192,6 +194,8 @@ parse_category(ebitmap_t *e, const char *raw, int allowinverse)
+ 			return -1;
+ 		if (low > MAX_CATS)
+ 			return -1;
++		if (!fromconfig && low > maxbit)
++			return -1;
+ 		raw += numdigits(low) + 1;
+ 		if (*raw == '.') {
+ 			raw++;
+@@ -199,6 +203,8 @@ parse_category(ebitmap_t *e, const char *raw, int allowinverse)
+ 				return -1;
+ 			if (high > MAX_CATS)
+ 				return -1;
++			if (!fromconfig && high > maxbit)
++				return -1;
+ 			raw += numdigits(high) + 1;
+ 		} else {
+ 			high = low;
+@@ -206,7 +212,7 @@ parse_category(ebitmap_t *e, const char *raw, int allowinverse)
+ 		while (low <= high) {
+ 			if (ebitmap_set_bit(e, low, inverse ? 0 : 1) < 0)
+ 				return -1;
+-			if (low >= maxbit)
++			if (fromconfig && low >= maxbit)
+ 				maxbit = low + 1;
+ 			low++;
+ 		}
+@@ -225,14 +231,14 @@ parse_ebitmap(ebitmap_t *e, ebitmap_t *def, const char *raw) {
+ 	int rc = ebitmap_cpy(e, def);
+ 	if (rc < 0)
+ 		return rc;
+-	rc = parse_category(e, raw, 1);
++	rc = parse_category(e, raw, true, true);
+ 	if (rc < 0)
+ 		return rc;
+ 	return 0;
+ }
+ 
+ static mls_level_t *
+-parse_raw(const char *raw) {
++parse_raw(const char *raw, bool fromconfig) {
+ 	mls_level_t *mls = calloc(1, sizeof(mls_level_t));
+ 	if (!mls)
+ 		return NULL;
+@@ -241,7 +247,7 @@ parse_raw(const char *raw) {
+ 	raw += numdigits(mls->sens) + 1;
+ 	if (*raw == ':') {
+ 		raw++;
+-		if (parse_category(&mls->cat, raw, 0) < 0)
++		if (parse_category(&mls->cat, raw, false, fromconfig) < 0)
+ 			goto err;
+ 	} else if (*raw != '\0') {
+ 		goto err;
+@@ -615,7 +621,7 @@ destroy_cat_constraint(cat_constraint_t **list, cat_constraint_t *constraint) {
+ 
+ static int
+ add_base_classification(domain_t *domain, char *raw, char *trans) {
+-	mls_level_t *level = parse_raw(raw);
++	mls_level_t *level = parse_raw(raw, true);
+ 	if (level) {
+ 		base_classification_t **i;
+ 		base_classification_t *base_classification = calloc(1, sizeof(base_classification_t));
+@@ -1434,7 +1440,7 @@ compute_trans_from_raw(const char *level, domain_t *domain) {
+ 	if (!level)
+ 		goto err;
+ 	
+-	l = parse_raw(level);
++	l = parse_raw(level, false);
+ 	if (!l)
+ 		goto err;
+ 	log_debug(" compute_trans_from_raw raw = %s\n", level);
+-- 
+2.54.0
 
-For now, I will just pick a name, but suggestions are welcome.
-
-As an aside, any lore as to why go through generic prctl vs an
-LSM specific filesystem or an lsm specific prctl (we already
-have arch_prctl why not lsm_prctl)?
-
-
-
-
-
->
-> >
-> >> Thanks,
-> >> Bill
