@@ -1,61 +1,61 @@
-Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
+Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com [209.85.160.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27E1023183C
-	for <selinux@vger.kernel.org>; Wed, 27 May 2026 12:34:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9231407CE5
+	for <selinux@vger.kernel.org>; Wed, 27 May 2026 13:05:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779885273; cv=none; b=F3N2jq78ODkd2jLnoeouun8haUU660g2gNDsQkfX1ny27FNqLWRIu9pI3E8UqWr9xmNqMeiUxbefb8vWIH4bZJsn70x20jGxAF+psNr5+ZR9c8va/TxuSGpHH34QAD2DHg4cwX+Iwh/BFSPaL+RQGawgCLinblIkjfWePSbphV8=
+	t=1779887105; cv=none; b=nCxzAgJyP+veCSSldRFo50lGKcpa9elTX4WhVBJ7zyADoQyxGAnt5YsTpBPw8C193kA0Bv7GcX1dGpW+c8VhkX2h/0taKRXkgkRULKho1jMWcGf7Z38n9oxZ9Pds4Xo7yLxECAvwYJZ7vG6PK9b3yWn2DCKetyFMJInlowM9WoI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779885273; c=relaxed/simple;
-	bh=tIDQMAynJ+iorvNewSJjrVmaZHsgA5+PK3k0TQVmCtU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=K2N8/Hqf/FLeKcT1VveJXKR2HfasgF6CaTdKnYVpHFUiAcENwnh0bQZljDpRFFfvxNVQwPvWnFQhtfPngXHWKc8c7UqraQJVBGzCAYIRNokxLsk9c2St+R7qFvGLFZRQSx+xXV8vF1Vb+6TApT74rndlYjD5mJt109detgzyWI4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CyRWrRsg; arc=none smtp.client-ip=209.85.160.173
+	s=arc-20240116; t=1779887105; c=relaxed/simple;
+	bh=cO9W+W4liyT3i+p0VqoOe6FXkwYx1kGyYJf3OhWjB7o=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MTjXyNq/Qe9mH735McW8U1V/PWPYNlOxEvVJwgqUA5m26JRfC6CbF1YFAMiLmIpoofGXEjkMng1y3CGrTxxSNgilSjVP9k8Jb3JUYglsHoxornIx5ceENynw1wEYPWvKh3JF2xRTaQTLGsAy5+f4p5jMSJM9pWh0w9PhVfnNpAA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GBEA3m7X; arc=none smtp.client-ip=209.85.160.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CyRWrRsg"
-Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-516e1525aa3so47055141cf.3
-        for <selinux@vger.kernel.org>; Wed, 27 May 2026 05:34:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GBEA3m7X"
+Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-512f750d4b2so124968711cf.1
+        for <selinux@vger.kernel.org>; Wed, 27 May 2026 06:05:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779885271; x=1780490071; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1779887103; x=1780491903; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=litnajdF2x2rlrrEy3kUhZ0icX+nDKl3XTLdIAp4YKo=;
-        b=CyRWrRsgA7pN+6fmeo/5Axdwhy2bJNY8I8xSCHJiXdNAuzwMohXY57u2o/85NHdWnl
-         gdfQhjLWKjGomOLEWaniC4UQttqQRzz82kpG5T9gC3WymybF0YgBoVN/IsnOxwgzUL3l
-         9c5ejqwXYRgcnej7kXkcSHhSPJxbxX+QZTC/gd38+GIsYc9OMPZVk0uvtWTGhhlQPbIe
-         vXmog9TUZeJUSNTLARid13JtvJV77ToXYosaEvF5C34QT1jkHvbIFXyDYTLE4zvnqkTt
-         ik9VEAGZhaHvLW6XSqSyGcdp8RfFPtvpoL7rbFenm6SWAkkN+SbW1rFboSaPI5iSbkpU
-         QXLA==
+        bh=N+J3cOzTweXPs5NWu0yeU91c8/88bk7ShQZpMK3/uSU=;
+        b=GBEA3m7X7upEffHosyXfKZx4NunK4MybZjzu38PfEaDjw/nCwBTgHbWrn637kqh4Ql
+         7b3nEDFKL5VOOauNXbAdlzyWvFPJ95aEjdu5arab3Y+1uxjuQWDS//ptS1l3JJcfr5tK
+         79VrGbff5PcGE0pdPS2pa0SnBmyV7WV1Xoov0rt1oR3QK5/kR6oEHIpeCbkMA8OyOnQ/
+         LFZk68VQ/mK0MPNhuVxkGv6GI/q5vqZ5LtcRh5kVTRzksIwfZf0mUaoEOttFC6tduXj5
+         upgz0UroPM5KK/IY4PfegS1AtFpuKeNdTLlWes/FuOfNTXckqKKmwUkRaZ9GCuAV29F7
+         mAtw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779885271; x=1780490071;
+        d=1e100.net; s=20251104; t=1779887103; x=1780491903;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=litnajdF2x2rlrrEy3kUhZ0icX+nDKl3XTLdIAp4YKo=;
-        b=dP5DPZfcQ5xiq+IM6lHvah0Me0UCLweQUXtv97DcP/E/djWOjNMKpG6zmeqYl8WJsK
-         vcWrmNCbXGw4LmHSrZT3HbY1rih+Y96/N1VsWzyk+mYIIbSjD9nSqLeXCkUhIVk9FyHv
-         U8ASOShirsBq/Sk+cUrdG64uT3QfOJlq5i2H4nGXsF5x12Mkq/a+0xip4RzZjjNoT/to
-         tQfqiu6cWglFZSTSYNVuHT8Bx38v2HTBO1HwXNLhbN+j2OLq540iUsEWW/CxjXqFk7YW
-         lEAj00AL4/CGXr0jvUchUbAnYkQJBqtdEmhUzDrDK7thiyef5QOgT/i4kWeRlEjF01dq
-         KJ1w==
-X-Gm-Message-State: AOJu0Yw8gNwXdxACyHS9nzAlgSVltpr8GbKPl3WctoxZp+2/iWCygXRC
-	ncovkFOBEpDIKT2X/EyEQ4tg2rwBDzJajR2OP1CGjxWa0vRDAs1FTw3mzfbjxw==
-X-Gm-Gg: Acq92OHz3oi7+l3cX89yQ292XtjJQRENdKLCJypWDY3CjTFNAU8nTSb8DDdP6as/3Jf
-	LUj5ey0+qsEA0unfpocSd9hPiQJIQ3tAPJQ/S1jLJkAeYuAw6A2wptAn5rui8WaJwFgoDE4Cq51
-	getRVa8iAYoFTDt6qqaGKnFQPo5+FRRr4oeanXks3jziwHtK4NsJAElw0Crbm2pg4gIcwOB7dCO
-	l7rj9UgyFPfJPH87X1v1fZPkfwDdKATBlfjfdGq0WBObAavZtppD+uuyWPpFdJvf3oABsKVl+Dy
-	w1je83FROPUgRT/SqzwouD7HSaEYU5yZt5KXEcaZSaB15QZAS1ikW2cfXWCvrHovMYsV4/Wj8Lc
-	G40BStUVA3d4qQwGt4PmfwSJjgC7KwDmYTmabzJMyoMdyfIqhQIMvZxMWTJF1y+Vs87fNWzguW2
-	ISx/zqRqnklirpKTlX7rmaLw7AdQ+rUA+Y6WA/LX5MZBiOqJMC7M0IqAsSLbyhr2UcbHzh4Y4AP
-	fI1VCAkfAiwS/YTjNI359rzLT1augMwVLANDg==
-X-Received: by 2002:a05:622a:48b:b0:516:e517:6dff with SMTP id d75a77b69052e-516e51770admr221012811cf.1.1779885270083;
-        Wed, 27 May 2026 05:34:30 -0700 (PDT)
+        bh=N+J3cOzTweXPs5NWu0yeU91c8/88bk7ShQZpMK3/uSU=;
+        b=JxXsOpApVsBXsGOeK/w97ulkZQhjuNoDsBY43xnPI+tieQoGFIGZk6u7v+IK9XA/PT
+         RXzwYGllRGCefehx1bHvMmNeB7eRf7z5j8pqkUClch5/dfV+tOI0hFxT3wHN3pXpLxpM
+         4vXHOqNeUQzeEre62bYs2FuVx8Sj0j6sd8np9Jc8Hbm9Jba/8OExRsEuVFyDachuEmJQ
+         nCoyAkZtfKkHc6xR/ZO6ooxyzPiVisJ6J2ChGgCuQOYp4VsNX2iVG/ZWpq97XBifuSRe
+         up+wlCMkyj2Vt2Jrb7Fy6bCDbvBWlSurLQ7LhE61k5K3OhHAL8VFdABS2oH54x1lvJJa
+         QxSQ==
+X-Gm-Message-State: AOJu0YxiqrMw53tuscfk9lqLxmY1ZXQftuuBTARCsVIwhe7MOvTHrD3p
+	X18C/gVFGbjeAzdjizKrYreHraCLviimUBHGbx9oLER7+KdFepqyF9gMuPVDUw==
+X-Gm-Gg: Acq92OG5stSQeTpKPtqLqGah+1/WEbSv8uSSpUEgsX11PRQBG68vn98QozdSsYInR/h
+	/b7w0xgsogyfL3tfBIZGHub7+l+0O0gbZCgXL6NVVZkrPuWhcKwxgvnY8ZXVz5Ww8o5ubE7egsK
+	felCXu+fQFOjWHVDkrPWqoaCQ81pamheJbagylnU+f2VSsnrFfIFFR4gqot0GO30qkOSVEEHuc7
+	mZPO6vDffahS0TBOH2OlAzRNdJ0TgPbh3RSP8nNcvCVCfaA8C5omonNHedireJGXWOAVehBJcE/
+	5eNAL282uS4n7zOZjoZBFT0gMhMc2t8TZmvJGoBqJwGkoq15DVJx9OTSh8UPXzBYGASV1dndPLv
+	jPHWAF/X80FKiiF7TzkdFOoN1KbnuaKoSC45TGXz5av02xVrY3/yK+Onn4tPDafBp1xbeoMzDe3
+	BfbsZfe60NKCvNoAzI+ne3sU/nqACzdD9Bj791dj1pdZSoEyvKWSkcTCaffc3SICnKaal3xuHCg
+	qBub0wNr2hW1N4SRjJPta8ZGbB7MXSemMBNlQ==
+X-Received: by 2002:ac8:5984:0:b0:516:e0eb:d84 with SMTP id d75a77b69052e-516e0eb0eb4mr219418861cf.23.1779887102530;
+        Wed, 27 May 2026 06:05:02 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-51706a28ddcsm45893951cf.13.2026.05.27.05.34.29
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-51706a2655dsm43316531cf.12.2026.05.27.06.05.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 May 2026 05:34:29 -0700 (PDT)
+        Wed, 27 May 2026 06:05:02 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -64,9 +64,9 @@ Cc: jwcart2@gmail.com,
 	paul@paul-moore.com,
 	perfinion@gentoo.org,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] mcstrans: cap maximum category bits
-Date: Wed, 27 May 2026 08:34:11 -0400
-Message-ID: <20260527123411.26088-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH] mcstrans: continue on failed accept() or add_pollfd() calls
+Date: Wed, 27 May 2026 09:04:29 -0400
+Message-ID: <20260527130429.26396-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -76,56 +76,36 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Cap the maximum category bits to 1024 by default, overridable by
-defining a different MAX_CATS in CFLAGS. Only update mcstrans'
-internal maxbit value after successfully setting the bit.
+Don't exit on failed accept() or add_pollfd() calls and close
+the fd if we couldn't add it to the poll set.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- mcstrans/src/mcstrans.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ mcstrans/src/mcstransd.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/mcstrans/src/mcstrans.c b/mcstrans/src/mcstrans.c
-index 1baf7ba9..daf9b7a6 100644
---- a/mcstrans/src/mcstrans.c
-+++ b/mcstrans/src/mcstrans.c
-@@ -46,6 +46,9 @@
- #define log_debug(fmt, ...) do {} while (0)
- #endif
+diff --git a/mcstrans/src/mcstransd.c b/mcstrans/src/mcstransd.c
+index 42262e58..bda580d4 100644
+--- a/mcstrans/src/mcstransd.c
++++ b/mcstrans/src/mcstransd.c
+@@ -307,14 +307,15 @@ process_events(struct pollfd **ufds, int *nfds)
+ 				/* Probably received a connection */
+ 				if ((connfd = accept(sockfd, NULL, NULL)) < 0) {
+ 					syslog(LOG_ERR, "accept() failed: %m");
+-					return -1;
++					continue;
+ 				}
  
-+#ifndef MAX_CATS
-+#define MAX_CATS 1024
-+#endif
- static unsigned int maxbit=0;
- 
- /* Define data structures */
-@@ -187,20 +190,24 @@ parse_category(ebitmap_t *e, const char *raw, int allowinverse)
- 		}
- 		if (sscanf(raw,"c%u", &low) != 1)
- 			return -1;
-+		if (low > MAX_CATS)
-+			return -1;
- 		raw += numdigits(low) + 1;
- 		if (*raw == '.') {
- 			raw++;
- 			if (sscanf(raw,"c%u", &high) != 1)
- 				return -1;
-+			if (high > MAX_CATS)
-+				return -1;
- 			raw += numdigits(high) + 1;
- 		} else {
- 			high = low;
- 		}
- 		while (low <= high) {
--			if (low >= maxbit)
--				maxbit = low + 1;
- 			if (ebitmap_set_bit(e, low, inverse ? 0 : 1) < 0)
- 				return -1;
-+			if (low >= maxbit)
-+				maxbit = low + 1;
- 			low++;
- 		}
- 		if (*raw == ',') {
+ 				if (add_pollfd(ufds, nfds, connfd)) {
+ 					syslog(LOG_ERR,
+ 					  "Failed to add fd (%d) to poll list\n",
+ 						connfd);
+-					return -1;
++					close(connfd);
++					continue;
+ 				}
+ 			} else {
+ 				ret = service_request(connfd);
 -- 
 2.54.0
 
