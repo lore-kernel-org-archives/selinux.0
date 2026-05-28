@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64FE43E121D;
-	Thu, 28 May 2026 18:26:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 752CE38AC65;
+	Thu, 28 May 2026 18:27:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779992819; cv=none; b=j81wWAKn2iPePkrYbYp4SsSTzn6kWr6PSuUXuAaBzIeegTkBumy2rhBtgCpUoSDbkFG4GegDYxYHGWExiNCutBCfFft703LPrg6bwVHUT2RGltUu8EitVcAkE0LK/ete7BgzOhDzNV1DlEFNfRNRuSrMjUWfDVKq6WtgnMIcJVw=
+	t=1779992825; cv=none; b=iHc07/JRXNvZIudKDf8Rd6iUXRtLZ9SabwecFxZDyLS4ikjeoxMmk+NIEvUDSOKvXbRlwpgyiTbuUPfqtYNQIt5dNOye8aUUfBcT/03AUbG59u6QlG421e3Xo5mMcwy65S8rJgLCGoQQCh5eeDPfzWdBBUvob82UFnA5iBfPQxs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779992819; c=relaxed/simple;
-	bh=9tVyMY4bvHIYU8Qnrce0WCiBk7rOpMXBT5XwkVjV8Bs=;
+	s=arc-20240116; t=1779992825; c=relaxed/simple;
+	bh=Z0NDacAmJgk3FOTd1uiQcVNN3eCFMFphcW/nPPy4mzU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=GFOaPJWws/pxWaPHPh/DKxtQ8TQw4BhAlECJoNKzMj9cRuQzoitxVg1nPzsDuL2yO/xpnEwAiBeEi0gVzRGgkuRnSiC1G+JwxOGyP39/fkDGUE5/MAWLPKk1qPhQjfjNcgQV7QZFiRcFPTuNQCqHYhzjNbR99wXAMMMLj+UphNI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RyxDGY/6; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=npbmLltciNb/ZSZXZkrVU8v30xWOBPyies7wexVZE5LS3FXPDDllyMXEap3xXfW2ad39DZ9koZYqnG0hg97UOhK4Z/Evtn86AP0uyXhnnxytYkomVAwzTug9wKoAC35IRpCx9ZhxOCcTNEUl4lSL9EK1cxSKQIzxKIsbkHKFHpU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=REl/TSE3; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RyxDGY/6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 454D71F000E9;
-	Thu, 28 May 2026 18:26:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="REl/TSE3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 444A81F00A3A;
+	Thu, 28 May 2026 18:27:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779992818;
-	bh=E6D8c8zo5pcf/ptb7XHN+GBQ0Ur4niiILkXMgVdJtv8=;
+	s=k20260515; t=1779992824;
+	bh=+hRJlrl7e1QIbtRZfpQ9G5PzzXMJjzBa7MKIONMnGy0=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=RyxDGY/6kxl57zS2NUMKYGhw6+0YL/EVnYlgqky7YujmjJeh4Bpa/++0le29IfKS2
-	 L9N8gSQFK7dQIknV7PesznKte/faMo43Jfu/7WGj56L7UoZOimPJKWOcuKOgNLocl5
-	 v67yW450P3xg3CjZrRc4/b3R4w+0xw0JoMZP3pKC/0tn5y/3wuQgKsK2QykC5313MI
-	 CF6aWEJXoO5R1TPBYpnafH1flZo4z6ped+s7PmV3R+6XTJHK9yLyiZiLMXSifMhwVe
-	 6+DFQ4IQmTSggZ+tIAtWTBDXXjDxC4wCCEacHjzl+j+DcJj3YDcZTBB+wwYzaV4j7M
-	 AOsvEwV8EKnuA==
+	b=REl/TSE3dXLslmUmYMOrcoH4xnvumFe2m4CLKENCiBDf9qwUQm7E9YINqUgQF+Wlb
+	 SbKPQ8Fs47D8KPRUqcSN9c8Th+8wPLlmLd9oVzbbB481jUyM+6UMmPd5TaZM80THqe
+	 /VnSCPgL5EKLBI5zhpg6SGnZk63lNVhuSZb+BQsojB3ZFnrczmwBi5mu8xSFsQClKE
+	 Yu36RSjrT6c8sQGAt8BGQebZlX1pB4T3URLtdnXGyIzmywhxlejODku3+Nftkqax4g
+	 jHNpT/DsoCEJtkl8Z0+nmMR4F+/tHQNFR3YIr2PdfW4ZsXJdppTjHfAQs4gvd8x6sL
+	 qy438Qh7gdxWw==
 From: Song Liu <song@kernel.org>
 To: linux-security-module@vger.kernel.org,
 	linux-fsdevel@vger.kernel.org,
@@ -47,9 +47,9 @@ Cc: paul@paul-moore.com,
 	herton@canonical.com,
 	kernel-team@meta.com,
 	Song Liu <song@kernel.org>
-Subject: [PATCH v5 7/8] vfs: Replace security_sb_mount/security_move_mount with granular hooks
-Date: Thu, 28 May 2026 11:26:06 -0700
-Message-ID: <20260528182607.3150386-8-song@kernel.org>
+Subject: [PATCH v5 8/8] lsm: Remove security_sb_mount and security_move_mount
+Date: Thu, 28 May 2026 11:26:07 -0700
+Message-ID: <20260528182607.3150386-9-song@kernel.org>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260528182607.3150386-1-song@kernel.org>
 References: <20260528182607.3150386-1-song@kernel.org>
@@ -61,22 +61,13 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Replace the monolithic security_sb_mount() call in path_mount() and
-security_move_mount() in vfs_move_mount() with the new granular mount
-hooks:
+Now that all LSMs have been converted to granular mount hooks and
+fs/namespace.c calls the new hooks, remove the old hooks:
 
-- do_loopback(): call security_mount_bind()
-- do_new_mount(): call security_mount_new()
-- do_remount(): call security_mount_remount()
-- do_reconfigure_mnt(): call security_mount_reconfigure()
-- do_move_mount_old(): call security_mount_move()
-- do_change_type(): call security_mount_change_type()
-- vfs_move_mount(): replace security_move_mount() with
-  security_mount_move()
-
-The new hooks are called at the individual operation level with
-appropriate context (resolved paths, fs_context), rather than at
-the top of path_mount() with raw string arguments.
+- security_sb_mount(): removed from lsm_hook_defs.h, security.h,
+  security.c.
+- security_move_mount(): removed from lsm_hook_defs.h, security.h,
+  security.c, and bpf_lsm.c.
 
 Code generated with the assistance of Claude, reviewed by human.
 
@@ -84,153 +75,158 @@ Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 Tested-by: Stephen Smalley <stephen.smalley.work@gmail.com> # for selinux only
 Signed-off-by: Song Liu <song@kernel.org>
 ---
- fs/namespace.c | 41 ++++++++++++++++++++++++++++++-----------
- 1 file changed, 30 insertions(+), 11 deletions(-)
+ include/linux/lsm_hook_defs.h |  4 ----
+ include/linux/security.h      | 16 ---------------
+ kernel/bpf/bpf_lsm.c          |  2 --
+ security/security.c           | 38 -----------------------------------
+ 4 files changed, 60 deletions(-)
 
-diff --git a/fs/namespace.c b/fs/namespace.c
-index fe919abd2f01..43f22c5e2bf4 100644
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -2888,6 +2888,10 @@ static int do_change_type(const struct path *path, int ms_flags)
- 	if (!type)
- 		return -EINVAL;
- 
-+	err = security_mount_change_type(path, ms_flags);
-+	if (err)
-+		return err;
-+
- 	guard(namespace_excl)();
- 
- 	err = may_change_propagation(mnt);
-@@ -3006,6 +3010,10 @@ static int do_loopback(const struct path *path, const char *old_name,
- 	if (err)
- 		return err;
- 
-+	err = security_mount_bind(&old_path, path, recurse);
-+	if (err)
-+		return err;
-+
- 	if (mnt_ns_loop(old_path.dentry))
- 		return -EINVAL;
- 
-@@ -3328,7 +3336,8 @@ static void mnt_warn_timestamp_expiry(const struct path *mountpoint,
-  * superblock it refers to.  This is triggered by specifying MS_REMOUNT|MS_BIND
-  * to mount(2).
-  */
--static int do_reconfigure_mnt(const struct path *path, unsigned int mnt_flags)
-+static int do_reconfigure_mnt(const struct path *path, unsigned int mnt_flags,
-+			      unsigned long flags)
- {
- 	struct super_block *sb = path->mnt->mnt_sb;
- 	struct mount *mnt = real_mount(path->mnt);
-@@ -3343,6 +3352,10 @@ static int do_reconfigure_mnt(const struct path *path, unsigned int mnt_flags)
- 	if (!can_change_locked_flags(mnt, mnt_flags))
- 		return -EPERM;
- 
-+	ret = security_mount_reconfigure(path, mnt_flags, flags);
-+	if (ret)
-+		return ret;
-+
- 	/*
- 	 * We're only checking whether the superblock is read-only not
- 	 * changing it, so only take down_read(&sb->s_umount).
-@@ -3366,7 +3379,7 @@ static int do_reconfigure_mnt(const struct path *path, unsigned int mnt_flags)
-  * on it - tough luck.
-  */
- static int do_remount(const struct path *path, int sb_flags,
--		      int mnt_flags, void *data)
-+		      int mnt_flags, void *data, unsigned long flags)
- {
- 	int err;
- 	struct super_block *sb = path->mnt->mnt_sb;
-@@ -3393,6 +3406,9 @@ static int do_remount(const struct path *path, int sb_flags,
- 	fc->oldapi = true;
- 
- 	err = parse_monolithic_mount_data(fc, data);
-+	if (!err)
-+		err = security_mount_remount(fc, path, mnt_flags, flags,
-+					    data);
- 	if (!err) {
- 		down_write(&sb->s_umount);
- 		err = -EPERM;
-@@ -3708,6 +3724,10 @@ static int do_move_mount_old(const struct path *path, const char *old_name)
- 	if (err)
- 		return err;
- 
-+	err = security_mount_move(&old_path, path);
-+	if (err)
-+		return err;
-+
- 	return do_move_mount(&old_path, path, 0);
+diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+index 98f0fe382665..c870260bf402 100644
+--- a/include/linux/lsm_hook_defs.h
++++ b/include/linux/lsm_hook_defs.h
+@@ -69,8 +69,6 @@ LSM_HOOK(int, 0, sb_remount, struct super_block *sb, void *mnt_opts)
+ LSM_HOOK(int, 0, sb_kern_mount, const struct super_block *sb)
+ LSM_HOOK(int, 0, sb_show_options, struct seq_file *m, struct super_block *sb)
+ LSM_HOOK(int, 0, sb_statfs, struct dentry *dentry)
+-LSM_HOOK(int, 0, sb_mount, const char *dev_name, const struct path *path,
+-	 const char *type, unsigned long flags, void *data)
+ LSM_HOOK(int, 0, sb_umount, struct vfsmount *mnt, int flags)
+ LSM_HOOK(int, 0, sb_pivotroot, const struct path *old_path,
+ 	 const struct path *new_path)
+@@ -79,8 +77,6 @@ LSM_HOOK(int, 0, sb_set_mnt_opts, struct super_block *sb, void *mnt_opts,
+ LSM_HOOK(int, 0, sb_clone_mnt_opts, const struct super_block *oldsb,
+ 	 struct super_block *newsb, unsigned long kern_flags,
+ 	 unsigned long *set_kern_flags)
+-LSM_HOOK(int, 0, move_mount, const struct path *from_path,
+-	 const struct path *to_path)
+ LSM_HOOK(int, 0, mount_bind, const struct path *from, const struct path *to,
+ 	 bool recurse)
+ LSM_HOOK(int, 0, mount_new, struct fs_context *fc, const struct path *mp,
+diff --git a/include/linux/security.h b/include/linux/security.h
+index b1b3da51a88d..f1dcfc569cf2 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -373,8 +373,6 @@ int security_sb_remount(struct super_block *sb, void *mnt_opts);
+ int security_sb_kern_mount(const struct super_block *sb);
+ int security_sb_show_options(struct seq_file *m, struct super_block *sb);
+ int security_sb_statfs(struct dentry *dentry);
+-int security_sb_mount(const char *dev_name, const struct path *path,
+-		      const char *type, unsigned long flags, void *data);
+ int security_sb_umount(struct vfsmount *mnt, int flags);
+ int security_sb_pivotroot(const struct path *old_path, const struct path *new_path);
+ int security_sb_set_mnt_opts(struct super_block *sb,
+@@ -385,7 +383,6 @@ int security_sb_clone_mnt_opts(const struct super_block *oldsb,
+ 				struct super_block *newsb,
+ 				unsigned long kern_flags,
+ 				unsigned long *set_kern_flags);
+-int security_move_mount(const struct path *from_path, const struct path *to_path);
+ int security_mount_bind(const struct path *from, const struct path *to,
+ 			bool recurse);
+ int security_mount_new(struct fs_context *fc, const struct path *mp,
+@@ -825,13 +822,6 @@ static inline int security_sb_statfs(struct dentry *dentry)
+ 	return 0;
  }
  
-@@ -3786,7 +3806,7 @@ static int do_new_mount_fc(struct fs_context *fc, const struct path *mountpoint,
-  */
- static int do_new_mount(const struct path *path, const char *fstype,
- 			int sb_flags, int mnt_flags,
--			const char *name, void *data)
-+			const char *name, void *data, unsigned long flags)
+-static inline int security_sb_mount(const char *dev_name, const struct path *path,
+-				    const char *type, unsigned long flags,
+-				    void *data)
+-{
+-	return 0;
+-}
+-
+ static inline int security_sb_umount(struct vfsmount *mnt, int flags)
  {
- 	struct file_system_type *type;
- 	struct fs_context *fc;
-@@ -3830,6 +3850,9 @@ static int do_new_mount(const struct path *path, const char *fstype,
- 		err = parse_monolithic_mount_data(fc, data);
- 	if (!err && !mount_capable(fc))
- 		err = -EPERM;
-+
-+	if (!err)
-+		err = security_mount_new(fc, path, mnt_flags, flags, data);
- 	if (!err)
- 		err = do_new_mount_fc(fc, path, mnt_flags);
- 
-@@ -4080,7 +4103,6 @@ int path_mount(const char *dev_name, const struct path *path,
- 		const char *type_page, unsigned long flags, void *data_page)
- {
- 	unsigned int mnt_flags = 0, sb_flags;
--	int ret;
- 
- 	/* Discard magic */
- 	if ((flags & MS_MGC_MSK) == MS_MGC_VAL)
-@@ -4093,9 +4115,6 @@ int path_mount(const char *dev_name, const struct path *path,
- 	if (flags & MS_NOUSER)
- 		return -EINVAL;
- 
--	ret = security_sb_mount(dev_name, path, type_page, flags, data_page);
--	if (ret)
--		return ret;
- 	if (!may_mount())
- 		return -EPERM;
- 	if (flags & SB_MANDLOCK)
-@@ -4141,9 +4160,9 @@ int path_mount(const char *dev_name, const struct path *path,
- 			    SB_I_VERSION);
- 
- 	if ((flags & (MS_REMOUNT | MS_BIND)) == (MS_REMOUNT | MS_BIND))
--		return do_reconfigure_mnt(path, mnt_flags);
-+		return do_reconfigure_mnt(path, mnt_flags, flags);
- 	if (flags & MS_REMOUNT)
--		return do_remount(path, sb_flags, mnt_flags, data_page);
-+		return do_remount(path, sb_flags, mnt_flags, data_page, flags);
- 	if (flags & MS_BIND)
- 		return do_loopback(path, dev_name, flags & MS_REC);
- 	if (flags & (MS_SHARED | MS_PRIVATE | MS_SLAVE | MS_UNBINDABLE))
-@@ -4152,7 +4171,7 @@ int path_mount(const char *dev_name, const struct path *path,
- 		return do_move_mount_old(path, dev_name);
- 
- 	return do_new_mount(path, type_page, sb_flags, mnt_flags, dev_name,
--			    data_page);
-+			    data_page, flags);
+ 	return 0;
+@@ -859,12 +849,6 @@ static inline int security_sb_clone_mnt_opts(const struct super_block *oldsb,
+ 	return 0;
  }
  
- int do_mount(const char *dev_name, const char __user *dir_name,
-@@ -4545,7 +4564,7 @@ static inline int vfs_move_mount(const struct path *from_path,
+-static inline int security_move_mount(const struct path *from_path,
+-				      const struct path *to_path)
+-{
+-	return 0;
+-}
+-
+ static inline int security_mount_bind(const struct path *from,
+ 				      const struct path *to, bool recurse)
  {
- 	int ret;
+diff --git a/kernel/bpf/bpf_lsm.c b/kernel/bpf/bpf_lsm.c
+index aa228372cfb4..77371ca25d09 100644
+--- a/kernel/bpf/bpf_lsm.c
++++ b/kernel/bpf/bpf_lsm.c
+@@ -350,7 +350,6 @@ BTF_ID(func, bpf_lsm_release_secctx)
+ BTF_ID(func, bpf_lsm_sb_alloc_security)
+ BTF_ID(func, bpf_lsm_sb_eat_lsm_opts)
+ BTF_ID(func, bpf_lsm_sb_kern_mount)
+-BTF_ID(func, bpf_lsm_sb_mount)
+ BTF_ID(func, bpf_lsm_sb_remount)
+ BTF_ID(func, bpf_lsm_sb_set_mnt_opts)
+ BTF_ID(func, bpf_lsm_sb_show_options)
+@@ -382,7 +381,6 @@ BTF_ID(func, bpf_lsm_task_setscheduler)
+ BTF_ID(func, bpf_lsm_userns_create)
+ BTF_ID(func, bpf_lsm_bdev_alloc_security)
+ BTF_ID(func, bpf_lsm_bdev_setintegrity)
+-BTF_ID(func, bpf_lsm_move_mount)
+ BTF_ID(func, bpf_lsm_mount_bind)
+ BTF_ID(func, bpf_lsm_mount_new)
+ BTF_ID(func, bpf_lsm_mount_remount)
+diff --git a/security/security.c b/security/security.c
+index b7ec0ec7af26..bc55ee588c59 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -1065,29 +1065,6 @@ int security_sb_statfs(struct dentry *dentry)
+ 	return call_int_hook(sb_statfs, dentry);
+ }
  
--	ret = security_move_mount(from_path, to_path);
-+	ret = security_mount_move(from_path, to_path);
- 	if (ret)
- 		return ret;
+-/**
+- * security_sb_mount() - Check permission for mounting a filesystem
+- * @dev_name: filesystem backing device
+- * @path: mount point
+- * @type: filesystem type
+- * @flags: mount flags
+- * @data: filesystem specific data
+- *
+- * Check permission before an object specified by @dev_name is mounted on the
+- * mount point named by @nd.  For an ordinary mount, @dev_name identifies a
+- * device if the file system type requires a device.  For a remount
+- * (@flags & MS_REMOUNT), @dev_name is irrelevant.  For a loopback/bind mount
+- * (@flags & MS_BIND), @dev_name identifies the	pathname of the object being
+- * mounted.
+- *
+- * Return: Returns 0 if permission is granted.
+- */
+-int security_sb_mount(const char *dev_name, const struct path *path,
+-		      const char *type, unsigned long flags, void *data)
+-{
+-	return call_int_hook(sb_mount, dev_name, path, type, flags, data);
+-}
+-
+ /**
+  * security_sb_umount() - Check permission for unmounting a filesystem
+  * @mnt: mounted filesystem
+@@ -1167,21 +1144,6 @@ int security_sb_clone_mnt_opts(const struct super_block *oldsb,
+ }
+ EXPORT_SYMBOL(security_sb_clone_mnt_opts);
  
+-/**
+- * security_move_mount() - Check permissions for moving a mount
+- * @from_path: source mount point
+- * @to_path: destination mount point
+- *
+- * Check permission before a mount is moved.
+- *
+- * Return: Returns 0 if permission is granted.
+- */
+-int security_move_mount(const struct path *from_path,
+-			const struct path *to_path)
+-{
+-	return call_int_hook(move_mount, from_path, to_path);
+-}
+-
+ /**
+  * security_mount_bind() - Check permissions for a bind mount
+  * @from: source path
 -- 
 2.53.0-Meta
 
