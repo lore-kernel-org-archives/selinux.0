@@ -1,166 +1,219 @@
-Received: from mout02.posteo.de (mout02.posteo.de [185.67.36.66])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f175.google.com (mail-lj1-f175.google.com [209.85.208.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2404625CC57
-	for <selinux@vger.kernel.org>; Thu, 28 May 2026 16:39:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.66
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779986386; cv=none; b=S9AU6uVQj/pkfRemVjG07S+kKKd/ifpTrvrAISkqfyG+5sw86PecnVpYwuVer9oE+Qd3oNS3KIlB3CvnsWFF0xcRynWa8o22I7SLRkY84uRDQuHeBM1V9FplfisB1fsL7eRvhUkCeB7c2Rv1wyY0GBv91aC+46XTqaHuocXkjlA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779986386; c=relaxed/simple;
-	bh=hQfmRh+LJJ/hz6seuPU31CWfSW0gBM5v2Rz0oK1dnZU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Oa8+3ZLjQH5ETYjeU/3Gq6tnypC+c1e5qV7XGVzee0ZSjlZshkXTdFH9XJC6iXfCBpAlVs5FajynCXsKkcsQ1aAQ8jbcwO6EBM524DiqfZj2qe9rNg5Q8KwQd/zDaXYOsrxoVQ2qYmg44cKAyOT/E4zyVGVCbwZ9qDhP6ab8j9A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.uk; spf=pass smtp.mailfrom=posteo.uk; dkim=pass (2048-bit key) header.d=posteo.uk header.i=@posteo.uk header.b=qJuOqEIo; arc=none smtp.client-ip=185.67.36.66
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.uk
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51C7B3BE621
+	for <selinux@vger.kernel.org>; Thu, 28 May 2026 16:46:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.175
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779986765; cv=pass; b=p9kvX0L61Ll9PzIT3OyHZYqHOqYOFEgUcAX2h0HaM7HTS1tuzSjVyaws21BomEI9uWdsDvSA97DAjLJsSQd+fMojsCxmkiPfqsy7595tWs7bWElt3LfJOkkFNsc6+W4xSw1v9nm7g2mArMdtRAa56mJ2yUg/uJiP63I3Siy5/NA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779986765; c=relaxed/simple;
+	bh=VlLrP79zff+VXV77dRwuczkrovvYdxzxQ2N5UioNsww=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Pc1gpIBNdm9y6xCsvg1CGEyhKPkHktmhQcNfRNBv1i1ipS5W5n/QmU+mwg02ej3OKcY4QBayl7YO9dG/AkCk3+OmiitZFPEMVuZSkwY9QVpujIpdpAPBfStwybER/Kk7UW8dk7v0Mp0FDqFwxQmUakvnyb5RncHBR8qdscmt11A=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=m8Q3lgGR; arc=pass smtp.client-ip=209.85.208.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=posteo.uk header.i=@posteo.uk header.b="qJuOqEIo"
-Received: from submission (posteo.de [185.67.36.169]) 
-	by mout02.posteo.de (Postfix) with ESMTPS id 1A5DA240101
-	for <selinux@vger.kernel.org>; Thu, 28 May 2026 18:39:42 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.uk; s=2017;
-	t=1779986382; bh=g3Ec2mq2A8uBFHRKdg94P9AZtz7sb3eBKREAYyK2RyA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:
-	 Content-Transfer-Encoding:From;
-	b=qJuOqEIooTIPr6vO6lNDoCOG68dNM3FdOeY2az+bpLSRwJD+WKeX9ap//YONHrdhk
-	 oiELYeYbfTounh05jUIzAyFkDptb3HpMGA5LTi7bUQU1JVkUhCttNZUGti5KeglXts
-	 670U5jt52BCRc4aV7F7bJwFZDL/BO/HQX/fV99scJfvQDGFrGCj0gsk7V327lkkD2h
-	 AAxjoE1SAblq3vK8XwwijlXrDJEiqR/f2Fj2bu3jC4sT8Lxp2H0fcwUPMagur35r/w
-	 pounMMCZFmiKLNQE4GOQW7V1nE+oV3okmQgkeiG/1aoAlrH015v8gdB9mpNpAQuZUV
-	 EYQ6F25QYipMg==
-Received: from customer (localhost [127.0.0.1])
-	by submission (posteo.de) with ESMTPSA id 4gRBzK4vqcz6twQ;
-	Thu, 28 May 2026 18:39:41 +0200 (CEST)
-From: Rahul Sandhu <nvraxn@posteo.uk>
-To: selinux@vger.kernel.org
-Cc: Rahul Sandhu <nvraxn@posteo.uk>
-Subject: [PATCH] libsepol: check the number of elements in the avtab
-Date: Thu, 28 May 2026 16:39:41 +0000
-Message-ID: <20260528163930.418992-2-nvraxn@posteo.uk>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="m8Q3lgGR"
+Received: by mail-lj1-f175.google.com with SMTP id 38308e7fff4ca-394413a63d3so98427381fa.1
+        for <selinux@vger.kernel.org>; Thu, 28 May 2026 09:46:04 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1779986762; cv=none;
+        d=google.com; s=arc-20240605;
+        b=e8wEaMpp++1ILzCa12uL2kvSAp+piXC9Zk87UC83CSlOdPXS8AttjkXK/G/TE9qFDv
+         k6yMjrIukKtFCB1IYzSsHS/3jnGB+X6e8Ji5lnC88RRCfiXA3KH/hnJ9ATWwJtUQBS5W
+         dzQOIOXEeUrJrcIsxfkDs+jGx5HU5Bl0PYX6u/fN55pDsG5IhgZmzpsxRt3SLsorK1No
+         5w7sR4MyTmOBFK4fAzTMzYNfobYS5O6/YdzOPVp1dYQibiZSkFI9Ns9NZIMhFn1vfMS/
+         7X44RtIBKPX8PzRydeMj/Oj1BB4EQazb/sxth3o47BqeubGOM5VPTa8+bex4CcuNU3HU
+         6aHA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=4KG1rQfoltCblWcxJ2tNR+kvbR6tIHh2dSmX26Ivrm4=;
+        fh=nOcPTm+jzSpUJDDJhvsoEQt/GcMQFmPB1BDsWNtwPZ8=;
+        b=bQTAdAA7cgdceDw0b9ezXmBtEW3uvWGC27T/cMBryP/TtMLWeEX37YwlTWDWWYfzi8
+         6K48lUoScgDftoGRgo+weEzWSS3XbT4zJghe6YwVtOlBMOLMaNoRP+OuO1ICWH9dsj/9
+         XWezZKFLPvOmBOXCPFEXFJxjw3kyvsp6LPlcPHJzscTddHboeo8xY0mU4G4TcSBu+lVr
+         NCvlBXfV4wGX2pMu/ROsgb6VCNp3WZZUUi35DXP2en0WU0t70V7MKZlcw0rWkaIortql
+         l80+CfSG+9sXqCXKLDzH0QFgzvMw0UjrZflGMJl3Dq94wv9cVAdBSivjJnFYmMizUFt8
+         gbqQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1779986762; x=1780591562; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=4KG1rQfoltCblWcxJ2tNR+kvbR6tIHh2dSmX26Ivrm4=;
+        b=m8Q3lgGRENyn+Ngr/d1GRIW4RapCBY1Ws2GGFzg4KZfq5iMSArPdQ5kqxfFxVXSZnI
+         pSSiPsfau5OP4SPKSNxh4nbUQRpQipHLv/676JtVWh6ZgIwxruzXLHsgUR45Lg9zz45y
+         Rt+Zb2rct/Lq4+iYafhePZOMVi9gM9qh3g5x0uvb+tgc7K0RfmQp/G/xVIkUefGlOozN
+         AMzXYqOZVADoFpPpjanH6wG0Cy2OQmNykgC+0IbepNYjmSHPRm2/d6i5+ddrbRz5t220
+         3xipTQHjH+3xcl1pPuWyMV2jokUszFJoxTVeCOVSsco/zPeQ6xF5OzxdmQWUhZMX/C7D
+         Bbhw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779986762; x=1780591562;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=4KG1rQfoltCblWcxJ2tNR+kvbR6tIHh2dSmX26Ivrm4=;
+        b=Dk79AhOfUOJO31sEgDMIQXATI4Nqrk3oWCQm7qI3/KTm9ESwlheiLM9HYYs940c9rr
+         2dq1SB36IPcsNd3a9Fgs85Y+eh2Ed9LMCjiDaBEaH5KawgaVF9cINreFGJI1UOiOnhoa
+         SM6aoXM2Hrq+rKNetffYCGGDjDVri5QI51XAKXib1pWcDVOfl1QA0SACTWKGV7GNCEzj
+         X1IJCMyUDnEmHYxqyVDWM27GxWn7tk6a42aWIYWjc99hmfZXBdqiecrZg5xpi1aXjiQF
+         c+jZbk99quS+vNceNu+HFM+AWPgc/oMZ2luQ7J/YL6g6yNxlR+T3YEMVHtRlqpr9y14/
+         I7Jw==
+X-Gm-Message-State: AOJu0Yyvq4Nfs+MPO9Tq/eNtNqgDQc1cUBASpk3IxAfsvLc+tp753hFS
+	l8VjkRw/cr/sTtTEfqB22Wvk9/k8m8piDSmv0v+kUM5kTLjSfi3KtUsqfoeqjHOWP+vOBhNVf8G
+	yUAn3l+6/G1qyaQgLrumU38JBvO8qaOBauw==
+X-Gm-Gg: Acq92OFwEAx+gd3A8eva0AUvWwGCW6GI5PbDBqc2WQgUSj3dzk9ywC4TZwuBjOVQrlI
+	U2KIhoCrGlpryK+C5k/us74QstxCp4+odBQGTTZoklMOarFFuJ8fK5ClY9O7Lvi/pUXSTnwlKlG
+	BQtZwSWMDlI7fapxbdyjioJgXRwNvgp4lf2b+HTryqhwtPUMF4Jx42dnjECwgokeWPtPlQ9ZIST
+	xhIq37t65kPaM5g/fMa9MunkGqIimYz630Qp0O3jtZeDjat3st2JSLGJTBPNb3YiNG+WQRD9REG
+	Mgst6LkHsh242Q4=
+X-Received: by 2002:a2e:9894:0:b0:38a:8602:71aa with SMTP id
+ 38308e7fff4ca-395d8cd90fcmr74311451fa.16.1779986762064; Thu, 28 May 2026
+ 09:46:02 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3668; i=nvraxn@posteo.uk; h=from:subject; bh=hQfmRh+LJJ/hz6seuPU31CWfSW0gBM5v2Rz0oK1dnZU=; b=owGbwMvMwCmc0Xus8aefgg/jabUkhiyJ/EP1R198Wd2pL3F/0YtAIZa2B6YHQ3fd+hnN/eiR4 ddkTsaZHRtZGIQ5GSzFFFn272O7UfJ07u+jT153wMxhZQIZIi3SwAAELAx8uYl5pUY6Rnqm2oZ6 hkCGjhEDF6cATPXZ/YwNc35t/i80K7hK3GSrxMJ7FnFVx28VX/owX/tQwawpQelVMT/4245cSCq JLDc2PRxqdjmIseHpfI7n2ubv59VJRtha3Z8kqql58+z6q1enRig94jRe1LfbiveN0KS+rYLdUt aLPjIsMwMA
-X-Developer-Key: i=nvraxn@posteo.uk; a=openpgp; fpr=BFBE06D874E59DFBC5E4EB88688DC681F94E204C
-Content-Transfer-Encoding: 8bit
+References: <20260521190627.34885-1-jwcart2@gmail.com> <20260521190627.34885-3-jwcart2@gmail.com>
+ <CAEjxPJ7yVwRtbJKUB1Bm=Vsd3X+HX2BvDDLp-5qfUytxOTqb_w@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7yVwRtbJKUB1Bm=Vsd3X+HX2BvDDLp-5qfUytxOTqb_w@mail.gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Thu, 28 May 2026 12:45:51 -0400
+X-Gm-Features: AVHnY4Lk90wx-XBy5jHlyEJOtuo54fIJbLvjYkS9jhkExpqLVQ9QnmP2jYfJ1no
+Message-ID: <CAP+JOzR3dCeaAcJV7x3GdL8YQdu8x0a-t890z7p+m6dNJOC+tw@mail.gmail.com>
+Subject: Re: [PATCH 3/3] libsepol: In module_to_cil use constrain and
+ validatetrans where possible
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Instead of counting each time we semantically see an AV rule, check the
-number of elements in the access vector table. AV rules may collapse to
-nothing, for example:
+On Tue, May 26, 2026 at 9:27=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Thu, May 21, 2026 at 3:06=E2=80=AFPM James Carter <jwcart2@gmail.com> =
+wrote:
+> >
+> > When converting a module to CIL for an MLS policy module_to_cil was
+> > always using mlsconstrain and mlsvalidatetrans.
+> >
+> > Instead only use mlsconstrain and mlsvalidatetrans when the constraint
+> > expression contains l1, l2, h1, or h2.
+> >
+> > This follows the example of kernel_to_cil.
+> >
+> > It also avoids an error that would occur if a user is referred to
+> > in a constrain that then becomes an mlsconstrain. "u1 =3D=3D user_u" is
+> > allowed for a constrain, but the error "unknown user user_u" will
+> > occur for an mlsconstrain.
+>
+> I'm a little confused by the above - why would u1 =3D=3D user_u be allowe=
+d
+> for a constrain but fail for a mlsconstrain -
+> shouldn't it be consistent between both (i.e. user_u is either defined
+> or it isn't)?
+>
 
-(class foo (bar baz))
-(classorder (foo))
+For some reason users are not added to the symtab on the first pass,
+so using a user in an mlsconstrain fails, but the normal constrain
+works because it is after the user declarations.
+Jim
 
-(allow t self (foo (not (bar baz))))
-
-Previously, the compiler would incorrectly count the above rule as one
-AV rule, when in reality it collapses down to nothing as no permissions
-are actually granted.
-
-Signed-off-by: Rahul Sandhu <nvraxn@posteo.uk>
----
- libsepol/cil/src/cil_binary.c | 6 ++++++
- libsepol/cil/src/cil_post.c   | 8 --------
- libsepol/cil/src/cil_verify.c | 6 ------
- libsepol/cil/src/cil_verify.h | 1 -
- 4 files changed, 6 insertions(+), 15 deletions(-)
-
-diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-index 74ec3cd5..dca1937a 100644
---- a/libsepol/cil/src/cil_binary.c
-+++ b/libsepol/cil/src/cil_binary.c
-@@ -5468,6 +5468,12 @@ int cil_binary_create_allocated_pdb(const struct cil_db *db, sepol_policydb_t *p
- 		goto exit;
- 	}
- 
-+	if (pdb->te_avtab.nel == 0) {
-+		cil_log(CIL_ERR, "Policy must include at least one avrule\n");
-+		rc = SEPOL_ERR;
-+		goto exit;
-+	}
-+
- 	rc = SEPOL_OK;
- 
- exit:
-diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
-index 2b6dad73..fa59d337 100644
---- a/libsepol/cil/src/cil_post.c
-+++ b/libsepol/cil/src/cil_post.c
-@@ -2506,7 +2506,6 @@ exit:
- static int cil_post_verify(struct cil_db *db)
+> Likewise would be good to have an explicit test added for this.
+>
+> Otherwise,
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+>
+> >
+> > Signed-off-by: James Carter <jwcart2@gmail.com>
+> > ---
+> >  libsepol/src/module_to_cil.c | 24 +++++++++++++++++++-----
+> >  1 file changed, 19 insertions(+), 5 deletions(-)
+> >
+> > diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.=
+c
+> > index f736288c..79d34576 100644
+> > --- a/libsepol/src/module_to_cil.c
+> > +++ b/libsepol/src/module_to_cil.c
+> > @@ -1742,7 +1742,7 @@ exit:
+> >  }
+> >
+> >
+> > -static int constraint_expr_to_string(struct policydb *pdb, struct cons=
+traint_expr *exprs, char **expr_string)
+> > +static int constraint_expr_to_string(struct policydb *pdb, struct cons=
+traint_expr *exprs, char **expr_string, int *use_mls)
+> >  {
+> >         int rc =3D -1;
+> >         struct constraint_expr *expr;
+> > @@ -1762,6 +1762,8 @@ static int constraint_expr_to_string(struct polic=
+ydb *pdb, struct constraint_exp
+> >         unsigned int num_names =3D 0;
+> >         struct type_set *ts;
+> >
+> > +       *use_mls =3D 0;
+> > +
+> >         rc =3D stack_init(&stack);
+> >         if (rc !=3D 0) {
+> >                 goto exit;
+> > @@ -1803,6 +1805,10 @@ static int constraint_expr_to_string(struct poli=
+cydb *pdb, struct constraint_exp
+> >                                 goto exit;
+> >                         }
+> >
+> > +                       if (expr->attr >=3D CEXPR_L1L2) {
+> > +                               *use_mls =3D 1;
+> > +                       }
+> > +
+> >                         if (expr->expr_type =3D=3D CEXPR_ATTR) {
+> >                                 // length of values/attrs + 2 separatin=
+g spaces + 2 parens + null terminator
+> >                                 len =3D strlen(op) + strlen(attr1) + st=
+rlen(attr2) + 2 + 2 + 1;
+> > @@ -1979,18 +1985,26 @@ static int constraints_to_cil(int indent, struc=
+t policydb *pdb, char *classkey,
+> >         int rc =3D -1;
+> >         struct constraint_node *node;
+> >         char *expr =3D NULL;
+> > -       const char *mls;
+> > +       int use_mls;
+> > +       const char *mls =3D "";
+> >         char *perms;
+> >
+> > -       mls =3D pdb->mls ? "mls" : "";
+> > -
+> >         for (node =3D constraints; node !=3D NULL; node =3D node->next)=
  {
- 	int rc = SEPOL_ERR;
--	int avrule_cnt = 0;
- 	int handleunknown = -1;
- 	int mls = -1;
- 	int nseuserdflt = 0;
-@@ -2518,7 +2517,6 @@ static int cil_post_verify(struct cil_db *db)
- 
- 	extra_args.db = db;
- 	extra_args.csymtab = &csymtab;
--	extra_args.avrule_cnt = &avrule_cnt;
- 	extra_args.handleunknown = &handleunknown;
- 	extra_args.mls = &mls;
- 	extra_args.nseuserdflt = &nseuserdflt;
-@@ -2548,12 +2546,6 @@ static int cil_post_verify(struct cil_db *db)
- 		}
- 	}
- 
--	if (avrule_cnt == 0) {
--		cil_log(CIL_ERR, "Policy must include at least one avrule\n");
--		rc = SEPOL_ERR;
--		goto exit;
--	}
--
- 	if (nseuserdflt > 1) {
- 		cil_log(CIL_ERR, "Policy cannot contain more than one selinuxuserdefault, found: %d\n", nseuserdflt);
- 		rc = SEPOL_ERR;
-diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
-index 9654d71d..d3c4fd81 100644
---- a/libsepol/cil/src/cil_verify.c
-+++ b/libsepol/cil/src/cil_verify.c
-@@ -1621,7 +1621,6 @@ exit:
- int __cil_verify_helper(struct cil_tree_node *node, uint32_t *finished, void *extra_args)
- {
- 	int rc = SEPOL_ERR;
--	int *avrule_cnt = 0;
- 	int *handleunknown;
- 	int *mls;
- 	int *nseuserdflt = 0;
-@@ -1635,7 +1634,6 @@ int __cil_verify_helper(struct cil_tree_node *node, uint32_t *finished, void *ex
- 	}
- 
- 	db = args->db;
--	avrule_cnt = args->avrule_cnt;
- 	handleunknown = args->handleunknown;
- 	mls = args->mls;
- 	nseuserdflt = args->nseuserdflt;
-@@ -1671,10 +1669,6 @@ int __cil_verify_helper(struct cil_tree_node *node, uint32_t *finished, void *ex
- 		case CIL_TYPE:
- 			rc = __cil_verify_type(node);
- 			break;
--		case CIL_AVRULE:
--			(*avrule_cnt)++;
--			rc = SEPOL_OK;
--			break;
- 		case CIL_HANDLEUNKNOWN:
- 			if (*handleunknown != -1) {
- 				cil_log(CIL_ERR, "Policy can not have more than one handleunknown\n");
-diff --git a/libsepol/cil/src/cil_verify.h b/libsepol/cil/src/cil_verify.h
-index daa2f80a..f86d07ed 100644
---- a/libsepol/cil/src/cil_verify.h
-+++ b/libsepol/cil/src/cil_verify.h
-@@ -49,7 +49,6 @@ enum cil_syntax {
- struct cil_args_verify {
- 	struct cil_db *db;
- 	struct cil_complex_symtab *csymtab;
--	int *avrule_cnt;
- 	int *handleunknown;
- 	int *mls;
- 	int *nseuserdflt;
--- 
-2.54.0
-
+> >
+> > -               rc =3D constraint_expr_to_string(pdb, node->expr, &expr=
+);
+> > +               rc =3D constraint_expr_to_string(pdb, node->expr, &expr=
+, &use_mls);
+> >                 if (rc !=3D 0) {
+> >                         goto exit;
+> >                 }
+> >
+> > +               if (use_mls) {
+> > +                       if (!pdb->mls) {
+> > +                               ERR(NULL, "MLS constraint expression in=
+ non-mls policy");
+> > +                               rc =3D -1;
+> > +                               goto exit;
+> > +                       }
+> > +                       mls =3D "mls";
+> > +               }
+> > +
+> >                 if (is_constraint) {
+> >                         perms =3D sepol_av_to_string(pdb, class->s.valu=
+e, node->permissions);
+> >                         if (perms =3D=3D NULL) {
+> > --
+> > 2.54.0
+> >
+> >
