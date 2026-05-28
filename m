@@ -1,232 +1,298 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f195.google.com (mail-qt1-f195.google.com [209.85.160.195])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 752CE38AC65;
-	Thu, 28 May 2026 18:27:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2000E3BC673
+	for <selinux@vger.kernel.org>; Thu, 28 May 2026 18:38:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779992825; cv=none; b=iHc07/JRXNvZIudKDf8Rd6iUXRtLZ9SabwecFxZDyLS4ikjeoxMmk+NIEvUDSOKvXbRlwpgyiTbuUPfqtYNQIt5dNOye8aUUfBcT/03AUbG59u6QlG421e3Xo5mMcwy65S8rJgLCGoQQCh5eeDPfzWdBBUvob82UFnA5iBfPQxs=
+	t=1779993529; cv=none; b=LYl3Oi5Ydd4SfmB4pxYnFwsbU6TdPGxQb7C9ThubIW7CqyjqsEGbuwszJcGPUBw4RcEf1mGYM2auh6J6Ka93Y6os/IFTJwSJ1/evnFvgY1on65V9B4VymaPkLxlKQ4Kt7zaduycA6CHZQfJF1HYfLMRbg3Yp/jaRpJuNRMEeZ04=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779992825; c=relaxed/simple;
-	bh=Z0NDacAmJgk3FOTd1uiQcVNN3eCFMFphcW/nPPy4mzU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=npbmLltciNb/ZSZXZkrVU8v30xWOBPyies7wexVZE5LS3FXPDDllyMXEap3xXfW2ad39DZ9koZYqnG0hg97UOhK4Z/Evtn86AP0uyXhnnxytYkomVAwzTug9wKoAC35IRpCx9ZhxOCcTNEUl4lSL9EK1cxSKQIzxKIsbkHKFHpU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=REl/TSE3; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779993529; c=relaxed/simple;
+	bh=nNwOy8bsACfHGzPXPQoQYWCJ3y1xRPJbRimtCPGC/lo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Q+3axJaEZ/q2ceLlmUEzyQ+isjT3KN+XggN/beUsJlIfXYlR9EM/CUJVRcyk7Jyhhnw+NAc5Xo++BY88zh97/4GsNFNOo3WA3syVW5Lpm6PAdz+sPBHB0o2AXMdIvIZdbHDxhEFhGkB+OUnN9sZMPJm42bMDxiWDCXYUQW/fMr0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dzjpN9qn; arc=none smtp.client-ip=209.85.160.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="REl/TSE3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 444A81F00A3A;
-	Thu, 28 May 2026 18:27:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779992824;
-	bh=+hRJlrl7e1QIbtRZfpQ9G5PzzXMJjzBa7MKIONMnGy0=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=REl/TSE3dXLslmUmYMOrcoH4xnvumFe2m4CLKENCiBDf9qwUQm7E9YINqUgQF+Wlb
-	 SbKPQ8Fs47D8KPRUqcSN9c8Th+8wPLlmLd9oVzbbB481jUyM+6UMmPd5TaZM80THqe
-	 /VnSCPgL5EKLBI5zhpg6SGnZk63lNVhuSZb+BQsojB3ZFnrczmwBi5mu8xSFsQClKE
-	 Yu36RSjrT6c8sQGAt8BGQebZlX1pB4T3URLtdnXGyIzmywhxlejODku3+Nftkqax4g
-	 jHNpT/DsoCEJtkl8Z0+nmMR4F+/tHQNFR3YIr2PdfW4ZsXJdppTjHfAQs4gvd8x6sL
-	 qy438Qh7gdxWw==
-From: Song Liu <song@kernel.org>
-To: linux-security-module@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org,
-	selinux@vger.kernel.org,
-	apparmor@lists.ubuntu.com
-Cc: paul@paul-moore.com,
-	jmorris@namei.org,
-	serge@hallyn.com,
-	viro@zeniv.linux.org.uk,
-	brauner@kernel.org,
-	jack@suse.cz,
-	john.johansen@canonical.com,
-	stephen.smalley.work@gmail.com,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dzjpN9qn"
+Received: by mail-qt1-f195.google.com with SMTP id d75a77b69052e-50e5eb0fabaso148145221cf.0
+        for <selinux@vger.kernel.org>; Thu, 28 May 2026 11:38:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1779993527; x=1780598327; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=m6b/6TwIjZUOuEGFgw3Vs5tKY4eYdae7VdlpYM5Bqx0=;
+        b=dzjpN9qncwh/xooeA1HMvScNv+PkghIG5dGeekJYZt/XzwH0GqK/pC3XA+LtGM6kun
+         KqoNeee+OgvdjtIpqGNuYxGnf8aiWY8qa+ITfyqiV36ea26CHwtsT2fwA5G4sccSnb1r
+         7rzkw9yta6gxqiMZ4F/qMZ4JgbGFixj+FaIj2y66t1LXB1Y1XSOjaCHZDTwdmiOdU+09
+         FUNwXxCGpX6b3bOjq+cGRnVBPRBQg8LroWCSPFLq2zDLqac/S8G0UepnVfN1ak7pUiUw
+         i2mL3Epy6poWGZIk+ZYBxrAa8kExmYgDVAZO1YJS+heJWKlxHOcjiPsCUbk+o0mwiO4m
+         gGYw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779993527; x=1780598327;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=m6b/6TwIjZUOuEGFgw3Vs5tKY4eYdae7VdlpYM5Bqx0=;
+        b=hVLesMEFLADHKryFuzG7W3TNXDzJmjy49np5WoEXT18mq7ylMt+I4mJjn7vHroLnV0
+         vNe+r71N95lxU+ooZPWeRGTZtkmtglcKgl43frm6L/IdjLHHrivsk+AN2lFutdxADU2Q
+         pxM+SjrDzcAjUHWDaaDpWAorbPUpqSsBk77vZ5IA6WNAp2iOfTWsH5dGKRyLZLKtNsrI
+         UjcDFacAm3mzACOHXMnxZy5RUGDtqZNnh7gUmehP6zvJjsth/pqtWZ+3bpnliswf8toL
+         Xwg/4R0yCCaPRKguFa4OJDPJRJpyzq1zQoB9mJwkdml93GZNXqvrByo+JwxqtIfIGeFp
+         LEiA==
+X-Gm-Message-State: AOJu0YzR0CtYdYn5Xu8eyTIaYf4q14oi5+dRENxbQCuNHdN/SQoukpV3
+	ZpIDT2GItw0ba8XX3thgkCPgrt/pgkb68fkRqb/zh6x4nuKgz+AY7quBTgpwFAth
+X-Gm-Gg: Acq92OE2RrcApnDFHu6Kqp8tqpQ2/17jOxqktoNBl/9kLEdpMS4Bz3pkf7R7mz/4qJt
+	de78z7XNq7odxt7y1i9rvpmhFEcB31POb9rW2A735cPrIIL7WXCoR2cB1QD1RjOzh5zNyswQgzB
+	tR3YE6Nb1svX7P5v5Po+R4krFjc9t8B88yqzppDFObxSM3JPjgFauXMqbXYQuiqjCk6qKsfhl/V
+	25e4tZkoRoc6S1aYGLgIByJVFTVCBKmoNqzJBFfnCwTCk7t6M4qp9Hd42DcJSBOnMo3umb2HZPG
+	j/0YahZ6iI/JhcuQtitjVMrygB6xt3szmMqME5SuM2Vjps4Ar06ejzOqdViJ7WthaCIPU+IWI85
+	kqv/Ym4kXU85PcRbdKndu6ZlGhFjsgYy+VGp7hVaEaViWV7ZbfwZXiTIISPfqlSq0xHGOsj6Pt7
+	9OGX8hjm0XMYYcK0aJu9WAO2gGdC+7CbeIE21F7sPpusd3NLuC0lA757tgxUiYJXpxsrCLTexKm
+	L56VsRipPOxMzgVbiXVQFdM+x68l7T3f7oVJtU=
+X-Received: by 2002:a05:622a:1b05:b0:510:1ae7:88b3 with SMTP id d75a77b69052e-5172cb33938mr709481cf.4.1779993526917;
+        Thu, 28 May 2026 11:38:46 -0700 (PDT)
+Received: from localhost (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-51706af1328sm87714881cf.20.2026.05.28.11.38.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 28 May 2026 11:38:46 -0700 (PDT)
+From: danieldurning.work@gmail.com
+To: selinux@vger.kernel.org
+Cc: stephen.smalley.work@gmail.com,
+	paul@paul-moore.com,
 	omosnace@redhat.com,
-	mic@digikod.net,
-	gnoack@google.com,
-	takedakn@nttdata.co.jp,
-	penguin-kernel@I-love.SAKURA.ne.jp,
-	herton@canonical.com,
-	kernel-team@meta.com,
-	Song Liu <song@kernel.org>
-Subject: [PATCH v5 8/8] lsm: Remove security_sb_mount and security_move_mount
-Date: Thu, 28 May 2026 11:26:07 -0700
-Message-ID: <20260528182607.3150386-9-song@kernel.org>
-X-Mailer: git-send-email 2.52.0
-In-Reply-To: <20260528182607.3150386-1-song@kernel.org>
-References: <20260528182607.3150386-1-song@kernel.org>
+	brauner@kernel.org,
+	mic@digikod.net
+Subject: [RFC PATCH v3] selinux: implement namespace_init and namespace_install hooks
+Date: Thu, 28 May 2026 18:38:28 +0000
+Message-ID: <20260528183828.47756-1-danieldurning.work@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Now that all LSMs have been converted to granular mount hooks and
-fs/namespace.c calls the new hooks, remove the old hooks:
+From: Daniel Durning <danieldurning.work@gmail.com>
 
-- security_sb_mount(): removed from lsm_hook_defs.h, security.h,
-  security.c.
-- security_move_mount(): removed from lsm_hook_defs.h, security.h,
-  security.c, and bpf_lsm.c.
+Add implementations of the namespace_init and namespace_install
+hooks for SELinux. Corresponding permissions are defined for each
+hook (create and setns, respectively). Additionally, mount
+namespaces have a create_anon permission to control anonymous
+mount namespace creation separately. New security classes are
+defined for each individual namespace type to allow granularity.
 
-Code generated with the assistance of Claude, reviewed by human.
+In namespace_init we check the caller's SID against itself. When
+a namespace is created the SID of the caller is saved in the
+namespace security blob. This SID is checked against the caller
+in namespace_install. We fall back to SECINITSID_KERNEL if
+ns_common is pointing to an init namespace, since these are
+created before policy load and will be lacking a security blob.
 
-Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-Tested-by: Stephen Smalley <stephen.smalley.work@gmail.com> # for selinux only
-Signed-off-by: Song Liu <song@kernel.org>
+Requires Christian Brauner's revised namespace LSM blob patch
+and Mickaël Salaün's v2 LSM namespace audit data patch, which are
+the first 2 patches in the series linked below.
+
+Link: https://lore.kernel.org/linux-security-module/20260527181127.879771-2-mic@digikod.net
+Signed-off-by: Daniel Durning <danieldurning.work@gmail.com>
 ---
- include/linux/lsm_hook_defs.h |  4 ----
- include/linux/security.h      | 16 ---------------
- kernel/bpf/bpf_lsm.c          |  2 --
- security/security.c           | 38 -----------------------------------
- 4 files changed, 60 deletions(-)
+Changes in v2:
+- Added the create_anon permission to separately control creation
+of anonymous mount namespaces
 
-diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index 98f0fe382665..c870260bf402 100644
---- a/include/linux/lsm_hook_defs.h
-+++ b/include/linux/lsm_hook_defs.h
-@@ -69,8 +69,6 @@ LSM_HOOK(int, 0, sb_remount, struct super_block *sb, void *mnt_opts)
- LSM_HOOK(int, 0, sb_kern_mount, const struct super_block *sb)
- LSM_HOOK(int, 0, sb_show_options, struct seq_file *m, struct super_block *sb)
- LSM_HOOK(int, 0, sb_statfs, struct dentry *dentry)
--LSM_HOOK(int, 0, sb_mount, const char *dev_name, const struct path *path,
--	 const char *type, unsigned long flags, void *data)
- LSM_HOOK(int, 0, sb_umount, struct vfsmount *mnt, int flags)
- LSM_HOOK(int, 0, sb_pivotroot, const struct path *old_path,
- 	 const struct path *new_path)
-@@ -79,8 +77,6 @@ LSM_HOOK(int, 0, sb_set_mnt_opts, struct super_block *sb, void *mnt_opts,
- LSM_HOOK(int, 0, sb_clone_mnt_opts, const struct super_block *oldsb,
- 	 struct super_block *newsb, unsigned long kern_flags,
- 	 unsigned long *set_kern_flags)
--LSM_HOOK(int, 0, move_mount, const struct path *from_path,
--	 const struct path *to_path)
- LSM_HOOK(int, 0, mount_bind, const struct path *from, const struct path *to,
- 	 bool recurse)
- LSM_HOOK(int, 0, mount_new, struct fs_context *fc, const struct path *mp,
-diff --git a/include/linux/security.h b/include/linux/security.h
-index b1b3da51a88d..f1dcfc569cf2 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -373,8 +373,6 @@ int security_sb_remount(struct super_block *sb, void *mnt_opts);
- int security_sb_kern_mount(const struct super_block *sb);
- int security_sb_show_options(struct seq_file *m, struct super_block *sb);
- int security_sb_statfs(struct dentry *dentry);
--int security_sb_mount(const char *dev_name, const struct path *path,
--		      const char *type, unsigned long flags, void *data);
- int security_sb_umount(struct vfsmount *mnt, int flags);
- int security_sb_pivotroot(const struct path *old_path, const struct path *new_path);
- int security_sb_set_mnt_opts(struct super_block *sb,
-@@ -385,7 +383,6 @@ int security_sb_clone_mnt_opts(const struct super_block *oldsb,
- 				struct super_block *newsb,
- 				unsigned long kern_flags,
- 				unsigned long *set_kern_flags);
--int security_move_mount(const struct path *from_path, const struct path *to_path);
- int security_mount_bind(const struct path *from, const struct path *to,
- 			bool recurse);
- int security_mount_new(struct fs_context *fc, const struct path *mp,
-@@ -825,13 +822,6 @@ static inline int security_sb_statfs(struct dentry *dentry)
- 	return 0;
+Changes in v3:
+- Rebased onto v2 of the LSM namespace blob/audit data patches
+---
+ security/selinux/hooks.c            | 69 +++++++++++++++++++++++++++++
+ security/selinux/include/classmap.h | 12 ++++-
+ security/selinux/include/objsec.h   | 10 +++++
+ 3 files changed, 90 insertions(+), 1 deletion(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 95d0fb20d84e..94ef03b65e9a 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -94,6 +94,8 @@
+ #include <linux/io_uring/cmd.h>
+ #include <uapi/linux/lsm.h>
+ #include <linux/memfd.h>
++#include <linux/ns_common.h>
++#include <linux/nsfs.h>
+ 
+ #include "initcalls.h"
+ #include "avc.h"
+@@ -1327,6 +1329,31 @@ static inline u16 socket_type_to_security_class(int family, int type, int protoc
+ 	return SECCLASS_SOCKET;
  }
  
--static inline int security_sb_mount(const char *dev_name, const struct path *path,
--				    const char *type, unsigned long flags,
--				    void *data)
--{
--	return 0;
--}
--
- static inline int security_sb_umount(struct vfsmount *mnt, int flags)
++static inline u16 ns_type_to_security_class(struct ns_common *ns)
++{
++	switch (ns->ns_type) {
++	case CLONE_NEWCGROUP:
++		return SECCLASS_CGROUP_NAMESPACE;
++	case CLONE_NEWIPC:
++		return SECCLASS_IPC_NAMESPACE;
++	case CLONE_NEWNS:
++		return SECCLASS_MNT_NAMESPACE;
++	case CLONE_NEWNET:
++		return SECCLASS_NET_NAMESPACE;
++	case CLONE_NEWPID:
++		return SECCLASS_PID_NAMESPACE;
++	case CLONE_NEWTIME:
++		return SECCLASS_TIME_NAMESPACE;
++	case CLONE_NEWUSER:
++		return SECCLASS_USER_NAMESPACE;
++	case CLONE_NEWUTS:
++		return SECCLASS_UTS_NAMESPACE;
++	default:
++		WARN_ON(1);
++		return SECCLASS_NAMESPACE;
++	}
++}
++
+ static int selinux_genfs_get_sid(struct dentry *dentry,
+ 				 u16 tclass,
+ 				 u16 flags,
+@@ -7010,6 +7037,45 @@ static int selinux_inode_getsecctx(struct inode *inode, struct lsm_context *cp)
+ 	cp->id = LSM_ID_SELINUX;
+ 	return 0;
+ }
++
++static int selinux_namespace_init(struct ns_common *ns)
++{
++	struct common_audit_data ad;
++	struct ns_security_struct *nssec = selinux_ns(ns);
++	u16 sclass = ns_type_to_security_class(ns);
++	u32 sid = current_sid();
++
++	ad.type = LSM_AUDIT_DATA_NS;
++	ad.u.ns.ns_type = ns->ns_type;
++	ad.u.ns.ns_id = ns->ns_id;
++
++	nssec->sid = sid;
++	if (ns->inum == MNT_NS_ANON_INO)
++		return avc_has_perm(sid, sid, sclass,
++					MNT_NAMESPACE__CREATE_ANON, &ad);
++
++	return avc_has_perm(sid, sid, sclass, NAMESPACE__CREATE, &ad);
++}
++
++static int selinux_namespace_install(const struct nsset *nsset,
++				  struct ns_common *ns)
++{
++	struct common_audit_data ad;
++	struct ns_security_struct *nssec = selinux_ns(ns);
++	u16 sclass = ns_type_to_security_class(ns);
++	u32 sid = current_sid();
++
++	ad.type = LSM_AUDIT_DATA_NS;
++	ad.u.ns.ns_type = ns->ns_type;
++	ad.u.ns.ns_id = ns->ns_id;
++
++	if (!nssec)
++		return avc_has_perm(sid, SECINITSID_KERNEL, sclass,
++					NAMESPACE__SETNS, &ad);
++
++	return avc_has_perm(sid, nssec->sid, sclass, NAMESPACE__SETNS, &ad);
++}
++
+ #ifdef CONFIG_KEYS
+ 
+ static int selinux_key_alloc(struct key *k, const struct cred *cred,
+@@ -7521,6 +7587,7 @@ struct lsm_blob_sizes selinux_blob_sizes __ro_after_init = {
+ 	.lbs_bpf_map = sizeof(struct bpf_security_struct),
+ 	.lbs_bpf_prog = sizeof(struct bpf_security_struct),
+ 	.lbs_bpf_token = sizeof(struct bpf_security_struct),
++	.lbs_ns = sizeof(struct ns_security_struct),
+ };
+ 
+ /*
+@@ -7724,6 +7791,7 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
+ 	LSM_HOOK_INIT(tun_dev_attach_queue, selinux_tun_dev_attach_queue),
+ 	LSM_HOOK_INIT(tun_dev_attach, selinux_tun_dev_attach),
+ 	LSM_HOOK_INIT(tun_dev_open, selinux_tun_dev_open),
++	LSM_HOOK_INIT(namespace_install, selinux_namespace_install),
+ #ifdef CONFIG_SECURITY_INFINIBAND
+ 	LSM_HOOK_INIT(ib_pkey_access, selinux_ib_pkey_access),
+ 	LSM_HOOK_INIT(ib_endport_manage_subnet,
+@@ -7799,6 +7867,7 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
+ 	LSM_HOOK_INIT(inode_getsecctx, selinux_inode_getsecctx),
+ 	LSM_HOOK_INIT(sk_alloc_security, selinux_sk_alloc_security),
+ 	LSM_HOOK_INIT(tun_dev_alloc_security, selinux_tun_dev_alloc_security),
++	LSM_HOOK_INIT(namespace_init, selinux_namespace_init),
+ #ifdef CONFIG_SECURITY_INFINIBAND
+ 	LSM_HOOK_INIT(ib_alloc_security, selinux_ib_alloc_security),
+ #endif
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index 90cb61b16425..26ee7a0123a6 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -33,6 +33,8 @@
+ 	"mac_override", "mac_admin", "syslog", "wake_alarm", "block_suspend", \
+ 		"audit_read", "perfmon", "bpf", "checkpoint_restore"
+ 
++#define COMMON_NAMESPACE_PERMS "create", "setns"
++
+ #ifdef __KERNEL__ /* avoid this check when building host programs */
+ #include <linux/capability.h>
+ 
+@@ -178,9 +180,17 @@ const struct security_class_mapping secclass_map[] = {
+ 	  { "open", "cpu", "kernel", "tracepoint", "read", "write", NULL } },
+ 	{ "anon_inode", { COMMON_FILE_PERMS, NULL } },
+ 	{ "io_uring", { "override_creds", "sqpoll", "cmd", "allowed", NULL } },
+-	{ "user_namespace", { "create", NULL } },
+ 	{ "memfd_file",
+ 	  { COMMON_FILE_PERMS, "execute_no_trans", "entrypoint", NULL } },
++	{ "cgroup_namespace", { COMMON_NAMESPACE_PERMS, NULL } },
++	{ "ipc_namespace", { COMMON_NAMESPACE_PERMS, NULL } },
++	{ "mnt_namespace", { COMMON_NAMESPACE_PERMS, "create_anon", NULL } },
++	{ "net_namespace", { COMMON_NAMESPACE_PERMS, NULL } },
++	{ "pid_namespace", { COMMON_NAMESPACE_PERMS, NULL } },
++	{ "time_namespace", { COMMON_NAMESPACE_PERMS, NULL } },
++	{ "user_namespace", { COMMON_NAMESPACE_PERMS, NULL } },
++	{ "uts_namespace", { COMMON_NAMESPACE_PERMS, NULL } },
++	{ "namespace", { COMMON_NAMESPACE_PERMS, NULL } },
+ 	/* last one */ { NULL, {} }
+ };
+ 
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index b19e5d978e82..ea14bfd52a3f 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -27,6 +27,7 @@
+ #include <linux/msg.h>
+ #include <net/net_namespace.h>
+ #include <linux/bpf.h>
++#include <linux/ns_common.h>
+ #include "flask.h"
+ #include "avc.h"
+ 
+@@ -182,6 +183,10 @@ struct perf_event_security_struct {
+ 	u32 sid; /* SID of perf_event obj creator */
+ };
+ 
++struct ns_security_struct {
++	u32 sid; /* SID of ns obj creator */
++};
++
+ extern struct lsm_blob_sizes selinux_blob_sizes;
+ static inline struct cred_security_struct *selinux_cred(const struct cred *cred)
  {
- 	return 0;
-@@ -859,12 +849,6 @@ static inline int security_sb_clone_mnt_opts(const struct super_block *oldsb,
- 	return 0;
+@@ -270,6 +275,11 @@ selinux_perf_event(void *perf_event)
+ 	return perf_event + selinux_blob_sizes.lbs_perf_event;
  }
  
--static inline int security_move_mount(const struct path *from_path,
--				      const struct path *to_path)
--{
--	return 0;
--}
--
- static inline int security_mount_bind(const struct path *from,
- 				      const struct path *to, bool recurse)
- {
-diff --git a/kernel/bpf/bpf_lsm.c b/kernel/bpf/bpf_lsm.c
-index aa228372cfb4..77371ca25d09 100644
---- a/kernel/bpf/bpf_lsm.c
-+++ b/kernel/bpf/bpf_lsm.c
-@@ -350,7 +350,6 @@ BTF_ID(func, bpf_lsm_release_secctx)
- BTF_ID(func, bpf_lsm_sb_alloc_security)
- BTF_ID(func, bpf_lsm_sb_eat_lsm_opts)
- BTF_ID(func, bpf_lsm_sb_kern_mount)
--BTF_ID(func, bpf_lsm_sb_mount)
- BTF_ID(func, bpf_lsm_sb_remount)
- BTF_ID(func, bpf_lsm_sb_set_mnt_opts)
- BTF_ID(func, bpf_lsm_sb_show_options)
-@@ -382,7 +381,6 @@ BTF_ID(func, bpf_lsm_task_setscheduler)
- BTF_ID(func, bpf_lsm_userns_create)
- BTF_ID(func, bpf_lsm_bdev_alloc_security)
- BTF_ID(func, bpf_lsm_bdev_setintegrity)
--BTF_ID(func, bpf_lsm_move_mount)
- BTF_ID(func, bpf_lsm_mount_bind)
- BTF_ID(func, bpf_lsm_mount_new)
- BTF_ID(func, bpf_lsm_mount_remount)
-diff --git a/security/security.c b/security/security.c
-index b7ec0ec7af26..bc55ee588c59 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -1065,29 +1065,6 @@ int security_sb_statfs(struct dentry *dentry)
- 	return call_int_hook(sb_statfs, dentry);
- }
- 
--/**
-- * security_sb_mount() - Check permission for mounting a filesystem
-- * @dev_name: filesystem backing device
-- * @path: mount point
-- * @type: filesystem type
-- * @flags: mount flags
-- * @data: filesystem specific data
-- *
-- * Check permission before an object specified by @dev_name is mounted on the
-- * mount point named by @nd.  For an ordinary mount, @dev_name identifies a
-- * device if the file system type requires a device.  For a remount
-- * (@flags & MS_REMOUNT), @dev_name is irrelevant.  For a loopback/bind mount
-- * (@flags & MS_BIND), @dev_name identifies the	pathname of the object being
-- * mounted.
-- *
-- * Return: Returns 0 if permission is granted.
-- */
--int security_sb_mount(const char *dev_name, const struct path *path,
--		      const char *type, unsigned long flags, void *data)
--{
--	return call_int_hook(sb_mount, dev_name, path, type, flags, data);
--}
--
- /**
-  * security_sb_umount() - Check permission for unmounting a filesystem
-  * @mnt: mounted filesystem
-@@ -1167,21 +1144,6 @@ int security_sb_clone_mnt_opts(const struct super_block *oldsb,
- }
- EXPORT_SYMBOL(security_sb_clone_mnt_opts);
- 
--/**
-- * security_move_mount() - Check permissions for moving a mount
-- * @from_path: source mount point
-- * @to_path: destination mount point
-- *
-- * Check permission before a mount is moved.
-- *
-- * Return: Returns 0 if permission is granted.
-- */
--int security_move_mount(const struct path *from_path,
--			const struct path *to_path)
--{
--	return call_int_hook(move_mount, from_path, to_path);
--}
--
- /**
-  * security_mount_bind() - Check permissions for a bind mount
-  * @from: source path
++static inline struct ns_security_struct *selinux_ns(struct ns_common *ns)
++{
++	return ns->ns_security + selinux_blob_sizes.lbs_ns;
++}
++
+ #ifdef CONFIG_BPF_SYSCALL
+ static inline struct bpf_security_struct *
+ selinux_bpf_map_security(struct bpf_map *map)
 -- 
-2.53.0-Meta
+2.53.0
 
