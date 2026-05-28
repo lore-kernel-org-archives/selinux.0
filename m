@@ -1,141 +1,153 @@
-Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6DB93E0758
-	for <selinux@vger.kernel.org>; Thu, 28 May 2026 13:35:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.169
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779975308; cv=pass; b=IDIIGNjLVzW9T2DGuWOLFMVtYuo3Xpb/IhEAtOqywyeB1rwkFXns3l7PhqAhUtgvb2l1cXmAAr/QLCDaQzQMUFfMdOrPpTs30iEcUgT3P5JCrSdO1fsaKzBFVOk8TJm9lIeq0oNcwt5/zzTkhAsVC9XUtd81FdmxcZw/GFWICMU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779975308; c=relaxed/simple;
-	bh=zK2I9M6aQNsrm12gX+RuiMocZLGaUOdrf4hO3hCx0RM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=V77+7TPC62ZTMJgt36YntoIEFhgBZjsYzN/x9VqqdmrkHaQl6KrQa8xkE8mQu/tXJivgr4cSexh8Bi7V1LtYT5gxatHUfjFgzay68vjBmm1kFK8oK/sCnkb8j/uPWDeDd8nrP4EZaLf2Gck3dqeanzd0yL1/0nmWO3F3k3gQzoA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=P2d1Oa3I; arc=pass smtp.client-ip=209.85.214.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2BDF26CE32
+	for <selinux@vger.kernel.org>; Thu, 28 May 2026 13:53:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779976412; cv=none; b=MT8MuQ1QaRBUdq2WTjat1o8Yy3kNtygKrDu1fplyoVt5q2QyXzRu26VenSLUpqay9rZT+rce8fG+Mz7XD5OL8vK/64Te6vlDyB5zqw4C+hMrsddeXNb3hOfn71J0AQpdNkWA/+I6b/1suoW1tMBi689U/65RtjJ2sLKPPy/ZFdI=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779976412; c=relaxed/simple;
+	bh=k0MF4pBq3YKRpctbwO7OKi+/WJDUV6r0y/W6fLv65YA=;
+	h=From:To:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=dF9VFVy/aB5WLHPjQzq3dHxjn3EPLN5XzAP7ixflcRgwPlQKPDpe3oer6qlfeYXxVRyME3t7KFVLPSlqTDakUdpUwdb1xAhfuOfF5eB8XtW3HhHLq/MEk4nOKmZpPhs1CAmluDC7scQLjs3HYsmTt+4eFjgUhFp7f5H2yFA4x1o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fUtt+CKO; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P2d1Oa3I"
-Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2bc85eda6b6so65105195ad.1
-        for <selinux@vger.kernel.org>; Thu, 28 May 2026 06:35:05 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779975305; cv=none;
-        d=google.com; s=arc-20240605;
-        b=Pg3+Afd1IoksTLeumiW7c5XUKkflCVRYeGr/FZMe1tLpQ9qw2p9Nf4Zqc0+ani1g1u
-         BQYEE7VXGW/EvrxY+pK2+gzG7yb9I6CVBYw9NoOYXOOEZyel33q+gWh3SQqNbMSJJgXW
-         WJHL68ufxqOUGVugAfWmV9D3chUChiZdvtIrYiZDMIeO70J5c2sgdTVWBqKcE1/jUsMw
-         cfrsq2bYYLaOcXDbc4/fi9A2tk92xwO+JAok4RFTDKyd0zCxO7zWWogxgu48hXXnI3ci
-         EX4eReRAMvislXo13cB6VfcPRdjtH2ngl3rEwaJBorVuZnSIYECjdzLVODbbmuY0jhaM
-         CVBA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=JJTT65kxXQ1/cZFaV9zIpChzfGqoCBldpoe41MJjbkA=;
-        fh=5O/C79wO42cQf6w/vh3W7FviilpJ0XtrrgBkDvem/c8=;
-        b=Rf34yAS+KtO+I1mVtNIL8z0lZgIrHdDq+w1urKNWfzbzh2S4ue+dgpauWnVmMNHwjk
-         eh2TvUCF4Gz1wqKLx0HPxTIXkLcEk3R/CwlpfqOBwwQTlUreBbeTDmCf8xpPg62/4HJv
-         DHZlZVPqE85UH/VeRkbjXkSkGxcaJUJFCljexE1gXsfoHt+z4dZTyRrdG1MwUCA5KSq8
-         qI8Eh8hjcuRT0na2YpzhBl2d8q31NMIk61r/gYZrD+XsJs6EzKZ/EgUcAyN7cz4wqZ4+
-         Zw2yu7W/GlJpSKyvbWV4jNbSQ0ZeAfN2KK9M3WsVC8OZJqxgRQq3DZvpN7AXR3L/gm7+
-         s0JQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779975305; x=1780580105; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=JJTT65kxXQ1/cZFaV9zIpChzfGqoCBldpoe41MJjbkA=;
-        b=P2d1Oa3Ilq4MmaZ83CM5uoM5JtWJo3ElNugspcWlR8ofdZe8p/HSEjNqoW0a1wJM5J
-         yCLUX1EsuZklE3flMBRUM3b1kCMy1N4inqhC/vCD2D0kdIlI9Kg2MbHirZrKaGTBrRmH
-         2zhWNe6BZTpXI/sw6bifIOFF0T3vmwwSrUFEY/Ywuc9FgUZiIcAvuZUMbOdGLC+RrotC
-         rM5rt8v4gKXYbEJatz5n/7uYEht9t1jrcE1m2YWiWfByVG0obujBZ3ZKKyc19fYuHdOo
-         ly1Tm5XvM9m/45nwjp55H3QleJpGkyNYf6Pv4B7eoTsjJu0qs+K3KHR+f0PvxlDOh0S0
-         bFvg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779975305; x=1780580105;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=JJTT65kxXQ1/cZFaV9zIpChzfGqoCBldpoe41MJjbkA=;
-        b=jqfnk9ROVEhW4uFKlJH6/A12WvLzZnYFGAzs8Ja19fyYq49NhIaT52Q7iBniB5Mrh1
-         jmpE3o08UwVm5NWWMHLw4BxqCskRGFAICOgbIiJWtcq7z85Tz5nJGlw/mNPtN8qLO6jb
-         trkyj1LoLSHKuT/egsdvwzQ7vykIqyF72YAQgaOXi6jto3BUU86tX5SPv2gaduyySvSS
-         uHtnwRUzA4zZ03aUahf2Ll+3hfTKa+kz8+JS6w6+NJzapKNBljQG1UkRkX6/6FcErCt7
-         1mjYTeKzPaxolHCuZsgvQRpgOtPONj+WGG3Zl0TfJWl72ZLHwtpL/Fb6O9DHdenRg8C0
-         2yrQ==
-X-Gm-Message-State: AOJu0Yw41gGzRc9FKLAs+l7r+i6l3Qp4kwsNuCi+B56NWo5Ia8ZZeTBh
-	Iv1l9bHvjWZ2Hgy0FgsMacoNuQv530LzCCkTOP4fFRBuT2kOriAiOoRsy0NwHqSz3BB2MmFX6Y/
-	P2OwQ3d0Holgp1Ir1nrGBKBNmY8QJf6v3YQ==
-X-Gm-Gg: Acq92OFnRJGRTbVv3681gBIxYHDmOdDP1QNdsQ3XAiMRC4wK+vav9bRI5QSalXJozjR
-	+ttynblHkN8lQNtfl5kEEH/OrCfO6BmNpuatmsjZVMfwyWYIT0q2Eu7VtL7H3iFNiuZTNd+XEVE
-	oY45cGuhHN/Oa0Fff1ARpPQdYoNdGG1bnXB+nOAYVSBmsrB25KcagQMmx/mlmpjBfRZUmanUk8H
-	KsnqPIJkDAVHWKjav0J25jFWeyDyPARDiDIxDOUXbmzBMWeQdWWfz3noxtEbyr36DeOx+2RAVDQ
-	yyLMKbMvrfNnibDXdA==
-X-Received: by 2002:a17:902:ceca:b0:2b4:604c:ec6f with SMTP id
- d9443c01a7336-2beb069853bmr303950265ad.32.1779975304909; Thu, 28 May 2026
- 06:35:04 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fUtt+CKO"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1779976409;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=DTbo67J9emavKMpTIhAepwifK360p5pTIgWY+RcZ+u0=;
+	b=fUtt+CKO9uX8i4Ax5999cV8dVPzfZivDK2ENPw2jmmHxxKar9wMoplca+t7tfZqT7A4XEj
+	EZRnNM9jlyYBgQJKYaJfSIJaOInpMbAgyiTBjNVnVNuir215JDlTAQfuF3+5GroFjAoI4z
+	OBx4f+92mHYP6AtCtg2dhtHDtZkAUAs=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-43-34zRHg32PPCcN4jKEBDfaA-1; Thu,
+ 28 May 2026 09:53:26 -0400
+X-MC-Unique: 34zRHg32PPCcN4jKEBDfaA-1
+X-Mimecast-MFC-AGG-ID: 34zRHg32PPCcN4jKEBDfaA_1779976405
+Received: from mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.95])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E7027195608C;
+	Thu, 28 May 2026 13:53:24 +0000 (UTC)
+Received: from localhost (unknown [10.44.32.147])
+	by mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 765A91770;
+	Thu, 28 May 2026 13:53:24 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: Pepper Gray <hello@peppergray.xyz>, selinux@vger.kernel.org
+Subject: Re: [PATCH] adjust audit2why map for python2 and 3
+In-Reply-To: <CAHLDejxHRvHPWYK8q-VO4_OpEozY-4bKc4hSuFL6SL6o=JKw_A@mail.gmail.com>
+References: <CAHLDejxHRvHPWYK8q-VO4_OpEozY-4bKc4hSuFL6SL6o=JKw_A@mail.gmail.com>
+Date: Thu, 28 May 2026 15:53:23 +0200
+Message-ID: <87a4tjod2k.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260528123020.35148-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260528123020.35148-1-stephen.smalley.work@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 28 May 2026 09:34:53 -0400
-X-Gm-Features: AVHnY4IrhZGAGA52sOEpCSe09vv55DDOvDB0JPp-Y_e9c7JV0i6ZNymITTXYcDY
-Message-ID: <CAEjxPJ54Vv_xupX9_CzHBGG5rpr0hFJN617ywLtCdxxKwHueKw@mail.gmail.com>
-Subject: Re: [PATCH 1/2] mcstrans: fix off-by-one in MAX_CATS / maxbit comparisons
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com, 
-	paul@paul-moore.com, perfinion@gentoo.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 3.6 on 10.30.177.95
 
-On Thu, May 28, 2026 at 8:30=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> For a given category name cN, N must be strictly less than
-> MAX_CATS and maxbit, e.g. if MAX_CATS is 1024, the last
-> category is c1023.
->
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Pepper Gray <hello@peppergray.xyz> writes:
 
-Merged.
+> From 3cd62189af93997ab5ff58684352af38900c7758 Mon Sep 17 00:00:00 2001
+> From: Pepper Gray <hello@peppergray.xyz>
+> Date: Sat, 11 Apr 2026 19:33:07 +0200
+> Subject: [PATCH] adjust audit2why map for python2 and 3
+>
+> align conditional python symbols creation and export
+>
+> fix: #461
+> Signed-off-by: Pepper Gray <hello@peppergray.xyz>
+
+
+Please use `git send-email` to send patches next time.
+
+Python 2 is not supported in this project since SELinux userspace release 2=
+0191204 / 3.0
+Python 2 EOL was January=C2=A02020.
+
+Petr
 
 > ---
->  mcstrans/src/mcstrans.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
+>  libselinux/src/audit2why-py2.map |  5 +++++
+>  libselinux/src/audit2why-py3.map |  5 +++++
+>  libselinux/src/setup.py          | 16 +++++++++++++---
+>  3 files changed, 23 insertions(+), 3 deletions(-)
+>  create mode 100644 libselinux/src/audit2why-py2.map
+>  create mode 100644 libselinux/src/audit2why-py3.map
 >
-> diff --git a/mcstrans/src/mcstrans.c b/mcstrans/src/mcstrans.c
-> index ee99a19e..ff33621c 100644
-> --- a/mcstrans/src/mcstrans.c
-> +++ b/mcstrans/src/mcstrans.c
-> @@ -192,18 +192,18 @@ parse_category(ebitmap_t *e, const char *raw, bool =
-allowinverse,
->                 }
->                 if (sscanf(raw,"c%u", &low) !=3D 1)
->                         return -1;
-> -               if (low > MAX_CATS)
-> +               if (low >=3D MAX_CATS)
->                         return -1;
-> -               if (!fromconfig && low > maxbit)
-> +               if (!fromconfig && low >=3D maxbit)
->                         return -1;
->                 raw +=3D numdigits(low) + 1;
->                 if (*raw =3D=3D '.') {
->                         raw++;
->                         if (sscanf(raw,"c%u", &high) !=3D 1)
->                                 return -1;
-> -                       if (high > MAX_CATS)
-> +                       if (high >=3D MAX_CATS)
->                                 return -1;
-> -                       if (!fromconfig && high > maxbit)
-> +                       if (!fromconfig && high >=3D maxbit)
->                                 return -1;
->                         raw +=3D numdigits(high) + 1;
->                 } else {
-> --
-> 2.54.0
+> diff --git a/libselinux/src/audit2why-py2.map b/libselinux/src/audit2why-=
+py2.map
+> new file mode 100644
+> index 0000000000..249f0beb3b
+> --- /dev/null
+> +++ b/libselinux/src/audit2why-py2.map
+> @@ -0,0 +1,5 @@
+> +AUDIT2WHY_2.9 {
+> +  global:
+> +    initaudit2why;
+> +  local: *;
+> +};
+> diff --git a/libselinux/src/audit2why-py3.map b/libselinux/src/audit2why-=
+py3.map
+> new file mode 100644
+> index 0000000000..e99b8d7688
+> --- /dev/null
+> +++ b/libselinux/src/audit2why-py3.map
+> @@ -0,0 +1,5 @@
+> +AUDIT2WHY_2.9 {
+> +  global:
+> +    PyInit_audit2why;
+> +  local: *;
+> +};
+> diff --git a/libselinux/src/setup.py b/libselinux/src/setup.py
+> index 679ea43f8b..9201448f0e 100644
+> --- a/libselinux/src/setup.py
+> +++ b/libselinux/src/setup.py
+> @@ -1,11 +1,21 @@
+> -#!/usr/bin/python3
+> +#!/usr/bin/env python
 >
+> +import sys
+>  from setuptools import Extension, setup
+>
+> +PY_MAJOR_VERSION =3D sys.version_info[0]
+> +
+> +if PY_MAJOR_VERSION >=3D 3:
+> +    audit2why_map =3D "audit2why-py3.map"
+> +    description =3D "SELinux python 3 bindings"
+> +else:
+> +    audit2why_map =3D "audit2why-py2.map"
+> +    description =3D "SELinux python 2 bindings"
+> +
+>  setup(
+>      name=3D"selinux",
+>      version=3D"3.10",
+> -    description=3D"SELinux python 3 bindings",
+> +    description=3Ddescription,
+>      author=3D"SELinux Project",
+>      author_email=3D"selinux@vger.kernel.org",
+>      ext_modules=3D[
+> @@ -19,6 +29,6 @@
+>                    include_dirs=3D['../include'],
+>                    library_dirs=3D['.'],
+>                    libraries=3D['selinux'],
+> -                  extra_link_args=3D['-l:libsepol.a',
+> '-Wl,--version-script=3Daudit2why.map'])
+> +                  extra_link_args=3D['-l:libsepol.a',
+> "-Wl,--version-script=3D{}".format(audit2why_map])
+>      ],
+>  )
+
