@@ -1,180 +1,168 @@
-Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com [209.85.210.180])
+Received: from mail-lj1-f169.google.com (mail-lj1-f169.google.com [209.85.208.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A17E2BE7A7
-	for <selinux@vger.kernel.org>; Thu, 28 May 2026 14:42:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 315F91C3F0C
+	for <selinux@vger.kernel.org>; Thu, 28 May 2026 14:51:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.169
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779979332; cv=pass; b=TQinp/g1q7BJUjM/AmzeOaA5XisyW1dfan8S8pyCy0wudRrViMAwd5C2Xql/BMaXG37BEGOtziirdRERhCYumEtOCryO85iIsAZwszdMbvgvuhMdwg/MxqdhEWgfspMQslP4FCut97sMZTnYJsEI/2S5jMVepLjvdDwViD2oms8=
+	t=1779979917; cv=pass; b=UHocVwcSEkAhAQtnOFDfpSyt9JTCfzKIxlBpsHb0fHThvqlqE79I4HuIvdrFDxsKGEiGacoYN7DjktoJFmIo+1yXSrxH/dGfTq/xsJaZyibW8YJgfT0Lwfg8sISosMRDtB+U7HX2PRMY3Tg61BbedYRaiOEh7XeTxVokfIqc0LQ=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779979332; c=relaxed/simple;
-	bh=AbMMEdaLzvavz4ifv4EdVhqxIF7pOr6g20zcJwvZLyA=;
+	s=arc-20240116; t=1779979917; c=relaxed/simple;
+	bh=lVu2qOuDsLLdm4e4Po82p+i3Cfrvhx2x0e3SClOyxzg=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=lMSMls16Rc+S1AvWQmtQLGcWxPIvDBNrW80r6T7PG+h/ke99nhXFgQDEe9MljfMpAVA6kJ1Thrw3ZeJfAo8vbXXVY0tO/v+iuKU/jLlCMLxp659hpiBgbW0dRXC5oiPq9IYtx6LSCmN3QLwkF9yQRM2KC4APilgzDzmsmpYkbMc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jSL7/0V3; arc=pass smtp.client-ip=209.85.210.180
+	 To:Cc:Content-Type; b=SbLrMdaT9d20W0RXbCmRx/Q2CNvw9cTGH+INx/JyRs+SjzpPUKJwNy6E86Qx4mMlx6joZNbmKjDV66cge4bEXXhrqCMaIFDoSTKlR/iLH1uousVfRcn1iYfxD8G2+A7zbGttANd4tNOfjleFLFoK1L5RQtLjlFS6kn6rxKknVM4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Yf/dHGek; arc=pass smtp.client-ip=209.85.208.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jSL7/0V3"
-Received: by mail-pf1-f180.google.com with SMTP id d2e1a72fcca58-82fbf5d4dc2so8961890b3a.1
-        for <selinux@vger.kernel.org>; Thu, 28 May 2026 07:42:11 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779979331; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Yf/dHGek"
+Received: by mail-lj1-f169.google.com with SMTP id 38308e7fff4ca-394413a63d3so97508481fa.1
+        for <selinux@vger.kernel.org>; Thu, 28 May 2026 07:51:54 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1779979913; cv=none;
         d=google.com; s=arc-20240605;
-        b=XzyZr52iji2v2Mf8l3qg2EViZ6JLyOKO7yxq4DW64zVP+NxdXUEiPzNlpMB5QzsFzv
-         xyfOdUt0EEK+axYEXyVgEAmzNNmfOvTcy3vVOU+sSfCKGUTR3LlKXxakFcJZF9UpWyF3
-         z3v8sJBxXUdvDq2eKZO/+dBZ+YmqYg2qAsT38KhAS3UE/6ghxBUiGEGijouoe47Gwm/a
-         sNwQlTF+SrugtwBIyrgUa6zq9fDJafYfWmw0IksqGHs8/o9WLrqG0x9zqldVXZXNGZJg
-         AQKz45cehzUksJC18imf07DrcVTEhsVOLurrZ5Yyv9zHUwTF3XvTql+op0lv6P8wOwz0
-         NLdg==
+        b=A8bliCbqTlj5KBY3g/RMpZu2W9Jn8Lxc+7igYvWVW1kbnDn/8xaGIDEzap9KOk/WKY
+         9zU6WV49+GZ2sRGSijldDGDGkJy29tUrpTfWjKh2HNjH0hf6gvXvjeOEyJi5GPxiEjD5
+         XQBpNZ9eulS1CsFIoFNP6xe9eBfu1u6TsVTh0KuQyAvhyw7t0sYaZO916aiDWKOO2Ybt
+         RzDOsKVSAh1gIslPiqlhjLKmwXl6tuByyje2RtVVoLiHff00ey5MeTvKKwFCLf9C2nRe
+         RETnVddpC9ljTR9U1BUIBianoAo9olfMZu+Lk4A8GN8i+ClDN8DC8gwjEY9be07+eZLH
+         MjTQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=mOo+8k9V+yfRU4E6bIm8d5gEm4LIAZp+reWfzc22Sn4=;
-        fh=7OQpntt0QOhySdZ0nM2b99cMazMUXPQ2Hl1d1h7aoXs=;
-        b=VqpxUS64fFv6V2B0ooY/0amLXcXW110C6saWE7Z7MMn9rgFl48//FtZlKZa1mrstpg
-         w13srx2BMCc+SqnN/CjSiQoSVwkSug2mJm2Byj4zwXAoXSZo4qGwtqxwixq+aBZTWDFd
-         +xSMVzLc1Kb/ZY/GlkRU3MwgXhPiSR9YKREUX7fRVU8isnx9CMD3hRFKpMDXysYUdzzp
-         HvN2AMjsGtzt4m0eU/TpVbFaBddzm4uNSgTaF+FpCN5tiq2GmKF07hGyiuz8RcPJDWmu
-         up0c5zrz9SxyFqR/aZ+Tgwp4cFrT2Z7boy3LqCZbhEWO9FbFHFuhzO3PuhlgplRJDfvR
-         Jvrw==;
+        bh=kNIv7W5wIUOzF8oFKDZSsPDoIFEsgKmZ9OGGtcyAWos=;
+        fh=nOcPTm+jzSpUJDDJhvsoEQt/GcMQFmPB1BDsWNtwPZ8=;
+        b=DGcgw15O1BkmYlYZklky2oeP942C2Zf9QI1AGo653DgjCfTWAsACcXzedzi63PHXcO
+         AUpYN3slMCNAgg7fXsy1gzV9oVxO88DOnGnt6ADZV25QmOA/P4ZBsh9LGsuvCFddpM+3
+         ye1RyC3ESc7RgA2iIGoBkvTsY1KmlVsOLPS6TjqasG79N0gBUPxqkMOn6e2itiyIcNUQ
+         WYb/nwZBujwN9EmS4fTjn6gB4Y1mZ6/DcJNWe0fBwrnnP977KFlD2c6lx7nhyaYM36Kg
+         +ep0NQCNmIpJ2ve00nriMZMe2sVV3ZmDIjq/AJWLQdelpb/8vRFq6UuqlFoPfKyjBMRB
+         OyQA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779979331; x=1780584131; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1779979913; x=1780584713; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=mOo+8k9V+yfRU4E6bIm8d5gEm4LIAZp+reWfzc22Sn4=;
-        b=jSL7/0V3WB64H9aSyd+nHPSpzk6Mi+ghcH45nvWXqTdC28IC1De2LmnIW2LG/YHwIj
-         FZArmMGA3FlAnL1PGXewwaTOy+vps5d8ZZhl329cHr3n4p1GVw6h5/hagx7ZWWtpymzf
-         n3IxQRh1r8jHDlFobYXPhY1O45NEymqOtAhz9NqEP2Wr464BZh5AXFvOBnZ0fc+Yserq
-         IIh9jKNx1SCTGePh1U6tvHW2lAXJyKu9zN1+6yN7hjzQTEqdFeU8j8vd4nAaLlkOSUPF
-         1+vFpo5FvrRZa+cFqsbwHwmstXi9UjSA/zXivymP39WQJ6UIE+gEqiQZrOBYCd2QPvjF
-         RB3A==
+        bh=kNIv7W5wIUOzF8oFKDZSsPDoIFEsgKmZ9OGGtcyAWos=;
+        b=Yf/dHGekr0IQxn3b2gxtyoDrYTMuMah5OCou7N/1XQa7PJVnbrWvQJfy8rc4JfsRhD
+         0VQ5/mX3LhIKZOk5mFexngJsM9FIxasmOUrIurFMf9gNGOqUVc8NWLiId5hFR4RXZhvO
+         vauUJ3xDYtbi7md8KqZ783XY763sU8rp/qnp6V6eOBtkZX9iygfZFEtPLG6t+//x7OD3
+         W+lW9PGonUUrj+qdC74LKJmxDWRPk1QaLvB/c7X2WJLA4caZ0t2FSdj+Um0MhuZvThi3
+         Wa2dCMSKSDsZjY/Lsf6MXYbiqBeoXZoa46789yKWnWSxgqI+x1OIG0/RT1BE9XNIRSyS
+         ni4A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779979331; x=1780584131;
+        d=1e100.net; s=20251104; t=1779979913; x=1780584713;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=mOo+8k9V+yfRU4E6bIm8d5gEm4LIAZp+reWfzc22Sn4=;
-        b=GvDhggR1C+XLXet77v9wmE394hG4KpCp9AWjnXtXpxU0htxy9IAqfDA1gIyuzRlS5q
-         KD0KpahtcCgcPjYj55oBQQqHuYBI1Wk7XOd0ljfYMj683n2QP3gal8W43b1uENyFlBKy
-         jYXi4yte6bQHLbPN9U7ooa0IzqK43ERHATJUjLBESZIlDvz1e3sLmB0mczz/3OlK0SyP
-         +A8yZQ5mar6gA1ahqzGy9LRP2B7QNAC4abTFBq0WnrE4lE4cSbJksxtkkG+NADUyf1vL
-         nIH6bLrTe8boGz4Hjg6lXKpHg3/VwdSgH3iNzRDoe6e16z2kpMOcS6HVugQzMioay6XV
-         e2wg==
-X-Gm-Message-State: AOJu0YxyraIPSHkneGLiw796HfB86Fsa/AhMCrR9J2owHysaxvtyIB2h
-	A0PJQoHL6Fv5ygPRpJWD2hGKs6fWNvZL6XMG+H85Zq2OcD0sfWTb+B9NIiqClLzbLoGk0hI0vfp
-	zAoztzz0Apm1EHyRcWMYo1R/trllXqGw=
-X-Gm-Gg: Acq92OHdOfrOmz3oPIv1063LA+T36/d9PvwiY7KA8w9zCTTCP/Dfmt6aI0sUxiwWpF/
-	DEnJeXmbBMssSILy06EE+09JeZvIeUfV7ruS4RMFhXx1X3s4ZqrFP6K6BWV1aU63e1I1vN2HvNe
-	6HRkd7tjYayW/Nt6vjQmHb4EpkDuDjHey4RLspBlKcu0lkNZ1EISUlKdfYKh7ST1WEFNT9lVVuC
-	RBrXp8RR8/dn/+nNxc4tJM+a0Ovwmw2hKA5ceb7gHppdN5Nry+pMIu0hAfrak0/72ilFX1HkLne
-	7OYlXcpnOP5PPM8hmQ==
-X-Received: by 2002:a05:6a00:2d0a:b0:83e:2eb5:b196 with SMTP id
- d2e1a72fcca58-8415f5de711mr28099035b3a.26.1779979330686; Thu, 28 May 2026
- 07:42:10 -0700 (PDT)
+        bh=kNIv7W5wIUOzF8oFKDZSsPDoIFEsgKmZ9OGGtcyAWos=;
+        b=aZtvEuJtdipN0QQhanTUcVJwwd2QUdJ6ZamLa3cKRlNZ1/5M5W8Uxw4GJmdBgUSCUH
+         y9qR577w61jW/WEgo+jHT6bs6CBLsylkpKFR3sWNrg0zi77mm13cRJ3YrWJMiMxlmwY8
+         SdJ2BSgQWiOmTAEvj3n505mnDp4cDHgMz44+P6rLha0sJOEDIUsLC3hLCnFvuqz33bWC
+         4XnRDccGMspemFUXRcb2SFbQBBkRH60vvj/4Ar/APWNB7ad/wHy2b9A1ilI0AdY7wLVs
+         7lggHYtWGK3FHWP9iJO+OCq+Q6UIapGy/QlFJkS1F8A3TsUr8IuT7sF2hNFKoVGEaal4
+         bnzQ==
+X-Gm-Message-State: AOJu0YzrPumUNr7XODEY65l3KP7shIXxtKMwUuvwexGKCA9UmceBf01L
+	tIAM6ANpkcWWzdNJ/TwUeAhFZ1DU46PhPMNY/9pxq0HqUu5XOvDiR0jHeKY3rd62QXpyUDaxiy7
+	dgQbShAFdr30sqnFLLbWUBxKseYNxJWY=
+X-Gm-Gg: Acq92OE6Zw3Uyyz20shGB0PgQWI24AeJ0lU/lN4QgmVI+WpRThJk09hfCDGHRhw/SdT
+	xXmTfTtyyfY46At6p2PVAn+fNMPj4icmgfc1JjFXN/PC15pAmOd6Jc9rgCRzHyMLAsMbfQ5jfAq
+	EFfebVqrp90lPpZHDVrLgSSxkNmKLj4Q59z6zLWfqXhqTWS1IPIuoXnGJthJz4X7J6udvL30V6j
+	kuAA/AHpr+eE+wb4RiOpQOvWY7EamYq7yza+BejawBurT/PJuP60rp3HWe4ElcXHRxOtZJKX9j4
+	Kui/1agVvDfAInY=
+X-Received: by 2002:a2e:a54b:0:b0:38e:d3e6:a89a with SMTP id
+ 38308e7fff4ca-395d8d0020dmr89289761fa.20.1779979912971; Thu, 28 May 2026
+ 07:51:52 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAHLDejyMAktQhBkfJrvz5OrS=d7WSSe4pFA33qKJALtH_nWafw@mail.gmail.com>
- <20260528141117.1265999-1-lautrbach@redhat.com>
-In-Reply-To: <20260528141117.1265999-1-lautrbach@redhat.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 28 May 2026 10:41:59 -0400
-X-Gm-Features: AVHnY4JLCv2WIi3UeUu0i5gwU5-JKqqzi27eR0aH2DYkiDbtCZV4ObaQSQA0ET0
-Message-ID: <CAEjxPJ7bB9NrcTEKZgqLmAPamu=mdrZeH8Yq2YjLPLHESny5OQ@mail.gmail.com>
-Subject: Re: [PATCH] expose alias for stat64 and lstat64 on musl
-To: Petr Lautrbach <lautrbach@redhat.com>
-Cc: selinux@vger.kernel.org, Pepper Gray <hello@peppergray.xyz>
+References: <20260521190627.34885-1-jwcart2@gmail.com> <CAEjxPJ7ffu6udbmgMcHRPe1=u9j_+5z9QnXxk-NWDGSO0aAuuA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7ffu6udbmgMcHRPe1=u9j_+5z9QnXxk-NWDGSO0aAuuA@mail.gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Thu, 28 May 2026 10:51:41 -0400
+X-Gm-Features: AVHnY4IFkyA-fogJzrzUaYLdDM5jEYMPK1sr49WY2fr-QbVVCMa52uuh2gEov24
+Message-ID: <CAP+JOzSVEokog8net3fLZtg=xU4f1VSHT4gSFBR-OS9P-Kao+g@mail.gmail.com>
+Subject: Re: [PATCH 1/3] libsepol: In module_to_cil skip empty conditional blocks
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, May 28, 2026 at 10:20=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.c=
-om> wrote:
+On Tue, May 26, 2026 at 9:19=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> From: Pepper Gray <hello@peppergray.xyz>
+> On Thu, May 21, 2026 at 3:06=E2=80=AFPM James Carter <jwcart2@gmail.com> =
+wrote:
+> >
+> > When converting a module to CIL, skip conditional blocks that do
+> > not have either a true block or a false block.
+> >
+> > Signed-off-by: James Carter <jwcart2@gmail.com>
 >
-> fix: 477
-> Signed-off-by: Pepper Gray <hello@peppergray.xyz>
-> ---
+> Out of curiosity, when is this possible?
+
+Tunables. I don't know why this hasn't come up before.
+
+When I was testing the patch to correctly choose tunableif or
+booleanif I came across this:
+
+Original in module:
+if (tun1b) {
+   allow tbd self : CLASS1 PERM1;
+}
+
+Output in CIL (before patch):
+(allow tbd self (CLASS1 (PERM1)))
+(tunableif (tun1b)
+)
+
+Original in module:
+optional {
+  require {
+    tunable tun1a;
+  }
+  if (tun1a) {
+     allow tbc self : CLASS1 PERM1;
+  }
+}
+
+Output in CIL (before patch):
+(optional base_optional_3
+    (allow tbc self (CLASS1 (PERM1)))
+    (tunableif (tun1a)
+    )
+)
+
+Jim
+
 >
-> This is resent of the originally mangled patch. This time taken from http=
-s://github.com/SELinuxProject/selinux/commit/0471d76499aae8f44cb21c7faa1609=
-e0387abafb
-> and sent with `git send-email`
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 >
->
->  libselinux/src/selinux_restorecon.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
->
-> diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux=
-_restorecon.c
-> index 69a535032221..1a4cc7d12b76 100644
-> --- a/libselinux/src/selinux_restorecon.c
-> +++ b/libselinux/src/selinux_restorecon.c
-> @@ -20,7 +20,6 @@
->  #include <limits.h>
->  #include <stdint.h>
->  #include <sys/types.h>
-> -#include <sys/stat.h>
->  #include <sys/xattr.h>
->  #include <sys/vfs.h>
->  #include <sys/statvfs.h>
-> @@ -30,6 +29,10 @@
->  #include <syslog.h>
->  #include <assert.h>
->
-> +// expose alias for stat64 and lstat64 on musl
-> +#define _LARGEFILE64_SOURCE 1
-> +#include <sys/stat.h>
-> +
->  #include <selinux/selinux.h>
->  #include <selinux/context.h>
->  #include <selinux/label.h>
-> --
-> 2.54.0
-
-Defining _LARGEFILE64_SOURCE must occur before any system headers are
-included, including indirectly included ones, to guarantee consistent
-symbol exposure.
-In the patch, the macro is added after several system headers
-(<limits.h>, <stdint.h>, <sys/types.h>, <sys/xattr.h>, etc.).
-If any of these headers conditionally depend on large-file
-feature-test macros, this may not produce the intended outcome and can
-cause subtle ABI mismatches.
-
-Recommendation:
-
-Move _LARGEFILE64_SOURCE into the global feature macros block at the
-top of the file, before any includes.
-Alternatively, add it to compiler flags where appropriate
-(CFLAGS+=3D-D_LARGEFILE64_SOURCE), which is what glibc=E2=80=99s docs recom=
-mend
-for feature-test macros.
-
-Portability implications
-
-_LARGEFILE64_SOURCE is musl-specific nowadays; glibc largely ignores
-it because 64=E2=80=91bit off_t is the default on modern architectures.
-If this file is built on systems like Android, BSD, or older glibc,
-feature-test macros may have different effects.
-
-Recommendation:
-
-Before adopting this patch as-is, consider guarding it: #ifdef musl
-#define _LARGEFILE64_SOURCE 1 #endif
-
-This ensures the macro is only used where required.
-
-Commit message / context
-
-The commit message =E2=80=9Cfix: 477=E2=80=9D is minimal. For upstream SELi=
-nux
-projects, a more complete explanation of the musl build issue is
-usually expected.
-The email explanation provides context, but most of it should be in
-the commit message body rather than outside it.
+> > ---
+> >  libsepol/src/module_to_cil.c | 2 ++
+> >  1 file changed, 2 insertions(+)
+> >
+> > diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.=
+c
+> > index 89cd0b9b..5f1e4dbf 100644
+> > --- a/libsepol/src/module_to_cil.c
+> > +++ b/libsepol/src/module_to_cil.c
+> > @@ -1426,6 +1426,8 @@ static int cond_list_to_cil(int indent, struct po=
+licydb *pdb, struct cond_node *
+> >         struct cond_node *cond;
+> >
+> >         for (cond =3D cond_list; cond !=3D NULL; cond =3D cond->next) {
+> > +               if (!cond->avtrue_list && !cond->avfalse_list)
+> > +                       continue;
+> >
+> >                 rc =3D cond_expr_to_cil(indent, pdb, cond->expr, cond->=
+flags);
+> >                 if (rc !=3D 0) {
+> > --
+> > 2.54.0
+> >
+> >
