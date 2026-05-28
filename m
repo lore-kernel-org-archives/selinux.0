@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71D20407598;
-	Thu, 28 May 2026 18:26:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64FE43E121D;
+	Thu, 28 May 2026 18:26:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779992813; cv=none; b=n4euK0VBh7md1a7cUT3U6wQEedID1S5olS+KKVvhjkoyd3YIsVw6sRudcHidpZvvAu73c5c2mkCOPe7tFrHkr1Zo0zhBkvGOdrquQ8d7C0EXukY8aNm0jcv/hDxkGqtHreyiWWLdgTpPQZxPDmrx/Q8XX4+SPqYLsU9qM1In6mc=
+	t=1779992819; cv=none; b=j81wWAKn2iPePkrYbYp4SsSTzn6kWr6PSuUXuAaBzIeegTkBumy2rhBtgCpUoSDbkFG4GegDYxYHGWExiNCutBCfFft703LPrg6bwVHUT2RGltUu8EitVcAkE0LK/ete7BgzOhDzNV1DlEFNfRNRuSrMjUWfDVKq6WtgnMIcJVw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779992813; c=relaxed/simple;
-	bh=eo9bhAqLfGYgio4oLLGVCJN/6iZacFBKm2yN4eMXtek=;
+	s=arc-20240116; t=1779992819; c=relaxed/simple;
+	bh=9tVyMY4bvHIYU8Qnrce0WCiBk7rOpMXBT5XwkVjV8Bs=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=BVQ1eg4PzvaNTuMlpW9VB5cISM8kpboc1CNgjQb6d3XTgK3udd+GaO5OP9ZKjF7/X651XNFEmEr9bnZYfgigMvZCsj0q4Mvzn6jvEZKRrMFjKhcHlSaD1diHEU1sEWDh2CLtaLJWLRPmuzJ3zT30jGp+kF/tVw6j++VF0xOyVyc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MdKDBgww; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=GFOaPJWws/pxWaPHPh/DKxtQ8TQw4BhAlECJoNKzMj9cRuQzoitxVg1nPzsDuL2yO/xpnEwAiBeEi0gVzRGgkuRnSiC1G+JwxOGyP39/fkDGUE5/MAWLPKk1qPhQjfjNcgQV7QZFiRcFPTuNQCqHYhzjNbR99wXAMMMLj+UphNI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RyxDGY/6; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MdKDBgww"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 380D01F000E9;
-	Thu, 28 May 2026 18:26:50 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RyxDGY/6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 454D71F000E9;
+	Thu, 28 May 2026 18:26:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779992812;
-	bh=pa+f17PZfdo15OmihjnUk3kc6J4S97cO9/ZDV9+AlP0=;
+	s=k20260515; t=1779992818;
+	bh=E6D8c8zo5pcf/ptb7XHN+GBQ0Ur4niiILkXMgVdJtv8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=MdKDBgwwiLXtRYQA7BHx4pfsP8DEF0GbSGhzGiUhmkGjbKx0RzmTwq7dWZ3rEmr6Z
-	 9+jbM9Sc/vYwOHhhWEUdKPvG2/23MlAVowLDZveRHsjJVC8AzBPzRXn9ShiVz3Z9TD
-	 KG61lGvBRW7INznc+UQVRMFGz4h8yy76+T/t6Czt7N5Fx1idBafKtZYnKKK/FDx3e5
-	 Q4xp/pE5ic64SvKjvkSSUrgjO3lEnCAePpHdsgCaG7XkYwesQ3/DQuyaXMc2SpXAy9
-	 1wLFyjXrsqsytDKqtOdV21hAx10onHHCmq30ISTJ0s0z0xj6EatrChYeg8g+K5h6hA
-	 ODbvLMws4pvsA==
+	b=RyxDGY/6kxl57zS2NUMKYGhw6+0YL/EVnYlgqky7YujmjJeh4Bpa/++0le29IfKS2
+	 L9N8gSQFK7dQIknV7PesznKte/faMo43Jfu/7WGj56L7UoZOimPJKWOcuKOgNLocl5
+	 v67yW450P3xg3CjZrRc4/b3R4w+0xw0JoMZP3pKC/0tn5y/3wuQgKsK2QykC5313MI
+	 CF6aWEJXoO5R1TPBYpnafH1flZo4z6ped+s7PmV3R+6XTJHK9yLyiZiLMXSifMhwVe
+	 6+DFQ4IQmTSggZ+tIAtWTBDXXjDxC4wCCEacHjzl+j+DcJj3YDcZTBB+wwYzaV4j7M
+	 AOsvEwV8EKnuA==
 From: Song Liu <song@kernel.org>
 To: linux-security-module@vger.kernel.org,
 	linux-fsdevel@vger.kernel.org,
@@ -47,9 +47,9 @@ Cc: paul@paul-moore.com,
 	herton@canonical.com,
 	kernel-team@meta.com,
 	Song Liu <song@kernel.org>
-Subject: [PATCH v5 6/8] tomoyo: Convert from sb_mount to granular mount hooks
-Date: Thu, 28 May 2026 11:26:05 -0700
-Message-ID: <20260528182607.3150386-7-song@kernel.org>
+Subject: [PATCH v5 7/8] vfs: Replace security_sb_mount/security_move_mount with granular hooks
+Date: Thu, 28 May 2026 11:26:06 -0700
+Message-ID: <20260528182607.3150386-8-song@kernel.org>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260528182607.3150386-1-song@kernel.org>
 References: <20260528182607.3150386-1-song@kernel.org>
@@ -61,274 +61,176 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Replace tomoyo_sb_mount() with granular mount hooks. Each hook
-reconstructs the MS_* flags expected by tomoyo_mount_permission()
-using the original flags parameter where available.
+Replace the monolithic security_sb_mount() call in path_mount() and
+security_move_mount() in vfs_move_mount() with the new granular mount
+hooks:
 
-Key changes:
-- mount_bind: passes the pre-resolved source path to
-  tomoyo_mount_acl() via a new dev_path parameter, instead of
-  re-resolving dev_name via kern_path(). This eliminates a TOCTOU
-  vulnerability.
-- mount_new, mount_remount, mount_reconfigure: use the original
-  mount(2) flags for policy matching.
-- mount_move: passes pre-resolved paths for both source and
-  destination.
-- mount_change_type: passes raw ms_flags directly.
+- do_loopback(): call security_mount_bind()
+- do_new_mount(): call security_mount_new()
+- do_remount(): call security_mount_remount()
+- do_reconfigure_mnt(): call security_mount_reconfigure()
+- do_move_mount_old(): call security_mount_move()
+- do_change_type(): call security_mount_change_type()
+- vfs_move_mount(): replace security_move_mount() with
+  security_mount_move()
 
-Also removes the unused data_page parameter from
-tomoyo_mount_permission().
+The new hooks are called at the individual operation level with
+appropriate context (resolved paths, fs_context), rather than at
+the top of path_mount() with raw string arguments.
 
 Code generated with the assistance of Claude, reviewed by human.
 
-Acked-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Tested-by: Stephen Smalley <stephen.smalley.work@gmail.com> # for selinux only
 Signed-off-by: Song Liu <song@kernel.org>
 ---
- security/tomoyo/common.h |   2 +-
- security/tomoyo/mount.c  |  31 +++++++----
- security/tomoyo/tomoyo.c | 109 +++++++++++++++++++++++++++++++++++----
- 3 files changed, 121 insertions(+), 21 deletions(-)
+ fs/namespace.c | 41 ++++++++++++++++++++++++++++++-----------
+ 1 file changed, 30 insertions(+), 11 deletions(-)
 
-diff --git a/security/tomoyo/common.h b/security/tomoyo/common.h
-index d098cf8aae61..9241034cfede 100644
---- a/security/tomoyo/common.h
-+++ b/security/tomoyo/common.h
-@@ -1013,7 +1013,7 @@ int tomoyo_mkdev_perm(const u8 operation, const struct path *path,
- 		      const unsigned int mode, unsigned int dev);
- int tomoyo_mount_permission(const char *dev_name, const struct path *path,
- 			    const char *type, unsigned long flags,
--			    void *data_page);
-+			    const struct path *dev_path);
- int tomoyo_open_control(const u8 type, struct file *file);
- int tomoyo_path2_perm(const u8 operation, const struct path *path1,
- 		      const struct path *path2);
-diff --git a/security/tomoyo/mount.c b/security/tomoyo/mount.c
-index 322dfd188ada..82ffe7d02814 100644
---- a/security/tomoyo/mount.c
-+++ b/security/tomoyo/mount.c
-@@ -70,6 +70,7 @@ static bool tomoyo_check_mount_acl(struct tomoyo_request_info *r,
-  * @dir:      Pointer to "struct path".
-  * @type:     Name of filesystem type.
-  * @flags:    Mount options.
-+ * @dev_path: Pre-resolved device/source path. Maybe NULL.
-  *
-  * Returns 0 on success, negative value otherwise.
-  *
-@@ -78,11 +79,11 @@ static bool tomoyo_check_mount_acl(struct tomoyo_request_info *r,
- static int tomoyo_mount_acl(struct tomoyo_request_info *r,
- 			    const char *dev_name,
- 			    const struct path *dir, const char *type,
--			    unsigned long flags)
-+			    unsigned long flags,
-+			    const struct path *dev_path)
- 	__must_hold_shared(&tomoyo_ss)
- {
- 	struct tomoyo_obj_info obj = { };
--	struct path path;
- 	struct file_system_type *fstype = NULL;
- 	const char *requested_type = NULL;
- 	const char *requested_dir_name = NULL;
-@@ -134,13 +135,23 @@ static int tomoyo_mount_acl(struct tomoyo_request_info *r,
- 			need_dev = 1;
- 	}
- 	if (need_dev) {
--		/* Get mount point or device file. */
--		if (!dev_name || kern_path(dev_name, LOOKUP_FOLLOW, &path)) {
-+		if (dev_path) {
-+			/* Use pre-resolved path to avoid TOCTOU issues. */
-+			obj.path1 = *dev_path;
-+			path_get(&obj.path1);
-+		} else if (!dev_name) {
- 			error = -ENOENT;
- 			goto out;
-+		} else {
-+			struct path path;
-+
-+			if (kern_path(dev_name, LOOKUP_FOLLOW, &path)) {
-+				error = -ENOENT;
-+				goto out;
-+			}
-+			obj.path1 = path;
- 		}
--		obj.path1 = path;
--		requested_dev_name = tomoyo_realpath_from_path(&path);
-+		requested_dev_name = tomoyo_realpath_from_path(&obj.path1);
- 		if (!requested_dev_name) {
- 			error = -ENOENT;
- 			goto out;
-@@ -173,7 +184,7 @@ static int tomoyo_mount_acl(struct tomoyo_request_info *r,
- 	if (fstype)
- 		put_filesystem(fstype);
- 	kfree(requested_type);
--	/* Drop refcount obtained by kern_path(). */
-+	/* Drop refcount obtained by kern_path() or path_get(). */
- 	if (obj.path1.dentry)
- 		path_put(&obj.path1);
- 	return error;
-@@ -186,13 +197,13 @@ static int tomoyo_mount_acl(struct tomoyo_request_info *r,
-  * @path:      Pointer to "struct path".
-  * @type:      Name of filesystem type. Maybe NULL.
-  * @flags:     Mount options.
-- * @data_page: Optional data. Maybe NULL.
-+ * @dev_path:  Pre-resolved device/source path. Maybe NULL.
-  *
-  * Returns 0 on success, negative value otherwise.
-  */
- int tomoyo_mount_permission(const char *dev_name, const struct path *path,
- 			    const char *type, unsigned long flags,
--			    void *data_page)
-+			    const struct path *dev_path)
- {
- 	struct tomoyo_request_info r;
- 	int error;
-@@ -236,7 +247,7 @@ int tomoyo_mount_permission(const char *dev_name, const struct path *path,
+diff --git a/fs/namespace.c b/fs/namespace.c
+index fe919abd2f01..43f22c5e2bf4 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -2888,6 +2888,10 @@ static int do_change_type(const struct path *path, int ms_flags)
  	if (!type)
- 		type = "<NULL>";
- 	idx = tomoyo_read_lock();
--	error = tomoyo_mount_acl(&r, dev_name, path, type, flags);
-+	error = tomoyo_mount_acl(&r, dev_name, path, type, flags, dev_path);
- 	tomoyo_read_unlock(idx);
- 	return error;
- }
-diff --git a/security/tomoyo/tomoyo.c b/security/tomoyo/tomoyo.c
-index c66e02ed8ee3..c93d000acc95 100644
---- a/security/tomoyo/tomoyo.c
-+++ b/security/tomoyo/tomoyo.c
-@@ -6,6 +6,8 @@
+ 		return -EINVAL;
+ 
++	err = security_mount_change_type(path, ms_flags);
++	if (err)
++		return err;
++
+ 	guard(namespace_excl)();
+ 
+ 	err = may_change_propagation(mnt);
+@@ -3006,6 +3010,10 @@ static int do_loopback(const struct path *path, const char *old_name,
+ 	if (err)
+ 		return err;
+ 
++	err = security_mount_bind(&old_path, path, recurse);
++	if (err)
++		return err;
++
+ 	if (mnt_ns_loop(old_path.dentry))
+ 		return -EINVAL;
+ 
+@@ -3328,7 +3336,8 @@ static void mnt_warn_timestamp_expiry(const struct path *mountpoint,
+  * superblock it refers to.  This is triggered by specifying MS_REMOUNT|MS_BIND
+  * to mount(2).
   */
- 
- #include <linux/lsm_hooks.h>
-+#include <linux/fs_context.h>
-+#include <uapi/linux/mount.h>
- #include <uapi/linux/lsm.h>
- #include "common.h"
- 
-@@ -399,20 +401,102 @@ static int tomoyo_path_chroot(const struct path *path)
- }
- 
- /**
-- * tomoyo_sb_mount - Target for security_sb_mount().
-+ * tomoyo_mount_bind - Target for security_mount_bind().
-  *
-- * @dev_name: Name of device file. Maybe NULL.
-- * @path:     Pointer to "struct path".
-- * @type:     Name of filesystem type. Maybe NULL.
-- * @flags:    Mount options.
-- * @data:     Optional data. Maybe NULL.
-+ * @from:    Pointer to "struct path".
-+ * @to:      Pointer to "struct path".
-+ * @recurse: Whether recursive bind mount or not.
-  *
-  * Returns 0 on success, negative value otherwise.
-  */
--static int tomoyo_sb_mount(const char *dev_name, const struct path *path,
--			   const char *type, unsigned long flags, void *data)
-+static int tomoyo_mount_bind(const struct path *from, const struct path *to,
-+			     bool recurse)
+-static int do_reconfigure_mnt(const struct path *path, unsigned int mnt_flags)
++static int do_reconfigure_mnt(const struct path *path, unsigned int mnt_flags,
++			      unsigned long flags)
  {
--	return tomoyo_mount_permission(dev_name, path, type, flags, data);
-+	unsigned long flags = MS_BIND | (recurse ? MS_REC : 0);
+ 	struct super_block *sb = path->mnt->mnt_sb;
+ 	struct mount *mnt = real_mount(path->mnt);
+@@ -3343,6 +3352,10 @@ static int do_reconfigure_mnt(const struct path *path, unsigned int mnt_flags)
+ 	if (!can_change_locked_flags(mnt, mnt_flags))
+ 		return -EPERM;
+ 
++	ret = security_mount_reconfigure(path, mnt_flags, flags);
++	if (ret)
++		return ret;
 +
-+	return tomoyo_mount_permission(NULL, to, NULL, flags, from);
-+}
+ 	/*
+ 	 * We're only checking whether the superblock is read-only not
+ 	 * changing it, so only take down_read(&sb->s_umount).
+@@ -3366,7 +3379,7 @@ static int do_reconfigure_mnt(const struct path *path, unsigned int mnt_flags)
+  * on it - tough luck.
+  */
+ static int do_remount(const struct path *path, int sb_flags,
+-		      int mnt_flags, void *data)
++		      int mnt_flags, void *data, unsigned long flags)
+ {
+ 	int err;
+ 	struct super_block *sb = path->mnt->mnt_sb;
+@@ -3393,6 +3406,9 @@ static int do_remount(const struct path *path, int sb_flags,
+ 	fc->oldapi = true;
+ 
+ 	err = parse_monolithic_mount_data(fc, data);
++	if (!err)
++		err = security_mount_remount(fc, path, mnt_flags, flags,
++					    data);
+ 	if (!err) {
+ 		down_write(&sb->s_umount);
+ 		err = -EPERM;
+@@ -3708,6 +3724,10 @@ static int do_move_mount_old(const struct path *path, const char *old_name)
+ 	if (err)
+ 		return err;
+ 
++	err = security_mount_move(&old_path, path);
++	if (err)
++		return err;
 +
-+/**
-+ * tomoyo_mount_new - Target for security_mount_new().
-+ *
-+ * @fc:        Pointer to "struct fs_context".
-+ * @mp:        Pointer to "struct path".
-+ * @mnt_flags: Mount options.
-+ * @flags:     Original mount options.
-+ * @data:      Optional data. Maybe NULL.
-+ *
-+ * Returns 0 on success, negative value otherwise.
-+ */
-+static int tomoyo_mount_new(struct fs_context *fc, const struct path *mp,
-+			    int mnt_flags, unsigned long flags, void *data)
-+{
-+	/* Use original MS_* flags for policy matching */
-+	return tomoyo_mount_permission(fc->source, mp, fc->fs_type->name,
-+				       flags, NULL);
-+}
-+
-+/**
-+ * tomoyo_mount_remount - Target for security_mount_remount().
-+ *
-+ * @fc:        Pointer to "struct fs_context".
-+ * @mp:        Pointer to "struct path".
-+ * @mnt_flags: Mount options.
-+ * @flags:     Original mount options.
-+ * @data:      Optional data. Maybe NULL.
-+ *
-+ * Returns 0 on success, negative value otherwise.
-+ */
-+static int tomoyo_mount_remount(struct fs_context *fc, const struct path *mp,
-+				int mnt_flags, unsigned long flags, void *data)
-+{
-+	/* Use original MS_* flags for policy matching */
-+	return tomoyo_mount_permission(NULL, mp, NULL, flags, NULL);
-+}
-+
-+/**
-+ * tomoyo_mount_reconfigure - Target for security_mount_reconfigure().
-+ *
-+ * @mp:        Pointer to "struct path".
-+ * @mnt_flags: Mount options.
-+ * @flags:     Original mount options.
-+ *
-+ * Returns 0 on success, negative value otherwise.
-+ */
-+static int tomoyo_mount_reconfigure(const struct path *mp,
-+				    unsigned int mnt_flags,
-+				    unsigned long flags)
-+{
-+	/* Use original MS_* flags for policy matching */
-+	return tomoyo_mount_permission(NULL, mp, NULL, flags, NULL);
-+}
-+
-+/**
-+ * tomoyo_mount_change_type - Target for security_mount_change_type().
-+ *
-+ * @mp:       Pointer to "struct path".
-+ * @ms_flags: Mount options.
-+ *
-+ * Returns 0 on success, negative value otherwise.
-+ */
-+static int tomoyo_mount_change_type(const struct path *mp, int ms_flags)
-+{
-+	return tomoyo_mount_permission(NULL, mp, NULL, ms_flags, NULL);
-+}
-+
-+/**
-+ * tomoyo_mount_move - Target for security_mount_move().
-+ *
-+ * @from_path: Pointer to "struct path".
-+ * @to_path:   Pointer to "struct path".
-+ *
-+ * Returns 0 on success, negative value otherwise.
-+ */
-+static int tomoyo_mount_move(const struct path *from_path,
-+			     const struct path *to_path)
-+{
-+	return tomoyo_mount_permission(NULL, to_path, NULL, MS_MOVE,
-+				       from_path);
+ 	return do_move_mount(&old_path, path, 0);
  }
  
- /**
-@@ -576,7 +660,12 @@ static struct security_hook_list tomoyo_hooks[] __ro_after_init = {
- 	LSM_HOOK_INIT(path_chmod, tomoyo_path_chmod),
- 	LSM_HOOK_INIT(path_chown, tomoyo_path_chown),
- 	LSM_HOOK_INIT(path_chroot, tomoyo_path_chroot),
--	LSM_HOOK_INIT(sb_mount, tomoyo_sb_mount),
-+	LSM_HOOK_INIT(mount_bind, tomoyo_mount_bind),
-+	LSM_HOOK_INIT(mount_new, tomoyo_mount_new),
-+	LSM_HOOK_INIT(mount_remount, tomoyo_mount_remount),
-+	LSM_HOOK_INIT(mount_reconfigure, tomoyo_mount_reconfigure),
-+	LSM_HOOK_INIT(mount_change_type, tomoyo_mount_change_type),
-+	LSM_HOOK_INIT(mount_move, tomoyo_mount_move),
- 	LSM_HOOK_INIT(sb_umount, tomoyo_sb_umount),
- 	LSM_HOOK_INIT(sb_pivotroot, tomoyo_sb_pivotroot),
- 	LSM_HOOK_INIT(socket_bind, tomoyo_socket_bind),
+@@ -3786,7 +3806,7 @@ static int do_new_mount_fc(struct fs_context *fc, const struct path *mountpoint,
+  */
+ static int do_new_mount(const struct path *path, const char *fstype,
+ 			int sb_flags, int mnt_flags,
+-			const char *name, void *data)
++			const char *name, void *data, unsigned long flags)
+ {
+ 	struct file_system_type *type;
+ 	struct fs_context *fc;
+@@ -3830,6 +3850,9 @@ static int do_new_mount(const struct path *path, const char *fstype,
+ 		err = parse_monolithic_mount_data(fc, data);
+ 	if (!err && !mount_capable(fc))
+ 		err = -EPERM;
++
++	if (!err)
++		err = security_mount_new(fc, path, mnt_flags, flags, data);
+ 	if (!err)
+ 		err = do_new_mount_fc(fc, path, mnt_flags);
+ 
+@@ -4080,7 +4103,6 @@ int path_mount(const char *dev_name, const struct path *path,
+ 		const char *type_page, unsigned long flags, void *data_page)
+ {
+ 	unsigned int mnt_flags = 0, sb_flags;
+-	int ret;
+ 
+ 	/* Discard magic */
+ 	if ((flags & MS_MGC_MSK) == MS_MGC_VAL)
+@@ -4093,9 +4115,6 @@ int path_mount(const char *dev_name, const struct path *path,
+ 	if (flags & MS_NOUSER)
+ 		return -EINVAL;
+ 
+-	ret = security_sb_mount(dev_name, path, type_page, flags, data_page);
+-	if (ret)
+-		return ret;
+ 	if (!may_mount())
+ 		return -EPERM;
+ 	if (flags & SB_MANDLOCK)
+@@ -4141,9 +4160,9 @@ int path_mount(const char *dev_name, const struct path *path,
+ 			    SB_I_VERSION);
+ 
+ 	if ((flags & (MS_REMOUNT | MS_BIND)) == (MS_REMOUNT | MS_BIND))
+-		return do_reconfigure_mnt(path, mnt_flags);
++		return do_reconfigure_mnt(path, mnt_flags, flags);
+ 	if (flags & MS_REMOUNT)
+-		return do_remount(path, sb_flags, mnt_flags, data_page);
++		return do_remount(path, sb_flags, mnt_flags, data_page, flags);
+ 	if (flags & MS_BIND)
+ 		return do_loopback(path, dev_name, flags & MS_REC);
+ 	if (flags & (MS_SHARED | MS_PRIVATE | MS_SLAVE | MS_UNBINDABLE))
+@@ -4152,7 +4171,7 @@ int path_mount(const char *dev_name, const struct path *path,
+ 		return do_move_mount_old(path, dev_name);
+ 
+ 	return do_new_mount(path, type_page, sb_flags, mnt_flags, dev_name,
+-			    data_page);
++			    data_page, flags);
+ }
+ 
+ int do_mount(const char *dev_name, const char __user *dir_name,
+@@ -4545,7 +4564,7 @@ static inline int vfs_move_mount(const struct path *from_path,
+ {
+ 	int ret;
+ 
+-	ret = security_move_mount(from_path, to_path);
++	ret = security_mount_move(from_path, to_path);
+ 	if (ret)
+ 		return ret;
+ 
 -- 
 2.53.0-Meta
 
