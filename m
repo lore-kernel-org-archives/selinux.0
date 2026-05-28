@@ -1,153 +1,101 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2BDF26CE32
-	for <selinux@vger.kernel.org>; Thu, 28 May 2026 13:53:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D999C2D7D47
+	for <selinux@vger.kernel.org>; Thu, 28 May 2026 14:11:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779976412; cv=none; b=MT8MuQ1QaRBUdq2WTjat1o8Yy3kNtygKrDu1fplyoVt5q2QyXzRu26VenSLUpqay9rZT+rce8fG+Mz7XD5OL8vK/64Te6vlDyB5zqw4C+hMrsddeXNb3hOfn71J0AQpdNkWA/+I6b/1suoW1tMBi689U/65RtjJ2sLKPPy/ZFdI=
+	t=1779977496; cv=none; b=TnOAWgZZTF1bmDulzqZ21aUPkvrYBVuM9sDoNfXhg/vzbZ1rQyzZbFsgQeE6Z49Z/lBC70PCyMwF6dIiyTtSo4Zb6T/J5cUtpdmGhuOWegGQ0LH7pZBDgt4ZlkTYaVrQ86bQmkaUXYRKo4C19cCWVoLZOIB3E7wUROOWku1yUmc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779976412; c=relaxed/simple;
-	bh=k0MF4pBq3YKRpctbwO7OKi+/WJDUV6r0y/W6fLv65YA=;
-	h=From:To:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=dF9VFVy/aB5WLHPjQzq3dHxjn3EPLN5XzAP7ixflcRgwPlQKPDpe3oer6qlfeYXxVRyME3t7KFVLPSlqTDakUdpUwdb1xAhfuOfF5eB8XtW3HhHLq/MEk4nOKmZpPhs1CAmluDC7scQLjs3HYsmTt+4eFjgUhFp7f5H2yFA4x1o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fUtt+CKO; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1779977496; c=relaxed/simple;
+	bh=qNJpHNZDaQSRkCa9qoxQFMBdwa1ExgexzdbWsj+Ab00=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-type; b=DlAgdIHXe7R0rIfBAQk714myKzdj7E5WKa/bJTGGuMauFoD7eQ6fqHVXr1OMC9pv61rOooeOOrwBhHjgx0FB9ukBWzzyaK+v97NByKfrDIjJpBSlDPPUDhKO9EBJGLhI6ebZF91BGkW/N7n51L4rWYYvQdAKyacxltqWdk0mnhU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eJJQt7Cy; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fUtt+CKO"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eJJQt7Cy"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1779976409;
+	s=mimecast20190719; t=1779977493;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=DTbo67J9emavKMpTIhAepwifK360p5pTIgWY+RcZ+u0=;
-	b=fUtt+CKO9uX8i4Ax5999cV8dVPzfZivDK2ENPw2jmmHxxKar9wMoplca+t7tfZqT7A4XEj
-	EZRnNM9jlyYBgQJKYaJfSIJaOInpMbAgyiTBjNVnVNuir215JDlTAQfuF3+5GroFjAoI4z
-	OBx4f+92mHYP6AtCtg2dhtHDtZkAUAs=
+	bh=QOZrxg1ADaNl+ldYxFNTnoly6cDDll+BjDcYuTPdC8M=;
+	b=eJJQt7Cyu5pRghmUinzijzorrryMKkBb7O7JlJpZfiyC1Iew5GvMq29DT+cuio0z3HCEPO
+	5S6xRetKrDOnz4seuumIajHynbAZSahyy/U5LWsq62pnqN7E8DMAQVitfTsHLadahgNEZy
+	Vioumx6t9qIl+QHSvD85diKEwePlW8s=
 Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-43-34zRHg32PPCcN4jKEBDfaA-1; Thu,
- 28 May 2026 09:53:26 -0400
-X-MC-Unique: 34zRHg32PPCcN4jKEBDfaA-1
-X-Mimecast-MFC-AGG-ID: 34zRHg32PPCcN4jKEBDfaA_1779976405
-Received: from mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.95])
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-438-XAvVPTvfONKArn3D-gcjhg-1; Thu,
+ 28 May 2026 10:11:29 -0400
+X-MC-Unique: XAvVPTvfONKArn3D-gcjhg-1
+X-Mimecast-MFC-AGG-ID: XAvVPTvfONKArn3D-gcjhg_1779977488
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E7027195608C;
-	Thu, 28 May 2026 13:53:24 +0000 (UTC)
-Received: from localhost (unknown [10.44.32.147])
-	by mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 765A91770;
-	Thu, 28 May 2026 13:53:24 +0000 (UTC)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 41FD21955DDD;
+	Thu, 28 May 2026 14:11:28 +0000 (UTC)
+Received: from p16v.redhat.com (unknown [10.44.32.147])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 116161800347;
+	Thu, 28 May 2026 14:11:26 +0000 (UTC)
 From: Petr Lautrbach <lautrbach@redhat.com>
-To: Pepper Gray <hello@peppergray.xyz>, selinux@vger.kernel.org
-Subject: Re: [PATCH] adjust audit2why map for python2 and 3
-In-Reply-To: <CAHLDejxHRvHPWYK8q-VO4_OpEozY-4bKc4hSuFL6SL6o=JKw_A@mail.gmail.com>
-References: <CAHLDejxHRvHPWYK8q-VO4_OpEozY-4bKc4hSuFL6SL6o=JKw_A@mail.gmail.com>
-Date: Thu, 28 May 2026 15:53:23 +0200
-Message-ID: <87a4tjod2k.fsf@redhat.com>
+To: selinux@vger.kernel.org
+Cc: Pepper Gray <hello@peppergray.xyz>
+Subject: [PATCH] expose alias for stat64 and lstat64 on musl
+Date: Thu, 28 May 2026 16:09:56 +0200
+Message-ID: <20260528141117.1265999-1-lautrbach@redhat.com>
+In-Reply-To: <CAHLDejyMAktQhBkfJrvz5OrS=d7WSSe4pFA33qKJALtH_nWafw@mail.gmail.com>
+References: <CAHLDejyMAktQhBkfJrvz5OrS=d7WSSe4pFA33qKJALtH_nWafw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 3.6 on 10.30.177.95
+Content-type: text/plain
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-Pepper Gray <hello@peppergray.xyz> writes:
+From: Pepper Gray <hello@peppergray.xyz>
 
-> From 3cd62189af93997ab5ff58684352af38900c7758 Mon Sep 17 00:00:00 2001
-> From: Pepper Gray <hello@peppergray.xyz>
-> Date: Sat, 11 Apr 2026 19:33:07 +0200
-> Subject: [PATCH] adjust audit2why map for python2 and 3
->
-> align conditional python symbols creation and export
->
-> fix: #461
-> Signed-off-by: Pepper Gray <hello@peppergray.xyz>
+fix: 477
+Signed-off-by: Pepper Gray <hello@peppergray.xyz>
+---
+
+This is resent of the originally mangled patch. This time taken from https://github.com/SELinuxProject/selinux/commit/0471d76499aae8f44cb21c7faa1609e0387abafb
+and sent with `git send-email`
 
 
-Please use `git send-email` to send patches next time.
+ libselinux/src/selinux_restorecon.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-Python 2 is not supported in this project since SELinux userspace release 2=
-0191204 / 3.0
-Python 2 EOL was January=C2=A02020.
-
-Petr
-
-> ---
->  libselinux/src/audit2why-py2.map |  5 +++++
->  libselinux/src/audit2why-py3.map |  5 +++++
->  libselinux/src/setup.py          | 16 +++++++++++++---
->  3 files changed, 23 insertions(+), 3 deletions(-)
->  create mode 100644 libselinux/src/audit2why-py2.map
->  create mode 100644 libselinux/src/audit2why-py3.map
->
-> diff --git a/libselinux/src/audit2why-py2.map b/libselinux/src/audit2why-=
-py2.map
-> new file mode 100644
-> index 0000000000..249f0beb3b
-> --- /dev/null
-> +++ b/libselinux/src/audit2why-py2.map
-> @@ -0,0 +1,5 @@
-> +AUDIT2WHY_2.9 {
-> +  global:
-> +    initaudit2why;
-> +  local: *;
-> +};
-> diff --git a/libselinux/src/audit2why-py3.map b/libselinux/src/audit2why-=
-py3.map
-> new file mode 100644
-> index 0000000000..e99b8d7688
-> --- /dev/null
-> +++ b/libselinux/src/audit2why-py3.map
-> @@ -0,0 +1,5 @@
-> +AUDIT2WHY_2.9 {
-> +  global:
-> +    PyInit_audit2why;
-> +  local: *;
-> +};
-> diff --git a/libselinux/src/setup.py b/libselinux/src/setup.py
-> index 679ea43f8b..9201448f0e 100644
-> --- a/libselinux/src/setup.py
-> +++ b/libselinux/src/setup.py
-> @@ -1,11 +1,21 @@
-> -#!/usr/bin/python3
-> +#!/usr/bin/env python
->
-> +import sys
->  from setuptools import Extension, setup
->
-> +PY_MAJOR_VERSION =3D sys.version_info[0]
-> +
-> +if PY_MAJOR_VERSION >=3D 3:
-> +    audit2why_map =3D "audit2why-py3.map"
-> +    description =3D "SELinux python 3 bindings"
-> +else:
-> +    audit2why_map =3D "audit2why-py2.map"
-> +    description =3D "SELinux python 2 bindings"
-> +
->  setup(
->      name=3D"selinux",
->      version=3D"3.10",
-> -    description=3D"SELinux python 3 bindings",
-> +    description=3Ddescription,
->      author=3D"SELinux Project",
->      author_email=3D"selinux@vger.kernel.org",
->      ext_modules=3D[
-> @@ -19,6 +29,6 @@
->                    include_dirs=3D['../include'],
->                    library_dirs=3D['.'],
->                    libraries=3D['selinux'],
-> -                  extra_link_args=3D['-l:libsepol.a',
-> '-Wl,--version-script=3Daudit2why.map'])
-> +                  extra_link_args=3D['-l:libsepol.a',
-> "-Wl,--version-script=3D{}".format(audit2why_map])
->      ],
->  )
+diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
+index 69a535032221..1a4cc7d12b76 100644
+--- a/libselinux/src/selinux_restorecon.c
++++ b/libselinux/src/selinux_restorecon.c
+@@ -20,7 +20,6 @@
+ #include <limits.h>
+ #include <stdint.h>
+ #include <sys/types.h>
+-#include <sys/stat.h>
+ #include <sys/xattr.h>
+ #include <sys/vfs.h>
+ #include <sys/statvfs.h>
+@@ -30,6 +29,10 @@
+ #include <syslog.h>
+ #include <assert.h>
+ 
++// expose alias for stat64 and lstat64 on musl
++#define _LARGEFILE64_SOURCE 1
++#include <sys/stat.h>
++
+ #include <selinux/selinux.h>
+ #include <selinux/context.h>
+ #include <selinux/label.h>
+-- 
+2.54.0
 
