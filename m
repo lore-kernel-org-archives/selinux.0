@@ -1,152 +1,216 @@
-Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
+Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5B2D2DCC08
-	for <selinux@vger.kernel.org>; Fri, 29 May 2026 18:56:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.170
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780081010; cv=pass; b=WKhW4kEfFeRTuh0EnhKPGoQzBGD2ULPHnKl2WT/VTrJ/4Ng3v8gpki7piRXpQYTsiyaGK5C+EUHbRSmEKqVre7LUYSJK7KD8ozPo/5S+mxcq7yzDCElVHqLMe0ehClPwJr+WJ/s4lv4oA6F20zXzoB6n23qThsMO6lBg2GTuNWQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780081010; c=relaxed/simple;
-	bh=DXuNxX7s5HLGzjWgmYUGjYQjEYK7X8BGzNXmE0b/M9E=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=GaNM0BJ5riMcNvjTV4IsUeCtNLotWQAzf+31t1+PNV333LzFSD6GwXxImrYQwieBNYZ5nyVHCZbuvWEew6Qqhf6lA0Wnz3fg66gAmjyk2JySyjPh3rE+Zdm96Q9wGk/nvD4goj11FFUBO4WbK7bNIJC1myrEogNwukf37c7kYOM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JFylIezs; arc=pass smtp.client-ip=209.85.215.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 756F63016E9
+	for <selinux@vger.kernel.org>; Fri, 29 May 2026 20:02:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780084979; cv=none; b=pc/8SLKGZJ9izDwu5Tmm65ccVxVlY0FbjMzDCgXxoaB10PmpgNQMrwEvIeRqG0+f541jghWThSxAHDuxS/UU5NAHZpHSM66AoqJx+P4awXxHhhDWZJMP1YLbtPmfhvsxIzzNmBWiZPvHoT4cVnbKCMiWdK/02KWioRnmnVNKrzE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780084979; c=relaxed/simple;
+	bh=g4GiaiLgCQyuLDgiCXee8+tzplIWVVz75DgP6PBu2bM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Q7tuZfHJnenjLXmwLGT2YQxFH/wOwOhSLdvq3HLQkSzPVJWzVA5hG+kGSgbKAYfkp9cgfGsZVVKd3XBKyQG3KyYzOcc5cQWwEkEngIInS4psoR5skp555+UnXiC6P+OX2tvyXNdLhZBx3edA2/yibOAJ5Oc6+taYx6nzEwhn8ps=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=N2vIDxkC; arc=none smtp.client-ip=209.85.160.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JFylIezs"
-Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-c85825bbc4fso203791a12.2
-        for <selinux@vger.kernel.org>; Fri, 29 May 2026 11:56:49 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780081009; cv=none;
-        d=google.com; s=arc-20240605;
-        b=jTPhYINsV/riRznQcmz8R02JWrO4ATrDEfSo0JZQIy54PQwOK1BC0IJF7pnimzKGzV
-         abxzl2ogp8gs2xMAMo8vhszLvd81Qd3ZfDijUndcBVVsSADm3J5NikDwQ03LPlNoXShN
-         EtUOsrlXcfmYD0VVvgcPNHH9tib9eLdilpbDqUt6ByO/LPNQVaKo8qgLhGFLBbvmvtd/
-         7bibrx3xXdESGoAsnnRgp58818vzegf3rQLtWomn2okxBQnnew+QqofVoaH/XN597tG0
-         Gg92khv5o0FRvry1bv/PSlrCxM/KWNZR6Ep6/LxQcEHLJBGZfl6gNd9Hpi37hW4VoI32
-         9B+A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=1JgAz2i3H3UmhM4AKslKFFMOo1KQVGNY+m4b2a/wS44=;
-        fh=5O/C79wO42cQf6w/vh3W7FviilpJ0XtrrgBkDvem/c8=;
-        b=UU+55xYHWJ+le/kgU6LMHsmI5Y7q6qF7mYK+CLk13Yt2Q35bq73eAmYnhvPUAb1LyJ
-         Dm1Ftr7Pzs4u9ZworuD0EZSltyDG1q6wEyZeeEnAbODndKSMCIRos0LSWaXtDNzMlXRJ
-         iJ4Yw2AF77nq4idBKNwBRF/J0rLI+qRNMa9jzdsedFT7vdVgwdtBuTEU2KbCNCCjQLBw
-         3bxx6ghsgwO9QTbJ/H4XbMCMfti4b21DrwDrIIEc+8i1NR+go8abYIqJaun2x+WoJV+f
-         fHEK6Zprj9Ku6nJmJnE3Cd3zB/RQrqIuLM2JWw9JUtLBtXi1Au2HfSPWYxhI16NMcd+a
-         cQzw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N2vIDxkC"
+Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-516cc5471bdso116802861cf.2
+        for <selinux@vger.kernel.org>; Fri, 29 May 2026 13:02:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780081009; x=1780685809; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=1JgAz2i3H3UmhM4AKslKFFMOo1KQVGNY+m4b2a/wS44=;
-        b=JFylIezsP90/vw8uLh39dcqrtVy6SMSFegdhlmEvjaoRhnVbh+KcSGqbdJW/z+N3aQ
-         y5sz9ZnNSTOim/HrTLTtyUvI13x1R7Ntr81qQITaJvVmqRgulSapacMUdR8JW8EBngRS
-         u2b9Hamxx4W7810RgzXRHTnUA4bxRK650JKMcyJPu/K1ycCHqIg5WT/1h/p078GgWdU8
-         7vkCdl1GPWZMgRiD9Z9h67hFFCX8QrkrAChqIuiRUadxlnWSc/OWseSDoh9ZS1ymH1+2
-         n3WPBjKhIRLPNqvojmVEBZ454znBHKeoWmw0gzJbEnhmSU4d1Dy2vPUUmWjoByCshGUX
-         tT1g==
+        d=gmail.com; s=20251104; t=1780084977; x=1780689777; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=1JP5zbFkLxC21cpPTE322NnjlVxp2m7RWG4lcO4Wu/o=;
+        b=N2vIDxkChwkDquqKHq2cOD2rmbAsFRhwp9uORccuPae5tuaxgAGOXRVudQEChFCIhq
+         e6c094ohFJs7mo2fl1XaFlP1QONEqhr/Z0o7JkzBJK7NqQIa1eGuG76afciwabK5B6dX
+         /+XA2yPv/YQnEH4EyIfVJlW9ezbuPxxZzyKvOV52YANHJogzwuWORUhj4A2ZZmOe1dEX
+         TXQh9d932HIWFuHRPnHhgVCvkCuZFbTA0+FnaDGQRtcfYwblzpgF1INtaN3JZbXnNEMS
+         I96rI3v3bSTFEDmCcV8SwEX5MdebbDsJU2LsLIQMZe2SeikCtH/ZgjwUhHZbLBWt05+o
+         g5Dg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780081009; x=1780685809;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=1JgAz2i3H3UmhM4AKslKFFMOo1KQVGNY+m4b2a/wS44=;
-        b=K6CtLQFKXLVbvEPq4vbMcEfMWZerQuKjxrOU4wcRoBNB2SfKpcEvhSybZ8OHaSW/LM
-         9NFYqtBziK431Qu2PqEa+dEY4cAw4VXMhZhYkd4dzYO+Yhh2CpIW8CVP6Tav5goqUNKf
-         zyoJTQqEkjTiQth8rfZ5m29hjH5yM+vkXIRJACHjCMl+71300ncGt1l8pC2S51/NPhvu
-         Qsw/vFz99i+2lV23Fspg+Mnj7lAqKuuL8mMO7l3z+xeYmAYxWvyY6Nf9RUFdJM/PnsON
-         RWNbiQdL25pgMUFDjzMFUH+yC7maRJqVlyC7lZFoB5H8uXXh2c89+Q8/rEDZWP+UNT5c
-         p3SA==
-X-Gm-Message-State: AOJu0YzuyHBpJdeKE67PgihLUPN5jptRRexCiJs/sihi1c4+nPU9FjT0
-	7uOLu/ah9aLrblyoK8AN7iWpaRUdrd+MgQsBUSaDdE5etiwRXynGAvMLn8BWLW0dqznVp5Jy0uW
-	JpkJSCKtDcXNzGzEM/H3PAyz23woHSCZzHg==
-X-Gm-Gg: Acq92OHWL4cvjy71GgFHVDxa32K6hS2RaOpBuz8v1otYxOcSHOe6llX8DPzPHwfyshw
-	ZhzSo4d9EUEBmUlxnJ83uBqRD0ZztncAZQprh1MWR5DFKaTIYvhbrIb17Edjygh3ic/fRrgjLL2
-	emfu/bfobW3VfalIKP9VWhJozsCqSd6pRkN/HP8uzAXZ3TJGRAWI12ed3PfwS9IwvrBFNqx9BCT
-	WicPDXRgBlSGn56SlFN/99fROPNpytwputo/CiIZiFGmW0x4b5fxCdt+rAh4vAOl6o3Aj+jUrwt
-	f2RZyrJABNZczZBXGQ==
-X-Received: by 2002:a17:903:3585:b0:2bd:eeb6:ff28 with SMTP id
- d9443c01a7336-2bf367c3452mr12922215ad.12.1780081008909; Fri, 29 May 2026
- 11:56:48 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1780084977; x=1780689777;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=1JP5zbFkLxC21cpPTE322NnjlVxp2m7RWG4lcO4Wu/o=;
+        b=RcLKFXl8B1nd532UxfYq3h/UEGvM5uOLSn6SlCFZtdev+jjRO558t+ElgZRAkxuMsF
+         RORMY1DTcw9EOSDFPDVon+U8N/L9p7+SIy5fArG9mMwdUakY1YwA2yl4/+MVBnrIIQT2
+         SMnvYx4CsIQO7BdxqHRwN9rZbOtCY+PHjP9rBPoMip6lYc5knbaej1jjWEFD9imfV48w
+         uZ4eJn0WJ67065j33IYf5AnxTYzsYhw2XvAiYuGkE+wCLyYCg8S8GkWLZEo0Y5Bl55WH
+         fletUhlWNNh4HKHWpQLbDIIpaPH2gJkkLfmn8qnL7AnVZDH3Nws7791fbMONKZPpCQ74
+         A1cA==
+X-Gm-Message-State: AOJu0YznbOqf8bRrZNVWyOHLB47dim8dIurV2iOaAk7Jyd8d0uEsf1O4
+	dOZQihKIovnVnNi+aLLjf4BmxprgJc6rdqTw/JKwSHdgYhQGHBNcjGFYFaYblw==
+X-Gm-Gg: Acq92OG2PdDR4p69gkmNFdbjaetPEAZdvovsAiD6Na8x2aoDpvTb6Dcv/60iPowtlJW
+	mjOqB0Akl12YV4CfON6Sp5jscnaki9x+b5yfr8Kj3f44vADUN4Z7oty+tzR2gLAyoOqC40ON7Iy
+	yf2aUns0WHDKy41ceEq8FnElITU8BjM2QQQIRCqvzCq8PiBuL27vJ4FtBrghAeMimop3LDLTtli
+	PEJe/nMPIm+aTUnbjm4+shtCG5A9v9LsCxxNxLmhXgNpC+2SFVojH9vKZ3dBs91cMiWy8f/VUqF
+	W2JGkyGVnrPZb27PhHnmauDvcvq4NCdKfBsoBrBfaIPC7m94/BzgoRD8QPvJ8iiUj2edfm2eA51
+	MYZIa/NZNaZ9PVhwJEahClqhtB5QU0nL0FyAEf6PGLmEjRXqlZ/JO9sToA0aKWAyHMHz5qL7nxD
+	M3RyPSa5rzOUgXZUBHFxHKQXxtrYFzZKjperht5i1AhtyYwCY9Muvlh8gP
+X-Received: by 2002:a05:622a:2cf:b0:50f:c5d3:a18c with SMTP id d75a77b69052e-5173a73d2fcmr14163531cf.20.1780084977337;
+        Fri, 29 May 2026 13:02:57 -0700 (PDT)
+Received: from Fedora43-SELinux ([144.51.8.27])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-5172eb28540sm30242741cf.18.2026.05.29.13.02.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 29 May 2026 13:02:56 -0700 (PDT)
+From: James Carter <jwcart2@gmail.com>
+To: selinux@vger.kernel.org
+Cc: tweek@google.com,
+	James Carter <jwcart2@gmail.com>
+Subject: [PATCH 1/3 v2] libsepol/cil: Add function to check CIL neverallows against binary policy
+Date: Fri, 29 May 2026 16:02:42 -0400
+Message-ID: <20260529200244.65895-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260529175640.151814-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260529175640.151814-1-stephen.smalley.work@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 29 May 2026 14:56:36 -0400
-X-Gm-Features: AVHnY4IsR3065AKPFic5B3k_BNXqoAUjcZQjevdxQ5Tx3G1OH2ha3G-5WHy78fI
-Message-ID: <CAEjxPJ5DXqjg=Y4mXcrFOBfKx0=Fv2Bz1PTDWk11gUbwhEsqyw@mail.gmail.com>
-Subject: Re: [PATCH] mcstrans: check and handle NULL returns from create_*()
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com, 
-	paul@paul-moore.com, perfinion@gentoo.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Fri, May 29, 2026 at 1:56=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> Fix several instances where the return value of create_*()
-> wasn't being checked.
->
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Add the function cil_check_neverallows_against_pdb() that will extract
+the neverallows from a CIL db and check them against a kernel policydb.
 
-Merged.
+Android has the requirement of validating policies from partners
+against the standard AOSP assertions. While this is done at build
+time, the requirement is also enforced during certification via the
+Compatibility Test Suite.
 
-> ---
->  mcstrans/src/mcstrans.c | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
->
-> diff --git a/mcstrans/src/mcstrans.c b/mcstrans/src/mcstrans.c
-> index ff33621c..733eed18 100644
-> --- a/mcstrans/src/mcstrans.c
-> +++ b/mcstrans/src/mcstrans.c
-> @@ -803,6 +803,8 @@ process_trans(char *buffer) {
->
->         if (!strcmp(raw, "Domain")) {
->                 domain =3D create_domain(tok);
-> +               if (!domain)
-> +                       return -1;
->                 group =3D NULL;
->                 return 0;
->         }
-> @@ -1479,6 +1481,8 @@ compute_trans_from_raw(const char *level, domain_t =
-*domain) {
->
->                                 if (! *t) {
->                                         word_group_t *wg =3D create_group=
-(&groups, g->name);
-> +                                       if (!wg)
-> +                                               goto err;
->                                         if (g->prefixes)
->                                                 if (append(&wg->prefixes,=
- g->prefixes->text) < 0)
->                                                         goto err;
-> @@ -1551,7 +1555,8 @@ compute_trans_from_raw(const char *level, domain_t =
-*domain) {
->                                         for (t =3D &groups; *t; t =3D &(*=
-t)->next)
->                                                 if (!strcmp(currentGroup-=
->name, (*t)->name))
->                                                         break;
-> -                                       create_word(&(*t)->words, current=
-Word->text);
-> +                                       if (!create_word(&(*t)->words, cu=
-rrentWord->text))
-> +                                               goto err;
->                                         change++;
->                                 }
->                         }
-> --
-> 2.54.0
->
+Currently, this validation is done by manually parsing the neverallow
+assertions which is brittle and does not support neverallowx assertions.
+
+This function will allow a CIL db with the neverallow and
+neverallowxperm rules to be used to check a kernel policydb for
+violations as part of the Compatibility Test Suite.
+
+Suggested-by: Thiébaud Weksteen <tweek@google.com>
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+v2: Add more context to commit msg
+    Add error messages for when type or class-permission look-ups fail
+    Set violation to CIL_FALSE initially to ensure it gets set
+    Add more description in cil_binary.h for the function
+
+ libsepol/cil/include/cil/cil.h |  1 +
+ libsepol/cil/src/cil_binary.c  | 48 ++++++++++++++++++++++++++++++++++
+ libsepol/cil/src/cil_binary.h  | 15 +++++++++++
+ libsepol/src/libsepol.map.in   |  5 ++++
+ 4 files changed, 69 insertions(+)
+
+diff --git a/libsepol/cil/include/cil/cil.h b/libsepol/cil/include/cil/cil.h
+index 88e47e79..fc9cc504 100644
+--- a/libsepol/cil/include/cil/cil.h
++++ b/libsepol/cil/include/cil/cil.h
+@@ -65,6 +65,7 @@ extern int cil_write_parse_ast(FILE *out, cil_db_t *db);
+ extern int cil_write_build_ast(FILE *out, cil_db_t *db);
+ extern int cil_write_resolve_ast(FILE *out, cil_db_t *db);
+ extern int cil_write_post_ast(FILE *out, cil_db_t *db);
++extern int cil_check_neverallows_against_pdb(const struct cil_db *db, policydb_t *pdb, int *violation);
+ 
+ enum cil_log_level {
+ 	CIL_ERR = 1,
+diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+index 74ec3cd5..79abef2c 100644
+--- a/libsepol/cil/src/cil_binary.c
++++ b/libsepol/cil/src/cil_binary.c
+@@ -5143,6 +5143,54 @@ exit:
+ 	return rc;
+ }
+ 
++static int __cil_collect_neverallows_helper(struct cil_tree_node *node, uint32_t *finished, void *extra_args)
++{
++	if (node->flavor == CIL_BLOCK) {
++		struct cil_block *blk = node->data;
++		if (blk->is_abstract == CIL_TRUE) {
++			*finished = CIL_TREE_SKIP_HEAD;
++		}
++	} else if (node->flavor == CIL_MACRO) {
++		*finished = CIL_TREE_SKIP_HEAD;
++	} else if (node->flavor == CIL_BOOLEANIF) {
++		*finished = CIL_TREE_SKIP_HEAD;
++	} else if (node->flavor == CIL_AVRULE || node->flavor == CIL_AVRULEX) {
++		struct cil_avrule *rule = node->data;
++		if (rule->rule_kind == CIL_AVRULE_NEVERALLOW) {
++			struct cil_list *neverallows = extra_args;
++			cil_list_prepend(neverallows, CIL_LIST_ITEM, node);
++		}
++	}
++
++	return SEPOL_OK;
++}
++
++int cil_check_neverallows_against_pdb(const struct cil_db *db, policydb_t *pdb, int *violation)
++{
++	int rc = SEPOL_OK;
++	struct cil_list *neverallows;
++
++	*violation = CIL_FALSE;
++
++	if (db == NULL || pdb == NULL) {
++		cil_log(CIL_ERR,"CIL db and/or Policy db is NULL\n");
++		return SEPOL_ERR;
++	}
++
++	cil_list_init(&neverallows, CIL_LIST_ITEM);
++	rc = cil_tree_walk(db->ast->root, __cil_collect_neverallows_helper, NULL, NULL, neverallows);
++	if (rc != SEPOL_OK) {
++		cil_log(CIL_INFO, "Failure collecting neverallows\n");
++		goto exit;
++	}
++
++	rc = cil_check_neverallows(db, pdb, neverallows, violation);
++
++exit:
++	cil_list_destroy(&neverallows, CIL_FALSE);
++	return rc;
++}
++
+ static struct cil_list *cil_classperms_from_sepol(policydb_t *pdb, uint16_t class, uint32_t data, struct cil_class *class_value_to_cil[], struct cil_perm **perm_value_to_cil[])
+ {
+ 	struct cil_classperms *cp;
+diff --git a/libsepol/cil/src/cil_binary.h b/libsepol/cil/src/cil_binary.h
+index e6826221..2bd19102 100644
+--- a/libsepol/cil/src/cil_binary.h
++++ b/libsepol/cil/src/cil_binary.h
+@@ -36,6 +36,21 @@
+ #include "cil_tree.h"
+ #include "cil_list.h"
+ 
++
++/**
++ * Check neverallows from a CIL database against a policy database.
++ *
++ * The types, classes, and permissions used in the CIL neverallow rules must
++ * be declared in the policy database.
++ *
++ * @param[in] db The cil database containing the neverallows to be used.
++ * @param[in] pdb The policy database to be checked for violations.
++ * @param[out] violation 1 if a neverallow violation was found, 0 otherwise
++ *
++ * @return SEPOL_OK upon success or an error otherwise.
++ */
++int cil_check_neverallows_against_pdb(const struct cil_db *db, policydb_t *pdb, int *violation);
++
+ /**
+  * Create a binary policydb from the cil db.
+  *
+diff --git a/libsepol/src/libsepol.map.in b/libsepol/src/libsepol.map.in
+index e5e6608c..2b103993 100644
+--- a/libsepol/src/libsepol.map.in
++++ b/libsepol/src/libsepol.map.in
+@@ -294,3 +294,8 @@ LIBSEPOL_3.6 {
+   global:
+ 	cil_write_post_ast;
+ } LIBSEPOL_3.4;
++
++LIBSEPOL_3.11 {
++  global:
++	cil_check_neverallows_against_pdb;
++} LIBSEPOL_3.6;
+-- 
+2.54.0
+
