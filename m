@@ -1,241 +1,229 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com [209.85.208.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1392230100D;
-	Fri, 29 May 2026 13:37:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780061859; cv=none; b=XHlxU0oD9lKX61qQSFkiA3FtfqzWkVLyFjt/IjJBH01di9XkxAxW3L2pvVbUC93PIOxmTjlQF6dZl/CRy3ZXNq6Khr93ZxwJjwW875Kr6wR7kGtEenEahMPfUpG5txD2J4sODVGinMUE4ma0VGbDxeOF6nc8uT5j41hWch5ItIA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780061859; c=relaxed/simple;
-	bh=9pkwjNZKQmHcAyr08WIKHNcmPC8Ofszxfh851M5B1DM=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:References:Cc:
-	 In-Reply-To:Content-Type; b=S/a49bwFCQui7mz23PPt+6NpgCkLKA95pCbgLomBUOOXmaryXZjQirkKDGfEnhJ/nsrVPraLL76Cr5O7dci8arPaS7WxWuxsLjzh0PNnb+Uhg4dxpQIiYUHiWrhlzePRxy5mRLqiz/QrVDQ+xr40Buf5Q60IzVLKP+xzlGe9jj4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kDmTSot8; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5350F33AD99
+	for <selinux@vger.kernel.org>; Fri, 29 May 2026 13:43:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.172
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780062195; cv=pass; b=ThjsCpHhcKUKReXIvkReGq6sSOwhmYxINdL7uZq76jCD87YI1nGKYjDhjB3eWYqQXJ1GR2t2kTwukeK7xXfY6AuRoyI4GxAnhpdjzINpfiz36yLmQTFq6hbCNt/y5QjBNFYuTJk3GBCVS440EHiTh26nbHvOxm8TVzIQR2KTU8Q=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780062195; c=relaxed/simple;
+	bh=RZBygnYqKdO8cehoB6gfYwDZgxY2qTO4fIimRmq7YAY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Er08mR1YypJaJzlU3+5EtdtMuPkV9S3aCoPGOAFRiX4X4MGXGJNDZjReM+es+v5qTdflmW2pqDHtBtEqsRRWuvlWxRXhiZ4IkzueC/Ek+vWpRS4ud6+/ZpGTtUA7RdbdALnxQqY9vo0/MDEo+ScZvnoRVm2Uh9AwWCK0YFGH22I=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EZl0kGxW; arc=pass smtp.client-ip=209.85.208.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kDmTSot8"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64TA43lo2133371;
-	Fri, 29 May 2026 13:37:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=LBDpyH
-	es44rErVBWAO3aaBlvTWbMQTrdUMe3T1rsGiM=; b=kDmTSot88FOeOKO6qVl4f1
-	KXNhqewHUEPlBbs6s5DgkjU/Zb3vsj5pyRckczjTn+lUI6wycyBRagfQjH7iZqQ+
-	ZXjZ4UNwpgfmmrAPuDGM7xqgPp8HMN7g2/Y0kpT4E9zM58IwJYOvtEa7jMQ2c7Wk
-	foogL07UxxiVIN+K/ArjxRWZ7TVHMS2vHmMvBX+Khprt+sMvc1gjCGhVjarJpS3w
-	7l8VU8LCpYv9NqbT57gPA0kC949yM4Mty6H3yU+G9cZ2eyn2PwS3e6ujGOhpc5gU
-	B55LpERZhlsm9yMnilfOuxBXKpWUnQYEyosbPKvXBb0MA6yoevX1335IZu/VRUgg
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ee887rhts-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 29 May 2026 13:37:30 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 64TDO6rP005047;
-	Fri, 29 May 2026 13:37:29 GMT
-Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4edjrbdspe-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 29 May 2026 13:37:29 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 64TDbScX918426
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 29 May 2026 13:37:28 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CB96558050;
-	Fri, 29 May 2026 13:37:28 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 29BBB58045;
-	Fri, 29 May 2026 13:37:25 +0000 (GMT)
-Received: from [9.61.247.63] (unknown [9.61.247.63])
-	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 29 May 2026 13:37:24 +0000 (GMT)
-Message-ID: <8f0c86f7-eab4-4e82-97c1-5d190c390770@linux.ibm.com>
-Date: Fri, 29 May 2026 19:07:22 +0530
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EZl0kGxW"
+Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-39393ec4ed0so124030411fa.0
+        for <selinux@vger.kernel.org>; Fri, 29 May 2026 06:43:13 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780062191; cv=none;
+        d=google.com; s=arc-20240605;
+        b=cAR52yQ8anjFmu6SW4GiK5LuNhivm3ure2AAzi7dwBgyEq4Cvf6K88Qowz4URK3sze
+         KVyrR2twtuJc3urvnqszmUhJLsmmAeNY7JyGvd9qzZg1sffpax7DAmv1ZG8nchv9xcY1
+         PTUVDgeVQBrNeL7tzq8hQIkr9Qw8zmFSFIHO/ZCYYXF8bh/mP/6JEsQ3ghlwJTn8ovKI
+         /rOszNGpRRD/ILd+3+hYOyy2ms57ooE0H1JI69wm9v84kYM25X0wl6NdHvvDyxz/IuW+
+         sa6rx1OgQZtmKCmQ0Wb1SL3xUiuFmvA155M7gw34K/OyeVR9IH1ZnjM3FUfaf2HI/Ga/
+         V0GQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=wlqMbrRHzsH5O8CfcYnOTiyFxtngWB1nEvleeAFFVFg=;
+        fh=+D6xJ6BB9J6NyoJZZl71KoOEMrrFPGwz9kIyEgHHWvo=;
+        b=AGgINXyPPCfJM3STFegjYoTg0FU+zBLZDgCJ0WtBxxIesIwoHX/IH+wUlMgXEXlQi6
+         zqxp+VHbZZOmf4M3BsIEUlWPWsHlhxi8V1XfvFWm3W6RLTMKpQKezUC/WwJXrsxjS4PB
+         y2Bmxtsqo1sqd/jUOQEYSlKDO6wTIoU0Zii67hpCBQJbdRMA6xu4z2xgqrsJ1ZofIkXd
+         A7lMwMXa9dK0Pm9KKfW3Fm4OzqnpZCfP2FNQTpwQXe0p+nLTNwi3yyZRdHYcW6LTwZOK
+         /Q6Vd7weseqYyJVLW7dTihawh5jWHuq0MIAVTXCnXOCrFS71VjIpkBm7u0Qp3DY9shE+
+         V0zQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780062191; x=1780666991; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=wlqMbrRHzsH5O8CfcYnOTiyFxtngWB1nEvleeAFFVFg=;
+        b=EZl0kGxWNJrGFw5HlNJtpPOEYnOV4i6FSGIAu1Musa+rZemeMtYrBZvGJlCxJDZUEh
+         b98tnS+Ypwx+359KBaR7LhfdtfYxgeCgt3OUlt91TcIxawwgVDnxkOGjj1SLGo8DWmBO
+         sJn/kODTo5GsmjnRdyQnG/YTrCEEfx9FyEvq3ktBgd+Zs5pYD658CxoRFE/nUtysvA+T
+         PrzL01CPx7xLegcQI5xraWrJVF+2SCDBshBuqBRBLzUOtn/zsV24OtZrVAVlCO+fb0ys
+         9sSz4LqA/MmIBt08CrHu8n4JYwenPTdw64bv7Qaxwvcqa663xfIudujjq9m7YXgYrrcN
+         Mp+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780062191; x=1780666991;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=wlqMbrRHzsH5O8CfcYnOTiyFxtngWB1nEvleeAFFVFg=;
+        b=qR2d8SZTFcDKfWMbXNou1jRWN+DzfSqtOGVaqfz7Lae2AoviWRLmdfb1DcjXtupemV
+         NXIj3tVQGqhn2LwxlVyevXEnheHa4MSe/F6qktEJB9dnfxUy/k57KD/FQWzr/hvgQRS/
+         /XijJwxc6ERXZVkpjMaO/2s01EzIYGNXI2hq1uiTCLcPFLc1u/egit/f4OhHxs+KjGSg
+         2LP8J9ELubNpADxLXG5uibflCdJHRErp2jtW95P9f54asMmW5k3Trg92p+WPAu17tl1a
+         BhqmfMHwm6lMH8DmYvtdKvXqxSgqw3rFoZY0HWeUQXtvs6bJo5C5y3qmS84axALPSnJV
+         Me/w==
+X-Gm-Message-State: AOJu0YzYBOiDWRZT2ArFYKBuMN1gFBBJMwR4ccRfSe8Yvk8h8V3Os11W
+	NEyw8uNLSw4DHcX5fviT2ztmn1NNIXMszM1bFPlhylWz/eqv3TRSSjagtstDTQVKSAMq0ZoVirX
+	WqjwNSC1kPIFv7R9fchmSnRuA7SjsCz/CfYfO
+X-Gm-Gg: Acq92OHoTzPVkdQJFDsOdB5AMVJAc7H1bXWRAF6B/qOaf44negWFP84IwGTABx2a4F+
+	bKilVHmAwQOf3AldIBVxVps1mg/yht0REG8kXGId/SZ4r9b5VAf9JJJYVJpyUK446mmQAaTiE2j
+	jA1pSfNIdEcDo6uqw3STzdjL4NWzO00szCLtdp6NelOpKf5an5UPOKegbVNha2ZLMDnF/IuHsMr
+	t1Flu+6sWHlQBtw3dBTh6Ujx+RaBWG/LozNxJShmnU+nDnpo2+w5CQlY1n5Qfp/eMPWB1/KCY9z
+	HDuDKoH5JAS75IiDmyJYX/F56Q==
+X-Received: by 2002:a2e:bcc1:0:b0:38e:af87:8dee with SMTP id
+ 38308e7fff4ca-396539ca646mr9203511fa.22.1780062191138; Fri, 29 May 2026
+ 06:43:11 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: PowerPC: Random memory corruption causing kernel oops on Power11
-Content-Language: en-GB
-From: Venkat Rao Bagalkote <venkat88@linux.ibm.com>
-To: linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>, selinux@vger.kernel.org,
-        rppt@kernel.org, paul@paul-moore.com
-References: <03e5151a-f420-46f9-ad5e-109420132021@linux.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-In-Reply-To: <03e5151a-f420-46f9-ad5e-109420132021@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=QLJYgALL c=1 sm=1 tr=0 ts=6a19969a cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
- a=xVhDTqbCAAAA:8 a=VnNF1IyMAAAA:8 a=Es5cYSP9gH2uTasRBFEA:9 a=3ZKOabzyN94A:10
- a=QEXdDO2ut3YA:10 a=GrmWmAYt4dzCMttCBZOh:22
-X-Proofpoint-GUID: X95Oq2XxFmbTvXpUZFekBxqU1m9zmlsM
-X-Proofpoint-ORIG-GUID: X95Oq2XxFmbTvXpUZFekBxqU1m9zmlsM
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI5MDEzNiBTYWx0ZWRfX98yBgGkQ+DoP
- 1+Aieu2z0FjWtV39VZaf1OkZjVESqSCHIQeUA/47uQ9OJ3sA6ItyhGM4WiEFFt+yqtDMMyX+wBK
- 3fDpicUza8k49ZRnCdhRIScJqeyDgEq4EfCiUOeIHdm4TEzvLVw7bFjZEbzb/yNKCiMYzTq37GL
- xbQcYhWTGhGKCiMh1tHZfkhA6sMw4Z3vaPBbFeCpC/r0jcRMT0Q04Ng7cI6liZUQDzBwZV/NJGj
- r49z5aTSHdLznUPP20yPdJgngvkRkeAGzI82616bRoZnwm6Sp5jZQYHYnu/n/ISqnFi5WKtJ08n
- +Q5gkDTRFwRb7DotcEfDrtkmzNS75JFOR75Derbk3hdzxMqi87Z9KvOTx7Ae+SIJYV74DnUl2j9
- w/KJBh/JmJa6hmhxeGkakfRUbq3SVuXxlSPbL1261VJ6JT/2uNgXSUrO0jjBvMX4vicRsE8+EHb
- Y16/mLkhPjrheX6BQXw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-05-29_03,2026-05-28_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 suspectscore=0 impostorscore=0 malwarescore=0 adultscore=0
- lowpriorityscore=0 phishscore=0 clxscore=1011 priorityscore=1501 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2605290136
+References: <20260528163930.418992-2-nvraxn@posteo.uk>
+In-Reply-To: <20260528163930.418992-2-nvraxn@posteo.uk>
+From: James Carter <jwcart2@gmail.com>
+Date: Fri, 29 May 2026 09:42:59 -0400
+X-Gm-Features: AVHnY4LsjxnW9J26vC3chiCaDmqbXAttG6WitVKefU7Dc_-hhQctrhyyYCjfyF0
+Message-ID: <CAP+JOzRB=2-jSQaSVjVQ12YHb5yTM71yPrXmFDDG_FiaQaT3TQ@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: check the number of elements in the avtab
+To: Rahul Sandhu <nvraxn@posteo.uk>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Thu, May 28, 2026 at 12:57=E2=80=AFPM Rahul Sandhu <nvraxn@posteo.uk> wr=
+ote:
+>
+> Instead of counting each time we semantically see an AV rule, check the
+> number of elements in the access vector table. AV rules may collapse to
+> nothing, for example:
+>
+> (class foo (bar baz))
+> (classorder (foo))
+>
+> (allow t self (foo (not (bar baz))))
+>
+> Previously, the compiler would incorrectly count the above rule as one
+> AV rule, when in reality it collapses down to nothing as no permissions
+> are actually granted.
+>
+> Signed-off-by: Rahul Sandhu <nvraxn@posteo.uk>
 
-On 29/05/26 12:20 pm, Venkat Rao Bagalkote wrote:
-> Greetings!!!
->
-> Kernel 7.1.0-rc5-next-20260528 crashes randomly on IBM Power11 
-> hardware. Attached is the config file.
->
-> **System:**
-> - Hardware: IBM 9080-HEX Power11, pSeries
-> - Broken: 7.1.0-rc5-next-20260528
-> - Config: 64K pages, Radix MMU
->
->
-> **Problem:**
-> Different crash at each reboot.
->
->
-> **Example Crash 1:**
->
-> [    4.678016] BUG: Unable to handle kernel data access at 
-> 0xbffffffefec10628
-> [    4.678112] NIP [c008000004e3c74c] 
-> xfs_dir2_block_lookup_int+0xd4/0x300 [xfs]
-> [    4.678281] [c000000005eaf7d0] [c008000004e3c6d4] 
-> xfs_dir2_block_lookup_int+0x5c/0x300 [xfs]
-> [    4.678363] [c000000005eaf850] [c008000004e3d56c] 
-> xfs_dir2_block_lookup+0x44/0x1e0 [xfs]
->
->
-> **Example Crash 2:**
->
-> [    6.327116] BUG: Unable to handle kernel data access at 
-> 0x762f736563697695
-> [    6.327242] NIP [c00000000073cf34] __refill_obj_stock+0x74/0x2c0
-> [    6.327261] [c0000013ffdbfd10] [c0000000007418b8] 
-> obj_cgroup_uncharge+0x48/0x70
-> [    6.327271] [c0000013ffdbfd50] [c00000000062fffc] 
-> free_percpu.part.0+0x12c/0x630
->
->
+Acked-by: James Carter <jwcart2@gmail.com>
 
-Git bisect is pointing to 54067bacb49c selinux: hooks: use __getname() 
-to allocate path buffer as the first bad commit.
-
-
-# git bisect good
-54067bacb49caeada82b20b6bd706dca0cb99ffc is the first bad commit
-commit 54067bacb49caeada82b20b6bd706dca0cb99ffc
-Author: Mike Rapoport (Microsoft) <rppt@kernel.org>
-Date:   Wed May 20 11:18:56 2026 +0300
-
-     selinux: hooks: use __getname() to allocate path buffer
-
-     selinux_genfs_get_sid() allocates memory for a path with 
-__get_free_page()
-     although there is a dedicated helper for allocation of file paths:
-     __getname().
-
-     Replace __get_free_page() for allocation of a path buffer with 
-__getname().
-
-     Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-     Signed-off-by: Paul Moore <paul@paul-moore.com>
-
-  security/selinux/hooks.c | 4 ++--
-  1 file changed, 2 insertions(+), 2 deletions(-)
-
-# git bisect log
-git bisect start
-# status: waiting for both good and bad commits
-# good: [e7ae89a0c97ce2b68b0983cd01eda67cf373517d] Linux 7.1-rc5
-git bisect good e7ae89a0c97ce2b68b0983cd01eda67cf373517d
-# status: waiting for bad commit, 1 good commit known
-# bad: [f7af91adc230aa99e23330ecf85bc9badd9780ad] Add linux-next 
-specific files for 20260528
-git bisect bad f7af91adc230aa99e23330ecf85bc9badd9780ad
-# good: [7189ebc81d5e4cb4e03dc4040b07c582b95b09d5] Merge branch 
-'nand/next' of https://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux.git
-git bisect good 7189ebc81d5e4cb4e03dc4040b07c582b95b09d5
-# skip: [d22aa6f023f3fc275e1f994045a6b347288b2e5a] Merge branch 
-'watchdog-next' of 
-https://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git
-git bisect skip d22aa6f023f3fc275e1f994045a6b347288b2e5a
-# good: [40d5349aaaae55ec62451bfacc6189cf44ce02cb] iio: adc: ti-ads1298: 
-Add parentheses around macro parameter
-git bisect good 40d5349aaaae55ec62451bfacc6189cf44ce02cb
-# good: [6665ab5cf8e74edba571d3d2f31e575f89373dfd] Merge branch 
-'next-integrity' of 
-https://git.kernel.org/pub/scm/linux/kernel/git/zohar/linux-integrity
-git bisect good 6665ab5cf8e74edba571d3d2f31e575f89373dfd
-# bad: [4cc60db652df7ae5d659ec23325c341a52d065e0] Merge branch 
-'driver-core-next' of 
-https://git.kernel.org/pub/scm/linux/kernel/git/driver-core/driver-core.git
-git bisect bad 4cc60db652df7ae5d659ec23325c341a52d065e0
-# bad: [e1d469c38defe7fcb8c6f62a2b7dbf4a103da300] Merge branch 'master' 
-of https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git
-git bisect bad e1d469c38defe7fcb8c6f62a2b7dbf4a103da300
-# good: [4678d11f294de0fd295a265e02955b5d1a4a2684] Merge branch into 
-tip/master: 'x86/tdx'
-git bisect good 4678d11f294de0fd295a265e02955b5d1a4a2684
-# bad: [9397e02d718fc52703d753f489042293cd807dd3] Merge branch 'next' of 
-https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/audit.git
-git bisect bad 9397e02d718fc52703d753f489042293cd807dd3
-# good: [c574bdb524095d24169e229b2e3b9318c72e733a] watchdog: 
-ziirave_wdt: Use named initializers for struct i2c_device_id
-git bisect good c574bdb524095d24169e229b2e3b9318c72e733a
-# bad: [5568ff6b5e30c7736c24e2096e968c8785c2c245] Merge branch 
-'for-next-tpm' of 
-https://git.kernel.org/pub/scm/linux/kernel/git/jarkko/linux-tpmdd.git
-git bisect bad 5568ff6b5e30c7736c24e2096e968c8785c2c245
-# bad: [23f6b2756d28e76464c7e87850d3d4f6d8c8b365] Merge branch 'next' of 
-https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
-git bisect bad 23f6b2756d28e76464c7e87850d3d4f6d8c8b365
-# good: [ecf41f6218b58c72f1511e395e480f70a9f44889] selinux: reorder 
-policydb_index()
-git bisect good ecf41f6218b58c72f1511e395e480f70a9f44889
-# bad: [54067bacb49caeada82b20b6bd706dca0cb99ffc] selinux: hooks: use 
-__getname() to allocate path buffer
-git bisect bad 54067bacb49caeada82b20b6bd706dca0cb99ffc
-# good: [2f0af91353cb64b54cfee5423820d2149039338d] selinux: check for 
-simple types
-git bisect good 2f0af91353cb64b54cfee5423820d2149039338d
-# good: [bc3f08d1ef15ebbd32faf0b10cd9699b90b9d30c] selinux: use 
-k[mz]alloc() to allocate temporary buffers
-git bisect good bc3f08d1ef15ebbd32faf0b10cd9699b90b9d30c
-# first bad commit: [54067bacb49caeada82b20b6bd706dca0cb99ffc] selinux: 
-hooks: use __getname() to allocate path buffer
-
-
-> If you happen to fix this, please add below tag.
+> ---
+>  libsepol/cil/src/cil_binary.c | 6 ++++++
+>  libsepol/cil/src/cil_post.c   | 8 --------
+>  libsepol/cil/src/cil_verify.c | 6 ------
+>  libsepol/cil/src/cil_verify.h | 1 -
+>  4 files changed, 6 insertions(+), 15 deletions(-)
 >
-> Reported-by: Venkat Rao Bagalkote <venkat88@linux.ibm.com>
+> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.=
+c
+> index 74ec3cd5..dca1937a 100644
+> --- a/libsepol/cil/src/cil_binary.c
+> +++ b/libsepol/cil/src/cil_binary.c
+> @@ -5468,6 +5468,12 @@ int cil_binary_create_allocated_pdb(const struct c=
+il_db *db, sepol_policydb_t *p
+>                 goto exit;
+>         }
 >
+> +       if (pdb->te_avtab.nel =3D=3D 0) {
+> +               cil_log(CIL_ERR, "Policy must include at least one avrule=
+\n");
+> +               rc =3D SEPOL_ERR;
+> +               goto exit;
+> +       }
+> +
+>         rc =3D SEPOL_OK;
 >
-> Regards,
+>  exit:
+> diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
+> index 2b6dad73..fa59d337 100644
+> --- a/libsepol/cil/src/cil_post.c
+> +++ b/libsepol/cil/src/cil_post.c
+> @@ -2506,7 +2506,6 @@ exit:
+>  static int cil_post_verify(struct cil_db *db)
+>  {
+>         int rc =3D SEPOL_ERR;
+> -       int avrule_cnt =3D 0;
+>         int handleunknown =3D -1;
+>         int mls =3D -1;
+>         int nseuserdflt =3D 0;
+> @@ -2518,7 +2517,6 @@ static int cil_post_verify(struct cil_db *db)
 >
-> Venkat.
+>         extra_args.db =3D db;
+>         extra_args.csymtab =3D &csymtab;
+> -       extra_args.avrule_cnt =3D &avrule_cnt;
+>         extra_args.handleunknown =3D &handleunknown;
+>         extra_args.mls =3D &mls;
+>         extra_args.nseuserdflt =3D &nseuserdflt;
+> @@ -2548,12 +2546,6 @@ static int cil_post_verify(struct cil_db *db)
+>                 }
+>         }
+>
+> -       if (avrule_cnt =3D=3D 0) {
+> -               cil_log(CIL_ERR, "Policy must include at least one avrule=
+\n");
+> -               rc =3D SEPOL_ERR;
+> -               goto exit;
+> -       }
+> -
+>         if (nseuserdflt > 1) {
+>                 cil_log(CIL_ERR, "Policy cannot contain more than one sel=
+inuxuserdefault, found: %d\n", nseuserdflt);
+>                 rc =3D SEPOL_ERR;
+> diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.=
+c
+> index 9654d71d..d3c4fd81 100644
+> --- a/libsepol/cil/src/cil_verify.c
+> +++ b/libsepol/cil/src/cil_verify.c
+> @@ -1621,7 +1621,6 @@ exit:
+>  int __cil_verify_helper(struct cil_tree_node *node, uint32_t *finished, =
+void *extra_args)
+>  {
+>         int rc =3D SEPOL_ERR;
+> -       int *avrule_cnt =3D 0;
+>         int *handleunknown;
+>         int *mls;
+>         int *nseuserdflt =3D 0;
+> @@ -1635,7 +1634,6 @@ int __cil_verify_helper(struct cil_tree_node *node,=
+ uint32_t *finished, void *ex
+>         }
+>
+>         db =3D args->db;
+> -       avrule_cnt =3D args->avrule_cnt;
+>         handleunknown =3D args->handleunknown;
+>         mls =3D args->mls;
+>         nseuserdflt =3D args->nseuserdflt;
+> @@ -1671,10 +1669,6 @@ int __cil_verify_helper(struct cil_tree_node *node=
+, uint32_t *finished, void *ex
+>                 case CIL_TYPE:
+>                         rc =3D __cil_verify_type(node);
+>                         break;
+> -               case CIL_AVRULE:
+> -                       (*avrule_cnt)++;
+> -                       rc =3D SEPOL_OK;
+> -                       break;
+>                 case CIL_HANDLEUNKNOWN:
+>                         if (*handleunknown !=3D -1) {
+>                                 cil_log(CIL_ERR, "Policy can not have mor=
+e than one handleunknown\n");
+> diff --git a/libsepol/cil/src/cil_verify.h b/libsepol/cil/src/cil_verify.=
+h
+> index daa2f80a..f86d07ed 100644
+> --- a/libsepol/cil/src/cil_verify.h
+> +++ b/libsepol/cil/src/cil_verify.h
+> @@ -49,7 +49,6 @@ enum cil_syntax {
+>  struct cil_args_verify {
+>         struct cil_db *db;
+>         struct cil_complex_symtab *csymtab;
+> -       int *avrule_cnt;
+>         int *handleunknown;
+>         int *mls;
+>         int *nseuserdflt;
+> --
+> 2.54.0
+>
 >
