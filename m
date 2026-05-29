@@ -1,113 +1,137 @@
-Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.hallyn.com (mail.hallyn.com [178.63.66.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39C143B47CC
-	for <selinux@vger.kernel.org>; Fri, 29 May 2026 20:58:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.174
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780088285; cv=pass; b=MtpCE7kmQHhmE02iB6LRMVr+zpXXH4s46iUgjdaUDILdhderInLauWCwvRaTuPmLlYZ1zYRmjKbkEJE+h19vlawj7S9qT5Uc1g+257ScxnJVk0lwvhc7QLRz7mGqsez60WhrOf2Ctq0S7Q1Q5pg7OeYNYOx8f0EH53O+ixc1L1M=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780088285; c=relaxed/simple;
-	bh=37XjUteRpeDbMQqCpKJiQR1aI0a2VUsYnzBCdD4y+2g=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mqRAJTfY+2EDsxvJLrLYftoIHCqV69E+OjLM7vKpAZrroPYNiNwQztrna0UvkGsRTyyB9EO4nQrjv9VkMhi9KFBZKVEkNH7ex4P61W28n2rAOQ4f9Bt/C2y34BnFBGIHZOAE2Ja4xSur+8nDr90j68/ovNeqSx4xIpaW7bFsWkQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=dikATNqo; arc=pass smtp.client-ip=209.85.214.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1824B33E344;
+	Fri, 29 May 2026 23:03:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.63.66.53
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780095839; cv=none; b=c/H/wplg1U8Bbxrx2RMHhS572kr3V0A3tA6sOpYMrBTXtFlutbO7h2Y5TMvQSwRfDYtMn2YEgxf6D0lhXUY4n9UWmKcXmtZWYnxSr2Wu92ycuNjGS1fKLTR11aq6XdpL4dz2k4ByjjdWFovAgiEU5Mvt3+37ioE8wUCs/JpNWt4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780095839; c=relaxed/simple;
+	bh=PbHDSuSUvH4whdXkcxX5ZH6CF1EnRKy9QZpcEucp1T4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=lpAxg9RdvIzhdoVy4uBRZNk0LgKH+uT9YSeR4xAIkjXwHskaaRvdldBd8S7gcGhp5lfcyliArB06+kFKVdIN5A50WovYeUKhtPKwKdz3gWkU040UbQDr4bxjcu9HGgvzkDQij4cOeFw8pApvvl1ig7luYYE89kK8lLJFpia6txU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=hallyn.com; spf=pass smtp.mailfrom=mail.hallyn.com; dkim=pass (2048-bit key) header.d=hallyn.com header.i=@hallyn.com header.b=eaUcs0bG; arc=none smtp.client-ip=178.63.66.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=hallyn.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mail.hallyn.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="dikATNqo"
-Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2ba4a1a0325so96578425ad.0
-        for <selinux@vger.kernel.org>; Fri, 29 May 2026 13:58:04 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780088283; cv=none;
-        d=google.com; s=arc-20240605;
-        b=WpYyQUj1X/mGYkAB6J8PgNdTucEfvcxmq+NCd7BNj/0HhtjGI7jAaiYkNRt3/IU+Yu
-         RROUs5eiVg5Mo6iZ26MthigXEqnpjK7vyBYw5XrJWnHbSYIyQb7o37twBceopnmSgUVj
-         XOLAoQ2SUpqadP4ijEHwZL6Ed8QscvEqtbQQtkhzHJkUyNys1ctSSJVIDvSosq8t/wRm
-         aQznsINyiDGsWVeCd6l8CEI3dX3dRdljCi1mpMYepS06t6U+oqXeq7yEQfrTYEL5rEel
-         u/FhVTF1P8pcarc0uCBfjVOxGr1bvXaTE30vfv36RDhl/rU0GSkHNuwu0uywwKYwHzkG
-         Ih9g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=4RJ5qWAR9kneTV/y7CrfgMHNLhmzo+pzbwUiptfGKt4=;
-        fh=4X0QlFIXYaYSjpZIL3K4LoxspOsgPwBcj9vSfzL3QGU=;
-        b=QS4ZWu9EKGvaLNRr+kkZ88gRWEzX/hP9FarvWeJnz4Pqmlj3UD0o7FU6buDBzubK4e
-         YfBJLnsQAnmz+/7V/zIcK9cXyeUbxCKS7pvbebiPJc/oSiN803Z8b/Zd+wdTpKZ7485y
-         i8z4xbZokDQcXc75wx6l1FDXbv5YqFWOEV9ciExJ/DyJLSpJJbqBMHpnXi1CThA345zb
-         S/qINZb73qfEk/wIe4XnHWRDYHzjjbVbzXsdIeVd/FshhMTKrc38LSNq44XCwuzoyilZ
-         jXzIuibgmyzXpFVbeU6DLaxa3WkH1LvfILzB01yc2bGsaXCWmDQZ1S5BKEUcyERKLXhN
-         AP+w==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1780088283; x=1780693083; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=4RJ5qWAR9kneTV/y7CrfgMHNLhmzo+pzbwUiptfGKt4=;
-        b=dikATNqotl5ddNyLn8rp6ulaZ6nrbq+K9U4OMfAe2KF/T0NF2Ofd0N1pM7ZzAnc41z
-         VZmvbhtJTINbZVHeL1mcZ0rXZYImGIzERICaXtGc/h2moSQrh4GGIUnM/GgmrkNeJkVp
-         uAZ6EX75Lj9uclNfI5a+fTDLZvMe5h6EWALCTv+FC1nS7dSLwM0yfHHfA7zRoZCNj5lD
-         Ws/6jO1AWROULbTfako1RnxT0RYl5+7P0UwcZuxN45uJpc0jlZFvfM9xcW1SGy2EeAqM
-         izzZFGmdqg6wdjPTu+id+P5Ty4ei/d1rpmsGxBhGV8aplhqwYr53akP0iv2FfmQGU10p
-         RlZQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780088283; x=1780693083;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=4RJ5qWAR9kneTV/y7CrfgMHNLhmzo+pzbwUiptfGKt4=;
-        b=rgnDL2dt6EzRHAfBu60VRF6nJG9APyX98WH3NMjvLH4PZDiB6dfeZXeJfNFpckktf4
-         SFSWf2Olbj53MHjxYnhwAyvSEUHNJK5hOrvM608dClLI3V2eOLYNPsb5XX/zjcLyLg6y
-         ivw2HYXAKvtXZB9bzNI+lC/6KhzxCc6zRtoCqHffgtYWsptkaH09GHZIhLt7R9n+4Tas
-         qt1RTkmZofG3zk8/SXc3pnKqOmkdZBjAs6V6/8da+/iFecQnR88W3xlC3IDtUo1Gs9AA
-         2KyPZbBk10zL3Wpm9dBXqVjtiFHK3kD9R5RzCubObttoZiLdxcZ81EkevKXaszIYPAfU
-         /qpQ==
-X-Gm-Message-State: AOJu0YxTv9c8U+Y059nxlKSjEjZInKLHsAMpA7Aap73WYJChyLFsR5f1
-	FZ8zYKVGpQ9CBbqwDvQsPzpvVQfJUoXJlY9febxw2fqpAOi8rRjuEutVN99kbJfYh9InGhlTn0W
-	dXdD6nedxMR1Vnl7Tvg2UOVoH+cl7+1AI+B6p3VUlUNUBA/f8xoI/Og==
-X-Gm-Gg: Acq92OEeFuIsAEtiaul08E2rVlqQgIGClXuGYIFBOYChKlcLh/PfZ309aRy0nqiG8+C
-	+9Jr2NHJkKFMyahfFSfpibwtZZ48pB0KfiFdvIexzEHOlEaYsByQSoaGlFPb0lIHc/LJPdp0Idq
-	NFjE9YR+YmkOJbwnCHh/Xi633BZ6ZBgLLG1CGUhli17xHi0i3WuV59amb/Ur8A1s8d8RsL3rI3W
-	oxmFw6dxC5OMdaFlIktC6W+QnT3ZJDmDVkAEMvMSAiNegf/Fpe8yUcxZZvYbAGFfoy1UpHSb1R6
-	845TLGPrKvGHYe5X9w==
-X-Received: by 2002:a17:903:1b2d:b0:2b9:5d1b:73da with SMTP id
- d9443c01a7336-2bf3685da0fmr18050575ad.30.1780088283405; Fri, 29 May 2026
- 13:58:03 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=hallyn.com header.i=@hallyn.com header.b="eaUcs0bG"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=hallyn.com; s=mail;
+	t=1780095511; bh=PbHDSuSUvH4whdXkcxX5ZH6CF1EnRKy9QZpcEucp1T4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=eaUcs0bGtjCfWXcAelqkIkWJh4idb/KtXJ2rW5/fGKV0XeJQgcMcQPJPJYoRX9PuD
+	 ezlL7AsZ7II5wM7PWEaBU7jM+i7Zr8jbmDSBU0FhjPdn5iyplM6g6Wuy2nmHKNLhqn
+	 YeWT6IZiSYW7XliipjahsBf1AZTzL9y2GBvSqV9qCDFAjDBxmyAh1FBz/NsCBykJEH
+	 Uu6yt8OyGVPg+SFl3gj/u6dhph6wnpnxCOvwIFfoF9wXKLkI0jgv+Mt2mr0v1E4Prf
+	 3FvBJFSYNEUN2oxG6sjARcoCU7bybJTPi8QHTVzJ4KxD82XGY3H9tJm+ZlkrL3Yami
+	 Yep2RjNtoUydw==
+Received: by mail.hallyn.com (Postfix, from userid 1001)
+	id 7430B79; Fri, 29 May 2026 17:58:31 -0500 (CDT)
+Date: Fri, 29 May 2026 17:58:31 -0500
+From: "Serge E. Hallyn" <serge@hallyn.com>
+To: William Roberts <bill.c.roberts@gmail.com>
+Cc: Casey Schaufler <casey@schaufler-ca.com>,
+	LSM <linux-security-module@vger.kernel.org>,
+	SElinux list <selinux@vger.kernel.org>
+Subject: Re: security_task_prctl: why -ENOSYS
+Message-ID: <ahoaFz8DMMvWgqL+@mail.hallyn.com>
+References: <CAFftDdrzV2xC7HBcgS8EPb-YewJyCK9uos4crXOCh5ONm6SxSg@mail.gmail.com>
+ <CAFftDdqp8b5n21hdEP6w0-PK+CoG7mmQxgrnhpBLU7-1GZxniw@mail.gmail.com>
+ <090a355d-3680-4113-a542-ff3b1c565f58@schaufler-ca.com>
+ <CAFftDdqvvqrbm=+XsDdkJHdm12jxK9799_A=Txz6Q5goYC2ALQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260529153608.30853-2-paul@paul-moore.com>
-In-Reply-To: <20260529153608.30853-2-paul@paul-moore.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 29 May 2026 16:57:52 -0400
-X-Gm-Features: AVHnY4JiQ9cDBQq9udYCC8L9qmR_XaAmppNiV9eMBMyPQWqoO0FY1AV4Zehp8Oo
-Message-ID: <CAHC9VhSdgeYNNhuHuRYq+_FSW_NtVSyepC9FCbXppcLVterQ4g@mail.gmail.com>
-Subject: Re: [PATCH] selinux: revert use of __getname() in selinux_genfs_get_sid()
-To: selinux@vger.kernel.org
-Cc: Mike Rapoport <rppt@kernel.org>, Venkat Rao Bagalkote <venkat88@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAFftDdqvvqrbm=+XsDdkJHdm12jxK9799_A=Txz6Q5goYC2ALQ@mail.gmail.com>
 
-On Fri, May 29, 2026 at 11:36=E2=80=AFAM Paul Moore <paul@paul-moore.com> w=
-rote:
->
-> Revert commit 54067bacb49c ("selinux: hooks: use __getname() to allocate
-> path buffer") as it improperly assumed that PATH_MAX =3D=3D PAGE_SIZE
-> everywhere.  Moving away from __get_free_page() is still a good thing and
-> will be revisited in the future.
->
-> Cc: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> Reported-by: Venkat Rao Bagalkote <venkat88@linux.ibm.com>
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
-> ---
->  security/selinux/hooks.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+On Wed, May 27, 2026 at 11:05:56AM -0500, William Roberts wrote:
+> On Tue, May 26, 2026 at 6:42 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> >
+> > On 5/26/2026 4:21 PM, William Roberts wrote:
+> > > On Tue, May 26, 2026 at 5:39 PM William Roberts
+> > > <bill.c.roberts@gmail.com> wrote:
+> > >> Hello,
+> > >>
+> > >> I am trying to understand the motivation behind having
+> > >> security_task_prctl only continue if the return value is -ENOSYS. This
+> > >> seems to be very different from other LSM hooks I have investigated.
+> > >> For example, in other hooks, the value from SE Linux avc_has_perms is
+> > >> used directly. This essentially means that a 0 will cause the check to
+> > >> pass, and anything < 0 usually an error.
+> > >>
+> > >> In commit:
+> > >> ----
+> > >> commit d84f4f992cbd76e8f39c488cf0c5d123843923b1 ("CRED: Inaugurate COW
+> > >> credentials")
+> > >>
+> > >> (8) security_task_prctl() and cap_task_prctl().
+> > >>
+> > >>          security_task_prctl() has been modified to return -ENOSYS if it doesn't
+> > >>          want to handle a function, or otherwise return the return
+> > >> value directly
+> > >>          rather than through an argument.
+> > >>
+> > >>          Additionally, cap_task_prctl() now prepares a new set of
+> > >> credentials, even
+> > >>          if it doesn't end up using it.
+> > >> ----
+> > >>
+> > >> The check in kernel/sys.c is currently:
+> > >>         error = security_task_prctl(option, arg2, arg3, arg4, arg5);
+> > >>         if (error != -ENOSYS)
+> > >>                 return error;
+> > >>
+> > >> Should this be something like, "error && error != -ENOSYS"?
+> > >>
+> > >> I ask because I am looking to leverage this hook in SE Linux, and it's
+> > >> annoying to have to coerce all 0 returns to -ENOSYS.
+> > > Of course after hours of banging my head and one email sent, it's more clear to
+> > > me now WHY. This hook isn't meant for making yes or no decisions on an operation
+> > > but rather to also handle special prctl flags for an LSM in question.
+> > >
+> > > I guess with the said, do we want this interface to be used for both
+> > > a, let the lsm handle
+> > > this prctl flag directed to me, as well as a yes/no security decision
+> > > or do we want to split
+> > > this out into two hooks?
+> >
+> > The task_prctl hook is used in capability and yama. It is only used to
+> > provide a place to process LSM specific prctl options. It is not used to
+> > make security decisions outside of processing the LSM's options. If you
+> > want to make security decisions on general prctl options you will need
+> > a new hook.
+> 
+> Yeah I finally saw that after I sent the email, as always :-p, but thanks
+> Casey for confirming my understanding.
+> 
+> So now for naming... We have security_task_prctl for handling random
+> prctl interface calls into LSMs. So what should this hook be called?
+> Perhaps security_task_prctl_check? Should we rename the old hook to
 
-This has been mered into selinux/dev.
+How about security_task_prctl_allowed()?  (Mirroring security_uring_*)
 
---=20
-paul-moore.com
+Renaming the existing hook security_task_prctl_handle() also wouldn't
+be too bad, but that's probably more churn than it's worth.
+
+> something else?
+> 
+> For now, I will just pick a name, but suggestions are welcome.
+> 
+> As an aside, any lore as to why go through generic prctl vs an
+> LSM specific filesystem or an lsm specific prctl (we already
+> have arch_prctl why not lsm_prctl)?
+> 
+> 
+> 
+> 
+> 
+> >
+> > >
+> > >> Thanks,
+> > >> Bill
