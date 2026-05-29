@@ -1,130 +1,137 @@
-Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
+Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F8332192F4
-	for <selinux@vger.kernel.org>; Fri, 29 May 2026 16:11:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.182
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780071085; cv=pass; b=UggibkqyuStaw8XqB44+EclKXVEhBaZf4abRgqTrJp1roknE6snVpl69ftgnJPOKM7eg26mbEVEOgzkHrCNZDqMdDG7Qozdw20MJ8bEY/yukiNhIS+XXEsp2bd6E/+K7f4nrY79TyNR9tVXXtn3h26BIfX5nCZO71zb8JpF4Xno=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780071085; c=relaxed/simple;
-	bh=LOEaPD7Rz0zsPbSOZbfxpmu2DbPZ8teKVvGhPB/4or8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bcX6P2T7TyKpvJlH71eJQlAy0CziEQRWn7wW4HeCHjHZM1mX3FCJw3UCHA1PgI8U6aDM6flCrjP4fTeJlx5FAauv3iCyp+aDMoSEywbzRShq5SUIpKg3edtQ70WSL7qdFf8Aa7N8LsIAODiiegBl+U3csi8Km0YfnxsNOGDHPAE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AgWIRKCP; arc=pass smtp.client-ip=209.85.215.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03F462192F4
+	for <selinux@vger.kernel.org>; Fri, 29 May 2026 16:18:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.54
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780071544; cv=none; b=r49v/yboud5xvnRZwj/9hNAnjj6BKUhgMvqoSKVPo2SquYEo9VPnlgcD4t7TwAYuEmTBZw+l65wNVOT0I4t3Vl7h8T/iiiIu8Ru4Y78wWntu8BH5Tz4foinCm1n69odfnyYn0TO4rebJ15YOVGGT672WPLKj7/zVHIj1ghzkaC4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780071544; c=relaxed/simple;
+	bh=SkWjuvQQzYSRCCcQFZmLShIe2VMnWL7NbyvJUTYNoRM=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=bN8Bx8LtpJvU2ADSNurxBEMgjZP2JDct6AREhztE+e/8E6YqxnE3nDsyNxMH1hrerEQBoDZ9qVJg4dhK2mEJKcDFnhJfbbkLdQ3HdDX1eW5r5FcrSoaVez9ES7U7J+3iEa+0AgqYrepR2hqGA2ZqdH9qSId3Mp34qaq6M9t2ZIc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bVokjG6J; arc=none smtp.client-ip=209.85.128.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AgWIRKCP"
-Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-c70c112cb61so10753627a12.0
-        for <selinux@vger.kernel.org>; Fri, 29 May 2026 09:11:24 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780071084; cv=none;
-        d=google.com; s=arc-20240605;
-        b=Q6JpvOXcul1jH0ilHxT3J/eFkZIQjHUauDnDL4tFY/C5Y9Sewu/Q6n7FfffpK5DQah
-         9ypwXxrdVpH6bwtlB5kdenV/x9j3lsyoiByhxZIdewdCk6zJZsE4SeMnpmI986Qmi7Wn
-         +1veGw1fBX1nbzH8RgvtBgiESha5mEGGwLVjsNIpWyu0IDhizgU66QM6PdJEmbSKpC70
-         GB3/0ViEqR+oXLpiyqCTVWrt8IPucf/HlDDawzDJmu+jLecyoAwcqqIC8lqh+2MrN7Id
-         5zV9looUoHxWkhhit+En6HCmaGcRRZimOsWtIcrBMpRigGSpl/4ipLjiWqHongBkdXhJ
-         rrRw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=LOEaPD7Rz0zsPbSOZbfxpmu2DbPZ8teKVvGhPB/4or8=;
-        fh=hdhbLxUDy1e2/6QluAmQxiLFPIcUmbNAnjlGW/Dv0Hg=;
-        b=e87TaK19g1Q2LAnVStF3W5CyhkoHDB1VIxRYaCaBa03l/WXPCb0QwHTq/IZCM6LmL9
-         TDw7vrx5NM+ta3sVjy1JvqAZpBJMKPtMuR9rHz0HugLSBU2hapmVer9IMrGQz/7eXg+3
-         AvW5LoJ+akYdX68Ki+SddQ4jz/yHagpHGs9lt9Kr8HWdCHhW5iB5cICB99atys72Ug3N
-         I1XmjM1/ElcYHpLYUCe8oUoYloMpRESrv9fKZrPs56BObSYn1aUIQnv1CBqilhNeBgQG
-         eISxM3i7jGSuiYwHpv0jHn3Zbku8fe0sHXOi20vww/d3JbQiCHhExfRNMccAxOXWM2Px
-         U4qQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bVokjG6J"
+Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-4891d7164ddso67515375e9.3
+        for <selinux@vger.kernel.org>; Fri, 29 May 2026 09:18:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780071084; x=1780675884; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1780071537; x=1780676337; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=LOEaPD7Rz0zsPbSOZbfxpmu2DbPZ8teKVvGhPB/4or8=;
-        b=AgWIRKCPHSu1MLqwMiYstxYsLmf/eia7r8RofOiwW+YMQpyGX69Ts5fLNYcBByfV8d
-         VYNnmx6qY2H3SPDI0wAV6EIb9SZsMDNA8UdVz4+jjFaCO4nGUBUKdVIiCbOjTogR4fWb
-         4l5hmCHerwII30+MH1iLuQCwUVcDRJqp6FJlmxiTRpMyCQrI7686dyewmytTSwTY5DJl
-         p6ZsK/4ULRIysPSnkwIXjVDNvv/SKz8wGcqsxcCg8J+jS6pTodOgqJj7oNI/IpmyRWLi
-         t69Xrv9I8KSKZAv+U8OgJDElY5aS4BiDyeevg7VE9f/RVNwEz3td6/SVdAc3l1ub0BZU
-         Q67g==
+        bh=R8ivf4oZU2OMq2EC4pcFXCevvcnJjeHsSceuHKJCb7Y=;
+        b=bVokjG6JN4p5PKkZsoUF/8Zv+qHrM1qGCU9q5BWlsKYbgLriBtd7TUuOXvPaIc06IP
+         RczGktbCaGwQtJ4ZfVWavQOa1ZATpK3ZFqcdzraxHCwXriSzx5GEaCx87YUaFekEO0dy
+         sSSiUroNH9ZNKNDEw61sgc2TKMFVDRGFhTRBPOiQ95T37cc0t7BeEpZAR6ZLYUe7tb4A
+         EiySrEH/WtbqCSYxvjKQ3TdApY6GKMzYAfSMmVZnJuPeHGT0YYLvTyCcPgPEky2NoJxj
+         s3A2UH/PuYcGNmn22FNCGg4K3ERqvmu0uZH2c8R7WsGPxP3XrnZUL7vZlqkXX7Y6H+1/
+         7A7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780071084; x=1780675884;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20251104; t=1780071537; x=1780676337;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=LOEaPD7Rz0zsPbSOZbfxpmu2DbPZ8teKVvGhPB/4or8=;
-        b=dUeU63XP5KWChlOc2B2CJHSk6HRDXfj4M1QGQe700coldt9elcb+f+dYK5rQwtUhRo
-         QAuOxE5yLMxuH1QM4SLJrMADBKXHPihJbhY/fPLT8umkOie7Bx6chTC2YPdNkfWUBmp6
-         diDJ5qSNH2NVYX0X4KABnAA/MBd1z/T0uNhX0q5SrgV9kywOJbBvBD3IRFZekSIuBupK
-         WVC/+GN0vGaf7PkLqqNc7Vc/HTEAhR6g6dyilL7Q37N4UX4Ms3qGRaoZa+556UPVlDbW
-         nGo0eEjyadI4L+SiUM+86Ae1w2AnZv978pqw66m+NUaodUdWNFXkJvuUUiCgW4GZK+aR
-         ZSaA==
-X-Forwarded-Encrypted: i=1; AFNElJ/Gv5aEbHpW+1v1pWJRC4qpVC3ZZgfZzgJomMyF81p5ZiXZdpDXy6oB1JFYT2qyw946GlfOtJXB@vger.kernel.org
-X-Gm-Message-State: AOJu0YztiauIuo+Gxn/yqurMSqhcPG/Lkh7EP129I36WZkVvcyQkNpNS
-	uhfKXNHo1isjt9DIQlbtmkcvQSLynLctXnLBbmKqkVsh+Zb1UJ0btMSL9TcqKSSO1zqjdJIledi
-	iMQZsx0s/iewJpW/c6EAVDYtHBA8GiU4=
-X-Gm-Gg: Acq92OFjFwatL7jYsX5oAT1y70hPVO7s00W0lwi4HSq9iYsitTBSEzcRPwcGnq07daX
-	3EUp+VnrpuIhAGWX3YkxNBqASRqhTiAd8jRYC6ycbP7RDVelt3ykqk3TjoNbGUKOBVPHRPzg4Yn
-	tZzZpqecD5XGilkSGI1ctImhYfo4y4C0RmydMzhh218zWHd3T6BbWGItG+I1jsSfsKbBvDlfqF+
-	xa84uLg4attaxzVQjUFRmbEqdr+RY3lHqwe81HyUP+CEBNKDE2aobI930kBgx1OFXLRTCw0Lft/
-	PfsttdIVIIYdu0qC8w==
-X-Received: by 2002:a05:6a20:e306:b0:398:9d5f:e093 with SMTP id
- adf61e73a8af0-3b411cd03aamr4325288637.19.1780071083461; Fri, 29 May 2026
- 09:11:23 -0700 (PDT)
+        bh=R8ivf4oZU2OMq2EC4pcFXCevvcnJjeHsSceuHKJCb7Y=;
+        b=drIxdaViwUDweFs+23DUFv87dExb3dC7Y64ESjTS9OTHGzpVM2Iz59TnYU4QtNXVp5
+         J0tj7Kdw+EHOn85RmJw9P9tDi821OV1eDXioMjPkuUgdRHj174RxGux2JjbLHBKFBdSG
+         a0i2ZmEGwg8CAo8ZweJfdvU6ohrfoWSatpsLATwdqxGLT2bV1rwheITAwsf6aKbss3NU
+         1sVIzBxgFdKT5avK9WrIMj8LDXXsaim0nx1MdJ4ZcPxw0lZ/h1h2AaF6B/v8TN7PDajT
+         PU9JJENuWGRN/lQTFfDuySZpFkGFEPAAkEs9Y8EQTuDen0aU4NTPB/gWFKapxlKkGUsA
+         5LZQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8WBm7Xh98FujNQwWKuV+jb8/VRt2Q7/qn/DbKVg1GVp60fjOBEdrY5jSGUBd0j6dx71k+F5Oqq@vger.kernel.org
+X-Gm-Message-State: AOJu0YxXuC3HIXQy54+yNIzyzWaR8qF6/DOuie9qHHvLJZoaTJ3jEFyM
+	hEULJSdmG32sjPzSX5IFnXjLvJ63MZyyHnMTJdKK7T5Rs7jJ4YzA5cKS
+X-Gm-Gg: Acq92OGSiNAoCzgOfNvTNka+TC5lLsr5xRaAK4hz37YmAbHmK+jsVFs0jTFf92qCdIg
+	od+RbKwTvPD1IwZpo7z5lCrCZP1SiLU+SZmbxPcxZImzGeZY6y1J2eneqWh42fCOOLxMumd4yK4
+	zpdogb9AkdOEBEG1E6I9aqbGy1g+m1lqKVAs/46Wkfuq+WsrsDIu0FFEFs/b70IooiIrxoxhxoh
+	Bzv+9du73NRLks/aSsMnFZijkHpjUQa6wiUwm1atO7zj8hBT5BqNP1NxOJxj2yA1AWmPa1SHuu7
+	mwzCxQWpPmYfBYSsh8EBC4F2pfH4A6I36Hn6UJYmsOCz1Nz4YubdzMiyQ2udhRp0+CBzaybWjgg
+	a1yFIwosZ/IuHV8s2sq18RPVPkZvUx4F52uPa8OUvrBb4W2pErDGHO+ISwHI0c5HUngkJIR3waE
+	zGZQKdwOFGtX9GP1o2Z+5+Eh47zdEcXx8TSwft4G8cQTU5vOUNZ6W1D4MM3Jy/LxX62XrBrbg=
+X-Received: by 2002:a05:600c:314e:b0:490:31e:d6fd with SMTP id 5b1f17b1804b1-490a2968488mr4398265e9.25.1780071537044;
+        Fri, 29 May 2026 09:18:57 -0700 (PDT)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4909c0498e0sm25344335e9.0.2026.05.29.09.18.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 29 May 2026 09:18:56 -0700 (PDT)
+Date: Fri, 29 May 2026 17:18:55 +0100
+From: David Laight <david.laight.linux@gmail.com>
+To: Venkat Rao Bagalkote <venkat88@linux.ibm.com>
+Cc: linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, Madhavan Srinivasan
+ <maddy@linux.ibm.com>, selinux@vger.kernel.org, rppt@kernel.org,
+ paul@paul-moore.com, LKML <linux-kernel@vger.kernel.org>, Ritesh Harjani
+ <riteshh@linux.ibm.com>, "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
+Subject: Re: PowerPC: Random memory corruption causing kernel oops on
+ Power11
+Message-ID: <20260529171855.7966b752@pumpkin>
+In-Reply-To: <8f0c86f7-eab4-4e82-97c1-5d190c390770@linux.ibm.com>
+References: <03e5151a-f420-46f9-ad5e-109420132021@linux.ibm.com>
+	<8f0c86f7-eab4-4e82-97c1-5d190c390770@linux.ibm.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <03e5151a-f420-46f9-ad5e-109420132021@linux.ibm.com>
- <8f0c86f7-eab4-4e82-97c1-5d190c390770@linux.ibm.com> <CAEjxPJ7Y+9AqEVTJswUsan4OOP+DVkFG3vXukQVtcJZbVaoZnA@mail.gmail.com>
- <CAEjxPJ6DqhHKdjwC3ddZfUK4HVPwOTzb1Kkuabi5WmwmF8Lu_A@mail.gmail.com> <CAHC9VhSEjSmdVgNxg=PvwS6RXnJzFybJtFhCJbOsKiRhXi5PJQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhSEjSmdVgNxg=PvwS6RXnJzFybJtFhCJbOsKiRhXi5PJQ@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 29 May 2026 12:11:11 -0400
-X-Gm-Features: AVHnY4L4gN19PG3AQEBx0PURc8Ls8mq8w1hJmRjX8Fp47k7jg82ZQUCRn7L1ESw
-Message-ID: <CAEjxPJ5wS+sXvCjO3q2sfrckuMo71_Y3uSdgu+Vte7xLkW0Huw@mail.gmail.com>
-Subject: Re: PowerPC: Random memory corruption causing kernel oops on Power11
-To: Paul Moore <paul@paul-moore.com>
-Cc: rppt@kernel.org, Venkat Rao Bagalkote <venkat88@linux.ibm.com>, 
-	linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	selinux@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, 
-	Ritesh Harjani <riteshh@linux.ibm.com>, "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, May 29, 2026 at 11:39=E2=80=AFAM Paul Moore <paul@paul-moore.com> w=
-rote:
->
-> On Fri, May 29, 2026 at 11:19=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> > Alternatively, I suppose we could just update the dentry_path_raw()
-> > call to also pass PATH_MAX, but
-> > I don't see why we want to use __getname/__putname() instead of just
-> > direct kmalloc/kfree here so
-> > the size of the buffer is immediately evident to the reader.
->
-> It's reverted, see the posting below:
->
-> https://lore.kernel.org/selinux/20260529153608.30853-2-paul@paul-moore.co=
-m
->
-> I think there is still value in using __getname()/__putname() here as
-> opposed to a simple kmalloc()/kfree() pairing, but either way we need
-> to adjust the buffer length in selinux_genfs_get_sid() accordingly to
-> use PATH_MAX instead of PAGE_SIZE.
+On Fri, 29 May 2026 19:07:22 +0530
+Venkat Rao Bagalkote <venkat88@linux.ibm.com> wrote:
 
-IIUC, __getname()/__putname() were originally internal helpers for
-getname()/putname() and allocated from names_cachep for struct
-filename. commit c3a3577cdb35 ("struct filename: use names_cachep only
-for getname() and friends") switched __getname()/__putname() over to
-just generic kmalloc/kfree so that other users of those helpers would
-stop allocating from names_cachep and noted that those lingering users
-could be converted to explicit kmalloc() over time. So I don't think
-vfs folks want new users of __getname()/__putname() but I could be
-wrong.
+> On 29/05/26 12:20 pm, Venkat Rao Bagalkote wrote:
+> > Greetings!!!
+> >
+> > Kernel 7.1.0-rc5-next-20260528 crashes randomly on IBM Power11=20
+> > hardware. Attached is the config file.
+> >
+.
+>=20
+> Git bisect is pointing to 54067bacb49c selinux: hooks: use __getname()=20
+> to allocate path buffer as the first bad commit.
+>=20
+>=20
+> # git bisect good
+> 54067bacb49caeada82b20b6bd706dca0cb99ffc is the first bad commit
+> commit 54067bacb49caeada82b20b6bd706dca0cb99ffc
+> Author: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> Date:=C2=A0 =C2=A0Wed May 20 11:18:56 2026 +0300
+>=20
+>  =C2=A0 =C2=A0 selinux: hooks: use __getname() to allocate path buffer
+>=20
+>  =C2=A0 =C2=A0 selinux_genfs_get_sid() allocates memory for a path with=20
+> __get_free_page()
+>  =C2=A0 =C2=A0 although there is a dedicated helper for allocation of fil=
+e paths:
+>  =C2=A0 =C2=A0 __getname().
+>=20
+>  =C2=A0 =C2=A0 Replace __get_free_page() for allocation of a path buffer =
+with=20
+> __getname().
+>=20
+>  =C2=A0 =C2=A0 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+>  =C2=A0 =C2=A0 Signed-off-by: Paul Moore <paul@paul-moore.com>
+>=20
+>  =C2=A0security/selinux/hooks.c | 4 ++--
+>  =C2=A01 file changed, 2 insertions(+), 2 deletions(-)
+
+__getname() is kmalloc(PATH_MAX) aka kmalloc(4096).
+
+The old code was:
+	buffer =3D (char *)__get_free_page(GFP_KERNEL);
+	if (!buffer)
+		return -ENOMEM;
+
+	path =3D dentry_path_raw(dentry, buffer, PAGE_SIZE);
+only the allocate was changed.
+
+PAGE_SIZE is not the length of the buffer.
+Should be PATH_MAX.
+
+-- David
+
