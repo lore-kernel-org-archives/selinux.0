@@ -1,42 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B079737E303;
-	Sun, 31 May 2026 15:15:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1610F18E02A;
+	Sun, 31 May 2026 15:16:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780240509; cv=none; b=TLKe521Hwo3Sqop9gfQNZMlisNYIk2Z8heOeK9i5Z+4XY709zjKsWf8uCyC8Y3cZOEdGRQQuI07c+dA3HY+gVvo0nFb2b/mEBciZ/2Qj9272lMfNJfm5gjf08Mf8/TEynagvjh2rUYlOdwieEBazRbPyphD1Zx0XPJlouoRh0fA=
+	t=1780240563; cv=none; b=j81pL5KVLzLxuOWSEJiENudCKBxU7EJ/0dyD2ERl/Xn+yOeg5BXNxrc9hgKtaC01kyc3+BuDQlxcKn4qFzuntl+B7ymybGhgMr5h7HvpbAV4/L+lQUnGmV1m0kBB/9ri33BBqtuCfr1Ef3KvySCOjPHMHPtEazx32Jk6UmEErAw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780240509; c=relaxed/simple;
-	bh=hpE1yswsCE1IWztZlgPRsxaOiET3mRWldHteKzzqj7M=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rEq3n/spG37HF0Cpu4JSsjfcZ00Qxi5vmRomukmKfAW5ysUsp92X+fVdBZmKDrgJ3MugEMNacLBCYwIGR62xUaMDggy3QakAPXqLt/P9N0GCAZWfs7wBtzb0DqPw5hJe7yFQIx2xWkZHe6fQLfdEvxD1rq0BgkOp47iOKRawRLg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EPdvPH8I; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780240563; c=relaxed/simple;
+	bh=6GIeMUWLL42mC0pmtBIIiYZlfC5pVVlaldwbVnIj52E=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WrblPki5fvCEVGKH7vp8YObmwAvaCvAQxHWXZj2vrDFCt/jsx8e3nTYW88DNbiVCk2TeCyorM+r9mrP4cxJf0A+4Tssd3QNaRJ5eunrxAEVRaa90Vk0qzCx4nndYSLAfglKOpNC3eedfWYjlM8C5kWxh5fDeWRYaxbQdnMV7A3s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NPK409mn; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EPdvPH8I"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44D471F00893;
-	Sun, 31 May 2026 15:15:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NPK409mn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B248B1F00893;
+	Sun, 31 May 2026 15:15:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780240508;
-	bh=vuEQbwwKyO30Nemm7p6CWpzET2/kiphIT966xrtNLBg=;
+	s=k20260515; t=1780240561;
+	bh=HUIMt2USvrXRNmCyTgVh4J7vtxhqsrK2FAMk63fD6kI=;
 	h=From:To:Cc:Subject:Date;
-	b=EPdvPH8ICHFH1z+9dpuJ5Qju7Nvy8Pvn1kUT2Ylln+8a5IF4hN61iq/ua3jQfg/aK
-	 sPn1EYUDoswVY9Rj31mEzgvtt7XVSWcIgkPQIo+4rOFqFu09l92gNT1CwSP2Cb1ogq
-	 rHDK7XJVbbkQO65fev0qhrhpb5P9+7MO0Jf4SOgyAbOTdgdJd+oUQjE4XLrDd6nEHM
-	 /oL0sDQlf6NaEXhsrZCzjjF6UF3yKMHG20MSAqh3dPo3NangCCuNbXKBzSXPI1J/ag
-	 kKFTLr+EGHO70dhVWeL3lcgs63hDELQw1tZ7N7StvNj9yXBYAa7S5Zxdk597ThWNco
-	 uph5Z8UX6TBGQ==
+	b=NPK409mnG19WePmtDeNtvdGBm5w0QAIpnGSb5ttKNwyFj5TnNMJ5ND4bt/qhCvC6o
+	 up6I6eQIkxR0s7kfErgzVxauKQpLRbvzP6WkRmR+nrDYq15lx9WiwuGr99+MfRlzpR
+	 8xSnVsEneNxKuh7L5GOBEZne582bIRPhXfyL2wPOP9gdCz7+2ufWDEudWS1ePe/OHm
+	 L4IJAFy0lOzTg1KYiuSCl5DJ+Wxl2gKxWJxb2qYQJKu/L/vTOw8PKMfB+0IV0UW71f
+	 xQv9bE5q8TAjacCSBVIuInSq8WuNSovGXac8k4AYDeqqZeF7gbkUt70LsJsHLstrAQ
+	 FcfCby8fMTpcg==
 From: Mike Rapoport <rppt@kernel.org>
-To: Paul Moore <paul@paul-moore.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: David Laight <david.laight.linux@gmail.com>,
+To: John Johansen <john.johansen@canonical.com>
+Cc: Paul Moore <paul@paul-moore.com>,
+	James Morris <jmorris@namei.org>,
 	Mike Rapoport <rppt@kernel.org>,
-	Ondrej Mosnacek <omosnace@redhat.com>,
-	Venkat Rao Bagalkote <venkat88@linux.ibm.com>,
+	"Serge E. Hallyn" <serge@hallyn.com>,
+	apparmor@lists.ubuntu.com,
 	selinux@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2] selinux: hooks: use kmalloc() to allocate path buffer
-Date: Sun, 31 May 2026 18:15:02 +0300
-Message-ID: <20260531151502.1467515-1-rppt@kernel.org>
+Subject: [PATCH RESEND] apparmor: replace get_zeroed_page() with kzalloc()
+Date: Sun, 31 May 2026 18:15:56 +0300
+Message-ID: <20260531151556.1467596-1-rppt@kernel.org>
 X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -48,50 +48,51 @@ Content-Transfer-Encoding: 8bit
 
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
 
-selinux_genfs_get_sid() allocates memory for a path with __get_free_page().
+multi_transaction_new() allocates memory with get_zeroed_page() and uses
+it as struct multi_transaction.
 
-Such usage does not require a "page" and the size of the buffer should
-actually be PATH_MAX which may be less than PAGE_SIZE on some
-architectures.
+The usage of that structure does not require struct page access and it is
+better to allocate multi_transaction objects with kzalloc() that provides
+better scalability and more debugging possibilities.
 
-Replace __get_free_page() for allocation of a path buffer with kmalloc()
-and make it explicit that the buffer size is PATH_MAX.
+Replace use of get_zeroed_page() with kzalloc().
 
+Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.com
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
-v2 changes:
-* explicitly use kmalloc() with PATH_MAX
+ security/apparmor/apparmorfs.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
- security/selinux/hooks.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 0f704380a8c8..19493198ece1 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -1336,11 +1336,11 @@ static int selinux_genfs_get_sid(struct dentry *dentry,
- 	struct super_block *sb = dentry->d_sb;
- 	char *buffer, *path;
+diff --git a/security/apparmor/apparmorfs.c b/security/apparmor/apparmorfs.c
+index ededaf46f3ca..e5c99c71e7ca 100644
+--- a/security/apparmor/apparmorfs.c
++++ b/security/apparmor/apparmorfs.c
+@@ -9,6 +9,7 @@
+  */
  
--	buffer = (char *)__get_free_page(GFP_KERNEL);
-+	buffer = kmalloc(GFP_KERNEL, PATH_MAX);
- 	if (!buffer)
- 		return -ENOMEM;
+ #include <linux/ctype.h>
++#include <linux/slab.h>
+ #include <linux/security.h>
+ #include <linux/vmalloc.h>
+ #include <linux/init.h>
+@@ -904,7 +905,7 @@ static void multi_transaction_kref(struct kref *kref)
+ 	struct multi_transaction *t;
  
--	path = dentry_path_raw(dentry, buffer, PAGE_SIZE);
-+	path = dentry_path_raw(dentry, buffer, PATH_MAX);
- 	if (IS_ERR(path))
- 		rc = PTR_ERR(path);
- 	else {
-@@ -1361,7 +1361,7 @@ static int selinux_genfs_get_sid(struct dentry *dentry,
- 			rc = 0;
- 		}
- 	}
--	free_page((unsigned long)buffer);
-+	kfree(buffer);
- 	return rc;
+ 	t = container_of(kref, struct multi_transaction, count);
+-	free_page((unsigned long) t);
++	kfree(t);
  }
  
+ static struct multi_transaction *
+@@ -947,7 +948,7 @@ static struct multi_transaction *multi_transaction_new(struct file *file,
+ 	if (size > MULTI_TRANSACTION_LIMIT - 1)
+ 		return ERR_PTR(-EFBIG);
+ 
+-	t = (struct multi_transaction *)get_zeroed_page(GFP_KERNEL);
++	t = kzalloc(PAGE_SIZE, GFP_KERNEL);
+ 	if (!t)
+ 		return ERR_PTR(-ENOMEM);
+ 	kref_init(&t->count);
 -- 
 2.53.0
 
