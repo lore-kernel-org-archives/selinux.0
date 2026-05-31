@@ -1,91 +1,92 @@
-Received: from mout01.posteo.de (mout01.posteo.de [185.67.36.65])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E209D2D94B0
-	for <selinux@vger.kernel.org>; Sun, 31 May 2026 16:38:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.65
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F37335E936;
+	Sun, 31 May 2026 16:55:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780245498; cv=none; b=lLga7D9bDEVnwKcyvvbcOT3IfFUFR+AIFpzXVy08wvPc734QxpRX+RNk5MW6cNUQP85m/YD4m8T0UFfWNjMIKqP1KyIwVi3BQZPdeHOFlW+T+FeUW+pMZC2jDb+/+gLT0f8OOmPLTfroflfhE0c0Zcv+Uqvcx6Z/bdEP8j7XUMw=
+	t=1780246530; cv=none; b=S4EAyQNqNEQA6KeDKWJ3jwBfzN3x7YNm5DS3botJdzl1qW6H08jnSIholSRLCc4kSXMisc0s3N7c/lYv3zQlyik/jppfKibCxCbQJfLKSvZ/3Ulf5YtezdJfzDS3Rp2S7kHWa1Jhbxr/nTpO5KL7EkXXYKMsOYiedK7WYkMICl0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780245498; c=relaxed/simple;
-	bh=RSEcsrU6zvUoCtuXGgsIxMcSXs3GzL8/ztXhAe6jMJQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WgRnPZcHWAQib7sUvRuvY7GYFV5iYsEUcqW9PHcH12tIx1x1sZHGBkZTfl1l0bvKlxImnkZ3XYm79ZEsZ+1zWWtCBrmj8IgtkfGpzfKtUJ/mK2v+VjJZkeZkc2DhAY/W51bU55L5ecmzZZNlNmlxIm8rHVWPuEnW2wtcFTlfMZ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.uk; spf=pass smtp.mailfrom=posteo.uk; dkim=pass (2048-bit key) header.d=posteo.uk header.i=@posteo.uk header.b=XR5Fr/ej; arc=none smtp.client-ip=185.67.36.65
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.uk
+	s=arc-20240116; t=1780246530; c=relaxed/simple;
+	bh=WT3HrW/9gLPLyDFgTN+QlyBw8x5vyQeMYZneYXbZ4J8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=cYneq9KshyqdPT/P80FExCezqm71wvV1w588jNYQppmMbKJVYBGTCXVm8c7Af74qY3evCcb7xJR/ebhJ5vab70NBvhPkjTN7gPM0cJj+d9eUzME84x98TX1pdOPGPGfHpDFZH4NWUVHMCIcHJ3LW9RAkx3y9PXpoq/3bKY/ZV3w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Akz1WPox; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=posteo.uk header.i=@posteo.uk header.b="XR5Fr/ej"
-Received: from submission (posteo.de [185.67.36.169]) 
-	by mout01.posteo.de (Postfix) with ESMTPS id 0A841240027
-	for <selinux@vger.kernel.org>; Sun, 31 May 2026 18:38:15 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.uk; s=2017;
-	t=1780245495; bh=qknQzWKJp9M664w0x6w9jJiXyEu0eJlvdrEk1qqEAHg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:
-	 Content-Transfer-Encoding:From;
-	b=XR5Fr/ejIbeacbdi8Dfd2/A8Q5qRT65MQjcVa+Iu2vQnYWm346750ZOzwGIEkgep4
-	 upwuyvGQAq9DYUcty6nD3kTA3LMvrSDJduNzmrWGhtd237qOBr5cnRjbMeQWmJ77o7
-	 mHwuU5f19S4kcLQTRvITz87a4QsLGOF5W+hbwTV7jAFDqzIXMU7y7xjSDHOyNizytK
-	 WCbQwfAk0QHISTNi0Jvdyv75NxEZzLy5riMsHBGMFIyeluMpDKPx1ujuTSCAR9EHtQ
-	 n6zjH9/fgJbzqfym6FdVLpWcvWcwWGLxlvH0jeeVGCSdhYSOv/8IHv8dyCcQo9HNYu
-	 fgD8Tjm+7Vm4w==
-Received: from customer (localhost [127.0.0.1])
-	by submission (posteo.de) with ESMTPSA id 4gT2pG4Cqzz6twx;
-	Sun, 31 May 2026 18:38:14 +0200 (CEST)
-From: Rahul Sandhu <nvraxn@posteo.uk>
-To: selinux@vger.kernel.org
-Cc: Rahul Sandhu <nvraxn@posteo.uk>
-Subject: [PATCH] libselinux: restorecon: add_exclude: validate directory before deref
-Date: Sun, 31 May 2026 16:38:14 +0000
-Message-ID: <20260531163723.683086-2-nvraxn@posteo.uk>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Akz1WPox"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A12871F00893;
+	Sun, 31 May 2026 16:55:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780246528;
+	bh=3hq7tyMSASLqjd50ZjUsZ/oP679Wz/Tts2VDon61gao=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=Akz1WPoxPxn2UruDRl6pzGMB5PN0tsAhyOxVpySrSgRtoRSmhOlQS/GU1snsUMogU
+	 LEDZdytNEQG5plXduK8Wm4FYA/WPC5ec3P6RnbZVfKhC8t4Pjl+CxTRFoZCv/6galv
+	 EsP5ReqWiEa8upTOPFxVNhH3BUMS1LN2m/+uOZshcV3ENxBhG6kyN4o6Jo6am5whDy
+	 T/ItkSuzswLVzL5CtlRYvB3gnn7xKUAqwCUSfX1wDxcQWmnI9M8OUcqibXeCuw+5oQ
+	 LZlD4skprZiUa6TAUTkq+nG0Db7GsgJAqI6uiphE6xEvPwloBnJo0Rc0YKtXWN917G
+	 T0g7P6A7Fi8bA==
+Date: Sun, 31 May 2026 19:55:22 +0300
+From: Mike Rapoport <rppt@kernel.org>
+To: David Laight <david.laight.linux@gmail.com>
+Cc: Paul Moore <paul@paul-moore.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>,
+	Venkat Rao Bagalkote <venkat88@linux.ibm.com>,
+	selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] selinux: hooks: use kmalloc() to allocate path buffer
+Message-ID: <ahxn-oi3BTrW45ES@kernel.org>
+References: <20260531151502.1467515-1-rppt@kernel.org>
+ <20260531171811.16abb087@pumpkin>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1398; i=nvraxn@posteo.uk; h=from:subject; bh=RSEcsrU6zvUoCtuXGgsIxMcSXs3GzL8/ztXhAe6jMJQ=; b=owGbwMvMwCmc0Xus8aefgg/jabUkhiyZ5CMKr05YORjcPb9j7Qf7akXLUqMngpyu249fXnars vrht7tqHRtZGIQ5GSzFFFn272O7UfJ07u+jT153wMxhZQIZIi3SwAAELAx8uYl5pUY6Rnqm2oZ6 hkCGjhEDF6cATPXqRsaG64u3OmQ9rhSM+vLPpnjfggMpF170vbqrfsDmwQu9t4a/JZ5PWpZ8bsL CFdMNqucVtrt1M9bpGe7asNZ2gt7VKV9fRuxR6N6848SjSQziGgWL/6Yen9oYKRp/8qfTuaeyDC F5rHZ3uRcCAA==
-X-Developer-Key: i=nvraxn@posteo.uk; a=openpgp; fpr=BFBE06D874E59DFBC5E4EB88688DC681F94E204C
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260531171811.16abb087@pumpkin>
 
-Currently, the call to strcmp() with directory as an argument results
-in directory being dereferenced before it is checked to be non-NULL.
-Hence, move the validation of directory before the call to strcmp().
+On Sun, May 31, 2026 at 05:18:11PM +0100, David Laight wrote:
+> On Sun, 31 May 2026 18:15:02 +0300
+> Mike Rapoport <rppt@kernel.org> wrote:
+> 
+> > From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+> > 
+> > selinux_genfs_get_sid() allocates memory for a path with __get_free_page().
+> > 
+> > Such usage does not require a "page" and the size of the buffer should
+> > actually be PATH_MAX which may be less than PAGE_SIZE on some
+> > architectures.
+> > 
+> > Replace __get_free_page() for allocation of a path buffer with kmalloc()
+> > and make it explicit that the buffer size is PATH_MAX.
+> > 
+> > Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> > ---
+> > v2 changes:
+> > * explicitly use kmalloc() with PATH_MAX
+> > 
+> >  security/selinux/hooks.c | 6 +++---
+> >  1 file changed, 3 insertions(+), 3 deletions(-)
+> > 
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 0f704380a8c8..19493198ece1 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -1336,11 +1336,11 @@ static int selinux_genfs_get_sid(struct dentry *dentry,
+> >  	struct super_block *sb = dentry->d_sb;
+> >  	char *buffer, *path;
+> >  
+> > -	buffer = (char *)__get_free_page(GFP_KERNEL);
+> > +	buffer = kmalloc(GFP_KERNEL, PATH_MAX);
+> 
+> At least get the args in the right order.
 
-Signed-off-by: Rahul Sandhu <nvraxn@posteo.uk>
----
- libselinux/src/selinux_restorecon.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
-index 69a53503..6a36de67 100644
---- a/libselinux/src/selinux_restorecon.c
-+++ b/libselinux/src/selinux_restorecon.c
-@@ -204,12 +204,6 @@ static int add_exclude(const char *directory, bool who)
- 	size_t len = 0;
- 	int i;
+oops
  
--	/* Check if already present. */
--	for (i = 0; i < exclude_count; i++) {
--		if (strcmp(directory, exclude_lst[i].directory) == 0)
--			return 0;
--	}
--
- 	if (directory == NULL || directory[0] != '/') {
- 		selinux_log(SELINUX_ERROR,
- 			    "Full path required for exclude: %s.\n",
-@@ -218,6 +212,12 @@ static int add_exclude(const char *directory, bool who)
- 		return -1;
- 	}
- 
-+	/* Check if already present. */
-+	for (i = 0; i < exclude_count; i++) {
-+		if (strcmp(directory, exclude_lst[i].directory) == 0)
-+			return 0;
-+	}
-+
- 	if (exclude_count >= INT_MAX - 1) {
- 		selinux_log(SELINUX_ERROR, "Too many directory excludes: %d.\n", exclude_count);
- 		errno = EOVERFLOW;
+
 -- 
-2.54.0
-
+Sincerely yours,
+Mike.
