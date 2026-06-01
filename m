@@ -1,112 +1,179 @@
-Received: from mail-yw1-f182.google.com (mail-yw1-f182.google.com [209.85.128.182])
+Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB225349B0A
-	for <selinux@vger.kernel.org>; Mon,  1 Jun 2026 19:01:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FA48370AD6
+	for <selinux@vger.kernel.org>; Mon,  1 Jun 2026 19:12:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.171
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780340481; cv=pass; b=IdUJUG69JfFAwU45lKdNaW6mN0FtmaSjIy8pHqawqLOrPTo7yvbhlcIooyuUyZUjtNWl3zseNraUfM+sXU5HjVYO2zprIKSNGkoyNb/FaPtGoRh83dV3oWf6YqEdBkYA3b0UGJxh6wz/SZFDYh3i91sTN30Ui4cysw/be1v3fgc=
+	t=1780341140; cv=pass; b=m8puGkbkOAbc2jvzGlf6dSNt9h4rk41hzHZkBJaOpH+JGiDt93x29UWFCWweA/+aCpwEWVchwbBXsHV6/SkFvj9I/iGejgRu0Vtt75mqXsxYCY6cgLcJNcRXQqCyLK146jV1hTK7H/nsFIJBgE84CwWDZ64WUTFEhwcT1MtxO9Q=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780340481; c=relaxed/simple;
-	bh=ixyprkSXuQ8/cej+CuJ8ZzH2+XWpSHoz4zX76Kw+DW0=;
+	s=arc-20240116; t=1780341140; c=relaxed/simple;
+	bh=yPl+7um9cReLMSHEvMdQoEMLZw2wZbKrftm8d5lTmdA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=PQBXJvJZltfPikV88xljqis5zwz1s5x08MQTrssNbehK6/3+kUnQp6yvTv/rpNJ6Hj01ZlB5/EF4PQHdWlIRne0qJgCZ4DJLLqZLoOw4LwnAZbG+pxlaYnyiKFs7P+4q31cR3sIrZhnHThc3AalLK4dls7nlJ7ZSCzU3b3nF0R8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qhwtn9jU; arc=pass smtp.client-ip=209.85.128.182
+	 To:Cc:Content-Type; b=eOqUtC8JarmRNIcjgqI+hF59cYDxLdK/wihb+RshaSCKGWR0XWJH+6wkiOocBtOsdBXfTbOFvlWkJAylFG5qkDrgCdHuBE9HggXIo+LftVGon1yvs8ljnMynLZUsEiWwltwdq/feDfy+PwMzCr5fS6YK5+5Rv5EI7e0kEtj9GW4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=h/4p0211; arc=pass smtp.client-ip=209.85.215.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qhwtn9jU"
-Received: by mail-yw1-f182.google.com with SMTP id 00721157ae682-7dc6fbf3e86so54250937b3.3
-        for <selinux@vger.kernel.org>; Mon, 01 Jun 2026 12:01:19 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780340479; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="h/4p0211"
+Received: by mail-pg1-f171.google.com with SMTP id 41be03b00d2f7-c85b73ffb52so529058a12.3
+        for <selinux@vger.kernel.org>; Mon, 01 Jun 2026 12:12:19 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780341138; cv=none;
         d=google.com; s=arc-20240605;
-        b=XZNa56QEOPbtoppmG8kB0/T6VAKQ5E4F3uYHJ9OVqQT8oPGm9ALfAOCHabuaqCGBo0
-         EOd00OX+RTWHQxWsCKG1i7ipR2NHmH5BFC5P2Tps2Ta+igaiz6GCcYG6LnUpdm09vHqb
-         q9N4ORxP7g0wwTfx4EFxjfJi9L4P1MytBDlEtQMkOMVmOvcPNenb5FPTt6RzzG7/fhrl
-         cRLX6nuTKb+z9t4dzAgrqrv4Z9i+0ATIW1hal31fOs2nwM2mH2JP58d4Mf4ltZ84QCdq
-         CasXq3g5P3LcXOzbRWADz88M4iKSGcObs37GSI7UsR41XABZ/Uh/XW0u8kg936jW1TrW
-         ijkw==
+        b=JjyT2VjgwbU9kPzJJq/pQ0FXwp7dqfo0wxnyYTILiGcUx69K8NREiRoDUp5FskFDud
+         NYdy3BrlacQBqrojYgjonlhv25ZwEssTY98gu3eMTDa/4/jYjEKvfaYfZ0EMxtIzc7NA
+         hkTkA03YgLm5Ck4JCeWmr87LbxxHXncqJ7C00iuWCl0lfHTgM7lPjJGjBrXLr8tv0mLg
+         4wSgP8VrlIrxK1xGvl4H1aoWi+lBthre/I60hhF8Npwn9rEMlPmksLzCfdTA7RLj9PaP
+         MBxV+JVwz7i1G5VySNt7/n2EWJwd1FeJpnwyZovOAdSc6yq5umP38gy2Rn9HjIPS3ON8
+         WYTQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=L1i7RUz+e8Di+24H8lSDYr5p6mrcmexfw39tYCtHdrY=;
-        fh=JwkD4awozgdzhhwm2wDRIGtn9+4i8CG2U4iFUhRWLY8=;
-        b=RTBypa2coALq1NFohFejyI5JsdgdpLuGVPe3kdUDTBDw0JqSddSBoHRx1pf01imwVP
-         u9iGTtzHNQc8IFyEnpuyRDmPit8JCLNCtkP10QiGV+28gi8Ng9vhRgjLnznpDk/exSWr
-         6U5Fa4Y68kuNEROAn/r62ymgxujwoub81hQ09vE0zH4bcI60T7XscHmYCpMbEhyxDzx3
-         NunU71urNmcb+rHChzUL249mELyxAIdNEK6a4xmQ+CrqiElKnOb1WfJnKfLK1GgfD1NK
-         IIWSSd9W3wmVYPFcppKRDZ2rPffMWxZzLRJH3CUF5NLxlMq7aoHibOkx1yrsQI1YQYq8
-         EihA==;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=OzDH6ar5/UkyBT7UwzX/rpmXmEEHrJC8RYFj46oHrtA=;
+        fh=+SOaqlllj/x9oPTKUNrw3U6f73KzX4NDehXGGqjpy64=;
+        b=RyVF5xkcn1Yq0fflAR+/6smd16b/Nkl+Hxz991nEvoX/z/gh+Mr15SEe08rgh6hACC
+         55N2towR6xegNb2ek3nkK7oQuzFJ/I6oCpS5nzZuajMuF4cXMO6g0vM/0kO9YAnbaU0r
+         WkBH2z3tNbTMHEAl58y7rYFs6R8WV/4CmlyWS0LH0GpyAtHNS8qPtX0mHOmA2iIL8yaq
+         aMZaTGquu6gM4r9l9Mpzlho8HIKqUb+Jy9Spz4g+XbHnWFC+ttd9MLEEbmjLt3vVOmnO
+         RAXcNR/qF6NK3qBJja+9INFrZTd4Ij5eQBCT8dhVC9o9Kz6p/RnB7tEv3weWETv7na84
+         Q7ww==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780340479; x=1780945279; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=L1i7RUz+e8Di+24H8lSDYr5p6mrcmexfw39tYCtHdrY=;
-        b=qhwtn9jUsrdQtd9NiJN6WO9AvAnSQ0H4rIg5yTie9XrxDU8RpV/hAYUKrzPkVs7Fz3
-         PDE2NvZg7Rf+neM29qayCHhf9rj9DwIt1adWXJ+8T7LZUpv5l16ihQXYPKwU+yL45bL+
-         telgvW+5/tOwh/6ROHShkjldF3rXqKTz/ZR+qb0yWgOgwWEa8nkPjthtG7rWPz6O3dH5
-         1D5VosYNFit+Bq1d6DHsGUpz2BIU+pSPCwN/BNbCoetlIBqwqXpFYj8aLoDCv6lTXa8z
-         jrH2ATFpgcn8f6VKTJI9Fe3Rig6VOGtbpEJcj4xEd6mVbwSUyRJz/B+WXfEIW68Dijk0
-         quCw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780340479; x=1780945279;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1780341138; x=1780945938; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=L1i7RUz+e8Di+24H8lSDYr5p6mrcmexfw39tYCtHdrY=;
-        b=m3gar0u/8rYb0IjRmxc5D7AW1vRbsa7Y3n4JMyEalkSIR92wZduzwXs1tgy2BbnF7f
-         fSBtJDx+xpHNMnNUU5C/peVbXQ3uJ6qzua8QxaRGuh7ea3T6D5XdQ8W9YKC+sQnDn5rC
-         TkKHjF2nPK8nJc8ghgwUxiKR9Pwnr9eN4D5KboAl7gF58l7T4O7bqJkcUN10F6yEFDJp
-         diLr8SgELlkRCdW3lkCP3sUXJeY5Ny1xotUIxyHKA8TsaPbxtd2BGrVKZmKMhgY/b6vO
-         Q9xp/b5y7PfyXLVBdH2Nc1P1qeP/apYc/1c58Svpwmck4wsEVlruSgJEZalU+XcieHLD
-         4psQ==
-X-Forwarded-Encrypted: i=1; AFNElJ/bQcp4w+2O5hIiEwlbttmOhVtvf71znbewVwm9HmOhnNd2fyFJep5SZfVZFrOL6MyZazwDNvpE@vger.kernel.org
-X-Gm-Message-State: AOJu0YxvQpExxn6rsXNLWCrWyUSx6G10ForISUOmwV9OJ+mVULxmOMM5
-	D3uIQDNVJlrQYno0raGSg8sM7ecuStM2omwGz9tEIgDGhLBc+nQWsEBtdorg3qgrYaTmTWU8NHr
-	8tZ+v1m+4dOB4+HWdFxLKlki+ADLJKQxq/h6H
-X-Gm-Gg: Acq92OE7X/xRsWtZZ/vkih/iRuZE/a3gFevN4gXYXneahk1Yr6ZjxrckYP+4cGp2sAy
-	EzPh/LXay+KtYcJrDmfw3YfU9hd8u26eUL1JvqhDDd/pw0tUaWoQSqbn6Pg/mDtJGuC2nRs99Kd
-	cGAoGMIb8ck/CBVRtYCYtkLANEaVqtLvw80EoTslXH1LV7Y5lmwGEEKxTYYuHFSRr6K5/pJbxPn
-	PuAud9cnbdYlJN6QN1oSwT1zlCYBjwISI2UVUSY+OVCr8bbKbkU2bOLtMVzJ5dFUSrKFsGeZCpz
-	VU7g8VOcgArnF+biXNyM
-X-Received: by 2002:a05:690c:6188:b0:7d0:5c67:200b with SMTP id
- 00721157ae682-7e053c6e5c6mr108864457b3.0.1780340478662; Mon, 01 Jun 2026
- 12:01:18 -0700 (PDT)
+        bh=OzDH6ar5/UkyBT7UwzX/rpmXmEEHrJC8RYFj46oHrtA=;
+        b=h/4p0211j3bN5Y7ptqa4oS6eC20HXPckaFqOQSGXUUB/jRh92mruMNI88WONWMcYHg
+         Q0zWTM7WUr904FsPfGBvNSs5+tx1GzkSgVDrwIBma7aHXF4/oiTGqu2trdBlr2nrfsCj
+         LVmHS4xZHrG08FHVqEgB8PiR/5bRxaDF0dFDcgTwhAWlzw/UnPOFhE7fgsNmOFxn2aCn
+         ul+VmH5fapgHv/KrXlH6lsmy398NzuEWAojfgGUxUwbYnjMlG3hWlQFG1yqTXWhiLqnx
+         eWKZetPATqD014wgnoH8N/W4IWfZf/muUkuQZkl0WgjspNH54bEJtUUqlTMcbyDxtSOb
+         xkTA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780341138; x=1780945938;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=OzDH6ar5/UkyBT7UwzX/rpmXmEEHrJC8RYFj46oHrtA=;
+        b=kpvsoNFLWtrPAj3RcfH+kntBxA49Jm8I7xbgfaELoNrEYI7rgLNaDHwiqqDRIGbVDo
+         hAUEdUXk7VurXb5TfDfIVhBnpMU+7cgqf+sjbIsS6SpmHI6nXh8zZ27o1ILRBbnIaqtQ
+         WSBOxcmnC1Nq9fR0XOREeSuNRe6zhWaDVGYIZKaqu5GWnByuj4QIFtcl7a6ZyigSXDdN
+         gKlWGozVqSNCH4AUC4jW6vDcirdzJdD2G6WGJ+PjRMHwEx3ZBRwpZ9lpdk9b/3gYkNNG
+         56ulLtXSZr8DKgQgSVPgq4q0faXWlOSVVQkdSQSrbTH8OMfLmfUx+4Wq5d1gjcuyujo5
+         HmgQ==
+X-Gm-Message-State: AOJu0Yw0PirCl8ttgeSqrmeQYWfACQkXnxni42tyfI2+AU0THLofilzy
+	0J4FvTf04ycblMSQY+x7g5MxZLMUyDm79flIswp0xTGXUacDUSmiLX1Iblu/ArEEiFvtW+Rru2s
+	K/fml3ZMaZfL7BqaxhP+5gMjs5nT21q0=
+X-Gm-Gg: Acq92OF8JKxfz3FGAGjOMmFsxqSte1aiOclMXV6QXlApgnuq6cPmjTpUTyT92cysRHL
+	yJ5N62PPBVBsgyN2OLEjZCuD8nL9fklbIgUnqJ2a0036RT00wVdkKw8QHyBrOtnorCUK0WfMjLE
+	QO71HQYjVO53Gu0rDPv0uVAJ1ILOIbi3Hff3fCT0qZ9cCDymShiEPyVNQuEMXrwpgAiiuzB/NWq
+	FE301eVKb4wqh18HWce0baHZuu6M4hrM3LH75CSowqXMWYVmnAbJN8JBMbNNX6facoLbQ0wMUk5
+	OTWcqey93vhCamypn0ncWGdE4yTe
+X-Received: by 2002:a05:6a21:4986:b0:39f:216:f400 with SMTP id
+ adf61e73a8af0-3b427f98d67mr10439850637.14.1780341138473; Mon, 01 Jun 2026
+ 12:12:18 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAFftDdrzV2xC7HBcgS8EPb-YewJyCK9uos4crXOCh5ONm6SxSg@mail.gmail.com>
- <CAFftDdqp8b5n21hdEP6w0-PK+CoG7mmQxgrnhpBLU7-1GZxniw@mail.gmail.com>
- <090a355d-3680-4113-a542-ff3b1c565f58@schaufler-ca.com> <CAFftDdqvvqrbm=+XsDdkJHdm12jxK9799_A=Txz6Q5goYC2ALQ@mail.gmail.com>
- <ahoaFz8DMMvWgqL+@mail.hallyn.com>
-In-Reply-To: <ahoaFz8DMMvWgqL+@mail.hallyn.com>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Mon, 1 Jun 2026 14:01:07 -0500
-X-Gm-Features: AVHnY4ICHP58idHeuZWxO_IeHj36zmgKmUPedtG3np4LABX7OFZlmUkRRLn3apQ
-Message-ID: <CAFftDdqyTrr=wS2hUT1EvAqVsbegPRh9Y-rH5S3VEpvXbJ6QRg@mail.gmail.com>
-Subject: Re: security_task_prctl: why -ENOSYS
-To: "Serge E. Hallyn" <serge@hallyn.com>
-Cc: Casey Schaufler <casey@schaufler-ca.com>, LSM <linux-security-module@vger.kernel.org>, 
-	SElinux list <selinux@vger.kernel.org>
+References: <20260601141904.60859-3-cahu@suse.de>
+In-Reply-To: <20260601141904.60859-3-cahu@suse.de>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 1 Jun 2026 15:12:07 -0400
+X-Gm-Features: AVHnY4LkEafng5YlUVplqNNUPTk_e3gNONs99yXUkfe3sR7HISS9ZoOpjCUcmvA
+Message-ID: <CAEjxPJ6icHimK5FJG572NF+GMbZ54cS3T3=imi3y9hiFs6ATUg@mail.gmail.com>
+Subject: Re: [PATCH v3] libsemanage: Require LIBSO before SWIGSO and
+ SWIGRUBYSO (bsc#1266385)
+To: Cathy Hu <cahu@suse.de>
+Cc: selinux@vger.kernel.org, lautrbach@redhat.com, fvogt@suse.com
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-<snip>
+On Mon, Jun 1, 2026 at 10:26=E2=80=AFAM Cathy Hu <cahu@suse.de> wrote:
 >
-> How about security_task_prctl_allowed()?  (Mirroring security_uring_*)
+> We encountered race conditions where the built order was:
+> 1. libsemanage.a
+> 2. python-3.13_semanage.so
+> 3. libsemanage.so.*
 >
-> Renaming the existing hook security_task_prctl_handle() also wouldn't
-> be too bad, but that's probably more churn than it's worth.
+> That happened when make was called with `-j2`.
 >
+> In this case, python-3.13_semanage.so tries to use libsemanage.a and
+> - on s390x: succeeds and builds an incorrect python-3.13_semanage.so
+>   (that one was found during product testing)
+> - on x86: fails (manually reproduced, never encountered IRL)
+>   Reproducer:
+>   ```
+>   cd selinux/libsemanage/src
+>   make clean
+>   make pywrap
+>   find . -wholename "*libsemanage.so*" -delete
+>   find . -wholename "*python*.so" -delete
+>   make python-3.13_semanage.so
+>   -> fails
+>   ```
+>
+> Therefor hard-require "all" when DISABLE_SHARED=3Dn
+> so that LIBSO is present before SWIGSO and
+> probably also SWIGRUBYSO.
+>
+> Signed-off-by: Cathy Hu <cahu@suse.de>
+> ---
+>  libsemanage/src/Makefile | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
+> index f870dc68..0241ef71 100644
+> --- a/libsemanage/src/Makefile
+> +++ b/libsemanage/src/Makefile
+> @@ -82,10 +82,10 @@ $(SWIGLOBJ): $(SWIGCOUT)
+>  $(SWIGRUBYLOBJ): $(SWIGRUBYCOUT)
+>         $(CC) $(CPPFLAGS) $(CFLAGS) $(SWIG_CFLAGS) $(RUBYINC) -fPIC -DSHA=
+RED -c -o $@ $<
+>
+> -$(SWIGSO): $(SWIGLOBJ)
+> +$(SWIGSO): $(SWIGLOBJ) all
+>         $(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -L. -fPIC -shared -o $@ $<=
+ -lsemanage $(PYLIBS)
+>
+> -$(SWIGRUBYSO): $(SWIGRUBYLOBJ)
+> +$(SWIGRUBYSO): $(SWIGRUBYLOBJ) all
+>         $(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -L. -fPIC -shared -o $@ $^=
+ -lsemanage $(RUBYLIBS)
 
-Yeah if something else is already done, I'll just copy their
-convention. I went with suffix _check for now.
+This appears to break the build,
+from https://github.com/stephensmalley/selinux/actions/runs/26775577869/job=
+/78926174312
+:
 
-Another possible issue that I think other upstream communities may
-have with adding an additional hook, is that there will be two hooks
-in the prctl syscall path,
-I am not sure if that's a show stopper?
+make[2]: Entering directory '/home/runner/work/selinux/selinux/libsemanage/=
+src'
+swig -Wall -ruby -o semanageswig_ruby_wrap.c -outdir ./ semanageswig_ruby.i
+clang -fdeclspec -I/tmp/destdir/usr/include -I../include
+-I../../libselinux/include -D_GNU_SOURCE -Wno-error
+-Wno-unused-but-set-variable -Wno-unused-variable -Wno-shadow
+-Wno-unused-parameter -Wno-missing-prototypes
+-Wno-missing-field-initializers
+-I/opt/hostedtoolcache/Ruby/3.3.11/x64/include/ruby-3.3.0/x86_64-linux
+-I/opt/hostedtoolcache/Ruby/3.3.11/x64/include/ruby-3.3.0 -fPIC
+-DSHARED -c -o rubysemanageswig_ruby_wrap.lo semanageswig_ruby_wrap.c
+clang -fdeclspec -I/tmp/destdir/usr/include -I../include
+-I../../libselinux/include -D_GNU_SOURCE -L/tmp/destdir/usr/lib -L.
+-fPIC -shared -o ruby_semanage.so rubysemanageswig_ruby_wrap.lo all
+-lsemanage -L/opt/hostedtoolcache/Ruby/3.3.11/x64/lib
+-L/opt/hostedtoolcache/Ruby/3.3.11/x64/lib/x86_64-linux
+-Wl,-rpath,/opt/hostedtoolcache/Ruby/3.3.11/x64/lib
+-L/opt/hostedtoolcache/Ruby/3.3.11/x64/lib -lruby
+clang: error: no such file or directory: 'all'
+make[2]: *** [Makefile:89: ruby_semanage.so] Error 1
+make[2]: Target 'install-rubywrap' not remade because of errors.
+make[2]: Leaving directory '/home/runner/work/selinux/selinux/libsemanage/s=
+rc'
+make[1]: *** [Makefile:23: install-rubywrap] Error 2
+make[1]: Leaving directory '/home/runner/work/selinux/selinux/libsemanage'
+make: *** [Makefile:45: install-rubywrap] Error 1
+Error: Process completed with exit code 2.
