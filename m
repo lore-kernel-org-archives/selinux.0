@@ -1,130 +1,148 @@
-Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A2FE25B082
-	for <selinux@vger.kernel.org>; Mon,  1 Jun 2026 18:11:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 353DE3E275E
+	for <selinux@vger.kernel.org>; Mon,  1 Jun 2026 18:33:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.179
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780337488; cv=pass; b=eD9W/RpaVNGJlojGNCeSL+Bn9p/ecI850fr2DjLWA7LubJngQobmEpOVHuWoB3wOf642i8LTDmIR31jg4T/dYcb98vZWU83N+qjGr1MgHvcGHQwGvOeEPDqtl2oNAdCMFaY6+h2HOwALpsaDn82M5KTJW3rsgZ12rtZ+sY34IvQ=
+	t=1780338839; cv=pass; b=a7M8FpjLAyUnHse0qYGDwOO3AA69qF1hRRTZ8js975F9IzEQqag38aKoP7MpwpyThDTjZbMw4VYNVdoS82k5O6b9dTkdZZt43yXZkmvQfl1mErgKOCiNNn4ppY/tPqjO8vrNlh6LS2JVBc58X6eQYYseUbatHNvT+w9Gk2yPGUQ=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780337488; c=relaxed/simple;
-	bh=2xRXZPZfCYt9b4vCehyQaJ+qBIItwjXX++sUSeNqctM=;
+	s=arc-20240116; t=1780338839; c=relaxed/simple;
+	bh=4Wa+7ctl53nzijsgKgZw3s/XkwAizOjUTmiYE+zx9Jo=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=fAbc0dJm84h875KekPkAGNSSgpEENkEI0X7FH3c97dBBoU66pjM8PNj8k0iFZ1pcqzA/430J/POZvJAOZw3FMpg9rf3bWspQZ4GE9YAQlV570xFKSLN2hWpmMxDSBFQzCYhRiMayvTLfM9U5I9H/D4XA4G1A6cuUMrG29gMRHw4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=HNv8DzJY; arc=pass smtp.client-ip=209.85.210.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=KsXDw1lykdknp7xMFfLaK0mOxtkrC2DIGuS/IcLo/32JWuIKpOflyYKONX3tgj4n2jwn+dsKq0P21qeVvT+NxseArtXFvPNmMmN00ZYUJlBbzkJH6hm2Ht6i5aYXwIgzxzM4ooP9PCVPNuHIO+Gifz84jdXPUy9ewXKX9EmqRU4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FS5Jxiok; arc=pass smtp.client-ip=209.85.214.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="HNv8DzJY"
-Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-8423f53332aso584364b3a.3
-        for <selinux@vger.kernel.org>; Mon, 01 Jun 2026 11:11:24 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780337484; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FS5Jxiok"
+Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2c0c35980fdso17505565ad.2
+        for <selinux@vger.kernel.org>; Mon, 01 Jun 2026 11:33:58 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780338837; cv=none;
         d=google.com; s=arc-20240605;
-        b=URtVoZEEo1B+8ZEvy7JyCjtuVnPfu3xHsfjOmNIpcPKcH6oH401xyb4IwhEYm8Ynnv
-         Kj39HOnE51sN+yj5zI4A8aeNX2a8b5ykVde3pPL5Q1iDotiTtV/uKob3I6I4bJeF1tki
-         j4xZ4GFF9zJMZT2j3slPi0UewY7962SXL1EdFuiCXIJT3R9Qbdqiu0zZdOkSqoQgT2nM
-         1JqFBKH7G8uxOPg7SwOMdCQM3qbdjKCnKE3f3pe4P3XkccVI7irg42gaAv91rDUd29Wq
-         +owIbojdSR/3IIYagDSoMl2a9J70zOtpT/9aTCdn6vk/eI96gSXDpMthv6/FYaD7OO1O
-         /+aA==
+        b=Y3KJ3DJpSn/MJ0tJeN1ZORxOr/Poz6lWL9OFrAX6wmhNroDVYHygUbf9dSpOSl9/lz
+         QZAG5/IwXsxExawhIta5nkIF0oZxpL4SteV1HxT3ix18PCExMhs8zFEOeMFU3OZYzfo1
+         VP3C4isfhDfpVs9mjYYCE8C09AHWdo+gojtXYYzwViclB4G0MMUO8TlDct0ZgFQPvlPm
+         1c4FL8u6aco8psscb/J45WNmPdswS3WANlgF6GJy0IUGD8STkO8xRYZVSf4Tf+91+Hom
+         J1A7lvF0KH8sJgQ7nIK1Q/dDA/fq/usDeUNrKlOuXmLmf5LWvi0w8u2v8epqW+CG+LB8
+         EfSA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=qWEgcb0G80qYnJdVaH1hDqGiOyw/i5fV37JTsMaS2X8=;
-        fh=X/P/ijKcfmIxy97eXfv0Kk7U6+CFWaJBEjMyV+DENaU=;
-        b=DyH5bDuSxdZI3PfpG5LyOegpwBDl2raH3Vn20dxSqK43tQqBfl1JL0NvxWH6lUWulu
-         vc39BTFOTz9DyG5uuaXByhbv7dsHeOT/J35rgwG5186w4pbHJKDdwMzIgrxdh38Swgi9
-         jE97w88NZ5yNAT/MUIHb6bw2iXTrZMGurTrCdfieXAruVhEYrgVj/j5XaNpdxG36YN/1
-         uaQTTQAl92I/EskGIQSOAHPqEB8lMAnUVaCcuWOXJaO9ZOaMlGgUcC2pEzgjQHlKVD0B
-         blcg3BZW1yeaO88GvQ6qifz2jkrTlPDFmxHI89HDtZCQcKB3bMrZVkLzAMgbPp7gPPFh
-         I6pQ==;
+        bh=lqYs5lhriYk1x9eTtk1ylWxoGNIoC7b0pNRs0wrsKYs=;
+        fh=+D6xJ6BB9J6NyoJZZl71KoOEMrrFPGwz9kIyEgHHWvo=;
+        b=k5AxBn8NnL1OIaFlJZKw/SnRjnbvGvy1vb1M42fh/1Zllmtoo3rkw4SsfeM0pYdbvf
+         BmQ2U+ZEJjpmpzAwlEPK2wGCKWZ5KGH5zc7Jzgw3v1SSrieCdZ9A0BMmHu8aDuWyn2U4
+         GZiynzbb49Fgz4mlRJfv1lJdh+vL+sFRkqAs93Y32ojiOSe9xkpcSJr14Qts/IAXiEcJ
+         A50V2ZMxC+O03fyD8Yz7H8YTEI81VGRuw5GyaXe73vyeEkJtdT573fS7We6e0A/VQaGV
+         PvHCSNX8nM0V8baNUBrZMlflU3AUGv6TAFXQuikAEDV/omK/s6RjAtX9RKiLqrTVdurC
+         R2mQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1780337484; x=1780942284; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780338837; x=1780943637; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=qWEgcb0G80qYnJdVaH1hDqGiOyw/i5fV37JTsMaS2X8=;
-        b=HNv8DzJYHF4jzGUSmzMGihUiazigt6M988TolC9HpIjWkQHEG8Epv+P9n/ptdx8+ow
-         lScO/udpolImrHymSS97ArDqxQySTy0tfaTaxm17FcdhQcZMMy176R8t0yitXaLXP7Ud
-         qaPwrmJLiy900x5QHDKS+6l6Ev3y0RaW0/C6vCdxor6Rip1XfK2VljvcINYj9+2dt0pZ
-         hQry39v9Moi4Ad2zQ4IeMuL/FZ6edWf+DaxIFpvUiLX9hel9h4US00qSEwbmGozcVPuV
-         m6mOFFuhYB9O02+qWvUZ8ouEgHX6vtXTY/TxOHfdiH0vrHv4VHsxQx/cbk24RWexDGpW
-         0lTg==
+        bh=lqYs5lhriYk1x9eTtk1ylWxoGNIoC7b0pNRs0wrsKYs=;
+        b=FS5Jxiokqg+e80jhDiFSxPV23e5oTCeiyeehHy8p4+76BNBNxGoglBFlfDuUwpKJb8
+         tHUT7qdBn9JuyPj3eZXWChvTaoldSTIA0zDoZw5FiJXpeGIoUy5sv4x2VsrHx7AzxpG6
+         GBadC/39LW/zcJdwNRahyGoZ2aH1wkX5j2ENcO0I3p2L+doQjdsQTlb4Z19nKzq57PSg
+         EHcD+HLAmDPgSCrhtTWFl1AxZrFjfDJ8EQta0YgEOrsjkScfhkMBBN99bzEWGuSyUQmV
+         /tjySyi0NdgiQSyu6hzjLKo123RrIlkvNBKX4+UY+vfGNe1IIB3VZ0CpswqibxYq3Ste
+         Njvw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780337484; x=1780942284;
+        d=1e100.net; s=20251104; t=1780338837; x=1780943637;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=qWEgcb0G80qYnJdVaH1hDqGiOyw/i5fV37JTsMaS2X8=;
-        b=KR4c3HNwnCd0XmHi3cMP2Ox1TDz7tnHXCLrBY6j2MSljWA/7MtM8wFH16adbV8dOFt
-         3gon/bnO+VaSLIcaHSayhZu3M9bSjtHe9t8O96h5wBoE6/tKspB5lTNv7J8PbvAXQXQE
-         kub3T4+Uq90JZ3dhMRsgk8Gqi4HYtPYmfmPYC5wbrOJ2xbQa6kNxJSdBgmvbEvzLcgjM
-         IjUQcY2idnqf3mfuTyLk2Atb/lhE13Kigj3rbZCcndDTuLDZJAkBq8CIDoe5bCr7PzQ7
-         pCG1gID8FaGiFlF/faK0TyXo3kakoLPe+NeJe4uYKdwv1VKwD0vSGINvNvyHrs3JUwhi
-         CRkg==
-X-Forwarded-Encrypted: i=1; AFNElJ+6sKEQNfqBOhRQrAPs4GuKijT+LFpDjGhH4Bz1vuQfoZ4WoQANSuvSjGOmIXop7Ivt2iJQHl/H@vger.kernel.org
-X-Gm-Message-State: AOJu0YxAAxtS5pH2Wu2CEXEnip07aj1hOpT196x16Q4mMVRXeR8Puljk
-	c/fi+mH8lDmCO7FfT9HziAfKkXSs82eSS5EhDhCGk/hzvKIGlL9cFSREuon8BAq1R4NSTgxSSP+
-	HwUhHHSwcWajILtbpGEUWvp+5GNX1j5c9FJmBBBye
-X-Gm-Gg: Acq92OFXrjyR0V33HRYx3vQE0QSGaVfp4qxB4wtdr9ve03zqDyflEKDK3q6x6uDB0eH
-	IHL86xJvgl7cWqdBKCplanGyl2i4SEAvvSvmr8AKykKOs0T+Ol/ePssfkDX8tvXio6sN3qSkA9D
-	nivN/QtgialEZVNIKg0VG5K0aZ2ElEULuWVcYnDwH1XOuwoKkOCjWOWzGdsGmp1rqDnTfiHMpg5
-	7+fe/H3PcnJg9SaLVmYIqYVjpzko2tCY82kwjfTkjTWVzOOIY5dZjQO+9fsbBK2l4s3XI6O/Kzn
-	siCrOLXHNkvbkneufg==
-X-Received: by 2002:aa7:8893:0:b0:842:48ae:1d56 with SMTP id
- d2e1a72fcca58-84248ae225bmr6151986b3a.35.1780337483998; Mon, 01 Jun 2026
- 11:11:23 -0700 (PDT)
+        bh=lqYs5lhriYk1x9eTtk1ylWxoGNIoC7b0pNRs0wrsKYs=;
+        b=qfoX+tn4ANHR+GF+Kwjw0e26opglwbtERsaH/UsV1OF2TPoIrk8W8lmGWUBgpKUJ6y
+         CsAoIIL+nHD7BE4m3pl9AdSPumBSfjcU3WtUkuIMCVdIDoqgux9+pC2vP1rtXRWTHNDX
+         X+kHezgM9IM1HrH+WDV6Kwe6Ju3GsV56fCBLBy7XpVyQBRhEQDVHoxuesjEesS97s4xE
+         4Ri49QqnBFLLUxExKscD/yYZFTAsn+CX7Sm0B7veA1u6w9PQ6PrpILZpjkPIRLlYyg8t
+         UWE0E9/DhvI2g+Yvf1MWF8QuHyK9JT3gs3FA7mEkxFacIVjpxAEv5iA+/VKGR9cGqxPG
+         0B5w==
+X-Gm-Message-State: AOJu0YwM1rWcR8hOHJv/8FhH1lzPVRDkKSPawd44JooFq0quEY9K/018
+	NsTGrjJofxYpLCFsZPAXfx89d/VT+MRC+p/HuUUdKHt0OlZnEkebrDiRkNGqVqzDbQHK8u2h/Zx
+	4prsRbvFzL8MXou36fJ9zJsp1vFZ88kRdJQ==
+X-Gm-Gg: Acq92OEH/n4XdFJUILSsM2eZ9SZKpcN0aIG+5VV8Q1DTchix9VbwJqB+cbnJSz1vmDy
+	vb75p4CqwG4zF9qcmBAET8qhSAF22xpw5sAQ3a14mKiyIzcgUKXldqX8pNZoirWQI/eImjI2Yt4
+	wTy5Vy+3OzT3QPYg7ijVmB0YN1kJgyxBVXTdYTktQYHTlT/sZ/qpkCVtoDdacu3AZhAnrV5r7FC
+	4I5bKtdmgHygdY9/Aa8wqBus8t6wepeHpXh4X4YsAMUSaRcSAAbi0LoEJ3vrJ21VA1Bo/uIUmwy
+	5WD0hGQX3jUF2h+uBQ==
+X-Received: by 2002:a17:903:248:b0:2bf:dd0:c8b1 with SMTP id
+ d9443c01a7336-2bf3638221dmr132514765ad.0.1780338837379; Mon, 01 Jun 2026
+ 11:33:57 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260531165852.1478916-1-rppt@kernel.org>
-In-Reply-To: <20260531165852.1478916-1-rppt@kernel.org>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 1 Jun 2026 14:11:11 -0400
-X-Gm-Features: AVHnY4I3LVQ4YicI8N3OY2LXcu9HR44xbzGsFYQZIKNljgU3jeAc9iNkd2kZXdA
-Message-ID: <CAHC9VhQ9mMhswzmy3745HbXbe_xm0aeJOmTG1PiDHtv1=zTG6A@mail.gmail.com>
-Subject: Re: [PATCH v3] selinux: hooks: use kmalloc() to allocate path buffer
-To: Mike Rapoport <rppt@kernel.org>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	David Laight <david.laight.linux@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	Venkat Rao Bagalkote <venkat88@linux.ibm.com>, selinux@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
+References: <20260531163723.683086-2-nvraxn@posteo.uk>
+In-Reply-To: <20260531163723.683086-2-nvraxn@posteo.uk>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 1 Jun 2026 14:33:45 -0400
+X-Gm-Features: AVHnY4JwUEggzf-TbcB3d-8ABvUDM8DFoHWLqDZCey_b9HG_BS2vXOKWYv6E1nM
+Message-ID: <CAEjxPJ6SdvWkcUd=EmivGhB=m8cnh71-2JzHKS60izTfTXC67w@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: restorecon: add_exclude: validate directory
+ before deref
+To: Rahul Sandhu <nvraxn@posteo.uk>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, May 31, 2026 at 12:58=E2=80=AFPM Mike Rapoport <rppt@kernel.org> wr=
+On Sun, May 31, 2026 at 12:38=E2=80=AFPM Rahul Sandhu <nvraxn@posteo.uk> wr=
 ote:
 >
-> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+> Currently, the call to strcmp() with directory as an argument results
+> in directory being dereferenced before it is checked to be non-NULL.
+> Hence, move the validation of directory before the call to strcmp().
 >
-> selinux_genfs_get_sid() allocates memory for a path with __get_free_page(=
-).
->
-> Such usage does not require a "page" and the size of the buffer should
-> actually be PATH_MAX which may be less than PAGE_SIZE on some
-> architectures.
->
-> Replace __get_free_page() for allocation of a path buffer with kmalloc()
-> and make it explicit that the buffer size is PATH_MAX.
->
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> Signed-off-by: Rahul Sandhu <nvraxn@posteo.uk>
+
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+
 > ---
-> v3:
-> get the args in the right order
+>  libselinux/src/selinux_restorecon.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
 >
-> v2:
-> * explicitly use kmalloc() with PATH_MAX
+> diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux=
+_restorecon.c
+> index 69a53503..6a36de67 100644
+> --- a/libselinux/src/selinux_restorecon.c
+> +++ b/libselinux/src/selinux_restorecon.c
+> @@ -204,12 +204,6 @@ static int add_exclude(const char *directory, bool w=
+ho)
+>         size_t len =3D 0;
+>         int i;
 >
->  security/selinux/hooks.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-
-Considering the problems with the first two versions of this patch I
-have to ask what sort of testing you've done on this?  I know it's a
-trivial patch, but we're on v3 ...
-
---=20
-paul-moore.com
+> -       /* Check if already present. */
+> -       for (i =3D 0; i < exclude_count; i++) {
+> -               if (strcmp(directory, exclude_lst[i].directory) =3D=3D 0)
+> -                       return 0;
+> -       }
+> -
+>         if (directory =3D=3D NULL || directory[0] !=3D '/') {
+>                 selinux_log(SELINUX_ERROR,
+>                             "Full path required for exclude: %s.\n",
+> @@ -218,6 +212,12 @@ static int add_exclude(const char *directory, bool w=
+ho)
+>                 return -1;
+>         }
+>
+> +       /* Check if already present. */
+> +       for (i =3D 0; i < exclude_count; i++) {
+> +               if (strcmp(directory, exclude_lst[i].directory) =3D=3D 0)
+> +                       return 0;
+> +       }
+> +
+>         if (exclude_count >=3D INT_MAX - 1) {
+>                 selinux_log(SELINUX_ERROR, "Too many directory excludes: =
+%d.\n", exclude_count);
+>                 errno =3D EOVERFLOW;
+> --
+> 2.54.0
+>
+>
