@@ -1,70 +1,70 @@
-Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
+Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F2D13EA97A
-	for <selinux@vger.kernel.org>; Tue,  2 Jun 2026 14:48:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 515893E9F96
+	for <selinux@vger.kernel.org>; Tue,  2 Jun 2026 14:48:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780411720; cv=none; b=tbChgyK9mNc1Kt2etYW0KJDact9ye3PlUxJXImeGbpy1ko1TzFYlbev8qP08VDM/3XsylUIK3BiihqQkGNc6d5DHH/Km+tJR3pM0k8ht/vy0OevTLK2OF4n8GPf3qONrmSeL4YlFI2h78W8eXDP1swI+eQhM2dvuWFNso+guhK8=
+	t=1780411721; cv=none; b=lLz8Cxl2fsSEf4Yx64fCWB5dTdp5hdlAmPgB3AZ1hS+757kGWCNeu/6NvCteH8zPxM7LtYZ5B5FPwjQJHfDMp+MHo2V45YuWeTS0V3Li4RYY6BpxR2RWtDKPrxwDNbcMexMZhDQKXyi5TnvQaJem05HSTWvXKCOuYOAWzKE1enw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780411720; c=relaxed/simple;
-	bh=KtViav88PCC5W0j4+5C6uhggjkVI52vkw6v7MhThpSc=;
+	s=arc-20240116; t=1780411721; c=relaxed/simple;
+	bh=23tio2kDiT6TzawtjXWIYMYKD3Nc/ta1ZwP8qNyeDOg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=d0TAHpwRMXyJOYTib+2M9V7LShTQAyAvfun1KI0/Gjaclg6HriSJIwkPJziaM6wi4MK0CsM0JV/w4cN8rfiQBI19YcuVWrnP2Im6ce1mVS7kULnc6tjNzC6vwsUckEBIHxlN1nA59TXFiJN11ukT4ow1rafjeGDZjd+DAqadgho=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MRH66UmT; arc=none smtp.client-ip=209.85.222.181
+	 MIME-Version:Content-Type; b=t74F+blHsfgYYAd592PLZ1ED1Y0nTkpKxZIVPszmzniUc4Gff2KyiZ1P2mBgn1GgFBkQvgv0WrVT38OhKNUzdcgxtu+fehb6q0LaVUGfHvuBcEULd9xpeRuCZdH2xWB74mDBXs2mJD1LWQ85PDVLNSZEnPdhS5oanm4e9LkOiW4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZwoNnlgi; arc=none smtp.client-ip=209.85.222.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MRH66UmT"
-Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-9156b74006aso141944585a.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZwoNnlgi"
+Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-914ae4101b4so1448773185a.2
         for <selinux@vger.kernel.org>; Tue, 02 Jun 2026 07:48:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780411717; x=1781016517; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780411716; x=1781016516; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=UD2VU6Qkchj+lh95HYyUl5zeYDPjx9xHz3lCGBGkJH4=;
-        b=MRH66UmTO263HGw0jt4dapMXk0vanc4f9m2jELJFGmfyg2DK6Lx5S5onzw797uRvp4
-         GM6Z741QXe3alzqohrbWWUvfie+qVFKtKB3+gUZZ1fmj0r46lpV7o6p6RQDbFilj7ImR
-         g3qYuMh3jmqUTlPRbXhOKo/mO8hvd9jxWnMF9gi83XjnyYqk5vPqwYgxqQRNV2oM4+is
-         /nT+WSsWEC1AzZj2tw4JbmFL1mP8v1j4s1gy9n09dSvSKlHQgfKKhR/CLweugtHoO6o9
-         2kNqJsM79QiZjPKBFaIkTHDGI/RzStwuO2kEdLJc8rCI5URrlfit6CbIZYkEMJ4DgalL
-         jE1A==
+        bh=utgfDgxYX4ggGpf7AbipM3Ry4gTJokW2mnJSBTkJdWM=;
+        b=ZwoNnlgigQt6rBMaMWo7hZRLW0jtVE+NSb5auBQzjfH73PsJBb9zaOzuFi+uc2P6fT
+         xjaiR/BG0j3kzCeZO2lfJTSsoy/AYxvj5RwT7Fcde8Jf4vvePEMREHwCPrRlCXk2cH9f
+         TGrLkJT0euKfXSswrgcIeLpLeQl7CEiHFhulUgm3YnAGDBl+WZfDsjb9+T4JlXmuuA/m
+         HCuLIFQAVjgyiS6+/Mmotho5o8OiV0VwaetO4OfrehUFhs/Q4EMi50gacd+VC5uc2Lag
+         vWAaZJlJxUs95wYENgZQ9A/y4+WzJSgXNH8oH2Ng8R1QsJYEkmWyn45IhUdH8QRyeXIm
+         GDqA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780411717; x=1781016517;
+        d=1e100.net; s=20251104; t=1780411716; x=1781016516;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=UD2VU6Qkchj+lh95HYyUl5zeYDPjx9xHz3lCGBGkJH4=;
-        b=ZgK5yTbNi8943dxGgZmJQXYG4YJVMTc13xrwDhMvJomLlF1KeTaytCpvSaEPu75yL3
-         14IFR4r3Ufnvu1EW15YkfGYOM5yHR+UTleUVdLQEeIkc8PipmvqjB0eW9lMVIkRIhwmb
-         W0eCgkqiyCKftQ+hL0IV0LeVjCMMudUXHKQKryFDz8Qm5Xf1dIAbxRzbUgfGbKmc92oA
-         4/PcuD1xgnsmntXTrz1F3ozMePsLTAZpttjcIfxoB/Kp8qZArflWf7poF2ZBe2tzKcgQ
-         r3srk47NxV8eIMQGhcMEdPDFRdKnyXkV7/7J33uQ24rTCou8S4o6uP3xY/8C6YYxg00M
-         WajQ==
-X-Gm-Message-State: AOJu0Yyipn6kAxTfgy9fMBwHaW5NvJnQQmIUcPJ5ZZxPMa01sgXMOLu2
-	AWIBRytOL6c5wHVgS8DxOlwrgBnUQPa9jCS96X/a6JWBUUMeU032MFxw5ADdAA==
-X-Gm-Gg: Acq92OHNHm3r+z6PXFMvy0ODhCwmBUhLnxY/fx83zM5cjqUEQndjrP45ddKxMXFrdeI
-	2d3u3vXL6sIpt/pAl3W/tW3A4XrJkpjpYmHxC2ks2hNRRUdsNzrs2CnizB71i41GE+BTvPMdjX7
-	vluljR6asOUDvRJjXdhj9jrG0na2U+BCyyTYJLISFgAnMtAaHGHBlP+PpEGjshlWzf+6Mic5L27
-	6qarGhHqYoB8sPngvekq4L0Xnv7DQROroGjizudcSVyiT9jAUh0X47KaoT0D2wsBgAHXQm8Tc2U
-	6PNSR6175rxTghmETvws7V/i5Ti09vykFKWmb3fqBtUFR26wX/H2lNQxP5MXQfcF0Ct7WaINVXe
-	G9oQMe5g7OzIpj9E6x9LJZiMDIpZTbNHWwZypt4oN/9cHxlvO85S4QfEsA31yvK5waSuJYb7riF
-	+PGEGGA13YUTBdhajFYGkQTkM8JkjPo/utjjA7LnlqkTi8XwOgbGGMbQro
-X-Received: by 2002:a05:620a:4008:b0:915:7b23:4afd with SMTP id af79cd13be357-9157b234b57mr524481485a.16.1780411716704;
-        Tue, 02 Jun 2026 07:48:36 -0700 (PDT)
+        bh=utgfDgxYX4ggGpf7AbipM3Ry4gTJokW2mnJSBTkJdWM=;
+        b=HNK/C4BGgr1oRLogLC6ANFzuux/V6T5GHryhI46DgRdzSfHJ62XiqYMWcQIyD5WUl2
+         BcOXFjsLa1BHaW+XlSxsyYzI7y+dNqXUXtCrOEpsPI0F1YoS2P1YzBbH+GEVEGj6dbRV
+         +cnbiMWOo2SCwaOjGfve4K+ir3yhTlfQ0I11rrAjOK6oTnU96gR+s88G4GWOYIz4FJgT
+         9urierTbk0XViRofiiLjVbDmH0DmF0zPV3MHKXGNE0Vu/VH2o+wbC9N4OP2AkUGn5lAX
+         z3/PxkQTrHNsquByzYRO0O6VPQurirrvA9tO0eLTaPwwBGY1fcOyh5lAbZBcrZvjFr0J
+         nHXA==
+X-Gm-Message-State: AOJu0Ywrv3r0QCH6VI7YpSdqjEOiagwsiVbCe1gIGJOEz0KLzRstFEbk
+	4MMnRzGWRN8cA97rXWzpEk8urnwZuqXOH8J27/obMfjRnhyaS57Z9PAqQdEMog==
+X-Gm-Gg: Acq92OEtRPdy7zWSY1gG/ECtywmj3NwSkIlX+uP7dqyAuQTE6sbits5pe1SbxVTefHe
+	eZHQ/xGl9WwMyh3ObQVjJdRIO4Qe1uAQ2snAbh+fO/DXLx2+fi8Qe9dVLPnEdVCtHyXwqJBlkh2
+	LFugs8QtU0mxdIep4UDe6H6EZcJ2DFD6hen33J2LJpdFzY4doAu+Xvy3PM8MdJTL7M8heg+osiX
+	iXot6B+zRjaov3iHrtM9Qv1eSxHh6EWq0tepNEUTqIlBWfyJLJ94jvob5w3AGmrUZIUi/p0l76B
+	Oo8GLdT6AbaYMqMkq2z8gm45mqIkAH8jJt1jYrcl/8ehHB4JVyfRDJrUFeYW3JSyzhtQ78NYCUu
+	R30FitGLGlgOb/e9cwecs2WFEdLNu9MHB6nKPj/sW+QrYtzglmJyfSPL1VEQYhd52Vh+t2eX9CV
+	bDeojW3WlHUf4SuofBi+JP8bpPJ914CKHUWCRDyI9qSso/NCxn/Kxyq/BR
+X-Received: by 2002:a05:620a:284a:b0:915:673a:6175 with SMTP id af79cd13be357-915673a62bemr1080944385a.23.1780411715879;
+        Tue, 02 Jun 2026 07:48:35 -0700 (PDT)
 Received: from Fedora43-SELinux ([144.51.8.27])
         by smtp.gmail.com with ESMTPSA id af79cd13be357-9153244de53sm1344015285a.8.2026.06.02.07.48.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Jun 2026 07:48:36 -0700 (PDT)
+        Tue, 02 Jun 2026 07:48:35 -0700 (PDT)
 From: James Carter <jwcart2@gmail.com>
 To: selinux@vger.kernel.org
 Cc: tweek@google.com,
 	stephen.smalley.work@gmail.com,
 	James Carter <jwcart2@gmail.com>
-Subject: [PATCH 3/3 v3] secilc: Add program that checks CIL neverallows against a binary policy
-Date: Tue,  2 Jun 2026 10:48:20 -0400
-Message-ID: <20260602144820.147382-3-jwcart2@gmail.com>
+Subject: [PATCH 2/3 v3] libsepol: Add a function to output CIL declarations from a binary policy
+Date: Tue,  2 Jun 2026 10:48:19 -0400
+Message-ID: <20260602144820.147382-2-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260602144820.147382-1-jwcart2@gmail.com>
 References: <20260602144820.147382-1-jwcart2@gmail.com>
@@ -77,518 +77,3633 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Add the program secilcheck that takes a binary policy and one or
-more CIL files and checks for violations in the binary policy using
-the neverallow and neverallowx rules from the CIL policy.
+Add the function sepol_kernel_policydb_decls_to_cil() that takes a
+binary policy as input and outputs the declarations in CIL format.
 
-ex/
-secilcheck policy.bin neverallows.cil
+Also move the checks for a supported policy to a new common function
+and use that function in kernel_to_conf and kernel_to_cil.
 
-The CIL neverallow and neverallowx rules must only use types, classes,
-and permissions that are declared in the binary policy.
-
-This is planned on being used in Android to validate policies from
-partners against the standard AOSP assertions as part of the
-Compatibility Test Suite.
+In the near-term this will be used get the declarations from a
+policydb so they can be used along with neverallows written in CIL
+to check for neverallow and neverallowx violations in the binary policy.
 
 Suggested-by: Thiébaud Weksteen <tweek@google.com>
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
+v3: Split out less common functionality to keep the same order for the rules
+    to prevent breaking existing tests (even though CIL is not dependent on
+    order.)
 v2: Added more explanation to the commit msg
-    Added the header unistd.h
+    Split out common functionality
 
- secilc/.gitignore       |   2 +
- secilc/Makefile         |  20 ++-
- secilc/secilcheck.8.xml |  81 +++++++++++
- secilc/secilcheck.c     | 302 ++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 403 insertions(+), 2 deletions(-)
- create mode 100644 secilc/secilcheck.8.xml
- create mode 100644 secilc/secilcheck.c
+ libselinux/src/selinuxswig_python_exception.i | 1224 ----------
+ .../src/semanageswig_python_exception.i       | 2128 -----------------
+ libsepol/include/sepol/kernel_to_cil.h        |    3 +-
+ libsepol/src/kernel_to_cil.c                  |   97 +-
+ libsepol/src/kernel_to_common.c               |   26 +
+ libsepol/src/kernel_to_common.h               |    2 +
+ libsepol/src/kernel_to_conf.c                 |   29 +-
+ libsepol/src/libsepol.map.in                  |    1 +
+ 8 files changed, 109 insertions(+), 3401 deletions(-)
+ delete mode 100644 libselinux/src/selinuxswig_python_exception.i
+ delete mode 100644 libsemanage/src/semanageswig_python_exception.i
 
-diff --git a/secilc/.gitignore b/secilc/.gitignore
-index d2a3daf1..9a5f45e0 100644
---- a/secilc/.gitignore
-+++ b/secilc/.gitignore
-@@ -4,6 +4,8 @@ secil2conf
- secil2conf.8
- secil2tree
- secil2tree.8
-+secilcheck
-+secilcheck.8
- policy.*
- file_contexts
- docs/html
-diff --git a/secilc/Makefile b/secilc/Makefile
-index ef7bc8cd..ebcc9d7c 100644
---- a/secilc/Makefile
-+++ b/secilc/Makefile
-@@ -14,9 +14,14 @@ SECIL2TREE = secil2tree
- SECIL2TREE_SRCS := secil2tree.c
- SECIL2TREE_OBJS := $(patsubst %.c,%.o,$(SECIL2TREE_SRCS))
+diff --git a/libselinux/src/selinuxswig_python_exception.i b/libselinux/src/selinuxswig_python_exception.i
+deleted file mode 100644
+index e5e55a79..00000000
+--- a/libselinux/src/selinuxswig_python_exception.i
++++ /dev/null
+@@ -1,1224 +0,0 @@
+-
+-%exception is_selinux_enabled {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception is_selinux_mls_enabled {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception getcon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception getcon_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception setcon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception setcon_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception getpidcon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception getpidcon_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception getprevcon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception getprevcon_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception getpidprevcon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception getpidprevcon_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception getexeccon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception getexeccon_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception setexeccon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception setexeccon_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception getfscreatecon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception getfscreatecon_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception setfscreatecon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception setfscreatecon_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception getkeycreatecon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception getkeycreatecon_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception setkeycreatecon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception setkeycreatecon_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception getsockcreatecon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception getsockcreatecon_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception setsockcreatecon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception setsockcreatecon_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception getfilecon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception getfilecon_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception lgetfilecon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception lgetfilecon_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception fgetfilecon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception fgetfilecon_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception setfilecon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception setfilecon_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception lsetfilecon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception lsetfilecon_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception fsetfilecon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception fsetfilecon_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception getpeercon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception getpeercon_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_compute_av {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_compute_av_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_compute_av_flags {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_compute_av_flags_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_compute_create {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_compute_create_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_compute_create_name {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_compute_create_name_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_compute_relabel {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_compute_relabel_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_compute_member {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_compute_member_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_compute_user {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_compute_user_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_validatetrans {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_validatetrans_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_load_policy {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_get_initial_context {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_get_initial_context_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinux_mkload_policy {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinux_init_load_policy {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_set_boolean_list {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_load_booleans {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_check_context {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_check_context_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_canonicalize_context {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_canonicalize_context_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_getenforce {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_setenforce {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_reject_unknown {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_deny_unknown {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_get_checkreqprot {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_disable {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_policyvers {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_get_boolean_names {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_get_boolean_pending {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_get_boolean_active {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_set_boolean {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_commit_booleans {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinux_set_mapping {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception security_av_string {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception matchpathcon_init {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception matchpathcon_init_prefix {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception realpath_not_final {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception matchpathcon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception matchpathcon_index {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception matchpathcon_filespec_add {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception matchmediacon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinux_getenforcemode {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinux_getpolicytype {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinux_set_policy_root {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinux_check_access {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinux_check_passwd_access {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception checkPasswdAccess {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinux_check_securetty_context {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinuxfs_exists {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception setexecfilecon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception rpm_execcon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception is_context_customizable {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinux_trans_to_raw_context {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinux_raw_to_trans_context {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinux_raw_context_to_color {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception getseuserbyname {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception getseuser {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinux_file_context_verify {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinux_lsetfilecon_default {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception avc_sid_to_context {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception avc_sid_to_context_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception avc_context_to_sid {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception avc_context_to_sid_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception sidget {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception sidput {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception avc_get_initial_sid {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception avc_init {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception avc_open {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception avc_reset {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception avc_has_perm_noaudit {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception avc_has_perm {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception avc_compute_create {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception avc_compute_member {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception avc_add_callback {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception avc_netlink_open {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception avc_netlink_acquire_fd {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception avc_netlink_check_nb {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinux_status_open {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinux_status_updated {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinux_status_getenforce {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinux_status_policyload {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinux_status_deny_unknown {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception context_type_set {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception context_range_set {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception context_role_set {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception context_user_set {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception get_ordered_context_list {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception get_ordered_context_list_with_level {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception get_default_context {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception get_default_context_with_level {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception get_default_context_with_role {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception get_default_context_with_rolelevel {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception query_user_context {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception manual_user_enter_context {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception get_default_type {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selabel_lookup {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selabel_lookup_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selabel_lookup_best_match {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selabel_lookup_best_match_raw {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selabel_digest {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinux_restorecon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinux_restorecon_parallel {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinux_restorecon_set_alt_rootpath {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception selinux_restorecon_xattr {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+diff --git a/libsemanage/src/semanageswig_python_exception.i b/libsemanage/src/semanageswig_python_exception.i
+deleted file mode 100644
+index 0df8bbc3..00000000
+--- a/libsemanage/src/semanageswig_python_exception.i
++++ /dev/null
+@@ -1,2128 +0,0 @@
+-
+-%exception semanage_reload_policy {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_get_hll_compiler_path {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_get_disable_dontaudit {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_set_default_priority {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_is_managed {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_connect {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_disconnect {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_begin_transaction {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_commit {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_access_check {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_is_connected {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_mls_enabled {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_set_root {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_get_preserve_tunables {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_get_ignore_module_cache {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception select {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception pselect {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_install {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_install_file {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_remove {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_extract {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_list {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_info_create {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_info_destroy {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_info_get_priority {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_info_get_name {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_info_get_lang_ext {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_info_get_enabled {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_info_set_priority {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_info_set_name {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_info_set_lang_ext {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_info_set_enabled {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_key_create {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_key_destroy {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_key_get_name {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_key_get_priority {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_key_set_name {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_key_set_priority {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_set_enabled {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_get_module_info {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_list_all {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_install_info {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_remove_key {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_get_enabled {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_module_compute_checksum {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_msg_get_level {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_key_create {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_key_extract {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_compare {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_compare2 {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_set_name {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_get_value {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_create {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_clone {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_key_create {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_key_extract {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_compare {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_compare2 {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_set_name {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_set_prefix {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_set_mlslevel {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_set_mlsrange {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_get_num_roles {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_add_role {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_has_role {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_get_roles {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_set_roles {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_create {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_clone {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_seuser_key_create {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_seuser_key_extract {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_seuser_compare {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_seuser_compare2 {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_seuser_set_name {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_seuser_set_sename {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_seuser_set_mlsrange {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_seuser_create {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_seuser_clone {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_context_set_user {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_context_set_role {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_context_set_type {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_context_set_mls {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_context_create {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_context_clone {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_context_from_string {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_context_to_string {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_iface_compare {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_iface_compare2 {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_iface_key_create {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_iface_key_extract {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_iface_set_name {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_iface_set_ifcon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_iface_set_msgcon {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_iface_create {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_iface_clone {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_port_compare {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_port_compare2 {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_port_key_create {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_port_key_extract {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_port_get_proto {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_port_get_low {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_port_get_high {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_port_set_con {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_port_create {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_port_clone {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibpkey_compare {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibpkey_compare2 {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibpkey_key_create {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibpkey_key_extract {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibpkey_get_subnet_prefix {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibpkey_set_subnet_prefix {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibpkey_get_low {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibpkey_get_high {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibpkey_set_con {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibpkey_create {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibpkey_clone {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibendport_compare {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibendport_compare2 {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibendport_key_create {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibendport_key_extract {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibendport_get_ibdev_name {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibendport_set_ibdev_name {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibendport_get_port {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibendport_set_con {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibendport_create {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibendport_clone {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_compare {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_compare2 {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_key_create {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_key_extract {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_get_addr {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_get_addr_bytes {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_set_addr {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_set_addr_bytes {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_get_mask {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_get_mask_bytes {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_set_mask {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_set_mask_bytes {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_get_proto {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_set_con {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_create {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_clone {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_modify_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_del_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_query_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_exists_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_count_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_iterate_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_list_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_query {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_exists {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_count {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_iterate {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_list {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_set_active {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_query_active {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_exists_active {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_count_active {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_iterate_active {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_bool_list_active {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_modify_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_del_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_query_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_exists_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_count_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_iterate_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_list_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_query {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_exists {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_count {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_iterate {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_user_list {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_fcontext_compare {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_fcontext_compare2 {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_fcontext_key_create {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_fcontext_key_extract {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_fcontext_set_expr {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_fcontext_get_type {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_fcontext_set_con {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_fcontext_create {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_fcontext_clone {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_fcontext_modify_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_fcontext_del_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_fcontext_query_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_fcontext_exists_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_fcontext_count_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_fcontext_iterate_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_fcontext_list_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_fcontext_query {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_fcontext_exists {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_fcontext_count {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_fcontext_iterate {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_fcontext_list {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_fcontext_list_homedirs {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_seuser_modify_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_seuser_del_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_seuser_query_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_seuser_exists_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_seuser_count_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_seuser_iterate_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_seuser_list_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_seuser_query {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_seuser_exists {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_seuser_count {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_seuser_iterate {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_seuser_list {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_port_modify_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_port_del_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_port_query_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_port_exists_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_port_count_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_port_iterate_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_port_list_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_port_query {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_port_exists {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_port_count {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_port_iterate {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_port_list {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibpkey_modify_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibpkey_del_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibpkey_query_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibpkey_exists_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibpkey_count_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibpkey_iterate_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibpkey_list_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibendport_modify_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibendport_del_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibendport_query_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibendport_exists_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibendport_count_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibendport_iterate_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibendport_list_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibendport_query {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibendport_exists {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibendport_count {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibendport_iterate {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibendport_list {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibpkey_query {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibpkey_exists {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibpkey_count {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibpkey_iterate {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_ibpkey_list {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_iface_modify_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_iface_del_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_iface_query_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_iface_exists_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_iface_count_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_iface_iterate_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_iface_list_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_iface_query {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_iface_exists {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_iface_count {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_iface_iterate {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_iface_list {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_modify_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_del_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_query_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_exists_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_count_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_iterate_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_list_local {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_query {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_exists {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_count {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_iterate {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+-
+-%exception semanage_node_list {
+-  $action
+-  if (result < 0) {
+-     PyErr_SetFromErrno(PyExc_OSError);
+-     SWIG_fail;
+-  }
+-}
+diff --git a/libsepol/include/sepol/kernel_to_cil.h b/libsepol/include/sepol/kernel_to_cil.h
+index 60346ad1..1db0383a 100644
+--- a/libsepol/include/sepol/kernel_to_cil.h
++++ b/libsepol/include/sepol/kernel_to_cil.h
+@@ -2,4 +2,5 @@
  
-+SECILCHECK = secilcheck
-+SECILCHECK_SRCS := secilcheck.c
-+SECILCHECK_OBJS := $(patsubst %.c,%.o,$(SECILCHECK_SRCS))
-+
- SECILC_MANPAGE = secilc.8
- SECIL2CONF_MANPAGE = secil2conf.8
- SECIL2TREE_MANPAGE = secil2tree.8
-+SECILCHECK_MANPAGE = secilcheck.8
- XMLTO = xmlto
- DIFF = diff
+ #include <sepol/policydb/policydb.h>
  
-@@ -28,7 +33,7 @@ CFLAGS ?= -Wall -Wshadow -Wextra -Wundef -Wmissing-format-attribute -Wcast-align
- override CFLAGS += -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64
- override LDLIBS += -lsepol
+-int sepol_kernel_policydb_to_cil(FILE *fp, struct policydb *pdb);
++int sepol_kernel_policydb_to_cil(FILE *out, struct policydb *pdb);
++int sepol_kernel_policydb_decls_to_cil(FILE *out, struct policydb *pdb);
+diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+index 49040ae4..db63ac3f 100644
+--- a/libsepol/src/kernel_to_cil.c
++++ b/libsepol/src/kernel_to_cil.c
+@@ -3262,6 +3262,11 @@ int sepol_kernel_policydb_to_cil(FILE *out, struct policydb *pdb)
+ 	struct strs *non_mls_validatetrans = NULL;
+ 	int rc = 0;
  
--all: $(SECILC) $(SECIL2CONF) $(SECIL2TREE) man
-+all: $(SECILC) $(SECIL2CONF) $(SECIL2TREE) $(SECILCHECK) man
++	rc = check_for_supported_policy(pdb);
++	if (rc != 0) {
++		return rc;
++	}
++
+ 	rc = strs_init(&mls_constraints, 32);
+ 	if (rc != 0) {
+ 		goto exit;
+@@ -3282,30 +3287,6 @@ int sepol_kernel_policydb_to_cil(FILE *out, struct policydb *pdb)
+ 		goto exit;
+ 	}
  
- $(SECILC): $(SECILC_OBJS)
- 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-@@ -45,7 +50,10 @@ $(SECIL2CONF): $(SECIL2CONF_OBJS)
- $(SECIL2TREE): $(SECIL2TREE_OBJS)
- 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+-	if (pdb == NULL) {
+-		ERR(NULL, "No policy");
+-		rc = -1;
+-		goto exit;
+-	}
+-
+-	if (pdb->policy_type != SEPOL_POLICY_KERN) {
+-		ERR(NULL, "Policy is not a kernel policy");
+-		rc = -1;
+-		goto exit;
+-	}
+-
+-	if (pdb->policyvers >= POLICYDB_VERSION_AVTAB && pdb->policyvers <= POLICYDB_VERSION_PERMISSIVE) {
+-		/*
+-		 * For policy versions between 20 and 23, attributes exist in the policy,
+-		 * but only in the type_attr_map. This means that there are gaps in both
+-		 * the type_val_to_struct and p_type_val_to_name arrays and policy rules
+-		 * can refer to those gaps.
+-		 */
+-		ERR(NULL, "Writing policy versions between 20 and 23 as CIL is not supported");
+-		rc = -1;
+-		goto exit;
+-	}
+-
+ 	rc = constraint_rules_to_strs(pdb, mls_constraints, non_mls_constraints);
+ 	if (rc != 0) {
+ 		goto exit;
+@@ -3533,3 +3514,71 @@ exit:
  
--man: $(SECILC_MANPAGE) $(SECIL2CONF_MANPAGE) $(SECIL2TREE_MANPAGE)
-+$(SECILCHECK): $(SECILCHECK_OBJS)
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+ 	return rc;
+ }
 +
-+man: $(SECILC_MANPAGE) $(SECIL2CONF_MANPAGE) $(SECIL2TREE_MANPAGE) $(SECILCHECK_MANPAGE)
- 
- $(SECILC_MANPAGE): $(SECILC_MANPAGE).xml
- 	$(XMLTO) man $(SECILC_MANPAGE).xml
-@@ -56,15 +64,20 @@ $(SECIL2CONF_MANPAGE): $(SECIL2CONF_MANPAGE).xml
- $(SECIL2TREE_MANPAGE): $(SECIL2TREE_MANPAGE).xml
- 	$(XMLTO) man $(SECIL2TREE_MANPAGE).xml
- 
-+$(SECILCHECK_MANPAGE): $(SECILCHECK_MANPAGE).xml
-+	$(XMLTO) man $(SECILCHECK_MANPAGE).xml
-+
- install: all man
- 	-mkdir -p $(DESTDIR)$(BINDIR)
- 	-mkdir -p $(DESTDIR)$(MANDIR)/man8
- 	install -m 755 $(SECILC) $(DESTDIR)$(BINDIR)
- 	install -m 755 $(SECIL2CONF) $(DESTDIR)$(BINDIR)
- 	install -m 755 $(SECIL2TREE) $(DESTDIR)$(BINDIR)
-+	install -m 755 $(SECILCHECK) $(DESTDIR)$(BINDIR)
- 	install -m 644 $(SECILC_MANPAGE) $(DESTDIR)$(MANDIR)/man8
- 	install -m 644 $(SECIL2CONF_MANPAGE) $(DESTDIR)$(MANDIR)/man8
- 	install -m 644 $(SECIL2TREE_MANPAGE) $(DESTDIR)$(MANDIR)/man8
-+	install -m 644 $(SECILCHECK_MANPAGE) $(DESTDIR)$(MANDIR)/man8
- 
- doc:
- 	$(MAKE) -C docs
-@@ -76,11 +89,14 @@ clean:
- 	rm -f $(SECIL2CONF_OBJS)
- 	rm -f $(SECIL2TREE)
- 	rm -f $(SECIL2TREE_OBJS)
-+	rm -f $(SECILCHECK)
-+	rm -f $(SECILCHECK_OBJS)
- 	rm -f policy.*
- 	rm -f file_contexts
- 	rm -f $(SECILC_MANPAGE)
- 	rm -f $(SECIL2CONF_MANPAGE)
- 	rm -f $(SECIL2TREE_MANPAGE)
-+	rm -f $(SECILCHECK_MANPAGE)
- 	rm -f opt-actual.cil
- 	rm -f opt-actual.bin
- 	$(MAKE) -C docs clean
-diff --git a/secilc/secilcheck.8.xml b/secilc/secilcheck.8.xml
-new file mode 100644
-index 00000000..279322a5
---- /dev/null
-+++ b/secilc/secilcheck.8.xml
-@@ -0,0 +1,81 @@
-+<?xml version="1.0" encoding="UTF-8"?>
-+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
-+               "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
-+
-+<refentry>
-+   <refentryinfo>
-+      <author>
-+         <firstname>James</firstname><surname>Carter</surname><contrib></contrib>
-+      </author>
-+   </refentryinfo>
-+
-+   <refmeta>
-+      <refentrytitle>SECILCHECK</refentrytitle>
-+      <manvolnum>8</manvolnum>
-+      <refmiscinfo class="date">29 May 2026</refmiscinfo>
-+      <refmiscinfo class="source">secilcheck</refmiscinfo>
-+      <refmiscinfo class="manual">Check binary policy file against CIL neverallow files</refmiscinfo>
-+   </refmeta>
-+   <refnamediv id="name">
-+      <refname>secilcheck</refname>
-+      <refpurpose>invoke the CIL neverallow checker</refpurpose>
-+   </refnamediv>
-+
-+   <refsynopsisdiv id="synopsis">
-+      <cmdsynopsis>
-+        <command>secilcheck</command>
-+          <arg choice="opt" rep="repeat"><replaceable>OPTION</replaceable></arg>
-+          <arg choice="plain"><replaceable>binary</replaceable></arg>
-+          <arg choice="plain" rep="repeat"><replaceable>file</replaceable></arg>
-+      </cmdsynopsis>
-+   </refsynopsisdiv>
-+
-+   <refsect1 id="description"><title>DESCRIPTION</title>
-+      <para><emphasis role="italic">secilcheck</emphasis> invokes the CIL neverallow checker with specified <emphasis role="italic">argument</emphasis>s.</para>
-+   </refsect1>
-+
-+   <refsect1 id="options"><title>OPTIONS</title>
-+      <variablelist>
-+         <varlistentry>
-+            <term><option>-Q, --qualified-names</option></term>
-+            <listitem><para>Allow names containing dots (qualified names). Blocks, blockinherits, blockabstracts, and in-statements will not be allowed.</para></listitem>
-+         </varlistentry>
-+
-+         <varlistentry>
-+            <term><option>-m, --multiple-decls</option></term>
-+            <listitem><para>Allow some statements to be re-declared.</para></listitem>
-+         </varlistentry>
-+
-+         <varlistentry>
-+            <term><option>-v, --verbose</option></term>
-+            <listitem><para>Increment verbosity level.</para></listitem>
-+         </varlistentry>
-+
-+         <varlistentry>
-+            <term><option>-h, --help</option></term>
-+            <listitem><para>Display usage information.</para></listitem>
-+         </varlistentry>
-+      </variablelist>
-+   </refsect1>
-+
-+   <refsect1 id="see_also"><title>SEE ALSO</title>
-+      <para>
-+      <simplelist type="inline">
-+         <member><citerefentry>
-+            <refentrytitle>secilc</refentrytitle>
-+            <manvolnum>8</manvolnum>
-+         </citerefentry></member>
-+         <member><citerefentry>
-+            <refentrytitle>secil2tree</refentrytitle>
-+            <manvolnum>8</manvolnum>
-+         </citerefentry></member>
-+         <member><citerefentry>
-+            <refentrytitle>secil2conf</refentrytitle>
-+            <manvolnum>8</manvolnum>
-+         </citerefentry></member>
-+      </simplelist>
-+      </para>
-+      <para>HTML documentation describing the CIL language statements is available starting with <emphasis role="italic">docs/html/index.html</emphasis>.</para>
-+      <para>PDF documentation describing the CIL language statements is available at: <emphasis role="italic">docs/pdf/CIL_Reference_Guide.pdf</emphasis>.</para>
-+   </refsect1>
-+</refentry>
-diff --git a/secilc/secilcheck.c b/secilc/secilcheck.c
-new file mode 100644
-index 00000000..194f4943
---- /dev/null
-+++ b/secilc/secilcheck.c
-@@ -0,0 +1,302 @@
-+/*
-+ * Copyright 2011 Tresys Technology, LLC. All rights reserved.
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions are met:
-+ *
-+ *    1. Redistributions of source code must retain the above copyright notice,
-+ *       this list of conditions and the following disclaimer.
-+ *
-+ *    2. Redistributions in binary form must reproduce the above copyright notice,
-+ *       this list of conditions and the following disclaimer in the documentation
-+ *       and/or other materials provided with the distribution.
-+ *
-+ * THIS SOFTWARE IS PROVIDED BY TRESYS TECHNOLOGY, LLC ``AS IS'' AND ANY EXPRESS
-+ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
-+ * EVENT SHALL TRESYS TECHNOLOGY, LLC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-+ *
-+ * The views and conclusions contained in the software and documentation are those
-+ * of the authors and should not be interpreted as representing official policies,
-+ * either expressed or implied, of Tresys Technology, LLC.
-+ */
-+
-+#include <stdlib.h>
-+#include <stdio.h>
-+#include <unistd.h>
-+#include <stdint.h>
-+#include <string.h>
-+#include <getopt.h>
-+#include <fcntl.h>
-+#include <sys/stat.h>
-+#include <sys/mman.h>
-+
-+#ifdef ANDROID
-+#include <cil/cil.h>
-+#else
-+#include <sepol/cil/cil.h>
-+#endif
-+#include <sepol/policydb.h>
-+#include <sepol/kernel_to_cil.h>
-+
-+static int get_binary_policy_db(const char *filename, sepol_policydb_t *pdb)
++int sepol_kernel_policydb_decls_to_cil(FILE *out, struct policydb *pdb)
 +{
-+	int fd;
-+	struct stat sb;
-+	void *map = NULL;
-+	sepol_policy_file_t *pf = NULL;
-+	int rc = SEPOL_ERR;
++	int rc = 0;
 +
-+	/* Read binary policy */
-+	fd = open(filename, O_RDONLY);
-+	if (fd < 0) {
-+		fprintf(stderr, "Could not open file: %s\n", filename);
-+		goto exit;
++	rc = check_for_supported_policy(pdb);
++	if (rc != 0) {
++		return rc;
 +	}
-+	if (fstat(fd, &sb) < 0) {
-+		fprintf(stderr, "Could not stat file: %s\n", filename);
-+		goto exit;
-+	}
-+	map = mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
-+	if (map == MAP_FAILED) {
-+		fprintf(stderr, "Could not map file: %s\n", filename);
++
++	rc = write_sid_decl_rules_to_cil(out, pdb);
++	if (rc != 0) {
 +		goto exit;
 +	}
 +
-+	if (sepol_policy_file_create(&pf) < 0) {
-+		fprintf(stderr, "Out of memory");
-+		goto exit;
-+	}
-+	sepol_policy_file_set_mem(pf, map, sb.st_size);
-+
-+	if (sepol_policydb_read(pdb, pf) < 0) {
-+		fprintf(stderr,"Error reading binary policy: %s\n", filename);
-+		sepol_policydb_free(pdb);
-+		rc = SEPOL_ERR;
++	rc = write_class_decl_rules_to_cil(out, pdb);
++	if (rc != 0) {
 +		goto exit;
 +	}
 +
-+	rc = SEPOL_OK;
++	rc = write_mls_rules_to_cil(out, pdb);
++	if (rc != 0) {
++		goto exit;
++	}
++
++	rc = write_boolean_decl_rules_to_cil(out, pdb);
++	if (rc != 0) {
++		goto exit;
++	}
++
++	rc = write_type_decl_rules_to_cil(out, pdb);
++	if (rc != 0) {
++		goto exit;
++	}
++
++	rc = write_type_alias_rules_to_cil(out, pdb);
++	if (rc != 0) {
++		goto exit;
++	}
++
++	rc = write_type_attributes_to_cil(out, pdb);
++	if (rc != 0) {
++		goto exit;
++	}
++
++	rc = write_type_attribute_sets_to_cil(out, pdb);
++	if (rc != 0) {
++		goto exit;
++	}
++
++	rc = write_role_decl_rules_to_cil(out, pdb);
++	if (rc != 0) {
++		goto exit;
++	}
++
++	rc = write_role_attributes_to_cil(out, pdb);
++	if (rc != 0) {
++		goto exit;
++	}
++
++	rc = write_user_decl_rules_to_cil(out, pdb);
++	if (rc != 0) {
++		goto exit;
++	}
 +
 +exit:
-+	if (fd >= 0)
-+		close(fd);
-+	if (map)
-+		munmap(map, sb.st_size);
-+	sepol_policy_file_free(pf);
 +	return rc;
 +}
+diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_common.c
+index 99e46865..b267b5d7 100644
+--- a/libsepol/src/kernel_to_common.c
++++ b/libsepol/src/kernel_to_common.c
+@@ -751,3 +751,29 @@ exit:
+ 
+ 	return rc;
+ }
 +
-+static int add_decls_to_cil(const char *filename, sepol_policydb_t *pdb, struct cil_db *db)
++int check_for_supported_policy(struct policydb *pdb)
 +{
-+	FILE *cfp = NULL;
-+	char *cptr = NULL;
-+	size_t csize;
-+	int rc = SEPOL_ERR;
-+
-+	cfp = open_memstream(&cptr, &csize);
-+	if (!cfp) {
-+		fprintf(stderr, "Failed to open dynamic memory buffer stream\n");
-+		goto exit;
++	if (pdb == NULL) {
++		ERR(NULL, "No policy");
++		return -1;
 +	}
 +
-+	if (sepol_kernel_policydb_decls_to_cil(cfp, &pdb->p) < 0) {
-+		fprintf(stderr, "Failed to convert binary policy to CIL\n");
-+		goto exit;
++	if (pdb->policy_type != SEPOL_POLICY_KERN) {
++		ERR(NULL, "Policy is not a kernel policy");
++		return -1;
 +	}
 +
-+	if (fflush(cfp) < 0) {
-+		fprintf(stderr, "Failed to flush CIL memory buffer stream\n");
-+		goto exit;
++	if (pdb->policyvers >= POLICYDB_VERSION_AVTAB && pdb->policyvers <= POLICYDB_VERSION_PERMISSIVE) {
++		/*
++		 * For policy versions between 20 and 23, attributes exist in the policy,
++		 * but only in the type_attr_map. This means that there are gaps in both
++		 * the type_val_to_struct and p_type_val_to_name arrays and policy rules
++		 * can refer to those gaps.
++		 */
++		ERR(NULL, "Writing out CIL or policy.conf from policy versions between 20 and 23 is not supported");
++		return -1;
 +	}
 +
-+	/* Add to CIL db */
-+	if (cil_add_file(db, filename, cptr, csize) < 0) {
-+		fprintf(stderr, "Failed to add binary policy file: %s\n", filename);
-+		goto exit;
-+	}
-+
-+	rc = 0;
-+
-+exit:
-+	if (cfp)
-+		fclose(cfp);
-+	if (cptr)
-+		free(cptr);
-+	return rc;
++	return 0;
 +}
+diff --git a/libsepol/src/kernel_to_common.h b/libsepol/src/kernel_to_common.h
+index d3283658..53f398b7 100644
+--- a/libsepol/src/kernel_to_common.h
++++ b/libsepol/src/kernel_to_common.h
+@@ -117,3 +117,5 @@ int strs_stack_empty(const struct strs *stack);
+ 
+ struct strs *isids_to_strs(const char *const *sid_to_str, unsigned num_sids, struct ocontext *isids);
+ int sort_ocontexts(struct policydb *pdb);
 +
-+static int add_cil_file(const char *filename, struct cil_db *cdb)
-+{
-+	FILE *file;
-+	struct stat filedata;
-+	char *buffer = NULL;
-+	size_t file_size;
-+	int rc = -1;
-+
-+	file = fopen(filename, "r");
-+	if (!file) {
-+		fprintf(stderr, "Could not open file: %s\n", filename);
-+		goto exit;
-+	}
-+	if (stat(filename, &filedata) < 0) {
-+		fprintf(stderr, "Could not stat file: %s\n", filename);
-+		goto exit;
-+	}
-+	file_size = filedata.st_size;
-+
-+	if (!file_size) {
-+		fclose(file);
-+		rc = 0;
-+		goto exit;
++int check_for_supported_policy(struct policydb *pdb);
+diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
+index a8126d58..628a792e 100644
+--- a/libsepol/src/kernel_to_conf.c
++++ b/libsepol/src/kernel_to_conf.c
+@@ -3116,6 +3116,11 @@ int sepol_kernel_policydb_to_conf(FILE *out, struct policydb *pdb)
+ 	struct strs *non_mls_validatetrans = NULL;
+ 	int rc = 0;
+ 
++	rc = check_for_supported_policy(pdb);
++	if (rc != 0) {
++		return rc;
 +	}
 +
-+	buffer = malloc(file_size);
-+	if (!buffer) {
-+		fprintf(stderr, "Out of memory\n");
-+		goto exit;
-+	}
-+
-+	if (fread(buffer, file_size, 1, file) != 1) {
-+		fprintf(stderr, "Failure reading file: %s\n", filename);
-+		goto exit;
-+	}
-+
-+	if (cil_add_file(cdb, filename, buffer, file_size) < 0) {
-+		fprintf(stderr, "Failure adding %s\n", filename);
-+		goto exit;
-+	}
-+
-+	rc = 0;
-+
-+exit:
-+	if (file)
-+		fclose(file);
-+	if (buffer)
-+		free(buffer);
-+	return rc;
-+}
-+
-+static __attribute__((__noreturn__)) void usage(const char *prog)
-+{
-+	printf("Usage: %s [OPTION]... BIN_POLICY CIL_NEVERALLOW_FILE1...\n", prog);
-+	printf("\n");
-+	printf("Options:\n");
-+	printf("  -Q, --qualified-names          Allow names containing dots (qualified names).\n");
-+	printf("                                 Blocks, blockinherits, blockabstracts, and\n");
-+	printf("                                 in-statements will not be allowed.\n");
-+	printf("  -m, --multiple-decls           allow some statements to be re-declared\n");
-+	printf("  -v, --verbose                  increment verbosity level\n");
-+	printf("  -h, --help                     display usage information\n");
-+	exit(1);
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+	int rc = SEPOL_ERR;
-+	sepol_policydb_t *pdb = NULL;
-+	int violation = 0;
-+	struct cil_db *db = NULL;
-+	int multiple_decls = 0;
-+	int qualified_names = 0;
-+	int opt_char;
-+	int opt_index = 0;
-+	enum cil_log_level log_level = CIL_ERR;
-+	static struct option long_opts[] = {
-+		{"help", no_argument, 0, 'h'},
-+		{"verbose", no_argument, 0, 'v'},
-+		{"multiple-decls", no_argument, 0, 'm'},
-+		{"qualified-names", no_argument, 0, 'Q'},
-+		{0, 0, 0, 0}
-+	};
-+
-+	while (1) {
-+		opt_char = getopt_long(argc, argv, "hvQm", long_opts, &opt_index);
-+		if (opt_char == -1) {
-+			break;
-+		}
-+		switch (opt_char) {
-+			case 'v':
-+				log_level++;
-+				break;
-+			case 'm':
-+				multiple_decls = 1;
-+				break;
-+			case 'Q':
-+				qualified_names = 1;
-+				break;
-+			case 'h':
-+				usage(argv[0]);
-+			case '?':
-+				break;
-+			default:
-+					fprintf(stderr, "Unsupported option: %s\n", optarg);
-+				usage(argv[0]);
-+		}
-+	}
-+
-+	if (argc < optind + 2) {
-+		fprintf(stderr, "Not enough files specified\n");
-+		usage(argv[0]);
-+	}
-+
-+	cil_set_log_level(log_level);
-+
-+	cil_db_init(&db);
-+	cil_set_multiple_decls(db, multiple_decls);
-+	cil_set_qualified_names(db, qualified_names);
-+
-+	if (sepol_policydb_create(&pdb) < 0) {
-+		fprintf(stderr, "Out of memory\n");
-+		goto exit;
-+	}
-+	if (get_binary_policy_db(argv[optind], pdb) < 0) {
-+		fprintf(stderr, "Failed to get binary policy db\n");
-+		rc = SEPOL_ERR;
-+		goto exit;
-+	}
-+	if (add_decls_to_cil(argv[optind], pdb, db) < 0) {
-+		fprintf(stderr, "Failed to convert decls to CIL\n");
-+		rc = SEPOL_ERR;
-+		goto exit;
-+	}
-+	optind++;
-+
-+	do {
-+		if (add_cil_file(argv[optind], db) < 0) {
-+			fprintf(stderr, "Failed to add cil file to CIL files\n");
-+			rc = SEPOL_ERR;
-+			goto exit;
-+		}
-+		optind++;
-+	} while (optind < argc);
-+
-+	rc = cil_compile(db);
-+	if (rc != SEPOL_OK) {
-+		fprintf(stderr, "Failed to compile cildb: %d\n", rc);
-+		goto exit;
-+	}
-+
-+	rc = cil_check_neverallows_against_pdb(db, &pdb->p, &violation);
-+	if (rc != SEPOL_OK) {
-+		fprintf(stderr, "Failed to complete neverallow checking\n");
-+		goto exit;
-+	}
-+	if (violation == 1) {
-+		fprintf(stderr, "There was a neverallow violation\n");
-+		rc = SEPOL_ERR;
-+	}
-+
-+	rc = SEPOL_OK;
-+
-+exit:
-+	cil_db_destroy(&db);
-+	sepol_policydb_free(pdb);
-+	return rc;
-+}
+ 	rc = strs_init(&mls_constraints, 32);
+ 	if (rc != 0) {
+ 		goto exit;
+@@ -3136,30 +3141,6 @@ int sepol_kernel_policydb_to_conf(FILE *out, struct policydb *pdb)
+ 		goto exit;
+ 	}
+ 
+-	if (pdb == NULL) {
+-		ERR(NULL, "No policy");
+-		rc = -1;
+-		goto exit;
+-	}
+-
+-	if (pdb->policy_type != SEPOL_POLICY_KERN) {
+-		ERR(NULL, "Policy is not a kernel policy");
+-		rc = -1;
+-		goto exit;
+-	}
+-
+-	if (pdb->policyvers >= POLICYDB_VERSION_AVTAB && pdb->policyvers <= POLICYDB_VERSION_PERMISSIVE) {
+-		/*
+-		 * For policy versions between 20 and 23, attributes exist in the policy,
+-		 * but only in the type_attr_map. This means that there are gaps in both
+-		 * the type_val_to_struct and p_type_val_to_name arrays and policy rules
+-		 * can refer to those gaps.
+-		 */
+-		ERR(NULL, "Writing policy versions between 20 and 23 as a policy.conf is not supported");
+-		rc = -1;
+-		goto exit;
+-	}
+-
+ 	rc = constraint_rules_to_strs(pdb, mls_constraints, non_mls_constraints);
+ 	if (rc != 0) {
+ 		goto exit;
+diff --git a/libsepol/src/libsepol.map.in b/libsepol/src/libsepol.map.in
+index 2b103993..8785cff1 100644
+--- a/libsepol/src/libsepol.map.in
++++ b/libsepol/src/libsepol.map.in
+@@ -297,5 +297,6 @@ LIBSEPOL_3.6 {
+ 
+ LIBSEPOL_3.11 {
+   global:
++	sepol_kernel_policydb_decls_to_cil;
+ 	cil_check_neverallows_against_pdb;
+ } LIBSEPOL_3.6;
 -- 
 2.54.0
 
