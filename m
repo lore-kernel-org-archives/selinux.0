@@ -1,93 +1,93 @@
-Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EDA436309B
-	for <selinux@vger.kernel.org>; Tue,  2 Jun 2026 16:41:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACA6237204A
+	for <selinux@vger.kernel.org>; Tue,  2 Jun 2026 16:41:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.51
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780418487; cv=pass; b=X4mOWTnafZ8DxaJLcz+vT8y1BXR2pxByk8UOnVwLQL+5nh8yREHrprfviNgTOo5kVwEVFft1j/PpwI3Qp/jL+C7K8C8k5KpV6T28QNpYW3S3QXGP4xAksIbdcqUV6Ya1qZLGF8RcjSQR38g/DnvJuZLn94GZW5OfWj0tYj4kdUQ=
+	t=1780418506; cv=pass; b=P8jes7SrgQV1daZQM7Czcxr6vN22oonpylsr69FbTm8SGL5qAFVETxURNMS+QInp/eimQxsiDeH7JAvMADzSBMpWyIsuGtHaMTfsCrizShkyy/MG/SxtGG9wvuneo7188Ob0Wn0lYPtBPech4SnWTn1JdUMt5SPMK3LSsfAFYY4=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780418487; c=relaxed/simple;
-	bh=bK0LDlcGwq08ZGJfpqMVegT19r4FpWyaSW7XWn3R1Ko=;
+	s=arc-20240116; t=1780418506; c=relaxed/simple;
+	bh=qFNSkyWTUXAmkmgrgLSkj5HeS/GlaRvUFx44uuoldAE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=RGyB+5vS4s9VqYZ46ddFc3Oa3dzIaBbF7I/yDk6U4GMZ4EptquIWpnDCSUVVUxQAO4Bh+EldpU7kCWYg1Iru8hQL4jAwnV6fF9f/JO6RlbHqisod058jEW0q9Fua+T5Mk4q2N7b7ybvD178VltUsYja2xZdMFa3j7usOAV6rnqY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=tLoPESeG; arc=pass smtp.client-ip=209.85.215.171
+	 To:Cc:Content-Type; b=cAZbsNwXDSw3Qby936fiigu/DruzSiy4W1aVQ2M2mB8912EfsIZcb91BAtrUdL1PovWsJr0pcUpareJQetGRqsWEeJubWWJ4o3Om/IcemlO8XIRjHd1FukQubwpPryy2fTsrwJ/B/tbgjg74le6uWMqeICJTvuiT72dsxqKJmg4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rEgkje9a; arc=pass smtp.client-ip=209.85.216.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tLoPESeG"
-Received: by mail-pg1-f171.google.com with SMTP id 41be03b00d2f7-c858b5de728so2150815a12.0
-        for <selinux@vger.kernel.org>; Tue, 02 Jun 2026 09:41:26 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780418485; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rEgkje9a"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-36d98b68d68so1879407a91.2
+        for <selinux@vger.kernel.org>; Tue, 02 Jun 2026 09:41:44 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780418504; cv=none;
         d=google.com; s=arc-20240605;
-        b=SezaKGCNWRW98S5o3zbBbYI6tYPBg5E1A5ExenjyZMyP3XceokqLztajYKs7Yq9TTx
-         PMCrnUDzqj5g9d3XkCXResIAy3eHb+n0HOSpaybD9FIjAf993+j+TA50h6YWwDZWYgZY
-         mb3sEZ4f4lwWmvKvQ7Vw7D0eEqY56y8JNNuYRVcdukl4wXS8HSrzivzxcxM336aodOKK
-         aQaT7dT3GYV/RqC3Mscd2pYLhPN/ytkRY01Vb2TR1F7ta5SRpqIuGwKpvsbKzk8hEPku
-         +0Ko6cyFpvrfYOGoFCDNkYN2awy9l2ThrH7KDJcyxmtZAa5w3gKG/i4WQWtETelvdLA2
-         7WJw==
+        b=IaG/QUwrkgL+SMQjq1XUAeCKN0S4KLmvQYmwahqFp3hyumRZYWiRRl1BeNY2KPp10b
+         pnZc52CZRvUK+3QoQvVKnk2hE4DrI7FSMCeTeL2My2SgpdzLBl9oPUijyair1c8glWYu
+         vqLabi3pU0W+bKwHtbHx6p59wfn/olroCFfVHMnyZWAqN1R81Fw6OQOMR1DEr3hvp6BG
+         RZC8iSr6UShcXW8YV887GqsOr7HbJYvyHYIkdzYJPI1B+X0AqDrYXplOdsTDRyJW46jb
+         THFQVxOXAC0/aPkUGxzXsLqzpq5d8A8bHPEvLZfzSoNkJHaaIVqq69ERSVil9R+6AB26
+         Kb8g==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=I3bXEUKFR1SHzD8v1yl1Ak68tue1l/Fq9vBkiYiMTm8=;
+        bh=RYk1kq8ayB1SnLE0sBXZ+gAfKz83o3hwqF//XjpBM18=;
         fh=ZRedc575flThWjp0FOeY4xu8TVTKDyGyGDcFPwDIv+A=;
-        b=lARe5pj1qndWighSqZfRTagcg0euZpU1z7bqfwpDEtvN1Y3Uw2W/Um5SC4IQY6sIjF
-         OzIHO+jtVcMX/+zy+z2rvqdxe5I7QHH+GA5cGqMqYT40Wi/3caRxNGI70x8/yYrfp6TP
-         cQfZ5t4Kw/uEi/Glr3T9RcJg39tXVYu300nM7n8nKhwWNs37Y1VjzVPOl2CH7szWjeI5
-         f/cGjsB/pfkTkBdIV6UHTzpwLyujLvDrbQ1/yuR37zMQZGZbthT5t4sDxpKQGkEgjR3J
-         ydQa1E4xmAFuPdrkxWDjGzNfrprB4mts379OEtfbbYK4RaGAENYwABToLVucDrSU1CmP
-         aOEQ==;
+        b=UVAZDuouLsaCm2IwOfiAcnH3iagX4H8T4x4AFw5zGVlkNv0skAyl34tFcts90EsMwJ
+         MDUbuiHwMorw9/lzTYlRrO8/NJhZWdX8rB1PNGefCNl5t0SsaItLqUFiLZZrBkeYqeaT
+         kzfoqdR+0uuRBUqP6sNrbZLefqedT4CfRyogq+qPsfbHBjsq5n2fhc0iHBPKzEgC7lnG
+         dqNURa1d+//wwxAar1aerbAOEPCnGPyqZHn7rXFjbjPeUytCPNRWosl8QJtEYlMgMWRZ
+         pHYFMf2aPgb1xSIDxnXFR0y/npouwgSxuM2Kp8XuwbWvi1pI7yoAqmRDwk97HtKTwLlo
+         8L3w==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780418485; x=1781023285; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780418504; x=1781023304; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=I3bXEUKFR1SHzD8v1yl1Ak68tue1l/Fq9vBkiYiMTm8=;
-        b=tLoPESeGueDagDDq4/7hfIUS1BQv14l64qctq093Xe2T+nF/BSt0MPJbYv5lAVFgCU
-         h2Hu1Xq1x2DrDgruWbjoE/hW6CVKWsQ/TkphnxlLzrYmTr7KUvgc3gxroGk0wMXFcoUm
-         brc2LtobNgHIYGBd3pz43TCVMENV8LXrTeiES9s+UDLLG/SdDeutSBCz0PgEPAqDDHkN
-         glypXsiQFBeno7D+4TiRJec/X7aEXgm9onmXSYt0EQAbUQu+oTh9D0pyrt2ZCI9Wf75i
-         gERN5WUcabem+hXAlPHUssK82nTcHvecrjzSf+hR7ZxA+ro8x+2HHqoO7x3W1E9bTcu3
-         Q+Rg==
+        bh=RYk1kq8ayB1SnLE0sBXZ+gAfKz83o3hwqF//XjpBM18=;
+        b=rEgkje9aMcnSwq0tsuCsFSMqyn99+XI9DSzTNkJjoMJ7d87PxIRE3oEWnJcTMWRfmy
+         4hWbo7bBUdaWHIeBTCLMIg7o4EttVEhtngdApDP7jlC7lszjmzIkkfJ/bDJLE4A8WDqM
+         oo230dkQ5EDFmF4wFKMSEUMdBcGGhBedhVSxmmOqResSK0r5WY1C1fT+6dfhwJFtwHS3
+         /fzsRZF/6CJ5TeyGhEmZfEdlpgPYqRD46QAti7Jz+wpkG/5r3ZeYZAp1bTCiiI43bJOd
+         oIaz7q6XW8g7OlrIugFfkMls80I03yXyn+t2uJ+H7A8Bzs4+a13GCzluMnCxsKzGe3cF
+         2hzw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780418485; x=1781023285;
+        d=1e100.net; s=20251104; t=1780418504; x=1781023304;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=I3bXEUKFR1SHzD8v1yl1Ak68tue1l/Fq9vBkiYiMTm8=;
-        b=ExoZFsBVOUvWfPnEf12lO1cR+awUhIl95HxpCQu4akU8LDVEB8N0zkAo6Ub2nQ1/ML
-         zAcykVkv0bdpDiez+of13fZytxid1OguUPYC4c3Xm/kR/rQXFHla755NHbQLfkvFXA6v
-         924WGOv+sZtPtfO0Ct7cMibvJ6qE628CxeBIUpTyD9Ijvpr2Nce/uS8MUJKhH+7WdVHC
-         PUeql0GXd2nQtdaxZgB6gfCe34v/8XFyzKg8xZ9xcsfpqlPB49524UK6igcXjHNg1YDZ
-         mbnPKbDWyC0Ret3aEGvVWSl7qmdWjaD5HUfBF6h8/zer4XubC6uAc62wJFfwQ2DOFsu6
-         8Heg==
-X-Gm-Message-State: AOJu0YyQ1hedNxv7SwkD1GW4Uwthhyj6awqxRXqb64wX2X3TxryucA8D
-	AUtcrJV8GK+gbtq6pW1My+rEe8boNuW25N07uRutY7dWzacaGUE9ASPjbWy2DR4Qn+fhjkzbLIc
-	aemD6V2iL+ziOxkGO/ipOVhcGu2PBLQ9EJfvo
-X-Gm-Gg: Acq92OHmfPDf0IPtr/zSGPwZXAKFP6Ay+HL3ee1qA/8FmS0wbUCa2TlNhBACaQj6yfW
-	hVGPh1hEGHY60rDBeqJg7ntM2Hfi7QaGhPHH5lLkS3qZsVPkvgj6iN464dtMAngFNRt2HZlOcoW
-	kpBU2mE3KVyMRoVS4c44zU1mgyTwLTDlbsnkkXeAjb2CkaJSU8E9Swtxu1rl4pxdHYYcyQGFf0Y
-	Qp4sjpaQMKfkqe67Xvz/L1RUnP8WhwHzPgQem5jzsoIKUIKxhSOO/S1M1UozN9RuxbaYZ8/IeCx
-	AUuDwZTY/KfEvufjqQ==
-X-Received: by 2002:a05:6a21:9089:b0:3b4:76c6:f961 with SMTP id
- adf61e73a8af0-3b49430733bmr333206637.17.1780418485270; Tue, 02 Jun 2026
- 09:41:25 -0700 (PDT)
+        bh=RYk1kq8ayB1SnLE0sBXZ+gAfKz83o3hwqF//XjpBM18=;
+        b=YDcnqc5IGaB2vfpLUppifVrm/q8BpPWU9CM0nEYeVX+kaZqEzXWi7eTQ99ftjSRb4Z
+         YIucZeoVU+3p0sX9jsebUsUHmpYB9gzxH2wxxqRTFjbu9o2pj5kvP8x+Y7mq+LV3L3S4
+         4aQ+lP7QqUZygMlVHwThoGx59paXYHwmgXje3bP6tWSkvFG5N3v2dB08dmmqiyPFR6MK
+         Zf05qQ83HyqCijsrqAZIinppP1kB/m67Wf8llDE+ENo0rCL5jGZv0+sFyV84N9/AwkUG
+         slSLmfZEFZnNDS18CQmiowYLDVexhJsBIBmqyrjAgeQ0/4RlUm8drTsY5RUCFk8OwfY+
+         xWXQ==
+X-Gm-Message-State: AOJu0YwJX+PVsBnANYV5ZpFV1WHn7pBQ2Txa6RDtNLTZZXwkZTT2kCt1
+	mEM8ivdthIV02nfb6x6ri/w/Dt3q/UQeE98akadZc6WbZ+QE1VTZI8tZkDHbmq2zZMYK/8/KwVu
+	7AXwRbgZxvAt4VeMicO7sRERf4jwLX3o=
+X-Gm-Gg: Acq92OHUhhts6wz+M5i5iMUEAH3oYaOhR+7F5k1suq0EdGslrP35qCc6I06ZXzmIxgV
+	gv3pOf8yftnIPmZRlh5O0Q+aqtG0eFPNL779GVZIzU6w59vdNlIzbEsWVSy1N0nL8LAdGgcbAvm
+	7rTD446Dhcaq4Gk84nDKOAQvjphLMTKAY6WZx8agMTipX+zLcIKD5NKEk0ip/9hLqSWbduW+g0n
+	zZMpaMg6QT1+Ht1iW2NOJSGzG2Mc8TcPGxQ7Wi6NKHapBZnXIvMAtbUEFRypZ+TBnYFA28zndxR
+	RACET9/WIPlETek++XGTl2iIaI3i
+X-Received: by 2002:a17:90b:1d84:b0:36b:7725:defd with SMTP id
+ 98e67ed59e1d1-36c2ebaf38amr15663002a91.0.1780418503720; Tue, 02 Jun 2026
+ 09:41:43 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260602153309.157348-1-jwcart2@gmail.com>
-In-Reply-To: <20260602153309.157348-1-jwcart2@gmail.com>
+References: <20260602153309.157348-1-jwcart2@gmail.com> <20260602153309.157348-2-jwcart2@gmail.com>
+In-Reply-To: <20260602153309.157348-2-jwcart2@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 2 Jun 2026 12:41:14 -0400
-X-Gm-Features: AVHnY4LrJR5WJG5kuW3PkmZRVEKFNF63HrpEoJroMZf6MP9J5Wqbym7giL0ZOy8
-Message-ID: <CAEjxPJ5fqQQRXCiD6wXAyJGmY=CNkOkFamMMONxe09j36t_7GQ@mail.gmail.com>
-Subject: Re: [PATCH 1/3 v4] libsepol/cil: Add function to check CIL
- neverallows against binary policy
+Date: Tue, 2 Jun 2026 12:41:32 -0400
+X-Gm-Features: AVHnY4I-HJbnqtBsOkV_nmQQ3eUyc7s5GvwHf4dJzOz6zXquAXthx913G9zjgPs
+Message-ID: <CAEjxPJ4=AfO0J0=mwyZ9y6LfvGp3+c7k7FmLp-7PYZgofRK5AQ@mail.gmail.com>
+Subject: Re: [PATCH 2/3 v4] libsepol: Add a function to output CIL
+ declarations from a binary policy
 To: James Carter <jwcart2@gmail.com>
 Cc: selinux@vger.kernel.org, tweek@google.com
 Content-Type: text/plain; charset="UTF-8"
@@ -96,20 +96,15 @@ Content-Transfer-Encoding: quoted-printable
 On Tue, Jun 2, 2026 at 11:33=E2=80=AFAM James Carter <jwcart2@gmail.com> wr=
 ote:
 >
-> Add the function cil_check_neverallows_against_pdb() that will extract
-> the neverallows from a CIL db and check them against a kernel policydb.
+> Add the function sepol_kernel_policydb_decls_to_cil() that takes a
+> binary policy as input and outputs the declarations in CIL format.
 >
-> Android has the requirement of validating policies from partners
-> against the standard AOSP assertions. While this is done at build
-> time, the requirement is also enforced during certification via the
-> Compatibility Test Suite.
+> Also move the checks for a supported policy to a new common function
+> and use that function in kernel_to_conf and kernel_to_cil.
 >
-> Currently, this validation is done by manually parsing the neverallow
-> assertions which is brittle and does not support neverallowx assertions.
->
-> This function will allow a CIL db with the neverallow and
-> neverallowxperm rules to be used to check a kernel policydb for
-> violations as part of the Compatibility Test Suite.
+> In the near-term this will be used get the declarations from a
+> policydb so they can be used along with neverallows written in CIL
+> to check for neverallow and neverallowx violations in the binary policy.
 >
 > Suggested-by: Thi=C3=A9baud Weksteen <tweek@google.com>
 > Signed-off-by: James Carter <jwcart2@gmail.com>
@@ -117,142 +112,280 @@ ote:
 Acked-by; Stephen Smalley <stephen.smalley.work@gmail.com>
 
 > ---
-> v2: Add more context to commit msg
->     Add error messages for when type or class-permission look-ups fail
->     Set violation to CIL_FALSE initially to ensure it gets set
->     Add more description in cil_binary.h for the function
+> v4: Don't delete the Python swig exception stuff like an idiot
+> v3: Split out less common functionality to keep the same order for the ru=
+les
+>     to prevent breaking existing tests (even though CIL is not dependent =
+on
+>     order.)
+> v2: Added more explanation to the commit msg
+>     Split out common functionality
+>  libsepol/include/sepol/kernel_to_cil.h |  3 +-
+>  libsepol/src/kernel_to_cil.c           | 97 +++++++++++++++++++-------
+>  libsepol/src/kernel_to_common.c        | 26 +++++++
+>  libsepol/src/kernel_to_common.h        |  2 +
+>  libsepol/src/kernel_to_conf.c          | 29 ++------
+>  libsepol/src/libsepol.map.in           |  1 +
+>  6 files changed, 109 insertions(+), 49 deletions(-)
 >
->  libsepol/cil/include/cil/cil.h |  1 +
->  libsepol/cil/src/cil_binary.c  | 48 ++++++++++++++++++++++++++++++++++
->  libsepol/cil/src/cil_binary.h  | 15 +++++++++++
->  libsepol/src/libsepol.map.in   |  5 ++++
->  4 files changed, 69 insertions(+)
+> diff --git a/libsepol/include/sepol/kernel_to_cil.h b/libsepol/include/se=
+pol/kernel_to_cil.h
+> index 60346ad1..1db0383a 100644
+> --- a/libsepol/include/sepol/kernel_to_cil.h
+> +++ b/libsepol/include/sepol/kernel_to_cil.h
+> @@ -2,4 +2,5 @@
 >
-> diff --git a/libsepol/cil/include/cil/cil.h b/libsepol/cil/include/cil/ci=
-l.h
-> index 88e47e79..fc9cc504 100644
-> --- a/libsepol/cil/include/cil/cil.h
-> +++ b/libsepol/cil/include/cil/cil.h
-> @@ -65,6 +65,7 @@ extern int cil_write_parse_ast(FILE *out, cil_db_t *db)=
-;
->  extern int cil_write_build_ast(FILE *out, cil_db_t *db);
->  extern int cil_write_resolve_ast(FILE *out, cil_db_t *db);
->  extern int cil_write_post_ast(FILE *out, cil_db_t *db);
-> +extern int cil_check_neverallows_against_pdb(const struct cil_db *db, po=
-licydb_t *pdb, int *violation);
+>  #include <sepol/policydb/policydb.h>
 >
->  enum cil_log_level {
->         CIL_ERR =3D 1,
-> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.=
-c
-> index dca1937a..4e9b0227 100644
-> --- a/libsepol/cil/src/cil_binary.c
-> +++ b/libsepol/cil/src/cil_binary.c
-> @@ -5143,6 +5143,54 @@ exit:
+> -int sepol_kernel_policydb_to_cil(FILE *fp, struct policydb *pdb);
+> +int sepol_kernel_policydb_to_cil(FILE *out, struct policydb *pdb);
+> +int sepol_kernel_policydb_decls_to_cil(FILE *out, struct policydb *pdb);
+> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+> index 49040ae4..db63ac3f 100644
+> --- a/libsepol/src/kernel_to_cil.c
+> +++ b/libsepol/src/kernel_to_cil.c
+> @@ -3262,6 +3262,11 @@ int sepol_kernel_policydb_to_cil(FILE *out, struct=
+ policydb *pdb)
+>         struct strs *non_mls_validatetrans =3D NULL;
+>         int rc =3D 0;
+>
+> +       rc =3D check_for_supported_policy(pdb);
+> +       if (rc !=3D 0) {
+> +               return rc;
+> +       }
+> +
+>         rc =3D strs_init(&mls_constraints, 32);
+>         if (rc !=3D 0) {
+>                 goto exit;
+> @@ -3282,30 +3287,6 @@ int sepol_kernel_policydb_to_cil(FILE *out, struct=
+ policydb *pdb)
+>                 goto exit;
+>         }
+>
+> -       if (pdb =3D=3D NULL) {
+> -               ERR(NULL, "No policy");
+> -               rc =3D -1;
+> -               goto exit;
+> -       }
+> -
+> -       if (pdb->policy_type !=3D SEPOL_POLICY_KERN) {
+> -               ERR(NULL, "Policy is not a kernel policy");
+> -               rc =3D -1;
+> -               goto exit;
+> -       }
+> -
+> -       if (pdb->policyvers >=3D POLICYDB_VERSION_AVTAB && pdb->policyver=
+s <=3D POLICYDB_VERSION_PERMISSIVE) {
+> -               /*
+> -                * For policy versions between 20 and 23, attributes exis=
+t in the policy,
+> -                * but only in the type_attr_map. This means that there a=
+re gaps in both
+> -                * the type_val_to_struct and p_type_val_to_name arrays a=
+nd policy rules
+> -                * can refer to those gaps.
+> -                */
+> -               ERR(NULL, "Writing policy versions between 20 and 23 as C=
+IL is not supported");
+> -               rc =3D -1;
+> -               goto exit;
+> -       }
+> -
+>         rc =3D constraint_rules_to_strs(pdb, mls_constraints, non_mls_con=
+straints);
+>         if (rc !=3D 0) {
+>                 goto exit;
+> @@ -3533,3 +3514,71 @@ exit:
+>
 >         return rc;
 >  }
->
-> +static int __cil_collect_neverallows_helper(struct cil_tree_node *node, =
-uint32_t *finished, void *extra_args)
+> +
+> +int sepol_kernel_policydb_decls_to_cil(FILE *out, struct policydb *pdb)
 > +{
-> +       if (node->flavor =3D=3D CIL_BLOCK) {
-> +               struct cil_block *blk =3D node->data;
-> +               if (blk->is_abstract =3D=3D CIL_TRUE) {
-> +                       *finished =3D CIL_TREE_SKIP_HEAD;
-> +               }
-> +       } else if (node->flavor =3D=3D CIL_MACRO) {
-> +               *finished =3D CIL_TREE_SKIP_HEAD;
-> +       } else if (node->flavor =3D=3D CIL_BOOLEANIF) {
-> +               *finished =3D CIL_TREE_SKIP_HEAD;
-> +       } else if (node->flavor =3D=3D CIL_AVRULE || node->flavor =3D=3D =
-CIL_AVRULEX) {
-> +               struct cil_avrule *rule =3D node->data;
-> +               if (rule->rule_kind =3D=3D CIL_AVRULE_NEVERALLOW) {
-> +                       struct cil_list *neverallows =3D extra_args;
-> +                       cil_list_prepend(neverallows, CIL_LIST_ITEM, node=
-);
-> +               }
+> +       int rc =3D 0;
+> +
+> +       rc =3D check_for_supported_policy(pdb);
+> +       if (rc !=3D 0) {
+> +               return rc;
 > +       }
 > +
-> +       return SEPOL_OK;
-> +}
-> +
-> +int cil_check_neverallows_against_pdb(const struct cil_db *db, policydb_=
-t *pdb, int *violation)
-> +{
-> +       int rc =3D SEPOL_OK;
-> +       struct cil_list *neverallows;
-> +
-> +       *violation =3D CIL_FALSE;
-> +
-> +       if (db =3D=3D NULL || pdb =3D=3D NULL) {
-> +               cil_log(CIL_ERR,"CIL db and/or Policy db is NULL\n");
-> +               return SEPOL_ERR;
-> +       }
-> +
-> +       cil_list_init(&neverallows, CIL_LIST_ITEM);
-> +       rc =3D cil_tree_walk(db->ast->root, __cil_collect_neverallows_hel=
-per, NULL, NULL, neverallows);
-> +       if (rc !=3D SEPOL_OK) {
-> +               cil_log(CIL_INFO, "Failure collecting neverallows\n");
+> +       rc =3D write_sid_decl_rules_to_cil(out, pdb);
+> +       if (rc !=3D 0) {
 > +               goto exit;
 > +       }
 > +
-> +       rc =3D cil_check_neverallows(db, pdb, neverallows, violation);
+> +       rc =3D write_class_decl_rules_to_cil(out, pdb);
+> +       if (rc !=3D 0) {
+> +               goto exit;
+> +       }
+> +
+> +       rc =3D write_mls_rules_to_cil(out, pdb);
+> +       if (rc !=3D 0) {
+> +               goto exit;
+> +       }
+> +
+> +       rc =3D write_boolean_decl_rules_to_cil(out, pdb);
+> +       if (rc !=3D 0) {
+> +               goto exit;
+> +       }
+> +
+> +       rc =3D write_type_decl_rules_to_cil(out, pdb);
+> +       if (rc !=3D 0) {
+> +               goto exit;
+> +       }
+> +
+> +       rc =3D write_type_alias_rules_to_cil(out, pdb);
+> +       if (rc !=3D 0) {
+> +               goto exit;
+> +       }
+> +
+> +       rc =3D write_type_attributes_to_cil(out, pdb);
+> +       if (rc !=3D 0) {
+> +               goto exit;
+> +       }
+> +
+> +       rc =3D write_type_attribute_sets_to_cil(out, pdb);
+> +       if (rc !=3D 0) {
+> +               goto exit;
+> +       }
+> +
+> +       rc =3D write_role_decl_rules_to_cil(out, pdb);
+> +       if (rc !=3D 0) {
+> +               goto exit;
+> +       }
+> +
+> +       rc =3D write_role_attributes_to_cil(out, pdb);
+> +       if (rc !=3D 0) {
+> +               goto exit;
+> +       }
+> +
+> +       rc =3D write_user_decl_rules_to_cil(out, pdb);
+> +       if (rc !=3D 0) {
+> +               goto exit;
+> +       }
 > +
 > +exit:
-> +       cil_list_destroy(&neverallows, CIL_FALSE);
 > +       return rc;
 > +}
-> +
->  static struct cil_list *cil_classperms_from_sepol(policydb_t *pdb, uint1=
-6_t class, uint32_t data, struct cil_class *class_value_to_cil[], struct ci=
-l_perm **perm_value_to_cil[])
->  {
->         struct cil_classperms *cp;
-> diff --git a/libsepol/cil/src/cil_binary.h b/libsepol/cil/src/cil_binary.=
-h
-> index e6826221..2bd19102 100644
-> --- a/libsepol/cil/src/cil_binary.h
-> +++ b/libsepol/cil/src/cil_binary.h
-> @@ -36,6 +36,21 @@
->  #include "cil_tree.h"
->  #include "cil_list.h"
+> diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_com=
+mon.c
+> index 99e46865..b267b5d7 100644
+> --- a/libsepol/src/kernel_to_common.c
+> +++ b/libsepol/src/kernel_to_common.c
+> @@ -751,3 +751,29 @@ exit:
 >
+>         return rc;
+>  }
 > +
-> +/**
-> + * Check neverallows from a CIL database against a policy database.
-> + *
-> + * The types, classes, and permissions used in the CIL neverallow rules =
-must
-> + * be declared in the policy database.
-> + *
-> + * @param[in] db The cil database containing the neverallows to be used.
-> + * @param[in] pdb The policy database to be checked for violations.
-> + * @param[out] violation 1 if a neverallow violation was found, 0 otherw=
-ise
-> + *
-> + * @return SEPOL_OK upon success or an error otherwise.
-> + */
-> +int cil_check_neverallows_against_pdb(const struct cil_db *db, policydb_=
-t *pdb, int *violation);
+> +int check_for_supported_policy(struct policydb *pdb)
+> +{
+> +       if (pdb =3D=3D NULL) {
+> +               ERR(NULL, "No policy");
+> +               return -1;
+> +       }
 > +
->  /**
->   * Create a binary policydb from the cil db.
->   *
+> +       if (pdb->policy_type !=3D SEPOL_POLICY_KERN) {
+> +               ERR(NULL, "Policy is not a kernel policy");
+> +               return -1;
+> +       }
+> +
+> +       if (pdb->policyvers >=3D POLICYDB_VERSION_AVTAB && pdb->policyver=
+s <=3D POLICYDB_VERSION_PERMISSIVE) {
+> +               /*
+> +                * For policy versions between 20 and 23, attributes exis=
+t in the policy,
+> +                * but only in the type_attr_map. This means that there a=
+re gaps in both
+> +                * the type_val_to_struct and p_type_val_to_name arrays a=
+nd policy rules
+> +                * can refer to those gaps.
+> +                */
+> +               ERR(NULL, "Writing out CIL or policy.conf from policy ver=
+sions between 20 and 23 is not supported");
+> +               return -1;
+> +       }
+> +
+> +       return 0;
+> +}
+> diff --git a/libsepol/src/kernel_to_common.h b/libsepol/src/kernel_to_com=
+mon.h
+> index d3283658..53f398b7 100644
+> --- a/libsepol/src/kernel_to_common.h
+> +++ b/libsepol/src/kernel_to_common.h
+> @@ -117,3 +117,5 @@ int strs_stack_empty(const struct strs *stack);
+>
+>  struct strs *isids_to_strs(const char *const *sid_to_str, unsigned num_s=
+ids, struct ocontext *isids);
+>  int sort_ocontexts(struct policydb *pdb);
+> +
+> +int check_for_supported_policy(struct policydb *pdb);
+> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.=
+c
+> index a8126d58..628a792e 100644
+> --- a/libsepol/src/kernel_to_conf.c
+> +++ b/libsepol/src/kernel_to_conf.c
+> @@ -3116,6 +3116,11 @@ int sepol_kernel_policydb_to_conf(FILE *out, struc=
+t policydb *pdb)
+>         struct strs *non_mls_validatetrans =3D NULL;
+>         int rc =3D 0;
+>
+> +       rc =3D check_for_supported_policy(pdb);
+> +       if (rc !=3D 0) {
+> +               return rc;
+> +       }
+> +
+>         rc =3D strs_init(&mls_constraints, 32);
+>         if (rc !=3D 0) {
+>                 goto exit;
+> @@ -3136,30 +3141,6 @@ int sepol_kernel_policydb_to_conf(FILE *out, struc=
+t policydb *pdb)
+>                 goto exit;
+>         }
+>
+> -       if (pdb =3D=3D NULL) {
+> -               ERR(NULL, "No policy");
+> -               rc =3D -1;
+> -               goto exit;
+> -       }
+> -
+> -       if (pdb->policy_type !=3D SEPOL_POLICY_KERN) {
+> -               ERR(NULL, "Policy is not a kernel policy");
+> -               rc =3D -1;
+> -               goto exit;
+> -       }
+> -
+> -       if (pdb->policyvers >=3D POLICYDB_VERSION_AVTAB && pdb->policyver=
+s <=3D POLICYDB_VERSION_PERMISSIVE) {
+> -               /*
+> -                * For policy versions between 20 and 23, attributes exis=
+t in the policy,
+> -                * but only in the type_attr_map. This means that there a=
+re gaps in both
+> -                * the type_val_to_struct and p_type_val_to_name arrays a=
+nd policy rules
+> -                * can refer to those gaps.
+> -                */
+> -               ERR(NULL, "Writing policy versions between 20 and 23 as a=
+ policy.conf is not supported");
+> -               rc =3D -1;
+> -               goto exit;
+> -       }
+> -
+>         rc =3D constraint_rules_to_strs(pdb, mls_constraints, non_mls_con=
+straints);
+>         if (rc !=3D 0) {
+>                 goto exit;
 > diff --git a/libsepol/src/libsepol.map.in b/libsepol/src/libsepol.map.in
-> index e5e6608c..2b103993 100644
+> index 2b103993..8785cff1 100644
 > --- a/libsepol/src/libsepol.map.in
 > +++ b/libsepol/src/libsepol.map.in
-> @@ -294,3 +294,8 @@ LIBSEPOL_3.6 {
+> @@ -297,5 +297,6 @@ LIBSEPOL_3.6 {
+>
+>  LIBSEPOL_3.11 {
 >    global:
->         cil_write_post_ast;
->  } LIBSEPOL_3.4;
-> +
-> +LIBSEPOL_3.11 {
-> +  global:
-> +       cil_check_neverallows_against_pdb;
-> +} LIBSEPOL_3.6;
+> +       sepol_kernel_policydb_decls_to_cil;
+>         cil_check_neverallows_against_pdb;
+>  } LIBSEPOL_3.6;
 > --
 > 2.54.0
 >
