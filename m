@@ -1,69 +1,73 @@
-Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
+Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 356183E8324
-	for <selinux@vger.kernel.org>; Tue,  2 Jun 2026 14:48:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F2D13EA97A
+	for <selinux@vger.kernel.org>; Tue,  2 Jun 2026 14:48:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780411717; cv=none; b=IyY2+WthjS+NWVnd0ihbu0cW3tV+KWErtshbomxaFfpwCqQ3QmhH9YUrSHi5AbPsfo6MIp1P1YvvZG1lyxigNIszdFSYHY2crG+iVEnDhlYKsp/yVDP/Gsv1nURgT5/PrA9XLlFJjudSTSwArzoSJDoHb7hj0K9fv+SLRhVSb3c=
+	t=1780411720; cv=none; b=tbChgyK9mNc1Kt2etYW0KJDact9ye3PlUxJXImeGbpy1ko1TzFYlbev8qP08VDM/3XsylUIK3BiihqQkGNc6d5DHH/Km+tJR3pM0k8ht/vy0OevTLK2OF4n8GPf3qONrmSeL4YlFI2h78W8eXDP1swI+eQhM2dvuWFNso+guhK8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780411717; c=relaxed/simple;
-	bh=g4GiaiLgCQyuLDgiCXee8+tzplIWVVz75DgP6PBu2bM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=pIS2RYid7lWWLBw4AU4zNylmhS+XW9P7L9T8ADaSFonBCwWDfW51OLRXYY5j+VqLAufF29hjwIeD5ajdz09z/gp0K+V9/0NzkP3e4oXZ6n7+v03Bi55e63qZGQnphcFEFPQ8jltgcniQ6P+WvifjOpW9O/qNlGQLYiJ23U5gsn8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XSdTcx6B; arc=none smtp.client-ip=209.85.222.180
+	s=arc-20240116; t=1780411720; c=relaxed/simple;
+	bh=KtViav88PCC5W0j4+5C6uhggjkVI52vkw6v7MhThpSc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=d0TAHpwRMXyJOYTib+2M9V7LShTQAyAvfun1KI0/Gjaclg6HriSJIwkPJziaM6wi4MK0CsM0JV/w4cN8rfiQBI19YcuVWrnP2Im6ce1mVS7kULnc6tjNzC6vwsUckEBIHxlN1nA59TXFiJN11ukT4ow1rafjeGDZjd+DAqadgho=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MRH66UmT; arc=none smtp.client-ip=209.85.222.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XSdTcx6B"
-Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-915660e5b8eso250105385a.3
-        for <selinux@vger.kernel.org>; Tue, 02 Jun 2026 07:48:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MRH66UmT"
+Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-9156b74006aso141944585a.0
+        for <selinux@vger.kernel.org>; Tue, 02 Jun 2026 07:48:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780411715; x=1781016515; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=1JP5zbFkLxC21cpPTE322NnjlVxp2m7RWG4lcO4Wu/o=;
-        b=XSdTcx6B71pdydh/dqtUnYmj1THZdBOa3fe9R+FjXJbiuvwVqv2/QjMRLIFGFFFkDq
-         QNNaptg32RZUG9gQIOL2nT70ffJAi262USpxQiiCWU+h9FRJ2WYUB6UxYOQZy4/dBvRY
-         yR/tJ/q++dJLuLTOJTu/8x3Xiwr1vd6/cOIx+QbCGk7kizbLItP0U9fnbve0CZMa1At1
-         RwU9u/9KMrH9EVrg7wtTQ1dGQpyKnYAqqp4eI5QxlEkcoTgOLZaWt78UolngUxXYsymo
-         qMP6pXYrMhD7YSPOVMfF7lpw2SWrHnE+m8RsGU7OOFY7PCLO4P+j1jo+u9HOk3sTp98+
-         a8Dg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780411715; x=1781016515;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1780411717; x=1781016517; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=1JP5zbFkLxC21cpPTE322NnjlVxp2m7RWG4lcO4Wu/o=;
-        b=fpM/1pVXf3X8CAx+YOzrOjDD5ijO3FyAkwGfmW4lYF/bVlClLIjH7iFnXYTmK866JX
-         d01fW5sY84EJ4tXqKJKrB9CkOfvQLEv0raXrODHirKV0AxN1Cihg8ySmlMrFPemmGd1Y
-         8EJdVGHAoW9sM+u0jSVKiwLZbq2hj2bWu/ndiyzGxGmMq7CXwLQivsaH5rr8upaahR+o
-         4f3tZo99FijZhH2QEsNnAp2z1r8ou5f5lPBMT2lAtxJ1hs8E9X07hvWC6RTOAi+F0U4V
-         tiNEpX5kaCv2200fpwQPFGBMcKiuXehEAJ4EAaYMANvlvrkwOhpV04ehc2Gv7RH5N/ft
-         UJ5g==
-X-Gm-Message-State: AOJu0YxUGfVzzbJdTsVG8M7A+I0nWv/a9pX2zD8S6PjK1q5r/aK2wAQt
-	C1SWkjeI6gFwXE0sYDUeGM6WZ9oN9s40bTACKZcTFnlKXhvzxgJo00pbDbNg/w==
-X-Gm-Gg: Acq92OH9wMDNpaWtA49/JpvriaEnNV2809r1+103XrecDCmdUWrZRSyqjlgbyb1MQ3E
-	1yBrw0RGswCGg2qFPSAnASyM7P4j+gpgChXUNFpvg8q7FHFAuMO0eofTtZbA3Tkc6clWM0wjoGD
-	J2FuqFUOaxrsG/FXtL0/GpjlmOeycxrQxLKNH6LMuSHHGXIqb1eQMXmFTn024jXXkZ09G1Q501N
-	lxIjoeXiP5RI/o1CGdytfW81AW886gDM5zyHlz1cAMia4FrfIRPfP8IywdR9i92w0cFfYpf8tMb
-	ovUM0+O7HO67PRnRNpPbrglkGly/k7wamrafrDPHpbsfeC+9gQ32IQ7gHsK7eD3kSpAJEIlzWki
-	yUR2gcVtgbk59hiZg8wPVmiYEddZIWnPF/mMo2gadfAKswrCDXpY6aVpfLvZuiqRvlYvwNkFrTr
-	0N9sMWqYTCdAWyctbBl28tPGqKX99Bv7mbnSTvwfivNt0badelUtxdS1f5
-X-Received: by 2002:a05:620a:4487:b0:915:2b46:eec0 with SMTP id af79cd13be357-9153d9caf6fmr2521977285a.11.1780411715025;
-        Tue, 02 Jun 2026 07:48:35 -0700 (PDT)
+        bh=UD2VU6Qkchj+lh95HYyUl5zeYDPjx9xHz3lCGBGkJH4=;
+        b=MRH66UmTO263HGw0jt4dapMXk0vanc4f9m2jELJFGmfyg2DK6Lx5S5onzw797uRvp4
+         GM6Z741QXe3alzqohrbWWUvfie+qVFKtKB3+gUZZ1fmj0r46lpV7o6p6RQDbFilj7ImR
+         g3qYuMh3jmqUTlPRbXhOKo/mO8hvd9jxWnMF9gi83XjnyYqk5vPqwYgxqQRNV2oM4+is
+         /nT+WSsWEC1AzZj2tw4JbmFL1mP8v1j4s1gy9n09dSvSKlHQgfKKhR/CLweugtHoO6o9
+         2kNqJsM79QiZjPKBFaIkTHDGI/RzStwuO2kEdLJc8rCI5URrlfit6CbIZYkEMJ4DgalL
+         jE1A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780411717; x=1781016517;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=UD2VU6Qkchj+lh95HYyUl5zeYDPjx9xHz3lCGBGkJH4=;
+        b=ZgK5yTbNi8943dxGgZmJQXYG4YJVMTc13xrwDhMvJomLlF1KeTaytCpvSaEPu75yL3
+         14IFR4r3Ufnvu1EW15YkfGYOM5yHR+UTleUVdLQEeIkc8PipmvqjB0eW9lMVIkRIhwmb
+         W0eCgkqiyCKftQ+hL0IV0LeVjCMMudUXHKQKryFDz8Qm5Xf1dIAbxRzbUgfGbKmc92oA
+         4/PcuD1xgnsmntXTrz1F3ozMePsLTAZpttjcIfxoB/Kp8qZArflWf7poF2ZBe2tzKcgQ
+         r3srk47NxV8eIMQGhcMEdPDFRdKnyXkV7/7J33uQ24rTCou8S4o6uP3xY/8C6YYxg00M
+         WajQ==
+X-Gm-Message-State: AOJu0Yyipn6kAxTfgy9fMBwHaW5NvJnQQmIUcPJ5ZZxPMa01sgXMOLu2
+	AWIBRytOL6c5wHVgS8DxOlwrgBnUQPa9jCS96X/a6JWBUUMeU032MFxw5ADdAA==
+X-Gm-Gg: Acq92OHNHm3r+z6PXFMvy0ODhCwmBUhLnxY/fx83zM5cjqUEQndjrP45ddKxMXFrdeI
+	2d3u3vXL6sIpt/pAl3W/tW3A4XrJkpjpYmHxC2ks2hNRRUdsNzrs2CnizB71i41GE+BTvPMdjX7
+	vluljR6asOUDvRJjXdhj9jrG0na2U+BCyyTYJLISFgAnMtAaHGHBlP+PpEGjshlWzf+6Mic5L27
+	6qarGhHqYoB8sPngvekq4L0Xnv7DQROroGjizudcSVyiT9jAUh0X47KaoT0D2wsBgAHXQm8Tc2U
+	6PNSR6175rxTghmETvws7V/i5Ti09vykFKWmb3fqBtUFR26wX/H2lNQxP5MXQfcF0Ct7WaINVXe
+	G9oQMe5g7OzIpj9E6x9LJZiMDIpZTbNHWwZypt4oN/9cHxlvO85S4QfEsA31yvK5waSuJYb7riF
+	+PGEGGA13YUTBdhajFYGkQTkM8JkjPo/utjjA7LnlqkTi8XwOgbGGMbQro
+X-Received: by 2002:a05:620a:4008:b0:915:7b23:4afd with SMTP id af79cd13be357-9157b234b57mr524481485a.16.1780411716704;
+        Tue, 02 Jun 2026 07:48:36 -0700 (PDT)
 Received: from Fedora43-SELinux ([144.51.8.27])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9153244de53sm1344015285a.8.2026.06.02.07.48.34
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9153244de53sm1344015285a.8.2026.06.02.07.48.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Jun 2026 07:48:34 -0700 (PDT)
+        Tue, 02 Jun 2026 07:48:36 -0700 (PDT)
 From: James Carter <jwcart2@gmail.com>
 To: selinux@vger.kernel.org
 Cc: tweek@google.com,
 	stephen.smalley.work@gmail.com,
 	James Carter <jwcart2@gmail.com>
-Subject: [PATCH 1/3 v3] libsepol/cil: Add function to check CIL neverallows against binary policy
-Date: Tue,  2 Jun 2026 10:48:18 -0400
-Message-ID: <20260602144820.147382-1-jwcart2@gmail.com>
+Subject: [PATCH 3/3 v3] secilc: Add program that checks CIL neverallows against a binary policy
+Date: Tue,  2 Jun 2026 10:48:20 -0400
+Message-ID: <20260602144820.147382-3-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260602144820.147382-1-jwcart2@gmail.com>
+References: <20260602144820.147382-1-jwcart2@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -73,145 +77,518 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Add the function cil_check_neverallows_against_pdb() that will extract
-the neverallows from a CIL db and check them against a kernel policydb.
+Add the program secilcheck that takes a binary policy and one or
+more CIL files and checks for violations in the binary policy using
+the neverallow and neverallowx rules from the CIL policy.
 
-Android has the requirement of validating policies from partners
-against the standard AOSP assertions. While this is done at build
-time, the requirement is also enforced during certification via the
+ex/
+secilcheck policy.bin neverallows.cil
+
+The CIL neverallow and neverallowx rules must only use types, classes,
+and permissions that are declared in the binary policy.
+
+This is planned on being used in Android to validate policies from
+partners against the standard AOSP assertions as part of the
 Compatibility Test Suite.
-
-Currently, this validation is done by manually parsing the neverallow
-assertions which is brittle and does not support neverallowx assertions.
-
-This function will allow a CIL db with the neverallow and
-neverallowxperm rules to be used to check a kernel policydb for
-violations as part of the Compatibility Test Suite.
 
 Suggested-by: Thiébaud Weksteen <tweek@google.com>
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
-v2: Add more context to commit msg
-    Add error messages for when type or class-permission look-ups fail
-    Set violation to CIL_FALSE initially to ensure it gets set
-    Add more description in cil_binary.h for the function
+v2: Added more explanation to the commit msg
+    Added the header unistd.h
 
- libsepol/cil/include/cil/cil.h |  1 +
- libsepol/cil/src/cil_binary.c  | 48 ++++++++++++++++++++++++++++++++++
- libsepol/cil/src/cil_binary.h  | 15 +++++++++++
- libsepol/src/libsepol.map.in   |  5 ++++
- 4 files changed, 69 insertions(+)
+ secilc/.gitignore       |   2 +
+ secilc/Makefile         |  20 ++-
+ secilc/secilcheck.8.xml |  81 +++++++++++
+ secilc/secilcheck.c     | 302 ++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 403 insertions(+), 2 deletions(-)
+ create mode 100644 secilc/secilcheck.8.xml
+ create mode 100644 secilc/secilcheck.c
 
-diff --git a/libsepol/cil/include/cil/cil.h b/libsepol/cil/include/cil/cil.h
-index 88e47e79..fc9cc504 100644
---- a/libsepol/cil/include/cil/cil.h
-+++ b/libsepol/cil/include/cil/cil.h
-@@ -65,6 +65,7 @@ extern int cil_write_parse_ast(FILE *out, cil_db_t *db);
- extern int cil_write_build_ast(FILE *out, cil_db_t *db);
- extern int cil_write_resolve_ast(FILE *out, cil_db_t *db);
- extern int cil_write_post_ast(FILE *out, cil_db_t *db);
-+extern int cil_check_neverallows_against_pdb(const struct cil_db *db, policydb_t *pdb, int *violation);
+diff --git a/secilc/.gitignore b/secilc/.gitignore
+index d2a3daf1..9a5f45e0 100644
+--- a/secilc/.gitignore
++++ b/secilc/.gitignore
+@@ -4,6 +4,8 @@ secil2conf
+ secil2conf.8
+ secil2tree
+ secil2tree.8
++secilcheck
++secilcheck.8
+ policy.*
+ file_contexts
+ docs/html
+diff --git a/secilc/Makefile b/secilc/Makefile
+index ef7bc8cd..ebcc9d7c 100644
+--- a/secilc/Makefile
++++ b/secilc/Makefile
+@@ -14,9 +14,14 @@ SECIL2TREE = secil2tree
+ SECIL2TREE_SRCS := secil2tree.c
+ SECIL2TREE_OBJS := $(patsubst %.c,%.o,$(SECIL2TREE_SRCS))
  
- enum cil_log_level {
- 	CIL_ERR = 1,
-diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-index 74ec3cd5..79abef2c 100644
---- a/libsepol/cil/src/cil_binary.c
-+++ b/libsepol/cil/src/cil_binary.c
-@@ -5143,6 +5143,54 @@ exit:
- 	return rc;
- }
++SECILCHECK = secilcheck
++SECILCHECK_SRCS := secilcheck.c
++SECILCHECK_OBJS := $(patsubst %.c,%.o,$(SECILCHECK_SRCS))
++
+ SECILC_MANPAGE = secilc.8
+ SECIL2CONF_MANPAGE = secil2conf.8
+ SECIL2TREE_MANPAGE = secil2tree.8
++SECILCHECK_MANPAGE = secilcheck.8
+ XMLTO = xmlto
+ DIFF = diff
  
-+static int __cil_collect_neverallows_helper(struct cil_tree_node *node, uint32_t *finished, void *extra_args)
+@@ -28,7 +33,7 @@ CFLAGS ?= -Wall -Wshadow -Wextra -Wundef -Wmissing-format-attribute -Wcast-align
+ override CFLAGS += -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64
+ override LDLIBS += -lsepol
+ 
+-all: $(SECILC) $(SECIL2CONF) $(SECIL2TREE) man
++all: $(SECILC) $(SECIL2CONF) $(SECIL2TREE) $(SECILCHECK) man
+ 
+ $(SECILC): $(SECILC_OBJS)
+ 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+@@ -45,7 +50,10 @@ $(SECIL2CONF): $(SECIL2CONF_OBJS)
+ $(SECIL2TREE): $(SECIL2TREE_OBJS)
+ 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+ 
+-man: $(SECILC_MANPAGE) $(SECIL2CONF_MANPAGE) $(SECIL2TREE_MANPAGE)
++$(SECILCHECK): $(SECILCHECK_OBJS)
++	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
++
++man: $(SECILC_MANPAGE) $(SECIL2CONF_MANPAGE) $(SECIL2TREE_MANPAGE) $(SECILCHECK_MANPAGE)
+ 
+ $(SECILC_MANPAGE): $(SECILC_MANPAGE).xml
+ 	$(XMLTO) man $(SECILC_MANPAGE).xml
+@@ -56,15 +64,20 @@ $(SECIL2CONF_MANPAGE): $(SECIL2CONF_MANPAGE).xml
+ $(SECIL2TREE_MANPAGE): $(SECIL2TREE_MANPAGE).xml
+ 	$(XMLTO) man $(SECIL2TREE_MANPAGE).xml
+ 
++$(SECILCHECK_MANPAGE): $(SECILCHECK_MANPAGE).xml
++	$(XMLTO) man $(SECILCHECK_MANPAGE).xml
++
+ install: all man
+ 	-mkdir -p $(DESTDIR)$(BINDIR)
+ 	-mkdir -p $(DESTDIR)$(MANDIR)/man8
+ 	install -m 755 $(SECILC) $(DESTDIR)$(BINDIR)
+ 	install -m 755 $(SECIL2CONF) $(DESTDIR)$(BINDIR)
+ 	install -m 755 $(SECIL2TREE) $(DESTDIR)$(BINDIR)
++	install -m 755 $(SECILCHECK) $(DESTDIR)$(BINDIR)
+ 	install -m 644 $(SECILC_MANPAGE) $(DESTDIR)$(MANDIR)/man8
+ 	install -m 644 $(SECIL2CONF_MANPAGE) $(DESTDIR)$(MANDIR)/man8
+ 	install -m 644 $(SECIL2TREE_MANPAGE) $(DESTDIR)$(MANDIR)/man8
++	install -m 644 $(SECILCHECK_MANPAGE) $(DESTDIR)$(MANDIR)/man8
+ 
+ doc:
+ 	$(MAKE) -C docs
+@@ -76,11 +89,14 @@ clean:
+ 	rm -f $(SECIL2CONF_OBJS)
+ 	rm -f $(SECIL2TREE)
+ 	rm -f $(SECIL2TREE_OBJS)
++	rm -f $(SECILCHECK)
++	rm -f $(SECILCHECK_OBJS)
+ 	rm -f policy.*
+ 	rm -f file_contexts
+ 	rm -f $(SECILC_MANPAGE)
+ 	rm -f $(SECIL2CONF_MANPAGE)
+ 	rm -f $(SECIL2TREE_MANPAGE)
++	rm -f $(SECILCHECK_MANPAGE)
+ 	rm -f opt-actual.cil
+ 	rm -f opt-actual.bin
+ 	$(MAKE) -C docs clean
+diff --git a/secilc/secilcheck.8.xml b/secilc/secilcheck.8.xml
+new file mode 100644
+index 00000000..279322a5
+--- /dev/null
++++ b/secilc/secilcheck.8.xml
+@@ -0,0 +1,81 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
++               "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
++
++<refentry>
++   <refentryinfo>
++      <author>
++         <firstname>James</firstname><surname>Carter</surname><contrib></contrib>
++      </author>
++   </refentryinfo>
++
++   <refmeta>
++      <refentrytitle>SECILCHECK</refentrytitle>
++      <manvolnum>8</manvolnum>
++      <refmiscinfo class="date">29 May 2026</refmiscinfo>
++      <refmiscinfo class="source">secilcheck</refmiscinfo>
++      <refmiscinfo class="manual">Check binary policy file against CIL neverallow files</refmiscinfo>
++   </refmeta>
++   <refnamediv id="name">
++      <refname>secilcheck</refname>
++      <refpurpose>invoke the CIL neverallow checker</refpurpose>
++   </refnamediv>
++
++   <refsynopsisdiv id="synopsis">
++      <cmdsynopsis>
++        <command>secilcheck</command>
++          <arg choice="opt" rep="repeat"><replaceable>OPTION</replaceable></arg>
++          <arg choice="plain"><replaceable>binary</replaceable></arg>
++          <arg choice="plain" rep="repeat"><replaceable>file</replaceable></arg>
++      </cmdsynopsis>
++   </refsynopsisdiv>
++
++   <refsect1 id="description"><title>DESCRIPTION</title>
++      <para><emphasis role="italic">secilcheck</emphasis> invokes the CIL neverallow checker with specified <emphasis role="italic">argument</emphasis>s.</para>
++   </refsect1>
++
++   <refsect1 id="options"><title>OPTIONS</title>
++      <variablelist>
++         <varlistentry>
++            <term><option>-Q, --qualified-names</option></term>
++            <listitem><para>Allow names containing dots (qualified names). Blocks, blockinherits, blockabstracts, and in-statements will not be allowed.</para></listitem>
++         </varlistentry>
++
++         <varlistentry>
++            <term><option>-m, --multiple-decls</option></term>
++            <listitem><para>Allow some statements to be re-declared.</para></listitem>
++         </varlistentry>
++
++         <varlistentry>
++            <term><option>-v, --verbose</option></term>
++            <listitem><para>Increment verbosity level.</para></listitem>
++         </varlistentry>
++
++         <varlistentry>
++            <term><option>-h, --help</option></term>
++            <listitem><para>Display usage information.</para></listitem>
++         </varlistentry>
++      </variablelist>
++   </refsect1>
++
++   <refsect1 id="see_also"><title>SEE ALSO</title>
++      <para>
++      <simplelist type="inline">
++         <member><citerefentry>
++            <refentrytitle>secilc</refentrytitle>
++            <manvolnum>8</manvolnum>
++         </citerefentry></member>
++         <member><citerefentry>
++            <refentrytitle>secil2tree</refentrytitle>
++            <manvolnum>8</manvolnum>
++         </citerefentry></member>
++         <member><citerefentry>
++            <refentrytitle>secil2conf</refentrytitle>
++            <manvolnum>8</manvolnum>
++         </citerefentry></member>
++      </simplelist>
++      </para>
++      <para>HTML documentation describing the CIL language statements is available starting with <emphasis role="italic">docs/html/index.html</emphasis>.</para>
++      <para>PDF documentation describing the CIL language statements is available at: <emphasis role="italic">docs/pdf/CIL_Reference_Guide.pdf</emphasis>.</para>
++   </refsect1>
++</refentry>
+diff --git a/secilc/secilcheck.c b/secilc/secilcheck.c
+new file mode 100644
+index 00000000..194f4943
+--- /dev/null
++++ b/secilc/secilcheck.c
+@@ -0,0 +1,302 @@
++/*
++ * Copyright 2011 Tresys Technology, LLC. All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *
++ *    1. Redistributions of source code must retain the above copyright notice,
++ *       this list of conditions and the following disclaimer.
++ *
++ *    2. Redistributions in binary form must reproduce the above copyright notice,
++ *       this list of conditions and the following disclaimer in the documentation
++ *       and/or other materials provided with the distribution.
++ *
++ * THIS SOFTWARE IS PROVIDED BY TRESYS TECHNOLOGY, LLC ``AS IS'' AND ANY EXPRESS
++ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
++ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
++ * EVENT SHALL TRESYS TECHNOLOGY, LLC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
++ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
++ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
++ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
++ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
++ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
++ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ *
++ * The views and conclusions contained in the software and documentation are those
++ * of the authors and should not be interpreted as representing official policies,
++ * either expressed or implied, of Tresys Technology, LLC.
++ */
++
++#include <stdlib.h>
++#include <stdio.h>
++#include <unistd.h>
++#include <stdint.h>
++#include <string.h>
++#include <getopt.h>
++#include <fcntl.h>
++#include <sys/stat.h>
++#include <sys/mman.h>
++
++#ifdef ANDROID
++#include <cil/cil.h>
++#else
++#include <sepol/cil/cil.h>
++#endif
++#include <sepol/policydb.h>
++#include <sepol/kernel_to_cil.h>
++
++static int get_binary_policy_db(const char *filename, sepol_policydb_t *pdb)
 +{
-+	if (node->flavor == CIL_BLOCK) {
-+		struct cil_block *blk = node->data;
-+		if (blk->is_abstract == CIL_TRUE) {
-+			*finished = CIL_TREE_SKIP_HEAD;
-+		}
-+	} else if (node->flavor == CIL_MACRO) {
-+		*finished = CIL_TREE_SKIP_HEAD;
-+	} else if (node->flavor == CIL_BOOLEANIF) {
-+		*finished = CIL_TREE_SKIP_HEAD;
-+	} else if (node->flavor == CIL_AVRULE || node->flavor == CIL_AVRULEX) {
-+		struct cil_avrule *rule = node->data;
-+		if (rule->rule_kind == CIL_AVRULE_NEVERALLOW) {
-+			struct cil_list *neverallows = extra_args;
-+			cil_list_prepend(neverallows, CIL_LIST_ITEM, node);
-+		}
++	int fd;
++	struct stat sb;
++	void *map = NULL;
++	sepol_policy_file_t *pf = NULL;
++	int rc = SEPOL_ERR;
++
++	/* Read binary policy */
++	fd = open(filename, O_RDONLY);
++	if (fd < 0) {
++		fprintf(stderr, "Could not open file: %s\n", filename);
++		goto exit;
 +	}
-+
-+	return SEPOL_OK;
-+}
-+
-+int cil_check_neverallows_against_pdb(const struct cil_db *db, policydb_t *pdb, int *violation)
-+{
-+	int rc = SEPOL_OK;
-+	struct cil_list *neverallows;
-+
-+	*violation = CIL_FALSE;
-+
-+	if (db == NULL || pdb == NULL) {
-+		cil_log(CIL_ERR,"CIL db and/or Policy db is NULL\n");
-+		return SEPOL_ERR;
++	if (fstat(fd, &sb) < 0) {
++		fprintf(stderr, "Could not stat file: %s\n", filename);
++		goto exit;
 +	}
-+
-+	cil_list_init(&neverallows, CIL_LIST_ITEM);
-+	rc = cil_tree_walk(db->ast->root, __cil_collect_neverallows_helper, NULL, NULL, neverallows);
-+	if (rc != SEPOL_OK) {
-+		cil_log(CIL_INFO, "Failure collecting neverallows\n");
++	map = mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
++	if (map == MAP_FAILED) {
++		fprintf(stderr, "Could not map file: %s\n", filename);
 +		goto exit;
 +	}
 +
-+	rc = cil_check_neverallows(db, pdb, neverallows, violation);
++	if (sepol_policy_file_create(&pf) < 0) {
++		fprintf(stderr, "Out of memory");
++		goto exit;
++	}
++	sepol_policy_file_set_mem(pf, map, sb.st_size);
++
++	if (sepol_policydb_read(pdb, pf) < 0) {
++		fprintf(stderr,"Error reading binary policy: %s\n", filename);
++		sepol_policydb_free(pdb);
++		rc = SEPOL_ERR;
++		goto exit;
++	}
++
++	rc = SEPOL_OK;
 +
 +exit:
-+	cil_list_destroy(&neverallows, CIL_FALSE);
++	if (fd >= 0)
++		close(fd);
++	if (map)
++		munmap(map, sb.st_size);
++	sepol_policy_file_free(pf);
 +	return rc;
 +}
 +
- static struct cil_list *cil_classperms_from_sepol(policydb_t *pdb, uint16_t class, uint32_t data, struct cil_class *class_value_to_cil[], struct cil_perm **perm_value_to_cil[])
- {
- 	struct cil_classperms *cp;
-diff --git a/libsepol/cil/src/cil_binary.h b/libsepol/cil/src/cil_binary.h
-index e6826221..2bd19102 100644
---- a/libsepol/cil/src/cil_binary.h
-+++ b/libsepol/cil/src/cil_binary.h
-@@ -36,6 +36,21 @@
- #include "cil_tree.h"
- #include "cil_list.h"
- 
++static int add_decls_to_cil(const char *filename, sepol_policydb_t *pdb, struct cil_db *db)
++{
++	FILE *cfp = NULL;
++	char *cptr = NULL;
++	size_t csize;
++	int rc = SEPOL_ERR;
 +
-+/**
-+ * Check neverallows from a CIL database against a policy database.
-+ *
-+ * The types, classes, and permissions used in the CIL neverallow rules must
-+ * be declared in the policy database.
-+ *
-+ * @param[in] db The cil database containing the neverallows to be used.
-+ * @param[in] pdb The policy database to be checked for violations.
-+ * @param[out] violation 1 if a neverallow violation was found, 0 otherwise
-+ *
-+ * @return SEPOL_OK upon success or an error otherwise.
-+ */
-+int cil_check_neverallows_against_pdb(const struct cil_db *db, policydb_t *pdb, int *violation);
++	cfp = open_memstream(&cptr, &csize);
++	if (!cfp) {
++		fprintf(stderr, "Failed to open dynamic memory buffer stream\n");
++		goto exit;
++	}
 +
- /**
-  * Create a binary policydb from the cil db.
-  *
-diff --git a/libsepol/src/libsepol.map.in b/libsepol/src/libsepol.map.in
-index e5e6608c..2b103993 100644
---- a/libsepol/src/libsepol.map.in
-+++ b/libsepol/src/libsepol.map.in
-@@ -294,3 +294,8 @@ LIBSEPOL_3.6 {
-   global:
- 	cil_write_post_ast;
- } LIBSEPOL_3.4;
++	if (sepol_kernel_policydb_decls_to_cil(cfp, &pdb->p) < 0) {
++		fprintf(stderr, "Failed to convert binary policy to CIL\n");
++		goto exit;
++	}
 +
-+LIBSEPOL_3.11 {
-+  global:
-+	cil_check_neverallows_against_pdb;
-+} LIBSEPOL_3.6;
++	if (fflush(cfp) < 0) {
++		fprintf(stderr, "Failed to flush CIL memory buffer stream\n");
++		goto exit;
++	}
++
++	/* Add to CIL db */
++	if (cil_add_file(db, filename, cptr, csize) < 0) {
++		fprintf(stderr, "Failed to add binary policy file: %s\n", filename);
++		goto exit;
++	}
++
++	rc = 0;
++
++exit:
++	if (cfp)
++		fclose(cfp);
++	if (cptr)
++		free(cptr);
++	return rc;
++}
++
++static int add_cil_file(const char *filename, struct cil_db *cdb)
++{
++	FILE *file;
++	struct stat filedata;
++	char *buffer = NULL;
++	size_t file_size;
++	int rc = -1;
++
++	file = fopen(filename, "r");
++	if (!file) {
++		fprintf(stderr, "Could not open file: %s\n", filename);
++		goto exit;
++	}
++	if (stat(filename, &filedata) < 0) {
++		fprintf(stderr, "Could not stat file: %s\n", filename);
++		goto exit;
++	}
++	file_size = filedata.st_size;
++
++	if (!file_size) {
++		fclose(file);
++		rc = 0;
++		goto exit;
++	}
++
++	buffer = malloc(file_size);
++	if (!buffer) {
++		fprintf(stderr, "Out of memory\n");
++		goto exit;
++	}
++
++	if (fread(buffer, file_size, 1, file) != 1) {
++		fprintf(stderr, "Failure reading file: %s\n", filename);
++		goto exit;
++	}
++
++	if (cil_add_file(cdb, filename, buffer, file_size) < 0) {
++		fprintf(stderr, "Failure adding %s\n", filename);
++		goto exit;
++	}
++
++	rc = 0;
++
++exit:
++	if (file)
++		fclose(file);
++	if (buffer)
++		free(buffer);
++	return rc;
++}
++
++static __attribute__((__noreturn__)) void usage(const char *prog)
++{
++	printf("Usage: %s [OPTION]... BIN_POLICY CIL_NEVERALLOW_FILE1...\n", prog);
++	printf("\n");
++	printf("Options:\n");
++	printf("  -Q, --qualified-names          Allow names containing dots (qualified names).\n");
++	printf("                                 Blocks, blockinherits, blockabstracts, and\n");
++	printf("                                 in-statements will not be allowed.\n");
++	printf("  -m, --multiple-decls           allow some statements to be re-declared\n");
++	printf("  -v, --verbose                  increment verbosity level\n");
++	printf("  -h, --help                     display usage information\n");
++	exit(1);
++}
++
++int main(int argc, char *argv[])
++{
++	int rc = SEPOL_ERR;
++	sepol_policydb_t *pdb = NULL;
++	int violation = 0;
++	struct cil_db *db = NULL;
++	int multiple_decls = 0;
++	int qualified_names = 0;
++	int opt_char;
++	int opt_index = 0;
++	enum cil_log_level log_level = CIL_ERR;
++	static struct option long_opts[] = {
++		{"help", no_argument, 0, 'h'},
++		{"verbose", no_argument, 0, 'v'},
++		{"multiple-decls", no_argument, 0, 'm'},
++		{"qualified-names", no_argument, 0, 'Q'},
++		{0, 0, 0, 0}
++	};
++
++	while (1) {
++		opt_char = getopt_long(argc, argv, "hvQm", long_opts, &opt_index);
++		if (opt_char == -1) {
++			break;
++		}
++		switch (opt_char) {
++			case 'v':
++				log_level++;
++				break;
++			case 'm':
++				multiple_decls = 1;
++				break;
++			case 'Q':
++				qualified_names = 1;
++				break;
++			case 'h':
++				usage(argv[0]);
++			case '?':
++				break;
++			default:
++					fprintf(stderr, "Unsupported option: %s\n", optarg);
++				usage(argv[0]);
++		}
++	}
++
++	if (argc < optind + 2) {
++		fprintf(stderr, "Not enough files specified\n");
++		usage(argv[0]);
++	}
++
++	cil_set_log_level(log_level);
++
++	cil_db_init(&db);
++	cil_set_multiple_decls(db, multiple_decls);
++	cil_set_qualified_names(db, qualified_names);
++
++	if (sepol_policydb_create(&pdb) < 0) {
++		fprintf(stderr, "Out of memory\n");
++		goto exit;
++	}
++	if (get_binary_policy_db(argv[optind], pdb) < 0) {
++		fprintf(stderr, "Failed to get binary policy db\n");
++		rc = SEPOL_ERR;
++		goto exit;
++	}
++	if (add_decls_to_cil(argv[optind], pdb, db) < 0) {
++		fprintf(stderr, "Failed to convert decls to CIL\n");
++		rc = SEPOL_ERR;
++		goto exit;
++	}
++	optind++;
++
++	do {
++		if (add_cil_file(argv[optind], db) < 0) {
++			fprintf(stderr, "Failed to add cil file to CIL files\n");
++			rc = SEPOL_ERR;
++			goto exit;
++		}
++		optind++;
++	} while (optind < argc);
++
++	rc = cil_compile(db);
++	if (rc != SEPOL_OK) {
++		fprintf(stderr, "Failed to compile cildb: %d\n", rc);
++		goto exit;
++	}
++
++	rc = cil_check_neverallows_against_pdb(db, &pdb->p, &violation);
++	if (rc != SEPOL_OK) {
++		fprintf(stderr, "Failed to complete neverallow checking\n");
++		goto exit;
++	}
++	if (violation == 1) {
++		fprintf(stderr, "There was a neverallow violation\n");
++		rc = SEPOL_ERR;
++	}
++
++	rc = SEPOL_OK;
++
++exit:
++	cil_db_destroy(&db);
++	sepol_policydb_free(pdb);
++	return rc;
++}
 -- 
 2.54.0
 
