@@ -1,123 +1,134 @@
-Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+Received: from mail-dl1-f53.google.com (mail-dl1-f53.google.com [74.125.82.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 028722E62A9
-	for <selinux@vger.kernel.org>; Tue,  2 Jun 2026 20:54:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780433643; cv=none; b=WYIicfPzYcnL0LNqia3kMKWo8J7QkCvR2OIky7/joelAOtmfCARyodJ5zjI6RZ1hPFO2VRCh7khjlzsSr1jom+D7VlL1LAkyJ9ol0edStTuQUX+385wdg+poLpoAE3q8oMNk9mq8TzLPcYKyBmuj9zr9D1K7kSntvgOhD48p4rM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780433643; c=relaxed/simple;
-	bh=mPv/CdezfChMWXNvxgTPmGjPnN9Gv3fZCgQC/JF6pkY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=boiFir6baota7ZpszIsWMs0LgFDmx/9tMD3PMrfAfk8h8ajR6PSnVoibl+NILJFNa9qNaDjjUdaVKED3x2JHDcnA8qGoPBetqGOGcy8Ca85EQUdgJIwxZN99KgvIIOpH6Ma5IrHNB4/36JziPx/8dyL78q9oBJZ0AW8IZUVefhc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oMzgepbI; arc=none smtp.client-ip=209.85.128.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96F511EA7DB
+	for <selinux@vger.kernel.org>; Wed,  3 Jun 2026 00:17:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.82.53
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780445876; cv=pass; b=AAaZLB5sk74SrPnTmekwea+xW7C28kqsLp3S4921Z07i7ybtWSmyuoefZGDfG8tJMieX2TI+PMbjJFKF11zCVKbPBz/QwkBrYeMVKwsKlRjs+7FYXjnmbHkHJvuQCebYexltRnbpy6o8H+z/J9lfxg0bSoFqNUbjfRFhdiMpY78=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780445876; c=relaxed/simple;
+	bh=2XVUNGJN763CRkkEw6FVufhqvUgoj5Q5trHv9qG4NWs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=euer0UY7b3Qwt9VlXz4Y0q3FHiX/DYEZTQNSqawu2Rc6htQyGrf+fUBsruBYmxVTqBryFH6NVm4oqvHa6d/xCi1g7VdaS61JHZEgj+BJQW0ntNsqPnafmCbNnN9AYROCNyJBwZPpdTNz/WzDy6I/p6dbgfRyODe6riu9zIbdQHE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=TUAsYQ5x; arc=pass smtp.client-ip=74.125.82.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oMzgepbI"
-Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-490a7629380so29852295e9.0
-        for <selinux@vger.kernel.org>; Tue, 02 Jun 2026 13:54:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="TUAsYQ5x"
+Received: by mail-dl1-f53.google.com with SMTP id a92af1059eb24-133362c30cfso2694c88.0
+        for <selinux@vger.kernel.org>; Tue, 02 Jun 2026 17:17:55 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780445875; cv=none;
+        d=google.com; s=arc-20240605;
+        b=BpYS3SPa0yUiEwYUx3w0Mj9OPz8sxGaAdAKE0i2WvzmHSMNFkI28+w+cLgCueEac6u
+         EhaadSiQ8fcaIDf2NBjIdICg5DOgqQCFI7jvYvMUrSagc6mHe1BC1mjmh3elF7QkRWlr
+         qcVZui8N5sJ6vWFmzE4TgD4MUuFzs23yIcJcF/VLPJJjJfnMsNO1EP/bzDeS8MiSu2cM
+         a0u+xmN0tq3QXpKUOtxWudJCf8HAY1GCyngq5L/7qUDzSbHC/23L83dGcus+37D/cS2V
+         y8qFGKr4FKc9n27/dNxtJiqIqrLCa5yoSSRc0dXYyppeqjvJgAXNQ6Hv/I3o5TjtRrVd
+         67vg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=2XVUNGJN763CRkkEw6FVufhqvUgoj5Q5trHv9qG4NWs=;
+        fh=1bKZ5DG58S22qs+u3TwTvpdWVhmePepB2i/wh3MrD7w=;
+        b=JbywrYaaL1ou9n1O6Xb/uH44uU/+Aw7MbJmNozSB3gwyQ3LPqDjMZeLe61podm31Ps
+         DEorvtn7Lhv2fim0HIizmwSc0LLjWGaBFa2ezxUgedml9jskq1KfpfudHDk5mwbKUjp+
+         8VJWTp1ztoTuAarmdAywpv6qslh7tL/BF3VmWTzimhbDYAw9ZwhGWzdithRoxmEx7cDg
+         x6+d5cp80tvzsyWu9Vbq6Xy14V9MEHaAli8VcaEBc4rUFdMLmueGte1B0PJNbOyvA+JM
+         Ezj0EzUWsaWauEXXv8ys5ucNLgl9cyDkHm2V2yhJHE8pibLz4TBDmxi+ab2HPS9yt14E
+         I0KA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780433640; x=1781038440; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=google.com; s=20251104; t=1780445875; x=1781050675; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=mpG73LPossZ05TbFRHwawmT/qm5/7jVyHiEC/pW5aZE=;
-        b=oMzgepbIFvXVuljMR/p8yY+ch4rGaCwhptFMQgyhl327piixnh36/hK1nn+wQ9401Y
-         3YZNo/aJnW2qEyGQd2OtbMhI6TP4KFApzlkEqMi2B3ME4mPMPQjcBCcBDU6jyQYhh28/
-         aoQK/T7lP04Qu6jNl1Y0thw+LynQFGttY2WSxaClDQwh0vdKLpISrPZ5tl9MHqNmd69I
-         KnaAj3VxaQO7CfOWOsYRDW0rKuS0d5L0wDongWyawJz9ldX61sOq+Z47+m8Ud6EmMpn2
-         Ka3UgEU4O06LsKKz78Vt6ahDYMmK+HUxQ4ciQTaOyf32HMwDPoajE8DR59pOMZKylXDA
-         bH/Q==
+        bh=2XVUNGJN763CRkkEw6FVufhqvUgoj5Q5trHv9qG4NWs=;
+        b=TUAsYQ5xJ0MX8B1Z6gbHOdGmbVQ5W4ZNjszvq/2CTQqIWApTnpSMvuEhScLbB2lEPK
+         7p0iPMllbQJYDSTDkTShZj+cXnIxBS5YM6+xa1PxHCWGxo6GnLfqvb+7tLrKxmxDOpRR
+         7WTU4rNyiWhit3xuoMo6508qL67z+08uMJGlxpIXhVAGbAXl6JkLtcMatuqA+NQEdCF8
+         J40ia9etzkCarKthBuC/f2j11NPbRIXvsLiRcIO3ia0Y+bNsVkJ9Dgoy3pAEdaHKC88h
+         jE77e8eSSWZKnGps+zT92nu5dHu+XJdxJ3e5GbN0xUwfZHJL65npxd7aTWSPN5PVC7G1
+         Wfig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780433640; x=1781038440;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20251104; t=1780445875; x=1781050675;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=mpG73LPossZ05TbFRHwawmT/qm5/7jVyHiEC/pW5aZE=;
-        b=UkyuhkfqlGTdjCJ6xQbNL9btfkvhCRwRBUA9U3SnMTKK7JYqXhWmd1H0kpOrfl+PiZ
-         OwHJtl7x4WHBPL6im7qu426nLDtiwrJMRVQRbF0RAr5gHRY2E4mz6vpUb/bWqafO4YfH
-         v32yfjG64Fw+s6qZ7czQ1dnSHP0EMRGZxjd8415NSZBt+XqM0j3VlcEhDAyMel4kq/AA
-         fSnAj37kITBGppHKc5SjFvlcDFNFhdRn0jkX77QN08AKMAk89GL68zhF5xjoajC10ArN
-         W6WTReIby5+aD0oSncjacX/pAeGp1w9foilRcefk03VJxdc4nY8P37c7qEdmUa2D3HcO
-         ZphQ==
-X-Gm-Message-State: AOJu0Ywj/xAEEIXTHTLXryJSP7m7MGTicxL/e9A7y7ywGfRqHfq05Wos
-	GJgZWwBFf+lE81R6uW0s5UZGgK1LfUu1bUvw7zHtmY59LscT//UtcxuZ
-X-Gm-Gg: Acq92OH/akm2XYHfmdjikoB7FUaaFryAfUjXnRDrjH4oLlviOoJd7rJ4qpr8BfPj/3l
-	pUEiwczq6iCaY9q+GvZ+S9bDNsIxTAJdMXuPeSsBcacJa9xipDNG+J1II6WwKiZPKXjhF+nlfgw
-	yJ23yv9xujzijNDVDAnej39WCW1SFhX7b8Mt9tI0/8eLM+gMF/GcJku10tHnp8Sr4lZ5FNuLPqi
-	v92bL35DstGkLj1gAXiq/ilkXmDtnSVfy+3bJ7sAQVM6iVdkWX+f5RcZZc6u2SWZjaO02j9MMVM
-	RMblbSUqYMVl4G0Vdm1uWx/CZxhwZ+6uVJ9HBnzW/ux8pKBXNd5Tn/XrjecVL7lUXGep3CbWWmx
-	+G2hjAGw1ZBBrvbNO0hiAjjKCBvIlKP5tUnSs1AN2lnlanLdbjUlJfadYsEm9lGpXm8TnEQuc0i
-	2D6X/hbRjX9WFWaqYgWDB2sw==
-X-Received: by 2002:a05:600c:4712:b0:490:ab8b:1bb3 with SMTP id 5b1f17b1804b1-490b5ec4258mr6527185e9.18.1780433640360;
-        Tue, 02 Jun 2026 13:54:00 -0700 (PDT)
-Received: from nz.home ([5.80.177.105])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490b575aaa4sm3901395e9.3.2026.06.02.13.53.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Jun 2026 13:53:59 -0700 (PDT)
-Received: by nz.home (Postfix, from userid 1000)
-	id 240E245F247038; Tue, 02 Jun 2026 21:53:59 +0100 (BST)
-From: Sergei Trofimovich <slyich@gmail.com>
-To: selinux@vger.kernel.org
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Sergei Trofimovich <slyich@gmail.com>
-Subject: [PATCH v2] libselinux: drop long deprecated `-Wstrict-overflow=5` flag
-Date: Tue,  2 Jun 2026 21:53:43 +0100
-Message-ID: <20260602205343.3692139-1-slyich@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <CAEjxPJ4DhfG8-p9=B5fvv6_GFNtEg7T-KekJyXsYQ8TmJzabKw@mail.gmail.com>
-References: <CAEjxPJ4DhfG8-p9=B5fvv6_GFNtEg7T-KekJyXsYQ8TmJzabKw@mail.gmail.com>
+        bh=2XVUNGJN763CRkkEw6FVufhqvUgoj5Q5trHv9qG4NWs=;
+        b=d59iU1hKzsypV2Pf8oT6yfuxJNMvLIQvXB8yDy0j/teJzGUaM+OtnHNvh4RgwUZl61
+         vceOIseEYf5WUT3vae5btLQrop7qM1wEl1DJc8K9S8TGAbs7dSN2/VCZisfUbakcPbcE
+         kabuNaYPVQdgmkZkIpWtMKS3n+wL+26i+25lNTi/lah84BvJuDoHBuY9Cb8I68oi+3pv
+         cO0Ouk6qEM1RuBy2S8avpXB/LRL2iUa4Eyqo+q0cmu9f39aBqU4EIWoaP9yK3eSIltxq
+         +n6DOCapd31S/rEebtJ2/cAopd9FTpXr14rN1Sf3s0hZF9VJW9SvcUJ4U/4KabJ5fn1e
+         hBOA==
+X-Forwarded-Encrypted: i=1; AFNElJ8xNaJSaOgfJEa+dpKiae2VaIHwIdWpZK/3Gx7T01HBGyGAMT9G2xierET+F6Ap/ymgIO4ZPnPC@vger.kernel.org
+X-Gm-Message-State: AOJu0YyWJD3/X7UqBT5ogNfMf8a/3F9FZ++B/r9Co/E+agfaBrdAsdcW
+	apcvbA0+c1wCT2IP9uEBdkZ99DHK6MJpxR2Mb7ZGwouQ34B6AOTfE06p593+vdQh36AY5T9uhtX
+	JZMfdfeRBV8m3GWpCWNOOeq1GpkCkplHQqN8IUNVmZ/h7LR0iH1N8dGqOtUc=
+X-Gm-Gg: Acq92OEDDUHiLF7Lt1auGqSsKgthvZm4zgEiXiDlADG4rFHdbws6Rz0gYIhpbVaqoHG
+	gAtSxBHgnEey770ua6brYFo/M5hCDqRTtwVSCw+d1IA6ABgsPp4D3dXurXEZmZcec0uzsiA7l0X
+	+ZdmGMzda6hiH3W5Lm6x+CM0YnsH4GcNUE+/diLGrSKDWRP+gWxnqIIcIgIH5owkD1khaZC+Y7T
+	OPn/vbAISNYlTJLy7S3jFd6s9KnhAgxqQaiir/lYneBuoK6yX9kwqc5K7oAcKWsnEttJeEcJDvH
+	FpDmwcfB888g4tBEwZ5ZCHXMI1lfm4wi/vbF+VmQ4BMoqZdGTY/5dhY5UbvtSr5xtozHpNJXbTp
+	XsFcka8rW
+X-Received: by 2002:a05:7022:ebcb:b0:12c:be9:7ce with SMTP id
+ a92af1059eb24-137f7a79431mr13128c88.2.1780445874031; Tue, 02 Jun 2026
+ 17:17:54 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260602153309.157348-1-jwcart2@gmail.com> <20260602153309.157348-3-jwcart2@gmail.com>
+ <CAEjxPJ7NyYz8fXbiEGdhBMPcckRTk6OuzS+fsPNO_W=SuZCYWg@mail.gmail.com> <CAEjxPJ68-SUdABNeRsX1GZXv_scQFSGJWY2YZDU5bTa4B-ZCXA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ68-SUdABNeRsX1GZXv_scQFSGJWY2YZDU5bTa4B-ZCXA@mail.gmail.com>
+From: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Date: Wed, 3 Jun 2026 10:17:35 +1000
+X-Gm-Features: AVHnY4Kdu2b6lBNBrDFC60cg4cowWrHn2S7oMst1UW0lP8fAizk3AnZlR286Wd0
+Message-ID: <CA+zpnLdS7VaVk-3Kwoj6X7BBbW1rxHLt=6bA7xBEBA6EoZyP3A@mail.gmail.com>
+Subject: Re: [PATCH 3/3 v4] secilc: Add program that checks CIL neverallows
+ against a binary policy
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: James Carter <jwcart2@gmail.com>, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-`gcc-17` formally deprecated `-Wstrict-overflow` options in
-https://gcc.gnu.org/git/?p=gcc.git;a=commitdiff;h=b31a43560e88600d412318f75a43ac8e562ba8c5.
+On Wed, Jun 3, 2026 at 4:22=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Tue, Jun 2, 2026 at 2:10=E2=80=AFPM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > On Tue, Jun 2, 2026 at 11:33=E2=80=AFAM James Carter <jwcart2@gmail.com=
+> wrote:
+> > >
+> > > Add the program secilcheck that takes a binary policy and one or
+> > > more CIL files and checks for violations in the binary policy using
+> > > the neverallow and neverallowx rules from the CIL policy.
+> > >
+> > > ex/
+> > > secilcheck policy.bin neverallows.cil
+> > >
+> > > The CIL neverallow and neverallowx rules must only use types, classes=
+,
+> > > and permissions that are declared in the binary policy.
+> > >
+> > > This is planned on being used in Android to validate policies from
+> > > partners against the standard AOSP assertions as part of the
+> > > Compatibility Test Suite.
+> > >
+> > > Suggested-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+> > > Signed-off-by: James Carter <jwcart2@gmail.com>
+> >
+> > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+>
+> All three merged.
 
-I only noticed it because `gcc-17` deprecated it slightly incorrectly and
-started to fail `libselinux` build: https://gcc.gnu.org/PR125558
+Thanks again James.
 
-While it's a `gcc` bug `gcc` devs suggested removing use of the flag.
-This change does the removal.
+I know they have been merged already, but for the whole set:
 
-Signed-off-by: Sergei Trofimovich <slyich@gmail.com>
----
- libselinux/src/Makefile   | 2 +-
- libselinux/utils/Makefile | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index c62ad1ed..373a6251 100644
---- a/libselinux/src/Makefile
-+++ b/libselinux/src/Makefile
-@@ -65,7 +65,7 @@ EXTRA_CFLAGS = -Wlogical-op -Wpacked-bitfield-compat -Wsync-nand \
- 	-Wcoverage-mismatch -Wcpp -Wformat-contains-nul -Wnormalized=nfc -Wsuggest-attribute=const \
- 	-Wsuggest-attribute=noreturn -Wsuggest-attribute=pure -Wtrampolines -Wjump-misses-init \
- 	-Wno-suggest-attribute=pure -Wno-suggest-attribute=const -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 \
--	-Wstrict-overflow=5 -fno-semantic-interposition
-+	-fno-semantic-interposition
- else
- EXTRA_CFLAGS = -Wunused-command-line-argument
- endif
-diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
-index 20dc44eb..ddbd2445 100644
---- a/libselinux/utils/Makefile
-+++ b/libselinux/utils/Makefile
-@@ -33,7 +33,7 @@ CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self -Wmissi
-           -Wno-format-nonliteral -Wframe-larger-than=$(MAX_STACK_SIZE) -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 \
-           -fstack-protector-all --param=ssp-buffer-size=4 -fexceptions \
-           -fasynchronous-unwind-tables -fdiagnostics-show-option \
--          -Werror -Wno-aggregate-return -Wno-redundant-decls -Wstrict-overflow=5 \
-+          -Werror -Wno-aggregate-return -Wno-redundant-decls \
-           $(EXTRA_CFLAGS)
- 
- override CFLAGS += $(LFS_CFLAGS)
--- 
-2.54.0
-
+Tested-by: Thi=C3=A9baud Weksteen <tweek@google.com>
