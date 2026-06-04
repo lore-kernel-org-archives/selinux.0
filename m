@@ -1,120 +1,123 @@
-Received: from mout01.posteo.de (mout01.posteo.de [185.67.36.65])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com [209.85.222.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6387E481A82
-	for <selinux@vger.kernel.org>; Thu,  4 Jun 2026 16:23:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.65
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16D5F47CC83
+	for <selinux@vger.kernel.org>; Thu,  4 Jun 2026 16:28:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780590227; cv=none; b=kt1lel+DnINNK746UroExU0kKnC+/z/9+IVZQdPNfUNaxzANq80l+BtYVGKoEnDKNA3kQk865PlmXOXq6GjA7z1zIYPb5RxfRNbYwgZBNIJLRqCVzKaTmEB6lLt7nGV5iJYZiMAUh0owIj/j8flPluwhhA1um6FYdpWq2gBQ/IM=
+	t=1780590483; cv=none; b=Z0LnvO4Ym7rpxOWZEcJH/NMX4sAq1e4nO5tVS0gJ39ekG5Dba9qHyHS5AivvsDbRin/kMw0ul9A5gWwb9X7PC/MsgVNVMRfx831UlU7faHJTwChX8XLx4ndqXcq68yql4zA49ULSGAC7AE9XmOfPHUJ6tmW8gJ9+cEGIkZXI41Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780590227; c=relaxed/simple;
-	bh=X8WbjZh/86WdWRPk7Kmd6W0Gio2xxUhxxPoCyThpJ/Q=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=I0Wl5Ilgo3f5VolzeSWEfoL8Tn0Xx7/k2a1s6CtaRrPqExD7Ossjt5NDCXhcMXEvQ2aYoZ2GJ6ZDCShnZ0xKavIO2zdFsVszFu5C1zCVYZzNkZVc06jM3hZPtVf6Zu4IuX/EnytuTtRQnaXaNVnIoZVUJecCn+cUgqf+7lMw5Ww=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.uk; spf=pass smtp.mailfrom=posteo.uk; dkim=pass (2048-bit key) header.d=posteo.uk header.i=@posteo.uk header.b=lIO+Lryd; arc=none smtp.client-ip=185.67.36.65
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.uk
+	s=arc-20240116; t=1780590483; c=relaxed/simple;
+	bh=ytxS7/LDBhO2aJvtSt3pE6w15jjk2CBzffEDxJptHeU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sxcOQlQZE+iZbkM+5dE+zswx5Z5l/Bc97uWpxCF5pB+Imjv+Eg1bKUwdLbcyRJpdSNIXtSl/u1u46bY+RidP+8P6MszqMLG/TJAOBCGeKkYk75T0S5SbQ+KuYxuzPLXE5Ozf9y9Y2ep3QckgMoFtGDVm3f5bxnLvZygM1El70fc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GDINz3+K; arc=none smtp.client-ip=209.85.222.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=posteo.uk header.i=@posteo.uk header.b="lIO+Lryd"
-Received: from submission (posteo.de [185.67.36.169]) 
-	by mout01.posteo.de (Postfix) with ESMTPS id 38977240028
-	for <selinux@vger.kernel.org>; Thu,  4 Jun 2026 18:23:34 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.uk; s=2017;
-	t=1780590214; bh=Ubf4lnLsj00y739zZIAUdKDSo7iZgv9pVnbNHhg0ktE=;
-	h=Mime-Version:Content-Transfer-Encoding:Content-Type:Date:
-	 Message-Id:Cc:Subject:From:To:From;
-	b=lIO+Lryd2Avs7g7ragOLzym291Hj2IH2NwUm2Fvf77kB5MItjrE99zl1r+mg9GH/I
-	 FkFeW4VKNly5p1EEG3pz+6AMKM6GnutfNzPoSdcxm+GJaJ/wxQU95UaZDDyqUsHcfW
-	 L77oaaLJhRiHIx66igLaCm13zJKzeaQuf1wCP7zxgkemDMQw242C6RJtykIJlTHQyw
-	 hIGqXw714+Ldd8dTpLO4V/J1RDZSA2+ohy9fZAKNEXAN70BvOMl3aFgz+OrnBV+e4s
-	 YNrmIdrY8jpW2UARBEDawOSqwTplIwkG8M449U97+SVj9FOfUT++CDOEI/jj4wCInQ
-	 X+SSvNZM7qqHw==
-Received: from customer (localhost [127.0.0.1])
-	by submission (posteo.de) with ESMTPSA id 4gWVHT3fSNz9rxG;
-	Thu,  4 Jun 2026 18:23:33 +0200 (CEST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GDINz3+K"
+Received: by mail-qk1-f171.google.com with SMTP id af79cd13be357-9157b895c57so91368885a.3
+        for <selinux@vger.kernel.org>; Thu, 04 Jun 2026 09:28:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780590481; x=1781195281; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=rJj/AivXNmwQ/ZE80I0j6NEkIcHXHxfFPFZiZ5j+mqA=;
+        b=GDINz3+KXZu+pz850HDdvpyGYPyxCIGW1elPotvRws0YRReW5GNnXmqKcxwYwEg6kL
+         wm2BbhrRA6tI0FCKo87DwhuckNMg7Sp5AUn3MLWn5PkdqtQiqLRgzgPsYJP+H6HoREE/
+         sIyCxzjeB8a9EVN/QaW4XF6eMhUyEM4e8EBZ+mkxGfK1pfYbp/C08kvOiheGq7GbxAmp
+         W/Y1qREb/H4qk39xlF8AYs12R+Fd2ombZi3dSopq6KmeF+XaB6xQwP59LuIdvThq4DwX
+         lldoTH7i+AJiVw6M51KKZqst9hExlLPwCTJ2ZVINX/6U0ALQH9Ky2RvUj5ckuJWnYpF+
+         xi2A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780590481; x=1781195281;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rJj/AivXNmwQ/ZE80I0j6NEkIcHXHxfFPFZiZ5j+mqA=;
+        b=Qa3jcbfz1vQJj1k6vK8/p3WVA6uT8x8pvGC/GqRweIw+RuDAaG5ujsHEyYTQNAeD3o
+         umqMA0jneK2aOPBxIMLBba0LmxeOkRWJsDEPNKhRGpljjhqvgCYUip4LJ450Aw77vuqz
+         gBmKDi7HurRK88yCYZ4G6zEEUYdtYMTsv8aSVJ5/oUn9Zv+isFTXHnjXlrLfDxeCnJqB
+         s+1rG6f5UisvSZZVFmb5K5pOLOuga/jQYk2R3P3a8jsDvxnq8zQ2J545fgWNVsdiyoUa
+         YvZebcYg5s5D2kciZ2rNyCeij/18LrMzA+oBv+XEg9rR8SMHE5W+pZpAhu6V+yI+FTKe
+         3fMg==
+X-Gm-Message-State: AOJu0YzqjAZrUCHHbRmlBiOxwOrHVH9OCuBl02vxfWKr3Nz34gtndW++
+	owSa4Xx92D9SrN2R2lSYBa1ZpFAFOcvnZXSBuRtcYzcJ1J+mMuzWwfl53dikaA==
+X-Gm-Gg: Acq92OEtWekjCgdAtQqkkR/t3TiXFhp/pc95DHqs21ShnbnzLm3Hjw0EOwjfqZnQlQy
+	k/c+hI+HWcLfuvvJ0aV0uI8f80+7CyGCH8rK+REYJk4XRkaLxmYiblr2M8mv4W8dVMGTrVf9UrP
+	KJvqWjAmzCCVCeVzJtNUm81aNzam0QhWqu+ZO5ZgjZmtz6mM9bkDtEwR1piWJtCFjc9my2twwxf
+	wFpaOXOO7zQNASUuaUxRQuSHX4bCEukz+VTP4CFXdP8xgs1cSWTylJnk21jsjBX4+M6W6RVJuFX
+	1p3Js0/i0xciB1j5IIusd9gA0SyW+2vwMK4bVrXYAufn+f5TiiGG0NrHYeq8U6CnacFGLgpW2rq
+	munbOnD/pGDnbSVMyqNmXJqx6h1hBT2pIXknklpMyMaIyXPaQLQMtQ4no450lN5JSEGjg3rSbfg
+	MdmZAf5NbhwyjK9l86wNAwvLSN0ti9KzD50UPinO6NpZ5IO3gTZudh6EcW
+X-Received: by 2002:a05:620a:a109:b0:915:89d4:df0e with SMTP id af79cd13be357-9158a7aa7e2mr1123741385a.39.1780590480957;
+        Thu, 04 Jun 2026 09:28:00 -0700 (PDT)
+Received: from Fedora43-SELinux ([144.51.8.27])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9158a381febsm607170585a.23.2026.06.04.09.28.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Jun 2026 09:28:00 -0700 (PDT)
+From: James Carter <jwcart2@gmail.com>
+To: selinux@vger.kernel.org
+Cc: James Carter <jwcart2@gmail.com>
+Subject: [PATCH] libsepol/cil: Fix type confusion when writing policy.conf from CIL
+Date: Thu,  4 Jun 2026 12:27:48 -0400
+Message-ID: <20260604162748.37719-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 04 Jun 2026 16:23:34 +0000
-Message-Id: <DJ0EJVG6WHK7.1LTNKAF5YA8BQ@posteo.uk>
-Cc: <stephen.smalley.work@gmail.com>
-Subject: Re: [PATCH v3] Have clang-format ignore auto-generated files
-From: "Rahul Sandhu" <nvraxn@posteo.uk>
-To: "James Carter" <jwcart2@gmail.com>, <selinux@vger.kernel.org>
-References: <20260604155319.16844-1-jwcart2@gmail.com>
-In-Reply-To: <20260604155319.16844-1-jwcart2@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Thu Jun 4, 2026 at 4:53 PM BST, James Carter wrote:
-> Add .clang-format-ignore files listing the auto-generated files to
-> ignore taken from the .gitignore files.
->
-> With the exception of libsemanage, place the .clang-format-ignore
-> files in the same directory as the .gitignore files. For libsemanage
-> which has a .gitignore in both its top level and src directories,
-> just place one in the src directory.
->
-> Signed-off-by: James Carter <jwcart2@gmail.com>
+The functions __cil_cons_leaf_operand_len() and
+__cil_cons_leaf_operand_to_string() use the list pointer instead of
+the item pointer when writing out a list of names in a constraint
+expression.
 
-Acked-by: Rahul Sandhu <nvraxn@posteo.uk>
+Fix both to use the item pointer when processing a list of names.
 
-> ---
-> v3: Add missing newline to end of libsemanage/src/.clang-format-ignore
-> v2: Use multiple files instead of just one in the top level directory.
->
->  checkpolicy/.clang-format-ignore     | 3 +++
->  libselinux/src/.clang-format-ignore  | 3 +++
->  libsemanage/src/.clang-format-ignore | 6 ++++++
->  libsepol/cil/.clang-format-ignore    | 1 +
->  4 files changed, 13 insertions(+)
->  create mode 100644 checkpolicy/.clang-format-ignore
->  create mode 100644 libselinux/src/.clang-format-ignore
->  create mode 100644 libsemanage/src/.clang-format-ignore
->  create mode 100644 libsepol/cil/.clang-format-ignore
->
-> diff --git a/checkpolicy/.clang-format-ignore b/checkpolicy/.clang-format=
--ignore
-> new file mode 100644
-> index 00000000..f6b7b435
-> --- /dev/null
-> +++ b/checkpolicy/.clang-format-ignore
-> @@ -0,0 +1,3 @@
-> +lex.yy.c
-> +y.tab.c
-> +y.tab.h
-> diff --git a/libselinux/src/.clang-format-ignore b/libselinux/src/.clang-=
-format-ignore
-> new file mode 100644
-> index 00000000..001f20b0
-> --- /dev/null
-> +++ b/libselinux/src/.clang-format-ignore
-> @@ -0,0 +1,3 @@
-> +selinux.py
-> +selinuxswig_python_wrap.c
-> +selinuxswig_ruby_wrap.c
-> diff --git a/libsemanage/src/.clang-format-ignore b/libsemanage/src/.clan=
-g-format-ignore
-> new file mode 100644
-> index 00000000..2d2d8e8b
-> --- /dev/null
-> +++ b/libsemanage/src/.clang-format-ignore
-> @@ -0,0 +1,6 @@
-> +conf-parse.c
-> +conf-parse.h
-> +conf-scan.c
-> +semanageswig_wrap.c
-> +semanage.py
-> +semanageswig_ruby_wrap.c
-> diff --git a/libsepol/cil/.clang-format-ignore b/libsepol/cil/.clang-form=
-at-ignore
-> new file mode 100644
-> index 00000000..3eb2902f
-> --- /dev/null
-> +++ b/libsepol/cil/.clang-format-ignore
-> @@ -0,0 +1 @@
-> +src/cil_lexer.c
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libsepol/cil/src/cil_policy.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
+
+diff --git a/libsepol/cil/src/cil_policy.c b/libsepol/cil/src/cil_policy.c
+index b56fbc81..7f20b7b7 100644
+--- a/libsepol/cil/src/cil_policy.c
++++ b/libsepol/cil/src/cil_policy.c
+@@ -382,12 +382,11 @@ static size_t __cil_cons_leaf_operand_len(struct cil_db *db,
+ 	} else if (flavor == CIL_LIST) {
+ 		len = 1; /* "{" */
+ 		cil_list_for_each(i1, (struct cil_list *)operand->data) {
+-			struct cil_tree_node *node = NODE(operand->data);
++			struct cil_tree_node *node = NODE(i1->data);
+ 			if (node->flavor == CIL_USERATTRIBUTE) {
+-				len = __cil_userattribute_len(db,
+-							      operand->data);
++				len = __cil_userattribute_len(db, node->data);
+ 			} else {
+-				len += strlen(DATUM(operand->data)->fqn);
++				len += strlen(DATUM(node->data)->fqn);
+ 				len++; /* " " or "}" */
+ 			}
+ 		}
+@@ -554,12 +553,12 @@ static char *__cil_cons_leaf_operand_to_string(struct cil_db *db,
+ 	} else if (flavor == CIL_LIST) {
+ 		*new++ = '{';
+ 		cil_list_for_each(i1, (struct cil_list *)operand->data) {
+-			struct cil_tree_node *node = NODE(operand->data);
++			struct cil_tree_node *node = NODE(i1->data);
+ 			if (node->flavor == CIL_USERATTRIBUTE) {
+ 				new = __cil_userattribute_to_string(
+-					db, operand->data, new);
++					db, node->data, new);
+ 			} else {
+-				o_str = DATUM(operand->data)->fqn;
++				o_str = DATUM(node->data)->fqn;
+ 				o_len = strlen(o_str);
+ 				memcpy(new, o_str, o_len);
+ 				new += o_len;
+-- 
+2.54.0
 
