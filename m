@@ -1,130 +1,98 @@
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
+Received: from mail-qv1-f45.google.com (mail-qv1-f45.google.com [209.85.219.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7004E349CF3
-	for <selinux@vger.kernel.org>; Thu,  4 Jun 2026 19:19:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.51
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780600741; cv=pass; b=qulMBPywwOKbroZEuWSU/dZDH5Y7BU5qqvLeAItKFlC2j6IAk3mzL/9MC/8KE0ZRcYd7+AqnDwJKBUqnrOtQ3r7cfsw7BZgAzP62desHvpEdoaXk7K/oLwvVNC0nzfb5hQFXqq2VSjpUki8uh9cSC7HiLc73jX8gYwvIwGiXJuo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780600741; c=relaxed/simple;
-	bh=A2gqq95GJEwxLYEaJi85QEUcYQkhn1AAdF4Ripy/sV4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Khc1Mm0Q7kisIFGTm4TvdAZ1ZbYqwLCJodbeY71dZKqyWOL8qGIWq69yj5y8McMPHXWX+rmEbZ9E62fRz/udjHzYSLndfL/uDMMVVaQSQthc6NRuSrK/Z9IAqSNO6fyM72c1mzoajb9foISrbU7RnxxhHvC3MHgBIk49Yz86VUA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=COa8sp6x; arc=pass smtp.client-ip=209.85.216.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD3BA3C13E7
+	for <selinux@vger.kernel.org>; Thu,  4 Jun 2026 19:31:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.45
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780601482; cv=none; b=KdkMV1VPiaP6nWIEvVKnOc14mVt6SYUsY6VrXvak1T353z0zJju1MHQ2k+oTAc45PqjxoDbUeO8hR6+xnufjBlNmUUdz3w5meRHqMUH0Qi2/FHffHPSHu0MrZfzemGewsRiwTdPub+EBiJrK44nVX19qtoTK/zzGy1LV+AlCfbE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780601482; c=relaxed/simple;
+	bh=ff2b6uDnbTLhIuCInyVfZqKpyr+8u4XSlAGqlDbuZoM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=RWtSy0QJP0ngn58YevmzjCIiwqgroUlTS20eT/XmSTffmvAuWVn/cy3p5xf1cQ4EWqZM3jyWnuN/DjBDdLruTjQuvWUu286CP7kH668hChAgPDLFQ+mOvMnC2Tnd67+bXaMZ21OkcennsKlrtvExehNJOUBGyQvoQuaHj6Xt+T4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IlYJVfLX; arc=none smtp.client-ip=209.85.219.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="COa8sp6x"
-Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-36babe2c4bdso764137a91.1
-        for <selinux@vger.kernel.org>; Thu, 04 Jun 2026 12:19:00 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780600740; cv=none;
-        d=google.com; s=arc-20240605;
-        b=OEr6UR3Um68SRyRt8qW3X7sSrgdy0niBDDTNTQkOgIv6ZhbjXkDsSHM4XDlBjg3Lgg
-         PjYrYrHUjv6GyS4pKYF5821B33DD6eHLgDaw4GHZrCLmxOdHPQuAXTjQF0+2Kzltsm3J
-         2yAgfjk6bXEny6DrAQDgu9Z/7KY9YmNwSzmSiATK0QAV+bhj/5bPJh+mcoXUNdHEV9Su
-         MMqPKpMcYgKWzlEyGCnMOcneBXevGD8jms2ztVOMMAjGCUMRwbre3XeydQFlB5j4yMOd
-         br+FNUKsXwlA0vQg5Hap77qx6J1HKWoEVEX7pcuLyMdhmeioas9FrnM6pMuUC4guHIi2
-         ujEQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=u/ZX8nKPl/YAmewQIHb1lZQpaItlFxXyLV4wfbJHQXE=;
-        fh=FsXghBnyoYbEc42Idnie0oh5A6i9FUng5ntOLhqXIRs=;
-        b=c96cLCZG9H5rIuBLPozLNWEhbObOiH6k57Y/ckjcBtYpTEjKC3YK/CT5gCLZJczbn2
-         KUAbZkajUY9rBzL52symsvPXOMPP+b4y46BFg2E52Co4JoRgBZktnuhV9tet3WkgUcn6
-         2V8PsuKVapFeoqeOpM9lMz5QIMSUO2xstq28LTR4nPKYPozbGITxI/TrKaeBkqAUlPmp
-         GmTyupWfeEIIkf9BQgfhAIiqKN/G9nIPRk3rky5iV4EOsTNaBIODsq1bDpuIDbTDtL8Q
-         D80JwbrzArzAkFrbL49g/B0Q8h2K+IcmYUYirtPwSuCzrd3Z/l/ORUAv0MMWV/LBu5hg
-         LEiA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IlYJVfLX"
+Received: by mail-qv1-f45.google.com with SMTP id 6a1803df08f44-8ccf6a63a45so12053576d6.3
+        for <selinux@vger.kernel.org>; Thu, 04 Jun 2026 12:31:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780600740; x=1781205540; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=u/ZX8nKPl/YAmewQIHb1lZQpaItlFxXyLV4wfbJHQXE=;
-        b=COa8sp6xMJL5kwjww8LxQAuUP0rIrCgRVawrleB4gopOdG+shFEBBfWLaDYqizAE8N
-         +eRLxrZNC0rt0KMA3D5MyR///dcDVbDmuJ3q3EaeVmt37vFMueFJXqC5WM/uh9yfiuX1
-         rcCFAIVI96/pRngo9WEUVNzAgH8F3mvppx9OVcU1n6TNp5Z2XeT/4FUfcQXoX8XG9G9H
-         IEJzn4+3mOVF7o557dSZhzaqWlquuIECTbjpt6TGoQlzwurAH/l6AWxlsxKWB2kTvASr
-         BTCjI4yiv5Vko7phyeLCe8hYdm4ypdYyik6LjUfCEVzMzyFa3ZUzs1swK+jsIX5OcBx2
-         CnxQ==
+        d=gmail.com; s=20251104; t=1780601480; x=1781206280; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=c3DKuYqnXLqqXyIMug8mgm83EqplGlVWLlJD+exBi7o=;
+        b=IlYJVfLXuWrJTRLfTIPORLkmq/klz7qvzjYPf048gB7ttnK1++MCjaYW+8oL+i282f
+         +H2cTTc1BCVrpNr45tWFDTExr3dmoajFIv4pvJ2l0Y3APoYX3pcMRV523IhIEajBPtCM
+         w9xPPDbowq5C4Fpp5RXuuVgQCiYYvEPv1wARGVf1ZkizaknPi1qWUrFsNwExvGSJQ/Z0
+         ZN/GJk+wJE7Sw4QjA4u9hpKmMJZGs5rtSUXVwLbIyxp8JRJagQ8dM+VRsdOQL9rSXSVL
+         fOcV19fe5nDjDaGY+tdu+4pPryWr200HwmBcPypAB4uxofmvrXivFfM55xzusrdOAMU6
+         6+7g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780600740; x=1781205540;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=u/ZX8nKPl/YAmewQIHb1lZQpaItlFxXyLV4wfbJHQXE=;
-        b=oMAmN3Il8f8JBu0vPq6nGHOiorHGnap29B48QWo7IIe7vyXh7Yp7Rice0WEw2VgAgY
-         cR4Lcw1WqLaGAsqbCqr7xH6Q4aZ7zRSb8EZ6EXxb7Wo4DphvMKx4S6jN3YfpMNB+HkU3
-         AOGsMBQGRkODHfsLrFAyzDpK/LP+j+eFAZ/woadueay+MJMZRV5JE/nF11o3Vm4Fxpeh
-         VOGRzRwfccaZKnrkmvCjNzZXrBVkk8pY6zD5YCJfpo1UToqWqbs8UMTxBy1v18X2tZfi
-         ovDJhAfCraPSsAUEavqwnDA+mcmwDTVMOZYvwWK8btz7YY1W7J8+7ekwp2tfG/hKhNtL
-         oldg==
-X-Gm-Message-State: AOJu0Yyxd21uquCwYypQ/MMoHbMNFCy3wSki2moSladPmw3IQGHwARYd
-	wABC9JFSzGrL0fTrS56YbXRHHz9O7aNgvA8Th0uNuGT6MI4t5BEvlSEgKqupMI9kkQ5TKuXDCLn
-	dmkVLwfR+99TQrmT6S5TbGDdpqS88/vM=
-X-Gm-Gg: Acq92OHG6L5Isd2sPOGGbcNH+SNf+lGQUzMygfIzuqQsb0v2aV+KBh1vA/zpPO9z5Jp
-	lA/fZpl46hJN3sdTWdP0mLAzmG58giHB4bdtjxRfKk5eHdfc7pSB5KA+mJI0eV7Fogb9YfbNDBQ
-	jv+DzaLFDNt7QzLG4pNeOLwOy+UySTBRHFvQ8GAPkWmv+IZgJksQyuQMH9jPnD/Dd86BEsr3KOt
-	LNmDu7XnnJbrCO/BWBHoSgiBugN/H4h7T+IXbqFNKv9pD7grYl/sbtgknMeCNGkaaMqE21SYNLc
-	sDNyhsTVCZzIuglUTw==
-X-Received: by 2002:a17:90b:4990:b0:36d:649a:39f7 with SMTP id
- 98e67ed59e1d1-370f0579c09mr281039a91.22.1780600739658; Thu, 04 Jun 2026
- 12:18:59 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1780601480; x=1781206280;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=c3DKuYqnXLqqXyIMug8mgm83EqplGlVWLlJD+exBi7o=;
+        b=aIsMarPH0fJIPjF0P6yHDumZv0h+1DEfyDhjV7HVqBBma3ovTZsdFxlDzGyyr2qgnF
+         Txx7hbsD/V3jTL4jn0Hcnd/1MK6Y1XvbvMrdrTnJXrAvxVEr3JDEdSsSxUIDqmb3hvVx
+         8lWa/OJgMFZCV2XS93gsgxP4Xnb4y8iypRW2mlejnSZu07v0FCRWYWqmIoWywbiZaVB0
+         TCCYvaL4B8nWrs90g1jgbHn0joxpqVKecwgUy1WPT0on9Jy2rKExcqnk8byh2rvJOIRB
+         ToUT2fKUp3eGXPTzS5qOrZkztvogBb+oLTlPGFA2EOpTJ/1Gb1cmDR8fp22RkEJsXs/F
+         zo0Q==
+X-Gm-Message-State: AOJu0YwK41mKgqD101/31rGqyJRL1xj6T7rxE8OgnZks2p6PO3B7cLMm
+	SaWT3D4oA84yQ5lbhci/boi1uVHF6hPU3l1h3pmjjXMP1oj+HZESRfR1DtIKUA==
+X-Gm-Gg: Acq92OHOu+pT1LTdv+pd9rRn3BlyQznd/CAxrvYMDJU9PgRZmoi96qWRO+JanuePRK2
+	oTDkFz5AZqBLuTsmsY2irrGBjefrj1+kWSAG6gYdakXQNtpnACXPeuEVOQ2m5MSEobqrun8nYWd
+	9FzcLNecRp9Y7xZGhXT3W+WWV2srPuQGUok5Mr27Wcge3o9ZwIuZDvPtPOWybfVfGi0mGcBurDU
+	ZPPq7uikWk7xRDTFknUuca/ndv07GzflZ3pVYFG62qy8gRjyejToftKQYowD0c5nr2oefybuXPi
+	BwH1KBKaJHfosiH/XM4s/ZWT5zAVniWnJvddEVoF0aNCUdv+DmOdvislLJdVM3F6tbN653Pz+R/
+	gRWqN3Hg2DEcohMjzw4VvbRF8C34ON1HcXPtyKA1IrI8it9it3q9m+ffD1ffwIuCxcLE3SoyWQs
+	jXCfGned+qLRfoupLAhtr0Ec2wpARLKUZx+1w/h7Jy9EvEfw05E/2axh9O
+X-Received: by 2002:a0c:ea82:0:b0:8ca:b44:ebf2 with SMTP id 6a1803df08f44-8cee6290de3mr5725876d6.33.1780601479849;
+        Thu, 04 Jun 2026 12:31:19 -0700 (PDT)
+Received: from Fedora43-SELinux ([144.51.8.27])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8cecd06b231sm60992606d6.33.2026.06.04.12.31.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Jun 2026 12:31:19 -0700 (PDT)
+From: James Carter <jwcart2@gmail.com>
+To: selinux@vger.kernel.org
+Cc: James Carter <jwcart2@gmail.com>
+Subject: [PATCH] secilc/secil2tree: Test for stdout rather than stdin
+Date: Thu,  4 Jun 2026 15:31:05 -0400
+Message-ID: <20260604193105.56300-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260604191727.52013-1-jwcart2@gmail.com>
-In-Reply-To: <20260604191727.52013-1-jwcart2@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 4 Jun 2026 15:18:47 -0400
-X-Gm-Features: AVHnY4J9MNjtGd4wH_-s-Qg_p4gRRXGdqNU5zz9SKFu-W-ZOKaqIIiRdku73Mcc
-Message-ID: <CAEjxPJ6W9WpDmy-=eWx97OTpOdGyc5ypC8ODUEiOu8GE=9HJ+A@mail.gmail.com>
-Subject: Re: [PATCH v2] libsepol/cil: Add check for too large of file size
-To: James Carter <jwcart2@gmail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Thu, Jun 4, 2026 at 3:17=E2=80=AFPM James Carter <jwcart2@gmail.com> wro=
-te:
->
-> In cil_add_file() add a check for a file size that is too large.
->
-> Signed-off-by: James Carter <jwcart2@gmail.com>
+When exiting there was a check "file != stdin" to avoid calling
+fclose on it, but that check should have been for stdout.
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Check that file is not pointing to stdout before closing it.
 
-> ---
-> v2: Add '\n' to end of log message
->
->  libsepol/cil/src/cil.c | 5 +++++
->  1 file changed, 5 insertions(+)
->
-> diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
-> index 83377821..18b98fe2 100644
-> --- a/libsepol/cil/src/cil.c
-> +++ b/libsepol/cil/src/cil.c
-> @@ -549,6 +549,11 @@ int cil_add_file(cil_db_t *db, const char *name, con=
-st char *data, size_t size)
->
->         cil_log(CIL_INFO, "Parsing %s\n", name);
->
-> +       if (size > SIZE_MAX - 2) {
-> +               cil_log(CIL_ERR, "File size is too large\n");
-> +               return SEPOL_ERR;
-> +       }
-> +
->         buffer =3D cil_malloc(size + 2);
->         memcpy(buffer, data, size);
->         memset(buffer + size, 0, 2);
-> --
-> 2.54.0
->
->
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ secilc/secil2tree.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/secilc/secil2tree.c b/secilc/secil2tree.c
+index aae5f998..dc12490d 100644
+--- a/secilc/secil2tree.c
++++ b/secilc/secil2tree.c
+@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
+ 	}
+ 
+ exit:
+-	if (file != NULL && file != stdin) {
++	if (file != NULL && file != stdout) {
+ 		fclose(file);
+ 	}
+ 	free(buffer);
+-- 
+2.54.0
+
