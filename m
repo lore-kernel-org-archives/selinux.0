@@ -1,66 +1,66 @@
-Received: from mail-qv1-f45.google.com (mail-qv1-f45.google.com [209.85.219.45])
+Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD3BA3C13E7
-	for <selinux@vger.kernel.org>; Thu,  4 Jun 2026 19:31:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54C833D903C
+	for <selinux@vger.kernel.org>; Thu,  4 Jun 2026 20:12:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780601482; cv=none; b=KdkMV1VPiaP6nWIEvVKnOc14mVt6SYUsY6VrXvak1T353z0zJju1MHQ2k+oTAc45PqjxoDbUeO8hR6+xnufjBlNmUUdz3w5meRHqMUH0Qi2/FHffHPSHu0MrZfzemGewsRiwTdPub+EBiJrK44nVX19qtoTK/zzGy1LV+AlCfbE=
+	t=1780603967; cv=none; b=jLWB13PbgQ6HpTcLrnbdr21Omr7ojG/WfyN3LXMmnBmHdCExHT0jIWf3VCNCpFX7l6Dcdw6udKlSJJ+H9DB1LHUiR2ABKKL28eyDPW0Glhuy0OT9OB0zgCXNo2cJof5YUU0RqIB+5r0IBdnhudhXHVS1K+PIPuswargFvh4Ppwc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780601482; c=relaxed/simple;
-	bh=ff2b6uDnbTLhIuCInyVfZqKpyr+8u4XSlAGqlDbuZoM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=RWtSy0QJP0ngn58YevmzjCIiwqgroUlTS20eT/XmSTffmvAuWVn/cy3p5xf1cQ4EWqZM3jyWnuN/DjBDdLruTjQuvWUu286CP7kH668hChAgPDLFQ+mOvMnC2Tnd67+bXaMZ21OkcennsKlrtvExehNJOUBGyQvoQuaHj6Xt+T4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IlYJVfLX; arc=none smtp.client-ip=209.85.219.45
+	s=arc-20240116; t=1780603967; c=relaxed/simple;
+	bh=wm6ccKxv6LkAgeRCOgyRIT4mh4Cw+JtyimC33B01K5c=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=iCfGh42L9e3gDjjPkynkxI9AThNmsQ59S8P0aro8eP/JUgvla8qdhQUZzafQC0XkGE2n2pSZe+lJoVg76mX/CAQl9oEY0zDrb2/ekEgPWRLxlGWdxHVoMZwjckCUXn3Y5w7OrenS8uCg0Gya3jqYob21D9qhXi4JZhi/8FNzM4s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oCfZF15m; arc=none smtp.client-ip=209.85.222.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IlYJVfLX"
-Received: by mail-qv1-f45.google.com with SMTP id 6a1803df08f44-8ccf6a63a45so12053576d6.3
-        for <selinux@vger.kernel.org>; Thu, 04 Jun 2026 12:31:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oCfZF15m"
+Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-91578122305so183093885a.0
+        for <selinux@vger.kernel.org>; Thu, 04 Jun 2026 13:12:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780601480; x=1781206280; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780603963; x=1781208763; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=c3DKuYqnXLqqXyIMug8mgm83EqplGlVWLlJD+exBi7o=;
-        b=IlYJVfLXuWrJTRLfTIPORLkmq/klz7qvzjYPf048gB7ttnK1++MCjaYW+8oL+i282f
-         +H2cTTc1BCVrpNr45tWFDTExr3dmoajFIv4pvJ2l0Y3APoYX3pcMRV523IhIEajBPtCM
-         w9xPPDbowq5C4Fpp5RXuuVgQCiYYvEPv1wARGVf1ZkizaknPi1qWUrFsNwExvGSJQ/Z0
-         ZN/GJk+wJE7Sw4QjA4u9hpKmMJZGs5rtSUXVwLbIyxp8JRJagQ8dM+VRsdOQL9rSXSVL
-         fOcV19fe5nDjDaGY+tdu+4pPryWr200HwmBcPypAB4uxofmvrXivFfM55xzusrdOAMU6
-         6+7g==
+        bh=peRkZa8Mkalv+uVNdPLlF1Kq7vEaO7KhdptPz5sS4Vs=;
+        b=oCfZF15mXsrsZ30XQHqvCcYI6WmgXauZhfrtRTKXXFE38gX8ZPt6BOZZyv+mekRk1u
+         o2WaUMRdYHwPbJXvKvWX/4mqnwZRSGaVdZ+gPXxRL/+YiOpqXoZYfiIoIKvdj1qHmGT7
+         K/IjP9HSMRvo9mhMQaFaNq3gN6WqSsvOpt63H1qENj3ZchMh64Q3tg9sBI5sxhaYrhfi
+         GOmGrIicLIqasBzdavuaARpxkBezFaJQPGZ3D8N8L71NsIQDz+eDD1qoDRaTp1sdz7pd
+         YlgIFtuTXtAAGHAVeYSwlTx5gadjpg+hRJBIK1pY32kRAVekLVAGC2J2ZOiPhxxpWslB
+         hbdA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780601480; x=1781206280;
+        d=1e100.net; s=20251104; t=1780603963; x=1781208763;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=c3DKuYqnXLqqXyIMug8mgm83EqplGlVWLlJD+exBi7o=;
-        b=aIsMarPH0fJIPjF0P6yHDumZv0h+1DEfyDhjV7HVqBBma3ovTZsdFxlDzGyyr2qgnF
-         Txx7hbsD/V3jTL4jn0Hcnd/1MK6Y1XvbvMrdrTnJXrAvxVEr3JDEdSsSxUIDqmb3hvVx
-         8lWa/OJgMFZCV2XS93gsgxP4Xnb4y8iypRW2mlejnSZu07v0FCRWYWqmIoWywbiZaVB0
-         TCCYvaL4B8nWrs90g1jgbHn0joxpqVKecwgUy1WPT0on9Jy2rKExcqnk8byh2rvJOIRB
-         ToUT2fKUp3eGXPTzS5qOrZkztvogBb+oLTlPGFA2EOpTJ/1Gb1cmDR8fp22RkEJsXs/F
-         zo0Q==
-X-Gm-Message-State: AOJu0YwK41mKgqD101/31rGqyJRL1xj6T7rxE8OgnZks2p6PO3B7cLMm
-	SaWT3D4oA84yQ5lbhci/boi1uVHF6hPU3l1h3pmjjXMP1oj+HZESRfR1DtIKUA==
-X-Gm-Gg: Acq92OHOu+pT1LTdv+pd9rRn3BlyQznd/CAxrvYMDJU9PgRZmoi96qWRO+JanuePRK2
-	oTDkFz5AZqBLuTsmsY2irrGBjefrj1+kWSAG6gYdakXQNtpnACXPeuEVOQ2m5MSEobqrun8nYWd
-	9FzcLNecRp9Y7xZGhXT3W+WWV2srPuQGUok5Mr27Wcge3o9ZwIuZDvPtPOWybfVfGi0mGcBurDU
-	ZPPq7uikWk7xRDTFknUuca/ndv07GzflZ3pVYFG62qy8gRjyejToftKQYowD0c5nr2oefybuXPi
-	BwH1KBKaJHfosiH/XM4s/ZWT5zAVniWnJvddEVoF0aNCUdv+DmOdvislLJdVM3F6tbN653Pz+R/
-	gRWqN3Hg2DEcohMjzw4VvbRF8C34ON1HcXPtyKA1IrI8it9it3q9m+ffD1ffwIuCxcLE3SoyWQs
-	jXCfGned+qLRfoupLAhtr0Ec2wpARLKUZx+1w/h7Jy9EvEfw05E/2axh9O
-X-Received: by 2002:a0c:ea82:0:b0:8ca:b44:ebf2 with SMTP id 6a1803df08f44-8cee6290de3mr5725876d6.33.1780601479849;
-        Thu, 04 Jun 2026 12:31:19 -0700 (PDT)
+        bh=peRkZa8Mkalv+uVNdPLlF1Kq7vEaO7KhdptPz5sS4Vs=;
+        b=QS2SyIaeJE5qWRe2jCYOr91umuk3lrLDSGJjvzawmWEOxuS5BxB9eLCMj/V4bgzqSM
+         k86jyy3ANg6u5CTI52OYoa0UmozzyvZEZoqxH0P5HNwc/mCN3Cj+4qPkuRuPbASdhzMp
+         NMCxb7w7nG6nDiYiQUgxy5sxvzKhOgcyo9IHFlXkboj7FGEDwXKC2c35MO2e+QYnKYKZ
+         XMB/855m6jrIDuk9hfhegdazU4RqcvZjgIowmoKY/dkhxJqF6szek8O6jFCK/T8WFP4G
+         bO7PkEyxStcscwjOtoKyaQxfQrGJhaF527WhHQ4okkbtPSpb9RKJ9Bz01MqbFQuSDwYg
+         S5SQ==
+X-Gm-Message-State: AOJu0Ywfmsjz3W1gAwl1r0cIW65f0wggOsSlNvirXH5Krl/whTtOb01z
+	arNvUCzeVRsxr8jmqYO+tSym6f1QChzIAef+WRvvJc7yKT8A7X8X9Qabye6ixA==
+X-Gm-Gg: Acq92OEzJlpNhqEt4pPh7WhsjlmYTs5kU7kcLkQBOn0AhoGrWWVYES1cXYhMmGwzzXx
+	FIj0CvUEYzhBELZxt9p4NY7LICisFiwaixrKDjYvkaJMd48idw15dgOTMB4TQDref2pa/0kHDtI
+	eBnk16YTvyADQceahT+7cflRjwnlVWZvkTHx49UfUtIrBkVwO3gX7CENXuhlmaZZejWmNIDxkak
+	co6lYlcIYHVBkhc5HTe8M74rfhX5laTNgDLSwi0N720E/A+KDzycAD+vnJiy7yI65e3rj4tgmpu
+	r9Xe3Xp8VYbTmapGR1icgevBelDMGtZNfy2j336lJfPYhQxD9Gy3tNyzFOhHXYu7f2eEHY+VWyj
+	SwZ/B4QWl2oqK5KJ/2VcPyOhZThw67yZfXHU75xHD24L7maPAkqbWj0eQjPOIIt8XY6ICdfmLlc
+	dQuc+G2nJuKsTb0CUb6v6zVmKrrrX46jTR1mFFdg0HgyeoKdYJgO812Xs08MEeyggwzz0=
+X-Received: by 2002:a05:620a:6011:b0:915:9bc2:8019 with SMTP id af79cd13be357-915a9dcbc87mr126013585a.53.1780603962871;
+        Thu, 04 Jun 2026 13:12:42 -0700 (PDT)
 Received: from Fedora43-SELinux ([144.51.8.27])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8cecd06b231sm60992606d6.33.2026.06.04.12.31.18
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9158a009fe7sm664981285a.8.2026.06.04.13.12.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Jun 2026 12:31:19 -0700 (PDT)
+        Thu, 04 Jun 2026 13:12:42 -0700 (PDT)
 From: James Carter <jwcart2@gmail.com>
 To: selinux@vger.kernel.org
 Cc: James Carter <jwcart2@gmail.com>
-Subject: [PATCH] secilc/secil2tree: Test for stdout rather than stdin
-Date: Thu,  4 Jun 2026 15:31:05 -0400
-Message-ID: <20260604193105.56300-1-jwcart2@gmail.com>
+Subject: [PATCH] libsepol: Ensure dst gets set when copying range transitions
+Date: Thu,  4 Jun 2026 16:12:28 -0400
+Message-ID: <20260604201228.61342-1-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -70,29 +70,37 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-When exiting there was a check "file != stdin" to avoid calling
-fclose on it, but that check should have been for stdout.
+If there are no range transition rules or an error occurs when
+malloc'ing the first rule, dst will never get set.
 
-Check that file is not pointing to stdout before closing it.
+Set dst to NULL immiediately and when exiting upon an error after
+the range transition rule list has been destroyed.
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- secilc/secil2tree.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ libsepol/src/link.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/secilc/secil2tree.c b/secilc/secil2tree.c
-index aae5f998..dc12490d 100644
---- a/secilc/secil2tree.c
-+++ b/secilc/secil2tree.c
-@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
- 	}
+diff --git a/libsepol/src/link.c b/libsepol/src/link.c
+index 004bb61a..70742fc8 100644
+--- a/libsepol/src/link.c
++++ b/libsepol/src/link.c
+@@ -1498,6 +1498,7 @@ static int copy_range_trans_list(range_trans_rule_t *rules,
+ {
+ 	range_trans_rule_t *rule, *new_rule = NULL;
  
- exit:
--	if (file != NULL && file != stdin) {
-+	if (file != NULL && file != stdout) {
- 		fclose(file);
- 	}
- 	free(buffer);
++	*dst = NULL;
+ 	for (rule = rules; rule; rule = rule->next) {
+ 		new_rule = (range_trans_rule_t *)malloc(
+ 			sizeof(range_trans_rule_t));
+@@ -1528,6 +1529,7 @@ static int copy_range_trans_list(range_trans_rule_t *rules,
+ cleanup:
+ 	ERR(state->handle, "Out of memory!");
+ 	range_trans_rule_list_destroy(new_rule);
++	*dst = NULL;
+ 	return -1;
+ }
+ 
 -- 
 2.54.0
 
