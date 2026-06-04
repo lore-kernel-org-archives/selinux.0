@@ -1,61 +1,61 @@
-Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
+Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6C8935DA75
-	for <selinux@vger.kernel.org>; Thu,  4 Jun 2026 17:19:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 554B3495504
+	for <selinux@vger.kernel.org>; Thu,  4 Jun 2026 17:20:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780593570; cv=none; b=MjifZC+R/32xW/bwnWPt50E2CnLREIGmokttVJ2307Qjg/8s3dKyTnM6pOYUpBdSuQgBATkbS8NblJea1clnXqNuu4/04G+V3e+Nez+0ZEd4gedaM3d5gka5cFL9jnNTdSz9f5o+9ZevVoW63x+m8oBuofYrfg066sv9wIWd1eQ=
+	t=1780593656; cv=none; b=kQyvXQ+IyCyAFPdCnJqxZVOE8KmLnAkQAuMjZMlTOAtxgj1sepjraPZXS9CFOGGJPyJPvRMXH3r0fz1saXSMD1qcC//ZDWFAgt61FH1+0d8U++0TiwKTzPZgNv0ONNjnbr4BEWZVLKaBavqaphqHkfLotMj1KTHqWFLA4B83Jwc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780593570; c=relaxed/simple;
-	bh=8WZqhHc72V+BlWTqgTLgL2GH3c39upU8/LU9G3+e7ac=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fL0SUaAFQx1bCEbmLXDp4i+RDP5GAksaAwGEdJHCXz91eK1+o0kvGUSO3TB80THxMgInSHbixTKBHsIDXr/nBD5y94RYwpRoPPw61YdgAE0mA8VB0FIeSbYsuoBh1vhfO/4uvoX8xZ6+7C9bqaLDE8dZOxtH7/reHcdavhANbKc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VGLr9RDn; arc=none smtp.client-ip=209.85.160.175
+	s=arc-20240116; t=1780593656; c=relaxed/simple;
+	bh=Da2oVOtj4kDrOVBQqN7nan4sVoTS+XLAT7I8gJ061g8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KHURRTg4M22Vx9S49YTqwWf9TO0DPtSkylsFofxtZkVAyHbc7jSddiwcfr5NqeAFZV+MGC1XIJPFnIIGH9L/KgMpRw6DbGdBAyY09UCOlPO9/SU6ffpIqpHKvu1CCvQ+b5QvSwOK5ZcBQ4U97J7DerMmdCcpmyCN5L8h5e909zw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AwfgH278; arc=none smtp.client-ip=209.85.222.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VGLr9RDn"
-Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-516d0db9372so7476921cf.2
-        for <selinux@vger.kernel.org>; Thu, 04 Jun 2026 10:19:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AwfgH278"
+Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-9157b949fc7so130651185a.3
+        for <selinux@vger.kernel.org>; Thu, 04 Jun 2026 10:20:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780593568; x=1781198368; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780593654; x=1781198454; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=wyk0OmR00kT+RftFACgpMg6UrXK6dN15KHMWZ0gUVAc=;
-        b=VGLr9RDn4JnjB+F9UjSo6R05el7pxBvcSZCKFU7U637FsZd2mEi7o4W4HMrA77F2iJ
-         wjNrJKUiyk4DgGfeSGc/0m+V5Q7R/V3zbQIi6qjoqkxjJ2+MIeftxUAs+FlAxtPrXMLl
-         ky82LAn5s0vESGJyywDQo8URExqFIyrM3Lk5gGUwri0+LlBuUdQZjHC+gJ3ZjpHUqWMp
-         uqSrZWmmAX8ZBNraIFAdYm6uIrVv6vrRgnWxN2HakUMmbCE7JQR7UNFAJrrXhl4WEAWb
-         kSKzRZzIE7Y5Lz86XDwMzsJbo+cJqxMwdFta+K2/oYYkVkTeNjFcgPxgNUuWOHXjTo2G
-         nxdA==
+        bh=tfJrOzpiT5OX6edpJSuLiTYbzWVzPfqkFYDlgRZSvz0=;
+        b=AwfgH278MLdcz4x8mE5uOxtLYVsssuppdft2AMfmzIDhJ8qaK608BzQ5kePf7k3do7
+         +fp4O991VcxpdjOX7/ZI7a1fatrhn7TvYiiCTWwFc3V8dqRvz3xazxOZrFcA375ecrUt
+         L7FofJyKgc0KgG+hMAHJZooU70tyLX8j1cbtwBjMhn6CXIQjiyKN9S0AFJP/HfMX/GgB
+         B5YyHpeNwylVGaCIqQsNF5GsYmpMaYbZtn/vKX33MIsl88j+YL4d46CZ8R0xsIaHvayM
+         /4paHNzIgx36CV6yysX/M25DJhv9L8XF03icNSGAPGMXUb+2ckzCP/+UF0Gagm5wz+vi
+         VAVg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780593568; x=1781198368;
+        d=1e100.net; s=20251104; t=1780593654; x=1781198454;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=wyk0OmR00kT+RftFACgpMg6UrXK6dN15KHMWZ0gUVAc=;
-        b=mwveZYXM0kId70d2o9fwG22vyYTLCDvv3e3dNHGZU7KUVbe0Y9aNoG+hOPH9n0xqMp
-         ctr2JJrTAolccjQhgo5nS+JqnwKU3Jpv5c1BAunKysk4jlieu1UuL5dfpXOnJlLEaGKx
-         r5Fe5io7BcOxPe9FgLH8NGDfUr3F1iixz0kNS5TrfAmXpDVfohpEhpvgvPCPCbFW4mqe
-         y2SiZteFll43yAu3+r10ZAM8SR5ibf9yG3jTjP5bHyrAzYWZvRO9JieEcLmq/+btUumG
-         Gx1pizlOJ5spXuHuBcsdLSRAtvzo1ABWS7lHEKM8oE37gLRhOiUhnsPSfNNSBaniqcIQ
-         +ThQ==
-X-Gm-Message-State: AOJu0Yxs2VKnP6Uwcy/damDAM1HOCDAC2GToSQGkv8d2NBj1CaMHEdV3
-	JsaKrQZE5KUqdhDmqbBJkEPYLGfmEAeBlXnS3FddzSSsyWVWvTRkLuMJUU6iXQ==
-X-Gm-Gg: Acq92OFAzoTBQoFk2mryk4qz8l6r+sydqmlbe8ber0a184T1pv5OcOlNk7TSIiQO7M0
-	fQfQgEb4UBPF1aZ/UU5ukjg+9nfrN8mYerAXouU/ni5jhAySp3noc1+PwdvieFkXkaHOa/Yzh15
-	8Y7aly5sZO6D9U8N1tS4jsMmiWbpr8ctsD0SdP7M5+L/7SMgLAe2kprGxxx0pqKxrYgV3oj57kW
-	axbWGBkLzjY0Gce0gSG/V5xLUhW9tIsbLM3hNLEY7uoxRBs9HNO/UkDBwur6Lu8kcIr+pQT4CW7
-	xZYt2TjgjtVQq3ornqkxlPSLYaHAuk8rRpVwpHoWWeWJU0pm5jjOpBJGccrscvCaveFWkT7sFQM
-	5STgfft+Fy/ZBptV9HgdIcBlk+kkGPzMeNBAvqH2xDy4b9Bzt0AC93scYGfVH+v7GSPL1IR65RN
-	c3HTUaTDoOXpOwu7eqhxAGLIJ0/BJcyFtHKqdIYeMVDg2OIPvUo1a3Diijk7D9BNYiJzrPgrqIB
-	AGSHcS/wsUYtuyIYEZe0lgw8JxQNBUcrh3UZQ==
-X-Received: by 2002:a05:622a:17c7:b0:510:1325:58b9 with SMTP id d75a77b69052e-5177871fe36mr122486231cf.41.1780593567917;
-        Thu, 04 Jun 2026 10:19:27 -0700 (PDT)
+        bh=tfJrOzpiT5OX6edpJSuLiTYbzWVzPfqkFYDlgRZSvz0=;
+        b=qVNBy46KU6afAfDbYePa40V/mbML6WBJ5pZFRHhFxiDwAvcNx4AX7K0ZiTE3Iy0lWP
+         rhoNvxxIrSkdh1x0WJvbWuxQM2XSPLUViUO61wbd2ODiB5AoPrx15J5x40isG5gsG/bB
+         17UVD9zFkm99FJ0KMJgVeF1nT62Cu5HEYhuPK1/pDZMI+cGnAGGE66hmEPMiQOBepZQ0
+         kuTvErdNEvvSnwiLWP5X0kz7DaOecU3W2sYqP4bTg+TcBQpX0b113my3espyWOLI3UbW
+         nW7cHaYuiGpOuYYypUf/oHCGJd/clvt8nO042S5b2MydFxquTNenaCKOfH/ExtJ7qUEo
+         hyRw==
+X-Gm-Message-State: AOJu0YwmShdMexwkzbJMb2y/pQQUV+QrWvoNxPps2yvEci066sCGbnXh
+	3CrN7mPDstuxn3zGHldY9mNrv528Q0F8EbuF3Nt5MWdimteIlZbfs8oMUEoV5Q==
+X-Gm-Gg: Acq92OEOe9apLGSW9vCRdUDkU2nN9YN9P61WBWLRQ4O7X3RfPsdWaPaBmshS1BABJ+Y
+	Gz43sBMw+KbyO9oLmCSQpwtcTMzBhDj3k9bBtIvGBhj6qEe3h1mOzjaKclS2WlWP0XFMt0JhIeY
+	/1QDNt8A8+s+aFlyWbKxGfrJwQGvMBhDmtEE5KFk6gtDGfzuuSGzKwpmsbB3uSjHAgBRT+LvOoM
+	V0xPT4wSxPSGSW+RglHKCfzhBlJRs4HYk/tVrLswTSEm1JDWR5+PjdHrqqymCJ0HoRvxZ7H7Sx3
+	DuzNLB8D5OjCf3EAsjlz9ohrbdtR+41srdgBfDhpGITaJB2jb8lF8PyAWNctgWrvSJe3IYS4VOB
+	vVT0L6SoZleMojosCA8CypWV396y/MVxJp7YGVhJFQNfAfXTvBgcrMvRy3Z2UTZ08y2mHISJ7rz
+	XhB/Qj4c+YbsEda2QDVotiqvLcWvqpF3NSKv8X8GTq39RfAbm3Sc4RcvpEUPJ9tCJMbqG4CQZ/t
+	nkjw6WwHbLU9oP/Q8SZdvfSTyOwCxgeYWSfg0htbmmuuW6M
+X-Received: by 2002:a05:620a:28c5:b0:915:a14a:6837 with SMTP id af79cd13be357-915a9d8891emr5399885a.35.1780593654152;
+        Thu, 04 Jun 2026 10:20:54 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-51775c08234sm56902601cf.6.2026.06.04.10.19.27
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9158a381560sm645967485a.28.2026.06.04.10.20.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Jun 2026 10:19:27 -0700 (PDT)
+        Thu, 04 Jun 2026 10:20:53 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -64,9 +64,9 @@ Cc: jwcart2@gmail.com,
 	paul@paul-moore.com,
 	perfinion@gentoo.org,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] libselinux: selabel_close: only call func_close if set
-Date: Thu,  4 Jun 2026 13:19:12 -0400
-Message-ID: <20260604171912.263475-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH] libselinux: audit2why: clear static variables on init failure
+Date: Thu,  4 Jun 2026 13:20:02 -0400
+Message-ID: <20260604172002.263518-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -76,28 +76,36 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-func_close is assigned by the init handlers and may be NULL
-on an error return from an init handler prior to setting it.
+Clear the boollist and avc after freeing them to avoid potential UAF
+on a subsequent call.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libselinux/src/label.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ libselinux/src/audit2why.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/libselinux/src/label.c b/libselinux/src/label.c
-index ad40440c..dcbd60ab 100644
---- a/libselinux/src/label.c
-+++ b/libselinux/src/label.c
-@@ -394,7 +394,8 @@ void selabel_close(struct selabel_handle *rec)
- {
- 	if (rec->digest)
- 		selabel_digest_fini(rec->digest);
--	rec->func_close(rec);
-+	if (rec->func_close)
-+		rec->func_close(rec);
- 	free(rec->spec_file);
- 	free(rec);
- }
+diff --git a/libselinux/src/audit2why.c b/libselinux/src/audit2why.c
+index 4e3fdc1c..2275ffbd 100644
+--- a/libselinux/src/audit2why.c
++++ b/libselinux/src/audit2why.c
+@@ -275,14 +275,15 @@ static int __policy_init(const char *init_path)
+ 	return 0;
+ 
+ err:
+-	if (boollist)
+-		free(boollist);
++	free(boollist);
++	boollist = NULL;
+ 	if (avc) {
+ 		if (avc->handle)
+ 			sepol_handle_destroy(avc->handle);
+ 		if (avc->policydb)
+ 			sepol_policydb_free(avc->policydb);
+ 		free(avc);
++		avc = NULL;
+ 	}
+ 	if (pf)
+ 		sepol_policy_file_free(pf);
 -- 
 2.54.0
 
