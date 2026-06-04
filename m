@@ -1,161 +1,107 @@
-Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
+Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E48E63B95F8
-	for <selinux@vger.kernel.org>; Thu,  4 Jun 2026 16:42:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.47
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780591335; cv=pass; b=RXt5ipQ6ZdKCXz0+NM8tg2Y+jN3M4wGzdvckTtjHBcE+1iK6b7z1dEhSi8qtIfgYVoAtYRqs2OHPPjCCnlRgQvXrMdikljyzoxd8TUeoYvhB7lyQ+9vnLHMQ0A2BFQulzYGNMMjXQ1vZMvI5QUcLWg7kByiVKa1im/tEqX8sTeo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780591335; c=relaxed/simple;
-	bh=aDte4MtL46wDaXGGHp9mZ+9w+FAWmWNfOFHbElIvfyw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mgxMYb4k0E8wHKiYFMO5Y0udKH3TK/Bbbsyx1PgQFyLiRNUFKuG3p+g50XZvbwCk3tw5aoSfY5/t7E9h0ZHR+nmrkI/Z29kfVkwCpVKCeV3xJRama9XS/R2gTKMQqlXyx8BkzVTMOWTWvwQ0EOpVShliZZ2t8jhZV94B7NMiqlE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PdvPxqVW; arc=pass smtp.client-ip=209.85.216.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D23133A4F36
+	for <selinux@vger.kernel.org>; Thu,  4 Jun 2026 17:18:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.178
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780593485; cv=none; b=OTNFh8gghY8hI3GahViGUO+0pFnuXIuoRf2cFYz4lsbFDolEwLFRc3YsGmhGV0Jw3rFkC7yIB/uGoMPAdDowtZp3YCN7trUlpPxbN867aea3iPT+2WjVy8z5RC16/sK3OcsDyoVwpPqkmKzrPRe8N5BZmnDqGBiwebv6W0vMCgw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780593485; c=relaxed/simple;
+	bh=McfoVbZ/utKPkPUJItb9OmxCB9231XrRA0w/2eYmmMA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=bRVDDIUJ/7iY07j9FhVp/O7FFzPWZphi5cQc0JrDrHEo68Dz6Tc06huEAPzUVfxgMw0KTixLqquofTDOxRNtVr1aW94AAMnuh8xBqrqIzVy18lVn4LglMWuCZgEpWPE9gRPbNlhivtN+qyxGuRWXqPY12w3IxBNM79tRfsBcV1w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RTm6S/6A; arc=none smtp.client-ip=209.85.222.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PdvPxqVW"
-Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-36bb3551f6eso821051a91.1
-        for <selinux@vger.kernel.org>; Thu, 04 Jun 2026 09:42:13 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780591333; cv=none;
-        d=google.com; s=arc-20240605;
-        b=HCDvgO75EDuqr9XHpPF/DbGywZiaC0oMh+H6zyTEcC4C6GzTG5d5OusFox9XuxzoRU
-         xOFofWB2ZE3mCinbFGuEymjGQ6eY49lR2UIDlylt7WkNieqabsoEIwp2xuSQZrxopoLQ
-         BoeLNsCqNTVEGn9HoHaZuA0h42D6+cBRJFcPq4c3SN/qsVLSCYZ4m6EpwRo0DeohQXa0
-         rOWBqwv7VCJtiZBHFUrwolnCVHmSDRjjAI6jPMoKsm9n2bkZi+hRNFjOrvE88tcQpxgU
-         QVUM3tQYPaX7KGjhGkdQEx0JgUHNSYYYLpBQ2l4Xt7O5d7POH/M+cRVEQ9NaATbRQ8rZ
-         HtEg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=BbIYBJaF9RYjxUbt/fa3RN2+tDBOX6SmtIyr0OlHsew=;
-        fh=FsXghBnyoYbEc42Idnie0oh5A6i9FUng5ntOLhqXIRs=;
-        b=C9eiH2gVG99PGBzOcB+ScqrnX8QzkAvXrFj1bDzViy/kJRsjh+qVIAuc0x5UPuWt+v
-         JasW2qKQJzikkr9s2L27qvOMJ5RUK/NLdxz2msdX4w6vDIbMp/uqxyzP0ikJkzgpRJRP
-         DLj/CA7p6GrUYEFmIceHqr+0Dg0zr7ZPRs9NP4HV10bexymBfEBxUJqQ5YYEpAY06sRA
-         Vtwnpw1AXxDNCm7gAMa7HuP2mNGRL8yNIFSFmqcnB88oHjcXEhCZoLVZRklCFOX/ByNm
-         NGQkrJaKlS5ZpUreaiSVG7FZXaorlUwIhi6pIaFrRlhbP7MMlHLW7NOOMOmOddBSYSJo
-         u8Tw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RTm6S/6A"
+Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-9159f631656so106217185a.1
+        for <selinux@vger.kernel.org>; Thu, 04 Jun 2026 10:18:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780591333; x=1781196133; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=BbIYBJaF9RYjxUbt/fa3RN2+tDBOX6SmtIyr0OlHsew=;
-        b=PdvPxqVWUi/IEF9SlCjbql76PF90yAQ0dk+TZACQbOxxgTgT0c4DCppVW4T567jSGb
-         ACYl97dDvNCjbBHPJW0aGsXkOtBHTwx4Adh0O6Ky3UYYrSfwrE01ALDjh87jJrHDuzz8
-         YjQAqYNRCzOw7DWgJ73cCQZY4TahHdha0B9F0pqjTw0aVEz2VZVc3jgNnvX8TMSGjfHS
-         Da4/ft6h5eyfaj20W5HgByeLzkXOflnHAsbvpfTmPgb5YPHJ/MOn25aPV9PBCRXiAwaH
-         c4ZfJxGzSjqO3764cueKN5vFieCbjo8lNyCD4X26gNViDG02C6gRzifOK6/h5n4ntlRL
-         DKyA==
+        d=gmail.com; s=20251104; t=1780593483; x=1781198283; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=5k0OVHpIE7+1QeSPVZYQBGYoPdvEeWN/5NsDAzUBpnI=;
+        b=RTm6S/6AAN102v5atOKvSkdLQhAgqofYS0ycJkEpXZCVllGPdZ8YBc3jIyskRYIbkY
+         XQ2+KtYh4r7nh05fjOCm0YKEdPlGsfzpgfG4k2uCwhAHX4V/hEWjoWz6vg86HYaHFyt2
+         7QYsp+1bxx8t66NP7U25/rp5+XghJNRQK1bNQEI/xgTeimK/VyzNpxXCXB561CW2b9kp
+         odwTp8sVV8uu9j4lILkmmlkjZ1heL9QYiISzrmeHYRrhVdIAHLR/mUE1h89ox0FH3NAP
+         WFCW6PnAaebs4Unws3v4uFQC0PFREbH95P8EnzgknhA1S1kCGfxI3RtHglCaobswieBV
+         wZYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780591333; x=1781196133;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=BbIYBJaF9RYjxUbt/fa3RN2+tDBOX6SmtIyr0OlHsew=;
-        b=b0sVmH2sOvwo5ZbgpJm0X30ssDaOn7V0LDm8qspiWRrmfKMPniUu2NkO4YbRZjOmqV
-         pR05snNJDyzO7FS0oYHCdpwNGFbFtu1IsOsrmRGOesDlWWPu8+z0I3eZ5+KWBheDX0a0
-         tEIn28+eegI4lt7sxfRXuTjSNclDsQYa6aFoEgSaf8wagB64QJG4aPdphGfVA2JgP+eC
-         RXamzrsxBkuY54QVE0iqgBe5Norj+ekeDLx+qSfO2WVFyu5e/qtws+CxISPUY/+KCBzZ
-         FTiguRTvrmBVwOs+giWVVSZwA9XsnjfKZyq2SAvy4ZpMC7M+JBDjnSfeC/i5tymMy2FQ
-         7FRw==
-X-Gm-Message-State: AOJu0YycHIIUzyFMFVwlLraq43K7kYVgdeBU1c+b3KyUGMZKYUFTxPZ2
-	s8Yq74w9/CR20HUd1VeFbIp2AYCRSlMl+8ywR9kqfmWUb+DN2ABS1U8or9hryYwtT7s8djhgLv4
-	Z6oAd+91+4mLMMuJ43W6omxw8bgWwKuc=
-X-Gm-Gg: Acq92OGTeeR72B8UuyZh9LrrxbA7hy88/W9DT+C13qTuYPK/2Lm1y0cmc40EJBemfOE
-	I2vSvGXyXb/NefLmTZah8McHIAyBuNLGwqGZ1GmfWrDkxhCZvV69IzIP/iO3cdoHrglV9di7R3h
-	yxiAzmfXBSiPjFD5fwL1QzkxZ6i9e9CTi4i5hacXzDArLRcsg+b2P9EMuQ0HaxJtxQti1oyLjlc
-	ZU4jHBDZ85lBupWfgqaJUuXxpvGKFktzjPed+z12o7w6i/M2fWDo9Pckfv9LLmjxEfo+2DI1WK0
-	N+SvW5U1rexgyQ4l9A==
-X-Received: by 2002:a17:90b:2742:b0:36b:bec8:94cf with SMTP id
- 98e67ed59e1d1-36e2f9a2497mr8622023a91.9.1780591333096; Thu, 04 Jun 2026
- 09:42:13 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1780593483; x=1781198283;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5k0OVHpIE7+1QeSPVZYQBGYoPdvEeWN/5NsDAzUBpnI=;
+        b=V2MJldxSkymEo4pwViYpVWIC0Gdp8mNXBCcMxPc1BW2bx/i0ZG9maxmYuFSOnISik0
+         4EUrFxtgUAIpuFtvsck3+0houZC+BZeeBk3TerhiHNzwk51MZTbd+27Na5zr2NWQBdg3
+         9MTMFwL+n8mBsDZWOa/ZbjASB7nsq5W0w2aho4TnK3jAgI8s/1N0Drj30fSnwMbHSKBM
+         NaIcXZn8hstBbzNS04uBRzzx+gMIltmXM1BwkCtZTSHoU3Y9Nj57zZtE31Tdvx/6rrnt
+         84MYpjA6kCCQEohGbZCAeJxkxiVHFwiS7jSIwiauqoWcIOnvCOh0oBEbcN8yLICo+tlf
+         X6jw==
+X-Gm-Message-State: AOJu0YzX3EJ0jC8Tu1/L0jroX7q89oO/wPV4FKL5vehK0GDplszgsIDO
+	TpDpNClQ39k8wB0xYkTaGVixByjpkdWxbBwmzdmHfxqtmi7xKS3j65olf/YobQ==
+X-Gm-Gg: Acq92OE+nWqpQPPlAYK3uRli/Gzq95rHi1Moky62zZOyRmB2mONdTjwbnUM2UqPjRQg
+	9kxcp3pVVxc4pkSuPj6xQYcAVqE202CkQsUHPAZYwWaQV/ESfwS+dMdMUvSbVRAoHQIfeVmsV7d
+	3EuJu/smXBz8O8Ek+XTAY5AzY/UuBEjIh2DB5/skagjkFS2QN2Xw/8FhMGmTLFWCqqxI0ZOmbnE
+	q8myL7e4+U22nHxqtUFWedzeDMKiYE8oZAq4P93eh6ZyxRcdbqTW0FoFysxZJlrjGYLnFcV2RAC
+	Lw7CVu8N9IWREqlnvcmIK2hvIuTGB0LKrL7aUQhyKd3zopQSCI0Ne6bOMOfkYgnRjsRlW0JNorC
+	0BMP85yQPJ0V4bofsuimFZuTpqFAz1lc++tw+QROGBs7bY/AH68HMZ2EFdgq5Oz7fhYtOOy8WpX
+	fw5Ia+tcd1ofkkIgLL1mOzGND/99k40DMkuUGYgKYPEc2LZSZP6XEgzYsD0azcooluuIfUfz/U+
+	x/Ht+t6+nuzKqdtKwsFpXaZkr3ZPVZSSBcI2Q==
+X-Received: by 2002:a05:620a:2552:b0:915:6ce1:3576 with SMTP id af79cd13be357-9159af54744mr667439085a.20.1780593482726;
+        Thu, 04 Jun 2026 10:18:02 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9158a00a4f4sm684478785a.3.2026.06.04.10.18.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Jun 2026 10:18:02 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	paul@paul-moore.com,
+	perfinion@gentoo.org,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] libselinux: fix selinux_status_updated() for MAP_FAILED case
+Date: Thu,  4 Jun 2026 13:17:46 -0400
+Message-ID: <20260604171746.263416-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260604162748.37719-1-jwcart2@gmail.com>
-In-Reply-To: <20260604162748.37719-1-jwcart2@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 4 Jun 2026 12:42:02 -0400
-X-Gm-Features: AVHnY4K-ZDIsxfch-Sr_elfUuxwjwX379JwlCzdrm094GgZvMphOubkdY7D4Xp0
-Message-ID: <CAEjxPJ67ijKe05-YwcbtC0NezqmABTwf+pez7CtHktWa3n93ZA@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/cil: Fix type confusion when writing policy.conf
- from CIL
-To: James Carter <jwcart2@gmail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Thu, Jun 4, 2026 at 12:35=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
-ote:
->
-> The functions __cil_cons_leaf_operand_len() and
-> __cil_cons_leaf_operand_to_string() use the list pointer instead of
-> the item pointer when writing out a list of names in a constraint
-> expression.
->
-> Fix both to use the item pointer when processing a list of names.
->
-> Signed-off-by: James Carter <jwcart2@gmail.com>
+If the status page could not be mapped but the seqno has changed since
+the last call to selinux_status_updated(), we can just update the last
+seqno and return 1/true to reflect that fact.  We must not continue
+further in the function and try to dereference selinux_status.
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ libselinux/src/sestatus.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-> ---
->  libsepol/cil/src/cil_policy.c | 13 ++++++-------
->  1 file changed, 6 insertions(+), 7 deletions(-)
->
-> diff --git a/libsepol/cil/src/cil_policy.c b/libsepol/cil/src/cil_policy.=
-c
-> index b56fbc81..7f20b7b7 100644
-> --- a/libsepol/cil/src/cil_policy.c
-> +++ b/libsepol/cil/src/cil_policy.c
-> @@ -382,12 +382,11 @@ static size_t __cil_cons_leaf_operand_len(struct ci=
-l_db *db,
->         } else if (flavor =3D=3D CIL_LIST) {
->                 len =3D 1; /* "{" */
->                 cil_list_for_each(i1, (struct cil_list *)operand->data) {
-> -                       struct cil_tree_node *node =3D NODE(operand->data=
-);
-> +                       struct cil_tree_node *node =3D NODE(i1->data);
->                         if (node->flavor =3D=3D CIL_USERATTRIBUTE) {
-> -                               len =3D __cil_userattribute_len(db,
-> -                                                             operand->da=
-ta);
-> +                               len =3D __cil_userattribute_len(db, node-=
->data);
->                         } else {
-> -                               len +=3D strlen(DATUM(operand->data)->fqn=
-);
-> +                               len +=3D strlen(DATUM(node->data)->fqn);
->                                 len++; /* " " or "}" */
->                         }
->                 }
-> @@ -554,12 +553,12 @@ static char *__cil_cons_leaf_operand_to_string(stru=
-ct cil_db *db,
->         } else if (flavor =3D=3D CIL_LIST) {
->                 *new++ =3D '{';
->                 cil_list_for_each(i1, (struct cil_list *)operand->data) {
-> -                       struct cil_tree_node *node =3D NODE(operand->data=
-);
-> +                       struct cil_tree_node *node =3D NODE(i1->data);
->                         if (node->flavor =3D=3D CIL_USERATTRIBUTE) {
->                                 new =3D __cil_userattribute_to_string(
-> -                                       db, operand->data, new);
-> +                                       db, node->data, new);
->                         } else {
-> -                               o_str =3D DATUM(operand->data)->fqn;
-> +                               o_str =3D DATUM(node->data)->fqn;
->                                 o_len =3D strlen(o_str);
->                                 memcpy(new, o_str, o_len);
->                                 new +=3D o_len;
-> --
-> 2.54.0
->
->
+diff --git a/libselinux/src/sestatus.c b/libselinux/src/sestatus.c
+index 2022b23d..bb69fe90 100644
+--- a/libselinux/src/sestatus.c
++++ b/libselinux/src/sestatus.c
+@@ -120,6 +120,11 @@ int selinux_status_updated(void)
+ 	if (last_seqno == curr_seqno)
+ 		return 0;
+ 
++	if (selinux_status == MAP_FAILED) {
++		last_seqno = curr_seqno;
++		return 1;
++	}
++
+ 	/* sequence must not be changed during references */
+ 	do {
+ 		enforcing = selinux_status->enforcing;
+-- 
+2.54.0
+
