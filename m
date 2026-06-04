@@ -1,63 +1,63 @@
-Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
+Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D63C947B429
-	for <selinux@vger.kernel.org>; Thu,  4 Jun 2026 12:58:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D52247CC89
+	for <selinux@vger.kernel.org>; Thu,  4 Jun 2026 12:58:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780577907; cv=none; b=aYM2kLyezf8LNug1zMUXuv0Pqw+7gYkcx4P8h/TTK5GNE08qjTyxEAJoHvEUjBV1WX+FwyrmaAKGdG1BXIYoFZWOv76U6O6uoOrtsnwXPGRsHU2cyygRRZR/D/9EtJsBFLcDYSqs+Oyhfky36IeuSXlYphJGmGHPn97XcdwYQRQ=
+	t=1780577907; cv=none; b=ftB2GMoh9y+IcnpiktEN9BUqk8E2edlfAqVeYKep1o5JUYOfMSIhQvbVr7lPUcihDafMWauSk7SWZ6jc5YT/wozzVWn6E9ckesndDqzzS/nRELRpbBRLLDi4joiZZK6/epTb2XlyVazpKbLEV1tVHJpG1RaBQyyHkSyVvpvsf7Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1780577907; c=relaxed/simple;
-	bh=ALhsXcXQYrJA+BQ8cCn7QJq21Qfr6VlMEOPFn+FBolo=;
+	bh=YhmnlQQIfTfDCa7tpucDOCJLcsCh2OYA/hT8rKp2adU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=XCaBApPlayLVGS/l8XkTdL0FP+SHwUPytsCp1vzX8jkuoW0lNkTS+XL31amVpNB6MqK6FhHVGaDXqpm54VbLnDWc26fqTh8JlIajjDLoTudK/bbV65WY7lyI0c8dpMAQBdXRFsSnAlpUEkz6P6UtAqOwkQkVIrSqO8Ajb1Gh2Ns=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OJFXv/RK; arc=none smtp.client-ip=209.85.222.177
+	 MIME-Version; b=RTtiSrKN/+MFffAwzKyQUP1AWlICz1s9pyispgUbQ89LGehqGrKMppdmfyopYvgb4b3CISk9xUz/zzjQ2Qwl6VmTzDPYSuokzzGLwFudAGJ0rm2cHFMooOTU+jcz3LsyWe8BDnfL5rM5HS7DhnfA0+u5RD7wBdaaMlw8M6CtflU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=L1SW7/TL; arc=none smtp.client-ip=209.85.222.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OJFXv/RK"
-Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-9155183b42cso91300385a.0
-        for <selinux@vger.kernel.org>; Thu, 04 Jun 2026 05:58:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="L1SW7/TL"
+Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-91591f19716so86036885a.3
+        for <selinux@vger.kernel.org>; Thu, 04 Jun 2026 05:58:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20251104; t=1780577905; x=1781182705; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=A9DDPhdD0Mp+FGI2o1BuJ8xIDszFpQ1TNM/FCLF9tSo=;
-        b=OJFXv/RKmfo0+Vl/ab6nI+PJIrJjUjkf1T91FDaWbBhTMnSV+ycBmvI9E87qosn2Sb
-         UJwobKk2/QFzCpOK/0BZJzlAi96xogwXzA+bOxpHmM58OQKigp1TU222MYDMzF6+TqKr
-         CzbIo/aXa3M01WWKt4i4rckJGBMbnGpk3Lkx0o/JLTcQXf51o69BBsIjwYizAIEhPwUL
-         714fRrUjnVVO43unqbyr4eIjJUgybXtO++08zbwyCQ5x/aVEQeYxfBxePlvxanTsSUOr
-         NkDEyaFkPKRtvtACHLUTtjDoruN2q8vgy5k1lHtpSwgqS0ntD4iozim25hnYZVnpprzH
-         PAOA==
+        bh=o+0YGcLrlHrQD1ZGkwGXAP+rRIOGzwLT6QXSTj4ClWY=;
+        b=L1SW7/TLS9ty8QvDr6VSVxj2KjLwDRW038xlm1jJsMdqNg7Pea9Edy4CA/EBOWY+8X
+         oHgO1F0mu74PDmvxLpssspwcxb1Anhs8CGc0+dt0KV9ECHWjb8LZ4scz7QBxTjJisY5A
+         iRpyZoRYD/9vPc6F00C9DJSJcePMt5U1Th1I9k2FqYQ6uzekVVUwAXXpWxQdkxi0xFBY
+         AEmEuL7BkzPAWTem1Q+eJI6KTAoRwkab/1DWV0yFR5O8Md3hQCijIf9d9A3zk8wxjTme
+         OvulQ8S/pq/bYr5AXReogLIda56jT+TpuilIyv5d7mRJ834ZsmPlBESr01ejdTDtdqPR
+         8Uow==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20251104; t=1780577905; x=1781182705;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=A9DDPhdD0Mp+FGI2o1BuJ8xIDszFpQ1TNM/FCLF9tSo=;
-        b=PxiV0/xi5CljObrLPz6F4AahVfzC6gRWRtHVgsgcv/guAagpO5PGl7lLepHxmUM7GJ
-         QX2N3QtIItyrTOAauU9YieXkDshtH7SUf88GH54aJK4L4BSsDFPpZcA+Hyk0zdwuFrTE
-         HhHpB5cqmC6hWNmBa1C8D0an1KjUFEJBh6+Fh6Fie1FMgKfm6Sr5Arch4jvtTU/zwvPa
-         6xwPFDn5TzX4qildhXeI9KsUc2QP1YoPKSJV5wxa5iBoMJa/PcHQFfsJsE3GPXtdBush
-         TjNgKajIvc0QgpqSifbl3R7OGpxqLvZWQcxDAb3FYDuSExtOwC+G1MCbS3LmhXj4uIPY
-         paRA==
-X-Gm-Message-State: AOJu0YxKrCPx60/gxgkEusz2u7zuBQBl56/nZim9bdy/015+Rc3I5jLT
-	nhNTibYxWYZ5REXYhQplEGjooXMaCBSTE68eb4iEx/XUXN45gQ9RjZbkS1NmIw==
-X-Gm-Gg: Acq92OFrHLrVv+WGpzrmJIbbRmpAaoXBhUy0LIc7ig48Cu3wcp8/mzpw/vZfs5p5Cpn
-	+cB85sTE0QPnBOIdStch031tbWbcB4VXvO6rhsGC5aYKIWfimVxa7vKz2edrDLJWyRs79d3AhST
-	R7Nx0TkvmqsswRsPGaQqxZKgTrMD8to8fFfwxCmEY3SH4yW8UJQiCgez/RdCNWDaRAv6YqiwLVt
-	qML4HTUeup6MlMvQdSaDj7LiMH1Q+uEPYW0x1l4KM9X6ecf4MTFHzZTpV9tQLAM0izmps2M2vla
-	7Ldck2gCuJuQSo8BLIZZbFClnD016VorI2MzGR0ZdrpBvauaXa1KlW2IhfsdNdsqt9xNLDhrnR0
-	2eY5B551Uh2haedjBMTy+Q4LsCwNn4w/yF+wxNDlA+RoysSHciT4XjhE1enI/5I78W6Bo82lt65
-	tgdYczs3Anq7zgeXvqoHV4s8OXmh9Sh1aUdaJCJu2yAMIbY2dO5AmoryVPQlsOi1cFXELm+xYdC
-	BY1EkOLgvWOJO2MvqATG6xBJSA9qdIcmNvEng==
-X-Received: by 2002:a05:620a:2728:b0:915:4ca0:1199 with SMTP id af79cd13be357-9159aec007fmr489952185a.13.1780577904826;
-        Thu, 04 Jun 2026 05:58:24 -0700 (PDT)
+        bh=o+0YGcLrlHrQD1ZGkwGXAP+rRIOGzwLT6QXSTj4ClWY=;
+        b=ghPMFmCsjqBVPDhDSOniUmb6uIDomkUp1TUVjwJux+qACrD4D71T6i2u/5ChZ+xfj7
+         RZSgU/iyy22Vd7Q0SxNdqeT92NTB7C+8uz2nLKTGoK5qaGJdfTqGRj/JQcCZ3mwvXtdu
+         ejrdTaFo92tbtYW2O0Z4AxC+MxGQB3nirsrU294n8yU6vz5aK6GS6zplBBJpOukGs1ip
+         0GTV4VP7Y6lPIq9BsEwH4/zPXQb0KIgJn/OWg3Z3eNNsX0PcQtMxULJmDZqR9FV2i7FX
+         ERtO9fYWeumfoC6HJthvmTQJtfAORMEh3uN2K8XD23ExfVHxJaWtN/+g0IKFGBkhYCjl
+         PtOw==
+X-Gm-Message-State: AOJu0YxIc7UxQHg+hMz2mraTJZOi1e1qmyDnwvLFg6iY854vA4ZesNb3
+	QW10rdqYSsZLGvY4fx1fo0VYUbvr/tOJjR1ayutDte3h1wEQlwpt9swtKIanfw==
+X-Gm-Gg: Acq92OEzU9p5dnvLEm3JGXF1hYuiRBZJPE5wLfJCsnjSL9EKgfANZcyTBV8EociKu+b
+	ynFNrvLIAdfG/PkgPehaJfGqSSNYgC1m4deQXOCpJxfMXkgRgXsXBX8/99dXXgCq608amzBYjg0
+	Y3VhgeTNTKYhsw9oJe7eqpV6r8eFp37gNsIe6f1Ta0CZe/pWo8/mjniqoW7jpQaXOD0ZzDk6FjG
+	z0ZR+O03nrpC8r5RNyU2upneujbqNc2Shk6XurqH1RLwihgDCRQjG9xEGiZlxbYcRrUupys3e4P
+	lk6vwkmOREDzrxzm0gyjx+h04geM4Ygg6Yd84lFYSvR8aP6VEIN73LrVUSd4pTGMxfJJhG3Hnqe
+	dpZjyPeIS/mvO+JmWa05XjQkQSaOOHMv7LTS1HKIOdQ8bSJLeDhT6jfJxcejQJWU+Um6wBt/LA9
+	SPKAPcTZgQye1TgvrbyzqnNE9HJmKyt2FwaFo2yyj1Nvz61ivK4UzB9gOKVNzkYnmAqY34yJEyt
+	epHng5GmWXDyOvi9Jchj/FgPjp5OOvNP8oDAjo9lBF+xKgD
+X-Received: by 2002:a05:620a:4402:b0:915:9f28:6737 with SMTP id af79cd13be357-9159f287166mr287227085a.17.1780577905498;
+        Thu, 04 Jun 2026 05:58:25 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
         by smtp.gmail.com with ESMTPSA id af79cd13be357-9158a3d3a0esm585789085a.40.2026.06.04.05.58.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Jun 2026 05:58:24 -0700 (PDT)
+        Thu, 04 Jun 2026 05:58:25 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -66,9 +66,9 @@ Cc: jwcart2@gmail.com,
 	paul@paul-moore.com,
 	perfinion@gentoo.org,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 2/3] restorecond: Use new SELINUX_RESTORECON_SKIP_MULTILINK flag
-Date: Thu,  4 Jun 2026 08:58:05 -0400
-Message-ID: <20260604125806.255648-2-stephen.smalley.work@gmail.com>
+Subject: [PATCH 3/3] restorecond: pin watched directories
+Date: Thu,  4 Jun 2026 08:58:06 -0400
+Message-ID: <20260604125806.255648-3-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260604125806.255648-1-stephen.smalley.work@gmail.com>
 References: <20260604125806.255648-1-stephen.smalley.work@gmail.com>
@@ -80,101 +80,62 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Use the newly defined SELINUX_RESTORECON_SKIP_MULTILINK flag
-for selinux_restorecon() to prevent mislabeling files with
-multiple hard links. Unlike the previous approach, this
-is race-free and covers all selinux_restorecon() calls made
-by restorecond.
+inotify_add_watch(...IN_DONT_FOLLOW) will refuse to follow a terminal
+symlink but will still follow intermediate ones. To prevent setting
+watches on any files resolved via such intermediate symlinks, resolve
+via safe_open() and then use the /proc/self/fd/N path for the pinned
+fd to set the watch.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- restorecond/Makefile      | 4 ++--
- restorecond/restore.c     | 3 ++-
- restorecond/restore.h     | 1 +
- restorecond/restorecond.c | 3 ++-
- restorecond/watch.c       | 4 ----
- 5 files changed, 7 insertions(+), 8 deletions(-)
+ restorecond/watch.c | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/restorecond/Makefile b/restorecond/Makefile
-index 51eb7608..5e0bd2ec 100644
---- a/restorecond/Makefile
-+++ b/restorecond/Makefile
-@@ -18,8 +18,8 @@ GIO_CFLAGS = -DHAVE_DBUS $(shell $(PKG_CONFIG) --cflags gio-2.0)
- GIO_LIBS = $(shell $(PKG_CONFIG) --libs gio-2.0)
- 
- CFLAGS ?= -g -Werror -Wall -W
--override CFLAGS += -I../../libselinux/include $(GIO_CFLAGS)
--override LDFLAGS+= -L../../libselinux/src
-+override CFLAGS += -I../libselinux/include $(GIO_CFLAGS)
-+override LDFLAGS+= -L../libselinux/src
- override LDLIBS += -lselinux $(GIO_LIBS)
- 
- all: restorecond
-diff --git a/restorecond/restore.c b/restorecond/restore.c
-index 0ecfc42f..23c2c98e 100644
---- a/restorecond/restore.c
-+++ b/restorecond/restore.c
-@@ -34,7 +34,8 @@ void restore_init(struct restore_opts *opts)
- 		opts->set_specctx | opts->add_assoc | opts->ignore_digest |
- 		opts->recurse | opts->userealpath | opts->xdev |
- 		opts->abort_on_error | opts->syslog_changes |
--		opts->log_matches | opts->ignore_noent | opts->ignore_mounts;
-+		opts->log_matches | opts->ignore_noent | opts->ignore_mounts |
-+		opts->skip_multilink;
- 
- 	/* Use setfiles, restorecon and restorecond own handles */
- 	selinux_restorecon_set_sehandle(opts->hnd);
-diff --git a/restorecond/restore.h b/restorecond/restore.h
-index 97fbdf4d..d7935e06 100644
---- a/restorecond/restore.h
-+++ b/restorecond/restore.h
-@@ -40,6 +40,7 @@ struct restore_opts {
- 	unsigned int log_matches;
- 	unsigned int ignore_noent;
- 	unsigned int ignore_mounts;
-+	unsigned int skip_multilink;
- 	/* restorecon_flags holds | of above for restore_init() */
- 	unsigned int restorecon_flags;
- 	char *rootpath;
-diff --git a/restorecond/restorecond.c b/restorecond/restorecond.c
-index 90d73087..421b992c 100644
---- a/restorecond/restorecond.c
-+++ b/restorecond/restorecond.c
-@@ -154,10 +154,11 @@ int main(int argc, char **argv)
- 
- 	watch_file = server_watch_file;
- 
--	/* Set all options to zero/NULL except for ignore_noent & digest. */
-+	/* Set all options to zero/NULL except for ignore_noent, digest, and skip_multilink. */
- 	memset(&r_opts, 0, sizeof(r_opts));
- 	r_opts.ignore_noent = SELINUX_RESTORECON_IGNORE_NOENTRY;
- 	r_opts.ignore_digest = SELINUX_RESTORECON_IGNORE_DIGEST;
-+	r_opts.skip_multilink = SELINUX_RESTORECON_SKIP_MULTILINK;
- 
- 	/* As r_opts.selabel_opt_digest = NULL, no digest will be requested. */
- 	restore_init(&r_opts);
 diff --git a/restorecond/watch.c b/restorecond/watch.c
-index 333f0af0..44094fd4 100644
+index 44094fd4..b197bdc2 100644
 --- a/restorecond/watch.c
 +++ b/restorecond/watch.c
-@@ -192,7 +192,6 @@ void watch_list_add(int fd, const char *path)
- 	if (glob(path, GLOB_TILDE | GLOB_PERIOD | GLOB_ALTDIRFUNC, NULL,
- 		 &globbuf) >= 0) {
- 		for (i = 0; i < globbuf.gl_pathc; i++) {
--			struct stat sb;
- 			const char *p = globbuf.gl_pathv[i];
+@@ -168,6 +168,9 @@ static int nofollow_lstat(const char *path, struct stat *sb)
  
- 			len = strlen(p) - 2;
-@@ -200,9 +199,6 @@ void watch_list_add(int fd, const char *path)
- 				continue;
- 			if (len > 0 && strcmp(&p[len], "/..") == 0)
- 				continue;
--			if (lstat(p, &sb) == 0 && S_ISREG(sb.st_mode) &&
--			    sb.st_nlink > 1)
--				continue;
- 			selinux_restorecon(p, r_opts.restorecon_flags);
- 		}
- 		globfree(&globbuf);
+ void watch_list_add(int fd, const char *path)
+ {
++	char procfd[32];
++	struct stat sb;
++	int dirfd;
+ 	struct watchList *ptr = NULL;
+ 	size_t i = 0;
+ 	struct watchList *prev = NULL;
+@@ -217,13 +220,28 @@ void watch_list_add(int fd, const char *path)
+ 	if (!ptr)
+ 		exitApp("Out of Memory");
+ 
+-	ptr->wd = inotify_add_watch(fd, dir,
+-				    IN_CREATE | IN_MOVED_TO | IN_DONT_FOLLOW);
++	dirfd = safe_open(dir, &sb);
++	if (dirfd < 0 || !S_ISDIR(sb.st_mode)) {
++		if (dirfd >= 0) {
++			close(dirfd);
++			errno = ENOTDIR;
++		}
++		ptr->wd = -1;
++	} else {
++		snprintf(procfd, sizeof(procfd), "/proc/self/fd/%d", dirfd);
++		ptr->wd =
++			inotify_add_watch(fd, procfd, IN_CREATE | IN_MOVED_TO);
++		close(dirfd);
++	}
++
+ 	if (ptr->wd == -1) {
+ 		free(ptr);
+ 		if (!run_as_user)
+ 			syslog(LOG_ERR, "Unable to watch (%s) %s\n", path,
+ 			       strerror(errno));
++		else
++			fprintf(stderr, "Unable to watch (%s) %s\n", path,
++				strerror(errno));
+ 		goto end;
+ 	}
+ 
 -- 
 2.54.0
 
