@@ -1,104 +1,132 @@
-Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
+Received: from mail-lf1-f54.google.com (mail-lf1-f54.google.com [209.85.167.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5756F47ECC5
-	for <selinux@vger.kernel.org>; Thu,  4 Jun 2026 14:39:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.178
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780583999; cv=none; b=uKYW5n6lqmQ1BURf1zadbDwxweXj/IhVr8HALrRPnKFd7tgNd/iQwCVSoN7/4dl8LsBIa0O3LfmmbEmdfT44QiVBEHwrcP1jvag/FbgaFEP5YwRtQFz8K31Nst18+ImrU+xEP/0wS0HvOTRumrzA/ejBNCaAPB5FKb6IYKACBGs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780583999; c=relaxed/simple;
-	bh=iZWsGSkPCmWmBb4yTls3l3v+MhYhroO6FujgTj0Nz7g=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rZ1Rhlld6ebUq2tVjK7YjLFtq6RgRuA7EYVq2Ns8ZF2JG1rOzFotaXEn1gULnnw5/LurSetYFJfm4/AclIRjyHC6ral+NkP3o4SazTAqdkvGn/0SzfkoMATKra3YjqIl/KblnHqZyFUEMledVueWHRT1YmDGU2UvNAuVVjI4yeo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=azk/0Nsm; arc=none smtp.client-ip=209.85.222.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3D763B19D8
+	for <selinux@vger.kernel.org>; Thu,  4 Jun 2026 14:44:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.54
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780584261; cv=pass; b=h6fhuduK9ZX6ShT81c0sgcb3I/DmcUswpO1Eg3GxMryLKiXjqcdAu/Z0LAdhMkgFrkQQDEoCg/jDvL8sAA4KcEL5ZCF22fJvV8NtgXZvfB3sZK20Pgpgwz4dgJtDuvGaR9DBEBRzOVOHWOCPyPM+lskyy4l6z4ZdZSKMSMDSAo8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780584261; c=relaxed/simple;
+	bh=Irp7tU1cJkN0W6tJKBltt5hVNzinXRGoA4OUrvXKdD4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Content-Type; b=YPg1RlkDL8QMrPw4TDEZlK4YX3OUGJpTzZljQELKqWJZoNqcZ16IYb3UGr5glcu2vgSV/FymDoRvvrO8b3zICtwz8JoP8gZD5Lw3srWGC4Z4A7zBRCperVRrpGcwWC7G3B/d2wvYPuPxm9BPJmZPIyb0dh3L5++s6IBCYP5dYSc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JL75rCLz; arc=pass smtp.client-ip=209.85.167.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="azk/0Nsm"
-Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-9157b895c57so79634785a.3
-        for <selinux@vger.kernel.org>; Thu, 04 Jun 2026 07:39:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JL75rCLz"
+Received: by mail-lf1-f54.google.com with SMTP id 2adb3069b0e04-5aa66893e9fso893154e87.1
+        for <selinux@vger.kernel.org>; Thu, 04 Jun 2026 07:44:19 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780584258; cv=none;
+        d=google.com; s=arc-20240605;
+        b=iEqDrtVSZMPpHf6NI2IwxOxcOKOhOMx2klbzdnhjCgnb9CYGNAmfyJC//UKhL0Hmub
+         5jIKxI+LD481tRwt7FaZ/F/YLl2aPSYXdYfKDXBj8710z1sB+zn5shTuJ2Vmn3uk09no
+         X9fQkL4N7elsfieqLl3hCB1sVAW8syseWFZxJslxSPbzdTACer1FxQxPzi9bGJnbzX/p
+         74hdEUjDhlAB6vBjKC4UFAzSE78H4liqFT13IDN3lWO6mcJlN1aa0iDdlywi2O5r5XFm
+         3D22vOC4GppWpcd0sExWfbC0DQXnyjvP6vL7QopF1rNm0tvTDBkEEDuh7V1KzA9izwbj
+         HAvw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=yvkuVWtEiEDwpkFv7as7vIzhAlB+3JF41oEzzKxrsIc=;
+        fh=l2l+BKIhep14i9a5yxIzwDvgNRHYkyJlbYDDp8LiW6o=;
+        b=JcBdivyvgmHt5ubMD9BvBk6TkiwidGbYb4NQZOfmmbrhov+sl0mhH14e/9WlQDs3LP
+         lXkPWVB/QfrBKfBqGyWjYv/Xvwztunfy45Z4NEj8EyMP/u2DM2tTuT6JcQ9V+e8DoLMS
+         B6KZMlbXOCFexwHzUQqo/OiitemP/6vpi9CJI48QeF+DaZim4GiFNGYYMMlUDaJHsvpi
+         8LzSTTmV7AeeXYH6t2oNbjg6nNZbXOdDTXH2lzf42Kz1FagxvpgX1R/PWvYfljF20RVM
+         NdPA/kNWddorvZAzhBul8bNWze8rJJW5Wtsukj/KKOy/FNwQxHqED8zOPpWXrcMs/fCE
+         LeFQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780583997; x=1781188797; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=KP6dty7pKHhbHYuO0IgpmVzqk0qRkskJO2yUEdIKRBk=;
-        b=azk/0Nsmmj9Frnuo52L8uC73w6RXGWAEqxgm4jCybDodYCg4XviyYG7lT9cfcR7uxo
-         P4DgWtNICmCN2zvIr6t5OId7OfJWQCIHcQan0mFbHjxU3uurwe7PSJv3xz0XUpd5CJj7
-         IfBQsKTfUSLRXHtGNGBV/N1liARKoKY4xb4igm606INT8l+6IVeZ+DCLNuhYVyYp3aDZ
-         vwDIinmgoGZqru27NISt/U/WmLN4GQQafLnCP7HQ/6fYFSq15y8W/Wf41qB7EcI6N8Pu
-         /LLCu3zwnnrTd49iCz/W2CpnUu6ALXqbZGmKkuXNsmI46xr5i0ia7gGRZAFRL1WuDqos
-         nTpQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780583997; x=1781188797;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1780584258; x=1781189058; darn=vger.kernel.org;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=KP6dty7pKHhbHYuO0IgpmVzqk0qRkskJO2yUEdIKRBk=;
-        b=p/AXnhpUsJc/C+Dwqu1aPcWx0juIuxOiueY8ljCJi7u3cF6SZMN/pjQPlTMEWQnhqn
-         5buRRZsAg5A5t/1zfOHnnLkriccaQm3B7iBbi/FBEpO3+PJCwoFxigEuVo/uZdcQ32jJ
-         iQ6pJCT4oltjzSO20S37c4FB+FAY7X/JbQzBk3ACdRwHmZjY7k+J9MeE727Q8naDio4G
-         eD1tXluPfu5L1TkVEr9hGUL4aUkJCSh96JhBmUCGFxlYd7ecpVdtx7CR+BulochPZ9Yz
-         SQ5jtxd95cUnCFDWZQHFq/O/5MrLWsAKLBb0oI+JzHiulm0kej6Pi7UYEJ8DgryfL+k1
-         Ww3Q==
-X-Gm-Message-State: AOJu0YxMfaUYF4cBlii+JzUDTGEKgP6/bOvIm5Qf00Gv0P/BAG6L7zWT
-	iWYvI0x78T6TgOza9dcMzs5P7P1lArpen1kpnMPkMeZ6kpnusFqavUrfx2tudA==
-X-Gm-Gg: Acq92OEP5E+jyMgb8nFLBKaZAh8zmGd/Zc8YF+48PzbQr9/aF8pYmRT2f8nx3Fsc2EH
-	LYw2t4Vz1ZyYmOJhcqKbrmSesbob69LiOZJ8SeY3RgilUTvwPSJpl/iZyfzcme7rxEHgqvInk5t
-	NmvZkvy2cKmFR2YkmHWpvCQZ5S5+qYUWtmdveQiUisO27AnKX2BobQPV42VZLdE5mkTwItFyADQ
-	W8aYBG3wpQyGW8039xMEWQY+rI1o+VX8GHDSPxdbFnMmYm4ZcHJQCruXfLUx5u4eJc/6zDUBRHo
-	ecG1FnwDHMsDl5PoTq+M4XSVv1VH13PFiC40g2vLuev8oRUAKj2Owt3NRT/FlFPFnzqKuScaS9J
-	hG5KPJ6DP1bJCsux2N+hWz4my7VW2zB8gP3+QpyRlbzLP7MbgrXuwJJO8P3mIajl8pONmrE+0bQ
-	5kYIErCNB+TBixnovj7WATJpEriRnE2M7z5lSvUgLkU4K1xSaymJdcaWWF
-X-Received: by 2002:a05:620a:2b43:b0:915:9273:923a with SMTP id af79cd13be357-9159273a874mr1014303785a.2.1780583997300;
-        Thu, 04 Jun 2026 07:39:57 -0700 (PDT)
-Received: from Fedora43-SELinux ([144.51.8.27])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8cecd053210sm52970556d6.26.2026.06.04.07.39.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Jun 2026 07:39:56 -0700 (PDT)
-From: James Carter <jwcart2@gmail.com>
-To: selinux@vger.kernel.org
-Cc: James Carter <jwcart2@gmail.com>
-Subject: [PATCH] Have clang-format ignore auto-generated files
-Date: Thu,  4 Jun 2026 10:39:44 -0400
-Message-ID: <20260604143944.11282-1-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.54.0
+        bh=yvkuVWtEiEDwpkFv7as7vIzhAlB+3JF41oEzzKxrsIc=;
+        b=JL75rCLzHdLLUe5YsJq3ICkBkZb1n0bE+buA0Ly0f5nxJmkrcP2mqp0G9b0AbMwlhb
+         PTLIkCnYbRahXZW8HvDrRBcOJBjE8x8RiWqf1OgkfBp0CEw07WUi6gAo+dpzJmpuH891
+         NtruSHF+Pco1lNA3S+PhTAg7bCyieNxzygCSvxJFc902RC3buDt80iMKZkZyvjW6zrbW
+         SFXwektBHD9aTZVwsl8f4fFDIZGzhuqtQN2ea+Dq/nZwx3FWH+/Ej+QQGTHPfkeY3iVP
+         GBws+gcxwvSSUpGnMfLqWSYMxOkTA/czVqf6rd9k+0tCoK66dfjhlwQhHTdN4xyJ9iMl
+         gkAA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780584258; x=1781189058;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=yvkuVWtEiEDwpkFv7as7vIzhAlB+3JF41oEzzKxrsIc=;
+        b=X2ornDBU5dplyP7msUf21Vz13RHRQz+cE9S/C+oJHIPvsQbYn63mraBIVVrIn6poEm
+         VkoxRMzeJGOFd84RRYThc13p54h67DA+Y9qEbddo7Yl6BkYFjY3bMbwwPcdOlXva8kRp
+         imaLsEFqyeWq3DbuHKJqXcf1QJu9tRqO7jDfBLVvcJu7Wrc2rmNgZU2A7S8oeNAfHz/F
+         FIK8CiFkuPPaDANTPNRzA1qBtEX0sIDmxI4g/So8gss7tFfsdue87h0DN+UmxYVi7Asz
+         sekcznZgP19a97YyBfBZe08ldRTWKoAhQszEiAa8ozzknyoEsT9dy27Ctrf59yDlaXl5
+         4M2A==
+X-Gm-Message-State: AOJu0Yx5PuPhUb4WhXd6X7/zjSOr/CpFm6bUbsI058qmgXGft2CSs+Q7
+	AJlTe9KXj9bZQxsDPHr8OQwgyTagocSlHRUWvnB5+5vAL6mYsFSM4bnbcgySq2tgrYH3k741Eiu
+	HCQIVadaCvscrnySZa2XsBh4kiHwUQhlpGw==
+X-Gm-Gg: Acq92OH1ViAeZ2pP/qp5gXJ863cGDceJnYNWHKNBGWX427qDZyZmK8k9zet0sm0fiJJ
+	XD6L31y/xTe3VVUbEYDzSTxJivUu0dtRw5WHEz9WGxc1kixo2FB2efYb9O8xNsROQ1lcbN3kdiu
+	2YYQ8CpgkI09VXL+5Pl0rEJMed4n/fxcocbFtPrV00lpMpWTBMu4vE//YjVGJdfDVTxF0auUlT7
+	8peIXoWuxoRaBTtsXPnSa/ZoU2nxcNfS8EDO0xC8qHdRyj/FZsmpmYbS9xQrvJM+QFYSzZnaxdK
+	vXV+BAZJKZYpw0k=
+X-Received: by 2002:a05:6512:3b8b:b0:5aa:80b1:6ae0 with SMTP id
+ 2adb3069b0e04-5aa80b16b37mr1611600e87.0.1780584257885; Thu, 04 Jun 2026
+ 07:44:17 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260604143944.11282-1-jwcart2@gmail.com>
+In-Reply-To: <20260604143944.11282-1-jwcart2@gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Thu, 4 Jun 2026 10:44:06 -0400
+X-Gm-Features: AVHnY4KXMzmdlCp3DKx9S8leZeNkGcbnIbf6QSFw6jSMcnXNmCTFCWKsNcedywY
+Message-ID: <CAP+JOzRP-pQHrOJE_B+6NNuoZ3BsWb9boTMS3OHeXL9GrS8f8Q@mail.gmail.com>
+Subject: Re: [PATCH] Have clang-format ignore auto-generated files
+To: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Added .clang-format-ignore with auto-generated files to ignore
-pulled from the .gitignore files.
+On Thu, Jun 4, 2026 at 10:39=E2=80=AFAM James Carter <jwcart2@gmail.com> wr=
+ote:
+>
+> Added .clang-format-ignore with auto-generated files to ignore
+> pulled from the .gitignore files.
+>
+> Signed-off-by: James Carter <jwcart2@gmail.com>
+> ---
+>  .clang-format-ignore | 13 +++++++++++++
+>  1 file changed, 13 insertions(+)
+>  create mode 100644 .clang-format-ignore
+>
+> diff --git a/.clang-format-ignore b/.clang-format-ignore
+> new file mode 100644
+> index 00000000..8c32d922
+> --- /dev/null
+> +++ b/.clang-format-ignore
+> @@ -0,0 +1,13 @@
+> +checkpolicy/lex.yy.c
+> +checkpolicy/y.tab.c
+> +checkpolicy/y.tab.h
+> +libselinux/src/selinux.py
+> +libselinux/src/selinuxswig_python_wrap.c
+> +libselinux/src/selinuxswig_ruby_wrap.c
+> +libsemanage/src/conf-parse.c
+> +libsemanage/src/conf-parse.h
+> +libsemanage/src/conf-scan.c
+> +libsemanage/src/semanageswig_wrap.c
+> +libsemanage/src/semanage.py
+> +libsemanage/src/semanageswig_ruby_wrap.c
+> +libsepol/cil/src/cil_lexer.c
+> \ No newline at end of file
+> --
+> 2.54.0
+>
 
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
- .clang-format-ignore | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
- create mode 100644 .clang-format-ignore
-
-diff --git a/.clang-format-ignore b/.clang-format-ignore
-new file mode 100644
-index 00000000..8c32d922
---- /dev/null
-+++ b/.clang-format-ignore
-@@ -0,0 +1,13 @@
-+checkpolicy/lex.yy.c
-+checkpolicy/y.tab.c
-+checkpolicy/y.tab.h
-+libselinux/src/selinux.py
-+libselinux/src/selinuxswig_python_wrap.c
-+libselinux/src/selinuxswig_ruby_wrap.c
-+libsemanage/src/conf-parse.c
-+libsemanage/src/conf-parse.h
-+libsemanage/src/conf-scan.c
-+libsemanage/src/semanageswig_wrap.c
-+libsemanage/src/semanage.py
-+libsemanage/src/semanageswig_ruby_wrap.c
-+libsepol/cil/src/cil_lexer.c
-\ No newline at end of file
--- 
-2.54.0
-
+Actually, it would be better to put these next to the .gitignore files.
+v2 coming soon.
+Jim
