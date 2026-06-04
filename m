@@ -1,135 +1,147 @@
-Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
+Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47B1B478E5A
-	for <selinux@vger.kernel.org>; Thu,  4 Jun 2026 12:59:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.176
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780577998; cv=none; b=CWfzEhPD+woDdgdO8m6XegJkBVT3Owcod+a9KxVCXgyLUjO1EE6v1bqRInBFaYp6Uv6cJ7uc5crVjP+0OZPAks4Q+WjubROZQdak56AzFjahSFMB4WjY/SNKW7i+lkqbYkUjQWD9b7xSzgjNLOEpHQAMKl8DTD0wrB5oUIf3mg4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780577998; c=relaxed/simple;
-	bh=KpQ6O/T2oPpW+N54MB5He7TuQRuKu+IEEraIoUbZTPw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kDswpVBjpiBif9f737tFi5wpwRd4DCj+WKLrmjnjUv2LGvXvq3pOllH1uLjxjjsPaz1gTTyh9T70QYMJq7xWcWoJFp+4MJ27TSxSPxDBw5LpGbBF8MICA6JNVEQHIl5VrZ/ovx2DqyfAL08MGAaIS/MoMVGfwCkCv4ZTYKhFga0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oGCEiw51; arc=none smtp.client-ip=209.85.222.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC8B41917FB
+	for <selinux@vger.kernel.org>; Thu,  4 Jun 2026 13:22:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.42
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780579339; cv=pass; b=KFH3tLN2z2k6VTWetIt8JO2tk0xgagPcmmCIjROniAQ0TlqsvLR5tOFd8lib/YMGPXwfzArVhSvfggE7efza7DdgoPECnDlRXxrfvJYCohvkXqmquJl/s9BYfKvnIRmKL+gUxNvI9k1tdXf52PQK9C9Bvvf6wF8igY5sO3xQwZE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780579339; c=relaxed/simple;
+	bh=rqcmEx8Gw7L8JWQjbELrq2H1NjkQx+zcjWejPshg6Uo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=fGGAM5DCoei2Y6EtI8zdh6b+FMDkkABWyPyVDuZdIBmXfpsgvPKGlNJsVTMg3SLR7ZTRYL5RX5vKYq+Y651jtI9QMdVGdG6lMhrtVvUIYLRHG32MVmRrCI4yRymL892tSdp6HVIRB3HQqqEC3ZHJXqrkSkPobCbhcyGWCG9bSbI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ls49UUqn; arc=pass smtp.client-ip=209.85.216.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oGCEiw51"
-Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-9157b94a07aso103424985a.0
-        for <selinux@vger.kernel.org>; Thu, 04 Jun 2026 05:59:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ls49UUqn"
+Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-36b95eb4bb4so438543a91.3
+        for <selinux@vger.kernel.org>; Thu, 04 Jun 2026 06:22:18 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780579338; cv=none;
+        d=google.com; s=arc-20240605;
+        b=P5t/Wva8enpBeLKwmj4CT9H3E0yisM4c8LZu88Qjuh5vfj79C60zXbNrtoCZdop2vU
+         uhWSOgAda446OgxgLMq83eoHjj/WOIQuvasrJvWtJPvGseU/HXLlwGDHefWcXpgoPgCK
+         kC08OK+o6567h1ZtmkkJSWptG0ScTnBLfKW/WTMZXm2k9ZwUqULuONKD1HCsD9GYZvAO
+         9X0+U4Q0U2SAZD28aRvDnE2Z7ZWnAihDww8FSokwzB/91ceTC7i4mzJTljL3hAhr8Xd/
+         rLVIhVAKUmoapAHsOGi9RRc8QM4Fx81YT4OlvKV3l7oAdV2BbgUv/WR9gpd4aZ02joPF
+         jNOw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=Y/iMjxoKvvGQgbtjQmLz5TIoHiNSZcfozYFSLQoiBWI=;
+        fh=VWwbX+H1Sc8ilbX5LEN836EN17/lKaPP6kwZv2JuZcs=;
+        b=BOoFP8Ldm2zSYPefmJ/jOvLSw3axZRXKLfqnE13n3TPpM6M4nQBBsb1kwMQQCYEx/u
+         hlzsHbKJmD5olppx2VMD3NuQbC1ETOougSIPj3kDmazeEWQAEYZjVXM1kOCDYWTtWuRb
+         D8G91uzG9f5v5uuW7y7e0EKa/nnke0ooNrkfLFPATL1LjHXUxTVfmg75laH2atRoHovJ
+         mE4Eg8r+Jgb8mGeyo6CzYCtOAVvUibR2PPd5sb1xMMcVAvxQ6FZNsnI0/AFlBO/jeC2T
+         /m9qGCeIARE05obzyB4sBatamPYkR4MYoQg/UnzLCZUkuhJyZwSaGj36pf+uxTU4eKmi
+         lUPg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780577996; x=1781182796; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=yyj8CoBBeql47D3d0XJPhKw764+9/q2qDRjH6y1WVx4=;
-        b=oGCEiw51cLzVovO30yI5IyYSjE8lnCgysf3DWLdVhyuN4R66jYX0fHINSRZ2sZ/J93
-         g5wjEynb59qxnUXmPKljeQ/7TtzVQkOH2e5swsAJpgq1hKrglt3EWgrMkgokCYT/x7Aj
-         M4NeCC+51+xnukR/Dv0xBlU00PsxlK6R+UTEpVzs6J4276JwfhuzPXGzooiexZwuFyUD
-         5kivniKrIQiWLfJB6Zy3nBylbWMipuTz7LrUCpqa8eFrwTMGIjf7cwCPjqzfCS3fVm35
-         /uDHdfpt9oFxjbKgvdXPdaMjjMbb2MF6WAIbCcCxgQ7/XccBgFJfGCFHV6H+YNuk1Ryc
-         juJg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780577996; x=1781182796;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1780579338; x=1781184138; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=yyj8CoBBeql47D3d0XJPhKw764+9/q2qDRjH6y1WVx4=;
-        b=IiDGAttreheBSMFqv432Gaq4Z/j2fZ7kQ6q3jynDtSAkqoMt22eM5ZVU8jmkBJpWy1
-         W0TJHllwMwHBEOu5KcGWV8o7Dqrr4toIJCYDFL+4qaGBRTnWMgVAWmCcVljZIWAvc820
-         ZJ9ML8MsqGawOk3Erkf75yRUBZy95bs3IWyxr/xRUXBT18Iyqr1K4qIT3iFQuy2/uzXI
-         RG38lDzdsqs0s4MXGV+pWmhPfprcXsxEYdESiWZxZlge+bDzyBVY7KvnKpMfwttv98yw
-         HApiuCWE1e3j65vLisvxUu+SvzuoWQczzwojt1/2mNQfljqckhKPsfqIiW/h04XyBux8
-         hBEg==
-X-Gm-Message-State: AOJu0Yw2a/eT4/k/KDmQO2Q917KHJR3Z/6OmmLYFS3xBvKX9JiVdsa7P
-	DPTNq2jdh6+JaH/e0QtwMe/JRJNEpFUdo/DCMjzKPh+ir++7EGyusMi4BZq16A==
-X-Gm-Gg: Acq92OGmzvkyM5sDwhojKWnhy+JNwMWxMwdYZ34GKLazN20gi1/28GsM2GWg4dE6IOI
-	/quxvc6FIA1/NQ/0m1mHXHG3SLRuDU26TrSVYn2b0vUVnaPNcZZtjkUX4VodEk6pJmjOdPJO40K
-	rfQePaQYDFTgUvxDI0B6LRszEpkEuZuY6q5YTE7k+nZCKkBj5eyLK09OpRL3sZpJMg0OfDW4B5z
-	wEQQuc18dpaVQesX9QZmtKj2hhJXZ9FnpJyaW8BNiXbWJzcGabYhcS8V+eqs7Xy3e2rY1R3sKgO
-	Q8aHdaNa1GsrYjCvaIIml/BPF8OvKMiSjitrdvebThOxlwSe+j1JMuoStU0fLD1nYatH6puRSvH
-	uYCxxh/0U+ME2ivlFgOO8sXgJ6ZmuKnI89J6xLASvvc0K1I61PLuz7bVUy/G8DIubYLowwvkmTA
-	VJTmRZPuDryA11C3vjqaXp5edejGmx4DtAvf6guelWI0wX3CNknlXrfnESTvFcSWXlvputKmlys
-	Qh2bvIT7yT2/5YBLUyev1jkGvAuQhRhCK2jeg==
-X-Received: by 2002:a05:620a:3199:b0:915:7c1a:138f with SMTP id af79cd13be357-9158a6a9f2amr1228916085a.14.1780577996097;
-        Thu, 04 Jun 2026 05:59:56 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9158a37c4e6sm572141185a.26.2026.06.04.05.59.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Jun 2026 05:59:55 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	plautrba@redhat.com,
-	omosnace@redhat.com,
-	paul@paul-moore.com,
-	perfinion@gentoo.org,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] libselinux: serialize legacy compat_validate() callbacks
-Date: Thu,  4 Jun 2026 08:59:40 -0400
-Message-ID: <20260604125940.255722-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.54.0
+        bh=Y/iMjxoKvvGQgbtjQmLz5TIoHiNSZcfozYFSLQoiBWI=;
+        b=ls49UUqnkfAWQysCRqCHSEIZdAOKMSAFpeIO+84ICPEpK4c2alMyM2mUq12RUV+eV+
+         CQ0nGZEz4X6UtLvT0fes8WJjCRmZDseVMFaEeAJKWmmvLoeG0gSs8ZIwq1+gkwpDmXWO
+         q93iwVD+DZEL+c9qQH823Qtwdx05JT0xBSG0QoAoBovIN21WLWrzc1Z6mll1Xwqtwjcm
+         2UVprdh+i0pOEECrIPf/VoJsgNk2T6G/DNtd/VK8I+RzH1lh1FFlHK+HbBPVw9NUmoNZ
+         ULGl8vc7kwl91/QWCqfT3HmDclzIHSvfkw7TU+uF3PB8u1TUi+yv01REfdpYGv1tArpb
+         g12g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780579338; x=1781184138;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=Y/iMjxoKvvGQgbtjQmLz5TIoHiNSZcfozYFSLQoiBWI=;
+        b=SA55gjQjwbjqf0vvpJec9NV0928Eo+9LkT7cq3A2G8uXKIeOoMr09TZMc7aBtzNiQD
+         MWDCiBHF0ugTPJNvDP1N8CdUW2puxxdbEcpZqS+uS/3c+h/P6IoSwibyQDGacayXlIxK
+         2pC2nwnSyXxwjGZ5upSdu99FP4MHWXMfc76DcOK7gpy6Yfnh650a3AfrznziDcgA+ZJX
+         44rl1ZagNClw+fOuggH6URsZxGGlF4r8xOAsUlxIJ9iG5JdqYUQD/plFhEivMekfJOoO
+         1s9PcKtcfMKw0pOyFynuWLScsXdL4XcF1uWbr5i1U8tVVU+OdAnvNbm0uMpJPmfemdLO
+         Eucg==
+X-Gm-Message-State: AOJu0YzTyylZiRO2W4akrDc9iwYglRTRfO3O4HFZ5iQb/MbUhWr74Rbg
+	0NSCD98HnCQ+jxdwKAJRKmSGWCrUcM24zwFh3gccg2iVvO7TNiT+g4ni0BBVfJw2ASx5Rh0JF02
+	1OnO239aFDHKyb4K4ahM6UbK7jx7RANk=
+X-Gm-Gg: Acq92OH8E6sIbppR5BCOpc4hEpr85quQtnO/2m81i8qAhjKu26Fx25Dhvz0yDbBQSkh
+	Up9kYBj6OhgSZmi8xntMW7sTj6OPoQlvN/1FajYFWErXPmIrMzS+HtUS0ReAS9Gn1BbP+NkyPsp
+	0lP9G1AEgoxVTr+G5zfbLU+b/WGsYkxvErOghjh4HRjdQ5EFtVZ5Pa+u7Rzaa9Ibhf4z8m/z6il
+	SOkC4L8cojeZfvKNJiH+wpjKOScw9RmDTo4D/PwYNifggI0oXb73ou99C2R7yXRQQtDCnDpUNmm
+	aqmCDyybLkd+Eqo0bg==
+X-Received: by 2002:a17:90b:2d8d:b0:368:ac5f:d31b with SMTP id
+ 98e67ed59e1d1-36e32d287d4mr8055811a91.24.1780579338059; Thu, 04 Jun 2026
+ 06:22:18 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260603093801.1070705-1-lautrbach@redhat.com> <20260603093801.1070705-2-lautrbach@redhat.com>
+In-Reply-To: <20260603093801.1070705-2-lautrbach@redhat.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 4 Jun 2026 09:22:06 -0400
+X-Gm-Features: AVHnY4KHLzVOqEzXCAkUmGNJGrJjfSF9Ds3yTyJcuhQMa4q7y0jRtwyZl_FojrM
+Message-ID: <CAEjxPJ6GC5ugbBuegYpKTQXt-Hq0vrZ9DvyoRE3gOU=j96j1vg@mail.gmail.com>
+Subject: Re: [PATCH 2/2] Add check_format Github CI job
+To: Petr Lautrbach <lautrbach@redhat.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-selabel_fini() calls compat_validate() per lookup. If a legacy
-myinvalidcon or mycanoncon callback is set, e.g. via the
-matchpathcon_init_prefix() call by selinux_file_context_verify() or
-selinux_lsetfilecon_default(), then the callback is invoked with no
-locking and will validate or canonicalize the context on every
-lookup. Replicate the logic from selabel_validate() so that we only
-perform such validation or canonicalization once and that we do so
-with appropriate locking.
+On Wed, Jun 3, 2026 at 5:45=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.com=
+> wrote:
+>
+> Run `make check-format` on PRs and pushes
+>
+> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- libselinux/src/matchpathcon.c | 29 ++++++++++++++++++++++++-----
- 1 file changed, 24 insertions(+), 5 deletions(-)
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
-index 66cbb0dd..2623e5dc 100644
---- a/libselinux/src/matchpathcon.c
-+++ b/libselinux/src/matchpathcon.c
-@@ -43,11 +43,30 @@ int compat_validate(const struct selabel_handle *rec,
- 	int rc;
- 	char **ctx = &contexts->ctx_raw;
- 
--	if (myinvalidcon)
--		rc = myinvalidcon(path, lineno, *ctx);
--	else if (mycanoncon)
--		rc = mycanoncon(path, lineno, ctx);
--	else if (rec->validating) {
-+	if (myinvalidcon || mycanoncon) {
-+		bool validated =
-+			__atomic_load_n(&contexts->validated, __ATOMIC_ACQUIRE);
-+		if (validated)
-+			return 0;
-+
-+		__pthread_mutex_lock(&contexts->lock);
-+		validated =
-+			__atomic_load_n(&contexts->validated, __ATOMIC_ACQUIRE);
-+		if (validated) {
-+			__pthread_mutex_unlock(&contexts->lock);
-+			return 0;
-+		}
-+
-+		if (myinvalidcon)
-+			rc = myinvalidcon(path, lineno, *ctx);
-+		else
-+			rc = mycanoncon(path, lineno, ctx);
-+
-+		if (rc == 0)
-+			__atomic_store_n(&contexts->validated, true,
-+					 __ATOMIC_RELEASE);
-+		__pthread_mutex_unlock(&contexts->lock);
-+	} else if (rec->validating) {
- 		rc = selabel_validate(contexts);
- 		if (rc < 0) {
- 			if (lineno) {
--- 
-2.54.0
-
+> ---
+>
+> There's a test run available at https://github.com/SELinuxProject/selinux=
+/pull/520
+>
+> https://github.com/SELinuxProject/selinux/actions/runs/26875462663/job/79=
+261408494?pr=3D520
+>
+>  .github/workflows/check_format.yml | 21 +++++++++++++++++++++
+>  1 file changed, 21 insertions(+)
+>  create mode 100644 .github/workflows/check_format.yml
+>
+> diff --git a/.github/workflows/check_format.yml b/.github/workflows/check=
+_format.yml
+> new file mode 100644
+> index 000000000000..bb44e60a5507
+> --- /dev/null
+> +++ b/.github/workflows/check_format.yml
+> @@ -0,0 +1,21 @@
+> +name: Check format
+> +
+> +on:
+> +  push:
+> +    branches:
+> +      - main
+> +  pull_request:
+> +    branches:
+> +      - main
+> +
+> +jobs:
+> +  check-format:
+> +    runs-on: ubuntu-latest
+> +    container:
+> +      image: fedora:latest
+> +    steps:
+> +      - uses: actions/checkout@v4
+> +      - name: Install tools
+> +        run: dnf install -y make clang-tools-extra
+> +      - name: Check format
+> +        run: make check-format
+> --
+> 2.54.0
+>
+>
