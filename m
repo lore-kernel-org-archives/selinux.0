@@ -1,59 +1,59 @@
-Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
+Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB5D843DA39
-	for <selinux@vger.kernel.org>; Thu,  4 Jun 2026 12:56:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF1E347D94B
+	for <selinux@vger.kernel.org>; Thu,  4 Jun 2026 12:56:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780577786; cv=none; b=drYpWx9hE9IYh+fhMtSDrKpMTI+ILMjZo2PpzR/x0ywWhiSQWBdxmGtQ9NqSLlxeSMxZPePq9aO7mFoTug/wiEivTkp6FNze6VlNs5k8Wc7FtXm2P679avjDK3HKi+rrQJEc4GF5PhqwIXAFo5gEAYrKeJw2kD6E6AF+xsgryWw=
+	t=1780577786; cv=none; b=tjhtUrfxk9PtRxpcEuMj1lUp3jN3cKJDszFuU9QDCxusdLktR+3lNqirXxBX7z10o2NLD8QLQR6kM8XhIAJ0DJvUeIW3/AUUvZgNek5P6LeWvLR5VZhb+EMWXCZhIsWROFcjAKI49pM4ak5DrwskZtf9aj3L/zAMuw2U+2mIiF0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1780577786; c=relaxed/simple;
-	bh=Ro82NtyT6kvCrve/2E0yit84bq4/g0lb4NSmavx/SDk=;
+	bh=duUTerIGsSrf0RoVJgjr8BwIWbUfVwJHDyfF28ui8KE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=CLHovwiXKMzpg5fHbV9yv0HXhtk6doALyDlbvmVPotfb2oQQrSKClPgsHzjoXU8h9pmGnHTlxyrnbe2hkAX23wJO09pD6/iemaeFMB/B+NAVYV8NIrYPXxIh8tCZ1xtwsJUSgxK8MEJOBhFjoM1CLkMoU3h9GkR9SoUKVkEtOhQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TAJ0/xOS; arc=none smtp.client-ip=209.85.222.176
+	 MIME-Version; b=it+I+Na6RLThsHw9X53tWstcluysFrb4aGTnEymKonk18e1WVQNNFamAhgC93tCFCu/05jp1AVxsE3YCajREAb9OBhX0mqQXqtZHTpw0QCiMHLYx3Mc+YfsDGrrX4iS+TE1s94v/IhSb4MiAs7bTeYhfyVSSoCwxtCtyEsVzT9I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UU2LbmCU; arc=none smtp.client-ip=209.85.222.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TAJ0/xOS"
-Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-91550f68089so72132585a.2
-        for <selinux@vger.kernel.org>; Thu, 04 Jun 2026 05:56:22 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UU2LbmCU"
+Received: by mail-qk1-f175.google.com with SMTP id af79cd13be357-9158c621ebbso85620385a.2
+        for <selinux@vger.kernel.org>; Thu, 04 Jun 2026 05:56:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780577781; x=1781182581; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780577783; x=1781182583; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Mr0OClP8hFrXUynWLlBTK0Gpvx5cz7m0c0JrWYexTl0=;
-        b=TAJ0/xOSU4KUtpz3tsp9+YhnONx1jsakFH77292o1MUfh1f5FlZdNT2uyXbGREKAcr
-         Ga1ZbWHA2+gH10vUjNqx6nJfm/X2W3RPq7Ds6a1CESK1RHtynVhEoYHTNLEYcCEGASfQ
-         rEmqq113vUsKHqXGM18H89LvqudCQUiOM2avAwgWG6sgG3oMITwaneMehl42LjglabuD
-         fvYtfmd1tsBtmt1U/h5jnNFz9mXG3ykyPolHh+e9H62h3x/4D17ElSFwsTArf4uVCk9r
-         hxaS/h3l11pNxM/mU5ls6ETAv1F9f6Bs5T+qtVWGCdTIbIdcBukXJzXqH4mYWlUDHXr6
-         zUZw==
+        bh=ds9b9vzaGUGi02UkZnjU1H4GXXALUle0kLcsTuOotG0=;
+        b=UU2LbmCUPjgZwjGplQLCgqdTkkZJe1u1RPumroji0s+77jXZ/NWH8YNWUyyxH6Ng63
+         fDt0E8CnwWclx72Tcsq9XABAw6lZ4yQc3oODbwAfH+N4hBQ+kuCNY4/b7bKN3mXfnHfr
+         amRbuP3ntoJfGKBEp389xWha2sHWiow/EGFrVGFi8eo4zD1ZjsHiwqrzgzLmG1WiInzo
+         sD517OijmCJ0XFS+7pnmA2/tziaZCp/oMzSiQKtMRBln1CZtJxNkSePPcwSreg3fHFRI
+         hR0F9CJ/nVfjp8J47jUyWeCvbbWgS4IyQI3KSwRfpv0H29rCbYCF/e+Kt0xxXHncBDAw
+         CQWA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780577781; x=1781182581;
+        d=1e100.net; s=20251104; t=1780577783; x=1781182583;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=Mr0OClP8hFrXUynWLlBTK0Gpvx5cz7m0c0JrWYexTl0=;
-        b=BWLgTGvvctrWauC6WVlw3ylDXhQ3oXL4IJ/mbWvamCyHiv7pTBn/XfVv/PUE1h+DHb
-         ZBLR+8Nm6Alt0G0zi3NqNdtsFFEYvgEmm/xdjh8+EOTOJsECQsC+A12Tn1tZliFyx5bM
-         nluc43U9UBXayi1wxDYazgFmQPnLhjrZSYNstmtWIpDaYZnRPk1YA4pjyDr4dJxhJkPM
-         qne0STlZGXwRiDoIbgpRnYPZfUPqPa+BegTkdteYSy17jKZ7GhoZ86t8Aw1h4iHVmjOf
-         dx+gev24lKddN3SRe7jjBL2HAPnuS0QueV6nVx/u58uEJY5KyappDuSvyNgyqGgVIlmc
-         G8pQ==
-X-Gm-Message-State: AOJu0Yx5O0PghtNP3E/z4BeQLYnZ9uG9Uwkcun9RBCJ7s2EHgEwH8WLk
-	PcDEXiwNkRQ2V/LIhFIN/3HXTD1/AMD6C60VOtX03HuyVch/opupQud9KxPymw==
-X-Gm-Gg: Acq92OExH8PMO0Dx5CO85VmQV1hUKh0Wk7jO8/T6ETzXrttD3qghA2oTUUHNydExZJ1
-	C6hlgwYPhKLPhRBt5tah4tZ1Vq28ikquUueoj0p38C27XPn0CLQcQnRIDJIgO4czR1foi1DijLZ
-	wW50K03eNeky4b4KGzmRYDmAIaNoSzyppVMo4DaEbOWRvrlHOi7nRIGlTzaXRW2tVaJPVTV7Xk1
-	Zrxf4ll0mi4ie839HSh/XlwgNcE8Fq/GXQhcz5EWtJpXDWYGnPUk5sJyYMBALBwCkIuVA+nqFwO
-	a24cEGLcjaUAEJlaKi8a2kXP6Zzyt+J0YW/TtMFB2K8bYmr9mtaC6tJJaSBkywA/9wjsJ5rwLcc
-	nnPqfsL6toY7w2KjUoNHuSTU2Yi2P2WxILSLIT6Pjfl1PgQjRes9RGsGP3ZnNj8OepmlmM16EyB
-	9IXlhX6HmbL40v1k1NSxTF/a6wHtXgYIIBgZyTDDxXInPSlK2SvphJJGrTY41IuGizRPCnHZ5JX
-	0Mjn1pDD6d2IIM+kKJQnpT1jYFoSMSEzCLDSA==
-X-Received: by 2002:a05:620a:1d01:b0:915:a6b7:4c94 with SMTP id af79cd13be357-915a6b750bdmr53627585a.6.1780577781513;
-        Thu, 04 Jun 2026 05:56:21 -0700 (PDT)
+        bh=ds9b9vzaGUGi02UkZnjU1H4GXXALUle0kLcsTuOotG0=;
+        b=bFJGVjWBPd51MwIgFywhYbho5kZRm36F9UyvW5+PMrOpuETtgWKXX7932H7Mb4jMHO
+         KV0/YYtKP8UG2V/OPT0Yi73Uicq43DN92TJNdVrHM2zFBYELwa6VzFF0AIUWO8Ori57R
+         9ohJtpObADVa4tf6McpHSAEHNq9o+7k4BQi4e4v1yqbtnXYyZ8atQEbsqhtDiDJOH3rb
+         FMaz3+WIVtFNJlHjcTbyDLLd3oLKDfmQoQIXP5yhYAB12O/QYFYlI7Q9T7iyFN4SG9eh
+         YuqtxOHNLUvIVoAdy+rvi7ckWoSVF9i9edDzeXuzBtHOMBliqnf1ZgOs1yN3x7iMF347
+         L3CQ==
+X-Gm-Message-State: AOJu0YySGK7H3E1YtsKjEVU9n9Dy/s98//8y8AlmCa9bcGknGd9aqzdy
+	HML0vaiiDsdvOkywy2361vtMzmLcSDXaytF2g+7ttC1+v2pZpwYN4A0XoaQGCw==
+X-Gm-Gg: Acq92OGI5Fj+/fvQ9BObuasuFB8HI0INpnbVcrzjA7/KxeHm5NQROvu1euDOQ9r8MYe
+	qvkPdm3OSa5OfzFF5+kH5AIFFtSwvcnyghASykWOuNHsQz1x8blxup+ruGj47c85Egr2N7x3AdH
+	JWIh77jtT8x2BYqvbrgK4gGyEeP4xLIwXW7W2YjcGLfkT5cDZdmU6TvXArU9jDHwjAo5ELBYvr8
+	W1XLQkYuXgWWuaMcxEp00oOwMq/PJ2PGdP+IG8B5M7VkR5ICdrklBbPbEMStlQ8oepWQcW5OVJq
+	cVcGHqOTlJjXMUJxJ2OwzMT4ZKbFTWbkutKYxQugdBwl/yOXZpJ3232EFsm74r0SdvqbzYJv9F0
+	UM/jDW4GXfnvpmiHPv05n+tCwI+fItHbIrzDnN/UenPRHxsBYH2acGuBseuYnPSKD8Q8CTYtOiy
+	tFT3H3AEf1zJ9sa6J8FbFs4yEd2yVRJGPTUIyJZTyPcwxkvTFEaMManBqFRT4cYC+38CPy9ySxy
+	opMafXTrxU0u7lujUwauvcQYZpTaMqcIUlhDg==
+X-Received: by 2002:a05:620a:4614:b0:915:9ffb:1f67 with SMTP id af79cd13be357-9159ffb2215mr264467285a.30.1780577782817;
+        Thu, 04 Jun 2026 05:56:22 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
         by smtp.gmail.com with ESMTPSA id af79cd13be357-9158a243041sm598297785a.18.2026.06.04.05.56.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
@@ -66,9 +66,9 @@ Cc: jwcart2@gmail.com,
 	paul@paul-moore.com,
 	perfinion@gentoo.org,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 5/6] mcstrans: set receive timeout on accepted client sockets
-Date: Thu,  4 Jun 2026 08:55:56 -0400
-Message-ID: <20260604125557.255554-5-stephen.smalley.work@gmail.com>
+Subject: [PATCH 6/6] mcstrans: cap the per-domain translation cache
+Date: Thu,  4 Jun 2026 08:55:57 -0400
+Message-ID: <20260604125557.255554-6-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260604125557.255554-1-stephen.smalley.work@gmail.com>
 References: <20260604125557.255554-1-stephen.smalley.work@gmail.com>
@@ -80,53 +80,58 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Otherwise we can end up blocking forever in service_request() on the
-second readv() call (header with no body). libselinux always sends the
-entire request in a single call so a short timeout is sufficient for
-legitimate users.
+Cap the size of the per-domain translation cache to prevent
+clients from triggering arbitrary allocations. If we hit the
+cap, the translation is still computed and returned; we just
+do not cache it for future lookups.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- mcstrans/src/mcstransd.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ mcstrans/src/mcstrans.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/mcstrans/src/mcstransd.c b/mcstrans/src/mcstransd.c
-index 8786c492..2d07b3af 100644
---- a/mcstrans/src/mcstransd.c
-+++ b/mcstrans/src/mcstransd.c
-@@ -13,6 +13,7 @@
- #include <sys/resource.h>
- #include <sys/socket.h>
- #include <sys/stat.h>
-+#include <sys/time.h>
- #include <sys/types.h>
- #include <sys/uio.h>
- #include <sys/un.h>
-@@ -304,6 +305,9 @@ static int process_events(struct pollfd **ufds, int *nfds)
+diff --git a/mcstrans/src/mcstrans.c b/mcstrans/src/mcstrans.c
+index a983e53e..15c2d76b 100644
+--- a/mcstrans/src/mcstrans.c
++++ b/mcstrans/src/mcstrans.c
+@@ -37,6 +37,7 @@
+ #include "mcstrans.h"
  
- 		if (revents & (POLLIN | POLLPRI)) {
- 			if (connfd == sockfd) {
-+				struct timeval tv = { .tv_sec = 5,
-+						      tv.tv_usec = 0 };
-+
- 				/* Probably received a connection */
- 				if ((connfd = accept(sockfd, NULL, NULL)) < 0) {
- 					if (errno != last_accept_err) {
-@@ -320,6 +324,14 @@ static int process_events(struct pollfd **ufds, int *nfds)
- 					continue;
- 				}
+ #define N_BUCKETS 1453
++#define CACHE_MAX_ENTRIES 65536
  
-+				if (setsockopt(connfd, SOL_SOCKET, SO_RCVTIMEO,
-+					       &tv, sizeof(tv)) < 0) {
-+					syslog(LOG_ERR,
-+					       "setsockopt(SO_RCVTIMEO) failed: %m");
-+					close(connfd);
-+					continue;
-+				}
+ #define log_error(fmt, ...) fprintf(stderr, fmt, __VA_ARGS__)
+ 
+@@ -108,6 +109,7 @@ typedef struct base_classification {
+ typedef struct domain {
+ 	char *name;
+ 
++	unsigned int cache_entries;
+ 	context_map_node_t *raw_to_trans[N_BUCKETS];
+ 	context_map_node_t *trans_to_raw[N_BUCKETS];
+ 
+@@ -661,7 +663,12 @@ static int add_base_classification(domain_t *domain, char *raw, char *trans)
+ 
+ static int add_cache(domain_t *domain, char *raw, char *trans)
+ {
+-	context_map_t *map = calloc(1, sizeof(context_map_t));
++	context_map_t *map;
 +
- 				if (add_pollfd(ufds, nfds, connfd)) {
- 					syslog(LOG_ERR,
- 					       "Failed to add fd (%d) to poll list\n",
++	if (domain->cache_entries >= CACHE_MAX_ENTRIES)
++		return 0;
++
++	map = calloc(1, sizeof(context_map_t));
+ 	if (!map)
+ 		goto err;
+ 
+@@ -688,6 +695,7 @@ static int add_cache(domain_t *domain, char *raw, char *trans)
+ 	if (add_to_hashtable(domain->trans_to_raw, map->trans, map) < 0)
+ 		goto err;
+ 
++	domain->cache_entries++;
+ 	return 0;
+ err:
+ 	log_error("%s: allocation error", "add_cache");
 -- 
 2.54.0
 
