@@ -1,63 +1,61 @@
-Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
+Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF1E347D94B
-	for <selinux@vger.kernel.org>; Thu,  4 Jun 2026 12:56:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDC6247B429
+	for <selinux@vger.kernel.org>; Thu,  4 Jun 2026 12:57:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780577786; cv=none; b=tjhtUrfxk9PtRxpcEuMj1lUp3jN3cKJDszFuU9QDCxusdLktR+3lNqirXxBX7z10o2NLD8QLQR6kM8XhIAJ0DJvUeIW3/AUUvZgNek5P6LeWvLR5VZhb+EMWXCZhIsWROFcjAKI49pM4ak5DrwskZtf9aj3L/zAMuw2U+2mIiF0=
+	t=1780577854; cv=none; b=Z4JiZlDnB4xryqFzPZtdQ6zE/ChDgzuFX5iDeqcvmHyWzieUE7LHOTBl515VUn5dOpaSazKfxTe/x7xobcmPFd2ViMJH+cks3Xi4gmw/iypVYCfspRvYk5u8n+ise4yDfDErtLLGY061VbP9kF3hJLzaljSNJu3ys/ZcaFmKwMk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780577786; c=relaxed/simple;
-	bh=duUTerIGsSrf0RoVJgjr8BwIWbUfVwJHDyfF28ui8KE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=it+I+Na6RLThsHw9X53tWstcluysFrb4aGTnEymKonk18e1WVQNNFamAhgC93tCFCu/05jp1AVxsE3YCajREAb9OBhX0mqQXqtZHTpw0QCiMHLYx3Mc+YfsDGrrX4iS+TE1s94v/IhSb4MiAs7bTeYhfyVSSoCwxtCtyEsVzT9I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UU2LbmCU; arc=none smtp.client-ip=209.85.222.175
+	s=arc-20240116; t=1780577854; c=relaxed/simple;
+	bh=ihDWUSO//LX4U0Lau8sR7oaeAvVLanFMsd3WzxXQ3qc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=cJfUqBkwl+mcuzhREAUVDHA9EvmXegJ4xibAu/EM3b3qd0d11TIut8LA1EIENb+eKEpJHwX7hGsFfRJqHLf2i9xbCBGbLpSMktWOhipTCxQe4XS+ENVATSkT+MZ4k5WXzQHSNwg/fHmGAaQHODG2LdLHHM5IEjDtG/I/b2scK7Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pC9FW55T; arc=none smtp.client-ip=209.85.222.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UU2LbmCU"
-Received: by mail-qk1-f175.google.com with SMTP id af79cd13be357-9158c621ebbso85620385a.2
-        for <selinux@vger.kernel.org>; Thu, 04 Jun 2026 05:56:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pC9FW55T"
+Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-9158629a220so79392885a.1
+        for <selinux@vger.kernel.org>; Thu, 04 Jun 2026 05:57:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780577783; x=1781182583; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ds9b9vzaGUGi02UkZnjU1H4GXXALUle0kLcsTuOotG0=;
-        b=UU2LbmCUPjgZwjGplQLCgqdTkkZJe1u1RPumroji0s+77jXZ/NWH8YNWUyyxH6Ng63
-         fDt0E8CnwWclx72Tcsq9XABAw6lZ4yQc3oODbwAfH+N4hBQ+kuCNY4/b7bKN3mXfnHfr
-         amRbuP3ntoJfGKBEp389xWha2sHWiow/EGFrVGFi8eo4zD1ZjsHiwqrzgzLmG1WiInzo
-         sD517OijmCJ0XFS+7pnmA2/tziaZCp/oMzSiQKtMRBln1CZtJxNkSePPcwSreg3fHFRI
-         hR0F9CJ/nVfjp8J47jUyWeCvbbWgS4IyQI3KSwRfpv0H29rCbYCF/e+Kt0xxXHncBDAw
-         CQWA==
+        d=gmail.com; s=20251104; t=1780577852; x=1781182652; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=0kreBmD9OYabfOhZ1X+SeCxG/D37CYkeO9QZEo80Z+E=;
+        b=pC9FW55T2RbNRrZSe0U5LWCRoGGlkujmXAxSK38ntVzC809z04EKgilp+1GxUv/mRE
+         iW7wHEhHGK4CLqN5HwRKjMvu85DVxS3o4k2aH6Ga3BNP+cpCDaVQMRasUj5tU7BDNs72
+         7JjVFHoomzDZgn+xpOTbL4khXmRtpwf7Gs2Xz7K31Hxf/NiokzrAoaHZ31iw0NIR+ixK
+         20IuniKLCD3cRKGmeI7+BB9fQ1upuMPWtGii9CDWwYpzACw2mqqXPpnpgV3jOAmADBNp
+         E2tusgI+HpiWog04n6mics5RtfOcKnEQIgbjEFxllglYRHCQkd9hQwe8WSl/E3l6lzHH
+         vmDw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780577783; x=1781182583;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=ds9b9vzaGUGi02UkZnjU1H4GXXALUle0kLcsTuOotG0=;
-        b=bFJGVjWBPd51MwIgFywhYbho5kZRm36F9UyvW5+PMrOpuETtgWKXX7932H7Mb4jMHO
-         KV0/YYtKP8UG2V/OPT0Yi73Uicq43DN92TJNdVrHM2zFBYELwa6VzFF0AIUWO8Ori57R
-         9ohJtpObADVa4tf6McpHSAEHNq9o+7k4BQi4e4v1yqbtnXYyZ8atQEbsqhtDiDJOH3rb
-         FMaz3+WIVtFNJlHjcTbyDLLd3oLKDfmQoQIXP5yhYAB12O/QYFYlI7Q9T7iyFN4SG9eh
-         YuqtxOHNLUvIVoAdy+rvi7ckWoSVF9i9edDzeXuzBtHOMBliqnf1ZgOs1yN3x7iMF347
-         L3CQ==
-X-Gm-Message-State: AOJu0YySGK7H3E1YtsKjEVU9n9Dy/s98//8y8AlmCa9bcGknGd9aqzdy
-	HML0vaiiDsdvOkywy2361vtMzmLcSDXaytF2g+7ttC1+v2pZpwYN4A0XoaQGCw==
-X-Gm-Gg: Acq92OGI5Fj+/fvQ9BObuasuFB8HI0INpnbVcrzjA7/KxeHm5NQROvu1euDOQ9r8MYe
-	qvkPdm3OSa5OfzFF5+kH5AIFFtSwvcnyghASykWOuNHsQz1x8blxup+ruGj47c85Egr2N7x3AdH
-	JWIh77jtT8x2BYqvbrgK4gGyEeP4xLIwXW7W2YjcGLfkT5cDZdmU6TvXArU9jDHwjAo5ELBYvr8
-	W1XLQkYuXgWWuaMcxEp00oOwMq/PJ2PGdP+IG8B5M7VkR5ICdrklBbPbEMStlQ8oepWQcW5OVJq
-	cVcGHqOTlJjXMUJxJ2OwzMT4ZKbFTWbkutKYxQugdBwl/yOXZpJ3232EFsm74r0SdvqbzYJv9F0
-	UM/jDW4GXfnvpmiHPv05n+tCwI+fItHbIrzDnN/UenPRHxsBYH2acGuBseuYnPSKD8Q8CTYtOiy
-	tFT3H3AEf1zJ9sa6J8FbFs4yEd2yVRJGPTUIyJZTyPcwxkvTFEaMManBqFRT4cYC+38CPy9ySxy
-	opMafXTrxU0u7lujUwauvcQYZpTaMqcIUlhDg==
-X-Received: by 2002:a05:620a:4614:b0:915:9ffb:1f67 with SMTP id af79cd13be357-9159ffb2215mr264467285a.30.1780577782817;
-        Thu, 04 Jun 2026 05:56:22 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1780577852; x=1781182652;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=0kreBmD9OYabfOhZ1X+SeCxG/D37CYkeO9QZEo80Z+E=;
+        b=CAmvETwJoFNEOQMHVyAQo1EjMCc+6TPe9c2t8yUf38A40x6ViGgZThlFhMZ7rqdArQ
+         +SuNpqpNw/DDMPPTxlmE86krviUeiAuNfB0HjhXyeHJaM28cLPgbiHD64sIxmeIY8B/6
+         GLdc7ZAc76a/A0fNDYs0XV/64aiAHc6s3U1468rTaoRzFPj6kZ2X+hSVbUnpid9nPrc8
+         zGkrzbK65y426zgjRLpJf23klj+LoYsO46W0xBI27D3UCn7VKu9uCCVkqMXd6VihL/zB
+         kFnMxq/u0QYXRVEJZIRw/ncdqojz3NM4SYvy+2xKmtopTFCx3ypceMHWsnwj7LF2SOK/
+         LQZg==
+X-Gm-Message-State: AOJu0YwpC0i2OB3ba6D7HyF958LwtgMLBCS8HzVk8Ff1d5yGFXzBq8k5
+	F77atAjdasfxeSKLdDsMcayIv3ngd5IrpES/zyjstlanQIK/tM4uozvonzFVnQ==
+X-Gm-Gg: Acq92OGdUS623Ez2bbnpp+df/YLw9qVY8cDvyr3MZrDhZIIzdVK6fwiLVTsNV/X3acu
+	hbaNEoIYGtjjO3AT/pdUy/MF1QzmyH0+sLAMzTN7vG492K4pQil+MFd8X9I8WJkeIqkHHggIEB1
+	uiEKXAFJKOMgqGwt+TFhuQTcet5GT9tcrukFUnlDl/mCFXgvp4StBIq+fxlpJ9Uq2B/jSxE9Myw
+	UXkvvnL8+MdDval3wCZwn/WQBNg1RVplbyfH6vLowGjCtwT02bBNL3WGQehzAQTDZO3Y0i80Cdj
+	+aqgmCoBwuaqUk+HhqwrlsulJHZ347ikI2cOFw3m7LUIfpqS89+7BzYmgpJmnKDWoiTmGlla1tc
+	kItVrt1uLCBS2xpxyY50sTKNGKLWw5c0t+22D0f3QwqXClzkjNyXUwAx/sZgd0mrBbJhTDd0+0p
+	YkV/Sps0wE6j80q0zWdcVCzoFR0cZh5ixVZTeGTsv7IsX5vqACoDwKEQnkWS1H5amQFolcMmRWs
+	dZEqH00m0hwxOXLtLj29O5Tmmptm8lMNkxeCw==
+X-Received: by 2002:a05:620a:1984:b0:915:a5bd:d82b with SMTP id af79cd13be357-915a5bdf3damr92855185a.9.1780577851847;
+        Thu, 04 Jun 2026 05:57:31 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9158a243041sm598297785a.18.2026.06.04.05.56.21
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9158a3bf5f9sm586427685a.35.2026.06.04.05.57.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Jun 2026 05:56:21 -0700 (PDT)
+        Thu, 04 Jun 2026 05:57:31 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -66,12 +64,10 @@ Cc: jwcart2@gmail.com,
 	paul@paul-moore.com,
 	perfinion@gentoo.org,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 6/6] mcstrans: cap the per-domain translation cache
-Date: Thu,  4 Jun 2026 08:55:57 -0400
-Message-ID: <20260604125557.255554-6-stephen.smalley.work@gmail.com>
+Subject: [PATCH] restorecond: avoid busy-loop when watch list is empty
+Date: Thu,  4 Jun 2026 08:57:15 -0400
+Message-ID: <20260604125715.255605-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260604125557.255554-1-stephen.smalley.work@gmail.com>
-References: <20260604125557.255554-1-stephen.smalley.work@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -80,58 +76,30 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Cap the size of the per-domain translation cache to prevent
-clients from triggering arbitrary allocations. If we hit the
-cap, the translation is still computed and returned; we just
-do not cache it for future lookups.
+If nothing in the original config exists or every inotify_add_watch()
+fails for some other reason, firstDir will be NULL, watch() will
+return 0, and main() will busy-loop. Just fall through to blocking
+on the read() on the inotify fd, which correctly will wait
+until the config or utmp is updated and further watches are added.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- mcstrans/src/mcstrans.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ restorecond/watch.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/mcstrans/src/mcstrans.c b/mcstrans/src/mcstrans.c
-index a983e53e..15c2d76b 100644
---- a/mcstrans/src/mcstrans.c
-+++ b/mcstrans/src/mcstrans.c
-@@ -37,6 +37,7 @@
- #include "mcstrans.h"
- 
- #define N_BUCKETS 1453
-+#define CACHE_MAX_ENTRIES 65536
- 
- #define log_error(fmt, ...) fprintf(stderr, fmt, __VA_ARGS__)
- 
-@@ -108,6 +109,7 @@ typedef struct base_classification {
- typedef struct domain {
- 	char *name;
- 
-+	unsigned int cache_entries;
- 	context_map_node_t *raw_to_trans[N_BUCKETS];
- 	context_map_node_t *trans_to_raw[N_BUCKETS];
- 
-@@ -661,7 +663,12 @@ static int add_base_classification(domain_t *domain, char *raw, char *trans)
- 
- static int add_cache(domain_t *domain, char *raw, char *trans)
+diff --git a/restorecond/watch.c b/restorecond/watch.c
+index 86dbc77a..333f0af0 100644
+--- a/restorecond/watch.c
++++ b/restorecond/watch.c
+@@ -313,8 +313,6 @@ int watch(int fd, const char *watch_file)
  {
--	context_map_t *map = calloc(1, sizeof(context_map_t));
-+	context_map_t *map;
-+
-+	if (domain->cache_entries >= CACHE_MAX_ENTRIES)
-+		return 0;
-+
-+	map = calloc(1, sizeof(context_map_t));
- 	if (!map)
- 		goto err;
+ 	char buf[BUF_LEN];
+ 	int len, i = 0;
+-	if (firstDir == NULL)
+-		return 0;
  
-@@ -688,6 +695,7 @@ static int add_cache(domain_t *domain, char *raw, char *trans)
- 	if (add_to_hashtable(domain->trans_to_raw, map->trans, map) < 0)
- 		goto err;
- 
-+	domain->cache_entries++;
- 	return 0;
- err:
- 	log_error("%s: allocation error", "add_cache");
+ 	len = read(fd, buf, BUF_LEN);
+ 	if (len < 0) {
 -- 
 2.54.0
 
