@@ -1,102 +1,105 @@
-Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com [209.85.208.172])
+Received: from mail-lj1-f182.google.com (mail-lj1-f182.google.com [209.85.208.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42A083644CE
-	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 14:49:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97105369D41
+	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 14:50:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.182
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780670971; cv=pass; b=dUvfIt7KZCP2A2L60Sugq0OTE8P8tO3GDrFa0rxsqAWN3XuWoIPE+PFOR7o40KKjDyk/8fcH30sQrycPSGtBn9XTuZQDqDuqNADBlD4A7LmHOYlkY4jR4DhIbRJ3pQZn/BKyG35N0PAPV/4fdaVGz+Dx4HDEiXEpixr5cy9PIbI=
+	t=1780671004; cv=pass; b=VhIn2vBR6cl7SZawJasQppk3xMM4NVZPKDuHVCBkr0w0FXwopFeC5xFw/6hoZoZv7qWO3z+O33WmCO5fb0AO3k059Yez582/fQbyMBZglR+wy6p5smWi5UgoM9/caoku7uZjdEwlf7kWuc6dIzCImyB9/juczgIJMV86VD6ZZe4=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780670971; c=relaxed/simple;
-	bh=gksZi+4NkfaCr5nB0WnusA0BMQS9y2I1MSKNkiu95VA=;
+	s=arc-20240116; t=1780671004; c=relaxed/simple;
+	bh=LKXsoGNk3/RqeYloG11lkmF6A3BTgxTXf3CokCQ+eUM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=I7qvnKq5IgsSTmiDRDgGoP8GRiT7fzA4PXRBZu9wedwOJIm6Jl/zCaTB7OR67ITV2CvUiJn+ywKGv12LHhnGRyGRYKLT3AB3BSegflDXDnbjlf8Uim1c9sSEJIfXoXIqKQ2I1JVLoUDuQv7ATCjWagZ3XLfVLZqWIUoYakUxeWs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Enb41kvX; arc=pass smtp.client-ip=209.85.208.172
+	 To:Cc:Content-Type; b=Ma7p2sjJihS95G7hBGKb7mrAGZOCpXv3iZHPptMwOHcPMJ/O+HKe/g5MRbVnx8PaUKWy2Qx7qtsXqtTtbpQVHpiAwN5EeXd+nB4AXps2Wj+8D0kgR0NTX+xnCN/uwiMUCjbGvpWpDL8c2kfm0tZaOYRznQFhPKuEirySAJKrZOo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DJgkTigl; arc=pass smtp.client-ip=209.85.208.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Enb41kvX"
-Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-39664fe2dd8so17674151fa.3
-        for <selinux@vger.kernel.org>; Fri, 05 Jun 2026 07:49:30 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780670968; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DJgkTigl"
+Received: by mail-lj1-f182.google.com with SMTP id 38308e7fff4ca-39666ac91a2so31296001fa.1
+        for <selinux@vger.kernel.org>; Fri, 05 Jun 2026 07:50:02 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780671001; cv=none;
         d=google.com; s=arc-20240605;
-        b=EH79CMEnm1342Gf3h3CkvopIbRN3ykZKQZvM5HT+4DSOiVdCz5h/Qf92PxZwJPaBoJ
-         IKhV8gE1m2qBu+CqS1c0lq4Zb8GMy0JrzgvL0DzgAdHdPkDu3YbAbDm6qoJq0Q4XvTJF
-         CFAZzfZR/shw9xMr34lTJMYhPkq40OgyXqJeQgLaLOAw/x5n8dnivNM4erBMRo6AthsF
-         STgDMYN4MoV/6cD4BmfAs8a8QNL5bYah5jkCiasdQt+qsH3SchvefcV8um4N40Fn2xQS
-         fXwvIv0omGykuQwbWrIY+wOvzdUyo9vMr33AIkeZbFtJLIXOzEiJFEJVZnXKQbQIj3hk
-         POPQ==
+        b=NDNk5qkWODC58UKr9OOV96Rk6tKis7qrJccWC+L038Rb7S7Zs2PcH8wXt8gaKJUleA
+         ilSmamBIDo/DPXevJ3HTzZ4yaGIWvtPVd+ibJNNZaJ00rTwTNX1PxC89uN3kQ4u8IPyI
+         OlkWHG/IvzbBr778GIkGF6fLNPtk2wzuouOmpm5f8DDdxk8WWJeYutw43h6l974a2s9G
+         rXDWXJQuNNJ7ota7eCAFd9OerMRJNpmCgDFa6M954wqhDQmdw85XGXiHHj5vu2LuVHPc
+         CgNkVcSHRYPMlZS1JWsSXfY86S1em2qWAWzReNO/dqO3uNU1AnJxO+UW89vTFidTKZ62
+         rJKg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=NUMOum2fL7xif1Gwt5G+zDzURPysHFHph3PHzwyzeqA=;
+        bh=M1Il+c+x1asnSO+E1wgOqM73iLS5Gc0Zb999JE6lM3E=;
         fh=biLNIbUdiVI+HWgqVoISrU2pQus1fZiQi7u7sC8l6as=;
-        b=C2/KCwY8S9sqg2HEayYrY+RuiQ9oNkGtPjTpR/4sDtSJTP6gnE9hMwe+9lp/c2yX6q
-         pJEtOwG3CYiQEDBWexGb9IJrmFcANqc+p6QiasIHmwuTvNq3YIpYErEsBBTkZVZJVsJR
-         5wIsthEJSYma2c/ayB3b9OkRYfa7Q3FEOdds+qD2xiAMuJt/t+6A8DZCnLgLjK8cE+cI
-         Le6izB/WxLXvyddfMzznSD9LN+OTMZUheWFb6YuwSlz0ee5bx9noekkJV0zU1bUKzZYv
-         2cHSAxvMiAwaLVBfFiFgUNuQ4fEYfGYhuXk0OtR6jUWLLvt+hZKNOydUJO6YDvqlDkG8
-         jjGg==;
+        b=kUgJ4QOAgsV5ZCvE+rdobs5RU1bbFq6ap8OHrZjQENLIgB5xebo18hMPXBUvHHprtD
+         bVP41wcR/F/qOAZ4a6eZCracANS1MP+7aynzTYxFOcEyqD3xJ0ibkb1dQ1dkBYnHLnZA
+         VK2u6DSfGbDVE1RHVQagQPErqpSsOgE9wUlNMekbf18gAjghUkBpIAEoUgGF6GW4JGz7
+         xq/rm3NRfY2R+JSoWkfbF+uz/gjljU+0XmxIfXSZ7UUxHNP+b4mh27VpZvvUWJwmoQiI
+         FPC90Kh/ogzGyykcvw7dTfvLu59+WGKsr9ulK6+ofpo2TeTDb+nNhIBASbgWQ3m4PQaY
+         wpYg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780670968; x=1781275768; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780671001; x=1781275801; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=NUMOum2fL7xif1Gwt5G+zDzURPysHFHph3PHzwyzeqA=;
-        b=Enb41kvXrrTJz+K72bRMhlGGHsfDpvoCa3oLtRKrGxXaZD2F04UCRDw024lfkbfIEU
-         KnDarb7bUqKrWxCQBpNXbxVQyVsXh8ir1fysW4vM1jPh1KX8JpDHgpbvtof4g3yez9WO
-         DicFLN9LBN7kZgoydd85UHgS6Ss9Vse7lSGzJaetoHK4Urmwiw/YFm/gQpRxOOaPCHOU
-         gLkxAfDb1KDJx4VeF5bnBJ9Ih+tRV78m/XmKKurO5m8DhAgQ4FBOXT+v7rC/BCrh+f6f
-         7JQPUOlAm0wT4KwFtqguq/4/XU+r0akcDobKoQDuak3UBYkNBercshqusdN5wqyJMCdg
-         Yi7g==
+        bh=M1Il+c+x1asnSO+E1wgOqM73iLS5Gc0Zb999JE6lM3E=;
+        b=DJgkTiglaYWr/wsgJPqmes5PHwT0RcgDJmUKA0dOENYOrUZdVIF5AAarFHSJ3Z4Ey9
+         bLXgqXSiywaCAK0x/EpOPqLT3oMWbBFB0+khQIXHo7j3jnuRqekthcm4FLog8bAnpcIz
+         imu36XxPxLRNHtjVie9Zl/1UlD8hZKh/mj0GN6ySmG2nK4OJ186YQtEdn9w1ALQKxQ4H
+         IflughZK61TBnOPBUKwM9qmdI3J96aStrWWDOozt/1vNsj8CHHD8omcHwnvm+c0SnUO4
+         zbNDxdVXgSsGgRJFktHEdohrnIhVBPCms6AMg/6sQH+K2e+hGHXMgwyvODqLoT1mxhTU
+         bJsA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780670968; x=1781275768;
+        d=1e100.net; s=20251104; t=1780671001; x=1781275801;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=NUMOum2fL7xif1Gwt5G+zDzURPysHFHph3PHzwyzeqA=;
-        b=EYmx4/djLlj3y1RhOexcZU5lVM4fcw/tCGUY0jgNNr/GwILDNgOYZZocoxAVckFibj
-         HvvYPhVIT7gbo0UR93/mWUd/9bwOUBoksfs5cmIy3+l3IUl7Hf9FuF9gK8mBskJ8AyFd
-         pGMi6Jlk3qDXJ5NnFF4rzy9+Z3nKztDzkniqesVy16jtIbytuMC+b9xIdwhYHzbXv5Sv
-         +/Zidy9aMCAIqAm/gSwDbrcOTANuhzkGoZPXaKoDHv1jmHTM5wjVdnqn270ytLM68EAb
-         tM7lof44fWYDt+owZ8i71qRa9WA9BN6WJfc3WAUiqxZTW3YsX6od3iy+LcBONWask+yB
-         R6Dw==
-X-Gm-Message-State: AOJu0YxKQHmn3WHhM9IpjcPODZPuxVd0ayfqblzlQr+j/1srP2FBkzAk
-	PR4Jfcq7SczfwdHJWKm8aaaVUMMFqwIdlmASuz8tBqo1OsM9yKFclTonfjDuS4Zw9mBuRTAYGOC
-	fTvFtRsDXxFkPEBvoJgl+2dXjQzesZaA=
-X-Gm-Gg: Acq92OG5mMp3yw3TxiUTHkusWrkTzGydNSwka00N/osvwp2kpoG/FoZZhMdaXpKqiNC
-	dVAsg3pXjievoqhWTUavDSAIIbtFgBqtoDZWeEpyWzSFKxX+D2SEc/veT7UXLJDGIigCzdK0aIY
-	s9hMgspVveEIyIIDGU3vr+ml0PdJmYtnX2SKf/E0BWc7XF671vDD4Q4MpKdbGaQ0GrFdWjWk43v
-	cMj895bNpo2jUEH2S3ckLtYzof74E/+wBytRWvdcpMHo7tjMLoNE0bsP4dUMm93aBIxMK1Qa0Mv
-	fdvwZj4scMwpW4U=
-X-Received: by 2002:a2e:a555:0:b0:396:ae32:852 with SMTP id
- 38308e7fff4ca-396d0895336mr12068181fa.18.1780670968385; Fri, 05 Jun 2026
- 07:49:28 -0700 (PDT)
+        bh=M1Il+c+x1asnSO+E1wgOqM73iLS5Gc0Zb999JE6lM3E=;
+        b=ikS8SletDA5NY6h3T2dzmiPosGp42i+y1nVKiAZPN6TxqyUd/HaAH9N0OdeGCUvXw0
+         hXAmX+KzDKSL0XCbERuPIjDK8QVGGO/g6LWxwv7ra3noDx9wNCNR6YWni7Tta3z9LTmt
+         po7UilpyW9ZQDXih0UbmNDrxt1gxwk1qke6wZRMYr6Pm11IMQMczEJlSWXX58NCYPT2q
+         atHmJlAW1ejJ0i1l69RKojPuFgdWcDskgbyORmbYa9+h/XHoOEI8C67oNT79eORtOTCE
+         FHFt3d0/Vus2qo7OA8QuAL3LwBoDEwmvYNJMe6hV66YInENxgxtFOAliFrCz/MQb5r4s
+         RvlQ==
+X-Gm-Message-State: AOJu0Yy4iRIEsQtovxpE7i8OiXEoOwObMrmG4d8rZe0Pprb/LgCYXM/e
+	IDCNxtw2DeLEdKchDdbFtnHrTAaok6TgljQvbjp9MJ0BvjDIR66buZrFQ/lqiNn5/x7Rz9oPemE
+	87D1USTp6/4Z+EKx3abtRUl8sfiQf/wk=
+X-Gm-Gg: Acq92OGutuJStK6YluOripk8JDsi6yUUKRmTcEl6E8CX5W5SIFLZDleIZ8dPryW7sQF
+	Jwbc0Um3X7a5k5z2hsCRDf3h1D6SKwxlafVvcpOwCjLAuT0USjmwCcLWQcK+2m4KIe4oqTWYEF2
+	f+gQOjkjQaSOlI/OLa1R12tQRDSEwxczLACyBNNSm3EaekoRawCxP0AKBiNov/p3oXwJK+wtCF7
+	VSVpfH4rbQhNV+N5Tfn9OBR5HYERhTF+veG4d5vh3WMR86CVmH215RVks3HLf/MyA3ONuZlWCTu
+	lVLP2HuT6m4P5YLlyvwGkIcrCQ==
+X-Received: by 2002:a05:651c:555:b0:396:a4a2:beb9 with SMTP id
+ 38308e7fff4ca-396d285e8ccmr9096111fa.3.1780671000636; Fri, 05 Jun 2026
+ 07:50:00 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260604175258.264439-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260604175258.264439-1-stephen.smalley.work@gmail.com>
+References: <20260604182822.265426-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260604182822.265426-1-stephen.smalley.work@gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Fri, 5 Jun 2026 10:49:16 -0400
-X-Gm-Features: AVVi8Cdgmh8UTs9H8YYUCqGDAFl4FsvQrdA1ov26X5dd6mrNWQCtCx7n2lp9zVE
-Message-ID: <CAP+JOzRAP+eeamszsP7h5=H2VYhMu2LYkSEya0M22k0DDV+ukQ@mail.gmail.com>
-Subject: Re: [PATCH 1/2] mcstrans: fix glob() error checking
+Date: Fri, 5 Jun 2026 10:49:49 -0400
+X-Gm-Features: AVVi8CeVOd3Kbst2XEMxcSpMIqVQp32MDBTw-9I7uugWcPsRsaFYxkEmNPpldHY
+Message-ID: <CAP+JOzT9hRsDQp8w+DrAb55vopYiUoSxXoA1MvT4+=tHMPnm0Q@mail.gmail.com>
+Subject: Re: [PATCH 1/2] restorecond: avoid clobbering last character of
+ config line
 To: Stephen Smalley <stephen.smalley.work@gmail.com>
 Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
 	paul@paul-moore.com, perfinion@gentoo.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 4, 2026 at 1:53=E2=80=AFPM Stephen Smalley
+On Thu, Jun 4, 2026 at 2:28=E2=80=AFPM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> glob(3) returns 0 on success, > 0 on various error conditions.
+> We only need to chop the buffer if it is a newline; otherwise,
+> we will clobber the last character if the last line lacks a
+> newline. The NULL-termination is handled by getline().
 >
 > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
@@ -104,22 +107,23 @@ For these two patches:
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  mcstrans/src/mcstrans.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  restorecond/watch.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 >
-> diff --git a/mcstrans/src/mcstrans.c b/mcstrans/src/mcstrans.c
-> index 15c2d76b..e0593c76 100644
-> --- a/mcstrans/src/mcstrans.c
-> +++ b/mcstrans/src/mcstrans.c
-> @@ -854,7 +854,7 @@ static int process_trans(char *buffer)
->                 unsigned int n;
->                 glob_t g;
->                 g.gl_offs =3D 0;
-> -               if (glob(tok, GLOB_ERR, NULL, &g) < 0) {
-> +               if (glob(tok, GLOB_ERR, NULL, &g) !=3D 0) {
->                         globfree(&g);
->                         return -1;
->                 }
+> diff --git a/restorecond/watch.c b/restorecond/watch.c
+> index bfaf4f29..41497f49 100644
+> --- a/restorecond/watch.c
+> +++ b/restorecond/watch.c
+> @@ -384,7 +384,8 @@ static void process_config(int fd, FILE *cfg)
+>                 int l =3D strlen(buffer) - 1;
+>                 if (l <=3D 0)
+>                         continue;
+> -               buffer[l] =3D 0;
+> +               if (buffer[l] =3D=3D '\n')
+> +                       buffer[l] =3D 0;
+>                 if (buffer[0] =3D=3D '~') {
+>                         if (run_as_user) {
+>                                 char *ptr =3D NULL;
 > --
 > 2.54.0
 >
