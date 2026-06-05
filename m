@@ -1,40 +1,40 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BD6933F5AA
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BC2933893D
 	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 17:22:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780680149; cv=none; b=VwSFcQxvEBs7Gli1UW7Wxo7RfK0/qbr1m5xyZCkpvo3yv5uiWOXxbmaC+ZSNp01A8NsFu6I1zp0Jii5aFP3Kqqz2l7SzllGN2+5JYTMxsbupMKGlTDsO32uphDKZ5mxaAwrBwuu/4CIsIqE73tFS1DZq9HxI5N3OgDkR/8Ic9qs=
+	t=1780680149; cv=none; b=q2ThRBEbQMLWYNi9lf+mrq+N6oEZNSA45j7SNxW1a2UbPz+x4ttS0KLrvlmn43Ml3dNbgmIApOtk6cOAB7dDhSzwT5qudn3QSsjfPJvuSs8yxq3rk1X24fPc6Xavs/F/DBN3taUBihR1qI+e9Nz8+5Qs5EMqMDdp0K7ndcuK6IA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1780680149; c=relaxed/simple;
-	bh=T5gY5HXrT9KM0fqxqmFfDNLIHFxckJuM7Ycv+eNJIxA=;
+	bh=9lgUBei45/uY5E74VSwO/NX6lsjAq9vyGyK2rsUgS4w=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Y17IS3QjtcmDj+DdBAxx9En0iU3GHlHZTmLYTC0NatoUph7ZXsOnKwIqcsxyPHIcBZ4PTpHK6Jfgpvq27YvqwLrgIgqLEgwTCeFD6pNoao5PikR+j+u+w23RjlIMTnMudth7v+lGrctUB4Mp5rdXBxgO7mooa+wlUurHZ2kObBE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=T/wP9xMq; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=lp/T4qvm3tmzz2pfFyrXxMheoIv1FQnYDww4kgafk6PqZtUxZ+0YDeIPOsUBfTLSPAj4IMH5qiYbLCMXeK64vvg45C5KLudnOHaDDwJ5cR487vdj/T7e/KBmqlUqBLq2G078im8cCWkEVD+oz8S52m6IQH7Ddg/QlyXzS8Iyb2I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=XcCldIWu; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="T/wP9xMq"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="XcCldIWu"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1780680144;
+	s=2023072701; t=1780680145;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=D88c3IVjQMCh9Ek3FZE0fDbfaN4WWljFKuSjTeMOOBQ=;
-	b=T/wP9xMq3T3SI7GPb6GX7rRvSyyG+X7jREWBf0F1viZNxRzJhjnPdzNxaPiuAo1GwU0Ka3
-	mqCPgvX5w0AUJqB0uiyfgyhuzDhgBSrK5MA2CCgRcou3MOPrMen7JNBpIyvF/w3TiI/H25
-	Vx5/2AqflGFGi10rt7CmQ45qTNF9jKlhqVvBLuEDCxrmAjGmn1aT7CZQf/Kuo9M7VVExx7
-	rO8JbZu67RBb5eYhuTA+grhjRK9dC1qWEygTKOA+7ThptvQLfH4axBK+Ew+6KVVnqgMYN3
-	U+NEICX5ylx7eC5a3wd57gvm3tp8cbq2kh8qTit/gdASq9dijuWYOD57JTQDvg==
+	bh=KrpH/B/UWrXavcRI2NIgV6DWnZPXCOsc44vWfO9osU8=;
+	b=XcCldIWuEuynvhAY1gLscVfFCzb+sbXRfMyz20BzWbCNE+aw1xz2NJGoflgKpMaZSq9rEa
+	xEqx2gQAx7yVCKnLNbqEG10IVEcQbN6MkvQMTkVtNsianLW9txWGZIEpLkni1mc0wAqds9
+	e9Co8dbq2wA/mtS5NAUdxRCHZ7L0xCt2MD8WrEwBkg1vuw6W1Kfe3Hcs3xkRu8D2ya0HUc
+	0gEKYvN+cV45aRNIsr+Sz0ApDiLWspPi2GKgpJiJ71FEZyaFGuzivz6RKeoDMqHOovJed4
+	zC1qnmUwkqSh7DS+p+B1tqemS3qiegm1M+I+y07zou1X1G0xiMSSI3nnJ2IFQQ==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 07/11] mcstrans: check context_range_set(3) for failure
-Date: Fri,  5 Jun 2026 19:22:02 +0200
-Message-ID: <20260605172207.222382-6-cgoettsche@seltendoof.de>
+Subject: [PATCH 09/11] restorecond: warn on selinux_restorecon(3) failure
+Date: Fri,  5 Jun 2026 19:22:04 +0200
+Message-ID: <20260605172207.222382-8-cgoettsche@seltendoof.de>
 In-Reply-To: <20260605172207.222382-1-cgoettsche@seltendoof.de>
 References: <20260605172207.222382-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -49,29 +49,50 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-Bail in case context_range_set(3) fails.
+Warn in case selinux_restorecon(3) fails instead of ignoring.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- mcstrans/src/mcstrans.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ restorecond/watch.c | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
 
-diff --git a/mcstrans/src/mcstrans.c b/mcstrans/src/mcstrans.c
-index e0593c76..ee9392bc 100644
---- a/mcstrans/src/mcstrans.c
-+++ b/mcstrans/src/mcstrans.c
-@@ -981,7 +981,10 @@ static char *new_context_str(const char *incon, const char *range)
- 	if (!con) {
- 		goto exit;
+diff --git a/restorecond/watch.c b/restorecond/watch.c
+index 8e1c36fe..30dfb8b5 100644
+--- a/restorecond/watch.c
++++ b/restorecond/watch.c
+@@ -202,7 +202,13 @@ void watch_list_add(int fd, const char *path)
+ 				continue;
+ 			if (len > 0 && strcmp(&p[len], "/..") == 0)
+ 				continue;
+-			selinux_restorecon(p, r_opts.restorecon_flags);
++			if (selinux_restorecon(p, r_opts.restorecon_flags) <
++			    0) {
++				if (errno != ENOENT)
++					syslog(LOG_ERR,
++					       "Unable to relabel %s:  %s\n", p,
++					       strerror(errno));
++			}
+ 		}
+ 		globfree(&globbuf);
  	}
--	context_range_set(con, range);
-+	if (context_range_set(con, range) < 0) {
-+		context_free(con);
-+		goto exit;
-+	}
- 	rcon = context_to_str(con);
- 	context_free(con);
- 	if (!rcon) {
+@@ -286,8 +292,15 @@ int watch_list_find(int wd, const char *file)
+ 				    0)
+ 					exitApp("Error allocating memory.");
+ 
+-				selinux_restorecon(path,
+-						   r_opts.restorecon_flags);
++				if (selinux_restorecon(
++					    path, r_opts.restorecon_flags) <
++				    0) {
++					if (errno != ENOENT)
++						syslog(LOG_ERR,
++						       "Unable to relabel %s:  %s\n",
++						       path, strerror(errno));
++				}
++
+ 				free(path);
+ 				return 0;
+ 			}
 -- 
 2.53.0
 
