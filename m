@@ -1,129 +1,139 @@
-Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7474355F41
-	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 17:54:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6B1236CDFD
+	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 17:54:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.182
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780682048; cv=pass; b=u4XA4AnVCGXyaAI+iS3NRnbUB7SH9Qj2AZKZlaCDnGEMRANJw4Ks3udYuA5IylKSwwE9F9fRNvcsdHBpk/AbeQo5GOFMpps87LaOZ8fP2GKgryG2r5XAY/POXSw+dwWPAOeg5zSw9z+vU+/trogndlZ+pFNNPB3JOJcpT6w3jtY=
+	t=1780682084; cv=pass; b=df3qWpPiPwNG+1V2uZDtqUR82f2J+945MKDrmgXOwjCHW0Nr/5eb3CJNJ55NGEz6sCAkAxeRPlT5zDmoVrnWIFzM7LfzJAM5lyTa61G8uHvaCol6vk4Kj8ZwjHNWAfl9BQvVyMVBPCqluAjgm1mt0TEo89eQQGu0YdL0Y82pjfU=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780682048; c=relaxed/simple;
-	bh=aEdAwZ8lTPcFAqirhlCpirZZX3dXOnjkATbuQgZ3dSg=;
+	s=arc-20240116; t=1780682084; c=relaxed/simple;
+	bh=jV7iXrY+qx3LkKJoyUAzftw+93seZ3sH7OCYxJCBqsk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=QRLTwt+ibD1VtCJqtcavKIdgbLxRQMuBM5RIGK+E6pTfw0xszD/tHKNc11P6VlFj3QLqMw1qjK/tqK0LFvRJV+vLxc8U20/OMvYBkDlicWP23wyz+yboTJWAMViuWQ7WfEZ64pX3Cg0OxJTQcGDB2rFVJsgj8n9F3oKcDsjnwN8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=a6Yzl8BY; arc=pass smtp.client-ip=209.85.215.182
+	 To:Cc:Content-Type; b=HLB1EbXmA5BkQsuVYr+JvZNpnZCQ+KEx7+MAY2h7SY8AjjjD7m9z12lGNpALvZ1zZeKjMfYOkEwm4K3u+Qex3xYG0KMtFpVzhIDKZMrsuNfLkb2Q81ZIxz7QGiqnCDQibRgSTBs/iLUGDnHQ7Ja4jGKUBnQZSxDDvfEp5Ip/5aM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NC9mf8Ot; arc=pass smtp.client-ip=209.85.214.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="a6Yzl8BY"
-Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-c8587427468so959822a12.1
-        for <selinux@vger.kernel.org>; Fri, 05 Jun 2026 10:54:03 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780682043; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NC9mf8Ot"
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2bf30d530bdso22873775ad.3
+        for <selinux@vger.kernel.org>; Fri, 05 Jun 2026 10:54:40 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780682080; cv=none;
         d=google.com; s=arc-20240605;
-        b=InCjuQBzKYzVKziAkm5L0LBymC4Nnkx3qsT8PaBvxdz/xKKjUYmavhM9RYYjmDPhha
-         IvQ6DYjHxdrjWeVLOdA8nkAoq6dzfcTi30ADTlceTDKr20HsBsFgBMuyf/FrxGC6RM1e
-         3Yv7fRWwSEXmD4ugNu3FQ5LO+gxZ5RCi2hDZ7OmV7W8apfWHPPmx5h1KH4ZaaMWET7dw
-         KVeHSHEDmttDUAgXKsxmrnaYs4jTV0DmRWZdxaT4gd32z4OLY3Q0GYHKYSEVfXWxx14V
-         RP1nkbo3zTbPcsYrBvofjUZ5rn1bxmXWxk/gdtGtuU4F3+aIhJGf9NimFDaq1y+WZFqX
-         hzdA==
+        b=E2OCJymUJ+Cea18gNfrZ389lpMjbHuqvS1qzNyANP4pLyLgNC2Av8/vBvaJDdsYGAd
+         OjDHS0WEUPlkUcO8bB6Qc34cHI0ddwTdVcUZlyvRWF13gJb7c2tbtjUqGwEHouxH/ha3
+         TFW21Qqsp71ZkRs+fvvYr/nn1DOGGLZIbtjmTNyiIj+IiX+1vhJZXEHgVYf0iVAtw47/
+         YgczTiw6zGm1fiIT07nh0NaPS28c12aQLLuA82gvqi3np6hmKOCFxrdYK+X1Gj++s6jy
+         HJEq+jvmJhr86ce+UH9ywP0o1SImwKiPCn/Rg3jLVT3d1A2/araZhqj/hd2W0cXlU5UL
+         SSeQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=U/bsFpenRw4wEDw9bMafDSZkOS5MJKqUy2hRmvDsq+Y=;
+        bh=lUXtqYTUVj1le565dShTCz8cVE+AsRWc5AUVBn7XUTs=;
         fh=5BxwEK/iVIzhs7kNCBs0/zEkT4yGKFLka6Po5B0u4CY=;
-        b=BP+/FeTH1NJXWEj1sR4eRwU9+dIU6vhBma1Z5t08hoLEdxt38GQ9Q5P59X5gCD9L8n
-         9+VfySlVO11JVIgO0cnJ9UdFcFJL6GhPQLeqee2UST1Xq5HD6F3t/oo2vWRS+sksamdh
-         pDMUyrjP90+64mHJDAqqyyYAcyU/qwReDIeolTARfeiIISMdDwDE8DB571Tdb6fyjco9
-         oeKuJEeYAYLZscO0EVknwPQI12SRMEc69tDOWmxKWGzDxpDFCYbOI1u/QDGb5iF4lsoM
-         GM5HMKrpGMoqXfWZKvPIErEk4Z/juq8iwXY5fW/dirmaTjJMU4r4bkx43hsC9HF/jZeg
-         paEQ==;
+        b=WBGh2fzO4plc2ZYgtoloSLLUNMsmFAERHQUhdQDjc20vIhm3juLHUfK1a6swEcSuGO
+         4HIueWDW4JQ2NPubhiWp+WzbxwbQTtQBJxaX1K50Aqm6jtZL9MELjPxexiIPjo2JWU4A
+         Dw2zmzjU5Ja9lkmzfRLNaErgzEv2WiFe1UfvsRAxWSAK5xDGtAAhmDYODTEaWG/DtP99
+         uho8F6Uk5FcZgYVvDZIjDklMFLcYTAVcbuT9YeulLwjAsR+0w5JiUDrf+w98+eAhJFuC
+         UjCc7tB0Wn2i7TSw+WK7TabGz/2iQLZMNUHTtUwv5s44346MQkgT/55vX87FjBWjEop8
+         exQw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780682043; x=1781286843; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780682080; x=1781286880; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=U/bsFpenRw4wEDw9bMafDSZkOS5MJKqUy2hRmvDsq+Y=;
-        b=a6Yzl8BYAp7sLPXJXig35B001DQFpKSDaMkz+v6TqaoleLBCokVxvi0myqms3O+Ero
-         lEzmN+BVi2r220xM8ZcbgCe0O4nUhy89EMD7mJ7KaiOv1F7h4a/FkEBextZdBPN3Ym6h
-         fo4X8JoWloJPm1XRkV1IOGQueMQhHpVTxkcqzvBcgErcJ8jhjwmMY9LQnp9Pqeh8D39W
-         rXZ3rILIE5rqry02mYkllIj57FKdFcFbgmHyqo7USKqiUQ1DEsc9Jf2Z6wb9o1FuT0II
-         QqvirNVYfZtaK2gFrBBOKA6zLAdmY4UfrYbnrtpW8dJjGU2jF+zelJfqk6sIAfqEV/Fz
-         +0LA==
+        bh=lUXtqYTUVj1le565dShTCz8cVE+AsRWc5AUVBn7XUTs=;
+        b=NC9mf8Otm+a9UcNnPP4do9iXhkCY+MQ6YMCgBLWxUd9abf4aiBLsFFv/sxgGE5iedI
+         sle4iaPKM2D2V9soBesUqk7gEBR2hRx+/r9o3aJ75F4Hd55Svzq/7x/8KF/IxccdrjzC
+         rhwL9smdsXTqjM71a95gtL4mtWCIH7VxmAWG6iBVpR/cTAZJqJh8j2BZGMqaGyBQfr6+
+         wjTChl7+xSIKcrV4oqF6reStCIllMj6PDIQwWFZ5sKJhUBEEYL9gs02Jllth6sxzN4mA
+         /vcR3++W5E/UKoHLODrA/uBwIhwCww0VXyx2Wd5e1LGskXKPKjCZLQ+PkaWi8wgmwKtK
+         +GfQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780682043; x=1781286843;
+        d=1e100.net; s=20251104; t=1780682080; x=1781286880;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=U/bsFpenRw4wEDw9bMafDSZkOS5MJKqUy2hRmvDsq+Y=;
-        b=r9Hdgj3HaUxuOitcGyhxU9/dNzuzGOI84hBBmiZBt3n4CFXQTdimgmf1aZtT/AHDMT
-         LOFFPOcUUBEKikdxmz51c4b6KXevuEnHL0hy3UOyIreNPSkIET9Ejnk4YszYGq8R9KRa
-         wnRjGzjxUbFhq+IZ7TZ0AM6z00ZmMG/e/TPuXXdF2M5PC2PQT0g+O+2C+zroXTIXMkiQ
-         yvLG1MiRbMM40TjyoorotR8hXuNig27k4MzrUZI6BGC7LSihvolvZAUzG7qkIjbfoIwv
-         5mw8SCqItHq3zIAASZukDBxeDb2G5YhzSCY9/QX/R72CIjVvXTB7yVFlUmjZyDdAvZOF
-         bJmg==
-X-Gm-Message-State: AOJu0Yxm/SxHAntIilOTvurA7Uh2Qg6+S5XJoJpxDkoEyE2E0MwX2vZm
-	RTaItTjbhmAftHOxGx4Vtu8CclANbzJey8E3d+xd+moHhcnzCg26y9fm9CNGvxTU4yC6if+CpNX
-	ii649uU9h3u3AlfL/0TKRDLLVXAxGEcw/4POo
-X-Gm-Gg: Acq92OFgXOvWV04Yraqqz+qc1kgc3sq2VDsyzpciBvTtdX22Bb+IkWUz8RqIjtPxuzi
-	DNDgBtyklBsU4B8gDQqpRfLhn3hU0ueD763hZQmt3SwCTfkWTtvSTa4V0irRKKpHzEUptGvfD5g
-	HfHXm+6yKQnZeHFFop4g21uQllsGEY1R2vwQDKBa6Fcbvypd8xruYaf4EcXqCtgEKCM9RpeHwCW
-	9M8eVwSc7HQHMB/3bV/qZ7jnaObV814zpDRZ3CTrPzo4BFvbC5Vzgxxo6+452JH2EgcBVTpGigQ
-	Px2HczXbDqU7G9xz7A==
-X-Received: by 2002:a05:6a20:4323:b0:3a0:aee6:acc1 with SMTP id
- adf61e73a8af0-3b4ccfdb60cmr5989426637.33.1780682042847; Fri, 05 Jun 2026
- 10:54:02 -0700 (PDT)
+        bh=lUXtqYTUVj1le565dShTCz8cVE+AsRWc5AUVBn7XUTs=;
+        b=AgmhC//vl3URFFaZNcBrz9QpTLiSgWhmmZoHRjDIJIAR4TEMDTHOAE+lSWQq/eVWVY
+         K53WKZd2AKKAtMYvOdTt/LLLnY2FqQ4qitQM/wsaV4V/UE5q6oVkzD7fMTs+IJOq2v7M
+         0g0rP7MFCii3NelgIstnMOoAy4KK+kHwBc3TVAcamLSGAfWm5PK38AtCrcIq9FuJHR8f
+         Yc9/KWLpjLe7FC2RKfl7tvj2nz5h2+sZXgi8qAit1FfadMjeMwXE1BX2TFBkaRAv02mr
+         dgY8lpucujOnGcohfsdfg+PlpYqChbXTSLwMQ3RTmDJ0RCw1B+8rN+dwOB5YL60JZwX0
+         PeaQ==
+X-Gm-Message-State: AOJu0YysqFL6yaT0W5cuXfxxOInCLJDokKU8XL7/BSfXDTLAz4FSmw7Q
+	c2O7x6bR0NqfC+UstB76oNTOWZU9JVMY6gSe1B6JnXATtEAbYwzIAV/WakVE7Z4uOr47JX5mzTW
+	n1FvFgedx205lBWpv+10OKENK7T34MKMQ3piF
+X-Gm-Gg: Acq92OFQO7SS+6FlXjUOFEG7UzaRobKjh3rBF/OngdZXsxoLocosDlF6vgqRIjhs56l
+	2V2veTO+ZwbruusHdcrjWpmSHLjdi/cyhkgeDj5zvAXfiGimTBSiYHuoj1WjHhQNIaFBr4FR/dn
+	Gn5VwkOsV44cqEKaTQscPUyIAw7iz7tzCU+fbsVndx+06+RViPPAfphehFgO7Yl6rnCmMmKciKx
+	nLPDaX5eYRspFgyqu27dHHT6qU+N9ZgP2YLPBPnIloNto+aCQ9watX6ZEkmnXs8pTqFhKzn8/MH
+	PBr/5lQy7tyzKDTSCw==
+X-Received: by 2002:a17:902:f64f:b0:2c0:c4c9:4cb with SMTP id
+ d9443c01a7336-2c1e7e7a6eamr52623905ad.14.1780682080027; Fri, 05 Jun 2026
+ 10:54:40 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260605172207.222382-1-cgoettsche@seltendoof.de> <20260605172207.222382-6-cgoettsche@seltendoof.de>
-In-Reply-To: <20260605172207.222382-6-cgoettsche@seltendoof.de>
+References: <20260605172207.222382-1-cgoettsche@seltendoof.de> <20260605172207.222382-7-cgoettsche@seltendoof.de>
+In-Reply-To: <20260605172207.222382-7-cgoettsche@seltendoof.de>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 5 Jun 2026 13:53:50 -0400
-X-Gm-Features: AVHnY4LeEMuEuHXinlzeNyR1TbAEypu3NOg0t46QIlqlAoC-bIko47_PdToP3rw
-Message-ID: <CAEjxPJ7c--i_RDtv6V4ffgFFpuUg6VrTGzsPnAKj8hCr6dNoOg@mail.gmail.com>
-Subject: Re: [PATCH 07/11] mcstrans: check context_range_set(3) for failure
+Date: Fri, 5 Jun 2026 13:54:28 -0400
+X-Gm-Features: AVHnY4JJKLWLlm3vUmq3l3dW-PTFdY_weukBhvGo5YVQdoe-c9-KZsfkFHjBGSM
+Message-ID: <CAEjxPJ4qaN0w8SBUN7vb492LXUNnf7NHn+ARu_-aqXTw9CeHXw@mail.gmail.com>
+Subject: Re: [PATCH 08/11] secon: check selinux_raw_to_trans_context(3) for failure
 To: cgzones@googlemail.com
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 5, 2026 at 1:29=E2=80=AFPM Christian G=C3=B6ttsche
+On Fri, Jun 5, 2026 at 1:25=E2=80=AFPM Christian G=C3=B6ttsche
 <cgoettsche@seltendoof.de> wrote:
 >
 > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Bail in case context_range_set(3) fails.
+> Bail in case selinux_raw_to_trans_context(3) fails.
 >
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 > ---
->  mcstrans/src/mcstrans.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
+>  policycoreutils/secon/secon.c | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
 >
-> diff --git a/mcstrans/src/mcstrans.c b/mcstrans/src/mcstrans.c
-> index e0593c76..ee9392bc 100644
-> --- a/mcstrans/src/mcstrans.c
-> +++ b/mcstrans/src/mcstrans.c
-> @@ -981,7 +981,10 @@ static char *new_context_str(const char *incon, cons=
-t char *range)
->         if (!con) {
->                 goto exit;
->         }
-> -       context_range_set(con, range);
-> +       if (context_range_set(con, range) < 0) {
-> +               context_free(con);
-> +               goto exit;
-> +       }
->         rcon =3D context_to_str(con);
->         context_free(con);
->         if (!rcon) {
+> diff --git a/policycoreutils/secon/secon.c b/policycoreutils/secon/secon.=
+c
+> index df32c830..2f2b06ed 100644
+> --- a/policycoreutils/secon/secon.c
+> +++ b/policycoreutils/secon/secon.c
+> @@ -2,7 +2,7 @@
+>  #include <stdlib.h>
+>  #include <stdio.h>
+>  #include <assert.h>
+> -
+> +#include <errno.h>
+>  #include <string.h>
+>
+>  #define xstreq(x, y) !strcmp(x, y)
+> @@ -637,7 +637,10 @@ static void disp_con(const char *scon_raw)
+>         char *color_str =3D NULL;
+>         struct context_color_t color =3D { .valid =3D 0 };
+>
+> -       selinux_raw_to_trans_context(scon_raw, &scon_trans);
+> +       if (selinux_raw_to_trans_context(scon_raw, &scon_trans) < 0)
+> +               errx(EXIT_FAILURE, "Couldn't convert context %s:  %s", sc=
+on_raw,
+> +                    strerror(errno));
+> +
+>         if (opts->disp_raw)
+>                 scon =3D scon_raw;
+>         else
 > --
 > 2.53.0
 >
