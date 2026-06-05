@@ -1,1130 +1,169 @@
-Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
+Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C91013B2FE4
-	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 18:15:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 077533C5523
+	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 18:36:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.176
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780683308; cv=pass; b=u+h9ujDw9bhOX4VjkHdqO/JUwEaICEr2Ga35PFJWRRMp+cZsqGXT7j6BenEW1V5OEjVM9dxRdd2GZQE0GHWQvudQ9Jb9+FA3zH2dzj1nuNZU/32qggQtf6JBzErAxKXcabzmKJJ/jN84RP6wqorwPFe+P9BJlbOC0/1I6hHbKYY=
+	t=1780684603; cv=pass; b=Z3qkQHY71LheGq/rEfnJl8/GkpBJRuQ6WrMGPW/DT8lQBQeNbCKo1Gc0B4WmELeFKTPW8ITqkGRFb7zrczMOnoI/rYPthhncLWPRdFXV4/XwhnaP/9ZOJqvUhs7b8rUfB52KU+DCxeRPa+tyPxV7yDR7MRGK5Wt6mF+h/TY2+5o=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780683308; c=relaxed/simple;
-	bh=9ZehxhChSSD2Es6jhd8eYPO0pF9ubuIGH4gwta23Ucg=;
+	s=arc-20240116; t=1780684603; c=relaxed/simple;
+	bh=4iMuxk1BELwi9HYqsWqfceePKK7jZJ2g6BcQUQEGEfg=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=amYnxPhr4NzlK6G8DflstovmG1uIvPRG5n+JV7Rg0LqaDnJF4YIKDYqTIefhHto8Vn+11PLVT9fRF/2eoz1gZe8riak9eKdrbiEhFPBvNh6eml55/q3W7KcbxSeM5TCYPg6ScKhNzgiGuDL9d8y8K0OL9QgXhTlDoAagsNppAPE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Dvn7KuiK; arc=pass smtp.client-ip=209.85.215.182
+	 To:Cc:Content-Type; b=LMbeYa73JCp9h+lwjFNaOxjy+/A1HILVdDiEOkQsMPQ2/IHvKDKJQubIVtpuTfLb4wWy9JL2A3ke67zvVq50nseeabEeurFzHVkjzBm0A34V36n0a3XLVy1sKXheQm7ghSxdhKOeJgV+9YHyLXIvhVzGJKXELTVTgGTdhgitOR0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VB1MA7jv; arc=pass smtp.client-ip=209.85.208.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Dvn7KuiK"
-Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-c8588f8fef3so916202a12.0
-        for <selinux@vger.kernel.org>; Fri, 05 Jun 2026 11:15:05 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780683305; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VB1MA7jv"
+Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-3967726bc47so21817001fa.1
+        for <selinux@vger.kernel.org>; Fri, 05 Jun 2026 11:36:41 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780684600; cv=none;
         d=google.com; s=arc-20240605;
-        b=ZlDubq5eZJzqVX7XLaxs0ie/JHMpTjV3hT4LGeG+OgnPcWs7zxpkYR5FYr3J696SV2
-         D+/u0jJU8oWLqhqLELDf5zRb+BCsXhxekx53zP7/flQDVO1sBAC8xK/v7lWaQX+EynxO
-         CsZGCUHyV4iSuZrHxCX0SwZZCWK78LO4IivmORgJpZ1cJ+AW5e8jZNwvHI2yxXg/PJNS
-         0nh+4XL+HhTVeVMdoMBehTpIMp8su0Enxhmf7wiC8TBTgEoPnMl7KecseIxpRNAjv5u5
-         +DEpaTtJRPX7vziQcopuHJGeQUUsp6VhJZN3Vnvk0nPtPfdYsvkN0/7NdPCTJ62Gfvtv
-         vCzw==
+        b=cM1hBDmZV6Tx5KKxfvfn4wSQbTThybmUZWGmo5VLdYgE4DKOdZV9Fs7tMHDKhtONSu
+         Oss1U2oXlxnrpuam1usumy1P+Yij2VJcHzmi4AsvhF3i+6Z+ZJQCcOdBNcIWmwRB1TCT
+         9Lx11D9de/Qgg7zar6yJTf1YZBFCx54u2c6GUE4V/kmBD8LtLWVZgorI+5fpgrmaQYjo
+         gFHXYsLqw3w4N0sDDXG200FIc0ivUBJDGxuBt5x5zh2p00uhI2jkGd8vQJ0cRq5iaDIr
+         J8E5xkb8UqS168iuAwOEg4kSiD2WtKqS8mWHDo2VJX9Idc9947ajsv1zeldhR9V+C86X
+         Lwrw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=ePT8j120bt6jqEvGSxxt7+ccd3Lp19ca8/hxMUkhPd0=;
-        fh=5BxwEK/iVIzhs7kNCBs0/zEkT4yGKFLka6Po5B0u4CY=;
-        b=JNmoE1vR0nyEkxVcYtOmdGLqa8hXsRayLNZiCf8MO3lbDG0wq+M7AaoWeVfb5suNvP
-         wrXPbAGKZ+BLCIt6RpX5G2WrnaGOrdplIkH84kHm4dxBUAi4FDFIn0QaXgqlEWOxcg51
-         qOlnKgB/Pb+kbMADz+L/P6rkbaliF+kyQcFyOh8Nsg8V9/LTOSDlc9mDLxchSXzXBUc6
-         Sl1xW+u8VWI5m0/tD9q+8SgD+q5/qjfj55GdkBf1g5PYoGZ13S9OuxEOm8QMNK1roD72
-         Sc82h4AZc7O3Cn+rlDnjDkMqweUyNYoSEAp01b+Fm/KXRj4Tn/k0q8FFj+c2dHtimhDe
-         0juQ==;
+        bh=6sxJOREQwODVgTnmmQajDGQ3LtPbfI0xB/kpq8HLqRQ=;
+        fh=+D6xJ6BB9J6NyoJZZl71KoOEMrrFPGwz9kIyEgHHWvo=;
+        b=QeJkNmj4Ok7CpD6TyVDkSF4tTNir7T1GZgw3N9o05tFFPVApBulzHtRu7/ZJAeuOVD
+         Lf4uaWXbgNfduWpy+T2yzC0QBjz7qe2AiMDJJnMpP4WjlC0+gB09p6WerhcCe7DAb5KZ
+         RyEQv0BXplqPoSkHTWxKanY9F1gXIs/Fge+xQbj5fyZHYGsagNGAX+cMYf8ztJ92f2Gb
+         PFJB3QHUOynyakQzqd+4Bw//3RLJOX2LTLoKIszCU17xTSxVWH5hcfysqheSgNvnzy80
+         q+9VlFNYeAiLjUoh3iDeCmD4S9H/ydBOui5U38BxAKAhBs9la7OA81owYict2Dt4dCHX
+         c/cQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780683305; x=1781288105; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780684600; x=1781289400; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ePT8j120bt6jqEvGSxxt7+ccd3Lp19ca8/hxMUkhPd0=;
-        b=Dvn7KuiKbgofi6Kd+kJfPdotSk0xoowUKxw4EYBeBjOvmRRNCNvtMCXUQU5HiWEQo6
-         a3P8oEVFHyLl1OMLSkSzGh+EotlyzJ3Gh6mP7gLx9ewz8lnLpbiPVV1am415mjBA5nPa
-         VVfZ+Hbb8CD5acxtMNcrOzAmrVeQd9cBUlUw4CtFTuvLwZHqr0Jmo58ujgDlLQML25q4
-         ipANZVb9Yaqn7GDGL5KmBHrs82nN3majjuNSMe7hOh4KM+LjJAtXDFIalhmOH4BltE/X
-         0isJFXAt4dBnbRs1AQEKwOMNk4SZjnLvlDRe/8INAX8yiFimev8B15Bso4pjOQJ3xgrJ
-         J8FQ==
+        bh=6sxJOREQwODVgTnmmQajDGQ3LtPbfI0xB/kpq8HLqRQ=;
+        b=VB1MA7jvicSpGDlUJAGGCdUDH+ekHxLew50ICkZe0y+4Z1HvkA7rZ5zJdKPWaQv95T
+         R4bi9Vfmdod1BoBgqYx/dxQbqhMcXcR6RwibhD+033woOYBKkz3m6saG7UAacuL3IFoZ
+         Sb5+gyI8Lu8rpZJ4cTojp34v1BIn7diB2YfzUcV6R9eZ1Te9dXoItHNqfRat+qNljCuF
+         uD99HaUtE5yqK7azbeBoDREy+VU8FaXgbTtLb7wayn2e3jWrObTHr7d8fQlUFdiPxvQp
+         5qBuJn9qNrjsaiDUVu7MfsZi3JdjJaIveDqwKwcybWoczy5fH4fDgZcyBv3CBST271+u
+         sxlQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780683305; x=1781288105;
+        d=1e100.net; s=20251104; t=1780684600; x=1781289400;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=ePT8j120bt6jqEvGSxxt7+ccd3Lp19ca8/hxMUkhPd0=;
-        b=qo4Ee1P1rRkz0JOB6p2Njb1ZbrRAEinEh8N9w1dJ4Q9hviC+v3E7vUGCSCAA0GBWP1
-         SEQ6f1jpAAnh2kZ3ISle5p0S1ZwDwbuzpTblwp0xvVIJYTHxmEbmwrXoVOtbLmtB2Nre
-         z6llutk0r/v566BKNsTRigQE13m3Msrq7FNLwVWhkVHelhTIkVZyxMzlFhBFa73ukcJl
-         4fvgO8IKz2nb1Pp/hYglijp4qGkggwWQxpIYQW7Q/TD5xC59tsNmLjX8dkmKQkOSgRRK
-         Th5NbMKnuy28HMq4EIZe/2vhTNPsHCswE9Q4g1dvD4uLdkx37mxfK/Qe0kc53ndAyZgR
-         c5/g==
-X-Gm-Message-State: AOJu0YzkaTs/cHEJVDToxfs2N8RknkVHa2Nfn19FSSYl1lCtidOlrmQ5
-	1GmJUiWMpbYwGqibnEF9vZ/EsotfF8GGarrBd14KRuR+QBgQrDBB5+/xCY3+Ln84eImcRdtgQHL
-	VZ2cI/vVq+NOCNrOMt+1qMigx1nd3Kzw=
-X-Gm-Gg: Acq92OEN5pqDfV6kHOsEKkv9/8LG3dzHznN2qyufA1PNZBA/GhJFViQ2Kf2g/RMVg/8
-	o1+6oM/dvaBdEUq1ZXzhN1REj1xPIi+zbXMJ7k++nLdBTTa9K0WBeBzoCL5U6TWuGq23ksI+rI9
-	XFMKWSk4n3Ux+r8x5C3wb4l7Th6jYOui3lqq5FkpcML6AvqCS/xjycgrucdCkOXsWyNyEbOx5LX
-	3V4nz4b/8qOIgc8CQVs7m7DigdNJSu90A/fOKbrBOyT+UVM+mbll9lBZtMlENfc9exJjNSmTE2n
-	YGFYg8ZGpvvl+6MTXw==
-X-Received: by 2002:a17:90b:35c1:b0:36d:dd4a:1e59 with SMTP id
- 98e67ed59e1d1-370f057ea9emr5157023a91.23.1780683304627; Fri, 05 Jun 2026
- 11:15:04 -0700 (PDT)
+        bh=6sxJOREQwODVgTnmmQajDGQ3LtPbfI0xB/kpq8HLqRQ=;
+        b=G5tY6blBPDBA2GqYBrvpWPfip8mqG2BxWEfE30/+lPX33zRb9zOZO2u+oZIvcH1H6u
+         RfpgD0nBHsEfBfHO7OY3ZZV0aESgd9cuuIxvUr/bwhp7wQTJj1UF/1l7X2XrT6Ic62fi
+         cr7lXrGeUs1BwauxkxYxoIwkimiQC5EkixpP8DJOK0yshBtm8/jEVj6/KdxYGhtS2F7C
+         +5byqPcW2XfOb6OEkiEsYu7VNHFej03O5r0zcxDAbM7i3wyJ/XvanuOy7wBS8jbiHsrN
+         JpYZohDI4p8JbEpMViodq7TJYUbV93eeqtJ6eckAT40nZYWsx2kHfQnCAHxBXLWvXlIU
+         opQg==
+X-Gm-Message-State: AOJu0Yz2iHtvcmHeF2dcjjiCTaqIjBskbpB4UmVe6xtRsRa8aabqkq69
+	jNTjcNr1dLuCnvrNbHVchnmZWKIBfHE5tUgZaExaqwuQC6JafFQKD1xtIrRIZJNI/SH9W/Lnr2p
+	fhldYCuV8BBTt6szJBhheWEuPeC//2nA=
+X-Gm-Gg: Acq92OHWa9kqSEbxNsnlI+cHHjzR41rGSK+wbcmg4ns/DvkLXjosXdxdlkvog9MXLzr
+	k1UFnbfJAFlXtx+wWF1AaKublTD2tpQu4QCWL3fLxN5As3erlsYZuTw2tkZ4tXnrq56LUGz0zBk
+	bgWe/P17ty/VfLic3vL+p0rUDv/amWK6QdeJZw9EtV9jTnypqi13ckhfPdW4K/QcpNM3szM/hN0
+	I1gm4pdt2mj6jqNys2ACEwagybKf2yT6dxBRcfCCb2y/qZg5l3Ycdy+9XfDi7SCCFcc+cOclS2e
+	xEOai6vHtUwsHEw=
+X-Received: by 2002:a05:651c:54a:b0:396:7fa2:e090 with SMTP id
+ 38308e7fff4ca-396d0ab3b1dmr15465321fa.29.1780684599945; Fri, 05 Jun 2026
+ 11:36:39 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260605172207.222382-1-cgoettsche@seltendoof.de> <20260605172207.222382-10-cgoettsche@seltendoof.de>
-In-Reply-To: <20260605172207.222382-10-cgoettsche@seltendoof.de>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 5 Jun 2026 14:14:50 -0400
-X-Gm-Features: AVHnY4KH-J9cdnWDAHy-P0qFPbF5Ry5ms-0UnFOtMv88k2ilaqH3GZd_qRFmK-s
-Message-ID: <CAEjxPJ5nPKihQR=Ud69AOYWPaNZxCEx8fWz2d+2bZtiyZHYe2g@mail.gmail.com>
-Subject: Re: [PATCH 11/11] Consistently use NULL as pointer constant
-To: cgzones@googlemail.com
+References: <20260531184111.691569-2-nvraxn@posteo.uk>
+In-Reply-To: <20260531184111.691569-2-nvraxn@posteo.uk>
+From: James Carter <jwcart2@gmail.com>
+Date: Fri, 5 Jun 2026 14:36:26 -0400
+X-Gm-Features: AVVi8CeIDkPS1umfXcD7KF8wr2F4aR01DZmwp4iuv06ZLl6vxUuEUtRWKm1ovIU
+Message-ID: <CAP+JOzR4feRbvZn7E_YyPypAHZ9r_gJEOo+pENAGJE5oXofBTQ@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: cil_resolve_ast: add in a CIL_SRC_INFO for the
+ copied data
+To: Rahul Sandhu <nvraxn@posteo.uk>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 5, 2026 at 1:25=E2=80=AFPM Christian G=C3=B6ttsche
-<cgoettsche@seltendoof.de> wrote:
+On Sun, May 31, 2026 at 2:41=E2=80=AFPM Rahul Sandhu <nvraxn@posteo.uk> wro=
+te:
 >
-> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> Ownership of the data copied in from an in statement currently resolves
+> up to the parent block. This is because when looking up a corrosponding
+> path with cil_tree_get_cil_path(), the chain is walked up until a valid
+> match is found from cil_tree_get_next_path(). However, as the content
+> that is inserted into the block does not originate from the same file
+> as the file where the block is instantiated, insert a CIL_SRC_INFO node
+> so that for said content it is a src_info node with the original file
+> attached that is matched.
 >
-> Utilize the GCC warning -Wzero-as-null-pointer-constant to enforce NULL
-> is used as pointer value constant instead of the integer 0.
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> Signed-off-by: Rahul Sandhu <nvraxn@posteo.uk>
 
-This fails the build on generated .c files, see:
-https://github.com/stephensmalley/selinux/actions/runs/27031917745/job/7978=
-6146721
+Unsurprisingly, the patch did not apply cleanly after the giant
+reformatting, but it was simple enough to make it work.
+I will handle the merge for this patch.
+At any rate:
+
+Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  Makefile                              |  1 +
->  checkpolicy/checkpolicy.c             |  2 +-
->  checkpolicy/policy_define.c           | 34 +++++++++++++--------------
->  checkpolicy/policy_parse.y            | 16 ++++++-------
->  libselinux/src/Makefile               |  2 +-
->  libselinux/src/avc.c                  | 23 +++++++++---------
->  libselinux/src/context.c              | 14 +++++------
->  libselinux/src/get_context_list.c     |  6 ++---
->  libselinux/src/load_policy.c          | 10 ++++----
->  libsemanage/src/Makefile              |  3 ++-
->  libsemanage/src/compressed_file.c     |  6 ++---
->  libsepol/cil/src/cil_verify.c         |  4 ++--
->  libsepol/src/avrule_block.c           |  2 +-
->  libsepol/src/conditional.c            |  4 ++--
->  libsepol/src/ebitmap.c                |  4 ++--
->  libsepol/src/policydb.c               | 26 ++++++++++----------
->  libsepol/src/services.c               | 12 +++++-----
->  policycoreutils/newrole/newrole.c     |  9 ++++---
->  policycoreutils/setsebool/setsebool.c |  2 +-
->  restorecond/restorecond.c             |  6 ++---
->  sandbox/seunshare.c                   | 10 ++++----
->  secilc/secil2conf.c                   | 14 +++++------
->  secilc/secil2tree.c                   | 14 +++++------
->  secilc/secilc.c                       | 34 +++++++++++++--------------
->  secilc/secilcheck.c                   | 10 ++++----
->  25 files changed, 137 insertions(+), 131 deletions(-)
+>  libsepol/cil/src/cil_resolve_ast.c | 23 +++++++++++++++++++++++
+>  1 file changed, 23 insertions(+)
 >
-> diff --git a/Makefile b/Makefile
-> index 0e70f3d4..43420975 100644
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -24,6 +24,7 @@ else
->                 -Wundef \
->                 -Wunused \
->                 -Wwrite-strings \
-> +               -Wzero-as-null-pointer-constant \
->                 -fno-common
->  endif
->
-> diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
-> index b499ac49..c1b33869 100644
-> --- a/checkpolicy/checkpolicy.c
-> +++ b/checkpolicy/checkpolicy.c
-> @@ -956,7 +956,7 @@ menu:
->                         }
->                         break;
->                 case '6':
-> -                       sepol_sidtab_map(&sidtab, print_sid, 0);
-> +                       sepol_sidtab_map(&sidtab, print_sid, NULL);
->                         break;
->                 case '7':
->                         printf("pathname?  ");
-> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> index 7be7b21a..f65384d0 100644
-> --- a/checkpolicy/policy_define.c
-> +++ b/checkpolicy/policy_define.c
-> @@ -63,7 +63,7 @@ __attribute__((format(printf, 1, 2))) extern void yyerr=
-or2(const char *fmt,
->                                                            ...);
->
->  policydb_t *policydbp;
-> -queue_t id_queue =3D 0;
-> +queue_t id_queue =3D NULL;
->  unsigned int pass;
->  int mlspol =3D 0;
->
-> @@ -112,9 +112,9 @@ int insert_separator(int push)
->         int error;
->
->         if (push)
-> -               error =3D queue_push(id_queue, 0);
-> +               error =3D queue_push(id_queue, NULL);
->         else
-> -               error =3D queue_insert(id_queue, 0);
-> +               error =3D queue_insert(id_queue, NULL);
->
->         if (error) {
->                 yyerror("queue overflow");
-> @@ -125,7 +125,7 @@ int insert_separator(int push)
->
->  int insert_id(const char *id, int push)
->  {
-> -       char *newid =3D 0;
-> +       char *newid =3D NULL;
->         int error;
->
->         newid =3D strdup(id);
-> @@ -300,7 +300,7 @@ out:
->
->  int define_polcap(void)
->  {
-> -       char *id =3D 0;
-> +       char *id =3D NULL;
->         int capnum;
->
->         if (pass =3D=3D 2) {
-> @@ -338,8 +338,8 @@ bad:
->
->  int define_initial_sid(void)
->  {
-> -       char *id =3D 0;
-> -       ocontext_t *newc =3D 0, *c, *head;
-> +       char *id =3D NULL;
-> +       ocontext_t *newc =3D NULL, *c, *head;
->
->         if (pass =3D=3D 2) {
->                 id =3D queue_remove(id_queue);
-> @@ -561,9 +561,9 @@ int define_default_range(int which)
->
->  int define_common_perms(void)
->  {
-> -       char *id =3D 0, *perm =3D 0;
-> -       common_datum_t *comdatum =3D 0;
-> -       perm_datum_t *perdatum =3D 0;
-> +       char *id =3D NULL, *perm =3D NULL;
-> +       common_datum_t *comdatum =3D NULL;
-> +       perm_datum_t *perdatum =3D NULL;
->         int ret;
->
->         if (pass =3D=3D 2) {
-> @@ -653,7 +653,7 @@ int define_av_perms(int inherits)
->         char *id;
->         class_datum_t *cladatum;
->         common_datum_t *comdatum;
-> -       perm_datum_t *perdatum =3D 0, *perdatum2 =3D 0;
-> +       perm_datum_t *perdatum =3D NULL, *perdatum2 =3D NULL;
->         int ret;
->
->         if (pass =3D=3D 2) {
-> @@ -767,8 +767,8 @@ bad:
->  int define_sens(void)
->  {
->         char *id;
-> -       mls_level_t *level =3D 0;
-> -       level_datum_t *datum =3D 0, *aliasdatum =3D 0;
-> +       mls_level_t *level =3D NULL;
-> +       level_datum_t *datum =3D NULL, *aliasdatum =3D NULL;
->         int ret;
->         uint32_t value; /* dummy variable -- its value is never used */
->
-> @@ -961,7 +961,7 @@ int define_dominance(void)
->  int define_category(void)
->  {
->         char *id;
-> -       cat_datum_t *datum =3D 0, *aliasdatum =3D 0;
-> +       cat_datum_t *datum =3D NULL, *aliasdatum =3D NULL;
->         int ret;
->         uint32_t value;
->
-> @@ -3408,7 +3408,7 @@ bad:
->  int define_role_allow(void)
->  {
->         char *id;
-> -       struct role_allow_rule *ra =3D 0;
-> +       struct role_allow_rule *ra =3D NULL;
->
->         if (pass =3D=3D 1) {
->                 while ((id =3D queue_remove(id_queue)))
-> @@ -4122,7 +4122,7 @@ int define_conditional(cond_expr_t *expr, avrule_t =
-*t_list, avrule_t *f_list)
->                 /* Invert */
->                 t_list =3D f_list;
->                 f_list =3D NULL;
-> -               expr =3D define_cond_expr(COND_NOT, expr, 0);
-> +               expr =3D define_cond_expr(COND_NOT, expr, NULL);
->                 if (!expr) {
->                         yyerror("unable to invert conditional expression"=
-);
->                         return -1;
-> @@ -6203,7 +6203,7 @@ int define_genfs_context(int has_type)
->  int define_range_trans(int class_specified)
->  {
->         char *id;
-> -       level_datum_t *levdatum =3D 0;
-> +       level_datum_t *levdatum =3D NULL;
->         class_datum_t *cladatum;
->         range_trans_rule_t *rule;
->         int l, add =3D 1;
-> diff --git a/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
-> index 0089e541..14482c47 100644
-> --- a/checkpolicy/policy_parse.y
-> +++ b/checkpolicy/policy_parse.y
-> @@ -379,28 +379,28 @@ cond_else         : ELSE '{' cond_pol_list '}'
->  cond_expr               : '(' cond_expr ')'
->                         { $$ =3D $2;}
->                         | NOT cond_expr
-> -                       { $$ =3D define_cond_expr(COND_NOT, $2, 0);
-> -                         if ($$ =3D=3D 0) YYABORT; }
-> +                       { $$ =3D define_cond_expr(COND_NOT, $2, NULL);
-> +                         if ($$ =3D=3D NULL) YYABORT; }
->                         | cond_expr AND cond_expr
->                         { $$ =3D define_cond_expr(COND_AND, $1, $3);
-> -                         if ($$ =3D=3D 0) YYABORT; }
-> +                         if ($$ =3D=3D NULL) YYABORT; }
->                         | cond_expr OR cond_expr
->                         { $$ =3D define_cond_expr(COND_OR, $1, $3);
-> -                         if ($$ =3D=3D 0) YYABORT; }
-> +                         if ($$ =3D=3D NULL) YYABORT; }
->                         | cond_expr XOR cond_expr
->                         { $$ =3D define_cond_expr(COND_XOR, $1, $3);
-> -                         if ($$ =3D=3D 0) YYABORT; }
-> +                         if ($$ =3D=3D NULL) YYABORT; }
->                         | cond_expr EQUALS cond_expr
->                         { $$ =3D define_cond_expr(COND_EQ, $1, $3);
-> -                         if ($$ =3D=3D 0) YYABORT; }
-> +                         if ($$ =3D=3D NULL) YYABORT; }
->                         | cond_expr NOTEQUAL cond_expr
->                         { $$ =3D define_cond_expr(COND_NEQ, $1, $3);
-> -                         if ($$ =3D=3D 0) YYABORT; }
-> +                         if ($$ =3D=3D NULL) YYABORT; }
->                         | cond_expr_prim
->                         { $$ =3D $1; }
->                         ;
->  cond_expr_prim          : identifier
-> -                        { $$ =3D define_cond_expr(COND_BOOL,0, 0);
-> +                        { $$ =3D define_cond_expr(COND_BOOL, NULL, NULL)=
-;
->                           if ($$ =3D=3D COND_ERR) YYABORT; }
->                          ;
->  cond_pol_list           : cond_pol_list cond_rule_def
-> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> index c0e18321..c361e6bc 100644
-> --- a/libselinux/src/Makefile
-> +++ b/libselinux/src/Makefile
-> @@ -116,7 +116,7 @@ ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint=
- main(void){return realloca
->  override CFLAGS +=3D -DHAVE_REALLOCARRAY
->  endif
->
-> -SWIG_CFLAGS +=3D -Wno-error -Wno-deprecated-declarations -Wno-missing-pr=
-ototypes -Wno-missing-declarations
-> +SWIG_CFLAGS +=3D -Wno-error -Wno-deprecated-declarations -Wno-missing-pr=
-ototypes -Wno-missing-declarations -Wno-zero-as-null-pointer-constant
->
->  RANLIB ?=3D ranlib
->
-> diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
-> index 1f6d2416..d6556bc9 100644
-> --- a/libselinux/src/avc.c
-> +++ b/libselinux/src/avc.c
-> @@ -166,7 +166,7 @@ static int avc_init_internal(const char *prefix,
->         memset(&cache_stats, 0, sizeof(cache_stats));
->
->         for (i =3D 0; i < AVC_CACHE_SLOTS; i++)
-> -               avc_cache.slots[i] =3D 0;
-> +               avc_cache.slots[i] =3D NULL;
->         avc_cache.lru_hint =3D 0;
->         avc_cache.active_nodes =3D 0;
->         avc_cache.latest_notif =3D 0;
-> @@ -514,7 +514,7 @@ int avc_reset(void)
->                         avc_node_freelist =3D tmp;
->                         avc_cache.active_nodes--;
->                 }
-> -               avc_cache.slots[i] =3D 0;
-> +               avc_cache.slots[i] =3D NULL;
->         }
->         avc_cache.lru_hint =3D 0;
->
-> @@ -524,7 +524,8 @@ int avc_reset(void)
->
->         for (c =3D avc_callbacks; c; c =3D c->next) {
->                 if (c->events & AVC_CALLBACK_RESET) {
-> -                       ret =3D c->callback(AVC_CALLBACK_RESET, 0, 0, 0, =
-0, 0);
-> +                       ret =3D c->callback(AVC_CALLBACK_RESET, NULL, NUL=
-L, 0, 0,
-> +                                         NULL);
->                         if (ret && !rc) {
->                                 rc =3D ret;
->                                 errsave =3D errno;
-> @@ -766,7 +767,7 @@ int avc_has_perm_noaudit(security_id_t ssid, security=
-_id_t tsid,
->                         ae->used =3D 1;
->                 } else {
->                         avc_cache_stats_incr(entry_discards);
-> -                       ae =3D 0;
-> +                       ae =3D NULL;
->                 }
->         }
->
-> @@ -977,7 +978,7 @@ static int avc_update_cache(uint32_t event, security_=
-id_t ssid,
->                 }
->         } else {
->                 /* apply to one node */
-> -               node =3D avc_search_node(ssid, tsid, tclass, 0);
-> +               node =3D avc_search_node(ssid, tsid, tclass, NULL);
->                 if (node) {
->                         avc_update_node(event, node, perms);
->                 }
-> @@ -1055,7 +1056,7 @@ int avc_ss_grant(security_id_t ssid, security_id_t =
-tsid,
->                  security_class_t tclass, access_vector_t perms, uint32_t=
- seqno)
->  {
->         return avc_control(AVC_CALLBACK_GRANT, ssid, tsid, tclass, perms,=
- seqno,
-> -                          0);
-> +                          NULL);
->  }
->
->  /**
-> @@ -1095,7 +1096,7 @@ int avc_ss_revoke(security_id_t ssid, security_id_t=
- tsid,
->                   uint32_t seqno)
->  {
->         return avc_control(AVC_CALLBACK_REVOKE, ssid, tsid, tclass, perms=
-,
-> -                          seqno, 0);
-> +                          seqno, NULL);
->  }
->
->  /**
-> @@ -1131,10 +1132,10 @@ int avc_ss_set_auditallow(security_id_t ssid, sec=
-urity_id_t tsid,
->  {
->         if (enable)
->                 return avc_control(AVC_CALLBACK_AUDITALLOW_ENABLE, ssid, =
-tsid,
-> -                                  tclass, perms, seqno, 0);
-> +                                  tclass, perms, seqno, NULL);
->         else
->                 return avc_control(AVC_CALLBACK_AUDITALLOW_DISABLE, ssid,=
- tsid,
-> -                                  tclass, perms, seqno, 0);
-> +                                  tclass, perms, seqno, NULL);
->  }
->
->  /**
-> @@ -1152,8 +1153,8 @@ int avc_ss_set_auditdeny(security_id_t ssid, securi=
-ty_id_t tsid,
->  {
->         if (enable)
->                 return avc_control(AVC_CALLBACK_AUDITDENY_ENABLE, ssid, t=
-sid,
-> -                                  tclass, perms, seqno, 0);
-> +                                  tclass, perms, seqno, NULL);
->         else
->                 return avc_control(AVC_CALLBACK_AUDITDENY_DISABLE, ssid, =
-tsid,
-> -                                  tclass, perms, seqno, 0);
-> +                                  tclass, perms, seqno, NULL);
->  }
-> diff --git a/libselinux/src/context.c b/libselinux/src/context.c
-> index ffbc8b72..cd1cd431 100644
-> --- a/libselinux/src/context.c
-> +++ b/libselinux/src/context.c
-> @@ -32,11 +32,11 @@ context_t context_new(const char *str)
->                 result->ptr =3D n;
->         else
->                 free(n);
-> -       if (n =3D=3D 0 || result =3D=3D 0) {
-> +       if (n =3D=3D NULL || result =3D=3D NULL) {
->                 goto err;
->         }
->         n->current_str =3D n->component[0] =3D n->component[1] =3D n->com=
-ponent[2] =3D
-> -               n->component[3] =3D 0;
-> +               n->component[3] =3D NULL;
->         for (count =3D 0, p =3D str; *p; p++) {
->                 switch (*p) {
->                 case ':':
-> @@ -59,7 +59,7 @@ context_t context_new(const char *str)
->                 goto err;
->         }
->
-> -       n->component[3] =3D 0;
-> +       n->component[3] =3D NULL;
->         for (i =3D 0, tok =3D str; *tok; i++) {
->                 if (i < 3)
->                         for (p =3D tok; *p && *p !=3D ':'; p++) { /* empt=
-y */
-> @@ -70,7 +70,7 @@ context_t context_new(const char *str)
->                         }
->                 }
->                 n->component[i] =3D strndup(tok, p - tok);
-> -               if (n->component[i] =3D=3D 0)
-> +               if (n->component[i] =3D=3D NULL)
->                         goto err;
->                 tok =3D *p ? p + 1 : p;
->         }
-> @@ -79,7 +79,7 @@ err:
->         if (errno =3D=3D 0)
->                 errno =3D EINVAL;
->         context_free(result);
-> -       return 0;
-> +       return NULL;
->  }
->
->  static void conditional_free(char **v)
-> @@ -87,7 +87,7 @@ static void conditional_free(char **v)
->         if (*v) {
->                 free(*v);
->         }
-> -       *v =3D 0;
-> +       *v =3D NULL;
->  }
->
->  /*
-> @@ -126,7 +126,7 @@ const char *context_str(context_t context)
->                 }
->         }
->         n->current_str =3D malloc(total);
-> -       if (n->current_str !=3D 0) {
-> +       if (n->current_str !=3D NULL) {
->                 char *cp =3D n->current_str;
->
->                 cp =3D stpcpy(cp, n->component[0]);
-> diff --git a/libselinux/src/get_context_list.c b/libselinux/src/get_conte=
-xt_list.c
-> index bad93fa1..01419b07 100644
-> --- a/libselinux/src/get_context_list.c
-> +++ b/libselinux/src/get_context_list.c
-> @@ -276,7 +276,7 @@ static int get_context_user(FILE *fp, context_t fromc=
-on, const char *user,
->                         *reachable =3D new_reachable;
->                         new_reachable[*nreachable] =3D usercon_str2;
->                         usercon_str2 =3D NULL;
-> -                       new_reachable[*nreachable + 1] =3D 0;
-> +                       new_reachable[*nreachable + 1] =3D NULL;
->                         *nreachable +=3D 1;
->                 }
->                 free(usercon_str2);
-> @@ -317,7 +317,7 @@ static int get_failsafe_context(const char *user, cha=
-r **newcon)
->         rc =3D snprintf(*newcon, nlen, "%s:%s", user, ptr);
->         if (rc < 0 || (size_t)rc >=3D nlen) {
->                 free(*newcon);
-> -               *newcon =3D 0;
-> +               *newcon =3D NULL;
->                 return -1;
->         }
->
-> @@ -328,7 +328,7 @@ static int get_failsafe_context(const char *user, cha=
-r **newcon)
->            selinuxfs isn't mounted. */
->         if (security_check_context(*newcon) && errno !=3D ENOENT) {
->                 free(*newcon);
-> -               *newcon =3D 0;
-> +               *newcon =3D NULL;
->                 return -1;
->         }
->
-> diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
-> index 95c9a851..4337cedc 100644
-> --- a/libselinux/src/load_policy.c
-> +++ b/libselinux/src/load_policy.c
-> @@ -249,7 +249,7 @@ int selinux_init_load_policy(int *enforce)
->         selinux_getenforcemode(&seconfig);
->
->         /* Check for an override of the mode via the kernel command line.=
- */
-> -       rc =3D mount("proc", "/proc", "proc", 0, 0);
-> +       rc =3D mount("proc", "/proc", "proc", 0, NULL);
->         cfg =3D fopen("/proc/cmdline", "re");
->         if (cfg) {
->                 buf =3D malloc(selinux_page_size);
-> @@ -300,16 +300,16 @@ int selinux_init_load_policy(int *enforce)
->          */
->         const char *mntpoint =3D NULL;
->         /* First make sure /sys is mounted */
-> -       (void)mount("sysfs", "/sys", "sysfs", 0, 0);
-> +       (void)mount("sysfs", "/sys", "sysfs", 0, NULL);
->
->         /* MS_NODEV can't be set because of /sys/fs/selinux/null device, =
-used by Android */
-> -       if (mount(SELINUXFS, SELINUXMNT, SELINUXFS, MS_NOEXEC | MS_NOSUID=
-, 0) =3D=3D
-> -                   0 ||
-> +       if (mount(SELINUXFS, SELINUXMNT, SELINUXFS, MS_NOEXEC | MS_NOSUID=
-,
-> +                 NULL) =3D=3D 0 ||
->             errno =3D=3D EBUSY) {
->                 mntpoint =3D SELINUXMNT;
->         } else {
->                 /* check old mountpoint */
-> -               if (mount(SELINUXFS, OLDSELINUXMNT, SELINUXFS, 0, 0) =3D=
-=3D 0 ||
-> +               if (mount(SELINUXFS, OLDSELINUXMNT, SELINUXFS, 0, NULL) =
-=3D=3D 0 ||
->                     errno =3D=3D EBUSY) {
->                         mntpoint =3D OLDSELINUXMNT;
->                 }
-> diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
-> index 63c1499c..3f0d73c8 100644
-> --- a/libsemanage/src/Makefile
-> +++ b/libsemanage/src/Makefile
-> @@ -58,7 +58,8 @@ CFLAGS ?=3D -Werror -Wall -W -Wundef -Wshadow -Wmissing=
--noreturn -Wmissing-format-
->           -fno-semantic-interposition
->
->  SWIG_CFLAGS +=3D -Wno-error -Wno-unused-but-set-variable -Wno-unused-var=
-iable -Wno-shadow \
-> -               -Wno-unused-parameter -Wno-missing-prototypes -Wno-missin=
-g-field-initializers
-> +               -Wno-unused-parameter -Wno-missing-prototypes -Wno-missin=
-g-field-initializers \
-> +               -Wno-zero-as-null-pointer-constant
->
->  override CFLAGS +=3D -I../include -I../../libselinux/include -D_GNU_SOUR=
-CE
->  RANLIB ?=3D ranlib
-> diff --git a/libsemanage/src/compressed_file.c b/libsemanage/src/compress=
-ed_file.c
-> index 03eba117..25278889 100644
-> --- a/libsemanage/src/compressed_file.c
-> +++ b/libsemanage/src/compressed_file.c
-> @@ -63,7 +63,7 @@ static int bzip(semanage_handle_t *sh, const char *file=
-name, void *data,
->
->         b =3D BZ2_bzWriteOpen(&bzerror, f, sh->conf->bzip_blocksize, 0, 0=
-);
->         if (bzerror !=3D BZ_OK) {
-> -               BZ2_bzWriteClose(&bzerror, b, 1, 0, 0);
-> +               BZ2_bzWriteClose(&bzerror, b, 1, NULL, NULL);
->                 fclose(f);
->                 return -1;
->         }
-> @@ -76,14 +76,14 @@ static int bzip(semanage_handle_t *sh, const char *fi=
-lename, void *data,
->                 }
->                 BZ2_bzWrite(&bzerror, b, (uint8_t *)data + total, len);
->                 if (bzerror =3D=3D BZ_IO_ERROR) {
-> -                       BZ2_bzWriteClose(&bzerror, b, 1, 0, 0);
-> +                       BZ2_bzWriteClose(&bzerror, b, 1, NULL, NULL);
->                         fclose(f);
->                         return -1;
->                 }
->                 total +=3D len;
->         }
->
-> -       BZ2_bzWriteClose(&bzerror, b, 0, 0, 0);
-> +       BZ2_bzWriteClose(&bzerror, b, 0, NULL, NULL);
->         fclose(f);
->         if (bzerror =3D=3D BZ_IO_ERROR) {
->                 return -1;
-> diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.=
-c
-> index 34de8da8..67b98b09 100644
-> --- a/libsepol/cil/src/cil_verify.c
-> +++ b/libsepol/cil/src/cil_verify.c
-> @@ -1790,8 +1790,8 @@ int __cil_verify_helper(struct cil_tree_node *node,=
- uint32_t *finished,
+> diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_re=
+solve_ast.c
+> index 048b3aaa..af612f63 100644
+> --- a/libsepol/cil/src/cil_resolve_ast.c
+> +++ b/libsepol/cil/src/cil_resolve_ast.c
+> @@ -2375,6 +2375,8 @@ int cil_resolve_in(struct cil_tree_node *current, s=
+truct cil_db *db)
+>         struct cil_in *in =3D current->data;
+>         struct cil_symtab_datum *block_datum =3D NULL;
+>         struct cil_tree_node *block_node =3D NULL;
+> +       struct cil_tree_node *src_node =3D NULL;
+> +       struct cil_src_info *info =3D NULL;
 >         int rc =3D SEPOL_ERR;
->         int *handleunknown;
->         int *mls;
-> -       int *nseuserdflt =3D 0;
-> -       int *pass =3D 0;
-> +       int *nseuserdflt =3D NULL;
-> +       int *pass =3D NULL;
->         struct cil_args_verify *args =3D extra_args;
->         struct cil_complex_symtab *csymtab =3D NULL;
->         struct cil_db *db =3D NULL;
-> diff --git a/libsepol/src/avrule_block.c b/libsepol/src/avrule_block.c
-> index 7de4bd6b..60f637ff 100644
-> --- a/libsepol/src/avrule_block.c
-> +++ b/libsepol/src/avrule_block.c
-> @@ -190,7 +190,7 @@ int is_perm_existent(const class_datum_t *cladatum, c=
-onst char *perm_id)
->         const perm_datum_t *perm;
 >
->         perm =3D hashtab_search(cladatum->permissions.table, perm_id);
-> -       if (perm =3D=3D NULL && cladatum->comdatum !=3D 0) {
-> +       if (perm =3D=3D NULL && cladatum->comdatum !=3D NULL) {
->                 /* permission was not in this class.  before giving
->                  * up, check the class's parent */
->                 perm =3D hashtab_search(cladatum->comdatum->permissions.t=
-able,
-> diff --git a/libsepol/src/conditional.c b/libsepol/src/conditional.c
-> index 7243893d..a8070a6a 100644
-> --- a/libsepol/src/conditional.c
-> +++ b/libsepol/src/conditional.c
-> @@ -568,7 +568,7 @@ static int bool_isvalid(cond_bool_datum_t *b)
->
->  int cond_read_bool(policydb_t *p, hashtab_t h, struct policy_file *fp)
->  {
-> -       char *key =3D 0;
-> +       char *key =3D NULL;
->         cond_bool_datum_t *booldatum;
->         uint32_t buf[3], len;
->         int rc;
-> @@ -605,7 +605,7 @@ int cond_read_bool(policydb_t *p, hashtab_t h, struct=
- policy_file *fp)
->
->         return 0;
->  err:
-> -       cond_destroy_bool(key, booldatum, 0);
-> +       cond_destroy_bool(key, booldatum, NULL);
->         return -1;
->  }
->
-> diff --git a/libsepol/src/ebitmap.c b/libsepol/src/ebitmap.c
-> index 618e2630..ea819616 100644
-> --- a/libsepol/src/ebitmap.c
-> +++ b/libsepol/src/ebitmap.c
-> @@ -378,7 +378,7 @@ int ebitmap_set_bit(ebitmap_t *e, unsigned int bit, i=
-nt value)
->                 return -EINVAL;
+>         rc =3D cil_resolve_name(current, in->block_str, CIL_SYM_BLOCKS, d=
+b, &block_datum);
+> @@ -2395,6 +2397,27 @@ int cil_resolve_in(struct cil_tree_node *current, =
+struct cil_db *db)
+>                 }
 >         }
 >
-> -       prev =3D 0;
-> +       prev =3D NULL;
->         n =3D e->node;
->         while (n && n->startbit <=3D bit) {
->                 if ((n->startbit + MAPSIZE) > bit) {
-> @@ -527,7 +527,7 @@ void ebitmap_destroy(ebitmap_t *e)
->         }
->
->         e->highbit =3D 0;
-> -       e->node =3D 0;
-> +       e->node =3D NULL;
->         return;
->  }
->
-> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-> index 5b004326..a42fdf98 100644
-> --- a/libsepol/src/policydb.c
-> +++ b/libsepol/src/policydb.c
-> @@ -817,7 +817,7 @@ void avrule_list_destroy(avrule_t *x)
->   */
->  static int roles_init(policydb_t *p)
->  {
-> -       char *key =3D 0;
-> +       char *key =3D NULL;
->         int rc;
->         role_datum_t *role;
->
-> @@ -1368,7 +1368,7 @@ static int common_destroy(hashtab_key_t key, hashta=
-b_datum_t datum,
->         if (key)
->                 free(key);
->         comdatum =3D (common_datum_t *)datum;
-> -       (void)hashtab_map(comdatum->permissions.table, perm_destroy, 0);
-> +       (void)hashtab_map(comdatum->permissions.table, perm_destroy, NULL=
-);
->         hashtab_destroy(comdatum->permissions.table);
->         free(datum);
->         return 0;
-> @@ -1386,7 +1386,7 @@ static int class_destroy(hashtab_key_t key, hashtab=
-_datum_t datum,
->         if (cladatum =3D=3D NULL) {
->                 return 0;
->         }
-> -       (void)hashtab_map(cladatum->permissions.table, perm_destroy, 0);
-> +       (void)hashtab_map(cladatum->permissions.table, perm_destroy, NULL=
-);
->         hashtab_destroy(cladatum->permissions.table);
->         constraint =3D cladatum->constraints;
->         while (constraint) {
-> @@ -1577,7 +1577,7 @@ void policydb_destroy(policydb_t *p)
->         free(p->decl_val_to_struct);
->
->         for (i =3D 0; i < SYM_NUM; i++) {
-> -               (void)hashtab_map(p->scope[i].table, scope_destroy, 0);
-> +               (void)hashtab_map(p->scope[i].table, scope_destroy, NULL)=
-;
->                 hashtab_destroy(p->scope[i].table);
->         }
->         avrule_block_list_destroy(p->global);
-> @@ -1651,7 +1651,7 @@ void symtabs_destroy(symtab_t *symtab)
->  {
->         int i;
->         for (i =3D 0; i < SYM_NUM; i++) {
-> -               (void)hashtab_map(symtab[i].table, destroy_f[i], 0);
-> +               (void)hashtab_map(symtab[i].table, destroy_f[i], NULL);
->                 hashtab_destroy(symtab[i].table);
->         }
->  }
-> @@ -2115,7 +2115,7 @@ static int context_read_and_validate(context_struct=
-_t *c, policydb_t *p,
->  static int perm_read(policydb_t *p __attribute__((unused)), hashtab_t h,
->                      struct policy_file *fp, uint32_t nprim)
->  {
-> -       char *key =3D 0;
-> +       char *key =3D NULL;
->         perm_datum_t *perdatum;
->         uint32_t buf[2];
->         size_t len;
-> @@ -2149,7 +2149,7 @@ bad:
->
->  static int common_read(policydb_t *p, hashtab_t h, struct policy_file *f=
-p)
->  {
-> -       char *key =3D 0;
-> +       char *key =3D NULL;
->         common_datum_t *comdatum;
->         uint32_t buf[4];
->         size_t len, nel;
-> @@ -2292,7 +2292,7 @@ static int read_cons_helper(policydb_t *p, constrai=
-nt_node_t **nodep,
->
->  static int class_read(policydb_t *p, hashtab_t h, struct policy_file *fp=
-)
->  {
-> -       char *key =3D 0;
-> +       char *key =3D NULL;
->         class_datum_t *cladatum;
->         uint32_t buf[6];
->         size_t len, len2, ncons, nel;
-> @@ -2394,7 +2394,7 @@ bad:
->
->  static int role_read(policydb_t *p, hashtab_t h, struct policy_file *fp)
->  {
-> -       char *key =3D 0;
-> +       char *key =3D NULL;
->         role_datum_t *role;
->         uint32_t buf[3];
->         size_t len;
-> @@ -2466,7 +2466,7 @@ bad:
->
->  static int type_read(policydb_t *p, hashtab_t h, struct policy_file *fp)
->  {
-> -       char *key =3D 0;
-> +       char *key =3D NULL;
->         type_datum_t *typdatum;
->         uint32_t buf[5];
->         size_t len;
-> @@ -3326,7 +3326,7 @@ bad:
->
->  static int user_read(policydb_t *p, hashtab_t h, struct policy_file *fp)
->  {
-> -       char *key =3D 0;
-> +       char *key =3D NULL;
->         user_datum_t *usrdatum;
->         uint32_t buf[3];
->         size_t len;
-> @@ -3407,7 +3407,7 @@ bad:
->  static int sens_read(policydb_t *p __attribute__((unused)), hashtab_t h,
->                      struct policy_file *fp)
->  {
-> -       char *key =3D 0;
-> +       char *key =3D NULL;
->         level_datum_t *levdatum;
->         uint32_t buf[2], len;
->         int rc;
-> @@ -3445,7 +3445,7 @@ bad:
->  static int cat_read(policydb_t *p __attribute__((unused)), hashtab_t h,
->                     struct policy_file *fp)
->  {
-> -       char *key =3D 0;
-> +       char *key =3D NULL;
->         cat_datum_t *catdatum;
->         uint32_t buf[3], len;
->         int rc;
-> diff --git a/libsepol/src/services.c b/libsepol/src/services.c
-> index f504060a..e8f0e622 100644
-> --- a/libsepol/src/services.c
-> +++ b/libsepol/src/services.c
-> @@ -298,7 +298,7 @@ static char *get_class_info(sepol_security_class_t tc=
-lass,
->                                      "mlsconstrain ", /* 1 */
->                                      "validatetrans ", /* 2 */
->                                      "mlsvalidatetrans ", /* 3 */
-> -                                    0 };
-> +                                    NULL };
->         size_t class_buf_len =3D 0;
->         size_t new_class_buf_len;
->         size_t buf_used;
-> @@ -830,7 +830,7 @@ mls_ops:
->                 * These contain the constraint components that are added =
-to the
->                 * callers reason buffer.
->                 */
-> -               const char *buffers[] =3D { class_buf, a, "); ", tmp_buf,=
- 0 };
-> +               const char *buffers[] =3D { class_buf, a, "); ", tmp_buf,=
- NULL };
->
->                 for (x =3D 0; buffers[x] !=3D NULL; x++) {
->                         while (1) {
-> @@ -1127,7 +1127,7 @@ int sepol_compute_av_reason(sepol_security_id_t ssi=
-d, sepol_security_id_t tsid,
->                             sepol_access_vector_t requested,
->                             struct sepol_av_decision *avd, unsigned int *=
-reason)
->  {
-> -       context_struct_t *scontext =3D 0, *tcontext =3D 0;
-> +       context_struct_t *scontext =3D NULL, *tcontext =3D NULL;
->         int rc =3D 0;
->
->         scontext =3D sepol_sidtab_search(sidtab, ssid);
-> @@ -1162,7 +1162,7 @@ int sepol_compute_av_reason_buffer(sepol_security_i=
-d_t ssid,
->                                    unsigned int *reason, char **reason_bu=
-f,
->                                    unsigned int flags)
->  {
-> -       context_struct_t *scontext =3D 0, *tcontext =3D 0;
-> +       context_struct_t *scontext =3D NULL, *tcontext =3D NULL;
->         int rc =3D 0;
->
->         scontext =3D sepol_sidtab_search(sidtab, ssid);
-> @@ -1371,8 +1371,8 @@ static int sepol_compute_sid(sepol_security_id_t ss=
-id, sepol_security_id_t tsid,
->                              sepol_security_id_t *out_sid)
->  {
->         struct class_datum *cladatum =3D NULL;
-> -       context_struct_t *scontext =3D 0, *tcontext =3D 0, newcontext;
-> -       struct role_trans *roletr =3D 0;
-> +       context_struct_t *scontext =3D NULL, *tcontext =3D NULL, newconte=
-xt;
-> +       struct role_trans *roletr =3D NULL;
->         avtab_key_t avkey;
->         avtab_datum_t *avdatum;
->         avtab_ptr_t node;
-> diff --git a/policycoreutils/newrole/newrole.c b/policycoreutils/newrole/=
-newrole.c
-> index 4bb4793a..19271c2a 100644
-> --- a/policycoreutils/newrole/newrole.c
-> +++ b/policycoreutils/newrole/newrole.c
-> @@ -847,9 +847,12 @@ static int parse_command_line_arguments(int argc, ch=
-ar **argv, char *ttyn,
->         char *tty_con =3D NULL;
->         context_t context =3D NULL; /* manipulatable form of new_context =
-*/
->         const struct option long_options[] =3D {
-> -               { "role", 1, 0, 'r' },    { "type", 1, 0, 't' },
-> -               { "level", 1, 0, 'l' },   { "preserve-environment", 0, 0,=
- 'p' },
-> -               { "version", 0, 0, 'V' }, { NULL, 0, 0, 0 }
-> +               { "role", 1, NULL, 'r' },
-> +               { "type", 1, NULL, 't' },
-> +               { "level", 1, NULL, 'l' },
-> +               { "preserve-environment", 0, NULL, 'p' },
-> +               { "version", 0, NULL, 'V' },
-> +               { NULL, 0, NULL, 0 }
->         };
->
->         *preserve_environment =3D 0;
-> diff --git a/policycoreutils/setsebool/setsebool.c b/policycoreutils/sets=
-ebool/setsebool.c
-> index e019e43b..d85b2a33 100644
-> --- a/policycoreutils/setsebool/setsebool.c
-> +++ b/policycoreutils/setsebool/setsebool.c
-> @@ -66,7 +66,7 @@ int main(int argc, char **argv)
->         /* Check to see which way we are being called. If a '=3D' is pass=
-ed,
->            we'll enforce the list syntax. If not we'll enforce the origin=
-al
->            syntax for backward compatibility. */
-> -       if (strchr(argv[optind], '=3D') =3D=3D 0) {
-> +       if (strchr(argv[optind], '=3D') =3D=3D NULL) {
->                 int len;
->                 char *bool_list[1];
->
-> diff --git a/restorecond/restorecond.c b/restorecond/restorecond.c
-> index 421b992c..b8ca4b21 100644
-> --- a/restorecond/restorecond.c
-> +++ b/restorecond/restorecond.c
-> @@ -96,13 +96,13 @@ static int write_pid_file(void)
->         len =3D snprintf(val, sizeof(val), "%u\n", getpid());
->         if (len < 0) {
->                 syslog(LOG_ERR, "Pid error (%s)", strerror(errno));
-> -               pidfile =3D 0;
-> +               pidfile =3D NULL;
->                 return 1;
->         }
->         pidfd =3D open(pidfile, O_CREAT | O_TRUNC | O_NOFOLLOW | O_WRONLY=
-, 0644);
->         if (pidfd < 0) {
->                 syslog(LOG_ERR, "Unable to set pidfile (%s)", strerror(er=
-rno));
-> -               pidfile =3D 0;
-> +               pidfile =3D NULL;
->                 return 1;
->         }
->         if (write(pidfd, val, (unsigned int)len) !=3D len) {
-> @@ -222,7 +222,7 @@ int main(int argc, char **argv)
->                         exitApp("daemon");
->                 write_pid_file();
->         } else {
-> -               pidfile =3D 0;
-> +               pidfile =3D NULL;
->         }
->
->         while (watch(master_fd, watch_file) =3D=3D 0) {
-> diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
-> index 0e046398..58baa7ff 100644
-> --- a/sandbox/seunshare.c
-> +++ b/sandbox/seunshare.c
-> @@ -775,11 +775,11 @@ int main(int argc, char **argv)
->         int fd;
->
->         const struct option long_options[] =3D {
-> -               { "homedir", 1, 0, 'h' },      { "tmpdir", 1, 0, 't' },
-> -               { "runuserdir", 1, 0, 'r' },   { "kill", 0, 0, 'k' },
-> -               { "verbose", 0, 0, 'v' },      { "context", 1, 0, 'Z' },
-> -               { "capabilities", 0, 0, 'C' }, { "wayland", 1, 0, 'W' },
-> -               { "pipewire", 1, 0, 'P' },     { NULL, 0, 0, 0 }
-> +               { "homedir", 1, NULL, 'h' },      { "tmpdir", 1, NULL, 't=
-' },
-> +               { "runuserdir", 1, NULL, 'r' },   { "kill", 0, NULL, 'k' =
-},
-> +               { "verbose", 0, NULL, 'v' },      { "context", 1, NULL, '=
-Z' },
-> +               { "capabilities", 0, NULL, 'C' }, { "wayland", 1, NULL, '=
-W' },
-> +               { "pipewire", 1, NULL, 'P' },     { NULL, 0, NULL, 0 }
->         };
->
->         uid_t uid =3D getuid();
-> diff --git a/secilc/secil2conf.c b/secilc/secil2conf.c
-> index 3a012d76..4046e603 100644
-> --- a/secilc/secil2conf.c
-> +++ b/secilc/secil2conf.c
-> @@ -76,13 +76,13 @@ int main(int argc, char *argv[])
->         int opt_index =3D 0;
->         enum cil_log_level log_level =3D CIL_ERR;
->         static struct option long_opts[] =3D {
-> -               { "help", no_argument, 0, 'h' },
-> -               { "verbose", no_argument, 0, 'v' },
-> -               { "mls", required_argument, 0, 'M' },
-> -               { "preserve-tunables", no_argument, 0, 'P' },
-> -               { "qualified-names", no_argument, 0, 'Q' },
-> -               { "output", required_argument, 0, 'o' },
-> -               { 0, 0, 0, 0 }
-> +               { "help", no_argument, NULL, 'h' },
-> +               { "verbose", no_argument, NULL, 'v' },
-> +               { "mls", required_argument, NULL, 'M' },
-> +               { "preserve-tunables", no_argument, NULL, 'P' },
-> +               { "qualified-names", no_argument, NULL, 'Q' },
-> +               { "output", required_argument, NULL, 'o' },
-> +               { NULL, 0, NULL, 0 }
->         };
->         int i;
->
-> diff --git a/secilc/secil2tree.c b/secilc/secil2tree.c
-> index dc12490d..f0f02eb3 100644
-> --- a/secilc/secil2tree.c
-> +++ b/secilc/secil2tree.c
-> @@ -81,13 +81,13 @@ int main(int argc, char *argv[])
->         int opt_index =3D 0;
->         enum cil_log_level log_level =3D CIL_ERR;
->         static struct option long_opts[] =3D {
-> -               { "help", no_argument, 0, 'h' },
-> -               { "verbose", no_argument, 0, 'v' },
-> -               { "preserve-tunables", no_argument, 0, 'P' },
-> -               { "qualified-names", no_argument, 0, 'Q' },
-> -               { "output", required_argument, 0, 'o' },
-> -               { "ast-phase", required_argument, 0, 'A' },
-> -               { 0, 0, 0, 0 }
-> +               { "help", no_argument, NULL, 'h' },
-> +               { "verbose", no_argument, NULL, 'v' },
-> +               { "preserve-tunables", no_argument, NULL, 'P' },
-> +               { "qualified-names", no_argument, NULL, 'Q' },
-> +               { "output", required_argument, NULL, 'o' },
-> +               { "ast-phase", required_argument, NULL, 'A' },
-> +               { NULL, 0, NULL, 0 }
->         };
->         int i;
->
-> diff --git a/secilc/secilc.c b/secilc/secilc.c
-> index 1c922afc..70359b75 100644
-> --- a/secilc/secilc.c
-> +++ b/secilc/secilc.c
-> @@ -110,23 +110,23 @@ int main(int argc, char *argv[])
->         size_t fc_size;
->         enum cil_log_level log_level =3D CIL_ERR;
->         static struct option long_opts[] =3D {
-> -               { "help", no_argument, 0, 'h' },
-> -               { "verbose", no_argument, 0, 'v' },
-> -               { "target", required_argument, 0, 't' },
-> -               { "mls", required_argument, 0, 'M' },
-> -               { "policyversion", required_argument, 0, 'c' },
-> -               { "handle-unknown", required_argument, 0, 'U' },
-> -               { "disable-dontaudit", no_argument, 0, 'D' },
-> -               { "multiple-decls", no_argument, 0, 'm' },
-> -               { "disable-neverallow", no_argument, 0, 'N' },
-> -               { "preserve-tunables", no_argument, 0, 'P' },
-> -               { "qualified-names", no_argument, 0, 'Q' },
-> -               { "output", required_argument, 0, 'o' },
-> -               { "filecontexts", required_argument, 0, 'f' },
-> -               { "expand-generated", no_argument, 0, 'G' },
-> -               { "expand-size", required_argument, 0, 'X' },
-> -               { "optimize", no_argument, 0, 'O' },
-> -               { 0, 0, 0, 0 }
-> +               { "help", no_argument, NULL, 'h' },
-> +               { "verbose", no_argument, NULL, 'v' },
-> +               { "target", required_argument, NULL, 't' },
-> +               { "mls", required_argument, NULL, 'M' },
-> +               { "policyversion", required_argument, NULL, 'c' },
-> +               { "handle-unknown", required_argument, NULL, 'U' },
-> +               { "disable-dontaudit", no_argument, NULL, 'D' },
-> +               { "multiple-decls", no_argument, NULL, 'm' },
-> +               { "disable-neverallow", no_argument, NULL, 'N' },
-> +               { "preserve-tunables", no_argument, NULL, 'P' },
-> +               { "qualified-names", no_argument, NULL, 'Q' },
-> +               { "output", required_argument, NULL, 'o' },
-> +               { "filecontexts", required_argument, NULL, 'f' },
-> +               { "expand-generated", no_argument, NULL, 'G' },
-> +               { "expand-size", required_argument, NULL, 'X' },
-> +               { "optimize", no_argument, NULL, 'O' },
-> +               { NULL, 0, NULL, 0 }
->         };
->         int i;
->
-> diff --git a/secilc/secilcheck.c b/secilc/secilcheck.c
-> index 86e95649..45176df4 100644
-> --- a/secilc/secilcheck.c
-> +++ b/secilc/secilcheck.c
-> @@ -213,11 +213,11 @@ int main(int argc, char *argv[])
->         int opt_index =3D 0;
->         enum cil_log_level log_level =3D CIL_ERR;
->         static struct option long_opts[] =3D {
-> -               { "help", no_argument, 0, 'h' },
-> -               { "verbose", no_argument, 0, 'v' },
-> -               { "multiple-decls", no_argument, 0, 'm' },
-> -               { "qualified-names", no_argument, 0, 'Q' },
-> -               { 0, 0, 0, 0 }
-> +               { "help", no_argument, NULL, 'h' },
-> +               { "verbose", no_argument, NULL, 'v' },
-> +               { "multiple-decls", no_argument, NULL, 'm' },
-> +               { "qualified-names", no_argument, NULL, 'Q' },
-> +               { NULL, 0, NULL, 0 }
->         };
->
->         while (1) {
+> +       char *path =3D cil_tree_get_cil_path(current);
+> +       if (path !=3D NULL) {
+> +               cil_src_info_init(&info);
+> +               info->kind =3D CIL_KEY_SRC_CIL;
+> +               info->path =3D path;
+> +
+> +               cil_tree_node_init(&src_node);
+> +               src_node->parent =3D block_node;
+> +               src_node->flavor =3D CIL_SRC_INFO;
+> +               src_node->data =3D info;
+> +
+> +               if (block_node->cl_head =3D=3D NULL) {
+> +                       block_node->cl_head =3D src_node;
+> +               } else {
+> +                       block_node->cl_tail->next =3D src_node;
+> +               }
+> +               block_node->cl_tail =3D src_node;
+> +
+> +               block_node =3D src_node;
+> +       }
+> +
+>         rc =3D cil_copy_ast(db, current, block_node);
+>         if (rc !=3D SEPOL_OK) {
+>                 cil_tree_log(current, CIL_ERR, "Failed to copy in-stateme=
+nt");
 > --
-> 2.53.0
->
+> 2.54.0
 >
