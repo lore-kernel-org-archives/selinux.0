@@ -1,139 +1,179 @@
-Received: from mail-qt1-f176.google.com (mail-qt1-f176.google.com [209.85.160.176])
+Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 343351B6D08
-	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 18:46:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.176
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780685176; cv=none; b=fXjZKdW7slAibVm1p6ahc9z9z6bnLdzfo8LW2+2IrNouWQz5L70p4drmF0zojr/RQAzJTbb92o5j92Ucbs5mXg6eJ3ugO5pLaAu3aNcmykix0sV4uMk5a57mMXMtUnQCSZlsfu4lgL9bG1R5al12XtORJVuG7p2mD/mCi29KtRA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780685176; c=relaxed/simple;
-	bh=WomOiv3xHwndXlZuK6bg2Wqnew+H9Hq7LwVoS1s2A90=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=j8MyRpkDbc+CFZTimDwsQMFrAjY231jv3r1/syFd4Ze5txiJX/gkN6ofJSCziLzqK3j/Uk8DS0PjBYeulyGRpHNutltp6sQxpfD/Jio/W6EnmvUi1nCaabvWkreQVO9+VC3SiQNaMp7X6gU/s9FldPb0eVeXDIS7AgdpsP4RWVU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NXnEqfZN; arc=none smtp.client-ip=209.85.160.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6D8D377ED4
+	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 18:48:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.181
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780685291; cv=pass; b=XPphkYnpXvB/dvnmYkd1XUaAdk77Ipcwa6mAV9espKvEi7GlUOwjTDo7KRE52eJPUK/RsHTS33CwtNgZz7VhHVOhTYXsXO+IXE4KHwdHOuGcpIdg0GA7ErIKQCwxnh78jBn3Jjj8VvGf2yWeHAFRW3N7sNzA4pXgcOz0N0DKZS4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780685291; c=relaxed/simple;
+	bh=NDEcq6Hi125cadGZd78dtcjOu9bL6O/aBeYmpYsBxj8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=HXUbfaVKUBEXX0FvRZjx1kcoNHhTNswEFyRfZmra77KXFqkTd3FY73QYSFNusYSwcPcmVyH6Vk0RMUZQ/uUpXZSWFtcK3Xj//aHCj5yG3r40lBYufSJech+q3HqaYflPSyqrFM34rasij8rJRx6sFKNA0OTgdEYJV0Msdnx8L6A=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nK4f0NOQ; arc=pass smtp.client-ip=209.85.214.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NXnEqfZN"
-Received: by mail-qt1-f176.google.com with SMTP id d75a77b69052e-5178a42caa3so20537251cf.1
-        for <selinux@vger.kernel.org>; Fri, 05 Jun 2026 11:46:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nK4f0NOQ"
+Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2c0c35980fdso22791615ad.2
+        for <selinux@vger.kernel.org>; Fri, 05 Jun 2026 11:48:09 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780685289; cv=none;
+        d=google.com; s=arc-20240605;
+        b=j5+4F+1S5BxjyDqdb0PmBjng57kifhklqLIcfRcV777y4kv/QuN7hiZryNA/rxN4QB
+         oMuXXuOKp3YjiK0iU7Qv8+nNEUcisbo0a2XVXWW+6JQWoWvRvR9Q30vlnO6ogGE40acs
+         WVrRELex3tK3tTq9Jp+4sYtU4pgorSfhLrGYOcOxDQeLpeC9h6gSuN+3ecrc1K/NJ1Fj
+         ZNlxy9dRTOHEZ+haPYycs5XSvGnP/IQBtMiulEibmu5HZMSi3UuEsSkJ6yOdeQuqu3mC
+         KtgAj2dc0iCs1HeobBEP4p9trPRmdaGeaYed+sYPsTdtNJ8HW32GsUIYSmGqj1eYO15j
+         KZ4g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=l0o+PelKwREqFCPOFWlA4Qcg32rByFIHDxG3wqyFsVc=;
+        fh=5BxwEK/iVIzhs7kNCBs0/zEkT4yGKFLka6Po5B0u4CY=;
+        b=GceWjbU8RKMQ6IkvXEZ/9ISXQidkqH7qfOi3gwhxsvio8RwKVpQi/Qwja+yKKTrTxW
+         TaSbOGYmQ24W4tHaC+72OUHje8AanWAw//jURgdd+dTgHXjwbnvw8MOP2NeZ8wHj3eRf
+         CqeREJYNsPB1Ybm7RRYUPCniEPy9SuweGwiGG6KgUSvDGr7OIgFCy4k89MixWZWbCGGK
+         O1vZTQhZDb6XDPKwWITB9KIzlyLrqPSZlnpjuapALReR7VCV7T2IkNWKA/W9kIIQM1Kg
+         gQRCxHwinO/QPM997PoZn3oX6gLJNXEOlJy71afKo39sb0mcJ2A1AjY1qyZqolWIhAJP
+         PU+w==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780685174; x=1781289974; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=rX/Zi39PFRTGJS+stHPz51nDsEU8iYBnKPTMBztRP4k=;
-        b=NXnEqfZNahJ63xJVLRcwntMZ1kgNdUNgPk9t7pZkl2hUB0y3MVaBj1nTxmtBLdQESn
-         5Z0Gxg6yxnNoZmNgOh9flLVTl7WCl/SxhDHmwVghEDV33AiynBHpBfwn50eQukcelqQx
-         7UGDl7EeZ3P2tLkspyj1dnIL+6VBF2PB+LVk3a2lWNm7Hi/3S4gmtSrZQWAXyS+OKuHb
-         MaYIw0lmfGlUdJQrefTeH00tTh1/ndJ7/YXplKmGu/9HW4mWCYR0KOaStzsmDBo1spGP
-         i7UsE1fULCF/s/4+xiXcNgylpJKg/TTxAmlzmr+CrPtsTst4XOZufZzfqJ1iE25ggoPJ
-         PdIg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780685174; x=1781289974;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1780685289; x=1781290089; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=rX/Zi39PFRTGJS+stHPz51nDsEU8iYBnKPTMBztRP4k=;
-        b=QBwEVraGJDO+17rEXcelYm0CD2/cp6A2Rxp63IiRB4ycu66POrwJGDYMxOXaQ1NzRD
-         /VpAv6eL5S8RhACFCQtzSnT86ePUmvPOFVBmttl8ZMh8FUsL1YaLR7GDpf3fAN+IymX/
-         EhAJO8/EH9HgrI0z64cIyMc6v1ZNxLTJ7utkyJPoe1lYZmOBTMzAVbiUIvMH97QLYQtG
-         Vmtac4MxvbGIycCkoz4MRQkcN3B8AsCQ5YdpTDtART8CNw4wYmC6WUPhOurmZzoPX+WD
-         MPPTsY8raQ5JS+fXXvNdNubJgr6pzrWfnkiSk4CjBHHS4gbnBNPYOeICIfNk6JFIHVbO
-         dKhQ==
-X-Gm-Message-State: AOJu0YzCQqgfMmn4JDwb7z69Z85xKlZ8RQq53m6v7ZzIono9nGTEj/xm
-	d97LDxmWYHkXyKbRdnt2N3YZVW4aCjmeqrUvbX87uJhtJrDVdonm8N3H+st9VA==
-X-Gm-Gg: Acq92OHgpcUY/KsIDChAuDPr92juKPhsBNGFObkPZrvHMN0ZtMBf+2hc/xjUn6G6K0b
-	/48b4IqlQQCmsAzYT5HmmCkZA8edAOsM2apedY6BogEAMkGwBgKAdcefloIqNYCuZrTvMSs+qZ5
-	sFkWWqd85nvBo4Glu9DelpzjFo1bEWVkWDkawKneU4oYhQai5399AKXnOLa8WUZNyWc/o8eSKcF
-	+jScbUsi/VEAEse5EB/LIjuh2DFbc5qjKA5x90PWR3Cqo98WUxsgmmFYWTE3POHZd3+4eTyev/M
-	FAdOUZDaf40QnrG2nISkeAeMUj3K3HcMkPSL+xXtPDfw+LqOPMGGGHkz4wLbkbk+lwQEwjTRDP/
-	ZnVQRenF4E3anVB+K6cBBOijlYLQqnPHwsgSX26BUVuE4wzuYilKt7d8X/zY89JQQG6jECmvdKR
-	yt6lvKIKwfLKOg9hEwcAzej/Gjs+XA8slKP3e4fRmFxMW6+HhwLQBtW0QU7M9tl30VFqdh6r1gJ
-	ozAjrsey0KNllHeN3W5ccRLsuolQ3tFmiDgRQ==
-X-Received: by 2002:a05:622a:1f8d:b0:50b:2542:e16f with SMTP id d75a77b69052e-517987a918fmr51014281cf.15.1780685174139;
-        Fri, 05 Jun 2026 11:46:14 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-51775da6f41sm83771451cf.22.2026.06.05.11.46.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Jun 2026 11:46:13 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	plautrba@redhat.com,
-	omosnace@redhat.com,
-	paul@paul-moore.com,
-	perfinion@gentoo.org,
-	=?UTF-8?q?Cristian=20Rodr=C3=ADguez?= <cristian@rodriguez.im>
-Subject: [PATCH] libselinux: Do not clobber errno of the world
-Date: Fri,  5 Jun 2026 14:45:58 -0400
-Message-ID: <20260605184558.280873-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.54.0
+        bh=l0o+PelKwREqFCPOFWlA4Qcg32rByFIHDxG3wqyFsVc=;
+        b=nK4f0NOQ7UXb8rJSA3Gqb6xGk4ESiAthVI8Fv/uSsWo3E3J4XKX3fxeUBTCNpbI+O/
+         051qq6ml+OG7EMfdNnkuTl6GdRD4uI/u14fb3CZYg/+nRxMx719QS3ovoeNlsLEURSD3
+         91IH1MMIRN84s2zNDJzb+1pl4dIr2cZh7709xmr3AxEoYwVNItRW+nm/g7TRkQqJPrA3
+         e5Xe/JDqilqXPCdiFUd8Yk+10CpQ4JcF73pHQHrHy6YpLQ2/mU9Oj3/AWfvLElJjhSyj
+         WXC8nEbHKz92DF5sLR6nQ6/VPSz8bRTf0otoRL4U4LH2KApJ5SOFRAlgkiO2bdXvHI3M
+         EjDw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780685289; x=1781290089;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=l0o+PelKwREqFCPOFWlA4Qcg32rByFIHDxG3wqyFsVc=;
+        b=UMzH4jhZ0y+QsNxUqFK91jVXtO1/qZaSr7mb/Ni+ahRM89Xlwok+/SSgr55UGZHbED
+         7vmeMvw0XOmJ1Gt/j+xrRWo1iq4vOJidqburGzCkj84o8e+BBpb2XKSoJ/sl5LbOWOxa
+         3eY5cexWEvJJNIJEtbkEuDjiQHCPApVvGOGCLcOWn4vNIS2h0Frh+7HOCSuritxmnhC7
+         zTnsUXY9XCAL4NM681dvVsKPO1PMKnEalH3DRnQPJkeH+bkSfBky9A7qewF1JKB/epBm
+         Ioo3P1xychmKHlSrFoziKWKYdR8cuJ3Nzo5j4S3T4WCIq8Djx9YIq7rFIY0CVn956tbr
+         lS4Q==
+X-Gm-Message-State: AOJu0YzmZ2USzF1D49Lupd36TVDs9m/kQq2U5K2giqVZ46fTg57pspK5
+	kXSc3Iszp1tj4vksZJJxXQS/WgYptH9dekasexTc+vODTvka4nLWOns83rhJw3QtdS+Zst8yomd
+	eNf6vi8zQGu3DmkcSss7saN3JM1bV5NPCqQ==
+X-Gm-Gg: Acq92OEpZr0q6dXTAJKTZR1JRhJ41y1iPxmfgnQ2qR3WKUTle4wfp4Kseg5oPmlmERz
+	drhTBjvH+HGKzaEX03FfIiMJngVjjKxbxenbJcaFc72cDDxHgCZ/Y/3J//O6mYQN8aPuXhE+R8L
+	ebREufn3O5kPuup+myFEudITzEhuakx4t9ecr8683Aui1Kt+onLj7r+Rx/UQZ3wQKBvnl3QQ6ZM
+	cZMB1lEw4khAk/du1cm1VDGfPzIZt6XdnEOaJkXhPYAWJwyNGMRYglqCHTqO8T34fSH66l22wb3
+	H/+Hxnlyqa+VWMmaOncffylv0kOU
+X-Received: by 2002:a17:903:1246:b0:2ba:924b:3948 with SMTP id
+ d9443c01a7336-2c1e821dcbbmr50863335ad.15.1780685289104; Fri, 05 Jun 2026
+ 11:48:09 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20260605181441.248083-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20260605181441.248083-1-cgoettsche@seltendoof.de>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Fri, 5 Jun 2026 14:47:57 -0400
+X-Gm-Features: AVHnY4IItb7Z6CwturhcUnlQiJ8UJN8C24Z-FT_hBQhtDHVvhAOaJlvAmaqb8jc
+Message-ID: <CAEjxPJ6OPe8vC-++R=LCk=ntei2hmD4z1YgEngP=kSo11R7OuQ@mail.gmail.com>
+Subject: Re: [PATCH v2 09/11] restorecond: warn on selinux_restorecon(3) failure
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Cristian Rodríguez <cristian@rodriguez.im>
+On Fri, Jun 5, 2026 at 2:22=E2=80=AFPM Christian G=C3=B6ttsche
+<cgoettsche@seltendoof.de> wrote:
+>
+> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> Warn in case selinux_restorecon(3) fails instead of ignoring.
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-libselinux clobbers errno of all consumers (systemd, sshd you name it)
-because its constructors do not properly save and restore errno.
-The following program demonstrates it.
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-int main(void)
-{
-        assert(errno == 0);
-	/* Just a test, it doesn't matter already clobbered */
-        if(is_selinux_enabled() < 0) {
-                perror("not enabled");
-                return 1;
-        }
-}
-
-if any function sets errno, it is not switched back to the original
-value and standards DO NOT require errno to the set to zero before
-entering main
-
-Fixes: https://github.com/SELinuxProject/selinux/pull/445
-Signed-off-by: Cristian Rodríguez <cristian@rodriguez.im>
----
- libselinux/src/init.c             | 1 +
- libselinux/src/selinux_internal.h | 9 +++++++++
- 2 files changed, 10 insertions(+)
-
-diff --git a/libselinux/src/init.c b/libselinux/src/init.c
-index 499e4e44..abed3088 100644
---- a/libselinux/src/init.c
-+++ b/libselinux/src/init.c
-@@ -145,6 +145,7 @@ void set_selinuxmnt(const char *mnt)
- static void init_lib(void) __attribute__((constructor));
- static void init_lib(void)
- {
-+	SELINUX_PROTECT_ERRNO;
- 	selinux_page_size = sysconf(_SC_PAGE_SIZE);
- 	init_selinuxmnt();
- #ifndef ANDROID
-diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
-index 6089463d..ff191c76 100644
---- a/libselinux/src/selinux_internal.h
-+++ b/libselinux/src/selinux_internal.h
-@@ -147,4 +147,13 @@ static inline void fclose_errno_safe(FILE *stream)
- 
- #define spaceship_cmp(a, b) (((a) > (b)) - ((a) < (b)))
- 
-+static inline void selinux_reset_errno(int *saved_errno) {
-+        if (*saved_errno < 0)
-+                return;
-+
-+        errno = *saved_errno;
-+}
-+
-+#define SELINUX_PROTECT_ERRNO __attribute__((__cleanup__(selinux_reset_errno))) \
-+                         __attribute__((__unused__)) int __selinux_saved_errno = errno
- #endif /* SELINUX_INTERNAL_H_ */
--- 
-2.54.0
-
+> ---
+> v2: print to stderr when using custom user
+> ---
+>  restorecond/watch.c | 34 +++++++++++++++++++++++++++++++---
+>  1 file changed, 31 insertions(+), 3 deletions(-)
+>
+> diff --git a/restorecond/watch.c b/restorecond/watch.c
+> index 8e1c36fe..a30603c7 100644
+> --- a/restorecond/watch.c
+> +++ b/restorecond/watch.c
+> @@ -202,7 +202,19 @@ void watch_list_add(int fd, const char *path)
+>                                 continue;
+>                         if (len > 0 && strcmp(&p[len], "/..") =3D=3D 0)
+>                                 continue;
+> -                       selinux_restorecon(p, r_opts.restorecon_flags);
+> +                       if (selinux_restorecon(p, r_opts.restorecon_flags=
+) <
+> +                           0) {
+> +                               if (errno !=3D ENOENT) {
+> +                                       if (!run_as_user)
+> +                                               syslog(LOG_ERR,
+> +                                                      "Unable to relabel=
+ (%s) %s\n",
+> +                                                      p, strerror(errno)=
+);
+> +                                       else
+> +                                               fprintf(stderr,
+> +                                                       "Unable to relabe=
+l (%s) %s\n",
+> +                                                       p, strerror(errno=
+));
+> +                               }
+> +                       }
+>                 }
+>                 globfree(&globbuf);
+>         }
+> @@ -286,8 +298,24 @@ int watch_list_find(int wd, const char *file)
+>                                     0)
+>                                         exitApp("Error allocating memory.=
+");
+>
+> -                               selinux_restorecon(path,
+> -                                                  r_opts.restorecon_flag=
+s);
+> +                               if (selinux_restorecon(
+> +                                           path, r_opts.restorecon_flags=
+) <
+> +                                   0) {
+> +                                       if (errno !=3D ENOENT) {
+> +                                               if (!run_as_user)
+> +                                                       syslog(LOG_ERR,
+> +                                                              "Unable to=
+ relabel (%s) %s\n",
+> +                                                              path,
+> +                                                              strerror(e=
+rrno));
+> +                                               else
+> +                                                       fprintf(stderr,
+> +                                                               "Unable t=
+o relabel (%s) %s\n",
+> +                                                               path,
+> +                                                               strerror(
+> +                                                                       e=
+rrno));
+> +                                       }
+> +                               }
+> +
+>                                 free(path);
+>                                 return 0;
+>                         }
+> --
+> 2.53.0
+>
+>
