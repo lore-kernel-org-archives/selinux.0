@@ -1,166 +1,154 @@
-Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
+Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 588C01C5F39
-	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 16:19:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FDD840861A
+	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 16:20:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.172
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780676364; cv=pass; b=rJfAdy5R1F+7fS8Hw2kKpAI9xvw8lvZRbKBQm209hyRwvBJ1neyrQza6k7CIloGe6UCoIwfbdVdpZwHyUOB+2wWkJFKN6PTvZ4qcbg7r7iZ4ZnwBZ9PzSIIJ5O8bf/BFR1pGPHzaHk+MIkQveCEWV7l6o6Y+UdUSRNOqx2ICCsU=
+	t=1780676453; cv=pass; b=MS3nKrEpIyQk6T3UH5e6NwIXKe5FzlGfJscZhHnSQzePR4ZdaT2gN2C2fIjc+fzqjC5rPU8PYgsl3z5IBLmFBIgfyznY6S/eiQbGB/n7laEb4h5yD3/U1h5qGAr9ZzfkNPFMBvj2QyaiVNFfuLIaMEebFB226ubACtQezGJyOzc=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780676364; c=relaxed/simple;
-	bh=F71FcaCJYvS8QjqEEUSc6c3VxOaIHXfM3mA5Xw9ULsY=;
+	s=arc-20240116; t=1780676453; c=relaxed/simple;
+	bh=ZbJGSHaCl9YdGNOal2yb5F+JNV+a/BQBQq7vevv5eiY=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=W9ktd9vcXWLTdanvlWDfWapUuDdnOWCNMZ6QeQVlwUvZM/zEbgPg6TEQQQT3m7HlLkl5tJhFJBekw6dKsRS2W3lLSXpcI0mqPxadSeE1z+LSALtxQ61jkeu1Nvo/r7HHNDXA9mqWNqXp0CWuC8ziIuTIyOkbHJuOC42/6atR50c=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eIFuLDRh; arc=pass smtp.client-ip=209.85.210.170
+	 To:Cc:Content-Type; b=k7dPF+xwydXv0YL5zc/NU9aj2TT82s2MsKolABuSLfu+DzNn8vSqGLNw1G0z3tpA09uwtPcO2EB0GNnrJq/XYRGM9zPnGWvbM6czkIbF6MQMnHbIkiG/efC2CHmUFG6azebpf9uOfX2SBUEZPTaS1M80NFgO3UvCupp6viXE5pQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nksNchvC; arc=pass smtp.client-ip=209.85.210.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eIFuLDRh"
-Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-8423b08b293so982697b3a.3
-        for <selinux@vger.kernel.org>; Fri, 05 Jun 2026 09:19:22 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780676362; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nksNchvC"
+Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-8423f869421so1575074b3a.3
+        for <selinux@vger.kernel.org>; Fri, 05 Jun 2026 09:20:52 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780676451; cv=none;
         d=google.com; s=arc-20240605;
-        b=DwlnXstbRmhZKpgRE6QisU5Bs8WUfYoH2SeqV1Qm4Ug5senk4onmabhnzotx0jkF0v
-         v/CMJShLfh8ll3g0K0s7GGKxvE2TW8qW2nas7j6k9m+u2BM6q2ekgx2nlVbnSMsuTNKG
-         uWgvZVsUIOfZnTmxIOpm/CfRvbv7m+sZr5PCYHF5AcR5GaUshNVeFKfxcyHJn4Njx7S2
-         aJrmo5Sunjk4vAHBuPtGr9xQtbKexT5y1hRpQqVlXCB0i3JuuB1tIoUPHxxt8LLl/if3
-         /h+xeF1QrDl3ErJyACbEGWVi1ExCso6ZuFNQgsS3Fa+NyBSRSrE1Ei/iFLgkDEO5xGZC
-         ParA==
+        b=cXkTqqLG42qeInDDPcX2XRbQ0JzSgHManNBlmiTH6YN0/88t/K1/poN6bE8aue+SN3
+         /c+mcLYgo+GQi2Vh1XLjWbaN5cCrMK7eRnxGBjv8fT+XfYfijA53PdvJpFnqkSiqdYzr
+         61lfBNujmdR7dOK5rmk6TqF4RhGa21ULk6PfLosrp94f4Sqi8OEGPNa/RTcGimBQSwDf
+         ZU2rF/HF5uNYKvsoA1CTeJaENqXxHmciF5Bt5HXscpCD+zIjEMgLKR0KMJS6HNWDydg8
+         5/4dRA30J6YqY8JQD5qxZI3uUDmfmf6UaJgeTxrPmqjRIXDZaB37Utq7e3IbQtMYgxJ6
+         xk/A==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=NZaKYvocR3w47gM5Rf3uf90CrbJw2wh4ush5zpJABRA=;
-        fh=5O/C79wO42cQf6w/vh3W7FviilpJ0XtrrgBkDvem/c8=;
-        b=GdNo7S6Qmi49FNkBaLPS74GNjAHFGsq+2/K5HNILUyl95Hc7tsAbJUb3eD558BOp2z
-         z6OEM7UAVGjty1GIEZqYVeyN9iQ5ORB9KUdWwYPhoAFIxT5SPG5MNj8yLgTnkVsnkfCc
-         VeGlim8iqr9SoLx7JmOXtIdeKFepn/yDY4YCYDTH/GWVhhsvhwCEXLncbXvepyL07Gue
-         3dy/0fAJJEeJLSclwoxjA0dUa+QHT6Ny1Gp7We84wruSo/oG7TogODn5DeUBs73IqlVL
-         tuaLVcL5HqMAtLZ90o8fTX3KTVlWRcxWjFjj9omw0lnmwUI+GPSNUlcgffE9KoDWGEmt
-         ZkYQ==;
+        bh=QkPIKArl5iCMR3iyfyeMxzpAFUzHzqNuwG+5cNrzVoI=;
+        fh=VWwbX+H1Sc8ilbX5LEN836EN17/lKaPP6kwZv2JuZcs=;
+        b=RVCUftrHt/ulTccfdcpHbuNuAMGre79jx9b0QSoioNG7GiOg06BkIbroV3q3iEi5JK
+         crKh1jYuOWS1SjnWuH4hDDY/odLyXVbDu8VaIVPFvIQ7opsUWTXLS5mvvIr3r49thIjb
+         x91GyFy+4oybRj5gYlkYGMF7FFq7c7Dj7xKM7LCDEC3VAAF1pr0YBy2nJktwYaxZDQtM
+         VImnmD6XHaAUg4SQzxWmOMNWEDCA4m39QjVebOlJY/9X9n1hcL44huT9QcCfv7HRPqow
+         68GzH0ATn4RFo0pNSyPwXYkAdUpHoiFBaIesArqalKaxeaHebDbW8SSO7Sse/RrclQ0b
+         3EOg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780676362; x=1781281162; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780676451; x=1781281251; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=NZaKYvocR3w47gM5Rf3uf90CrbJw2wh4ush5zpJABRA=;
-        b=eIFuLDRhr5oybAT59FMrShagaR1GHv70Tr0Lhsgtyf8cs59h+Hsh3cyF0DGlGBpzSv
-         ahgEOnioD/NvHKxhcGBKPetBO7UdEq3VIN/M8Wh4lfqZOFuZe1WalExW4mN+GxmiLa76
-         QSKNRaOFF9TAmpS7dZDMkyYXCqqvuivqun7pioyFlY6WIhaHhudQFpCDLhGqtIaxJT2H
-         8ijTXJtjCfXooRNPUvzSaU0gyKKzTeGcbjw5NYv8qQFxGU2TS9GPNX+n3coRSfaPfN/K
-         ALpcsqaAtBg5TBLf3SXhGMiILqJpU5taISWOdxuDkHrPbTF65rI5D5m9YJwfqOk3xiuG
-         V04Q==
+        bh=QkPIKArl5iCMR3iyfyeMxzpAFUzHzqNuwG+5cNrzVoI=;
+        b=nksNchvCcBmMalxoWmBgWfOlm3s7n8YLsX6ldF1+EGJFe6SIOlI/SZPW/8eFsNJ2a8
+         Fd1fRrWA/yUK8lqGafzNN49skLLP1OWDweSNaJffxmjDi/4AMxXhe2EA7mfpd1HqxGSM
+         JCne5k3iEGKApy+WpSae/Z3iTgHBatVp7Jxz+ckmtT6nFvNa9ut4IOkZkF+oRb6lvS6Y
+         MgA53uF6mUkveB06z74b/qWTdL5w9OId/t/LzW69Q4kpadeYsmT/Lp+2UPXUuzqvgpMQ
+         9M+X+NE+BgBIWb7AebHRXKT3q3M+8c92AySMnkOmPO4eh296LDCWwqbMOkThTQWfx3AN
+         wROw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780676362; x=1781281162;
+        d=1e100.net; s=20251104; t=1780676451; x=1781281251;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=NZaKYvocR3w47gM5Rf3uf90CrbJw2wh4ush5zpJABRA=;
-        b=FfTo7TyYDuy/qT0A9F141NwnhuH2ahlUvCd+ZbhjrApiR1h4jmQEPPtpSH5F0RLIki
-         PEMw2KMts78Q6zFM4nrpJa+LgXDF2yhheO5NBzvbFCTrb7TXpbl4fUjRRR07WNMdh7pO
-         KAPh0EsRBeqLCgozIS6ZbgoqLaTFJ2ayY3qAjIm/lFRMCX3ETY430j/sp1kAObF+xxfG
-         z3+6vtoQM55k3yU4lazJq1wlT2Zy56gszswRjBnuMB5eaNbpuKqY/pDcM+rwDz16xXfY
-         AU94Wi3QWiMMt9/vmcSmvjFOH2U/Ngp7XZCOIUQvOrmvunbHa/yaN+Glvy5HV7zj6aAI
-         sdSQ==
-X-Gm-Message-State: AOJu0YyMK/ROqoSLnEXM23i34cov86rskpnoqBgM+nt+nODnRzEEtHJ1
-	Ybdv8JXM1G3F0iPmXrNTmvJ9sMTN3L4oNCIUxjMD3XSNOmYRbr8s7EwWj/bHT2cniD90NN5aAqL
-	oQ2T/5fHldSunIElksxq5U9ndTBfgvIFGNg==
-X-Gm-Gg: Acq92OGD7O06Tv8q61RnlIfctUsdXwATgDWoL+EIn6BY2LDKTxDfgo05UC17OOPWmdi
-	rSe1uGjT8DcplP06h1Jg4tt4lbYDGcnbZFUv6KnFy6LzZtupCSQw0lamRBBxPFfhufRRm/w8+lV
-	yI0Ce4RTm78cICh8wxxicaYncPGk4K7YkZH24jtMTaEnhWmmno1+ir/0PqxLJ2VQzjxTVQuXKvp
-	v7wObgqiQDFXegjHanvyz0HDFxawjt8+XMkLQEqNX3uOZnzRer1gyAoG8SIks8GNcevUR9dSzAu
-	zDMgVmSN+y07juBJQg==
-X-Received: by 2002:a05:6a00:1ad1:b0:842:4387:34c0 with SMTP id
- d2e1a72fcca58-842b0f1e8abmr4313570b3a.5.1780676361830; Fri, 05 Jun 2026
- 09:19:21 -0700 (PDT)
+        bh=QkPIKArl5iCMR3iyfyeMxzpAFUzHzqNuwG+5cNrzVoI=;
+        b=HeG43KZjKkrODzrt3RziSwv+f8zv55GgUGiTn+DjWZANovbO7pp/BqjkFv2P/Pzlxs
+         Fp96Uvd95QcrXg7P2GdHp4CaNVjma6wflTP4Ay/mXCEfGD/L30WKgY4oVaB9xJXCbfxA
+         yFmEGXXwV/wKtHpJPzN/PWGCCtHiUZwvugoJSzeDr3CLbglXKSuSL42uOoXtLT+kqM0S
+         hWsdjmUNnNBa8jiK8LnWXogn6+FkcnLbozVc6xVfu8BJwm6ICTr/AVviTFQUK0sgWXNc
+         CPoX+KyyiDYtX12TO7gmLNtxIswqbhI0L97GGLCp7dZe4Ce79BGyCEKrMGB+y2lwt2bV
+         SBig==
+X-Gm-Message-State: AOJu0YwxfZQNoyhw561dTLgYYI/5AOQAGMWZKJN6fPCJOSe1/rALkYMz
+	O5Dx8FkhlJ9CDwPDO+bO32XSb4M00cSzBmBDq0c51b8RSwtBhX0Z+05Wz5xPf4txRYdDiUrOSKY
+	588cGKDYYlidCSip1IBMm5xvGpQtCnQwrfA==
+X-Gm-Gg: Acq92OF1fTjBcR75p7XkoI6AOExCT4BnnYzd89WTVGrOM1MoJfIipPh/au5bOb9AGAa
+	qI4KwpRjLReRKmB780FVckyGX2Lyvx+j+1tqTt+JA0uyw3T6Ruqu71Gr9HLVZkyGVtv1RjemB9O
+	ItZuFmLX7+OKIHWe7GoeT2qMQZ74xq+T5v0wtODrxt/NO2aRU18ol6tczHg9AjdS7rAugoIaNmO
+	MUafgRZ56IUVrdBSLOsr4vRfCMr1qnE3b6bIOGSzbf8YRCpTcH9dGR9tbX5lJXKpuRrVFVkUTjf
+	ls7K6orivi2tJLTreQ==
+X-Received: by 2002:a05:6a00:4304:b0:842:2bcf:1d76 with SMTP id
+ d2e1a72fcca58-842b0fef2a8mr4212012b3a.45.1780676451443; Fri, 05 Jun 2026
+ 09:20:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260604125806.255648-1-stephen.smalley.work@gmail.com> <20260604125806.255648-3-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260604125806.255648-3-stephen.smalley.work@gmail.com>
+References: <20260603093801.1070705-1-lautrbach@redhat.com>
+ <20260603093801.1070705-2-lautrbach@redhat.com> <CAEjxPJ6GC5ugbBuegYpKTQXt-Hq0vrZ9DvyoRE3gOU=j96j1vg@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6GC5ugbBuegYpKTQXt-Hq0vrZ9DvyoRE3gOU=j96j1vg@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 5 Jun 2026 12:19:10 -0400
-X-Gm-Features: AVHnY4KBUbSy8I2G4EgqNVbr4pMCO8awVTK98MGDH127XqW8AeunV6wcXgr7O_0
-Message-ID: <CAEjxPJ7GEs0JDC0eOQWWcBYfF8CGneS_y0bncopmWM2_VBSoyw@mail.gmail.com>
-Subject: Re: [PATCH 3/3] restorecond: pin watched directories
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com, 
-	paul@paul-moore.com, perfinion@gentoo.org
+Date: Fri, 5 Jun 2026 12:20:40 -0400
+X-Gm-Features: AVHnY4Jl4vYPgLcn4uxPzj2DgOAI2mMP_3fiBzLscqQFMUWWceZ2xmU4hPJovXA
+Message-ID: <CAEjxPJ6QV7eNwoAm62hyYzG_FrdumvW3apqk8wfs+hDzC-EzXg@mail.gmail.com>
+Subject: Re: [PATCH 2/2] Add check_format Github CI job
+To: Petr Lautrbach <lautrbach@redhat.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 4, 2026 at 8:58=E2=80=AFAM Stephen Smalley
+On Thu, Jun 4, 2026 at 9:22=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> inotify_add_watch(...IN_DONT_FOLLOW) will refuse to follow a terminal
-> symlink but will still follow intermediate ones. To prevent setting
-> watches on any files resolved via such intermediate symlinks, resolve
-> via safe_open() and then use the /proc/self/fd/N path for the pinned
-> fd to set the watch.
+> On Wed, Jun 3, 2026 at 5:45=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.c=
+om> wrote:
+> >
+> > Run `make check-format` on PRs and pushes
+> >
+> > Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
 >
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-This series was merged.
+Merged.
 
-> ---
->  restorecond/watch.c | 22 ++++++++++++++++++++--
->  1 file changed, 20 insertions(+), 2 deletions(-)
 >
-> diff --git a/restorecond/watch.c b/restorecond/watch.c
-> index 44094fd4..b197bdc2 100644
-> --- a/restorecond/watch.c
-> +++ b/restorecond/watch.c
-> @@ -168,6 +168,9 @@ static int nofollow_lstat(const char *path, struct st=
-at *sb)
->
->  void watch_list_add(int fd, const char *path)
->  {
-> +       char procfd[32];
-> +       struct stat sb;
-> +       int dirfd;
->         struct watchList *ptr =3D NULL;
->         size_t i =3D 0;
->         struct watchList *prev =3D NULL;
-> @@ -217,13 +220,28 @@ void watch_list_add(int fd, const char *path)
->         if (!ptr)
->                 exitApp("Out of Memory");
->
-> -       ptr->wd =3D inotify_add_watch(fd, dir,
-> -                                   IN_CREATE | IN_MOVED_TO | IN_DONT_FOL=
-LOW);
-> +       dirfd =3D safe_open(dir, &sb);
-> +       if (dirfd < 0 || !S_ISDIR(sb.st_mode)) {
-> +               if (dirfd >=3D 0) {
-> +                       close(dirfd);
-> +                       errno =3D ENOTDIR;
-> +               }
-> +               ptr->wd =3D -1;
-> +       } else {
-> +               snprintf(procfd, sizeof(procfd), "/proc/self/fd/%d", dirf=
-d);
-> +               ptr->wd =3D
-> +                       inotify_add_watch(fd, procfd, IN_CREATE | IN_MOVE=
-D_TO);
-> +               close(dirfd);
-> +       }
-> +
->         if (ptr->wd =3D=3D -1) {
->                 free(ptr);
->                 if (!run_as_user)
->                         syslog(LOG_ERR, "Unable to watch (%s) %s\n", path=
-,
->                                strerror(errno));
-> +               else
-> +                       fprintf(stderr, "Unable to watch (%s) %s\n", path=
-,
-> +                               strerror(errno));
->                 goto end;
->         }
->
-> --
-> 2.54.0
->
+> > ---
+> >
+> > There's a test run available at https://github.com/SELinuxProject/selin=
+ux/pull/520
+> >
+> > https://github.com/SELinuxProject/selinux/actions/runs/26875462663/job/=
+79261408494?pr=3D520
+> >
+> >  .github/workflows/check_format.yml | 21 +++++++++++++++++++++
+> >  1 file changed, 21 insertions(+)
+> >  create mode 100644 .github/workflows/check_format.yml
+> >
+> > diff --git a/.github/workflows/check_format.yml b/.github/workflows/che=
+ck_format.yml
+> > new file mode 100644
+> > index 000000000000..bb44e60a5507
+> > --- /dev/null
+> > +++ b/.github/workflows/check_format.yml
+> > @@ -0,0 +1,21 @@
+> > +name: Check format
+> > +
+> > +on:
+> > +  push:
+> > +    branches:
+> > +      - main
+> > +  pull_request:
+> > +    branches:
+> > +      - main
+> > +
+> > +jobs:
+> > +  check-format:
+> > +    runs-on: ubuntu-latest
+> > +    container:
+> > +      image: fedora:latest
+> > +    steps:
+> > +      - uses: actions/checkout@v4
+> > +      - name: Install tools
+> > +        run: dnf install -y make clang-tools-extra
+> > +      - name: Check format
+> > +        run: make check-format
+> > --
+> > 2.54.0
+> >
+> >
