@@ -1,92 +1,92 @@
-Received: from mail-lj1-f179.google.com (mail-lj1-f179.google.com [209.85.208.179])
+Received: from mail-lj1-f173.google.com (mail-lj1-f173.google.com [209.85.208.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65B4B2E764D
-	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 14:07:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1EA41DF27F
+	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 14:14:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.173
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780668445; cv=pass; b=pAXxpEtzhdaAUJep2vloByTjU8vbrzIXioe5fBnSFcaIxm/KPI+jAHEuIgURCiExNNryyX/j7606uYrINNu3MV3tL2CP6G4nQahLLJmxJ314AEnhE8/s/81v9XjfGKv3kxI4qYo2ZIh3T00vZAmrFOlU+ngJg8uSJvIF44AiwmM=
+	t=1780668895; cv=pass; b=NJEMdrLb2LCGZpsQG/1KyTfqHuq6Tmv+KULQg/68UW8JAVirsEAY1kCMKQPgSOFt/1tJ4oXxC+tYKtdeKh+nk+O7zfRclNwHoR3cuT4gFv4unKl2H8VRuP28U2G6uqfczbxw+k6uQRwOSlf882KlzXhgN1axoz0lWjbvwr0PSjw=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780668445; c=relaxed/simple;
-	bh=4B3bNVS36DUTc59c7oQYnb6CAeDP1Q6aDRZpc3Th3nI=;
+	s=arc-20240116; t=1780668895; c=relaxed/simple;
+	bh=RSnJHPOpHLn/C9G7VFrmnoqTAlh/2ZpV/PloHaufnKg=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=E+NncnH58PbilLWTCVnPvp4ZZpSAH/ySpZlCpV2CXt17lHxVyW19q+/8avLqaMlsKn9eNyvEzu5o2oomIYqUhy6XWLaCpyIz6iVccbYagp9o3zKy5fA9LIaROFLraD+LPf2xn5WTGzl5YIo0kreM06MQrD2WyVgeHsVO5/CPNMI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=I0ZxWYUV; arc=pass smtp.client-ip=209.85.208.179
+	 To:Cc:Content-Type; b=fHNb9CgJKfbw0z8jg2gbnUOh0N0Km9wTU7OWYBdbE9OuYwKFze7RXBWSB0C9GfSu+b3boFsKGMUuSSrjnclqgkgIAPF5bY2uK9+903KzFKQ4YLsJ1x+m1YUkOqxZ9ZZ37ME0Oui55tzTktvFsvRxdKEfvPN4VfPF4Is47NV666U=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hQ3qjbjO; arc=pass smtp.client-ip=209.85.208.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="I0ZxWYUV"
-Received: by mail-lj1-f179.google.com with SMTP id 38308e7fff4ca-396775c26e0so18871571fa.2
-        for <selinux@vger.kernel.org>; Fri, 05 Jun 2026 07:07:24 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780668442; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hQ3qjbjO"
+Received: by mail-lj1-f173.google.com with SMTP id 38308e7fff4ca-396bed274b9so17103531fa.0
+        for <selinux@vger.kernel.org>; Fri, 05 Jun 2026 07:14:53 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780668892; cv=none;
         d=google.com; s=arc-20240605;
-        b=jnyFQQ/u1ldp45hLUuv6tnu6hl/zskGjYbe6LObBo6bHB/jEQKPUNdJ3nwNv1HGqnK
-         YSYkWQo26hpgMSc6gv2A9RTJHKXQnV+OrwSEXJ2XPKPuQFUYMK39OXSXOKyaS3IUHDd1
-         VDxX8sJhsC2eaeT1nWa+If8kr/r7BCBpE8XHNb1DBeQnrqTnbvm6z22QG/EC+mvETps7
-         ZjFaC/H+A/xnoObj9cJbJNcxAwsxeO30pdrf5E+Eevt1d8qcf+EXfitBB0EUw9oBztJg
-         3zd4t9e9ZdGdBWe8/PuZ878bpHJ4A/iWMfW3ORdNXsmdt2L/kiausC6I205ag8nLVRdc
-         z+DA==
+        b=VGdeiuDwv7AY+He65W/mY+B+Mf7boyB9CoNPkGtWihz0qW7/AP/q1un/6qE5Saw8Yr
+         MK7tiNDXfB7kRkiZL/3DkvTupTnT8w3SSG3yZh19UbyFtfKXXeznESjow9IQDKkjPGi9
+         PaqWENrk8OC7405pa+HnXjJvlgYrbtWQgSLmz5cqWlZJIeE8i7TqZa35VGiwHJf09G6b
+         Mtccq/gwlyrizsG74ncSpeTGG8g0+DX5wj18rRRcAt2+n5Gn0/bhx4XsPQgj4dfdoGE/
+         QQxPOTkEFti+yt9kXRpb1GcGSyw/74cdREzO7sOWetJxtGDOa53FCkqQoY3CiiCybTMA
+         7+jQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=s9A9uyUlGEBn6ssMjEZnsDYUQzIpZX6GH0o0EdWLv8s=;
+        bh=XmA6Y2sKZwWjVG3v+Y7PnQ2keFQEQuQqwm+/J/qKOO8=;
         fh=biLNIbUdiVI+HWgqVoISrU2pQus1fZiQi7u7sC8l6as=;
-        b=KG6fl0KvDG0G3eAtPNuSU/INEHumrikuTfUUUW6fso0dkpmtD08WYVJ4ocIFBZ5/Al
-         YX6rbEsfoOWzdj1a+FPbuUMYeS01IH9H2xP1y8UQg/CqlYRJZQqoQUk5dkWCvnIE6sBu
-         gnt6HEOoh77UQ3WiSnZ2/4gx448AukKV27EmR/n6LPymp8YxPSsMVA2xYO6R3UqRkCfh
-         3bgCujqup27k8Xklgt5TOdcV0eqXC7ujWUaUQtpZW9bvjgnq4AY/1o9tGJjY25j4krpD
-         8MUPwAzualQLND9lp1iCSByzJbNpIFcs1drDtQuUr6LWAQlZaeahc1RMQtENMJ4yK4fx
-         NsAw==;
+        b=BDaqznomGPCsHGgMDyv1GOE4VI8S5Ib9GthCsyFRU5CVvH3QdTfFT/guAznCUV4itN
+         mA3kGNIhdEf8miI631AE8WDJjuLx54ib34JH1L/9QW4wNYu1WxlBg6XPM2+QdNZpVHWk
+         8brvsYmFHeBMr4oyiEseiDqGJ8G2edVPo7IUXQllqRGND58D5SWIGudF/IZXvJbVZCMz
+         Br7unM2//iWf3MbEhvNBaYZLQZbg1jQqlX1Unvv85HMA6x3Ld7KqwHInhObHONUaER3X
+         FsAJDN3DiFISBxkTf2/W41b7ZEW5b4ZWA/eqKgAnxIoelfjXwhzXgyaMNFIK2LbkW3MC
+         PUgQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780668442; x=1781273242; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780668892; x=1781273692; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=s9A9uyUlGEBn6ssMjEZnsDYUQzIpZX6GH0o0EdWLv8s=;
-        b=I0ZxWYUVFquAKPRnldEiMT7MvPrSA4qEiLWylf2rDSUdbfAxSrBRPWgmCmx4Mx1gLe
-         Rj4gdNjR5YOinJL4+w0/mcE/W0B8ogBCxShpc+q5rbYuRNVngXEaY2BciQ5Bsed7LZRi
-         7wcJ8mylDOB+Bczbs4iAsv68Nz0GD0sRqLJsHN3SMOqJeMiEZx1P+Pk37YqoYz4LiOK6
-         XrlkpEpm+vLTmc4V3KGukD2dwHIkzGHMeJt0dTWpwz5dOiS+q6oc8sqsHlCsfHxc0sfr
-         T5sesj2RRDAnk34WcYgePyxU7+Q0B8ZAemJKcnf7uAanoac0ExP3dg3rkFRM0OSOSQ/M
-         WN/w==
+        bh=XmA6Y2sKZwWjVG3v+Y7PnQ2keFQEQuQqwm+/J/qKOO8=;
+        b=hQ3qjbjOO+IemOTTb/J5wdXyoKAWoONXcefafKrI4TbbVOF5JNRb4ME3iNl85DHfQ5
+         yt+BB0ndASQAtPB8J/CMgyndyE3g7MGFrlnrEwMSzEa9yJ8x/9YEq9Zib+17aev+fSqO
+         mjODVeJFu8lBUP+OPrFcMrv6gGn7h9Ft5HUByA5oURGM/tUDVvndLcLydeEpPlFg7tMm
+         4DzNYY9u/MHjOh1iTUWlH94riZXH388KWZjsiboTBlDzXj4FdyKaJpN2Uv7oJB0JqGpy
+         Ux7GQlKBoxEFXG2JvXuf9Mk4wSd8uA+K9LcCz1Hasl+ERWgzKvM+VFAe9Fyn6Cgjilqt
+         ACFw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780668442; x=1781273242;
+        d=1e100.net; s=20251104; t=1780668892; x=1781273692;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=s9A9uyUlGEBn6ssMjEZnsDYUQzIpZX6GH0o0EdWLv8s=;
-        b=sSxjnPZCPCmqC9X355G278lHr61RqWXwaRKVn3GcB6fNk+cJ7gg8wEyK7x9kAWTU6g
-         rk4rCi0POh5epf+avNS5g5oCUF+P22WNBaLwAm4w8QeY54pls97tbZiS1VP/pu2ZD6VH
-         HFQQstjXCKDFRUA6PO0FpYcJxDum+JPfqq0vDQ9B8x9ULtiu7gENuEev2SbL4OmVmk7k
-         muPcnzBUAmoUiFcU0vOYQhFUwYRiswjXmFv8MxUEl/42vOo8SnS8/RBr3014mCm3+yps
-         Fuu1uK9yOHxpBAI750wyXpWOphsZm6lZiHGfkLD5bg0NzckjApZ2mdQPNFOhtWmCv6BP
-         DTPw==
-X-Gm-Message-State: AOJu0YzEtk74nPOltUf1Ur1nOJdwIm/73o/YOBJ1K1V38PbD53d5asuc
-	jlC+5FERoqVBU4LZlWv2SxxE3QF+RVQnsX2XQ2umQFbwLDGdsIfHDD5bO6H7/oZC0SnI4wP3OeE
-	u6g/k4ECRl/zGFRI2VU1O2Ltmqw8J9cw=
-X-Gm-Gg: Acq92OG1HaGZGmwsGQXTocT9Ga4iNljFpQMiuKeGMd3DGbLifQCBrQJ23CZjAMfKGKE
-	DoOLDA+2sTv6+snQ3uzYznVH1xSxoJyceFx6PcbqBbZdfyvfkS+QBdiICzvmkJh9Wf4STsh//bA
-	z8BWQzQ7mK/Rf8+mSnxqTp6wpmN0b/nnf85nLmnbCYzrNbdHlMHj45FxvZRLSZM3G45SYkq5eU1
-	Qm3p6ivgwig+WkfC9WGBJBE7H5jnU1nwYmQgSKveeMousfMGMlcwVObRpkjD7sAFBdVQoF6dcg8
-	T5Es96DP06dHzik=
-X-Received: by 2002:a2e:a98b:0:b0:396:8ac1:53a7 with SMTP id
- 38308e7fff4ca-396d0831aebmr11508881fa.8.1780668442212; Fri, 05 Jun 2026
- 07:07:22 -0700 (PDT)
+        bh=XmA6Y2sKZwWjVG3v+Y7PnQ2keFQEQuQqwm+/J/qKOO8=;
+        b=MS/FpXI/Vk6zr7BlZLdsM7og+KCNZSfIP/OLKEIkmUV+pdYIbUM1j8SxESRXf1m3lM
+         WOboUkNnAXA1sHNnUKZz3jbUxWsx+GDM/l6rRueqm0HHjvQOd3HoKaAWk533u8RriacA
+         3EMJytAflhHVr06YD5n87mGvHCDH1ta6KpC82OmAn5v+h9fpN+qJfx52Jy9eHt0vtwAu
+         L+3OaRnybJfaPyTfhpnNkqw6TBnzjARYed2Q+dxn9tJFCsBGl6Pxm7KuRB5rfc7lTU/0
+         G9U4arkqUiRXqD5w0lIUFVf2XTrrlTzAeYFtxbps7pGXT1xmJQcIHmt5n5ysMGXUbhP2
+         xFgw==
+X-Gm-Message-State: AOJu0Yz4Xg60npnzMvRpiuGS68xLurpNr1nzBMPWQnmyt7YZu8rGCU6M
+	wlqyQmsPCIL4cmTqRxtd8LkNtW+x9VpSwiPHug7nsf900yU94uCCPOC9oWiEeRDIGIp0W/2xeal
+	IgXHGmCd7m/Tk3hwPYTRRUfNLQ3OJhI8=
+X-Gm-Gg: Acq92OG+HmpCRZcDKZQw4jb4YgIorRvhop5TUdLzgZElsN5WPdN3j4AOHq8OisVOQl4
+	R23c09HNsTnND1M3rQdzKAtqqqetAJzSPeOvMTTVgrxvQr2bRw7Ckerg/6Af6grFp3cTrCU9HbH
+	bWUni9tQHy/UXXWIkDDditA0E7cbQStWwsoIBLHv/SmaUUH8MI4f9oxmRGU0D0Tox8T54JhTC0+
+	0Sji99Xmr5MepeDv/oX+j7Fx7A28kLEBpcbdJ/etCGw/L+7ItFShHubzIuH1EoG5ZGpgHw94OcZ
+	VX+R6Pks3WtxTF2zDSP8kx5jxw==
+X-Received: by 2002:a2e:a915:0:b0:38b:be3e:b752 with SMTP id
+ 38308e7fff4ca-396d0951a68mr11276851fa.20.1780668891515; Fri, 05 Jun 2026
+ 07:14:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260604125854.255679-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260604125854.255679-1-stephen.smalley.work@gmail.com>
+References: <20260604125940.255722-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260604125940.255722-1-stephen.smalley.work@gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Fri, 5 Jun 2026 10:07:11 -0400
-X-Gm-Features: AVVi8Ce7DlNrMVi-RIchOi6pG1b2zHcOidg0E2iKZd-QuCqz6tKEv5DD_oWnP4E
-Message-ID: <CAP+JOzR8k=u4mcsUudgJEp3=AT3urYuFT3boyEPNO2fWt2psZg@mail.gmail.com>
-Subject: Re: [PATCH] libsemanage: fix OOB cleanup in semanage_direct_list()
+Date: Fri, 5 Jun 2026 10:14:40 -0400
+X-Gm-Features: AVVi8CcMsTo7q4ub6RILCqJ9mzEzghWH2FxfB8bLmtRZaQFelbVV8P-3fSn7ayU
+Message-ID: <CAP+JOzTcY4iQR-ePFoCvyMQNqKC+OVXMfZx3pktHUVcKXnm_Zw@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: serialize legacy compat_validate() callbacks
 To: Stephen Smalley <stephen.smalley.work@gmail.com>
 Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
 	paul@paul-moore.com, perfinion@gentoo.org
@@ -96,38 +96,66 @@ Content-Transfer-Encoding: quoted-printable
 On Thu, Jun 4, 2026 at 8:59=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> On the error path semanage_direct_list() indexes modinfo rather than
-> (*modinfo), thereby reading and writing the wrong pointers.
+> selabel_fini() calls compat_validate() per lookup. If a legacy
+> myinvalidcon or mycanoncon callback is set, e.g. via the
+> matchpathcon_init_prefix() call by selinux_file_context_verify() or
+> selinux_lsetfilecon_default(), then the callback is invoked with no
+> locking and will validate or canonicalize the context on every
+> lookup. Replicate the logic from selabel_validate() so that we only
+> perform such validation or canonicalization once and that we do so
+> with appropriate locking.
 >
 > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  libsemanage/src/direct_api.c | 7 +++----
->  1 file changed, 3 insertions(+), 4 deletions(-)
+>  libselinux/src/matchpathcon.c | 29 ++++++++++++++++++++++++-----
+>  1 file changed, 24 insertions(+), 5 deletions(-)
 >
-> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-> index 6426ab14..9572dbf0 100644
-> --- a/libsemanage/src/direct_api.c
-> +++ b/libsemanage/src/direct_api.c
-> @@ -2006,12 +2006,11 @@ static int semanage_direct_list(semanage_handle_t=
- *sh,
+> diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.=
+c
+> index 66cbb0dd..2623e5dc 100644
+> --- a/libselinux/src/matchpathcon.c
+> +++ b/libselinux/src/matchpathcon.c
+> @@ -43,11 +43,30 @@ int compat_validate(const struct selabel_handle *rec,
+>         int rc;
+>         char **ctx =3D &contexts->ctx_raw;
 >
->  cleanup:
->         if (retval < 0) {
-> -               for (i =3D 0; i < *num_modules; i++) {
-> -                       semanage_module_info_destroy(sh, &(*modinfo[i]));
-> -                       modinfo[i] =3D NULL;
-> -               }
-> +               for (i =3D 0; i < *num_modules; i++)
-> +                       semanage_module_info_destroy(sh, &(*modinfo)[i]);
->                 free(*modinfo);
->                 *modinfo =3D NULL;
-> +               *num_modules =3D 0;
->         }
->
->         if (!sh->is_in_transaction) {
+> -       if (myinvalidcon)
+> -               rc =3D myinvalidcon(path, lineno, *ctx);
+> -       else if (mycanoncon)
+> -               rc =3D mycanoncon(path, lineno, ctx);
+> -       else if (rec->validating) {
+> +       if (myinvalidcon || mycanoncon) {
+> +               bool validated =3D
+> +                       __atomic_load_n(&contexts->validated, __ATOMIC_AC=
+QUIRE);
+> +               if (validated)
+> +                       return 0;
+> +
+> +               __pthread_mutex_lock(&contexts->lock);
+> +               validated =3D
+> +                       __atomic_load_n(&contexts->validated, __ATOMIC_AC=
+QUIRE);
+> +               if (validated) {
+> +                       __pthread_mutex_unlock(&contexts->lock);
+> +                       return 0;
+> +               }
+> +
+> +               if (myinvalidcon)
+> +                       rc =3D myinvalidcon(path, lineno, *ctx);
+> +               else
+> +                       rc =3D mycanoncon(path, lineno, ctx);
+> +
+> +               if (rc =3D=3D 0)
+> +                       __atomic_store_n(&contexts->validated, true,
+> +                                        __ATOMIC_RELEASE);
+> +               __pthread_mutex_unlock(&contexts->lock);
+> +       } else if (rec->validating) {
+>                 rc =3D selabel_validate(contexts);
+>                 if (rc < 0) {
+>                         if (lineno) {
 > --
 > 2.54.0
 >
