@@ -1,182 +1,141 @@
-Received: from mail-pg1-f179.google.com (mail-pg1-f179.google.com [209.85.215.179])
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A47E138B12F
-	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 15:56:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 930C63D0914
+	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 15:57:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.43
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780674965; cv=pass; b=DYuf+HH+caQrAYAYNk1c+CdrhuUmU3qGpE0qBd+lTjmL1If22baLjMss5Lg3lfWb1B8tKnoUxxpmw/2xWZy4AkR9Z/f6464oAlWlrPrxxzJiEwNYYVO0T9PVwQjx+D8Q2qNU3Rg0/GWY/n95lPUw7/oWd5oT+K9gP3NCOv39bN8=
+	t=1780675042; cv=pass; b=bxHMxTA9+A2kHm9VAb/biwYgb2LdWtfhzqq9FCXAaZ7e9bd0FcVDKJ3QyekmBH7u4Q890Dbfoay4YhzOQC3AweFphr92HQ7e4uWd9kl2+nCW6lae5MjjT7dgB7lC9WmXFbHxZlRnFOh/y29AUfIWMf1C8cI/nkDjbaVfjycT9bk=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780674965; c=relaxed/simple;
-	bh=X0tmUVu8Tg5yqgJHE5MPnhHlOl32TGwGu7E1K+bOHH4=;
+	s=arc-20240116; t=1780675042; c=relaxed/simple;
+	bh=TBCx77+M6XzKENETcayx/D5LEauIQHANx2si3lOsDYY=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=I2J+IAW0rGuUaSR2K2p1ArhOmmAKx2XYd7Bh/k7979aA4dRhNu6R856FCKBursXmn5QwAXlwm9fnsWaYkEce83+MdQPCdAnRMYcpzvYMpoVUgOQmU6nWkwfjyWygyMfzdGDb8R3OlOnY5KdiuYBESYr27ueuieOe6grfxsS8ZpA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nSjVSWgG; arc=pass smtp.client-ip=209.85.215.179
+	 To:Cc:Content-Type; b=rCB9PxAEhOBLIV3xltrJX51p/Rq7HTOhS28mZqBPBXIGsct8J98FnPgTq/qtBo21zGZL07srritTGf/rgmNvYtY9JE3jt68k65KvXNkENFLUVumQ4ybr04vU8oP6bJarMxO+WCOSdvmknpi7Ylex2YMmqKe5qzv+CfsJgWsp4IM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TUhq8eOm; arc=pass smtp.client-ip=209.85.216.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nSjVSWgG"
-Received: by mail-pg1-f179.google.com with SMTP id 41be03b00d2f7-c8588f8fef3so830577a12.0
-        for <selinux@vger.kernel.org>; Fri, 05 Jun 2026 08:56:04 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780674964; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TUhq8eOm"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-36d8b644473so2096009a91.3
+        for <selinux@vger.kernel.org>; Fri, 05 Jun 2026 08:57:21 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780675041; cv=none;
         d=google.com; s=arc-20240605;
-        b=P42sdrJ6/QkTfWfDvSh0LneEAbCCfn9/gqQIka9WZN2GcihXkNcVGBVVIrO3+KiAVM
-         ZSYRez7dZYQIIsFI8H9orhHq9xjRNZEID2onXuRQS3RxX4OXknUA9Q9Aeup0UUrgMX/6
-         LJhd5inwCxsGm2mpF9ikumQVk/icdIE4pjJuPVF+PSCXqZex7mQGNHHxTVeLEuWbZuJO
-         VyqfU4W7gmKT07qHTn/ImPA5kCFLuQSxDWBtK5HnxN9GTxWLlj8NHhQ89kuyBtJZ0J35
-         39za/qlMEZhLk8ewfu6H+EmoQPiT0M3psxAWRFfaZI4NMsdkaQ24C3Q4XioxmchYFpeA
-         Y9MA==
+        b=Hvkf7xeOZcnlnultJIT+v+XrnnjLN1sypWfhpr8Vgf03BPs/nwMkf9ck4AafoiDqRy
+         mHZ40GqUuHQ7+bHoJ6sfJFzQ+vi4l2s9ieTk9ThPOrxF+lDJFroSt1biCTpOAtXdGTXe
+         U0e8HUgLbxYoBM1DVr4IK0FKlZ4jCgetg+aiI9Wzy3naDLxIGjqKEMJejaPVHh8UQUOZ
+         oawWy+pX2/OUcp/rUmoG8l657Ii9vYrOpUdp/lh/fljBxjA6H92YJLh3w3pLDJQ5FZHW
+         2MF1navrRRZb44NCYmBPsDAdYEXGUk1lFcjkCulMkCQ37mmKnUG5+6GpZ1bbLezAL92a
+         gyYw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=c/3nAYsah7ly1t6mdzOaOPfizHpM13bravHKGR/cZgA=;
+        bh=654bqDNQRFUIIaXTWtrTKjWuyPmsZqtcOPLx+tPIL5Y=;
         fh=5BxwEK/iVIzhs7kNCBs0/zEkT4yGKFLka6Po5B0u4CY=;
-        b=kbuXAek0u+Rup+dqwTEm1lCfqtscJ3UPCwkdc0A5A9+E1ACICQmB0tOl7ka0JZrkG1
-         I8S765fO2rVu/mo1h5uVwjZl6bksmfOtz9HcGi1+hNEJK6DiAlriI65Bn71KfLpmPH9J
-         OGBwmteDiRNYV3jZOQp9t5p1uzd8yJBjZr96C8BGTb8Et8z6uA5tGurcrCi0QmPKEm5f
-         LBbnZ+zpBbMfW0P/v0NxdAiPiZu3Zj5KH2fvCZS2fGNLQ/A0JD2x9ZTHGf638d1pctMP
-         vjVss/A4DJ9RvAMhBepOojFhxLOh6eqqgnKBVqASk6f88R8FwnFOxKbPxualNNXCkolL
-         XU0g==;
+        b=hfnCSIsawgzsj/Q5A+DnkoMGszRCyY697Jx9cKPDVzztlYz5RYU/pfwqRP2MTzrUdT
+         xXmm81JS3BpYj9rwMYpSWDQIDRUzILGUZFtIj8LDw1Xyqri3+CXmccc0iU9QpOeV1y7T
+         LAb9W8o3VovzSyKeXAXbMviFjNC2kABN710ri61EWHXkCHiUYxmqjt4iiTV/itizIIfT
+         7Efc4ADMAUbT+53yXKpB4rVs+DnfQ7Ol4CBhVy3609+mNm1Kh0DM0d81m3RKkDQ9yEsD
+         rc3KatoVjCPCLkDWJGCQ+mJEqDBlSqrmFXVRVtaLCg7PnJDpMdvD4FMelkmhHP/KtE8j
+         etIA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780674964; x=1781279764; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780675041; x=1781279841; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=c/3nAYsah7ly1t6mdzOaOPfizHpM13bravHKGR/cZgA=;
-        b=nSjVSWgGYE+YwDZSTrzZBP/nVAnuj39NqFeG1JB/yejYZSKZKIaCH8NnDqnpSlmzlh
-         W8dxZ3YZ9kQrgld8hWHD5ck0Rcd4p1Nqc4H+y6xxaU4i8+st/f48F84bFRdSAbd2WUUd
-         hkKG4yt5kWh+uRU9a+YRczsfrAxLev3rP+YtKenO+IZOAD8XX/n++AtzCGjBzsmuwi8J
-         yV+k41t81r5y4G9/OwrWsqidadxy9c0tX9s8JWZvKV0BfqhRmrE1SRQ8iBA1B5JauzAJ
-         kB9FDbMfpXmc03sDjcPx+ECvEXdpGWxKYPui1n6ZQO6Nl2K3TLSUCKiPSSqQHgTTNaqJ
-         RZWQ==
+        bh=654bqDNQRFUIIaXTWtrTKjWuyPmsZqtcOPLx+tPIL5Y=;
+        b=TUhq8eOm5d8k6IHOm2+ku6Lp+bQGk9l+28bfqyB0otS529pzwgXOV+Vrk+zjR6e7wZ
+         w0LUDypH9bvNC5XN38zQJ45gM4Kv7hqLphDrNZ52cPEGr97/y3iXdxv+baMs+Mo+DDKV
+         1w5th2nLLRHgL0IsHk2JyT3e5qKXkIWP4ifEewVt+JhfOjwF2DcK/4YKFtgm25nve73f
+         KXRhklQLjSHZ1TpVj5UX7sOtopdhNJticXvaYh+0owinSVE0vrFpIIywZMjAgcbTtK60
+         MskQY5yNjTlReft3b52no3rdBmtH8EA2evb5Iafkqmi8fymMvMqsQ0IWLDFkkzWKxqFX
+         SDTg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780674964; x=1781279764;
+        d=1e100.net; s=20251104; t=1780675041; x=1781279841;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=c/3nAYsah7ly1t6mdzOaOPfizHpM13bravHKGR/cZgA=;
-        b=TBxrNNA05PMKNaRLxDG9sJl7pUSZU3A4RZndxajj7g03W/XHAMJtn3C8xuWMvX1qgf
-         zWnTuSXcvKH80LqU5nINMziBmvP9JkQyuImAFHKPyLshidi3yknwhPXaBZr8pQjSGOiA
-         uFRl5I0z5DvQWyweXrsDznuzfF28LqrOsq3Tmxt8S1NMxKK2HRFBqQ8VNL3cIUkfCtbV
-         6z5G0k2dpyxKkGqa1RbcKB/0Q7JIyN3rr2V1lkbQX+/rPFnhFx2u7YdO9SxPtIhAu84N
-         udann6cQOQQGloPfcEtjIIzx183usei/9wPs8dP7ItGIjShuNfORDQHPfvPUYjQrQQfe
-         yF3w==
-X-Gm-Message-State: AOJu0YyGNsGL5Ljf/4y2ImW/5+4WsneewjVCdDJjNvdG8XY+Z9X99pYo
-	GxMKR1N26ESa9TyRWU0jQ4dMBy1OuHFClCf7En/0oOo5ZWfAGOOT/iBOUzByaDj6/dbx/Y3PfdI
-	QxFwMFoxXrcQQ7MRDpfwACMEW8xvlyyYZzw==
-X-Gm-Gg: Acq92OG8kkFuXSsWHKYXlJBRWIxxI5DcGXluBW9k9cWt1gCvSdQejDI2JJeEk2JyEXw
-	0MUVkFMVPzYBPC8nB+XOdO/KzFEHNWewk38CSuPLvC6AO8AVUe+fmjYTOY8ozGYhm6OwexCrEY6
-	v/XWqG9HuxXRg5AeN5J7y/HauzCP9IJUUT7PkeqcIMyYH6yrP2HXpTTq/Csxg8yC+/7beGDp17K
-	ea1+xfww5Aw3GEAjd3ndYO1Z+quL7me61enzc18+3g/Ijjx5H5gkGivRiBW+3z6NMso3N4LsB6f
-	Yb35Y6zfRXB0NMsKHg==
-X-Received: by 2002:a05:6a21:4613:b0:3b4:bdd5:2f8 with SMTP id
- adf61e73a8af0-3b4cd041d4fmr4566338637.38.1780674963855; Fri, 05 Jun 2026
- 08:56:03 -0700 (PDT)
+        bh=654bqDNQRFUIIaXTWtrTKjWuyPmsZqtcOPLx+tPIL5Y=;
+        b=YpVSaR9JXkBDo1yNDrqKEKUtQrW5y8fcqCfD4Sn6R5mtYxfwKPmThgnYPrNGlIU8cG
+         iXyLb5JomxUBHSigX74L3ABN1eDCevVtyhb2pSd4yyph4DKWsKrLJ7sUuuxr7h7Wa4ns
+         h1+AMf8f9cFSuIEeUvoPg6HfpxIGdv4kf0dRgHvKonJgIJ9u5FB/zVVfcsdT3aL76/8/
+         u3zVuR5QsNxWSxr+cWVFEp56/Y6ri3bHf4eI16dGWmzeYMJaWNqPkgTqQcdXn338MOtd
+         6QONh21KRhvhG6OnsG3/+f87iJYYpNLgJBbMYogQtKpqA2K42qS4L2wJy0Br3PbqhC9t
+         HV8g==
+X-Gm-Message-State: AOJu0YyJXbsynpQOnM3j5M+fC2QD30xUWBC0QYC0wR90Nu/F7lHWD3aW
+	3GlsjvF2GZL8zMm0i47UCgOFQSHlT4oh3Ghl6AguSeL9IVa/r+oLHOtFrhafIo0GPOBRCOtOhzm
+	QqZ//jCnYY3Z17OatA3C9Ty1w93+51Iw=
+X-Gm-Gg: Acq92OGR/MtwEKLhRCbCHtKkek/r90msiB2KO1hLQm4vZdlCzdBoXWYnacLxMRZXyi5
+	vy3z+arCNkvb3c+3RYswEDbaR/uR2jJdcF5SJzygxUz6fqAe9BS+5wE+E5/LTEOlgSsMImWM+f6
+	okEXFlgzFagtXg1WLCfXwDf8Y9PI1h4dohg3qz4CHaeR7BbWl5bxblXMJbzckIfZyCge5waUSJg
+	MgXFsDM9J+Ok0p0HsdjamHrGCwczLb1uLwGc4Wef0dSLXe4+Dd8gUkEZxVjSV3dQTFjhmFx1elL
+	OUcvXAotYtcWMtglUw==
+X-Received: by 2002:a17:90b:1d89:b0:368:ea0c:1b75 with SMTP id
+ 98e67ed59e1d1-370ee82fe25mr4549114a91.6.1780675040879; Fri, 05 Jun 2026
+ 08:57:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260605140203.76848-1-cgoettsche@seltendoof.de> <20260605140203.76848-3-cgoettsche@seltendoof.de>
-In-Reply-To: <20260605140203.76848-3-cgoettsche@seltendoof.de>
+References: <20260605133327.62535-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20260605133327.62535-1-cgoettsche@seltendoof.de>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 5 Jun 2026 11:55:52 -0400
-X-Gm-Features: AVHnY4INK26UmcyADKPhpB2Vc3Ev2qzgcOCwKzEzcp9guBOe1VOfjvOptBPXVdQ
-Message-ID: <CAEjxPJ5FRx3-TpkEqiBEU6+bpWSOfeWETosm8XNPfLYCWUiEKA@mail.gmail.com>
-Subject: Re: [PATCH 4/4] libselinux: validate netlink message length before
- accessing payload
+Date: Fri, 5 Jun 2026 11:57:09 -0400
+X-Gm-Features: AVHnY4ImDoqtm8QTd_jWlYrJEs7eF9QrDUn90iwj0LZanh50kG_Q9t3BHx3lBac
+Message-ID: <CAEjxPJ6A4+MaU8hxp2WOtNPYxOG4pBkf89SRBHknOEK50kLxdQ@mail.gmail.com>
+Subject: Re: [PATCH] Makefile: support custom clang-format binary
 To: cgzones@googlemail.com
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 5, 2026 at 10:11=E2=80=AFAM Christian G=C3=B6ttsche
+On Fri, Jun 5, 2026 at 9:43=E2=80=AFAM Christian G=C3=B6ttsche
 <cgoettsche@seltendoof.de> wrote:
 >
 > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> avc_netlink_process() cast NLMSG_DATA(nlh) to selnl_msg_setenforce,
-> selnl_msg_policyload or nlmsgerr and dereferenced it without checking
-> that nlmsg_len was large enough to contain that payload.  A short
-> message would lead to reading past the received data (into the
-> uninitialized remainder of the stack receive buffer).
+> Allow overriding the clang-format binary, e.g. for versioned LLVM
+> installations:
 >
-> The SELinux netlink socket only accepts messages from the kernel
-> (avc_netlink_receive() rejects packets whose source pid is non-zero),
-> so this is not a reachable vulnerability, but the payload size should
-> be validated as defense in depth before being trusted.
+>     CLANG_FORMAT=3Dclang-format-22 make format
 >
-> Assisted-by: Claude:claude-4.7-opus
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 > ---
->  libselinux/src/avc_internal.c | 30 +++++++++++++++++++++++++++---
->  1 file changed, 27 insertions(+), 3 deletions(-)
+>  Makefile | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
 >
-> diff --git a/libselinux/src/avc_internal.c b/libselinux/src/avc_internal.=
-c
-> index 41257ee6..ec19010a 100644
-> --- a/libselinux/src/avc_internal.c
-> +++ b/libselinux/src/avc_internal.c
-> @@ -204,7 +204,15 @@ static int avc_netlink_process(void *buf)
+> diff --git a/Makefile b/Makefile
+> index 972d5525..0e70f3d4 100644
+> --- a/Makefile
+> +++ b/Makefile
+> @@ -4,6 +4,8 @@ SUBDIRS=3Dlibsepol libselinux libsemanage checkpolicy sec=
+ilc policycoreutils $(OPT
+>  PYSUBDIRS=3Dlibselinux libsemanage
+>  DISTCLEANSUBDIRS=3Dlibselinux libsemanage
 >
->         switch (nlh->nlmsg_type) {
->         case NLMSG_ERROR: {
-> -               struct nlmsgerr *err =3D NLMSG_DATA(nlh);
-> +               struct nlmsgerr *err;
+> +CLANG_FORMAT ?=3D clang-format
 > +
-> +               if (nlh->nlmsg_len < NLMSG_LENGTH(sizeof(*err))) {
-> +                       avc_log(SELINUX_WARNING,
-> +                               "%s:  warning: truncated netlink message\=
-n",
-> +                               avc_prefix);
-> +                       return -1;
-> +               }
-> +               err =3D NLMSG_DATA(nlh);
+>  ifeq ($(DEBUG),1)
+>         export CFLAGS =3D -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -W=
+shadow -Werror
+>         export LDFLAGS =3D -g
+> @@ -55,7 +57,7 @@ distclean:
+>  FORMAT_SOURCE_FILES :=3D $(shell find $(SUBDIRS) -type f \( -name '*.c' =
+-o -name '*.h' \))
 >
->                 /* Netlink ack */
->                 if (err->error =3D=3D 0)
-> @@ -217,7 +225,15 @@ static int avc_netlink_process(void *buf)
->         }
+>  format:
+> -       clang-format -i $(FORMAT_SOURCE_FILES)
+> +       $(CLANG_FORMAT) -i $(FORMAT_SOURCE_FILES)
 >
->         case SELNL_MSG_SETENFORCE: {
-> -               struct selnl_msg_setenforce *msg =3D NLMSG_DATA(nlh);
-> +               struct selnl_msg_setenforce *msg;
-> +
-> +               if (nlh->nlmsg_len < NLMSG_LENGTH(sizeof(*msg))) {
-> +                       avc_log(SELINUX_WARNING,
-> +                               "%s:  warning: truncated netlink message\=
-n",
-> +                               avc_prefix);
-> +                       return -1;
-> +               }
-> +               msg =3D NLMSG_DATA(nlh);
->                 rc =3D avc_process_setenforce(!!msg->val);
->                 if (rc < 0)
->                         return rc;
-> @@ -225,7 +241,15 @@ static int avc_netlink_process(void *buf)
->         }
->
->         case SELNL_MSG_POLICYLOAD: {
-> -               struct selnl_msg_policyload *msg =3D NLMSG_DATA(nlh);
-> +               struct selnl_msg_policyload *msg;
-> +
-> +               if (nlh->nlmsg_len < NLMSG_LENGTH(sizeof(*msg))) {
-> +                       avc_log(SELINUX_WARNING,
-> +                               "%s:  warning: truncated netlink message\=
-n",
-> +                               avc_prefix);
-> +                       return -1;
-> +               }
-> +               msg =3D NLMSG_DATA(nlh);
->                 rc =3D avc_process_policyload(msg->seqno);
->                 if (rc < 0)
->                         return rc;
+>  check-format:
+> -       clang-format --dry-run -Werror $(FORMAT_SOURCE_FILES)
+> +       $(CLANG_FORMAT) --dry-run -Werror $(FORMAT_SOURCE_FILES)
 > --
 > 2.53.0
 >
