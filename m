@@ -1,104 +1,107 @@
-Received: from mail-lj1-f182.google.com (mail-lj1-f182.google.com [209.85.208.182])
+Received: from mail-lj1-f173.google.com (mail-lj1-f173.google.com [209.85.208.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 441AA336ECF
-	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 13:13:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF23030D403
+	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 13:13:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.173
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780665208; cv=pass; b=r2aPrIJRvHXCjOg035NbJlBq9lgMFp58vhRjRQy6daQf5wtdNGgz0P3tZ/Ou0wRuiFXpLIGp8j8EefMA3+k+FI1g1Z+Mo0k9N4rKE0fL5MadfGOHmR11m56oGldOuXNDnpzXCHtGTrajxFsgwpPK7cTge0zXHy8JuGZVzylDEjk=
+	t=1780665227; cv=pass; b=Mx50x92ObKAdz2RMRHu2uUyyaqxfbV7UUkDEW7FZhUJ5hYTBLUP4jUkUtrcGCwRezMWkdkfPG01t7n6cpgpj4FcJu5oNmzMiqUrS992Hr0KuTf2zz8OOjcrjcwedpEDzUqZck5kYljw1Bzj/CC8Tjtli7cRxmuRMBo8IBrINGds=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780665208; c=relaxed/simple;
-	bh=OXYVurLVNKkGh6g1yzGmiwz0vC3ATmXHn11o5BV02+c=;
+	s=arc-20240116; t=1780665227; c=relaxed/simple;
+	bh=yFrZYuPPVS/pXDpPMFnKvYF2czasdV0+y84QTjfU5jc=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ljvzxC9VrXTewRUiEfcAQMr0DZ4VWU+AN2EV1og90wjfIGY5zodP44WUNlVb/TFuAnR50WBONJ5ORQr6cOQw7SSQOtGA75iGj6fzSFXpUrAkc6J8dxHtlaA/nOsPMr1IAxKhFiU5d6sm/xaHTPIRjSWtvl/7rZVh42xV/MxZ5Sg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=m02Y0Y0C; arc=pass smtp.client-ip=209.85.208.182
+	 To:Cc:Content-Type; b=Ux9VBlDcjOSjJFFWks7D7uAtlHGt8dNiknZiM6HggJ/5JvuSUP9/o5wgHi8H2XYDdSSEvPbOaDJtZbuzjPpG0ZeoLu9YfaF7wxOv3vYqqU2+Pd4GZ0T0iOG4ovGU8kbEZOfIe4VDqJPBODLgzl80SO18GLeoRPuNaLI5YSzODl0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=naMwXzOI; arc=pass smtp.client-ip=209.85.208.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="m02Y0Y0C"
-Received: by mail-lj1-f182.google.com with SMTP id 38308e7fff4ca-39677234558so18777811fa.1
-        for <selinux@vger.kernel.org>; Fri, 05 Jun 2026 06:13:27 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780665205; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="naMwXzOI"
+Received: by mail-lj1-f173.google.com with SMTP id 38308e7fff4ca-39677aed4d3so17210961fa.2
+        for <selinux@vger.kernel.org>; Fri, 05 Jun 2026 06:13:45 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780665224; cv=none;
         d=google.com; s=arc-20240605;
-        b=Z2VaJiaWpmS486oVrPVwuDX4YL0xIIZuXsQTZXNvNGrASWzYEvs6VeEPBDPRY7xkA7
-         PiMAlrPaVwlpl83NAaBMpfpQ8ESqzsdoyOVODw34eCdj8puxtCqC8z398sYK5HiUCZBq
-         H3aEiqlhWME+ZIhza+M9N0bn+MbSeBr35vL1J8coXa9pdVLFXcICVGG4FubwMwpImk8B
-         BbSXwNlS0I1ZOprecLPIxFO6blx8dIwEGqbdT09XL4AoSNiawV0cwtA3WWnvwzuLUTQH
-         3UV9tH5kafl/X3ZSPQ+dcPH3lBrkeFs5h3CDp8TD9vuhZjRxGkD/lu4s0fOuTp9cBdIe
-         15nQ==
+        b=SovkRuH87f3FKeA9Ykq1SC4EP6DEHevDmrW25DpoZi6BNH0CawBytF/2DhK/EK2efp
+         hG2rKSUQUD/pmkmX8QBeau5fltN1tuLS+RgLF46v0stc1aE7xvDg0Zu4Z9UAFni3Xf7a
+         UcDjnn1QV89XsPzu+/1GAnOVcr2+tpcvZgaHBs+BLQMvPveoM7g8XzkqD6Xz8kV2w1+v
+         3IAy+12xway59TvOxMt9zOsXT1ydc68GPkRcx/vtF+5C5PSQ0U+EB5nA/D8Df9+lzNnY
+         Ub8br8UeeIXnVebgPUiQlc7RXhgBXdEMx98xHIvcOICIe7k6/JKmTcmVEuX+RzMf1Qqg
+         SpBw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=jncanf3Mfb16TC8oost5TgQoUjWZyT+vd42DVU0SeHg=;
+        bh=2r4/aRLAG9luO/MSeGHuwwiJN/PsbrlCQYmwMg9VBgA=;
         fh=nOcPTm+jzSpUJDDJhvsoEQt/GcMQFmPB1BDsWNtwPZ8=;
-        b=gDiioLZxjbWM6YfC8AbNc5iUgJ196LThEoRsxJiaRgYcm/R9GgvYg/mNAaStvC74rD
-         tZonGC1zNLDk6p6n/ApqPo2rqxWp4MfbmKG+OdUzgGzdRdKtr+eigmWYfKlPdDY0iJgt
-         OH8QmoiR1rGZMz3DMcV0ORZLqcsvp8D8SygNnc/kkHUtev8Z7uBOxDnLw9o+sRECVZiK
-         OdOqVRTCGBIT5ZDrhBi2g2WaJtfJADJfHb3kb+bZ0b1cegOKyqX5IhjJ5OqjUwwQc1ny
-         hJU2G0BuhtUoyufRRkbcYxuIWiCZguCPymaWODLkHlW0qfS1TLo8aYfu6NZVlLDwNMDq
-         oGGA==;
+        b=lJD8JnCXfdhgGHIETkYk/WpAOGtjZz4vW8FMmOPZe3dReRhZPERSufp9fRiwyO0fFQ
+         6EU9TnwHMZ20fJ+6BLGRABrzoMQMbB0oEBUKKN9Dk9VfWjnCunGQp/+ihTs+OFF/iRPD
+         k0SOElXxdXtagYgj7rjjVZvmYYMXcQt/2YfqEnlB3LYwMQEMVTUqdFEgrVOL9d77DRaQ
+         24UVP7u6MKEJoEvaefJT7hMjpPKYQeOzD6Slj/CpGqIbtxRBIoJSELrzxpVbVyetyVJ2
+         vj9dW3ORMrn1qgRmjktI2ym/24cD/RuIMPBdRZQe2lIyIG6YyM7V8l85Eu7R1B8n3X/K
+         GXWw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780665205; x=1781270005; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780665224; x=1781270024; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=jncanf3Mfb16TC8oost5TgQoUjWZyT+vd42DVU0SeHg=;
-        b=m02Y0Y0C63BQTfNxsaWRSe9yeT0m6gkevyRXyGNUjKtke/q/9/Q1hKPeh2OIP7eL3S
-         A4fb78APmw2MnQxoyfUS/H++3LeSQwFcH1cLJTcHz6iNKzWosrxQzN7xytzqmMMjvZuZ
-         DtVj9lOZKKXkMR30GwGFCX6wgIxdVTH+NHKbdmcKJPaNRWKIlV0uGaGpdfNk3Hy9bgvg
-         /9YYLdufNKCUnacym9hJ7oedMwDfM6i2xmgUpDkIx00N5lkBYduZuYAdwPfdgh2BeoOi
-         XQRbmJib/cB9qGqptflfVGmw1prLD22yeM5nekcl9RsLInvO3iL+3DD/FJyRkQOaB2tb
-         KI4Q==
+        bh=2r4/aRLAG9luO/MSeGHuwwiJN/PsbrlCQYmwMg9VBgA=;
+        b=naMwXzOIEQLuct05rLDGi0d3a+4GvG5Rzr7FFy0wzL/T1fcfqMps1ONap+uZ1rKuS1
+         1UnkUkxK1prTk+YNMetZs7lsmywd4VC/RuajT/AIBz+Xy8aLSPaUyJpcm1VPqeIVWfWs
+         GVMjJ3GkIIaXVXoOZ2tqBbDXCmXaTjZZRJfniM2AqAT5Jbmt38mB4139Vh/kw+LsTyyk
+         v+MzJewukYYMqLUOaduGA0sWgyzpZFFQmqMpHHbsDzOCCRM3iEjlTJcCiwYKRcCDYPb6
+         nEcRphchv5RZrDFO2zE3pXPKWqWGAIaV9Uggq5wHRCsFeItUL5kWKvxXY03+JMDqDXHi
+         MMFQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780665205; x=1781270005;
+        d=1e100.net; s=20251104; t=1780665224; x=1781270024;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=jncanf3Mfb16TC8oost5TgQoUjWZyT+vd42DVU0SeHg=;
-        b=kXclFXXv4SUEPjmh1ABjvSzQaebdnjVpyx5nnyU1N2B66j0K9UixmHFRncVbpwDAl5
-         77siInmUKUhYJpDmAcWDS1as+x8mexBERklhcjHt3wcslf/Cl5oougV9bIsgK8N3L4VC
-         tNV/lt1AN5uDX2vyVYwnA7stYkBUFBs1yyuEFG8o8l0aliIE3NJ8VUe3rzrczSLALQdU
-         EMO65zX8Z67b7w/rPbRG+sB5DF1PZEb8FqBugImQL1tvSfeuuxmjlq/c27TJmYgM1S6/
-         DZbkjtSm0rVnGDA+smYWfUs3DaN1vulZj5lQRY0qUNpcTRzsAbZmNcwY2AvQxheVJ56+
-         srmg==
-X-Gm-Message-State: AOJu0YynaoVLhpLwr3o9vLPLtGY4yaoUIuDssVDdczIrOO55ZlpXVJuK
-	07tszc9YIyQ8C+4WS3z0NS1Q4LtWEbBfkoOMoiSikaQQxlCs3Sbx7e+CTsv8MDYBXcn02qHltUI
-	9Gps0fp6tDsAos1sIbeXI3OwcfdCYgY5a0Q==
-X-Gm-Gg: Acq92OF7AVf/b2Dwwo3h2s9D7JFNrT2C+3k3oqx9OwQQazn9z/ndm4kgD2hHZWN/Xnj
-	+f+DpdAsHQQ6BStamTl4oBl393o8+vvS7siop+Pqsvb3bEfsaI8bTTG8Qful3easBMHIuA0xuSI
-	NE39wDDIZW2Pbl4rTYZxcs2GT91xU0pErq7xPoFcOKslu5nBfMYbjAfZAot0c3juVcERXLgsUFr
-	LM6dmxAMTIdhBmzMeV/F0u4RbIxKdFtHaNFaiPjPpka8DezclFZ8Uvx8s+M8hhspTmBOrGp4jvF
-	El2Q2VR4D0lU0so=
-X-Received: by 2002:a05:651c:1a0b:b0:394:472e:e430 with SMTP id
- 38308e7fff4ca-396d08fbd30mr11013861fa.18.1780665205366; Fri, 05 Jun 2026
- 06:13:25 -0700 (PDT)
+        bh=2r4/aRLAG9luO/MSeGHuwwiJN/PsbrlCQYmwMg9VBgA=;
+        b=SRYGIeyhitgUZIELKSX0xkqdgf3FirkHa0ChVxL9V9rpAcvsj+sWCy8OoVVNsMZsLM
+         w16zNJv483WFBO0dPppU1Av9s4ec62bdG9Vwebpi9KhkyG3iAB5AVExCkPtzdWz1iytl
+         rkZwaOMO2RdDBz6xzsOjtJWruLxWNFyr+CDK/sOih7F1bRuS4kmS1MJFUlcTEbKnALhP
+         0V9mUAStF+aFOxVnniiGpyEhHR4iP0NPJqnDTYhrIXDnwm2/fX7Z9VZx8h/yuju3pbSA
+         t2sO+SBjC8r3UiC7WLs9q1d45o/DKry9Y+ctUDFO7557E7NGedlVBlHDodn7ykJw5rqk
+         rJtw==
+X-Gm-Message-State: AOJu0YxYtXqMCFnfdysSViGfDPwUJHs4b1yCIj6jKBwqwkHaudlbsJ/e
+	XdEqd7sB3mZNZxwKEzAPc/jyL8EdfXWHa+68x8qSuNhsz5tpqWmmdGtcynaFuo0DsD9Zw7fmZM5
+	/TR8B2DhbEudRszTfqa1Q3lnx3MenFyLV5A==
+X-Gm-Gg: Acq92OF4vrtR2UuozA5TffKt2/aQOnEGLrSzGyo419KLW0+z/CQS9kvhi08C5tKKdAM
+	x2MvlUDxbVJM0PNUIuiyN38XPuJlyVGeV+l8/6ikqanbpsPVXvmnr2QNraQCjjws06+tgKj6hEb
+	d+mOztsD5+g6TaqbkCNhRwvTaMHWROJXQ1h7SpYslUjNCPxvFQ82Lu3RKNdH3cSdX49cnAANzSN
+	JQSoVQITmIaMF3Pe+V7vKNsLDjziyk4PPDSnj0Cs5lSRmYnvogr+rZBofPYPdo1pT9klJrP3HSx
+	pCVMAFa2RzqgxcQ7YSjdAByqrw==
+X-Received: by 2002:a2e:b8cd:0:b0:393:ba06:158f with SMTP id
+ 38308e7fff4ca-396d09fc5b7mr12404991fa.16.1780665223984; Fri, 05 Jun 2026
+ 06:13:43 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260604191727.52013-1-jwcart2@gmail.com> <CAEjxPJ6W9WpDmy-=eWx97OTpOdGyc5ypC8ODUEiOu8GE=9HJ+A@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6W9WpDmy-=eWx97OTpOdGyc5ypC8ODUEiOu8GE=9HJ+A@mail.gmail.com>
+References: <20260604193105.56300-1-jwcart2@gmail.com> <CAEjxPJ6PbESQszZ2HRCQSQ_LKX35LzdkwAH_=kxQqF7iqN9DUg@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6PbESQszZ2HRCQSQ_LKX35LzdkwAH_=kxQqF7iqN9DUg@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Fri, 5 Jun 2026 09:13:13 -0400
-X-Gm-Features: AVVi8Cfn3_jhloShgPggjovAjugaX1zTYfl0lQH7tkWhro7Aa7YEtAfMJBzqqkM
-Message-ID: <CAP+JOzT+ekoS1nVy7vOkSj-2em631nnpxfEQtV0wt-Xpn0w=Eg@mail.gmail.com>
-Subject: Re: [PATCH v2] libsepol/cil: Add check for too large of file size
+Date: Fri, 5 Jun 2026 09:13:31 -0400
+X-Gm-Features: AVVi8CedgFVjE1jGj-A5T6E0B8QXA2rz4V4XeomYkUlyYrih8e39H4O1zTn7OGM
+Message-ID: <CAP+JOzTG4OQStisSaKpo3ZxGfr=CTDS1HXuyJMTxs2Jd_p9crA@mail.gmail.com>
+Subject: Re: [PATCH] secilc/secil2tree: Test for stdout rather than stdin
 To: Stephen Smalley <stephen.smalley.work@gmail.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 4, 2026 at 3:19=E2=80=AFPM Stephen Smalley
+On Fri, Jun 5, 2026 at 7:56=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> On Thu, Jun 4, 2026 at 3:17=E2=80=AFPM James Carter <jwcart2@gmail.com> w=
+> On Thu, Jun 4, 2026 at 3:35=E2=80=AFPM James Carter <jwcart2@gmail.com> w=
 rote:
 > >
-> > In cil_add_file() add a check for a file size that is too large.
+> > When exiting there was a check "file !=3D stdin" to avoid calling
+> > fclose on it, but that check should have been for stdout.
+> >
+> > Check that file is not pointing to stdout before closing it.
 > >
 > > Signed-off-by: James Carter <jwcart2@gmail.com>
 >
@@ -109,28 +112,22 @@ Merged.
 Jim
 
 > > ---
-> > v2: Add '\n' to end of log message
+> >  secilc/secil2tree.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
 > >
-> >  libsepol/cil/src/cil.c | 5 +++++
-> >  1 file changed, 5 insertions(+)
+> > diff --git a/secilc/secil2tree.c b/secilc/secil2tree.c
+> > index aae5f998..dc12490d 100644
+> > --- a/secilc/secil2tree.c
+> > +++ b/secilc/secil2tree.c
+> > @@ -220,7 +220,7 @@ int main(int argc, char *argv[])
+> >         }
 > >
-> > diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
-> > index 83377821..18b98fe2 100644
-> > --- a/libsepol/cil/src/cil.c
-> > +++ b/libsepol/cil/src/cil.c
-> > @@ -549,6 +549,11 @@ int cil_add_file(cil_db_t *db, const char *name, c=
-onst char *data, size_t size)
-> >
-> >         cil_log(CIL_INFO, "Parsing %s\n", name);
-> >
-> > +       if (size > SIZE_MAX - 2) {
-> > +               cil_log(CIL_ERR, "File size is too large\n");
-> > +               return SEPOL_ERR;
-> > +       }
-> > +
-> >         buffer =3D cil_malloc(size + 2);
-> >         memcpy(buffer, data, size);
-> >         memset(buffer + size, 0, 2);
+> >  exit:
+> > -       if (file !=3D NULL && file !=3D stdin) {
+> > +       if (file !=3D NULL && file !=3D stdout) {
+> >                 fclose(file);
+> >         }
+> >         free(buffer);
 > > --
 > > 2.54.0
 > >
