@@ -1,92 +1,92 @@
-Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3177355F41
-	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 17:50:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0BE2395AC3
+	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 17:51:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.176
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780681837; cv=pass; b=ctQktKBmD7Xb4OWOmUY+zxnznVTsemLNqOFnfUWtpQWUN+CktTk9w7wVeiEmHhefmqFaglrURF3FASa0b61OrYZ5en5PRVZS9t2onye+CkQfO/F7+TYGKV4Aac6r6gpWuWFoR4ahQApzBOgIuG4bz+OAfwNm/9EyMvj6kMzxPYg=
+	t=1780681874; cv=pass; b=VAzn51VZf02HDMJoNgLVZbfb5Aex/CEZiwmee1Nj4/tPWDlQ7WqQkpwBbBCLQErebjGZIJNgfdiurbuwuTqgw4tbcxQCy+jo54g4qiwBCgXt8w0eMe9oWl9GsxOxfoUum9tbdRE9KYGXp3dLMe4YETylgzP7bWvarAzrij1YTUo=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780681837; c=relaxed/simple;
-	bh=7xlV1n5SMZJCWRb9IqBnSEMo6DJJtPzi5pUvpwd6UtU=;
+	s=arc-20240116; t=1780681874; c=relaxed/simple;
+	bh=oi4r+CTxNXFvmk6nyyzZhs0aIHZCDrKJs8f4idO7nDA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ILYk3zc8fy8rB5c49wRgabV0jB2o/85hD1xsBICq0S5I5l91TWpf4DlML6OrRQ23/VXC0iMvkFiO/wJy8nyoM8mTxAp6EIH3EpCTxaZ16nmyrqjBAIxVExOf8eF8ghrRGHG1cCsxV8+MgWtASgPGH5ZnWyXa2FBQbj8oI/ZvoAE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hkI0RhXP; arc=pass smtp.client-ip=209.85.216.50
+	 To:Cc:Content-Type; b=AXeYxkKNR6soiesE1kI7TMkWUgWOXb0TX4TOxhes0vSPjjCOBJUha55PetuCfFIP2fn/Sa8xLvV99LO0ZcVCo6uuf5ItEO+8j1aFaxCuCqRcbO8p9nvtwKjzTHx/aKaTSvyYjLZZiNyB5JKhn03unN+L93POV4NmrA4yJSiRKfc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EWVCRphO; arc=pass smtp.client-ip=209.85.214.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hkI0RhXP"
-Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-36baec934b6so1965893a91.0
-        for <selinux@vger.kernel.org>; Fri, 05 Jun 2026 10:50:34 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780681834; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EWVCRphO"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2bf2247e38eso23079095ad.3
+        for <selinux@vger.kernel.org>; Fri, 05 Jun 2026 10:51:08 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780681868; cv=none;
         d=google.com; s=arc-20240605;
-        b=b3zjDAMRN0wcfnsJh63jovRtcWVYOHDyJd092jIQL4Aw955IyPF8P3xvrCVABZZnrN
-         vYUBUKqlG/RrPBf4dKxbf21JJyL1EZPS7D84fWZSsRvQFfCyx+qGohgt75CPFndqEYb9
-         z6nk/z1W1RgBnx35OaBNBx+qNJPKBTdCRIdaYIDq8yVwX80gEQX2Fhq/na3GewqEIGEo
-         AkxqQeYrHFty8Lf0E0fKJhj9m0kzP+IikGRTto/7LJVYUS2D5KYsFvJDXmw003hOfVXV
-         YNCokO4aFlWx9o5i6bfd6J7py1NRztKVxbcdcq0H3CoeQdmmgpGdnH9EsFCVw2qNE5gh
-         egyA==
+        b=igKyLvMvnc86kxPPKPeJUeZJLhMrLfoPOTvxTP9WJirGuboTkbpP4fnPZHTgTKIt92
+         Fo0e17dFzd/Dfldb5OFKJjr4c5oEmra6/9OrVW2Bncs6YgBKeGlZTpb4uS586MmVoW7E
+         JKHTyEAAU0K/Ey9Uqiok7/m9mRoT/QLASEr45XQiJQ1+ccGl1TdeuTCNq+cwJERKpFlC
+         X16JyZngTZ684OkOKPkM3XrcLaIcb4UuyDbJmHr0CEfMH0bbhrY1xjzeSrn2MTOoui2U
+         01c/2fBGhyoatZQhyH47ADK7U9x5WoMqhfrnX5NIw4W1AfyLt5mxSBrw4wFZRFaQO1xB
+         wEOA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=jbmzo2fMxGLkWAKoGuQOIKACdr9+4D8dIPdVjgVgEdA=;
+        bh=WiWvq4R0ZHW+00FmQSgwE20K+5Uxw4p37+BBEHdaVQo=;
         fh=5BxwEK/iVIzhs7kNCBs0/zEkT4yGKFLka6Po5B0u4CY=;
-        b=dRAe+Hns5RuKufL+imCfP2QJOzvB7Qg7McgBI2qowkbpKdvPnxtce8VPxNCqmyILlI
-         wKPk02qz2oDWq7VYaOPnwvlpgTI1VkqSS05sM2vv6ZRz9DKLd+908zTQCrjo9ZTqwis5
-         Tk931JmRIAD4iSyArcPTDzz7j5hEHSJv3gGiOEjx43uSPzfquEcV3z01hkgfNe/jvV7U
-         7AmcTgVReXRLkqiTaijHbWvWU9uXQ4JRrY7ZGx6R6jKBwGiPMFmmeDLnkfGbUXauuUFc
-         pshOXDDipx4wvrLZHJR4K64vWm3B3WegJ3OiL5bbuN1fEHa+NEZ6a5mz7PLdQBtGig1G
-         3P7A==;
+        b=GUVkZXnWN52S7hsaWYChsuoehnTs/4hvSK5bTNIv6zkRdbysRiCIxKu5aMEjrXEPQ6
+         NZVFCULugnOA8SlEP/jq7wRsaPtfK9WRYh7JXWOqbPDSaGtWThQdOQZjvB8eGAqh+/du
+         EV90GqG03QW8v5pFzgS6dHNupULTWnSuvFdLVrBYBttI/5ZsbfaLJ5Y4W8HBi7a9Bv7U
+         x32jGqRiWAd1epbrBjLFsk+aCyuScyn2KILtRELpimqMuSVUXoSGKFrzt4qILjQ8M7ee
+         9pt0dpWHudk/xIVetsIOQ7DlQzvx++k/RHj8FYVC0iP+DN/hXc7pjR9xS9gQ6G4hMUY8
+         pmDw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780681834; x=1781286634; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780681868; x=1781286668; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=jbmzo2fMxGLkWAKoGuQOIKACdr9+4D8dIPdVjgVgEdA=;
-        b=hkI0RhXPTaaRB8lZXy+dNeLvdjLb5bB5SgWt+Z3hf5wMZHDWSAvb+LBiA2fn4rVn0m
-         rkLUtqopSMZwSKz2CDSNei6Wg0ZKCvZGws2v+n/sJLvlEJPKk2CTkkDpIKekjBj4NR1/
-         2AFgWN/CfXW5Eg2UUrVLuRgI9h3YkKmv8GwT8eFfGLfjgAOwPMeSuChMa4gYpSu923y8
-         ddyHGN+Q+vncJU7YmDCacBDNLlgcxjJAvYw22jHetp1fAuKVPsVWGwLCUxMQEMbMF37n
-         nsruB7viCpMNeCETuVbIbBkOArO4/pP5fYyUdgANz2RwTGYIcUYAj8iLFfQY/QU9j26o
-         xAHw==
+        bh=WiWvq4R0ZHW+00FmQSgwE20K+5Uxw4p37+BBEHdaVQo=;
+        b=EWVCRphOp3AjUp0MQ5IAVCa/a3i9tP1uILOCOnDnctJCp5HFE2N3bkwreG1LsM2ff2
+         cJQjUX+ej4XWOjSAKvEofB11zZRTWqlx9SesyuCOV+4b2HKR609bESDod+CE6Y6fR0F8
+         8yPCjP8SLCdQHcbHES97WLGfZFQF1Q1Auk2mtBQjHtr917nUU52bNOpG9i31cK/tFmub
+         LivE7rhuW9xGHayN4/SNElEkLJe9EaVKBtirBMG91Dhamvw7BVq6SX+RtckZRut3OvcQ
+         34xpH5j6EbBg3sK+3MxBONULjubNby+49tpSwVaE4Dn8Wwt/i9cvZe/cDOLdh9XnEnG7
+         wFNg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780681834; x=1781286634;
+        d=1e100.net; s=20251104; t=1780681868; x=1781286668;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=jbmzo2fMxGLkWAKoGuQOIKACdr9+4D8dIPdVjgVgEdA=;
-        b=dutAHGsgiGVvz9pl7EyznJrCtU6qZbCdk6y9BXwD8cghTTXE4jSLtQ1lVlSsuFeZ/X
-         xbVdLfPlPY4cBTA4w+dYdyykvHZAcJDnBQPDNbW6taDGGKB9ydsr8+h5ZuIyHucK4W7H
-         RpsrLAnCH0E1nmqs4vSz0AJctLul+IvvnOycddiXAuzz1p5bhHnjIHDdt4Q/Q7Ifb0nm
-         wUkCJGZsj3oarD8c0nUm2xphTsYKhp7AzS0DsW4opz6WkUyrzAFHTeig/Db78JQW3/Gg
-         XfrOgmRKjAIKHN09H9sOjPSfNlDLkusIqUKMMw1S9sjCK9etSgq2k7JTRyfZcEkY1vye
-         C8Gw==
-X-Gm-Message-State: AOJu0YzYewtjxBBeyDmmPNPHEK4z9s9N0LfWZTVA9GkPOhDc9gtOe+Sc
-	2v4q1mCaTigpOtghvtqN/sCTt5m+vP3owXMPpW00c2clU8ku1Dw0bXLXEVbdjIUHsm2RYoUC0eC
-	pibFbx4+/FcACmSZBvsbeEn2y8I8kn3quaJvX
-X-Gm-Gg: Acq92OGDEd1myfOc3DhEY9RhdvSI3QHOd/vATMa8ZwFNMvqMDyuZ+K+4xAdG6X8AThL
-	D9DWqhi4vxFBv+SV3tGVOsEp+ZIjC9hIYkBTqqw0wZOKJiszB7iPlTRkx5gWkDkdvm+j5m/DKDR
-	bN9HvSXitfAY5hSPpfSHo6q1cZ4mliALnPOiV+ovxND/LGDk+/DT2iJZmHR/VlkafvvF7EbZ2mq
-	f+MmPr4Wqlk9l3yp+fawWp/m04ydS+S7LVlxXDz2J1O2nMR8Ka9VXPgCxdFNHzRcOb943at/MHu
-	QdJKkfkKtq9M3YNY0A==
-X-Received: by 2002:a17:90b:5285:b0:370:aa94:1662 with SMTP id
- 98e67ed59e1d1-371325b7e6cmr3146604a91.9.1780681833752; Fri, 05 Jun 2026
- 10:50:33 -0700 (PDT)
+        bh=WiWvq4R0ZHW+00FmQSgwE20K+5Uxw4p37+BBEHdaVQo=;
+        b=M5jQJuEzWrSVzXHrJz6ZqML1GF62YwZdlntR/xSa6kbjksgfJw9QfL+OtjwldcdtBf
+         W0SoZ4+/AT0kTpyaoH7Cf40ZDePDtzSNX1AeKZOMrmGjIiKxcw0MecDfLc1oeyFPOP8K
+         cE4F4P34UQJ9KS+pchhHJ6zeLslUWF1YPvJJPfyO9iulPB778vPWs7oyw4zitx6WDvAq
+         JB4tpaKWnZE6ObsA4N5udtC4xyvO9W/XtrMT555wmU8cQeof9x4uS8e92RiEKfiviU3n
+         GD7R3OV6JBRvFgQBnBGnW2wQQsjdTJV+4KcLoC3dkhvpdJr59APKrdgHCKPjngtUSnUd
+         Jz2A==
+X-Gm-Message-State: AOJu0Yzea0qWlzmj5YaskdWU8e3BuoL1mfWShN0dx84C3NpuCwtedmZ1
+	HI18oz3bHzrw987BcdrkX0Q1eKUnSTSyCTa2KooLIjCW6XxP60l3IuseNfKKPWkIGNLVIvky/Sp
+	PV9ES67VzOggfPvLdJ0J4ryiFBTMpixM=
+X-Gm-Gg: Acq92OEFTadiwonhAg4YxQCFXUzLiJB0sZR+y1mr6q2I3oLkxmPcoF8djT/mvJuf5zK
+	enQ3TaGav/ByDYd/nooYVRJ+1GO1Dr+zpX0OQKV9YpP2yGUY0Ivai7tKVuubmLW0e2y6DlBU05D
+	IxsI+lw6dAoHIkp5epD3kcCwIvWessP4jHrE+z8feKIxjdo0t0v+KV9oQfFcNgA3PLWTjNrGbLp
+	WmEggT6NizfjEC2ahylU/vBWeFgMB5r3wkuI7TKPTz/IWzGNP7C5cQ/qsxreZVgSmt+78Gu8NYN
+	LiaWmFWjLC8ANqMStQ==
+X-Received: by 2002:a17:903:1205:b0:2c0:b6c7:2271 with SMTP id
+ d9443c01a7336-2c1e80e3bc0mr52052155ad.4.1780681867767; Fri, 05 Jun 2026
+ 10:51:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260605172207.222382-1-cgoettsche@seltendoof.de>
-In-Reply-To: <20260605172207.222382-1-cgoettsche@seltendoof.de>
+References: <20260605172207.222382-1-cgoettsche@seltendoof.de> <20260605172207.222382-2-cgoettsche@seltendoof.de>
+In-Reply-To: <20260605172207.222382-2-cgoettsche@seltendoof.de>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 5 Jun 2026 13:50:22 -0400
-X-Gm-Features: AVHnY4IkJf3o8wOErif0z0x2IQdSI1HaGY3u2Iu0VxJ3_wUaH0C48IbCWri96WM
-Message-ID: <CAEjxPJ66vcWoi2ZWKtO5CjLR3vZ+-njnR-z2S0YnxR_dFB4FKQ@mail.gmail.com>
-Subject: Re: [PATCH 02/11] libselinux: drop trailing returns
+Date: Fri, 5 Jun 2026 13:50:56 -0400
+X-Gm-Features: AVHnY4JBqcnHlSkYI3SoQBpOrdISXm2PpyOMLbXt-wvR8UPHBUPespxwbQUcBZs
+Message-ID: <CAEjxPJ4hYW1H=ALc82NKibKXY07d2Y+a==tKEEgYc=gi-TVmNg@mail.gmail.com>
+Subject: Re: [PATCH 03/11] sandbox: drop unused macro
 To: cgzones@googlemail.com
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -97,40 +97,31 @@ On Fri, Jun 5, 2026 at 1:29=E2=80=AFPM Christian G=C3=B6ttsche
 >
 > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Drop return statements at end of functions returning void.
+>     seunshare.c:55:9: error: macro is not used [-Werror,-Wunused-macros]
+>     #define BUF_SIZE 1024
+>             ^
 >
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-
 > ---
->  libselinux/src/init.c  | 1 -
->  libselinux/src/regex.c | 1 -
->  2 files changed, 2 deletions(-)
+>  sandbox/seunshare.c | 1 -
+>  1 file changed, 1 deletion(-)
 >
-> diff --git a/libselinux/src/init.c b/libselinux/src/init.c
-> index 68585d42..499e4e44 100644
-> --- a/libselinux/src/init.c
-> +++ b/libselinux/src/init.c
-> @@ -129,7 +129,6 @@ out:
->         free(buf);
->         if (fp)
->                 fclose(fp);
-> -       return;
->  }
+> diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
+> index f9da3644..0e046398 100644
+> --- a/sandbox/seunshare.c
+> +++ b/sandbox/seunshare.c
+> @@ -52,7 +52,6 @@
+>         "policycoreutils" /* the name of this package lang translation */
+>  #endif
 >
->  void fini_selinuxmnt(void)
-> diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
-> index 0289a45a..bd7f2188 100644
-> --- a/libselinux/src/regex.c
-> +++ b/libselinux/src/regex.c
-> @@ -653,5 +653,4 @@ truncated:
->         default:
->                 break;
->         }
-> -       return;
->  }
+> -#define BUF_SIZE 1024
+>  #define DEFAULT_PATH "/usr/bin:/bin"
+>  #define USAGE_STRING \
+>         _("USAGE: seunshare [ -v ] [ -C ] [ -k ] [ -t tmpdir ] [ -h homed=
+ir ] \
 > --
 > 2.53.0
 >
