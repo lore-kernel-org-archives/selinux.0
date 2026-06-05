@@ -1,136 +1,122 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com [209.85.210.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FED137C110
-	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 11:57:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A51C2FE071
+	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 11:58:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.175
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780660677; cv=pass; b=Zk51r6X2rG4NSbuNLce9zm7dsdcZ+6ytapzSyfXszFlMqOBW7rkzJykRAaZQ+2cR6gkHZyOjKgOixwUWs4CmJDwMKQMEwIsF4GfH1bHiUaBr0fXjrgTghg8YrtNjNCW59fIzNR0JH68cBPZkBg/FpAcNQCcjm4+NL7xHPfZvlXo=
+	t=1780660706; cv=pass; b=AJ2Asg9ih3zGyNVcBSLA6Flrax1e8oLbMsUFlGgB4SWikg0ZBSb+mJdv/82PKfhlY9X3ZfoCDJaFf2NESFizG/ZzbzgOFLJ2wBiN0jxbnnxyk6DXM+tzmoFnmgE2qu7peMrVXI01A/SGApywgwTGUdAkK7j9YoNrNK1mTRpkVf4=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780660677; c=relaxed/simple;
-	bh=6FZFkllfddbz/vKmDH27mlYjwZUc8nZXs9Sj5JCpFTU=;
+	s=arc-20240116; t=1780660706; c=relaxed/simple;
+	bh=4ydKg/CLRRAR8euOkCaLM1ZK6rS7+91NnkBaQ/HEUPk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=VSuIgpxlNmQ7fQX8+UU9xCRs60zfaxuZ1jkLH1nvLJeYpja6P2fjbxk1uFcDgBNnhhDK4Lscdq/QiIitihm7UPAIhRXozRENUy+1ZaQSPzXsBFOpd6vB6QZNL75f6mlLG7Xuoy3GGOaHEkJWxqvM0e5G0iFtXQcEbCGNPj0t3Xo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SI7SbOQD; arc=pass smtp.client-ip=209.85.214.175
+	 To:Cc:Content-Type; b=WGHUv0k5E+7chuc6KgcnTSiXlrGofKw5xEFWXuL2LWtcx9kERO+C5YUm6WsTeJSNw147G9O+ivNMeZS4B7bEb5T5+41dpAVcn+ProLJRnepQbuvwnbJjm5v7+yO2bO5BYFMgRAuQsfcCmKTatlPmnX1erpPltLjq7Q6oa1N7bGM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aOt+Eh2h; arc=pass smtp.client-ip=209.85.210.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SI7SbOQD"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2bf237e1433so21103905ad.1
-        for <selinux@vger.kernel.org>; Fri, 05 Jun 2026 04:57:56 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780660676; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aOt+Eh2h"
+Received: by mail-pf1-f175.google.com with SMTP id d2e1a72fcca58-842307473b5so1295919b3a.2
+        for <selinux@vger.kernel.org>; Fri, 05 Jun 2026 04:58:25 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780660705; cv=none;
         d=google.com; s=arc-20240605;
-        b=hvD2NXT3/rKH2/4FzQbSW1C5tzPOLcemcah4L3bQ8HJnIj2mW3ub0a+T2gkQYZydBk
-         UhQ+GGCRZUJUAj/NmU9K/bm1BQEJ3yMCQkolbDcmx5QN95PXVY38t7Ag6VX+9824Ujri
-         CwGnNTez5J1hQmzgFhy5nFrC8EanKACG7hGTSFIF/UoEAAb8k7efHIydMbmSG9ln+jxs
-         xXoFY7d00n8QIzfrAggE3eS38oM9qSMwOCxJLVQUn4qk5JWJIxtQn1WYhuiQAXtyc0I6
-         lsL+wcFM7nvqmnCJfNP+K565GxM1sUhL5CXZO9f/EvI1snUs5sQKR3ewNLBbyP2cRPyw
-         fNgQ==
+        b=JCINUcu3PD7eg155E8oW557i7qRFk6YieXHcBe9aLetx31/K67Nh2n6tah8ns5EYg2
+         N/NF7g2sjj1DIk5PrxG09DeUK/oy3hM2f75621N1k0BILIqR+XzlVxveEaJRbXicYBAO
+         XWcKmeJWpNZHLAXUlzWspBqb+9QUwV88KbnMiorX/q17MN4/Ocg59WpsT57OZpwIti+x
+         BZeWCl2K+SANype9ypJZkoDCxmO9JaL0zXjqU4s3ccGoPms36QL35HYGI1+x9f+QX4t3
+         9TEx2MpbkAhkY8GvFmEPWZ+yfIfnvUhrp1FnDdMp/qj1hhqpGN7zOBJrtGVAtag7OShg
+         SjcA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=EhuL9Pb8RVX8ZbFxXjNPPkvoWR0GnKAvsWQT3j6mm98=;
-        fh=FsXghBnyoYbEc42Idnie0oh5A6i9FUng5ntOLhqXIRs=;
-        b=ECSypN84rcxm1hrVBrtyzo8SiB7SMH9aDTuggTs/7YyavAjgRM45usxg63CCvyz8fk
-         ZxL22MiKOQORozc3w/Vcn48MKvbrWdwQEE+Wwpa3RK3+IB7R8eWT8J1sHR2jBNN4ormJ
-         H3jYRELL0pdPtGU6oIBiV6u1pAWNlpvNeQkiQFKeP0BwLcRDj/nhl40SL7EaukmZoJA4
-         zWePX5pVSebbo4KN5Jvs/2xZcbjAPpbR5L/imIClKpyjfe52yUwFMJvSI8k33C6NAn5Y
-         9yYsjXMw9OhBMuYu7Kf1JssoFNci27nQiTWUYwGbpMbNHlTtME5lSm/yRMJXX+0BD5Oj
-         hTjA==;
+        bh=seTsl0BfNHXqnkmPPUQSsCZCf/QgpyvWqLkkViVlw8U=;
+        fh=VWwbX+H1Sc8ilbX5LEN836EN17/lKaPP6kwZv2JuZcs=;
+        b=WcbGJm1xYI57R4U1eP8GbCBkN6HtQgxDjZsbjtp8AkzAFZB9eT9ZbKsG02qEnx/DJQ
+         HJ6a4L56QA6qFpc7vHypcmIY1gjwHbk13Ve7mniss3Cjf2N5PB3pAUSEBwcTh6/KXHvI
+         ObeSy116hFX7GZVkR62gQs8w8X3VANmDr/GJhnKJg+psI2bo9dlcc2G9wQCrceTFqJpN
+         MYkRs6AvnSwXo6zTrN+jLUCFgGKkP5x02lY0c4iFfiSdqsXd8dM4ZUQ4bePH7J3XVK1o
+         5T6Mriu8vbWsv7x3EPf/491wYN/nKWyaZp4idB7qY8tyU2gj6fBggyYjfgcvg7laWPzn
+         UPKg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780660676; x=1781265476; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780660705; x=1781265505; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=EhuL9Pb8RVX8ZbFxXjNPPkvoWR0GnKAvsWQT3j6mm98=;
-        b=SI7SbOQD3KvvO4ai/2JtZXHS4nRZXTFGkJXkdwNXU17QUFG5Nnn3pq+bUwcaq1JkW8
-         Ehc8itEluXNc1bdvyETDzsYRQyjhY+Y7Mwzp5S/TTN7GrFReT2sUuyez5GetyTd1HEc7
-         nEDOjU1cmmyvUQaR0ddr+jsVbRleEU31z6CeD2sDoZZex6f0MCWvdz5Ervuff+XgVfkg
-         UkFgdoyIo8kobLqFIMBXw3cS6rm9uruiAVVapf7E3DdoAz54Wj7M6B8PUv29z01YtPg1
-         RJwvhikSRsWQGU52BHywZD2DdJL/U5/IQh94OqZfCLcCbN2mPocgRGO2n7X/dvCDrYt2
-         RZ9A==
+        bh=seTsl0BfNHXqnkmPPUQSsCZCf/QgpyvWqLkkViVlw8U=;
+        b=aOt+Eh2hIMfOKM1YbTm4JM9os/R7QPiO5JNUeg5SiZGDFl3RYylsjA+52Be0CLmPPe
+         ZexyB7ysJ9PDlFr9S8nLIAV0+uvVHNcNTX0WxqckD5rbgGjR1isitOkvRPeOatrd9oY/
+         rq1eIZj0QsMlX1kQvroSSi8DZH7YBLsHQtznXW286CK/9lMwivLDzk3Uia07jom4vH/0
+         SyRQZ13RFimrJ14zv5wXv8MWOz1ZyLep4d+6IrjMfSl6eCRyA1Ppk7yd6k/6kBhBVC6o
+         tRTQuVuMYeHup3mUPG89b7gOOUbFr3oadJ4wG+OYpRwhJNRXg9NYqt1mto5FlbF5SpXA
+         1IdA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780660676; x=1781265476;
+        d=1e100.net; s=20251104; t=1780660705; x=1781265505;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=EhuL9Pb8RVX8ZbFxXjNPPkvoWR0GnKAvsWQT3j6mm98=;
-        b=AQkbVHMzPJk3BA29W527gLey2NsdnIEBP90n+1rmn+trqsx6OYiHE0tFVFzZAXXrlv
-         tfsH8kV4RhzTofVZ6GC8tVluJIsKgotTTf6YP74IpZFwo9scRJ9pdaDaNFPsrmu3E2bl
-         hJTPcefAXZhWzfFdLDVnBYZUaI+4PJaIBVE9SJjlX/WTWqgdqv+Gy9msV95cScC2sDAv
-         n25ppENuifhFrIzMHX1GtcVyuGQ7VfpmUsrPZ9KWVIyJH4RWkfbaruYd8fUhcLHjD/Ku
-         NzLEx0oLQ7w99uMHN2j+AS5xmOz+uGxaAh43ieCeZmbsijfqPZtrBvrbbihXem8vPqTD
-         Ufdg==
-X-Gm-Message-State: AOJu0YwJUVnmu2Ng/6Ez8Wn1ixDbVNNMcz+5/q0+Dn9JYbrrBcYmCkrO
-	lvMV7vrInTuaPEdZXcAWADlbLRDxizmsUvE5Gg2vrJcTX+dt7pJDropaEKDvosfGEnkDCddV0da
-	Ng4RGBwfRjn+rf7i3v6Ut1bFxY1jzqHEtNejU
-X-Gm-Gg: Acq92OEj7e7N7XkVhkir9gjuK+8L1dSyFBlSa7Raa7qDyJTcOMoTAgQYhe54kLiVNq8
-	mFSXNxRQ9yKdVYn6Wa+nFs3sH7+hu+BTh6+SyaFsSjxlfSAh6QD61zXH7N5ioUYb3EQ4cekybMj
-	KTPHiCJ4XzF7YcUk/JbkMFAizWBc/UJFFnMhic5zNYLf8y0jU72gH8lrEiiEqoammlGQmBr4ZXn
-	b4Qqrtz2dXdNF/Y/HqMXyFbiuut4TNAdORx01be089Pzre+pzL5dRHp22eu2HPsnm1tssF3AcEb
-	4vVIw+xa8peXXXf+kQ==
-X-Received: by 2002:a17:903:2302:b0:2c0:dd75:e834 with SMTP id
- d9443c01a7336-2c1e80cf35emr35449355ad.5.1780660675893; Fri, 05 Jun 2026
- 04:57:55 -0700 (PDT)
+        bh=seTsl0BfNHXqnkmPPUQSsCZCf/QgpyvWqLkkViVlw8U=;
+        b=JgJ+rUpKV4dlRc0ymcQMIPIqPCzzDaBSAUla1nxVeulflAUvkJ1zGpEITE1Iy5S4ar
+         X/BAIbPZ59n2GsxYHypL3FD9UNhtX0HGAPy3fLSeFa3FDUuce/j/X3yt1DNeptkCnQdV
+         pftmxlyg74CTlGp/fP9iZ2x/qVQhDGtcBHFigzeO5Vi6Hdt2BFveyQA57jIoQA46g4u1
+         n2f79HxGWfB1pOQSLv10DWtpu+Na3MBlpWist8Wul/a1J+dhwjsOdGNGkiQD4QqY8fWU
+         8oORb4Esp5YPYruDnkA1EuR8ds6kHbiwRdhokfbcPISE0r0Jhu14Yd0CKYce4w9wwkPq
+         BRXQ==
+X-Gm-Message-State: AOJu0YziqmRI5alAXhEMkLEkTtLYq+w0mUNNdtjNIvIhOpH9cQ5q9O+U
+	zDRQuZa4+sZFMHAdvazQBSJd57WdT+djbyfyW5kcnT/HWJXvfwM3IwgVFYtL2Dma1Ix1lxnvfKL
+	Nu7htPqnJgGvc4Tuhq/9A+PJufOm7k8iDbRwv
+X-Gm-Gg: Acq92OEOXM7sniklMKjmLewBjYpvOdP+uM2lFPz2v5HExEuTqd61mu26McPrv2aOjX2
+	AIttKcqha6ABB+klYZV+9PdidHR3DESFuD15n/GNenE44DiKuVKkPOhDSqnmA1Ydfzc0ZX39voc
+	jdAYmP7wFrFws+sqjpUXtDks0tc1vVyxYx0jbiweCpGG3i5dAYxeY64TWCMjxdNvbFSxxAnwyCW
+	x05SVtHQZnKczl44FmeK0NvWVDHBeoEEHiWpnVeBh0YO1mywPu++zO2+ZWDFNLp6rqXmWWTO3BT
+	9JmPgrAYKfKFZJlqrw==
+X-Received: by 2002:a05:6a00:a220:b0:841:58b0:82bb with SMTP id
+ d2e1a72fcca58-842b0c07dc8mr3150457b3a.9.1780660704605; Fri, 05 Jun 2026
+ 04:58:24 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260604201228.61342-1-jwcart2@gmail.com>
-In-Reply-To: <20260604201228.61342-1-jwcart2@gmail.com>
+References: <20260605104408.2378497-1-lautrbach@redhat.com>
+In-Reply-To: <20260605104408.2378497-1-lautrbach@redhat.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 5 Jun 2026 07:57:44 -0400
-X-Gm-Features: AVHnY4IaGYMSOXXwEH27reOhMNwq0HzkrdkRrCdh9RQUrcBIuInYmnuve62l7pQ
-Message-ID: <CAEjxPJ6k3CdqejBZ7s3m6d3wGd9CFMv_F5iHZRD+NgjxgLqabg@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: Ensure dst gets set when copying range transitions
-To: James Carter <jwcart2@gmail.com>
+Date: Fri, 5 Jun 2026 07:58:13 -0400
+X-Gm-Features: AVHnY4I4YJCNkhMkSglEvF8_Big4xX4kZFt7UcJPUSTd-PsmZZEH-3mZMiAmI7I
+Message-ID: <CAEjxPJ6QGnxS2pJVHTVmoa+SzKXe2R5N8xvPmr2SpND1yE9urg@mail.gmail.com>
+Subject: Re: [PATCH 1/2] ci: install necessary build python module
+To: Petr Lautrbach <lautrbach@redhat.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 4, 2026 at 4:19=E2=80=AFPM James Carter <jwcart2@gmail.com> wro=
-te:
+On Fri, Jun 5, 2026 at 6:51=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.com=
+> wrote:
 >
-> If there are no range transition rules or an error occurs when
-> malloc'ing the first rule, dst will never get set.
->
-> Set dst to NULL immiediately and when exiting upon an error after
-> the range transition rule list has been destroyed.
->
-> Signed-off-by: James Carter <jwcart2@gmail.com>
+> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
 
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 > ---
->  libsepol/src/link.c | 2 ++
->  1 file changed, 2 insertions(+)
+>  .github/workflows/run_tests.yml | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> diff --git a/libsepol/src/link.c b/libsepol/src/link.c
-> index 004bb61a..70742fc8 100644
-> --- a/libsepol/src/link.c
-> +++ b/libsepol/src/link.c
-> @@ -1498,6 +1498,7 @@ static int copy_range_trans_list(range_trans_rule_t=
- *rules,
->  {
->         range_trans_rule_t *rule, *new_rule =3D NULL;
+> diff --git a/.github/workflows/run_tests.yml b/.github/workflows/run_test=
+s.yml
+> index ed60921acfb7..82c44fccb521 100644
+> --- a/.github/workflows/run_tests.yml
+> +++ b/.github/workflows/run_tests.yml
+> @@ -71,7 +71,7 @@ jobs:
+>              swig \
+>              xmlto
 >
-> +       *dst =3D NULL;
->         for (rule =3D rules; rule; rule =3D rule->next) {
->                 new_rule =3D (range_trans_rule_t *)malloc(
->                         sizeof(range_trans_rule_t));
-> @@ -1528,6 +1529,7 @@ static int copy_range_trans_list(range_trans_rule_t=
- *rules,
->  cleanup:
->         ERR(state->handle, "Out of memory!");
->         range_trans_rule_list_destroy(new_rule);
-> +       *dst =3D NULL;
->         return -1;
->  }
+> -        pip install flake8 setuptools
+> +        pip install flake8 setuptools build wheel
 >
+>      - name: Install Clang
+>        if: ${{ matrix.compiler =3D=3D 'clang' }}
 > --
 > 2.54.0
 >
