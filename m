@@ -1,164 +1,108 @@
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+Received: from mail-vs1-f42.google.com (mail-vs1-f42.google.com [209.85.217.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6481B4D8D98
-	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 11:59:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.53
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780660791; cv=pass; b=TCvtLHhUH9yMI4zUGid/V+Nq61g7loHRhKy61bIPDTiYmC2z+Vn6Xd8JDqxjruxN4M9ZeNnOiB7YXMzfOc4W1JRwhCcPU+PEgL+X+GWg3HpAmYSejHNV18sCGzth80Nc0hTtvzqi0O+WCJKpNkklyuwaJ6u2/FqDB0gyRg8ClZE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780660791; c=relaxed/simple;
-	bh=spkVl4wzFqCNtGKYBI2j3PLGLA+UtFXp8KuW5AYTaeI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bvtWSDU+PuyTcIbj+hWjRIWUxg84p6V3imyB7pYxuc4ftaRM6GIDizec0QcsPHqU59qiPEZg0pii5A50yCJB7F+K+KJwEVTb1ZM3TOquV6Gp0eMkgHGjVZFKETT60rriI9GOabKhLVhnPX/O2UHU3BDuPoPo7TZZaFrV5fSMODQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eme51Q+X; arc=pass smtp.client-ip=209.85.216.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15B5B3B14B9
+	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 13:04:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.42
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780664689; cv=none; b=jFJbWfZsvTylNdEEHIkTtiFHgP5EeyK6tca+WyzkJv8TlqufoNsGr3Kz73gRaD7xJ9/R4kkkblrkyVgMsTW+7tTAINchDClviUZ+QbgWkLeoWsodhncUy5lEG6ec65z8SAXqddW6dP3erKQrgT1AxMFxRPpYwqvcLh9crIk3HWA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780664689; c=relaxed/simple;
+	bh=tw4NtayFBB3iGGyktakV18ZClA5V9BVem5CLLIS/K+Q=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Lb0icORjhvXVAkc/cDbRxUyE1MkQJYvHR76GoSU0DmJJ14Ei/xFKKTEv5jaqWPkB7hvnKwMsmB8rh7lIz8KEItde4DLBDq+2GPhguF08JPhB93iQHOf6Eu2GqYxR8VfzooGVn1qs5gwUzOrnTi+7oJXUDu6HWflw5TBTID/0FRs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lieSzvgK; arc=none smtp.client-ip=209.85.217.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eme51Q+X"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-36b903567fdso1743790a91.1
-        for <selinux@vger.kernel.org>; Fri, 05 Jun 2026 04:59:50 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780660789; cv=none;
-        d=google.com; s=arc-20240605;
-        b=kk26IwIzvmFwoeHXRhvImAeNLan7NK+D1DgcJyITVSZUM3ZibtvOmS37mN8B3G+9ZS
-         alFSSEMSGOueIjf7Kd34WzVVTcb0ciyEhG1XFbEFLq9cyQ1fnGDsINoEZI1uFNCShxb2
-         SBRN/t5Cfz+LpZ/q9fvKq1ok5df1po8seO6jl36y+RXrDxzLPENZtK7fm/y8SGE6jJ+0
-         8Zta03OTJSfq5SStqDWTuYHm1KD6QHvAyVrA7AsIQh41InnNZrgHQoU3tlInY1RWVOIR
-         Y8EEUBQmVe5Sp5e0iSknS5eYOAmZbCjQgcNfCKFBAIMOuqJGrA8qJCJZsIDQUMmdeyVb
-         p0jg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=xGKVvwa61dK99R6Vi0dbjcyvc04sXaqNqcpz9xFRV1o=;
-        fh=VWwbX+H1Sc8ilbX5LEN836EN17/lKaPP6kwZv2JuZcs=;
-        b=L4yLtyNU52an4psOT6azyr8eT7EaJRIGw06uadNau3iPyJgc+6ubpZ+7jE1AdbuAlZ
-         JENUV76GyfgsojywnaY72GCZSjXZSfUmKAudkxAB9mA6xkV9FW0Qgi8xvqZGmEfpkPOW
-         y/JBhPbEd/VWZWOi3eZS/5EFQ7BQDKuG0JsKGLD9OGzflUyzgZm0a0uXWjuBoX8epuQO
-         M5sAj0hUnjypUBC4X1x9QQdngcY1w2BhVE+eGQGSQNIyE7PJ8/HLRQhrbOPxi1H5Z2TS
-         1DkN5/mYrsoZBNhek2envJno377Rns86tbLyIrXuo7UCwnM4q4wfKDJqqgVDlMKDG2N0
-         nJaA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lieSzvgK"
+Received: by mail-vs1-f42.google.com with SMTP id ada2fe7eead31-6c3a36fa9edso1397382137.0
+        for <selinux@vger.kernel.org>; Fri, 05 Jun 2026 06:04:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780660789; x=1781265589; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=xGKVvwa61dK99R6Vi0dbjcyvc04sXaqNqcpz9xFRV1o=;
-        b=eme51Q+XBiTl6SHn7DLAGglHXXGalakHBGWodfyDgcrZhDQy9ylu8XkyUylLZUcRBB
-         tV+X/9GwHBYtSDEnk7b6w5Dqc4ZSA0+ZOQongtgcXQu+kNi2wEVWEx2Cxh1jB6WuFazj
-         fvZBUNU1NtVtHM0ApsOovr+kHQ9bhQgo/uYmAP1m2nnKiN7dX095BIpCg+lTFqBGMUNR
-         wK3fvhJvmBSZRk0WPl0Q5pgtfBqI+Lk3ipE91F2HHibk7uuOhmx4da86n6oSGXJFjz6r
-         axT7Hqo5oQzlOrEk75nrq+leUY6s4Wop7QZi/gtrk2gUbOLVcIRhDDrFNzrMZflqx6VH
-         hNbg==
+        d=gmail.com; s=20251104; t=1780664687; x=1781269487; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=8xO8GGLZEwq3Pfoh7VrivUB46VL7hY7a6+tgHWR+rS4=;
+        b=lieSzvgKuktdRW4pbh2QjM6APrz93UmKbchFQmidKdepNFEjcEKkLqkP4etH0pHrmX
+         t1lvfoUFj3saUa+u+tXNPnd2YpnG8USFj94vy6GRlnbAB0HLztC3gIudhfTkolmGs1Kk
+         QY1XR1bycAnhbm64+fbvBgZQkUiGW02RDhr6dR0kHJcs3bCYJ/+JFD6mjNSEtRx2p4iq
+         c8jIo6c74SU2Ce/PlTxFXB2myfg7DAyb6p+lk0bhIb1ZALY8ObkttRCd19SY+TCo4NvZ
+         +fU2v0msv1bLhDMJeIwEmDRIFIu9Y8nwcE8W+R5zJldHTp6wN3cfSDBTxScy1mKYGBC2
+         lGnQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780660789; x=1781265589;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=xGKVvwa61dK99R6Vi0dbjcyvc04sXaqNqcpz9xFRV1o=;
-        b=qJHgS+KvCx4Pu0W2xISYIKU3jMeimFUx1ocuRAuOgr9kNcCXx4h7hSLKGT2qbfKRqj
-         zNbhTZ6kXous1Wd3sb7UJSpgpQ/Pz/1ekGCwSCgpdWtobl5s4hweynTV1eYqeJMn2qVp
-         yWTxjtn1o1sjYgK9VLSN7pcOXVizTbNByhNhFvSZuS0cibggDqGHNEwBvJPvTtYyA1oG
-         iome0nDOPhIVU6PQgFxAXOaW0KCU9OfdYALG3eC+wNzwvWNIbtdCwprf/Cm3K0EmtZEH
-         xQeQFlVcBzld4VUnlsdohBC6K2FEB2zN+6JfYIudCjcynn0amNuuUzST2FhSrInlBtCa
-         qkUg==
-X-Gm-Message-State: AOJu0YwgdW5oDlLX0vkySxV234KU2xoUUekbx5ZSG7WxFoF8RRiYfUnK
-	Y4U/DHgMl4VcW+lK7S18yyFBOd5m9Ed7GQteRml7B7eIA+4AuC8Upv3GaxptNngNbgCQ6gSGUSs
-	kRDmtJAtaQrdZm0fqMaOiqZ9FGlGE1WU=
-X-Gm-Gg: Acq92OH9zRey6N6kwh9WrjiDeUDNvISWEVM6+YxKKIP6hgMKhR4hpZ7LJKfQBvo7qSO
-	tjL5bsbZwffKnSzbtLB8xsO7NMN7iyou33yTBQUrKjDXUDRaHNvPoBzh1SNz9Y+tMlEv5PoyHTm
-	u5zkxENfj7e23G4cTvmqn2/CMxMOTj0ytTk/brQuLFPh/Rvt6n9LNabLnmoMHg8qeFA9k7QQDyZ
-	+iYkhnusd56hx6LuqqxizEGtXU3ypxTd9WurS6UqJDH9RLehgwWetIsksg7QJ4wzs3/+EMIUaoX
-	P8EGhWcXIsLEj0lBdA==
-X-Received: by 2002:a17:90b:3503:b0:36d:635b:85a0 with SMTP id
- 98e67ed59e1d1-370ee830376mr3226033a91.3.1780660789516; Fri, 05 Jun 2026
- 04:59:49 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1780664687; x=1781269487;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8xO8GGLZEwq3Pfoh7VrivUB46VL7hY7a6+tgHWR+rS4=;
+        b=H7va75G5urDQ40X1iw4AeW5JfJMWokr1rk04S9VschXuTt/18uVfJ8WOZ2lldw17KL
+         bFLSwl79QlS4YUwibOQ9abkJugtnj76pHoJuGSOX/gvN7EZhiTxGaP0lTQwhpfcXcqAL
+         H0OUxF/zRl6Vmds84lrzT67Cg0B6JZTVo68dSjj8vEvNJ2IGpj9jJBR0ASlknSyeDych
+         5baYPsMe/n0hSLS9kcnq/Vj2v7NbE7f4GB45kenI8nQqeQUQC1RyuBJgCCfzmIp7OsRQ
+         zo6jdN7TgrZbKFl8ECOLjKYsiPg63YK+xCmveJLTyoFHh/RvU696j5fjcsmbJ7yomvah
+         oo6w==
+X-Gm-Message-State: AOJu0Yze+9gflL5EcWh12cfOBC1VCjI3t20Fl2cQIqB+GeacFKGAguWC
+	il2YZNXxDZtuwBJ0GAwvoYT9twIAtQ2iNH2aA10Jl6eWKU6iAR7ZT97ppvtTzg==
+X-Gm-Gg: Acq92OEW2D5pzjB5r7CthfC8A/Hh6tteHUnwL+mOHFb2fgi/C8IQhOAa5+iATvq/bnH
+	3C4fdOfqQLFyejp93AuNnsV2fBmrLjcZrgWh1RP23DVbF+Ykq8S2vsoehGAU43G0esDldiVpq1k
+	Bu2Yu64G/OOj24UI6Na4EdNwc/oatkaxXx93avNDFR50SnA/dUpQ4OrBpz5097t7BkmjpqX8Ixu
+	+gUFs5EiopGwC0cXPpR1clSKArBiUZ+EHvSo1ZcXZCSer/UpPW6t4sp6NSPGEhra/MxDX54jYrh
+	x0BqFxepvkWtiahOADRwrIhsrNqhZEe88o1GE+F1YThsVtARRFT2JbnaXkb6Rv1AkUYiaUgsqks
+	gNRMljdN2x+CvnGO1kQEyND8nYSg6LL/yoCXrAJLDujILCepZgh+vM9+LE2xwZJUhq4qliSoCGP
+	wPTKTEkbpoNfU3HmE7scPv51myqilRcdSFf1hkur6Ipy7UGNmXxMG1kvD8YUA5QJKLXsyAo9wmE
+	kqpxkBw+bSoD11Yrw5E+S5RoXWw1d5S6IgGWjy3bHrtNErO
+X-Received: by 2002:a05:6102:44c2:10b0:633:f7ab:6bd5 with SMTP id ada2fe7eead31-700379cfd68mr603709137.18.1780664686941;
+        Fri, 05 Jun 2026 06:04:46 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8cecc8222bcsm82720096d6.0.2026.06.05.06.04.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 05 Jun 2026 06:04:46 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	paul@paul-moore.com,
+	perfinion@gentoo.org,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] libsemanage: genhomedircon: fix STR_COMPARATOR() passed to lfind()
+Date: Fri,  5 Jun 2026 09:04:32 -0400
+Message-ID: <20260605130432.273624-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260605112614.2397757-1-lautrbach@redhat.com> <20260605112614.2397757-2-lautrbach@redhat.com>
-In-Reply-To: <20260605112614.2397757-2-lautrbach@redhat.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 5 Jun 2026 07:59:38 -0400
-X-Gm-Features: AVHnY4IZOQtm47SFjkgx1mJnCOEfonI8zDyfKDObBys8LrHLCsRt6wHoDnutHrk
-Message-ID: <CAEjxPJ5EQroOXUgCKzSGwX26D0xjfF181bVh-Lsx6nLy4Wd31A@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] libselinux,python: Use system Python3 build module
-To: Petr Lautrbach <lautrbach@redhat.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Fri, Jun 5, 2026 at 7:33=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.com=
-> wrote:
->
-> Commit dfedefffbbdde609a7aacb1ef570c7ca1bb70915 ("libselinux: update
-> pywrap targets for modern python builds") added `pip install build`
-> command. This fails on build systems without network.
->
-> Revert the install part and add python3-build to packages necessary to
-> build Python bindings in README.md
->
-> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+lfind() passes a pointer to the key and a pointer to the current array
+element to the compar() function. The array is group->gr_mem, which is
+char *[], so the second argument is a char**.  STR_COMPARATOR() was
+incorrectly casting it to char * and passing it to strcmp() such that
+the key was being compared to the pointer value and never
+matching. Fix STR_COMPARATOR() to instead dereference the second
+argument and compare the key with the actual username from the
+group->gr_mem array.
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ libsemanage/src/genhomedircon.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> ---
->  README.md                | 2 ++
->  libselinux/src/Makefile  | 1 -
->  python/sepolicy/Makefile | 1 -
->  3 files changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/README.md b/README.md
-> index ece18c394ee0..5e65a0495e39 100644
-> --- a/README.md
-> +++ b/README.md
-> @@ -64,6 +64,7 @@ dnf install \
->
->  # For Python and Ruby bindings
->  dnf install \
-> +    python3-build \
->      python3-devel \
->      python3-pip \
->      python3-setuptools \
-> @@ -97,6 +98,7 @@ apt-get install --no-install-recommends --no-install-su=
-ggests \
->
->  # For Python and Ruby bindings
->  apt-get install --no-install-recommends --no-install-suggests \
-> +    python3-build \
->      python3-dev \
->      python3-pip \
->      python3-setuptools \
-> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> index c62ad1edda58..52b2c621c042 100644
-> --- a/libselinux/src/Makefile
-> +++ b/libselinux/src/Makefile
-> @@ -151,7 +151,6 @@ all: $(LIBSO)
->  endif
->
->  pywrap: all selinuxswig_python_exception.i
-> -       $(PYTHON) -m pip install build wheel
->         CFLAGS=3D"$(CPPFLAGS) $(CFLAGS) $(SWIG_CFLAGS)" $(PYTHON) -m buil=
-d --no-isolation --wheel .
->
->  rubywrap: all $(SWIGRUBYSO)
-> diff --git a/python/sepolicy/Makefile b/python/sepolicy/Makefile
-> index 4a4a351219be..518129805fca 100644
-> --- a/python/sepolicy/Makefile
-> +++ b/python/sepolicy/Makefile
-> @@ -14,7 +14,6 @@ BASHCOMPLETIONS=3Dsepolicy-bash-completion.sh
->  all: python-build
->
->  python-build:
-> -       $(PYTHON) -m pip install build wheel setuptools
->         $(PYTHON) -m build --no-isolation --wheel .
->
->  clean:
-> --
-> 2.54.0
->
->
+diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
+index 68382b95..d990c535 100644
+--- a/libsemanage/src/genhomedircon.c
++++ b/libsemanage/src/genhomedircon.c
+@@ -563,7 +563,7 @@ static int USER_CONTEXT_PRED(const char *string)
+ 
+ static int STR_COMPARATOR(const void *a, const void *b)
+ {
+-	return strcmp((const char *)a, (const char *)b);
++	return strcmp((const char *)a, *(const char * const *)b);
+ }
+ 
+ /* make_template
+-- 
+2.54.0
+
