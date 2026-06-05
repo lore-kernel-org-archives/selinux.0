@@ -1,40 +1,40 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B377A34751F
-	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 17:22:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5049730BF4E
+	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 17:22:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780680147; cv=none; b=nsl47q3Lc8SL5RG+4s002yKVpGpiin7XR91BDidbLyVrNCkPcfoiHYJy3X0DlxarxKtQnsxRA+ShpWYavayX9yT9Z6Lys65TypAH9oKH+Q49Mmn+UvePrl7/kkpVgl790mEX9CIZTzCj8Ort2H58Y1C0KgzM8CqATQCfUd9UHxE=
+	t=1780680149; cv=none; b=HYjr49OFwl3H4ELn72r1awEh33juAT6Z0L86BO9ilMIkmiOrfe5WZSUoCpO0l3+mBUVDuN5Sl5jqwjWTLBtlVb3UjhBvbX8Z6/yVULaMHMpaeRlR/Wo4wIoWsCsZwphIxgC217DPBM2WGPXd7IcdL3dAISnMVDMo61GU4SiV058=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780680147; c=relaxed/simple;
-	bh=NFqGPLN+zWppPDDX9MClF57JMKUgOa4Mla+G6+kW4cA=;
+	s=arc-20240116; t=1780680149; c=relaxed/simple;
+	bh=ppwMg0ObVqi1pJz2xNlmIunKluaIkHYsT/22EHrxbhE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=PCw6tMEci5haSA1qvqLc7aoZ0k4ZHFWOPTbE8xyGvPCWX/K1bNKH/yW967p5uhuimJK+EMiExb4wSYWyRhStafGKYTwpciNPn3m0Udp7SpTfwKavlN9fPQWZFbXVty2Dbmd5oS6ahvnBkzeQCwJ55fmGH6JtxVqCyLT/rQJcVV0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=PAwf+EPT; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=P/Fc98SK/IV/17OGMLPoiY8Z8TcS4oVE1i+xkRDQxUYw7F+rEZkdVgh+0aImo+6nyTZQUhlMMGeRit2OZI8Wefib1D8GJDhpfvCOzD8WmysCUQA+GMNVIreruyJNotiqgtK97UCPftg2Si6zA+AjZKCe3ZgomRVCSojS+gdwlfQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=H/tOe/Rb; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="PAwf+EPT"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="H/tOe/Rb"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1780680144;
+	s=2023072701; t=1780680145;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ba/+IYbTYMmwMdR4qCWjX/47YwlMBQ77S/3AGTfQLFQ=;
-	b=PAwf+EPTTjmYcjC/XHAeO+8Zra3imR0+6U8V2n++qUTkXtOE0fsTa5lwLW9G4EJvqALKAN
-	9cuwDXEuPXKPHNnODoPxFgdMwFuLbn6yOG4NTgxYlDi9Nk+l5a+6eO++wqLnNStSRQkV2a
-	BeWdI9OU+75ZaVf/Yxks1ubA1ZN8NNbMqjMKRkOUPtjW2S5HWvKLsDtMUFAUjoisFSHhpu
-	mZTMiHiLeROvaHYukISBPR/IAwZfiDcg2tmGLVFQjvyo1kxngjsf7rZP5XXpwb1IT+IrdB
-	MUkPDAUd1AwPfG8vJBEAyQ3yLqj/B/ZepCSLPzfxUr0Thv7S8MMiG72awhdetg==
+	bh=2lR9m1pPU1dmkETIW0UGc5zRufOF8bjpgAQUS/+uVvw=;
+	b=H/tOe/RbsM/wHk7mYs71Ph6FpKMAvwpyj6OyS2RnHV30glWKozZV1KUuEcbi2a1kU9qQkh
+	a9iKT0AGBiWWp3XaeggkL7XCVXN+WYuAYk5WAve7m5b2O//yvwEiSFfK2ZSRIBzAhO01Cj
+	gC+KoDLV/ZvgAHU8TFSuAw1vEYZfm6xf7QkbixXGqxc4twtF6A4WEBfhmrtsJKCZFg8ipm
+	rv1fJ0KNqNH/hNYsje/J1G5duTo0tWb1sTbVJxGWU7FZKho/uShaq9sbbt1tehVl+UQeL3
+	/j7jdHVjk/Zfiev79uoI1Pbolh1hGMN2r8AyJppS7OzMLJNqWG8MMBlfJuzjxA==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 06/11] restorecond: declare local variables static
-Date: Fri,  5 Jun 2026 19:22:01 +0200
-Message-ID: <20260605172207.222382-5-cgoettsche@seltendoof.de>
+Subject: [PATCH 01/11] libselinux: use size_t for index
+Date: Fri,  5 Jun 2026 19:22:07 +0200
+Message-ID: <20260605172207.222382-11-cgoettsche@seltendoof.de>
 In-Reply-To: <20260605172207.222382-1-cgoettsche@seltendoof.de>
 References: <20260605172207.222382-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -49,41 +49,30 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-Variables that are only used inside a translation unit can be declared
-static.
+The variable is used as array index and the only caller passes already
+size_t.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- restorecond/restore.c | 2 +-
- restorecond/watch.c   | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ libselinux/src/booleans.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/restorecond/restore.c b/restorecond/restore.c
-index c8437f4e..622de773 100644
---- a/restorecond/restore.c
-+++ b/restorecond/restore.c
-@@ -10,7 +10,7 @@
- #endif
+diff --git a/libselinux/src/booleans.c b/libselinux/src/booleans.c
+index 4e752424..9ec46ed1 100644
+--- a/libselinux/src/booleans.c
++++ b/libselinux/src/booleans.c
+@@ -329,9 +329,9 @@ int security_commit_booleans(void)
+ 		return -1;
+ }
  
- char **exclude_list;
--int exclude_count;
-+static int exclude_count;
- 
- void restore_init(struct restore_opts *opts)
+-static void rollback(SELboolean *boollist, int end)
++static void rollback(SELboolean *boollist, size_t end)
  {
-diff --git a/restorecond/watch.c b/restorecond/watch.c
-index 41497f49..8e1c36fe 100644
---- a/restorecond/watch.c
-+++ b/restorecond/watch.c
-@@ -40,7 +40,7 @@ struct watchList {
- 	char *dir;
- 	struct stringsList *files;
- };
--struct watchList *firstDir = NULL;
-+static struct watchList *firstDir = NULL;
+-	int i;
++	size_t i;
  
- int watch_list_isempty(void)
- {
+ 	for (i = 0; i < end; i++)
+ 		security_set_boolean(
 -- 
 2.53.0
 
