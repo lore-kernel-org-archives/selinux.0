@@ -1,37 +1,42 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05DB0358367
-	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 14:02:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5302156CA
+	for <selinux@vger.kernel.org>; Fri,  5 Jun 2026 14:02:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780668144; cv=none; b=hHQx6mfgwraedtwSr2mh1TiHyAr16HL44eRqXX8y/83Z9PdD0UFZ2QdR+PTqvNrfdm+V7e2JTTEVQ+VUpJ5FeURA0EkyCOqxqERJjN7TfOwo/CcEGsT1jIvcsaYzZGk17gU3nDxqOx/JX6dA8ZBGuCH8Sl3Odnq9+sX30eKlyjw=
+	t=1780668146; cv=none; b=QpLX6xajs33k/+zuXROxxzVqoTdk4zC6WCaeacAZKTqcA98vD+PvBdugyEiuBBw1yyULWU4tdje5YMb01nikPeSJKM5ThC5GmSwAk/sDbeBl+luKDAHn+zy+yh6BTiAbGd4ZEC3nWXEcjzjIkZygicfN6vKB+ztcWiAH4dmtrlQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780668144; c=relaxed/simple;
-	bh=ffqvDegEvDyo16g1/WoIFULrUF525UgFa3jcNg1uU5k=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=jVEWDOiXLUeX5rThT27TanG8jf+3N9NbD5+1CuwgYcr2lypl3e95sgu0d9HA+lgXxhM4onG8d5+lo08rmHWo2Wpkj2WrjiYx1a2A2EQFxgj2Oie6+W+ZwOrfG/6tk30QG35BorOFcbF+A1RsuF2JVObLw6VhAb2FY3cUmP0GWXY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=rDrMMTDC; arc=none smtp.client-ip=168.119.48.163
+	s=arc-20240116; t=1780668146; c=relaxed/simple;
+	bh=kMfPFS7s7jYiIa3W18oE4ZA8Jw+PxjHnahHmuIJdtTc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=SEXy06LtAxQvdBC30X+8NPgqjRhi1cdmzWT79TxgaHeA6/slvHXRS8NarEv/IWKkwwB5UTvjOcg4D5en/jrf8Luo2g7hf+IvUqgBWYNbyabD4jSKz5DCBBITlOfJRR30vySjIT+U/7zh+ajH4vjGh99CqF44VzYlcxKaZPa77UI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=D183Rt9R; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="rDrMMTDC"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="D183Rt9R"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1780668136;
+	s=2023072701; t=1780668143;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-	bh=zFX8devmIEn/S2AJw7mdpYVdE4rZd5xy6WI00DoEVcY=;
-	b=rDrMMTDCzjJDSebuyb17oUZdgGBXR7i4Kp9ghV/bygw4/DJO/b79JJoz/VMddb/qrJWY2z
-	78kzDszMSY3l5dJRPXDFdhC3AnGQrQxUGCgwaIwjGQDEuw3TJa10w0RNGysM7a8OzbMDvR
-	cp9tfxLypyX1y9DtonMefbOpLrlVqmJ4wYid+qM0GGAPGJx5/6XE4qQrnNmRgqqO600PgD
-	Eqa/OVuwDsAWDQSqnkaKatqRWMhrS5q/AqxjVb3EUms3zanH7P6xkcbAn1OjXwcAfX0CvM
-	I4LhAYTLGgwycK7DHy+abs+3LiX0eiwgaeKcodZwUDbrcsUFZN27xMaBE4HWAg==
+	 content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=LXO/RayGINp05D/pkbtcOmYqAjXLP6ve+O5DEiqIuqo=;
+	b=D183Rt9RC6LKP8bKOD5tvGB0iwYNrUbNrfd+ujvJs+pZdh6gQ64uMBGr6pjS0HMd7wEJXE
+	E809ipr7wEpsvLt79GSMSHsWiArhMjJe1cnu/GUJDXZOgb1YDBGAyheBbJiSUCf8qTyeQh
+	MMZNj9/fayGSTOlE4Srot+iBG3QD4Ai3f4mpMDnRxRR5CKNAkBjFDMuyGDja58b9y+VP2j
+	mSREU9kH2uhlYKoui9kUhafhGCZuiiBZwKBj2zKiNcXm5iTzNAYyDDpN1IwfW+349Ag/5p
+	3NJzHMpCmCnG7AzxNYnzFEgdha1RyyTSaEWlAiNjteYrvV2xEKvFS1PgfzScng==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 2/4] libselinux: reject invalid file_kind in compiled fcontext loader
-Date: Fri,  5 Jun 2026 16:02:00 +0200
-Message-ID: <20260605140203.76848-1-cgoettsche@seltendoof.de>
+Subject: [PATCH 3/4] libselinux: avoid out-of-bounds read on empty failsafe_context line
+Date: Fri,  5 Jun 2026 16:02:01 +0200
+Message-ID: <20260605140203.76848-2-cgoettsche@seltendoof.de>
+In-Reply-To: <20260605140203.76848-1-cgoettsche@seltendoof.de>
+References: <20260605140203.76848-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -44,46 +49,34 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-load_mmap_literal_spec() and load_mmap_regex_spec() read the file_kind
-field as a raw byte from the compiled fcontext file without validating
-it.  The text parser only ever produces values in the range
-LABEL_FILE_KIND_ALL..LABEL_FILE_KIND_REG via string_to_file_kind(), but
-the binary loader accepted any value 0-255.
+get_failsafe_context() computed plen = strlen(ptr) from the first line
+of the failsafe context file and then dereferenced buf[plen - 1] to
+strip a trailing newline.  If that line started with a NUL byte, plen
+is 0 and buf[plen - 1] indexes buf[(size_t)-1], a wild read.
 
-There is no memory-safety impact (file_kind is only compared and passed
-to file_kind_to_string(), which has a safe default), but an
-out-of-range value lets a .bin file carry specifications that behave
-inconsistently with the equivalent text format.  Reject file_kind
-values greater than LABEL_FILE_KIND_REG for parity with the text path.
+The file is root-owned so this is a robustness issue rather than a
+privilege boundary, but the guard is trivial: only inspect the last
+byte when the line is non-empty.
 
 Assisted-by: Claude:claude-4.7-opus
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/src/label_file.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ libselinux/src/get_context_list.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index 824fa080..ac0a3ab0 100644
---- a/libselinux/src/label_file.c
-+++ b/libselinux/src/label_file.c
-@@ -618,6 +618,8 @@ static int load_mmap_literal_spec(struct mmap_area *mmap_area, bool validating,
- 	rc = next_entry(&data_u8, mmap_area, sizeof(uint8_t));
- 	if (rc < 0)
+diff --git a/libselinux/src/get_context_list.c b/libselinux/src/get_context_list.c
+index dcdef5d8..bad93fa1 100644
+--- a/libselinux/src/get_context_list.c
++++ b/libselinux/src/get_context_list.c
+@@ -307,7 +307,7 @@ static int get_failsafe_context(const char *user, char **newcon)
+ 	if (!ptr)
  		return -1;
-+	if (data_u8 > LABEL_FILE_KIND_REG)
-+		return -1;
- 	lspec->file_kind = data_u8;
+ 	plen = strlen(ptr);
+-	if (buf[plen - 1] == '\n')
++	if (plen && buf[plen - 1] == '\n')
+ 		buf[plen - 1] = 0;
  
- 	return 0;
-@@ -706,6 +708,8 @@ static int load_mmap_regex_spec(struct mmap_area *mmap_area, bool validating,
- 	rc = next_entry(&data_u8, mmap_area, sizeof(uint8_t));
- 	if (rc < 0)
- 		return -1;
-+	if (data_u8 > LABEL_FILE_KIND_REG)
-+		return -1;
- 	rspec->file_kind = data_u8;
- 
- 	/*
+ 	nlen = strlen(user) + 1 + plen + 1;
 -- 
 2.53.0
 
