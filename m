@@ -1,61 +1,61 @@
-Received: from mail-qv1-f45.google.com (mail-qv1-f45.google.com [209.85.219.45])
+Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 982263D0C18
-	for <selinux@vger.kernel.org>; Mon,  8 Jun 2026 16:45:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 756A82EDD78
+	for <selinux@vger.kernel.org>; Mon,  8 Jun 2026 17:17:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780937103; cv=none; b=eXhPbCmQZxpCb6nP3KZAEed3f4jpx5HkOAUJgvUnFPjAPmlk98Lghk9mN8nmHiTO/yC8qbgQ3w8mJqbnCL1zvBipTTmvIDdoM1fzQA04/JBgQ4QABT9huHz/1fCKaqos41b2xrKXoKG9gub4i74Ng0tieZL8jaFzfRNVY/wvAmw=
+	t=1780939034; cv=none; b=YDs9nRefkiAb2FYAmbc4xw6ihACM3Jq6WfSz1RseBg7mb1vS/CDVzcP4VXw09I5xEbhWI/8ayUkZYg2CrIhTqbRtx+ajgFf36VoB42yG2PiNXt+O0eQXvyKKKVJq4KiwCO6ycvZpsWDfZvfNo/7e5pmSi6/9gwjGfiUuwJRAkrU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780937103; c=relaxed/simple;
-	bh=v0sZdtHZ19fsifJzoYHmKp8btpOuIZWB/a27qMyvk8E=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=saiENM1gRx0RhSvTx6C0XowmwZskABpxigi6RvXbJf+6Kb/ZPmtwPhWfkRIgn7OofikVU/1mslIuSgrNVI6GyfcK5mpeEcWppIEVkFHkJEQPUu0zQhFse/5a6SYG5CcCZZ5B+9eOQzTtH+GzBHE1mt1ODblVeLokcKQZ8wXFgNs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BzA5cuy7; arc=none smtp.client-ip=209.85.219.45
+	s=arc-20240116; t=1780939034; c=relaxed/simple;
+	bh=Ve/JcIp/HoSebfOBOQHMKnJ/US8JUZVY219ew1o1iTI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=n6+rl8iw8vgwL/9HnwB5q4UMCee27R04GbiiltScG7DZFGdm4ZD8o7uEpOSjOx69Nu56fqVHs9dNKMz0VWloEcOOkwJY6zTm4bnhGvcrYxu/fdB4d1qqHKjc4qAKdzHbPARF7VSQIsIrIjRAd6FFNuH0eTZnOShWjL+e9xvQlxc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=O1lb63sH; arc=none smtp.client-ip=209.85.222.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BzA5cuy7"
-Received: by mail-qv1-f45.google.com with SMTP id 6a1803df08f44-8ce3876a50cso46721016d6.0
-        for <selinux@vger.kernel.org>; Mon, 08 Jun 2026 09:45:00 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="O1lb63sH"
+Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-915ab38ac14so490522685a.0
+        for <selinux@vger.kernel.org>; Mon, 08 Jun 2026 10:17:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780937099; x=1781541899; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780939032; x=1781543832; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=29/xcBPfWmPm8dVn72D8sLofl0MXoogjzdlQGXRHUKs=;
-        b=BzA5cuy7oGd4y2Db6Ew663Ix2j9sDwCbk8h29rA6EEdmAOk+JKQXepr3wnpr8Q34Mh
-         kC0/MhVeZ6523khaGeU7BxcGTCCKO+C60hFF/p+sLsCszSymOfCpc1kIvf3D4q5dkYoZ
-         g4h3t1XE0v5NimLQg/bSLYP6vm9pDQlPU5Qfa2SXyyc0kXLPqMZQh+fmndeWc0stkvPB
-         jiBpptcUqjqi7VLICBXxfhfJno9945v5h0JBAU8C9ARJJVRbro83qPFNhvR2+HB9Y7UL
-         LBMP91IXIeKeL5Hy4hwJ8wp63gn+W3i9+ATPk9s2gFPRtDJnmfLkbMYvdnHMmKQJzr7z
-         I40Q==
+        bh=7ED+zW71m32ZJdKdep24uMfVg8fGoDEF9o0mFa6qk7E=;
+        b=O1lb63sH1ovAZkivcMNR9+wG2z5YtT9tWDKwkOImrQtHpX4qKk0N5TzrSzWviJkgpy
+         3dKo8Q2C8x/SaqyTyDOmMGZMY1OYWJ2LO1ZOWkP/OWeUt6IYofggjfcKG6zMOxDfLfJm
+         sgfABA1wOIuLz2ObUESKnOmCeQLyB/KRl0KQNaMrMDR9IKYeuadtO4JBPzABlB00hrro
+         JBsG8i89S8sgPDQUXOYD2I3uztBEqxi8MaeCn7vqMmMhyAjZVfW3GSIbDQlg6fThXCXH
+         pdcjkowz1vB/lW0LOLbCkpS26QMSfdSFVvlieuJ/8knmzWLjLRZNThkuj2nh83pZGgt2
+         uYeg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780937099; x=1781541899;
+        d=1e100.net; s=20251104; t=1780939032; x=1781543832;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=29/xcBPfWmPm8dVn72D8sLofl0MXoogjzdlQGXRHUKs=;
-        b=MTck/jjsgweSd9GGFUpE/R0TnffOkYTFOonCVwzEwOXx0/76YJWdmGSQUMyws86jDD
-         RQX0pcNxu5yeJSRDvXrrjuL1qS7ktPjHdfz3jLqNLUkhgHBew+doBBmxbL0Iz7xEXXFA
-         oKgWADL1ecPXx2UICAFozeE/+aIPtEzUdKUlXXRQ2UpC0U/mIxpt5Gy6Iem1XN6cAoya
-         B/adolKs7h4Mqmdqmw2S2ixjen5ueX/tWpSVOZrKcudxJTPeexqx6O1AIU7GF2fx6aGK
-         vsJBdddLYu/WX0VIQ/C5+PuylS5UtjheJT2M0XBG5nPCAsQABLGTAW3GQ+UqVbKxm0IT
-         0YSg==
-X-Gm-Message-State: AOJu0Yxt+K4AjOYbv5KoTHGibexGpkDl+9iqbTJBfR/RQmuEnob1w6rD
-	LgzKnp96TRW8VYzJc1sw+0FEloTOPfjXkos9SdcECxWkEp1EyffrdplerCXTGw==
-X-Gm-Gg: Acq92OEuiBJcDg+XfLqVEe0SJnl7cyUp4PXdVJgy10VZtWAIjHZ5CKLGO6CT1TKBfBP
-	1VprgJxOMlvJ5V6WUtT+HOZO+aTHbeKELLvvlHRL/mtsrU9Rw2LJnKkvPl4e5Y4dabXDHJb8pso
-	JktSwVh5RgyAVoeERgdyUgpC0AAZ+GQH2MDFBWaDsnZd3PJg0Pf//YgRA7Uk6Bz1GEWmS8RsF8X
-	wDfl2l230ZdfNBtoBovg3LDs922v7g82Pn/cOTl2J5Woy7ZKsB5syrPWRfNsbfa5GMCIpifxxRD
-	GNvoEl4rjNilY74DXFXyOCuU2nGHhIfQpTF6hwohnffPpGN0bEr1cmO0gcZ34Nkna9txpsGfS+k
-	IjLaIzBx1r+TJowRcrOHGTVoQn8btGPTzDFRyu5xjIEVnid3M7bXJwPP6kAr6jFQ36Ye0X0S375
-	8RchXygsX1XPg9XGYmAjpm7gtyOj1ug20wkERfWqReAvbFzCuNQEIlafvFptat2OHiIyTIHmVPW
-	Iy+sNqS4EIONZpi5ZovzGq3xHNhlsqjfBivNA==
-X-Received: by 2002:a0c:bf0b:0:b0:8cc:ed49:bdd8 with SMTP id 6a1803df08f44-8cee5fb771dmr202172276d6.5.1780937099298;
-        Mon, 08 Jun 2026 09:44:59 -0700 (PDT)
+        bh=7ED+zW71m32ZJdKdep24uMfVg8fGoDEF9o0mFa6qk7E=;
+        b=Be3Dpw8oi8WZHN8fYTolWyGrFunSVTwrVUAjWxBzzj1MPXzcOxb04ES6WTqvK8U0eZ
+         TevYAKfwcQlTlQ9mJn4w399aWJLEWixh/GG6T+6OPnALgGuSi0lsEsih0Iyui9NmLK2F
+         Zf3+LD8O6+GBGCy//Cgw3RnPkGcqaMCOmSpugvftqg9FwaHHI6xnSE5SqziAbJlBK9j/
+         T9x5d3DGYCUQfBBfRGX9npbcHcXDJi7go91LGlncGada8Xfh7dFmCq2o5+2gdtC2gdPh
+         g0qal7wRpye9YOdSOahh2rK1BVvZ0/XxqADtoQ3/f58PetFsunEL/aVyy2A1MwLjKM6u
+         RzqA==
+X-Gm-Message-State: AOJu0YyOZdYiCN2J3jhYRsYFO7Mg+6/6pYJBGcMYvEWLebpPhC3uQYvS
+	7kdHeZFEisXJ5rI+bBQQqY/VTRxnbtkRsNO77vYaVHrbPcWPoS9ltmcSE2yRDA==
+X-Gm-Gg: Acq92OHMb/Monw6q2uuH+20AahMMbqT+oHIQ9c9m8ZOdocHuNUyt/AeURtB+MGi/DEn
+	qUOmVZ/TJ1yLPbTqXvk38ZYtSQYWQ/CHZHflG2070nwxOemPYsnBTbUsiIjX66BqDSQGfjsE8xY
+	BYbhoCuJ7kNyBHhCUu4wCubMwrwSJzif74kwB6mRvmuJdJEv1hR4dhJu4JbhAdg6aU6c8KCbyaE
+	xbWuIkkeB8qacCQcPmXwDT9hvAOGweJ9S+BG37afCfQs3cRU9BHVKlYBMCQgXfnyeVJr3hdv3FG
+	haNEqNICXwTHwvIChcmFklJcpgV6w7CKZqgfEI9Xjfw3uBy5cL0RS7CKk8fYyicSHiQLp2+3jaj
+	h9lcNsiuJ5QeiflnYYhAlNKtJgzllYvyIfGBtjJ1iCZ94iolKsnRABfnFU9vc8BKIRXXtjaYSrP
+	1iVLCiDbEqvK5WtlnIUW7BCBuQbmClwv57ybcVbQvEUhV/leU40Ge/ts1hY6AaccTkMuVN7bpcd
+	H4X1SQSMhrlmXBgnJxndeEnuVXVlHn2TQUkKg==
+X-Received: by 2002:a05:620a:46a6:b0:915:9efe:6de8 with SMTP id af79cd13be357-915a9e25e93mr2568188885a.58.1780939032233;
+        Mon, 08 Jun 2026 10:17:12 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8cecd26b3b9sm172671816d6.45.2026.06.08.09.44.58
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9158a3d7280sm1796640785a.41.2026.06.08.10.17.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jun 2026 09:44:58 -0700 (PDT)
+        Mon, 08 Jun 2026 10:17:11 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -63,11 +63,10 @@ Cc: jwcart2@gmail.com,
 	omosnace@redhat.com,
 	paul@paul-moore.com,
 	perfinion@gentoo.org,
-	tweek@google.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] libselinux: label_backends_android: fix non-anti-symmetric cmp function
-Date: Mon,  8 Jun 2026 12:44:44 -0400
-Message-ID: <20260608164444.313701-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH] libselinux: sha1: prevent overflow in Sha1Update()
+Date: Mon,  8 Jun 2026 13:16:52 -0400
+Message-ID: <20260608171652.314902-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -77,46 +76,31 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-qsort(3) requires its comparison function to be anti-symmetric.  The
-current cmp() function used by the Android label backends is not
-anti-symmetric in the case of a key starting with "*".  Fix it.
-
-Arguably we should be checking for an exact match for "*" both in
-cmp() and in property_lookup() but this might break compatibility.
+With 32-bit i/j and a BufferSize == UINT32_MAX (passed by
+digest_gen_hash() if the specfile buffer exceeds UINT32_MAX),
+the (j + BufferSize) > 63 and (i + 63) < BufferSize) can both
+wrap. Extend them to be 64-bit to avoid such overflows.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libselinux/src/label_backends_android.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ libselinux/src/sha1.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/libselinux/src/label_backends_android.c b/libselinux/src/label_backends_android.c
-index 4f12d0d7..f1a3050a 100644
---- a/libselinux/src/label_backends_android.c
-+++ b/libselinux/src/label_backends_android.c
-@@ -4,6 +4,7 @@
-  */
- 
- #include <stdarg.h>
-+#include <stdbool.h>
- #include <string.h>
- #include <ctype.h>
- #include <errno.h>
-@@ -32,11 +33,11 @@ struct saved_data {
- static int cmp(const void *A, const void *B)
+diff --git a/libselinux/src/sha1.c b/libselinux/src/sha1.c
+index 279625ee..02e05811 100644
+--- a/libselinux/src/sha1.c
++++ b/libselinux/src/sha1.c
+@@ -226,8 +226,8 @@ void Sha1Initialise(Sha1Context *Context)
+ ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ void Sha1Update(Sha1Context *Context, const void *Buffer, uint32_t BufferSize)
  {
- 	const struct spec *sp1 = A, *sp2 = B;
-+	bool wild1 = (sp1->property_key[0] == '*');
-+	bool wild2 = (sp2->property_key[0] == '*');
+-	uint32_t i;
+-	uint32_t j;
++	uint64_t i;
++	uint64_t j;
  
--	if (strncmp(sp1->property_key, "*", 1) == 0)
--		return 1;
--	if (strncmp(sp2->property_key, "*", 1) == 0)
--		return -1;
-+	if (wild1 != wild2)
-+		return wild1 - wild2;
- 
- 	size_t L1 = strlen(sp1->property_key);
- 	size_t L2 = strlen(sp2->property_key);
+ 	j = (Context->Count[0] >> 3) & 63;
+ 	if ((Context->Count[0] += BufferSize << 3) < (BufferSize << 3)) {
 -- 
 2.54.0
 
