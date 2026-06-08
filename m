@@ -1,61 +1,61 @@
-Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
+Received: from mail-qv1-f45.google.com (mail-qv1-f45.google.com [209.85.219.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 667D036C5B4
-	for <selinux@vger.kernel.org>; Mon,  8 Jun 2026 13:27:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 056EF37BE96
+	for <selinux@vger.kernel.org>; Mon,  8 Jun 2026 13:31:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780925280; cv=none; b=sreyilATssFte/2fomZbncPYwEGpPa+tqLUzjD3zx5URXXjl2dYB5KwxosD9SSfdgyT8jT8LbCWuXxAVTJxoYbo8kuMK6IdnYRsvxcNwtBBQvowaFJXUC1RC/o8T8Kjg3UQ2OjJNSdkkTx8KuTxhetEk+mUqLIh7fuUtO+n4lIk=
+	t=1780925465; cv=none; b=Ac+edByVN/bZYnYJgYA8Sc6NUD7KytlmDAPfZEz4UngaDA2bVlm/5Z8ZU2mZKuSZZDgDAdaqbhGQADf4bs+aFrVNTs4uf/SNlxmy/VVz/Xr/oYnWlE5ET7pDbzjZ16Ody52HB+zOsZxudo9leMTqU2fnfvtAviAlNLKrTIk4gTk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780925280; c=relaxed/simple;
-	bh=ABVXayvL84AWM08bk6LuwgBCEco/YP9GnQUi57PKXpQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Vk9goR7KhBltNTknyXL3e+jHeMl/gEaSW8Rs1Uw7ZnGdXvrajEhRMuwb26x8au+6m6z26e0j4JHs781gzmCJdvTluwQNi7Mb7zN6wfKti5poFHBfu46wSy94/NjxJGSugO+UGVZah0XK1hkBdQLorhBaZbSRHfCb3XMRVzFM3oY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kzl/EtpQ; arc=none smtp.client-ip=209.85.219.46
+	s=arc-20240116; t=1780925465; c=relaxed/simple;
+	bh=0Q/OLl2No78W4gtF/9sxZ+E1+N8D5Cyzzz4WJ81jZkk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sldWQ7t8YyWFW1IhMoT/NMz1Lqtk3KVbdQMwqZoD2j1UrWpMkgBZ6wSNT406/xWJvOlmQ/SSf6LXYsr51GdOLJoAbiWK/bndbAWNTOMKVB9C9CBffMbox9cllX4ExgGDl4xZd0cxtqdKWoBPZu9PcBcO9ZDeljpfMNy5I37uUGo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BMDByHFe; arc=none smtp.client-ip=209.85.219.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kzl/EtpQ"
-Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-8cce26ee1e9so68357136d6.2
-        for <selinux@vger.kernel.org>; Mon, 08 Jun 2026 06:27:59 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BMDByHFe"
+Received: by mail-qv1-f45.google.com with SMTP id 6a1803df08f44-8cce26ee1e9so68403696d6.2
+        for <selinux@vger.kernel.org>; Mon, 08 Jun 2026 06:31:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780925278; x=1781530078; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780925463; x=1781530263; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=iRBiOQ/vvYhVkn16GyPUdBPuzURQgxyQsxrrRw3Kgv0=;
-        b=kzl/EtpQ7N4KY1+xhiwQKfQpAuTKJy0zESKSYdikiKCW4JKt/5UUfDxQlZv75wzV9/
-         BailFJ5ZxuDJZqIppYWDLkt/ISbMf+u3SMoPA05iSIE9+yAkxvXTlmeaAImFSN3+6UHd
-         en8cEMGESApt8oK8jb6Yxh4fVpgGa0Q8rDMCDhHjkjt/EkLcjFzMPM/1o9j4rBb9r93Y
-         /8ddZSiUmQ/0D6gRKFkSk2wrPR0BKOSl/VQKPbmaRGjlsdvxb5NpSAKSp5mtu4ohVriy
-         gMLKf65dMkT7BK0d1jpHiL1l/lDMO/WrkW9oBQ5YLYnnFBqXQrBGLvzACT+HsSdW+GS1
-         ncKw==
+        bh=D/1UeQYdJmipGRJvIZ86mF/KgypStlMmkaOiGnm1tSA=;
+        b=BMDByHFekOHaS/rDx4CpuODteDR4x4umGDlPYB7JvkStAaJKK2DUN798kDql2llFq3
+         1IJwrPRbUc1d20A8YKqfSOqR1VRIZx8vO5bZV9ea0l5GUOzib+f0CsJ5oQy7InDeg18v
+         QQaQa/VLnUKmkcU9YIbm2d30KFgblI6Gkv7fwM38EairZz4CAT3+F1pi9YU073HWoAfe
+         MrpDCfY4ajWOKCK2i9Ihmdn1XoAIu8LvPmOG09XJHhBTmBZpQbQqs2NhGMULVOSiHmox
+         jNXfo7Xitrl+c6JvNNAn2GCq0fNzbbouU+8tBVN+64yMQlnegiFVbCkIhsI8u85z2mbJ
+         VOMA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780925278; x=1781530078;
+        d=1e100.net; s=20251104; t=1780925463; x=1781530263;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=iRBiOQ/vvYhVkn16GyPUdBPuzURQgxyQsxrrRw3Kgv0=;
-        b=KdPAWMaDGcW8NrlBkkHlQ0+BixEc+/2+9rrXNpdKb5XpXxoGj5YUWWu88efUSRqD8L
-         dAwD2KUG9aEf0hK5d9LvzLo7RfcCm3iVGNSOxdMxHx3r2aSRK2RNivK0+WalKm+0fpqM
-         9AHs6Xt21gq6GHBitTDwKWpulXMdAd82D/0rOsMGwj9LyJSpbQidpfxsZM7facUfl1pr
-         /8bfqetZZ6hwP1doToub1TUj/W91Zt0cs1aSppPt2LwdhI04X0tpRJMFFvqwPOrl8r+1
-         opm9L/kDV9vUaDMC5/dValOpuKmSREnSv7c23nUcdn58aa4DmWGHL1tZ8Y2ayORyjYe/
-         FRjw==
-X-Gm-Message-State: AOJu0YwCdBU1svZy5Jq9Yam401ye54c/pttTeOuxVlLO8LSRwSD2bOBI
-	Yd/TYAFfQRtOIT82GqdxyhlVwvA17MvOAHZ3m5NhyPtisqqHLL2cg6uhNk1Wag==
-X-Gm-Gg: Acq92OFDqb511U3S/aRkSGYgG5Aize/fn5kOp2FffTefsR+Ns2cqlQVeideZ3eIszBb
-	jLwLN203ydWKvKhVK+hE1OKfN8rSABEipt4sy20FN2QhNYRsf5cLNe66pLCc/SCGvjgt0pReEmC
-	fQ1b2i8Wa5d3daHLX/+sXiAcq0FGep3JDrkk7x4GlY5IsZlOIyc21uWjokbv6O2m5bJpyfiKz8F
-	QVhisftodaLxhmhw5v1aCTzG52MxHeYlXRnzTJ00uREZwIkGNkRPyQltj22mZIiYSFdGiEQiBB3
-	eESDaF9XuDcpTK7hAp8IAPq4TD2p1K/SysE4TsrXcNIqgmom0QC8Bgc5H05l7PL5CMEx/u2Xytb
-	yT0VH9rvbhAvF16T9E8KNyRx6U8I/ckhOe2PCSfhCbw6ER5Wl2P5Gn2KWiJfaSIKlqPxknR3pfu
-	VpjJjOT515r3fn6h6sf+wzaAVoD0sxl8udDBYAYBhYe1YtLAze7nVohLZSZeV7zIs/BZ7trFHEO
-	q+qCbbYgWOBpUH+51LC9WUXIatcnsNcu0KfgA==
-X-Received: by 2002:a05:6214:aa6:b0:8bf:6a92:84b2 with SMTP id 6a1803df08f44-8cee5fe6944mr165370286d6.13.1780925278237;
-        Mon, 08 Jun 2026 06:27:58 -0700 (PDT)
+        bh=D/1UeQYdJmipGRJvIZ86mF/KgypStlMmkaOiGnm1tSA=;
+        b=eV1QIKRcHbULZ+jtDp4oPR2B+oCjTfDIV1e81n+xt0adepWuT6c4OXpT6G5bs1cAkd
+         +ztD/r7YXCLcVUg8FXg9C/y8B6b77AwjFZFcfuX7qeK4ZmYxFAOE2Q/hzurNtbVMhSe6
+         73Z3QGG9snob7led4uGhd5OQwZt7+xpWL6Td2Mz0yfun9Gv0wBD00oFujv9gvHGpC5aA
+         RjdzZtDuiDOo41bUI+jFdBRYu2oh9E/y0mtau7wRIRHK1mZSA6elSn9j5Mkgr+u2l6Dz
+         45E55/Td9AEPxNoswW/bVvoN7Bz/YoHEtqT89tXxlsq6ECxQmmg3MkpEbnxYO2U/IBxc
+         aEKA==
+X-Gm-Message-State: AOJu0YxUIzVlNTcCz6L749SnGr1JK6I4m7T7rct6vOWZsFLEkB/YPJ7w
+	Rksi0LcJTuiAwWHMhjF0mZ+3YhvdOb1qrgDjsoCpw0PM2jl92eop3iyt5xt4Rw==
+X-Gm-Gg: Acq92OHVKh/vGzK7z2wQNbAuWXhtnwlg4xsu5IdrF+Mds0Ty81Ifho022CQXU0luwRg
+	9tthwl6agXepxwQ1JEltJlbuW1sq/AbNjjkdX0XWJ0UMCSyHDubPBmMkneg8pDlo2GYq0kQ0yUM
+	El3Q/Xw8atzeR5TkUfD2kiynnhrzexirSlPIHO7jNtRJ12yaJHY1nRaLCe9loF2zIIyiPFXs5UE
+	0z8SxHdcBaDzs7GrXQvBVYzaR8ON3/rdZJZEZt+molzFTvx9aI4okN7Qt3Du35izzEleniUCZYe
+	zEsJ4TSnsUBrCQWT2rx1AueZdtUydXGF/HwmTydD3fVDJOSRC1dW9U1QaTnkR9qizJJk2NXc62E
+	qfq5tlJiEWx6gsKgwpwd9dUFP+huH20+XG693Bmx0VoggaISvEoKRk95HuFhwxtRPQgEPNt7WG0
+	OJgWjtjDJ7dhTXbYKFK8QQOXSOJySL/WdRXNxCzJI5dU4XgganNHTJk/AJWnAMP+YgTNcGWW/JJ
+	C55DHcJIjQ2OB3iIsFZOnLSkYxJjiSONdCTWw==
+X-Received: by 2002:ac8:7f4d:0:b0:517:87df:d8ec with SMTP id d75a77b69052e-51795b727c1mr216173421cf.9.1780925451173;
+        Mon, 08 Jun 2026 06:30:51 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ceccdb93d8sm169711706d6.16.2026.06.08.06.27.57
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-51775d9efa1sm150980431cf.20.2026.06.08.06.30.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jun 2026 06:27:57 -0700 (PDT)
+        Mon, 08 Jun 2026 06:30:50 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -63,10 +63,10 @@ Cc: jwcart2@gmail.com,
 	omosnace@redhat.com,
 	paul@paul-moore.com,
 	perfinion@gentoo.org,
-	Yi Zhao <yi.zhao@windriver.com>
-Subject: [PATCH] sepolicy: set conf.substitutions['releasever'] to empty str when releasever is None
-Date: Mon,  8 Jun 2026 09:27:41 -0400
-Message-ID: <20260608132741.309092-1-stephen.smalley.work@gmail.com>
+	Waldemar Brodkorb <wbx@openadk.org>
+Subject: [PATCH] libsepol: make reallocarray check more robust
+Date: Mon,  8 Jun 2026 09:30:36 -0400
+Message-ID: <20260608133036.309348-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -76,57 +76,34 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Yi Zhao <yi.zhao@windriver.com>
+From: Waldemar Brodkorb <wbx@openadk.org>
 
-For some distributions (e.g. Yocto) that do not provide
-system-release/distribution-release file, libdnf can not get releasever
-variable, causing conf.substitutions['releasever'] to not be set.
-This will cause 'sepolicy generate' command to fail with the following
-error on these distributions:
+Some cross-compiler toolchains dislike the usage of -o /dev/null and fail
+with: ld: final link failed: file truncated
 
-$ sepolicy generate --init /usr/local/bin/foo
-Traceback (most recent call last):
-  File "/usr/bin/sepolicy", line 702, in <module>
-    args.func(args)
-  File "/usr/bin/sepolicy", line 569, in generate
-    mypolicy.gen_writeable()
-  File "/usr/lib/python3.12/site-packages/sepolicy/generate.py", line 1302, in gen_writeable
-    self.__extract_rpms()
-  File "/usr/lib/python3.12/site-packages/sepolicy/generate.py", line 1268, in __extract_rpms
-    base.read_all_repos()
-  File "/usr/lib/python3.12/site-packages/dnf/base.py", line 554, in read_all_repos
-    for repo in reader:
-                ^^^^^^
-  File "/usr/lib/python3.12/site-packages/dnf/conf/read.py", line 42, in __iter__
-    for r in self._get_repos(self.conf.config_file_path):
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/site-packages/dnf/conf/read.py", line 109, in _get_repos
-    parser.setSubstitutions(substs)
-  File "/usr/lib/python3.12/site-packages/libdnf/conf.py", line 1643, in setSubstitutions
-    return _conf.ConfigParser_setSubstitutions(self, substitutions)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: in method 'ConfigParser_setSubstitutions', argument 2 of type 'std::map< std::string,std::string,std::less< std::string >,std::allocator< std::pair< std::string const,std::string > > > const &'
+As stdin and stdout is already redirected to /dev/null there is
+no need for gcc -o /dev/null.
 
-Set conf.substitutions['releasever'] to empty str if releasever is None.
+This fixes an Buildroot autobuild failure for libsepol package:
+http://autobuild.buildroot.net/results/72b/72baaab4658254f4c5b3348298af1d5c891cacd6/
 
-Signed-off-by: Yi Zhao <yi.zhao@windriver.com>
+Signed-off-by: Waldemar Brodkorb <wbx@openadk.org>
 ---
- python/sepolicy/sepolicy/generate.py | 3 +++
- 1 file changed, 3 insertions(+)
+ libsepol/src/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/python/sepolicy/sepolicy/generate.py b/python/sepolicy/sepolicy/generate.py
-index 780a56b2..0edda54a 100644
---- a/python/sepolicy/sepolicy/generate.py
-+++ b/python/sepolicy/sepolicy/generate.py
-@@ -1322,6 +1322,9 @@ allow %s_t %s_t:%s_socket name_%s;
-         import dnf
+diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
+index c222a8fd..cd6ef442 100644
+--- a/libsepol/src/Makefile
++++ b/libsepol/src/Makefile
+@@ -31,7 +31,7 @@ endif
  
-         with dnf.Base() as base:
-+            if base.conf.substitutions.get('releasever') is None:
-+                base.conf.substitutions['releasever'] = ''
-+
-             base.read_all_repos()
-             base.fill_sack(load_system_repo=True)
+ # check for reallocarray(3) availability
+ H := \#
+-ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint main(void){return reallocarray(NULL,0,0)==NULL;}' | $(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -Werror=implicit-function-declaration -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
++ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint main(void){return reallocarray(NULL,0,0)==NULL;}' | $(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -Werror=implicit-function-declaration -x c - >/dev/null 2>&1 && echo yes))
+ override CFLAGS += -DHAVE_REALLOCARRAY
+ endif
  
 -- 
 2.54.0
