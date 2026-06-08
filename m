@@ -1,166 +1,122 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
+Received: from mail-qv1-f45.google.com (mail-qv1-f45.google.com [209.85.219.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 054D1330B11
-	for <selinux@vger.kernel.org>; Mon,  8 Jun 2026 16:05:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.171
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780934740; cv=pass; b=oiTreYZwEPMc/AK9+7/TYdqPcxWH6psEqFgxdVbuzJfscakASj7v8CyX7TVYHteHIe4igxTQGn8eChi3CSoYUYg5R891GEuDbu0+n5TGaBM7iZ/YGbgh6S8/TOS2zW7pYm17yrAoYjxZqob0FgEt2YAUFMLfeZ18aE2DFaN59WQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780934740; c=relaxed/simple;
-	bh=xM7sjaKygo6qIaSripGng+7sG3cz4WdrELNkv8X+p4s=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mAWMNmYLUtdSI9GnX/2wuXlvTTsJDsaDqJVaRaQv0WPio4HafO2I1kaNhpg/nsPYaNd0p7wU9zfIAu+C0YdBFg9WuJtYmhAFOUF02sDPfmGQsWUYWn5ZpGEnbQbu6O9hVOJUBqj4nR4xA1khRbPYxl/m/P6IdXA/Sce4ulJ1qTs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FOg7Wszn; arc=pass smtp.client-ip=209.85.214.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 982263D0C18
+	for <selinux@vger.kernel.org>; Mon,  8 Jun 2026 16:45:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.45
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780937103; cv=none; b=eXhPbCmQZxpCb6nP3KZAEed3f4jpx5HkOAUJgvUnFPjAPmlk98Lghk9mN8nmHiTO/yC8qbgQ3w8mJqbnCL1zvBipTTmvIDdoM1fzQA04/JBgQ4QABT9huHz/1fCKaqos41b2xrKXoKG9gub4i74Ng0tieZL8jaFzfRNVY/wvAmw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780937103; c=relaxed/simple;
+	bh=v0sZdtHZ19fsifJzoYHmKp8btpOuIZWB/a27qMyvk8E=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=saiENM1gRx0RhSvTx6C0XowmwZskABpxigi6RvXbJf+6Kb/ZPmtwPhWfkRIgn7OofikVU/1mslIuSgrNVI6GyfcK5mpeEcWppIEVkFHkJEQPUu0zQhFse/5a6SYG5CcCZZ5B+9eOQzTtH+GzBHE1mt1ODblVeLokcKQZ8wXFgNs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BzA5cuy7; arc=none smtp.client-ip=209.85.219.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FOg7Wszn"
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2bf1f074a12so47081205ad.0
-        for <selinux@vger.kernel.org>; Mon, 08 Jun 2026 09:05:38 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780934738; cv=none;
-        d=google.com; s=arc-20240605;
-        b=EAHciRW3Z8lfHg+vmpxIo+wB3KvCBlJZNaBo/8qkrqWGNm7aE2Eo7/PJKhFBOLwygb
-         HZNu1UGOaBeYbeBKtYPQ5FfyY4aeB5V+YL/NCfIKdZhEuZ4z6iiwxJ0SNlpy2AspMj//
-         ZlWFPMxJ+Hdf/BArYriha4YBCPz8re8ycUUVg8exDecQVCpDnokc/327/aqMI00np0MZ
-         88EIrDQcPDET+7kGLkUwuJtkHbyo2tlUSNky063bdvwctiQUIHqtfy6yskI9oHWcW5tI
-         V/mCAxtPa6l5ABJ/J3mI0S9S1MdUTpmWfHvOvDgP+ZSedc0bgbeLnl9lrpdGor60Kobl
-         GtOw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=OZF20Sn4g+K7UE+PThUTZCvaLR+LxLHST1UuI+5Ba6g=;
-        fh=teCuqbtyRM4Tgu/qjn48lO8vG8x3Xo0e287DZw7JaQM=;
-        b=YHFf6W3P4mk9jjm39/GDDIqKo6FsnQZKY8NC0VBIOe1hscWFCitDoinEKfKCFdibpd
-         LBvjJ2ku6D7Fr+h8ml+v0pQzEP8XQstD2LA+pJqsA+pHA5QBYTshY1TNY2sAO4fM+vWS
-         CuP4URiI8LRUG64lv1Mem9QsbSGSa2haAyfwxdpSLtcGiTHbDy1yGVPbcJVQ7FDrmWq7
-         cSFcp4qt06iATQ2yfFudOlAhWTK3SW/l14GRO8p+Zl2Hrs0gUayXr9u+jPfWkrKW42jl
-         ut//ZIfYosecPNndhBVBSFTiS/koUUtBOoipzSvTuwWFGrupbwOvwU6d7F6U00slZYDd
-         NdTA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BzA5cuy7"
+Received: by mail-qv1-f45.google.com with SMTP id 6a1803df08f44-8ce3876a50cso46721016d6.0
+        for <selinux@vger.kernel.org>; Mon, 08 Jun 2026 09:45:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780934738; x=1781539538; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OZF20Sn4g+K7UE+PThUTZCvaLR+LxLHST1UuI+5Ba6g=;
-        b=FOg7Wszn8e7ll61N8kKOJ5heX9o8+A7pTaQ4OUn9uRo4pt8IZqBpbTeIGhhKSa4n63
-         JMOeDtNdxU5vA2yk8Ed8qPy95kV4LgQTwJydK9IPSXtkHbnDiXxx10hqYOFb/pNF5NVe
-         dXeYg2jpgbSEe4Bcx0+J5P5A4ag+rboAPKVpPrAnh2LIgrktZYgmnS1XrsPA7XFofdJN
-         rghplQqVjB6h+ieKHTjudTANKuuoEIOBWRykq6mYK2/p/JzEtYYgTju5XhoUscSDWqZE
-         k4JiM5NTuoSwg2jz6SA6x/121xMx9D7gKmt2r2kvwW+q2slbAr9SO6rff14F799JpC+3
-         b29Q==
+        d=gmail.com; s=20251104; t=1780937099; x=1781541899; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=29/xcBPfWmPm8dVn72D8sLofl0MXoogjzdlQGXRHUKs=;
+        b=BzA5cuy7oGd4y2Db6Ew663Ix2j9sDwCbk8h29rA6EEdmAOk+JKQXepr3wnpr8Q34Mh
+         kC0/MhVeZ6523khaGeU7BxcGTCCKO+C60hFF/p+sLsCszSymOfCpc1kIvf3D4q5dkYoZ
+         g4h3t1XE0v5NimLQg/bSLYP6vm9pDQlPU5Qfa2SXyyc0kXLPqMZQh+fmndeWc0stkvPB
+         jiBpptcUqjqi7VLICBXxfhfJno9945v5h0JBAU8C9ARJJVRbro83qPFNhvR2+HB9Y7UL
+         LBMP91IXIeKeL5Hy4hwJ8wp63gn+W3i9+ATPk9s2gFPRtDJnmfLkbMYvdnHMmKQJzr7z
+         I40Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780934738; x=1781539538;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=OZF20Sn4g+K7UE+PThUTZCvaLR+LxLHST1UuI+5Ba6g=;
-        b=oj7TtnX4+ztJZP4w+axqQnwQVYa2vFap6LpsAl5pO/DfCd1CJ7xAN6cgHFS9r780Ka
-         sT2MhkLl8SEgj9oa4FzD6Pi7tXyEYG4YG/HK5/RGKmk9mbWfrGcOtJwp3v3XlFTL+6Nu
-         1iy6ZWQQODmX3iLvGDSVSsptcyWh9zzTQPJtxEZLHaIHF4Muv99yqecSC+knplg6tZr0
-         olinZGkLvmSFferWDr7J1J0xc0dGyTH5ls0BX0+d6olYl6s3qFY3YwDvhNY+o82cxnYB
-         XNcbqHtwOTP+VNR68epYyXbm4t5hrSsgoFYZKmX2ABfQIYjbEyUkX7ubNsZiIyA0Vo1f
-         Em/A==
-X-Gm-Message-State: AOJu0YyhraMmD6niWwJ3QRJuaqpPZ2PimgJupJBeHAAa5Ness7sh6ez2
-	ouJ2O5oNTHLzPCATfWVbYuCNNWUzzoKdvsjBq8+azL19oTIKoyGdZb/LjBH5tla40O6nVYOPc1Z
-	7rgPfAN05Wvbv5iRpe/jWJSmOs743lY6XZieV
-X-Gm-Gg: Acq92OHIg0qnv13eGQjUfj5MFfwkQSjw4O2c1q5fkJjDPlC+Tt2aIm8vnRsVhqhiqC0
-	t9+Gk/BgNCXHJiadnkTZZJZR3B13Pm1lpciDuVzvfAqvk+VTNx98FlYhosDtONPti24C0rLeKqd
-	r/HqTEHFMepA4Dp/iYG/qLkBv/o6e+6/iI+1aLJJpqLL61J+N27dQ6faaT9Zw2xb7r/9bO8VuMu
-	LvQZeCGBDOeYynk6i0n2tOn7WV9JAVRphpFAIUt40vWQ0Q+G1PApY8ZhR6ZYctp1P9ZaZf3JX7X
-	l+ZFbugMqS6Fq+igXQ==
-X-Received: by 2002:a17:903:1247:b0:2c0:b35d:ed54 with SMTP id
- d9443c01a7336-2c1e85e04c7mr183750845ad.35.1780934738413; Mon, 08 Jun 2026
- 09:05:38 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1780937099; x=1781541899;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=29/xcBPfWmPm8dVn72D8sLofl0MXoogjzdlQGXRHUKs=;
+        b=MTck/jjsgweSd9GGFUpE/R0TnffOkYTFOonCVwzEwOXx0/76YJWdmGSQUMyws86jDD
+         RQX0pcNxu5yeJSRDvXrrjuL1qS7ktPjHdfz3jLqNLUkhgHBew+doBBmxbL0Iz7xEXXFA
+         oKgWADL1ecPXx2UICAFozeE/+aIPtEzUdKUlXXRQ2UpC0U/mIxpt5Gy6Iem1XN6cAoya
+         B/adolKs7h4Mqmdqmw2S2ixjen5ueX/tWpSVOZrKcudxJTPeexqx6O1AIU7GF2fx6aGK
+         vsJBdddLYu/WX0VIQ/C5+PuylS5UtjheJT2M0XBG5nPCAsQABLGTAW3GQ+UqVbKxm0IT
+         0YSg==
+X-Gm-Message-State: AOJu0Yxt+K4AjOYbv5KoTHGibexGpkDl+9iqbTJBfR/RQmuEnob1w6rD
+	LgzKnp96TRW8VYzJc1sw+0FEloTOPfjXkos9SdcECxWkEp1EyffrdplerCXTGw==
+X-Gm-Gg: Acq92OEuiBJcDg+XfLqVEe0SJnl7cyUp4PXdVJgy10VZtWAIjHZ5CKLGO6CT1TKBfBP
+	1VprgJxOMlvJ5V6WUtT+HOZO+aTHbeKELLvvlHRL/mtsrU9Rw2LJnKkvPl4e5Y4dabXDHJb8pso
+	JktSwVh5RgyAVoeERgdyUgpC0AAZ+GQH2MDFBWaDsnZd3PJg0Pf//YgRA7Uk6Bz1GEWmS8RsF8X
+	wDfl2l230ZdfNBtoBovg3LDs922v7g82Pn/cOTl2J5Woy7ZKsB5syrPWRfNsbfa5GMCIpifxxRD
+	GNvoEl4rjNilY74DXFXyOCuU2nGHhIfQpTF6hwohnffPpGN0bEr1cmO0gcZ34Nkna9txpsGfS+k
+	IjLaIzBx1r+TJowRcrOHGTVoQn8btGPTzDFRyu5xjIEVnid3M7bXJwPP6kAr6jFQ36Ye0X0S375
+	8RchXygsX1XPg9XGYmAjpm7gtyOj1ug20wkERfWqReAvbFzCuNQEIlafvFptat2OHiIyTIHmVPW
+	Iy+sNqS4EIONZpi5ZovzGq3xHNhlsqjfBivNA==
+X-Received: by 2002:a0c:bf0b:0:b0:8cc:ed49:bdd8 with SMTP id 6a1803df08f44-8cee5fb771dmr202172276d6.5.1780937099298;
+        Mon, 08 Jun 2026 09:44:59 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8cecd26b3b9sm172671816d6.45.2026.06.08.09.44.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 08 Jun 2026 09:44:58 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	paul@paul-moore.com,
+	perfinion@gentoo.org,
+	tweek@google.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] libselinux: label_backends_android: fix non-anti-symmetric cmp function
+Date: Mon,  8 Jun 2026 12:44:44 -0400
+Message-ID: <20260608164444.313701-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260605191355.281484-1-stephen.smalley.work@gmail.com> <CAEjxPJ63zyB8EYL0ngjrg=D-Sxd2NrWNkNzX4gnk6fa3v12-pQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ63zyB8EYL0ngjrg=D-Sxd2NrWNkNzX4gnk6fa3v12-pQ@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 8 Jun 2026 12:05:27 -0400
-X-Gm-Features: AVVi8CegZFvIUI0imiRJHYJEOhuJyK4_bzWqDYpjLVgFneXxqvvGQ59giA5Y8Ik
-Message-ID: <CAEjxPJ5ZzkgpaYSr-yVbYj1ZDommPC8UJh5XB84xo=3FtH-fMQ@mail.gmail.com>
-Subject: Re: [PATCH] add test for fts_* availability
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com, 
-	paul@paul-moore.com, perfinion@gentoo.org, Pepper Gray <hello@peppergray.xyz>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, Jun 8, 2026 at 8:47=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Fri, Jun 5, 2026 at 3:14=E2=80=AFPM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > From: Pepper Gray <hello@peppergray.xyz>
-> >
-> > check if fts libs are-builtin (glibc) or add -flts
-> > to use standalone fts (musl)
-> >
-> > fix: #514
-> > Fixes: https://github.com/SELinuxProject/selinux/pull/515
-> > Signed-off-by: Pepper Gray <hello@peppergray.xyz>
-> > ---
-> >  Makefile                | 6 ++++++
-> >  libselinux/src/Makefile | 3 ---
-> >  2 files changed, 6 insertions(+), 3 deletions(-)
-> >
-> > diff --git a/Makefile b/Makefile
-> > index 0e70f3d4..0e465f94 100644
-> > --- a/Makefile
-> > +++ b/Makefile
-> > @@ -27,6 +27,12 @@ else
-> >                 -fno-common
-> >  endif
-> >
-> > +# check for fts_* availability
-> > +H :=3D \#
-> > +ifneq (yes,$(shell printf '${H}include <fts.h>\nint main(void){return =
-fts_close(0);}' | $(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -Werror=3Dimplicit=
--function-declaration -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
->
-> I recall seeing some bug reports where -o /dev/null is not supported
-> by some cross-compiler toolchains and therefore triggers errors on
-> them.
+qsort(3) requires its comparison function to be anti-symmetric.  The
+current cmp() function used by the Android label backends is not
+anti-symmetric in the case of a key starting with "*".  Fix it.
 
-Never mind on this comment - looks like that was fixed in ld long ago,
-https://sourceware.org/bugzilla/show_bug.cgi?id=3D19526#c12
+Arguably we should be checking for an exact match for "*" both in
+cmp() and in property_lookup() but this might break compatibility.
 
->
-> > +export FTS_LDLIBS :=3D -lfts
-> > +endif
-> > +
-> >  ifneq ($(DESTDIR),)
-> >         LIBDIR ?=3D $(DESTDIR)$(PREFIX)/lib
-> >         LIBSEPOLA ?=3D $(LIBDIR)/libsepol.a
-> > diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> > index c0e18321..9982faad 100644
-> > --- a/libselinux/src/Makefile
-> > +++ b/libselinux/src/Makefile
-> > @@ -99,9 +99,6 @@ override LDFLAGS +=3D -L/opt/local/lib -undefined dyn=
-amic_lookup
-> >  LD_SONAME_FLAGS=3D-install_name,$(LIBSO)
-> >  endif
-> >
-> > -# override with -lfts when building on Musl libc to use fts-standalone
-> > -FTS_LDLIBS ?=3D
-> > -
->
-> I assume this was originally added here to ensure a successful make if
-> run from libselinux/src or from libselinux rather than at top-level;
-> is this not necessary here?
->
-> >  override CFLAGS +=3D -I../include -D_GNU_SOURCE $(DISABLE_FLAGS) $(PCR=
-E_CFLAGS)
-> >
-> >  # check for strlcpy(3) availability
-> > --
-> > 2.54.0
-> >
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ libselinux/src/label_backends_android.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/libselinux/src/label_backends_android.c b/libselinux/src/label_backends_android.c
+index 4f12d0d7..f1a3050a 100644
+--- a/libselinux/src/label_backends_android.c
++++ b/libselinux/src/label_backends_android.c
+@@ -4,6 +4,7 @@
+  */
+ 
+ #include <stdarg.h>
++#include <stdbool.h>
+ #include <string.h>
+ #include <ctype.h>
+ #include <errno.h>
+@@ -32,11 +33,11 @@ struct saved_data {
+ static int cmp(const void *A, const void *B)
+ {
+ 	const struct spec *sp1 = A, *sp2 = B;
++	bool wild1 = (sp1->property_key[0] == '*');
++	bool wild2 = (sp2->property_key[0] == '*');
+ 
+-	if (strncmp(sp1->property_key, "*", 1) == 0)
+-		return 1;
+-	if (strncmp(sp2->property_key, "*", 1) == 0)
+-		return -1;
++	if (wild1 != wild2)
++		return wild1 - wild2;
+ 
+ 	size_t L1 = strlen(sp1->property_key);
+ 	size_t L2 = strlen(sp2->property_key);
+-- 
+2.54.0
+
