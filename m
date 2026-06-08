@@ -1,119 +1,133 @@
-Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
+Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAB40326942
-	for <selinux@vger.kernel.org>; Mon,  8 Jun 2026 18:29:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.180
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780943370; cv=none; b=Nwl5Mo9lKSo/TcOFWJSawbylqp4VZt20XTc30gBawsDJFpzZ6hCKDAKatXA9Ot15n+nYDZSRkLX98zf90G18tA0nS07Sm1/G+aaRGiwaJyAKlttQbwheHhOpzRjE+463G/4rvTx1iAikN2ejwLALaGck7ziPIakInG+Y7AOw2oc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780943370; c=relaxed/simple;
-	bh=gAVgc9I9zzm/vLFKmzN9T0HIFDbIR+pvxvz2a9Xe6kA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=d+NVtUHXTpb9kXfpiqqhM4JJiJ5l5cBBmPWUgOoTHc/5HEOvMs0xiMNWpwquU6gD6DHZB7w/8yAR1gC6wE50rpg1IfRkTNAojs/3uSe3IqXqYBE98WWr98dLDRfpn3qf7OeYn5souv36PFt7LLteXbNt6JPb0EtZxRwEYQsHTFw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=p3r45vMP; arc=none smtp.client-ip=209.85.222.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5A063E0220
+	for <selinux@vger.kernel.org>; Mon,  8 Jun 2026 18:33:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.50
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780943603; cv=pass; b=l81vMpDCml4tMD2xVWQ/u8Mm4QRNhmZt+RVGbK2R47D7b+eyLnyTkWERr0+oLFJ0OLO3jha4NLkawVW0yE0TQT6C6svvchOrqheA49iaQJsAi8IWfyjSxSK5MEGFXT+xlUplUjEb3YhC/sT7KJqZQMnGGfU7AhCsiUaHmkfncyo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780943603; c=relaxed/simple;
+	bh=ZjOa7vVSu+e1HhA3PcQX0AaGjHwxoi8IUzTkBgPUOpY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=mJKM6PCRYYq7pVLtVvER02F5VzSAQBMpIDD3r63SkJ6Njd0t0FkrwZKEgu3YiDIN30mbdvmXwnfCVbNbUqQUBnjDkO773h//KXpgyyr3N1BXH+jPAmnBVqZpY5x2bvAsssdDnhhKFaLMV6f9pQHE9sCtvINWazTII1Wbrnn7J5Y=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bIK2Y9tO; arc=pass smtp.client-ip=209.85.216.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="p3r45vMP"
-Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-915d64fead9so116292285a.0
-        for <selinux@vger.kernel.org>; Mon, 08 Jun 2026 11:29:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bIK2Y9tO"
+Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-36dd65b95f2so3301289a91.0
+        for <selinux@vger.kernel.org>; Mon, 08 Jun 2026 11:33:22 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780943602; cv=none;
+        d=google.com; s=arc-20240605;
+        b=iM2F6QHjAsQq5sf0CBWlp5aL2jUFdysQtc8DHYXjbcyYj8X1TAbwxz4C3EY7eUK0ky
+         s9isRdpoe+DZIX4qYfW6dpscoeZhneKToFS/D58+mFMmkqkFGA9Rjrb5CSabNa8yhB82
+         8B97N5FEyjUT0bGB0Bx7D8EXclmJKUdTHewW/kFsFPIf310fe0xJQxvG0C7CosxlACru
+         DQfZIatTdrdPbRHjGXyREbsuBzQmRFlE4IebDikcjsPWI24XFF/f/0482dA6EUkaU/Vr
+         UlsxNYXfPM1nJ+VGC+B5LYlEQwX9QA7a2M8qKBxbYqAVF3uGiU5UkHd7dL2mhYBLvwe5
+         T9zw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=o5pkOqTmXUMCtLHQxqtnXH1twL/c703U1/n27W9aSJQ=;
+        fh=5O/C79wO42cQf6w/vh3W7FviilpJ0XtrrgBkDvem/c8=;
+        b=lbiFgq1GhYxh0UMoe+C+TxKeEX4x4xfaiXscgFOSNpEuPUZHMSZvNg3vbymRfDN2NA
+         kbpwPpAsf+PfsU5y8BD9EdA+OrsSQU+hnK5MCmxA2CuNAgzlzEN7cBbbf6Sq4py23HgB
+         JTPi/R7nequJwepDk7iYXAF1zQnRDyR2ZRuXASOyymMwdDqJOLLPnPKw4dK3K/FXZ/6S
+         i84j5nm5h6L8WW3zukFPx08FAr1x4XYP9Iffl72T2GK4TmjU7on+y4Mim3sdw6EGLall
+         DhPqQYUs+H5Hpo+lz8bGCh8hMuEO98Le7Azv/ggP8Fjo+msCSQnhUcOMJXYcJC2JSBEk
+         ddqQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780943368; x=1781548168; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=QsUUuJJSvHNvdcU35IwytdWwEcLMrWQKy/bKPy2BNGs=;
-        b=p3r45vMP0M+7a3lOCUAePhtTUhcG+G6U0GjiegjyazheAIqoBcg2Je16Ph/1fcUIz+
-         5hwCnRUZY5sfVoy/zZxRegN/7/NXBZapd+5QShZpc0om9VV02J7/+rerdpIOd9BuzSxc
-         C9XoEkumkl0mEHuXRNdD79CJhhqkBFzg5rxfxTjJxKjZ1GNKyqPjjj2OcyxwmcB4RsBQ
-         IUCA8WB9LKfZF0mTNSdMcDRmUbWEwj6UKtmDCJFpA6yG+xlI15GokVtLgPkY7Sp0i1df
-         KrUDF02NzumRkBAxpMOtIAOdGPYwS5BE+m286rE8rGvIoiYmbyX1Rn2RLFCu2Wf/1lZl
-         EwLA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780943368; x=1781548168;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1780943602; x=1781548402; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=QsUUuJJSvHNvdcU35IwytdWwEcLMrWQKy/bKPy2BNGs=;
-        b=dwsdyxupJiZcjNI+RXPxcaXoVg/u01HIMcUCHQCidpJzw0f6be0F0kyWWxfyP4Bbe+
-         xjnSfpKUUVOWp0WhXEL3fjHNXgWUj7q/5eqCigZRYRhVUyTtzDL0KqOvCIwGiNFcGwk4
-         qYT/XK9IVUtcrqmi6D5mczYq8MhgQuylgAIZV1tSYtZ1gFRpb0OwjT5bLhW4vru8yq/e
-         JZBVBSW5Mvt+NH3fdLnCcX2p/dvuoIdzstKyr1tDYIo2BECyHN/jS2McZQVgMA6zR8cp
-         ZUccBXX+i7HFgaUlhLJ6C2hNQzZxjS5ZNKhoMA36ODVMb5lXxZ8j4w/ia1by2rl4nGqw
-         JW8Q==
-X-Gm-Message-State: AOJu0YwyVL/OhL2WhG/+Q5wLhMzqZ9iA64Heq4+5A0Wxp1cRFOJOUPLX
-	sLKWAa4IymExGMrizUGB0QGpv+PATQRGQGtprqA5yPdK+6pE5kWzKnjYpcHo3g==
-X-Gm-Gg: Acq92OEw/xbbxakxjk0zce5lsVXKsj+3zmA+blKCDUjhSvHkKLKoNBfYB12myCoLy6b
-	ssCBspRqBX1Od9eVc8L/X3+wUSeb5RO/FZ4fGX+1ujb4vlcEiSgTRISqmCsVy1NDM9QB3mjfBNZ
-	xk7NmU6Iclsd7os85DpZFwBsUpebRf0gGXoNcU7ja2XqXRiTXmt7MgEJGcyVlNNMQTR1yKmwEBm
-	MFGatyc4TK5NXGvAz7Io7skxDrB8dxoE7Y6FELti6NFjYu62pGv+We74sJrA/W+oVOcKiU26QM8
-	Tro1SkuWjgGrUpCyJqa6/DcKCJo/ggmLw7a8ENtu2rtZLRpmXeIucRP6eDwhO8vSOe4MFkQ/itA
-	pxuPcJWguZxPed8j4XMXegunvuHBjPz3PCy0tXsIV+n5Nmb3JmIQ3UT5HR/ccA5l/CtPiiWG86J
-	vuWFdcVE9hQY8xw8Wx+/cqvmLeN1X8f6/uD2bfvCMXPdB51aC6UaznblJ1EcnmI45IvD4kDf5Hm
-	uIgNlosYNTFSDqRC1lgTD+1FWszGnHn39rqcENiNRNdbycC
-X-Received: by 2002:a05:620a:6404:b0:912:671b:d0b1 with SMTP id af79cd13be357-915ad0a8f49mr1759422085a.2.1780943367755;
-        Mon, 08 Jun 2026 11:29:27 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9158a240aafsm1817718185a.17.2026.06.08.11.29.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jun 2026 11:29:27 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	plautrba@redhat.com,
-	omosnace@redhat.com,
-	paul@paul-moore.com,
-	perfinion@gentoo.org,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] libselinux: digest_gen_hash(): reduce the chunk size for Sha1Update() calls
-Date: Mon,  8 Jun 2026 14:29:11 -0400
-Message-ID: <20260608182911.318358-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.54.0
+        bh=o5pkOqTmXUMCtLHQxqtnXH1twL/c703U1/n27W9aSJQ=;
+        b=bIK2Y9tO+laBsgOuofCs1PuhLTxYYngMBseL627BH5SmqfW0oocccP7zRaUWbzuYdb
+         LGrkFtPR4t5dPGCZtg5dnmvaEdmYE1sHmQq9VCRX98aNyuxomDNOiuykPlpzA7DbrwD2
+         kIMIYg/Y+764aEQL5iWijlpdhWM5WAvNvb7j17DRmT0cyAiEGubnw9ouTbdTCYueO087
+         Pu3JopcF5GUBAIqb3kk/p26XCaPDftbxkPMI0l7K8WLFDayOP92uc+pp35cJ3r8jvvCY
+         AJfVvYcEQah0rvEvZvaPGqg0SHbYFTGHZXAxVuN8e8FDwvtsyYHlscGLr1P2n4NmiQ6K
+         6ucg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780943602; x=1781548402;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=o5pkOqTmXUMCtLHQxqtnXH1twL/c703U1/n27W9aSJQ=;
+        b=EU06i3X2N8QiJpMB/yyv5/+rYy0YEW47QTgUWJjQai/ADSXMGdAJmBS7y/EVah/NBD
+         CkEiu/YZOi6cya8tzOFNFj3dbyHrpg4lsXju81w+bfrPo0QLjv7mFutUlkXmQmKr2B2t
+         uq4rN0if4YxJttpAYm6uLvMtMrlVm8IP5sjdek8WSyCQGr/t5AjMErJ4+w4JiJbdk3Af
+         HpBLr+gzhNwwVgDLXF24+z+eI23jg/ePReRm64ZdrjozI9KA/vUlm86l1K9826AqXYB6
+         tZvOOFZoL3uG3F+Dl2rY8tvfwSa82HWCP8RB7AxUwfrlme7zuPq7y/QTuXftyS733AcG
+         IOBA==
+X-Gm-Message-State: AOJu0YwcP5kHoYI53/pkQXYjb4Wa9FXmvWypf+3RZlhlBR7opfujgZWZ
+	DuLzsySbv9y7kc2TgiAIHEAsbXO9d29f5K03lSh/8Q1BJRUlqx7gIueOfCOtuABRcy4c7w6OvG7
+	HsA/jt3p5E97LI/BeePQ8DMusdgUoxof9C4NK
+X-Gm-Gg: Acq92OGE3CYwikhECs18b60cBwp/L9cnIXkJuOJmbaWgQrY3fhJMdhekYsqa9C5kyP5
+	onVeUGZWFzq3mVXJxd0Ia69Lb7TUC4mrwZJO92LYgBtR2HzjGPy5rwYYGuY1rfdZNRDxGQpUuAg
+	U0slxHJURa9Aa9+nN3mYSfxMGwVsId/v7F9SnwziVufmzcWDx3HUh+gGZLlVcsWcuxnFreyTgAo
+	A8IJ8Lmzdw6kvLqxd4hENrZJ67M48bzmwn3KyyBJjax8C1NyopxNRNA6PP+S1V4f3/Kh1DtRoe1
+	RAZFsybo957h5ql72mgj37gl8fWd
+X-Received: by 2002:a17:90b:5285:b0:370:aa94:1662 with SMTP id
+ 98e67ed59e1d1-371325b7e6cmr11771381a91.9.1780943602041; Mon, 08 Jun 2026
+ 11:33:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260608171652.314902-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260608171652.314902-1-stephen.smalley.work@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 8 Jun 2026 14:33:09 -0400
+X-Gm-Features: AVVi8CeOdjxCXhHAleTijJx1qwslHhADHqw5BR9Qh2O5qbY8OXFWlalKnBUtTnI
+Message-ID: <CAEjxPJ52DM1j7HjUSajv0=eTqZYxecjerA2q_phR+GYP++m6SQ@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: sha1: prevent overflow in Sha1Update()
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com, 
+	paul@paul-moore.com, perfinion@gentoo.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The Sha1Update() implementation in libselinux takes the provided
-bufferSize and shifts it left by 3 bits to convert the byte count to a
-bit count. To avoid having this overflow, cap the chunk size used for
-Sha1Update() calls to (UINT32_MAX >> 3).
+On Mon, Jun 8, 2026 at 1:17=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> With 32-bit i/j and a BufferSize =3D=3D UINT32_MAX (passed by
+> digest_gen_hash() if the specfile buffer exceeds UINT32_MAX),
+> the (j + BufferSize) > 63 and (i + 63) < BufferSize) can both
+> wrap. Extend them to be 64-bit to avoid such overflows.
+>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+>  libselinux/src/sha1.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/libselinux/src/sha1.c b/libselinux/src/sha1.c
+> index 279625ee..02e05811 100644
+> --- a/libselinux/src/sha1.c
+> +++ b/libselinux/src/sha1.c
+> @@ -226,8 +226,8 @@ void Sha1Initialise(Sha1Context *Context)
+>  ////////////////////////////////////////////////////////////////////////=
+///////////////////////////////////////////////
+>  void Sha1Update(Sha1Context *Context, const void *Buffer, uint32_t Buffe=
+rSize)
+>  {
+> -       uint32_t i;
+> -       uint32_t j;
+> +       uint64_t i;
+> +       uint64_t j;
+>
+>         j =3D (Context->Count[0] >> 3) & 63;
+>         if ((Context->Count[0] +=3D BufferSize << 3) < (BufferSize << 3))=
+ {
 
-Fixes: e17619792fa1 ("libselinux: correctly hash specfiles larger than 4G")
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- libselinux/src/label_support.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+This one isn't needed if we take the following instead:
+https://lore.kernel.org/selinux/20260608182911.318358-1-stephen.smalley.wor=
+k@gmail.com/T/#u
 
-diff --git a/libselinux/src/label_support.c b/libselinux/src/label_support.c
-index 9fa7f0fa..9f0e4fa3 100644
---- a/libselinux/src/label_support.c
-+++ b/libselinux/src/label_support.c
-@@ -134,6 +134,7 @@ void digest_gen_hash(struct selabel_digest *digest)
- 	Sha1Context context;
- 	size_t remaining_size;
- 	const unsigned char *ptr;
-+	const uint32_t chunkSize = UINT32_MAX >> 3;
- 
- 	/* If SELABEL_OPT_DIGEST not set then just return */
- 	if (!digest)
-@@ -144,10 +145,10 @@ void digest_gen_hash(struct selabel_digest *digest)
- 	/* Process in blocks of UINT32_MAX bytes */
- 	remaining_size = digest->hashbuf_size;
- 	ptr = digest->hashbuf;
--	while (remaining_size > UINT32_MAX) {
--		Sha1Update(&context, ptr, UINT32_MAX);
--		remaining_size -= UINT32_MAX;
--		ptr += UINT32_MAX;
-+	while (remaining_size > chunkSize) {
-+		Sha1Update(&context, ptr, chunkSize);
-+		remaining_size -= chunkSize;
-+		ptr += chunkSize;
- 	}
- 	Sha1Update(&context, ptr, remaining_size);
- 
--- 
-2.54.0
-
+That one is necessary regardless and will prevent this case from being poss=
+ible.
