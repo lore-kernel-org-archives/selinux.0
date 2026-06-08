@@ -1,171 +1,129 @@
-Received: from mail-lj1-f177.google.com (mail-lj1-f177.google.com [209.85.208.177])
+Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 010C238238D
-	for <selinux@vger.kernel.org>; Mon,  8 Jun 2026 19:22:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED5203C1F24
+	for <selinux@vger.kernel.org>; Mon,  8 Jun 2026 19:33:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.50
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780946554; cv=pass; b=X4krxsiuCBWqVM2CvZjK3cdSPbBjHzNO+iBHecdG4pmFTK/c2JElj49TuW7hbddlwpzYSd2A4ZcNj+kRr8JQl+Kdd6DbzA3FzI8zKRmJ2o7iEFxjw+OJCqjmfR1HNkOZpqF+PK2dZrmXxjD0NHoy96XE8gapgmYpE6ehTDb99oY=
+	t=1780947211; cv=pass; b=lHn838t8mRsmBR/8UpnyB7VfBs23KOaqbKA5DP5AcrCMEH/i4f3NC9rsgA8eRjk9x4JTifcZNh3XvCItAoYbK9Y6cKj1fM9ihUQAYE22j2iJ43wKab4rJXUzL43XfFJMBsdNoC381w6G6wk0cFtWARNLAdwtdS39lQZBU0To+7E=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780946554; c=relaxed/simple;
-	bh=Xl8DQYS+PoYtsc7QTNmQScbBVRKcZkQdU31ig321prk=;
+	s=arc-20240116; t=1780947211; c=relaxed/simple;
+	bh=I4Hm+44mVR847s5UeSZW09VmCbEq+GbJV3FDnhDMMdE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=JClNwQLueAxEEwMUhoAGhxIz7IUT/AoGIpIBfJQ83LJOVJRlo4p1uWKoYCNjRmizxZsBvrdZXUTMg2HpWZCLP1JqyKhzLNUwCkohwlxH+cYP8Z+/hlBkzfYU9YzcHNV8OfpOwX7GM8lvsOcvyJQqsIUw4Js5Tn/mEWWnAas73cU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gPDQfeJt; arc=pass smtp.client-ip=209.85.208.177
+	 To:Cc:Content-Type; b=Tiy1M2H37qDTKWQCFr1QuCUiU51iwuyEU6POtgfBJtuHUTcm212t4udlg4ZC9M4x2HcZ3oNdnTnKup6K42a3GIKvwBL3jqJuoxiimJiaePAFZHw+YWQsjhuVzIvUpD2FUY/3io78bw7R2fJvHvntDdn1+ryJqMxSoBiOS9Joxo8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dyZIXj/y; arc=pass smtp.client-ip=209.85.167.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gPDQfeJt"
-Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-39676d82b7fso46887261fa.0
-        for <selinux@vger.kernel.org>; Mon, 08 Jun 2026 12:22:32 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780946551; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dyZIXj/y"
+Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-5aa68dbd44fso4776922e87.2
+        for <selinux@vger.kernel.org>; Mon, 08 Jun 2026 12:33:29 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780947208; cv=none;
         d=google.com; s=arc-20240605;
-        b=Gpw0DfgeYAU7P0FutSLMZj5lAtIgT/+JI1612xOOskJDu5fWoDdyTFdDFQl1qerW8L
-         qBKy+cl4+RKp/ZlS4wXdmeoM2gW/Mb3Y4Q9XMglNaNgp8VqQbxx8r+x0BB1qmPThTkzb
-         n363/2eE5cEym2gcgkul/gUpnuJUlRdjZjNV+cC9XGkVqGE+C5YDEaBmhBFAOGxl5Oie
-         qlVIUFAiKrj5dlQdEnt5OJvL8xRVkrG/OwHCTiXx+37e7zbFnvtq7yiIHoKB5j+6OysP
-         UlY+8AO25iInXXCNnvul3/QsPapy9AVGxxeDJu0meqeJWc9sHS1ou/J/Fw4fYWh+BgUf
-         vZbA==
+        b=dw8Jez/FGeK7DNkVrgnC0p0qY3iguGtdruk93PgCh2L+h78XbEyUIlkU9eTiRtUyl1
+         dPotkCTS/baLsxVvgMnfUY9ROEyPq4fMUzGNuLOZHSdHxg9oeJZsVeP2621MPRK+PSx3
+         yUL4rp7R2yqEOKCuQkGabEem2UXSM2zoRpC4yCPqd+jtR/ak1dOyDVEYFcMTRmWYoTEr
+         C6y/YAVFNonR5yF8DE2+5E1pitpFH5VGHG31SdHVMzMnjCQJESJfYkNb6Ux189YjYVIq
+         nmXSN0VSdVNV7nl+r8KH2ZjaCrcs/ZgjMU/ORo3+IqxdikFUBgm+hx+ZKTYurnawngBI
+         NhKg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=HfFyFV6ETGEpnodGj1s7d1TR6dCorRzI6YkH8cZsEJA=;
-        fh=sUqzqvPqLid9m5DJEHzU4XEAbh8jKuYePz/M4VIf3v0=;
-        b=COL+7VzXkTxegKxzwPjFLypNB0FEj3243ixUSwwka4OHShkMrn6mMH/bRTmYQ2YiSP
-         OOBOG1ZjzrXZylIea/X34J0yPRGSWhqNYG0qmx+90fVTCK5tbAvZa0LUdXm+3yEjNeBP
-         LgFhLW96lNL5hjXfzlCOY3f28IRYyNF99T1ihmdtbS1+gB9jJUvGU4gRlFUs/Be/0fkN
-         sjKWoZv1L72T4kzz9Xq+qp2XWqobxl4+QWedUpF9L5FZa+Ym1XsjGffIcGMp5IyOCKlb
-         xDCeaYVs0/QApozk/baauPW1XBg2pD6ApHyP/+qrb3LwiKJKriTfbhMkzQ97owB1XfjX
-         NtlQ==;
+        bh=Py+gnj4fmktXfuyX6KTgjBFZibtj31OyqIlIhn+sXxg=;
+        fh=biLNIbUdiVI+HWgqVoISrU2pQus1fZiQi7u7sC8l6as=;
+        b=GDexm04t9Ds9OGLbCWR63DbwphZXG7JwFRX8R802IYeJuG94S+3aNOlO8e/ZwOcYJK
+         Ybw1jm9yW17fUhMG4eS0GCQZNGcZImwb2n9qVJU5oqVknC9iah6161kL6Kl7fRJ968Tg
+         drTUmwjJa07XQKiwIvShyr3oapm37JyKEeGPwkWhxpfQhUdkI4hQXyTDAk1nLfXZHJG5
+         nLJqAWPgbB4UT9BlQw4iVRRyksCYUw5yEzc1Yt++17fQpQSpGRm4tT6TRIz2BdcqQTEh
+         Oglcyp7uFC+r0uhLy/BBCyf66JTDz8NDqKbMp/mrwai22wOaG6sLhO5+muwgB3DkrgyA
+         eBWQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780946551; x=1781551351; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780947208; x=1781552008; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=HfFyFV6ETGEpnodGj1s7d1TR6dCorRzI6YkH8cZsEJA=;
-        b=gPDQfeJtiFL2EcNF05yGBdHidwhq1P4CH8pyYnc2hjHIbEqYRLHj02Ap4g5Sye9Ltt
-         kqefLKSh/hX+wtPqBZzIFMLHnmyTs3zMvT6BDCAbnlya9aLB+SMKsZynA+0XBsmvVtdC
-         85qhEPOz/9FKMrIGc/13R5Ryy02/CZJd6PbkfMBudnq49J9fIf23ajyy+kqlTP7tPrBz
-         3I65LTx3v79CY4sOdqqX73mFX6/Him2z1MqJ3M7uRFNTCPgvj2lz67tSh00lYvpfAwtM
-         sDqoH2kuMfQJ6Mp0Q3VpXyPwokhV/oEUgfXXpmkIsHfduyuW52ZZEpam4D01/IVfcNfq
-         Qvug==
+        bh=Py+gnj4fmktXfuyX6KTgjBFZibtj31OyqIlIhn+sXxg=;
+        b=dyZIXj/yfCz6AZs+ok1BON/pSC2JudEPJp5IH0+rvc54FtjnJRBayVvBeHYPQgdAZ2
+         vSq1x4gg5FPdIP09+meW+674noS8mgWQ7O8c6SdqK9K4Ko/fEy4VlWptfpE9PPzRnBea
+         T/w6pqr71MkKId9RukLfvkgcRf3ah9M4+/5JDkH9xnlBhI0Cvk4svq7ooOopO9TcugAn
+         elGDEr1svmmEiITpkywc+CfOweKvv4jSws7MQZt7T50EAD33XaqTlIDkSMDPLtm1fx3P
+         QBUfja14qw2FIihAVubrEhQ+JAuLC5rUs0qoTOCm/4yJ0+CbNFUjm11ibHML5UCT2q5a
+         +S2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780946551; x=1781551351;
+        d=1e100.net; s=20251104; t=1780947208; x=1781552008;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=HfFyFV6ETGEpnodGj1s7d1TR6dCorRzI6YkH8cZsEJA=;
-        b=mJhfDcMBoT1pYp7iX9FcnVeI7O/LceHd0BOPqzbuKSF98OFOnE7eDq4rTrnSGMSBzI
-         n66bnEZcFs+MeTc0d0DHToN4nFWGcKlKXcQKG3AiSM/EZHjYwtVbWA7ttuCOmi90Vpbs
-         +tDZveEhqUcZ/bzaixsEDw/HrP2QvNw4c67PtFYbM9XzR5jePaQvCMWlJAiPVGUibZ+R
-         gzaTGnShHpicDcrEp99Ui+6QwbH40e/DiBLSPAtTP6JEYfNfV7gaFvXmvNlreiBTZHyl
-         NqQzvR1EnV/SFIVWE2lmWpe1/bRr4hEL7NPXNT8mO+/8B+2yGDl19aakbUscaYnhf28F
-         YTGQ==
-X-Gm-Message-State: AOJu0YxuxKdbDErJszm5hvX7PJ2zIrbW4tRa+LeI2Np+miOtkY1hb5Gw
-	z5RdSPoDVNcDHoXRPRjqfKp8yNwFV1QGYa7UZaYb/f0Gri3gIbKVDKsnvvZjMKmToo6E9nLejp/
-	RTPH8jZ2NVNzI/l/tAwWtfo1BM1hiW+0=
-X-Gm-Gg: Acq92OF90KnVU2oQggRSrEqUYp61+BY8RMqw6D7iQmo6VyAsfgCkFfw2uDsKXDuUdRB
-	NsZthgWofJrY9/7KuqAif4tnWbfuNyZH53JPaWY91OdyvPPLsgsTf4V0bLKgSnMwZhTOLGuCSBN
-	0hJ43Vwkc1GXVhFByEuWb7eVNGz8mSQwfmCfMDQTIC+ebPqOiRjCMvKq6DfEP+q5kpBmtMqotV3
-	N+qEjEuvi/r6jPKFkG4nocU6lUc4G2LX3QX41dXbTlJu0k7DVxdBLwgSybK43cLFbCegylMdDxf
-	VmdLdJJUshxOPZhgkot3uV7jBQ==
-X-Received: by 2002:a05:651c:30ee:b0:395:2467:9e74 with SMTP id
- 38308e7fff4ca-396d0840298mr33676731fa.14.1780946550947; Mon, 08 Jun 2026
- 12:22:30 -0700 (PDT)
+        bh=Py+gnj4fmktXfuyX6KTgjBFZibtj31OyqIlIhn+sXxg=;
+        b=fyfvjavUn0337NCjBks5RL7uJu3gCHONYnTE+9c+F0OgJdiB/rFuNBunNtyZcEtI0D
+         sl2QBmWSTA/Z41Cz98TOXJscMk4T+FqCVY6xDjT39BVsq7Tpsd9FjGt9Kf3ZizdRbhYp
+         gCpopNvMFNMnVCTL32h+7j29vIlaYwFQgpWg20w/OU9GR/K+5VComh2lYKdFf8MEQWMg
+         fLhjgLajT5NAN71QsTSn8k2ZZvNpfCnoxhQjGPCnwADb8hSpBuGhByom6+uWStJNQGLA
+         R3+YFzh3mdOJPbcDCcyyGT4i6+Mxllx0oBTlVaC0JF1WQfZ3gmFw8wS2jrLmC5KtFCGQ
+         wQuA==
+X-Gm-Message-State: AOJu0YzUI2oW6fcWafiRh0E78THKwVakKurbTC4XcazkvhY7M8dzaTiF
+	WUoQBzJSmARx2VIj/TySChuGr1YmnSZmJTs/zXi5eJzQnyR+kfTD1bjiOsxoo4eW220g/7AwDgR
+	LdMkICcoPoXylsc9qT9E1t3xcilG516A=
+X-Gm-Gg: Acq92OFubTJf05MilF591eCYubVE/ORNYI5tl2I+dNpBww+DbhuCxbbUdpP/JJ4kfIP
+	TxMvTXqifwChOxNLiYzyEPXIDt4YhoVs/Tc9GU0JughUvTY0niZepJbqeeMEAh0sa00BZwgxlqU
+	qfWZKqJfGpshUzRr5K0/upeJt695vrHriBGvr42SHlViNokGAgn5iPaCs4QP5SYPjAJwMKq2ArL
+	ju2hMZyBehnTpHbHIfiSPj2I4hji8bjEb+9GIFCwzbP38Zz89CqPOW5t9q7s6OuIs6wnva8MYX4
+	TOzWsxqMxLjucS4=
+X-Received: by 2002:a05:6512:1595:b0:5a3:cc81:eff3 with SMTP id
+ 2adb3069b0e04-5aa87b86f5amr4284091e87.26.1780947207905; Mon, 08 Jun 2026
+ 12:33:27 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260605184558.280873-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260605184558.280873-1-stephen.smalley.work@gmail.com>
+References: <20260608174923.315337-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260608174923.315337-1-stephen.smalley.work@gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Mon, 8 Jun 2026 15:22:19 -0400
-X-Gm-Features: AVVi8CcmZN0FkNqy1fj-B5U4UbCA2XNPP751Ib8z2A_O0IW1WD5dCb7jDl344kw
-Message-ID: <CAP+JOzQ6ywdzxBzc=P+JLoY+sXjM-r5LucQ1WjRZDKvAYbXwDQ@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: Do not clobber errno of the world
+Date: Mon, 8 Jun 2026 15:33:16 -0400
+X-Gm-Features: AVVi8Cd6O7IiJgaL0SCCn0lKP-PnWxkP3eo3lKVMZUBzjirwKUeZpQAPuEzsBeI
+Message-ID: <CAP+JOzTi899ud8mQ3gMELM6EE-dAZNqfCTofP+Z9A3nsRZ4XKw@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: label_file: prevent num_specs overflow
 To: Stephen Smalley <stephen.smalley.work@gmail.com>
 Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
-	paul@paul-moore.com, perfinion@gentoo.org, 
-	=?UTF-8?Q?Cristian_Rodr=C3=ADguez?= <cristian@rodriguez.im>
+	paul@paul-moore.com, perfinion@gentoo.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 5, 2026 at 2:46=E2=80=AFPM Stephen Smalley
+On Mon, Jun 8, 2026 at 1:49=E2=80=AFPM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> From: Cristian Rodr=C3=ADguez <cristian@rodriguez.im>
+> num_specs is read from the mmap'd binary file contexts file
+> and added to data->num_specs without checking for integer
+> overflow. Add such a check.
 >
-> libselinux clobbers errno of all consumers (systemd, sshd you name it)
-> because its constructors do not properly save and restore errno.
-> The following program demonstrates it.
->
-> int main(void)
-> {
->         assert(errno =3D=3D 0);
->         /* Just a test, it doesn't matter already clobbered */
->         if(is_selinux_enabled() < 0) {
->                 perror("not enabled");
->                 return 1;
->         }
-> }
->
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-I don't see that this demonstrates errno being clobbered. errno starts
-as 0 and finishes as 0.
+Acked-by: James Carter <jwcart2@gmail.com>
 
-> if any function sets errno, it is not switched back to the original
-> value and standards DO NOT require errno to the set to zero before
-> entering main
->
-> Fixes: https://github.com/SELinuxProject/selinux/pull/445
-> Signed-off-by: Cristian Rodr=C3=ADguez <cristian@rodriguez.im>
 > ---
->  libselinux/src/init.c             | 1 +
->  libselinux/src/selinux_internal.h | 9 +++++++++
->  2 files changed, 10 insertions(+)
+>  libselinux/src/label_file.c | 3 +++
+>  1 file changed, 3 insertions(+)
 >
-> diff --git a/libselinux/src/init.c b/libselinux/src/init.c
-> index 499e4e44..abed3088 100644
-> --- a/libselinux/src/init.c
-> +++ b/libselinux/src/init.c
-> @@ -145,6 +145,7 @@ void set_selinuxmnt(const char *mnt)
->  static void init_lib(void) __attribute__((constructor));
->  static void init_lib(void)
->  {
-> +       SELINUX_PROTECT_ERRNO;
->         selinux_page_size =3D sysconf(_SC_PAGE_SIZE);
->         init_selinuxmnt();
->  #ifndef ANDROID
-> diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_i=
-nternal.h
-> index 6089463d..ff191c76 100644
-> --- a/libselinux/src/selinux_internal.h
-> +++ b/libselinux/src/selinux_internal.h
-> @@ -147,4 +147,13 @@ static inline void fclose_errno_safe(FILE *stream)
+> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+> index ac0a3ab0..0c0499eb 100644
+> --- a/libselinux/src/label_file.c
+> +++ b/libselinux/src/label_file.c
+> @@ -1042,6 +1042,9 @@ end_arch_check:
+>                 goto err;
+>         num_specs =3D be64toh(data_u64);
 >
->  #define spaceship_cmp(a, b) (((a) > (b)) - ((a) < (b)))
->
-> +static inline void selinux_reset_errno(int *saved_errno) {
-> +        if (*saved_errno < 0)
-> +                return;
+> +       if (__builtin_add_overflow(data->num_specs, num_specs, &data_u64)=
+)
+> +               goto err;
 > +
-
-I don't understand this check. errno should never be < 0, the
-saved_errno should never be < 0 either.
-Jim
-
-> +        errno =3D *saved_errno;
-> +}
-> +
-> +#define SELINUX_PROTECT_ERRNO __attribute__((__cleanup__(selinux_reset_e=
-rrno))) \
-> +                         __attribute__((__unused__)) int __selinux_saved=
-_errno =3D errno
->  #endif /* SELINUX_INTERNAL_H_ */
+>         rc =3D load_mmap_ctxarray(mmap_area, path, &ctx_array, rec->valid=
+ating);
+>         if (rc)
+>                 goto err;
 > --
 > 2.54.0
 >
