@@ -1,145 +1,171 @@
-Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com [209.85.167.43])
+Received: from mail-lj1-f177.google.com (mail-lj1-f177.google.com [209.85.208.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63A9435B62C
-	for <selinux@vger.kernel.org>; Mon,  8 Jun 2026 19:17:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 010C238238D
+	for <selinux@vger.kernel.org>; Mon,  8 Jun 2026 19:22:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.177
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780946244; cv=pass; b=msGjfdRaGVUCk1hKP79PVbl4QG0zUy1rxWEr6F4ppwePQbRlaPQg7JLbkZpj+Qf2xgnXNFkcH1G/ovXa/QoKaC++N5VKekTvfe2sKVGT6kqLLg78rVo8XQkpJq/q8JJm0HSlBjIg33+NpO0jnfaZgghwlx40zNxfDreVQNDdoXs=
+	t=1780946554; cv=pass; b=X4krxsiuCBWqVM2CvZjK3cdSPbBjHzNO+iBHecdG4pmFTK/c2JElj49TuW7hbddlwpzYSd2A4ZcNj+kRr8JQl+Kdd6DbzA3FzI8zKRmJ2o7iEFxjw+OJCqjmfR1HNkOZpqF+PK2dZrmXxjD0NHoy96XE8gapgmYpE6ehTDb99oY=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780946244; c=relaxed/simple;
-	bh=ZafIBNBWSXnjR6rN6dMu5Lfi4zhx4SW/uKdxVwGKVVI=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=hUY8+AyX3Z4F6Mr3LtRROdWbgQdKnSATKzFL+8ljKrq+A9qBn2obCuQaLonpGc8u+AQEAVi0QY8DGUpkIKBhnqdVfVS4kY9rq7joKvQgILTYsbMO0KGaDxUEzj+qNHKHcsW1tB8V24h2V7pHHkWqRlRJbZg/aIjVvBv1ib6+CQU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XDnrE689; arc=pass smtp.client-ip=209.85.167.43
+	s=arc-20240116; t=1780946554; c=relaxed/simple;
+	bh=Xl8DQYS+PoYtsc7QTNmQScbBVRKcZkQdU31ig321prk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=JClNwQLueAxEEwMUhoAGhxIz7IUT/AoGIpIBfJQ83LJOVJRlo4p1uWKoYCNjRmizxZsBvrdZXUTMg2HpWZCLP1JqyKhzLNUwCkohwlxH+cYP8Z+/hlBkzfYU9YzcHNV8OfpOwX7GM8lvsOcvyJQqsIUw4Js5Tn/mEWWnAas73cU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gPDQfeJt; arc=pass smtp.client-ip=209.85.208.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XDnrE689"
-Received: by mail-lf1-f43.google.com with SMTP id 2adb3069b0e04-5aa68dbd44fso4763140e87.2
-        for <selinux@vger.kernel.org>; Mon, 08 Jun 2026 12:17:23 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780946242; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gPDQfeJt"
+Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-39676d82b7fso46887261fa.0
+        for <selinux@vger.kernel.org>; Mon, 08 Jun 2026 12:22:32 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780946551; cv=none;
         d=google.com; s=arc-20240605;
-        b=Nwuxtzc2O14Y9ICDNg9Sno3KYmHicsdtaSKPyw4uZplRmQirbz6Hm7svyM6wCMFdix
-         mOL7KN3kyjy75IN9oNeMRUHk+7jXZexqGmuJpGzAO5mL7shjhg/nykEr4ZXwINHl+U4/
-         yNrfSjaIYo8km3CdboANL3FPh+80c+WijE5h+2/S+qtHlx8AWH44157n2ixK9s2P37Sl
-         y70sYZNPJKqznqa3eZ4JSZBJ629e4grt21svKvIYCQQ7ftUq/Mno4CSZTgZQykBNGtOx
-         dE1SJjuY/XP680OllHmPJrOkRbCgKdV6ngO2DdZyLOwkvC29QlkgRpntEbV0x5eAv6Rv
-         ivbA==
+        b=Gpw0DfgeYAU7P0FutSLMZj5lAtIgT/+JI1612xOOskJDu5fWoDdyTFdDFQl1qerW8L
+         qBKy+cl4+RKp/ZlS4wXdmeoM2gW/Mb3Y4Q9XMglNaNgp8VqQbxx8r+x0BB1qmPThTkzb
+         n363/2eE5cEym2gcgkul/gUpnuJUlRdjZjNV+cC9XGkVqGE+C5YDEaBmhBFAOGxl5Oie
+         qlVIUFAiKrj5dlQdEnt5OJvL8xRVkrG/OwHCTiXx+37e7zbFnvtq7yiIHoKB5j+6OysP
+         UlY+8AO25iInXXCNnvul3/QsPapy9AVGxxeDJu0meqeJWc9sHS1ou/J/Fw4fYWh+BgUf
+         vZbA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=to:subject:message-id:date:from:mime-version:dkim-signature;
-        bh=ZafIBNBWSXnjR6rN6dMu5Lfi4zhx4SW/uKdxVwGKVVI=;
-        fh=l2l+BKIhep14i9a5yxIzwDvgNRHYkyJlbYDDp8LiW6o=;
-        b=dEXL6hmBcAAZncmM7HxrIFx01qJSqysRyseOSPt/KvfGS1uXzwfMtbd9PsCCGBMKsT
-         p9lHyPpRdf6msy+5oZFGmv5tEW9VjjYtpsF6M2XxeDhkoh73oyv8gN99xbUchq252RRe
-         SzGbmKCGlk/JSDfX81udTw+ymqH2ByLrC9uVTYd18E6DCvB/Klj7uBYjJMCKLYgFKyz0
-         Suq/sGoqT3U3jk68xtjAXF3fUvl0bOhO7mQCtAhSsi5bK6GINjHazQ+CmCmQ3cCRHx/8
-         OX3DI2Q17LndGcy+2nEq61spW+q+kyOe7AEOZ3K4SUT5X8x+++lGroDiwiXVL/RFRi30
-         F+oA==;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=HfFyFV6ETGEpnodGj1s7d1TR6dCorRzI6YkH8cZsEJA=;
+        fh=sUqzqvPqLid9m5DJEHzU4XEAbh8jKuYePz/M4VIf3v0=;
+        b=COL+7VzXkTxegKxzwPjFLypNB0FEj3243ixUSwwka4OHShkMrn6mMH/bRTmYQ2YiSP
+         OOBOG1ZjzrXZylIea/X34J0yPRGSWhqNYG0qmx+90fVTCK5tbAvZa0LUdXm+3yEjNeBP
+         LgFhLW96lNL5hjXfzlCOY3f28IRYyNF99T1ihmdtbS1+gB9jJUvGU4gRlFUs/Be/0fkN
+         sjKWoZv1L72T4kzz9Xq+qp2XWqobxl4+QWedUpF9L5FZa+Ym1XsjGffIcGMp5IyOCKlb
+         xDCeaYVs0/QApozk/baauPW1XBg2pD6ApHyP/+qrb3LwiKJKriTfbhMkzQ97owB1XfjX
+         NtlQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780946242; x=1781551042; darn=vger.kernel.org;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=ZafIBNBWSXnjR6rN6dMu5Lfi4zhx4SW/uKdxVwGKVVI=;
-        b=XDnrE689Km3QrL+CW71usMa+GFElL1KUkfwWukMuF8olRVCas9oT4wRwvLect3A7fg
-         +sNjosMSoCAocC8SxvawrSRDvBvv0hyOeQ8u/oVTT9Jup+dADV3IYItr7hk/S7/uFTPg
-         citI4fJmswQONR34hOjsEYGpxNQC0dH9xWDYCCu01PbNhhkeJ2Ya60RbqFxBvRhDbPeA
-         9d1c4NoVgs46m3plBSCGuvIJWKZFxe47J9xZdh5ecqGYfQStiAX4P5QPqor0YZwZ4LAg
-         xNfZlo4PSdVr50eNZZfuVbTfpjXkXa24uztui4XK2InmSxYLqt/OyiW2epI8MWUIhE6o
-         cazw==
+        d=gmail.com; s=20251104; t=1780946551; x=1781551351; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=HfFyFV6ETGEpnodGj1s7d1TR6dCorRzI6YkH8cZsEJA=;
+        b=gPDQfeJtiFL2EcNF05yGBdHidwhq1P4CH8pyYnc2hjHIbEqYRLHj02Ap4g5Sye9Ltt
+         kqefLKSh/hX+wtPqBZzIFMLHnmyTs3zMvT6BDCAbnlya9aLB+SMKsZynA+0XBsmvVtdC
+         85qhEPOz/9FKMrIGc/13R5Ryy02/CZJd6PbkfMBudnq49J9fIf23ajyy+kqlTP7tPrBz
+         3I65LTx3v79CY4sOdqqX73mFX6/Him2z1MqJ3M7uRFNTCPgvj2lz67tSh00lYvpfAwtM
+         sDqoH2kuMfQJ6Mp0Q3VpXyPwokhV/oEUgfXXpmkIsHfduyuW52ZZEpam4D01/IVfcNfq
+         Qvug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780946242; x=1781551042;
-        h=to:subject:message-id:date:from:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ZafIBNBWSXnjR6rN6dMu5Lfi4zhx4SW/uKdxVwGKVVI=;
-        b=DUV/JCdGjcJAGlZ3laL6Hm7Ple2d2o1X8PBvcenwSkGdObmxwGD0C2kV7w+noLNGhW
-         buFmAX/O+PMfryqY8fKa/UE4yAHqjOtkrLxYh87hvc9P+85Mx1JLleWyosbGdhxy2R1F
-         iPBSRKgF3rgYXr0sXSHkIFjhLQBj/9CLgy4AAPqcKehJkMw2sOEGxlbj607Qa6W8R2DW
-         cHlMob6IS7nOtePS2ZKw4RYlw5Z4H5l2Qgibr6KgR6RfeMSLhJUZIksrQMshoCgZKneG
-         H3/flYGbd2FT9io2FH538UWG8yMYa0/J7VXIThSuFnS1shJC2WnNzVBlc4Kf1qiodR+O
-         HzzA==
-X-Gm-Message-State: AOJu0YweCb/j9tI+OX7I3tc6aUruJ6d6ELPMQgHoOvTfJPug+uGogV1c
-	Dt2tF4ZT3kVk1RfiAw3N+NnpdpLuMVgKU08tGWY9iTM8QzjV2cwkEiFzLc8K3u439VqHZ0mgW6n
-	isC9sDlNuKvtYvdggifpk7zJdfyboz/wHnqSu
-X-Gm-Gg: Acq92OHlB4dBMCvUsWSPfykWCgPVxoyIfYhRmx2jA8lVoBs+DCQ4OD6cJ3WLv2mUSNe
-	fMuuZBJf7pI4uk+PiOO5J1sc0PbGuBg2S33XWPGe4yi08w+Z/JygrRSrCgH0JpMngzTjwl6yU5A
-	ZwvB1G5LD9z9xG3853HXPKzUDoKY65O7o8ITaV0Jhj02+qaI1NJmlM9hdUtOKLyuD/5D/4LVMRb
-	Hsip05skzZAqN9k2DBPNNvxNSPZigIQXkLcEYHKO9emyeMP8VRxXOgVWn0cr+VKzZh6L0zKMVGX
-	189hRpCNBPNCikxUJv/6U74a/Q9g
-X-Received: by 2002:a05:6512:1194:b0:5aa:6f93:de67 with SMTP id
- 2adb3069b0e04-5aa87b40191mr4979378e87.9.1780946241433; Mon, 08 Jun 2026
- 12:17:21 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1780946551; x=1781551351;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=HfFyFV6ETGEpnodGj1s7d1TR6dCorRzI6YkH8cZsEJA=;
+        b=mJhfDcMBoT1pYp7iX9FcnVeI7O/LceHd0BOPqzbuKSF98OFOnE7eDq4rTrnSGMSBzI
+         n66bnEZcFs+MeTc0d0DHToN4nFWGcKlKXcQKG3AiSM/EZHjYwtVbWA7ttuCOmi90Vpbs
+         +tDZveEhqUcZ/bzaixsEDw/HrP2QvNw4c67PtFYbM9XzR5jePaQvCMWlJAiPVGUibZ+R
+         gzaTGnShHpicDcrEp99Ui+6QwbH40e/DiBLSPAtTP6JEYfNfV7gaFvXmvNlreiBTZHyl
+         NqQzvR1EnV/SFIVWE2lmWpe1/bRr4hEL7NPXNT8mO+/8B+2yGDl19aakbUscaYnhf28F
+         YTGQ==
+X-Gm-Message-State: AOJu0YxuxKdbDErJszm5hvX7PJ2zIrbW4tRa+LeI2Np+miOtkY1hb5Gw
+	z5RdSPoDVNcDHoXRPRjqfKp8yNwFV1QGYa7UZaYb/f0Gri3gIbKVDKsnvvZjMKmToo6E9nLejp/
+	RTPH8jZ2NVNzI/l/tAwWtfo1BM1hiW+0=
+X-Gm-Gg: Acq92OF90KnVU2oQggRSrEqUYp61+BY8RMqw6D7iQmo6VyAsfgCkFfw2uDsKXDuUdRB
+	NsZthgWofJrY9/7KuqAif4tnWbfuNyZH53JPaWY91OdyvPPLsgsTf4V0bLKgSnMwZhTOLGuCSBN
+	0hJ43Vwkc1GXVhFByEuWb7eVNGz8mSQwfmCfMDQTIC+ebPqOiRjCMvKq6DfEP+q5kpBmtMqotV3
+	N+qEjEuvi/r6jPKFkG4nocU6lUc4G2LX3QX41dXbTlJu0k7DVxdBLwgSybK43cLFbCegylMdDxf
+	VmdLdJJUshxOPZhgkot3uV7jBQ==
+X-Received: by 2002:a05:651c:30ee:b0:395:2467:9e74 with SMTP id
+ 38308e7fff4ca-396d0840298mr33676731fa.14.1780946550947; Mon, 08 Jun 2026
+ 12:22:30 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: muneendra kumar <muneendra737@gmail.com>
-Date: Tue, 9 Jun 2026 00:45:52 +0530
-X-Gm-Features: AVVi8CcXR5qy1zM789Thot5IpYtM5KCTNqIZyH8ZTm5rZN3PiP9H8lwFoDkO-ac
-Message-ID: <CAAhcyzmaCLaRmK2anDfThnhy3M_EFRgpk7Aajd+uctvYr27WZg@mail.gmail.com>
-Subject: [REGRESSION] LSM/VFS: startup latency spike during rapid library
- lookups (ENOENT) on x86_64 between 6.6 and 6.18
-To: selinux@vger.kernel.org
+References: <20260605184558.280873-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260605184558.280873-1-stephen.smalley.work@gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Mon, 8 Jun 2026 15:22:19 -0400
+X-Gm-Features: AVVi8CcmZN0FkNqy1fj-B5U4UbCA2XNPP751Ib8z2A_O0IW1WD5dCb7jDl344kw
+Message-ID: <CAP+JOzQ6ywdzxBzc=P+JLoY+sXjM-r5LucQ1WjRZDKvAYbXwDQ@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: Do not clobber errno of the world
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
+	paul@paul-moore.com, perfinion@gentoo.org, 
+	=?UTF-8?Q?Cristian_Rodr=C3=ADguez?= <cristian@rodriguez.im>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hello,
+On Fri, Jun 5, 2026 at 2:46=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> From: Cristian Rodr=C3=ADguez <cristian@rodriguez.im>
+>
+> libselinux clobbers errno of all consumers (systemd, sshd you name it)
+> because its constructors do not properly save and restore errno.
+> The following program demonstrates it.
+>
+> int main(void)
+> {
+>         assert(errno =3D=3D 0);
+>         /* Just a test, it doesn't matter already clobbered */
+>         if(is_selinux_enabled() < 0) {
+>                 perror("not enabled");
+>                 return 1;
+>         }
+> }
+>
 
-We are observing a reproducible 3x performance degradation during the
-initial dynamic loading phase of a userspace background daemon when
-transitioning from kernel 6.6 to 6.18.
+I don't see that this demonstrates errno being clobbered. errno starts
+as 0 and finishes as 0.
 
-The degradation appears to scale linearly with the density of path
-resolution failures (ENOENT) encountered by the dynamic linker (ld.so)
-during its library search fallback loops.
+> if any function sets errno, it is not switched back to the original
+> value and standards DO NOT require errno to the set to zero before
+> entering main
+>
+> Fixes: https://github.com/SELinuxProject/selinux/pull/445
+> Signed-off-by: Cristian Rodr=C3=ADguez <cristian@rodriguez.im>
+> ---
+>  libselinux/src/init.c             | 1 +
+>  libselinux/src/selinux_internal.h | 9 +++++++++
+>  2 files changed, 10 insertions(+)
+>
+> diff --git a/libselinux/src/init.c b/libselinux/src/init.c
+> index 499e4e44..abed3088 100644
+> --- a/libselinux/src/init.c
+> +++ b/libselinux/src/init.c
+> @@ -145,6 +145,7 @@ void set_selinuxmnt(const char *mnt)
+>  static void init_lib(void) __attribute__((constructor));
+>  static void init_lib(void)
+>  {
+> +       SELINUX_PROTECT_ERRNO;
+>         selinux_page_size =3D sysconf(_SC_PAGE_SIZE);
+>         init_selinuxmnt();
+>  #ifndef ANDROID
+> diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_i=
+nternal.h
+> index 6089463d..ff191c76 100644
+> --- a/libselinux/src/selinux_internal.h
+> +++ b/libselinux/src/selinux_internal.h
+> @@ -147,4 +147,13 @@ static inline void fclose_errno_safe(FILE *stream)
+>
+>  #define spaceship_cmp(a, b) (((a) > (b)) - ((a) < (b)))
+>
+> +static inline void selinux_reset_errno(int *saved_errno) {
+> +        if (*saved_errno < 0)
+> +                return;
+> +
 
-Isolation Diagnostics & Matrix
+I don't understand this check. errno should never be < 0, the
+saved_errno should never be < 0 either.
+Jim
 
-To narrow down the root cause, we isolated several configurations:
-
-- Hardware Profile: The issue is highly reproducible on x86_64.
-- Kernel Parameter Isolation: Passing the boot argument lsm=none via
-GRUB restores performance to the 6.6 kernel baseline.
-- Active Stack Configuration: The regression occurs when all four
-modules are active and enforcing:
-lsm=capability,lockdown,selinux,bpfaudit. Removing modules reduces the
-overhead linearly.
-
-Suspected Root Cause
-
-We suspect this latency amplification is an unintended side effect of
-commit 417c5643cd67 ("lsm: replace indirect LSM hook calls with static
-calls").
-
-When an application triggers dense path failures, the VFS transitions
-from lockless RCU path walking to a heavy Ref-walk to construct
-negative dentry states. Since the daemon possesses valid DAC
-permissions, every LSM module in the stack returns 0 (Allowed).
-Consequently, the kernel must sequentially execute the entire
-__static_call chain for every missing path component. On x86_64,
-cascading through a four-module chain during high-frequency ENOENT
-lookups appears to thrash out-of-line memory trampolines, compounding
-latency.
-
-Production Constraints
-
-Our deployment environment mandates that all four security hooks
-remain active and enforcing. Workarounds such as structural stack
-pruning or dynamic path caching cannot be guaranteed across all client
-nodes.
-
-Inquiry
-
-- Has anyone else observed similar hot-path performance degradation on
-heavy ENOENT cascades since the static call overhaul?
-- Are there existing or upcoming patches aimed at optimizing
-full-stack traversal loops when navigating negative dentry structures?
-
-Any insights or recommendations on minimizing this structural stacking
-tax within the kernel layer would be greatly appreciated.
-
-Best regards,
-
-Muneendra Kumar M
+> +        errno =3D *saved_errno;
+> +}
+> +
+> +#define SELINUX_PROTECT_ERRNO __attribute__((__cleanup__(selinux_reset_e=
+rrno))) \
+> +                         __attribute__((__unused__)) int __selinux_saved=
+_errno =3D errno
+>  #endif /* SELINUX_INTERNAL_H_ */
+> --
+> 2.54.0
+>
