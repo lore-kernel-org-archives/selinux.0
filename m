@@ -1,130 +1,151 @@
-Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
+Received: from mail-lj1-f182.google.com (mail-lj1-f182.google.com [209.85.208.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8356738A701
-	for <selinux@vger.kernel.org>; Mon,  8 Jun 2026 19:38:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55390387363
+	for <selinux@vger.kernel.org>; Mon,  8 Jun 2026 19:43:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.182
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780947507; cv=pass; b=XX2fo0uFyBxsXDJ6ebVuXNLZVid4t+b/vP8F7nIfsr3F+HLyye51BEVmIGZ1svf3ssOFKHJ3gZHEhYRPNanQcXK8p03p/N3D1epzMaJ9c1O9KmzfBaCBMVH4pOxeaF0eYVNj9plhxKDXm3q2X1L4jjtzjuW1zK2wvz0pz7anZRM=
+	t=1780947804; cv=pass; b=nk/0fXhGgxolVskBLY3QvWrAgMDuJMxxczK3lHogl+jyJlFmyVEueF1F4YSGWsiQ+X1VA9iVvjC4IoaKpw6arreULAh0PGE3fRBMAhrVbjYQvEIEFhxwgm7ri2W0lm9Q1pP9ljmJgX3O5dfiA1aFnuenV57wEvfy47TrVBT2s14=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780947507; c=relaxed/simple;
-	bh=xviQiji1fAKn3kX5uQJRamGOo/5d+WIUj5cuhQ1egXU=;
+	s=arc-20240116; t=1780947804; c=relaxed/simple;
+	bh=+kxl12sAFiiBsQZ0XSP7HrvaQHj4JKdelwDmv48i94M=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=fw+HtW4ZZoAJztruqF07+VZ1HEC1s+WRPwCG1GJUCC1q37vIipgPjTBPpOlCSEtSj4glpAhdqGJj41NvXYO0QT/8GLxOKen3WIBrTfR2fFznCq7R72qZcsztl9J69F3QGYNe2EXR0yx8z0cqBDQe50XDo2PaZmQ11Q9QlftdkSA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=aNUausuN; arc=pass smtp.client-ip=209.85.215.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=KZysONYmzKTqXKJABnMmCykUOcxPXY+q3d5cdU6uIXiRVrWDHtvZuW9/HwVw5KqTTmz1cJ9NGl4l5SvZFY5unP26M4XtXobfbFZW0JlKIMG/fjtXKotQVWaXQtSCX9KYqtwQnQ+TF9iKR+anyEvqRqht7kbnphryt7JX/dkW/sc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JTCGeLFe; arc=pass smtp.client-ip=209.85.208.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="aNUausuN"
-Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-c85a2c012e5so1630159a12.1
-        for <selinux@vger.kernel.org>; Mon, 08 Jun 2026 12:38:26 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780947506; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JTCGeLFe"
+Received: by mail-lj1-f182.google.com with SMTP id 38308e7fff4ca-396779b9a7fso39782781fa.3
+        for <selinux@vger.kernel.org>; Mon, 08 Jun 2026 12:43:23 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780947801; cv=none;
         d=google.com; s=arc-20240605;
-        b=QHK1Azu8/ii6i5Uv3KLABL7iycWxxD2Jxw/radh4K7IQIqSuIUrHyKKWkIXlyw+E/D
-         iHGD6dKMDmVy96ZuBlRf042u7E3yusyCVodQc776FDSLcRum+KUY3udjCOfc5xgY4Ai4
-         ao/TcZ1FsUkv8diVppYGK/hxi9VJBwdVMWWexW4QuMoOflUEAIFI2W+XsH8HHDDPwDz2
-         Ev3V+umrXmonmn3rewKk3tU2eTMFOMkKkYBEhnRtjp4TdRoZk0hLyXGQDsIRspUVH9/8
-         3et9rSK934H7AOqqisvBo8VTAhMOXWChNB0s3o4WwyUtVjgKzYoyE0PExLRtN63J21/2
-         2woQ==
+        b=UIhOZ+YHCWMAsVYshJF0qwJwYUoHgn3+m85jHIQc8hbO11//58yPXImTGSzLRL21Np
+         O6pqFx+G4fIYxS79lW9U1ZlUjzXQUQaskUDcxVHI9TBJmiAzXru+vLga14mK90NWKITr
+         HV6B+8JCUz5r9o+kYASpCKzXIOmijJKvN5uNTESVEP2ciR2efY/C0BrOaZelziQqQ23I
+         R7V7O3l+NxMm1a+xqAyMC3vn433H6Qik9vjF8VjgyLIhzpKAxhmq8ybxTCu3Ek7a4gd/
+         lFhOWF28GMBXwDyVQPcx2M7lv/wu+cvQ7BliFHnRt1DYLG2VvUXarCPdHo++msK8zyKr
+         XbNw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=+PwZ0JnnT/urycfNFDbYObcGPFt+DtOSrofkL6ymq/M=;
-        fh=szNbHvrZ9tgD7IbBK4eiQiwR6NVxN0is2sKK6qohdqk=;
-        b=U7CufUpD51UjDCi4Vz2Mm9tSV46stiTzCbg34SXxEUqkgoaQPl5Umm9IlIT+XQW1RN
-         K5IjW72XfkkvvvdsdrQuaJTvmZ4QsnU1zjKjlzl+sgMkpcm7dAhQIWRxlJHL7Ok9j/mT
-         ITcdiWeBYrPfSW9q/1hvWdTSKsO+joK1gS383e65G77P3ynceEPwcABs1Qy002yBCZZM
-         Bev2Iy8GAaBfixowl5zC9byTXNEP21vW22ya7WGR0s3GbaWi4RW3VHsprEXM8HNDNJxg
-         NZSI1G79GSt3zALDhqbrx0Tc2Oopvk2ijFdEBnybWRl3gUg8TWNxf/MpBUwqNCS2N7Vu
-         WKuQ==;
+        bh=FvEBFGlaFJpPEGXdB9EWYj74twctEUhvoin7xU3WOXA=;
+        fh=biLNIbUdiVI+HWgqVoISrU2pQus1fZiQi7u7sC8l6as=;
+        b=cLOThuWmL/glGBOwPR9892cLFSlr8gi3kaVXA600vr6cM2YvU+vc/Jjd35dmVKq2sZ
+         NoNXOFTnllsIvhEWJ7/j13uG1uwvS8bQ9s85wOCihUN8EEpTQefBUaXizOrTYkn8J86f
+         jyNRw921GdApbIKDldprBNSYj79BKbDGi4M8EH0HHS39+txVvrUmxmGdYX2tkL444v9c
+         5r10+3Q6CXUKzLHEcIMhkf62vdy4HpFMvkCvGzZDoUEYRNahDCzaPHqhCLIQqeDLn5mr
+         ezVMnE0zfBmjbvGWHwEnGkb5CI3keKWSbHpwwKJBslEfnAB+NoEoKmh1QAc+dBGPD7lJ
+         LCGQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1780947506; x=1781552306; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780947801; x=1781552601; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=+PwZ0JnnT/urycfNFDbYObcGPFt+DtOSrofkL6ymq/M=;
-        b=aNUausuNhxXaXdsAs0x42lj0YVsCYWUF+FGhbV557g/gqluZY2BJTV8F0MciNFs+mC
-         PZSl7a+PcHXohhXsFb/IKMdNvTW/mnJO9iwcNu4KuNc7TmgDyrc+YITQ9hPAnO3xm4yC
-         7gLtFd5lVfIx6op+b5MrsX/LUG/Zxl/2+OEO9RhpYBWERikpX34b4eQus7c7nOCpjb0q
-         guJqh0lw5f/cqcxNufn4XzexQbFH8SccPjjFwZK8XsvxHp7Wh1pD8nIibWUCRrjv0NTP
-         dyjQNqGkBIXWY0xSptXmo4z+0kRnJXD9K5M1QEPCV6LYbBMaOomk3Vj00M98Tykgs2hR
-         jlHQ==
+        bh=FvEBFGlaFJpPEGXdB9EWYj74twctEUhvoin7xU3WOXA=;
+        b=JTCGeLFe6asrj7Z1ZD31K8vqYzRCDl1DJnSwuZjn3hN3zaN8Zb8LIO18gABiiVhsok
+         dDT8+nRNwrpoPAodUKcZY8GD85SOrhjjVY8T9Mhe+SCoai9wW8hiUXDA9kyM4FsUTSXz
+         K0ZLVbKVyImJvFk/cxatgBe6MAHTvgq3mYHxxSsFETVnQ3W0pXSLTuUXQUnSnacFlNAz
+         6LFNcg57SA2tjmLExRYS1pfOKfqtJLUGpeqO1CIq5UdxorOVSUUzuT4UAsZq4ljuHDiD
+         naXDlgpwcFIe17APSaQZ4qHFbocE7LPhBZPR0uIhYj4Re4PYDJeYzESLxqlCc2uwQSCk
+         qSKA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780947506; x=1781552306;
+        d=1e100.net; s=20251104; t=1780947801; x=1781552601;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=+PwZ0JnnT/urycfNFDbYObcGPFt+DtOSrofkL6ymq/M=;
-        b=OA2L306tqF/ww0Wbz1m7KwydLvAWmrq5Ud8iRrsHgxTtwRWZlGpYKu3sMP3A6bldSR
-         BvFaYGWw18m5T7ih1Rqz7OJhpWDZrwvU69pKHgJxb0OsU5G98t1y/zrrqh0vocj8TAs8
-         GYqNq3KEMWzXb4145DUQ98B10YLyqnROnEYmKCFK03R6pcTqajxxniUZMaCtJeq6uhyY
-         hOd7ufCG0gJNVHPoHCDPfWZQzCts/ZdDhSkVjur1+GQHv96zu4aXy0NyMNexLX9gzgYv
-         CgPkB99InP3TU+zNYrPDVO7FLU5RWFZtwjIEeB4ngYz/KM3TKUs0fqRf00ZdzNNV5yfu
-         qU2g==
-X-Gm-Message-State: AOJu0YxDmYNlRnDbQCXg5S8lp43zFKZfKcw1oxYC46Voa0/3FpRVfzWK
-	sG043coZlvbYb21dP8MGhr3B75sm5a44KVSDK4qL5vcWJYfdCnuPShKRjxdOPTypNrqpIJEXfUe
-	ouTVRf53M8BQbPTVjAyjUHTVQHNiF05mOPVkcx0oWq96T9LdPQTem2g==
-X-Gm-Gg: Acq92OG/du0WTeONXhv+U1MXMe+wOIVu2VXnxm3AZstmRTex0yKdb9X1zKso9vg3FA2
-	+sremLI9nndgpv4q+Lilrc8eEFDjShgysQYs4mIX/65en3fug4rNlrmvXm4EpThlrLfBZCOX9mQ
-	/iaPDZ7Jurk/PnAboayhbYtG84Il78dSmNtBHXnZ0s77GPbP7wBIQ04X+nCjlbCPZAy0mZuFuEf
-	bkRJxYjxteXG8QklrfpyBNud0QEoyTqUT3Z2JJwGqSKXloY6mg53gupJkxHRkFXLNRiOu0b7J22
-	7kn0+TpAkCEWM+buOg==
-X-Received: by 2002:a05:6a21:6e04:b0:3b4:88e7:87c7 with SMTP id
- adf61e73a8af0-3b4ccd7509amr19707211637.17.1780947505781; Mon, 08 Jun 2026
- 12:38:25 -0700 (PDT)
+        bh=FvEBFGlaFJpPEGXdB9EWYj74twctEUhvoin7xU3WOXA=;
+        b=hvFOEikUmUNWtHGF8zcwLzaSqxXkkKujmOKq8pvSoHVkEt2d3QCPwjyScET9oJ5kZy
+         oFwrlz6j001EkUi6aclh08ppsKBtdIxSjzzWeW8weqzGcFOtvB45kWr13TiLkEcWlIud
+         1ul8/pMwnJEUdjlA/I6Ysi+O+iscrYAfk3t6t/QOVpb9eG159NF1C6n0uPKIFai2ixh8
+         Hj42J8L9uB2+xQY/HW/+bqfGauUBmhvtae9c4SyOimOq9MCTG30mVI5T4E1XVX+DsCXS
+         3t+pGT1j32psISQaazefE2nqEECdBKxHEyrhDLq9NfMCucTPWzlqgfBPVzPyKz5Q8YnV
+         u4Ag==
+X-Gm-Message-State: AOJu0YxpViqe/cWEcP42UHlfPmzQnCn3SXdcVcqK2yavq6h6nqHaqLF+
+	Ve3d8gouCZDDR/1KsSv8UfnIg2QiA7gyQUA+laPYsGgeLZJo3yGJB6ziOv6js6pHO/QqV8CYuCE
+	RBKLR/FE3dwZhuZ9aq/53O1tQzn0FRVE=
+X-Gm-Gg: Acq92OFXbo4UOpg93LstWVS/moRvhbm55j9A4lRN95DIaJ6LiM/3yCJEnVrBvrr5pDF
+	FAVN2gCZgdV74Tg01oGauwR4OeLJEmEmRuYjaaWOhjs7NUZZ8kVwIlflJCkrd8lzh+OeM6LWdKA
+	r1JIygtwihrHI3UN9tXEMOISPWbnshplZ39lEhs97mdOCjAeS6TQyTBhRwXIU+23/YX/h3w2HTt
+	HWsMCO8nQtyvHC253IC3k+p8/PdcEpw6mYRF5jYMrFOF37gW8K+KggCe5/RYk+EBOGm89+sZELe
+	iztGRpGA7iroU0s=
+X-Received: by 2002:a2e:be0a:0:b0:396:8c15:a4c5 with SMTP id
+ 38308e7fff4ca-396d07f0a57mr46224781fa.1.1780947801194; Mon, 08 Jun 2026
+ 12:43:21 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAAhcyzmaCLaRmK2anDfThnhy3M_EFRgpk7Aajd+uctvYr27WZg@mail.gmail.com>
-In-Reply-To: <CAAhcyzmaCLaRmK2anDfThnhy3M_EFRgpk7Aajd+uctvYr27WZg@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 8 Jun 2026 15:38:14 -0400
-X-Gm-Features: AVVi8CfZ5w-XKfqZD1zjtAGUkKFayphrgSB7EpFFspijBxN_vOw6O189Dbc8Ctg
-Message-ID: <CAHC9VhSf-ph9D63=J-AemOZfvb9HXLFguCRFWkU4y1DvDsKr9w@mail.gmail.com>
-Subject: Re: [REGRESSION] LSM/VFS: startup latency spike during rapid library
- lookups (ENOENT) on x86_64 between 6.6 and 6.18
-To: muneendra kumar <muneendra737@gmail.com>
-Cc: selinux@vger.kernel.org
+References: <20260608183618.318484-2-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260608183618.318484-2-stephen.smalley.work@gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Mon, 8 Jun 2026 15:43:09 -0400
+X-Gm-Features: AVVi8Ccn9v_aFAR7-COtZDIkyVKs0GWUHNpafOqCuweD58YaLZEDcE9l9FRYciM
+Message-ID: <CAP+JOzQmu5JWaNJihw_2CViLj0Aaa+__yLPMi54XNKcydadfQg@mail.gmail.com>
+Subject: Re: [PATCH v2] libselinux: digest_gen_hash(): reduce the chunk size
+ for Sha1Update() calls
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
+	paul@paul-moore.com, perfinion@gentoo.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 8, 2026 at 3:22=E2=80=AFPM muneendra kumar <muneendra737@gmail.=
-com> wrote:
+On Mon, Jun 8, 2026 at 2:37=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> Hello,
+> The Sha1Update() implementation in libselinux takes the provided
+> bufferSize and shifts it left by 3 bits to convert the byte count to a
+> bit count. To avoid having this overflow, cap the chunk size used for
+> Sha1Update() calls to (UINT32_MAX >> 3).
 >
-> We are observing a reproducible 3x performance degradation during the
-> initial dynamic loading phase of a userspace background daemon when
-> transitioning from kernel 6.6 to 6.18.
->
-> The degradation appears to scale linearly with the density of path
-> resolution failures (ENOENT) encountered by the dynamic linker (ld.so)
-> during its library search fallback loops.
->
-> Isolation Diagnostics & Matrix
->
-> To narrow down the root cause, we isolated several configurations:
->
-> - Hardware Profile: The issue is highly reproducible on x86_64.
-> - Kernel Parameter Isolation: Passing the boot argument lsm=3Dnone via
-> GRUB restores performance to the 6.6 kernel baseline.
-> - Active Stack Configuration: The regression occurs when all four
-> modules are active and enforcing:
-> lsm=3Dcapability,lockdown,selinux,bpfaudit. Removing modules reduces the
-> overhead linearly.
+> Fixes: e17619792fa1 ("libselinux: correctly hash specfiles larger than 4G=
+")
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Can you please confirm that you are using a "bpfaudit" LSM?  The
-standard upstream BPF LSM is referenced by "bpf".  There is no
-upstream LSM named "bpfaudit".
+Acked-by: James Carter <jwcart2@gmail.com>
 
-Are you running a distribution kernel or are you building your own?
-If you are building your own, would it be possible for you to narrow
-down the kernel release which first introduced the regression?
-
---=20
-paul-moore.com
+> ---
+> v2 updates the comment to say chunkSize instead of UINT32_MAX.
+>
+>  libselinux/src/label_support.c | 11 ++++++-----
+>  1 file changed, 6 insertions(+), 5 deletions(-)
+>
+> diff --git a/libselinux/src/label_support.c b/libselinux/src/label_suppor=
+t.c
+> index 9fa7f0fa..cc5c279e 100644
+> --- a/libselinux/src/label_support.c
+> +++ b/libselinux/src/label_support.c
+> @@ -134,6 +134,7 @@ void digest_gen_hash(struct selabel_digest *digest)
+>         Sha1Context context;
+>         size_t remaining_size;
+>         const unsigned char *ptr;
+> +       const uint32_t chunkSize =3D UINT32_MAX >> 3;
+>
+>         /* If SELABEL_OPT_DIGEST not set then just return */
+>         if (!digest)
+> @@ -141,13 +142,13 @@ void digest_gen_hash(struct selabel_digest *digest)
+>
+>         Sha1Initialise(&context);
+>
+> -       /* Process in blocks of UINT32_MAX bytes */
+> +       /* Process in blocks of chunkSize bytes */
+>         remaining_size =3D digest->hashbuf_size;
+>         ptr =3D digest->hashbuf;
+> -       while (remaining_size > UINT32_MAX) {
+> -               Sha1Update(&context, ptr, UINT32_MAX);
+> -               remaining_size -=3D UINT32_MAX;
+> -               ptr +=3D UINT32_MAX;
+> +       while (remaining_size > chunkSize) {
+> +               Sha1Update(&context, ptr, chunkSize);
+> +               remaining_size -=3D chunkSize;
+> +               ptr +=3D chunkSize;
+>         }
+>         Sha1Update(&context, ptr, remaining_size);
+>
+> --
+> 2.54.0
+>
