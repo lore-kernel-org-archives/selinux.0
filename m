@@ -1,61 +1,61 @@
-Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com [209.85.160.181])
+Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB98C2DF6F6
-	for <selinux@vger.kernel.org>; Mon,  8 Jun 2026 13:16:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 667D036C5B4
+	for <selinux@vger.kernel.org>; Mon,  8 Jun 2026 13:27:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780924592; cv=none; b=EsOJKm1rYq+DoU7ockf4o8Sru/cIaFr7W2sUd9SxRD0ScjEX69dBtleEYynb8TxNekCopjhu9uyCMBVxmj9YP+NvTnhmTzA6jMZcHoyge9co2VVIvwil9VtTL5h4DvZg/+4s8Z24lhSm/lcwUE5mGPTlgDzqnXYPbTLS5iOqjrc=
+	t=1780925280; cv=none; b=sreyilATssFte/2fomZbncPYwEGpPa+tqLUzjD3zx5URXXjl2dYB5KwxosD9SSfdgyT8jT8LbCWuXxAVTJxoYbo8kuMK6IdnYRsvxcNwtBBQvowaFJXUC1RC/o8T8Kjg3UQ2OjJNSdkkTx8KuTxhetEk+mUqLIh7fuUtO+n4lIk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780924592; c=relaxed/simple;
-	bh=xN8XBXkI287TfFAYHrKVZGF4Vm23gKL48ILIda8mJ3E=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=EnZHReev+ha5gExWVQPK2JcWwWDkZOqD6Dok8W2taZIBjWJ5Q2W9627r3eyEnX5yN2i6oaAF2EBgDPGqMou1sKQkuBTmMgbYC69sw6CCedydvHIFqdwjQIqrwA7+ybr9xypSp9PX9mXous1ag/NdRP4ShVIc3/3kjW2uMx/5v1Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SB0tjbl7; arc=none smtp.client-ip=209.85.160.181
+	s=arc-20240116; t=1780925280; c=relaxed/simple;
+	bh=ABVXayvL84AWM08bk6LuwgBCEco/YP9GnQUi57PKXpQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Vk9goR7KhBltNTknyXL3e+jHeMl/gEaSW8Rs1Uw7ZnGdXvrajEhRMuwb26x8au+6m6z26e0j4JHs781gzmCJdvTluwQNi7Mb7zN6wfKti5poFHBfu46wSy94/NjxJGSugO+UGVZah0XK1hkBdQLorhBaZbSRHfCb3XMRVzFM3oY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kzl/EtpQ; arc=none smtp.client-ip=209.85.219.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SB0tjbl7"
-Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-51780bbc560so38887061cf.0
-        for <selinux@vger.kernel.org>; Mon, 08 Jun 2026 06:16:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kzl/EtpQ"
+Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-8cce26ee1e9so68357136d6.2
+        for <selinux@vger.kernel.org>; Mon, 08 Jun 2026 06:27:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780924590; x=1781529390; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780925278; x=1781530078; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=OFd38nCIix/ytPmXh+hqQxWHlMJHMGDjr28Y92NCFsk=;
-        b=SB0tjbl7ldBI1Bcy9DqrbWpNylwheDAuMhzvbh0qCOQhKmINBUNdw5vXaizpRq7ufA
-         8dSEDBBurDWN4W5lm6DvStAGBLO/erUEi4Pzz++Zf8fEhOPMYYSE4U542+Njpjx4q5gg
-         TlmLU6ajtwRAuU5h7U6fotMofEVHgKVfI9PwFjoQYez3mWebYyk/yArcphjQRrtrEaAS
-         QLD/d3QKI0DUD0nVkB3oazD9DZGgQ5Zv2yNAWz8gF9serY+SCCvkWvSmR7h1dd7WvtLZ
-         mpmdhp5RAUWtRjzRXH0Av7xcIrD66WCMnylzbCetKmFjTsCcyQFFX7oaDasecmPcbh9o
-         T4Iw==
+        bh=iRBiOQ/vvYhVkn16GyPUdBPuzURQgxyQsxrrRw3Kgv0=;
+        b=kzl/EtpQ7N4KY1+xhiwQKfQpAuTKJy0zESKSYdikiKCW4JKt/5UUfDxQlZv75wzV9/
+         BailFJ5ZxuDJZqIppYWDLkt/ISbMf+u3SMoPA05iSIE9+yAkxvXTlmeaAImFSN3+6UHd
+         en8cEMGESApt8oK8jb6Yxh4fVpgGa0Q8rDMCDhHjkjt/EkLcjFzMPM/1o9j4rBb9r93Y
+         /8ddZSiUmQ/0D6gRKFkSk2wrPR0BKOSl/VQKPbmaRGjlsdvxb5NpSAKSp5mtu4ohVriy
+         gMLKf65dMkT7BK0d1jpHiL1l/lDMO/WrkW9oBQ5YLYnnFBqXQrBGLvzACT+HsSdW+GS1
+         ncKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780924590; x=1781529390;
+        d=1e100.net; s=20251104; t=1780925278; x=1781530078;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=OFd38nCIix/ytPmXh+hqQxWHlMJHMGDjr28Y92NCFsk=;
-        b=DtKjevq+7DymOFO929jluGkNy/VsVZF5PdA7Gf4hTPcqVDtZuLQlqpdeTGlP9vtyEC
-         N74catOhobF3UtFZiPJDQzsUrPJ1HYUfs7ADfQhf3+oWlqq5GkM9aZXP5oJsmIYPSPC9
-         hQMJ81Dzjqp9CWcc8rUryTDl3Uy92Puto/B0unlZc2eSmpsOJwQRh04STJuBHKAZW+fo
-         X+HPZIwAkl2Qc442i+2+rItacZQ/5C98FfnCjiLVtPfM7eRLXLuCxQcbj5iA+PabH89T
-         bQFU0cBPXAwJecny0fsfm8Lnwm8z51nR7dpMsJ4fjshdBX04NRJuoh7dIYpw2L2nsr6K
-         mHEQ==
-X-Gm-Message-State: AOJu0YztMGw42GQeUVIP/eEJRGkA+H/wKrK6izS9vI+y0jfFKPZpvX+C
-	OVOBsIuwc/L8t91EMrIYIbgYgdyklQA9j2MzdmvFawkGx6rkOrpcVCoQof7z5Q==
-X-Gm-Gg: Acq92OHZxjoZCF8Irl3a5e6jn3ChFSOFYv8lyCfxFJEcuXSnS1ujGwKyaDHa43PAwl8
-	okhlewzO7F4lyYAs8MgVx2jk7Dgnj4ln8g1PBDO00zvHuQJL59oPWSqz8AFTxfw9eYg+CS5m8Q6
-	jo16ESgB+Yyn3jAksngxSeqaLi4K1UaJ7VUd2PJLiREb2BNhY9UgA0ElsUmtCvJIjNspVs87c4P
-	QOA0ZG0GQdn207RjfwA2K/vqEqVyXIYOjN2eCUUNtBuN5PlURYzR2b7Nen78A2pJoxPA7RHj/rh
-	TJ8prKHraHURwX9J3mhHI2VZYQHof5uZAzQHk3hy2vvobG+vi0MVT+lluSaSH5m/4aq8W6/rJLV
-	6MMKeN4pI4Gkp1c4Fp0OF91hI2igb6L2iJXyi/4Rs6LTq9qO2p0M8+/TefDnQy3HpcGhslQhL8I
-	76eJt3Q9n5+L0SQ1vZzsS0RMtHsTF/WtK9/W8ANYLLxa7slgRKT3kiGtD5v1MilzkxUjLrh/mCc
-	5YSYMkLPCQTCGpTNbX/LKYwaUL4zddGJDEupg==
-X-Received: by 2002:a05:622a:17c7:b0:50f:f030:920d with SMTP id d75a77b69052e-5179881c7d5mr142848731cf.30.1780924589709;
-        Mon, 08 Jun 2026 06:16:29 -0700 (PDT)
+        bh=iRBiOQ/vvYhVkn16GyPUdBPuzURQgxyQsxrrRw3Kgv0=;
+        b=KdPAWMaDGcW8NrlBkkHlQ0+BixEc+/2+9rrXNpdKb5XpXxoGj5YUWWu88efUSRqD8L
+         dAwD2KUG9aEf0hK5d9LvzLo7RfcCm3iVGNSOxdMxHx3r2aSRK2RNivK0+WalKm+0fpqM
+         9AHs6Xt21gq6GHBitTDwKWpulXMdAd82D/0rOsMGwj9LyJSpbQidpfxsZM7facUfl1pr
+         /8bfqetZZ6hwP1doToub1TUj/W91Zt0cs1aSppPt2LwdhI04X0tpRJMFFvqwPOrl8r+1
+         opm9L/kDV9vUaDMC5/dValOpuKmSREnSv7c23nUcdn58aa4DmWGHL1tZ8Y2ayORyjYe/
+         FRjw==
+X-Gm-Message-State: AOJu0YwCdBU1svZy5Jq9Yam401ye54c/pttTeOuxVlLO8LSRwSD2bOBI
+	Yd/TYAFfQRtOIT82GqdxyhlVwvA17MvOAHZ3m5NhyPtisqqHLL2cg6uhNk1Wag==
+X-Gm-Gg: Acq92OFDqb511U3S/aRkSGYgG5Aize/fn5kOp2FffTefsR+Ns2cqlQVeideZ3eIszBb
+	jLwLN203ydWKvKhVK+hE1OKfN8rSABEipt4sy20FN2QhNYRsf5cLNe66pLCc/SCGvjgt0pReEmC
+	fQ1b2i8Wa5d3daHLX/+sXiAcq0FGep3JDrkk7x4GlY5IsZlOIyc21uWjokbv6O2m5bJpyfiKz8F
+	QVhisftodaLxhmhw5v1aCTzG52MxHeYlXRnzTJ00uREZwIkGNkRPyQltj22mZIiYSFdGiEQiBB3
+	eESDaF9XuDcpTK7hAp8IAPq4TD2p1K/SysE4TsrXcNIqgmom0QC8Bgc5H05l7PL5CMEx/u2Xytb
+	yT0VH9rvbhAvF16T9E8KNyRx6U8I/ckhOe2PCSfhCbw6ER5Wl2P5Gn2KWiJfaSIKlqPxknR3pfu
+	VpjJjOT515r3fn6h6sf+wzaAVoD0sxl8udDBYAYBhYe1YtLAze7nVohLZSZeV7zIs/BZ7trFHEO
+	q+qCbbYgWOBpUH+51LC9WUXIatcnsNcu0KfgA==
+X-Received: by 2002:a05:6214:aa6:b0:8bf:6a92:84b2 with SMTP id 6a1803df08f44-8cee5fe6944mr165370286d6.13.1780925278237;
+        Mon, 08 Jun 2026 06:27:58 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-51775df4dd6sm152599351cf.27.2026.06.08.06.16.29
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ceccdb93d8sm169711706d6.16.2026.06.08.06.27.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jun 2026 06:16:29 -0700 (PDT)
+        Mon, 08 Jun 2026 06:27:57 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -63,10 +63,10 @@ Cc: jwcart2@gmail.com,
 	omosnace@redhat.com,
 	paul@paul-moore.com,
 	perfinion@gentoo.org,
-	Renato Caldas <renato@calgera.com>
-Subject: [PATCH] libselinux: restore: drop the obsolete LSF transitional API.
-Date: Mon,  8 Jun 2026 09:16:14 -0400
-Message-ID: <20260608131614.308870-1-stephen.smalley.work@gmail.com>
+	Yi Zhao <yi.zhao@windriver.com>
+Subject: [PATCH] sepolicy: set conf.substitutions['releasever'] to empty str when releasever is None
+Date: Mon,  8 Jun 2026 09:27:41 -0400
+Message-ID: <20260608132741.309092-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -76,38 +76,58 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Renato Caldas <renato@calgera.com>
+From: Yi Zhao <yi.zhao@windriver.com>
 
-The preferred way to enable LSF support on 32 bit systems is to define
-_FILE_OFFSET_BITS=64 when building selinux.
+For some distributions (e.g. Yocto) that do not provide
+system-release/distribution-release file, libdnf can not get releasever
+variable, causing conf.substitutions['releasever'] to not be set.
+This will cause 'sepolicy generate' command to fail with the following
+error on these distributions:
 
-Signed-off-by: Renato Caldas <renato@calgera.com>
+$ sepolicy generate --init /usr/local/bin/foo
+Traceback (most recent call last):
+  File "/usr/bin/sepolicy", line 702, in <module>
+    args.func(args)
+  File "/usr/bin/sepolicy", line 569, in generate
+    mypolicy.gen_writeable()
+  File "/usr/lib/python3.12/site-packages/sepolicy/generate.py", line 1302, in gen_writeable
+    self.__extract_rpms()
+  File "/usr/lib/python3.12/site-packages/sepolicy/generate.py", line 1268, in __extract_rpms
+    base.read_all_repos()
+  File "/usr/lib/python3.12/site-packages/dnf/base.py", line 554, in read_all_repos
+    for repo in reader:
+                ^^^^^^
+  File "/usr/lib/python3.12/site-packages/dnf/conf/read.py", line 42, in __iter__
+    for r in self._get_repos(self.conf.config_file_path):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/site-packages/dnf/conf/read.py", line 109, in _get_repos
+    parser.setSubstitutions(substs)
+  File "/usr/lib/python3.12/site-packages/libdnf/conf.py", line 1643, in setSubstitutions
+    return _conf.ConfigParser_setSubstitutions(self, substitutions)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: in method 'ConfigParser_setSubstitutions', argument 2 of type 'std::map< std::string,std::string,std::less< std::string >,std::allocator< std::pair< std::string const,std::string > > > const &'
+
+Set conf.substitutions['releasever'] to empty str if releasever is None.
+
+Signed-off-by: Yi Zhao <yi.zhao@windriver.com>
 ---
- libselinux/src/selinux_restorecon.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ python/sepolicy/sepolicy/generate.py | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
-index 10807867..0159fb7f 100644
---- a/libselinux/src/selinux_restorecon.c
-+++ b/libselinux/src/selinux_restorecon.c
-@@ -487,7 +487,7 @@ static int filespec_add(ino_t ino, const char *con, const char *file,
- 	file_spec_t *prevfl, *fl;
- 	uint32_t h;
- 	int ret;
--	struct stat64 sb;
-+	struct stat sb;
+diff --git a/python/sepolicy/sepolicy/generate.py b/python/sepolicy/sepolicy/generate.py
+index 780a56b2..0edda54a 100644
+--- a/python/sepolicy/sepolicy/generate.py
++++ b/python/sepolicy/sepolicy/generate.py
+@@ -1322,6 +1322,9 @@ allow %s_t %s_t:%s_socket name_%s;
+         import dnf
  
- 	__pthread_mutex_lock(&fl_mutex);
+         with dnf.Base() as base:
++            if base.conf.substitutions.get('releasever') is None:
++                base.conf.substitutions['releasever'] = ''
++
+             base.read_all_repos()
+             base.fill_sack(load_system_repo=True)
  
-@@ -501,7 +501,7 @@ static int filespec_add(ino_t ino, const char *con, const char *file,
- 	for (prevfl = &fl_head[h], fl = fl_head[h].next; fl;
- 	     prevfl = fl, fl = fl->next) {
- 		if (ino == fl->ino) {
--			ret = lstat64(fl->file, &sb);
-+			ret = lstat(fl->file, &sb);
- 			if (ret < 0 || sb.st_ino != ino) {
- 				freecon(fl->con);
- 				free(fl->file);
 -- 
 2.54.0
 
