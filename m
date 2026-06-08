@@ -1,167 +1,166 @@
-Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E6D3330337
-	for <selinux@vger.kernel.org>; Mon,  8 Jun 2026 16:04:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 054D1330B11
+	for <selinux@vger.kernel.org>; Mon,  8 Jun 2026 16:05:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.171
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780934649; cv=pass; b=HJu6BNFYq3Bkbo3HleOvUXYkcykQa7k1ygmaYGtvN1Q89dZxCVkzgQAk4Ow1Gmi9vVC8J54zaV+UHB9F7EEJdSwrQcgVM7Li9FGIRfbE+7BogkG7NHr0ZNpYrqguaLiU6ll4W9cfUfNfd+WNO+52o3EqrS88Tmz/VLakGb0KM64=
+	t=1780934740; cv=pass; b=oiTreYZwEPMc/AK9+7/TYdqPcxWH6psEqFgxdVbuzJfscakASj7v8CyX7TVYHteHIe4igxTQGn8eChi3CSoYUYg5R891GEuDbu0+n5TGaBM7iZ/YGbgh6S8/TOS2zW7pYm17yrAoYjxZqob0FgEt2YAUFMLfeZ18aE2DFaN59WQ=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780934649; c=relaxed/simple;
-	bh=Nk3JY0pGhLAj778XitpKwsHf1FZ24UCwedArXuhyN5Y=;
+	s=arc-20240116; t=1780934740; c=relaxed/simple;
+	bh=xM7sjaKygo6qIaSripGng+7sG3cz4WdrELNkv8X+p4s=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=sc+1gfImTI95BZlnIWcd5ablvW9Y2oa8kJErcAlcn49Q27cvSI/1BwYomZlZmbDljEbEGUrTVCosuVUQw9YafFEQU1gZ1tcuhbzuEK8vBvuIJX2RDSt46XAfz7Kv4368oSkpe50Q2ieBBQenW6T6aKwzpzQplvtUAdH2zWQBx18=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ogh/+kS/; arc=pass smtp.client-ip=209.85.214.180
+	 To:Cc:Content-Type; b=mAWMNmYLUtdSI9GnX/2wuXlvTTsJDsaDqJVaRaQv0WPio4HafO2I1kaNhpg/nsPYaNd0p7wU9zfIAu+C0YdBFg9WuJtYmhAFOUF02sDPfmGQsWUYWn5ZpGEnbQbu6O9hVOJUBqj4nR4xA1khRbPYxl/m/P6IdXA/Sce4ulJ1qTs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FOg7Wszn; arc=pass smtp.client-ip=209.85.214.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ogh/+kS/"
-Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2c0c1e0b0faso31107435ad.0
-        for <selinux@vger.kernel.org>; Mon, 08 Jun 2026 09:04:07 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780934647; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FOg7Wszn"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2bf1f074a12so47081205ad.0
+        for <selinux@vger.kernel.org>; Mon, 08 Jun 2026 09:05:38 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780934738; cv=none;
         d=google.com; s=arc-20240605;
-        b=R52ug4ZCcpG5Dvf7aw7flQ/WeRoutI7ltYJaSWQEWIAGVpFrctvpUCj2MoM03VqkFk
-         BvyZISL5VU2lMs6anha8NXmj1g/grzg+tqkZsEjtJInUaYp4ZNZ513/AK4/c+K75XVDe
-         M6bMht84ry9LPMsVscPwunX1oTMjsCRN32Swt04WihBZgWUR1vy49o9yynqresADtJ0d
-         nVTBndvWPp01Hbh7Q+/rKpwPvGqVc41fFw9cYljJr6pBdcaCa0wsaHRsC4lDAfTnUUk3
-         mFs7yF/mG5/trRHO4UenoQeGHSvEZ3JC+SWsy694TRw9ZHk/i5XUZlmYvildhqnCHU1a
-         giaQ==
+        b=EAHciRW3Z8lfHg+vmpxIo+wB3KvCBlJZNaBo/8qkrqWGNm7aE2Eo7/PJKhFBOLwygb
+         HZNu1UGOaBeYbeBKtYPQ5FfyY4aeB5V+YL/NCfIKdZhEuZ4z6iiwxJ0SNlpy2AspMj//
+         ZlWFPMxJ+Hdf/BArYriha4YBCPz8re8ycUUVg8exDecQVCpDnokc/327/aqMI00np0MZ
+         88EIrDQcPDET+7kGLkUwuJtkHbyo2tlUSNky063bdvwctiQUIHqtfy6yskI9oHWcW5tI
+         V/mCAxtPa6l5ABJ/J3mI0S9S1MdUTpmWfHvOvDgP+ZSedc0bgbeLnl9lrpdGor60Kobl
+         GtOw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=jhAfX+4DS98dRpiMMwh1q3/F7FV8/Ed7tSSp3n1Yb1E=;
-        fh=j99nHHAhiSxGUV4qsEYXctlFu8D/48rGhwfc2QSFCMU=;
-        b=APy2qBupCCqedsCjH2+ee3xjwsmudU1BiwBNc3D7NNnGkb1Yj1uSQzwY8QN9SZHzTP
-         g5Y9muEdBdep/Ad53Xb4NfZNRPpevcVdSlIbLsdIDOtk4xthG88yzXk2x43fMJrL0cJH
-         PpLwA6LMAfH6bcIC3i8fe0GtJGu5rABTE+WUCAxYwlsTCtxfRFUpVhlbn+877QizXFAc
-         7MhDDKPtgtd1IYKNFrBVCJp3TEq2Fr8xckrl6KYXALfc4e4/YECnv+MjYsfGN0nzQqST
-         0IKlg0rGfc1h19GLet2+HJJYQuu6EHDl+NfB2eGmL5iQC9V54aH4SdTC9IOAmLMuexs0
-         yhug==;
+        bh=OZF20Sn4g+K7UE+PThUTZCvaLR+LxLHST1UuI+5Ba6g=;
+        fh=teCuqbtyRM4Tgu/qjn48lO8vG8x3Xo0e287DZw7JaQM=;
+        b=YHFf6W3P4mk9jjm39/GDDIqKo6FsnQZKY8NC0VBIOe1hscWFCitDoinEKfKCFdibpd
+         LBvjJ2ku6D7Fr+h8ml+v0pQzEP8XQstD2LA+pJqsA+pHA5QBYTshY1TNY2sAO4fM+vWS
+         CuP4URiI8LRUG64lv1Mem9QsbSGSa2haAyfwxdpSLtcGiTHbDy1yGVPbcJVQ7FDrmWq7
+         cSFcp4qt06iATQ2yfFudOlAhWTK3SW/l14GRO8p+Zl2Hrs0gUayXr9u+jPfWkrKW42jl
+         ut//ZIfYosecPNndhBVBSFTiS/koUUtBOoipzSvTuwWFGrupbwOvwU6d7F6U00slZYDd
+         NdTA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780934647; x=1781539447; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780934738; x=1781539538; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=jhAfX+4DS98dRpiMMwh1q3/F7FV8/Ed7tSSp3n1Yb1E=;
-        b=Ogh/+kS/vl5CL5JUN6uZ2/8DDhD9k5EeVfudW+TIqtqrxe6U3XMP7oIvyhTIvF/edU
-         EotV8zKdf9FBKTxQhroO9GtQDuNgTR7JVoKvZ6nwu7BI2vg86Z+2QgqvBi/eIzBfmIuC
-         4KkNpABDI7CX77fKksW/jXt0bWsW1lz2SrCxLdSpu7Lu5LSLajkXqf/vAge3wXAUcCvi
-         VPyMFyyeDFMKCc3C8K8ZSB2ob1TykEOIEWdUjZByB9oOuR4Cx8hnwIep2DiFLVPWgjUe
-         VJFB0OcUYorcwlsRRcopjhEz9Isa1/ci+nCrSXLjyLT3hvOqYQ/xOfYsmIvWLHPwMjxc
-         jn+w==
+        bh=OZF20Sn4g+K7UE+PThUTZCvaLR+LxLHST1UuI+5Ba6g=;
+        b=FOg7Wszn8e7ll61N8kKOJ5heX9o8+A7pTaQ4OUn9uRo4pt8IZqBpbTeIGhhKSa4n63
+         JMOeDtNdxU5vA2yk8Ed8qPy95kV4LgQTwJydK9IPSXtkHbnDiXxx10hqYOFb/pNF5NVe
+         dXeYg2jpgbSEe4Bcx0+J5P5A4ag+rboAPKVpPrAnh2LIgrktZYgmnS1XrsPA7XFofdJN
+         rghplQqVjB6h+ieKHTjudTANKuuoEIOBWRykq6mYK2/p/JzEtYYgTju5XhoUscSDWqZE
+         k4JiM5NTuoSwg2jz6SA6x/121xMx9D7gKmt2r2kvwW+q2slbAr9SO6rff14F799JpC+3
+         b29Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780934647; x=1781539447;
+        d=1e100.net; s=20251104; t=1780934738; x=1781539538;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=jhAfX+4DS98dRpiMMwh1q3/F7FV8/Ed7tSSp3n1Yb1E=;
-        b=QjzZK8UIZby7LkVMb3859jypiCvEsoolJps6fAZjjZQ4qiNUgHSNNN69nGzzYej3Tp
-         n2egoEK7iIbOcOu7T1nziajnJCm1UZLesgoDkzR0DEiXhYh+i9qJIwHph3FXIHh1c0GK
-         r5MEPq1kYEgm/59FobOAXRIgpAs5PB1T8rr0PTYW+LjtYVYv9oprff7BkPX+LuZFkNev
-         Fl3n4RTmsMELy/Ab89x1sO76iYZHt/0xq51QBfhXObErg7nQvYKJpm3AmiGobZvS2/fd
-         6a9j6PemvdK1kkI9h5MF2SozmQ9VjwMs3xquqjZ1jG0jGbfTkL/1Pr3Bv4W8xzeZ/gvL
-         oh+Q==
-X-Gm-Message-State: AOJu0Yw6XsNp258nck8Ukcn9cgw18jgI2v6uwIj648Q7cSGYw6piF/j+
-	VIjed/ebNVCWZMf0L4tjmV7E4fICDQuc6jbdAFuPSWj+0r6CyWw0w1ggU6h+ZBLFKszWmLgF+M8
-	xPxalih+nP9D2aOIIhqBoeTYYoY+luBE=
-X-Gm-Gg: Acq92OEjfnZMqV20GsFRi9W+CoQpZaUVSCGJxjarVEgIZhYy/5TaWkzT5Yp0MtD9wsF
-	LANi5doLa0lso+SJs6xMJfYkq7Cvn/N23Yq8obqdpHbRQRNgLTf1490TJWFuXbKBgEeoPcViMTg
-	gj8bYRHl4Fv+Piez3GAKoFbf1r47taBcUMaURyBhjcFJfUBY9QXopx3Lfm4ShFhqN/+uumkx3re
-	agpIlfiU4imtqfP0mVrhuMfcezJIRKj4D/mAk3ojDhg78Ksp3wi/1aVhx+2HZWfJ25Twr/Vpa1o
-	I8YL1YqH1XSaXb389A==
-X-Received: by 2002:a17:902:e5d2:b0:2c0:c625:4019 with SMTP id
- d9443c01a7336-2c1e810bd13mr191675055ad.25.1780934647183; Mon, 08 Jun 2026
- 09:04:07 -0700 (PDT)
+        bh=OZF20Sn4g+K7UE+PThUTZCvaLR+LxLHST1UuI+5Ba6g=;
+        b=oj7TtnX4+ztJZP4w+axqQnwQVYa2vFap6LpsAl5pO/DfCd1CJ7xAN6cgHFS9r780Ka
+         sT2MhkLl8SEgj9oa4FzD6Pi7tXyEYG4YG/HK5/RGKmk9mbWfrGcOtJwp3v3XlFTL+6Nu
+         1iy6ZWQQODmX3iLvGDSVSsptcyWh9zzTQPJtxEZLHaIHF4Muv99yqecSC+knplg6tZr0
+         olinZGkLvmSFferWDr7J1J0xc0dGyTH5ls0BX0+d6olYl6s3qFY3YwDvhNY+o82cxnYB
+         XNcbqHtwOTP+VNR68epYyXbm4t5hrSsgoFYZKmX2ABfQIYjbEyUkX7ubNsZiIyA0Vo1f
+         Em/A==
+X-Gm-Message-State: AOJu0YyhraMmD6niWwJ3QRJuaqpPZ2PimgJupJBeHAAa5Ness7sh6ez2
+	ouJ2O5oNTHLzPCATfWVbYuCNNWUzzoKdvsjBq8+azL19oTIKoyGdZb/LjBH5tla40O6nVYOPc1Z
+	7rgPfAN05Wvbv5iRpe/jWJSmOs743lY6XZieV
+X-Gm-Gg: Acq92OHIg0qnv13eGQjUfj5MFfwkQSjw4O2c1q5fkJjDPlC+Tt2aIm8vnRsVhqhiqC0
+	t9+Gk/BgNCXHJiadnkTZZJZR3B13Pm1lpciDuVzvfAqvk+VTNx98FlYhosDtONPti24C0rLeKqd
+	r/HqTEHFMepA4Dp/iYG/qLkBv/o6e+6/iI+1aLJJpqLL61J+N27dQ6faaT9Zw2xb7r/9bO8VuMu
+	LvQZeCGBDOeYynk6i0n2tOn7WV9JAVRphpFAIUt40vWQ0Q+G1PApY8ZhR6ZYctp1P9ZaZf3JX7X
+	l+ZFbugMqS6Fq+igXQ==
+X-Received: by 2002:a17:903:1247:b0:2c0:b35d:ed54 with SMTP id
+ d9443c01a7336-2c1e85e04c7mr183750845ad.35.1780934738413; Mon, 08 Jun 2026
+ 09:05:38 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260608133036.309348-1-stephen.smalley.work@gmail.com>
- <CAEjxPJ7BWdm=MkoDGjGn1FwXQb5qzJpphbsPXx5o5LtfuYkTkw@mail.gmail.com> <CAP+JOzRc-F5tXNanE-YHo3oaMj3MF5PmcTteOw5k1uP+63tPaA@mail.gmail.com>
-In-Reply-To: <CAP+JOzRc-F5tXNanE-YHo3oaMj3MF5PmcTteOw5k1uP+63tPaA@mail.gmail.com>
+References: <20260605191355.281484-1-stephen.smalley.work@gmail.com> <CAEjxPJ63zyB8EYL0ngjrg=D-Sxd2NrWNkNzX4gnk6fa3v12-pQ@mail.gmail.com>
+In-Reply-To: <CAEjxPJ63zyB8EYL0ngjrg=D-Sxd2NrWNkNzX4gnk6fa3v12-pQ@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 8 Jun 2026 12:03:55 -0400
-X-Gm-Features: AVVi8Cet81gM0StV1AWh8OXhzQ5UA_YlmKDb3f82DoyK1T-ounn1dhk6bXeig6M
-Message-ID: <CAEjxPJ6aJm-3LMK-jHGHCEAGDSHDkRs+hEddSnrM92P8fU3bAQ@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: make reallocarray check more robust
-To: James Carter <jwcart2@gmail.com>
-Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
-	paul@paul-moore.com, perfinion@gentoo.org, 
-	Waldemar Brodkorb <wbx@openadk.org>
+Date: Mon, 8 Jun 2026 12:05:27 -0400
+X-Gm-Features: AVVi8CegZFvIUI0imiRJHYJEOhuJyK4_bzWqDYpjLVgFneXxqvvGQ59giA5Y8Ik
+Message-ID: <CAEjxPJ5ZzkgpaYSr-yVbYj1ZDommPC8UJh5XB84xo=3FtH-fMQ@mail.gmail.com>
+Subject: Re: [PATCH] add test for fts_* availability
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com, 
+	paul@paul-moore.com, perfinion@gentoo.org, Pepper Gray <hello@peppergray.xyz>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 8, 2026 at 11:22=E2=80=AFAM James Carter <jwcart2@gmail.com> wr=
-ote:
+On Mon, Jun 8, 2026 at 8:47=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> On Mon, Jun 8, 2026 at 9:35=E2=80=AFAM Stephen Smalley
+> On Fri, Jun 5, 2026 at 3:14=E2=80=AFPM Stephen Smalley
 > <stephen.smalley.work@gmail.com> wrote:
 > >
-> > On Mon, Jun 8, 2026 at 9:30=E2=80=AFAM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > >
-> > > From: Waldemar Brodkorb <wbx@openadk.org>
-> > >
-> > > Some cross-compiler toolchains dislike the usage of -o /dev/null and =
-fail
-> > > with: ld: final link failed: file truncated
-> > >
-> > > As stdin and stdout is already redirected to /dev/null there is
-> > > no need for gcc -o /dev/null.
-> > >
-> > > This fixes an Buildroot autobuild failure for libsepol package:
-> > > http://autobuild.buildroot.net/results/72b/72baaab4658254f4c5b3348298=
-af1d5c891cacd6/
-> > >
-> > > Signed-off-by: Waldemar Brodkorb <wbx@openadk.org>
-> > > ---
-> > >  libsepol/src/Makefile | 2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > >
-> > > diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
-> > > index c222a8fd..cd6ef442 100644
-> > > --- a/libsepol/src/Makefile
-> > > +++ b/libsepol/src/Makefile
-> > > @@ -31,7 +31,7 @@ endif
-> > >
-> > >  # check for reallocarray(3) availability
-> > >  H :=3D \#
-> > > -ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint main(void){ret=
-urn reallocarray(NULL,0,0)=3D=3DNULL;}' | $(CC) $(CPPFLAGS) $(CFLAGS) $(LDF=
-LAGS) -Werror=3Dimplicit-function-declaration -x c -o /dev/null - >/dev/nul=
-l 2>&1 && echo yes))
-> > > +ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint main(void){ret=
-urn reallocarray(NULL,0,0)=3D=3DNULL;}' | $(CC) $(CPPFLAGS) $(CFLAGS) $(LDF=
-LAGS) -Werror=3Dimplicit-function-declaration -x c - >/dev/null 2>&1 && ech=
-o yes))
-> > >  override CFLAGS +=3D -DHAVE_REALLOCARRAY
-> > >  endif
+> > From: Pepper Gray <hello@peppergray.xyz>
 > >
-> > This leaves an a.out file which then breaks CI,
-> > https://github.com/stephensmalley/selinux/actions/runs/27141099174/job/=
-80106217168
+> > check if fts libs are-builtin (glibc) or add -flts
+> > to use standalone fts (musl)
 > >
-> > Must be a better way to fix it.
+> > fix: #514
+> > Fixes: https://github.com/SELinuxProject/selinux/pull/515
+> > Signed-off-by: Pepper Gray <hello@peppergray.xyz>
+> > ---
+> >  Makefile                | 6 ++++++
+> >  libselinux/src/Makefile | 3 ---
+> >  2 files changed, 6 insertions(+), 3 deletions(-)
 > >
+> > diff --git a/Makefile b/Makefile
+> > index 0e70f3d4..0e465f94 100644
+> > --- a/Makefile
+> > +++ b/Makefile
+> > @@ -27,6 +27,12 @@ else
+> >                 -fno-common
+> >  endif
+> >
+> > +# check for fts_* availability
+> > +H :=3D \#
+> > +ifneq (yes,$(shell printf '${H}include <fts.h>\nint main(void){return =
+fts_close(0);}' | $(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -Werror=3Dimplicit=
+-function-declaration -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
 >
-> Maybe use "-fsyntax-only"
->
->  # check for reallocarray(3) availability
->  H :=3D \#
-> -ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint
-> main(void){return reallocarray(NULL,0,0)=3D=3DNULL;}' | $(CC) $(CPPFLAGS)
-> $(CFLAGS) $(LDFLAGS) -Werror=3Dimplicit-function-declaration -x c -o
-> /dev/null - >/dev/null 2>&1 && echo yes))
-> +ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint
-> main(void){return reallocarray(NULL,0,0)=3D=3DNULL;}' | $(CC) $(CPPFLAGS)
-> $(CFLAGS) $(LDFLAGS) -Werror=3Dimplicit-function-declaration
-> -fsyntax-only -x c - >/dev/null 2>&1 && echo yes))
->  override CFLAGS +=3D -DHAVE_REALLOCARRAY
->  endif
+> I recall seeing some bug reports where -o /dev/null is not supported
+> by some cross-compiler toolchains and therefore triggers errors on
+> them.
 
-This might be OBE; looks like ld fixed it a decade ago so -o /dev/null
-is safe now.
+Never mind on this comment - looks like that was fixed in ld long ago,
+https://sourceware.org/bugzilla/show_bug.cgi?id=3D19526#c12
+
+>
+> > +export FTS_LDLIBS :=3D -lfts
+> > +endif
+> > +
+> >  ifneq ($(DESTDIR),)
+> >         LIBDIR ?=3D $(DESTDIR)$(PREFIX)/lib
+> >         LIBSEPOLA ?=3D $(LIBDIR)/libsepol.a
+> > diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> > index c0e18321..9982faad 100644
+> > --- a/libselinux/src/Makefile
+> > +++ b/libselinux/src/Makefile
+> > @@ -99,9 +99,6 @@ override LDFLAGS +=3D -L/opt/local/lib -undefined dyn=
+amic_lookup
+> >  LD_SONAME_FLAGS=3D-install_name,$(LIBSO)
+> >  endif
+> >
+> > -# override with -lfts when building on Musl libc to use fts-standalone
+> > -FTS_LDLIBS ?=3D
+> > -
+>
+> I assume this was originally added here to ensure a successful make if
+> run from libselinux/src or from libselinux rather than at top-level;
+> is this not necessary here?
+>
+> >  override CFLAGS +=3D -I../include -D_GNU_SOURCE $(DISABLE_FLAGS) $(PCR=
+E_CFLAGS)
+> >
+> >  # check for strlcpy(3) availability
+> > --
+> > 2.54.0
+> >
