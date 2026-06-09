@@ -1,152 +1,217 @@
-Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
+Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A045C4C9553
-	for <selinux@vger.kernel.org>; Tue,  9 Jun 2026 19:00:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA6AA4C954B
+	for <selinux@vger.kernel.org>; Tue,  9 Jun 2026 19:05:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.170
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781031603; cv=pass; b=U4mCf1pAuurXBFhOYE/zDzIeTOb96C3eDvCDWRU3VUJbFhqvenWnHE6bRuF3nawJbegHhTQM5+qlla6+Kfkbi9/oH5mZG7JA5j4xtiBaQcDrkQeX8EXeFSpq3MronTh3pj4A/jk5IyShL8hZ+opnIbBwyIfVHaliy+A8b9Y2qBI=
+	t=1781031937; cv=pass; b=jsWqEDSz98mLxAZbjDbCxTGWozjBXNZ3WQaFIgvpdL//cHdKDg48iFrz6IA3MawAZrg9Q/R/cIbdTUe6RMf8XPIV4eO4Vpj6VxDyWTvhvkNZWtM6ci0/F/EXKXIHZmpHDx9xfPmhUoVCFy5AdqpBUHJq2eBbTcqBi9/l8Hud4wo=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781031603; c=relaxed/simple;
-	bh=G8EiG1fO7cDghOOmLdXusGE2Rw7RXLDcps1jMjPJ4dg=;
+	s=arc-20240116; t=1781031937; c=relaxed/simple;
+	bh=o59A+io0BQ8CzcdjLSWja2kOuoolpqyu9ezLyF6Bic4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=E4Hj7RLc81ZYhgZy+9yzISP1AWEgRV2QjqM+x1UZgW2ydKpEjHZcxOyQKwveVa2mfv8IhhPSCOMPy0SJn3yUkYn4WwLdN9/TZHop3PFYDSCsxe9ciZ7J2sf/Lpu6w13ajHDKeo1VhLKNm7FddSE1VQXsM6f5OvVZ/jBJjiXjqc0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=T0MjPLuV; arc=pass smtp.client-ip=209.85.214.172
+	 To:Cc:Content-Type; b=MMorXEXQj260sDOb5/Gdg/mvdSdmxLh/cJzymdiuwIKnUhjcdgc+6Jxqu8gYJxblIOVj9GfW6YnaCdt5AZFqW4XTWDvKPXru7Go7MJ55WmqA+rv00vl2j4J4Y9hu5V9Uz5KIU21+wDQGKX1X+m220t1gSR4myn2KgfuwfQAvDnc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YpMOYyAR; arc=pass smtp.client-ip=209.85.215.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T0MjPLuV"
-Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2c0bd02d97eso66778505ad.2
-        for <selinux@vger.kernel.org>; Tue, 09 Jun 2026 12:00:02 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781031602; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YpMOYyAR"
+Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-c85b73ffb52so2509148a12.3
+        for <selinux@vger.kernel.org>; Tue, 09 Jun 2026 12:05:35 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781031935; cv=none;
         d=google.com; s=arc-20240605;
-        b=fGCeGsQQ/t5HdX0Ui9h34usostedkkJBTqbx4IdfjjFC0UMSsfxt/X+BSgHmNbnuWW
-         oSSjdGnHmHj912iAoWDFiAIKFTQ70j5mhyR2cVaWFQPEQL/FE0t3jDC6XBbJwfQqtdez
-         rCWSuhTBaHmSZGY5fVS9FmrQvM3Wy+6MEShHJ3S9WC+Fv6xR5hnxbrGNutDyzsefqtIy
-         BJ5vvgBkmB4Cmi9BUspHTdg0xW9VglrdTEmzZ64/zWA4NGlJLQp/JH45yVM8nO8J2X4h
-         ASAOEtsFgs8KkXVBb0WzVLmtc6ytYIoueBjWOTp9IN/BgjaqWWN32/ZARFg7p43Yxh+p
-         PQ7w==
+        b=GPPjXcBfT3Le0o3ZHeMe51iDv717Irs0s3MOqh9yo3SGSursHSeUbPbyk/wOLJqG+m
+         GWpz9GhC6xwNJtpxebHLoi+6IW15ph6rSmzFFKssF+ayRGkiqJz7Xmyp+4ie98bmGTLH
+         fMXHHljT/IPta6aTsx39otM2yDuDLyI2lllZwel3HNsGLEvhFe6zwESWZq97mh4CGJnS
+         WtF1vvDzmTJaHxggBqb4H+X6IYV0CLVhvMeqUi5G4j9xvSDD8aVQy39ZCR3Traskrpi0
+         C++/+0xbC9OtbbHW3vY47xOqBFW1I0lUWAbEi3OQ9xmcNy3PkJ0St9MXNzMItQge3qlO
+         Emkg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=8cD8nWsGF4fl2INrTCTP1TR8uQ1MJcxONrZy+IUyF9c=;
-        fh=teCuqbtyRM4Tgu/qjn48lO8vG8x3Xo0e287DZw7JaQM=;
-        b=BVNROCB8gqVuinl0U97EStxv1XI5h1N6l8MW/wes8jUzW+xrk1sh8lC9rr/3JLazib
-         eLLBbolEGb0qVRkyV9+NVeS8pKFETLUpJuI9jcFvUV02+f+JL72TSCttB7edDgzaiz6T
-         9Lb3tVB5wTyUbPwhbWZ9AXu8c04qwkXRFmL61RdWRIGtSfaMnPZVwKBEt2aO61LBfIeS
-         7C+BumMR3s8PBKFdFAA1Ok2XBC0/aPPVUCDNkvsXnWuZhO7KqrCm7In3IJ5+HaqaTpVN
-         ekvxrjfBcrpakD10o+Xi8sRZxCVgVXJUZjrDuznCLPnKQroPai5tYs54Z58RjW1vOLGv
-         T93Q==;
+        bh=Sq4ZtLWpYiQJrggwpCQXRYTq+JfCiG1JyBYIbmkZe7Q=;
+        fh=BSYX5pFzsnodderZ6Fagt5SM/AxwelMKdQExzIDWKBo=;
+        b=YTGHlkc4NnE/eFx3y8N7xl0JkrzzSxC+a8cGc8Jdqi2UCyOd6nf23NygvGGSY9CiLD
+         5kWumpfZGV0kEXoHrQ/EKy2QdubqTiv0LOB+Chg96+iN7v7s2XilI7drfxa6ZQeqY4h8
+         eWLZQOlioN4GqSg7XQ3QwiuIEuJ8QpGu4a/z+WFmwCTvfabrGK3urBWkZrPOs98sWI6U
+         o0oReUDY07T17CKzn1C/x+c/iWRx15+9y3QLYfGhG10vivsdf6P8itc/Zd6Hq0Wh9+ne
+         QSEYmeZ1vfITFzew97+IdfbByG33s2rxRAw3zV1yrKBvqA0H3kwyZvCh69ho31kWxQIk
+         FU0g==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781031602; x=1781636402; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1781031935; x=1781636735; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=8cD8nWsGF4fl2INrTCTP1TR8uQ1MJcxONrZy+IUyF9c=;
-        b=T0MjPLuVaV1gifsUA1WyC4e76PhyvD/sYxPjFBOHlNENO3xvS48+e2fRh1k9WZtsQd
-         FRq85bvD8UnhBW+1QlL54kkLLKCxvRRjRtIetoVlSsVLdEQxaqIUpr0sqAHrD6NROYXD
-         CrR0KLeUM7WA73X520Qyw5HVO0nJWVC02VgyFi8DD4lPkiK6CUebNOellvHyJwgR4fLc
-         6girRKS1Oq9vxAlDY/5MAaNfrd/TQYDBeLjVg46Pb0Ws8P3PDbSNLsxdHZsftG+iKS/j
-         lE8h+PdHGFyKA7c3YapId/y1BF9V7Z5qf0CyKtWwTTL2PWGWVlWfdBRsvuc+KaoeU1Om
-         z3/w==
+        bh=Sq4ZtLWpYiQJrggwpCQXRYTq+JfCiG1JyBYIbmkZe7Q=;
+        b=YpMOYyARBTjZY6XVqC+Jm/7axcuwpJfzhAXfiFZt/aNgGY3bj9Io9YkI5gSIhh7CxB
+         YJC7Zb0GOl3o0zTO2cr0nz9Z+uX8kUxDL9Yh6i/Xch2E6BLHc5QhLs5Es78toA1PMxMi
+         nOkIeI5lxnSKGP+9ZR6QPMhDWi6wYoMyC3iFf/xnOvj/oV1G4OOzMuIJ7L89JIPm2LR/
+         Eb7ICHgEKjoiUfV7T3B+BftZ96GUqFHetUJKAUfZdTSgQ7yzS3b+/LXc+xYURQx0jPkn
+         7YLDEJuEaMi2XI+5zHu71I7nKIaqDZOWLwGD+ejgVyqXfNcxbkcvF6/T5AAr9xmw47jx
+         kcPQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781031602; x=1781636402;
+        d=1e100.net; s=20251104; t=1781031935; x=1781636735;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=8cD8nWsGF4fl2INrTCTP1TR8uQ1MJcxONrZy+IUyF9c=;
-        b=Sm2PDYnIj2y3q+AcFdf60jiLgKZ+wIfSlKZPjUBSSLrvE6yiYlFBBBZWeQMAAXkJ7b
-         zIBQ0mwl4G93f5+XRMV+dq8OFF4hYh7Ki2RRGBptEH2Hrkzw6crbS+z57QXAgfRmkoXZ
-         GYcx13eeVmoHK4D7Ooz00/mdrETChCEMXry6RnAOZzRMKqbIgEvbpGmQjKaPROcImDu6
-         LuapcdEsFfNJuikJMCEAZRVFIX34AFhcth7H+gPaGN5VihawOZlCCvnEjEtuN8JlLX8Q
-         Yvhr5FzjP8uHQ3bCkAATgiYW9URfjXxA1GByOJJ2US9rKI02FnXY9OBDOlAW9MRJqHdA
-         wmaQ==
-X-Gm-Message-State: AOJu0Yw1wz84cNFUdTh1ccVRfakzZw1Cl2uKVwBRjEAiKxUDefybv9Hw
-	Dd6AUrbqQAhnUgawX4rCliOnI0N6CPuq4aC2yP0yxLDSc2p011W5U2E3JkPtFKEKBX4tT34dLFR
-	wtqXDaUJl+HPNASuVvQ/iD9y1g1RUsjfP0A==
-X-Gm-Gg: Acq92OGXKpGhZiuhEJnuHWHWHuNi3u56UtfgtNYlR84t8+jwc5HNJVWui8w/UeXTrMd
-	Z5YGRZHStZTadT23EoQ7L/+DnjQuYmqq00CD/Q9dHBXo6MGM40zRJW/mi11DS0UrsmNRfgAIYKT
-	8RS+7vEYEWXyMIysvlqYPNi4RlszdW7Ym1r6bTHGLEt7DkFa/5FPfxw5VHhLs3xlqMsq6ed2H2G
-	bSEr7qnXoUWdAcxnzOlDfIU57ZVgRhWBloJBYK+2FZ0bMoyXcgoZpCkC2YbCyG9uh6YTjJn9qXV
-	GOtXa6zywhUxibCB+A==
-X-Received: by 2002:a17:903:b0b:b0:2c2:1e6c:450f with SMTP id
- d9443c01a7336-2c21e6c46c8mr181859165ad.10.1781031601793; Tue, 09 Jun 2026
- 12:00:01 -0700 (PDT)
+        bh=Sq4ZtLWpYiQJrggwpCQXRYTq+JfCiG1JyBYIbmkZe7Q=;
+        b=H4rkVc45fMwqegQ59ih/koJm4xWl4im4oBE3Nps1SBL1LZdkvSjprSfIQHc4rwZvRc
+         S/IWrjqVDV2D5jvjgFNs22hvQ8sMuoyDcpkYNtpEQis2/bLzwY0vSZSNkg+rshIaJCLY
+         Dw7RYpNp2Qh1L+j5wNsXeALbbTaV4hgNtF3Z/OBxd+APO10Gbw5UZeXVZ2OHIM0xGhFD
+         bRf3km8zrjrdrEPK0aLbptIhaKAJ05p3f+9OYo0W1yGgW+YAoqiYWmrMzetmwauDANMu
+         bInHREHRxUkANezH7gj9G34gO6r91xtqORgRNk6aE483CtkjY0GIv4rusD1W0h8icZkk
+         VBsQ==
+X-Gm-Message-State: AOJu0Yw1nK1q8cIOLz1SDqwxFqhb2wxdVSdazGtLq8WupvZzXCls3q4v
+	f+iHys9Y5UqE22LNDKivxlm/nZksAdAB70B+w0B+SlPSDHv9gaLVLY3kjQwrI1/dp9KmnQi0XLu
+	1G+KYwkZjKW3tTkA56yrPtNkg13cct0k=
+X-Gm-Gg: Acq92OG5P5a8JirZHtQULoyG/n3mXzJtqB5NOKV2A7SVb/Y4kdEmLeDhmHu1HxnjQbu
+	2pSyokIR1V9jyFrjnHdf/Bcq5HqnTgNf/2a73k1iB05f9PAtchc/WRBCANsAWYT4IF4DxEJd7fJ
+	fb41eso2VgYz7VIm1G/RMLZ0cr358ybYpDNSw1VL2tePRZffqK2Lui0KqpIDtImhO7hs/lbNGrC
+	d81qC+0u+FMlpMq/M1fBwZdZrBWsC68po5LvBkY0Hy8zsccuQTHE9le57MNe+BAUAJMS48gA5Ni
+	IwGsmYICPrMOUGvMqSEIQgugIf1G
+X-Received: by 2002:a05:6a20:1c8f:b0:398:6ea8:21f7 with SMTP id
+ adf61e73a8af0-3b4ccd66679mr24878752637.15.1781031934964; Tue, 09 Jun 2026
+ 12:05:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260605191355.281484-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260605191355.281484-1-stephen.smalley.work@gmail.com>
+References: <CAHLDejxCCVr1kH7JNFnvQM+ct6_mn89rAc+OdVbLaP=cCNkbeA@mail.gmail.com>
+ <CAEjxPJ7f6Qb3Yg9Yx3Yuog5jwsg0bD2OEidDnR0U1o9HOj7QCA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7f6Qb3Yg9Yx3Yuog5jwsg0bD2OEidDnR0U1o9HOj7QCA@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 9 Jun 2026 14:59:50 -0400
-X-Gm-Features: AVVi8Ccdxq7C4WS3MMHPowUtGOcXQJIZMhCL13mjPC9y2--OlXU9tKe71thrUKs
-Message-ID: <CAEjxPJ4k-3a3QfruDYnE8dO9srD9qVf_OM0X_RyojyzMaWadSQ@mail.gmail.com>
-Subject: Re: [PATCH] add test for fts_* availability
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com, 
-	paul@paul-moore.com, perfinion@gentoo.org, Pepper Gray <hello@peppergray.xyz>
+Date: Tue, 9 Jun 2026 15:05:22 -0400
+X-Gm-Features: AVVi8CcnDhq0WIiyxDzwRo5VfzUm_Qv26I2_3277UP7eJhA7laasvGBy8Pe6B3A
+Message-ID: <CAEjxPJ7pF7f0uXXU50ECRKr2a4qXBipiGM49Tj0CSmkudcYBag@mail.gmail.com>
+Subject: Re: [PATCH] define matchpathcon_filespec_add/add64
+To: Pepper Gray <hello@peppergray.xyz>, Petr Lautrbach <lautrbach@redhat.com>, 
+	James Carter <jwcart2@gmail.com>, "hi@alyssa.is" <hi@alyssa.is>, nabijaczleweli@nabijaczleweli.xyz
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 5, 2026 at 3:14=E2=80=AFPM Stephen Smalley
+On Tue, Jun 9, 2026 at 10:43=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> From: Pepper Gray <hello@peppergray.xyz>
+> On Thu, May 7, 2026 at 5:53=E2=80=AFAM Pepper Gray <hello@peppergray.xyz>=
+ wrote:
+> >
+> > From ce907fb1daa4d165b29f2d91b3d0958e2eb7f044 Mon Sep 17 00:00:00 2001
+> > From: Pepper Gray <hello@peppergray.xyz>
+> > Date: Sat, 11 Apr 2026 15:55:17 +0200
+> > Subject: [PATCH] define matchpathcon_filespec_add/add64
+> >
+> > matchpathcon_filespec_add and matchpathcon_filespec_add64 are
+> > exported in libselinux.map, so both need to be linker-visible
+> > symbols
+> >
+> > fix: #512
+> > Signed-off-by: Pepper Gray <hello@peppergray.xyz>
 >
-> check if fts libs are-builtin (glibc) or add -flts
-> to use standalone fts (musl)
->
-> fix: #514
-> Fixes: https://github.com/SELinuxProject/selinux/pull/515
-> Signed-off-by: Pepper Gray <hello@peppergray.xyz>
+> I've added several people who have touched these definitions/code
+> recently in hopes of getting more insight.
+> Setting aside the whitespace damage in your patch, I am not clear if
+> this is the right fix.
+> commit 9395cc03226a0e1a ("Always build for LFS mode on 32-bit archs.")
+> introduced matchpathcon_filespec_add64() and the #define to
+> transparently remap API (but not ABI) calls from
+> matchpathcon_filespec_add().
+> Would appreciate clarification from the originator of that commit on
+> how/if this change would affect the intent there.
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Before your patch, on x86_64:
+$ nm src/libselinux.so.1 | grep matchpathcon_filespec_add
+00000000000175e8 T matchpathcon_filespec_add
 
-> ---
->  Makefile                | 6 ++++++
->  libselinux/src/Makefile | 3 ---
->  2 files changed, 6 insertions(+), 3 deletions(-)
+After your patch, on x86_64:
+$ nm src/libselinux.a | grep matchpathcon_filespec_add
+00000000000006c0 T matchpathcon_filespec_add
+000000000000096b T matchpathcon_filespec_add64
+
+commit 9395cc03226a0e1a ("Always build for LFS mode on 32-bit archs.")
+says it is maintaining the type signature of
+matchpathcon_file_spec_add() on 32-bit but mapping the API to a new
+matchpathcon_filespec_add64() entrypoint that takes a 64-bit ino_t
+argument instead. But there is no reason to expose the new entrypoint
+on 64-bit archs.
+
 >
-> diff --git a/Makefile b/Makefile
-> index 0e70f3d4..0e465f94 100644
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -27,6 +27,12 @@ else
->                 -fno-common
->  endif
->
-> +# check for fts_* availability
-> +H :=3D \#
-> +ifneq (yes,$(shell printf '${H}include <fts.h>\nint main(void){return ft=
-s_close(0);}' | $(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -Werror=3Dimplicit-f=
-unction-declaration -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
-> +export FTS_LDLIBS :=3D -lfts
-> +endif
-> +
->  ifneq ($(DESTDIR),)
->         LIBDIR ?=3D $(DESTDIR)$(PREFIX)/lib
->         LIBSEPOLA ?=3D $(LIBDIR)/libsepol.a
-> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> index c0e18321..9982faad 100644
-> --- a/libselinux/src/Makefile
-> +++ b/libselinux/src/Makefile
-> @@ -99,9 +99,6 @@ override LDFLAGS +=3D -L/opt/local/lib -undefined dynam=
-ic_lookup
->  LD_SONAME_FLAGS=3D-install_name,$(LIBSO)
->  endif
->
-> -# override with -lfts when building on Musl libc to use fts-standalone
-> -FTS_LDLIBS ?=3D
-> -
->  override CFLAGS +=3D -I../include -D_GNU_SOURCE $(DISABLE_FLAGS) $(PCRE_=
-CFLAGS)
->
->  # check for strlcpy(3) availability
-> --
-> 2.54.0
->
+> > ---
+> >  libselinux/include/selinux/selinux.h |  4 +---
+> >  libselinux/src/matchpathcon.c        | 17 ++++++-----------
+> >  2 files changed, 7 insertions(+), 14 deletions(-)
+> >
+> > diff --git a/libselinux/include/selinux/selinux.h
+> > b/libselinux/include/selinux/selinux.h
+> > index b1431e5d0d..241bb54a94 100644
+> > --- a/libselinux/include/selinux/selinux.h
+> > +++ b/libselinux/include/selinux/selinux.h
+> > @@ -537,10 +537,8 @@ extern int matchpathcon_index(const char *path,
+> >     with the same inode (e.g. due to multiple hard links).  If so, then
+> >     use the latter of the two specifications based on their order in th=
+e
+> >     file contexts configuration.  Return the used specification index. =
+*/
+> > -#if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64 &&
+> > defined(__INO64_T_TYPE) && !defined(__INO_T_MATCHES_INO64_T)
+> > -#define matchpathcon_filespec_add matchpathcon_filespec_add64
+> > -#endif
+> >  extern int matchpathcon_filespec_add(ino_t ino, int specind, const cha=
+r *file);
+> > +extern int matchpathcon_filespec_add64(ino_t ino, int specind, const
+> > char *file);
+> >
+> >  /* Destroy any inode associations that have been added, e.g. to restar=
+t
+> >     for a new filesystem. */
+> > diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathco=
+n.c
+> > index 240c9fa76d..df4cabf597 100644
+> > --- a/libselinux/src/matchpathcon.c
+> > +++ b/libselinux/src/matchpathcon.c
+> > @@ -261,25 +261,20 @@ int matchpathcon_filespec_add(ino_t ino, int
+> > specind, const char *file)
+> >   return -1;
+> >  }
+> >
+> > +int matchpathcon_filespec_add64(unsigned long ino, int specind,
+> > +                              const char *file)
+> > +{
+> > + return matchpathcon_filespec_add(ino, specind, file);
+> > +}
+> > +
+> >  #if (defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64) &&
+> > defined(__INO64_T_TYPE) && !defined(__INO_T_MATCHES_INO64_T)
+> > -/* alias defined in the public header but we undefine it here */
+> > -#undef matchpathcon_filespec_add
+> >
+> >  /* ABI backwards-compatible shim for non-LFS 32-bit systems */
+> > -
+> >  static_assert(sizeof(unsigned long) =3D=3D sizeof(__ino_t), "inode siz=
+e mismatch");
+> >  static_assert(sizeof(unsigned long) =3D=3D sizeof(uint32_t), "inode si=
+ze
+> > mismatch");
+> >  static_assert(sizeof(ino_t) =3D=3D sizeof(ino64_t), "inode size mismat=
+ch");
+> >  static_assert(sizeof(ino64_t) =3D=3D sizeof(uint64_t), "inode size mis=
+match");
+> >
+> > -extern int matchpathcon_filespec_add(unsigned long ino, int specind,
+> > -                                     const char *file);
+> > -
+> > -int matchpathcon_filespec_add(unsigned long ino, int specind,
+> > -                              const char *file)
+> > -{
+> > - return matchpathcon_filespec_add64(ino, specind, file);
+> > -}
+> >  #elif (defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64) ||
+> > defined(__INO_T_MATCHES_INO64_T)
+> >
+> >  static_assert(sizeof(uint64_t) =3D=3D sizeof(ino_t), "inode size misma=
+tch");
+> >
