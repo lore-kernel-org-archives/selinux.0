@@ -1,146 +1,157 @@
-Received: from mail-lj1-f177.google.com (mail-lj1-f177.google.com [209.85.208.177])
+Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com [209.85.167.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A7503E7152
-	for <selinux@vger.kernel.org>; Mon,  8 Jun 2026 19:51:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6728C3D34B3
+	for <selinux@vger.kernel.org>; Tue,  9 Jun 2026 06:03:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.42
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780948280; cv=pass; b=uaYz5h0d5tZ5HBklZC3B8MC7HGFXExaiZfvTZJ6IAmgVUEG1OsH4lRmsQrJarzlXn5zNe5Dv/UtQGSm7YVzqG3b8Zh9k9vNEbm4hh3DSp0ov1L+wo+8vrnJrXlvPlOADHi3xt0h8yPJ7+Z1D5WDSeosKb6FCrdwCjvTHtCpz3EI=
+	t=1780985006; cv=pass; b=rcXO/Newx9a2DUq926z+BG9WJg7H8e5a5355jycMxCjNOIVZX0KLcFQsAnNIChLBfuQSXiOWyxh4zQFXnfNVfacifE0h4JkJPa8PsRE7j4g0QEkJGtf2RXEZ0wBuNJXJB6pZqdFuGFTR22CV98Lg7EOObI5LU1cPs9lVwqbOn08=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780948280; c=relaxed/simple;
-	bh=k2qFt6qY2IXpoE1pYK8pQT2+aVBr1Tm3YDOAlnbGygE=;
+	s=arc-20240116; t=1780985006; c=relaxed/simple;
+	bh=LrHwez1d9LLQRP4fFpttkO8kT0PzQSufcRkfhr3cGOk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=FBnCfH62r0ow1o3Ej1gx466Bx0dmb9kQaAP9uXG1b2jK1H1xt3l/kzeUniCNTP3bvCCu4KcntM1akyOPNSuRfxXnRrc3Q1wCkFIVnEqt6wl0VzK4PQ+BI6MyrPkGt1PL139IQ2i3tibcbCNoRP4lhi4eZW+pmUaufZuIpg1pFR0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=D62CzBts; arc=pass smtp.client-ip=209.85.208.177
+	 To:Cc:Content-Type; b=pJWcnK8+PZ25KZtMdBc29SxCsQSJFNWlhgW+dscG3ms5n5P5IFA5vD7//xNib5HNytnQk2HHOxJH/Zh3m4l7qXPmabzq1MhjARahO8owsQ5CswcPmPiG9soqTeDRb1oNhggwgWvbVADWgMoVINOerawBCm3w1QoP4H0gTWw/z9M=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=tK1arkM3; arc=pass smtp.client-ip=209.85.167.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D62CzBts"
-Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-396770cdcfdso49711051fa.0
-        for <selinux@vger.kernel.org>; Mon, 08 Jun 2026 12:51:19 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780948278; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tK1arkM3"
+Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-5aa69131836so4479939e87.3
+        for <selinux@vger.kernel.org>; Mon, 08 Jun 2026 23:03:25 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780985003; cv=none;
         d=google.com; s=arc-20240605;
-        b=bwx0dUAG6oVii2NZj0ser7AQ2/QBb8p8ucBp0izQDWfuQKFExfM9qR7V96DEHj6WwY
-         EpsUPIhCY3svZG8GJ6dqaICL0q7Bgy1cXzyKpFW8WilqzYLEKyctnf5f2mricJBW3HAb
-         IfsBAq6YFXCjCJwlO15DG7xqBPabM2q6om60w6t7SvRFXSGjYL61n/hntkNqVphdSVIN
-         lg6yjLHJKBKwKymHufRQgBnDY8s5ZhKWkB6G9sYDJFQkYz34bM0SClqOCv0vSqcVuyRn
-         ff/ZOmItMRyCzmZc8I+WKjjv2u2p6oyjoH6fr2lLjSHSpZo+j+hYScjUEDrA8zyYvcvN
-         l6Lw==
+        b=V7lC5ZR0WkITvbepRa+zy1kl3D9jw622ZwhBAtBBn6Ivm0z6psmXW66N8TaLqsFimY
+         iTi3Nhha3za+F+Ij+UFeO/zjDStmjyDVLpGHPguEwrcaGKulAH6t9KOTAoSl+qWBZ3s+
+         E3UlLakf7bUOde52+WhVuwO5F47byZyOOdTTOawO0sEZl0u6FYxNf4LFto+Q7BGUvGWy
+         Yfevv1M2RGeG0QX8zH1qPUy4i98c8UuhNbIkglNQWwMj/DyPEykoGWrqjWuvI1d8krAO
+         Tl5tMMd1LGZA2aXY2ASJKn8G4zFlO0zu6y9iHqggUDHGUvZS+f3q3W1Vnz2HMYLaw6OF
+         bWeA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=ym5dHbjla3/ye7E0GpuNQNQUQEJcvzJi7yUhQygxHJA=;
-        fh=vavl48DikL+NIBRgeTDyB7iJmOd/sXAUthXzgkMi/qE=;
-        b=AJbO4cO6f9QimfSPhpz+0Bqt8hzxQaSYVtDBWXV1Mph0n0gF/YzUOdrga6rk2BE7rt
-         xptbsEDNxqwq/h++ex3hw9WwHgKSK4MOzWiDg+swyrGL+Lb2Rqqq5KZIiEnkVjQbfUTP
-         QaWC170WYKb86wwEZ7XpeF3yUZ9RPCOdNH6gQDA8qP/BJejzEvG7uQpUSCI9RbTsMZnF
-         6oxtf+9GNTbaFO0y67T1sF6sEl5AfeFVb0UsjSvcTzlBrbuUW81+r1RY/pVD7tTq1HZb
-         G50VFI+bzszVLAbSH1BH9Wy52dTCxic99kp5zWvGOxuTOK96sutyMnBMDkqlRGcne9Pl
-         6dKg==;
+        bh=XZGD5AdwPvyN376ovEwRMZ7vNbqAKo+RXz4TdvkBZGc=;
+        fh=PvVq3dmv8yvnCRJYSTWWanBfOaJzW2R+gufroGOSnBQ=;
+        b=giDV7Xdpehc8qcuSXN4AJeJG5WGHD8MnblL2Fu97Wx+nBtZJYl/m1ja5U3Hg8VnMRe
+         fsGnyRP0RpglHmaw5EZ9fz46BLPaCdYOeTlEOzIHGAhVHz/P2sUWS3/uLV8P7f/jJF0Y
+         fP2CroHv9wcuEoA8GzFuX5BBlcLq1ZWpKsZY9HWUaCNeRyF0ELyheNARy7pWntE5oLVA
+         bHeJTjXX1Udg7l0Hyu37SzpFQZ30HPkmkaSrggE7VvM9df5zptvJex0ezUcdJVDkc+y5
+         +fqy45dbUvddJOcrQMGWDF+AnIOP1wGpID5VUCKBduEvbABHlqV1Nkam9zHk62rD6GJZ
+         vtGQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780948277; x=1781553077; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780985003; x=1781589803; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ym5dHbjla3/ye7E0GpuNQNQUQEJcvzJi7yUhQygxHJA=;
-        b=D62CzBtsqQ5VAIi3f6Q1zoVtXG9c1FPIFyKFmqFZ2YQEH1s402NNw84I+CtOsnutwh
-         Q2GRGo+V9wvqN/AtwMEJDIvmtpWdZruGhZ+VNJEsqoMb3jwHmtm+I1zUrAAdeM3Fhu3J
-         goGWQPR0V67c6rUXwOjfy7RyHEZ22AUEHaqHH4NoJzXT0dlmXA3X1dgoR/kNNW+d52L6
-         T5LKg5GHggz4qh31qDkUaQX2XNPTU8PfKmpk4NjBK5f0FSR7fQi+w49EJ93AZjOR2XWp
-         PF4tZ5Uf9P2uj/OhTKC/u+s4vSrpuBHLW2cizqQl5ivBnqAQHeTNtUjlsck2vBUY5Skr
-         QhEw==
+        bh=XZGD5AdwPvyN376ovEwRMZ7vNbqAKo+RXz4TdvkBZGc=;
+        b=tK1arkM35G82qEG1tLVDHuLk7SSkFNNqNJ12ABuraForPnSPkWvWY/haNIBNiCEq9B
+         jUObqv/es4Fqod+U9lEch9rCZr/T8VJ2huC++CeH7GlDVl375bE/N+Nbdj3Tsi3PnuCi
+         3r1dWswygv3JrSkHoP20KhnFj7FVqNHkT/j/6htZn85K3ZApInsGeEqfOO+jSvZiWBhD
+         1f8/LIwW6yyrdA+Nrhj5S5YpgNihUk+07YMuH9jHMjHP56YdgeRxrPg8bQwGL//E+8pa
+         3T2rlmjc1k1nKilEe7Pr7lFNW2EiEqfzlot+Tdd9BNOmZOHkyZeB69NipW4IM4itPhck
+         8cwQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780948277; x=1781553077;
+        d=1e100.net; s=20251104; t=1780985003; x=1781589803;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=ym5dHbjla3/ye7E0GpuNQNQUQEJcvzJi7yUhQygxHJA=;
-        b=nfZyRu+VGtWRkieTDuNyMSpPzb32zdMj/6ojlVUvEF3YEBOlrdMI5CGN6WxaNTr5qq
-         PNx/i7evisyqFQYqyWrRfHacD5f8oDJOAybgIpehSD+StzqxcL5P95QGYkOzR2pWIh47
-         JC5PQ/PwSMa7phCJAXDpaUiUONic0Dp3FB5yG9FgcAzqI3uiI43Nvp1nx0pQ5N4r9FSd
-         eHe61YH783aOPqEJl+q1qXrHpEyHgDfLP6EtexTtyjunhArLVoACpP5Jq5dnRYWqzVxX
-         YGcFxvyEVZcdSkE51cqWxqhlX3fT9qLCZKK+itJVCr9hGkdFXsa2SPUSnZeexilaFPfB
-         4/5Q==
-X-Gm-Message-State: AOJu0YyMqFap0/R7s7FC4yDzL5UJUkDZt+aYWyhYhJCSpfDffLKuBWV6
-	SkHNQ507lcQkNLvDumfBVcMNawi4Wr4uDrtIfOJ5S+RLEL/6hfvSx5X1pWRnJax6bERJjMo713J
-	94oF8Rsad1xwVWIeJZUSEUGl+QerKjGc=
-X-Gm-Gg: Acq92OHzGpTwVIuNyIbOxfmv8LReIw+tCPJPjbeT7TirPzwvVgDNEiQ7uZHrJr30R3/
-	S//Z34UwpVnnh4VGWQ+XagQLvo/+SbHaQ1UyK8mtM80nB34+lJBghBAdxh9x/iMp07x5wa65p3P
-	xvCgdgXCgQFE88BuPBeCvFxT9Q2/ES4JCXs5/CgUK6lKLh1vM/iL6uJ0CaaDqFfW9EZNJ/7QsxS
-	juSl0gG+mIxePfT3cE+o3EjZ5pfEnLin+RBnwVF7m703z83YKF6dFy0wSAdSfD46h+5bR7vs5jJ
-	6J3+rbD1BwlkP1z9H8i61q6sLg==
-X-Received: by 2002:a05:6512:10c5:b0:5a8:fbe0:bc6d with SMTP id
- 2adb3069b0e04-5aa87b514c1mr5278270e87.14.1780948277443; Mon, 08 Jun 2026
- 12:51:17 -0700 (PDT)
+        bh=XZGD5AdwPvyN376ovEwRMZ7vNbqAKo+RXz4TdvkBZGc=;
+        b=LGNBXhZwSJkpGtItSXqlfpoJxrt6OQEUbtIlhTvrhf5gDKfCpmrgF5aepzxkgZEH6K
+         kTUWM2dtjgYKDcxHdtKVHZJWtfNf0vDW3460jqC6Ly7NA1DWnuVWmVX1WYcnUz0cP375
+         m8FY30+UqFHcly4i4N9chR2ywDUjqmY3pDzX5W8k/eypAKYZAji1ehfEU90WIg8mjPej
+         yk5oB1riX3TbI9BFImkIfTMINDhsGomQDLC3Ymii25XWEGNvjDHo10OA/F058Y7XST26
+         aa+WHyhQdeMuTuXb/Zpul15k55aqExawztpqlLDWlTmfWoq4j7fruKa3N93JIR0pYNI+
+         PD9g==
+X-Gm-Message-State: AOJu0Yw3z595y1bZapGRMREE0Fyq4rfKFGirvuKnTPKG7l4i/Nu2SQ3m
+	fQz7fUTd6jDqheOmN+my+jYGRgxfvb5chai9ljlYN5g0hKEuu3VsJCHdW0v58MdzmS51t1SwF5H
+	r5FJmuLFILnRCdT9YQ58PVSLCUkSb4txcCY4l
+X-Gm-Gg: Acq92OHVHEme8ifvJDIjQ1eDkf1GT3JcXFNpJdtDBIZw9HnOFKys/CBxNH8PZgPDiRX
+	UBK1O+q7JqYyAI3y6ESOSQ3UwRdwtuEZnoPj7F6W/ATfRybkJgIWNtw2louDCkfSAj3ci2WcVSJ
+	+zdHDb5FMs+wIUdcn6hPshUu5BQHyMSk5Qts+tBMepz8zMVvyZEfzeZ0ie0j/4jjKOQJc6GLGJK
+	VvvwtL4jfnuiClUyf2fW0XemkuRN2Iigfo+r42jFJa0LUhwgNHg2GUuoVXHd5mktCvZr8k5805A
+	t81GEV+T86JoKQWhQ/Fkp/u/6FVDWA==
+X-Received: by 2002:a05:6512:3981:b0:5aa:6ec6:2593 with SMTP id
+ 2adb3069b0e04-5aa87beebf2mr5695372e87.39.1780985003079; Mon, 08 Jun 2026
+ 23:03:23 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260608164444.313701-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260608164444.313701-1-stephen.smalley.work@gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Mon, 8 Jun 2026 15:51:06 -0400
-X-Gm-Features: AVVi8Ce20R8kUXrlE5MOJ8GJQl6lFkUjW3DFcMQwRby7MNOm-b2QHFTsiEEnygg
-Message-ID: <CAP+JOzTzD0z_PacC81nh2sDpHLWY7WJ261gjzrXDraWcuF4cAA@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: label_backends_android: fix
- non-anti-symmetric cmp function
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
-	paul@paul-moore.com, perfinion@gentoo.org, tweek@google.com
+References: <CAAhcyzmaCLaRmK2anDfThnhy3M_EFRgpk7Aajd+uctvYr27WZg@mail.gmail.com>
+ <CAHC9VhSf-ph9D63=J-AemOZfvb9HXLFguCRFWkU4y1DvDsKr9w@mail.gmail.com>
+In-Reply-To: <CAHC9VhSf-ph9D63=J-AemOZfvb9HXLFguCRFWkU4y1DvDsKr9w@mail.gmail.com>
+From: muneendra kumar <muneendra737@gmail.com>
+Date: Tue, 9 Jun 2026 11:31:55 +0530
+X-Gm-Features: AVVi8CcJMVhmuPZ_NoSoe4Ktja01rh9rukAejpgLK8HHvLc6RckWeeBaxdniK28
+Message-ID: <CAAhcyzmUS0QkOL9_HReHD76fNTknPpJUui67-mLW-Dx_BPFzZQ@mail.gmail.com>
+Subject: Re: [REGRESSION] LSM/VFS: startup latency spike during rapid library
+ lookups (ENOENT) on x86_64 between 6.6 and 6.18
+To: Paul Moore <paul@paul-moore.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 8, 2026 at 12:45=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> qsort(3) requires its comparison function to be anti-symmetric.  The
-> current cmp() function used by the Android label backends is not
-> anti-symmetric in the case of a key starting with "*".  Fix it.
->
-> Arguably we should be checking for an exact match for "*" both in
-> cmp() and in property_lookup() but this might break compatibility.
->
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Hi Paul,
+Apologize for the typo mistake.
+>>Can you please confirm that you are using a "bpfaudit" LSM?  The
+>>standard upstream BPF LSM is referenced by "bpf".  There is no
+>>upstream LSM named "bpfaudit".
+It is bpf . (not the bpf audit)
 
-Acked-by: James Carter <jwcart2@gmail.com>
+>>Are you running a distribution kernel or are you building your own?
+>>If you are building your own, would it be possible for you to narrow
+>>down the kernel release which first introduced the regression?
 
-> ---
->  libselinux/src/label_backends_android.c | 9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
+In our earlier release we used the Linux 6.6.78 version and then we
+upgraded our kernel to Linux 6.18.33
+We are using the kernel from the below distro.
+
+https://github.com/intel/linux-intel-lts/tree/6.18/linux
+
+And we are seeing the performance impact in Linux 6.18.33.
+
+Regards,
+Muneendra.
+
+On Tue, Jun 9, 2026 at 1:08=E2=80=AFAM Paul Moore <paul@paul-moore.com> wro=
+te:
 >
-> diff --git a/libselinux/src/label_backends_android.c b/libselinux/src/lab=
-el_backends_android.c
-> index 4f12d0d7..f1a3050a 100644
-> --- a/libselinux/src/label_backends_android.c
-> +++ b/libselinux/src/label_backends_android.c
-> @@ -4,6 +4,7 @@
->   */
+> On Mon, Jun 8, 2026 at 3:22=E2=80=AFPM muneendra kumar <muneendra737@gmai=
+l.com> wrote:
+> >
+> > Hello,
+> >
+> > We are observing a reproducible 3x performance degradation during the
+> > initial dynamic loading phase of a userspace background daemon when
+> > transitioning from kernel 6.6 to 6.18.
+> >
+> > The degradation appears to scale linearly with the density of path
+> > resolution failures (ENOENT) encountered by the dynamic linker (ld.so)
+> > during its library search fallback loops.
+> >
+> > Isolation Diagnostics & Matrix
+> >
+> > To narrow down the root cause, we isolated several configurations:
+> >
+> > - Hardware Profile: The issue is highly reproducible on x86_64.
+> > - Kernel Parameter Isolation: Passing the boot argument lsm=3Dnone via
+> > GRUB restores performance to the 6.6 kernel baseline.
+> > - Active Stack Configuration: The regression occurs when all four
+> > modules are active and enforcing:
+> > lsm=3Dcapability,lockdown,selinux,bpfaudit. Removing modules reduces th=
+e
+> > overhead linearly.
 >
->  #include <stdarg.h>
-> +#include <stdbool.h>
->  #include <string.h>
->  #include <ctype.h>
->  #include <errno.h>
-> @@ -32,11 +33,11 @@ struct saved_data {
->  static int cmp(const void *A, const void *B)
->  {
->         const struct spec *sp1 =3D A, *sp2 =3D B;
-> +       bool wild1 =3D (sp1->property_key[0] =3D=3D '*');
-> +       bool wild2 =3D (sp2->property_key[0] =3D=3D '*');
+> Can you please confirm that you are using a "bpfaudit" LSM?  The
+> standard upstream BPF LSM is referenced by "bpf".  There is no
+> upstream LSM named "bpfaudit".
 >
-> -       if (strncmp(sp1->property_key, "*", 1) =3D=3D 0)
-> -               return 1;
-> -       if (strncmp(sp2->property_key, "*", 1) =3D=3D 0)
-> -               return -1;
-> +       if (wild1 !=3D wild2)
-> +               return wild1 - wild2;
+> Are you running a distribution kernel or are you building your own?
+> If you are building your own, would it be possible for you to narrow
+> down the kernel release which first introduced the regression?
 >
->         size_t L1 =3D strlen(sp1->property_key);
->         size_t L2 =3D strlen(sp2->property_key);
 > --
-> 2.54.0
->
+> paul-moore.com
