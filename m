@@ -1,186 +1,193 @@
-Received: from mx1.secunet.com (mx1.secunet.com [62.96.220.36])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BDBD317153;
-	Tue,  9 Jun 2026 14:05:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.96.220.36
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781013954; cv=none; b=llTzVGvyHco+48k/YFGpjsKd7JivevrGjQ1d1fiifoqDCBV73gCwB8p22G0KcGHLefYcIPG2/F26TGkewy3WISFDHwOMzcBDnpJX+U+f1DPvI2MKW0f6hnlxM6vsyagVoynia8u/RU3Pesax309O5i+/HFj6NBMhsj67gsdQyQs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781013954; c=relaxed/simple;
-	bh=p9ceCAe/cxupmbFwPLJqZ8wK4kbl3qLke/+hH+iki1w=;
-	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nidIgvvRfQFawUUURK6g1U+erGHhsBXwloQ95Xf/BW7+AHygH1KDKoIOvc93ag9lVZdCWy9QaAN2ZPOgs+bpMA+yKPR/gi0P+0yhwvSKzD2x1rx9E7cGF+PeQzHa9kRjxtRFRxTI2LooPMz7XRbUirnxeS9pFYGw8QKwpfEHWAw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com; spf=pass smtp.mailfrom=secunet.com; dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b=ht4sr0sS; arc=none smtp.client-ip=62.96.220.36
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=secunet.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=secunet.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 184B135DA65
+	for <selinux@vger.kernel.org>; Tue,  9 Jun 2026 14:43:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.172
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781016209; cv=pass; b=HYgwoK7Lp1pT8Tps353J5VWme4ONPcIH9N78UxVnzTSIU5zl5RX4eQS7+tHmZDw3qCKKyr6aUPU3fG2MUiw3vnnAZYlI8dlw5jAkIpMLAZTZu34Ic69LJibmInWuUTW8DRU66MR2wO6CnxZSYjJ4YzDLu9WFzbP0MklO0vte3gA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781016209; c=relaxed/simple;
+	bh=/YsUJPOC8dZOXkQAwYD4FBWT+qzG4pjHJvuibNhxFq4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=MLDAzArSmlZPxjruLEiX+MYkJTxSJeC0ea2IUuYSWR+zR9A2gzSxBpn5QbCPeEQ3FuXbO6DUp29C2+cognteXE/zT0SHmYJ9L8S/hFliSfXaFD3VBlNctmYdd+8xJJnxScUNF41Kw8NoonWPhxmjzgvWwGLM2LApwr6VSPlpzYo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=U8Hei1Kp; arc=pass smtp.client-ip=209.85.210.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=secunet.com header.i=@secunet.com header.b="ht4sr0sS"
-Received: from localhost (localhost [127.0.0.1])
-	by mx1.secunet.com (Postfix) with ESMTP id 259C9205E5;
-	Tue,  9 Jun 2026 16:05:49 +0200 (CEST)
-X-Virus-Scanned: by secunet
-Received: from mx1.secunet.com ([127.0.0.1])
- by localhost (mx1.secunet.com [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id t2WAbfeIgnUF; Tue,  9 Jun 2026 16:05:48 +0200 (CEST)
-Received: from EXCH-01.secunet.de (rl1.secunet.de [10.32.0.231])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.secunet.com (Postfix) with ESMTPS id 0C0F32019D;
-	Tue,  9 Jun 2026 16:05:48 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.secunet.com 0C0F32019D
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=secunet.com;
-	s=202301; t=1781013948;
-	bh=2Y79YA406WVMDOn1t2thR2Tgqj/FyeSsaBX5XBihyro=;
-	h=Date:From:To:CC:Subject:References:In-Reply-To:From;
-	b=ht4sr0sSSO743VMrOIEVM6+vIjACjb1vnzhB93MdHkaVvH66miSfcJFRulDZZUDVU
-	 URraHMl98PCWoXWIErrA59FmTVwRqJ4+sHA+UzJzz/myr9tOH4mrnu6LKOrg3BPkdK
-	 xYiFsYcxXs4rbw2gg4QIelOZp3o3E70pmhoc91cJ5OgVqE2N9csO2eWTyUMdVdL/y9
-	 KmiZJxzDJwOT992eAK1PzEzxRg5sx9hoAxoVfDKvRqceSPgtwuBl8sO3DFZyZwO7V2
-	 ZbkvMNruXanpzu9156Uz85qhpxviteLTMN+5rc+J5QeEspSrN3F+eP3OrapiLGzxDp
-	 0Lbg4D9OCv9NA==
-Received: from secunet.com (10.182.7.193) by EXCH-01.secunet.de (10.32.0.171)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.37; Tue, 9 Jun
- 2026 16:05:46 +0200
-Received: (nullmailer pid 1306013 invoked by uid 1000);
-	Tue, 09 Jun 2026 14:05:45 -0000
-Date: Tue, 9 Jun 2026 16:05:45 +0200
-From: Steffen Klassert <steffen.klassert@secunet.com>
-To: Antony Antony <antony.antony@secunet.com>
-CC: Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller"
-	<davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski
-	<kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman
-	<horms@kernel.org>, David Ahern <dsahern@kernel.org>, Masahide NAKAMURA
-	<nakam@linux-ipv6.org>, Paul Moore <paul@paul-moore.com>, Stephen Smalley
-	<stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>,
-	Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>,
-	Sabrina Dubroca <sd@queasysnail.net>, <netdev@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <selinux@vger.kernel.org>,
-	<linux-doc@vger.kernel.org>, Chiachang Wang <chiachangwang@google.com>, Yan
- Yan <evitayan@google.com>, <devel@linux-ipsec.org>
-Subject: Re: [PATCH ipsec-next v9 00/16] xfrm: XFRM_MSG_MIGRATE_STATE new
- netlink message
-Message-ID: <aigducMLaXYKn6sa@secunet.com>
-References: <migrate-state-v9-0-ad9947e4ae74@secunet.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U8Hei1Kp"
+Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-84230ab8857so2508547b3a.1
+        for <selinux@vger.kernel.org>; Tue, 09 Jun 2026 07:43:27 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781016207; cv=none;
+        d=google.com; s=arc-20240605;
+        b=E7yCJepZw+DXXJt2b873gRTnUFhzJEpaqHNk4HtElsATnkj5glwj7Eg9ffDno/hZBx
+         Qy49Vkn683AaPyw7mOGfKT0Z4KrAE3Ky74g16/IhbgZ+exZxsZQRtlFeHOhm9cSNvGMV
+         2S74boDYKTBFy4KxbL0jAmSRdiJ3hwoMh36aPAw87ETdegcOZSoIXI+at2jQoq+J1XCO
+         a8A+KPeunHJeJpmT7fYBP+Jy41PcJRDoBnvke2dmBsUKNP/tQ5qkKvdFi4xWUWl9DbQL
+         Id2a1wmc8aGSilD17DrfSHKHJifDaaej67g3nhN/DSlh1RGexrNsZx15ItA46cwwi55y
+         80zw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=X11EnhBlUN8Nlp3IohgQPHkRJmmHNiPOeDtG4Tfh8Dk=;
+        fh=qLn5FPXLTak1S/P+p5ozWvgBCyGwYUBkqNxUKV7UUks=;
+        b=VEfFLaSxA7ElSJUjEYIFEeXP9us1ZXd6TAXAmpt4LRyr6SUNpwqxSraOTCopq/s9LE
+         z5B8wIONV28JCYq/t1M7Xg46vo8hRHtW/+9hrIZiKTmH54RnAgZiotCwh6ME+5DLbqL5
+         KSUBR8CqLQt0ofANUwG+booBBVnC1AGIzBUwfIkHkYU29SkF8yL1+Qf3Vhl2mSE2e8Sf
+         tdSKv1SBOoGRH+TJYFxdE1zLPZjMGN6gCbESfUa3Go9V9lQ4Q2qWGJmCZwRgF7V6EGR9
+         GUNws4kj/3O68OEMdhV9Sd9ECmAudzie2aGkxJsq71wAeq/K/j3HHo4T2hd5Cg54kEwc
+         glaA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781016207; x=1781621007; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=X11EnhBlUN8Nlp3IohgQPHkRJmmHNiPOeDtG4Tfh8Dk=;
+        b=U8Hei1Kp7uzCjFAqMs9IARilORo6wiJJi6CAsN5jwW07jnlKoWrmroA+nh9aF/B8GZ
+         aVe1I/eSvf0GN7OsxMvtXC7SU4At7SmdpoXVUmxaPFuw6gTIlIlVcL2azGNLoJpSHRPr
+         QfoGtuXaBxUHq5wLwELgj92KBnwdeukif9JisU4edOQqSYzHeiZvW5FePKAJl/BvsGIX
+         hwl4MOd3MckHXK536nmomeb3loQ1Z8cRl12c8ijuY8tXH9KIyt1kOxFs6r1aFZ/dnlcL
+         uZ9GUUfY/Ep3ykwxkgNwScNQbL2ljMiWmMGEnbeEOx/rpbBns0SB29Q2tkn1o1b3LXca
+         LBqw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781016207; x=1781621007;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=X11EnhBlUN8Nlp3IohgQPHkRJmmHNiPOeDtG4Tfh8Dk=;
+        b=DqFVEF4AYYEIv1I3iDh1S958stcaa+0HylOKH3ZTUSM8taGQn5kNIgKVT296JxOM7U
+         plX5iVbpwTGe8y6N7k+aPLG7qbA3eots9H9j9gOf01GUx6OsVQ0dTc8w4d8pH1aCXtbj
+         qZAmrfGOSyCpb6QXa34TTt2diP3ViXpUrCoAjcRcbnh+J5dNroKZ917GBSauItA/N65S
+         KBSZH9xDlk+VreHaAjp/GW2DWWWBX3C3A0cbMWVDAi0BUAlij7quYDRRSHaY4i/yZL8C
+         iz/Wq2pfTTZ7qm2yKHLoelx2FxE1kDh4z584Zs2kQEeYkF1vh/SysZbdBureeC756sSa
+         z+bw==
+X-Gm-Message-State: AOJu0YzDS7Tp04KmUBixZFIC0p5WgbfOVvTqZEXB2rjuho3AyCQKitya
+	gbbqvPECJ2eJY+6ZNVHobNeFQ6SAisso3YHuHKc999vR9++pRbWe8TgKIfly+1dNVBnWFPwiqpZ
+	ntLox4g1gjopRc7vHMEQSUhtNewRdLQw=
+X-Gm-Gg: Acq92OEvBAE4K/X93n3CQ4Yy3AbZW0XvPqTd92leiB8ImsJCGC4DCe3r7v/Qvwu4OCp
+	D63ee/nYIK5qAa47wVjP1J+mUXRTLSDNPbcz1q5oYczi+Ou6ej9rQFEi+uZn0TIEmZloCbPdvGP
+	Qg6VMEMudvwbB+oqr9k9LEi51q+rfo/C+d/FBASsarf/2cBH7wqAuw8kesKC0Rs+udJkZ0tNlyE
+	APO18gMF7dkeJqhPW/8SrZnCWp9diYewfDU/ngcHD5pRV0PrMNzPY+DhDvmqbQXRcL0xXzPeufM
+	Ia14F1MiyKZZTcqagQ==
+X-Received: by 2002:a05:6a00:1989:b0:842:4b4c:8a85 with SMTP id
+ d2e1a72fcca58-842b1006bd2mr21535269b3a.45.1781016207300; Tue, 09 Jun 2026
+ 07:43:27 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <migrate-state-v9-0-ad9947e4ae74@secunet.com>
-X-ClientProxiedBy: EXCH-03.secunet.de (10.32.0.183) To EXCH-01.secunet.de
- (10.32.0.171)
+References: <CAHLDejxCCVr1kH7JNFnvQM+ct6_mn89rAc+OdVbLaP=cCNkbeA@mail.gmail.com>
+In-Reply-To: <CAHLDejxCCVr1kH7JNFnvQM+ct6_mn89rAc+OdVbLaP=cCNkbeA@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Tue, 9 Jun 2026 10:43:15 -0400
+X-Gm-Features: AVVi8Cd3d7H2BWtl155ka3rSv1JYm9vtypHkeguaJXWcEvL5RdW-n__GzefXlbA
+Message-ID: <CAEjxPJ7f6Qb3Yg9Yx3Yuog5jwsg0bD2OEidDnR0U1o9HOj7QCA@mail.gmail.com>
+Subject: Re: [PATCH] define matchpathcon_filespec_add/add64
+To: Pepper Gray <hello@peppergray.xyz>, Petr Lautrbach <lautrbach@redhat.com>, 
+	James Carter <jwcart2@gmail.com>, "hi@alyssa.is" <hi@alyssa.is>, nabijaczleweli@nabijaczleweli.xyz, 
+	steve.langasek@canonical.com
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, May 26, 2026 at 09:05:38PM +0200, Antony Antony wrote:
-> The current XFRM_MSG_MIGRATE interface is tightly coupled to policy and
-> SA migration, and it lacks the information required to reliably migrate
-> individual SAs. This makes it unsuitable for IKEv2 deployments,
-> dual-stack setups (IPv4/IPv6), and scenarios where policies are managed
-> externally (e.g., by daemons other than the IKE daemon).
-> 
-> Mandatory SA selector list
-> The current API requires a non-empty SA selector list, which does not
-> reflect the IKEv2 use case.
-> A single Child SA may correspond to multiple policies,
-> and SA discovery already occurs via address and reqid matching. With
-> dual-stack Child SAs this leads to excessive churn: the current method
-> would have to be called up to six times (in/out/fwd × v4/v6) on SA,
-> while the new method only requires two calls.
-> 
-> Selectors lack SPI (and marks)
-> XFRM_MSG_MIGRATE cannot uniquely identify an SA when multiple SAs share
-> the same policies (per-CPU SAs, SELinux label-based SAs, etc.). Without
-> the SPI, the kernel may update the wrong SA instance.
-> 
-> Reqid cannot be changed
-> Some implementations allocate reqids based on traffic selectors. In
-> host-to-host or selector-changing scenarios, the reqid must change,
-> which the current API cannot express.
-> 
-> Because strongSwan and other implementations manage policies
-> independently of the kernel, an interface that updates only a specific
-> SA - with complete and unambiguous identification - is required.
-> 
-> SA Selector, x->sel, can't be changed, especially Transport mode.
-> 
-> XFRM_MSG_MIGRATE_STATE provides that interface. It supports migration
-> of a single SA via xfrm_usersa_id (including SPI) and we fix
-> encap removal in this patch set, reqid updates, address changes,
-> and other SA-specific parameters. It avoids the structural limitations
-> of XFRM_MSG_MIGRATE and provides a simpler, extensible mechanism for
-> precise per-SA migration without involving policies.
-> This method also allows migtrating SA selectors typically used with
-> host-to-host in Transport mode.
-> 
-> New migration steps: first install block policy, remove the old policy,
-> call XFRM_MSG_MIGRATE_STATE for each state, then re-install the
-> policies and remove the block policy.
-> 
-> If the target SA tuple (daddr, SPI, proto, family) is already
-> occupied, the operation returns -EEXIST. In this case the original
-> SA is not preserved. Userspace must handle -EEXIST by
-> re-establishing the SA at the IKE level and manage policies.
-> 
-> ---
-> v8->v9: address v8 review Sabrina and Steffen
-> 	- split const xuo cleanup
-> 	- input validation
-> 
-> Link to v8: https://lore.kernel.org/all/migrate-state-v8-0-4578fb016965@secunet.com/
-> v7->v8: - removed the unknown-flags validation block
-> 
-> Link to v7: https://patch.msgid.link/migrate-state-v7-14-44eb2440b91c@secunet.com
-> v6->v7: - add SA selectoor migration
-> 	- fixes to commit messages
-> 	- white space removal
-> 
-> Link to v6: https://lore.kernel.org/r/migrate-state-v6-0-9df9764ddb9e@secunet.com
-> v5->v6: - add mark to look up SA.
-> 	- restrict netlink attributes in new method
-> 	- address review feedback from Sabrina
-> 	- add new patch to fix existing inter-family address comparison
-> 	- add extack xfrm_state_init()
-> 	- Feedback from Yan : omit-to-inherit add migrating marks
-> 	- Drop missing __rcu annotation on nlsk, Sabrina has a better patch
-> 
-> Link to v5: https://lore.kernel.org/all/cover.1769509130.git.antony.antony@secunet.com/
-> v4->v5: add synchronize after migrate and delete it inside a lock
-> 	- split xfrm_state_migrate into create and install functions
-> 
-> Link to v4: https://lore.kernel.org/all/cover.1768811736.git.antony.antony@secunet.com/
-> v3->v4: add patch to fix pre-existing missing __rcu annotation on nlsk
-> 
-> v2->v3: - fix commit message formatting
-> 
-> Link to v2: https://lore.kernel.org/all/cover.1768462955.git.antony.antony@secunet.com/
-> 
-> Lint to v1: https://lore.kernel.org/all/cover.1767964254.git.antony@moon.secunet.de/
-> v1->v2: dropped 6/6. That check is already there where the func is called
-> 	- merged patch 4/6 and 5/6, to fix use uninitialized value
-> 	- fix commit messages
-> 
-> ---
-> Antony Antony (16):
->       xfrm: remove redundant assignments
->       xfrm: add extack to xfrm_init_state
->       xfrm: allow migration from UDP encapsulated to non-encapsulated ESP
->       xfrm: fix NAT-related field inheritance in SA migration
->       xfrm: rename reqid in xfrm_migrate
->       xfrm: split xfrm_state_migrate into create and install functions
->       xfrm: check family before comparing addresses in migrate
->       xfrm: add state synchronization after migration
->       xfrm: add error messages to state migration
->       xfrm: move encap and xuo into struct xfrm_migrate
->       xfrm: refactor XFRMA_MTIMER_THRESH validation into a helper
->       xfrm: extract address family and selector validation helpers
->       xfrm: make xfrm_dev_state_add xuo parameter const
->       xfrm: add XFRM_MSG_MIGRATE_STATE for single SA migration
->       xfrm: restrict netlink attributes for XFRM_MSG_MIGRATE_STATE
->       xfrm: add documentation for XFRM_MSG_MIGRATE_STATE
+On Thu, May 7, 2026 at 5:53=E2=80=AFAM Pepper Gray <hello@peppergray.xyz> w=
+rote:
+>
+> From ce907fb1daa4d165b29f2d91b3d0958e2eb7f044 Mon Sep 17 00:00:00 2001
+> From: Pepper Gray <hello@peppergray.xyz>
+> Date: Sat, 11 Apr 2026 15:55:17 +0200
+> Subject: [PATCH] define matchpathcon_filespec_add/add64
+>
+> matchpathcon_filespec_add and matchpathcon_filespec_add64 are
+> exported in libselinux.map, so both need to be linker-visible
+> symbols
+>
+> fix: #512
+> Signed-off-by: Pepper Gray <hello@peppergray.xyz>
 
-Series appled, thanks a lot for your effort Antony!
+I've added several people who have touched these definitions/code
+recently in hopes of getting more insight.
+Setting aside the whitespace damage in your patch, I am not clear if
+this is the right fix.
+commit 9395cc03226a0e1a ("Always build for LFS mode on 32-bit archs.")
+introduced matchpathcon_filespec_add64() and the #define to
+transparently remap API (but not ABI) calls from
+matchpathcon_filespec_add().
+Would appreciate clarification from the originator of that commit on
+how/if this change would affect the intent there.
+
+> ---
+>  libselinux/include/selinux/selinux.h |  4 +---
+>  libselinux/src/matchpathcon.c        | 17 ++++++-----------
+>  2 files changed, 7 insertions(+), 14 deletions(-)
+>
+> diff --git a/libselinux/include/selinux/selinux.h
+> b/libselinux/include/selinux/selinux.h
+> index b1431e5d0d..241bb54a94 100644
+> --- a/libselinux/include/selinux/selinux.h
+> +++ b/libselinux/include/selinux/selinux.h
+> @@ -537,10 +537,8 @@ extern int matchpathcon_index(const char *path,
+>     with the same inode (e.g. due to multiple hard links).  If so, then
+>     use the latter of the two specifications based on their order in the
+>     file contexts configuration.  Return the used specification index. */
+> -#if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64 &&
+> defined(__INO64_T_TYPE) && !defined(__INO_T_MATCHES_INO64_T)
+> -#define matchpathcon_filespec_add matchpathcon_filespec_add64
+> -#endif
+>  extern int matchpathcon_filespec_add(ino_t ino, int specind, const char =
+*file);
+> +extern int matchpathcon_filespec_add64(ino_t ino, int specind, const
+> char *file);
+>
+>  /* Destroy any inode associations that have been added, e.g. to restart
+>     for a new filesystem. */
+> diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.=
+c
+> index 240c9fa76d..df4cabf597 100644
+> --- a/libselinux/src/matchpathcon.c
+> +++ b/libselinux/src/matchpathcon.c
+> @@ -261,25 +261,20 @@ int matchpathcon_filespec_add(ino_t ino, int
+> specind, const char *file)
+>   return -1;
+>  }
+>
+> +int matchpathcon_filespec_add64(unsigned long ino, int specind,
+> +                              const char *file)
+> +{
+> + return matchpathcon_filespec_add(ino, specind, file);
+> +}
+> +
+>  #if (defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64) &&
+> defined(__INO64_T_TYPE) && !defined(__INO_T_MATCHES_INO64_T)
+> -/* alias defined in the public header but we undefine it here */
+> -#undef matchpathcon_filespec_add
+>
+>  /* ABI backwards-compatible shim for non-LFS 32-bit systems */
+> -
+>  static_assert(sizeof(unsigned long) =3D=3D sizeof(__ino_t), "inode size =
+mismatch");
+>  static_assert(sizeof(unsigned long) =3D=3D sizeof(uint32_t), "inode size
+> mismatch");
+>  static_assert(sizeof(ino_t) =3D=3D sizeof(ino64_t), "inode size mismatch=
+");
+>  static_assert(sizeof(ino64_t) =3D=3D sizeof(uint64_t), "inode size misma=
+tch");
+>
+> -extern int matchpathcon_filespec_add(unsigned long ino, int specind,
+> -                                     const char *file);
+> -
+> -int matchpathcon_filespec_add(unsigned long ino, int specind,
+> -                              const char *file)
+> -{
+> - return matchpathcon_filespec_add64(ino, specind, file);
+> -}
+>  #elif (defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64) ||
+> defined(__INO_T_MATCHES_INO64_T)
+>
+>  static_assert(sizeof(uint64_t) =3D=3D sizeof(ino_t), "inode size mismatc=
+h");
+>
