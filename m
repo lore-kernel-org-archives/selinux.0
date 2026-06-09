@@ -1,172 +1,152 @@
-Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com [209.85.167.44])
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F736331ED3
-	for <selinux@vger.kernel.org>; Tue,  9 Jun 2026 18:27:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A045C4C9553
+	for <selinux@vger.kernel.org>; Tue,  9 Jun 2026 19:00:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.172
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781029643; cv=pass; b=ITngNobTOjqp3lVG4WT6fxrV0VHrUQi0o5RnK2P17kBT+ZyMCCok3Vb3+RwBZB2uggLuPOuLcI6ODG1pldkr8POHF9AA7ydb9Ldw7r0y83sP5PymjbUfJGilzQdzYz6WP+GI0TcB+BPT9ja9P4rjF1Z5lq8gmMUxV9537nOwJng=
+	t=1781031603; cv=pass; b=U4mCf1pAuurXBFhOYE/zDzIeTOb96C3eDvCDWRU3VUJbFhqvenWnHE6bRuF3nawJbegHhTQM5+qlla6+Kfkbi9/oH5mZG7JA5j4xtiBaQcDrkQeX8EXeFSpq3MronTh3pj4A/jk5IyShL8hZ+opnIbBwyIfVHaliy+A8b9Y2qBI=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781029643; c=relaxed/simple;
-	bh=AXL3nCNGfKXqo1NEaqK9P2m5XOxQj23M2+H9G/WPYAU=;
+	s=arc-20240116; t=1781031603; c=relaxed/simple;
+	bh=G8EiG1fO7cDghOOmLdXusGE2Rw7RXLDcps1jMjPJ4dg=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tdVoGRB4PPFoHgdwSInNJ+umPKHKOlzvyUsL5BhNCdT/q1raSKKH+e43qAXVZj7YjthHHYtqzgwUKtRh/Cw1XofcPUZMx6tdlgmI3/oU0gd+5+ArzWhh+hBgmvL29dRm9bXLH4DOmR/OAdPL3dJWRcUE1mA8vHY0AL/1iwmLeOE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=W6j6+pVd; arc=pass smtp.client-ip=209.85.167.44
+	 To:Cc:Content-Type; b=E4Hj7RLc81ZYhgZy+9yzISP1AWEgRV2QjqM+x1UZgW2ydKpEjHZcxOyQKwveVa2mfv8IhhPSCOMPy0SJn3yUkYn4WwLdN9/TZHop3PFYDSCsxe9ciZ7J2sf/Lpu6w13ajHDKeo1VhLKNm7FddSE1VQXsM6f5OvVZ/jBJjiXjqc0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=T0MjPLuV; arc=pass smtp.client-ip=209.85.214.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="W6j6+pVd"
-Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-5aa7a70c0aaso5982018e87.0
-        for <selinux@vger.kernel.org>; Tue, 09 Jun 2026 11:27:22 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781029640; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T0MjPLuV"
+Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2c0bd02d97eso66778505ad.2
+        for <selinux@vger.kernel.org>; Tue, 09 Jun 2026 12:00:02 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781031602; cv=none;
         d=google.com; s=arc-20240605;
-        b=IFMDdJjUwHkF/xVlR+TQJ6brdPC8DAniikUG8ajY6y1r5VN2vHQqhpjrmvK/K0TQvo
-         l25lFod7yg5X4T4N+bl9cDz3jDGYBacBChkLnjXcJ++shkqgVKWWkBHhBOVX+Y5a2/E7
-         DXAZ4xsnwmWTHX7zPDixdc83L4Ayi93pXVv3t272dDiBj3U6MqtNhbC9Bt+OANMxZY8w
-         U4mmtVFfVOdWG3OTCl/iRWvtORvBEi/2DhW/knsIPqvP8CXb2gjqHkvonngo3NpoEQ70
-         VV1G2WaIK26S/70TC/AP/OnF6VifSGDFY3Buk4qV6SUxPyNLZHHWm0Vtz/hKcqmAe/FT
-         52WQ==
+        b=fGCeGsQQ/t5HdX0Ui9h34usostedkkJBTqbx4IdfjjFC0UMSsfxt/X+BSgHmNbnuWW
+         oSSjdGnHmHj912iAoWDFiAIKFTQ70j5mhyR2cVaWFQPEQL/FE0t3jDC6XBbJwfQqtdez
+         rCWSuhTBaHmSZGY5fVS9FmrQvM3Wy+6MEShHJ3S9WC+Fv6xR5hnxbrGNutDyzsefqtIy
+         BJ5vvgBkmB4Cmi9BUspHTdg0xW9VglrdTEmzZ64/zWA4NGlJLQp/JH45yVM8nO8J2X4h
+         ASAOEtsFgs8KkXVBb0WzVLmtc6ytYIoueBjWOTp9IN/BgjaqWWN32/ZARFg7p43Yxh+p
+         PQ7w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=HvIOhiXN0vGEioqwaSZ6yKO/bdYui3f2ssMhEk3LdDo=;
-        fh=O5eaInpEYMH3sq23C/QESel+JOHLfHMFMQUnKM5jr6Y=;
-        b=cmR7BSCH01bu6rsdRUrE87m3CMH7HqZMhT5M4YsrHu6aqR1Tg6y8VeK7FlnKhwi6qZ
-         oXj//PDkStMkjdqIAsRZoLiNZbyJRpX+vo8a2la71lvkYMXDd47zbE6OBQIf6gRgC4ZW
-         7HNt4m9M53cBl7MC/x/0qbwGrVP0flp0WYVRK2m9w5Dm+PQ95ynlEJQrvJdCghN1F5MQ
-         ExlkLdYhmTIm6MQ4UxrB6kE/br7pJL0iA8Kuevf2xgSQbJ1gg0pAiZ6Ky7nb97fndyv6
-         Sk6Xosa3va7MUAkEa3IrCDHG5M0Xmlqh+GvXytz40f4xPPeJQKYCTXMr7+eSUrfgYuxQ
-         7ZdA==;
+        bh=8cD8nWsGF4fl2INrTCTP1TR8uQ1MJcxONrZy+IUyF9c=;
+        fh=teCuqbtyRM4Tgu/qjn48lO8vG8x3Xo0e287DZw7JaQM=;
+        b=BVNROCB8gqVuinl0U97EStxv1XI5h1N6l8MW/wes8jUzW+xrk1sh8lC9rr/3JLazib
+         eLLBbolEGb0qVRkyV9+NVeS8pKFETLUpJuI9jcFvUV02+f+JL72TSCttB7edDgzaiz6T
+         9Lb3tVB5wTyUbPwhbWZ9AXu8c04qwkXRFmL61RdWRIGtSfaMnPZVwKBEt2aO61LBfIeS
+         7C+BumMR3s8PBKFdFAA1Ok2XBC0/aPPVUCDNkvsXnWuZhO7KqrCm7In3IJ5+HaqaTpVN
+         ekvxrjfBcrpakD10o+Xi8sRZxCVgVXJUZjrDuznCLPnKQroPai5tYs54Z58RjW1vOLGv
+         T93Q==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781029640; x=1781634440; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1781031602; x=1781636402; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=HvIOhiXN0vGEioqwaSZ6yKO/bdYui3f2ssMhEk3LdDo=;
-        b=W6j6+pVdTplb3J8vebp25sfbpKplBgVDPtkVehbjjpiu5E++R2oH9mIJlYDuM3brzo
-         27g9HDc3EHA4f4FJ3dm2xBthlGtepnNT8xDn35w23Eqahl47F332Xk7JHMmU5khkzl+N
-         vQZGJ2OyyxMu9pgtWHTc8+DSlJR4G5ykePhuTgWtgAiSquycDmIjyq8SGvBiwllNz+DR
-         O/XX/Mi8ls48K3wkB46SB3fYmLPZPZmHpbFWkSgjqH+fhRU6MIv8qdxUhV93YxFAV3dk
-         5gzRb9tWI/5yipyaod0DddQOI99zCa8uQ0I3/uk+NLw3NOjWVQ8Nvz3mqrEntun0oNEw
-         J4YA==
+        bh=8cD8nWsGF4fl2INrTCTP1TR8uQ1MJcxONrZy+IUyF9c=;
+        b=T0MjPLuVaV1gifsUA1WyC4e76PhyvD/sYxPjFBOHlNENO3xvS48+e2fRh1k9WZtsQd
+         FRq85bvD8UnhBW+1QlL54kkLLKCxvRRjRtIetoVlSsVLdEQxaqIUpr0sqAHrD6NROYXD
+         CrR0KLeUM7WA73X520Qyw5HVO0nJWVC02VgyFi8DD4lPkiK6CUebNOellvHyJwgR4fLc
+         6girRKS1Oq9vxAlDY/5MAaNfrd/TQYDBeLjVg46Pb0Ws8P3PDbSNLsxdHZsftG+iKS/j
+         lE8h+PdHGFyKA7c3YapId/y1BF9V7Z5qf0CyKtWwTTL2PWGWVlWfdBRsvuc+KaoeU1Om
+         z3/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781029640; x=1781634440;
+        d=1e100.net; s=20251104; t=1781031602; x=1781636402;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=HvIOhiXN0vGEioqwaSZ6yKO/bdYui3f2ssMhEk3LdDo=;
-        b=fZA5daUlNESgXeuu64nfbjYdPEnAOak2YsuS0/zeoAQlI6tJLTIAmLRiS1XJLw9Cdc
-         ec4llg9Ces5kpIguVvAW0Px0yKMKsZDepfV5FkCvocFf24KsCx8WUgieTpAKSD8n9dBK
-         VxtK662y9AVndrZrHPXWA9YLW3tU7cI1RNqGvBoL+u2NK2ut7aQRUgAJT6Myr1SyKTpf
-         tYuBMqEbffjrc2yfxcZEyVJPnKXfH22iwLvAV+KmcpWlPAkrI9Idt8uj8A4sujzprkr/
-         B4L0Bvw75hZ+LKP7DNWi1upg3Qq3eNlqYw5xU0TqJ8oK+O5Bq64nTrtBUysUDXK9AiYC
-         f3/Q==
-X-Gm-Message-State: AOJu0YxIu/WGbFMmBVRjqaXWpYurqZImyUFxbASYgXZdD8SXxWTUeTDq
-	c9CHJhHMZlUJl7HpffbgpouYJfIJ2o8lfIIz2bhzjkJpZswOMiwTWJRYNamFrgNh2A+kDD7VIdG
-	Jyo3KWvgdjXKTcwtAmweA4Fa7+QNlYS55GA==
-X-Gm-Gg: Acq92OEBKotgI+pdZ7GKiORDmZ4a6XJNgISBNDO6oTT5tSZoMNEDV8FYrxYS/yKddnw
-	7pcVUofit3l0R7pTiec0Wg6dDCJjxFSwtvbEh5+GDqyQEHe2zw4Q4iCUJEj6DmnVI8utoWsRK82
-	I0o1/sFjrNXWmPnQhF+lEX+cstWahHPWAHBVnzz/oGg4/6pIr6Dz6T751m0mNB8LdKUF67s4BQc
-	dDsGt38c7VV0fvBeNgZmuNTNBwDrm/7ee+IlfffRcx4MhALHtaEWirQ+tKYlSKe6IF2WQuXBM17
-	7hpGp4NtOZfoLPQ=
-X-Received: by 2002:a05:6512:4045:10b0:5aa:780b:f341 with SMTP id
- 2adb3069b0e04-5aa87c0bacemr4146721e87.35.1781029640259; Tue, 09 Jun 2026
- 11:27:20 -0700 (PDT)
+        bh=8cD8nWsGF4fl2INrTCTP1TR8uQ1MJcxONrZy+IUyF9c=;
+        b=Sm2PDYnIj2y3q+AcFdf60jiLgKZ+wIfSlKZPjUBSSLrvE6yiYlFBBBZWeQMAAXkJ7b
+         zIBQ0mwl4G93f5+XRMV+dq8OFF4hYh7Ki2RRGBptEH2Hrkzw6crbS+z57QXAgfRmkoXZ
+         GYcx13eeVmoHK4D7Ooz00/mdrETChCEMXry6RnAOZzRMKqbIgEvbpGmQjKaPROcImDu6
+         LuapcdEsFfNJuikJMCEAZRVFIX34AFhcth7H+gPaGN5VihawOZlCCvnEjEtuN8JlLX8Q
+         Yvhr5FzjP8uHQ3bCkAATgiYW9URfjXxA1GByOJJ2US9rKI02FnXY9OBDOlAW9MRJqHdA
+         wmaQ==
+X-Gm-Message-State: AOJu0Yw1wz84cNFUdTh1ccVRfakzZw1Cl2uKVwBRjEAiKxUDefybv9Hw
+	Dd6AUrbqQAhnUgawX4rCliOnI0N6CPuq4aC2yP0yxLDSc2p011W5U2E3JkPtFKEKBX4tT34dLFR
+	wtqXDaUJl+HPNASuVvQ/iD9y1g1RUsjfP0A==
+X-Gm-Gg: Acq92OGXKpGhZiuhEJnuHWHWHuNi3u56UtfgtNYlR84t8+jwc5HNJVWui8w/UeXTrMd
+	Z5YGRZHStZTadT23EoQ7L/+DnjQuYmqq00CD/Q9dHBXo6MGM40zRJW/mi11DS0UrsmNRfgAIYKT
+	8RS+7vEYEWXyMIysvlqYPNi4RlszdW7Ym1r6bTHGLEt7DkFa/5FPfxw5VHhLs3xlqMsq6ed2H2G
+	bSEr7qnXoUWdAcxnzOlDfIU57ZVgRhWBloJBYK+2FZ0bMoyXcgoZpCkC2YbCyG9uh6YTjJn9qXV
+	GOtXa6zywhUxibCB+A==
+X-Received: by 2002:a17:903:b0b:b0:2c2:1e6c:450f with SMTP id
+ d9443c01a7336-2c21e6c46c8mr181859165ad.10.1781031601793; Tue, 09 Jun 2026
+ 12:00:01 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260609174800.6715-2-stephen.smalley.work@gmail.com> <CAP+JOzQm9q4AxWSJq4=e4L4m4C=2Mbmp2FT9rpjdnur4Up-t3Q@mail.gmail.com>
-In-Reply-To: <CAP+JOzQm9q4AxWSJq4=e4L4m4C=2Mbmp2FT9rpjdnur4Up-t3Q@mail.gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Tue, 9 Jun 2026 14:27:09 -0400
-X-Gm-Features: AVVi8CfATMYT8sj5FzAXXpr78uqcWs_ypjI4zqm2lkr2_5eKHHiZAtgvo_smcew
-Message-ID: <CAP+JOzSNZ8o70gPSoj05-hc-VSMY6HnP+nngCD6vY7JZZRK5Ew@mail.gmail.com>
-Subject: Re: [PATCH v3] libselinux: Do not clobber errno of the world
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
-	=?UTF-8?Q?Cristian_Rodr=C3=ADguez?= <cristian@rodriguez.im>
+References: <20260605191355.281484-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260605191355.281484-1-stephen.smalley.work@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Tue, 9 Jun 2026 14:59:50 -0400
+X-Gm-Features: AVVi8Ccdxq7C4WS3MMHPowUtGOcXQJIZMhCL13mjPC9y2--OlXU9tKe71thrUKs
+Message-ID: <CAEjxPJ4k-3a3QfruDYnE8dO9srD9qVf_OM0X_RyojyzMaWadSQ@mail.gmail.com>
+Subject: Re: [PATCH] add test for fts_* availability
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com, 
+	paul@paul-moore.com, perfinion@gentoo.org, Pepper Gray <hello@peppergray.xyz>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jun 9, 2026 at 2:00=E2=80=AFPM James Carter <jwcart2@gmail.com> wro=
-te:
+On Fri, Jun 5, 2026 at 3:14=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> On Tue, Jun 9, 2026 at 1:48=E2=80=AFPM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > From: Cristian Rodr=C3=ADguez <cristian@rodriguez.im>
-> >
-> > libselinux clobbers errno of all consumers (systemd, sshd you name it)
-> > because its constructors do not properly save and restore errno.
-> > The following program demonstrates it.
-> >
-> > int main(void)
-> > {
-> >         assert(errno =3D=3D 0);
-> >         /* Just a test, it doesn't matter already clobbered */
-> >         if(is_selinux_enabled() < 0) {
-> >                 perror("not enabled");
-> >                 return 1;
-> >         }
-> > }
-> >
-> > if any function sets errno, it is not switched back to the original
-> > value and standards DO NOT require errno to the set to zero before
-> > entering main
-> >
-> > Signed-off-by: Cristian Rodr=C3=ADguez <cristian@rodriguez.im>
+> From: Pepper Gray <hello@peppergray.xyz>
 >
-> Acked-by: James Carter <jwcart2@gmail.com>
+> check if fts libs are-builtin (glibc) or add -flts
+> to use standalone fts (musl)
 >
+> fix: #514
+> Fixes: https://github.com/SELinuxProject/selinux/pull/515
+> Signed-off-by: Pepper Gray <hello@peppergray.xyz>
 
-Merged.
-Thanks,
-Jim
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-> > ---
-> >
-> > v3 applies make format.
-> >
-> >  libselinux/src/init.c             | 1 +
-> >  libselinux/src/selinux_internal.h | 9 +++++++++
-> >  2 files changed, 10 insertions(+)
-> >
-> > diff --git a/libselinux/src/init.c b/libselinux/src/init.c
-> > index 499e4e44..abed3088 100644
-> > --- a/libselinux/src/init.c
-> > +++ b/libselinux/src/init.c
-> > @@ -145,6 +145,7 @@ void set_selinuxmnt(const char *mnt)
-> >  static void init_lib(void) __attribute__((constructor));
-> >  static void init_lib(void)
-> >  {
-> > +       SELINUX_PROTECT_ERRNO;
-> >         selinux_page_size =3D sysconf(_SC_PAGE_SIZE);
-> >         init_selinuxmnt();
-> >  #ifndef ANDROID
-> > diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux=
-_internal.h
-> > index 6089463d..ce04b128 100644
-> > --- a/libselinux/src/selinux_internal.h
-> > +++ b/libselinux/src/selinux_internal.h
-> > @@ -147,4 +147,13 @@ static inline void fclose_errno_safe(FILE *stream)
-> >
-> >  #define spaceship_cmp(a, b) (((a) > (b)) - ((a) < (b)))
-> >
-> > +static inline void selinux_reset_errno(int *saved_errno)
-> > +{
-> > +       errno =3D *saved_errno;
-> > +}
-> > +
-> > +#define SELINUX_PROTECT_ERRNO                             \
-> > +       __attribute__((__cleanup__(selinux_reset_errno))) \
-> > +       __attribute__((__unused__)) int _saved_errno =3D errno
-> > +
-> >  #endif /* SELINUX_INTERNAL_H_ */
-> > --
-> > 2.54.0
-> >
+> ---
+>  Makefile                | 6 ++++++
+>  libselinux/src/Makefile | 3 ---
+>  2 files changed, 6 insertions(+), 3 deletions(-)
+>
+> diff --git a/Makefile b/Makefile
+> index 0e70f3d4..0e465f94 100644
+> --- a/Makefile
+> +++ b/Makefile
+> @@ -27,6 +27,12 @@ else
+>                 -fno-common
+>  endif
+>
+> +# check for fts_* availability
+> +H :=3D \#
+> +ifneq (yes,$(shell printf '${H}include <fts.h>\nint main(void){return ft=
+s_close(0);}' | $(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -Werror=3Dimplicit-f=
+unction-declaration -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
+> +export FTS_LDLIBS :=3D -lfts
+> +endif
+> +
+>  ifneq ($(DESTDIR),)
+>         LIBDIR ?=3D $(DESTDIR)$(PREFIX)/lib
+>         LIBSEPOLA ?=3D $(LIBDIR)/libsepol.a
+> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> index c0e18321..9982faad 100644
+> --- a/libselinux/src/Makefile
+> +++ b/libselinux/src/Makefile
+> @@ -99,9 +99,6 @@ override LDFLAGS +=3D -L/opt/local/lib -undefined dynam=
+ic_lookup
+>  LD_SONAME_FLAGS=3D-install_name,$(LIBSO)
+>  endif
+>
+> -# override with -lfts when building on Musl libc to use fts-standalone
+> -FTS_LDLIBS ?=3D
+> -
+>  override CFLAGS +=3D -I../include -D_GNU_SOURCE $(DISABLE_FLAGS) $(PCRE_=
+CFLAGS)
+>
+>  # check for strlcpy(3) availability
+> --
+> 2.54.0
+>
