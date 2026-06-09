@@ -1,137 +1,138 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 591CA3431E3
-	for <selinux@vger.kernel.org>; Tue,  9 Jun 2026 16:25:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2B0648B373
+	for <selinux@vger.kernel.org>; Tue,  9 Jun 2026 17:46:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781022323; cv=none; b=R/8eEn9zymw40S/kawQQrsK2fr4pxcJrgzixvC/brCwXDXCJGYMXpx5zf77Dm6m92pADir4D52TDqDzG2vrCU3CmGiAe22sevgHVqxIuusHs15D9AximflFBB56OZmoc6qL2R/RuIsGA+F54LZiu5yRPOisX6BSooy2NW2E5MDA=
+	t=1781027203; cv=none; b=KmnXeQOsSpv/11gByH/dqfqiT6FPCcCisKm0V950TZuA1gxCnJ02RX4o1FdnRyqshsw9uYZ57k3/4wG4pGdGcPpSM1t4A45lGc2oEmNtVOHvWS4T43gKc5i0Cw75KVNePlJHgzytDqG/fJ0i4gnaG9rthpr+O+8qty7MvlHnJao=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781022323; c=relaxed/simple;
-	bh=aNaahN4MRiJch9ubAz8VhDifhPMbwibVuf6msmyI1xE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=isL3rVNH06R314Wl2EZokVt490vku3du34G3w95yoJkSmyAuOc9vFGbl/fo0mGJKNC3x8+NrI13ef/QXhvwYXhyEhjKQ8Az+URdsuwozdXra/GBjyEGNcZxF8JjwFU2dNpzDR62iPkprP/lDAQglTjoy3ut5yxRLQJRYAE3sLZI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=rgHeS+p7; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=rgHeS+p7; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1781027203; c=relaxed/simple;
+	bh=7W2BveE1y6dr8N36wXjlCfkEUzQiMmopPL10URnTZbE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=uTdq+hPUn48iBczWmdU+1GjCrBH4Wfe4QqwXYXhjmgs+KPCv15uZEHp77yWCWgQ1pGB5oMimeGt/LSiiCH1Xu5On1Ir2OFqkXFBShJoRDynepQeqOTrMJOM40L9ry3qECgQSL44ggpqEx/fK+vwisAPH9pIyp2nwLCIT/Ngmhtc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Cip2ESLl; arc=none smtp.client-ip=209.85.222.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="rgHeS+p7";
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="rgHeS+p7"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 8AD5F75BAB;
-	Tue,  9 Jun 2026 16:25:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1781022320; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=LHQkavjB3pH6ZbWnRUwf89s2vFs02NVIlCVxa2hrKn0=;
-	b=rgHeS+p7CnKdYH40WFTRQnfhzbedX097aphIKeApq17/WIl5dvCdr16q11WHF+LxOU1+Vb
-	EV4LKERS58l+ibDQqG8bRFJ1VBm/jiGv5vDkMopY6m7QjjmkqLwwqCBgaRrfpjhBPMFRec
-	PS5sERhy2bzBmH7ltxewAZA/Rfp/AEY=
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.com header.s=susede1 header.b=rgHeS+p7
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1781022320; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=LHQkavjB3pH6ZbWnRUwf89s2vFs02NVIlCVxa2hrKn0=;
-	b=rgHeS+p7CnKdYH40WFTRQnfhzbedX097aphIKeApq17/WIl5dvCdr16q11WHF+LxOU1+Vb
-	EV4LKERS58l+ibDQqG8bRFJ1VBm/jiGv5vDkMopY6m7QjjmkqLwwqCBgaRrfpjhBPMFRec
-	PS5sERhy2bzBmH7ltxewAZA/Rfp/AEY=
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 6FC5C779A7;
-	Tue,  9 Jun 2026 16:25:20 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id jb7fGXA+KGqBRgAAD6G6ig
-	(envelope-from <rfrohl@suse.com>); Tue, 09 Jun 2026 16:25:20 +0000
-From: Robert Frohl <rfrohl@suse.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Cip2ESLl"
+Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-91563382bcfso671107885a.0
+        for <selinux@vger.kernel.org>; Tue, 09 Jun 2026 10:46:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781027201; x=1781632001; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=oD4Jn7x4beZo8q5qGSYzIwoq92AXi/l0aD3ejqYlZm4=;
+        b=Cip2ESLl9ki0DJNSO5LVA5p+rQiiM5BPn6OWIibhh05OBOJTC3kobWGpAD2H7iFjs3
+         KRPbM3BC4bbDP02+KAyMMJCponG1JeOUyNbXZHatcHEt7Ndg/CRADqRau8Q8fP104e1X
+         G0Py7r/ucuyZMGPd3EXFbPGpjeMZq1qSP48rqtRdqT6NA7+SS0Mu0ZhkWRfheSMBRuUi
+         pEWFaSccaDiLpJLUEYH6vEsu06PuqBS5/3nAuCNyLTJmWRkEsymXeoFXTFp6kirxIVjx
+         WPA4GuXvzspZ7ALtDQhr0LZco4hEbxjZEiG2q61AHSPa/kmmNzF5O+bKWCQ1zh7sCPUT
+         giBA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781027201; x=1781632001;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=oD4Jn7x4beZo8q5qGSYzIwoq92AXi/l0aD3ejqYlZm4=;
+        b=XrCm9CdGzOmzi91Z7TmcgH0Ape/SNyrbxKyudur12jUssJeQimXOW1RRShg29PzhO2
+         SWWcZ9MO07ftdO8DttPnzgO7Dge8gF/+EXNB121Mp1NUn+cL/iM+GKMseDoA62vfQtHk
+         srscuYdnzYWElTuCFxbQMfPjUp5qziEnwgyI52sSuw7OfVottItoCLwmm43fHBZ/KwZk
+         vlgoBTZTMMr1YXzu02HZIGlP+BWy14cSsQiktrsXH2rqiwjvnNQp5da/BoonD6EYBmSA
+         iAgWabDBmZeMeNxY/D06fxNt0MTJRwx4t2YHz2n6th7fG8SVSqeYn34t5W36cFJMK+DP
+         fu7g==
+X-Gm-Message-State: AOJu0Yyane0Mc5qVswt4V5e8YZJv9NMNKsFk2agWxJ5O7RET7C+9OWVa
+	q8JJoug8Plf9DyO4nDyHH0nmMJ/gSsoqvr8fjxMaq32I6WRlubyclzqYoAePyg==
+X-Gm-Gg: Acq92OEt8fEFO/ajQhNta+irMIa7UPsHlNSBKo+m91VHFVHoQpIywLcMf7eCYjPakGg
+	8GYstPam7pQwy8wVI6tKsN1DF5u+wDRLaCf7m64dKuWD6ImQQAxGAm9ndJKp0Y4A9MMXHDeVKQo
+	GUQVTGCSXkhmXBydMNFjrF6o6hBISnvx4DQbu+CYRyUCxIY15ro/JfPpr0D9d6SoHlhj1nOaVs1
+	YKfVR8JtRsXX+QM/3R6TdvEwNYmSYYROTOam54VVgqp3Ukj1A93gyL/7ggGF4MXst7gaBE2iuAZ
+	9bKWV3Ap9hz8AOlH2iG7/dJzaqxDSwQ1BQlpQ2xvqptlbSTeSlOTjRJD+oIXpXtANi7e1q3csl3
+	OkRGnnWT8Fhf600kJHWKcMgG14Avn/CwRqljDXlTea6okHnxuIcWORfAzvzm74L/Sn41Rjv/oCj
+	QkJIVOY0IEquBoaXMHh2bOnn2ECTmFCqDjm0Oa1vH9Yz//rnLXqRQZ5OGerYpZ0xV5SnO63UCYL
+	d50K+gL1+Jvcb8gVwz8lYwt1rXYIWfNaZVK2Q==
+X-Received: by 2002:a05:620a:40cf:b0:915:79c8:ec92 with SMTP id af79cd13be357-915a9da95f9mr3417972585a.37.1781027200850;
+        Tue, 09 Jun 2026 10:46:40 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9158a381560sm2213981985a.28.2026.06.09.10.46.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 Jun 2026 10:46:40 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
-Cc: Robert Frohl <rfrohl@suse.com>
-Subject: [PATCH] sandbox/sandbox: fix saving file changes
-Date: Tue,  9 Jun 2026 18:24:27 +0200
-Message-ID: <20260609162427.47578-1-rfrohl@suse.com>
-X-Mailer: git-send-email 2.53.0
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	=?UTF-8?q?Cristian=20Rodr=C3=ADguez?= <cristian@rodriguez.im>
+Subject: [PATCH v2] libselinux: Do not clobber errno of the world
+Date: Tue,  9 Jun 2026 13:44:55 -0400
+Message-ID: <20260609174454.6637-2-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Flag: NO
-X-Rspamd-Action: no action
-X-Spam-Level: 
-X-Spamd-Result: default: False [-2.97 / 50.00];
-	BAYES_HAM(-2.96)[99.81%];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_MISSING_CHARSET(0.50)[];
-	R_DKIM_ALLOW(-0.20)[suse.com:s=susede1];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	RCPT_COUNT_TWO(0.00)[2];
-	DKIM_SIGNED(0.00)[suse.com:s=susede1];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email,suse.com:dkim,suse.com:mid,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.com:+]
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Rspamd-Queue-Id: 8AD5F75BAB
-X-Spam-Score: -2.97
 
-Fixes the following backtrace on saving files:
+From: Cristian Rodríguez <cristian@rodriguez.im>
 
-  $ sandbox -M -H sandbox_home/ -T sandbox_tmp/ /usr/bin/vim sandbox_home/cmd
-  [edit file and save]
-  Traceback (most recent call last):
-    File "/usr/bin/sandbox", line 565, in <module>
-      rc = sandbox.main()
-    File "/usr/bin/sandbox", line 553, in main
-      return self.__execute()
-             ~~~~~~~~~~~~~~^^
-    File "/usr/bin/sandbox", line 530, in __execute
-      savefile(dest, i, self.__options.X_ind)
-      ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    File "/usr/bin/sandbox", line 133, in savefile
-      ans = input(_("Do you want to save changes to '%s' (y/N): ") % orig)
-            ^^^^^
-  UnboundLocalError: cannot access local variable 'input' where it is not associated with a value
+libselinux clobbers errno of all consumers (systemd, sshd you name it)
+because its constructors do not properly save and restore errno.
+The following program demonstrates it.
 
-Signed-off-by: Robert Frohl <rfrohl@suse.com>
+int main(void)
+{
+        assert(errno == 0);
+	/* Just a test, it doesn't matter already clobbered */
+        if(is_selinux_enabled() < 0) {
+                perror("not enabled");
+                return 1;
+        }
+}
+
+if any function sets errno, it is not switched back to the original
+value and standards DO NOT require errno to the set to zero before
+entering main
+
+Signed-off-by: Cristian Rodríguez <cristian@rodriguez.im>
 ---
- sandbox/sandbox | 4 ----
- 1 file changed, 4 deletions(-)
+v2 drops the extraneous saved_errno < 0 guard and drops the
+extraenous __selinux prefix of _saved_errno.
 
-diff --git a/sandbox/sandbox b/sandbox/sandbox
-index e3fd6119..4e7d56fd 100644
---- a/sandbox/sandbox
-+++ b/sandbox/sandbox
-@@ -126,10 +126,6 @@ def savefile(new, orig, X_ind):
-         if rc == Gtk.ResponseType.YES:
-             copy = True
-     else:
--        try:
--            input = raw_input
--        except NameError:
--            pass
-         ans = input(_("Do you want to save changes to '%s' (y/N): ") % orig)
-         if re.match(_("[yY]"), ans):
-             copy = True
+ libselinux/src/init.c             | 1 +
+ libselinux/src/selinux_internal.h | 8 ++++++++
+ 2 files changed, 9 insertions(+)
+
+diff --git a/libselinux/src/init.c b/libselinux/src/init.c
+index 499e4e44..abed3088 100644
+--- a/libselinux/src/init.c
++++ b/libselinux/src/init.c
+@@ -145,6 +145,7 @@ void set_selinuxmnt(const char *mnt)
+ static void init_lib(void) __attribute__((constructor));
+ static void init_lib(void)
+ {
++	SELINUX_PROTECT_ERRNO;
+ 	selinux_page_size = sysconf(_SC_PAGE_SIZE);
+ 	init_selinuxmnt();
+ #ifndef ANDROID
+diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
+index 6089463d..39d57bd8 100644
+--- a/libselinux/src/selinux_internal.h
++++ b/libselinux/src/selinux_internal.h
+@@ -147,4 +147,12 @@ static inline void fclose_errno_safe(FILE *stream)
+ 
+ #define spaceship_cmp(a, b) (((a) > (b)) - ((a) < (b)))
+ 
++static inline void selinux_reset_errno(int *saved_errno)
++{
++        errno = *saved_errno;
++}
++
++#define SELINUX_PROTECT_ERRNO __attribute__((__cleanup__(selinux_reset_errno))) \
++                         __attribute__((__unused__)) int _saved_errno = errno
++
+ #endif /* SELINUX_INTERNAL_H_ */
 -- 
-2.53.0
+2.54.0
 
