@@ -1,125 +1,183 @@
-Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
+Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2931B406834
-	for <selinux@vger.kernel.org>; Wed, 10 Jun 2026 12:42:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.175
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781095374; cv=none; b=LajHLDvoS1pPEycDKzwvASKQVXu1rWVGX3usgod5txZGTPT4/utjMcT0+iIgKMRaELqSDw1KIbCjHazxsJO2Vhe7JnfPstMTtvWFj8I5uedNtKUPZ1V8WMu8vwBmGvO/4XHfm/T2/30pYB3KMekEchrmfzfmCRilX920vaoOW3M=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781095374; c=relaxed/simple;
-	bh=rJYB0ZDNhK9YpzgOjuDNYkqLne28+o0ayshqW9N4U9A=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jqE1OtgHZJ8fcM6wFwqaYLNIk7I+xEQDk9IsS+4a1eySHEOrKXzU5csE0r89LfKwTB2r2rdD/ntadndFA97UaS+rVUdq7CkCObRU4Y64Zhv5X0QwnyRvn6faH9nqSHe806vRS4YVF5LpJlhdvU9wQKeyN4wau9wgUH4s0nf/sw0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ToM1VAKH; arc=none smtp.client-ip=209.85.160.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFBB140803B
+	for <selinux@vger.kernel.org>; Wed, 10 Jun 2026 12:49:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.173
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781095775; cv=pass; b=gxW2auTugxgWY5DuhceVvv61kj+3clari/NxW0igxCQd+EQ23v9xYl0ogN+pEk/fndm3KczJCIEk+uOrFmK3anLcqaaTjAzSbHK3S+E1vbOLi7rAmUrNS4Zvwc6RduLEPbIrJRGLcX8RoEUs2tFycJe+NCKTLOOdy5j93HeE/BI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781095775; c=relaxed/simple;
+	bh=RgURrtfe4Bi4WYeAGA902q1hGpQT4DhKDMYPHrpkVO0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=uCC9HCKB28jWtd+U8RWwK1A7RCOdQxA5T4PePrQNy6n3epYThvpZyOHVtJfx7vpK50wBwB0x7bnbLvAn+3nPC80doKcen4fhU1rW5Ze5k0F5E0oCI553e6KDRUZ9JEIS5cibCYyyDm2MIR5z6jmXGve7BAfw06Pm+uS9Pb6iims=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cA7x6Nr/; arc=pass smtp.client-ip=209.85.214.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ToM1VAKH"
-Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-5176465a4a4so90403781cf.2
-        for <selinux@vger.kernel.org>; Wed, 10 Jun 2026 05:42:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cA7x6Nr/"
+Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-2bf2e8ccca1so48019095ad.0
+        for <selinux@vger.kernel.org>; Wed, 10 Jun 2026 05:49:33 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781095773; cv=none;
+        d=google.com; s=arc-20240605;
+        b=EwdCtHb/5AutLU2KU5Pz3SG+xRp2r10fRJ/UJvPgYDNcuR6DnPYnb3FPuxfyB7OWu/
+         zHHG3IZj9I6fXhoSDNHc8DrUC8yOgBLbtpDA0XG0Gqike6ntR9bjgFoBSZF5psUG/uP9
+         MpdXZTCIP31q96+HufBInEe7FjyQBlRe9SKN2wn7FBKzesI3e9AdNHafMG1CUOnCi8+j
+         f6fuKHKt/TE9HqqFeiM8MINnizewsmuFfY/3I1/RwZUNGdIJZUYDsyep3y4XNZqHBaKp
+         wbKGlrmBxYg5UMB6Re66GCS06vZiN6dj179t3q2Ij+uRVmFacgSdShNjkSB5s2MTtGQx
+         UX9A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=RgURrtfe4Bi4WYeAGA902q1hGpQT4DhKDMYPHrpkVO0=;
+        fh=BSYX5pFzsnodderZ6Fagt5SM/AxwelMKdQExzIDWKBo=;
+        b=BNs7o7lGEYj+OYa57rvvPv1vPUbefI2rrwOcMP5+9EC/qO0X8EjZ1ndvDRq3CoCzxQ
+         bgww6OMnz1thBRqYyax2n2egzCeiuk8gTDbpy/BbwRrMoxWHNBeGP7vI6bxJ8pEgaXh8
+         fazh87lWBVsjcDa6HmGMvvAWgCZnXi7gSwh9DNU64aEFq/ZiXCQBpQVzzcuAgkxbJoGx
+         P60fE8PLsTy7IUOqVvHL0n8vkY1dDGypCYMDWvHXefVUM+6nB8pT9hl/N5beQoL1r4Mg
+         pbk7m3V8/CECn62js2Esj1UNdIX0qzPpkbz10KA2hIXoxhZUfwaB4ILLgOeKdLqRQzrK
+         L2wQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781095372; x=1781700172; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=1tJLLJQCZiazhu+C0uHqE8l1eITBY1UX84JARltNPFI=;
-        b=ToM1VAKHDKwYVmrluGjOiOP3TI6mtrC6ViDztGhyyCOUkB3HpsrwGojgFtG59HARYy
-         u1lTMi/52VwbEFe8XrNxiWauRw21o3td5Z+OPIvZdRr+av2fwrCVhjpV7TpuHpN9XPGq
-         khmIH6C85TP/wRvV5YM+BlXpuv8Khn8FfujwrwY+e+cjdeQ6CcjwnyhtFKHVQ5SF8eoj
-         XMnyWJCDreO20hNSB1s+ffFQWGx61Ig4EnPzqEepn6G2bp4B2wFg8GXmDE0NFDYPbUEU
-         e+93xttf2ftHgsk8p2ym82NZ1CAV8I4etAy7l3mLhh5HsCMFr037ay2SCvNK62CPC/0e
-         s3bA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781095372; x=1781700172;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1781095773; x=1781700573; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=1tJLLJQCZiazhu+C0uHqE8l1eITBY1UX84JARltNPFI=;
-        b=TUStURn2+U5zBEbaFHKlubvaOTtzkBtIxCQAa/Dn04DqC1NmmoqMd9TFneeiTY2YH5
-         99hK0RlyDCAQSk0UfDPTjc2EgcBYluIT99/YWxkmS4HWpxeKvR8cfXF9bsvECudLQxei
-         z4HVg7cB9+879J8+Kqovl+x4nLTajB7qsQQYa8lXvAbIi9xAURqWrlI9dKHCqhVWzfbb
-         Qm0ST4UrJOH6/9dWRxL7KLy2mBdV/4EbZ3UML04Z+mJo2KFLVDjZ2if8gAMlU18x7eMy
-         JSmE40kwytR5833VceQPNOMOqSd02mpVamw4OG+JbBOicXh2Ng5kkgPHwzWuebLjK6cd
-         ZpYQ==
-X-Gm-Message-State: AOJu0YyV9yaT8AaoiJzBKloB+CettyDQlThIU7Y0jyKuXQub9bV1zQ+2
-	S3LG7V7xgltMOHaxh3PtSssmiuZuQPj3l8nICC/PFx4S0ARpbV7mFkqpFP4DCQ==
-X-Gm-Gg: Acq92OH6lXAP+X68xRH/Fe1qB6YQPkzWBcsaBRHnV1k2xF1JVRl7bwGpRQc+3eWEU87
-	WxRrcQ0nceVlXwTa3nAHc8wAvl4YeAsIJnd/CQ2v6Y6rlRzMlV/h3XcJs/nFutwUfQnET7eSQh+
-	pYwegf18EL612go9g0OzyCHpZu4UTd+IL77PP8ZSl7EKkiY0sW61jJC94meeSxYaCoJr4HguWuW
-	FobxBXaRFhJifZtapNSu7joweZvob5N199RqkMqDSI5s1PZVEh0MVPFZGE4MkkPW6NM5LAZcUtk
-	LUdgtiIHfHUOcLhOXfhRBwfFZ1GSS/5EJh3LI61fI3tgIbKcKW9rO6z3Ww41ScozA87qZUETcMe
-	zwsXr+xGPUPSks++5E+QYplVl/HMWUwwUxmVMgujme7uxf3zM7kdbuy+m+5f1BQQXnmthL7grUg
-	8eHu0M+vjOZBlNDxdQhNt80s68/ibzu9KHZhOFdCzTE0yiRCe432pX1/Jj+r86USsN0otzlzSGQ
-	SbBw0jvh64uFfyPgzAaIGe7h0Shu1IU/mun+Q==
-X-Received: by 2002:a05:622a:1808:b0:517:96f0:5658 with SMTP id d75a77b69052e-51796f06eadmr352413211cf.14.1781095372015;
-        Wed, 10 Jun 2026 05:42:52 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-517940762fbsm158312171cf.18.2026.06.10.05.42.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2026 05:42:51 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	plautrba@redhat.com,
-	omosnace@redhat.com,
-	netliomax25-code <netliomax25@gmail.com>
-Subject: [PATCH] sestatus: null-terminate process and file check entries
-Date: Wed, 10 Jun 2026 08:42:29 -0400
-Message-ID: <20260610124229.5628-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.54.0
+        bh=RgURrtfe4Bi4WYeAGA902q1hGpQT4DhKDMYPHrpkVO0=;
+        b=cA7x6Nr/T6wi3xbcOyEYuzzvxl6taow5U5t32AESQ3rTZHd9nN9JuBfeunswbf4+Qs
+         6QakAGpTc0KzRrMbIF9b3MVWfaL83DLJytSj5KJPBnfD6RxhWioaVV1bjoJbPGk5XIlT
+         m8Hiv+QnovxlGix9lDkVuhWqPInGmQ7vitZblSEMOVIeCR5sNspnkVHaCf/nlRsUhWt1
+         tq16Ds/7ViBUQEb9VwmupCgbSCMleX5K8ew7rZCLp3hW28HhlkT7JsW3oJ8BiWseCjoU
+         4kpyYuZiWPUKEdUKIuSsl6DdmHSoOcJvwhyGY5DKsHjAoQ+P22BATO39bBJzowE9SI9a
+         p6BA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781095773; x=1781700573;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=RgURrtfe4Bi4WYeAGA902q1hGpQT4DhKDMYPHrpkVO0=;
+        b=ANJsKYuXJG0THinSar9l8NkZi+ykKxPigQA3dCvbxXpoLReslYGPZb5gRR03DffIwm
+         MrmY58h3aMPZrqwwFyE91Iyoyv0RNfMCdOF7RCTbXEuoNsmskN2cxQhMMwvcTN6gvtvi
+         dHyO6wktOvfPbmOn2KfWa728N66qnAkB360tbHu42Ay6ZDRjPKJTs8IPzFoXQecyEsII
+         Bji39hDjeJSCCNbaRUFkGhDPiVPyxvuPTaUz43mPvCw9rDebmcofHUivPkZjAsmJM+2D
+         cA9OoGYkNl55KBj5QMrJLx2Grnc7tyVRaFMpNBmnQIR26x44YMOBSIz2y1GgaWW0lMAs
+         e7dA==
+X-Gm-Message-State: AOJu0YyTx9idp/7aC6OWnSkUoQkEqfQml79wUxmYzVByJBd8kY0HHVMI
+	WT6anzitLqgGlxWw6H0GqV/xo3XoiP9Vw2oxwNeyQygciY+1vBYeGRHwsKvWStByUYQ3wp1jzBO
+	dgmRt6om0JwBpHSqmOd2Itxs5XU8V7rN3vp9J
+X-Gm-Gg: Acq92OHYi4Lny3Cax8ZjhPRWRp5gTszd21oZjBOjHACuAa1ZEb4JMHD+EExEGAw8w2U
+	HV3O0rhofSl4fcZiv06wxeVFLupbZPXETaKBD1DAcCgahUDeA+rCJtY8YzA0gaGbmahm131gS62
+	LS3a4IBXh9Ypoc2Radull6OiodMu+SgtyX2C9zKKXnERcNz4ko9UlEpoDZ4bl8o1EHHoNMYc2Ds
+	nyp0eQTT9sDq2iTvxNRDGJZGBd/jVOvwRFxhlm2XFzbH+gTGX7DVVrl3hYqVP7RiV4ETJDrk78l
+	vMWsVR2TVEKufPMY9g==
+X-Received: by 2002:a17:903:19e6:b0:2c0:b6c7:227e with SMTP id
+ d9443c01a7336-2c1e79e1fd3mr259715285ad.5.1781095773229; Wed, 10 Jun 2026
+ 05:49:33 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <CAHLDejxCCVr1kH7JNFnvQM+ct6_mn89rAc+OdVbLaP=cCNkbeA@mail.gmail.com>
+ <CAEjxPJ7f6Qb3Yg9Yx3Yuog5jwsg0bD2OEidDnR0U1o9HOj7QCA@mail.gmail.com> <CAEjxPJ7pF7f0uXXU50ECRKr2a4qXBipiGM49Tj0CSmkudcYBag@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7pF7f0uXXU50ECRKr2a4qXBipiGM49Tj0CSmkudcYBag@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Wed, 10 Jun 2026 08:49:22 -0400
+X-Gm-Features: AVVi8Cezt40bDPNXJ0pbyVE3xavKprMI_V248oj_36WdtU4prUu5PIx1kJlBYFs
+Message-ID: <CAEjxPJ7DrFPVwO6d5UT37+yfqSAaUG0=zUqS7=iTdDGJ2JLUnA@mail.gmail.com>
+Subject: Re: [PATCH] define matchpathcon_filespec_add/add64
+To: Pepper Gray <hello@peppergray.xyz>, Petr Lautrbach <lautrbach@redhat.com>, 
+	James Carter <jwcart2@gmail.com>, "hi@alyssa.is" <hi@alyssa.is>, nabijaczleweli@nabijaczleweli.xyz
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: netliomax25-code <netliomax25@gmail.com>
+On Tue, Jun 9, 2026 at 3:05=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Tue, Jun 9, 2026 at 10:43=E2=80=AFAM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > On Thu, May 7, 2026 at 5:53=E2=80=AFAM Pepper Gray <hello@peppergray.xy=
+z> wrote:
+> > >
+> > > From ce907fb1daa4d165b29f2d91b3d0958e2eb7f044 Mon Sep 17 00:00:00 200=
+1
+> > > From: Pepper Gray <hello@peppergray.xyz>
+> > > Date: Sat, 11 Apr 2026 15:55:17 +0200
+> > > Subject: [PATCH] define matchpathcon_filespec_add/add64
+> > >
+> > > matchpathcon_filespec_add and matchpathcon_filespec_add64 are
+> > > exported in libselinux.map, so both need to be linker-visible
+> > > symbols
+> > >
+> > > fix: #512
+> > > Signed-off-by: Pepper Gray <hello@peppergray.xyz>
+> >
+> > I've added several people who have touched these definitions/code
+> > recently in hopes of getting more insight.
+> > Setting aside the whitespace damage in your patch, I am not clear if
+> > this is the right fix.
+> > commit 9395cc03226a0e1a ("Always build for LFS mode on 32-bit archs.")
+> > introduced matchpathcon_filespec_add64() and the #define to
+> > transparently remap API (but not ABI) calls from
+> > matchpathcon_filespec_add().
+> > Would appreciate clarification from the originator of that commit on
+> > how/if this change would affect the intent there.
+>
+> Before your patch, on x86_64:
+> $ nm src/libselinux.so.1 | grep matchpathcon_filespec_add
+> 00000000000175e8 T matchpathcon_filespec_add
+>
+> After your patch, on x86_64:
+> $ nm src/libselinux.a | grep matchpathcon_filespec_add
+> 00000000000006c0 T matchpathcon_filespec_add
+> 000000000000096b T matchpathcon_filespec_add64
+>
+> commit 9395cc03226a0e1a ("Always build for LFS mode on 32-bit archs.")
+> says it is maintaining the type signature of
+> matchpathcon_file_spec_add() on 32-bit but mapping the API to a new
+> matchpathcon_filespec_add64() entrypoint that takes a 64-bit ino_t
+> argument instead. But there is no reason to expose the new entrypoint
+> on 64-bit archs.
 
-load_checks() copies each [process]/[files] entry with malloc(buf_len)
-followed by memcpy(dst, bufp, buf_len), leaving no room for a
-terminator. A config line without a trailing newline (such as the last
-line of /etc/sestatus.conf) yields a buffer of exactly buf_len bytes
-with no NUL, and the entries are later used as C strings in pidof(),
-lgetfilecon(), lstat() and printf_tab(), producing a heap over-read.
-Allocate one extra byte and terminate the copy.
+Per Claude:
 
-Signed-off-by: Kartik Kenchi <netliomax25@gmail.com>
----
- policycoreutils/sestatus/sestatus.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+The actual issue is that lld (LLVM's linker) is stricter than GNU ld
+about version scripts: it treats a version script entry for a symbol
+that doesn't exist in the compiled output as a hard error, rather than
+silently ignoring it. GNU ld lets you list symbols in a version script
+that aren't present; lld does not.
+On musl + llvm, matchpathcon_filespec_add64 is only compiled into the
+.so when _FILE_OFFSET_BITS =3D=3D 64 && __BITS_PER_LONG < 64 =E2=80=94 i.e.=
+, only
+on 32-bit targets. On a 64-bit musl build with lld, the symbol doesn't
+exist in the object code, but it's unconditionally listed in
+libselinux.map, so lld hard-errors out.
+The fix needs to be one of:
 
-diff --git a/policycoreutils/sestatus/sestatus.c b/policycoreutils/sestatus/sestatus.c
-index d83602fd..528cdcce 100644
---- a/policycoreutils/sestatus/sestatus.c
-+++ b/policycoreutils/sestatus/sestatus.c
-@@ -135,22 +135,24 @@ static void load_checks(char *pc[], int *npc, char *fc[], int *nfc)
- 				case 0:
- 					if (*npc >= MAX_CHECK)
- 						break;
--					pc[*npc] = (char *)malloc((buf_len) *
-+					pc[*npc] = (char *)malloc((buf_len + 1) *
- 								  sizeof(char));
- 					if (!pc[*npc])
- 						break;
- 					memcpy(pc[*npc], bufp, buf_len);
-+					pc[*npc][buf_len] = '\0';
- 					(*npc)++;
- 					bufp = NULL;
- 					break;
- 				case 1:
- 					if (*nfc >= MAX_CHECK)
- 						break;
--					fc[*nfc] = (char *)malloc((buf_len) *
-+					fc[*nfc] = (char *)malloc((buf_len + 1) *
- 								  sizeof(char));
- 					if (!fc[*nfc])
- 						break;
- 					memcpy(fc[*nfc], bufp, buf_len);
-+					fc[*nfc][buf_len] = '\0';
- 					(*nfc)++;
- 					bufp = NULL;
- 					break;
--- 
-2.54.0
+1. Conditionalize the map entry =E2=80=94 not possible directly since versi=
+on
+scripts don't support #ifdef, but the map file can be preprocessed
+(generated via cpp or sed from a .map.in template) so the stanza is
+only emitted on 32-bit targets.
 
+2. Use --undefined-version to suppress the lld error =E2=80=94 a linker fla=
+g,
+not a source fix, so it's a workaround rather than a proper solution.
+
+3. Always compile matchpathcon_filespec_add64 regardless of
+architecture, making the symbol unconditionally present and satisfying
+both GNU ld and lld. This is what the referenced issue #477 comment
+suggests =E2=80=94 the function is harmless on 64-bit where ino_t is alread=
+y
+64 bits.
+
+Option 3 is probably the cleanest upstream fix: remove the #if guard
+around the matchpathcon_filespec_add64 definition in matchpathcon.c so
+it's always compiled, matching what the map file unconditionally
+declares.
+
+That suggests that your patch is in fact the correct fix.
