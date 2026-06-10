@@ -1,149 +1,149 @@
-Received: from mail-lf1-f52.google.com (mail-lf1-f52.google.com [209.85.167.52])
+Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A69E533F58B
-	for <selinux@vger.kernel.org>; Wed, 10 Jun 2026 06:23:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.52
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781072586; cv=pass; b=AcUXZTdlw0wjkZJoSXM62yIxDzo9vLW7J2RovY1k0YVnvlcKQ6Pv1ylbAZgybZwr3WRotFTrUkXb1BcU8GG8R2kZCTF3opnzNIw40cqrHz1ADcgwAVZru1itQeozUbyj6oD0PeN17BmFXuwMI0a0okFixkOUD2XXWPUOhK1dvNs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781072586; c=relaxed/simple;
-	bh=rjnSn+C0Xe4EdMDJXAPNVLmfM0vPhd9mhNl+bdwPcgE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=j1F4/duBuLLvIby7/jcgHN2j3iL4wvqvztDkhkJLLQUj9w5no2IJiSHQiB0qC+Y21288sTMmszgxrBJh0qpfgHjhcx3EHrpUQphvbXBMg/DHxFnQAoO4QLYdmEgNBCfDhPcOwZ4ScPBBj/qPsJT6NFV+MwiTIZCmGPSzpLeDKkk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TWbu3jti; arc=pass smtp.client-ip=209.85.167.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3C2F40683A
+	for <selinux@vger.kernel.org>; Wed, 10 Jun 2026 12:27:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781094470; cv=none; b=i9ZniIRXf6TSzxRi0o8cLYqSNsNRNRI0Fam0iz6I8cpm/6Ah9cnDcRQahd+Vy2lW1eii6hWGAMhsl4VUmmHzS2kIX99iIElsiCw1/Nmq81paw7V4kKsB/F98U3vdXEy9GuXbgtDKnhQ9j8fXAGFIwLpQqdvc/5GFwByUYH7ab48=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781094470; c=relaxed/simple;
+	bh=rRazuN7sr/8X3z8RrIGWyu+6zaFVIpL6+D0gETWS+94=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=a8619jwT7VUb1fxwguEIj/+u7Is7krRfxNrp6ySAS3jJyhGJsi+LHqA338Bl8T0UfnP7EZNwHAxgAZy7lKhmWqMAVYIjJbQV5QW7VvQKTqcn0TEHF1QK81O8RT+wVnP/z6MQ80G0N88LJBBoAUbmRiPKoUmeDgAjI7BoWj3iIck=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e5xI/mMu; arc=none smtp.client-ip=209.85.222.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TWbu3jti"
-Received: by mail-lf1-f52.google.com with SMTP id 2adb3069b0e04-5aa7a7ad475so6617254e87.1
-        for <selinux@vger.kernel.org>; Tue, 09 Jun 2026 23:23:04 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781072583; cv=none;
-        d=google.com; s=arc-20240605;
-        b=dasdUiJJnFYmvIUqr+NB5dG2h8ywBBF1+bUfCbFtyQMC14DyDJR8DCSfUV0xePmvHI
-         gmFi6KzjTWSaX0U3AUlEfGR7a5i2M7tDv9li3HaCTH4S7lCNyi1/9LIM/6hM3rNdZYsS
-         LxtELRS39984R3VfNoKevfYdDP9wtasQy5sKzA7NzANGcYmcjwF6R6qtYmChKrTkBgUI
-         La3gEnLvwIN/O23SMVpMT/UXq/AxFsOMZE4kHUCfFWDUZObHXhjXvZuef7+H3fP1SdxN
-         Zln3IZ/80gzoylAe63NXOFudIWiSst/o37wbmMp7+meEP0xFjzA6qk406f0KiwolJXRW
-         Xg+A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=rjnSn+C0Xe4EdMDJXAPNVLmfM0vPhd9mhNl+bdwPcgE=;
-        fh=PvVq3dmv8yvnCRJYSTWWanBfOaJzW2R+gufroGOSnBQ=;
-        b=M/2hMSbud9spMdIPxljfdG12p5YLJ3uUs6XQfIJNKZ5OvJrsYd+k5BXINkxVFs/ZYb
-         UjEJW+lQNy8Z6Wk3sLbePyXjgD1CejlikyM2Vcpyrqc0FEop4ottiTJQAO7MB8k1JWBj
-         L19ncVbhlQR+1Bl9z7I8VRBVDE2kqs7GHb7FgqlCMy31L8MVxgvuitwMfCwlUVSMjEjp
-         ngdAZBPQIoIDKpsjHB0Bm7JyIIjd/OLJamBjtTO85Eax1TexLpRFhjpggPMpOp0cuSno
-         XE486CObfxG9PljGhS+hlpkJlcu3n7FKu/8aBUtxF2XbjZYFs2iwTcKRDeukUcGF760H
-         97bQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e5xI/mMu"
+Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-9156b74006aso482676085a.0
+        for <selinux@vger.kernel.org>; Wed, 10 Jun 2026 05:27:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781072583; x=1781677383; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=rjnSn+C0Xe4EdMDJXAPNVLmfM0vPhd9mhNl+bdwPcgE=;
-        b=TWbu3jti/FqnspqTlCrdbC8foWXy3KmDMYEIyxqZP8t8cCmlDaDWWwFsdP3Bwr0ceZ
-         4gPyue3Va96+Ixyh4+YGSJV0OCx4skn/2sWnTX8m1fy7/gEMAJ6xQ2lT28ZcjTFSlMFF
-         okW3eoS1Lj9DF5D2OKcNjK5qviK9tKkMwefMwygwvMlQsmm4UdEEAJ7UZmsrequxLib8
-         9Vb1lxEIIDrn3DEQ9S795ecBlxbF06V64qSuNjp1vAlGpIsHg7sf293MGH4Rk0bICpMI
-         pTNNz6AzW2CFAEYekfJnD6qEkXMHPQFdakkWrUDL8T3ekOM2Wd7pvu8JvzXoZ96lCW6O
-         UUgw==
+        d=gmail.com; s=20251104; t=1781094467; x=1781699267; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=fiiUe5+Wcgc7jtB9L61uRV5ZWNXy+vuyxss0kaJQufU=;
+        b=e5xI/mMu3v1vPWW8x2r3fGYY3noNyT+HIr827158gT2sAiwPV3jKckSn7SMJhocQtW
+         xVsazHTUoV2G5OcyMsGWi4+Jwy/H2aeNtadwY5Z1qVLCwtGXeoXutTvqMbsfV2qcsDhP
+         4f6uICT6Hdb+D3IUdH491d0VoDIlEP6oXC+D4gaiY0SKZ4EIaHDlQ7tvRBUFaXb89HEO
+         3h6ttGIx/elPyS9CHLZOgrTBZzk+KWKgi09JGpAR2I7wwiWrsJ/7rJHvZ7gvQOztjWuJ
+         AgVijcbJVm/YtbaQrJO4peY09Ogj2v6+aoDlbSiLBRtgorEuY9+j+PXOhEI05eY7Zz2J
+         1ygg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781072583; x=1781677383;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=rjnSn+C0Xe4EdMDJXAPNVLmfM0vPhd9mhNl+bdwPcgE=;
-        b=mAf+H14SrZF3saqhhYInIh/HxsqoOOVJZgCb5kiRepylr0ZTblpiifAdZ5KuFl/Hi5
-         aTeLuXqeF9XFb04TF4ouIWw+bFL5xVf9Wnl2UoWG5WZKHpNL+cE0da1OmvX5peN/wn4f
-         nMy14a6sAx5otDwwBr4Rrp6IVDIItgTKgKndUPKM/gNvrXd95MoZIfT1KPhat/i987Zy
-         VjZ2oQoNUWVE/ddqyXMQateO1uUnkgNOgr6oCJ6Q7SFJ74+WbkEO7oIYoptZIFTW3oxj
-         cbiUaskSGt30f+qcAw1wIAptgv2A7aWwoS/4W9nJFcwreOAkaaj9c7QmMdqxzu74pcyv
-         eVgA==
-X-Gm-Message-State: AOJu0Yxgy1EevlqDgxZVspnhVE+ijWaT/epk+jqfKnqR1TJbkcCG7Vge
-	IKDw8Y/g6Cuin4yBgWx2VbQ6ac1bmyUYlb00/Y2ZXSWRYuCBU55gxe2ZkbJ/R/4jbCPz4+L4VKC
-	GpG3TI1/6YM0RVYlFelGKrRokk9o4ryHmcub+
-X-Gm-Gg: Acq92OHTJieO+Bo0APbFyPVRV/bXXhGqxvC8YA9OqH19ai/1co/j+Kfu//Y9LFDIt+T
-	8bgz5OfPjaC4Cf0ut8YNfY0bdYidFJuyVYbPMZleM3Kpe3Adyf1Ir1KAWTTUHicaRbqHn5mrxmq
-	t51o04PKFCqCPiRCqXS+8nvL3lLGpKLF9x2VZkysMwH4+6Qk/ecAzE2E9kmmDvCfO+7SSYttvtj
-	aiIlt3ZQR6aqv9vGQeuNUd5nJJYwfQFRylIWdf5q8QFMhdIK/oWXRWWTQ6SkAcrAOWLfju6STCB
-	I2nHS/5qlSwqbk+nsDI=
-X-Received: by 2002:a05:6512:ad3:b0:5aa:8822:f280 with SMTP id
- 2adb3069b0e04-5aa8822f334mr6444811e87.48.1781072582660; Tue, 09 Jun 2026
- 23:23:02 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1781094467; x=1781699267;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=fiiUe5+Wcgc7jtB9L61uRV5ZWNXy+vuyxss0kaJQufU=;
+        b=P3W7ehvvIAG4rCaubttksSPkiwg2moBMDQTN+PZoX501OWWHlm9P5WB73O+r9gm19x
+         dNdpVkBp5eidsgPKR8S9ZZQAsorO+wlAR+DNmOog6Xs3qroU1M2fr1sFuPNrbBHhBFv/
+         U1cjiDDezEdBHtqq16ysUpVEjK0UYBsHHjAAHhrSSk5NyiKlMTFMGL4aEGW8hUaIoC88
+         S9lmkPthfKq6hwRxoGof6U+ONQphM+TBjgaCOojuL4ynS+eVklZvvRHmDL0nAp5XyxaS
+         KHNeEv5HvwnzH2t6oSnm0VzCeyeWoFAke0Fed9+EJJyF8vD8uZjI2vhsmtaOIt6slbud
+         o/HQ==
+X-Gm-Message-State: AOJu0Ywo1N9IuDc2FSpsAX+zteeIM/a3miyo2xKfB9QI1SFDR/BGv69t
+	sgHxlxViFK2jmxxqxfuMkdJGDwHZKSbmK/g5wcHAGfsnfH0IC4cGyKcTQDPMcQ==
+X-Gm-Gg: Acq92OGFjOu3OYhZsNAYWzpqz/37pcljvC053JTseiihs16F2X/8IIag7/Kc0et/GyZ
+	QK1zQIa8iG1NFCKGTMuUkoFrPu/hVvbaXEhoto6DvMHdNBWMm1c4vIwoyUdlCoVWJ+GK4JPNyOI
+	bUFuRPiCEHLZQMxeQmr6wFFVYgrw7PUlJNlpRCvQ2rMLYPAyTa2KQte/jry1OqG6jugMaDvjbJo
+	fkXHrZxylmXP5d8cx/4+bIwP2IrMwhTxETo2bPNvw0NCodRhJPjnES8bmDsAr01Jq9qOdYoHMjf
+	+yqo/gENUKxKfTVnKpbUi/s6Ce1ydnMdyX3eN6LwKgqQ9gIB+vHI0vCAUH/hwRI5CJjrxDkIZ/p
+	N79BcJJCEPASUSxFCuNogpntrMOddXyialy4S5SVe9MqZTiVGMyewX40aLGeb2E4gEmmZmwMPE2
+	3l1WUL1OXsyE1174XGeeeDNgc2eKPb3I2hgbRwcEPq7kHueSXdURMmV4OuAyukJ2fZ9MZDG6O86
+	oSAFTwlUCBW3213waNHIny094dovDVQPOLV5H90GN7nwkdP
+X-Received: by 2002:a05:620a:6cc7:b0:915:8d82:b149 with SMTP id af79cd13be357-915a9ccb099mr4098195485a.27.1781094466574;
+        Wed, 10 Jun 2026 05:27:46 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9158a00840dsm2628964885a.1.2026.06.10.05.27.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Jun 2026 05:27:46 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	netliomax25-code <netliomax25@gmail.com>
+Subject: [PATCH] libselinux: avoid out-of-bounds access on zero-length lines
+Date: Wed, 10 Jun 2026 08:27:35 -0400
+Message-ID: <20260610122735.5486-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAAhcyzmaCLaRmK2anDfThnhy3M_EFRgpk7Aajd+uctvYr27WZg@mail.gmail.com>
- <CAHC9VhSf-ph9D63=J-AemOZfvb9HXLFguCRFWkU4y1DvDsKr9w@mail.gmail.com>
- <CAAhcyzmUS0QkOL9_HReHD76fNTknPpJUui67-mLW-Dx_BPFzZQ@mail.gmail.com> <CAHC9VhQbfSV6gt5QncQKmgjbyNCWb5TP1WsheER+JLaV3oqoMw@mail.gmail.com>
-In-Reply-To: <CAHC9VhQbfSV6gt5QncQKmgjbyNCWb5TP1WsheER+JLaV3oqoMw@mail.gmail.com>
-From: muneendra kumar <muneendra737@gmail.com>
-Date: Wed, 10 Jun 2026 11:51:33 +0530
-X-Gm-Features: AVVi8Cde8g_dK_DEXj6O1CwifJU2mIxw9kTlX1dcOLlmQplpfMOtEZQehQgv_UY
-Message-ID: <CAAhcyzmHqJwcWqSZ+Crv=+z1fHvT3n-XJomO=iqB07wRO33SfA@mail.gmail.com>
-Subject: Re: [REGRESSION] LSM/VFS: startup latency spike during rapid library
- lookups (ENOENT) on x86_64 between 6.6 and 6.18
-To: Paul Moore <paul@paul-moore.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-Hi Paul,
->>There have been many changes between Linux v6.6 and v6.18, not to
->>mention any patches Intel may have included in their LTS trees.
->>Unfortunately it doesn't appear that Intel releases an LTS tree for
->>each upstream Linux kernel.
+From: netliomax25-code <netliomax25@gmail.com>
 
-I agree that the broad version gap makes it difficult to pinpoint.
-Following your suggestion, we have tested additional releases and
-observed the following:
+Several helpers read a line with fgets()/fgets_unlocked() and then index
+buf[strlen(buf) - 1] to strip the trailing newline without checking the
+line is non-empty.  A line beginning with a NUL byte is stored but yields
+strlen(buf) == 0, so the index becomes buf[(size_t)-1].  Guard the index
+with a non-empty check, matching the form already used in
+get_ordered_context_list().
 
-1. v6.6.78: No performance impact.
-2. v6.12.76: Performance impact observed.
-3. v6.18.33: Performance impact observed.
+Signed-off-by: Kartik Kenchi <netliomax25@gmail.com>
+---
+ libselinux/src/get_default_type.c     | 2 +-
+ libselinux/src/is_customizable_type.c | 3 ++-
+ libselinux/src/matchmediacon.c        | 2 +-
+ libselinux/src/query_user_context.c   | 2 +-
+ 4 files changed, 5 insertions(+), 4 deletions(-)
 
-Since the regression is present in v6.12, we continue to suspect that
-the latency amplification is
-an unintended side effect of commit 417c5643cd67 ("lsm: replace
-indirect LSM hook calls with static calls"), as noted in my initial
-analysis.
-Please let me know if my initial analysis seems incorrect or if there
-are other areas I should investigate.
+diff --git a/libselinux/src/get_default_type.c b/libselinux/src/get_default_type.c
+index e2186a19..8955c505 100644
+--- a/libselinux/src/get_default_type.c
++++ b/libselinux/src/get_default_type.c
+@@ -38,7 +38,7 @@ static int find_default_type(FILE *fp, const char *role, char **type)
+ 			errno = EINVAL;
+ 			return -1;
+ 		}
+-		if (buf[strlen(buf) - 1])
++		if (buf[0] && buf[strlen(buf) - 1])
+ 			buf[strlen(buf) - 1] = 0;
+ 
+ 		ptr = buf;
+diff --git a/libselinux/src/is_customizable_type.c b/libselinux/src/is_customizable_type.c
+index 0aa790e3..992747fb 100644
+--- a/libselinux/src/is_customizable_type.c
++++ b/libselinux/src/is_customizable_type.c
+@@ -44,7 +44,8 @@ static void customizable_init(void)
+ 			i = 0;
+ 			while (fgets_unlocked(buf, selinux_page_size, fp) &&
+ 			       i < ctr) {
+-				buf[strlen(buf) - 1] = 0;
++				if (buf[0])
++					buf[strlen(buf) - 1] = 0;
+ 				list[i] = strdup(buf);
+ 				if (!list[i]) {
+ 					unsigned int j;
+diff --git a/libselinux/src/matchmediacon.c b/libselinux/src/matchmediacon.c
+index 3e7544b7..ca3d7980 100644
+--- a/libselinux/src/matchmediacon.c
++++ b/libselinux/src/matchmediacon.c
+@@ -26,7 +26,7 @@ int matchmediacon(const char *media, char **con)
+ 			fclose(infile);
+ 			return -1;
+ 		}
+-		if (current_line[strlen(current_line) - 1])
++		if (current_line[0] && current_line[strlen(current_line) - 1])
+ 			current_line[strlen(current_line) - 1] = 0;
+ 		/* Skip leading whitespace before the partial context. */
+ 		ptr = current_line;
+diff --git a/libselinux/src/query_user_context.c b/libselinux/src/query_user_context.c
+index 0a5e8315..c2196de2 100644
+--- a/libselinux/src/query_user_context.c
++++ b/libselinux/src/query_user_context.c
+@@ -85,7 +85,7 @@ static void get_field(const char *fieldstr, char *newfield, int newfieldlen)
+ 		if (fgets(newfield, newfieldlen, stdin) == NULL)
+ 			continue;
+ 		fflush(stdin);
+-		if (newfield[strlen(newfield) - 1] == '\n')
++		if (newfield[0] && newfield[strlen(newfield) - 1] == '\n')
+ 			newfield[strlen(newfield) - 1] = '\0';
+ 
+ 		if (strlen(newfield) == 0) {
+-- 
+2.54.0
 
-
-Regards,
-Muneendra Kumar M
-
-On Tue, Jun 9, 2026 at 9:28=E2=80=AFPM Paul Moore <paul@paul-moore.com> wro=
-te:
->
-> On Tue, Jun 9, 2026 at 2:03=E2=80=AFAM muneendra kumar <muneendra737@gmai=
-l.com> wrote:
-> > >>Are you running a distribution kernel or are you building your own?
-> > >>If you are building your own, would it be possible for you to narrow
-> > >>down the kernel release which first introduced the regression?
-> >
-> > In our earlier release we used the Linux 6.6.78 version and then we
-> > upgraded our kernel to Linux 6.18.33
-> > We are using the kernel from the below distro.
-> >
-> > https://github.com/intel/linux-intel-lts/tree/6.18/linux
-> >
-> > And we are seeing the performance impact in Linux 6.18.33.
->
-> There have been many changes between Linux v6.6 and v6.18, not to
-> mention any patches Intel may have included in their LTS trees.
-> Unfortunately it doesn't appear that Intel releases an LTS tree for
-> each upstream Linux kernel. However, if you can identify which
-> upstream Linux kernel release introduces the regression, e.g. moving
-> from vN to vN+1, that would be helpful.
->
-> --
-> paul-moore.com
