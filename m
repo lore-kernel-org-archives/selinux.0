@@ -1,70 +1,70 @@
-Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
+Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3C2F40683A
-	for <selinux@vger.kernel.org>; Wed, 10 Jun 2026 12:27:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2931B406834
+	for <selinux@vger.kernel.org>; Wed, 10 Jun 2026 12:42:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781094470; cv=none; b=i9ZniIRXf6TSzxRi0o8cLYqSNsNRNRI0Fam0iz6I8cpm/6Ah9cnDcRQahd+Vy2lW1eii6hWGAMhsl4VUmmHzS2kIX99iIElsiCw1/Nmq81paw7V4kKsB/F98U3vdXEy9GuXbgtDKnhQ9j8fXAGFIwLpQqdvc/5GFwByUYH7ab48=
+	t=1781095374; cv=none; b=LajHLDvoS1pPEycDKzwvASKQVXu1rWVGX3usgod5txZGTPT4/utjMcT0+iIgKMRaELqSDw1KIbCjHazxsJO2Vhe7JnfPstMTtvWFj8I5uedNtKUPZ1V8WMu8vwBmGvO/4XHfm/T2/30pYB3KMekEchrmfzfmCRilX920vaoOW3M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781094470; c=relaxed/simple;
-	bh=rRazuN7sr/8X3z8RrIGWyu+6zaFVIpL6+D0gETWS+94=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=a8619jwT7VUb1fxwguEIj/+u7Is7krRfxNrp6ySAS3jJyhGJsi+LHqA338Bl8T0UfnP7EZNwHAxgAZy7lKhmWqMAVYIjJbQV5QW7VvQKTqcn0TEHF1QK81O8RT+wVnP/z6MQ80G0N88LJBBoAUbmRiPKoUmeDgAjI7BoWj3iIck=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e5xI/mMu; arc=none smtp.client-ip=209.85.222.179
+	s=arc-20240116; t=1781095374; c=relaxed/simple;
+	bh=rJYB0ZDNhK9YpzgOjuDNYkqLne28+o0ayshqW9N4U9A=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jqE1OtgHZJ8fcM6wFwqaYLNIk7I+xEQDk9IsS+4a1eySHEOrKXzU5csE0r89LfKwTB2r2rdD/ntadndFA97UaS+rVUdq7CkCObRU4Y64Zhv5X0QwnyRvn6faH9nqSHe806vRS4YVF5LpJlhdvU9wQKeyN4wau9wgUH4s0nf/sw0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ToM1VAKH; arc=none smtp.client-ip=209.85.160.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e5xI/mMu"
-Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-9156b74006aso482676085a.0
-        for <selinux@vger.kernel.org>; Wed, 10 Jun 2026 05:27:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ToM1VAKH"
+Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-5176465a4a4so90403781cf.2
+        for <selinux@vger.kernel.org>; Wed, 10 Jun 2026 05:42:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781094467; x=1781699267; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1781095372; x=1781700172; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=fiiUe5+Wcgc7jtB9L61uRV5ZWNXy+vuyxss0kaJQufU=;
-        b=e5xI/mMu3v1vPWW8x2r3fGYY3noNyT+HIr827158gT2sAiwPV3jKckSn7SMJhocQtW
-         xVsazHTUoV2G5OcyMsGWi4+Jwy/H2aeNtadwY5Z1qVLCwtGXeoXutTvqMbsfV2qcsDhP
-         4f6uICT6Hdb+D3IUdH491d0VoDIlEP6oXC+D4gaiY0SKZ4EIaHDlQ7tvRBUFaXb89HEO
-         3h6ttGIx/elPyS9CHLZOgrTBZzk+KWKgi09JGpAR2I7wwiWrsJ/7rJHvZ7gvQOztjWuJ
-         AgVijcbJVm/YtbaQrJO4peY09Ogj2v6+aoDlbSiLBRtgorEuY9+j+PXOhEI05eY7Zz2J
-         1ygg==
+        bh=1tJLLJQCZiazhu+C0uHqE8l1eITBY1UX84JARltNPFI=;
+        b=ToM1VAKHDKwYVmrluGjOiOP3TI6mtrC6ViDztGhyyCOUkB3HpsrwGojgFtG59HARYy
+         u1lTMi/52VwbEFe8XrNxiWauRw21o3td5Z+OPIvZdRr+av2fwrCVhjpV7TpuHpN9XPGq
+         khmIH6C85TP/wRvV5YM+BlXpuv8Khn8FfujwrwY+e+cjdeQ6CcjwnyhtFKHVQ5SF8eoj
+         XMnyWJCDreO20hNSB1s+ffFQWGx61Ig4EnPzqEepn6G2bp4B2wFg8GXmDE0NFDYPbUEU
+         e+93xttf2ftHgsk8p2ym82NZ1CAV8I4etAy7l3mLhh5HsCMFr037ay2SCvNK62CPC/0e
+         s3bA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781094467; x=1781699267;
+        d=1e100.net; s=20251104; t=1781095372; x=1781700172;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=fiiUe5+Wcgc7jtB9L61uRV5ZWNXy+vuyxss0kaJQufU=;
-        b=P3W7ehvvIAG4rCaubttksSPkiwg2moBMDQTN+PZoX501OWWHlm9P5WB73O+r9gm19x
-         dNdpVkBp5eidsgPKR8S9ZZQAsorO+wlAR+DNmOog6Xs3qroU1M2fr1sFuPNrbBHhBFv/
-         U1cjiDDezEdBHtqq16ysUpVEjK0UYBsHHjAAHhrSSk5NyiKlMTFMGL4aEGW8hUaIoC88
-         S9lmkPthfKq6hwRxoGof6U+ONQphM+TBjgaCOojuL4ynS+eVklZvvRHmDL0nAp5XyxaS
-         KHNeEv5HvwnzH2t6oSnm0VzCeyeWoFAke0Fed9+EJJyF8vD8uZjI2vhsmtaOIt6slbud
-         o/HQ==
-X-Gm-Message-State: AOJu0Ywo1N9IuDc2FSpsAX+zteeIM/a3miyo2xKfB9QI1SFDR/BGv69t
-	sgHxlxViFK2jmxxqxfuMkdJGDwHZKSbmK/g5wcHAGfsnfH0IC4cGyKcTQDPMcQ==
-X-Gm-Gg: Acq92OGFjOu3OYhZsNAYWzpqz/37pcljvC053JTseiihs16F2X/8IIag7/Kc0et/GyZ
-	QK1zQIa8iG1NFCKGTMuUkoFrPu/hVvbaXEhoto6DvMHdNBWMm1c4vIwoyUdlCoVWJ+GK4JPNyOI
-	bUFuRPiCEHLZQMxeQmr6wFFVYgrw7PUlJNlpRCvQ2rMLYPAyTa2KQte/jry1OqG6jugMaDvjbJo
-	fkXHrZxylmXP5d8cx/4+bIwP2IrMwhTxETo2bPNvw0NCodRhJPjnES8bmDsAr01Jq9qOdYoHMjf
-	+yqo/gENUKxKfTVnKpbUi/s6Ce1ydnMdyX3eN6LwKgqQ9gIB+vHI0vCAUH/hwRI5CJjrxDkIZ/p
-	N79BcJJCEPASUSxFCuNogpntrMOddXyialy4S5SVe9MqZTiVGMyewX40aLGeb2E4gEmmZmwMPE2
-	3l1WUL1OXsyE1174XGeeeDNgc2eKPb3I2hgbRwcEPq7kHueSXdURMmV4OuAyukJ2fZ9MZDG6O86
-	oSAFTwlUCBW3213waNHIny094dovDVQPOLV5H90GN7nwkdP
-X-Received: by 2002:a05:620a:6cc7:b0:915:8d82:b149 with SMTP id af79cd13be357-915a9ccb099mr4098195485a.27.1781094466574;
-        Wed, 10 Jun 2026 05:27:46 -0700 (PDT)
+        bh=1tJLLJQCZiazhu+C0uHqE8l1eITBY1UX84JARltNPFI=;
+        b=TUStURn2+U5zBEbaFHKlubvaOTtzkBtIxCQAa/Dn04DqC1NmmoqMd9TFneeiTY2YH5
+         99hK0RlyDCAQSk0UfDPTjc2EgcBYluIT99/YWxkmS4HWpxeKvR8cfXF9bsvECudLQxei
+         z4HVg7cB9+879J8+Kqovl+x4nLTajB7qsQQYa8lXvAbIi9xAURqWrlI9dKHCqhVWzfbb
+         Qm0ST4UrJOH6/9dWRxL7KLy2mBdV/4EbZ3UML04Z+mJo2KFLVDjZ2if8gAMlU18x7eMy
+         JSmE40kwytR5833VceQPNOMOqSd02mpVamw4OG+JbBOicXh2Ng5kkgPHwzWuebLjK6cd
+         ZpYQ==
+X-Gm-Message-State: AOJu0YyV9yaT8AaoiJzBKloB+CettyDQlThIU7Y0jyKuXQub9bV1zQ+2
+	S3LG7V7xgltMOHaxh3PtSssmiuZuQPj3l8nICC/PFx4S0ARpbV7mFkqpFP4DCQ==
+X-Gm-Gg: Acq92OH6lXAP+X68xRH/Fe1qB6YQPkzWBcsaBRHnV1k2xF1JVRl7bwGpRQc+3eWEU87
+	WxRrcQ0nceVlXwTa3nAHc8wAvl4YeAsIJnd/CQ2v6Y6rlRzMlV/h3XcJs/nFutwUfQnET7eSQh+
+	pYwegf18EL612go9g0OzyCHpZu4UTd+IL77PP8ZSl7EKkiY0sW61jJC94meeSxYaCoJr4HguWuW
+	FobxBXaRFhJifZtapNSu7joweZvob5N199RqkMqDSI5s1PZVEh0MVPFZGE4MkkPW6NM5LAZcUtk
+	LUdgtiIHfHUOcLhOXfhRBwfFZ1GSS/5EJh3LI61fI3tgIbKcKW9rO6z3Ww41ScozA87qZUETcMe
+	zwsXr+xGPUPSks++5E+QYplVl/HMWUwwUxmVMgujme7uxf3zM7kdbuy+m+5f1BQQXnmthL7grUg
+	8eHu0M+vjOZBlNDxdQhNt80s68/ibzu9KHZhOFdCzTE0yiRCe432pX1/Jj+r86USsN0otzlzSGQ
+	SbBw0jvh64uFfyPgzAaIGe7h0Shu1IU/mun+Q==
+X-Received: by 2002:a05:622a:1808:b0:517:96f0:5658 with SMTP id d75a77b69052e-51796f06eadmr352413211cf.14.1781095372015;
+        Wed, 10 Jun 2026 05:42:52 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9158a00840dsm2628964885a.1.2026.06.10.05.27.45
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-517940762fbsm158312171cf.18.2026.06.10.05.42.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2026 05:27:46 -0700 (PDT)
+        Wed, 10 Jun 2026 05:42:51 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
 	plautrba@redhat.com,
 	omosnace@redhat.com,
 	netliomax25-code <netliomax25@gmail.com>
-Subject: [PATCH] libselinux: avoid out-of-bounds access on zero-length lines
-Date: Wed, 10 Jun 2026 08:27:35 -0400
-Message-ID: <20260610122735.5486-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH] sestatus: null-terminate process and file check entries
+Date: Wed, 10 Jun 2026 08:42:29 -0400
+Message-ID: <20260610124229.5628-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -76,74 +76,50 @@ Content-Transfer-Encoding: 8bit
 
 From: netliomax25-code <netliomax25@gmail.com>
 
-Several helpers read a line with fgets()/fgets_unlocked() and then index
-buf[strlen(buf) - 1] to strip the trailing newline without checking the
-line is non-empty.  A line beginning with a NUL byte is stored but yields
-strlen(buf) == 0, so the index becomes buf[(size_t)-1].  Guard the index
-with a non-empty check, matching the form already used in
-get_ordered_context_list().
+load_checks() copies each [process]/[files] entry with malloc(buf_len)
+followed by memcpy(dst, bufp, buf_len), leaving no room for a
+terminator. A config line without a trailing newline (such as the last
+line of /etc/sestatus.conf) yields a buffer of exactly buf_len bytes
+with no NUL, and the entries are later used as C strings in pidof(),
+lgetfilecon(), lstat() and printf_tab(), producing a heap over-read.
+Allocate one extra byte and terminate the copy.
 
 Signed-off-by: Kartik Kenchi <netliomax25@gmail.com>
 ---
- libselinux/src/get_default_type.c     | 2 +-
- libselinux/src/is_customizable_type.c | 3 ++-
- libselinux/src/matchmediacon.c        | 2 +-
- libselinux/src/query_user_context.c   | 2 +-
- 4 files changed, 5 insertions(+), 4 deletions(-)
+ policycoreutils/sestatus/sestatus.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/libselinux/src/get_default_type.c b/libselinux/src/get_default_type.c
-index e2186a19..8955c505 100644
---- a/libselinux/src/get_default_type.c
-+++ b/libselinux/src/get_default_type.c
-@@ -38,7 +38,7 @@ static int find_default_type(FILE *fp, const char *role, char **type)
- 			errno = EINVAL;
- 			return -1;
- 		}
--		if (buf[strlen(buf) - 1])
-+		if (buf[0] && buf[strlen(buf) - 1])
- 			buf[strlen(buf) - 1] = 0;
- 
- 		ptr = buf;
-diff --git a/libselinux/src/is_customizable_type.c b/libselinux/src/is_customizable_type.c
-index 0aa790e3..992747fb 100644
---- a/libselinux/src/is_customizable_type.c
-+++ b/libselinux/src/is_customizable_type.c
-@@ -44,7 +44,8 @@ static void customizable_init(void)
- 			i = 0;
- 			while (fgets_unlocked(buf, selinux_page_size, fp) &&
- 			       i < ctr) {
--				buf[strlen(buf) - 1] = 0;
-+				if (buf[0])
-+					buf[strlen(buf) - 1] = 0;
- 				list[i] = strdup(buf);
- 				if (!list[i]) {
- 					unsigned int j;
-diff --git a/libselinux/src/matchmediacon.c b/libselinux/src/matchmediacon.c
-index 3e7544b7..ca3d7980 100644
---- a/libselinux/src/matchmediacon.c
-+++ b/libselinux/src/matchmediacon.c
-@@ -26,7 +26,7 @@ int matchmediacon(const char *media, char **con)
- 			fclose(infile);
- 			return -1;
- 		}
--		if (current_line[strlen(current_line) - 1])
-+		if (current_line[0] && current_line[strlen(current_line) - 1])
- 			current_line[strlen(current_line) - 1] = 0;
- 		/* Skip leading whitespace before the partial context. */
- 		ptr = current_line;
-diff --git a/libselinux/src/query_user_context.c b/libselinux/src/query_user_context.c
-index 0a5e8315..c2196de2 100644
---- a/libselinux/src/query_user_context.c
-+++ b/libselinux/src/query_user_context.c
-@@ -85,7 +85,7 @@ static void get_field(const char *fieldstr, char *newfield, int newfieldlen)
- 		if (fgets(newfield, newfieldlen, stdin) == NULL)
- 			continue;
- 		fflush(stdin);
--		if (newfield[strlen(newfield) - 1] == '\n')
-+		if (newfield[0] && newfield[strlen(newfield) - 1] == '\n')
- 			newfield[strlen(newfield) - 1] = '\0';
- 
- 		if (strlen(newfield) == 0) {
+diff --git a/policycoreutils/sestatus/sestatus.c b/policycoreutils/sestatus/sestatus.c
+index d83602fd..528cdcce 100644
+--- a/policycoreutils/sestatus/sestatus.c
++++ b/policycoreutils/sestatus/sestatus.c
+@@ -135,22 +135,24 @@ static void load_checks(char *pc[], int *npc, char *fc[], int *nfc)
+ 				case 0:
+ 					if (*npc >= MAX_CHECK)
+ 						break;
+-					pc[*npc] = (char *)malloc((buf_len) *
++					pc[*npc] = (char *)malloc((buf_len + 1) *
+ 								  sizeof(char));
+ 					if (!pc[*npc])
+ 						break;
+ 					memcpy(pc[*npc], bufp, buf_len);
++					pc[*npc][buf_len] = '\0';
+ 					(*npc)++;
+ 					bufp = NULL;
+ 					break;
+ 				case 1:
+ 					if (*nfc >= MAX_CHECK)
+ 						break;
+-					fc[*nfc] = (char *)malloc((buf_len) *
++					fc[*nfc] = (char *)malloc((buf_len + 1) *
+ 								  sizeof(char));
+ 					if (!fc[*nfc])
+ 						break;
+ 					memcpy(fc[*nfc], bufp, buf_len);
++					fc[*nfc][buf_len] = '\0';
+ 					(*nfc)++;
+ 					bufp = NULL;
+ 					break;
 -- 
 2.54.0
 
