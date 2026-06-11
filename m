@@ -1,163 +1,165 @@
-Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com [209.85.167.48])
+Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9877E363C6A
-	for <selinux@vger.kernel.org>; Thu, 11 Jun 2026 10:24:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EA8123395F
+	for <selinux@vger.kernel.org>; Thu, 11 Jun 2026 12:23:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.176
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781173476; cv=pass; b=oYdKwCenz+YZebWhC5B0YUzCTp5QBaU6PdlhbQLsFDSQ2jyEhgOyG9McevJgnU/36TbJ00qtmcqy8L2ru7iieFpHSrssWjaqgkgcZucB8xSdSQy6p3yQdr8YRZMrZW7ggOFMPcOBax47/d6K8PP66hZvT7Z92AwcOgVrv7v+b34=
+	t=1781180594; cv=pass; b=LPbGINVk2pwbwdF/4K46NB8j/WFFAvNuELDGG2qe+pneKzGpVj4fOj53KUTo9kTFiFlSmqOcxWjAf0Tg/B6S6Fj2GPd4LSuX8EGsf+t1ynQ6F1DOe9ifLgG8VEAYwIkpqCACUguNOJks0+/qY8ZmssLN9WdvmzxZXbi3nf3B3vE=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781173476; c=relaxed/simple;
-	bh=EvfpDVi+MWP/Yl+nCamsRxBlTOPe42gk2ioFWkDI87c=;
+	s=arc-20240116; t=1781180594; c=relaxed/simple;
+	bh=KQbWujv+HwyLqMf2Y+nNtCJMhLoGlGTSF6nfB2FfAB4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=QO6kuf9WwfRJuyz5tno9sNwq6q2oHo2MMoe6cnt1m2mhXv7/VYvVqI6i4aJsGi75NeREbe7fKoA7cb7x6q2QxjmuDDo7GkItZR3EX9n5t/TSIA3MYx3UNa8fq1Wcr24PKi3kohlNhQ+LmNspZYmPLTgLx2QO21y9Y6vm0QHy7Lw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OsK5Zsaj; arc=pass smtp.client-ip=209.85.167.48
+	 To:Cc:Content-Type; b=E2lSH2VXNAs7ZL0hqZtEhPmWeSSDZNa9Rt1XeHWuZBdXOBFCJqt5o5Ji4xWYiFmWdQes5oGLjA8H3g3hKRvDxnFye/zEoSbCZMuVOGxxNC7FbIuGSp0if9m1YBHWi8R7MwW+61GXljbLKL5j6Wso7RuYbzZBgBYx0HYBdyfI0Co=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RFyJq8oW; arc=pass smtp.client-ip=209.85.210.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OsK5Zsaj"
-Received: by mail-lf1-f48.google.com with SMTP id 2adb3069b0e04-5aa61503fdaso730307e87.0
-        for <selinux@vger.kernel.org>; Thu, 11 Jun 2026 03:24:34 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781173473; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RFyJq8oW"
+Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-8423610ec93so6141325b3a.2
+        for <selinux@vger.kernel.org>; Thu, 11 Jun 2026 05:23:13 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781180592; cv=none;
         d=google.com; s=arc-20240605;
-        b=CLNKGJgaCTS+4YHgK4JQgrw5Q9mfXAYQ4SaMDUZsI98nCKYdCooa8dMC2ae8HQ5f4h
-         Q6mNBrF5ql+jn6LkTStzOqzjukZ+naN3NgyjBkpEe7B0cZ/olRKsB6qJvg3cu7xg3TAg
-         jMXTyRedg4qkAYfBcDsbvAjx2aTOZBWIEt7fPIzKZJUn2Ovfl9Bhx5n3yJ7wJ3XCgAMy
-         6T7x90LTwmXpBjRQGHvkYC2YI2pPYzXjamquDayR6hG3UJ2yE+whKoihao/QXthCi6VB
-         WBYFxtOCn127KTSg6QHW0v/t7ehnm5yH8ogxrwuSlvoGj5uAZTrFr3JpuIkPugGVbcfy
-         Ljew==
+        b=V7h7kpd8PgmR71FAo69rmxcyF3CAa+Pb7bt7rBwB+dXrxLmPH0zvJhn/5eruJpEgAg
+         +PGarcbm0w89oG8Y5MJ4zEQVxgSlHuaSSp/vKEPfuD/dnku78ih81hGzgECGhVR0gppt
+         ylwTds4R6FRCDZSKOBQ4XpTjK3qAaYtUrOYX4lz7MoS7IGtFX09ubtlf0R+yoQNcWX9y
+         HYv9HQKgYVINOHEbgXqwjCVhLi8/60vOyieHQtmOZmRdnTSqhqiICnUcVnzYTljrUl24
+         wCRxGe53obIPnTDubhLFwY5C3T8QFlhbN/aq0sNlDeionRcmO9aWhkPrdpHwdMCQOxWe
+         8AYw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=odqGdOtLagfQVos05LnrG47yQzIpR7cm2wVlbT4YDX0=;
-        fh=PvVq3dmv8yvnCRJYSTWWanBfOaJzW2R+gufroGOSnBQ=;
-        b=EA+DU25baf0xgW9UfPlpuCy7XXQWTYq8VDtBS9aGM7Wi7/8HGnjV8Pq/WQgapUkrfY
-         KP+M7ZQgksFhZgv+mhQwGkooP4PZ6dTFo53zhY876HmcpYGQRsPe88zSSXrOUjRMread
-         ww69dwUDJ+lwsAxQorzIKfvil17mgu092MBdUKBBejfJoC+Z/Tpu+SpaWPcxNxn85qxh
-         /wfaNn2Do8RyaHC+OYNCYfkVOnJrJsJcStl/ZdAQdF2693yaDc+roeXSVd8lcsCvDP41
-         pZuhhqZdd66Q9i+JedM8NknIC+FWnjIvgTBPIt7ylxIUOmmE5fFOVFQAbnm4p+WXdCWr
-         lN4Q==;
+        bh=+bydRt5gdp3KpXxngd7pJHLuk4FTPPW3YwraLbuoqOQ=;
+        fh=wY8gy0iOksnwzvOC7hqRV0Sf7JK9ec7jJ+1ccj8gvlo=;
+        b=JMSfk7Sfa4CAlBiBKJM7HTUbJqkIgCFLL2G2FtUj8B5wp6MSbMH6H1BmhCmAKwGmOV
+         CpydQap9Kym0CbJV8vXqVaLnQvfuT1QyiSlQVO43wCjjBZF1/Ep28m9q+IepssY2e9Bf
+         4YbHoUkd7ZPh9wHljb/sf1TGL4jysVg5H9Iyj/9A8bQ02CshVmOx7gOFV9g9Tv0E19DE
+         4ZoE0LlhE9Dzfsmpsbrq7cTpLN7cI6+GyHwIIYkDIRcmKOyooO2eBQrnHuMWGnCp1J0m
+         3sN6jSFN5OkE7R6YOEt+d0YMaLh0S/hiE16lZhAWjziUgEhV0UN9zJ/Niflv3WEP1wkq
+         UF4w==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781173473; x=1781778273; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1781180592; x=1781785392; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=odqGdOtLagfQVos05LnrG47yQzIpR7cm2wVlbT4YDX0=;
-        b=OsK5ZsajC2p+NDN7Y+aHr+w26AuavGnJlmbWZ1YjOJQkPapMO5Rancmxl4//QvSKjC
-         cKur+WxdGvqxm13eAUvKDbVMjwfV1gn+tLajC0+iptTzm4OG0RXnAKyA3C00l/+8WHqA
-         dIBR3u+Z7rT3dMdO5QYhbSJWvc5gQWtNhP3ywWdnwYTV6CfGdoSQ5n5ftKd2fnwqXIW/
-         L+net06MFGxxCANtW13zX1INB+v6frSQpjklLbI+BzaNaDYwLQc+wm4nMDUd1IDSgnMd
-         9RYe9TO10KskYfJth14D6nZ/Bne6R0NGiYOvW3lP0VIjlaSZD5gx5jCUezHJq9i9TcVP
-         /BvA==
+        bh=+bydRt5gdp3KpXxngd7pJHLuk4FTPPW3YwraLbuoqOQ=;
+        b=RFyJq8oWNEyVn8/qsZaL38ZCMRkbNzt0EEBRFhvDg2g/r7t95jtOfEUAQSFBM5q7kH
+         7p5wn4qRXeK5JbnzfuXeMh1gDphCoaial2kxd8MnM+I0v5peQP1cYsMlBzLetWAyJpEM
+         LFzawc+q8kg7ZF6eOOBpOxR61QgIcSbA3D5IqIH93AjDyfIUi74zz+P0BOYIG1zLvHBY
+         96CeFC7s9IaThX+ltI02xBHu26d3NEnby5cnVJv3N4IpKGQ96+WtvPLonLMpTiup4OE0
+         6piOAO/ynLp73LFbjrN05udh/SffxiUPAlw2+hzQhZzcATSMWKqUB5I/LUw30ObWNyj+
+         IYtA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781173473; x=1781778273;
+        d=1e100.net; s=20251104; t=1781180592; x=1781785392;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=odqGdOtLagfQVos05LnrG47yQzIpR7cm2wVlbT4YDX0=;
-        b=afuRgIHYfRoiVq3LCD20b1x/8DxUZ5Ex12m/20/6S+N06RP4eyP3zhkzMNr24PX5+K
-         0rl1pLMuK2Yqdope8Zs1btGmY/fwVayhQkzrAcqq6h0eC5j31djhF0YHPwwIVfjONYbo
-         ncs3LKLCO/j3gRkigZt7GWQ68I988X0hz6OCX8WS6jSQ1DGuh5lEpi7JS3aVt6fzkbLj
-         zYjwis/2qY5HrKd4PMDc9xVRdmS3MoJA0v/MUqTbEhkRddhaqX1sR4uYvkJwRPWrAmiE
-         AfodhEa5nTb0+2ILJth17e4UlqpoRH5ntNHKHEXdWx4rQWZ4hasw+aRgwrl4ug/b2Sx7
-         8AHA==
-X-Gm-Message-State: AOJu0YyqmrQI4D2N9BUUEj6GSTCuE81HTcK0YGWRDnUAGWtASQKrMJL7
-	c2Jx1nb19oSOQD6dRhwKOvLM8J+Jht1pzJ4yHtrM76w1HqnsewbBJ9VIUPqq96PSuST3tgPHxzJ
-	sxbWxUSZA4QCn6xCO5DXKocG1hk8TcgHijKLi
-X-Gm-Gg: Acq92OHrmKECT2nQ/4sq0RGuDlwZkKObKULmBXgCcD5UaqQ+77H56hZLGZW3npLZNG8
-	VSEA0wSu8laCextHN9zY/hyeZk/kn/pDfkCSllq+cLgyYJzodrSoQTAbrj60eRiLB5/XZ4WvAZp
-	j1lzoO1fALOQnwRmbk17hTeimtAhR8PvDhYLuDQ2gE53maT55jujeiRlnjAI2bTHHJ2vaemX7LZ
-	4G0bKkkJOONTg5bl6xs10q0tCgU9Pe61FnQfXL4FaEKZ03LVcHVC21K6DXh3j+/4juJJnHyJ/cT
-	lkJnHrNPaKsEiWFG0rc=
-X-Received: by 2002:ac2:5685:0:b0:5a4:175a:f821 with SMTP id
- 2adb3069b0e04-5ad2860a8b6mr480036e87.17.1781173472390; Thu, 11 Jun 2026
- 03:24:32 -0700 (PDT)
+        bh=+bydRt5gdp3KpXxngd7pJHLuk4FTPPW3YwraLbuoqOQ=;
+        b=g03FY05fZS57Vu/E8Zn7BpQ/6acJRwjRcwhpPoh+e4GhlcksBi4qGzw1sikSeNp38/
+         EGagh7wliDGYV03oc/Mkr0mwvpQPqypgV7rW+tHK2KqxGb6I1Vx2mT1+6+TsHNkPpI6E
+         PQ9zWMMze/1Xdkok/vUbEayF4jc/LKegkv9oLOSIVstMJ8hx5+nyFQzGq4M80lFtMW2x
+         wC0Tq4LOXjb/kdmvb+P/ppAsgA8aSBcJUDt3ZAZwfKIUcLz3PLAD984tPSx3M4RaGfo1
+         CqgkICNFdKcpMXbkKvdbwePnLQU4cKts17DY4HtJqdOHJZd9qJxxFTWWQkjYE1171mKe
+         wqYg==
+X-Gm-Message-State: AOJu0YwsgyQylJmKFGip/z/bC0wChA0jXsXJBDvddvmxC0tLya761cD3
+	adEpBX/KKP+a0g83ZH6iH3FjYpX559RVvyyKXlFIKk5/J/NVdAOCAMjzIkiU0FoYpa0IK+WFwGl
+	KnCOOTm5HJGME2Ak4wXbYbLOTqUsmwMhWsQ==
+X-Gm-Gg: Acq92OGK6IMNW7Ya4TxtckFv4/fzxUdf3YO11Ev4JZBXVT+Drz2BunqAh3zm2XPelAP
+	pVVybGhmGNHdipo5854kW6zbYo4+T+Hz5xlxrQ38nRuIj6ek22Clg+cpG2jgmQ7MGa5iXHCMMmU
+	PYilzPSsrPRKfqzZgCYPtOXMJ3LuvBOVYuZh1VdVZb38E65+wgKnor3L1mq+coTidzCR6IUP2is
+	ErzyAAU+FT/IeCAykG7HIydQcdQk9NRG98tdmfG+IY9umqSkwE/wINgjuSHLXP7/b9xQtfUbPaC
+	uqeeDnU/lzN+eUoxpw==
+X-Received: by 2002:a05:6a00:1412:b0:823:d2c:b156 with SMTP id
+ d2e1a72fcca58-843367ea5a6mr3007346b3a.5.1781180592528; Thu, 11 Jun 2026
+ 05:23:12 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAAhcyzmaCLaRmK2anDfThnhy3M_EFRgpk7Aajd+uctvYr27WZg@mail.gmail.com>
- <CAHC9VhSf-ph9D63=J-AemOZfvb9HXLFguCRFWkU4y1DvDsKr9w@mail.gmail.com>
- <CAAhcyzmUS0QkOL9_HReHD76fNTknPpJUui67-mLW-Dx_BPFzZQ@mail.gmail.com>
- <CAHC9VhQbfSV6gt5QncQKmgjbyNCWb5TP1WsheER+JLaV3oqoMw@mail.gmail.com>
- <CAAhcyzmHqJwcWqSZ+Crv=+z1fHvT3n-XJomO=iqB07wRO33SfA@mail.gmail.com> <CAHC9VhQHe2AvKOSqFC9FzAR45CjExPVNM7+F8j69mzALB10kSA@mail.gmail.com>
-In-Reply-To: <CAHC9VhQHe2AvKOSqFC9FzAR45CjExPVNM7+F8j69mzALB10kSA@mail.gmail.com>
-From: muneendra kumar <muneendra737@gmail.com>
-Date: Thu, 11 Jun 2026 15:53:01 +0530
-X-Gm-Features: AVVi8CdTpVS4RUpkNBcW-tWJU-CGPXVmjLpbAA3VfsMX5SedvW2lxLWdt16qiCk
-Message-ID: <CAAhcyzk8JmDMtjzAzO0R_Pd9A6027NT1ZCdRqFjFiwkYwu-iAQ@mail.gmail.com>
-Subject: Re: [REGRESSION] LSM/VFS: startup latency spike during rapid library
- lookups (ENOENT) on x86_64 between 6.6 and 6.18
-To: Paul Moore <paul@paul-moore.com>
-Cc: selinux@vger.kernel.org
+References: <20260610193945.10035-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260610193945.10035-1-stephen.smalley.work@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 11 Jun 2026 08:23:01 -0400
+X-Gm-Features: AVVi8Cf2DG2BUVnNjL4Q-nesucfN-5anNMP1Kvf9-iVYEIxUvMCUZaA1fK93LT0
+Message-ID: <CAEjxPJ7-YVAWqg2a73OaPtie=zJV50sz8erniyTwz-rKcs=KQg@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: always provide matchpathcon_filespec_add64()
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com, 
+	Pepper Gray <hello@peppergray.xyz>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Hi Paul,
+On Wed, Jun 10, 2026 at 3:40=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> libselinux.map lists matchpathcon_filespec_add64 unconditionally but
+> the symbol is only defined when the public header renames
+> matchpathcon_filespec_add() to the 64 variant.
+>
+> On musl and 64-bit glibc and USE_LFS=3Dn, the rename macro does not
+> fire, so only the plain symbol is emitted and the version scripts
+> references an undefined one. GNU ld permits this, but lld defaults to
+> --no-undefined-version and fails the link.
+>
+> Provide matchpathcon_filespec_add64() as a thin wrapper in every
+> configuration that doesn't produce it via the rename, so that the
+> symbol is always defined.
+>
+> Fix: #512
+> Fix: #513
+>
+> Fixes: 9395cc03226a0 ("Always build for LFS mode on 32-bit archs.")
+> Reported-by: Pepper Gray <hello@peppergray.xyz>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-I will work on narrowing the gap between v6.6 and v6.12 as you suggested.
+Based on further discussion on #513, I am NAK'ing my own patch and
+will follow up with one that fixes the linker flags.
 
-Regarding the static call conversion, I agree it should generally
-improve performance. However, I have a quick question: could
-performance be negatively affected specifically in failure cases?
-We=E2=80=99ve observed that the degradation scales linearly with the densit=
-y
-of path resolution failures (ENOENT) encountered by the dynamic linker
-(ld.so) during its library search fallback loops.
-
-Best regards,
-
-Muneendra Kumar M
-Will post
-
-On Wed, Jun 10, 2026 at 8:15=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
+> ---
+>  libselinux/src/matchpathcon.c | 14 +++++++++++++-
+>  1 file changed, 13 insertions(+), 1 deletion(-)
 >
-> On Wed, Jun 10, 2026 at 2:23=E2=80=AFAM muneendra kumar <muneendra737@gma=
-il.com> wrote:
-> >
-> > Hi Paul,
-> > >>There have been many changes between Linux v6.6 and v6.18, not to
-> > >>mention any patches Intel may have included in their LTS trees.
-> > >>Unfortunately it doesn't appear that Intel releases an LTS tree for
-> > >>each upstream Linux kernel.
-> >
-> > I agree that the broad version gap makes it difficult to pinpoint.
-> > Following your suggestion, we have tested additional releases and
-> > observed the following:
-> >
-> > 1. v6.6.78: No performance impact.
-> > 2. v6.12.76: Performance impact observed.
-> > 3. v6.18.33: Performance impact observed.
-> >
-> > Since the regression is present in v6.12, we continue to suspect that
-> > the latency amplification is
-> > an unintended side effect of commit 417c5643cd67 ("lsm: replace
-> > indirect LSM hook calls with static calls"), as noted in my initial
-> > analysis.
-> > Please let me know if my initial analysis seems incorrect or if there
-> > are other areas I should investigate.
+> diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.=
+c
+> index 2623e5dc..292ab7d9 100644
+> --- a/libselinux/src/matchpathcon.c
+> +++ b/libselinux/src/matchpathcon.c
+> @@ -299,7 +299,17 @@ int matchpathcon_filespec_add(unsigned long ino, int=
+ specind, const char *file)
+>  {
+>         return matchpathcon_filespec_add64(ino, specind, file);
+>  }
+> -#elif (defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64) || \
+> +#else
+> +
+> +extern int matchpathcon_filespec_add64(uint64_t ino, int specind,
+> +                                      const char *file);
+> +
+> +int matchpathcon_filespec_add64(uint64_t ino, int specind, const char *f=
+ile)
+> +{
+> +       return matchpathcon_filespec_add(ino, specind, file);
+> +}
+> +
+> +#if (defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64) || \
+>         defined(__INO_T_MATCHES_INO64_T)
 >
-> My original comments still stand, you need to narrow the gap between
-> v6.6 and v6.12.  If you are comfortable building a Linux kernel you
-> can follow the steps at the link below to bisect the regression down
-> to the offending commit:
+>  static_assert(sizeof(uint64_t) =3D=3D sizeof(ino_t), "inode size mismatc=
+h");
+> @@ -310,6 +320,8 @@ static_assert(sizeof(uint32_t) =3D=3D sizeof(ino_t), =
+"inode size mismatch");
 >
-> https://docs.kernel.org/admin-guide/bug-bisect.html
+>  #endif
 >
-> ... if you are unable or uncomfortable building a Linux kernel for
-> testing you may want to follow up with whoever provides your kernel
-> package to see if they can offer support.  To be honest, the static
-> call conversion should have improved performance and as far as I have
-> seen thus far that appears to be the case.  While it is always
-> possible that commit is the root cause in your case, I remain
-> skeptical.
->
-> Good luck.
->
+> +#endif
+> +
+>  /*
+>   * Evaluate the association hash table distribution.
+>   */
 > --
-> paul-moore.com
+> 2.54.0
+>
