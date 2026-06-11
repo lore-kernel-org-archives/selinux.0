@@ -1,165 +1,109 @@
-Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com [209.85.160.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EA8123395F
-	for <selinux@vger.kernel.org>; Thu, 11 Jun 2026 12:23:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.176
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781180594; cv=pass; b=LPbGINVk2pwbwdF/4K46NB8j/WFFAvNuELDGG2qe+pneKzGpVj4fOj53KUTo9kTFiFlSmqOcxWjAf0Tg/B6S6Fj2GPd4LSuX8EGsf+t1ynQ6F1DOe9ifLgG8VEAYwIkpqCACUguNOJks0+/qY8ZmssLN9WdvmzxZXbi3nf3B3vE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781180594; c=relaxed/simple;
-	bh=KQbWujv+HwyLqMf2Y+nNtCJMhLoGlGTSF6nfB2FfAB4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=E2lSH2VXNAs7ZL0hqZtEhPmWeSSDZNa9Rt1XeHWuZBdXOBFCJqt5o5Ji4xWYiFmWdQes5oGLjA8H3g3hKRvDxnFye/zEoSbCZMuVOGxxNC7FbIuGSp0if9m1YBHWi8R7MwW+61GXljbLKL5j6Wso7RuYbzZBgBYx0HYBdyfI0Co=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RFyJq8oW; arc=pass smtp.client-ip=209.85.210.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28E083FBB69
+	for <selinux@vger.kernel.org>; Thu, 11 Jun 2026 13:04:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.181
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781183053; cv=none; b=Nzrg0Jjm1HhUPMGfkChiU8PRhZv8WbPn24Xx4FNuxd5bIEfywvKrcR00qIpDsyC77Z6PtxanVuR6ZxOI3TbgYZ/LnCXSG5X3NewvveTA1vCpVerotPG35RdgDpNfbIJUNtZ82yqUCGjezjMy+rVU/YxtOvyjBhd/EsGcVKeDrBU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781183053; c=relaxed/simple;
+	bh=IB3Wz1lctWPzCVEaHV/bqpCEwe115jm2iiu/xyoMMX4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ScMHlWswXV4YDPtGy6kvzKFbn9t9PlXbfzftOwziJC4S9fumrikCTRlOnNMNFLhd8JCriqQdD0CEsPz5BrXe0hIXlPyXDd6vDD5QQ8xqdfV+hNWYpRrHcjmQmVbno8yGdhftgAivIVs6ctwCiiz+8OVA/9DMcc71Bnjs9kqcHLM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fROBjidg; arc=none smtp.client-ip=209.85.160.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RFyJq8oW"
-Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-8423610ec93so6141325b3a.2
-        for <selinux@vger.kernel.org>; Thu, 11 Jun 2026 05:23:13 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781180592; cv=none;
-        d=google.com; s=arc-20240605;
-        b=V7h7kpd8PgmR71FAo69rmxcyF3CAa+Pb7bt7rBwB+dXrxLmPH0zvJhn/5eruJpEgAg
-         +PGarcbm0w89oG8Y5MJ4zEQVxgSlHuaSSp/vKEPfuD/dnku78ih81hGzgECGhVR0gppt
-         ylwTds4R6FRCDZSKOBQ4XpTjK3qAaYtUrOYX4lz7MoS7IGtFX09ubtlf0R+yoQNcWX9y
-         HYv9HQKgYVINOHEbgXqwjCVhLi8/60vOyieHQtmOZmRdnTSqhqiICnUcVnzYTljrUl24
-         wCRxGe53obIPnTDubhLFwY5C3T8QFlhbN/aq0sNlDeionRcmO9aWhkPrdpHwdMCQOxWe
-         8AYw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=+bydRt5gdp3KpXxngd7pJHLuk4FTPPW3YwraLbuoqOQ=;
-        fh=wY8gy0iOksnwzvOC7hqRV0Sf7JK9ec7jJ+1ccj8gvlo=;
-        b=JMSfk7Sfa4CAlBiBKJM7HTUbJqkIgCFLL2G2FtUj8B5wp6MSbMH6H1BmhCmAKwGmOV
-         CpydQap9Kym0CbJV8vXqVaLnQvfuT1QyiSlQVO43wCjjBZF1/Ep28m9q+IepssY2e9Bf
-         4YbHoUkd7ZPh9wHljb/sf1TGL4jysVg5H9Iyj/9A8bQ02CshVmOx7gOFV9g9Tv0E19DE
-         4ZoE0LlhE9Dzfsmpsbrq7cTpLN7cI6+GyHwIIYkDIRcmKOyooO2eBQrnHuMWGnCp1J0m
-         3sN6jSFN5OkE7R6YOEt+d0YMaLh0S/hiE16lZhAWjziUgEhV0UN9zJ/Niflv3WEP1wkq
-         UF4w==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fROBjidg"
+Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-5177945a279so85703231cf.0
+        for <selinux@vger.kernel.org>; Thu, 11 Jun 2026 06:04:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781180592; x=1781785392; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=+bydRt5gdp3KpXxngd7pJHLuk4FTPPW3YwraLbuoqOQ=;
-        b=RFyJq8oWNEyVn8/qsZaL38ZCMRkbNzt0EEBRFhvDg2g/r7t95jtOfEUAQSFBM5q7kH
-         7p5wn4qRXeK5JbnzfuXeMh1gDphCoaial2kxd8MnM+I0v5peQP1cYsMlBzLetWAyJpEM
-         LFzawc+q8kg7ZF6eOOBpOxR61QgIcSbA3D5IqIH93AjDyfIUi74zz+P0BOYIG1zLvHBY
-         96CeFC7s9IaThX+ltI02xBHu26d3NEnby5cnVJv3N4IpKGQ96+WtvPLonLMpTiup4OE0
-         6piOAO/ynLp73LFbjrN05udh/SffxiUPAlw2+hzQhZzcATSMWKqUB5I/LUw30ObWNyj+
-         IYtA==
+        d=gmail.com; s=20251104; t=1781183051; x=1781787851; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=8AQ7AtbYevre9SHJ6fcrTXSLtsjSMiY+QN7kSpTnrSg=;
+        b=fROBjidg3MJ/w+aj7sXxE/trzl5LQs/JVluK43kYZCpVFXe4gQsrvus2gpdVFAAYwo
+         5iI01hwQmj9xRXvMPyFIybZl2OkYJ2RbVAXXlopkfQlzcGomjKEeSyIHIN535qURWjlR
+         r3WhmWCrrTagDkhtyzm09gW4RfUFQj/82WsnoDdi8Q1fxoZ1QDH/qjbKJPrXedRALVuR
+         OY7o94GEuNmbMWdnl6BSe5UFDmiUJNrIwUPJ3o0yeDsePgxJbCEFrhFFypay0Rej9LK9
+         Hw6xc31lA2+4FXQ73vIuBoNQZixrLc0coRYB9nzQ/FSzFGlFjkG8/0XojM3YJesJKw6r
+         3roQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781180592; x=1781785392;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=+bydRt5gdp3KpXxngd7pJHLuk4FTPPW3YwraLbuoqOQ=;
-        b=g03FY05fZS57Vu/E8Zn7BpQ/6acJRwjRcwhpPoh+e4GhlcksBi4qGzw1sikSeNp38/
-         EGagh7wliDGYV03oc/Mkr0mwvpQPqypgV7rW+tHK2KqxGb6I1Vx2mT1+6+TsHNkPpI6E
-         PQ9zWMMze/1Xdkok/vUbEayF4jc/LKegkv9oLOSIVstMJ8hx5+nyFQzGq4M80lFtMW2x
-         wC0Tq4LOXjb/kdmvb+P/ppAsgA8aSBcJUDt3ZAZwfKIUcLz3PLAD984tPSx3M4RaGfo1
-         CqgkICNFdKcpMXbkKvdbwePnLQU4cKts17DY4HtJqdOHJZd9qJxxFTWWQkjYE1171mKe
-         wqYg==
-X-Gm-Message-State: AOJu0YwsgyQylJmKFGip/z/bC0wChA0jXsXJBDvddvmxC0tLya761cD3
-	adEpBX/KKP+a0g83ZH6iH3FjYpX559RVvyyKXlFIKk5/J/NVdAOCAMjzIkiU0FoYpa0IK+WFwGl
-	KnCOOTm5HJGME2Ak4wXbYbLOTqUsmwMhWsQ==
-X-Gm-Gg: Acq92OGK6IMNW7Ya4TxtckFv4/fzxUdf3YO11Ev4JZBXVT+Drz2BunqAh3zm2XPelAP
-	pVVybGhmGNHdipo5854kW6zbYo4+T+Hz5xlxrQ38nRuIj6ek22Clg+cpG2jgmQ7MGa5iXHCMMmU
-	PYilzPSsrPRKfqzZgCYPtOXMJ3LuvBOVYuZh1VdVZb38E65+wgKnor3L1mq+coTidzCR6IUP2is
-	ErzyAAU+FT/IeCAykG7HIydQcdQk9NRG98tdmfG+IY9umqSkwE/wINgjuSHLXP7/b9xQtfUbPaC
-	uqeeDnU/lzN+eUoxpw==
-X-Received: by 2002:a05:6a00:1412:b0:823:d2c:b156 with SMTP id
- d2e1a72fcca58-843367ea5a6mr3007346b3a.5.1781180592528; Thu, 11 Jun 2026
- 05:23:12 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1781183051; x=1781787851;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8AQ7AtbYevre9SHJ6fcrTXSLtsjSMiY+QN7kSpTnrSg=;
+        b=FuTTK2neJnISjzp85XwJ/Ew7+Gck6z4UmsGGMMCBQ8Xjn4pBLyyWByhTbPcYasA4mM
+         RU1sDDTJHSjF4F9sNFZcEbFkN918NjB2XJ/LxTFuRGrWXaVOm9bcGBm4in70rz1/8GgP
+         o0RmCz7ImxZLPiMMn34sxmk6vmALFDZI68GgMN1UXwj+d2cApPS9L7aF2D4qqHG+sqAa
+         uTffK2dfzUeG1qlORzKvxfT6TSX8T2SlWIMzPQoQK4LPSLp2KFf4GPhs0enJ30dCggse
+         iSqDmlaxyPUgUxoO9Kg/AB+yjKC3HTMrCwx0Iz4qx6sbiUwYB/2il6rvdf+y6lLlBdSd
+         UKlA==
+X-Gm-Message-State: AOJu0YxMdd0hRy3R9jTqOPJFlAaRFSp8PDo8iN5wtB4SWAQBsOo5TOS3
+	jORfBVrSMUNJVlTgxOomiXJUWMZEIgChIAik0EFqyUjv8Ibyt/fqfpRpimFlew==
+X-Gm-Gg: Acq92OG19MhizFWb8MHyVWjnLZNW92GCJqF5WBucQgnYDO4b8YCcGBlGXSIK1T+JxvR
+	sd4uQ6zo8wXrDP7OHD3ffHYteTO8qKB3E14CBQ9WB9S/tMOqLafJOuH0xa7OFjKYM1jkfSwje2D
+	rWBnFIOtk5FpPdpBkU3b7EZJPy7TrMw8LKRdd/e9v0hVqtYler/SIvq2ztZAW1akRP7P/eecPII
+	yrx4VdupwNcfS449INP4PmvbMpehgj+1WIF8U0gnMRzBejoE604ucOP2WZ8su8ii2ecKbwEdXbC
+	FfuUENvo+QLKUYIWwyWlzjGJFzgRWSDdSW9300mlI/Aa1ZYQnGmKXSdybHbNZ/7N77APCb4O9gR
+	2BIQ6U2N1fN9Gnohdgqe4RUY6/DMuOnLoFmz4F8DVcErqIf9UXwSEAq3L9cyvntpKfjE/I7VToN
+	YDj1fhM0DCyGuNX1cbvQsicWUHil8aeK8ZQMY54+2p71KPUYEO/3VN6Z3u0NZX0CGfSlNB+Nz30
+	6kGOAjYrHxtk+g3UdVWPLWhC6CXsRxr449DZKGBpUodFuHw
+X-Received: by 2002:a05:622a:189c:b0:517:260f:8e95 with SMTP id d75a77b69052e-517edccc907mr42606741cf.8.1781183050496;
+        Thu, 11 Jun 2026 06:04:10 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-517ef3eae2dsm17546691cf.2.2026.06.11.06.04.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 11 Jun 2026 06:04:10 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Pepper Gray <hello@peppergray.xyz>
+Subject: [PATCH] libselinux: add --undefined-version to LD_SONAME_FLAGS
+Date: Thu, 11 Jun 2026 09:03:51 -0400
+Message-ID: <20260611130351.15988-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260610193945.10035-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260610193945.10035-1-stephen.smalley.work@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 11 Jun 2026 08:23:01 -0400
-X-Gm-Features: AVVi8Cf2DG2BUVnNjL4Q-nesucfN-5anNMP1Kvf9-iVYEIxUvMCUZaA1fK93LT0
-Message-ID: <CAEjxPJ7-YVAWqg2a73OaPtie=zJV50sz8erniyTwz-rKcs=KQg@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: always provide matchpathcon_filespec_add64()
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com, 
-	Pepper Gray <hello@peppergray.xyz>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jun 10, 2026 at 3:40=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> libselinux.map lists matchpathcon_filespec_add64 unconditionally but
-> the symbol is only defined when the public header renames
-> matchpathcon_filespec_add() to the 64 variant.
->
-> On musl and 64-bit glibc and USE_LFS=3Dn, the rename macro does not
-> fire, so only the plain symbol is emitted and the version scripts
-> references an undefined one. GNU ld permits this, but lld defaults to
-> --no-undefined-version and fails the link.
->
-> Provide matchpathcon_filespec_add64() as a thin wrapper in every
-> configuration that doesn't produce it via the rename, so that the
-> symbol is always defined.
->
-> Fix: #512
-> Fix: #513
->
-> Fixes: 9395cc03226a0 ("Always build for LFS mode on 32-bit archs.")
-> Reported-by: Pepper Gray <hello@peppergray.xyz>
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+commit 9395cc03226a0 ("Always build for LFS mode on 32-bit archs.")
+introduced a matchpathcon_filespec_add64 symbol for certain 32-bit
+configurations but added it to libselinux.map. This was benign under
+GNU ld but breaks lld due to differing defaults for
+--no-undefined-version. Add --undefined-version to LD_SONAME_FLAGS to
+avoid breakage when building with lld.
 
-Based on further discussion on #513, I am NAK'ing my own patch and
-will follow up with one that fixes the linker flags.
+Fix: #512
+Fix: #513
+Fixes: 9395cc03226a0 ("Always build for LFS mode on 32-bit archs.")
+Reported-by: Pepper Gray <hello@peppergray.xyz>
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ libselinux/src/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> ---
->  libselinux/src/matchpathcon.c | 14 +++++++++++++-
->  1 file changed, 13 insertions(+), 1 deletion(-)
->
-> diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.=
-c
-> index 2623e5dc..292ab7d9 100644
-> --- a/libselinux/src/matchpathcon.c
-> +++ b/libselinux/src/matchpathcon.c
-> @@ -299,7 +299,17 @@ int matchpathcon_filespec_add(unsigned long ino, int=
- specind, const char *file)
->  {
->         return matchpathcon_filespec_add64(ino, specind, file);
->  }
-> -#elif (defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64) || \
-> +#else
-> +
-> +extern int matchpathcon_filespec_add64(uint64_t ino, int specind,
-> +                                      const char *file);
-> +
-> +int matchpathcon_filespec_add64(uint64_t ino, int specind, const char *f=
-ile)
-> +{
-> +       return matchpathcon_filespec_add(ino, specind, file);
-> +}
-> +
-> +#if (defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64) || \
->         defined(__INO_T_MATCHES_INO64_T)
->
->  static_assert(sizeof(uint64_t) =3D=3D sizeof(ino_t), "inode size mismatc=
-h");
-> @@ -310,6 +320,8 @@ static_assert(sizeof(uint32_t) =3D=3D sizeof(ino_t), =
-"inode size mismatch");
->
->  #endif
->
-> +#endif
-> +
->  /*
->   * Evaluate the association hash table distribution.
->   */
-> --
-> 2.54.0
->
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index 9982faad..35f36b87 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -91,7 +91,7 @@ CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self -Wmissi
+ 
+ override CFLAGS += $(LFS_CFLAGS)
+ 
+-LD_SONAME_FLAGS=-soname,$(LIBSO),--version-script=libselinux.map,-z,defs,-z,relro
++LD_SONAME_FLAGS=-soname,$(LIBSO),--version-script=libselinux.map,-z,defs,-z,relro,--undefined-version
+ 
+ ifeq ($(OS), Darwin)
+ override CFLAGS += -I/opt/local/include
+-- 
+2.54.0
+
