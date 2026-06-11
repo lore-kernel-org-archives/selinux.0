@@ -1,195 +1,163 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com [209.85.167.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADDA12E7631
-	for <selinux@vger.kernel.org>; Thu, 11 Jun 2026 08:31:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781166716; cv=none; b=Lj9AB9z6QqQz/+vc9RdPxe2woIRFyQue+QvdiSBuHfyHIsKhNKBc2JRX96xCuHJQSWNpdxMwiuJGb0v4VGnZFZlxHTBsQkY1PYAWx23TQKZ8NW3FHSd9qb/LIA4M5IGDvHA/Rj1wzsAP+dur1Sqplb+/ulv4RfxGtsy5AHOq2j8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781166716; c=relaxed/simple;
-	bh=eOJr3m7SfX1Fj2rGM0HcvOx2TkhNND3GGf6pyNJnUU4=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Be0Fl9c9AhbuP2gqmV+AhbE13CYeNzRi+/VNDLbWb2jKiz/TfYB/2NTKGy543MUihIZSpetJTiGjcnsVbcHiVxscW4gIf0bp28mbp9uB8prrdoK6uSlpaKU978M2KEClIP7ksHe956UPZ1XEXCFmfJTQxwkdRhr0H6jHhRXtIkM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DUAsFpO3; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9877E363C6A
+	for <selinux@vger.kernel.org>; Thu, 11 Jun 2026 10:24:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.48
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781173476; cv=pass; b=oYdKwCenz+YZebWhC5B0YUzCTp5QBaU6PdlhbQLsFDSQ2jyEhgOyG9McevJgnU/36TbJ00qtmcqy8L2ru7iieFpHSrssWjaqgkgcZucB8xSdSQy6p3yQdr8YRZMrZW7ggOFMPcOBax47/d6K8PP66hZvT7Z92AwcOgVrv7v+b34=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781173476; c=relaxed/simple;
+	bh=EvfpDVi+MWP/Yl+nCamsRxBlTOPe42gk2ioFWkDI87c=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=QO6kuf9WwfRJuyz5tno9sNwq6q2oHo2MMoe6cnt1m2mhXv7/VYvVqI6i4aJsGi75NeREbe7fKoA7cb7x6q2QxjmuDDo7GkItZR3EX9n5t/TSIA3MYx3UNa8fq1Wcr24PKi3kohlNhQ+LmNspZYmPLTgLx2QO21y9Y6vm0QHy7Lw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OsK5Zsaj; arc=pass smtp.client-ip=209.85.167.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DUAsFpO3"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1781166713;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=cZmbp20fOFcYprB6aKspk7zNdlvVPh12J0oiLvterTQ=;
-	b=DUAsFpO3Udre5haFn105ueG5aiVovT2jkUgWH5iIbr7emCP3NlNCmCq5yDXq3EbS+RGneQ
-	Jk58gxMrGWn8HCODO+rQ8orzviGiOftaOINVDTkAWddlzf9vSDjQP2xXBxktuKRRwvUVHc
-	Dqc74NVsckoqanFmIc61CPldaR/4n9c=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-397-rJRTV-_5O96qyGW0HqTGmg-1; Thu,
- 11 Jun 2026 04:31:52 -0400
-X-MC-Unique: rJRTV-_5O96qyGW0HqTGmg-1
-X-Mimecast-MFC-AGG-ID: rJRTV-_5O96qyGW0HqTGmg_1781166711
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 90B8F1800675
-	for <selinux@vger.kernel.org>; Thu, 11 Jun 2026 08:31:51 +0000 (UTC)
-Received: from localhost (unknown [10.44.49.213])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 1DDDC3000223
-	for <selinux@vger.kernel.org>; Thu, 11 Jun 2026 08:31:50 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
-To: selinux@vger.kernel.org
-Subject: ANN: SELinux userspace 3.11-rc2 release
-Date: Thu, 11 Jun 2026 10:31:49 +0200
-Message-ID: <87a4t1mqa2.fsf@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OsK5Zsaj"
+Received: by mail-lf1-f48.google.com with SMTP id 2adb3069b0e04-5aa61503fdaso730307e87.0
+        for <selinux@vger.kernel.org>; Thu, 11 Jun 2026 03:24:34 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781173473; cv=none;
+        d=google.com; s=arc-20240605;
+        b=CLNKGJgaCTS+4YHgK4JQgrw5Q9mfXAYQ4SaMDUZsI98nCKYdCooa8dMC2ae8HQ5f4h
+         Q6mNBrF5ql+jn6LkTStzOqzjukZ+naN3NgyjBkpEe7B0cZ/olRKsB6qJvg3cu7xg3TAg
+         jMXTyRedg4qkAYfBcDsbvAjx2aTOZBWIEt7fPIzKZJUn2Ovfl9Bhx5n3yJ7wJ3XCgAMy
+         6T7x90LTwmXpBjRQGHvkYC2YI2pPYzXjamquDayR6hG3UJ2yE+whKoihao/QXthCi6VB
+         WBYFxtOCn127KTSg6QHW0v/t7ehnm5yH8ogxrwuSlvoGj5uAZTrFr3JpuIkPugGVbcfy
+         Ljew==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=odqGdOtLagfQVos05LnrG47yQzIpR7cm2wVlbT4YDX0=;
+        fh=PvVq3dmv8yvnCRJYSTWWanBfOaJzW2R+gufroGOSnBQ=;
+        b=EA+DU25baf0xgW9UfPlpuCy7XXQWTYq8VDtBS9aGM7Wi7/8HGnjV8Pq/WQgapUkrfY
+         KP+M7ZQgksFhZgv+mhQwGkooP4PZ6dTFo53zhY876HmcpYGQRsPe88zSSXrOUjRMread
+         ww69dwUDJ+lwsAxQorzIKfvil17mgu092MBdUKBBejfJoC+Z/Tpu+SpaWPcxNxn85qxh
+         /wfaNn2Do8RyaHC+OYNCYfkVOnJrJsJcStl/ZdAQdF2693yaDc+roeXSVd8lcsCvDP41
+         pZuhhqZdd66Q9i+JedM8NknIC+FWnjIvgTBPIt7ylxIUOmmE5fFOVFQAbnm4p+WXdCWr
+         lN4Q==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781173473; x=1781778273; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=odqGdOtLagfQVos05LnrG47yQzIpR7cm2wVlbT4YDX0=;
+        b=OsK5ZsajC2p+NDN7Y+aHr+w26AuavGnJlmbWZ1YjOJQkPapMO5Rancmxl4//QvSKjC
+         cKur+WxdGvqxm13eAUvKDbVMjwfV1gn+tLajC0+iptTzm4OG0RXnAKyA3C00l/+8WHqA
+         dIBR3u+Z7rT3dMdO5QYhbSJWvc5gQWtNhP3ywWdnwYTV6CfGdoSQ5n5ftKd2fnwqXIW/
+         L+net06MFGxxCANtW13zX1INB+v6frSQpjklLbI+BzaNaDYwLQc+wm4nMDUd1IDSgnMd
+         9RYe9TO10KskYfJth14D6nZ/Bne6R0NGiYOvW3lP0VIjlaSZD5gx5jCUezHJq9i9TcVP
+         /BvA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781173473; x=1781778273;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=odqGdOtLagfQVos05LnrG47yQzIpR7cm2wVlbT4YDX0=;
+        b=afuRgIHYfRoiVq3LCD20b1x/8DxUZ5Ex12m/20/6S+N06RP4eyP3zhkzMNr24PX5+K
+         0rl1pLMuK2Yqdope8Zs1btGmY/fwVayhQkzrAcqq6h0eC5j31djhF0YHPwwIVfjONYbo
+         ncs3LKLCO/j3gRkigZt7GWQ68I988X0hz6OCX8WS6jSQ1DGuh5lEpi7JS3aVt6fzkbLj
+         zYjwis/2qY5HrKd4PMDc9xVRdmS3MoJA0v/MUqTbEhkRddhaqX1sR4uYvkJwRPWrAmiE
+         AfodhEa5nTb0+2ILJth17e4UlqpoRH5ntNHKHEXdWx4rQWZ4hasw+aRgwrl4ug/b2Sx7
+         8AHA==
+X-Gm-Message-State: AOJu0YyqmrQI4D2N9BUUEj6GSTCuE81HTcK0YGWRDnUAGWtASQKrMJL7
+	c2Jx1nb19oSOQD6dRhwKOvLM8J+Jht1pzJ4yHtrM76w1HqnsewbBJ9VIUPqq96PSuST3tgPHxzJ
+	sxbWxUSZA4QCn6xCO5DXKocG1hk8TcgHijKLi
+X-Gm-Gg: Acq92OHrmKECT2nQ/4sq0RGuDlwZkKObKULmBXgCcD5UaqQ+77H56hZLGZW3npLZNG8
+	VSEA0wSu8laCextHN9zY/hyeZk/kn/pDfkCSllq+cLgyYJzodrSoQTAbrj60eRiLB5/XZ4WvAZp
+	j1lzoO1fALOQnwRmbk17hTeimtAhR8PvDhYLuDQ2gE53maT55jujeiRlnjAI2bTHHJ2vaemX7LZ
+	4G0bKkkJOONTg5bl6xs10q0tCgU9Pe61FnQfXL4FaEKZ03LVcHVC21K6DXh3j+/4juJJnHyJ/cT
+	lkJnHrNPaKsEiWFG0rc=
+X-Received: by 2002:ac2:5685:0:b0:5a4:175a:f821 with SMTP id
+ 2adb3069b0e04-5ad2860a8b6mr480036e87.17.1781173472390; Thu, 11 Jun 2026
+ 03:24:32 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+References: <CAAhcyzmaCLaRmK2anDfThnhy3M_EFRgpk7Aajd+uctvYr27WZg@mail.gmail.com>
+ <CAHC9VhSf-ph9D63=J-AemOZfvb9HXLFguCRFWkU4y1DvDsKr9w@mail.gmail.com>
+ <CAAhcyzmUS0QkOL9_HReHD76fNTknPpJUui67-mLW-Dx_BPFzZQ@mail.gmail.com>
+ <CAHC9VhQbfSV6gt5QncQKmgjbyNCWb5TP1WsheER+JLaV3oqoMw@mail.gmail.com>
+ <CAAhcyzmHqJwcWqSZ+Crv=+z1fHvT3n-XJomO=iqB07wRO33SfA@mail.gmail.com> <CAHC9VhQHe2AvKOSqFC9FzAR45CjExPVNM7+F8j69mzALB10kSA@mail.gmail.com>
+In-Reply-To: <CAHC9VhQHe2AvKOSqFC9FzAR45CjExPVNM7+F8j69mzALB10kSA@mail.gmail.com>
+From: muneendra kumar <muneendra737@gmail.com>
+Date: Thu, 11 Jun 2026 15:53:01 +0530
+X-Gm-Features: AVVi8CdTpVS4RUpkNBcW-tWJU-CGPXVmjLpbAA3VfsMX5SedvW2lxLWdt16qiCk
+Message-ID: <CAAhcyzk8JmDMtjzAzO0R_Pd9A6027NT1ZCdRqFjFiwkYwu-iAQ@mail.gmail.com>
+Subject: Re: [REGRESSION] LSM/VFS: startup latency spike during rapid library
+ lookups (ENOENT) on x86_64 between 6.6 and 6.18
+To: Paul Moore <paul@paul-moore.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-Hello!
+Hi Paul,
 
-The 3.11-rc2 release for the SELinux userspace is now available at:
+I will work on narrowing the gap between v6.6 and v6.12 as you suggested.
 
-https://github.com/SELinuxProject/selinux/releases/tag/3.11-rc2
-https://github.com/SELinuxProject/selinux/wiki/Releases
+Regarding the static call conversion, I agree it should generally
+improve performance. However, I have a quick question: could
+performance be negatively affected specifically in failure cases?
+We=E2=80=99ve observed that the degradation scales linearly with the densit=
+y
+of path resolution failures (ENOENT) encountered by the dynamic linker
+(ld.so) during its library search fallback loops.
 
-I signed all tarballs using my gpg key, see .asc files.
-You can download the public key from
-https://github.com/bachradsusi.gpg
+Best regards,
 
-Thanks to all the contributors, reviewers, testers and reporters!
+Muneendra Kumar M
+Will post
 
-If you miss something important not mentioned bellow, please let me
-know.
-
-User-visible changes since 3.11-rc1
------------------------------------
-
-- Bug fixes
-
-Development-relevant changes
-----------------------------
-
-- Improved ci and refactored ci build into a custom GH action
-- libselinux and python use system Python3 build module
-
-Shortlog of the changes since 3.11-rc1 release
-----------------------------------------------
-Cathy Hu (1):
-      libsemanage: avoid "all" as requirement for SWIGSO/SWIGRUBYSO (bsc#12=
-66385)
-
-Chris PeBenito (3):
-      ci: Refactor build into a custom GH action.
-      ci: Explicitly set bash shell in build-userspace action
-      ci: Add additional output grouping in build-userspace action.
-
-Christian G=C3=B6ttsche (16):
-      Makefile: support custom clang-format binary
-      libselinux: bounds-check serialized regex length before PCRE2 decode
-      libselinux: reject invalid file_kind in compiled fcontext loader
-      libselinux: avoid out-of-bounds read on empty failsafe_context line
-      libselinux: validate netlink message length before accessing payload
-      libselinux: use size_t for index
-      libselinux: drop trailing returns
-      sandbox: drop unused macro
-      policycoreutils: declare local variables static
-      policycoreutils: drop unused macros
-      restorecond: declare local variables static
-      mcstrans: check context_range_set(3) for failure
-      secon: check selinux_raw_to_trans_context(3) for failure
-      restorecond: warn on selinux_restorecon(3) failure
-      restorecond: drop unused macros and variables
-      Consistently use NULL as pointer constant
-
-Cristian Rodr=C3=ADguez (1):
-      libselinux: Do not clobber errno of the world
-
-Fabrice Fontaine (1):
-      libselinux/src/se_linux_internal.c: include stdint.h
-
-James Carter (8):
-      secilc/secilcheck: Exit with an error for an assertion violation
-      Have clang-format ignore auto-generated files
-      libsepol/cil: Fix type confusion when writing policy.conf from CIL
-      secilc/secilcheck: Remove extra sepol_policydb_free(pdb)
-      libsepol/cil: Add check for too large of file size
-      secilc/secil2tree: Test for stdout rather than stdin
-      libsepol: Ensure dst gets set when copying range transitions
-      libsepol/cil: Need to add to the length rather assigning it
-
-Marcos Freitas de Morais (1):
-      secilc/docs: Adjusted correct statement keyword
-
-Pepper Gray (1):
-      add test for fts_* availability
-
-Petr Lautrbach (4):
-      ci: install necessary build python module
-      libselinux,python: Use system Python3 build module
-      Add check_format Github CI job
-      Update VERSIONs to 3.11-rc2 for release.
-
-Rahul Sandhu (1):
-      libsepol: cil_resolve_ast: add in a CIL_SRC_INFO for the copied data
-
-Renato Caldas (1):
-      libselinux: restore: drop the obsolete LSF transitional API.
-
-Robert Frohl (1):
-      sandbox/sandbox: fix saving file changes
-
-Sergei Trofimovich (1):
-      libselinux: drop long deprecated `-Wstrict-overflow=3D5` flag
-
-Stephen Smalley (29):
-      restorecond: avoid busy-loop when watch list is empty
-      libselinux: selinux_restorecon: add flag to skip multilink files
-      restorecond: Use new SELINUX_RESTORECON_SKIP_MULTILINK flag
-      restorecond: pin watched directories
-      mcstrans: fix UAF on SIGHUP
-      mcstrans: handle NULL domain
-      mcstrans: mcscolor: handle NULL my_context
-      mcstrans: cap max clients
-      mcstrans: set receive timeout on accepted client sockets
-      mcstrans: cap the per-domain translation cache
-      libsemanage: fix OOB cleanup in semanage_direct_list()
-      libselinux: serialize legacy compat_validate() callbacks
-      libselinux: fix selinux_status_updated() for MAP_FAILED case
-      libselinux: restorecon_xattr: clear dir_xattr_* after freeing
-      libselinux: selabel_close: only call func_close if set
-      libselinux: audit2why: clear static variables on init failure
-      libsemanage: genhomdircon: handle NULL bsearch() in get_users()
-      libselinux: label: ensure specfile_list is NULL-terminated
-      mcstrans: fix glob() error checking
-      restorecond: fix glob() error checking
-      restorecond: avoid clobbering last character of config line
-      restorecond: delete unused code
-      libselinux: fix REQUIRESEUSERS true/false handling
-      libsemanage: genhomedircon: fix STR_COMPARATOR() passed to lfind()
-      checkpolicy: drop fscon statement support
-      libsemanage: bunzip: guard against size overflow
-      libselinux: label_backends_android: fix non-anti-symmetric cmp functi=
-on
-      libselinux: label_file: prevent num_specs overflow
-      libselinux: digest_gen_hash(): reduce the chunk size for Sha1Update()=
- calls
-
-Yi Zhao (1):
-      sepolicy: set conf.substitutions['releasever'] to empty str when rele=
-asever is None
-
-netliomax25-code (2):
-      sestatus: null-terminate process and file check entries
-      libselinux: avoid out-of-bounds access on zero-length lines
-
-
+On Wed, Jun 10, 2026 at 8:15=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+>
+> On Wed, Jun 10, 2026 at 2:23=E2=80=AFAM muneendra kumar <muneendra737@gma=
+il.com> wrote:
+> >
+> > Hi Paul,
+> > >>There have been many changes between Linux v6.6 and v6.18, not to
+> > >>mention any patches Intel may have included in their LTS trees.
+> > >>Unfortunately it doesn't appear that Intel releases an LTS tree for
+> > >>each upstream Linux kernel.
+> >
+> > I agree that the broad version gap makes it difficult to pinpoint.
+> > Following your suggestion, we have tested additional releases and
+> > observed the following:
+> >
+> > 1. v6.6.78: No performance impact.
+> > 2. v6.12.76: Performance impact observed.
+> > 3. v6.18.33: Performance impact observed.
+> >
+> > Since the regression is present in v6.12, we continue to suspect that
+> > the latency amplification is
+> > an unintended side effect of commit 417c5643cd67 ("lsm: replace
+> > indirect LSM hook calls with static calls"), as noted in my initial
+> > analysis.
+> > Please let me know if my initial analysis seems incorrect or if there
+> > are other areas I should investigate.
+>
+> My original comments still stand, you need to narrow the gap between
+> v6.6 and v6.12.  If you are comfortable building a Linux kernel you
+> can follow the steps at the link below to bisect the regression down
+> to the offending commit:
+>
+> https://docs.kernel.org/admin-guide/bug-bisect.html
+>
+> ... if you are unable or uncomfortable building a Linux kernel for
+> testing you may want to follow up with whoever provides your kernel
+> package to see if they can offer support.  To be honest, the static
+> call conversion should have improved performance and as far as I have
+> seen thus far that appears to be the case.  While it is always
+> possible that commit is the root cause in your case, I remain
+> skeptical.
+>
+> Good luck.
+>
+> --
+> paul-moore.com
