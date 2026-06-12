@@ -1,123 +1,180 @@
-Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85CA632692C
-	for <selinux@vger.kernel.org>; Thu, 11 Jun 2026 19:34:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4287B3EDE7E
+	for <selinux@vger.kernel.org>; Fri, 12 Jun 2026 13:23:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.51
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781206492; cv=pass; b=kFL+0EXOgOHEWzbAI0BA9wTAmGDVF8N+JAYXLnimTqbefsR05D7yrgnVnDAONOTrBmF3tqFo0t6jBgwLhvhcqE8jevqZBSm7eDe/TQIjw8neGDFP2qGL/nNk4SzSCIFyrjyDI0mlKC10TgXCjIZqMoH7fn2isLGMCU6TIoUuRh4=
+	t=1781270604; cv=pass; b=YrPQQ5HyqrSfP1bIrr7ipysHSO+ljmvHhiR40iwrHf/jG0EZzcG7tFtKW/NGJrZS9Kylt6VzzC22qdVzrJ3l6Djw687ny8Mn/ZcmUEzxBuhRmAWUR9TgQZmcZpecPR0Q0hpWCBBJXmhTx5Tuz99h5Of2dsx3DbClNIUepXKN1hA=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781206492; c=relaxed/simple;
-	bh=KQfZNNrMjG2Kqnp7Af5JGVIqTuf+X2bJ3PXcVzb7g70=;
+	s=arc-20240116; t=1781270604; c=relaxed/simple;
+	bh=B06gKQBrNmK3O6DqlRlQvP1/Vso0EiVW41cs8VUmA8g=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=DE3z3ADhjG3vefeY30CTn7ptK9l8n6qmR3jJ1mtu6pOqsmlGdot/KfX4XPdwoiKo3CcmGjW0rG+K6wFPTDBqtUzdiS4E1msWlTCXU2NYijDyzP+JM56Zrv1t56wRVsKJLsDvp31QnhEkEg5y/1RHsaeUTfGGQNxxfXz24RNsc6Y=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=V3vLm+5q; arc=pass smtp.client-ip=209.85.210.177
+	 To:Cc:Content-Type; b=Mn6AnpMuOi7NN6gNXoc076r8o0u58ksLzJFzDu7Vz/GWHo+s2WdQ65fCbUu0OeoFLW9e+4YgsfmtNgtGCvVWmIEzpnhDHadXgW4KKXJYUz2fzS9KUcGPCvu7AaUCwe6fN5uRvpn9JTEaXCjG6WqKQGaPpWGZpbaW71RdGnI2QFw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UN5oq+zx; arc=pass smtp.client-ip=209.85.216.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="V3vLm+5q"
-Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-8423f236418so220238b3a.1
-        for <selinux@vger.kernel.org>; Thu, 11 Jun 2026 12:34:51 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781206491; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UN5oq+zx"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-37474afe908so550983a91.1
+        for <selinux@vger.kernel.org>; Fri, 12 Jun 2026 06:23:23 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781270603; cv=none;
         d=google.com; s=arc-20240605;
-        b=kDvLQiTQthRTLovU4S8wRsupoAI2y4GVSsSt18ehEor+O2saKUtV7RwLvkCBvTCxCV
-         nq6A89tOxKW1gioTsAC5AKXDq7a++eMkI7wYkhMBnlHD1Rcdg5QswNzdmr8rATtaqeQg
-         W/3ZjsQhPgLvmOu/SnbNiDCQpYkVjTM6cCPwaJ1+XCcFG9+Ksox/7DkP1f2EPAs+ax1M
-         b0SGFZjoakzM6pJdoHyHjKTH1zZLbajZ7rdQYAkBnDeDNsBnIQxV6k6lbqjnB1RGQtoJ
-         Rv7uCJOWZMGqj8s3MCcgggnPTpyk/9O5w7Uoce17zkNsf/BDAUtHLfwEAqALKYTN29pB
-         IEmw==
+        b=YAmv9UGM4e5Qz08W6BOg6GW/qqEyARTNdDWtPFakjD8/HcEscnDNd40Ci/dErYtf2+
+         BVoAAF7Y/5tb5oaKP+P+xcWuSr/1mmiB20RXVU5lfjwlYo9yKV2aIm6FI13OI2vNxwSB
+         pzIv/Ip+ivM/G0FdSdDNSP9Az/U1qOK2RzTj9gW31m+Y1/JlCrBGmw+oRsW0qg6iLMRY
+         v3OBg4Duz7Kk+L9SV2FBEceeBioLh8YZ41QxUwVhS2kX41uJ1PiWIOwUJ+yiCq6DLB/m
+         YcSpj/VaMh79wO8ycWM/ni/Lwisx4ph9oEPGmooyyuj3ZmKCOdyu6cJ3E1n3WprN8aih
+         yo8g==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=KQfZNNrMjG2Kqnp7Af5JGVIqTuf+X2bJ3PXcVzb7g70=;
-        fh=FtK/lcmPopwhenPbfaNJghOBi59lv7Uem6KTQb051Bg=;
-        b=XBnOuY9SKx0RP61yco+fVlN8+JtiCbpcqMX6AiY5/yCsP916o56P32mzMZ7/lfnWFY
-         gESxeCVofAkdv9mqmHe2vMAn46leptdcXjEfZYTe6O274CkgkImXTX0nEQ70eXJOE4D5
-         0SaETv9I6PUODHa32h/BIPV6uecv/WFtkKq9/bEC7G4VV5vt+2433n6ZLMs5GlqLjaHQ
-         xHJhgFR5Rb0YQfm8j0WKt20OCbhlYIrTQEKcEukQMdbgBgTC3MJicvyjN4hAovLEs47f
-         8uTKE6L1NUXRxWAnNrjeZ8XdIg3FIkPRz4/4+5jHOH8Ntkrw6kJf2HWo4+VO8X/Xdugz
-         OZpA==;
+        bh=3ngoPCfTClit/o2ctszmA0C+iqu82uNXsSSpNe4LA4I=;
+        fh=Br7Q3QYCCAjnvhHaund9vV2LCS9SOjHrWaBcZeLdftU=;
+        b=CNdPWQEpW7WnKarmsMw//O62LaxRzVv9T8EYvhG8oGah34q/h7H3WOWKyBcNNTSTkf
+         C044n1JNdj3OEIKzLZVZv+heZYRJoN8r8q3HS3fJwUAfx7kjnC2wInCQn/d8zG3r5F/d
+         ODWtRob2edW7bQIvqqi9DGbd0NORbaxB2G/FRZcw0U6JpqZ9A7zg02+1y4gPJ1in2ClV
+         xVC8bXXKzQpTXS1Q+WpcpIQM1/6rTxVRQxZB28L4CsJ2eMGzBXRMxUhnTr2lKSM70twL
+         vUyjHq5mTLq2ds28LeP/BOwH7TX8FbuVFTqou/GA/+Gi/k7dldp146jWC+YwuTNl8Peu
+         eeHw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781206491; x=1781811291; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1781270603; x=1781875403; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=KQfZNNrMjG2Kqnp7Af5JGVIqTuf+X2bJ3PXcVzb7g70=;
-        b=V3vLm+5q3PwE4vz3jAqIAvbJ8mv4vd+3oKPaVkXAhBkuduWugT9eoOIYtuK5vyaswJ
-         B3KobUWWmR9kTiNlMCx2xiypFeGc6kDoH2zMmq6Fi+GKP47p0FWAd0zoL0Aq4ekypcDy
-         NalfiqwJLfMy+bzzehKALGjnXbI4zXOxfFG6w0HCzFCgzw2cVjlSADUebw/LX30Ks8/g
-         cDJaRrpYtj8TfPTWy8ZPeZ62Nkx32PGx6Ka6wcqJWAhbCCJSw7rB0PPcQxChJSF49RBu
-         uMEgcPHl5Mm99+8ZqokTdMEozfUj/fnq4HUiLkNXHitzEB52QfE/8hrBigR0AdtOWXJB
-         idEA==
+        bh=3ngoPCfTClit/o2ctszmA0C+iqu82uNXsSSpNe4LA4I=;
+        b=UN5oq+zxTf2Tl+kDfkjYEfsvlbhWOpNb9qx/E7noPlEAcpmO9h6ZThpKYbAc128BwT
+         KT1IMFncUN7+rBY4SgLjfDkhVb6mV528gRdOKxvSDG0npLPQgQsLV7EPinPfDeb4Dpms
+         XyFILsEjESK7nyNGsEUxLs0w5SDqB/Bj6hG2Z5vXCCHm99weTbtfMKOkntvWNQeSBgAA
+         EN83SEmXx4xJ3+4MyQ2vl2LjzoDsmdMxrjbcsNVGyI6yev60E5FaiICAVR2ghNlWix8h
+         seYilidkENEiXDyRapyY0Jti1/0+9WGP1m1qZKdNBBP6uPLZclK9h6GRMJq0O9MT+Rkh
+         qJdA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781206491; x=1781811291;
+        d=1e100.net; s=20251104; t=1781270603; x=1781875403;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=KQfZNNrMjG2Kqnp7Af5JGVIqTuf+X2bJ3PXcVzb7g70=;
-        b=qcoieqizwoDZlgGpsDehsPpJlZvUa/dqUmuSKXFsSCn6aGVT5JIefRHuZ3VvFfr6yK
-         M1pbK0nCC0xCHJo7/hnbzLorqWLJSwgpc67zy0c9fz+vmP7Gmbsbl4yXt+aBe/dCBJAA
-         P4/p1YHHYv5l00qJyZILAvBv2YLzR8ClA6Ks+qC8qLDEwXgkSrzM1jhBLvcbIj9pnLXi
-         wn/6ThXnYlF0FLllg6hKSTJcvlNwd9EupEu2TwO7xgTpvjh1uQMhUrGrHnBJ3Fkn6/dl
-         ueEyilH/OrXLDUx86bzJ8f5aVDDDn6iBQrkYVLMUyjVNYnoYdRLNHWQaV47w4j1L+qJR
-         LNIg==
-X-Gm-Message-State: AOJu0YwTarXtTeyUiruRGz2TGTdNop2AzYJuGXBSEd5jdUPtwvwu2Eh3
-	eOiRHc3+71ocacSaNGiv32MA3ccjJ+p8O2p4sXRQuDO1RGjGGNzNrzW+CzJoc7U5qePlUjCs7jp
-	hNjya+2stB3EBpaDCVCwPpVI7O9+1UcY=
-X-Gm-Gg: Acq92OFVvArFQR7MFHmvPuRwJfx9un6fqwIWquXBnSaw8mav3OHnGn05ZlpUQPKPWr3
-	HdYaPzJPkNRcaBQ2My3CZR7uxB0cSl9AeqyeMv8dhtVoAlMEyIBxpiHdVuZHYNAikPUSsqfkN0X
-	UTCOO3RfmTqxtP2CHJ4rOyL8zrqzaD8I9rBeT0OxSDLdXrE6D/9p31ThAgg2bJldTbZWvMHcKN4
-	B4vcy4inaHwtTs1kbPnHh6r/8R1AewhnhvQAA2LaNtlTgnDDP+voJSbDb7zrtUPnVxtQnhswrbT
-	BlB3xpc=
-X-Received: by 2002:a05:6a00:3a29:b0:829:8942:2c93 with SMTP id
- d2e1a72fcca58-843367eba8cmr4742749b3a.9.1781206490742; Thu, 11 Jun 2026
- 12:34:50 -0700 (PDT)
+        bh=3ngoPCfTClit/o2ctszmA0C+iqu82uNXsSSpNe4LA4I=;
+        b=YqGNnOiUGXJ18TXy/KVZLZqtb9VhGB7tg7MIrM7YwVquvItHKjnegjDxKcQT7iH94R
+         4olLGEHFYpXlBeFtxoWegp76PXj3IZzuBPeg48rIGwAFQ1barDFexDn5LKQt6TRcD/z/
+         Unw/Bqmk3wDWL4+Z37Hu6Gve/fpY6JY4MSmq1lPORPdXyAMnWHarTjbWDn+5xMCyGRNR
+         Pd9gtQ3NuDWRdqerFN9j9GhCnyk6I5KwswQPdiHBulhwLAIpcuvL9Y+PUNY3pWhGn/rz
+         0eSuenvOGQytScwwIsQM6L2Jb12VgrzhpbdJdtaifIAuMxze6PDjL/fFeQ6LBR1IFoe0
+         LRjg==
+X-Gm-Message-State: AOJu0YyQ3t4vLvU0BjT4SxqcGYxE8V+RdTxLqBHVLG1PvUguk7eSNuqr
+	Tohr57n5KawiMi2kxoq57mQ3hroK62ghnGI3NOfB2GTYKISPIAxu7kNoE/eDMjrmNnphfmsGMoD
+	sVGnIqSxm7gd0FdBQzAPew4P44DE5pTHwtg==
+X-Gm-Gg: Acq92OGjtcLk45LdlmhQY8+m6UPe3Xc6JEyUu1SJM4azlY/bWgvewSk9Yg+cZwd5ASE
+	Vd08QJCaDxRzcZHOzmeKVIIamBExrFfFsecLQHaApbRcInsmUtW1D16AhuNw5A8X2wdwyEjYwB7
+	5O7Wb2/FAkf9YsH7qtxT3jbzd1y0OXQocKqXAuM6ikx277GYXhxbA7EeTzsWD+wsRj8CKvapb1X
+	iIEZipqByeG7R/HBEd0TzrBbywow5gOVy+75YB1JzjW/dF3bl0TILzKW8umjs0klpYihFIFZ4a2
+	y0iB968=
+X-Received: by 2002:a17:90b:1f83:b0:36d:8e6f:8d94 with SMTP id
+ 98e67ed59e1d1-37a032e5303mr3003131a91.15.1781270602588; Fri, 12 Jun 2026
+ 06:23:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260611130351.15988-1-stephen.smalley.work@gmail.com> <CAJ2a_DfUb2dWUMO-1Kr9_8j5swjeOHwwp0n7brfQR3-5vg=HmQ@mail.gmail.com>
-In-Reply-To: <CAJ2a_DfUb2dWUMO-1Kr9_8j5swjeOHwwp0n7brfQR3-5vg=HmQ@mail.gmail.com>
+References: <20260610203137.411393-1-chpebeni@linux.microsoft.com>
+In-Reply-To: <20260610203137.411393-1-chpebeni@linux.microsoft.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 11 Jun 2026 15:34:39 -0400
-X-Gm-Features: AVVi8CenILD7ac7nj4qj6pcl9Qkh4Hn07BECk2LX2cEoxjcVCcSGgswT06tugbQ
-Message-ID: <CAEjxPJ4hhWE_9wAywrdPT4UdUJt9cgo6=ckH6_4=2gnxuET6UA@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: add --undefined-version to LD_SONAME_FLAGS
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: selinux@vger.kernel.org, jwcart2@gmail.com, plautrba@redhat.com, 
-	omosnace@redhat.com, Pepper Gray <hello@peppergray.xyz>
+Date: Fri, 12 Jun 2026 09:23:11 -0400
+X-Gm-Features: AVVi8Cfs4TqYhDQc_c-UiiFHKWrQ1UhqG05cHLkXtxnEy6xnokHKWL3uXG-bKqY
+Message-ID: <CAEjxPJ7QOaiBekF_uj1p70Ld-aj497_taYvBGUde7==_tX-UYg@mail.gmail.com>
+Subject: Re: [PATCH 1/2] CI: Fix variable use in build-userspace action.
+To: Chris PeBenito <chpebeni@linux.microsoft.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 11, 2026 at 2:50=E2=80=AFPM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On Wed, Jun 10, 2026 at 4:31=E2=80=AFPM Chris PeBenito
+<chpebeni@linux.microsoft.com> wrote:
 >
-> On Thu, 11 Jun 2026 at 15:10, Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > commit 9395cc03226a0 ("Always build for LFS mode on 32-bit archs.")
-> > introduced a matchpathcon_filespec_add64 symbol for certain 32-bit
-> > configurations but added it to libselinux.map. This was benign under
-> > GNU ld but breaks lld due to differing defaults for
-> > --no-undefined-version. Add --undefined-version to LD_SONAME_FLAGS to
-> > avoid breakage when building with lld.
-> >
-> > Fix: #512
-> > Fix: #513
-> > Fixes: 9395cc03226a0 ("Always build for LFS mode on 32-bit archs.")
-> > Reported-by: Pepper Gray <hello@peppergray.xyz>
-> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> The code was incorrectly using the matrix variable, which isn't available
+> in other repos. The matrix variable use accideentally worked in this repo
+> because the action runs in the calling workflow's context, not a separate
+> context.
 >
-> Personally I liked the fallback wrapper definition of
-> matchpathcon_filespec_add64() more...
+> Signed-off-by: Chris PeBenito <chpebeni@linux.microsoft.com>
 
-I don't strongly care either way. See
-https://github.com/SELinuxProject/selinux/pull/513#issuecomment-4674610134
-and https://github.com/SELinuxProject/selinux/pull/513#issuecomment-4674659=
-036
-for the argument made against
-adding the wrapper definition.
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+
+> ---
+>  .github/actions/build-userspace/action.yml | 16 ++++++++--------
+>  1 file changed, 8 insertions(+), 8 deletions(-)
+>
+> diff --git a/.github/actions/build-userspace/action.yml b/.github/actions=
+/build-userspace/action.yml
+> index bad6e33d..f5d21b7c 100644
+> --- a/.github/actions/build-userspace/action.yml
+> +++ b/.github/actions/build-userspace/action.yml
+> @@ -71,27 +71,27 @@ runs:
+>          echo "RUBY=3Druby" >> $GITHUB_ENV
+>          echo "DESTDIR=3D$DESTDIR" >> $GITHUB_ENV
+>
+> -        CC=3D${{ matrix.compiler }}
+> -        if [ "${{ matrix.python-ruby-version.other }}" =3D "linker-bfd" =
+] ; then
+> +        CC=3D${{ inputs.compiler }}
+> +        if [ "${{ inputs.other }}" =3D "linker-bfd" ] ; then
+>              CC=3D"$CC -fuse-ld=3Dbfd"
+> -        elif [ "${{ matrix.python-ruby-version.other }}" =3D "linker-gol=
+d" ] ; then
+> +        elif [ "${{ inputs.other }}" =3D "linker-gold" ] ; then
+>              CC=3D"$CC -fuse-ld=3Dgold"
+>          fi
+>          # https://bugs.ruby-lang.org/issues/18616
+>          # https://github.com/llvm/llvm-project/issues/49958
+> -        if [ "${{ matrix.compiler }}" =3D "clang" ] && [[ "${{ matrix.py=
+thon-ruby-version.ruby }}" =3D 3* ]] ; then
+> +        if [ "${{ inputs.compiler }}" =3D "clang" ] && [[ "${{ inputs.ru=
+by-version }}" =3D 3* ]] ; then
+>              CC=3D"$CC -fdeclspec"
+>          fi
+>          echo "CC=3D$CC" >> $GITHUB_ENV
+>
+>          EXPLICIT_MAKE_VARS=3D
+> -        if [ "${{ matrix.python-ruby-version.other }}" =3D "test-flags-o=
+verride" ] ; then
+> +        if [ "${{ inputs.other }}" =3D "test-flags-override" ] ; then
+>              # Test that overriding CFLAGS, LDFLAGS and other variables w=
+orks fine
+>              EXPLICIT_MAKE_VARS=3D"CFLAGS=3D-I$DESTDIR/usr/include LDFLAG=
+S=3D-L$DESTDIR/usr/lib LDLIBS=3D CPPFLAGS=3D"
+> -        elif [ "${{ matrix.python-ruby-version.other }}" =3D "test-debug=
+" ] ; then
+> +        elif [ "${{ inputs.other }}" =3D "test-debug" ] ; then
+>              # Test hat debug build works fine
+>              EXPLICIT_MAKE_VARS=3D"DEBUG=3D1"
+> -        elif [ "${{ matrix.python-ruby-version.other }}" =3D "sanitizers=
+" ] ; then
+> +        elif [ "${{ inputs.other }}" =3D "sanitizers" ] ; then
+>              sanitizers=3D'-fsanitize=3Daddress,undefined'
+>              EXPLICIT_MAKE_VARS=3D"CFLAGS=3D'-g -I$DESTDIR/usr/include $s=
+anitizers' LDFLAGS=3D'-L$DESTDIR/usr/lib $sanitizers' LDLIBS=3D CPPFLAGS=3D=
+ OPT_SUBDIRS=3D"
+>              echo "ASAN_OPTIONS=3Dstrict_string_checks=3D1:detect_stack_u=
+se_after_return=3D1:check_initialization_order=3D1:strict_init_order=3D1" >=
+> $GITHUB_ENV
+> @@ -110,7 +110,7 @@ runs:
+>          PYTHON_SYS_PREFIX=3D"$(python -c 'import sys;print(sys.prefix)')=
+"
+>          echo "PKG_CONFIG_PATH=3D${PYTHON_SYS_PREFIX}/lib/pkgconfig" >> $=
+GITHUB_ENV
+>
+> -        if [[ "${{ matrix.python-ruby-version.python }}" =3D=3D pypy* ]]=
+ ; then
+> +        if [[ "${{ inputs.python-version }}" =3D=3D pypy* ]] ; then
+>              # PyPy does not provide a config file for pkg-config
+>              # libpypy-c.so is provided in bin/libpypy-c.so for PyPy and =
+bin/libpypy3-c.so for PyPy3
+>              echo "PYINC=3D-I${PYTHON_SYS_PREFIX}/include" >> $GITHUB_ENV
+> --
+> 2.54.0
+>
+>
