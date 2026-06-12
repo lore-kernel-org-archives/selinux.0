@@ -1,109 +1,102 @@
-Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
+Received: from mail-qv1-f54.google.com (mail-qv1-f54.google.com [209.85.219.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5392C2E63C
-	for <selinux@vger.kernel.org>; Fri, 12 Jun 2026 13:57:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.172
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781272654; cv=pass; b=uVRpsdUsg6V/Dwkxj4GUFql3g/2n3UoTmWIRuL+r6Ebc5cMDUYCIrc0IQVRbK3HfBZrCaLaWcaECFJf8s0w53xxK9ntjbZua6GmLeMNYHLW/4/oeEO/rtJ6MXX/Lgdu3aKjcS7iR9nSo60hZ6qufGOE30+EYNqtWesYZ8zwbb1c=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781272654; c=relaxed/simple;
-	bh=isRqkuFy20Va2JWUPOeAKuOX/PhSBTbwQpp7wQOrTRU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=fmeWHjnjjnJPREmxqyN+uKP9dZ5olky+iie68kuP8VH8hMyVThWheWpdAgYeBxgWVaM48QYCqg8+2FxJsWUsx9L/3+5DT6JcwvnqHDzYMcZcsARzyhMKkTBBfshrgDV/a9zl344mCojYC1s7SfJyWfiEc4p+GHnpn9Ws1Xv0WtE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JHk8l2yh; arc=pass smtp.client-ip=209.85.210.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5B2D40314F
+	for <selinux@vger.kernel.org>; Fri, 12 Jun 2026 17:09:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.54
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781284155; cv=none; b=BRSfKdShsLoV8hEZP4B4JlACThfU1/10PVZtbcPzGJ/F0oKu37XHUACkEdKquSlbKiEVljvqOc+5JsDOGrRhX2NSYc7ZsMd4KJ9xSfYlvCtdXFVCjOHX2nIds+NIoJ0lAZbZwiuG4TpaduAs/TuTYwGqqRxQJOxVbKSw6JgxbLM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781284155; c=relaxed/simple;
+	bh=pwyA63RWHZ2d67pUgDgPWqoI02LpJv/Izg2542oDb1o=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=aJwjRjfzlcB/dus8titb5JqvflQC+iaN3JPjmBiD8eyz9X6APkIqBKIaEPHm+QwxRMzNv6KajZ5ieckwXVN3ZmiLLPBOw/hRNz2MZyelHuQuhT1ZOfBllXIzJkZrYRmfEh/RBo4mc4bqyPMkgCmUtQguyUTgUFUhNSjO/UnDSO8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OzQWbNuj; arc=none smtp.client-ip=209.85.219.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JHk8l2yh"
-Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-842319576d5so623651b3a.1
-        for <selinux@vger.kernel.org>; Fri, 12 Jun 2026 06:57:33 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781272653; cv=none;
-        d=google.com; s=arc-20240605;
-        b=g4qm3TOWZsqnrLZ58jDC3xeJlD48PZ0jDp4FLETUgOF2uhO0c2M44RKcY2PEYj3+nv
-         UFE30qnOcxioBPVgRnqa8qREY5cVuSRBL9H62+CQJCoYx7me2yMF17ZjkVGfCRXx2PBV
-         dXiY9BUtOFfbx7LUTgx4JuvwBrO9h18TiIIInFlMGI7cEXR5vcLXaaRSmAiuZPxaWhRE
-         E8vwzqrJpax0u8nkmnkF3h2cS+V4ef7ktP8O0m0iHVr4YBwQsKXeuH19S8nC3X+XWsJz
-         sgLSt0uQ9uV2VA43z9BYVrtc9H6Lsr3i7XKFqaCNjtLyqnbvrsyQF+xacQ7abU5kd2jj
-         LDMg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=isRqkuFy20Va2JWUPOeAKuOX/PhSBTbwQpp7wQOrTRU=;
-        fh=Br7Q3QYCCAjnvhHaund9vV2LCS9SOjHrWaBcZeLdftU=;
-        b=OIrpPeXGYVmrPrewi4276mtSUTDCrGZ4acFskwnwMK8yZLqbyFjTdzc139dRJiK0jr
-         jRW7kdTApJxyAKXVDonItrOMHkmet2QZEpb4KmzTj/1NOZWI45F2pFZp675zPhknn/Aq
-         zAeXmxEg71mYPUB3mNMPiFJw4aYNVXkLLICTRAsXXzITh2ySi5FvqSmEdFwH+2tAhT3q
-         PWXItEnPHFacQ6o+D4AIetXfgxTaeuaqFTIkghXisO+KdI83AaNbZ5CzJUdf8qqpggqZ
-         Uhi5ZTE3rZ6UG9Yvo4XyjmSehFAWwYEKt8K/Wg48Qr53hTeCuuel8ZGAxPGEeViu3Aa7
-         EDXQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OzQWbNuj"
+Received: by mail-qv1-f54.google.com with SMTP id 6a1803df08f44-8cc0ef7c306so11991966d6.3
+        for <selinux@vger.kernel.org>; Fri, 12 Jun 2026 10:09:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781272653; x=1781877453; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=isRqkuFy20Va2JWUPOeAKuOX/PhSBTbwQpp7wQOrTRU=;
-        b=JHk8l2yhdpyYZcapSvcckTIdRcNcWrojO0SiVAHAxWi3LgY1LARd4WVN/R5AS5hYIx
-         8uGlA+DTUntHMpwRLioP5zn1dn2pMNVxAQ7EHnRkCuiySBt92OrSW2WgwxpZKqdA5NQq
-         /g5F5bJ+dXxVnx/fcYT+wJYnT1+lY6qvydlCc3blh6N4zRkoEIkwWF+MUrMQH7W5BCBi
-         V/SqaaJiid58Q0p0JZxb6DBZu6dRvTJW4uvtJvS/6z1CEg7M20LIBHoFloe2MQsTt+Qb
-         t9caxMy1h5b9coJT75WmMY+iG4aRRHHMU8ELYxgOHoOOXQznWa2LPb0DTDq2TG+CEYEP
-         gjdg==
+        d=gmail.com; s=20251104; t=1781284153; x=1781888953; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=gX2qHq3QMZ3p9ZFPe/LhmmamrQUoqObVtoNMGd73jiA=;
+        b=OzQWbNuj+HNWGGPu5fxTK9nzVNX/ETqBEeBbJIlj8B7fNEkV6TAP/dZuYsG+/jwVCr
+         vHSDB5jrg3F+fWWk9Z87BMQsi9NrSBXLN21D2Gbb6OjK1+COOhRc0svqU3ot720fL4kE
+         dX+xvK7u2ageXaktcqbfH1nfju9EHOX1XU8p9T9L5ppb8LStR5xZc7lQH7olPd3ADNcG
+         zix6SE5YhyNfH6L+NAF4BA5YieojXCl7Nd6qHGg0WJKSYvJyUW645E03Dx2coxCFP47m
+         7D+JKKm8Sxqu+JFbs4uAPZLr+Q9cvhklPBpAFq97CSrPbwCqbwgLmV+bQ/HJCe/XPaAq
+         shjw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781272653; x=1781877453;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=isRqkuFy20Va2JWUPOeAKuOX/PhSBTbwQpp7wQOrTRU=;
-        b=hqb4uKuRhdXUz7u9CtbzA7AqUb/kcg0eGY/TmC26yj/s6gVTzW1nZwn6/lm/nm2Rnp
-         UkaMkS/G0K+Tr+1EezolvNeAt6MyfsyTFsZ7n7qs4h+t5lpxILv7NN4j/L8DAD3jMZMy
-         2yAeYdsj0WTPGBV1BBQESmlgOk5Fr6TYFUEO0je7uDERgZ7iIFwC3i+1ieQKK6k2RDj4
-         6ztu+nW0ZWzqWelfPxsydamzvC8g9q6l/8YaZCuAoeCZ4SGxj6aGwocuG1U7HO4Ew1Kt
-         hnighm07P4WjjbIH70xMrPzGyNQsWvp+Kw67zNYV/klqaaYxXpzVP/tYZFs4IUFCUdfR
-         Kgcg==
-X-Gm-Message-State: AOJu0Yxtem3ui1tS875wQGr+luIbkXVPr7nbB13N0eduAWOUMzZWQbye
-	PtyDpY0TRugxCnBVWJXPEHm7+S8lm9jRs3kRRCOw1u2INxwBkS3rKu/ZBEQHim8RPXRhpjfyjJS
-	V5ANKLYP++6hwR0EEBO3nRh4bryd8rJVb5g==
-X-Gm-Gg: Acq92OEjmjIGkl82+dco+hnYkqauMZtheY01Nypnl2S22ZAfOIgp8Aj3CQBhW/iw5o4
-	bpyeiYIrZPTE1sLnh0WwjnqFgEdCBRGrPbsmmYFy7bYP2GsK2dek2X9+4rzAElH6D5UQaYHJtIq
-	UKZSbEJOznvAFpjm+N7UAEBwHAYJPeBiL3g6mv3oZwin9y5voC9L9fVCDF0tF+D94D4Dix4pNmX
-	e2o7XoTkS+ibAk7ZJpqhnxMZyNK4h8Zqq2m9ETGJKrVTjIeOryprPb0ZmfLr2j1RRvKLZJ2OvQl
-	irnUxpY=
-X-Received: by 2002:a05:6a00:9aa:b0:82c:d6d3:3190 with SMTP id
- d2e1a72fcca58-8434d0cef5bmr3370799b3a.38.1781272652654; Fri, 12 Jun 2026
- 06:57:32 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1781284153; x=1781888953;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=gX2qHq3QMZ3p9ZFPe/LhmmamrQUoqObVtoNMGd73jiA=;
+        b=nv9m9IQPZxfYgzCeT7WcSMSsv9sULVK9XFMgVWXHyIvCAwTPdSdBEYHwcDEwVC4NKJ
+         mK/OpAofWulOfTZAvVBwjgPo4N0a1Scw0q7vi/0fL8bvkRiXJ1aCHAzjr1LR9ZYemiwB
+         pqfkr6zlhxL1+Ao54h/3NQ1C7JJj1oTPqoTb+d38mpr7PYLTMztHaAsbLxrje4Y/fOWO
+         e4jRThuw4p4dXuJxQLOh3nHWG9YTiLBPpWO9sTFN4DtUG9nT2KoQMuC8r7VZOM9K1DAY
+         U6up7yChe+A/hTWe8Le3RFD+QPBJthW3gdtesonq0U6VvcsjsfMeMEAwPCH0cuMD1xF+
+         xfXg==
+X-Gm-Message-State: AOJu0Yw6nJfjbBCZvM8D1+seFuXrzqu4zuRrSyr7BVWhqooD1nuFxAy4
+	Z4dMsdpTVAszDu0yLAhvyn0DuATJSQwktOEhK6HUPBFdAEm72roT4lBsKbzf+w==
+X-Gm-Gg: Acq92OGcfLaIaIkyN6l/yrekGTTw+6kl98Nj/AniOvraqHUaI2yMaz6HV2X1LmGqSgR
+	vyKk2+w8tG0PkbtkTep1024NMfdzOt12Goi8O+m53FlB8MRN8etR1uAXdumDn2F0+1UNB2mxy/J
+	xGUS+jp6fKfTaddXikudFAY7nLmS6ScOTf1YtNwwwK5Pz8oL2wU7iumGAfQ9lk8AwVnNFociry9
+	MuimI2JcG2R1ZkxEOIEOLaJlcn8E6MHw23glPuQb0QclW6p/6t+eRaKymwmMQ6YSJRvl3/QqHzI
+	zGntDNyeblRf6ey4Y2rQe+la+qJZZ8o3RAe32RVziRiLK3S8MUWhg9tkeVAb/XgonQSEvdxuvQA
+	Qe1292y2FIOysIN/D78lpLV4FtN1JFesJZXjXzawRdWXo2QB4ADCmdNezP/6FmbJlx+gcEZyCgM
+	UpWaOkptk6RnxON9Q37jFt6DpZW1Y93p0ZC5qAZEiLvKOC1St+EmTGyFZdQ3+eXiElQXMOOnKgM
+	I3DY4PJObAd0SyFvAV3RRgUrM4=
+X-Received: by 2002:a05:620a:2310:20b0:915:9aa6:8e3d with SMTP id af79cd13be357-9161bc9e9bbmr390934985a.33.1781284152574;
+        Fri, 12 Jun 2026 10:09:12 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-91619ed8aa6sm265590085a.2.2026.06.12.10.09.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 12 Jun 2026 10:09:12 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [RFC PATCH 0/3] Make selinux_check_access() thread-safe
+Date: Fri, 12 Jun 2026 13:08:53 -0400
+Message-ID: <20260612170856.17904-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260610203137.411393-1-chpebeni@linux.microsoft.com>
- <20260610203137.411393-2-chpebeni@linux.microsoft.com> <CAEjxPJ5J4zaWskh3NO7Vm1KLHUudEB_Jsg-DSTM5RU0_-RVHFA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5J4zaWskh3NO7Vm1KLHUudEB_Jsg-DSTM5RU0_-RVHFA@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 12 Jun 2026 09:57:21 -0400
-X-Gm-Features: AVVi8CdXgcGSlyNaspjOuj_QoNy8c5kja1xqlUcGu7I5P3cNPCEo_x9qDe7nYQ0
-Message-ID: <CAEjxPJ5BHL5zxs7x2prdoe5yaN0N452V71KGxG_g+dsie3S8tw@mail.gmail.com>
-Subject: Re: [PATCH 2/2] CI: Add explicit output variable for build-userspace action.
-To: Chris PeBenito <chpebeni@linux.microsoft.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Fri, Jun 12, 2026 at 9:23=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Wed, Jun 10, 2026 at 4:31=E2=80=AFPM Chris PeBenito
-> <chpebeni@linux.microsoft.com> wrote:
-> >
-> > Downstream users won't have to rely on DESTDIR being set in the environ=
-ment.
-> >
-> > Signed-off-by: Chris PeBenito <chpebeni@linux.microsoft.com>
->
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+This is a RFC-only series targeting merge after the 3.11 release.series
 
-These are both merged.
+This series tries to address the same thread-safety issues for
+selinux_check_access(3) previously raised in 2021 by the
+following mailing list links and GitHub issues/pull requests:
+
+[1] https://github.com/SELinuxProject/selinux/issues/287
+[2] https://lore.kernel.org/selinux/CAJsHiNx1E7x1jaBkS0i4L1nBWXp8YXLHRWcCaDaH4LOn=zm+Zw@mail.gmail.com/
+[3] https://github.com/SELinuxProject/selinux/issues/335
+[4] https://github.com/SELinuxProject/selinux/pull/336
+[5] https://lore.kernel.org/selinux/20220120073329.15234-1-purushottamchoudhary29@gmail.com/
+
+Stephen Smalley (3):
+  libselinux: avc: use pthread mutexes by default when no lock callbacks
+    set
+  libselinux: stringrep: serialize access to the discover_class_cache
+  libselinux: sestatus: serialize selinux status updates
+
+ libselinux/src/avc_internal.h | 19 ++++++-
+ libselinux/src/sestatus.c     | 37 +++++++++----
+ libselinux/src/stringrep.c    | 97 +++++++++++++++++++++++------------
+ 3 files changed, 110 insertions(+), 43 deletions(-)
+
+-- 
+2.54.0
+
