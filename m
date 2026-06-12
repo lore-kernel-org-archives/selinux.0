@@ -1,71 +1,77 @@
-Received: from mail-qv1-f54.google.com (mail-qv1-f54.google.com [209.85.219.54])
+Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5B2D40314F
-	for <selinux@vger.kernel.org>; Fri, 12 Jun 2026 17:09:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AD84403AEF
+	for <selinux@vger.kernel.org>; Fri, 12 Jun 2026 17:09:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781284155; cv=none; b=BRSfKdShsLoV8hEZP4B4JlACThfU1/10PVZtbcPzGJ/F0oKu37XHUACkEdKquSlbKiEVljvqOc+5JsDOGrRhX2NSYc7ZsMd4KJ9xSfYlvCtdXFVCjOHX2nIds+NIoJ0lAZbZwiuG4TpaduAs/TuTYwGqqRxQJOxVbKSw6JgxbLM=
+	t=1781284157; cv=none; b=lB0mMZutysLRlEkSvE3JgWdRc+bNE/tOnEiL1eTAvlCHQ1hVYdgxoXaKBsmhXYZLLnc0bgDGZaWGUW+iNSlgrMxIa/zLEMGWZM4ZKkPR2IZ9MvbP5ZvGIThqElfBQbPPik7E7/qb0JDFKIXRCSRcjT5ksRmA34oS5nRHEHU67Hk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781284155; c=relaxed/simple;
-	bh=pwyA63RWHZ2d67pUgDgPWqoI02LpJv/Izg2542oDb1o=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=aJwjRjfzlcB/dus8titb5JqvflQC+iaN3JPjmBiD8eyz9X6APkIqBKIaEPHm+QwxRMzNv6KajZ5ieckwXVN3ZmiLLPBOw/hRNz2MZyelHuQuhT1ZOfBllXIzJkZrYRmfEh/RBo4mc4bqyPMkgCmUtQguyUTgUFUhNSjO/UnDSO8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OzQWbNuj; arc=none smtp.client-ip=209.85.219.54
+	s=arc-20240116; t=1781284157; c=relaxed/simple;
+	bh=ooOW22rFDcdT0lZ9CW26uSde+GjLWJ7ewBm/JRRg3yM=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=tPTWPWJM1S3iz4H224UUKabCK34ATtbwiUjXHwjGLGTJcenQBPl9BFytjiAmhJ3XNiSEOnFL2uLqEfYj7bkmYIgnZQW3s0ls/MsOWLeX+c4XW9yDncz0NqIZn+3PfFz4DMtNNTO0c8FrAopjqz3s17w6e6yq6aniJdXKPiZ0W8E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZAPjPDA6; arc=none smtp.client-ip=209.85.222.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OzQWbNuj"
-Received: by mail-qv1-f54.google.com with SMTP id 6a1803df08f44-8cc0ef7c306so11991966d6.3
-        for <selinux@vger.kernel.org>; Fri, 12 Jun 2026 10:09:13 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZAPjPDA6"
+Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-9157b949fc7so122704685a.3
+        for <selinux@vger.kernel.org>; Fri, 12 Jun 2026 10:09:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781284153; x=1781888953; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=gX2qHq3QMZ3p9ZFPe/LhmmamrQUoqObVtoNMGd73jiA=;
-        b=OzQWbNuj+HNWGGPu5fxTK9nzVNX/ETqBEeBbJIlj8B7fNEkV6TAP/dZuYsG+/jwVCr
-         vHSDB5jrg3F+fWWk9Z87BMQsi9NrSBXLN21D2Gbb6OjK1+COOhRc0svqU3ot720fL4kE
-         dX+xvK7u2ageXaktcqbfH1nfju9EHOX1XU8p9T9L5ppb8LStR5xZc7lQH7olPd3ADNcG
-         zix6SE5YhyNfH6L+NAF4BA5YieojXCl7Nd6qHGg0WJKSYvJyUW645E03Dx2coxCFP47m
-         7D+JKKm8Sxqu+JFbs4uAPZLr+Q9cvhklPBpAFq97CSrPbwCqbwgLmV+bQ/HJCe/XPaAq
-         shjw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781284153; x=1781888953;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1781284155; x=1781888955; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=gX2qHq3QMZ3p9ZFPe/LhmmamrQUoqObVtoNMGd73jiA=;
-        b=nv9m9IQPZxfYgzCeT7WcSMSsv9sULVK9XFMgVWXHyIvCAwTPdSdBEYHwcDEwVC4NKJ
-         mK/OpAofWulOfTZAvVBwjgPo4N0a1Scw0q7vi/0fL8bvkRiXJ1aCHAzjr1LR9ZYemiwB
-         pqfkr6zlhxL1+Ao54h/3NQ1C7JJj1oTPqoTb+d38mpr7PYLTMztHaAsbLxrje4Y/fOWO
-         e4jRThuw4p4dXuJxQLOh3nHWG9YTiLBPpWO9sTFN4DtUG9nT2KoQMuC8r7VZOM9K1DAY
-         U6up7yChe+A/hTWe8Le3RFD+QPBJthW3gdtesonq0U6VvcsjsfMeMEAwPCH0cuMD1xF+
-         xfXg==
-X-Gm-Message-State: AOJu0Yw6nJfjbBCZvM8D1+seFuXrzqu4zuRrSyr7BVWhqooD1nuFxAy4
-	Z4dMsdpTVAszDu0yLAhvyn0DuATJSQwktOEhK6HUPBFdAEm72roT4lBsKbzf+w==
-X-Gm-Gg: Acq92OGcfLaIaIkyN6l/yrekGTTw+6kl98Nj/AniOvraqHUaI2yMaz6HV2X1LmGqSgR
-	vyKk2+w8tG0PkbtkTep1024NMfdzOt12Goi8O+m53FlB8MRN8etR1uAXdumDn2F0+1UNB2mxy/J
-	xGUS+jp6fKfTaddXikudFAY7nLmS6ScOTf1YtNwwwK5Pz8oL2wU7iumGAfQ9lk8AwVnNFociry9
-	MuimI2JcG2R1ZkxEOIEOLaJlcn8E6MHw23glPuQb0QclW6p/6t+eRaKymwmMQ6YSJRvl3/QqHzI
-	zGntDNyeblRf6ey4Y2rQe+la+qJZZ8o3RAe32RVziRiLK3S8MUWhg9tkeVAb/XgonQSEvdxuvQA
-	Qe1292y2FIOysIN/D78lpLV4FtN1JFesJZXjXzawRdWXo2QB4ADCmdNezP/6FmbJlx+gcEZyCgM
-	UpWaOkptk6RnxON9Q37jFt6DpZW1Y93p0ZC5qAZEiLvKOC1St+EmTGyFZdQ3+eXiElQXMOOnKgM
-	I3DY4PJObAd0SyFvAV3RRgUrM4=
-X-Received: by 2002:a05:620a:2310:20b0:915:9aa6:8e3d with SMTP id af79cd13be357-9161bc9e9bbmr390934985a.33.1781284152574;
-        Fri, 12 Jun 2026 10:09:12 -0700 (PDT)
+        bh=cgfMnwyc6KK0k/aAd3Xm7lMy8zGGQmqwQyyPTy0p9fg=;
+        b=ZAPjPDA6TRWNbsHAFZKymNOq4u7IBf0iB8aG2ZEf5gQ1OCta1QqSsQh5Q6VkSvBRnF
+         T6vLz4QNkuZE6WXYNoqiX9+CNcZGGP7dANTAqQI0ksUPdOCf/DJ0aiRtMAyK1X5n7byc
+         jowOzl24f3jPn6YeVoH0jTDLg3Wcyn7n2oNls25t3P4Na5obfqQqzCgsEZwXqfkXZj3Q
+         JUnjC+FgwrrcMHWfiaMeECW5jFKr2qKREVtqu/DGbzPbDIVUAjcm9OKdqVXvVxF2Uf8A
+         DksAjW7rXdKO0RUVRXc0ceLzyoFecEHQI1x21SY7dPRJYLeVvpQLVtCs4oIe4c290s+n
+         iUyw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781284155; x=1781888955;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=cgfMnwyc6KK0k/aAd3Xm7lMy8zGGQmqwQyyPTy0p9fg=;
+        b=L2z4F4SdYqBmX9arn1pcYrezCJ0hA+QQ8c+qVIeiBQweU/5O/5zVkWX07eQ6XnPrze
+         uyVd9B/G1NWr2LuyBLn85G5UNTsQFWQV/zg7KxXbEyo0vTnBlxxVKuHM8SSRVG9H/P1S
+         hBsiQDGxwD8CbIeBKpcPiCYSsMfsS/oLUvIXmSRnHSOuuFZ1eC9yWUdW/49gAnwhis2P
+         Rjb8CXYqc6iGxebI9SrM8B8L0iyldAsEGG8cLTCttAq84AM9J3Qn6BKqvC9NaRT3tXAV
+         TgIIyjxj+3EnmuTqw+L8XxxldnyAccoZuPFDKYItwnOABi6S17zARWcrLcVtSHaCCMcd
+         gWbg==
+X-Gm-Message-State: AOJu0YzkrnKuC7MjBC7dcxmtcVXrR+rwsCsiuDi7W9L8+EQ8TwnaPaU2
+	C6/6FvGIXLLunaOSpAXVlJZ4E/HGBlSKyc/LobXGPadrLiir4JN/3/wdfo+knA==
+X-Gm-Gg: Acq92OGCl7LYZCb3GV2bUO4TKeAwOh1/FH45xI680k64HdESoT2rFg32d7adPjCJQz4
+	wQIVDWIAA6W2NvGB+6TV0MkzXitAex5JlL48nT9AO4bQEgtYrCtSyZc0MPinJeVSpkpXn8FO4mw
+	6YE3YSc2WtqjoxmiulH+gMO88W8NrFki+EpvmjLw6pHlSYkvA0HuI/rQZaIdvtN+7+0hnezMSKv
+	pYyNRrHZhROQrupRIVwSYY3Tewbdv94TMFtXqScKIF53KV1FGdcomOjgR/TyDYj81GYLVHDLYdA
+	c+tw5Nsnn1HASmbTf34goX6NtPULpEMZ6UzeoiMJHaJctxKD9nfkYJFi3BS1b53LSNy1a/lo3im
+	eY/KXbAk4r/rlyt4pW9EBC2JGqr7azyh4ywPCsJgBRr7OFIQTQWSPzWVVlbx16k+G8JUUwHEbbz
+	fphoE244fdYL1Q+vFrczkBpl0g/OT2b1pzlhD/uugxmF7mdf7ezBs4HJumrQz+lFrSSyMVtl0cP
+	KTJgLcM7BtpxIylTU8K1IHQUznUDhLrqX4nOw==
+X-Received: by 2002:a05:620a:394b:b0:915:7f9f:8d94 with SMTP id af79cd13be357-9161bcd747emr520981985a.47.1781284155242;
+        Fri, 12 Jun 2026 10:09:15 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-91619ed8aa6sm265590085a.2.2026.06.12.10.09.11
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-91619ed8aa6sm265590085a.2.2026.06.12.10.09.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 12 Jun 2026 10:09:12 -0700 (PDT)
+        Fri, 12 Jun 2026 10:09:14 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
 	plautrba@redhat.com,
 	omosnace@redhat.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [RFC PATCH 0/3] Make selinux_check_access() thread-safe
-Date: Fri, 12 Jun 2026 13:08:53 -0400
-Message-ID: <20260612170856.17904-1-stephen.smalley.work@gmail.com>
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Seth Moore <sethmo@google.com>,
+	Purushottam Choudhary <purushottamchoudhary29@gmail.com>
+Subject: [RFC PATCH 1/3] libselinux: avc: use pthread mutexes by default when no lock callbacks set
+Date: Fri, 12 Jun 2026 13:08:54 -0400
+Message-ID: <20260612170856.17904-2-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260612170856.17904-1-stephen.smalley.work@gmail.com>
+References: <20260612170856.17904-1-stephen.smalley.work@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -74,29 +80,87 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This is a RFC-only series targeting merge after the 3.11 release.series
+The AVC has a set of locking calls but defaults to no locking, and
+only the deprecated avc_init() allowed applications to set their own
+locking callbacks. Since selinux_check_access() is now commonly used
+by applications implementing userspace SELinux permission checks and
+it uses avc_open() internally, such calls are currently not
+thread-safe.  Provide fallbacks to using pthread mutexes by
+default. Single-threaded programs that do not link -lpthread will be
+unaffected due to the existing __pthread_mutex() helpers. Applications
+that explicitly specify locking callbacks via the deprecated
+avc_init() will also be unaffected.
 
-This series tries to address the same thread-safety issues for
-selinux_check_access(3) previously raised in 2021 by the
-following mailing list links and GitHub issues/pull requests:
+This is the first step toward a thread-safe selinux_check_access();
+the class-string cache and status-page transition handling are
+addressed in follow-up changes.
 
-[1] https://github.com/SELinuxProject/selinux/issues/287
-[2] https://lore.kernel.org/selinux/CAJsHiNx1E7x1jaBkS0i4L1nBWXp8YXLHRWcCaDaH4LOn=zm+Zw@mail.gmail.com/
-[3] https://github.com/SELinuxProject/selinux/issues/335
-[4] https://github.com/SELinuxProject/selinux/pull/336
-[5] https://lore.kernel.org/selinux/20220120073329.15234-1-purushottamchoudhary29@gmail.com/
+Fixes: #287 #335 #336
+Link: https://lore.kernel.org/selinux/CAJsHiNx1E7x1jaBkS0i4L1nBWXp8YXLHRWcCaDaH4LOn=zm+Zw@mail.gmail.com/
+Link: https://lore.kernel.org/selinux/20220120073329.15234-1-purushottamchoudhary29@gmail.com/
+Reported-by: Seth Moore <sethmo@google.com>
+Reported-by: Purushottam Choudhary <purushottamchoudhary29@gmail.com>
 
-Stephen Smalley (3):
-  libselinux: avc: use pthread mutexes by default when no lock callbacks
-    set
-  libselinux: stringrep: serialize access to the discover_class_cache
-  libselinux: sestatus: serialize selinux status updates
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ libselinux/src/avc_internal.h | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
- libselinux/src/avc_internal.h | 19 ++++++-
- libselinux/src/sestatus.c     | 37 +++++++++----
- libselinux/src/stringrep.c    | 97 +++++++++++++++++++++++------------
- 3 files changed, 110 insertions(+), 43 deletions(-)
-
+diff --git a/libselinux/src/avc_internal.h b/libselinux/src/avc_internal.h
+index 719be934..1eb9d0be 100644
+--- a/libselinux/src/avc_internal.h
++++ b/libselinux/src/avc_internal.h
+@@ -14,6 +14,7 @@
+ #include <string.h>
+ #include <selinux/avc.h>
+ #include "callbacks.h"
++#include "selinux_internal.h"
+ 
+ /* callback pointers */
+ extern void *(*avc_func_malloc)(size_t);
+@@ -115,25 +116,41 @@ static inline void avc_stop_thread(void *thread)
+ 
+ static inline void *avc_alloc_lock(void)
+ {
+-	return avc_func_alloc_lock ? avc_func_alloc_lock() : NULL;
++	pthread_mutex_t *m;
++
++	if (avc_func_alloc_lock)
++		return avc_func_alloc_lock();
++
++	m = malloc(sizeof(*m));
++	if (m)
++		__pthread_mutex_init(m, NULL);
++	return m;
+ }
+ 
+ static inline void avc_get_lock(void *lock)
+ {
+ 	if (avc_func_get_lock)
+ 		avc_func_get_lock(lock);
++	else if (lock)
++		__pthread_mutex_lock((pthread_mutex_t *)lock);
+ }
+ 
+ static inline void avc_release_lock(void *lock)
+ {
+ 	if (avc_func_release_lock)
+ 		avc_func_release_lock(lock);
++	else if (lock)
++		__pthread_mutex_unlock((pthread_mutex_t *)lock);
+ }
+ 
+ static inline void avc_free_lock(void *lock)
+ {
+ 	if (avc_func_free_lock)
+ 		avc_func_free_lock(lock);
++	else if (lock) {
++		__pthread_mutex_destroy((pthread_mutex_t *)lock);
++		free(lock);
++	}
+ }
+ 
+ /* statistics helper routines */
 -- 
 2.54.0
 
