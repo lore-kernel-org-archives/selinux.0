@@ -1,44 +1,44 @@
 Received: from cloud35.hostingpalvelu.fi (mail35.hostingpalvelu.fi [31.217.192.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16371285C8B
-	for <selinux@vger.kernel.org>; Sun, 14 Jun 2026 17:02:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98F5C21255A
+	for <selinux@vger.kernel.org>; Sun, 14 Jun 2026 17:16:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=31.217.192.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781456532; cv=none; b=LeevnMchPbYh3e+X3dkdTAx24gYe2rpl86XQMzBgZEJwbYlkPyBUGt3Z4cV3BWewpabA+es8MtoQSOUhF68WeeDfoWgcoHDm+UrU9A59LEJGerttCfdUYtcvTuxro1Ck8qgKIOd7v8qc+1Z/+ldXr80wo+4Noan4TeaxZMVABdg=
+	t=1781457363; cv=none; b=eoeCzxXde7/EzvN/1YYyOjfo2lbV0VL+nbqRVpEHyIANTe5XOaKMsBIjJPvwoyyH8nwkW3E+GU/4Vh4ipZ8I3iQvzXtF3dwCbOh3EF5B1eT/nkEw+vSXVCPcHu2KfNlK2cP12PwMhDBaWtEZ/S7J0fYjeahsJBMACPvJPQ8mN9o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781456532; c=relaxed/simple;
-	bh=MUheaQe+oMNUa14Q08TkcJBvhEuzjIui+TIHMS6XD6Y=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WsP87yHmgltkK+Me5V5WXgnn1k3JlCqYTTraHyqBw1XgoZMRBxzMPk5Yt0vO5XRYi6psN/d0+v+NscuZqFedZ0iK0A3EL+1kzIK8/Hju37b3jDSlDlnH/vh8NbBSpWAdVlB6O88L/+KlpMNlYzl6R2Nwdg5EpRbWGj+t2sGsQLk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=G2AkuQ21; arc=none smtp.client-ip=31.217.192.49
+	s=arc-20240116; t=1781457363; c=relaxed/simple;
+	bh=GZGvyShMY+JTJU/JYr5eUePM+hi9afOnr3rWOGBJyaE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=O2Xri25+z09IZp7XHQw+JlDIOjC3I2d+JhJumdgTtgGm2ncAPeJTgABe1C8znwp/j34s4yIvM4VFc3YHllBeh98ofoo361/Q5vmo17AJzYNrp8xIfgZ80hm6nSaQYsgsCqt2YtgtQ5jf4f3YibHEqv/X3o5w6NF+Qd+tDhyR1sk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=fvJaXmlW; arc=none smtp.client-ip=31.217.192.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kolttonen.fi
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="G2AkuQ21"
+	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="fvJaXmlW"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=kolttonen.fi; s=default; h=Content-Transfer-Encoding:MIME-Version:
 	Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
 	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
 	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
 	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=F7Q7Gg5RY1VNJcJW3uGJjeesadIWYmx/+OqnpjeAR4c=; b=G2AkuQ216Vk0q6WmWzFWnz7nBt
-	GRPa248FnKGLcvKZWdWb/8SHQEZX4ZyHmaLDtrSr4jru1VsQDdY/Oofyz5w2IQPfDCTU9hEU3Q2jT
-	kjm26tCMqsCh5zUqoFI2tBF5e+6xx6kENDJGceTScLZZfcYeW8udzQ0pLPvWL/h2fZzDdq+/iY3Lp
-	QCd8SC3SZd7ZzwYzhHefQsprlXNrLc4OdA0Wit3iTUXvNmrWDtSD4cGIGkiEPnBsalWoPZXScZeGw
-	zsYVh5YbGG5RK6szBGaUsLT4V7yCC/BfSwcHXsznATH8DwpuTIjJJ6Rcfh5Bzm1JjFYiru5gpUx/X
-	++xi1+2Q==;
-Received: from [87.95.76.183] (port=4415 helo=fbsd15.local)
+	bh=4Oac/bpFz6hdLK++zmygMYwyV1dYmHtlGhaIf64RZVk=; b=fvJaXmlWzAZwPfRRzCa9O0LaJg
+	VQDdckX9kFGPiBGy2ortVVvze2qKL2bgNHu3uXqtGwfOyev8m6vJFf+cYCNABUOidVMxKXWUm4O8j
+	pTkDpalN4S2nCvP/FZnrFKHxhowkvYjQiCHMBzlVJCcDgARWB/TbH2LEF2I67pNMt7pgp+7X2Rqjq
+	9j8Q1khh0TzZ486YTUgOmK31l84fvImYkEbd3IInIvi3AEytds/tRiL9brMuMrIXhhNzX4wBs0lqh
+	CHyu0cULuADQ/jXs6SvuqcJOXlanuQOwlGHTEnbzk4dBbFor1QkgQghHMnD92MmI5EtIeno1qXoA+
+	vtTrHHGA==;
+Received: from [87.95.76.183] (port=4457 helo=fbsd15.local)
 	by cloud35.hostingpalvelu.fi with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
 	(Exim 4.99.4)
 	(envelope-from <kalevi@kolttonen.fi>)
-	id 1wYoDp-00000008pD7-0RJp;
-	Sun, 14 Jun 2026 20:02:09 +0300
+	id 1wYoRD-00000008rUA-1PLn;
+	Sun, 14 Jun 2026 20:15:59 +0300
 From: Kalevi Kolttonen <kalevi@kolttonen.fi>
 To: selinux@vger.kernel.org
 Cc: Kalevi Kolttonen <kalevi@kolttonen.fi>
-Subject: [PATCH] policycoreutils: use bool instead of int
-Date: Sun, 14 Jun 2026 20:02:03 +0300
-Message-ID: <20260614170203.69842-1-kalevi@kolttonen.fi>
+Subject: [PATCH] mcstrans: use bool instead of int
+Date: Sun, 14 Jun 2026 20:15:48 +0300
+Message-ID: <20260614171548.21200-1-kalevi@kolttonen.fi>
 X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -60,49 +60,62 @@ X-Source-Dir:
 
 Signed-off-by: Kalevi Kolttonen <kalevi@kolttonen.fi>
 ---
- policycoreutils/setsebool/setsebool.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ mcstrans/src/mcstransd.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/policycoreutils/setsebool/setsebool.c b/policycoreutils/setsebool/setsebool.c
-index d85b2a33..3cf1f063 100644
---- a/policycoreutils/setsebool/setsebool.c
-+++ b/policycoreutils/setsebool/setsebool.c
-@@ -1,4 +1,5 @@
- #include <unistd.h>
-+#include <stdbool.h>
- #include <stdlib.h>
- #include <stdio.h>
- #include <string.h>
-@@ -17,9 +18,9 @@
- #include <semanage/boolean_record.h>
+diff --git a/mcstrans/src/mcstransd.c b/mcstrans/src/mcstransd.c
+index 2d07b3af..f413e50e 100644
+--- a/mcstrans/src/mcstransd.c
++++ b/mcstrans/src/mcstransd.c
+@@ -2,6 +2,7 @@
  #include <errno.h>
+ #include <poll.h>
+ #include <signal.h>
++#include <stdbool.h>
+ #include <stdint.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+@@ -56,7 +57,7 @@
  
--static int permanent = 0;
--static int no_reload = 0;
--static int verbose = 0;
-+static bool permanent = false;
-+static bool no_reload = false;
-+static bool verbose = false;
+ static int sockfd = -1; /* socket we are listening on */
  
- int setbool(char **list, size_t start, size_t end);
+-static volatile int restart_daemon = 0;
++static volatile bool restart_daemon = false;
+ static void cleanup_exit(int ret) __attribute__((noreturn));
+ static void cleanup_exit(int ret)
+ {
+@@ -421,7 +422,7 @@ static void process_connections(void)
+ 				syslog(LOG_ERR,
+ 				       "No color information will be available");
+ 			}
+-			restart_daemon = 0;
++			restart_daemon = false;
+ 		}
  
-@@ -44,13 +45,13 @@ int main(int argc, char **argv)
+ 		ret = poll(ufds, nfds, -1);
+@@ -450,7 +451,7 @@ static void sigterm_handler(int UNUSED(sig))
  
- 		switch (clflag) {
- 		case 'P':
--			permanent = 1;
-+			permanent = true;
+ static void sighup_handler(int UNUSED(sig))
+ {
+-	restart_daemon = 1;
++	restart_daemon = true;
+ }
+ 
+ static void initialize(void)
+@@ -551,11 +552,11 @@ static void usage(char *program)
+ int main(int argc, char *argv[])
+ {
+ 	int opt;
+-	int do_fork = 1;
++	bool do_fork = true;
+ 	while ((opt = getopt(argc, argv, "hf")) > 0) {
+ 		switch (opt) {
+ 		case 'f':
+-			do_fork = 0;
++			do_fork = false;
  			break;
- 		case 'N':
--			no_reload = 1;
-+			no_reload = true;
- 			break;
- 		case 'V':
--			verbose = 1;
-+			verbose = true;
- 			break;
- 		default:
- 			usage();
+ 		case 'h':
+ 			usage(argv[0]);
 -- 
 2.54.0
 
