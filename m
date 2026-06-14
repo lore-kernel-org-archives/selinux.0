@@ -1,48 +1,45 @@
 Received: from cloud35.hostingpalvelu.fi (mail35.hostingpalvelu.fi [31.217.192.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B125027AC45
-	for <selinux@vger.kernel.org>; Sun, 14 Jun 2026 15:50:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF4EE390235
+	for <selinux@vger.kernel.org>; Sun, 14 Jun 2026 16:23:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=31.217.192.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781452244; cv=none; b=NHsq//gVTbPj5o1XhbkAir2s2OQ/7HtvJdC8F+ACRBlko/1ca7/b/bQk+pjTcsAnZy7pDsc1WcQHyoZW/WG608/MONuqrl47kxUbPYQ9KlVNGU2C3RfJ69FP3rV5m6nRe/hASNDvkbhJ6n5AtNt6tZ0p5Hua8/Hknk3OXA3LjiU=
+	t=1781454212; cv=none; b=a9jv9iKKuW6UIPLxqdMNjnWv6Z0jSQYygPgy1xyqdELan/6knd/M/s9RWAmujHKUBiHMLUQhBnnGsmAb3JDOnNFcWboXjUzWuU+h83l0O8DhGRGA4bzR1zqjRfDeS//4T+WIC+k0L3Un84b121sYUPL2J+pxjhxchee+ZRbtRJc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781452244; c=relaxed/simple;
-	bh=AKp8w2/5xEtTIGqwkPXnaBgiimjtpaKgCm9ldO3zR6I=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=qVc/Sgtp1T1VljgCMVBiFkxhdaxSYMmd+TAWz1i7etYJ1vaaLnHSIhdgFnK4lIJMCbN7HV3r1D+bJmOjC0IOZIWMVOCNXMEL7LvHwkMewmmUoPiSLK7BftP45//THEqu8QsjG9VoG099U9aDvGk0oNjCBtyLoHdwblJMSe1hnOs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=f38DEsWa; arc=none smtp.client-ip=31.217.192.49
+	s=arc-20240116; t=1781454212; c=relaxed/simple;
+	bh=vPrs+yi5FEWfiXsztfs1v6d68ZoC4+5IkWKLvfZqSWs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=f+92WflbY0PrRVQYgAmn84MiUtgp9/c3VEgMT22LxtN9eFufpdhB0yceQYgVYsdoaA0VfxmWVzk3bZo0MC+bm9vuPUMUnIaWR7kSktNdDK5E/mHutkY8gGtzHywT+bX6eg/x9aNgvmMx16/nRTrYOiogli2mHMd38PrjWApKThQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=NKh/cAjW; arc=none smtp.client-ip=31.217.192.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kolttonen.fi
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="f38DEsWa"
+	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="NKh/cAjW"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=kolttonen.fi; s=default; h=Content-Transfer-Encoding:MIME-Version:
-	References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:
-	Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=PxJULBh3GoqDXj5P56pMuK8nPCna/9E9u1sY0pV5aSw=; b=f38DEsWaxU7E3yOcalxWGCWi7M
-	i+ZxPLbhUvIPBPMg9ijfT7T1mqs8kCCfyiQ3Ff772HNaJHJ7ryiOxKnFigqz++NZ4YdU5IzQZ8rgI
-	OYd/90nwI965X2/W5ptjsUojkeZtTQI+6MOKcdPBTRubEDxxOyKWC0UG7naXPSxweOxGE09nCXBhA
-	SUrG0RM0unfr7yVJNhWPpea6bGpGKfMcGMAMNGWh2SzxoSRP4JiMtMAC0UkPBdm23T3QfJmS7yKGI
-	1ENVjDwtsTTF92hgoMpNGohqZu6RZj4TloKTNXFLyycsaK3obv/hGLLl6szm4+ckR0cRkoPtVIRD3
-	8Mk/o1eg==;
-Received: from [87.95.76.183] (port=4233 helo=fbsd15.local)
+	Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=ko7wVVzqnZ+03V544yPkv3u8MLVtgO45LznEmDhjQK4=; b=NKh/cAjW4NtKCFxTP9XrMPS2pD
+	/oIm+ZjJKwITwk90ukMUrNphq8DzVZvqfDwjH9E7MkjHXVOWJP7o4526AqYDTYLY++49xyAXwe/7i
+	SrfR8w4xz3APZpTdDp5zhRRQNwiooIeWKD2MHmi2zdgkdCcvDElfWkGLH65WxVbKsVtD1cVCpgEMh
+	Y4ExoZ5sj3DzuzYnzNirErATMvliyyefSZDLK67ZuxUga2HKfKD2Iqmh2pIIzfbECqXdHVioPzzze
+	pULjJCZHATRWbE+befUJSE/yZ3RTAWbDx7dnc3u5gRsL8YKPrxsjFuFYLLr3cJuCSAFYvbgrJJ9yC
+	lPF+Ah9g==;
+Received: from [87.95.76.183] (port=4369 helo=fbsd15.local)
 	by cloud35.hostingpalvelu.fi with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
 	(Exim 4.99.4)
 	(envelope-from <kalevi@kolttonen.fi>)
-	id 1wYn6c-00000008cgk-2M0e;
-	Sun, 14 Jun 2026 18:50:38 +0300
+	id 1wYncN-00000008iZ6-474c;
+	Sun, 14 Jun 2026 19:23:28 +0300
 From: Kalevi Kolttonen <kalevi@kolttonen.fi>
 To: selinux@vger.kernel.org
 Cc: Kalevi Kolttonen <kalevi@kolttonen.fi>
-Subject: [PATCH 1/2] policycoreutils: use null character in a string
-Date: Sun, 14 Jun 2026 18:50:29 +0300
-Message-ID: <20260614155030.97082-2-kalevi@kolttonen.fi>
+Subject: [PATCH] policycoreutils: use bool instead of int
+Date: Sun, 14 Jun 2026 19:23:23 +0300
+Message-ID: <20260614162323.18730-1-kalevi@kolttonen.fi>
 X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260614155030.97082-1-kalevi@kolttonen.fi>
-References: <20260614155030.97082-1-kalevi@kolttonen.fi>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -63,22 +60,54 @@ X-Source-Dir:
 
 Signed-off-by: Kalevi Kolttonen <kalevi@kolttonen.fi>
 ---
- policycoreutils/setfiles/setfiles.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ policycoreutils/newrole/newrole.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-index 9016db5f..656848e3 100644
---- a/policycoreutils/setfiles/setfiles.c
-+++ b/policycoreutils/setfiles/setfiles.c
-@@ -454,7 +454,7 @@ int main(int argc, char **argv)
+diff --git a/policycoreutils/newrole/newrole.c b/policycoreutils/newrole/newrole.c
+index 19271c2a..8f75706e 100644
+--- a/policycoreutils/newrole/newrole.c
++++ b/policycoreutils/newrole/newrole.c
+@@ -55,6 +55,7 @@
+ #error NAMESPACE_PRIV needs the USE_PAM option
+ #endif
  
- 		delim = (null_terminated != 0) ? '\0' : '\n';
- 		while ((len = getdelim(&buf, &buf_len, delim, f)) > 0) {
--			buf[len - 1] = 0;
-+			buf[len - 1] = '\0';
- 			if (!strcmp(buf, "/"))
- 				r_opts.mass_relabel =
- 					SELINUX_RESTORECON_MASS_RELABEL;
++#include <stdbool.h>
+ #include <stdio.h>
+ #include <stdlib.h> /* for malloc(), realloc(), free() */
+ #include <pwd.h> /* for getpwuid() */
+@@ -390,11 +391,11 @@ static int authenticate_via_shadow_passwd(const char *uname)
+ 
+ /**
+  * This function checks to see if the shell is known in /etc/shells.
+- * If so, it returns 1. On error or illegal shell, it returns 0.
++ * If so, it returns true. On error or illegal shell, it returns false.
+  */
+-static int verify_shell(const char *shell_name)
++static bool verify_shell(const char *shell_name)
+ {
+-	int found = 0;
++	bool found = false;
+ 	const char *buf;
+ 
+ 	if (!(shell_name && shell_name[0]))
+@@ -407,7 +408,7 @@ static int verify_shell(const char *shell_name)
+ 
+ 		/* check the shell skipping newline char */
+ 		if (!strcmp(shell_name, buf)) {
+-			found = 1;
++			found = true;
+ 			break;
+ 		}
+ 	}
+@@ -457,7 +458,7 @@ static int extract_pw_data(struct passwd *pw_copy)
+ 		goto out_free;
+ 	}
+ 
+-	if (verify_shell(pw->pw_shell) == 0) {
++	if (!verify_shell(pw->pw_shell)) {
+ 		fprintf(stderr, _("Error!  Shell is not valid.\n"));
+ 		goto out_free;
+ 	}
 -- 
 2.54.0
 
