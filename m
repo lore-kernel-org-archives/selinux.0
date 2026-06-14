@@ -1,44 +1,44 @@
 Received: from cloud35.hostingpalvelu.fi (mail35.hostingpalvelu.fi [31.217.192.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 025413195F0
-	for <selinux@vger.kernel.org>; Sun, 14 Jun 2026 18:23:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75E46280325
+	for <selinux@vger.kernel.org>; Sun, 14 Jun 2026 19:08:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=31.217.192.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781461442; cv=none; b=dfDnTPn2eFhCIrDDJVBYAniQJf/zGLp7vKqxzneRpMmk3WuaI2W+n/LuN8ymojON78rj3AlELkYdar5ufj4Ly34tLaot7I88msMUCTWHoMcRj0J7IjnKM6d/SmcSHm7++ZNxOs9jOUCH9g0cYqyBQS1gu8qBQ6zSR6CB5inFHN4=
+	t=1781464132; cv=none; b=mbh3JEPOE5WA/u9UVdyX7IM712tMN3+p+CG8PnD3knL76KgGhHu5B9Ao5bVjZKWRleM0kay+U+XvZoOTgs2hf8bpFrWWQNX/GBLRw00p7KC+v9kmx7HH3lEUVHAnL+8u8f3GZAavdBwtl1ZCxw28N2zcet4z9cDggsHyrl0Joq8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781461442; c=relaxed/simple;
-	bh=PEXMdJfhhNjU5oJluzVM0WCQn/E0PIrZtuHdd7m9YIA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=q/BnBZ93+T6fwtplVsUOMGLbF4P2ObxDV+uOSoWsFnKaNs+5xrqyw81c5WjrOPz/TeAdFxzZuKvi0kKTv2MGVDToSEh4vhjWc7b0ZmYg5Vgg6pRC+cKD/xoC3ak00W7YzZ3yGfGJKRJ9fT+r1lwZjMssVHeZ2qhJUpBwmvz4qdo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=ZQJhQqyN; arc=none smtp.client-ip=31.217.192.49
+	s=arc-20240116; t=1781464132; c=relaxed/simple;
+	bh=Heon8JTULnz0ZT21ptJOnmyc57uZg9krftq88F1IhBA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=PKaycyKYsIdpHPal16a7QxKZkl3clcZCKb2Izq3CeGk1v6/npSWiW6s3yAnpMilGEC7teCzB8yldMnA6zcyLAYl1kLVHalV5Xlsg7YVoPy4hEe1iEEXDrf2dsQQtMB+G2qPv8wP5KXSuc60ZksWKuTJMjVs+MaOapzSTzYkcTW0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=Atv3fUFs; arc=none smtp.client-ip=31.217.192.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kolttonen.fi
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="ZQJhQqyN"
+	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="Atv3fUFs"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=kolttonen.fi; s=default; h=Content-Transfer-Encoding:MIME-Version:
 	Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
 	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
 	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
 	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=nNuIPOac30u5EOjqiYvVvwCYc259z4ZD3mQJ4TdOCsg=; b=ZQJhQqyNrAYkQgBhOqqLMCKYbY
-	7rqcwZexlsBCuP9M04X9wP4pT3uuLd5C+CJPMtZPWJjK8a6ZN6ugM01ScmDrYoy27wG0gfAtCwvHu
-	gMmr2uWcbWy8CA3xDIx+Ad1xJgukXEyFGiLkzJhvdhQ17evOAC2InOh9d53VoIVIwBzAcFfjSCBSF
-	1r/Dea8sr2iqaeg40rHpjkk0sN1oWbyo6lpKuf05WrqYNtEm1tjIwUPLSIWE+i4MazmUureAKbyyR
-	l6nRejufoY6+EEBicrD5fGB5KU5QRPSVhs/qydBvnn5db5xUyggqR61CUzSWVtgcPE+ITFq0EM++G
-	R7xnkWTw==;
-Received: from [87.95.76.183] (port=4449 helo=fbsd15.local)
+	bh=YMTqiI05VJ7Ct3vJrZBUL/rPOmGCXNfOsyBEQLpZ08Y=; b=Atv3fUFswsrkyZUZYx/X3DxasF
+	U4cLEFXS7rGvIj5rN4CSBfJEtxN46TFrvlfZUXs4vzWudlC42Eg9LIvlT+YC1dAKs8HeoUQxgPeiZ
+	LJjuOkYlVoY9vkVIQHNAQGmArNv0QAf6ovj1F3B5axEuEBzabMlH8GL6Cvo7GMIMz+cofDxtQWQsa
+	ZiSy9rydxsPwUvVr48VQv6SyWCJFohxk0tA4+6yyEtjysm1ij+j/RUygrxXkymRopZWznem+XaNx/
+	4ljGG1OxZBwt1IPD9pbFuhvpKMpiNnwJiz/58wHNh2K/1/QW/D1oFff0GvO6s4muErbjpM4zURRDm
+	dwLGiHOA==;
+Received: from [87.95.76.183] (port=4295 helo=fbsd15.local)
 	by cloud35.hostingpalvelu.fi with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
 	(Exim 4.99.4)
 	(envelope-from <kalevi@kolttonen.fi>)
-	id 1wYpUy-0000000930F-3unr;
-	Sun, 14 Jun 2026 21:23:57 +0300
+	id 1wYqCP-00000009BVr-08Bu;
+	Sun, 14 Jun 2026 22:08:48 +0300
 From: Kalevi Kolttonen <kalevi@kolttonen.fi>
 To: selinux@vger.kernel.org
 Cc: Kalevi Kolttonen <kalevi@kolttonen.fi>
-Subject: [PATCH] sandbox: use bool instead of int
-Date: Sun, 14 Jun 2026 21:23:53 +0300
-Message-ID: <20260614182353.59521-1-kalevi@kolttonen.fi>
+Subject: [PATCH] audit2allow: make error message more helpful
+Date: Sun, 14 Jun 2026 22:08:37 +0300
+Message-ID: <20260614190837.2947-1-kalevi@kolttonen.fi>
 X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -60,57 +60,23 @@ X-Source-Dir:
 
 Signed-off-by: Kalevi Kolttonen <kalevi@kolttonen.fi>
 ---
- sandbox/seunshare.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ python/audit2allow/sepolgen-ifgen-attr-helper.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
-index 58baa7ff..3fa42f9a 100644
---- a/sandbox/seunshare.c
-+++ b/sandbox/seunshare.c
-@@ -241,15 +241,15 @@ static int pin_dir(const char *dir, struct stat *st_out)
- 
- /**
-  * This function checks to see if the shell is known in /etc/shells.
-- * If so, it returns 0. On error or illegal shell, it returns -1.
-+ * If so, it returns true. On error or illegal shell, it returns false.
-  */
--static int verify_shell(const char *shell_name)
-+static bool verify_shell(const char *shell_name)
- {
--	int rc = -1;
-+	bool found = false;
- 	const char *buf;
- 
- 	if (!(shell_name && shell_name[0]))
--		return rc;
-+		return found;
- 
- 	while ((buf = getusershell()) != NULL) {
- 		/* ignore comments */
-@@ -258,12 +258,12 @@ static int verify_shell(const char *shell_name)
- 
- 		/* check the shell skipping newline char */
- 		if (!strcmp(shell_name, buf)) {
--			rc = 0;
-+			found = true;
- 			break;
- 		}
- 	}
- 	endusershell();
--	return rc;
-+	return found;
- }
- 
- /**
-@@ -802,7 +802,7 @@ int main(int argc, char **argv)
- 		return -1;
- 	}
- 
--	if (verify_shell(pwd->pw_shell) < 0) {
-+	if (!verify_shell(pwd->pw_shell)) {
- 		fprintf(stderr, _("Error: User shell is not valid\n"));
- 		return -1;
- 	}
+diff --git a/python/audit2allow/sepolgen-ifgen-attr-helper.c b/python/audit2allow/sepolgen-ifgen-attr-helper.c
+index 609efb31..c8e68874 100644
+--- a/python/audit2allow/sepolgen-ifgen-attr-helper.c
++++ b/python/audit2allow/sepolgen-ifgen-attr-helper.c
+@@ -212,7 +212,8 @@ static policydb_t *load_policy(const char *filename)
+ 	ret = policydb_read(policydb, &pf, 1);
+ 	if (ret) {
+ 		fprintf(stderr,
+-			"error(s) encountered while parsing configuration\n");
++			"error(s) encountered while parsing configuration %s\n",
++			filename);
+ 		free(policydb);
+ 		fclose(fp);
+ 		return NULL;
 -- 
 2.54.0
 
