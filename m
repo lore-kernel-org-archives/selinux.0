@@ -1,92 +1,92 @@
-Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
+Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B15D23FDC12
-	for <selinux@vger.kernel.org>; Mon, 15 Jun 2026 14:55:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 148BF3FE653
+	for <selinux@vger.kernel.org>; Mon, 15 Jun 2026 14:55:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.46
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781535323; cv=pass; b=Yp++q6ZcHUeeJUwZBiO4GcMjZY0Lk7+BSCxEcenfrok9Cpr2PmF/jmFBSlt83K2iWJil23mB7rAOtE5s8wL8eUdj+6nx8WpISiyeKAKUWBUVxqKHi4zlKSwRD/24F3p5ysVS/mVuyAgevX4DzIz1fJ9/H4xNSCR8K7qTo+EPVKM=
+	t=1781535355; cv=pass; b=U5nZw2QNiJ/HEaV+JpkpBFLNewfP97fJBA/dwElEBFBCQl3bjxClGSIn/Jhq1OCuaS9sgtYesZZz/mvDTjEvm2ceeNii1mWv7Yno61C8SavOpLRgL507RtEljlFdGPrN/1ugfVoFYzX9GrhpBdnVOJV8A6lIVVJS0UcugIc5Dl0=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781535323; c=relaxed/simple;
-	bh=0vnWaQhuYrKtnWkvdnOt3P2J+AvcCvPBT1rplyvkmxw=;
+	s=arc-20240116; t=1781535355; c=relaxed/simple;
+	bh=tId8rrXlcv77cIzCbm/Al1ZA0Qev2edko6AwgBNeG5o=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kt8Qb24J0Q8dZpxkgoxujU2zq3T4vhXk8cd9tfaivCr2iURbONJwGx2D4eRWhDqNXZHgVhG3+MS9KFkXoryh1TRI5C64UMfQvnjl+2oBrUkuKI8FcEWxPXgGbQwjIskOgncWPySo02SaMQU4uNNXKFVJPYX5stpSz0JWq1/RpC8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cfQAcOX5; arc=pass smtp.client-ip=209.85.215.173
+	 To:Cc:Content-Type; b=HBJe0UUV9T3Kic5fJ2Q4uERa64wyrrtEbKIURETq7ulzIpH+DsHKdiz00jEMx78kiOBWrXgJpUdwT6rEW78+Ppw2I4fGmahymvZiYev3tIpsNK473HpgrO+ETvXIThdhtqUweEmU+/IlsC/4i3qd1p1kOzncEjmLqFL+FmxaXE8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=evsFGdHw; arc=pass smtp.client-ip=209.85.216.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cfQAcOX5"
-Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-c85893bce34so1433955a12.1
-        for <selinux@vger.kernel.org>; Mon, 15 Jun 2026 07:55:21 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781535321; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="evsFGdHw"
+Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-36d98c9b596so2234397a91.3
+        for <selinux@vger.kernel.org>; Mon, 15 Jun 2026 07:55:53 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781535353; cv=none;
         d=google.com; s=arc-20240605;
-        b=CIoxGYmtTJHDBdm+QPwN0O7HuXFn1Gq2kW8hX5WczgFoqNnD/HhQFNgLe4sxyaDRZ0
-         knUuweOKbOF7LoDtWST/ZQExi9pf5feUq07wsKFsOGID8UW2oJKOAz83DdcbIm4tocKx
-         aT3D3Ha9BptZu1R5jkAi8lCdyesH2O6N5tHcloz81ySuzbOvpWD8qX/9H92VRWiW7Eo1
-         qD/RkfsLuk7OPmYxPeX8rcHQMxfXj54p3jLnIoaZB1FqBO1nz+8r7f5g2CfpW4HdpY78
-         cyASJ0LBU54F9bhQBJyoRZJBGE7u6K5rW/SlTz2QeofgDXg+CEulPAvDKIjJMfAveWYw
-         veYw==
+        b=KK54GWvrU/aFpQRvv3h9Sv2Z2iC5plKTXAURHE5AKFWwRe183IA4SE9TOnqMwxpVhi
+         4WPRDLyhuNOvwtwzJAIlH8dg4i6Q1O82dpjuhm5UY2Y1y//vXLx+mtcSBVCAQCT8Nb4u
+         rI0ZTrqFQC0wGu+FbOVL6Qw58QtjuU8sl1BO9DpRLQxU10sqNvjDlDK8bJEAnjhXahp5
+         1FdzRHSHtmD8G3Brgq3qOlhQWMozJHBtxSI8DCrpL4eV85d01FnYtEWAd1Tsgz5HLo5y
+         8v9yWEURSOKXo22OvWem8Yw0xkSK5wV5vRX76M+BnvqnkEO0cUqWHLBIsklHgSqnhdTZ
+         1kbQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=Z5cCVE4JWsjEotN4b1Xw4F6jG+VP2v2QCIg9wo3qt4Q=;
+        bh=3ClaNzR4HVBk7s68fzc0z+S1HpfbTZPM5AaeqG8mxqA=;
         fh=RcJrr7O3svp8K5gZfgCjK7Xv0tA8i0VIpUekoWsmIc8=;
-        b=C8VRNvBRD9FCqmwllZt6bODLvPdRD9BroXasPwwh3R5jmo/sl7fVcDdI5zDjfjCy0M
-         SZgD1f9rKLobjfemI/PafAnMQSyFPlcKDgTMKfFkWuX48IgFdwulObsPfu7Yf7EaL3sq
-         WK4ZLqvvN66scrnGM6014xr02nHbwDLmcwbOqJNCwaXokmhN/IQwZko7rMNhe403TPD/
-         DG2k84Fr/JvVQTzoAOTwjgh6dofa9z1IXotnl5qF46RM76PAywYOf9dr7dmvsn/R+B5E
-         ObwKy0Pt18d8gQFYDqei45N9gEffRHid2EIASKUomQs4m8vqKwmzK5ikYEUNZsTGguCH
-         cB7g==;
+        b=Vwc7fW57NqDmwWHJW2ZUlOYspXAVvGYmzVrOSNT9UjTBHmc20qwK48SgE1AX8AvB9F
+         pfu2C3se/e53epjDSn5BpbIChgtHS6HLOe0g5+4zwAf4wtvkri+J87v2AkL8dvvhiteo
+         +uutePOSeRSlZnoeQBdp2UCaLTFucYAq5DIsWd2Q12A7WKOLnwNpaMhXMuwGo3ISMJsP
+         nere/H4U1uNBXyecK+quRpac98TgFXlcGDYsMMIf4GlQMmvxYipPWF8T6ik5y+9i0R9g
+         eV34B8sF2gJBvqQ3genlA2c22iKyI8gzrDglc3eTg1gMqpRV2U4to5qHSauKzkZoxprA
+         FS0w==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781535321; x=1782140121; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1781535353; x=1782140153; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Z5cCVE4JWsjEotN4b1Xw4F6jG+VP2v2QCIg9wo3qt4Q=;
-        b=cfQAcOX5x3JiFx/Pnj3avKnVXC9cq9IXwWtowQRFWcVhvJ5MHXwtuufpzGkS85w4SW
-         IXq7NFAcrJ3bVFTdIva23DSYZgubd3JixPgKN8C84ySOnhj6B9YW0BNV1eN31b+NNoks
-         AnuDNlUqy4c/GcPLkxAg3Sv3DPjhZW/9ea873kmSJxqYC0gqjQorjetzhniuhEaE8Zpw
-         xYulN1BGSbn3kovFlk2Hi++AbuZs1sL6Yk4b2YbtOMfubSgizD7rOdhQ3cXw2RBDS24/
-         7Sr04f+rPximRe38w4MlKoR2rntggOIznQNrGq4l05qCgvx42Kupd8kbd/upJZKl+zCN
-         wO/g==
+        bh=3ClaNzR4HVBk7s68fzc0z+S1HpfbTZPM5AaeqG8mxqA=;
+        b=evsFGdHwBxpHVzVZ/tfb1+IpAzxc/5nns670y5MU2uGeXS+ZO4mKh4aQRx+hfLYED0
+         u5f/g6RlfBYcJFFCmZ00sS+bK15hYAvyH4nvM78LZz4m4Byqu0ZXfbV+QZRffla9AA69
+         c7DHwfG6NPNpajRCMRAWNgDg/D1+gPfzHZMXI4wIFGI+1974H1iwYv6lAPCU64hM2206
+         0XtvwNPaRmHnhss8dWcCk8Z5OyCSlWWfML/BdsaCuYRNLW8DFruaB+E/1T4YPuEZOqwY
+         qzv0bnw24ZY75eDy0Gmko41E+CpVKcn/sS2f23t0eyNURnx4btvvluKlTEZ5m7hTD6Hm
+         Wx4A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781535321; x=1782140121;
+        d=1e100.net; s=20251104; t=1781535353; x=1782140153;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=Z5cCVE4JWsjEotN4b1Xw4F6jG+VP2v2QCIg9wo3qt4Q=;
-        b=W0H/WGicBXihriD/+01u0q1iVugbxHf33av0rt1DIzSMyVYDOx5CT7YiS/Bnpcowch
-         JmZwuaVhLl9GGNc1G2df4hywG7eL9mh6v6xHGPQHrAYuo1fhc+69PbyWl9FaffHbHSlL
-         x0ORaGGp09CfxM26KqyExssv2LpLl445AeOhi5s7BLoeHTOKMNxvFLwehDTPogriA2vx
-         Iuds6rqWYqTRWXAtWoUKqMcWkcAbWg9cyRohXUbAScafPXbhHbIbT7Po+qKTjvHJXgWp
-         Gsho5OBVv2Um/fdrz4m0JJsg35e7d6LHIsn3k+eaXbH/gF1ZfiCgIYw68Ec0NEbuhLFc
-         Nyfw==
-X-Gm-Message-State: AOJu0Yw30l0QDLEejM5uNIMLA6EmW9Ve+Z1Ahx+5GK9FllYNlGSIkKaL
-	VBYJbEUnsQWfNmSwk/rZ6fvN5xRC00XHLLwuOpm75PM0FdVZEV4Vsdz1mMAh3f6fw/90tpY5dEA
-	bNurOL27JKpA2v8a2JbU0U7GtJ0LMqJcVIA==
-X-Gm-Gg: Acq92OHpsPe5Tjr5bVGQ3U3vvoGBEJWaj28/esqssRgBqwPwHyDM8D6JYtb1jEgNdAk
-	vdRWiCJFQ+kvrHv37nK6zi/cuQy5j1fpx1oNg6++fh3q4xkwEyicxaio1kPv2PTBvC4rPYu+kbz
-	YEbFXvg/2L2gAXg2otIl8k5+i4kvqlW6meHl+kYjnc0DUeJYqkzOJfx5QO1JhrbC5EwDQGFw10M
-	9PKr9xY6SeXe9Xilxch7vt3M8ZdXRBcsmyzVXPVwUV44HNjmWg9H6T4bOfI9Qa/lHgM46rvrEOr
-	/MBq8PE=
-X-Received: by 2002:a05:6a20:c89b:b0:3b4:9027:712 with SMTP id
- adf61e73a8af0-3b7962d8e57mr12943936637.20.1781535320874; Mon, 15 Jun 2026
- 07:55:20 -0700 (PDT)
+        bh=3ClaNzR4HVBk7s68fzc0z+S1HpfbTZPM5AaeqG8mxqA=;
+        b=LMsGQv+cTZXzr5qOcFVmaf0pgyzJw+Obo+4R9Y548EyAijYRosKpczr32XOM6xnR/U
+         K7d9zPaStLY8j0NdIbFdLo4SKZl/WH2F4YCklBabIG5Gh00Z6ItUGbDdzm19NHXKIKMQ
+         lw8hLyFB2ZMbHmddwhmBCHpia7Zdev7KgwiDtwjw+C8zKtFnDGYG/thCeM8l+IjwJF6C
+         umXRncHjjOyPiL5bXEIUnha/boNcD55Jc7w1iNHDeu3zNQTjDRw7LnnurznGAh21h+y+
+         Lc+Dx0Y4EQgH9E4u6CZEKF9KEdqBNUNSXro32P54m38yAJeDipfRqttV6ShjrTNcokGI
+         INtA==
+X-Gm-Message-State: AOJu0Yyvq+SC52rT2H/Ph2xpA+9O5YrIurboBas7DNSYWfBRw2diiFOy
+	Z8+vi6DiV2Wo3eprn3q4q7p62iKLpp1ZpyavmKeB3Dx834QurxHO9ubiWmIN+CkCnv1F3L7WY22
+	ex8a2XdKA2vjn9WRCqhtRCqxMSn6tRBY=
+X-Gm-Gg: Acq92OFv3ZeOgQL+MSuz9FAaZPhnL33b7kEcuyB5GjouFlwE/R8KYT67krqv3Fk2cOc
+	rMDUcdEmpK82W3Yhg9imUoGzLg6r4E90KfyvL4zsYxhYow85dUg5X2HsdtYRA1BAuKmPODP7ORO
+	Q6bHVbiuBJtLMt2WesSB9otg5eQL5g+RAZodqocI4jjcfOTiaKF+q+xkETU+z3pIkw1GWO9FNJd
+	zupQwsYu32zzVShhBq3qfn3UWWm+wLUivLk4qWPSxxbSiZsgDI89O6vcHjSi8QnrV892OsrKDsc
+	oQkA2JA=
+X-Received: by 2002:a17:90a:d004:b0:36d:81b3:61a1 with SMTP id
+ 98e67ed59e1d1-37a01c34487mr14586338a91.7.1781535353297; Mon, 15 Jun 2026
+ 07:55:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260614122904.29873-1-kalevi@kolttonen.fi> <20260614122904.29873-2-kalevi@kolttonen.fi>
-In-Reply-To: <20260614122904.29873-2-kalevi@kolttonen.fi>
+References: <20260614122904.29873-1-kalevi@kolttonen.fi> <20260614122904.29873-3-kalevi@kolttonen.fi>
+In-Reply-To: <20260614122904.29873-3-kalevi@kolttonen.fi>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 15 Jun 2026 10:55:09 -0400
-X-Gm-Features: AVVi8CcoYhMEmt2ZBDYI5H9owkBzNYLqh05Nw1YORDybCrbhdWcKCkHtwg1jWMM
-Message-ID: <CAEjxPJ4rnyoM+nV-oTtG3ULVKKMKvSkYPR9_W5AvZF+ffYn5rQ@mail.gmail.com>
-Subject: Re: [PATCH 1/2] policycoreutils: use stderr for error messages
+Date: Mon, 15 Jun 2026 10:55:41 -0400
+X-Gm-Features: AVVi8CeRVwPVFS3YRehV76Nb3gtsMQZrmHQ1D0Wh72s_upRbJTHjmMDsnIz2m70
+Message-ID: <CAEjxPJ5smUyjSkAfid3JuxSnWH39Qz9qy-zV6fArMk5cXS7WFQ@mail.gmail.com>
+Subject: Re: [PATCH 2/2] policycoreutils: use null character in a string
 To: Kalevi Kolttonen <kalevi@kolttonen.fi>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -100,205 +100,24 @@ fi> wrote:
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 > ---
->  policycoreutils/sestatus/sestatus.c | 50 ++++++++++++++++-------------
->  1 file changed, 27 insertions(+), 23 deletions(-)
+>  policycoreutils/sestatus/sestatus.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
 > diff --git a/policycoreutils/sestatus/sestatus.c b/policycoreutils/sestat=
 us/sestatus.c
-> index 637f26eb..0effc4ad 100644
+> index 0effc4ad..a719f0b3 100644
 > --- a/policycoreutils/sestatus/sestatus.c
 > +++ b/policycoreutils/sestatus/sestatus.c
-> @@ -100,7 +100,7 @@ static void load_checks(char *pc[], int *npc, char *f=
+> @@ -110,7 +110,7 @@ static void load_checks(char *pc[], int *npc, char *f=
 c[], int *nfc)
->         int filelen =3D strlen(FILES);
 >
->         if (fp =3D=3D NULL) {
-> -               printf("\nUnable to open %s.\n", CONF);
-> +               fprintf(stderr, "\nUnable to open %s.\n", CONF);
->                 return;
->         }
+>                 buf_len =3D strlen(buf);
+>                 if (buf[buf_len - 1] =3D=3D '\n')
+> -                       buf[buf_len - 1] =3D 0;
+> +                       buf[buf_len - 1] =3D '\0';
 >
-> @@ -158,8 +158,9 @@ static void load_checks(char *pc[], int *npc, char *f=
-c[], int *nfc)
->                                         break;
->                                 default:
->                                         /* ignore lines before a section =
-*/
-> -                                       printf("Line not in a section: %s=
-.\n",
-> -                                              buf);
-> +                                       fprintf(stderr,
-> +                                               "Line not in a section: %=
-s.\n",
-> +                                               buf);
->                                         break;
->                                 }
->                         }
-> @@ -234,7 +235,7 @@ int main(int argc, char **argv)
->                 return 0;
->                 break;
->         default:
-> -               printf("unknown (%s)\n", strerror(errno));
-> +               fprintf(stderr, "unknown (%s)\n", strerror(errno));
->                 return 0;
->                 break;
->         }
-> @@ -251,13 +252,13 @@ int main(int argc, char **argv)
->         printf_tab("SELinux root directory:");
->         root_dir =3D selinux_path();
->         if (root_dir =3D=3D NULL) {
-> -               printf("error (%s)\n", strerror(errno));
-> +               fprintf(stderr, "error (%s)\n", strerror(errno));
->                 return -1;
->         }
->         /* The path has a trailing '/' so duplicate to edit */
->         root_path =3D strdup(root_dir);
->         if (!root_path) {
-> -               printf("malloc error (%s)\n", strerror(errno));
-> +               fprintf(stderr, "malloc error (%s)\n", strerror(errno));
->                 return -1;
->         }
->         /* actually blank the '/' */
-> @@ -273,7 +274,7 @@ int main(int argc, char **argv)
->                 puts(pol_name);
->                 free(pol_path);
->         } else {
-> -               printf("error (%s)\n", strerror(errno));
-> +               fprintf(stderr, "error (%s)\n", strerror(errno));
->         }
->
->         printf_tab("Current mode:");
-> @@ -286,7 +287,7 @@ int main(int argc, char **argv)
->                 printf("permissive\n");
->                 break;
->         default:
-> -               printf("unknown (%s)\n", strerror(errno));
-> +               fprintf(stderr, "unknown (%s)\n", strerror(errno));
->                 break;
->         }
->
-> @@ -304,7 +305,7 @@ int main(int argc, char **argv)
->                         break;
->                 }
->         } else {
-> -               printf("error (%s)\n", strerror(errno));
-> +               fprintf(stderr, "error (%s)\n", strerror(errno));
->         }
->
->         printf_tab("Policy MLS status:");
-> @@ -317,7 +318,7 @@ int main(int argc, char **argv)
->                 printf("enabled\n");
->                 break;
->         default:
-> -               printf("error (%s)\n", strerror(errno));
-> +               fprintf(stderr, "error (%s)\n", strerror(errno));
->                 break;
->         }
->
-> @@ -331,7 +332,7 @@ int main(int argc, char **argv)
->                 printf("denied\n");
->                 break;
->         default:
-> -               printf("error (%s)\n", strerror(errno));
-> +               fprintf(stderr, "error (%s)\n", strerror(errno));
->                 break;
->         }
->
-> @@ -345,14 +346,14 @@ int main(int argc, char **argv)
->                 printf("requested (insecure)\n");
->                 break;
->         default:
-> -               printf("error (%s)\n", strerror(errno));
-> +               fprintf(stderr, "error (%s)\n", strerror(errno));
->                 break;
->         }
->
->         rc =3D security_policyvers();
->         printf_tab("Max kernel policy version:");
->         if (rc < 0)
-> -               printf("unknown (%s)\n", strerror(errno));
-> +               fprintf(stderr, "unknown (%s)\n", strerror(errno));
->         else
->                 printf("%d\n", rc);
->
-> @@ -377,7 +378,8 @@ int main(int argc, char **argv)
->                                         printf("off");
->                                         break;
->                                 default:
-> -                                       printf("unknown (%s)", strerror(e=
-rrno));
-> +                                       fprintf(stderr, "unknown (%s)",
-> +                                               strerror(errno));
->                                         break;
->                                 }
->                                 c =3D security_get_boolean_pending(bools[=
-i]);
-> @@ -390,8 +392,9 @@ int main(int argc, char **argv)
->                                                 printf(" (inactivate pend=
-ing)");
->                                                 break;
->                                         default:
-> -                                               printf(" (pending error: =
-%s)",
-> -                                                      strerror(errno));
-> +                                               fprintf(stderr,
-> +                                                       " (pending error:=
- %s)",
-> +                                                       strerror(errno));
->                                                 break;
->                                         }
->                                 printf("\n");
-> @@ -415,14 +418,14 @@ int main(int argc, char **argv)
->                 printf("%s\n", context);
->                 freecon(context);
->         } else
-> -               printf("unknown (%s)\n", strerror(errno));
-> +               fprintf(stderr, "unknown (%s)\n", strerror(errno));
->
->         printf_tab("Init context:");
->         if (getpidcon(1, &context) >=3D 0) {
->                 printf("%s\n", context);
->                 freecon(context);
->         } else
-> -               printf("unknown (%s)\n", strerror(errno));
-> +               fprintf(stderr, "unknown (%s)\n", strerror(errno));
->
->         for (i =3D 0; i < npc; i++) {
->                 rc =3D pidof(pc[i]);
-> @@ -445,7 +448,7 @@ int main(int argc, char **argv)
->                 printf("%s\n", context);
->                 freecon(context);
->         } else {
-> -               printf("unknown (%s)\n", strerror(errno));
-> +               fprintf(stderr, "unknown (%s)\n", strerror(errno));
->         }
->
->         for (i =3D 0; i < nfc; i++) {
-> @@ -454,8 +457,9 @@ int main(int argc, char **argv)
->
->                         /* check if this is a symlink */
->                         if (lstat(fc[i], &m)) {
-> -                               printf("%s (could not check link status (=
-%s)!)\n",
-> -                                      context, strerror(errno));
-> +                               fprintf(stderr,
-> +                                       "%s (could not check link status =
-(%s)!)\n",
-> +                                       context, strerror(errno));
->                                 freecon(context);
->                                 free(fc[i]);
->                                 continue;
-> @@ -469,8 +473,8 @@ int main(int argc, char **argv)
->                                         printf("%s\n", context);
->                                         freecon(context);
->                                 } else {
-> -                                       printf("unknown (%s)\n",
-> -                                              strerror(errno));
-> +                                       fprintf(stderr, "unknown (%s)\n",
-> +                                               strerror(errno));
->                                 }
->                         } else {
->                                 printf("%s\n", context);
+>                 bufp =3D buf;
+>                 while (*bufp && isspace(*bufp)) {
 > --
 > 2.54.0
 >
