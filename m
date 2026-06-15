@@ -1,166 +1,90 @@
-Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from cloud35.hostingpalvelu.fi (mail35.hostingpalvelu.fi [31.217.192.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDCA134DB56
-	for <selinux@vger.kernel.org>; Mon, 15 Jun 2026 17:04:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.180
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781543058; cv=pass; b=fMp3qOBVfzygJwsuJ8rJjGbSsSQT/QYt90ENQ0d/BOY20I1DPNTUJoql2zkgPtyKFqFwBT+6+romSaD6op7XqcUrPRkXWh2xY3yZdQHSBJeOogoJM8VK/o0oWkcNpgpX619uhD2Pvno2DtdvfUp0WWJRgWjFHx5r7dqhb0akOfs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781543058; c=relaxed/simple;
-	bh=fFaO2uh6CXkQI1VrTvhXPmchmmMRbYorT94kDRX9GGE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=uSn4kHH5jGCYvyFflEa6tfYJGqJYEH+d4KDLi7yAdyHm8a2ze1twQ8sjbkZn3f6p79HlIbroC89JzJ3kF/wjkqldQE8L/WYQ+lprKUAxVBip9UDqHFh0hjSosXD7e+/o0gBVxNQ9vjhHfpfdQtKENbzeKcvVdCFZvrmm7F6iIes=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Muk+MLia; arc=pass smtp.client-ip=209.85.214.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91EDD3F8EBE
+	for <selinux@vger.kernel.org>; Mon, 15 Jun 2026 17:11:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=31.217.192.49
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781543501; cv=none; b=Ynh26iwbuM1FeyPKV7k935mCB2DNm+eL0J5zNptwumKadlwWwexHfFph2EdgDxTpLBms1WgYhX1NJc0oYCiqeTEpEXllRlhfa6Ukb5RV6TmTgS+i5qsuCldPCSkVERQ0e82T5l+jzHWiEAs4gCnYryjqcmIIswOyigTYH+i97GM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781543501; c=relaxed/simple;
+	bh=PaVj2iL5jNzoxgHgjYeWHRCa6/kRpHcP//7H9D/A+3Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=lgb4M/up/28QqZkw41AplEZs0tieygyUo7t8rqOFzRqHiYtd6q+T/Cu7x0Um2jXAIr80MzN2snTN2wOvnawMKzWNyij/YszuI0OMj9GqJHuHQjoOMlGm7YD5ZB874VGcpZtVJUD+hQv7lg6YyIreQj25JvxrtJjJ3m+ANaDZ+2c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=uEFq8YkX; arc=none smtp.client-ip=31.217.192.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kolttonen.fi
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Muk+MLia"
-Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2c0c1e0b0faso22485595ad.0
-        for <selinux@vger.kernel.org>; Mon, 15 Jun 2026 10:04:17 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781543057; cv=none;
-        d=google.com; s=arc-20240605;
-        b=IBoCsyESvlDot3hLhgShhdg9ig9NpyH/jvXA3S0ZyZGikTQIQIw7bYd8ezwM6pyeL3
-         o2w1Kzl4ECm1E1sy0CPj4cLqJ2MLGEtpt2K+UIA5dVjYzLmgoIoYELvVAlpRBAex5BZ7
-         zvqL+IlaGpAdrYkn3+W/21DyszZ5TwpchuF/nHFVpNxOCDKELB/Py/GO21zpCoPM8CWM
-         cqF7EsGei9M8pJ6SmYpGxRJvSQESOyFFlJX55HxnIiZcAwjHWWd3Sk5Oh4w3Ms7ZFpdg
-         bD68IuDPo76zxfUQd7cDX7pAYnh02NVWQJ6I1qUi05PwUIoodPCopApjbqNfT1hK0bMd
-         rBvA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=9LYMheeKt+/w4002R3970waRnpm9AvQ2BvoEpjhAxIo=;
-        fh=RcJrr7O3svp8K5gZfgCjK7Xv0tA8i0VIpUekoWsmIc8=;
-        b=kWh5SlHeceRM5i0PGriE8Wz+UCveNnX6qil+yfvxNGIsf05zapkguiJfTxCOcEiTED
-         2pp/4WPuFe7CZHjl5aD+RKHoJ0zeA8uGqQRFvSJFS1dkAQOFy/vHJinzhkAvz6SeuBFv
-         evQYQa7Zg2WvPvs0dTEE7pxcEM84VwdVgolwr+YrWEdjB/SSt8YMi84RzYGqaGktj75p
-         5eVD39qWPtleYZaLfV5otxDaN09ytAULC2nMSHTfCGMu+kOjAJXJNfQ4dW3RTCzPD6WC
-         7R+L/Yo3mGlcykOUmOmQ00ZO4OmcmjvlWqlS9r0XQLM7AwKWoZuX0s0GTu1dLPty8Xx5
-         bvPw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781543057; x=1782147857; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=9LYMheeKt+/w4002R3970waRnpm9AvQ2BvoEpjhAxIo=;
-        b=Muk+MLiafvnqSNdh6C5DIIRWm4FAafBfbKPMYh0jS6r7StQH95tDEMQZ8ytV2UOJom
-         aQNcyXafC7VUwL3cJonQjSyof/Epyi7UY4LKsmkWkigDH2WlIF2houUiIodw3EtDPRox
-         HYupt/GncTxReqHPXAELy2Nd29Jc8Fx+E3GV4/3lgI9Z0KbSJ08j27r4a8OneaN/CzD1
-         q0hdYuPl2WWmZCJB7z/9PC939NXSo1ePe8NwnLbsk/UJWBhdWWb8qJP1cC9U/wFHjS9Q
-         jQBeYukbk4Qug8qD+QH3WY2gDpnDrYk0KqdXyUpyiuPTE5hxinVX9ZHrpdqRxuIZDT2T
-         QndQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781543057; x=1782147857;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=9LYMheeKt+/w4002R3970waRnpm9AvQ2BvoEpjhAxIo=;
-        b=rDJHCyzuAzJwXAVNpC9wd/GOozYw2i1Zhj7Wnk+ESe7Re9dJembosKl7svqN7vkivB
-         b37jQLr9HoKB+G6zsdjauBl9AQT/w+jeXejFT8MJ3ERZIq3fgHX5qP19Di2NVO7SPWcm
-         awjKOH+iwY6vkhkZMNHBIAhbLB9Dk+hKfzcvF9avcPt6tfI+YbtN0HjzE26re8ErtxtL
-         wF2GNTzGEeZfc1uNR1Vzom0gKpiYrYJCP9YNV7/6NhNzs7nG1m0QhKjK/DsvplQLk8xt
-         dhfV5QDyW4L3ksDbZbk/0H/IzYdXraZJTVp4001VPY5HxTV+4srlD7WPhAKOSFjGrq9T
-         wu/A==
-X-Gm-Message-State: AOJu0Yyz7J7KAF9KnSRhX8A3qpthk/f+wzFm1Cwm2z8wuk4mkZYTSP32
-	fxuuUAXlNbXxHFbgLUpqY4am8YhM8pVxjWAZ1CZfAbt2DdUxT94S3n8MJYJ3zHlS45C9lJmcxZ8
-	QuEu0CYpRsaEdY6853l4DHQO+A5KkKwmhkWmn
-X-Gm-Gg: Acq92OFqsPcXr0uID/U45beULQY/fSDv4jOB6vnOhJIIcSvxjqnSvD/4Bwq8khabB4R
-	P2KG2940PlCULaQ8wyIMfT2kCecWf0aw62+CEl0vnWiN6nYaz/m0zdeztwY20vQqwxkwjzhz6DO
-	+5bv/R5C9JA7DAE4pXM+yVDJb8MI1qsQ8Y9i/YZ6/q4A+RjVTJi0MyGQ6EVaeb4kw+WDBosNG4v
-	S5Ziitif8fsSWxKhz/KQNQzgkuvRWIuLPooJvLu44mHRH4PmV8+cpAAcEIM1cAP5h4PJhYLu+H5
-	EbKUNCA=
-X-Received: by 2002:a17:902:da82:b0:2bf:dd8b:7cd with SMTP id
- d9443c01a7336-2c4110b3772mr173106305ad.10.1781543056899; Mon, 15 Jun 2026
- 10:04:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="uEFq8YkX"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=kolttonen.fi; s=default; h=In-Reply-To:Content-Transfer-Encoding:
+	Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
+	Sender:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=j3PMvM1XAFqllQnx5XEmuiGg6BQUT0HXfhJ0ic7x7aU=; b=uEFq8YkX3NXqCXDaTIjx0LE13i
+	VwIEKk4pWNYaFLwYiOdGmuAshnhKYjb/amYfYd3hIGzqUKXJmrHW2f5J0yORTomzlb2huOEEbLo/j
+	tqT848Aot7kgcZ6MY1ZnMWrNGrGD2UuSjh+fsPaV4JFIAp34uOu6VWx48lQLKbOST2MGLZyCMDgk6
+	b0ZOU0DKSxDO3ILNqjvJJehZLseKyiyv/8YsrIP2njw0O8ijfrPHJnhnbTiQm6ltpneEPjGXr/hb7
+	DyW7P72QFjHjWmEtFXcyQiPuYvG5HQmbouU0Zj+8g4nbn+mSc2m8oUiLXIo/S0DAmeSUn6v3ZJmM+
+	lrInUrPw==;
+Received: from [87.95.76.183] (port=4096 helo=AA-94-54-42-0F-E2)
+	by cloud35.hostingpalvelu.fi with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.99.4)
+	(envelope-from <kalevi@kolttonen.fi>)
+	id 1wZAqY-0000000DQ0L-47r0;
+	Mon, 15 Jun 2026 20:11:38 +0300
+Date: Mon, 15 Jun 2026 20:11:36 +0300
+From: Kalevi Kolttonen <kalevi@kolttonen.fi>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org
+Subject: Re: [PATCH] policycoreutils: use bool instead of int
+Message-ID: <ajAySI0DK8a86hJf@AA-94-54-42-0F-E2>
+References: <20260614162323.18730-1-kalevi@kolttonen.fi>
+ <CAEjxPJ6C7ST4B6Xuq1dvE7Bx7EuZ1NVzh6yE7w0VRziXKHORiQ@mail.gmail.com>
+ <CAEjxPJ58UmimfTz9VhOVbUyGEyGWA7G5SfVs1iRf03-Fnfe9sQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260615163937.38919-1-kalevi@kolttonen.fi>
-In-Reply-To: <20260615163937.38919-1-kalevi@kolttonen.fi>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 15 Jun 2026 13:04:04 -0400
-X-Gm-Features: AVVi8CdtWhRrEXVWKWLzFFpJhqOMAtgMmz2-5jsJ5VsJvFYJZwfGeqtJfUXR1ek
-Message-ID: <CAEjxPJ6L3ip0q3ivXxEzbaDhPWFhcwMhYhUiHs_jJS=OpGgHvg@mail.gmail.com>
-Subject: Re: [PATCH] mcstrans: use sig_atomic_t and bool instead of int
-To: Kalevi Kolttonen <kalevi@kolttonen.fi>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAEjxPJ58UmimfTz9VhOVbUyGEyGWA7G5SfVs1iRf03-Fnfe9sQ@mail.gmail.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - cloud35.hostingpalvelu.fi
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - kolttonen.fi
+X-Get-Message-Sender-Via: cloud35.hostingpalvelu.fi: authenticated_id: kalevi@kolttonen.fi
+X-Authenticated-Sender: cloud35.hostingpalvelu.fi: kalevi@kolttonen.fi
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 
-On Mon, Jun 15, 2026 at 12:42=E2=80=AFPM Kalevi Kolttonen <kalevi@kolttonen=
-.fi> wrote:
->
-> Use sig_atomic_t to be async signal safe. Use bool instead
-> of int to make boolean intent clearer.
->
-> Signed-off-by: Kalevi Kolttonen <kalevi@kolttonen.fi>
+On Mon, Jun 15, 2026 at 01:01:07PM -0400, Stephen Smalley wrote:
+> On Mon, Jun 15, 2026 at 12:58 PM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > On Sun, Jun 14, 2026 at 12:23 PM Kalevi Kolttonen <kalevi@kolttonen.fi> wrote:
+> > >
+> > > Signed-off-by: Kalevi Kolttonen <kalevi@kolttonen.fi>
+> >
+> > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> 
+> By the way, note that several of your patches had exactly the same
+> subject line even though they were modifying different files or
+> components; it would be better to either combine them into one patch
+> (if a single logical change) or use a different leading prefix to
+> indicate what they modify.
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Yes, that is admittedly not so good. I was going through the
+source file by file so that is why the similar patches were
+not combined under s ingle one. I will try to be better in
+the future but I have already deleted all the local branches
+that I used to generate the patches.
 
-> ---
->  mcstrans/src/mcstransd.c | 11 ++++++-----
->  1 file changed, 6 insertions(+), 5 deletions(-)
->
-> diff --git a/mcstrans/src/mcstransd.c b/mcstrans/src/mcstransd.c
-> index 2d07b3af..5bdaadb7 100644
-> --- a/mcstrans/src/mcstransd.c
-> +++ b/mcstrans/src/mcstransd.c
-> @@ -2,6 +2,7 @@
->  #include <errno.h>
->  #include <poll.h>
->  #include <signal.h>
-> +#include <stdbool.h>
->  #include <stdint.h>
->  #include <stdio.h>
->  #include <stdlib.h>
-> @@ -56,7 +57,7 @@
->
->  static int sockfd =3D -1; /* socket we are listening on */
->
-> -static volatile int restart_daemon =3D 0;
-> +static volatile sig_atomic_t restart_daemon =3D false;
->  static void cleanup_exit(int ret) __attribute__((noreturn));
->  static void cleanup_exit(int ret)
->  {
-> @@ -421,7 +422,7 @@ static void process_connections(void)
->                                 syslog(LOG_ERR,
->                                        "No color information will be avai=
-lable");
->                         }
-> -                       restart_daemon =3D 0;
-> +                       restart_daemon =3D false;
->                 }
->
->                 ret =3D poll(ufds, nfds, -1);
-> @@ -450,7 +451,7 @@ static void sigterm_handler(int UNUSED(sig))
->
->  static void sighup_handler(int UNUSED(sig))
->  {
-> -       restart_daemon =3D 1;
-> +       restart_daemon =3D true;
->  }
->
->  static void initialize(void)
-> @@ -551,11 +552,11 @@ static void usage(char *program)
->  int main(int argc, char *argv[])
->  {
->         int opt;
-> -       int do_fork =3D 1;
-> +       bool do_fork =3D true;
->         while ((opt =3D getopt(argc, argv, "hf")) > 0) {
->                 switch (opt) {
->                 case 'f':
-> -                       do_fork =3D 0;
-> +                       do_fork =3D false;
->                         break;
->                 case 'h':
->                         usage(argv[0]);
-> --
-> 2.54.0
->
->
+br,
+KK
