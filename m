@@ -1,75 +1,115 @@
-Received: from cloud35.hostingpalvelu.fi (mail35.hostingpalvelu.fi [31.217.192.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC79B3B582F
-	for <selinux@vger.kernel.org>; Mon, 15 Jun 2026 19:45:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=31.217.192.49
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781552717; cv=none; b=JnUzbudGIxE2Xqd/Q6HReZfrYmJNMMS2uKXj/TZnYM/D40PQajj395gyaKs4fQ1W2c/IQ8RwcWvo5RR7AxkrtiiJLFrQUY4TUSL5ergp8sGG7hvsN81SvTRN14i7RkjPD47as07K0rIWppX7acMvc2qO3z48oQAsvos8M2F9KGk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781552717; c=relaxed/simple;
-	bh=jaOd6FInukxk0oMsV3UUstr5yoE6ySpxXqzox6Z4yNw=;
-	h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=a4Ha6V3h+M81ItYM3/hubFZtUUZKKDjQKv/tF2rL6QjgqBA7rMa+v2M1pR1vsPwwWu670mF/+tNPI2KBT5otoCYmtF4UOeR5n/fovVShk8hZhOBY3tcF/TAZbOnv7yJPbGXU6uz3wA4hMXBwpkUPCYDJKSL3PB0PuP3LuKclNtE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=afODyaou; arc=none smtp.client-ip=31.217.192.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kolttonen.fi
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E10529BDBB
+	for <selinux@vger.kernel.org>; Mon, 15 Jun 2026 20:09:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.54
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781554144; cv=pass; b=Z91kdmj3es7gNU+scDIkmFqWUHqaCmLdRDWDVV23/qkdcLs7COyueejn5+DQf3NtOVtv3fUz9HtseAoHlRyO1Yb1STnmYvXW/kbwtiNxNAadfeCUrf5k2Q78v57X+EI9b36kNrOVYBzc22m9HuyNN5xEGG0r0s4XHnq47wgERCE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781554144; c=relaxed/simple;
+	bh=rFM+BRmbVGQ7ieGf8L5E1ygl3UY3ZMxVz2a5G2jRSOE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=fGmROoHgbs5Hk1aBgPnTJ73izHxNuyxnrxvnUQ+eMnKfMT99JloK1SvxH+LVvLybNdODZCtzjsB0+QjJOSvhO7Yr5DfMUrPD9Q7c4nuqoChsLNU711Z17oFkDcDAf3Ql5Ygyo1MUiw2YuMAusf9yo9AU8owG1vFQaMnTuC3PTOM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AILVWAv0; arc=pass smtp.client-ip=209.85.216.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="afODyaou"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=kolttonen.fi; s=default; h=Content-Type:MIME-Version:Message-ID:Subject:To:
-	From:Date:Sender:Reply-To:Cc:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
-	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=dFQG0a4c15J9ZfKf9OM7Y08XFfFgnS0SA6S4pH2j/8A=; b=afODyaouGndXx8wHZlL0LgLRs9
-	XZVQlp1vQIMRRyin4UhumZXU/T1hCgXxqsTXFLvALYdJuBYq8n+SZJZri5uFialw0VLbbLQDpygg2
-	xwtjbGRZcEkrK9y6g5tWi5LGhy6v3DJ2vqJuExUT1tI/9H/J/sgiuvnt6ZsqnmOmuKUeMBxWJVLnj
-	bQEbGG95GXSBp82wHA7EUHBXNapfhiLTVE4lorhn9As5K34R5YDbHK65MDSFypsjNN4GFJijd68lL
-	xB3vZ9jCyn55mnIsQMyzF68eI/VCMXhIslq9tsV+WfKKP/wmn/oDwLaSd14NVZu0WsnheJWtCJl4Z
-	boEDDb0A==;
-Received: from [87.95.76.183] (port=4392 helo=AA-94-54-42-0F-E2)
-	by cloud35.hostingpalvelu.fi with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.99.4)
-	(envelope-from <kalevi@kolttonen.fi>)
-	id 1wZDFB-0000000DzJi-0WMg
-	for selinux@vger.kernel.org;
-	Mon, 15 Jun 2026 22:45:11 +0300
-Date: Mon, 15 Jun 2026 22:45:09 +0300
-From: Kalevi Kolttonen <kalevi@kolttonen.fi>
-To: selinux@vger.kernel.org
-Subject: Should verify_shell() be in a library?
-Message-ID: <ajBWRXiVfNj3T_Dl@AA-94-54-42-0F-E2>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AILVWAv0"
+Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-36b95eb4bb4so2412321a91.3
+        for <selinux@vger.kernel.org>; Mon, 15 Jun 2026 13:09:03 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781554143; cv=none;
+        d=google.com; s=arc-20240605;
+        b=YC2kuEt71KaBIxGTj61oSgz4XJNGs0zD1OrQvLlNEvOmXXTQu8yDrU4hoIIQqnnDK3
+         YEpVq7YBqGcj/it1qD3ToMHuhMdh9D/Cn2VjybNkIRKaakg16OmD+m77kwL8npXfpRHz
+         de0oN0Qa9QWmyUCRPXoJB5mVW7sOyBcj1mN2qp7gPTVRrvg2ESNqKVi9R6MmZo7BiaGN
+         fwudSOvoUSw8m6DlIcXNzV6y+OiABStC7WZ5kTmLEuzdEBqq08KX3nDhsQYfl4AMTrBP
+         9MftSTGYxdaKb/Bgw6Efai8eF4yE/AVVmbu9vMRERaj4glNOWjHnSSbW3bk+ojFWFMds
+         FhcA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=AAy1uMkVTzQd9xqCiK78JZCMgO1+9BIBfeH9PEwSODo=;
+        fh=RcJrr7O3svp8K5gZfgCjK7Xv0tA8i0VIpUekoWsmIc8=;
+        b=gtihSOrlNIASWVou4gcBApCnsiedIFMfiFnNCp8Vwkiq3yUSIOFTgqTAzShNFLCs61
+         SWgcofadlBAGwouAinsQ9f2wfoRxNJicWI4pcD8IkOa7FAae36FTmZrO9ROVg1m228JB
+         Gk+wZLTMm7RNd+psoJ9Ql271rB7uNHCV7W4FNbOrpMTDUPXnFoi0xpijrCuXS/nVtl8W
+         TC1oF2jG0q3Ume0UfeLVji/Gj6+gEF1nXFFKCwCgAwG4dS4nZTtlDGHyaxxfr+qPP5/G
+         KRXKz25DBCXQm4eVogHFpLLY8sYjTTbvMBw8JDbhE2uMsbZt5IzevJIW1nHK+3Cnr6Gm
+         RCRA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781554143; x=1782158943; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=AAy1uMkVTzQd9xqCiK78JZCMgO1+9BIBfeH9PEwSODo=;
+        b=AILVWAv0xQw1NCG5DN1v2ekfVoC8st3uw1mV2hdawzQDsUrgX6rLoxtW9UeveUWhm0
+         70cjclNBXFFkphk1Fs14ovV0836kfpXk5p2Ei4ok1ITtvZOUb+6/iTw55hVm732E3GkV
+         gBg9tIyV3BudmJ8/dSmbi2HL96hBH5XXU+zoRA/7rU+A3dx1YMTzt4ntFxz6uyJ65rfq
+         3cwuiLsaJ3KOXith5w/ImEIXQnHtOuaXWGkNLnglS6mwfh4n/Tvx8X6y9hMLdVFkD22w
+         93A7i/rqI3FHHyBn1YRl1QlVvOzFqgA98dlmHOR1KdFBAz/Y/HCXF3ejLTl3NwKpSB3a
+         I+0A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781554143; x=1782158943;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=AAy1uMkVTzQd9xqCiK78JZCMgO1+9BIBfeH9PEwSODo=;
+        b=g4T2nqh1tT3ZSV2ssflINIFtPG3Euu2L741zochSArgIY3CeEbNSWPyLW2+HqBOjwx
+         US/E8QWwdNyhQ4M8JNSeUnYMuQzJG058BHzcFExsnM3o9TsSWt984FgrQBgK3J0c3E5Z
+         J4bZtnyZSftShDm0WiDdCtdhWJnMAVBmhv4/YwOqD84X5VM4xz6OF+FyRe4EmR8HRXtF
+         uvFnEP0eJ/DcjYZSUj2bpZppdpzwY81dTbTy+Y4oX5bhnEMy6XbGV6w9RjcO+RkEXc/G
+         q3Czk8X0GM9vo9yt+70c8qDyFo91saD9QNE4dvTPSIp2pr54Bn9yvf0z8W/nzIZY486C
+         BuTA==
+X-Gm-Message-State: AOJu0YzN5E6zpq2CErJkuJ4UbRigM2pYv61lvKWBcHmp+CIqbwHbRjyV
+	DkPFFUSw5hPHqBNFAKdzI5eJn+hDyoBEHolYJ+LpVnPq9+YbRM9r6g5kCT7yA6any6m1rPjAwyc
+	SHH2Mjb5NKF9C5FJsVEwMNjeWM0U7yev06A==
+X-Gm-Gg: Acq92OFHc7mr76MgQrrMXj/usReQhgkb48VOWkho3v4o5MhjeipBCsRmRqqnlP3YJkR
+	tfqxAdyJ+sIntZ3r8vFq3WOlkkltT0pBuwEP/Dwp8nloNSEhePIx0deca8bQFQuCwCWF98DalgA
+	dDeqPq2GMCZy+fVqpPUHiZdDcq3sibpB+OykCtdmzscVIobSPeN0BOzh8AyS0jMTBpqc94jO4Eb
+	BDfIn1+udvXzEzS8najG3rx/u7lqMdkfLTClnQgHCVTNky5UJNvaH+4r+xiTEWK1uRvDogwTsox
+	fCJrHDpuW9iPCuNq7w==
+X-Received: by 2002:a17:903:38c4:b0:2c0:c0fa:1659 with SMTP id
+ d9443c01a7336-2c69a1be61cmr6777155ad.33.1781554142566; Mon, 15 Jun 2026
+ 13:09:02 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - cloud35.hostingpalvelu.fi
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - kolttonen.fi
-X-Get-Message-Sender-Via: cloud35.hostingpalvelu.fi: authenticated_id: kalevi@kolttonen.fi
-X-Authenticated-Sender: cloud35.hostingpalvelu.fi: kalevi@kolttonen.fi
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+References: <ajBWRXiVfNj3T_Dl@AA-94-54-42-0F-E2>
+In-Reply-To: <ajBWRXiVfNj3T_Dl@AA-94-54-42-0F-E2>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 15 Jun 2026 16:08:51 -0400
+X-Gm-Features: AVVi8Cc03OCCJ1dalL889p9LxG1Y65IoQ-7PFSWi3dJ_rrQab_gYG6DIHpsuPFI
+Message-ID: <CAEjxPJ5yNn4qM70xb6csRENrLBEk=y+hHamGe6zc5ZXv1cdmsQ@mail.gmail.com>
+Subject: Re: Should verify_shell() be in a library?
+To: Kalevi Kolttonen <kalevi@kolttonen.fi>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hello!
+On Mon, Jun 15, 2026 at 3:48=E2=80=AFPM Kalevi Kolttonen <kalevi@kolttonen.=
+fi> wrote:
+>
+> Hello!
+>
+> While going through SELinux userspace sources, I found out
+> that verify_shell() is defined as a static function for
+> both newrole and seunshare. To avoid code duplication, should
+> this function be in a library instead?
+>
+> Maybe in:
+>
+>   libselinux/src/selinux_internal.c
+>   libselinux/src/selinux_internal.h
 
-While going through SELinux userspace sources, I found out
-that verify_shell() is defined as a static function for
-both newrole and seunshare. To avoid code duplication, should
-this function be in a library instead?
-
-Maybe in:
-
-  libselinux/src/selinux_internal.c
-  libselinux/src/selinux_internal.h
-
-br,
-KK
+It would have to be exported by the shared library (i.e. added to
+libselinux.map, not merely an internal symbol) in order to be usable
+by those programs.
+Since it isn't providing anything SELinux-specific, it doesn't belong
+in libselinux.
+It's simple enough that the duplication isn't significant.
