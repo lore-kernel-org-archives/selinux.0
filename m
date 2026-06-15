@@ -1,123 +1,150 @@
-Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47E2C3F99F2
-	for <selinux@vger.kernel.org>; Mon, 15 Jun 2026 16:20:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.178
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781540435; cv=none; b=ZKfaZBOvn/65d/sVLsbNbDyNOR7zy2Y1mXutQI3Ixn8VjpohGQ2Lm1NeNHgnCMPpjixZaWGF+QCmw8Y5aLegO9LJJZuk0rAfzCTc9TEs7AntAsGiGjd031V1kVJkm8phEt5QXMVkiLhvhvSX6Ur2qGDjUqXsDUJ2REbdPPWtlWg=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781540435; c=relaxed/simple;
-	bh=exzSIfHOTxnAFWrsIxDasFLVx4hnRWk/CtqviYBjmPk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gYhtWOZwGJG488mPktaeOZVJHgwWeJDyG+ohF5pBLyPpRp85heygpRWl91JuTeUbnOY8RdHqKOEtVKRT2mCk9m1ZL1FVN8T5O1PvBvWhFSLzGOb42ocNtYiYAuP21jFFEsTOD7H7odbtBfMkm5K1VDm3lvC4bK5XvFEMPc+Zqcg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NOjoXF9H; arc=none smtp.client-ip=209.85.222.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D78E440B390
+	for <selinux@vger.kernel.org>; Mon, 15 Jun 2026 16:23:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.44
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781540602; cv=pass; b=VD9uSP9RBz4TA6jLDCCbrHL/QGS6eGv0LtOUx95XpOwjqzulT/n2gH7iUEQnFZUBUxAtSfEl34LK2zxpLD6pMjX+Gw0i6JV08rmBIlbhF1bOJ32iJHlDgUjiJTKIQct4/Gzvy9JyknKvXuiJxz+YmTILEyggudpskO9gF1B6nqI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781540602; c=relaxed/simple;
+	bh=wfZapu8wUHkB1RXZXx8PX21cIKNcngFQpLeo+hZQJZg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Ekb8Bxvso/jVFKescr5fre3Gclpf7An88mQJCAlgwP7xOoSv2UUZhftJqahOFgwXZEc8iyzZTKNENuMBvEGaGNO0WmfWAQMydow7xUlNV3yWAxF5/53lZg8ObNEG5sqDIVkRi2JBSu+UJRe63cmfZztl9z9SaIutLxykFDwtSLc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=o+IPax4d; arc=pass smtp.client-ip=209.85.216.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NOjoXF9H"
-Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-91587626ae1so408664285a.3
-        for <selinux@vger.kernel.org>; Mon, 15 Jun 2026 09:20:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="o+IPax4d"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-36bdda53d99so1352431a91.0
+        for <selinux@vger.kernel.org>; Mon, 15 Jun 2026 09:23:20 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781540600; cv=none;
+        d=google.com; s=arc-20240605;
+        b=ZMqHDMWNQpPJIiHQVI5ApyMSy6kZtoNsAuaw4oqXqEEumqLtePS0Ub3QL2lciXOYgv
+         wtfxOG41F8ylVZqEn4poPc8j0TWvb0CJBm5VUPa0FTl3lhII1bicr0gDTrg4htpM+zbX
+         xMmIEBNDeuWqAkXG8z0Z32fZzpwOkNLGmWIwNkcB+hvHaSd+It36oVzqmQUuNRM4wt4q
+         VsgvQHcajGZJlBw6+LcBtZ9IWBLYkCXO3zxtOswqqb1DsueA00Hg7Ty4QRGpuS3HfseQ
+         UzEynHlrtHRma50B0A3kOAjN1IOhrE59tBLejMURDObgOJ3lp0/ttMXsCQVySbvBCTpX
+         wz4Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=ZGU5XKtNy/0xgaSqKXiFbH3gu4jP92xzjq61U1xWB8s=;
+        fh=RcJrr7O3svp8K5gZfgCjK7Xv0tA8i0VIpUekoWsmIc8=;
+        b=H2N2ObO8lb4ZVQrjG9q6zcKBjqXwMwRqu5y+9LelgbQKThg6gIsm4MbcbYv7qOt0Ho
+         ylKtYLXPL21PUVb3oq/ZTPDlxeRXtq8AbGU7C28tAvMTk3wPTj/DIseXDLJLbtIFp9iW
+         0gCWV1zswDLFY0W4fzKUxkqZdKSzYl4VthqvPFW8cinl7G2bKcx9PT/1DH5XrvTgRdUJ
+         rkAXdyEHSYUk7wpXdv5mo+A/CyHF2EUsIhq5GUyN7KmGCyhRG9h/iRRCwGlNB3YCLVKT
+         xGuLbM1vphH3MgHeJLTxn/DOgf0KqvlJYylhpkU8mNgiXNNIArdD08KsQRIITM5L2dlZ
+         FPFA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781540433; x=1782145233; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=aXZiaUXlF/MrpT3R3p0/vToJ221HxeZKi1Oxqxg3sVE=;
-        b=NOjoXF9HMFrUOnmIVTvwLlblxlXD8R5UQQ6KOA4oA8ABL6u76MKS5U2LhQ93oDNES/
-         DT+V0B6qBjEVNE6ILjvlkGaszDfg6O5pvX7LKlxw0It1T5DYpOv+bWNhXY0jrI5qI2qE
-         5Ize4TtOBnbtQflFvcMVSa0BUGJgUS2j1io+f3HLXVsQkBh3H058qlfOqZGOC6HQtez9
-         tG47HoNHM8FuMWz63YAmVa/MwpLZs7x0kDU6Tp5TK4qQxjvHrADDEWvYo6TQ02/FrZ3m
-         YLEOiuaR4G6E51Vrm5+YLsvChoVg+igz/lftY9uhRd9uJ/id/H/t057bhgZ0cEZHAjvI
-         U7gQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781540433; x=1782145233;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1781540600; x=1782145400; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=aXZiaUXlF/MrpT3R3p0/vToJ221HxeZKi1Oxqxg3sVE=;
-        b=JfozbYVqP9Nq6AieKu7UM4jKsglYCpchiefc9kZjk0ovFU+GRQpbM8YsLTb/2BjIbW
-         Jh42MntA3c56cyDW2hbrQ7N+aFAihUlyBqCwAqaVPrG5YjKB4aCLfJvsdSvhlw/qIauu
-         t5kI3srYUTNEaRHMPfSZCCVXjvIJ4Z9qIq3B4SmnxKupaUbrGiSIlHWco/cQrXzzYSus
-         C22KVnkj9/tz/YuXlf6PSPI+vz1VRsWdj7sA4I8qQ7+N+h+kTu8KLOhcR/3t9luC3xzH
-         JU+LNhSw6I3PyVaN01R8VFBJyBwx36tFJ2zKxMusDkE+QKBwEgJ8JNmmJ5ItC761gIQ/
-         aX0Q==
-X-Gm-Message-State: AOJu0YxNNMfVVVxqUsVg2p7U6C7p8FKnNu74r5V30htxuUxwX7I1rRQE
-	oJ08Jnr6p0CZyCNEgnhart2Ns4Ti2LmnWlobs+phwUfCYrVMGeYbLa6t/yRfwA==
-X-Gm-Gg: Acq92OHBmKBrugcRh9TKKYkkgLi/utUEc7Wd4akfdRE2dpAG1coPslE800xA1zW9UOg
-	o/QkF44I86b+62FXo/Kh2Oz6/Ck1zCUFiwEQ9FdL414GHMlSVkaZ9ISb3MQNWEFAa7SemHsHZTW
-	6lnuqzqctxdwR9CyLpMu4doaGk+Uqt21ILwRZI+D3VxlMzyNrBgfp/xPMbsQGm3iHagsjQZf0fg
-	BWNy5gfiS0kH3D7Nu6v8c8m7oHoDXNPqyvQKzrcHBXdpiFtc+2o5Ndn27HhAm6wFqXF5XhVUuO+
-	nwrZJiqDbKCmQSLppccvhRM5JYcu4OLcjztX+NrT/RXPZGqgvhgxrHTdc0uOedusACjx8HbAX75
-	pFrGFxaObgvuTBWo7dzLes8/jbCGeUViXtGLwdT5T68eHVGpY+AwVkutw9laPktgb+NHszDUszx
-	+uxO4c9phFnuT2EMPE5wYzboZs+Azp69yLhpSkwh6lBRaUZaeQ91GSJ1jRFYQGRG9hovDCwHIHW
-	iRPSoyd1DS7UdXT9yfZRA1dajc=
-X-Received: by 2002:a05:622a:8d16:b0:517:7b6c:4459 with SMTP id d75a77b69052e-517fe56fd35mr205453031cf.24.1781540433033;
-        Mon, 15 Jun 2026 09:20:33 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-517fb7a3c4asm112484421cf.14.2026.06.15.09.20.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Jun 2026 09:20:32 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	plautrba@redhat.com,
-	omosnace@redhat.com,
-	netliomax25-code <netliomax25@gmail.com>
-Subject: [PATCH] libsepol: fix out-of-bounds typealias_lists access in module_to_cil
-Date: Mon, 15 Jun 2026 12:20:18 -0400
-Message-ID: <20260615162018.44076-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.54.0
+        bh=ZGU5XKtNy/0xgaSqKXiFbH3gu4jP92xzjq61U1xWB8s=;
+        b=o+IPax4dtpT1whMfYTX+l79cfBaQV2hN9eVs//upWmXgtynx6BAVJWn3lyE9EA5K7q
+         +0PwxhtyCVm2P7sjd++MRmU6NIem5k2VnA9aWU8m6y4W3UlSbHCC+lO4dLAeeOzCGaC+
+         ukfV3ad3hAYt9sjvR4Pxujw7ut3MyzF+SyiSy+Y/nIKmhGzA7t6xjt5gby7ZWEe8bvVK
+         jMIv4BwSDy7yeRrs48tOvmwdnySeIu928wMnBKIfnp4H4uOV9FFjz1B+nhk8Fm1S9Ej4
+         e4SxXq4+Mr4NpLlm18nu0ejGSflag+/pwMgnLKDE5kVI4tcXaNmAk6rHA+Y8hcl71qbE
+         0mbg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781540600; x=1782145400;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=ZGU5XKtNy/0xgaSqKXiFbH3gu4jP92xzjq61U1xWB8s=;
+        b=CYbebN9xmc0akj+gmmwDjG+Zfwi9v85OkjIWBl2kBaKB9dgdoYxwYt+F/uO/+6gePX
+         umkqQrxRCwtZycOhSx4QIgRxyxfmhV9YkdjG3IsrYpu2L9jsgiSfbWpu2Gb+EzjExPVv
+         nXqpG1GPYQ8CXJZvAsTiCpG53H4cwwWf6tXX48kbHDL3O+P+Gqy6YsgSmaUwrh73ckkN
+         IC5Fv+OPIH91YfSOKfBc5bel5Db3+odOI6ZL3wKxmvVxv4QGI0U/WUPW6/qXMEi2af91
+         N3SV4drDtRXscpUyLD1FezhDxu+Zr1fz4TeHh22mczGRK8llyNK/q82UBGTgmnRLo8oL
+         CvLA==
+X-Gm-Message-State: AOJu0YyUpNwzo2JMcWwXCWUys1/wr+HGwO290sNCPPi1EF1ALbPPRdoS
+	2Qilz/iQjkO/FN+gk3zDBnUTDiAKRaNF+vgIhfOH0+EFIGYVO3F/Sj3sWZ2kSOF1s+bWW5GcaMg
+	q2iD4VQw73VuAlsYN8KaE04NUZzxGhVk=
+X-Gm-Gg: Acq92OFq/86JQJipSSA4YCBwUkzo9AfuOgh8ctzs+Eap3b8ZeTJblVi2pNDUnU/pmog
+	+7ta3ksNs8sk1JYLwleiAvJDagYcd0JeNjG/DLyJtT7ry0EL9/73xg2D5RvAFrh7EnXE3wI46Lk
+	AyEp2GxpbFyojlXc79ubojwMO+Q8iTP0J0begplxSE8/IT2Zgy91muXPDCeGSXvUE/90oJUq+2B
+	xSj0FYxCSo6Ex1KXyeODG4ZH1pOCr9OQ91MQ82rSf0RSET5OlXWr2QM3FucAuoEUcBcjfHE7aER
+	R4rFRsE=
+X-Received: by 2002:a17:902:f608:b0:2c6:9358:3ad5 with SMTP id
+ d9443c01a7336-2c693583c21mr30923725ad.17.1781540600160; Mon, 15 Jun 2026
+ 09:23:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260614174806.35097-1-kalevi@kolttonen.fi>
+In-Reply-To: <20260614174806.35097-1-kalevi@kolttonen.fi>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 15 Jun 2026 12:23:09 -0400
+X-Gm-Features: AVVi8Cf0OCLqMlhUi9mt_iS82pugsZZP5Nh9wmU3VqRYIWkMc4BRxrRUTz5jw8Y
+Message-ID: <CAEjxPJ52199+eCagrysp7HBj7jiCTMVA357vOGy_fbys6+5kWQ@mail.gmail.com>
+Subject: Re: [PATCH] mcstrans: use null character in strings
+To: Kalevi Kolttonen <kalevi@kolttonen.fi>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: netliomax25-code <netliomax25@gmail.com>
+On Sun, Jun 14, 2026 at 1:48=E2=80=AFPM Kalevi Kolttonen <kalevi@kolttonen.=
+fi> wrote:
+>
+> Signed-off-by: Kalevi Kolttonen <kalevi@kolttonen.fi>
 
-typealias_list_create() sizes typealias_lists from max_decl_id, but
-the loop only looks at block->branch_list (the first decl of each
-block), so the decl ids of else branches in optional blocks are never
-counted.
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-typealiases_gather_map() then indexes typealias_lists with
-scope->decl_ids[len - 1]; for a type alias declared inside an
-optional's else branch that id is one of the uncounted ones, so both
-the read at typealias_lists[scope_id] and the list_init write run past
-the end of the array. Walking the full branch_list when computing
-max_decl_id sizes the array for every declaration id.
-
-Reproduced by converting a base module that declares a typealias in an
-optional else branch through sepol_module_package_to_cil(); placing
-the array end on a guard page makes the access fault, and the fault is
-gone after the change.
-
-Fixes: https://github.com/SELinuxProject/selinux/pull/526
-Signed-off-by: Kartik Kenchi <netliomax25@gmail.com>
----
- libsepol/src/module_to_cil.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
-
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index 9e61754f..f3dd8f1e 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -377,9 +377,11 @@ static int typealias_list_create(struct policydb *pdb)
- 	uint32_t rc = -1;
- 
- 	for (block = pdb->global; block != NULL; block = block->next) {
--		decl = block->branch_list;
--		if (decl != NULL && decl->decl_id > max_decl_id) {
--			max_decl_id = decl->decl_id;
-+		for (decl = block->branch_list; decl != NULL;
-+		     decl = decl->next) {
-+			if (decl->decl_id > max_decl_id) {
-+				max_decl_id = decl->decl_id;
-+			}
- 		}
- 	}
- 
--- 
-2.54.0
-
+> ---
+>  mcstrans/src/mls_level.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
+>
+> diff --git a/mcstrans/src/mls_level.c b/mcstrans/src/mls_level.c
+> index fedceba5..7235fdb5 100644
+> --- a/mcstrans/src/mls_level.c
+> +++ b/mcstrans/src/mls_level.c
+> @@ -22,8 +22,8 @@ mls_level_t *mls_level_from_string(char *mls_context)
+>                 p++;
+>
+>         delim =3D *p;
+> -       if (delim !=3D 0)
+> -               *p++ =3D 0;
+> +       if (delim !=3D '\0')
+> +               *p++ =3D '\0';
+>
+>         if (*scontextp !=3D 's')
+>                 goto err;
+> @@ -36,13 +36,13 @@ mls_level_t *mls_level_from_string(char *mls_context)
+>                         while (*p && *p !=3D ',' && *p !=3D '-')
+>                                 p++;
+>                         delim =3D *p;
+> -                       if (delim !=3D 0)
+> -                               *p++ =3D 0;
+> +                       if (delim !=3D '\0')
+> +                               *p++ =3D '\0';
+>
+>                         /* Separate into level if exists */
+>                         if ((lptr =3D strchr(scontextp, '.')) !=3D NULL) =
+{
+>                                 /* Remove '.' */
+> -                               *lptr++ =3D 0;
+> +                               *lptr++ =3D '\0';
+>                         }
+>
+>                         if (*scontextp !=3D 'c')
+> @@ -170,6 +170,6 @@ char *mls_level_to_string(mls_level_t *l)
+>                 p +=3D sprintf(p, "c%d", i - 1);
+>         }
+>
+> -       *(result + len) =3D 0;
+> +       *(result + len) =3D '\0';
+>         return result;
+>  }
+> --
+> 2.54.0
+>
+>
