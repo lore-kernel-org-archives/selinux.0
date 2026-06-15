@@ -1,129 +1,183 @@
-Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1FD130C62D
-	for <selinux@vger.kernel.org>; Sun, 14 Jun 2026 20:25:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.49
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781468733; cv=pass; b=bLabgBcDrj/3Fsr9t323aS61KE0oOjYbwgOu7wsfg9iuHfHiKShWBQM6SvmzaThXzI6h15k+T2EzhLsm4MpjdEQ8106Qhmn1KBN6cVfgmOlukb3M64rb/KQzWt1cK37g9zGPR8as45X/poiYPzZDv1PaXjGktiB5TGq0bZPJfGs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781468733; c=relaxed/simple;
-	bh=bOKxDPKuaCxZCEB4psu/WuUy/sKwaJ1/swXJRxsOzFw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HqH19kedxhZO7WXJgQNiKsQxAwcvfc4YH4ifDCsSbGS7klB1eHRRxlwcDvav4lzd9WHg3ws8HFr+Cx3tKAOIE8udnjGEBHO9+QXKhtdncTD6fNEuK8wfuhQtR6f9MzOs/TJVIsoJ2cKnT7JBzJ4oRS3gcbdh/kuEe9fq/vhSIhA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=SVPD0tJe; arc=pass smtp.client-ip=209.85.216.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5ABBA37DEAF
+	for <selinux@vger.kernel.org>; Mon, 15 Jun 2026 08:58:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781513887; cv=none; b=LC5lL31RXHHAnjiZxFQKVBHshpighND4rkyxyWNI+0cYUnhG8bD93PVsHVv/pfOfP0nVfhzuJd6iPdsBnV11pTgVzNvwgyjO73OSxNi9l3teWDzEbQJNBE65dLCJAd8yVt+lnWWibDtW/XEBXgzZBnQPD8WqrRJyhbGk/hWXpJ8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781513887; c=relaxed/simple;
+	bh=gxXaJGIOES+Z/Ja3IDtnaCftAr+lr/in+bFtErzGTZs=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=q9gb7BckS1BHiAGDm+y2+EJwYm0bXVjF/HOfTFohLtS73P1PXV4vqVw8LqjDD62OiWedbzyo88xN9Tmk5uuPLmCifaa2d2XponytASKyT6WGzchBCP2ArqX4Y2tz6PZtzb6tat0lGmghEcQpUTFSSNK27qUfVMXZrBbs6jv0fBQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KkYDt04u; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="SVPD0tJe"
-Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-36d98b68d68so1669802a91.2
-        for <selinux@vger.kernel.org>; Sun, 14 Jun 2026 13:25:31 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781468731; cv=none;
-        d=google.com; s=arc-20240605;
-        b=GJDZUrxaI1vzET22WB2mO2nlxKD0r/6NssUPJgIV5cZc9+PymkDWnubfZlxis7DYdL
-         EyhZU6q+q9Fs2PDv5v4tQQ03pNcsZVASx8AObTy4Wr3D5yw2YTwR7hWsPKyGCENwOGk+
-         ok3vq7NT18TssEGVYklrA3ZJO4z0lDOyW9Tb+yWEvDjAv1ZuPVtUHD0EYu7Zo7iJrRvh
-         s1GcR3aMx20TRQH/U0kP18M7J9L0qnHISuVk0XgclSRhCM3rwZReyuzLh6fF7T7DdzWx
-         hm2AgweYWmFhsxEXyecvytUjWkKmQ6AJvpRa7Sf8dfbI9VNAX0uP5MCEKl32w/h2FY32
-         2MXQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=6175+bhRhWWA9QTYt0jgA82Mq/7abv3w42zWcC6M6b4=;
-        fh=xXinDKdGn9a6c1rimV+S4jIE+s7QV4YkzpdMpXjeHgI=;
-        b=e9aBGEGVnAFeY/1zYWasm6k/Aq+EKSr7GrITe8S75ffhID+ZrBQPEsomb1vd9GLnyX
-         JDAt0a3mO7uDcejua6IrhG2Rz6uOZM4xCu2JJI0Cy6MSqovWMx3tOYfayq/Y1rWJOXnM
-         ury33tvx1kta2lcDFXbyAcJafSggpfMGwMzu8ArmVLEWCMTIYae6UUbNjfFz7hzV1UB+
-         UfHietBsScN71wmfnGaaVMHahRl8jESHbXdZUBIAFjapMhNHx3Lxsh7TIcdZ5hOfBJj8
-         4sWex2WqFcVP5u5y22m5Ri0AHSu3SnGgpg4HLypuAYugRjqAwMANSxoSufInGqVzWrsa
-         iZ2Q==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1781468731; x=1782073531; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=6175+bhRhWWA9QTYt0jgA82Mq/7abv3w42zWcC6M6b4=;
-        b=SVPD0tJeGfv58tUC40z0BCArMc8XceZ+5AIcLvaPZCQFfjKGhKpSGj+CDBr5Bpu3x4
-         LjZrxg5DEqG3Vab+PW2Ti5gIC7/fW0QABub8YzXVMrECUZlbq6FK57HEOo9X7jXKSSto
-         FRz4ZabLEN5CXO8Ac4TNQjn4LiwI6k2k/j4bsfy/b2LEPJz5HTtb/1JZ0l4Tzu6P2hKL
-         Dct2XiAsyOSeDjt5dcuqVq1NOrkkSHIoM/aLrdl/jyo2nf0zt1LYHDMVuBFNMqEAdJ2k
-         x0nq7+DFgrTZZAvY9C63M8+ZraMnxJcI3GbUjj7ACSZfwoxCNGP+m8R2s3m01T1F/IUt
-         pLmA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781468731; x=1782073531;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=6175+bhRhWWA9QTYt0jgA82Mq/7abv3w42zWcC6M6b4=;
-        b=C9M0CKA+XpGoJqMZ8IV9oJgkW1nXdqmP7a1wD/hJzQQmiSpq/s0Ru25ZEB6xSL9KCf
-         A2UBMY5sj8vW/pm4Hy4/TvIB5jJENNNBJYe9HDN5VyjhdlojtDOOI4vBbtLLdzZ6GDKh
-         EO6X3RIjxMj8nxOWprzzTE2FW+xt0Zho36cHPDnoxFQugfTTxna15ZZvmN9TXOMfGOHG
-         SMWDjpqb5Rp4NYVruic9t1YTNMBsFOpS/oIOaa2vgfd33oiSl1k4AdkHq54c2/+JwuuM
-         DTYpzWIaqV5wTq7BdIxaR2IYwn5crcbvMinB5JpnCuFkEfR21O5wYtiMCIVF1ukRQb4y
-         xrqg==
-X-Forwarded-Encrypted: i=1; AFNElJ+5PNpI76VykUmy4QedafRKtOboJdJRH1l9DCeqn4FrrtLfRsRQwfn5BxgVOg/mVZUQ1NKwS+f2@vger.kernel.org
-X-Gm-Message-State: AOJu0YwvZS7NPevD1yRzI4mFbj2f++hGKDNJwpr/IlFyumii9fFPzU+7
-	Iy2dYjnv4gK5TFLdVAuKb65MxUcwq6TWsTpPrrYORPqOTjD/gh5P5G5BJvfiU7fNU5MgPzUWHaz
-	4S708MV1SWCrfcFh4B+h/TbC/FAlZf4pk26GA/GIu
-X-Gm-Gg: Acq92OHMk0ZTeI7GOuzLeuTnExYXg+8ofRPYUmfZLoNUAj8emrVepUuZC53A8Kl/AH5
-	T8DvpA9NlK79E+ownuYbt/jL7evVXMLKjaC64Ja4DDRIzeC+8XkRpJ6mwV4vmFMKtqXH9WXjvie
-	nOgeTcqv/ACixRWwrXxcOoOZoap3StUz8yBIjIST+Rd4iCtJjU+4P5UUbCVcCb+bct+ULltTcoG
-	0elm+DSLDY7xJPjI8FfDebnSxODm1nAA8gVU1EI/1IvKzG1i30fyef+UbLL2EZAFjqOALGHS3rN
-	DBnPWqc=
-X-Received: by 2002:a17:90b:53cb:b0:369:7421:75cf with SMTP id
- 98e67ed59e1d1-37c2bce7aedmr7047109a91.16.1781468731181; Sun, 14 Jun 2026
- 13:25:31 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KkYDt04u"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1781513885;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=sZqU/RLTcD7vTY/DMwTGERU8Z0JX8uq5+twtvVVGIKg=;
+	b=KkYDt04uuYbYpRJHez1RO7iAO3rSGSoIrKfmsL6RO/+muiCdkWb0FCkPaCwOamFVZ8GeXX
+	KViPdpp2U3uJy8G2C+QCrGlxOn8x+C9vQtpi/vdnkj6+dA2GuNFKWJc8WGFG2uLlMZmxHN
+	whkdUumkblGhV7zpt+XDw5wX0w6KKFQ=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-307-CiI1NX0UNKe4U_yEMPLXEA-1; Mon,
+ 15 Jun 2026 04:58:03 -0400
+X-MC-Unique: CiI1NX0UNKe4U_yEMPLXEA-1
+X-Mimecast-MFC-AGG-ID: CiI1NX0UNKe4U_yEMPLXEA_1781513882
+Received: from mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.95])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 25CD61955F3E;
+	Mon, 15 Jun 2026 08:58:02 +0000 (UTC)
+Received: from localhost (unknown [10.44.32.87])
+	by mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 6C2171766;
+	Mon, 15 Jun 2026 08:58:01 +0000 (UTC)
+From: Petr Lautrbach <plautrba@redhat.com>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>, Christian
+ =?utf-8?Q?G=C3=B6ttsche?=
+ <cgzones@googlemail.com>
+Cc: selinux@vger.kernel.org, jwcart2@gmail.com, omosnace@redhat.com, Pepper
+ Gray <hello@peppergray.xyz>
+Subject: Re: [PATCH] libselinux: add --undefined-version to LD_SONAME_FLAGS
+In-Reply-To: <CAEjxPJ4hhWE_9wAywrdPT4UdUJt9cgo6=ckH6_4=2gnxuET6UA@mail.gmail.com>
+References: <20260611130351.15988-1-stephen.smalley.work@gmail.com>
+ <CAJ2a_DfUb2dWUMO-1Kr9_8j5swjeOHwwp0n7brfQR3-5vg=HmQ@mail.gmail.com>
+ <CAEjxPJ4hhWE_9wAywrdPT4UdUJt9cgo6=ckH6_4=2gnxuET6UA@mail.gmail.com>
+Date: Mon, 15 Jun 2026 10:58:00 +0200
+Message-ID: <875x3kmb8n.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260513180506.760657-1-stephen.smalley.work@gmail.com>
- <b99c011e6d988fb98ad017265115b323@paul-moore.com> <1c87912e-7d7c-49a9-b964-3568e63e74a0@canonical.com>
-In-Reply-To: <1c87912e-7d7c-49a9-b964-3568e63e74a0@canonical.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Sun, 14 Jun 2026 16:25:18 -0400
-X-Gm-Features: AVVi8CeHUOSJ_1WPAZ_Ef02Y1P18TzRtWRSe47IYgVhmXKXgZJVaIOmP9BY_9dY
-Message-ID: <CAHC9VhRvGUQKiJUNCY6oYY2PuWqQeuV8xdczoAqXyRw9NAtdSQ@mail.gmail.com>
-Subject: Re: [PATCH] lsm: hold cred_guard_mutex for lsm_set_self_attr()
-To: John Johansen <john.johansen@canonical.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org, 
-	omosnace@redhat.com, casey@schaufler-ca.com, serge@hallyn.com, 
-	linux-security-module@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 3.6 on 10.30.177.95
 
-On Sat, Jun 13, 2026 at 7:29=E2=80=AFPM John Johansen
-<john.johansen@canonical.com> wrote:
-> On 5/14/26 13:47, Paul Moore wrote:
-> > On May 13, 2026 Stephen Smalley <stephen.smalley.work@gmail.com> wrote:
-> >>
-> >> Just as proc_pid_attr_write() already does before calling the LSM
-> >> hook. This only matters for SELinux and AppArmor which check
-> >> whether the process is being ptraced and if so, whether to
-> >> allow the transition.
-> >>
-> >> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> >> Acked-by: Casey Schaufler <casey@schaufler-ca.com>
-> >> ---
-> >>   security/lsm_syscalls.c | 9 ++++++++-
-> >>   1 file changed, 8 insertions(+), 1 deletion(-)
-> >
-> > Thanks Stephen.  I'm going to merge this into lsm/stable-7.1 now, but
-> > hold on to it until next week before sending it to Linus.  While I
-> > can't see why John would have any objections to this, the extra time
-> > should give him a chance to respond.
-> >
-> you would think?
-> well finally getting this far back the backlog (sorry)
+Stephen Smalley <stephen.smalley.work@gmail.com> writes:
+
+> On Thu, Jun 11, 2026 at 2:50=E2=80=AFPM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+>>
+>> On Thu, 11 Jun 2026 at 15:10, Stephen Smalley
+>> <stephen.smalley.work@gmail.com> wrote:
+>> >
+>> > commit 9395cc03226a0 ("Always build for LFS mode on 32-bit archs.")
+>> > introduced a matchpathcon_filespec_add64 symbol for certain 32-bit
+>> > configurations but added it to libselinux.map. This was benign under
+>> > GNU ld but breaks lld due to differing defaults for
+>> > --no-undefined-version. Add --undefined-version to LD_SONAME_FLAGS to
+>> > avoid breakage when building with lld.
+>> >
+>> > Fix: #512
+>> > Fix: #513
+>> > Fixes: 9395cc03226a0 ("Always build for LFS mode on 32-bit archs.")
+>> > Reported-by: Pepper Gray <hello@peppergray.xyz>
+>> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+>>
+>> Personally I liked the fallback wrapper definition of
+>> matchpathcon_filespec_add64() more...
 >
-> no objections
+> I don't strongly care either way. See
+> https://github.com/SELinuxProject/selinux/pull/513#issuecomment-4674610134
+> and https://github.com/SELinuxProject/selinux/pull/513#issuecomment-46746=
+59036
+> for the argument made against
+> adding the wrapper definition.
 
-A review is almost always better late than never ;)  Thanks for taking a lo=
-ok.
 
---=20
-paul-moore.com
+Could we use libselinux.map.in and generate libselinux.map build time?
+
+Add matchpathcon_filespec_add64@LIBSELINUX_3.8 symbol when bits are lower t=
+han
+64, add  matchpathcon_filespec_add@LIBSELINUX_3.8 when bits are 64
+
+
+Something like the patch bellow. Would it be too complicated?
+
+1. convert .map to map.in
+$ sed 's/matchpathcon_filespec_add64/@matchpathcon_filespec_add64@/' libsel=
+inux/src/libselinux.map > libselinux/src/libselinux.map.in
+
+2.
+
+diff --git a/libselinux/Makefile b/libselinux/Makefile
+index aeede2b56e8e..f397967657bf 100644
+--- a/libselinux/Makefile
++++ b/libselinux/Makefile
+@@ -39,6 +39,8 @@ ifeq ($(USE_LFS),y)
+ 	LFS_CFLAGS :=3D -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=3D64
+ endif
+ export LFS_CFLAGS
++LONG_BIT :=3D $(shell getconf LONG_BIT)
++export LONG_BIT
+=20
+ OS :=3D $(shell uname)
+ export OS
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index 9982faada9ef..5cb104fe5576 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -158,11 +158,18 @@ $(SWIGRUBYLOBJ): $(SWIGRUBYCOUT)
+ $(SWIGRUBYSO): $(SWIGRUBYLOBJ)
+ 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -L. -fPIC -shared -o $@ $^ -lselin=
+ux $(RUBYLIBS)
+=20
++libselinux.map: libselinux.map.in
++	if [ ${LONG_BIT} -lt 64 ]; then \
++		sed 's/@matchpathcon_filespec_add64@/matchpathcon_filespec_add64/' < $< =
+> $@; \
++	else \
++	    sed 's/@matchpathcon_filespec_add64@/matchpathcon_filespec_add/' < $<=
+ > $@; \
++	fi
++
+ $(LIBA): $(OBJS)
+ 	$(AR) rcs $@ $^
+ 	$(RANLIB) $@
+=20
+-$(LIBSO): $(LOBJS)
++$(LIBSO): $(LOBJS) | libselinux.map
+ 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -fPIC -shared -o $@ $^ $(PCRE_LDLI=
+BS) $(FTS_LDLIBS) -ldl -Wl,$(LD_SONAME_FLAGS)
+ 	ln -sf $@ $(TARGET)
+=20
+@@ -212,7 +219,7 @@ clean-rubywrap:
+ 	-rm -f $(SWIGRUBYLOBJ) $(SWIGRUBYSO)
+=20
+ clean: clean-pywrap clean-rubywrap
+-	-rm -f $(LIBPC) $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(TARGET) *.o *.lo *~
++	-rm -f $(LIBPC) $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(TARGET) libselinux.ma=
+p *.o *.lo *~
+=20
+ distclean: clean
+ 	rm -f $(GENERATED) $(SWIGFILES)
+diff --git a/libselinux/src/libselinux.map b/libselinux/src/libselinux.map.=
+in
+similarity index 99%
+rename from libselinux/src/libselinux.map
+rename to libselinux/src/libselinux.map.in
+index 95cd53b043c2..9a1b1736aca8 100644
+--- a/libselinux/src/libselinux.map
++++ b/libselinux/src/libselinux.map.in
+@@ -255,7 +255,7 @@ LIBSELINUX_3.5 {
+=20
+ LIBSELINUX_3.8 {
+   global:
+-    matchpathcon_filespec_add64;
++    @matchpathcon_filespec_add64@;
+ } LIBSELINUX_3.5;
+=20
+ LIBSELINUX_3.9 {
+
