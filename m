@@ -1,95 +1,97 @@
-Received: from mail-qv1-f42.google.com (mail-qv1-f42.google.com [209.85.219.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from cloud35.hostingpalvelu.fi (mail35.hostingpalvelu.fi [31.217.192.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6333036E47E
-	for <selinux@vger.kernel.org>; Tue, 16 Jun 2026 18:14:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2892C2C0261
+	for <selinux@vger.kernel.org>; Tue, 16 Jun 2026 18:35:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=31.217.192.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781633689; cv=none; b=AsjN5EMx58V/ksr9UHvkMnvDEpWT3C+k9f2+zcHsjf+fiph11ezjGmlNchB9vxRxTgMWsKAdp2AnvG740CrkG8D7UjaaFwjFyiW3Yu4f3URGcS1BGFuiORMU9j9OcTCQeTyvVIYey44jnqa/2OoPQhv6e+QXl9EAs3GoUiPsWHU=
+	t=1781634913; cv=none; b=sEuGV9um+grpziZcMCcPo55HhSacKmDa+Ba9MryjqG+Np204QIJTuTXx65m3+bx3nzfw+a8IYvd3iY4vqqw1B5OEl0Z97YPyPQPtTHHou2zPBgZhQ8pAjvrDYG0I5KMXIO3jZC8dhlHevniT6j/XmHixNGLJM0cg1IU0h6yRU68=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781633689; c=relaxed/simple;
-	bh=mXWrZIA/glpRYQVOYppLj+2yJQhugySBr9edTglgqo0=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Content-Type; b=dO6AqfgJTF0BxLB+bxmLgo0DJP8A5igXQTAjbScmoEP42gi9Sfrm09Hs55ancWjK6/ruSKZz5l1Qth/rpyYu8nc3OImMXpD/t58pOy7UgMSYeheVUBD6PYcCsULua/hg9Cur2eZbGw4BKan7ftc+sDeP2pSMu744hkTNNPCM5bI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ieee.org; spf=pass smtp.mailfrom=ieee.org; dkim=pass (1024-bit key) header.d=ieee.org header.i=@ieee.org header.b=V9a7oQjQ; arc=none smtp.client-ip=209.85.219.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ieee.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ieee.org
+	s=arc-20240116; t=1781634913; c=relaxed/simple;
+	bh=9fKpchIdlWClCJdVC0hS3MDffbcZ81BPM1S+LD8cddU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=HFGTyjQ7XC48B7l70i2kCHGMCe9WDWKEG7K6ega7SKB7SQtkMmycjnz0JP4vPcrVQ3pubHabBkbW3mcL1OGoPESZ54bvtrqxX6erl+KPcZ0kZ1FcYeeYTDyZJ/974Hz432JJtUC5d9vDTQ3lxlpi6c0elS6vkHK3bidKYHu2LJA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=mOeRAecC; arc=none smtp.client-ip=31.217.192.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kolttonen.fi
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ieee.org header.i=@ieee.org header.b="V9a7oQjQ"
-Received: by mail-qv1-f42.google.com with SMTP id 6a1803df08f44-8ccce57762cso56813326d6.3
-        for <selinux@vger.kernel.org>; Tue, 16 Jun 2026 11:14:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ieee.org; s=google; t=1781633685; x=1782238485; darn=vger.kernel.org;
-        h=content-transfer-encoding:autocrypt:content-language:to:subject
-         :from:user-agent:mime-version:date:message-id:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=mXWrZIA/glpRYQVOYppLj+2yJQhugySBr9edTglgqo0=;
-        b=V9a7oQjQ3972K4JpQtrh7VhKxjxo5CnAs8t8t5CNe+Ti2OAE9KtegueGD346VE0OmL
-         1m/TXbHrXOXiRlpjYpaHm+0nYg8wJaquFVMAfBAMsqjbWe5GxRBMNPa4B0f9brL0VqQg
-         1Vc3g5kFMvl7Cx4n0x2ozo1MW3I+y36f+oJB0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781633685; x=1782238485;
-        h=content-transfer-encoding:autocrypt:content-language:to:subject
-         :from:user-agent:mime-version:date:message-id:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=mXWrZIA/glpRYQVOYppLj+2yJQhugySBr9edTglgqo0=;
-        b=LwYnCxZeQB4eixZzokr5UGQ5fZehFIQgW3NT43Ewy3yg+wwop+o+kQzfulPkchfha6
-         QaYVV0IPP5iFDUEgC9Dx8WPKyIa0z8AjheLXY+aOq3IXW96i/mXfvNDbNarM6BZKI+0W
-         z7uraUXjOF2v9iDAT8Z+zfQ6XGtETySamQMRrlY+WS8NZiZIvuNKiTCewy36bIRaPzbD
-         seN3pt7M/Z2P1c8gBf4xdc3sWSjonP42b3HcRghhISFm1o1t/XBJ2E12frkaQiBUHo1V
-         327YERQ0V5BbfCAXjEOy9VAHn8O65V7Nc+pafGsIsOyU8B7SxYp0W3pbFL6fixHF2Wnh
-         79RQ==
-X-Gm-Message-State: AOJu0Yyy22TsLCY7IOazxPhTwzWstsXCUwYr5tlXy+1Brb6TQytLgk/r
-	ddLs6nJPcYZg7gl3s1wZ87JrkR8A1rrN9FsMyoUirJ12gPoWNRKzNcfURhkDgtPiqBORgAr4Od0
-	xK+N8nPaqbEGEPfdqfxX/WTaMRtUGrSn/hNJZNiCZlmDIzxqhKOshlYnxOjzbNC0iouu4bhNu2R
-	tFJsT1tS7HQeCUVFab/e+X6afkpaLcSL0dxVOU
-X-Gm-Gg: Acq92OGqvthTb9Lq36sNoikQ4eLJnNb5ZzSnBLk87unZhb2sxK45ESXk0pxOKtL0Xjy
-	4ovjYQ1HtbaA1xf0FKs86xPiAD7wYge7QmSTMSIZZ2wbQschjrtPsuadiol0HzpEZ7qYFF0xe18
-	SC5W3gDv4JDJd5aULP3gOptay1w1WkJQLR+3M255/R/RzPrTdxQmAH/bo4+o+tqVwFr4bCagPwe
-	VRtbgBkofB2pt39SCWK6dKhlw0JRk773gGaAmyPOXul8mAku4ZNMD6ZejYcoX0vGXOjBlqFiKUv
-	WFOW1sPYlTo3zqR1Hqxm3zxqto2mQzzCfZ35S+esKqDDjj8h5Mg4NgY83Ft/RGYuqyd5UcRiyIl
-	DdPAct2PJPoKEE5B29HxE8/UxVahXmkEyJD1BNlT4HKaQVSMDwcH6tnnWB9mdwYGkz4PPtxVb7a
-	vrr9zmdMyL/GRv+TlyCsyMqwHs9MTjqdGBAPCEx+JpcQXXLaCVoiMBh+h2Emfqy19q9w==
-X-Received: by 2002:a05:620a:4549:b0:915:9e84:85df with SMTP id af79cd13be357-91d8afcde37mr135831685a.17.1781633683858;
-        Tue, 16 Jun 2026 11:14:43 -0700 (PDT)
-Received: from ?IPV6:2601:145:c282:5650:71bd:20d:33ea:4d98? ([2601:145:c282:5650:71bd:20d:33ea:4d98])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-91619ed7fb5sm1499208885a.6.2026.06.16.11.14.43
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 16 Jun 2026 11:14:43 -0700 (PDT)
-Message-ID: <7d1dc96d-d102-4e7b-a925-44fe03dfc47e@ieee.org>
-Date: Tue, 16 Jun 2026 14:14:42 -0400
+	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="mOeRAecC"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=kolttonen.fi; s=default; h=In-Reply-To:Content-Transfer-Encoding:
+	Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
+	Sender:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=qlBO0UwASGMLjYGUzdTifKCw/N4D+N5JNssN5Y2050o=; b=mOeRAecC1oMKlKC8YLmGI8HBSZ
+	At3PtQ69WlGNkUZpnGuxRZOpdzaKzDBxp5kRV7kI1QyWtVTu8hS5PMEKq8tLdGlMYTDRCB2xAggl6
+	5IuPR32zMLNtRqGKfeZBHRQBwzUbqSqwO+2jdjjy9IRTuWFNglpCuayzTDK3sJSsqQ4HBlv4J5vof
+	ioXWYG9RkPktNfwjo+JlP302+Ox4ioAOdJTeUyC5JMVOjgne7VcOLFbftcgVbWdJZlyEaFwrqYOEf
+	fcHnAqd6Ifd/3gmoTUn8nTxeJ9KWMadg0GfB9GuB0naVEOfSY0d0jUjSs90F0beb3HUkmEGVm7cRY
+	MZ1sPbLg==;
+Received: from [87.95.76.183] (port=4293 helo=AA-94-54-42-0F-E2)
+	by cloud35.hostingpalvelu.fi with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.99.4)
+	(envelope-from <kalevi@kolttonen.fi>)
+	id 1wZYcy-00000000cg0-0wG2;
+	Tue, 16 Jun 2026 21:35:09 +0300
+Date: Tue, 16 Jun 2026 21:35:07 +0300
+From: Kalevi Kolttonen <kalevi@kolttonen.fi>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org
+Subject: Re: About SELinux userspace AVC
+Message-ID: <ajGXWxFgbeS0zfZx@AA-94-54-42-0F-E2>
+References: <ajGNgKCKVcmvVUeJ@AA-94-54-42-0F-E2>
+ <CAEjxPJ7HfVS2iUOLztp1VGn0hQ9+4Jr=BMwTY0y_ZzEnwHKVcA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: "Christopher J. PeBenito" <pebenito@ieee.org>
-Subject: ANN: Reference Policy 2.20260616
-To: selinux@vger.kernel.org, selinux-refpolicy@vger.kernel.org
-Content-Language: en-US
-Autocrypt: addr=pebenito@ieee.org; keydata=
- xjMEZuhGfhYJKwYBBAHaRw8BAQdADz/tF/gexoZlGld9hGmv5HXcHP95b15YoRSbsznX8EHN
- K0NocmlzdG9waGVyIEouIFBlQmVuaXRvIDxwZWJlbml0b0BpZWVlLm9yZz7CmQQTFgoAQQUJ
- Bi93EgULCQgHAwUVCgkICwUWAwIBAAIeBQIXgAIZARYhBMTGKxZwwt8zFEjyhsY2PvHJaXsU
- BQJm+wuYAhsDAAoJEMY2PvHJaXsUENsBAO8TrrQXhCKCpNQUWvDto13w55ofDKHA3SVlCtzP
- zzzhAQCvGb8h5fPcw5eTjgLZbXAAG95uMtxYZzs66FNorxUVCM44BGboSckSCisGAQQBl1UB
- BQEBB0DUELErM3F1hWb3j/Wm3vDku3kdA2YVLxZtonOkF6XOUgMBCAfCfgQYFgoAJhYhBMTG
- KxZwwt8zFEjyhsY2PvHJaXsUBQJm6EnJAhsMBQkDwmcAAAoJEMY2PvHJaXsU+x4BAMeSfc01
- SUt1eNtWAEj/caCS4ako0iZd7QZT8recX3zfAP0crszn37KtEaiHb5vHy38tym3+cSzDzvb8
- +9wp84UkAg==
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAEjxPJ7HfVS2iUOLztp1VGn0hQ9+4Jr=BMwTY0y_ZzEnwHKVcA@mail.gmail.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - cloud35.hostingpalvelu.fi
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - kolttonen.fi
+X-Get-Message-Sender-Via: cloud35.hostingpalvelu.fi: authenticated_id: kalevi@kolttonen.fi
+X-Authenticated-Sender: cloud35.hostingpalvelu.fi: kalevi@kolttonen.fi
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 
-QSBuZXcgcmVsZWFzZSBvZiBTRUxpbnV4IFJlZmVyZW5jZSBQb2xpY3kgaXMgYXZhaWxhYmxl
-Og0KDQpodHRwczovL2dpdGh1Yi5jb20vU0VMaW51eFByb2plY3QvcmVmcG9saWN5L3JlbGVh
-c2VzL3RhZy9SRUxFQVNFXzJfMjAyNjA2MTYNCg0KKiBBZGQgT1AtVEVFIGFuZCBxdGVlIHN1
-cHBvcnQgaW4gdGVlX3N1cHBsaWNhbnQuDQoqIFVwZGF0ZSBwb2xpY3kgY2FwYWJpbGl0aWVz
-IGFuZCBvYmplY3QgY2xhc3Nlcy9wZXJtaXNzaW9ucy4NCiogVXBkYXRlIGluY3VzIHN1cHBv
-cnQgZm9yIHJlY2VudCByZWxlYXNlcy4NCiogQSB2YXJpZXR5IG9mIHN5c3RlbWQgdXBkYXRl
-cy4NCiogVXBkYXRlIGluaXQgZm9yIHJlY2VudCBPcGVuUkMgcmVsZWFzZXMuDQoNCk5ldyBN
-b2R1bGVzDQoqIHVybQ0KDQpOb24gdXNlci12aXNpYmxlIGNoYW5nZXMNCiogUmV3b3JrIEdp
-dEh1YiB0ZXN0aW5nIHRvIHJldXNlIGFjdGlvbnMgZnJvbSB1c2Vyc3BhY2UgYW5kIHNldG9v
-bHMgcmVwb3MuDQoNCkZ1bGwgQ2hhbmdlbG9nOg0KaHR0cHM6Ly9naXRodWIuY29tL1NFTGlu
-dXhQcm9qZWN0L3JlZnBvbGljeS9jb21wYXJlL1JFTEVBU0VfMl8yMDI2MDMxMi4uLlJFTEVB
-U0VfMl8yMDI2MDYxNg0KDQotLSANCkNocmlzIFBlQmVuaXRvDQoNCg==
+On Tue, Jun 16, 2026 at 02:04:33PM -0400, Stephen Smalley wrote:
+> On Tue, Jun 16, 2026 at 1:53 PM Kalevi Kolttonen <kalevi@kolttonen.fi> wrote:
+> >
+> > Hello!
+> >
+> > When going through the SELinux userspace code base,
+> > I found out that AVC is available in userspace too.
+> >
+> > Just curious, does anyone know if there are many
+> > applications that use this feature? As far as I know,
+> > most of the AVC decisions happen in the kernel side.
+> 
+> It is used by a variety of applications in both Linux and Android.
+> Sometimes indirectly via the newer selinux_check_access(3) API.
+
+I am trying to see which apps could make use of it, but on
+my Fedora 44 installation the number seems pretty small:
+
+~ $ rpm -qa|wc -l
+5930
+~ $ rpm -q --whatrequires libselinux
+setools-console-analyses-4.6.0-5.fc44.x86_64
+setools-console-4.6.0-5.fc44.x86_64
+cronie-1.7.2-16.fc44.x86_64
+openssh-10.2p1-10.fc44.x86_64
+shadow-utils-4.19.0-7.fc44.x86_64
+mcstrans-3.10-1.fc44.x86_64
+
+But I am not sure whether I am doing the right query here.
+
+br,
+KK
