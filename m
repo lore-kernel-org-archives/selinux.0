@@ -1,108 +1,119 @@
-Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com [209.85.219.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96C3535C1BD
-	for <selinux@vger.kernel.org>; Tue, 16 Jun 2026 12:38:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C681F29E117
+	for <selinux@vger.kernel.org>; Tue, 16 Jun 2026 13:37:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781613513; cv=none; b=aEYeGXLrmP2m5nfL4QHiRggHiPJdtqxb0my2Z30GIQFY6Q1gYd3RU/gshZ+s0Fpq3e56OCuZnU4tccayxpwIuM/uNXlz+vuXxuuzxJWyupVnadeAJG60fWsBDi04u/56N5OUr2rUztkZlCKFNQk83C2Brgd5NhKBLpZeLkerMVQ=
+	t=1781617040; cv=none; b=RsAQRcWmpbUZEz4eXAn7ta8V37LQMMndRKI3qfWX8mTx0TIQ55tCIoqEv/R4vAQWoNdqf1nvkjkMVmnRjgVAVUPM0wQY/d/u2bLiIq4zkBQy1i9TEfYcglR/5yED9ij/UOehopfDO4IpvVd1xC34BJlEgmcHQFmaT6heaySYxjg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781613513; c=relaxed/simple;
-	bh=hxs/lPjo/RxfEF9xhuFHAozA5lp0sDkjGEfmDBPXmDU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=VuGP/lZ4RtBWbRKLvSRyBqJbNomOHJSvHHMC3hmOc5EWm+NFWox664aZYF17+5NmC5q7KYFImv0DD1DEtEqAdiv3AoH986st1MsRCwb2xsoPKOC/UdRTJhr+PJT29g1EorWbkQSeewb3VcPOSXuGTIBc4VmltCh5E4ab7ZHX6Co=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=C1PDe3t6; arc=none smtp.client-ip=209.85.219.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781617040; c=relaxed/simple;
+	bh=Y23hBBEprjuM0wrOGzYk8zuku1Baho3m/lLyR05zI9E=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=REDSECEcZrVFsH5HkCnnyA6jfeoCAfDE5ifCD05mHQzPeMfiyyo2XhvvrL+wx9yiuTAu4MhmPEBT4VZY5WivbZfuQwpuhUquQOaiqbtplDUDvEUm7X2tr4WIoOCt4pYu2FMVtgcNk2baqnMZDje75v01VPTm+HR+KejDrPpsS/U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SeRRtz1R; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="C1PDe3t6"
-Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-8db35680d0cso204756d6.1
-        for <selinux@vger.kernel.org>; Tue, 16 Jun 2026 05:38:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781613511; x=1782218311; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=ygbXKJR4v8ARlGiPyqQlMNZwbXsm4MbvkaRXxbjXHRc=;
-        b=C1PDe3t6J4zh3WDQlpIQZnPWvtHBBXXzSoWQY9/Qlbm5C6ewi8rgjva3VKJQG2xEm7
-         0egstXQrRlBFeHmrJ5niqvGnEZHVcjzT8XCX2cTK3S0bdZew4qOwYgMEWe+cXpMQr1RO
-         TDgxEERvtpMEk3fVKmg+EM8nFbam3C5dl6KSuCAMRSTV0tDiXML/qBbVYmFr7CnJWwNk
-         BIOhUZcjNF6rgC4zFjj9F+xZ08kWJB+oT1gqa/B5dSBHvHnbuad1IfW8SFBL3eoRqhFs
-         omxZuv6LlqH12Ny2dNFNfhbEzVSBPzJWB8G2cudJZHvo2NoXAfDSrkdznpiUGK2i3gMb
-         Y7uA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781613511; x=1782218311;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ygbXKJR4v8ARlGiPyqQlMNZwbXsm4MbvkaRXxbjXHRc=;
-        b=spd92OUmncIiS4qJZf1PcXIlQRdwguYGCjqg8M8o+0qcgddR1EcPYns6eMRa4vily1
-         tYS/HsgRUPi7lICzvzfOqumDwZTg6NxsrkCO8rLGP+otYz+FJ6wg18ZPWWwJJspUL3TH
-         AbZNzKFppRzsotByQ7K4ADJTe6E/xZjKd4zC2aUQyi0aOHJU5lqzufNvcfVfiEZD4H66
-         xjUb4fwbC8IzI42FFURvAQ6YrimgAJksvZtNK4JeCc8Eatqed8BgCQDHGbC5Mpb4lYUd
-         8SnVtKk+OVFnD1VN0vQeYD+qf8SnuPfbOoufH9f4hjIGPXtZF9i8Wu9WDgTwor74l4wm
-         cxzg==
-X-Gm-Message-State: AOJu0Yzao8Ca2WL1Ut6WwgFL+W11vqMahTch/GKp6TVhovm9gU1mF6Oz
-	nkOjtq5zusy9tj15FqhGKegQPy+OOUs5g6NNG0C5BSu4w1QgSIW3irGDWwIy7A==
-X-Gm-Gg: Acq92OEmh9QCyKW1MHDXjWXVd7khrMh9BccmgaFpVUzTyDUTymGC95rFox2zTMvsDe1
-	BlSNHT38jen3nnr1cFWlS9PBEITMoocCUaoqwntrTDWwmHxiFVS/7NvdxPHJt+ICXz153Aky0/7
-	oEeKyYJz4V7mpTFzuWrnBDdZGZpV35jsREtIzdInEoh7BmWwD7IQEVqdbnzAKWhNKAIamZK+2pR
-	SdXSs0xxniGU1FxBo6DkeyIqO7dB7k6bymfjQ2FSAeSw+wGIqxWFWrdb92Ri/QM+rIdPrr+GPen
-	zbadDEfgWkdzy4Nw8NgZhCHu5a3L77Gnuuefsu4nGcjAH9cSc2aJGVneIVA4MuVYEXqDJnkESCV
-	ealzbZOgkM1i9TTpPm3BCHDzBfM2+4AbKxmMFlyQAhjTNYHD6KgeHAbf5XnLe0v9OENxfSpGJ25
-	evJCzbwxjmgdU34QYzl6vIVn2NilqCB+o5h5l66fbdBP9i1H7b9PgccDwprJLl+zO881nE9oXZ0
-	7BHJy1ujKtQuIFOx6NXTx0X5cI=
-X-Received: by 2002:a05:620a:8085:b0:915:8a4e:768a with SMTP id af79cd13be357-91c2e422b9cmr445655185a.14.1781613511493;
-        Tue, 16 Jun 2026 05:38:31 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-91619f019aasm1396033385a.13.2026.06.16.05.38.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jun 2026 05:38:31 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	plautrba@redhat.com,
-	omosnace@redhat.com,
-	netliomax25-code <netliomax25@gmail.com>
-Subject: [PATCH] libsepol: null-terminate temporary buffer in mls_to_string
-Date: Tue, 16 Jun 2026 08:38:16 -0400
-Message-ID: <20260616123816.52192-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.54.0
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SeRRtz1R"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1781617037;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=LVXevxsZEk2/WgMJUpDMN8eGLfOsgMS5lja2s82mXm8=;
+	b=SeRRtz1R2g3NWMnpiWZmMq3r+wkLNV7OTsqbBhSVXONG9cg90aLDBSJZ6tE2D4G92FlLSy
+	LVwMmOTVHHGHX+6b9GeBGyeoeyQPDy7jbHRhnrPmol+jBm2WqaFSekrPyY/4IZZpGJhsoF
+	VeVpNXg45nSL/k5BQxcwpU+6Pf/kh7w=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-338-4MGC7LdvMOqIzMg164cmMg-1; Tue,
+ 16 Jun 2026 09:37:14 -0400
+X-MC-Unique: 4MGC7LdvMOqIzMg164cmMg-1
+X-Mimecast-MFC-AGG-ID: 4MGC7LdvMOqIzMg164cmMg_1781617033
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E58E619560A3;
+	Tue, 16 Jun 2026 13:37:12 +0000 (UTC)
+Received: from localhost (unknown [10.44.32.87])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 36D401954B04;
+	Tue, 16 Jun 2026 13:37:11 +0000 (UTC)
+From: Petr Lautrbach <plautrba@redhat.com>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org
+Cc: jwcart2@gmail.com, omosnace@redhat.com, Stephen Smalley
+ <stephen.smalley.work@gmail.com>, Pepper Gray <hello@peppergray.xyz>
+Subject: Re: [PATCH] libselinux: Add EXTRA_LD_SONAME_FLAGS for musl+llvm builds
+In-Reply-To: <20260615172736.45712-1-stephen.smalley.work@gmail.com>
+References: <20260615172736.45712-1-stephen.smalley.work@gmail.com>
+Date: Tue, 16 Jun 2026 15:37:10 +0200
+Message-ID: <87y0geli7t.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-From: netliomax25-code <netliomax25@gmail.com>
+Stephen Smalley <stephen.smalley.work@gmail.com> writes:
 
-mls_to_string() allocates a temporary buffer of
-mls_compute_context_len() + 1 bytes and fills it with
-mls_sid_to_context(), which writes exactly mls_compute_context_len()
-bytes and does not NUL-terminate. The buffer is then passed to
-strcpy(), but its last byte is never set, so the copy reads past the
-written MLS data (an uninitialized byte and then out of bounds) and
-can write past the end of the destination buffer. Terminate the buffer
-before the copy, matching context_to_string().
+> Introduce an optionally defined EXTRA_LD_SONAME_FLAGS variable for use
+> by musl+llvm builds to pass --undefined-version. This enables such
+> builds to link despite the intentionally omitted
+> matchpathcon_filespec_add64 symbol.
+>
+> Fixes: https://github.com/SELinuxProject/selinux/issues/512
+> Fixes: https://github.com/SELinuxProject/selinux/pull/513
+> Link: https://lore.kernel.org/selinux/871pe7n3w3.fsf@redhat.com/
+> Fixes: 9395cc03226a0 ("Always build for LFS mode on 32-bit archs.")
+> Reported-by: Pepper Gray <hello@peppergray.xyz>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+>  README.md               | 4 ++++
+>  libselinux/src/Makefile | 4 +++-
+>  2 files changed, 7 insertions(+), 1 deletion(-)
+>
+> diff --git a/README.md b/README.md
+> index 5e65a049..a458a930 100644
+> --- a/README.md
+> +++ b/README.md
+> @@ -151,6 +151,10 @@ set when overriding are:
+>  - -fno-semantic-interposition for gcc or compilers that do not do this. clang does this by default. clang-10 and up
+>     will support passing this flag, but ignore it. Previous clang versions fail.
+>  
+> +## Setting EXTRA_LD_SONAME_FLAGS
+> +
+> +Build with EXTRA_LD_SONAME_FLAGS=--undefined-version to fix
+> +linking against musl with llvm.
+>  
+>  macOS
+>  -----
+> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> index 9982faad..fe8d3239 100644
+> --- a/libselinux/src/Makefile
+> +++ b/libselinux/src/Makefile
+> @@ -91,7 +91,9 @@ CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self -Wmissi
+>  
+>  override CFLAGS += $(LFS_CFLAGS)
+>  
+> -LD_SONAME_FLAGS=-soname,$(LIBSO),--version-script=libselinux.map,-z,defs,-z,relro
+> +# Use make EXTRA_LD_SONAME_FLAGS=--undefined-version to fix
+> +# linking against musl with llvm.
+> +LD_SONAME_FLAGS=-soname,$(LIBSO),--version-script=libselinux.map,-z,defs,-z,relro$(EXTRA_LD_SONAME_FLAGS)
 
-Fixes: https://github.com/SELinuxProject/selinux/pull/527
-Signed-off-by: Kartik Kenchi <netliomax25@gmail.com>
----
- libsepol/src/mls.c | 1 +
- 1 file changed, 1 insertion(+)
+I guess there would be missing ',' before --undefined-version
 
-diff --git a/libsepol/src/mls.c b/libsepol/src/mls.c
-index 1cc4e881..ab382e96 100644
---- a/libsepol/src/mls.c
-+++ b/libsepol/src/mls.c
-@@ -50,6 +50,7 @@ int mls_to_string(sepol_handle_t *handle, const policydb_t *policydb,
- 	ptr = (char *)malloc(len);
- 	if (ptr == NULL)
- 		goto omem;
-+	ptr[len - 1] = '\0';
- 
- 	/* Final string w/ ':' cut off */
- 	ptr2 = (char *)malloc(len - 1);
--- 
-2.54.0
+something like this could fix it:
+
++LD_SONAME_FLAGS=-soname,$(LIBSO),--version-script=libselinux.map,-z,defs,-z,relro$(EXTRA_LD_SONAME_FLAGS:%=,%)
+
+
+>  ifeq ($(OS), Darwin)
+>  override CFLAGS += -I/opt/local/include
+> -- 
+> 2.54.0
 
