@@ -1,123 +1,122 @@
-Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com [209.85.222.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC6873C2B82
-	for <selinux@vger.kernel.org>; Tue, 16 Jun 2026 14:52:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F9541D7995
+	for <selinux@vger.kernel.org>; Tue, 16 Jun 2026 15:07:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781621556; cv=none; b=gtkRtpkfiFksq4LpmhK0aQwEndCNKsShbF1FbYTOgc37fpq7fHEzB7TBVSCBxaket/C1SAUc+3eCLAaIragSwBAnm6tIZK94zF/nmaMGdj43ulD8XRFu2J9lOt2FfFG4OzLfWjI8FKNvebfdqsEi07j7sjA0f7/pjWEl6bETL08=
+	t=1781622453; cv=none; b=mjeEcza+ZE8uhHspBnNk8BmzTeJs1wn54cTD/A6mBViVZtA6rcMkZCrkfQRddaW7/PgZcDNGVeqoS7+q9l2gFdUzqwm3OwtcfgATOWR6E1buLenoP6MWoh1EUlJqKjZWn1aZCEs0gMb85p+rNj/ZZq6V92fecGOp2vY/Z5HyYBA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781621556; c=relaxed/simple;
-	bh=Tel4DpOaQB4w+BYWjJt5hzM1pGq+lrUhJMfRtHFRRqk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=qG/oWMMfND3ATmTmfUZLUqwyj8stBJ9VksIzxr2twNku2c8ud6gfUnIC4A1QyFrN4C0D7j+CCE4iUAsQKj1H3q+oUe7v9pgeFD/H5KGwZv5Um9Op8zJu6jdDadBfwKtRlQnoSejxlfK9qfklIGrs5KyoVg3sF2nNTbiafwetmRU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=Bx/0dGjL; arc=none smtp.client-ip=168.119.48.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
+	s=arc-20240116; t=1781622453; c=relaxed/simple;
+	bh=y8pn0it1KV1F3fUiFTUsSQN1GXghYTo8kWwJsYfwnCE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ktfeadKmYvNPgBMKjpVEoc/YVLdrz001N56iQrwfD7oLuNUy82d2UAlmRzwSf+60M46+tbXwRmzpF3E5baJCwGuLzwgYbkon4PUuS6aYdvMGVdWho5xazv0LUzJGlljpl6lFAm3ygfJ+nhlnEvNwP5FEfxEgpMyvZE0SQ55M0Ok=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=grRERUl+; arc=none smtp.client-ip=209.85.222.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="Bx/0dGjL"
-From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1781621037;
-	h=from:from:reply-to:reply-to:subject:subject:date:date:
-	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Tr5ZOef30jU02foHAqq1qUMPC5PGy5CLASQHK23hpCw=;
-	b=Bx/0dGjLDGf7dFEdhn69u6gkz+W58VIhLSWVRMv7vzVaES3gxxHkLON2luk15JbYxc9AKg
-	kgIe4d25g/3Y57esd7sx7v+K7qrWDsucdjZ1jG8m8vJV1hJErQWWgPFg//rrkuwgpBcXnQ
-	BpqYomVReT13Ip8McGW0wgUJhAzJ4BL+tzf6rTW9ElVS7YWrQMnIc3YxQ+oIG0QMy+Lb3y
-	u0fTNcYHwGEBqOfcxX6ZyMhnegBqIi0Tzm7DvN77Vb1ZVoRv1T+0Q2BRWhtE8UXUfSK1ez
-	0c4VTimgG4y67yar4L6lci7rC331tvabOAKevuDCMKVcY6Y8jhpph2X55Qq4ow==
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="grRERUl+"
+Received: by mail-qk1-f171.google.com with SMTP id af79cd13be357-9159da9bba5so347982985a.1
+        for <selinux@vger.kernel.org>; Tue, 16 Jun 2026 08:07:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781622451; x=1782227251; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=2070R/lV8KOpsvUqolSDs/IHNJNmPQWqIbT6uLb6nN8=;
+        b=grRERUl+X49WdGLnHayw0y6cuy35yeVeK66DUAhnJKJDc1fxsEnHlGzIhyDpJCdbFu
+         LZ5fHEnjwyeo2ClrAlFXyFijpJcXz3r8WqbNczTtbz2K1bFn23LncKNP1f34ljxRYP+F
+         J5BVUiR0uh6f7n8PIychdc/0KH2+uEYblMOPTbRZO49NaaIlxRZWEVtCnpFVMeft7GiK
+         oh/Ru1vntPY0FDtuvm/4zSOIRcQqu1Hwfz2bEmi4To6Plo+OTFVnXydQ/bELT4oZV2N1
+         Q41NLS7OWtyC30C5uU6V2kgQemkyNPgL995yoPtCgbE/cibNGVxyRW2aQz8f4KekVgB/
+         +oZQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781622451; x=1782227251;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=2070R/lV8KOpsvUqolSDs/IHNJNmPQWqIbT6uLb6nN8=;
+        b=ftyvGUgdAAz7jcI7OLPA2TL3bX0RvHEdzqCgL98EdqP8zFVQDi+nQGCUVYRK45c0U6
+         KY+i+8Ip4vfCSIDSKEm01WNY8mUck/JuIm+csz9X9mt6iD+NFyHa04BzoOfPEpy6LksS
+         GiGQ57bZZlel3UuOgZRl6q9RYyOfwI+S/wiKGkm45Mb2KJfaVf7c7rN1bYgs/Hu0EJcO
+         58z0+woiuXyPcP8FBbvgPO7LCRFWyFZsZvMVOz3X70FCy0doqYNE/zt7dx2z2FdR3+U8
+         DXWbWhcjd6W5EwN/VApn9sGquimLYnC6+3LGKQH7kwi/Uq5wwt0SJ+Q7VyZYJy6YezW+
+         zAdg==
+X-Gm-Message-State: AOJu0Yy69oq2guW6fpPvlmT9r3got1e3+hvcVLZBXmNlZAF6hwbOSuSx
+	y5dfQjnDDcgZDGHSKMczVr050RRIItosuifTfSfi9NUB7wJZzV1g+cw0IQ3MzA==
+X-Gm-Gg: Acq92OEpEWOAyNRCA4RC4WYy2GIvdB4TrSzZBuqnoOeWCl8HMvIQqF3p9MWAAkNCJw9
+	Vz1IudBxEr6I8flun0lw4jDCwCyXoP8HFJ0EBZGn0pLNnAj/tW+6IODDdX2Cjpeh/eyFdHxSTgs
+	SPJDTr3i074AmQrhoGxMXtC6k5bxmG8WKGQBlVaVDa2jZ9FbYEQ2zZprcviqrQ73zKCgHtZf9yF
+	RMvlFQEZbOSN4TPcdUSnQP78qwktFuprGZ8wFgFiDKniQkaLlgczSZGnpRYJpn+04RQsnURPAZw
+	shBKpLCuHBVGrpiPf6wRa3z8H/yNiTc+IxLwQQhI8bcQ7SG9svXcvi8mWOcfkETpBVQGyc31CQq
+	1V1keq3aFUUGC6lgHmzjcfpOq514LD4LZhfPENQJyFB9aNJ3FHMTOV3Gh0VB52F4VJ1doGWBaG/
+	fs80QOQQ2tGPgNMlCLm+sb4atGhCgfdJk1I8YAtMU1vsrq0w==
+X-Received: by 2002:a05:620a:179f:b0:915:bf79:3e0c with SMTP id af79cd13be357-91d8a7f1a9dmr8184185a.4.1781622451112;
+        Tue, 16 Jun 2026 08:07:31 -0700 (PDT)
+Received: from Fedora43-SELinux ([144.51.8.27])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9161a0080a7sm1498910685a.26.2026.06.16.08.07.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Jun 2026 08:07:30 -0700 (PDT)
+From: James Carter <jwcart2@gmail.com>
 To: selinux@vger.kernel.org
-Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 1/2] secilc/docs: fix wrong CIL statements
-Date: Tue, 16 Jun 2026 16:43:45 +0200
-Message-ID: <20260616144345.478744-2-cgoettsche@seltendoof.de>
-In-Reply-To: <20260616144345.478744-1-cgoettsche@seltendoof.de>
-References: <20260616144345.478744-1-cgoettsche@seltendoof.de>
-Reply-To: cgzones@googlemail.com
+Cc: stephen.smalley.work@gmail.com,
+	James Carter <jwcart2@gmail.com>
+Subject: [PATCH v3] libsepol: Check for proper length of addr and mask buffers
+Date: Tue, 16 Jun 2026 11:07:16 -0400
+Message-ID: <20260616150716.42470-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Christian Göttsche <cgzones@googlemail.com>
+When creating an ocontext node the addr and mask buffers lengths
+are not being checked that they are the correct value for the
+protocol.
 
-- fix missing closing parenthesis
-- fix enclosing of `sensitivityorder` datums
-- fix typo `low_high` to `low-high`
-- avoid double enclosed `((all))`, valid but particular
+Verify that the addr and mask buffer lengths are the correct vaalue
+for the protocol and output an error if they are not.
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- secilc/docs/cil_access_vector_rules.md       | 4 ++--
- secilc/docs/cil_default_object_statements.md | 2 +-
- secilc/docs/cil_mls_labeling_statements.md   | 4 ++--
- 3 files changed, 5 insertions(+), 5 deletions(-)
+v3: Use sizeof(tmp_node->u.node.mask) and sizeof(tmp_node->u.node6.mask)
+v2: Use sizeof instead of 4 or 16
 
-diff --git a/secilc/docs/cil_access_vector_rules.md b/secilc/docs/cil_access_vector_rules.md
-index 47da60fc..b95df953 100644
---- a/secilc/docs/cil_access_vector_rules.md
-+++ b/secilc/docs/cil_access_vector_rules.md
-@@ -168,7 +168,7 @@ This example will not compile as `type_3` is not allowed to be a source type for
-         (type type_2)
-         (type type_3)
-         (typeattribute all_types)
--        (typeattributeset all_types ((all)))
-+        (typeattributeset all_types (all))
+ libsepol/src/nodes.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/libsepol/src/nodes.c b/libsepol/src/nodes.c
+index e3ad36a8..5471d701 100644
+--- a/libsepol/src/nodes.c
++++ b/libsepol/src/nodes.c
+@@ -34,10 +34,26 @@ static int node_from_record(sepol_handle_t *handle, const policydb_t *policydb,
  
-         (neverallow type_3 all_types (property_service (set)))
-         ; This rule will fail compilation:
-@@ -313,7 +313,7 @@ This example will not compile as `type_3` is not allowed to be a source type and
- 		(type type_2)
- 		(type type_3)
- 		(typeattribute all_types)
--		(typeattributeset all_types ((all)))
-+		(typeattributeset all_types (all))
- 		(neverallowx type_3 all_types (ioctl property_service (range 0x2000 0x20FF)))
- 		; This rule will fail compilation:
- 		(allowx type_3 self (ioctl property_service (0x20A0)))
-diff --git a/secilc/docs/cil_default_object_statements.md b/secilc/docs/cil_default_object_statements.md
-index be7facaf..6f72a36e 100644
---- a/secilc/docs/cil_default_object_statements.md
-+++ b/secilc/docs/cil_default_object_statements.md
-@@ -195,7 +195,7 @@ Allows the default level or range to be taken from the source, target, or both c
- When creating a new `file` object, the appropriate `range` component of the new security context will be taken from the `target` context:
- 
- ```secil
--    (defaultrange file target low_high)
-+    (defaultrange file target low-high)
- ```
- 
- MLS userspace object managers may need to compute the common parts of a range such that the object is created with the range common to the subject and containing object:
-diff --git a/secilc/docs/cil_mls_labeling_statements.md b/secilc/docs/cil_mls_labeling_statements.md
-index 97d1459b..65e55a7f 100644
---- a/secilc/docs/cil_mls_labeling_statements.md
-+++ b/secilc/docs/cil_mls_labeling_statements.md
-@@ -319,7 +319,7 @@ Define the category order. Multiple [`categoryorder`](cil_mls_labeling_statement
- This example orders one category alias and nine categories:
- 
- ```secil
--    (categoryorder (documents c1 c2 c3 c4 c5 c6 c7 c8 c9)
-+    (categoryorder (documents c1 c2 c3 c4 c5 c6 c7 c8 c9))
- ```
- 
- categoryset
-@@ -675,7 +675,7 @@ This rule will transition the range of `sshd.exec` to `s0 - s1:c0.c3` on executi
- ```secil
-     (sensitivity s0)
-     (sensitivity s1)
--    (sensitivityorder s0 s1)
-+    (sensitivityorder (s0 s1))
-     (category c0)
-     ...
-     (level systemlow (s0))
+ 	switch (proto) {
+ 	case SEPOL_PROTO_IP4:
++		if (addr_bsize != sizeof(tmp_node->u.node.addr)) {
++			ERR(handle, "Wrong address size for IPv4 address");
++			goto err;
++		}
++		if (mask_bsize != sizeof(tmp_node->u.node.mask)) {
++			ERR(handle, "Wrong address size for IPv4 mask");
++			goto err;
++		}
+ 		memcpy(&tmp_node->u.node.addr, addr_buf, addr_bsize);
+ 		memcpy(&tmp_node->u.node.mask, mask_buf, mask_bsize);
+ 		break;
+ 	case SEPOL_PROTO_IP6:
++		if (addr_bsize != sizeof(tmp_node->u.node6.addr)) {
++			ERR(handle, "Wrong address size for IPv6 address");
++			goto err;
++		}
++		if (mask_bsize != sizeof(tmp_node->u.node6.mask)) {
++			ERR(handle, "Wrong address size for IPv6 mask");
++			goto err;
++		}
+ 		memcpy(tmp_node->u.node6.addr, addr_buf, addr_bsize);
+ 		memcpy(tmp_node->u.node6.mask, mask_buf, mask_bsize);
+ 		break;
 -- 
-2.53.0
+2.54.0
 
