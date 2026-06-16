@@ -1,118 +1,117 @@
-Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
+Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53DF2344D88
-	for <selinux@vger.kernel.org>; Tue, 16 Jun 2026 19:20:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.49
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781637637; cv=pass; b=QCq9siBnajENy5Nxn5bt/QSepVFQx2CC4eo8DTBghJDqBuouQHC7V7QhJnBooOSd0JKm0xgpHFlPLAexG/IFALnJSWAP4ktkyUkZftuwDGT7JGCaSgsjFOQQDdYOmnysHoo48vf90TlCN/RnbxuyzSRBkqre/ZptfL+YDaeTkKI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781637637; c=relaxed/simple;
-	bh=o36b4LkYIZbJX6JfRWvDBTNPeD4lF+nJJL/MJJ3F2dw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=AbUbQordz3I2Ny5E4Xicg+mtNOAqOx8ab6FwrsufEDe9bidWkRJVpDmsKxchAc+gffO4TLDiq0LOLD510RfXy9BWfMgNjNPnPluZs+O8yuKjCe0x0hxL/I8cA8kW7QguKNMsNxtIRDGW5hYtn0ipMQJrUMSoV51zruKKQszC/EY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NcPJcYo+; arc=pass smtp.client-ip=209.85.216.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C78EC3DA7C2
+	for <selinux@vger.kernel.org>; Tue, 16 Jun 2026 19:33:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.170
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781638433; cv=none; b=cEzFUVxZd2ypOw5jdIIga0hU2HN47ugtfN6pnB/9MwogpSlie4YkZZdtuGHMM5wWT/DbLIXSRzbPsIucHBz74+yWECcVRqqNKF20s+xqq2geC/B1Eg+msvBqpRAv8aoGIz26haATImhPFecMsk+y2QnDBletlPVhBG6qu3j9hj0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781638433; c=relaxed/simple;
+	bh=upDvrLDzk0u92rzjPswsLS17ZPz3Ubewxm9qgf3YXQ0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=HuCvXX9ZFGLFKznvHDybvsqXq7etA7diqib9oXB0Hh8XEP1TEIupUYKJaPj4R5V1WAnAlrj7U/NfM91+/scJs8uKpwiMd1piYFFgFDnpLQsXB571Pa5d3eUc7c6jtnayqF7JAK4CLA4sZ4hHmyI2byBUfbCT5+XgYkWUNTQfptY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lexKK6tX; arc=none smtp.client-ip=209.85.160.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NcPJcYo+"
-Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-36d98b68d68so3451645a91.2
-        for <selinux@vger.kernel.org>; Tue, 16 Jun 2026 12:20:36 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781637636; cv=none;
-        d=google.com; s=arc-20240605;
-        b=bxx7dggEM1CTwyBlPk0b8ftCMmcu6YaBL1VtoD3d97CAK3V8YGDHvWDTCmRS236ae5
-         QMBsB+5h5/B7LzcJMABwv9uo+r10PEoQzqxOl0QXh/34NPKzLbLbViib5aeKm2TMbf5E
-         MP0JBMDmWxSGBJwtLiSQN3fpyFJkBz+XQYKg6JDixnn0Bs0cv7lCp2bvLQGIVaaDBSPl
-         0g7W7RuLWtkJKVenjaZr9C+6690jJqTJu/sjPtqCjkgfX+q6pfZavoeOfQjPVhKJelMD
-         p0WGHEAcwFJNuF7flshZhoiUVOc/Fjh8fXgqhURwjEeByYNAJBEW2y6RD59CfMshHJ/P
-         Ye/A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=o36b4LkYIZbJX6JfRWvDBTNPeD4lF+nJJL/MJJ3F2dw=;
-        fh=jRyevUK2w2AHXbqDg68JL/TGkgAfqiBixLBAah9ARNM=;
-        b=RnRA/FdtiEW2bMDqYr+/Nna+I/88DDCG9YpEniEdtBEff9/hVdi+QVfq5HMklhwe/+
-         hNH00mMZ+4VKXbugcKmiKo/pLwDsdC46NEC4H3auIQlJazsF8WLJYC7/xbxxa9JKJtzX
-         MgbCnwOpKtq1Ivh5ZOXING3cNlN7Fxz79iKt/U6N0PncwzFr8tk9fAup+i8xe7ulZlke
-         A/Zd/MsCCbWoZrrv3Uw9m9KVrBCgmqJ0EUlZX/YEq3/FVmUQJfDa5j2JDkOMIoxLNRzh
-         HXLm/DPx21eMEt3p5+daYa3djxJ6wDfg1DseB8sIAlRLmvk8fi/iR5GHSbbWXVtvZ9t9
-         3mQA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lexKK6tX"
+Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-516d0db9372so41289551cf.2
+        for <selinux@vger.kernel.org>; Tue, 16 Jun 2026 12:33:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781637636; x=1782242436; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=o36b4LkYIZbJX6JfRWvDBTNPeD4lF+nJJL/MJJ3F2dw=;
-        b=NcPJcYo+TdmB5gQiAAUZMYcY9pSzbtNLihFpOQdyyJVCceKQTGy+sGBLnw653DTnIg
-         /gQ9ZqUbWH29aD+bLaa7yP4w1ok3Dxgkdtw708pvdsqUOejz7dSC5u5+ibAhJVHWV+jr
-         ygGYrG2U3ISKtcSCQTo8AJruG86FJaTqX+63WoCxIlTlfa4MEBJxojsIIGts5Nhy1lDQ
-         NQtlANF++VkNJONTmvSSNkYkNz0Vvx+pjKjbhwrlkFiyrDYF2ByJgsK6qTOaCnHilHIA
-         k4kKhq2P5oPqafx6ciA+Z8OcA78CTVwTLnHerx0H0X6njq5ugPXFq59PZ0u7RXDKp8Ld
-         Xv1g==
+        d=gmail.com; s=20251104; t=1781638431; x=1782243231; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZsrH+3TqrQF1uCaT4w4ZhdVkB/DCTlHiQ0WDpRbLSdY=;
+        b=lexKK6tX9uPNaS+OdigujFmnoPVf74yd7wS8dSsXZ2WBxmUO6QtBIlVvz+1fHV0d0d
+         95X5sUoXRTnZLwUNJN+HXv4ZNlD4NpZWr/hkKAu7hIVUHxoiBl1fU/EyifXWrrEzM71o
+         any7GMr4FUVTN0ylsxDU5NcmQflr+IImNc72GpNz7QwXaJnX02UzBhXYWo6TUA0tunZq
+         Qv0MKDijNf+RjXM7ciY1iOqSRbcvR/D04MVHYNoHIiCPrgv1SqgIZnOjpP86GNhbh88v
+         fINx/qarFnmF+YVAqWhK75JTs1gQ5sIJWiMZOMhSyr9k7M1XCBaemLCS3eXK3IuDHGF4
+         nNcg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781637636; x=1782242436;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=o36b4LkYIZbJX6JfRWvDBTNPeD4lF+nJJL/MJJ3F2dw=;
-        b=Fqrsx7PLrFPUe952p+cJvck9QVudHt4YNJCNt935lrY9nVE4TZGIn0yOd6mr7CQzap
-         TxuPjo2CqPCrg4BPSvKrBcB7mVWzzo9aUr9JrsZnBMzTziVtqnjmBWSl/i9F2HY4OaNP
-         bW1kCQ4g67mW3MTHU/x+xbLT8hLZnGAniNVwtlLHGRVkfKN/fQBDZlVNf1KuhfxV7rQ9
-         xEFLxegzDz6DrwJHK4ihLo00MC9l7Xku1NdWAYRiwIn/cxAEk/23HUBzDS5dPggiEK65
-         MV/Evlcr3QbxWs+BbIuKiniipO6fG3xVmgEzca+xh6mlHOWDir+PYMWIsour7pTC1NhS
-         OxEw==
-X-Gm-Message-State: AOJu0YxqIeZw8A1KUhf9h0KowZ38+h9eV+jWPGw1XMzAgCO+vtKjSkhn
-	lGEDm2KG5/xNXT49dnGO99/Gs/b86P4mTU3siMi/rYf0fLoT3gVZmKIqhuMQhLz+tpAteYjCyIq
-	bkKYeRd7IlBfzwrxG1HBhVhBS1lotsnE=
-X-Gm-Gg: Acq92OHvrLjlN61pC4Om6i2IzCjTmlxL7l1f3oslb2mDjbelqGS/VTnxEDskk9HvxR1
-	2LD4M2wTBkcUsz7JZ4BXhFmXV+Tfy9ajbYMEAdlG6dDV3eJJtlqd+5utGogs69nUauhqc5jTPNS
-	jXHiXOGOml4YCLhA22jixO+LNVAakXIoqO9D+WLzqWQ2Y+QBcU8vKIiKcyr6KzUs7piXYiyRBiG
-	qAYCjrzReEDAIGifXXuxCNZ7L87vWYrsMttktWSw2gxwjiHnPlW65hT4/fJ3Wp+C2InvDhvR/uL
-	8Bbzd+E=
-X-Received: by 2002:a17:90b:5408:b0:36b:7ad1:df70 with SMTP id
- 98e67ed59e1d1-37c930e1a19mr756686a91.2.1781637635473; Tue, 16 Jun 2026
- 12:20:35 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1781638431; x=1782243231;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ZsrH+3TqrQF1uCaT4w4ZhdVkB/DCTlHiQ0WDpRbLSdY=;
+        b=AlPb4sjlHl+w+dX804xBJYEnKX2V7OzZ2oDTL+7RY1lCNR/S+i/o13duAyER5b9Bpo
+         PmwJnM/PI+3+Jx4kEmjcYOGcA13OXCWZ4euw0P4idKmx2nq4VYy2QErS2AkjJ7V3hx2N
+         +wqxKU95+rl1guKKnvq10lXrOPjI/AduC1epV9BBsOwKRAWYpX4v9oQfVuz1Bw29C0hA
+         kSKYVpzEz+Q1AtmTzh66tz+4ZU2lO95qxWIfvpVBKJXlvJx9oULRTtNpu7sHuMZ0SVqL
+         yIXRKVlR4/siFxcJeen4Jrjj5hOKUvrSxvqxM/5u2vzo3l2ojerjG1UN2OWihGp6CVyh
+         a9OA==
+X-Gm-Message-State: AOJu0YyeHNDsOE7iw7p0nBUUjfINBrpzEoUj4RIO2tcboFGp3Gzh7Q3N
+	W9pZBfXUimOcgi3Gb3SLDZcg5284g8R9xqImxJO1e+lS2T4rMpZRm+SW9tVyOg==
+X-Gm-Gg: Acq92OGb620ZXuZDqzZsICUD4TA97aEQmcoXY3vT3avJJ1CDM2OjGbiKNRiAaHW3foT
+	eqGTNiJCnoFwzBGPyqwBnii9jp5RpjUMZfHsscRdJPM30f3V0pc93/WMF/HAXM6067Ji6P9IwxK
+	suJ0TnTV8NIU1Ruc6pVhQxL1qInb6kLK3rgdyzI4WyjJQzlGMX39OEQBU2SNCxxmeJm/FR3EOjH
+	hUWgbq1mTHtTqFbTiRtnr0YV0mjVGlBkljzgI3e1Pn7F6cZMhxRbSMCW9xArUZ8WOK5qB90/zcP
+	+eEcAjm8vwGeCsgZ2Q09wU8BBkw1biDBEdITYMgLYY9hprd4FE/vXzHzVYNe3BXoM68dDxDMXgw
+	IyvSufmrVDUNOufQnzmHS0PAwBmwm8B0t+aGOZZgwRRngIsj2QiALIpdarNneeGcEOvLtuimDFe
+	1raGtXISzgfaJEnHcb/UsmBZqSkihbSTtgFNOmKlyFMiAd0p+94xI88NeiNPxEVPpMHONnX4rdF
+	bjq94K8rIKbUK6Jpih59VeoU33ACOmYDwf9uQ==
+X-Received: by 2002:a05:622a:7acd:b0:50d:7c18:c66e with SMTP id d75a77b69052e-519a8dd8166mr11896231cf.13.1781638430801;
+        Tue, 16 Jun 2026 12:33:50 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-517fb620338sm147171631cf.6.2026.06.16.12.33.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Jun 2026 12:33:50 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH v2] python/semanage: do not leak an audit fd per logger instance
+Date: Tue, 16 Jun 2026 15:33:11 -0400
+Message-ID: <20260616193310.58019-2-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260615122840.42032-1-stephen.smalley.work@gmail.com> <CAP+JOzRhFeA=EUt4nu=Y60w=xusmB59EyZAabGqfoibR7-vc0w@mail.gmail.com>
-In-Reply-To: <CAP+JOzRhFeA=EUt4nu=Y60w=xusmB59EyZAabGqfoibR7-vc0w@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 16 Jun 2026 15:20:24 -0400
-X-Gm-Features: AVVi8Cc0cuwRqXhHL0Kw4mTaKIymIHQWI09dXNkxqPIaFjHb9DZi4Lec3ro4obo
-Message-ID: <CAEjxPJ59OD8LWmMWq_pV85GMAWpiH6EP=vcuO=E8mGUrvnOrxA@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: cast to unsigned char in ctype calls
-To: James Carter <jwcart2@gmail.com>
-Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
-	netliomax25-code <netliomax25@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, Jun 16, 2026 at 9:50=E2=80=AFAM James Carter <jwcart2@gmail.com> wr=
-ote:
->
-> On Mon, Jun 15, 2026 at 8:28=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > From: netliomax25-code <netliomax25@gmail.com>
-> >
-> > Passing a plain char to the <ctype.h> functions is undefined when the
-> > value is negative (C11 7.4p1). On platforms where char is signed, a byt=
-e
-> > >=3D 0x80 from a module name, seusers/file_contexts entry, CIL identifi=
-er
-> > or IP token sign-extends to a negative int. Cast to unsigned char befor=
-e
-> > each isspace/isalnum/isalpha/isdigit call, as libselinux already does.
-> >
-> > Fixes: https://github.com/SELinuxProject/selinux/pull/525
-> > Signed-off-by: Kartik Kenchi <netliomax25@gmail.com>
->
-> Acked-by: James Carter <jwcart2@gmail.com>
+semanageRecords.__init__() constructs a logger() for every instance,
+and semanage import constructs a fresh object for every line of the
+import file. With the audit-backed logger class, each logger() opens
+its own audit netlink socket via audit.audit_open() and never closes
+it, so a large export/import round-trip leaks one fd per line and can
+hit RLIMIT_NOFILE.
 
-Merged.
+Open the audit socket once and store it as a class attribute, the same
+way semanageRecords already caches the semanage handle.
+
+Fixes: https://github.com/SELinuxProject/selinux/issues/291
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+v2 fixes the code to set logger.audit_fd exactly once and then
+assign self.audit_fd from it.
+
+ python/semanage/seobject.py | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
+index 9ef99be3..93c7f690 100644
+--- a/python/semanage/seobject.py
++++ b/python/semanage/seobject.py
+@@ -106,9 +106,13 @@ try:
+     audit.audit_close(audit.audit_open())
+ 
+     class logger:
++        audit_fd = None
+ 
+         def __init__(self):
+-            self.audit_fd = audit.audit_open()
++            if logger.audit_fd is None:
++                logger.audit_fd = audit.audit_open()
++
++            self.audit_fd = logger.audit_fd
+             self.log_list = []
+             self.log_change_list = []
+ 
+-- 
+2.54.0
+
