@@ -1,134 +1,121 @@
-Received: from mail-lj1-f169.google.com (mail-lj1-f169.google.com [209.85.208.169])
+Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE8B2311C07
-	for <selinux@vger.kernel.org>; Tue, 16 Jun 2026 13:58:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.169
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781618305; cv=pass; b=APKfFBtO+4SE1/ebLA1PELnZ64V2TeQWd/Fpn1b5Wl9OZE3bfJphTxT7gqu3zDnn2TlMA8tpltF1vF0lZQNY59wodSJAXBI/uoNHfSEL5LrjKUXCAfPgpifLmB1pJ3s4PnytOrQVMaia2RCAC4a97x2QraKokikql1HsvUAw+SU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781618305; c=relaxed/simple;
-	bh=/7OTNgYeAp0rpztkItX6WzpvzQkf5cYtF4Tj64lSua8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ESCwwAKDZYi+x26qXgu9TIg2TYZqJvQe+AwWQ/bZLK4xrYWnQfejX7b2AGPBXP2pLgiUbRiSx8p5Qs/6zs5Hd7QrKo7kVuc/tfODB9K/ElQf10AjeQIGw9vd0VDcEPZ+UxIhGaDYIwcZg9hlrg5k4hAMZp2N9SNo/vIH5M3jgEY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Punx+yTw; arc=pass smtp.client-ip=209.85.208.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A8153368A7
+	for <selinux@vger.kernel.org>; Tue, 16 Jun 2026 14:18:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.50
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781619513; cv=none; b=EtgnAKLXkzl2/zmc7v2dclryqG9j1/Bu2pF1ukPCg8VQHFiLqKXbVCA1952m+BD3r/Q3H9xFwCnYNxEUUiGKyzcHKATWVWCWqW/cTZ+/DEvq8Jo4oAwPgFW4knIefG46mXZgRdyCovAvYXQnyaxS1cTTCd5VLyjWgLQ/jplHRN0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781619513; c=relaxed/simple;
+	bh=tW5CzPhoIVkjZJ/x4nMlMCAh7h4yD2cj95ssM96WJy4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=E1WMvidNN+DDMXn5KJBc+Pwa3Z5fJ6Om3tB+9O+dYoj53BYrf58q/PUr6A7AU1VFpjZLo5IVVzMLX84DlD0RafW5RA7MMRCKJpj26Em3Y7eYrrngr8NtAv7kD7zHSAkf69XomTA0eMzUTIC7IjBKeJmk5PbKtY6Uk7i+dQbmcbA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mA6Aqglh; arc=none smtp.client-ip=209.85.219.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Punx+yTw"
-Received: by mail-lj1-f169.google.com with SMTP id 38308e7fff4ca-39676ff4674so39805001fa.0
-        for <selinux@vger.kernel.org>; Tue, 16 Jun 2026 06:58:23 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781618302; cv=none;
-        d=google.com; s=arc-20240605;
-        b=hrvgKJIFNMoR+/nQtsa1vDeAGHq1ad4OoL1IZM6Qgw46RVEVUHkPebfUC9ptaCndac
-         iMsYsawyRx7aE4L56Vas1KIhd35EEhpY1pSBYkcdnxfWSW2DIXt0GxrLVE6DyGNxtmL+
-         4uycCKG1HvQO/DI6POqjPoUeLp9TCBQJcN7/xsIAvzQeT6MIUgJEMbQK3qT3OsBb0lFn
-         u1OlKh6u+O+PYXApoOffDpe6silMLvZFL2OboOHAnxkvLf46A2QqtQ2X4VbWDseo7ZFD
-         H4z7ABJytUgyL3JN2umNJPmsmFt5fqmhUHogRoHF6B/m+rdIMtrBnnEOuKcUGwFkak52
-         oPqg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=F5AZPjjQ8xM5sQMPejUu96GNu3maWL1xncPuCKIxcYA=;
-        fh=X5vnZCWuErBCX3HK8iUwBuHD6/CaNbIp7PYXEJ+WOF4=;
-        b=cFpztly0ZEHd6rTwZf0uFf1gV7mD4eniJ5XVp67NnKa6zjW72rHbnIg96+fbdRocZY
-         9NlMudYbP0JeUeGGlGIUeEybMaopqQNRMqM4YW0+ijq0q2yZZA4ihx6fTT8XRUOKkF6k
-         5p6CSmILWZCsSoDYRUf4gw6QqVAs8o8MLRBv34wX7DEZ2Z4c5Fv7yc8AcY6pNLJlTWIX
-         OYmeT+2JpPlc8hKIFil6otQmoIj+wX4MKJBl65+UR/38pHCmLvamIZqHqKLmaEz8o3BU
-         xd5fNOGOKkGBt0uOEDvHuozFXm4szKd5rxqBqH10T/s+X/5gAsmvxNg8VwZHXDfPggMf
-         mQBg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mA6Aqglh"
+Received: by mail-qv1-f50.google.com with SMTP id 6a1803df08f44-8ccf01ba514so46818876d6.0
+        for <selinux@vger.kernel.org>; Tue, 16 Jun 2026 07:18:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781618302; x=1782223102; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=F5AZPjjQ8xM5sQMPejUu96GNu3maWL1xncPuCKIxcYA=;
-        b=Punx+yTwiZgUJgcClrGQPu/yxRyVxi2J9tCdRI8Go+gcIToVL6MYGFRkPJ3sJuNPKq
-         DzLEvjZxF7LBI07Y5J9XW+MxKvR+YkN4+enIcuSmJ5vJmVpHcnFyaDhw7seGMt3E0DB/
-         L50Rh7uOnX5ztq9mX19K09QZQlOUS12hTMXCiHHZEW2EP7LmC4VUm3cxbszn9Qre+fFV
-         sUvptHtxQ9AN1HbvWim1T/Nk42DX+4OfBcZrChY4dB+GNKjz3nCSH1d4DEGUvSHJleA0
-         nx0YOJUaF7Ot7XXFNG2mDPvFRjnhsc/qz+mZHnUEOchahpWv44B1+mwqLVCiz8eq3USk
-         YowA==
+        d=gmail.com; s=20251104; t=1781619511; x=1782224311; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=i8DQwwtJP2TKiL3PNztJY41ln+HVPWK4/TNScagnCYI=;
+        b=mA6AqglhRUy7Wgx1upbdrwDFaTfkSbaZWD7Urrhx0VpByoAw4sWMXSwBlfrp5ZUQTZ
+         w79wO+hMaf4MvvcwV8/0bvNCsRzJub/MbZHokZ7SKFPfrbk1g74uibtg1xHgrtsvZG18
+         LuUOOHLj3nRnS03QTNN//ztHer5AgTUsZ7/7HJPVwU5B7mQUSpNnFWON6YUhoC6DjW+F
+         SA6YK1LiRmE7rrY18zOLwQsE/Jr+alax3gTdQPZXqPMpRDaNOj6ioM+GkuhoPxDKQVes
+         ++zbPyThcdPS1xxK6PSlQYFAMPK8aXDNno5T2/Iv1iK9ORdkck2bDSvoqreYxRly6CDo
+         7Djw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781618302; x=1782223102;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=F5AZPjjQ8xM5sQMPejUu96GNu3maWL1xncPuCKIxcYA=;
-        b=CY9wK503spoMrf0lRgq4hbtytUiaHw68cIlX+VFentJ3XcRMbXgFQ5arDjRz5J4vP4
-         75LDk1GPHdSfhwnk0ZbouQYhCgZkL8WyYxzcCf2+bvoinalswoASb+Wdtz8CNVbxxHfj
-         ZxS9w6Fgy0DWJMJMM9zMuIlREvSY27eEGOrw0zmoYrlz9OBHpIPrCmKurpen7fte3RdY
-         sc+p3/iWyxWBgQgtBP0WyCxVSro8lGfCr5XWOM3Fvmc09s2/CmsapMjC24zaVHUoiHAg
-         njCEDshY7/KqYZ0PRxVDzm0eC2jm7iGmoReMjO6XV0LLuNYmALkjYN5dxN+RhctoqEeg
-         wK6g==
-X-Gm-Message-State: AOJu0Yy6dtLiKqgTF+Sx5ois9uccJb8RAzoHp3c7GbHCw/s9BmYoK22c
-	EWtcV98sYg85i/vF4Gib/SRCTuuES1yrgi0BP6LXeHQ9yJJB13+6Ypa9EPeNmlfca4a8peYK7sO
-	ZU9KJgzBE6++wi0GQxBmlDnKw1jNyBzI=
-X-Gm-Gg: Acq92OHHVBtajUWwcppkRSjmrjcmfZfSG5bTAJRWmal9BsYMQ+VZ+w2FQ5TTf8sJbJZ
-	dRlRU+JKPnvZExaZhynPHU4hlzLlW/oIq66yT2lawtxB4L+vTn/GA619Ajypbsrdudkdr5YBaG9
-	fSGBb7MVRPYERvyJajGeUYlctnwF57rt0+FWgNpA9r8VT8lWNSUL2FGCO/q1aZmCm+d0v64jLTR
-	OtgQEyb/RGwvMHNZVZvXS2cZB1EpeLcQsCjkwrbQnPQxYsrWiIZ9Vgg311JVj+LRbI3WdQ3FBSi
-	jbNa
-X-Received: by 2002:a2e:bd8a:0:b0:38e:d3ec:4f91 with SMTP id
- 38308e7fff4ca-399355994c7mr42217911fa.8.1781618301800; Tue, 16 Jun 2026
- 06:58:21 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1781619511; x=1782224311;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=i8DQwwtJP2TKiL3PNztJY41ln+HVPWK4/TNScagnCYI=;
+        b=m5lf/kvsktGfcziav4IcMPVAEQ8dCWIoZd1BCoUQaMCVIadj664dTdceW5wRcjvbR4
+         S0W0/9cY0pRqBN+LpYaXXN2r+m51AWvGwo2LVDUelCwlcrxc0CUhyprLOT1e8uz2kSQK
+         v/UbbBIRIknRRebVurVlaptQ1V/i3Q81jNJrYDFwhEFXUJ/kHJdX8bh7+LabYYobRrPl
+         gzihpVUkQcjv1hlpEN18El4OM+DRZJWO7Qtwv4yQOq/VFRnUZKghbr2Ts5VoUMJuKefj
+         u5+u6aQmojEa/GswMe1qEBYigmSroLPM5EMShRrWCj9ebO733q8FY5OhW3G65/H/eiyh
+         7Pjw==
+X-Gm-Message-State: AOJu0YxpSTb50G+wUqLG9Uh2eHJCEOr5oHRB/tiWerc/XDJoI9V+zJQH
+	5/rYFfjrLSOT4aANLvMA0Fq7lt7Ixur03oH1LW+IfMgmbkcCdcz3shcAEzXVuw==
+X-Gm-Gg: Acq92OFf1M1coX58a6K7zyc205uD39dCY+0FMRwoI5cp3aipARbgFeCkPf0b5EDNHgS
+	3QMeShlLQU7S2kBVnotjJGZHlOaXovqL5ZTjNuhn7KE8hRJ+3JbAXHZSm2oErhEnfoyyu0ee0rB
+	xdq2TZqMlsnaqltGnO5ufNfg7sh4WDOG6tTYDLQmM6cibO4mfAC85HflI6sf6+A9RSc2+JUWFRR
+	riClHUElP8VHXcWARh8cisFeWk6d9WoUNGEJ76Uet/Fjnmli98OkTsATl/RyuHhtVDiLEZNb+yH
+	xfuWjkMG2sOqTqqjV2pfXjQGJTSwr/XvjVyhF4mtst2y80hLkqFAwCUKOaKReSoRjzkHGjfboIn
+	kKZn+8A3UcftB+rX2eBwO8AitmXWYA0fiHfxjNsDB3bXe+qFNEKhBr/ZBHiranpcbUEFJlt/WOa
+	WuLRAU7BWDY2IVb9KtDJ3p7wWjmikJPo9Q5DR1AWv65JGSdw==
+X-Received: by 2002:a05:6214:3a85:b0:8cc:ea2c:f2b3 with SMTP id 6a1803df08f44-8da1d7006f7mr54796436d6.21.1781619511276;
+        Tue, 16 Jun 2026 07:18:31 -0700 (PDT)
+Received: from Fedora43-SELinux ([144.51.8.27])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8d9f47408besm34075726d6.28.2026.06.16.07.18.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Jun 2026 07:18:30 -0700 (PDT)
+From: James Carter <jwcart2@gmail.com>
+To: selinux@vger.kernel.org
+Cc: stephen.smalley.work@gmail.com,
+	James Carter <jwcart2@gmail.com>
+Subject: [PATCH v2] libsepol: Check for proper length of addr and mask buffers
+Date: Tue, 16 Jun 2026 10:18:19 -0400
+Message-ID: <20260616141819.37971-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260616123816.52192-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260616123816.52192-1-stephen.smalley.work@gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Tue, 16 Jun 2026 09:58:10 -0400
-X-Gm-Features: AVVi8CfrdfWagrVvxICtBeHVqAlVIwk3VAQYs8JM6aydWsvlXxKIvx4-BYgubY4
-Message-ID: <CAP+JOzS-UzZvod1E1AvqqZR569MJETU1oOG=j8z83NCi-NS3rQ@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: null-terminate temporary buffer in mls_to_string
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
-	netliomax25-code <netliomax25@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, Jun 16, 2026 at 8:38=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> From: netliomax25-code <netliomax25@gmail.com>
->
-> mls_to_string() allocates a temporary buffer of
-> mls_compute_context_len() + 1 bytes and fills it with
-> mls_sid_to_context(), which writes exactly mls_compute_context_len()
-> bytes and does not NUL-terminate. The buffer is then passed to
-> strcpy(), but its last byte is never set, so the copy reads past the
-> written MLS data (an uninitialized byte and then out of bounds) and
-> can write past the end of the destination buffer. Terminate the buffer
-> before the copy, matching context_to_string().
->
-> Fixes: https://github.com/SELinuxProject/selinux/pull/527
-> Signed-off-by: Kartik Kenchi <netliomax25@gmail.com>
+When creating an ocontext node the addr and mask buffers lengths
+are not being checked that they are the correct value for the
+protocol.
 
-Acked-by: James Carter <jwcart2@gmail.com>
+Verify that the addr and mask buffer lengths are the correct vaalue
+for the protocol and output an error if they are not.
 
-> ---
->  libsepol/src/mls.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/libsepol/src/mls.c b/libsepol/src/mls.c
-> index 1cc4e881..ab382e96 100644
-> --- a/libsepol/src/mls.c
-> +++ b/libsepol/src/mls.c
-> @@ -50,6 +50,7 @@ int mls_to_string(sepol_handle_t *handle, const policyd=
-b_t *policydb,
->         ptr =3D (char *)malloc(len);
->         if (ptr =3D=3D NULL)
->                 goto omem;
-> +       ptr[len - 1] =3D '\0';
->
->         /* Final string w/ ':' cut off */
->         ptr2 =3D (char *)malloc(len - 1);
-> --
-> 2.54.0
->
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+v2: Use sizeof instead of 4 or 16
+
+ libsepol/src/nodes.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/libsepol/src/nodes.c b/libsepol/src/nodes.c
+index e3ad36a8..0596f387 100644
+--- a/libsepol/src/nodes.c
++++ b/libsepol/src/nodes.c
+@@ -34,10 +34,26 @@ static int node_from_record(sepol_handle_t *handle, const policydb_t *policydb,
+ 
+ 	switch (proto) {
+ 	case SEPOL_PROTO_IP4:
++		if (addr_bsize != sizeof(tmp_node->u.node.addr)) {
++			ERR(handle, "Wrong address size for IPv4 address");
++			goto err;
++		}
++		if (mask_bsize != sizeof(tmp_node->u.node.addr)) {
++			ERR(handle, "Wrong address size for IPv4 mask");
++			goto err;
++		}
+ 		memcpy(&tmp_node->u.node.addr, addr_buf, addr_bsize);
+ 		memcpy(&tmp_node->u.node.mask, mask_buf, mask_bsize);
+ 		break;
+ 	case SEPOL_PROTO_IP6:
++		if (addr_bsize != sizeof(tmp_node->u.node6.addr)) {
++			ERR(handle, "Wrong address size for IPv6 address");
++			goto err;
++		}
++		if (mask_bsize != sizeof(tmp_node->u.node6.addr)) {
++			ERR(handle, "Wrong address size for IPv6 mask");
++			goto err;
++		}
+ 		memcpy(tmp_node->u.node6.addr, addr_buf, addr_bsize);
+ 		memcpy(tmp_node->u.node6.mask, mask_buf, mask_bsize);
+ 		break;
+-- 
+2.54.0
+
