@@ -1,98 +1,99 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1857E3B19BB
-	for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 20:01:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFB7512CDBE
+	for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 20:05:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.44
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781726469; cv=pass; b=bx4qNtY0m9JKS0Nj6Jt57MXWlPw4wjs2zSKEjyMcDhHWNqFUsFvF8xjkwGH4FIr3eYazZMxJEPjIuYG2Zgf+4JJ09It+RjiqjNKqX9fqRdSJw2fbpFs6wJ/DeoPaGQKgC+svoeYAutiajJo2+Df891Wcoz/z4ERhWdncJcJYt0M=
+	t=1781726713; cv=pass; b=IWCd6wqfk4B8qt0/N5AbnaNaOidZsekxfMlo5ZdbEXJg5wsOKHj3A2dg+z2dQdFUA7ml5/vuzQJqVXS3rsVy0ItXEaGA5NlnnnebJmjLhKHb9I5++uNH5VKt503mbSD1IF1REsnX5rHG9lCPTXK+5q39DON6u/PeshRlogf33YM=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781726469; c=relaxed/simple;
-	bh=Ch8XnjRuHAoH7GmTPK50C/ntfjQNc53FdA5JqESqang=;
+	s=arc-20240116; t=1781726713; c=relaxed/simple;
+	bh=v33OTf5bOUVtpH79Ef+vEY/5OjMIXVCvMwVUXTP1EhQ=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bqwe8TUNvsoqlt/q9mIZU342+MOQc5+pApgqiy4pgky+xSPbRVUUqWiOc2uusCkyi/DkcXbc/qyDZZcQ4JvaRGm3LYc7QO8BwoWxabheUsdJBxf2pvUhFeRE6TbYrEBnLyQl4wWlOsGBH8/ZjgO+OS+ekpQnsjRQYQ6rnO+m/tc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Jjz2toF+; arc=pass smtp.client-ip=209.85.214.176
+	 To:Cc:Content-Type; b=YuhxYwuRs8KVR281hws3bmrUN+13/kX78cg62LT0M9Jh/5B54h9jMrEC8UF2VIZIgXcJ1m8kBsEF06ZcPAAPAKAvu17fD7VE5q13/hn+KysTa/YHfaGBtlbLrbGOPcqtm6v9TrptC7rQwmUX6kFPtwnM28mL+syslOWp65uC2Rw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rcJOgcZH; arc=pass smtp.client-ip=209.85.216.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jjz2toF+"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2c6c9e02e7dso1172575ad.2
-        for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 13:01:03 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781726463; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rcJOgcZH"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-36d9794d82aso65401a91.0
+        for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 13:05:12 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781726712; cv=none;
         d=google.com; s=arc-20240605;
-        b=exsWDzqD43BAorg3MtXZryHrbAJwi9tO9g32SrOGAglzsmggjgZdbLbwlYKh90djr0
-         +yEHVurMPxQHb2iLQCWVqujxgU0S9qERXvdiLuQwuTSx+hNGN4rKjB5H6s3Sn4x69Mn/
-         nAQcivob0esKRNHWwRm5Jljt0vo14bC3C/kBbwl4222DCSX871tqD2bDPpvtyWcCE//h
-         He0jjMK0RV6FXb8C5B6C7ROfnyqJik/yERnj9FPkuuncfXPQybzlj5iocyWlPvnkExac
-         9iWYlLVIj87paXzMTMcTI5lnmmeICS+0PoFuSsOTGZ8EsFPQTnaLarxyDJ84PEuTekAI
-         fR8g==
+        b=gmoIjWAjHLWQt4b15mL5GtDuxlVz7v0FNWu1Q1v3uGKKc+Ygo/udio1EMtgvsOXVew
+         BJ0oONdX2sArVgRKvxfVaDkbETpsn6mQCdy4yr27KD/HSmqE1iTNn+yWgy2ZeUCfUMBG
+         5Y8TGyoX4hIZUEZWp9YUMlssKJ4O9tchHEfm74l95KnJ5hc2Y2/UrAjg5EM3LHAzF82u
+         DTJoLD7jz7rRW3oCVRhzRftLWxHeN/TJKrHGnWkzVuYB+NPK04mA4VXxvQAP0zrYawLR
+         k8eNXhQ7AXa0hbkaVW6V8nw9Ami/rcQZ0m7HjWmUH6Fdr6d+3D81pBp55iZeou5tTqlv
+         uIIw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=rWhldh7o5fV14+UIEGzaR/dtcKCV9BLxpyQxbyM0+ZI=;
+        bh=5e4h/yR5FnS/Rw+FMFQ/jnn8E0aRlkSdBC3WDKV2AcA=;
         fh=FsXghBnyoYbEc42Idnie0oh5A6i9FUng5ntOLhqXIRs=;
-        b=XDH8W/5xhDW+LGGSm78LpnpzzBpcbEVmQk1wvVH1/ljm/f9MopNKFRX82K8ayg2LNo
-         qvA6JA/nmrp5zPLluZAQp9EQbIzO9SojnGzAuf3HYeBMF8eaQy/9iX6E+xFHN7KIcmCF
-         ZJY3YD7q4LWrGWU/E98uvwRUTiQ3HTUV3VbTb9Mjgpxlqc1W8aNlVA/uObAnWIcVVSt/
-         uLKx/0jxdCJ7A7zxJcShF8s0X8dReZt5Q9awoDTyqLvQzOk/jPr+TZYGj8tXah3mTZmB
-         lM5oQZU03n+KhXNmw6uq1RqHRCvZCZvFZulBnM/Rqk0oFP8wbLozNrbTM+fBbLLyaw6N
-         30yg==;
+        b=AI6iY3p8DMme/jwdxW9z5getc7Bl0WV6gdOmMqBIIyDSr84QUZLXMLRU+FibVRx/AA
+         /IeXmudRKZDbzSPhSspuFbeCXUXTUXYbIb4pYMW6wIhQOwbXFjXV0j2vfO7NEPpuM2Fh
+         yXHJCT8WZzSnoOgmjXoBLEolDi0Jp5im7jpPpzT3bqWOSJ2cJLMhYlaRmfQYMNtxZWzN
+         tuxJLaL0g+hXLCKC+8t2YR++LnWzu6zVCOCubIoRJPd1K92Z8WwIa7/RvUdaFbg75DWE
+         +pmgsKutIdHLXqqhPCJBSY2RB7z7u42C2mhmXpnOKReijDBfu52jpWpRh/QpLbkzueLZ
+         WPsA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781726463; x=1782331263; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1781726712; x=1782331512; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=rWhldh7o5fV14+UIEGzaR/dtcKCV9BLxpyQxbyM0+ZI=;
-        b=Jjz2toF+tX3Zwgz08XCqH4VMfag8TEut/JKEAn0L8USYYp/unn3ZmwYMrbesPdWW1r
-         f9YDshEoPHTEC314WD1pVZHpJFd4hMvoe54EDHLzZDkeM4fvdc0oJ7ABETrpacPmmsqC
-         PTvJLuEcllRwtL/DivwfbDdB0uh52hjaTC2S/hrCuDzz3WEUZtgIDLZwqmf92ZhGQQuw
-         8GFm+Lqpajkx45fn1fkQllKAq9n6mzUFzgYO+CWvxryR0/1z4fS7ahf9f/p1lUsdF4t5
-         F8cW1rGrclATI8JGsyM8iXITkdOrUd2QCtiWUWjWfP9X0SGGYZIqXl+U6KROk+ACZ4yW
-         viiA==
+        bh=5e4h/yR5FnS/Rw+FMFQ/jnn8E0aRlkSdBC3WDKV2AcA=;
+        b=rcJOgcZHxIg+OhryTPN8iHwF9TilVDadFYpPJZgzqLuPeqBquwd6vg0IBg4Wvc7dzc
+         GsubVDewW8VRQ+1CAko1wWMM3DFczQnna23W3o6+WDu54bPNdDQ7Tt1rZ4bpCKstPoU0
+         /6w3DOmJMqodsdvH/DxLp1A3jwAwL4ixwZOzEkyBkaEauUnWXiklG/dnES5m09K1SWV0
+         OV91+qXy6hUc1/WhXfvXFgsL5tnLgy8q3sR8lhqKIxH+wZ4nv+5xj/MNpUwoVK8L1DXI
+         OpwekPv3/lZVWGXOIrDcWo67ccEdZbboqzAf13HPA8TEMWUgjKpJtePCYmA9VUK6JU7k
+         I0YQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781726463; x=1782331263;
+        d=1e100.net; s=20251104; t=1781726712; x=1782331512;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=rWhldh7o5fV14+UIEGzaR/dtcKCV9BLxpyQxbyM0+ZI=;
-        b=Dws0e7t9q3Dg7YVEJPWFZi9H/4HwBAElKLTGg+83MLUvoAHxqWgQAcsfH1XvjigVVf
-         gYz3uGCfoSi9ThsERlNRg9cTId5dV+Lj3LwuHISwOegSCLVRFnKkJe9be/GKV3o9mP8l
-         UADTwD+AF+Q6NSQsfNYj0odapktDOrr0iTGmo2EtrIL03B0GLSjHvjGVY3AIKdWuEYKC
-         8hncFrd9ELJh1Z7karIRimeQBhBJOjkAqanN64z2S8YGiH3/tuIHZ5H9pRVh/4g+i3Bt
-         2Jy0n07uO7emQ04OgcsocDkI8R+RrlwP3H8Peo3mFSpQzkU5FCa9b1WbxoMxJQhbUpIK
-         TUWw==
-X-Gm-Message-State: AOJu0YxO2zgsIN2ng19eS569+qcMDor9on9TpDZhjC4tNad18Y+pLYjz
-	JZhsUYNHDNTGMNhmDJHR1GrOJnNhpABUJS6NuAErTPyOL/L3AnLZrt9p411JduNPf+/g6EvSz2x
-	cqwSgxQrQtrr9ONlSRtjA8uC5w+7LGaA=
-X-Gm-Gg: AfdE7clpPPiPiJaDMdm3EMQclWlAziYCm1thqkpn3vZe4H9xnfeuNglssSGjxYcq+I+
-	hp79rutpNh0BZMAf9ijFHSDfjrt3TmmpfPi6Vw4jOMUdy+n5np2lSMc1IdKPA/9xT2MIuyfMoeE
-	lDkMjfC72AnOrPWbqqGZ3QitsRlGz8AadyeCSTLeKpD4AGAX/FOV5c1M2/r/TBYu6aipx9DpA8t
-	jAC26cpvDLgprVnGu+IHDEPF1nLGE/tIYrXnuWJNTypdm0OEZZu2LF2yyH5ZkU1Yu9tVYmRdqew
-	n39Tjs8=
-X-Received: by 2002:a17:902:e5cd:b0:2c6:e1f7:b4ce with SMTP id
- d9443c01a7336-2c6e5277676mr5170535ad.28.1781726460953; Wed, 17 Jun 2026
- 13:01:00 -0700 (PDT)
+        bh=5e4h/yR5FnS/Rw+FMFQ/jnn8E0aRlkSdBC3WDKV2AcA=;
+        b=UDptkSosQPbLAYYBY24sLp0KVSnDFZyVD8kpNoi+F7PiyE7RJXqZN/SALAy+r/Qgeh
+         SdGaDFFcDptz4R6YsPCEh4u2/9zjUd85nudd6sEnSKDjaYkpXvWMbOdJTBmihOzA33E5
+         pQT72SeJehij4Wu/H3w6EP416unBAfsZ/Vt/xle/pQXwM7NDAZBJ74nAHWY19nMggJF/
+         zOMib9NTfJmMSUYDi69Qokw9sZ7c4RqLBvVbK1iuj3xcuL0Ci1JoJo16BAUQf9l2X3Sg
+         +pQOTiMwsRXHqgOAr2LbWia4k3iHbhyaOYszb4ns10JHN3S6WfG9QxalFZxCP25sdl15
+         LEhg==
+X-Gm-Message-State: AOJu0YzvDGm2w0vsfv4i1qUMm9GFI5I8AZWOWeNrVqk70+dIMv0PQKty
+	zWw505tgtQdj/eeydpbbFQ9lwaiNDQorYJAP4fX9QNHKM3HY23eG6Sl2jjP74sx0cLaBe99iE3z
+	N4KXnYJVA8i4sAM5Z5Ey+PE6l3Iv0Z0qfNw==
+X-Gm-Gg: AfdE7cmi53OFEKmjzRf3JyBRZz3+45feoDtZHg4TQh0+APJArrxu+GHp32lNcb5r5r6
+	UqoX+ZBWVKz10E7rxIHHbuftX5Ih5oSUKL/9PaRP8ldKqnZiNeZwVN3kyvh7mfGeTcyXcmGVyfF
+	m2coQEVUktwL/y4k3gLbsmTavABWi4LHPEGZdeNd4m362fOQZ1de/1llAcsPaeCjwsBcAyBDyCp
+	RljbD/+s99zTMqm2JYEZZYbnR7O702Z+/594nG7hO9KRLIGZWTzOo9ZSJAyf79e01Js9T9h2bLl
+	NJFYeMk=
+X-Received: by 2002:a17:90b:54cd:b0:37c:5af8:d235 with SMTP id
+ 98e67ed59e1d1-37c9e8b6739mr4369185a91.14.1781726711981; Wed, 17 Jun 2026
+ 13:05:11 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260617185543.91749-1-jwcart2@gmail.com> <20260617185543.91749-4-jwcart2@gmail.com>
-In-Reply-To: <20260617185543.91749-4-jwcart2@gmail.com>
+References: <20260617195645.96604-1-jwcart2@gmail.com>
+In-Reply-To: <20260617195645.96604-1-jwcart2@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 17 Jun 2026 16:00:49 -0400
-X-Gm-Features: AVVi8CcoKz3BBhLBaEy_aUVN7EI4fprBieezxFBRSBlyBL09BKFqQeSQCqgheuw
-Message-ID: <CAEjxPJ70nZSWVjydSNGXNMybk2=2SO+DbkGGakxYGJKJ4dbqsw@mail.gmail.com>
-Subject: Re: [PATCH 4/4] libsepol: Add checks when growing lists to prevent wrapping
+Date: Wed, 17 Jun 2026 16:05:00 -0400
+X-Gm-Features: AVVi8CdgRprGC1T6MOP4woRsl2jRJqWH3uPrW6ZQfuvFhRVX6QaFnOXBvq9e9RI
+Message-ID: <CAEjxPJ7JWXtoDkUkxt7Og58gwyR2_UyWimdZ-K3oPwSbj9R8zA@mail.gmail.com>
+Subject: Re: [PATCH 1/4 v2] libselinux: Add checks when growing lists to
+ prevent wrapping
 To: James Carter <jwcart2@gmail.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jun 17, 2026 at 3:00=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
+On Wed, Jun 17, 2026 at 3:57=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
 ote:
 >
 > A common idiom to grow a list or buffer is to use "len *=3D 2", but
@@ -105,50 +106,47 @@ ote:
 > should not be done if len > MAX / 2.
 >
 > Signed-off-by: James Carter <jwcart2@gmail.com>
+
+Could also use __builtin_mul_overflow() used elsewhere, but
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+
 > ---
->  libsepol/src/kernel_to_common.c | 16 ++++++++++++++++
->  libsepol/src/module_to_cil.c    | 12 ++++++++++--
->  2 files changed, 26 insertions(+), 2 deletions(-)
+>  libselinux/src/matchpathcon.c | 4 ++++
+>  libselinux/src/seusers.c      | 2 +-
+>  2 files changed, 5 insertions(+), 1 deletion(-)
 >
-> diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_com=
-mon.c
-> index adb7b661..9ffd452b 100644
-> --- a/libsepol/src/kernel_to_common.c
-> +++ b/libsepol/src/kernel_to_common.c
-> @@ -22,6 +22,8 @@
->  #include "private.h"
->  #include "kernel_to_common.h"
+> diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.=
+c
+> index 2623e5dc..dc276b7b 100644
+> --- a/libselinux/src/matchpathcon.c
+> +++ b/libselinux/src/matchpathcon.c
+> @@ -117,6 +117,10 @@ static int add_array_elt(char *con)
+>         char **tmp;
+>         if (con_array_size) {
+>                 while (con_array_used >=3D con_array_size) {
+> +                       if (con_array_size > INT_MAX / 2) {
+> +                               free_array_elts();
+> +                               return -1;
+> +                       }
+>                         con_array_size *=3D 2;
+>                         tmp =3D (char **)reallocarray(con_array, con_arra=
+y_size,
+>                                                     sizeof(char *));
+> diff --git a/libselinux/src/seusers.c b/libselinux/src/seusers.c
+> index e4a844df..08514bd6 100644
+> --- a/libselinux/src/seusers.c
+> +++ b/libselinux/src/seusers.c
+> @@ -114,7 +114,7 @@ static gid_t get_default_gid(const char *name)
+>                         break;
 >
-> +#define MAX_NUM_STRS 1UL << 24
-
-Should parenthesize the expression (1UL << 24) so that if anyone ever does:
-MAX_NUM_STRS - 1
-it won't break.
-
-> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-> index 00db3d7f..ae7d700e 100644
-> --- a/libsepol/src/module_to_cil.c
-> +++ b/libsepol/src/module_to_cil.c
-> @@ -447,13 +447,16 @@ static int stack_push(struct stack *stack, void *pt=
-r)
->         void *new_stack;
+>                 rc =3D getpwnam_r(name, &pwstorage, rbuf, rbuflen, &pwent=
+);
+> -               if (rc =3D=3D ERANGE && rbuflen < LONG_MAX / 2) {
+> +               if (rc =3D=3D ERANGE && rbuflen <=3D LONG_MAX / 2) {
+>                         free(rbuf);
+>                         rbuflen *=3D 2;
+>                         continue;
+> --
+> 2.54.0
 >
->         if (stack->pos + 1 =3D=3D stack->size) {
-> -               new_stack =3D reallocarray(stack->stack, stack->size * 2,
-> +               if (stack->size > INT_MAX / 2) {
-> +                       goto exit;
-> +               }
-> +               stack->size *=3D 2;
-> +               new_stack =3D reallocarray(stack->stack, stack->size,
->                                          sizeof(*stack->stack));
->                 if (new_stack =3D=3D NULL) {
->                         goto exit;
->                 }
->                 stack->stack =3D new_stack;
-> -               stack->size *=3D 2;
-
-Old code kept stack->size in sync with stack->stack; new code
-introduces a case where you could goto exit
-with stack->size double what stack->stack permits so subsequent
-stack_push() could write OOB. Not a problem at the moment I think but
-probably worth fixing.
+>
