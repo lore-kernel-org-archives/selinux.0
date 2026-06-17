@@ -1,177 +1,121 @@
-Received: from mail-qt1-f182.google.com (mail-qt1-f182.google.com [209.85.160.182])
+Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16C4D37B407
-	for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 18:56:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.182
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781722563; cv=none; b=BKEVuraZiM/XwrmA7Bza4T9rns2QaFlX/D6P1AbBepXanwEAgbosOxQ204PzvS+gyvF3yKslXDonc76+f9R3ABjj/uF/zweFbWwVDFOouKWA3kue4P7jlI3cUrHj1GtbPKrKKYT7ESDCQeQ7ffpnzK9lH8UDFjKv1rN8cCYAJ8U=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781722563; c=relaxed/simple;
-	bh=9hQEeVFCnbbhnH67CZxR4vx2xJg50PrSLWIbNoG0ixI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=QpxTH7gJAXvyQFQSb/F69Ngu5yzgLsvM9FiT4HLaQtWo3296h24E6vpMJ1MhOHm7vce+TwFXnp5h7v2B7cNi3sSmw1DMYUYdDy9vZmKqm7AzoMpleR8rb2be2aE0bDNOxP+7xA/bXwU0Vn5294pnsbqzRr6GPF5fVS1JMlvTFb0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=J2eRRXHV; arc=none smtp.client-ip=209.85.160.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C110E38735D
+	for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 19:28:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.49
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781724490; cv=pass; b=TUxkK435zf6HPGhWKfoZQhft0aSf3MSr1ebzurPS1fYOyy4rAjQLqg2ibZMDmCM+9DkhRfzeikzpmtkENpBxtQWaAdsbyEjzKlkFVhp8YMk7HXTCTKl37mqYY5MYPn5272rYrRRsMiFpovZ3/NhH/613Shz2O65Xv+s90KZqAE8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781724490; c=relaxed/simple;
+	bh=mX7pX/gyDqrGl3uZhK2jkjvsI82bY4DTXtvCttLicJc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Ld0qBtFpzN3g2GVuzkHWaUgNJJpYlpzdFLDXCvMQTQ70fyK2qYUdB2+Mcn6IhoqR43ms3q0z3KRv4HJFu53ZattVdZwYbxNZXkvBtQd9P4F1GeasJemxd9GeXPGuaTgVPm+AEOfxZYjLFunNDWbCTDF9EwUc6A/qZsxdhnUpRko=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LzB6bu7o; arc=pass smtp.client-ip=209.85.167.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J2eRRXHV"
-Received: by mail-qt1-f182.google.com with SMTP id d75a77b69052e-5176bbb9384so913611cf.1
-        for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 11:56:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LzB6bu7o"
+Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-5aa5e0d57e5so118767e87.1
+        for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 12:28:07 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781724486; cv=none;
+        d=google.com; s=arc-20240605;
+        b=RvSkY3bAL4QEn+ZcJZoZndLsjD86cE+UqJYKtuRRbhWy/Hd1yw4hEbMnpUnb3XN29d
+         A2HZ9l84NeOGOjS86xkUDo8wBnJG6FYfUNKwjsb4LzAhLpgcJUyz/sCyh/L+PHpN3vnq
+         /REiyMBPbVIym7WUoeK0qN9hu17qaWuKvLsFaJVPk6+7CQBL8WlNWSQHCrsab4i+z0uL
+         mtF0NK2g0ruzxquwVw2V56EXyLHajaX+sA+1tZzgUoTYFYCCL8AOBYrV8es7Hofv9ZET
+         0Z6eb5xW8SaweXKrjF2rsOU1pgvVbqSiF16TiFiVYhBWOCMCPYKrHDAGvanJ+kcOqoZj
+         9k4A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=DTE0bHcGiq2aIu+Tg1an+CNa9fV6ic0KhZk2mziGzPQ=;
+        fh=RcJrr7O3svp8K5gZfgCjK7Xv0tA8i0VIpUekoWsmIc8=;
+        b=DFKyLMJ6tmcsM/GMB1JJVuX/8e+tNMXE1b9IAaZvHOySM7LgbymSsMSzM/SQpiQGTu
+         2UMAxJ2Y88GBmcKhKNm383S0KYeKKTyGf5D0yvj2Wjc7+J7P85hLElEyhYqRvAqaflMh
+         lXG27JvpYhX0Ge2IBsvkV/PuV2crCqRiGjouhj8hTshTfEP9QIt8CGwnYjKOEeoC9NNn
+         Tl4zWW4Ne9C2Kf7GvCi1+to1t3ZxqT+8wvI+3eGFA//ko1HAfbSM3883qf0pAz82exV/
+         z0gSm9+GX3dXRN1f1CmpRVJf34PHeOGNt+PmQooP8MEP1C7NeBg+To9855l//3U6SmlX
+         GFsQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781722561; x=1782327361; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1781724486; x=1782329286; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=uXT921rKfTFtghX8g23tVqSJgSVdgR5IdkI6kBOvMWU=;
-        b=J2eRRXHVK5UGqWVKPDcVJQfIkQ16L8Qkicmt4cKvmfn8qfNKWZyW6Tn/9q3WbAM1/b
-         fElBBuKcumwgfhp0q4GsnA0zPYBv4WzrSj+Kr315zyi6rk180wQh6EuGQBYq5cYo5Xor
-         Fj/vKBwhopp08wgdNkd6yrb9WvGwEt1TEpirP2O5ynwtt2v1WZfWdHTHeTtoh4DBt0jN
-         jSjpMb2Z1eiWa06AXrbmsa7xWQNfOwtRgkF5xuv5At51HS/XRWaZa7U/ynOsx4zrsPCu
-         q0MF8prp44u71t9iqB6SGyD9hzjy49T9I4R20AHdBLgTkmwK9RAq/U0qPsZ2urmV/OJU
-         SM8A==
+        bh=DTE0bHcGiq2aIu+Tg1an+CNa9fV6ic0KhZk2mziGzPQ=;
+        b=LzB6bu7oZOwjnBqTsab8VCCvAzTJabB/NTcw7ryEcZck04f0apW3Ps+2hMxyF34sgJ
+         IUCbP5kIGMG0rVxFBCtq+NTe0GjCpMY60xay/N8FuSf3obdulVoWx/KBn8D+SergIg5+
+         CUtDJuHXf3nMfzeDnTVZNC/hAyPg8+Go5nGBai4vj1AgCsnlvXEA/EiHBqGvN3oCmfG0
+         5Tr5bAEmt8rVKoAoW4u37bADN/APiREnSER7u7LN1wwwgMAZEeEEvPkgdZxq5fslBU8R
+         O9ZhWLOcsUN0HIWYgRfuxX2Th6JiVbYy50J6gjNl+hx7dvMueitwcnYAT7TQxjyEoTUq
+         WiNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781722561; x=1782327361;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20251104; t=1781724486; x=1782329286;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=uXT921rKfTFtghX8g23tVqSJgSVdgR5IdkI6kBOvMWU=;
-        b=PcI7GEuYOeKswo2vhMMCw6Ww9c/P3vFUW43r3dl0fLRf2lm8lnObZ4rPpbPHTeCkXV
-         TLu91jIo6pYRVhSrQPnKySnwVqgDqNQt2+ll84loYvvDOek8ObzAqQFn5ICY7TbIk1hS
-         lKnSvRu7ru7sH22ri7OXYjbUFkGkcFQ/I0jYKp2lKX/gHKASiuxST3ZDzaUb5EeuOHeL
-         uJlyLrls8YHzhSeM+xetaOK3S0URDOE1yAR8Q7jgvuvzClP+tq17zxgiPTH9YOZR4Zx2
-         qp4aG9xKHl9XYL/H2fnoOhn4U80YCQGdziTAaHjIMoMRWs9se+K2AklxQE4Mmk5Jh5R6
-         g6WA==
-X-Gm-Message-State: AOJu0Yy39eXea9oEHs95HZqhDzAPJbvg9iH0Sf2nf0pV1VhhdVqWJAdm
-	2z8wNqnVa4wnSfvjz2RVxzqkrEPv70iYk7FkupneVqgcGxaFo/y4iz5iPRq/eg==
-X-Gm-Gg: Acq92OHKyJolqhyDffzGDyWqraWhTRsgZ3Qu04okddo+6hEc5yQLVMGwNUlml/+/lJ+
-	Q/XOVv9lxZC6wpbWsXUXxg0rBTpWRCCwUrr6uFng6I1Ne7i3P+5in+cKDLC9wyQeX+pQWXLWUcq
-	Ns9Ii9rdo0On2zFWKhXus7WMKAQkdtMpzVsVwUPeP7L4MnTCP6I/LH9prbVvMxM23qGz2Jolbtt
-	sCyro+kfQ0ZSIEnghhCUhQRM11g7Tp3y8QySqWcgPSFYW5EvY+FMiq7t7SruZMXcBfeYzKLcsp0
-	uGL24Yb+p8aHkQN2EIuvaBDGnQV94CHkDzFHiYow1PNsI9fvrVWE5Sx9A+rxL97TvZHA8wTsw/w
-	4UGDlrXtjkLvSEjKvdJKPTRBhSbDpBV7mV6mvsrI+Zg7oo5a6G3BVFwvBJo7XT56ujWKSP+w7B0
-	paZnIHPUpOaretEJAAZ8zK6M262+mTplrb4ECyD4WPrTHkig==
-X-Received: by 2002:a05:622a:8346:b0:517:85e1:38a2 with SMTP id d75a77b69052e-519a8f939d8mr66980901cf.31.1781722560958;
-        Wed, 17 Jun 2026 11:56:00 -0700 (PDT)
-Received: from Fedora43-SELinux ([144.51.8.27])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-517fb7dacdfsm182953451cf.20.2026.06.17.11.56.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Jun 2026 11:56:00 -0700 (PDT)
-From: James Carter <jwcart2@gmail.com>
-To: selinux@vger.kernel.org
-Cc: James Carter <jwcart2@gmail.com>
-Subject: [PATCH 4/4] libsepol: Add checks when growing lists to prevent wrapping
-Date: Wed, 17 Jun 2026 14:55:43 -0400
-Message-ID: <20260617185543.91749-4-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260617185543.91749-1-jwcart2@gmail.com>
-References: <20260617185543.91749-1-jwcart2@gmail.com>
+        bh=DTE0bHcGiq2aIu+Tg1an+CNa9fV6ic0KhZk2mziGzPQ=;
+        b=jDfXtzjZG2jIONMVxnUGy+i9iiayVCH/JgiII+wY/5NnN/v0lqD9BWyBcUuMNgJpzM
+         YLn3nsBmyDoJnKUnarO3qBofRsF9+ThsGZhwTDB+9K1D8IMbfCG3NOSbRlUP1RWrcIE8
+         vL3JMjz9QMlA8BI037hiIEfpW1iQcVwT7HspwtO0OCGV+sYNUawbDv/VniicFBG6SCV3
+         efNeFGW3G0dem1c/kCOpC9pKlLzYOtM2V3Zyxjg/oyLK9EawBxuyR2j3OxVGX9jRFto8
+         dx5ysiOI3MMXUMr7YbkKUBWRG5OgJYPwZ/qsWOuKPalsioNPq8Q6CRbBRB5Fx6NrmsuR
+         pcsQ==
+X-Gm-Message-State: AOJu0YyHfx+Os8pk8uzY8mE+pt6/Xfu/uyhF7CYufACVChjkJWEdQdKz
+	CXmYEzTOS/xzWvKIy4tNm6Sj8VcqiVc3tw0scBuaIOlumL2nzf0riQ0QXjX2ATsIY6kdTf0ZaPf
+	fhKK/SV+axGDq/xiYuYKM4jFt1DCV3e7hRj0H
+X-Gm-Gg: AfdE7cnYDlSL3Izh85QKTr77WXQtaOIXvudqXApm60KW1rlPxG2G0K/Apj4WVHb36Ho
+	uFWBDyUPW1ufw+hWB5q2UO5+u0EZmmvUpLyf45SEjWMXlHryt7SftGQfDxViCqFVr55Bqt8LinC
+	lrWdxejLHgsI64v2grkWH/MMhjp7XGnHSr9dMW9M4B1V6ZBbCbIOv+LJUs5AqTjySDgR8YHbYRC
+	c06ZBsZkswCuD0GGLeg2xx1zZsBfYIWAX9bFHACkA2JasobG6+34+SZ65hGol+458qJrw==
+X-Received: by 2002:a05:6512:234f:b0:5aa:75f7:f01f with SMTP id
+ 2adb3069b0e04-5ad47d9bee3mr1513883e87.4.1781724485430; Wed, 17 Jun 2026
+ 12:28:05 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260616161418.62569-1-kalevi@kolttonen.fi>
+In-Reply-To: <20260616161418.62569-1-kalevi@kolttonen.fi>
+From: James Carter <jwcart2@gmail.com>
+Date: Wed, 17 Jun 2026 15:27:54 -0400
+X-Gm-Features: AVVi8CfcgP8hj1limOPatb_FxCXRdvxBB5Kaec_nAIGVf6iELOV5lJiXy88caYE
+Message-ID: <CAP+JOzShTOCMYodDcyC73Rx0EUkGWk5Rd=D1SOA45gSQ=vfN7w@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: Add missing comment to context.h
+To: Kalevi Kolttonen <kalevi@kolttonen.fi>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-A common idiom to grow a list or buffer is to use "len *= 2", but
-it is possible for the multiplication to wrap on overflow. This
-would result in the new len being smaller than the old len and
-could lead to problems.
+On Tue, Jun 16, 2026 at 12:27=E2=80=AFPM Kalevi Kolttonen <kalevi@kolttonen=
+.fi> wrote:
+>
+> Signed-off-by: Kalevi Kolttonen <kalevi@kolttonen.fi>
 
-Add checks to prevent doing the multiplication if it would wrap.
-The multiplication can always be done if len <= MAX / 2 and
-should not be done if len > MAX / 2.
+Acked-by: James Carter <jwcart2@gmail.com>
 
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
- libsepol/src/kernel_to_common.c | 16 ++++++++++++++++
- libsepol/src/module_to_cil.c    | 12 ++++++++++--
- 2 files changed, 26 insertions(+), 2 deletions(-)
-
-diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_common.c
-index adb7b661..9ffd452b 100644
---- a/libsepol/src/kernel_to_common.c
-+++ b/libsepol/src/kernel_to_common.c
-@@ -22,6 +22,8 @@
- #include "private.h"
- #include "kernel_to_common.h"
- 
-+#define MAX_NUM_STRS 1UL << 24
-+
- void sepol_indent(FILE *out, int indent)
- {
- 	if (fprintf(out, "%*s", indent * 4, "") < 0) {
-@@ -117,7 +119,14 @@ int strs_add(struct strs *strs, char *s)
- 	if (strs->num + 1 > strs->size) {
- 		char **new;
- 		size_t i = strs->size;
-+		if (strs->size == MAX_NUM_STRS) {
-+			ERR(NULL, "Too many strings");
-+			return -1;
-+		}
- 		strs->size *= 2;
-+		if (strs->size > MAX_NUM_STRS) {
-+			strs->size = MAX_NUM_STRS;
-+		}
- 		new = reallocarray(strs->list, strs->size, sizeof(char *));
- 		if (!new) {
- 			ERR(NULL, "Out of memory");
-@@ -169,12 +178,19 @@ char *strs_remove_last(struct strs *strs)
- 
- int strs_add_at_index(struct strs *strs, char *s, size_t index)
- {
-+	if (index >= MAX_NUM_STRS) {
-+		ERR(NULL, "Index too large");
-+		return -1;
-+	}
- 	if (index >= strs->size) {
- 		char **new;
- 		size_t i = strs->size;
- 		while (index >= strs->size) {
- 			strs->size *= 2;
- 		}
-+		if (strs->size > MAX_NUM_STRS) {
-+			strs->size = MAX_NUM_STRS;
-+		}
- 		new = reallocarray(strs->list, strs->size, sizeof(char *));
- 		if (!new) {
- 			ERR(NULL, "Out of memory");
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index 00db3d7f..ae7d700e 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -447,13 +447,16 @@ static int stack_push(struct stack *stack, void *ptr)
- 	void *new_stack;
- 
- 	if (stack->pos + 1 == stack->size) {
--		new_stack = reallocarray(stack->stack, stack->size * 2,
-+		if (stack->size > INT_MAX / 2) {
-+			goto exit;
-+		}
-+		stack->size *= 2;
-+		new_stack = reallocarray(stack->stack, stack->size,
- 					 sizeof(*stack->stack));
- 		if (new_stack == NULL) {
- 			goto exit;
- 		}
- 		stack->stack = new_stack;
--		stack->size *= 2;
- 	}
- 
- 	stack->pos++;
-@@ -4595,6 +4598,11 @@ static int fp_to_buffer(FILE *fp, char **data, size_t *data_len)
- 	while ((read_len = fread(d + d_len, 1, max_len - d_len, fp)) > 0) {
- 		d_len += read_len;
- 		if (d_len == max_len) {
-+			if (max_len > SIZE_MAX / 2) {
-+				ERR(NULL, "Buffer too large");
-+				rc = -1;
-+				goto exit;
-+			}
- 			max_len *= 2;
- 			d_tmp = realloc(d, max_len);
- 			if (d_tmp == NULL) {
--- 
-2.54.0
-
+> ---
+>  libsepol/src/context.h | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/libsepol/src/context.h b/libsepol/src/context.h
+> index 525c43df..7c99c9b6 100644
+> --- a/libsepol/src/context.h
+> +++ b/libsepol/src/context.h
+> @@ -13,6 +13,7 @@ extern int context_from_record(sepol_handle_t *handle,
+>                                context_struct_t **cptr,
+>                                const sepol_context_t *data);
+>
+> +/* Create a high level representation from a context structure */
+>  extern int context_to_record(sepol_handle_t *handle, const policydb_t *p=
+olicydb,
+>                              const context_struct_t *context,
+>                              sepol_context_t **record);
+> --
+> 2.54.0
+>
+>
