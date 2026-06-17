@@ -1,68 +1,68 @@
-Received: from mail-qt1-f177.google.com (mail-qt1-f177.google.com [209.85.160.177])
+Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AACB37B407
-	for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 18:56:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 649F137C91F
+	for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 18:56:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781722561; cv=none; b=m2nLj5DbCSK/aVL6X7dYbsfWb5t0tbwNkgJsgVemVMMnzgDekyxeNlikQgxhDq5tRNlSqnBFchm4TvxdLPDEj2yDf3a+mqu5EJtkcejuDqSCcIgyjZhrRaJsmLhJ6pPd7EUXdVUEGgZ0sWIeXPCcEwd8eFTu6Ezqrpf1bXJ69EA=
+	t=1781722562; cv=none; b=DywdtZl0IKta7odxmQ1nbqWsZvsuCG1VFnMTPadnoO1EYZFYSzmKOY3eJbutkmcQT/c4b/ZmWJ7DuCvxdlbyO9BoRyPxsY+/LvvIPmQ8xPCNLKxctdrnPw+y8ycxS1q9a+cKbv+t3PZtzdCF1ygi/le/pvHbYB6tjqpy7QjwZyA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781722561; c=relaxed/simple;
-	bh=hRmys7ozAJbaG4oW8TVISyCgG4/xFtMmBPlRZ7lAiag=;
+	s=arc-20240116; t=1781722562; c=relaxed/simple;
+	bh=99EGMALpfSCb5kprFnphEsBdXVITwxhunh9da0Aa9e0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=bzNhP0H9cKCgrsEhA93oH7h0u2HmoSYber9F9bpD0FACPc2q1mKJfJr51yNrphsohoLCTyw8yExzsxq65okr/7Kl6tNpMVLpkaAJc0iTz/bA401sUPAbsaWyMaOzqPW0zKzscWu6/Gp2gcJL0AOVlRmMUq6Jp3rQOB1rpbY5/58=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SuuDdAok; arc=none smtp.client-ip=209.85.160.177
+	 MIME-Version; b=nJzHeWC86hNmTox9zcByFZ6LOKf9/SeAtMa7U6Yl4qwNpgepkUK1VQY0lNBGJdUwBLcA1LSF9ujAIAY5c8eqbGnbASfErg9BkrMeWqTSAtu8l5jleb/ukHB1JNXc0Nrp0qRH1Z6eRRG+FZkF/xl3aKEp6FRd79eA1prKZ/xLeRo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=d6+26Ksv; arc=none smtp.client-ip=209.85.160.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SuuDdAok"
-Received: by mail-qt1-f177.google.com with SMTP id d75a77b69052e-5177945a22eso685871cf.1
-        for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 11:56:00 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="d6+26Ksv"
+Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-5176a2fd597so861291cf.1
+        for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 11:56:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781722559; x=1782327359; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1781722560; x=1782327360; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=3t7ZPIcU2SW1cZH2FAuprkZ3ceokr9aGETj9nPBqu5k=;
-        b=SuuDdAok9j1y9AZSM8ErZTCLrPRfgPgz6YEnZTZU/EW8wtp19DWFOrKaOErszT16n8
-         Pc62lASm5slKJ1MyuRXLeecViWCmpbCG70ZjFs3qfFWoE4bUun2yRQaU6GZdbX1YzuH/
-         5lAQIdgBbRviyZ4D5TKymFXyz6GFnWTCAQ9EGwuU6FagiWYl09WFK2v4UC+cXjnsJcpP
-         dT8yvNWBnCTElC7CRyAioxxa5O1khgLLsPZ1tHTt3GjdBAQHkjXRauNXRfCDlk3OatMI
-         Q4wBbMAxFjFaLY+2Ye4tRIcBKLb75MpPR4OzDONM+t4m7xcBaoDE4yvLq2gnAwlGO06h
-         5OVA==
+        bh=VKJIfJToOKWvkQMoezcOrzBd3+WDT8LYcQjEUWRPwZs=;
+        b=d6+26KsvLMiQl3lh02NSvCQzOBb+2nzAVkklecuOV76R7nWD5pfPCIWpC9eA3RQ4U8
+         /aJiqmSTiJuHT9cCZiSeJ3o6YsCZ746oKvwm8ngtKCLFrnz1E6ULvfH9OvLtFNeOgOtc
+         +aR0cVoCW1Y6CKHW58++I0hiQPFIWwfI5Q+oVz2jWQz8xwSvgCdvb1Tvqa0ttyIY63NG
+         Liw/rknL+x5DToFsnS+2zQljfMSZcMeD7aZttG0vmvR+QBnkHJrJHhXO5QY+TRBoCbKO
+         +y8mLggFN5FCshE6xU1+kFc5n+SqfGRxBwyzymM7PzRON8L0z25CzDNIcs/6Or+y2NKI
+         tEnA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781722559; x=1782327359;
+        d=1e100.net; s=20251104; t=1781722560; x=1782327360;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=3t7ZPIcU2SW1cZH2FAuprkZ3ceokr9aGETj9nPBqu5k=;
-        b=a9d52TpJzH16m/z+jEP2Q23tyD7UhLV7gntFYJ8Fm9Dq86Q7hap39D802z3whYLisk
-         X+xLBfJqZj8jqUX9paWRY7DNUZysWUoeCFpi3z4JWaemgfSWE8kox7BRsxf58hQfysDF
-         K184iBCrJmGHGsC9e76dA47GY2Dl3sN/kK3w2sdbSyoqpTp3/iZpPicrqKt8Jg1u1RIP
-         PWiUZCE3zvucI5AnoknexLLYPHyUTZBMvTS7hqk/eghwI7Y8ec/8Qd6abSY08gV//NvK
-         zH0ZDcz4ZUZ5wnpbke1FQ+2JsKygy8brBEsLGC1lIpsWqw7cUE0ZmLuSY13BHGuyhXBg
-         fkiQ==
-X-Gm-Message-State: AOJu0YySFb6BXkF9Dj/EptUuk8B8H9XIddbGnxUlHDcL9N5i8NH5qp2A
-	IO9XOmX+4xEGUj1qy1uDahlYzt87BDdZVwO1aSjjylsgl2MslPuNEBkaY7ZNQg==
-X-Gm-Gg: Acq92OGb28gYkCD9YdjSGEuErFxYUyIEoqZ4tLIqNK+/llIJoSpts8Hv5lx6gPHAoq/
-	sRUzsCIxhQ2BZnKvSiy117aK3dkgamYNX+78JgLsfQl51Sq2uTmgpQ7Iag3UqnsA6wNzsXn211w
-	qU48aGyCzYaTEI3wl/hvfE++Y9bJFA6i2qSZnkRqPNCLEIkTBd1zITwH5Gx/EBcMZynMg+Pqy9t
-	7pqkjNOK0ooFQM7e1U1CUR+bKK376HFwKXYH7Zh8VzoJFSK3c9bGmx6bIDkew3hsKgmTQZMICY1
-	p3m/5E/uRzRpcJn45Rc7WERhW5o0+SNHcOt9j/gvLt0ELq+vELGskHeJKTQ2K+9iMRAqMDTdpeL
-	z7Bd1NiOXjwy3b0mWbMqCRIIvuzFkFKiL0MfJzfxLXjFfQ6fcE7KY5NIxvJQXI57uLrywejcnPZ
-	pOTSaPjC7QlX/o3F/smvygeT3h+RY33Uu/f+1sOdmRR7Qc0w==
-X-Received: by 2002:ac8:588e:0:b0:519:89f6:ff7 with SMTP id d75a77b69052e-519a8e2e062mr78748611cf.23.1781722559519;
-        Wed, 17 Jun 2026 11:55:59 -0700 (PDT)
+        bh=VKJIfJToOKWvkQMoezcOrzBd3+WDT8LYcQjEUWRPwZs=;
+        b=YnDzbxakSAJC391iuswb2I1FJKM+X5r1uLd85u+8syueyFX6Pu+QbgfnwbcFXYWXVl
+         g5mzVYSjtVzje2x18bV2P/h07KLlZhzEr8hf2X2LBeW5ZQQODhCopZKm68yckfnyKVFv
+         43HtCGqTxUBWeUPvspMm910jkxKC0xLiB7QMWg59KhRKHBBKz0DD8Px7n2BtqfRp4zl4
+         Bzuao1vGIY4SYGFURgTR7/fRZKfOKZQizCCOXUyOfdS+Q7xELJJZgWB4t79x3dWLVDMf
+         eXQLu9GvPaV2QrIgJBCJJqimF+h9b4q/26DpJokIFqQ1MJau4gkixRhw6AzsG2aLRjww
+         DI9g==
+X-Gm-Message-State: AOJu0YzVJnCx621OTEPoykeB4z5nmKEuYNBxhZJFykbGHa7G9cH0MhtX
+	n8cZiGeHaZFybIjAZEYkIQD02K1FUuBjhnQCdFizMQ6GHxKqsncXZLpB0wHRoQ==
+X-Gm-Gg: Acq92OGc5FOgf+ouF0qiehzraciGbLUjaixJHYgetGzmq/hL+14+ZVwVoYBaqeKJjd0
+	KZtteST2Jt4OyKN5NXrBI2lK9/PILN10rzwztwlG7dqv/Z0OCnrI/sxONlwXbxnJ2qaYzFPOk/a
+	HOtB2HO1+EGuNKXr8fiS2w0ej0a0MBCu6S130Gzg3yqmWpfsYaX9pIF0pEyY9w2qJsza7NGgKyZ
+	GT1kcznRYsteW50b8VX2z3OJjtVYKDlQQFpSHNs9+4ke/PUyW/9UKOc0HebXISDWMD9MW0DTM6n
+	wGsjQWcbe4yhWqz6MRsM+lxW38LzDQnkhmRUoavATa85pMKS41hG+jUUkYtqy5zeWLDB9bPmhjt
+	R/EugjJ4JpPeumFbJu/m+mzztNphUZuDj+SHxUY6Uya+2Ghs5XYeGK81llILLm27HJ61pc5dkqB
+	uvdJDOz3bAzE/D6dktGPPtnFdfIfJX2+LfptQ=
+X-Received: by 2002:a05:622a:512:b0:516:d955:ea6 with SMTP id d75a77b69052e-519ac2101b7mr64230141cf.14.1781722560218;
+        Wed, 17 Jun 2026 11:56:00 -0700 (PDT)
 Received: from Fedora43-SELinux ([144.51.8.27])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-517fb7dacdfsm182953451cf.20.2026.06.17.11.55.58
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-517fb7dacdfsm182953451cf.20.2026.06.17.11.55.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Wed, 17 Jun 2026 11:55:59 -0700 (PDT)
 From: James Carter <jwcart2@gmail.com>
 To: selinux@vger.kernel.org
 Cc: James Carter <jwcart2@gmail.com>
-Subject: [PATCH 2/4] libsemanage: Add checks when growing lists to prevent wrapping
-Date: Wed, 17 Jun 2026 14:55:41 -0400
-Message-ID: <20260617185543.91749-2-jwcart2@gmail.com>
+Subject: [PATCH 3/4] libsepol/cil: Add checks when growing lists to prevent wrapping
+Date: Wed, 17 Jun 2026 14:55:42 -0400
+Message-ID: <20260617185543.91749-3-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260617185543.91749-1-jwcart2@gmail.com>
 References: <20260617185543.91749-1-jwcart2@gmail.com>
@@ -85,56 +85,104 @@ should not be done if len > MAX / 2.
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- libsemanage/src/direct_api.c    |  6 +++++-
- libsemanage/src/genhomedircon.c | 10 +++++-----
- 2 files changed, 10 insertions(+), 6 deletions(-)
+ libsepol/cil/src/cil_resolve_ast.c |  7 +++++++
+ libsepol/cil/src/cil_stack.c       |  4 ++++
+ libsepol/cil/src/cil_verify.c      | 28 ++++++++++++++++++++++++++++
+ 3 files changed, 39 insertions(+)
 
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index 9572dbf0..54803515 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -588,7 +588,11 @@ static int read_from_pipe_to_data(semanage_handle_t *sh, size_t initial_len,
- 		data_read_len += read_len;
- 		if (data_read_len == max_len) {
- 			char *tmp;
--
-+			if (max_len > SIZE_MAX / 2) {
-+				ERR(sh, "Too much data");
-+				free(data_read);
-+				return -1;
-+			}
- 			max_len *= 2;
- 			tmp = realloc(data_read, max_len);
- 			if (tmp == NULL) {
-diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
-index ce7ea167..8dc2cb56 100644
---- a/libsemanage/src/genhomedircon.c
-+++ b/libsemanage/src/genhomedircon.c
-@@ -1090,7 +1090,7 @@ retry:
- 		goto cleanup;
+diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+index bdbb871a..23faf33f 100644
+--- a/libsepol/cil/src/cil_resolve_ast.c
++++ b/libsepol/cil/src/cil_resolve_ast.c
+@@ -652,6 +652,13 @@ static int cil_resolve_alias_to_actual(struct cil_tree_node *current,
+ 		}
  
- 	retval = getpwnam_r(name, &pwstorage, rbuf, rbuflen, &pwent);
--	if (retval == ERANGE && rbuflen < LONG_MAX / 2) {
-+	if (retval == ERANGE && rbuflen <= LONG_MAX / 2) {
- 		free(rbuf);
- 		rbuflen *= 2;
- 		goto retry;
-@@ -1171,11 +1171,11 @@ static int get_group_users(genhomedircon_settings_t *s,
- 				    &group)) != 0 &&
- 	       errno == ERANGE) {
- 		char *new_grbuf;
--		grbuflen *= 2;
--		if (grbuflen < 0)
--			/* the member list could exceed 2Gb on a system with a 32-bit CPU (where
--			 * sizeof(long) = 4) - if this ever happened, the loop would become infinite. */
-+		if (grbuflen > LONG_MAX / 2) {
-+			ERR(s->h_semanage, "Member list too long");
- 			goto cleanup;
+ 		if (steps == limit) {
++			if (limit > INT_MAX / 2) {
++				cil_tree_log(
++					current, CIL_ERR,
++					"Alias checking did not resolve for %s",
++					alias->datum.name);
++				return SEPOL_ERR;
++			}
+ 			steps = 0;
+ 			limit *= 2;
+ 			a2 = a1;
+diff --git a/libsepol/cil/src/cil_stack.c b/libsepol/cil/src/cil_stack.c
+index d9c7b0c0..c80ed7ad 100644
+--- a/libsepol/cil/src/cil_stack.c
++++ b/libsepol/cil/src/cil_stack.c
+@@ -77,6 +77,10 @@ void cil_stack_push(struct cil_stack *stack, enum cil_flavor flavor, void *data)
+ 	stack->pos++;
+ 
+ 	if (stack->pos == stack->size) {
++		if (stack->size > INT_MAX / 2) {
++			cil_log(CIL_ERR, "Stack too large\n");
++			exit(1);
 +		}
-+		grbuflen *= 2;
- 		new_grbuf = realloc(grbuf, grbuflen);
- 		if (new_grbuf == NULL)
- 			goto cleanup;
+ 		stack->size *= 2;
+ 		stack->stack = cil_realloc(stack->stack,
+ 					   sizeof(*stack->stack) * stack->size);
+diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
+index eb732e44..ee90b0ce 100644
+--- a/libsepol/cil/src/cil_verify.c
++++ b/libsepol/cil/src/cil_verify.c
+@@ -975,6 +975,13 @@ static int __cil_verify_user_pre_eval(struct cil_tree_node *node)
+ 			}
+ 
+ 			if (steps == limit) {
++				if (limit > INT_MAX / 2) {
++					cil_log(CIL_ERR,
++						"User bounds checking failed "
++						"to finish for user %s\n",
++						user->datum.name);
++					goto exit;
++				}
+ 				steps = 0;
+ 				limit *= 2;
+ 				u1 = u2;
+@@ -1028,6 +1035,13 @@ static int __cil_verify_role(struct cil_tree_node *node)
+ 		}
+ 
+ 		if (steps == limit) {
++			if (limit > INT_MAX / 2) {
++				cil_log(CIL_ERR,
++					"Role bounds checking failed "
++					"to finish for role %s\n",
++					role->datum.name);
++				goto exit;
++			}
+ 			steps = 0;
+ 			limit *= 2;
+ 			r1 = r2;
+@@ -1060,6 +1074,13 @@ static int __cil_verify_type(struct cil_tree_node *node)
+ 		}
+ 
+ 		if (steps == limit) {
++			if (limit > INT_MAX / 2) {
++				cil_log(CIL_ERR,
++					"Type bounds checking failed "
++					"to finish for type %s\n",
++					type->datum.name);
++				goto exit;
++			}
+ 			steps = 0;
+ 			limit *= 2;
+ 			t1 = t2;
+@@ -2112,6 +2133,13 @@ static int __cil_verify_classperms(struct cil_list *classperms,
+ 	} else {
+ 		steps++;
+ 		if (steps > limit) {
++			if (limit > INT_MAX / 2) {
++				cil_log(CIL_ERR,
++					"Class permission circular reference "
++					"checking failed to finish for %s",
++					cur->name);
++				goto exit;
++			}
+ 			steps = 1;
+ 			limit *= 2;
+ 			orig = cur;
 -- 
 2.54.0
 
