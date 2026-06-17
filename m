@@ -1,107 +1,133 @@
-Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C1C9477E3A
-	for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 15:42:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.179
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781710963; cv=none; b=jh+66yK+4tD8TcjcGTzXZb2lYy+tKEefjEQYyQQQw0cYTCKGGRTaGL1v9S0Q+GPOMCYnhZbh9cxIYPZ8E/Ii+n3BkImK1y3Z8hPyGamc8TP82To7KzNvh8OKZuGH500Q0kbfFWjbuvwH6QAnc1yTrR6ss7/ghwiNAsQfBKSZur8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781710963; c=relaxed/simple;
-	bh=LEAtUIwXx733TEfIjdl8zMHJuW9vvzRgkQ6q1k1HZ5M=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=FQbCDMaJNmnvCh273no5JC4GO4m//MeXPNo6AXfh3dD/RiIWXahj400bJXf3GcQJwmA1YI0R8jZB7A/WntzWxwxg6xJcibU73jXucAzD0RfA7tzg04pO/YqoYbnqzCzaIrcjpRrj4oTtDGtAKElYsGYJqUSaTHmVE8UkR/QiDfw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pLpvqM/H; arc=none smtp.client-ip=209.85.160.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E39447A0A1
+	for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 16:28:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.45
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781713730; cv=pass; b=rq/c6J23e0s24d4iq2f5Eef6W5CzulzcP2lLCVHpf+OnV2MzJGIobXzIM8yqxFZcOaVd60YP2z+dkma6y4fXkntaCGBrfOapVmrs8mFFwbniZ67cTN6DzcRM9Tvfp4KFBvltNr+xiwMchd5X1XOh3FmFPctTtziLZcFOA53w42M=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781713730; c=relaxed/simple;
+	bh=qlmPQHFvAjaTQ661HjB8OsVgd5U3Dmt/CSROVmmijRs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ESVkTJWR+CJUABxh6gtMLKFP3Es9E6Q82DsyR968uXAdaVHeuIAC/ayE2nS9j6iX57yZ+s8XeHIQnM+5e+d6WSDJPalvNppOOZuHphR3SU/BV2A0Heyj5MyESQIzPIsKd1ZGGkrphciaUCkeUlcPOJ1edCBFIVJJVifJQ1btk1I=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SrOZcVJn; arc=pass smtp.client-ip=209.85.216.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pLpvqM/H"
-Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-517dc520840so63025501cf.3
-        for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 08:42:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SrOZcVJn"
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-36b9033d230so762129a91.1
+        for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 09:28:45 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781713724; cv=none;
+        d=google.com; s=arc-20240605;
+        b=dSzh8zdtpa9ROUYqJbTH53lMFPL53kd99c4xpviHA+bw4p/cVN0A12mLBlsw6vE0Ly
+         VTB8vC9JffJqq2bjQJ3j6b/3cQ04CqVwvfi1lukubomjrUQ+XgYug+P54HeBElP19zB+
+         b1k+rQzzoQyOZqxWEAmzxDBPKpirJYbJOnWiPhG9SLZDHh1GPLnjLAph4aelcb2q+040
+         kw25sMQYLNgeFIAmaRKCoWaiQw3MRiAollB/ixN1quEq+uKXvZE5GuPWBZW+vxIp7pVr
+         yzZr2x8DT5VhD/cQN2YoK0aUASln2m5CygUXQucYPQV1hv5CDCQk6yYPMHeaUPO0SuNZ
+         onuA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=CtlTHXjNnx+SLBITpVARdMgKLJLTRuW3CBbIaDDctio=;
+        fh=+ymDRLpvH5V4NxzbU6EHTgZVOx8LXRvHxwaIgjsFoxU=;
+        b=U7iCygtydx1Op4zCiiAS/u/YBSteuglZ/4iSUrmd4hY2T9vRGJv8UvNSiR+paVIEv1
+         CyksuK7fz+xD5kWaOu9Fkr4pUH6EcySai8vztcttV9k+hTUT13+c0Ff1xTfJ+MUIJFNy
+         XB4klJqc9RGs4LkUSBmXFjRrDRE0ZaWkyPnb4+P/wf9n3eU77FwmVIfW3IyGhgESRjeT
+         tdFVXLWanbpzczgKcTG7w+vr0kSQLxU3cFlMdQqlOm9F/KtawBa+jsp/vx/EWW2BSCMq
+         U6oadMceOmdESaMwt9AdwguFVLUSrjXuHNeAcMkuJYJIjob3Gr4tYKZHOpQZcuuaLTtE
+         NlLA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781710949; x=1782315749; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=l3CMwwCm/HIeqve7XUWEtsC7bzV1MSb47AuDvqSDtUs=;
-        b=pLpvqM/HhzjHEt1dO317EMay+8665EO+omN016nS5eQpF3piqUuf5bPvOWX4e7vWMJ
-         bHQ6puC0wf/RUXeR+JPUE78r7H25DZvNypgMc7Vt3rvtDVUlc6IQI8wKK3S8EqyMRo4H
-         u6uOBS3L5tPy5wOaiuj6DsC56ahLZr6q62HoVHNAujUDhGR65yColW3U804DWjcOnXG3
-         KbvZgtZgLffpQdz8Q5TkHx/LpQyxTCfp3fnCSz5jjxEL1VxFXpOKJJvSi8YfSqskgksM
-         q2ggl9c2tsVHoRHjvgFHVUGB+eGzyrkStpmpvh/4WDDcNBsasrON1HVOJdIIE7Ws0API
-         qhkg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781710949; x=1782315749;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1781713724; x=1782318524; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=l3CMwwCm/HIeqve7XUWEtsC7bzV1MSb47AuDvqSDtUs=;
-        b=MRs17ETTDCnU7tnod+3DIlklyRfFx8tvPCPyQbJuwa8Qv6voT+EH2pdtDwtSxoYxKA
-         +KWIWO3TkFcushlNPZkCAJtFNAvw41C+RIvDc31L46spvyoDftS7FI9wNVlnYh3KnbSW
-         tTuoWmsDuqnHLpL156G+9vcJq5HZys+VIlYJpQCoFI9P7z9BEMa/tHoSVshcGM3gNpA1
-         fTPtizgAT0/ZBByqutYPO/kBe0CBSiZgwJ5FBa4LYFOmlsEXKpm+cU9msoP3XbkoGWBd
-         wvmgPHd8emHraD7MfvNFErnQWxyWNHzyMwbUAKNdjxCgOvbJ/E6Qt0bib0Z2YfzELWGc
-         GIdw==
-X-Gm-Message-State: AOJu0YyCrabgWDcDGoME5XWbnydxcXjIlMnt7TMVc0TWUJe+xNWYggJE
-	LaDI/+Gj0kMqscFIOTNfJo8lYTCNdGwbYpBZ+bTctKkNvZ+b84UW+iTOfKUdyg==
-X-Gm-Gg: Acq92OH7LfHxSqRWvdAZwIuftDrMa7U5as4+tIzCrw+xoQyli/sOIda9OFMKQ5lQBcB
-	TTojU+oRI0fkBn8XVboDjCDZ7ejgcxTAP7CDFQB3ymESczLU1LQ7murkdncR2oTOI3mpPLWRo2F
-	5i7TgA789b9ZN6K1ZT9hLYztU4WFzKCiR3Hu+RNjLmQc7mswcDIcuHwRS5Ye4YYHSgraijlw2cS
-	CUOBSYrJIQuuOZEw5W8ZjSbGuNNwVKtHfcpqMMYR1Ba0VuRjBzWLuuXrwdIg22zI6Vi8TyYL5hN
-	AwtWgZfDs2nbhg04cw/0GN4vY3UKi4bAD1q/qXaGNWHAtlvmlamKeLmn1jEjD3cdBowuIzimmME
-	Se+JpxcXRFMXHv31v/J4EpugqW/BSabyPbGL3kyg8A1QHz0CWpsMCTHPDq9lPy63Q6ckxzJw8XH
-	nw76Tm/hzJsP484YOqueKdqDHV8EiOeSLQoFPACYlIoJXOTUn0AnhFB5cxExTeOl1cxD9ed4Awd
-	tA8jjJw1onttYCc
-X-Received: by 2002:a05:622a:a6db:b0:50f:c1d4:d9e1 with SMTP id d75a77b69052e-519a8fa713emr64450631cf.38.1781710948823;
-        Wed, 17 Jun 2026 08:42:28 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-517fb642740sm171215131cf.7.2026.06.17.08.42.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Jun 2026 08:42:28 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	plautrba@redhat.com,
-	omosnace@redhat.com,
-	netliomax25-code <netliomax25@gmail.com>
-Subject: [PATCH] libsemanage: guard end of path in semanage_fc_find_meta
-Date: Wed, 17 Jun 2026 11:42:14 -0400
-Message-ID: <20260617154214.67285-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.54.0
+        bh=CtlTHXjNnx+SLBITpVARdMgKLJLTRuW3CBbIaDDctio=;
+        b=SrOZcVJnzg9oIAC0fgEnyf/WLKKgu5iwgAqv6jOsQMV7m5MM10I0LiyuDGKRHA2RSp
+         smVD8MfUPvUPDd781xOoL6SD5PrAU1D/EqS89EpOZjjY/uLOqyMTS5v5Jz6wuxypL5Yi
+         Iw0vVBeFvnbs6yu0irasDjqKn0wjzmC45pKXBVNQHngR1jw8PNl01XLSpsLTvRZNLkTa
+         /E2l6t7Ts+sCwi5bn9J/atSP/qkEmDCwDgRDEsRUYp9ULIQXnBVRESFYDTVGeJcy/N+s
+         YcbAiEUhidMYftjUl8RwTykB4jdLKVvnyuTVl0jqkgDaj+VEY4LCN53a1Dffz4GuRXMQ
+         g0MQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781713724; x=1782318524;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=CtlTHXjNnx+SLBITpVARdMgKLJLTRuW3CBbIaDDctio=;
+        b=k39X9ob9/iSC7MhnkKJsZT8qrHLZZjk13i6mW59idvb9yX5JOfpQadgKVjhMOKuAsd
+         5hU1+KE6yUD1YoZvcumhcnhiOHIlmWndHKKJJgfCI2ecemuM8VvB6wpi2b3eHShlS95d
+         x5WkVR6wTfXMQbkbvPa2T1CXaeoDNN3am3peF9xA+jes0jfRwVn6mN3L2GGiJltn2TZS
+         BdnpUCLw6uQIzt/fZfngYQsxUqpDaC9B8cQH10L7+3071WgjCyZYGsPk8cxvKw9PCaoU
+         BpX8xHK6vdJp1uSlZMsvkiByXCN23c7sTX7jmrv9TAl1d4xBZT+wwhp/sC3f6nnr3RcT
+         /btg==
+X-Gm-Message-State: AOJu0Yx/6hxO5vIc+ILbLLVWH1f3X9L2Q+j9xlD8GHMGKsF44gstojK0
+	wcliKfoum0CGr510m7wkxMqpEygYGACXQg6pLDADQ7opYevjOXmIHgmeghWW+v6/dH1XjdE+Awi
+	aM2AGL/yVyHptmVf+nQoBzDKcGojv/xzlfQ==
+X-Gm-Gg: AfdE7cmqOFHpeJVbQH/Dur0Nlre0TsEo+3aOC0Vn5NGK2Xft+6ZZTZzFaMGct0v1LN3
+	kOvJMXWfTUG9Z1kCKGb+LcBVXpS+EOy6yE5Hb3RAdKSy3aY5H6ZIO7wuptJk9Xeqbd/PvgHidjC
+	Cj8aaeYN2jMDm0bZD6IBRM+aTZfnPJMInl9beaq1btTqfI675Vrkirb7aEIYJuYAj0YZwdIhye9
+	FNUd3WnIpXM4Xu/R8XW57YGZ4E75vdMBuRBe8HDKxTx39u6yL+OkuwD174jQ2i7AFw74aXT
+X-Received: by 2002:a17:90b:1fc6:b0:368:864:62ad with SMTP id
+ 98e67ed59e1d1-37cdbc88e57mr172428a91.3.1781713724364; Wed, 17 Jun 2026
+ 09:28:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260617154214.67285-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260617154214.67285-1-stephen.smalley.work@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Wed, 17 Jun 2026 12:28:32 -0400
+X-Gm-Features: AVVi8CdCqmMhSSDlFQ11bQexlr3LPOVBh1XVxN7pSXomf3G6E5J-JFfvBfF9oSM
+Message-ID: <CAEjxPJ6fjdMyOmENtA+bEiw=JoMr259LUkwBErezbV0Ht_0BkQ@mail.gmail.com>
+Subject: Re: [PATCH] libsemanage: guard end of path in semanage_fc_find_meta
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com, 
+	netliomax25-code <netliomax25@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: netliomax25-code <netliomax25@gmail.com>
+On Wed, Jun 17, 2026 at 11:42=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> From: netliomax25-code <netliomax25@gmail.com>
+>
+> semanage_fc_find_meta() skips the character after a backslash with c++
+> but does not check whether that lands on the terminating NUL. A
+> file_contexts regex token ending in a single backslash advances past the
+> NUL on the next loop iteration and reads one byte past the strndup
+> buffer. Return when the skip reaches the end of the string, matching the
+> guard already used in cil_post.c.
+>
+> Fixes: https://github.com/SELinuxProject/selinux/pull/529
+> Signed-off-by: Kartik Kenchi <netliomax25@gmail.com>
 
-semanage_fc_find_meta() skips the character after a backslash with c++
-but does not check whether that lands on the terminating NUL. A
-file_contexts regex token ending in a single backslash advances past the
-NUL on the next loop iteration and reads one byte past the strndup
-buffer. Return when the skip reaches the end of the string, matching the
-guard already used in cil_post.c.
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Fixes: https://github.com/SELinuxProject/selinux/pull/529
-Signed-off-by: Kartik Kenchi <netliomax25@gmail.com>
----
- libsemanage/src/semanage_store.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-index 0134aaa3..f14ebe97 100644
---- a/libsemanage/src/semanage_store.c
-+++ b/libsemanage/src/semanage_store.c
-@@ -2530,6 +2530,8 @@ static void semanage_fc_find_meta(semanage_file_context_node_t *fc_node)
- 			/* If an escape character is found,
- 			 *  skip the next character. */
- 			c++;
-+			if (fc_node->path[c] == '\0')
-+				return;
- 			escape_chars++;
- 			break;
- 		}
--- 
-2.54.0
-
+> ---
+>  libsemanage/src/semanage_store.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_=
+store.c
+> index 0134aaa3..f14ebe97 100644
+> --- a/libsemanage/src/semanage_store.c
+> +++ b/libsemanage/src/semanage_store.c
+> @@ -2530,6 +2530,8 @@ static void semanage_fc_find_meta(semanage_file_con=
+text_node_t *fc_node)
+>                         /* If an escape character is found,
+>                          *  skip the next character. */
+>                         c++;
+> +                       if (fc_node->path[c] =3D=3D '\0')
+> +                               return;
+>                         escape_chars++;
+>                         break;
+>                 }
+> --
+> 2.54.0
+>
