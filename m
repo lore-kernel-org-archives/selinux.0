@@ -1,67 +1,71 @@
-Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
+Received: from mail-qt1-f177.google.com (mail-qt1-f177.google.com [209.85.160.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B24C379ED6
-	for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 18:55:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AACB37B407
+	for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 18:56:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781722561; cv=none; b=exVvDJAWmQvCkfVAHJthKiBVJU7s3p5SZYSOgiuYcG2ZMKrorRC6o4H8GmH96+A0XCS7r9JEoJUyaGaM2I47mU7JeEEcDrffLCQmnD59kkXZ0zpZ/ssR7hw1u+UHmdHCCurqE06GsIpKhGAaMUcuORK+NmKE1XFnrqndHPdBl/A=
+	t=1781722561; cv=none; b=m2nLj5DbCSK/aVL6X7dYbsfWb5t0tbwNkgJsgVemVMMnzgDekyxeNlikQgxhDq5tRNlSqnBFchm4TvxdLPDEj2yDf3a+mqu5EJtkcejuDqSCcIgyjZhrRaJsmLhJ6pPd7EUXdVUEGgZ0sWIeXPCcEwd8eFTu6Ezqrpf1bXJ69EA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1781722561; c=relaxed/simple;
-	bh=QVAgqfKLOX2/SnIEYvU7+mB7lr6y23H46omo/3/gg0I=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dWfSonBVLFI+oSpKYP0m2SS2QX43xeOISRskWjImtUX5gzGVUHw/rRENJJ6Q2/QLB67yeCcNNdHq981jBlHev0W89s/2h0IUbbLTriZUAyNcumcWSRbuyPFR52cQFzlC+nrl4vn205iaitpuI3JlhvIA0aWDjyeP1gWYxR+Anr0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OnwnkxOI; arc=none smtp.client-ip=209.85.160.179
+	bh=hRmys7ozAJbaG4oW8TVISyCgG4/xFtMmBPlRZ7lAiag=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=bzNhP0H9cKCgrsEhA93oH7h0u2HmoSYber9F9bpD0FACPc2q1mKJfJr51yNrphsohoLCTyw8yExzsxq65okr/7Kl6tNpMVLpkaAJc0iTz/bA401sUPAbsaWyMaOzqPW0zKzscWu6/Gp2gcJL0AOVlRmMUq6Jp3rQOB1rpbY5/58=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SuuDdAok; arc=none smtp.client-ip=209.85.160.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OnwnkxOI"
-Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-5176465a4a4so1036091cf.2
-        for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 11:55:59 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SuuDdAok"
+Received: by mail-qt1-f177.google.com with SMTP id d75a77b69052e-5177945a22eso685871cf.1
+        for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 11:56:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20251104; t=1781722559; x=1782327359; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=yyWhkgkf5ojcrSqJHPG7D+oOfBoBLyKx3p3LNrTvDsQ=;
-        b=OnwnkxOI6pLT+ejHgdeHZmbdF/fZQ9VZ/ZKwr4+UvjJSuHQ9hGOBWSY5xCgNMi6JQn
-         w0jUpzcnZVAMtE+woIomkPMCRrzypoWbThRT8V6LstRkev3UpeVHgjNt59uWH1hjbk0u
-         e4l6mM6p/xOyq50biNeSthpCwbwSzz7KoA2wN6viG/lWxJPZz8doAplOejqp/XcSXvbb
-         RgnDJTr62Vinm7f4FxS7mkp4pnrPkdUVn+CqrJBu0KaCht4Kipr1SQNE/qM8W8zzHFEU
-         kFP3e5/lrT4QWr+mN2ztwwdHHnCaAiLvN12yA0CcLmTSRKMh09n9DGVRpJUjCnHi4xkL
-         bMcg==
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=3t7ZPIcU2SW1cZH2FAuprkZ3ceokr9aGETj9nPBqu5k=;
+        b=SuuDdAok9j1y9AZSM8ErZTCLrPRfgPgz6YEnZTZU/EW8wtp19DWFOrKaOErszT16n8
+         Pc62lASm5slKJ1MyuRXLeecViWCmpbCG70ZjFs3qfFWoE4bUun2yRQaU6GZdbX1YzuH/
+         5lAQIdgBbRviyZ4D5TKymFXyz6GFnWTCAQ9EGwuU6FagiWYl09WFK2v4UC+cXjnsJcpP
+         dT8yvNWBnCTElC7CRyAioxxa5O1khgLLsPZ1tHTt3GjdBAQHkjXRauNXRfCDlk3OatMI
+         Q4wBbMAxFjFaLY+2Ye4tRIcBKLb75MpPR4OzDONM+t4m7xcBaoDE4yvLq2gnAwlGO06h
+         5OVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20251104; t=1781722559; x=1782327359;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=yyWhkgkf5ojcrSqJHPG7D+oOfBoBLyKx3p3LNrTvDsQ=;
-        b=mjYzKORX6X10zPLq2RuQ5tncN0LMUZr3OEXN+FiB2Qf469RXSEddap1ArjOvL9MYzc
-         JYNVwTJNbqZv6nN0OhIoeIyRakiuQTbdV7V4BTrUdrbpCey8KEFNrKUoiKqsPrNNfOqE
-         XkrpIJvgrChEOdQKS8H5JwaPWHsVI8ERsjukmgG7mLO1WXKDwBw85GDQ7V5SBNG9ONGt
-         btHm57mKqFf4JAsJKvToMVD/9r3N8OrgMZonzBIa7q0yZ9Au8CyAD6cZnS0A+zY1B4Cv
-         LfmCXhyLBqK3eiJ/VOu8xJxw0F4VKTHHqC7VxD76av1Ob6UmKUu697y7IW2sdCbD02j5
-         ow/w==
-X-Gm-Message-State: AOJu0Yw7hrrYnb328sAYeVrKi6f+KSTFe/YX/vVLG/k38Jdcq4LO9fOq
-	mmsGGaQub/lZMahLCoZx+1TSedNMFmfuRzLR5kJ9Avb0kOzsFoK7LD6cfBg+cg==
-X-Gm-Gg: Acq92OGz4ClC9kABJldZ29iFArft+0Pz6NkAB7lniBti8FSTAhvVQsnb+RE36NWRrXv
-	/Pk8e9HSKwNP7K+ffCa3sAshNtp/cXciX464gxqJZi16Ro/tSgPL31S6sqt0p0cqBFzoRgQFJTW
-	ybEqfsUCuG2K6B8kFj3s04A+RXtehMvJtKdD8W5n3wmbBzrQnR7MiQ0jqddkqCUhYL0cdJqcGam
-	lEZRJtbigAr6JfxFBkbowNQN5jhUeY8j8/KN+Jx9ictjqV0hn4rjzkuxEbJz6MVQGkPoNcQ7BeF
-	4OB8NtZarEmjBvJCqX0yTJLfTYKa8KeusfgH+NX1YUV3IVFztVKCL9IKhft7wsU8vtEFRSV6mYn
-	1/IHuw9BhCSAqzhPyfQDeGJhBc5dFMa45IT6sK52/ypsHr4Ij+e6mDQTgIEi+DzfjgEOxyq67eI
-	0o7KUF4+B+l5T/a0UgoMCwKo5uEWYAskrZpbo=
-X-Received: by 2002:a05:622a:180a:b0:517:8fb6:56b1 with SMTP id d75a77b69052e-519c6d15e35mr5585021cf.17.1781722558836;
-        Wed, 17 Jun 2026 11:55:58 -0700 (PDT)
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=3t7ZPIcU2SW1cZH2FAuprkZ3ceokr9aGETj9nPBqu5k=;
+        b=a9d52TpJzH16m/z+jEP2Q23tyD7UhLV7gntFYJ8Fm9Dq86Q7hap39D802z3whYLisk
+         X+xLBfJqZj8jqUX9paWRY7DNUZysWUoeCFpi3z4JWaemgfSWE8kox7BRsxf58hQfysDF
+         K184iBCrJmGHGsC9e76dA47GY2Dl3sN/kK3w2sdbSyoqpTp3/iZpPicrqKt8Jg1u1RIP
+         PWiUZCE3zvucI5AnoknexLLYPHyUTZBMvTS7hqk/eghwI7Y8ec/8Qd6abSY08gV//NvK
+         zH0ZDcz4ZUZ5wnpbke1FQ+2JsKygy8brBEsLGC1lIpsWqw7cUE0ZmLuSY13BHGuyhXBg
+         fkiQ==
+X-Gm-Message-State: AOJu0YySFb6BXkF9Dj/EptUuk8B8H9XIddbGnxUlHDcL9N5i8NH5qp2A
+	IO9XOmX+4xEGUj1qy1uDahlYzt87BDdZVwO1aSjjylsgl2MslPuNEBkaY7ZNQg==
+X-Gm-Gg: Acq92OGb28gYkCD9YdjSGEuErFxYUyIEoqZ4tLIqNK+/llIJoSpts8Hv5lx6gPHAoq/
+	sRUzsCIxhQ2BZnKvSiy117aK3dkgamYNX+78JgLsfQl51Sq2uTmgpQ7Iag3UqnsA6wNzsXn211w
+	qU48aGyCzYaTEI3wl/hvfE++Y9bJFA6i2qSZnkRqPNCLEIkTBd1zITwH5Gx/EBcMZynMg+Pqy9t
+	7pqkjNOK0ooFQM7e1U1CUR+bKK376HFwKXYH7Zh8VzoJFSK3c9bGmx6bIDkew3hsKgmTQZMICY1
+	p3m/5E/uRzRpcJn45Rc7WERhW5o0+SNHcOt9j/gvLt0ELq+vELGskHeJKTQ2K+9iMRAqMDTdpeL
+	z7Bd1NiOXjwy3b0mWbMqCRIIvuzFkFKiL0MfJzfxLXjFfQ6fcE7KY5NIxvJQXI57uLrywejcnPZ
+	pOTSaPjC7QlX/o3F/smvygeT3h+RY33Uu/f+1sOdmRR7Qc0w==
+X-Received: by 2002:ac8:588e:0:b0:519:89f6:ff7 with SMTP id d75a77b69052e-519a8e2e062mr78748611cf.23.1781722559519;
+        Wed, 17 Jun 2026 11:55:59 -0700 (PDT)
 Received: from Fedora43-SELinux ([144.51.8.27])
         by smtp.gmail.com with ESMTPSA id d75a77b69052e-517fb7dacdfsm182953451cf.20.2026.06.17.11.55.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Jun 2026 11:55:58 -0700 (PDT)
+        Wed, 17 Jun 2026 11:55:59 -0700 (PDT)
 From: James Carter <jwcart2@gmail.com>
 To: selinux@vger.kernel.org
 Cc: James Carter <jwcart2@gmail.com>
-Subject: [PATCH 1/4] libselinux: Add checks when growing lists to prevent wrapping
-Date: Wed, 17 Jun 2026 14:55:40 -0400
-Message-ID: <20260617185543.91749-1-jwcart2@gmail.com>
+Subject: [PATCH 2/4] libsemanage: Add checks when growing lists to prevent wrapping
+Date: Wed, 17 Jun 2026 14:55:41 -0400
+Message-ID: <20260617185543.91749-2-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260617185543.91749-1-jwcart2@gmail.com>
+References: <20260617185543.91749-1-jwcart2@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -81,38 +85,56 @@ should not be done if len > MAX / 2.
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- libselinux/src/matchpathcon.c | 4 ++++
- libselinux/src/seusers.c      | 2 +-
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ libsemanage/src/direct_api.c    |  6 +++++-
+ libsemanage/src/genhomedircon.c | 10 +++++-----
+ 2 files changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
-index 2623e5dc..dc276b7b 100644
---- a/libselinux/src/matchpathcon.c
-+++ b/libselinux/src/matchpathcon.c
-@@ -117,6 +117,10 @@ static int add_array_elt(char *con)
- 	char **tmp;
- 	if (con_array_size) {
- 		while (con_array_used >= con_array_size) {
-+			if (con_array_size > INT_MAX / 2) {
-+				free_array_elts();
+diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+index 9572dbf0..54803515 100644
+--- a/libsemanage/src/direct_api.c
++++ b/libsemanage/src/direct_api.c
+@@ -588,7 +588,11 @@ static int read_from_pipe_to_data(semanage_handle_t *sh, size_t initial_len,
+ 		data_read_len += read_len;
+ 		if (data_read_len == max_len) {
+ 			char *tmp;
+-
++			if (max_len > SIZE_MAX / 2) {
++				ERR(sh, "Too much data");
++				free(data_read);
 +				return -1;
 +			}
- 			con_array_size *= 2;
- 			tmp = (char **)reallocarray(con_array, con_array_size,
- 						    sizeof(char *));
-diff --git a/libselinux/src/seusers.c b/libselinux/src/seusers.c
-index e4a844df..08514bd6 100644
---- a/libselinux/src/seusers.c
-+++ b/libselinux/src/seusers.c
-@@ -114,7 +114,7 @@ static gid_t get_default_gid(const char *name)
- 			break;
+ 			max_len *= 2;
+ 			tmp = realloc(data_read, max_len);
+ 			if (tmp == NULL) {
+diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
+index ce7ea167..8dc2cb56 100644
+--- a/libsemanage/src/genhomedircon.c
++++ b/libsemanage/src/genhomedircon.c
+@@ -1090,7 +1090,7 @@ retry:
+ 		goto cleanup;
  
- 		rc = getpwnam_r(name, &pwstorage, rbuf, rbuflen, &pwent);
--		if (rc == ERANGE && rbuflen < LONG_MAX / 2) {
-+		if (rc == ERANGE && rbuflen <= LONG_MAX / 2) {
- 			free(rbuf);
- 			rbuflen *= 2;
- 			continue;
+ 	retval = getpwnam_r(name, &pwstorage, rbuf, rbuflen, &pwent);
+-	if (retval == ERANGE && rbuflen < LONG_MAX / 2) {
++	if (retval == ERANGE && rbuflen <= LONG_MAX / 2) {
+ 		free(rbuf);
+ 		rbuflen *= 2;
+ 		goto retry;
+@@ -1171,11 +1171,11 @@ static int get_group_users(genhomedircon_settings_t *s,
+ 				    &group)) != 0 &&
+ 	       errno == ERANGE) {
+ 		char *new_grbuf;
+-		grbuflen *= 2;
+-		if (grbuflen < 0)
+-			/* the member list could exceed 2Gb on a system with a 32-bit CPU (where
+-			 * sizeof(long) = 4) - if this ever happened, the loop would become infinite. */
++		if (grbuflen > LONG_MAX / 2) {
++			ERR(s->h_semanage, "Member list too long");
+ 			goto cleanup;
++		}
++		grbuflen *= 2;
+ 		new_grbuf = realloc(grbuf, grbuflen);
+ 		if (new_grbuf == NULL)
+ 			goto cleanup;
 -- 
 2.54.0
 
