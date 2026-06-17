@@ -1,115 +1,127 @@
-Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27BFA379999
-	for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 18:11:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00C4735677B
+	for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 18:11:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.178
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781719888; cv=pass; b=l0ri5ln4HmCsIdDCqWUYxmixwCXoWOmEsIQYS2fRrikdr9nvaBIud65IYBkDvQx0t9KrS3Xr/E/knREn6oGl1qKibNb9Nz52jCrpj5+YWNEX36v/ndXKqn4Gjt4lr129nYxcVPUSGeWynM2zz62XnJqtVA/9TYyrV1PUumCz5MY=
+	t=1781719909; cv=pass; b=tT8qo4rVNgXRW7UPvi8vX235Ft5FDU41NeZOErCeSp/EEHYupWWYKBGVYDiZuxt36r7ilQ4Tgw0PwDyALcA3S9FY6ITDbH/fBdO0z5wGo0UPX6ckE07+a8wv8IOTczGqfEvTlZ4MvdNTQrhsK0VOsfayX4kuKMt/raQ4H+cuAn0=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781719888; c=relaxed/simple;
-	bh=U/Y31rtd5cy6BBgOdvBL9QR1XgQCVRuWfAOKxeS45bc=;
+	s=arc-20240116; t=1781719909; c=relaxed/simple;
+	bh=NlLCg03G22y6/qw2Wxx+jkqa95QLzhZq1F1RGBFqXHM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WKLUyxrkE4d9gahYTL4f0mHhumwbYF5cV9KY8s0hUrdOcNfjwJ7Tgk9OqMSB4LkmoL2znjI2VL53HQ/V1TdfG1grh2WfenVYLJCT/vduB2c80MnH3bDHlSeThA4/IFts71nm6PLJ2WA/xsMJQXlwIxvHt/7+Z5trrKYPoVyYzHg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ls3MKb2/; arc=pass smtp.client-ip=209.85.210.169
+	 To:Cc:Content-Type; b=Wm5EzorrNrMUZneRmpdACOq6wWWYaEghoFYCHYJY2JFXpJbtnLK89MMZLJSFDrdC8xNIVq0k+og9SycOIBPagTnctLUTe38V924gh/Hb8fLxlzXA2ipBdD+h7hbcRum+wrjuKprVukq6LwkvzIosy+ghN9nMvb8OX87YvGOpjxg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ACg8PjBB; arc=pass smtp.client-ip=209.85.214.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ls3MKb2/"
-Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-84226d0f1d2so6767b3a.1
-        for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 11:11:26 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781719886; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ACg8PjBB"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2c6c101aeafso850535ad.0
+        for <selinux@vger.kernel.org>; Wed, 17 Jun 2026 11:11:47 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781719907; cv=none;
         d=google.com; s=arc-20240605;
-        b=gD7fYMe2hs0XMmwqqJie/QG+qfX7zdWCAy9x41iBIW5wrNjaKAUmolC/9qgQKL22Gu
-         UP+Jth6hI/GEP7+1VyOZAfQbBR59PBpMryaNpCzJNZnjDvtEl6WreFHGwUvEBsN2Pdon
-         nKd+onuHkJo9tNO66nY1DocUpii5bME7O96ZJ+ITiuvUYkqABklPk5f1bd5k2mm9Q3z4
-         Hg9p41Iozp1ojln5egfnqD1sf7P3M6ZtgXaNzH4MJhRR/bmOXXs6VV1hJRaK7tBxWVZx
-         yeQjWnST4dFc0EJT5779blb7bMlKT1bqR3vbnO/iSiSdlX6jpDK4boVDE+saMg83rk6b
-         +h6g==
+        b=Y4N10ZMHJSg+ZtcA5vu/o4U0V9MkH8ogvlC2btVxipQGTCzRKyWGrcBttl/BpzUBOd
+         iXFxRdVnuhnVurepu87WIMRr1BskbHgoBKZ1rnl7G1Cl28yiXOzr3wpSmLkJQT2NbCbj
+         3nuigW299FRtEYD5NI72FkLEqgr0C7xK1Ju3izsucpj7x3gRxa3Sr9NGhzCxvU6q/1rE
+         oBrjZgJdMrXlAWuRom7XW7D4U+fuPClthaM0Gvi4Y14z9eiNquSZOYeeSNvlM8R33y+E
+         N+VFTUhfPgyDgf1JsDeGcsUHCaaWkVqiM+Hnk5aFHb5WELvULy6IMjRG3pCtydExXPr5
+         IOBQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=6DdzAtxnnbdChmL15sbJ9GB/DOJE1j+3xzVc0Lyi+/4=;
+        bh=QqmXupSw9ppi9zapCer9p6NIslgOn5deBrkycCLM/XI=;
         fh=+ymDRLpvH5V4NxzbU6EHTgZVOx8LXRvHxwaIgjsFoxU=;
-        b=QURu+P5KhmPvj3R2lvxyUgE0jFX1iCuDw7nW845wNDOnwPUWjz+cTjfHcvqSs+zmES
-         K9eZTO4aDpvXXVs880NfREVYBh0Hb53Vj/H0DxpnaLSwow4SuN8EITmcyjLHxVPYsOaD
-         NkVm5s8LxOXmpFGjKYfVv4CIpYYA32On37eeQ7DlK3o/y3jTUB2Nt5qR7MqbiAmSB9jM
-         64Pkymai3k3uRUy8gVBqDCBBvP4kfJd07PPKC1r8kmHQFQhXNm2pJqmtmVUJ1RYjwUfC
-         p/mj3G+c5PE9vpVkGdk+pxtaWQ7TqG62ih/XyfDqNGJlvd5KVIkjZojuqVT7bmIv+vjY
-         u77g==;
+        b=AFhSFP/DDwojpGlmD9ID5AEOdTpL8Rc4W4xTt6Etz8vJvwq9Q8153SiQ7kRL9XxoEJ
+         +KcAgmbvM7WzN6MoQORNBE8yDkcyRKDi9yLHH/3K44QAhpC8vGTJ7cggq2OIuy1smkwd
+         k8B40osfYKiVH4zQg1ax0H8V6kKB2yC6QJERD9aMTEtfsi3bIbj/UVeuahzdLEm1YotY
+         iLIxp1q0o86Jsbn7FUl1oXdQgW5P2i//8SBiRKMeiBc0wsEcJvI0uKz4cLPZwsB9k0Mz
+         YQsFFuh+OJg6xumLnwQ9d8+P3ZJ/MVWG2h8uiozPXa43EgPcHpWvXiRNNGOpoWb3fJgs
+         XT8Q==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781719886; x=1782324686; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1781719907; x=1782324707; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=6DdzAtxnnbdChmL15sbJ9GB/DOJE1j+3xzVc0Lyi+/4=;
-        b=ls3MKb2/w861iVsRkP17+Vx7GffqIs2YI0RKFm00+SUsyuFELjpyz8zMfjXQdFiGO/
-         GXVk+oHU35dZ5t6icCKl2nCciq0Str43FpXy4zYon/cobTvDVszRK5fWoNpsY21OEinQ
-         5m2v0fCJ3iAzvOQNQRUufCyz3wcLMVzWqIBw/tR5COFuClldUwDvrrpLEnpY5dVQ/8qv
-         8JRNDs25eolbsfjRSB0/tKzRarEnu2NbUR9YINFF+/JcoohtFrWmfE88MM08m9fYx7Ar
-         QI3i1kaEB2e3Zhp2UJXMaLgk22KJ/D5Bs+Lvp7gSatSl2vgnFY/8z/qhTd++RHXowh7i
-         Q3RA==
+        bh=QqmXupSw9ppi9zapCer9p6NIslgOn5deBrkycCLM/XI=;
+        b=ACg8PjBB5B3WPknNjvNhEcgxNu7HZjniJS6AzARAmg/YvJTLyxdgMm637E6o+PS9um
+         vQAnZqSeY6Zzjyz+u/nKJsTTSs1QHlKRIewFK99FFqyYuq0oGqiUbKsXUbBI4cRlDHma
+         +3iJCaLYACOEesHdTK5cAc1VeuUyFp3s8IreiDjuOpuzxgBkn8sU79MAywChWJ4Ting8
+         NiMyBtxsPTdm/B4wDX8Qdon7y0wr04YF1ZWXCZI1ZYlZQZbnLZLNdoZDI7BsoxcQGkKN
+         oUA/IuK/z2kysMJhC81yiT8kXxcZSDOKS2es6uAOCi6SgS38LQKbDHhGAORxdonrBF2Z
+         Qx6w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781719886; x=1782324686;
+        d=1e100.net; s=20251104; t=1781719907; x=1782324707;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=6DdzAtxnnbdChmL15sbJ9GB/DOJE1j+3xzVc0Lyi+/4=;
-        b=WlQuBXufsksYxbqzIycG+J5rZIX3xjWI4vCBhb3a37mA6YHmHxSjL+uA7YWW6Jhk24
-         9WRAUi/2vedTyaV/xy9znMdgBsXEcVN7X2IM3QNriFzyX8UYjkB3Zr0GV9G5m0Y/tEX/
-         s49lgGemWcGBqx6Chh/oolgkFXCPxlp++sMSxy1EuZF4r/urkYAxxThHEoxbUB7F/U7v
-         lFngvUKHyQ2UV0lMBlPQkVcca0Mfiyj3E+xSbbWmkbv3UMdcOxwSSo+W6Khit3ErsePa
-         WcH8hyDL5yJymgRDOnVEsRZ8x+2bbypGQMfswIxRP3xdD3Uz4g0crCGccd8o+wD74SmE
-         GN5w==
-X-Gm-Message-State: AOJu0YzxJA1ofVEzRwtOjfCR7hEITjqacXcn/zL0298/N5hhKjfQlUhK
-	vT6jOpO9G3ZMFNqvCit+0qwdLJMpp2R4ZScJONDhkMu7/X8P671YoNlF9iBxw5gNz/JmZzfZ/+8
-	9+A0/vv140co/P2/zzYI6rSkzATOE4i82hw==
-X-Gm-Gg: AfdE7cnpg6fERarVk8ISFk9K8RFRE9GpFavlzhZk3HyMnbEpZKjat2p9PgWXDEWd6NW
-	aIXKImpREc2yODXYDkp/JgV6KM+WUp39e7Pm6fxZdC0RtWM5QqYk4DnyMKtbac6u5bASIEzIXMH
-	OaF+sUnlVJsKPn3XrPbZ2p2fqdAVroqgu4jKfceUxoUxXMedESV6xD2eo4pmHe7enAIQxVMwsR4
-	PBsXCwxD8GRtIEXYH4PDGiyUZO5NO49JiKeXDnIS0NEg/Jir4yRyG4n5cy4rpt1ifMfCeLO
-X-Received: by 2002:a05:6a00:1147:b0:82c:9e00:f958 with SMTP id
- d2e1a72fcca58-845241467d8mr5236347b3a.0.1781719886417; Wed, 17 Jun 2026
- 11:11:26 -0700 (PDT)
+        bh=QqmXupSw9ppi9zapCer9p6NIslgOn5deBrkycCLM/XI=;
+        b=B2YNM8V3g61qAmBIWEH+9rtcCE2NaKHKmdl9K0sGzm14/5wY9jfV1BZEcrnFoY4Vf6
+         +EgIRJFSyD6+Fwmdc9Y+6+jEonfeffbCS8bX80DS8dy5U9zfxP0buaZ9yo4oioauDWmR
+         25rGmSDyB8uu0qahZqYTFYeS3XAoVfHRf/pfIanXQv4zjvz07R67ltKmSv7jRQxd5AIC
+         q2Ab1u1oZR1rqctUNBnTxRYleVAl5TXR0ZfDoaiW5TF1I1WVsGg+XVFw/CWKisdJcQxW
+         Xo6Zo/7v44Tys0ivx8mHt+w4gz5b2/33Q4cpMPih9HDp+gSGeFXfYCpjTRcHfJL2NaVr
+         36sA==
+X-Gm-Message-State: AOJu0Yyr1LIv8bJ2xve9E/DSLvjCSl4vRmript6foEmQsbdGnEP+Z9LH
+	AO2K1cfkKuO1kjUZXlX/hn0kod3LR9qJw0imlbuseYs4x03/J7RicAUXNtBNGYlw4+UKLjvdKOe
+	n4JLlRMDYej02EbEedQeCFW7m/CTNqLWHZw==
+X-Gm-Gg: AfdE7cmRd7brU/NpRXnzMEINQfaRtdc+RRazUI6SdNJUhYpBpuby5RsOy2cUr4MLxpR
+	PtcWA3liqS6pR9MJF09kU4Fw+pesM8f3vQYWECQjR3ubze/tvZiv1Goc18KCqowcOGrO8v6GinN
+	sdC9bqhIkkzAqNtABz5qnzj/2vk3WJhY38we+YbF0NeqpS2ERhmGbtkMfQfOqLUwhtjGfzcBj24
+	hrwPcQy8KUokZTzOj9VDre2uizwzTjUSNoQpkznaTdA8sY8RtNRX6rpGCINJ8sM2edcTnCL
+X-Received: by 2002:a17:903:19e7:b0:2ae:450c:951e with SMTP id
+ d9443c01a7336-2c6e527c54cmr1372905ad.17.1781719907321; Wed, 17 Jun 2026
+ 11:11:47 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260617154214.67285-1-stephen.smalley.work@gmail.com> <CAEjxPJ6fjdMyOmENtA+bEiw=JoMr259LUkwBErezbV0Ht_0BkQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6fjdMyOmENtA+bEiw=JoMr259LUkwBErezbV0Ht_0BkQ@mail.gmail.com>
+References: <20260617124609.65706-1-stephen.smalley.work@gmail.com> <CAEjxPJ4i3GzsjTLjjYyCaZ+MnNkCHZmm3vaLQL-cZMbUW487ag@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4i3GzsjTLjjYyCaZ+MnNkCHZmm3vaLQL-cZMbUW487ag@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 17 Jun 2026 14:11:14 -0400
-X-Gm-Features: AVVi8CeF64HE-zysRXeyYeCjOca72RHNM3T59XJF-VH1EtwWx29RKoxfIS1oZBo
-Message-ID: <CAEjxPJ4jM1BRccC2ZX_c6ZDqqYjRpL==pR=JhpZ_TjNFFS=Qow@mail.gmail.com>
-Subject: Re: [PATCH] libsemanage: guard end of path in semanage_fc_find_meta
+Date: Wed, 17 Jun 2026 14:11:36 -0400
+X-Gm-Features: AVVi8Cdsjserueh34xZ7DpBC3E4I4iL8dW7I4iUClNcsVcO1sFygWAnnsHW0oBs
+Message-ID: <CAEjxPJ49hcw1111y6BD2RmaS_BnOyiJcASuWLOcRQDEPwe0sUA@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: bound category values in mls_semantic_level_expand
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com, 
 	netliomax25-code <netliomax25@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jun 17, 2026 at 12:28=E2=80=AFPM Stephen Smalley
+On Wed, Jun 17, 2026 at 1:22=E2=80=AFPM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> On Wed, Jun 17, 2026 at 11:42=E2=80=AFAM Stephen Smalley
+> On Wed, Jun 17, 2026 at 8:46=E2=80=AFAM Stephen Smalley
 > <stephen.smalley.work@gmail.com> wrote:
 > >
 > > From: netliomax25-code <netliomax25@gmail.com>
 > >
-> > semanage_fc_find_meta() skips the character after a backslash with c++
-> > but does not check whether that lands on the terminating NUL. A
-> > file_contexts regex token ending in a single backslash advances past th=
-e
-> > NUL on the next loop iteration and reads one byte past the strndup
-> > buffer. Return when the skip reaches the end of the string, matching th=
-e
-> > guard already used in cil_post.c.
+> > 1. mls_semantic_level_expand() checks the sensitivity against
+> > p_levels.nprim but never bounds the per-category low/high values
+> > against p_cats.nprim.
 > >
-> > Fixes: https://github.com/SELinuxProject/selinux/pull/529
+> > 2. For a base module the user MLS range and default level are read in
+> > semantic form with no bounds check, and policydb_read() expands them
+> > through policydb_index_others() -> policydb_user_cache() before
+> > policydb_validate() runs, so a crafted base policy with a category
+> > value past the declared count reads p_cat_val_to_name[] out of bounds,
+> > both in the "Category range is not valid" message and in the
+> > p_cat_val_to_name[i] reference inside the loop.
+> >
+> > 3. Reject cat->high > p_cats.nprim and guard the error-message indices
+> > with the same upper bound, matching the existing sensitivity check
+> > just above.
+> >
+> > Confirmed under ASAN: a semantic level with a category low/high beyond
+> > the declared category count reports a heap-buffer-overflow read in
+> > mls_semantic_level_expand before the patch, and is rejected cleanly
+> > with an error after it.
+> >
+> > Fixes: https://github.com/SELinuxProject/selinux/pull/528
 > > Signed-off-by: Kartik Kenchi <netliomax25@gmail.com>
 >
 > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
@@ -118,24 +130,37 @@ Merged.
 
 >
 > > ---
-> >  libsemanage/src/semanage_store.c | 2 ++
-> >  1 file changed, 2 insertions(+)
+> >  libsepol/src/expand.c | 10 ++++++----
+> >  1 file changed, 6 insertions(+), 4 deletions(-)
 > >
-> > diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanag=
-e_store.c
-> > index 0134aaa3..f14ebe97 100644
-> > --- a/libsemanage/src/semanage_store.c
-> > +++ b/libsemanage/src/semanage_store.c
-> > @@ -2530,6 +2530,8 @@ static void semanage_fc_find_meta(semanage_file_c=
-ontext_node_t *fc_node)
-> >                         /* If an escape character is found,
-> >                          *  skip the next character. */
-> >                         c++;
-> > +                       if (fc_node->path[c] =3D=3D '\0')
-> > +                               return;
-> >                         escape_chars++;
-> >                         break;
-> >                 }
+> > diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+> > index 7162f80a..0bd61c82 100644
+> > --- a/libsepol/src/expand.c
+> > +++ b/libsepol/src/expand.c
+> > @@ -1128,11 +1128,13 @@ int mls_semantic_level_expand(mls_semantic_leve=
+l_t *sl, mls_level_t *l,
+> >                 return -1;
+> >         }
+> >         for (cat =3D sl->cat; cat; cat =3D cat->next) {
+> > -               if (!cat->low || cat->low > cat->high) {
+> > +               if (!cat->low || cat->low > cat->high ||
+> > +                   cat->high > p->p_cats.nprim) {
+> >                         ERR(h, "Category range is not valid %s.%s",
+> > -                           cat->low > 0 ? p->p_cat_val_to_name[cat->lo=
+w - 1] :
+> > -                                          "Invalid",
+> > -                           cat->high > 0 ?
+> > +                           (cat->low && cat->low <=3D p->p_cats.nprim)=
+ ?
+> > +                                   p->p_cat_val_to_name[cat->low - 1] =
+:
+> > +                                   "Invalid",
+> > +                           (cat->high && cat->high <=3D p->p_cats.npri=
+m) ?
+> >                                     p->p_cat_val_to_name[cat->high - 1]=
+ :
+> >                                     "Invalid");
+> >                         return -1;
 > > --
 > > 2.54.0
 > >
