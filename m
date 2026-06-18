@@ -1,193 +1,113 @@
-Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
+Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 228182EAB6F
-	for <selinux@vger.kernel.org>; Thu, 18 Jun 2026 22:51:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.222.175
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781823066; cv=pass; b=Q6UNnQu7eMFW0TpB5WykmPIBRv52Qa/+WYxl/FGdQdXcIzkXXwXersVa5RvRIZCMH+aFHvkb5MtJ8AZjosI/645kjS5t7qJXzTHFLGDMzJ+6MvocNBWEdn97cBoq2VAraKjh+TLdnsn4745yZDH7/dZzuTHMcSLn+5hNdxPWoso=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781823066; c=relaxed/simple;
-	bh=EMYr1F+PpGtSmTpfHsTm52f8sshX1D1zHOemelGKRHw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=OqGgpcW1PgKOeIZyhxfyoptM6LIAKxWc3OjWg5112pw9clSU44PuhBmJNn0/pBjdXhINQDjaKb9mU/FxYfwDqR+SPUryb0PpZs3pY90uLpcW8wtac3haDTeRXvO5KM+bxPC96GII/3vdl+JgZ1kolh1OYcUbDlTuE/xJ7iydxsk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CZ2E6C7p; arc=pass smtp.client-ip=209.85.222.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CD9A3438BB
+	for <selinux@vger.kernel.org>; Thu, 18 Jun 2026 23:21:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.46
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781824914; cv=none; b=s8X07EAiUHKUZ76DYs7zR5M1t7xWckK5PWmiSBWZy9Mxpl7zs+5jId2DHOAPzqw1U2B1n1ZGlF/qsQLOs4MoQtuSjSfAxd1LxX/0azr213gtt9btxQtoCfdS9iH434Ws4k2Ljn6lDfr/jPfL2qEeUoc4c+l35y2METLvY6ZtmYw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781824914; c=relaxed/simple;
+	bh=FP+cKVSzI65xOHE37Wv/ci3oMoPA/GEijv0vVLmvVl8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WFXwSiyrfU1I4TsPhJO/uAGKKQxDHm/jHG8ZhnCveO6Qt9YbQYmS/Gn37eMAVV9oDRcVdbTEwZcsOypyg3DT7zkQOQTArRBtTY4+eJjStxTm+7RW/BORlkbK8D7YxfnzHCEaw3mRAxuC9aKwLUSvKJd7XzKADSWTBGhDK2/jFZA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cw/A62HV; arc=none smtp.client-ip=209.85.221.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CZ2E6C7p"
-Received: by mail-qk1-f175.google.com with SMTP id af79cd13be357-9156b74006aso107225485a.0
-        for <selinux@vger.kernel.org>; Thu, 18 Jun 2026 15:51:03 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781823063; cv=none;
-        d=google.com; s=arc-20240605;
-        b=AKeU3/Bj8zzE46j54mdD7YLGDPgOzjY9QgkAtoJt/GhHE0h+N+4YDmjKEGOEox/V30
-         lJkh5OX83agTKrlB+CNaFP4dNu5tF88zF+q7vZLB4y9Nm/kmGipYtZZRCuXsxk1rhJGb
-         oNH7za5ib5foyI3f6snfH/WfI1mo0Nb4K0Eb8cXNUoZaZFAfU7MgggrW10WsjJG4cINH
-         0MsLX/tpoS7o8Ign/UAyCvrDBEIm+RpE8aZLRWGkBkgs4Vszn8PtYjWLFlwmYiWqEGFL
-         /lN3XS+1eVjpKUaOaZAW1YygK7d15FSH56zfGRHYlyL+k5FqCW0QgG8mdAAlmAarflzs
-         XU6Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=SMwuGs+SqkOWXXKsNFJ9sJZ3Linv0hyo9Jf2noGou30=;
-        fh=8gM72MOuWv6D8lJ90Zb+/E/Xx2ynsNhAb0IhciLbk8w=;
-        b=dh1cU1Vpp/4ZeTiijrbsWyTdu2i60TPoQcuc7P1QGMHGGyw7feyahpdGqMvSRxDiJq
-         7A/9R/ufmEEsKg/6ql1XgdZPtWt+KYiT9v4gRnxdbSYfdjhIcH50hkkUkehOPDASmRr+
-         sVa6pG26dMSBd+niDDu92em0lV/t+jSgLiS636nEDXGJ8opGQK8Nph3xho/BAP1oWGWC
-         VsmqpqgSzuDJH93c9qqEYuQzZdu8VYfrof+Gvlsoeb9m5Ea2wenuaSoCR406FA36Eo3C
-         c4jr4v3GnhKhgE2uhjdbxlrK7SZkYUf1q6AbjVnDmZV52l9OEdohbykaNkPJNegPNDOT
-         EbNw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cw/A62HV"
+Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-45fd464d51fso916665f8f.3
+        for <selinux@vger.kernel.org>; Thu, 18 Jun 2026 16:21:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781823063; x=1782427863; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=SMwuGs+SqkOWXXKsNFJ9sJZ3Linv0hyo9Jf2noGou30=;
-        b=CZ2E6C7prhTojmgoHGdNe7OileXPbl3IdhXRahO17zU0p7sydgNazhp1YHE4kV/6eg
-         /iLvrxYKEmWLRXuKoolRzvba4DUUKfRHLyiBgYpuqOcdWtg82BbySEy4qLx6HhHXP7dS
-         PthIZYz4hSquO4gFZ3URQSYFja1vdkH+gSP3b9b2UHQAe+pCO5lsOGswbMvzZJQaVr3J
-         LMfxXi93vOcsvLFfsN8zLILywVKhEiv9aH7ub2Wr26pPk6HXp1A+vN3Q1qU+OaSnl3td
-         B+79jtylayY9plF1MJRE+jSxSw56SZl4UEYadYOtdVYwiErhIjX8wLS2AjK/RQ+xbQeP
-         KzBg==
+        d=gmail.com; s=20251104; t=1781824911; x=1782429711; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=gm1ifYMp6eTzkqzEKoZeR2RnwxSQq3FkUzNIWNL2M6s=;
+        b=cw/A62HVjv80TkF/pqxCxaoc2ONvZuE+avVJhirASf6O3QjkJXuekOD/kUgaGyrk5R
+         /Jecbk5kX4UPxX/qOcD1fZWHNsnwfuUeEaCR0jauznlNdaedUC1ON9k3hBZNzHqwLLbp
+         goXfOe8/8y/zgmj0s1UJgc+iag2WDnl+OASAtfGt3demVoYrEDxTMs4rDR3ax8pWg/QI
+         mqe191mlkSb9o8pGkyiY8hTc3NUmgXOI3FXPWFaH+wsjUZf6dV00Hm4yUiZC/fGzg4Vw
+         +jXpzPldW+2hUndwYM9tK650LrQW0jtIm0riTFeidevcls92Ivj7vgT4UryD0nliJCbP
+         Ac2g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781823063; x=1782427863;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=SMwuGs+SqkOWXXKsNFJ9sJZ3Linv0hyo9Jf2noGou30=;
-        b=afICxvUYXn0dMWexrQAGdgkr9XT4YdSAKtlC76q3yo7UwoJbX52qZB4qoHe7Lhy4yG
-         O/s+wVgiu4w25ARA4vzT2RFWhHPMMAczS3oA7zKMyfye7UZmFZA29pGaxxpuWr+OVxqb
-         0ShSBgG3wQeDORNl1qIzjhFQHsq1/k6SIvnjFfKZfk010Uk45FJ06m8RH96hZsbxJ1wz
-         vs2XqLzmkeQu+VqmBvIolK42ahlc6WYozVGRSL5d4F1N2GPm/hhQ1zIU/NclBE3NNjl/
-         oexM/5GFkVkBgwUuziZGSN+d0a2lPz6e0AqIqAq5TUHQlsX2a/u88jU5t0bVau5m/Eme
-         puQQ==
-X-Forwarded-Encrypted: i=1; AFNElJ9LC2OQCKjeUO1hkb38nUXA2bczxJ2eTA7UrVCjo0f2Ks+X5Bl9HxQCYMVX7sSVJHgMM+BnUC4J@vger.kernel.org
-X-Gm-Message-State: AOJu0YxPWAtV2penTdmg/QhmIcgu1JI7p8l3dpp2XBgv98E1lngzK2zQ
-	sRH10nl1seRM+6elN4Gcy14NJkG70RVI51QcUcZEWwOhNwUZhn6Sf56V8VUsq2WkhNnnDcwIEK/
-	O+vMX0mJHZuFdfmIgEtJbUmukPiqN9g8=
-X-Gm-Gg: AfdE7cnfRX4DA37L0Tal9KVPFt/cZJysCVNT7ppzwevJdYSGqOo0oSNYGDkudRRZZAn
-	mJTeUDVb6XBlmSOLfqXsx2tG/PnJBM9gKsiwu7gykFHH0/ag3rnX5jJN+aAShGkLszW/F/9jW6Z
-	xqEw2GBJgPe/BcJZsuvgnv30ffKSDcu0H2/ws0eutFQtfX5P0k1Tw5NSvq1al8P3r2nq/PI6WP6
-	bVdhr7Zk0kewuBmdtnJ5Zc/SuAiOU8DKJrUCqyZaxVY060+uMrrImSgxvUGHK/LvH6EAH5bOTv/
-	MC5ZzliIj4lbUp161CkxeAxzhTE=
-X-Received: by 2002:a05:620a:19a7:b0:915:6504:2a11 with SMTP id
- af79cd13be357-9208d2f42f5mr171322285a.44.1781823063019; Thu, 18 Jun 2026
- 15:51:03 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1781824911; x=1782429711;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=gm1ifYMp6eTzkqzEKoZeR2RnwxSQq3FkUzNIWNL2M6s=;
+        b=NxABU4IiKl0Frsi9ozqBqvw4HYYD+4vmrABAshsNmRE9untEOPngotk7zPm7wS8Ymj
+         dX5LwLSWKIlZO/uT0K2/eT1jUMk5nA32i5qVmo/rdfelCT8VrMgTqcaMtRLlyJAYmlem
+         DJXcrFAwRABMwshDtYDUNuewEPTOJUTIIMFzrIRABwOdE/6a1ouOHwcbo2i5rRy6bTPh
+         r5Y7mzMrxqQfLo5YYNF9HaiPTntG78IPspWu3UZTx1DYnp6vxiYR74xKV+ch6EloPs5P
+         V+Sen1Y/i/SvviJQPtTaKOsd0EAGupY74dyBw5xcDlTh6Yw+1kR/ZuB8u8gYPlNMsXv0
+         i0mw==
+X-Forwarded-Encrypted: i=1; AFNElJ87tohHSHKiG7gQLIZ9qwbn9GI17VLIA5mJb9qg546F+Hw++XV3MXIYnoR43IKt/Eu9snAgenZY@vger.kernel.org
+X-Gm-Message-State: AOJu0YzmmNYwfcCf72tdt+WiFV0gobod15ACyHhsZnr/h/kc4qBxahQU
+	MFHysE038Jm3OrBnV0IE0PFcLzqDGhy2zOPGSBoA92ftA3ZDmTCnE1c=
+X-Gm-Gg: AfdE7cl3mV35lkSiRNFqNbGUITo7bvkDOiCeTPn0dwzxs/l+MsMfI77HlaajWSWRuoV
+	x0RAiJdhuuTZGrEpTgxZoDC+ahmykW7oCWeNXQl0xedAbaWehuDIX6WyZYFWfbw818PabF8Fj9r
+	lRtndGUd07VeVasaPKitDHaMd/++wrBDsqeac8WIiMioml5fGgDsCaw9AFGSFKwNyGT0j0yIdDL
+	e0S83KAjR1mNYxe0gRGMW0B8MmR+DQc7guscTPkfenHjULZyXqHNJ07x7dbpq4wLYP9lGPOWZPA
+	+bGuoP4DoyaGR3PhwGBy62LY+AIAsO7tnlc2FeAcbx+TCWlULvQjvjf4hcS8GV7e3DGBM780GnL
+	kVgzUzsq84lUNuJ+cy0xPkToWK6Yjge7OrUVxT6s8GlCMtcSbwOE0o8QPyA==
+X-Received: by 2002:a05:6000:2386:b0:460:1967:abed with SMTP id ffacd0b85a97d-46503646b28mr2545178f8f.39.1781824910620;
+        Thu, 18 Jun 2026 16:21:50 -0700 (PDT)
+Received: from debian.. ([2001:41d0:303:db6b::])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-46508a0546fsm2619200f8f.2.2026.06.18.16.21.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 18 Jun 2026 16:21:49 -0700 (PDT)
+From: Tristan Madani <tristmd@gmail.com>
+To: Paul Moore <paul@paul-moore.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Ondrej Mosnacek <omosnace@redhat.com>,
+	Richard Haines <richard_c_haines@btinternet.com>,
+	selinux@vger.kernel.org,
+	stable@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Tristan Madani <tristan@talencesecurity.com>
+Subject: [PATCH] selinux: fix NULL pointer dereference in selinux_sctp_bind_connect()
+Date: Thu, 18 Jun 2026 23:21:48 +0000
+Message-ID: <20260618232149.1780219-1-tristmd@gmail.com>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260618203411.73917-2-dwindsor@gmail.com> <e9ec622a8a49be299cbbfd459e2fc10693bcd65c6dbf00c9e2645281564e5579@mail.kernel.org>
-In-Reply-To: <e9ec622a8a49be299cbbfd459e2fc10693bcd65c6dbf00c9e2645281564e5579@mail.kernel.org>
-From: David Windsor <dwindsor@gmail.com>
-Date: Thu, 18 Jun 2026 18:50:50 -0400
-X-Gm-Features: AVVi8Ceqq7GMU3vGf90S537LLM-Tkad05xeAgBh-3i_pTCiFmecE5-lsBfct2HY
-Message-ID: <CAEXv5_hDJyZ=nY6JaSL=17Mtw+e_m1doj=KReWSNmgo6ULFKpA@mail.gmail.com>
-Subject: Re: [PATCH bpf-next v3 1/2] bpf: add bpf_init_inode_xattr kfunc for
- atomic inode labeling
-To: bot+bpf-ci@kernel.org
-Cc: viro@zeniv.linux.org.uk, brauner@kernel.org, jack@suse.cz, ast@kernel.org, 
-	daniel@iogearbox.net, john.fastabend@gmail.com, andrii@kernel.org, 
-	eddyz87@gmail.com, memxor@gmail.com, martin.lau@linux.dev, song@kernel.org, 
-	yonghong.song@linux.dev, jolsa@kernel.org, emil@etsalapatis.com, 
-	kpsingh@kernel.org, mattbobrowski@google.com, paul@paul-moore.com, 
-	jmorris@namei.org, serge@hallyn.com, zohar@linux.ibm.com, 
-	roberto.sassu@huawei.com, dmitry.kasatkin@gmail.com, eric.snowberg@oracle.com, 
-	stephen.smalley.work@gmail.com, omosnace@redhat.com, casey@schaufler-ca.com, 
-	shuah@kernel.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	bpf@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	linux-integrity@vger.kernel.org, selinux@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, martin.lau@kernel.org, clm@meta.com, 
-	ihor.solodrai@linux.dev
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Thu, Jun 18, 2026 at 5:22=E2=80=AFPM <bot+bpf-ci@kernel.org> wrote:
->
-> [ ... ]
-> >
-> > +struct xattr_ctx {
-> > +     struct xattr *xattrs;
-> > +     int *xattr_count;
-> > +};
-> > +
->
-> Paul Moore suggested in v2 renaming this to 'struct lsm_xattrs' to avoid
-> overloading the term 'ctx' in the LSM space. The struct was renamed from
-> 'lsm_xattr_ctx' to 'xattr_ctx' in v3, but 'ctx' is still in the name. Was
-> there a reason to keep 'ctx' in the name, or would renaming to 'lsm_xattr=
-s'
-> as Paul suggested be preferable?
->
+From: Tristan Madani <tristan@talencesecurity.com>
 
-Indeed he did; I mistakenly inverted his original request.
+selinux_sctp_bind_connect() reads sk->sk_socket and passes it to
+selinux_socket_bind() or selinux_socket_connect_helper() without
+checking for NULL.  When an SCTP ASCONF chunk is processed in softirq
+context on a socket that has been concurrently closed, sock_orphan()
+will have already set sk->sk_socket to NULL.  The subsequent
+dereference of sock->sk at offset 0x18 triggers a kernel panic.
 
-Will send a fix for this, as well as converting GFP_KERNEL to GFP_NOFS
-in the allocation in __bpf_init_inode_xattr.
+Add a NULL check on sk->sk_socket before use.
 
+Fixes: d452930fd3b9 ("selinux: Add SCTP support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Tristan Madani <tristan@talencesecurity.com>
+---
+ security/selinux/hooks.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-> >  /* Default (no) options for the capable function */
-> >  #define CAP_OPT_NONE 0x0
-> >  /* If capable should audit the security request */
->
-> [ ... ]
->
-> > diff --git a/kernel/bpf/bpf_lsm.c b/kernel/bpf/bpf_lsm.c
-> > index 564071a92d7d..86a8e188b900 100644
-> > --- a/kernel/bpf/bpf_lsm.c
-> > +++ b/kernel/bpf/bpf_lsm.c
-> > @@ -113,6 +113,9 @@ void bpf_lsm_find_cgroup_shim(const struct bpf_prog=
- *prog,
-> >  }
-> >  #endif
-> >
-> > +BTF_ID_LIST_SINGLE(bpf_lsm_inode_init_security_btf_ids, func,
-> > +                bpf_lsm_inode_init_security)
-> > +
-> >  int bpf_lsm_verify_prog(struct bpf_verifier_log *vlog,
-> >                       const struct bpf_prog *prog)
-> >  {
-> > @@ -137,6 +140,12 @@ int bpf_lsm_verify_prog(struct bpf_verifier_log *v=
-log,
-> >               return -EINVAL;
-> >       }
-> >
-> > +     /* bpf reserves a fixed number of xattr slots for itself.
-> > +      * Set the attach limit so the trampoline rejects excess attaches=
-.
-> > +      */
->
-> This isn't a bug, but a subsystem pattern flags this as potentially
-> concerning: the BPF subsystem comment-style rule for files under kernel/b=
-pf/
-> requires multi-line comments to have the opening /* on its own line, with
-> comment text starting on the next line. The preferred form would be:
->
->         /*
->          * bpf reserves a fixed number of xattr slots for itself.
->          * Set the attach limit so the trampoline rejects excess attaches=
-.
->          */
->
-> > +     if (btf_id =3D=3D bpf_lsm_inode_init_security_btf_ids[0])
-> > +             prog->aux->attach_limit =3D BPF_LSM_INODE_INIT_XATTRS;
-> > +
-> >       return 0;
-> >  }
-> >
->
-> [ ... ]
->
->
-> ---
-> AI reviewed your patch. Please fix the bug or email reply why it's not a =
-bug.
-> See: https://github.com/kernel-patches/vmtest/blob/master/ci/claude/READM=
-E.md
->
-> CI run summary: https://github.com/kernel-patches/bpf/actions/runs/277886=
-16397
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 0f704380a8c8..e45588563caa 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -5717,6 +5717,9 @@ static int selinux_sctp_bind_connect(struct sock *sk, int optname,
+ 
+ 	/* Process one or more addresses that may be IPv4 or IPv6 */
+ 	sock = sk->sk_socket;
++	if (!sock)
++		return -ECONNRESET;
++
+ 	addr_buf = address;
+ 
+ 	while (walk_size < addrlen) {
+-- 
+2.47.3
+
