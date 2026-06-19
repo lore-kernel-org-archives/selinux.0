@@ -1,113 +1,140 @@
-Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CD9A3438BB
-	for <selinux@vger.kernel.org>; Thu, 18 Jun 2026 23:21:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DAD43563D4
+	for <selinux@vger.kernel.org>; Fri, 19 Jun 2026 06:14:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781824914; cv=none; b=s8X07EAiUHKUZ76DYs7zR5M1t7xWckK5PWmiSBWZy9Mxpl7zs+5jId2DHOAPzqw1U2B1n1ZGlF/qsQLOs4MoQtuSjSfAxd1LxX/0azr213gtt9btxQtoCfdS9iH434Ws4k2Ljn6lDfr/jPfL2qEeUoc4c+l35y2METLvY6ZtmYw=
+	t=1781849677; cv=none; b=peWYqGvNuk6OkdO/W9VdGMfSmPjOdPN+OTc4Su8n+rUnY3393M775OlxGJbGBZ6IBGCGWUTNrPy/JWOVuqHzJ6mU/sf9DV0hjeO1hyoKPcfOp25cjBUMUxX6lx661gE8XAiERlE6Z/lOFaD4c3RW7fA7l5jnN2J9OhE/rNXg8E8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781824914; c=relaxed/simple;
-	bh=FP+cKVSzI65xOHE37Wv/ci3oMoPA/GEijv0vVLmvVl8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WFXwSiyrfU1I4TsPhJO/uAGKKQxDHm/jHG8ZhnCveO6Qt9YbQYmS/Gn37eMAVV9oDRcVdbTEwZcsOypyg3DT7zkQOQTArRBtTY4+eJjStxTm+7RW/BORlkbK8D7YxfnzHCEaw3mRAxuC9aKwLUSvKJd7XzKADSWTBGhDK2/jFZA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cw/A62HV; arc=none smtp.client-ip=209.85.221.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781849677; c=relaxed/simple;
+	bh=wRAo93ZUqMz04OP2boe+0dqRxeddM8OJa8v4zeW88Bg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=KgWUNjEQ0QbU+x8FFZjNkMxq5U+YAp60xEqFA3dlrdCG+m6WVCdk9RBy4cF+LM+Vk+nEXAjNq/tHdTqO6wIzDbt3H6uHxtqqi+uL8LKXMyp4TsmEVMAEBJYrAq1+g0UYEz7L45EiURc0EUZsUVCR5MT4OV5M8Vu64th7yNF7Dbo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FqlH2Mo9; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cw/A62HV"
-Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-45fd464d51fso916665f8f.3
-        for <selinux@vger.kernel.org>; Thu, 18 Jun 2026 16:21:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781824911; x=1782429711; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=gm1ifYMp6eTzkqzEKoZeR2RnwxSQq3FkUzNIWNL2M6s=;
-        b=cw/A62HVjv80TkF/pqxCxaoc2ONvZuE+avVJhirASf6O3QjkJXuekOD/kUgaGyrk5R
-         /Jecbk5kX4UPxX/qOcD1fZWHNsnwfuUeEaCR0jauznlNdaedUC1ON9k3hBZNzHqwLLbp
-         goXfOe8/8y/zgmj0s1UJgc+iag2WDnl+OASAtfGt3demVoYrEDxTMs4rDR3ax8pWg/QI
-         mqe191mlkSb9o8pGkyiY8hTc3NUmgXOI3FXPWFaH+wsjUZf6dV00Hm4yUiZC/fGzg4Vw
-         +jXpzPldW+2hUndwYM9tK650LrQW0jtIm0riTFeidevcls92Ivj7vgT4UryD0nliJCbP
-         Ac2g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781824911; x=1782429711;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=gm1ifYMp6eTzkqzEKoZeR2RnwxSQq3FkUzNIWNL2M6s=;
-        b=NxABU4IiKl0Frsi9ozqBqvw4HYYD+4vmrABAshsNmRE9untEOPngotk7zPm7wS8Ymj
-         dX5LwLSWKIlZO/uT0K2/eT1jUMk5nA32i5qVmo/rdfelCT8VrMgTqcaMtRLlyJAYmlem
-         DJXcrFAwRABMwshDtYDUNuewEPTOJUTIIMFzrIRABwOdE/6a1ouOHwcbo2i5rRy6bTPh
-         r5Y7mzMrxqQfLo5YYNF9HaiPTntG78IPspWu3UZTx1DYnp6vxiYR74xKV+ch6EloPs5P
-         V+Sen1Y/i/SvviJQPtTaKOsd0EAGupY74dyBw5xcDlTh6Yw+1kR/ZuB8u8gYPlNMsXv0
-         i0mw==
-X-Forwarded-Encrypted: i=1; AFNElJ87tohHSHKiG7gQLIZ9qwbn9GI17VLIA5mJb9qg546F+Hw++XV3MXIYnoR43IKt/Eu9snAgenZY@vger.kernel.org
-X-Gm-Message-State: AOJu0YzmmNYwfcCf72tdt+WiFV0gobod15ACyHhsZnr/h/kc4qBxahQU
-	MFHysE038Jm3OrBnV0IE0PFcLzqDGhy2zOPGSBoA92ftA3ZDmTCnE1c=
-X-Gm-Gg: AfdE7cl3mV35lkSiRNFqNbGUITo7bvkDOiCeTPn0dwzxs/l+MsMfI77HlaajWSWRuoV
-	x0RAiJdhuuTZGrEpTgxZoDC+ahmykW7oCWeNXQl0xedAbaWehuDIX6WyZYFWfbw818PabF8Fj9r
-	lRtndGUd07VeVasaPKitDHaMd/++wrBDsqeac8WIiMioml5fGgDsCaw9AFGSFKwNyGT0j0yIdDL
-	e0S83KAjR1mNYxe0gRGMW0B8MmR+DQc7guscTPkfenHjULZyXqHNJ07x7dbpq4wLYP9lGPOWZPA
-	+bGuoP4DoyaGR3PhwGBy62LY+AIAsO7tnlc2FeAcbx+TCWlULvQjvjf4hcS8GV7e3DGBM780GnL
-	kVgzUzsq84lUNuJ+cy0xPkToWK6Yjge7OrUVxT6s8GlCMtcSbwOE0o8QPyA==
-X-Received: by 2002:a05:6000:2386:b0:460:1967:abed with SMTP id ffacd0b85a97d-46503646b28mr2545178f8f.39.1781824910620;
-        Thu, 18 Jun 2026 16:21:50 -0700 (PDT)
-Received: from debian.. ([2001:41d0:303:db6b::])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-46508a0546fsm2619200f8f.2.2026.06.18.16.21.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Jun 2026 16:21:49 -0700 (PDT)
-From: Tristan Madani <tristmd@gmail.com>
-To: Paul Moore <paul@paul-moore.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Ondrej Mosnacek <omosnace@redhat.com>,
-	Richard Haines <richard_c_haines@btinternet.com>,
-	selinux@vger.kernel.org,
-	stable@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Tristan Madani <tristan@talencesecurity.com>
-Subject: [PATCH] selinux: fix NULL pointer dereference in selinux_sctp_bind_connect()
-Date: Thu, 18 Jun 2026 23:21:48 +0000
-Message-ID: <20260618232149.1780219-1-tristmd@gmail.com>
-X-Mailer: git-send-email 2.47.3
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FqlH2Mo9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E65EF1F0155F
+	for <selinux@vger.kernel.org>; Fri, 19 Jun 2026 06:14:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781849675;
+	bh=uaS3aq1w7tNyZN2i2xHKVcafg5dLA5x8H8lD5mfIIDA=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=FqlH2Mo95LuxodL/sUr9qWXO5x73GefOOff774qkhHhgj3PlJA2IWpCLT/OnVlfCN
+	 lgKCOLeoWCjJtkwcPnut/M+p2hMtlwn4HUlaEBNLbwwMtHWdaXztjNUMEgBtzRv6XF
+	 IJYeu7B/QKtfaRha7Vq8lXSm8e0rQr/JbuiXxxv6mSXVz2NxdZHsztwLQG1H5LZLvP
+	 HkDlvTYFf5M4k4VumO5sLikluuLk6EJN4013YJ3VDBhbin9/zfTenZBB4/PqtkxTlc
+	 5afZJ2NfE3f6O1DJ4hD1611H4vVa+gZg+ZPZhxwgW8SZHm7yGPRwP/vLFrfWiF+5sh
+	 3bxpwnqAHy+Rw==
+Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-9157b94a07aso193277885a.0
+        for <selinux@vger.kernel.org>; Thu, 18 Jun 2026 23:14:35 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ8s6yhA8HhvDWlbSxUo91z1q2ZDMWeov0b7MiCOKBBWHDJFJ/dZYQufJN3t4AJZzWuUZUGLNce+@vger.kernel.org
+X-Gm-Message-State: AOJu0YxSc5s8NW9DiafI7hWP9Z7JPN/hNw+87VPChusX6wikCaOs0dIy
+	9AXsCYXlOXJZHTbGe07oFAiS5ydyabPX4nQKiUYOrvJVXQVU4LvmT+VG0A3FOVUs/9kJ7lDdSea
+	FXMSu0EjEbYwrJazQuG5vcij0ES5yAG0=
+X-Received: by 2002:a05:620a:4082:b0:915:eec4:1ec8 with SMTP id
+ af79cd13be357-920d27aeaa7mr178047085a.18.1781849675053; Thu, 18 Jun 2026
+ 23:14:35 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260528182607.3150386-1-song@kernel.org> <20260528182607.3150386-8-song@kernel.org>
+ <20260617-laufbahn-eifrig-charmant-a48f357a0c52@brauner> <CAPhsuW7Wn8GYrsrRhEFXQH5buaP+pdTKc0UV8Mn0B3OnNN-44g@mail.gmail.com>
+ <178179134209.111814.12159888808546010170.b4-reply@b4>
+In-Reply-To: <178179134209.111814.12159888808546010170.b4-reply@b4>
+From: Song Liu <song@kernel.org>
+Date: Fri, 19 Jun 2026 14:14:21 +0800
+X-Gmail-Original-Message-ID: <CAPhsuW5CFi6J24NDeennaKnJmqDj5Z6DTAwU++naaohTo9_yPQ@mail.gmail.com>
+X-Gm-Features: AVVi8Cc6mfJ09GK8HpE04iMyTYX7fa7D8MYecMOWIn8bxD1E_fS_6I-twUXEXoY
+Message-ID: <CAPhsuW5CFi6J24NDeennaKnJmqDj5Z6DTAwU++naaohTo9_yPQ@mail.gmail.com>
+Subject: Re: [PATCH v5 7/8] vfs: Replace security_sb_mount/security_move_mount
+ with granular hooks
+To: Christian Brauner <brauner@kernel.org>
+Cc: linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	selinux@vger.kernel.org, apparmor@lists.ubuntu.com, paul@paul-moore.com, 
+	jmorris@namei.org, serge@hallyn.com, viro@zeniv.linux.org.uk, jack@suse.cz, 
+	john.johansen@canonical.com, stephen.smalley.work@gmail.com, 
+	omosnace@redhat.com, mic@digikod.net, gnoack@google.com, 
+	takedakn@nttdata.co.jp, penguin-kernel@i-love.sakura.ne.jp, 
+	herton@canonical.com, kernel-team@meta.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Tristan Madani <tristan@talencesecurity.com>
+On Thu, Jun 18, 2026 at 10:04=E2=80=AFPM Christian Brauner <brauner@kernel.=
+org> wrote:
+>
+> On 2026-06-18 18:56:42+08:00, Song Liu wrote:
+> > On Wed, Jun 17, 2026 at 9:53=E2=80=AFPM Christian Brauner <brauner@kern=
+el.org> wrote:
+> >
+> > > On Thu, May 28, 2026 at 11:26:06AM -0700, Song Liu wrote:
+> >
+> > [...]
+> >
+> > > >
+> > >
+> > > This again is racy as it is called outside of the namespace semaphore=
+:
+> > >
+> > >         err =3D security_mount_bind(&old_path, path, recurse);
+> > >         if (err)
+> > >                 return err;
+> > >
+> > >         if (mnt_ns_loop(old_path.dentry))
+> > >                 return -EINVAL;
+> > >
+> > >         LOCK_MOUNT(mp, path);
+> > >         if (IS_ERR(mp.parent))
+> > >                 return PTR_ERR(mp.parent);
+> > >
+> > > After LOCK_MOUNT @path might point to a completely different mount th=
+en
+> > > the one you performed your security checks on.
+> >
+> > I thought we agreed at LSF/MM/BPF 2026 to add the LSM hooks
+> > before taking namespace semaphore, so that it is possible for LSMs
+> > to defend against DoS attacks on namespace semaphore? Did I
+> > miss/misunderstand something?
+>
+> I think there was a misunderstanding. What I pointed out was that it's a
+> trade-off. If we do call security hooks under the namespace semaphore or
+> mount lock than anything that's called under there must take care to not
+> cause deadlocks - which is especially easy to do with mount lock and
+> even with the namespace semaphore it may get hairy (automounts etc). The
+> dos thing is another worry but if an LSM does stupid things we tell it
+> to not do stupid things and to go away.
+>
+> But as the hooks are done right now they are meaningless from a security
+> perspective. You might have a policy that allows mounting on dentry_a
+> and deny mounting on dentry_b: before LOCK_MOUNT*() you may see dentry_a
+> and allow the mount but after LOCK_MOUNT*() someone raced you and shoved
+> a dentry_b mount onto dentry_b and now you allow overmounting dentry_b
+> which your policy didn't allow -> hosed.
 
-selinux_sctp_bind_connect() reads sk->sk_socket and passes it to
-selinux_socket_bind() or selinux_socket_connect_helper() without
-checking for NULL.  When an SCTP ASCONF chunk is processed in softirq
-context on a socket that has been concurrently closed, sock_orphan()
-will have already set sk->sk_socket to NULL.  The subsequent
-dereference of sock->sk at offset 0x18 triggers a kernel panic.
+So the direction here is to move security_mount_bind() after
+LOCK_MOUNT(mp, path)? This should be easy to fix.
 
-Add a NULL check on sk->sk_socket before use.
+> > > Placement of this hook suffers from the same issue as the bind mount
+> > > hook. Here it's worse because the security layer isn't even informed
+> > > about MOVE_MOUNT_BENEATH which completely alters the mount relationsh=
+ip.
+> >
+> > Current hook security_move_mount doesn't handle
+> > MOVE_MOUNT_BENEATH. But we can add mflags to security_mount_move().
+> > Do we need anything other than mflags?
+>
+> I think you either need to pass three mounts (source, target, top_mnt)
+> where for non-mount beneath target =3D=3D top_mnt or you need two separat=
+e
+> hooks. Because for MOVE_MOUNT_BENEATH you may want to have a tri-part
+> policy: source, target, top_mnt.
 
-Fixes: d452930fd3b9 ("selinux: Add SCTP support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Tristan Madani <tristan@talencesecurity.com>
----
- security/selinux/hooks.c | 3 +++
- 1 file changed, 3 insertions(+)
+One hook with (source, target, top_mnt) seems easier here. But let me take =
+a
+closer look at this.
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 0f704380a8c8..e45588563caa 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -5717,6 +5717,9 @@ static int selinux_sctp_bind_connect(struct sock *sk, int optname,
- 
- 	/* Process one or more addresses that may be IPv4 or IPv6 */
- 	sock = sk->sk_socket;
-+	if (!sock)
-+		return -ECONNRESET;
-+
- 	addr_buf = address;
- 
- 	while (walk_size < addrlen) {
--- 
-2.47.3
-
+Thanks,
+Song
