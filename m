@@ -1,195 +1,167 @@
-Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com [209.85.208.172])
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DC8F34B183
-	for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 19:44:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 970C833B6CC
+	for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 19:45:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.43
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782157493; cv=pass; b=fA+VYNzx8Tf8TH4eYPvb1cWSLk8UEmDhvp187KlZPcaUBFNOT+RyDQVrGkcex6xSvgyFdIQ26Ie6dRxX2mNtcoarC8QcMixfEzWkvlAc+7F2wDvGxE7tZO9K+56VLMqL/9q9ka4ry3IgacPN4yEKqJAD5fkMA502bxGsPZE+hco=
+	t=1782157537; cv=pass; b=mnrbabM1WhPyCQBKG3Q8kY13dI7UT/V+YzvSS8RchYbmaFCqZygiucYONcvNsUq9KVUSIHtsxErmse772Fb4qawFNECePRRIY2DNO6t1TvvlsDR3fAU+7rKfPNEsVCka9BjJrvQOvJp4CMF6bxAD2cHMF/VSWBOHhD7jqrPdPVk=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782157493; c=relaxed/simple;
-	bh=8hTZ+bmegbGUBKCQuLj6cmlPs0bgNF51BhQVN85ZQl8=;
+	s=arc-20240116; t=1782157537; c=relaxed/simple;
+	bh=p18X4pNriMzGp1BGX0M9xmC8zufLzHR8XqBBImabqNg=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=k3GoJ31TkDDtRWvbVbXSp4oxdjA8+UtA3S5LjJlRSk4p+z3YxrmU0w2DX/LSS1fjaHo6bvtHvhCPj5aZJXJGjBM4qqqG3owegU7R1f9VmH7dMCoYqd1mdlqwEuudmP4cT0P6aF8R5N22Qa3ko7rbhTnnDA7CTf+sl3THW4uY5ds=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RybfSeFv; arc=pass smtp.client-ip=209.85.208.172
+	 To:Cc:Content-Type; b=QioLBayKv57DarNLHoSrWRnbi4GwTtGKP/E6Vd4xRdhYWtZf1nTe2seXMipxI7JmYKtaar8KTtzYkO5q8okYuj70LPyKKlm7Ydl4UV/fmqhbHp4puh3IsHidpznt0AWx8hebwv1Ij9MlCXO/DSJI3QirJMAAwv1GpwbHAtKzKpg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bvJX6pYJ; arc=pass smtp.client-ip=209.85.216.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RybfSeFv"
-Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-396771119c4so43505001fa.0
-        for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 12:44:52 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782157491; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bvJX6pYJ"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-36ba285e98bso4188192a91.2
+        for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 12:45:36 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782157536; cv=none;
         d=google.com; s=arc-20240605;
-        b=NCMHeOu/NqugMRAMJhO+GEA64fVwj/87pvjjhDexAXKsDhZUdQlXaDxwsGoBq1ItzK
-         n+BXALwGdKeB4dukXpCXGgXJUXWOCQn+TBE8Boln7LuZpfz+53cavAfPtStsS2jWN4eK
-         SMWIpUy0RVfnwmkc8vJ6EdnG+3gLDe+Yu2FNqJYeG375tLZbrU3ionvIx70ANAXAby0u
-         B8yU7xqcBW9MvTtbk7Gy+2FtzxS/qUL10k67SepkzA/oGNK4H5gae5DZjaBnBuTI1GrV
-         TAvyeUj4rQzWXCK/myFolL/ub+fWe3iXrxYQoYgCJ2aQMdidOtOKFCoqzoEay5263Vby
-         XmtA==
+        b=QOQOueLgtpVGbwk68+FFOubjxveD4wHQ1UJ8CuAsYLJfgE74bp1fbwbGhHE6x2SS8O
+         Cw22kchMEFm6+XUZLrkYtnG1qqtYBhGr6MSU90aA4ULH6UliCI5675iF1KwrAw/2PNfM
+         qRk/5/AIts2rPxt1jMwQ4LWm848pmQeq+dEj8VL4b1VaWe4MVb3P9HXMjk9jMw2vHFMT
+         9gfFPY09zkhq1QT0fJrKLWE9PHgLtCujX5Dws7GPyj0ftCI3eyeQmIzlBXKBc3eaEE8/
+         829ic3eYxpP7RHK9JhNuoa/mJFVkpG4tSthnuGY5koJM04Gp9uPb1WoQ+WliNkt1wtgH
+         EFJA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=+tn9mRslOqBRuDE5BlHjPQrDJRu+Wl3P3/ZPxlzx+Y8=;
-        fh=X5vnZCWuErBCX3HK8iUwBuHD6/CaNbIp7PYXEJ+WOF4=;
-        b=Qw19Yyzgqz3of76tVww3fkrGoTOOAse1YPhIlPlphg9/9l1mijm4ZiKoCMwMupY+9T
-         ufLSeWlCzTaC6k/0p/uh9FYa3UnJXBFN/EpmOa3m2Go2erDuFRCMOcuF/v57g4vXf/uF
-         q5Y1Ixr7LktQQc+s8bzXOgoXy4jmbun8DsHI9JYnu984G4K+sDj48MeycHgpRGtHKUwt
-         z5by/SUeNJrpmlAzqMsZE9Fk9BPmVO2OfgXhbRFh37swKG9HmB2RYyKAyYPQdyOALImg
-         PbdhOaaRHPiwIbRpTIWs3yPrUMv0b6pO9ecKBiB9+N+tX0a6nM0QDyoSX3LeGILXvkp7
-         K1Rg==;
+        bh=YD/u4RyGopnPNLIxcn87GOipu2yHJI+Wggj89XQYKcE=;
+        fh=iTQQ/KiOQzcxNclBU+WsciIiUpc5GKuUhBUZ6aw0T88=;
+        b=IpfAXwvAQtPOxx52UcvUD+rdBuYr5OJjCioPXMUx+fvncYCaROdo4jzzYTELyF1jW0
+         w83a4F5z1sbKfQuaw8VgOqdjB0r0WLps4x/qvCIVx72kVPpZRoUAqZpx8n9MtO3Ufij7
+         zGakLQQyokS8ILBmlKiasVnsb0jUX8OejZ+MvALldGY8NeJL3KE2q3IC+1c72jpowwRm
+         Zjv7wcyuM0k423JZ1fgBGT/NMZ3+YK0TTRR9U7DG24T45fKvVJbcluL0/EmzpzoORr1v
+         AMkN/KRPF6fb4ktuuE028WTQaphgfjwjQdGsCN2ctao1xlT97aHco0WDlIFzi37xzmdi
+         PwvQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782157491; x=1782762291; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1782157536; x=1782762336; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=+tn9mRslOqBRuDE5BlHjPQrDJRu+Wl3P3/ZPxlzx+Y8=;
-        b=RybfSeFvRVEMV/R95aNdD8GgnGgrOmLb1j3/m9EEofRJVAnmrokiHCwYixXmY54/65
-         ibTCg+mqKykOD3y8AY5LjlXBlaucJ0rdG0bjUY+hmbl+B3atTippelgntV3d/KZEWI47
-         oEEWPBF6BY7NDeODKSR3E11hNGLr0ECjlpgDv7Hx9K8jdJEE62juE2ik/+w90MD1RWTu
-         icFq6+kyhjTCdTayRnRPnMzBGCmP4fAKy19pWPPa3XHR6Es4hf04DwRVzXMI+dIDZPze
-         XPR2YXQK5/XCYpddqtHYMNWBIY5CzaNIJgDAVrFK5X2JMmKc2XDOwvyfiA80fJ7+p61G
-         6ohg==
+        bh=YD/u4RyGopnPNLIxcn87GOipu2yHJI+Wggj89XQYKcE=;
+        b=bvJX6pYJfWcAq7+79WycI1QHjqzGF+/3uYoygG4X4zulofb22Sa0pQgsKKSU765j22
+         5Oe0qD1U8BNG3NkGdmxpfESSJolyc7+3b3zC0cvTMi8MhOJXcmK5qhyZbS5N9Qr0AvOD
+         HB1Viw+8LjhqcVLS30qSwxzkYGsyBLo7QyidPgIG2zFOUR7JDVWVmwzf36ql3yuRgWNr
+         NfpTet8VxvvTtPsjFSzwshZb1HjR9DD7JBHlrzjmZ+wogyGk0OwXWmBfoC8vbLYdpuGw
+         TeQ+GlvBq1W/zOMTMRy3hWDe3ERtulDttCdxB52B+Pa4BcSm6hSXBAdViguNLNUo3L7E
+         GK8A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782157491; x=1782762291;
+        d=1e100.net; s=20251104; t=1782157536; x=1782762336;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=+tn9mRslOqBRuDE5BlHjPQrDJRu+Wl3P3/ZPxlzx+Y8=;
-        b=bM0TQzyPGD5xXJAjdCGItaU8gBz+3sOu/9tYLhpkf+zw82Oinq/mRKr0S09QQ3NWyi
-         A0RD0zvlxvw2Loc0hTDdBA7ID142AuklC9tERReoW4QrGpAe2Na6U8be4+9TiHygJLJ5
-         I/8RZP1/mWvVzQUjztSfXNcDSpadJmDm/g2IJY52TG0fTjhLXef8bsbcKfxrH2DPSG6n
-         17DzsRmADW3iuHJpL8fzuyuFxSmTylxL5B5MW5c0pf/5bj0GjuRTnx1+DXx9ej1SIYBI
-         J71Ev3sywvP/jUXGW/bzmCrPYO7xzEOGb26+WMhItsxz8ySk4vXOCJqffeImoWsFBy8y
-         i4kg==
-X-Gm-Message-State: AOJu0Yxk4muIHf+EdGFMhVJdwD6N/v0Yc+4JGDDqMEAKcP6P7EQ9L4Vc
-	2AiBwDSLd72tX9d6/wIMhEOERO6KX3yLR5oJsmGBPElEttYbaBCMsPsEx3ByeEJDQomaiiUXKQc
-	71veBIp372fMp8WjAg2rkCLsAe+myzFM=
-X-Gm-Gg: AfdE7clxRdhkP4fQfkXHFn3sBjCOq83WriZVuiWLBjAQukUSqBa8DHbjLNwUB4uBl++
-	qQD2uVM90nnrYcfBnO/To7EwY8gbLp2QhqxM0OQQye0xNT68xNGZo9l5+iqHVbKZ1PITIVgK0sF
-	jdOjpAQaQyz4cEqmR1fcgtPlnRAYrU9lVxeyEnI9PNPteQhZbpbSfP+uhUzI+EM0pNQM2fuWU7x
-	S1NMpxh1lYsN36scCyqYxfkSPpoBAK+BG7cUiYJFglEvjpgb+3Kyq8lBhJDB6YjFp+tzA==
-X-Received: by 2002:a2e:bd83:0:b0:396:a860:f94a with SMTP id
- 38308e7fff4ca-3998e4caf8amr37431661fa.15.1782157490247; Mon, 22 Jun 2026
- 12:44:50 -0700 (PDT)
+        bh=YD/u4RyGopnPNLIxcn87GOipu2yHJI+Wggj89XQYKcE=;
+        b=DSbu/oE3KPcxC8R/Z82qFicRhE8U+9KYaRy6SKraA1JGCwussmdl8zh92lIaSSINce
+         p4BmuLrXnCfhRtQiaaGSjL1NJU5Ty94b9GJbMU2I490lGvgfwlKe6KPgxceIM/o6cbKP
+         l2trpbP7VvLG20NKWQSrLyvSw1HDJuc+TttPcPP+wTRomvayyBpJcDVjta4LNzrnsbdD
+         aN8ri3Y6ZCFk+W2J58Jlvwo921ANP3wFQKrn+R7McNhDhL4l7kHAwr0yb0N1o7SSt95s
+         wZl6B9g+h89LG0Fn6vzgDhcV24ggJJa3YX5/qM3INlpLHXrLWypGl9nw8kF0J8fVnqhm
+         HT+w==
+X-Forwarded-Encrypted: i=1; AHgh+RpGjCFASzbOiIvSNUm8MF5WxPQdXS0VEU1hTTHczVUUPWrjOb/YcBywSO5sSMGVjESnxZ/Vm0Gy@vger.kernel.org
+X-Gm-Message-State: AOJu0YxMNL3yUMqJpwfRvck351I5jk64pPSsilPh1GY4YvYIc2MrJxee
+	bsCQmtor8jRgTBiKWPk+6uFvGhmn1U0Tx6Geu4gx4aggE203XYNFHdcSZZHsJrxDDxLHuZQU8Yc
+	SzXt05eqQaZS7ZCyU+AZgMTjjH5fC0ho=
+X-Gm-Gg: AfdE7cnepBame6RhiTb3qS0ZptJmJY/puSfsonwaQM5hIcofeQQgFl5fqYvpPdBMEgg
+	Ozm4DVKvuIU3GzqOJelImroZRRuYK1DPDwOYn7upIkb5Loy4jqKzXcHGx0tiX4aGG2ewswQEZ3O
+	AmTASyODlsQpOCr2LbVzylVKBjuMQhw6Ki0Z1EbSk/nCDCgEZgi+psOLl/W2TjpiGUsHBGcXQN6
+	Q6vbBdav/gffCbbY2p1m5ybluf7hu09HAiKl0TUnBuqQgj5VTO35kyWu7WA7tiexSQP25NV
+X-Received: by 2002:a17:90b:55c6:b0:36a:fcf5:64bd with SMTP id
+ 98e67ed59e1d1-37d1e82f06dmr14119057a91.2.1782157535836; Mon, 22 Jun 2026
+ 12:45:35 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260622124222.31518-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260622124222.31518-1-stephen.smalley.work@gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Mon, 22 Jun 2026 15:44:39 -0400
-X-Gm-Features: AVVi8CctqhPQaKPgto9s0x-ksW_6Y9e4zChnokBl3JAQuJUYbbLnrI7BOjeeSKg
-Message-ID: <CAP+JOzRVpQib920=h9Yf=nwLRrsW-rQ4HkERKNVUrVJ5qGvtRA@mail.gmail.com>
-Subject: Re: [PATCH] mcstrans: fix out-of-bounds read in parse_raw sensitivity parsing
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
-	netliomax25-code <netliomax25@gmail.com>
+References: <20260622143722.1167703-1-haoxiang_li2024@163.com>
+In-Reply-To: <20260622143722.1167703-1-haoxiang_li2024@163.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 22 Jun 2026 15:45:24 -0400
+X-Gm-Features: AVVi8CdmO3k7hOSP2wRvWZ-4Buclsy_rtKYfQbczrVmB1CDiPGIvo_5GV2ZN6Rc
+Message-ID: <CAEjxPJ5B8w4XTRAQ9jr-T7-k9meN5NgzWKTfwe_g_SSEMdsWxQ@mail.gmail.com>
+Subject: Re: [PATCH] selinux: clean up selinuxfs resources on init failure
+To: Haoxiang Li <haoxiang_li2024@163.com>
+Cc: paul@paul-moore.com, omosnace@redhat.com, selinux@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 22, 2026 at 8:42=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Mon, Jun 22, 2026 at 10:37=E2=80=AFAM Haoxiang Li <haoxiang_li2024@163.c=
+om> wrote:
 >
-> From: netliomax25-code <netliomax25@gmail.com>
+> init_sel_fs() creates the selinuxfs mount point and registers the
+> filesystem before mounting selinuxfs internally. If kern_mount()
+> or the subsequent lookup of the null file fails, the function
+> returns without undoing the resources that were already registered.
 >
-> parse_raw() advanced the cursor with raw +=3D numdigits(sens) + 1 after
-> sscanf(raw, "s%u", &sens), assuming the consumed length equals the digit
-> count of the parsed value. sscanf %u accepts a leading minus, so a level
-> like "s-1" stores UINT_MAX and numdigits() returns 10 while only two
-> characters were read; raw jumps 11 bytes past a 4-byte buffer and the
-> following *raw =3D=3D ':' test reads out of bounds. The range reaches
-> parse_raw from trans_context()/untrans_context() -> extract_range() ->
-> compute_trans_from_raw() for any context sent to the mcstransd socket;
-> trans_context splits the range on its first dash, so a high level such
-> as "s0-s-1" arrives here as "s-1". parse_category() uses the same
-> numdigits-based advance at two sites, shielded today only by the
-> MAX_CATS checks. Use sscanf %n to advance by the characters actually
-> consumed at all three sites and drop numdigits().
+> Add the missing error unwinding so the internal mount, filesystem
+> registration, and sysfs mount point are released as appropriate.
 >
-> Fixes: https://github.com/SELinuxProject/selinux/pull/533
-> Signed-off-by: Kartik Kenchi <netliomax25@gmail.com>
+> Signed-off-by: Haoxiang Li <haoxiang_li2024@163.com>
 
-Acked-by: James Carter <jwcart2@gmail.com>
+Any failure here is effectively fatal to SELinux regardless, but:
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 > ---
->  mcstrans/src/mcstrans.c | 23 +++++++++--------------
->  1 file changed, 9 insertions(+), 14 deletions(-)
+>  security/selinux/selinuxfs.c | 19 +++++++++++++------
+>  1 file changed, 13 insertions(+), 6 deletions(-)
 >
-> diff --git a/mcstrans/src/mcstrans.c b/mcstrans/src/mcstrans.c
-> index c494e76e..b5c8d54a 100644
-> --- a/mcstrans/src/mcstrans.c
-> +++ b/mcstrans/src/mcstrans.c
-> @@ -173,41 +173,35 @@ err:
->         return -1;
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index 5aaaf69410bb..c7d91476971c 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -1984,17 +1984,15 @@ int __init init_sel_fs(void)
+>                 return err;
+>
+>         err =3D register_filesystem(&sel_fs_type);
+> -       if (err) {
+> -               sysfs_remove_mount_point(fs_kobj, "selinux");
+> -               return err;
+> -       }
+> +       if (err)
+> +               goto err_remove_mount_point;
+>
+>         selinux_null.mnt =3D kern_mount(&sel_fs_type);
+>         if (IS_ERR(selinux_null.mnt)) {
+>                 pr_err("selinuxfs:  could not mount!\n");
+>                 err =3D PTR_ERR(selinux_null.mnt);
+>                 selinux_null.mnt =3D NULL;
+> -               return err;
+> +               goto err_unregister_fs;
+>         }
+>
+>         selinux_null.dentry =3D try_lookup_noperm(&null_name,
+> @@ -2003,7 +2001,7 @@ int __init init_sel_fs(void)
+>                 pr_err("selinuxfs:  could not lookup null!\n");
+>                 err =3D PTR_ERR(selinux_null.dentry);
+>                 selinux_null.dentry =3D NULL;
+> -               return err;
+> +               goto err_unmount;
+>         }
+>
+>         /*
+> @@ -2012,5 +2010,14 @@ int __init init_sel_fs(void)
+>          */
+>         (void) selinux_kernel_status_page();
+>
+> +       return 0;
+> +
+> +err_unmount:
+> +       kern_unmount(selinux_null.mnt);
+> +       selinux_null.mnt =3D NULL;
+> +err_unregister_fs:
+> +       unregister_filesystem(&sel_fs_type);
+> +err_remove_mount_point:
+> +       sysfs_remove_mount_point(fs_kobj, "selinux");
+>         return err;
 >  }
->
-> -static int numdigits(unsigned int n)
-> -{
-> -       int count =3D 1;
-> -       while ((n =3D n / 10))
-> -               count++;
-> -       return count;
-> -}
-> -
->  static int parse_category(ebitmap_t *e, const char *raw, bool allowinver=
-se,
->                           bool fromconfig)
->  {
->         int inverse =3D 0;
->         unsigned int low, high;
->         while (*raw) {
-> +               int n =3D 0;
->                 if (allowinverse && *raw =3D=3D '~') {
->                         inverse =3D !inverse;
->                         raw++;
->                         continue;
->                 }
-> -               if (sscanf(raw, "c%u", &low) !=3D 1)
-> +               if (sscanf(raw, "c%u%n", &low, &n) !=3D 1)
->                         return -1;
->                 if (low >=3D MAX_CATS)
->                         return -1;
->                 if (!fromconfig && low >=3D maxbit)
->                         return -1;
-> -               raw +=3D numdigits(low) + 1;
-> +               raw +=3D n;
->                 if (*raw =3D=3D '.') {
->                         raw++;
-> -                       if (sscanf(raw, "c%u", &high) !=3D 1)
-> +                       n =3D 0;
-> +                       if (sscanf(raw, "c%u%n", &high, &n) !=3D 1)
->                                 return -1;
->                         if (high >=3D MAX_CATS)
->                                 return -1;
->                         if (!fromconfig && high >=3D maxbit)
->                                 return -1;
-> -                       raw +=3D numdigits(high) + 1;
-> +                       raw +=3D n;
->                 } else {
->                         high =3D low;
->                 }
-> @@ -242,11 +236,12 @@ static int parse_ebitmap(ebitmap_t *e, ebitmap_t *d=
-ef, const char *raw)
->  static mls_level_t *parse_raw(const char *raw, bool fromconfig)
->  {
->         mls_level_t *mls =3D calloc(1, sizeof(mls_level_t));
-> +       int n =3D 0;
->         if (!mls)
->                 return NULL;
-> -       if (sscanf(raw, "s%u", &mls->sens) !=3D 1)
-> +       if (sscanf(raw, "s%u%n", &mls->sens, &n) !=3D 1)
->                 goto err;
-> -       raw +=3D numdigits(mls->sens) + 1;
-> +       raw +=3D n;
->         if (*raw =3D=3D ':') {
->                 raw++;
->                 if (parse_category(&mls->cat, raw, false, fromconfig) < 0=
-)
 > --
-> 2.54.0
+> 2.25.1
 >
