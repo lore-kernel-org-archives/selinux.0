@@ -1,173 +1,104 @@
-Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E9701799F
-	for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 18:45:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.52
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782153930; cv=pass; b=Ua6p81dcJA7KYXCwEo8eJmF3O9WOYrChgNr2LGInT/S8PEItwr5u5hZbpcL5Fw6vznDmPrbyxo1YZxGSEweWLewrmcOxVmXY21Gl0ukGhM2gY5/teIow8aU6e4faSu2hE8w1D8JTVAVPgcgx5FUO+gV7iQB8P5jtpO35cHyQZ9E=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782153930; c=relaxed/simple;
-	bh=9IpgFgNNq1r7ze+PS+qfAZGFDH+b9V/8hD0D0zk2Y/Q=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=A7KYeE+KZRCSfUzQCz/5sV+17fK1XgmI8osd4obbbdlPmgf3M1csUUaNhizr+upnIYutb6He3wJ/raN8kaKdQ/Zq/vWciw15Dnhoa8teKw3gWMtNzirsNYxwP2/p3cEuFX6F+/LMHkVmC1pn5rZuB0XFGe52MWQ/F0ul42PfLzQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FE1CPsJq; arc=pass smtp.client-ip=209.85.208.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BF543438BA
+	for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 18:59:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782154783; cv=none; b=GAyPGACjqhBiaTwD458qVNyBIqOTit9v6gGAKGXAEo0H2Cn9z9ESXikuvbU6qb/T3mD/zv1KUar1y58AflmLXXemdd4mtiyRbhhcy5yM3waxu877lfrjSICFP0eaiEptZ/VsRZQ5Xq+fiC1fMddy4YfHx/m3hzhOyJsdrR8d6MI=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782154783; c=relaxed/simple;
+	bh=gPDvbjY4yqlX02GxThsdZXOqsHN6+5dT1OAzP9r96A0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=YRIIljka0PHElRmhxIFuPSsxiS60EMNTBJFFCA2LSDG21A61scPGYYPnVdqBNXDxFpMqsDWWkJzbZJxlZ7aKJsAiRk3mUbeuui8+5gqATccCbA8XvIwqe/l7LL4I3B8oedzmllPyfwUZXVbmVxUKHhoEkbo4yRFeddZRBfSun6s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fCfS+Z2U; arc=none smtp.client-ip=209.85.128.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FE1CPsJq"
-Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-69775980397so4413073a12.2
-        for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 11:45:28 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782153928; cv=none;
-        d=google.com; s=arc-20240605;
-        b=BbfBHrBycFR7QodzQ9XVN56LXUVjhJ6GiYsTCGMoeky4iS5AGC5IT/0LJJQU4NRcDU
-         QoxHxrs3OHa8VfR2mtIK/S5KDgOACT4HRNin0f/i3ZNlocOT4JhAaS62FTFyli2jCAjD
-         Ek/CQ9O1PXe9RJLUtTfnDjF7pHhuqL/rVpL7AVH+sNEIE1EF738ONj5etx2Vj1k4TcMW
-         kqafiWTz/3/mH09XD9WYRjnWN8yp4R7k/QX8Dq9QcTKQCRpS2HypmxkMktcdimBn280b
-         w4lyK5dWiZ9wYkfm1raJgXm0ROgNaQPvHgcpKDCMBLFrkUkAQ5+/T9jEEDQFreH5bthO
-         /5lg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=9/wfRdEy7j5FL0M0paRP6/0ZbtXx0D8Bf05gko1VsQc=;
-        fh=X5vnZCWuErBCX3HK8iUwBuHD6/CaNbIp7PYXEJ+WOF4=;
-        b=BUgW1hVKCOi2ga6r4GNaUDqSIp3eBX/tlfFtMrh3rmMEeGAC7/cjmX24WxnDqL3/ZB
-         WdhtEotJh1jE0SBDcuMyhqNxU7tyWtJIyOeRm/OBtPVwgmDLFDEkkbG5OaShlJgouig7
-         Xi3LZ48cCWnKQJAO9TnOgW73szMdlmU6Y9TXttSnUGVjELk2CqzhKT9bDXUVSYfarjfH
-         swbLCpbFVzg9cqj/lcl13X6C7+FtiSD5p/x8rGnNd23Q7EwntT+FiU0Hxe8uaH4iZTOt
-         UAS3MKxeVM8ilQwU5NaezUA3pxB0RYgkgMI9seihgYxPrNHTo2RAY1MiNtMbAIwZQCYF
-         ySTw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fCfS+Z2U"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-490bc6a7958so1360595e9.1
+        for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 11:59:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782153928; x=1782758728; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1782154780; x=1782759580; darn=vger.kernel.org;
+        h=mime-version:content-transfer-encoding:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=9/wfRdEy7j5FL0M0paRP6/0ZbtXx0D8Bf05gko1VsQc=;
-        b=FE1CPsJq1HYa2yFrzMY9KEaTZntTwMCn0o70sxN34P84wEwDJTYubadqkPBtmDScKd
-         wJ7BpsbP7pA3YprYOnJHI6Tk9QltkndNHFRwGCMYsMScpYp1+dPIZOowGjVvsHBru0gZ
-         J/uh436g7gbSc6YC0n2OJTds/Nsb4hgtEItufRbqiyHJE+u9DP/kVll4lFHsvSSKtlZs
-         o3xdBrQYKMqD1s+uM4rA9XIMcDi7zl8I59MjAdG/P9jraJ3t/6l2AbRje7Hex/fGKnKc
-         B4g8c3G8uXx9xUz6HscdpbM16p1Xz2DZyXFKkBUGNXPuatJmJhwWPLZwapSKkIUecKsF
-         DZgg==
+        bh=gPDvbjY4yqlX02GxThsdZXOqsHN6+5dT1OAzP9r96A0=;
+        b=fCfS+Z2UwrFokyxqp7xJKMr/bUqkQXIetCKA8fjS1/+hggXOy83qHuZQOdYDUraI8Y
+         XrclIepiSfIHIa0lZHYZoKTGZSUhlXfE6x7bCDiNcRe8EiJoOqzSZE0SRPh+SxjzV2/S
+         UHGvG3fTgmJYriXiIxgLxSF1nmUDbovMUzjBRV7am2Gwt91Sc+DSPiEj1WjNHxdUVckI
+         i1sgaTVtz+5GvM1LnVJirGs736KN6SxBHYXGvFlSNBD2vyNl7lflNdTc0Al9O4ykNBsT
+         pUzpO1nAN+pxu1my2F5H21zxjd2QIMDkC6FvRGeXfH6IZNi9f6Jsg2ymUZCTijtEJOdn
+         hZ1Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782153928; x=1782758728;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20251104; t=1782154780; x=1782759580;
+        h=mime-version:content-transfer-encoding:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=9/wfRdEy7j5FL0M0paRP6/0ZbtXx0D8Bf05gko1VsQc=;
-        b=dIBq7c6r/+w7VKT2fYssLEGIGhBG2O/sBBtFIcDCG1RGgkmQiXksekjboepw7HhxqE
-         uR8yHxfDzEBLFqOUQqoynE4stG+mJSXnGLuMGrJsoWz4vX8QxVTVf7C8s4qPtg0LzdJO
-         x7oxKqYqD77qAgK2EA7XE0dIIejmNSH8JtN4O652KD75wczLU0Uj0+wO3He52uAHpy/b
-         ZbjSFT0ZUmlbGdhoNddH0Z1OInp6OJJG56TF2exTPLVTuaijJ0grp9DQ8IcngY+idLzV
-         Jyl1NKF636uZER5rgZRMoqIC0oRMqSdEg1f/2WvbU+i4b5hUNnHHq9hCMu7EvHxgmhnj
-         mnTQ==
-X-Gm-Message-State: AOJu0YzTqmj0k8iknpBpXyDZ7/0V4n7vF+KmIsDgYIfzhnrKGJEuirsd
-	1x3IvPL1FFXb1vRyDNkcN/uRC4mQIfloSbR4PLaX9e3f+fPZ/Qubq1D9mSJsGSb4YbbdBI8rrav
-	1O5urqm1eDdhCDNhP4l4yY7r9Pidpc9Y=
-X-Gm-Gg: AfdE7ckcg1jn56YCl8yY4I5wPTLlmxbHenRrVDjj8Ggg4ZsqOdOqXT1sljgSyrpiJmf
-	BKotNAsB4NgLhe+GF6Qlhuq442qhN8on5W3CvrZ/HCvWulQbVbvn1fF7+w12bFMwEL/bRTTkroi
-	ZHa/w7ncOLR67XIFhkDVpCBEZ2NApAh0pFQd+DAUkKkqcyJPNx98AEddHrubXPnFVkhhuOJjpq3
-	Uqo3YTsPChvOpqjmq5b2vIEgUbe2fEO6YYkqHrg6nbP6Hb1mGSeIFHEyu9NtHS0YNBFYg==
-X-Received: by 2002:a05:6402:240c:b0:68b:31c5:86f7 with SMTP id
- 4fb4d7f45d1cf-69702e5181fmr6869335a12.16.1782153927353; Mon, 22 Jun 2026
- 11:45:27 -0700 (PDT)
+        bh=gPDvbjY4yqlX02GxThsdZXOqsHN6+5dT1OAzP9r96A0=;
+        b=YY8W9pav651F8bLs1PaS7eXQX9/p01lPezFsydZ2YLgsJLdXTmMExuXHWycUGZcDKJ
+         LXWAzfOvGQEgSpbEMeEcG4NLk88jUfD1uVbFjWfaxb/R6au9Vjeo+gO55+U1UJ3o+4Ac
+         8Of1FEGnLIphmFaGK8FaZDkUrCGJy0PTSyRisMfSvDxmfjZW/j8g0Zqe65gYc5PIbCGV
+         NRAczlpw5o7dxyQAuhdp7qLSAeZ/zuYgYn84drOvb8sx6O/6F2GZzHGsAJE4TzDtLfFV
+         hxGHNLZ2nuvt/Yp+WlvLIyFQ5mP9MFjy7S6bRw00pm8rKmu5qWZxczir1T/nFtsIEoew
+         CnOA==
+X-Forwarded-Encrypted: i=1; AFNElJ/lfVc/uSlurFJc5CEyXsKB9HFMNYoBziYA2D/Xv2T/B+KTJ2F5hhUSbxt3xP7cw/bnY7LmZEyb@vger.kernel.org
+X-Gm-Message-State: AOJu0YwM8zqFyuHqa0IstJydHqTzKMwSx0bDwP1sYTdWEupRQUWhDsNI
+	h5XyI4iVw7vB8gIf62x2GdeQ0thUDbxRklUgL/y9vVYvgGstz4dsKpI=
+X-Gm-Gg: AfdE7clCuetF0E3rsHW5hp4c06ctlF1tIII9ZTHt4zTB/HDVJJAk0JmdLN6nxM2WkIf
+	bskqu+r7N0gf9Yk0HdYgD55dG6lKvSDLnM0WynsS32PkJWP54UaiVV9QGEEQjOMZcEkdohXaxUq
+	mCs13R/CTu8tenLZlNfuoQDiiMcsUW2un5DxAkWHSMDP+OiyVbqwQQAqN67YxIKcH+oAQB5wDay
+	na0eZ4b+j8jXzOZ0IPgeBKC7MGyMTrmYXnpkiBEgq0l3stz2OMIInPd+yl8/w/X2h6L14yI+IJ2
+	WR1QSgS8rohMPj55HshwiCpB2WVTpYf9ekEnaAOiyReDDsXePhuB3PF/Q+YvgzNopsYUaqgY7+r
+	sIZjJ4aDpsBx6U8eCF2SN44Cd80dvnWhwrhC2oHllWgHwgvJYpkkh4xuwnyPLY7Kc+RFPoBLAno
+	GOyxVJH/OkTbCFBcnIl/0kCrnmylU=
+X-Received: by 2002:a05:600c:6285:b0:492:4a1a:a96a with SMTP id 5b1f17b1804b1-4925a0b587fmr10548515e9.11.1782154780210;
+        Mon, 22 Jun 2026 11:59:40 -0700 (PDT)
+Received: from kali (88-170-213-78.subs.proxad.net. [88.170.213.78])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4923fd1fa34sm355121775e9.5.2026.06.22.11.59.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 22 Jun 2026 11:59:38 -0700 (PDT)
+From: Tristan Madani <tristmd@gmail.com>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>,
+ Richard Haines <richard_c_haines@btinternet.com>, selinux@vger.kernel.org,
+ stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Tristan Madani <tristan@talencesecurity.com>
+Subject: Re: [PATCH] selinux: fix NULL pointer dereference in
+ selinux_sctp_bind_connect()
+Date: Mon, 22 Jun 2026 18:59:37 -0000
+Message-ID: <178215477740.1641401.9370300196381074566@gmail.com>
+In-Reply-To:
+ <CAEjxPJ40fKJbDFobsxoos0CvWqi0FfL6Sd5xkpRY=g5Ukyfnag@mail.gmail.com>
+References: <20260618232149.1780219-1-tristmd@gmail.com>
+ <CAEjxPJ40fKJbDFobsxoos0CvWqi0FfL6Sd5xkpRY=g5Ukyfnag@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260622124251.31555-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260622124251.31555-1-stephen.smalley.work@gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Mon, 22 Jun 2026 14:45:15 -0400
-X-Gm-Features: AVVi8CdJdEMqonUyvuXWIenTSz-h_N8iqWgE2m_XMMXhlMbmojxAxxxbziflba8
-Message-ID: <CAP+JOzQ-121aE=2wmxZj2zEfUhO8NFWL577LTU51xqXy_dRcxQ@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/cil: fix double free of borrowed type datum on
- error path
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
-	netliomax25-code <netliomax25@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 22, 2026 at 8:43=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> From: netliomax25-code <netliomax25@gmail.com>
->
-> cil_typepermissive_to_policydb() and cil_typeneveraudit_to_policydb()
-> get sepol_type from __cil_get_sepol_type_datum(), a borrowed
-> hashtab_search() result owned by pdb->p_types. Their error path ran
-> type_datum_destroy() and free() on that borrowed pointer, so
-> type_destroy() freed the same type again when the policydb was
-> destroyed.
->
-> Drop the destroy and free of the borrowed datum from both error paths,
-> matching the sibling alias converters that only release their own
-> allocation. With nothing left under the exit label, the gotos are
-> replaced with direct returns and the now-empty label removed.
->
-> Fixes: https://github.com/SELinuxProject/selinux/pull/534
-> Signed-off-by: Kartik Kenchi <netliomax25@gmail.com>
+On 2026/06/22 10:12, Stephen Smalley wrote:
+> Is this sufficient, or can the sk_socket be freed under us after the
+> assignment?
 
-Acked-by: James Carter <jwcart2@gmail.com>
+The assignment is safe. sock_orphan() only NULLs sk->sk_socket -- the
+struct socket is freed later in __sock_release(), after inet_release()
+returns. That path goes through sctp_close() -> lock_sock(), which
+serializes with the ASCONF softirq path (bh_lock_sock). So once we
+read a non-NULL pointer into the local variable, the socket is
+guaranteed to remain alive for the duration of the function.
 
-> ---
->  libsepol/cil/src/cil_binary.c | 18 ++++--------------
->  1 file changed, 4 insertions(+), 14 deletions(-)
->
-> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.=
-c
-> index db3eb0be..caf2d987 100644
-> --- a/libsepol/cil/src/cil_binary.c
-> +++ b/libsepol/cil/src/cil_binary.c
-> @@ -611,18 +611,13 @@ int cil_typepermissive_to_policydb(policydb_t *pdb,
->         rc =3D __cil_get_sepol_type_datum(pdb, DATUM(cil_typeperm->type),
->                                         &sepol_type);
->         if (rc !=3D SEPOL_OK)
-> -               goto exit;
-> +               return rc;
->
->         if (ebitmap_set_bit(&pdb->permissive_map, sepol_type->s.value, 1)=
-) {
-> -               goto exit;
-> +               return rc;
->         }
->
->         return SEPOL_OK;
-> -
-> -exit:
-> -       type_datum_destroy(sepol_type);
-> -       free(sepol_type);
-> -       return rc;
->  }
->
->  int cil_typeneveraudit_to_policydb(policydb_t *pdb,
-> @@ -634,18 +629,13 @@ int cil_typeneveraudit_to_policydb(policydb_t *pdb,
->         rc =3D __cil_get_sepol_type_datum(pdb, DATUM(cil_typeperm->type),
->                                         &sepol_type);
->         if (rc !=3D SEPOL_OK)
-> -               goto exit;
-> +               return rc;
->
->         if (ebitmap_set_bit(&pdb->neveraudit_map, sepol_type->s.value, 1)=
-) {
-> -               goto exit;
-> +               return rc;
->         }
->
->         return SEPOL_OK;
-> -
-> -exit:
-> -       type_datum_destroy(sepol_type);
-> -       free(sepol_type);
-> -       return rc;
->  }
->
->  int cil_typeattribute_to_policydb(policydb_t *pdb,
-> --
-> 2.54.0
->
+> Do different callers of this hook provide different guarantees
+> regarding sk_socket or are they all the same?
+
+They differ. The setsockopt callers (bindx, connectx, set_primary,
+sendmsg connect) run in process context with a file reference, so
+sk_socket is guaranteed non-NULL. The ASCONF softirq path
+(sctp_process_asconf) has no file reference and can race with socket
+close -- that is the only caller that can hit the NULL.
+
+Tristan
