@@ -1,70 +1,70 @@
-Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
+Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4EE3397E91
-	for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 12:41:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65E243AC0ED
+	for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 12:42:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782132098; cv=none; b=gKe3iIC9/byTrpd9Xxry01bnbG8hNaxs+tvyhPC1SOXF5Tintw8bylzi6StpmsEo8sXJSwKQTXnpA7h0MtzkyRtNGiXof2NXo9RKOesoxNmuYE2ktD2y/iVTTJjhLlr8FEi7jJiyQzusHYSkBryjkc2zkvxdSyDyfBhs6CGBekk=
+	t=1782132131; cv=none; b=oCpp6eDPQnzjzwsmSdDRoA35i5P7gzV3OFb8WWdnTTpBPgab5wHAi1RnOHsPm4aopt4pEgRvdBlbZNcBCjSAeHIko05Zh/LqZJb820O5u8aGJlWQXn10nFVnJ2x/xU3MTyd4oK8OpRt8oKV07+6L3AWH585mdj7yfubUksySYPI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782132098; c=relaxed/simple;
-	bh=cEPEauSv2ZpzAzG3f1umiKUGu+f0UKi00GbtMtyuKfA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sgSsYKCI52hoDKjnGkPml0BxCdpRV/qmY456gn+AZNocZIgqmrlAIvKCjrDYnucDDrcfTi7oBGN+opVwPbFlHfVc6yl857C8bzbIX3PEZFoYcLuOHORLXOL9TsnUeLi/xozdXVviAWEykHcIzV2R2IlWSoYgigdTiRi1bdCu4Yo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=H0Z8Qs8O; arc=none smtp.client-ip=209.85.160.170
+	s=arc-20240116; t=1782132131; c=relaxed/simple;
+	bh=jDSVJMFZzNW1d8hYuBMMKfk0qgvVYcGYSS3ec0FIzMw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KUoPK9kNrADjFcptkONSb/66B3IUeNYldPxFIS+L5uGrhXr7rzX8qlWJSVGuXXekAOdbDx+0NtTIRRXw250W94hvzCHKfWRJD8CfqPeIOBeXaq8bnxBMyuP68daHJdKIcvJ22lNBlRgP26VEoSD1RqRZzByD07R3zbZA/JpWMbs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=W9rHiwvR; arc=none smtp.client-ip=209.85.222.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="H0Z8Qs8O"
-Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-517de710886so34899741cf.3
-        for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 05:41:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="W9rHiwvR"
+Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-92542fa7d07so45752285a.0
+        for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 05:42:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782132096; x=1782736896; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1782132129; x=1782736929; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=pGAUDpySg0KgUID9yS5VZLzlaq33/61cjvilnQQUmtk=;
-        b=H0Z8Qs8ON5gl2JtnAMExP5xu2eYVwAvJpZnLdcgqGgF03uJVJwrYW0bpiPoMUsz02z
-         073FFZa/hifolZh0f++GpAN1eGcT0cbC4EsV5JKvxkivyg0bpan5dI1Gbvzm6p1Ff67+
-         CO36yowvNeDG2xXSkVBlPUioYQSTcmp4FozUWClz3vzUiE6uVC08yZ38jNdfawVhwvUB
-         XnFsvkMu6A0uS/Zu+ti4/miWrwvcoU3Vo9R4qbM9i6w2zyUcq19JbTMWYSI+IP8IpbVI
-         bZG/khjNNqxtaE2+HfTV+8whSEliGXTc/f4o2Kprus9uaW6S2bE8EhcwkxKPTNOefzeG
-         9WWg==
+        bh=ENmhU+AHJnzqoT1afeAfRdvTQ1ZmhSejzUw13mXFrzc=;
+        b=W9rHiwvRpsipgrx5m+sSFguVvRsCY1oPN+W4p4SJUs3sYAILKJGVEm/TIGOrisAE/5
+         n6sQOmdFvZ2izgIVNR0SlPzmlQ98+kO1+9Z14z7TOc1gNuP70VR2Y/xHnMrtXR9D+bPq
+         r5Htlka7DiEHv7vV1IbFDgrPtWybwvbRrt5pGFdkKk0EsozL3h3S/TwkGtwZy0FVaiXH
+         +jBKSlM2+If42dXL1b9LW02xuNcL+6SoukHxtTiYwyGEQpnq0Ht84NILJcRNUKxiU6eP
+         jVCQaNP+MNnFGkYEzCeVllOckIRHgEZZBLH+VdKL9bjZbfQXdvZN9z7ufUiv6JViKXnS
+         Pc5g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782132096; x=1782736896;
+        d=1e100.net; s=20251104; t=1782132129; x=1782736929;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=pGAUDpySg0KgUID9yS5VZLzlaq33/61cjvilnQQUmtk=;
-        b=pTyq4eYOzpA0+ByLIHgK4ZatYN820U65jRAjKOsMRGSjkBfkf3HQwDOp8g7tckg4Ck
-         qD/z/M5zanSGdf8YoZwddYOmfxUmBoeadP5vUbEtvnUUYN0LvyEDPxXJT4dMsQnFJal7
-         iwCMeoTW7tiJKhhXKyElep0C0iXm/oT6TJoS3jW5rFWkWucWvmAog7p8MvYLSOmCWEtn
-         6d79+1Xo5/YxmaMlI8pfd9CpdSgMGywzJ9C25XJwBg7MMkqXnA50wAJNQ04CXmC8S2cR
-         3zzq0IIy5LSPCRnRAtQG3yT5t6WP+mHP8jd1HxzWj02YBtGarXLlEP3fa4RNYJI2ao5A
-         z2Eg==
-X-Gm-Message-State: AOJu0Yy6EIy19Ebcwp8lFQqhqdRPueL+IMfhSvkf0H143one0DXIbpU2
-	Awo1F/MFrvCjdT12L1URo9Tp1P216SDDiaB+TqLHizBMl4w6yR+54k72WmMdbA==
-X-Gm-Gg: AfdE7clQMZna218P8FX0uZEaO0+GMZS33h6nd1rwcuKn8AHcipEPvw5jXLpFhdoeuhc
-	NT4y5jSq478Q5ALuiAv+IH9AJnbzTGgcJaNHujtQH1fTSUVLe5PAtR7DbAiTRl9UU3hjcBeY4xr
-	PiaHXdmKqk0oLu52E2IRzAXKnfSckBcmnnMuJIeTxTFoWKocoOXyjfpL7UphFxKpxufXrOwINe0
-	Sjs33EiCCZv+6P6FlWqRMAGLZRg1hO5mfJgF/j9+e3PvQjbUmXpsC7w6qO703FRz/kBoOFVSRVp
-	n1Rjk6/hxt94V2xyB7gB2VNbAKnMPVbLdI9+besaoX/CE/y+S5kmZgm/XzPSGtTOkwsn5psGgxP
-	oePDR+1f8WN19hZlpGGKDIur6DRW888tUTUWpBfppfBWkTtr6ig2pBVgbTHosoiFW0qNnysdm3T
-	VrA+PfSMW5KixcTeDKRZjox0OzLKoJWKmtppfMXgeQ6xVm7rqeeVcStQmPCt0AfQHjvamALZEB6
-	86FYkFw3Uk0um37lgd3qQodBK0=
-X-Received: by 2002:ac8:5a85:0:b0:516:e086:89a with SMTP id d75a77b69052e-519f0491881mr180756591cf.26.1782132095726;
-        Mon, 22 Jun 2026 05:41:35 -0700 (PDT)
+        bh=ENmhU+AHJnzqoT1afeAfRdvTQ1ZmhSejzUw13mXFrzc=;
+        b=E1uv97gLthleuuaMf6WQfiOZdycD1B+Ck1Rhf2hZX3o8PVnaheiDgDeSP4agQcII+g
+         Bm77L8RO4wcujLs7HnEjUQIMH1qjuz8mlwX61Xph+vGTfoqvcQCrmxh9uqKWqeI6HKw0
+         I1YhfyGiZLGy59heWFiusdLO0+u9TasD7wA/DYAkCl76lgHnRY9qiyidVTnCdiLk7OXh
+         z5eEBzz2SdqB30HuymP+dEUxEOAPYdsjaKm78NiLKzx9SwPnihVvsR0eLyGMAHU/MXYC
+         TmS0FlgkK/I/OskvQ09HDY3fmR6TH6uMqkfpJcTB8BjAPKXl2FKyFopCn8vk53Xwj7qH
+         rqDQ==
+X-Gm-Message-State: AOJu0YxV++1gLfAsKhrS7fjPj/WahhybtVqtNqaBtN4o+CYUL5oF3Kr6
+	qMkDmpUBKCyxnGmYmfwHWI4XFRfp4cEJmpi0j1kpa6c/29Ca8qOk3MhWTaGjRA==
+X-Gm-Gg: AfdE7cmLL9zHt15eUzP0hP335XThtt5+2+gRdGi2r8TxSJ4fKta18luNnqP4ZnU8zXM
+	dY1Lm/Dqt5mYg2Z+ojbJsrRqfewBXs8rRJ3bf+ArcJw8FSIUeGwNy8Bb3aRVlWNbsGoMfpG+VM5
+	JEXox0MiK+XU+SXNwWlcnQHgYahi+rz4FZsk18A1bzjG3eNzCehexGCJwdxRlW8spVOWdrMOnvU
+	BtQPT4rZsfec86CQgzE250bZ05TDYQ3RGaoGt0ZvEySe8MgPFlOXLuM26WRYmaVWWbbRtrzT1pi
+	YbgLD9ougUuI7NF/ekZrwYTB1wH++TkU4Suod5d4XZTDU+0MA3uxQAGzou6VL94diYhpPdvyo5t
+	Ff2ksRbZ2c+aMjWjEkFD29N0ZQPh4DixXrVkLDk29/6OKJtOVbDKD/0Yy7nNnhlUUZgio3MyFxO
+	w5nc4L4/Wj6+CjGnMxaokuU81hCpf6FlcFYZxXTTF1GQRLyY7tYju3c/DfO/4fGZDq9O9dF0UnI
+	JqRQWMYktDurjyW
+X-Received: by 2002:a05:620a:6501:b0:911:dfb6:d89f with SMTP id af79cd13be357-92089fdc5f9mr1728879185a.4.1782132129431;
+        Mon, 22 Jun 2026 05:42:09 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-51a098ef7d2sm67422281cf.30.2026.06.22.05.41.35
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-921db359a7csm903790785a.38.2026.06.22.05.42.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Jun 2026 05:41:35 -0700 (PDT)
+        Mon, 22 Jun 2026 05:42:08 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
 	plautrba@redhat.com,
 	omosnace@redhat.com,
 	netliomax25-code <netliomax25@gmail.com>
-Subject: [PATCH] checkpolicy: reject out-of-range extended permission values
-Date: Mon, 22 Jun 2026 08:41:11 -0400
-Message-ID: <20260622124111.31425-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH] libsepol: test type_set_expand bounds negset type values
+Date: Mon, 22 Jun 2026 08:41:51 -0400
+Message-ID: <20260622124151.31474-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -76,68 +76,86 @@ Content-Transfer-Encoding: 8bit
 
 From: netliomax25-code <netliomax25@gmail.com>
 
-avrule_read_xperm_ranges() parses each ioctl/nlmsg command with
-strtoul() and stores it through a uint16_t cast without checking the
-range, so a value above 0xffff is silently truncated and a rule is
-compiled for an unintended command (0x10001 becomes 0x1, 0x123456
-becomes 0x3456). The secilc CIL compiler already rejects values
-outside 0x0000-0xffff. Validate the parsed value here too, before the
-narrowing cast.
+Add an expander suite case that drives type_set_expand() with a negset
+bit one past the declared type count (p_types.nprim). Without the bound
+in the negset loop this indexes type_val_to_struct out of bounds, which
+ASAN flags as a heap read overflow; with the bound the call fails cleanly
+and the test asserts a negative return.
 
-Fixes: https://github.com/SELinuxProject/selinux/pull/531
+Fixes: https://github.com/SELinuxProject/selinux/pull/532
 Signed-off-by: Kartik Kenchi <netliomax25@gmail.com>
 ---
- checkpolicy/policy_define.c | 23 +++++++++++++++++++++--
- 1 file changed, 21 insertions(+), 2 deletions(-)
+ libsepol/tests/test-expander.c | 44 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 44 insertions(+)
 
-diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index 63bf5245..c1f12715 100644
---- a/checkpolicy/policy_define.c
-+++ b/checkpolicy/policy_define.c
-@@ -2035,6 +2035,19 @@ static void avrule_merge_xperms(struct av_xperm_range_list **rangehead)
- 	}
+diff --git a/libsepol/tests/test-expander.c b/libsepol/tests/test-expander.c
+index ec879119..56977e09 100644
+--- a/libsepol/tests/test-expander.c
++++ b/libsepol/tests/test-expander.c
+@@ -44,6 +44,7 @@
+ #include <sepol/policydb/conditional.h>
+ #include <limits.h>
+ #include <stdlib.h>
++#include <string.h>
+ 
+ policydb_t role_expanded;
+ policydb_t user_expanded;
+@@ -222,6 +223,44 @@ static void test_expander_alias(void)
+ 			 1, 0);
  }
  
-+static int avrule_read_xperm_value(const char *id, uint16_t *value)
++/*
++ * A role's negset ebitmap is read straight from the policy file and is not
++ * bounded against the declared type count, so type_set_expand() must reject a
++ * bit that falls outside the type_val_to_struct mapping rather than read past
++ * its end.
++ */
++static void test_expander_negset_bounds(void)
 +{
-+	unsigned long val = strtoul(id, NULL, 0);
++	policydb_t p;
++	type_datum_t type0;
++	type_set_t set;
++	ebitmap_t result;
++	int rc;
 +
-+	if (val > UINT16_MAX) {
-+		yyerror2("extended permission value 0x%lx exceeds the maximum of 0x%x",
-+			 val, UINT16_MAX);
-+		return -1;
-+	}
-+	*value = (uint16_t)val;
-+	return 0;
++	memset(&p, 0, sizeof(p));
++	p.p_types.nprim = 1;
++	p.type_val_to_struct =
++		calloc(p.p_types.nprim, sizeof(*p.type_val_to_struct));
++	CU_ASSERT_PTR_NOT_NULL_FATAL(p.type_val_to_struct);
++
++	type_datum_init(&type0);
++	type0.flavor = TYPE_TYPE;
++	p.type_val_to_struct[0] = &type0;
++
++	type_set_init(&set);
++	/* one past the last valid type value */
++	rc = ebitmap_set_bit(&set.negset, p.p_types.nprim, 1);
++	CU_ASSERT_FATAL(rc == 0);
++
++	/* must fail cleanly instead of indexing type_val_to_struct OOB */
++	rc = type_set_expand(&set, &result, &p, 1);
++	CU_ASSERT(rc < 0);
++
++	ebitmap_destroy(&result);
++	type_set_destroy(&set);
++	free(p.type_val_to_struct);
 +}
 +
- static int avrule_read_xperm_ranges(struct av_xperm_range_list **rangehead)
+ int expander_add_tests(CU_pSuite suite)
  {
- 	char *id;
-@@ -2053,7 +2066,10 @@ static int avrule_read_xperm_ranges(struct av_xperm_range_list **rangehead)
- 			/* high value of range */
- 			free(id);
- 			id = queue_remove(id_queue);
--			r->range.high = (uint16_t)strtoul(id, NULL, 0);
-+			if (avrule_read_xperm_value(id, &r->range.high)) {
-+				free(id);
-+				return -1;
-+			}
- 			if (r->range.high < r->range.low) {
- 				yyerror2(
- 					"extended permission range %#x-%#x must be in ascending order.",
-@@ -2074,7 +2090,10 @@ static int avrule_read_xperm_ranges(struct av_xperm_range_list **rangehead)
- 				r->next = rnew;
- 				r = r->next;
- 			}
--			rnew->range.low = (uint16_t)strtoul(id, NULL, 0);
-+			if (avrule_read_xperm_value(id, &rnew->range.low)) {
-+				free(id);
-+				return -1;
-+			}
- 			rnew->range.high = rnew->range.low;
- 			free(id);
- 		}
+ 	if (NULL ==
+@@ -250,5 +289,10 @@ int expander_add_tests(CU_pSuite suite)
+ 		CU_cleanup_registry();
+ 		return CU_get_error();
+ 	}
++	if (NULL == CU_add_test(suite, "expander_negset_bounds",
++				test_expander_negset_bounds)) {
++		CU_cleanup_registry();
++		return CU_get_error();
++	}
+ 	return 0;
+ }
 -- 
 2.54.0
 
