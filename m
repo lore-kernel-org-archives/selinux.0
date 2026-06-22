@@ -1,72 +1,45 @@
-Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from cloud35.hostingpalvelu.fi (mail35.hostingpalvelu.fi [31.217.192.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD5963403EA
-	for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 17:36:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09AEC29B781
+	for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 17:42:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=31.217.192.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782149764; cv=none; b=MqFGNy8zuaYvnHKeJJbo5FxEjCrtWMP2ZgZdF8E4xdhesf1O1n3tduTv3w6kxBkCWnB18pZyyWSaUYdKdRoOsvAhpEfMab4IYSN64j9uQFodHMifnbp1gbObWUxpLf7XPeDZaamXKWd8L+eoDUu05XhAgJcd/lnRNqfMrfTV1Tc=
+	t=1782150174; cv=none; b=R9A5+fsy8Oj3xzqLvs8AHIjRap7CFcfO7B3OEHyU+1sd4ytwhXOldRHv1cQ84+EuG8ePIRVO882wolmEZfgZ1teuzGk3wYRW4MCb1OYEiL+nlE2UG4FvUpoXFmI+1kk04m0gwz2w8feXuvNP89MQArZzddrolBsnFVWi9o8MrO4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782149764; c=relaxed/simple;
-	bh=+bQfegl3ysPPWRDnHxV8jfGi5boDgRLihJUKzKMIRhA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jOSmcZ+BrxI0Gzcvazt5Qhx4mM+b/7vTsvLi0YLO/6En7wgNtsfGtt/zY9TLWJfDB5CR44QfBgdq4EEbi20aGlLsXFkmdrlIvu0PDfzqjxN/oyiblheodP6Q1TbQz6LYuN4zpRU6x002TtOHRIF5v4KY13NHFPn15dQQLSqMc8I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TGnGCvaB; arc=none smtp.client-ip=209.85.222.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1782150174; c=relaxed/simple;
+	bh=gaP0cfoOp0dLngH0pF6SAln1bit5ZKady1mZhRzevM8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LphlujnvFgNqbVBZHFNaSLchkS/EBm7n5fbzMsftEOdKUkN8joImgz+M4/vjASnMjjZphFZfCIcIIpKFVCkPiVSpAYiR6REc53wewfkLWAuuuENQgdh5VKv9j7KNSPPBm8a0Apatq/0wCaB/ruojtri8Khlr0Id8iqLj5lKtd+s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=GWKk3beT; arc=none smtp.client-ip=31.217.192.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kolttonen.fi
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TGnGCvaB"
-Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-9159da9bba5so353050085a.1
-        for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 10:36:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782149763; x=1782754563; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=eX9I/MNwECSwy+z/brtUJzUGDT5ZT66XdBETUf8xaeU=;
-        b=TGnGCvaBwi7LxHRFb4GZ6uYy/QL7QCByeTidFHsp3K5w3343U6SmmLPrwBxPWO+HTz
-         PPhyuL3eRKlfWeNdlWmoqN95+jyAz9sTv3FYj/ZSCnrr93VB4KebFR7yOIel99E6Zuj9
-         rO8AM2wyjSuJZBOPFb8cHv76OkcCIIbPLmcYGaOt9Rvgc86lES2EgwJ24/lQz1b4nR4u
-         QWMBA9dyy2/Uz9W1Figp4P8GtVry0GIrG5Lv0ExisaoKqa/uCnVrVcifwLKye7beGmCY
-         1LA68Xs5lPj1xLMpIEVUo9LkqlVjKmLuai8YOy6srAQUnIFdq9o5hQZLY5yZn5+QUiA9
-         ja3A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782149763; x=1782754563;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=eX9I/MNwECSwy+z/brtUJzUGDT5ZT66XdBETUf8xaeU=;
-        b=W+SP0pzqFOD3SZu6M8yA/ZlgNqVIz5jwHk2AdXxh36MLA5oqzNMX+cb4w17RQKGqls
-         HPUFo7tKjmqH9yjjNbPerPcvFu+A60iJ9zWXC7dyXF4L3xyP9l9fOnZ4EKmFnBLbHmmw
-         rNrRqCIkIG8gzHXzB3V75nIMtp/8xdzeXoEHgUQCmbYVUdp3a6ruzYNtwaXDlBugoEoD
-         oYWgM02F2bHlW8GCSCQWWaqfloqBfp16EqkuIllPTuqBvu/AC+iBwM/n8UMqXTHo++Vu
-         ot+GeNGI7HFS3gWKQFTvQb6Zc5l/leQ33+PbVOkt6cC8GLwQP/FayCZP0uBtRWt2ot3w
-         gT6g==
-X-Gm-Message-State: AOJu0YyuXPTLm1ruoCzHCv2kVs/0S+nInq4i4MuOYbWS23387W0MIgtY
-	lHeIcaedVTk25qYh1Yowo9spV7EAHTyzPGESAEawS8qqehAALHqBgZH6LjcZxg==
-X-Gm-Gg: AfdE7cne5EXREnnXnRb3HjEzKTI7fTRLMv0k388XD0wBASbywk5X7SqmOyqanbRfE0X
-	nYSpMzex45z3rRmeXwPMVnWH5eh/F8IoxOnvHm1BF0OYHq1/hlyBm/8uGhgqqo6loASew4L6gfn
-	ssy1UGa7DCeaXQP8SjIdui98lxzCv/0p8wQrB7Emj6W85Ubf3n3d4Px5uqhWNlC6aS3EEp6WmoG
-	Nn9eu/sS+eU7438iq85+SoQWsREaFW7zC3PSQGFZIWSDCBwsNWdHJ0DOdDauw9CVsOxwCfpSL0M
-	vK0E3ZEMZcqDqIPrqa9vrwkZJuMTnc3lRXXIIBxoa+QKw3sgIbrckHZaYuZQ9Ren7UuLyPIavok
-	v0Sp5Pij8g53mLDSObeLTdOqJ0O8rInFTJgmWcS4NqpJnuAYaNhYJWRsjFhKtVShULni6jJf4Pz
-	oqX8k6gLZnyIa9T6uZug+0EkuDa6ZLwk6WCnU=
-X-Received: by 2002:a05:620a:230f:10b0:921:24d9:a953 with SMTP id af79cd13be357-92124d9bddbmr1602279585a.18.1782149762490;
-        Mon, 22 Jun 2026 10:36:02 -0700 (PDT)
-Received: from Fedora43-SELinux ([144.51.8.27])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-925fd39188csm34813485a.6.2026.06.22.10.36.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Jun 2026 10:36:01 -0700 (PDT)
-From: James Carter <jwcart2@gmail.com>
+	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="GWKk3beT"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=kolttonen.fi; s=default; h=Content-Transfer-Encoding:MIME-Version:
+	Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=6ZPpUWwYbQhdLWfDgc3MTWtdEjgtGT+adIfC45bUoLM=; b=GWKk3beT5RhKaTcItaqvDICyci
+	5kcAg10IF8V2sEHoQ0f79I4JM/wsBFfYOqz8yHp5ufESXTtIrhC5gvjjs73x35egun0cDh+pbrprV
+	7g3PjSVvdeJ32mLQv/eIgKD8NTmSRT7Fj6LKi2OTPiCYTkFhSKPzJuC8hgZ9zwrJ3OgVvlvRuVSiP
+	7n8TPvgQ5Y3Y3ua6+jYcGQXzMUznC2bxKR93LI7BSiYtpUVzNgIqznfV/vgtqP1Occn2X/g5Y0ycT
+	hGyOwLPbdb7iKW+uIkenpPzJIfI8evHBwI0koVFjZh1rCk51NxlGzZ2M+wbN5JKo1XQkds0bDLaDi
+	KX1OhQEQ==;
+Received: from [87.95.76.183] (port=4533 helo=fbsd15.local)
+	by cloud35.hostingpalvelu.fi with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.99.4)
+	(envelope-from <kalevi@kolttonen.fi>)
+	id 1wbifT-00000008AIP-3Od5;
+	Mon, 22 Jun 2026 20:42:42 +0300
+From: Kalevi Kolttonen <kalevi@kolttonen.fi>
 To: selinux@vger.kernel.org
-Cc: stephen.smalley.work@gmail.com,
-	James Carter <jwcart2@gmail.com>
-Subject: [PATCH 6/6 v3] libsepol: Add overflow checks
-Date: Mon, 22 Jun 2026 13:35:41 -0400
-Message-ID: <20260622173541.174998-6-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260622173541.174998-1-jwcart2@gmail.com>
-References: <20260622173541.174998-1-jwcart2@gmail.com>
+Cc: Kalevi Kolttonen <kalevi@kolttonen.fi>
+Subject: [PATCH v2] selinux: use bool instead of int in ss/services.c
+Date: Mon, 22 Jun 2026 20:42:18 +0300
+Message-ID: <20260622174218.92190-1-kalevi@kolttonen.fi>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -74,113 +47,103 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - cloud35.hostingpalvelu.fi
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - kolttonen.fi
+X-Get-Message-Sender-Via: cloud35.hostingpalvelu.fi: authenticated_id: kalevi@kolttonen.fi
+X-Authenticated-Sender: cloud35.hostingpalvelu.fi: kalevi@kolttonen.fi
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 
-The function stack_push() uses the common idiom of "*= 2" to grow
-the size of the stack, but there is not check for overflow. Use the
-__builtin_smul_overflow() function to report an overflow and return
-an error.
+Updated security_sid_to_context_core(),
+security_context_to_sid_core(), and their callers to
+pass boolean flags via bool rather than int. No functional
+change.
 
-There are several calls of stack_push() that does not check for
-an error. Add checks for an error for these calls.
-
-Signed-off-by: James Carter <jwcart2@gmail.com>
+Signed-off-by: Kalevi Kolttonen <kalevi@kolttonen.fi>
 ---
-v3: Previously in patch 0004
-    Use __builtin_mul_overflow() family of functions
-    Add checks for an error for all calls to stack_push()
+ security/selinux/ss/services.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
- libsepol/src/module_to_cil.c | 31 +++++++++++++++++++++++--------
- 1 file changed, 23 insertions(+), 8 deletions(-)
-
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index 00db3d7f..5b34186b 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -447,13 +447,17 @@ static int stack_push(struct stack *stack, void *ptr)
- 	void *new_stack;
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index e8e7ccbd1e44..2bc522ad88a3 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -1354,8 +1354,8 @@ const char *security_get_initial_sid_context(u32 sid)
+ }
  
- 	if (stack->pos + 1 == stack->size) {
--		new_stack = reallocarray(stack->stack, stack->size * 2,
-+		if (__builtin_smul_overflow(stack->size, 2, &stack->size)) {
-+			ERR(NULL, "Overflow");
-+			goto exit;
-+		}
-+		new_stack = reallocarray(stack->stack, stack->size,
- 					 sizeof(*stack->stack));
- 		if (new_stack == NULL) {
-+			ERR(NULL, "Out of memory");
- 			goto exit;
- 		}
- 		stack->stack = new_stack;
--		stack->size *= 2;
- 	}
+ static int security_sid_to_context_core(u32 sid, char **scontext,
+-					u32 *scontext_len, int force,
+-					int only_invalid)
++					u32 *scontext_len, bool force,
++					bool only_invalid)
+ {
+ 	struct selinux_policy *policy;
+ 	struct policydb *policydb;
+@@ -1438,14 +1438,14 @@ static int security_sid_to_context_core(u32 sid, char **scontext,
+ int security_sid_to_context(u32 sid, char **scontext, u32 *scontext_len)
+ {
+ 	return security_sid_to_context_core(sid, scontext,
+-					    scontext_len, 0, 0);
++					    scontext_len, false, false);
+ }
  
- 	stack->pos++;
-@@ -1482,7 +1486,6 @@ static int cond_expr_to_cil(int indent, struct policydb *pdb,
+ int security_sid_to_context_force(u32 sid,
+ 				  char **scontext, u32 *scontext_len)
+ {
+ 	return security_sid_to_context_core(sid, scontext,
+-					    scontext_len, 1, 0);
++					    scontext_len, true, false);
+ }
  
- 		rc = stack_push(stack, new_val);
- 		if (rc != 0) {
--			ERR(NULL, "Out of memory");
- 			goto exit;
- 		}
- 		new_val = NULL;
-@@ -2163,7 +2166,6 @@ static int constraint_expr_to_string(struct policydb *pdb,
+ /**
+@@ -1465,7 +1465,7 @@ int security_sid_to_context_inval(u32 sid,
+ 				  char **scontext, u32 *scontext_len)
+ {
+ 	return security_sid_to_context_core(sid, scontext,
+-					    scontext_len, 1, 1);
++					    scontext_len, true, true);
+ }
  
- 		rc = stack_push(stack, new_val);
- 		if (rc != 0) {
--			ERR(NULL, "Out of memory");
- 			goto exit;
- 		}
+ /*
+@@ -1551,7 +1551,7 @@ static int string_to_context_struct(struct policydb *pol,
  
-@@ -4183,7 +4185,10 @@ static int module_block_to_cil(struct policydb *pdb, struct avrule_block *block,
- 		(*indent)++;
- 	}
+ static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
+ 					u32 *sid, u32 def_sid, gfp_t gfp_flags,
+-					int force)
++					bool force)
+ {
+ 	struct selinux_policy *policy;
+ 	struct policydb *policydb;
+@@ -1640,7 +1640,7 @@ int security_context_to_sid(const char *scontext, u32 scontext_len, u32 *sid,
+ 			    gfp_t gfp)
+ {
+ 	return security_context_to_sid_core(scontext, scontext_len,
+-					    sid, SECSID_NULL, gfp, 0);
++					    sid, SECSID_NULL, gfp, false);
+ }
  
--	stack_push(stack, decl);
-+	rc = stack_push(stack, decl);
-+	if (rc != 0) {
-+		goto exit;
-+	}
+ int security_context_str_to_sid(const char *scontext, u32 *sid, gfp_t gfp)
+@@ -1672,14 +1672,14 @@ int security_context_to_sid_default(const char *scontext, u32 scontext_len,
+ 				    u32 *sid, u32 def_sid, gfp_t gfp_flags)
+ {
+ 	return security_context_to_sid_core(scontext, scontext_len,
+-					    sid, def_sid, gfp_flags, 1);
++					    sid, def_sid, gfp_flags, true);
+ }
  
- 	rc = block_to_cil(pdb, block, stack, *indent);
- 	if (rc != 0) {
-@@ -4210,7 +4215,10 @@ static int global_block_to_cil(struct policydb *pdb, struct avrule_block *block,
- 		    "Warning: 'else' not allowed in global block. Dropping from output.");
- 	}
+ int security_context_to_sid_force(const char *scontext, u32 scontext_len,
+ 				  u32 *sid)
+ {
+ 	return security_context_to_sid_core(scontext, scontext_len,
+-					    sid, SECSID_NULL, GFP_KERNEL, 1);
++					    sid, SECSID_NULL, GFP_KERNEL, true);
+ }
  
--	stack_push(stack, decl);
-+	rc = stack_push(stack, decl);
-+	if (rc != 0) {
-+		goto exit;
-+	}
- 
- 	// type aliases and commons are only stored in the global symtab.
- 	// However, to get scoping correct, we assume they are in the
-@@ -4284,7 +4292,10 @@ static int linked_block_to_cil(struct policydb *pdb, struct avrule_block *block,
- 		}
- 	}
- 
--	stack_push(stack, decl);
-+	rc = stack_push(stack, decl);
-+	if (rc != 0) {
-+		goto exit;
-+	}
- 
- 	rc = block_to_cil(pdb, block, stack, 0);
- 	if (rc != 0) {
-@@ -4595,7 +4606,11 @@ static int fp_to_buffer(FILE *fp, char **data, size_t *data_len)
- 	while ((read_len = fread(d + d_len, 1, max_len - d_len, fp)) > 0) {
- 		d_len += read_len;
- 		if (d_len == max_len) {
--			max_len *= 2;
-+			if (__builtin_mul_overflow(max_len, 2, &max_len)) {
-+				ERR(NULL, "Overflow");
-+				rc = -1;
-+				goto exit;
-+			}
- 			d_tmp = realloc(d, max_len);
- 			if (d_tmp == NULL) {
- 				ERR(NULL, "Out of memory");
+ static int compute_sid_handle_invalid_context(
 -- 
 2.54.0
 
