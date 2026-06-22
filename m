@@ -1,189 +1,441 @@
-Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
+Received: from mail-ot1-f51.google.com (mail-ot1-f51.google.com [209.85.210.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E90C330F95C
-	for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 21:03:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEB11372664
+	for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 23:57:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782162216; cv=none; b=NxCi/Hy1h3E9Kcb71qFRG+82lkRhXjHi5JxzVhonB14F2eRiuTOB33kXWdySOtfoPxDjwU3oAACFF9p9pWDR4Qr03B8XrsP4TQsvf8KR6sSfR2XIuTpEKVU9QXVfSlpab5EozfdfyPOmNjRzOVn8My7N6aGhzrQ9sSVHbEpIjyU=
+	t=1782172633; cv=none; b=ZXpY845xobNx/Irnu0JZbuz2Hb5c/ecUI00ZujrGFoOVzF4yO7Iq2rxAonTDm10+AKyaMXrz50E5ZKJn4Cjnp+c3Ye+fay3XELfjTYYFAOmwH6lzvn7r3zs3H23f5YoQlLDR6OOYRnvrIHbeIWhFNkcctcxGfFPUkXzwBqta+BI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782162216; c=relaxed/simple;
-	bh=JqC3pq7NIWbTtr2/fYT4t/8plFRvdglrTV+xjsQtjcY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=PyKJ/BUnEuf0wvNyImkEUu6n20ZFmaLh1m9O5N6K3vbLqoHYbAnOJQdP7Jr6WiNX98ujnRF5DnyGAahoabDInU/6AD8szZE7GnbVjMNIvGNvVuTspZxrErG3Gk8ZaUwl4+LBO1BvzvVcUl47Q6BxGvZS3xpIT/X5DkK4446Eupw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iYZmUNfW; arc=none smtp.client-ip=209.85.221.50
+	s=arc-20240116; t=1782172633; c=relaxed/simple;
+	bh=APQyAu8u5IH9CVRpou0XR9SFmkwuafb3rUB0ZW/wfg4=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=AepcG++iaQ8/z6DWA2h7EdN2WQp7dlgW+drOl1hwfZErj5DVCO9MBhqu7FQNgvEg6K+rmeddlnN5jHpVdiz1eocrRf2s2jniZVIAb5Fz5jfAvLxaYrgo/oxoxG7qGp72yCyuXPDDRPqBbmJGJ1qQzci4EpdOfdiAZ1gcTfxbFZQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EArQ0biK; arc=none smtp.client-ip=209.85.210.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iYZmUNfW"
-Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-463f1165e16so4807101f8f.0
-        for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 14:03:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EArQ0biK"
+Received: by mail-ot1-f51.google.com with SMTP id 46e09a7af769-7e94d272a86so1736756a34.2
+        for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 16:57:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782162213; x=1782767013; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1782172631; x=1782777431; darn=vger.kernel.org;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=i+hBnMxhJkO6FDQAL0eqBCFsfSLziGXalyqU7rpqVDw=;
-        b=iYZmUNfWGkDg81+a6uErbhY/9LOBD1YpkxGR/QJTIPUghu8pBwdDDyYu3M6p+sJTe3
-         rM437Vl30ieukUqUF5kC7XD3oj9Ic2GXwUeSO9eCBy2HdPjmj2d6W8IRil49BufCYslJ
-         Yu09PfEW4gXCd5wy68DCOoO998vcybgRJoud56vf5DNTLnZwWPH6bpmKbeE0dq3LlATS
-         kRQERQ4LLi85sWi9OZ1I+kZZl96WMyiZzqWGEbMctpWTeW5cI+IMJCWCb6kgsiGIQxas
-         cmIfXBXkYxptO2PHPo95jAjN0ZmQFZY5wfFt5VNOs5aTYUQZeVB2el42d6HLGK/Ls47K
-         a3YQ==
+        bh=+Xre0hTc6txTQLEgTuWM5CYVELF8O6F2bFrxuzUUqLo=;
+        b=EArQ0biKUGHv5IGKPM1wrGTSzDWbilnOwNZZdp0CTBtiNn7F4v0VTAKSBlLCaY5CtW
+         sQvOaTp+TczJCRslPzHlMRGrCDt/2RFTelBqw7UJ9VB6/0BkGQnBbM+UYtLcN3EKVoqA
+         Q8ZHAPMzPnIKhfHlWPVJEN616LmLJWpR7l/KVOM1sRhQR2LRjagawQDsiO9q+0BvcXKQ
+         jYBhQyHG1kDIITD7AfXgtS2tO3bZzV8gYT+dXYd3lE428S7wfZ+HfKYwjON8szBiJZU+
+         3SbZC+tFaX/+7L7J/8qf3MDpii7eznKLzPTuGgbNpZMSUPfocI/rGQV3LuK4OWnN99JE
+         ndyg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782162213; x=1782767013;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=i+hBnMxhJkO6FDQAL0eqBCFsfSLziGXalyqU7rpqVDw=;
-        b=iHOpM+c1GtDlAynEPf6R7EBrebypYuanCl5Aa1tFwAhC0qtIJTeuLNTML70MYinPko
-         RdLb5y3cGKqBUeLw7M53vSRO6GjKuwVtsFNIBTl74bomBcYLimzZNhHXG5S4syeNHhnO
-         jUU28E82/DMwa6aM5jkANH2d39A19sc7XEBc+pnkboS7GoL/CJ4XdQmnrv5hmP6etRSX
-         eLhU70mmUSRyzT7INISaf70TW+wMG28fj6mIWAncfMS9HpUAdHxOvwKu9Ff50tBtNZLd
-         Ovlo2CpDvH0RDVnrFkIRjnfVqFIh1/fdIvIuHnex1vIdbcqgpWZB7STrnaxMa7lify/u
-         tVIw==
-X-Forwarded-Encrypted: i=1; AFNElJ+PhOiH4rv2yB6F8vjm2LzPeW3ArYbRXVL6itv7hHzy9/e8ROkcEC4xCrG6cj55CMArv9yMcTk9@vger.kernel.org
-X-Gm-Message-State: AOJu0YxXv5kZOzlE0OMSu9yZctdswI6oEZwDAcGgq3JJMveOZMYWcoN2
-	HoNrINOjLYWgb+jEkiIQNVJHUeOklc3KIhrFmxZ1wkpGRaJ0YHhe2QI=
-X-Gm-Gg: AfdE7clEY9VcKOgDMTgi/pKeJfXyRft3Xah0zDW5hk3m7q1tOoZl2cGuhBOLMt08YGv
-	6NokQZRMQCr7xfD8jS5yIhPrULQp9fOrszX6a/L5uvAib3F9rYldzr7nSowoVFieD7UluMYmJyL
-	rUy6I/8kaVH7E+9dkLd3J12PLqR4EVmt1HPX3cn+DtQ1SyvYwoRSlIctdL/j+3cBup9EtpcHFZ8
-	jkeSg9yGmLDTT//gLOLchvO7/60M1eHbDdrzVrYeSv8GwBNZwXjY2UsMxWzqu4mSvd+G3/+uAl9
-	u2GAPGw5L3xo09Dbn4I4kmaijWceuGgK/Qiqlr2uFKVZtRDJ9UOVY7WzpyxLPA225uBJ/VosIhZ
-	Nc1HcqFf4JU+2WB5PJ48t0kHiW7oTZRP7YJSpIoRNFh6MgH4abLo+avveug==
-X-Received: by 2002:a05:600c:e548:20b0:492:3e69:a86f with SMTP id 5b1f17b1804b1-49240df7dafmr179983725e9.1.1782162213270;
-        Mon, 22 Jun 2026 14:03:33 -0700 (PDT)
-Received: from debian.. ([2001:41d0:303:db6b::])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49245bba787sm198208495e9.1.2026.06.22.14.03.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Jun 2026 14:03:31 -0700 (PDT)
-From: Tristan Madani <tristmd@gmail.com>
-To: Paul Moore <paul@paul-moore.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Ondrej Mosnacek <omosnace@redhat.com>,
-	Richard Haines <richard_c_haines@btinternet.com>,
-	selinux@vger.kernel.org,
-	stable@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	tristan@talencesecurity.com
-Subject: [PATCH v2] selinux: avoid sk_socket dereference in selinux_sctp_bind_connect()
-Date: Mon, 22 Jun 2026 21:03:30 +0000
-Message-ID: <20260622210330.3187099-1-tristmd@gmail.com>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20260618232149.1780219-1-tristmd@gmail.com>
-References: <20260618232149.1780219-1-tristmd@gmail.com>
+        d=1e100.net; s=20251104; t=1782172631; x=1782777431;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-gg:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=+Xre0hTc6txTQLEgTuWM5CYVELF8O6F2bFrxuzUUqLo=;
+        b=qnEHejM74DpJQMzXKhTjKbigxjhUZWgr/j2XqkNOaRMEATc0Rjn8qhWYJ6qUnYQz13
+         3A3hMKQgAZEVtoYU3+KC9ts3vMO1Jv6T7zCAIcgaOdC4NoNwT2pVL/RGad+lTiQ9wwOB
+         ND0os/N9F69GXD+unng5wHxTqpM4YnEgAcru5kHTEwmXNt1r4/xdsX5nFH6BrSzKm5JP
+         w1GuKyODMAfW9VTlsQMFvQg827CFrvAOfTi444Dwcy/wWThRf2osXWsmJ6QUgl9OOkM1
+         w6ohOKWMDJZCGUlevlo/CIB8uzuIOOacMUAZuXZsLqK5G8pyMpn8SejfZy3UTXrY/jfQ
+         ppcg==
+X-Forwarded-Encrypted: i=1; AFNElJ+eq860BpQLDNvGFdeNUeeoCqady0Itqdz3pf4FTZl79vPjxXwGWXmepGXd9TBf56KEarE8kOS6@vger.kernel.org
+X-Gm-Message-State: AOJu0YwwSw7ygXXCqhu3sJXrSQLwL7f/pk2fSklXViygXpdhu8sM+pnd
+	TqUmrx3eLWvQmQaroZ8IXVi95VNrZLBX6SsNbYfMERuQC3bSZ/P93V2z
+X-Gm-Gg: AfdE7cnNe6l28PY+7cT8XZTiz1bI/OBRsmMbgpkdpQFwn6uzrvM8pXIRjOXObKwIypT
+	Pq4p/O3sPpWWA5q8QZFBdrOcM10dSBWB8bAeC0FJziV8xTCXMH4vCFoCC+iOW9B/87yVsxc1XzJ
+	NNG2yqj6GicrCYJKBXjF7obnvkMhHQ9uUUPWlPvMdYpMb+5q16OLu9+y+mzoxJQqPNlatQOU4UJ
+	rw2eyLKHtbRUHkqh/tBSywdsO5CmvELolH21k7mLLrQezE4Ip4ARg/+lQrzdoOAMkBuVN8H4FqP
+	7eZnIg6Ono0MBsDX0IydsypqaI0k9RhovmxQ3uArK8aPmY4QtccYYthrB33UEFAbDwFb4Co864e
+	v6/uht6shDOHABqgo3zfxMBEYU3dYHyLAnTFrSXoME2KzHg+v8C51l7XpySIZyQhCCvc+JAVXgA
+	5qMtfTNdmn7zNssoIy5YICyTtgCKrAYlIGkuvOKpetLpSXMEc32nzCWvgD4DigDliSvzRq1MrBc
+	n4i5uM=
+X-Received: by 2002:a05:6830:440c:b0:7e7:868:ded5 with SMTP id 46e09a7af769-7e9799211bdmr289228a34.18.1782172630489;
+        Mon, 22 Jun 2026 16:57:10 -0700 (PDT)
+Received: from localhost ([2a03:2880:10ff:71::])
+        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7e944008fe7sm7895698a34.6.2026.06.22.16.57.08
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 22 Jun 2026 16:57:09 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Mon, 22 Jun 2026 16:57:08 -0700
+Message-Id: <DJFZGYZFMN73.1799LMXW49WZO@gmail.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
+ <bpf@vger.kernel.org>, <linux-security-module@vger.kernel.org>,
+ <linux-integrity@vger.kernel.org>, <selinux@vger.kernel.org>,
+ <linux-kselftest@vger.kernel.org>
+Subject: Re: [PATCH bpf-next v3 1/2] bpf: add bpf_init_inode_xattr kfunc for
+ atomic inode labeling
+From: "Alexei Starovoitov" <alexei.starovoitov@gmail.com>
+To: "David Windsor" <dwindsor@gmail.com>, <viro@zeniv.linux.org.uk>,
+ <brauner@kernel.org>, <jack@suse.cz>, <ast@kernel.org>,
+ <daniel@iogearbox.net>, <john.fastabend@gmail.com>, <andrii@kernel.org>,
+ <eddyz87@gmail.com>, <memxor@gmail.com>, <martin.lau@linux.dev>,
+ <song@kernel.org>, <yonghong.song@linux.dev>, <jolsa@kernel.org>,
+ <emil@etsalapatis.com>, <kpsingh@kernel.org>, <mattbobrowski@google.com>,
+ <paul@paul-moore.com>, <jmorris@namei.org>, <serge@hallyn.com>,
+ <zohar@linux.ibm.com>, <roberto.sassu@huawei.com>,
+ <dmitry.kasatkin@gmail.com>, <eric.snowberg@oracle.com>,
+ <stephen.smalley.work@gmail.com>, <omosnace@redhat.com>,
+ <casey@schaufler-ca.com>, <shuah@kernel.org>
+X-Mailer: aerc
+References: <20260618203411.73917-1-dwindsor@gmail.com>
+ <20260618203411.73917-2-dwindsor@gmail.com>
+In-Reply-To: <20260618203411.73917-2-dwindsor@gmail.com>
 
-From: Tristan Madani <tristan@talencesecurity.com>
+On Thu Jun 18, 2026 at 1:34 PM PDT, David Windsor wrote:
+> +
+> +static int __bpf_init_inode_xattr(struct xattr_ctx *xattr_ctx,
+> +				  const char *name__str,
+> +				  const struct bpf_dynptr *value_p)
+> +{
+> +	struct bpf_dynptr_kern *value_ptr =3D (struct bpf_dynptr_kern *)value_p=
+;
+> +	size_t name_len;
+> +	void *xattr_value;
+> +	struct xattr *xattr;
+> +	struct xattr *xattrs;
+> +	int *xattr_count;
+> +	const void *value;
+> +	u32 value_len;
+> +
+> +	if (!xattr_ctx || !name__str)
+> +		return -EINVAL;
+> +
+> +	xattrs =3D xattr_ctx->xattrs;
+> +	xattr_count =3D xattr_ctx->xattr_count;
+> +	if (!xattrs || !xattr_count)
+> +		return -EINVAL;
+> +	if (bpf_xattrs_used(xattr_ctx) >=3D BPF_LSM_INODE_INIT_XATTRS)
+> +		return -ENOSPC;
 
-selinux_sctp_bind_connect() dereferences sk->sk_socket to pass a
-struct socket * to selinux_socket_bind() and
-selinux_socket_connect_helper().  However, when the hook is invoked
-from the ASCONF softirq path (sctp_process_asconf), there is no file
-reference guaranteeing that sk->sk_socket is non-NULL.  The setsockopt
-callers (bindx, connectx, set_primary, sendmsg connect) hold a file
-reference and are not affected.
+This check is good to have, but it's enough. No need to duplicate it.
+More below.
 
-Both selinux_socket_bind() and selinux_socket_connect_helper()
-immediately resolve sock->sk, never using the struct socket * for
-anything else.  Refactor the inner logic into helpers that take a
-struct sock * directly so that selinux_sctp_bind_connect() never needs
-to touch sk->sk_socket at all.
+> +
+> +	name_len =3D strlen(name__str);
+> +	if (name_len =3D=3D 0 || name_len > XATTR_NAME_MAX)
+> +		return -EINVAL;
+> +	if (strncmp(name__str, XATTR_BPF_LSM_SUFFIX,
+> +		    sizeof(XATTR_BPF_LSM_SUFFIX) - 1))
+> +		return -EPERM;
+> +
+> +	value_len =3D __bpf_dynptr_size(value_ptr);
+> +	if (value_len =3D=3D 0 || value_len > XATTR_SIZE_MAX)
+> +		return -EINVAL;
+> +
+> +	value =3D __bpf_dynptr_data(value_ptr, value_len);
+> +	if (!value)
+> +		return -EINVAL;
+> +
+> +	/* Combine xattr value + name into one allocation. */
+> +	xattr_value =3D kmalloc(value_len + name_len + 1, GFP_KERNEL);
+> +	if (!xattr_value)
+> +		return -ENOMEM;
+> +
+> +	memcpy(xattr_value, value, value_len);
+> +	memcpy(xattr_value + value_len, name__str, name_len);
+> +	((char *)xattr_value)[value_len + name_len] =3D '\0';
+> +
+> +	xattr =3D lsm_get_xattr_slot(xattr_ctx);
+> +	if (!xattr) {
+> +		kfree(xattr_value);
+> +		return -ENOSPC;
+> +	}
+> +
+> +	xattr->value =3D xattr_value;
+> +	xattr->name =3D (const char *)xattr_value + value_len;
+> +	xattr->value_len =3D value_len;
+> +
+> +	return 0;
+> +}
+> +
+> +/**
+> + * bpf_init_inode_xattr - set an xattr on a new inode from inode_init_se=
+curity
+> + * @xattr_ctx: inode_init_security xattr state from the hook context
+> + * @name__str: xattr name (e.g., "bpf.file_label")
+> + * @value_p: dynptr containing the xattr value
+> + *
+> + * Only callable from lsm/inode_init_security programs.
+> + *
+> + * Return: 0 on success, negative error on failure.
+> + */
+> +__bpf_kfunc int bpf_init_inode_xattr(struct xattr_ctx *xattr_ctx,
+> +				     const char *name__str,
+> +				     const struct bpf_dynptr *value_p)
+> +{
+> +	return __bpf_init_inode_xattr(xattr_ctx, name__str, value_p);
+> +}
+> +
+>  __bpf_kfunc_end_defs();
+> =20
+>  BTF_KFUNCS_START(bpf_fs_kfunc_set_ids)
+> @@ -385,13 +477,25 @@ BTF_ID_FLAGS(func, bpf_get_file_xattr, KF_SLEEPABLE=
+)
+>  BTF_ID_FLAGS(func, bpf_set_dentry_xattr, KF_SLEEPABLE)
+>  BTF_ID_FLAGS(func, bpf_remove_dentry_xattr, KF_SLEEPABLE)
+>  BTF_ID_FLAGS(func, bpf_real_inode, KF_SLEEPABLE | KF_RET_NULL)
+> +BTF_ID_FLAGS(func, bpf_init_inode_xattr, KF_SLEEPABLE)
+>  BTF_KFUNCS_END(bpf_fs_kfunc_set_ids)
+> =20
+> +BTF_ID_LIST(bpf_lsm_inode_init_security_btf_ids)
+> +BTF_ID(func, bpf_lsm_inode_init_security)
+> +
+> +BTF_ID_LIST(bpf_init_inode_xattr_btf_ids)
+> +BTF_ID(func, bpf_init_inode_xattr)
+> +
+>  static int bpf_fs_kfuncs_filter(const struct bpf_prog *prog, u32 kfunc_i=
+d)
+>  {
+>  	if (!btf_id_set8_contains(&bpf_fs_kfunc_set_ids, kfunc_id) ||
+> -	    prog->type =3D=3D BPF_PROG_TYPE_LSM)
+> +	    prog->type =3D=3D BPF_PROG_TYPE_LSM) {
+> +		/* bpf_init_inode_xattr only attaches to inode_init_security. */
+> +		if (kfunc_id =3D=3D bpf_init_inode_xattr_btf_ids[0] &&
+> +		    prog->aux->attach_btf_id !=3D bpf_lsm_inode_init_security_btf_ids[=
+0])
+> +			return -EACCES;
 
-Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-Fixes: d452930fd3b9 ("selinux: Add SCTP support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Tristan Madani <tristan@talencesecurity.com>
----
-Changes in v2:
-- Refactor selinux_socket_bind() and selinux_socket_connect_helper()
-  into sk-based inner helpers instead of adding a NULL check on
-  sk->sk_socket (Stephen Smalley)
+This is unnecessary. Only one hook will have xattr_ctx type.
+The normal verifier type enforcement will do its work.
 
- security/selinux/hooks.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+>  		return 0;
+> +	}
+>  	return -EACCES;
+>  }
+> =20
+> diff --git a/include/linux/bpf.h b/include/linux/bpf.h
+> index 7719f6528445..f14bfcda78db 100644
+> --- a/include/linux/bpf.h
+> +++ b/include/linux/bpf.h
+> @@ -1752,6 +1752,7 @@ struct bpf_prog_aux {
+>  	u32 real_func_cnt; /* includes hidden progs, only used for JIT and free=
+ing progs */
+>  	u32 func_idx; /* 0 for non-func prog, the index in func array for func =
+prog */
+>  	u32 attach_btf_id; /* in-kernel BTF type id to attach to */
+> +	u32 attach_limit; /* max concurrent attachments (0 =3D unlimited) */
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 1a713d96206f..aa58a17da219 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -4994,9 +4994,8 @@ static int selinux_socket_socketpair(struct socket *socka,
-    Need to determine whether we should perform a name_bind
-    permission check between the socket and the port number. */
- 
--static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, int addrlen)
-+static int __selinux_socket_bind(struct sock *sk, struct sockaddr *address, int addrlen)
- {
--	struct sock *sk = sock->sk;
- 	struct sk_security_struct *sksec = selinux_sock(sk);
- 	u16 family;
- 	int err;
-@@ -5126,13 +5125,17 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
- 	return -EAFNOSUPPORT;
- }
- 
-+static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, int addrlen)
-+{
-+	return __selinux_socket_bind(sock->sk, address, addrlen);
-+}
-+
- /* This supports connect(2) and SCTP connect services such as sctp_connectx(3)
-  * and sctp_sendmsg(3) as described in Documentation/security/SCTP.rst
-  */
--static int selinux_socket_connect_helper(struct socket *sock,
-+static int selinux_socket_connect_helper(struct sock *sk,
- 					 struct sockaddr *address, int addrlen)
- {
--	struct sock *sk = sock->sk;
- 	struct sk_security_struct *sksec = selinux_sock(sk);
- 	int err;
- 
-@@ -5221,7 +5224,7 @@ static int selinux_socket_connect(struct socket *sock,
- 	int err;
- 	struct sock *sk = sock->sk;
- 
--	err = selinux_socket_connect_helper(sock, address, addrlen);
-+	err = selinux_socket_connect_helper(sk, address, addrlen);
- 	if (err)
- 		return err;
- 
-@@ -5706,13 +5709,10 @@ static int selinux_sctp_bind_connect(struct sock *sk, int optname,
- 	int len, err = 0, walk_size = 0;
- 	void *addr_buf;
- 	struct sockaddr *addr;
--	struct socket *sock;
- 
- 	if (!selinux_policycap_extsockclass())
- 		return 0;
- 
--	/* Process one or more addresses that may be IPv4 or IPv6 */
--	sock = sk->sk_socket;
- 	addr_buf = address;
- 
- 	while (walk_size < addrlen) {
-@@ -5741,14 +5741,14 @@ static int selinux_sctp_bind_connect(struct sock *sk, int optname,
- 		case SCTP_PRIMARY_ADDR:
- 		case SCTP_SET_PEER_PRIMARY_ADDR:
- 		case SCTP_SOCKOPT_BINDX_ADD:
--			err = selinux_socket_bind(sock, addr, len);
-+			err = __selinux_socket_bind(sk, addr, len);
- 			break;
- 		/* Connect checks */
- 		case SCTP_SOCKOPT_CONNECTX:
- 		case SCTP_PARAM_SET_PRIMARY:
- 		case SCTP_PARAM_ADD_IP:
- 		case SCTP_SENDMSG_CONNECT:
--			err = selinux_socket_connect_helper(sock, addr, len);
-+			err = selinux_socket_connect_helper(sk, addr, len);
- 			if (err)
- 				return err;
- 
--- 
-2.47.3
+no need.
 
+>  	u32 attach_st_ops_member_off;
+>  	u32 ctx_arg_info_size;
+>  	u32 max_rdonly_access;
+> diff --git a/include/linux/bpf_lsm.h b/include/linux/bpf_lsm.h
+> index 143775a27a2a..b655c708818e 100644
+> --- a/include/linux/bpf_lsm.h
+> +++ b/include/linux/bpf_lsm.h
+> @@ -19,6 +19,9 @@
+>  #include <linux/lsm_hook_defs.h>
+>  #undef LSM_HOOK
+> =20
+> +/* max bpf xattrs per inode */
+> +#define BPF_LSM_INODE_INIT_XATTRS 4
+> +
+>  struct bpf_storage_blob {
+>  	struct bpf_local_storage __rcu *storage;
+>  };
+> diff --git a/include/linux/evm.h b/include/linux/evm.h
+> index 913f4573b203..0aa151288b36 100644
+> --- a/include/linux/evm.h
+> +++ b/include/linux/evm.h
+> @@ -12,6 +12,8 @@
+>  #include <linux/integrity.h>
+>  #include <linux/xattr.h>
+> =20
+> +struct xattr_ctx;
+> +
+>  #ifdef CONFIG_EVM
+>  extern int evm_set_key(void *key, size_t keylen);
+>  extern enum integrity_status evm_verifyxattr(struct dentry *dentry,
+> @@ -21,8 +23,8 @@ extern enum integrity_status evm_verifyxattr(struct den=
+try *dentry,
+>  int evm_fix_hmac(struct dentry *dentry, const char *xattr_name,
+>  		 const char *xattr_value, size_t xattr_value_len);
+>  int evm_inode_init_security(struct inode *inode, struct inode *dir,
+> -			    const struct qstr *qstr, struct xattr *xattrs,
+> -			    int *xattr_count);
+> +			    const struct qstr *qstr,
+> +			    struct xattr_ctx *xattr_ctx);
+>  extern bool evm_revalidate_status(const char *xattr_name);
+>  extern int evm_protected_xattr_if_enabled(const char *req_xattr_name);
+>  extern int evm_read_protected_xattrs(struct dentry *dentry, u8 *buffer,
+> @@ -63,8 +65,7 @@ static inline int evm_fix_hmac(struct dentry *dentry, c=
+onst char *xattr_name,
+> =20
+>  static inline int evm_inode_init_security(struct inode *inode, struct in=
+ode *dir,
+>  					  const struct qstr *qstr,
+> -					  struct xattr *xattrs,
+> -					  int *xattr_count)
+> +					  struct xattr_ctx *xattr_ctx)
+>  {
+>  	return 0;
+>  }
+> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.=
+h
+> index 65c9609ec207..f62780fbeb9e 100644
+> --- a/include/linux/lsm_hook_defs.h
+> +++ b/include/linux/lsm_hook_defs.h
+> @@ -116,8 +116,8 @@ LSM_HOOK(int, 0, inode_alloc_security, struct inode *=
+inode)
+>  LSM_HOOK(void, LSM_RET_VOID, inode_free_security, struct inode *inode)
+>  LSM_HOOK(void, LSM_RET_VOID, inode_free_security_rcu, void *inode_securi=
+ty)
+>  LSM_HOOK(int, -EOPNOTSUPP, inode_init_security, struct inode *inode,
+> -	 struct inode *dir, const struct qstr *qstr, struct xattr *xattrs,
+> -	 int *xattr_count)
+> +	 struct inode *dir, const struct qstr *qstr,
+> +	 struct xattr_ctx *xattr_ctx)
+>  LSM_HOOK(int, 0, inode_init_security_anon, struct inode *inode,
+>  	 const struct qstr *name, const struct inode *context_inode)
+>  LSM_HOOK(int, 0, inode_create, struct inode *dir, struct dentry *dentry,
+> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> index b4f8cad53ddb..710e48caaeba 100644
+> --- a/include/linux/lsm_hooks.h
+> +++ b/include/linux/lsm_hooks.h
+> @@ -200,20 +200,18 @@ extern struct lsm_static_calls_table static_calls_t=
+able __ro_after_init;
+> =20
+>  /**
+>   * lsm_get_xattr_slot - Return the next available slot and increment the=
+ index
+> - * @xattrs: array storing LSM-provided xattrs
+> - * @xattr_count: number of already stored xattrs (updated)
+> + * @ctx: xattr state shared by inode_init_security hooks
+>   *
+> - * Retrieve the first available slot in the @xattrs array to fill with a=
+n xattr,
+> - * and increment @xattr_count.
+> + * Retrieve the first available slot in the @ctx->xattrs array to fill w=
+ith an
+> + * xattr, and increment @ctx->xattr_count.
+>   *
+> - * Return: The slot to fill in @xattrs if non-NULL, NULL otherwise.
+> + * Return: The slot to fill in @ctx->xattrs if non-NULL, NULL otherwise.
+>   */
+> -static inline struct xattr *lsm_get_xattr_slot(struct xattr *xattrs,
+> -					       int *xattr_count)
+> +static inline struct xattr *lsm_get_xattr_slot(struct xattr_ctx *ctx)
+>  {
+> -	if (unlikely(!xattrs))
+> +	if (unlikely(!ctx || !ctx->xattrs || !ctx->xattr_count))
+>  		return NULL;
+> -	return &xattrs[(*xattr_count)++];
+> +	return &ctx->xattrs[(*ctx->xattr_count)++];
+>  }
+> =20
+>  #endif /* ! __LINUX_LSM_HOOKS_H */
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index 153e9043058f..1f8e84e7dd7e 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -68,6 +68,11 @@ struct watch;
+>  struct watch_notification;
+>  struct lsm_ctx;
+> =20
+> +struct xattr_ctx {
+> +	struct xattr *xattrs;
+> +	int *xattr_count;
+> +};
+> +
+>  /* Default (no) options for the capable function */
+>  #define CAP_OPT_NONE 0x0
+>  /* If capable should audit the security request */
+> diff --git a/kernel/bpf/bpf_lsm.c b/kernel/bpf/bpf_lsm.c
+> index 564071a92d7d..86a8e188b900 100644
+> --- a/kernel/bpf/bpf_lsm.c
+> +++ b/kernel/bpf/bpf_lsm.c
+> @@ -113,6 +113,9 @@ void bpf_lsm_find_cgroup_shim(const struct bpf_prog *=
+prog,
+>  }
+>  #endif
+> =20
+> +BTF_ID_LIST_SINGLE(bpf_lsm_inode_init_security_btf_ids, func,
+> +		   bpf_lsm_inode_init_security)
+> +
+>  int bpf_lsm_verify_prog(struct bpf_verifier_log *vlog,
+>  			const struct bpf_prog *prog)
+>  {
+> @@ -137,6 +140,12 @@ int bpf_lsm_verify_prog(struct bpf_verifier_log *vlo=
+g,
+>  		return -EINVAL;
+>  	}
+> =20
+> +	/* bpf reserves a fixed number of xattr slots for itself.
+> +	 * Set the attach limit so the trampoline rejects excess attaches.
+> +	 */
+> +	if (btf_id =3D=3D bpf_lsm_inode_init_security_btf_ids[0])
+> +		prog->aux->attach_limit =3D BPF_LSM_INODE_INIT_XATTRS;
+> +
+>  	return 0;
+>  }
+> =20
+> @@ -315,6 +324,7 @@ BTF_ID(func, bpf_lsm_inode_create)
+>  BTF_ID(func, bpf_lsm_inode_free_security)
+>  BTF_ID(func, bpf_lsm_inode_getattr)
+>  BTF_ID(func, bpf_lsm_inode_getxattr)
+> +BTF_ID(func, bpf_lsm_inode_init_security)
+>  BTF_ID(func, bpf_lsm_inode_mknod)
+>  BTF_ID(func, bpf_lsm_inode_need_killpriv)
+>  BTF_ID(func, bpf_lsm_inode_post_setxattr)
+> diff --git a/kernel/bpf/trampoline.c b/kernel/bpf/trampoline.c
+> index 1a721fc4bef5..b41b02173e24 100644
+> --- a/kernel/bpf/trampoline.c
+> +++ b/kernel/bpf/trampoline.c
+> @@ -859,6 +859,9 @@ static int bpf_trampoline_add_prog(struct bpf_trampol=
+ine *tr,
+>  	}
+>  	if (cnt >=3D BPF_MAX_TRAMP_LINKS)
+>  		return -E2BIG;
+> +	if (node->link->prog->aux->attach_limit &&
+> +	    tr->progs_cnt[kind] >=3D node->link->prog->aux->attach_limit)
+> +		return -E2BIG;
+
+No need. The check inside kfunc is enough.
+
+>  	if (!hlist_unhashed(&node->tramp_hlist))
+>  		/* prog already linked */
+>  		return -EBUSY;
+> diff --git a/security/bpf/hooks.c b/security/bpf/hooks.c
+> index 40efde233f3a..d7c44c5c0e30 100644
+> --- a/security/bpf/hooks.c
+> +++ b/security/bpf/hooks.c
+> @@ -30,6 +30,7 @@ static int __init bpf_lsm_init(void)
+> =20
+>  struct lsm_blob_sizes bpf_lsm_blob_sizes __ro_after_init =3D {
+>  	.lbs_inode =3D sizeof(struct bpf_storage_blob),
+> +	.lbs_xattr_count =3D BPF_LSM_INODE_INIT_XATTRS,
+>  };
+> =20
+>  DEFINE_LSM(bpf) =3D {
+> diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/e=
+vm_main.c
+> index b59e3f121b8a..e0a05162accc 100644
+> --- a/security/integrity/evm/evm_main.c
+> +++ b/security/integrity/evm/evm_main.c
+> @@ -1062,14 +1062,16 @@ static int evm_inode_copy_up_xattr(struct dentry =
+*src, const char *name)
+>   * evm_inode_init_security - initializes security.evm HMAC value
+>   */
+>  int evm_inode_init_security(struct inode *inode, struct inode *dir,
+> -			    const struct qstr *qstr, struct xattr *xattrs,
+> -			    int *xattr_count)
+> +			    const struct qstr *qstr,
+> +			    struct xattr_ctx *xattr_ctx)
+
+the rest looks good.
+Pls split the patch. Introduce xattr_ctx first across the LSMs.
+Then another patch with a new kfunc.
+
+pw-bot: cr
