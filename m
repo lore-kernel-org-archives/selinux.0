@@ -1,212 +1,147 @@
-Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com [209.85.210.175])
+Received: from mail-ej1-f48.google.com (mail-ej1-f48.google.com [209.85.218.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98720342523
-	for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 18:16:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DE82345CCA
+	for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 18:38:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.48
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782152211; cv=pass; b=lMAg8VJlqK7wMMHNdDiAlMKGAF3T5ChdBOXyzrz/p5Imz+ZcFIGlTlg6dlUyQS5YN2eDl95DJOgYh4NoCyOt7VH0d9D4WgzhxYW8Ctk6QKbvs/w8AErcwlb0hz8Bo8KYRy4XY4+22lYGLWthK8wgEym3yWV/rdG/bjcOJ2Ao7AY=
+	t=1782153535; cv=pass; b=fwn5F6hdgQ9KN75E8BPaBReSfFAc3haAINF5H02hi/R2s1V5iyoc+mqi4kLjYx7Y/64qKq6qI3PTnauiZCeXhfBje7H7BlkqsWFXujLBi58RWxYDGg3YbhJLV4Cy5tqmV7dqCqYMhKQ36ekIqzxYtLLiPlfk3CPS1AWEcKw6ilc=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782152211; c=relaxed/simple;
-	bh=QeZKDgWTAl9YOWzBZnzv8ONgNeWw7AYGPPJ12r8oaZI=;
+	s=arc-20240116; t=1782153535; c=relaxed/simple;
+	bh=QBz5vN5aCO0Y5ojifGJTUk1P7j9vTrOxNeSti3Hk+Do=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=IsCbnG+QDVbmbK43RU9vRfsEhBY405x1mWyAP6bC2nppL+obq9ixBcFV1FhsdTVqnoJslMYQc3WZtS2rJlRXHa1lrriZvq1tw8rYvTnwSr00kZdrQTXn4J+k4sMBaxoKXU8A2fh+n1gG9np5niHzY9XOv0NZ/Te7q6WSvb8Z2kY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=E2CibqDx; arc=pass smtp.client-ip=209.85.210.175
+	 To:Cc:Content-Type; b=I9k+5hAmLBfn/40K+gAabe7f+MOxwmvbnKGDMSRc4oXwMys4qRiUXpDlHlSljdSNDtFrk3pJbePESCwvDWBBZc9Q/+BHBOmqX3CUg62kzptYB9w8sApVFN2YAOL3Yw0G+vUmRY0L+o/dcG2omcBGr3zUISw+PMnN4fCsgKnjtz8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hEhRzhoX; arc=pass smtp.client-ip=209.85.218.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="E2CibqDx"
-Received: by mail-pf1-f175.google.com with SMTP id d2e1a72fcca58-8454c5a280aso95171b3a.1
-        for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 11:16:50 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782152210; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hEhRzhoX"
+Received: by mail-ej1-f48.google.com with SMTP id a640c23a62f3a-c07680fdd12so546488966b.3
+        for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 11:38:54 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782153533; cv=none;
         d=google.com; s=arc-20240605;
-        b=K6px1U+DrXI8u/3cvTS9JAa/O0H1HF/UUPpJjTadyes2VG2+t9cvIKjlOemr7FftuO
-         aAV6GebfpUfpxPxNRevhT6ghngF70d1DfpztFv4YJ724+SAWhk/SL74eZlA1VBUh3Gp2
-         plPy32ZB+KHIMiotfWwZQ96AClDSh7GTQTOc7by6wHi7myUZ6q0g3F7rlYD5mFjdYXsj
-         2fXoJgyYIAw02TOs8SavoDFpPeS5p5bbBaAfyUYj4GAjCA+A2tcgqwLAwMLMNojTa7VR
-         yl8JjObuIlMKKPNG1QPk3wM0uxfmWR5SFFfUIuWWu5oHXTsWe107V6P11Ta9x/wLH20F
-         0N7g==
+        b=Wh1i+ugiuGFARLjnRsv3/jre4VL0fj9L0hfa6aKHc/tkRqOT8mLely+N2PnAFRF60E
+         MtidsjClwZ5dbB9IdvX8Id571uvqY22ZAxDMQIip7pKmrc1osU8G/WkQti9fGvbNQKN+
+         Cf7lyYv8e42UQvCqfEpk2/qbT1Dc+ZKFiln7Ao5MfK6X0ls7+xSh4435xIA1AQVXhtbe
+         RTfXKWhbiiMJw5dCKZ3EKMth4aDbqZzznFMoc1QQXxNXfo08zCMU9a++RHdVn0L50THJ
+         DIQFjCh/3g/6Tco6NTR8aAOmwhjwhyb09jshMNw28k+R+FvTuaGOsvGyFpuL3SH2wqVd
+         JZ2A==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=y2C1p0VCPDkoHSVv3TUflFLqFfDODjEpQopGfPntxH8=;
-        fh=RcJrr7O3svp8K5gZfgCjK7Xv0tA8i0VIpUekoWsmIc8=;
-        b=PehYvCBtNzMQa4+Wvy/B3Di8vGi9i1hxCPRpP/S+cfS72f3ARZ1tdrGZBekyBRHke4
-         Ck2nX8+K00WlC/BpPLyC1HljL5HSnHeXXXNOvPEdPev9wYfeV12S2VnwFfo4CcRhNIu8
-         RPIZtITQipkoBPmRzbStF4GMukZTJu2idXM55pfXZtOz52I9kK+ckUQ0vb/fNOt5cUyf
-         cTPBdSlkJVCt6q7jJJPQDPoe737YuoUDteje+CVBVK6pJ2TfL/cDSMwObm/+TepvNr3d
-         deqRioA2w149CfquAMHGO3jhBSiVhFKneKbJsjQt4kaV6ckCY8WppG1471435XIM1j53
-         eFSA==;
+        bh=FxkaR+3YHHME3j772zbjYGRVJvMFK62h9V6iLXn9ljY=;
+        fh=X5vnZCWuErBCX3HK8iUwBuHD6/CaNbIp7PYXEJ+WOF4=;
+        b=IHeqJkHYq0XBpGWV9oq0749f7cc9Wru4MeeEn18sXiJV4B+CWqq6pFrvwy6aBtxAem
+         0RrGk391sWvEuQYk8cyAsHJv+3cT5yJKyMA39kzZwF6JkKGNGWYatbwFeFem8TCRSKJZ
+         RWHbgp703dl3u7/R5mEQX68fm/3mxuVmKfi7LEYg3/nYpTe+LnpZtC/GjKMGHzCyLO89
+         45yvcpg0q+eRw6XToCWOiKQ3xCm7fpsw1glaCbT8abrHarLZ67OOeMXfjojha59zqozX
+         eLFNTkpBXXLJrKREzXhsrugTZxYp5PeC95Pk3W0VFiPNNr12Mo/fQjMD+ERKnt195r37
+         U0vA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782152210; x=1782757010; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1782153533; x=1782758333; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=y2C1p0VCPDkoHSVv3TUflFLqFfDODjEpQopGfPntxH8=;
-        b=E2CibqDxzr0mQUhQf1mplbvKGB26qvnDGl1xZ/ez9YPEk/UucV8/KuAFBJr9f7IuPw
-         5Na9Xpt2GbQ1+fIuhU9UiegA5CJuP7liAJrvwQDJcWK8/t0WAmeIvUGVxLIErWGNSAkO
-         d+owhcuFE1zQgBuAWXk8WHxVbz3w/38/qgDwJl623tMC6E5s7u2BwJnXON5yg4/WJJZB
-         GJ6qmrpnzlT/Zm37CBLZowwW62PMvmF6E7nJCbbCg+r/YloBtGN77pWj4gEkNAHPnOzM
-         Whlmq3HIOrwuXy2ndCJEeQpWd91xmrAkQ+HW3BZsqbVK2YVQhlcjuRikgwrrubnbmEts
-         nYCQ==
+        bh=FxkaR+3YHHME3j772zbjYGRVJvMFK62h9V6iLXn9ljY=;
+        b=hEhRzhoXwu4DnMBHm/OMw7g2Q/Uf90DLtaNvasdkvH7m+6stYOu8z7aFEMWiQd21Wz
+         ZvlPM5KjMOyaWK4Z7sXYlSYeMOcOB+V2UDRFw83Q8mOIlEBe7X86LIMVzN1CG2Lmg8Iq
+         Yg2KvTxQkYPTi5+NRth8Ao+0miPy6/7nSLynY9UjH4yjQFqOEV6dcB9V5dHYJ499z9fg
+         gc+K/I8/lfT3VangHQ0CJr/9FUDce5kSfKuzwAKY57gKCUMWCccOqvXrFibjT2UALYcD
+         AWn1ZcmqDsTTzF9zzHCJvNJA6Kf/fkI4V3UjGmrl/yyo3IfvPTDcOrhcFnl4b+FXuN0F
+         9tVQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782152210; x=1782757010;
+        d=1e100.net; s=20251104; t=1782153533; x=1782758333;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=y2C1p0VCPDkoHSVv3TUflFLqFfDODjEpQopGfPntxH8=;
-        b=SPbCZelNgSgeGCFtCNyHVvt3eX3/4dQrLV7kF7krUfqH1+DHD7xtVEs4g2E7t7YqvQ
-         nMP4P6rWIV5CP/AJymBvlEHBKyD9gM2NEWGNB903uykfmS7WPhFfx6RwOa5s1unyjWPm
-         TP+C6ZigCO6sgAdvmDpcFu8AT0TB2mQVpcr2I2YJtr0vguTPED1wY//Kp7bbJ4rFO2Tl
-         kYYV3IUq1SRxhq2he0LRSJTYoxsjTSh8CF8gI1ALzB9PRCcfakIqACsDkRqjAILZ5mCC
-         hbj3t+sTAmpl5iqv6Njfm+GqTgTnPNo+XVkDQ50O8VF7j6u+fNKk5Fm5Fk+J6Z/Ezmvd
-         SDEQ==
-X-Gm-Message-State: AOJu0YzRiMl3yFEK3l0Yy8b5InZIb+xRzCXJbeluyMQdAuXh2v96fF3F
-	JXostPxQ6ASjtfPRiRDfQeVISv3F5c6i+tWPc10loZaHH0Kf73mEB7iZNIgCmJWtzCZ29AglOex
-	D87UP5Pt3rkKrP1l72txBRuLhTpzsdTm5wA==
-X-Gm-Gg: AfdE7cm5Tvxy9RMJuY82V5L9Wy94RXBZk9nBjc+QRRVXbukgILbxGuABC9cViMbXFyD
-	1tDpbtYKhdljOzDWrte5DpGtoKe97IWkoO34lr0Ma2Ux3hBfVbCcFUwL8RcRInT/oRxG0n2Ls2A
-	rIDyYn9bN7jkQbzHb09omludMVz79QXDwpGid6MhqH4me9FKsozsrv+lvZXgBre/wK/oDZROYXu
-	pTRNXyc0eMYYBeWcfzKLMKA0F/jH8LgHMhfhAHNjLLQQOiA8jObutvaFA6aw1p7eLvzZDSv
-X-Received: by 2002:a05:6a00:909e:b0:842:4f2d:c4e6 with SMTP id
- d2e1a72fcca58-84591bd0489mr424857b3a.9.1782152209638; Mon, 22 Jun 2026
- 11:16:49 -0700 (PDT)
+        bh=FxkaR+3YHHME3j772zbjYGRVJvMFK62h9V6iLXn9ljY=;
+        b=T/zksonkiQgFje4/sIbcSyQT6AdyxBpbigUbWnAC5omDbMHVgL5I1vhTZ0KyU92bTR
+         ijm/1pFNxhhnaW1VQTcjFcZiHlc0ZZw+W1H1VIFwoBVJA6XDsp070XUBYCJ17WagyZWz
+         KAocH+hWvs35NKY078gB90ECETZuS1EB4FFV5Ecdokm4/WHO6WN3fndFPSLb5W+uXN/O
+         q9J9JzQQkdUwRlQs9IQqIkNWilfXzkeTSTw+i2pRgof4X8PSFycQESWz8AEodDz+3E0q
+         Mpbn4rzqDSg7bZPSrJIExPZgRZo578nenyFOFDQwMDW9f2MsZgvCUJGv0FyHVGMBTQ39
+         t+Xg==
+X-Gm-Message-State: AOJu0YwCG7OxIZ7ewsm/jHCZq+23j6Cf8HpDHW+uQEtNWJwAwQn6BOf6
+	kTZN16INKHgOBfQPm7qHc3FGNtNzvwYIyKVEikoTsxeNWwGD9rXate7lPJhfqIs0E6It2cHTd+7
+	dPNzJmvUHETGfYZY8g+OSNZtKmSFSddM=
+X-Gm-Gg: AfdE7ckoL0wRiDVifjvzqGkl9vVJ5y1Y0CP76X80wLPAIac9bBD+CjTtYQSnbmvFNpO
+	2LQjd6Eo/MmHPXOneNerslWHtSByaIgTrtcgwJrmGYCuHNBx9cdDq2SSiW+vrG1RJ2dRrrFfoTb
+	wk7vKdRDqHmv9g5QuPhOI7HeukzMb6+Uw4C+i7P6JZRxmAZKjuKNMhzYcVMoYJXO/wRfTep24ge
+	8tNj7inufG2fskVxR1bD5K+UUHNoolgtZvpR6M+lR7a7lQjy3TjBAcDDAjbHLTEFSVYPg==
+X-Received: by 2002:a17:906:4750:b0:c10:2cb6:36e0 with SMTP id
+ a640c23a62f3a-c102cb63b66mr31799466b.5.1782153532500; Mon, 22 Jun 2026
+ 11:38:52 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260622174218.92190-1-kalevi@kolttonen.fi>
-In-Reply-To: <20260622174218.92190-1-kalevi@kolttonen.fi>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 22 Jun 2026 14:16:37 -0400
-X-Gm-Features: AVVi8CeVv1xG6qb6CKpW7Y8m86eZav1okAnKo5MOLTKZusWzLmXIDzzqqZNXg1M
-Message-ID: <CAEjxPJ4=ZH4wATrwai3evZsrGeVY0ctoNRJdYpPL1G4DYYLPaw@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: use bool instead of int in ss/services.c
-To: Kalevi Kolttonen <kalevi@kolttonen.fi>
-Cc: selinux@vger.kernel.org
+References: <20260622153325.17783-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260622153325.17783-1-stephen.smalley.work@gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Mon, 22 Jun 2026 14:38:38 -0400
+X-Gm-Features: AVVi8Cce07z5tc5Y6XI6OOALcKTd5e0ArJZ7X1WHO10FpZqCh64TspWtbNScjbc
+Message-ID: <CAP+JOzQT+NMiFncd3A5Yut_0J0m0FzbZ1YnmEkg0jOmdSxQ5SQ@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] libsepol: bound type values in type_set_expand
+ negset loop
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
+	netliomax25-code <netliomax25@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 22, 2026 at 1:43=E2=80=AFPM Kalevi Kolttonen <kalevi@kolttonen.=
-fi> wrote:
+On Mon, Jun 22, 2026 at 11:33=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> Updated security_sid_to_context_core(),
-> security_context_to_sid_core(), and their callers to
-> pass boolean flags via bool rather than int. No functional
-> change.
+> From: netliomax25-code <netliomax25@gmail.com>
 >
-> Signed-off-by: Kalevi Kolttonen <kalevi@kolttonen.fi>
+> type_set_expand() iterates set->negset and dereferences
+> p->type_val_to_struct[i] for each set bit without checking i against
+> p->p_types.nprim. type_val_to_struct is allocated with nprim entries, and
+> the sibling loop over set->types already guards the index with that same
+> nprim check. For a base or module policy, role_read() fills role->types
+> (including negset) from the file via type_set_read(), and
+> policydb_index_others() expands it through policydb_role_cache() and
+> type_set_expand() during policydb_read(), before policydb_validate()
+> runs. A policy whose role negset has a bit at or above nprim then causes
+> an out-of-bounds read of type_val_to_struct. Apply the same bound to the
+> negset loop. The single fix also covers the other callers, expand_rule()
+> and expand_convert_type_set().
+>
+> Fixes: https://github.com/SELinuxProject/selinux/pull/532
+> Signed-off-by: Kartik Kenchi <netliomax25@gmail.com>
 
-nit: I might have also rewritten the subject line to be a bit more specific=
-, and
-on second look, I should have used "Update" rather than "Updated" but I'm o=
-k
-with it as is - probably should wait and see if Paul has any comments befor=
-e
-bothering with another version.
-
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+For these two patches:
+Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  security/selinux/ss/services.c | 18 +++++++++---------
->  1 file changed, 9 insertions(+), 9 deletions(-)
+>  libsepol/src/expand.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
 >
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/service=
-s.c
-> index e8e7ccbd1e44..2bc522ad88a3 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -1354,8 +1354,8 @@ const char *security_get_initial_sid_context(u32 si=
-d)
->  }
->
->  static int security_sid_to_context_core(u32 sid, char **scontext,
-> -                                       u32 *scontext_len, int force,
-> -                                       int only_invalid)
-> +                                       u32 *scontext_len, bool force,
-> +                                       bool only_invalid)
->  {
->         struct selinux_policy *policy;
->         struct policydb *policydb;
-> @@ -1438,14 +1438,14 @@ static int security_sid_to_context_core(u32 sid, =
-char **scontext,
->  int security_sid_to_context(u32 sid, char **scontext, u32 *scontext_len)
->  {
->         return security_sid_to_context_core(sid, scontext,
-> -                                           scontext_len, 0, 0);
-> +                                           scontext_len, false, false);
->  }
->
->  int security_sid_to_context_force(u32 sid,
->                                   char **scontext, u32 *scontext_len)
->  {
->         return security_sid_to_context_core(sid, scontext,
-> -                                           scontext_len, 1, 0);
-> +                                           scontext_len, true, false);
->  }
->
->  /**
-> @@ -1465,7 +1465,7 @@ int security_sid_to_context_inval(u32 sid,
->                                   char **scontext, u32 *scontext_len)
->  {
->         return security_sid_to_context_core(sid, scontext,
-> -                                           scontext_len, 1, 1);
-> +                                           scontext_len, true, true);
->  }
->
->  /*
-> @@ -1551,7 +1551,7 @@ static int string_to_context_struct(struct policydb=
- *pol,
->
->  static int security_context_to_sid_core(const char *scontext, u32 sconte=
-xt_len,
->                                         u32 *sid, u32 def_sid, gfp_t gfp_=
-flags,
-> -                                       int force)
-> +                                       bool force)
->  {
->         struct selinux_policy *policy;
->         struct policydb *policydb;
-> @@ -1640,7 +1640,7 @@ int security_context_to_sid(const char *scontext, u=
-32 scontext_len, u32 *sid,
->                             gfp_t gfp)
->  {
->         return security_context_to_sid_core(scontext, scontext_len,
-> -                                           sid, SECSID_NULL, gfp, 0);
-> +                                           sid, SECSID_NULL, gfp, false)=
-;
->  }
->
->  int security_context_str_to_sid(const char *scontext, u32 *sid, gfp_t gf=
-p)
-> @@ -1672,14 +1672,14 @@ int security_context_to_sid_default(const char *s=
-context, u32 scontext_len,
->                                     u32 *sid, u32 def_sid, gfp_t gfp_flag=
-s)
->  {
->         return security_context_to_sid_core(scontext, scontext_len,
-> -                                           sid, def_sid, gfp_flags, 1);
-> +                                           sid, def_sid, gfp_flags, true=
-);
->  }
->
->  int security_context_to_sid_force(const char *scontext, u32 scontext_len=
-,
->                                   u32 *sid)
->  {
->         return security_context_to_sid_core(scontext, scontext_len,
-> -                                           sid, SECSID_NULL, GFP_KERNEL,=
- 1);
-> +                                           sid, SECSID_NULL, GFP_KERNEL,=
- true);
->  }
->
->  static int compute_sid_handle_invalid_context(
+> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+> index 0bd61c82..8d7fe519 100644
+> --- a/libsepol/src/expand.c
+> +++ b/libsepol/src/expand.c
+> @@ -2783,6 +2783,13 @@ int type_set_expand(type_set_t *set, ebitmap_t *t,=
+ policydb_t *p,
+>         /* Now do the same thing for negset */
+>         ebitmap_init(&neg_types);
+>         ebitmap_for_each_positive_bit(&set->negset, tnode, i) {
+> +               /*
+> +                * invalid policies might have more types set in the ebit=
+map than
+> +                * what's available in the type_val_to_struct mapping
+> +                */
+> +               if (i >=3D p->p_types.nprim)
+> +                       goto err_neg;
+> +
+>                 if (p->type_val_to_struct[i] &&
+>                     p->type_val_to_struct[i]->flavor =3D=3D TYPE_ATTRIB) =
+{
+>                         if (ebitmap_union(&neg_types,
 > --
 > 2.54.0
->
 >
