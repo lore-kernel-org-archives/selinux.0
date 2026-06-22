@@ -1,147 +1,173 @@
-Received: from mail-ej1-f48.google.com (mail-ej1-f48.google.com [209.85.218.48])
+Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DE82345CCA
-	for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 18:38:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E9701799F
+	for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 18:45:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.52
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782153535; cv=pass; b=fwn5F6hdgQ9KN75E8BPaBReSfFAc3haAINF5H02hi/R2s1V5iyoc+mqi4kLjYx7Y/64qKq6qI3PTnauiZCeXhfBje7H7BlkqsWFXujLBi58RWxYDGg3YbhJLV4Cy5tqmV7dqCqYMhKQ36ekIqzxYtLLiPlfk3CPS1AWEcKw6ilc=
+	t=1782153930; cv=pass; b=Ua6p81dcJA7KYXCwEo8eJmF3O9WOYrChgNr2LGInT/S8PEItwr5u5hZbpcL5Fw6vznDmPrbyxo1YZxGSEweWLewrmcOxVmXY21Gl0ukGhM2gY5/teIow8aU6e4faSu2hE8w1D8JTVAVPgcgx5FUO+gV7iQB8P5jtpO35cHyQZ9E=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782153535; c=relaxed/simple;
-	bh=QBz5vN5aCO0Y5ojifGJTUk1P7j9vTrOxNeSti3Hk+Do=;
+	s=arc-20240116; t=1782153930; c=relaxed/simple;
+	bh=9IpgFgNNq1r7ze+PS+qfAZGFDH+b9V/8hD0D0zk2Y/Q=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=I9k+5hAmLBfn/40K+gAabe7f+MOxwmvbnKGDMSRc4oXwMys4qRiUXpDlHlSljdSNDtFrk3pJbePESCwvDWBBZc9Q/+BHBOmqX3CUg62kzptYB9w8sApVFN2YAOL3Yw0G+vUmRY0L+o/dcG2omcBGr3zUISw+PMnN4fCsgKnjtz8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hEhRzhoX; arc=pass smtp.client-ip=209.85.218.48
+	 To:Cc:Content-Type; b=A7KYeE+KZRCSfUzQCz/5sV+17fK1XgmI8osd4obbbdlPmgf3M1csUUaNhizr+upnIYutb6He3wJ/raN8kaKdQ/Zq/vWciw15Dnhoa8teKw3gWMtNzirsNYxwP2/p3cEuFX6F+/LMHkVmC1pn5rZuB0XFGe52MWQ/F0ul42PfLzQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FE1CPsJq; arc=pass smtp.client-ip=209.85.208.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hEhRzhoX"
-Received: by mail-ej1-f48.google.com with SMTP id a640c23a62f3a-c07680fdd12so546488966b.3
-        for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 11:38:54 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782153533; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FE1CPsJq"
+Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-69775980397so4413073a12.2
+        for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 11:45:28 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782153928; cv=none;
         d=google.com; s=arc-20240605;
-        b=Wh1i+ugiuGFARLjnRsv3/jre4VL0fj9L0hfa6aKHc/tkRqOT8mLely+N2PnAFRF60E
-         MtidsjClwZ5dbB9IdvX8Id571uvqY22ZAxDMQIip7pKmrc1osU8G/WkQti9fGvbNQKN+
-         Cf7lyYv8e42UQvCqfEpk2/qbT1Dc+ZKFiln7Ao5MfK6X0ls7+xSh4435xIA1AQVXhtbe
-         RTfXKWhbiiMJw5dCKZ3EKMth4aDbqZzznFMoc1QQXxNXfo08zCMU9a++RHdVn0L50THJ
-         DIQFjCh/3g/6Tco6NTR8aAOmwhjwhyb09jshMNw28k+R+FvTuaGOsvGyFpuL3SH2wqVd
-         JZ2A==
+        b=BbfBHrBycFR7QodzQ9XVN56LXUVjhJ6GiYsTCGMoeky4iS5AGC5IT/0LJJQU4NRcDU
+         QoxHxrs3OHa8VfR2mtIK/S5KDgOACT4HRNin0f/i3ZNlocOT4JhAaS62FTFyli2jCAjD
+         Ek/CQ9O1PXe9RJLUtTfnDjF7pHhuqL/rVpL7AVH+sNEIE1EF738ONj5etx2Vj1k4TcMW
+         kqafiWTz/3/mH09XD9WYRjnWN8yp4R7k/QX8Dq9QcTKQCRpS2HypmxkMktcdimBn280b
+         w4lyK5dWiZ9wYkfm1raJgXm0ROgNaQPvHgcpKDCMBLFrkUkAQ5+/T9jEEDQFreH5bthO
+         /5lg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=FxkaR+3YHHME3j772zbjYGRVJvMFK62h9V6iLXn9ljY=;
+        bh=9/wfRdEy7j5FL0M0paRP6/0ZbtXx0D8Bf05gko1VsQc=;
         fh=X5vnZCWuErBCX3HK8iUwBuHD6/CaNbIp7PYXEJ+WOF4=;
-        b=IHeqJkHYq0XBpGWV9oq0749f7cc9Wru4MeeEn18sXiJV4B+CWqq6pFrvwy6aBtxAem
-         0RrGk391sWvEuQYk8cyAsHJv+3cT5yJKyMA39kzZwF6JkKGNGWYatbwFeFem8TCRSKJZ
-         RWHbgp703dl3u7/R5mEQX68fm/3mxuVmKfi7LEYg3/nYpTe+LnpZtC/GjKMGHzCyLO89
-         45yvcpg0q+eRw6XToCWOiKQ3xCm7fpsw1glaCbT8abrHarLZ67OOeMXfjojha59zqozX
-         eLFNTkpBXXLJrKREzXhsrugTZxYp5PeC95Pk3W0VFiPNNr12Mo/fQjMD+ERKnt195r37
-         U0vA==;
+        b=BUgW1hVKCOi2ga6r4GNaUDqSIp3eBX/tlfFtMrh3rmMEeGAC7/cjmX24WxnDqL3/ZB
+         WdhtEotJh1jE0SBDcuMyhqNxU7tyWtJIyOeRm/OBtPVwgmDLFDEkkbG5OaShlJgouig7
+         Xi3LZ48cCWnKQJAO9TnOgW73szMdlmU6Y9TXttSnUGVjELk2CqzhKT9bDXUVSYfarjfH
+         swbLCpbFVzg9cqj/lcl13X6C7+FtiSD5p/x8rGnNd23Q7EwntT+FiU0Hxe8uaH4iZTOt
+         UAS3MKxeVM8ilQwU5NaezUA3pxB0RYgkgMI9seihgYxPrNHTo2RAY1MiNtMbAIwZQCYF
+         ySTw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782153533; x=1782758333; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1782153928; x=1782758728; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=FxkaR+3YHHME3j772zbjYGRVJvMFK62h9V6iLXn9ljY=;
-        b=hEhRzhoXwu4DnMBHm/OMw7g2Q/Uf90DLtaNvasdkvH7m+6stYOu8z7aFEMWiQd21Wz
-         ZvlPM5KjMOyaWK4Z7sXYlSYeMOcOB+V2UDRFw83Q8mOIlEBe7X86LIMVzN1CG2Lmg8Iq
-         Yg2KvTxQkYPTi5+NRth8Ao+0miPy6/7nSLynY9UjH4yjQFqOEV6dcB9V5dHYJ499z9fg
-         gc+K/I8/lfT3VangHQ0CJr/9FUDce5kSfKuzwAKY57gKCUMWCccOqvXrFibjT2UALYcD
-         AWn1ZcmqDsTTzF9zzHCJvNJA6Kf/fkI4V3UjGmrl/yyo3IfvPTDcOrhcFnl4b+FXuN0F
-         9tVQ==
+        bh=9/wfRdEy7j5FL0M0paRP6/0ZbtXx0D8Bf05gko1VsQc=;
+        b=FE1CPsJq1HYa2yFrzMY9KEaTZntTwMCn0o70sxN34P84wEwDJTYubadqkPBtmDScKd
+         wJ7BpsbP7pA3YprYOnJHI6Tk9QltkndNHFRwGCMYsMScpYp1+dPIZOowGjVvsHBru0gZ
+         J/uh436g7gbSc6YC0n2OJTds/Nsb4hgtEItufRbqiyHJE+u9DP/kVll4lFHsvSSKtlZs
+         o3xdBrQYKMqD1s+uM4rA9XIMcDi7zl8I59MjAdG/P9jraJ3t/6l2AbRje7Hex/fGKnKc
+         B4g8c3G8uXx9xUz6HscdpbM16p1Xz2DZyXFKkBUGNXPuatJmJhwWPLZwapSKkIUecKsF
+         DZgg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782153533; x=1782758333;
+        d=1e100.net; s=20251104; t=1782153928; x=1782758728;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=FxkaR+3YHHME3j772zbjYGRVJvMFK62h9V6iLXn9ljY=;
-        b=T/zksonkiQgFje4/sIbcSyQT6AdyxBpbigUbWnAC5omDbMHVgL5I1vhTZ0KyU92bTR
-         ijm/1pFNxhhnaW1VQTcjFcZiHlc0ZZw+W1H1VIFwoBVJA6XDsp070XUBYCJ17WagyZWz
-         KAocH+hWvs35NKY078gB90ECETZuS1EB4FFV5Ecdokm4/WHO6WN3fndFPSLb5W+uXN/O
-         q9J9JzQQkdUwRlQs9IQqIkNWilfXzkeTSTw+i2pRgof4X8PSFycQESWz8AEodDz+3E0q
-         Mpbn4rzqDSg7bZPSrJIExPZgRZo578nenyFOFDQwMDW9f2MsZgvCUJGv0FyHVGMBTQ39
-         t+Xg==
-X-Gm-Message-State: AOJu0YwCG7OxIZ7ewsm/jHCZq+23j6Cf8HpDHW+uQEtNWJwAwQn6BOf6
-	kTZN16INKHgOBfQPm7qHc3FGNtNzvwYIyKVEikoTsxeNWwGD9rXate7lPJhfqIs0E6It2cHTd+7
-	dPNzJmvUHETGfYZY8g+OSNZtKmSFSddM=
-X-Gm-Gg: AfdE7ckoL0wRiDVifjvzqGkl9vVJ5y1Y0CP76X80wLPAIac9bBD+CjTtYQSnbmvFNpO
-	2LQjd6Eo/MmHPXOneNerslWHtSByaIgTrtcgwJrmGYCuHNBx9cdDq2SSiW+vrG1RJ2dRrrFfoTb
-	wk7vKdRDqHmv9g5QuPhOI7HeukzMb6+Uw4C+i7P6JZRxmAZKjuKNMhzYcVMoYJXO/wRfTep24ge
-	8tNj7inufG2fskVxR1bD5K+UUHNoolgtZvpR6M+lR7a7lQjy3TjBAcDDAjbHLTEFSVYPg==
-X-Received: by 2002:a17:906:4750:b0:c10:2cb6:36e0 with SMTP id
- a640c23a62f3a-c102cb63b66mr31799466b.5.1782153532500; Mon, 22 Jun 2026
- 11:38:52 -0700 (PDT)
+        bh=9/wfRdEy7j5FL0M0paRP6/0ZbtXx0D8Bf05gko1VsQc=;
+        b=dIBq7c6r/+w7VKT2fYssLEGIGhBG2O/sBBtFIcDCG1RGgkmQiXksekjboepw7HhxqE
+         uR8yHxfDzEBLFqOUQqoynE4stG+mJSXnGLuMGrJsoWz4vX8QxVTVf7C8s4qPtg0LzdJO
+         x7oxKqYqD77qAgK2EA7XE0dIIejmNSH8JtN4O652KD75wczLU0Uj0+wO3He52uAHpy/b
+         ZbjSFT0ZUmlbGdhoNddH0Z1OInp6OJJG56TF2exTPLVTuaijJ0grp9DQ8IcngY+idLzV
+         Jyl1NKF636uZER5rgZRMoqIC0oRMqSdEg1f/2WvbU+i4b5hUNnHHq9hCMu7EvHxgmhnj
+         mnTQ==
+X-Gm-Message-State: AOJu0YzTqmj0k8iknpBpXyDZ7/0V4n7vF+KmIsDgYIfzhnrKGJEuirsd
+	1x3IvPL1FFXb1vRyDNkcN/uRC4mQIfloSbR4PLaX9e3f+fPZ/Qubq1D9mSJsGSb4YbbdBI8rrav
+	1O5urqm1eDdhCDNhP4l4yY7r9Pidpc9Y=
+X-Gm-Gg: AfdE7ckcg1jn56YCl8yY4I5wPTLlmxbHenRrVDjj8Ggg4ZsqOdOqXT1sljgSyrpiJmf
+	BKotNAsB4NgLhe+GF6Qlhuq442qhN8on5W3CvrZ/HCvWulQbVbvn1fF7+w12bFMwEL/bRTTkroi
+	ZHa/w7ncOLR67XIFhkDVpCBEZ2NApAh0pFQd+DAUkKkqcyJPNx98AEddHrubXPnFVkhhuOJjpq3
+	Uqo3YTsPChvOpqjmq5b2vIEgUbe2fEO6YYkqHrg6nbP6Hb1mGSeIFHEyu9NtHS0YNBFYg==
+X-Received: by 2002:a05:6402:240c:b0:68b:31c5:86f7 with SMTP id
+ 4fb4d7f45d1cf-69702e5181fmr6869335a12.16.1782153927353; Mon, 22 Jun 2026
+ 11:45:27 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260622153325.17783-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260622153325.17783-1-stephen.smalley.work@gmail.com>
+References: <20260622124251.31555-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260622124251.31555-1-stephen.smalley.work@gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Mon, 22 Jun 2026 14:38:38 -0400
-X-Gm-Features: AVVi8Cce07z5tc5Y6XI6OOALcKTd5e0ArJZ7X1WHO10FpZqCh64TspWtbNScjbc
-Message-ID: <CAP+JOzQT+NMiFncd3A5Yut_0J0m0FzbZ1YnmEkg0jOmdSxQ5SQ@mail.gmail.com>
-Subject: Re: [PATCH v2 1/2] libsepol: bound type values in type_set_expand
- negset loop
+Date: Mon, 22 Jun 2026 14:45:15 -0400
+X-Gm-Features: AVVi8CdJdEMqonUyvuXWIenTSz-h_N8iqWgE2m_XMMXhlMbmojxAxxxbziflba8
+Message-ID: <CAP+JOzQ-121aE=2wmxZj2zEfUhO8NFWL577LTU51xqXy_dRcxQ@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: fix double free of borrowed type datum on
+ error path
 To: Stephen Smalley <stephen.smalley.work@gmail.com>
 Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
 	netliomax25-code <netliomax25@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 22, 2026 at 11:33=E2=80=AFAM Stephen Smalley
+On Mon, Jun 22, 2026 at 8:43=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
 > From: netliomax25-code <netliomax25@gmail.com>
 >
-> type_set_expand() iterates set->negset and dereferences
-> p->type_val_to_struct[i] for each set bit without checking i against
-> p->p_types.nprim. type_val_to_struct is allocated with nprim entries, and
-> the sibling loop over set->types already guards the index with that same
-> nprim check. For a base or module policy, role_read() fills role->types
-> (including negset) from the file via type_set_read(), and
-> policydb_index_others() expands it through policydb_role_cache() and
-> type_set_expand() during policydb_read(), before policydb_validate()
-> runs. A policy whose role negset has a bit at or above nprim then causes
-> an out-of-bounds read of type_val_to_struct. Apply the same bound to the
-> negset loop. The single fix also covers the other callers, expand_rule()
-> and expand_convert_type_set().
+> cil_typepermissive_to_policydb() and cil_typeneveraudit_to_policydb()
+> get sepol_type from __cil_get_sepol_type_datum(), a borrowed
+> hashtab_search() result owned by pdb->p_types. Their error path ran
+> type_datum_destroy() and free() on that borrowed pointer, so
+> type_destroy() freed the same type again when the policydb was
+> destroyed.
 >
-> Fixes: https://github.com/SELinuxProject/selinux/pull/532
+> Drop the destroy and free of the borrowed datum from both error paths,
+> matching the sibling alias converters that only release their own
+> allocation. With nothing left under the exit label, the gotos are
+> replaced with direct returns and the now-empty label removed.
+>
+> Fixes: https://github.com/SELinuxProject/selinux/pull/534
 > Signed-off-by: Kartik Kenchi <netliomax25@gmail.com>
 
-For these two patches:
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  libsepol/src/expand.c | 7 +++++++
->  1 file changed, 7 insertions(+)
+>  libsepol/cil/src/cil_binary.c | 18 ++++--------------
+>  1 file changed, 4 insertions(+), 14 deletions(-)
 >
-> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-> index 0bd61c82..8d7fe519 100644
-> --- a/libsepol/src/expand.c
-> +++ b/libsepol/src/expand.c
-> @@ -2783,6 +2783,13 @@ int type_set_expand(type_set_t *set, ebitmap_t *t,=
- policydb_t *p,
->         /* Now do the same thing for negset */
->         ebitmap_init(&neg_types);
->         ebitmap_for_each_positive_bit(&set->negset, tnode, i) {
-> +               /*
-> +                * invalid policies might have more types set in the ebit=
-map than
-> +                * what's available in the type_val_to_struct mapping
-> +                */
-> +               if (i >=3D p->p_types.nprim)
-> +                       goto err_neg;
-> +
->                 if (p->type_val_to_struct[i] &&
->                     p->type_val_to_struct[i]->flavor =3D=3D TYPE_ATTRIB) =
-{
->                         if (ebitmap_union(&neg_types,
+> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.=
+c
+> index db3eb0be..caf2d987 100644
+> --- a/libsepol/cil/src/cil_binary.c
+> +++ b/libsepol/cil/src/cil_binary.c
+> @@ -611,18 +611,13 @@ int cil_typepermissive_to_policydb(policydb_t *pdb,
+>         rc =3D __cil_get_sepol_type_datum(pdb, DATUM(cil_typeperm->type),
+>                                         &sepol_type);
+>         if (rc !=3D SEPOL_OK)
+> -               goto exit;
+> +               return rc;
+>
+>         if (ebitmap_set_bit(&pdb->permissive_map, sepol_type->s.value, 1)=
+) {
+> -               goto exit;
+> +               return rc;
+>         }
+>
+>         return SEPOL_OK;
+> -
+> -exit:
+> -       type_datum_destroy(sepol_type);
+> -       free(sepol_type);
+> -       return rc;
+>  }
+>
+>  int cil_typeneveraudit_to_policydb(policydb_t *pdb,
+> @@ -634,18 +629,13 @@ int cil_typeneveraudit_to_policydb(policydb_t *pdb,
+>         rc =3D __cil_get_sepol_type_datum(pdb, DATUM(cil_typeperm->type),
+>                                         &sepol_type);
+>         if (rc !=3D SEPOL_OK)
+> -               goto exit;
+> +               return rc;
+>
+>         if (ebitmap_set_bit(&pdb->neveraudit_map, sepol_type->s.value, 1)=
+) {
+> -               goto exit;
+> +               return rc;
+>         }
+>
+>         return SEPOL_OK;
+> -
+> -exit:
+> -       type_datum_destroy(sepol_type);
+> -       free(sepol_type);
+> -       return rc;
+>  }
+>
+>  int cil_typeattribute_to_policydb(policydb_t *pdb,
 > --
 > 2.54.0
 >
