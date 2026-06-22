@@ -1,197 +1,136 @@
-Received: from flow-b7-smtp.messagingengine.com (flow-b7-smtp.messagingengine.com [202.12.124.142])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DD4129D27D;
-	Mon, 22 Jun 2026 20:04:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.142
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782158680; cv=none; b=RT2mAjOiTKDTVOWnkzhvKFbIGa0hpzjLTdDAxRysOme5DR/xMG5dedENg0OBUSdpNF+JXxda1O1D961Yy5Rgo+14tdvDwEgXj3J5h2bYJPERP6eFlWI7HPefHlNKA8+GPvk7o+owHfFhjOKgaC5lIyazcJykflCBZM/wGCyzX5A=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782158680; c=relaxed/simple;
-	bh=SR5EuA1zBcJJr9W/iJyISJDR9as7fMAGczvZ3+4ezpg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=T6d62vEpg6kjNEbn4AFfQWIAeuh88cXrXpbfUEGf7av2AlQ35JFC2P1X3g+90jfwDIZdfvahy8kS6zlusWTkQ6BwCVk7788EC/OI9cq+YuN0oGuwEPl05EQTbX1/lDvAIhozhwD164j1OeRqx2IlouVBGPXPken8gjTQWJnPi2A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fastmail.org; spf=pass smtp.mailfrom=fastmail.org; dkim=pass (2048-bit key) header.d=fastmail.org header.i=@fastmail.org header.b=DUWNz4fL; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=jQ9LNRuq; arc=none smtp.client-ip=202.12.124.142
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fastmail.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastmail.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE10076025
+	for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 20:15:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.47
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782159356; cv=pass; b=i/VHxaf7YeYh8eQtzwe330KKbXTkkIQ20ur4gQUb4zxicX2ZqFvcJROP1RNT7R6nrjrumj5MTm4i4AgNo2f0E9J8YVx7inuiPh8VLbJQ3B97uD0CJFkcheNN9F83/maY8jIqyaLJ+wyck4bObZtypVH2t7SRrD4l1/HadJxBI/s=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782159356; c=relaxed/simple;
+	bh=CQ0Is4w02YW51MX27JiRT80JOQiQ5vKewEqB3FXBVCA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ZLJ7vU16eQAMegidf2DDovY5FkbKf7mdrvZEQJBixFpuliT8LSmB1pEt9nGsI/FkDgp6uzKPTgqIKSRPy7mqCogHXKyofB3QJqvqN7v9Fs5Rk1oEZ72FrLufZPp4IBU7Q9TMJuPcXI4ed8dKOPi4xUllohBIgGk7T2o1mq01QD8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=N2gen39x; arc=pass smtp.client-ip=209.85.216.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fastmail.org header.i=@fastmail.org header.b="DUWNz4fL";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="jQ9LNRuq"
-Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
-	by mailflow.stl.internal (Postfix) with ESMTP id 444C713000D0;
-	Mon, 22 Jun 2026 16:04:37 -0400 (EDT)
-Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-01.internal (MEProxy); Mon, 22 Jun 2026 16:04:37 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fastmail.org; h=
-	cc:cc:content-type:content-type:date:date:from:from:in-reply-to
-	:in-reply-to:message-id:mime-version:references:reply-to:subject
-	:subject:to:to; s=fm1; t=1782158677; x=1782162277; bh=h7eSJNUI1a
-	7V+JqbPIMJcwRRHejJ3fmeySBUpEQRG38=; b=DUWNz4fLQFhbDufLQ+cCtGVGtb
-	W+fem9j2OZ9rk740o7+HYbgI2ZFTqRk3DQbcDXMsc0Ha1qRyGgQlfTlJRZ0vKeft
-	gG/hVrjfhsAHhIPd1tej8OjHgO4uvUNhsL7fGG4sQZa4pOf+FBnUVCPnRXHT7WaS
-	liBwhHK/H2md5ZmKr7Wr+3AVOzwaH0N8EgD8929xWA3Q5MiKaECDNchDR5B3zWc5
-	gT9ap/0SnXX8plDJZGzgy0CdpqC1Tb7IiS7sRR9JmS+tH0RRGrcgDwTc5BQH9xoe
-	s5+5STq1v6nt8FpT+A/mHrg5qLniNRU7BqhVtv7CvTNpuUJzNDT+ptcGoA2w==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
-	1782158677; x=1782162277; bh=h7eSJNUI1a7V+JqbPIMJcwRRHejJ3fmeySB
-	UpEQRG38=; b=jQ9LNRuqQo6EXAlvcGf1zYjHXSTwsS2LgAEUoIaJaC1pnx02Z6K
-	NONloVAMpujo+H4AhPxosxSJfX04LDUNZ/N/UmgCoEEE6Q08Zg7tczMp+NPo/C2S
-	xSTOEMs6G7EZpwJWFt/AulV19nYRwPWDpdBuTy9/1/kzPC5U377NLzxUPVIhBd3S
-	aOKz5NDYLDP4oflzco0luVFiWL4hslVyQy29Q2ziZUCBlaOGe8RLkTc63melVCBE
-	HkWgBhGqGrBLUjSQP2NlocXAERUBu5DIwDvE6HXSDGDgYCdu++KrvkYySO2RXYfd
-	5J4/maGJ4VnRgk5jMEPbvU7AObZ1vl+OZDg==
-X-ME-Sender: <xms:VJU5avRlqmXSZMU1OpHSMv2zGbdS4JmxoYidXQYyYCgyZ_8SmI29JA>
-    <xme:VJU5aq0AZEgZzebLi-97QCapToqR7OR6AHt18d7vFFmYn6LvTnxiE8vKJ_w7krdwv
-    78tqlRmBBabNpQ3YrhGN6EaIOdfJmax4xhH7Waz7t8sRrlWpOBT07mM>
-X-ME-Received: <xmr:VJU5aksThsSYZi3FWr0cb3CcSIaDZaGSqbiCERJiL5EQ7u2jagk7QkSnzng>
-X-ME-Proxy-Cause: dmFkZTGUhilqtGs0gVYFQOpks+BScZpbL2RYQShCvXjFQPT0Nq5yx4jPVvKc3nGqjZuWzM
-    VDJRehrZ/0Hno4EulEex/GTxDQRNgpuS/pYWYzCEOlqY+HdndiOMTanbcCgQLrlWWluJE7
-    wPXVBStU0h1hr/7uFygWJeQFYOcyOfbA69i+ikMySpZxahXnpl/fN1j/rq8iie0EnZMQgr
-    yMUAZTEFJ8cKr+f/ZT9iyfvdLF7F0pDYA/8+aFlQTYyf9/iPjla3KoCEan8JyJquzCwAOj
-    6NUBXoFXvnRUkKY5mdLKe6Z613WnodLW/xBVw7dnpMxOrl8nkLru5npgkMdKQ7pA6L7qfJ
-    P06FHw3sGdmkocihTonKwKHhfp1fevbTBjE3gDUIaSZH0fNlLoxSSqPbJcRr8is9jmkhqe
-    wcF+3CHrJ49wcacZG+CuNFGiWTO9LNlL6a0qNNTlSaggwuVdNM9cyqVQJQ/E6W7D5yKgMo
-    XUs0qx9bzhXX5MXuCPnGk2hULPaY9y2l3iDzijlwRQ882Xhm5dRoxwXtjvBY9mU2rXfdzM
-    6+Xn6pJ7c87NZpDrM9PGMnAoc52IFdDxVvsk9ZkodyyoHiD9+iSx/Zd2wwaS4cqlwuyap8
-    sX/dh4H8ita2qZbRyLNaRvpn2ZKp/CHFXU0tf8Lm7ejHUx5Av0PWWUKmoRUQ
-X-ME-Proxy: <xmx:VJU5agiU-IMzRorXy5u88GboSx4DoB65lJ-r_fPPTU5qFFlPRmNPdw>
-    <xmx:VJU5al_1woCx2Wfz5EI7Rg5ES8EaNfuxotxphCjTX6DsjCTfkgks4Q>
-    <xmx:VJU5ajvx8gW-iRuFzY4XYQeN2AZ2HKbnTqmdVPdHeRiFEXNcRWcC6g>
-    <xmx:VJU5appGzoE18s58Xor-iJD0gqAxtmktBolnX8tMkBNglbvxXa8WtA>
-    <xmx:VJU5ai74fciEdMos7jOByUzo8aKdd_tKMrxIDLEG3m03oYLQUMpEA_B_>
-Feedback-ID: ib53e4b78:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 22 Jun 2026 16:04:36 -0400 (EDT)
-Date: Mon, 22 Jun 2026 15:04:34 -0500
-From: Ian Bridges <icb@fastmail.org>
-To: David Laight <david.laight.linux@gmail.com>
-Cc: Paul Moore <paul@paul-moore.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
-Subject: Re: [PATCH] selinux: replace strlcat() with seq_buf in
- selinux_ima_collect_state()
-Message-ID: <ajmVUvURpXKLjYLo@dev>
-References: <ajlN94VO7BYNUTAy@dev>
- <20260622175301.6a36756b@pumpkin>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N2gen39x"
+Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-37c867bd3e0so2409417a91.0
+        for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 13:15:54 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782159354; cv=none;
+        d=google.com; s=arc-20240605;
+        b=Bd+zSIAD+KnL9uiSgJ2Cy97l2n6MkpeVmHlf9PNPaNJg/1sm8QcmK71GVAVyd9mlcA
+         h1bbbLGkLkYUS9+KMQ+v+BB0m1QePWkP4H0OoI2Ev1j1HoSFm/6X0xFp9wMpkrFNrRTx
+         jffRjYn/AqT73mheEgbJuYz40Rm+RBUh3tBBsnG9MAF7SqbY5EK4d5rbxB7Su1hoESYl
+         hJobdp+K5697s/gTc1WZFApsbD/ZI09xvvi6b2FRqDumhMFAQMkSWFnQyEHZFcI7aRGw
+         F8jDAlZGW4hMHU9ydZjPRnqA/OPz5puqLKjb51Kgqvi+4PVtthbZROm6sTB5SCZwvpX7
+         g3Mw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=SkrvZOAUzRQLYzsoDymhWaYyGXpBSO+WRVnEFYwu4k4=;
+        fh=RcJrr7O3svp8K5gZfgCjK7Xv0tA8i0VIpUekoWsmIc8=;
+        b=BaCmzYAC//rTXgeopX8LNk5VlNync1rUFYxvKuoQphhL5PoVKPOQsTmFA+A0ZfXdeh
+         hxZvWj1XnL2Ss9fnHj33/cst+wlZYsTcDljf/pO+9gB73xPDTJH/s0ZDdVB11LC37OWu
+         HiF2MF2cnL1GdAqKkcZMuCvVGvM7YgiGjmd8VrFABaN+YRJ9HWG2iKegBTifkiJrzeBc
+         UHizygIZNFZlmYm/dszhnX9wCuj3Aq9PMDhuH0zj8SnFwGFXR/C6R+BjUKGd55ziSnOP
+         n41JUyUXpDAIi8gjTsJxQ6ctpqI8E/5Ir0apgyYfsVE+PZIm6NKLDvDWRQ2CzrwRgcuE
+         lK/w==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782159354; x=1782764154; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=SkrvZOAUzRQLYzsoDymhWaYyGXpBSO+WRVnEFYwu4k4=;
+        b=N2gen39x1EjGRY3HZDIHsLDwIhs7MdazyA2YAxXH8Ku4RgdwsDbfm/Uf5AIBm7xHyO
+         RFWSJtQ8sNHOxLXE7+4ByxpNfozr89MyS5gTCisr7+ANuh8Ayc34FwiFuoPBr2vVVGxq
+         0oEQkFGZUs3vQLCoIfw9hXmEFs0DoYL3EDDY0h9QB5tljsB8FLmOFHxDZIXkiWTC7UST
+         PIGsAzDVSVnYMWuD37BxPmT4tRayHy+BRg2aI2oZlVYs8o8MgSl1T0qkFnteVCAOJvRq
+         bmRZ3R7ETzgAqE6ki6fOHvZ6GL4Y7QB5+FiXKungPuzGqiM0fFAfuz0AK190jk38pNmh
+         xsgw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782159354; x=1782764154;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=SkrvZOAUzRQLYzsoDymhWaYyGXpBSO+WRVnEFYwu4k4=;
+        b=fui1DVv20VatW12Mq3uC2oyCE5znv9cNVgU9JKg3SAmQ+4GHIrcLBUWMZ2aOo90+cp
+         +sLdfiptmbrYtHVPq92fjyUo/CAhX37N5ViXrSNOeAadZQtUzgZfy3e/klrUX76EyTTb
+         9M53aknxfCidkuUFFwNlYdXRNm0Es43gb6KicuhOa0F7H/dUwTerVcE5iRgnWG8CEG+o
+         icWnvSqGH4Vb498pQUEtgtDrPHelVz2Ppa7ta8qHGsJ0/lCEbD9KqDUd2E+8Z1lqpT3r
+         Z5ZYyjbl2apck8MruTVvzRHTFqw4Y9U0xwXEie9l6QLun2X6ECcjRQ6JeaKt7wihfy7g
+         XxLQ==
+X-Gm-Message-State: AOJu0YzD4a4bgDwCifimQ8FJtsZMZF/8DvL2DquZMAhsV4smmG04nyfG
+	VvVgyzHb8MwtIP6/zMWjwj/K0L5HkSmiC/HESj7S+yzNqg2I7byekbVp4ENs0JueOEIYpZDJmlj
+	JrI8OSe8s15MP86bABOYBkrZkJvdd0yJ4sw==
+X-Gm-Gg: AfdE7ckNVCm7xQ0KH1Sbqn8Fx9CcGBrN3OzfRgipGlvypo1/5fICm/FMB14ygfa33wQ
+	wRYVMPKkRde+4uKIVwavcJbc68R8v37+5CjGeYWYeyA7TIrFoIxZupwtbXFlZ1KgZHKogs4w+mU
+	wzdfv5/oYps2OaqnKGfDtYyd66YOIF/4DuvT7KEZ9qhH4gijFNk+EEszXV4cwZGYw4ES1/EEfJB
+	WW8rkvE9edEos6e8g2YT03HENu3gFSTb8PxIls7f/hVL7SfjWc/plQTNQNltYbyWTiLiQSI
+X-Received: by 2002:a17:90b:4fc7:b0:36c:e254:4db with SMTP id
+ 98e67ed59e1d1-37d15de2dd5mr14651199a91.6.1782159354069; Mon, 22 Jun 2026
+ 13:15:54 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260622175301.6a36756b@pumpkin>
+References: <20260430232437.56079-1-kalevi@kolttonen.fi>
+In-Reply-To: <20260430232437.56079-1-kalevi@kolttonen.fi>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 22 Jun 2026 16:15:42 -0400
+X-Gm-Features: AVVi8CdkA675_qYnrnOzozVAAqrifCrEgCq1BOw_9iRAMkQJBuc0yA3URdiiaPc
+Message-ID: <CAEjxPJ4-AeZu+ShswxoCcmZ1685MT-4sUhFkJf=kfaM4gSyAaw@mail.gmail.com>
+Subject: Re: [PATCH] selinux: remove unneeded goto and its label
+To: Kalevi Kolttonen <kalevi@kolttonen.fi>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 22, 2026 at 05:53:01PM +0100, David Laight wrote:
-> On Mon, 22 Jun 2026 10:00:07 -0500
-> Ian Bridges <icb@fastmail.org> wrote:
-> 
-> > In preparation for removing the deprecated strlcat() API[1], replace the
-> > strscpy()/strlcat() chain in selinux_ima_collect_state() with a struct
-> > seq_buf, which tracks the write position and remaining space internally.
-> > 
-> > The seven open-coded WARN_ON(rc >= buf_len) truncation checks become a
-> > single seq_buf_has_overflowed() check after the string is built. The
-> > kzalloc() and its exact-size computation are unchanged, so the
-> > measurement string passed to IMA is unchanged.
-> > 
-> > Link: https://github.com/KSPP/linux/issues/370 [1]
-> > Signed-off-by: Ian Bridges <icb@fastmail.org>
-> > ---
-> >  security/selinux/ima.c | 35 ++++++++++++++---------------------
-> >  1 file changed, 14 insertions(+), 21 deletions(-)
-> > 
-> > diff --git a/security/selinux/ima.c b/security/selinux/ima.c
-> > index aa34da9b0aeb..3d81093d16aa 100644
-> > --- a/security/selinux/ima.c
-> > +++ b/security/selinux/ima.c
-> > @@ -9,6 +9,7 @@
-> >   */
-> >  #include <linux/vmalloc.h>
-> >  #include <linux/ima.h>
-> > +#include <linux/seq_buf.h>
-> >  #include "security.h"
-> >  #include "ima.h"
-> >  
-> > @@ -21,8 +22,9 @@
-> >  static char *selinux_ima_collect_state(void)
-> >  {
-> >  	const char *on = "=1;", *off = "=0;";
-> > +	struct seq_buf s;
-> >  	char *buf;
-> > -	int buf_len, len, i, rc;
-> > +	int buf_len, len, i;
-> >  
-> >  	buf_len = strlen("initialized=0;enforcing=0;checkreqprot=0;") + 1;
-> >  
-> > @@ -34,33 +36,24 @@ static char *selinux_ima_collect_state(void)
-> >  	if (!buf)
-> >  		return NULL;
-> >  
-> > -	rc = strscpy(buf, "initialized", buf_len);
-> > -	WARN_ON(rc < 0);
-> > +	seq_buf_init(&s, buf, buf_len);
-> 
-> That is silly, you need the length of the buffer not the length of a string
-> that is the expected length of the output.
+On Thu, Apr 30, 2026 at 7:25=E2=80=AFPM Kalevi Kolttonen <kalevi@kolttonen.=
+fi> wrote:
 >
+> Signed-off-by: Kalevi Kolttonen <kalevi@kolttonen.fi>
 
-Is buf_len not the correct value to use here? buf_len is passed as the size
-argument to the earlier kzalloc() call (not shown in the patch diff) that
-allocates buf.
+As with the other patch, it is typical to include some kind of
+description in the body, and
+the subject line could be improved, e.g.
+selinux: drop unnecessary goto and label from avc_alloc_node()
 
-> >  
-> > -	rc = strlcat(buf, selinux_initialized() ? on : off, buf_len);
-> > -	WARN_ON(rc >= buf_len);
-> > +	seq_buf_puts(&s, "initialized");
-> > +	seq_buf_puts(&s, selinux_initialized() ? on : off);
-> >  
-> > -	rc = strlcat(buf, "enforcing", buf_len);
-> > -	WARN_ON(rc >= buf_len);
-> > +	seq_buf_puts(&s, "enforcing");
-> > +	seq_buf_puts(&s, enforcing_enabled() ? on : off);
-> >  
-> > -	rc = strlcat(buf, enforcing_enabled() ? on : off, buf_len);
-> > -	WARN_ON(rc >= buf_len);
-> > -
-> > -	rc = strlcat(buf, "checkreqprot", buf_len);
-> > -	WARN_ON(rc >= buf_len);
-> > -
-> > -	rc = strlcat(buf, checkreqprot_get() ? on : off, buf_len);
-> > -	WARN_ON(rc >= buf_len);
-> > +	seq_buf_puts(&s, "checkreqprot");
-> > +	seq_buf_puts(&s, checkreqprot_get() ? on : off);
-> 
-> That lot would be easier to read as a seq_printf() - with %d and
-> kill 'on' and 'off'.
+Since avc_alloc_node() doesn't need to perform any cleanup on its exit
+paths, there is no
+benefit to keeping the out label and goto statement. Drop it.
 
-This is a good suggestion, I'll use this approach in the v2.
-
-> Why does 'security' code so often look like c**p.
-> 
-> 	David
-> 
-> >  
-> >  	for (i = 0; i < __POLICYDB_CAP_MAX; i++) {
-> > -		rc = strlcat(buf, selinux_policycap_names[i], buf_len);
-> > -		WARN_ON(rc >= buf_len);
-> > -
-> > -		rc = strlcat(buf, selinux_state.policycap[i] ? on : off,
-> > -			buf_len);
-> > -		WARN_ON(rc >= buf_len);
-> > +		seq_buf_puts(&s, selinux_policycap_names[i]);
-> > +		seq_buf_puts(&s, selinux_state.policycap[i] ? on : off);
-> >  	}
-> >  
-> > +	WARN_ON(seq_buf_has_overflowed(&s));
-> > +
-> >  	return buf;
-> >  }
-> >  
-> 
+> ---
+>  security/selinux/avc.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+>
+> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> index 813e82bcfc27..a9401d6c2e5f 100644
+> --- a/security/selinux/avc.c
+> +++ b/security/selinux/avc.c
+> @@ -497,7 +497,7 @@ static struct avc_node *avc_alloc_node(void)
+>
+>         node =3D kmem_cache_zalloc(avc_node_cachep, GFP_NOWAIT);
+>         if (!node)
+> -               goto out;
+> +               return NULL;
+>
+>         INIT_HLIST_NODE(&node->list);
+>         avc_cache_stats_incr(allocations);
+> @@ -506,7 +506,6 @@ static struct avc_node *avc_alloc_node(void)
+>             selinux_avc.avc_cache_threshold)
+>                 avc_reclaim_node();
+>
+> -out:
+>         return node;
+>  }
+>
+> --
+> 2.54.0
+>
+>
