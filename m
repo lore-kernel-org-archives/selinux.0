@@ -1,173 +1,118 @@
-Received: from flow-b2-smtp.messagingengine.com (flow-b2-smtp.messagingengine.com [202.12.124.137])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vs1-f49.google.com (mail-vs1-f49.google.com [209.85.217.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F88C3161A3;
-	Mon, 22 Jun 2026 15:00:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F1683BE155
+	for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 15:33:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782140414; cv=none; b=IbCDpo4r+sQ09Xm6FnU+itIh/iJuEuvFKHTGAAa2beV+5mzlt3+f5nGpX3SsQlVoFYm+ZitxslLR4CY7cHVUFWjeETS3m+LbfaKpNtSJ6yF3Ql/pmWrdec5uqw1pJ1AIi/dBG3thaxuPuCk/xmyg3wsqsEzGWYwCuF58Rc6Kfg0=
+	t=1782142424; cv=none; b=J7F+6CSEvsF78NbEtWe3bQDuQFcMCAuuCj7T5+kZ1ObW5yBT4nwGeMrh+7FZ/SQNDSUsNA5occJKkl29qxrIgvIvI60jW0gAP/pes/Cw3TLjBoNMAx/2M3kJCfTXH4Og1DQtUuS74d8+xHvpA2Dngmi3EGGwaS7+wIg41OiRw+E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782140414; c=relaxed/simple;
-	bh=VEbitypmM0KPiOmV2k048fs3HPPQBOI9tvjTU42Em9s=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=XKM4htY/baJPjkMv0RfF0TkQwUb9MjCmNmHsIMBooROaxjfgVq/0GBwlIgmNB42lvA8qTfq55urJu8rZ31e6j4XUeq6hLDJEXfmLdsmoF0HBWJNTTSfrVJckL1dX4AbJpxr3Kh4n0qxEcA4pc4X5OzzqnGDKe218jnVUcN9P3E0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fastmail.org; spf=pass smtp.mailfrom=fastmail.org; dkim=pass (2048-bit key) header.d=fastmail.org header.i=@fastmail.org header.b=Rmn0G0pu; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=ViC4vNUM; arc=none smtp.client-ip=202.12.124.137
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fastmail.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastmail.org
+	s=arc-20240116; t=1782142424; c=relaxed/simple;
+	bh=Bo+f3mxEFNK+5sKruqkAlg2oZGbHOMO4q5tVUTemKps=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=pIFR8ncWwNKh1W54MvpvIFxaaPyPYQn36rb4odhhFqaiCBIZgv9zYqCxuFdwmxDmvJaZEHVbtqC0jGMM0tygWLZnForw8tYEc7Boe5bQS/sgQSLLOQx7J/QqkClMWMa2vFfk88CpDC9AToqh97Z50//vTc3xwaDIC8BLl+NQsGs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dSmux1Op; arc=none smtp.client-ip=209.85.217.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fastmail.org header.i=@fastmail.org header.b="Rmn0G0pu";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="ViC4vNUM"
-Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
-	by mailflow.stl.internal (Postfix) with ESMTP id B91991300475;
-	Mon, 22 Jun 2026 11:00:11 -0400 (EDT)
-Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-05.internal (MEProxy); Mon, 22 Jun 2026 11:00:12 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fastmail.org; h=
-	cc:cc:content-type:content-type:date:date:from:from:in-reply-to
-	:message-id:mime-version:reply-to:subject:subject:to:to; s=fm1;
-	 t=1782140411; x=1782144011; bh=JeT6ZI1VJv4VcgJcw1HZwtPrn5lf+WHS
-	XQl+O8OjyPc=; b=Rmn0G0puBBDFnPGt/rUad+cXJ/D+92FQioqKxseeM+raI5aJ
-	d6ZiRr3ru3IXnqD6Ea++tUIaBbvq+eaSd5k0bBS/wERpVin0/cImHCJNqZcWooX6
-	KfoSGB1OGKde9q1mPCG100aEAyudcATJ04y/lXINaiCT3Cazb+rNo/Dxy5PYlym7
-	rSZNpVqJH49noV3PcoX2Usetz3nxcdNEB0Hgcd1keW8TiTbVkxL0uqcDLsSNVlZ1
-	ZaInKBSbgIeTmSqKbnDSULNeOdlPbnry/6wvqQBK0y0VJyFeQ9xBV7dfwncPaK5N
-	ZUiU9XMzy7VinSHaG+fI1mcqfCo/dnD2ycSoBw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:message-id
-	:mime-version:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1782140411; x=
-	1782144011; bh=JeT6ZI1VJv4VcgJcw1HZwtPrn5lf+WHSXQl+O8OjyPc=; b=V
-	iC4vNUMv5cXyt7pw66LUgGo6ywbFq89T3xCbWfh9jr6XU8OoVdp2wiXPCMeFx+8b
-	5g29/fYRKx5mvKpJTat72RcmL19NRrHJ8Tm+6IwXDbOd7vWop3dLRML4LrYUrHRF
-	jqy2Z36of8FyzE5PiffeFOf80dirarZRqscP00o8e+2+BHTumqYn7MzeywJFYKPU
-	wpdv3SbBa0Mln85W2jVbtyfenjfN9z59FNMcwYStF+uBlVKet4axIZP2C3D0NsKy
-	S8D5CBCWSnfrbLvJegnZumYvLQpDKrAhGXRzTyqEu1FDaKrfAwcDMeQJ7VHAsdiq
-	Ll2rbyOdZcpB8n7JnD0xw==
-X-ME-Sender: <xms:-k05au-yjYAp8drRic1tuJ681hE43_hwu8X8RpFHOn7lZKyne8GHqQ>
-    <xme:-k05apoInNBOjqYemoX3jRw3aEz5Buznspd-cpOivOEs9LoyI3k7_SxCB9Uz3AOFu
-    5rrqmu-c0Ud8AnJWC65sZTCoIeQD5GcU_us4cx-JCQ6J3nhrfeTOuI>
-X-ME-Received: <xmr:-k05ajB8Kooo0xp6GDMRv1T9djxAJjzRsN4ZygjUzhdJ8sjYbTs8mQDu1HQ>
-X-ME-Proxy-Cause: dmFkZTFFvahTI8O3H44ePGhZp6eGlFn3MPUZbeALJwUvRUA0820Hdfud9NKk3JZ0t5rmcW
-    BWgSmLuBc8uyH2X2St6OIgD7PrSogduPJcCrq/rkx2IhIixdcHf/JMkaKplpm4bcqk4wPF
-    hFIN4xFhkyFen3PKI0DkaI96XCa9huRKQzVHwAIIMNryCV07ytmYhi2C4PJKOay1T8s7TF
-    SLbcvxdKMy1zPs+Stc3TQwrTqkRe2d3W/RTn7OC/6CHirKdLfEqB/argGy5y5OJjRC5OHa
-    36HHsSX0+6Tm+6U97ZhQMYl6Q0K2apaZIl1qGMKM0+7JVJ/65VSaUtGpmDCRGRa0wOxhGB
-    +mcFjIl7c1zoIu0rv+dChIdAYpex5ZiVBYeEUAcuNyh8ej/79mn242vVxBUa6AZDnzsYOM
-    /gjjhTiTjDh+XubPdh7S97HEONgsyCV4fZNRPNWLtdKt39qNOABwjdLlTSue36bRa8FyTy
-    fahn7xGM5HN2OLQBOH3g84kl7dQOXGFB2xPYbPheRHM9qbD/6ROE1CdFxCxxUwc5fo/2oc
-    Y/dDgzgXT4fY7AFbLyaxC02FRO+och1quH22mMyV508qrHc2C6xVHbGCjzyi05IaI2tMbd
-    OmZ+d9rno+QUDoyh1A8XBJTuXUwKm2njo3PBzHuUZQ0uc7WIYC5drEBnVsoQ
-X-ME-Proxy: <xmx:-k05arwEuBp9-x3F5LpvykvEYfBMpt3dD5YNUolcldWpD_JsNtwR5w>
-    <xmx:-k05ag3ILgU6IkZ3NsQ-xliuxXx4dbOMO-LHE0y9FPpjEPMZRam3Jw>
-    <xmx:-k05arxJUn2fgD5O6ZItMLjNWgBG6Gc_P8PqnauAryzSZv8i40_Omw>
-    <xmx:-k05anEhTZMJym5XxzGySK5XHWun-YfE376YsINlWNbBOorSgOnxog>
-    <xmx:-005aghlmGOGEXyGBBkknguI8K-94vtABrLDI8zJ2RP9FB0q7_DLHZKt>
-Feedback-ID: ib53e4b78:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 22 Jun 2026 11:00:10 -0400 (EDT)
-Date: Mon, 22 Jun 2026 10:00:07 -0500
-From: Ian Bridges <icb@fastmail.org>
-To: Paul Moore <paul@paul-moore.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: linux-hardening@vger.kernel.org
-Subject: [PATCH] selinux: replace strlcat() with seq_buf in
- selinux_ima_collect_state()
-Message-ID: <ajlN94VO7BYNUTAy@dev>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dSmux1Op"
+Received: by mail-vs1-f49.google.com with SMTP id ada2fe7eead31-728fa2ce6f9so1423934137.1
+        for <selinux@vger.kernel.org>; Mon, 22 Jun 2026 08:33:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782142421; x=1782747221; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Lvf3ucdqAGWGiFv56n+bbdirRxQ7gxn7ErVF7nu+92I=;
+        b=dSmux1OpSbcOrzuRQ57vQL666t6wkpjuHTm2QpkVc+BNgd8dDhaVUqFiG34E1dx5a+
+         89wcls1ZTtda65AtLpCrZ3TzJ1wrWuhVhSWQjbXpgYcy2JQdXDAc6kmuxUOV7ONyoplx
+         oj6yHIxWOz9ohR6gUdaS+E8kkVTCWHUGDZNkI7MXAjV+1ViAeeVVz0124KZL1GFprxHP
+         +EDH2ds2VwYLCSLsl/cunkJE6Up6DKV0roGRnkHDD917MN9JXYwVNdJhpSdueaFB5Bvo
+         HFtBAlYvGcWfD14drHDm4n0kwDChqdznnGmFe86UUfRub145T468BjT0nygY2dDNVQsK
+         3oCQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782142421; x=1782747221;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Lvf3ucdqAGWGiFv56n+bbdirRxQ7gxn7ErVF7nu+92I=;
+        b=NCa4UFqtPEk7fRjg1Bd2IHYgNBRyuRnOzbXBpodwselpYbk54asChXfcjtcStVq9p5
+         dKDoipfRaivAvB8evaMikSb3dtS7RLnqLC0jcSzwXdnyFo4DdPbbPtEt/tGnf6X4XQkA
+         VXgYgekIbVKRbQLMYE7zVN9xl+ak6bN3BPef8+s57WJdgSRU8bcJR7uQeQcKWGn/CNYr
+         pZ4SpxAs1FEIaDozDmTuqrnNOOAn9Q6ujM+pQQRVAGCcVW29l0fEQ6jT7iYQqp/l8nVf
+         5KgMFhd47VXp4Qm/i04QsCDryPC7TdBr8QzzTgp55wl+ve1dr8CAhLIIjs5ibmlQUx93
+         rO7w==
+X-Gm-Message-State: AOJu0YzXz9JWIV0m3KFityP1/e1dadrRnxnooq50d7KjjxWkamQnw6h6
+	1m9SmjmSvhgMdfAio0PI4irKnzNpwF4Wp2cDeawdB8r2igL7G61eonXvlagXbw==
+X-Gm-Gg: AfdE7clpLaIvuIbsYhjQ9gvGWd9pBYtBHZ5BpOIxAaka3ba9Nyea162A9pDzg9gElnk
+	CqsY/Ru/Gv8t1kMhD73KLkigJ+FiBaL5cZiFziN9t1xfAfqaCdeP625fl2FBzorfivKSrmFSJvJ
+	fnugVEmdBMHc1qj4nFF5uEbqYhRQRdE09POG8Fu7VWw5bnVpBQERqysVSBmKXNaH+QA3MOcfe1l
+	DsudgvV0v9OJqPXmdnjb2eM17ng24i2vIBhtK/01dA5gzyQ7bjXZoAqWgGOLKHUTvje96Ma9DOX
+	vni4MiQEHgaxz+78JKdXkWqhwqcQlCNdUZwsp/lFrmGtJe7oP+5T0Bg/LA4rAQiAcD8ux5JF0ai
+	Qe+sGKhuy9kiE9nqSKbH2+Rr83Nxu/oWpryKmEu1RnccZYI+6lLlwwAjIqiou/Abg9XPLCCgZ58
+	aCE5SEp1MaQfRiLtHbrgu249alE3KVfuy9Vaz76XZvWexlIIM/+zcKeEAF38pPjG8SN32ZBAHqF
+	YgkHjbB3jY+g5/5
+X-Received: by 2002:a05:6102:5110:b0:650:9174:f3 with SMTP id ada2fe7eead31-72b65396399mr5606865137.12.1782142420561;
+        Mon, 22 Jun 2026 08:33:40 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-925fd3923edsm2964785a.8.2026.06.22.08.33.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 22 Jun 2026 08:33:40 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	netliomax25-code <netliomax25@gmail.com>
+Subject: [PATCH v2 1/2] libsepol: bound type values in type_set_expand negset loop
+Date: Mon, 22 Jun 2026 11:33:24 -0400
+Message-ID: <20260622153325.17783-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-In preparation for removing the deprecated strlcat() API[1], replace the
-strscpy()/strlcat() chain in selinux_ima_collect_state() with a struct
-seq_buf, which tracks the write position and remaining space internally.
+From: netliomax25-code <netliomax25@gmail.com>
 
-The seven open-coded WARN_ON(rc >= buf_len) truncation checks become a
-single seq_buf_has_overflowed() check after the string is built. The
-kzalloc() and its exact-size computation are unchanged, so the
-measurement string passed to IMA is unchanged.
+type_set_expand() iterates set->negset and dereferences
+p->type_val_to_struct[i] for each set bit without checking i against
+p->p_types.nprim. type_val_to_struct is allocated with nprim entries, and
+the sibling loop over set->types already guards the index with that same
+nprim check. For a base or module policy, role_read() fills role->types
+(including negset) from the file via type_set_read(), and
+policydb_index_others() expands it through policydb_role_cache() and
+type_set_expand() during policydb_read(), before policydb_validate()
+runs. A policy whose role negset has a bit at or above nprim then causes
+an out-of-bounds read of type_val_to_struct. Apply the same bound to the
+negset loop. The single fix also covers the other callers, expand_rule()
+and expand_convert_type_set().
 
-Link: https://github.com/KSPP/linux/issues/370 [1]
-Signed-off-by: Ian Bridges <icb@fastmail.org>
+Fixes: https://github.com/SELinuxProject/selinux/pull/532
+Signed-off-by: Kartik Kenchi <netliomax25@gmail.com>
 ---
- security/selinux/ima.c | 35 ++++++++++++++---------------------
- 1 file changed, 14 insertions(+), 21 deletions(-)
+ libsepol/src/expand.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/security/selinux/ima.c b/security/selinux/ima.c
-index aa34da9b0aeb..3d81093d16aa 100644
---- a/security/selinux/ima.c
-+++ b/security/selinux/ima.c
-@@ -9,6 +9,7 @@
-  */
- #include <linux/vmalloc.h>
- #include <linux/ima.h>
-+#include <linux/seq_buf.h>
- #include "security.h"
- #include "ima.h"
- 
-@@ -21,8 +22,9 @@
- static char *selinux_ima_collect_state(void)
- {
- 	const char *on = "=1;", *off = "=0;";
-+	struct seq_buf s;
- 	char *buf;
--	int buf_len, len, i, rc;
-+	int buf_len, len, i;
- 
- 	buf_len = strlen("initialized=0;enforcing=0;checkreqprot=0;") + 1;
- 
-@@ -34,33 +36,24 @@ static char *selinux_ima_collect_state(void)
- 	if (!buf)
- 		return NULL;
- 
--	rc = strscpy(buf, "initialized", buf_len);
--	WARN_ON(rc < 0);
-+	seq_buf_init(&s, buf, buf_len);
- 
--	rc = strlcat(buf, selinux_initialized() ? on : off, buf_len);
--	WARN_ON(rc >= buf_len);
-+	seq_buf_puts(&s, "initialized");
-+	seq_buf_puts(&s, selinux_initialized() ? on : off);
- 
--	rc = strlcat(buf, "enforcing", buf_len);
--	WARN_ON(rc >= buf_len);
-+	seq_buf_puts(&s, "enforcing");
-+	seq_buf_puts(&s, enforcing_enabled() ? on : off);
- 
--	rc = strlcat(buf, enforcing_enabled() ? on : off, buf_len);
--	WARN_ON(rc >= buf_len);
--
--	rc = strlcat(buf, "checkreqprot", buf_len);
--	WARN_ON(rc >= buf_len);
--
--	rc = strlcat(buf, checkreqprot_get() ? on : off, buf_len);
--	WARN_ON(rc >= buf_len);
-+	seq_buf_puts(&s, "checkreqprot");
-+	seq_buf_puts(&s, checkreqprot_get() ? on : off);
- 
- 	for (i = 0; i < __POLICYDB_CAP_MAX; i++) {
--		rc = strlcat(buf, selinux_policycap_names[i], buf_len);
--		WARN_ON(rc >= buf_len);
--
--		rc = strlcat(buf, selinux_state.policycap[i] ? on : off,
--			buf_len);
--		WARN_ON(rc >= buf_len);
-+		seq_buf_puts(&s, selinux_policycap_names[i]);
-+		seq_buf_puts(&s, selinux_state.policycap[i] ? on : off);
- 	}
- 
-+	WARN_ON(seq_buf_has_overflowed(&s));
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index 0bd61c82..8d7fe519 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -2783,6 +2783,13 @@ int type_set_expand(type_set_t *set, ebitmap_t *t, policydb_t *p,
+ 	/* Now do the same thing for negset */
+ 	ebitmap_init(&neg_types);
+ 	ebitmap_for_each_positive_bit(&set->negset, tnode, i) {
++		/*
++		 * invalid policies might have more types set in the ebitmap than
++		 * what's available in the type_val_to_struct mapping
++		 */
++		if (i >= p->p_types.nprim)
++			goto err_neg;
 +
- 	return buf;
- }
- 
+ 		if (p->type_val_to_struct[i] &&
+ 		    p->type_val_to_struct[i]->flavor == TYPE_ATTRIB) {
+ 			if (ebitmap_union(&neg_types,
 -- 
-2.47.3
+2.54.0
 
