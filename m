@@ -1,92 +1,93 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 559A9318EC5
-	for <selinux@vger.kernel.org>; Tue, 23 Jun 2026 16:42:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07391318EC1
+	for <selinux@vger.kernel.org>; Tue, 23 Jun 2026 16:43:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.171
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782232929; cv=pass; b=nILwnaUiqxNpKQICSJUImabxvZor3skRzhHFTduzgPeN6z2OzDtCewLZrI1Tij9YVPUzGoruQrul/Yre2brCicsaNI1uFGa41ECHaYpb7Uoi7+D3TPdSo8H0l3waQZV0KpC+dj9hLRI+zIQTubff+snnyG0KiKFMw5O9mdSn8WI=
+	t=1782232989; cv=pass; b=BxpFxVckVIxGk3VAfidlrvnPOLclVoDDyRFfXJ99WAEUt5ipddIFWkRGZ6AFGImK3q4UJWNGRvvwhsTG/IeGeMq9LX2DCqA7gPETUXUGZR8vqbjvIWox8l2NK4nzouh5azC5sjGmpZXlx77n1M8FuE3bmYGBB3yjlV8LOmJlHic=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782232929; c=relaxed/simple;
-	bh=N3WFo5EYPGhGZqEo888t8X08yG0Miyzj7dAFML+oS4w=;
+	s=arc-20240116; t=1782232989; c=relaxed/simple;
+	bh=47hM7uzt++Lgp61VwzMuAudPDyRzrMDdsM1D3zCdWpI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=e0f7LkEtJueKAFxGkUEqc2zigiu5fCVUEJ75OacX4DWDhEKYoHI0exlpa1FMHrlHS0hawSwMvdFf/nT0lP8SGxmIxms8lzBfQbufz+0Cns4uF1F96aqrDrA4Z9KKvp2gtuvZDRaQRbypnim1pxUGSd1ZF8LkEl0eMmHiZkh5ufc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jEAULHlO; arc=pass smtp.client-ip=209.85.216.48
+	 To:Cc:Content-Type; b=F2fhBvc6uJwcVbUGu4JIRFAbtvpBJx+SxTBedRUgibdzWOqAhhJO0tzZeeUZnwx4HCshjPvu/ZL6cX0+/6jzvLaeMjfy3zgk6FreGY483lrYvsDu87JycW7QL6FL4dKPuAK8rC3aF7zzfD6U8ay0bFLNH0UrnmasObt6E7fQ1Lo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ErjP2K6Q; arc=pass smtp.client-ip=209.85.215.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jEAULHlO"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-37cab825ec9so120596a91.1
-        for <selinux@vger.kernel.org>; Tue, 23 Jun 2026 09:42:08 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782232927; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ErjP2K6Q"
+Received: by mail-pg1-f171.google.com with SMTP id 41be03b00d2f7-c85a2c012e5so7250a12.1
+        for <selinux@vger.kernel.org>; Tue, 23 Jun 2026 09:43:07 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782232987; cv=none;
         d=google.com; s=arc-20240605;
-        b=HZcSnLyFcZ5UgbEIG1fWi6uQY/G60bruQqfG6g0fRuzItWQWlBfYwaFZX+G6K9B0k4
-         LCU9kcr6AaC80bxwazmB3OCr1WmbKL58yK5vOzS8+h1Smw9UQWV7APYTGUzuz9ygNCxT
-         +fW8eIUxSXecJEXa+7Fjzrin9t5T0NpDJqGXQtc1XbJxPWroqQq9Mw0uIKTc+vS9tSu4
-         gqzQ7Vtm7o5lQfXlBuryY2zi1faKChCuRJ3O3iHQ1hmam2dyOD+bmc9IfBJie16VGDGp
-         Q0BLBscwLoHWD6YvY1WTlxoPmOFerQzc1bjxJzNL3HJsidm9MACegh9tnl4lS/dUiF/L
-         c8mw==
+        b=NEEuAD1VKl6JAr4zccNxUgojWIr1rtYOhQ3ELMhiEeYuLURI3iIJy2sTFqUkGOwwez
+         Zvep5UahGM8WeriLk2EgjOBQoADJ+rbpdPqP/tBxR9jl7r0n0IhX4+xshmyq2GIL6ZL2
+         syx1OZIJBRnHAICIHUBRWmmmzq/K3bUbXc3AyC70Acp0w/HJxihhCj/ab5Yd7vdHUn5o
+         +LDEIqq9iu4zD9rNRDLoqSQjaepBtlRoeDw7x8VitDE0aTBHY9/ZYR0BzH4LKZC/mX0r
+         gydSRtPH+L7oMe2BGkCr7kqkT0nmS/zMEfpMdKdhPRHXntuA/IcRYZ/cH/3++wVBcdtk
+         5Cdw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=5I3Pt7e+Pllx186ZF00ZJ3ytHMBjm/ydfu5s0CCbPeo=;
+        bh=nWI3WCgP9z38EoOLJvdm+RE8mtv1BWxV7rxTy8dtFsg=;
         fh=5BxwEK/iVIzhs7kNCBs0/zEkT4yGKFLka6Po5B0u4CY=;
-        b=Z4OhqFiGrJJ/QVLIE6aK1KT0eJ6diafP5+EH9N1/N/Vrbma72mTk09T6VYXn35b+ZO
-         Tn1DodEt7o+rlWv+BMSM8ubK5n552lSH6BoEefUncWJz52gHHd4Sud8ZWQhnn1BiRBKj
-         r5gbu5jkdmY8785xp/5oFOGkNwJxEmIRetr3rEQmg7QdjSKeyanf/sptN47yd6WCXLz7
-         eARERwH8MxS+naNia7WmkPCU45a76Xm6F6s8b+vH2izMaHThvqLVi7XlUG5fk2JRf8Eb
-         V0MGgz6mkeREINO6nmMiY2RDaIYskunDEtuoY2End4mWbHJvfaPWqInRSBjxMhJ128E0
-         NHfw==;
+        b=WVv1xK/b20RpXR9ddfytXxZfMUogyCzcts2welMw+irr0oUlv7t3ywBSf+WbBRZAK6
+         neBg89u00YFUQzCNDJb8xELHfInsfUbltpYr3jrWvFjOOxR4VqNZkimYoXJrCAOpy22U
+         u9hyuAXMcorgeMWMgWhoRx7XCfhewJo5bWV1K2Sf/dqnEmjw6fEgiXfBJ1xXuedclImU
+         GQ4DKiygFz2KDotRAv29x0wfodC23cWebGov803eUKhemThGBro+fNuKXhWPutYLMt6v
+         iUSRU9f4dL3ty8uSGa4VPZANAZDWcPbCTUBP27EAnA/YBnyDFAXkLCPNa+54692XG/8c
+         ocxw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782232927; x=1782837727; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1782232987; x=1782837787; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=5I3Pt7e+Pllx186ZF00ZJ3ytHMBjm/ydfu5s0CCbPeo=;
-        b=jEAULHlOBnXbRGCnpNxTGB2XJFvCnLLQj2TBKdfpg5FjpYIhNS+PbwaqchFRIhDF1T
-         MKLDaKLOfy1nJI69txnj/ndmoaGYCgGREjaeUsY0Kli2OUWZl6Zelekbd9JW9WydvWRZ
-         jUeKXY2Yy4ZfWSZa/mmHuq+HfJTxbJsbA5MB5vept8WWRS/sZU/nj669tMzopOmNLlmD
-         bm1R2larxOs4eRRZUFhk4hT27iTjBMql10h4g8uXnHAymAWlGiy4u6IWf7zhCGEaMfQR
-         2qt/LuipvOyZiWuMpFRCoXGyHjjo3RP0PRf54Vc1jstlNWM6emD5nvlr/B7pUVpjo+Z8
-         ZqWg==
+        bh=nWI3WCgP9z38EoOLJvdm+RE8mtv1BWxV7rxTy8dtFsg=;
+        b=ErjP2K6QrapcIzAnbIfYZVYyp63sHwch1UiZoBwpUi9+JIjLRt7207UhFH/iUWhDFa
+         TOcgxUcSpLoBDb9zsp+79r06zZ7ez9TYbLjCaXJN3nsdvWPSNHWLvUDLhekutYBPUNso
+         y9wJo0o2gYD/Tt0MHxF8O20EK9kKZDATVEDcaPISjTu1YWliBxMa34CXJQl8T0wlUPIk
+         RG9u65FzrggahO7odKxPm2JNKB4Ix0VHtZXUBECra+enJw7kdUBhUgfzd8jS4j4Vz0hQ
+         yLWU+BtPfgSIh5/49sDeckp8PMDMPfSpoXNMM33pv8sbj14SDyGpJWGU78Fn48eztBPF
+         rn0Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782232927; x=1782837727;
+        d=1e100.net; s=20251104; t=1782232987; x=1782837787;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=5I3Pt7e+Pllx186ZF00ZJ3ytHMBjm/ydfu5s0CCbPeo=;
-        b=ddhf3IzoJ3Qdpx8ayaCjE/UAj3Ug43XcR+rGhTs/maNb9z0x3ILcMuqjY24XfupKGf
-         kc8aATWZflFfdRmxun5robEZcDivAxGOxiXRHTDg4DKOU599eGXwhT8bhhvVzmwhcHMp
-         1IMYDcUs45E2EGJgqdVjQcFFZuUkKLNNX7okajTW2JlMn5BAgjmVBXi/+sySRWlIdY9r
-         g8iOOHKNm8Z9YFrB3SqumwXkuPzZE8/eCGG7GYcf2not3n2mIo04e3xihMGvQqJrC2qB
-         KqzTqNwk7qTA+VhofvSOFhQMIwBrXkt6rLUU47+cAl7c7HrZaXjindm9jXHItx+6/luL
-         50Gw==
-X-Gm-Message-State: AOJu0YwwWXiEaLkSmPzMHbHmfBVVjM5NBd7wMzTFh0QpoEiVrOJ8J2Lp
-	bzH1OqZkeiPojdtR1xbbJUPUcXjWqhNrHO7cx+lcE1qqmgBt0EYAE0JcNA8X843oaZ5T7cVr1vw
-	B4sVEUZgCaN6NRj4rKUevGmSZgvp7qzU=
-X-Gm-Gg: AfdE7ckW1IsvA/Ciwt9LE0XBvUDbL9CVpH3j8SOut0vFOeShDTGHhfql5rm8xz05rTy
-	vJ0bl5S9w1nHTnhWOcTFKXH4FbaLmxfweeAh7TH6gNuXW0J2lURh7/QQxMpKdOkFZz9jpK6SS5I
-	sCaPslw9iDoGoYd5WEtUc+f6g0RPjH/grdxy4J0E4aBjh6r2M8FpdzuWxmBYZm9gNZ+S9KgYxLX
-	fdTKzafWY/KtkBFar6ZwyiDSN2T/TBAZ/DzY9monOtCuTv154HPcAausHiAe0pLxXLO6p7y4Lv4
-	asSzjHE=
-X-Received: by 2002:a17:90b:2d0c:b0:369:932a:2b6d with SMTP id
- 98e67ed59e1d1-37dd16de3acmr3835180a91.6.1782232927400; Tue, 23 Jun 2026
- 09:42:07 -0700 (PDT)
+        bh=nWI3WCgP9z38EoOLJvdm+RE8mtv1BWxV7rxTy8dtFsg=;
+        b=HCfgUIr32y8Gb3oz86dglwh6V5syUjLeBGDjMdbFywrO0Kthpb4B0VUGQtSvrp3Fy5
+         6LdZVtPFeotWlJO+Uc80EgtPUKYIRu0eTd9Iow4Yj+rRlhQX3KeXndYSUdvDaYJS1c37
+         yBJx5mFjLyjzStArvRNsqVqgT97aYWaFhFnSsmd7jvv7pXwmjIqtpROhu6QE6yxkxje2
+         x2eEvZ8K9aBR/9Rc111VRYAqkGeyeZ3b9403jh2OHAs1zDJlmn2wJa630S4hKIHWaLpt
+         nJT7nk5yiq8WtCafoif1PohvpU/YcaHOnsswhAQCugpJ97Dt5wuwopCnM+tsTeC1M2Hl
+         tjQg==
+X-Gm-Message-State: AOJu0YxPxj6u2Td8UkKQ5fXlrjKeotT9rAmMzJhpvxPvxtqd3pvue0Ro
+	Mb61KlDBTkUeJJFIZYn0jOIn+9TZ1e72zGf8hqsK2KwK2gziH2WV5xxpenTQlZDDyFw+3REI8ki
+	zKuHuRXNHbSHsT7PCdWqwKMX+ZlNa3mA=
+X-Gm-Gg: AfdE7ckJrMbR3HqrKBWRlZYpWR22yxbCQBtxzrG081WFmRylLxIN6HHOEbBTRIzxFxT
+	YKRY3uUE6XXBE1DpEUXmSa0+trX1QCZnk9t6jVjltg9DGcUTsaOH1JZNE204XcsOwSmfXO7T+Lw
+	jied4VLJLCF1NExtqYr7Lr/mEJtKRvo00q3Dhr4+x5wn8m2l9OaryXCe39kwkiy6iR5am3pAkij
+	R8dUainTXnFovIsoTXftddMzsfr/yxNYHjEKsHfq4pNOp2KFWJV5LjtSkTuacQCm9XWMst8qYfW
+	mXJUZtw=
+X-Received: by 2002:a05:6a20:c98b:b0:3b2:b1f8:c745 with SMTP id
+ adf61e73a8af0-3bc5225ec7emr19616246637.20.1782232987080; Tue, 23 Jun 2026
+ 09:43:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260623141023.114173-1-cgoettsche@seltendoof.de> <20260623141023.114173-2-cgoettsche@seltendoof.de>
-In-Reply-To: <20260623141023.114173-2-cgoettsche@seltendoof.de>
+References: <20260623141023.114173-1-cgoettsche@seltendoof.de> <20260623141023.114173-3-cgoettsche@seltendoof.de>
+In-Reply-To: <20260623141023.114173-3-cgoettsche@seltendoof.de>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 23 Jun 2026 12:41:56 -0400
-X-Gm-Features: AVVi8CdaLD2XVvv1MTiOmVIu8Cm4NEK-seTHWVwrCuJPBQ98GwWVlUd9lMjM6_E
-Message-ID: <CAEjxPJ7=Ak+qGj0V3wOsPW=1hSm9ANfiX-HHVMtgbeBbB5mJow@mail.gmail.com>
-Subject: Re: [PATCH 3/5] newrole: wait only for the forked shell
+Date: Tue, 23 Jun 2026 12:42:54 -0400
+X-Gm-Features: AVVi8Cer7Rti62SCqa8ZSAvZZeBjO4bjSaDNxDKwbvNXB9w_9cC06pqiu2Hk2T0
+Message-ID: <CAEjxPJ6B0nrBLWFT2mOxt5QRiHrbdLTdKnHOYiX=xDAvRiWt4w@mail.gmail.com>
+Subject: Re: [PATCH 4/5] newrole: ensure the standard file descriptors are
+ open on startup
 To: cgzones@googlemail.com
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -97,9 +98,10 @@ On Tue, Jun 23, 2026 at 10:11=E2=80=AFAM Christian G=C3=B6ttsche
 >
 > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Reap the known child PID instead of any child, so a process spawned by a
-> PAM module cannot be mistaken for the shell and cause early teardown of
-> the tty and session. Also report signal-killed shells as 128+signum.
+> If the caller invokes newrole with fd 0, 1 or 2 closed, a descriptor
+> newrole subsequently opens (e.g. the tty) could be assigned one of these
+> numbers and later be clobbered by stdio.  Attach /dev/null to any closed
+> standard descriptor before doing anything else.
 >
 > Assisted-by: Claude:claude-4.8-opus
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
@@ -107,33 +109,61 @@ On Tue, Jun 23, 2026 at 10:11=E2=80=AFAM Christian G=C3=B6ttsche
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 > ---
->  policycoreutils/newrole/newrole.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+>  policycoreutils/newrole/newrole.c | 27 +++++++++++++++++++++++++++
+>  1 file changed, 27 insertions(+)
 >
 > diff --git a/policycoreutils/newrole/newrole.c b/policycoreutils/newrole/=
 newrole.c
-> index ef194efb..990ebc18 100644
+> index 990ebc18..09b10b35 100644
 > --- a/policycoreutils/newrole/newrole.c
 > +++ b/policycoreutils/newrole/newrole.c
-> @@ -1232,12 +1232,14 @@ int main(int argc, char *argv[])
->                 int status =3D 0;
+> @@ -1049,6 +1049,28 @@ static int set_signal_handles(void)
+>         return 0;
+>  }
 >
->                 do {
-> -                       pid =3D wait(&status);
-> +                       pid =3D waitpid(childPid, &status, 0);
->                 } while (pid < 0 && errno =3D=3D EINTR);
->
->                 /* Preserve child exit status, unless there is another er=
-ror. */
->                 if (WIFEXITED(status))
->                         exit_code =3D WEXITSTATUS(status);
-> +               else if (WIFSIGNALED(status))
-> +                       exit_code =3D 128 + WTERMSIG(status);
->
->                 if (restore_tty_label(fd, ttyn, tty_context, new_tty_cont=
-ext)) {
->                         fprintf(stderr, _("Unable to restore tty label...=
-\n"));
+> +/**
+> + * Ensure the standard file descriptors (stdin, stdout, stderr) are open=
+.
+> + * If the caller closed any of them, attach /dev/null so that a descript=
+or
+> + * newrole opens later cannot be silently assigned fd 0, 1 or 2 and then=
+ be
+> + * clobbered (or have its content disclosed) by stdio operations.
+> + *
+> + * Returns zero on success, non-zero otherwise.
+> + */
+> +static int sanitize_std_fds(void)
+> +{
+> +       int fd;
+> +
+> +       for (fd =3D STDIN_FILENO; fd <=3D STDERR_FILENO; fd++) {
+> +               if (fcntl(fd, F_GETFD) !=3D -1 || errno !=3D EBADF)
+> +                       continue;
+> +               if (open("/dev/null", O_RDWR) !=3D fd)
+> +                       return -1;
+> +       }
+> +
+> +       return 0;
+> +}
+> +
+>  /***********************************************************************=
+*
+>   *
+>   * All code used for both PAM and shadow passwd goes in this section.
+> @@ -1090,6 +1112,11 @@ int main(int argc, char *argv[])
+>          * if it makes sense to continue to run newrole, and setting up
+>          * a scrubbed environment.
+>          */
+> +       if (sanitize_std_fds()) {
+> +               fprintf(stderr,
+> +                       _("Failed to sanitize standard file descriptors\n=
+"));
+> +               return -1;
+> +       }
+>         if (drop_capabilities(FALSE)) {
+>                 perror(_("Sorry, newrole failed to drop capabilities\n"))=
+;
+>                 return -1;
 > --
 > 2.53.0
 >
