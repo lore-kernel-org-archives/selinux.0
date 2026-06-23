@@ -1,133 +1,223 @@
-Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
+Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E00BB41C72
-	for <selinux@vger.kernel.org>; Tue, 23 Jun 2026 12:17:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A73573D566E
+	for <selinux@vger.kernel.org>; Tue, 23 Jun 2026 12:22:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.182
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782217060; cv=pass; b=CAmMUsiGzqxaCbHRthcVcBMvhU2IXB1sIXq/LCjaie9TTroJbCcKlB/ODc3KDdtJ73orz3UAeFWU0Hxf5MPSoKhDVBsU6G2xXPQI+HJ1rRRkCkoBeTNzVdbQWsQi7E0I90wWPAE5CHgdzPMK/pOfrIycGe70g6VIkjUB+SZhYEY=
+	t=1782217322; cv=pass; b=OZuy6CXn4mScrmHaD532RHcuMG4i7vmAFZsEOKFXptUeVQiGG6Rg6roSFRCUUit6rHYly/lYugOfHBF+bR+gIqpOOEIF3f+R+7wJQlSBHkHSRUynI2Ze8M9DkhwteGGHKd6L2mqly1MPoDdu7+Fo/CIoDtPdfCOVQMzIZOce8nQ=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782217060; c=relaxed/simple;
-	bh=PumMU2UhtFb+7mvIK6cPFQdixXX+kGJnPEKQIFziu1o=;
+	s=arc-20240116; t=1782217322; c=relaxed/simple;
+	bh=lrbCLEPGJTNUtD3BgZCajTRgrXSGt2/8tpvlmaF5vNo=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nt0T03w3OAz+eVbKHyiXBH0Mw65cvfaxUbmSo4cksYx9UMgZgxqn1FleCMpMrCMIvSqi4i2QeaWzAEk8XydQmVYhG2RsDtsnz5Ty1ZiU+2pPMi8JkOcUoF2lZVkIYCou9JMhQ3zw2Kkzw9HAT80WIOw276lAQz0lpR9D4iQRlqE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IipBQDXb; arc=pass smtp.client-ip=209.85.215.181
+	 To:Cc:Content-Type; b=R53MlAKgZAMSf0P4dNvInfPP0dyT/RFYFnzTLOS7vIWAcX3RGIEcsz5/AEJVft4Py6TTENAoUiiNx1K8ZEuczZ4PDANHAVjo9RrLRkB7Zw9eakiYRoQWrpsDgclAvQwmHZWiyej3D8K7J31KjTQHXE6AJ+ZZrkluTISusoQ9PkY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ExcaMXp4; arc=pass smtp.client-ip=209.85.215.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IipBQDXb"
-Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-c85d4b4245aso3901761a12.1
-        for <selinux@vger.kernel.org>; Tue, 23 Jun 2026 05:17:38 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782217058; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ExcaMXp4"
+Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-c8fee9f63d5so398120a12.0
+        for <selinux@vger.kernel.org>; Tue, 23 Jun 2026 05:22:00 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782217320; cv=none;
         d=google.com; s=arc-20240605;
-        b=W3jYjL244N8Xdsvp4BWfilsXMWmlM6m8uaAok2mCt98+lQOWK6vMwH1D+2zEHcfapO
-         GvzoHZyirJW4Yo4d52gUeciOiXhRAfCX3MAIYa9RWmBJkDm6j3dVvNIJq5S6TUOdiHv/
-         F1wEu3xrMnAY97mqLRztmvCiAAzvF5b4qX5Fldla/jVx2gmMMEzuD8biC9YPQnAN4kNp
-         8mL6qxigD6PX7pyk9872NRMjmRrKFJVPkgsYvVKhCHmG6RzR8YsiSquk6de5p7/THNZ8
-         v2tyNtMIGibRirp4Kf61X88F2E3AK3IOovwHVr+LJNg9FEtNO7CIF2z5Hp0OfMZMzKTu
-         edUA==
+        b=UHX/Fbgc8pjUC7sa26ykigbk+yS94kf/M6Nn0i8eBdnPnOlRrWd/fUEgpVAOXJ6AKR
+         GYpoh3WYnylnPg+p/OVXgiVzx2aDwiQlGjNpJA+5Yn9h0TkaYz7LDXzLnMIZeAYw2UH5
+         cUrGSHZr20wyDWfKsgG77qW7btqtdRxQOMc2oEJnpDG133brHA26lvQLUDhfQe+CB+4O
+         GOLYKRfyu//Kx1DmFYY8K1FqfMASaWZP6WEcDe9wM2Ql4zjVaf/jcCP0ilfrT+QYEoPj
+         dpcn+whWwQjGNJwH7XpZROI6tQxxpctt+JL6iMJelnEm1yfgvwyJ9EAYAKRQy2Ohh81/
+         3/Tw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=bgQX7lMCoRnVrDIF+rmL/qD3x2korosxMf3Wy3gQ1DU=;
-        fh=RcJrr7O3svp8K5gZfgCjK7Xv0tA8i0VIpUekoWsmIc8=;
-        b=f960ZsAgvFHVtgJCvdWwoGNQZpPMMES326FDG0kWNesj9/KGAvRJS7b8T1ezU5qXA6
-         LJZa+Xuz8GGaJfOuEXk1ttPuZ08x1FaWBUoLwuW2aj1Mk3IO9JmXh8XOL8AIleR9grML
-         Tmf4WGJ6oMAdLgQRETyLRZ8zNPf228OFDD6WtWdd6VnXks+R611tUI8AIa2937lSP9r0
-         rw91VXWbvoiREGKRS1A3oebXggyeHMpuRe/axwvNs1WV8GROvokAbtWkXnvConDzFpPf
-         mr/6TePuosL5DN2SmvfzeStn9DuoIPV75yS8GuXQ+UZSAP+3z7yF6c/xty8Ijad4P6HD
-         vojw==;
+        bh=uuFR3/6LFoFU0zSu0VzULNjfNKPzwppMVDxzsvPNJ6k=;
+        fh=Wgz43/NRhP/DUHYDoWgO3bp+zaC8B6jayPRgZRKoWaM=;
+        b=lufB/2WKGh0G7yy7q/0uySYl2zD2m+glehjc2Uvs880bXS/JWfuMLr27VYntONHyss
+         T8JktdbjEWCuW2ttWZVGTE/EJor2DULorZVxWnH6eo6Fr9peZ/AmXVo5JQVzO7D+xsn9
+         q/QutQxmmarJKHwUbwxWmSBBu+z+Wy4G85FBsDckw9VhHqDhtk5oKCUMFqHDhBNgR4Oh
+         H1QK8ENXBM7rhSCPdXwlCqz95UjtCrdQBT53dZL8oBtD617lFw0r1+DIAytR6kPxcj0N
+         GDDyNdJUvCP6VFKWm3ahGZp9NZgOJj4njsKn6mCsvHeAqg9Ii4YhPb5SNtsYxbGLI6eD
+         w0/w==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782217058; x=1782821858; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1782217320; x=1782822120; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=bgQX7lMCoRnVrDIF+rmL/qD3x2korosxMf3Wy3gQ1DU=;
-        b=IipBQDXbtO9xqpeGVT1ZQ0mrJgywUNxtRsa4m1ze6bljB5JXlSeAwSQp42a4u3Dgjn
-         H4P5+A3S146w5/wGUirosdMO++Z24ViKS/++1fIthcoxLMt6kTi+HfCh24qLObEfR3mS
-         zDBdvhs82oT+2tvJAt3lVPJurxOjUkYWbOO8PiLYvZbCwXymnKv7RarbKS5DTlf4kB5Y
-         aApe/QVU2VcdG8bcV6vo+IbedzTkkNUH7SRkIkBzqHHZuRf3coIex/T8YslK41yiVS57
-         dMdCn6o8KAMON/vUevppdH39xHIoytqezdSji4h2VnPNOUG5aKdDaY7jMa0q9q7ji0K4
-         T0AQ==
+        bh=uuFR3/6LFoFU0zSu0VzULNjfNKPzwppMVDxzsvPNJ6k=;
+        b=ExcaMXp4+0zSEUEtweofoo6ikED9yqzV80OLY11IneyxSJf5EW48TKytDO8AMcVyrO
+         o/MKDKi5XEdX4pTyqvQhaBcJQhuV9pv1jOcAV5gCe0khVgcGAOaJXK1f6TioiRQcEAg6
+         f016BbvXBqYSEEXfFqjKgl5WevWRicQ5eDIBsBqn85iIn2G2lPZQfClHWoCwqjrofIfe
+         xTrWBlcvsHGq/0b9VoAXGlll363S/7/EstbT2XItEwWKUM2O73zs3jWrVeKlGRrGgRcG
+         yTu/2dAQzCEpIxR5CIkjCZxKXLpUKzSzW5NqiqgWmiM6viiJkKIscXC+Qd43uBzXQB5s
+         kwCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782217058; x=1782821858;
+        d=1e100.net; s=20251104; t=1782217320; x=1782822120;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=bgQX7lMCoRnVrDIF+rmL/qD3x2korosxMf3Wy3gQ1DU=;
-        b=ajMA5JZwa5CLuNbGqIGXp6YlC2IApfDuz2BZAJ+IdhugxbdkgpMqQLOoNL7aylQepQ
-         60xosXKPT8PnE3PpiFGfaHcRzCD3OskiOsWTa/nNy9OBxrrNJlPvyw7SSGjclkw1C9Zi
-         LwmfcWtKqi8Zq8YiTHoROt7klXYu241x34QbsByHzJ9rbnGJ0olWKte9OqZwaz0E8y5+
-         hLBnpX1UrCOu27LztiwnKeDY9Yt6ufaH4T0WqxC25rJh1wYUbqOmE2RzzRyqFSQnK6+o
-         7WSCnvpqCO/JbSrWk6DFfdIBGXt42rUxPV/NAtVIv6o+oy7Ywm9L25ry3kUBnd1MC9nb
-         JtbA==
-X-Gm-Message-State: AOJu0YzSWYgznYu1aHC9GGiYZZywQEoJVczObYjx824plvXCac2JseGG
-	tfEPU+T9GJ1e4TWxk3bX9UDmF7SNx/EpOqP/2qJXD3yOLVLRIzwNbeod6sduE7GtNLPnSW8hRpU
-	zheC+GSD1dP9FF/JAmBU47GVL+ZQh8+7+mA==
-X-Gm-Gg: AfdE7ckzU/MmW7A9YlEZzyyL0l+0T7W9yKDebpyH5QEfiWBZnR9zsKNhDoYIikzXzND
-	UYwW4zQX8ehw9bWg/GTUayXc3StaUNJbMZwxj6qdY0+b79IZUiiaO9rKZhqvX7tStmh0zPtDifn
-	IMl4c/dp2X2gPHHROPkc4hkUR2F273jJtcWZAM9CqP6+zs35dq+0vM/sfEpCIVzGL4M4banQpPH
-	Mc8yiQySj3H0YKx5iqXS8BqlKlgKt7Ikz/7Ns+x8t1wIZ1oZpJfX2Oa7a5zVZqPKnH/6saq
-X-Received: by 2002:a05:6a21:b92:b0:3b4:7b3d:179b with SMTP id
- adf61e73a8af0-3bd18f99b7fmr2973556637.12.1782217057803; Tue, 23 Jun 2026
- 05:17:37 -0700 (PDT)
+        bh=uuFR3/6LFoFU0zSu0VzULNjfNKPzwppMVDxzsvPNJ6k=;
+        b=OYbiSkjwyHIt0GvYoEks5DY0DZekOXha4ckus3RhUvkl2YKWXZFSYNtQwPhHPuebTv
+         UhpsLt5CzTpN+HUFqYV8ew4su//glygjw9iDQ8vBb6/tvISdoF8mr6mLTRRere4bjjuX
+         75mLT0l3RnG8MzkgIHfG9HCWtQZ0IJLmEqT+6kZ26uBz4GqxHXD1vgU+7f5/z2bLTMMK
+         8DcdKjydSD3oDOSChzB0LKAL9GuhKyA7dH4+iyLew9WaqvGwXVksiEjCLbVoll+qdntx
+         iOXVzYi2xDv6lW92hKM//VnChqHORhHx5F4g2oFgJY7RjpL/PYSin+HzxYJxpvfc7nD7
+         YlpA==
+X-Forwarded-Encrypted: i=1; AFNElJ/s4/6zXXBBX32b2vJxfly8ewXR9JSEW5t1JyDtO5v1ElO1Go/nQs5OZIBySVXgitrRuWlSKzlj@vger.kernel.org
+X-Gm-Message-State: AOJu0YypzQOLUYvw/C1fT7MeGtsc381WLc2Eq9dQ+UKV7ySuCnefXnu1
+	gLfaTyrAcEyJ60QOeeQo5a6eom9d1QhdyrRhkW46l5kwVmrBQ5jWSJIB7kwpwA+Yw+A9l6yIXyi
+	AwRI6AG2Yl+jAnoWumOJm+7IvANnwOk8=
+X-Gm-Gg: AfdE7ckA+FGM85EYGUAkO804odI3OXS9YwWAuBgf3gfbv78ASyesVcv4EdqNDl5xuMv
+	VwWdtxo8BBy/FsFmpq4Mc40hcn+nTiDa9+8xrA04GLuz1W7zBcl9h+P1PQqnS/XumnpWVlHuBo1
+	P52TAwVBmQdFs9ElmN81rNXvETdS1Q6+r37hRz+Z6fr2Kk9YS8Fl0Kvixy8umTBYISUwG+iNE1r
+	vheybSnO1cfZC1nUGXqqEvgx7hvP6+OdRXMbjjz0K/hYzWqtCyQBGB93f5aHxxJIB3O0gV1
+X-Received: by 2002:a05:6a20:3946:b0:3b4:6a31:6d0f with SMTP id
+ adf61e73a8af0-3bb34e72975mr20752819637.41.1782217319845; Tue, 23 Jun 2026
+ 05:21:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260622203912.80430-1-kalevi@kolttonen.fi>
-In-Reply-To: <20260622203912.80430-1-kalevi@kolttonen.fi>
+References: <20260618232149.1780219-1-tristmd@gmail.com> <20260622210330.3187099-1-tristmd@gmail.com>
+In-Reply-To: <20260622210330.3187099-1-tristmd@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 23 Jun 2026 08:17:25 -0400
-X-Gm-Features: AVVi8Cd8DdCkaLrn6594v8Rf1OdxOEI2QjqcwJmNwu1_vQ26TFQwOLZqPBVCHZo
-Message-ID: <CAEjxPJ6xiRqp4W7rii1GYwLLpyUZbxFUze-Zu24VQGOXXbZ7uQ@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: drop unnecessary goto and label from avc_alloc_node()
-To: Kalevi Kolttonen <kalevi@kolttonen.fi>
-Cc: selinux@vger.kernel.org
+Date: Tue, 23 Jun 2026 08:21:48 -0400
+X-Gm-Features: AVVi8CeIpvPNGZ0JTtt7DlppUyHKoB5i9DPzflCT466N-OeyDpTPwPP0r_SGGf0
+Message-ID: <CAEjxPJ5pFjTvS5n4DMqL=bjdCKoTfSSUKRhZcHuR+99XaoGKAA@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: avoid sk_socket dereference in selinux_sctp_bind_connect()
+To: Tristan Madani <tristmd@gmail.com>
+Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	Richard Haines <richard_c_haines@btinternet.com>, selinux@vger.kernel.org, 
+	stable@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	tristan@talencesecurity.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 22, 2026 at 4:40=E2=80=AFPM Kalevi Kolttonen <kalevi@kolttonen.=
-fi> wrote:
+On Mon, Jun 22, 2026 at 5:03=E2=80=AFPM Tristan Madani <tristmd@gmail.com> =
+wrote:
 >
-> Since avc_alloc_node() doesn't need to perform any cleanup on
-> its exit paths, there is no benefit to keeping the out
-> label and goto statement. Drop it.
+> From: Tristan Madani <tristan@talencesecurity.com>
 >
-> Signed-off-by: Kalevi Kolttonen <kalevi@kolttonen.fi>
-
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-
+> selinux_sctp_bind_connect() dereferences sk->sk_socket to pass a
+> struct socket * to selinux_socket_bind() and
+> selinux_socket_connect_helper().  However, when the hook is invoked
+> from the ASCONF softirq path (sctp_process_asconf), there is no file
+> reference guaranteeing that sk->sk_socket is non-NULL.  The setsockopt
+> callers (bindx, connectx, set_primary, sendmsg connect) hold a file
+> reference and are not affected.
+>
+> Both selinux_socket_bind() and selinux_socket_connect_helper()
+> immediately resolve sock->sk, never using the struct socket * for
+> anything else.  Refactor the inner logic into helpers that take a
+> struct sock * directly so that selinux_sctp_bind_connect() never needs
+> to touch sk->sk_socket at all.
+>
+> Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Fixes: d452930fd3b9 ("selinux: Add SCTP support")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Tristan Madani <tristan@talencesecurity.com>
 > ---
->  security/selinux/avc.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
+> Changes in v2:
+> - Refactor selinux_socket_bind() and selinux_socket_connect_helper()
+>   into sk-based inner helpers instead of adding a NULL check on
+>   sk->sk_socket (Stephen Smalley)
 >
-> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-> index 813e82bcfc27..a9401d6c2e5f 100644
-> --- a/security/selinux/avc.c
-> +++ b/security/selinux/avc.c
-> @@ -497,7 +497,7 @@ static struct avc_node *avc_alloc_node(void)
+>  security/selinux/hooks.c | 20 ++++++++++----------
+>  1 file changed, 10 insertions(+), 10 deletions(-)
 >
->         node =3D kmem_cache_zalloc(avc_node_cachep, GFP_NOWAIT);
->         if (!node)
-> -               goto out;
-> +               return NULL;
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 1a713d96206f..aa58a17da219 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -4994,9 +4994,8 @@ static int selinux_socket_socketpair(struct socket =
+*socka,
+>     Need to determine whether we should perform a name_bind
+>     permission check between the socket and the port number. */
 >
->         INIT_HLIST_NODE(&node->list);
->         avc_cache_stats_incr(allocations);
-> @@ -506,7 +506,6 @@ static struct avc_node *avc_alloc_node(void)
->             selinux_avc.avc_cache_threshold)
->                 avc_reclaim_node();
->
-> -out:
->         return node;
+> -static int selinux_socket_bind(struct socket *sock, struct sockaddr *add=
+ress, int addrlen)
+> +static int __selinux_socket_bind(struct sock *sk, struct sockaddr *addre=
+ss, int addrlen)
+>  {
+> -       struct sock *sk =3D sock->sk;
+>         struct sk_security_struct *sksec =3D selinux_sock(sk);
+>         u16 family;
+>         int err;
+> @@ -5126,13 +5125,17 @@ static int selinux_socket_bind(struct socket *soc=
+k, struct sockaddr *address, in
+>         return -EAFNOSUPPORT;
 >  }
 >
-> --
-> 2.54.0
+> +static int selinux_socket_bind(struct socket *sock, struct sockaddr *add=
+ress, int addrlen)
+> +{
+> +       return __selinux_socket_bind(sock->sk, address, addrlen);
+> +}
+> +
+>  /* This supports connect(2) and SCTP connect services such as sctp_conne=
+ctx(3)
+>   * and sctp_sendmsg(3) as described in Documentation/security/SCTP.rst
+>   */
+> -static int selinux_socket_connect_helper(struct socket *sock,
+> +static int selinux_socket_connect_helper(struct sock *sk,
+>                                          struct sockaddr *address, int ad=
+drlen)
+>  {
+> -       struct sock *sk =3D sock->sk;
+>         struct sk_security_struct *sksec =3D selinux_sock(sk);
+>         int err;
 >
+> @@ -5221,7 +5224,7 @@ static int selinux_socket_connect(struct socket *so=
+ck,
+>         int err;
+>         struct sock *sk =3D sock->sk;
+>
+> -       err =3D selinux_socket_connect_helper(sock, address, addrlen);
+> +       err =3D selinux_socket_connect_helper(sk, address, addrlen);
+>         if (err)
+>                 return err;
+>
+> @@ -5706,13 +5709,10 @@ static int selinux_sctp_bind_connect(struct sock =
+*sk, int optname,
+>         int len, err =3D 0, walk_size =3D 0;
+>         void *addr_buf;
+>         struct sockaddr *addr;
+> -       struct socket *sock;
+>
+>         if (!selinux_policycap_extsockclass())
+>                 return 0;
+>
+> -       /* Process one or more addresses that may be IPv4 or IPv6 */
+> -       sock =3D sk->sk_socket;
+
+The comment should remain since it wasn't specific to the line of code
+you are removing.
+
+>         addr_buf =3D address;
+>
+>         while (walk_size < addrlen) {
+> @@ -5741,14 +5741,14 @@ static int selinux_sctp_bind_connect(struct sock =
+*sk, int optname,
+>                 case SCTP_PRIMARY_ADDR:
+>                 case SCTP_SET_PEER_PRIMARY_ADDR:
+>                 case SCTP_SOCKOPT_BINDX_ADD:
+> -                       err =3D selinux_socket_bind(sock, addr, len);
+> +                       err =3D __selinux_socket_bind(sk, addr, len);
+>                         break;
+>                 /* Connect checks */
+>                 case SCTP_SOCKOPT_CONNECTX:
+>                 case SCTP_PARAM_SET_PRIMARY:
+>                 case SCTP_PARAM_ADD_IP:
+>                 case SCTP_SENDMSG_CONNECT:
+> -                       err =3D selinux_socket_connect_helper(sock, addr,=
+ len);
+> +                       err =3D selinux_socket_connect_helper(sk, addr, l=
+en);
+>                         if (err)
+>                                 return err;
+>
+> --
+> 2.47.3
 >
