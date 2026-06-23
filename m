@@ -1,188 +1,152 @@
-Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com [209.85.219.49])
+Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 137932609EE
-	for <selinux@vger.kernel.org>; Tue, 23 Jun 2026 15:49:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.49
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782229795; cv=none; b=AczWwz/qlG6+ddVPSZBkdUTibfSi0xvndu4HzU+drsakN3wo6WzX5ydsXtaWI41AoN0YLiNaTgcLp+/ZOSl3Yy7fnIycourSNQlXhV3XCVpVjvup3/XQm8S63xOXXeDK0EpWfBcSV/VzCtyRLgLf3AZDvLqzzXPRD38s3BpQWbs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782229795; c=relaxed/simple;
-	bh=7VkLT6uuwzTnkBQUCH0T59RT7QUtIBA2PBCYCRk9OEc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=NPW31N7F9R1sqINkfM5pRnnYWZsGZ4YU70SqxYfe/pic0+fd56mtEHMT44gaLXB4pvAObcpIbEyPmJ39ltDfhDnuBj0whhgobwqFAOT9tIxjj5WqcBCYiW0cEOLTynUly1efwNcAta14d5ObwsSqsnmnTPgOYD05U6k7VN5eT7I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=k3O2XQXm; arc=none smtp.client-ip=209.85.219.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA81E30B514
+	for <selinux@vger.kernel.org>; Tue, 23 Jun 2026 16:06:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.181
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782230791; cv=pass; b=lmJF2G5Q/NsKr9DO1hwKS4eFgySpfGBY+zTO8klJk2s/LyR4/dqvNrwM2THsHvGyFEZM9qZxC8K+C0o3Aw5WHo0AqOKXc6G4GNAdjAckNiPJsWuIj8MpyUJJ8GPvFua36ZEBnBXZK9DPjHol5g9dytq0PmCXCTuLd8JrALDWamA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782230791; c=relaxed/simple;
+	bh=5Wtn+oddBLr5J8RdL1mUOO/tCXr1k1Nu1NqsHr9PW3E=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=sT8UuOWlKt0Ati5Id86uW3aXInPn7DarwxoAMw2NNbvV1rR/FGzrHzNPAAQyYni8mVzhKrzja8CV1WjtSgJdbFVgNJOSjOCRjC9Ssll7QrhX64qC/LLZi56Xzy8LD/eYYP9z2FFeTlWoG0VOun9zWvrxkLE9c8bpH2Il571hnpM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Z0Sm0OKT; arc=pass smtp.client-ip=209.85.210.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="k3O2XQXm"
-Received: by mail-qv1-f49.google.com with SMTP id 6a1803df08f44-8dd586317ccso507386d6.2
-        for <selinux@vger.kernel.org>; Tue, 23 Jun 2026 08:49:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Z0Sm0OKT"
+Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-842848fd613so89257b3a.3
+        for <selinux@vger.kernel.org>; Tue, 23 Jun 2026 09:06:30 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782230790; cv=none;
+        d=google.com; s=arc-20240605;
+        b=gK/3sNSsSjl65Bsf15Uxe299KugfJwmGgVb+qwM5Z1gpk4zkeHeHGer704a8CJBAFx
+         zv0isGX0dBG7Y9CEuVBCd5sohfSfP+ExzL2kzJiGnuvoNvgQFqt6ICoBAGWuUDcmxnUy
+         5FCpLv8w9EsX6U8wc+i8pQ36UQw5W3WhYKWrG6neCmJb3XxgY458C+I1zMhXcPZTt4uN
+         +Q4e9vOub6N16Q3tbKpvezFNulrOvMVQCcz2IsmS5k8vc+yakCnOrO8ggG1PuS0QOz17
+         6lCy9qdl1bdN0Uf62SauJKFZtlbLOhuSUMZ2J7oWetwPmevs8g7xVLdF/eEbcA+bRr8p
+         KgfQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=IG0vuQ+WjTC8gt/s61Odl2z20Ua12Hbz0ahtkT1O8yQ=;
+        fh=5BxwEK/iVIzhs7kNCBs0/zEkT4yGKFLka6Po5B0u4CY=;
+        b=deCSZrXh5hIMrPfeItGOVXJOUwF/k57SkeK7OFsTktDRE/eBwPgvC87Xr+JvmZHaYd
+         MBFbLsiOkFQ2Q0p+8j5AUOiXxYyDuGqzF8uRAnKc8HkjWH9/OpAfZq53R+8+etEu5tIP
+         JvGnXdwVGm0kWzUVxyRiCRtrnLVCNxJj0df6qh1tVCkEF6PAsEMCXJcjNFqnxtLjfXgV
+         mVExs+ksuqnSiGlIRLXeNaMHGawGTC1b9Ar/X8xT761iOfelnkbFsGm56OGmYUDv+TI0
+         FBXECk4ql3Cv48oR9SUQ/UdljyxKlvoCkrzLYP1ZYY8MOMQjeK/Xk0X0FAE3kFyiuUV0
+         xwWQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782229793; x=1782834593; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1782230790; x=1782835590; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ZCD4ySkp2rwh2DVOTAOI+UZh/4Ik6sNej6BsxbJ0iyk=;
-        b=k3O2XQXmi0leKE8X4RIRK3LzOHJqSU/Acy+yIPA2m1GrPfL/frHdubE0Dqo86C2TTr
-         ZqymRlvepUO5WbSBdvArUDmCAU6qozOcRFIDuSmUiSeQ3v73h+cZgZhm9Co33IS5ZgR1
-         hl9W1AoTA6RXnl2X8JR0TczaZm7yYbMPUSMIAMcsfXMGsEi8cl8OqWUihyJUgeJI3KBj
-         2GPQQb40HQwKeSZ54XZ8ZNFspcMvsPhbxoE9Pc3yoOoPkgUu0zco/gTgPTG96q8djMmL
-         A+v8kvqc5hAHeECxUtl8ZI6H60OxHGInDEqoQKN4/B9EN9raT3znLPM3Cf3WHYEya0G/
-         yiUg==
+        bh=IG0vuQ+WjTC8gt/s61Odl2z20Ua12Hbz0ahtkT1O8yQ=;
+        b=Z0Sm0OKTd+P9FOF2Lf5dD+8+NgVhJWqjBnywXwXI2qq/gABLEzPB7hFtynOXFXg9aF
+         9DPAF24IJagM/Z4r2x0wR2LZY+6lChU7avGB4rqV1Ps6HTvP1Bb4l4Lw+qDl/P4To/Cq
+         ghEwbgB02NsaVLo+bO3qTlXG60mtUoRqytE0hHb6UyZr0ByyuN3nxHH/xQ863Os6Ny9a
+         0u14HcCWde+xO84IRGcIqC9wpUjWOpRc/Ti4G0jDEdBoAr7c1JqvO/UknhJy2FtyQ7Xu
+         8Hk639QlzhzmeBsUr+R0XFUCW3L9Fm6gamIaNWS0vQ6NB5TCRMyVNztQddGaj6SsPtNa
+         H2zQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782229793; x=1782834593;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20251104; t=1782230790; x=1782835590;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=ZCD4ySkp2rwh2DVOTAOI+UZh/4Ik6sNej6BsxbJ0iyk=;
-        b=XJmmzsf2iOKd7N3z9lUsdHozwsh0BCtWFSy1Qa6LXjbkyFeX8/YKgqvzHGXoZSj6pT
-         TOd9HsEcMMN/u0kLf6KcSE4+5BdYW3r9W/aeKz2XCM277PkPjSh/uTz5ISdore+WguMm
-         /qPAcI+w9Z5GlVKfTeYhYOSRfDsV0TRF0SoXHMXyxWrphAzghuPE7+pf3V2tRBgkAORy
-         /ukZQmpMzzoWbQS/3cu1w0M4vAoFjyaxLEgZRLpoErSqX+0zBGWuoDyr/5FbQ+ZGm6ri
-         XBpQtN7gztEXp10J82aer8AlhUjcwlq8AsjEbQes0jVs3J/WqH0B+BpBw4Cd1p3C9Q/G
-         xvyA==
-X-Gm-Message-State: AOJu0Yy1fFq+kMUwaLvJAzx+2LqeomyBSd4gzWY9zxtRxWWrent6I95A
-	lkC7NzMnzJAkIQTQsC5IfdZLX9vnJOM/tphXiPs47YEEOI08LM9jbppj16gBIQ==
-X-Gm-Gg: AfdE7cnFTX/K2eO6usvor1AokaAL+3ddku8fk1JG87h7I/pRHkVATzx/Hspp/4J6AhI
-	ncS/fbVQq4Li557/bf5YB0q1nJz1Ow1BGCJoqT/FwnZ6BM+uo8SHOjuPSIlN678XmVpWt7L8+zw
-	wD1whMdSRg22sEHxOFdZalREmwb4teuOnXx/m4+vsx1hD8mIzdWpPl6BMb72o6fvidqRfnGbgm5
-	uC/QtXdhusoAoHOaQW8PmrJ1aHIL89YXVkaTEVuSFSiFemMW7unJ3Nrm+YoK9xXr0LMp4HePx7t
-	YuCaZ1xjQA+9pTgvP+SC8QJRG//GkyKmqAh6FLQnJ/fdOq7L+RkUbPxY9sN/klolibxko8c1Gb2
-	pJgiQRxlysffxbfgm5Gn1yFmhbCPqdiuUKNZSfygKJ2nVuPDtR8X1FI+YpzfVrHyYFiOEMdxiKE
-	SHQDSBGB6nl6eKsq0sGAya+zPtSjhQPF1XBvs=
-X-Received: by 2002:a05:6214:469d:b0:8ce:e098:d974 with SMTP id 6a1803df08f44-8e4337f6959mr48614446d6.6.1782229792905;
-        Tue, 23 Jun 2026 08:49:52 -0700 (PDT)
-Received: from Fedora43-SELinux ([144.51.8.27])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8df7f0164fasm128197266d6.8.2026.06.23.08.49.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Jun 2026 08:49:52 -0700 (PDT)
-From: James Carter <jwcart2@gmail.com>
-To: selinux@vger.kernel.org
-Cc: stephen.smalley.work@gmail.com,
-	James Carter <jwcart2@gmail.com>
-Subject: [PATCH 6/6 v4] libsepol: Add overflow checks
-Date: Tue, 23 Jun 2026 11:49:37 -0400
-Message-ID: <20260623154937.16913-6-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260623154937.16913-1-jwcart2@gmail.com>
-References: <20260623154937.16913-1-jwcart2@gmail.com>
+        bh=IG0vuQ+WjTC8gt/s61Odl2z20Ua12Hbz0ahtkT1O8yQ=;
+        b=beSol83qxq/yTZuft1EObp6hU7Hi90kOrUViidRCf7eRSze4+7cLEsCxyMsCq4rPir
+         1sE8XvwDSffFwpsiLSm3gfy3AhcPPLRPADC22aymZCLD4WQHQ/aSiy7TH9CDwFZ3E5qL
+         4OnZAOwy6gvNMnMqM5kZvr1FrSRkrQlXZ1HlX2FgJ03HsC0siHcdXGgqH82W/yWboOw5
+         LfC0IukHLSd9NuEcFZezYby6UM9Wg3BX3nivDgxcGI6xXtU9KQkZ5NMrUKWgv4BvHw+m
+         7E+O8+v00AQStBrl9iYqvlbfXzn+Sa/5yhYOYxRdsvgzrcAHiVreIu7Y2ExAYeu8S25/
+         fwJA==
+X-Gm-Message-State: AOJu0Yy2RxiYCqTG04vzfekzmMREyKBfeon8YZ1lkqzjg4L+NPKcg0IG
+	WYFi1edvwqtxauSpMdgVgYSVaQQ43WDV5077cKngy/XVEt/ghRTGYlewjkD4ucVVNrjZsKbr63o
+	4ozzTaHzwHuI0RdNDjqEvokyMeD/UB9E=
+X-Gm-Gg: AfdE7cl5gtm+rqBAMkcl8mLm2rGrncXf23Jf1S900Brs70U4hxBUBq9sFBd/QiBIo4E
+	v9NI2qKqbU1cXeqo5Ib05ydyWgDhEvgre7SB3ZK6BasiRtjOVaPx1oyrH7nC6bOnD+jswYgPsxc
+	ScmC3bwTxcmIsEJPZc2JLvWA4oKsvJFFmWYUQyXgQwNwF6EOzEwVB2oDxC/itjwiRBcQGdhqchg
+	eXwuP8ponijJbdVbyh3+SA59XFMHZQsmyH9DXRH7cL0t0iV9vTtxTQYZ1oL9BXin7vL8uUm
+X-Received: by 2002:a05:6a00:420c:b0:842:5a18:9af4 with SMTP id
+ d2e1a72fcca58-84562489b0cmr16371066b3a.18.1782230789732; Tue, 23 Jun 2026
+ 09:06:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260623134215.98273-1-cgoettsche@seltendoof.de> <20260623134215.98273-20-cgoettsche@seltendoof.de>
+In-Reply-To: <20260623134215.98273-20-cgoettsche@seltendoof.de>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Tue, 23 Jun 2026 12:06:18 -0400
+X-Gm-Features: AVVi8Cc2oOgeyePR4LLvykkSiaynLVvaeGajDKNB8xtzT38tUBD1ytd0xbqRrhc
+Message-ID: <CAEjxPJ6uWS0v9C+aHiVNEh7M8fasUj8vxVoVe2OcZF0=mX5DwA@mail.gmail.com>
+Subject: Re: [PATCH 21/24] libselinux/audit2why: use public PyUnicode_AsUTF8
+ and Py_ssize_t list size
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The function stack_push() uses the common idiom of "*= 2" to grow
-the size of the stack, but there is not check for overflow. Use the
-__builtin_smul_overflow() function to report an overflow and return
-an error.
+On Tue, Jun 23, 2026 at 9:44=E2=80=AFAM Christian G=C3=B6ttsche
+<cgoettsche@seltendoof.de> wrote:
+>
+> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> _PyUnicode_AsString() is a deprecated private CPython alias for the publi=
+c
+> PyUnicode_AsUTF8(); switch to the latter.  Also store PyList_Size() in a
+> Py_ssize_t (and index the list with one) instead of truncating to int.
+>
+> Assisted-by: Claude:claude-4.8-opus
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-There are several calls of stack_push() that does not check for
-an error. Add checks for an error for these calls.
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
-v4: Add temporary variable for the new size for stack_push()
-
- libsepol/src/module_to_cil.c | 33 +++++++++++++++++++++++++--------
- 1 file changed, 25 insertions(+), 8 deletions(-)
-
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index 00db3d7f..2aaf4feb 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -445,15 +445,21 @@ static int stack_push(struct stack *stack, void *ptr)
- {
- 	int rc = -1;
- 	void *new_stack;
-+	int new_size;
- 
- 	if (stack->pos + 1 == stack->size) {
--		new_stack = reallocarray(stack->stack, stack->size * 2,
-+		if (__builtin_smul_overflow(stack->size, 2, &new_size)) {
-+			ERR(NULL, "Overflow");
-+			goto exit;
-+		}
-+		new_stack = reallocarray(stack->stack, new_size,
- 					 sizeof(*stack->stack));
- 		if (new_stack == NULL) {
-+			ERR(NULL, "Out of memory");
- 			goto exit;
- 		}
- 		stack->stack = new_stack;
--		stack->size *= 2;
-+		stack->size = new_size;
- 	}
- 
- 	stack->pos++;
-@@ -1482,7 +1488,6 @@ static int cond_expr_to_cil(int indent, struct policydb *pdb,
- 
- 		rc = stack_push(stack, new_val);
- 		if (rc != 0) {
--			ERR(NULL, "Out of memory");
- 			goto exit;
- 		}
- 		new_val = NULL;
-@@ -2163,7 +2168,6 @@ static int constraint_expr_to_string(struct policydb *pdb,
- 
- 		rc = stack_push(stack, new_val);
- 		if (rc != 0) {
--			ERR(NULL, "Out of memory");
- 			goto exit;
- 		}
- 
-@@ -4183,7 +4187,10 @@ static int module_block_to_cil(struct policydb *pdb, struct avrule_block *block,
- 		(*indent)++;
- 	}
- 
--	stack_push(stack, decl);
-+	rc = stack_push(stack, decl);
-+	if (rc != 0) {
-+		goto exit;
-+	}
- 
- 	rc = block_to_cil(pdb, block, stack, *indent);
- 	if (rc != 0) {
-@@ -4210,7 +4217,10 @@ static int global_block_to_cil(struct policydb *pdb, struct avrule_block *block,
- 		    "Warning: 'else' not allowed in global block. Dropping from output.");
- 	}
- 
--	stack_push(stack, decl);
-+	rc = stack_push(stack, decl);
-+	if (rc != 0) {
-+		goto exit;
-+	}
- 
- 	// type aliases and commons are only stored in the global symtab.
- 	// However, to get scoping correct, we assume they are in the
-@@ -4284,7 +4294,10 @@ static int linked_block_to_cil(struct policydb *pdb, struct avrule_block *block,
- 		}
- 	}
- 
--	stack_push(stack, decl);
-+	rc = stack_push(stack, decl);
-+	if (rc != 0) {
-+		goto exit;
-+	}
- 
- 	rc = block_to_cil(pdb, block, stack, 0);
- 	if (rc != 0) {
-@@ -4595,7 +4608,11 @@ static int fp_to_buffer(FILE *fp, char **data, size_t *data_len)
- 	while ((read_len = fread(d + d_len, 1, max_len - d_len, fp)) > 0) {
- 		d_len += read_len;
- 		if (d_len == max_len) {
--			max_len *= 2;
-+			if (__builtin_mul_overflow(max_len, 2, &max_len)) {
-+				ERR(NULL, "Overflow");
-+				rc = -1;
-+				goto exit;
-+			}
- 			d_tmp = realloc(d, max_len);
- 			if (d_tmp == NULL) {
- 				ERR(NULL, "Out of memory");
--- 
-2.54.0
-
+> ---
+>  libselinux/src/audit2why.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+>
+> diff --git a/libselinux/src/audit2why.c b/libselinux/src/audit2why.c
+> index cae13f19..2e1a98a9 100644
+> --- a/libselinux/src/audit2why.c
+> +++ b/libselinux/src/audit2why.c
+> @@ -330,7 +330,7 @@ static PyObject *analyze(PyObject *self __attribute__=
+((unused)), PyObject *args)
+>         char *tclassstr;
+>         PyObject *listObj;
+>         PyObject *strObj;
+> -       int numlines;
+> +       Py_ssize_t numlines;
+>         struct boolean_t *bools;
+>         unsigned int reason;
+>         sepol_security_id_t ssid, tsid;
+> @@ -339,7 +339,7 @@ static PyObject *analyze(PyObject *self __attribute__=
+((unused)), PyObject *args)
+>         struct sepol_av_decision avd;
+>         int rc;
+>         int nbools;
+> -       int i =3D 0;
+> +       Py_ssize_t i =3D 0;
+>
+>         if (!PyArg_ParseTuple(args, "sssO!:audit2why", &scon, &tcon, &tcl=
+assstr,
+>                               &PyList_Type, &listObj))
+> @@ -379,7 +379,7 @@ static PyObject *analyze(PyObject *self __attribute__=
+((unused)), PyObject *args)
+>                 strObj =3D PyList_GetItem(listObj, i); /* Can't fail */
+>
+>                 /* make it a string */
+> -               permstr =3D _PyUnicode_AsString(strObj);
+> +               permstr =3D PyUnicode_AsUTF8(strObj);
+>                 if (!permstr)
+>                         /* not a string; exception already set */
+>                         return NULL;
+> --
+> 2.53.0
+>
+>
