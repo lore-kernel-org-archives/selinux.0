@@ -1,269 +1,177 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com [209.85.210.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FCA7348C65
-	for <selinux@vger.kernel.org>; Tue, 23 Jun 2026 14:13:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C562348C65
+	for <selinux@vger.kernel.org>; Tue, 23 Jun 2026 14:14:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.180
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782224024; cv=pass; b=Hq7e2GYXDvgvLHvmqo/9ZWKOzoLLw2aTuhHcNpWy0dj7Vml3p8roOmkTzvLiSkqNHGHAbRr2qosQxkeF238T2RBmtu95Oar7ePPKBDUQ4yKGx4HzwlaEUzpGyjvLwwT5X+r9LWOGNsm7ixhO4Mbmwu4ITjeI4MDUOjPjbXoMHeE=
+	t=1782224049; cv=pass; b=aAe6GtBO1sNkhyRAgBSNlImTDQtpVh7qvYLipvOzlE7vziMLcM3EbyMXywL807E9Y2/o8/0c/4RjPCHbroYtwikhpkmDlJIJRYej7U1arYqN+x73FtulwCbeslmeJlsbcUgeSwBeGHGvSsolrP/uHMlsL/jouHdOEZkfR6dLtNE=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782224024; c=relaxed/simple;
-	bh=udiRF+I6p/IegWiWYOJ24pk93jTQyKnoZ3FAVX+IfwM=;
+	s=arc-20240116; t=1782224049; c=relaxed/simple;
+	bh=/+o3vL97VI39UHuTkd1W87MT7JzoVyureeBnGr0enUo=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Lk23Qm6wN56yXuN57J/OKuzpTnx6z69VfSuiQDG0dd6wnra2FK/06u2G7oebleI6+AlswjSpZCcVET3PRcKe4sLL498+JHxn6rs3Zc7Kci48H+T1OYTCY388/WxhbPbGv6TdGirGaMtao4RXlPSDlzYXlX0GM7Ov3rMQmzgnztc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NdpUoikW; arc=pass smtp.client-ip=209.85.216.54
+	 To:Cc:Content-Type; b=Q8nLxpDRvZMcVof7jGlJhqc7wxhVZVk2cckBmT+QIcGiR6P6oP6z7AVha/rr24zLCACBEtLWsIyLWkEA7IZ2OciqwBNfWNP0iiCUsAQU5+NBjP8kPCLshWVpusuZEt59U+Y6SHFjuY9kPv5loFrH+2fsQGFeg99G7XpDDkBvt0c=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QBI4lyP8; arc=pass smtp.client-ip=209.85.210.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NdpUoikW"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-36b900f350fso5226847a91.0
-        for <selinux@vger.kernel.org>; Tue, 23 Jun 2026 07:13:43 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782224022; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QBI4lyP8"
+Received: by mail-pf1-f180.google.com with SMTP id d2e1a72fcca58-845369f60faso3470018b3a.3
+        for <selinux@vger.kernel.org>; Tue, 23 Jun 2026 07:14:07 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782224047; cv=none;
         d=google.com; s=arc-20240605;
-        b=FfsMjjyPJ6Pe7ZPzemGkEou2ARREVOkubfgZR/jebx1u+YRAiaBM9fQwYX2phU6egb
-         UapSL0bh98cHER2HdkwfrKkHpH0IT1h09GadTESiuM88US8X+rSzlHVuAowIbrQ3BZoQ
-         h38hWrFlKz2tCwwjGrDwGiSWCMoPqEee7esAosYTaZ8uH3O8I3+V9uFNps45qYDmsWiS
-         4tUhW6y4sQNygxVcgpe6pYnWBAIX+w1XkvTzKZgcvOBlbYGUR0f8/OCKwqRBYAOYT4O1
-         2D7/MXFlJBAxmGfkX8GzBXoYqg6mruq7NF35eR77taYd2mNiwTM0cND1zwGYegc0c1lH
-         zkUw==
+        b=S3feGeIZdjCvziukECUwMR9VZsdN7L6TlT/hRIak5UBaFkvCEEAb00b8Zqtk1Q/10G
+         cg0/G03n4kaHHjEtCtGC4Fv7HSlyK3zO6VCRI3MJsdDHARw+siJgel8aKnL/cpdWZcPa
+         DqcZLOfaaDgT08w6jkaOUqBNkdjMUAYefp/8cyhiOGhvy1QLUneDgzH5VMErghBJ3xE8
+         53OQrsfHbCMdfKll5lU3sb7aSQWj+nkAtJOXk/6fZ+fLCXQY+wkfppeUakCd+oAYh4iT
+         7yJ3DBXfSMv9qOBFlA7E1OMFcelusi0rEBvlYdLx0KsX1MbPFbiad2QQxmb+pV/boOjj
+         fbjQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=FRfyH85KQoV0m5lU8wnpU9FsO9GG0odIHZf/kd6sGJM=;
+        bh=N8PkE4t3ATDnH6Gx11cmjHCvIDQ/Y+tKiI7XJVw3wKk=;
         fh=+ymDRLpvH5V4NxzbU6EHTgZVOx8LXRvHxwaIgjsFoxU=;
-        b=UWY2a9pN1c0K7nIrWRDsbXmxLdbAOks1ofHFdrfZmcGxyxru8GA0+900q4TX9Zs9P2
-         EPfNHPxStAEvF77u9OF4usCrPbS1EAbmGMORxgfDkehXU8eToI74xp43wHukxC3rHzVi
-         iTx9WZg26YmNRppzf/ghy2iUcvvqsz3CJ9sN0cErCREaozvkiuKOlzmcrlXun+Oon2FH
-         BZtgmDSYm/Y9QxIouGW8gbb1BeSopph5ic7jlKRbB9r3KmgW5rR3Wbj1XNrxM9DOt2wT
-         X5CjO/RKTbHAQaa+xrHSTog/PyZ/vq+7ODmIxV/J9H+Au+q91FQZVXsSKbbkn4lSZuVx
-         Rf7g==;
+        b=Uhyn7v12Qz3pb30w4yepJlazkCZA+rE7ORjT7ZKT8PIMbIgQ/uLs4guLW991WkJYCS
+         1Z67yeTLckYoSdA02Y5S+EfGf3RLxRpCLObtBYWMdewOcyThAuOLa4Tq2Nm3M3bjFy3E
+         oaNpp5JHrEbZwukMTPduqhR6BSrD6DQq1ySgNhGQ5+FC4KakQq0imUYziOMOyJ7FKMtf
+         Hnzl97pHLFxXvrSm5Z0uW04G7xDDvoL9r1/2OJTEkfHWf47bZTmgCiUkLHeNU8g4IGzb
+         hEvSWcqyua6QVjwzc+mmJgIARXpwoxkR9BnKBoHiNPNTVxosq89grWw5FSCUcG4TnBlX
+         yMTw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782224022; x=1782828822; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1782224047; x=1782828847; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=FRfyH85KQoV0m5lU8wnpU9FsO9GG0odIHZf/kd6sGJM=;
-        b=NdpUoikWhOaQOOpMleFIHjOzxf2zTmYMG4PrfbGqkXTpfz4IbZNISnc78Xg7B4RPDB
-         5t9x7Su42FP7PMiapXOakCVoHhjv6+ixUmj2Fi3qkEOTs2crMpoZAkr87f6zNHUVGcjb
-         c71wMZxh4Be+32qfIwceL3fa9uCudpaILPnCPMdFrkcDiiQy0jX4hXrKmxC0JhgDX9TD
-         nSFqckzoUOwJKQL1cislZ5FIsLaSqHLF5sOtii2vv+CSVtm+yzmMGUdXN3hMbIH3pHfS
-         OnmNS2CQD5of0D+TSd6nmmYrKRPdPjCQoH1WWGiT9ec2mDefPl8/kO7x2aWzO75J/9ke
-         GHmQ==
+        bh=N8PkE4t3ATDnH6Gx11cmjHCvIDQ/Y+tKiI7XJVw3wKk=;
+        b=QBI4lyP8iO8gZk3Hnaw01PX4cJrzphustHN0t3V68ZRu7cuMPx8X58J9E66EMOmjvX
+         aXZCJJqMCgJ0Jb4o8kZvo38pIfgvAEN/3o/ew9/chogC5xzD2mRz68wnCEzmAlKsGMD2
+         7dB1GI8h1Eg37HUXsTsEvmC8XjNiAe06uI840jugO08TfsXmojcne5pgq83I6w14uDui
+         y2Ejfrvx1AwHlJRijIDUmlqQ4rXwetcAIkN89wcei1HwiL5ITjCOuz64m19kWCEftcG2
+         INPnVELJSwk6aF7+4wssYH9mshnFWj3sTbU+/d16zoT5kLoGT1VZTgeXVUyRXi/mi21V
+         P9IA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782224022; x=1782828822;
+        d=1e100.net; s=20251104; t=1782224047; x=1782828847;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=FRfyH85KQoV0m5lU8wnpU9FsO9GG0odIHZf/kd6sGJM=;
-        b=h5YQSybrWIuV5oSJT/h8KTAb3FgmLHuOkznHaxQFQsOxAQ0OOqznkUKINQ+YpLp/p3
-         B9o/Sk5+W5ikmrKXIhI/M+0Ja2w42+vsdRDyPIlns+LIaUkbylmla7tldL30AaWXoB+h
-         WOBL4EhCvjJX7gw0rCOkTNtWCrnvTOyXDuHhsCsfb1rX7vuM2FoEjXQmqAi8CnwZP21u
-         Jj43xUM78CK0f3Pi3a9EfJWq+YjOWm9+MXS8NYSMHaMmicqkTqi1oub87vE/f6OnA6CW
-         dCdT24Ui6JFJ4eszfVjL/BqCGbZ/FmAk5oeVbFdsh1O8RfaTWTgEb54vs+SHO1cVlBjj
-         x7Jw==
-X-Gm-Message-State: AOJu0Yycd7MUHGlLbv2/bo16gtqib8KcfjrZoLtYw6IMIuvoyXKcgGGI
-	qQ6QNXeqROkAbOWpbT07KCZL+P4PmI5PB5KtNRHGoTl//ZoFtVWZVmbGVM2NR6HN9Z2BXkQx6Eu
-	EC8onOwlRLBlHgYqCtZgaQ/LtDtZEGvpj8w==
-X-Gm-Gg: AfdE7cmZqO22AK7iU8ufUFytf4wg/05xSujGOUCA2cKMRYecejro3KgX3sUHvgy6OHA
-	LKssbBw0MlyymiKKKQpdCU3R6Sfwf2WzMGQh6oJFsvH8qxoBCdsYQG2CJTyXF9fEHldG78HvbQc
-	3wVfpqz6Ho6wWnGnUUgDs+EPzhbpDiZqmxtIaCf/8FQ3n13MfdzZZcTJiD9kEtmfuC5Axbn5tW+
-	COENOosrrPU4bym1gjALHOhb2A7JTwmcWfZAqa9BmZTlT6LdjsJX9N/FFzqTxJLuYDow/ch
-X-Received: by 2002:a17:90b:518f:b0:37d:ab59:e48c with SMTP id
- 98e67ed59e1d1-37dd16c26fcmr2969377a91.5.1782224022156; Tue, 23 Jun 2026
- 07:13:42 -0700 (PDT)
+        bh=N8PkE4t3ATDnH6Gx11cmjHCvIDQ/Y+tKiI7XJVw3wKk=;
+        b=FubB2zMkptT06xl8FHCkHtkG0HyRKf0KlKlm+Mn1D12kEIAfcl/mR/PZhOaCN0d+Qm
+         NAIPCi8bZjL2bHMtQ//onTefrDiZ/0KXJ/MRzs34PXxZ343i5KDHSftXplVRSUVYonTk
+         HrCDdO/YXD48VSX2T1EkdX/Zx3fcO/XpPdZ3AQKbYGr9YHY0j8KDXb7nKyKlr9kQv0ol
+         vKH9aftLGZ5YQnguJUCszxOqpq6QJVAgKK0DunsEOxmR82Cp7z3RmtJdCYOybgQXeaXP
+         TG0hsYs4NtjQBDJwJ0viFAwP0Gle30pkKNlSzp5H5t5Vl+594a7/ig032tz9Br5EU0yY
+         KdMw==
+X-Gm-Message-State: AOJu0YwEsck2RNzLC59rPELcQke2rPFOlN5M5MfB5xo3BmP5X4vqQyP8
+	jHNsjbbjeMqOvoEDJ8lLlemk4gOhGbl8bTR4epxcdVfi59k2xQFTliFSTGPUHd1TF4G+gHbo4hy
+	f9MrRQZ4NGJ6cMxxqQ+85EzmVN4HmgMXBh/y0
+X-Gm-Gg: AfdE7cmkW3chXfaYSZ4VqtbP9E3POACqDIb/YWPsoodT3D/IQFUKuxaBQBE2vRhG6E3
+	ZJiyB4+tFIJ+4V1qWaltZt94SdT6pS8oOeyUU9fmJ2JX6WNlyeVwrhQpMecO5f+ToeSPKcDpRwh
+	fnHdEk4alxr5P/ttWf1P5I3saNoyd1GPSHzOLwQdY6QiQWes4SyfoYOgY7KsbIQhUPjf6BViIAn
+	yONDTX20byAdHif/CrwMMhY6KxAjlP5iv/+4pwMxCZunnSHfIrjtUMcc8tpztFX7TGgF+XY
+X-Received: by 2002:a05:6a00:2a0c:b0:842:5c90:736b with SMTP id
+ d2e1a72fcca58-8455088dc84mr23848800b3a.29.1782224047376; Tue, 23 Jun 2026
+ 07:14:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260622124042.31385-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260622124042.31385-1-stephen.smalley.work@gmail.com>
+References: <20260622124111.31425-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260622124111.31425-1-stephen.smalley.work@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 23 Jun 2026 10:13:30 -0400
-X-Gm-Features: AVVi8CeferOIqhc9OD2Cw9F54K9K132Xvc465vMeAnhmzkqkcXYsHcVwW0q7PQo
-Message-ID: <CAEjxPJ6pqqEEdrBo9fmiicXG6tukHqWon7rPq9D=wQtgY3ceJQ@mail.gmail.com>
-Subject: Re: [PATCH] checkpolicy: fix xperm complement at range boundaries
+Date: Tue, 23 Jun 2026 10:13:56 -0400
+X-Gm-Features: AVVi8CfDFcXyYkMsogUQ63usacjgNrdhUh7sw18PC8OEcv4peed6Wvvedp39QGE
+Message-ID: <CAEjxPJ7PeK-NBrQvjUAf2BweRtJWEDn9CJ6GRD3LdweXWU4yRw@mail.gmail.com>
+Subject: Re: [PATCH] checkpolicy: reject out-of-range extended permission values
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com, 
 	netliomax25-code <netliomax25@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 22, 2026 at 8:40=E2=80=AFAM Stephen Smalley
+On Mon, Jun 22, 2026 at 8:41=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
 > From: netliomax25-code <netliomax25@gmail.com>
 >
-> 1. avrule_omit_xperms() builds the complement of an omitted ("~")
->    extended permission range set and advanced the next allowed range
->    start with r->range.high + 1 kept in a uint16_t.
-> 2. when an omitted range ended at 0xffff the increment wrapped to 0, so
->    a spurious [0,0xffff] range was appended and the omitted value was
->    granted; an omit range starting at 0 with no successor left the
->    trailing range high unset, producing a malformed low > high range.
-> 3. reworked it to walk the sorted, merged ranges with a uint32_t cursor
->    and emit each gap, so the 0 and 0xffff boundaries are handled.
+> avrule_read_xperm_ranges() parses each ioctl/nlmsg command with
+> strtoul() and stores it through a uint16_t cast without checking the
+> range, so a value above 0xffff is silently truncated and a rule is
+> compiled for an unintended command (0x10001 becomes 0x1, 0x123456
+> becomes 0x3456). The secilc CIL compiler already rejects values
+> outside 0x0000-0xffff. Validate the parsed value here too, before the
+> narrowing cast.
 >
-> Added a roundtrip regression in tests/policy_allonce.conf covering
-> ~0xffff and ~0x0.
->
-> Fixes: https://github.com/SELinuxProject/selinux/pull/530
+> Fixes: https://github.com/SELinuxProject/selinux/pull/531
 > Signed-off-by: Kartik Kenchi <netliomax25@gmail.com>
 
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
+
 > ---
->  checkpolicy/policy_define.c                   | 63 +++++++++++--------
->  checkpolicy/tests/policy_allonce.conf         |  2 +
->  .../tests/policy_allonce.expected.conf        |  4 ++
->  .../tests/policy_allonce.expected_opt.conf    |  4 ++
->  4 files changed, 47 insertions(+), 26 deletions(-)
+>  checkpolicy/policy_define.c | 23 +++++++++++++++++++++--
+>  1 file changed, 21 insertions(+), 2 deletions(-)
 >
 > diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> index 63bf5245..d7576dd4 100644
+> index 63bf5245..c1f12715 100644
 > --- a/checkpolicy/policy_define.c
 > +++ b/checkpolicy/policy_define.c
-> @@ -2092,48 +2092,59 @@ error:
->  /* flip to included ranges */
->  static int avrule_omit_xperms(struct av_xperm_range_list **rangehead)
->  {
-> -       struct av_xperm_range_list *rnew, *r, *newhead, *r2;
-> +       struct av_xperm_range_list *rnew, *r, *newhead =3D NULL, *tail =
-=3D NULL;
-> +       uint32_t next_low =3D 0;
->
-> -       rnew =3D calloc(1, sizeof(struct av_xperm_range_list));
-> -       if (!rnew)
-> -               goto error;
-> -
-> -       newhead =3D rnew;
-> -
-> -       r =3D *rangehead;
-> -       r2 =3D newhead;
-> -
-> -       if (r->range.low =3D=3D 0) {
-> -               r2->range.low =3D r->range.high + 1;
-> -               r =3D r->next;
-> -       } else {
-> -               r2->range.low =3D 0;
-> +       /*
-> +        * The input ranges are sorted and merged. Emit the gaps between =
-them
-> +        * as the complement. next_low is the first value not yet covered=
- by an
-> +        * emitted (allowed) range; promote it to uint32_t so that high +=
- 1 does
-> +        * not wrap when a range ends at 0xffff.
-> +        */
-> +       for (r =3D *rangehead; r !=3D NULL; r =3D r->next) {
-> +               if (r->range.low > next_low) {
-> +                       rnew =3D calloc(1, sizeof(struct av_xperm_range_l=
-ist));
-> +                       if (!rnew)
-> +                               goto error;
-> +                       rnew->range.low =3D next_low;
-> +                       rnew->range.high =3D r->range.low - 1;
-> +                       if (tail)
-> +                               tail->next =3D rnew;
-> +                       else
-> +                               newhead =3D rnew;
-> +                       tail =3D rnew;
-> +               }
-> +               next_low =3D (uint32_t)r->range.high + 1;
+> @@ -2035,6 +2035,19 @@ static void avrule_merge_xperms(struct av_xperm_ra=
+nge_list **rangehead)
 >         }
->
-> -       while (r) {
-> -               r2->range.high =3D r->range.low - 1;
-> +       if (next_low <=3D UINT16_MAX) {
->                 rnew =3D calloc(1, sizeof(struct av_xperm_range_list));
->                 if (!rnew)
->                         goto error;
-> -               r2->next =3D rnew;
-> -               r2 =3D r2->next;
-> -
-> -               r2->range.low =3D r->range.high + 1;
-> -               if (!r->next)
-> -                       r2->range.high =3D 0xffff;
-> -               r =3D r->next;
-> +               rnew->range.low =3D next_low;
-> +               rnew->range.high =3D UINT16_MAX;
-> +               if (tail)
-> +                       tail->next =3D rnew;
-> +               else
-> +                       newhead =3D rnew;
-> +               tail =3D rnew;
->         }
->
->         r =3D *rangehead;
->         while (r !=3D NULL) {
-> -               r2 =3D r;
-> +               rnew =3D r;
->                 r =3D r->next;
-> -               free(r2);
-> +               free(rnew);
->         }
->         *rangehead =3D newhead;
->         return 0;
->
->  error:
-> +       while (newhead !=3D NULL) {
-> +               rnew =3D newhead;
-> +               newhead =3D newhead->next;
-> +               free(rnew);
-> +       }
->         yyerror("out of memory");
->         return -1;
 >  }
-> diff --git a/checkpolicy/tests/policy_allonce.conf b/checkpolicy/tests/po=
-licy_allonce.conf
-> index 4115dea2..263237fa 100644
-> --- a/checkpolicy/tests/policy_allonce.conf
-> +++ b/checkpolicy/tests/policy_allonce.conf
-> @@ -43,6 +43,8 @@ dontaudit TYPE1 { TYPE2 TYPE3 } : CLASS3 { PERM1 CPERM1=
- };
->  neverallow TYPE1 TYPE2 : { CLASS2 CLASS3 } { CPERM1 };
->  allowxperm TYPE1 TYPE2 : CLASS1 ioctl { 0x456-0x5678 };
->  allowxperm TYPE2 TYPE1 : CLASS4 nlmsg { 0x1 0x12 };
-> +allowxperm TYPE3 TYPE4 : CLASS1 ioctl ~0xffff;
-> +allowxperm TYPE4 TYPE3 : CLASS1 ioctl ~0x0;
->  auditallowxperm TYPE1 TYPE2 : CLASS1 ioctl 0x2;
->  dontauditxperm TYPE1 TYPE2 : CLASS1 ioctl 0x3;
->  neverallowxperm TYPE1 TYPE2 : CLASS1 ioctl 0x4;
-> diff --git a/checkpolicy/tests/policy_allonce.expected.conf b/checkpolicy=
-/tests/policy_allonce.expected.conf
-> index a88d8785..c1100992 100644
-> --- a/checkpolicy/tests/policy_allonce.expected.conf
-> +++ b/checkpolicy/tests/policy_allonce.expected.conf
-> @@ -44,6 +44,10 @@ allowxperm TYPE1 TYPE2:CLASS1 ioctl { 0x456-0x4ff };
->  allowxperm TYPE1 TYPE2:CLASS1 ioctl { 0x500-0x55ff };
->  allowxperm TYPE1 TYPE2:CLASS1 ioctl { 0x5600-0x5678 };
->  allowxperm TYPE2 TYPE1:CLASS4 nlmsg { 0x1 0x12 };
-> +allowxperm TYPE3 TYPE4:CLASS1 ioctl { 0x0-0xfeff };
-> +allowxperm TYPE3 TYPE4:CLASS1 ioctl { 0xff00-0xfffe };
-> +allowxperm TYPE4 TYPE3:CLASS1 ioctl { 0x1-0xff };
-> +allowxperm TYPE4 TYPE3:CLASS1 ioctl { 0x100-0xffff };
->  auditallowxperm TYPE1 TYPE2:CLASS1 ioctl { 0x2 };
->  dontauditxperm TYPE1 TYPE2:CLASS1 ioctl { 0x3 };
->  type_transition TYPE1 TYPE2:CLASS1 TYPE3;
-> diff --git a/checkpolicy/tests/policy_allonce.expected_opt.conf b/checkpo=
-licy/tests/policy_allonce.expected_opt.conf
-> index 3d21c310..2510c91a 100644
-> --- a/checkpolicy/tests/policy_allonce.expected_opt.conf
-> +++ b/checkpolicy/tests/policy_allonce.expected_opt.conf
-> @@ -44,6 +44,10 @@ allowxperm TYPE1 TYPE2:CLASS1 ioctl { 0x456-0x4ff };
->  allowxperm TYPE1 TYPE2:CLASS1 ioctl { 0x500-0x55ff };
->  allowxperm TYPE1 TYPE2:CLASS1 ioctl { 0x5600-0x5678 };
->  allowxperm TYPE2 TYPE1:CLASS4 nlmsg { 0x1 0x12 };
-> +allowxperm TYPE3 TYPE4:CLASS1 ioctl { 0x0-0xfeff };
-> +allowxperm TYPE3 TYPE4:CLASS1 ioctl { 0xff00-0xfffe };
-> +allowxperm TYPE4 TYPE3:CLASS1 ioctl { 0x1-0xff };
-> +allowxperm TYPE4 TYPE3:CLASS1 ioctl { 0x100-0xffff };
->  auditallowxperm TYPE1 TYPE2:CLASS1 ioctl { 0x2 };
->  dontauditxperm TYPE1 TYPE2:CLASS1 ioctl { 0x3 };
->  type_transition TYPE1 TYPE2:CLASS1 TYPE3;
+>
+> +static int avrule_read_xperm_value(const char *id, uint16_t *value)
+> +{
+> +       unsigned long val =3D strtoul(id, NULL, 0);
+> +
+> +       if (val > UINT16_MAX) {
+> +               yyerror2("extended permission value 0x%lx exceeds the max=
+imum of 0x%x",
+> +                        val, UINT16_MAX);
+> +               return -1;
+> +       }
+> +       *value =3D (uint16_t)val;
+> +       return 0;
+> +}
+> +
+>  static int avrule_read_xperm_ranges(struct av_xperm_range_list **rangehe=
+ad)
+>  {
+>         char *id;
+> @@ -2053,7 +2066,10 @@ static int avrule_read_xperm_ranges(struct av_xper=
+m_range_list **rangehead)
+>                         /* high value of range */
+>                         free(id);
+>                         id =3D queue_remove(id_queue);
+> -                       r->range.high =3D (uint16_t)strtoul(id, NULL, 0);
+> +                       if (avrule_read_xperm_value(id, &r->range.high)) =
+{
+> +                               free(id);
+> +                               return -1;
+> +                       }
+>                         if (r->range.high < r->range.low) {
+>                                 yyerror2(
+>                                         "extended permission range %#x-%#=
+x must be in ascending order.",
+> @@ -2074,7 +2090,10 @@ static int avrule_read_xperm_ranges(struct av_xper=
+m_range_list **rangehead)
+>                                 r->next =3D rnew;
+>                                 r =3D r->next;
+>                         }
+> -                       rnew->range.low =3D (uint16_t)strtoul(id, NULL, 0=
+);
+> +                       if (avrule_read_xperm_value(id, &rnew->range.low)=
+) {
+> +                               free(id);
+> +                               return -1;
+> +                       }
+>                         rnew->range.high =3D rnew->range.low;
+>                         free(id);
+>                 }
 > --
 > 2.54.0
 >
