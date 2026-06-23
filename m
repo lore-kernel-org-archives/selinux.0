@@ -1,135 +1,161 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED0993D7D84
-	for <selinux@vger.kernel.org>; Tue, 23 Jun 2026 15:28:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 519DA269CE7
+	for <selinux@vger.kernel.org>; Tue, 23 Jun 2026 15:42:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.173
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782228517; cv=pass; b=ktsH6tYb2q1/FqfzKipCNmzRaxAq7czfcRlzbE83dp569+b8t5MbhoQthnrEWZ434V1xt5ySLEAh2ozl3phUdc4vzdin2s3SJ67a6G4IYOHqUiypE0pni+Jgi3/ZjND72Cgo1kAY8o9HC+eLf+0ZWcgeORD8uZTd0+udiG20EG4=
+	t=1782229377; cv=pass; b=YZ8Izq0d1xo+VOf5hBsOlYmY5q5NvrekvRzNWsAIRCXiD8MhghtMfLZrOyE0dH3fF5zJpM2depZhy1GB91uMF+teIlQq1tYfhOqg5mOM0krhi8gr41jYjKYPrHfV+oPLxTlHSsfN9rJLs6zUVMFXyIuspZKfBxtqNFNXvVoHeeM=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782228517; c=relaxed/simple;
-	bh=mdB1NcGopcdspHTsvsxKthawdvcLg8PQNAYR3uwu/fA=;
+	s=arc-20240116; t=1782229377; c=relaxed/simple;
+	bh=yOjLxA1cUvAa/E6slV9XilxJnKl9Y1ADKEZl3hNjEQI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kSCGZCo3N9u+LmAQf1DSQgCG86Sl+Rt7EXqhkv/PsINBOg1GNAaw7FyF21RPQ4+InS7X1in5E0lOKCFHjl8OXEjULRNDM/0z4vIkYwGsJzhcb2fJRbY2FPjXykF7ZKQGRRgJ86IxXbLs5aqboDp+N9EbMKVpnww7Zwq7JWl4lSM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=B9uhO7op; arc=pass smtp.client-ip=209.85.214.176
+	 To:Cc:Content-Type; b=Jihe8FtiCZkEkwjekHu3U6wRSsY4TGgHnY8OyoI+4+HwC7xZE4es67/z2YQGefVZyRS2muS21NTT9zRaVYbiuisNdaFjkVoLw5Cd5t9q8DZLXjxi5dkAfS2nKQe9VQ1wpK8a1IyYJquBqm4ssOW6uNdWgCV5KbAvF33xiD7uZJ8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nM2zxIce; arc=pass smtp.client-ip=209.85.215.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="B9uhO7op"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2c6bc87f4d5so22224275ad.1
-        for <selinux@vger.kernel.org>; Tue, 23 Jun 2026 08:28:35 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782228515; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nM2zxIce"
+Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-c8894560c89so2075355a12.0
+        for <selinux@vger.kernel.org>; Tue, 23 Jun 2026 08:42:56 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782229375; cv=none;
         d=google.com; s=arc-20240605;
-        b=UtT41bVlsJtlQRj37aMPICwQAPHeTgFKNyK0r2ernycM24/VNwbx2LV9oj6qxU3FeQ
-         EpocgDSFJY2035Dr+3/xh58q5uCb6Do9bMYLELpBqSKD1Rwm/KRFiyQC5/lnf92L1G2Q
-         d7AaaLUClo5r9K7xAvedlHOHdeR+8xPu6gY99CAMe9hFRyzXWYdKpZYIFdXA7oUXHyID
-         pY6L4euFKniIhrofpatkXtW9bUcszZbmfci6CT8XDusJVtPbYv3qkRkWIotiJWRmFTRo
-         uIf+a+ucmJtNsT0kPdVx+Xxh5JDjYadgzYFXKBw1XtRVoI0NYRH9G+pBHQQC21C9glcP
-         pBQA==
+        b=k/OopuhfeHxEIsaoFwRULghUeJKUfWVuBtz5iSIQnH0arfDUVERO84QN5qhzn1A8Sr
+         XPqMdzEEpJUn2bJUXSLRHUoavwPbGJWRTM3eyPIrC3GIZACsI0E+ppLmDfMpim6mS2rp
+         che8iVTei07bvk2CjgNDPpNLOYjR4jPNOHiy95BQ+Wciuct5E2EXTH7eMMao+g0IfzYk
+         2ZyrGbsedVw40W6NknVOiRw3WN49IaOR8ywvWSJEKVbZb570S5qIhbCIujauTTYjpmCm
+         HVAKnP/rjMlMlL2UsjZ0/hCh1glKrYXBjRl+WdUoo1jraqwW3tNUSoFvygYeIa+ElT3L
+         QduQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=S6DbtgxSqrQlBOE3BOSIQ+meRXOCmzB5sfpCSmjPoxU=;
+        bh=jV0Nz5hhEPXiKtS3cSVPG5wpZnbXw9oJf5d0vxIdIbY=;
         fh=5BxwEK/iVIzhs7kNCBs0/zEkT4yGKFLka6Po5B0u4CY=;
-        b=lqzPl7fvElaAhSVBu+vO3y9xeiQ0wHwLP4w7ZtbFHz94Dkf4LxtaeIhVdvzHEBSsn6
-         4Pi3g9VOUw35CjboBDdVZr9DDGME1PU9iyFoRWTwEkRaui2NZkwNGzmHnSNH3W9WeYX8
-         lmwI3Pg1KJHyFt2V2aEFGxoTheK2pjd/sQ4fPDfTGFYsBT9/6lZX2vVhVt4w5ah6LitF
-         tJOyyrmkmPkjptdJPGTY9qpvzHkcKWLz2Ww46i35mXA8uoCJGnDzEq1rGIQhWyzVD1Cd
-         GrICu3/VFgPt4g3P50KBO+LIEcmNrCjibSs6m9s5vdvtKNgnCLK1EyQtTmCehCm6D79n
-         nwJw==;
+        b=SZQZ/7UNkgfa719qHfDymGDLS0pcr/qp3tR8lmhU8m3uWiccL/BD0x2JdduCXKCY/A
+         Nm1wRPnw4F8hVuQIpmjNQ8EU+odMlWqtrNJ3LBgcL75xeap0xCiqVyPPiM9VeDVjEyFf
+         szXoEKCme4uZKaOHplznn0gjQU+pZZ07gBAp7VlOO3XYac4h2Hij1YS72axmLr/em8DM
+         1oEeWc7Eczu4Q4VpukVMnTX2Y83uiIq9vO7poY/X8NBbU/vAqM/agl9BwemAzrDYcFz8
+         va3bl+T2T1NmQBw5c5IyG6mvw/J1DV6GsDZ56wW0N0EX+wGQmX/QJ0lot9slRDHrG26B
+         GUMQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782228515; x=1782833315; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1782229375; x=1782834175; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=S6DbtgxSqrQlBOE3BOSIQ+meRXOCmzB5sfpCSmjPoxU=;
-        b=B9uhO7opNILypZ660wSci9bV7HpujSvpKPiBIsp3IFFVIguSCszPejWQ7gM2AifPDT
-         12QBkmIJWz5Y3DNI/K9/VCLJ2tgzf+4CUC9FmaXt2XrwxVcbf5AylD8AVci21o8iCjd3
-         pOXzR1QcUpbENLgNXDuabd+rjcrrh2cU/fyvuhAaKi+jzPqSspNSfUzkSDNx7z9ApuG6
-         wOjs6UjFq2y8uLPvi87NPvk4TDWnLdJeMfqfuExfkYKRVOgQRq/pngIfZcO38zWKBC20
-         a/JSKGdj2Fd0PccaZw7yA4XT4MSwp9AVDhE7DppD/SLi0yGL2xCVIgTutaeU98M0QsQG
-         8Kxg==
+        bh=jV0Nz5hhEPXiKtS3cSVPG5wpZnbXw9oJf5d0vxIdIbY=;
+        b=nM2zxIceNhA+3x7VHPgWTK5Bl0sw3EPXIFYHUuOtUOf36C1omn1y1jn6Uil65+UN7H
+         CGCeVsIAxXE5s294lYqlnYLS5Q+2xWqULiKACZEqRa6xgYSLanfPXZr3iOLHgwUrcyDJ
+         //Vp1Ye08NBopU4VQOuOefUBvfpVn0HcWjNwf4BAtbn0deeBki9FVg2ncA1n1q+zQmWJ
+         7/dhpb+MFxE4B04Bf4ocY26tVM5X9HJdI1WmE+FIIiCd6vyORMjr3bU2akNMhrtXU3k0
+         yQrVoaPmNiyvZTGKnJ5xRiCzPZoAhgODbU08j5t3dtQV67LleuEpwrKG+whTufrbh+yp
+         ej8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782228515; x=1782833315;
+        d=1e100.net; s=20251104; t=1782229375; x=1782834175;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=S6DbtgxSqrQlBOE3BOSIQ+meRXOCmzB5sfpCSmjPoxU=;
-        b=W4koUstWA5yZePDmPsf4AUa0+Vz7wpER1A0ELWA00ZHwotD3FNuB0fFN6s2oRvGgrv
-         8Zb+jxeMwktJ5Z1xyk27CfGqrz4STyWM1/V8hEL8LijjO4VtIh1KsVu7Xp83pTeLdAp5
-         Bl8jPeaysiReC28PqJZC5rHlr7+LaLlWBOttT2icn6JC8kcNi75VfJ4FY7lUc/CFI89G
-         qXOz94di4XMXd2gDy20vCi1eFXi9/mcmbHEEdzP9r9qrb/ZVz/e3vxzgZAKH/RIt+LGL
-         2QU0u/TiyQdMFY2uaMZuZonXs0BRnt3GXqkUpeNZ0cTBNH4B+717nJT2w0k+SJ4DII29
-         R8dw==
-X-Gm-Message-State: AOJu0YzwzVVq2lbjNEvVtMmgvqNIzMa07zTVjc4jxiSMwNOQL1OPrkcO
-	GkF+WEJ4vnW5W4wOpAcr2tasET2apwcSQP93UJRueBMC/uNPpI/cs8rak3khhjpnU3E9tafb8RR
-	Lx+Ea8TaBdSZt6U2mWwunwQGftREYeSZLd9Zy
-X-Gm-Gg: AfdE7cml+tbKxnaepc2Z5Q9yUWHRxZz5VJgjMgRWtNUbMc69OYSw3yHGrHIWlTVHFTg
-	8d5dH7CIAH+kMQHIEd63OeoBXZqEfuwlXbAJofBdVrn7QHBswPrbq64DCkQVK7/wBFOb0UcQdSZ
-	uVF7QuijAvRj9c9Dd59kIVMoW2liu5u6pkKssyRdB89WrLYWLhq2IiutA05duji6/BmsvDi7gau
-	DzRlTE7qQU1cK7WUSX8JSdfLtx9BtSOYvRsx6oT3px1bqWo7fU5+/rwHLIx7zE0pngjIJE7
-X-Received: by 2002:a17:902:f688:b0:2c6:6926:8968 with SMTP id
- d9443c01a7336-2c742b1c878mr148201335ad.20.1782228515013; Tue, 23 Jun 2026
- 08:28:35 -0700 (PDT)
+        bh=jV0Nz5hhEPXiKtS3cSVPG5wpZnbXw9oJf5d0vxIdIbY=;
+        b=jp6T8zWuqb0cywu19BkEOPBm/ru6cDMokPF+s3D3Vbo3JzBCX4iEaOr1rkT+CD1MA0
+         7WkqQflk6VB5t4X1WWpTo/k6tdaAttgEce+CKPbrzak9zRgk7PgLhMpYcTe70NPlx6HO
+         zQFEwBlr/ubtk8HgM7r02aC956LzUi1iU3nXLJ0f5LlprM2haNeZ7sKuEbrY+bd9P9RJ
+         LlFCq531iPrFB4FR8xtD6Io5FsXz706ELXwu3rCAMVfZYKGQP6dfBCxepPu4AO5wp1U3
+         dm327Brh9jWtqpAosiZ5l8poYgUfHB/AigQE6vov6RmItbem4GBsJSq9MT2RwnY+1YG+
+         OmVg==
+X-Gm-Message-State: AOJu0Yxv8rBkbTmA0gwWP/J8UNX/7HDoFC/rZoh80iuLkKxqGsPYR9HS
+	8FLLgydpwOQPIjkGSicXtXw9pxGh3vuh+Ayj412ahyl78Io5ud5GGy0SwSWEZv01byhzRcfSPuf
+	5Gvrx7sq1gpGfiGsJzeJeir7YtrP2Aro=
+X-Gm-Gg: AfdE7clxIG936d+f79tt0fXGNrTwl3ykg4kUunvrpnlrvTm7CrLsl0dXwG6LrrNVn0n
+	xA/LoTazl2AVc9PwvXiLq4o7KwRSQzTqBz3dPtQ3cftqtJ2R2xjI+lTpt8Y66epDwoMNDERzoLz
+	wiDjaw+TrLwlWmuXW576/dhp9vcLwlqKAKw0RJB1SweZtckuPXNbxErHTqfbZcrcayWL+Ets91W
+	bOcMk3PFZ6rjQtoG+jzqX6NQ+qNRKzh2NJiJRQXQwuAD8NSG3dj1Pr3SuXuXYdBLnTBI7Tv
+X-Received: by 2002:a05:6a21:9e11:b0:3b4:71c1:ab29 with SMTP id
+ adf61e73a8af0-3bb3221844emr23372664637.16.1782229375363; Tue, 23 Jun 2026
+ 08:42:55 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260623134215.98273-1-cgoettsche@seltendoof.de> <20260623134215.98273-17-cgoettsche@seltendoof.de>
-In-Reply-To: <20260623134215.98273-17-cgoettsche@seltendoof.de>
+References: <20260623134215.98273-1-cgoettsche@seltendoof.de> <20260623134215.98273-19-cgoettsche@seltendoof.de>
+In-Reply-To: <20260623134215.98273-19-cgoettsche@seltendoof.de>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 23 Jun 2026 11:28:23 -0400
-X-Gm-Features: AVVi8Ce-nWyTtPQzaoxkeEleGRQAolYoHue4GcuYu347Byz2raWHcK22YnV9RS0
-Message-ID: <CAEjxPJ7yKSCX4RgwvgncjDWfV_xkhiGK+StbnbXeBWdk99+x4Q@mail.gmail.com>
-Subject: Re: [PATCH 18/24] libselinux/audit2why: reject non-string entries in
- the permission list
+Date: Tue, 23 Jun 2026 11:42:44 -0400
+X-Gm-Features: AVVi8Cf7spN22NLr9NDreGWk0LMV_oA_7pl3Ps59KhOftCvZre4FDsJcVtXUl0g
+Message-ID: <CAEjxPJ5TU3zHiinrqQPwj0cddK+F7wx-nY12J4xtHDW5xYmdSg@mail.gmail.com>
+Subject: Re: [PATCH 20/24] libselinux/audit2why: do not return a value with a
+ pending exception
 To: cgzones@googlemail.com
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jun 23, 2026 at 9:43=E2=80=AFAM Christian G=C3=B6ttsche
+On Tue, Jun 23, 2026 at 9:44=E2=80=AFAM Christian G=C3=B6ttsche
 <cgoettsche@seltendoof.de> wrote:
 >
 > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> analyze() passed the result of _PyUnicode_AsString() straight to
-> sepol_string_to_av_perm() without checking it.  A non-string element in t=
-he
-> permission list makes _PyUnicode_AsString() return NULL with a TypeError =
-set,
-> which would then be dereferenced in libsepol.  Bail out and let the excep=
-tion
-> propagate.
+> init() returned Py_BuildValue("i", result) even when __policy_init() had =
+set an
+> exception and returned non-zero; return NULL so the exception propagates.
+> Likewise analyze() ignored an exception set by check_booleans() (e.g. a l=
+ibsepol
+> boolean query failure) and went on to build a result object; detect the p=
+ending
+> exception, free the partial boolean list, and return NULL.
 >
 > Assisted-by: Claude:claude-4.8-opus
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+As with the previous one, needs the patch that defines free_bools() to
+be moved before it.
 
 > ---
->  libselinux/src/audit2why.c | 3 +++
->  1 file changed, 3 insertions(+)
+>  libselinux/src/audit2why.c | 11 ++++++++++-
+>  1 file changed, 10 insertions(+), 1 deletion(-)
 >
 > diff --git a/libselinux/src/audit2why.c b/libselinux/src/audit2why.c
-> index 268e9097..3c3aa105 100644
+> index c6c4c223..cae13f19 100644
 > --- a/libselinux/src/audit2why.c
 > +++ b/libselinux/src/audit2why.c
-> @@ -376,6 +376,9 @@ static PyObject *analyze(PyObject *self __attribute__=
+> @@ -311,6 +311,9 @@ static PyObject *init(PyObject *self __attribute__((u=
+nused)), PyObject *args)
+>         if (!PyArg_ParseTuple(args, "|s:policy_init", &init_path))
+>                 return NULL;
+>         result =3D __policy_init(init_path);
+> +       if (result)
+> +               /* __policy_init() set a Python exception */
+> +               return NULL;
+>         return Py_BuildValue("i", result);
+>  }
+>
+> @@ -335,6 +338,7 @@ static PyObject *analyze(PyObject *self __attribute__=
 ((unused)), PyObject *args)
+>         sepol_access_vector_t perm, av;
+>         struct sepol_av_decision avd;
+>         int rc;
+> +       int nbools;
+>         int i =3D 0;
 >
->                 /* make it a string */
->                 permstr =3D _PyUnicode_AsString(strObj);
-> +               if (!permstr)
-> +                       /* not a string; exception already set */
+>         if (!PyArg_ParseTuple(args, "sssO!:audit2why", &scon, &tcon, &tcl=
+assstr,
+> @@ -401,7 +405,12 @@ static PyObject *analyze(PyObject *self __attribute_=
+_((unused)), PyObject *args)
+>                 avc->tsid =3D tsid;
+>                 avc->tclass =3D tclass;
+>                 avc->av =3D av;
+> -               if (check_booleans(&bools) =3D=3D 0) {
+> +               nbools =3D check_booleans(&bools);
+> +               if (PyErr_Occurred()) {
+> +                       free_bools(bools);
 > +                       return NULL;
->
->                 rc =3D sepol_string_to_av_perm(tclass, permstr, &perm);
->                 if (rc < 0)
+> +               }
+> +               if (nbools =3D=3D 0) {
+>                         if (av & ~avd.auditdeny) {
+>                                 RETURN(DONTAUDIT)
+>                         } else {
 > --
 > 2.53.0
 >
