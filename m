@@ -1,115 +1,257 @@
-Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
+Received: from mail-qv1-f42.google.com (mail-qv1-f42.google.com [209.85.219.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F60A372B2F
-	for <selinux@vger.kernel.org>; Wed, 24 Jun 2026 20:51:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9FD33E5EE3
+	for <selinux@vger.kernel.org>; Wed, 24 Jun 2026 21:23:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.42
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782334287; cv=pass; b=djI/LdAwPB1bagH/8scaUWH1ZvIb97uYYXbTa11nfrFavIkzSxGFUpu2RWHMiGsaDBs4WCQR2Jr0T4hipDvpfnpMuqEclM7qyHU8JWpOuNrVdfmM7aeIufZSmjxoZYKGWW0lc5XHxUEYpqgT/rprv6EP1zit6qk6CNEYRikllJY=
+	t=1782336189; cv=pass; b=h9x4dU7ll+VCSJ0SHM8iwxyfKnXWT52ryuiVJE4oo8xvBn4ddRvbOZGyc6a7ATE55Wn+QP1kk0YB0KLTk6ks0/Y4OM3cbFhV+4r31Ad6+l53ImvFT8UVmzPJibYZHeU9CVHmynqRg0NsctIQDn7VWtjmVtfp7y8BNFSg4loTX0w=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782334287; c=relaxed/simple;
-	bh=7g31X71XMx07JCxOq54ek4E3/yg/CBRXiPCIccPIBNc=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=SBMljbelOMe4M2ntH7zyd0Zak/w1B9MFZFlP8x+G/sndLcdZnc5BAaWOboSvWKnw82GzIJlTksxfc3ujymO1QDCmyIWvUrHxgENTFN/c1Ohpr43wp15pbdZ6BiutnDVYaYfSDB+63QLzMsLbz7kbfzTyqVBTB3GUxMF0ZU40RKc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=L99C77qc; arc=pass smtp.client-ip=209.85.210.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1782336189; c=relaxed/simple;
+	bh=e8FKnMxnQE6EcbhtFXm3u/ZDFx7rumJIKaX/xozB5Yw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=X2D62CjYXN5HIxHNbg4AJPeO50+9J8QMbKz8LhkIwonNtc9ldSwhbINfyqKGt9KtUnb6C+b7mx6IiBfF4oLAIUENl4UU0MlvabyROPl7Lv+npVih/3QnLlw/xeLNjOiDfpfNMU+P9RE7gcZHqwiI3e9QFNyTfU8dHL6thKwZx8g=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=raltZR9i; arc=pass smtp.client-ip=209.85.219.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="L99C77qc"
-Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-8452a597afcso1102245b3a.1
-        for <selinux@vger.kernel.org>; Wed, 24 Jun 2026 13:51:24 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782334284; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="raltZR9i"
+Received: by mail-qv1-f42.google.com with SMTP id 6a1803df08f44-8db4b249ebfso18203376d6.2
+        for <selinux@vger.kernel.org>; Wed, 24 Jun 2026 14:23:07 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782336187; cv=none;
         d=google.com; s=arc-20240605;
-        b=iSOwTuo8BqGiHysdrn12EaW3QruRz2itRJxPINZs5j6ZDgQmNc8V1y9rto4+LOqdrh
-         UC7uWqGp5LJoj/drbGf4F+8V2r06rHKmFHzTlExj9qhblbI1KXfAGA0WMZYkLNbTWrAl
-         Rq98qkKUSYh6fesNJ6fa/G1ZI1VfpSGEKHGSd8UX3b+SnM0sH3RlruaJyThFkvHoKUJw
-         bgLj2HHYtZo1Sywkg5ROnKHB2bO2N0Si08ZTY+VIzxRlyZmnAp91TEnkQw0/N2APdNlv
-         NgVNeXEDrSybHCYqr59Gobix46JwqOI4JyU5SJZb1nqAUZD0V4D9+CNWetLs+GK/quYt
-         czgw==
+        b=Ioi7Z2vD5hMFYYWG+j5jnWv1mc4pGThryV8KQs5SNjXOoN0piBrZqBglf3SsU2yPoJ
+         DsfdrTnFxiXGejXiNS2fF3EXe8DAb1Dx9zgr7RqPyM+L/tn2wWd5aU/XrwHw8Jh7k2q4
+         QVgGKoMLxEWHiAq83+u2nj9kIp3I0U/pf3n1sYLyVGOyQ7yry77Pw1hh4xddGUTaj6ue
+         UEHZbxZNVkN1bhLWrMzGSTxtnwkwXU0cE0kFdDMxvhkLM4zKtpcM5jIALRCScuNR5Wlc
+         a9h9bJ8Uz8ZwYnXzNYFNuSYxAqE8/bFlUj+7sLKLWu41H6gBMBeN3AP2fAO2fVSas7Dy
+         VcsQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=to:subject:message-id:date:from:mime-version:dkim-signature;
-        bh=YZ7Dn0q6IsJO0rZyGkp3ibpHJ9juJ0i6jLLoWgdvIMQ=;
-        fh=l2l+BKIhep14i9a5yxIzwDvgNRHYkyJlbYDDp8LiW6o=;
-        b=g3hlgi9CmNeyP+xnDm1Tcx1mWoXflCKC2K7xhl3QM9qq6CZO+g5Np8bL7+k3cLIj6s
-         7NCg04dipyKTHq1EQF+9I1OhCcP5KOzb9rm+xb+3Bn1ZR4lMoz2T1p9LgrJ3Q8Tg3L0M
-         lC5oqnRr9y423oVVMfqizJ7hINXRjlqabuwBgQcVHse+Kr4ycsw6PVgJIWi3rq5yL97Y
-         qE0zLP5Yy7OG+24BhQPWb8o0lHRYUj6q0wayraRg9ROcDFlrp2EaWaxIiwpIwTjhWJWx
-         k9rkKRfMCjBEqfZsP+e78y8M2tQE0DTqhuOelT++85dKmxWjlCQjZe7aLvYgAzCJTZtB
-         3fNw==;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=qSoqZHCVaW6be7/8vwIAP/8yZ9kR/NSjkqmErBuSEOM=;
+        fh=QFVlbdV/fh7c3FJTefzlTJZjkx9lE6vJuC8Jsn1X9t8=;
+        b=dsmUt1XtvXJT/e6y9w71oP+OB9HkneCzT7y3BXX1sa/e+Dh97mVBlMyVSLskErifZJ
+         bsSJ4DpyPy/upzMDTi6NuuKQrCNod19gXdu13Zj9694Cf+wD+qs4KUr9RmiR8tq4vD1e
+         jz1iUEOu5+o8K3dLS1Rtpp6g96c1A+9u7SoykizJlR6KblXUG/kU7YDO7NGn9PDmeifW
+         uq6/6uRDUl0N5mV/irEp5VS74rCUdowswzH4Jt16FViL8U5j0wBVX/Lrgm6Pr2epstvI
+         +N3gFXlYF2paOCRZwJFVNAxiL7s8JFyjAoe3ee4JozrL8yG17KkYFebzZlTskRnc5AXY
+         w3Ag==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1782334284; x=1782939084; darn=vger.kernel.org;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=YZ7Dn0q6IsJO0rZyGkp3ibpHJ9juJ0i6jLLoWgdvIMQ=;
-        b=L99C77qcitspgYF51qtDOLEMCZtCPxm9qF9bQOnwoi/C6TRwP616CIaCZONvdBzXgr
-         bLXyalSZj2FKbv34RdqmYPjCAfmpID2DTmabF0lrRRKIVhvMoPzezHvuiWVpMzwLMB3+
-         WcHEO+x33nr94kmNgE+r5Pv+f3bpf+SIGHAUDGJl4CoFQ/5ah5TbkqGgtLEOYM2F5Nyn
-         4l4yhYcP0SAkV7xVGpBBvBB+QCcIt/68ME86U4w35SiFZPID5dnNEuMJFd/bbSfiowLS
-         8GWY/tU6I7ZXBC+6WWnFVyEYNrpSokxX1PJ0/t2TXtJ9+SjULTuCFtxSaeZLE141A/Pv
-         ktdQ==
+        d=gmail.com; s=20251104; t=1782336187; x=1782940987; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=qSoqZHCVaW6be7/8vwIAP/8yZ9kR/NSjkqmErBuSEOM=;
+        b=raltZR9ix+5bTVcUNHjV/cKP9ZaG1gEmiC+WOxk/Bti6+RV+yArkBmKtnOStqlTsK/
+         ae0P9i68bhil7Gs4F75D7Ra/1LP5Go/rBmccFGT1/FGT3CL9Sf28c0p0p23wUlHO4TRt
+         8bT8mMwUWidmP36ArLQDRrfkHJwY6KobR9od+7qm+0rMKRJMpZl1+0ZNwZaTG2+F906I
+         faqY01BZpg+808056MwqrwGc+i3OLXcjjfzyCxwtH2i9+NtMhOXCQQh4i1Kx019DCs+u
+         LrpW93yC6yNCe7eBQ9XrMxHxEChoF7qARpla1T2YvZlr35n1Yuk3SpCk2niUFbYZcner
+         +WAQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782334284; x=1782939084;
-        h=to:subject:message-id:date:from:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=YZ7Dn0q6IsJO0rZyGkp3ibpHJ9juJ0i6jLLoWgdvIMQ=;
-        b=A5gmQqLQ8nH+7z8o9JJBlXeTW5YpAKEL0RbJ/h3Qc/OfpwQx8SGaMRsJNnmXSxKMmW
-         AzqFZVS1xpEwgg2jlLnd7ljXdvtJz3C/CeHhmNcWwAFgnT2/0DUnzxOk1o/ET8l3G2vf
-         d2tl8zv1puB+m/zKktzd0HRP9XUfpySHti6OFAEk2z4O2pdC9b+y3tvWD/TDLICPtKzY
-         Mwf+34SjlmQSBl2BfP2S9VeTTYka9ESvYzB+/L33j9QQsy9lgeNrKF20LZp7tTuZqOHU
-         /abTof1QGa1+IH8p+TN7B6F+WLOqj8egqqA/SKhZvgTCeh1MJQqF33pY67nXfbZzRwsi
-         j8kw==
-X-Gm-Message-State: AOJu0YwegtwFnVEB1rr1U8ksJMhckeAcB9VwE6VuMmhqA9TxxUfA/6uB
-	Y0yH0FNg6lpqBA8FALJdFaVFLbzO7j6sBwG9MXuNtLdEd2x6PmsJ0WFacs62Dk0h/me8IBXmqjN
-	MsLc0osGWjOoqgQT9gBbmotMqmKJ05EpMaRepyB0G53tgMjFKUsml+/Tz
-X-Gm-Gg: AfdE7cnoYVy/PrlC/ULNnnOxDIw4mQeXMBeCAMuFDNXZFMxg7ouYyUH+ZsK7GqoiaoO
-	1p/zWOIS+7crRd1YpR5TT2eRbaAQXUNIyWzJxutGmZkZhcHvNIojX8YihrlydE5TGfpyTvpCGDi
-	uMkcHbYMgqAcz3m5BzDsWe5FanNtw0Agi2mZs2XDWlvSjU/kwHfyJuurcI9WqODE46yCT5Ouj6S
-	KQ8z0bdfdQQ49QqZ0LsTcBMaoi0d8BeqjwHTj+vnd8nOMCW1Q6smyaoVkCD0B2PEd9DNTN4
-X-Received: by 2002:a05:6a00:2d07:b0:845:39dd:f773 with SMTP id
- d2e1a72fcca58-845624575famr27592673b3a.7.1782334283915; Wed, 24 Jun 2026
- 13:51:23 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1782336187; x=1782940987;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=qSoqZHCVaW6be7/8vwIAP/8yZ9kR/NSjkqmErBuSEOM=;
+        b=R6XDfeT+LzX3qA7AD9isSaZHRPBd3RpMedq9sfgSINmrlpKNi+bBsjuUww+bS4F4JQ
+         y9+f6jL9lIMrvFTeb0U0BwO/04jf6BsdMjvao/GM72CUvjTYm21HWFRg3AR6XfnSKaDi
+         0OTwlGqnehNLbu9E9DLoqkfcedgj3epJUdhlwvvoMc1XrmLhSL+MDiwHx/mztbsnGxi/
+         5PrVPtfSL0e6L2x/geg5aljIa0Eo0GiQwBULlOtWR8BJRwzlGbpZgxkXkHnK3VPJJnSz
+         iggVDUQM4yn3CcdI90+6cGzxmgOdabqELMzxUNC9px6oeWl9yVCTHegHur13zBpXTCZ8
+         Ip2w==
+X-Forwarded-Encrypted: i=1; AHgh+RpBbQ6WjcMGm3XqUNNF5ZpVAdZpI6naSiKxQWj3t/ZtqcFnheLyp0iJYAIfDL5LSA7Y62gogUSg@vger.kernel.org
+X-Gm-Message-State: AOJu0YyfJJBpxbewB9HFiOSlkmQgJLfwYIUTm8rB0wDOrFDzfl7HOaUr
+	R1yGdxLhxvXGYBWrDaDqcyeTN1ujA/MMxbxyWNFt3n4XDFCiqlsadzrRpVBpBT24ee7bH2DxVcG
+	eYWlCYd/62h6IbRX7BH+gFm3QC2h8txo=
+X-Gm-Gg: AfdE7cnj0GRJjtLdoin4KPzqTikQLZr4rmAyncaDr4ybq1mBg/6qik8BNqM8N8MpAH6
+	QqLAlATTbUSBSHVzkrTfu4Npvs2kTKP1/qmRbwyOGBpAooungHD2sCgGXak2WbemZAPmw8XdDYk
+	RVm25VgvHfR4xQ1TEWhsd4MyQ/niu2oy/7oKs1uTtVeCe7ezDNGJBagAR8EBqmYdkXb9qUQPUwX
+	N/Ah92dkNfbw7kBETThf1GHW/ya/y3Gz68n/72cXfJDCrCZI+hyIKUP1bos8SwP4gDwMja8bIco
+	XyJyAyDbeZwXNl6t+UABSxFk+/g=
+X-Received: by 2002:a05:6214:cc7:b0:8db:736b:b2fd with SMTP id
+ 6a1803df08f44-8e402a51b48mr148834946d6.26.1782336186403; Wed, 24 Jun 2026
+ 14:23:06 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 24 Jun 2026 16:51:11 -0400
-X-Gm-Features: AVVi8CdQsS0Ussg38UzurJ-_mc_f0IuMYllpZ4bVYyTz64ZAkQA0mJ6ijkVuOZ8
-Message-ID: <CAHC9VhTCXEpJVnWuy36_XzKjmkBRaqwjDPfqZFiWd2aYcEntgw@mail.gmail.com>
-Subject: ANN: Sashiko reviews coming to the selinux mailing list
-To: selinux@vger.kernel.org
+References: <20260618203411.73917-2-dwindsor@gmail.com> <75d39fd9847cca915d704235264ab474@paul-moore.com>
+In-Reply-To: <75d39fd9847cca915d704235264ab474@paul-moore.com>
+From: David Windsor <dwindsor@gmail.com>
+Date: Wed, 24 Jun 2026 17:22:54 -0400
+X-Gm-Features: AVVi8CdrIOcn7xbcClmMBTsg427tmja6_i0WQl1k6YwRkJtqaPChbJXPc9S5D7w
+Message-ID: <CAEXv5_gSOoHnVn9bKsCdHB5aR_tNHRZ+m2trVcYNmbtS-K=4fQ@mail.gmail.com>
+Subject: Re: [PATCH v3 1/2] bpf: add bpf_init_inode_xattr kfunc for atomic
+ inode labeling
+To: Paul Moore <paul@paul-moore.com>
+Cc: viro@zeniv.linux.org.uk, brauner@kernel.org, jack@suse.cz, ast@kernel.org, 
+	daniel@iogearbox.net, john.fastabend@gmail.com, andrii@kernel.org, 
+	eddyz87@gmail.com, memxor@gmail.com, martin.lau@linux.dev, song@kernel.org, 
+	yonghong.song@linux.dev, jolsa@kernel.org, emil@etsalapatis.com, 
+	kpsingh@kernel.org, mattbobrowski@google.com, jmorris@namei.org, 
+	serge@hallyn.com, zohar@linux.ibm.com, roberto.sassu@huawei.com, 
+	dmitry.kasatkin@gmail.com, eric.snowberg@oracle.com, 
+	stephen.smalley.work@gmail.com, omosnace@redhat.com, casey@schaufler-ca.com, 
+	shuah@kernel.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	bpf@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	linux-integrity@vger.kernel.org, selinux@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-As some of you may have noticed, last month I enabled Sashiko reviews
-of SELinux kernel patches posted to the mailing list via the
-sashiko.dev instance (link below).
+On Tue, Jun 23, 2026 at 8:12=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+>
+> I have a few specific comments below, inline with the patch, but I wanted
+> to make some general comments too.
+>
+> The kfunc additions really don't belong in the VFS kfunc file, please
+> create a LSM kfunc file (call it security/bpf_lsm_kfuncs.c) and add the
+> kfunc code to this new file.
+>
 
-* https://sashiko.dev/#/?list=org.kernel.vger.selinux
+Makes sense. I will also do similarly for the selftests.
 
-Now with a better understanding of the review results, I just
-submitted a PR to send those review results directly to the mailing
-list (PR link below).  The results will still be available via the web
-UI for those who prefer that interface.  While it is hard to guess
-when this change will go into effect, it seems reasonable that we
-should see reviews on the mailing list something within the next few
-weeks.
+> While moving the kfunc additions to a LSM kfunc file does sort of convert
+> the VFS changes into LSM changes, Christian's comment about splitting
+> this patch two patches, one with the LSM hook changes and one with the
+> BPF additions, is still reasonable and a good suggestion.  I would still
+> CC the VFS folks on these patches and I would encourage reviews from the
+> VFS folks as there is a VFS component here, albeit a somewhat small one.
+>
 
-* https://github.com/sashiko-dev/sashiko/pull/292
+v4 will contain 3 patches: one to introduce struct lsm_xattrs, next to
+introduce the kfunc, and finally the selftests.
 
-Unfortunately Sashiko only covers kernel patches at this time, there
-is no way to enable reviews of the userspace patches.
+> > +
+> > +static int __bpf_init_inode_xattr(struct xattr_ctx *xattr_ctx,
+> > +                               const char *name__str,
+> > +                               const struct bpf_dynptr *value_p)
+> > +{
+> > +     struct bpf_dynptr_kern *value_ptr =3D (struct bpf_dynptr_kern *)v=
+alue_p;
+> > +     size_t name_len;
+> > +     void *xattr_value;
+> > +     struct xattr *xattr;
+> > +     struct xattr *xattrs;
+> > +     int *xattr_count;
+> > +     const void *value;
+> > +     u32 value_len;
+> > +
+> > +     if (!xattr_ctx || !name__str)
+> > +             return -EINVAL;
+> > +
+> > +     xattrs =3D xattr_ctx->xattrs;
+> > +     xattr_count =3D xattr_ctx->xattr_count;
+>
+> I'm not sure why the "xattrs" and "xattrs_count" local variables are
+> necessary, especially since they only appear to be used in the sanity
+> check below.  I would suggest just using the values in the struct
+> directly.
+>
 
-For those unfamiliar with Sashiko, it is an "an agentic Linux kernel
-code review system" that leverages Chris Mason's LLM prompts (link
-below) to review kernel patches.
+Leftover from the previous implementation, will fix.
 
-* https://github.com/masoncl/review-prompts
+> > +/**
+> > + * bpf_init_inode_xattr - set an xattr on a new inode from inode_init_=
+security
+> > + * @xattr_ctx: inode_init_security xattr state from the hook context
+> > + * @name__str: xattr name (e.g., "bpf.file_label")
+> > + * @value_p: dynptr containing the xattr value
+> > + *
+> > + * Only callable from lsm/inode_init_security programs.
+> > + *
+> > + * Return: 0 on success, negative error on failure.
+> > + */
+> > +__bpf_kfunc int bpf_init_inode_xattr(struct xattr_ctx *xattr_ctx,
+> > +                                  const char *name__str,
+> > +                                  const struct bpf_dynptr *value_p)
+> > +{
+> > +     return __bpf_init_inode_xattr(xattr_ctx, name__str, value_p);
+> > +}
+>
+> I'm sure there is a reason why you split the code out into
+> __bpf_init_inode_xattr() as opposed to just putting it directly in this
+> kfunc, can you help me understand?
 
-Let's try this for a month and see how it goes; if we find it
-disruptive, we can revisit the Sashiko configuration.
+Not sure, perhaps prior convention, or something with the verifier
+perhaps. I've removed it in -v4 and everything works.
 
--- 
-paul-moore.com
+> > diff --git a/include/linux/security.h b/include/linux/security.h
+> > index 153e9043058f..1f8e84e7dd7e 100644
+> > --- a/include/linux/security.h
+> > +++ b/include/linux/security.h
+> > @@ -68,6 +68,11 @@ struct watch;
+> >  struct watch_notification;
+> >  struct lsm_ctx;
+> >
+> > +struct xattr_ctx {
+> > +     struct xattr *xattrs;
+> > +     int *xattr_count;
+> > +};
+>
+> I see the bots already pointed this out, and you acknowledged it, but
+> since I'm looking at this I felt obliged to remind you once again about
+> the rename to "struct lsm_xattrs" :)
+>
+
+Yeah, sorry about that. =3D)
+
+> Also, looking at this closer, is there a reason why the "xattr_count"
+> field is an integer pointer and not just an integer?  We're passing
+> the entire struct by reference to the individual LSMs so we shouldn't
+> need this to get an updated count in the caller and having it as a
+> regular integer should simplify things slightly (you could also
+> make it an unsigned int while you are it).
+>
+
+Copy/paste from v2. Will change xattr_count's type to unsigned int.
+
+> > --- a/kernel/bpf/trampoline.c
+> > +++ b/kernel/bpf/trampoline.c
+> > @@ -859,6 +859,9 @@ static int bpf_trampoline_add_prog(struct bpf_tramp=
+oline *tr,
+> >       }
+> >       if (cnt >=3D BPF_MAX_TRAMP_LINKS)
+> >               return -E2BIG;
+> > +     if (node->link->prog->aux->attach_limit &&
+> > +         tr->progs_cnt[kind] >=3D node->link->prog->aux->attach_limit)
+> > +             return -E2BIG;
+>
+> Re: Alexei's comments about this - if you look back at my previous
+> comments, my concern was around BPF LSMs using too many slots in the
+> xattr array and causing issues.  If the BPF folks want to do that check
+> in the kfunc located in the LSM framework I'm okay with that; the
+> important part is that the BPF LSMs don't use more space than they
+> previously requested.
+>
+
+Ack, will remove this attach-time check.
+
+> > diff --git a/security/security.c b/security/security.c
+> > index 71aea8fdf014..8f82a1352356 100644
+> > --- a/security/security.c
+> > +++ b/security/security.c
+> > @@ -1334,6 +1334,7 @@ int security_inode_init_security(struct inode *in=
+ode, struct inode *dir,
+> >  {
+> >       struct lsm_static_call *scall;
+> >       struct xattr *new_xattrs =3D NULL;
+> > +     struct xattr_ctx xattr_ctx;
+> >       int ret =3D -EOPNOTSUPP, xattr_count =3D 0;
+>
+> Since we have the xattr array/pointer and count in the new "lsm_xattrs"
+> struct, I think we can remove the "new_xattrs" and "xattr_count" local
+> variables in favor of the fields in the new struct.
+>
+
+Thanks! These will be eliminated in v4.
+
+Best,
+David
