@@ -1,239 +1,126 @@
-Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5E222D060D
-	for <selinux@vger.kernel.org>; Thu, 25 Jun 2026 13:07:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.174
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782392834; cv=pass; b=Ca2dKeBwULajd1Q4q1D592MFjCQ3eqa6bcxNdsmJ3p1CE+lEOUdzBbYxyafdYoVqjMCJHQ8X7bIkrG29vRPDQK6+z/fIwju2BOtR9mumoEy7ZPcbWjXgFav/vqk9bAnEAQZdZra513ozVZoYBnyfXnA7rHJEoWqAGnzZy1VRH5Y=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782392834; c=relaxed/simple;
-	bh=6ju5IBcIc3LUp28l/jdozJ8yBE+0JvsXywAKsyfw1Ek=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=gh+d/t6xNekBhrWAM9N/E+FZBwmtk/NP5jgwd2qFI+epvphOjdYkKGLLPqLHVQL87+W7SKXXswgXRBWNfemXKZ9cM3w6Vfdjjsqg760UdyZHYmh0lLFcMysv7S3+2vkNyh5YXgJweXXKoZADF0Nf0G7Y120RC3alBYMLCsIGTCk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oEoWXhjb; arc=pass smtp.client-ip=209.85.210.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0BF0363084;
+	Thu, 25 Jun 2026 14:23:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782397439; cv=none; b=SR2jORAgZGYM0r3eNoGHgnwTzCY5ioWuiH/b5cJKo4ebeh+ws4LD5GCSHAzJH/7fmgWTyxlf5YSd42gWcqO5tH6qyYrZKMgYeEN3bGIAXxPdlUii8ob2YzXG8RITyNLBnlewMgfNcMlMwF7ilBgZRUqUgDBu7oq5OSZgtKks39I=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782397439; c=relaxed/simple;
+	bh=NNO35ZyHK/r7ijYBDhwLPiIZ3wWD+t05OGJl+8ydVYA=;
+	h=MIME-Version:Content-Type:Subject:From:To:Cc:In-Reply-To:
+	 References:Date:Message-Id; b=UxnN9tR9EQr2G3rTkPSBW29VOWBzPoeNTsaPOP+FcUCIr0x7CIsOuyrsaLlKR5hzyDcZP3ETIh+0GxL1rIMuMMs2ZTa5RRLw9ZltyzNUlPdbfKKhefRdhpPZt6XCIKOj5vck5UGmfRz33KNEc3HWpU0w8fjdWtnaImXoq6sEOeo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Oz1c07kk; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oEoWXhjb"
-Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-84592b55832so1441659b3a.3
-        for <selinux@vger.kernel.org>; Thu, 25 Jun 2026 06:07:13 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782392833; cv=none;
-        d=google.com; s=arc-20260327;
-        b=TlH76WcW6DQNTbuItk/Ss8C02Y2TjaEOKOxtzilu89PuucgICapEjQ/oI6s5UiF6X4
-         sd3JIK7pXqygZbeAaw3oW4jav0CgtHwMrr2MFD0ERcGCO4YjYVS7uKr71H0wKPPNnPI9
-         3JXxDx+AudgZC+OOSLj9dkOkoHUgpkt+Z8yFeUful5cppOWyZp7O5inA3cwPtPE5ucB5
-         cYqe4s86589FrV3ckfdlk0z4Tkvylxc4+JsRZNa/OjhOV4LLcYQleezmhuY3aDE2V85t
-         HV4+GI7/w6tkzx+ZKMUnvaPW+bHoYkZEC3xRStCyT2+gqT5JRCNmJapmxo36OQCwqaaB
-         U+SQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=IPh7PEOGUBlvY63Fl1AG00Ogx5T91FMNAsKp5VRtx38=;
-        fh=FsXghBnyoYbEc42Idnie0oh5A6i9FUng5ntOLhqXIRs=;
-        b=U2p7qu7I/TFu6W0FCVwJdUV6X2HjnNDFbFajYmxVy8aTX0+KZGmwwvyfHKdUv5oDPA
-         5LZc070q7YO1wwNLMlT+DxHntODkBJq7G73P8Vlc2rHthjm69GnhrAuDrB7MYY5KKemM
-         AqIab6mTWLrPLHJTgKrNh1iI0OpiVIiqYOGQmUUdCX+rI2o+CTEecTEsAnPNVHuXoXwM
-         jEHtQ4MaQ8/yGzG2KBKn2heWEeGtEOZwoy6Ku1eUlK+O/H6S7GWW+1DG2p4XXZMphMvn
-         FhNoYCP6EQVi+hUe1T7IiKklLku2A/zauSC6TfWIAWc8r1Xs+9ABjYQq3T/4qnmHIOpe
-         EXnQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782392833; x=1782997633; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=IPh7PEOGUBlvY63Fl1AG00Ogx5T91FMNAsKp5VRtx38=;
-        b=oEoWXhjb6pWo/znXj2pnnntVWZAeyz3o8Ouk4ynC72tQz+7eZxCqIRyNFLpgNhFdNg
-         Pchl3olHrUmt24RfTWkSSmtCZHq/PqQzs7ooO+HaVy/Rkea5Hq4CZwWadcu2McVWTRMS
-         he9soelhESLU+lpfXlhztvqCOaJm3QpBIUoFUOa+HEA41BmjhO/uuEI0xMFMVYEkWTrE
-         jU6vWqPzwc3JpaJXaB6P12GgmfllmsRwgkhhzoNfDG5nWkU5dUZCFCgBudyKmQIvkmWP
-         tQlvqFld4FgsrkBW6OuyJ6tyy7JxG6zpp5jCOCXSQADOX6TTMudkQFZchxRfBiBoI25+
-         GTCg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782392833; x=1782997633;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=IPh7PEOGUBlvY63Fl1AG00Ogx5T91FMNAsKp5VRtx38=;
-        b=tQQlBm+yTVfEiQVa5K2eXAnhQGOVEgR4T3LWYyetIlpXs1Ns8ijjqdcgWFfVNGfisS
-         0eKhtCy96UI5Xi7MddHRq3rraUvyUGDMOJAvXlry2tvxABTriIp8JqX9JEI5I/oeXQKL
-         qf7IrMgIsndXVzlU8y0asKvTruEr+UgcYSezXFxfvjGXQB3/DYB6IjoTbDAPdZeJ8YsK
-         oEM+F+ys79Er17CqieYE9ZDQVxvpEqKYtxO2DoOALNavKWUKCxh7otz63QpDTDZI9sI+
-         aDxk5nvzq/mahkVii+hqisOUl7OfFcdpELt3G9g+wt1vlOpR/S9AtXGWqwrIWCsacHlG
-         fyuQ==
-X-Gm-Message-State: AOJu0YyyEro1cocyVrWV/AZ+jVTsOUQVPdXMv426pabluzhqF77TIv9t
-	Gi4PYxywYz1DGum6Jo5ddtjwpnwh3KvBKOJF+0IxhSKxoPm1xVSZcuFRGNfCKOB8SWJY7Qj6wtj
-	5XCqVyXK5b0HA/p6jPjBTE4tHgdqwTOo=
-X-Gm-Gg: AfdE7cnSebKwGLhqaF0YCywqK9v7mF9r7ss7Af4YH1Y4dobHPPzBy4+CQUIdKTE7Nja
-	gTum4SDRMiM+4ZcmiYjPZTlqqVc+FVUmX5Gfl9iQTGAcYdNF9hOHgekv+k3QrtmrHX2Ueb9kCoF
-	1vo4cR1Rdaw7nospI1KPZJIgejNit9YveHz2PN/HXu6pJdjX4wN8KEqd2oq8oG5hdumOB6urRxz
-	iXTmJFe7rBDEhCtUp91aoTMNyR5GWDVhbXADJKZ4NuPos58bOYf0H7nbRHSSGMwjSwh6eAg
-X-Received: by 2002:a05:6a00:4f89:b0:845:4928:8655 with SMTP id
- d2e1a72fcca58-845b3b07276mr3130732b3a.39.1782392832925; Thu, 25 Jun 2026
- 06:07:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Oz1c07kk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2082F1F000E9;
+	Thu, 25 Jun 2026 14:23:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1782397438;
+	bh=6atzj4kdhKh25A+taHkGxSsDJim9lth3hiEmW+J2u/Y=;
+	h=Subject:From:To:Cc:In-Reply-To:References:Date;
+	b=Oz1c07kkv4QRwYt9flB1pDhTg2X/Yep0XMYrVamssz5nW/L/I0I2xsAriiCamTvyG
+	 DoSc0tlA4uDhI5jTx20W+bwFWzW2wiHoUTwsQxNVT25/TX7NjVMiUAhVHcN1eH7NSh
+	 5vFKgIQXCYVpE6RssSuq4qedXvk7xgpIDyqja17KJsRcgpTzIxejiTxONeAUsEfN9r
+	 cA0BLfTMd2o1gexGnDumcsOvZymXoyDCjFrJaohj5rl+2C9LuRZhrJ6e0ou2hXKx95
+	 s87/RtdzKQmIbTx1UeZL21E9vDNZyzW39pUAiEGbfNBnetKsYblpPl+VDZhw3aeDsk
+	 cxUKss8Wb1Z2w==
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260624143600.11282-1-jwcart2@gmail.com> <20260624143600.11282-5-jwcart2@gmail.com>
-In-Reply-To: <20260624143600.11282-5-jwcart2@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 25 Jun 2026 09:07:01 -0400
-X-Gm-Features: AVVi8CfEw_r6DgvoRfzQAn23t_A3mwyD1ditUIZpMu6fkUKpwy6Md0RlLoQn6uU
-Message-ID: <CAEjxPJ6g302cQCUQUKS5bQ9gofcCj-BfWv2iiUxk5MOuYuRixg@mail.gmail.com>
-Subject: Re: [PATCH 5/6 v6] libsepol: Add overflow checks to strs_* family of functions
-To: James Carter <jwcart2@gmail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH v3 1/2] bpf: add bpf_init_inode_xattr kfunc for atomic
+ inode labeling
+From: Christian Brauner <brauner@kernel.org>
+To: Paul Moore <paul@paul-moore.com>
+Cc: David Windsor <dwindsor@gmail.com>, viro@zeniv.linux.org.uk, 
+ brauner@kernel.org, jack@suse.cz, ast@kernel.org, daniel@iogearbox.net, 
+ john.fastabend@gmail.com, andrii@kernel.org, eddyz87@gmail.com, 
+ memxor@gmail.com, martin.lau@linux.dev, song@kernel.org, 
+ yonghong.song@linux.dev, jolsa@kernel.org, emil@etsalapatis.com, 
+ kpsingh@kernel.org, mattbobrowski@google.com, jmorris@namei.org, 
+ serge@hallyn.com, zohar@linux.ibm.com, roberto.sassu@huawei.com, 
+ dmitry.kasatkin@gmail.com, eric.snowberg@oracle.com, 
+ stephen.smalley.work@gmail.com, omosnace@redhat.com, casey@schaufler-ca.com, 
+ shuah@kernel.org, linux-kernel@vger.kernel.org, 
+ linux-fsdevel@vger.kernel.org, bpf@vger.kernel.org, 
+ linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, 
+ selinux@vger.kernel.org, linux-kselftest@vger.kernel.org
+In-Reply-To: <75d39fd9847cca915d704235264ab474@paul-moore.com>
+References: <20260618203411.73917-2-dwindsor@gmail.com>
+ <75d39fd9847cca915d704235264ab474@paul-moore.com>
+Date: Thu, 25 Jun 2026 16:23:48 +0200
+Message-Id: <20260625-schnabel-rennmaschine-parieren-bcb352c3cf59@brauner>
+X-Mailer: b4 0.16-dev-d56bb
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3026; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=NNO35ZyHK/r7ijYBDhwLPiIZ3wWD+t05OGJl+8ydVYA=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWTZWn7r1/j16eqjzRyrXL/MuK516rPLuUMmqvyFT8UvL
+ D8YVd58oqOUhUGMi0FWTJHFod0kXG45T8Vmo0wNmDmsTCBDGLg4BWAidrUM/3SmyqvdtOr1PfGz
+ /ZHvK1aPr7qz7VUuOB+IOG+wX+BZmywjwxYvIfmnnx+u0J5QfoX9++O0+Xf5efbf97NgZbT48X7
+ 3PmYA
+X-Developer-Key: i=brauner@kernel.org; a=openpgp;
+ fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 
-On Wed, Jun 24, 2026 at 10:36=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
-rote:
->
-> The strs_* family of functions provide convenient functions for
-> handling an array of strings which is used in kernel_to_conf and
-> kernel_to_cil. It uses the common idiom of "*=3D 2" to grow the
-> array without any checks for overflow. There is also the function
-> strs_add_at_index() which can cause multiple iterations of the
-> "*=3D 2" idiom.
->
-> Use the __builtin_mul_overflow() function that will do the
-> multiplication while checking for overflow.
->
-> In addition, the function strs_len_items() adds up the lengths
-> of all the strings in the array which can overflow.
->
-> Use the __builtin_add_overflow() function that will do the addition
-> while checking for overflow.
->
-> Signed-off-by: James Carter <jwcart2@gmail.com>
+On 2026-06-23 20:12:32-04:00, Paul Moore wrote:
+> On Jun 18, 2026 David Windsor <dwindsor@gmail.com> wrote:
+> 
+> > Add bpf_init_inode_xattr() kfunc for BPF LSM programs to atomically set
+> > xattrs via the inode_init_security hook using lsm_get_xattr_slot().
+> > 
+> > The inode_init_security hook previously took the xattr array and count
+> > as two separate output parameters (struct xattr *xattrs, int
+> > *xattr_count), which BPF programs cannot write to. Pass the xattr state
+> > as a single context object (struct xattr_ctx) instead, and have
+> > bpf_init_inode_xattr() take that context directly. Update the existing
+> > in-tree callers of inode_init_security to take and forward the new
+> > xattr_ctx.
+> > 
+> > A previous attempt [1] required a kmalloc string output protocol for
+> > the xattr name. Since commit 6bcdfd2cac55 ("security: Allow all LSMs to
+> > provide xattrs for inode_init_security hook") [2], the xattr name is no
+> > longer allocated; it is a static constant.
+> > 
+> > Because we rely on the hook-specific ctx layout, the kfunc is
+> > restricted to lsm/inode_init_security. Restrict the xattr names that
+> > may be set via this kfunc to the bpf.* namespace.
+> > 
+> > Link: https://kernsec.org/pipermail/linux-security-module-archive/2022-October/034878.html [1]
+> > Link: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6bcdfd2cac55 [2]
+> > Suggested-by: Song Liu <song@kernel.org>
+> > Signed-off-by: David Windsor <dwindsor@gmail.com>
+> > ---
+> >  fs/bpf_fs_kfuncs.c                | 106 +++++++++++++++++++++++++++++-
+> >  include/linux/bpf.h               |   1 +
+> >  include/linux/bpf_lsm.h           |   3 +
+> >  include/linux/evm.h               |   9 +--
+> >  include/linux/lsm_hook_defs.h     |   4 +-
+> >  include/linux/lsm_hooks.h         |  16 ++---
+> >  include/linux/security.h          |   5 ++
+> >  kernel/bpf/bpf_lsm.c              |  10 +++
+> >  kernel/bpf/trampoline.c           |   3 +
+> >  security/bpf/hooks.c              |   1 +
+> >  security/integrity/evm/evm_main.c |   8 ++-
+> >  security/security.c               |   7 +-
+> >  security/selinux/hooks.c          |   4 +-
+> >  security/smack/smack_lsm.c        |  27 ++++----
+> >  14 files changed, 166 insertions(+), 38 deletions(-)
+> 
+> I have a few specific comments below, inline with the patch, but I wanted
+> to make some general comments too.
+> 
+> The kfunc additions really don't belong in the VFS kfunc file, please
+> create a LSM kfunc file (call it security/bpf_lsm_kfuncs.c) and add the
+> kfunc code to this new file.
 
-Ack'ing this now but waiting until after 3.11 to merge.
+We expose a bunch of VFS heavy operations for various security modules
+and this is really not different. For xattrs we have it all centralized
+in the VFS and in general all VFS related bpf kfuncs should continue
+living there and be registered there. Anything that's just bpf infra
+specific can go to security/bpf/kfuncs.c instead. But anyway, it's a bpf
+specific helper so it's the bpf maintainer's call. 
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-
-> ---
-> v6: Now actually multiplying new_size by 2, so the loop will end
->     Added a check that len > 0 before subtracting 1
->     Checked the patch with Google Gemini
->
->  libsepol/src/kernel_to_common.c | 29 ++++++++++++++++++++++-------
->  libsepol/src/kernel_to_conf.c   | 12 +++++++++++-
->  2 files changed, 33 insertions(+), 8 deletions(-)
->
-> diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_com=
-mon.c
-> index adb7b661..c7b6d73a 100644
-> --- a/libsepol/src/kernel_to_common.c
-> +++ b/libsepol/src/kernel_to_common.c
-> @@ -117,13 +117,18 @@ int strs_add(struct strs *strs, char *s)
->         if (strs->num + 1 > strs->size) {
->                 char **new;
->                 size_t i =3D strs->size;
-> -               strs->size *=3D 2;
-> -               new =3D reallocarray(strs->list, strs->size, sizeof(char =
-*));
-> +               size_t new_size;
-> +               if (__builtin_mul_overflow(strs->size, 2, &new_size)) {
-> +                       ERR(NULL, "Overflow");
-> +                       return -1;
-> +               }
-> +               new =3D reallocarray(strs->list, new_size, sizeof(char *)=
-);
->                 if (!new) {
->                         ERR(NULL, "Out of memory");
->                         return -1;
->                 }
->                 strs->list =3D new;
-> +               strs->size =3D new_size;
->                 memset(&strs->list[i], 0, sizeof(char *) * (strs->size - =
-i));
->         }
->
-> @@ -172,15 +177,20 @@ int strs_add_at_index(struct strs *strs, char *s, s=
-ize_t index)
->         if (index >=3D strs->size) {
->                 char **new;
->                 size_t i =3D strs->size;
-> -               while (index >=3D strs->size) {
-> -                       strs->size *=3D 2;
-> +               size_t new_size =3D strs->size;
-> +               while (index >=3D new_size) {
-> +                       if (__builtin_mul_overflow(new_size, 2, &new_size=
-)) {
-> +                               ERR(NULL, "Overflow");
-> +                               return -1;
-> +                       }
->                 }
-> -               new =3D reallocarray(strs->list, strs->size, sizeof(char =
-*));
-> +               new =3D reallocarray(strs->list, new_size, sizeof(char *)=
-);
->                 if (!new) {
->                         ERR(NULL, "Out of memory");
->                         return -1;
->                 }
->                 strs->list =3D new;
-> +               strs->size =3D new_size;
->                 memset(&strs->list[i], 0, sizeof(char *) * (strs->size - =
-i));
->         }
->
-> @@ -229,7 +239,9 @@ size_t strs_len_items(const struct strs *strs)
->         for (i =3D 0; i < strs->num; i++) {
->                 if (!strs->list[i])
->                         continue;
-> -               len +=3D strlen(strs->list[i]);
-> +               if (__builtin_add_overflow(len, strlen(strs->list[i]), &l=
-en)) {
-> +                       return SIZE_MAX;
-> +               }
->         }
->
->         return len;
-> @@ -248,7 +260,10 @@ char *strs_to_str(const struct strs *strs)
->         }
->
->         /* strs->num added because either ' ' or '\0' follows each item *=
-/
-> -       len =3D strs_len_items(strs) + strs->num;
-> +       if (__builtin_add_overflow(strs_len_items(strs), strs->num, &len)=
-) {
-> +               ERR(NULL, "Overflow");
-> +               goto exit;
-> +       }
->         str =3D malloc(len);
->         if (!str) {
->                 ERR(NULL, "Out of memory");
-> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.=
-c
-> index 3e6bcb33..89425d36 100644
-> --- a/libsepol/src/kernel_to_conf.c
-> +++ b/libsepol/src/kernel_to_conf.c
-> @@ -1663,7 +1663,17 @@ static char *attr_strs_to_str(struct strs *strs)
->         }
->
->         /* 2*strs->num - 1 because ", " follows all but last attr (follow=
-ed by '\0') */
-> -       len =3D strs_len_items(strs) + 2 * strs->num - 1;
-> +       if (__builtin_mul_overflow(strs->num, 2, &len)) {
-> +               ERR(NULL, "Overflow");
-> +               goto exit;
-> +       }
-> +       if (len > 0) {
-> +               len -=3D 1;
-> +       }
-> +       if (__builtin_add_overflow(len, strs_len_items(strs), &len)) {
-> +               ERR(NULL, "Overflow");
-> +               goto exit;
-> +       }
->         str =3D malloc(len);
->         if (!str) {
->                 ERR(NULL, "Out of memory");
-> --
-> 2.54.0
->
