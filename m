@@ -1,66 +1,68 @@
-Received: from mail-10630.protonmail.ch (mail-10630.protonmail.ch [79.135.106.30])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D212382F15
-	for <selinux@vger.kernel.org>; Thu, 25 Jun 2026 01:50:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=79.135.106.30
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 360D73CEB8B;
+	Thu, 25 Jun 2026 11:07:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782352239; cv=none; b=frkZDGRuCJn/w2mc+6goRLz5EBwNYgmnAY0r9wPTuVJQ9ovH9fqWUeN6EZfdMjyimD4W5TxgKCT+NCZguUaTyzZxonsPWJubSfNmfkYTbzSPQOBysn166sQIaTXGVkD+GVA8N2VasnSdjgQV4nDktmM7QS/Mm+Fu3u4CR7gASTU=
+	t=1782385660; cv=none; b=afx1VZqyLyUvHP2ejaTEwu7YpHJgkik/IjQuQ4qXxh6XeUfZeaWnc8LHujU1eyG6pXVeMrqDAMqrZUIMM2LSdzOMA6VpOrhquOirgmroXzJ7wh5ThMZWDBQ8aN5bpEw5xDjVoH0ivGn9QswVirGl01pgi6AXWmDpnFyosUxb3cY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782352239; c=relaxed/simple;
-	bh=vkTkC3M6dBTJeFRN/W+c8uQpDh/u3asLmz7tjHfGU94=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Fd5RiJBrsY8UT4JTbMLzcI8y39JrGXIixLbhjjVl1imLgijccJVRXNAqiB3dN6xSSVgpyVptXvrYC8z5pQEYAwTjmdZgHjJpmjPXi5z9ZvswxZ26X6oE1wF42sbZ4e96O2nAoXsub7WME560LZL1KyH6n84rTOjXC0duwqwUh1c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me; spf=pass smtp.mailfrom=proton.me; dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b=XV1an3xM; arc=none smtp.client-ip=79.135.106.30
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
+	s=arc-20240116; t=1782385660; c=relaxed/simple;
+	bh=pmEikduTI5YgI55529k9p8shq835BrV1IUg5JvXPwkw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=I5RCE4pYxgvBJAtcvdS6ZgwN8tWrW1GWTEvxCcYbAYvTA2n644HdZCVaIzKqk0JqTYFpnP6bcPk4HuLxpS8MdfCZ5gae4F2frAkgQVCXYDDRpKZ97craiDowom5oNgVDfHOWJ7F/QHz9MuiqRT9a5y9DCheTL2b3SXMI/zplzS0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=Ei141MQr; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b="XV1an3xM"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
-	s=protonmail; t=1782352225; x=1782611425;
-	bh=vkTkC3M6dBTJeFRN/W+c8uQpDh/u3asLmz7tjHfGU94=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-	 Message-ID:BIMI-Selector;
-	b=XV1an3xM48qVValXK5urHVqGb+ulhgv5dmqvBzFkAOmRYFZXmzYy+4lawrGQurHo6
-	 VnBbxClJcIXGSbMVyhJbywuuYExO5wB6njhlNhJufj2NhHeTOLiJh81rOO5lXrD/11
-	 s9wAIjWCAnuoVFlSGtaXkyvkBt70IHUkx1NQ8LU08Y6OoG1z/5ZPv42bEcCW0mXw+q
-	 KFyellH0k/5ZJGGovv0EWi8xGQrcsXt4BIsBO4ct+58Sj917DaZsM8wBhS86UajQFH
-	 gA6VGXIPDk5GZXFiBMy3K4KuIL/Hlw3jTRulGkdmBYbikz5LcfH2d4CJ4bFU0qq9kj
-	 S8v8+1CWxOaZQ==
-Date: Thu, 25 Jun 2026 01:50:18 +0000
-To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>
-From: Bryam Vargas <hexlabsecurity@proton.me>
-Cc: Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org, linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org, Matthieu Buffet <matthieu@buffet.re>, Mikhail Ivanov <ivanov.mikhail1@huawei-partners.com>
-Subject: Re: [PATCH] selinux: check connect-related permissions on TCP Fast Open
-Message-ID: <20260625015012.63752-1-hexlabsecurity@proton.me>
-In-Reply-To: <20260618175513.112443-2-stephen.smalley.work@gmail.com>
-References: <20260618175513.112443-2-stephen.smalley.work@gmail.com>
-Feedback-ID: 199661219:user:proton
-X-Pm-Message-ID: 3e7c70881b92ad9b9437df32e3535b7ab3871750
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="Ei141MQr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E94781F000E9;
+	Thu, 25 Jun 2026 11:07:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
+	s=korg; t=1782385658;
+	bh=Mzhl2LbNzSyg+FRv3npvLZEgHfcnVUjIab/9uAnyGXQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=Ei141MQrqQcDOBYWVG6KZtkcRvJ7lJrim31gd2xnxJs3yJnhKuHsRBs8KqjXIpTBP
+	 VKSYBpi3Yvapdo8V23Lhd//sIe2OqoLiL9b7/fMC3dJoQdOW5ZcHEU1lvPlA3sdVrI
+	 TfYGQ8ypRvxZmEsGKfUku2C9erfFIl8Tk5gqHMSk=
+Date: Thu, 25 Jun 2026 12:06:26 +0100
+From: Greg KH <gregkh@linuxfoundation.org>
+To: Cai Xinchen <caixinchen1@huawei.com>
+Cc: viro@zeniv.linux.org.uk, brauner@kernel.org, jack@suse.cz,
+	miklos@szeredi.hu, amir73il@gmail.com, paul@paul-moore.com,
+	jmorris@namei.org, serge@hallyn.com, stephen.smalley.work@gmail.com,
+	omosnace@redhat.com, bboscaccy@linux.microsoft.com,
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-unionfs@vger.kernel.org,
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+	bpf@vger.kernel.org, lujialin4@huawei.com
+Subject: Re: [stable/linux-6.18.y 1/2] lsm: add backing_file LSM hooks
+Message-ID: <2026062557-dancing-deeply-6edd@gregkh>
+References: <20260622031416.2663747-1-caixinchen1@huawei.com>
+ <20260622031416.2663747-2-caixinchen1@huawei.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260622031416.2663747-2-caixinchen1@huawei.com>
 
-Tested this on x86-64. I built mainline with and without the patch and ran =
-it
-under a SELinux domain (enforcing) that lacks the tcp_socket connect permis=
-sion.
+On Mon, Jun 22, 2026 at 11:14:15AM +0800, Cai Xinchen wrote:
+> From: Paul Moore <paul@paul-moore.com>
+> 
+> Mainline declares lsm_backing_file_cache in security/lsm.h.  Linux 6.18.y
+> does not have security/lsm_init.c or security/lsm.h; the cache variable
+> is defined locally as static struct kmem_cache *lsm_backing_file_cache in
+> security/security.c.
+> 
+> Original commit message:
 
-Unpatched, connect(2) is denied but sendto(MSG_FASTOPEN) still reaches the
-listener. With the patch the fastopen send is denied too, and the AVC shows=
- the
-connect check firing on the sendmsg path. Same for TCP, TCP6 and MPTCP. The
-TCP_FASTOPEN_CONNECT path was already mediated at connect(2), and a domain =
-that
-allows connect is unaffected.
+What is the original git commit id?
 
-A/B logs on request.
+ANd put the "changes" down in the signed-off-by area, like other
+backports normally do please.
 
-Tested-by: Bryam Vargas <hexlabsecurity@proton.me>
+thanks,
 
+greg k-h
