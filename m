@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53FF13CE4A7;
-	Fri, 26 Jun 2026 07:31:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3ABE535A398;
+	Fri, 26 Jun 2026 07:33:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782459103; cv=none; b=rDANa8BpRfOlX0mCgL7DNtRtbfov+Pm0wcU0WTjrnClZde1yJZYHFuXSHrbnTteRaTWXqG0Lvchdm8MBL/pTX3BtQxG98x6vmfN27eEekwVuYr87Yh+pSVajerphtu+/34lBQUOuCjfK+wtt+qhO9NdvSwMBQh8wMeuN093rG4E=
+	t=1782459218; cv=none; b=pOYBNHEjR20Z7O41gIy+pAstNVWVYB7K4WYpXdY8u9q6s9KuPi1PUkGetX7nOV9prEoHfEMAQhqzTuxEW9zAXLYlKJErPJUq+VaHteQO2eHuuUFdg1/tiF83cALmRv9Ji44Vl5ACZbMbT5x8bvJDXTKPoyAhlS/TSWFXgR/wT90=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782459103; c=relaxed/simple;
-	bh=zAzVbOJUpBTp7NXmvND5zqcyggHP5okjwtnLGLVQYu8=;
+	s=arc-20240116; t=1782459218; c=relaxed/simple;
+	bh=B4jF10FPEroBdeQMJo53/o84uwqJathAaUNTfHjfSz8=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Arwf65CrRUJTcqW/DUIQeQTus8blZ3sDVlk3IYDqHuS8gI/tQeYmUJU/h4AMj92crI0kc6eGieZn0W8eJgexeBZ3SyPqrRVOY0ZfsxYMHsYH3k8+GY4fj5AF/NMJkQp5y4vBW1ZTiRSBlM7xvnaAbNIZ49ioQKrEkMwk9c8ZggY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aS/XgVDu; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=DhQ7hy6gUl6qdtoSEsrAwc1kudnNBJmQnHhWehGykASRbQ9gZOXYaqaihpSiGrfdGqU1hRnpAi11ktOL6mYVRnSzkyBZxA5YWJyKsR7B9CpWXVcPWGuBr39F0Sqv0j2U659WI5iI5sckF62ScAwsnD++lNW8/gyQLVCOA0WFsO8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hcPRXwzE; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aS/XgVDu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2B981F000E9;
-	Fri, 26 Jun 2026 07:31:41 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hcPRXwzE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFD191F000E9;
+	Fri, 26 Jun 2026 07:33:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782459102;
-	bh=KBBFzp2enCgah8OksQJupFfvoce0KGGVRIDzHZ1w708=;
+	s=k20260515; t=1782459217;
+	bh=BzlmznrWWLjG9lTZxSuog5JrkNC8pk/9Lgw4AA3dz7k=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=aS/XgVDuV0s15iIuipTzGCBxlaMyAdwb0LNSB9qPIkVgt8IunvfMwEyGjIWSdcZQZ
-	 Woxy5PuQH1kbVYHE3Yhr0KRAW3I0l7Wi+jHhGTahrzehFLF8HLo08lPmva887/sSTE
-	 WTs6qLLq73emxlo10YCv/puMClY3BANycqx3jzPWTYR90EKj85EwzhtgsceJfGllOp
-	 627AU6Z2/KMFoau/a0+bb/HsxfpGIE6CsDHHW6vqt8cw0a3ZAmXzT6AzPIqoLw8mVE
-	 bz/2BIAmgpn3E5t5aIS+qNt09RXidZuOxwHpfCH+gK6tJh6VULxk4IsdYzia7tPZEx
-	 4Dj+tDCh2gmuA==
+	b=hcPRXwzESVLFQ/Pc9NqjLUD/xjoGNWs1D9Rcs5712ywP6tzIoh3P3Qd61EEzc0BJT
+	 0wu869Sq46QOLDTOmDtcXRpqbECag8Jp1xRWUpilIbQ0d/nymrZaAYsl/SYEM9OuEL
+	 3YtSCP5xgyEojbf+EwLbCpiZ4C++KcTqtoQFd/ICC7x1+YUgD/wvdLIngMZz4vnuDY
+	 VH77m8IWwoaZOqPMxipALoEbkDGgC6XdLR7qYDlEsD/7dJB6kHDREnq03rBuIlL0Ic
+	 u+sU2F+uIT98/3SyoKuluKDTzLF80xeh8tW8U00FN/8Par6ISClgbh8C6uz/UYpKji
+	 PlcP5S1WQLI/w==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 stable/linux-6.18.y 2/2] selinux: fix overlayfs
- mmap() and mprotect() access checks
+Subject: Re: [PATCH v2 stable/linux-6.18.y 1/2] lsm: add backing_file LSM
+ hooks
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Cai Xinchen" <caixinchen1@huawei.com>
-Cc: bpf@vger.kernel.org, selinux@vger.kernel.org
-In-Reply-To: <20260626075035.143419-3-caixinchen1@huawei.com>
+Cc: selinux@vger.kernel.org, bpf@vger.kernel.org
+In-Reply-To: <20260626075035.143419-2-caixinchen1@huawei.com>
 References: <20260626075035.143419-1-caixinchen1@huawei.com>
- <20260626075035.143419-3-caixinchen1@huawei.com>
+ <20260626075035.143419-2-caixinchen1@huawei.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 26 Jun 2026 07:31:41 +0000
-Message-Id: <20260626073141.E2B981F000E9@smtp.kernel.org>
+Date: Fri, 26 Jun 2026 07:33:36 +0000
+Message-Id: <20260626073336.EFD191F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -47,142 +47,133 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] PROCESS__EXECMEM permission is incorrectly checked against the mou=
-nter's credentials instead of the executing process.
+- [Medium] The error path in alloc_empty_backing_file() triggers a double e=
+xecution of the backing_file_free LSM hooks with a NULL security blob, viol=
+ating the LSM API contract.
 --
 
-commit ff9b809022a43e85182f65f4fb0c497928b26b8d
+commit 5c2fdae294837ef2192abffb715e055fefb686b4
 Author: Paul Moore <paul@paul-moore.com>
 
-selinux: fix overlayfs mmap() and mprotect() access checks
+lsm: add backing_file LSM hooks
 
-The existing SELinux security model for overlayfs is to allow access if
-the current task is able to access the top level file (the "user" file)
-and the mounter's credentials are sufficient to access the lower
-level file (the "backing" file). This patch makes use of the newly created
-security_mmap_backing_file() LSM hook and the backing file API to provide
-backing file enforcement for mmap() and mprotect().
+This commit adds a security blob to the backing_file struct and new LSM hoo=
+ks
+(security_backing_file_alloc, security_backing_file_free, and
+security_mmap_backing_file). This provides the necessary mechanisms for LSMs
+to enforce access controls on the mmap() and mprotect() operations in stack=
+ed
+filesystems.
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 3da3017ad2ca0..f96ee8f372e3b 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-
+> diff --git a/fs/file_table.c b/fs/file_table.c
+> index 762f03dcbcd77..987e01da99389 100644
+> --- a/fs/file_table.c
+> +++ b/fs/file_table.c
 [ ... ]
-
-> @@ -3916,42 +3950,55 @@ static int selinux_file_ioctl_compat(struct file =
-*file, unsigned int cmd,
+> @@ -318,7 +337,7 @@ struct file *alloc_empty_backing_file(int flags, cons=
+t struct cred *cred)
 > =20
->  static int default_noexec __ro_after_init;
-> =20
-> -static int file_map_prot_check(struct file *file, unsigned long prot, in=
-t shared)
-> +static int __file_map_prot_check(const struct cred *cred,
-> +				 const struct file *file, unsigned long prot,
-> +				 bool shared, bool bf_user_file)
->  {
-> -	const struct cred *cred =3D current_cred();
-> -	u32 sid =3D cred_sid(cred);
-> -	int rc =3D 0;
-> +	struct inode *inode =3D NULL;
-> +	bool prot_exec =3D prot & PROT_EXEC;
-> +	bool prot_write =3D prot & PROT_WRITE;
-> +
-> +	if (file) {
-> +		if (bf_user_file)
-> +			inode =3D d_inode(backing_file_user_path(file)->dentry);
-> +		else
-> +			inode =3D file_inode(file);
-> +	}
-> +
-> +	if (default_noexec && prot_exec &&
-> +	    (!file || IS_PRIVATE(inode) || (!shared && prot_write))) {
-> +		int rc;
-> +		u32 sid =3D cred_sid(cred);
-> =20
-> -	if (default_noexec &&
-> -	    (prot & PROT_EXEC) && (!file || IS_PRIVATE(file_inode(file)) ||
-> -				   (!shared && (prot & PROT_WRITE)))) {
->  		/*
-> -		 * We are making executable an anonymous mapping or a
-> -		 * private file mapping that will also be writable.
-> -		 * This has an additional check.
-> +		 * We are making executable an anonymous mapping or a private
-> +		 * file mapping that will also be writable.
->  		 */
-> -		rc =3D avc_has_perm(sid, sid, SECCLASS_PROCESS,
-> -				  PROCESS__EXECMEM, NULL);
-> +		rc =3D avc_has_perm(sid, sid, SECCLASS_PROCESS, PROCESS__EXECMEM,
-> +				  NULL);
-
-[Severity: High]
-Will this check PROCESS__EXECMEM against the mounter's credentials instead =
-of
-the executing process?
-
-When called for a backing file in selinux_mmap_backing_file() or
-selinux_file_mprotect(), the cred passed in is file->f_cred (the mounter's
-credentials). Since PROCESS__EXECMEM is a property of the executing process,
-could checking it against the mounter cause spurious SELinux denials?
-
-For example, could this break legitimate unprivileged processes (like JIT
-compilers) attempting to create W+X private mappings on overlayfs, simply
-because the mount process lacks execmem privileges?
-
-> +		if (rc)
-> -			goto error;
-> +			return rc;
+>  	/* The f_mode flags must be set before fput(). */
+>  	ff->file.f_mode |=3D FMODE_BACKING | FMODE_NOACCOUNT;
+> -	error =3D init_backing_file(ff);
+> +	error =3D init_backing_file(ff, user_file);
+>  	if (unlikely(error)) {
+>  		fput(&ff->file);
+>  		return ERR_PTR(error);
 >  	}
 
 [ ... ]
 
-> @@ -4010,11 +4101,15 @@ static int selinux_file_mprotect(struct vm_area_s=
-truct *vma,
->  		    vma->vm_end <=3D vma->vm_mm->brk) {
->  			rc =3D avc_has_perm(sid, sid, SECCLASS_PROCESS,
->  					  PROCESS__EXECHEAP, NULL);
-> -		} else if (!vma->vm_file && (vma_is_initial_stack(vma) ||
-> +			if (rc)
-> +				return rc;
-> +		} else if (!file && (vma_is_initial_stack(vma) ||
->  			    vma_is_stack_for_current(vma))) {
->  			rc =3D avc_has_perm(sid, sid, SECCLASS_PROCESS,
->  					  PROCESS__EXECSTACK, NULL);
-> -		} else if (vma->vm_file && vma->anon_vma) {
-> +			if (rc)
-> +				return rc;
-> +		} else if (file && vma->anon_vma) {
->  			/*
->  			 * We are making executable a file mapping that has
->  			 * had some COW done. Since pages might have been
-> @@ -4022,13 +4117,29 @@ static int selinux_file_mprotect(struct vm_area_s=
-truct *vma,
->  			 * modified content.  This typically should only
->  			 * occur for text relocations.
->  			 */
-> -			rc =3D file_has_perm(cred, vma->vm_file, FILE__EXECMOD);
-> +			rc =3D __file_has_perm(cred, file, FILE__EXECMOD,
-> +					     backing_file);
-> +			if (rc)
-> +				return rc;
-> +			if (backing_file) {
-> +				rc =3D file_has_perm(file->f_cred, file,
-> +						   FILE__EXECMOD);
-> +				if (rc)
-> +					return rc;
-> +			}
->  		}
-> +	}
+> diff --git a/security/security.c b/security/security.c
+> index 603c3c6d5635d..9285909908ab8 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+[ ... ]
+> @@ -2965,6 +2997,57 @@ void security_file_free(struct file *file)
+>  	}
+>  }
+> =20
+> +/**
+> + * security_backing_file_alloc() - Allocate and setup a backing file blob
+> + * @backing_file: the backing file
+> + * @user_file: the associated user visible file
+> + *
+> + * Allocate a backing file LSM blob and perform any necessary initializa=
+tion of
+> + * the LSM blob.  There will be some operations where the LSM will not h=
+ave
+> + * access to @user_file after this point, so any important state associa=
+ted
+> + * with @user_file that is important to the LSM should be captured in the
+> + * backing file's LSM blob.
+> + *
+> + * LSM's should avoid taking a reference to @user_file in this hook as i=
+t will
+> + * result in problems later when the system attempts to drop/put the file
+> + * references due to a circular dependency.
+> + *
+> + * Return: Return 0 if the hook is successful, negative values otherwise.
+> + */
+> +int security_backing_file_alloc(struct file *backing_file,
+> +				const struct file *user_file)
+> +{
+> +	int rc;
 > +
-> +	rc =3D __file_map_prot_check(cred, file, prot, shared, backing_file);
+> +	rc =3D lsm_backing_file_alloc(backing_file);
 > +	if (rc)
 > +		return rc;
-> +	if (backing_file) {
-> +		rc =3D file_map_prot_check(file->f_cred, file, prot, shared);
->  		if (rc)
->  			return rc;
->  	}
+> +	rc =3D call_int_hook(backing_file_alloc, backing_file, user_file);
+> +	if (unlikely(rc))
+> +		security_backing_file_free(backing_file);
+
+[Severity: Medium]
+Does this error path lead to a double execution of the free hooks?
+
+If call_int_hook() fails, security_backing_file_alloc() cleans up by calling
+security_backing_file_free().
+
+The error then propagates back to init_backing_file(), and then to
+alloc_empty_backing_file(), which calls fput() on the error path.
+
+The fput() call initiates the VFS teardown path, which eventually calls
+backing_file_free() and executes security_backing_file_free() for a second
+time.
+
+Similarly, if lsm_backing_file_alloc() fails with -ENOMEM, it returns an er=
+ror
+without calling any hooks, but the subsequent fput() will still execute the
+free hook without the alloc hook ever running.
+
+> +
+> +	return rc;
+> +}
+> +
+> +/**
+> + * security_backing_file_free() - Free a backing file blob
+> + * @backing_file: the backing file
+> + *
+> + * Free any LSM state associate with a backing file's LSM blob, includin=
+g the
+> + * blob itself.
+> + */
+> +void security_backing_file_free(struct file *backing_file)
+> +{
+> +	void *blob =3D backing_file_security(backing_file);
+> +
+> +	call_void_hook(backing_file_free, backing_file);
+
+Because call_void_hook() is executed unconditionally even if blob is NULL,
+could this cause state corruption for BPF LSM programs tracking file lifecy=
+cles,
+or a NULL pointer dereference in future LSMs implementing the free hook?
+
+> +
+> +	if (blob) {
+> +		backing_file_set_security(backing_file, NULL);
+> +		kmem_cache_free(lsm_backing_file_cache, blob);
+> +	}
+> +}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260626075035.1434=
-19-1-caixinchen1@huawei.com?part=3D2
+19-1-caixinchen1@huawei.com?part=3D1
