@@ -1,169 +1,99 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from canpmsgout01.his.huawei.com (canpmsgout01.his.huawei.com [113.46.200.216])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37A1A37F732;
-	Sat, 27 Jun 2026 04:11:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0D902EEE9B;
+	Sat, 27 Jun 2026 06:29:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.216
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782533499; cv=none; b=QjcD9bDnPaqoql6xRTKERoLyz6L0WrPjChSGGjBRl88Ff7oBqDZziGiyF3A1/z6Gve4sfhYkxqk41TcJXSfRpLh+qxkG8M0VkDlKYzrK93V8fvf7sEP9aM7Xf6/z6ggRIe4cUjdi8sGknRd8yMUL8l473dp9zS0iatQ4Bb7y/vY=
+	t=1782541751; cv=none; b=CF+I6BHclDx1xL6zV719mfJxvHbIjvFGyOcDK52XPYrlLv/FImCAzV0Q1Zk2NoRNHwp8t9ghRb4J/CScr2xr8szNtxAqqNgRNmbWlSLPdcvehcbhLIMKK1aKgfH/6JvBZFtZHNaU4hOXPyfqhndvqjaUaTmXz51bPZzKmDEePBs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782533499; c=relaxed/simple;
-	bh=Keir75L4IfYJon1YbHqCosGWteKxoKi2xUwJW0xuCoc=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Kp0qkR6RYc2axYFeqUPe4mky4/6cVm+roUpUj5PQU24HR4Kg6Gx3QiR7OcC7ef5TlLuLOP9rzUGhaExmabSA4T64uM7V/MYVRGIopd6L72SSYZTFCTXKghqqnlsIG5tzKkjZ9vcbqqiJJdl24+h/29k28cEaNufy/RPFI/zqTF4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X+anXnBm; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782541751; c=relaxed/simple;
+	bh=rNJOUaCkDPacOFqNkrUkc0E59ah+yyGct/mPpROxGdo=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=VKX4JEvPGWUFvCorb5/Cachec5k3ni5F48ND28ImrW8fl19kj4ZWeOReHGrg76kdyY/nvMi8pbUdJuMFBI7wFaVMfBeR83M060t3l+kNI4aiT7LGqA1xQ8x3FTnZRy7WyKEiw2XWnnZIJaXLHLXO4StwuAONll9fqnOmwXZo+5k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=foQN5aGC; arc=none smtp.client-ip=113.46.200.216
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X+anXnBm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A58EA1F000E9;
-	Sat, 27 Jun 2026 04:11:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782533497;
-	bh=mFlh2FBRnToL/LnFid1WPnFsqJ4xwa5Ybq/v70E/yNE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=X+anXnBmPueiJVEhBIUDql9dw1ML9Q0NvgOlpZZnuS/HY6J7Q9F0LUyX68eQ3JL4A
-	 +oqnJMbfgCCUsLYJhd1aoJkkKV9RzKwBIO6soOlcI7Ol2wy07T11Tto6Xg4FVEQgjC
-	 Tc36VPA/+gsqqI1/pYmnT1+JqVVMPmze4uKiMp4axXSt4zlpIeLvyS2c4ZbvkTIsAe
-	 JCZmAh7eoBUNRWw6mxxMO3Pg8ThUuPD5W6QKCxaq+v30umZox1wsHOizofvwdCovvU
-	 pusdCiUoN5QvPJ/SlKBU2eirNPLUfRZJGndFwXjQh6ydzFjHLK3bUFiRGw0+Nax1Wo
-	 PZCQVHIaklP7g==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 stable/linux-6.12.y 1/2] lsm: add backing_file LSM
- hooks
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Cai Xinchen" <caixinchen1@huawei.com>
-Cc: bpf@vger.kernel.org, selinux@vger.kernel.org
-In-Reply-To: <20260627042835.1492435-2-caixinchen1@huawei.com>
-References: <20260627042835.1492435-1-caixinchen1@huawei.com>
- <20260627042835.1492435-2-caixinchen1@huawei.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 27 Jun 2026 04:11:37 +0000
-Message-Id: <20260627041137.A58EA1F000E9@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="foQN5aGC"
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=ljDY3nyizF2W/GnFcYTLCUCIDdg/cS8Qmi/xhTH76YA=;
+	b=foQN5aGC/VZ1V6Ge30Kh4AHMUq+z1fmWM0dSgkv62fq5XuBAxa6hrMjEpQ27ofdjVFZwxiLKb
+	Xv8boOBQaw3EQIbwE6iFBROkms+gBVa0FSTww8zU3S0v1k6ijvp06fRlkjiLjOPlNBTRAMj2ZdG
+	7+L5pt/2gIIb7ENB35v0qyM=
+Received: from mail.maildlp.com (unknown [172.19.162.140])
+	by canpmsgout01.his.huawei.com (SkyGuard) with ESMTPS id 4gnMpn3Gd4z1T4Fw;
+	Sat, 27 Jun 2026 14:20:17 +0800 (CST)
+Received: from dggemv705-chm.china.huawei.com (unknown [10.3.19.32])
+	by mail.maildlp.com (Postfix) with ESMTPS id 5F657203B7;
+	Sat, 27 Jun 2026 14:29:02 +0800 (CST)
+Received: from kwepemq200017.china.huawei.com (7.202.195.228) by
+ dggemv705-chm.china.huawei.com (10.3.19.32) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Sat, 27 Jun 2026 14:29:02 +0800
+Received: from octopus.huawei.com (10.67.174.191) by
+ kwepemq200017.china.huawei.com (7.202.195.228) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Sat, 27 Jun 2026 14:29:01 +0800
+From: Cai Xinchen <caixinchen1@huawei.com>
+To: <viro@zeniv.linux.org.uk>, <brauner@kernel.org>, <jack@suse.cz>,
+	<miklos@szeredi.hu>, <amir73il@gmail.com>, <paul@paul-moore.com>,
+	<jmorris@namei.org>, <serge@hallyn.com>, <stephen.smalley.work@gmail.com>,
+	<omosnace@redhat.com>, <gregkh@linuxfoundation.org>,
+	<bboscaccy@linux.microsoft.com>, <caixinchen1@huawei.com>
+CC: <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<linux-unionfs@vger.kernel.org>, <linux-security-module@vger.kernel.org>,
+	<selinux@vger.kernel.org>, <bpf@vger.kernel.org>, <stable@vger.kernel.org>,
+	<lujialin4@huawei.com>
+Subject: [PATCH v2 stable/linux-6.6.y 0/3] Backport Fix incorrect overlayfs mmap() and mprotect() LSM access controls
+Date: Sat, 27 Jun 2026 14:57:17 +0800
+Message-ID: <20260627065720.1945589-1-caixinchen1@huawei.com>
+X-Mailer: git-send-email 2.18.0.huawei.25
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-ClientProxiedBy: kwepems500002.china.huawei.com (7.221.188.17) To
+ kwepemq200017.china.huawei.com (7.202.195.228)
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] The replacement of `file_user_path()` with direct access to `user_=
-file->f_path` breaks the propagation of the outermost user path in stacked =
-overlayfs setups, leading to an information leak.
-- [Medium] Error path in `alloc_empty_backing_file()` causes `security_back=
-ing_file_free()` to be invoked twice or improperly, leading to double-free =
-or NULL pointer dereference in LSM modules.
---
+v2: Add static to struct kmem_cache *lsm_backing_file_cache; and define
+lbs_backing_file as int for keeping the same type as 6.6 lts. Use macro
+backing_file to replace inline function to eliminate the const warning.
 
-commit 6e1e1e772cca04db297cfab245de902e298ac493
-Author: Paul Moore <paul@paul-moore.com>
+Backport the patch series
+"Fix incorrect overlayfs mmap() and mprotect() LSM access controls" [1]
+to 6.6 lts
 
-lsm: add backing_file LSM hooks
+I test selinux-testsuite[2] overlay test, it pass 135 tests.
 
-Stacked filesystems such as overlayfs do not currently provide the
-necessary mechanisms for LSMs to properly enforce access controls on the
-mmap() and mprotect() operations. In order to resolve this gap, a LSM
-security blob is being added to the backing_file struct.
+[1] https://lore.kernel.org/all/20260403030848.731867-5-paul@paul-moore.com/
+[2] https://github.com/SELinuxProject/selinux-testsuite
 
-Cc: stable@vger.kernel.org
-Cc: linux-fsdevel@vger.kernel.org
-Cc: linux-unionfs@vger.kernel.org
-Cc: linux-erofs@lists.ozlabs.org
+Amir Goldstein (1):
+  fs: prepare for adding LSM blob to backing_file
 
-> diff --git a/fs/backing-file.c b/fs/backing-file.c
-> index 09a9be945d45e..389cfe3ed509d 100644
-> --- a/fs/backing-file.c
-> +++ b/fs/backing-file.c
-> @@ -29,14 +30,15 @@
->   * returned file into a container structure that also stores the stacked
->   * file's path, which can be retrieved using backing_file_user_path().
->   */
-> -struct file *backing_file_open(const struct path *user_path, int flags,
-> +struct file *backing_file_open(const struct file *user_file, int flags,
->  			       const struct path *real_path,
->  			       const struct cred *cred)
->  {
-> +	const struct path *user_path =3D &user_file->f_path;
+Paul Moore (2):
+  lsm: add backing_file LSM hooks
+  selinux: fix overlayfs mmap() and mprotect() access checks
 
-[Severity: High]
-Does this break the propagation of the outermost user path in stacked
-overlayfs setups?
+ fs/file_table.c                   |  46 +++++-
+ fs/internal.h                     |   3 +-
+ fs/open.c                         |   7 +-
+ fs/overlayfs/file.c               |   8 +-
+ include/linux/fs.h                |  15 +-
+ include/linux/lsm_audit.h         |   2 +-
+ include/linux/lsm_hook_defs.h     |   5 +
+ include/linux/lsm_hooks.h         |   1 +
+ include/linux/security.h          |  22 +++
+ security/security.c               | 110 ++++++++++++++
+ security/selinux/hooks.c          | 242 ++++++++++++++++++++++--------
+ security/selinux/include/objsec.h |  11 ++
+ 12 files changed, 395 insertions(+), 77 deletions(-)
 
-By unconditionally using direct access to user_file->f_path, it appears that
-intermediate mount paths (such as overlayfs lower/upper directories) might =
-be
-exposed to user space through /proc/<pid>/maps, bypassing overlayfs path
-hiding.
+-- 
+2.18.0.huawei.25
 
->  	struct file *f;
->  	int error;
-> =20
-> -	f =3D alloc_empty_backing_file(flags, cred);
-> +	f =3D alloc_empty_backing_file(flags, cred, user_file);
-
-[ ... ]
-
-> @@ -52,15 +54,16 @@ struct file *backing_file_open(const struct path *use=
-r_path, int flags,
->  }
->  EXPORT_SYMBOL_GPL(backing_file_open);
-> =20
-> -struct file *backing_tmpfile_open(const struct path *user_path, int flag=
-s,
-> +struct file *backing_tmpfile_open(const struct file *user_file, int flag=
-s,
->  				  const struct path *real_parentpath,
->  				  umode_t mode, const struct cred *cred)
->  {
->  	struct mnt_idmap *real_idmap =3D mnt_idmap(real_parentpath->mnt);
-> +	const struct path *user_path =3D &user_file->f_path;
-
-[Severity: High]
-Could this similarly break path propagation for temporary files?
-
->  	struct file *f;
->  	int error;
-> =20
-> -	f =3D alloc_empty_backing_file(flags, cred);
-> +	f =3D alloc_empty_backing_file(flags, cred, user_file);
-
-[ ... ]
-
-> diff --git a/fs/file_table.c b/fs/file_table.c
-> index 2a08bc93b0b9c..a771be30eb43d 100644
-> --- a/fs/file_table.c
-> +++ b/fs/file_table.c
-
-[ ... ]
-
-> @@ -289,7 +308,7 @@ struct file *alloc_empty_backing_file(int flags, cons=
-t struct cred *cred)
-> =20
->  	/* The f_mode flags must be set before fput(). */
->  	ff->file.f_mode |=3D FMODE_BACKING | FMODE_NOACCOUNT;
-> -	error =3D init_backing_file(ff);
-> +	error =3D init_backing_file(ff, user_file);
->  	if (unlikely(error)) {
->  		fput(&ff->file);
-
-[Severity: Medium]
-Will calling fput() here lead to a double-free or NULL pointer dereference
-in the LSM module?
-
-When init_backing_file() fails due to security_backing_file_alloc()
-returning an error, the LSM hook already cleans up its own state:
-
-security/security.c:security_backing_file_alloc() {
-	rc =3D call_int_hook(backing_file_alloc, backing_file, user_file);
-	if (unlikely(rc))
-		security_backing_file_free(backing_file);
-...
-
-However, because FMODE_BACKING is already set before init_backing_file() is
-called, the subsequent fput() triggers the destruction path via file_free()
-which eventually calls backing_file_free() and executes
-security_backing_file_free() a second time on the same file.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260627042835.1492=
-435-1-caixinchen1@huawei.com?part=3D1
