@@ -1,169 +1,169 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37B9B2459D1;
-	Sat, 27 Jun 2026 04:07:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37A1A37F732;
+	Sat, 27 Jun 2026 04:11:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782533270; cv=none; b=IACkdOQnncNm7v1ROPUwndZSR3sSXaswOsCh/ZBRtb8ZPCdK8UJ9DWYye+Ofyx9fdywGzqZcu8ADADOe/krZbDlpvxx1/h2xQIpgldz/cuDdiChEFMyD644SKfqXGfvcR+UhWg3QcfgaqpgJ9voi3kAUGlop4x1KZo00RVQz2WY=
+	t=1782533499; cv=none; b=QjcD9bDnPaqoql6xRTKERoLyz6L0WrPjChSGGjBRl88Ff7oBqDZziGiyF3A1/z6Gve4sfhYkxqk41TcJXSfRpLh+qxkG8M0VkDlKYzrK93V8fvf7sEP9aM7Xf6/z6ggRIe4cUjdi8sGknRd8yMUL8l473dp9zS0iatQ4Bb7y/vY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782533270; c=relaxed/simple;
-	bh=9/X5/RKgUkAKawMoPv8NXAINgOpJoJDU4SoRv43pwug=;
+	s=arc-20240116; t=1782533499; c=relaxed/simple;
+	bh=Keir75L4IfYJon1YbHqCosGWteKxoKi2xUwJW0xuCoc=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=U9Rkr2JHVZp63x+DQwfp4OMZql8CJnOhaBy5p4pKcLqNK/9/ncglwi/k4z/sGfo56opPfZpG97D2rnhVJGlSbTAOg9+TD2w0ZWlFG6N8s1BEIN7szgYYlHZJllDEDHs2N2wA247E6b5Y/pnCUejkBN3+kh+nnmmxCHGlqsMgPJo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lzEgcn8z; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Kp0qkR6RYc2axYFeqUPe4mky4/6cVm+roUpUj5PQU24HR4Kg6Gx3QiR7OcC7ef5TlLuLOP9rzUGhaExmabSA4T64uM7V/MYVRGIopd6L72SSYZTFCTXKghqqnlsIG5tzKkjZ9vcbqqiJJdl24+h/29k28cEaNufy/RPFI/zqTF4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X+anXnBm; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lzEgcn8z"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8128C1F000E9;
-	Sat, 27 Jun 2026 04:07:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X+anXnBm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A58EA1F000E9;
+	Sat, 27 Jun 2026 04:11:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782533268;
-	bh=jRu83ject+Mx9K3YdbTTQRkMTCumIXAfb+88ViPov50=;
+	s=k20260515; t=1782533497;
+	bh=mFlh2FBRnToL/LnFid1WPnFsqJ4xwa5Ybq/v70E/yNE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=lzEgcn8zU3Su2LNMWIZ2lcma7TJnozhfDkNDtqLiy0Eu7OJQ4+cBAf5w7+kJumsJW
-	 SNkfgxz26majrU5zHbN2xxPSseSAvjQrmzv5Kvo+mwh6noUc18pzpFuzCVkoY64GTX
-	 viJOp5+RFh4KsuaQDdK3pqeJL0zgoXiUP4MgZlax0PKB6ASycFxeiRI1/uNxAdm9i2
-	 6sPFRbJG2Q9c/fPGN3JBAHNLKx41envb9st5iRPErREyRndVFCJMRlHzdEajZpb/yO
-	 MJaSbyeeRAhmAka0WEUZYELWPGFLcYTS0r1aeSKTnxwatzjYKqwSSZ8o31EeOtdPiT
-	 YamOww6bPI0Nw==
+	b=X+anXnBmPueiJVEhBIUDql9dw1ML9Q0NvgOlpZZnuS/HY6J7Q9F0LUyX68eQ3JL4A
+	 +oqnJMbfgCCUsLYJhd1aoJkkKV9RzKwBIO6soOlcI7Ol2wy07T11Tto6Xg4FVEQgjC
+	 Tc36VPA/+gsqqI1/pYmnT1+JqVVMPmze4uKiMp4axXSt4zlpIeLvyS2c4ZbvkTIsAe
+	 JCZmAh7eoBUNRWw6mxxMO3Pg8ThUuPD5W6QKCxaq+v30umZox1wsHOizofvwdCovvU
+	 pusdCiUoN5QvPJ/SlKBU2eirNPLUfRZJGndFwXjQh6ydzFjHLK3bUFiRGw0+Nax1Wo
+	 PZCQVHIaklP7g==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 stable/linux-6.12.y 2/2] selinux: fix overlayfs
- mmap() and mprotect() access checks
+Subject: Re: [PATCH v2 stable/linux-6.12.y 1/2] lsm: add backing_file LSM
+ hooks
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Cai Xinchen" <caixinchen1@huawei.com>
-Cc: selinux@vger.kernel.org, bpf@vger.kernel.org
-In-Reply-To: <20260627042835.1492435-3-caixinchen1@huawei.com>
+Cc: bpf@vger.kernel.org, selinux@vger.kernel.org
+In-Reply-To: <20260627042835.1492435-2-caixinchen1@huawei.com>
 References: <20260627042835.1492435-1-caixinchen1@huawei.com>
- <20260627042835.1492435-3-caixinchen1@huawei.com>
+ <20260627042835.1492435-2-caixinchen1@huawei.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 27 Jun 2026 04:07:48 +0000
-Message-Id: <20260627040748.8128C1F000E9@smtp.kernel.org>
+Date: Sat, 27 Jun 2026 04:11:37 +0000
+Message-Id: <20260627041137.A58EA1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] Incorrect SELinux permission checks for PROCESS__EXECMEM and FILE_=
-_EXECMOD against the file mounter's credentials for overlayfs backing files.
+- [High] The replacement of `file_user_path()` with direct access to `user_=
+file->f_path` breaks the propagation of the outermost user path in stacked =
+overlayfs setups, leading to an information leak.
+- [Medium] Error path in `alloc_empty_backing_file()` causes `security_back=
+ing_file_free()` to be invoked twice or improperly, leading to double-free =
+or NULL pointer dereference in LSM modules.
 --
 
-commit bec6dfa25e9f5861f91942dd08f266907fa63504
+commit 6e1e1e772cca04db297cfab245de902e298ac493
 Author: Paul Moore <paul@paul-moore.com>
 
-selinux: fix overlayfs mmap() and mprotect() access checks
+lsm: add backing_file LSM hooks
 
-This commit leverages the backing file API and newly created LSM hooks to
-provide missing backing file enforcement for overlayfs mmap() and mprotect()
-operations.
+Stacked filesystems such as overlayfs do not currently provide the
+necessary mechanisms for LSMs to properly enforce access controls on the
+mmap() and mprotect() operations. In order to resolve this gap, a LSM
+security blob is being added to the backing_file struct.
 
 Cc: stable@vger.kernel.org
+Cc: linux-fsdevel@vger.kernel.org
+Cc: linux-unionfs@vger.kernel.org
+Cc: linux-erofs@lists.ozlabs.org
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 8e31d3b60fc62..1b89c8d5fa2fc 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-[ ... ]
-> @@ -3770,42 +3804,55 @@ static int selinux_file_ioctl_compat(struct file =
-*file, unsigned int cmd,
-> =20
->  static int default_noexec __ro_after_init;
-> =20
-> -static int file_map_prot_check(struct file *file, unsigned long prot, in=
-t shared)
-> +static int __file_map_prot_check(const struct cred *cred,
-> +				 const struct file *file, unsigned long prot,
-> +				 bool shared, bool bf_user_file)
+> diff --git a/fs/backing-file.c b/fs/backing-file.c
+> index 09a9be945d45e..389cfe3ed509d 100644
+> --- a/fs/backing-file.c
+> +++ b/fs/backing-file.c
+> @@ -29,14 +30,15 @@
+>   * returned file into a container structure that also stores the stacked
+>   * file's path, which can be retrieved using backing_file_user_path().
+>   */
+> -struct file *backing_file_open(const struct path *user_path, int flags,
+> +struct file *backing_file_open(const struct file *user_file, int flags,
+>  			       const struct path *real_path,
+>  			       const struct cred *cred)
 >  {
-[ ... ]
-> +	if (default_noexec && prot_exec &&
-> +	    (!file || IS_PRIVATE(inode) || (!shared && prot_write))) {
-> +		int rc;
-> +		u32 sid =3D cred_sid(cred);
+> +	const struct path *user_path =3D &user_file->f_path;
+
+[Severity: High]
+Does this break the propagation of the outermost user path in stacked
+overlayfs setups?
+
+By unconditionally using direct access to user_file->f_path, it appears that
+intermediate mount paths (such as overlayfs lower/upper directories) might =
+be
+exposed to user space through /proc/<pid>/maps, bypassing overlayfs path
+hiding.
+
+>  	struct file *f;
+>  	int error;
 > =20
-> -	if (default_noexec &&
-> -	    (prot & PROT_EXEC) && (!file || IS_PRIVATE(file_inode(file)) ||
-> -				   (!shared && (prot & PROT_WRITE)))) {
->  		/*
-> -		 * We are making executable an anonymous mapping or a
-> -		 * private file mapping that will also be writable.
-> -		 * This has an additional check.
-> +		 * We are making executable an anonymous mapping or a private
-> +		 * file mapping that will also be writable.
->  		 */
-> -		rc =3D avc_has_perm(sid, sid, SECCLASS_PROCESS,
-> -				  PROCESS__EXECMEM, NULL);
-> +		rc =3D avc_has_perm(sid, sid, SECCLASS_PROCESS, PROCESS__EXECMEM,
-> +				  NULL);
-
-[Severity: High]
-Does this check PROCESS__EXECMEM against the file mounter's credentials=20
-instead of the current task?
-
-When checking a backing file, the caller passes backing_file->f_cred=20
-into the mmap chain. Extracting the SID from the mounter's credentials=20
-means the mounter domain (e.g., containerd or the mount process) is=20
-checked for process-level execmem permissions. This can cause legitimate=20
-operations to be denied for unprivileged user tasks mapping an overlayfs=20
-file.
+> -	f =3D alloc_empty_backing_file(flags, cred);
+> +	f =3D alloc_empty_backing_file(flags, cred, user_file);
 
 [ ... ]
-> @@ -3821,36 +3868,80 @@ static int selinux_mmap_addr(unsigned long addr)
-[ ... ]
-> +static int selinux_mmap_backing_file(struct vm_area_struct *vma,
-> +				     struct file *backing_file,
-> +				     struct file *user_file __always_unused)
-> +{
-> +	unsigned long prot =3D 0;
-> +
-> +	/* translate vma->vm_flags perms into PROT perms */
-> +	if (vma->vm_flags & VM_READ)
-> +		prot |=3D PROT_READ;
-> +	if (vma->vm_flags & VM_WRITE)
-> +		prot |=3D PROT_WRITE;
-> +	if (vma->vm_flags & VM_EXEC)
-> +		prot |=3D PROT_EXEC;
-> +
-> +	return selinux_mmap_file_common(backing_file->f_cred, backing_file,
-> +					prot, vma->vm_flags & VM_SHARED);
+
+> @@ -52,15 +54,16 @@ struct file *backing_file_open(const struct path *use=
+r_path, int flags,
 >  }
+>  EXPORT_SYMBOL_GPL(backing_file_open);
+> =20
+> -struct file *backing_tmpfile_open(const struct path *user_path, int flag=
+s,
+> +struct file *backing_tmpfile_open(const struct file *user_file, int flag=
+s,
+>  				  const struct path *real_parentpath,
+>  				  umode_t mode, const struct cred *cred)
+>  {
+>  	struct mnt_idmap *real_idmap =3D mnt_idmap(real_parentpath->mnt);
+> +	const struct path *user_path =3D &user_file->f_path;
 
 [Severity: High]
-Can passing backing_file->f_cred here trigger the erroneous EXECMEM check=20
-on the mounter described above?
+Could this similarly break path propagation for temporary files?
+
+>  	struct file *f;
+>  	int error;
+> =20
+> -	f =3D alloc_empty_backing_file(flags, cred);
+> +	f =3D alloc_empty_backing_file(flags, cred, user_file);
 
 [ ... ]
-> @@ -3876,13 +3971,29 @@ static int selinux_file_mprotect(struct vm_area_s=
-truct *vma,
->  			 * modified content.  This typically should only
->  			 * occur for text relocations.
->  			 */
-> -			rc =3D file_has_perm(cred, vma->vm_file, FILE__EXECMOD);
-> +			rc =3D __file_has_perm(cred, file, FILE__EXECMOD,
-> +					     backing_file);
-> +			if (rc)
-> +				return rc;
-> +			if (backing_file) {
-> +				rc =3D file_has_perm(file->f_cred, file,
-> +						   FILE__EXECMOD);
 
-[Severity: High]
-Does this incorrectly require the mounter to have FILE__EXECMOD privileges?
+> diff --git a/fs/file_table.c b/fs/file_table.c
+> index 2a08bc93b0b9c..a771be30eb43d 100644
+> --- a/fs/file_table.c
+> +++ b/fs/file_table.c
 
-Using file->f_cred checks the file mounter's credentials rather than the=20
-current task's. This could deny legitimate modifications to COW pages with=
-=20
-PROT_EXEC in user applications running on overlayfs.
+[ ... ]
 
-> +				if (rc)
-> +					return rc;
-> +			}
->  		}
-> +	}
+> @@ -289,7 +308,7 @@ struct file *alloc_empty_backing_file(int flags, cons=
+t struct cred *cred)
+> =20
+>  	/* The f_mode flags must be set before fput(). */
+>  	ff->file.f_mode |=3D FMODE_BACKING | FMODE_NOACCOUNT;
+> -	error =3D init_backing_file(ff);
+> +	error =3D init_backing_file(ff, user_file);
+>  	if (unlikely(error)) {
+>  		fput(&ff->file);
+
+[Severity: Medium]
+Will calling fput() here lead to a double-free or NULL pointer dereference
+in the LSM module?
+
+When init_backing_file() fails due to security_backing_file_alloc()
+returning an error, the LSM hook already cleans up its own state:
+
+security/security.c:security_backing_file_alloc() {
+	rc =3D call_int_hook(backing_file_alloc, backing_file, user_file);
+	if (unlikely(rc))
+		security_backing_file_free(backing_file);
+...
+
+However, because FMODE_BACKING is already set before init_backing_file() is
+called, the subsequent fput() triggers the destruction path via file_free()
+which eventually calls backing_file_free() and executes
+security_backing_file_free() a second time on the same file.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260627042835.1492=
-435-1-caixinchen1@huawei.com?part=3D2
+435-1-caixinchen1@huawei.com?part=3D1
