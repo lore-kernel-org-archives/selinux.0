@@ -1,31 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23C093BD22C;
-	Mon, 29 Jun 2026 06:56:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B9E12C11F1;
+	Mon, 29 Jun 2026 07:00:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782716219; cv=none; b=TcOEByQ6IJEFmy3g+66MENfE/WBUnWTlY5AmbQfLjE1+dCgSIsw3+B4PJmqEtH02CT6lHgLmHSPucW+JXAliOI9yeDFC7QQ9VyjUVcTprcQFCJtVL/V7TpulawEiL52slC7UgQNF9FswjYnVPtueKp9wppzAPLWdyd7RN7hNckQ=
+	t=1782716407; cv=none; b=lJZcNWuyekoomvX25O6GzgRBZMGYGhnS7cHEKu5pHe0oW7PAjaMu5PGeXnrPfMrvK9pWQK3RmZ/YgEdEHSD5hGLf8yCwChNO6hbYRiUSodu1aGnXctIK7vpmmuFg81WKzmZ37DrgbAaK6gnTtPvmu2zwf9qPpP+F8qAqefjWjAc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782716219; c=relaxed/simple;
-	bh=A388balnwsreQgnOFUoGPGQqHa16NefdAh/dMng7NFQ=;
+	s=arc-20240116; t=1782716407; c=relaxed/simple;
+	bh=jPtvTFqrtcrXzbo0Qou3ExCbSF2LB1e3KcR8naQlMbo=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=AollppLbhJlmm8oTu7hBpn5Cr4OHj5ASbhAYe8xJIHLHhLsA8AVcxEsV2QwRdpZ7xiva/ePmqJiEf8YRcMnyIBtIAjtlSp4uHIhCRqHEMDW8/11202RrXivG4gv52/XrSC+BkR7x2e+0xKjRsQh664mBI45dsGihocAdBgw/97Y=
+	 Message-Id; b=Cb4YHedhw9rdDVppAJs5ckQ3dtRXN1KQjZqb1MsD2dWsX1OgqAofhouehmUS4CJ9f/QfK+z+/GClIt576s663rpRp33F4bc1mhZ9hvTSFjywut0cUQoIf76mYKm1bPyYWS0FgMZxccKP04t/rqg/nqwU4wyAqYIf8rniVMtmWOw=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 385641F000E9;
-	Mon, 29 Jun 2026 06:56:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DABE1F00A3A;
+	Mon, 29 Jun 2026 07:00:06 +0000 (UTC)
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH stable/linux-5.10.y 6/7] lsm: add backing_file LSM hooks
+Subject: Re: [PATCH stable/linux-5.10.y 7/7] selinux: fix overlayfs mmap()
+ and mprotect() access checks
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Cai Xinchen" <caixinchen1@huawei.com>
 Cc: bpf@vger.kernel.org, selinux@vger.kernel.org
-In-Reply-To: <20260629070653.580879-7-caixinchen1@huawei.com>
+In-Reply-To: <20260629070653.580879-8-caixinchen1@huawei.com>
 References: <20260629070653.580879-1-caixinchen1@huawei.com>
- <20260629070653.580879-7-caixinchen1@huawei.com>
+ <20260629070653.580879-8-caixinchen1@huawei.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 29 Jun 2026 06:56:51 +0000
-Message-Id: <20260629065652.385641F000E9@smtp.kernel.org>
+Date: Mon, 29 Jun 2026 07:00:00 +0000
+Message-Id: <20260629070006.3DABE1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -36,110 +37,175 @@ Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
 New issues:
-- [High] Permanent struct file reference count leak of 'realfile' when `sec=
-urity_mmap_backing_file` fails in `ovl_mmap`.
+- [High] SELinux inappropriately evaluates process-specific execution permi=
+ssions (PROCESS__EXECMEM and FILE__EXECMOD) against the mounter's credentia=
+ls for overlayfs backing files.
 
 Pre-existing issues:
-- [High] Slab corruption when `init_file` fails in `alloc_empty_backing_fil=
-e` due to a mismatch between `kzalloc` and `kmem_cache_free`.
+- [High] SELinux uses `!file` as a proxy to classify anonymous vs file-back=
+ed VMAs, causing incorrect MAC checks for anonymous `/dev/zero` mappings.
 --
 
-commit d56daad1df4b9fc063314a1e9538b4eee20fd64d
+commit c8a02c1a6e87f41a5505e0fdbf8fe1977f518031
 Author: Paul Moore <paul@paul-moore.com>
 
-lsm: add backing_file LSM hooks
+selinux: fix overlayfs mmap() and mprotect() access checks
 
-Stacked filesystems such as overlayfs do not currently provide the
-necessary mechanisms for LSMs to properly enforce access controls on the
-mmap() and mprotect() operations. In order to resolve this gap, a LSM
-security blob is being added to the backing_file struct and the following
-new LSM hooks are being created.
+This patch implements backing file enforcement for mmap() and mprotect()
+operations on overlayfs filesystems. It uses the new LSM hook and backing
+file API to ensure correct access controls.
 
-> diff --git a/fs/file_table.c b/fs/file_table.c
-> index 6792d0bce2461..829dfd35365c3 100644
-> --- a/fs/file_table.c
-> +++ b/fs/file_table.c
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index e1bbdef0bcd39..76cc0cbd1fd2b 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+
 [ ... ]
-> @@ -229,7 +244,8 @@ static int init_backing_file(struct backing_file *ff)
->   * This is only for kernel internal use, and the allocate file must not =
-be
->   * installed into file tables or such.
->   */
-> -struct file *alloc_empty_backing_file(int flags, const struct cred *cred)
-> +struct file *alloc_empty_backing_file(int flags, const struct cred *cred,
-> +				      const struct file *user_file)
->  {
 
-[Severity: High]
-This is a pre-existing issue, but does alloc_empty_backing_file() cause slab
-corruption if init_file() fails?
-
-In alloc_empty_backing_file(), we allocate a struct backing_file using
-kzalloc(). Then we call init_file(&ff->file, flags, cred).
-
-If init_file() fails (e.g., if security_file_alloc() returns -ENOMEM), it c=
-leans
-up by directly calling file_free_rcu():
-
-fs/file_table.c:init_file() {
-    ...
-	error =3D security_file_alloc(f);
-	if (unlikely(error)) {
-		file_free_rcu(&f->f_u.fu_rcuhead);
-		return error;
-	}
-    ...
-}
-
-Inside file_free_rcu(), it uses the FMODE_BACKING flag to decide how to fre=
-e:
-
-fs/file_table.c:file_free_rcu() {
-    ...
-	if (unlikely(f->f_mode & FMODE_BACKING))
-		kfree(backing_file(f));
-	else
-		kmem_cache_free(filp_cachep, f);
-}
-
-Since FMODE_BACKING is only set after init_file() returns successfully, the
-flag is missing during the error path, and we end up passing the kzalloc'd
-pointer to kmem_cache_free(filp_cachep, f).
-
->  	struct backing_file *ff;
->  	int error;
-[ ... ]
-> diff --git a/fs/overlayfs/file.c b/fs/overlayfs/file.c
-> index 460748b638063..318ec1d99aa16 100644
-> --- a/fs/overlayfs/file.c
-> +++ b/fs/overlayfs/file.c
-[ ... ]
-> @@ -504,6 +505,11 @@ static int ovl_mmap(struct file *file, struct vm_are=
-a_struct *vma)
->  	vma->vm_file =3D get_file(realfile);
+> @@ -3762,36 +3807,86 @@ static int selinux_mmap_file(struct file *file, u=
+nsigned long reqprot,
+>  	if (checkreqprot_get(&selinux_state))
+>  		prot =3D reqprot;
 > =20
->  	old_cred =3D ovl_override_creds(file_inode(file)->i_sb);
-> +	ret =3D security_mmap_backing_file(vma, realfile, user_file);
-> +	if (ret) {
-> +		revert_creds(old_cred);
-> +		return ret;
+> -	return file_map_prot_check(file, prot,
+> -				   (flags & MAP_TYPE) =3D=3D MAP_SHARED);
+> +	return file_map_prot_check(cred, file, prot, shared);
+> +}
+> +
+> +/**
+> + * selinux_mmap_backing_file - Check mmap permissions on a backing file
+> + * @vma: memory region
+> + * @backing_file: stacked filesystem backing file
+> + * @user_file: user visible file
+> + *
+> + * This is called after selinux_mmap_file() on stacked filesystems, and =
+it
+> + * is this function's responsibility to verify access to @backing_file a=
+nd
+> + * setup the SELinux state for possible later use in the mprotect() code=
+ path.
+> + *
+> + * By the time this function is called, mmap() access to @user_file has =
+already
+> + * been authorized and @vma->vm_file has been set to point to @backing_f=
+ile.
+> + *
+> + * Return zero on success, negative values otherwise.
+> + */
+> +static int selinux_mmap_backing_file(struct vm_area_struct *vma,
+> +				     struct file *backing_file,
+> +				     struct file *user_file __always_unused)
+> +{
+> +	unsigned long prot =3D 0;
+> +
+> +	/* translate vma->vm_flags perms into PROT perms */
+> +	if (vma->vm_flags & VM_READ)
+> +		prot |=3D PROT_READ;
+> +	if (vma->vm_flags & VM_WRITE)
+> +		prot |=3D PROT_WRITE;
+> +	if (vma->vm_flags & VM_EXEC)
+> +		prot |=3D PROT_EXEC;
+> +
+> +	return selinux_mmap_file_common(backing_file->f_cred, backing_file,
+> +					prot, prot, vma->vm_flags & VM_SHARED);
+>  }
 
 [Severity: High]
-Does this code leak the realfile reference on error?
+When selinux_mmap_backing_file() calls selinux_mmap_file_common(), it passes
+backing_file->f_cred. This cred propagates down to __file_map_prot_check(),
+where it is used to evaluate PROCESS__EXECMEM.
 
-When security_mmap_backing_file() fails, we return early without dropping
-the reference to realfile acquired just above via get_file(realfile) and
-stored in vma->vm_file.
+Because this evaluates PROCESS__EXECMEM against the mounter's credentials
+rather than the current task mapping the memory, could this result in
+spurious EACCES denials if the mounter's policy lacks the EXECMEM privilege?
 
-The caller (__mmap_region()) handles the error by clearing vma->vm_file =3D=
- NULL
-and only drops the reference to the original user_file, which orphans the
-reference to realfile.
+>  static int selinux_file_mprotect(struct vm_area_struct *vma,
+>  				 unsigned long reqprot,
+>  				 unsigned long prot)
+>  {
+> +	int rc;
+>  	const struct cred *cred =3D current_cred();
+>  	u32 sid =3D cred_sid(cred);
+> +	const struct file *file =3D vma->vm_file;
+> +	bool backing_file;
+> +	bool shared =3D vma->vm_flags & VM_SHARED;
+> +
+> +	/* check if we need to trigger the "backing files are awful" mode */
+> +	backing_file =3D file && (file->f_mode & FMODE_BACKING);
+> =20
+>  	if (checkreqprot_get(&selinux_state))
+>  		prot =3D reqprot;
+> =20
+>  	if (default_noexec &&
+>  	    (prot & PROT_EXEC) && !(vma->vm_flags & VM_EXEC)) {
+> -		int rc =3D 0;
+>  		if (vma->vm_start >=3D vma->vm_mm->start_brk &&
+>  		    vma->vm_end <=3D vma->vm_mm->brk) {
+>  			rc =3D avc_has_perm(&selinux_state,
+>  					  sid, sid, SECCLASS_PROCESS,
+>  					  PROCESS__EXECHEAP, NULL);
+> -		} else if (!vma->vm_file &&
+> +			if (rc)
+> +				return rc;
+> +		} else if (!file &&
+>  			   ((vma->vm_start <=3D vma->vm_mm->start_stack &&
+>  			     vma->vm_end >=3D vma->vm_mm->start_stack) ||
+>  			    vma_is_stack_for_current(vma))) {
 
+[Severity: High]
+This is a pre-existing issue, but using !file (which evaluates to
+vma->vm_file =3D=3D NULL) as a proxy for an anonymous VMA misses some anony=
+mous
+mappings.
+
+Private mappings of /dev/zero are anonymous but have a non-NULL vma->vm_fil=
+e.
+Can this bypass the PROCESS__EXECSTACK permission check for /dev/zero
+executable stacks by incorrectly falling through to the FILE__EXECMOD check?
+
+Should this check use vma_is_anonymous(vma) rather than !file to ensure
+all anonymous mappings are correctly evaluated?
+
+>  			rc =3D avc_has_perm(&selinux_state,
+>  					  sid, sid, SECCLASS_PROCESS,
+>  					  PROCESS__EXECSTACK, NULL);
+> -		} else if (vma->vm_file && vma->anon_vma) {
+> +			if (rc)
+> +				return rc;
+> +		} else if (file && vma->anon_vma) {
+>  			/*
+>  			 * We are making executable a file mapping that has
+>  			 * had some COW done. Since pages might have been
+> @@ -3799,13 +3894,29 @@ static int selinux_file_mprotect(struct vm_area_s=
+truct *vma,
+>  			 * modified content.  This typically should only
+>  			 * occur for text relocations.
+>  			 */
+> -			rc =3D file_has_perm(cred, vma->vm_file, FILE__EXECMOD);
+> +			rc =3D __file_has_perm(cred, file, FILE__EXECMOD,
+> +					     backing_file);
+> +			if (rc)
+> +				return rc;
+> +			if (backing_file) {
+> +				rc =3D file_has_perm(file->f_cred, file,
+> +						   FILE__EXECMOD);
+
+[Severity: High]
+Similar to the PROCESS__EXECMEM check in the mmap path, this evaluates
+FILE__EXECMOD using the backing file's credentials (file->f_cred).
+
+Is it intended to check EXECMOD against the mounter's credentials here,
+or should this process-specific execution permission be evaluated against
+the current process modifying the memory?
+
+> +				if (rc)
+> +					return rc;
+> +			}
+>  		}
 > +	}
->  	ret =3D call_mmap(vma->vm_file, vma);
->  	revert_creds(old_cred);
+> +
+> +	rc =3D __file_map_prot_check(cred, file, prot, shared, backing_file);
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260629070653.5808=
-79-1-caixinchen1@huawei.com?part=3D6
+79-1-caixinchen1@huawei.com?part=3D7
