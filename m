@@ -1,211 +1,112 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B9E12C11F1;
-	Mon, 29 Jun 2026 07:00:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D8673B42D1;
+	Mon, 29 Jun 2026 07:01:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782716407; cv=none; b=lJZcNWuyekoomvX25O6GzgRBZMGYGhnS7cHEKu5pHe0oW7PAjaMu5PGeXnrPfMrvK9pWQK3RmZ/YgEdEHSD5hGLf8yCwChNO6hbYRiUSodu1aGnXctIK7vpmmuFg81WKzmZ37DrgbAaK6gnTtPvmu2zwf9qPpP+F8qAqefjWjAc=
+	t=1782716491; cv=none; b=Zbv56YUaY7UBjDRClzhCsOkt2rrXcY2ykWU395OMI2CXzdyNnCxh10623+oe3uumq0tClulSIJrpCGw4AInYGvACcqAO3NrM+zp97YTE2CbjgsGAFlffLljsB/pam1bme1QGPDHscierO6srffrW/7ADmNArWEEKOR2AJJ2Vz8w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782716407; c=relaxed/simple;
-	bh=jPtvTFqrtcrXzbo0Qou3ExCbSF2LB1e3KcR8naQlMbo=;
+	s=arc-20240116; t=1782716491; c=relaxed/simple;
+	bh=lzLSYvZbviL4rs52ym+OFLsTQEUztIMyXP068DRiYxY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Cb4YHedhw9rdDVppAJs5ckQ3dtRXN1KQjZqb1MsD2dWsX1OgqAofhouehmUS4CJ9f/QfK+z+/GClIt576s663rpRp33F4bc1mhZ9hvTSFjywut0cUQoIf76mYKm1bPyYWS0FgMZxccKP04t/rqg/nqwU4wyAqYIf8rniVMtmWOw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DABE1F00A3A;
-	Mon, 29 Jun 2026 07:00:06 +0000 (UTC)
+	 Message-Id; b=l4T4HpnT+e6glFs0cg3s1jD0/YzdE0xK4EaDxDA6wBPsjMxA/sMNQQ1VhiXZfo3SaTmTqiOXYCo/xqD4/UUbv7w9eBfKV6dnJm4HbKyqTALlj6/+Q29GYftY6GJA/Y1TYYGo35j6lGjyCpJDn3wAqNfRfM0OUroF+UytiwsPweo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KXbgl2nz; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KXbgl2nz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A5AF1F000E9;
+	Mon, 29 Jun 2026 07:01:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1782716490;
+	bh=/ojqVuQ8qNG+9pku7O3Xen50FGMQw7w4aioRIokPfmQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=KXbgl2nzWVDwqxs8wW7kmCZnII3KA+tTMBeQ+y3RfqknR0cMBzXawDRrALx9kDv6P
+	 +KEd6kxLuldM8pComdZI46Li6hY6+fd3DhLptYvepaWVU/trCCroDigjRgxuDd7m/h
+	 v7hwXIeYKo8zc7WmjWdebmG+6VN1fRvHJ2g/VdE9yU8qbGXf54xj+wJ2n88OheP1r4
+	 8QOSTwgKvEldQxU930q55ezS6DOyIZVjS07f4YfLbKbFSnNL54f6bAhhXgZsWHMsv6
+	 OnOlcDQG4fbdciKjzpRjCB0RZHAbqFD6N+bBuna6lOkIby0JZCVOEneLa8LRA1sZzb
+	 iSaFbNwG+NC8w==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH stable/linux-5.10.y 7/7] selinux: fix overlayfs mmap()
- and mprotect() access checks
+Subject: Re: [PATCH v3 stable/linux-6.12.y 1/3] fs: constify file ptr in
+ backing_file accessor helpers
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Cai Xinchen" <caixinchen1@huawei.com>
-Cc: bpf@vger.kernel.org, selinux@vger.kernel.org
-In-Reply-To: <20260629070653.580879-8-caixinchen1@huawei.com>
-References: <20260629070653.580879-1-caixinchen1@huawei.com>
- <20260629070653.580879-8-caixinchen1@huawei.com>
+Cc: selinux@vger.kernel.org, bpf@vger.kernel.org
+In-Reply-To: <20260629070338.578858-2-caixinchen1@huawei.com>
+References: <20260629070338.578858-1-caixinchen1@huawei.com>
+ <20260629070338.578858-2-caixinchen1@huawei.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 29 Jun 2026 07:00:00 +0000
-Message-Id: <20260629070006.3DABE1F00A3A@smtp.kernel.org>
+Date: Mon, 29 Jun 2026 07:01:29 +0000
+Message-Id: <20260629070130.0A5AF1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-New issues:
-- [High] SELinux inappropriately evaluates process-specific execution permi=
-ssions (PROCESS__EXECMEM and FILE__EXECMOD) against the mounter's credentia=
-ls for overlayfs backing files.
-
-Pre-existing issues:
-- [High] SELinux uses `!file` as a proxy to classify anonymous vs file-back=
-ed VMAs, causing incorrect MAC checks for anonymous `/dev/zero` mappings.
+- [Low] The helper backing_file_user_path() accepts a const struct file * b=
+ut returns a mutable struct path *, breaking full const correctness guarant=
+ees.
 --
 
-commit c8a02c1a6e87f41a5505e0fdbf8fe1977f518031
-Author: Paul Moore <paul@paul-moore.com>
+commit aa7c0a70405fd2c0d95c3745c9871a3e87c26cc3
+Author: Amir Goldstein <amir73il@gmail.com>
 
-selinux: fix overlayfs mmap() and mprotect() access checks
+fs: constify file ptr in backing_file accessor helpers
 
-This patch implements backing file enforcement for mmap() and mprotect()
-operations on overlayfs filesystems. It uses the new LSM hook and backing
-file API to ensure correct access controls.
+This commit introduces backing_file_set_user_path() to handle modifications
+to backing_file fields and constifies the file pointer in the backing_file
+accessor helpers.
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index e1bbdef0bcd39..76cc0cbd1fd2b 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
+Link: https://lore.kernel.org/20250607115304.2521155-2-amir73il@gmail.com
+
+> diff --git a/fs/file_table.c b/fs/file_table.c
+> index 2a08bc93b0b9c..75a1908d51a9f 100644
+> --- a/fs/file_table.c
+> +++ b/fs/file_table.c
 
 [ ... ]
 
-> @@ -3762,36 +3807,86 @@ static int selinux_mmap_file(struct file *file, u=
-nsigned long reqprot,
->  	if (checkreqprot_get(&selinux_state))
->  		prot =3D reqprot;
-> =20
-> -	return file_map_prot_check(file, prot,
-> -				   (flags & MAP_TYPE) =3D=3D MAP_SHARED);
-> +	return file_map_prot_check(cred, file, prot, shared);
-> +}
-> +
-> +/**
-> + * selinux_mmap_backing_file - Check mmap permissions on a backing file
-> + * @vma: memory region
-> + * @backing_file: stacked filesystem backing file
-> + * @user_file: user visible file
-> + *
-> + * This is called after selinux_mmap_file() on stacked filesystems, and =
-it
-> + * is this function's responsibility to verify access to @backing_file a=
-nd
-> + * setup the SELinux state for possible later use in the mprotect() code=
- path.
-> + *
-> + * By the time this function is called, mmap() access to @user_file has =
-already
-> + * been authorized and @vma->vm_file has been set to point to @backing_f=
-ile.
-> + *
-> + * Return zero on success, negative values otherwise.
-> + */
-> +static int selinux_mmap_backing_file(struct vm_area_struct *vma,
-> +				     struct file *backing_file,
-> +				     struct file *user_file __always_unused)
-> +{
-> +	unsigned long prot =3D 0;
-> +
-> +	/* translate vma->vm_flags perms into PROT perms */
-> +	if (vma->vm_flags & VM_READ)
-> +		prot |=3D PROT_READ;
-> +	if (vma->vm_flags & VM_WRITE)
-> +		prot |=3D PROT_WRITE;
-> +	if (vma->vm_flags & VM_EXEC)
-> +		prot |=3D PROT_EXEC;
-> +
-> +	return selinux_mmap_file_common(backing_file->f_cred, backing_file,
-> +					prot, prot, vma->vm_flags & VM_SHARED);
+> -struct path *backing_file_user_path(struct file *f)
+> +struct path *backing_file_user_path(const struct file *f)
+>  {
+>  	return &backing_file(f)->user_path;
 >  }
 
-[Severity: High]
-When selinux_mmap_backing_file() calls selinux_mmap_file_common(), it passes
-backing_file->f_cred. This cred propagates down to __file_map_prot_check(),
-where it is used to evaluate PROCESS__EXECMEM.
+[Severity: Low]
+Does this inadvertently strip the constness of the input parameter by
+returning a mutable pointer to the internal state?
 
-Because this evaluates PROCESS__EXECMEM against the mounter's credentials
-rather than the current task mapping the memory, could this result in
-spurious EACCES denials if the mounter's policy lacks the EXECMEM privilege?
+Since the stated goal of the patch is to constify the file pointer in these
+accessor helpers, should the return type also be updated to
+const struct path * to enforce full const correctness? Returning a mutable
+pointer from a const object could enable unintended modifications.
 
->  static int selinux_file_mprotect(struct vm_area_struct *vma,
->  				 unsigned long reqprot,
->  				 unsigned long prot)
->  {
-> +	int rc;
->  	const struct cred *cred =3D current_cred();
->  	u32 sid =3D cred_sid(cred);
-> +	const struct file *file =3D vma->vm_file;
-> +	bool backing_file;
-> +	bool shared =3D vma->vm_flags & VM_SHARED;
-> +
-> +	/* check if we need to trigger the "backing files are awful" mode */
-> +	backing_file =3D file && (file->f_mode & FMODE_BACKING);
-> =20
->  	if (checkreqprot_get(&selinux_state))
->  		prot =3D reqprot;
-> =20
->  	if (default_noexec &&
->  	    (prot & PROT_EXEC) && !(vma->vm_flags & VM_EXEC)) {
-> -		int rc =3D 0;
->  		if (vma->vm_start >=3D vma->vm_mm->start_brk &&
->  		    vma->vm_end <=3D vma->vm_mm->brk) {
->  			rc =3D avc_has_perm(&selinux_state,
->  					  sid, sid, SECCLASS_PROCESS,
->  					  PROCESS__EXECHEAP, NULL);
-> -		} else if (!vma->vm_file &&
-> +			if (rc)
-> +				return rc;
-> +		} else if (!file &&
->  			   ((vma->vm_start <=3D vma->vm_mm->start_stack &&
->  			     vma->vm_end >=3D vma->vm_mm->start_stack) ||
->  			    vma_is_stack_for_current(vma))) {
+>  EXPORT_SYMBOL_GPL(backing_file_user_path);
 
-[Severity: High]
-This is a pre-existing issue, but using !file (which evaluates to
-vma->vm_file =3D=3D NULL) as a proxy for an anonymous VMA misses some anony=
-mous
-mappings.
+> diff --git a/include/linux/fs.h b/include/linux/fs.h
+> index 87720e1b54192..70bbc00a2bd25 100644
+> --- a/include/linux/fs.h
+> +++ b/include/linux/fs.h
 
-Private mappings of /dev/zero are anonymous but have a non-NULL vma->vm_fil=
-e.
-Can this bypass the PROCESS__EXECSTACK permission check for /dev/zero
-executable stacks by incorrectly falling through to the FILE__EXECMOD check?
+[ ... ]
 
-Should this check use vma_is_anonymous(vma) rather than !file to ensure
-all anonymous mappings are correctly evaluated?
+> @@ -2738,7 +2738,7 @@ struct file *dentry_open(const struct path *path, i=
+nt flags,
+>  			 const struct cred *creds);
+>  struct file *dentry_create(const struct path *path, int flags, umode_t m=
+ode,
+>  			   const struct cred *cred);
+> -struct path *backing_file_user_path(struct file *f);
+> +struct path *backing_file_user_path(const struct file *f);
 
->  			rc =3D avc_has_perm(&selinux_state,
->  					  sid, sid, SECCLASS_PROCESS,
->  					  PROCESS__EXECSTACK, NULL);
-> -		} else if (vma->vm_file && vma->anon_vma) {
-> +			if (rc)
-> +				return rc;
-> +		} else if (file && vma->anon_vma) {
->  			/*
->  			 * We are making executable a file mapping that has
->  			 * had some COW done. Since pages might have been
-> @@ -3799,13 +3894,29 @@ static int selinux_file_mprotect(struct vm_area_s=
-truct *vma,
->  			 * modified content.  This typically should only
->  			 * occur for text relocations.
->  			 */
-> -			rc =3D file_has_perm(cred, vma->vm_file, FILE__EXECMOD);
-> +			rc =3D __file_has_perm(cred, file, FILE__EXECMOD,
-> +					     backing_file);
-> +			if (rc)
-> +				return rc;
-> +			if (backing_file) {
-> +				rc =3D file_has_perm(file->f_cred, file,
-> +						   FILE__EXECMOD);
-
-[Severity: High]
-Similar to the PROCESS__EXECMEM check in the mmap path, this evaluates
-FILE__EXECMOD using the backing file's credentials (file->f_cred).
-
-Is it intended to check EXECMOD against the mounter's credentials here,
-or should this process-specific execution permission be evaluated against
-the current process modifying the memory?
-
-> +				if (rc)
-> +					return rc;
-> +			}
->  		}
-> +	}
-> +
-> +	rc =3D __file_map_prot_check(cred, file, prot, shared, backing_file);
+[Severity: Low]
+If backing_file_user_path is updated to return a const struct path *, this
+prototype will also need to be adjusted to match.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260629070653.5808=
-79-1-caixinchen1@huawei.com?part=3D7
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260629070338.5788=
+58-1-caixinchen1@huawei.com?part=3D1
