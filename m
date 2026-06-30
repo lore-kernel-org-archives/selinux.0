@@ -1,129 +1,159 @@
-Received: from mail-qv1-f53.google.com (mail-qv1-f53.google.com [209.85.219.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 487CD3A7F50
-	for <selinux@vger.kernel.org>; Tue, 30 Jun 2026 18:46:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.53
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782845212; cv=pass; b=LuJCFQlNRy1xBVpy+Q1S1MlmzMN69b0j5576X5cHh5CWhnl6ZuNx0KF22hzOdjjd0PO48AEFW7cKNgrhS25MfmQMusnSExsRfhZEoJy5kTqgUYQGnCHw1uHAEUG8rUuf7bSwEU44z8R611IlKSA/9+0DDYfZwXGgliDU7Dbv9uE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782845212; c=relaxed/simple;
-	bh=/mr0mxcymU+YTx8PbSVH8xKSeGb4CtbjDq3BsjMlcFI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=oagPiu/M8JJzhHGRma+PV2v45T1fNxXfnq6PXyf8AACB0pzum4dwzFPP5oZDsNDk49Nnx/kAjUNjukI3CWDyw2kOk4OkfP9yPQaCitOrusikFsfaB9zKEZ4P0ixR7V0L8D/ZiHIjpYimoyQFo198NMemIu0uYzcJyiweryqTvzo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EQSgW7XY; arc=pass smtp.client-ip=209.85.219.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4E57233933;
+	Tue, 30 Jun 2026 18:51:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782845462; cv=none; b=UHabML1Rg0bytpWd2leef0xfQZVa2czAIbrzi/Ev0JDOK6tiDbMqoDhWkY5OWWV8pUjLkiXVRPpZY3gqZUR8eTFxIRRvWuNWM9Rhz2NOn12bq+O6POiPjWB0r9f5+fWCU4Gz13kHY3IcaECxVXgt625ql1hBmdyf+5ppL8ZXLJA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782845462; c=relaxed/simple;
+	bh=kyVkXyc/CRE1P42mt+kc8FCAR2ecXVss//zPwyRniRA=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=pwQwh6L+qUNVbf6TMA7e+ZUX0R7Y8UE2bTz3VhrWc3VErNwlJO4byuLT2YqNcgF8NZKBFwrkLlzbsIvhv+LC3/HDqHv7319qBIYmjjIvJ+2HtGfxOkIEVlkOnm2Jb91Lrs4d7pYjJ4nj5PoCw62yUrFZh5TxpXkie31TbVRASLE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SU/YbiRv; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EQSgW7XY"
-Received: by mail-qv1-f53.google.com with SMTP id 6a1803df08f44-8f0d6853360so18022446d6.0
-        for <selinux@vger.kernel.org>; Tue, 30 Jun 2026 11:46:51 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782845210; cv=none;
-        d=google.com; s=arc-20260327;
-        b=piz7GsNAGLWOIAlNiwA/YOnn67yvCvT3O3oUlCax6U/QPS7qI0lmDb5QbifBnwTnxU
-         X83AXQeG/cZkv0vmc6XuZzXgfzMcWVsVqHquFeYnNWwnRR4i8hYeEDT5vFiZmirm0SRN
-         jkeS3Y2PoNOqa3lL1b7UL6XOCURhjTzVoFzcBgnqNUhXlIn950OkGP4YNNFz50iTRDjP
-         ZXoYixnzw5LiB9QHmzc4mBUnj9WvFMAI1xJk/JKx4yRiPWSp30fYHLYfZYFCtKgrctaD
-         TTBYMtHhBZOzsHVOPmh/j1tBeIKzAejFUyYd23j+YjIbrypMj+7qlLmWqtwZ30oY0ph6
-         HLZg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=/mr0mxcymU+YTx8PbSVH8xKSeGb4CtbjDq3BsjMlcFI=;
-        fh=a83HFKpSuQPJzyzoN1rO84dsH9o1Ej6pbTAY9s1AkDg=;
-        b=gy/kGWwCp5ttluCKocEW9Jozrbct4t9hRgRgpoUx+J0PNkvpQSyU05ynNC59rafdlK
-         m5zg6/CM1XNT4dv68ZiWJCQNLOAHyuCW/sdJp0ZDPBX6y2rfQg5SFwUbYjU3fAb5SQqF
-         68I2h3wkbPpbr45ooBBMCb0FPhColiyfGy/pTNAbYmKueBebOjKUtW1EYyq42VUGTmfe
-         RRB9NpncU41nJ8awSYzXQ5Iper6AV3sBXMQZ9/tOGvYY/5OuitpMS/Kg62K6Yd3bb1yN
-         JYm9ChnAoHCqv9tPhqjI029L2YgkuKTknOSvRjppHcHWuCqfzF+2BQp93E/hXR1VdH8k
-         FUOg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782845210; x=1783450010; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/mr0mxcymU+YTx8PbSVH8xKSeGb4CtbjDq3BsjMlcFI=;
-        b=EQSgW7XYwFqpR2UhR5oIjGjz1p7Sl5z7prkaHtU62QYm16o5fwYNMZbZzXDw4N1o7w
-         TjaTc8/oiqjtm0zKD8i/CcS95pH2dm+43MADe2rn9aMf1hKPGLdSdl+rh7nEvSKdwdWb
-         QjR+GW8xwXjKE83wXgRxXBKZFIbpxBvEorTFKDTnaw6FQqAGR1E6nY0qU6hw6SonOJ6f
-         UnNgIa6B4mckZ2hxw1SIudwaouFYge5A1ubJndzfYxye9NPihpkUAmXXjBYL0RLjqY1x
-         hVUSvSmtURF36OOyxm9jT4L44uwrOo02x0k956HPazkIOlQs3pQRuCDykMIY8f+Jh/HA
-         PW7A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782845210; x=1783450010;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=/mr0mxcymU+YTx8PbSVH8xKSeGb4CtbjDq3BsjMlcFI=;
-        b=AddLsMh9g2S2/QehtNbz2yBUQPP4MsGt4LJsZv9jmNou+8Q8CBeG1wriEX2lp0S6A+
-         EjuPHwXQ3kMlqt9yORNJGFKrTPNzDiGeYPh3E0O0FMTP094xpfM1juMvDvEUMHS9qGMq
-         szbtzRzKUL57h1hc0AB87JlIxD9T5yORMnQOhV9L+HhW1op0y+8VD2oJV4KP6pH3vHeJ
-         a6JnRXD0nAy1BoTuqWApwMJPD+BmU9SrZq/oaiPXvYHbYxSVUSJl5hAhC59pV8G9A5l4
-         eHXHNbHQFqYALBMXpwIRj6QXELbBIySRjrHQ2XEvMHQklaz5Cavmonw00X5ngBUKNL3j
-         1IsA==
-X-Forwarded-Encrypted: i=1; AHgh+Rr+Sz4uAztBTQq2W/1t1w7qHjU2yW1c67edE0U4nBxI7Y4tby2s/ua2MAVwdO47k0vcyuticCVx@vger.kernel.org
-X-Gm-Message-State: AOJu0YykGhpacu1kWnAucJIgzoCxVyu7BRRVI+P6JX1foBCxFLFFNOoL
-	j1b+HJzdIJTJ1UlwajDfduYYPt6MwdLFid2ksikgO9aP/juqHRoQCKpeJqFgvw7oUZcl9IyaeGY
-	zv047j1QwxOPN12J3h2NuQuhvMI9c7MY=
-X-Gm-Gg: AfdE7clhdw5VCJ6RAV5YzRMxCINRo9YtVMY+SlqZ106PPg20fq3ovUJHZYSzvgLkN/Q
-	ZsDvl2zgyOzA5kBjxeXYaQcy6gRtg8AHy0eeQK4YRpz+Z6yvZkFpr6B432yW4y9jNX2cH0EIOW0
-	NSwc81yoEYSsRVmX2OezdqO8C3woM7KU+zmj07aHl3H/A+mKfF65dXBCxYyc8GSRNYHD1ymcEKt
-	5EPzdQMrw8p3pQ2pmbWlOhznnl8BvzgXkIMLXkUSNwHH7EwNLK+ahs5OPKoqvJ/3dhzV/admhuW
-	47WauVPNG6We+0t3P3wxuT/srDffDZBAXtwk6A==
-X-Received: by 2002:a05:6214:4d01:b0:8f0:b08d:1327 with SMTP id
- 6a1803df08f44-8f1bab7325amr66906576d6.20.1782845210237; Tue, 30 Jun 2026
- 11:46:50 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SU/YbiRv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68F481F000E9;
+	Tue, 30 Jun 2026 18:51:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1782845461;
+	bh=+zI3ALXQ0/fGvtpuncfJ9f6z4k2oLCNLfTv93+3Yg+8=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=SU/YbiRv4aTnikdBDpQHU5c4rPMqUCu8ckwY6/kvqNem3Kn6DK96INv05ii7glJEn
+	 CamYOlwYd3w3MxMnsGiCO0CDXIVh93mNZw8CStZOsIeniz3ZQQeUwYVEr0HSgoljOc
+	 M1qWKDGPB6If6/atUGMEgL8HqTfZGrrYKxlHlGV0U2X9bBO/JrpvqgVmKT+9Q22OT1
+	 3FHBMIrBvFY5ywfHqzuDytsIkuiDF8/yBNyKhIMnChozheqa8LDI4mNEx+lZ6pkI0V
+	 iHr90NBGxVyVFPRsRW7yQtTPz1fyJBpaFlLN3zo5RmNDvCCChnmYGX3pgnxPgU17K2
+	 njXPapznqtaWQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v4 bpf-next 3/3] selftests/bpf: add tests for
+ bpf_init_inode_xattr kfunc
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "David Windsor" <dwindsor@gmail.com>
+Cc: bpf@vger.kernel.org, selinux@vger.kernel.org
+In-Reply-To: <20260630183956.281293-4-dwindsor@gmail.com>
+References: <20260630183956.281293-1-dwindsor@gmail.com>
+ <20260630183956.281293-4-dwindsor@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 30 Jun 2026 18:51:00 +0000
+Message-Id: <20260630185101.68F481F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260630183956.281293-1-dwindsor@gmail.com> <20260630183956.281293-3-dwindsor@gmail.com>
-In-Reply-To: <20260630183956.281293-3-dwindsor@gmail.com>
-From: David Windsor <dwindsor@gmail.com>
-Date: Tue, 30 Jun 2026 14:46:38 -0400
-X-Gm-Features: AVVi8CeaiheJ3F5i-jO4LvtVLGlRB5U5ReoDcpDUEtFteA-6-xXjOCWxSS0LCkE
-Message-ID: <CAEXv5_jCoYbs63RRukH44CMCxiOFzvWWraBOunKrgTVw+inUPg@mail.gmail.com>
-Subject: Re: [PATCH v4 bpf-next 2/3] bpf: add bpf_init_inode_xattr kfunc for
- atomic inode labeling
-To: Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Andrii Nakryiko <andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>, 
-	Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
-	Yonghong Song <yonghong.song@linux.dev>, John Fastabend <john.fastabend@gmail.com>, 
-	KP Singh <kpsingh@kernel.org>, Jiri Olsa <jolsa@kernel.org>, 
-	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Emil Tsalapatis <emil@etsalapatis.com>, 
-	Matt Bobrowski <mattbobrowski@google.com>, Paul Moore <paul@paul-moore.com>, 
-	James Morris <jmorris@namei.org>, "Serge E . Hallyn" <serge@hallyn.com>, 
-	Casey Schaufler <casey@schaufler-ca.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, Mimi Zohar <zohar@linux.ibm.com>, 
-	Roberto Sassu <roberto.sassu@huawei.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, 
-	Eric Snowberg <eric.snowberg@oracle.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, Shuah Khan <shuah@kernel.org>
-Cc: bpf@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-integrity@vger.kernel.org, 
-	selinux@vger.kernel.org, linux-kselftest@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 25, 2026 at 7:23=E2=80=AFAM Christian Brauner <brauner@kernel.o=
-rg> wrote:
-<snip>
->
-> We expose a bunch of VFS heavy operations for various security modules
-> and this is really not different. For xattrs we have it all centralized
-> in the VFS and in general all VFS related bpf kfuncs should continue
-> living there and be registered there. Anything that's just bpf infra
-> specific can go to security/bpf/kfuncs.c instead. But anyway, it's a bpf
-> specific helper so it's the bpf maintainer's call.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [Medium] The tests use predictable temporary file paths with `open(..., O=
+_CREAT)` but without `O_EXCL` or prior cleanup, leading to test flakiness a=
+nd a symlink attack vulnerability.
+- [Medium] The slot limit test triggers duplicate xattr name creations duri=
+ng `inode_init_security`, causing the test to fail on filesystems like ext4=
+ that enforce `XATTR_CREATE`.
+--
 
-After Alexei's requested changes removing the attach-time checks,
-there's really not much left to go in an LSM-specific kfuncs file. The
-bpf infra plumbing for registering the kfunc and bpf_xattrs_used()
-seem to be the only LSM-specific bits aside from the kfunc.
+commit 9defa5666243f46c3a058ad117a6ee0ace1b9f5c
+Author: David Windsor <dwindsor@gmail.com>
 
-I am willing to put this code anywhere. I've tried to CC all involved
-in all 3 patches, even though there's some split in concerns.
+selftests/bpf: add tests for bpf_init_inode_xattr kfunc
+   =20
+Test bpf atomic inode xattr labeling in inode_init_security.
+
+> diff --git a/tools/testing/selftests/bpf/prog_tests/fs_kfuncs.c b/tools/t=
+esting/selftests/bpf/prog_tests/fs_kfuncs.c
+> index 43a26ec69a8e3..8b2e0d433aea2 100644
+> --- a/tools/testing/selftests/bpf/prog_tests/fs_kfuncs.c
+> +++ b/tools/testing/selftests/bpf/prog_tests/fs_kfuncs.c
+> @@ -268,6 +269,116 @@ static void test_fsverity(void)
+>  	remove(testfile);
+>  }
+> =20
+> +static void test_init_inode_xattr(void)
+> +{
+> +	struct test_init_inode_xattr *skel =3D NULL;
+> +	int fd =3D -1, err;
+> +	char value_out[64];
+> +	const char *testfile_new =3D "/tmp/test_progs_fs_kfuncs_new";
+> +
+> +	skel =3D test_init_inode_xattr__open_and_load();
+> +	if (!ASSERT_OK_PTR(skel, "test_init_inode_xattr__open_and_load"))
+> +		return;
+> +
+> +	skel->bss->monitored_pid =3D getpid();
+> +	err =3D test_init_inode_xattr__attach(skel);
+> +	if (!ASSERT_OK(err, "test_init_inode_xattr__attach"))
+> +		goto out;
+> +
+> +	/* Trigger inode_init_security */
+> +	fd =3D open(testfile_new, O_CREAT | O_RDWR, 0644);
+
+[Severity: Medium]
+Since this test runs as root and uses predictable paths in /tmp/, can this
+allow an attacker to place a symlink to overwrite arbitrary system files?
+
+Additionally, if a previous run leaves the file behind (e.g., via panic or
+early abort), open(O_CREAT) without O_EXCL will open the existing file
+instead of creating a new one. This bypasses the inode_init_security hook
+entirely, which can cause the test's assertions on init_result to fail
+spuriously.
+
+Would it be better to add O_EXCL to the open() flags or unlink the file
+before opening?
+
+> +	if (!ASSERT_GE(fd, 0, "create_file"))
+> +		goto out;
+
+[ ... ]
+
+> +static void test_init_inode_xattr_slot_limit(void)
+> +{
+> +	struct test_init_inode_xattr *skel[INIT_INODE_XATTR_MAX + 1] =3D {};
+> +	struct bpf_link *link[INIT_INODE_XATTR_MAX + 1] =3D {};
+> +	const char *testfile_slot =3D "/tmp/test_progs_fs_kfuncs_slot";
+> +	int ok =3D 0, nospc =3D 0, other =3D 0;
+> +	int i, fd =3D -1;
+> +
+> +	/* All programs attach successfully; there is no attach-time cap. */
+> +	for (i =3D 0; i <=3D INIT_INODE_XATTR_MAX; i++) {
+> +		skel[i] =3D test_init_inode_xattr__open_and_load();
+> +		if (!ASSERT_OK_PTR(skel[i], "open_and_load"))
+> +			goto out;
+> +
+> +		skel[i]->bss->monitored_pid =3D getpid();
+> +
+> +		link[i] =3D bpf_program__attach_lsm(skel[i]->progs.test_init_inode_xat=
+tr);
+> +		if (!ASSERT_OK_PTR(link[i], "attach"))
+> +			goto out;
+> +	}
+> +
+> +	/* Trigger inode_init_security once with all programs attached. */
+> +	fd =3D open(testfile_slot, O_CREAT | O_RDWR, 0644);
+
+[Severity: Medium]
+Will this test reliably fail on filesystems like ext4?
+
+The test attaches 5 identical BPF programs to inode_init_security, which all
+attempt to add an xattr with the exact same name (bpf.test_label).
+
+On ext4, ext4_initxattrs() passes the XATTR_CREATE flag to
+ext4_xattr_set_handle(), meaning the second identical xattr creation fails
+with -EEXIST. This failure propagates up to the VFS, causing the open()
+syscall here to fail with -EEXIST and breaking the test before it can valid=
+ate
+the slot limits.
+
+Should the attached BPF programs generate unique xattr names?
+
+(Also, similar to test_init_inode_xattr(), this open() call might benefit
+from O_EXCL to prevent symlink attacks and test flakiness).
+
+> +	if (!ASSERT_GE(fd, 0, "create_file"))
+> +		goto out;
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260630183956.2812=
+93-1-dwindsor@gmail.com?part=3D3
