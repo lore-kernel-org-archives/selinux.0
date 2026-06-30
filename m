@@ -1,126 +1,183 @@
-Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com [209.85.208.44])
+Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com [209.85.219.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B064B3F0ABD
-	for <selinux@vger.kernel.org>; Tue, 30 Jun 2026 11:01:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.44
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782817318; cv=pass; b=c1R28MKvFZbU1Bh6VSjqlSr7XPIwahCj4i/BCqW1KVOnqNfjt9PmPeogfUkQKt3zZwgC4y/9V0SERddsrYfWFLTJxM7u2RlMW1ZahL6JtdjeLXI/L3j+pBSz0Bph20jxbUrTeFRDAP5bdqXh2HUyMSohIsPKsiizpxEStpz8PsE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782817318; c=relaxed/simple;
-	bh=XVMnZazNe6ueinmZJ6D34+lB49c1hHJgeNSRfW04Low=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=f79FBm3oVFEpabHBh4IGj/0vgaTvySr23xGvykc+5bxP2XpqThlPmuEiRn4EvyZaNx2RIEXgtja2VpfYIQEyjzVS7McOFTEZYsLkrPEkhQO41KmHc+nXkchCwf5AWUzpi8v3HhvtxHU3GC5sKiT4foWOd/yS88rLu2YYCV5whv0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Vh/cOEk4; arc=pass smtp.client-ip=209.85.208.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDC813E0C77
+	for <selinux@vger.kernel.org>; Tue, 30 Jun 2026 18:39:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.49
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782844801; cv=none; b=o9hcitfbRBIRuY5LlWKt2RBHD3gsbVKIdPPk+6G74GW34cT+NXj8iPCqiDpHKu6lLHe+25cmrjiq9NxXQ3OVBbNCSeSwJ6ge9C/HH7h96s2Dd53C9kbZwaHQC0kapmEsIZWDRwsRL7ErD20bJoBIFMos+Ir/fWg/FXcPnQ50uQA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782844801; c=relaxed/simple;
+	bh=S6k+uQwLsBLqS78QaiWexapMR9GFIKsV5VVSUcaj7Js=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=C6ocSsowaqGUmLpkUWVGosM1PuL8hbxoDW4Nb9ViLTRI1IXd539OySq/41X+Yn1GNaHn3kcaBAUJ8JOJEaVD6wpyoGJQ9+RWi4H5E15wsdzpp80+Y8SKWqnXlFuWWBY8UZYcnnqIoGDdWPJCB3pvY97/LnSIIXHGk2MeUakkZcU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aEQ12RMX; arc=none smtp.client-ip=209.85.219.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Vh/cOEk4"
-Received: by mail-ed1-f44.google.com with SMTP id 4fb4d7f45d1cf-69531108f25so8525343a12.2
-        for <selinux@vger.kernel.org>; Tue, 30 Jun 2026 04:01:56 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782817315; cv=none;
-        d=google.com; s=arc-20260327;
-        b=oKzn4dcZLHQFF+BORZrJURX0d4IfzhPQUgtOqzjJBX+Z9fFfIUUoRbKIjOOtVNhyR5
-         gFTv+qsbi3t2x/KiK25z4RTdOapVh8VSPg5gClmflM6z8L/BUIey12Gl2espEfhs8bMR
-         ktQt7FY3rz43alIdugbOQ6BnSKPFN/reJp5fkxy99Ngz4chCz0HWd9Qc1n0G2e7AB+Ld
-         Ai3vRecM1dXU+oAbZGuw2Vr2GPiyziTuiNye3ughz6tURUEDOLGA2lZgQvkhqjZvMswW
-         bW5urLa2QQN/XECKmsXCllTXgP45KkjlHpD04SsqZdXqc8aPwANwgp7MnHPffD6B2dsv
-         kuIw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=XVMnZazNe6ueinmZJ6D34+lB49c1hHJgeNSRfW04Low=;
-        fh=U/GSw3rR1O7bGB9XA71fscggEMu7GmgNCNsPnyGDc/U=;
-        b=QYwGwqslkhX5/4UB2BkmVw1o9jjdYHdD98MxBykqQikMyAdexruZ36IAF8i2L5Izf+
-         ERYW1FzYYoimBJUw3PEPVwOOr4VnOPigO/WGY/6DYfPXuBAsW1ev80ELrAlnAhsPbXNI
-         7NpDWANfrTOqjyDuSXS5rROzEZc13h6SZAjYaGCmI8CtotRMnHkmQ0Js26Ik3DWr3dCa
-         eiQVmToN944hDz/zDSrpvj0DvivMEtj747CTpCLslLUleakRTKvmduMtGxuDrnaDm8ns
-         TJCeW/Jx4T8F7WpqxhlbkUTffhSA0uzgz1ha5H/Yr1uFe4Yl7tg/t4J6wghkX2ua+k7W
-         eUww==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aEQ12RMX"
+Received: by mail-qv1-f49.google.com with SMTP id 6a1803df08f44-8f18d92172aso20465316d6.2
+        for <selinux@vger.kernel.org>; Tue, 30 Jun 2026 11:39:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782817315; x=1783422115; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=XVMnZazNe6ueinmZJ6D34+lB49c1hHJgeNSRfW04Low=;
-        b=Vh/cOEk41rYPNWUDRzL9fV6pGiGys+jgYv56yyVM5YLQG+CQ6HAz8bjg+2yhOi6Z0R
-         HX5dq5MjKkDCK0F0V42AmSr9XYvoGMwSY8++X6KpGHvfsB59EyMe/afP90eBPd6RVRuU
-         L7n25ctS5VPtXZFXOSehyvn8hizxq6TuElNJX8Iqm3lyuU2vWeZaWZSlzFn+po0im++h
-         6dXOnUDzBwgqXpKdQxQeR6rYoXT3d9Jo00Fe2t0MpjfrJ99DhicDwTRG2/Uz1zEh9e4R
-         eR7AWSSH51CU2MO3xvGY9EF+7aN4NbA4bV/dCilNCPOg4BUfkwmVFQbMOtZGFMCByYKP
-         R3zw==
+        d=gmail.com; s=20251104; t=1782844799; x=1783449599; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=KmgV8nCn9sbfqM1ezwxzcVc9Q6Oo1QwQHw5Oa3kbYoo=;
+        b=aEQ12RMXQ+9Hh3F8u82u1VGab0TICtc/2lK+zxraZIDrae+S3v/JtWuYFKJsnzbp3/
+         rTUg5SEbJgZN6xVgrxhrVKZQj4Ogp9uPEb6JZvnnRtpuj2opyz5ULVe6H8+J/JnmjONs
+         /WYbwijD17n+1B77a+eIL4kTFmd2LydZ0hs6TLYwYjcSWFi9k6XXwVYqknEioWyTkfrN
+         eHEbtCkZwVBmFDjIQMKLNDQCFzVck68Uc0xuvcCFtwEObTvpvFRvOekTQswV6P+Ci4Tn
+         l9mhkVkmpB1uIdKzzdMMpKAlmnCMKW0x9Rp/bjthR/8mOFihJiTVI5El7+6ALF3nDnb1
+         5gfQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782817315; x=1783422115;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=XVMnZazNe6ueinmZJ6D34+lB49c1hHJgeNSRfW04Low=;
-        b=rOVR3zfD/LXMf6hkugl91Zyorqv9ZlVP+984PLoByjIv1d+AM2VKFabVCokVzEnMRV
-         XLQetg34VdtzKglOu4IUQXD5MFHuo8VJG+304gd/JYCX0VBjv4S5g9nmrzhJV6jKILNt
-         jT/DuW9rvT7dqZjxoFJSkaB51EhXFKm+fjmhLqw5BjXt8/RHs3S/9w5ZaLfMMqmUkyHd
-         8sDYBHZqlfWqLJgw7eY6ZcLl2tI08xyydFF91PDG4peIi9AlDeGu9Stu7ET0416zhc4S
-         30dMt609HQrn3TP4wNtC0ulPm5FmN9ifFQvcfc+5hVQY+irti8IustRxZwtNkqMo+nvU
-         IKrg==
-X-Forwarded-Encrypted: i=1; AHgh+RoZT6auV1JhGcQv760/IOpfd39CUneLfNogmZPCfURiBUIXz9V897EAB+EZ/xiFAHASmINAM7ka@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz8SoAt5VmkqiSlySHrvpKJFbM3iyYZQbRvwPQGa54RbYfsNH1d
-	MEysnbNqagBXhg6JN5uzjLmgv+JLYfVYZPkH7Sh90zIk4uDSOquplHY15RiGLpyNOHqFoklNMo4
-	9quoG1nxtBGn+rtKb9qyQtJwJkS/b8EQ=
-X-Gm-Gg: AfdE7clQKh2Ci8Zi+ipjFgNeFCGXFGFGoN0pvSwSTNo1lZAc83U+mh3WcExLWjjAp02
-	q3ny2wH9pU7x806/JQ1woZE9AYboSD199+Qhl00G89JKRktuyoeVi/WyOf3ail8+BIfEmcT4owV
-	M9FE/Ykx2OB4BfoTasKGUPsN+1qIrmisMdlug3j8C5LUlXx65g9WzT9O+A4+1ExfFtpoVMYGaCJ
-	PtZH9XcZ9YHGaKYpsnPsy1YhT4aQ8JrjXx0vftzLFb74T11/R4k28jmqrbkW8RYcgTFnqCea7EG
-	lrjyQEwBSq1ax7kz/2eWUFU4/Fa82gI=
-X-Received: by 2002:a05:6402:5248:b0:697:4307:991d with SMTP id
- 4fb4d7f45d1cf-6988789244bmr120235a12.19.1782817314715; Tue, 30 Jun 2026
- 04:01:54 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1782844799; x=1783449599;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=KmgV8nCn9sbfqM1ezwxzcVc9Q6Oo1QwQHw5Oa3kbYoo=;
+        b=S0jrJDOAzbu3wWcuXXREgkhmhIew+QA6oKtJx+syvXWpUXWD4AiOHVRTZ/aP5k3QvF
+         DqrNcjTUMoB733cN7qu5nkTXX5z++bsnuLdW/0nABSfA5Nux8NThNcc0nx5OfX1FwG0X
+         dEIpsFlDqcpVcqIZUbxHujb6cYNyOOpQIGwdioj4YHE0lLQeGwhNC5HmdvXgbouFHQ8q
+         G6ia5cHsaaMgNyyBBKUYvvyLC+hhVqR3xriXbUJ3CeOntc3IYTh+iupzeSw7+2B8bHAk
+         sd7uoekcQYM2gw2yWoP+97FvJbD9lhCtMDgMQt4+x86rhhYNQe775O7Tlql2/hFRgMMR
+         uxDA==
+X-Forwarded-Encrypted: i=1; AFNElJ++Bwh/mpL4gkdVlfqEx/Fimq0iSi5fvZK99WBVH55E8iSpa2aq4cLvwZwygtYBbUuVycV8DNfV@vger.kernel.org
+X-Gm-Message-State: AOJu0YxOuan664HO4XdEtlzvDlKqp0YTbEDz/ra6YXFyvsEAwt39/KZc
+	WCSmA8UOr26+VWDVpZHKCAq9f+mr8yLguWPlr75+tfiKC4bXzSUByFfO
+X-Gm-Gg: AfdE7cnXJvMrfFIVNQRRqlg3PnLBlRS3qDwtqQNK2FKmvu9bFLdfnX/sHjsodKTxL22
+	Xb+5pegT7Lf16HGhtsr0lYiFq0FUS8mNs1kbNXstWQ1VJwr+DgUMI5w+JPNNG0X66WIX6rHGtAP
+	6ZeMh0SZxpEJ42uZ7k4O2xa2s6Qbs5aSFeSjAdjEeMWzUqlA7aHm3Fye6z+NNJTwW3Nzn4iOwIR
+	WyYvDuirA4NHnG8EmLGV5SN1xNG7WuGcYrVrfsBhmnfgib3b67NDZ49aXVwaTTpy9b61OR3SmYW
+	mT82etCS2Pmwd3iZz0polwL9rgYpjlTw7uyzr13cGpgJ2d0/dQn/rZI8GO7UWVFvO6UZJKH3Eif
+	qY2Bs+qoBwbIkRTBi3DD3kHuPSZRO4G3l56qDyCM1mOC9XXy8V9uXeC2MZo3BOh5N6ZtaDgSd58
+	moYkBNX76OqbnA7+msXsqBuS0qROBxiBnAiBOqQH6e0BsEvPv7zmJawK+L8pzEURwOh6JSEZFTT
+	3EA/CkuqkyiFLY=
+X-Received: by 2002:a05:620a:7088:b0:92e:4773:5a05 with SMTP id af79cd13be357-92e624aa5a7mr812235885a.4.1782844798653;
+        Tue, 30 Jun 2026 11:39:58 -0700 (PDT)
+Received: from battery.lan (pool-138-88-31-60.washdc.fios.verizon.net. [138.88.31.60])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-92e62191b18sm326961285a.18.2026.06.30.11.39.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 30 Jun 2026 11:39:58 -0700 (PDT)
+From: David Windsor <dwindsor@gmail.com>
+To: Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	Martin KaFai Lau <martin.lau@linux.dev>,
+	Eduard Zingerman <eddyz87@gmail.com>,
+	Song Liu <song@kernel.org>,
+	Yonghong Song <yonghong.song@linux.dev>,
+	John Fastabend <john.fastabend@gmail.com>,
+	KP Singh <kpsingh@kernel.org>,
+	Jiri Olsa <jolsa@kernel.org>,
+	Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+	Emil Tsalapatis <emil@etsalapatis.com>,
+	Matt Bobrowski <mattbobrowski@google.com>,
+	Paul Moore <paul@paul-moore.com>,
+	James Morris <jmorris@namei.org>,
+	"Serge E . Hallyn" <serge@hallyn.com>,
+	Casey Schaufler <casey@schaufler-ca.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>,
+	Mimi Zohar <zohar@linux.ibm.com>,
+	Roberto Sassu <roberto.sassu@huawei.com>,
+	Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+	Eric Snowberg <eric.snowberg@oracle.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Christian Brauner <brauner@kernel.org>,
+	Jan Kara <jack@suse.cz>,
+	Shuah Khan <shuah@kernel.org>
+Cc: bpf@vger.kernel.org,
+	linux-security-module@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-integrity@vger.kernel.org,
+	selinux@vger.kernel.org,
+	linux-kselftest@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	David Windsor <dwindsor@gmail.com>
+Subject: [PATCH v4 bpf-next 0/3] bpf: add bpf_init_inode_xattr kfunc for atomic inode labeling
+Date: Tue, 30 Jun 2026 14:39:52 -0400
+Message-ID: <20260630183956.281293-1-dwindsor@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260629070653.580879-1-caixinchen1@huawei.com>
- <CAOQ4uxjcD0-PHqqmrpEvkLRgtKJGe8-n+6DQyBngjN2TorwU+g@mail.gmail.com> <f4c8f5fe-30c3-4e7f-8512-7a2befdd1ed3@huawei.com>
-In-Reply-To: <f4c8f5fe-30c3-4e7f-8512-7a2befdd1ed3@huawei.com>
-From: Amir Goldstein <amir73il@gmail.com>
-Date: Tue, 30 Jun 2026 13:01:43 +0200
-X-Gm-Features: AVVi8CeRSS7JXqOJC8_jFJY-F8O-_1zMcUusRfzqJnniatTSJdpzkrHWbWs8ruQ
-Message-ID: <CAOQ4uxh4-LYt8VUW5o+0mMrHpnZm3t8k4WD6x2kRqEj=_ZpLOA@mail.gmail.com>
-Subject: Re: [PATCH stable/linux-5.10.y 0/7] Backport Fix incorrect overlayfs
- mmap() and mprotect() LSM access controls
-To: Cai Xinchen <caixinchen1@huawei.com>
-Cc: viro@zeniv.linux.org.uk, brauner@kernel.org, jack@suse.cz, 
-	miklos@szeredi.hu, paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com, 
-	stephen.smalley.work@gmail.com, omosnace@redhat.com, 
-	gregkh@linuxfoundation.org, sashal@kernel.org, bboscaccy@linux.microsoft.com, 
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-unionfs@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org, bpf@vger.kernel.org, stable@vger.kernel.org, 
-	lujialin4@huawei.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, Jun 30, 2026 at 5:06=E2=80=AFAM Cai Xinchen <caixinchen1@huawei.com=
-> wrote:
->
-> Thank you for your reply. Regarding the two points of feedback:
->
-> First, 6.1 is still in the process of being adapted.
+Many in-kernel LSMs (SELinux, Smack, IMA) store security labels in
+extended attributes. For these LSMs, atomic labeling during inode
+creation is critical: if the inode becomes accessible before its xattr
+is set, it is briefly unlabeled, which can disrupt LSMs making policy
+decisions based on file labels.
 
-So do not propose for 5.10 please.
+Existing LSMs solve this by setting xattrs directly in the
+inode_init_security hook, which runs before the inode becomes
+accessible. BPF LSM programs currently lack this capability because
+the hook uses an output parameter (xattr_count) that BPF programs
+cannot write to, and existing kfuncs like bpf_set_dentry_xattr
+require a dentry that isn't available until after the inode is
+accessible.
 
->
-> Second, this patch set is primarily intended to fix CVE-2026-46054, but
-> it seems that for lower versions to implement SELinux checks for overlay
-> mmap/mprotect checks, some dependencies are unavoidable. In such cases,
-> should we add more tests to reduce the risk and integrate the changes,
-> or should we simply not fix this issue? If more tests are needed, are
-> there any recommended test suites?
+This series introduces the bpf_init_inode_xattr() kfunc, which takes
+the combined inode_init_security xattr context argument to access
+xattrs and xattr_count, and internally writes to xattr_count via
+lsm_get_xattr_slot().
 
-I have concerns.
-The burdn of proof is on you.
+v4:
+  - introduce struct lsm_xattrs in separate patch (Alexei, Paul)
+  - rename struct xattr_ctx to struct lsm_xattrs (Paul)
+  - make lsm_xattrs.xattr_count unsigned int (Paul)
+  - drop new_xattrs/xattr_count locals in
+    security_inode_init_security() (Paul)
+  - fold __bpf_init_inode_xattr() into bpf_init_inode_xattr() (Paul)
+  - drop bpf_fs_kfuncs_filter() attach-point check; rely on verifier
+    type enforcement (Alexei)
+  - drop attach-time cap; enforce slot budget in the kfunc (Alexei)
+  - allocate the combined xattr with GFP_NOFS (sashiko-bot)
+  - replace init_inode_xattr_attach_cap selftest with runtime
+    init_inode_xattr_slot_limit
 
-Thanks,
-Amir.
+v3:
+  - rename struct lsm_xattr_ctx to struct xattr_ctx (Paul)
+  - increase BPF_LSM_INODE_INIT_XATTRS to 4 (Song)
+  - enforce per-hook attachment cap at attach time to prevent
+    runtime rejection (Paul)
+  - add init_inode_xattr_attach_cap selftest
+
+v2:
+  - pass the xattr state as a combined context object and drop the
+    verifier fixup path (Kumar)
+  - restrict bpf_init_inode_xattr labels to bpf.* namespace (Matt)
+  - cap bpf_init_inode_xattr() at BPF_LSM_INODE_INIT_XATTRS slots per
+    invocation (AI)
+
+David Windsor (3):
+  security: pass inode_init_security xattrs via struct lsm_xattrs
+  bpf: add bpf_init_inode_xattr kfunc for atomic inode labeling
+  selftests/bpf: add tests for bpf_init_inode_xattr kfunc
+
+ fs/bpf_fs_kfuncs.c                            |  79 +++++++++++
+ include/linux/bpf_lsm.h                       |   3 +
+ include/linux/evm.h                           |   9 +-
+ include/linux/lsm_hook_defs.h                 |   4 +-
+ include/linux/lsm_hooks.h                     |  16 +--
+ include/linux/security.h                      |   5 +
+ kernel/bpf/bpf_lsm.c                          |   1 +
+ security/bpf/hooks.c                          |   1 +
+ security/integrity/evm/evm_main.c             |   8 +-
+ security/security.c                           |  24 ++--
+ security/selinux/hooks.c                      |   4 +-
+ security/smack/smack_lsm.c                    |  27 ++--
+ tools/testing/selftests/bpf/bpf_kfuncs.h      |   5 +
+ .../selftests/bpf/prog_tests/lsm_kfuncs.c     | 129 ++++++++++++++++++
+ .../bpf/progs/test_init_inode_xattr.c         |  31 +++++
+ 15 files changed, 299 insertions(+), 47 deletions(-)
+ create mode 100644 tools/testing/selftests/bpf/prog_tests/lsm_kfuncs.c
+ create mode 100644 tools/testing/selftests/bpf/progs/test_init_inode_xattr.c
+
+
+base-commit: e771677c937da5808f7b6c1f0e4a97ec1a84f8a8
+-- 
+2.53.0
+
