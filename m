@@ -1,65 +1,66 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C55E73AD524;
-	Wed,  1 Jul 2026 06:29:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 915D235AC3C;
+	Wed,  1 Jul 2026 06:33:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782887344; cv=none; b=VSRALUbA65SapZ4WRL9+MvwmPpBzQs+ONcA2kBJaWg4T5n0SrhKn+enNzXZlquiGuL46csgdQa7sktkSYFJvC/3eyJafAF4nsM1BU8O49i481TN/VpLO+ITCavTFkgAgBKtw9wSybmFAjwJQro2FHgEGg+HA/PNW9nVyJrGWVHA=
+	t=1782887600; cv=none; b=m3zLXsjgpXny8aziQ3d3TLTu0dPK48w0pyg/c9602+43VvSbPAIGauKABLwT7uH4qjiBidQHpqmIlYplKW7kVFAxS3VTwch/HOS59fmfQAAZEOtlDajwrV9F4DviC184eclm4X3tLz94Zg9WB0dUJWKYBw8ne77laT7RKMMVvSk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782887344; c=relaxed/simple;
-	bh=aRWgvWob32DZXlvd+U9+s+tkpn0U4WqAUFJdwH4jY+o=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tcZ3Xg5H2uy9fE/lSkV9LmoqKopLG02io5DINjw1A1xcBBNwvRnUKO9oCkjx1uEM3DydXQnzy7uXr0qsJm128cpZkgZ8bbU2Q/JZLmRgfbcxaVi4V0PPvVvvpMsgyiYkZlrnqd6L8OASHbZl+2TZECrm2+apS///CcXDOClTV7I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MI91NpoD; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782887600; c=relaxed/simple;
+	bh=FKTUpeVmt7s9Ty70PbwkqNC8dgIuce76A6zU6TAlU3M=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=f++B2PJqXMU7Uv2OVgzhfde47sqiJp+M2PKNoogPCRNQRF5HueVwO8MMqGza0rT9fd8vwhbCFwYR9GksFL3bRwiprs8q+x5WWEVMgRrR32mqHfWE0tVr0oVS18YnhelN7Zz0CdTiTBP+GaF8YTJPrURG7104ssN561YTPCj4XvU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Gnit70k6; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MI91NpoD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A3261F000E9;
-	Wed,  1 Jul 2026 06:29:00 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Gnit70k6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C14D1F000E9;
+	Wed,  1 Jul 2026 06:33:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782887343;
-	bh=RjEB80gdHXQ8HLvYnrM/mzLumsoz2ua1TVBbhoJleeA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=MI91NpoDsHCuZusKsNpQ2MwC6vrPxT/7oauKcGLSWPF9cmT22UMcbiFv6v4O58uPP
-	 bRwiELIOxcjn8A26IEoUcEkyNUmmmPXWcUhRzMC3TNQtDZTKlZ5njWZBkJKRNJ+Eg9
-	 dXj1fP9GL6yVNwI2fBeH3vrk+TXHL69fe6S85+Y88xRKPuSnrM6rqtvmbDQLh+P9VT
-	 JV11n49ahkNm4/hbJ8N5cKwdAbOX9Ub+300a5J+m0QovdYsdEHm/5vcMKNvnZiuA9m
-	 B+x25fpJQ794+p8R0pPvE31/p4g3nmJGI9uhRvHYOU8TjuAtyR4a9IGrtdKdMMXqyw
-	 vxEqTLY/OdnwQ==
-Date: Wed, 1 Jul 2026 09:28:57 +0300
-From: Mike Rapoport <rppt@kernel.org>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>,
-	David Laight <david.laight.linux@gmail.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, selinux@vger.kernel.org
-Subject: Re: [PATCH v2] selinux: hooks: use kmalloc() to allocate path buffer
-Message-ID: <akSzqdSyx2YuM609@kernel.org>
-References: <20260630-security-v2-1-560d33c13ee6@kernel.org>
- <akOZERjhp302jhut@kernel.org>
- <CAHC9VhSekkkDajeFxpjAvaRyUnrfThX9hB1MD3aYBhYMCoRcTQ@mail.gmail.com>
+	s=k20260515; t=1782887598;
+	bh=FKTUpeVmt7s9Ty70PbwkqNC8dgIuce76A6zU6TAlU3M=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Gnit70k6TR836qf7nkEsHFVUhnO13Ls6q/MuzGio0qlioX1ZFpKjP6edmcu9W32gW
+	 D/4sRyvy3k1rngzt/R6fuZmRNE7ppPA9PNEwcSlZ0J/AEmJJFFjIaQgx6rh6DWl5zV
+	 X8xdI80GKSPMMpV2OJRaXBAyuf8M5sn76ydfHVjjW65RjePSoz6Y2vbxa+SEm7ju3Z
+	 2UVYgxYoQb46rYQwDkaHV3hWLveQcwxrrgyUCYqgDCIrqeL02ZZN+sJ1EKJFHIW1Rz
+	 kqSwC/P1wyoZ2lcEjkmdNjGXXVmPgx0wymJdfwWZbKGvPAsAHrODGnuMo3cNFSasJp
+	 TAQQ03k904Y4Q==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] perf test amd ibs: avoid using executable heap
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Ondrej Mosnacek" <omosnace@redhat.com>
+Cc: selinux@vger.kernel.org, linux-perf-users@vger.kernel.org
+In-Reply-To: <20260701062321.517351-1-omosnace@redhat.com>
+References: <20260701062321.517351-1-omosnace@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 01 Jul 2026 06:33:17 +0000
+Message-Id: <20260701063318.0C14D1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHC9VhSekkkDajeFxpjAvaRyUnrfThX9hB1MD3aYBhYMCoRcTQ@mail.gmail.com>
 
-On Tue, Jun 30, 2026 at 09:01:08PM -0400, Paul Moore wrote:
-> On Tue, Jun 30, 2026 at 6:23 AM Mike Rapoport <rppt@kernel.org> wrote:
-> >
-> > Should have been:
-> >
-> > Subject: [PATCH v4] selinux: hooks: use kmalloc() to allocate path buffer
-> 
-> No worries, I just merged the v3 patchset, it applied cleanly.
+> Making [parts of] the heap executable is dangerous and is blocked by
+> SELinux on Fedora/RHEL even for an unconfined user. Replace the malloc()
+> + mprotect() combo with just mmap(), creating a private anonymous rwx
+> mapping, which only requires the more commonly allowed "execmem"
+> permission under SELinux (things like JIT or regex compilation need it
+> as well). mmap() with MAP_ANONYMOUS will give us a zeroed mapping that
+> begins on a page boundary, so the result is equivalent to the original
+> code even without a memset() or the page-alignment dance.
+>=20
+> Verified that the test still passes on a machine with an AMD CPU that
+> has the "ibs" CPU flag.
+>=20
+> Fixes: 35db59fa8ea2 ("perf test amd ibs: Add sample period unit test")
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 
-Thanks, Paul! 
+Sashiko has reviewed this patch and found no issues. It looks great!
 
--- 
-Sincerely yours,
-Mike.
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260701062321.5173=
+51-1-omosnace@redhat.com?part=3D1
+
