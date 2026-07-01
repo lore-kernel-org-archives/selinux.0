@@ -1,223 +1,140 @@
-Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
+Received: from mail-qv1-f53.google.com (mail-qv1-f53.google.com [209.85.219.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBB8E3D9030
-	for <selinux@vger.kernel.org>; Wed,  1 Jul 2026 18:55:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.173
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782932113; cv=pass; b=mDO3yv3DR+mWcvsq+7niN+hcoatug9yktVYZISuoFpnckj5eO20AaqPDyqbdpjblS5hc0UpKmDsnRyMr+4THKf3Lqyqc9g4kfmSiqWGlBGh0vrf+s8o/+Ye6udI6LDs/bLsUDKGrk3zKF85h+cNUbwJQkwTMJumr9JmTAcOasAo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782932113; c=relaxed/simple;
-	bh=8buDy9oFy7HqwiHwNvC/IY1j1EOpHRqlqLYOv6/jg5o=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ZneoxT613/Ng/NIDQrUJQGq5TExmNWKT2rBa8EG7L/CfQvR9aENSuAPqMDcG62BAXeZ/XSTJll4pBbrz9V3IE7qZ3rEUTqoktU1lvMDVxJuLsDpXEkV6ny+5Rrv1fBHCpAQDdIB13DVW4L8/HcwMGTOMpNHEx6XgQpHoh8TOXik=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=bzatAeQU; arc=pass smtp.client-ip=209.85.214.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 335583A4F31
+	for <selinux@vger.kernel.org>; Wed,  1 Jul 2026 21:09:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.53
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782940196; cv=none; b=nF+D7ysrNK60rXcJ2p26ZEt00vxBXzU6jRMJHYWPwSQQFuM81ywlVYDrXEQoU6wy+2hlzLYGe5GDwTe4dt9EiQZny2mEeOpXhkU544saztiVbihvwG3dXnmw9CSLVRvNmxfKdZJQ8rQzfBFQmCvSPBJkPFeDXlOCvWY5w41y8P0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782940196; c=relaxed/simple;
+	bh=/yY4gfA9Jom3JGU/9x4gg7eFqpX3XcbbUuND8/0V6E8=;
+	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
+	 References:In-Reply-To; b=WlkB1DEr/L/112mMsMa/QKxKipWEAflQ7BhS+EuW3gIh4itNhbwNYAGnJbMKH1Ic9TNgvSmx7bGoJDY10OHhroJXHTp3FZ87AAQD0KmIBsutQ4EEOxDbKc/gJdxrdMApdFQjizlJVHpMCimZIbjOZApNwnBl1w0MxGsS6j9jNmU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Ver2GztQ; arc=none smtp.client-ip=209.85.219.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="bzatAeQU"
-Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-2c81db32393so99355ad.0
-        for <selinux@vger.kernel.org>; Wed, 01 Jul 2026 11:55:10 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782932110; cv=none;
-        d=google.com; s=arc-20260327;
-        b=b2rJ59GD8u0y6E3gPTco9FotzvckTrc4Aqc/XDbaLIlVGJaPx1whXzMlF46eQ2FFWK
-         0abBSflKfkhqQknfkipHJ794Qh1zfBBulouqdTkgLT8BMvp0CLg06ExsqijE9h5ZJv2n
-         rU4tuwRN7qSezTIbOmu5AAaH0CjS/oC8XE0LpNV2XF+ABTnXRavlv7aAeL+yRIoHeNQe
-         nmil6eGJE2xMxFdRZ8td3DxxW49/HU9IC6tgaIOv93bt92HtozRtId49aHmN/iv5uq3x
-         hemari+3B3HCFQUXASlopooaer2xLTKINayV4Fkjhi0rhhzs6PID5p6fRfkTxhgLZ7no
-         OqLw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=0KVQLfMeEV5+XrO62oTopJy7auZvfc7K1ZIzGuRBDo0=;
-        fh=sjJ+EnPAsXl1ruDkY4RrgbEJOCKktjkD24GtMSvq/t0=;
-        b=YRVwVt3WzUO3wURAeIbFCUNfVeUdr9L/hJVNEwxlFDt8r69kR2O0Js+Keh/Qt8cK5x
-         3t//Xa42qCmFEb+fIyWJD50Yh0kR4xkepktizCzUC4jgWwjvIDtG9NlZRWTBWTZeHgWh
-         TVmp+Z69+GIDRqmPqORTigViaE50WuGuM3WppM30Pc6AQm0WzLpp0kN4nfPema75KLN4
-         tXaPqCmNZ15JSZ2RgKYoNT2VHChSYIw9ac/ZP2odxabDBkuiyzG7FFBlMvMbESMn+96s
-         l2q7ug70h0UuVYK16gK8QkKbhXtklR9vcYA23mGKO/3nu1ixj/pmouVZ0pvOr3AfV4Jc
-         zYGg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Ver2GztQ"
+Received: by mail-qv1-f53.google.com with SMTP id 6a1803df08f44-8f256eaedf8so10948756d6.2
+        for <selinux@vger.kernel.org>; Wed, 01 Jul 2026 14:09:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1782932110; x=1783536910; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=0KVQLfMeEV5+XrO62oTopJy7auZvfc7K1ZIzGuRBDo0=;
-        b=bzatAeQU/RLXAy2qMom5Gv04X8bnpCQey2vyYnFWSXbaM5KwXAkcXNVjsCQVyZCero
-         2QJ2IJ2XUjMSGpWnCauT2O8xcd9Q/cFhghMIeSlosiNQfJ1G0OH0l1uJs+t7Zv8V4CJj
-         mf8N4NYJVHuDJ2rMh6jb2vuoCTC53PED0fiUl7v+fLMVR8QMFgwegf8ZxB6HpwvIsLW9
-         Qh42q35SbiiC1f0+6WuKMfIDSsip8UzJuTyoadFN+wP669UU3cIW+df1H9SvXvmBDKui
-         9gs6ntk4d2FAUfddyl1AXgQC+FXEuQXEPKV6+y89lpZ1ZSeHZD8lVilllPb/NOmCvJAN
-         q5IA==
+        d=paul-moore.com; s=google; t=1782940193; x=1783544993; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=2KLChwP9CCHoIdwCuJ2NmwwjgE40WemT8hY2SoxMxzw=;
+        b=Ver2GztQ/OqVGwbrYBeTVdAb4Pld23+LnuMRlxRh+l/Xzq0MSVQ76/yS3Pz/lcmxFd
+         5/bIZnr7BSESzamLcpgiSzMJycUrbjX7KjljoUoCcdfoGY4nhZQXHqjhZGi0X3LGtkia
+         As6zYlCoBh4lOQYogUfAhOnwKVoLnrxJkm17iHPu24yMPbMlNnIQxOKN3c0jqBSXnNkq
+         OKFWqrqD/FjTqdaZAvTnuDD1ZC3KrzLSQDjtOmRooFOVN7adrZ1dZryf/wiBFOSsplzm
+         kXRm9rXMWHcyCrmleQNkYvYXo/JM2W0U5+OZjRcXNTzX5y69tgbWzbMNGI29+uxbcJ+u
+         PEnA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782932110; x=1783536910;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=0KVQLfMeEV5+XrO62oTopJy7auZvfc7K1ZIzGuRBDo0=;
-        b=QaZ9LEaXvQwGHqUo6dqHjhVgNNnvao20MtI3L3APmb/UpCYekgkgRTMvjlIiHSyNer
-         HERLi8AiryxGxjgU6TfP8toNFmwcVyPVXrOtnfVKhw0QOy33/GF4fgvzbz6YKNA8jzn4
-         nOJgPSNGKmrVENJfnQCtYWnd8GqNcdwScd5mX1d8qqn7VkC14DW66xSkwFtMcUTx9It5
-         Ztw/uAhaKetmhp9gqb7XV8lze9kFBgOjPvNuRvRzGQvBRnvYZr4qE1Jf1VCDWJTT9DsO
-         sGZ6PBbWUZQnNhGN7GgpNXKLdEYFwBshg2G6pc29EjN8fGC+j1If6r25lPywAiKYbKIX
-         RKwg==
-X-Forwarded-Encrypted: i=1; AHgh+Rp+RW/0G9ezA7dd5M04ZxImXaiAV+WlOUaNO43DmVEUyMYoldk1qtgQK8LIvLNzQbvnrDhzBqo1@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx0ipRq3cH4yHsalRKqTs7Bc8sVjDwZR2+AJw+rHAcIvWim1EHd
-	5b1wz1aFFC51u9UVwKZiVMUZ+CYpQFbuVdngtWdsi1OsyKS2E1a6ylfSeB+uCCishwVtBbsF2CS
-	TmeI4byqYp97n/IhpXtYW6cR7IYWr9H3gXGczwW6V
-X-Gm-Gg: AfdE7ck25MS0gnDpBCAiwK0ah7Oh2SdccZV7PmE9bz9zlc1UukBus/fi+ya4TzKtOx0
-	9nbTFENYC2AZ8+ZAeeVvF1OnCn2JCBwxW9th3wFlXUObrxxUuVzPII//mlcN0NLIymjooWDqxiq
-	UtwqVhA08HRqca0QvnE/fjevPS/pqL3m8ixH12FbW7RMTUZJM3yGkC1BFZPVxRkb90Q+1cyW+ub
-	ZFuoGquQ1WJsNPsZRJITr2IbjkWd+D/NKoedJQJ/1nGlBcW+maHZwdTEr2ECCOfX9ckt7s4fw==
-X-Received: by 2002:a17:903:2411:b0:2c9:cb98:f4cf with SMTP id
- d9443c01a7336-2ca702dee37mr3196675ad.14.1782932109302; Wed, 01 Jul 2026
- 11:55:09 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1782940193; x=1783544993;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=2KLChwP9CCHoIdwCuJ2NmwwjgE40WemT8hY2SoxMxzw=;
+        b=hNP9S1Z7DfNDKkYzVE1HzLkZeerwnmhHgkOW6d+7jSFNvL7q/VHMmVA8VifmuVBAn5
+         A7TrpBb+4zTVQEdjShncDj4xrzOCXt9y9dZZTrXxRtkZfVnz9+X0JxuiQkYGuVGyFWqr
+         7ce1bqMFqvAG3w0/8NfpbXOrTxSZ2tLgoE5S+c18QBxBcNjyiD20u80Uld7R3dnyEEHt
+         Ih1UC30KBs1s8DkiFg8aLWu7nouR1DPRklXctN+TzMyqJFBaEh/rxALH5dQy99LeMqav
+         DwcVKW4Ww29ryHfHbbXJhWNeN4wTebBTkS1u5j2P7gV+MDHMpkhTUbQ9qbdFRWeIzGij
+         feVg==
+X-Forwarded-Encrypted: i=1; AFNElJ+cOauwGJDGaBdUjBgNiK6S94T0POWpGDrvL5fkzTT+1bggHfEsHkOObOdK+EEAeb9YoK9e04Ha@vger.kernel.org
+X-Gm-Message-State: AOJu0YzfUgQfflr2zJan9an3k7+jw9sIXjz+3B5can8cbMXccYV/q1L6
+	QXFHXjzWrxi9+wnMrgOFEz3Mp5sz8h8fJNGa5RVaAiwgleMJXc6QVC6xU294E/MMMw==
+X-Gm-Gg: AfdE7cmeAdCDUpZctKpEq3Szkuc0GLJY4zamBRx2chYMz87tqRaBchuADlaBGsCgC2R
+	uyaRJhoTs7oZbnlWWK82QDGN4NMyBdDqDLdl3SSzk5VWzpnamT2Cf+3sSiDIMssOsHdn7C1cmil
+	7W2DeZ7DSbRKgDjsM2vZa+sNCOdDh/ZuRt+LKJuuQ5DUKqhaCDZd0bgKYW9zGSe8hCA6RkrQYRe
+	lC2xPSR9jbA1DAPR3SS0ABBCMrexYdPKJuvZLK76w28XwbyAg/betK7fv0WUZZgKBWJKUVE1SFe
+	ARK0giMguBYQ+DpqDdiHhd1eyvNMiXzIqPSbH3CifNpm0TQF+drrfwQRTTkkQNWceoE4U9ulWPE
+	zwOmO+ZrrK5YKafk64CSjjJO5TPDHDmzXu9ghjNqJVnJ6vxBfVKrKxcfHNJWMqMXQxXIJ+dOt1F
+	Lqo4j9RHXUqnKb+Y0B6DawBHRWBnuqJvzqTPtZ4JTv8p5TEHsrKTKUlNArhJJZsrQ71fD4
+X-Received: by 2002:ac8:7d04:0:b0:51a:8eca:78e3 with SMTP id d75a77b69052e-51c26a2c494mr44377371cf.5.1782940192991;
+        Wed, 01 Jul 2026 14:09:52 -0700 (PDT)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-51c30c67294sm743611cf.30.2026.07.01.14.09.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Jul 2026 14:09:51 -0700 (PDT)
+Date: Wed, 01 Jul 2026 17:09:50 -0400
+Message-ID: <8c1cb3dd478f6e59b682bae3a596a0d2@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260701062321.517351-1-omosnace@redhat.com> <20260701064301.GH48970@noisy.programming.kicks-ass.net>
- <43dd9d9f-2348-43c0-8af5-77ef260c64a3@amd.com>
-In-Reply-To: <43dd9d9f-2348-43c0-8af5-77ef260c64a3@amd.com>
-From: Ian Rogers <irogers@google.com>
-Date: Wed, 1 Jul 2026 11:54:57 -0700
-X-Gm-Features: AVVi8CdPAA2Awq9Kv3THzlusc-_st-D6y-Dp_4NP8MgglOFbQydRDtJegutCxds
-Message-ID: <CAP-5=fWDjNUPgzoFMQkHZV_5t175_L9JTjU-k7=5LWD2TCoQjA@mail.gmail.com>
-Subject: Re: [PATCH v2] perf test amd ibs: avoid using executable heap
-To: Ravi Bangoria <ravi.bangoria@amd.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	Ingo Molnar <mingo@redhat.com>, Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
-	Mark Rutland <mark.rutland@arm.com>, 
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>, 
-	Adrian Hunter <adrian.hunter@intel.com>, James Clark <james.clark@linaro.org>, 
-	linux-perf-users@vger.kernel.org, selinux@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=UTF-8 
+Content-Transfer-Encoding: 8bit 
+X-Mailer: pstg-pwork:20260701_1640/pstg-lib:20260701_1540/pstg-pwork:20260701_1640
+From: Paul Moore <paul@paul-moore.com>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org
+Cc: omosnace@redhat.com, Stephen Smalley <stephen.smalley.work@gmail.com>, Bryam Vargas <hexlabsecurity@proton.me>, Matthieu Buffet <matthieu@buffet.re>, Mikhail Ivanov <ivanov.mikhail1@huawei-partners.com>
+Subject: Re: [PATCH] selinux: check connect-related permissions on TCP Fast  Open
+References: <20260618175513.112443-2-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260618175513.112443-2-stephen.smalley.work@gmail.com>
 
-On Wed, Jul 1, 2026 at 9:59=E2=80=AFAM Ravi Bangoria <ravi.bangoria@amd.com=
-> wrote:
->
-> Hi Peter, Ondrej,
->
-> >> permission under SELinux (things like JIT or regex compilation need it
-> >> as well). mmap() with MAP_ANONYMOUS will give us a zeroed mapping that
-> >> begins on a page boundary, so the result is equivalent to the original
-> >> code even without a memset() or the page-alignment dance.
-> >
-> > I would argue that having RWX is a problem, you really want RW->RO->RX
-> > transitions, so even with mmap() you want to combine with mprotect().
->
-> My original intent for using RWX was to generate sufficient Icache miss
-> samples for the IBS Fetch unit by overwriting the code prior to execution=
-.
-> I am wondering whether it would be possible to achieve the same result
-> by using CLFLUSH with RX permissions. Something like below (build tested
-> only).
-
-(Minor 2 cents) To make the code more canonical JIT code it should
-probably use memory protection keys for permissions.
-
-Thanks,
-Ian
-
-> --- a/tools/perf/arch/x86/tests/amd-ibs-period.c
-> +++ b/tools/perf/arch/x86/tests/amd-ibs-period.c
-> @@ -25,6 +25,7 @@ static int page_size;
->  #define PERF_MMAP_TOTAL_PAGES   (PERF_MMAP_DATA_PAGES + 1)
->  #define PERF_MMAP_TOTAL_SIZE    (PERF_MMAP_TOTAL_PAGES * page_size)
->
-> +#define mb()                   asm volatile("mfence":::"memory")
->  #define rmb()                   asm volatile("lfence":::"memory")
->
->  enum {
-> @@ -41,10 +42,16 @@ struct perf_pmu *fetch_pmu;
->  struct perf_pmu *op_pmu;
->  unsigned int perf_event_max_sample_rate;
->
-> +static inline void clflush(const volatile void *p)
-> +{
-> +       asm volatile("clflush (%0)" :: "r"(p) : "memory");
-> +}
-> +
->  /* Dummy workload to generate IBS samples. */
->  static int dummy_workload_1(unsigned long count)
->  {
-> -       int (*func)(void);
-> +       int (*func1)(void);
-> +       int (*func2)(void);
->         int ret =3D 0;
->         char *p;
->         char insn1[] =3D {
-> @@ -59,33 +66,42 @@ static int dummy_workload_1(unsigned long count)
->                 0xcc, /* int 3 */
->         };
->
-> -       p =3D calloc(2, page_size);
-> -       if (!p) {
-> -               printf("malloc() failed. %m");
-> +
-> +       p =3D mmap(NULL, page_size, PROT_READ | PROT_WRITE,
-> +                MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-> +       if (p =3D=3D MAP_FAILED) {
-> +               printf("mmap() failed. %m");
->                 return 1;
->         }
->
-> -       func =3D (void *)((unsigned long)(p + page_size - 1) & ~(page_siz=
-e - 1));
-> +       memcpy(p, insn1, sizeof(insn1));
-> +       memcpy(p + 128, insn2, sizeof(insn2));
->
-> -       ret =3D mprotect(func, page_size, PROT_READ | PROT_WRITE | PROT_E=
-XEC);
-> +       ret =3D mprotect(p, page_size, PROT_READ | PROT_EXEC);
->         if (ret) {
->                 printf("mprotect() failed. %m");
->                 goto out;
->         }
->
-> +       func1 =3D (void *)(p);
-> +       func2 =3D (void *)(p + 128);
-> +
->         if (count < 100000)
->                 count =3D 100000;
->         else if (count > 10000000)
->                 count =3D 10000000;
->         while (count--) {
-> -               memcpy((void *)func, insn1, sizeof(insn1));
-> -               if (func() !=3D 1) {
-> +               clflush(func1);
-> +               mb();
-> +               if (func1() !=3D 1) {
->                         pr_debug("ERROR insn1\n");
->                         ret =3D -1;
->                         goto out;
->                 }
-> -               memcpy((void *)func, insn2, sizeof(insn2));
-> -               if (func() !=3D 2) {
-> +
-> +               clflush(func2);
-> +               mb();
-> +               if (func2() !=3D 2) {
->                         pr_debug("ERROR insn2\n");
->                         ret =3D -1;
->                         goto out;
-> @@ -93,7 +109,7 @@ static int dummy_workload_1(unsigned long count)
->         }
->
->  out:
-> -       free(p);
-> +       munmap(p, page_size);
->         return ret;
->  }
->
+On Jun 18, 2026 Stephen Smalley <stephen.smalley.work@gmail.com> wrote:
+> 
+> Similar to Landlock, SELinux was not updated when TCP Fast Open
+> support was introduced to ensure connect-related permissions are
+> checked when using TCP Fast Open. Update its socket_sendmsg() hook to
+> call selinux_socket_connect() when MSG_FASTOPEN is passed.
+> 
+> Link: https://lore.kernel.org/linux-security-module/20260616201615.275032-1-hexlabsecurity@proton.me/
+> Link: https://lore.kernel.org/linux-security-module/20260617180526.15627-2-matthieu@buffet.re/
+> Reported-by: Bryam Vargas <hexlabsecurity@proton.me>
+> Reported-by: Matthieu Buffet <matthieu@buffet.re>
+> Reported-by: Mikhail Ivanov <ivanov.mikhail1@huawei-partners.com>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Tested-by: Bryam Vargas <hexlabsecurity@proton.me>
 > ---
->
-> Thanks,
-> Ravi
+> NB Build-tested only so far.
+> 
+>  security/selinux/hooks.c | 18 +++++++++++++++++-
+>  1 file changed, 17 insertions(+), 1 deletion(-)
+
+I tweaked the alignment of the if-conditional to better follow the
+scope/parens, but otherwise this looks good to me.  Thanks everyone for
+the report, the fix, and the testing!
+
+I've tagged this for stable and I'm merging it into the
+selinux/stable-7.2 branch to send up to Linus after some soak time in
+linux-next.
+
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 97801966bf32..855cc32a7653 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -5270,7 +5270,23 @@ static int selinux_socket_accept(struct socket *sock, struct socket *newsock)
+>  static int selinux_socket_sendmsg(struct socket *sock, struct msghdr *msg,
+>  				  int size)
+>  {
+> -	return sock_has_perm(sock->sk, SOCKET__WRITE);
+> +	int rc;
+> +	struct sockaddr *const addr = msg->msg_name;
+> +	const int addrlen = msg->msg_namelen;
+> +
+> +	rc = sock_has_perm(sock->sk, SOCKET__WRITE);
+> +	if (rc)
+> +		return rc;
+> +
+> +	if (addr && (msg->msg_flags & MSG_FASTOPEN) && (sk_is_tcp(sock->sk) ||
+> +		(sk_is_inet(sock->sk) && sock->sk->sk_type == SOCK_STREAM &&
+> +		sock->sk->sk_protocol == IPPROTO_MPTCP))) {
+> +		rc = selinux_socket_connect(sock, addr, addrlen);
+> +		if (rc)
+> +			return rc;
+> +	}
+> +
+> +	return 0;
+>  }
+>  
+>  static int selinux_socket_recvmsg(struct socket *sock, struct msghdr *msg,
+> -- 
+> 2.54.0
+
+--
+paul-moore.com
