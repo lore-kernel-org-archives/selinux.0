@@ -1,79 +1,79 @@
-Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 667474963DB
-	for <selinux@vger.kernel.org>; Wed,  1 Jul 2026 12:55:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00C61438FE7
+	for <selinux@vger.kernel.org>; Wed,  1 Jul 2026 15:09:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.45
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782910534; cv=pass; b=Th4Z8vpGgskgVku6n6dG+hxGvxHHyN6XgjG4QUFFJBqQtnCJrltdrLhmje0YE92umNkifhMa0fvE3P7QXfs1+kk2neFGshtHa6ZvIF4lvuaZ1MXthd4TullZ07VKGRZk6FLCI92ftUxVLphzVzYyCTeDlShb+JQg+z2pJa61FDE=
+	t=1782918581; cv=pass; b=SXwyTgauRiZDng7S2R6qINZxATIViZY8F4Z/Xbef8d5P+LuPxct+AE6Vh7E2zcWnpmhute/U6jf7VlXqCWOulX80P7V8fH9mIDmio7H7ZpRWWko8Lq3Kq1kBV/FgPboJGkUjzvBr4KQBMxTrMFFKAvqf3sQDguF1PvS4TMWSFdw=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782910534; c=relaxed/simple;
-	bh=wA34yog5D3zzm0E4fzCRQgoVkgu33TRvDEqJe+rugrM=;
+	s=arc-20240116; t=1782918581; c=relaxed/simple;
+	bh=7M2c8VTJCknMV3dlvitg2YbEGnXAzIGFFQtNc7mfEiw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Xc9yjA1+5sqA55wPPgZNgblk6p7wZaukClLL/MuNvXbbYGm3KPeo+NJgDGL2PZVe4+nlcP9ZbKzninLTC5FZLIwFsc1u+GEI799urDPpzf/J40fHgrlstM1VjJnXDV7NpIJ3aLQszsLYLy+cI75XDFVeaJaZm+m6gmzDKaCK8iI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=XJOeGYL2; arc=pass smtp.client-ip=209.85.216.44
+	 To:Cc:Content-Type; b=plYR3kPxzdCbI6yUkqCq+C/Ipa5h7MN483sSk7BAfJxZxNGZAOFsP0fvgA1eLmhH7H7lqEVGv/CFUWINLpTlsYd2hGSLlj6+F4v2BBpkxIrQ8NYH8ftjzwuqziOD4eZB6y5UCQ5QI6PDsDuCE0EwjUwvhc7uSaRwPdEkhFhO/zo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=EA1350GK; arc=pass smtp.client-ip=209.85.216.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="XJOeGYL2"
-Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-37fc01881f2so555100a91.1
-        for <selinux@vger.kernel.org>; Wed, 01 Jul 2026 05:55:32 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782910532; cv=none;
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="EA1350GK"
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-37ffdc718f8so463485a91.0
+        for <selinux@vger.kernel.org>; Wed, 01 Jul 2026 08:09:36 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782918576; cv=none;
         d=google.com; s=arc-20260327;
-        b=lQRZvYfw+O1ljLBSdjaA2NtC7hcIs0NbkGjPuhS1jzgWmTc0aCkPIcsKA7BbrbBRrq
-         cOkppe7Cwp6yUW2dcmJJNCIJHp5rPkMleGFVMT03ItkluBy0PDrNWPIumXA1UPMjW2XB
-         yFuXsM0X+rutIakFV9M1/ecx9/gdnIEAmM3oCahpVOrcz4mR0EQM9C/XrQDfM+8tBA87
-         N3hIwPVtNygfjWr2uRUb6L2Q8MojB7cIu0t9bPkfvx87eHr8JD+Md40w1Ylu5B73msBD
-         L6iRCSuuDP+3TqKxceWQO7ZTKfpk/0XU7TiqqsG2YKKKlq4ScVSHF06juaEHO+nU6XBn
-         z3hg==
+        b=GvSUvL2ydmdtQvK7L6nHAIFATtoh4q4vbpxtLScURg1m6Wg9d/IFpMPHU4kxhRi4jt
+         PujbzvGDyIX0hHURTxhhnUDv0qmfZznmK0D5/N1RPMOWNgYcqyvizZxIW4OttD51BkcO
+         4B01vBfSxqg8N9cJUlnN16ZNOZuMLRVWMKtT+90Es/D//aZ59p6BeuIQ38XqcPjqKthL
+         OIVOS97FO7iUkOYktavFL0Kj4+krl7hMPy86bizmjEkdA1tYEhQOTFhSaKP0UYf2ks4e
+         X3U6h6hfaFa3uP0Ia/awYTHZf3B9VqSQpOP/jYm+CknGjehCupnRDQ+Q71NjTKzFIZC0
+         LsrQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=h90qlgRkzmvvEIOKUZmmGycJu0XT3aZbSOeN9EPvQ6Q=;
-        fh=dBaJh/0CzVYVsYISz+K3RYKdIfHjCjvo5tO9V6P1fnA=;
-        b=YYzDHiac1DTDYxFc0fBBGhv1acnYh7VO8vA9JQsWs+2P1ZzWblVoNegGhyJ6HK3P7C
-         4NgiVncEiwP2uG6Bls8DgI+CBn4tyOnFjP117StyRaUonvjFgfa3zcb+U2m5AEcwxefU
-         L+G619xHIzdip+a4H/qt16EuPzIVRO/4u7kEB3uwOmKFr/Jy8f7obX83oZkyIGPZq9Nv
-         eclZZJgZhFXxShDsKkHu7kbHZHVF4LoP4axVv7r0/16J6ReThi1mMqkXOw2L7fY2Dn7V
-         3LH36GmC1n75KsZ+T1M75wcaQ8nZ4PIlqnffpTm4xQoGcEtdIcRpRIuE+hfHbCdpAsRN
-         GxMg==;
+        bh=EiDHBob2ABPUTvdRmOeqDRgvjmRDWIfShl42n0T52g0=;
+        fh=TIJHhYFKX4h83pQQ1iRXg/cB9MVTRVJr4u+T4AwIHaY=;
+        b=eNwzJk+wDEvt7lANbYfisGr2flzpA4znLXiaiGkwF4X9ExLx8UujJKuMOvDNn3Cr1a
+         EovZvmOQQdGRpx0dUZBOY+ZOeiRcAIR87n9+GjowV0cDwjmjPmLV7gjSbZMQC+S51YAE
+         1jxCPt+bcFT7JkIm1Xpx4oU+j6SqWvJstu/l/TKYhLnWeWzrARWOQ+5iaxKCMgT3mt3q
+         E6rXGwmEUrbDlDF1xK4NYW4bpX7irurvpB8l7YuZJaV8039+zyDIZUCIRgl42BfyCaaH
+         IscEQfSQ52NWKa1J1bcHymEXWeuQcJeQWOxp9Y5oi2Qju05PVNUtvoUIXj0DgoPPC1IK
+         dhfw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1782910532; x=1783515332; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1782918576; x=1783523376; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=h90qlgRkzmvvEIOKUZmmGycJu0XT3aZbSOeN9EPvQ6Q=;
-        b=XJOeGYL2vnZ3JRE/Es/sxl+AEl6mmciMEHV8WocRMoqDSpvCRiZLTHCKfagxX0jsjp
-         rZ1/Pgg440tx5WIodjMLHp7WFDhpKee6Cw3+MyK+IVYRb5y4DJnUwVWwH2Ykvu0mYEMa
-         UuS9z2EawbiuzRBLbcZfqMtjyEMAQ5o9EFYqKgmvlM7vjk1h0rNIvCKNT9iTouvpeSO/
-         Ix89Eab4y1vxTcJV/c3YpT8YkT5/p3wXGdYJ8OsgLpf1ypdvzdGRwpjDjpeFcm3F9OxG
-         ZrGRMLWMXUdNaN6PvZXcRLBPym5egq3X+PWeqsoM+e4sTqOxKToNcgGXWhzthx5NPnD6
-         BdHA==
+        bh=EiDHBob2ABPUTvdRmOeqDRgvjmRDWIfShl42n0T52g0=;
+        b=EA1350GK7TBvwQjRPxtTmy0xOLK6+1ocpKMN/s3yCUZoPqzoI1izrKktlLbr4iMk9r
+         xbGaco5NJ8ZuRerWfuse4SrvNb5yFm8Wo/2Nt+QWaXbdqQjFqLgl3ZG3z89t5q1tM7o7
+         0IqWZQtts8lxFuW1JoOO0sQAvVCB9VnGnXrUUdj1qf7/5lyF8yBzIHENte4XHZ0sFsGw
+         t5xrgXNaYYtAD/T8Mes8p8dOs2aTw6uMpS5uQpHKMHLxOohxaGfh2f6ImPT4LrHlT69m
+         HgLjt1hlyv5scAn6JaJA0j0yiAc8615T+lyCM/MV+UVxx94HslHRYXLMzviaxTXuIwQG
+         reow==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782910532; x=1783515332;
+        d=1e100.net; s=20251104; t=1782918576; x=1783523376;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=h90qlgRkzmvvEIOKUZmmGycJu0XT3aZbSOeN9EPvQ6Q=;
-        b=l7nQYFwnwGsvhNJOFkzwESbgVI9phaDmIStyJVM0xyl7icM/pQpJuSxm22qvQRQYsM
-         3i8hXc3z07hDiMmYVdMtX+hq6qb+UTB1T+/0n25n9qc11B8yog3L9NTUtRGkmGzZ2e5F
-         BQHzRDSZg5E7eL3Vzq9Cd4scHT1Lj2tDzozb1jjEFMvq0oO5dssjiCzAzQVo3X7F1VzE
-         qrSMS4AE0mha5Rqo786LDH0mjcHbwWd8odvgTFnGzbWS/NmfG4/sHYA8B9KmPSpXELiy
-         vuNRrg3GGgPzXXsl5MHImPnQVk9BNMxxUjLrFi3/EOE1HAi4h6FNrAIjDu2GKmsdavow
-         4EFg==
-X-Forwarded-Encrypted: i=1; AHgh+Ro8XSJcHhB2daDlGan9MmZdVqiWd2IUkpywXOJYMvu0L8uOUJL31XhKMpPOhlWzlYtx2DHh4SCb@vger.kernel.org
-X-Gm-Message-State: AOJu0YylPDdLEypI2cxxGq72rPYsfkf2qSl+gqFtbc3KYlHYZD1dGS3q
-	4cQDTolsqzrE52Lpqt44gF/WEkgJv9dxhC/hOriSNAmtlBJcZfzZ9NTG73tJx1c0Z10TN0vhB6b
-	oef7YvZDM09a7bx2RZ/12fkz9PyB8obR8xhAb4452
-X-Gm-Gg: AfdE7cnvgrwXB6unwA0EFnqB3a/UC44rxtlMDfBrD6SeZRfbsLrHSUuGiSCDv8r3WdI
-	0OeybnRz+PWQId52qLl2D7DQ4exwauVcx+YBdx07+t6F16Sz8H0wt6/Tfo2OLt6SeNCpNB/t0x1
-	6dp2cTMutbt3w91qpE4qY5HLhVpEHZuvEU50aPr1v1i9RGwy4GGtb1Y3Z62wjJtR4EEw+x/i2Ku
-	7OBCzsI9Dhq9eb/diniWS7CJoQWTT3427CSsdvuc8Qy7WCrik9eFTXlsVPBoDaKvW80w4EZ
-X-Received: by 2002:a17:90b:2d90:b0:380:9d0d:7af4 with SMTP id
- 98e67ed59e1d1-380ba86979fmr662539a91.12.1782910531759; Wed, 01 Jul 2026
- 05:55:31 -0700 (PDT)
+        bh=EiDHBob2ABPUTvdRmOeqDRgvjmRDWIfShl42n0T52g0=;
+        b=LVVdJHlfL+aFngguZ8sBwYG9OaagHeGnWA9bsR2YM3o2duwhRrrVC0dWmy5piQX+nU
+         7xxo5vEW48HOmzU2dBeXptnVqskvHCzxEcj1iqUYlt9ZoUEaavZsgyMs5fmunG1UtCy5
+         e55m9UX8kKFofPCXQCBggX2vE9cqaIeFXBlvhQaFoOVCcEtBC/hv9XulHNcpMquD1F73
+         CDOLDOW5YmR+HWl0iximcyEhrRp8vg8YCClMtgYOe9r2jVWkrfSZCcVcX6uxY48pn4bU
+         Fe5wUOZ/K+7/0EB4KfmV5zK4QNJYGBFga1QiFSshBqucU8xRNSe7cy5NEgO/yLbhqY7Y
+         YDbA==
+X-Forwarded-Encrypted: i=1; AHgh+Rrq5vwupwAnpGXNTeyDLmcelBA3Lhvq7owusfnl8Xojx6OC+ce0ow9R/+0iIqcsKc2yT3wAMJu+@vger.kernel.org
+X-Gm-Message-State: AOJu0YzXkQcfu6dOTlv4d0QoHfKVy8PXmwORHW2n+3a9v6fk9Hc20bmF
+	Eu5O46VHHgKsysaCfbo9AtSSsuA60n3SstYDHhM/UvcKE5qZHtO4PWPCWSCisDiHF25qHgdbHSd
+	jqz3kUsE9Ly7HwJVmoO3/97iVlK3CH+5q0MQKBG+T
+X-Gm-Gg: AfdE7cm53T1qrQSNR7Jld2UHoNWIjyAHNvdM95FLzCUgdES11nJfefuytHewTpL+2z+
+	dK3a5CAnCMUs+YixOB2MGKzwYwS9EwbKhMiGLufZj6ZngvmWQsWGbPssgMAzcspfB/QJ4es0pqN
+	+Ckg6hs8glVRLMumq1P4EjUKqRjU86csLVUzY71xQCT1cOYGAph63kl4EFNS8Zb82KMN6SkHkaf
+	KJnCuj2vh6BTKBHuya6DI63HWRL9e8Brha02sSnFeKkIRN6qy9URHNxYfMyIYS/E7fyVKw0
+X-Received: by 2002:a17:90b:4f4b:b0:37f:fb1d:63fa with SMTP id
+ 98e67ed59e1d1-380aa1427e9mr2152660a91.15.1782918575927; Wed, 01 Jul 2026
+ 08:09:35 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -81,12 +81,13 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20260630183956.281293-1-dwindsor@gmail.com> <20260630183956.281293-3-dwindsor@gmail.com>
- <CAHC9VhSYNF=_Tfe-D99rHy70EXQVr1ES0arxT09Bidey4zOFdg@mail.gmail.com> <DJN0EPROS056.3RY0R6W1XZHNZ@gmail.com>
-In-Reply-To: <DJN0EPROS056.3RY0R6W1XZHNZ@gmail.com>
+ <CAHC9VhSYNF=_Tfe-D99rHy70EXQVr1ES0arxT09Bidey4zOFdg@mail.gmail.com>
+ <DJN0EPROS056.3RY0R6W1XZHNZ@gmail.com> <CAHC9VhT37f5TwgksE_i0Yttpy3i7niBr6QrNVVmpwe_eGX428g@mail.gmail.com>
+In-Reply-To: <CAHC9VhT37f5TwgksE_i0Yttpy3i7niBr6QrNVVmpwe_eGX428g@mail.gmail.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 1 Jul 2026 08:55:19 -0400
-X-Gm-Features: AVVi8CflgdtI8eLFled3oYp6VOVsv_lBHqIjUE5-aLf2A4hxkcukFfwR6m0D7v8
-Message-ID: <CAHC9VhT37f5TwgksE_i0Yttpy3i7niBr6QrNVVmpwe_eGX428g@mail.gmail.com>
+Date: Wed, 1 Jul 2026 11:09:24 -0400
+X-Gm-Features: AVVi8CcBAyyRDQX1axrqRUEsD0mhbBnmDeJwn8TvqCnNRpyrxWdbtlabDC-kdt0
+Message-ID: <CAHC9VhQd0-N1g=g8gspeV7bhLz0LA6DF5HZyB7mW6VW_7oSt2w@mail.gmail.com>
 Subject: Re: [PATCH v4 bpf-next 2/3] bpf: add bpf_init_inode_xattr kfunc for
  atomic inode labeling
 To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
@@ -109,108 +110,119 @@ Cc: David Windsor <dwindsor@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 1, 2026 at 2:09=E2=80=AFAM Alexei Starovoitov
-<alexei.starovoitov@gmail.com> wrote:
-> On Tue Jun 30, 2026 at 12:20 PM PDT, Paul Moore wrote:
-> >> +__bpf_kfunc int bpf_init_inode_xattr(struct lsm_xattrs *xattrs,
-> >> +                                    const char *name__str,
-> >> +                                    const struct bpf_dynptr *value_p)
-> >> +{
-> >> +       struct bpf_dynptr_kern *value_ptr =3D (struct bpf_dynptr_kern =
-*)value_p;
-> >> +       size_t name_len;
-> >> +       void *xattr_value;
-> >> +       struct xattr *xattr;
-> >> +       const void *value;
-> >> +       u32 value_len;
-> >> +
-> >> +       if (!xattrs || !xattrs->xattrs || !name__str)
-> >> +               return -EINVAL;
-> >> +       if (bpf_xattrs_used(xattrs) >=3D BPF_LSM_INODE_INIT_XATTRS)
-> >> +               return -ENOSPC;
-> >> +
-> >> +       name_len =3D strlen(name__str);
-> >> +       if (name_len =3D=3D 0 || name_len > XATTR_NAME_MAX)
-> >> +               return -EINVAL;
-> >> +       if (strncmp(name__str, XATTR_BPF_LSM_SUFFIX,
-> >> +                   sizeof(XATTR_BPF_LSM_SUFFIX) - 1))
-> >> +               return -EPERM;
-> >> +
-> >> +       value_len =3D __bpf_dynptr_size(value_ptr);
-> >> +       if (value_len =3D=3D 0 || value_len > XATTR_SIZE_MAX)
-> >> +               return -EINVAL;
-> >> +
-> >> +       value =3D __bpf_dynptr_data(value_ptr, value_len);
-> >> +       if (!value)
-> >> +               return -EINVAL;
-> >> +
-> >> +       /* Combine xattr value + name into one allocation. */
-> >> +       xattr_value =3D kmalloc(value_len + name_len + 1, GFP_NOFS);
-> >> +       if (!xattr_value)
-> >> +               return -ENOMEM;
-> >> +
-> >> +       memcpy(xattr_value, value, value_len);
-> >> +       memcpy(xattr_value + value_len, name__str, name_len);
-> >> +       ((char *)xattr_value)[value_len + name_len] =3D '\0';
-> >> +
-> >> +       xattr =3D lsm_get_xattr_slot(xattrs);
-> >> +       if (!xattr) {
-> >> +               kfree(xattr_value);
-> >> +               return -ENOSPC;
-> >> +       }
-> >> +
-> >> +       xattr->value =3D xattr_value;
-> >> +       xattr->name =3D (const char *)xattr_value + value_len;
-> >> +       xattr->value_len =3D value_len;
-> >> +
-> >> +       return 0;
-> >> +}
+On Wed, Jul 1, 2026 at 8:55=E2=80=AFAM Paul Moore <paul@paul-moore.com> wro=
+te:
+> On Wed, Jul 1, 2026 at 2:09=E2=80=AFAM Alexei Starovoitov
+> <alexei.starovoitov@gmail.com> wrote:
+> > On Tue Jun 30, 2026 at 12:20 PM PDT, Paul Moore wrote:
+> > >> +__bpf_kfunc int bpf_init_inode_xattr(struct lsm_xattrs *xattrs,
+> > >> +                                    const char *name__str,
+> > >> +                                    const struct bpf_dynptr *value_=
+p)
+> > >> +{
+> > >> +       struct bpf_dynptr_kern *value_ptr =3D (struct bpf_dynptr_ker=
+n *)value_p;
+> > >> +       size_t name_len;
+> > >> +       void *xattr_value;
+> > >> +       struct xattr *xattr;
+> > >> +       const void *value;
+> > >> +       u32 value_len;
+> > >> +
+> > >> +       if (!xattrs || !xattrs->xattrs || !name__str)
+> > >> +               return -EINVAL;
+> > >> +       if (bpf_xattrs_used(xattrs) >=3D BPF_LSM_INODE_INIT_XATTRS)
+> > >> +               return -ENOSPC;
+> > >> +
+> > >> +       name_len =3D strlen(name__str);
+> > >> +       if (name_len =3D=3D 0 || name_len > XATTR_NAME_MAX)
+> > >> +               return -EINVAL;
+> > >> +       if (strncmp(name__str, XATTR_BPF_LSM_SUFFIX,
+> > >> +                   sizeof(XATTR_BPF_LSM_SUFFIX) - 1))
+> > >> +               return -EPERM;
+> > >> +
+> > >> +       value_len =3D __bpf_dynptr_size(value_ptr);
+> > >> +       if (value_len =3D=3D 0 || value_len > XATTR_SIZE_MAX)
+> > >> +               return -EINVAL;
+> > >> +
+> > >> +       value =3D __bpf_dynptr_data(value_ptr, value_len);
+> > >> +       if (!value)
+> > >> +               return -EINVAL;
+> > >> +
+> > >> +       /* Combine xattr value + name into one allocation. */
+> > >> +       xattr_value =3D kmalloc(value_len + name_len + 1, GFP_NOFS);
+> > >> +       if (!xattr_value)
+> > >> +               return -ENOMEM;
+> > >> +
+> > >> +       memcpy(xattr_value, value, value_len);
+> > >> +       memcpy(xattr_value + value_len, name__str, name_len);
+> > >> +       ((char *)xattr_value)[value_len + name_len] =3D '\0';
+> > >> +
+> > >> +       xattr =3D lsm_get_xattr_slot(xattrs);
+> > >> +       if (!xattr) {
+> > >> +               kfree(xattr_value);
+> > >> +               return -ENOSPC;
+> > >> +       }
+> > >> +
+> > >> +       xattr->value =3D xattr_value;
+> > >> +       xattr->name =3D (const char *)xattr_value + value_len;
+> > >> +       xattr->value_len =3D value_len;
+> > >> +
+> > >> +       return 0;
+> > >> +}
+> > >
+> > > This is not a generic VFS function, it is a LSM specific function, it
+> > > belongs under security/, please move the code as discussed previously=
+.
 > >
-> > This is not a generic VFS function, it is a LSM specific function, it
-> > belongs under security/, please move the code as discussed previously.
+> > Paul,
+> > Not quite. It's all about xattrs.
+> > Having "struct lsm_xattrs" in the arguments doesn't make it lsm related=
+.
+> > You needs to study existing kfuncs and tracepoints.
+> > A bunch of them have "*lsm*" in the arguments.
 >
-> Paul,
-> Not quite. It's all about xattrs.
-> Having "struct lsm_xattrs" in the arguments doesn't make it lsm related.
-> You needs to study existing kfuncs and tracepoints.
-> A bunch of them have "*lsm*" in the arguments.
+> Alexei,
+>
+> I'm sorry you don't understand the basics of the LSM concept, but
+> please look at evm_inode_init_security(), xattr_dupval(), and
+> selinux_inode_init_security() for some background.  There should not
+> be any usage of lsm_get_xattr_slot() or BPF_LSM_INODE_INIT_XATTRS
+> outside of security/; you argued a similar idea to justify your NACK
+> of Hornet, I'm simply applying the same logic here.  We also have the
+> very recent security issue caused by the BPF subsystem which failed to
+> acknowledge that the admin disabled the BPF LSM and then walked all
+> over kernel memory when it shouldn't.  Moving LSM internals outside of
+> the LSM creates an environment where flaws like this can go
+> undetected.
+>
+> As I said previously, if you absolutely insist on the kfunc being in
+> the VFS kfunc file, the LSM specific bits need to be abstracted out
+> into an LSM function.
+>
+>   kfunc bpf_init_inode_xattr(...)
+>   {
+>     /* sanity check params */
+>     if (!xattrs ...)
+>       return -EINVAL;
+>
+>    /* get value/len from bpf dynptr */
+>
+>    /* hook will check for LSM specific xattr count/limits, allocate,
+> copy value*/
+>    rc =3D security_lsmxattr_add(xattrs, LSM_ID_BPF, value, value_len);
+>    if (rc)
+>      return rc;
+>   }
+>
+> David, if you like I can provide you a patch that implements the
+> security_lsmxattr_add() hook above if you aren't comfortable writing
+> that, but if you want to give it a shot that's all the better :)
 
-Alexei,
-
-I'm sorry you don't understand the basics of the LSM concept, but
-please look at evm_inode_init_security(), xattr_dupval(), and
-selinux_inode_init_security() for some background.  There should not
-be any usage of lsm_get_xattr_slot() or BPF_LSM_INODE_INIT_XATTRS
-outside of security/; you argued a similar idea to justify your NACK
-of Hornet, I'm simply applying the same logic here.  We also have the
-very recent security issue caused by the BPF subsystem which failed to
-acknowledge that the admin disabled the BPF LSM and then walked all
-over kernel memory when it shouldn't.  Moving LSM internals outside of
-the LSM creates an environment where flaws like this can go
-undetected.
-
-As I said previously, if you absolutely insist on the kfunc being in
-the VFS kfunc file, the LSM specific bits need to be abstracted out
-into an LSM function.
-
-  kfunc bpf_init_inode_xattr(...)
-  {
-    /* sanity check params */
-    if (!xattrs ...)
-      return -EINVAL;
-
-   /* get value/len from bpf dynptr */
-
-   /* hook will check for LSM specific xattr count/limits, allocate,
-copy value*/
-   rc =3D security_lsmxattr_add(xattrs, LSM_ID_BPF, value, value_len);
-   if (rc)
-     return rc;
-  }
-
-David, if you like I can provide you a patch that implements the
-security_lsmxattr_add() hook above if you aren't comfortable writing
-that, but if you want to give it a shot that's all the better :)
+One other thing - as this patchset is primarily LSM related, it needs
+to be merged via the LSM tree.  If Alexei can't tolerate the LSM tree
+merging a minor BPF patch he can either choose to pull from an LSM
+tree topic branch or we can merge the LSM infrastructure bits now and
+he can merge the BPF changes when the LSM bits hit Linus' tree.
 
 --=20
 paul-moore.com
