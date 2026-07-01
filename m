@@ -1,86 +1,225 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from flow-b8-smtp.messagingengine.com (flow-b8-smtp.messagingengine.com [202.12.124.143])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD1CA3939D7;
-	Wed,  1 Jul 2026 05:53:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E1F2392831;
+	Wed,  1 Jul 2026 05:54:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.143
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782885207; cv=none; b=uEc+5iohG5AE3YVgVFhuUo56MagDHPwDtMqaXNJbENROVzN4Oe6lfa0b1ieHpXHXGBj0Mj3gxnrEg/iOEgMyA5CtxdQ/yEChux7GgSNqeN0uWUntJWHXnIFri1GAA1nCLKW6We1gdkWes9pFAW/sW4dZm9RwONxLoLFgsDJnT8E=
+	t=1782885258; cv=none; b=X9Eot1CQFgGQdojhPSwRY0BibLo4rBsgGiriXYa2DoN4TcDag6V8nB+biJ/gjgEJzH4Hy4+1Ui7cyGahiaaapuyz9uKM8ki379+kUdy65dQ5C+Dp70GrZ0uehy9O2OqhGw7pk2SdgmlJE8B9w7Cw5EcNyUgRXQ65EEy/fWs1BYE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782885207; c=relaxed/simple;
-	bh=U8pelea93PpPNcT0TI8OF5EF12FiHed2FfFcCUmfBY4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Ga1hZZ3oBnQJF251xN+UWs+B+Id0X0Z3kYgrgBl3NyGYjfvhs0DnzE7iDAjJ1W8Wl6NcrLofY4sllv1U/UweM9n4PPfqLpNypNHzbNhWK2LAKsaJuR9zJCW63xrodPnPwAqa/9DZOnQ9W4lfnnVJVGINDAeE7b5I4s9HpHKRmx8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QkQrT7z9; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782885258; c=relaxed/simple;
+	bh=G9FmRNQaGeDF30yOlsxIhmhnqhoroDO9fziYdG0YmwI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Lit7FgeIv88OAnqTLTzXT+y+/MHocHz1oCcaVQfcsE9QUNZcFvC03JhxujwJpwxlyuqPExHpOn4dKEyWDzDShhdJD2O35bh+HO670GfdGTal5q/cDQuPIXIGPnXO+rpk25E8HQgRDgflkf0h7i+F5yq6zSHqzEziwRcGh5Tustw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fastmail.org; spf=pass smtp.mailfrom=fastmail.org; dkim=pass (2048-bit key) header.d=fastmail.org header.i=@fastmail.org header.b=g7OjKefD; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=QQUcLv42; arc=none smtp.client-ip=202.12.124.143
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fastmail.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastmail.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QkQrT7z9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 109C71F000E9;
-	Wed,  1 Jul 2026 05:53:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782885206;
-	bh=zaPLb2kKXTu+MOnhSYwCTg6fU9GigEnSLmqsC2j7GPY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QkQrT7z9HV4RI1CsBgcSjhlmnK/Qjhoe9vAEdz3Og0RO1LBGnEMYPBQCaLchP3AwI
-	 /ig7kJFJiriVy7jN2ulu6xSFZ+KprA12jig2IlUMjrgUTD68JjSHUyynTxC4gYLi1u
-	 o1pjqmrAyBBDFTZe+hEYkI2wl+U/jyFU+CxbcITbBi/QKPhZMV8jYBFUWKYYyMO/Ri
-	 ortGkhusaNdDPGZq1seWDo1CqbhrJ/6AW06lyUeLKbgpeDe7b+Dn8XF3ZYo+UE583s
-	 bgC28EIqC1TZM6hMuRFHiWpwb64/pl5YD/22FvGjsA3KQk2HPUJ/odYAPmBjb43bff
-	 jpc33lhCdl/Sg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] perf test amd ibs: avoid using executable heap
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Ondrej Mosnacek" <omosnace@redhat.com>
-Cc: selinux@vger.kernel.org, linux-perf-users@vger.kernel.org
-In-Reply-To: <20260701054807.508994-1-omosnace@redhat.com>
-References: <20260701054807.508994-1-omosnace@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 01 Jul 2026 05:53:25 +0000
-Message-Id: <20260701055326.109C71F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=fastmail.org header.i=@fastmail.org header.b="g7OjKefD";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="QQUcLv42"
+Received: from phl-compute-06.internal (phl-compute-06.internal [10.202.2.46])
+	by mailflow.stl.internal (Postfix) with ESMTP id 7EBDA13000C0;
+	Wed,  1 Jul 2026 01:54:14 -0400 (EDT)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-06.internal (MEProxy); Wed, 01 Jul 2026 01:54:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fastmail.org; h=
+	cc:cc:content-type:content-type:date:date:from:from:in-reply-to
+	:in-reply-to:message-id:mime-version:references:reply-to:subject
+	:subject:to:to; s=fm1; t=1782885254; x=1782888854; bh=3Ulh/2Kege
+	xKG2peKySArAtakyx82NioPY6leOKwzLY=; b=g7OjKefDOaFWBoEFNkKioKN0aL
+	ysSJKH0XMxRyH9x2h5mKCdoExDXECHF4Axv7urNWvoLsYoMk+EEOvtCiifPhzrt9
+	QvjF9BZa19VVjZ/Ny5ryjj7K9JX0qXEQB+vP1d6nQCBm6zgm91aZpSx1VH7Uw3Rg
+	OFb+R7cM4Sc8lgSNF4Izw9FZCL9tmXKtN4oVYWzpsHPE7wa1MID8iASzhi0ov+Bx
+	/eVfPl7EalDQyaf8PPEDWuIadg6FspVEdsb0XnCTCglmYBtfJQYT1DMSz++n7rZ5
+	Vy3g1nHlIPJ1HZ0d+evF0qtKQ3nHiLDPQEZYFsFHBDqibk7U0CcLQtyOdM7Q==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
+	1782885254; x=1782888854; bh=3Ulh/2KegexKG2peKySArAtakyx82NioPY6
+	leOKwzLY=; b=QQUcLv42oP3+rMPdLMPazn3VqU+SarGGu7qd+QAp6XezEyxVKHG
+	dLiHStuzOA32s6KtfUdr29QYpWeitT4K5PTOnbRtLDbndezIIynRvL6789N5JrKA
+	l1vCTvtbCB8yINJDmDqlrxlG5cjIof1GJzL1itJ9xdNOh9V9aKcbSvwh/7t6xkhG
+	BD6QUZwSRe/PnkK+FR78NIpUrq5HVeLhNmqDOWl8YosNrVzr6n2NOV1XVZPRWi+5
+	+ySKpGX4UI/8qGqh/EVB+8d5W5ghq0rQ36L/KPGSU7NTHy8rTrM/OCKM6XO6awGo
+	TPdTomYQd/qLCj3L8JEV7Xh7ZLJtdJnPYgA==
+X-ME-Sender: <xms:hqtEauJJo2C6PqO6S9ii8SWrNhlAc_bchAW-6WfrwsV8OBg01u3Yjg>
+    <xme:hqtEagPhjERn7Kgjrzw5oNh3gznvITBl9usODhZVrahB7XMHSrSMn-4nXl197YGu-
+    WCnuT0E4vJoTPfHKPYd208h14mTWjiEqnhRDNi4wMb1IyZeZ7xFMw>
+X-ME-Received: <xmr:hqtEaunbwj7qGDaaltwPyS7q_L9CEuMX54uyZxMoqzVJ4rDALpLeIOu2vAI>
+X-ME-Proxy-Cause: dmFkZTF2pJgt7bSh6SnJ+ci38TUbsjZwTtwuaGfhf6c0pyXqbOuD4GbHLZnYsgdj4tl1Um
+    uc5NoLALq69Pux30uMKCM1Rc9o6lGVTDdumX2u6lfb+EvBFMfucBQMsl7RdFFtV6FuwttP
+    LwXriz4C/+Phx60Zynpd+w/QK2WKCXyFpeT1tVz7m2u3R7QTr3tj+TcB9JCiOxyDGOLhgA
+    VPfkRC0If6AD8MM3rY3kNqwQPGFC3gt0rY1EbawIXzl2Dj/POYkxeMvRB/HDv0rmp/N6bI
+    1bCiGKvZbeXO6EZyiS8WPrw3tt5e2sl/ViOa7NGHVFr5iwcAeAoler6tL4WoERNHZdqKiA
+    nvF2SkgcVMCKsWejlgkelwcsHoRdFU2VW58YTGZF+YAwafhvoohToIoCQS+AxWmzLNvTri
+    E9R+fmtfHLj1HIxeQgshGQv7Q/lWTRJW07sEMlfR6HTkBkbly0pzRwZJ9RO7d5QZgwKV9c
+    du4FuM8B2StuARonIzEK+NMRMR3dGcxfHqoLa3Tj5cEZC9UPycF7RaBDqebDwXomNQZZvz
+    hD7GXFKtD/Wmm2UiJfs3GluJjMFJMDwXDIMv4m6zih6l01o2wF3DvArCBbHg870hlfB/7m
+    FTp9cLZcwKwfvS1Rpl7YR3QiJjM9FA+uuMZ/AAqjrHggtZW/W9kFdth5SzMw
+X-ME-Proxy: <xmx:hqtEak7zvyEBdjYYZcq_U2QuaQEUdkk4X5M7mL3WDaU5xJcmS8EgyA>
+    <xmx:hqtEai1qx1avrzSeb_C7i0moLaNeQBeyN2gpoEItcJvdU52_P-Y3iw>
+    <xmx:hqtEavHAsXiBJZfjY0GhtHXisAQF-pxLlrS7IEjfaqd7hikEO4rpcA>
+    <xmx:hqtEahg7chsm4PfUcNgA2-odaaRUvc-61vq5vEXC0i-_7Mo8IBPmbg>
+    <xmx:hqtEagyf4_8qTha5c1KhxIv6jvXJbBu4IsuhbzK2Yo4CJNthBdKJnZg4>
+Feedback-ID: ib53e4b78:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 1 Jul 2026 01:54:13 -0400 (EDT)
+Date: Wed, 1 Jul 2026 00:54:11 -0500
+From: Ian Bridges <icb@fastmail.org>
+To: David Laight <david.laight.linux@gmail.com>
+Cc: Paul Moore <paul@paul-moore.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
+Subject: Re: [PATCH v2] selinux: replace strlcat() with seq_buf in
+ selinux_ima_collect_state()
+Message-ID: <akSrg483zJ0ii7wc@dev>
+References: <aj6hVjECikvYtnED@dev>
+ <20260627224914.68b506b0@pumpkin>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260627224914.68b506b0@pumpkin>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] Incorrect error check for mmap() return value leads to segmentat=
-ion fault.
---
+On Sat, Jun 27, 2026 at 10:49:14PM +0100, David Laight wrote:
+> On Fri, 26 Jun 2026 10:57:10 -0500
+> Ian Bridges <icb@fastmail.org> wrote:
+> 
+> > In preparation for removing the deprecated strlcat() API[1], replace the
+> > strscpy()/strlcat() chain in selinux_ima_collect_state() with a struct
+> > seq_buf, which tracks the write position and remaining space internally.
+> > 
+> > Each field is written with seq_buf_printf() using a "=%d;" format, which
+> > removes the open-coded "=1;"/"=0;" constants. The seven per-append
+> > WARN_ON(rc >= buf_len) truncation checks are replaced by a single
+> > seq_buf_has_overflowed() check after the string is built.
+> > 
+> > Link: https://github.com/KSPP/linux/issues/370 [1]
+> > Signed-off-by: Ian Bridges <icb@fastmail.org>
+> > ---
+> > Changed in v2: replace the v1 seq_buf_puts() pairs with seq_buf_printf()
+> > using a "=%d;" format, which drops the open-coded "=1;"/"=0;" constants.
+> 
+> Did you verify that all the values are 0/1 otherwise a !! prefix might
+> be needed.
 
-commit 40ff2c8c34df3809a114852f1d0dd5630a45771c
-Author: Ondrej Mosnacek <omosnace@redhat.com>
+Yes. selinux_initialized(), enforcing_enabled() and checkreqprot_get()
+all return bool, and selinux_state.policycap[] is a bool array.
+checkreqprot_get() always returns 0. The others read bool fields that
+are written only by normal assignment (WRITE_ONCE() or
+smp_store_release()), which normalizes the stored value to 0 or 1. So
+"%d" prints "0" or "1", the same as the old ? "=1;" : "=0;" mapping, and
+no !! is needed.
 
-perf test amd ibs: avoid using executable heap
+> 
+> > 
+> > v1: https://lore.kernel.org/all/ajlN94VO7BYNUTAy@dev/
+> > 
+> > I didn't change the precomputation of the string size. An alternative,
+> > which is used by other seq_buf callers (e.g. kernel/rcu/refscale.c,
+> > mm/memcontrol.c), is to drop the precomputation and allocate an oversized
+> > fixed buffer, relying on the seq_buf overflow check as a backstop. I'm
+> > happy to rework the patch to adopt that alternative.
+> 
+> That would be reasonable, the output is always exactly the same length and
+> the buffer is freed just after being allocated.
+> A comment that there are 3 + 15 strings and all are under 32 bytes so 1k
+> is plenty would suffice.
+> 
+> 	David
+>
 
-This commit replaces the malloc() and mprotect() combination with a single
-mmap() call for creating executable memory in the AMD IBS test. This change
-avoids SELinux executable heap restrictions by directly creating an
-anonymous rwx mapping.
+I didn't originally take this route because a fixed buffer bakes in an
+invariant (the whole string must stay under 1K) with nothing to enforce
+it at compile time. If more capabilities are added later, or a name grows
+longer, the string could overflow. That shows up only at runtime, as the
+seq_buf_has_overflowed() WARN, and the measured selinux-state string is
+silently truncated.
 
-> diff --git a/tools/perf/arch/x86/tests/amd-ibs-period.c b/tools/perf/arch=
-/x86/tests/amd-ibs-period.c
-> --- a/tools/perf/arch/x86/tests/amd-ibs-period.c
-> +++ b/tools/perf/arch/x86/tests/amd-ibs-period.c
-[ ... ]
-> @@ -59,18 +58,11 @@ static int dummy_workload_1(unsigned long count)
-> +	func =3D mmap(NULL, page_size, PROT_READ | PROT_WRITE | PROT_EXEC,
-> +		    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-> +	if (!func) {
+Thanks for the review.
 
-[Severity: Medium]
-Does this error check properly handle mmap() failures? mmap() returns
-MAP_FAILED ((void *)-1) rather than NULL when it fails.
+Ian
 
-If mmap() fails (e.g., due to SELinux denying execmem), this check will
-evaluate to false, and the code will fall through to memcpy() into an
-invalid address, triggering a segmentation fault.
-
-> +		pr_debug("mmap() failed. %m\n");
-> +		return -1;
->  	}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260701054807.5089=
-94-1-omosnace@redhat.com?part=3D1
+> > 
+> >  security/selinux/ima.c | 40 +++++++++++++---------------------------
+> >  1 file changed, 13 insertions(+), 27 deletions(-)
+> > 
+> > diff --git a/security/selinux/ima.c b/security/selinux/ima.c
+> > index aa34da9b0aeb..cb0efa2fc1ad 100644
+> > --- a/security/selinux/ima.c
+> > +++ b/security/selinux/ima.c
+> > @@ -9,6 +9,7 @@
+> >   */
+> >  #include <linux/vmalloc.h>
+> >  #include <linux/ima.h>
+> > +#include <linux/seq_buf.h>
+> >  #include "security.h"
+> >  #include "ima.h"
+> >  
+> > @@ -20,46 +21,31 @@
+> >   */
+> >  static char *selinux_ima_collect_state(void)
+> >  {
+> > -	const char *on = "=1;", *off = "=0;";
+> > +	struct seq_buf s;
+> >  	char *buf;
+> > -	int buf_len, len, i, rc;
+> > +	int buf_len, suffix_len, i;
+> >  
+> >  	buf_len = strlen("initialized=0;enforcing=0;checkreqprot=0;") + 1;
+> > +	suffix_len = strlen("=0;");
+> >  
+> > -	len = strlen(on);
+> >  	for (i = 0; i < __POLICYDB_CAP_MAX; i++)
+> > -		buf_len += strlen(selinux_policycap_names[i]) + len;
+> > +		buf_len += strlen(selinux_policycap_names[i]) + suffix_len;
+> >  
+> >  	buf = kzalloc(buf_len, GFP_KERNEL);
+> >  	if (!buf)
+> >  		return NULL;
+> >  
+> > -	rc = strscpy(buf, "initialized", buf_len);
+> > -	WARN_ON(rc < 0);
+> > +	seq_buf_init(&s, buf, buf_len);
+> >  
+> > -	rc = strlcat(buf, selinux_initialized() ? on : off, buf_len);
+> > -	WARN_ON(rc >= buf_len);
+> > +	seq_buf_printf(&s, "initialized=%d;enforcing=%d;checkreqprot=%d;",
+> > +		       selinux_initialized(), enforcing_enabled(),
+> > +		       checkreqprot_get());
+> >  
+> > -	rc = strlcat(buf, "enforcing", buf_len);
+> > -	WARN_ON(rc >= buf_len);
+> > -
+> > -	rc = strlcat(buf, enforcing_enabled() ? on : off, buf_len);
+> > -	WARN_ON(rc >= buf_len);
+> > -
+> > -	rc = strlcat(buf, "checkreqprot", buf_len);
+> > -	WARN_ON(rc >= buf_len);
+> > -
+> > -	rc = strlcat(buf, checkreqprot_get() ? on : off, buf_len);
+> > -	WARN_ON(rc >= buf_len);
+> > -
+> > -	for (i = 0; i < __POLICYDB_CAP_MAX; i++) {
+> > -		rc = strlcat(buf, selinux_policycap_names[i], buf_len);
+> > -		WARN_ON(rc >= buf_len);
+> > +	for (i = 0; i < __POLICYDB_CAP_MAX; i++)
+> > +		seq_buf_printf(&s, "%s=%d;", selinux_policycap_names[i],
+> > +			       selinux_state.policycap[i]);
+> >  
+> > -		rc = strlcat(buf, selinux_state.policycap[i] ? on : off,
+> > -			buf_len);
+> > -		WARN_ON(rc >= buf_len);
+> > -	}
+> > +	WARN_ON(seq_buf_has_overflowed(&s));
+> >  
+> >  	return buf;
+> >  }
+> 
