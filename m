@@ -1,149 +1,130 @@
-Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
+Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB6B139A7F6
-	for <selinux@vger.kernel.org>; Wed,  1 Jul 2026 23:21:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91E5B26CE32
+	for <selinux@vger.kernel.org>; Wed,  1 Jul 2026 23:53:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.180
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782948102; cv=pass; b=bxcu+ZOsXrOt78dmrFkVraEsk8L5KMM8qap0R3JXkv8Cg6FSpd7rZTRGb1/XYA6bYlj+oa1JCnT7it3G7A1k6HqdUFXAi7vum+O/UsZwaaY+uO+2uMbNSp6M0mzP4APYm1Cf/P4YbPIbgTqbopumFaD9i4+yT4HgYwSRN3Zg3AE=
+	t=1782950023; cv=pass; b=MB9QqpPJVNPYnsvsa1CgFevlAfwFk+D0KeQvTb535nTPnH4nl0zVUxv+cpYPpPihmTy7AddQ4Q7c2Ib26Pk5y4t7Qqr5GqfmkBLiTY1myP7I6Ub2YnGTPYzKFzk0mHhU5HjdDCIUuZM1/ghqwG1ZMf2+z/FvwBN7jslwZ0LCLpo=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782948102; c=relaxed/simple;
-	bh=FtJm1XMA2u6fuGzBGX3Jb1FioFwf8hZ2gXCOXmPtfVA=;
+	s=arc-20240116; t=1782950023; c=relaxed/simple;
+	bh=S0Rn2cAIYAgijt6U/rRiOu7ts9CQRA/H/8wZTnaudL4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=VQrcSDb+oCZ/vt/vb9S7KG6UYGBkOTUDoNI+vyR+cq2R8gIF4zFJs/Lol4fql3z526ctWDlp2w3mNravL2/yGFlSm0KGlLAOG6lu1xf7IlQ6CK81KKqqGrIr5Nt3LN7zEayQc/hthwkey9v3gVgtXWPQcjN4M89058ss5C1epek=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=ZkcKu5l5; arc=pass smtp.client-ip=209.85.215.177
+	 To:Cc:Content-Type; b=dQCY+QqHfyOOvYrgv+Q0ZOKYSzZyrMxHNnsq5yrM4vL9wgjZjl1Q+yQF1zHGCwQWkG52WNMld26GoQI+3ZXsTOm5GeCK3lpEEjUEPeq9Z2UuiYTTXGKsapA+MMdDVUyrUQpCFTiHLTegEGN4ErP9x/8FdI8vOlSfjA5aOoLthJo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=TaQcWuFl; arc=pass smtp.client-ip=209.85.215.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="ZkcKu5l5"
-Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-c96d2bebca3so582665a12.3
-        for <selinux@vger.kernel.org>; Wed, 01 Jul 2026 16:21:40 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782948100; cv=none;
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="TaQcWuFl"
+Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-c9eefcf9175so50594a12.3
+        for <selinux@vger.kernel.org>; Wed, 01 Jul 2026 16:53:42 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782950022; cv=none;
         d=google.com; s=arc-20260327;
-        b=T7uKa2cfvy3ufTPpZ2mOt+pUb5lnRIcSmTpYf8UI07msOje8UqQ0IoS7uZz5ILg5hr
-         4B/oS6JGUsX3Yx2A8NtK8JyEa1iEufffzWDNArRgCO5J4fl8HfnsTqozWa+iT/zoxN6Y
-         GTL+oVPX9IjHoHZpTh0EURjunRHuKC/GdOsgjlca92BssSWN1298wk8FzhFZPFIZCY5T
-         QhMO19BbznYGAvi1Vd2fgY/fIQJHO4ycDdZgvMftmmw6Ip997gbiP/G/6Tt98QGJXLU+
-         JtGtUEjHS5dXiml3Ukd6ERKk4YWiopmH2192zcltOW6xuyL9nWRBMiRZPakGrRP1Aupp
-         CUpQ==
+        b=IsKdqb0XpVq8CFBOMURGxQgxMETC0GvibMuk1jvlIlLMm9gAHTFOjttPkWGLXaKEi3
+         SR+kbKGpcFqNNQnPjmzY2ZCaEYji2AjicztWRzE8+pka3vVVADL73puznEIfVTYC5kqt
+         PRYPdvTOJ/uLL0NOeqsVGmThtuIR6QV+KoKUNDc7+TIq4uiInY3LJH76vNnZO5hNDKVN
+         w5Q5vnEWa47JLtSY/Y6MWnQ1srGii4/Kdpj3XgW32zUnkZgaWYJJvDOsBDzOhlOUA/bv
+         ax3BZmHtI/nK6xIb9OyT+/YOAsUTsvQz2t9epM+/E+C1rTrBENzu5f+7oy+8/mQ638ac
+         N3XQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=OZhVbL00Yg5I6i6D230lOzIY4kpLQfWeLuTF6oDa7To=;
-        fh=PwXg3XfEnxvvfqZPqwoJbc7oPfn+mNbnQBTODF0iLXU=;
-        b=gY75ntqq1ODI+1yIXmzubuR6/OEWaN/Xu6WbRdD7GM8TbTAIeiH3Ns87g1rhzylDje
-         u25j1TMOgj7OsEpdELBeiXaLKO3V6eaBxeMUSHbDZMqf4Oo86uQGoh2uwjwOy/T7aCcb
-         TxeUFjcQmKfxlv8Njq8ybQC/5jnga8cbX8ZPv+fOeXSiPh3SDgSWStFHRIbbwFSUYHSx
-         NAULLuAPo320mc+06jiHarwthjfmPPi93UHU9fgECl13hoBKtw/KYv0xoM8Lwjf55osO
-         8mg7kqyCorzz0uo+/dYq6O3eu4v/O2C1GDyKfKIcLmqPoW0RZTATzWMKkQJVU5VGgASo
-         0XCA==;
+        bh=nlxXdRlOGfdr+QlxeqaJwk6DjvYZRhxWYxc0EK8Kt38=;
+        fh=RYH0SEZlIa8f5q8aFkk41tuknOR8J6uY531EW87mlUQ=;
+        b=qdFas6jBhX98cgc7ScP8pUBofPAJDW2j1ucdq0RNe6uw4E6wfdExDkbEViehJ/UWVY
+         HuJsLD7CgUETORxlCEBBLEUlbbsMXOCvEXdl5wAgTSHBe2of8xRR4Wim9PwergJDFjzj
+         cZ0XrsTr50/N7nA14YnJUyNLp8hmrjoFRvsM+kTBlt5F6oQ0nmstJjN1d00MKbsUEISf
+         qc401oMM45HaeRGoKlBm4YrXnPuNGQVd1yjxNCkd1pO8Q5Y8KyWi8jGJWed17y2YPfre
+         1d5cAheXvf/vfFtb2obG2+QQbNViCh28KviDli4Nht6SV2p5cf7k3o27Rfxxd9dYfCqw
+         Hs9Q==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1782948100; x=1783552900; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1782950022; x=1783554822; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=OZhVbL00Yg5I6i6D230lOzIY4kpLQfWeLuTF6oDa7To=;
-        b=ZkcKu5l54N20I+XXhjeX+Snq/ceTIYqHZrOU+F8zxdyybdWsf363sWsYa2/iCEwBUw
-         5TkCQ8X2JlbeMTaKIxp6yJN6T2aqUx3bUXxsl9MlUqrkOFPKUYGtYbSgUwuP6FySolud
-         b+YQnpEFriP83EOArtC4uRZsaj7FY0+ox/1NiBPmwzue3EfDkcbR3yl4WmH09XyG0ome
-         C1bFhOFphJ5zkohvjbWWT61SV0BhTmGkNdV5ztmdUAGIc6ZylDS5L1D80USdAKMFzSgQ
-         iCnwIX2O2SnifZTohViHr356Za0/WQPWreUCRcpOmXNL9Wn3mOlTAB0UUre7Jbw25EpM
-         djXw==
+        bh=nlxXdRlOGfdr+QlxeqaJwk6DjvYZRhxWYxc0EK8Kt38=;
+        b=TaQcWuFlpE0guf89DlnZ10FCBWaoCY9FQvw/0fgt8WDVOFSQXXnzaALCZSzz9vH+Yj
+         EG6XTAey+qSWo/0QeAQh6aetTMOcOFXREQ/dn+64qMB5/2Ldc+Whw24tyiZRwWzRI1Qa
+         +4KNScqkG5wA4Enb87dDBjIPZ+l1e/8E4kOJkaBIvLzbUjOUB1y8ZgQIqaHzngFPisEX
+         RyLJMQNp8sCxokxjDA5jWtLcrW4opi19yxG8iiw1KOb3frqKj+AYKl2G+GZGtBry5yPQ
+         FVFZcYyAFw6ewuF6t9BEC+aNqLgmyVzj7e2v1TilCjkCYL3MhK2vT2+4EyPM8LGtGAhE
+         mzNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782948100; x=1783552900;
+        d=1e100.net; s=20251104; t=1782950022; x=1783554822;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=OZhVbL00Yg5I6i6D230lOzIY4kpLQfWeLuTF6oDa7To=;
-        b=DSz08ng6Wrlz8FBcKf4epAZlnO8G363CyqO360sQnifOxkmLlNhbAga8fLVr/kb2wW
-         8TinOl4uomYszO7TkTX4etsajNklOI+HscvTlyGLVFTZu6LWUHxHdjTuqZ5RppXicVtf
-         YDftb4wYTfgH0FpRDnPIRiMKmk0usIpsUcHSqysbPJNFTTEKT/Op7m4fGty0je9vMygG
-         H7EMpVjUkUnL8HoWA3nWbZUMwd00Qg7Pdc6Q7+GwXdqukr+tWuvNtFrU2vOIDEWIi6tG
-         mSxEthIP3BEnjrldVod3XmftJBqIYITEYrLARVuNZtGXLuEQbSY8elTgyGCVOnU5rtW2
-         6KaQ==
-X-Forwarded-Encrypted: i=1; AFNElJ/Vqv8CQCg/t9NG/AKfJbgjHdaCrH8m5orUnKMKTHzLUjmyuNvD0qdx7+ljUJZWDwtHfIVzAyhw@vger.kernel.org
-X-Gm-Message-State: AOJu0YxdBUMzlEbRD1RuhhfG02TzdtSS+HqRCoFtMdBfD4dfFr7X8x8U
-	Cf9dU/OZQuktnjUNKUzjXYqSYGOpbzVJOPCCMxyIhgIiNwovkSAom/Act8KgnKOac7MqkKTjcO0
-	kf5Vx0lYNFfi/bgxyGACd3EnNFKCbN0hL3QSb7E0T
-X-Gm-Gg: AfdE7cngDGyiCqhSbYpoAm1C6cwiEHe+iuOR2mrVi5J2r1lZo+mfphCC2dtSkB4BT9b
-	/i4jMPAL7yJJV5ypVKEou1v5RdEXMiFephdlOwrr3shTc7h2JCZnE5wOGXO2nAQSCFgZzhDGsgU
-	3YbdbGuUYfABQnz+lHdn9mHiCJg0YHwt8yFN4bs7J4RrvV3hTyabGCZYMQCm+Yi55PfxkCBQe6c
-	1ehFX5JXIdilFKVDD51x2RXVLTUIuI6w7NjpM+yKHe/RL66Cl3Bx8O14q7UlAv2e9OlhUIJ
-X-Received: by 2002:a05:6300:6713:b0:3b2:8675:4866 with SMTP id
- adf61e73a8af0-3bfed471c52mr4022346637.31.1782948099973; Wed, 01 Jul 2026
- 16:21:39 -0700 (PDT)
+        bh=nlxXdRlOGfdr+QlxeqaJwk6DjvYZRhxWYxc0EK8Kt38=;
+        b=FL2qRILN5rrkMkT2rm/MhgmTJr1bb/FjzpXeaNZnU73k6OQNFWzc0AQ3HvO8SpbP0R
+         IBQYa8B2JwlERK1TJdIBF13ay1Ggn3WvLKXSc0Ve8/CspD+efdAoNsY4lBepqEHETBDm
+         CZCIPpzrm0NCtE/RusGrNcrTcuM+OtIQS8G4UI6gBF56+6eiNN/a6RA2cpfbY8SCKdeM
+         zMFV62Zj9deg5MrLt5yehCHSEZM4zPbOfVfONG0mWKlN0Zu7DfX2XAned6OpsxCL4AY+
+         y5/9TUZm1RO/YXAkd+T/8YnwUQWHbhl1xgeuW802rswXXTa2eKpwpN/w0ovAQpmFYCIN
+         mceA==
+X-Forwarded-Encrypted: i=1; AFNElJ8rj10dXlaKz11khAIiytaXc25xMGjDQlP8PRHNPL7pJruT8QPjwGyOXOcmNe2qrYA7F02oMB2+@vger.kernel.org
+X-Gm-Message-State: AOJu0YzPfrOLajnGckXQ8qMmdeGlgh+HpcyMoY0t31kepoka08XAkNJR
+	it3IjyU9e3SmZaX2QPd8VskbGQVtYJzSiMko4uDycuU9DBQsk5LBsWZ+vdAN+9MZTwv1+MdHbm+
+	rxaTLGr34Os70jHB0o5uYxzLxhNsE/TgzIfr0WKbm
+X-Gm-Gg: AfdE7cmuOLMVj9nhbhhUTg4cQXcZQyOeWdHqObgMhNAfU02ObMhVeVD8XpUsr7+ICmC
+	MvefNNG2fScU2CWiS9js7rz02kErBYYio50k/Q9WQKgVxoiI+bjl/kWDdyVgUlzAUEeZW0djvrU
+	yeS4E733fBnGs+o9tg9rP6kdY9nHryjJKOZBV8nu8+KYun9PTMS8gCasGKG9raNTqJUdEqmQB0Q
+	5zZtGwXbwoVYbOzXELV9EMEMY0ZpAorPVDrIcg+l1+FlIE4hxEaSRSOln1hGnMTtX1ACkhd
+X-Received: by 2002:a05:6a21:4cc2:b0:3a8:21e0:1ffa with SMTP id
+ adf61e73a8af0-3bff40f4cd5mr3528994637.27.1782950021854; Wed, 01 Jul 2026
+ 16:53:41 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260630183956.281293-1-dwindsor@gmail.com> <20260630183956.281293-3-dwindsor@gmail.com>
- <CAHC9VhSYNF=_Tfe-D99rHy70EXQVr1ES0arxT09Bidey4zOFdg@mail.gmail.com>
- <DJN0EPROS056.3RY0R6W1XZHNZ@gmail.com> <CAHC9VhT37f5TwgksE_i0Yttpy3i7niBr6QrNVVmpwe_eGX428g@mail.gmail.com>
- <CAEXv5_ig4P=wMoiy4h-TbZt-Wz-YBAs5k6R4szSSxr4C0kjCTw@mail.gmail.com>
-In-Reply-To: <CAEXv5_ig4P=wMoiy4h-TbZt-Wz-YBAs5k6R4szSSxr4C0kjCTw@mail.gmail.com>
+References: <20260629063005.64700-1-laoar.shao@gmail.com> <CAAVpQUD4tpO7h92FCrp_phkjQv-QXXyrYBvhGRDDDG=doht1nQ@mail.gmail.com>
+ <CALOAHbDvvk1pkZb8dqz9+FET3N813b2Hhx3M9hKF95FETuDgSQ@mail.gmail.com>
+In-Reply-To: <CALOAHbDvvk1pkZb8dqz9+FET3N813b2Hhx3M9hKF95FETuDgSQ@mail.gmail.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 1 Jul 2026 19:21:27 -0400
-X-Gm-Features: AVVi8Cckm_QE9ya8Cck0-aYUUFKQ3gs1NVwV2FqpNlxb6AaTiQhAvZrnWz_L4W4
-Message-ID: <CAHC9VhTTjkHG7CQ1ptku3TONh=6bzcwVwqawAYggX3Z32kUy5Q@mail.gmail.com>
-Subject: Re: [PATCH v4 bpf-next 2/3] bpf: add bpf_init_inode_xattr kfunc for
- atomic inode labeling
-To: David Windsor <dwindsor@gmail.com>
-Cc: Alexei Starovoitov <alexei.starovoitov@gmail.com>, Alexei Starovoitov <ast@kernel.org>, 
-	Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko <andrii@kernel.org>, 
-	Martin KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
-	Yonghong Song <yonghong.song@linux.dev>, John Fastabend <john.fastabend@gmail.com>, 
-	KP Singh <kpsingh@kernel.org>, Jiri Olsa <jolsa@kernel.org>, 
-	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Emil Tsalapatis <emil@etsalapatis.com>, 
-	Matt Bobrowski <mattbobrowski@google.com>, James Morris <jmorris@namei.org>, 
-	"Serge E . Hallyn" <serge@hallyn.com>, Casey Schaufler <casey@schaufler-ca.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, 
-	Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, Eric Snowberg <eric.snowberg@oracle.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
-	Shuah Khan <shuah@kernel.org>, bpf@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-integrity@vger.kernel.org, selinux@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
+Date: Wed, 1 Jul 2026 19:53:30 -0400
+X-Gm-Features: AVVi8CcRAE8JAJVGmGuC5AXtSIJqmNLiov-MgZl0t8LanS1fdQr_Ba840wbU3tg
+Message-ID: <CAHC9VhRHG19f+TvDuCo5DJp=XtiOF1otDzc56khkdSWTJedrLw@mail.gmail.com>
+Subject: Re: [PATCH] selinux: suppress warning flood for retired DCCP netlink messages
+To: Yafang Shao <laoar.shao@gmail.com>
+Cc: Kuniyuki Iwashima <kuniyu@google.com>, stephen.smalley.work@gmail.com, omosnace@redhat.com, 
+	casey@schaufler-ca.com, kuba@kernel.org, selinux@vger.kernel.org, 
+	Kuniyuki Iwashima <kuniyu@amazon.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 1, 2026 at 6:58=E2=80=AFPM David Windsor <dwindsor@gmail.com> w=
-rote:
-> On Wed, Jul 1, 2026 at 8:55=E2=80=AFAM Paul Moore <paul@paul-moore.com> w=
-rote:
-> [...]
+On Mon, Jun 29, 2026 at 10:24=E2=80=AFPM Yafang Shao <laoar.shao@gmail.com>=
+ wrote:
+> On Tue, Jun 30, 2026 at 12:16=E2=80=AFAM Kuniyuki Iwashima <kuniyu@google=
+.com> wrote:
+> > On Sun, Jun 28, 2026 at 11:30=E2=80=AFPM Yafang Shao <laoar.shao@gmail.=
+com> wrote:
+> > >
+> > > When deploying linux-6.18.y stable kernel to production servers, we
+> > > observed kernel dmesg being flooded with SELinux warnings when runnin=
+g
+> > > `ss -l`:
 > >
-> >   kfunc bpf_init_inode_xattr(...)
-> >   {
-> >     /* sanity check params */
-> >     if (!xattrs ...)
-> >       return -EINVAL;
-> >
-> >    /* get value/len from bpf dynptr */
-> >
-> >    /* hook will check for LSM specific xattr count/limits, allocate,
-> > copy value*/
-> >    rc =3D security_lsmxattr_add(xattrs, LSM_ID_BPF, value, value_len);
-> >    if (rc)
-> >      return rc;
-> >   }
-> >
-> > David, if you like I can provide you a patch that implements the
-> > security_lsmxattr_add() hook above if you aren't comfortable writing
-> > that, but if you want to give it a shot that's all the better :)
+> > Please update ss instead of reviving dead code in kernel.
 >
-> Makes sense, I can do it while I'm fixing the remaining issue flagged
-> by sashiko.
->
-> I'll route the LSM preparation patch containing struct lsm_xattrs and
-> security_lsmxattr_add() through security and the kfunc and selftest
-> through bpf. Does that work for you?
+> I will submit a patch to update ss shortly. However, I suspect other
+> tools may also invoke this deprecated interface, which could flood the
+> kernel log. It would be preferable to suppress these warnings in the
+> kernel to maintain compatibility with existing tools.
 
-Yep.
+I think there is a middle ground where we still output an error
+message to the console, but we only do it once.  Yes, we are adding a
+couple lines of code to check for DCCP netlink messages and print the
+error, but I think that is preferable to log spam.
+
+Yafang Shao, could you update your patch to check for DCCPDIAG_GETSOCK
+in the -EINVAL error handling code in selinux_netlink_send() and use a
+pr_warn_once() to output an error?
+
+  pr_warn_once("SELinux: DCCP has been removed, pid=3D%d comm=3D%s\n", ...)=
+;
 
 --=20
 paul-moore.com
