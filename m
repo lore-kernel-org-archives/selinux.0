@@ -1,203 +1,216 @@
-Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A18B3EDE54
-	for <selinux@vger.kernel.org>; Wed,  1 Jul 2026 09:52:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782899562; cv=none; b=AjuLEy6GZqNIyWSvFX/AhaqaMYhNLQS5bvH5AEZVb2Z/VzYvYIEdxZM2PbVKUU7OpVM9RmwnLYktbeHvQnIYydTHDE68Ib3tMx0Kzc1Y/bPCpUsEvbrnqo0v91QwoEWNNkuR1355JLHoEx/QVrJQpVCZIrUQqcbXaI83k72m9k8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782899562; c=relaxed/simple;
-	bh=ceEp1yWHS2rI9FV3hh8oAtV9bvoPQs9rQQCGvhLiECc=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=UWnCcEPNbc6hdQM2oAl9YjWOA+h2MvgoFtszmakzul6Rib7e5VCWoUYUt7pWnQk4vyoGBUTg+8Odgo5L2DAOIAFp6PQ/x0AIZE3JBb6KM/Q1vcbrGR28j9frHbEdoaKVSoGDshJP8eUdB7wU3r+mB5na5VV3/Qccrd+L2WCPWQ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=r/MLZ0+e; arc=none smtp.client-ip=209.85.128.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 667474963DB
+	for <selinux@vger.kernel.org>; Wed,  1 Jul 2026 12:55:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.44
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782910534; cv=pass; b=Th4Z8vpGgskgVku6n6dG+hxGvxHHyN6XgjG4QUFFJBqQtnCJrltdrLhmje0YE92umNkifhMa0fvE3P7QXfs1+kk2neFGshtHa6ZvIF4lvuaZ1MXthd4TullZ07VKGRZk6FLCI92ftUxVLphzVzYyCTeDlShb+JQg+z2pJa61FDE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782910534; c=relaxed/simple;
+	bh=wA34yog5D3zzm0E4fzCRQgoVkgu33TRvDEqJe+rugrM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Xc9yjA1+5sqA55wPPgZNgblk6p7wZaukClLL/MuNvXbbYGm3KPeo+NJgDGL2PZVe4+nlcP9ZbKzninLTC5FZLIwFsc1u+GEI799urDPpzf/J40fHgrlstM1VjJnXDV7NpIJ3aLQszsLYLy+cI75XDFVeaJaZm+m6gmzDKaCK8iI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=XJOeGYL2; arc=pass smtp.client-ip=209.85.216.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="r/MLZ0+e"
-Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-493c2c0b9a8so1973465e9.1
-        for <selinux@vger.kernel.org>; Wed, 01 Jul 2026 02:52:41 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="XJOeGYL2"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-37fc01881f2so555100a91.1
+        for <selinux@vger.kernel.org>; Wed, 01 Jul 2026 05:55:32 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782910532; cv=none;
+        d=google.com; s=arc-20260327;
+        b=lQRZvYfw+O1ljLBSdjaA2NtC7hcIs0NbkGjPuhS1jzgWmTc0aCkPIcsKA7BbrbBRrq
+         cOkppe7Cwp6yUW2dcmJJNCIJHp5rPkMleGFVMT03ItkluBy0PDrNWPIumXA1UPMjW2XB
+         yFuXsM0X+rutIakFV9M1/ecx9/gdnIEAmM3oCahpVOrcz4mR0EQM9C/XrQDfM+8tBA87
+         N3hIwPVtNygfjWr2uRUb6L2Q8MojB7cIu0t9bPkfvx87eHr8JD+Md40w1Ylu5B73msBD
+         L6iRCSuuDP+3TqKxceWQO7ZTKfpk/0XU7TiqqsG2YKKKlq4ScVSHF06juaEHO+nU6XBn
+         z3hg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=h90qlgRkzmvvEIOKUZmmGycJu0XT3aZbSOeN9EPvQ6Q=;
+        fh=dBaJh/0CzVYVsYISz+K3RYKdIfHjCjvo5tO9V6P1fnA=;
+        b=YYzDHiac1DTDYxFc0fBBGhv1acnYh7VO8vA9JQsWs+2P1ZzWblVoNegGhyJ6HK3P7C
+         4NgiVncEiwP2uG6Bls8DgI+CBn4tyOnFjP117StyRaUonvjFgfa3zcb+U2m5AEcwxefU
+         L+G619xHIzdip+a4H/qt16EuPzIVRO/4u7kEB3uwOmKFr/Jy8f7obX83oZkyIGPZq9Nv
+         eclZZJgZhFXxShDsKkHu7kbHZHVF4LoP4axVv7r0/16J6ReThi1mMqkXOw2L7fY2Dn7V
+         3LH36GmC1n75KsZ+T1M75wcaQ8nZ4PIlqnffpTm4xQoGcEtdIcRpRIuE+hfHbCdpAsRN
+         GxMg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782899560; x=1783504360; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+        d=paul-moore.com; s=google; t=1782910532; x=1783515332; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Oqbno7ujq0aZ6PN45IXpH4UapLNFI2wSOuPDyXwmuAc=;
-        b=r/MLZ0+ePDGwm/FSe1ujm8J0+6z1fuALddOKz1fQ6BL7L3bt+c9SmIH91jqz/orENZ
-         ziByY8TNS6ZQgJ8SBkyPSBWODj3fTxg5Mg7eG1vcky64KcYitvhAkl6ULCd3oSZVAEYq
-         U1LhL4c+5TllnXq27K6LhVLH69iPG1rfCmxb5MoHUIirEpTI6dS/WD5FzU/ZduRUUV/E
-         qgaF6kUzObkreHpncFp/0yem5GrMhwq5m91NQbzPOmZxFtZv1EmZckWVwCqf9bm3ffSd
-         3xqMc3zoq2pWf+4mQ0UEHdJ1Tkxabipyc9wapq1GIky51FsMlv4SJiSbqGrop82TIqg5
-         N3Hw==
+        bh=h90qlgRkzmvvEIOKUZmmGycJu0XT3aZbSOeN9EPvQ6Q=;
+        b=XJOeGYL2vnZ3JRE/Es/sxl+AEl6mmciMEHV8WocRMoqDSpvCRiZLTHCKfagxX0jsjp
+         rZ1/Pgg440tx5WIodjMLHp7WFDhpKee6Cw3+MyK+IVYRb5y4DJnUwVWwH2Ykvu0mYEMa
+         UuS9z2EawbiuzRBLbcZfqMtjyEMAQ5o9EFYqKgmvlM7vjk1h0rNIvCKNT9iTouvpeSO/
+         Ix89Eab4y1vxTcJV/c3YpT8YkT5/p3wXGdYJ8OsgLpf1ypdvzdGRwpjDjpeFcm3F9OxG
+         ZrGRMLWMXUdNaN6PvZXcRLBPym5egq3X+PWeqsoM+e4sTqOxKToNcgGXWhzthx5NPnD6
+         BdHA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782899560; x=1783504360;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20251104; t=1782910532; x=1783515332;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=Oqbno7ujq0aZ6PN45IXpH4UapLNFI2wSOuPDyXwmuAc=;
-        b=ooZuhbHptcRXd+gMcGOLKncF+HvYWgEjrlIHtH1cPr8F+jH2qA8QQpmTxIg68vWmU/
-         iXIk9Od0LVLfm8qYhiyhLx6zXiybs/GtpjUOGmc8pmV7RYiFD1FH/NqDcnulT/7rgZ3m
-         unXDTpxNVKyNIf1sb+8Y2P+kbRYE3q565e9+CB4+TT6Vmcs7X3GnzsdIosw1nogM0fQG
-         UbR2udR0A/1+XcKiA9ut4oxK7XkBmzXSivmBYvm3kpCaORoXUzMvNnh8HxDnDf0VxIei
-         YQ2Dod+Rp8OCUVxAIHqHm4cTIJ2JR/UCy1DZFa0+hJUGR7LAQEgYvGV5jf+SzOrh2Coa
-         6whA==
-X-Forwarded-Encrypted: i=1; AFNElJ/NuGDAFXYfybWSL+G6n6LsTuFRUr0PVKVT/wuPcUCCY2CuYM9o3ZEgb96phPcJlals6CXsosMT@vger.kernel.org
-X-Gm-Message-State: AOJu0YxnNg1eETD50r4xGkb7h5UrUxTR5ZpKJCtiTRfz3QmhvvU20ALa
-	up+vDt5GzVIPkZc/tujGDUn0uCazTOreIXbMReH8aEcqDJ6MJUJSAiI5
-X-Gm-Gg: AfdE7cnmb951XDUm0Omvufjh7SPKfnQRYlIdWxW8rlBcwfZvkCWOmvNpsg5AQNowjTq
-	bzm0xM22waT7Z4UcQC4IhedIdSJO/xfc/Xoa9Gx5VszlZYAwdCMh93ADPpjnnCI8X6NjmAJeH7u
-	jwlt7Hp4EDhKN/FNpp8tSTYer2BcBMQKdZRakF8ZzGiobx96sVcbS9tzW+IkyD/Fh39zA4EZTth
-	2r7GF9bZxSdxDUC+clV9yYB6cFUMG0V/zvgVbZq20i93vw9IIgUz1lLcdKi2Zn9J42L/XuGTKt/
-	tX8iZqE7gIriWFOsB9McE3cfT6yBqPpQzDrktPsqPqY2SIHMmlgPv36Lu8STRJ9ulJhOu3B2XEy
-	c1ZTHFcyzJ+F+dyZ4249k71PoBaBZYlSVgBJE6kpgcr4mxKuFxsOZrtdKic3OxJqh4fH5LOTLsD
-	qlYcy4psx+/KYQCusjleLV/QtkMrBI7Vh/NqRgAaxQU+Wxkg==
-X-Received: by 2002:a05:600c:8b44:b0:492:5bb6:6d4b with SMTP id 5b1f17b1804b1-493c2ba5968mr15479995e9.34.1782899559390;
-        Wed, 01 Jul 2026 02:52:39 -0700 (PDT)
-Received: from pumpkin (host-92-21-50-228.as13285.net. [92.21.50.228])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493be4d8f5asm93522145e9.8.2026.07.01.02.52.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Jul 2026 02:52:39 -0700 (PDT)
-Date: Wed, 1 Jul 2026 10:52:37 +0100
-From: David Laight <david.laight.linux@gmail.com>
-To: Ian Bridges <icb@fastmail.org>
-Cc: Paul Moore <paul@paul-moore.com>, Stephen Smalley
- <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>,
- selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-hardening@vger.kernel.org
-Subject: Re: [PATCH v2] selinux: replace strlcat() with seq_buf in
- selinux_ima_collect_state()
-Message-ID: <20260701105237.0a797d5c@pumpkin>
-In-Reply-To: <akSrg483zJ0ii7wc@dev>
-References: <aj6hVjECikvYtnED@dev>
-	<20260627224914.68b506b0@pumpkin>
-	<akSrg483zJ0ii7wc@dev>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+        bh=h90qlgRkzmvvEIOKUZmmGycJu0XT3aZbSOeN9EPvQ6Q=;
+        b=l7nQYFwnwGsvhNJOFkzwESbgVI9phaDmIStyJVM0xyl7icM/pQpJuSxm22qvQRQYsM
+         3i8hXc3z07hDiMmYVdMtX+hq6qb+UTB1T+/0n25n9qc11B8yog3L9NTUtRGkmGzZ2e5F
+         BQHzRDSZg5E7eL3Vzq9Cd4scHT1Lj2tDzozb1jjEFMvq0oO5dssjiCzAzQVo3X7F1VzE
+         qrSMS4AE0mha5Rqo786LDH0mjcHbwWd8odvgTFnGzbWS/NmfG4/sHYA8B9KmPSpXELiy
+         vuNRrg3GGgPzXXsl5MHImPnQVk9BNMxxUjLrFi3/EOE1HAi4h6FNrAIjDu2GKmsdavow
+         4EFg==
+X-Forwarded-Encrypted: i=1; AHgh+Ro8XSJcHhB2daDlGan9MmZdVqiWd2IUkpywXOJYMvu0L8uOUJL31XhKMpPOhlWzlYtx2DHh4SCb@vger.kernel.org
+X-Gm-Message-State: AOJu0YylPDdLEypI2cxxGq72rPYsfkf2qSl+gqFtbc3KYlHYZD1dGS3q
+	4cQDTolsqzrE52Lpqt44gF/WEkgJv9dxhC/hOriSNAmtlBJcZfzZ9NTG73tJx1c0Z10TN0vhB6b
+	oef7YvZDM09a7bx2RZ/12fkz9PyB8obR8xhAb4452
+X-Gm-Gg: AfdE7cnvgrwXB6unwA0EFnqB3a/UC44rxtlMDfBrD6SeZRfbsLrHSUuGiSCDv8r3WdI
+	0OeybnRz+PWQId52qLl2D7DQ4exwauVcx+YBdx07+t6F16Sz8H0wt6/Tfo2OLt6SeNCpNB/t0x1
+	6dp2cTMutbt3w91qpE4qY5HLhVpEHZuvEU50aPr1v1i9RGwy4GGtb1Y3Z62wjJtR4EEw+x/i2Ku
+	7OBCzsI9Dhq9eb/diniWS7CJoQWTT3427CSsdvuc8Qy7WCrik9eFTXlsVPBoDaKvW80w4EZ
+X-Received: by 2002:a17:90b:2d90:b0:380:9d0d:7af4 with SMTP id
+ 98e67ed59e1d1-380ba86979fmr662539a91.12.1782910531759; Wed, 01 Jul 2026
+ 05:55:31 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <20260630183956.281293-1-dwindsor@gmail.com> <20260630183956.281293-3-dwindsor@gmail.com>
+ <CAHC9VhSYNF=_Tfe-D99rHy70EXQVr1ES0arxT09Bidey4zOFdg@mail.gmail.com> <DJN0EPROS056.3RY0R6W1XZHNZ@gmail.com>
+In-Reply-To: <DJN0EPROS056.3RY0R6W1XZHNZ@gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 1 Jul 2026 08:55:19 -0400
+X-Gm-Features: AVVi8CflgdtI8eLFled3oYp6VOVsv_lBHqIjUE5-aLf2A4hxkcukFfwR6m0D7v8
+Message-ID: <CAHC9VhT37f5TwgksE_i0Yttpy3i7niBr6QrNVVmpwe_eGX428g@mail.gmail.com>
+Subject: Re: [PATCH v4 bpf-next 2/3] bpf: add bpf_init_inode_xattr kfunc for
+ atomic inode labeling
+To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Cc: David Windsor <dwindsor@gmail.com>, Alexei Starovoitov <ast@kernel.org>, 
+	Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko <andrii@kernel.org>, 
+	Martin KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
+	Yonghong Song <yonghong.song@linux.dev>, John Fastabend <john.fastabend@gmail.com>, 
+	KP Singh <kpsingh@kernel.org>, Jiri Olsa <jolsa@kernel.org>, 
+	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Emil Tsalapatis <emil@etsalapatis.com>, 
+	Matt Bobrowski <mattbobrowski@google.com>, James Morris <jmorris@namei.org>, 
+	"Serge E . Hallyn" <serge@hallyn.com>, Casey Schaufler <casey@schaufler-ca.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, 
+	Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, Eric Snowberg <eric.snowberg@oracle.com>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+	Shuah Khan <shuah@kernel.org>, bpf@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-integrity@vger.kernel.org, selinux@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 1 Jul 2026 00:54:11 -0500
-Ian Bridges <icb@fastmail.org> wrote:
+On Wed, Jul 1, 2026 at 2:09=E2=80=AFAM Alexei Starovoitov
+<alexei.starovoitov@gmail.com> wrote:
+> On Tue Jun 30, 2026 at 12:20 PM PDT, Paul Moore wrote:
+> >> +__bpf_kfunc int bpf_init_inode_xattr(struct lsm_xattrs *xattrs,
+> >> +                                    const char *name__str,
+> >> +                                    const struct bpf_dynptr *value_p)
+> >> +{
+> >> +       struct bpf_dynptr_kern *value_ptr =3D (struct bpf_dynptr_kern =
+*)value_p;
+> >> +       size_t name_len;
+> >> +       void *xattr_value;
+> >> +       struct xattr *xattr;
+> >> +       const void *value;
+> >> +       u32 value_len;
+> >> +
+> >> +       if (!xattrs || !xattrs->xattrs || !name__str)
+> >> +               return -EINVAL;
+> >> +       if (bpf_xattrs_used(xattrs) >=3D BPF_LSM_INODE_INIT_XATTRS)
+> >> +               return -ENOSPC;
+> >> +
+> >> +       name_len =3D strlen(name__str);
+> >> +       if (name_len =3D=3D 0 || name_len > XATTR_NAME_MAX)
+> >> +               return -EINVAL;
+> >> +       if (strncmp(name__str, XATTR_BPF_LSM_SUFFIX,
+> >> +                   sizeof(XATTR_BPF_LSM_SUFFIX) - 1))
+> >> +               return -EPERM;
+> >> +
+> >> +       value_len =3D __bpf_dynptr_size(value_ptr);
+> >> +       if (value_len =3D=3D 0 || value_len > XATTR_SIZE_MAX)
+> >> +               return -EINVAL;
+> >> +
+> >> +       value =3D __bpf_dynptr_data(value_ptr, value_len);
+> >> +       if (!value)
+> >> +               return -EINVAL;
+> >> +
+> >> +       /* Combine xattr value + name into one allocation. */
+> >> +       xattr_value =3D kmalloc(value_len + name_len + 1, GFP_NOFS);
+> >> +       if (!xattr_value)
+> >> +               return -ENOMEM;
+> >> +
+> >> +       memcpy(xattr_value, value, value_len);
+> >> +       memcpy(xattr_value + value_len, name__str, name_len);
+> >> +       ((char *)xattr_value)[value_len + name_len] =3D '\0';
+> >> +
+> >> +       xattr =3D lsm_get_xattr_slot(xattrs);
+> >> +       if (!xattr) {
+> >> +               kfree(xattr_value);
+> >> +               return -ENOSPC;
+> >> +       }
+> >> +
+> >> +       xattr->value =3D xattr_value;
+> >> +       xattr->name =3D (const char *)xattr_value + value_len;
+> >> +       xattr->value_len =3D value_len;
+> >> +
+> >> +       return 0;
+> >> +}
+> >
+> > This is not a generic VFS function, it is a LSM specific function, it
+> > belongs under security/, please move the code as discussed previously.
+>
+> Paul,
+> Not quite. It's all about xattrs.
+> Having "struct lsm_xattrs" in the arguments doesn't make it lsm related.
+> You needs to study existing kfuncs and tracepoints.
+> A bunch of them have "*lsm*" in the arguments.
 
-> On Sat, Jun 27, 2026 at 10:49:14PM +0100, David Laight wrote:
-> > On Fri, 26 Jun 2026 10:57:10 -0500
-> > Ian Bridges <icb@fastmail.org> wrote:
-...
-> > > 
-> > > v1: https://lore.kernel.org/all/ajlN94VO7BYNUTAy@dev/
-> > > 
-> > > I didn't change the precomputation of the string size. An alternative,
-> > > which is used by other seq_buf callers (e.g. kernel/rcu/refscale.c,
-> > > mm/memcontrol.c), is to drop the precomputation and allocate an oversized
-> > > fixed buffer, relying on the seq_buf overflow check as a backstop. I'm
-> > > happy to rework the patch to adopt that alternative.  
-> > 
-> > That would be reasonable, the output is always exactly the same length and
-> > the buffer is freed just after being allocated.
-> > A comment that there are 3 + 15 strings and all are under 32 bytes so 1k
-> > is plenty would suffice.
-> > 
-> > 	David
-> >  
-> 
-> I didn't originally take this route because a fixed buffer bakes in an
-> invariant (the whole string must stay under 1K) with nothing to enforce
-> it at compile time. If more capabilities are added later, or a name grows
-> longer, the string could overflow. That shows up only at runtime, as the
-> seq_buf_has_overflowed() WARN, and the measured selinux-state string is
-> silently truncated.
+Alexei,
 
-You could use '32 * (3 + NUM_CAPAPILITIES)'.
-IIRC the longest is 24 characters (plus 2 for the =[01]) so that will be plenty.
+I'm sorry you don't understand the basics of the LSM concept, but
+please look at evm_inode_init_security(), xattr_dupval(), and
+selinux_inode_init_security() for some background.  There should not
+be any usage of lsm_get_xattr_slot() or BPF_LSM_INODE_INIT_XATTRS
+outside of security/; you argued a similar idea to justify your NACK
+of Hornet, I'm simply applying the same logic here.  We also have the
+very recent security issue caused by the BPF subsystem which failed to
+acknowledge that the admin disabled the BPF LSM and then walked all
+over kernel memory when it shouldn't.  Moving LSM internals outside of
+the LSM creates an environment where flaws like this can go
+undetected.
 
-	David
+As I said previously, if you absolutely insist on the kfunc being in
+the VFS kfunc file, the LSM specific bits need to be abstracted out
+into an LSM function.
 
+  kfunc bpf_init_inode_xattr(...)
+  {
+    /* sanity check params */
+    if (!xattrs ...)
+      return -EINVAL;
 
-> 
-> Thanks for the review.
-> 
-> Ian
-> 
-> > > 
-> > >  security/selinux/ima.c | 40 +++++++++++++---------------------------
-> > >  1 file changed, 13 insertions(+), 27 deletions(-)
-> > > 
-> > > diff --git a/security/selinux/ima.c b/security/selinux/ima.c
-> > > index aa34da9b0aeb..cb0efa2fc1ad 100644
-> > > --- a/security/selinux/ima.c
-> > > +++ b/security/selinux/ima.c
-> > > @@ -9,6 +9,7 @@
-> > >   */
-> > >  #include <linux/vmalloc.h>
-> > >  #include <linux/ima.h>
-> > > +#include <linux/seq_buf.h>
-> > >  #include "security.h"
-> > >  #include "ima.h"
-> > >  
-> > > @@ -20,46 +21,31 @@
-> > >   */
-> > >  static char *selinux_ima_collect_state(void)
-> > >  {
-> > > -	const char *on = "=1;", *off = "=0;";
-> > > +	struct seq_buf s;
-> > >  	char *buf;
-> > > -	int buf_len, len, i, rc;
-> > > +	int buf_len, suffix_len, i;
-> > >  
-> > >  	buf_len = strlen("initialized=0;enforcing=0;checkreqprot=0;") + 1;
-> > > +	suffix_len = strlen("=0;");
-> > >  
-> > > -	len = strlen(on);
-> > >  	for (i = 0; i < __POLICYDB_CAP_MAX; i++)
-> > > -		buf_len += strlen(selinux_policycap_names[i]) + len;
-> > > +		buf_len += strlen(selinux_policycap_names[i]) + suffix_len;
-> > >  
-> > >  	buf = kzalloc(buf_len, GFP_KERNEL);
-> > >  	if (!buf)
-> > >  		return NULL;
-> > >  
-> > > -	rc = strscpy(buf, "initialized", buf_len);
-> > > -	WARN_ON(rc < 0);
-> > > +	seq_buf_init(&s, buf, buf_len);
-> > >  
-> > > -	rc = strlcat(buf, selinux_initialized() ? on : off, buf_len);
-> > > -	WARN_ON(rc >= buf_len);
-> > > +	seq_buf_printf(&s, "initialized=%d;enforcing=%d;checkreqprot=%d;",
-> > > +		       selinux_initialized(), enforcing_enabled(),
-> > > +		       checkreqprot_get());
-> > >  
-> > > -	rc = strlcat(buf, "enforcing", buf_len);
-> > > -	WARN_ON(rc >= buf_len);
-> > > -
-> > > -	rc = strlcat(buf, enforcing_enabled() ? on : off, buf_len);
-> > > -	WARN_ON(rc >= buf_len);
-> > > -
-> > > -	rc = strlcat(buf, "checkreqprot", buf_len);
-> > > -	WARN_ON(rc >= buf_len);
-> > > -
-> > > -	rc = strlcat(buf, checkreqprot_get() ? on : off, buf_len);
-> > > -	WARN_ON(rc >= buf_len);
-> > > -
-> > > -	for (i = 0; i < __POLICYDB_CAP_MAX; i++) {
-> > > -		rc = strlcat(buf, selinux_policycap_names[i], buf_len);
-> > > -		WARN_ON(rc >= buf_len);
-> > > +	for (i = 0; i < __POLICYDB_CAP_MAX; i++)
-> > > +		seq_buf_printf(&s, "%s=%d;", selinux_policycap_names[i],
-> > > +			       selinux_state.policycap[i]);
-> > >  
-> > > -		rc = strlcat(buf, selinux_state.policycap[i] ? on : off,
-> > > -			buf_len);
-> > > -		WARN_ON(rc >= buf_len);
-> > > -	}
-> > > +	WARN_ON(seq_buf_has_overflowed(&s));
-> > >  
-> > >  	return buf;
-> > >  }  
-> >   
+   /* get value/len from bpf dynptr */
 
+   /* hook will check for LSM specific xattr count/limits, allocate,
+copy value*/
+   rc =3D security_lsmxattr_add(xattrs, LSM_ID_BPF, value, value_len);
+   if (rc)
+     return rc;
+  }
+
+David, if you like I can provide you a patch that implements the
+security_lsmxattr_add() hook above if you aren't comfortable writing
+that, but if you want to give it a shot that's all the better :)
+
+--=20
+paul-moore.com
