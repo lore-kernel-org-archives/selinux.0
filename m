@@ -1,130 +1,104 @@
-Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91E5B26CE32
-	for <selinux@vger.kernel.org>; Wed,  1 Jul 2026 23:53:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.180
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782950023; cv=pass; b=MB9QqpPJVNPYnsvsa1CgFevlAfwFk+D0KeQvTb535nTPnH4nl0zVUxv+cpYPpPihmTy7AddQ4Q7c2Ib26Pk5y4t7Qqr5GqfmkBLiTY1myP7I6Ub2YnGTPYzKFzk0mHhU5HjdDCIUuZM1/ghqwG1ZMf2+z/FvwBN7jslwZ0LCLpo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782950023; c=relaxed/simple;
-	bh=S0Rn2cAIYAgijt6U/rRiOu7ts9CQRA/H/8wZTnaudL4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=dQCY+QqHfyOOvYrgv+Q0ZOKYSzZyrMxHNnsq5yrM4vL9wgjZjl1Q+yQF1zHGCwQWkG52WNMld26GoQI+3ZXsTOm5GeCK3lpEEjUEPeq9Z2UuiYTTXGKsapA+MMdDVUyrUQpCFTiHLTegEGN4ErP9x/8FdI8vOlSfjA5aOoLthJo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=TaQcWuFl; arc=pass smtp.client-ip=209.85.215.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DEE2223DEA
+	for <selinux@vger.kernel.org>; Thu,  2 Jul 2026 01:10:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782954640; cv=none; b=sYFWbXxGNecWo/Zk24DkJ28FqFSISArrjt3Bt1N5TF+G6Xq9tX3KAe5NqwKo6h+cz/H/B12c4uxrJO50M/7OJ8wOxWRiH2WxtmNvAL6XwhY5k1aSdh4oFZj8/1lyMELM4UcLaEq//L+2VOi5yimD3PN1I5886Tk6hqRAsI/copA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782954640; c=relaxed/simple;
+	bh=mOGFYf2NVq2+X+4ukULrmQkJlrQ1JeQwuSMJOslFPvs=;
+	h=Message-ID:Date:Content-Type:MIME-Version:From:To:Cc:Subject:
+	 In-Reply-To:References; b=QMvZqVcu+TzpbYuUAxcJAwkzdqi+GoLPpDI16wk/riIj6CoJS9kcl+gZxAC8tKjYCJa/DZiktN7bAIX9VJCgTWDxBWdAAmfKNsCBTwEhZdDqP72akLG/u5vsz6F0YN2W5FzCvnTh9ptsF9OTLlEZu6phm6htuSdZU1GVVK9K3d0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=S5J0FbJF; arc=none smtp.client-ip=209.85.128.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="TaQcWuFl"
-Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-c9eefcf9175so50594a12.3
-        for <selinux@vger.kernel.org>; Wed, 01 Jul 2026 16:53:42 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782950022; cv=none;
-        d=google.com; s=arc-20260327;
-        b=IsKdqb0XpVq8CFBOMURGxQgxMETC0GvibMuk1jvlIlLMm9gAHTFOjttPkWGLXaKEi3
-         SR+kbKGpcFqNNQnPjmzY2ZCaEYji2AjicztWRzE8+pka3vVVADL73puznEIfVTYC5kqt
-         PRYPdvTOJ/uLL0NOeqsVGmThtuIR6QV+KoKUNDc7+TIq4uiInY3LJH76vNnZO5hNDKVN
-         w5Q5vnEWa47JLtSY/Y6MWnQ1srGii4/Kdpj3XgW32zUnkZgaWYJJvDOsBDzOhlOUA/bv
-         ax3BZmHtI/nK6xIb9OyT+/YOAsUTsvQz2t9epM+/E+C1rTrBENzu5f+7oy+8/mQ638ac
-         N3XQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=nlxXdRlOGfdr+QlxeqaJwk6DjvYZRhxWYxc0EK8Kt38=;
-        fh=RYH0SEZlIa8f5q8aFkk41tuknOR8J6uY531EW87mlUQ=;
-        b=qdFas6jBhX98cgc7ScP8pUBofPAJDW2j1ucdq0RNe6uw4E6wfdExDkbEViehJ/UWVY
-         HuJsLD7CgUETORxlCEBBLEUlbbsMXOCvEXdl5wAgTSHBe2of8xRR4Wim9PwergJDFjzj
-         cZ0XrsTr50/N7nA14YnJUyNLp8hmrjoFRvsM+kTBlt5F6oQ0nmstJjN1d00MKbsUEISf
-         qc401oMM45HaeRGoKlBm4YrXnPuNGQVd1yjxNCkd1pO8Q5Y8KyWi8jGJWed17y2YPfre
-         1d5cAheXvf/vfFtb2obG2+QQbNViCh28KviDli4Nht6SV2p5cf7k3o27Rfxxd9dYfCqw
-         Hs9Q==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="S5J0FbJF"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-493b966dd74so5245255e9.3
+        for <selinux@vger.kernel.org>; Wed, 01 Jul 2026 18:10:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1782950022; x=1783554822; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=nlxXdRlOGfdr+QlxeqaJwk6DjvYZRhxWYxc0EK8Kt38=;
-        b=TaQcWuFlpE0guf89DlnZ10FCBWaoCY9FQvw/0fgt8WDVOFSQXXnzaALCZSzz9vH+Yj
-         EG6XTAey+qSWo/0QeAQh6aetTMOcOFXREQ/dn+64qMB5/2Ldc+Whw24tyiZRwWzRI1Qa
-         +4KNScqkG5wA4Enb87dDBjIPZ+l1e/8E4kOJkaBIvLzbUjOUB1y8ZgQIqaHzngFPisEX
-         RyLJMQNp8sCxokxjDA5jWtLcrW4opi19yxG8iiw1KOb3frqKj+AYKl2G+GZGtBry5yPQ
-         FVFZcYyAFw6ewuF6t9BEC+aNqLgmyVzj7e2v1TilCjkCYL3MhK2vT2+4EyPM8LGtGAhE
-         mzNw==
+        d=gmail.com; s=20251104; t=1782954638; x=1783559438; darn=vger.kernel.org;
+        h=references:in-reply-to:subject:cc:to:from:content-transfer-encoding
+         :mime-version:date:message-id:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=mOGFYf2NVq2+X+4ukULrmQkJlrQ1JeQwuSMJOslFPvs=;
+        b=S5J0FbJFdM/AMSygSEGVa4WennqDRQKg0YoC7xGpGOwJKByVbvkI3ClVl8edntzYk6
+         U6HLqhyutcburVNaM2SFYlx9nul+yuiiiNjsldQFiF+J37KGrZ346g/GFqhSa8AuwIKq
+         u8l1JDowIcte0Vj/Gz5KfIU8zaWZNIfmR/SHvohvXAWKBrOti+CGgXqcNv2V6ZZVaLZD
+         DxReCMTMEux3mFmGcyictwIsHKnOsPBx2VnJXJdm3l/WVV0GJ5kjOQZBhso7J2hOCMq4
+         a3kng/9bi0Zmy2LBhtJ2HgZV20H5TLwrpbpeWo4zwp7EU9QRpNgQi5ULEjOrhrp5NBTN
+         kdzw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782950022; x=1783554822;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=nlxXdRlOGfdr+QlxeqaJwk6DjvYZRhxWYxc0EK8Kt38=;
-        b=FL2qRILN5rrkMkT2rm/MhgmTJr1bb/FjzpXeaNZnU73k6OQNFWzc0AQ3HvO8SpbP0R
-         IBQYa8B2JwlERK1TJdIBF13ay1Ggn3WvLKXSc0Ve8/CspD+efdAoNsY4lBepqEHETBDm
-         CZCIPpzrm0NCtE/RusGrNcrTcuM+OtIQS8G4UI6gBF56+6eiNN/a6RA2cpfbY8SCKdeM
-         zMFV62Zj9deg5MrLt5yehCHSEZM4zPbOfVfONG0mWKlN0Zu7DfX2XAned6OpsxCL4AY+
-         y5/9TUZm1RO/YXAkd+T/8YnwUQWHbhl1xgeuW802rswXXTa2eKpwpN/w0ovAQpmFYCIN
-         mceA==
-X-Forwarded-Encrypted: i=1; AFNElJ8rj10dXlaKz11khAIiytaXc25xMGjDQlP8PRHNPL7pJruT8QPjwGyOXOcmNe2qrYA7F02oMB2+@vger.kernel.org
-X-Gm-Message-State: AOJu0YzPfrOLajnGckXQ8qMmdeGlgh+HpcyMoY0t31kepoka08XAkNJR
-	it3IjyU9e3SmZaX2QPd8VskbGQVtYJzSiMko4uDycuU9DBQsk5LBsWZ+vdAN+9MZTwv1+MdHbm+
-	rxaTLGr34Os70jHB0o5uYxzLxhNsE/TgzIfr0WKbm
-X-Gm-Gg: AfdE7cmuOLMVj9nhbhhUTg4cQXcZQyOeWdHqObgMhNAfU02ObMhVeVD8XpUsr7+ICmC
-	MvefNNG2fScU2CWiS9js7rz02kErBYYio50k/Q9WQKgVxoiI+bjl/kWDdyVgUlzAUEeZW0djvrU
-	yeS4E733fBnGs+o9tg9rP6kdY9nHryjJKOZBV8nu8+KYun9PTMS8gCasGKG9raNTqJUdEqmQB0Q
-	5zZtGwXbwoVYbOzXELV9EMEMY0ZpAorPVDrIcg+l1+FlIE4hxEaSRSOln1hGnMTtX1ACkhd
-X-Received: by 2002:a05:6a21:4cc2:b0:3a8:21e0:1ffa with SMTP id
- adf61e73a8af0-3bff40f4cd5mr3528994637.27.1782950021854; Wed, 01 Jul 2026
- 16:53:41 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1782954638; x=1783559438;
+        h=references:in-reply-to:subject:cc:to:from:content-transfer-encoding
+         :mime-version:date:message-id:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=mOGFYf2NVq2+X+4ukULrmQkJlrQ1JeQwuSMJOslFPvs=;
+        b=qoIqOK16Vso0MVBAqO1/NeM+zCfq2bH7/eWPDQmVIDu5xxWe/rtz5SP5SPtI9IJGSD
+         rlv4POy1efoyDm5407MtsiM/SoqgQKrZGZDV0FBYmxpydLGHHIuk0XKQgCZQniP8yKaF
+         HY/ho5QFJUMc4pJ7K5yMfqeEZCZZD/lsT7ceV7X95v6p/9xFEOgfTURhgL1lVU/+aqJD
+         7hAB7LTPsuyX+CG2ojJTGuO6PoeGfmjKyHbuRDagTw63Vp1fpRWpuErsNDN04eQjCwLV
+         kTBB1vaU+B+8n5pjYuM46G6BA4CX2x1E4DoPcakerbvUn9KBOHq1VeTT5iR+aCTN+voV
+         J+DA==
+X-Forwarded-Encrypted: i=1; AFNElJ9bWHy5F6AmiRhGoREIdyso6PpAZnTq813glT10XJ4/i6xo7A50FN0px/zSAr+7JsUPeThIqp5Z@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx+uS2A6z8lnNidgrfJaPWbqFu39Rz8t2FqlbPfUyW0Pe+jJgOF
+	axuc+UV+e+ufqzgje5KRuJk1aRZ/XZ41jv+FB3yOdmsuOco0Nwc4Dt0=
+X-Gm-Gg: AfdE7cnJ64ANIwrjuBKKQy8x5JNhi/4I/l1f5RHuGvOiR+QH2Jytw9D0qYV8WzYTR4u
+	0ZDqAjy5Kqk5FkZz2kkXs15ySKgqAQZ6ynIjJxjI+kGjfxfOSzW2HjhJwOPYLfD+Aiqh2oV2h5j
+	fdQhjWH50GLQlB4CA24+OPpGAEI6PzsXt2lj382h9nfEJa1fhB24DzMBCnWOE+aYW1lSoEmCsC6
+	D6nQx1D/kfEW+xX/fuKbr3WuZs5gcwoCPkmSLD8BHqOuJJVr3l5cfM5zQwY6mzdGAug6JKbEfyU
+	H1B1SCM57baegizAC0s6Af2J1G015OWruhh0m/kQzdbyz62Nl9HCXQnJye0o+7ihf70ztsiHRho
+	EGbwybraaJjMKoISdveuZ1nol2NVOUhnvTM390Wh8+AIbtYEt/aTjvVc/hVxUkQ==
+X-Received: by 2002:a05:600c:34d4:b0:493:b8cf:cc8a with SMTP id 5b1f17b1804b1-493c2b3ccd2mr50214495e9.4.1782954637980;
+        Wed, 01 Jul 2026 18:10:37 -0700 (PDT)
+Received: from [127.0.1.1] ([2001:41d0:303:db6b::])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493bef248b7sm62043285e9.2.2026.07.01.18.10.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Jul 2026 18:10:35 -0700 (PDT)
+Message-ID: <6a45ba8b.940a5a52.377c47.efec@mx.google.com>
+Date: Wed, 01 Jul 2026 18:10:35 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260629063005.64700-1-laoar.shao@gmail.com> <CAAVpQUD4tpO7h92FCrp_phkjQv-QXXyrYBvhGRDDDG=doht1nQ@mail.gmail.com>
- <CALOAHbDvvk1pkZb8dqz9+FET3N813b2Hhx3M9hKF95FETuDgSQ@mail.gmail.com>
-In-Reply-To: <CALOAHbDvvk1pkZb8dqz9+FET3N813b2Hhx3M9hKF95FETuDgSQ@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 1 Jul 2026 19:53:30 -0400
-X-Gm-Features: AVVi8CcRAE8JAJVGmGuC5AXtSIJqmNLiov-MgZl0t8LanS1fdQr_Ba840wbU3tg
-Message-ID: <CAHC9VhRHG19f+TvDuCo5DJp=XtiOF1otDzc56khkdSWTJedrLw@mail.gmail.com>
-Subject: Re: [PATCH] selinux: suppress warning flood for retired DCCP netlink messages
-To: Yafang Shao <laoar.shao@gmail.com>
-Cc: Kuniyuki Iwashima <kuniyu@google.com>, stephen.smalley.work@gmail.com, omosnace@redhat.com, 
-	casey@schaufler-ca.com, kuba@kernel.org, selinux@vger.kernel.org, 
-	Kuniyuki Iwashima <kuniyu@amazon.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: base64
+From: Tristan Madani <tristmd@gmail.com>
+To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Ondrej Mosnacek <omosnace@redhat.com>, Richard Haines <richard_c_haines@btinternet.com>, selinux@vger.kernel.org, stable@vger.kernel.org, linux-kernel@vger.kernel.org, tristan@talencesecurity.com
+Subject: Re: [PATCH v3] selinux: avoid sk_socket dereference in selinux_sctp_bind_connect()
+In-Reply-To: <0fa8e2f769f889368756a1ed1f12ea8e@paul-moore.com>
+References: <20260625235336.3641828-1-tristmd@gmail.com> <0fa8e2f769f889368756a1ed1f12ea8e@paul-moore.com>
 
-On Mon, Jun 29, 2026 at 10:24=E2=80=AFPM Yafang Shao <laoar.shao@gmail.com>=
- wrote:
-> On Tue, Jun 30, 2026 at 12:16=E2=80=AFAM Kuniyuki Iwashima <kuniyu@google=
-.com> wrote:
-> > On Sun, Jun 28, 2026 at 11:30=E2=80=AFPM Yafang Shao <laoar.shao@gmail.=
-com> wrote:
-> > >
-> > > When deploying linux-6.18.y stable kernel to production servers, we
-> > > observed kernel dmesg being flooded with SELinux warnings when runnin=
-g
-> > > `ss -l`:
-> >
-> > Please update ss instead of reviving dead code in kernel.
->
-> I will submit a patch to update ss shortly. However, I suspect other
-> tools may also invoke this deprecated interface, which could flood the
-> kernel log. It would be preferable to suppress these warnings in the
-> kernel to maintain compatibility with existing tools.
-
-I think there is a middle ground where we still output an error
-message to the console, but we only do it once.  Yes, we are adding a
-couple lines of code to check for DCCP netlink messages and print the
-error, but I think that is preferable to log spam.
-
-Yafang Shao, could you update your patch to check for DCCPDIAG_GETSOCK
-in the -EINVAL error handling code in selinux_netlink_send() and use a
-pr_warn_once() to output an error?
-
-  pr_warn_once("SELinux: DCCP has been removed, pid=3D%d comm=3D%s\n", ...)=
-;
-
---=20
-paul-moore.com
+T24gV2VkLCAwMSBKdWwgMjAyNiwgUGF1bCBNb29yZSB3cm90ZToKPiBIb3dldmVyLCB0aGVyZSBp
+cyBhbm90aGVyIGlzc3VlIHJlbGF0aW5nIHRvIHRoZSBTQ1RQIHNvZnRpcnEgY29kZSBwYXRoczoK
+PiB0aGUgZmFjdCB0aGF0IHdlIGNhbGwgaW50byBzb2NrX2hhc19wZXJtKCkgaW4gYm90aAo+IF9f
+c2VsaW51eF9zb2NrZXRfYmluZCgpIGFuZCBzZWxpbnV4X3NvY2tldF9jb25uZWN0X2hlbHBlcigp
+LiAgVGhlCj4gc29ja19oYXNfcGVybSgpIGZ1bmN0aW9uIHVzZXMgY3VycmVudF9zaWQoKSBhcyB0
+aGUgc3ViamVjdCBpbiB0aGUKPiBhdmNfaGFzX3Blcm0oKSBjYWxsLCBhbmQgaW4gdGhlIHNvZnRp
+cnEgY2FzZSB0aGF0IGlzIG5vdCB3aGF0IHdlIHdhbnQuCgpIYWQgYSBsb29rIGF0IHRoaXMuIFRo
+ZSBBU0NPTkYgc29mdGlycSBwYXRoIGlzOgoKICBzY3RwX3JjdigpICBbTkVUX1JYIHNvZnRpcnFd
+CiAgICAtPiBzY3RwX3Byb2Nlc3NfYXNjb25mKCkKICAgICAgLT4gc2N0cF9wcm9jZXNzX2FzY29u
+Zl9wYXJhbSgpCiAgICAgICAgLT4gc2VjdXJpdHlfc2N0cF9iaW5kX2Nvbm5lY3Qoc2ssIFNDVFBf
+UEFSQU1fQUREX0lQL1NFVF9QUklNQVJZKQogICAgICAgICAgLT4gc2VsaW51eF9zY3RwX2JpbmRf
+Y29ubmVjdCgpCiAgICAgICAgICAgIC0+IHNvY2tfaGFzX3Blcm0oKQogICAgICAgICAgICAgIC0+
+IGF2Y19oYXNfcGVybShjdXJyZW50X3NpZCgpLCBza3NlYy0+c2lkLCAuLi4pCgpJbiBzb2Z0aXJx
+LCBjdXJyZW50IGlzIHdoYXRldmVyIHByb2Nlc3Mgd2FzIGludGVycnVwdGVkLCBzbyB0aGUgc3Vi
+amVjdApTSUQgaXMgZWZmZWN0aXZlbHkgcmFuZG9tLiBNZWFud2hpbGUgdGhlIHBvcnQvbm9kZSBi
+aW5kIGNoZWNrcyBmdXJ0aGVyCmRvd24gaW4gX19zZWxpbnV4X3NvY2tldF9iaW5kKCkgYW5kIHRo
+ZSBwb3J0IGNvbm5lY3QgY2hlY2sgaW4Kc2VsaW51eF9zb2NrZXRfY29ubmVjdF9oZWxwZXIoKSBh
+bHJlYWR5IHVzZSBza3NlYy0+c2lkIGFzIHRoZSBzdWJqZWN0LAp3aGljaCBpcyB0aGUgZXN0YWJs
+aXNoZWQgcGF0dGVybiBmb3Igc29mdGlycSBjb250ZXh0CihzZWxpbnV4X3NvY2tldF9zb2NrX3Jj
+dl9za2IsIHNlbGludXhfc2N0cF9hc3NvY19yZXF1ZXN0LCBldGMuKS4KClRoZSBhcHByb2FjaCBJ
+IHdvdWxkIHN1Z2dlc3Q6IHRocmVhZCBhbiBleHBsaWNpdCBzdWJqZWN0IFNJRCBpbnRvIHRoZSBp
+bm5lcgpoZWxwZXJzLiBzZWxpbnV4X3NjdHBfYmluZF9jb25uZWN0KCkgd291bGQgcGFzcyBza3Nl
+Yy0+c2lkLCBhbmQgdGhlCnByb2Nlc3MtY29udGV4dCB3cmFwcGVycyAoc2VsaW51eF9zb2NrZXRf
+YmluZCwgc2VsaW51eF9zb2NrZXRfY29ubmVjdCkKd291bGQgcGFzcyBjdXJyZW50X3NpZCgpLiBU
+aGF0IGtlZXBzIHNvY2tfaGFzX3Blcm0oKSBzZW1hbnRpY3MKdW5jaGFuZ2VkIGZvciB0aGUgbm9y
+bWFsIHBhdGggYW5kIG1ha2VzIHRoZSBTSUQgY2hvaWNlIHZpc2libGUgYXQgZWFjaApjYWxsIHNp
+dGUuCgpJIGNhbiBzZW5kIGEgcGF0Y2ggZm9yIHRoaXMgaWYgdGhpcyBhcHByb2FjaCB3b3JrcyBm
+b3IgeW91LgoKLS0KVHJpc3Rhbgo=
