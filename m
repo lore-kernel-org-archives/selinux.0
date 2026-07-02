@@ -1,138 +1,154 @@
-Received: from mail-yw1-f181.google.com (mail-yw1-f181.google.com [209.85.128.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7E9B7262E
-	for <selinux@vger.kernel.org>; Thu,  2 Jul 2026 02:19:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.181
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782958763; cv=pass; b=KsmtMiYelBuBCSMVWNlcr3FYgOss0o0LEY9aB02cfo01AsYyMoUo6rT+q9X8fDV+EdXVG8GbeBV9rzF8u66tcJvEyx1q33A/Pj5cOM1XalWCUTL5nyFz86WL3m9DWtKieFkG81dDfLrcSFvYjLMrHXpe5ec5a4EqY8NGuzChIPU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782958763; c=relaxed/simple;
-	bh=bVCkiYVyOx/KQJoiljgI5r7COsErSJEga/BuptH4ZHo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=b3YDtJ+AtDSL7zhp/LpA76oJEnQrKHbaQzMAPqXeAJYI6Qe4NV47jdTJK5yWUeNCyWhD/d6iAjrSvMY7FOga42BB1yNG2IblKHrgf4sugph9lxTDL7OSOi1KWwbKhgmG/cJW22xvKQwS96TeQuHD8tg4fJc1ot7ib722wD7/4tw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EG1TNvlN; arc=pass smtp.client-ip=209.85.128.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF09B38E8B7;
+	Thu,  2 Jul 2026 10:17:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782987441; cv=none; b=TfrOdYj4ApCOWtYewOnXYKhEU7X1XFzT1t+qeNVOs7r2fsJYdsAxskqAzm9qFR/dT8NyTrrD4y/e4epRIUugMcB0yTlQUClsz9tJuBKCzTiZ/pWOtS54C1q0KL/3H9AnCUF5h+3Xg2wU3Eu78bcJDW+5vIlQSvsivBkKmNSl9ww=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782987441; c=relaxed/simple;
+	bh=WTBYsz4ZaS1DVALdvxaIeZPepf/1W8DTfblmBUdX01s=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=F+iBY9ge+NZ/WUOXTGpzKkjgGcvQxbQSv3mU6iX3Qc/eWNQ0FqGYUJq8VBlsW/NmqoG1lbuRsV7sQsxUlTUqXA8gnOrHSl3Ro4Be4JPfdLIqDDjDQkZp1C6OYBEUlwnsztuUP2lz7A8Gy4o/oUa0JjhlKiFE28IeSLDAXqDH4pQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=MbP96GwI; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EG1TNvlN"
-Received: by mail-yw1-f181.google.com with SMTP id 00721157ae682-80814edb536so15468157b3.2
-        for <selinux@vger.kernel.org>; Wed, 01 Jul 2026 19:19:21 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782958761; cv=none;
-        d=google.com; s=arc-20260327;
-        b=SHuO+dDaTO0bFmfNusktd0Z7EhifDW1XjGLuTtYPs4hqYrg0nsYjFfW9g+d/67A4fZ
-         kKggkr6hYTkkXPnZhcBxUvduUWp6EuYQcBxVrj1Dkci0V9WMBzMMJljvVm8FLqX6ZubV
-         I3fUGLXVwsUfxWK9i28+hbMf+jP1QSf4Nh308Rv3umaYZr951AP0WiBjlcgSFNPN9mMA
-         OVfUGlmo1sBTcPXhD5wvy3ifXBGRwSYOCe1reQupEwnssa0iLK4jhydL7nBe05xq1qf6
-         hFntPJ7qVDWzItVm9muYrtyzrWI6mjpW9WTUEIDL5IgW99aEYpFtzUx+2G7Knz3Y8OOE
-         2JSg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=GRFsV9Bxnn2vge26L9Bw1HjGqWcaHOxma4aTsHDng2w=;
-        fh=d6LE4EC+zrA5p/nM+xriGS/d7MqfHG6vlGAHL08JNSY=;
-        b=ZAS2VV6H6QFyPQF3oo/Jithw3cWR7dP7luV5fVnC89t3RFrh0zF3GUxjiogzM1Stgd
-         OuP6vzrL3sDoZO019c9EyfVEE/hCTIN+HRlSG5A2uYbUcGtp/7c4XPRZlk5st11LGMuC
-         uf9sdfQ53buN0LVvByUlPhLm6CkHc3LZriwdEMGvtVUS/7L/qvE3IiHkE5Hq5oPvx6u+
-         swOv32oPLsn57luFqA6Ij5Mg8ghEG5xv5id6/KtXWe5YMK/i2Pkl6ij/US9I5FpfsBjr
-         BRGNCiBJCdyABxYSll2bOzETBZS47uWkMrBoAkWRL3DwKUqezBmwGBh3fAj8xrQcs88b
-         Q4cQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782958761; x=1783563561; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=GRFsV9Bxnn2vge26L9Bw1HjGqWcaHOxma4aTsHDng2w=;
-        b=EG1TNvlNW0i2xGx0fIufhFTAjEsHITIHovCFZYvMqu/JW8BVO0SVukq1IUcqZyol8O
-         0trxfdUCZFTgO0lhjKxl7M3TDi5l3oGhBpUMtC1js0uuRX4QAeYHBt7AWND/WqxgYab3
-         aLPO6og11Ndj1vt/AYtQrvKPx6Rj6y1ptjnzCIBduLkxRz4An/NFPwhTAR1swEh6insQ
-         sh+asbGdw8Y1wsMrELBHAzRGb08m9nsDf/Pjq1G8jZ33Z3fGGIzquShq2TxX1kQLklQm
-         ug/N3/q+S8AJssV70eS/OzP/NyM5VWxWCMeVRB8t5nMdol0edyqPnUZdNVteBXhGPRA9
-         5fRg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782958761; x=1783563561;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=GRFsV9Bxnn2vge26L9Bw1HjGqWcaHOxma4aTsHDng2w=;
-        b=kG6k+RIHTd8gb/jU/3K33ufi5hDFjNTUecmDH6YgKewzTpOzHtmNW/zy2UJMLfGC2G
-         nMomgtOEqVA8gBAGe93SVYsaz6eGIGOERyVKmHakg0sUn5bxUsBdC8Npj/g5x3OgJgVo
-         I2sFRTmuVj2Yx9gutAWnIg0JsvgUx39jx4LUW60NScTYoplmqSEHVTSmlk3OIZNlZbQa
-         WyybbMuib+ZlzR3EpwbAMOd9vYWGGMdgHLgVBD/9Xjsdzsfvf2aAibTzny+Ym01GxJoL
-         H38AW8rJ+iJbVdgOCPAgUmT0jR6uyXcH7mWX/LIbZW422T02sBzHNMm0ofw1Hn8iN2dU
-         tXyA==
-X-Forwarded-Encrypted: i=1; AHgh+RrsCfIq9fGRki6Yts23x1TUk5xGGIsofH0NcJ4u8LPBGs+68awQXG3UZoyFQYmrg+rM1piuu/CD@vger.kernel.org
-X-Gm-Message-State: AOJu0YzilC2M/YeDxfxRKUVOd2Ku+mKjiSk0Ex3HXtlqpVcoMMev6JR4
-	xK3Uh0XkNsVnPpatiNYdp8tRFZWQHGZ2Io6zfyNKxNwcAeWfJKuvip2Rmok50LYUnKoy+xnPl5w
-	Fm98YjbpbMsYngP7R2WcaCBb+2mUPwtln+IBz
-X-Gm-Gg: AfdE7cmaBAP/kr/FPhjjUxHLThY53RIF5Qoe2NDgXldTDVwGjA6D4K1wsSBpJw3UYtl
-	kksK0varFRoUmcJeahl5iHPuaZaFJa3kmzPutx51LJWSo8Q7F19pKCOfxX61pHodJE2jnwHBrNI
-	aF4jEd24y65Tp9RmqhWZg3eB4yJl9XeHIGgirgD8ZDSRyAwUiQm/a+3mPu6oO+B7jm1g8kPDVPC
-	1WwR1xrRZiaOj6vl/KgayMli4W03kmvMjfCG764l39L2se1+of9LedMQY5GWW+ynkdxZ7Q/jO08
-	aiM725B8l+vd6xGzsCWrwTjRKYtjNQ==
-X-Received: by 2002:a05:690c:e1cb:10b0:814:4ac5:cc51 with SMTP id
- 00721157ae682-8144ac5e2bemr23247247b3.0.1782958760887; Wed, 01 Jul 2026
- 19:19:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="MbP96GwI"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=vdTUCBlDoAAZa4gMQtBsKpBldRVI4DFTRKl4Ea/6yQ0=; b=MbP96GwIBDogEMIqEKuX5+waA9
+	dGaBbG/ArrknfO4zQB8+4aqRM1rcom+XlGLcmwA1zSq0V3ktGQbWR6FK1vjuLocMvu1l2KuLUgnxk
+	SAuuLw3Xwq77iCXEhvL3O1H1Jv/KVLzyUO4zsqHOcHJDldHx35l9+IpFGx3IHimDcqho/UPdziI3v
+	lCFJco6lUO3jia1Vjmh4Ics5mnEGCwLHKflcj+aiUjJQ6n57pqv83VB/K1VTFFBGYSs2xReF8cOHB
+	1n33S0J7wi7g8fzUrkvT37eopTzyy1e6QAMhv0e6aSN4FJlNPB6lz6RhhbD9TAl6DZT2iJKaQus2o
+	Icszsldw==;
+Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
+	by desiato.infradead.org with esmtpsa (Exim 4.99.2 #2 (Red Hat Linux))
+	id 1wfETi-00000003fJc-15Bk;
+	Thu, 02 Jul 2026 10:17:06 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id 563B7300402; Thu, 02 Jul 2026 12:17:04 +0200 (CEST)
+Date: Thu, 2 Jul 2026 12:17:04 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: Ravi Bangoria <ravi.bangoria@amd.com>
+Cc: Ondrej Mosnacek <omosnace@redhat.com>, Ingo Molnar <mingo@redhat.com>,
+	Arnaldo Carvalho de Melo <acme@kernel.org>,
+	Namhyung Kim <namhyung@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+	Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+	Adrian Hunter <adrian.hunter@intel.com>,
+	James Clark <james.clark@linaro.org>,
+	linux-perf-users@vger.kernel.org, selinux@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] perf test amd ibs: avoid using executable heap
+Message-ID: <20260702101704.GG751831@noisy.programming.kicks-ass.net>
+References: <20260701062321.517351-1-omosnace@redhat.com>
+ <20260701064301.GH48970@noisy.programming.kicks-ass.net>
+ <43dd9d9f-2348-43c0-8af5-77ef260c64a3@amd.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260629063005.64700-1-laoar.shao@gmail.com> <CAAVpQUD4tpO7h92FCrp_phkjQv-QXXyrYBvhGRDDDG=doht1nQ@mail.gmail.com>
- <CALOAHbDvvk1pkZb8dqz9+FET3N813b2Hhx3M9hKF95FETuDgSQ@mail.gmail.com> <CAHC9VhRHG19f+TvDuCo5DJp=XtiOF1otDzc56khkdSWTJedrLw@mail.gmail.com>
-In-Reply-To: <CAHC9VhRHG19f+TvDuCo5DJp=XtiOF1otDzc56khkdSWTJedrLw@mail.gmail.com>
-From: Yafang Shao <laoar.shao@gmail.com>
-Date: Thu, 2 Jul 2026 10:18:43 +0800
-X-Gm-Features: AVVi8CeCfAIeRP-JnrTURktEN9s6vCaMkDJL5fqpU91F1UreqKxOiKbtY2gwpVE
-Message-ID: <CALOAHbCqU=caK9Aund+JOZiO3HEHd7t8xmsU27iHVWQV2Uh1YA@mail.gmail.com>
-Subject: Re: [PATCH] selinux: suppress warning flood for retired DCCP netlink messages
-To: Paul Moore <paul@paul-moore.com>
-Cc: Kuniyuki Iwashima <kuniyu@google.com>, stephen.smalley.work@gmail.com, omosnace@redhat.com, 
-	casey@schaufler-ca.com, kuba@kernel.org, selinux@vger.kernel.org, 
-	Kuniyuki Iwashima <kuniyu@amazon.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43dd9d9f-2348-43c0-8af5-77ef260c64a3@amd.com>
 
-On Thu, Jul 2, 2026 at 7:53=E2=80=AFAM Paul Moore <paul@paul-moore.com> wro=
-te:
->
-> On Mon, Jun 29, 2026 at 10:24=E2=80=AFPM Yafang Shao <laoar.shao@gmail.co=
-m> wrote:
-> > On Tue, Jun 30, 2026 at 12:16=E2=80=AFAM Kuniyuki Iwashima <kuniyu@goog=
-le.com> wrote:
-> > > On Sun, Jun 28, 2026 at 11:30=E2=80=AFPM Yafang Shao <laoar.shao@gmai=
-l.com> wrote:
-> > > >
-> > > > When deploying linux-6.18.y stable kernel to production servers, we
-> > > > observed kernel dmesg being flooded with SELinux warnings when runn=
-ing
-> > > > `ss -l`:
-> > >
-> > > Please update ss instead of reviving dead code in kernel.
-> >
-> > I will submit a patch to update ss shortly. However, I suspect other
-> > tools may also invoke this deprecated interface, which could flood the
-> > kernel log. It would be preferable to suppress these warnings in the
-> > kernel to maintain compatibility with existing tools.
->
-> I think there is a middle ground where we still output an error
-> message to the console, but we only do it once.  Yes, we are adding a
-> couple lines of code to check for DCCP netlink messages and print the
-> error, but I think that is preferable to log spam.
->
-> Yafang Shao, could you update your patch to check for DCCPDIAG_GETSOCK
-> in the -EINVAL error handling code in selinux_netlink_send() and use a
-> pr_warn_once() to output an error?
->
->   pr_warn_once("SELinux: DCCP has been removed, pid=3D%d comm=3D%s\n", ..=
-.);
+On Wed, Jul 01, 2026 at 10:29:04PM +0530, Ravi Bangoria wrote:
+> Hi Peter, Ondrej,
+> 
+> >> permission under SELinux (things like JIT or regex compilation need it
+> >> as well). mmap() with MAP_ANONYMOUS will give us a zeroed mapping that
+> >> begins on a page boundary, so the result is equivalent to the original
+> >> code even without a memset() or the page-alignment dance.
+> > 
+> > I would argue that having RWX is a problem, you really want RW->RO->RX
+> > transitions, so even with mmap() you want to combine with mprotect().
+> 
+> My original intent for using RWX was to generate sufficient Icache miss
+> samples for the IBS Fetch unit by overwriting the code prior to execution.
+> I am wondering whether it would be possible to achieve the same result
+> by using CLFLUSH with RX permissions. Something like below (build tested
+> only).
 
-Thanks for your suggestion.
-I will update it.
+So for a test it is fine to have RWX, my comments were mostly aimed at
+the IMO insane SELinux policies.
 
---=20
-Regards
-Yafang
+CLFLUSH+MB, and on AMD MB is serializing. Thus CLFLUSH will flush the
+I-cache and MB will flush decode / ucode buffers IIRC. So yeah,
+CLFLUSH+MB should work fine; if you want to go that route.
+
+> --- a/tools/perf/arch/x86/tests/amd-ibs-period.c
+> +++ b/tools/perf/arch/x86/tests/amd-ibs-period.c
+> @@ -25,6 +25,7 @@ static int page_size;
+>  #define PERF_MMAP_TOTAL_PAGES   (PERF_MMAP_DATA_PAGES + 1)
+>  #define PERF_MMAP_TOTAL_SIZE    (PERF_MMAP_TOTAL_PAGES * page_size)
+>  
+> +#define mb()			asm volatile("mfence":::"memory")
+>  #define rmb()                   asm volatile("lfence":::"memory")
+>  
+>  enum {
+> @@ -41,10 +42,16 @@ struct perf_pmu *fetch_pmu;
+>  struct perf_pmu *op_pmu;
+>  unsigned int perf_event_max_sample_rate;
+>  
+> +static inline void clflush(const volatile void *p)
+> +{
+> +	asm volatile("clflush (%0)" :: "r"(p) : "memory");
+> +}
+> +
+>  /* Dummy workload to generate IBS samples. */
+>  static int dummy_workload_1(unsigned long count)
+>  {
+> -	int (*func)(void);
+> +	int (*func1)(void);
+> +	int (*func2)(void);
+>  	int ret = 0;
+>  	char *p;
+>  	char insn1[] = {
+> @@ -59,33 +66,42 @@ static int dummy_workload_1(unsigned long count)
+>  		0xcc, /* int 3 */
+>  	};
+>  
+> -	p = calloc(2, page_size);
+> -	if (!p) {
+> -		printf("malloc() failed. %m");
+> +
+> +	p = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+> +		 MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+
+RW
+
+> +	if (p == MAP_FAILED) {
+> +		printf("mmap() failed. %m");
+>  		return 1;
+>  	}
+>  
+> -	func = (void *)((unsigned long)(p + page_size - 1) & ~(page_size - 1));
+> +	memcpy(p, insn1, sizeof(insn1));
+> +	memcpy(p + 128, insn2, sizeof(insn2));
+>  
+> -	ret = mprotect(func, page_size, PROT_READ | PROT_WRITE | PROT_EXEC);
+> +	ret = mprotect(p, page_size, PROT_READ | PROT_EXEC);
+
+RX
+
+You really need an RO step in between IIRC, otherwise, depending on arch
+details and mprotect implementation details, it is possible to have WX
+overlap.
+
+Notably, you want to have a TLB flush between removing W and adding X.
+
+But again, this isn't relevant for simple test cases, but does matter
+for JITs, esp. when they're embedded into applications with lots of user
+input.
+
+The thing you want to avoid at all cost is things like buffer overflows
+(write primitives) to escalate into random code execution, which if
+there are RWX buffers around, is almost trivial.
