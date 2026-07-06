@@ -1,63 +1,63 @@
-Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
+Received: from mail-yx1-f49.google.com (mail-yx1-f49.google.com [74.125.224.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6C0D2BEC52
-	for <selinux@vger.kernel.org>; Mon,  6 Jul 2026 14:32:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00683420872
+	for <selinux@vger.kernel.org>; Mon,  6 Jul 2026 14:32:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783348341; cv=none; b=amFCoJXP1Hs+zFXt584W9+y/iveNCU8Gs0qN28/tHW82B7uPIl+QDlRDgtCafEja3+HhB+kLm0KQ8fMhBmfdBT0AYd7Ksd7GRKixav5BWzf9kAQm12MuhCLKhZOD50WLrMHcLLrbv9B221QxpsAOsrrH2elJHZkPFdvliwH/5wk=
+	t=1783348342; cv=none; b=gIHYyXa5FCKICMSXmM+1+DA3L/yvTm3POcRqXqrNPEgAIEB9AiAkFMjmfA2EfRFx1UK5BTQaidJd/tkh9PnXBxEXmmRjbyxZpEvU8boUD0mBxPTh7EOJ+2hXM58i4WBDkzZhTuT6hW5+k+kg9W1r0RuG6J/IXvcWU2FC6dGWiVk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783348341; c=relaxed/simple;
-	bh=fnNIOIytEQTUuIX0OpJFQ1NKW75Cy5H6MvsNK/98yco=;
+	s=arc-20240116; t=1783348342; c=relaxed/simple;
+	bh=HcyZSSL5i4dVSKwE2f6m0x4wtUv0Y+H/MXU2LvTmRCQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=nzNvi4i7MQfE8EdAxcSMujNb2fRnc4X940B/Nzi2TGFPpUB/ngT/g/hstiwAfzTem8MQwUWOGOpw0j7JjQbiRTl9gADUOqBR0rt5BXOS1UKl/zMXt9NyznUfPZgjkzbHYJFHDkcQnlx91GEVCiudvlURbhubID+3t4MZzt+JNG4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oo0UyMGC; arc=none smtp.client-ip=209.85.160.170
+	 MIME-Version; b=MpomKna6KKLSP6sQmz4m5PheZMQba7IaS6JpjzjwwAmyNI257R7VCFSiI8zDw0CViToqbyXWO0pBuUWDC9O5KbnPs0I3P/18KhA3ikrp8slHTmL89kh3OBi3OeFxQrRsE/Pqs9ayWGsTW+cYbk6AqxQYjYJPwCkavDTPrw1CWzI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TOVZZAvn; arc=none smtp.client-ip=74.125.224.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oo0UyMGC"
-Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-51c0a81d286so20641981cf.1
-        for <selinux@vger.kernel.org>; Mon, 06 Jul 2026 07:32:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TOVZZAvn"
+Received: by mail-yx1-f49.google.com with SMTP id 956f58d0204a3-66766d649fdso1974949d50.1
+        for <selinux@vger.kernel.org>; Mon, 06 Jul 2026 07:32:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783348339; x=1783953139; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1783348340; x=1783953140; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=7C3KTgVpXhfCvWTRNw1lSs9LhnnzGPamVVAEuzL755s=;
-        b=oo0UyMGCcOIeAilBBSegW8Q1m5zR4HbJma3O9Us6X1gTvIqPIbxW5vwPVmoVdCHada
-         Q+EWaD+HeZvtIzTnb4Vxk8ZTKhHd4vxSQrR3nbI27VBYfWl2b13wt7OAgfiPFw3f0WEa
-         1Pf4N8C4Rw7lJRDMZ5+y4427a1tMHgR57WkgEcNOcKEhy/5uBkPLimtsmrrZ5bksfTVL
-         ySfCLaonINbaDNa296HQDcBqBpbFjLbsN+yTpUJ9HwsM3RNAm4qiQu71dfrvK7rMOSOM
-         qbHwkxWr/vxsivLFe9XAY4OmtA/hn2fSe+/lk8y3M0Zd5onK7XkpBDnzRiHlktDthjK3
-         zchw==
+        bh=5milYqAhCvbT/awAvV28/Ss1jNcaNFusJ7JF97m1d+E=;
+        b=TOVZZAvnMnjHt6lRvPeI2VMvt/15le9v/is0NgSeYGun/HERzuc47HEUvAL8kvygHf
+         x3C9QDA1yEdBpIz2wjrQkqcuBuNEW64GH7DkJObjr4/Ip6/bX3HZNV17OUtDzaczh4rY
+         AkeRCctXitGLka+OGa+PVng0tKqx7Y2UcS1oSRvHL+ysQJKqexxpNaIn4wu+QvU9Z62P
+         WAth+3uIV6YSfUZajXWwkMCmY6aR6rjMK0rCPv4nUR9FradFj35dDQ6NjVvWvOXeDISn
+         pO+sPgAMuJqwrlV7RALaaPEdC3098v2WY7x1imNcriSp+24DvvFbO31F+kjWZB6djKsW
+         9u0g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783348339; x=1783953139;
+        d=1e100.net; s=20251104; t=1783348340; x=1783953140;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=7C3KTgVpXhfCvWTRNw1lSs9LhnnzGPamVVAEuzL755s=;
-        b=hIUPdB9RRFwAhdtmrM3TdmdWqV49JzmxuG40TLsav9C+J9RO8rv44eUSuS+9Gnxb2W
-         Tf1McfoDZHZ9YGW9D1ONA2VCK3SZo+9cbX60fjCfdgynWQ87+6UqEGHd152zWtBAMS7G
-         alJJdgCrt9LlXIm6vcEr062eMZIkQ/rwaXGOjdVfQlUQMvhZmbAm55QP44EVzHDS2RAV
-         8DH7JwK5J8qnn9t95q312/NEpOuGtU8cspZyeedwOE8yWPlMdBeq/A9Udzq+xK1HBiHh
-         +ybj1tiQWkaBjbMaOHCLlAR7eB0EIsiyNittFqVCqRt5AMzdErSeZNLPkotbBCrMf61/
-         qolw==
-X-Gm-Message-State: AOJu0Yxqcud329GSz6n3nwYt2T0+TMiljJADbpF6BT2SlA24i1pa6zW7
-	AmJPsRZNRGaKwBbqeEYJkvjDyKsGS11uQzANvv8Z3Ml04susQCVhcFRSfNZibA==
-X-Gm-Gg: AfdE7cncaVOTh7+wD972JQ/uqvEFkcnmzbhjD/KsF9vUlo/yoVj4Y+DnuUqJU/f6Yim
-	8KsKalE4jtTfOAZYgrdVRSHfUYo0YR+XMTljkHibdCfGDuEv+8rpkdzM9xCVVwEMcs1NcBzUs8/
-	HvVLAmB/oPSI3lzKca2orhfmgt1Zu1LUe6LtaihazbyS+ZerWxJhGcd5BLWY9wWQbFnbYUuZe/h
-	rnPPAfvLhEVQwZ3ydoeFR44FGfdAMq2YBA/ui7LGvF38oyMNmiCtWuFHQ2S9tUDJaNS7WJS3q+p
-	dGuSlExF879HzoMsIN3DSZOr/Yhe5idnI9sKdwFr5C5R8bP4KKB/dgEgTXd+mbZrxZl/7YMGkQz
-	AHVYNkrhdaejg1Xpias7ArxTQ9r95r351bLNFXvLlhDBpQhONI/tGnhE6EImcfXsonlUxx9NCjv
-	C4vQ07LhzpaTGiG0BElPgAuUdeIyICsB/+moiXf7PtSPESHVsytUdE1/sErDrAIuFytVJTYtkwb
-	/hChEqpJhQzO8WB
-X-Received: by 2002:a05:622a:cf:b0:516:ed2c:9c75 with SMTP id d75a77b69052e-51c3c05a9f4mr186629371cf.16.1783348338762;
-        Mon, 06 Jul 2026 07:32:18 -0700 (PDT)
+        bh=5milYqAhCvbT/awAvV28/Ss1jNcaNFusJ7JF97m1d+E=;
+        b=bDHXLRpgKW8lxzdPFNoEW4fGYkCLq4+5mJjx9/9D40dcXNM6plNsq/i7TEYUfKPYkn
+         W53dYS4+ruNA10prJvcn3QIvVO3Z0S07mGJi1LkiT5oQhQvf0ByEylANTT89kcVYcFN8
+         ITsTGjFwP+yR/jwEsKC6FRxY59lIHP73JDtfCoKaU7X9QNoX8QxBo5QLbzuh1pbCK0Yp
+         7751lAVZ5C6CEikTOf1+oYMJPedGrkDAGTMUODNkusuPBTR/RAHqijMci6wgZz81izf9
+         +SXDeXYiZmSIri6SMLBP5BtbaOhh9lvZBr1paXg/f2/jfvcofFZ0AKLyhSfKV8RLyTOY
+         Hmzw==
+X-Gm-Message-State: AOJu0YxzBsz2l9FzYLGotiQMPz7vjC/3R/OCXbkxkyubTW6qc62s+OXw
+	UP+Dzd8/9XDU9rknZngW2TpjrXg4UlwmzuEZusgvgAQuq/XAWT6G14IzXfUKlA==
+X-Gm-Gg: AfdE7cmuVEEJ2CNumCBlfoQ4eF7Emiv1BhP+jI5V2+uJm7Na79E+TCIhyQUW8mQNQFw
+	WspzHkTzifl2X6JY4p22+lV7IC2Ul5QtwRaN3ENX3htb6J2zVBE5WDUZfNY7NbRzjIrd27R2E/F
+	xEUqw8BMYa3AT0rRkSpphoz4vtTj+WlfsfGb22aKw+f4SZJwIeAQSeJtjmgiRkDW6e340wbPZub
+	Ll3h5p9lLiIZ1iQhghGDOjLHdz3FfqXA4Goq7QYpF8NKWZYm3BUrDmebGiGobAolmT8h3nPnAZb
+	r/Fgny7188WadFansd7A/zMfeS7pUImHa8TdVzp6QNh4TzOtrpyCCorNfW9eMd3ARr8HsCfd82h
+	IfOORAsAtleApMh4GGLNCHw+lD+mzLlqXZoGNs8Qm3SCSF0Btc+BXihmY8CZDWSh7mzO0i5nz9W
+	rAyZvnwBFgueCoZ/zu2UVJg5orA8t3UduALfs1hlvksKap02zbyCHijPcqZ3j5rXKljR/oamTpR
+	50C1fOKi0zY0m9Q16skGa5+L/o=
+X-Received: by 2002:a05:690e:d0c:b0:667:73a3:d65c with SMTP id 956f58d0204a3-6677fdab234mr692051d50.76.1783348339518;
+        Mon, 06 Jul 2026 07:32:19 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
         by smtp.gmail.com with ESMTPSA id d75a77b69052e-51c41ab77e7sm92790761cf.3.2026.07.06.07.32.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Jul 2026 07:32:18 -0700 (PDT)
+        Mon, 06 Jul 2026 07:32:19 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -66,9 +66,9 @@ Cc: jwcart2@gmail.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>,
 	Seth Moore <sethmo@google.com>,
 	Purushottam Choudhary <purushottamchoudhary29@gmail.com>
-Subject: [PATCH v3 2/5] libselinux: stringrep: serialize access to the discover_class_cache
-Date: Mon,  6 Jul 2026 10:31:52 -0400
-Message-ID: <20260706143155.36629-3-stephen.smalley.work@gmail.com>
+Subject: [PATCH v3 3/5] libselinux: sestatus: serialize selinux status updates
+Date: Mon,  6 Jul 2026 10:31:53 -0400
+Message-ID: <20260706143155.36629-4-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260706143155.36629-1-stephen.smalley.work@gmail.com>
 References: <20260706143155.36629-1-stephen.smalley.work@gmail.com>
@@ -80,25 +80,23 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The discover_class_cache list is accessed without locking by the
-string_to_*() and *_to_string() functions in libselinux for
-translating between string names and class/perm values, and returns
-pointers to strings within this list to callers.
-selinux_flush_class_cache() frees the list upon a policy reload,
-called by avc_process_policyload() from selinux_status_updated() and
-avc_netlink_process().
+When selinux_check_access() is used by a multi-threaded application
+and calls selinux_status_updated(), every thread that observes the
+same sequence number bump races to run the avc_process_*() functions,
+so avc_ss_reset() and selinux_flush_class_cache() fire once per thread
+instead of once per event, and writes to the last_seqno/policyload can
+tear.
 
-Make this safe for multi-threaded users by introducing and taking a
-mutex around the list accesses, and by moving flushed nodes to a
-retired list rather than freeing them so that returned string pointers
-remain valid. Given the infrequency of policy reloads, the relative
-stability of the class/perm mapping even across policy reloads, and
-the small amount of memory required, this seems a worthwhile tradeoff.
-If it becomes an issue, there are several options:
-1. Only load/refresh new/modified class/permission names and values
-upon policy reload rather than flushing and reloading them all,
-2. Provide a way to drain the retired list safely when the application
-knows it is no longer using any returned strings.
+Introduce and take a status_lock mutex across the last_seqno
+compare-and-update and the update actions so that exactly one thread
+services each event. The kernel status page itself is a seqlock and is
+still read unlocked via the existing read_sequence() loop.
+
+Lock ordering:
+1. status_lock is never taken when another libselinux lock is held.
+2. Under status_lock, the code may take avc_lock (via avc_ss_reset) or
+discover_class_lock (via selinux_flush_class_cache), but neither of these
+ever nest back into status_lock.
 
 Fixes: #287 #335 #336
 Link: https://lore.kernel.org/selinux/CAJsHiNx1E7x1jaBkS0i4L1nBWXp8YXLHRWcCaDaH4LOn=zm+Zw@mail.gmail.com/
@@ -108,206 +106,120 @@ Reported-by: Purushottam Choudhary <purushottamchoudhary29@gmail.com>
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libselinux/src/stringrep.c | 120 +++++++++++++++++++++++++++----------
- 1 file changed, 87 insertions(+), 33 deletions(-)
+ libselinux/src/sestatus.c | 49 +++++++++++++++++++++++++++++++--------
+ 1 file changed, 39 insertions(+), 10 deletions(-)
 
-diff --git a/libselinux/src/stringrep.c b/libselinux/src/stringrep.c
-index ec6fc637..cd9841ca 100644
---- a/libselinux/src/stringrep.c
-+++ b/libselinux/src/stringrep.c
-@@ -27,7 +27,9 @@ struct discover_class_node {
- 	struct discover_class_node *next;
- };
+diff --git a/libselinux/src/sestatus.c b/libselinux/src/sestatus.c
+index bb69fe90..e30380ae 100644
+--- a/libselinux/src/sestatus.c
++++ b/libselinux/src/sestatus.c
+@@ -36,6 +36,7 @@ struct selinux_status_t {
+  * Valid Pointer : opened and mapped correctly
+  */
+ static struct selinux_status_t *selinux_status = NULL;
++static pthread_mutex_t status_lock = PTHREAD_MUTEX_INITIALIZER;
+ static uint32_t last_seqno;
+ static uint32_t last_policyload;
  
-+static pthread_mutex_t discover_class_lock = PTHREAD_MUTEX_INITIALIZER;
- static struct discover_class_node *discover_class_cache = NULL;
-+static struct discover_class_node *discover_class_retired = NULL;
- 
- static struct discover_class_node *get_class_cache_entry_name(const char *s)
- {
-@@ -156,9 +158,6 @@ static struct discover_class_node *discover_class(const char *s)
+@@ -98,9 +99,25 @@ int selinux_status_updated(void)
+ 		return -1;
  	}
- 	closedir(dir);
  
--	node->next = discover_class_cache;
--	discover_class_cache = node;
--
- 	return node;
- 
- err4:
-@@ -176,41 +175,84 @@ err1:
- 
- void selinux_flush_class_cache(void)
- {
--	struct discover_class_node *cur = discover_class_cache, *prev = NULL;
--	size_t i;
--
--	while (cur != NULL) {
--		free(cur->name);
--
--		for (i = 0; i < MAXVECTORS; i++)
--			free(cur->perms[i]);
--
--		free(cur->perms);
-+	struct discover_class_node *head, *tail;
- 
--		prev = cur;
--		cur = cur->next;
-+	__pthread_mutex_lock(&discover_class_lock);
-+	head = discover_class_cache;
-+	discover_class_cache = NULL;
- 
--		free(prev);
 +	/*
-+	 * Move old list to the retired chain rather than
-+	 * freeing it; other threads may hold pointers to
-+	 * class/perm strings within it returned by
-+	 * security_class_to_string() and
-+	 * security_av_perm_to_string(). This incurs a small
-+	 * memory cost but given the infrequency of policy
-+	 * reloads, it should never be significant. If
-+	 * required, a new interface could be introduced to
-+	 * allow the application to safely drain the retired
-+	 * list when it knows it is safe to do so.
++	 * Fast path with no locking is only possible when the status page
++	 * is mapped, the last_seqno is even (stable) and it matches the
++	 * curr_seqno.
 +	 */
-+	if (head) {
-+		tail = head;
-+		while (tail->next)
-+			tail = tail->next;
-+		tail->next = discover_class_retired;
-+		discover_class_retired = head;
- 	}
--
--	discover_class_cache = NULL;
-+	__pthread_mutex_unlock(&discover_class_lock);
- }
- 
- security_class_t string_to_security_class(const char *s)
- {
--	struct discover_class_node *node;
-+	struct discover_class_node *node, *retry;
-+	security_class_t value;
-+	size_t i;
- 
-+	__pthread_mutex_lock(&discover_class_lock);
- 	node = get_class_cache_entry_name(s);
--	if (node == NULL) {
--		node = discover_class(s);
-+	if (node) {
-+		value = node->value;
-+		__pthread_mutex_unlock(&discover_class_lock);
-+		return map_class(value);
++	if (selinux_status != MAP_FAILED) {
++		curr_seqno = read_sequence(selinux_status);
++		if ((last_seqno & 0x0001) == 0 && curr_seqno == last_seqno)
++			return 0;
 +	}
-+	__pthread_mutex_unlock(&discover_class_lock);
- 
--		if (node == NULL) {
--			errno = EINVAL;
--			return 0;
--		}
-+	/* Discover outside of lock; reads selinuxfs */
-+	node = discover_class(s);
-+	if (node == NULL) {
-+		errno = EINVAL;
-+		return 0;
- 	}
-+	value = node->value;
 +
-+	/*
-+	 * Retry cache lookup with lock held in case
-+	 * another thread raced with us. If we don't
-+	 * find it, add the new one; else use
-+	 * the old one and free the new one.
-+	 */
-+	__pthread_mutex_lock(&discover_class_lock);
-+	retry = get_class_cache_entry_name(s);
-+	if (!retry) {
-+		node->next = discover_class_cache;
-+		discover_class_cache = node;
-+	} else {
-+		value = retry->value;
-+		/*
-+		 * We can only safely free node here
-+		 * because it wasn't yet added to the cache.
-+		 */
-+		free(node->name);
-+		for (i = 0; i < MAXVECTORS; i++)
-+			free(node->perms[i]);
-+		free(node->perms);
-+		free(node);
-+		node = NULL;
++	/* Otherwise we have to take the mutex and re-check */
++	__pthread_mutex_lock(&status_lock);
++
+ 	if (selinux_status == MAP_FAILED) {
+-		if (avc_netlink_check_nb() < 0)
++		if (avc_netlink_check_nb() < 0) {
++			__pthread_mutex_unlock(&status_lock);
+ 			return -1;
++		}
+ 
+ 		curr_seqno = fallback_sequence;
+ 	} else {
+@@ -117,11 +134,14 @@ int selinux_status_updated(void)
+ 	if (last_seqno & 0x0001)
+ 		last_seqno = curr_seqno;
+ 
+-	if (last_seqno == curr_seqno)
++	if (last_seqno == curr_seqno) {
++		__pthread_mutex_unlock(&status_lock);
+ 		return 0;
 +	}
-+	__pthread_mutex_unlock(&discover_class_lock);
  
--	return map_class(node->value);
-+	return map_class(value);
- }
- 
- security_class_t mode_to_security_class(mode_t m)
-@@ -239,13 +281,17 @@ access_vector_t string_to_av_perm(security_class_t tclass, const char *s)
- 	struct discover_class_node *node;
- 	security_class_t kclass = unmap_class(tclass);
- 
-+	__pthread_mutex_lock(&discover_class_lock);
- 	node = get_class_cache_entry_value(kclass);
- 	if (node != NULL) {
- 		size_t i;
- 		for (i = 0; i < MAXVECTORS && node->perms[i] != NULL; i++)
--			if (strcmp(node->perms[i], s) == 0)
-+			if (strcmp(node->perms[i], s) == 0) {
-+				__pthread_mutex_unlock(&discover_class_lock);
- 				return map_perm(tclass, UINT32_C(1) << i);
-+			}
+ 	if (selinux_status == MAP_FAILED) {
+ 		last_seqno = curr_seqno;
++		__pthread_mutex_unlock(&status_lock);
+ 		return 1;
  	}
-+	__pthread_mutex_unlock(&discover_class_lock);
  
- 	errno = EINVAL;
- 	return 0;
-@@ -254,14 +300,16 @@ access_vector_t string_to_av_perm(security_class_t tclass, const char *s)
- const char *security_class_to_string(security_class_t tclass)
- {
- 	struct discover_class_node *node;
-+	const char *name;
+@@ -134,16 +154,21 @@ int selinux_status_updated(void)
+ 	} while (tmp_seqno != curr_seqno);
  
- 	tclass = unmap_class(tclass);
+ 	if (avc_enforcing != (int)enforcing) {
+-		if (avc_process_setenforce(enforcing) < 0)
++		if (avc_process_setenforce(enforcing) < 0) {
++			__pthread_mutex_unlock(&status_lock);
+ 			return -1;
++		}
+ 	}
+ 	if (last_policyload != policyload) {
+-		if (avc_process_policyload(policyload) < 0)
++		if (avc_process_policyload(policyload) < 0) {
++			__pthread_mutex_unlock(&status_lock);
+ 			return -1;
++		}
+ 		last_policyload = policyload;
+ 	}
+ 	last_seqno = curr_seqno;
  
-+	__pthread_mutex_lock(&discover_class_lock);
- 	node = get_class_cache_entry_value(tclass);
--	if (node == NULL)
--		return NULL;
--	else
--		return node->name;
-+	name = node ? node->name : NULL;
-+	__pthread_mutex_unlock(&discover_class_lock);
-+
-+	return name;
++	__pthread_mutex_unlock(&status_lock);
+ 	return 1;
  }
  
- const char *security_av_perm_to_string(security_class_t tclass,
-@@ -269,16 +317,22 @@ const char *security_av_perm_to_string(security_class_t tclass,
- {
- 	struct discover_class_node *node;
- 	size_t i;
-+	const char *name;
+@@ -164,10 +189,12 @@ int selinux_status_getenforce(void)
+ 	}
  
- 	av = unmap_perm(tclass, av);
- 	tclass = unmap_class(tclass);
+ 	if (selinux_status == MAP_FAILED) {
+-		if (avc_netlink_check_nb() < 0)
+-			return -1;
++		int rc;
  
-+	__pthread_mutex_lock(&discover_class_lock);
- 	node = get_class_cache_entry_value(tclass);
- 	if (av && node)
- 		for (i = 0; i < MAXVECTORS; i++)
--			if ((UINT32_C(1) << i) & av)
--				return node->perms[i];
-+			if ((UINT32_C(1) << i) & av) {
-+				name = node->perms[i];
-+				__pthread_mutex_unlock(&discover_class_lock);
-+				return name;
-+			}
+-		return fallback_enforcing;
++		__pthread_mutex_lock(&status_lock);
++		rc = (avc_netlink_check_nb() < 0) ? -1 : fallback_enforcing;
++		__pthread_mutex_unlock(&status_lock);
++		return rc;
+ 	}
  
-+	__pthread_mutex_unlock(&discover_class_lock);
- 	return NULL;
- }
+ 	/* sequence must not be changed during references */
+@@ -201,10 +228,12 @@ int selinux_status_policyload(void)
+ 	}
  
+ 	if (selinux_status == MAP_FAILED) {
+-		if (avc_netlink_check_nb() < 0)
+-			return -1;
++		int rc;
+ 
+-		return fallback_policyload;
++		__pthread_mutex_lock(&status_lock);
++		rc = (avc_netlink_check_nb() < 0) ? -1 : fallback_policyload;
++		__pthread_mutex_unlock(&status_lock);
++		return rc;
+ 	}
+ 
+ 	/* sequence must not be changed during references */
 -- 
 2.54.0
 
