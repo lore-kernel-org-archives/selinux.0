@@ -1,72 +1,72 @@
-Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
+Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE2E5385D64
-	for <selinux@vger.kernel.org>; Mon,  6 Jul 2026 14:37:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DB293822BE
+	for <selinux@vger.kernel.org>; Mon,  6 Jul 2026 14:37:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783348665; cv=none; b=HUnrRNxR9RX3whBwTcfrSsY0CzaS+r62rvTQ2zLUPapb5hQBaGkHuXoycUxyinPYh1V84jZMjJ1Uvv2ASEv+kzuSJeEn0D7q9OjwYs6FjxCmuMZ5c+WA8mDQJpBU/zRgEmajHBwe3Ju+zjNS9/MINyg+CdUuw9i0xcCozbSGI4Y=
+	t=1783348667; cv=none; b=u8QNCHx3XJ3Oh2LXGgVg2+40j0xf/Qxe3vcFx8CYwc7irii5NaZUPUlkBamplSKYJYd4PO0cYjFvmhFlshqZst0UdRH6VtayTuKEOQPchxKK0RFlTftNW0Z6FgzCIPWEbgKlgwYXdTWHnJNtzT5T+2MsdzHEMa2g/OXT+XLx2zY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783348665; c=relaxed/simple;
-	bh=tyyZTtgtMensv5yfz5/z2QK0pJ0OFf/Wd0uhFziNSIQ=;
+	s=arc-20240116; t=1783348667; c=relaxed/simple;
+	bh=V6IIB/yd6hMfJ0lvTXkdCasqIqsdUighNmyYYStvmeg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=LWXkryR6jp5QM7Vl2SyU7gpECZKMI7G3aHAxESalt5R5quQDC23BNmppn35YSwU88aumTDm62La52m7KVIXg6fcFbr+akAEwqtFVaELC8zxdn/Yvwmh3WkoJMGeZfdDiB9R9epbw7hoiEN8REPDCciDc0zEZLVAuZb7lymccKs0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RlbQeaxX; arc=none smtp.client-ip=209.85.222.181
+	 MIME-Version; b=D8JyF3pITF4DIksF3sI3zMQJoTKCklZwTBxWHh1xdf5jzNYWvf7Etm1vKbuUCdNWOWXfr1djXRkihlRSindorYBJCtJIV3vQzGbtKNO/Yn/q2R+kS6vJlH7mOILmzKAi0274jqkodQxeoiTpkLrLglEwzqbGftcwkaILnfAR1dk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=p2/FjHvX; arc=none smtp.client-ip=209.85.160.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RlbQeaxX"
-Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-92e6391b114so221699385a.3
-        for <selinux@vger.kernel.org>; Mon, 06 Jul 2026 07:37:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="p2/FjHvX"
+Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-51c1372f84dso21003531cf.2
+        for <selinux@vger.kernel.org>; Mon, 06 Jul 2026 07:37:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783348663; x=1783953463; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1783348665; x=1783953465; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=4L0jUpsmYtg9dUpxVbKcdgEf14yEqW3MQHsIYNv4rs8=;
-        b=RlbQeaxXI2Y7MDOdCtjXv6EcEadoeqEt8CTIIuxTwGA/W0rU2L25Eqk3v2fE/JT+Eu
-         td9IKsbrYJSD61JlDS8q8p/Cp+YoQM+ra8aZsNj/Sx4W4matwwfxnNat8sw9FKssmyRs
-         9N5Bdt8RDCPPsWt1D/ueRsbAvZv5HfHtHWUv22xzQscDjEMSIGUNz1MU3sD7wZOBT/Bq
-         s5xInvuhuvq74tOYV2CpwUrSxH6MlWuNHcREir1OjOAgg7m6KUuVsq2JIWwKG5yaxXlO
-         2vJ2egjTohcF+je4t21qO6Yk5OqC8Ma2EpovZWTobC7xJMhRMtNwIUD7lvbX8uuuLScd
-         KtoQ==
+        bh=49KydwLMLrP5/8WLzUlr3r90/ociaSaT618Qvrv5Z68=;
+        b=p2/FjHvXJCcHl3hPpuNQdbObJpC4FEMfESfaPDLsw9lTQcgi1kjOpRqfl8m0axthUg
+         sWPQbZ7HZ4lzFcHAJrc/zcd6D6UaEvBVJf8AFAFAH23qpvsqtwobLpz+27Wxiodg3Ese
+         /23d0SdZKC9N5rkfnLuyYpqdZ6qFr5phMXPtm7Y5GSJAmssiKwYH/m+TCDVm8m96X5cF
+         DqNJwCuUP8NatLLx2TYpAk78BMhLx6c1UgXHRQlNzytCsMZCuE4lRqF43D6nwwxI1XzA
+         WAk+2HW/oUGLtz/JhYQjZr2D3BYRGRNAd3yVh+ouby3EAAVjnyiZ+voACbgJkbozEuQ2
+         N2uw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783348663; x=1783953463;
+        d=1e100.net; s=20251104; t=1783348665; x=1783953465;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=4L0jUpsmYtg9dUpxVbKcdgEf14yEqW3MQHsIYNv4rs8=;
-        b=f9aHU0cy6CLndTLcyTJNHS6C3ZdM9a+T7CTkE2yhBlS3FY0ZppB/JdYgkBpHWCVhNO
-         hN6ZbF55z0SzWqKYnOJkCoQ6maYjpOU0SPdn89nmvvq1djM9+YatCwtbNmAMhvdNgOez
-         SdZHA1n37RAT8XkNdkz3wWOYHapxGLryUHmIJt8pX/I2AYcnCLyjTyDr+Gt6921XjOYT
-         M3TWjZjjt4A2jRz9FpZIly8VB1UyZGVYRN19QrL3H40YD0NaJxwDRRVmGefa+d3FwzsX
-         F8vN0Bq8ZInI1CUk3cc3YRWIBzdkMfRxo4A6WlWLqrWIgPUC78LyKmqTMMX2lxZQ8+ka
-         sw3w==
-X-Gm-Message-State: AOJu0YxQt6AP4w8z1PtBsBUk7ho467BJpCRcunnh9J3GqwPwcAaDV2nB
-	BpzGYQzIW26ZbP6FxSUuUzwdaEeBbikCGNrd8m8CS5qawUyFi4Fdww/ByPcH3g==
-X-Gm-Gg: AfdE7ckjAA/nqwCRfA1Bn8byowqDvbVCVVk3Tg21BGPPpwgOhUjB+WEv8ffPKQJ2dXs
-	9EFt0m9O8uZwIsnHpzAm2ZWR5vaClIJkACUbfbb0l1+d5noUOGdQ7uC/B0X2nv0kzI1GhfzsQ6P
-	16aK6sN8M9dbKKux6WiFVe3VEXZYwYZ9+Zv1c3gw8qFwobyAMu40CeJnXP1T+LMqFlcOlCz9Q4M
-	USsAB4qPrYi8HAIyYW8DuiqB2oH5XKyk6YABoZLR0JMDKMHv/oWI/sGctaVvRJdQ2dC5fZA8oVg
-	NVUqhEslDEpBwItFFC2CvT3ILQM9ZGQP3bYSXz+/O1/3unXasFWIN2Rsa6xidT2duZm6g4m5hoC
-	9ZNaJTHJWy/ieCHKo+W74MBAizp60O0bjIVaSIz8ZDLv/TlrUt3OaEwu0c3BpBEqAC7X3a6wCP4
-	B8MBs70wFN7YfM0SbLk1SmKMEw+iEIb5SG+KMLxW3i0vDPcT3YtkoqH8Va8PzGkgUqvXgyyaGMa
-	vH8MHOamvd1U4hQjzV5CbgarLQ=
-X-Received: by 2002:a05:620a:3725:b0:92e:64b3:3464 with SMTP id af79cd13be357-92ebb60a5b3mr126030385a.54.1783348662635;
-        Mon, 06 Jul 2026 07:37:42 -0700 (PDT)
+        bh=49KydwLMLrP5/8WLzUlr3r90/ociaSaT618Qvrv5Z68=;
+        b=YdjLQhd9Uv6lysooOtWLVVu9DBbTuMf3RwIAt2F7lByf74jKN/WSEgSBfOGJmyq/9A
+         m2LrdPCc6ETAxJgONf2JuJWIC1rzuOAJlWxF3YEXXCt0dGQUCg860jrHEexRmCOnvYo9
+         b55vkXjJT1pHlIvxEAGgDh7mlQN2kd8fcpa3eXBt9TAYcjfXsBt4rb/Qf20w+MhWiAhb
+         JK0ELFOXc7YZIj+Zuc2oLPIVS76YUK70GEf3Fd4xDX5mRWMfnrkBMXiMXwolxmgpRDs1
+         ons101XgfSLB59mgBsjinXcMu/WAx+vqpiZd4r7CUJnY432X3QMWw44JlRJrkbYcSibb
+         ma7w==
+X-Gm-Message-State: AOJu0YyHZNbGdECXCJrpNs++EjQ6N+13DW/Y/Nqf1d9dJ4xopVAZR74i
+	JggufNcDhiBvwVHD0JDSZAbC0YJXiiafQbFp/+ri1imGJbofNn3auQvHrlrr4w==
+X-Gm-Gg: AfdE7clGRZ9aw+IJPq4JUq8KvY4rvggYW1Gz6EGhjVG/UFrWmiJHwzBoqHJO8ApMeQ6
+	kwIL2xSNA6+WmcjikSf+shPSwtzd0G9jmdSA+NcT2OT870knQjwBuCsT0CYCK6Z5lwLyL63xO9+
+	eNXjkPm1uYxurrlgwAq3qCCUj3hBCdpyjGe2j7yUri2jvG43+gQZziqnOVOu+jFEEIMPHY/CAbg
+	of7xgt6cQyV2H6ORWWo7Gn5pLP2WLEjvW+D61sDS0MpNAVEeQFYAQcMhYyceqmNoDNx4nGFt227
+	SiVZoPPeA/uA0+JzD2XFsKzi7bvN66RRaV/mqRpZe/oGX8x/ZMXX6Y9jKMNE379LMai0mc09uZc
+	5RZlI/7Dj3Pf1YBAj7uI0jmMyalKRMO3lgGtTLwv9OTIDaSTveUgi+kWcWPHlVrMV+IlP0DB0JH
+	bVWemUamy0c1da6wY1KzRGbheQ2N7KqZjS4thWzcvHy2taXHskI3YsDPwKPEbKCc/q1w3rvbX+J
+	TRmdujhGOJpkuIr
+X-Received: by 2002:ac8:584a:0:b0:51c:1b22:b855 with SMTP id d75a77b69052e-51c748731admr9832091cf.62.1783348663462;
+        Mon, 06 Jul 2026 07:37:43 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
         by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8f46f304533sm136972416d6.18.2026.07.06.07.37.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Jul 2026 07:37:42 -0700 (PDT)
+        Mon, 06 Jul 2026 07:37:43 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
 	plautrba@redhat.com,
 	omosnace@redhat.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2 2/3] restorecond: use openat2 if defined
-Date: Mon,  6 Jul 2026 10:37:25 -0400
-Message-ID: <20260706143726.47421-3-stephen.smalley.work@gmail.com>
+Subject: [PATCH v2 3/3] sandbox/seunshare: pin_dir: use openat2 if available
+Date: Mon,  6 Jul 2026 10:37:26 -0400
+Message-ID: <20260706143726.47421-4-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260706143726.47421-1-stephen.smalley.work@gmail.com>
 References: <20260706143726.47421-1-stephen.smalley.work@gmail.com>
@@ -78,56 +78,55 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Update restorecond's safe_open() helper to use openat2() if defined to
-optimize the lookup of the initial pathname. Fall back to the existing
-per-component lookup on ENOSYS/EINVAL so that pre-5.6 and
-seccomp-filtered environments are unaffected.
+Update seunshare's pin_dir() helper to use openat2() if defined to
+optimize the lookup of the directory and prevent following any
+intermediate symlinks. Fall back to the existing open() on
+ENOSYS/EINVAL so that pre-5.6 and seccomp-filtered environments are
+unaffected.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- restorecond/watch.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ sandbox/seunshare.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/restorecond/watch.c b/restorecond/watch.c
-index 25918fd5..18bd90db 100644
---- a/restorecond/watch.c
-+++ b/restorecond/watch.c
-@@ -12,6 +12,10 @@
- #include <glob.h>
- #include <libgen.h>
+diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
+index 3fa42f9a..f2d637e1 100644
+--- a/sandbox/seunshare.c
++++ b/sandbox/seunshare.c
+@@ -10,8 +10,12 @@
  #include <sys/stat.h>
+ #include <sys/types.h>
+ #include <sys/wait.h>
 +#include <sys/syscall.h>
+ #include <syslog.h>
+ #include <sys/mount.h>
 +#ifdef __NR_openat2
 +#include <linux/openat2.h>
 +#endif
- #include <string.h>
- #include <stdio.h>
- #include <fcntl.h>
-@@ -72,6 +76,25 @@ static int safe_open(const char *path, struct stat *sb)
- 		return -1;
- 	}
+ #include <glob.h>
+ #include <pwd.h>
+ #include <sched.h>
+@@ -219,10 +223,19 @@ static int check_owner_gid(gid_t gid, const char *file, struct stat *st)
+  */
+ static int pin_dir(const char *dir, struct stat *st_out)
+ {
+-	int fd;
++	int fd = -1;
+ 	struct stat sb;
  
+-	fd = open(dir, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
 +#ifdef __NR_openat2
 +	struct open_how how = {
-+		.flags = O_PATH | O_NOFOLLOW | O_CLOEXEC,
++		.flags = O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC,
 +		.resolve = RESOLVE_NO_SYMLINKS | RESOLVE_NO_MAGICLINKS,
 +	};
 +
-+	nfd = syscall(__NR_openat2, AT_FDCWD, path, &how, sizeof(how));
-+	if (nfd >= 0) {
-+		if (fstat(nfd, sb) < 0) {
-+			close(nfd);
-+			return -1;
-+		}
-+		return nfd;
-+	}
-+
-+	if (errno != ENOSYS && errno != EINVAL)
-+		return -1;
++	fd = syscall(__NR_openat2, AT_FDCWD, dir, &how, sizeof(how));
++	if (fd < 0 && (errno == ENOSYS || errno == EINVAL))
 +#endif
-+
- 	copy = strdup(path);
- 	if (!copy)
++		fd = open(dir, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
+ 	if (fd < 0) {
+ 		fprintf(stderr, _("Failed to open %s: %m\n"), dir);
  		return -1;
 -- 
 2.54.0
