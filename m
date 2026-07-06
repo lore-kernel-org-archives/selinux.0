@@ -1,75 +1,68 @@
-Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
+Received: from mail-qt1-f182.google.com (mail-qt1-f182.google.com [209.85.160.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DB293822BE
-	for <selinux@vger.kernel.org>; Mon,  6 Jul 2026 14:37:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78A903A7820
+	for <selinux@vger.kernel.org>; Mon,  6 Jul 2026 14:38:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783348667; cv=none; b=u8QNCHx3XJ3Oh2LXGgVg2+40j0xf/Qxe3vcFx8CYwc7irii5NaZUPUlkBamplSKYJYd4PO0cYjFvmhFlshqZst0UdRH6VtayTuKEOQPchxKK0RFlTftNW0Z6FgzCIPWEbgKlgwYXdTWHnJNtzT5T+2MsdzHEMa2g/OXT+XLx2zY=
+	t=1783348740; cv=none; b=N5hJAQfub3+pruwA127m9/usBB3Sp6KxjOL5h9qX3bfrpxKfS2Fyygu3MJjxjQ9HbxHPUfcpdiUF+dKaVdgiKU2gIL121M27ySV+Y6BB6fXtYWmQn9+BN0nybN/bsKR4Qb5M2niw7X1OoFHSd0HTVepPVaihuhjKz7di8ghJcIQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783348667; c=relaxed/simple;
-	bh=V6IIB/yd6hMfJ0lvTXkdCasqIqsdUighNmyYYStvmeg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=D8JyF3pITF4DIksF3sI3zMQJoTKCklZwTBxWHh1xdf5jzNYWvf7Etm1vKbuUCdNWOWXfr1djXRkihlRSindorYBJCtJIV3vQzGbtKNO/Yn/q2R+kS6vJlH7mOILmzKAi0274jqkodQxeoiTpkLrLglEwzqbGftcwkaILnfAR1dk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=p2/FjHvX; arc=none smtp.client-ip=209.85.160.179
+	s=arc-20240116; t=1783348740; c=relaxed/simple;
+	bh=QWjEv+lQRGreQW7pmyM/nGj4sj9WWmzAMkpx0C9xpw8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kqSGrJ+bGGDlS/G9RvTNQxfBOgge2p7ugp0WXyx1OVeoGIt6O8H+rQ7sYACbghtpAch1lQKbovWUnxfZ8ls1e9y87oicRKiMQTR+Zde4MUVCHxd68yvsvoOc8TWrw0LjVwL66TrFhANTF+UT/45xw1hpLV0Kp6NZa0l3EIpUEpg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KLqtGzuj; arc=none smtp.client-ip=209.85.160.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="p2/FjHvX"
-Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-51c1372f84dso21003531cf.2
-        for <selinux@vger.kernel.org>; Mon, 06 Jul 2026 07:37:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KLqtGzuj"
+Received: by mail-qt1-f182.google.com with SMTP id d75a77b69052e-51c5382806fso20904311cf.2
+        for <selinux@vger.kernel.org>; Mon, 06 Jul 2026 07:38:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783348665; x=1783953465; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=49KydwLMLrP5/8WLzUlr3r90/ociaSaT618Qvrv5Z68=;
-        b=p2/FjHvXJCcHl3hPpuNQdbObJpC4FEMfESfaPDLsw9lTQcgi1kjOpRqfl8m0axthUg
-         sWPQbZ7HZ4lzFcHAJrc/zcd6D6UaEvBVJf8AFAFAH23qpvsqtwobLpz+27Wxiodg3Ese
-         /23d0SdZKC9N5rkfnLuyYpqdZ6qFr5phMXPtm7Y5GSJAmssiKwYH/m+TCDVm8m96X5cF
-         DqNJwCuUP8NatLLx2TYpAk78BMhLx6c1UgXHRQlNzytCsMZCuE4lRqF43D6nwwxI1XzA
-         WAk+2HW/oUGLtz/JhYQjZr2D3BYRGRNAd3yVh+ouby3EAAVjnyiZ+voACbgJkbozEuQ2
-         N2uw==
+        d=gmail.com; s=20251104; t=1783348738; x=1783953538; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=vCSNG7bnEqspM6QMfflXk+5f6L972pJBfcCPe0sOnRI=;
+        b=KLqtGzujx1ys9KU3TfX7f1vVGKDq4B1m6bxxlV+d00E1T541JuzbpqB9cC73D9TNJF
+         oqAXawUp5GAcVWIEpceZJ63cHmndujZ9ji+1E/sqo9UP+xuf+OuYjtL5AOY/ZWROHpIW
+         FdKkiHwrcVD/o6H+MT+dxmpZmu+hpBVpOthr7zWrR5/lYKPtJOR8YPPSfkkmH4rP1E8v
+         5ASxtNXsFGsC+F4uOG3Ja5v1v4Z9QBAn2yVLqs+qIsepvi41f+LmS0kngGwa/ei79MNu
+         MRpTtsFwCnQjjQYsS5shiV7e6SMK1Wf2qDPgeA4TJ/msD2kdDgscy/J2fXTrQry2z4Dd
+         l8tQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783348665; x=1783953465;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=49KydwLMLrP5/8WLzUlr3r90/ociaSaT618Qvrv5Z68=;
-        b=YdjLQhd9Uv6lysooOtWLVVu9DBbTuMf3RwIAt2F7lByf74jKN/WSEgSBfOGJmyq/9A
-         m2LrdPCc6ETAxJgONf2JuJWIC1rzuOAJlWxF3YEXXCt0dGQUCg860jrHEexRmCOnvYo9
-         b55vkXjJT1pHlIvxEAGgDh7mlQN2kd8fcpa3eXBt9TAYcjfXsBt4rb/Qf20w+MhWiAhb
-         JK0ELFOXc7YZIj+Zuc2oLPIVS76YUK70GEf3Fd4xDX5mRWMfnrkBMXiMXwolxmgpRDs1
-         ons101XgfSLB59mgBsjinXcMu/WAx+vqpiZd4r7CUJnY432X3QMWw44JlRJrkbYcSibb
-         ma7w==
-X-Gm-Message-State: AOJu0YyHZNbGdECXCJrpNs++EjQ6N+13DW/Y/Nqf1d9dJ4xopVAZR74i
-	JggufNcDhiBvwVHD0JDSZAbC0YJXiiafQbFp/+ri1imGJbofNn3auQvHrlrr4w==
-X-Gm-Gg: AfdE7clGRZ9aw+IJPq4JUq8KvY4rvggYW1Gz6EGhjVG/UFrWmiJHwzBoqHJO8ApMeQ6
-	kwIL2xSNA6+WmcjikSf+shPSwtzd0G9jmdSA+NcT2OT870knQjwBuCsT0CYCK6Z5lwLyL63xO9+
-	eNXjkPm1uYxurrlgwAq3qCCUj3hBCdpyjGe2j7yUri2jvG43+gQZziqnOVOu+jFEEIMPHY/CAbg
-	of7xgt6cQyV2H6ORWWo7Gn5pLP2WLEjvW+D61sDS0MpNAVEeQFYAQcMhYyceqmNoDNx4nGFt227
-	SiVZoPPeA/uA0+JzD2XFsKzi7bvN66RRaV/mqRpZe/oGX8x/ZMXX6Y9jKMNE379LMai0mc09uZc
-	5RZlI/7Dj3Pf1YBAj7uI0jmMyalKRMO3lgGtTLwv9OTIDaSTveUgi+kWcWPHlVrMV+IlP0DB0JH
-	bVWemUamy0c1da6wY1KzRGbheQ2N7KqZjS4thWzcvHy2taXHskI3YsDPwKPEbKCc/q1w3rvbX+J
-	TRmdujhGOJpkuIr
-X-Received: by 2002:ac8:584a:0:b0:51c:1b22:b855 with SMTP id d75a77b69052e-51c748731admr9832091cf.62.1783348663462;
-        Mon, 06 Jul 2026 07:37:43 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8f46f304533sm136972416d6.18.2026.07.06.07.37.42
+        d=1e100.net; s=20251104; t=1783348738; x=1783953538;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=vCSNG7bnEqspM6QMfflXk+5f6L972pJBfcCPe0sOnRI=;
+        b=IsG7XvNgKEv4ERO/GP2sRIKw0MGR+N9xjowgQ9rLBS1LPS0khRa973S0U0Z6nDHW8W
+         LE8QFlgkpamGJyy7qjJX6/NIc73HF6FeD1p5xXG5MyLcdoiEtG1NKmS8nqeZoyDEG6H1
+         ngxuKtIgX+Q/cHTz3wsvG0yvFxSIkFI9YRVaPdeQ/BUl3oH3qqnB3MmX1eOUw+fzG6X6
+         76y/y8sHFKy07YrK4cFODqMI7KrOHpnKyYXDXBBfw3I8ju1VJbZgKFdGnBmOd0Aqh3th
+         S3IF37i2pwcwKuWjiyDm0aC5w5s9gUOYnw7vNSBmHFpnTtIEdbYVn+LhPjdrjyxovgrb
+         JZVQ==
+X-Gm-Message-State: AOJu0Yz5YJKZ8pcRYoaxcm3u+MlgOlMSd7EpADRsLT1U49Ga2v1yz50p
+	ofUXjYNZhvI9+I86PkZWQvhEqfMI2cyKFUJa8zhi0jmyAJcc862/WEjDvpMrOA==
+X-Gm-Gg: AfdE7clbBD9Hiheuvr8dgXoXQ+yQv+rN3tZWhz4go9nqlFHKY6I1bT4DMcwGFHdsLJ2
+	EvGlLpFmtNAd9HfeUoY4a9qrFMOcKMl/gVlv5upneGNWGT7vd8YzMWGNExyVvIv5JPj0LPeTlXJ
+	1GBY5IGf5f3sQS2GmtIwCYtG5C8Ssv0Pu55sqQog0DtqsEguJjC+oKeoDfTRPUBHrW1hEucF0J+
+	0ZGRtxqJJt/bwNDf+DSwc31f5TbLT2UqR1KrxTyNmGVPEVQldce3CLCW1F7ffM5jeq7/dhGJMdn
+	bEb50pkXVsf4vgH5QTl+ZYeGvMe5Q8p/Wi8Tzr1/iHFUKvZal051a/MFn4kXyXVO9KZpTkCTwzQ
+	wVH1RSmDkIX1Cbfm9ru26QNLvH2sRqqCD5eyHanMY/Xuy/OmPzFBo50vcO0QF6Z1TQzKzp3UlC3
+	LYZ7sfPjeG6CPzaqr657VinUT7k+M8YxcAY5Y=
+X-Received: by 2002:a05:622a:2c7:b0:51c:257c:8166 with SMTP id d75a77b69052e-51c7487fd1fmr9086981cf.33.1783348738257;
+        Mon, 06 Jul 2026 07:38:58 -0700 (PDT)
+Received: from Fedora43-SELinux ([144.51.8.27])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-51c41b19a66sm89839431cf.7.2026.07.06.07.38.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Jul 2026 07:37:43 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
+        Mon, 06 Jul 2026 07:38:57 -0700 (PDT)
+From: James Carter <jwcart2@gmail.com>
 To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	plautrba@redhat.com,
-	omosnace@redhat.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2 3/3] sandbox/seunshare: pin_dir: use openat2 if available
-Date: Mon,  6 Jul 2026 10:37:26 -0400
-Message-ID: <20260706143726.47421-4-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260706143726.47421-1-stephen.smalley.work@gmail.com>
-References: <20260706143726.47421-1-stephen.smalley.work@gmail.com>
+Cc: stephen.smalley.work@gmail.com,
+	James Carter <jwcart2@gmail.com>
+Subject: [PATCH 1/6 v7] libselinux: Add overflow checks
+Date: Mon,  6 Jul 2026 10:38:39 -0400
+Message-ID: <20260706143844.25956-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -78,56 +71,54 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Update seunshare's pin_dir() helper to use openat2() if defined to
-optimize the lookup of the directory and prevent following any
-intermediate symlinks. Fall back to the existing open() on
-ENOSYS/EINVAL so that pre-5.6 and seccomp-filtered environments are
-unaffected.
+Using "*= 2" is a common idiom to grow an array or buffer, but it
+is possible for this multiplication to overflow.
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Use the __builtin_smul_overflow() function that will do the
+multiplication while checking for overflow.
+
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- sandbox/seunshare.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+v7: No changes
 
-diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
-index 3fa42f9a..f2d637e1 100644
---- a/sandbox/seunshare.c
-+++ b/sandbox/seunshare.c
-@@ -10,8 +10,12 @@
- #include <sys/stat.h>
- #include <sys/types.h>
- #include <sys/wait.h>
-+#include <sys/syscall.h>
- #include <syslog.h>
- #include <sys/mount.h>
-+#ifdef __NR_openat2
-+#include <linux/openat2.h>
-+#endif
- #include <glob.h>
- #include <pwd.h>
- #include <sched.h>
-@@ -219,10 +223,19 @@ static int check_owner_gid(gid_t gid, const char *file, struct stat *st)
-  */
- static int pin_dir(const char *dir, struct stat *st_out)
- {
--	int fd;
-+	int fd = -1;
- 	struct stat sb;
+ libselinux/src/matchpathcon.c | 6 +++++-
+ libselinux/src/seusers.c      | 4 ++--
+ 2 files changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
+index 2623e5dc..80de61a0 100644
+--- a/libselinux/src/matchpathcon.c
++++ b/libselinux/src/matchpathcon.c
+@@ -117,7 +117,11 @@ static int add_array_elt(char *con)
+ 	char **tmp;
+ 	if (con_array_size) {
+ 		while (con_array_used >= con_array_size) {
+-			con_array_size *= 2;
++			if (__builtin_smul_overflow(con_array_size, 2,
++						    &con_array_size)) {
++				free_array_elts();
++				return -1;
++			}
+ 			tmp = (char **)reallocarray(con_array, con_array_size,
+ 						    sizeof(char *));
+ 			if (!tmp) {
+diff --git a/libselinux/src/seusers.c b/libselinux/src/seusers.c
+index e4a844df..310b1e7c 100644
+--- a/libselinux/src/seusers.c
++++ b/libselinux/src/seusers.c
+@@ -114,9 +114,9 @@ static gid_t get_default_gid(const char *name)
+ 			break;
  
--	fd = open(dir, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
-+#ifdef __NR_openat2
-+	struct open_how how = {
-+		.flags = O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC,
-+		.resolve = RESOLVE_NO_SYMLINKS | RESOLVE_NO_MAGICLINKS,
-+	};
-+
-+	fd = syscall(__NR_openat2, AT_FDCWD, dir, &how, sizeof(how));
-+	if (fd < 0 && (errno == ENOSYS || errno == EINVAL))
-+#endif
-+		fd = open(dir, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
- 	if (fd < 0) {
- 		fprintf(stderr, _("Failed to open %s: %m\n"), dir);
- 		return -1;
+ 		rc = getpwnam_r(name, &pwstorage, rbuf, rbuflen, &pwent);
+-		if (rc == ERANGE && rbuflen < LONG_MAX / 2) {
++		if (rc == ERANGE &&
++		    !__builtin_smull_overflow(rbuflen, 2, &rbuflen)) {
+ 			free(rbuf);
+-			rbuflen *= 2;
+ 			continue;
+ 		}
+ 		if (rc == 0 && pwent)
 -- 
-2.54.0
+2.55.0
 
