@@ -1,138 +1,169 @@
-Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCD9A3C0A14
-	for <selinux@vger.kernel.org>; Mon,  6 Jul 2026 19:14:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.173
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783365281; cv=pass; b=qvKwZJej4XGUMZzxlX8HeKES8tVBKGWSzrBCBNQ08Gq00yZvCEGexfYEAe+dF+5I6afD0YbgtUzIroxHX4ubE2fntNHEcnMIZQGy6qXXuyKiwjB8Efrwl5kAKQHl6J8x8nKApCSS5flZefr0mfd9lu1SX1BlF4Swz8ns7UwHDiA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783365281; c=relaxed/simple;
-	bh=dtKLjTcWTmmZCLt0LPCx7GQl+y5wIqZNaXxYRVvoK+M=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WO5K1sOoEqP/9stlPAX677/RjdLrzBEsMGdgkJeN05aS575ZJEOSpzy61T0N25pCYin47rGJC7ja8hxB0oaoI0KsGg2lt+4Gc5/reNU668Qz/mIZILshFVEibkcwwu3zomtWfd4zuuzY5Mb77jXWQG0LUk3rbQ1Sj53lXPZyeII=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GQ84QQlc; arc=pass smtp.client-ip=209.85.214.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D6E01F8AC5;
+	Mon,  6 Jul 2026 23:51:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783381863; cv=none; b=kT4BPANKDG/emqeAqJrt88ueqC8/K8oES4DtPgbzjr4FhKWw32nAPXNW32J7MA57n0i/0FQQJ6EkiECTIWRffbJqqkR8uKB0XfRPvjo3Lh+8AnR9iDvsZlmKHMUgApKw778cyHV0V5CmYQWVsZDBUFDg7Lm5LFe04YZxAtv9zSg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783381863; c=relaxed/simple;
+	bh=T2lruLJcsZTsq8HoQPJWIp2ecA8LE+AUCWkjJOP35IU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=PpC0tITrmgURv8ot87qjUl+RDgrHvBDiWZOw5U4Cbc7G1Fq/2Uyrn5R5QRQ1d3wjaSegtGn3bV/cjxY+pkTkWE/pKquNpiMv1UF2J+LKPRTQyl4KcAOWHeibsmcR3xvmwxthKg6armJy8SqeQoScmKYYrbCfox1E/PPhCPlAq0c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DJWFdRrA; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GQ84QQlc"
-Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-2cc6dd436c6so17067815ad.2
-        for <selinux@vger.kernel.org>; Mon, 06 Jul 2026 12:14:40 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1783365280; cv=none;
-        d=google.com; s=arc-20260327;
-        b=SPtY/+urqVtxL/YBOosI+Z/nOFUUUqmer77bp5HZ0SJywUYdvBom/rCE4oqP0LYw0M
-         t0bSJh5Dp6XDjztOBe63o3FkVezWjlsLIZcSAkkBo4k0L8cnJzlQCr+dK3WB767yLEtk
-         YeTfXzGO18KHU1b0qSUZOVYS7v6jrjNrE/ksWTG277PzFN7ivrTv6cGw7MTqb9pqjOvP
-         3h6mC4s3v8JIvL4GSliRCWG32ULdKbCPiXYBt841RncnjW6ilAc/ReDblul8h98/pHIn
-         DtlpxV0HBS+mVrBkbaoAraWkyuIGSOHKqKLnO8Gkn5HBhYD+bWqvQKkkTrAm4gmMkc1b
-         HbsA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=BQEAoD6d7NSb85+gVgjEj3HRj1z1a8fwJTB/7nh0TM8=;
-        fh=ICKES/S570xFq8FKN/gle5VMPI6+K1b32x/JNs42FtU=;
-        b=JYY+/IQ/UH2EtLtWSmGLGJfMqu63PONzHp0pzVUZmhcHfQyEyEqVfNhkFjoP+CGMLN
-         EIbLNqtwAGEer8CNi+GPEez+0JT1k6ClE3bz8sPcrMRKkktw5hsaaHl6IdFevVnYaaJO
-         y3iKy9LUQWjZmTkuN260z0DXVVPARJ37u3X7lvIhigWRFBDRwhwmMjxp10OXz/Ow0FBg
-         c9yIPzgBnqlVLnH/HptjUHwlT9eLrrvkUV8OlXOJjPVADnavrcscM5X2hqZFiJ00Atbc
-         e/ah5YTX0+1T5sqEYjI+cHzii4QsRRj0qWnoJ4p76qn4vMw4ZovgP+VPuldb2Q3vdOKW
-         cerA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783365280; x=1783970080; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=BQEAoD6d7NSb85+gVgjEj3HRj1z1a8fwJTB/7nh0TM8=;
-        b=GQ84QQlciH8fZcISjYDm9V4M3vi2Jyg+cvvIQcdHYSIZP2MlJhaZcufwH2RxwB2llB
-         oFBucEKIFF8fkvNNxvkAExZW+LTIB0TAJiCUut++p3UoKrdaGXAZM680dqMYCBq740ho
-         gjvgvGjGszGKYJ6gW+7LuRKYqPPiv1paVsuOUIt0V+W5PW3Cy7AeNYdWzpHD1sO0KDP7
-         IEG40QBs0D+fsfTbDxQ4b5kB7/1XmNmf2/qRwp3fRSf1/o8+XreXVplwUQZYYvR3RCMl
-         DVDvsnf30VZcwoH49OgvBEfS9P3Uk41LSksng76LuplEokQ+GqtqQcBroV9kTYPFgfSF
-         USew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783365280; x=1783970080;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=BQEAoD6d7NSb85+gVgjEj3HRj1z1a8fwJTB/7nh0TM8=;
-        b=jroB81UUXCCZ6opejAtUUBBJdfY58rUwWOVA/kXFU37XFN938mA0UJkT9rM+vG51jt
-         +04EbWRl5pBxSumX8WV2Wf8Aghsdcz8pzUgYolssZuJwm8shNqdT94bNs+b9BI3VwIOS
-         gvGAPFPBI2vT5MMaoMDCrodAnmnUA4Ek/eulFFW8rUXg7Hm6iwWrlSZUap0BHPmKS0oj
-         XDarTHOML4BUGsuBck0g3GXHgknHMFrU2dBCcmJJq3KJ9M+1vcZpNHju6BrsWGfHNozw
-         lnr85aLc66nlc/+/Xn9q32SjxsbVQ8VzFDSE109R8YuxUXzuwR+8Fqd8ID0v0d8kcQNk
-         +ZXA==
-X-Forwarded-Encrypted: i=1; AHgh+Rrspy3Qs3ve5yDbbrJXwTFVQdSZ4oUesRO0qeXnW7YI+jWfbd16yCx3okL9fiaoxe/AGFmk4ges@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyrl/TuI2Tv1QAd/PNU9z3DJpJGOF/8/RNvp/90unJIftQ3su49
-	TE/wjrmB6w5q0n0TlirtH24biKReluVY4B4+o4qoH8yALLLqFH53qAqxwiv07sE0f6BJegCIhw0
-	IOnwyWy5cNCIZQuSjeep2tqsRJ/EOGB0=
-X-Gm-Gg: AfdE7cnzeEaQzHXWtTh5FAxgCCr29KPwwZEmiD4KWwpArotRxircQbywYf+WTEhodhA
-	K6zpQCLI6GVPcmCFS3aZb1ctHe33IT9kda0JaUIgmvtKNa16WtWEMJQP6hroChzAWpHiq5yF4lH
-	FX0KSVXKzTpDgMVAr8gkS7xYKuwkNKKx6wSWNw3QY0+Rj/gHzHNCnwYZl8lLMuGk7LD6kG0M/Py
-	BJJqTY5SkVFg7eKCDkq0L/6YJMjhG/e/50mj49gybkLBtRpml3wxdC7KTmVCEAc5jIXJ6Bl
-X-Received: by 2002:a17:903:4b47:b0:2ca:ef49:f5a0 with SMTP id
- d9443c01a7336-2ccbe617daemr22777955ad.6.1783365280075; Mon, 06 Jul 2026
- 12:14:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DJWFdRrA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 068D71F000E9;
+	Mon,  6 Jul 2026 23:50:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783381861;
+	bh=MQw4xDJeL8UYTO9Tpj4vdh6UQQ9CEz2MfSlji5wdJ9w=;
+	h=From:To:Cc:Subject:Date;
+	b=DJWFdRrAF4VjaSykKQzp5rlSdb6eiyuPI5BjNyp7YZLlv5/DRjzl/PLQlJvcjk5sE
+	 zAEIubE4VGvxDrs15tx853gjwL85SWBTLPVnVuWF2xut/6bgeuhmq57JV9SeWkcRnC
+	 PlJ3sCNK+5F948ir9e2g43tRjH45xTTyC7S1beH73AClkM+WMotZLHvF4MjOTR7wd5
+	 cGHNQ7A6PdK2Lzqi2H4RDNjtuHy0RyK+Zjeyynjg2usH5AWmE6h6/iEhFI3QdrUZ/0
+	 Xa85wJi6akv6McWTs+cVE5c4dnyzbYBnIL3zH2h3T3p1y10C448r2bADvNBCxU/7Mu
+	 OkRYzt5/q3EBQ==
+From: Song Liu <song@kernel.org>
+To: linux-security-module@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org,
+	selinux@vger.kernel.org,
+	apparmor@lists.ubuntu.com
+Cc: paul@paul-moore.com,
+	jmorris@namei.org,
+	serge@hallyn.com,
+	viro@zeniv.linux.org.uk,
+	brauner@kernel.org,
+	jack@suse.cz,
+	john.johansen@canonical.com,
+	stephen.smalley.work@gmail.com,
+	omosnace@redhat.com,
+	mic@digikod.net,
+	gnoack@google.com,
+	takedakn@nttdata.co.jp,
+	penguin-kernel@I-love.SAKURA.ne.jp,
+	herton@canonical.com,
+	kernel-team@meta.com,
+	Song Liu <song@kernel.org>
+Subject: [PATCH v6 0/8] lsm: Replace security_sb_mount with granular mount hooks
+Date: Mon,  6 Jul 2026 16:50:45 -0700
+Message-ID: <20260706235053.4104951-1-song@kernel.org>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260625235336.3641828-1-tristmd@gmail.com> <0fa8e2f769f889368756a1ed1f12ea8e@paul-moore.com>
- <6a45ba8b.940a5a52.377c47.efec@mx.google.com>
-In-Reply-To: <6a45ba8b.940a5a52.377c47.efec@mx.google.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 6 Jul 2026 15:14:27 -0400
-X-Gm-Features: AVVi8Cdyc_zjpATIJYfI6E2rma6h-ejzGaNVAm-7sY679ZmklOm3--pJpDxUamg
-Message-ID: <CAEjxPJ6Q+_qGCjtxx2XO7nMrb5Q_L7pk5zX6kpCrpXdhbOj8MA@mail.gmail.com>
-Subject: Re: [PATCH v3] selinux: avoid sk_socket dereference in selinux_sctp_bind_connect()
-To: Tristan Madani <tristmd@gmail.com>
-Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	Richard Haines <richard_c_haines@btinternet.com>, selinux@vger.kernel.org, 
-	stable@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	tristan@talencesecurity.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jul 1, 2026 at 9:10=E2=80=AFPM Tristan Madani <tristmd@gmail.com> w=
-rote:
->
-> On Wed, 01 Jul 2026, Paul Moore wrote:
-> > However, there is another issue relating to the SCTP softirq code paths=
-:
-> > the fact that we call into sock_has_perm() in both
-> > __selinux_socket_bind() and selinux_socket_connect_helper().  The
-> > sock_has_perm() function uses current_sid() as the subject in the
-> > avc_has_perm() call, and in the softirq case that is not what we want.
->
-> Had a look at this. The ASCONF softirq path is:
->
->   sctp_rcv()  [NET_RX softirq]
->     -> sctp_process_asconf()
->       -> sctp_process_asconf_param()
->         -> security_sctp_bind_connect(sk, SCTP_PARAM_ADD_IP/SET_PRIMARY)
->           -> selinux_sctp_bind_connect()
->             -> sock_has_perm()
->               -> avc_has_perm(current_sid(), sksec->sid, ...)
->
-> In softirq, current is whatever process was interrupted, so the subject
-> SID is effectively random. Meanwhile the port/node bind checks further
-> down in __selinux_socket_bind() and the port connect check in
-> selinux_socket_connect_helper() already use sksec->sid as the subject,
-> which is the established pattern for softirq context
-> (selinux_socket_sock_rcv_skb, selinux_sctp_assoc_request, etc.).
->
-> The approach I would suggest: thread an explicit subject SID into the inn=
-er
-> helpers. selinux_sctp_bind_connect() would pass sksec->sid, and the
-> process-context wrappers (selinux_socket_bind, selinux_socket_connect)
-> would pass current_sid(). That keeps sock_has_perm() semantics
-> unchanged for the normal path and makes the SID choice visible at each
-> call site.
->
-> I can send a patch for this if this approach works for you.
+This series replaces the monolithic security_sb_mount() hook with
+per-operation mount hooks, addressing two main issues:
 
-I am not Paul but FWIW this approach would work for me.
+1. TOCTOU: security_sb_mount() receives dev_name as a string, which
+   LSMs like AppArmor and Tomoyo re-resolve via kern_path(). The new
+   hooks pass pre-resolved struct path pointers where possible (bind
+   mount, move mount), eliminating the double-resolution.
+
+2. Conflation: security_sb_mount() handles bind, new mount, remount,
+   move, propagation changes, and mount reconfiguration through a
+   single hook, requiring LSMs to dispatch on flags internally. The
+   new hooks are called at the operation level with appropriate
+   context.
+
+The new hooks are:
+  mount_bind        - bind mount (pre-resolved source path)
+  mount_new         - new filesystem mount (with fs_context)
+  mount_remount     - filesystem remount (with fs_context)
+  mount_reconfigure - mount flag reconfiguration (MS_REMOUNT|MS_BIND)
+  mount_move        - move mount (pre-resolved paths)
+  mount_change_type - propagation type changes
+
+mount_new and mount_remount are called after parse_monolithic_mount_data(),
+so LSMs have access to the fs_context with parsed mount options. They also
+receive the original mount(2) flags and data pointer for LSMs (AppArmor,
+Tomoyo) that need them for policy matching.
+
+The series also replaces security_move_mount() with the new mount_move
+hook, unifying the old mount(2) MS_MOVE path with the move_mount(2)
+syscall path.
+
+All existing LSM behaviors are preserved:
+  AppArmor: same policy matching, TOCTOU fixed for bind/move
+  SELinux:  same permission checks (FILE__MOUNTON, FILESYSTEM__REMOUNT)
+  Landlock: same deny-all for sandboxed processes
+  Tomoyo:   same policy matching, TOCTOU fixed for bind/move, unused
+            data_page parameter removed
+
+
+This work is inspired by earlier discussions:
+
+[1] https://lore.kernel.org/bpf/20251127005011.1872209-1-song@kernel.org/
+[2] https://lore.kernel.org/linux-security-module/20250708230504.3994335-1-song@kernel.org/
+
+Changes v5 => v6:
+1. Move security_mount_bind() and security_mount_move() under
+   LOCK_MOUNT()/LOCK_MOUNT_MAYBE_BENEATH(). (Christian Brauner)
+2. Rebase.
+
+v5: https://lore.kernel.org/all/20260528182607.3150386-1-song@kernel.org/
+
+Changes v4 => v5:
+1. Restructure series: add new hooks in security/ first, then convert
+   individual LSMs, then replace old hooks with new hooks in
+   fs/namespace.c (single patch), then remove old hooks. This keeps
+   all fs/namespace.c changes in one patch. (Christian Brauner)
+2. Rebase.
+
+v4: https://lore.kernel.org/linux-security-module/20260515200158.4081915-1-song@kernel.org/
+
+Changes v3 => v4:
+1. Move LSM_HOOK_INIT(move_mount, ...) removal from patch 7/7 to each
+   per-LSM conversion patch (3/7, 4/7, 5/7). (Paul Moore)
+2. Add kdoc comments to tomoyo mount hook functions and rename
+   tomoyo_move_mount to tomoyo_mount_move in patch 6/7. (Tetsuo Handa)
+3. Add Acked-by from Tetsuo Handa to patch 6/7.
+
+v3: https://lore.kernel.org/linux-security-module/20260509015208.3853132-1-song@kernel.org/
+
+Changes v2 => v3:
+1. Rebase.
+2. Move security_mount_move() call in vfs_move_mount() from patch 7/7
+   to patch 1/7. (Paul Moore)
+
+v2: https://lore.kernel.org/linux-security-module/20260430000315.918964-1-song@kernel.org/
+
+Changes v1 => v2:
+1. Rebase.
+2. Add Reviewed-by and Tested-by from Stephen Smalley.
+
+v1: https://lore.kernel.org/linux-security-module/20260318184400.3502908-1-song@kernel.org/
+
+Song Liu (8):
+  lsm: Add granular mount hooks
+  apparmor: Remove redundant MS_MGC_MSK stripping in apparmor_sb_mount
+  apparmor: Convert from sb_mount to granular mount hooks
+  selinux: Convert from sb_mount to granular mount hooks
+  landlock: Convert from sb_mount to granular mount hooks
+  tomoyo: Convert from sb_mount to granular mount hooks
+  vfs: Replace security_sb_mount/security_move_mount with granular hooks
+  lsm: Remove security_sb_mount and security_move_mount
+
+ fs/namespace.c                    |  77 ++++++++++++++----
+ include/linux/lsm_hook_defs.h     |  16 +++-
+ include/linux/security.h          |  60 +++++++++++---
+ kernel/bpf/bpf_lsm.c              |   7 +-
+ security/apparmor/include/mount.h |   5 +-
+ security/apparmor/lsm.c           | 105 +++++++++++++++++-------
+ security/apparmor/mount.c         |  37 ++-------
+ security/landlock/fs.c            |  44 ++++++++--
+ security/security.c               | 129 +++++++++++++++++++++++-------
+ security/selinux/hooks.c          |  52 ++++++++----
+ security/tomoyo/common.h          |   2 +-
+ security/tomoyo/mount.c           |  31 ++++---
+ security/tomoyo/tomoyo.c          | 111 ++++++++++++++++++++++---
+ 13 files changed, 508 insertions(+), 168 deletions(-)
+
+--
+2.53.0-Meta
