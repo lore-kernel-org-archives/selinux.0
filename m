@@ -1,69 +1,69 @@
-Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
+Received: from mail-qt1-f177.google.com (mail-qt1-f177.google.com [209.85.160.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0F0C42643C
-	for <selinux@vger.kernel.org>; Mon,  6 Jul 2026 14:39:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBEA139EF1F
+	for <selinux@vger.kernel.org>; Mon,  6 Jul 2026 14:39:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783348743; cv=none; b=kFo3ciXwCMsrq6Q21LPzIC7UqeEk/aoq+L0PddbD0lJGhCHF4OjprbhArjz4WiH+lt8wqzZaiHW4DVRBa42CdWJpOrn5WwwDoJUydAx2LWAtC9qxwRIBsxZbliGTjwEBlLXctdnyuFAkLf/C5lJIWTV16z/fQaJ+XiJjg+qyrw8=
+	t=1783348744; cv=none; b=D/sjNd8vqzi9aYXj6qSggFViO+6nwlGkhMGnWkLcJVJNWaEzC6T6rORGiXGXXm7NQuOABMll3+Mbx+brCEMQRnCNVgBV9kSLZVIes+iNJrK+P2xkUFT9X8jZLD00uWk97CXYnwRZuAmJQpT/nHatvHArcBi8TJcko8GhM3MDefE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783348743; c=relaxed/simple;
-	bh=pU/jVFF/dWoBd32wjVD77mhLo3w7HEAI1pFP31ui4yQ=;
+	s=arc-20240116; t=1783348744; c=relaxed/simple;
+	bh=wrCvqdC66OW3tJLe9zdxulfyeEQo9MW0u/RlzarUiME=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=MGTJMUIiHG2N699GLCcNVALiw923m7Dc7zVifZXz6Ww75CMRqf6s4NCKJBZFLB3ENhUVVI+7pcytuiz/FJ0D3mYxnp0vD3BH7xAEuor5JCWoVdvd+1MKx9mq0Zfabp053OfBzGFkskuLu+IFeBy1mhumGbUVP1QrQui84Ln3+no=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AXgLqgec; arc=none smtp.client-ip=209.85.219.46
+	 MIME-Version; b=lPS81p0wXvAeCX2QeCSAj0nxP+cQEJMzALTHjV23gtEjXxgINs71+N8cnbtwfG081/X5e2zLErKw5b9RHZfjxDsPj80tbkLWOBQYLSS7OZAfgBvPjdvKzmnUTWziKnc7ET3ObYA1E154OMtYJ+PkzM4v7ke7XgkmivL4+/hKgnQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KQbgx9UP; arc=none smtp.client-ip=209.85.160.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AXgLqgec"
-Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-8ef7b7651ecso29953076d6.1
-        for <selinux@vger.kernel.org>; Mon, 06 Jul 2026 07:39:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KQbgx9UP"
+Received: by mail-qt1-f177.google.com with SMTP id d75a77b69052e-517dc520840so23473021cf.3
+        for <selinux@vger.kernel.org>; Mon, 06 Jul 2026 07:39:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783348741; x=1783953541; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1783348742; x=1783953542; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/k2tPCX4h8Va+CZkBkA9pKCTSKLPuJbiGzIzinRw8MM=;
-        b=AXgLqgecFT9yrX+lUP9j+1GI5PzywkLncaEtW3me7SvWeXJn6moTxl/3tAphDvGG28
-         YeiHKnBfUyYbPCbmkulYXzxqq6O5Dq7BbScOVIVFrI5tJh3Y/CoQ8rXcSIB0LTBjOW3J
-         +4QvkIHnLLaT1RSKkYC4Ng1vC3+Tf3qWazOqarYZ0Ydo242jb/yNO9JRtaxQqd9HaL/C
-         gSNZZGh5pMOJM0m1H+Ral7gFCt8ZrWQmNRppmLr+yePH7fZLNh9PewTpn2lmDJWC8YTh
-         lWPTlN7birrC/DQOCn5FjigRaB/Nu50Jv7Irw86XFY7BKXQ1kJtpRbtezfaowJalhWfy
-         zAXg==
+         :message-id:reply-to:content-type;
+        bh=UQPovHl8lj5qsLfwyBIdAPxVpRytpb083ahUsW/+C3s=;
+        b=KQbgx9UPvMA00gpF/kqqAoNCGMpsmOdYYs+4dlfJj/p0GqIqhgTQWEJrSJ5apG42bY
+         O6y8po8MoaFjrMWpHiLIY+CZlLGIlntAxQ+HIWnGMa4L80Y1QrydJz1LGqwhZmBAWXpF
+         uhohChdSO75Yy7i/dewhOacM7osec/umqkE+cH6yGSvhFzzHCSRbHnvm2A11DG9ynHEq
+         bTWPDXkqTJg68q8/1g7FN/OWPS2pm0faTipgtLtPVerdt83AL6fVLzUu8M+tZgIqfoiT
+         roYL8C1nQcY28iL4QSEqtcYkTuO6MWrA6GagsOclmVQ/xkcgE+tZG5KQXs4EhJuc0vQ3
+         aX0w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783348741; x=1783953541;
+        d=1e100.net; s=20251104; t=1783348742; x=1783953542;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=/k2tPCX4h8Va+CZkBkA9pKCTSKLPuJbiGzIzinRw8MM=;
-        b=fVdoBm5Iuz04i97WHdXKxRRAOsub5o3K90Zl2ZthMbXr4vjbGSh0PByOLR8R0GR3q7
-         iqdemRBaGwa+RGvHyNA9gJasCHRY+wiOsmVmZB7el5OuKmtJSN3HftQSD6bUbYWvE5gS
-         2pbSGlTJNZzEdtrwS/sB4/2qkMLSJjCzf6got/0Gi2QJt5CzqBy3UUVqm3NiMMYMym+Y
-         3vO9CHoIKI8C31GilIfo6d2kTwbeC/77Etkbf6pFsWEYJvJ60VBHPS3wv8G4SLS0zn8c
-         HxbfvUompiJcCxSl5J7KJsexftuAH/cApAik31QCaX6TJewq0ioYonWQ1o9VpVaFK7Vh
-         RHUw==
-X-Gm-Message-State: AOJu0YwzTqHWnhGQjaxghdDHi8ZDDCnbDzYZYu7trFo86Y5WAOT3idkt
-	xtZAkWAeEBtfZJd2aDgTPbfaGK0f6rLjFh3dNV/leMvZaF9sno4SxjBLBa4pcg==
-X-Gm-Gg: AfdE7ckV7sm47KTVcMvsqpUmN0BfXbVJ88KGHatEFvPSGNVhqJPtWYEqNMDPDQH05y4
-	yIw5wXQeOCiC7tl6/1a3h2vugOkt7hBdmnbgDiatweq45q92YGUFNM23TEZ4oU7YTbvePupW055
-	SQj3Y//V1MzDJn2mIW5kTfRf8oFgzCj7kgH5YXPNL4rE6vaRa8PfcCaHoczUZm4JZMHnh2iM/b8
-	bTgC5VFSPIN2l6TA6OcnPv/7yY3+tOjAoZrMClFl7KZ1TrvEadydUqTVbxN2pXfznpima/LdEQJ
-	Ah1Eyc+y/Uk4alc5BczXUBZyBMJB4EHs29qSIvNUWHPYWyE0rFj0K2jRTrRHWxyjgjFa6ASR31G
-	OX8ehn1JQEfTHGewBXCLQXTpnNTKS4fZIBtWOZAM294zaR3G2nqxbHdDAiNLKp7vpqcUHk5GZTB
-	pSvnGK0EQlBAhg2/P4IL4eVRg3kygFJxhULbc=
-X-Received: by 2002:a05:622a:1313:b0:51b:fdc0:ddee with SMTP id d75a77b69052e-51c3c339381mr183911771cf.30.1783348740729;
-        Mon, 06 Jul 2026 07:39:00 -0700 (PDT)
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=UQPovHl8lj5qsLfwyBIdAPxVpRytpb083ahUsW/+C3s=;
+        b=UQWgQxMb0obQLIlIEDNFoPaxuu+u2SDSQXadPKlWYHdntzbknXkLkwTPqPeuiJX/y4
+         Tiy1wn5vvesIgqYvITqLjZdmMGqLU/LT1nlZcUoen4gnR+pm+cgc1B4tCd4B9SQLSGKq
+         neOn7bBGzaadRdhXtCe37Q/JoeDR6/LK4pS3W6Xw5aMubFLnZc6XL2IcSfm86uoLLMkc
+         KSehcfjJDnuwMjegOqEn+vdsqBfBh2yxjk1aGfbIiYaOjpwMJYtliieRtYXCsF6Q+0EY
+         Lp9wBXSkyIVMLoVc/47v066SkYhESCGG/FAaoKDrdB6Utq1hAw79JXfK/7RK4CTddTG5
+         8fPg==
+X-Gm-Message-State: AOJu0YxXMS9tJbst2m1gJr91elSkIVTkowIUtxppr7MLkjYC1EQKai5V
+	TheLbkP5jHWEGPrt+SVQ2jDHf78HUqqsrXzRWhnqbt9Vax1mxE/pjK6SMvQ3eQ==
+X-Gm-Gg: AfdE7cmv213P6ZI1oqNB5JQ8zVNADZFjjfpAwPUluTSesZVSwOkjUbBc6K5UNWWsf3C
+	BrCQpjC0zsYbAbp8fp74dY2uRQ461eXozLKuJG8DeSl+qc8sUENsmt/LjOosJXaFAcrVcMjemPM
+	tYTYWq5CphmahgMcOJ2q+r/7Bjb3M0yVUyg2+VaRASu9ndN/IQ+9xWcEH0xjDFPmtnyIckx82aD
+	0+dVo0XRZtmJc9+QSlQS37UNSITTL0kyGbpm13wgR2/aUe6rTy29u14sgEOiIBKy7Ncyu2h5Mel
+	AygvKuCTAodRyWjWVF03luxYPlcVNGU39/o/dVp0aifN7otJtiUcR/BgLuptMCaTOGQNLfYV9xt
+	bUmEUcsDN6sOGuDfsoE9/dGVZYE0EWxSee8VPTcZ/cPeClR6f0N3KJE5aADkCHFikIwKssqX9gz
+	nRwAsD5SZy+Q9fZ7N/XQKzyut8Viqt7Kdhcvk=
+X-Received: by 2002:a05:622a:1209:b0:51b:7af7:77de with SMTP id d75a77b69052e-51c747b9c56mr10935991cf.14.1783348741525;
+        Mon, 06 Jul 2026 07:39:01 -0700 (PDT)
 Received: from Fedora43-SELinux ([144.51.8.27])
         by smtp.gmail.com with ESMTPSA id d75a77b69052e-51c41b19a66sm89839431cf.7.2026.07.06.07.39.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Jul 2026 07:39:00 -0700 (PDT)
+        Mon, 06 Jul 2026 07:39:01 -0700 (PDT)
 From: James Carter <jwcart2@gmail.com>
 To: selinux@vger.kernel.org
 Cc: stephen.smalley.work@gmail.com,
 	James Carter <jwcart2@gmail.com>
-Subject: [PATCH 4/6 v7] libsepol/cil: Add overflow checks and cil_reallocarray
-Date: Mon,  6 Jul 2026 10:38:42 -0400
-Message-ID: <20260706143844.25956-4-jwcart2@gmail.com>
+Subject: [PATCH 5/6 v7] libsepol: Add overflow checks to strs_* family of functions
+Date: Mon,  6 Jul 2026 10:38:43 -0400
+Message-ID: <20260706143844.25956-5-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260706143844.25956-1-jwcart2@gmail.com>
 References: <20260706143844.25956-1-jwcart2@gmail.com>
@@ -75,81 +75,123 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The CIL stack implementation uses "stack->size *= 2" to grow the
-size of the stack without checking for overflow and calls
-cil_realloc() using a multiplcation that could overflow.
+The strs_* family of functions provide convenient functions for
+handling an array of strings which is used in kernel_to_conf and
+kernel_to_cil. It uses the common idiom of "*= 2" to grow the
+array without any checks for overflow. There is also the function
+strs_add_at_index() which can cause multiple iterations of the
+"*= 2" idiom.
 
-Use __builtin_smul_overflow() to grow the stack size and exit
-with an error if there is an overflow. Add the function
-cil_reallocarray() that checks for overflow of the multiplication
-of the array member size with the number of members and exits with
-an error if there is an overflow.
+Use the __builtin_mul_overflow() function that will do the
+multiplication while checking for overflow.
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+In addition, the function strs_len_items() adds up the lengths
+of all the strings in the array which can overflow.
+
+Use the __builtin_add_overflow() function that will do the addition
+while checking for overflow.
+
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
-v7: No changes
+v7: Remove uneccessary check for len > 0 before subtracting 1
 
- libsepol/cil/src/cil_mem.c   | 12 ++++++++++++
- libsepol/cil/src/cil_mem.h   |  1 +
- libsepol/cil/src/cil_stack.c |  9 ++++++---
- 3 files changed, 19 insertions(+), 3 deletions(-)
+ libsepol/src/kernel_to_common.c | 29 ++++++++++++++++++++++-------
+ libsepol/src/kernel_to_conf.c   | 10 +++++++++-
+ 2 files changed, 31 insertions(+), 8 deletions(-)
 
-diff --git a/libsepol/cil/src/cil_mem.c b/libsepol/cil/src/cil_mem.c
-index aeffdae2..4f75122a 100644
---- a/libsepol/cil/src/cil_mem.c
-+++ b/libsepol/cil/src/cil_mem.c
-@@ -74,6 +74,18 @@ void *cil_realloc(void *ptr, size_t size)
- 	return mem;
- }
- 
-+void *cil_reallocarray(void *ptr, size_t nmemb, size_t size)
-+{
-+	size_t array_size;
-+
-+	if (__builtin_mul_overflow(nmemb, size, &array_size)) {
-+		cil_log(CIL_ERR, "Overflow\n");
-+		exit(1);
-+	}
-+
-+	return cil_realloc(ptr, array_size);
-+}
-+
- char *cil_strdup(const char *str)
- {
- 	char *mem = NULL;
-diff --git a/libsepol/cil/src/cil_mem.h b/libsepol/cil/src/cil_mem.h
-index 7ec316af..f3f40c46 100644
---- a/libsepol/cil/src/cil_mem.h
-+++ b/libsepol/cil/src/cil_mem.h
-@@ -34,6 +34,7 @@
- void *cil_malloc(size_t size);
- void *cil_calloc(size_t num_elements, size_t element_size);
- void *cil_realloc(void *ptr, size_t size);
-+void *cil_reallocarray(void *ptr, size_t nmemb, size_t size);
- char *cil_strdup(const char *str);
- int cil_asprintf(char **strp, const char *fmt, ...);
- 
-diff --git a/libsepol/cil/src/cil_stack.c b/libsepol/cil/src/cil_stack.c
-index d9c7b0c0..da2efa5f 100644
---- a/libsepol/cil/src/cil_stack.c
-+++ b/libsepol/cil/src/cil_stack.c
-@@ -77,9 +77,12 @@ void cil_stack_push(struct cil_stack *stack, enum cil_flavor flavor, void *data)
- 	stack->pos++;
- 
- 	if (stack->pos == stack->size) {
--		stack->size *= 2;
--		stack->stack = cil_realloc(stack->stack,
--					   sizeof(*stack->stack) * stack->size);
-+		if (__builtin_smul_overflow(stack->size, 2, &stack->size)) {
-+			cil_log(CIL_ERR, "Overflow\n");
-+			exit(1);
+diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_common.c
+index adb7b661..c7b6d73a 100644
+--- a/libsepol/src/kernel_to_common.c
++++ b/libsepol/src/kernel_to_common.c
+@@ -117,13 +117,18 @@ int strs_add(struct strs *strs, char *s)
+ 	if (strs->num + 1 > strs->size) {
+ 		char **new;
+ 		size_t i = strs->size;
+-		strs->size *= 2;
+-		new = reallocarray(strs->list, strs->size, sizeof(char *));
++		size_t new_size;
++		if (__builtin_mul_overflow(strs->size, 2, &new_size)) {
++			ERR(NULL, "Overflow");
++			return -1;
 +		}
-+		stack->stack = cil_reallocarray(stack->stack, stack->size,
-+						sizeof(*stack->stack));
++		new = reallocarray(strs->list, new_size, sizeof(char *));
+ 		if (!new) {
+ 			ERR(NULL, "Out of memory");
+ 			return -1;
+ 		}
+ 		strs->list = new;
++		strs->size = new_size;
+ 		memset(&strs->list[i], 0, sizeof(char *) * (strs->size - i));
  	}
  
- 	stack->stack[stack->pos].flavor = flavor;
+@@ -172,15 +177,20 @@ int strs_add_at_index(struct strs *strs, char *s, size_t index)
+ 	if (index >= strs->size) {
+ 		char **new;
+ 		size_t i = strs->size;
+-		while (index >= strs->size) {
+-			strs->size *= 2;
++		size_t new_size = strs->size;
++		while (index >= new_size) {
++			if (__builtin_mul_overflow(new_size, 2, &new_size)) {
++				ERR(NULL, "Overflow");
++				return -1;
++			}
+ 		}
+-		new = reallocarray(strs->list, strs->size, sizeof(char *));
++		new = reallocarray(strs->list, new_size, sizeof(char *));
+ 		if (!new) {
+ 			ERR(NULL, "Out of memory");
+ 			return -1;
+ 		}
+ 		strs->list = new;
++		strs->size = new_size;
+ 		memset(&strs->list[i], 0, sizeof(char *) * (strs->size - i));
+ 	}
+ 
+@@ -229,7 +239,9 @@ size_t strs_len_items(const struct strs *strs)
+ 	for (i = 0; i < strs->num; i++) {
+ 		if (!strs->list[i])
+ 			continue;
+-		len += strlen(strs->list[i]);
++		if (__builtin_add_overflow(len, strlen(strs->list[i]), &len)) {
++			return SIZE_MAX;
++		}
+ 	}
+ 
+ 	return len;
+@@ -248,7 +260,10 @@ char *strs_to_str(const struct strs *strs)
+ 	}
+ 
+ 	/* strs->num added because either ' ' or '\0' follows each item */
+-	len = strs_len_items(strs) + strs->num;
++	if (__builtin_add_overflow(strs_len_items(strs), strs->num, &len)) {
++		ERR(NULL, "Overflow");
++		goto exit;
++	}
+ 	str = malloc(len);
+ 	if (!str) {
+ 		ERR(NULL, "Out of memory");
+diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
+index 3e6bcb33..9bfe5b38 100644
+--- a/libsepol/src/kernel_to_conf.c
++++ b/libsepol/src/kernel_to_conf.c
+@@ -1663,7 +1663,15 @@ static char *attr_strs_to_str(struct strs *strs)
+ 	}
+ 
+ 	/* 2*strs->num - 1 because ", " follows all but last attr (followed by '\0') */
+-	len = strs_len_items(strs) + 2 * strs->num - 1;
++	if (__builtin_mul_overflow(strs->num, 2, &len)) {
++		ERR(NULL, "Overflow");
++		goto exit;
++	}
++	len -= 1;
++	if (__builtin_add_overflow(len, strs_len_items(strs), &len)) {
++		ERR(NULL, "Overflow");
++		goto exit;
++	}
+ 	str = malloc(len);
+ 	if (!str) {
+ 		ERR(NULL, "Out of memory");
 -- 
 2.55.0
 
