@@ -1,63 +1,63 @@
-Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
+Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4353C420872
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6C0D2BEC52
 	for <selinux@vger.kernel.org>; Mon,  6 Jul 2026 14:32:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.175
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783348340; cv=none; b=B19gnduTO4AxDwr5H73GpufWoGTsFezKPl/NWFxXUyHbIklUEsnWSDykl1JOGCGrlkR2b5Wpu+naM125Z2uoBz2rjHRblVDVRvdyDnas+AWSBXawWgqjrFSIbRcTsMqirEvTGwTyTAIrppEopwWjf46Yy8i/a9Cx+6y6+3nsp1E=
+	t=1783348341; cv=none; b=amFCoJXP1Hs+zFXt584W9+y/iveNCU8Gs0qN28/tHW82B7uPIl+QDlRDgtCafEja3+HhB+kLm0KQ8fMhBmfdBT0AYd7Ksd7GRKixav5BWzf9kAQm12MuhCLKhZOD50WLrMHcLLrbv9B221QxpsAOsrrH2elJHZkPFdvliwH/5wk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783348340; c=relaxed/simple;
-	bh=uy9hVW9Lrg/9jnsaUZ8yWCjmpiS1HdGeOhdszsTn/DU=;
+	s=arc-20240116; t=1783348341; c=relaxed/simple;
+	bh=fnNIOIytEQTUuIX0OpJFQ1NKW75Cy5H6MvsNK/98yco=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=GCHPtyNTQr8n+CvB/tXZ2H1ZwmpScxgN/BI90tGc0TG0Gm2U9NPbepTmtwUFckEAslm0NqAfuw/dYgsWP0UNbWvI3ov/ajRZVojS7J8j8VLuldCSX8t86Ab+fO3ogG8s/QQpMxzlhQzga9A/4C31tTSySMgE7mVANI6dECFixxU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hKKFOSad; arc=none smtp.client-ip=209.85.160.175
+	 MIME-Version; b=nzNvi4i7MQfE8EdAxcSMujNb2fRnc4X940B/Nzi2TGFPpUB/ngT/g/hstiwAfzTem8MQwUWOGOpw0j7JjQbiRTl9gADUOqBR0rt5BXOS1UKl/zMXt9NyznUfPZgjkzbHYJFHDkcQnlx91GEVCiudvlURbhubID+3t4MZzt+JNG4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oo0UyMGC; arc=none smtp.client-ip=209.85.160.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hKKFOSad"
-Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-51bfe810293so15071431cf.1
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oo0UyMGC"
+Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-51c0a81d286so20641981cf.1
         for <selinux@vger.kernel.org>; Mon, 06 Jul 2026 07:32:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783348338; x=1783953138; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1783348339; x=1783953139; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=jzj+H5Fuk7VCFNW+/WX7pwtcAr49L0zFb5iwGi7KWK0=;
-        b=hKKFOSadrHTR8rvwXmRah9cwqctSa4WXKNJJldssUEs3HbZmthlPqanE56hcp6uGqI
-         VHFn+7auNdsbycF1LbjAfFxCwAsWNI+eWpOXYeVkxDXIhHUAMXA7SKgPSMT8ORqxJxwI
-         ij1AkgDw1vFpNgl/y9ahc1pk7VDnxQgWainb9mK/pV+TzynJFS2m+gW4XR1GNqggPO1r
-         g67ENnBSXk+XPgI4gHe0IcuHiC0XttzL3kzOd2dBVquPIMx6He9QWUQ4ID6vrpe61ZM9
-         01Y3HLJkqGrvgglAiWNlabXj34KNkBHUQbTkO+FKP04oNIJp46ldYwqxzztSYzHoC0ZE
-         LGWw==
+         :message-id:reply-to;
+        bh=7C3KTgVpXhfCvWTRNw1lSs9LhnnzGPamVVAEuzL755s=;
+        b=oo0UyMGCcOIeAilBBSegW8Q1m5zR4HbJma3O9Us6X1gTvIqPIbxW5vwPVmoVdCHada
+         Q+EWaD+HeZvtIzTnb4Vxk8ZTKhHd4vxSQrR3nbI27VBYfWl2b13wt7OAgfiPFw3f0WEa
+         1Pf4N8C4Rw7lJRDMZ5+y4427a1tMHgR57WkgEcNOcKEhy/5uBkPLimtsmrrZ5bksfTVL
+         ySfCLaonINbaDNa296HQDcBqBpbFjLbsN+yTpUJ9HwsM3RNAm4qiQu71dfrvK7rMOSOM
+         qbHwkxWr/vxsivLFe9XAY4OmtA/hn2fSe+/lk8y3M0Zd5onK7XkpBDnzRiHlktDthjK3
+         zchw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783348338; x=1783953138;
+        d=1e100.net; s=20251104; t=1783348339; x=1783953139;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=jzj+H5Fuk7VCFNW+/WX7pwtcAr49L0zFb5iwGi7KWK0=;
-        b=cV5kxIvD7+S20veermWEC822f95DPofuptClfkXPAqYUGUE66o8vIT7d1pt+5hUiQF
-         UfjSRGpIjujPZHYMix3Y6oZKR8Cyl1pbiI/igCsIaP3aZ/UGEeG6YANNFl80L69XRAw2
-         BvFdqy6nUNwN6tsyf+6N86OD8oxkCtIDNk0XP6YqfgHzpSCD2h22L63UqCYDsmdJ+EVM
-         YRCm2OEEzYb3MNzSKzIm6bmie2BdjYG2K+eOEDZu4znyOpOkliVxWNbbS7hOwANApBDn
-         nmrG3UcbOptLtHSSoVbv/vgzYNbYDWoBhLWjrFF2bT2MQPJOdJ5q9jCptJAlyBaa0pvu
-         y2eg==
-X-Gm-Message-State: AOJu0YzDzPDK5i8PAsGWVrTLo0H177sZBRhElTUDQqW9wWtKpSZM064G
-	hEEOc23mRpOrIwBEJw7BHbcRLNL61O+MMAUn2knXicrX5WHR9m4jANLrNRQKDA==
-X-Gm-Gg: AfdE7cn4gHQr1fPnJ/JM7pb710LpcuzEKBesqkmGbuGF20BjLgg90IjuPb6yZve9Cxq
-	bRO/fWyjk9NGGyEs3FX6OQFG4jklQX9UF/d8/aY19omxlOQoVYqJu3q+9UmB43s0EDqr8iahWwW
-	Ho72No5jy+5kmoJJOsC2HsDpPdwsYQyWechHhkJJLpS2F00rEEXmDqLuRkhOgGNI+clqgcnIBPy
-	Njt74XWCM8r4CEp4lF1oeyjvTqlmj/7lw1LFzLa/DvmcYleNgPkWcZ8ZwAuswxBIAzOJoOWncpX
-	M10jdqw8GcTsqJOa4KucQYTnVYMcyYRGj5I5G53f/d1GEdYSXRRC8erYbCW3k6N+bylBC1kMUJy
-	e/4PXKE51cmlUB5f+cccsBidRE+hRgH7fm3/Hc+MEzZi9CTSDrDS26AJHw6+OLwqdHqcBxK0gpe
-	poXDBYz1YldJlLw7+Q/vZIERZsdYQ8kQJ/Kib6sJurt+raVBFAKCbkZhAwRdf3i1l/gaveI0bVj
-	kZntPLwzju6dFtk2AigDMCUOTQ=
-X-Received: by 2002:a05:622a:1e0e:b0:51c:ecf:4eb3 with SMTP id d75a77b69052e-51c74826e1emr8302001cf.44.1783348338043;
+         :to:cc:subject:date:message-id:reply-to;
+        bh=7C3KTgVpXhfCvWTRNw1lSs9LhnnzGPamVVAEuzL755s=;
+        b=hIUPdB9RRFwAhdtmrM3TdmdWqV49JzmxuG40TLsav9C+J9RO8rv44eUSuS+9Gnxb2W
+         Tf1McfoDZHZ9YGW9D1ONA2VCK3SZo+9cbX60fjCfdgynWQ87+6UqEGHd152zWtBAMS7G
+         alJJdgCrt9LlXIm6vcEr062eMZIkQ/rwaXGOjdVfQlUQMvhZmbAm55QP44EVzHDS2RAV
+         8DH7JwK5J8qnn9t95q312/NEpOuGtU8cspZyeedwOE8yWPlMdBeq/A9Udzq+xK1HBiHh
+         +ybj1tiQWkaBjbMaOHCLlAR7eB0EIsiyNittFqVCqRt5AMzdErSeZNLPkotbBCrMf61/
+         qolw==
+X-Gm-Message-State: AOJu0Yxqcud329GSz6n3nwYt2T0+TMiljJADbpF6BT2SlA24i1pa6zW7
+	AmJPsRZNRGaKwBbqeEYJkvjDyKsGS11uQzANvv8Z3Ml04susQCVhcFRSfNZibA==
+X-Gm-Gg: AfdE7cncaVOTh7+wD972JQ/uqvEFkcnmzbhjD/KsF9vUlo/yoVj4Y+DnuUqJU/f6Yim
+	8KsKalE4jtTfOAZYgrdVRSHfUYo0YR+XMTljkHibdCfGDuEv+8rpkdzM9xCVVwEMcs1NcBzUs8/
+	HvVLAmB/oPSI3lzKca2orhfmgt1Zu1LUe6LtaihazbyS+ZerWxJhGcd5BLWY9wWQbFnbYUuZe/h
+	rnPPAfvLhEVQwZ3ydoeFR44FGfdAMq2YBA/ui7LGvF38oyMNmiCtWuFHQ2S9tUDJaNS7WJS3q+p
+	dGuSlExF879HzoMsIN3DSZOr/Yhe5idnI9sKdwFr5C5R8bP4KKB/dgEgTXd+mbZrxZl/7YMGkQz
+	AHVYNkrhdaejg1Xpias7ArxTQ9r95r351bLNFXvLlhDBpQhONI/tGnhE6EImcfXsonlUxx9NCjv
+	C4vQ07LhzpaTGiG0BElPgAuUdeIyICsB/+moiXf7PtSPESHVsytUdE1/sErDrAIuFytVJTYtkwb
+	/hChEqpJhQzO8WB
+X-Received: by 2002:a05:622a:cf:b0:516:ed2c:9c75 with SMTP id d75a77b69052e-51c3c05a9f4mr186629371cf.16.1783348338762;
         Mon, 06 Jul 2026 07:32:18 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-51c41ab77e7sm92790761cf.3.2026.07.06.07.32.17
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-51c41ab77e7sm92790761cf.3.2026.07.06.07.32.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Jul 2026 07:32:17 -0700 (PDT)
+        Mon, 06 Jul 2026 07:32:18 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -66,9 +66,9 @@ Cc: jwcart2@gmail.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>,
 	Seth Moore <sethmo@google.com>,
 	Purushottam Choudhary <purushottamchoudhary29@gmail.com>
-Subject: [PATCH v3 1/5] libselinux: avc: use pthread mutexes by default when no lock callbacks set
-Date: Mon,  6 Jul 2026 10:31:51 -0400
-Message-ID: <20260706143155.36629-2-stephen.smalley.work@gmail.com>
+Subject: [PATCH v3 2/5] libselinux: stringrep: serialize access to the discover_class_cache
+Date: Mon,  6 Jul 2026 10:31:52 -0400
+Message-ID: <20260706143155.36629-3-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260706143155.36629-1-stephen.smalley.work@gmail.com>
 References: <20260706143155.36629-1-stephen.smalley.work@gmail.com>
@@ -80,20 +80,25 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The AVC has a set of locking calls but defaults to no locking, and
-only the deprecated avc_init() allowed applications to set their own
-locking callbacks. Since selinux_check_access() is now commonly used
-by applications implementing userspace SELinux permission checks and
-it uses avc_open() internally, such calls are currently not
-thread-safe.  Provide fallbacks to using pthread mutexes by
-default. Single-threaded programs that do not link -lpthread will be
-unaffected due to the existing __pthread_mutex() helpers. Applications
-that explicitly specify locking callbacks via the deprecated
-avc_init() will also be unaffected.
+The discover_class_cache list is accessed without locking by the
+string_to_*() and *_to_string() functions in libselinux for
+translating between string names and class/perm values, and returns
+pointers to strings within this list to callers.
+selinux_flush_class_cache() frees the list upon a policy reload,
+called by avc_process_policyload() from selinux_status_updated() and
+avc_netlink_process().
 
-This is the first step toward a thread-safe selinux_check_access();
-the class-string cache and status-page transition handling are
-addressed in follow-up changes.
+Make this safe for multi-threaded users by introducing and taking a
+mutex around the list accesses, and by moving flushed nodes to a
+retired list rather than freeing them so that returned string pointers
+remain valid. Given the infrequency of policy reloads, the relative
+stability of the class/perm mapping even across policy reloads, and
+the small amount of memory required, this seems a worthwhile tradeoff.
+If it becomes an issue, there are several options:
+1. Only load/refresh new/modified class/permission names and values
+upon policy reload rather than flushing and reloading them all,
+2. Provide a way to drain the retired list safely when the application
+knows it is no longer using any returned strings.
 
 Fixes: #287 #335 #336
 Link: https://lore.kernel.org/selinux/CAJsHiNx1E7x1jaBkS0i4L1nBWXp8YXLHRWcCaDaH4LOn=zm+Zw@mail.gmail.com/
@@ -103,64 +108,206 @@ Reported-by: Purushottam Choudhary <purushottamchoudhary29@gmail.com>
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libselinux/src/avc_internal.h | 19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ libselinux/src/stringrep.c | 120 +++++++++++++++++++++++++++----------
+ 1 file changed, 87 insertions(+), 33 deletions(-)
 
-diff --git a/libselinux/src/avc_internal.h b/libselinux/src/avc_internal.h
-index 719be934..3c21ffef 100644
---- a/libselinux/src/avc_internal.h
-+++ b/libselinux/src/avc_internal.h
-@@ -14,6 +14,7 @@
- #include <string.h>
- #include <selinux/avc.h>
- #include "callbacks.h"
-+#include "selinux_internal.h"
+diff --git a/libselinux/src/stringrep.c b/libselinux/src/stringrep.c
+index ec6fc637..cd9841ca 100644
+--- a/libselinux/src/stringrep.c
++++ b/libselinux/src/stringrep.c
+@@ -27,7 +27,9 @@ struct discover_class_node {
+ 	struct discover_class_node *next;
+ };
  
- /* callback pointers */
- extern void *(*avc_func_malloc)(size_t);
-@@ -115,25 +116,41 @@ static inline void avc_stop_thread(void *thread)
++static pthread_mutex_t discover_class_lock = PTHREAD_MUTEX_INITIALIZER;
+ static struct discover_class_node *discover_class_cache = NULL;
++static struct discover_class_node *discover_class_retired = NULL;
  
- static inline void *avc_alloc_lock(void)
+ static struct discover_class_node *get_class_cache_entry_name(const char *s)
  {
--	return avc_func_alloc_lock ? avc_func_alloc_lock() : NULL;
-+	pthread_mutex_t *m;
-+
-+	if (avc_func_alloc_lock)
-+		return avc_func_alloc_lock();
-+
-+	m = avc_malloc(sizeof(*m));
-+	if (m)
-+		__pthread_mutex_init(m, NULL);
-+	return m;
+@@ -156,9 +158,6 @@ static struct discover_class_node *discover_class(const char *s)
+ 	}
+ 	closedir(dir);
+ 
+-	node->next = discover_class_cache;
+-	discover_class_cache = node;
+-
+ 	return node;
+ 
+ err4:
+@@ -176,41 +175,84 @@ err1:
+ 
+ void selinux_flush_class_cache(void)
+ {
+-	struct discover_class_node *cur = discover_class_cache, *prev = NULL;
+-	size_t i;
+-
+-	while (cur != NULL) {
+-		free(cur->name);
+-
+-		for (i = 0; i < MAXVECTORS; i++)
+-			free(cur->perms[i]);
+-
+-		free(cur->perms);
++	struct discover_class_node *head, *tail;
+ 
+-		prev = cur;
+-		cur = cur->next;
++	__pthread_mutex_lock(&discover_class_lock);
++	head = discover_class_cache;
++	discover_class_cache = NULL;
+ 
+-		free(prev);
++	/*
++	 * Move old list to the retired chain rather than
++	 * freeing it; other threads may hold pointers to
++	 * class/perm strings within it returned by
++	 * security_class_to_string() and
++	 * security_av_perm_to_string(). This incurs a small
++	 * memory cost but given the infrequency of policy
++	 * reloads, it should never be significant. If
++	 * required, a new interface could be introduced to
++	 * allow the application to safely drain the retired
++	 * list when it knows it is safe to do so.
++	 */
++	if (head) {
++		tail = head;
++		while (tail->next)
++			tail = tail->next;
++		tail->next = discover_class_retired;
++		discover_class_retired = head;
+ 	}
+-
+-	discover_class_cache = NULL;
++	__pthread_mutex_unlock(&discover_class_lock);
  }
  
- static inline void avc_get_lock(void *lock)
+ security_class_t string_to_security_class(const char *s)
  {
- 	if (avc_func_get_lock)
- 		avc_func_get_lock(lock);
-+	else if (lock)
-+		__pthread_mutex_lock((pthread_mutex_t *)lock);
- }
+-	struct discover_class_node *node;
++	struct discover_class_node *node, *retry;
++	security_class_t value;
++	size_t i;
  
- static inline void avc_release_lock(void *lock)
- {
- 	if (avc_func_release_lock)
- 		avc_func_release_lock(lock);
-+	else if (lock)
-+		__pthread_mutex_unlock((pthread_mutex_t *)lock);
- }
- 
- static inline void avc_free_lock(void *lock)
- {
- 	if (avc_func_free_lock)
- 		avc_func_free_lock(lock);
-+	else if (lock) {
-+		__pthread_mutex_destroy((pthread_mutex_t *)lock);
-+		avc_free(lock);
++	__pthread_mutex_lock(&discover_class_lock);
+ 	node = get_class_cache_entry_name(s);
+-	if (node == NULL) {
+-		node = discover_class(s);
++	if (node) {
++		value = node->value;
++		__pthread_mutex_unlock(&discover_class_lock);
++		return map_class(value);
 +	}
++	__pthread_mutex_unlock(&discover_class_lock);
+ 
+-		if (node == NULL) {
+-			errno = EINVAL;
+-			return 0;
+-		}
++	/* Discover outside of lock; reads selinuxfs */
++	node = discover_class(s);
++	if (node == NULL) {
++		errno = EINVAL;
++		return 0;
+ 	}
++	value = node->value;
++
++	/*
++	 * Retry cache lookup with lock held in case
++	 * another thread raced with us. If we don't
++	 * find it, add the new one; else use
++	 * the old one and free the new one.
++	 */
++	__pthread_mutex_lock(&discover_class_lock);
++	retry = get_class_cache_entry_name(s);
++	if (!retry) {
++		node->next = discover_class_cache;
++		discover_class_cache = node;
++	} else {
++		value = retry->value;
++		/*
++		 * We can only safely free node here
++		 * because it wasn't yet added to the cache.
++		 */
++		free(node->name);
++		for (i = 0; i < MAXVECTORS; i++)
++			free(node->perms[i]);
++		free(node->perms);
++		free(node);
++		node = NULL;
++	}
++	__pthread_mutex_unlock(&discover_class_lock);
+ 
+-	return map_class(node->value);
++	return map_class(value);
  }
  
- /* statistics helper routines */
+ security_class_t mode_to_security_class(mode_t m)
+@@ -239,13 +281,17 @@ access_vector_t string_to_av_perm(security_class_t tclass, const char *s)
+ 	struct discover_class_node *node;
+ 	security_class_t kclass = unmap_class(tclass);
+ 
++	__pthread_mutex_lock(&discover_class_lock);
+ 	node = get_class_cache_entry_value(kclass);
+ 	if (node != NULL) {
+ 		size_t i;
+ 		for (i = 0; i < MAXVECTORS && node->perms[i] != NULL; i++)
+-			if (strcmp(node->perms[i], s) == 0)
++			if (strcmp(node->perms[i], s) == 0) {
++				__pthread_mutex_unlock(&discover_class_lock);
+ 				return map_perm(tclass, UINT32_C(1) << i);
++			}
+ 	}
++	__pthread_mutex_unlock(&discover_class_lock);
+ 
+ 	errno = EINVAL;
+ 	return 0;
+@@ -254,14 +300,16 @@ access_vector_t string_to_av_perm(security_class_t tclass, const char *s)
+ const char *security_class_to_string(security_class_t tclass)
+ {
+ 	struct discover_class_node *node;
++	const char *name;
+ 
+ 	tclass = unmap_class(tclass);
+ 
++	__pthread_mutex_lock(&discover_class_lock);
+ 	node = get_class_cache_entry_value(tclass);
+-	if (node == NULL)
+-		return NULL;
+-	else
+-		return node->name;
++	name = node ? node->name : NULL;
++	__pthread_mutex_unlock(&discover_class_lock);
++
++	return name;
+ }
+ 
+ const char *security_av_perm_to_string(security_class_t tclass,
+@@ -269,16 +317,22 @@ const char *security_av_perm_to_string(security_class_t tclass,
+ {
+ 	struct discover_class_node *node;
+ 	size_t i;
++	const char *name;
+ 
+ 	av = unmap_perm(tclass, av);
+ 	tclass = unmap_class(tclass);
+ 
++	__pthread_mutex_lock(&discover_class_lock);
+ 	node = get_class_cache_entry_value(tclass);
+ 	if (av && node)
+ 		for (i = 0; i < MAXVECTORS; i++)
+-			if ((UINT32_C(1) << i) & av)
+-				return node->perms[i];
++			if ((UINT32_C(1) << i) & av) {
++				name = node->perms[i];
++				__pthread_mutex_unlock(&discover_class_lock);
++				return name;
++			}
+ 
++	__pthread_mutex_unlock(&discover_class_lock);
+ 	return NULL;
+ }
+ 
 -- 
 2.54.0
 
