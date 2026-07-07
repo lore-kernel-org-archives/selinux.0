@@ -1,168 +1,93 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from mail-oi1-f177.google.com (mail-oi1-f177.google.com [209.85.167.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FBEA395AF2
-	for <selinux@vger.kernel.org>; Tue,  7 Jul 2026 14:14:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6819E42A160
+	for <selinux@vger.kernel.org>; Tue,  7 Jul 2026 14:39:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783433691; cv=none; b=ONpzvK5RCZ/DjBO8H4gEjHxyddGEftiah2aXY2r2qxxIUnzDGHLm19nV+wprCAKqqrqzkJVjyHkmKmm1Hxr4digWLEsESKgOVoM5sTX8t2hyY6wxI/xuEHJjFhiG5ix8txJwRjapXJikx8ZLeBg49V/Je9bKqa0mgLUI4DctDjA=
+	t=1783435192; cv=none; b=LXmK4iBw6fjgRysJSWJv8MHUreIDmLYCN56dS87tvLM/u834DJpQ4Y8DsVlsAM8EMd6PIJvngs1ivxH+WerX6/KzGQ5RQ6lHj+Z/8okI2HCBeeFjDvjFj/ajOsV99g6s/3G2p8v36DaRKNMCfRg6Rb3DXDq5Fxe42BtNphm/764=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783433691; c=relaxed/simple;
-	bh=M1sU6g+HUzK0+Dx5g9Ufug4vk3KnUX0rgOgaj20HBfY=;
-	h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=UwnyHaxNmSHEmTLuM6WDPYInw2I31v+r6TLuQsGtOok+4lFXPZIZlGWI34HSxW9wqNHE0JoO0NLyqHAy17tyz3kgwyd9e5voi4ZeOSRLaE3uYb4VdoEqP5VVe13RKxwUuL6qBX9Ng0adqmKb9JEdIm59qFfm9akV2V/GAVBS2c8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=CS4droEJ; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=wXsUDObN; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=CS4droEJ; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=wXsUDObN; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1783435192; c=relaxed/simple;
+	bh=BZxZuLir9/1a/oYRDg/n+cRNA34lm1C5Fbxc7kOYpEY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=mm/UizdMLlTAKl26VvOn0nVspW2FrGvUQ0CvNyGlKDAlAGNb1l7ZM3gppcs6YReUbTIlB4b+/j7lyh1PXrxOH2ixZQa1lhFApM0INg3zd94eveaeeGusFK/+R6IA5yQyuJVSDV/fMr+Ne0fGkAjMZsk7Q9GeVN+Cuv4fyvtShYE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bbQm9ZCz; arc=none smtp.client-ip=209.85.167.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="CS4droEJ";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="wXsUDObN";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="CS4droEJ";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="wXsUDObN"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 2F23575B84
-	for <selinux@vger.kernel.org>; Tue,  7 Jul 2026 14:14:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1783433688; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type;
-	bh=oWFg5Qb7c5CkrPVtqSxNEgivUsCdOlYJdff/6VV+gN8=;
-	b=CS4droEJwZs5RQsELjdgmiFDh8yRQel8XTUUrZkEf1hMNGXMjBGRLue99ODwFAi2kgubvr
-	SDAF6S6dkrjEFu9jyoTXs/mIdDfMiKB7g5qMJO599/nmYCi1PfglTuaPeKJzdD4nWpi7TH
-	d7Okdz09ovzsgkUhe9+nM2JqMer1JQw=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1783433688;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type;
-	bh=oWFg5Qb7c5CkrPVtqSxNEgivUsCdOlYJdff/6VV+gN8=;
-	b=wXsUDObNmzto3rrdBrnp0pPrrgwHeNxKe07kOPMxp8ut91I/+IkI1oHSceco2q6OqVB8VB
-	WaNpKZAHQ2Zs2GAQ==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=CS4droEJ;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=wXsUDObN
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1783433688; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type;
-	bh=oWFg5Qb7c5CkrPVtqSxNEgivUsCdOlYJdff/6VV+gN8=;
-	b=CS4droEJwZs5RQsELjdgmiFDh8yRQel8XTUUrZkEf1hMNGXMjBGRLue99ODwFAi2kgubvr
-	SDAF6S6dkrjEFu9jyoTXs/mIdDfMiKB7g5qMJO599/nmYCi1PfglTuaPeKJzdD4nWpi7TH
-	d7Okdz09ovzsgkUhe9+nM2JqMer1JQw=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1783433688;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type;
-	bh=oWFg5Qb7c5CkrPVtqSxNEgivUsCdOlYJdff/6VV+gN8=;
-	b=wXsUDObNmzto3rrdBrnp0pPrrgwHeNxKe07kOPMxp8ut91I/+IkI1oHSceco2q6OqVB8VB
-	WaNpKZAHQ2Zs2GAQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 1A574779AE
-	for <selinux@vger.kernel.org>; Tue,  7 Jul 2026 14:14:48 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id YnoXBdgJTWqCWwAAD6G6ig
-	(envelope-from <jsegitz@suse.de>)
-	for <selinux@vger.kernel.org>; Tue, 07 Jul 2026 14:14:48 +0000
-Date: Tue, 7 Jul 2026 16:14:42 +0200
-From: Johannes Segitz <jsegitz@suse.de>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bbQm9ZCz"
+Received: by mail-oi1-f177.google.com with SMTP id 5614622812f47-485ecc0f2dfso2569474b6e.3
+        for <selinux@vger.kernel.org>; Tue, 07 Jul 2026 07:39:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1783435190; x=1784039990; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=+JotQkYJsSJrNJaS8J0hWEmsilTMyQkVpzfpxW/mJ7Y=;
+        b=bbQm9ZCzb4VHwBJiw0O2DGh+XdkXDI9QMvcMiFE/SAxQO5X9Zo7ea2UgRw6hh00D0H
+         L8ekcWL8vrwsflaUx55dTNS68QoIQaoBYPJFJT5vug6Os2pAvPBSRmM80CnggnfHwig4
+         eo6eBthTzLe6RbEhqERVWUw3TS/fA0kHp/p6e6KCfv9/kj8Hp1DV2YW9ltNODbTpZexn
+         EJLnDxunaGBJ6aVAJF2a7ZFrQNMXfHfjq3S+n4X+Zi4GKNWPWkFDG6tHbQyETJzUMo2S
+         18nrRWQHpL558pMm7BRqNyG1vPnpKlhfqPhy8OP6US3ecXBXDhPRZc2EyIhtCedAAevS
+         lKVA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783435190; x=1784039990;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=+JotQkYJsSJrNJaS8J0hWEmsilTMyQkVpzfpxW/mJ7Y=;
+        b=qHB+AZfFQ5d/s7aNEQphZfkBV6Ted0+0vlw9coR7UasxKpomOEUQMGDwgY/6W6Sa6C
+         +8dwb6lPqDS400Omv6IlWdMSgJ1KVZr6FTebYixM/LTJJm90jfgbmP6UZIKr92ugRCki
+         d+8l1NjQ+Uh+okO0sWrbHLjMm6jksmV76oHnQ0fTT6hzAAckAgX5/qxluo8oj1m/3eRA
+         +NGAkZyzuWKp/67ReTL68r2L8ErVfzcEdHaiIA1LBp2fmaVOPL4AZO57/DoEvS4fwUbn
+         V5pmsqlrOUmoklnIdQTtf2jmprW2Jc/6Tf1fycjsRNiOC1VdcpmysmhVSnxt1oyum6WU
+         GYUg==
+X-Gm-Message-State: AOJu0Yyd0o3Ct4feI4HZFoKQCCpJ+z87M5IbffLUVwYm0TLC8ps7bxJ4
+	ogT2Vd59qXuzOgHw2jZ2npu6vT0V4TTirZUWlKweF5LX6/9u0bHP5PXwk280/g==
+X-Gm-Gg: AfdE7cm8AXUqGLAt9TbR26/ik5uOwS1QI0LL6D7bYcoKaQO3DHyBgB0sIGXxv3D5DZi
+	Z1Ce7kGla1+qwcSDeDBi+A9FBofG/U8PDsQxe8O8+wbxRN8FR3LWWh3+ep5LfyxgCRgsu45ho3O
+	5sAlAdpNjznPUxaS76fhn0uIjwMQ3fbFO/OoY+pBFO+bHQuVCcsiAs+HRjsXP+8aeWZzhecXAJV
+	1WEeAHsoqFkuJR2sK6/OGsbdmPJbISFv5zXWQN8ngDjI45OPe/+EnPqVCxd4pwiLpoGR072TZ7m
+	j335kUvIFxMJUJeXvVt+G+8Dn1NQTl2Fvs+wkQhjZi1rhQxXl16CoHpklFPXLKGhomE07mrQZTe
+	MOf/6y4GTI2OtqZXFX8LB2F0Og+lITrBByORAb7rzC/YlF86tTJVXRBQd5KHIUafLapilPRWcXP
+	HVLTYFwM1JyFIVrZoWpEytTyk=
+X-Received: by 2002:a05:6808:3505:b0:495:ffb3:f4aa with SMTP id 5614622812f47-49fdc6528e9mr4027966b6e.13.1783435190296;
+        Tue, 07 Jul 2026 07:39:50 -0700 (PDT)
+Received: from fedora ([98.97.80.55])
+        by smtp.gmail.com with ESMTPSA id 5614622812f47-497d1af6086sm11094824b6e.11.2026.07.07.07.39.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Jul 2026 07:39:49 -0700 (PDT)
+From: Bill Roberts <bill.c.roberts@gmail.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH] SECURITY.md: add my email address and GPG key fingerprint
-Message-ID: <ak0J0hw9jz0txZn8@suse.com>
+Cc: stephen.smalley.work@gmail.com,
+	Bill Roberts <bill.c.roberts@gmail.com>
+Subject: [PATCH] SECURITY.md: remove William Roberts
+Date: Tue,  7 Jul 2026 09:39:38 -0500
+Message-ID: <20260707143938.1653637-1-bill.c.roberts@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="c1REVQ0WcNJBgecE"
-Content-Disposition: inline
-X-Spam-Flag: NO
-X-Rspamd-Action: no action
-X-Spam-Level: 
-X-Spamd-Result: default: False [-6.61 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	SIGNED_PGP(-2.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MIME_GOOD(-0.20)[multipart/signed,text/plain];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MX_GOOD(-0.01)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	RCPT_COUNT_ONE(0.00)[1];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+,1:+,2:~];
-	MISSING_XM_UA(0.00)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:email,suse.de:dkim,suse.com:mid];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	TO_DN_NONE(0.00)[];
-	PREVIOUSLY_DELIVERED(0.00)[selinux@vger.kernel.org];
-	DKIM_TRACE(0.00)[suse.de:+]
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Rspamd-Queue-Id: 2F23575B84
-X-Spam-Score: -6.61
+Content-Transfer-Encoding: 8bit
 
-
---c1REVQ0WcNJBgecE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-This key can be downloaded from
-https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xee166bcead56e034bfb33add7bf729d5e7c81fa0
-
-Signed-off-by: Johannes Segitz <jsegitz@suse.de>
+Signed-off-by: Bill Roberts <bill.c.roberts@gmail.com>
 ---
- SECURITY.md | 2 ++
- 1 file changed, 2 insertions(+)
+ SECURITY.md | 1 -
+ 1 file changed, 1 deletion(-)
 
 diff --git a/SECURITY.md b/SECURITY.md
-index 2a7ce5b3..4cc17f53 100644
+index 2a7ce5b3..a1d02c4d 100644
 --- a/SECURITY.md
 +++ b/SECURITY.md
-@@ -40,6 +40,8 @@ the issue as quickly as possible and shorten the disclosure window.
+@@ -38,7 +38,6 @@ the issue as quickly as possible and shorten the disclosure window.
+ * Jason Zaman, perfinion@gentoo.org
+   *  (GPG fingerprint) 6319 1CE9 4183 0986 89CA  B8DB 7EF1 37EC 935B 0EAF
  * Steve Lawrence, slawrence@tresys.com
- * William Roberts, bill.c.roberts@gmail.com
+-* William Roberts, bill.c.roberts@gmail.com
  * Ondrej Mosnacek, omosnace@redhat.com
-+* Johannes Segitz, jsegitz@suse.de
-+  *  (GPG fingerprint) 250F 43F5 F7CE 6F1E 9C59  4F95 BC27 DD9D 2CC4 FD66
-
+ 
  ### Resolving Sensitive Security Issues
-
---
+-- 
 2.54.0
 
---c1REVQ0WcNJBgecE
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-
-iQJPBAEBCgA5FiEEJQ9D9ffObx6cWU+VvCfdnSzE/WYFAmpNCdIbFIAAAAAABAAO
-bWFudTIsMi41KzEuMTIsMiwyAAoJELwn3Z0sxP1mfRQP/2AQJ/PqF1K+iRF7KTYy
-mY4sgPUr8/WAs3+9025tEi8zcvmX+Zs/VgKmJPQ/txax6rLvbHycXG667jYMFSRx
-jB4e7zkaN3jo5lF2Y1xeylyN8h7tFPi8AE+9GFZbeuhCxCLSdX8cwPcPhT1cnYGY
-nvXdjDA6GaAwpYxt+WJ/e+4OPiwpOc18RrWCJ1olZX7tmqJ6PwMGxrgNQFB3azA/
-8ukpobKz6PBOc5qYfZNc8WaykiJTaeDhHIXR2xX4i5RjPwuVYYlXkUB71+4yDoca
-065CK6xbQRPEG8wTSa+HBe3NKnB28EraUDch26Kfj4M+d3x9m6wDeYTRDRmuacA1
-Fo0c00WDqWN8GQZlg6S5HjadGqG3cxt6NgwSoeFkC90krEe6aUYYmuIJ+y/bADnP
-2ANvai4s0sr1YhVfDX+9at9Pp1mmTXEVbbI2yB5FJ7zxfLNHPAq8u1OGlma5Vhc0
-4lVRE/IW61txgNoG/4aNLVkA+S8eEKO/Kji8Pj2CzYRf0EZU042cdNlBbuJom4rh
-NWkvbLJGVswigNca+kYKlSyVSrrZzIufq8WQMnRijCP8UzlvURr6VzbHA5TMv/At
-GAREzOlCJDqUWdZukBHtV9dpGp5jg9+fXY1XUPgv6xAtFHrZu2ucz7CxO9QIzrOr
-1jJfEhCBdJj9VWtpDzrHoSF+
-=/Hx6
------END PGP SIGNATURE-----
-
---c1REVQ0WcNJBgecE--
