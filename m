@@ -1,221 +1,236 @@
-Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 755B13F99FE
-	for <selinux@vger.kernel.org>; Tue,  7 Jul 2026 12:24:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D156730D407
+	for <selinux@vger.kernel.org>; Tue,  7 Jul 2026 12:26:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.172
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783427099; cv=pass; b=JTzfOPVoJ9zUVGiv0xzc6sP+v6VCnkEC+CLjms1xC3/mViO/es6fyElLMHR62md2zwOjRrdAGCfFdGcSxbmnwzQwoWf43t6u/FhhlxPqSD8Vrf86/UZ3Btkhe6X0Fftr9nkPC3zPFIw8L5QxtpKQbf9JZZHr8t7iWS6bDCW2ccI=
+	t=1783427208; cv=pass; b=RIuPTcRUYfHjF9DFlXR7h86W7jYGLoa4h+Oy5/by3zrRXNTcHoTXJxJHr4FxoG4iXEdV6LT5DkExnkDsiW9NonRdmLVIqK1d3VhsYCShzInlbV2Wqgf+pC0CIxSPzqjL5ZehVvQZbROspPfTfQER7jEK63x0NI19cucHqEbL4GQ=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783427099; c=relaxed/simple;
-	bh=XBlekaeMwLXf80kDnZDyLbeXn8A63mYStTBjvMKvr4M=;
+	s=arc-20240116; t=1783427208; c=relaxed/simple;
+	bh=jOGfwEgvBi9/HTnrp5q1wd492PkRP9tg24nYRCa+kvM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=iQPP69fXYL+rvkFcTYaiN0umatRReOTTWWiXoxutgbqf8ZmJG47y98Liv2t7ZcuEWkMd5eH04FmlO3G/YIIZ71PJtz/FhuidypHawAb2eJLlewyPU/OdOiQYqWdM33k/Q9Tcprw37JwHA1qlsBxCB1m0jXIOFJNh28JABe8m3aM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=P0Z4NRBJ; arc=pass smtp.client-ip=209.85.214.169
+	 To:Cc:Content-Type; b=gkqGeo3ePps2PpiB7X0ErcZ21QMPfL6qiOY0xldXL37sDfJH9FjYIqqM5BjlFMQul4fyGXqsJC5Qm5k4tbj0an3QDW+GCb2NUpVBcsHdR3p0nAeb4DHlWa8YeKS4iuBS/MXy8WU02LpCsmDyHbpITyAnwBaSyx6X/M+VkGPYLw0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HUczPUuB; arc=pass smtp.client-ip=209.85.214.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P0Z4NRBJ"
-Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2cace91f112so35037275ad.0
-        for <selinux@vger.kernel.org>; Tue, 07 Jul 2026 05:24:57 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1783427097; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HUczPUuB"
+Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2cc84e77e78so19634095ad.2
+        for <selinux@vger.kernel.org>; Tue, 07 Jul 2026 05:26:46 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1783427206; cv=none;
         d=google.com; s=arc-20260327;
-        b=X6HGJh6ha8GRrYjag6lOi26s+o2ODEcHmHeGJtLTgG4XNcfdzmEoeajBPUXK419DpF
-         mrN9Gwtq4msWcpwCEiNdG4vDWIdOYZvOpC5no3WK7rvkEx3pDxKjBzzw4cMpS4TPbnut
-         ibKEC/Bi/w13llqUq9XtImzWOrT6cQdn9gZRfQ/T8coTCwLeJk/mR5NHVnSFU+fcGZqU
-         6/URI9cMql7TqEZLsA/ckkRhYvTc43cm7lTfkO1ujIWH6dhq1YOGshSg73MKQ+iGcioz
-         8PSiBb7fpOCf2JTj7bNYlKYfqy5k/aU1CemkAsMZb10ba44qk9yNnwwef3dkHwHvvxnh
-         QSzA==
+        b=JX+pUNhlxFFd6x4Z/PCr1bd+eCnBg7UaYp78a7PoJG87f3MSEcedt1PFXXHbLuTsCz
+         81J8O8tivjtusIgeEEdkW6MPoeGzIi8xgymUrM0ffraZ661mkc+qznbR9Iq46QdF2uGW
+         mMgKqL6vmTgHazO8DnWhyEvrUOi5iI2vGF0bWFKpXfXFfVcbKSLGeZjSiKESbzAyOOnA
+         GdWPFldhz0V3HdJPYpHR7GD3ks9UKOXuQ+X2KiD8lvpkkRpdkaoSQ+bIQWt8slsGvpMD
+         JH1orGDYv+2ig0i7vpYNjcrZmLP46GH+6Qia0Xycf7yjaizFsGQkC3Dj+bEX//R9gkMD
+         3eBg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=FZgayyinbWzK3+gSwVlfLvJw6LVtiS65uXERgpRkRMk=;
-        fh=FsXghBnyoYbEc42Idnie0oh5A6i9FUng5ntOLhqXIRs=;
-        b=iCeBOwAUprt6azV9ABqPsZe14CoFxRS5T8Fhgu9ekMNk5n48VqcyO4Q2lM/J0xvG2f
-         i8NdZ7hEogzam1A+28/ztvIqLKAZRC3lb0v6Mz4E4bE90n37BJSdtAR4c3GwOJn/5qIG
-         3ezoUdXL62UR3sqT3FeJ5Y39UwedNZxf7DYn0hflJ0IOE5AoWkiH6LFzfemz2h8V3r/y
-         1qCi8qUzgUpBevMf/o64u7iiDoAwfhnHODpHeyRgnKWugezYBLJsqvT68PUSOlCMLNaI
-         IQZM9iG9iku8mRqrBMMutPKvD2eQW1gU1aQQji05gOi+vbGglK1HnOpnNXDnyz1qVNsa
-         opyQ==;
+        bh=3djrQ5yfwvdw9pprZ4z3OI78TUaoQo5H6Br4OC51gZM=;
+        fh=5BxwEK/iVIzhs7kNCBs0/zEkT4yGKFLka6Po5B0u4CY=;
+        b=BB5SKcuG85XHtk2z4ahBUr0/FXyK7sDpAwsclG7bSwUWtcGRUxLjw1ai5dOeuDJZlu
+         VQ97Z4V+/Nus8jQU/l42L+BR3N5ZYNcIao4tkbZPfHP6qmi7Cj4eRduXkCMS0UTJ878z
+         zrM23Sgb5poYW7zK0VR1/SISaDzaxw0MYiB/qpGLAqYl62VI0uhdz2/W4CsHDHmjMEjs
+         WHqdq1LIns3PGbWGdyu9KaENtzCgJ3dX7gjZTmxQhk1Szr1ZHHKFBnuSwCOGxCjeRYKd
+         EEOiO2rCVSSaPdDJq3jNeXUrUkpvip3FAS+pZsaXPW77i4SgkzLjXJLBUTIsRYIzSty+
+         uEvg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783427097; x=1784031897; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1783427206; x=1784032006; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=FZgayyinbWzK3+gSwVlfLvJw6LVtiS65uXERgpRkRMk=;
-        b=P0Z4NRBJZ42u7/9e/MsKRpXclYUWJtU2brg2gyKONYF0fnKdVkNY0MN3qFSgWpSu1f
-         +nT1tOiF6kD10w/QUqFUPW1t8BDE7TGuFIrjbrYWlfRmvh2r/F/l1/GXn/57aduqSLc4
-         taGyy3RDUb01TDtRAbpaL6J4XZf22n4/JefHh03XwF9OrPZU5FBsEeHqe7AZ6GB9SSny
-         5ofr86qdg/0mJbYfvqObgGJnahs4iHxuvBGdj+35+9OGB7WGiUGR/RvQ3Wu2e4SNqYr3
-         /uZMmiAHhEBCTU8H7+W2wKXWfIyOSsIMLpYHRQbX1+lzIVY0EfyYLZQ1e2xR8gP2O8Qe
-         3lqQ==
+        bh=3djrQ5yfwvdw9pprZ4z3OI78TUaoQo5H6Br4OC51gZM=;
+        b=HUczPUuBpliHgtcVkrBx4GU24hAvOnKZp//M30X2YEWZtL17dGiEPcy6qiO4Wkx3/o
+         2tmwOvwH5QcsNJbARNfpZGNUoLjY9EmTIPw3OQBQ0j1407gR23DH6fjXmZS5e7ZSzsXO
+         sY8AXSGiwJKxTvN2KeUHDxWP6LyDt9R05yR2M23AKuKypftaLS7PDnavqagH0+FfSJSF
+         c+/CzyV/gsYyny+5fRwX1ExBGUrBNKAWhgd/LpG53eEoAfiU7vcFmVFv95FYrRbrbsU+
+         gMjeNDHXDzbgpXDAu9OvG5UliML5SEbNLi8xuwblQ30LZLYHoI55LDiCkh6LoTQKIv9n
+         mzEw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783427097; x=1784031897;
+        d=1e100.net; s=20251104; t=1783427206; x=1784032006;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=FZgayyinbWzK3+gSwVlfLvJw6LVtiS65uXERgpRkRMk=;
-        b=PP1xqq+nU3hE+C77pjHKDggs7zcpuJdZmbdcoM9mjyp5XPt94WcOhi/oNeOLGY9ubd
-         OGJrwPpls58BiTUz0uluRB3+nCRBuJ9X+YXa+i27auK5dSLYY34Z5N5osv9uGWTplHyA
-         X6+o0XL8cG4jOceYbmefBMTw/ap0tSCuKncREkaazOEqm7XvlwJwFd/NvpOFn2HUbMKz
-         BC20SVCZ4oUOwAKPwl4lz4AoL0ytQXYuNCdTIvR2KcSY8TmO4AhyFFJsi5kg5Fa2ViE9
-         9CkSwFJACOUcpdz6tb1xQEkoR06ATIo8NGOS8Lg0vC7dud4QhV7k5DsuVflsEnsxv+IV
-         jyAQ==
-X-Gm-Message-State: AOJu0Yx59+jbbg8HoPXkvmBU+hdpWX8qdlcfA182AgWdzmeAt63HM7U8
-	ddrdfwvtaq2gFiL9rEs+rpl/yD4FrcHds3EyMEXYybrdQkxsn+s625R854guXcnuDLFecpMysfg
-	I7yuE1novPCmOPvc5coeMXK2Bn0pIKJ0=
-X-Gm-Gg: AfdE7cnIXxcTdxUxxu1uY7eYsTwmXaTT/7z5BLowLGhNhLq6Uyy6wJEPZAV/4U+0/1b
-	OmDmxF/I2uVg1Jkh7TRGBqGDGJF0ivfb9Sr22+QDCKxLWJtDXKvqpfrp/QHHwcyKu8Q+1hYQCaE
-	+SPlrpIzKwqsZNYefbwxyVMJqhKzsyCNqwRkTafBkZj65a0KcuuuCefTc/O9jWbUuGtq28TW3cR
-	sVN/eqLiwRetJUDQyzPHozajbP+iYonrYmeLqdPMHcChKFRZ4GyD3HNptUZ6sacXn/p9rEq
-X-Received: by 2002:a17:903:1a0f:b0:2c9:97a7:b1eb with SMTP id
- d9443c01a7336-2ccbf06aea0mr46063985ad.42.1783427096746; Tue, 07 Jul 2026
- 05:24:56 -0700 (PDT)
+        bh=3djrQ5yfwvdw9pprZ4z3OI78TUaoQo5H6Br4OC51gZM=;
+        b=XR62AZY8enjLpWLIiw+oIV2y6fqXOTA0TywZt0M/dJIVgdhsX/JUeoiYh32DC58VUn
+         YDS6dZSiL1hFru7G2/9V2aTXrqDc9ajHbxTg1XpDd1irgppUDgDprKGQak1SYfSV0flh
+         RFgdrKx8N5fdJk40oK2tg3ZIZp7DDE4SB+5nzCo/eGV+mnr038m1fwowk24WiIXJcYGW
+         9r45Vd4tG6cm5TomfPHJ0V/drvMHmbGUOqFzICg9hlhpoYrKmvZumIPiPcrFvIz8XXGK
+         ex9KRXu3MpXtkejUK3IM8XjfZ4UY5S6RWdLM2MvmEm5bruwiRd9Lnh4ciCnXZT75pAq+
+         u1tQ==
+X-Gm-Message-State: AOJu0Yx/wgmsxIJ7MrAa2nC/gIxdHNPhEvJ9P+oNYXr/zu6oLse3vxXm
+	QKtBKOsqQ7v+OLvkpNzVjxufMIu01hXtsQJfNilSUl89koVy1NapxEx4Wq5kuN3GgRdw9Q6X+x8
+	IJ3Uu+4glqMQjzjcbH2vtbTSA8JjxK4/vjg==
+X-Gm-Gg: AfdE7clzizTRrL21aKHgXtTWGMF94k+kqa6wyG4YzizrABxY2S26TltqctrTNFXP6KW
+	tZ0jjrhAO4C2JaZcUaXh4L8VTwjX39d/Qewh6QpiatQ0H0mnrWheE1jIhG++rOGB6RY628SqhK3
+	w3ThjqwkzMnMS7hzgtAJPPIrDz0oVcSX7LQDU5gexEQ7f7qSx84o6mecLDWEjT63kD5PkXAztDJ
+	5axweLSw76ZOoxM2uwJqO5ayuC+QWsBqj/uAvJEwmQ9x9yMCgG58ilgsZQkNNlvndGdTt3R
+X-Received: by 2002:a17:902:ef44:b0:2ca:cee0:e172 with SMTP id
+ d9443c01a7336-2ccbee24250mr47293675ad.30.1783427206149; Tue, 07 Jul 2026
+ 05:26:46 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260706143844.25956-1-jwcart2@gmail.com> <20260706143844.25956-6-jwcart2@gmail.com>
-In-Reply-To: <20260706143844.25956-6-jwcart2@gmail.com>
+References: <20260623141023.114173-1-cgoettsche@seltendoof.de>
+ <20260623141023.114173-4-cgoettsche@seltendoof.de> <CAEjxPJ7mBfTOLc=PY_jrSM0SrsqcRC97ioeFnG8vZcetDGs27A@mail.gmail.com>
+ <CAEjxPJ6hodiguYnZd1rkf0eyHnnHH=zgBX=ZJ7V2epA52091Dw@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6hodiguYnZd1rkf0eyHnnHH=zgBX=ZJ7V2epA52091Dw@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 7 Jul 2026 08:24:45 -0400
-X-Gm-Features: AVVi8CfcUaQxlZSpxxtRfFZsIQ4NbsNOTooMIdwqKAO70rzUYOm4TgOwJpeJxFE
-Message-ID: <CAEjxPJ6uzkGp34eV4kPRRreLpQ0w+fNwu+aWCw+WCMhmU4XAsw@mail.gmail.com>
-Subject: Re: [PATCH 6/6 v7] libsepol: Add overflow checks
-To: James Carter <jwcart2@gmail.com>
+Date: Tue, 7 Jul 2026 08:26:35 -0400
+X-Gm-Features: AVVi8CdGAzDAWCx_sLr34855M16yF79F3qOIHQ_mPJ3yeCT_ZFRPzKu5MOiRF4w
+Message-ID: <CAEjxPJ7GyuVnqp0agkK49+L30dxiu2pAhBX+J378+Yoqc6nGEA@mail.gmail.com>
+Subject: Re: [PATCH 5/5] newrole: fail closed for -l when the terminal context
+ is unknown
+To: cgzones@googlemail.com
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 6, 2026 at 10:39=E2=80=AFAM James Carter <jwcart2@gmail.com> wr=
-ote:
+On Tue, Jun 23, 2026 at 12:44=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> The function stack_push() uses the common idiom of "*=3D 2" to grow
-> the size of the stack, but there is not check for overflow. Use the
-> __builtin_smul_overflow() function to report an overflow and return
-> an error.
+> On Tue, Jun 23, 2026 at 12:44=E2=80=AFPM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > On Tue, Jun 23, 2026 at 10:11=E2=80=AFAM Christian G=C3=B6ttsche
+> > <cgoettsche@seltendoof.de> wrote:
+> > >
+> > > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > >
+> > > The -l secure-terminal check only ran when fgetfilecon() on stdin
+> > > succeeded; if it failed the level change proceeded with no securetty
+> > > check at all.  Resolve the enforcing mode and, when the terminal's
+> > > context cannot be retrieved, reject the level change while enforcing
+> > > rather than silently allowing it.
+> > >
+> > > Refactor the enforcing passing to unify security_getenforce(3) calls.
+> > >
+> > > Assisted-by: Claude:claude-4.8-opus
+> > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> >
+> > Doesn't check clean with make check-format; will reformat on merge.
 >
-> There are several calls of stack_push() that does not check for
-> an error. Add checks for an error for these calls.
->
+> But otherwise,
 > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> Signed-off-by: James Carter <jwcart2@gmail.com>
 
 This series has been merged.
 
-> ---
-> v7: No changes
->
->  libsepol/src/module_to_cil.c | 33 +++++++++++++++++++++++++--------
->  1 file changed, 25 insertions(+), 8 deletions(-)
->
-> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-> index 00db3d7f..2aaf4feb 100644
-> --- a/libsepol/src/module_to_cil.c
-> +++ b/libsepol/src/module_to_cil.c
-> @@ -445,15 +445,21 @@ static int stack_push(struct stack *stack, void *pt=
-r)
->  {
->         int rc =3D -1;
->         void *new_stack;
-> +       int new_size;
->
->         if (stack->pos + 1 =3D=3D stack->size) {
-> -               new_stack =3D reallocarray(stack->stack, stack->size * 2,
-> +               if (__builtin_smul_overflow(stack->size, 2, &new_size)) {
-> +                       ERR(NULL, "Overflow");
-> +                       goto exit;
-> +               }
-> +               new_stack =3D reallocarray(stack->stack, new_size,
->                                          sizeof(*stack->stack));
->                 if (new_stack =3D=3D NULL) {
-> +                       ERR(NULL, "Out of memory");
->                         goto exit;
->                 }
->                 stack->stack =3D new_stack;
-> -               stack->size *=3D 2;
-> +               stack->size =3D new_size;
->         }
->
->         stack->pos++;
-> @@ -1482,7 +1488,6 @@ static int cond_expr_to_cil(int indent, struct poli=
-cydb *pdb,
->
->                 rc =3D stack_push(stack, new_val);
->                 if (rc !=3D 0) {
-> -                       ERR(NULL, "Out of memory");
->                         goto exit;
->                 }
->                 new_val =3D NULL;
-> @@ -2163,7 +2168,6 @@ static int constraint_expr_to_string(struct policyd=
-b *pdb,
->
->                 rc =3D stack_push(stack, new_val);
->                 if (rc !=3D 0) {
-> -                       ERR(NULL, "Out of memory");
->                         goto exit;
->                 }
->
-> @@ -4183,7 +4187,10 @@ static int module_block_to_cil(struct policydb *pd=
-b, struct avrule_block *block,
->                 (*indent)++;
->         }
->
-> -       stack_push(stack, decl);
-> +       rc =3D stack_push(stack, decl);
-> +       if (rc !=3D 0) {
-> +               goto exit;
-> +       }
->
->         rc =3D block_to_cil(pdb, block, stack, *indent);
->         if (rc !=3D 0) {
-> @@ -4210,7 +4217,10 @@ static int global_block_to_cil(struct policydb *pd=
-b, struct avrule_block *block,
->                     "Warning: 'else' not allowed in global block. Droppin=
-g from output.");
->         }
->
-> -       stack_push(stack, decl);
-> +       rc =3D stack_push(stack, decl);
-> +       if (rc !=3D 0) {
-> +               goto exit;
-> +       }
->
->         // type aliases and commons are only stored in the global symtab.
->         // However, to get scoping correct, we assume they are in the
-> @@ -4284,7 +4294,10 @@ static int linked_block_to_cil(struct policydb *pd=
-b, struct avrule_block *block,
->                 }
->         }
->
-> -       stack_push(stack, decl);
-> +       rc =3D stack_push(stack, decl);
-> +       if (rc !=3D 0) {
-> +               goto exit;
-> +       }
->
->         rc =3D block_to_cil(pdb, block, stack, 0);
->         if (rc !=3D 0) {
-> @@ -4595,7 +4608,11 @@ static int fp_to_buffer(FILE *fp, char **data, siz=
-e_t *data_len)
->         while ((read_len =3D fread(d + d_len, 1, max_len - d_len, fp)) > =
-0) {
->                 d_len +=3D read_len;
->                 if (d_len =3D=3D max_len) {
-> -                       max_len *=3D 2;
-> +                       if (__builtin_mul_overflow(max_len, 2, &max_len))=
- {
-> +                               ERR(NULL, "Overflow");
-> +                               rc =3D -1;
-> +                               goto exit;
-> +                       }
->                         d_tmp =3D realloc(d, max_len);
->                         if (d_tmp =3D=3D NULL) {
->                                 ERR(NULL, "Out of memory");
-> --
-> 2.55.0
->
+> >
+> >
+> > > ---
+> > >  policycoreutils/newrole/newrole.c | 25 ++++++++++++++-----------
+> > >  1 file changed, 14 insertions(+), 11 deletions(-)
+> > >
+> > > diff --git a/policycoreutils/newrole/newrole.c b/policycoreutils/newr=
+ole/newrole.c
+> > > index 09b10b35..58524b6a 100644
+> > > --- a/policycoreutils/newrole/newrole.c
+> > > +++ b/policycoreutils/newrole/newrole.c
+> > > @@ -732,21 +732,16 @@ static inline int send_audit_message(int succes=
+s __attribute__((unused)),
+> > >   * in permissive mode.
+> > >   */
+> > >  static int relabel_tty(const char *ttyn, const char *new_context,
+> > > -                      char **tty_context, char **new_tty_context)
+> > > +                      char **tty_context, char **new_tty_context,
+> > > +                      int enforcing)
+> > >  {
+> > >         int fd, rc;
+> > > -       int enforcing =3D security_getenforce();
+> > >         char *tty_con =3D NULL;
+> > >         char *new_tty_con =3D NULL;
+> > >
+> > >         if (!ttyn)
+> > >                 return 0;
+> > >
+> > > -       if (enforcing < 0) {
+> > > -               fprintf(stderr, _("Could not determine enforcing mode=
+.\n"));
+> > > -               return -1;
+> > > -       }
+> > > -
+> > >         /* Re-open TTY descriptor */
+> > >         fd =3D open(ttyn, O_RDWR | O_NONBLOCK);
+> > >         if (fd < 0) {
+> > > @@ -856,7 +851,8 @@ skip_relabel:
+> > >  static int parse_command_line_arguments(int argc, char **argv, char =
+*ttyn,
+> > >                                         const char *old_context,
+> > >                                         char **new_context,
+> > > -                                       int *preserve_environment)
+> > > +                                       int *preserve_environment,
+> > > +                                       int enforcing)
+> > >  {
+> > >         int flag_index; /* flag index in argv[] */
+> > >         int clflag; /* holds codes for command line flags */
+> > > @@ -928,6 +924,10 @@ static int parse_command_line_arguments(int argc=
+, char **argv, char *ttyn,
+> > >                                                 return -1;
+> > >                                         }
+> > >                                         freecon(tty_con);
+> > > +                               } else if (enforcing) {
+> > > +                                       fprintf(stderr,
+> > > +                                               _("Error: could not d=
+etermine the security context of the terminal, not allowed to change levels=
+\n"));
+> > > +                                       return -1;
+> > >                                 }
+> > >                         }
+> > >
+> > > @@ -1093,6 +1093,7 @@ int main(int argc, char *argv[])
+> > >         int fd;
+> > >         pid_t childPid =3D 0;
+> > >         char *shell_argv0 =3D NULL;
+> > > +       int enforcing;
+> > >         int rc;
+> > >
+> > >  #ifdef USE_PAM
+> > > @@ -1139,7 +1140,8 @@ int main(int argc, char *argv[])
+> > >                 return -1;
+> > >         }
+> > >
+> > > -       if (security_getenforce() < 0) {
+> > > +       enforcing =3D security_getenforce();
+> > > +       if (enforcing < 0) {
+> > >                 fprintf(stderr, _("Could not determine enforcing mode=
+.\n"));
+> > >                 return -1;
+> > >         }
+> > > @@ -1162,7 +1164,8 @@ int main(int argc, char *argv[])
+> > >         }
+> > >
+> > >         if (parse_command_line_arguments(argc, argv, ttyn, old_contex=
+t,
+> > > -                                        &new_context, &preserve_envi=
+ronment))
+> > > +                                        &new_context, &preserve_envi=
+ronment,
+> > > +                                        enforcing))
+> > >                 return -1;
+> > >
+> > >         /*
+> > > @@ -1226,7 +1229,7 @@ int main(int argc, char *argv[])
+> > >          * Once we authenticate the user, we know that we want to pro=
+ceed with
+> > >          * the action. Prior to this point, no changes are made the t=
+o system.
+> > >          */
+> > > -       fd =3D relabel_tty(ttyn, new_context, &tty_context, &new_tty_=
+context);
+> > > +       fd =3D relabel_tty(ttyn, new_context, &tty_context, &new_tty_=
+context, enforcing);
+> > >         if (fd < 0)
+> > >                 goto err_close_pam;
+> > >
+> > > --
+> > > 2.53.0
+> > >
+> > >
