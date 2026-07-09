@@ -1,243 +1,480 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f42.google.com (mail-yx1-f42.google.com [74.125.224.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBA8033A702
-	for <selinux@vger.kernel.org>; Thu,  9 Jul 2026 14:35:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3D0F1E5724
+	for <selinux@vger.kernel.org>; Thu,  9 Jul 2026 18:45:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.42
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783607724; cv=pass; b=TGCpo8BADZWAHL/hupxBg4JLfcAKX+671lZ01zzphucynT6h1aJh64izgaNBhZB59ozQGl4ogcGxdzZU0byGq3Eks5EmXQwffPl4idHyIzPdA5dGbrxi7B/M08UGbp6JVN0ayLdThkvoEXPse74hGaV3v8lwkRZFEY7m9Xj81ik=
+	t=1783622748; cv=pass; b=rA7LhaQ5pxxUrdvuCDoxZTUvkNK0Mk0baOPzFMQ+8s3FFJALPgCSOsL2hpYJuIHU0yNz1QimIc6is0pmSE7gindhdaVyKVBSPMH2FCAtfi8zCATnuHyO8moY3L/DzKC2Ye4AGHpWac1u/A22CinJqjoJMyU8i5uJIVYteQ0ruHg=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783607724; c=relaxed/simple;
-	bh=uvpmmf86Ror5+uMf95cqjr/CFnOw56omEVtA2la9oNc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=RC5z4/Fee3lg5M1xZOFMeGEcUktl0NQWFlNjycF3cGtFmCFkU3ABo9y33MzePuJVUnXaGM8AfeUATU21du4VFJkxZbdnbweWTaunh08QGMDstizFwf93JsENfIwqAvhLaCcSniMbfWmGW7scC4kGcRHZYQ1SUSTiPUUtXFd/ksg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VvNKq/kW; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=AFpnzVKd; arc=pass smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1783622748; c=relaxed/simple;
+	bh=3u4SByrKRVfS8I4FnJRaJLFnCPrpRec3ttF9McSbocI=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=avy82zDgx/vJVlgj125oB3+ePs8SDDYjaGEQU/qd5F8TW/O4c+5ueVF/9Z64vB+pVf8kHc9lW+W2G7nisRUzZNZEEHmyypW8NRjqYKLKiPMryeCjF4XBNGntPDeOJOwsYeEGb6AUQabXjM+fv68ng5Zw1//N7ajv5rLJAbyvBQU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ucsb.edu; spf=pass smtp.mailfrom=ucsb.edu; dkim=pass (2048-bit key) header.d=ucsb.edu header.i=@ucsb.edu header.b=JJrc2Buv; arc=pass smtp.client-ip=74.125.224.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ucsb.edu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ucsb.edu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VvNKq/kW";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="AFpnzVKd"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1783607722;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=s8/MsYd9xv3C+Z/mhrJcgyYrlFsRbHWKRIi/utnxLZA=;
-	b=VvNKq/kWcA5eaehXZrZKmSVaGwIBfd3YXBz59L6DWRbTEDXU0blMFt9nbxiYl2rKdUvxxj
-	1phzNcXQako/x/3+MNzqZblt3J3HURBw/2Q3z+mxr5cB2kPAT3SOVbhqJWbW2py/5nQa10
-	/1sk23pztEQl0DbptvMmQfznUZejt7I=
-Received: from mail-pf1-f199.google.com (mail-pf1-f199.google.com
- [209.85.210.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-314-LkUZmw_TOXmhUQrMGHfflQ-1; Thu, 09 Jul 2026 10:35:20 -0400
-X-MC-Unique: LkUZmw_TOXmhUQrMGHfflQ-1
-X-Mimecast-MFC-AGG-ID: LkUZmw_TOXmhUQrMGHfflQ_1783607720
-Received: by mail-pf1-f199.google.com with SMTP id d2e1a72fcca58-848568a6f62so1855637b3a.0
-        for <selinux@vger.kernel.org>; Thu, 09 Jul 2026 07:35:20 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1783607720; cv=none;
+	dkim=pass (2048-bit key) header.d=ucsb.edu header.i=@ucsb.edu header.b="JJrc2Buv"
+Received: by mail-yx1-f42.google.com with SMTP id 956f58d0204a3-667971437d6so152089d50.2
+        for <selinux@vger.kernel.org>; Thu, 09 Jul 2026 11:45:45 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1783622745; cv=none;
         d=google.com; s=arc-20260327;
-        b=EvbtqO/MXTOrk3ePcHtlU+E1003rENxfIl2ZE+JqryrfZhdNyUk0qSRORSwMZpDfeD
-         8EDV2baAouCgC7v7UlFpdh7/M66pQEI+NCobls7soZLzFniLr8A/OBJgNWWfGAg/0roh
-         7zA23bOmr5YaOl4QCSgLROGAZyqqxykzb2zYQai+51QoWxbWbbMjZJ4yuytKYfBQ+bWk
-         DahgKVI96FeXBLGdBunJi6FHb2ENOaZ1SzxIUvQFkQOo4oLsV0GvUDzDMUJvwS7FBexv
-         8NJfXnmt6YLnw3TaDE8e7o3vkkMZl9I/72mCfjkpplo+kQriMP0SqdzI0ebm2E7MpC/i
-         2ADw==
+        b=nJZo6hZGuSppadwvIHNxqMnX1E5ZiwtVrT2ySJBxsSk1x6bFWyq18BbCvIGqPQiYF2
+         O1Pd6eofddSADAsK3Ac/M/P3H+6J7ZaqFJw/PDb59BmN12Rul3G29d8EkrBPrVOc985k
+         d3u/kU91PKZbD5eq0riBeE8qDJjWC/j2hcw6TeUflR2TMuUKcNGxSOLFElYrplbh6moO
+         FSrfHvltvAw1KmZbfzBnTLOV/VKlb1ubrdcU5tquwIfwjDbX+FM3gPi2YjJ+k9tbZn9E
+         FYfkzajyEi1UEu0fd9EcE9U/0WimheLQhsTYc8RNmezoI/7jJvrW64EcfBg7J18oyBpb
+         nGdg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=s8/MsYd9xv3C+Z/mhrJcgyYrlFsRbHWKRIi/utnxLZA=;
-        fh=UYH3pldxWq8V4Q5A+6id7QXCKDOOJHk2YcSw0QNVB4s=;
-        b=Kx0rm2kR6QaFvtZEByCJDp3Zj3BqoNEJ8NuebwwG9/9Ywo6OZwdhgfw2po2CkEQshc
-         2eRel8eC57jGifGp/YEm3ZaJulsJ2dxl39vm/KOeIDTZXp0rvWFB3GqPDU8Trx8kp8vM
-         r1s9y/t0toTpMlibyIy8oNj2ds/wT5GVUoaeku1opQoViYhUjJoilmwepUxVQcqqNzX0
-         /Vl+g7x1d31UICB3GXMRVj9hT8jQp79Gu1jGkps6Pg/vjEYLRyqrDiCy44HA+a8ARMej
-         qOHdrBEI4KStUHH1V3MAkWpFbTnRX54qCml6XjOenDv0pM++UTM+8YhVG6iYmqnK692X
-         iVVg==;
+        h=to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=qh9Nf+57OBdGJLqCB0Rb8y56HNexw4rc0CiycVo5asQ=;
+        fh=l2l+BKIhep14i9a5yxIzwDvgNRHYkyJlbYDDp8LiW6o=;
+        b=lJvRfNTHxpZ+7OIljFsy7e01ulLe3ppqAsLYvmAAbbETanolLkL+AiLQif83rqN+Oy
+         Zf2o8thFUZCQkqaqYbt+Eg8bp+VwUhbcUmbK9CIOlqEecuZny6n4lykt1+eoH0XUauuB
+         UUNtf+KQOKfwgPIPhzKVOytU1fTo5B6BxE1GUI1rXWQCzwPpJq2yypMUsel8RPRMdGGZ
+         Bs+utU2iPby2p+jljDv3EjWKKTIKhCP6OTwVp/7UmSML1MSWj+jbGGz2KNZl67UJKiZ4
+         2f7M8r2xtODYGzXN2AL33auUD9qZrUO2J7OjdWq31lknDYE9s7dl5O3q7E+T+vJGFqKs
+         hVCQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1783607720; x=1784212520; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=s8/MsYd9xv3C+Z/mhrJcgyYrlFsRbHWKRIi/utnxLZA=;
-        b=AFpnzVKd0jBoJQ79DifyfRZMcIhADDHvN9Ki0tqhfrlLMryhzdYWOpBKsM3AYNws1h
-         vInImSctOL9MREyxpZz8+bqz4UM3AQv05l3JIfA2UevsSfO9yTyRpiDAlgYZdba8B7oi
-         8Y6HwqdryFQ2i9Q4XHrYdAn+73CY3/TDX4snV0nxQb/BvwvWHDQeaG7LucZr8FqCXf6i
-         1NDeN+9C6Cdg0ZyTye2RL8FYD9FPjx7FLzYraiXgZflKKewePnOYMLtWJo4Kd/6XxWny
-         PUHpBs38Gmb+6pkNQapvTOholsp+JGQUMxJ0QT5gU2m4/vOG8p1/ulO3zJJA2suChrHF
-         I+Zg==
+        d=ucsb.edu; s=google; t=1783622745; x=1784227545; darn=vger.kernel.org;
+        h=content-type:to:subject:message-id:date:from:mime-version:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=qh9Nf+57OBdGJLqCB0Rb8y56HNexw4rc0CiycVo5asQ=;
+        b=JJrc2Buv5SueRYmhsyBIF1dBblitXMtqRFItag/JprYoqCE95Q/lD7U7o8gLgEluKl
+         4sviXjEEJttHa8FtYQf4EATdoNkRykE9+NyuPKFSB6VR7ZyYZxmG+F/0kyuClvCmVChv
+         LT37626isO3YsNNmpjT3hHN9ROLgLSlUwd+BxloxO/45uIkMOdbuSd3oFRSy9/jU3JxP
+         BoeNme2nHoX5S7O5/WKWT2kKYZ2lQ4JLKUVoYWoeLzmZvLM4XAQDdEQ/07H2itVKXFGO
+         XoSwJ1nbxox+IftBo0kxQjAcyVWeZ6BHQflrtIlyE52hRMdIrL37XEtPcaBhnchktt0K
+         HTPA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783607720; x=1784212520;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
+        d=1e100.net; s=20251104; t=1783622745; x=1784227545;
+        h=content-type:to:subject:message-id:date:from:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=s8/MsYd9xv3C+Z/mhrJcgyYrlFsRbHWKRIi/utnxLZA=;
-        b=ULZXhNvgsGbeVXjs8qmMXClY1Ku/RH+mZhknz6F0zM6ZydPpnWDFXPts35HWE+0t+S
-         ir9hcmEei580lUfP8hGtdYFDhCRcoKmzgmjIySYyveq03lGF592ox56a/zP6jJlcveDH
-         uqo9Fj48nj9Ry95rs6ayhlp5SZ0bBfkfcb56MBaBqRKzO8DD/H3eCy5d0FYQQe7FMiCC
-         3vNgDQgaEq05XMnSP/JHHgD9OKwtK1iU1rnn7lo6jLaK2CCRczfhqtCP+Nv/FXxvKMhw
-         OXJH1PolQOa6wq2MgQgkPGi4e28TUSpj8beFBEF8RVUixiSVRauMOu2ykK3jH8CO1RYj
-         Owcw==
-X-Forwarded-Encrypted: i=1; AHgh+Ro1Pgtg2mtz7a+JPVignA0Qjl37Fx4g7CJRaWn4wDmiISv7viE3KB+cUWHQCPwgK0sbbZ47gSOj@vger.kernel.org
-X-Gm-Message-State: AOJu0YxBvHAqJsA+QTLOGE1YQzkO8a08xlasGnn0SFif1TSPcy8TrkEU
-	n29NbJD8cymP5XqHdDh/SqeMXlcjAj7p5o2u/CDOfwq9b2THdq9sm2N7Y1DJaomueNAijBk+SCU
-	UF+V7LIdZiXwhKM9qE/X1RhaKF3fZ9MQmjIizvlKXAvIloifbC/jkb5lBWoOWeIvmIOcY0KiPgj
-	N+OkPNs1r61jRI4/qQkvn1s76Ao6vjdHI5ig==
-X-Gm-Gg: AfdE7ckamOSPdSI98f073R7M4RywTYj2ecYSj3KY4owAoD14GNVAQT2OYVM8vI7knz7
-	2Orz76JoaWzBf00hczJcPDE0Tc3XXd88ONgkacZdA6zvQ95iWtqar14ZBTZvUD7nvZR4lH3rv5x
-	/d2EyT3meR1Q+e4Q3OUv1VhGCAOLY492IzgdhUpI5XB9+01db66g/oHCD5pWs0RHSN3m7IVGeYd
-	htd1Zakd7dJC8UkpUeBWByMcT3fPA==
-X-Received: by 2002:a05:6a00:945b:b0:848:4c0c:59b4 with SMTP id d2e1a72fcca58-8484c0c6fb6mr5295658b3a.64.1783607719538;
-        Thu, 09 Jul 2026 07:35:19 -0700 (PDT)
-X-Received: by 2002:a05:6a00:945b:b0:848:4c0c:59b4 with SMTP id
- d2e1a72fcca58-8484c0c6fb6mr5295614b3a.64.1783607718871; Thu, 09 Jul 2026
- 07:35:18 -0700 (PDT)
+        bh=qh9Nf+57OBdGJLqCB0Rb8y56HNexw4rc0CiycVo5asQ=;
+        b=CfZnOx0Qyrl2MxA+yhyHDMvusXLaoXeypRt0bfEFoz/kbqSg17+iXEONPmVoEQdHVt
+         CuASJd4mX273dcnu15iF/hHwElpU7DjqgUV1g2BhokoSgaR7F1tfWFMk6m4Sdriid5Vd
+         aAjSwqeiP6Nk33DJ08BRMOZK1SbzwzCzS6ZDqnzc8dDglRJBhiaw9ofd9zKrSQxB+nyF
+         ty9vvpRR1qBj0wF217Dt/BC93VtzdvvJkK1ia5nxdPQULt6oYAnpuKzeVoC0HToMskJh
+         HXhoq5U5PtF6P+7XDjFPmV1b2SswpDwNp895gZVSU4eh4cDpE9CZ88eaGUaXY6ijgsF0
+         FMdg==
+X-Gm-Message-State: AOJu0Yw2ENFvqUNPROr1T0MIz5Vn8ubhxJY25ymOdSFCpGlSOKGSDuPN
+	JNfcjbngcGBHpw28DLplMGJzbra8HPVCryuxFCFS7BhqeIx+XAuEERlM/KfodCdAOjY7vIbfw2B
+	Mu6Datbrxn00KWYn+JZQ9iTYAJ/OqsvidvWO1TvfJQCeKUz9Ossfpb5U=
+X-Gm-Gg: AfdE7ckAG4KeXaGirz2IToPv2g5X9J99LY/pF+SADbikvVerXIzjGfJ0i3oKPw00623
+	4XCvgox3IztgTinv46b+PNnrLlkKsj5vh4Jd4VSuSAitoC2/75UBXXjgFJBoxH0P3k+oJR655g+
+	tCffYwcEDB+SDuFNxGedzQ28ZEvYJ9QAilDZ+T6xEgY0TC6IKyt44vQZ0/5XaNUJOscKcnOCLEB
+	7ULrzwlYHx0wwsDpqmYqK9l4fPyrGq0tPp2eQ0AZLlJ13PPUf4PoAku7+e7DoYsbvxft7Kz
+X-Received: by 2002:a05:690e:1685:b0:667:7633:2b0a with SMTP id
+ 956f58d0204a3-6679f214d3emr5752695d50.81.1783622744570; Thu, 09 Jul 2026
+ 11:45:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260701062321.517351-1-omosnace@redhat.com> <20260701064301.GH48970@noisy.programming.kicks-ass.net>
-In-Reply-To: <20260701064301.GH48970@noisy.programming.kicks-ass.net>
-From: Ondrej Mosnacek <omosnace@redhat.com>
-Date: Thu, 9 Jul 2026 16:35:07 +0200
-X-Gm-Features: AVVi8CdnMfLqhIKvy56o8_SD9Qocw-Nxoh5cQ002HONZLt_pbLrPSx5HiVvWMOE
-Message-ID: <CAFqZXNu+oea=wQ8PQRK4VzmEVQTjyVwjYO2FfkB_RgUrAr02Mw@mail.gmail.com>
-Subject: Re: [PATCH v2] perf test amd ibs: avoid using executable heap
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Ingo Molnar <mingo@redhat.com>, Arnaldo Carvalho de Melo <acme@kernel.org>, 
-	Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>, 
-	Ian Rogers <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>, 
-	James Clark <james.clark@linaro.org>, Ravi Bangoria <ravi.bangoria@amd.com>, 
-	linux-perf-users@vger.kernel.org, selinux@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
+From: COMS VLAB <coms-vlab@ucsb.edu>
+Date: Thu, 9 Jul 2026 11:45:33 -0700
+X-Gm-Features: AUfX_mxKglnsEkKqQXvt_hjlEuhEczU5BLQWA4XNldGfmAI_mvlWsg9NRZswgMI
+Message-ID: <CA+jXL7=3=+wxXqm42Q_tQaoeusdUCnwzav_6gF6niAttPZ4ijg@mail.gmail.com>
+Subject: [Bug] Double free vulnerability at define_genfs_context_helper
+To: selinux@vger.kernel.org
+Content-Type: multipart/mixed; boundary="0000000000001b1e5f065632089c"
+
+--0000000000001b1e5f065632089c
+Content-Type: multipart/alternative; boundary="0000000000001b1e5e065632089a"
+
+--0000000000001b1e5e065632089a
 Content-Type: text/plain; charset="UTF-8"
+
+Summary
+
+A double-free vulnerability exists in the checkpolicy source policy
+compiler's handling of genfscon statements. When parsing a new (previously
+unseen) filesystem type string, define_genfs_context_helper() transfers
+ownership of the fstype pointer into a genfs struct that is linked into the
+policydb's live genfs list, but fails to clear the local fstype variable
+afterward. If any subsequent parsing step in the same function fails,
+execution jumps to a shared fail: cleanup block. This cleanup block frees
+fstype, which leaves a dangling pointer in the genfs list. When the
+policydb is later destroyed via policydb_destroy(), it frees that same
+pointer again, causing the double-free.
+
+
+Version
+
+06159ee35d6b4c968c1f942c9361c111644de826 - current version
+<https://github.com/SELinuxProject/selinux>
+
+
+PoC: Please see attachment
+
+
+
+ASAN Report
+
+==2502==ERROR: AddressSanitizer: attempting double-free on 0xfc1f82fe1330
+in thread T0:
+
+    #0 0xaaaac9f6d518 in free (/selinux/repro+0xed518) (BuildId:
+ea3a1d5343a0633f08393e738125b8f44be83f66)
+
+    #1 0xaaaac9ffd49c in policydb_destroy
+selinux/libsepol/src/policydb.c:1596:3
+
+    #2 0xaaaac9faf758 in main selinux/../repro.c:11:5
+
+    #3 0xffff83c62f18  (/usr/lib/aarch64-linux-gnu/libc.so.6+0x22f18)
+(BuildId: b50ceafbd17dc6bceee344a66671c7eaa152bef4)
+
+    #4 0xffff83c63058 in __libc_start_main
+(/usr/lib/aarch64-linux-gnu/libc.so.6+0x23058) (BuildId:
+b50ceafbd17dc6bceee344a66671c7eaa152bef4)
+
+    #5 0xaaaac9ec7c6c in _start (selinux/repro+0x47c6c) (BuildId:
+ea3a1d5343a0633f08393e738125b8f44be83f66)
+
+0xfc1f82fe1330 is located 0 bytes inside of 2-byte region
+[0xfc1f82fe1330,0xfc1f82fe1332)
+
+freed by thread T0 here:
+
+    #0 0xaaaac9f6d518 in free (/selinux/repro+0xed518) (BuildId:
+ea3a1d5343a0633f08393e738125b8f44be83f66)
+
+    #1 0xaaaac9fc8a60 in define_genfs_context_helper
+/selinux/checkpolicy/policy_define.c:6163:2
+
+    #2 0xaaaac9fc8a60 in define_genfs_context
+/selinux/checkpolicy/policy_define.c:6171:9
+
+    #3 0xaaaac9fcbc1c in yyparse /selinux/checkpolicy/policy_parse.y:787:30
+
+    #4 0xaaaac9fb95b4 in read_source_policy
+/selinux/checkpolicy/parse_util.c:70:6
+
+    #5 0xaaaac9faf750 in main /selinux/../repro.c:10:5
+
+    #6 0xffff83c62f18  (/usr/lib/aarch64-linux-gnu/libc.so.6+0x22f18)
+(BuildId: b50ceafbd17dc6bceee344a66671c7eaa152bef4)
+
+    #7 0xffff83c63058 in __libc_start_main
+(/usr/lib/aarch64-linux-gnu/libc.so.6+0x23058) (BuildId:
+b50ceafbd17dc6bceee344a66671c7eaa152bef4)
+
+    #8 0xaaaac9ec7c6c in _start (/selinux/repro+0x47c6c) (BuildId:
+ea3a1d5343a0633f08393e738125b8f44be83f66)
+
+previously allocated by thread T0 here:
+
+    #0 0xaaaac9f53a4c in strdup (/selinux/repro+0xd3a4c) (BuildId:
+ea3a1d5343a0633f08393e738125b8f44be83f66)
+
+    #1 0xaaaac9fb9aa0 in insert_id
+/selinux/checkpolicy/policy_define.c:131:10
+
+    #2 0xaaaac9fcc744 in yyparse /selinux/checkpolicy/policy_parse.y
+
+    #3 0xaaaac9fb95b4 in read_source_policy
+/selinux/checkpolicy/parse_util.c:70:6
+
+    #4 0xaaaac9faf750 in main /selinux/../repro.c:10:5
+
+    #5 0xffff83c62f18  (/usr/lib/aarch64-linux-gnu/libc.so.6+0x22f18)
+(BuildId: b50ceafbd17dc6bceee344a66671c7eaa152bef4)
+
+    #6 0xffff83c63058 in __libc_start_main
+(/usr/lib/aarch64-linux-gnu/libc.so.6+0x23058) (BuildId:
+b50ceafbd17dc6bceee344a66671c7eaa152bef4)
+
+    #7 0xaaaac9ec7c6c in _start (/selinux/repro+0x47c6c) (BuildId:
+ea3a1d5343a0633f08393e738125b8f44be83f66)
+
+SUMMARY: AddressSanitizer: double-free (/selinux/repro+0xed518) (BuildId:
+ea3a1d5343a0633f08393e738125b8f44be83f66) in free
+
+==2502==ABORTING
+
+--0000000000001b1e5e065632089a
+Content-Type: text/html; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 1, 2026 at 8:43=E2=80=AFAM Peter Zijlstra <peterz@infradead.org=
-> wrote:
->
-> On Wed, Jul 01, 2026 at 08:23:21AM +0200, Ondrej Mosnacek wrote:
-> > Making [parts of] the heap executable is dangerous and is blocked by
-> > SELinux on Fedora/RHEL even for an unconfined user. Replace the malloc(=
-)
-> > + mprotect() combo with just mmap(), creating a private anonymous rwx
-> > mapping, which only requires the more commonly allowed "execmem"
->
-> I do not understand. Ultimately malloc() will have to use mmap() to get
-> the memory too. So how is malloc() + mprotect() considered more
-> dangerous?
->
-> > permission under SELinux (things like JIT or regex compilation need it
-> > as well). mmap() with MAP_ANONYMOUS will give us a zeroed mapping that
-> > begins on a page boundary, so the result is equivalent to the original
-> > code even without a memset() or the page-alignment dance.
->
-> I would argue that having RWX is a problem, you really want RW->RO->RX
-> transitions, so even with mmap() you want to combine with mprotect().
->
-> Obviously this doesn't matter for this test case, but any halfway sane
-> JIT should really avoid keeping RWX mappings around.
+<div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><span id=3D"m_3491866375=
+012644840m_3447522423952227765gmail-docs-internal-guid-c75bbc50-7fff-714a-a=
+a56-2b165f380f34"><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;m=
+argin-bottom:0pt"><span style=3D"font-size:12pt;font-family:&quot;Times New=
+ Roman&quot;,serif;color:rgb(0,0,0);background-color:transparent;font-weigh=
+t:700;font-variant:normal;vertical-align:baseline;white-space:pre-wrap">Sum=
+mary</span></p><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;marg=
+in-bottom:0pt"><span style=3D"font-size:12pt;font-family:&quot;Times New Ro=
+man&quot;,serif;color:rgb(0,0,0);background-color:transparent;font-variant:=
+normal;vertical-align:baseline;white-space:pre-wrap">A double-free vulnerab=
+ility exists in the <span aria-invalid=3D"spelling" style=3D"border-style:n=
+one;background:none"><span aria-invalid=3D"spelling" style=3D"border-style:=
+none;background:none"><span aria-invalid=3D"spelling" class=3D"LI ng" style=
+=3D"border-style:none;background:none">checkpolicy</span></span></span> sou=
+rce policy compiler&#39;s handling of genfscon statements. When parsing a n=
+ew (previously unseen) filesystem type string, </span><span style=3D"font-s=
+ize:12pt;font-family:&quot;Times New Roman&quot;,serif;color:rgb(0,0,0);bac=
+kground-color:transparent;font-style:italic;font-variant:normal;vertical-al=
+ign:baseline;white-space:pre-wrap">define_genfs_context_helper()</span><spa=
+n style=3D"font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;col=
+or:rgb(0,0,0);background-color:transparent;font-variant:normal;vertical-ali=
+gn:baseline;white-space:pre-wrap"> transfers ownership of the </span><span =
+style=3D"font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;color=
+:rgb(0,0,0);background-color:transparent;font-style:italic;font-variant:nor=
+mal;vertical-align:baseline;white-space:pre-wrap">fstype</span><span style=
+=3D"font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;color:rgb(=
+0,0,0);background-color:transparent;font-variant:normal;vertical-align:base=
+line;white-space:pre-wrap"> pointer into a </span><span style=3D"font-size:=
+12pt;font-family:&quot;Times New Roman&quot;,serif;color:rgb(0,0,0);backgro=
+und-color:transparent;font-style:italic;font-variant:normal;vertical-align:=
+baseline;white-space:pre-wrap">genfs</span><span style=3D"font-size:12pt;fo=
+nt-family:&quot;Times New Roman&quot;,serif;color:rgb(0,0,0);background-col=
+or:transparent;font-variant:normal;vertical-align:baseline;white-space:pre-=
+wrap"> struct that is linked into the policydb&#39;s live </span><span styl=
+e=3D"font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;color:rgb=
+(0,0,0);background-color:transparent;font-style:italic;font-variant:normal;=
+vertical-align:baseline;white-space:pre-wrap">genfs</span><span style=3D"fo=
+nt-size:12pt;font-family:&quot;Times New Roman&quot;,serif;color:rgb(0,0,0)=
+;background-color:transparent;font-variant:normal;vertical-align:baseline;w=
+hite-space:pre-wrap"> list, but fails to clear the local </span><span style=
+=3D"font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;color:rgb(=
+0,0,0);background-color:transparent;font-style:italic;font-variant:normal;v=
+ertical-align:baseline;white-space:pre-wrap">fstype</span><span style=3D"fo=
+nt-size:12pt;font-family:&quot;Times New Roman&quot;,serif;color:rgb(0,0,0)=
+;background-color:transparent;font-variant:normal;vertical-align:baseline;w=
+hite-space:pre-wrap"> variable afterward. If any subsequent parsing step in=
+ the same function fails, execution jumps to a shared fail: cleanup block. =
+This cleanup block frees </span><span style=3D"font-size:12pt;font-family:&=
+quot;Times New Roman&quot;,serif;color:rgb(0,0,0);background-color:transpar=
+ent;font-style:italic;font-variant:normal;vertical-align:baseline;white-spa=
+ce:pre-wrap">fstype</span><span style=3D"font-size:12pt;font-family:&quot;T=
+imes New Roman&quot;,serif;color:rgb(0,0,0);background-color:transparent;fo=
+nt-variant:normal;vertical-align:baseline;white-space:pre-wrap">, which lea=
+ves a dangling pointer in the genfs list. When the policydb is later destro=
+yed via </span><span style=3D"font-size:12pt;font-family:&quot;Times New Ro=
+man&quot;,serif;color:rgb(0,0,0);background-color:transparent;font-style:it=
+alic;font-variant:normal;vertical-align:baseline;white-space:pre-wrap">poli=
+cydb_destroy</span><span style=3D"font-size:12pt;font-family:&quot;Times Ne=
+w Roman&quot;,serif;color:rgb(0,0,0);background-color:transparent;font-vari=
+ant:normal;vertical-align:baseline;white-space:pre-wrap">(), it frees that =
+same pointer again, causing the double-free.</span></p><br><br><p dir=3D"lt=
+r" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=
+=3D"font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;color:rgb(=
+0,0,0);background-color:transparent;font-weight:700;font-variant:normal;ver=
+tical-align:baseline;white-space:pre-wrap">Version</span></p><p dir=3D"ltr"=
+ style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><a href=3D"htt=
+ps://github.com/SELinuxProject/selinux" style=3D"text-decoration:none" targ=
+et=3D"_blank"><span style=3D"font-size:12pt;font-family:&quot;Times New Rom=
+an&quot;,serif;background-color:transparent;font-variant:normal;text-decora=
+tion:underline;vertical-align:baseline;white-space:pre-wrap">06159ee35d6b4c=
+968c1f942c9361c111644de826 - current version</span></a></p><br><br><p dir=
+=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span =
+style=3D"font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;color=
+:rgb(0,0,0);background-color:transparent;font-weight:700;font-variant:norma=
+l;vertical-align:baseline;white-space:pre-wrap">PoC: </span><span style=3D"=
+font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;color:rgb(0,0,=
+0);background-color:transparent;font-variant:normal;vertical-align:baseline=
+;white-space:pre-wrap">Please see attachment</span></p><p dir=3D"ltr" style=
+=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><br></p><br><p dir=
+=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span =
+style=3D"font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;color=
+:rgb(0,0,0);background-color:transparent;font-weight:700;font-variant:norma=
+l;vertical-align:baseline;white-space:pre-wrap">ASAN Report</span></p><p di=
+r=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span=
+ style=3D"font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;colo=
+r:rgb(0,0,0);background-color:transparent;font-weight:700;font-variant:norm=
+al;vertical-align:baseline;white-space:pre-wrap">=3D=3D2502=3D=3DERROR: Add=
+ressSanitizer: attempting double-free on 0xfc1f82fe1330 in thread T0:</span=
+></p><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:=
+0pt"><span style=3D"font-size:12pt;font-family:&quot;Times New Roman&quot;,=
+serif;color:rgb(0,0,0);background-color:transparent;font-variant:normal;ver=
+tical-align:baseline;white-space:pre-wrap">=C2=A0=C2=A0=C2=A0=C2=A0#0 0xaaa=
+ac9f6d518 in free (/selinux/repro+0xed518) (BuildId: ea3a1d5343a0633f08393e=
+738125b8f44be83f66)</span></p><p dir=3D"ltr" style=3D"line-height:1.38;marg=
+in-top:0pt;margin-bottom:0pt"><span style=3D"font-size:12pt;font-family:&qu=
+ot;Times New Roman&quot;,serif;color:rgb(0,0,0);background-color:transparen=
+t;font-variant:normal;vertical-align:baseline;white-space:pre-wrap">=C2=A0=
+=C2=A0=C2=A0=C2=A0#1 0xaaaac9ffd49c in policydb_destroy selinux/libsepol/sr=
+c/policydb.c:1596:3</span></p><p dir=3D"ltr" style=3D"line-height:1.38;marg=
+in-top:0pt;margin-bottom:0pt"><span style=3D"font-size:12pt;font-family:&qu=
+ot;Times New Roman&quot;,serif;color:rgb(0,0,0);background-color:transparen=
+t;font-variant:normal;vertical-align:baseline;white-space:pre-wrap">=C2=A0=
+=C2=A0=C2=A0=C2=A0#2 0xaaaac9faf758 in main selinux/../repro.c:11:5</span><=
+/p><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0p=
+t"><span style=3D"font-size:12pt;font-family:&quot;Times New Roman&quot;,se=
+rif;color:rgb(0,0,0);background-color:transparent;font-variant:normal;verti=
+cal-align:baseline;white-space:pre-wrap">=C2=A0=C2=A0=C2=A0=C2=A0#3 0xffff8=
+3c62f18=C2=A0 (/usr/lib/aarch64-linux-gnu/libc.so.6+0x22f18) (BuildId: b50c=
+eafbd17dc6bceee344a66671c7eaa152bef4)</span></p><p dir=3D"ltr" style=3D"lin=
+e-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:12=
+pt;font-family:&quot;Times New Roman&quot;,serif;color:rgb(0,0,0);backgroun=
+d-color:transparent;font-variant:normal;vertical-align:baseline;white-space=
+:pre-wrap">=C2=A0=C2=A0=C2=A0=C2=A0#4 0xffff83c63058 in __libc_start_main (=
+/usr/lib/aarch64-linux-gnu/libc.so.6+0x23058) (BuildId: b50ceafbd17dc6bceee=
+344a66671c7eaa152bef4)</span></p><p dir=3D"ltr" style=3D"line-height:1.38;m=
+argin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:12pt;font-family:=
+&quot;Times New Roman&quot;,serif;color:rgb(0,0,0);background-color:transpa=
+rent;font-variant:normal;vertical-align:baseline;white-space:pre-wrap">=C2=
+=A0=C2=A0=C2=A0=C2=A0#5 0xaaaac9ec7c6c in _start (selinux/repro+0x47c6c) (B=
+uildId: ea3a1d5343a0633f08393e738125b8f44be83f66)</span></p><p dir=3D"ltr" =
+style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"=
+font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;color:rgb(0,0,=
+0);background-color:transparent;font-weight:700;font-variant:normal;vertica=
+l-align:baseline;white-space:pre-wrap">0xfc1f82fe1330 is located 0 bytes in=
+side of 2-byte region [0xfc1f82fe1330,0xfc1f82fe1332)</span></p><p dir=3D"l=
+tr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=
+=3D"font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;color:rgb(=
+0,0,0);background-color:transparent;font-weight:700;font-variant:normal;ver=
+tical-align:baseline;white-space:pre-wrap">freed by thread T0 here:</span><=
+/p><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0p=
+t"><span style=3D"font-size:12pt;font-family:&quot;Times New Roman&quot;,se=
+rif;color:rgb(0,0,0);background-color:transparent;font-variant:normal;verti=
+cal-align:baseline;white-space:pre-wrap">=C2=A0=C2=A0=C2=A0=C2=A0#0 0xaaaac=
+9f6d518 in free (/selinux/repro+0xed518) (BuildId: ea3a1d5343a0633f08393e73=
+8125b8f44be83f66)</span></p><p dir=3D"ltr" style=3D"line-height:1.38;margin=
+-top:0pt;margin-bottom:0pt"><span style=3D"font-size:12pt;font-family:&quot=
+;Times New Roman&quot;,serif;color:rgb(0,0,0);background-color:transparent;=
+font-variant:normal;vertical-align:baseline;white-space:pre-wrap">=C2=A0=C2=
+=A0=C2=A0=C2=A0#1 0xaaaac9fc8a60 in define_genfs_context_helper /selinux/ch=
+eckpolicy/policy_define.c:6163:2</span></p><p dir=3D"ltr" style=3D"line-hei=
+ght:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:12pt;fo=
+nt-family:&quot;Times New Roman&quot;,serif;color:rgb(0,0,0);background-col=
+or:transparent;font-variant:normal;vertical-align:baseline;white-space:pre-=
+wrap">=C2=A0=C2=A0=C2=A0=C2=A0#2 0xaaaac9fc8a60 in define_genfs_context /se=
+linux/checkpolicy/policy_define.c:6171:9</span></p><p dir=3D"ltr" style=3D"=
+line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-size=
+:12pt;font-family:&quot;Times New Roman&quot;,serif;color:rgb(0,0,0);backgr=
+ound-color:transparent;font-variant:normal;vertical-align:baseline;white-sp=
+ace:pre-wrap">=C2=A0=C2=A0=C2=A0=C2=A0#3 0xaaaac9fcbc1c in yyparse /selinux=
+/checkpolicy/policy_parse.y:787:30</span></p><p dir=3D"ltr" style=3D"line-h=
+eight:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:12pt;=
+font-family:&quot;Times New Roman&quot;,serif;color:rgb(0,0,0);background-c=
+olor:transparent;font-variant:normal;vertical-align:baseline;white-space:pr=
+e-wrap">=C2=A0=C2=A0=C2=A0=C2=A0#4 0xaaaac9fb95b4 in read_source_policy /se=
+linux/checkpolicy/parse_util.c:70:6</span></p><p dir=3D"ltr" style=3D"line-=
+height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:12pt=
+;font-family:&quot;Times New Roman&quot;,serif;color:rgb(0,0,0);background-=
+color:transparent;font-variant:normal;vertical-align:baseline;white-space:p=
+re-wrap">=C2=A0=C2=A0=C2=A0=C2=A0#5 0xaaaac9faf750 in main /selinux/../repr=
+o.c:10:5</span></p><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;=
+margin-bottom:0pt"><span style=3D"font-size:12pt;font-family:&quot;Times Ne=
+w Roman&quot;,serif;color:rgb(0,0,0);background-color:transparent;font-vari=
+ant:normal;vertical-align:baseline;white-space:pre-wrap">=C2=A0=C2=A0=C2=A0=
+=C2=A0#6 0xffff83c62f18=C2=A0 (/usr/lib/aarch64-linux-gnu/libc.so.6+0x22f18=
+) (BuildId: b50ceafbd17dc6bceee344a66671c7eaa152bef4)</span></p><p dir=3D"l=
+tr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=
+=3D"font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;color:rgb(=
+0,0,0);background-color:transparent;font-variant:normal;vertical-align:base=
+line;white-space:pre-wrap">=C2=A0=C2=A0=C2=A0=C2=A0#7 0xffff83c63058 in __l=
+ibc_start_main (/usr/lib/aarch64-linux-gnu/libc.so.6+0x23058) (BuildId: b50=
+ceafbd17dc6bceee344a66671c7eaa152bef4)</span></p><p dir=3D"ltr" style=3D"li=
+ne-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:1=
+2pt;font-family:&quot;Times New Roman&quot;,serif;color:rgb(0,0,0);backgrou=
+nd-color:transparent;font-variant:normal;vertical-align:baseline;white-spac=
+e:pre-wrap">=C2=A0=C2=A0=C2=A0=C2=A0#8 0xaaaac9ec7c6c in _start (/selinux/r=
+epro+0x47c6c) (BuildId: ea3a1d5343a0633f08393e738125b8f44be83f66)</span></p=
+><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"=
+><span style=3D"font-size:12pt;font-family:&quot;Times New Roman&quot;,seri=
+f;color:rgb(0,0,0);background-color:transparent;font-weight:700;font-varian=
+t:normal;vertical-align:baseline;white-space:pre-wrap">previously allocated=
+ by thread T0 here:</span></p><p dir=3D"ltr" style=3D"line-height:1.38;marg=
+in-top:0pt;margin-bottom:0pt"><span style=3D"font-size:12pt;font-family:&qu=
+ot;Times New Roman&quot;,serif;color:rgb(0,0,0);background-color:transparen=
+t;font-variant:normal;vertical-align:baseline;white-space:pre-wrap">=C2=A0=
+=C2=A0=C2=A0=C2=A0#0 0xaaaac9f53a4c in strdup (/selinux/repro+0xd3a4c) (Bui=
+ldId: ea3a1d5343a0633f08393e738125b8f44be83f66)</span></p><p dir=3D"ltr" st=
+yle=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"fo=
+nt-size:12pt;font-family:&quot;Times New Roman&quot;,serif;color:rgb(0,0,0)=
+;background-color:transparent;font-variant:normal;vertical-align:baseline;w=
+hite-space:pre-wrap">=C2=A0=C2=A0=C2=A0=C2=A0#1 0xaaaac9fb9aa0 in insert_id=
+ /selinux/checkpolicy/policy_define.c:131:10</span></p><p dir=3D"ltr" style=
+=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-=
+size:12pt;font-family:&quot;Times New Roman&quot;,serif;color:rgb(0,0,0);ba=
+ckground-color:transparent;font-variant:normal;vertical-align:baseline;whit=
+e-space:pre-wrap">=C2=A0=C2=A0=C2=A0=C2=A0#2 0xaaaac9fcc744 in yyparse /sel=
+inux/checkpolicy/policy_parse.y</span></p><p dir=3D"ltr" style=3D"line-heig=
+ht:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:12pt;fon=
+t-family:&quot;Times New Roman&quot;,serif;color:rgb(0,0,0);background-colo=
+r:transparent;font-variant:normal;vertical-align:baseline;white-space:pre-w=
+rap">=C2=A0=C2=A0=C2=A0=C2=A0#3 0xaaaac9fb95b4 in read_source_policy /selin=
+ux/checkpolicy/parse_util.c:70:6</span></p><p dir=3D"ltr" style=3D"line-hei=
+ght:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:12pt;fo=
+nt-family:&quot;Times New Roman&quot;,serif;color:rgb(0,0,0);background-col=
+or:transparent;font-variant:normal;vertical-align:baseline;white-space:pre-=
+wrap">=C2=A0=C2=A0=C2=A0=C2=A0#4 0xaaaac9faf750 in main /selinux/../repro.c=
+:10:5</span></p><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;mar=
+gin-bottom:0pt"><span style=3D"font-size:12pt;font-family:&quot;Times New R=
+oman&quot;,serif;color:rgb(0,0,0);background-color:transparent;font-variant=
+:normal;vertical-align:baseline;white-space:pre-wrap">=C2=A0=C2=A0=C2=A0=C2=
+=A0#5 0xffff83c62f18=C2=A0 (/usr/lib/aarch64-linux-gnu/libc.so.6+0x22f18) (=
+BuildId: b50ceafbd17dc6bceee344a66671c7eaa152bef4)</span></p><p dir=3D"ltr"=
+ style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D=
+"font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;color:rgb(0,0=
+,0);background-color:transparent;font-variant:normal;vertical-align:baselin=
+e;white-space:pre-wrap">=C2=A0=C2=A0=C2=A0=C2=A0#6 0xffff83c63058 in __libc=
+_start_main (/usr/lib/aarch64-linux-gnu/libc.so.6+0x23058) (BuildId: b50cea=
+fbd17dc6bceee344a66671c7eaa152bef4)</span></p><p dir=3D"ltr" style=3D"line-=
+height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:12pt=
+;font-family:&quot;Times New Roman&quot;,serif;color:rgb(0,0,0);background-=
+color:transparent;font-variant:normal;vertical-align:baseline;white-space:p=
+re-wrap">=C2=A0=C2=A0=C2=A0=C2=A0#7 0xaaaac9ec7c6c in _start (/selinux/repr=
+o+0x47c6c) (BuildId: ea3a1d5343a0633f08393e738125b8f44be83f66)</span></p><p=
+ dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><s=
+pan style=3D"font-size:12pt;font-family:&quot;Times New Roman&quot;,serif;c=
+olor:rgb(0,0,0);background-color:transparent;font-variant:normal;vertical-a=
+lign:baseline;white-space:pre-wrap">SUMMARY: AddressSanitizer: double-free =
+(/selinux/repro+0xed518) (BuildId: ea3a1d5343a0633f08393e738125b8f44be83f66=
+) in free</span></p><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt=
+;margin-bottom:0pt"><span style=3D"font-size:12pt;font-family:&quot;Times N=
+ew Roman&quot;,serif;color:rgb(0,0,0);background-color:transparent;font-var=
+iant:normal;vertical-align:baseline;white-space:pre-wrap">=3D=3D2502=3D=3DA=
+BORTING</span></p><br></span></div>
+</div>
+</div>
 
-You're right, an RWX mapping in the heap range isn't really worse than
-an mmap()-returned anonymous RWX mapping. I think the key difference
-is that executable ranges in the heap are much less common, so can be
-treated as a sign of malware and denied more strictly in the policy.
-The "execmem" permission is triggered on any anonymous executable (or
-file-backed private writable-executable) mapping, which would apply
-even for well-implemented JITs and thus can't be restricted as
-broadly.
+--0000000000001b1e5e065632089a--
+--0000000000001b1e5f065632089c
+Content-Type: application/zip; name="poc.zip"
+Content-Disposition: attachment; filename="poc.zip"
+Content-Transfer-Encoding: base64
+Content-ID: <f_mrduqzto0>
+X-Attachment-Id: f_mrduqzto0
 
-So the point is just to not do the more weird thing (which will get
-you blocked under SELinux even under unconfined_t), so that the test
-can be run on a SELinux-enforcing machine without workarounds. In
-hindsight, I should have thought about it more deeply and phrase it
-better in the commit message, sorry.
-
->
-> > Verified that the test still passes on a machine with an AMD CPU that
-> > has the "ibs" CPU flag.
-> >
-> > Fixes: 35db59fa8ea2 ("perf test amd ibs: Add sample period unit test")
-> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
->
-> The patch is obviously good, simpler is more better and all that. But
-> the justification really smells.
->
-> Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
->
-> If and when we get AMD to support IBT, this thing will need more
-> changes, but alas.
->
-> > ---
-> >
-> > v2: fix mmap() failure check (found by sashiko-bot)
-> >
-> >  tools/perf/arch/x86/tests/amd-ibs-period.c | 20 ++++++--------------
-> >  1 file changed, 6 insertions(+), 14 deletions(-)
-> >
-> > diff --git a/tools/perf/arch/x86/tests/amd-ibs-period.c b/tools/perf/ar=
-ch/x86/tests/amd-ibs-period.c
-> > index 6a92b3a23ed7a..32713f8fcd5c8 100644
-> > --- a/tools/perf/arch/x86/tests/amd-ibs-period.c
-> > +++ b/tools/perf/arch/x86/tests/amd-ibs-period.c
-> > @@ -46,7 +46,6 @@ static int dummy_workload_1(unsigned long count)
-> >  {
-> >       int (*func)(void);
-> >       int ret =3D 0;
-> > -     char *p;
-> >       char insn1[] =3D {
-> >               0xb8, 0x01, 0x00, 0x00, 0x00, /* mov 1,%eax */
-> >               0xc3, /* ret */
-> > @@ -59,18 +58,11 @@ static int dummy_workload_1(unsigned long count)
-> >               0xcc, /* int 3 */
-> >       };
-> >
-> > -     p =3D calloc(2, page_size);
-> > -     if (!p) {
-> > -             printf("malloc() failed. %m");
-> > -             return 1;
-> > -     }
-> > -
-> > -     func =3D (void *)((unsigned long)(p + page_size - 1) & ~(page_siz=
-e - 1));
-> > -
-> > -     ret =3D mprotect(func, page_size, PROT_READ | PROT_WRITE | PROT_E=
-XEC);
-> > -     if (ret) {
-> > -             printf("mprotect() failed. %m");
-> > -             goto out;
-> > +     func =3D mmap(NULL, page_size, PROT_READ | PROT_WRITE | PROT_EXEC=
-,
-> > +                 MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-> > +     if (func =3D=3D MAP_FAILED) {
-> > +             pr_debug("mmap() failed. %m\n");
-> > +             return -1;
-> >       }
-> >
-> >       if (count < 100000)
-> > @@ -93,7 +85,7 @@ static int dummy_workload_1(unsigned long count)
-> >       }
-> >
-> >  out:
-> > -     free(p);
-> > +     munmap(func, page_size);
-> >       return ret;
-> >  }
-> >
-> > --
-> > 2.54.0
-> >
->
-
-
---=20
-Ondrej Mosnacek
-Senior Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
-
+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
+--0000000000001b1e5f065632089c--
