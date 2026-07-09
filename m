@@ -1,180 +1,200 @@
-Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+Received: from mail-qt1-f174.google.com (mail-qt1-f174.google.com [209.85.160.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0C722D3A60
-	for <selinux@vger.kernel.org>; Thu,  9 Jul 2026 19:28:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.180
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783625285; cv=pass; b=C7OohmO/eeyzb+IERAZckKgBSmQaIinMzcQ2gvczll8Jk8+Mk1ByVnj9uBweucSqE5A0qUdoUu3KmlK6f6g6MLzLJY5qvv+g3oVQ8iUPOKQ6rda2yonRABpHVi/PWEfYoL4wM4RcVoUbLrKB7d13H+Ctq+hVjigscRLdyamIIW8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783625285; c=relaxed/simple;
-	bh=3YlX43Jh2gefWew8aezFoDQ04GeceenWlrs8Tu7do9M=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=diRI7TK/z68RekBKHOQBCyXyc/gpr0ldic6E37TuyZVAOARiumi7myA2wnXNxTaq908QfB39rTZZuHHiteYvG/v2g+M6b/uy2eiFPHn5hn1GoXJx7yTdP9P96g/mOGj2E+fuliNlYE2qQIiCpft4k6+5YDb4PGxNbbWmkKpFiGc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fZ3nbolg; arc=pass smtp.client-ip=209.85.214.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 439D63B7A8
+	for <selinux@vger.kernel.org>; Thu,  9 Jul 2026 20:08:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.174
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783627695; cv=none; b=ObC1sqPCfYbxZFpr4D4910KS2Ydrh17lzbqn4OfbBrPSdLrgUXQClZ7ITLaeJqaZpxha8J+88qxv4M2N1I5rq+4hg+WHUPi2TU6vTn2mIGsBKUXT3x+9u89pgGziQvvJfc7t17g6fF+eis8NrEu+CkeI9jNggsVgIvymlWVGBzg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783627695; c=relaxed/simple;
+	bh=RgXWMQ4i+UipZYNj6hNBW+Zewd1tlNG33jcWZhe6dZw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=IWvbzRDxLJV4Scg18HmclaJMmPVEBlzRynIAyM/vweTgbEX/klNhtM6TBG/neMOzGNMW18hHG+o9W1jPAYQgeGqJRtH6L9Y/YqEwfBbAl7h3NuIyeakNMShuMsh0y0l3q+ayNu31aO0vB8t65xA9cDAr01wUWHRiVEptgwe44EI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gHKRrolm; arc=none smtp.client-ip=209.85.160.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fZ3nbolg"
-Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2c9bd2f8bf7so18227255ad.1
-        for <selinux@vger.kernel.org>; Thu, 09 Jul 2026 12:28:04 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1783625284; cv=none;
-        d=google.com; s=arc-20260327;
-        b=TGuSRYNPBXNZYCekjup2FgnIi7OFKkC2dH0X5Yk7P5+LlZ6GKbeV905ci6j/Qq/JjK
-         Uctr3naLJND71Bp/XuXfxVrHtWx53zRvpci6k8b3Bhx0QdBFaHDJv1sZwvlMZv/xpvUP
-         9IW9/XxIDoXOqJmRljl7HIk8F/Nx2tWCBDNYT6EDJWcRnCIAjO4jsOBV6h/If80FVAuN
-         H9FajWg/ZDqFX77T9apbogl5xYAmqmtUF2v4KVT4HDzrSD5aZF0pUXESyuL+DCaGjwkO
-         XCCRQGh8mMk7KctR6/FA4jqYPsUaHVaYvdtA3PyJ/PU0ans+u8HFudFktprZNIoOcX4m
-         JbIg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=zb15/v0AHFmeW0kQkbL+9zs4AS8GOi3pByqyK4NR/i8=;
-        fh=PeMLZ/cc+FiD+4pT5ccekHYY5uJRMZMInCaTdLSWnjc=;
-        b=do+RAFCYuFPbyCL/wfirB6fidKm+hbeCFD7Yzy9QEYMQur6OTV+lJTqR2KlOy7c3Dg
-         F0V6XeUNVvMN6ZfHGtsMczNCAVaGhT5alsKXxTj8cSgPpXn5OkiwYxaARIbys6E2A/ot
-         TjH/SM4ZD5aiqYCLvMghelnoCp0Ihx+YIKqBSRmsMwfFzEp/fJmBrgLqScbNUo7LMVND
-         tT1elShyNfIqvGFovOf3rmJBi1dafSSdU4Kg5gv9R2cAfB8fmV8rEflL2/oZ9ZO7d0Qd
-         2uV7flhJNi26QG8s+eBjyekHfn3bgYE5LVmiNcCFA0qFIVqZxNS2NVi1lAuvoe4+2I3e
-         38KQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gHKRrolm"
+Received: by mail-qt1-f174.google.com with SMTP id d75a77b69052e-51c149c5722so2169231cf.0
+        for <selinux@vger.kernel.org>; Thu, 09 Jul 2026 13:08:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783625284; x=1784230084; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=zb15/v0AHFmeW0kQkbL+9zs4AS8GOi3pByqyK4NR/i8=;
-        b=fZ3nbolgBKOsOnQo3U7CLkUf6nEQMByViT2NfK3k3St0bigAnCaqm1PU5gKpyeyHqP
-         4IuNthbZPrPV1hkl/vtNMB57AbMS5V6tNeF+z7/yKgdgNJcG0Kt5njC5qjgBSWfcxIKg
-         KqSCxWWlfl4lfY0ejfA6blY2m+9j03CnnCiVFXS4hjgt/w85Z4hlgNiL4+tVcnSTP08I
-         qSiBJXeBktgcXr/MP4vLBPM8nzE0zyDlOGA3L7rDd2ObgUUBSP7+imr+EO+I3eqKiS+Q
-         jfJyeOXiybvddBeptRg4vpe6ld/Rw1K7LvP5g5im8bN2nmjZ6X14uW6kDbl2G0M8ucWv
-         s2iA==
+        d=gmail.com; s=20251104; t=1783627693; x=1784232493; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=+cG3cj+bfWWhAvMnEqPWMcYxLzvS+WnZje0CtbP2Nq4=;
+        b=gHKRrolmZWC//8R5BlVrAPNehjailgh76tZnFWZOHFuzmSBmJ1ISu8Cu5KnN9eu+cC
+         6S61UNE5gpcAb0y6yahMaDS58zEtn5PbuPAEJ4t4kJ/+3RB5Bk2/Z+OTAzojsgJTXXOX
+         xBs6rR1KFmJy5T8FmjlDTqcAjgv8A+sui45HaewH7J+vvy11vMhp0gF7mAjYW33RBZyL
+         pyKXf5/yHHgfxYycr+bVoSSPmcnTWSJgeV3SqxsEDxHZz8m39fypxbHSneu6sdsJm+ET
+         XNUEzb3Ecz2ISsy8k+ESQ0My6OHYFzg/AUQz1v44w5fFqXV+EsukkZOabxyGL2nFsQQ1
+         wmQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783625284; x=1784230084;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=zb15/v0AHFmeW0kQkbL+9zs4AS8GOi3pByqyK4NR/i8=;
-        b=eaW2vKnksgOUpRfwKtlKqs9mahoe52xmTltTjh8ZIt/5s50nkFqQVUkZ0z2mETYksf
-         fgYTIGGpGBpZ8VkTSgf1sUZwfONuPDX6ZffYvxBl0l5WGLY0e77aAeZcBIsKhsgVX4/q
-         oyXjr4cjyYAFhYIGlIga+fPxIx9F6Z6AzN1qrgAJK5Z80ZMewMLmcOG3Ua7lt/jkGJPm
-         eFq/wTYRzc074Tgez6u5aS37A179auEXSoa3k5W+Fm6JdIFmrajl7waqtSqb0B+qAmwK
-         Or7Jv0nHInvhAFoyiYjzcaR2OJ+CDx9LXPM3OIosLPRZ8eGNBq5FaEwnSRc2IuMOOfw/
-         79jg==
-X-Forwarded-Encrypted: i=1; AHgh+Rpu4aHjA6nRET8NSBUvLmKxvD9ssba08ACpQA2pXu+fpjr2jzPWCm3KAAcmjGBJBXH3+HnQjgDA@vger.kernel.org
-X-Gm-Message-State: AOJu0YzuhPoe2KB7mIRDUGJ4DlcocPbQK5KicnmA8FK22xK0Tdb3gbVR
-	H927UGMXdEV+P5XEL8myCA2nzkbEw67xpxIeR/GglE8oVE8YctEXE+Yux08YTCv9zdW6nd2hiNM
-	/sFpPPwB5LHgx5R597BKUh5Zqc7yqAATIMQ==
-X-Gm-Gg: AfdE7clcWnu62+YoO2XUcNhvOxBP/pAHChu1OjOsFJNYZDp6WAfVk7JKULN8AuECKmP
-	akZnQTMxFYHSXwqiMtGfTvsCGekPBjGO8HhN5KD2uTiJviIGVaFbHTORhGCsaQl22121+eOAgK8
-	2U8fNNU/ydn5emYJeqRMUuTILFeyGhKPD/vvMz6r88ubohBiepk949DiRr0YfW7ClJILhk6cwbV
-	TS4PCZVrrsU7kxs4ObZ/V/MyiOWLgxDz83dH+TrjkvKXrRT32uZi6kXbdJo5C+mRO0TruD4
-X-Received: by 2002:a05:6a21:a38c:b0:3bf:6c27:38c with SMTP id
- adf61e73a8af0-3c0f131c363mr411628637.30.1783625284110; Thu, 09 Jul 2026
- 12:28:04 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1783627693; x=1784232493;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=+cG3cj+bfWWhAvMnEqPWMcYxLzvS+WnZje0CtbP2Nq4=;
+        b=oEAScTowvAkX853rvhjLOu9M7tQMIle19ayh3fudNGm6P2WdJqrOa4nXfHpMduSpcX
+         MkIxf25Bz6UpX79YDvnG2+f/7aZfhpiZY2roOXuuBKGeUXla+JYm8c+mZHRcTRMIuGK4
+         7EK0G4hb1HBXH+QtfF32HPLOngbBPLAUhzB0xWtLlUC89f63VNc9X/0EFa2PGjAzZun9
+         JmbhLkD0aNIPFX7P4OSzeNS/Le0bPkgLfXkZAqqmUObXfTcU+xqtX/lDRlvcNWqgcQ2V
+         dUaIukj+/S0BS1/oiH6KJ/ruOs6G/u7FOdQ84HVwekmcANN1L+b7cym7HOhN0r/aNWG7
+         aaCQ==
+X-Gm-Message-State: AOJu0Ywvjjp/V/z0GdLMRC1YUmxXUXR+nBoFfte/Mel4p/XwmXFeqDm0
+	tqgtCjFWy9smz2djJinQZO8XBCjz1PvNmFL1I8+dW4rSMJQzOr2/eDhlO69y3Q==
+X-Gm-Gg: AfdE7cnKEo4H6wyjcLcaItrOVzuDgDWS6FKOleMxYpncN08hEnyY2og2LewE4UdwC/p
+	xaQpA7ovUs9GYbOhIOEepv8ldPRpM36Nu/YeV4MXqfXOOB6ObC2+83quh7wLBcwAly6e4gOEHIu
+	9he6RCajFbClIBOvHgixbPUA8zSgP80Scrpe+AuAKSNw8DYsv43GauST6naVVKdAAHvHTAqKZe7
+	Iv9MpFjI9LzGsTOOJnK1iDurk0LCsJvvxY5v1LEZoW8ptndaFUXzlCBtvScrLkmoYCsGz+sjZzR
+	mZ8uWFDE50j9kCzbZx64MKZooU/rdZBOqOiqiAe1TVJcuiOSDag7koyn0QdEsJZy2mKz7VKBLrN
+	+EtVmlJeqrlvPwkoRBG6WmDQkKD1j7zzKMkVFQm9WXjliS11JKUrCMLx8wETqx35H7VmRpsCQ3R
+	iaFIvUxrNoFTwf0yPyzpSCrAzzKA0n1yIHPOJYRVwFgEbdn6gdIC+a+n6SsdWuM21vfDAghO3gV
+	yguMNUp2K20yBWm
+X-Received: by 2002:a05:622a:1e91:b0:51c:7aa7:e0eb with SMTP id d75a77b69052e-51caa4ddfecmr8102831cf.40.1783627693193;
+        Thu, 09 Jul 2026 13:08:13 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-51caae20a40sm2287841cf.15.2026.07.09.13.08.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 09 Jul 2026 13:08:12 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] policycoreutils/setfiles: introduce -j for skip_multilink
+Date: Thu,  9 Jul 2026 16:07:56 -0400
+Message-ID: <20260709200756.2172-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260709063128.75873-1-laoar.shao@gmail.com>
-In-Reply-To: <20260709063128.75873-1-laoar.shao@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 9 Jul 2026 15:27:51 -0400
-X-Gm-Features: AVVi8CdzfCxv_9sqXDHZIKzXUJ1_BCpFkNfTIAf8Xry2wAvXZHIqap7Tt57-o8g
-Message-ID: <CAEjxPJ4-dAdgC9EaNRzm8auqTy=TAnF6Gp-q7JGqZ2VDGkvh3w@mail.gmail.com>
-Subject: Re: [PATCH v3] selinux: suppress warning flood for retired DCCP
- netlink messages
-To: Yafang Shao <laoar.shao@gmail.com>
-Cc: paul@paul-moore.com, omosnace@redhat.com, casey@schaufler-ca.com, 
-	kuba@kernel.org, kuniyu@google.com, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Thu, Jul 9, 2026 at 2:31=E2=80=AFAM Yafang Shao <laoar.shao@gmail.com> w=
-rote:
->
-> When deploying linux-6.18.y stable kernel to production servers, we
-> observed kernel dmesg being flooded with SELinux warnings when running
-> `ss -l`:
->
->   SELinux: unrecognized netlink message: protocol=3D4 nlmsg_type=3D19 \
->     sclass=3Dnetlink_tcpdiag_socket pid=3D188945 comm=3Dss
->
-> The root cause is that DCCP support was retired in
-> commit 2a63dd0edf38 ("net: Retire DCCP socket."). Consequently,
-> DCCPDIAG_GETSOCK was removed from nlmsg_tcpdiag_perms. This causes
-> nlmsg_perm() to return -EINVAL, triggering the SELinux warning for every
-> `ss -l` invocation [0].
->
-> Use pr_warn_once() for the retired DCCPDIAG_GETSOCK to prevent message
-> flooding.
->
-> Link: https://github.com/iproute2/iproute2/blob/main/misc/ss.c#L3901 [0]
-> Fixes: 2a63dd0edf38 ("net: Retire DCCP socket.")
-> Suggested-by: Paul Moore <paul@paul-moore.com>
-> Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
-> Cc: Kuniyuki Iwashima <kuniyu@google.com>
-> Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+Introduce a new -j option to setfiles and restorecon to enable the
+recently introduced SELINUX_RESTORECON_SKIP_MULTILINK flag to
+selinux_restorecon(3) to detect files with multiple hard links and
+skip them when relabeling to avoid unintended mislabeling of such
+files. This option is recommended when relabeling user-writable
+directory trees.
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ policycoreutils/setfiles/restore.c    | 2 +-
+ policycoreutils/setfiles/restore.h    | 1 +
+ policycoreutils/setfiles/restorecon.8 | 6 ++++++
+ policycoreutils/setfiles/setfiles.8   | 5 +++++
+ policycoreutils/setfiles/setfiles.c   | 8 ++++++--
+ 5 files changed, 19 insertions(+), 3 deletions(-)
 
-> ---
->  security/selinux/hooks.c | 18 ++++++++++++------
->  1 file changed, 12 insertions(+), 6 deletions(-)
->
-> v2->v3: check also the sclass (sashiko-bot, Stephen)
-> v1->v2: use pr_warn_once for the removed DCCPDIAG_GETSOCK (Paul)
->
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 1a713d96206f..8a9ec06e40ab 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -94,6 +94,7 @@
->  #include <linux/io_uring/cmd.h>
->  #include <uapi/linux/lsm.h>
->  #include <linux/memfd.h>
-> +#include <uapi/linux/inet_diag.h>
->
->  #include "initcalls.h"
->  #include "avc.h"
-> @@ -6272,12 +6273,17 @@ static int selinux_netlink_send(struct sock *sk, =
-struct sk_buff *skb)
->                                 return rc;
->                 } else if (rc =3D=3D -EINVAL) {
->                         /* -EINVAL is a missing msg/perm mapping */
-> -                       pr_warn_ratelimited("SELinux: unrecognized netlin=
-k"
-> -                               " message: protocol=3D%hu nlmsg_type=3D%h=
-u sclass=3D%s"
-> -                               " pid=3D%d comm=3D%s\n",
-> -                               sk->sk_protocol, nlh->nlmsg_type,
-> -                               secclass_map[sclass - 1].name,
-> -                               task_pid_nr(current), current->comm);
-> +                       if (sclass =3D=3D SECCLASS_NETLINK_TCPDIAG_SOCKET=
- &&
-> +                           nlh->nlmsg_type =3D=3D DCCPDIAG_GETSOCK)
-> +                               pr_warn_once("SELinux: DCCP has been remo=
-ved, pid=3D%d comm=3D%s\n",
-> +                                            task_pid_nr(current), curren=
-t->comm);
-> +                       else
-> +                               pr_warn_ratelimited("SELinux: unrecognize=
-d netlink"
-> +                                       " message: protocol=3D%hu nlmsg_t=
-ype=3D%hu sclass=3D%s"
-> +                                       " pid=3D%d comm=3D%s\n",
-> +                                       sk->sk_protocol, nlh->nlmsg_type,
-> +                                       secclass_map[sclass - 1].name,
-> +                                       task_pid_nr(current), current->co=
-mm);
->                         if (enforcing_enabled() &&
->                             !security_get_allow_unknown())
->                                 return rc;
-> --
-> 2.52.0
->
+diff --git a/policycoreutils/setfiles/restore.c b/policycoreutils/setfiles/restore.c
+index 1e3644f5..edce44b5 100644
+--- a/policycoreutils/setfiles/restore.c
++++ b/policycoreutils/setfiles/restore.c
+@@ -42,7 +42,7 @@ void restore_init(struct restore_opts *opts)
+ 		opts->xdev | opts->abort_on_error | opts->syslog_changes |
+ 		opts->log_matches | opts->ignore_noent | opts->ignore_mounts |
+ 		opts->mass_relabel | opts->conflict_error | opts->count_errors |
+-		opts->count_relabeled;
++		opts->count_relabeled | opts->skip_multilink;
+ 
+ 	/* Use setfiles, restorecon and restorecond own handles */
+ 	selinux_restorecon_set_sehandle(opts->hnd);
+diff --git a/policycoreutils/setfiles/restore.h b/policycoreutils/setfiles/restore.h
+index 36f73059..bf3979f1 100644
+--- a/policycoreutils/setfiles/restore.h
++++ b/policycoreutils/setfiles/restore.h
+@@ -38,6 +38,7 @@ struct restore_opts {
+ 	unsigned int conflict_error;
+ 	unsigned int count_errors;
+ 	unsigned int count_relabeled;
++	unsigned int skip_multilink;
+ 	/* restorecon_flags holds | of above for restore_init() */
+ 	unsigned int restorecon_flags;
+ 	char *rootpath;
+diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setfiles/restorecon.8
+index b7ff9715..982701c2 100644
+--- a/policycoreutils/setfiles/restorecon.8
++++ b/policycoreutils/setfiles/restorecon.8
+@@ -10,6 +10,7 @@ restorecon \- restore file(s) default SELinux security contexts.
+ .RB [ \-p ]
+ .RB [ \-v ]
+ .RB [ \-i ]
++.RB [ \-j ]
+ .RB [ \-F ]
+ .RB [ \-U ]
+ .RB [ \-W ]
+@@ -30,6 +31,7 @@ restorecon \- restore file(s) default SELinux security contexts.
+ .RB [ \-p ]
+ .RB [ \-v ]
+ .RB [ \-i ]
++.RB [ \-j ]
+ .RB [ \-F ]
+ .RB [ \-U ]
+ .RB [ \-W ]
+@@ -88,6 +90,10 @@ contains a list of files to be processed. Use
+ for
+ .BR stdin .
+ .TP
++.B \-j
++skip files with multiple hard links to avoid unintentional mislabeling,
++particularly when relabeling user-writable directories.
++.TP
+ .B \-F
+ Force reset of context to match file_context for customizable files, and the
+ default file context, changing the user, role, range portion as well as the type.
+diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfiles/setfiles.8
+index d43e4ad2..d55b42db 100644
+--- a/policycoreutils/setfiles/setfiles.8
++++ b/policycoreutils/setfiles/setfiles.8
+@@ -8,6 +8,7 @@ setfiles \- set SELinux file security contexts.
+ .IR policy ]
+ .RB [ \-C ]
+ .RB [ \-d ]
++.RB [ \-j ]
+ .RB [ \-l ]
+ .RB [ \-m ]
+ .RB [ \-n ]
+@@ -117,6 +118,10 @@ enable usage of the
+ .IR security.sehash
+ extended attribute.
+ .TP
++.B \-j
++skip files with multiple hard links to avoid unintentional mislabeling,
++particularly when relabeling user-writable directories.
++.TP
+ .B \-l
+ log changes in file labels to syslog.
+ .TP
+diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
+index 2d38ea8f..567d519f 100644
+--- a/policycoreutils/setfiles/setfiles.c
++++ b/policycoreutils/setfiles/setfiles.c
+@@ -145,8 +145,8 @@ int main(int argc, char **argv)
+ 	size_t buf_len, nthreads = 1;
+ 	const char *base;
+ 	int errors = 0;
+-	const char *ropts = "ce:f:hiIDlmno:pqrsvFURW0xT:";
+-	const char *sopts = "c:de:f:hiIDlmno:pqr:svACEFUR:W0T:";
++	const char *ropts = "ce:f:hijIDlmno:pqrsvFURW0xT:";
++	const char *sopts = "c:de:f:hijIDlmno:pqr:svACEFUR:W0T:";
+ 	const char *opts;
+ 	union selinux_callback cb;
+ 	long unsigned skipped_errors;
+@@ -276,6 +276,10 @@ int main(int argc, char **argv)
+ 		case 'i':
+ 			r_opts.ignore_noent = SELINUX_RESTORECON_IGNORE_NOENTRY;
+ 			break;
++		case 'j':
++			r_opts.skip_multilink =
++				SELINUX_RESTORECON_SKIP_MULTILINK;
++			break;
+ 		case 'I': /* Force label check by ignoring directory digest. */
+ 			r_opts.ignore_digest = SELINUX_RESTORECON_IGNORE_DIGEST;
+ 			request_digest = 1;
+-- 
+2.55.0
+
