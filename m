@@ -1,218 +1,222 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE7234229C9
-	for <selinux@vger.kernel.org>; Thu,  9 Jul 2026 12:33:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.176
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783600391; cv=pass; b=ElKot2JAdHZEGOvjyPGdcJ5dIc4oL3HhzbKdqVzOQ2748TjNwiFBQT7rdBYooW+DNvT54uLl30OlEJ/giZkwCR229cF3KYAwx0VWkYm5MsEShUHqWh3kKcz5P/OUu7vU3UFbXXDBBQghQvQFMstwZxw92zFuWW0gwNsSxxSBZL4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783600391; c=relaxed/simple;
-	bh=TZ4/MUsld9BeNU5QPGcKumrNi2uJrTMz7CYtcX2ZYPU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=XVmqxKHC09TXD1FhArDPnAmiS+9PrbG9c1uWiXaQczIN3DE5hvX5xIHV5WzEigtlgZplZtWahO7ECx7D9Yll04/mcVAGKvbxREtCquo3gWaprdcW52Q1Qz00U8iWNM0AmZg3No6zaVCuJIo828P4OmLOzqwAOi5Pw/hjgWnLCl4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HN20nwGU; arc=pass smtp.client-ip=209.85.214.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D87CA1BC2A
+	for <selinux@vger.kernel.org>; Thu,  9 Jul 2026 13:00:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783602049; cv=none; b=Bh4w5Qsqw6RtQtbk243OD2/ehAbn609iu5iRUvlZbf8Y5PZZv8Q3Bnwvph1RlIy2vkgounzOpid5kp9qa7xF+nUWRm9YyUZCqf1gRUTU9IWUENUbhoS00TfvV4VOjxOBRWExtJF6qwY4DPPVBgXbjqkMQFVaCjnIFT8DCh4QADE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783602049; c=relaxed/simple;
+	bh=zLMXeYMhyPqUNzlxSUc/Ug13gJsNJq2OfxemJIOXWD0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jMSVjN0/QN0qY7273R/k4K9XNyqQRHbMhLNlPXfAi3O592BUKnGPalyYC88xDc9ZImuo4sG+IywoteLIN1eUbRb//fnJp0qgC3Ez7Z92LCRIZoIIW86GsbMpOwQNcOiar2/nnMvbAsLUwL+E6TMnh0/vn/h/wbDksxglcvfH7RM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Si8G3Akv; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=Kh2l0fvp; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HN20nwGU"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2cacd69a9c0so21769635ad.1
-        for <selinux@vger.kernel.org>; Thu, 09 Jul 2026 05:33:09 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1783600389; cv=none;
-        d=google.com; s=arc-20260327;
-        b=e/Rl7q9jIGDVGALKrHMp3Oyn+LbZlWpJeK17r3l0EZeGoTJZHiVOkXaI5V2B0mW6RV
-         xLtjefa9QGAS/8Xn3KbQTq2wk768EZiiX9aLWFjU+APJBmCsOqSuHjsgT1pynj8jx+cI
-         J3ueMSiRRdHLbFNJH8zTtYDskUPHddSz6XG8rLT5uq6lDUEqUzvkGDN1mUQ45e9u0unq
-         aW1yyiXUDoGk7h+LvpHcZX8odliRBwnEjYUE9fRXqIT7ISL925Xb44q6NIu/wk4WL6yh
-         hMs5HhcUHI8Qz0ynFJygxzjTU6J4ClVBNG4CRpn4Narqxv1MuSAoOuUrJ7LNoTspNGJh
-         vZKQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=wEznrTgLikCU91TRmqiWgIn6d7+4evlXZ/ukCLbpHQY=;
-        fh=NDPu9b0Jctd3ZGoY1XpbtI2aPuDXzWUnZm0urJ9b8bQ=;
-        b=VkqwdcQIphF5lF+mOZKSeEvLGmMCGnOB5EXJ7dM+hoT6FSFhQNvYt2874VHdhVMJKW
-         xjJRiCzCAwdGOicCeB5ZMCSbDi0qFV/OGmQ0RtunOUXoGeCWAmprpT0kUxjASwgPJGwk
-         gzocww4HqdHVn2DVDI2w1B4tcjjockga2xwDsRXdrtk/7vW6rptJ9w+6y6cq+5D9wwcB
-         4wXVPU2kFPg2a1LUZIO5Xhz/w16drjo7bqSn6HJlql6Wft0046XrKqp/N95MSkIeTVpJ
-         iE/0KRPi8+i4Fa4QZ/nTb2+YaCanlW1yI1WK/NBaEc4ngc5yLmZDZL5o68NkDTZTMLNS
-         jnUA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Si8G3Akv";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="Kh2l0fvp"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1783602047;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=033rzxQvzf78T3iiOLc2LGFJcv2JXn8xjAl3sUcVqFk=;
+	b=Si8G3AkvcpO23VOffVNKbB2wllQXqpJkBTjHcnlzW9GXhn5niv49cOjG9nQgls8nIylW9J
+	siu9Ls0jrTQyh0CEOjwSeoo8ZXphES0rvrPFnjmXjqewJ+byjnvPJGj0CtNTs28cTtQM+a
+	grTrle9TNzmsryBGVqkRa9Zasw0MaXM=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-365-27pE5UWSMzaM-J8DtHy5oA-1; Thu, 09 Jul 2026 09:00:45 -0400
+X-MC-Unique: 27pE5UWSMzaM-J8DtHy5oA-1
+X-Mimecast-MFC-AGG-ID: 27pE5UWSMzaM-J8DtHy5oA_1783602044
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-47deed1aeb4so454516f8f.3
+        for <selinux@vger.kernel.org>; Thu, 09 Jul 2026 06:00:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783600389; x=1784205189; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=wEznrTgLikCU91TRmqiWgIn6d7+4evlXZ/ukCLbpHQY=;
-        b=HN20nwGUQhAlIoFLQB2Y24qqbP6XBylsYfXwv5i/Gq6nh362O9PoY07rXep5aiX4Ja
-         A/e5/TLrPEry5ib+HqsNe+m3DTGh2P5PTardH7W8Fg1dWyKoewyzajmz/mvRmOy4uK7v
-         IHFLHt2w64+PgFbQj/D4O79bDHxCcv26+AlzLg5XPaGg6A5g6dOM5ipc0dyOGhouczqB
-         hAi0ljDFpeMzjj6fg+4Eyw2mCY62fDYeJB9K0V6HRDyfkDbKyGzu7A9UX4evukNTzwuh
-         YhqNEgD2bT5xirBqw+jC2+8lEBZx3jCxiLoCFCE0fRgAmz9I2MxGWFC6el6oCjGItdvP
-         CJDw==
+        d=redhat.com; s=google; t=1783602044; x=1784206844; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=033rzxQvzf78T3iiOLc2LGFJcv2JXn8xjAl3sUcVqFk=;
+        b=Kh2l0fvpNovJ4blLvlDsjhQSIQd/9gw0YbjyDdS7h+Hk8yptALjvtMUUOf0k5lyfAY
+         JOHaiZj8Y6ua0hZZNZnFxyykpX4WWB/SqJSQI4OGr6Ir4aM3QdK112AeqbWYIrWAh5Xm
+         WUiF9qGXwOYBUtkmHgwf0ktWGFkqcvMmEkeIRfKYq4o61bsYdZm50fU3fpT3lAKYIKTu
+         TWoN3y0/pkT+BUhjFKFkhc9/xEkoypTIq23eh2PnKxb0V5E+Sj6hwCNqi3Bw4sNy5Cye
+         cLO2Fq1SOJYpkaWyULN4xuMpwif4xgbaj9EI3e2xVBRgh6k4R84VdGtc6orrwOvlYg2z
+         3v3g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783600389; x=1784205189;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=wEznrTgLikCU91TRmqiWgIn6d7+4evlXZ/ukCLbpHQY=;
-        b=BOUZgYj8U23eLIl6rJ8fdneoBWpe4eicJ7Oi2TglQAMVeRH329Jq9BR7QHpZZpL0vq
-         czjTnOshTJDXPdtOxJP54mAIoTVed5ARHZ9erESfqrEG7r4L7IxxyZGNw5KQQA0Ogqpq
-         amwL0FJONvZeBZ2ZIgMMF9mpq+FPFORmPkPVSIq8ASBRFNrFxarp9dt9/Cx4QvKHTgrd
-         30TVcUgqTKdQlYNT9hDmtLpp5OLCZYq9WCf1s8UvTWOuoDbBTeJqLGx7NOELOU5r0ybM
-         jgO3DAA+WNhcPCbCMILc50pPsQLPwOVdcyKtVUI3A2diQPpIZxpM3lTmFepcHaoz4H6S
-         ZRkQ==
-X-Forwarded-Encrypted: i=1; AHgh+RpQfpoJ0a2voAXkXOSa1p8nPMo0fDBQrh/lP09CWP7jjgAUbVqpbVZU0IiACOrC312WITbcKxMs@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxb9ED85rr8cuat+Jnk08KDGk/Jjk53CE1BWgp9TSBbtxrcFVZX
-	FvDtxCSuqkgA7AVlyKnaonIEQMY6Q8OYwTmHRB2Sj24aJjv3t183dAKAqton0XMaxcXOxcW7jTZ
-	2jgwkgiU55e9/Ho/GdA+YOi6xSMCgTVM=
-X-Gm-Gg: AfdE7cnR5ecDiYrmlIp+sY7SWan25thSJ65weugCaSvHelRf3MUSEHCqIAmuf0tjhpg
-	DbOLf8K4VvbkmUlyboARyPrtFB9WeHF5COF5GpPpDZJtgHhzYA4j23JoXjW5Fq6n4Lb2nEFgwsX
-	cVh2pXPBhgVBqxGSf0TLtixxzXeA8pWDpPZ3hhKTPQEJB/+BUe2IM4z9aG2sPvd5a+nIkHpOFNK
-	s9we50WhdY9sausIBZ8+zthN2d9+JGqNTNtnklGioggMC0Muw6CsjOkGd+cdOjTtqO866TN
-X-Received: by 2002:a17:902:fb0d:b0:2ca:f21a:a6c5 with SMTP id
- d9443c01a7336-2ccea34857fmr53376045ad.1.1783600388853; Thu, 09 Jul 2026
- 05:33:08 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1783602044; x=1784206844;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=033rzxQvzf78T3iiOLc2LGFJcv2JXn8xjAl3sUcVqFk=;
+        b=GrqNxEKDeNFneZ/3ciwGOHSusy3f+Q6tLx+uHourUaRFLLYooh7UQ2Smiah38VpmL1
+         26qSpapKDCzhskdi672Pucbtf7em/zyd71+8uO0YAjlwX9GXKfvu+1EvDErK1EEkPl8D
+         sAsEs5Nqp4WzATJqKkAnCKCsMnX7+29pokeeFDXQS74XwR/K0aF/xeR4kU6il+cJZkDr
+         WsJFHJOQyYi8PBq0aclUVDmvMecwK7RML7OBhNBrLs2xjNNJcL1L2fP7HuR1bmP2LW3c
+         qy49bpTIVdVp7LCdJ+Y120IVE4FiozPQRr7XAjfkTkT/OPK06RGbbVTvw1YkBVZxFdTE
+         UrCg==
+X-Gm-Message-State: AOJu0YwK3jG9MpCLPyCU8KvxVlVCM/emtb2kLXKLpTilnT0ksszRqzMk
+	vdUFpTXsmqMIDoTx8LmhlhkjWB4w6KQgdpLIeXpw2Rsu08bB/sAes5xEc2bdL2iyEsurgDp6wSx
+	TkMmlz/XLi3g+Ieh0bRI6VSmlTvsiy3Yk6S/BAzB0kcr3P1hmj30MKXuziGbNAi7FDjogI0Zs4c
+	7skHYfUpXxeOS8LGwXXtOzRGiZT+9zioE6l3eNT/Q84ak=
+X-Gm-Gg: AfdE7cmGAtC0lkloeMy9dEF0QnJCVtiyGti4ISVIhvi23Kl/OySH5QncCD4a17o+wER
+	3J9Nkin1GfDufFQYuLk7IHjgWMke7QW/0gvde2qwaoDTzTOot1CKOGUoYgpVvhvamG8x3qn8P2Y
+	vANTZ1hWIBjjFpcRIW1EtMYcW8fHDCd3UGoR8duIvlD/wV+sqzLjGBVnbuHLbbBnUjwaP7fRrxU
+	2aXl5pqmkzBOPv9PKNYDvop8MtvWemFE+G4qGbdWshyCTWiAAtERGDrI6/qqrjKfietOxd8VUPn
+	BxXBpAfKPe1jvzLnOs3BRAJF0YuWspZH2xr5t7dFULyROHyc08LeaY0MfGLnUkdQ3p8ir9lpPde
+	F758VybCDzV+rCPOe9wxR8Gcx
+X-Received: by 2002:a5d:5e03:0:b0:475:f0f0:9ecd with SMTP id ffacd0b85a97d-47df0818268mr7889556f8f.56.1783602044146;
+        Thu, 09 Jul 2026 06:00:44 -0700 (PDT)
+X-Received: by 2002:a5d:5e03:0:b0:475:f0f0:9ecd with SMTP id ffacd0b85a97d-47df0818268mr7889457f8f.56.1783602043278;
+        Thu, 09 Jul 2026 06:00:43 -0700 (PDT)
+Received: from fedora.redhat.com ([2a00:102b:4004:ea06:68fb:2122:49a2:546c])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47a9b4d850dsm52757824f8f.0.2026.07.09.06.00.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 09 Jul 2026 06:00:42 -0700 (PDT)
+From: Ondrej Mosnacek <omosnace@redhat.com>
+To: selinux@vger.kernel.org
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH testsuite v2] tests/overlay: verify that execmem is not checked for the mounter
+Date: Thu,  9 Jul 2026 15:00:40 +0200
+Message-ID: <20260709130040.76391-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260703102759.9626-1-achillesgaikwad@gmail.com>
- <20260707152305.15324-1-achillesgaikwad@gmail.com> <CAHC9VhSWWhMjs282cOTT45gn0pa8bDSxD0H24_is7k4tXmGJxQ@mail.gmail.com>
- <ac4f209c-f465-4938-adae-ecd00ecab175@app.fastmail.com> <CAHC9VhQYjj3--K6KkDJBf6LfXqtj4TPh5LsMBpPYc0-Zz6wTMA@mail.gmail.com>
- <CAEjxPJ7dttPDxQDa_xXFd1H-QT_vkUwjtnH+=3cmG5dhSiaAXw@mail.gmail.com> <CAHC9VhSyCuiPBRWz_vUbx7+L5yLiXkjKX+7UyCLr82-_gAj2NQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhSyCuiPBRWz_vUbx7+L5yLiXkjKX+7UyCLr82-_gAj2NQ@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 9 Jul 2026 08:32:57 -0400
-X-Gm-Features: AVVi8Cd4uZMDN1rLABDX_bWMI0FuplRTPn2H59VH4Frrquyfh8DPbM0M13o1E7I
-Message-ID: <CAEjxPJ4+wgUDY3YxajZ=2D3WLzgat_Mqvr05VtJ4KrXW7_kuXA@mail.gmail.com>
-Subject: Re: [PATCH v2] NFSv4.2: fix nfs4_listxattr size accounting
-To: Paul Moore <paul@paul-moore.com>
-Cc: Anna Schumaker <anna@kernel.org>, Achilles Gaikwad <achillesgaikwad@gmail.com>, 
-	Trond Myklebust <trondmy@kernel.org>, linux-nfs@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jul 8, 2026 at 4:11=E2=80=AFPM Paul Moore <paul@paul-moore.com> wro=
-te:
->
-> On Wed, Jul 8, 2026 at 2:54=E2=80=AFPM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> > On Tue, Jul 7, 2026 at 4:01=E2=80=AFPM Paul Moore <paul@paul-moore.com>=
- wrote:
-> > >
-> > > On Tue, Jul 7, 2026 at 3:12=E2=80=AFPM Anna Schumaker <anna@kernel.or=
-g> wrote:
-> > > > On Tue, Jul 7, 2026, at 2:48 PM, Paul Moore wrote:
-> > > > > On Tue, Jul 7, 2026 at 11:24=E2=80=AFAM Achilles Gaikwad
-> > > > > <achillesgaikwad@gmail.com> wrote:
-> > > > >>
-> > > > >> A call to listxattr() with a buffer size of 0 returns the actual
-> > > > >> size of the buffer needed for a subsequent call. On an NFSv4.2
-> > > > >> mount this triggers the following oops:
-> > > > >>
-> > > > >>   [  399.768687] BUG: kernel NULL pointer dereference, address: =
-0000000000000000
-> > > > >>   [  399.768705] RIP: 0010:_copy_from_pages+0x44/0xe0
-> > > > >>   [  399.768722] Call Trace:
-> > > > >>   [  399.768723]  nfs4_xattr_alloc_entry+0x1bf/0x1e0
-> > > > >>   [  399.768730]  nfs4_xattr_cache_set_list+0x43/0x1f0
-> > > > >>   [  399.768731]  nfs4_listxattr+0x21f/0x250
-> > > > >>   [  399.768733]  vfs_listxattr+0x55/0xa0
-> > > > >>   [  399.768736]  listxattr+0x23/0x160
-> > > > >>   [  399.768737]  path_listxattrat+0xba/0x1e0
-> > > > >>   [  399.768739]  do_syscall_64+0xe2/0x680
-> > > > >>
-> > > > >> security_inode_listsecurity() (via the xattr_list_one() helper) =
-now
-> > > > >> decrements the remaining size even when the buffer pointer is NU=
-LL, so
-> > > > >> in the size-query case, 'left' underflows to a huge size_t value=
-. As a
-> > > > >> result, nfs4_listxattr_nfs4_user() treats the NULL buffer as a r=
-eal one,
-> > > > >> leading to a NULL pointer dereference in _copy_from_pages().
-> > > > >>
-> > > > >> security_inode_listsecurity() does not return the number of byte=
-s
-> > > > >> it added to the list, so the code derived it as
-> > > > >> 'size - error - left'. That is also wrong in the size-query case=
-:
-> > > > >> the generic_listxattr() contribution is only subtracted from 'le=
-ft'
-> > > > >> when a buffer is present. Thus, the query result comes up short =
-by
-> > > > >> exactly that contribution (e.g., "system.nfs4_acl" on a mount wi=
-th
-> > > > >> ACL support), and a caller that allocates the returned size gets
-> > > > >> -ERANGE on the subsequent call.
-> > > > >>
-> > > > >> Declare 'left' as ssize_t, use a scratch copy to measure securit=
-y
-> > > > >> hook consumption, and only decrement 'left' if a buffer is prese=
-nt.
-> > > > >>
-> > > > >> Fixes: f71ece9712b7 ("security,fs,nfs,net: update security_inode=
-_listsecurity() interface")
-> > > > >> Suggested-by: Paul Moore <paul@paul-moore.com>
-> > > > >> Signed-off-by: Achilles Gaikwad <achillesgaikwad@gmail.com>
-> > > > >> ---
-> > > > >> Changes in v2:
-> > > > >>  - Use a scratch variable to track security label size directly,
-> > > > >>    replacing the old formula that undercounted the size-query ca=
-se.
-> > > > >>  - Drop the now-unneeded NULL-buffer special case for
-> > > > >>    nfs4_listxattr_nfs4_user().
-> > > > >>  - Retitled from "fix nfs4_listxattr NULL pointer dereference"
-> > > > >>    (the same accounting bug caused both the oops and the underco=
-unt).
-> > > > >> v1: https://lore.kernel.org/linux-nfs/20260703102759.9626-1-achi=
-llesgaikwad@gmail.com/
-> > > > >>  fs/nfs/nfs4proc.c | 10 +++++++---
-> > > > >>  1 file changed, 7 insertions(+), 3 deletions(-)
-> > > > >
-> > > > > [CC'd the LSM and SELinux lists for visibility]
-> > > > >
-> > > > > Unfortunately my testing was unsuccessful due to an NFS problem t=
-hat
-> > > > > started with the v7.2 merge window that I haven't had the time to
-> > > > > bisect yet.  Assuming the NFS folks are okay with this change, I
-> > > > > figure they will want to send it up to Linus via their tree, if n=
-ot
-> > > > > let me know and I can send this up via the LSM tree.
-> > > >
-> > > > Yeah, we'll send it through the NFS tree.
-> > >
-> > > Thanks Anna.
-> > >
-> > > > I'll be curious to hear
-> > > > what problem you're hitting, and what patch is the culprit once you
-> > > > do that bisect!
-> > >
-> > > Yes, me too :)
-> > >
-> > > I'm still working through a review backlog so it might be a bit befor=
-e
-> > > I have a chance, but in case anyone wants to test it out, it's easily
-> > > reproduced using the selinux-testsuite and the NFS tests:
-> > >
-> > > https://github.com/SELinuxProject/selinux-testsuite#nfs
-> >
-> > They seem to pass for me with and without the patch (they don't
-> > exercise listxattr AFAIK).
-> > This was on the current selinux/dev branch, v7.2-rc1 based.
->
-> They work for me on vanilla v7.1 and fail somewhere before vanilla
-> v7.2-rc1 (still bisecting).
->
-> I wonder if there is an interaction problem with a recent userspace
-> update.  What distro/userspace are you running for your tests?  I'm
-> doing my testing on a relatively recent Rawhide.
+Add a test that verifies that the execmem permission is checked only on
+the process mapping/updating the memory region and not against the
+mounter credentials.
 
-I was on F44, so yes, it could be a difference in e.g. coreutils or
-other userspace on rawhide that is tickling this particular bug.
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+
+v2: apply tools/check-syntax formatting
+
+ policy/test_overlayfs.te   |  4 ++++
+ tests/overlay/map_access.c | 20 ++++++++++++--------
+ tests/overlay/test         | 11 ++++++++++-
+ 3 files changed, 26 insertions(+), 9 deletions(-)
+
+diff --git a/policy/test_overlayfs.te b/policy/test_overlayfs.te
+index 787685c..e1e1ebb 100644
+--- a/policy/test_overlayfs.te
++++ b/policy/test_overlayfs.te
+@@ -122,6 +122,10 @@ can_exec(test_overlay_mounter_t, test_file_t)
+ allow test_overlay_client_t self:dir list_dir_perms;
+ allow test_overlay_client_t self:file read_file_perms;
+ 
++# For testing execmem checking (should be checked only on the client,
++# never on the mounter)
++allow test_overlay_client_t self:process execmem;
++
+ mcs_constrained(test_overlay_client_t)
+ 
+ kernel_read_system_state(test_overlay_client_t)
+diff --git a/tests/overlay/map_access.c b/tests/overlay/map_access.c
+index da1ae36..6160563 100644
+--- a/tests/overlay/map_access.c
++++ b/tests/overlay/map_access.c
+@@ -11,15 +11,20 @@ int main(int argc, const char **argv)
+ {
+ 	const char *file;
+ 	void *ptr;
+-	int rdonly, fd, ret;
++	int rdonly, execmem, flags, prot, fd, ret;
+ 
+-	if (argc != 3 || (strcmp(argv[2], "R_OK") && strcmp(argv[2], "W_OK"))) {
+-		fprintf(stderr, "Usage %s <file> R_OK|W_OK\n", argv[0]);
++	if (argc != 3 || (strcmp(argv[2], "R_OK") && strcmp(argv[2], "W_OK") &&
++			  strcmp(argv[2], "EXECMEM"))) {
++		fprintf(stderr, "Usage %s <file> R_OK|W_OK|EXECMEM\n", argv[0]);
+ 		return EINVAL;
+ 	}
+ 
+ 	file = argv[1];
+-	rdonly = strcmp(argv[2], "R_OK") == 0;
++	rdonly = strcmp(argv[2], "W_OK") != 0;
++	execmem = strcmp(argv[2], "EXECMEM") == 0;
++	flags = execmem ? MAP_PRIVATE : MAP_SHARED;
++	prot = PROT_READ | (!rdonly ||
++			    execmem ? PROT_WRITE : 0) | (execmem ? PROT_EXEC : 0);
+ 
+ 	fd = open(file, rdonly ? O_RDONLY : O_RDWR);
+ 	if (fd == -1) {
+@@ -28,8 +33,7 @@ int main(int argc, const char **argv)
+ 	}
+ 
+ 	/* try direct mmap */
+-	ptr = mmap(NULL, 1, rdonly ? PROT_READ : PROT_READ | PROT_WRITE,
+-		   MAP_SHARED, fd, 0);
++	ptr = mmap(NULL, 1, prot, flags, fd, 0);
+ 	if (ptr == MAP_FAILED) {
+ 		perror("mmap");
+ 		return 3;
+@@ -37,13 +41,13 @@ int main(int argc, const char **argv)
+ 	munmap(ptr, 1);
+ 
+ 	/* try mmap with PROT_NONE followed by mprotect with full access */
+-	ptr = mmap(NULL, 1, PROT_NONE, MAP_SHARED, fd, 0);
++	ptr = mmap(NULL, 1, PROT_NONE, flags, fd, 0);
+ 	if (ptr == MAP_FAILED) {
+ 		perror("mmap PROT_NONE");
+ 		return 4;
+ 	}
+ 
+-	ret = mprotect(ptr, 1, rdonly ? PROT_READ : PROT_READ | PROT_WRITE);
++	ret = mprotect(ptr, 1, prot);
+ 	if (ret == -1) {
+ 		perror("mprotect");
+ 		return 5;
+diff --git a/tests/overlay/test b/tests/overlay/test
+index 2d0555a..ae8ec33 100755
+--- a/tests/overlay/test
++++ b/tests/overlay/test
+@@ -19,7 +19,7 @@ BEGIN {
+         plan skip_all => "overlayfs upperdir not supported on NFS";
+     }
+     else {
+-        plan tests => 135;
++        plan tests => 137;
+     }
+ }
+ 
+@@ -641,6 +641,13 @@ sub test_68_8_ctx {
+     return;
+ }
+ 
++sub test_68_9 {
++    print "Check execmem map access on mapreadfile, should succeed\n";
++    $result = mmap( "$basedir/container1/merged/mapreadfile", "EXECMEM" );
++    ok( $result eq 0 );
++    return;
++}
++
+ sub test_70 {
+     print "Check unlink access on client_nounlinkfile, should fail.\n";
+     $result = system(
+@@ -891,6 +898,7 @@ sub nocontext_test {
+     test_68_6();
+     test_68_7();
+     test_68_8();
++    test_68_9();
+ 
+     print "=====================================================\n";
+     print "unlink tests.\n";
+@@ -1033,6 +1041,7 @@ sub context_test {
+     test_68_6();
+     test_68_7_ctx();
+     test_68_8_ctx();
++    test_68_9();
+ 
+     print "=====================================================\n";
+     print "unlink tests.\n";
+-- 
+2.55.0
+
