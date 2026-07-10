@@ -1,50 +1,50 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A514408014
-	for <selinux@vger.kernel.org>; Fri, 10 Jul 2026 10:29:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 659AF405C47
+	for <selinux@vger.kernel.org>; Fri, 10 Jul 2026 11:03:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783679357; cv=none; b=PA13bnUOTW8wNCwdlETVE3x1p4KoUjgrep0iGcfg5pUoWTouiTXophK+BkuyAlR7WYHZFrz4G5ARQSFiH4PHKZWc6pUpiFarO2q5u0/UxHJBD5nXV1HBwAOY7KuE+yUNQ/tYab/0RQXTyDElQ560AuN4DqKX/iYKN5ilGaxjcdE=
+	t=1783681411; cv=none; b=cXqFE1YNssrWap2SPjrZ9h9f5y8JynALwAQfYpFbMbgr6LqU0gjR5JnicfePCvf3mELGMqaQ/3XR3yrYMO/5lwFoewXpl1lDT+yiSGAxgAM19BhaLsXf9ea5ukPgiPSgMpZQTc2BV/KunyvtBayWdPPlZeDQGMbGmd0RpVOFYrk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783679357; c=relaxed/simple;
-	bh=3jsLHBg0iGXbIYvfJ+PgoofoW1JYBBGwMDQzXj4VhdA=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=BPZrOUzo7ktVtDqzpIu3Wl0q5dyxYFXTdzq2n6ZLPoSU7ZGH+X4TLCN8JCnlJDuGKWsRihlKmZsb+r98TVsS5bEhe/7wd1+a7NVR2o3jL6EEBjXhYqPheLrMqM4qA59Urb7npQhuQ9CspDSEeWGhK+V1ajNoRDC5ns97hcUyX5A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BA7lHAZ6; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1783681411; c=relaxed/simple;
+	bh=kBnFknWWBGGhtnn2Gr0ku2BTnS5GRVofnUeRKjgN7pY=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=sZ8rkb8jYEd1ZSvwhkBwMjsbjJR5w1ElTXvh7LACeYBjIxid7bHey4RzZMJ/KasNCISVi3hdwo2BeqSeHNm43SKwQlltRpYPLvMQycguq9hzSAZKZ8w3wua5DqW5NgkKS8RQQba3CGteQID2vy5o1T4Esfz6+m3yHsnvjyXk0jM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=e52WFDco; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BA7lHAZ6"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="e52WFDco"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1783679354;
+	s=mimecast20190719; t=1783681408;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding;
-	bh=5ZrfX6yERdBakSlYft17QMyJQeGAjDw7aAJfNyPWZC0=;
-	b=BA7lHAZ6Asym3OG39uswGZ78TyMiN6qvmXlm3/RNk+toGHQVg7DODuTWbEbPzI9rph2M4w
-	MoAIPaQed+J12THoyRgqYEGzHm4bbKpCYqfJVatpwvv3DkgJzdhQijqvT22W/Aorj83PbJ
-	v6riLHKLx/sTNlzHDKpGcJNk4cLEIdE=
+	bh=x1GvY7ceZ0/depDMk2cJQGDsFmtl7liJ67yl/XnzuEs=;
+	b=e52WFDcokPy/xpRpPPz2J8O3YYHv2R3Wzb7YhsMSy7RWhu0vTs+IcA0wjmbKFK0qCFiLPZ
+	zVjuXWR4zYxv/sdYTatIqJfnwsG//VGcSAr4IS2CScuR3LkKGXG5Clkz9CK0ewqbh+14B1
+	OBY4fGAjz6Vgr9CAjX1chiWb2DoTx3o=
 Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-686-qV4P6OOvPHuGKOF95Rx8mw-1; Fri,
- 10 Jul 2026 06:29:10 -0400
-X-MC-Unique: qV4P6OOvPHuGKOF95Rx8mw-1
-X-Mimecast-MFC-AGG-ID: qV4P6OOvPHuGKOF95Rx8mw_1783679349
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-369-XaNfAALQN2uhMWjRpKlRIA-1; Fri,
+ 10 Jul 2026 07:03:26 -0400
+X-MC-Unique: XaNfAALQN2uhMWjRpKlRIA-1
+X-Mimecast-MFC-AGG-ID: XaNfAALQN2uhMWjRpKlRIA_1783681405
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 4D2C118005AA
-	for <selinux@vger.kernel.org>; Fri, 10 Jul 2026 10:29:09 +0000 (UTC)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C846E1800643
+	for <selinux@vger.kernel.org>; Fri, 10 Jul 2026 11:03:25 +0000 (UTC)
 Received: from akkohli-thinkpadt14sgen2i.rmtde.csb (unknown [10.44.32.101])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 8DCF930001BE
-	for <selinux@vger.kernel.org>; Fri, 10 Jul 2026 10:29:08 +0000 (UTC)
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 1B08A195419E
+	for <selinux@vger.kernel.org>; Fri, 10 Jul 2026 11:03:24 +0000 (UTC)
 From: Akhil Kohli <akkohli@redhat.com>
 To: selinux@vger.kernel.org
 Subject: [PATCH] checkpolicy: add bad data protection tests
-Date: Fri, 10 Jul 2026 12:29:06 +0200
-Message-ID: <20260710102906.3059833-1-akkohli@redhat.com>
+Date: Fri, 10 Jul 2026 13:03:23 +0200
+Message-ID: <20260710110323.3086408-1-akkohli@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -52,7 +52,7 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
 Add test_checkmodule_negative.sh and .te fixtures for  bad-data protection (missing/bad-path and corrupted .te inputs).
 
@@ -212,14 +212,14 @@ index 00000000..62360e04
 +allow foo_t undeclared_t:file read;
 diff --git a/checkpolicy/tests/test_checkmodule_negative.sh b/checkpolicy/tests/test_checkmodule_negative.sh
 new file mode 100755
-index 00000000..0619d597
+index 00000000..a5f49f3b
 --- /dev/null
 +++ b/checkpolicy/tests/test_checkmodule_negative.sh
 @@ -0,0 +1,178 @@
 +#!/bin/sh
 +#
 +# Negative / bad-data tests for checkmodule on module (.te) inputs.
-+# Matches the RHIVOS modular compile path: checkmodule -M -m <input> -o <module>.mod
++# Matches the modular policy compile path: checkmodule -M -m <input> -o <module>.mod
 +#
 +
 +set -eu
