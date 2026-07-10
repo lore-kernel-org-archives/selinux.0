@@ -1,438 +1,117 @@
-Received: from mail-yx1-f44.google.com (mail-yx1-f44.google.com [74.125.224.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93C9A3112B2
-	for <selinux@vger.kernel.org>; Thu,  9 Jul 2026 20:11:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.44
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783627897; cv=pass; b=ZazXmWZ352Mlf8Zxzu2rU7mW1NeF6/PUtbQjiItkSmoaCqwxsZGr1WrDVibGfdEMhuXHtQVbASYI18B81g+wSe8QyRo5SD+rJGwznwSppjUR5SSSpDuMzwUhJBIEKJ0wiAgXDFexEydXoyjXeYdUYGdLzY00HJsGkYq+m3Bono4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783627897; c=relaxed/simple;
-	bh=V3c/N2f5INrnAZyoh8AculaLWOyVNCj9j/hGOrruP7U=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=SiTQiqXb8CZq2fFPfRSzttuPC2aEp3Qf9EtbeIjfGM5zdeFX0NfAADRPoISlGfxtUMEEbsay113eNa2IEIMjvXgh04gYy8cppnshTLFbAWem98QwylGFF4+0A96C4K/snce4pcVpwqK22yFkGBRYbyPO22TIQf6arMG/oeCGwWk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ucsb.edu; spf=pass smtp.mailfrom=ucsb.edu; dkim=pass (2048-bit key) header.d=ucsb.edu header.i=@ucsb.edu header.b=J+IbK+6r; arc=pass smtp.client-ip=74.125.224.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ucsb.edu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ucsb.edu
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 647E63F1640
+	for <selinux@vger.kernel.org>; Fri, 10 Jul 2026 08:15:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783671340; cv=none; b=hCWf4lcIJOf5mavdQJ7Dx3MwQL9I8FhEpP3k43a6hYGhIX1Wh2cgMnq39CKvtoFJCwnkHRRm+W7jNGva4YBcWtZ1LCqJcA2dBYoRe21+RiRQEpu59kjgrmZHViURtyjGN7wuoD08kZvluxXS576FAUFt8knfJuYjIBWm9keMr6c=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783671340; c=relaxed/simple;
+	bh=zEg6y5N0q2QUlS3wfyLg4QmIvpOfWUZE2040HK0ZAVA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Pa0W3Bsz4Y2DjOgrJnWcnXPMY7C0Q7JwxQY7W1jzoWOfegYWXK2Aw8Qz+2VGmKEQE8T5k6gF0YrQagpKjdWxYj9IJ0JmaVHqjet/jK49eXOTkW533CHVg/d5jUMJ4APoz2vuUt7Of1ZlFi/FJG/ZuzaJ186Ve3f/Vmw6oQh57uk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iPi4sJP1; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=YqRlubOH; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ucsb.edu header.i=@ucsb.edu header.b="J+IbK+6r"
-Received: by mail-yx1-f44.google.com with SMTP id 956f58d0204a3-664d22d7337so496152d50.1
-        for <selinux@vger.kernel.org>; Thu, 09 Jul 2026 13:11:35 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1783627894; cv=none;
-        d=google.com; s=arc-20260327;
-        b=gf24AeYedmjAg86zLSVlSkKtUwyIjHZwlC6nPZWRsyPXAwohdMLrtvkcxEJuJcdJvz
-         hgDJsLAEPrxUC8BtVgsILlDGLeQoIC0PnM06+bCFj7HdQHseTkCQyLsq4XtCdt7PMzzT
-         OYwCfX/BEK5jPapeAOQjzq/UsrexPYwMTdMGcAthX8Xf1WeHFErnZV74AIeqyKKlvjHk
-         +YHFjtXYmoUCKmgWEmOJhSsYGHxy4N1+z0nPEVrnqaQTldOqo6Y7umn+86S2x3l272j3
-         +JhOPAG4qqOp5DH5jrNRMLzMUo7K99Jp4YvMYoAnGs/XNTxOQvwilkCtLi/G4A5j5PBk
-         I70g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=RIBAP7E2WBn61oAftV8ubSMy6cxH5aPuPrtagtYPY8w=;
-        fh=nOcPTm+jzSpUJDDJhvsoEQt/GcMQFmPB1BDsWNtwPZ8=;
-        b=ej66KH+fhpYPdk6SkaE1ePYAyhskizsufnBTMppWaXTMo3RJvGG9W8CdTVmkr2frff
-         vjaxsruURLlafzG6gDT6gjnD5G3n8f/pDKo2yXBQtPhsB4mGCeRsaWQcpzsntPI9cKIQ
-         h8KACeZn1ogCLn1wGb1eKPU6xkDX1wXC9BzEOnaZuhVOQpz8y4zUVU9GgZVQk6TfJfkH
-         fYmeqEMi7mZ6OUjrk1RggN/h+QW6aek8ucC9W9dkAqy72YPCmI1JeK+JXPhNTCya5LZS
-         lPISXXq+VGDmJYP0KhyULEoqped1PsD6bNXTuMhmXNZMReQGe3hCwoPql3GhbqA727V/
-         7jOg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iPi4sJP1";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="YqRlubOH"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1783671338;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=Z3iCHY48naw0yNHqqlbmkHn2MkoKgLURvdtGfp/VNWQ=;
+	b=iPi4sJP1dCCTirE/Bvjl3YqLNEhOFvisOXK1wwHyAYfxg10vSfImvNnGFRBtBRmByVsqj6
+	q/8VwWhuDaUz+nAbY+uQ/HM47QHzs0P7/+IsPC0+SiJ5s4httai05wggF1orrnkHpb30Yy
+	nwZmfAJwp2tlEqYa8A0xMIWcNX0oJMc=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-625-e4ESwS9HMWiiFR9gqBD9JA-1; Fri, 10 Jul 2026 04:15:36 -0400
+X-MC-Unique: e4ESwS9HMWiiFR9gqBD9JA-1
+X-Mimecast-MFC-AGG-ID: e4ESwS9HMWiiFR9gqBD9JA_1783671336
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-472a798fc7cso378885f8f.1
+        for <selinux@vger.kernel.org>; Fri, 10 Jul 2026 01:15:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ucsb.edu; s=google; t=1783627894; x=1784232694; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=RIBAP7E2WBn61oAftV8ubSMy6cxH5aPuPrtagtYPY8w=;
-        b=J+IbK+6rCxJS99hVa6jmU7UiUCOHJmKiOjzt/A5s+NZriLIKnXyAf+zcNtb/P4UUxJ
-         rEzotQ/oa6YMUQ1XO6Xq1ul2iCD+EVrt586oHvfd9aSz+zPW0CWyXRU3n3DdulS3u7O4
-         yvtCqvGior4xJfDV8vfZ7ZEmRh+dbE7XPhbWm2zV59GrWBaab+OQeKSufVwQOLGB5jzL
-         bp3/Rh5jzxO5T6Wd9siDcGHv5w8E0tRVlui0K9NPo2RZG2NB9aHONde4+XL64fLoMYgP
-         aMCu7GwSBDwjTm1Vc0u8QVDuQiLf2aUk7jpXQ9X8ndkfNMwqQB4jU9Jsj3ioPYyIdQNz
-         u4gA==
+        d=redhat.com; s=google; t=1783671336; x=1784276136; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Z3iCHY48naw0yNHqqlbmkHn2MkoKgLURvdtGfp/VNWQ=;
+        b=YqRlubOH6jf0CdEvh3ZTFHIkBMmvy4QCCDKhE8p+T3zHDRLo6rizRubP1+O+WXFuCA
+         857Pd1PNABQfVsYbFh7r0lqusnEknIdJxOCB517xj0sTYtCddbgGha1Qydibr9kkaCFf
+         53YGMnGDr0+NTGzES5/Ka4f8KEOKuFO2MHGO4rE7IJI9sq5ZuxC5Uzd9oXmhcRhyrH40
+         IlFnolR+n0ieammQCHKqVP7IpZsf3CuZIByENhPBRmzZHrWzrJdcLBMPFzwEv4FOU1Dx
+         umzs2nosAR43Xm6MR5gXR37KAv/I0B08aTmlRlJEA66mnuEBYixXBkZZ0Utk5VHKysAP
+         +bmQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783627894; x=1784232694;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=RIBAP7E2WBn61oAftV8ubSMy6cxH5aPuPrtagtYPY8w=;
-        b=gymDZuTMS1jtxkJjnd6Thrwal2aAXQj1l6Qi1X7FwnPhS5klZd/ggeg/NrLnX9dOyA
-         LpWEro3MH+rMB5w4uKGwqzhzHSeEsh3htT0G6Zro4s7jLqzU6QOtzF1Z9VYRh90ybjnD
-         Ly8E6bRmjHD+3jPEQlOgZtvRBb0AGXw5zs2kmPr/JW55P2MblD5OvFBy0+cSHl3P2E0S
-         T2EKPlyp4bkbXHngHZ5jR80Te7qRC+IXnbhh+KVbABDSnoHBG3ZLl6HNbUXkJdAAufCE
-         MiuU1C5fM2aloCeA7NqzVKSddPA6FHMkLYU2OBW05R8xObPbO89RlvpjJr75MQzqoS3C
-         Pp2Q==
-X-Gm-Message-State: AOJu0Yz+1BapOJSGsfIDygVqBhOijNIHJyw1f8Uq/pPBgzEBYZ1O8VpJ
-	CLKIngNP/srbJ88iz7AK7//kqUIn/8dkAspPKlgENIAO2b4TK3rJon4ljMg2HxVZ0zYFfBSw1Ab
-	ak2eymDD4sJfeni6H7P/wy8AhrWAVJ2jn4RnMKF27rQ==
-X-Gm-Gg: AfdE7cnR8kC3tG0lFGtFfFw4zD0PFBe+faUS2DQpNdRH9BcJTk8plffA7rnxa9N6bYX
-	uEjf+/JejfmPJLq7/WrGpePi5YadVnUFij7CeRhDFbEa5FbYcR1SdSUEr3pMU6UFzPqv3OBVNNG
-	luxRF1hYFFtKofqhPtdt+e/EbMG5ZQydlGMFnstDmE8AZ4j84zXNdVCRh08kN6qVF5CQNbrXHPD
-	Dj6bK7m0YSJJnj91KSsVrxqHDAO+43SyFie7lpGjVRZyd8FB1e77aEkYIqfwE8BIVIXlyyh+g==
-X-Received: by 2002:a05:690e:2541:b0:664:eac2:b3d1 with SMTP id
- 956f58d0204a3-667c5a657d5mr461295d50.11.1783627894420; Thu, 09 Jul 2026
- 13:11:34 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1783671336; x=1784276136;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=Z3iCHY48naw0yNHqqlbmkHn2MkoKgLURvdtGfp/VNWQ=;
+        b=AGh/0QtkYvM0f7JyCNe6N5vWOQOAWNdW5OzloWgD0bmgc6V1NC3V96QQBCSY0lF0Y3
+         5yTiUC/IkMukFUWPoZctX61RtXF/Sv1rjxmhEbGIrVCdPXA2CMHR3wPVNoTJrJUmXAIu
+         uOdTE0mFqmX15dEcI1poo5Y/r5sypf5kMGSNzfFBC3ZPsIVwAzh1clC0cAQWUwTRhKI/
+         b0RkdZhAoMumKMIw9+/FOlfvvr/pMIdLSHsIXRGURNdWMX6+EOz8j7nnbrITq5POZ7l1
+         nADc4oAQaGFvFD0xtUMbQ8LY+7yo7cyqas0hUxGTG+ZzGlTRT3yU8TfOwAivEtgNngy0
+         jKrA==
+X-Gm-Message-State: AOJu0YxolGs7Re82DIQW+N1mwmMIfF/D7nIJb3a3ojz2CA57QQWp52yG
+	wsm94r4gTjjTNEmaDgdY+b0ChZTjhQbJauExTMlqnHurw2mmjbdW50YiL3g2rECkChCeROmjOOq
+	4p4+zGqRBGVc5oCOjrIgWWXjui66q2KAoFMKkNyW9dMb+A3BR0UIetL96rG6eNO/lFHw9R0ChIG
+	qwP6+ig6yhxectXFotPTt8QDac562/JLQuwmZ90vzGVb4=
+X-Gm-Gg: AfdE7ckHLrsZJ0uahoA7hQ7PK46KgbTN02u2ka5qOSzlzZQrb3I7ptT+T2MdQdhfUbk
+	h+jaLJZAX3uLPGaaEObPV6SQVfEr16jemCYLjA0ljC7VX2+i2Uo7/JfMeOSTrhSOrxf/5bRyLBv
+	uqxPi3jIGdFOnkX3FY6ujIky9Z7I7Cm6gTAZzBUI1XSXYkAD85o9pILcHIuDAVOHaHfdyFXQyqu
+	xInF+fckwCxeJy2YATpWXz7ZtmRY+fBnGiaktbITtm4xCsIlybw87j0UfXXxH0Ug3bDqNdMz9oL
+	tP60O8nzJLMIY5kYQeJYPHkMYt/F0Wpmum2bgbUa7xkKuGy+oEYMADUr0gWLZBgv22sh6cgb6N2
+	zKh8eY1r5t+izs1rTW2p5cV2ksXger3BZ+RDXM50caJEYQmacp+NG7NgumxNwx95ild0=
+X-Received: by 2002:a5d:6f09:0:b0:460:51f6:6248 with SMTP id ffacd0b85a97d-47df07bd8f5mr11554495f8f.27.1783671335591;
+        Fri, 10 Jul 2026 01:15:35 -0700 (PDT)
+X-Received: by 2002:a5d:6f09:0:b0:460:51f6:6248 with SMTP id ffacd0b85a97d-47df07bd8f5mr11554446f8f.27.1783671335145;
+        Fri, 10 Jul 2026 01:15:35 -0700 (PDT)
+Received: from jonderka-thinkpadp16vgen1.rmtcz.csb (90-177-145-101.rck.o2.cz. [90.177.145.101])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47aa039b0cesm59056678f8f.22.2026.07.10.01.15.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Jul 2026 01:15:34 -0700 (PDT)
+From: Jan Onderka <jonderka@redhat.com>
+To: selinux@vger.kernel.org
+Cc: jonderka@redhat.com
+Subject: [PATCH] skip inet_socket/mptcp when CONFIG_MPTCP is not enabled
+Date: Fri, 10 Jul 2026 10:15:33 +0200
+Message-ID: <20260710081533.451115-1-jonderka@redhat.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CA+jXL7=3=+wxXqm42Q_tQaoeusdUCnwzav_6gF6niAttPZ4ijg@mail.gmail.com>
- <CAEjxPJ6oehVAWO47=dCnk7q2-GZ+wkyiKXa6j--PAziPP4135g@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6oehVAWO47=dCnk7q2-GZ+wkyiKXa6j--PAziPP4135g@mail.gmail.com>
-From: COMS VLAB <coms-vlab@ucsb.edu>
-Date: Thu, 9 Jul 2026 13:11:23 -0700
-X-Gm-Features: AVVi8CeJHzWEZsNxxYTWMu73yPoXuNzquiEecCXh51CgxM2aBkzaXqEhxuMrufA
-Message-ID: <CA+jXL7m20TzvdCuuz0d_bgAvf+GV5dFmKJb9gFEYjf+OYUYuZQ@mail.gmail.com>
-Subject: Re: [Bug] Double free vulnerability at define_genfs_context_helper
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: multipart/mixed; boundary="0000000000000f9db00656333bdd"
+Content-Transfer-Encoding: 8bit
 
---0000000000000f9db00656333bdd
-Content-Type: multipart/alternative; boundary="0000000000000f9dae0656333bdb"
-
---0000000000000f9dae0656333bdb
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-Hi Stephen,
-
-Yes, patch below. Please attribute the report to "Reported-by: UCSB VLab <
-coms-vlab@ucsb.edu>".
-
-The fix clears the local `fstype` after it's handed to `newgenfs`, so the
-`fail:` cleanup no longer frees it and the genfs list becomes its sole
-owner (freed once by `policydb_destroy()`), mirroring the `else` branch.
-Verified with ASan: pre-fix double-free, post-fix clean.
+Signed-off-by: Jan Onderka <jonderka@redhat.com>
 ---
- checkpolicy/policy_define.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tests/Makefile | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index b73de45..f8c4d28 100644
---- a/checkpolicy/policy_define.c
-+++ b/checkpolicy/policy_define.c
-@@ -6050,6 +6050,8 @@ static int define_genfs_context_helper(char *fstype,
-int has_type)
-  }
-  memset(newgenfs, 0, sizeof(struct genfs));
-  newgenfs->fstype =3D fstype;
-+ /* ownership transferred into the genfs list; do not free on error */
-+ fstype =3D NULL;
-  newgenfs->next =3D genfs;
-  if (genfs_p)
-  genfs_p->next =3D newgenfs;
---
+diff --git a/tests/Makefile b/tests/Makefile
+index 4fe6f3c..6db1ae6 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -148,10 +148,12 @@ endif
+ endif
+ 
+ # MPTCP is supported since kernel 5.6, but only works with SELinux
+-# since 6.5
++# since 6.5. Skip when the running kernel was built without MPTCP.
+ ifneq ($(shell ./kvercmp $$(uname -r) 6.5),-1)
++ifeq ($(shell grep -qE '^CONFIG_MPTCP=(y|m)' /lib/modules/$$(uname -r)/config 2>/dev/null && echo true),true)
+ SUBDIRS += inet_socket/mptcp
+ endif
++endif
+ 
+ # nlmsg test dependencies: policy >= 30, nlmsg permission, netlink_xperm capability
+ ifeq ($(shell [ $(MOD_POL_VERS) -ge 18 -a $(MAX_KERNEL_POLICY) -ge 30 ] && [ -f /sys/fs/selinux/class/netlink_route_socket/perms/nlmsg ] && grep -q 1 $(SELINUXFS)/policy_capabilities/netlink_xperm && echo true),true)
+-- 
+2.55.0
 
-I added the patch file. Let us know if you need anything more.
-
-Thanks,
-UCSB VLab
-
-On Thu, Jul 9, 2026 at 12:05=E2=80=AFPM Stephen Smalley <
-stephen.smalley.work@gmail.com> wrote:
-
-> On Thu, Jul 9, 2026 at 2:57=E2=80=AFPM COMS VLAB <coms-vlab@ucsb.edu> wro=
-te:
-> >
-> > Summary
-> >
-> > A double-free vulnerability exists in the checkpolicy source policy
-> compiler's handling of genfscon statements. When parsing a new (previousl=
-y
-> unseen) filesystem type string, define_genfs_context_helper() transfers
-> ownership of the fstype pointer into a genfs struct that is linked into t=
-he
-> policydb's live genfs list, but fails to clear the local fstype variable
-> afterward. If any subsequent parsing step in the same function fails,
-> execution jumps to a shared fail: cleanup block. This cleanup block frees
-> fstype, which leaves a dangling pointer in the genfs list. When the
-> policydb is later destroyed via policydb_destroy(), it frees that same
-> pointer again, causing the double-free.
-> >
-> >
-> >
-> > Version
-> >
-> > 06159ee35d6b4c968c1f942c9361c111644de826 - current version
-> >
-> >
-> >
-> > PoC: Please see attachment
-> >
-> >
-> >
-> > ASAN Report
-> >
-> > =3D=3D2502=3D=3DERROR: AddressSanitizer: attempting double-free on
-> 0xfc1f82fe1330 in thread T0:
-> >
-> >     #0 0xaaaac9f6d518 in free (/selinux/repro+0xed518) (BuildId:
-> ea3a1d5343a0633f08393e738125b8f44be83f66)
-> >
-> >     #1 0xaaaac9ffd49c in policydb_destroy
-> selinux/libsepol/src/policydb.c:1596:3
-> >
-> >     #2 0xaaaac9faf758 in main selinux/../repro.c:11:5
-> >
-> >     #3 0xffff83c62f18  (/usr/lib/aarch64-linux-gnu/libc.so.6+0x22f18)
-> (BuildId: b50ceafbd17dc6bceee344a66671c7eaa152bef4)
-> >
-> >     #4 0xffff83c63058 in __libc_start_main
-> (/usr/lib/aarch64-linux-gnu/libc.so.6+0x23058) (BuildId:
-> b50ceafbd17dc6bceee344a66671c7eaa152bef4)
-> >
-> >     #5 0xaaaac9ec7c6c in _start (selinux/repro+0x47c6c) (BuildId:
-> ea3a1d5343a0633f08393e738125b8f44be83f66)
-> >
-> > 0xfc1f82fe1330 is located 0 bytes inside of 2-byte region
-> [0xfc1f82fe1330,0xfc1f82fe1332)
-> >
-> > freed by thread T0 here:
-> >
-> >     #0 0xaaaac9f6d518 in free (/selinux/repro+0xed518) (BuildId:
-> ea3a1d5343a0633f08393e738125b8f44be83f66)
-> >
-> >     #1 0xaaaac9fc8a60 in define_genfs_context_helper
-> /selinux/checkpolicy/policy_define.c:6163:2
-> >
-> >     #2 0xaaaac9fc8a60 in define_genfs_context
-> /selinux/checkpolicy/policy_define.c:6171:9
-> >
-> >     #3 0xaaaac9fcbc1c in yyparse
-> /selinux/checkpolicy/policy_parse.y:787:30
-> >
-> >     #4 0xaaaac9fb95b4 in read_source_policy
-> /selinux/checkpolicy/parse_util.c:70:6
-> >
-> >     #5 0xaaaac9faf750 in main /selinux/../repro.c:10:5
-> >
-> >     #6 0xffff83c62f18  (/usr/lib/aarch64-linux-gnu/libc.so.6+0x22f18)
-> (BuildId: b50ceafbd17dc6bceee344a66671c7eaa152bef4)
-> >
-> >     #7 0xffff83c63058 in __libc_start_main
-> (/usr/lib/aarch64-linux-gnu/libc.so.6+0x23058) (BuildId:
-> b50ceafbd17dc6bceee344a66671c7eaa152bef4)
-> >
-> >     #8 0xaaaac9ec7c6c in _start (/selinux/repro+0x47c6c) (BuildId:
-> ea3a1d5343a0633f08393e738125b8f44be83f66)
-> >
-> > previously allocated by thread T0 here:
-> >
-> >     #0 0xaaaac9f53a4c in strdup (/selinux/repro+0xd3a4c) (BuildId:
-> ea3a1d5343a0633f08393e738125b8f44be83f66)
-> >
-> >     #1 0xaaaac9fb9aa0 in insert_id
-> /selinux/checkpolicy/policy_define.c:131:10
-> >
-> >     #2 0xaaaac9fcc744 in yyparse /selinux/checkpolicy/policy_parse.y
-> >
-> >     #3 0xaaaac9fb95b4 in read_source_policy
-> /selinux/checkpolicy/parse_util.c:70:6
-> >
-> >     #4 0xaaaac9faf750 in main /selinux/../repro.c:10:5
-> >
-> >     #5 0xffff83c62f18  (/usr/lib/aarch64-linux-gnu/libc.so.6+0x22f18)
-> (BuildId: b50ceafbd17dc6bceee344a66671c7eaa152bef4)
-> >
-> >     #6 0xffff83c63058 in __libc_start_main
-> (/usr/lib/aarch64-linux-gnu/libc.so.6+0x23058) (BuildId:
-> b50ceafbd17dc6bceee344a66671c7eaa152bef4)
-> >
-> >     #7 0xaaaac9ec7c6c in _start (/selinux/repro+0x47c6c) (BuildId:
-> ea3a1d5343a0633f08393e738125b8f44be83f66)
-> >
-> > SUMMARY: AddressSanitizer: double-free (/selinux/repro+0xed518)
-> (BuildId: ea3a1d5343a0633f08393e738125b8f44be83f66) in free
-> >
-> > =3D=3D2502=3D=3DABORTING
->
-> Thanks for the report. Are you planning on submitting a patch for it?
-> How did you want us to attribute the report regardless?
->
-
---0000000000000f9dae0656333bdb
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr">Hi Stephen,<br><br>Yes, patch below. Please attribute the =
-report to &quot;Reported-by: UCSB VLab &lt;<a href=3D"mailto:coms-vlab@ucsb=
-.edu">coms-vlab@ucsb.edu</a>&gt;&quot;.=C2=A0<div><br></div><div>The fix cl=
-ears the local `fstype` after it&#39;s handed to `newgenfs`, so the `fail:`=
- cleanup no longer frees it and the genfs list becomes its sole owner (free=
-d once by `policydb_destroy()`), mirroring the `else` branch. Verified with=
- ASan: pre-fix double-free, post-fix clean.<br>---<br>=C2=A0checkpolicy/pol=
-icy_define.c | 2 ++<br>=C2=A01 file changed, 2 insertions(+)<br><br>diff --=
-git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c<br>index b7=
-3de45..f8c4d28 100644<br>--- a/checkpolicy/policy_define.c<br>+++ b/checkpo=
-licy/policy_define.c<br>@@ -6050,6 +6050,8 @@ static int define_genfs_conte=
-xt_helper(char *fstype, int has_type)<br>=C2=A0		}<br>=C2=A0		memset(newgen=
-fs, 0, sizeof(struct genfs));<br>=C2=A0		newgenfs-&gt;fstype =3D fstype;<br=
->+		/* ownership transferred into the genfs list; do not free on error */<b=
-r>+		fstype =3D NULL;<br>=C2=A0		newgenfs-&gt;next =3D genfs;<br>=C2=A0		if=
- (genfs_p)<br>=C2=A0			genfs_p-&gt;next =3D newgenfs;<br>--</div><div><br><=
-/div><div>I added the patch file. Let us know if you need anything more.=C2=
-=A0=C2=A0</div><div><br></div><div>Thanks,</div><div>UCSB VLab</div></div><=
-br><div class=3D"gmail_quote gmail_quote_container"><div dir=3D"ltr" class=
-=3D"gmail_attr">On Thu, Jul 9, 2026 at 12:05=E2=80=AFPM Stephen Smalley &lt=
-;<a href=3D"mailto:stephen.smalley.work@gmail.com">stephen.smalley.work@gma=
-il.com</a>&gt; wrote:<br></div><blockquote class=3D"gmail_quote" style=3D"m=
-argin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left=
-:1ex">On Thu, Jul 9, 2026 at 2:57=E2=80=AFPM COMS VLAB &lt;<a href=3D"mailt=
-o:coms-vlab@ucsb.edu" target=3D"_blank">coms-vlab@ucsb.edu</a>&gt; wrote:<b=
-r>
-&gt;<br>
-&gt; Summary<br>
-&gt;<br>
-&gt; A double-free vulnerability exists in the checkpolicy source policy co=
-mpiler&#39;s handling of genfscon statements. When parsing a new (previousl=
-y unseen) filesystem type string, define_genfs_context_helper() transfers o=
-wnership of the fstype pointer into a genfs struct that is linked into the =
-policydb&#39;s live genfs list, but fails to clear the local fstype variabl=
-e afterward. If any subsequent parsing step in the same function fails, exe=
-cution jumps to a shared fail: cleanup block. This cleanup block frees fsty=
-pe, which leaves a dangling pointer in the genfs list. When the policydb is=
- later destroyed via policydb_destroy(), it frees that same pointer again, =
-causing the double-free.<br>
-&gt;<br>
-&gt;<br>
-&gt;<br>
-&gt; Version<br>
-&gt;<br>
-&gt; 06159ee35d6b4c968c1f942c9361c111644de826 - current version<br>
-&gt;<br>
-&gt;<br>
-&gt;<br>
-&gt; PoC: Please see attachment<br>
-&gt;<br>
-&gt;<br>
-&gt;<br>
-&gt; ASAN Report<br>
-&gt;<br>
-&gt; =3D=3D2502=3D=3DERROR: AddressSanitizer: attempting double-free on 0xf=
-c1f82fe1330 in thread T0:<br>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0#0 0xaaaac9f6d518 in free (/selinux/repro+0xed518) =
-(BuildId: ea3a1d5343a0633f08393e738125b8f44be83f66)<br>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0#1 0xaaaac9ffd49c in policydb_destroy selinux/libse=
-pol/src/policydb.c:1596:3<br>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0#2 0xaaaac9faf758 in main selinux/../repro.c:11:5<b=
-r>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0#3 0xffff83c62f18=C2=A0 (/usr/lib/aarch64-linux-gnu=
-/libc.so.6+0x22f18) (BuildId: b50ceafbd17dc6bceee344a66671c7eaa152bef4)<br>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0#4 0xffff83c63058 in __libc_start_main (/usr/lib/aa=
-rch64-linux-gnu/libc.so.6+0x23058) (BuildId: b50ceafbd17dc6bceee344a66671c7=
-eaa152bef4)<br>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0#5 0xaaaac9ec7c6c in _start (selinux/repro+0x47c6c)=
- (BuildId: ea3a1d5343a0633f08393e738125b8f44be83f66)<br>
-&gt;<br>
-&gt; 0xfc1f82fe1330 is located 0 bytes inside of 2-byte region [0xfc1f82fe1=
-330,0xfc1f82fe1332)<br>
-&gt;<br>
-&gt; freed by thread T0 here:<br>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0#0 0xaaaac9f6d518 in free (/selinux/repro+0xed518) =
-(BuildId: ea3a1d5343a0633f08393e738125b8f44be83f66)<br>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0#1 0xaaaac9fc8a60 in define_genfs_context_helper /s=
-elinux/checkpolicy/policy_define.c:6163:2<br>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0#2 0xaaaac9fc8a60 in define_genfs_context /selinux/=
-checkpolicy/policy_define.c:6171:9<br>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0#3 0xaaaac9fcbc1c in yyparse /selinux/checkpolicy/p=
-olicy_parse.y:787:30<br>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0#4 0xaaaac9fb95b4 in read_source_policy /selinux/ch=
-eckpolicy/parse_util.c:70:6<br>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0#5 0xaaaac9faf750 in main /selinux/../repro.c:10:5<=
-br>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0#6 0xffff83c62f18=C2=A0 (/usr/lib/aarch64-linux-gnu=
-/libc.so.6+0x22f18) (BuildId: b50ceafbd17dc6bceee344a66671c7eaa152bef4)<br>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0#7 0xffff83c63058 in __libc_start_main (/usr/lib/aa=
-rch64-linux-gnu/libc.so.6+0x23058) (BuildId: b50ceafbd17dc6bceee344a66671c7=
-eaa152bef4)<br>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0#8 0xaaaac9ec7c6c in _start (/selinux/repro+0x47c6c=
-) (BuildId: ea3a1d5343a0633f08393e738125b8f44be83f66)<br>
-&gt;<br>
-&gt; previously allocated by thread T0 here:<br>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0#0 0xaaaac9f53a4c in strdup (/selinux/repro+0xd3a4c=
-) (BuildId: ea3a1d5343a0633f08393e738125b8f44be83f66)<br>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0#1 0xaaaac9fb9aa0 in insert_id /selinux/checkpolicy=
-/policy_define.c:131:10<br>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0#2 0xaaaac9fcc744 in yyparse /selinux/checkpolicy/p=
-olicy_parse.y<br>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0#3 0xaaaac9fb95b4 in read_source_policy /selinux/ch=
-eckpolicy/parse_util.c:70:6<br>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0#4 0xaaaac9faf750 in main /selinux/../repro.c:10:5<=
-br>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0#5 0xffff83c62f18=C2=A0 (/usr/lib/aarch64-linux-gnu=
-/libc.so.6+0x22f18) (BuildId: b50ceafbd17dc6bceee344a66671c7eaa152bef4)<br>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0#6 0xffff83c63058 in __libc_start_main (/usr/lib/aa=
-rch64-linux-gnu/libc.so.6+0x23058) (BuildId: b50ceafbd17dc6bceee344a66671c7=
-eaa152bef4)<br>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0#7 0xaaaac9ec7c6c in _start (/selinux/repro+0x47c6c=
-) (BuildId: ea3a1d5343a0633f08393e738125b8f44be83f66)<br>
-&gt;<br>
-&gt; SUMMARY: AddressSanitizer: double-free (/selinux/repro+0xed518) (Build=
-Id: ea3a1d5343a0633f08393e738125b8f44be83f66) in free<br>
-&gt;<br>
-&gt; =3D=3D2502=3D=3DABORTING<br>
-<br>
-Thanks for the report. Are you planning on submitting a patch for it?<br>
-How did you want us to attribute the report regardless?<br>
-</blockquote></div>
-
---0000000000000f9dae0656333bdb--
---0000000000000f9db00656333bdd
-Content-Type: text/x-patch; charset="US-ASCII"; 
-	name="0001-checkpolicy-fix-double-free-of-fstype-in-define_genfs_context_helper.patch"
-Content-Disposition: attachment; 
-	filename="0001-checkpolicy-fix-double-free-of-fstype-in-define_genfs_context_helper.patch"
-Content-Transfer-Encoding: base64
-Content-ID: <f_mrdxvg7a0>
-X-Attachment-Id: f_mrdxvg7a0
-
-RnJvbSA5YzBiMWM5NTAxYjU2MzgzMWM0NmI0N2ZiNWY0ZjNkMTgyZGJlNzg5IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBVQ1NCIFZMYWIgPGNvbXMtdmxhYkB1Y3NiLmVkdT4KRGF0ZTog
-VGh1LCA5IEp1bCAyMDI2IDEyOjAwOjAwIC0wNzAwClN1YmplY3Q6IFtQQVRDSF0gY2hlY2twb2xp
-Y3k6IGZpeCBkb3VibGUgZnJlZSBvZiBmc3R5cGUgaW4KIGRlZmluZV9nZW5mc19jb250ZXh0X2hl
-bHBlcgoKV2hlbiBwYXJzaW5nIGEgbmV3IGZpbGVzeXN0ZW0gdHlwZSwgZGVmaW5lX2dlbmZzX2Nv
-bnRleHRfaGVscGVyKCkgdHJhbnNmZXJzCm93bmVyc2hpcCBvZiBmc3R5cGUgaW50byBhIGdlbmZz
-IHN0cnVjdCBsaW5rZWQgaW50byB0aGUgcG9saWN5ZGIncyBnZW5mcwpsaXN0LCBidXQgZG9lcyBu
-b3QgY2xlYXIgdGhlIGxvY2FsIGZzdHlwZS4gQSBsYXRlciBnb3RvIGZhaWwgdGhlbiBmcmVlcyBp
-dCwKbGVhdmluZyBhIGRhbmdsaW5nIHBvaW50ZXIgdGhhdCBwb2xpY3lkYl9kZXN0cm95KCkgZnJl
-ZXMgYWdhaW4uCgpDbGVhciBmc3R5cGUgYWZ0ZXIgdGhlIG93bmVyc2hpcCB0cmFuc2ZlciwgbWly
-cm9yaW5nIHRoZSBlbHNlIGJyYW5jaC4KClJlcG9ydGVkLWJ5OiBVQ1NCIFZMYWIgPGNvbXMtdmxh
-YkB1Y3NiLmVkdT4KLS0tCiBjaGVja3BvbGljeS9wb2xpY3lfZGVmaW5lLmMgfCAyICsrCiAxIGZp
-bGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspCgpkaWZmIC0tZ2l0IGEvY2hlY2twb2xpY3kvcG9s
-aWN5X2RlZmluZS5jIGIvY2hlY2twb2xpY3kvcG9saWN5X2RlZmluZS5jCmluZGV4IGI3M2RlNDUu
-LmY4YzRkMjggMTAwNjQ0Ci0tLSBhL2NoZWNrcG9saWN5L3BvbGljeV9kZWZpbmUuYworKysgYi9j
-aGVja3BvbGljeS9wb2xpY3lfZGVmaW5lLmMKQEAgLTYwNTAsNiArNjA1MCw4IEBAIHN0YXRpYyBp
-bnQgZGVmaW5lX2dlbmZzX2NvbnRleHRfaGVscGVyKGNoYXIgKmZzdHlwZSwgaW50IGhhc190eXBl
-KQogCQl9CiAJCW1lbXNldChuZXdnZW5mcywgMCwgc2l6ZW9mKHN0cnVjdCBnZW5mcykpOwogCQlu
-ZXdnZW5mcy0+ZnN0eXBlID0gZnN0eXBlOworCQkvKiBvd25lcnNoaXAgdHJhbnNmZXJyZWQgaW50
-byB0aGUgZ2VuZnMgbGlzdDsgZG8gbm90IGZyZWUgb24gZXJyb3IgKi8KKwkJZnN0eXBlID0gTlVM
-TDsKIAkJbmV3Z2VuZnMtPm5leHQgPSBnZW5mczsKIAkJaWYgKGdlbmZzX3ApCiAJCQlnZW5mc19w
-LT5uZXh0ID0gbmV3Z2VuZnM7Ci0tIAoyLjU0LjAKCg==
---0000000000000f9db00656333bdd--
