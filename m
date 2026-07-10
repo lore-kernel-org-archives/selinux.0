@@ -1,80 +1,81 @@
-Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5FEC3E7BB6
-	for <selinux@vger.kernel.org>; Fri, 10 Jul 2026 21:55:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78E2D3CFF44
+	for <selinux@vger.kernel.org>; Fri, 10 Jul 2026 21:55:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.177
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783720513; cv=pass; b=aOPy2wwu84PMVY6JIHMFKVgIkUq5gRraZRCNA1HYda8uDw27FQk1AEKP7BbLDFXM6KpfaIkkuGciFvyy/OLvq7I3oMkDTx+iQaiu5Ety5sf34di1TOHlHfI3RUKDig1rz6mQzow0G7ogJz+EMvXRsje3S6Jr1wBalV/xhgED9WI=
+	t=1783720559; cv=pass; b=JAymNxJOpMVUuWjGq1YX4c39ePStDOIyVscQWL3jH+/5O7Up8B1+muWKD5hgNAJTrlse5pd/Zlmf2607y414zWXML7E+cFarYs8SIsuiNlm0b19akjerwwRkYTs99RuFJdbkhBHZu7UzeddL+UNQ7ihsNX5peYRbtDNXcsTgecU=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783720513; c=relaxed/simple;
-	bh=XtQaNN92G4Sy5XjgYZ7PtznLtjfPFcMPMPm+5XwS9R0=;
+	s=arc-20240116; t=1783720559; c=relaxed/simple;
+	bh=CpBTlve58c00BbzjM0b8zgecVzKqAVP6/zTAcKxUqpM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=c+kWUznxfs3gtNynOpAgc4wJ0zoBGZpIUsIiPQ684BpRjzHq4A2l2Q1ATxa/IRw97FSz178LFhXeAfGChbqcgxWjtNjlIHJTohYGD9PwPjqRNvPmIn10uVDunVabbpVHgMYbd8v206j3K/fNoxXX663ouqivBzVJ6qFYwmk1U0Y=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=FI/MELPu; arc=pass smtp.client-ip=209.85.216.41
+	 To:Cc:Content-Type; b=TnBE6unR/Qc2C2BwBHx/Vemrh46/lfNmgypR8uRqiVNPCXaoKRHBL1pOiBlSWgNAnhVYMPsLVPmwEtXV/5fRXQPXDi9JxQlFPBGbC4rXUGBU5oC5mlMEUkNqmuho3hstEfAoEi01QAOXr/TjHdiTKKi1wg/SpTS4EPvPI8COxNQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=DapG6S/H; arc=pass smtp.client-ip=209.85.214.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="FI/MELPu"
-Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-36b9d265355so1230350a91.2
-        for <selinux@vger.kernel.org>; Fri, 10 Jul 2026 14:55:10 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1783720510; cv=none;
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="DapG6S/H"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2cc6dd436c6so15380145ad.2
+        for <selinux@vger.kernel.org>; Fri, 10 Jul 2026 14:55:57 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1783720557; cv=none;
         d=google.com; s=arc-20260327;
-        b=HvBfG+2uyuS2kI7SdSk8IX71Gqo48GwWpV4RM306UNczLeue7jmNP7OPIDgXCG8HKZ
-         t7xM9FN8fZOYK/1KyZQEZvYpMboSdvGv6/QUKvFSUEJJ7MtBFRV05b+d84fxV0K/00Vl
-         aKEJee0D0fV1D6eeHzj+83QeEdAcG1qBevKJytEzBu9EdEi5h8obPOHW6PRDOXs6b0M1
-         BEnZiDgNOEJ6Ux0TNCMtNh08heXBbvmdgJEPiMszI3ArfUwtsz8dk/4QQMREboa/TBOA
-         BU0cpK85iDk995hAdHBWoFnOht15CZdRYOGjIfmtxdiQUCSFFFEs0iBAplj+9CnqbEvR
-         u9aA==
+        b=f9mprOkDvcGVbWYe2rnZ3HozhjXsjgvJVKA7a4WwLm9YfCPRn8o/xydMxvUbAfM5Dv
+         VELIqeuJoeC6yXQod9zxrdjHKna5jFtwQgMR3zZ2yAtZYjniFGbBPKrVYL9EmEyJf5wP
+         u08rVMoxroQdU/RJkqlQOD2vGJcKrWJauDAZHc44Wz696kB/lfkfvq8+1KJjK558sfMO
+         dSkFqGwrk+CGVmMOkhgXl2zzmfsyokusAYOdFSY9e11ktn0euMqmDeCTEMvaptyavkRY
+         GCKV4vGaZ5t8WXvsmactYSSWBSYyVCLwXEcF1ekmvnHWaUrxOjm24aHRKeGTBgFRXZJL
+         RuPQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=6XeOo/ULnXcigTrjbn+2fwnIM1ZI1Z5B9LAbPypSswc=;
-        fh=sq3DOy8211uKZxHsQt5rct/8rTa51mriGmW+cNxYPrk=;
-        b=hDTb9/5IV3YA7P+Did1vXCO9HoMK80EncSAY/b5kUOvoMT0jSkxbT8/5fgwgdGDQ3y
-         4E8+BVFLqvTB5vYNQRRrFeNPwHONtqhYtpAPVzomJKD1KTobFtRs/YQCFya5KjbTfKOc
-         GAGeJqAIC/U9wEzImjsmllnmTFuiI+s66VKmRJV4yZxlbw6Cc2Cr5gwbXsizeLpP40Tq
-         FGifXjXg5t1F+UUIZga1aUMosNb/lQZBlcWalqzjoLm5Rn5yUQUmlBi0hVOZiAtP7VAD
-         vUGTBLlEo2K3p8Y2WWniqSGqZ4G8hi9DueeWzpuDc/TRNvV2VrG8JBe2dBzPtkDNh6/Q
-         7oSg==;
+        bh=6nW9bDyOYHp4zq5N/lxHsUJ94wjBO7jwW7eDg4ejnfg=;
+        fh=xfXScVmJgAXlw5elF5+Oy9KASFfZRsuG6kwmMN0pr/8=;
+        b=ZfxwGIBmdYtZCVty0cm3H8L0WkI2GorldJ0fjK8GnCDlUOp9FFzR5TcPaZ3yhTBR0Y
+         Q9FKxMgNeeBmVxCXrJYUY1n15+OIjRDoLQNcfXJLoSVW352KzelxscadNmGhLveyEFFJ
+         1/DgCoN3NX4cWwTJ2oYEmPkRR1EQslwQBApsMZssyXH1mcSk19qTOw8EKuSr3hl7piBG
+         bYkKhjVQ27b0EawhW+FtXsNwOyv2N21xKsp32L0OBja2LEJZdvZ3KPNQ3Jb5LvrwqTcU
+         +zb2rcI/kkvLxbCGUFgygQiltiBb/n1fIrPSkYKfqWK5MCQi1pND7JYVZXJ16ht/xfZM
+         1jcg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1783720510; x=1784325310; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1783720557; x=1784325357; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=6XeOo/ULnXcigTrjbn+2fwnIM1ZI1Z5B9LAbPypSswc=;
-        b=FI/MELPuvbsA1fG989djyLNjUqJc3PlF0fZ1oPQktcwCjeDXAg9UjP1eSdhVEsGQgU
-         dlV9yAtCAxvJjj9ZCmY/uUXyenX7q4T/+htznt0c/KXs2bemmUazkAjxmeXETWtSRHdu
-         Ehdonvz5GUg2cx3MBNZlXS7WWH+eBuaDomuXzsBMWxlJ5/uOXsugA53vfjXc88AKIaqa
-         8fNeNAJh6FMI4aweHxnWTPulLhe2gqTKFRiAfT+IkBjkx03ItSUQGqDPEYhBgyr7qGaI
-         /18I7QLn4qmfI/el1RoZw6DTYWgB26J4aHYXSeWflcPrVRgvU4eslZ1ht+hWZ5erwbad
-         BuAw==
+        bh=6nW9bDyOYHp4zq5N/lxHsUJ94wjBO7jwW7eDg4ejnfg=;
+        b=DapG6S/HsoQjSDy2bdJEbgxhfqOQRGYa6eb+fOMxWXrIOkLm3BoP25qN6D352GxLQM
+         k1zA6e6yGAK4QBwmplxJJ6sjFqZ7LiIxjsP+ei2asL4TpLjav7hsp52Dkg4nUhsS3hDr
+         4sS1X4TA4uOoyvvirJpNiGOJaGgumPpTXmTof9sTYK+zBZG/LKfzshMOFBrCemRc78Vc
+         LUCR3AEqxP8XqL2xwMkn1OuLMZlP0zX+DLXTG0HBSpnXvlFICLA9QDwI3vglrbDFqBIY
+         o2PAdWPZ8ZeoxngIqyqkBI5G7DkLEsSpaudjtZL55IaaH23meWwfsfSfkS/+ThGg4LRS
+         BNuw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783720510; x=1784325310;
+        d=1e100.net; s=20251104; t=1783720557; x=1784325357;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=6XeOo/ULnXcigTrjbn+2fwnIM1ZI1Z5B9LAbPypSswc=;
-        b=LIpN5DDGLphvfsxLh333siw6BqZEEZaV9aRe+jfGVkzZ1XQtLii7YYddt1d233l9Aq
-         qCmh/FAtKFalC9p0WhtiKCwfZxgR5cxZzipQDBBUaUa042ie5CgmSFZ9vDs/dflaGyZT
-         fpisDAlcLdb3QQ7DW+b09uEMwuGWgWOZwrwyP6P1lw3XfyatmZhnRQCm++jKs9GUybD0
-         bjiHmvSaWJVclMx0GiHbh+8YUQ7wemRWvodzuSWZEP1Icr4yEMqOJG2xl+eepy8unZxG
-         GnPj8KEOnRmvXl3ffFSrl+XxtoaiHZpo4MrWwruS26PqJ9JnQylaeKC5k4slOVFAuZdu
-         fkbQ==
-X-Forwarded-Encrypted: i=1; AHgh+RoD6SKRNpSDcjAdDvfHiDtLfqLSpes/cwKGpvZJhkAAR79Th5RN6kCeu7wJVydaHQiQaqw1ECoK@vger.kernel.org
-X-Gm-Message-State: AOJu0YyxSkMsZabv+p0pp9B5HORyt1zBz92MSj+t22eDZn8I9EgGO/Hc
-	srVRXI3SHrtdWnDTDFsYu2XWVblltmF4yiokrhHJ4gghQHKKCdbWjaEfbWzjVsaLKCf8/M8IxRf
-	5ohaX0V+NW9wKgzG+Pe8CRkmpPeGJ1owgASam3KeqsvY7K7MxyBLyvbiK
-X-Gm-Gg: AfdE7cnqgq7Q5eeytRQMRtgdLzZ9udURMeYtqRRT0a4H8zfMD2P7HGc/tOmfIlxGprF
-	L/gVQ6I3wV8hYkU5Ou91snFUSqa5wz9JBRKZHw10K5DynJbH2u795IsuwGfo6dszXMpvrgyKMov
-	KvU4nDxGV4UaGFiz5OE9YeTvnm9ftnJgRZjA4Fd1kYwLhsFZtDgLQ0QbZ37zVPIZBfa+4yF70NH
-	sxoKbu1eeZRN78oTbbt7JFlf3CF84cSu5ysERxFze4NTcO7gqTZIpCL1WZSrChxhjHUISa8
-X-Received: by 2002:a17:90b:3d89:b0:381:2811:e8ad with SMTP id
- 98e67ed59e1d1-38dc7777abcmr646036a91.23.1783720509556; Fri, 10 Jul 2026
- 14:55:09 -0700 (PDT)
+        bh=6nW9bDyOYHp4zq5N/lxHsUJ94wjBO7jwW7eDg4ejnfg=;
+        b=LbOwkOhuuxXAZ1j6GBT/bWk4WWT5VOJA076GzxYc92jnG/XOQmW4NBZB9otiFCgQP8
+         2DBct0b3CsuSTyCcUudSiL4/f3LTqWuZo0YMAtDWLCDuOgwVIUl5KSNqCh12r4Vs9lUU
+         fo6ofQ5951zNLdR+guhunBQtAsvBPmR+EC6ec08iGzPiIqLD9zjWWgFvWbpg+hGCl4vM
+         WN2tsK3JsLjjgpCCMu0RfhFIHiv3N3mawsxZKacSNS6gQ6jUnyNJFm7Mot9O1lxcRMu3
+         CjpOAZA6mXA5UmiNQaeMLFykGL07oDwN2ywdBn7qcfe5a3i6u+h0Spm5VbVE1Tl7itRp
+         096A==
+X-Forwarded-Encrypted: i=1; AHgh+Rr8rEn/Xkfx3MhoTWWCP99GDTa8MJbmWjb1fj58MOL680KAdGPO79uVBRJ7mN5dZ8vsLkC0hJUw@vger.kernel.org
+X-Gm-Message-State: AOJu0YwSJw80gl2acIkMyd3MiQlUcvHCmzSvv6F4TTm/pBm1Us722dW4
+	PZyMyh1Or2CTEYtRbWNC+g1oNB4EEkjQayJAEZJ3UEFzwKx0dc+jiUODax2u1UIeZNk2qkHygq2
+	Vkz975XHpzkiMk8FcCREtZuHE4VF9ik9bn82SXz/XKMCtbjvLnMm9HA==
+X-Gm-Gg: AfdE7cnCe9BidQTBOwy3Z+YS8vZfNhqjAD4PnubfMlq939nIc2vNtwMhl1oKfMuSS26
+	yMJCIUJvlOT2AkrBe9VG26I7AcEPXu4dVN+aKqczPaU450EEIHrxYPsdxxVQ0s307djM2WWZV/f
+	HxVEX/VAdsKYvLuCBTCjJkCN9OU66J6Z3P8hrE21VUNEfaPdc/OGo/BCfb+ogvq7gtNnny1cSgD
+	SKR+lxdauwDRehKJnGDmHWy/1L2RCEXEkpd8Qq5ge/DTsH1E1r/VJvoNshOpuJOHaRvQESsOyII
+	G4yRRJ8=
+X-Received: by 2002:a17:902:c946:b0:2c9:97a8:aff0 with SMTP id
+ d9443c01a7336-2ce9f3d32f3mr7347585ad.41.1783720556784; Fri, 10 Jul 2026
+ 14:55:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -85,12 +86,13 @@ References: <20260703102759.9626-1-achillesgaikwad@gmail.com>
  <20260707152305.15324-1-achillesgaikwad@gmail.com> <CAHC9VhSWWhMjs282cOTT45gn0pa8bDSxD0H24_is7k4tXmGJxQ@mail.gmail.com>
  <ac4f209c-f465-4938-adae-ecd00ecab175@app.fastmail.com> <CAHC9VhQYjj3--K6KkDJBf6LfXqtj4TPh5LsMBpPYc0-Zz6wTMA@mail.gmail.com>
  <CAEjxPJ7dttPDxQDa_xXFd1H-QT_vkUwjtnH+=3cmG5dhSiaAXw@mail.gmail.com>
- <CAHC9VhSyCuiPBRWz_vUbx7+L5yLiXkjKX+7UyCLr82-_gAj2NQ@mail.gmail.com> <CAEjxPJ4+wgUDY3YxajZ=2D3WLzgat_Mqvr05VtJ4KrXW7_kuXA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4+wgUDY3YxajZ=2D3WLzgat_Mqvr05VtJ4KrXW7_kuXA@mail.gmail.com>
+ <CAHC9VhSyCuiPBRWz_vUbx7+L5yLiXkjKX+7UyCLr82-_gAj2NQ@mail.gmail.com>
+ <CAEjxPJ4+wgUDY3YxajZ=2D3WLzgat_Mqvr05VtJ4KrXW7_kuXA@mail.gmail.com> <CAHC9VhSxpAx+G35fbcMjJ1PfqJxDZYpTEu=qpO+0PQe=nkX5-g@mail.gmail.com>
+In-Reply-To: <CAHC9VhSxpAx+G35fbcMjJ1PfqJxDZYpTEu=qpO+0PQe=nkX5-g@mail.gmail.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 10 Jul 2026 17:54:57 -0400
-X-Gm-Features: AVVi8CeXE7oLDsWTKiw8a4raGtdwgg-BRS7l6ETRD_v0qIyJINJnj45P77RcbOM
-Message-ID: <CAHC9VhSxpAx+G35fbcMjJ1PfqJxDZYpTEu=qpO+0PQe=nkX5-g@mail.gmail.com>
+Date: Fri, 10 Jul 2026 17:55:45 -0400
+X-Gm-Features: AVVi8CcRGJaw79Fwkeco2JWCt0FgBIV6FkEdFiwKcVM1JtfPwuXxarWAiXeQC18
+Message-ID: <CAHC9VhRq+Vth-4D4OHFAY_6hXqmj=MgTc_2G=3Ehr6bAQzp26Q@mail.gmail.com>
 Subject: Re: [PATCH v2] NFSv4.2: fix nfs4_listxattr size accounting
 To: Stephen Smalley <stephen.smalley.work@gmail.com>
 Cc: Anna Schumaker <anna@kernel.org>, Achilles Gaikwad <achillesgaikwad@gmail.com>, 
@@ -99,165 +101,145 @@ Cc: Anna Schumaker <anna@kernel.org>, Achilles Gaikwad <achillesgaikwad@gmail.co
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 9, 2026 at 8:33=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Wed, Jul 8, 2026 at 4:11=E2=80=AFPM Paul Moore <paul@paul-moore.com> w=
-rote:
-> > On Wed, Jul 8, 2026 at 2:54=E2=80=AFPM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > > On Tue, Jul 7, 2026 at 4:01=E2=80=AFPM Paul Moore <paul@paul-moore.co=
-m> wrote:
-> > > >
-> > > > On Tue, Jul 7, 2026 at 3:12=E2=80=AFPM Anna Schumaker <anna@kernel.=
-org> wrote:
-> > > > > On Tue, Jul 7, 2026, at 2:48 PM, Paul Moore wrote:
-> > > > > > On Tue, Jul 7, 2026 at 11:24=E2=80=AFAM Achilles Gaikwad
-> > > > > > <achillesgaikwad@gmail.com> wrote:
-> > > > > >>
-> > > > > >> A call to listxattr() with a buffer size of 0 returns the actu=
-al
-> > > > > >> size of the buffer needed for a subsequent call. On an NFSv4.2
-> > > > > >> mount this triggers the following oops:
-> > > > > >>
-> > > > > >>   [  399.768687] BUG: kernel NULL pointer dereference, address=
-: 0000000000000000
-> > > > > >>   [  399.768705] RIP: 0010:_copy_from_pages+0x44/0xe0
-> > > > > >>   [  399.768722] Call Trace:
-> > > > > >>   [  399.768723]  nfs4_xattr_alloc_entry+0x1bf/0x1e0
-> > > > > >>   [  399.768730]  nfs4_xattr_cache_set_list+0x43/0x1f0
-> > > > > >>   [  399.768731]  nfs4_listxattr+0x21f/0x250
-> > > > > >>   [  399.768733]  vfs_listxattr+0x55/0xa0
-> > > > > >>   [  399.768736]  listxattr+0x23/0x160
-> > > > > >>   [  399.768737]  path_listxattrat+0xba/0x1e0
-> > > > > >>   [  399.768739]  do_syscall_64+0xe2/0x680
-> > > > > >>
-> > > > > >> security_inode_listsecurity() (via the xattr_list_one() helper=
-) now
-> > > > > >> decrements the remaining size even when the buffer pointer is =
-NULL, so
-> > > > > >> in the size-query case, 'left' underflows to a huge size_t val=
-ue. As a
-> > > > > >> result, nfs4_listxattr_nfs4_user() treats the NULL buffer as a=
- real one,
-> > > > > >> leading to a NULL pointer dereference in _copy_from_pages().
-> > > > > >>
-> > > > > >> security_inode_listsecurity() does not return the number of by=
-tes
-> > > > > >> it added to the list, so the code derived it as
-> > > > > >> 'size - error - left'. That is also wrong in the size-query ca=
-se:
-> > > > > >> the generic_listxattr() contribution is only subtracted from '=
-left'
-> > > > > >> when a buffer is present. Thus, the query result comes up shor=
-t by
-> > > > > >> exactly that contribution (e.g., "system.nfs4_acl" on a mount =
-with
-> > > > > >> ACL support), and a caller that allocates the returned size ge=
-ts
-> > > > > >> -ERANGE on the subsequent call.
-> > > > > >>
-> > > > > >> Declare 'left' as ssize_t, use a scratch copy to measure secur=
-ity
-> > > > > >> hook consumption, and only decrement 'left' if a buffer is pre=
-sent.
-> > > > > >>
-> > > > > >> Fixes: f71ece9712b7 ("security,fs,nfs,net: update security_ino=
-de_listsecurity() interface")
-> > > > > >> Suggested-by: Paul Moore <paul@paul-moore.com>
-> > > > > >> Signed-off-by: Achilles Gaikwad <achillesgaikwad@gmail.com>
-> > > > > >> ---
-> > > > > >> Changes in v2:
-> > > > > >>  - Use a scratch variable to track security label size directl=
-y,
-> > > > > >>    replacing the old formula that undercounted the size-query =
-case.
-> > > > > >>  - Drop the now-unneeded NULL-buffer special case for
-> > > > > >>    nfs4_listxattr_nfs4_user().
-> > > > > >>  - Retitled from "fix nfs4_listxattr NULL pointer dereference"
-> > > > > >>    (the same accounting bug caused both the oops and the under=
-count).
-> > > > > >> v1: https://lore.kernel.org/linux-nfs/20260703102759.9626-1-ac=
-hillesgaikwad@gmail.com/
-> > > > > >>  fs/nfs/nfs4proc.c | 10 +++++++---
-> > > > > >>  1 file changed, 7 insertions(+), 3 deletions(-)
-> > > > > >
-> > > > > > [CC'd the LSM and SELinux lists for visibility]
-> > > > > >
-> > > > > > Unfortunately my testing was unsuccessful due to an NFS problem=
- that
-> > > > > > started with the v7.2 merge window that I haven't had the time =
-to
-> > > > > > bisect yet.  Assuming the NFS folks are okay with this change, =
-I
-> > > > > > figure they will want to send it up to Linus via their tree, if=
- not
-> > > > > > let me know and I can send this up via the LSM tree.
+On Fri, Jul 10, 2026 at 5:54=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+> On Thu, Jul 9, 2026 at 8:33=E2=80=AFAM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> > On Wed, Jul 8, 2026 at 4:11=E2=80=AFPM Paul Moore <paul@paul-moore.com>=
+ wrote:
+> > > On Wed, Jul 8, 2026 at 2:54=E2=80=AFPM Stephen Smalley
+> > > <stephen.smalley.work@gmail.com> wrote:
+> > > > On Tue, Jul 7, 2026 at 4:01=E2=80=AFPM Paul Moore <paul@paul-moore.=
+com> wrote:
 > > > > >
-> > > > > Yeah, we'll send it through the NFS tree.
+> > > > > On Tue, Jul 7, 2026 at 3:12=E2=80=AFPM Anna Schumaker <anna@kerne=
+l.org> wrote:
+> > > > > > On Tue, Jul 7, 2026, at 2:48 PM, Paul Moore wrote:
+> > > > > > > On Tue, Jul 7, 2026 at 11:24=E2=80=AFAM Achilles Gaikwad
+> > > > > > > <achillesgaikwad@gmail.com> wrote:
+> > > > > > >>
+> > > > > > >> A call to listxattr() with a buffer size of 0 returns the ac=
+tual
+> > > > > > >> size of the buffer needed for a subsequent call. On an NFSv4=
+.2
+> > > > > > >> mount this triggers the following oops:
+> > > > > > >>
+> > > > > > >>   [  399.768687] BUG: kernel NULL pointer dereference, addre=
+ss: 0000000000000000
+> > > > > > >>   [  399.768705] RIP: 0010:_copy_from_pages+0x44/0xe0
+> > > > > > >>   [  399.768722] Call Trace:
+> > > > > > >>   [  399.768723]  nfs4_xattr_alloc_entry+0x1bf/0x1e0
+> > > > > > >>   [  399.768730]  nfs4_xattr_cache_set_list+0x43/0x1f0
+> > > > > > >>   [  399.768731]  nfs4_listxattr+0x21f/0x250
+> > > > > > >>   [  399.768733]  vfs_listxattr+0x55/0xa0
+> > > > > > >>   [  399.768736]  listxattr+0x23/0x160
+> > > > > > >>   [  399.768737]  path_listxattrat+0xba/0x1e0
+> > > > > > >>   [  399.768739]  do_syscall_64+0xe2/0x680
+> > > > > > >>
+> > > > > > >> security_inode_listsecurity() (via the xattr_list_one() help=
+er) now
+> > > > > > >> decrements the remaining size even when the buffer pointer i=
+s NULL, so
+> > > > > > >> in the size-query case, 'left' underflows to a huge size_t v=
+alue. As a
+> > > > > > >> result, nfs4_listxattr_nfs4_user() treats the NULL buffer as=
+ a real one,
+> > > > > > >> leading to a NULL pointer dereference in _copy_from_pages().
+> > > > > > >>
+> > > > > > >> security_inode_listsecurity() does not return the number of =
+bytes
+> > > > > > >> it added to the list, so the code derived it as
+> > > > > > >> 'size - error - left'. That is also wrong in the size-query =
+case:
+> > > > > > >> the generic_listxattr() contribution is only subtracted from=
+ 'left'
+> > > > > > >> when a buffer is present. Thus, the query result comes up sh=
+ort by
+> > > > > > >> exactly that contribution (e.g., "system.nfs4_acl" on a moun=
+t with
+> > > > > > >> ACL support), and a caller that allocates the returned size =
+gets
+> > > > > > >> -ERANGE on the subsequent call.
+> > > > > > >>
+> > > > > > >> Declare 'left' as ssize_t, use a scratch copy to measure sec=
+urity
+> > > > > > >> hook consumption, and only decrement 'left' if a buffer is p=
+resent.
+> > > > > > >>
+> > > > > > >> Fixes: f71ece9712b7 ("security,fs,nfs,net: update security_i=
+node_listsecurity() interface")
+> > > > > > >> Suggested-by: Paul Moore <paul@paul-moore.com>
+> > > > > > >> Signed-off-by: Achilles Gaikwad <achillesgaikwad@gmail.com>
+> > > > > > >> ---
+> > > > > > >> Changes in v2:
+> > > > > > >>  - Use a scratch variable to track security label size direc=
+tly,
+> > > > > > >>    replacing the old formula that undercounted the size-quer=
+y case.
+> > > > > > >>  - Drop the now-unneeded NULL-buffer special case for
+> > > > > > >>    nfs4_listxattr_nfs4_user().
+> > > > > > >>  - Retitled from "fix nfs4_listxattr NULL pointer dereferenc=
+e"
+> > > > > > >>    (the same accounting bug caused both the oops and the und=
+ercount).
+> > > > > > >> v1: https://lore.kernel.org/linux-nfs/20260703102759.9626-1-=
+achillesgaikwad@gmail.com/
+> > > > > > >>  fs/nfs/nfs4proc.c | 10 +++++++---
+> > > > > > >>  1 file changed, 7 insertions(+), 3 deletions(-)
+> > > > > > >
+> > > > > > > [CC'd the LSM and SELinux lists for visibility]
+> > > > > > >
+> > > > > > > Unfortunately my testing was unsuccessful due to an NFS probl=
+em that
+> > > > > > > started with the v7.2 merge window that I haven't had the tim=
+e to
+> > > > > > > bisect yet.  Assuming the NFS folks are okay with this change=
+, I
+> > > > > > > figure they will want to send it up to Linus via their tree, =
+if not
+> > > > > > > let me know and I can send this up via the LSM tree.
+> > > > > >
+> > > > > > Yeah, we'll send it through the NFS tree.
+> > > > >
+> > > > > Thanks Anna.
+> > > > >
+> > > > > > I'll be curious to hear
+> > > > > > what problem you're hitting, and what patch is the culprit once=
+ you
+> > > > > > do that bisect!
+> > > > >
+> > > > > Yes, me too :)
+> > > > >
+> > > > > I'm still working through a review backlog so it might be a bit b=
+efore
+> > > > > I have a chance, but in case anyone wants to test it out, it's ea=
+sily
+> > > > > reproduced using the selinux-testsuite and the NFS tests:
+> > > > >
+> > > > > https://github.com/SELinuxProject/selinux-testsuite#nfs
 > > > >
-> > > > Thanks Anna.
-> > > >
-> > > > > I'll be curious to hear
-> > > > > what problem you're hitting, and what patch is the culprit once y=
-ou
-> > > > > do that bisect!
-> > > >
-> > > > Yes, me too :)
-> > > >
-> > > > I'm still working through a review backlog so it might be a bit bef=
-ore
-> > > > I have a chance, but in case anyone wants to test it out, it's easi=
-ly
-> > > > reproduced using the selinux-testsuite and the NFS tests:
-> > > >
-> > > > https://github.com/SELinuxProject/selinux-testsuite#nfs
+> > > > They seem to pass for me with and without the patch (they don't
+> > > > exercise listxattr AFAIK).
+> > > > This was on the current selinux/dev branch, v7.2-rc1 based.
 > > >
-> > > They seem to pass for me with and without the patch (they don't
-> > > exercise listxattr AFAIK).
-> > > This was on the current selinux/dev branch, v7.2-rc1 based.
+> > > They work for me on vanilla v7.1 and fail somewhere before vanilla
+> > > v7.2-rc1 (still bisecting).
+> > >
+> > > I wonder if there is an interaction problem with a recent userspace
+> > > update.  What distro/userspace are you running for your tests?  I'm
+> > > doing my testing on a relatively recent Rawhide.
 > >
-> > They work for me on vanilla v7.1 and fail somewhere before vanilla
-> > v7.2-rc1 (still bisecting).
-> >
-> > I wonder if there is an interaction problem with a recent userspace
-> > update.  What distro/userspace are you running for your tests?  I'm
-> > doing my testing on a relatively recent Rawhide.
+> > I was on F44, so yes, it could be a difference in e.g. coreutils or
+> > other userspace on rawhide that is tickling this particular bug.
 >
-> I was on F44, so yes, it could be a difference in e.g. coreutils or
-> other userspace on rawhide that is tickling this particular bug.
+> I haven't had a chance to look into this yet, but the git bisect just
+> produced the commit below as the offending commit:
+>
+>    commit 01c2305795a3b6b164df48e72b12022a68fd60c1
+>    Author: Jeff Layton <jlayton@kernel.org>
+>    Date:   Wed Mar 25 10:40:32 2026 -0400
 
-I haven't had a chance to look into this yet, but the git bisect just
-produced the commit below as the offending commit:
-
-   commit 01c2305795a3b6b164df48e72b12022a68fd60c1
-   Author: Jeff Layton <jlayton@kernel.org>
-   Date:   Wed Mar 25 10:40:32 2026 -0400
-
-   nfsd: add netlink upcall for the nfsd.fh cache
-
-   Add netlink-based cache upcall support for the expkey (nfsd.fh) cache,
-   following the same pattern as the existing svc_export netlink support.
-
-   Add expkey to the cache-type enum, a new expkey attribute-set with
-   client, fsidtype, fsid, negative, expiry, and path fields, and the
-   expkey-get-reqs / expkey-set-reqs operations to the nfsd YAML spec
-   and generated headers.
-
-   Implement nfsd_nl_expkey_get_reqs_dumpit() which snapshots pending
-   expkey cache requests and sends each entry's seqno, client name,
-   fsidtype, and fsid over netlink.
-
-   Implement nfsd_nl_expkey_set_reqs_doit() which parses expkey cache
-   responses from userspace (client, fsidtype, fsid, expiry, and path
-   or negative flag) and updates the cache via svc_expkey_lookup() /
-   svc_expkey_update().
-
-   Wire up the expkey_notify() callback in svc_expkey_cache_template
-   so cache misses trigger NFSD_CMD_CACHE_NOTIFY multicast events with
-   NFSD_CACHE_TYPE_EXPKEY.
-
-   Signed-off-by: Jeff Layton <jlayton@kernel.org>
-   Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Ooops, nevermind, scratch that - I still have one more kernel to test.
 
 --=20
 paul-moore.com
