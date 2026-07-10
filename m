@@ -1,266 +1,478 @@
-Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
+Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30E793769F5
-	for <selinux@vger.kernel.org>; Fri, 10 Jul 2026 18:14:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED41237CD48
+	for <selinux@vger.kernel.org>; Fri, 10 Jul 2026 18:27:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.50
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783707275; cv=pass; b=ZXAudvFNJNMhxj6Y5wmyKsURfirrSnYBm1iNOpW/ktzvbeGrZTV7feg9iQfO72bfxucccw4qCzfikBGVKgsiZEcv8I1KU981cNJjZwHHzzY6q69ar0w5CKvZ/xZUzKo0wAwYyAkXV1tRYUiWtdey7pp0e6LAdxTjenE2TEZA1tQ=
+	t=1783708050; cv=pass; b=BUzbueAz+i58aMAtmp3MFrCxrhAXjolIK+hh/2eBlXSGB1N22Fe86YQ+StmUkC79EDspQi6k6mTvcRVUqHjQnB3Nb+Uu/l6SkqTlZeN7nDVqdgQJz2UJnnzVJSKxCLYRt5rTkxCoNG+l17C3IJn97JBHMaL0SHir3TA7RH/2jb4=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783707275; c=relaxed/simple;
-	bh=reuKY/03YkEaRXdUjXVg5IY4kXienBM42hqx6fnI5z0=;
+	s=arc-20240116; t=1783708050; c=relaxed/simple;
+	bh=QumxzyWEfgCcU/WRCn2KyVAXTGJJq0zbTZmChHgEVgo=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=UzZfbQEjEmSstX0hJIwi0tUYM7nb1R7CjRBArS/Qwg9IifhF2k38qWnqGjC53b36XPxcK1NU/fZCRU6aPw5QrZKTulOw17WjC4IUkX5r7DsabBBMdKSRCXlW0FUPnefv1LBl6xv+aM8no6q9anE7feFObkRYIDmSHQmrkI51768=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=l3u3SVel; arc=pass smtp.client-ip=209.85.210.182
+	 To:Cc:Content-Type; b=er1MVS/RY8P06nATc0qlMitIX8QMgLi5JN4H+G+MrNLTwqhX1KprBT/iVHtvQ2sd+bjOOwGni9XnVGP7mdv7GQkIggta0xOImID5t43NvNtavFR3C8eOcgShrlhAMxFKdr1FBGhdOEEsEhQNUOD4l3rihDQCZVdCLuAlikzt6qo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UCDRDE+e; arc=pass smtp.client-ip=209.85.216.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l3u3SVel"
-Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-8484f229529so1003694b3a.2
-        for <selinux@vger.kernel.org>; Fri, 10 Jul 2026 11:14:34 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1783707273; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UCDRDE+e"
+Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-382a3fe0d28so1335747a91.0
+        for <selinux@vger.kernel.org>; Fri, 10 Jul 2026 11:27:27 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1783708047; cv=none;
         d=google.com; s=arc-20260327;
-        b=g5A3YFZVcbXSij5pX1JspawzBapN39LaAEKsZwN2g1vzB6fZT7CNLwhQIKvQKCSvY+
-         GeSpwMgfuSX3Z59qwIbWtd2r8ivUAxhuhbS52z86WR45/v38YxzI9fJzH24dls8d4vHa
-         pi5HfdZVRjI8AJZWwzJ2roq7ZmqaRcqSQsN76nBgrE5suiHrixMGdQ8zww9JLSO1G93J
-         ExUOw1aOYIpcslgdKCmDYe/ms7HckGlawah0QQGvW4OW/Llaw80pciiBcB1jSt7VzG8M
-         lJO54zQnaolVqUeU/FC2rUbA0sP9AQEWk/Nz7C2tVjzjmle/ryH4whQINmr3PI1yYyb1
-         Yh8g==
+        b=Xfc65vDa7/0IEAH1oMu38h69z+mzsHAF6lYsYZH6MuB+1FTvlhu2ItZWePvWkimChA
+         ZqfFPBZI0OLijY6p9Sfo/uKxA6Ic0UIgV7Gq2tvy3+WttbNI/42tJJ1l0j6yO+P1LuJL
+         qfHRJKtVsJb7c565RHrLukMFvHDTo4zXKGItRFfHA58EVhqecN4hxbRfSS8Jh1NcEwK7
+         sQPlox7DOBHuaqkdC4uR/xwQX7jk+kZacHwtDlNgaTf91Jbn5+tJRBnCuxfUwlhWmTOt
+         YcYqhbfLBgm8KLLsjn8F4qll6UJ3NaNAtGGWwCNuINtIufa4/aEwCdY4AEqBRAYGdcq2
+         wF0w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=++QP6FkHbLz1on2xyYUDI9qf+tgEipe13VKh06iEKoM=;
-        fh=cWi3kW8rsHyAhg0+a/rjvnARy8e1ms2xzmZhoFZJJgk=;
-        b=WrIJ1hSuW3Hftp/1KQnqDE7kitFiR5tRvemGSGcs13zAOHBHPbtUK64u8bH6NCOdLr
-         rzgKSVyiU2MK6E8ndVTGvJMMbzBh2zWE3fJ6BM3gXsvqJ+Adqr6aJKuVfUYDxie1/Eq6
-         xoilexhzu25NGjnXyYHE2Z7zjCv8ZDp89Bf6h9hwLGvOUzus+e2PFSEW/mGSw2Y3bQOJ
-         frMkUnt1viV3Cenf0pGzjlpX3ez8B/s9mUKGqv1tzoRUC3C/YwrsHI0qR5venAYXmiDK
-         OcyfBKd7ViCi5Ho1C//65ZwetUmGGEDLO+PT5hvR/3VRndyWevcEH9VjpIWDW+8GC9yt
-         a57g==;
+        bh=CHk2vqM3Y/KC7/NoX0wwFc49f28b0xO8q4wMxMFQ79U=;
+        fh=J61V3OUGMbPg9PEhaVOaAjeaFLNhlaRAyHIlP9GupwM=;
+        b=P+A+AnnKfl/9ztRGiEHcxLLszNdAtBxSojSGfA0UIrja7s0zUz9AwBs2krp8hmoXRG
+         Ep3g21yQhXQ9/rDrc5Fx90X8G3j5a9bNnuLiXmTwmVkR7ivm642saVfZCzF0MhHraez6
+         vRStK7Zsxs6kDaQhA7efVFnGgIaDHC+za+rpMjFgAfLGQPX4QzLslCKl/0GQWl60hbB9
+         8vmtFVDS10E+TzbxzRn+n1bUi0pSQFgoTJQy2KbABFlAKAs+7RMNQdAmTfkqh028BO9m
+         SsLd7Is9kUokgZGoUShINn56mtFFAmHur+dEZxJrxnBrBnsR33lnCtbmaQ0CmSda2HpU
+         QkOg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783707273; x=1784312073; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1783708047; x=1784312847; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=++QP6FkHbLz1on2xyYUDI9qf+tgEipe13VKh06iEKoM=;
-        b=l3u3SVelQQRz0Fm/RlgYRQK/Lo/XpJ9cRxmzlp4GQheXT2dQnw6v6D8WQYnPGo+tn8
-         ir9wzXVQ/B37n6OWz0iI4CHIgQzCGJWxTSGqlncZsYc2aRSo7IHtTFlU2SwW6+jbvufZ
-         TNRc7aDydOcyISSlX2c4vA4OWcjxydaWyEtCO6iH5jhJNOnmQCquZINX/3/pSnKbMJHS
-         /CJ6ykx+d0iqMxnIg57eFRVNnLr6c9HFNFzJxz/YgeZ7BZ+ovoPkLlipLb1gM/xj7j9m
-         f2qf/BeyJ30diTNTTXC5D9bOpklthvz2zH94wXx8zEINS3Pxp2xU2D2OwP6YL/xq1KOW
-         pokw==
+        bh=CHk2vqM3Y/KC7/NoX0wwFc49f28b0xO8q4wMxMFQ79U=;
+        b=UCDRDE+em+R5IFjAV0eGjnndWc/8eS+3s3z+PXQdEffTZ0sXRIJEznRDF+/F/RwkB7
+         jVcHxg4kLxGzex5V2l7Hw+QssvXbuqXCmcFluydxSQzelTCDtrPULJutLAPZndrtEP/+
+         6S934+mOX5OJCm9SMURuLH1LsPvjnuRJoAEsEQiwvP1K55uOy8IaLEEg4floLwUou6sh
+         tLFf7Hfk84+mJj73gph3vX7sOQjhDunIDNllAQTiRaMI4fjHUsfLQqREO0NUnOsA0uaJ
+         4V0haWusri5VmencupEdIswD/j6txf9EbaubiU9AHqY22sBmPte/ydjsRqSAI1M7Xaml
+         7v1w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783707273; x=1784312073;
+        d=1e100.net; s=20251104; t=1783708047; x=1784312847;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=++QP6FkHbLz1on2xyYUDI9qf+tgEipe13VKh06iEKoM=;
-        b=BAd7AE6VHUmx+NmkJ2qOGm3UV2Uxh37qTJ2WojPm+QWBTAxB1Q92ZMN/XoYW8kBVQT
-         HSJtsLngQxYIecacob73cdKf6BERwSDIeRQce+XFPFcUAoxJyM7TY+RCVcDqAAXktZH0
-         PZlTvmLQbkfNEKHQCLiYzOv3xSXDSL7hVJd0Bqsn9nNBzzOOvyjtrZyRDbuLfzy5RIMx
-         fR4MwTCk5NuP8MYB4uEEky7l+sf0l1qI2EHAcynZIGsnMvUDVFPB4xkr84YGwpxj2mlD
-         5Iso0fA6FDWKQG/iblKFAMc+W2HbEPYtcNKJ7vWXdhNw0KptOHWbrEwURczeOsTmMG+t
-         7dJQ==
-X-Gm-Message-State: AOJu0Yx5fFIi4YT1jxNR8y6QpQT3ihj1mjUNMxZ4Ia/OtIv3opzbK3LM
-	6MZUqOLoWtvB83OA9PozGQGoZy0ErKrMEdYv2O1WG8iBk1+MyUpOKVHFf5dmBhSQlvBT6yp1hAQ
-	GjgVvHdo2UNIbMnnmoV7fYD1PBRH4g2IVTw==
-X-Gm-Gg: AfdE7cnUQdYnY0Ghjuxd4ZsEloyl7VQi2qcXfcyEIYIkuIhr1WExBvUL87MJNeqg5Xv
-	5gU2pPe2UgMQnTbaC3/v7oEJbu7uX8DeyS2QLhGq1shISIsF0Wv1mDZHntpmWU22bWww+fpQTTR
-	D1PPYKwPfgY9qITCL1bVkNGaKyEB/ZwHZFDsKj0uTNpx4CZOw2JxGOFB6tiCt6/DxwLVh7onhj/
-	EDlpXw/5xzCF33TR8IO3SOGriVGk5SHp9VyPiblh9Ud0hgAJvWAKs4n46t5h7VXKEK+uqLt
-X-Received: by 2002:a05:6a00:cd4:b0:848:732b:6b26 with SMTP id
- d2e1a72fcca58-84889841625mr100279b3a.66.1783707273557; Fri, 10 Jul 2026
- 11:14:33 -0700 (PDT)
+        bh=CHk2vqM3Y/KC7/NoX0wwFc49f28b0xO8q4wMxMFQ79U=;
+        b=oS4DKZPsmvfnvcvtOQDTRW64Q+ech0WCj1qQPqpOm2z5/kobs+w6ECv0wsT+T5/ypH
+         BJtujCRcavXXPwICgF2lg8miS2PGvs/e5Gme6aC1rXyIV844NYd5bJAQoJbS5CfIfL16
+         8k0zvbW5czrAkzk74pOkzmdNh6/DPILIJR4hIsJiD11AP1Yo9clpWZdD0ZcCgqx5ebDh
+         ZseMLSKvyrj0eqzchc5Wzw3/88H2OOnFqfnQEM7WRn3ObacT7do8y6zu+7jiRDHKLxWA
+         9iPcq69p8NNKNuDv8BpYdrWYvwUZkxAtEofb+ISYRO7Uu1VBB6N5meiv1BagA5KM9pmF
+         zSTQ==
+X-Gm-Message-State: AOJu0Yz1gL4WVd7XnJnFnopQq0xSvw5pJW8vHxvc6kuOPjawOKq/BFjW
+	BidYSO6AX+R8nTSDqtdvpQBhjD5RbMjlXSPhsZZLvCKTpJgmDEInXceJH2Qx96LPAnAekf2PlNT
+	UkaIS/IGh2OsO5z5JBBcHwldaM4FCawQ=
+X-Gm-Gg: AfdE7cnmZxIKWSnpD2lek9xaBCxGv1ML2mt2pJjjEbQxLgY6BzEZtWbJahs4e4cnHAy
+	OXtS2IQLN8bPgmH1tKEW36yfGPwKackesfzmvS+5shYVRlKLBhDinwPl7OrgngTIEuPZ+vvE0UM
+	xQnBYld5toOsbqu7aj6wWoCsIp0PpAs+w4cdR5KvCHHr4T8Alg8+RFt80uNMrwmx/QmBTaWoVIA
+	xLqAUkVyCQkDJOcEUQ1wU+x1hSw+rH5rivWtwjQfryC9fbn1GbfyoKlCcRd8UkdkAqNynSu
+X-Received: by 2002:a17:90b:2c85:b0:381:77cd:38d1 with SMTP id
+ 98e67ed59e1d1-38dc75d0377mr125493a91.10.1783708046671; Fri, 10 Jul 2026
+ 11:27:26 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CA+jXL7=3=+wxXqm42Q_tQaoeusdUCnwzav_6gF6niAttPZ4ijg@mail.gmail.com>
- <CAEjxPJ6oehVAWO47=dCnk7q2-GZ+wkyiKXa6j--PAziPP4135g@mail.gmail.com>
- <CA+jXL7m20TzvdCuuz0d_bgAvf+GV5dFmKJb9gFEYjf+OYUYuZQ@mail.gmail.com> <CAEjxPJ6rMJd--Tg5yzByzFRQ=irbE0f4fxik48FdaxsT=Qtfbg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6rMJd--Tg5yzByzFRQ=irbE0f4fxik48FdaxsT=Qtfbg@mail.gmail.com>
+References: <20260710110323.3086408-1-akkohli@redhat.com>
+In-Reply-To: <20260710110323.3086408-1-akkohli@redhat.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 10 Jul 2026 14:14:22 -0400
-X-Gm-Features: AVVi8Ce7TwqHzziJ1XBCpeGww5ZlbM5U_NEsuDsD9QEQ24CoD0RvH6wRj-SglXo
-Message-ID: <CAEjxPJ4_Gt4RFqX9n0_rHHsznt3bHKBhi9j_+anJK-Ddc8pcnA@mail.gmail.com>
-Subject: Re: [Bug] Double free vulnerability at define_genfs_context_helper
-To: COMS VLAB <coms-vlab@ucsb.edu>
+Date: Fri, 10 Jul 2026 14:27:15 -0400
+X-Gm-Features: AVVi8CfA95oy6_b5YtdOS2TFS4bn-nZs_-Bg72FzkCaGTtfMDLbB9MdSgdEUtcg
+Message-ID: <CAEjxPJ60wc63kb9XeKAL5u4XFyo5Ydxpg2VooEwN20LXfBiZZQ@mail.gmail.com>
+Subject: Re: [PATCH] checkpolicy: add bad data protection tests
+To: Akhil Kohli <akkohli@redhat.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jul 10, 2026 at 2:11=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Fri, Jul 10, 2026 at 7:03=E2=80=AFAM Akhil Kohli <akkohli@redhat.com> wr=
+ote:
 >
-> On Thu, Jul 9, 2026 at 4:11=E2=80=AFPM COMS VLAB <coms-vlab@ucsb.edu> wro=
-te:
-> >
-> > Hi Stephen,
-> >
-> > Yes, patch below. Please attribute the report to "Reported-by: UCSB VLa=
-b <coms-vlab@ucsb.edu>".
-> >
-> > The fix clears the local `fstype` after it's handed to `newgenfs`, so t=
-he `fail:` cleanup no longer frees it and the genfs list becomes its sole o=
-wner (freed once by `policydb_destroy()`), mirroring the `else` branch. Ver=
-ified with ASan: pre-fix double-free, post-fix clean.
+> Add test_checkmodule_negative.sh and .te fixtures for  bad-data protectio=
+n (missing/bad-path and corrupted .te inputs).
 >
-> Thanks, unfortunately we need a Signed-off-by: line with an actual
-> person's name and email address and your patch was whitespace-damaged
-> by your mail client. Try using git send-email instead, see
-> https://github.com/SELinuxProject/selinux-kernel/wiki/Getting-Started#sub=
-mitting-patches
-> for some tips.
->
-> If that proves unworkable, we can always just fix it on our end
-> especially since the fix is so trivial.
+> Signed-off-by: Akhil Kohli <akkohli@redhat.com>
 
-Also, please re-base on top of the latest selinux/main branch; your
-attached version of the patch also didn't apply either.
+No need to re-send just for this, but for future reference use -v2,
+-v3, etc to signify which version of the patch is the latest and after
+the --- before the diffstat, add a little note about
+what changed from the prior version. Thanks.
 
+> ---
+>  checkpolicy/Makefile                          |   3 +-
+>  checkpolicy/tests/negative/bad_module_line.te |   5 +
+>  checkpolicy/tests/negative/bad_require.te     |   5 +
+>  checkpolicy/tests/negative/bad_syntax.te      |   8 +
+>  checkpolicy/tests/negative/dup_module.te      |   6 +
+>  checkpolicy/tests/negative/good_module.te     |   8 +
+>  .../tests/negative/invalid_module_version.te  |   5 +
+>  checkpolicy/tests/negative/unknown_class.te   |   7 +
+>  checkpolicy/tests/negative/unknown_perm.te    |   8 +
+>  checkpolicy/tests/negative/unknown_type.te    |   8 +
+>  .../tests/test_checkmodule_negative.sh        | 178 ++++++++++++++++++
+>  11 files changed, 240 insertions(+), 1 deletion(-)
+>  create mode 100644 checkpolicy/tests/negative/bad_module_line.te
+>  create mode 100644 checkpolicy/tests/negative/bad_require.te
+>  create mode 100644 checkpolicy/tests/negative/bad_syntax.te
+>  create mode 100644 checkpolicy/tests/negative/dup_module.te
+>  create mode 100644 checkpolicy/tests/negative/good_module.te
+>  create mode 100644 checkpolicy/tests/negative/invalid_module_version.te
+>  create mode 100644 checkpolicy/tests/negative/unknown_class.te
+>  create mode 100644 checkpolicy/tests/negative/unknown_perm.te
+>  create mode 100644 checkpolicy/tests/negative/unknown_type.te
+>  create mode 100755 checkpolicy/tests/test_checkmodule_negative.sh
 >
-> > ---
-> >  checkpolicy/policy_define.c | 2 ++
-> >  1 file changed, 2 insertions(+)
-> >
-> > diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> > index b73de45..f8c4d28 100644
-> > --- a/checkpolicy/policy_define.c
-> > +++ b/checkpolicy/policy_define.c
-> > @@ -6050,6 +6050,8 @@ static int define_genfs_context_helper(char *fsty=
-pe, int has_type)
-> >   }
-> >   memset(newgenfs, 0, sizeof(struct genfs));
-> >   newgenfs->fstype =3D fstype;
-> > + /* ownership transferred into the genfs list; do not free on error */
-> > + fstype =3D NULL;
-> >   newgenfs->next =3D genfs;
-> >   if (genfs_p)
-> >   genfs_p->next =3D newgenfs;
-> > --
-> >
-> > I added the patch file. Let us know if you need anything more.
-> >
-> > Thanks,
-> > UCSB VLab
-> >
-> > On Thu, Jul 9, 2026 at 12:05=E2=80=AFPM Stephen Smalley <stephen.smalle=
-y.work@gmail.com> wrote:
-> >>
-> >> On Thu, Jul 9, 2026 at 2:57=E2=80=AFPM COMS VLAB <coms-vlab@ucsb.edu> =
-wrote:
-> >> >
-> >> > Summary
-> >> >
-> >> > A double-free vulnerability exists in the checkpolicy source policy =
-compiler's handling of genfscon statements. When parsing a new (previously =
-unseen) filesystem type string, define_genfs_context_helper() transfers own=
-ership of the fstype pointer into a genfs struct that is linked into the po=
-licydb's live genfs list, but fails to clear the local fstype variable afte=
-rward. If any subsequent parsing step in the same function fails, execution=
- jumps to a shared fail: cleanup block. This cleanup block frees fstype, wh=
-ich leaves a dangling pointer in the genfs list. When the policydb is later=
- destroyed via policydb_destroy(), it frees that same pointer again, causin=
-g the double-free.
-> >> >
-> >> >
-> >> >
-> >> > Version
-> >> >
-> >> > 06159ee35d6b4c968c1f942c9361c111644de826 - current version
-> >> >
-> >> >
-> >> >
-> >> > PoC: Please see attachment
-> >> >
-> >> >
-> >> >
-> >> > ASAN Report
-> >> >
-> >> > =3D=3D2502=3D=3DERROR: AddressSanitizer: attempting double-free on 0=
-xfc1f82fe1330 in thread T0:
-> >> >
-> >> >     #0 0xaaaac9f6d518 in free (/selinux/repro+0xed518) (BuildId: ea3=
-a1d5343a0633f08393e738125b8f44be83f66)
-> >> >
-> >> >     #1 0xaaaac9ffd49c in policydb_destroy selinux/libsepol/src/polic=
-ydb.c:1596:3
-> >> >
-> >> >     #2 0xaaaac9faf758 in main selinux/../repro.c:11:5
-> >> >
-> >> >     #3 0xffff83c62f18  (/usr/lib/aarch64-linux-gnu/libc.so.6+0x22f18=
-) (BuildId: b50ceafbd17dc6bceee344a66671c7eaa152bef4)
-> >> >
-> >> >     #4 0xffff83c63058 in __libc_start_main (/usr/lib/aarch64-linux-g=
-nu/libc.so.6+0x23058) (BuildId: b50ceafbd17dc6bceee344a66671c7eaa152bef4)
-> >> >
-> >> >     #5 0xaaaac9ec7c6c in _start (selinux/repro+0x47c6c) (BuildId: ea=
-3a1d5343a0633f08393e738125b8f44be83f66)
-> >> >
-> >> > 0xfc1f82fe1330 is located 0 bytes inside of 2-byte region [0xfc1f82f=
-e1330,0xfc1f82fe1332)
-> >> >
-> >> > freed by thread T0 here:
-> >> >
-> >> >     #0 0xaaaac9f6d518 in free (/selinux/repro+0xed518) (BuildId: ea3=
-a1d5343a0633f08393e738125b8f44be83f66)
-> >> >
-> >> >     #1 0xaaaac9fc8a60 in define_genfs_context_helper /selinux/checkp=
-olicy/policy_define.c:6163:2
-> >> >
-> >> >     #2 0xaaaac9fc8a60 in define_genfs_context /selinux/checkpolicy/p=
-olicy_define.c:6171:9
-> >> >
-> >> >     #3 0xaaaac9fcbc1c in yyparse /selinux/checkpolicy/policy_parse.y=
-:787:30
-> >> >
-> >> >     #4 0xaaaac9fb95b4 in read_source_policy /selinux/checkpolicy/par=
-se_util.c:70:6
-> >> >
-> >> >     #5 0xaaaac9faf750 in main /selinux/../repro.c:10:5
-> >> >
-> >> >     #6 0xffff83c62f18  (/usr/lib/aarch64-linux-gnu/libc.so.6+0x22f18=
-) (BuildId: b50ceafbd17dc6bceee344a66671c7eaa152bef4)
-> >> >
-> >> >     #7 0xffff83c63058 in __libc_start_main (/usr/lib/aarch64-linux-g=
-nu/libc.so.6+0x23058) (BuildId: b50ceafbd17dc6bceee344a66671c7eaa152bef4)
-> >> >
-> >> >     #8 0xaaaac9ec7c6c in _start (/selinux/repro+0x47c6c) (BuildId: e=
-a3a1d5343a0633f08393e738125b8f44be83f66)
-> >> >
-> >> > previously allocated by thread T0 here:
-> >> >
-> >> >     #0 0xaaaac9f53a4c in strdup (/selinux/repro+0xd3a4c) (BuildId: e=
-a3a1d5343a0633f08393e738125b8f44be83f66)
-> >> >
-> >> >     #1 0xaaaac9fb9aa0 in insert_id /selinux/checkpolicy/policy_defin=
-e.c:131:10
-> >> >
-> >> >     #2 0xaaaac9fcc744 in yyparse /selinux/checkpolicy/policy_parse.y
-> >> >
-> >> >     #3 0xaaaac9fb95b4 in read_source_policy /selinux/checkpolicy/par=
-se_util.c:70:6
-> >> >
-> >> >     #4 0xaaaac9faf750 in main /selinux/../repro.c:10:5
-> >> >
-> >> >     #5 0xffff83c62f18  (/usr/lib/aarch64-linux-gnu/libc.so.6+0x22f18=
-) (BuildId: b50ceafbd17dc6bceee344a66671c7eaa152bef4)
-> >> >
-> >> >     #6 0xffff83c63058 in __libc_start_main (/usr/lib/aarch64-linux-g=
-nu/libc.so.6+0x23058) (BuildId: b50ceafbd17dc6bceee344a66671c7eaa152bef4)
-> >> >
-> >> >     #7 0xaaaac9ec7c6c in _start (/selinux/repro+0x47c6c) (BuildId: e=
-a3a1d5343a0633f08393e738125b8f44be83f66)
-> >> >
-> >> > SUMMARY: AddressSanitizer: double-free (/selinux/repro+0xed518) (Bui=
-ldId: ea3a1d5343a0633f08393e738125b8f44be83f66) in free
-> >> >
-> >> > =3D=3D2502=3D=3DABORTING
-> >>
-> >> Thanks for the report. Are you planning on submitting a patch for it?
-> >> How did you want us to attribute the report regardless?
+> diff --git a/checkpolicy/Makefile b/checkpolicy/Makefile
+> index 0055f495..e59ad63a 100644
+> --- a/checkpolicy/Makefile
+> +++ b/checkpolicy/Makefile
+> @@ -51,8 +51,9 @@ lex.yy.c: policy_scan.l y.tab.c
+>         $(LEX) policy_scan.l
+>
+>  .PHONY: test
+> -test: checkpolicy
+> +test: checkpolicy checkmodule
+>         ./tests/test_roundtrip.sh
+> +       ./tests/test_checkmodule_negative.sh
+>
+>  # helper target for fuzzing
+>  checkobjects: $(CHECKOBJS)
+> diff --git a/checkpolicy/tests/negative/bad_module_line.te b/checkpolicy/=
+tests/negative/bad_module_line.te
+> new file mode 100644
+> index 00000000..587df2e1
+> --- /dev/null
+> +++ b/checkpolicy/tests/negative/bad_module_line.te
+> @@ -0,0 +1,5 @@
+> +module bad module name 1.0 garbage;
+> +
+> +require {
+> +       type foo_t;
+> +}
+> diff --git a/checkpolicy/tests/negative/bad_require.te b/checkpolicy/test=
+s/negative/bad_require.te
+> new file mode 100644
+> index 00000000..a45df4f4
+> --- /dev/null
+> +++ b/checkpolicy/tests/negative/bad_require.te
+> @@ -0,0 +1,5 @@
+> +module bad_require 1.0;
+> +
+> +require {
+> +       garbage_token foo_t;
+> +}
+> diff --git a/checkpolicy/tests/negative/bad_syntax.te b/checkpolicy/tests=
+/negative/bad_syntax.te
+> new file mode 100644
+> index 00000000..20605201
+> --- /dev/null
+> +++ b/checkpolicy/tests/negative/bad_syntax.te
+> @@ -0,0 +1,8 @@
+> +module bad_syntax 1.0;
+> +
+> +require {
+> +       type foo_t;
+> +       class file { read };
+> +}
+> +
+> +allow foo_t foo_t:file {
+> diff --git a/checkpolicy/tests/negative/dup_module.te b/checkpolicy/tests=
+/negative/dup_module.te
+> new file mode 100644
+> index 00000000..beefff72
+> --- /dev/null
+> +++ b/checkpolicy/tests/negative/dup_module.te
+> @@ -0,0 +1,6 @@
+> +module dup_module 1.0;
+> +module dup_module 1.0;
+> +
+> +require {
+> +       type foo_t;
+> +}
+> diff --git a/checkpolicy/tests/negative/good_module.te b/checkpolicy/test=
+s/negative/good_module.te
+> new file mode 100644
+> index 00000000..b9c9982f
+> --- /dev/null
+> +++ b/checkpolicy/tests/negative/good_module.te
+> @@ -0,0 +1,8 @@
+> +module good_module 1.0;
+> +
+> +require {
+> +       type foo_t, bar_t;
+> +       class file { read write };
+> +}
+> +
+> +allow foo_t bar_t:file read;
+> diff --git a/checkpolicy/tests/negative/invalid_module_version.te b/check=
+policy/tests/negative/invalid_module_version.te
+> new file mode 100644
+> index 00000000..d18b7639
+> --- /dev/null
+> +++ b/checkpolicy/tests/negative/invalid_module_version.te
+> @@ -0,0 +1,5 @@
+> +module invalid_module_version;
+> +
+> +require {
+> +       type foo_t;
+> +}
+> diff --git a/checkpolicy/tests/negative/unknown_class.te b/checkpolicy/te=
+sts/negative/unknown_class.te
+> new file mode 100644
+> index 00000000..825e0413
+> --- /dev/null
+> +++ b/checkpolicy/tests/negative/unknown_class.te
+> @@ -0,0 +1,7 @@
+> +module unknown_class 1.0;
+> +
+> +require {
+> +       type foo_t;
+> +}
+> +
+> +allow foo_t self:not_a_class read;
+> diff --git a/checkpolicy/tests/negative/unknown_perm.te b/checkpolicy/tes=
+ts/negative/unknown_perm.te
+> new file mode 100644
+> index 00000000..f4efbb54
+> --- /dev/null
+> +++ b/checkpolicy/tests/negative/unknown_perm.te
+> @@ -0,0 +1,8 @@
+> +module unknown_perm 1.0;
+> +
+> +require {
+> +       type foo_t, bar_t;
+> +       class file { read };
+> +}
+> +
+> +allow foo_t bar_t:file circular_ref;
+> diff --git a/checkpolicy/tests/negative/unknown_type.te b/checkpolicy/tes=
+ts/negative/unknown_type.te
+> new file mode 100644
+> index 00000000..62360e04
+> --- /dev/null
+> +++ b/checkpolicy/tests/negative/unknown_type.te
+> @@ -0,0 +1,8 @@
+> +module unknown_type 1.0;
+> +
+> +require {
+> +       type foo_t;
+> +       class file { read };
+> +}
+> +
+> +allow foo_t undeclared_t:file read;
+> diff --git a/checkpolicy/tests/test_checkmodule_negative.sh b/checkpolicy=
+/tests/test_checkmodule_negative.sh
+> new file mode 100755
+> index 00000000..a5f49f3b
+> --- /dev/null
+> +++ b/checkpolicy/tests/test_checkmodule_negative.sh
+> @@ -0,0 +1,178 @@
+> +#!/bin/sh
+> +#
+> +# Negative / bad-data tests for checkmodule on module (.te) inputs.
+> +# Matches the modular policy compile path: checkmodule -M -m <input> -o =
+<module>.mod
+> +#
+> +
+> +set -eu
+> +
+> +BASEDIR=3D$(CDPATH=3D cd -- "$(dirname "$0")" && pwd)
+> +NEGDIR=3D"${BASEDIR}/negative"
+> +CHECKMODULE=3D"${BASEDIR}/../checkmodule"
+> +OUTDIR=3D$(mktemp -d "${TMPDIR:-/tmp}/checkmodule-negative.XXXXXX")
+> +PASS=3D0
+> +FAIL=3D0
+> +
+> +cleanup() {
+> +       rm -rf "${OUTDIR}"
+> +}
+> +trap cleanup EXIT
+> +
+> +mod_name_from_fixture() {
+> +       basename "$1" .te
+> +}
+> +
+> +expect_pass() {
+> +       desc=3D"$1"
+> +       fixture=3D"$2"
+> +       modname=3D$(mod_name_from_fixture "${fixture}")
+> +       outmod=3D"${OUTDIR}/${modname}.mod"
+> +       stderr=3D"${OUTDIR}/${modname}.err"
+> +
+> +       echo "=3D=3D=3D=3D POSITIVE (expect checkmodule success): ${desc}=
+"
+> +       rm -f "${outmod}"
+> +
+> +       set +e
+> +       "${CHECKMODULE}" -M -m -o "${outmod}" "${NEGDIR}/${fixture}" 2>"$=
+{stderr}"
+> +       rc=3D$?
+> +       set -e
+> +
+> +       if [ "${rc}" -ne 0 ]; then
+> +               echo "FAIL: expected success (rc=3D0), got rc=3D${rc}" >&=
+2
+> +               cat "${stderr}" >&2
+> +               FAIL=3D$((FAIL + 1))
+> +               return 1
+> +       fi
+> +       if [ ! -s "${outmod}" ]; then
+> +               echo "FAIL: expected non-empty ${outmod}" >&2
+> +               FAIL=3D$((FAIL + 1))
+> +               return 1
+> +       fi
+> +
+> +       echo "=3D=3D=3D=3D ${desc} success"
+> +       PASS=3D$((PASS + 1))
+> +       echo ""
+> +}
+> +
+> +expect_fail() {
+> +       desc=3D"$1"
+> +       pattern=3D"$2"
+> +       outname=3D"${3:-fail}"
+> +       shift 3
+> +
+> +       outmod=3D"${OUTDIR}/${outname}.mod"
+> +       stderr=3D"${OUTDIR}/${outname}.err"
+> +
+> +       echo "=3D=3D=3D=3D NEGATIVE (expect checkmodule error): ${desc}"
+> +       rm -f "${outmod}"
+> +
+> +       set +e
+> +       "${CHECKMODULE}" -M -m "$@" -o "${outmod}" 2>"${stderr}"
+> +       rc=3D$?
+> +       set -e
+> +
+> +       if [ "${rc}" -eq 0 ]; then
+> +               echo "FAIL: expected non-zero exit, got rc=3D0" >&2
+> +               FAIL=3D$((FAIL + 1))
+> +               return 1
+> +       fi
+> +       if [ -f "${outmod}" ]; then
+> +               echo "FAIL: did not expect output module ${outmod}" >&2
+> +               FAIL=3D$((FAIL + 1))
+> +               return 1
+> +       fi
+> +       if ! grep -Eq "${pattern}" "${stderr}"; then
+> +               echo "FAIL: stderr did not match /${pattern}/" >&2
+> +               cat "${stderr}" >&2
+> +               FAIL=3D$((FAIL + 1))
+> +               return 1
+> +       fi
+> +
+> +       echo "=3D=3D=3D=3D ${desc}: rejected as expected"
+> +       PASS=3D$((PASS + 1))
+> +       echo ""
+> +}
+> +
+> +expect_fail_unreadable() {
+> +       desc=3D"unreadable .te file"
+> +       fixture=3D"${OUTDIR}/unreadable.te"
+> +       outmod=3D"${OUTDIR}/unreadable.mod"
+> +       stderr=3D"${OUTDIR}/unreadable.err"
+> +
+> +       echo "=3D=3D=3D=3D NEGATIVE (expect checkmodule error): ${desc}"
+> +       if [ "$(id -u)" -eq 0 ]; then
+> +               echo "SKIP: root can read mode 000 files; unreadable chec=
+k is non-root only"
+> +               PASS=3D$((PASS + 1))
+> +               echo ""
+> +               return 0
+> +       fi
+> +
+> +       rm -f "${outmod}"
+> +
+> +       set +e
+> +       "${CHECKMODULE}" -M -m -o "${outmod}" "${fixture}" 2>"${stderr}"
+> +       rc=3D$?
+> +       set -e
+> +
+> +       if [ "${rc}" -eq 0 ]; then
+> +               echo "FAIL: expected non-zero exit, got rc=3D0" >&2
+> +               FAIL=3D$((FAIL + 1))
+> +               return 1
+> +       fi
+> +       if [ -f "${outmod}" ]; then
+> +               echo "FAIL: did not expect output module ${outmod}" >&2
+> +               FAIL=3D$((FAIL + 1))
+> +               return 1
+> +       fi
+> +       if ! grep -Eq 'unable to open|Permission denied' "${stderr}"; the=
+n
+> +               echo "FAIL: stderr did not mention unable to open or Perm=
+ission denied" >&2
+> +               cat "${stderr}" >&2
+> +               FAIL=3D$((FAIL + 1))
+> +               return 1
+> +       fi
+> +
+> +       echo "=3D=3D=3D=3D ${desc}: rejected as expected"
+> +       PASS=3D$((PASS + 1))
+> +       echo ""
+> +}
+> +
+> +# Ephemeral fixtures for path-based cases.
+> +ln -sf /nonexistent/path "${OUTDIR}/broken_symlink.te"
+> +cat > "${OUTDIR}/unreadable.te" <<'EOF'
+> +module unreadable 1.0;
+> +
+> +require {
+> +       type foo_t;
+> +}
+> +EOF
+> +chmod 000 "${OUTDIR}/unreadable.te"
+> +
+> +# Control fixture: valid module compiles and produces .mod output.
+> +expect_pass "good_module.te" "good_module.te"
+> +
+> +# Corrupted .te sections (PDF #2).
+> +expect_fail "bad_syntax.te" "syntax error" "bad_syntax" "${NEGDIR}/bad_s=
+yntax.te"
+> +expect_fail "unknown_perm.te" "permission circular_ref is not defined" "=
+unknown_perm" "${NEGDIR}/unknown_perm.te"
+> +expect_fail "unknown_type.te" "unknown type undeclared_t" "unknown_type"=
+ "${NEGDIR}/unknown_type.te"
+> +expect_fail "unknown_class.te" "unknown class not_a_class" "unknown_clas=
+s" "${NEGDIR}/unknown_class.te"
+> +expect_fail "bad_module_line.te" "syntax error" "bad_module_line" "${NEG=
+DIR}/bad_module_line.te"
+> +expect_fail "bad_require.te" "syntax error" "bad_require" "${NEGDIR}/bad=
+_require.te"
+> +expect_fail "invalid_module_version.te" "syntax error" "invalid_module_v=
+ersion" "${NEGDIR}/invalid_module_version.te"
+> +expect_fail "dup_module.te" "syntax error" "dup_module" "${NEGDIR}/dup_m=
+odule.te"
+> +
+> +# Missing / bad-path .te inputs (PDF #1).
+> +expect_fail "missing .te path" "unable to open" "missing_path" "${OUTDIR=
+}/does_not_exist.te"
+> +expect_fail "directory instead of .te file" "input in flex scanner faile=
+d" "directory_input" "${NEGDIR}"
+> +expect_fail "broken symlink to .te" "unable to open" "broken_symlink" "$=
+{OUTDIR}/broken_symlink.te"
+> +expect_fail_unreadable
+> +expect_fail "empty .te path argument" "unable to open" "empty_path" ""
+> +
+> +# CLI edge cases.
+> +expect_fail "checkmodule with no input file" "unable to open policy.conf=
+" "no_input"
+> +expect_fail "checkmodule -o name mismatch" "Module name good_module is d=
+ifferent" "name_mismatch" \
+> +       -o "${OUTDIR}/wrong_name.mod" "${NEGDIR}/good_module.te"
+> +
+> +echo "checkmodule negative tests: ${PASS} passed, ${FAIL} failed"
+> +if [ "${FAIL}" -ne 0 ]; then
+> +       exit 1
+> +fi
+> --
+> 2.55.0
+>
+>
