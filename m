@@ -1,399 +1,141 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 659AF405C47
-	for <selinux@vger.kernel.org>; Fri, 10 Jul 2026 11:03:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783681411; cv=none; b=cXqFE1YNssrWap2SPjrZ9h9f5y8JynALwAQfYpFbMbgr6LqU0gjR5JnicfePCvf3mELGMqaQ/3XR3yrYMO/5lwFoewXpl1lDT+yiSGAxgAM19BhaLsXf9ea5ukPgiPSgMpZQTc2BV/KunyvtBayWdPPlZeDQGMbGmd0RpVOFYrk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783681411; c=relaxed/simple;
-	bh=kBnFknWWBGGhtnn2Gr0ku2BTnS5GRVofnUeRKjgN7pY=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=sZ8rkb8jYEd1ZSvwhkBwMjsbjJR5w1ElTXvh7LACeYBjIxid7bHey4RzZMJ/KasNCISVi3hdwo2BeqSeHNm43SKwQlltRpYPLvMQycguq9hzSAZKZ8w3wua5DqW5NgkKS8RQQba3CGteQID2vy5o1T4Esfz6+m3yHsnvjyXk0jM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=e52WFDco; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 988D7313E00
+	for <selinux@vger.kernel.org>; Fri, 10 Jul 2026 17:51:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.50
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783705861; cv=pass; b=OQskuJd2aTLyhi/tIT319yC/t9MuBVt/Li8rKbD19W89kfv5HkI9g/ZzjBcqofjTHznRMMYwov3Bz5HWXGKDzb+8jyyooONV05o9fQwUveEl8PXdKBLMlIexYryzzF4zmneDz9X10DYohEZad1Ud94ORquG9w+T54BIpvw1bLqE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783705861; c=relaxed/simple;
+	bh=ikPj2Ll1ZhHu6z0+SiP9kMhIclO3EVw3T+B9q1Gr96s=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=mz6eVUl9ObfPqMBmT7f9iYctRU4VZsGams/WENcJkrArvhyHa5egtA0V9+2+QeumlZ29eUfOV5gb20m0FH4Dj7/rytLiJFWcpi0tMZz2SVBfMdycguzdWKcPINjBUywuIfUjTo5NaCdI34M1UAuds2pGX3+qw95eeKQRYWEuIn4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JuciKZzK; arc=pass smtp.client-ip=209.85.216.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="e52WFDco"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1783681408;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=x1GvY7ceZ0/depDMk2cJQGDsFmtl7liJ67yl/XnzuEs=;
-	b=e52WFDcokPy/xpRpPPz2J8O3YYHv2R3Wzb7YhsMSy7RWhu0vTs+IcA0wjmbKFK0qCFiLPZ
-	zVjuXWR4zYxv/sdYTatIqJfnwsG//VGcSAr4IS2CScuR3LkKGXG5Clkz9CK0ewqbh+14B1
-	OBY4fGAjz6Vgr9CAjX1chiWb2DoTx3o=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-369-XaNfAALQN2uhMWjRpKlRIA-1; Fri,
- 10 Jul 2026 07:03:26 -0400
-X-MC-Unique: XaNfAALQN2uhMWjRpKlRIA-1
-X-Mimecast-MFC-AGG-ID: XaNfAALQN2uhMWjRpKlRIA_1783681405
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C846E1800643
-	for <selinux@vger.kernel.org>; Fri, 10 Jul 2026 11:03:25 +0000 (UTC)
-Received: from akkohli-thinkpadt14sgen2i.rmtde.csb (unknown [10.44.32.101])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 1B08A195419E
-	for <selinux@vger.kernel.org>; Fri, 10 Jul 2026 11:03:24 +0000 (UTC)
-From: Akhil Kohli <akkohli@redhat.com>
-To: selinux@vger.kernel.org
-Subject: [PATCH] checkpolicy: add bad data protection tests
-Date: Fri, 10 Jul 2026 13:03:23 +0200
-Message-ID: <20260710110323.3086408-1-akkohli@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JuciKZzK"
+Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-37df72c9984so2104393a91.3
+        for <selinux@vger.kernel.org>; Fri, 10 Jul 2026 10:51:00 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1783705860; cv=none;
+        d=google.com; s=arc-20260327;
+        b=eoOUbvKC6H6ZFO1wlkPCFakzf9s9WblxMztmNMNGRzqDPlb8YnwxYsG5qObUwBa/K7
+         IWzZvhc7mbxZ4PRMdoOWI0V8f/LW2S/SnbVZLMc2iX1YcJQPPC/4qWMjTC4nNhW6gLrY
+         NK3FOHn9QJmfbknKgK8/z4qSP0lVgiECFrZICx4vZtLiYGlbwe5CWTbAI2PpawH+MAKX
+         57HTzqBk7bRhsp2Gs9mXRcv+w1+wtt6YoK+6eUba/YPQpTF54lvh+Rhp72XB280MrfAk
+         Ii/Dc6jCZZh3beG58gaaQR3ArMBhKEU58uzbV6JWx2wV0SKOaBXPwkwm9JbEoOxXPIEj
+         atmQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=Eta4YmsTuVuEUd5SJ9wWs+FywmN5jEHpA06P3JddKH0=;
+        fh=ndR9uipYWrQ+r1q19Nd8tVDoGZAQQciHAFAVcoXowQ8=;
+        b=W1lwgXk7BAt0U58WK5cuD2rzkqNcmHdHEzbfU+9gAZMF6R95VQng+6UmMCTF73YP29
+         vGMjIOsUGPJDxDvPkpkUXP+kdD6uP3iJmakUA/QB9hjuWM79ZXmjcl5kxVSVpD3pQuvn
+         Gk/ksoShC/rQGHyH69CwKqvcY4pks4OWH0bIH4d2H4XBk+ujK9J7rvRI7AyzjUiwZDLK
+         A3SLUw4SzCaSHSnPjwMbhUAsQ9FWnLbYMhdKwW2SDt3PNOWI1fwziXoU/umcxgNPZS0F
+         tFJcfGzEyZnt+lKh7Mwfgu5iAJjfy+nOsLkzx0ZxlTyNcwXKf75Rc/PXKRdZM8sUEqtZ
+         S9sw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1783705860; x=1784310660; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=Eta4YmsTuVuEUd5SJ9wWs+FywmN5jEHpA06P3JddKH0=;
+        b=JuciKZzK77tuvg/VMpoCBtg4ilp30OEwfBbljSO3/UHo68B8dkMj7iW6JWENMz14kb
+         +lVUx4Uzh2JQ28kdRkm54hy8RcQN+XaWABt1SZi2IqaK0Qa1G/GMIyU5UxuUI6I85A6R
+         e0sk6UUVE8wNPZw/bouerlPdaYFiut/YVt7h1oAE3uRh8lwh4yo1gJQbzfBbirRS9GAs
+         hdqgrRoJOWRTSW+1eeRdH+LYdRpjojy8unekJBXxPjBRNJqBDPgyIOfsIRKYCqTA0HeO
+         FV+M+sm2lbLGwMLAvmLsBmGe6N5llAd05SrBRJ+WGNaDdkfC/EN4jwyHFbuCXSqQO8kS
+         MnUw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783705860; x=1784310660;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Eta4YmsTuVuEUd5SJ9wWs+FywmN5jEHpA06P3JddKH0=;
+        b=tIN9A9kZnBcJZcDJJK+7i+/t8mCqRgHuU5RIH1f1BoYwQjSIuKPtoKXtRatlqkoN6u
+         UKliQkNCoIoN7FvpuF3HhnC8GR3rr6aAv4T9JNGmJg+4QmI+MfxmeC9MFATHEsIoq8aC
+         aJEUaBoXJbhFTGsQSG32OElNNyk+4Lp3IpzXvny9KojW7Dj1IvNXEzXISGIb/fAixZ4G
+         NGcfE/44lEU8HWsjUp+G9sJmMI2lo/ZvS1sv3Q9GyhLmZ4tKDFSO6MQQeiAkzUZBFz4y
+         Ccs49od5HIDLdcTk3DZxXFzLLzeiK1sevjN8CJZpqx03hVJrgyVdjBk+p5saeBY9bBTd
+         ZliA==
+X-Forwarded-Encrypted: i=1; AHgh+RohAGVOHJ3iLkDOwuWoLM6sVZH7pd7GH77XZ6a+IlBGDOh5tlE9353VhoC4pzrCQxIyFh6Q3loH@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzyxi0S7mheGeMaShQB47V2C1N9N3HKsJKcmJcpa5m9FjBZiJTF
+	oIEPeNLrF5kP9m58zTiaJeIlPd3d9+bsjTT/OJtm20Zsnkv/YHgH+K2ykofWSGJlV1pEoIE7YdJ
+	XCbDgm88CJmyERvi+wsBoV45j6cmxMq8=
+X-Gm-Gg: AfdE7cn3J9Xw0qwIxUSaehh2KQE6ZmBwvBg+pIbkuaKFYeouLCFZnYLTFc9+yx/Z/9a
+	y6AL2MGSSsu/2lIbwxdwkiinlwOgxvYuLY91knr026tpMbvI3aKYNDnp0SF4xquxHzUbc5vs7Gf
+	1ECuUhAAHQ++7VO699PAQ/N2NigdsJzWYPmDfiqXtt8uC8ESYSba19Zp5qd59JdKfSjJYqSx7ZY
+	nVKa0hA3NM5fcP1piNWhOsIefCh3IUqsgqsPMJ4QM1SMPa5sIf7UCMt7xGmwFT6EevxOGF9
+X-Received: by 2002:a17:90b:50c6:b0:380:9504:9780 with SMTP id
+ 98e67ed59e1d1-38942498aebmr12280691a91.29.1783705859811; Fri, 10 Jul 2026
+ 10:50:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+References: <20260707121931.1175225-4-cahu@suse.de> <CAP+JOzTW=-B++YZ9EgXQW7aCDWvE2e51dDsr89NkYinh2mThgw@mail.gmail.com>
+In-Reply-To: <CAP+JOzTW=-B++YZ9EgXQW7aCDWvE2e51dDsr89NkYinh2mThgw@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Fri, 10 Jul 2026 13:50:48 -0400
+X-Gm-Features: AVVi8CdO33TUbshfkkLRlSZEWG91n4V29JweOe7m-LnMboxB6E_m_00KH5xW8cc
+Message-ID: <CAEjxPJ4kQ3ZLatTo8tSBCEREj5cJU-jJjKdERGBx3yw8B1ay5Q@mail.gmail.com>
+Subject: Re: [PATCH] Fix double-free in secilcheck
+To: James Carter <jwcart2@gmail.com>
+Cc: Cathy Hu <cahu@suse.de>, selinux@vger.kernel.org, selinux@suse.de
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Add test_checkmodule_negative.sh and .te fixtures for  bad-data protection (missing/bad-path and corrupted .te inputs).
+On Tue, Jul 7, 2026 at 10:15=E2=80=AFAM James Carter <jwcart2@gmail.com> wr=
+ote:
+>
+> On Tue, Jul 7, 2026 at 8:21=E2=80=AFAM Cathy Hu <cahu@suse.de> wrote:
+> >
+> > If the file size of the cil file is zero, fclose was called twice.
+> >
+> > Fixes:
+> > ```
+> > localhost:~ # touch ~/.empty.cil
+> > localhost:~ # secilcheck  /etc/selinux/targeted/policy/policy.35 ./empt=
+y.cil
+> > free(): double free detected in tcache 2
+> > Aborted                    (core dumped) secilcheck /etc/selinux/target=
+ed/policy/policy.35 ./empty.cil
+> > ```
+> >
+> > Signed-off-by: Cathy Hu <cahu@suse.de>
+>
+> Acked-by: James Carter <jwcart2@gmail.com>
 
-Signed-off-by: Akhil Kohli <akkohli@redhat.com>
----
- checkpolicy/Makefile                          |   3 +-
- checkpolicy/tests/negative/bad_module_line.te |   5 +
- checkpolicy/tests/negative/bad_require.te     |   5 +
- checkpolicy/tests/negative/bad_syntax.te      |   8 +
- checkpolicy/tests/negative/dup_module.te      |   6 +
- checkpolicy/tests/negative/good_module.te     |   8 +
- .../tests/negative/invalid_module_version.te  |   5 +
- checkpolicy/tests/negative/unknown_class.te   |   7 +
- checkpolicy/tests/negative/unknown_perm.te    |   8 +
- checkpolicy/tests/negative/unknown_type.te    |   8 +
- .../tests/test_checkmodule_negative.sh        | 178 ++++++++++++++++++
- 11 files changed, 240 insertions(+), 1 deletion(-)
- create mode 100644 checkpolicy/tests/negative/bad_module_line.te
- create mode 100644 checkpolicy/tests/negative/bad_require.te
- create mode 100644 checkpolicy/tests/negative/bad_syntax.te
- create mode 100644 checkpolicy/tests/negative/dup_module.te
- create mode 100644 checkpolicy/tests/negative/good_module.te
- create mode 100644 checkpolicy/tests/negative/invalid_module_version.te
- create mode 100644 checkpolicy/tests/negative/unknown_class.te
- create mode 100644 checkpolicy/tests/negative/unknown_perm.te
- create mode 100644 checkpolicy/tests/negative/unknown_type.te
- create mode 100755 checkpolicy/tests/test_checkmodule_negative.sh
+Thanks, merged.
 
-diff --git a/checkpolicy/Makefile b/checkpolicy/Makefile
-index 0055f495..e59ad63a 100644
---- a/checkpolicy/Makefile
-+++ b/checkpolicy/Makefile
-@@ -51,8 +51,9 @@ lex.yy.c: policy_scan.l y.tab.c
- 	$(LEX) policy_scan.l
- 
- .PHONY: test
--test: checkpolicy
-+test: checkpolicy checkmodule
- 	./tests/test_roundtrip.sh
-+	./tests/test_checkmodule_negative.sh
- 
- # helper target for fuzzing
- checkobjects: $(CHECKOBJS)
-diff --git a/checkpolicy/tests/negative/bad_module_line.te b/checkpolicy/tests/negative/bad_module_line.te
-new file mode 100644
-index 00000000..587df2e1
---- /dev/null
-+++ b/checkpolicy/tests/negative/bad_module_line.te
-@@ -0,0 +1,5 @@
-+module bad module name 1.0 garbage;
-+
-+require {
-+	type foo_t;
-+}
-diff --git a/checkpolicy/tests/negative/bad_require.te b/checkpolicy/tests/negative/bad_require.te
-new file mode 100644
-index 00000000..a45df4f4
---- /dev/null
-+++ b/checkpolicy/tests/negative/bad_require.te
-@@ -0,0 +1,5 @@
-+module bad_require 1.0;
-+
-+require {
-+	garbage_token foo_t;
-+}
-diff --git a/checkpolicy/tests/negative/bad_syntax.te b/checkpolicy/tests/negative/bad_syntax.te
-new file mode 100644
-index 00000000..20605201
---- /dev/null
-+++ b/checkpolicy/tests/negative/bad_syntax.te
-@@ -0,0 +1,8 @@
-+module bad_syntax 1.0;
-+
-+require {
-+	type foo_t;
-+	class file { read };
-+}
-+
-+allow foo_t foo_t:file {
-diff --git a/checkpolicy/tests/negative/dup_module.te b/checkpolicy/tests/negative/dup_module.te
-new file mode 100644
-index 00000000..beefff72
---- /dev/null
-+++ b/checkpolicy/tests/negative/dup_module.te
-@@ -0,0 +1,6 @@
-+module dup_module 1.0;
-+module dup_module 1.0;
-+
-+require {
-+	type foo_t;
-+}
-diff --git a/checkpolicy/tests/negative/good_module.te b/checkpolicy/tests/negative/good_module.te
-new file mode 100644
-index 00000000..b9c9982f
---- /dev/null
-+++ b/checkpolicy/tests/negative/good_module.te
-@@ -0,0 +1,8 @@
-+module good_module 1.0;
-+
-+require {
-+	type foo_t, bar_t;
-+	class file { read write };
-+}
-+
-+allow foo_t bar_t:file read;
-diff --git a/checkpolicy/tests/negative/invalid_module_version.te b/checkpolicy/tests/negative/invalid_module_version.te
-new file mode 100644
-index 00000000..d18b7639
---- /dev/null
-+++ b/checkpolicy/tests/negative/invalid_module_version.te
-@@ -0,0 +1,5 @@
-+module invalid_module_version;
-+
-+require {
-+	type foo_t;
-+}
-diff --git a/checkpolicy/tests/negative/unknown_class.te b/checkpolicy/tests/negative/unknown_class.te
-new file mode 100644
-index 00000000..825e0413
---- /dev/null
-+++ b/checkpolicy/tests/negative/unknown_class.te
-@@ -0,0 +1,7 @@
-+module unknown_class 1.0;
-+
-+require {
-+	type foo_t;
-+}
-+
-+allow foo_t self:not_a_class read;
-diff --git a/checkpolicy/tests/negative/unknown_perm.te b/checkpolicy/tests/negative/unknown_perm.te
-new file mode 100644
-index 00000000..f4efbb54
---- /dev/null
-+++ b/checkpolicy/tests/negative/unknown_perm.te
-@@ -0,0 +1,8 @@
-+module unknown_perm 1.0;
-+
-+require {
-+	type foo_t, bar_t;
-+	class file { read };
-+}
-+
-+allow foo_t bar_t:file circular_ref;
-diff --git a/checkpolicy/tests/negative/unknown_type.te b/checkpolicy/tests/negative/unknown_type.te
-new file mode 100644
-index 00000000..62360e04
---- /dev/null
-+++ b/checkpolicy/tests/negative/unknown_type.te
-@@ -0,0 +1,8 @@
-+module unknown_type 1.0;
-+
-+require {
-+	type foo_t;
-+	class file { read };
-+}
-+
-+allow foo_t undeclared_t:file read;
-diff --git a/checkpolicy/tests/test_checkmodule_negative.sh b/checkpolicy/tests/test_checkmodule_negative.sh
-new file mode 100755
-index 00000000..a5f49f3b
---- /dev/null
-+++ b/checkpolicy/tests/test_checkmodule_negative.sh
-@@ -0,0 +1,178 @@
-+#!/bin/sh
-+#
-+# Negative / bad-data tests for checkmodule on module (.te) inputs.
-+# Matches the modular policy compile path: checkmodule -M -m <input> -o <module>.mod
-+#
-+
-+set -eu
-+
-+BASEDIR=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
-+NEGDIR="${BASEDIR}/negative"
-+CHECKMODULE="${BASEDIR}/../checkmodule"
-+OUTDIR=$(mktemp -d "${TMPDIR:-/tmp}/checkmodule-negative.XXXXXX")
-+PASS=0
-+FAIL=0
-+
-+cleanup() {
-+	rm -rf "${OUTDIR}"
-+}
-+trap cleanup EXIT
-+
-+mod_name_from_fixture() {
-+	basename "$1" .te
-+}
-+
-+expect_pass() {
-+	desc="$1"
-+	fixture="$2"
-+	modname=$(mod_name_from_fixture "${fixture}")
-+	outmod="${OUTDIR}/${modname}.mod"
-+	stderr="${OUTDIR}/${modname}.err"
-+
-+	echo "==== POSITIVE (expect checkmodule success): ${desc}"
-+	rm -f "${outmod}"
-+
-+	set +e
-+	"${CHECKMODULE}" -M -m -o "${outmod}" "${NEGDIR}/${fixture}" 2>"${stderr}"
-+	rc=$?
-+	set -e
-+
-+	if [ "${rc}" -ne 0 ]; then
-+		echo "FAIL: expected success (rc=0), got rc=${rc}" >&2
-+		cat "${stderr}" >&2
-+		FAIL=$((FAIL + 1))
-+		return 1
-+	fi
-+	if [ ! -s "${outmod}" ]; then
-+		echo "FAIL: expected non-empty ${outmod}" >&2
-+		FAIL=$((FAIL + 1))
-+		return 1
-+	fi
-+
-+	echo "==== ${desc} success"
-+	PASS=$((PASS + 1))
-+	echo ""
-+}
-+
-+expect_fail() {
-+	desc="$1"
-+	pattern="$2"
-+	outname="${3:-fail}"
-+	shift 3
-+
-+	outmod="${OUTDIR}/${outname}.mod"
-+	stderr="${OUTDIR}/${outname}.err"
-+
-+	echo "==== NEGATIVE (expect checkmodule error): ${desc}"
-+	rm -f "${outmod}"
-+
-+	set +e
-+	"${CHECKMODULE}" -M -m "$@" -o "${outmod}" 2>"${stderr}"
-+	rc=$?
-+	set -e
-+
-+	if [ "${rc}" -eq 0 ]; then
-+		echo "FAIL: expected non-zero exit, got rc=0" >&2
-+		FAIL=$((FAIL + 1))
-+		return 1
-+	fi
-+	if [ -f "${outmod}" ]; then
-+		echo "FAIL: did not expect output module ${outmod}" >&2
-+		FAIL=$((FAIL + 1))
-+		return 1
-+	fi
-+	if ! grep -Eq "${pattern}" "${stderr}"; then
-+		echo "FAIL: stderr did not match /${pattern}/" >&2
-+		cat "${stderr}" >&2
-+		FAIL=$((FAIL + 1))
-+		return 1
-+	fi
-+
-+	echo "==== ${desc}: rejected as expected"
-+	PASS=$((PASS + 1))
-+	echo ""
-+}
-+
-+expect_fail_unreadable() {
-+	desc="unreadable .te file"
-+	fixture="${OUTDIR}/unreadable.te"
-+	outmod="${OUTDIR}/unreadable.mod"
-+	stderr="${OUTDIR}/unreadable.err"
-+
-+	echo "==== NEGATIVE (expect checkmodule error): ${desc}"
-+	if [ "$(id -u)" -eq 0 ]; then
-+		echo "SKIP: root can read mode 000 files; unreadable check is non-root only"
-+		PASS=$((PASS + 1))
-+		echo ""
-+		return 0
-+	fi
-+
-+	rm -f "${outmod}"
-+
-+	set +e
-+	"${CHECKMODULE}" -M -m -o "${outmod}" "${fixture}" 2>"${stderr}"
-+	rc=$?
-+	set -e
-+
-+	if [ "${rc}" -eq 0 ]; then
-+		echo "FAIL: expected non-zero exit, got rc=0" >&2
-+		FAIL=$((FAIL + 1))
-+		return 1
-+	fi
-+	if [ -f "${outmod}" ]; then
-+		echo "FAIL: did not expect output module ${outmod}" >&2
-+		FAIL=$((FAIL + 1))
-+		return 1
-+	fi
-+	if ! grep -Eq 'unable to open|Permission denied' "${stderr}"; then
-+		echo "FAIL: stderr did not mention unable to open or Permission denied" >&2
-+		cat "${stderr}" >&2
-+		FAIL=$((FAIL + 1))
-+		return 1
-+	fi
-+
-+	echo "==== ${desc}: rejected as expected"
-+	PASS=$((PASS + 1))
-+	echo ""
-+}
-+
-+# Ephemeral fixtures for path-based cases.
-+ln -sf /nonexistent/path "${OUTDIR}/broken_symlink.te"
-+cat > "${OUTDIR}/unreadable.te" <<'EOF'
-+module unreadable 1.0;
-+
-+require {
-+	type foo_t;
-+}
-+EOF
-+chmod 000 "${OUTDIR}/unreadable.te"
-+
-+# Control fixture: valid module compiles and produces .mod output.
-+expect_pass "good_module.te" "good_module.te"
-+
-+# Corrupted .te sections (PDF #2).
-+expect_fail "bad_syntax.te" "syntax error" "bad_syntax" "${NEGDIR}/bad_syntax.te"
-+expect_fail "unknown_perm.te" "permission circular_ref is not defined" "unknown_perm" "${NEGDIR}/unknown_perm.te"
-+expect_fail "unknown_type.te" "unknown type undeclared_t" "unknown_type" "${NEGDIR}/unknown_type.te"
-+expect_fail "unknown_class.te" "unknown class not_a_class" "unknown_class" "${NEGDIR}/unknown_class.te"
-+expect_fail "bad_module_line.te" "syntax error" "bad_module_line" "${NEGDIR}/bad_module_line.te"
-+expect_fail "bad_require.te" "syntax error" "bad_require" "${NEGDIR}/bad_require.te"
-+expect_fail "invalid_module_version.te" "syntax error" "invalid_module_version" "${NEGDIR}/invalid_module_version.te"
-+expect_fail "dup_module.te" "syntax error" "dup_module" "${NEGDIR}/dup_module.te"
-+
-+# Missing / bad-path .te inputs (PDF #1).
-+expect_fail "missing .te path" "unable to open" "missing_path" "${OUTDIR}/does_not_exist.te"
-+expect_fail "directory instead of .te file" "input in flex scanner failed" "directory_input" "${NEGDIR}"
-+expect_fail "broken symlink to .te" "unable to open" "broken_symlink" "${OUTDIR}/broken_symlink.te"
-+expect_fail_unreadable
-+expect_fail "empty .te path argument" "unable to open" "empty_path" ""
-+
-+# CLI edge cases.
-+expect_fail "checkmodule with no input file" "unable to open policy.conf" "no_input"
-+expect_fail "checkmodule -o name mismatch" "Module name good_module is different" "name_mismatch" \
-+	-o "${OUTDIR}/wrong_name.mod" "${NEGDIR}/good_module.te"
-+
-+echo "checkmodule negative tests: ${PASS} passed, ${FAIL} failed"
-+if [ "${FAIL}" -ne 0 ]; then
-+	exit 1
-+fi
--- 
-2.55.0
-
+>
+> > ---
+> >  secilc/secilcheck.c | 1 -
+> >  1 file changed, 1 deletion(-)
+> >
+> > diff --git a/secilc/secilcheck.c b/secilc/secilcheck.c
+> > index ee141bc0..b7c32bc6 100644
+> > --- a/secilc/secilcheck.c
+> > +++ b/secilc/secilcheck.c
+> > @@ -155,7 +155,6 @@ static int add_cil_file(const char *filename, struc=
+t cil_db *cdb)
+> >         file_size =3D filedata.st_size;
+> >
+> >         if (!file_size) {
+> > -               fclose(file);
+> >                 rc =3D 0;
+> >                 goto exit;
+> >         }
+> > --
+> > 2.54.0
+> >
+> >
+>
