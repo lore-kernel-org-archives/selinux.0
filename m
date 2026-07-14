@@ -1,118 +1,146 @@
-Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
+Received: from mail-pg1-f201.google.com (mail-pg1-f201.google.com [209.85.215.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A88F332B108
-	for <selinux@vger.kernel.org>; Tue, 14 Jul 2026 22:10:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21896433032
+	for <selinux@vger.kernel.org>; Tue, 14 Jul 2026 23:25:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784067023; cv=none; b=LvqyHorXTOB6vYkzemxWmJ1WtfctxxHapocku8mkKFl2suhk7n4aUGY/R1pRWHZLcYqBRq7WEW0HfNBFV3g4Bal8ObG9eql4WT/7IpWq5yto6zuSM7RY8JA/A3qn/lO3B+ls46/KXdIhnYMZkSud43cukTb7/Bx6NtSc66l2W2s=
+	t=1784071519; cv=none; b=IsxtIalZdunmQ2EqbHLBG91OZzFESu6SJYNANeTIgulGpSXVAFAKQ61Ect/B9hxf+3sb/2OTqkKo7+ZQzr+G5YNXa4etlKJ+0jn2dJ3nDwbhhUpi/hRdu6DmXAJno2SbwC4CUvn44VSpoH1iW255ZTXL+SebdqKhMuz8AB0c0fw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784067023; c=relaxed/simple;
-	bh=/BZteunWUuLJLH6bspsInS2xIfNPxz0Iy4dyQd3NFTQ=;
-	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=aTbNJ2uwBmuGjTLhCx+X2Hicb1SoxFKc3qv97zSAcmm8mbKx+udsG1gXZipXkACiMcBlJ5tPR8WBdXrKBJmAlfG866XyYIzW5fEN1tW4fZOmYRxGrRPAXZWyvwYPGwsm89uQbo0ou3QFoTIapX++S2IdtlduSO7XSJ93RiaOEHM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Lr4mijoa; arc=none smtp.client-ip=209.85.219.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1784071519; c=relaxed/simple;
+	bh=EMyaIqviEI6poMNupyWK+XIXrTgcJ7Zo4Qm63jehrIQ=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=EtMAQeJzbdtWI9bjb8wnUctG0M+otHQhwhyy2jqjyh8/XRyx5woEINhCkiXoC1XfanXf5pursOYQcLndDE+ji8QJsq/5AOZHm8YWx4OKvhZXhheXSqkgrnHl7vOvNFPSt+vr1cL6ySjZWKZRDA96wcNP7EdstyJeACSAMnLuYts=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ijiN8Xhx; arc=none smtp.client-ip=209.85.215.201
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Lr4mijoa"
-Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-8ee88fce572so21285296d6.1
-        for <selinux@vger.kernel.org>; Tue, 14 Jul 2026 15:10:21 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ijiN8Xhx"
+Received: by mail-pg1-f201.google.com with SMTP id 41be03b00d2f7-c891ed872ddso8487389a12.2
+        for <selinux@vger.kernel.org>; Tue, 14 Jul 2026 16:25:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1784067020; x=1784671820; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-type:mime-version:message-id:date:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=1cf8dsbSDIi2GC0LgRjk6ppSiN0uKevcq+Q3KeCIsFs=;
-        b=Lr4mijoauZFoNwzr9Kov5glQnnPYahM0Q59CS+mbMrNCyMeJIVcEp3F/jn1dZrGL7L
-         lyRwiskhC6foUekYWMJTVgBXpNivlA+aLrFyh/UygPPEsJwZ6Av5Z7ZOko+Q+uWNnnLd
-         hU344rI4M7grnZiZ52oE962EhG9fkMdjjfHTrWQ7W6xRUIoE0+DQnlS1oqXIe6SRZhVq
-         /0hFkrdgN6y0QnLTSCBm8nClPpaMiij1fYdhhJizKiv7L11bx/cJ12NVYlGlIc/YjnRw
-         L7MrPWopZEzJ7Boi+mtgfV9zpOr+1C0TtRXCWBMtEBSdX+x5JboX4IdKPlXcPRgXQDNp
-         wWqQ==
+        d=google.com; s=20251104; t=1784071517; x=1784676317; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:from:subject
+         :message-id:mime-version:date:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=6/6BFd7Hisvo7cgiWImn27M1vk9Sd7mPW78xfZEG14I=;
+        b=ijiN8Xhx+NgW2nYH3TiiBV31eyEucgXTzg1mD4mzMnIUoCfitea3cKKzF6hvCdYW08
+         e0nXknA5zLS/EBgM6Wi6nUjmNGpn2GttzbWPN/ev33QfmhOBi4fq41dGl0uaZ/coVWLP
+         YLuATDPWug93XwZcynDBh0EqwfTpErQJDfBkxMamvUUt8nIjltWutLloLJbFPWJ7XBDh
+         AT/7qO2M/AKKDUxDrgu5sEx0RFQukxE03rC1JgMZ83CNU2W6y7jK1YBEOu+OHJjngVWA
+         TSftlkuNz77uTFcV0D3KIs0IWP4fNkysnzbmzvXc/zIB7Y1LDSOjllJnV6ouC13Qsyyk
+         BRXg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784067020; x=1784671820;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-type:mime-version:message-id:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=1cf8dsbSDIi2GC0LgRjk6ppSiN0uKevcq+Q3KeCIsFs=;
-        b=LOHUzzKebbK+GWwIDuGcQ1pFBSwVKH4AWtbY0Xzf7EOeD+VTIrab8ZEIP0bmJRCsat
-         RPZT3GJ8F9KrHOa8g1JeDC1+g86JtdMUvzmcVFthsQeKoHUMqgiTFRtHJ6QJ7Q28pEfV
-         TBNOQwb5cVh2N8gGOQ0XkcttEdnuqb65gXHhCRId7Jw6BMH9ReX8DdwJTrPnl/S0RiOH
-         x/fM0Nutfo+szvNe6Cuk4/lZ1tLkWGhBRtcOu9HyMLbBxt971jGe6+rNWu5Sl5biOuxl
-         UsEwg31Jj/Q9lERDKokjT/j2jusV5jKse2PVSQkI564WfbK89ygChkyDv95tzt5j0pWw
-         XWaA==
-X-Forwarded-Encrypted: i=1; AHgh+RpLwLNQjjbeMqY7pXeK6ctu453rMcg7AP31ySKKo/anc67RnN/jzm5JWs5INcBvUZN+ry8dZI7O@vger.kernel.org
-X-Gm-Message-State: AOJu0Yysx/2tEaIlmcB+lk9h3UrrRKJOeBqw/M/SQidnjNDchWJI5Xl3
-	ojB3n8xzUPZvfRE1acpp+63IiigBPEMjy4p1UB6KVt0QwQt8F6UtaX+okJrBfdWKOg==
-X-Gm-Gg: AfdE7cldGT1/YGeYgxmvaW7DH8wjKQWPq/jTLtwaqVXuZrPdkoD/BejWs3GXtjfjHqD
-	kVXNcFv+4XuswtL3KyFBFiy1GuWvhu4qKPMQ9NgzAojwhoXBue51EOWwwOHpvu4t3azfBtjTAJ4
-	OGnXwrxP2u61/WnZlDERhJB9wZ6PQ3lCC3D/vo3YD3FBvepu57CUn8Dx3MD8/NtBMt8Vk+7wIab
-	tm3EiZVFq96xHrE3Iii7c5Qzg49pK/CxXTW/BAq3gQBvmaX8lrUuBTEPpv0BxaVfQCkm1CVSzLQ
-	9T4jgp2RaaCfNlzWGTK+YZQ27Qsz3eVjmN23zyfdq46ZKq/eWGI+fvromzv0uKDFUUAQgJsatcV
-	vZBZCfDZLHOtROoOxUvQeLFTUVR88vGb4JaVTXIlurulfhYfuiX/7dmlhnoxlz0Nn4YIy72DsZw
-	yI2zLr38WBAQEdxEPIYGfL9dN8EFDE5rAx75qFwy3VK6ctIZxtPmLHzfYLSA==
-X-Received: by 2002:a05:6214:3f82:b0:8f0:b75:c4aa with SMTP id 6a1803df08f44-904032619f0mr158194076d6.35.1784067020375;
-        Tue, 14 Jul 2026 15:10:20 -0700 (PDT)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ffd82ea9casm176759466d6.42.2026.07.14.15.10.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Jul 2026 15:10:19 -0700 (PDT)
-Date: Tue, 14 Jul 2026 18:10:18 -0400
-Message-ID: <1dd1d69569b2a1f83c34ffe6ccbba337@paul-moore.com>
+        d=1e100.net; s=20251104; t=1784071517; x=1784676317;
+        h=content-transfer-encoding:content-type:cc:to:from:subject
+         :message-id:mime-version:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=6/6BFd7Hisvo7cgiWImn27M1vk9Sd7mPW78xfZEG14I=;
+        b=mlhZVhOMlhQHkEhWiu2kLZrOtvWpEHYgPz3WkoHeRP22OyVZ4CcnkHEnhid0xPwVrf
+         D+Nf8yvu5jXc0NZFVJ40vjvwEmoZYLqbAVffWIASNLBrJLxJLCfpuFPRNPLphgHmSoXF
+         PrkC2tBcIf+RMykxlIUkiM9nmvXJR3nkpTN4yD7qTc7Gj01n4JAALgUgofRTrTexsuX+
+         eunrb8cMPeu0dc7MnUKmKItVlRyxC29BgHa+0MD2gMPl75VWA8Z9/ZnvwGrEO9RCjVXy
+         vvGL3MnMG/cQO4fZEP35fiirc+9I1sgT167wdCUDZLJTVlUReZz6x4llhHVIjkbhgskr
+         5Ctw==
+X-Gm-Message-State: AOJu0YxAj/YRBvWrwoYDduNhIQUTNtZyr+P4fSRX0woSzLpeWJtNwpgf
+	16eIT4pUsGq5N9eA+oZ0RB7Aev5+jnwS1kLtq/3Xn5591/C6c7przp5vsA9cgKQxh7J+viZaHyx
+	T8i7yZQHXxbHJ2nZPF4LOz74+NQ8NoETrfn8i/Sezv40SAVawFeYwd9wdtshj5xJvr+DBf8Q2lB
+	VMPtCilsJRd0nGKX0nWqMzJdp+dxgSV7JT
+X-Received: from dlbrd17.prod.google.com ([2002:a05:7022:f111:b0:138:5e8:1b36])
+ (user=tweek job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a21:320b:b0:3bf:e761:6285
+ with SMTP id adf61e73a8af0-3c34d5d2da4mr6933191637.29.1784071517167; Tue, 14
+ Jul 2026 16:25:17 -0700 (PDT)
+Date: Wed, 15 Jul 2026 09:25:11 +1000
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=UTF-8 
-Content-Transfer-Encoding: 8bit 
-X-Mailer: pstg-pwork:20260714_1805/pstg-lib:20260714_1432/pstg-pwork:20260714_1805
-From: Paul Moore <paul@paul-moore.com>
-To: Ondrej Mosnacek <omosnace@redhat.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org
-Subject: Re: [PATCH v2] selinux: fix incorrect execmem checks on overlayfs
-References: <20260714125759.1042127-1-omosnace@redhat.com>
-In-Reply-To: <20260714125759.1042127-1-omosnace@redhat.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.55.0.229.g6434b31f56-goog
+Message-ID: <20260714232511.2858868-1-tweek@google.com>
+Subject: [PATCH v2] libselinux: use designated initializers for label initfuncs
+From: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+To: selinux@vger.kernel.org
+Cc: James Carter <jwcart2@gmail.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	"=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Jul 14, 2026 Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> 
-> The commit fixing the overlayfs mmap() and mprotect() access checks
-> failed to skip the execmem check in __file_map_prot_check() for the case
-> where the "mounter check" is being performed. This check should be
-> performed only against the credentials of the task that is calling
-> mmap()/mprotect(), since it doesn't pertain to the file itself, but
-> rather just gates the ability of the calling task to get an executable
-> memory mapping in general.
-> 
-> The purpose of the "mounter check" is to guard against using an
-> overlayfs mount to gain file access that would otherwise be denied to
-> the mounter. For execmem this is not relevant, as there is no further
-> file access granted based on it (notice that the file's context is not
-> used as the target in the check), so checking it also against the
-> mounter credentials would be incorrect.
-> 
-> Fix this by passing a boolean to [__]file_map_prot_check() and
-> selinux_mmap_file_common() that indicates if we are doing the "mounter
-> check" and skiping the execmem check in that case. Since this boolean
-> also indicates if we use current_cred() or the mounter cred as the
-> subject, also remove the "cred" argument from these functions and
-> determine it based on the boolean and the file struct.
-> 
-> Fixes: 82544d36b172 ("selinux: fix overlayfs mmap() and mprotect() access checks")
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
-> v2: only access file->f_cred after checking file is not NULL
-> 
->  security/selinux/hooks.c | 42 +++++++++++++++++++++++-----------------
->  1 file changed, 24 insertions(+), 18 deletions(-)
+Previously, the initfuncs array relied on implicit positional ordering
+to match backend context constants (e.g., SELABEL_CTX_FILE). If constants
+were reordered or added, array indexing could become misaligned.
 
-Thanks for the update, this looks good to me.  I'm going to merge it into
-selinux/stable-7.2 now and send it up to Linus later assuming all goes
-well.
+Use C99 designated initializers in initfuncs to explicitly bind each
+initialization function to its corresponding context constant.
 
---
-paul-moore.com
+Additionally, define _SELABEL_CTX_NUM in include/selinux/label.h
+to count total backends, and add a compile-time static_assert ensuring
+initfuncs stays in sync with _SELABEL_CTX_NUM.
+
+Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+---
+v2: Rebase on selinux/main and format
+
+ libselinux/include/selinux/label.h |  5 +++++
+ libselinux/src/label.c             | 18 ++++++++++++------
+ 2 files changed, 17 insertions(+), 6 deletions(-)
+
+diff --git a/libselinux/include/selinux/label.h b/libselinux/include/selinu=
+x/label.h
+index 748b0db0..bde2501f 100644
+--- a/libselinux/include/selinux/label.h
++++ b/libselinux/include/selinux/label.h
+@@ -37,6 +37,11 @@ struct selabel_handle;
+ #define SELABEL_CTX_ANDROID_PROP 4
+ /* Android service contexts */
+ #define SELABEL_CTX_ANDROID_SERVICE 5
++/*
++ * Total number of context backends. When adding a new backend,
++ * please increase this value.
++ */
++#define _SELABEL_CTX_NUM 6
+=20
+ /*
+  * Available options
+diff --git a/libselinux/src/label.c b/libselinux/src/label.c
+index 1ccd1abe..991b9769 100644
+--- a/libselinux/src/label.c
++++ b/libselinux/src/label.c
+@@ -4,6 +4,7 @@
+  * Author : Eamon Walsh <ewalsh@epoch.ncsc.mil>
+  */
+=20
++#include <assert.h>
+ #include <sys/types.h>
+ #include <ctype.h>
+ #include <errno.h>
+@@ -45,14 +46,19 @@ typedef int (*selabel_initfunc)(struct selabel_handle *=
+rec,
+ 				const struct selinux_opt *opts, unsigned nopts);
+=20
+ static const selabel_initfunc initfuncs[] =3D {
+-	&selabel_file_init,
+-	CONFIG_MEDIA_BACKEND(selabel_media_init),
+-	CONFIG_X_BACKEND(selabel_x_init),
+-	CONFIG_DB_BACKEND(selabel_db_init),
+-	CONFIG_ANDROID_BACKEND(selabel_property_init),
+-	CONFIG_ANDROID_BACKEND(selabel_service_init),
++	[SELABEL_CTX_FILE] =3D &selabel_file_init,
++	[SELABEL_CTX_MEDIA] =3D CONFIG_MEDIA_BACKEND(selabel_media_init),
++	[SELABEL_CTX_X] =3D CONFIG_X_BACKEND(selabel_x_init),
++	[SELABEL_CTX_DB] =3D CONFIG_DB_BACKEND(selabel_db_init),
++	[SELABEL_CTX_ANDROID_PROP] =3D
++		CONFIG_ANDROID_BACKEND(selabel_property_init),
++	[SELABEL_CTX_ANDROID_SERVICE] =3D
++		CONFIG_ANDROID_BACKEND(selabel_service_init),
+ };
+=20
++static_assert(ARRAY_SIZE(initfuncs) =3D=3D _SELABEL_CTX_NUM,
++	      "initfuncs array size does not match _SELABEL_CTX_NUM");
++
+ static inline struct selabel_digest *
+ selabel_is_digest_set(const struct selinux_opt *opts, unsigned n)
+ {
+--=20
+2.55.0.229.g6434b31f56-goog
+
