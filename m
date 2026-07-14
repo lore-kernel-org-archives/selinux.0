@@ -1,119 +1,144 @@
-Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
+Received: from mail-pl1-f201.google.com (mail-pl1-f201.google.com [209.85.214.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14D71342532
-	for <selinux@vger.kernel.org>; Mon, 13 Jul 2026 22:15:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62E0B223707
+	for <selinux@vger.kernel.org>; Tue, 14 Jul 2026 03:50:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783980932; cv=none; b=gyW3BrxOK9J6KtqZAawDk7YJGRRoaPyVyxnHTleOGgHEwG169oUJvxizangRnwD6H+KKaMM8CjA9kcUBejF8Z4DTwOCmlqArSSd153Sll5qwoQAa45Itc6Lic/tc6N2tUeradWax7V7kIwXzfPgaskUh/H9orozCBW8agSMINRs=
+	t=1784001014; cv=none; b=b5k1xO4edsCRKTREMPbMZKrwYA7lBeNeoDLRoLTYzaq4Xc2qFguVQqYlTvibThMEgrchWipmeAUOddSP2+DjH0OF/ANN6ytvTYkGzm//IP1QXaySJ8XNCpJQfgUTlGnzWIkW7L7cMzTOsBp+BhESZcD+fJmKQdTgL4N3nnKmhUQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783980932; c=relaxed/simple;
-	bh=EDMAekzapluN8qvqLwwRmxBiWYLSDHH4j1CTBMpYI8c=;
-	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=T4P9Nhp507pzG8SvmSYSmYtnkD8bf52bM+HnZR/QzTw3DLytiVNNoNv473pob1nya2cZdTzOyOLPaJ2kEJIm/Jo1pUlSRxiFVx5MBkd+PjEKP+VupnoN2RCVrUqfAJ8BwnZFsmTOADFuAnmBwObNouYu4Tzl6/Y+3KBv9jZJ5dg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=JZkhv30v; arc=none smtp.client-ip=209.85.160.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1784001014; c=relaxed/simple;
+	bh=wDeEfGnOGHU1LHvw86f/gX2CXFTW7TgkEtVW3PM8k/w=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=e7n3IoqXyu5JgzN/iR07YsoJhZidCkx5FPYaOpiYtSUT5PfyliepSFhIU6dXWUmqPqE+4cxirrqFqfK39jkychNqrNd0AMgfyLRUrmYirLiT9Ew6uZVhDnoUfSMZ2SDGaqGyNLOSzwmyKdiyqRHnDDhlEFMYOGLqHOTcChcHXXk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=B1JRloQG; arc=none smtp.client-ip=209.85.214.201
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="JZkhv30v"
-Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-51c2149571dso3028761cf.3
-        for <selinux@vger.kernel.org>; Mon, 13 Jul 2026 15:15:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="B1JRloQG"
+Received: by mail-pl1-f201.google.com with SMTP id d9443c01a7336-2cccfa32670so55981505ad.2
+        for <selinux@vger.kernel.org>; Mon, 13 Jul 2026 20:50:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1783980930; x=1784585730; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-type:mime-version:message-id:date:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=6knqno33u0gKFnShVvAy1vOVQidX1D6I4tvt9i4jmuw=;
-        b=JZkhv30vhx+vGk+seNoIcsgrBx5LtWeViBMuOjT2j5C9vxlYY4imKsV2zSxNeZEq7c
-         wN4L+CzCOX8RHrf/s7zsbFG48UPBv0XXej9CHF0hKl4/dExkdtF54ADrSTNvDhjwVJ7e
-         FD+nP3btnYSyBbdK5tUmriuesadgiHx9nr5u5WE82b8Y9PllEAKH5SrtHln7LoeN4x4d
-         i6ZnJc10oSpTYBVZhbVrJr9TAdu5qNKA4jEtissEuB+c9AsgAhQWTMh7n01XZKoh9nxH
-         vcwpfqE+gAlADDOfSxQceSHQ8m8bkMTTKAfqbpfeUWSqgl9407GVUzmkcDcmzt/JU71s
-         xTPg==
+        d=google.com; s=20251104; t=1784001012; x=1784605812; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:from:subject
+         :message-id:mime-version:date:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=nv6b7+avvrszo38f/ASpllmPRH9onyUZfNJpOPuZwLw=;
+        b=B1JRloQGGQOf08IVQGNYDlL+eBZxUY6unpgRf7V4P1EDbulNgvaA8kmhQ3ESrYc6Jd
+         kKpZGDJhWKf8dtxkoha1T0Sg4wpScT8z1P6PH330+z/o/lV+yaZHmzTNDsDUbyoJpLfd
+         IyeKLs8Azx4N/x4WpvoqM1C/zeAZSZqWw0WIr4/4nTbHq6noxUBkJ5Z0hJKnyFExtlTA
+         k94CVI6kY+FBN3V54TLFH84IW0l3tdw8mDvhlidN2Npn77i3tywAm1TRAA9oOz37v2EG
+         ufTT79CtFYdPHaaf7LAS81yZ/31ApxPZXm6k/ivvJXzxmf2nINlY2Ooo2S1yzlrb2tRk
+         OdFw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783980930; x=1784585730;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-type:mime-version:message-id:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=6knqno33u0gKFnShVvAy1vOVQidX1D6I4tvt9i4jmuw=;
-        b=YL90fQ0sIIrN4B/sAl/LayLpebwzAv2N9xRDGFLM/qCL/l0UM6GxyQrFuiThG3eg9O
-         OH13jb5mfW1YwxL4usCyEtBDKEE+q6PSPh9CePGvOWZLcIP/52XPTqPss2bktqEkFi4X
-         +r4R4quEEl0jIuCqAUCJ0AaDO7PAjOBLPaeCsgEC9FXjXOZrmDnsruy7Mh+r8/S2813d
-         lJK5pgncearkDre0CeEQ3mRmD6tMEqimHx+f7akIchj/dwVFalrvSC7Ge7rb6Yk9Ng3y
-         Fl9Mt6E+5jHzN9k85d+07FqOFw3prY9TDEjn57FeGGwbwjW7pXcbA/AFmwozdD1hH8W1
-         kcYA==
-X-Forwarded-Encrypted: i=1; AHgh+RoAnUVfcK5IRVwcHhOAMtuxvsgcW37Hl7SCQiwzrVks1LsLuO2B4R00drJt1DPQcV38OdKuir7F@vger.kernel.org
-X-Gm-Message-State: AOJu0YxKTGx+Z9IdMqFXaI2dVWZACIyK8SUz+1P8kwIdqZGBqicfr1oA
-	U/EWfTwzHpC3Mw+sD3epqICFRW2tvuTiXXOzzUcKFw826HFGEssTaEBkZeKXcQepJQ==
-X-Gm-Gg: AfdE7cmG6EmLtM5lpoc5O4XtMfCiiETaIWR7Dv4EwkzDoJIkBwZKuc4vHSenY/B3Fsk
-	DgcNhpD3tRtS84rvvngMHDqPV+P1Iruu7g7cZYB9sRNmTV0YzjHWc3iLBx2F0L5FMU7Fd02r/bJ
-	LReXYud9oT9xRztVsELQp5sxGIjNoZwzB1HYP/dogYpUjv857DsArkiVxKt3uoPPg3qRoxngotQ
-	PK5snXS0axqoXFxKJa1LIsB9hnqLkg3XHUJu85RnTZnweVZDfCYMuQYqvKtWKXDaL66J4NAprff
-	wWsEt9rOxarDYMmgJ4g4MUOdAm+UgjMfgXQzkHzvd5+ARuEL3W7F961bl1bL66l5/pHdkTX0QMS
-	L140iKYwGe7i1FjJfnjrK6L08QE0ZYe7aEhiGRqmcEb8e3Ouw87Davd1gs2ruJQ9qT7DCSYWV9n
-	o1u8JJHuDfjCVNktFWN1EW9Qq4gGSNpkDMkZDvblT9C+Aa+D/MxfAWbe9iyw==
-X-Received: by 2002:a05:622a:2d5:b0:51a:8b64:69e0 with SMTP id d75a77b69052e-51cbf0dff29mr107693501cf.11.1783980930061;
-        Mon, 13 Jul 2026 15:15:30 -0700 (PDT)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ffd50df5e2sm144312526d6.4.2026.07.13.15.15.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jul 2026 15:15:29 -0700 (PDT)
-Date: Mon, 13 Jul 2026 18:15:28 -0400
-Message-ID: <df755e0282dab3b932d19aceab71b7d7@paul-moore.com>
+        d=1e100.net; s=20251104; t=1784001012; x=1784605812;
+        h=content-transfer-encoding:content-type:cc:to:from:subject
+         :message-id:mime-version:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=nv6b7+avvrszo38f/ASpllmPRH9onyUZfNJpOPuZwLw=;
+        b=C61tQPcDA1IX3Le/bzHghnbVRSrW8PzZB+ranlfntzbcdnmFd7BWkHELpJpYbuJWUz
+         AVgMuzYGJAgtdNcv2AdbFrPBGoMGRbpzU6xvvO7zS3vPv4D/t7Mr+gNUFyIF2IKYoQmd
+         2k5SEqkV2dbSuhgiHYUV0Wm7KfctSlEWWjaUS8hs/pIgdqjNPF/OduvQXVeUb/HeSi/k
+         CwqkDcJwqd+iU29hxa4zt8GAPuNWXKdlZVtmK1CqXVlqTdY14zzWHPReUCAe5RrFF7Rj
+         GRQXE7B3LUaga5R3sOeKOaW56N8xiOr7nhjp8vYARo/r6fH7a/2ZOdyllxxPQbXKg8Bi
+         I/pA==
+X-Gm-Message-State: AOJu0Yz11cEkLPZ+hw1IrbApKcpsZ9V6DsfJP4Mou43YtlvPsJv3IX9f
+	EgcmfKGOK6Tiq8RMeDSbKxO6ZiXQZUuREYlUacjuWBQA0C6i9GbF8Hgm/zYdOO3ohiRv+/puS8i
+	/6ZNYXjyYhnmqH+ykkG/tnpeLzvtBaGXB03gqXMLOpxqcMbmGIJVjpbLwuSW6/Xs8QbUCObKEsr
+	XBVPMJDIAFPAyxp03muyuHjkHDRCXaAstU
+X-Received: from dlg30.prod.google.com ([2002:a05:7022:79e:b0:138:62a:280c])
+ (user=tweek job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a21:6e0c:b0:38d:fad1:cf2a
+ with SMTP id adf61e73a8af0-3c11062f6f4mr12560328637.13.1784001011145; Mon, 13
+ Jul 2026 20:50:11 -0700 (PDT)
+Date: Tue, 14 Jul 2026 13:50:03 +1000
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=UTF-8 
-Content-Transfer-Encoding: 8bit 
-X-Mailer: pstg-pwork:20260713_1552/pstg-lib:20260713_1057/pstg-pwork:20260713_1552
-From: Paul Moore <paul@paul-moore.com>
-To: Ian Bridges <icb@fastmail.org>, Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: linux-hardening@vger.kernel.org
-Subject: Re: [PATCH v2] selinux: replace strlcat() with seq_buf in  selinux_ima_collect_state()
-References: <aj6hVjECikvYtnED@dev>
-In-Reply-To: <aj6hVjECikvYtnED@dev>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.55.0.795.g602f6c329a-goog
+Message-ID: <20260714035003.1461542-1-tweek@google.com>
+Subject: [PATCH] libselinux: use designated initializers for label initfuncs
+From: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+To: selinux@vger.kernel.org
+Cc: James Carter <jwcart2@gmail.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	"=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Jun 26, 2026 Ian Bridges <icb@fastmail.org> wrote:
-> 
-> In preparation for removing the deprecated strlcat() API[1], replace the
-> strscpy()/strlcat() chain in selinux_ima_collect_state() with a struct
-> seq_buf, which tracks the write position and remaining space internally.
-> 
-> Each field is written with seq_buf_printf() using a "=%d;" format, which
-> removes the open-coded "=1;"/"=0;" constants. The seven per-append
-> WARN_ON(rc >= buf_len) truncation checks are replaced by a single
-> seq_buf_has_overflowed() check after the string is built.
-> 
-> Link: https://github.com/KSPP/linux/issues/370 [1]
-> Signed-off-by: Ian Bridges <icb@fastmail.org>
-> Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
-> Changed in v2: replace the v1 seq_buf_puts() pairs with seq_buf_printf()
-> using a "=%d;" format, which drops the open-coded "=1;"/"=0;" constants.
-> 
-> v1: https://lore.kernel.org/all/ajlN94VO7BYNUTAy@dev/
-> 
-> I didn't change the precomputation of the string size. An alternative,
-> which is used by other seq_buf callers (e.g. kernel/rcu/refscale.c,
-> mm/memcontrol.c), is to drop the precomputation and allocate an oversized
-> fixed buffer, relying on the seq_buf overflow check as a backstop. I'm
-> happy to rework the patch to adopt that alternative.
+Previously, the initfuncs array relied on implicit positional ordering
+to match backend context constants (e.g., SELABEL_CTX_FILE). If constants
+were reordered or added, array indexing could become misaligned.
 
-Another option would be to split out the length calculation and only do
-it once at boot, e.g. call a selinux_ima_calculate_len() function from
-selinux_init(), and then reuse that length in
-selinux_ima_collect_state().
+Use C99 designated initializers in initfuncs to explicitly bind each
+initialization function to its corresponding context constant.
 
-What you're doing here is no worse than what we currently have so I'm
-going to go ahead and merge it into selinux/dev, but if you could split
-out the length calculation I think that would be worthwhile.  Thanks!
+Additionally, define _SELABEL_CTX_NUM in include/selinux/label.h
+to count total backends, and add a compile-time static_assert ensuring
+initfuncs stays in sync with _SELABEL_CTX_NUM.
 
->  security/selinux/ima.c | 40 +++++++++++++---------------------------
->  1 file changed, 13 insertions(+), 27 deletions(-)
+Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+---
+ libselinux/include/selinux/label.h |  5 +++++
+ libselinux/src/label.c             | 16 ++++++++++------
+ 2 files changed, 15 insertions(+), 6 deletions(-)
 
---
-paul-moore.com
+diff --git a/libselinux/include/selinux/label.h b/libselinux/include/selinu=
+x/label.h
+index ce189a3a..0c20a4fc 100644
+--- a/libselinux/include/selinux/label.h
++++ b/libselinux/include/selinux/label.h
+@@ -37,6 +37,11 @@ struct selabel_handle;
+ #define SELABEL_CTX_ANDROID_PROP 4
+ /* Android service contexts */
+ #define SELABEL_CTX_ANDROID_SERVICE 5
++/*
++ * Total number of context backends. When adding a new backend,
++ * please increase this value.
++ */
++#define _SELABEL_CTX_NUM	6
+=20
+ /*
+  * Available options
+diff --git a/libselinux/src/label.c b/libselinux/src/label.c
+index 2c510290..40fbd596 100644
+--- a/libselinux/src/label.c
++++ b/libselinux/src/label.c
+@@ -4,6 +4,7 @@
+  * Author : Eamon Walsh <ewalsh@epoch.ncsc.mil>
+  */
+=20
++#include <assert.h>
+ #include <sys/types.h>
+ #include <ctype.h>
+ #include <errno.h>
+@@ -46,14 +47,17 @@ typedef int (*selabel_initfunc)(struct selabel_handle *=
+rec,
+ 				unsigned nopts);
+=20
+ static const selabel_initfunc initfuncs[] =3D {
+-	&selabel_file_init,
+-	CONFIG_MEDIA_BACKEND(selabel_media_init),
+-	CONFIG_X_BACKEND(selabel_x_init),
+-	CONFIG_DB_BACKEND(selabel_db_init),
+-	CONFIG_ANDROID_BACKEND(selabel_property_init),
+-	CONFIG_ANDROID_BACKEND(selabel_service_init),
++	[SELABEL_CTX_FILE] =3D &selabel_file_init,
++	[SELABEL_CTX_MEDIA] =3D CONFIG_MEDIA_BACKEND(selabel_media_init),
++	[SELABEL_CTX_X] =3D CONFIG_X_BACKEND(selabel_x_init),
++	[SELABEL_CTX_DB] =3D CONFIG_DB_BACKEND(selabel_db_init),
++	[SELABEL_CTX_ANDROID_PROP] =3D CONFIG_ANDROID_BACKEND(selabel_property_in=
+it),
++	[SELABEL_CTX_ANDROID_SERVICE] =3D CONFIG_ANDROID_BACKEND(selabel_service_=
+init),
+ };
+=20
++static_assert(ARRAY_SIZE(initfuncs) =3D=3D _SELABEL_CTX_NUM,
++		"initfuncs array size does not match _SELABEL_CTX_NUM");
++
+ static inline struct selabel_digest *selabel_is_digest_set
+ 				    (const struct selinux_opt *opts,
+ 				    unsigned n)
+--=20
+2.55.0.795.g602f6c329a-goog
+
