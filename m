@@ -1,125 +1,168 @@
-Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A62B32B106
-	for <selinux@vger.kernel.org>; Tue, 14 Jul 2026 15:26:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 819B13CEB8F
+	for <selinux@vger.kernel.org>; Tue, 14 Jul 2026 18:20:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.51
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784042789; cv=pass; b=c6J5xQdua7Y6EXTbxv6QjrVh9AoRSLjYW8ip9LKmFACu+UlecOLutWeoUjlZbdwhipnbf1/v1IAXV52dKOcrBDtCwPw6TBiuuls05Dj4CNoNASjIjmMSxXVfjiWiliDAj/0G6QxEFAih2HxyRsYDh8BV0W5Cyr/DKXQ7LIErr9Q=
+	t=1784053259; cv=pass; b=BjzVi0pDaLVaG9yv8frcF8WRFjSyuwna0hdozqYCKMTMqAsVKWRJ57BsysH92jU6rLy2l3xygHfNBH0wewZiYdWgU7wpR4/qAhUbittWeV6LJr2Qd8xT99FWnv128XEW+66+o2say0ofajaHTo5wRFLERyvHKdaldmAKZz8yDtE=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784042789; c=relaxed/simple;
-	bh=46pno5mHW/37SVnm6Z4tX+DisFqeQNB9UjfIgC528cg=;
+	s=arc-20240116; t=1784053259; c=relaxed/simple;
+	bh=eyZy6tmw/y/uvyziqXobYIoPKaaMSPBA830VuHdiOAc=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=XVVmphvTwuJtNxbrYMqpfyCzgPjKnBd/oFb45tcE7IYxUsm/48kX8u74JugCXJLqX2B/I1jlOIU93oY/CQ/byu7RikBs7f9jcSll/TyejrejqhTnGvttdusy7iT9Fo8jSY+kOtQjq2As/vfpegZyURAfJyzY0QFeFMl+Y/IlV+Q=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IfpwETtY; arc=pass smtp.client-ip=209.85.216.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=LP04CZvLekeIHyUWjoxF4efXPKcF5eg8bziw33+X35kfShHAM7eIXvHUml5tcLRLMlrXmZyQ02joTg5rDneDedOPW1VKDz4zaRXc7Jr1SuAbzaBF1Ix58+7YpJdJwSCSui4wkOJnZRo20eIEPJgpBGOo3njCaF2/ws0NE4rSXos=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Xxwjrwpw; arc=pass smtp.client-ip=209.85.216.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IfpwETtY"
-Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-38175907a56so889557a91.0
-        for <selinux@vger.kernel.org>; Tue, 14 Jul 2026 08:26:28 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784042788; cv=none;
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Xxwjrwpw"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-38deea72eebso2579589a91.1
+        for <selinux@vger.kernel.org>; Tue, 14 Jul 2026 11:20:58 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784053258; cv=none;
         d=google.com; s=arc-20260327;
-        b=hXb3mfgdACo6UfKv4Lz96mKc6IvzN6mW8PG8EvC/hykofayJ8tDDRA92sLX4AGBVtA
-         14QI2E0w79S07Z1prVifM/U7zaEoaYsT1vb9hR8uSPFJkTpBWfIGcRwSsuvEEJa6t+bs
-         j+1Wh+3smMKtzen7AlvCqw/6rR2imIENOGPgluxNBnqr8JHjHLpSzzCir/1ge4EMBpkJ
-         6mlAC9dy90FMT3fvjBqmvT0gbL6KQO7BqnuKzQx3ctK4SH6uR53p8CFhJgF+32cpY2aW
-         9P+1rwM2SIYPN2H4WamBmWK8bbZMOU2R2KRLryIV6UoGbY/BVC8og1spcm6avGgCZylm
-         gkeQ==
+        b=Xn0L2L6me/HSAxLyyGTS5d1HMGAiWONrcRaus3F68HGgPeDA4uRQUjxqKQIdfGH2DH
+         RtUjCAVlmfWVolZ+VzuHPDP3jm+h2JGgEMhbVYfCmnSB8HiX/ZCz/kPhBxRij3crJDN5
+         WXFt0OiBjJ/H+tbqpv4mF1dcGIsLfRz1lK/4BaEE4/egLKE/q5vMGCxBOsaudsum74w1
+         +y6e77ELeHv6ZPtwOPYtaCjGhbtJmcRZOojQxRlzTZ6mWDWEFS9PLJmQNeWVI7jOqIic
+         m7ICXkG/4EbYg0u31Ox7OQX2g4d63EMH/2KM74yfIYZIePHwg/YO4Hh8TPErmpUux9Bq
+         LvdQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=46pno5mHW/37SVnm6Z4tX+DisFqeQNB9UjfIgC528cg=;
-        fh=Gzm6LjOJmmnop5YeYo6v0qvUG6qXAD0SfnklxJ6VEmY=;
-        b=k0WO1wFCtjC/PpgFp4RpkxRs6415tlxGyRiXHFmszQ/TAsmzAQmSXkmXGS5HBKQ534
-         nJJWzOA6AgPs46cPnc0pbkwIeWfh1S/sp4AeorepawqTEIAZ8k7N6EMzLOhm6InWP9tR
-         oDdtjWZF375Lp9JBZjE21Giy+/nM77eCYfmydaBn0rLVonOfphHQMLgjSUvzS0ka7MtG
-         KMgV5SkU+acryHMlVO8Ic69D3a0aPvDHQX3qexChlDGh46OjgqLjuvSQcN5hlbkbho+R
-         OiW+hUF5b0/HT3GYLcrHARR6hAliHca3Lb390Yak0+dlmjYaerLhqjcI2nNkZOpvxSKw
-         sKbA==;
+        bh=nmo5BFmH0BGw3SSnYVB0DqqeTBkMC36HDpza4IBAqYc=;
+        fh=BMH9DHhpHWWXSuUzfDjM7KJvlYXo2dUvrjErgEzp96o=;
+        b=X/RoficmuoBx82+Nv/21ckcwTClV8wQ3SLj1T1SFAvuyracDpU/A/4xbT0GivkNhzd
+         hKsk9ITytL65Nx6RPkxFRvnGfINfen20pOTSDnt1eUydPZ9Ul0VHXrT0z5lpexUfgTg1
+         rdycOCV+YU8l6ds5LhYkO6a5wMCI+qo30EWDABdeTK2ijw8vPJqfToQGnl444G/+1yrm
+         jr60Ljmj0kA+ZogYTGiMymT0DDL2Tyyh/mmb2UVvrw7H2hJ9nfEHfvHM74IYEdr2aZSK
+         8VaMHvPVIB9/WFrONuw4KMA/nFVkea9Jd9RS7XDd4P8C0hy0t1cBgRvLe8pkojcnjFHR
+         VyvA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784042788; x=1784647588; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1784053258; x=1784658058; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=46pno5mHW/37SVnm6Z4tX+DisFqeQNB9UjfIgC528cg=;
-        b=IfpwETtYavkT1YoX9ClTH5YWTRHnMR/LIfXfFFBxRzLhE17ciUQp0s25j4VjfGmGR4
-         n3dRaWyT8haiI31uE8s+aVx3lE4M8qTy0rzYzhjTNLDXiRD5/PcFpW9mp+WC+dC0TiPT
-         BWL8yehvSlcQR9ybkUyI5frBaH+wSJ4HAasXy+s8rVP3pLu69dRvJW5D9/Oz/2Qmyl0S
-         jFnS+pCTtqnBg6GjTnxAocHi7eOKFlQ5fadr9w6PpdW6QTvpvOlbohaQC+AkxI6LmXHX
-         ny8MI2lqnQc8VakOodWN+1AXGT2/9xhiZiE3zS/dLZzyRjwDuTZpRjIRWhpRZnaG3eCa
-         yOMA==
+        bh=nmo5BFmH0BGw3SSnYVB0DqqeTBkMC36HDpza4IBAqYc=;
+        b=XxwjrwpwddNtjMiY/N4jN7v7hIiCg8tSyykK1TBcJBDG9Vc6wL3WGkdGPcGmUm/EQN
+         vRJgBXpkTbfLChABGIUf4vz1yD6Vb+sZccuEwzF+K8CRyzfmXdY7DcCsy6/kEbqGx60q
+         ObkmpJCzyhMhzo5oB/sIL9o7hcDOkgUvS5SKqCQdWA2eZ1uF8UhrbmYrcErSlZhFXT29
+         zl931IA7XeCFOzaGtRouf75Tu72PShr3ChV4JUxqYIlg+0kJ6pmpJpIGfyfWYP/SSUDs
+         ixaAFzE/sXRVasF+dMD7rTbsKAkEPiSzNR1M+j3ogvKEgi3GIw/WCYzynDoKPFk4zhmH
+         vLgA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784042788; x=1784647588;
+        d=1e100.net; s=20251104; t=1784053258; x=1784658058;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=46pno5mHW/37SVnm6Z4tX+DisFqeQNB9UjfIgC528cg=;
-        b=TBjBhhkHDglR2rmWuMfw7B57L46OjRWoOd76rUFfnn/I9CSNTYgx05XcyMD9gfMbkT
-         Rw706TJ8Wr6UOqVBVyKva+CO3c6ULOuSjBCmDDTjq8RHosMQq1jyucIdaOudHwbf04HU
-         pjpGlecDHTHJH7HBig009KqqFMUgCOpHjO7kIlDF4Hr2sSY0G7a4jsoyiC0t6LlXC50Z
-         0H84HT8OzHt4daFa06KJKu+B5XxHQShQZL/NpFPUXJuajFCjKao1PapJo4Urzf6fqDBf
-         r2oXfNj2scVALw3ohRWhiCzDKXkaQiKz6gB6CHOa03l3AwGeowww5f3/UJ1VnPUKXvxV
-         a1KQ==
-X-Forwarded-Encrypted: i=1; AHgh+RoACD8KPhAFuQoAT/EBk57kwP+VmixKlotLksC9twjtjubE29g6EoYixZGei15xnawMctl0NO9Q@vger.kernel.org
-X-Gm-Message-State: AOJu0YwkcPTMSBIR2uaY4ZhcgTz35HVI9qHOJI2941B5OhRcOG1sl96/
-	7Lmi0w1SL0ujECBBGVwnPcWJvepxA7DvXOX6yH/nAkp0bhcWvvgYZHms9sQr6DDClEHMP55hK+w
-	ZU4SWJmKuu3HpXkRe0vwaYUzWiSLwmQGfqQ==
-X-Gm-Gg: AfdE7cn0HETLRtm6zEMnVbUIh7yb6seSynMEyYcDLpp0QVLCrpzR6rmikjiU9zUJHCb
-	PgxQycpNdk+hIKUq4OS3urqZ4Z4qGJLb7glbYPG8Ml1NpN2RliYqzMcAjcfXfO+bq8H4hUK6dTz
-	70ix/dIjYuj8JiZSCy87iA82XiZzG2v37PQnTxP67fljh703R+6DMnCZobLqWIKvBjfOZA+ecjU
-	flvpikCKCswXIkY2QneztbSf/p9N83jOP0p0KeIQToec+CwDD8L7YsMOtykqHGxTRODT8SH
-X-Received: by 2002:a17:90b:3c0f:b0:37f:f089:c81b with SMTP id
- 98e67ed59e1d1-38dc8071aeamr11146859a91.3.1784042787727; Tue, 14 Jul 2026
- 08:26:27 -0700 (PDT)
+        bh=nmo5BFmH0BGw3SSnYVB0DqqeTBkMC36HDpza4IBAqYc=;
+        b=F107T3p20Nb7OZ0RF570vuAwhyCn5gxgpW56mCO701m5TjWiw6kVFnetEYO3UXjWjT
+         0KQTJgeywuxuqg2iQiym0IZiAiubnRVnfuWRhqLzeGGSas7uq6j2Hz0bUB7K4ztilLmV
+         IeR8jf4AcFP4ecAvnD/0VeeoVnIzVcnsBuAKM/qlmn8SZg9asYulg04iyH/g3t7qIYLx
+         CBCqvnFt0ziCphLPycZKuhCnWMb4TEZP4WHoJ0aDNftqVPI1iWZZB8w8+dHWBoV0Y+LR
+         P1XitKFbIHzTUkYsFNxwI3Gf+HyxHSjFh/dsZGZOGPtasgwoN72592WA0qg6IklNOOmp
+         lKPA==
+X-Forwarded-Encrypted: i=1; AHgh+RpCeJESzI3LxSEnV9cbQifFJMogS/7M2eUmYC5Qh742aXiQSKCUMbDYTwVLpEGyDm/qv9hlCR+v@vger.kernel.org
+X-Gm-Message-State: AOJu0YxPV8p+P+EpwtaciKiRrDpj3wqhbTeomFwW77oqOdZcABWmpBEL
+	mplmQoqv4wmfUNahsfD1VcO+UT9XBix2qrqPC1LviC6m0alFHmRodVnpeaRzMuATPqT2MDMhvec
+	xQiHhHfSoeWVh+nR6exOa6ughcm6hCHLEMmPZSi1V
+X-Gm-Gg: AfdE7cl275CN7Nmt86dV62tNZcIWxr5bwCLIygLZ325mCdmLz8NCbVKE4GzCKK7cRj2
+	gQQ+lDDvWWLVvyQZn83iQK+zmJIAz8dA6W3vqY4FQDeqBP95P28IHImA37HZQTH+jTHFyDN6s0R
+	r1RJWTuF+FBm0ZSJg4hI8bCIwnt+brlmvTyDXygs4nRs9s+o5ryxPGHD84+F+r8X4SVLfd1qO4I
+	6Il2MjE9tpQAYyaBGk9YumbFTToC5f9X4pYxP5VLShnOCaFvTJXKG2aezt9D/sD9S2d3u5u
+X-Received: by 2002:a17:90b:2f0f:b0:38d:f710:63f0 with SMTP id
+ 98e67ed59e1d1-38df7106443mr8092118a91.43.1784053257798; Tue, 14 Jul 2026
+ 11:20:57 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260714125759.1042127-1-omosnace@redhat.com>
-In-Reply-To: <20260714125759.1042127-1-omosnace@redhat.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 14 Jul 2026 11:26:16 -0400
-X-Gm-Features: AUfX_mwAyA7ZPtZNgWo5jtIXmdv7MpiaNcDH38jv8IJmNQB6D_vKqXMV1gQe_Eo
-Message-ID: <CAEjxPJ76t7w5X6Aki+rjgY9VZOKtK983FSG9Bur2aZV+E40MvQ@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: fix incorrect execmem checks on overlayfs
-To: Ondrej Mosnacek <omosnace@redhat.com>
-Cc: Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org
+References: <20260703102759.9626-1-achillesgaikwad@gmail.com>
+ <20260707152305.15324-1-achillesgaikwad@gmail.com> <CAHC9VhSWWhMjs282cOTT45gn0pa8bDSxD0H24_is7k4tXmGJxQ@mail.gmail.com>
+ <ac4f209c-f465-4938-adae-ecd00ecab175@app.fastmail.com> <CAHC9VhQYjj3--K6KkDJBf6LfXqtj4TPh5LsMBpPYc0-Zz6wTMA@mail.gmail.com>
+ <CAEjxPJ7dttPDxQDa_xXFd1H-QT_vkUwjtnH+=3cmG5dhSiaAXw@mail.gmail.com>
+ <CAHC9VhSyCuiPBRWz_vUbx7+L5yLiXkjKX+7UyCLr82-_gAj2NQ@mail.gmail.com>
+ <CAEjxPJ4+wgUDY3YxajZ=2D3WLzgat_Mqvr05VtJ4KrXW7_kuXA@mail.gmail.com>
+ <CAHC9VhSxpAx+G35fbcMjJ1PfqJxDZYpTEu=qpO+0PQe=nkX5-g@mail.gmail.com>
+ <CAHC9VhRq+Vth-4D4OHFAY_6hXqmj=MgTc_2G=3Ehr6bAQzp26Q@mail.gmail.com> <CAHC9VhQy4LOgQg0mk+s5sjHOzMe1sxPUgJ2W7vRT8ms4znZp+Q@mail.gmail.com>
+In-Reply-To: <CAHC9VhQy4LOgQg0mk+s5sjHOzMe1sxPUgJ2W7vRT8ms4znZp+Q@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 14 Jul 2026 14:20:44 -0400
+X-Gm-Features: AUfX_myy9lHcOpd_cDyjYmBWTe6s3i0pZ8Os5e9WcvXk9QQAvyVGAEYp6ElR_c8
+Message-ID: <CAHC9VhR+pWFnt=1pBJTky78br7NsfVcZE=V4UkfkfTbMvBo+mQ@mail.gmail.com>
+Subject: Re: [PATCH v2] NFSv4.2: fix nfs4_listxattr size accounting
+To: linux-nfs@vger.kernel.org, Anna Schumaker <anna@kernel.org>, jlayton@kernel.org, 
+	chuck.lever@oracle.com
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Achilles Gaikwad <achillesgaikwad@gmail.com>, Trond Myklebust <trondmy@kernel.org>, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jul 14, 2026 at 9:00=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.co=
-m> wrote:
+On Fri, Jul 10, 2026 at 6:20=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
 >
-> The commit fixing the overlayfs mmap() and mprotect() access checks
-> failed to skip the execmem check in __file_map_prot_check() for the case
-> where the "mounter check" is being performed. This check should be
-> performed only against the credentials of the task that is calling
-> mmap()/mprotect(), since it doesn't pertain to the file itself, but
-> rather just gates the ability of the calling task to get an executable
-> memory mapping in general.
+> ... and scratch that, the offending commit was that one.
 >
-> The purpose of the "mounter check" is to guard against using an
-> overlayfs mount to gain file access that would otherwise be denied to
-> the mounter. For execmem this is not relevant, as there is no further
-> file access granted based on it (notice that the file's context is not
-> used as the target in the check), so checking it also against the
-> mounter credentials would be incorrect.
+>    commit 01c2305795a3b6b164df48e72b12022a68fd60c1
+>    Author: Jeff Layton <jlayton@kernel.org>
+>    Date:   Wed Mar 25 10:40:32 2026 -0400
 >
-> Fix this by passing a boolean to [__]file_map_prot_check() and
-> selinux_mmap_file_common() that indicates if we are doing the "mounter
-> check" and skiping the execmem check in that case. Since this boolean
-> also indicates if we use current_cred() or the mounter cred as the
-> subject, also remove the "cred" argument from these functions and
-> determine it based on the boolean and the file struct.
+>    nfsd: add netlink upcall for the nfsd.fh cache
 >
-> Fixes: 82544d36b172 ("selinux: fix overlayfs mmap() and mprotect() access=
- checks")
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+>    Add netlink-based cache upcall support for the expkey (nfsd.fh) cache,
+>    following the same pattern as the existing svc_export netlink support.
+>
+>    Add expkey to the cache-type enum, a new expkey attribute-set with
+>    client, fsidtype, fsid, negative, expiry, and path fields, and the
+>    expkey-get-reqs / expkey-set-reqs operations to the nfsd YAML spec
+>    and generated headers.
+>
+>    Implement nfsd_nl_expkey_get_reqs_dumpit() which snapshots pending
+>    expkey cache requests and sends each entry's seqno, client name,
+>    fsidtype, and fsid over netlink.
+>
+>    Implement nfsd_nl_expkey_set_reqs_doit() which parses expkey cache
+>    responses from userspace (client, fsidtype, fsid, expiry, and path
+>    or negative flag) and updates the cache via svc_expkey_lookup() /
+>    svc_expkey_update().
+>
+>    Wire up the expkey_notify() callback in svc_expkey_cache_template
+>    so cache misses trigger NFSD_CMD_CACHE_NOTIFY multicast events with
+>    NFSD_CACHE_TYPE_EXPKEY.
+>
+>    Signed-off-by: Jeff Layton <jlayton@kernel.org>
+>    Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 
-Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Playing around with it some this morning on a current Fedora Rawhide
+system, I can reproduce the problem with a simple command line:
+
+ %  mount -t nfs localhost:/mnt/test /mnt/nfs_test
+ mount.nfs: Connection refused for localhost:/mnt/test on /mnt/nfs_test
+
+... adding an explicit "vers=3D{4,4.1,4.2}" has no effect; versions 2
+and 3 are no supported on my kernel builds.  There is nothing obvious
+in dmesg.  I've run with SELinux both in permissive mode and disabled
+and encountered the same problem.  This doesn't appear to be related
+to SELinux, it may simply be that we are the first ones to hit this.
+
+As there was some earlier discussion about this being a wonky
+interaction with userspace, here are some of the relevant packages on
+my system:
+
+nfs-common-utils-2.9.1-4.rc4.fc45.x86_64
+nfs-client-utils-2.9.1-4.rc4.fc45.x86_64
+nfsv4-client-utils-2.9.1-4.rc4.fc45.x86_64
+nfs-utils-2.9.1-4.rc4.fc45.x86_64
+
+My next step is to try disabling portions of the NFS file handle cache
+upcall to see if that is the issue, but it would be nice if the NFS
+devs could take a look at this too.  I'm happy to test things out or
+answer any questions about my test system.
+
+--=20
+paul-moore.com
