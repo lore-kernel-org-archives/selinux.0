@@ -1,169 +1,118 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DA9E37E5E1
-	for <selinux@vger.kernel.org>; Tue, 14 Jul 2026 22:00:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A88F332B108
+	for <selinux@vger.kernel.org>; Tue, 14 Jul 2026 22:10:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784066446; cv=none; b=Rv9TG2WeYV4mVZNxdVMdHIFNg4PvyfexkaUpadVjUsyEl8n4w+qDXNMZBJe0OyToRFBMITwvmFGc24o1BjBCEqfXCjBd1DqUon7nhivbmGxFYvW0OOK0SzgqVxPhzZE4kY/wtojSx4itCI8fhecucY6sN3P0tMOKoYOHCqJZvxk=
+	t=1784067023; cv=none; b=LvqyHorXTOB6vYkzemxWmJ1WtfctxxHapocku8mkKFl2suhk7n4aUGY/R1pRWHZLcYqBRq7WEW0HfNBFV3g4Bal8ObG9eql4WT/7IpWq5yto6zuSM7RY8JA/A3qn/lO3B+ls46/KXdIhnYMZkSud43cukTb7/Bx6NtSc66l2W2s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784066446; c=relaxed/simple;
-	bh=CfVJs28W5hxFw8ISq4Xyaqt87hZXNKUuonnOsEGAs38=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=N2O1P7mwZY3PxtXaSPQ00dJ1hai0rCHlodrf7GQ3NxFYW2trDEMv25iuDCizzcbGeBJvjFe15+ng+UsLsV8jg2NfzaltYGXPAAArzr8Ec6Y61ue0gW5wCeSeMz+4u3vyIqvjQiZ8l2SH2Nc2NUjsrqnvE55iF8z8ouZ8OTG3mco=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=g032EQb8; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1784067023; c=relaxed/simple;
+	bh=/BZteunWUuLJLH6bspsInS2xIfNPxz0Iy4dyQd3NFTQ=;
+	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
+	 References:In-Reply-To; b=aTbNJ2uwBmuGjTLhCx+X2Hicb1SoxFKc3qv97zSAcmm8mbKx+udsG1gXZipXkACiMcBlJ5tPR8WBdXrKBJmAlfG866XyYIzW5fEN1tW4fZOmYRxGrRPAXZWyvwYPGwsm89uQbo0ou3QFoTIapX++S2IdtlduSO7XSJ93RiaOEHM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Lr4mijoa; arc=none smtp.client-ip=209.85.219.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="g032EQb8"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1784066444;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tLV0uO8G+CcD7BsepUgECb6bFenLBgGo57rW9dKc/SY=;
-	b=g032EQb8arV19z4d03LwviWggMN6KJBAI51TlbygDIbpVOfLaduQBUgMAgxaLJ5rnpDyie
-	rlj7tBUp6APsY8aqt1sZuowqiLjTKh3G51Zl3aGbPyTgTXBk0o2UamFEW/1ZVCkTxJz0+O
-	Kr+LiIET5W/fHuegTY8UyN7XSdQjP00=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-44-a-wLa56ZP72HISr4gaZkUw-1; Tue,
- 14 Jul 2026 18:00:40 -0400
-X-MC-Unique: a-wLa56ZP72HISr4gaZkUw-1
-X-Mimecast-MFC-AGG-ID: a-wLa56ZP72HISr4gaZkUw_1784066438
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B63C61956052;
-	Tue, 14 Jul 2026 22:00:38 +0000 (UTC)
-Received: from smayhew-thinkpadp1gen4i.remote.csb (unknown [10.22.80.112])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 2F5CB30003B8;
-	Tue, 14 Jul 2026 22:00:38 +0000 (UTC)
-Received: by smayhew-thinkpadp1gen4i.remote.csb (Postfix, from userid 13752)
-	id 7075D4E1E582; Tue, 14 Jul 2026 18:00:37 -0400 (EDT)
-Date: Tue, 14 Jul 2026 18:00:37 -0400
-From: Scott Mayhew <smayhew@redhat.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: linux-nfs@vger.kernel.org, Anna Schumaker <anna@kernel.org>,
-	jlayton@kernel.org, chuck.lever@oracle.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Achilles Gaikwad <achillesgaikwad@gmail.com>,
-	Trond Myklebust <trondmy@kernel.org>,
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH v2] NFSv4.2: fix nfs4_listxattr size accounting
-Message-ID: <alaxhbWbFMZyC8VQ@smayhew-thinkpadp1gen4i.remote.csb>
-References: <CAHC9VhSWWhMjs282cOTT45gn0pa8bDSxD0H24_is7k4tXmGJxQ@mail.gmail.com>
- <ac4f209c-f465-4938-adae-ecd00ecab175@app.fastmail.com>
- <CAHC9VhQYjj3--K6KkDJBf6LfXqtj4TPh5LsMBpPYc0-Zz6wTMA@mail.gmail.com>
- <CAEjxPJ7dttPDxQDa_xXFd1H-QT_vkUwjtnH+=3cmG5dhSiaAXw@mail.gmail.com>
- <CAHC9VhSyCuiPBRWz_vUbx7+L5yLiXkjKX+7UyCLr82-_gAj2NQ@mail.gmail.com>
- <CAEjxPJ4+wgUDY3YxajZ=2D3WLzgat_Mqvr05VtJ4KrXW7_kuXA@mail.gmail.com>
- <CAHC9VhSxpAx+G35fbcMjJ1PfqJxDZYpTEu=qpO+0PQe=nkX5-g@mail.gmail.com>
- <CAHC9VhRq+Vth-4D4OHFAY_6hXqmj=MgTc_2G=3Ehr6bAQzp26Q@mail.gmail.com>
- <CAHC9VhQy4LOgQg0mk+s5sjHOzMe1sxPUgJ2W7vRT8ms4znZp+Q@mail.gmail.com>
- <CAHC9VhR+pWFnt=1pBJTky78br7NsfVcZE=V4UkfkfTbMvBo+mQ@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Lr4mijoa"
+Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-8ee88fce572so21285296d6.1
+        for <selinux@vger.kernel.org>; Tue, 14 Jul 2026 15:10:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1784067020; x=1784671820; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :content-type:mime-version:message-id:date:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=1cf8dsbSDIi2GC0LgRjk6ppSiN0uKevcq+Q3KeCIsFs=;
+        b=Lr4mijoauZFoNwzr9Kov5glQnnPYahM0Q59CS+mbMrNCyMeJIVcEp3F/jn1dZrGL7L
+         lyRwiskhC6foUekYWMJTVgBXpNivlA+aLrFyh/UygPPEsJwZ6Av5Z7ZOko+Q+uWNnnLd
+         hU344rI4M7grnZiZ52oE962EhG9fkMdjjfHTrWQ7W6xRUIoE0+DQnlS1oqXIe6SRZhVq
+         /0hFkrdgN6y0QnLTSCBm8nClPpaMiij1fYdhhJizKiv7L11bx/cJ12NVYlGlIc/YjnRw
+         L7MrPWopZEzJ7Boi+mtgfV9zpOr+1C0TtRXCWBMtEBSdX+x5JboX4IdKPlXcPRgXQDNp
+         wWqQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784067020; x=1784671820;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :content-type:mime-version:message-id:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=1cf8dsbSDIi2GC0LgRjk6ppSiN0uKevcq+Q3KeCIsFs=;
+        b=LOHUzzKebbK+GWwIDuGcQ1pFBSwVKH4AWtbY0Xzf7EOeD+VTIrab8ZEIP0bmJRCsat
+         RPZT3GJ8F9KrHOa8g1JeDC1+g86JtdMUvzmcVFthsQeKoHUMqgiTFRtHJ6QJ7Q28pEfV
+         TBNOQwb5cVh2N8gGOQ0XkcttEdnuqb65gXHhCRId7Jw6BMH9ReX8DdwJTrPnl/S0RiOH
+         x/fM0Nutfo+szvNe6Cuk4/lZ1tLkWGhBRtcOu9HyMLbBxt971jGe6+rNWu5Sl5biOuxl
+         UsEwg31Jj/Q9lERDKokjT/j2jusV5jKse2PVSQkI564WfbK89ygChkyDv95tzt5j0pWw
+         XWaA==
+X-Forwarded-Encrypted: i=1; AHgh+RpLwLNQjjbeMqY7pXeK6ctu453rMcg7AP31ySKKo/anc67RnN/jzm5JWs5INcBvUZN+ry8dZI7O@vger.kernel.org
+X-Gm-Message-State: AOJu0Yysx/2tEaIlmcB+lk9h3UrrRKJOeBqw/M/SQidnjNDchWJI5Xl3
+	ojB3n8xzUPZvfRE1acpp+63IiigBPEMjy4p1UB6KVt0QwQt8F6UtaX+okJrBfdWKOg==
+X-Gm-Gg: AfdE7cldGT1/YGeYgxmvaW7DH8wjKQWPq/jTLtwaqVXuZrPdkoD/BejWs3GXtjfjHqD
+	kVXNcFv+4XuswtL3KyFBFiy1GuWvhu4qKPMQ9NgzAojwhoXBue51EOWwwOHpvu4t3azfBtjTAJ4
+	OGnXwrxP2u61/WnZlDERhJB9wZ6PQ3lCC3D/vo3YD3FBvepu57CUn8Dx3MD8/NtBMt8Vk+7wIab
+	tm3EiZVFq96xHrE3Iii7c5Qzg49pK/CxXTW/BAq3gQBvmaX8lrUuBTEPpv0BxaVfQCkm1CVSzLQ
+	9T4jgp2RaaCfNlzWGTK+YZQ27Qsz3eVjmN23zyfdq46ZKq/eWGI+fvromzv0uKDFUUAQgJsatcV
+	vZBZCfDZLHOtROoOxUvQeLFTUVR88vGb4JaVTXIlurulfhYfuiX/7dmlhnoxlz0Nn4YIy72DsZw
+	yI2zLr38WBAQEdxEPIYGfL9dN8EFDE5rAx75qFwy3VK6ctIZxtPmLHzfYLSA==
+X-Received: by 2002:a05:6214:3f82:b0:8f0:b75:c4aa with SMTP id 6a1803df08f44-904032619f0mr158194076d6.35.1784067020375;
+        Tue, 14 Jul 2026 15:10:20 -0700 (PDT)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ffd82ea9casm176759466d6.42.2026.07.14.15.10.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Jul 2026 15:10:19 -0700 (PDT)
+Date: Tue, 14 Jul 2026 18:10:18 -0400
+Message-ID: <1dd1d69569b2a1f83c34ffe6ccbba337@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <CAHC9VhR+pWFnt=1pBJTky78br7NsfVcZE=V4UkfkfTbMvBo+mQ@mail.gmail.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=UTF-8 
+Content-Transfer-Encoding: 8bit 
+X-Mailer: pstg-pwork:20260714_1805/pstg-lib:20260714_1432/pstg-pwork:20260714_1805
+From: Paul Moore <paul@paul-moore.com>
+To: Ondrej Mosnacek <omosnace@redhat.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org
+Subject: Re: [PATCH v2] selinux: fix incorrect execmem checks on overlayfs
+References: <20260714125759.1042127-1-omosnace@redhat.com>
+In-Reply-To: <20260714125759.1042127-1-omosnace@redhat.com>
 
-On Tue, 14 Jul 2026, Paul Moore wrote:
+On Jul 14, 2026 Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> 
+> The commit fixing the overlayfs mmap() and mprotect() access checks
+> failed to skip the execmem check in __file_map_prot_check() for the case
+> where the "mounter check" is being performed. This check should be
+> performed only against the credentials of the task that is calling
+> mmap()/mprotect(), since it doesn't pertain to the file itself, but
+> rather just gates the ability of the calling task to get an executable
+> memory mapping in general.
+> 
+> The purpose of the "mounter check" is to guard against using an
+> overlayfs mount to gain file access that would otherwise be denied to
+> the mounter. For execmem this is not relevant, as there is no further
+> file access granted based on it (notice that the file's context is not
+> used as the target in the check), so checking it also against the
+> mounter credentials would be incorrect.
+> 
+> Fix this by passing a boolean to [__]file_map_prot_check() and
+> selinux_mmap_file_common() that indicates if we are doing the "mounter
+> check" and skiping the execmem check in that case. Since this boolean
+> also indicates if we use current_cred() or the mounter cred as the
+> subject, also remove the "cred" argument from these functions and
+> determine it based on the boolean and the file struct.
+> 
+> Fixes: 82544d36b172 ("selinux: fix overlayfs mmap() and mprotect() access checks")
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+> v2: only access file->f_cred after checking file is not NULL
+> 
+>  security/selinux/hooks.c | 42 +++++++++++++++++++++++-----------------
+>  1 file changed, 24 insertions(+), 18 deletions(-)
 
-> On Fri, Jul 10, 2026 at 6:20=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
-wrote:
-> >
-> > ... and scratch that, the offending commit was that one.
-> >
-> >    commit 01c2305795a3b6b164df48e72b12022a68fd60c1
-> >    Author: Jeff Layton <jlayton@kernel.org>
-> >    Date:   Wed Mar 25 10:40:32 2026 -0400
-> >
-> >    nfsd: add netlink upcall for the nfsd.fh cache
-> >
-> >    Add netlink-based cache upcall support for the expkey (nfsd.fh) cach=
-e,
-> >    following the same pattern as the existing svc_export netlink suppor=
-t.
-> >
-> >    Add expkey to the cache-type enum, a new expkey attribute-set with
-> >    client, fsidtype, fsid, negative, expiry, and path fields, and the
-> >    expkey-get-reqs / expkey-set-reqs operations to the nfsd YAML spec
-> >    and generated headers.
-> >
-> >    Implement nfsd_nl_expkey_get_reqs_dumpit() which snapshots pending
-> >    expkey cache requests and sends each entry's seqno, client name,
-> >    fsidtype, and fsid over netlink.
-> >
-> >    Implement nfsd_nl_expkey_set_reqs_doit() which parses expkey cache
-> >    responses from userspace (client, fsidtype, fsid, expiry, and path
-> >    or negative flag) and updates the cache via svc_expkey_lookup() /
-> >    svc_expkey_update().
-> >
-> >    Wire up the expkey_notify() callback in svc_expkey_cache_template
-> >    so cache misses trigger NFSD_CMD_CACHE_NOTIFY multicast events with
-> >    NFSD_CACHE_TYPE_EXPKEY.
-> >
-> >    Signed-off-by: Jeff Layton <jlayton@kernel.org>
-> >    Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
->=20
-> Playing around with it some this morning on a current Fedora Rawhide
-> system, I can reproduce the problem with a simple command line:
->=20
->  %  mount -t nfs localhost:/mnt/test /mnt/nfs_test
->  mount.nfs: Connection refused for localhost:/mnt/test on /mnt/nfs_test
->=20
-> ... adding an explicit "vers=3D{4,4.1,4.2}" has no effect; versions 2
-> and 3 are no supported on my kernel builds.  There is nothing obvious
-> in dmesg.  I've run with SELinux both in permissive mode and disabled
-> and encountered the same problem.  This doesn't appear to be related
-> to SELinux, it may simply be that we are the first ones to hit this.
->=20
-> As there was some earlier discussion about this being a wonky
-> interaction with userspace, here are some of the relevant packages on
-> my system:
->=20
-> nfs-common-utils-2.9.1-4.rc4.fc45.x86_64
-> nfs-client-utils-2.9.1-4.rc4.fc45.x86_64
-> nfsv4-client-utils-2.9.1-4.rc4.fc45.x86_64
-> nfs-utils-2.9.1-4.rc4.fc45.x86_64
->=20
-> My next step is to try disabling portions of the NFS file handle cache
-> upcall to see if that is the issue, but it would be nice if the NFS
-> devs could take a look at this too.  I'm happy to test things out or
-> answer any questions about my test system.
+Thanks for the update, this looks good to me.  I'm going to merge it into
+selinux/stable-7.2 now and send it up to Linus later assuming all goes
+well.
 
-Pardon the dumb question, but are you positive your NFS server is
-running?  No errors from 'systemctl status nfs-server.service' or
-'systemctl status nfs-mountd.service'?  A connection refused error
-typically indicates the server isn't running.
-
-What if you add 'no-netlink=3D1' to the mountd stanza in /etc/nfs.conf and
-restart nfs-server.service?
-
-FWIW the netlink upcall requires CAP_NET_ADMIN, which is blocked by the
-current selinux-policy on rawhide (and I think it's a dontaudit rule)...
-but you said you've disabled SELinux and reproduced your problem, so I'm
-scratching my head.  Plus the symptom I ran into was the mount command
-hanging, not a 'connection refused' error.  At any rate I filed
-https://github.com/fedora-selinux/selinux-policy/pull/3278 to update the
-selinux-policy (no movement on that yet) and the most recent mountd
-patch improves the fallback to the old proc interface, but I don't think
-it's been added to Fedora yet either.
-
--Scott
-
->=20
-> --=20
-> paul-moore.com
->=20
-
+--
+paul-moore.com
