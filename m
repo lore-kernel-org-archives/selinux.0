@@ -1,72 +1,72 @@
-Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
+Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6C3F30648C
-	for <selinux@vger.kernel.org>; Wed, 15 Jul 2026 16:20:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48A8733B6DF
+	for <selinux@vger.kernel.org>; Wed, 15 Jul 2026 16:20:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784132458; cv=none; b=T05ypye3Ah7M6Dm018ThHs6xt6aFNT7LHm96pfRcdb0RDkMJw5+pBFLjFUq4uJdYv1jxskVvzXleAK5vcaQb/kKaS3WQd+KLrTtZo9Xt3gbyVEfY6DgL7jsw+AZNwtXjxJi0lTGWJ6U3b/OlYmrPQyBAE/sLDxHb7ThFCEEfoK4=
+	t=1784132458; cv=none; b=RamI5NPGmaejOfelJ6UOX8+czbnogwhnUe3R7esK6pSw4Efe+us9oH5rqiz1wclXujsq8iwHbkhWZDtiC3idUg39EagU4lqfFdemthd2MUBHgiFjly37nr8aK6Vt+PspJmyO+Qv2Lngs1qO0EmyHR7zZdGCtBMAFVpOc+fganzg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1784132458; c=relaxed/simple;
-	bh=IzPaDnDFe3y3sfNaENqJ3ERtOOa4a6pfgvlmxRjMoI0=;
+	bh=h1Wpakb8lm2paihv0uaXwx5G686Fcn9dUF1r0BbTR/U=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Il51EeNVFr2/DpbpgKOUbyyfPgSd2Tse5CRKir8YZZJRfZgGwQAharR4Cs4j2Tvq4sfTAleRPAP5wlixmhV1AYbN6KSYsZOERoIN3M9R5ETjtJ7u953Rz1z41N9ksm37asAZgOhBmLEgFw/mlrsSs3cH84LNv+gyw9dBOGhyppY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=N1gFngkT; arc=none smtp.client-ip=209.85.222.178
+	 MIME-Version; b=gzCVDpee12FilHxakuvH8702ddTUXO+gk6fZmT4MYAmhPR21uWyRIPpSMt6sstqGxdlUKgFaqf/ADmVmqrfu5cFFk/bBXkAWWf28EQxoWZ8s/wu7EYYgkZKc3AnHFXc6OkLu+rN9TiaXl2fO2Z1nVMeLhLz2PT1kpiNCUeFk02Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TbDjaagZ; arc=none smtp.client-ip=209.85.222.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N1gFngkT"
-Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-92eafc94c9cso438140185a.0
-        for <selinux@vger.kernel.org>; Wed, 15 Jul 2026 09:20:56 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TbDjaagZ"
+Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-92e4fd65b2bso177651485a.0
+        for <selinux@vger.kernel.org>; Wed, 15 Jul 2026 09:20:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784132455; x=1784737255; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784132456; x=1784737256; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=AFQs0ZJlNsYll6k/LoQ4LeZC/2dSu3jvw5XVbC/DvqI=;
-        b=N1gFngkTjadDeVCjuU8a55zLtcel4NlDXYEC3ieh9tB4xGtL1u+W2ArP8dw/NTFWo2
-         RKEDk4owaoep4QrUjgz79LL3WDNmznl/wjBzWKS1zBWtLPmaTIRvmSn1LQLEiVXCpd2v
-         dt/HaQnbzIg0QFaKrc4X1PUsVF2CVKoenKBHUGiZGF21EDRiT0M64h5ZPO/GfHDwqCK2
-         TtzkrwDyBvI28Yr6k5hg5hcoBPdR58GtPXDRTmQiLt3tHgC29czXbc5LeWrac54jot0e
-         Bk+/9upUriu6QLmJhWYDfSicM2GOVXdb60gv3SfOrgUEMgJlOzIMsEt3cL61cF4tk04f
-         6f+Q==
+        bh=iEa8eBReY6Fv68yK9XtJ3qlVRlZT30x97oi77dA14Y4=;
+        b=TbDjaagZl2wz2E1Nm9ebDoy+9Yz5pMwKOj377p1aiAf5OdJtWScF6O3yNtfwzuvqsi
+         0FhfRB3I1YxyXiAR5lY2QUPjE4ZJnxK5QetFigj4iu/mCIQqittckMxiJiJbFZbi/ycr
+         1+NW8qw75qKd103NcZJYGSdFZqUdzI4+3mXCpo/szeGJWoTMNEx7r3mogbbzUnauKCdf
+         IkgY+Kb9phIO33+m6A+821nC1MiatDywc0haZE1D4eIZiYRKoM9rtD6UvcSXd4FrVXkw
+         in+0tBJh8CBXZvFFNxCKY2SVLomyQHOvaSaPz9xl9OWsOKsO93UJXNNZkI/U7BUxadeH
+         4jKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784132455; x=1784737255;
+        d=1e100.net; s=20251104; t=1784132456; x=1784737256;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=AFQs0ZJlNsYll6k/LoQ4LeZC/2dSu3jvw5XVbC/DvqI=;
-        b=KjffLuoJwpB58wQjyex/Ibk0f5z1RyIy8tLCQfNPWlMr6lOsJGzzUiGzEFYkySOoXQ
-         QVHXa0PfV2bkoJleMezMTwmGgVUycKDBqo/ux0XA4TzbodoQHlG6na4MnEzLHtmaln20
-         ijfMwYqoTOfprjC8gdBMBenJYEcX3gpRtDtz5t7rbmPE4ICDiDKgX0IGkw17diNO16B8
-         ixTjBWzqh6dVVuY53eTjVukOBhXegwt/ttjJwb/6pmZqtceh6ihKV4qg3tOvEDiz+mzE
-         XWGDyD3g51fQOTxUEWwDK9RLaVT1i7ZVyYIAm2YTE3L+cq2sUViIhCs3ID3N8BFbGsQq
-         eB5g==
-X-Gm-Message-State: AOJu0YzFHaS9z4/1qHTbf6df9Xvr1g3gOJjfOY8c/ldEtAj6vbIE3DMb
-	eeY563Fk47tBuyN0XiIeoQsJxC7DBs0+L0htsTi192LxKabngD438M/LbKtbig==
-X-Gm-Gg: AfdE7cmKa9mABNoAg7SkhaejUdzIJbF4+BrVqh0YZyMaSF+6yTNzloox0sdENQL/SXf
-	MCknxKK/AS9j8qGYlnA4eOJhZM7zjjwn3fSyzCvDqpmWmz5oDb6iz9b7meFbdxg0F/EhTQZY2EN
-	mlpHh9VlJui1XQrDhB+oofPsCVBFpmfAK+Oto/8DVaqYLcRJD5XyF67ow8jOhHBEQt/u0jwwKcy
-	1inr9/jt7qLuImIptZLtNcuU9PjxnrFY54bf5UWnIyM7/7JDnYZHZyN89AYemg1mw4EUiuR9VFC
-	B8fg5+/PZwmYUAxRMcOEuTXX69YpfJ4XfkBTbpQqLtLQFZoI/pDCY3gmmx7tZhs9xJ7hP+rGaT/
-	bQzjSFb/QLaHdOu8cYnfBheNxr+4ca4L2j22EX1hqRc4EvAIJms9AEK9pErOfSDfB/nl1Ol+vcI
-	TNUsgDN3kYl+NzbJAObpSNqzOADAHe66BqqceQg0WrjBeBov1Tvh9HqbfFF3r3GuPBorGObb33F
-	XA5Cg2HXPSHfWTj
-X-Received: by 2002:a05:620a:4611:b0:92e:6c8a:2a1a with SMTP id af79cd13be357-9308683eb04mr770892185a.7.1784132453721;
-        Wed, 15 Jul 2026 09:20:53 -0700 (PDT)
+        bh=iEa8eBReY6Fv68yK9XtJ3qlVRlZT30x97oi77dA14Y4=;
+        b=EffMsnh/5O7hKbFIko8QS2UnE9vhJ+BdiIv9oLJFVF7UOscVCDDvaqBk3KcC9ryq0U
+         rnrzXIPvFh70PLirVntr3xY2mzgAdTVDQ7gb50mctu3abZyDPpS/AGba+Ni1iPdfH6wE
+         Nv9XqVOtKIM/Z538LkbauwKIOZkhAGTK0HoxmUKRg9l7IruU26I/xhnVoTG8Lu3pMpC0
+         rCFMoi6We6JIx6Ko8eHjCh8lRXNHycPXjjHXVqnGp+o63ddaZ3adY1VH3uWsk3stwa1z
+         /wDO3OMikbsnaJl8sdNzSU5Lu6pdPGO+x3zhTpEonBghbMkzoG3HpxIpHyx5eCsgUv0P
+         +99w==
+X-Gm-Message-State: AOJu0YzAgX3qW6IKZBFpqOnze8V6rXzOSzL2LaOlkujb3oljOVWKiNDy
+	Ae9wQz6fugCl9cK2pHspmcIClOH/PtikIEaKjAqIuVBd39CfcRtWCNeRgT2liA==
+X-Gm-Gg: AfdE7cl3Kn82n56Tw4kdGJEm7aZDG2LD85JNspecDcERP0H7jTgHBUyBbCIS7/wfEFd
+	axMNE/Y538HWWB+gddkX3w3282NOmsFDz33F+jgIjiDVuSCeBTUJxaTHzN7CahCjarv6VGT7B9f
+	Zvd7DMEJjQos/DHkIV16KTbciVuER+4sNvLLWBMY9OylbPeaG5oNH20ZBzoIxvmkOk5WofjnqnK
+	Shqd7v7C5ajodC0HU5alF0szUOB/KYD4WGaPGQGumuzC+YPb3tSNGjp4sM0+96MCiDrJ6nlM3OT
+	VHP80D4eOSYewJ0BhMlnu9CSk9ELy6VIoxgy1kEq0oYqrzZs0abMLTkPvdFJKuRekM1qfWmne56
+	n3MHSQyLMk7B9fx6UnMlAZjKgbqq+LhF9zW1Wk+yJwLIalch3btP4bK6KhbphnpQ6NtXYYilxL4
+	+SuPv46/NZkAPf3Z94Bk8HzsU1xVlChSoyjraxvYgBu1YUXiCHP7pI17LT6vvJfxo57r6v+dDrS
+	VbmId7UWMkeH0unKm78EYZ3qqc=
+X-Received: by 2002:a05:620a:8087:b0:92e:76ca:e20f with SMTP id af79cd13be357-92ef2bb4c55mr1753919885a.41.1784132456142;
+        Wed, 15 Jul 2026 09:20:56 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-92ee5cf7ab2sm1694855485a.30.2026.07.15.09.20.53
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-92ee5cf7ab2sm1694855485a.30.2026.07.15.09.20.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Jul 2026 09:20:53 -0700 (PDT)
+        Wed, 15 Jul 2026 09:20:55 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
 	plautrba@redhat.com,
 	omosnace@redhat.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 06/10] sandbox/seunshare: remove files under tmpdir as user
-Date: Wed, 15 Jul 2026 12:20:32 -0400
-Message-ID: <20260715162037.42329-6-stephen.smalley.work@gmail.com>
+Subject: [PATCH 07/10] sandbox/sandbox: use slicing rather than re.sub in copyfile()
+Date: Wed, 15 Jul 2026 12:20:33 -0400
+Message-ID: <20260715162037.42329-7-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260715162037.42329-1-stephen.smalley.work@gmail.com>
 References: <20260715162037.42329-1-stephen.smalley.work@gmail.com>
@@ -78,112 +78,38 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The files under the tmpdir are user-owned so removal of those files is
-best done under the user's uid. Only the tmpdir itself is root-owned
-and therefore should be removed as root.
+copyfile() rewrites the leading srcdir with dest via re.sub(),
+which treats srcdir as a regular expression and dest as a
+replacement template. A home directory containing regex
+metacharacters or a destination containing a backslash
+will mangle the result. Replace the use of re.sub() with
+simple slicing and string concatenation.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- sandbox/seunshare.c | 53 +++++++++++++++++++++++++++++++++------------
- 1 file changed, 39 insertions(+), 14 deletions(-)
+ sandbox/sandbox | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
-index 7c6154e1..c60b0e3e 100644
---- a/sandbox/seunshare.c
-+++ b/sandbox/seunshare.c
-@@ -486,7 +486,8 @@ err:
-  *         not be followed.
-  */
- #define RM_RF_MAXDEPTH 128
--static bool rm_rf(int targetfd, const char *path, unsigned int depth)
-+static bool rm_rf(int targetfd, const char *path, unsigned int depth,
-+		  bool removetop)
- {
- 	struct stat statbuf;
+diff --git a/sandbox/sandbox b/sandbox/sandbox
+index 4e7d56fd..3368a95b 100644
+--- a/sandbox/sandbox
++++ b/sandbox/sandbox
+@@ -84,14 +84,13 @@ def error_exit(msg):
  
-@@ -527,24 +528,31 @@ static bool rm_rf(int targetfd, const char *path, unsigned int depth)
- 				continue;
- 			}
  
--			if (!rm_rf(dirfd(dir), entry->d_name, depth + 1)) {
-+			if (!rm_rf(dirfd(dir), entry->d_name, depth + 1,
-+				   true)) {
- 				rc = false;
- 			}
- 		}
- 
- 		closedir(dir);
- 
--		if (unlinkat(targetfd, path, AT_REMOVEDIR) < 0) {
--			perror("unlinkat");
--			rc = false;
-+		if (removetop) {
-+			if (unlinkat(targetfd, path, AT_REMOVEDIR) < 0) {
-+				perror("unlinkat");
-+				rc = false;
-+			}
- 		}
- 
- 		return rc;
- 	}
--	if (unlinkat(targetfd, path, 0) < 0) {
--		perror("unlinkat");
--		return false;
-+
-+	if (removetop) {
-+		if (unlinkat(targetfd, path, 0) < 0) {
-+			perror("unlinkat");
-+			return false;
-+		}
- 	}
-+
- 	return true;
- }
- 
-@@ -630,20 +638,37 @@ static int cleanup_tmpdir(const char *tmpdir, const char *src,
- 		free_args(args);
- 	}
- 
--	if (setfsuid_checked(0, 0) < 0)
-+	/* Remove files under the tmpdir as the user */
-+	if (setfsuid_checked(0, pwd->pw_uid) < 0) {
-+		fprintf(stderr,
-+			_("unable to switch to user for removing files under tmp dir\n"));
- 		rc++;
--
--	/* Recursively remove the runtime temp directory.  */
--	if (!rm_rf(AT_FDCWD, tmpdir, 0)) {
-+	}
-+	if (!rm_rf(AT_FDCWD, tmpdir, 0, false)) {
- 		fprintf(stderr,
- 			_("Failed to recursively remove directory %s\n"),
- 			tmpdir);
- 		rc++;
- 	}
- 
--	if (setfsuid_checked(0, pwd->pw_uid) < 0) {
-+	/* Then remove the tmpdir itself as root */
-+	if (setfsuid_checked(pwd->pw_uid, 0) < 0) {
- 		fprintf(stderr,
--			_("unable to switch back to user after clearing tmp dir\n"));
-+			_("unable to switch back to root to delete tmpdir\n"));
-+		rc++;
-+	}
-+	if (rmdir(tmpdir) < 0) {
-+		fprintf(stderr, _("Failed to remove directory %s\n"), tmpdir);
-+		rc++;
-+	}
-+
-+	/*
-+	 * Then switch back to the user and return.
-+	 * NB This seems odd but preserving for consistency
-+	 * with the existing code.
-+	 */
-+	if (setfsuid_checked(0, pwd->pw_uid) < 0) {
-+		fprintf(stderr, _("unable to switch back to user\n"));
- 		rc++;
- 	}
- 
+ def copyfile(file, srcdir, dest):
+-    import re
+     if file.startswith(srcdir):
+         dname = os.path.dirname(file)
+         bname = os.path.basename(file)
+         if dname == srcdir:
+             dest = dest + "/" + bname
+         else:
+-            newdir = re.sub(srcdir, dest, dname)
++            newdir = dest + dname[len(srcdir):]
+             if not os.path.exists(newdir):
+                 os.makedirs(newdir)
+             dest = newdir + "/" + bname
 -- 
 2.55.0
 
