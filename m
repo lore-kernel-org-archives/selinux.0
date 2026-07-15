@@ -1,113 +1,121 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com [209.85.219.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D9E42FDC57
-	for <selinux@vger.kernel.org>; Wed, 15 Jul 2026 17:54:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 908E44248B1
+	for <selinux@vger.kernel.org>; Wed, 15 Jul 2026 18:49:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784138070; cv=none; b=OGweSnpEsxB60b75/E2ibJ4y0+OTOYsQDqzE19mpYzZMapF7WY4gaaQeulbJziQRXRW9xiCn/yMz/QnOUqn0PCwD6CWb4PpPNSWITjktIYahfvnTLiCNs3ZOUWMQmYKdVt/sRKFKAPyVaPlZmE+OlkFl+owFuFWmt1VCY5SKNQw=
+	t=1784141375; cv=none; b=akjGOD8skmS4sLSVQGvWUfT9xxxLHElLVrCLnmG+lsYkL2Qwk5YOypWA5sCeIhapWqFuWniAtMogWaNu3DORWE0ZyIE8sXfEGf64eVplMDf95FmUufo6V3wc2A40zl0jWza+9KJ6d4Hjj3bye+LwzulVFq6xToct+RXLQbvaquc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784138070; c=relaxed/simple;
-	bh=+6adDd6/xHzkWm2bf9Gy2fAjqVGpbD8dRg/fCWC+VkQ=;
-	h=From:Subject:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=HkYIZ3A5EBRB5X0gJANSCOT4hmYhOBLYJ4krEH0IYd7hpvsdlKrIYkKPwerlmzxAErp/17W2ZAn4LI89c9lazTi0VSYIIGPToZjG2uWCiN0xmwR44g2dz6KEioFGG5157SdKphpsqFxu1scy2mHBrWQYIaX0tdKgtwYZw6qRwD0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EYzUFd38; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784141375; c=relaxed/simple;
+	bh=3IeYAMWlPretl2BAuDev//c+jO91fKHBaMAIjKzihWY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=g2av2YNEVFwD5C4A4TsrVDETfv4+sv2O8SI9vaIqieSt/BKaMpCgfgkHsEkFo6XD4oxg1RRFTQwbwnbmhRBHOmKK894vyysaOmCAdYqCmSO9kPZI16huBQ9YhZEENev2ym5AAgorQnRKVHQI4SuzPSo+bWuo0fZ/4/6VDGZXNfI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MKvgKKhs; arc=none smtp.client-ip=209.85.219.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EYzUFd38"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0F8D1F00A3A
-	for <selinux@vger.kernel.org>; Wed, 15 Jul 2026 17:54:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784138069;
-	bh=qk3fcdD1HvfrwPxx94xphx/jl+IrRk80KPFoYr4A/WA=;
-	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
-	b=EYzUFd38YQIfoeAGi5tUsHyvBsUu3G2NqxwCkcFuv58/iqraa67z8COw74ObBgN7Z
-	 bTlZdJNZwjDsy0MKOF1/UQ4iHn9U7z+mUFNj/qd1n7vE6WwYHjuXCY+AyLCgoaaMci
-	 xe2NHWveHS/+iSb3mcNc+hg5084A2RE1ctjbL/gk5thXoNyzNSNoy5FyI4dnS5oqzj
-	 vRz5ehWQtWvlBLtd3a+Vcfj8uQnqa3Jxc0/qN82Y8EKzdcy18mnhDLTewSNGauD/y5
-	 iXefQb1+tNFQ0Z49wnNXEmJF78Raz3VNgd3Mmek4SI/5MFY/d9sgb2vmll0Ik2G/JB
-	 BcfWI5oga2LoA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] selinux: use socket SID for SCTP bind/connect
- permission checks in softirq
-Reply-To: sashiko-reviews@lists.linux.dev
-Cc: selinux@vger.kernel.org
-In-Reply-To: <20260715174521.589520-1-tristan@talencesecurity.com>
-References: <20260715174521.589520-1-tristan@talencesecurity.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 15 Jul 2026 17:54:28 +0000
-Message-Id: <20260715175428.D0F8D1F00A3A@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MKvgKKhs"
+Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-8efcfdb2b43so52839476d6.3
+        for <selinux@vger.kernel.org>; Wed, 15 Jul 2026 11:49:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784141371; x=1784746171; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=+Ch03QwtKH3Sxtd7LmQcbUMB0NdD4NB1bCjn81J1udw=;
+        b=MKvgKKhsNSNgDkGpBrBM8BUdnceUqHm61/Lv3KYvXphgapl94UIG/AOJ7rxmGRStKK
+         v4SukJp9/5dvkDXtKWlONfShhNEl878j+MTOSALQ/q4leYp/refJfXGYR+jUA+tytjHI
+         HqmCZLJJsOfqYRUiep1UKPsxsNnNg2LGtMXEvESWVIyxMduhO/G3trAcMepADVQzB7Ur
+         f900os/KjIhw9VKrv+QDZbgwvGulTkxJ3A4iKGKjmUZwWheyuiKxgLjnYoVZWjd5KoaB
+         +J8OPuWVULRT2d3WMt4zwpMdxVW4f/CW5FtfYD6GDQGjochJOGbn5xkfT3Ik1C60QmTH
+         s66Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784141371; x=1784746171;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=+Ch03QwtKH3Sxtd7LmQcbUMB0NdD4NB1bCjn81J1udw=;
+        b=SKD9p1sEz9/1EQ3YpCg37KxMIX0jApS2w1Q8VBvpzYxZaquOkTBX5xwni/LGh7UPkQ
+         b/hpHwZlXpQ4aOzSePMj2BCODnAepbZaPdH9Ry/UXUl8Yg3qqD7PaMTdRicObresSR9M
+         UzSBIrQdixj9pwqio5NqsLd0SpTCbL63bSbGSeXD7XXevA0ryGyzwacFTjmc+9x0wyen
+         orRJZ7+Hvp5gynHTC2QTA1ka5eS9mIjP17f3gHuXYI8ZZblzg0bP3bszZOx6c2XuGd8x
+         3u+o6EeKQ1w2tVvbAn+9Yq7QlFQmFrFPlsPYkxDLgN5F6G/+vkQv5RD7iwVwWRvEd9/P
+         7uJA==
+X-Gm-Message-State: AOJu0Yzl7V04QcTnnIfmedAQv/6lF+bmFlj4FIUL5FQxlMlmiR6n+xnS
+	Yr/Dra5iwoe6miBKfNaQMx712+rUM25OjGt4U+8efjF792kOJG+9tWYrawg+Yg==
+X-Gm-Gg: AfdE7ck3imA7hgEic1V/Q0hi4uYozjeWtrNbpCHMzUwiw87qxUmjhTO7XLvTRdsNsW6
+	CLdwqn8DGGR4b/htBq1gc69ivZFfas/mk1XCgCg44j4D1ueat1wRkB7YlzZp9piPurIhsKtwY3b
+	ERvADsmDjfkRGHXBp1V09JOjKUF71lDuS47lc0iOUfAuT07CHPKTbIPLwHuR8O4sIbhYH+nnqp6
+	+DmD1D0oIFCr4meIbaC9hv1vBICMgtrDoK2z2+3q5IlOV+UYv8hmG3angLRXX4bwMl0y1T+Fp5e
+	x7GUlrMVn5yyHXfbx+O+/6Retd/T0+l3lxjRe30eQgYHNaJqjQ1bD2iQxbQeE8XqBXabYkR8UqQ
+	ISywZQz6NdAHKmOEGSnplCWZBYbTzzoTJRbLW03soRP8DMOQPmQDiwbSrpPudeEmzIBU1vYH02B
+	dNX07hTyKQZsn/7ulNFAMnCqjT+lZ9MAbSgCxTCLqRC8BooI8hS3wZSaKZQ5omwqz7RgCZ5b+z9
+	0hMchjajU52SjqV
+X-Received: by 2002:a05:6214:4698:b0:8f6:2588:778a with SMTP id 6a1803df08f44-90758cbf79fmr48080616d6.4.1784141370833;
+        Wed, 15 Jul 2026 11:49:30 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ffd82ea9casm198015696d6.42.2026.07.15.11.49.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Jul 2026 11:49:30 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH 1/5] libselinux: selinux_set_mapping(): reject class tables with too many classes
+Date: Wed, 15 Jul 2026 14:49:10 -0400
+Message-ID: <20260715184914.45524-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] SELinux MAC Bypass in SCTP socket operations
---
+Prevent integer overflow while counting the caller-supplied class
+table and return an error if the table has more classes than
+security_class_t permits.
 
---- Patch [1]: [PATCH] selinux: use socket SID for SCTP bind/connect permis=
-sion checks in softirq ---
-commit 7061b960bc8b25549fb5d5ff1d249127732f8627
-Author: Tristan Madani <tristmd@gmail.com>
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ libselinux/src/mapping.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-selinux: use socket SID for SCTP bind/connect permission checks in softirq
+diff --git a/libselinux/src/mapping.c b/libselinux/src/mapping.c
+index ddc11dae..1fd1f04d 100644
+--- a/libselinux/src/mapping.c
++++ b/libselinux/src/mapping.c
+@@ -3,6 +3,7 @@
+  */
+ 
+ #include <errno.h>
++#include <limits.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <stdarg.h>
+@@ -35,8 +36,7 @@ static security_class_t current_mapping_size = 0;
+ int selinux_set_mapping(const struct security_class_mapping *map)
+ {
+ 	size_t size = sizeof(struct selinux_mapping);
+-	security_class_t i, j;
+-	unsigned k;
++	unsigned int i, j, k;
+ 	bool print_unknown_handle = false;
+ 	bool reject = (security_reject_unknown() == 1);
+ 	bool deny = (security_deny_unknown() == 1);
+@@ -56,6 +56,10 @@ int selinux_set_mapping(const struct security_class_mapping *map)
+ 	i = 0;
+ 	while (map[i].name)
+ 		i++;
++	if (i >= USHRT_MAX) {
++		errno = EINVAL;
++		goto err;
++	}
+ 
+ 	/* Allocate space for the class records, plus one for class zero */
+ 	current_mapping = (struct selinux_mapping *)calloc(++i, size);
+-- 
+2.55.0
 
-This commit passes an explicit caller SID through __selinux_socket_bind()
-and selinux_socket_connect_helper(). It modifies selinux_sctp_bind_connect()
-to unconditionally use the socket's SID to fix permission checks during
-softirq processing.
-
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 8d6ccbf16c2b4..fe91c9191f732 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-
-[ ... ]
-
-> @@ -5766,14 +5773,14 @@ static int selinux_sctp_bind_connect(struct sock =
-*sk, int optname,
->  		case SCTP_PRIMARY_ADDR:
->  		case SCTP_SET_PEER_PRIMARY_ADDR:
->  		case SCTP_SOCKOPT_BINDX_ADD:
-> -			err =3D __selinux_socket_bind(sk, addr, len);
-> +			err =3D __selinux_socket_bind(sk, sksec->sid, addr, len);
-
-[Severity: High]
-Does unconditionally passing sksec->sid bypass SELinux MAC policies for
-process-context syscalls?
-
-If a privileged process creates an SCTP socket and passes its file
-descriptor to an unprivileged process, the unprivileged process can call
-sctp_bindx() or sctp_connectx().=20
-
-Because this check evaluates the socket's SID rather than the executing
-task's SID, it appears the unprivileged process would be evaluated using
-the permissions of the socket's creator.
-
->  			break;
->  		/* Connect checks */
->  		case SCTP_SOCKOPT_CONNECTX:
->  		case SCTP_PARAM_SET_PRIMARY:
->  		case SCTP_PARAM_ADD_IP:
->  		case SCTP_SENDMSG_CONNECT:
-> -			err =3D selinux_socket_connect_helper(sk, addr, len);
-> +			err =3D selinux_socket_connect_helper(sk, sksec->sid, addr, len);
-
-[Severity: High]
-Are these connect checks affected by the same permission bypass behavior
-as the bind checks above?
-
-It looks like syscalls such as sendmsg() and sctp_connectx() would also
-bypass the permission check for the calling process by checking the
-socket's SID instead.
-
->  			if (err)
->  				return err;
->
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260715174521.5895=
-20-1-tristan@talencesecurity.com?part=3D1
