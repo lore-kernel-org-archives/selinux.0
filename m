@@ -1,192 +1,116 @@
-Received: from mail-lj1-f181.google.com (mail-lj1-f181.google.com [209.85.208.181])
+Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B14743990C
-	for <selinux@vger.kernel.org>; Wed, 15 Jul 2026 18:59:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.181
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784141978; cv=pass; b=Mz0Bd7VhZlztjOBp/JuKzjArhbGgo1rIxNiNfblKiM2TFD6eP6RmfrXRUs1dwC3tHOvxqLf5Pgg3y8iLPvFUz1SnWDsYscrb6jUcYS14H/xR1ZsKsz0a55zmKrLX5AOYb0n7yKwWy1NwUm3LeTFyIDlu4hesGTqu87y9+4YC43E=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784141978; c=relaxed/simple;
-	bh=rj0uf/uaNWqqO0YinngNMS5HLrk8vesaza/nFRJ40EM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=AWovzgc/Ve2iIFTXqe9XKw5pk1NW/5MKlIwHvsK8oiegHK+nv8X6RiCMbEeqgu6mfZIhR8s8sNAajMZAjSHZi1lRf6Z1Vkpu0/UtmBhHMboYAcY3VZCKA5KEQ+0i6lp8ESUuYcSoy/lP1ieGGCtoVLUHVGN7WUXFI6JVC5XDWFA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Rb4d/EE2; arc=pass smtp.client-ip=209.85.208.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB70D3B95F6
+	for <selinux@vger.kernel.org>; Wed, 15 Jul 2026 19:23:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.179
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784143407; cv=none; b=bU/RVj1O0UdJiqcqpEw/CFeiAjh0OrdZ12tAb6Xgk7wEXNPz14bYsbAMD8EnAE7aUSN9Mz+xBQD/jvl+xmZHK2XW/UOtBIT2/f/l8GZeCxtEQVg/9q6VAuoGCbel+EO8TDY7ozN/MrhrFZObGWO3ZQPNn8iepSZZVL46QOG+NEQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784143407; c=relaxed/simple;
+	bh=JNI/QqxkUGHTSvouUAVAqyXZ+hos547oE8XtR+UQvCM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LKgAt37UO/0awFEb7ImojszLrkfRF+jEhiEMKGFz0irQMOzZXNWjgZV65vZiyP7+5Cg9XN6FDyIFEK+745zbJa+GGg/38ncodzF5V3szpwgl3XUoDNG2Hw1iGQNGbwYux7gR8qH86fdt7R2+x8lbEHArpejnTMPKcogOn0CkmDY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OD2YFDt+; arc=none smtp.client-ip=209.85.160.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Rb4d/EE2"
-Received: by mail-lj1-f181.google.com with SMTP id 38308e7fff4ca-39c7ce122c7so53718941fa.2
-        for <selinux@vger.kernel.org>; Wed, 15 Jul 2026 11:59:25 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784141959; cv=none;
-        d=google.com; s=arc-20260327;
-        b=flzv5DQ2D9iWARGHW9q/1XlcZ5nJDpulkoaKCkSUilZLj+yyuedtTNd+GnB2KgpARy
-         cM7QXl1lE78QDc1/RNHaCKvw9JQP8Rmo0Rq0XvCF/6/gHHPfPz/+K56f6Ht3C/LiQZBj
-         rI4Hh5sEBeMzKEQTd2okT0eWQFNF4ipwd/cXnJhopNAAIKVhhxNIEGj0UBByW+3aI9oh
-         59nbdvMf8V5//liM+YLGWIVKlQEdjwFD2ych4U8nhQjECGY5z9JJsVyMqI+RmiRDJXJ/
-         pfmXMvluOrQc2VStBHKnew3FCdKUMiw/5k4qbqdc/KVtUXiveGOAU+rW8hBc+26SJe0g
-         PcWQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=6BobxdqoMVbesU9sKe92Ws2sNb5cLRX4EhiFDTy4LL4=;
-        fh=K2IQBBcrO8HnubWeTK+pps4B+GVAKD6hGCr6CeVX1cE=;
-        b=gNL+7vrGf3MhyECfkVE0bI6N1s+IPVl3CibfSkbw+zUP4PYVGFUmICdLJ7+2+ctoiK
-         WqtgDfYiV0p3J8I7P7jgwcOKMgBPP6uDqZNs15JVwlrlYc2pBXGMpAv3j4aoJDOOJesz
-         yFngmhH/EoCf3StHr077+pyCeOXJoEfqdhjXxPLuFbu+/6QA/mD/ZsgLulYpp35+UeEV
-         DeTr4O5n7NhcEzo4b9Mi74MGnnX1zEnTcpQsND9YG587jz0oKYulGkkyfYF5WSo7lV5h
-         e98TCVj3g0tuHxX4UYBpFnFke3c5zQrBpzss3//qqUYJxaKQKtc0j6BCd/TPksI7xs8D
-         HHVw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OD2YFDt+"
+Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-51c167c58f2so41500171cf.0
+        for <selinux@vger.kernel.org>; Wed, 15 Jul 2026 12:23:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784141959; x=1784746759; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=6BobxdqoMVbesU9sKe92Ws2sNb5cLRX4EhiFDTy4LL4=;
-        b=Rb4d/EE2v1YAvEaZSQB9R7XgU3LHKPMs/wnnwA5XcvagkEuMjq2h40OdYqOChkv27B
-         Ci+cJt42npxaiig8FtzhYrs3XHJvp4DAKLxP0pn9H+bKI/EXPlmfhvfKZyDbqiOTkkR8
-         +0xEXIzIdzbKvWXNBKnPcK6/+pq0K2/KUKsIdHJtWMeJUpfh722EBWvSA+TnHZ/dtvfk
-         8a+YLN41PxhFzXs+gNyY+fLlMUNC3aCnwh/PULhogQb7hKKuCGplzU/dQPtMKqXr6Vyn
-         haxsXKDHyVMF72PDbZqhHP44IUeentBJoXzPi8XvimBvGcy6CKfQQGY3sDNfDxgBSiTG
-         a+5A==
+        d=gmail.com; s=20251104; t=1784143403; x=1784748203; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=HGTd8eHpTYH37nGtn3zYpH0cVR2Ymj7sxuv7HLd5+A0=;
+        b=OD2YFDt+/zb17YODHq5KhFIsM/OdQdgODfBAQCErfULBwAPNxvsv5jfZUPbHhPdSQ/
+         ahBK1DlTFHEQcpA1LmSrWpVIExwKDiUqSxlnALAzsMHXMHT/WvDXzFPFhptdQE4sWJyh
+         CgIkVhsCxm7LUqp6UskNTI9r49EhHmV7gzUQkriaX/wu6067GXtTD/+VgxU5kBh6NUoN
+         ktQaF3tPvFs+Rv6VdY/xZj0LJdkZ5WggtWpEySjMs+D1JGb/UVho+E/YsQbl96MIiQcl
+         O7N2Rz2jzMYzXNmwn27ZP7w+3WBtGT5HC0YdcAMHEvleA0JAeN+MNmipfC3W97sLx/Fa
+         kgiQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784141959; x=1784746759;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=6BobxdqoMVbesU9sKe92Ws2sNb5cLRX4EhiFDTy4LL4=;
-        b=RlnptVzoGwbwbZ8DnteFrNPfSUlSlGwrpV9FL5at2qfQoD9neGtsCdrJRFSg2OXQFh
-         exZfI+vEXqRKgH0DHxSOm93OyaI5Qig9FNpAaH3jbKJX9mDiD9ojWYjt1X5JfScqjLZ4
-         k2AITtjdNAegRTo5VgqThcRbZNHbvpP6hWvZFb0188NoJmsod43rq9rUDXp2eaxI8b/N
-         x41NXffkkhJN4ve6Y0t50aJXHxItJWlLaVoiySK4pAoFaXT8oIkn7VnFfwdrC4+eiFcn
-         ipZz7DGNt79wUX66eMXVlXDAF0t7OXYJQfN3SbdTnQCQl4lTSuzDAKtBm8ue2Sje1KDm
-         XpdQ==
-X-Gm-Message-State: AOJu0Ywb0nv1yW6M08e5C7R9RWHMIXU1G9wobsu0BAZPBH7gPnLCPfvR
-	jNXYQ5NcaXhxXjSfWCcUNmUo5XFG4raIXqaz75PyB8o8riac8535p7TFdlA5lH+D3apwrx5EGJA
-	OVJvAUlo3I9TcfeNG0FQ5B42SYQO9liY=
-X-Gm-Gg: AfdE7ckU9rf3tUujqepp98o1BJTlfV189flOMNy6IdxnLAvMaCIe8yNBiIpuuiwi3LM
-	QSL+WxeWU1oMv7RSA+56m0buwd/V0A/kMMYxLeAvDZfywZT2BFQhSgYN8mE3dhP9AEbCdQDf/yL
-	nIajYO1d1yk0jyBv4dwZxhaB2XRfLnXT+ROAbF9t+VX6KJYHONwwQqE4fsM2Ff74EMryn6vLp+3
-	kTz6LD+m9oUJrSv/9WQdKAo0puufph2U8zxwocy41aXaoTiQhUaPjIhAfFNk8pekd7fVQ==
-X-Received: by 2002:a05:651c:2229:b0:39b:374a:afb8 with SMTP id
- 38308e7fff4ca-39dadafc115mr15328151fa.0.1784141958809; Wed, 15 Jul 2026
- 11:59:18 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1784143403; x=1784748203;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=HGTd8eHpTYH37nGtn3zYpH0cVR2Ymj7sxuv7HLd5+A0=;
+        b=RroiVxR3kOTq0tsakDNTHNV0Dt71ktj3JipXgEORwJkpgS2Z5BnP7uAGeNW5h2YxcD
+         wIY40g1rjCGqZExoqcvGSHGG5siqHlsp6NStkApFnGRO5pgGTOoO8rQI7ICU7Ox85aZS
+         nzo1ftVtg2Pgpfc+yqb6SaCaUyXHVBotVaG9EF1xjkYYkoLjhlYSwbfB2drwgyZlHPn9
+         5/GWmaWL2Aiz+Ne9swDdbaOtmBaQMrJos7+H22ODC9l2sDRMe4x4UyZ27cASifssU94V
+         9E5yMBbf+MhDGjAENWwG4BqagtnMc1Z6l/BNIBuTPlB5sBx4PyXerGEWo+293etC/ZtO
+         hnKA==
+X-Gm-Message-State: AOJu0YxUrSdVku9l8kdMB+zndCJ4S/vEwAqyiDsfxW95eWzAcnFOYEML
+	asplkVxnH61yd1OejMngx9vHqEgQEDZ6NAwHRQ9rXb5BkGDmcyCJRqay2I7EKA==
+X-Gm-Gg: AfdE7clC3O52SArUtC0t0xUuVgQEce3nbWTftW25rW93lGCsrgQivUGv/NmeYbN8N9k
+	nd6AzRQg1pDa80hU0lG0iwMFEo9yMCOUYplq5vdwA4+r5tLNZqHU80EAtJE6uv5N7cx6WnnYVv8
+	XXlQHq5pXeBWpJ8TEh66KL6icpbBlj4g3DN96LIoz/W7EjsE/VSH4S6a0wWCZ/AZ5dsEX414z1Y
+	SL7ygbZcG5wGJ7mM3JXQydXVI8ioNs4FbxtbVyhiP1VD2JDRCPYrVJ/PyITiZs3XHmLjAFLf1w1
+	n1YnSV48PQVtZ1Sm2zemSl78dY7BBqJmai3fjBmOGQyDFIs6YbfCqo4NJSlQSvQIjn9EbvLOxkw
+	kvekKVKfDouyFZ6hGDY4n7PSdPheXD7xidrMEH5uDNrgHDpA/XjGTjFt7S/ibNDaKb9x53i19Zv
+	w/iOc0mXpR3v7yHnUNBlQtFRnV3RfJJ3RvDdf1dkerqeOpManV3BW6xLLSdbsatMr2dFly1NykN
+	qstJKQqrEVsovlC
+X-Received: by 2002:ac8:59d2:0:b0:51c:1fa1:80d3 with SMTP id d75a77b69052e-51e42453c3amr76831831cf.49.1784143403186;
+        Wed, 15 Jul 2026 12:23:23 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-51caaf671e2sm139601481cf.25.2026.07.15.12.23.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Jul 2026 12:23:22 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] libsemanage: direct_api: clamp write length in ERR_CHLD_STDERR()
+Date: Wed, 15 Jul 2026 15:23:09 -0400
+Message-ID: <20260715192309.46442-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260706143155.36629-1-stephen.smalley.work@gmail.com> <20260706143155.36629-2-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260706143155.36629-2-stephen.smalley.work@gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Wed, 15 Jul 2026 14:59:06 -0400
-X-Gm-Features: AUfX_mwu0nfPx3s-kbN4P8mUst77okt3gyoQpUf9xzW0Z_eU46yHGh-QnxpX8uo
-Message-ID: <CAP+JOzRA48R83Bb6=OXMCqjizYftiRbdGbZKFWbYPuS3+YtFNw@mail.gmail.com>
-Subject: Re: [PATCH v3 1/5] libselinux: avc: use pthread mutexes by default
- when no lock callbacks set
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
-	Seth Moore <sethmo@google.com>, 
-	Purushottam Choudhary <purushottamchoudhary29@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, Jul 6, 2026 at 10:32=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> The AVC has a set of locking calls but defaults to no locking, and
-> only the deprecated avc_init() allowed applications to set their own
-> locking callbacks. Since selinux_check_access() is now commonly used
-> by applications implementing userspace SELinux permission checks and
-> it uses avc_open() internally, such calls are currently not
-> thread-safe.  Provide fallbacks to using pthread mutexes by
-> default. Single-threaded programs that do not link -lpthread will be
-> unaffected due to the existing __pthread_mutex() helpers. Applications
-> that explicitly specify locking callbacks via the deprecated
-> avc_init() will also be unaffected.
->
-> This is the first step toward a thread-safe selinux_check_access();
-> the class-string cache and status-page transition handling are
-> addressed in follow-up changes.
->
-> Fixes: #287 #335 #336
-> Link: https://lore.kernel.org/selinux/CAJsHiNx1E7x1jaBkS0i4L1nBWXp8YXLHRW=
-cCaDaH4LOn=3Dzm+Zw@mail.gmail.com/
-> Link: https://lore.kernel.org/selinux/20220120073329.15234-1-purushottamc=
-houdhary29@gmail.com/
-> Reported-by: Seth Moore <sethmo@google.com>
-> Reported-by: Purushottam Choudhary <purushottamchoudhary29@gmail.com>
->
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+snprintf() returns the number of bytes it would have written on
+truncation, which can exceed the buffer size, and can potentially
+return < 0 on other error conditions. Clamp the write length to the
+buffer size less the terminator and only write if snprintf() actually
+wrote bytes to the buffer.
 
-For these five patches:
-Acked-by: James Carter <jwcart2@gmail.com>
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ libsemanage/src/direct_api.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
+diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+index b87b87e7..6c84b23c 100644
+--- a/libsemanage/src/direct_api.c
++++ b/libsemanage/src/direct_api.c
+@@ -618,11 +618,19 @@ static int read_from_pipe_to_data(semanage_handle_t *sh, size_t initial_len,
+ 				  "libsemanage.semanage_pipe_data: ",          \
+ 				  strlen("libsemanage.semanage_pipe_data: ")); \
+ 		n = snprintf(buf, sizeof(buf), __VA_ARGS__);                   \
+-		(void)!write_full(err_fd[PIPE_WRITE], buf, n);                 \
++		if (n > 0) {                                                   \
++			if ((size_t)n >= sizeof(buf))                          \
++				n = sizeof(buf) - 1;                           \
++			(void)!write_full(err_fd[PIPE_WRITE], buf, (size_t)n); \
++		}                                                              \
+ 		if (errsv) {                                                   \
+ 			errno = errsv;                                         \
+ 			n = snprintf(buf, sizeof(buf), " (%m).");              \
+-			(void)!write_full(err_fd[PIPE_WRITE], buf, n);         \
++			if (n > 0) {                                           \
++				if ((size_t)n >= sizeof(buf))                  \
++					n = sizeof(buf) - 1;                   \
++				(void)!write_full(err_fd[PIPE_WRITE], buf, n); \
++			}                                                      \
+ 		}                                                              \
+ 		(void)!write_full(err_fd[PIPE_WRITE], "\n", strlen("\n"));     \
+ 		(void)!fsync(err_fd[PIPE_WRITE]);                              \
+-- 
+2.55.0
 
-> ---
->  libselinux/src/avc_internal.h | 19 ++++++++++++++++++-
->  1 file changed, 18 insertions(+), 1 deletion(-)
->
-> diff --git a/libselinux/src/avc_internal.h b/libselinux/src/avc_internal.=
-h
-> index 719be934..3c21ffef 100644
-> --- a/libselinux/src/avc_internal.h
-> +++ b/libselinux/src/avc_internal.h
-> @@ -14,6 +14,7 @@
->  #include <string.h>
->  #include <selinux/avc.h>
->  #include "callbacks.h"
-> +#include "selinux_internal.h"
->
->  /* callback pointers */
->  extern void *(*avc_func_malloc)(size_t);
-> @@ -115,25 +116,41 @@ static inline void avc_stop_thread(void *thread)
->
->  static inline void *avc_alloc_lock(void)
->  {
-> -       return avc_func_alloc_lock ? avc_func_alloc_lock() : NULL;
-> +       pthread_mutex_t *m;
-> +
-> +       if (avc_func_alloc_lock)
-> +               return avc_func_alloc_lock();
-> +
-> +       m =3D avc_malloc(sizeof(*m));
-> +       if (m)
-> +               __pthread_mutex_init(m, NULL);
-> +       return m;
->  }
->
->  static inline void avc_get_lock(void *lock)
->  {
->         if (avc_func_get_lock)
->                 avc_func_get_lock(lock);
-> +       else if (lock)
-> +               __pthread_mutex_lock((pthread_mutex_t *)lock);
->  }
->
->  static inline void avc_release_lock(void *lock)
->  {
->         if (avc_func_release_lock)
->                 avc_func_release_lock(lock);
-> +       else if (lock)
-> +               __pthread_mutex_unlock((pthread_mutex_t *)lock);
->  }
->
->  static inline void avc_free_lock(void *lock)
->  {
->         if (avc_func_free_lock)
->                 avc_func_free_lock(lock);
-> +       else if (lock) {
-> +               __pthread_mutex_destroy((pthread_mutex_t *)lock);
-> +               avc_free(lock);
-> +       }
->  }
->
->  /* statistics helper routines */
-> --
-> 2.54.0
->
