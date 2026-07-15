@@ -1,180 +1,147 @@
-Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
+Received: from mail-lj1-f182.google.com (mail-lj1-f182.google.com [209.85.208.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C16E42046F
-	for <selinux@vger.kernel.org>; Wed, 15 Jul 2026 13:05:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D995223507B
+	for <selinux@vger.kernel.org>; Wed, 15 Jul 2026 13:35:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.182
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784120741; cv=pass; b=rVfFaABO+Iyx00gPY0a2Ju1PlLy9vWRUYFvsK21X2pd3KL49o6ARp9OwHWQfMmwbDFCvQgUi5m+qx66X9+Nb3tI4thVkfLyAbDhMWOSwlze34Z6oyyRYeyqcZhZZ73N5SuM4NcucZAwbvg31kpdVWE6hR0ug9CeTC+1IzYQlFe0=
+	t=1784122515; cv=pass; b=TdcNfRaCkmpLKfBqUwGTelRw9nV7kWM/kESsAA175FdyjMUQOtJ1e1GTfnxcxmnHel+OeUbTApA8imxc5ZonopWSHOB1EgK4z2F5O1KDJmt6lY5tAGlC81ET2Xu5d2ob3eNUgzrC5SOD5WCSILmIefcIsPAcS9YTC9x3/WHp4S4=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784120741; c=relaxed/simple;
-	bh=/5Rv6aiJac+Jt4ipXgvCqenkCw1qkSqYRnFUrfOYY8w=;
+	s=arc-20240116; t=1784122515; c=relaxed/simple;
+	bh=XlKsTjbexrJqjvgc2P9dLexKeRkju4MLnTsLEQIzvAs=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qhsJAYokVX8e68FvvsNLE8vvrgvRQlSP3ixc2fsLpVqbIzNA9IUB/MyzYQQOuRkxUGLCo9U5zwGOSy75RuhCfgTHZSTcUk26L2Hp4uJbqYy53Ja1rcLG6ghWjaqfV0EvrgGVf+V+anlmBH0cpn4DPD6AoNGPvflrqqQKIRsSDL4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Z/j0Hk56; arc=pass smtp.client-ip=209.85.210.171
+	 To:Cc:Content-Type; b=nWOf8O3MzMd387K69Hxiqlq1HheKr3sR0jwcFkFoFnwUjF5fmFo3BToUpGx05CYYuVdfSwX2/V5kUDXnbx6DYaWG27Usd85Mgx+xr9HqGiGEQFL7cjrbK+aRzCwnRAwdB2FLqyhpQWpBAR0IZ3C0q8hsl8f/F55MBsSSutqtSBo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hfuEDMyJ; arc=pass smtp.client-ip=209.85.208.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Z/j0Hk56"
-Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-84847482584so1587460b3a.0
-        for <selinux@vger.kernel.org>; Wed, 15 Jul 2026 06:05:38 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784120738; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hfuEDMyJ"
+Received: by mail-lj1-f182.google.com with SMTP id 38308e7fff4ca-39ca300db70so34245231fa.2
+        for <selinux@vger.kernel.org>; Wed, 15 Jul 2026 06:35:13 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784122512; cv=none;
         d=google.com; s=arc-20260327;
-        b=UlSgUKsYnKBRuhV100JnQ1FA740bj6gVqt7AlKJkYJ8ImA/fqIItZz3Jo9NxZ3k3m0
-         xEvA3szEMeTakCN0jIKkL6qBkE60ADjW5hcHEKUJlO19XUlYlDscpg3JLUVRKnpcidri
-         nKM6Dhwt3gtjsbCtnAiFKBoaxtk9//AarGou+NqNj1LpjOmWMTufDQPH+g9Xnx/1ONyn
-         spx05TWhEENAA9OITgVaCrYNmxXHPjnTLiFzeCvGWP+mS10w2aR0Ux/NfSurrloBLqab
-         hqCm2K3PQLyhwrlyWrQpCrW/3dvEZnim3ric0aVcsQ1F97gPizJyITJqB56RwjcYVTAa
-         58qg==
+        b=gz6c5C6YLZNNdm9HDCbII9270tsi2arENZGsf7/EXHqzMCIB+7QWTuvXrNXKBgCMFT
+         SU+PrJpzrFeYWrjkLe9G5UkmwApVZkx+Xaw2h2UrPRag1tfQWbVxsJPZ6K7yGRNVW15t
+         NS7lSowES3UVCQ9wAPnaMwMXV5JdBvhcVmjv1CRBfu83Kqux4o9mJGhrBer9HwxMmLhU
+         xqL+VPCFrw4tcumK7JgJLJSBTEur7PlHlQSZNiaTbuzQkTs6ZUKGehZsT9b+QG1jfx06
+         9BmWrhS0SQnHwE+I9B88CSDtlXhsNruzYeF0AGNlpIaO+sutV7ZhCgYeeIgtpU3t4qO5
+         6bug==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=+zUXfHJc6QSeiB/ct2sgnOWrqIjzYPbQ/vgoTIH+hgI=;
-        fh=2ScO9gmp4RRAPtFsL+/8JnhbZGQ8h6GV+VgX9iOPR1M=;
-        b=og+b2ErqFziDDzPwjBOt/+Dtf4rhaR3fuWokFftruXXSfYXMxKCiiBPUFY2y71VcxF
-         Sks6vBEvae0e+VDc376yh+MG697qZcVSXevcTzKkQnAOSVc4mpCsdpmBNkcTYx/0vRzJ
-         L7fT6tHsOAgOh6h51B/FkQBONFiwVDf2vEMqw7OkigEyU9nf925sEzfDdc6mB0KliktA
-         r5eHV1c+n0A1sj22pQbPFqIHb1IS63YX1fOzG39EmB3kvybuBBNIt+6zyKbz/EcEsYxX
-         mwWPcH+pNgZ3F3M6cpsXuMxvqKhNyqtdz2weWLrvICFv5U1aqeVjULGJ+6qVwMRgQQaz
-         ukMw==;
+        bh=8G8bBsYrTQb5lsTfKkpZhn4kYIWV7gLmaDWmvMSHA8s=;
+        fh=pe13lwr1pAr85IdBxMlCdwuHRr224Lxk7IiqxVuoQ68=;
+        b=RYahf2/3iJB429giDB8QWpUcJ7JU7fdfoDBkfADGzdD28+dgRQxOvFTlueD1ghcTan
+         2GiaqPpS9c/klQGazAXJFo6rW4ipSf32zjkp668z8D5+U5eQFqRaN9LP6X+3rWyEE+0j
+         1qFc8d/yqCPdgXbKGuJJ23Hi4XdDLL0Sxr5X2FLo5JF6yWz1rAmLtAbXfHp2ih7MIGQ6
+         GonBsQ0sRoPdOY80ahNl1xvnBHTlnb4I8hmdfe6sKINEk0SXLKHzMWaAh4T98pe4q53b
+         6Lw7Tr2Y+eSpTmFzmD62OuRTS291+1S8zvhpEEb0k7zejn+YYIhy5oisPzdPhsnBNiGX
+         FbrA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784120738; x=1784725538; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784122512; x=1784727312; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=+zUXfHJc6QSeiB/ct2sgnOWrqIjzYPbQ/vgoTIH+hgI=;
-        b=Z/j0Hk56DjEn98GBY/ZuJRk2/P3OFJ9Ddoe5BWyCHNail2Q6rBulDjF4P8Yt6vnNYF
-         jPt1n7va29YZ21J111LeO+DrTKl3sXBYWpmtkAJ9MwIK4PLxda6RaVisn3qAvN5D2APQ
-         FStxNynThneQJVm0AcKTEsg3/RaKlJYdrDQtL0LbTCUnbJJYhH6M+qCHQc93txnVxLf1
-         LMzfI3sscHNwQhCHKLohxjeOmiorZ/FDr24hdoBrhJ3ZBJPGSRgWlS0g3z4ULaH92aW7
-         VbzD0zufkPBoLxtS5N4tvP5GUOaDPiu6U7G2sqbchUQqJ0+tSvvQONLCCfYB5Nrr3rn+
-         yfgQ==
+        bh=8G8bBsYrTQb5lsTfKkpZhn4kYIWV7gLmaDWmvMSHA8s=;
+        b=hfuEDMyJCi4XiX5QCvXDoB7Sez39XKw7F5wA1znaZGQsy3xbxjgkdq0ZBHDUBC+X0m
+         JFb9L2uPUzqWoJROf7BJZGI89Tto1v9TrF9PFKzanc933AwBmdTbAFCptVUNsN8Uw1ME
+         v3qxciJEBQDBSvfcBTa8rCRy1FeIuV2RXR/sQ4tsPyhesGKO8xWOPrYnDDJIPxzYMFUw
+         2c3yDovmWXUgC0Ow/PWeskXAo9yu09J/WibMRHx1HJo0eMx8lofbwTSHLDvAjT0TVSkG
+         6ubshrzPgsbklmRwAJ6w4rynx7w0V8+iD3gHtag5c4P+05laSa1YCbpyI4MqCtLTPkPp
+         vHHQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784120738; x=1784725538;
+        d=1e100.net; s=20251104; t=1784122512; x=1784727312;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=+zUXfHJc6QSeiB/ct2sgnOWrqIjzYPbQ/vgoTIH+hgI=;
-        b=Tdm7tLGF06ahkFUGoerbQeS+NH1VkcioBFKkQOsHyXr/CYMM9XV79IJozP1xCcfsKE
-         0s87HvIp0HcDp06KBi7eutLmgQh9RXpQzSI0RipIwtWkEVjnz0TFGmjga9fQehLHT7xa
-         plgqZOJOdOTLxW30UnbGGydTdiJx3FOah5leryrEfo28hAklg+cM0MuAJqQZEhj0+PEe
-         cq8o+AYHvvO6GOClXzclPUtpiSN00/7v3cqVByFO7UGrSpM6k3OigvlpBp+3IgDajHko
-         MkoPVPRp06DTUOQmhBDVWjvBAQV9+0OKD/SVNPLfBKIpfj4rQLdGozVYuVuwnk5yuafg
-         g85Q==
-X-Gm-Message-State: AOJu0YykjVKiEEJGHW0XwDUoulOgP1KSiBReXugnR/AbAo3sobXuuN0V
-	QN0WR/iKbTT8Web8Ser4fRQasRpOpAIGf+S3H0U+2h0O4Aexy2d+kIWyfJiniBI/AiPkRcNz67e
-	NLD0P/ZAn9rezfxIRS4IU+McJ8Dxrt2k=
-X-Gm-Gg: AfdE7cnPsFNJjqdxsvuH4dytjoGc78CuYPgxJtJ4Y5ip1vupWOFw58HGyH70JdMQTBp
-	p70+w89Mu3No2RN+WnND/qUvHi1Iwy/a2js7OZeWEYfbIkevoai+r4Ezf+17FLr9Nnq7DE+WkyZ
-	vGpRUIuObTfh0N/D8uzTUGZ6yDi5tkBbgjcJLX019uivGq/PzAaZQGcXsyJbTlAa81iM++ShtY3
-	Ad58Ez7O3f/mhzl4M41NCNpwiFogtKbsDUokRjjqz7rW0bP15tVJxrrsEGiiLesQN5viNcd
-X-Received: by 2002:a05:6a00:e09:b0:842:3c77:5996 with SMTP id
- d2e1a72fcca58-8487034736fmr18726633b3a.1.1784120737243; Wed, 15 Jul 2026
- 06:05:37 -0700 (PDT)
+        bh=8G8bBsYrTQb5lsTfKkpZhn4kYIWV7gLmaDWmvMSHA8s=;
+        b=RaFKacsYdXuLKA/qdSEgNvcpQbk8/4tEyFQyFUBKRJjf8vz/N2v909j3a063hwlr0e
+         vPJBFLtGYYmldca+HZaY+KbsNcHdJyQ8RqMRtAW7Bp79IP6IiY54LTSpAMoKGXhWtLHe
+         78s5erXBcE6eu/NPYx7E3C/Mr9corL4bDj5HLpYK0r27o5pz4T8BtXB6ZVdLp8kak0hj
+         9uuVPHz/e8SUuQiBRJ5wAYMHkxXWIaUa+nkpi8ygYJCooXLQ07c0G9aJndt+wdPfG50I
+         LJUDLFvdpUcA/WiTWa20ACbfdqYhA2fTjcE5RWyuqcxdJyMxjavcFOTEh0+lFbQiU+s3
+         encA==
+X-Forwarded-Encrypted: i=1; AHgh+RpTAwpv88SrCLc8j8HNwC8wotCpQHOZThPoKvNs874Lxo3MZx2FIG4Kj7N4OLZ0743XJhD9lhkr@vger.kernel.org
+X-Gm-Message-State: AOJu0YzPhpBZ8qZxBpBB+BgGL3R0zl/63WmO9wbHUZkEO2vIXoQn8jsA
+	w4ak8uXiHTBnAo/VtbDbA/2V/1m2B96mUfqIeGaLmFFy3F9a5F5m5ldhrxPpNMyqZU4PDHD/PAZ
+	1/NBi+cCEFYZXG32Ii8kJZhMpOeCrN3A=
+X-Gm-Gg: AfdE7cmaSji68vN2k4bkp/D2Jw12iywDTDWqrw8SjMfcYq2Lr43jS5tFoA4/F0Y+DMU
+	xfJyN5mhvUTL0XU+XXNYQiGlFea4589JqyWaRivdHc9kLtBB+2rlilqwssMdkkwEMm+roiBBhEy
+	uLPlv6Fl7Qb3oorWH4tEMg5z0C3ubuziWIX+o2om1kg5L3yTLE4UZj5Zssit4vLcZAhBTsHKqc5
+	L6AJUtq6XW222q1LBZVJz01kaIZbdsCcgo1StHzWzh/eNO+XHL+ist5qgzDDT3wpKQvEA==
+X-Received: by 2002:a2e:a902:0:b0:39c:9aa0:799f with SMTP id
+ 38308e7fff4ca-39db6d92796mr7523741fa.33.1784122511472; Wed, 15 Jul 2026
+ 06:35:11 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260714232511.2858868-1-tweek@google.com>
-In-Reply-To: <20260714232511.2858868-1-tweek@google.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 15 Jul 2026 09:05:26 -0400
-X-Gm-Features: AUfX_mygoP_dch80AVCOiBALATeDdn1KxpfFk-VZBcqsjidG2MauAafmneQAHOA
-Message-ID: <CAEjxPJ6V62STmhacLbx4hD-+hu1hk4728xL=Qfp5=o0yBL-sgQ@mail.gmail.com>
-Subject: Re: [PATCH v2] libselinux: use designated initializers for label initfuncs
-To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Cc: selinux@vger.kernel.org, James Carter <jwcart2@gmail.com>
+References: <20260710192953.2083527-1-md.shafiuzzaman.hira@gmail.com> <CAEjxPJ4jCHKWdKHLBUsAKbYbTRDWXVZWHY7qy0p3RKxog94g4Q@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4jCHKWdKHLBUsAKbYbTRDWXVZWHY7qy0p3RKxog94g4Q@mail.gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Wed, 15 Jul 2026 09:35:00 -0400
+X-Gm-Features: AUfX_mydU7CU3PbjqxQlGWpeHXH88gL4aa-_g42lY_HAKdAfqAO6cjLPlPkrwjc
+Message-ID: <CAP+JOzSe3bbNNhWNDdH48do0gXzFQZrrR2xh+SASxn3wynSBrA@mail.gmail.com>
+Subject: Re: [PATCH] checkpolicy: fix double free of fstype in define_genfs_context_helper
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: shafiuzzaman-md <md.shafiuzzaman.hira@gmail.com>, selinux@vger.kernel.org, 
+	coms-vlab@ucsb.edu, Md Shafiuzzaman <mdshafiuzzaman@ucsb.edu>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jul 14, 2026 at 7:25=E2=80=AFPM Thi=C3=A9baud Weksteen <tweek@googl=
-e.com> wrote:
+On Mon, Jul 13, 2026 at 10:15=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> Previously, the initfuncs array relied on implicit positional ordering
-> to match backend context constants (e.g., SELABEL_CTX_FILE). If constants
-> were reordered or added, array indexing could become misaligned.
+> On Fri, Jul 10, 2026 at 3:30=E2=80=AFPM shafiuzzaman-md
+> <md.shafiuzzaman.hira@gmail.com> wrote:
+> >
+> > From: Md Shafiuzzaman <mdshafiuzzaman@ucsb.edu>
+> >
+> > When parsing a new filesystem type, define_genfs_context_helper() trans=
+fers
+> > ownership of fstype into a genfs struct linked into the policydb's genf=
+s
+> > list, but does not clear the local fstype. A later goto fail then frees=
+ it,
+> > leaving a dangling pointer that policydb_destroy() frees again.
+> >
+> > Clear fstype after the ownership transfer, mirroring the else branch.
+> >
+> > Reported-by: Md Shafiuzzaman <mdshafiuzzaman@ucsb.edu>
+> > Signed-off-by: Md Shafiuzzaman <mdshafiuzzaman@ucsb.edu>
 >
-> Use C99 designated initializers in initfuncs to explicitly bind each
-> initialization function to its corresponding context constant.
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 >
-> Additionally, define _SELABEL_CTX_NUM in include/selinux/label.h
-> to count total backends, and add a compile-time static_assert ensuring
-> initfuncs stays in sync with _SELABEL_CTX_NUM.
->
-> Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+This has been merged.
+Thanks,
+Jim
 
-
-> ---
-> v2: Rebase on selinux/main and format
->
->  libselinux/include/selinux/label.h |  5 +++++
->  libselinux/src/label.c             | 18 ++++++++++++------
->  2 files changed, 17 insertions(+), 6 deletions(-)
->
-> diff --git a/libselinux/include/selinux/label.h b/libselinux/include/seli=
-nux/label.h
-> index 748b0db0..bde2501f 100644
-> --- a/libselinux/include/selinux/label.h
-> +++ b/libselinux/include/selinux/label.h
-> @@ -37,6 +37,11 @@ struct selabel_handle;
->  #define SELABEL_CTX_ANDROID_PROP 4
->  /* Android service contexts */
->  #define SELABEL_CTX_ANDROID_SERVICE 5
-> +/*
-> + * Total number of context backends. When adding a new backend,
-> + * please increase this value.
-> + */
-> +#define _SELABEL_CTX_NUM 6
->
->  /*
->   * Available options
-> diff --git a/libselinux/src/label.c b/libselinux/src/label.c
-> index 1ccd1abe..991b9769 100644
-> --- a/libselinux/src/label.c
-> +++ b/libselinux/src/label.c
-> @@ -4,6 +4,7 @@
->   * Author : Eamon Walsh <ewalsh@epoch.ncsc.mil>
->   */
->
-> +#include <assert.h>
->  #include <sys/types.h>
->  #include <ctype.h>
->  #include <errno.h>
-> @@ -45,14 +46,19 @@ typedef int (*selabel_initfunc)(struct selabel_handle=
- *rec,
->                                 const struct selinux_opt *opts, unsigned =
-nopts);
->
->  static const selabel_initfunc initfuncs[] =3D {
-> -       &selabel_file_init,
-> -       CONFIG_MEDIA_BACKEND(selabel_media_init),
-> -       CONFIG_X_BACKEND(selabel_x_init),
-> -       CONFIG_DB_BACKEND(selabel_db_init),
-> -       CONFIG_ANDROID_BACKEND(selabel_property_init),
-> -       CONFIG_ANDROID_BACKEND(selabel_service_init),
-> +       [SELABEL_CTX_FILE] =3D &selabel_file_init,
-> +       [SELABEL_CTX_MEDIA] =3D CONFIG_MEDIA_BACKEND(selabel_media_init),
-> +       [SELABEL_CTX_X] =3D CONFIG_X_BACKEND(selabel_x_init),
-> +       [SELABEL_CTX_DB] =3D CONFIG_DB_BACKEND(selabel_db_init),
-> +       [SELABEL_CTX_ANDROID_PROP] =3D
-> +               CONFIG_ANDROID_BACKEND(selabel_property_init),
-> +       [SELABEL_CTX_ANDROID_SERVICE] =3D
-> +               CONFIG_ANDROID_BACKEND(selabel_service_init),
->  };
->
-> +static_assert(ARRAY_SIZE(initfuncs) =3D=3D _SELABEL_CTX_NUM,
-> +             "initfuncs array size does not match _SELABEL_CTX_NUM");
-> +
->  static inline struct selabel_digest *
->  selabel_is_digest_set(const struct selinux_opt *opts, unsigned n)
->  {
-> --
-> 2.55.0.229.g6434b31f56-goog
+> > ---
+> >  checkpolicy/policy_define.c | 2 ++
+> >  1 file changed, 2 insertions(+)
+> >
+> > diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+> > index 982de3f..3015782 100644
+> > --- a/checkpolicy/policy_define.c
+> > +++ b/checkpolicy/policy_define.c
+> > @@ -6054,6 +6054,8 @@ static int define_genfs_context_helper(char *fsty=
+pe, int has_type)
+> >                         return -1;
+> >                 }
+> >                 newgenfs->fstype =3D fstype;
+> > +               /* ownership transferred into the genfs list; do not fr=
+ee on error */
+> > +               fstype =3D NULL;
+> >                 newgenfs->next =3D genfs;
+> >                 if (genfs_p)
+> >                         genfs_p->next =3D newgenfs;
+> > --
+> > 2.54.0
+> >
 >
