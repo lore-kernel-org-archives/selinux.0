@@ -1,66 +1,66 @@
-Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
+Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53B733C8728
-	for <selinux@vger.kernel.org>; Thu, 16 Jul 2026 21:55:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2AA13CB2FA
+	for <selinux@vger.kernel.org>; Thu, 16 Jul 2026 21:55:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784238919; cv=none; b=dgHQj7+ZKLoSB2PEsuylCPpSA6W2oXDMi5aVPI8FGbrsot0WzMOwXpzE2KQDlYcG6A4ZnKp+nzNWeH8hvsPjFOHAewG3Td6ji9JlQwKMI9i3yuFglyPGK+ZP0oEQ9gKKXTS2Hxvgmk8hfexVUeRuu1DJ2zDRmND9xj0eEGA26RA=
+	t=1784238920; cv=none; b=l8eBYXLtaIpnPqndqJQf6SMbMfemhQ8zdQjCGm6c7BOfmQPjNwJ2/MQ84VkwpwukFb6Up/dR33xl7o+vhepH2XgRbEq2SmuY2s/4UTbFx0uh2PqTdC4DBz+SbRhaJCBnzqG2aRE5OiLem1b/OZmBf+1b6Hr4tRvWyRaO4XHZtdc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784238919; c=relaxed/simple;
-	bh=Y7QT/z8tGhHeuhj94SZCfq0isVdadvA6fmfBR+qwY+c=;
+	s=arc-20240116; t=1784238920; c=relaxed/simple;
+	bh=uWW3GfZkGp+lrAWSyuTcF5Zh9hE2jXE38Cfkjb1RSLU=;
 	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=aSWIEs9T/vIhNCVaP/PzwTdRmJQe6+ctO1cJYsHGcSIwkeuskCsqzR9IUvzvftS22loBtxi7WfRCNtiEbJidbctKmCewkZCTWLz+Cn+0UbbkUYQ0yuDfo7mE+dmrNRzKATLCzPlIUm5SH3SG+X2hxQMV4nhamfyxezRp62VHVsQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=QEBsnEUc; arc=none smtp.client-ip=209.85.160.179
+	 References:In-Reply-To; b=Gc9fjwnPfAQHehe53bOS55lIV9drJRyPhQBXYEcwL/ef25L27C4k7BKZ4pFusM8zRkwVhMSjOaIPHsfdk1QEezRpbKx5sXyEqOOmgiR5a8Zeq66ys/7U11Zp6gcbo/eg7w2a9tnrP6xM8VsHR8eO8mwUDNpw0VRXwTQKebnsY94=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=LopdPcmo; arc=none smtp.client-ip=209.85.222.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="QEBsnEUc"
-Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-51c928bf172so47438991cf.3
-        for <selinux@vger.kernel.org>; Thu, 16 Jul 2026 14:55:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="LopdPcmo"
+Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-92c7a0a701aso541077985a.3
+        for <selinux@vger.kernel.org>; Thu, 16 Jul 2026 14:55:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1784238915; x=1784843715; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1784238917; x=1784843717; darn=vger.kernel.org;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :content-type:mime-version:message-id:date:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=8ESnqIrxhVsIPeRHe4fD4n3nEQ5qHjOKJcorrN5crBo=;
-        b=QEBsnEUcN4vveLo9AfEJq73S+lQZb2EznLt8gWeiD1XX0ryM03nsfrd+5z9fiMyaR8
-         V9a1iXEIdaaswM8ul+/SzOBmHVpE6cPU6xA+s92KWenH6yG9RBu54OcqIzwkQhwVXkh/
-         X4qkY14xTDtpJwA9O0/q7H/yKv/jzhW1ZteGdHx49KfzxND+Y57cGthHRpFdklIPcSAr
-         RiBRGl+ImotCRR7NzOxSWXGVM0/X44QG9WgbeGlPyt0Oa9XSGz+Cr7D4LgFqzrqeDypb
-         /6/4O+HVXXE7GK3I137UBEdb8rYf0hjooFuIXndVKuNtA3kTHY2EJQMSSAixk3rS8a/d
-         bFow==
+        bh=hamHHJXfASh+6XcrqxU1lBmvfcJaMCZ67kq55CEfGa4=;
+        b=LopdPcmoRurptvM5M2R5CGRt66yyrgl20/08udhEDom6qsvRSZpdY/2KR0Gnf9Kadz
+         5JGCamoHhCXi57n/rQSVn887IDLcOT01EOnEATWq4Vb98jXXaev1p0R8SKbQzSkEL1Sx
+         8pV9zwVQXhLzKezJiLvD2yayqlf7sTsjsjdrWC5A3vA5aM1aYiuBNb2IBqdifJzfjM0r
+         WPEvo/dUCr8G+aP0NsFIDdzK6UOFtUu3aIOMMBpNFrWM08NoDVLkPIPOS+Nfa78pqTYu
+         yYnD71U4V0Dxerd2XIRZPek5ZfEDXSvX94Nn4HH3EtIlpqEqoxfyr39QpqjBXaFRUowo
+         KsSw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784238915; x=1784843715;
+        d=1e100.net; s=20251104; t=1784238917; x=1784843717;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :content-type:mime-version:message-id:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=8ESnqIrxhVsIPeRHe4fD4n3nEQ5qHjOKJcorrN5crBo=;
-        b=LLB6urOw+LF7Yn3MnUB8UL2NEh7C28TWI0cYiFMEg59UysqeSxM96f5NWHUuwDDB8F
-         MRWdyT1usQtfC4EwNYf6RzlJ6s4tl+3PCQCI/v7zoi+lON/GctdZJ5KcBS+5J9iJTUJg
-         eBZ6trqsZYMiSlN9e8IciI8CVmhFyrCH6uIU1dWJN+kt3GOPeKTlvjBCdCtycT4qJ1op
-         E8nfy3+iM/9e9b3ChlN4l8F4zmYr4xzsIonRwqOsToMdv+AGv0wv8nrQ9FLDyxTai9Ct
-         RL3XfuFYZC+xvObGgyYAc4x63lDMM5O6KFqu0zkly4oavUzn4J+HKcBPCMqR2rA65XIz
-         ADQQ==
-X-Forwarded-Encrypted: i=1; AHgh+Rp/td5noihnM6i3XTZ+BngUFPlCKJ5M+sSqfNwEgHZnwvICszZt/iHfByOIgGw+ZOMVYWhzY/bd@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx8dWJT/2eh7WITi1YnHjBKEsgN1KLQQ9LLSuDwjyKAMerDQJQN
-	7N7utM4F1VhDzWN1Cjwx0Ukmh5DsXMe/LPNa9m7MJwbi2+MLTY5DAMGIXxWqve/+qw==
-X-Gm-Gg: AfdE7clhu6ieNAY1agIXOZ03VUo7XV6lMIMTJmzfT+3/YgWdao/svUCMjj11pke/apx
-	OsNR1MLi5m+rsbKVqfgIKtK/OoA5o7NhEapze0c3a1x9MdjRsUji2Th23Af7wA9sGXMpCsGJPVz
-	GppWJHaJAAoPpZ/hWKTKQyp3N4wmrAL8HLmUfj6MC54uXg5dGuR985pAL7S2BGFBOF5m7GruMZZ
-	oXqEG4DA6s2l45RfAGRk//5OEys7JQkNw7UcRuPLdP/LHiurZ86eJ97uZven6H4eVjq/XnrtuTH
-	4DvA/H4YFIBt4ymElckwJWcrE3K/FA++xYtnUo/K5gY27EPFMjts30G7eQ1NF0O3hMljGZkZ6xv
-	BuuRvrcEkTgFVtLSGOGkqoKFYXqvZRTFBy90KLQoekS8S9HQT5ICg8Ydt+2PSknx+cYhbiRDfFM
-	gON2anTy1ZsCK1Y7M9gVfMUcW5Fv8GYoapdS1vr7yE2KzMMvw=
-X-Received: by 2002:a05:622a:281:b0:51c:7b12:5fe9 with SMTP id d75a77b69052e-51e424c1e45mr137041111cf.85.1784238914880;
-        Thu, 16 Jul 2026 14:55:14 -0700 (PDT)
+        bh=hamHHJXfASh+6XcrqxU1lBmvfcJaMCZ67kq55CEfGa4=;
+        b=onGw7mHTJxYcpxXwgGB4YFGswEgcOPGdActUvqJlyndtecakbrhEpnkxS/faPLmXI3
+         Tf7jMZdPZQw4dS1MCbcyjmMKhX60pBUC5Yjnanw7VQr3cctpC1NwaaPS6rC9NVBUHRSz
+         SVtMmMaSPzfRXyVtci6nCEMRmiJTJttKG9F1kak8cQ4liW+jh4yQ5tuodRbh8ZhjgUj5
+         y8nVMx2nGlb6S51oZR9qwyqrfexVJk+5BYvDiEwo7fucGdzPRSautwsKHCNgjqqnydkj
+         mAe5JnLsx/nWTZp/JjgZyJTQ+G2dnSc4YSKUiSZXxA55KdDSI/6+9i0lLmLT4QYJBsC6
+         DlIg==
+X-Forwarded-Encrypted: i=1; AHgh+RqLzYPWNFSkiKuhBtKH//SXucWDtBMSPaTffQWeCqf+VMKUdxdrVle5EB0SrzJNe2xeWsQaB98r@vger.kernel.org
+X-Gm-Message-State: AOJu0YzbgFzPHRHAr63XpUbUix79fkif/QYWlfZm/cdZrECSM2vzNmVh
+	kx1J+nO2js7n7LVLrP9Ym1R+c0b7LzMD4MdwdsOXPpCsMGjZN5NvH2H4Z7oHrpm0Sg==
+X-Gm-Gg: AfdE7cnXmg+eoqp8N8ueT4Hij8pQ8kBSPgPMLi/O/tUvjUgG2luDlzCQE336VvX6M+i
+	GlzvlTgXKcwNiFzezqEKlZ2PylgXZZgwUM8uDQv4Icy+ab+q5L57hedsxk2ELwsV4eNMDWtgdeg
+	0KAVYOUMYzcC7lBQTi1PQbOaEoRE/KK6O9g1B4iFEua3VzovlibpLcQ8wav7FvcXKe+tMVyyvNP
+	HUibgOUxN0ahVR9EjdPnEIsA0Dn3ZPNInonOtmCsH8lb6mYLV9gMWnj2vIer2CF7JzpvZXKiuUT
+	LGDucvsQccw7nISFBM9ix5ijf2+MIc9xFN+Vead3U4iZw1H/VWZfLpJzOlLkA21m8Q0/8+5Ce4x
+	9fo/GMg8QQ9Gbx7dZahpsHvY/uiBqQg+umkssvLn8PQQWRngKH/1biz9RKuv096iSfRdJ3Z0Wvj
+	eiHWvd18BqzOQqlAKdgSDOjfT0fA1GySCTfA8PlrxVhVI24Z4=
+X-Received: by 2002:a05:620a:372b:b0:92e:c118:18df with SMTP id af79cd13be357-93083dedef6mr1775888085a.86.1784238917538;
+        Thu, 16 Jul 2026 14:55:17 -0700 (PDT)
 Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ffd56bf455sm226276746d6.13.2026.07.16.14.55.13
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-92ee5b86276sm2097959785a.11.2026.07.16.14.55.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jul 2026 14:55:13 -0700 (PDT)
-Date: Thu, 16 Jul 2026 17:55:12 -0400
-Message-ID: <cb9f84292a7f1d41ff8388d8c0c8c3d0@paul-moore.com>
+        Thu, 16 Jul 2026 14:55:15 -0700 (PDT)
+Date: Thu, 16 Jul 2026 17:55:15 -0400
+Message-ID: <a3a376bce713ac38ce6746508239c1af@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -85,256 +85,106 @@ To: David Windsor <dwindsor@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
 	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
 	Shuah Khan <shuah@kernel.org>
 Cc: bpf@vger.kernel.org, linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-integrity@vger.kernel.org, selinux@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, David Windsor <dwindsor@gmail.com>
-Subject: Re: [PATCH v5 1/3] security: rework inode_init_security xattr handling
-References: <20260708000956.46138-2-dwindsor@gmail.com>
-In-Reply-To: <20260708000956.46138-2-dwindsor@gmail.com>
+Subject: Re: [PATCH v5 2/3] bpf: add bpf_init_inode_xattr kfunc for atomic  inode labeling
+References: <20260708000956.46138-3-dwindsor@gmail.com>
+In-Reply-To: <20260708000956.46138-3-dwindsor@gmail.com>
 
 On Jul  7, 2026 David Windsor <dwindsor@gmail.com> wrote:
 > 
-> In preparation for bpf_init_inode_xattr(), a kfunc that lets bpf LSM
-> programs atomically label new inodes, rework how inode_init_security
-> xattrs are managed.
+> Add bpf_init_inode_xattr() kfunc for BPF LSM programs to atomically set
+> xattrs via the inode_init_security hook using security_lsmxattr_add().
+> The hook now passes its xattr state as a single struct lsm_xattrs
+> object, which the kfunc takes directly.
 > 
-> inode_init_security receives the LSM xattr array and its count as
-> separate parameters. For better compatibility with the bpf verifier,
-> update inode_init_security and its callers to consolidate these
-> parameters into a single context object: struct lsm_xattrs.
+> This kfunc is only callable from inode_init_security; the verifier
+> rejects attempts to call it elsewhere.
 > 
-> Also, add security_lsmxattr_add(), which claims a slot in the
-> inode_init_security xattr array on behalf of the calling LSM and
-> fills it with a copy of the given name and value.
+> A previous attempt [1] required a kmalloc string output protocol for
+> the xattr name. Since commit 6bcdfd2cac55 ("security: Allow all LSMs to
+> provide xattrs for inode_init_security hook") [2], the xattr name is no
+> longer allocated; it is a static constant.
 > 
-> Suggested-by: Paul Moore <paul@paul-moore.com>
+> Link: https://kernsec.org/pipermail/linux-security-module-archive/2022-October/034878.html [1]
+> Link: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6bcdfd2cac55 [2]
+> Suggested-by: Song Liu <song@kernel.org>
 > Signed-off-by: David Windsor <dwindsor@gmail.com>
 > ---
->  include/linux/bpf_lsm.h           |   3 +
->  include/linux/evm.h               |   9 +--
->  include/linux/lsm_hook_defs.h     |   4 +-
->  include/linux/lsm_hooks.h         |  16 ++---
->  include/linux/security.h          |  15 +++++
->  security/bpf/hooks.c              |   1 +
->  security/integrity/evm/evm_main.c |   8 ++-
->  security/security.c               | 108 ++++++++++++++++++++++++++----
->  security/selinux/hooks.c          |   4 +-
->  security/smack/smack_lsm.c        |  27 ++++----
->  10 files changed, 148 insertions(+), 47 deletions(-)
-
-...
-
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index 153e9043058f..647f7b88358b 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -68,6 +68,11 @@ struct watch;
->  struct watch_notification;
->  struct lsm_ctx;
+>  fs/bpf_fs_kfuncs.c | 36 ++++++++++++++++++++++++++++++++++++
+>  1 file changed, 36 insertions(+)
+> 
+> diff --git a/fs/bpf_fs_kfuncs.c b/fs/bpf_fs_kfuncs.c
+> index 768aca2dc0f0..ad0025f2264a 100644
+> --- a/fs/bpf_fs_kfuncs.c
+> +++ b/fs/bpf_fs_kfuncs.c
+> @@ -11,7 +11,9 @@
+>  #include <linux/file.h>
+>  #include <linux/kernfs.h>
+>  #include <linux/mm.h>
+> +#include <linux/security.h>
+>  #include <linux/xattr.h>
+> +#include <uapi/linux/lsm.h>
 >  
-> +struct lsm_xattrs {
-> +	struct xattr *xattrs;
-> +	unsigned int xattr_count;
-> +};
-
-Please separate out the 'struct lsm_xattrs' related changes into a
-separate patch from the security_lsmxattr_add() changes.  I know they
-are related, but they are different things.
-
-> diff --git a/security/security.c b/security/security.c
-> index 71aea8fdf014..261f68e17cfd 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -12,6 +12,7 @@
->  #define pr_fmt(fmt) "LSM: " fmt
+>  __bpf_kfunc_start_defs();
 >  
->  #include <linux/bpf.h>
-> +#include <linux/bpf_lsm.h>
->  #include <linux/capability.h>
->  #include <linux/dcache.h>
->  #include <linux/export.h>
-> @@ -1333,8 +1334,8 @@ int security_inode_init_security(struct inode *inode, struct inode *dir,
->  				 const initxattrs initxattrs, void *fs_data)
->  {
->  	struct lsm_static_call *scall;
-> -	struct xattr *new_xattrs = NULL;
-> -	int ret = -EOPNOTSUPP, xattr_count = 0;
-> +	struct lsm_xattrs xattrs = {};
-> +	int ret = -EOPNOTSUPP;
->  
->  	if (unlikely(IS_PRIVATE(inode)))
->  		return 0;
-> @@ -1344,15 +1345,15 @@ int security_inode_init_security(struct inode *inode, struct inode *dir,
->  
->  	if (initxattrs) {
->  		/* Allocate +1 as terminator. */
-> -		new_xattrs = kcalloc(blob_sizes.lbs_xattr_count + 1,
-> -				     sizeof(*new_xattrs), GFP_NOFS);
-> -		if (!new_xattrs)
-> +		xattrs.xattrs = kcalloc(blob_sizes.lbs_xattr_count + 1,
-> +					sizeof(*xattrs.xattrs), GFP_NOFS);
-> +		if (!xattrs.xattrs)
->  			return -ENOMEM;
->  	}
->  
->  	lsm_for_each_hook(scall, inode_init_security) {
-> -		ret = scall->hl->hook.inode_init_security(inode, dir, qstr, new_xattrs,
-> -						  &xattr_count);
-> +		ret = scall->hl->hook.inode_init_security(inode, dir, qstr,
-> +							  &xattrs);
->  		if (ret && ret != -EOPNOTSUPP)
->  			goto out;
->  		/*
-> @@ -1364,18 +1365,101 @@ int security_inode_init_security(struct inode *inode, struct inode *dir,
->  	}
->  
->  	/* If initxattrs() is NULL, xattr_count is zero, skip the call. */
-> -	if (!xattr_count)
-> +	if (!xattrs.xattr_count)
->  		goto out;
->  
-> -	ret = initxattrs(inode, new_xattrs, fs_data);
-> +	ret = initxattrs(inode, xattrs.xattrs, fs_data);
->  out:
-> -	for (; xattr_count > 0; xattr_count--)
-> -		kfree(new_xattrs[xattr_count - 1].value);
-> -	kfree(new_xattrs);
-> +	for (; xattrs.xattr_count > 0; xattrs.xattr_count--)
-> +		kfree(xattrs.xattrs[xattrs.xattr_count - 1].value);
-> +	kfree(xattrs.xattrs);
->  	return (ret == -EOPNOTSUPP) ? 0 : ret;
+> @@ -374,6 +376,39 @@ __bpf_kfunc struct inode *bpf_real_inode(struct dentry *dentry)
+>  	return d_real_inode(dentry);
 >  }
->  EXPORT_SYMBOL(security_inode_init_security);
 >  
-> +#ifdef CONFIG_BPF_LSM
-> +static unsigned int lsm_xattrs_used(const struct lsm_xattrs *xattrs,
-> +				    const char *prefix)
-> +{
-> +	size_t prefix_len = strlen(prefix);
-> +	unsigned int i, n = 0;
-> +
-> +	for (i = 0; i < xattrs->xattr_count; i++) {
-> +		const char *name = xattrs->xattrs[i].name;
-> +
-> +		if (name && !strncmp(name, prefix, prefix_len))
-> +			n++;
-> +	}
-> +	return n;
-> +}
-> +#endif /* CONFIG_BPF_LSM */
-
-More on this below, but this function isn't strictly BPF LSM related so
-let's drop the CONFIG_BPF_LSM macro bracketing.
-
 > +/**
-> + * security_lsmxattr_add() - Add an xattr during inode_init_security
-> + * @xattrs: xattr state shared by inode_init_security hooks
-> + * @lsm_id: LSM_ID_* value identifying the calling LSM
-> + * @name: xattr name suffix
-
-For BPF you currently pass "bpf.foo" for the name and other LSMs would
-pass their own xattr name, likely without a LSM specific sub-namespace
-(for example, SELinux would be just "selinux").  In both cases the
-'name' parameter always starts with a well known suffix as defined by
-the 'lsm_id" parameter.
-
-Since we are already passing the lsm_id parameter, let's do away with
-the standard LSM suffixes, e.g. XATTR_BPF_LSM_SUFFIX, and just pass in
-any additional name components.  For example, instead of passing
-"bpf.foo" in the BPF LSM case, you would just pass "foo"; LSMs without
-their own sub-namespace, e.g. SELinux, would pass NULL for the name
-parameter as XATTR_SELINUX_SUFFIX is all that is needed.  While doing
-this I would also suggest changing the name of the 'name' parameter to
-'name_extra', 'namespace_extra', or something similar to indicate that
-it isn't the full name, but rather an additional suffix beyond the
-standard suffix associated with the given LSM.
-
-> + * @value: xattr value
-> + * @value_len: length of @value
+> + * bpf_init_inode_xattr - set an xattr on a new inode from inode_init_security
+> + * @xattrs: inode_init_security xattr state from the hook context
+> + * @name__str: xattr name (e.g., "bpf.file_label")
+> + * @value_p: dynptr containing the xattr value
 > + *
-> + * Claim an xattr slot in @xattrs on behalf of the LSM identified by
-> + * @lsm_id and fill it with a copy of @name and @value. Callers can invoke
-> + * this function from non-sleepable context.
+> + * Only callable from lsm/inode_init_security programs.
 > + *
-> + * Return: Returns 0 on success, -ENOSPC if the calling LSM's slot budget
-> + *         is exhausted, negative values on other errors.
+> + * Return: 0 on success, negative error on failure.
 > + */
-> +int security_lsmxattr_add(struct lsm_xattrs *xattrs, u64 lsm_id,
-> +			  const char *name, const void *value,
-> +			  size_t value_len)
+> +__bpf_kfunc int bpf_init_inode_xattr(struct lsm_xattrs *xattrs,
+> +				     const char *name__str,
+> +				     const struct bpf_dynptr *value_p)
 > +{
-> +	struct xattr *xattr;
-> +	void *xattr_value;
-> +	size_t name_len;
+> +	struct bpf_dynptr_kern *value_ptr = (struct bpf_dynptr_kern *)value_p;
+> +	const void *value;
+> +	u32 value_len;
 > +
-> +	if (!xattrs || !xattrs->xattrs || !name || !value)
+> +	if (!name__str)
 > +		return -EINVAL;
-
-Sashiko raised a good point about xattrs->xattrs being NULL not
-necessarily being a good reason for -EINVAL.  If xattrs is NULL, yes,
-something has gone wrong and -EINVAL seems reasonable, but the
-xattr->xattrs NULL case does seem like it should simply return early
-with a value of 0 (see SELinux's handling of this case as an example).
-
-> +	name_len = strlen(name);
-> +	if (name_len == 0 || name_len > XATTR_NAME_MAX)
-> +		return -EINVAL;
-> +	if (value_len == 0 || value_len > XATTR_SIZE_MAX)
+> +	if (strncmp(name__str, XATTR_BPF_LSM_SUFFIX,
+> +		    sizeof(XATTR_BPF_LSM_SUFFIX) - 1))
+> +		return -EPERM;
+> +
+> +	value_len = __bpf_dynptr_size(value_ptr);
+> +	value = __bpf_dynptr_data(value_ptr, value_len);
+> +	if (!value)
 > +		return -EINVAL;
 > +
-> +	switch (lsm_id) {
-> +#ifdef CONFIG_BPF_LSM
-> +	case LSM_ID_BPF:
-> +		if (lsm_xattrs_used(xattrs, XATTR_BPF_LSM_SUFFIX) >=
-> +		    BPF_LSM_INODE_INIT_XATTRS)
-> +			return -ENOSPC;
-> +		break;
-> +#endif /* CONFIG_BPF_LSM */
-
-I like to avoid macro conditional code inside functions whenever
-possible, and I think this is a case where we could avoid the conditional
-block with a little work.
-
-The LSM_ID_BPF macro is already defined as part of the UAPI so that will
-always be available.  While BPF_LSM_INODE_INIT_XATTRS is dependent on
-CONFIG_BPF_LSM in this revision, that should be easy enough to move
-outside the CONFIG_BPF_LSM conditional in bpf_lsm.h.  Eventually we
-should probably expand the lsm_id struct to carry this info, likely just
-a permanent/local copy of the LSM's lsm_blob_sizes passed during
-registration, but I can take care of that later; just make the
-BPF_LSM_INODE_INIT_XATTRS macro always accessible now.
-
-We should also probably record the xattr suffix/length when the LSM is
-registered, but that can also be done later with the other lsm_id
-additions.
-
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +
-> +	/* Combine xattr value + name into one allocation. */
-> +	xattr_value = kmalloc(value_len + name_len + 1, GFP_NOWAIT);
-> +	if (!xattr_value)
-> +		return -ENOMEM;
-> +
-> +	memcpy(xattr_value, value, value_len);
-> +	memcpy(xattr_value + value_len, name, name_len);
-> +	((char *)xattr_value)[value_len + name_len] = '\0';
-
-You'll need to add an additional memcpy() here, likely in a switch
-statement to handle the different LSMs, to copy over the LSM specific
-prefix.  It's a little ugly, but when we have things captured in the
-lsm_id struct it will get a lot cleaner.
-
-> +	xattr = lsm_get_xattr_slot(xattrs);
-> +	if (!xattr) {
-> +		kfree(xattr_value);
-> +		return -ENOSPC;
-> +	}
-> +
-> +	xattr->value = xattr_value;
-> +	xattr->name = (const char *)xattr_value + value_len;
-> +	xattr->value_len = value_len;
-> +
-> +	return 0;
+> +	return security_lsmxattr_add(xattrs, LSM_ID_BPF, name__str, value,
+> +				     value_len);
 > +}
+
+I'm sorry David, now that I'm seeing this function again, especially
+with the LSM specific bits extracted into a LSM function, this absolutely
+belongs somewhere under security/.  It's only callable from within a
+BPF LSM callback and all it does outside of some BPF pointer boilerplate
+is call right back into a LSM helper function.
+
+If the BPF maintainers aren't willing to accept that, then we will all
+need to find another way.
+
+>  __bpf_kfunc_end_defs();
+>  
+>  BTF_KFUNCS_START(bpf_fs_kfunc_set_ids)
+> @@ -385,6 +420,7 @@ BTF_ID_FLAGS(func, bpf_get_file_xattr, KF_SLEEPABLE)
+>  BTF_ID_FLAGS(func, bpf_set_dentry_xattr, KF_SLEEPABLE)
+>  BTF_ID_FLAGS(func, bpf_remove_dentry_xattr, KF_SLEEPABLE)
+>  BTF_ID_FLAGS(func, bpf_real_inode, KF_SLEEPABLE | KF_RET_NULL)
+> +BTF_ID_FLAGS(func, bpf_init_inode_xattr)
+>  BTF_KFUNCS_END(bpf_fs_kfunc_set_ids)
+>  
+>  static int bpf_fs_kfuncs_filter(const struct bpf_prog *prog, u32 kfunc_id)
+> -- 
+> 2.53.0
 
 --
 paul-moore.com
