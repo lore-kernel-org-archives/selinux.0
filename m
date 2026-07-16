@@ -1,72 +1,72 @@
-Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
+Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 553B636BCED
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D3AD3624C1
 	for <selinux@vger.kernel.org>; Thu, 16 Jul 2026 19:37:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.175
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784230679; cv=none; b=tH4OyNRjWS+C4P5IUmUDNcftg4BpgfictzH4ivv9TqEW3U4unY7sBW+gFVwMF7Z0rl8r4T52wROFAb1eazfe7fqA0wKoUP4XMSeyMMFO5cVzklcBd6TSddDZqJGopSlHI8GbBaSlfPtycY9AFM2xGN4X16EK1e3ywfmyeEb8M7k=
+	t=1784230679; cv=none; b=tInZRj/WwDRhREGXI+zHGxgZw0+PlivbWtEowxze8bVMEtG2hUzsQwEUBsI1YcDKz0NudiN662J7b5irOLx7Tvo85kGNGSG/xjNYhnvrsrbZdLjE/ZptWu7q0NXW97G2iMZgsJlWFM0lHM2Uj2ghU9a9S3/kTSDauxBjX0QL1Gg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1784230679; c=relaxed/simple;
-	bh=SzOsA2yqtc0osDbHs1EnV9o7EGAbNwK+z/c0tm4mw/M=;
+	bh=yJaOaiKh66bHRVzYU3wUHEc0rSbe9gKSlcnVm3OULOg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=VM9Y1Uh5/wG4bsP/eGw3g+FMfvBqCYk7pNG+ylaZQD5gtbUAGbOrqKWR+xCdYuq/6VBOenIzN4bo+TjdYHDqh/zypkfL9baYri+QpuXEAVXNcnkbY1IcJc1Govro1YoN/KzXm9+hN9joqI1FjVG/IuxLba/CbbVzP8bI1LpTNSo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R/PtkJ0R; arc=none smtp.client-ip=209.85.222.175
+	 MIME-Version; b=LoPcl2CzrmL0uEsEYyE4+2L8k2HYJ/eiHozBS8R6BnSNJI1OjfLna3pvL2/qLnWRivY4C4fQGg8j2edEDuywKTNK+5EgJEfMWPGgx6XeJFmpXhI7l8GwB1Y42ZivTA+XLxkZ+bGL6beKXopcLXIqdD41hwDdxOaPryPvAyUyf08=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CAote90z; arc=none smtp.client-ip=209.85.222.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R/PtkJ0R"
-Received: by mail-qk1-f175.google.com with SMTP id af79cd13be357-92e65e18969so70568385a.1
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CAote90z"
+Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-92edb12cdf2so235636185a.3
         for <selinux@vger.kernel.org>; Thu, 16 Jul 2026 12:37:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784230674; x=1784835474; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784230673; x=1784835473; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=oBozQ39IliTitTd1xTyCu12WwYClWOkvC3YLXJnbbYA=;
-        b=R/PtkJ0RMP6QKW3tpN77x7u6CLYmU007kPKgDWsXrile06irF2ctMVzk0zpou+HJlT
-         SxSOIw/IMzPI9vt7QgMAlHE7cUFrkyahRk6qSTT5eMSCVPxm7Gpw4b5+y+W5aEnTNBn2
-         +O2B+tUd7fALo/PRo8i10gWjs3fvBwr94bRFfk60QBZspBoyIUmOkFvfoulo5+9dbSrX
-         1xuzELT0I21ksdK9iytflamNv+TaoB6V4E4aAB2rkC/xPPH5D7rlAfG0tk0rjmRG+YTx
-         pDUnoP+sfXuKcO3rqOXGaBsrwhsnKIZlVIm2D16zC9QifAWyC2Pf8Y1syJulBnE3vKb4
-         cmwA==
+        bh=y8KW2xcM1ImWaRq6VQstQctE0U/OS9ixvACRwcwemis=;
+        b=CAote90z2Sdu7/pgsj8dmkb20yMnpmDwtIExcVN5cFK0sHW7jlq0SpMT0++PEzQ65X
+         iswaYEepnKMBO+2J6bAehRo9IvH8whDwkXnF+3Dm4og8oqWkQwjFJtUJsD+Z6qJRabgY
+         ap7Ll0Bs6Y8mxPBT5IclfHt9ynoIbI3tsKbI8mq02AsK6cx4eG2zR7fxjt25rowgu4Mw
+         /yIYDUzUNWlJtuuRnrmuf9YrjHheQRt4DaOifHLgGNYxYTtaJAEc8nK9qELNCBii+zJ8
+         CXMalIMrN6dQl+cMKT3yp10e4O7UWv7Ckn2CuDh/7w8j5NvIXnZzY1IeCfmkU8ryujj5
+         TwdA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784230674; x=1784835474;
+        d=1e100.net; s=20251104; t=1784230673; x=1784835473;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=oBozQ39IliTitTd1xTyCu12WwYClWOkvC3YLXJnbbYA=;
-        b=eZTQXP1wNQe35yiu1xwj4TfSNbpnRY32Fc2g3jsoghkW+ezopgYK2PKa3Ggg7NNPZX
-         UvIvUfVXC8i22t1tfnNnXShEPtKvFpdDe4qfpTv1PYLTztaj+cbwWjG8CJuYzlgG1kIJ
-         kkO6FubME0rTWbTMs5BFE8aBETJG3MINlcVEFURgCTt4+qfpJG1qvQKGxP8jo9KzGLeb
-         K4044zEx01SW6+Xxzk+wwx28HnVJ1E8dxHy3/nGRzHWijyD6kuIaAoHYkOVBnjvFIPqp
-         ZTZTTMzkJuG+hQ3do5kzVDiKhQm5lvh2JlMrikQbnSrPeM3udFMTVej+zvQXQXaUZ7yc
-         kjBg==
-X-Gm-Message-State: AOJu0YzYWvluOutj/8N5W6TUW9VygtxqWlF7taUW3TxL92xAaaITUP12
-	ZJwJmXPKtH/PhMklHvU70HlAm0VQQgqfLFfM8hlS4aI5cB1i6mBsreLFuQ5ksw==
-X-Gm-Gg: AfdE7clbU+tX5L6udHKaPhWmME8QrjTEMLODlT06S+3cwApECkwTDfCz4kqQhP6FNC1
-	2EEttp6xQYzBn0vtClFGUB/cl73QQodahtLEvsdg4ZGU+7PTIxfTcWc8fR3/An9OjWImVC8w4Nd
-	hPpOslRvtKEJeDsDhS7I15TL+0MivcX2VT3ydSTTWnESGoxBeaKOxbEmRypfVf8MZySrUw77Zyk
-	z3/uQzx/fmJCF9Z1uEXpoKdQLd6syYC1E1Y9t/aMg9hj2cG4BipdLgqYqWHhQJ1IUdp7j8lwLXz
-	J5JJ+lxJv+py2RkAfwmJZ1p9MnEyJ45U4/BD+9L/z4s4KXVZvJTWLCbIQU+3EHuKFqsL2o/blO4
-	W6cRr01/cVG1A4cvfEomoVIFk7IoIUR+cr8f3pqzYKsHf/7qqYBIVkAZtJ1r0BbvFnnMoUfeqlN
-	3Uoa7l622cHARn/F6KUHav+PKCvk4ZUVf04iZijFtip/hXOWaQOOho29hUOh+VRHX0Yo8eCg+qj
-	mBYKg==
-X-Received: by 2002:a05:620a:2546:b0:915:9f30:23cb with SMTP id af79cd13be357-930a5c38b9cmr432208185a.0.1784230673855;
+        bh=y8KW2xcM1ImWaRq6VQstQctE0U/OS9ixvACRwcwemis=;
+        b=JyfuJHCrpUgb3Mscmdc++nFSG3Bumzk01S4rxtxwFqSsMH+9PmjZlNdZXUqIQ315ek
+         z2cfhqZV2erQ6/XSx1+lmp6ZGsIwCATwZ/jSb/peuQhLbOL4bhIXOXsIb/+jZNKBTsL6
+         s+2AiyXtHlLpqdM2BBej/OgC0/SO7rKnMU+SotMNt6k6tmgarPhEWUMvCQePdp79m+4l
+         pSc3hipBeHZLYGpV9ivVg0rMxxVR8w8s5dbQIGEr99TC4axzuTKWkshdl9jzYi1BJ5Vu
+         E6PWnBHJyDm9g5MmR19n4nJbdJIjaenQWmQ9Red73+2v7jLpeajlDXpkb1FqroWz32sp
+         bBCw==
+X-Gm-Message-State: AOJu0YxmiQs8Aj+oRBZL15p3lukAQ26032SuJf1dYIqZh9loEU7/lkkL
+	nsSUdrYgdERiHE++z4CtiD97E+iJjPdkwj4DpSLiEhrs8i7h5xZMXrYC30BYsQ==
+X-Gm-Gg: AfdE7ck6cDn9Xs6adJ+S+FFZgqWaijoWc/st94AOjXEGZRx2GPM8NxvCgYZo/QqpFWL
+	n5BoCKBaXBHM421YpbigLfYNuAaku6KVCk+ahENnd7E7mu8cDogAJF/OqyRfc3nKr4MUFcPHRO7
+	5n0wgDZGdi+VEp2Z70YpOf6VuA0A3gPEhNvEONorMKj7PrwRHvYSdC5/tg1yYvoEk8xHFCU8QIP
+	gp+38sJHr2cmhlwjX7wAzjIcj8TJp3lUm0B/V6RvkIuiPTHMuBFKwCVH7V56+OcxkGWOCalP2wV
+	4ZZS6QDWug+xFBlSyuvpMrz3uxgCP/Bo7ilxuxlcX223NIQA2qTxDIgihLuA+3PzlGVMdBsoUMH
+	EAB/3ICF7yZAg3oKdl2IY/VuZYIfmNZvjNM4iWzIdgRgJtDI83qXNOKUt2cwobHcyYVp61/VwUb
+	9/UltO41wJKTdmA8/Ff474FVAc2Azs0US2xitmS4uQFjvTXXYG6FXMXXW6wNz0mccARIYs8UW+O
+	TQlmA==
+X-Received: by 2002:a05:620a:a718:b0:92e:6338:cedb with SMTP id af79cd13be357-930b091911emr77493385a.73.1784230673118;
         Thu, 16 Jul 2026 12:37:53 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-92ee5b492ebsm1987760985a.9.2026.07.16.12.37.53
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-92ee5b492ebsm1987760985a.9.2026.07.16.12.37.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jul 2026 12:37:53 -0700 (PDT)
+        Thu, 16 Jul 2026 12:37:52 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
 	plautrba@redhat.com,
 	omosnace@redhat.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 4/4] restorecond: fix isspace() call to cast to unsigned
-Date: Thu, 16 Jul 2026 15:37:37 -0400
-Message-ID: <20260716193737.11366-4-stephen.smalley.work@gmail.com>
+Subject: [PATCH 3/4] restorecond: fix type of utmpwatcher_handle()
+Date: Thu, 16 Jul 2026 15:37:36 -0400
+Message-ID: <20260716193737.11366-3-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260716193737.11366-1-stephen.smalley.work@gmail.com>
 References: <20260716193737.11366-1-stephen.smalley.work@gmail.com>
@@ -78,27 +78,43 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-isspace() on a plain char argument is defined for negative values;
-cast to unsigned char in the caller.
+utmpwatcher_handle() returns -1 in some cases and the caller has a
+switch statement on it that compares with -1. Switch the return type
+to just int rather than unsigned int to more accurately reflect the
+interface.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- restorecond/watch.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ restorecond/utmpwatcher.c | 2 +-
+ restorecond/utmpwatcher.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/restorecond/watch.c b/restorecond/watch.c
-index 18bd90db..4e3c382f 100644
---- a/restorecond/watch.c
-+++ b/restorecond/watch.c
-@@ -424,7 +424,7 @@ static void process_config(int fd, FILE *cfg)
+diff --git a/restorecond/utmpwatcher.c b/restorecond/utmpwatcher.c
+index c60fe0e5..e0cb48d6 100644
+--- a/restorecond/utmpwatcher.c
++++ b/restorecond/utmpwatcher.c
+@@ -45,7 +45,7 @@
+ static struct stringsList *utmp_ptr = NULL;
+ static int utmp_wd = -1;
  
- 	while (getline(&line_buf, &len, cfg) > 0) {
- 		char *buffer = line_buf;
--		while (isspace(*buffer))
-+		while (isspace((unsigned char)*buffer))
- 			buffer++;
- 		if (buffer[0] == '#')
- 			continue;
+-unsigned int utmpwatcher_handle(int inotify_fd, int wd)
++int utmpwatcher_handle(int inotify_fd, int wd)
+ {
+ 	int changed = 0;
+ 	struct utmp u;
+diff --git a/restorecond/utmpwatcher.h b/restorecond/utmpwatcher.h
+index 19880108..19178f3c 100644
+--- a/restorecond/utmpwatcher.h
++++ b/restorecond/utmpwatcher.h
+@@ -23,7 +23,7 @@
+ #ifndef UTMPWATCHER_H
+ #define UTMPWATCHER_H
+ 
+-unsigned int utmpwatcher_handle(int inotify_fd, int wd);
++int utmpwatcher_handle(int inotify_fd, int wd);
+ void utmpwatcher_add(int inotify_fd, const char *path);
+ void utmpwatcher_free(void);
+ 
 -- 
 2.55.0
 
