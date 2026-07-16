@@ -1,70 +1,70 @@
-Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
+Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com [209.85.219.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5CF03769F0
-	for <selinux@vger.kernel.org>; Thu, 16 Jul 2026 19:37:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6523E3382C5
+	for <selinux@vger.kernel.org>; Thu, 16 Jul 2026 19:57:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784230679; cv=none; b=lPIRep/Un5GBBamja9IDeS+Z7rVQOJXRqXba7m8Ape6tQ2hWbHulz3vwUSUHacSiXXCwAm2r6iWcp4tGpquuBc7/7g/Ke2/PzM7hEhg7r+cYMz6mpfAQhV4olMbF/D8KyiCiPvFNxHcZ4ScfoWZnCXz78mDUKeT1bR39Ze7IdXE=
+	t=1784231872; cv=none; b=XzzTshtBlxhzhFjKIsglrP7vj0pF8zIJVxEPjEg4m+G8HtTf1UR8+rU5yQF+sl6Q0YRgFLrmsyEigQY8Q0GWD+S3GZnz+Nqy2HMxvVA6YlBTmj91W9BJrDPXeq8UhxJ/j5hGxEgLIJpYUAkMyykkK2lSa33Z3yj1jI3VfJGvOsA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784230679; c=relaxed/simple;
-	bh=9ReDq58OlH8vQezxN6D7pnTr/2cJWBJNHhl4ZW8tr4o=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=naHHhg72OdGp+P2BZKCtqACZ5ggJhxc+NtmaCGmS15qIoaBrYq+1cnrtyTTNBL02SoaHGKiRck1hNXY6wRRswsdaDlPSeFocn8E6ehe7GUROWQRtqIPsebFNhdMs3HF7AVKbLPqX3Tzng++7IuHELPylLEkOO0AoXfX5GGr8OTY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qRmdlpjz; arc=none smtp.client-ip=209.85.222.181
+	s=arc-20240116; t=1784231872; c=relaxed/simple;
+	bh=8JHKvKh039XR+YamyWNlBfu9Bs4og7xZA4HCUwBTuMw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=QJifhB5L7b3O6o/9DWRVBhWmx5FWxm5EjZma9k2tBvzgDE6ChNyUhAVYWaMXZXI+GY0d0YejJ24S3uMluDMsZ6FmpA21vguqvy+YGs22SGCll78vyfWw11KSStzjXQtwTHNs8/XFxPGGEzPwjFSBjPzVo7UDg3Sm6VISkZCo7LM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kpOAR0ir; arc=none smtp.client-ip=209.85.219.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qRmdlpjz"
-Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-92e65e18969so70566585a.1
-        for <selinux@vger.kernel.org>; Thu, 16 Jul 2026 12:37:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kpOAR0ir"
+Received: by mail-qv1-f49.google.com with SMTP id 6a1803df08f44-8fcc43c48f7so64202726d6.2
+        for <selinux@vger.kernel.org>; Thu, 16 Jul 2026 12:57:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784230672; x=1784835472; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784231869; x=1784836669; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=OfXjDcCSgsGmklZ+4Kn4ovS8z76zYEUvp98j+YVZo0I=;
-        b=qRmdlpjzuVxgRHKA+jdngDcklCnTyylYAQaFlIoXOkA5COaEM6rgXRR4eaA1UZC0H6
-         A+1gNbzKwdYx+czIS/YUguRvbOZH/zWF2LpT9haCHFE1kVUSMqJ4t3ZBz0QqkYNaZ/rp
-         UnhJjX3jRMk2GBD1L1zohP6htuH1nvfKckZSheRE78gH6mL1Gbllb2NN7u1gSESu+yDS
-         0UJH0/IiD8EFPJOf88vYY2tyzZHUdsDDrx0OiOLVfVv4zRqNAYrZdiBpWur6a1A4KYuh
-         qZo5zxJOxffDBR+jnAeHER56DGdbxW643q+cHjHkYd0FLfdp/UntTRLrt0JFpLmY4mO+
-         7Qbw==
+        bh=bCPdtnsBvsAN4EJCJRBUEHD/EQeFUucSfhA9iwsODYY=;
+        b=kpOAR0irnRcMkbOHJu+++KUVYnWJZ7n7b11C/nfzqMg44us0Igtp5PbIe+KpF04UWa
+         D4U2ad3+PZEbs7Zq7AL900aMmpR7UQOxRqyC3x1OxJLKb6aZkybzjsgxEhWcZHrVtcHJ
+         uv1XOrdyeuGZ027CumPgm8xx/WP7yATHQhQy0ran+2XjfD6BrbZbypKSmhBuBGrVCLhG
+         4+zlYhcTlKeyoQYxeIpepSQxgiaz+LM+WmMOwvLlzQ8vC6ECg5wCmtacg9TbdDYWpxE9
+         83/6bCPs1KFivAmSYhnFkL/4X9fQdOuGtKp4UO2pmWP7cRy4ENqItuBsijTmJ0k1zAyX
+         GEnA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784230672; x=1784835472;
+        d=1e100.net; s=20251104; t=1784231869; x=1784836669;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=OfXjDcCSgsGmklZ+4Kn4ovS8z76zYEUvp98j+YVZo0I=;
-        b=h3y2ax6KqSYNl+XQe9HjSJVHl9MEV/pPbWLNIu24uPqzDcQdbxtvYTGEvRb4CKhxrO
-         b8L6HVxXGbnOvKAiML1UJ61e3R7lofjlZ0FSZq+IJfEKiReD4RD2QdwD/2JevixK6bxY
-         hPrN8dXUXnBeCRcAR2VlC1TZqj8g8GrlQlyUEGygjOioQ8HgLF19amYN79v9FiTe03Lj
-         gbK1YVEnkRIoPaYILyfPvpT69OMkhm/8pSXOsY36lb8nzNqmkBgabpLbAkZvMOSRBemh
-         AF0guRuGotRqjXDbO/VfNUwYtnKh9kjMaSjhrDzJPSQrzkrdzF10EdEIYJuGyFOTfD+y
-         Y7gA==
-X-Gm-Message-State: AOJu0YxWm8GKHKd1gQT6e2uLVQxoeGffhfzBNDYlr6VWRNddMTAvi+Cv
-	tyB8OEXJMdCZ32e/ALynzwvmxNFxwEfKrmtzY866iTQK40UMoO8TKCiAssg/+g==
-X-Gm-Gg: AfdE7cljI9L15ExOzl/7C/WFdxRODoycwQH7UR2WCmzCTXKykMC0mX5IYfUlybPW+Xf
-	jhEq0fKVuV9Mv6qmPk7es/u7B6zK3DAdCLZiwC+fT6iXM/DuxR8bn1RrTRRTB1aARIlp/P4GfgL
-	JQcsvgAFut6hj2mPyIRAlOs2M8hI3AsSyf/3xpTEjSPLuP/haxMz3zkpf3j7SmYja1T9U8wwM+G
-	5cWbXJpyQdQhaGtKRET7671bGnQlxmi+LdcyzePd6NnXORZvw4c9l365cWfZMr3PevPhxDcCvr9
-	2RGWNLwQuKs1TMWd5ObWnH4OSGcR++tHJPL+mlx/w3HxoLnMrAmQhPqpHGAzAsXb+H6w8ky8uFV
-	ZqoQxEvMUgZprVE5fmoKlys3z2QjB6Sh5mvGeugFSE9RGVwaSzoF1V16R7N53+3WIX226uP9GJ7
-	HGWihv2ezn/tzYdDwr2mCWDWtEyd01DZEUW9fc0aAGJyfOv1yWSsFmUl2IlUnlZQD+SPv+qgCtK
-	orLxSRaVyiTDP2q
-X-Received: by 2002:a05:620a:2305:20b0:92e:d7c1:b1e1 with SMTP id af79cd13be357-930a5f39caemr320838585a.28.1784230671907;
-        Thu, 16 Jul 2026 12:37:51 -0700 (PDT)
+        bh=bCPdtnsBvsAN4EJCJRBUEHD/EQeFUucSfhA9iwsODYY=;
+        b=KDVEd7kwDB0K88gUFfMbAFXENogwnuJZB+Etb3YlU/jagRukiZp3quzScqrIeNBEmq
+         SZzsbdCr3AWqNN6d2DpOS4ku4BrQZsI7tUkXBPesBqoXnSYsznfH8osWZ5tRMlz6LQO3
+         cXGsp35leGFdLRtdffXKvX3zWK3mnjNoBr+WRgXw45AdKXwyZCLWYqBx6TDLOMDNUfZj
+         v/MFHft28cOBpvrh30CZuun61Qz8gCZJytIq20WqVsKZi9qr7dwQSI33TLEWB3+KONsV
+         fe8VfCdLU3Eha2/QXCCD8gWetB9GaGu237UqyMczUpLnvLWR+qMzM8dP7Pf3oF/vFQ4r
+         voYQ==
+X-Gm-Message-State: AOJu0YwiXgSJBPQRuE8Xj4GEBhTAv5yTL24QdBGdfP+3NzRS0arkRQ4u
+	qUzL/Dc47GQtXF5frVLqSspNxacee8Ijn2cM4b3XDmW30MvDRVSOqMAyRGM5WQ==
+X-Gm-Gg: AfdE7cmZPbZ4fr5gkWr6hdUs603yU1mOQCQfxBadAyOQaRhUuNeQh086gUt11qK+F3b
+	64JYMN1WzlDIBpMiSSUTFnWgk1Hw3hJvyPWVQEPwZ7jGwRT7ncKM6AiCXOsR4CgUKwjC8e8LEha
+	0fJ4msPALmiIJYiiHIod9ozssjPClqAWNMPGamWSCbsld0wRxEIoj1Lh4rFTjcKejpcXSg5uOyV
+	yEQlN+PhxTXlci+sCgh03SuKoLXNZw4XrxA+DdgNuJnoOix5W5odZFMUTeOr2W6PVRlAeKes/31
+	2gPcdJfNx99T+kUvSne8jnS4gox9P7LWZCkQiHw/keXrrfuzisx7s42tXjx7C97oYOsTQnpvfou
+	zSHjBT4ai1D+lA+kpv4Hnn2MrQPrIpqd7es7gOSW+oYMSkE7lq00S7iYe6rdr6aLuf0/uQSoH/H
+	QDOXP1/HQJYECZcbA2s+brPrig1Gv8Z31b4ffq6tTIudx4CUwyLbNWru4A6V13INdteY2iEEw8q
+	Dgwrw==
+X-Received: by 2002:a05:6214:428c:b0:8eb:326f:9515 with SMTP id 6a1803df08f44-90758cd66e0mr117764606d6.8.1784231869191;
+        Thu, 16 Jul 2026 12:57:49 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-92ee5b492ebsm1987760985a.9.2026.07.16.12.37.51
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ffd50e10e9sm223300616d6.7.2026.07.16.12.57.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jul 2026 12:37:51 -0700 (PDT)
+        Thu, 16 Jul 2026 12:57:48 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
 	plautrba@redhat.com,
 	omosnace@redhat.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 1/4] restorecond: switch terminate to sig_atomic_t for async-signal-safety
-Date: Thu, 16 Jul 2026 15:37:34 -0400
-Message-ID: <20260716193737.11366-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH] mcstrans: match base classification and word text case-insensitively
+Date: Thu, 16 Jul 2026 15:57:31 -0400
+Message-ID: <20260716195732.11660-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -74,45 +74,41 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The terminate flag is written from a signal handler so switch it to
-volatile sig_atomic_t for async-signal-safety.
+The base classification and word regexes are compiled with
+PCRE2_CASELESS so a differently cased input matches the regex, but the
+extracted substring is then compared against the configured text with
+strcmp/strncmp() and fails.
+
+Use strcasecmp()/strncasecmp() so the follow-up lookup is consistent
+with the caseless regex.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- restorecond/restorecond.c | 2 +-
- restorecond/restorecond.h | 4 +++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ mcstrans/src/mcstrans.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/restorecond/restorecond.c b/restorecond/restorecond.c
-index b8ca4b21..0e973d83 100644
---- a/restorecond/restorecond.c
-+++ b/restorecond/restorecond.c
-@@ -73,7 +73,7 @@ struct restore_opts r_opts;
- #include <selinux/selinux.h>
- 
- int debug_mode = 0;
--int terminate = 0;
-+volatile sig_atomic_t terminate = 0;
- int master_wd = -1;
- int run_as_user = 0;
- int foreground_mode = 0;
-diff --git a/restorecond/restorecond.h b/restorecond/restorecond.h
-index 9fb5c5d5..7e209226 100644
---- a/restorecond/restorecond.h
-+++ b/restorecond/restorecond.h
-@@ -24,9 +24,11 @@
- #ifndef RESTORED_CONFIG_H
- #define RESTORED_CONFIG_H
- 
-+#include <signal.h>
-+
- extern int debug_mode;
- extern const char *homedir;
--extern int terminate;
-+extern volatile sig_atomic_t terminate;
- extern int master_wd;
- extern int run_as_user;
- 
+diff --git a/mcstrans/src/mcstrans.c b/mcstrans/src/mcstrans.c
+index 8ed1aa95..89235269 100644
+--- a/mcstrans/src/mcstrans.c
++++ b/mcstrans/src/mcstrans.c
+@@ -1285,7 +1285,7 @@ static char *compute_raw_from_trans(const char *level, domain_t *domain)
+ 			  match, strlen(match));
+ 		base_classification_t *bc;
+ 		for (bc = domain->base_classifications; bc; bc = bc->next) {
+-			if (!strcmp(bc->trans, match)) {
++			if (!strcasecmp(bc->trans, match)) {
+ 				log_debug(
+ 					" compute_raw_from_trans base classification %s matched %s\n",
+ 					level, bc->trans);
+@@ -1443,7 +1443,7 @@ static char *compute_raw_from_trans(const char *level, domain_t *domain)
+ 								int wlen = strlen(
+ 									w->text);
+ 								if (plen >= wlen &&
+-								    !strncmp(
++								    !strncasecmp(
+ 									    w->text,
+ 									    p,
+ 									    strlen(w->text))) {
 -- 
 2.55.0
 
