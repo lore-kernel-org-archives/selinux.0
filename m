@@ -1,75 +1,71 @@
-Received: from mail-qv1-f52.google.com (mail-qv1-f52.google.com [209.85.219.52])
+Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com [209.85.219.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82E71414A0F
-	for <selinux@vger.kernel.org>; Thu, 16 Jul 2026 12:53:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F19A241F34D
+	for <selinux@vger.kernel.org>; Thu, 16 Jul 2026 12:58:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784206387; cv=none; b=iH4/i77zO1coRERIBdDTkUeDyjCZZcj/4M799OQDZix4RKM8zfcZvVyMRZjL03oDx/mqDn47fvAO/kro727BE0FrjJe6iOkfERcOdZjlaMHGQmOgbVJ/aSfz5g5KH8OfZQBCabzCbLnfga6TVagz0XSRnSY3cCeilKgtWe/pFjY=
+	t=1784206708; cv=none; b=PNwp9Ro4fAn1IDIwqGco/zRk0KXcOS4177VMs0uBoheVc7kfXiABa29kurA3OU8DUbppSUdUpu0tw7VSRl13XCyQ5ql8MSiyDSy99L5ctiUwi5AqhIHd0JLrzdBeWKeGRzY2a5IcB7J34pwBUHa9baIkl/D78pqNMaHYwv2mbGE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784206387; c=relaxed/simple;
-	bh=DbL4+xKoIVspbrlYLJiLzcsPULOojrsmCqbKTbotjfA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=diQXvCGhrwk+3zeV8ge6JfZ3xZhyY57L7ktWQFHa7WQ1sixcfioNWIwn4IRbRU6J2Mvv6P0AuWaHOF+34K2X7nEBuLpQaMOTuX//Kax7uHzI+687qjGM8ZqKlNpegCec/gjw1ARwTVysaaJQ45RwjGe5n8z4/m4/BAxMrQhSYTA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jY7i5l0N; arc=none smtp.client-ip=209.85.219.52
+	s=arc-20240116; t=1784206708; c=relaxed/simple;
+	bh=Q97wDPnb9qr2MD1HNOEaUNE1RuBoZwSe8mnHN7k+wKQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fSw6GfgXymt1xiYzZU6//b6nAHi0Urv05fIBjE9Uw/GC5xdNktgaxahFn5Ao4iZ3oNN+yFP+uSUhkAtsdk79G0bGJdFIdtWh90PTJE6QT/zEHFz4ItqI+Wlaudxw2TREx2BcZencCNfhFici0YtP5B4qO7CSSmaZcnosM8x22js=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=khGpuFA4; arc=none smtp.client-ip=209.85.219.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jY7i5l0N"
-Received: by mail-qv1-f52.google.com with SMTP id 6a1803df08f44-8eefd0c5f59so32858146d6.3
-        for <selinux@vger.kernel.org>; Thu, 16 Jul 2026 05:53:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="khGpuFA4"
+Received: by mail-qv1-f49.google.com with SMTP id 6a1803df08f44-8ef1dc934d1so4823946d6.0
+        for <selinux@vger.kernel.org>; Thu, 16 Jul 2026 05:58:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784206385; x=1784811185; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Hxq9GQDJCF3XRlrIrdYfNDd9VfGwP+NLL8BEehFA9xU=;
-        b=jY7i5l0NoI3QUNVuQdHk17GIJzuRpAduicMhqVwECNcgpJIqSvjXc8uboK+rmgrUU/
-         ReeOOV1A1tr+x8dr8F1odjjWeWCDgyKuWgeJQxa7ZbjscO5tV3qom+G1y15PK1yLINlw
-         bAlK9tVupyoW/HMAUavCaMT0GZ/r+mxEKD9+fBX6umBCOlsAMu5Bej4pT5mSoy11tAiN
-         LXZ/Qy/GH75ZthAIHucc1RWdR81w9V82s2oOcd4O6t4mUDPzyOsDniIhJWZrQaGvPn4Z
-         yRH+xlUcXp5dkNLZaTT7fpWXU9T8Ez5Fi3jUG1LzdUXYzRuhpYZiwYmeRuP8xen1vK/i
-         D8ow==
+        d=gmail.com; s=20251104; t=1784206704; x=1784811504; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=yDosUrTJpMhFku8/zH2Bapk/dmtGzstf2XwD/qK1ie8=;
+        b=khGpuFA47MloVh7whIPd4toQqJijZtc9tVpC/brG42md5hdEVCb1CHDBpZ0G/I8zAA
+         NgnQXf/1bJnbTFLarFoMFWLhK7DG5KKIfhXUh9vVKVLhybnT/W+m2xO0+c0/OnVrlHeC
+         Rd3T+AIHx/cpMnAqgu8hX71j6US8kYKgJ+W2AsyK6XS9KuF/M0XHq+7q2Fl+oIptsvnu
+         S+18TmQqNhvtx3Z4umNfPJ4fhLIxUJkS8E+mZqD2Lde+6o6jx8JtflFKPVfeNhklSYJM
+         /VuBqIUknynSU0enQvMT8NhcoeXdx0l1gqhgC2feVOMUEXN83OUCRcyPb7pIXHOOBSB0
+         g+Ng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784206385; x=1784811185;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Hxq9GQDJCF3XRlrIrdYfNDd9VfGwP+NLL8BEehFA9xU=;
-        b=NRV/RZR69jbH9E4FPzlSv6NFZFGZdbDCslw12KWpAMZUhv1gMlKutlGN6UtiXImvqR
-         FFC/nWGPrm+S7iX4Lx+p3Dl68B6SWBG6Aan6p1rH+fZ1B9qb5e0rFjIsnqoR2jegfcNu
-         n8jfBrvfJvzXBJp+aum5pM4bpsJkwQjkU9GhYet99+g+kZ6XO01CpT2+bPjg4UMaLyol
-         MFl+8e4icB0D5cVZAq3/irwWLTbORMlUO0VXX/4NytUwYaP0LoN1eI2ZyVyv43+c9SMI
-         5VXWxXkd9a8ywpI0eDkkCClitlM7GtuiIJCoHx/EHOFT4QxCfUmIhcGDsX1smM4ZlSx6
-         DPcQ==
-X-Gm-Message-State: AOJu0YwOnZ0Z95NwzCNtIAXAvbx6s9edYU+rurTJF+Equ27fesLMDyaY
-	db5FtkzJIkhPGO14gPa03ojrWUc7nIGf7d/CMnRKxO7RvEkNZ8T3qTrd2nYMVQ==
-X-Gm-Gg: AfdE7cnTiULkQYfkmazBHC1iRRBdysAQtYt2C5OQDmP7d/n1ELY3LYelck6Fog3o6Dq
-	7zVN5Pp25pMGIHhbUwxTBwj50wXPRvtublojYlA8bDTu5D3slGY+SLeLrL8CTcgA4D0Mdm8nIq8
-	TGwipYjIpxZnaHhho4UgVQT78gxUCedyxahwx3o3YeblYhbn6PB5T+rEC27X53SV3zFDo+UFBY7
-	pyZF0p656rxeFO2ugqpwDKT7p+OSd1AdcM80KyPKETpn+ckuSKMAbMK1IB6jEvTvYUmHWcBNucT
-	Kyt/wW2RTDsPNnr5xZQMPrT7iLg24ukkwIq1IDp2vn3Dvj0eEmqmNgrMQK5j6VnyC+SRKAkgTGx
-	hFFshRqtgEFphL7aegC3MlZ9PKHdhkspZvPghhjSkotpQmPDkD9MaggQbjqcmi+ZEPSscncp2/d
-	GtH6kyMgQVJVRjxuBLkjUaaV9jjrpFpKSOviDSoHPL+zjkzLg2+lF4IR2zk4pj1nY84unYdatDT
-	SInew==
-X-Received: by 2002:a05:6214:2127:b0:8fd:6df3:b376 with SMTP id 6a1803df08f44-90402a6ad32mr241232936d6.58.1784206385390;
-        Thu, 16 Jul 2026 05:53:05 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1784206704; x=1784811504;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=yDosUrTJpMhFku8/zH2Bapk/dmtGzstf2XwD/qK1ie8=;
+        b=R20k8TbMAQc7dYpE5lB2Oq4JQUBadzB5ncS0+K5mHXi87IXe3poSPj7CVsc3ljrY+/
+         oIRlHyFn4sQLcVFtQ9UBa/7Q78It4f6HK2FvcNbmz/R902GKWw9EVEtw81Mgvz8gUNbE
+         qvi4hpFNm7+pYvjPBqOykqelzxGdfwm2vUUpNaOlaI58JF/Z00fdBYW/GE2JGSQgpCCw
+         fUJc9p09tcdTgxSg6XkTqqWTea4pPKU9tMB4lro7Mn/YJhENAaGr6nA81fUT4tydLwEH
+         sjgRKbSL6rWtTTyAJtNvupdA76w/Pd+PYHrdpo4cJQR41aMwp0tv6QiPW2vnb6AYjP8P
+         Aapw==
+X-Gm-Message-State: AOJu0YwHSpHx9GqvXp2e/nzUFOeLQzh4NnryvthCjvFxZy9q4RODjCTg
+	Em7J4whToFtY63QMQkTD+qFHC7u6Le2AV2Wst0ZuFHyy59t/uPSCnYO5EROLCg==
+X-Gm-Gg: AfdE7ckFxXpIv3Uz5Gnrcmf42P8TDYc1UlsnlhxwSSZU0UEeiHWMNZVL5Kn8E2wPw8D
+	su1WY51wbIsiUMA+AGIMQg7Ujst695bIxOSReADhGXcxu65covxvgLkvvOyb4EKk7p5paFVJC6+
+	U2ZoOrULBNDCVq2rAdCaI8LqzgO/WWoS6Hy03ohizdXhid/3paIwk/YP5GcxLzICgXCRnmaM6BW
+	BbHGky+w1/NZgptJkoAmeJJTpxdR96RPcbOk/h1/8kA39Drj23+89wd4XLr1as5R+goiGHK9fgm
+	OiyUvVGUdrOIKHbWRHWeXE1mNmNGd3hOrB8r/h4PewfLEsKInSEUoYxtJ9SPu/u7XGNVFwhWSp1
+	SE1I+n2Pbrh8MHbzElRTsufcXykiOpLANV0NqDUx5sR20/ZF0Gurr0Qck5H5ies+UJa8eMzAcfR
+	5ma7Ve1oSs80IdwSj/BtzfQNETHF1ni414jVpOFq115i7h+BHXdRdeZUm0fqe/RlS/tnXaah5Bm
+	CsrXA==
+X-Received: by 2002:ad4:5764:0:b0:8ef:2d29:699 with SMTP id 6a1803df08f44-90768e06499mr25776966d6.12.1784206703803;
+        Thu, 16 Jul 2026 05:58:23 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-904116650b7sm196161866d6.8.2026.07.16.05.53.04
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ffd50e3083sm221811846d6.6.2026.07.16.05.58.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jul 2026 05:53:05 -0700 (PDT)
+        Thu, 16 Jul 2026 05:58:23 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
 	plautrba@redhat.com,
 	omosnace@redhat.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 2/2] mcstrans: bound Include nesting depth
-Date: Thu, 16 Jul 2026 08:52:49 -0400
-Message-ID: <20260716125249.6872-2-stephen.smalley.work@gmail.com>
+Subject: [PATCH] policycoreutils/run_init: handle NULL from crypt() in non-PAM build
+Date: Thu, 16 Jul 2026 08:58:03 -0400
+Message-ID: <20260716125803.7023-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260716125249.6872-1-stephen.smalley.work@gmail.com>
-References: <20260716125249.6872-1-stephen.smalley.work@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -78,53 +74,27 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-process_trans() handles Include directives by calling
-read_translations() on each matched path, which in turn calls
-process_trans() line by line. A configuration file that Includes
-itself (directly or via a cycle) recurses until the daemon runs out of
-file descriptors or stack. Cap the nesting depth at 32.
+crypt() returns NULL on error, so check for NULL and treat as if
+authentication failed in that case.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- mcstrans/src/mcstrans.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ policycoreutils/run_init/run_init.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/mcstrans/src/mcstrans.c b/mcstrans/src/mcstrans.c
-index b5c8d54a..e79aa3d5 100644
---- a/mcstrans/src/mcstrans.c
-+++ b/mcstrans/src/mcstrans.c
-@@ -911,16 +911,23 @@ static int process_trans(char *buffer)
+diff --git a/policycoreutils/run_init/run_init.c b/policycoreutils/run_init/run_init.c
+index bb9593ad..89921b23 100644
+--- a/policycoreutils/run_init/run_init.c
++++ b/policycoreutils/run_init/run_init.c
+@@ -213,6 +213,8 @@ static int authenticate_via_shadow_passwd(const struct passwd *p_passwd_line)
+ 	encrypted_password_s =
+ 		crypt(unencrypted_password_s, p_shadow_line->sp_pwdp);
+ 	memset(unencrypted_password_s, 0, strlen(unencrypted_password_s));
++	if (!encrypted_password_s)
++		return 0;
  
- int read_translations(const char *filename)
- {
-+	static unsigned int depth;
- 	size_t size = 0;
- 	char *buffer = NULL;
- 	int rval = 0;
- 
-+	if (depth >= 32) {
-+		syslog(LOG_ERR, "%s: Include nesting too deep", filename);
-+		return -1;
-+	}
-+
- 	FILE *cfg = fopen(filename, "r");
- 	if (!cfg) {
- 		syslog(LOG_ERR, "%s file open failed", filename);
- 		return -1;
- 	}
- 
-+	depth++;
- 	__fsetlocking(cfg, FSETLOCKING_BYCALLER);
- 	while (getline(&buffer, &size, cfg) > 0) {
- 		if (process_trans(buffer) < 0) {
-@@ -931,6 +938,7 @@ int read_translations(const char *filename)
- 	}
- 	free(buffer);
- 	fclose(cfg);
-+	depth--;
- 	return rval;
- }
- 
+ 	/* Return 1 (authenticated) iff the encrypted version of the user's *
+ 	 * input password matches the encrypted password stored in the      *
 -- 
 2.55.0
 
