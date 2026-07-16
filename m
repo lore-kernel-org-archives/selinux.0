@@ -1,71 +1,75 @@
-Received: from mail-qt1-f176.google.com (mail-qt1-f176.google.com [209.85.160.176])
+Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9845037757C
-	for <selinux@vger.kernel.org>; Thu, 16 Jul 2026 19:11:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 553B636BCED
+	for <selinux@vger.kernel.org>; Thu, 16 Jul 2026 19:37:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784229100; cv=none; b=m5FOVErY6+5pEvYSBggfHi8qyN7CYcU/kYFBy1S6tR2jl52tnLiXMBE3zsHYtZh78JoNC+XJC/O6Re58v0gofZqAAE6fjS47MMQuv1I8ObWP4TH5a2wqKSO9QqepOVpAIr3tiarLSVzTdEiGyd5YftpNYql5sezcnnZ4Hj5uIK8=
+	t=1784230679; cv=none; b=tH4OyNRjWS+C4P5IUmUDNcftg4BpgfictzH4ivv9TqEW3U4unY7sBW+gFVwMF7Z0rl8r4T52wROFAb1eazfe7fqA0wKoUP4XMSeyMMFO5cVzklcBd6TSddDZqJGopSlHI8GbBaSlfPtycY9AFM2xGN4X16EK1e3ywfmyeEb8M7k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784229100; c=relaxed/simple;
-	bh=yib5hgo0Y5KXmX4PQgzmlhj3bJ64eG+iemA0MGsATGk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=G1IDRCVSLu9K+k9b9EBuQhkekuU1VYgG5hIGlbht7zbbb53/zmcgVeZjDujplW+Z22D1Fp7U73wIR7Qwxx0U8xKAsVO8D6Xm0uPUOAtedet6hCEHbNznzTAmQZfZ7Tcx3FVq01oCSoUmp4zsU1YrA9Zgtb6k+1BgEEI9qP+L2oI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PI3Lb9yH; arc=none smtp.client-ip=209.85.160.176
+	s=arc-20240116; t=1784230679; c=relaxed/simple;
+	bh=SzOsA2yqtc0osDbHs1EnV9o7EGAbNwK+z/c0tm4mw/M=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=VM9Y1Uh5/wG4bsP/eGw3g+FMfvBqCYk7pNG+ylaZQD5gtbUAGbOrqKWR+xCdYuq/6VBOenIzN4bo+TjdYHDqh/zypkfL9baYri+QpuXEAVXNcnkbY1IcJc1Govro1YoN/KzXm9+hN9joqI1FjVG/IuxLba/CbbVzP8bI1LpTNSo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R/PtkJ0R; arc=none smtp.client-ip=209.85.222.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PI3Lb9yH"
-Received: by mail-qt1-f176.google.com with SMTP id d75a77b69052e-51c2808dbc3so42685301cf.1
-        for <selinux@vger.kernel.org>; Thu, 16 Jul 2026 12:11:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R/PtkJ0R"
+Received: by mail-qk1-f175.google.com with SMTP id af79cd13be357-92e65e18969so70568385a.1
+        for <selinux@vger.kernel.org>; Thu, 16 Jul 2026 12:37:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784229098; x=1784833898; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=INH7H0ven+8+y5xdbir2xRe2wBCPf5mzvHPy88Tt37s=;
-        b=PI3Lb9yHWQ8jpwcUVi1UQ1rR/WD2j+8VnyNuBz2UPpqh+3Kk8vJ+N5FeptprIAEjeM
-         k0llN/hqpZmVVb82roXSvzPZ40FJEpmEGBzczcuA737iB8p6+HK/RDWi7eKwCyzLPhz/
-         dpqDz/9Lt3R5WVfsXT0a7rYANfwoi8o+C6jRanBbLrZFnlm2om3jrEpu5zCUqc/VOK7E
-         YW3goIxV2aZn1WOzGkyGY4hNtIS8mTnBdRom/mHkkKi2zvoc4rR9qceEI2EQ3UWQ+KBD
-         EiRvthpk4ktLSXT9S0I72NQfqaHBcDxDK8EUSM4aaHogpmIjxKjpSfSYgwlw5IiADxxv
-         PGdQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784229098; x=1784833898;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1784230674; x=1784835474; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=INH7H0ven+8+y5xdbir2xRe2wBCPf5mzvHPy88Tt37s=;
-        b=gzRJaptv2MgPIH1y4/EMRKn11MmvZGTqfnCJkRMtXlMKCCJPGunP3E3qr9jun9kENP
-         UZX0MXU/Xy3cGntw5D+vsqoioMx5BHNkRX4enk6M9xt9X8xudh3gHtDM5vY6Z8KnQxKs
-         JPlaFUl8CUZkMGQI1KC+rfE6VNkTtx+l0DWAry+H3T4GCz3IkBDYf2GC2HvfRF+rSqro
-         dVLNlcQtpO1cJ9c5mDoZfRqN4G41S77s82EJu/JyMkpnSK/PIlHRKWiTHY8lHdxro25U
-         trt6H6T/4q7w7zK7tJxD1vGl8Wx2l40hMG1v/hxkX9IAx61CpVIEWuIzSi1gm/FahoY/
-         cK+g==
-X-Gm-Message-State: AOJu0YzJckPqqOCAC3c1D7B1fdar+945+s/ecNs5dXkHBgCdu6aP82K/
-	j9uNSJ+wPpfPf11vQgrkFIQcQY4z4Z6hGcgSbGSVFN0kCZXwwGMQHYVblGu8zg==
-X-Gm-Gg: AfdE7cmkSdBF5XpU9S4cWpvu4wkesa205WkycFxRXJXVzCKV7hux2d0TZjJW7isoNFd
-	jXD7QrOby6cXA15KshNKYM8eztLPXrvfK1cc3vuCarvcGqU5GGc/qV4F4wHbCZUppt4Ch7ceR0T
-	Skv30YdH+WH17CGcngFlGtpFN5CYDP9FcdAptk0q9en3TxNbLj3sJUQbUl1Xi6BHXVd7pF/TFEd
-	AZ0PwTTC7mokYg68WcouI0ago6nWOAs4PCbBGfCQ5F80sUoAQCrb5us4lKPvbFM4hyp01WzGyCQ
-	nzwMJDxnpVNnVxQnlL4iT+J+P/c97H6BeSSKhWv/mf9zydRGTGE+8wN2WzT3UFQ9NMuGwx3Uo/H
-	ihdoiX0/6JJmMQqt+gciERSrmE+6W0vianNw+UjVFxjs+tPZ7Pi8ZZXUQCL0wctK8HWRXbW9YJj
-	zw3LbYAFW7X1NQsHoHm9D9XRFrZ1dGJpt7ZrPcaIpOsQXySMt7lx940eHRPkiVZV3eLiYq/kqUj
-	4eAyQ==
-X-Received: by 2002:a05:622a:1e0c:b0:51c:7b12:5fe3 with SMTP id d75a77b69052e-51e424c4ceemr127778751cf.79.1784229098330;
-        Thu, 16 Jul 2026 12:11:38 -0700 (PDT)
+        bh=oBozQ39IliTitTd1xTyCu12WwYClWOkvC3YLXJnbbYA=;
+        b=R/PtkJ0RMP6QKW3tpN77x7u6CLYmU007kPKgDWsXrile06irF2ctMVzk0zpou+HJlT
+         SxSOIw/IMzPI9vt7QgMAlHE7cUFrkyahRk6qSTT5eMSCVPxm7Gpw4b5+y+W5aEnTNBn2
+         +O2B+tUd7fALo/PRo8i10gWjs3fvBwr94bRFfk60QBZspBoyIUmOkFvfoulo5+9dbSrX
+         1xuzELT0I21ksdK9iytflamNv+TaoB6V4E4aAB2rkC/xPPH5D7rlAfG0tk0rjmRG+YTx
+         pDUnoP+sfXuKcO3rqOXGaBsrwhsnKIZlVIm2D16zC9QifAWyC2Pf8Y1syJulBnE3vKb4
+         cmwA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784230674; x=1784835474;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=oBozQ39IliTitTd1xTyCu12WwYClWOkvC3YLXJnbbYA=;
+        b=eZTQXP1wNQe35yiu1xwj4TfSNbpnRY32Fc2g3jsoghkW+ezopgYK2PKa3Ggg7NNPZX
+         UvIvUfVXC8i22t1tfnNnXShEPtKvFpdDe4qfpTv1PYLTztaj+cbwWjG8CJuYzlgG1kIJ
+         kkO6FubME0rTWbTMs5BFE8aBETJG3MINlcVEFURgCTt4+qfpJG1qvQKGxP8jo9KzGLeb
+         K4044zEx01SW6+Xxzk+wwx28HnVJ1E8dxHy3/nGRzHWijyD6kuIaAoHYkOVBnjvFIPqp
+         ZTZTTMzkJuG+hQ3do5kzVDiKhQm5lvh2JlMrikQbnSrPeM3udFMTVej+zvQXQXaUZ7yc
+         kjBg==
+X-Gm-Message-State: AOJu0YzYWvluOutj/8N5W6TUW9VygtxqWlF7taUW3TxL92xAaaITUP12
+	ZJwJmXPKtH/PhMklHvU70HlAm0VQQgqfLFfM8hlS4aI5cB1i6mBsreLFuQ5ksw==
+X-Gm-Gg: AfdE7clbU+tX5L6udHKaPhWmME8QrjTEMLODlT06S+3cwApECkwTDfCz4kqQhP6FNC1
+	2EEttp6xQYzBn0vtClFGUB/cl73QQodahtLEvsdg4ZGU+7PTIxfTcWc8fR3/An9OjWImVC8w4Nd
+	hPpOslRvtKEJeDsDhS7I15TL+0MivcX2VT3ydSTTWnESGoxBeaKOxbEmRypfVf8MZySrUw77Zyk
+	z3/uQzx/fmJCF9Z1uEXpoKdQLd6syYC1E1Y9t/aMg9hj2cG4BipdLgqYqWHhQJ1IUdp7j8lwLXz
+	J5JJ+lxJv+py2RkAfwmJZ1p9MnEyJ45U4/BD+9L/z4s4KXVZvJTWLCbIQU+3EHuKFqsL2o/blO4
+	W6cRr01/cVG1A4cvfEomoVIFk7IoIUR+cr8f3pqzYKsHf/7qqYBIVkAZtJ1r0BbvFnnMoUfeqlN
+	3Uoa7l622cHARn/F6KUHav+PKCvk4ZUVf04iZijFtip/hXOWaQOOho29hUOh+VRHX0Yo8eCg+qj
+	mBYKg==
+X-Received: by 2002:a05:620a:2546:b0:915:9f30:23cb with SMTP id af79cd13be357-930a5c38b9cmr432208185a.0.1784230673855;
+        Thu, 16 Jul 2026 12:37:53 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-51caae240c9sm160263141cf.16.2026.07.16.12.11.37
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-92ee5b492ebsm1987760985a.9.2026.07.16.12.37.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jul 2026 12:11:38 -0700 (PDT)
+        Thu, 16 Jul 2026 12:37:53 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
 	plautrba@redhat.com,
 	omosnace@redhat.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] policycoreutils/setfiles: fix -f handling
-Date: Thu, 16 Jul 2026 15:11:23 -0400
-Message-ID: <20260716191123.10829-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH 4/4] restorecond: fix isspace() call to cast to unsigned
+Date: Thu, 16 Jul 2026 15:37:37 -0400
+Message-ID: <20260716193737.11366-4-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260716193737.11366-1-stephen.smalley.work@gmail.com>
+References: <20260716193737.11366-1-stephen.smalley.work@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -74,53 +78,27 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Only trim a delimiter if we are consuming it; otherwise we may
-truncate the last character of a file name being read if it is on the
-final input line with no trailing newline.
-
-Since the -f processing occurs after restore_init() has already
-converted the r_opts flags to restorecon flags, we need to explicitly
-set the restorecon flag when a mass relabel is triggered via a "/"
-line.
-
-Initialize buf_len for good measure; glibc ignores it when the line
-pointer is NULL but we shouldn't rely on this.
+isspace() on a plain char argument is defined for negative values;
+cast to unsigned char in the caller.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- policycoreutils/setfiles/setfiles.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ restorecond/watch.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-index 2d38ea8f..e0953708 100644
---- a/policycoreutils/setfiles/setfiles.c
-+++ b/policycoreutils/setfiles/setfiles.c
-@@ -142,7 +142,7 @@ int main(int argc, char **argv)
- 	const char *input_filename = NULL;
- 	int use_input_file = 0;
- 	char *buf = NULL, *endptr;
--	size_t buf_len, nthreads = 1;
-+	size_t buf_len = 0, nthreads = 1;
- 	const char *base;
- 	int errors = 0;
- 	const char *ropts = "ce:f:hiIDlmno:pqrsvFURW0xT:";
-@@ -455,10 +455,14 @@ int main(int argc, char **argv)
+diff --git a/restorecond/watch.c b/restorecond/watch.c
+index 18bd90db..4e3c382f 100644
+--- a/restorecond/watch.c
++++ b/restorecond/watch.c
+@@ -424,7 +424,7 @@ static void process_config(int fd, FILE *cfg)
  
- 		delim = (null_terminated != 0) ? '\0' : '\n';
- 		while ((len = getdelim(&buf, &buf_len, delim, f)) > 0) {
--			buf[len - 1] = '\0';
--			if (!strcmp(buf, "/"))
-+			if (buf[len - 1] == delim)
-+				buf[len - 1] = '\0';
-+			if (!strcmp(buf, "/")) {
- 				r_opts.mass_relabel =
- 					SELINUX_RESTORECON_MASS_RELABEL;
-+				r_opts.restorecon_flags |=
-+					SELINUX_RESTORECON_MASS_RELABEL;
-+			}
- 			errors |= process_glob(buf, &r_opts, nthreads,
- 					       &skipped_errors,
- 					       &relabeled_files) < 0;
+ 	while (getline(&line_buf, &len, cfg) > 0) {
+ 		char *buffer = line_buf;
+-		while (isspace(*buffer))
++		while (isspace((unsigned char)*buffer))
+ 			buffer++;
+ 		if (buffer[0] == '#')
+ 			continue;
 -- 
 2.55.0
 
