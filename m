@@ -1,70 +1,70 @@
-Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com [209.85.219.49])
+Received: from mail-qt1-f178.google.com (mail-qt1-f178.google.com [209.85.160.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F19A241F34D
-	for <selinux@vger.kernel.org>; Thu, 16 Jul 2026 12:58:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EF243161AD
+	for <selinux@vger.kernel.org>; Thu, 16 Jul 2026 14:21:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784206708; cv=none; b=PNwp9Ro4fAn1IDIwqGco/zRk0KXcOS4177VMs0uBoheVc7kfXiABa29kurA3OU8DUbppSUdUpu0tw7VSRl13XCyQ5ql8MSiyDSy99L5ctiUwi5AqhIHd0JLrzdBeWKeGRzY2a5IcB7J34pwBUHa9baIkl/D78pqNMaHYwv2mbGE=
+	t=1784211672; cv=none; b=hOAIEsX+4ccgTsIPRuwsnAxP+U+80+hzjSm1yD642fBTk6e11okvsS3Dd3ohxxd0mTct1KDCZQUtV5CbziWInUrSwo4iuaLD4ZaQMUoZGvmxYXnKE8yVmyagPiFjWDVA+eE2Anvuetrmgb//II1M4Rr6K4zEb5p47zagQJ3kwZE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784206708; c=relaxed/simple;
-	bh=Q97wDPnb9qr2MD1HNOEaUNE1RuBoZwSe8mnHN7k+wKQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fSw6GfgXymt1xiYzZU6//b6nAHi0Urv05fIBjE9Uw/GC5xdNktgaxahFn5Ao4iZ3oNN+yFP+uSUhkAtsdk79G0bGJdFIdtWh90PTJE6QT/zEHFz4ItqI+Wlaudxw2TREx2BcZencCNfhFici0YtP5B4qO7CSSmaZcnosM8x22js=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=khGpuFA4; arc=none smtp.client-ip=209.85.219.49
+	s=arc-20240116; t=1784211672; c=relaxed/simple;
+	bh=06K6pfFvqeUt0xq3U6Y+kwgCrvcpb8qlimjLwIKA8Hs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=W80FKKwAOOVYOhyTJlHRDuM41Bx61Uq7hv1SeMcbvF3OLu93JAnE5yAQRQrOTyHRcTW6WVW4CIFezcjXfMU4W9jyVH/y63PNTToYb+tQR5s+IUIFzIrKFGPWHkg1MaUDeU9G56QuU0EyuMr6sO9QWl6jFte7itke/Et6+6dvPYY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UYR8knEp; arc=none smtp.client-ip=209.85.160.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="khGpuFA4"
-Received: by mail-qv1-f49.google.com with SMTP id 6a1803df08f44-8ef1dc934d1so4823946d6.0
-        for <selinux@vger.kernel.org>; Thu, 16 Jul 2026 05:58:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UYR8knEp"
+Received: by mail-qt1-f178.google.com with SMTP id d75a77b69052e-51c2808dbc3so40723771cf.1
+        for <selinux@vger.kernel.org>; Thu, 16 Jul 2026 07:21:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784206704; x=1784811504; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784211670; x=1784816470; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=yDosUrTJpMhFku8/zH2Bapk/dmtGzstf2XwD/qK1ie8=;
-        b=khGpuFA47MloVh7whIPd4toQqJijZtc9tVpC/brG42md5hdEVCb1CHDBpZ0G/I8zAA
-         NgnQXf/1bJnbTFLarFoMFWLhK7DG5KKIfhXUh9vVKVLhybnT/W+m2xO0+c0/OnVrlHeC
-         Rd3T+AIHx/cpMnAqgu8hX71j6US8kYKgJ+W2AsyK6XS9KuF/M0XHq+7q2Fl+oIptsvnu
-         S+18TmQqNhvtx3Z4umNfPJ4fhLIxUJkS8E+mZqD2Lde+6o6jx8JtflFKPVfeNhklSYJM
-         /VuBqIUknynSU0enQvMT8NhcoeXdx0l1gqhgC2feVOMUEXN83OUCRcyPb7pIXHOOBSB0
-         g+Ng==
+        bh=06J7r7bUHzIuEv+a4aTYnd/qeirMAArAOFtTLIa6GJ4=;
+        b=UYR8knEp+URUGkg9j9MVmHUzxIX2axtqc9RLkDiEsHfC0F8DlDZa679e6g6A029M9x
+         RqLeinirxXFL8mskZZsi5Lc8Yb8f2Wy/Er3+Yzhr9b4aGm6idedSUpzsWgnPx21ky4vB
+         +pYPKt4oZ5veo0WDrsK8w0txK8aUrm8KM+5Fhduvje/Pi3mfaScLGN6VB/O36dqTRnwQ
+         Bf2SVtloGHRFwwII4ZvOzG4KZ9E7eRNUSSzEwaWvvLFdapoCCZyPZs5gAmFQFKMuwm5R
+         poNlIBuOTDht0v+KFy+eEckIwNn3vjjaDY4oAqyhbZgHhUmGTAU9qFYe/oi7HSTmTvri
+         /ZHA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784206704; x=1784811504;
+        d=1e100.net; s=20251104; t=1784211670; x=1784816470;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=yDosUrTJpMhFku8/zH2Bapk/dmtGzstf2XwD/qK1ie8=;
-        b=R20k8TbMAQc7dYpE5lB2Oq4JQUBadzB5ncS0+K5mHXi87IXe3poSPj7CVsc3ljrY+/
-         oIRlHyFn4sQLcVFtQ9UBa/7Q78It4f6HK2FvcNbmz/R902GKWw9EVEtw81Mgvz8gUNbE
-         qvi4hpFNm7+pYvjPBqOykqelzxGdfwm2vUUpNaOlaI58JF/Z00fdBYW/GE2JGSQgpCCw
-         fUJc9p09tcdTgxSg6XkTqqWTea4pPKU9tMB4lro7Mn/YJhENAaGr6nA81fUT4tydLwEH
-         sjgRKbSL6rWtTTyAJtNvupdA76w/Pd+PYHrdpo4cJQR41aMwp0tv6QiPW2vnb6AYjP8P
-         Aapw==
-X-Gm-Message-State: AOJu0YwHSpHx9GqvXp2e/nzUFOeLQzh4NnryvthCjvFxZy9q4RODjCTg
-	Em7J4whToFtY63QMQkTD+qFHC7u6Le2AV2Wst0ZuFHyy59t/uPSCnYO5EROLCg==
-X-Gm-Gg: AfdE7ckFxXpIv3Uz5Gnrcmf42P8TDYc1UlsnlhxwSSZU0UEeiHWMNZVL5Kn8E2wPw8D
-	su1WY51wbIsiUMA+AGIMQg7Ujst695bIxOSReADhGXcxu65covxvgLkvvOyb4EKk7p5paFVJC6+
-	U2ZoOrULBNDCVq2rAdCaI8LqzgO/WWoS6Hy03ohizdXhid/3paIwk/YP5GcxLzICgXCRnmaM6BW
-	BbHGky+w1/NZgptJkoAmeJJTpxdR96RPcbOk/h1/8kA39Drj23+89wd4XLr1as5R+goiGHK9fgm
-	OiyUvVGUdrOIKHbWRHWeXE1mNmNGd3hOrB8r/h4PewfLEsKInSEUoYxtJ9SPu/u7XGNVFwhWSp1
-	SE1I+n2Pbrh8MHbzElRTsufcXykiOpLANV0NqDUx5sR20/ZF0Gurr0Qck5H5ies+UJa8eMzAcfR
-	5ma7Ve1oSs80IdwSj/BtzfQNETHF1ni414jVpOFq115i7h+BHXdRdeZUm0fqe/RlS/tnXaah5Bm
-	CsrXA==
-X-Received: by 2002:ad4:5764:0:b0:8ef:2d29:699 with SMTP id 6a1803df08f44-90768e06499mr25776966d6.12.1784206703803;
-        Thu, 16 Jul 2026 05:58:23 -0700 (PDT)
+        bh=06J7r7bUHzIuEv+a4aTYnd/qeirMAArAOFtTLIa6GJ4=;
+        b=Se+OOvu682j2EqL99vX3Gvj8Sdt1Q5CPsILehtTFVihxqTevLNyOSRU8SfMkd5Jrgi
+         5IAOX1dSXV/CjeMpKR2KB9V9FWO91bVxXm9ZQnc3uCJm6pBnFJ2WRdY6FYMLdGNA0FPx
+         CP/5kG6Fg/4ZDZx5cAsRbLGinWmczPELcMeQMmVlK72a4WRrlyZe0JoQ1qM6cmXrVeiO
+         3biQp1JalEasglZVKQusZr3TGL+NcWDa6Bip/zvBc/gOsg76s/Wm29IdAn5/HxCRdZsk
+         YtOo2SU5YpLuAGv+BXqxhHsxdBtj0Sv96gUGgm7QvMrS11HWfFIWIUFN8A2A2mNdnr9Y
+         sgMw==
+X-Gm-Message-State: AOJu0Yw+d9PgKFw81c0RtIT83xgjfBv0F7WXY1LyOr2uQf3iF3FP/XsS
+	5kEGSOjFC+gAQscEjarIcoR/8inYsGrb8uvbdUDc0FjqOi/KI18AmtyWPj3XEA==
+X-Gm-Gg: AfdE7clyzUEBS7904G0YgutNp/qSlNr31AgOAftSYl+LkzdymK+zUPZZaxNd5RDHp+J
+	pCK/qBNbtmrvIYGNVszxjzT4pDp4sMccoIZ1o5lj4+MlqNvqzKKWf0ivloLhIQW8j8YqrNqFlkW
+	FCCFRyBAhSmI8wumNz+JCh2KdUtpEPAAh9GAP3QJF5MT1+0qMkxZjQvOVYfpfBgLVRwSnYI7PHj
+	J4BTG6EMBMLJSxLCcuDsNt5dOynxM3ETx3OHn2U+jMJX1ftVOfa7bsPZKsHWSIv7+wGBQ5W4uvI
+	VCv5FFkqTUHcgUctbtBBJeEaWxgrf7V1+ouEktdxseIjkzfj0UUZGd+AeOabO6fv2PCHFC3Eh8A
+	KKs3FNj38vxoWD3WqdO4A0IJPELKeWQcGRDT45mnOPEyycBKiqtQ/h62ENWU7F/2yE4WSWyOnM6
+	w9ZXAB9p8ClFRDX6nG7mJymYFmvwsIlL4kQYCp+R08Si4C4EhNGzn2yUXkoPgDqzkgM6XhnVHzE
+	pKZrA==
+X-Received: by 2002:ac8:5d56:0:b0:51c:257c:8164 with SMTP id d75a77b69052e-51e4237d2bamr115913121cf.25.1784211669535;
+        Thu, 16 Jul 2026 07:21:09 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ffd50e3083sm221811846d6.6.2026.07.16.05.58.23
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-51caae5e91dsm159671571cf.21.2026.07.16.07.21.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jul 2026 05:58:23 -0700 (PDT)
+        Thu, 16 Jul 2026 07:21:06 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
 	plautrba@redhat.com,
 	omosnace@redhat.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] policycoreutils/run_init: handle NULL from crypt() in non-PAM build
-Date: Thu, 16 Jul 2026 08:58:03 -0400
-Message-ID: <20260716125803.7023-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH] libsemanage: semanage_pipe_data(): multiplex the compiler pipes
+Date: Thu, 16 Jul 2026 10:20:42 -0400
+Message-ID: <20260716142042.8162-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -74,27 +74,264 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-crypt() returns NULL on error, so check for NULL and treat as if
-authentication failed in that case.
+The parent writes the entire input to the compiler's stdin, then
+drains stdout to EOF, then drains stderr. If the child writes more
+than a pipe buffer to a stream the parent is not yet reading, both
+sides block. With hll/pp the input phase is safe (fp_to_buffer()
+drains stdin before any output), but sepol_module_package_to_cil() can
+emit stderr warnings while writing CIL to stdout, so a module that
+produces enough warnings fills the stderr pipe and semodule -i
+hanges. A streaming HLL that writes diagnostics while reading would
+deadlock in the input phase too.
+
+Replace the serial write/read with a poll() loop over all three pipes,
+feeding input while draining stdout and stderr as they become
+ready. read_from_pipe_to_data() is folded into an incremental append
+helper.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- policycoreutils/run_init/run_init.c | 2 ++
- 1 file changed, 2 insertions(+)
+ libsemanage/src/direct_api.c | 190 +++++++++++++++++++++++------------
+ 1 file changed, 123 insertions(+), 67 deletions(-)
 
-diff --git a/policycoreutils/run_init/run_init.c b/policycoreutils/run_init/run_init.c
-index bb9593ad..89921b23 100644
---- a/policycoreutils/run_init/run_init.c
-+++ b/policycoreutils/run_init/run_init.c
-@@ -213,6 +213,8 @@ static int authenticate_via_shadow_passwd(const struct passwd *p_passwd_line)
- 	encrypted_password_s =
- 		crypt(unencrypted_password_s, p_shadow_line->sp_pwdp);
- 	memset(unencrypted_password_s, 0, strlen(unencrypted_password_s));
-+	if (!encrypted_password_s)
-+		return 0;
+diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+index 6c84b23c..ca8173ea 100644
+--- a/libsemanage/src/direct_api.c
++++ b/libsemanage/src/direct_api.c
+@@ -27,6 +27,7 @@
+ #include <assert.h>
+ #include <fcntl.h>
+ #include <libgen.h>
++#include <poll.h>
+ #include <stdio.h>
+ #include <stdio_ext.h>
+ #include <stdlib.h>
+@@ -565,48 +566,135 @@ cleanup:
+ 	return retval;
+ }
  
- 	/* Return 1 (authenticated) iff the encrypted version of the user's *
- 	 * input password matches the encrypted password stored in the      *
+-static int read_from_pipe_to_data(semanage_handle_t *sh, size_t initial_len,
+-				  int fd, char **out_data_read,
+-				  size_t *out_read_len)
++static int append_read(semanage_handle_t *sh, int fd, char **buf, size_t *len,
++		       size_t *cap)
+ {
+-	size_t max_len = initial_len;
+-	ssize_t read_len;
+-	size_t data_read_len = 0;
+-	char *data_read = NULL;
++	ssize_t r;
+ 
+-	if (max_len <= 0) {
+-		max_len = 1;
++	if (*len == *cap) {
++		ssize_t ncap;
++		char *tmp;
++
++		if (__builtin_mul_overflow(*cap ? *cap : 4096, 2, &ncap)) {
++			ERR(sh, "Overflow");
++			return -1;
++		}
++		tmp = realloc(*buf, ncap);
++		if (!tmp) {
++			ERR(sh, "Out of memory.");
++			return -1;
++		}
++		*buf = tmp;
++		*cap = ncap;
+ 	}
+-	data_read = malloc(max_len * sizeof(*data_read));
+-	if (data_read == NULL) {
+-		ERR(sh, "Failed to malloc, out of memory.");
++
++	r = read(fd, *buf + *len, *cap - *len);
++	if (r < 0) {
++		if (errno == EINTR || errno == EAGAIN)
++			return 1;
++		ERR(sh, "Failed to read from pipe.");
+ 		return -1;
+ 	}
++	if (r == 0)
++		return 0;
++	*len += (size_t)r;
++	return 1;
++}
++
++static int pump_pipes(semanage_handle_t *sh, int in_fd, int out_fd, int err_fd,
++		      const char *in_data, size_t in_len, char **out_data,
++		      size_t *out_len, char **err_data, size_t *err_len)
++{
++	size_t in_off = 0, out_cap = 0, err_cap = 0;
++	int rc = 0;
++
++	*out_data = NULL;
++	*out_len = 0;
++	*err_data = NULL;
++	*err_len = 0;
++
++	while (in_fd >= 0 || out_fd >= 0 || err_fd >= 0) {
++		struct pollfd pfd[3];
++
++		int n = 0, i_in = -1, i_out = -1, i_err = -1;
++
++		if (in_fd >= 0) {
++			pfd[n].fd = in_fd;
++			pfd[n].events = POLLOUT;
++			i_in = n++;
++		}
++		if (out_fd >= 0) {
++			pfd[n].fd = out_fd;
++			pfd[n].events = POLLIN;
++			i_out = n++;
++		}
++		if (err_fd >= 0) {
++			pfd[n].fd = err_fd;
++			pfd[n].events = POLLIN;
++			i_err = n++;
++		}
++
++		if (poll(pfd, n, -1) < 0) {
++			if (errno == EINTR)
++				continue;
++			ERR(sh, "poll() failed.");
++			rc = -1;
++			break;
++		}
++
++		if (i_in >= 0 && (pfd[i_in].revents & (POLLOUT | POLLERR))) {
++			ssize_t w =
++				write(in_fd, in_data + in_off, in_len - in_off);
++			if (w < 0) {
++				if (errno != EINTR && errno != EAGAIN) {
++					ERR(sh,
++					    "Failed to write to input pipe.");
++					rc = -1;
++					close(in_fd);
++					in_fd = -1;
++				}
++			} else {
++				in_off += (size_t)w;
++				if (in_off == in_len) {
++					close(in_fd);
++					in_fd = -1;
++				}
++			}
++		}
+ 
+-	while ((read_len = read(fd, data_read + data_read_len,
+-				max_len - data_read_len)) > 0) {
+-		data_read_len += read_len;
+-		if (data_read_len == max_len) {
+-			char *tmp;
+-			if (__builtin_mul_overflow(max_len, 2, &max_len)) {
+-				ERR(sh, "Overflow");
+-				free(data_read);
+-				return -1;
++		if (i_out >= 0 &&
++		    (pfd[i_out].revents & (POLLIN | POLLHUP | POLLERR))) {
++			int r = append_read(sh, out_fd, out_data, out_len,
++					    &out_cap);
++			if (r <= 0) {
++				if (r < 0)
++					rc = -1;
++				close(out_fd);
++				out_fd = -1;
+ 			}
+-			tmp = realloc(data_read, max_len);
+-			if (tmp == NULL) {
+-				ERR(sh, "Failed to realloc, out of memory.");
+-				free(data_read);
+-				return -1;
++		}
++
++		if (i_err >= 0 &&
++		    (pfd[i_err].revents & (POLLIN | POLLHUP | POLLERR))) {
++			int r = append_read(sh, err_fd, err_data, err_len,
++					    &err_cap);
++			if (r <= 0) {
++				if (r < 0)
++					rc = -1;
++				close(err_fd);
++				err_fd = -1;
+ 			}
+-			data_read = tmp;
+ 		}
+ 	}
+ 
+-	*out_read_len = data_read_len;
+-	*out_data_read = data_read;
++	if (in_fd >= 0)
++		close(in_fd);
++	if (out_fd >= 0)
++		close(out_fd);
++	if (err_fd >= 0)
++		close(err_fd);
+ 
+-	return 0;
++	return rc;
+ }
+ 
+ // Forward error messages to redirected stderr pipe
+@@ -649,7 +737,6 @@ static int semanage_pipe_data(semanage_handle_t *sh, const char *path,
+ 	char *err_data_read = NULL;
+ 	int retval;
+ 	int status = 0;
+-	size_t initial_len;
+ 	size_t data_read_len = 0;
+ 	size_t err_data_read_len = 0;
+ 	struct sigaction old_signal;
+@@ -747,46 +834,15 @@ child_err:
+ 			any_err = 1;
+ 		}
+ 
+-		retval = write_full(input_fd[PIPE_WRITE], in_data, in_data_len);
+-		if (retval == -1) {
+-			ERR(sh, "Failed to write data to input pipe.");
+-			any_err = 1;
+-		}
+-		retval = close(input_fd[PIPE_WRITE]);
++		retval = pump_pipes(sh, input_fd[PIPE_WRITE], output_fd[PIPE_READ],
++				err_fd[PIPE_READ], in_data, in_data_len,
++				&data_read, &data_read_len, &err_data_read,
++				&err_data_read_len);
+ 		input_fd[PIPE_WRITE] = -1;
+-		if (retval == -1) {
+-			ERR(sh, "Unable to close write end of input pipe.");
+-			any_err = 1;
+-		}
+-
+-		initial_len = 1 << 17;
+-		retval = read_from_pipe_to_data(sh, initial_len,
+-						output_fd[PIPE_READ],
+-						&data_read, &data_read_len);
+-		if (retval != 0) {
+-			any_err = 1;
+-		}
+-		retval = close(output_fd[PIPE_READ]);
+ 		output_fd[PIPE_READ] = -1;
+-		if (retval == -1) {
+-			ERR(sh, "Unable to close read end of output pipe.");
+-			any_err = 1;
+-		}
+-
+-		initial_len = 1 << 9;
+-		retval = read_from_pipe_to_data(sh, initial_len,
+-						err_fd[PIPE_READ],
+-						&err_data_read,
+-						&err_data_read_len);
+-		if (retval != 0) {
+-			any_err = 1;
+-		}
+-		retval = close(err_fd[PIPE_READ]);
+ 		err_fd[PIPE_READ] = -1;
+-		if (retval == -1) {
+-			ERR(sh, "Unable to close read end of error pipe.");
++		if (retval != 0)
+ 			any_err = 1;
+-		}
+ 
+ 		errno = ENODATA;
+ 		if (waitpid(pid, &status, 0) == -1 || !WIFEXITED(status)) {
 -- 
 2.55.0
 
