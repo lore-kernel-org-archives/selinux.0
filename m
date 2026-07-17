@@ -1,70 +1,70 @@
-Received: from mail-qv1-f54.google.com (mail-qv1-f54.google.com [209.85.219.54])
+Received: from mail-qt1-f177.google.com (mail-qt1-f177.google.com [209.85.160.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B84C2F7EE4
-	for <selinux@vger.kernel.org>; Fri, 17 Jul 2026 17:21:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F5CA2652AF
+	for <selinux@vger.kernel.org>; Fri, 17 Jul 2026 17:27:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784308887; cv=none; b=oLFAb1eBrov1M/fHvEsZRweqou29o4u+8myjgKXpvCKOv2uuGsziZi3ZkzuG/qpdno4/6TS3joRrLtu0sAWP8OFdD67iIb4S1C6s0hnYLh2/tGVPhmyklUhd/l1JSNV66iWBVInlHHZs6+g8hf/4iVkuoRtE5Q6HVF/FXbV750Y=
+	t=1784309264; cv=none; b=e6nBA/ipPDer2S1ZqwwdgeRIgNCzukzXSmkWc7UWqfqVNH5Nhnlr8ZuxpvNj/0bM3jJfWCDRxpZFcIYgeob/66YeM8RX3nMQHnZBOdILr1KyBBMxMqVbLisWQYNkRZ90cPjfnJFKwWBJ1hp5qkzZFl6AuOSX4WGYt4GrRgHsB2w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784308887; c=relaxed/simple;
-	bh=nL8vz0aFA90gaMj29S2SXHTa/pjQicflvtNgmNaLeLI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=UoaK4HieUcj7SbX80xbovqsT6KmH1/dSUGyzM0B2RD1+wXcKxfccKZKUs5TV757qJW2iIQY/Pw3m6teTYljZdPrzV6seBGKh/KJmZTlB1Y1217Pxo5HvRzkgwTsp6ZKRi6OtdmhHu8ENETH/LKNK1u7dzsIziK97FOw3Q3VjCV4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jurQ0gzl; arc=none smtp.client-ip=209.85.219.54
+	s=arc-20240116; t=1784309264; c=relaxed/simple;
+	bh=neO1lcOZjIoKeRqP8uIyvVa+LtuG4ytvIkBdjnbXSRQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=AvukhHVhtFGDhEYW/sGZjoG1T4B0N1eJAPTJE+cBSo/379w1Rypgf62T8RKO+/oHBoLawhyrCTxiHjKRdoqID17rQ7GelQrE4Lj79s3FieStBGucR5cNYB4XtDGWYLk4xeby2FRmkx4cdZWZ+gW4jxoWHi1/CuryFmL//mdtjY0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EA0TOOGe; arc=none smtp.client-ip=209.85.160.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jurQ0gzl"
-Received: by mail-qv1-f54.google.com with SMTP id 6a1803df08f44-8eefd4a8057so41902486d6.0
-        for <selinux@vger.kernel.org>; Fri, 17 Jul 2026 10:21:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EA0TOOGe"
+Received: by mail-qt1-f177.google.com with SMTP id d75a77b69052e-51bfb91795eso76985561cf.1
+        for <selinux@vger.kernel.org>; Fri, 17 Jul 2026 10:27:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784308885; x=1784913685; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784309261; x=1784914061; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Zce1oCUSgbilCM8eMQ4gHXjxb35eFJ03DswuXEd9dt8=;
-        b=jurQ0gzlSQ8CNzJ5XH6K+TEm81zn3L+heWsaJqiv8EzOUxAdUF91gjAjhLcTagff7W
-         VStW+/iFuNFi/vPFsWwfXqo2ykPW8m9LElHqVSHODyij3htOGVJQS59zfV9Wyr5uVw24
-         EkQocQIkdDFQGw3/+fZuAtPrYu0/FiicW16AH4b9bimxVfQLu+LGFNVP0AXOcBmQIAlp
-         hk7HFPht24v9aEehb1/yN1tPNvsxPD6W1iDoSWg1N+P/ITbh46prVhB2d8+ggYrFwBYT
-         0DgKq2tlp0hSdh42eylHSRimCY9ZM8beZb+47Sxwd7KFckmzNDXSouelcoifnd58HiWv
-         J0YA==
+        bh=VF1frgUhFRh6feiB9zw7uO4COTTTuXiTovTq8HEF7uk=;
+        b=EA0TOOGeQq1h0D4NOfxEbSunGW1myT50yvRvdhbliPAnCMc9mfHJBWWQ+/5VrkgQY5
+         jBrT0M00aEQSWV2ARvGZ214s06gNrQLvSTkOytE6/5I4ry4ifhgA28+yCqHM5kBnABN/
+         1/Plwd8J3A6aLTuUBN1f5OkCIS18q0ufvo16GLuyOKWwglgPIOF1TarJ0pqKabBPD2jv
+         Qk3eUiaNW3Fxv2d+EkjRgwLZkiQ1nTx+ZsiBqo2lSEb7CUPIm8voDjdyO+BzUz6ZnGEA
+         HEXZVxfKXnTtenMLXCI3/nsHBU5rLB4UHU7o4ruPdW5BSnwdldFFcIkTV9UxQBaxkO9R
+         Ne+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784308885; x=1784913685;
+        d=1e100.net; s=20251104; t=1784309261; x=1784914061;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=Zce1oCUSgbilCM8eMQ4gHXjxb35eFJ03DswuXEd9dt8=;
-        b=TwVl18CMuSoXOefakOOkSfsFUBE52pPqvxnCo5iCuesQK9mUZqDuHYy0zAOYnRqVuf
-         hmMDfShUh/1z6JQOw0n2AJVPduVcmgPEI2Rl00XR4mXgBkZ4syJq6xyVxzMhFkH4ayw9
-         k1dmFwAzqiZOh7t7YLb6airi/dtzTLFJV2QNnER6OO8JM4ugSLD6tnaOXufkFfCwS5/1
-         jK1VbSo2pwLfMZ9S+o7nyJlciMCqxBrTacJCAxjo7OfDaCkzZecDcf6BT9WirBQqqezV
-         /SSBI7ClbEBFhojPyhBuADFyvnVJ2S4a9NbLNPuWRVaRr1BEMkTu6cMhLxPUXKHkdJV0
-         Bv5g==
-X-Gm-Message-State: AOJu0YyUvtzajIUlfXARx+L1+cNisZrQKRGw4U7csV4KoEwbhayhcQJH
-	8XJpA1Didl1X0xptgO8ivG0RT7d/D1Shnq7KbQPSS+6XfnYJ3AVkCdQDl6oU2w==
-X-Gm-Gg: AfdE7cnT/KQLJKPuQZJ7W0L/WTDvhM/akn12wq/BDlFOU9D0ALh+3qX5LpKzvgZpWN/
-	7heGhx4zXPeT4PoDCxaq75MTCY4dR5N7sv8eCcuz+Zi/FdZCG0Z8nozzhQffB1xAi8D+zuwcFyW
-	BXphDdpvmCHeLRRDQhfCO6VsLZde6AMlRdT6OHZ/n8cJqZAiS5Csop4zoy3Mr8QsORwTtlZg8kn
-	lwOc4+B96qn4yEX97+5A5tYhX/YMcuP6Rg23BkQcN19Q/ahrR7MEJAvbrdv1LAjEakvslCCEphQ
-	eLaZ344LakO3aZMTaDn3aMr2kUVxY4Ay4JuzA/y5n6mh2ZmBKXfFrUWHa2bLwY2dqLQvy/CWIdL
-	Z1U6Fs1HupxCN0pKXLGew2w/Bko8ef86T6bvfwxQ885a2EEHlbWzRSwZtJHV1o1G20XgqcNyKeC
-	p246gVdO31FVf4OA3YU3Cm5mDC6QmvMiUecmUTv1LZ39YT0PBR3X+iV3fJ2EM1dvMParVrVa9lK
-	XquZg==
-X-Received: by 2002:a05:6214:1255:b0:8fd:6dc5:94b with SMTP id 6a1803df08f44-907784dd19emr41649286d6.64.1784308884841;
-        Fri, 17 Jul 2026 10:21:24 -0700 (PDT)
+        bh=VF1frgUhFRh6feiB9zw7uO4COTTTuXiTovTq8HEF7uk=;
+        b=sSucbFk7TZIuMqz1MHnjY1TVVzACzjcfE2CvqVSwbpX5B/N8R7Kgzm1PhrVI6QdRWH
+         n4mo2V5WOKzNM7H0F7aScyycaG/t5OwMYHkDc3C4YfvQzrOQeKIzIw1y1/rVujpICqdO
+         uoA+DglQdTPmV0WujgbcbW4e3gzlSKuKKRsh/wyrQo1Mj3nn3RHV+H22BUeVPCGIHkCs
+         Cqef3Ur4ftVRKE18V4U9X72eJaIQQx6bZJtWMCDJ1Dx5Q1uYEnzAlFSeeNB+QQiLoAcx
+         kLhV8VT3XQpnnWToBQd6NB4J7P9gOyxlGJilh9D6/rTMEPl0Qp+EEf8jy7Oy4DBBx5Yh
+         LwBQ==
+X-Gm-Message-State: AOJu0YyMDOl6+w1U9dGmI6zfiKtQULcFgWxsyzUG69zYENXx3lsGIe/4
+	T8Lr0H9UseCjbaia5kW1yBxAxWjUiOGhxZnHrBboqCMkBb685QxjWP2SCff2VA==
+X-Gm-Gg: AfdE7clR/EdWC5g+VFS+61EkEFwx6yBXTokplJoIkg7i2AffDRzoThg0mH00Djw4Nnk
+	91T35nph7VDYWXXVabmipi7aI0KV17yPOEwqhv5dHFQUelwdRcXaGLZVeorpAkFmINnVt+X7ZQl
+	/XEIgFdOzEHMteyD4c/QxYKFkNmR5JV93lOaZgJNQWLmG+hQMK8Y5UDF0wrcOc4wVFhWExJQjMA
+	n/w4pdw/4CmCBRgo5N7KGpbRgFbVQEm3ti+Gw46GDOm6VoE957l6S6TIYi/VUFXiyTD8uNnqsOS
+	SyXqMPWEhR5GGM3hObYjnqWsDgNFGWgvh5H7KfH4g30rnL4/BR7/wLMLigUW3pFrf0gVYInFGAh
+	91B6UX1vv3RhFTidH3jfPcc90weTkgFg2go9ukYRPOky9fVaWLDKtshrfWjcD2T4mL80f2wScYw
+	/ymQ21H+FMiP4xB4fYnXTG9mgkdQu373aAFdb+1s3nv+IYMcZnek+P23StEm+JYedV2otSD0dJN
+	E5g1Ura+4B4/b+x
+X-Received: by 2002:a05:622a:2517:b0:516:dff5:68c4 with SMTP id d75a77b69052e-5213c008207mr35819401cf.7.1784309261299;
+        Fri, 17 Jul 2026 10:27:41 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9077856002esm22206926d6.11.2026.07.17.10.21.24
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-907786effd1sm21987836d6.36.2026.07.17.10.27.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Jul 2026 10:21:24 -0700 (PDT)
+        Fri, 17 Jul 2026 10:27:40 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
 	plautrba@redhat.com,
 	omosnace@redhat.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] python/sepolicy: generate: drop or merge symbol table overwrites
-Date: Fri, 17 Jul 2026 13:21:09 -0400
-Message-ID: <20260717172110.19156-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH] policycoreutils/secon: ensure that range_bg is not left NULL
+Date: Fri, 17 Jul 2026 13:27:26 -0400
+Message-ID: <20260717172726.19402-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -74,41 +74,29 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-self.symbols["openlog"] is assigned three times with only the last
-one (set_use_syslog) surviving. Drop the first two since they
-do not appear to be relevant to logging.
-
-self.symbols["pam_"] is assigned twice so combine the two definitions
-so that a PAM-linked binary sets both use_pam and use_audit.
+The color string from mcstransd is split into eight tokens; every
+strtok()-result is NULL-checked except the last, so a truncated color
+string leaves colors.range_bg NULL and disp_color_to_ansi()
+dereferences it. Check it and handle the same way as the others.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- python/sepolicy/sepolicy/generate.py | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ policycoreutils/secon/secon.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/python/sepolicy/sepolicy/generate.py b/python/sepolicy/sepolicy/generate.py
-index 0edda54a..f88d6852 100644
---- a/python/sepolicy/sepolicy/generate.py
-+++ b/python/sepolicy/sepolicy/generate.py
-@@ -212,8 +212,6 @@ class policy:
-             print("Can not get port types", e)
+diff --git a/policycoreutils/secon/secon.c b/policycoreutils/secon/secon.c
+index 48daf9d5..5cc3d943 100644
+--- a/policycoreutils/secon/secon.c
++++ b/policycoreutils/secon/secon.c
+@@ -696,6 +696,8 @@ static void disp_con(const char *scon_raw)
+ 		if (!color.range_fg)
+ 			errx(EXIT_FAILURE, "Invalid color string");
+ 		color.range_bg = strtok(NULL, " ");
++		if (!color.range_bg)
++			errx(EXIT_FAILURE, "Invalid color string");
  
-         self.symbols = {}
--        self.symbols["openlog"] = "set_use_kerberos(True)"
--        self.symbols["openlog"] = "set_use_kerb_rcache(True)"
-         self.symbols["openlog"] = "set_use_syslog(True)"
-         self.symbols["gethostby"] = "set_use_resolve(True)"
-         self.symbols["getaddrinfo"] = "set_use_resolve(True)"
-@@ -226,8 +224,7 @@ class policy:
-         self.symbols["getpwnam"] = "set_use_uid(True)"
-         self.symbols["getpwuid"] = "set_use_uid(True)"
-         self.symbols["dbus_"] = "set_use_dbus(True)"
--        self.symbols["pam_"] = "set_use_pam(True)"
--        self.symbols["pam_"] = "set_use_audit(True)"
-+        self.symbols["pam_"] = "set_use_pam(True);set_use_audit(True)"
-         self.symbols["fork"] = "add_process('fork')"
-         self.symbols["transition"] = "add_process('transition')"
-         self.symbols["sigchld"] = "add_process('sigchld')"
+ 		color.valid = 1;
+ 	}
 -- 
 2.55.0
 
