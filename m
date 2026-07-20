@@ -1,183 +1,198 @@
-Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
+Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF9F63E3DBB
-	for <selinux@vger.kernel.org>; Mon, 20 Jul 2026 10:56:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.50
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784544977; cv=none; b=oMbzTVBOcAKLau824IAgSVdF0mgQFALi8G3BB7kfOqQ5EtyY/51+3n941oT4xJEIYCgxr5v8DVEfnHtH7IcGGcpMi9hIj73PkDC5Q80DE8XK2/Sz69YudBJmdoebKfl/Mn7EYoDaDu+1GqzN/LYjOBpBoA3CbP+dvAIKb4w1bec=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784544977; c=relaxed/simple;
-	bh=J/tUkEVlem0rH1eKOLXcj4o2oJNB+U0t6hRuH+Oe5Zc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=b1l2kAc6vGfZk6vaQIurH76azYUiZaAT6uS1JLxU2x11TErloR5uorqvSS2GT6Dmm5g3RzrWbDXbGRonxiH+aoAx5ccDRXVwlDJuKXeNYHb8mYwsKZU8tAYeSzZEczLInI/+lG/1QCUaWM5cQ1BRvhdv+JALBIxjScTrEUx04w0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ao1ImlTc; arc=none smtp.client-ip=209.85.219.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 071EC413241
+	for <selinux@vger.kernel.org>; Mon, 20 Jul 2026 12:20:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.179
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784550047; cv=pass; b=Y3Y8Gexk15HXkOQ6AUE8lbKvUCfAapUQqYkC8to0zwx7ixO0RC28c8KMAdsPGr/nIimk8QqRp2xduSZmc1fHEcOwfAriKG82lixvUrJkJ//vDkzMC88gCZjm+vUGdTXlJEbRqLipJUDxnZ7tfPAM2NVAdAPlplf5L/cjjQ16DYk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784550047; c=relaxed/simple;
+	bh=SYrOoCHt2hktdv8s74gM1FcLw6qwcHzTZrOGY4wcSUE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=j0z6+VT4Y//jzo1BWvQswLSLDFeqy1UJEvkBSykC9HqYbAmYCfJZULoSv24mZAdrtrMiN0QSrCmubonrVACIJhtYp/ynhxTNq8UMMmPl99kZRul2zN3oo8D9LMAfxe8C8vz86xrFb3sdj4uMn25d5TB11EfCYzsCpxEB0KLfqKQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CNBOIHmz; arc=pass smtp.client-ip=209.85.210.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ao1ImlTc"
-Received: by mail-qv1-f50.google.com with SMTP id 6a1803df08f44-8f256eaedf8so117043666d6.2
-        for <selinux@vger.kernel.org>; Mon, 20 Jul 2026 03:56:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CNBOIHmz"
+Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-84867f07d63so11196370b3a.2
+        for <selinux@vger.kernel.org>; Mon, 20 Jul 2026 05:20:45 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784550045; cv=none;
+        d=google.com; s=arc-20260327;
+        b=eDnbhhWSmiX0czM3aoSaPSIJBM3A95VG1UnvswL/1+LixM68amuYRkz5thfydJZsEu
+         EkD6LOoAuVURTNsAM/+tZTMjOo2Jcr9/aa3oiMQcY51BShwTfMyHqPFu/RrwQJAmaCOG
+         N8kJ9YZFq2vrg+cEZnhWhYUwbeHdXDZCmJqKPRb9prXgCdMv9QvhbCFovREHUuKZ/wY3
+         xmS15eVkElDib+gpqxm49B6+cAPAwWOC4J8bdf7AY5GLlKdQ2G8jlFItyYZFPEFYQiFk
+         UXJoGUt45A2jgMy1yiPvt6zYjdyeLAHOeHSoFg81XTLITPh0vKW4aPkeE69R7mestTrR
+         3wYw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=D8U09JkI+qh3oDtYU7S+Vscm7hpN1EVy9G0mqPyD1pc=;
+        fh=FsXghBnyoYbEc42Idnie0oh5A6i9FUng5ntOLhqXIRs=;
+        b=WT41XZtBdu0UsR14+RujswNg0pYWVZmA/hWRRaWQgLzyGA2kP1xuYiOh1xXGmpzOjq
+         SCB1LS/cD1+3vBU08eKDTwg38qCIgijH/gsz96RecyRsOoSlO6o0ehbPS1yU2v5miWIl
+         ZFEMnO4pe07J2ycR222U0rEa1yITiqogMUOa4C+/mZPxPC4ceqKv8x5wG+fDrC/ngUBP
+         VmwzbwgBZlowluqmYQtcRCY9yRh2595QR2ty/QfrPnj7t4GJqstZCWQcHOqtYh64iA9Y
+         mtfnskDq4fT7QbuzLKtimKePM4TFkJyJzIpdH0p786f8gNpFf/vlfIjOhFdSYQvT/0gr
+         Q+pA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784544969; x=1785149769; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=FcVCYasWq6JUzhvtp40Sca5ijlaTmt5nSh5trF/Mx0o=;
-        b=Ao1ImlTcWZL+ws9jgQq7jzL0CFZiSYAJmfdwwoTQRC3c6SW8HcjVwzhDApN7SdMoLj
-         LVIvhmoZuMr5wSgmzikrWHFrpVKJApOyD5j60h2yhxWazth0KCrPiuYGwicl/IE39BXL
-         gPc7A++bz+9f46cx+UkDEQxaVHeLMIWRYmxPUc9Gq8NyF+j7XvYoqtcMWWnG8BUSft1B
-         1BSvAZWqCh1Z9CXv6K5ljfGufdkdcG2+7+NYt/Aq/mSIs+319TpqSDPfM/5gW5D1sqta
-         5uSFQfT3wXRFijUBh1n+Ey/a2PMMXU9mEZk1ERWTYtArapSdvLzk6+mJrFd0GhC2uqmj
-         ZDgg==
+        d=gmail.com; s=20251104; t=1784550045; x=1785154845; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=D8U09JkI+qh3oDtYU7S+Vscm7hpN1EVy9G0mqPyD1pc=;
+        b=CNBOIHmzJJH091twmMxmH8rJvJHD0vgP+FQbH7GQOI/+R9G/7qe6Y58dCckzUvPWn5
+         JbgcUJzk//bwXAfT8SYGTpXRgxVqgvLwHHNtkuFwwGDHqc3gPJQjZUagG7sM2gQGDBrG
+         WmUvLfawjcHwyS10wHAQOFmx6qhTz/4gkzszf7i8CCvECDYnvahiWtDleTL1JCSUv5kx
+         hS/kyp9KJZmq7HdsQMAHhj6XnPKRCS/U3KZ/PgPcM5JDH3WYZk1I0rzWt/Pg19IlK/Iw
+         BXqUoVhkyYaDuFPiPSVTFYkq9WrgmwCO5W1yCieDY9TNb4Wa+azzoPRkMjV6py+zVkhT
+         7FBA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784544969; x=1785149769;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=FcVCYasWq6JUzhvtp40Sca5ijlaTmt5nSh5trF/Mx0o=;
-        b=ggVUYNYuofXQTDWe0QdVPLC2+Zp88uHWLfF933qczoVuHeAR1kA22y1cFv+ikdKkBN
-         sQwUFx3LCN3zTV06EEbSEVA0n0QKeAcyUG+hyf0Y3k2BbJEJ4Pfz72jU81RLDE0bi2w5
-         rei3ge7Gmta2jkh37+Up/k/cdTwEm3a3ZBMQYBe1+IpaeCxaralKSb51Z2u1pbsBOIx2
-         VpA4iefFUNlSjfCriJbtljmMe8t2sw17VIV56pXk03Q88/Lm3mPWLsAcSPsFp2mZksfe
-         3SGR5gqQDohNjyr5FCIsQ+Q1PyrVC2RK2eDSrpuyRCk+ejnshn+499PFeNY4gIOxE054
-         /ZBg==
-X-Gm-Message-State: AOJu0Yw3+3X7EqQIZN5wFkQbnsr6SXNaeLewWBcT2E4u5dLkB2k/dLJa
-	qUQVXpMCR5LuLCXsu/Fq4tzHLdCaqZS4/ahYabdVqLYMEFVbz5i1WNzQqe0EFg==
-X-Gm-Gg: AR+sD10LMhc+cKvsLLWPoNNZQK5fSMs6rZ1MqKzR4xATMOYV6v9YuR2iYgRcV8iZsYR
-	BFp+ke5SHQ8r5zXybGBFyEO1pdqk6QUDwUmnCCFGMpwVev+8BEuN778hi6/bu0zZnAKFDksczRP
-	1VxdkERAXVDdTT1BLvntqyl9p9CaHEDCJ0vbRtyA14pd8bUBQVofqqibn+UNIYCrIDRnSPLxTeE
-	x1iRYcmQEAsbE7Wy0OXjtdZ0xzBUmcbv4ODBVxIHl3zXy9Yh6cGwqwk7rW6ZyTXl1/Lp8QkLc3G
-	bghz+bHll7JbGX/qI6kfjdJxMFs5AGCkPOHiMktVPhi1Wb54hHlGeXmS/fEZPRi8GBjDidjYBCZ
-	Bfb53dPisqxlO9WkKa1WTSE78y+spf7Gs9oLihzAl6n5MLHIhkUT21H9zx3MGi24ZUAf8jkO4aR
-	QmxP8tfrD9WMAZteWvtRPXBY7k41Z7Sh3iaRCwfqAxnQ==
-X-Received: by 2002:a05:6214:4990:b0:8e6:d3a:ef84 with SMTP id 6a1803df08f44-90778315997mr154093976d6.6.1784544969474;
-        Mon, 20 Jul 2026 03:56:09 -0700 (PDT)
-Received: from pmatyas-fedora.rhev.lab.eng.brq2.redhat.com ([85.93.121.125])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9077853f48esm88866406d6.8.2026.07.20.03.56.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Jul 2026 03:56:08 -0700 (PDT)
-From: Petr Matyas <p.matyas13@gmail.com>
-X-Google-Original-From: Petr Matyas <pmatyas@redhat.com>
-To: selinux@vger.kernel.org
-Cc: Petr Matyas <pmatyas@redhat.com>
-Subject: [PATCH] libsepol: add module package fuzzer
-Date: Mon, 20 Jul 2026 12:56:06 +0200
-Message-ID: <20260720105606.305073-1-pmatyas@redhat.com>
-X-Mailer: git-send-email 2.55.0
+        d=1e100.net; s=20251104; t=1784550045; x=1785154845;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=D8U09JkI+qh3oDtYU7S+Vscm7hpN1EVy9G0mqPyD1pc=;
+        b=LXezZXfLBLUmQ79SbttxRd7x2+VZ2kXSS6qVjbKIatiUCAfFSuZAal126B4fXukb/C
+         GXBivrSxXv8Pt2TMmS8KAY+X/saesg1dl5yk7j0JxwUvqp2xByEFkA4yRbLi1CYvL8wi
+         4lKO5NLCQFXZ7Q+HDzxRyIaX8t3wH9oNXJYqjezONcV1lyp17kL1t52w4Nl7uB4ZohtS
+         jh2g+I1jSquRAwBwuatdKCV4dKdD+YOEFATIC+0sA+3kNOhvhdUeXlToJLXsOocj2P7u
+         jzgaIdmfAH4sCUkhgaUNRjNvRmljyK/E35LHIqw4vaihMAEujlGWkO0oUdI0XgfIGN26
+         9Ulg==
+X-Gm-Message-State: AOJu0Ywe+AkTn7Z8zL7Gsn0MgO2aZcagASy/b+rMZZ/khfVctpBG71vX
+	3L1wNLkABqqWSXYuoXoiKisrt3dE3f0YpGt6qChNWxPnVIp5NEZ9CO88L7/fsJda3ZYCD+YWFu3
+	79c+g+jix33yu8KCJT4fM0sgU/gHZj+29eA==
+X-Gm-Gg: AfdE7ckZ9i9TqDkBoEs2rn+806wTUmJZ8OibtY3DEjZOlzEN+Fhp4H+Qg/KRYEDAJmS
+	mK/p2YCXyPsXhX0Lyr8cTv5kplNQRFOV9pXhERfCzeU+Bqs4KuV+R+npbZlXsyz2PDIiMheN1HG
+	gdGqd2LB6CVnPZqmX3MWm7AHTvnk6vlVUggleXRi4RzJxnbk2/hIVS1bXJ7/18CoZNWRP5dPogR
+	7oTiJO7/M6szcSh6T+PtN8RADgCYVuusy423OVwuatGT02OpOMPIcpFE1acXw==
+X-Received: by 2002:a05:6a00:348b:b0:848:8715:c2cd with SMTP id
+ d2e1a72fcca58-84c2948b105mr14910270b3a.47.1784550045092; Mon, 20 Jul 2026
+ 05:20:45 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260717173544.15801-1-jwcart2@gmail.com>
+In-Reply-To: <20260717173544.15801-1-jwcart2@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 20 Jul 2026 08:20:33 -0400
+X-Gm-Features: AUfX_mw0nSFUujZH9bQjaJD9TrBSjFhmCfUmObdYvomj4rAypjO7klrNH58djCc
+Message-ID: <CAEjxPJ5Mcz8ECLWS6mmjfbx+YsBF2tPNZVVyeGRjhQFMN-VN4w@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: Prevent OOB access of array when copying scope information
+To: James Carter <jwcart2@gmail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Add a libFuzzer target for the binary module package format
-(.mod/.pp) read by sepol_module_package_read(). On a valid package,
-also exercises sepol_module_package_to_cil() to cover the CIL
-conversion path for module policies.
+On Fri, Jul 17, 2026 at 1:35=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
+ote:
+>
+> The function copy_scope_index() in link.c copies information about
+> what declarations are in scope for the current block. This is tracked
+> in the "scope" field of the scope_index struct in an array of ebitmaps.
+> A second field called "class_perms_map" is used to track which
+> permissions are in scope for each class. The "class_perms_len" field is
+> the length of the permissions array. As the function is copying scoping
+> information from the module to the base policy, the index values are
+> translated as well. When the information for classes is translated and
+> copied the largest new index value for a class is determined. This value
+> is used to allocate the class_perms_map array. For each source class in
+> that array, the bits in the source ebitmap are translated and set in the
+> destination bitmap.
+>
+> A maliciously crafted policy could set permissions in the module's
+> class_perms_map for a class that is not in scope. If that class has
+> a new index that is greater than the largest index of a valid class,
+> then there will be an OOB write when copying the class_perms_map.
+>
+> When copying the class_perms_map, check that the index is not going to
+> result in an OOB write when converting. In addition, if there were no
+> classes, then just set class_perms_map to NULL and return. Also, don't
+> bother trying to copy permissions if the ebitmap is empty. Finally,
+> just use array notation when copying the scope and class_perms_map
+> data since they are both arrays of ebitmaps.
+>
+> Signed-off-by: James Carter <jwcart2@gmail.com>
 
-The seed corpus contains a minimal module package produced by
-checkmodule + semodule_package to give the fuzzer a structurally
-correct starting point.
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Wire the new fuzzer into scripts/oss-fuzz.sh alongside the existing
-libsepol and checkpolicy fuzzers.
-
-Signed-off-by: Petr Matyas <pmatyas@redhat.com>
----
- libsepol/fuzz/min_mod.pp              | Bin 0 -> 859 bytes
- libsepol/fuzz/module-package-fuzzer.c |  44 ++++++++++++++++++++++++++
- scripts/oss-fuzz.sh                   |  11 +++++++
- 3 files changed, 55 insertions(+)
- create mode 100644 libsepol/fuzz/min_mod.pp
- create mode 100644 libsepol/fuzz/module-package-fuzzer.c
-
-diff --git a/libsepol/fuzz/min_mod.pp b/libsepol/fuzz/min_mod.pp
-new file mode 100644
-index 0000000000000000000000000000000000000000..264bd4406bf94b1c0044d46d0ca82fcdc4716f88
-GIT binary patch
-literal 859
-zcmb`FOA5k35Jbxl=uVd|J%Q*A+_=+~2MCyq;4dTjfQwu~Jg+OIFa^zEK*a~mbWhh*
-zC(yS?b#DP+3;|pp)qMb9y%;ZdX?Yp1d{Q1=8^EZR_3@$y;IvDllTSJTW|Qf>?pS0_
-zHBrrzoHHN0Jnz=6t<MgUaFAqvvv+Y3Wp+eUE^I&aR86ez;Ih;mqe31{=)Jy=*gJYM
-z)YoZe5nJ0l^b4_C<_yiy`HMz`Zw0+SohO>SzP<k!{0FXMy?QKdaP72i-21Sn6|wj4
-Fcmk%9EE)g+
-
-literal 0
-HcmV?d00001
-
-diff --git a/libsepol/fuzz/module-package-fuzzer.c b/libsepol/fuzz/module-package-fuzzer.c
-new file mode 100644
-index 00000000..18d645bb
---- /dev/null
-+++ b/libsepol/fuzz/module-package-fuzzer.c
-@@ -0,0 +1,44 @@
-+#include <sepol/debug.h>
-+#include <sepol/module.h>
-+#include <sepol/module_to_cil.h>
-+
-+extern int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
-+
-+// set to 1 to enable more verbose libsepol logging
-+#define VERBOSE 0
-+
-+int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
-+{
-+	sepol_module_package_t *mod = NULL;
-+	struct sepol_policy_file *spf = NULL;
-+	FILE *devnull = NULL;
-+
-+	sepol_debug(VERBOSE);
-+
-+	if (sepol_policy_file_create(&spf))
-+		goto exit;
-+
-+	sepol_policy_file_set_mem(spf, (char *)data, size);
-+
-+	if (sepol_module_package_create(&mod))
-+		goto exit;
-+
-+	if (sepol_module_package_read(mod, spf, VERBOSE))
-+		goto exit;
-+
-+	devnull = fopen("/dev/null", "we");
-+	if (!devnull)
-+		goto exit;
-+
-+	if (sepol_module_package_to_cil(devnull, mod))
-+		abort();
-+
-+exit:
-+	if (devnull)
-+		fclose(devnull);
-+	sepol_module_package_free(mod);
-+	sepol_policy_file_free(spf);
-+
-+	/* Non-zero return values are reserved for future use. */
-+	return 0;
-+}
-diff --git a/scripts/oss-fuzz.sh b/scripts/oss-fuzz.sh
-index 9376b6e4..08e06975 100755
---- a/scripts/oss-fuzz.sh
-+++ b/scripts/oss-fuzz.sh
-@@ -74,6 +74,17 @@ $CXX $CXXFLAGS $LIB_FUZZING_ENGINE binpolicy-fuzzer.o "$DESTDIR/usr/lib/libsepol
- 
- zip -j "$OUT/binpolicy-fuzzer_seed_corpus.zip" libsepol/fuzz/policy.bin
- 
-+## module package fuzzer ##
-+
-+# CFLAGS, CXXFLAGS and LIB_FUZZING_ENGINE have to be split to be accepted by
-+# the compiler/linker so they shouldn't be quoted
-+# shellcheck disable=SC2086
-+$CC $CFLAGS -c -o module-package-fuzzer.o libsepol/fuzz/module-package-fuzzer.c
-+# shellcheck disable=SC2086
-+$CXX $CXXFLAGS $LIB_FUZZING_ENGINE module-package-fuzzer.o "$DESTDIR/usr/lib/libsepol.a" -o "$OUT/module-package-fuzzer"
-+
-+zip -j "$OUT/module-package-fuzzer_seed_corpus.zip" libsepol/fuzz/min_mod.pp
-+
- ## checkpolicy fuzzer ##
- 
- make -C checkpolicy clean
--- 
-2.55.0
-
+> ---
+>  libsepol/src/link.c | 27 +++++++++++++++++++--------
+>  1 file changed, 19 insertions(+), 8 deletions(-)
+>
+> diff --git a/libsepol/src/link.c b/libsepol/src/link.c
+> index 70742fc8..868e0a7a 100644
+> --- a/libsepol/src/link.c
+> +++ b/libsepol/src/link.c
+> @@ -1652,8 +1652,9 @@ static int copy_scope_index(scope_index_t *src, sco=
+pe_index_t *dest,
+>         ebitmap_node_t *node;
+>         /* copy the scoping information for this avrule decl block */
+>         for (i =3D 0; i < SYM_NUM; i++) {
+> -               ebitmap_t *srcmap =3D src->scope + i;
+> -               ebitmap_t *destmap =3D dest->scope + i;
+> +               ebitmap_t *srcmap =3D &src->scope[i];
+> +               ebitmap_t *destmap =3D &dest->scope[i];
+> +
+>                 if (copy_callback_f[i] =3D=3D NULL) {
+>                         continue;
+>                 }
+> @@ -1672,18 +1673,28 @@ static int copy_scope_index(scope_index_t *src, s=
+cope_index_t *dest,
+>                 }
+>         }
+>
+> +       dest->class_perms_len =3D largest_mapped_class_value;
+> +       if (largest_mapped_class_value =3D=3D 0) {
+> +               dest->class_perms_map =3D NULL;
+> +               return 0;
+> +       }
+> +
+>         /* next copy the enabled permissions data  */
+>         if ((dest->class_perms_map =3D calloc(largest_mapped_class_value,
+>                                             sizeof(*dest->class_perms_map=
+))) =3D=3D
+>             NULL) {
+>                 goto cleanup;
+>         }
+> -       dest->class_perms_len =3D largest_mapped_class_value;
+> -       for (i =3D 0; i < src->class_perms_len; i++) {
+> -               const ebitmap_t *srcmap =3D src->class_perms_map + i;
+> -               ebitmap_t *destmap =3D
+> -                       dest->class_perms_map + module->map[SYM_CLASSES][=
+i] - 1;
+>
+> +       for (i =3D 0; i < src->class_perms_len; i++) {
+> +               const ebitmap_t *srcmap =3D &src->class_perms_map[i];
+> +               ebitmap_t *destmap;
+> +               if (ebitmap_is_empty(srcmap))
+> +                       continue;
+> +               j =3D module->map[SYM_CLASSES][i] - 1;
+> +               if (j >=3D largest_mapped_class_value)
+> +                       goto cleanup;
+> +               destmap =3D &dest->class_perms_map[j];
+>                 if (ebitmap_convert(srcmap, destmap, module->perm_map[i])=
+)
+>                         goto cleanup;
+>         }
+> @@ -1691,7 +1702,7 @@ static int copy_scope_index(scope_index_t *src, sco=
+pe_index_t *dest,
+>         return 0;
+>
+>  cleanup:
+> -       ERR(state->handle, "Out of memory!");
+> +       ERR(state->handle, "Error copying scope index");
+>         return -1;
+>  }
+>
+> --
+> 2.55.0
+>
