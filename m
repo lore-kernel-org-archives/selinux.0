@@ -1,178 +1,173 @@
-Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
+Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE7AC13A244
-	for <selinux@vger.kernel.org>; Mon, 20 Jul 2026 18:45:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.41
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784573156; cv=pass; b=t3OlDWJRTyNyioi3fV2P5n1UTfFvrWtWp36qTxhPm99zYSruaIs9+U7wGMof5hUG4XinM+s36os6NUCRyTFFjRszOwwoKzqo/5wHLHe5xdJz0GKDD7127AIjTxkxRnLOjLOlSn2uw9dwfmEjuuiX5WqdeTrckTB7qQsoFA8iNXk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784573156; c=relaxed/simple;
-	bh=UDlya21JETN/qOfOjiVoFhJ244DWuk/XXgf1A1Axjy0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Jalh4JmQCsdjCNYZN48lmlnsxjjFF7UzfU5wmJ7bascD8jXfyg3Sz8pvVHXgZXjGODIdBxL/eT3cDuv+ibVfwiBI8PWo9K4wCDdPmDJu6Nvs0wNOa3fjLXqlNuZd97H0H8+xnOXIrG1ff1am+QXtwHSPa8LzRyHLsHXuWSYDTE4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NVFdcZ8f; arc=pass smtp.client-ip=209.85.216.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACE443FB7E1
+	for <selinux@vger.kernel.org>; Mon, 20 Jul 2026 19:34:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.176
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784576094; cv=none; b=QrctvWUjdNQ3TQIf3ft09EAIPT5Yz7DmI9gxISvHgSMnOtPwAsXZYDGk0XeyAPUyx9asqrik1XaNmHYjQLLqWZU+cshN/0HidzKpW1aibn3Aqrx811ZMH3yaC0bfOocy6lMarC3ZmW37d5IqwoKYbNqXyU8Aq7E9tijp/vlVajQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784576094; c=relaxed/simple;
+	bh=Pvo9gX6AyztH7tdUYlsHmqvKbZf9OJkA4PFwemc8IXo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=BTTaS4GdwEjQN+eY+WjpAsJJ0mD7FIJ/AOXlt3oCbTphw4e1RAE28ipe3T4cihOzgS2Ia/5tuNQyV9OHVnRJDnNatxKEUPF4sODTpeAGK/THrnufp5qXVV6jQs3rKnSpVNQ+kMnO8GzKkYXPEeomWcLAZ10dcDeosrh4DEkwPRk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=B7vC2Cr1; arc=none smtp.client-ip=209.85.222.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NVFdcZ8f"
-Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-38e7109321dso1085873a91.3
-        for <selinux@vger.kernel.org>; Mon, 20 Jul 2026 11:45:54 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784573154; cv=none;
-        d=google.com; s=arc-20260327;
-        b=n5Zx1PSC33A7eJLB8G6IfcKdYPTH7eJ6h28bnneZfXpoCb6ffD9C4wsXzkdfgd68m/
-         ZOAI3WjLJfs2w88iaaMVulUbwcpL7QlBCPcnsn76m26EToqMk7/FzUi6OpKoAdEAV2UB
-         ciZWEHzz/qJ4uk/1Kym3DW43fBpkhaMqCUHxDz26U9+XIeliDkQLlfH1N5sZDJcGLrV3
-         xoTl+mfQCFCXK5NLLcAhdYrt5BLcfoFhLkvpTzd+UncEbq8CUAe+oBZyyc9JF0/6bCnA
-         5tN9tKiQEvnWZLFbMrS6R7MysT+zPSFqaURu1++j3R79WfdpjwZDMtE3SjENkz4w5NWu
-         aLjA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=5/WR2wyJmJ/ocOpnKySEo0jom2yHN93oI1AtANRQrgY=;
-        fh=o4EWA82M+vtfNglaTzMFhY8rIYTLnPpjxHW+AHnzuHs=;
-        b=GmuoiApLqYrbawlPqt4ATv/6E1OMZuClqKfZlP4gRQz7tr+9AhVeOHMJyUdh2VtWii
-         DP6jDSsMDX3MxMNtgddHMqXjt5KSpMwxieVTNiSawrfqyzLsuqx6gVTsf00nXDpFUTVC
-         w6mm9f1VH7Po1yhDkI/CIgoDkYoTvtLygv8tXh6ks6UX92L6vLoE9TQ5kyuD+Wj6AQFi
-         SGU0rvbBVBKfzpX8kw7q15DdCPxolzr1mYJxKQ+c5nIL+sY2PyEGVpQQmfC088B11XcA
-         FAWwJ/CTOLETSrXim/p+EyMt5ppc0yG0BqvRatQy+WrAppwB21PRlWdjLz650OWuT54K
-         s7uw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="B7vC2Cr1"
+Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-92e5c92c389so689262885a.3
+        for <selinux@vger.kernel.org>; Mon, 20 Jul 2026 12:34:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784573154; x=1785177954; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=5/WR2wyJmJ/ocOpnKySEo0jom2yHN93oI1AtANRQrgY=;
-        b=NVFdcZ8fO2kVmfj7S0sn6zHDrBbT8DCjHkcfD9JdNlBmwVaMiSoAcgfIHjWCNbpl2A
-         pFMfYGvjD+jX/RBCVP78NbOLXXcfa1arcTLDesnhTrs1hMQe7AwdfaaThpgQUeve0NV4
-         IV1tCYvG+UmrKlHac8zN0KKQxTs0inEcKrEBkUtaXOArsclizU8oeFCprOCZD3hXI/AR
-         VPc0JkNLflOhe8sks113wyd/oRR/DMQaclhfxzulbvUeLaUhXhNejyO6DObzFQUfz7hV
-         bCaCaNGObsVPH42fGLH5IbP9P3mMCige3lxf+oeaRrQeeG75xVA8X+zkjgxMpJ4rpTyK
-         Y6tA==
+        d=gmail.com; s=20251104; t=1784576090; x=1785180890; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=GgU7oEluQ6mzwstAbqUDcZz18uEL5ctIps+ZteKHdfY=;
+        b=B7vC2Cr1FDXKKtLT5juSyK+gyRz9XBpDsn29+UuGYwhGNex3q8Bu5UQw0oFuX/iGid
+         jGDzrB5lRAqXwldCtmSSIM8ChLOJB7BvwF6eSZbw+UmlhP1USfeHORJbjt8Wwe3lYAux
+         ohOQCm24SRplwvvU4MEwk9MarLSYLbo3Ah0yjuOLq2L4h+qBjSyzmOZdpKYRmSRrsBqM
+         6ZgTFI8ssVVpYMxEw9d+SFsF/nNte3r1+4JwRhyF0o02pEYXP3xHnLM8kGY+mLPTuqMq
+         UyhMzvzDfkyNlzcNaOVa+FZq+1xxjUy9UxsoxY0w8Xc2NXWRjiCpeNyTVG3YY7fTLAve
+         2LAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784573154; x=1785177954;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=5/WR2wyJmJ/ocOpnKySEo0jom2yHN93oI1AtANRQrgY=;
-        b=IMiRKPdeKOM0l9iv75TdGzPpqDvkIOyYuxtpOTI3WIPkEnZf3FKKOxSl+t0n/RPcRS
-         Idx9CwI+ncGvZw3WyVPEk3qgQ3LOc2JV7U78yFfwN9PhmWErOoHOrH/4vY4lcFNCGSNJ
-         7ddSHOLudIQbZ6fNcK7NhOFBVllxJoSrp/FNPkr3L4IPZUzCH1ZXt+5AeMlP7IBeeoLc
-         RXrXLQW7z/rgkRjylOQTLyYEDLONEyZA9R0AsDUDHbc1Z0XKOjoUv2CFdDA1x2L08yv/
-         GJ20CdSGWZjzdY60cLg0SKKruFC7BlJLDvX7Y1k71oPtYPO7TcFyZcZ87DvU0D1ByU6v
-         R2Yg==
-X-Gm-Message-State: AOJu0YwFx8sirYnI43wzN45JMrmHedDNWvgZvBsiT2bdCMcb7rj77Tls
-	IPxF9ZiQi6PF8q4ucRaH3Iz/Ixl2BWaF7adtgp4j5xTQaXJvb7juX5GpZs/9gR3jNSn9171jAdB
-	VtTnXvu9+HrOJ6dQKYpibJ3Y6XheSW6c=
-X-Gm-Gg: AR+sD13ciuDIG/NKYpQt4H8ezNJXsw08CXxlL4yCFCSx5gpEqODUFRPj+TtLT3SYRQ2
-	FnHsh2Q+m3ocvpq1xvNq1M0ofvCEgk9MLIA+EQnuZNn6xdnz7S95Dd9NDOFUrmFoYaQeVWFWvy2
-	dLINbHAZTFcnadNJZjWhUuHayR5+5PtiMm+6+jE4C7cgOSrcVT8ZJf5IYtYQt0ZvGpQ/DfYjTrN
-	3fsUCONrgLVp3NyAlAVWQeOLfmgO5zBaW3jw+6xBUay6LtNnLMiIBxOyJ3ZMA==
-X-Received: by 2002:a17:90a:d60f:b0:38d:c834:2106 with SMTP id
- 98e67ed59e1d1-38e4b51656bmr15445712a91.28.1784573154105; Mon, 20 Jul 2026
- 11:45:54 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1784576090; x=1785180890;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=GgU7oEluQ6mzwstAbqUDcZz18uEL5ctIps+ZteKHdfY=;
+        b=s+4CYrlR5wSbgXionzunDvmdhJmDOCxEB0YxUJbZ6vA83ThZUvx6Y0AhSyF/Y5tZOS
+         vuoxz55pizzKsfP3aWe9/DrwVJ839hCUS8WlCqn9iFjsmAMx26Nj3V17g3r4+Jza6SRZ
+         fzdyqCbcKaIe39RY74JHEC2OdG/sIs9RvyL2qE1MOSvNBkSvW66Xdr+/z66VwFsiSQAZ
+         8KfdFGE/4Sj9Z6WfxSVgAsVDoszcNw1l5G5teq1gVwlp0vH7PaOxChuCLCY0S28aWUG9
+         cW0GigeXTBs/NLty+oRLCCIKWDTWpPQYbQB7BvmJdOENmLTXCAF8TgN/VRWOk1OS0hRG
+         lCKg==
+X-Gm-Message-State: AOJu0Yxeq5GsKlwhTZoocwqGTiQcZol/6qQK+rPvNmsOA+hF5+nBUEXc
+	Dvk+Ife2lVHjkUH19kuqeWouUsNsqIcK3TrSulP5j8DNWp7lmbwhofTjF+tUlw==
+X-Gm-Gg: AfdE7cmUakV1S3AHLmYVo3707TV0GWnZ6dp2DsCxlhPKSH/MOSOcgsCHVyOlSRkbTtG
+	B4Dv6bVc7D5SKJnPJ587+Tt58gOpY3aQfFzA24ZrMM2yc3D1+9kEcTZn+pwgp+G5SYSZDL8cwJt
+	ogLnVoQlMS2lXnRjUI+2rxpjPeESbLqtDZYlTRuKLqC+hccEZ109Ve3fRZGHeiImoAKgTabwcMc
+	K5LtZqQFt8AWYMx2wPvbjxhiiwFictCKbDCtPtWii7a6msXTNDHrXWyqlv9qKhwF17X91mGL0RP
+	nXW3HSvwr0kLsNGLH3PqsWl3BQErLT8wGcEcnWCPM2QLXcEVY6x/rSQfRxkGm5MDOy+WB9A9GYq
+	IxzwBZAJVvkaJSFEz2xpr3SinrVGAVOT51P55pbE27QoRvUUkOcNIsm0gMw+AdW+WwYfm5p2F6O
+	VgNrRZzv+x+5Ro/Dw8W/839fYZ35ATiJOjtHeYgaasrVVQ25SOhFgCjtfnZpIivv29AbdR0EUqt
+	tDLXQ==
+X-Received: by 2002:a05:620a:19a2:b0:92e:f16b:1b64 with SMTP id af79cd13be357-930b43531ebmr1566005785a.88.1784576089877;
+        Mon, 20 Jul 2026 12:34:49 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-930b5300432sm942488385a.17.2026.07.20.12.34.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Jul 2026 12:34:49 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	pebenito@ieee.org,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] python/sepolgen: port policygen.py to setools 4 API
+Date: Mon, 20 Jul 2026 15:34:26 -0400
+Message-ID: <20260720193426.48519-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260720105606.305073-1-pmatyas@redhat.com>
-In-Reply-To: <20260720105606.305073-1-pmatyas@redhat.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 20 Jul 2026 14:45:41 -0400
-X-Gm-Features: AUfX_mzeCyB8EF-iFhfKncvF18bCA-a8ouMqVBJslIe4wDZF2boL1GOzzGQrjqo
-Message-ID: <CAEjxPJ4V8bSqrBLhuakU-0X+Byvz4=OP_Ya39ggqyVEJ7JQn1g@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: add module package fuzzer
-To: Petr Matyas <p.matyas13@gmail.com>
-Cc: selinux@vger.kernel.org, Petr Matyas <pmatyas@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, Jul 20, 2026 at 7:07=E2=80=AFAM Petr Matyas <p.matyas13@gmail.com> =
-wrote:
->
-> Add a libFuzzer target for the binary module package format
-> (.mod/.pp) read by sepol_module_package_read(). On a valid package,
-> also exercises sepol_module_package_to_cil() to cover the CIL
-> conversion path for module policies.
->
-> The seed corpus contains a minimal module package produced by
-> checkmodule + semodule_package to give the fuzzer a structurally
-> correct starting point.
->
-> Wire the new fuzzer into scripts/oss-fuzz.sh alongside the existing
-> libsepol and checkpolicy fuzzers.
->
-> Signed-off-by: Petr Matyas <pmatyas@redhat.com>
-> ---
->  libsepol/fuzz/min_mod.pp              | Bin 0 -> 859 bytes
->  libsepol/fuzz/module-package-fuzzer.c |  44 ++++++++++++++++++++++++++
->  scripts/oss-fuzz.sh                   |  11 +++++++
->  3 files changed, 55 insertions(+)
->  create mode 100644 libsepol/fuzz/min_mod.pp
->  create mode 100644 libsepol/fuzz/module-package-fuzzer.c
+policygen.py still called seinfo() and sesearch(), the setools 3
+python bindings that were removed years ago. The calls only survived
+because they sat inside a bare "try/except: pass", so the "source type
+can write to..."  hint in audit2allow output has been silently dead.
 
-> diff --git a/libsepol/fuzz/module-package-fuzzer.c b/libsepol/fuzz/module=
--package-fuzzer.c
-> new file mode 100644
-> index 00000000..18d645bb
-> --- /dev/null
-> +++ b/libsepol/fuzz/module-package-fuzzer.c
-> @@ -0,0 +1,44 @@
-> +#include <sepol/debug.h>
-> +#include <sepol/module.h>
-> +#include <sepol/module_to_cil.h>
-> +
-> +extern int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
-> +
-> +// set to 1 to enable more verbose libsepol logging
-> +#define VERBOSE 0
-> +
-> +int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
-> +{
-> +       sepol_module_package_t *mod =3D NULL;
-> +       struct sepol_policy_file *spf =3D NULL;
-> +       FILE *devnull =3D NULL;
-> +
-> +       sepol_debug(VERBOSE);
-> +
-> +       if (sepol_policy_file_create(&spf))
-> +               goto exit;
-> +
-> +       sepol_policy_file_set_mem(spf, (char *)data, size);
-> +
-> +       if (sepol_module_package_create(&mod))
-> +               goto exit;
-> +
-> +       if (sepol_module_package_read(mod, spf, VERBOSE))
-> +               goto exit;
-> +
-> +       devnull =3D fopen("/dev/null", "we");
-> +       if (!devnull)
-> +               goto exit;
-> +
-> +       if (sepol_module_package_to_cil(devnull, mod))
-> +               abort();
+Replace them with the setools 4 equivalents:
+- SELinuxPolicy().lookup_typeattr("domain").expand() for the
+domain attribute member set.
+- TERuleQuery(ruletype=[allow], source=..., tclass=[...], perms=...,
+perms_subset=True) for the allow rule search, expanding rule.target
+so attribute targets are resolved to concrete types
 
-Do we want it to abort if there was garbage in the .fc file or other
-*_contexts files?
-sepol_module_package_read() only parses the binary module and extracts the =
-raw
-contents of the contexts files but doesn't try to parse them, so the
-error won't show up
-until we try to convert to CIL.
+While here, cache the loaded policy on the PolicyGenerator instance so
+it is not reparsed for every access vector, drop the wildcard import,
+narrow the bare except to setools exceptions, and dedupe/sort the
+resulting type list for stable output.
 
-> +
-> +exit:
-> +       if (devnull)
-> +               fclose(devnull);
-> +       sepol_module_package_free(mod);
-> +       sepol_policy_file_free(spf);
-> +
-> +       /* Non-zero return values are reserved for future use. */
-> +       return 0;
-> +}
+Fixes: https://github.com/SELinuxProject/selinux/issues/332
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ python/sepolgen/src/sepolgen/policygen.py | 41 ++++++++++++++---------
+ 1 file changed, 25 insertions(+), 16 deletions(-)
+
+diff --git a/python/sepolgen/src/sepolgen/policygen.py b/python/sepolgen/src/sepolgen/policygen.py
+index 7715bed5..2475ccd3 100644
+--- a/python/sepolgen/src/sepolgen/policygen.py
++++ b/python/sepolgen/src/sepolgen/policygen.py
+@@ -26,9 +26,9 @@ import textwrap
+ 
+ import selinux.audit2why as audit2why
+ try:
+-    from setools import *
+-except:
+-    pass
++    import setools
++except ImportError:
++    setools = None
+ 
+ from . import refpolicy
+ from . import objectmodel
+@@ -85,6 +85,7 @@ class PolicyGenerator:
+         self.dontaudit = False
+         self.xperms = False
+ 
++        self.policy = None
+         self.domains = None
+         self.gen_cil = False
+         self.comment_start = '#'
+@@ -206,23 +207,31 @@ class PolicyGenerator:
+                 rule.comment += "\n%s" % self.comment_start
+                 rule.comment += "\tPossible cause is the source %s and target %s are different." % reason
+ 
+-        try:
+-            if ( av.type == audit2why.TERULE and
+-                 "write" in av.perms and
+-                 ( "dir" in av.obj_class or "open" in av.perms )):
+-                if not self.domains:
+-                    self.domains = seinfo(ATTRIBUTE, name="domain")[0]["types"]
+-                types=[]
+-
+-                for i in [x[TCONTEXT] for x in sesearch([ALLOW], {SCONTEXT: av.src_type, CLASS: av.obj_class, PERMS: av.perms})]:
+-                    if i not in self.domains:
+-                        types.append(i)
++        if ( setools and
++             av.type == audit2why.TERULE and
++             "write" in av.perms and
++             ( "dir" in av.obj_class or "open" in av.perms )):
++            try:
++                if not self.policy:
++                    self.policy = setools.SELinuxPolicy()
++                    self.domains = set(str(t) for t in
++                                       self.policy.lookup_typeattr("domain").expand())
++                q = setools.TERuleQuery(self.policy,
++                                        ruletype=[setools.TERuletype.allow],
++                                        source=av.src_type,
++                                        tclass=[av.obj_class],
++                                        perms=av.perms, perms_subset=True)
++                types = set()
++                for r in q.results():
++                    types.update(str(t) for t in r.target_expand())
++                types -= self.domains
++                types = sorted(types)
+                 if len(types) == 1:
+                     rule.comment += "\n%s!!!! The source type '%s' can write to a '%s' of the following type:\n%s %s\n" % (self.comment_start, av.src_type, av.obj_class, self.comment_start, ", ".join(types))
+                 elif len(types) >= 1:
+                     rule.comment += "\n%s!!!! The source type '%s' can write to a '%s' of the following types:\n%s %s\n" % (self.comment_start, av.src_type, av.obj_class, self.comment_start, ", ".join(types))
+-        except:
+-            pass
++            except (setools.exception.SEToolsException, AttributeError):
++                pass
+ 
+         self.module.children.append(rule)
+ 
+-- 
+2.55.0
+
