@@ -1,198 +1,133 @@
-Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 071EC413241
-	for <selinux@vger.kernel.org>; Mon, 20 Jul 2026 12:20:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3772940C5DF
+	for <selinux@vger.kernel.org>; Mon, 20 Jul 2026 12:29:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.182
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784550047; cv=pass; b=Y3Y8Gexk15HXkOQ6AUE8lbKvUCfAapUQqYkC8to0zwx7ixO0RC28c8KMAdsPGr/nIimk8QqRp2xduSZmc1fHEcOwfAriKG82lixvUrJkJ//vDkzMC88gCZjm+vUGdTXlJEbRqLipJUDxnZ7tfPAM2NVAdAPlplf5L/cjjQ16DYk=
+	t=1784550553; cv=pass; b=j7yDJ3ybTM5qXGaz4Nxm38RQjDX4qmA2ww6CcmceLX6FDyh3C2vabwSDV1Ns9NjuWaletq/x4ee6D+DueUA8++95M93uwKhDU+8XBi5y+X1AWnmIQxs/qnJk9C8LznSfNNIM5VGulapit7gz52tKCY0hv00NrLAvrG4H52uHZ+Q=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784550047; c=relaxed/simple;
-	bh=SYrOoCHt2hktdv8s74gM1FcLw6qwcHzTZrOGY4wcSUE=;
+	s=arc-20240116; t=1784550553; c=relaxed/simple;
+	bh=zEIVwThQkTmg7GZ461LKVcFPJ05mSLyKnbxGNZTf5zQ=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=j0z6+VT4Y//jzo1BWvQswLSLDFeqy1UJEvkBSykC9HqYbAmYCfJZULoSv24mZAdrtrMiN0QSrCmubonrVACIJhtYp/ynhxTNq8UMMmPl99kZRul2zN3oo8D9LMAfxe8C8vz86xrFb3sdj4uMn25d5TB11EfCYzsCpxEB0KLfqKQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CNBOIHmz; arc=pass smtp.client-ip=209.85.210.179
+	 To:Cc:Content-Type; b=m2LVnnTPWD4x05BmwoOeStd2QoyY2U0grIcJkdd/V8o8UVJH1xHOPM+hNt7Q5PiFz1XmF6+NcPRfIKKVmu5CI6RBr+WjyQfNinavRCEpeWqB46ASge9EwUwlzGKywR+9O5UL+qRidXGxTeQVU9hyV/QQKinC1NkFXTU7iecovuM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MtSb16GT; arc=pass smtp.client-ip=209.85.210.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CNBOIHmz"
-Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-84867f07d63so11196370b3a.2
-        for <selinux@vger.kernel.org>; Mon, 20 Jul 2026 05:20:45 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784550045; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MtSb16GT"
+Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-848882fdb18so7219230b3a.0
+        for <selinux@vger.kernel.org>; Mon, 20 Jul 2026 05:29:12 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784550551; cv=none;
         d=google.com; s=arc-20260327;
-        b=eDnbhhWSmiX0czM3aoSaPSIJBM3A95VG1UnvswL/1+LixM68amuYRkz5thfydJZsEu
-         EkD6LOoAuVURTNsAM/+tZTMjOo2Jcr9/aa3oiMQcY51BShwTfMyHqPFu/RrwQJAmaCOG
-         N8kJ9YZFq2vrg+cEZnhWhYUwbeHdXDZCmJqKPRb9prXgCdMv9QvhbCFovREHUuKZ/wY3
-         xmS15eVkElDib+gpqxm49B6+cAPAwWOC4J8bdf7AY5GLlKdQ2G8jlFItyYZFPEFYQiFk
-         UXJoGUt45A2jgMy1yiPvt6zYjdyeLAHOeHSoFg81XTLITPh0vKW4aPkeE69R7mestTrR
-         3wYw==
+        b=L+q9Mk6paIuqu9vSeULr6I4/GUraknsL0fm9ppFodReP6BEFLYJCt+GkLvUuO4bw/a
+         fbYj4sX+14E9GLil4iagxelmITAIN5VOFiw0uQkjaRObY7L4GC2LAY7qzvtjVZLHMvRk
+         JitJPdASoMaIuM33ZpP3LgpCJ547a3YublyJSU8Tfta+1lHw/jYkQvv01jGfraOPi+RG
+         plIdA+/TWAJ2XeS2r8MINSxQfoVXMfmkh9Vgf+j9YNTuyfzVriF4KJ7cqPOxaxILiWEJ
+         e81MGxRHFkm/IORX89zcEfE6oNwXlPwmvO+FXAWDsUiOWP2+uT5NpUXEtmf+pLpDIZ8s
+         TYxg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=D8U09JkI+qh3oDtYU7S+Vscm7hpN1EVy9G0mqPyD1pc=;
-        fh=FsXghBnyoYbEc42Idnie0oh5A6i9FUng5ntOLhqXIRs=;
-        b=WT41XZtBdu0UsR14+RujswNg0pYWVZmA/hWRRaWQgLzyGA2kP1xuYiOh1xXGmpzOjq
-         SCB1LS/cD1+3vBU08eKDTwg38qCIgijH/gsz96RecyRsOoSlO6o0ehbPS1yU2v5miWIl
-         ZFEMnO4pe07J2ycR222U0rEa1yITiqogMUOa4C+/mZPxPC4ceqKv8x5wG+fDrC/ngUBP
-         VmwzbwgBZlowluqmYQtcRCY9yRh2595QR2ty/QfrPnj7t4GJqstZCWQcHOqtYh64iA9Y
-         mtfnskDq4fT7QbuzLKtimKePM4TFkJyJzIpdH0p786f8gNpFf/vlfIjOhFdSYQvT/0gr
-         Q+pA==;
+        bh=tJMCL/2lFjJ2czKue5/zwjHUjMCugTvCwmJYGKhiMbU=;
+        fh=hC9qk6DCZ4OrCLwLtbI/rAfodZ774ekD92Zmkjw/UOM=;
+        b=dDtCxfVlBNHqVEMxRa+CTnPjhGTfCpymdK3XuH2M44nn2AgOe6iHhficDGYVg8wvy5
+         RodGF0jm8jVo+lkgOq2RBm2SeWtSlHLwv8921lVsaOiNqjxAQjG98OLqL/+iU/2np4dv
+         AeZ5R039U9vF8CZtgWJHqEi5kWxoaak+9RRt9OCG7av50qoNhEUWCSMJTUvskUD2jQ1h
+         7zTx0Yagh976L3G3dKRctj+bnw4VTjvItPj3kzAXvOZwcq4M66bb18vRIfZubJ/GORvm
+         b8apY3aq5uZLRDiKzxFOcWanr4yBE5AegIO/BQ3Zik7YUm3TK9aHHl2BNA6XdKYhjf15
+         7I6w==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784550045; x=1785154845; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784550551; x=1785155351; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=D8U09JkI+qh3oDtYU7S+Vscm7hpN1EVy9G0mqPyD1pc=;
-        b=CNBOIHmzJJH091twmMxmH8rJvJHD0vgP+FQbH7GQOI/+R9G/7qe6Y58dCckzUvPWn5
-         JbgcUJzk//bwXAfT8SYGTpXRgxVqgvLwHHNtkuFwwGDHqc3gPJQjZUagG7sM2gQGDBrG
-         WmUvLfawjcHwyS10wHAQOFmx6qhTz/4gkzszf7i8CCvECDYnvahiWtDleTL1JCSUv5kx
-         hS/kyp9KJZmq7HdsQMAHhj6XnPKRCS/U3KZ/PgPcM5JDH3WYZk1I0rzWt/Pg19IlK/Iw
-         BXqUoVhkyYaDuFPiPSVTFYkq9WrgmwCO5W1yCieDY9TNb4Wa+azzoPRkMjV6py+zVkhT
-         7FBA==
+        bh=tJMCL/2lFjJ2czKue5/zwjHUjMCugTvCwmJYGKhiMbU=;
+        b=MtSb16GTfam5PFESiDHCBQKudXlftzXy221VgdCyKwIeIpKY3Kj728qcxypbuqcPZk
+         Nk13tT7IoVMecta5cFxCMYUnXw5NXYZWZ+u/lz7eHM6tsyqJVmoNbDYc8ldBx8oc6TKQ
+         k+cyT4I8ZvBNiuk3Lnmxe7/HyvqsKMbzfsB8MJCdK5sntZM/mthXYlVlIKAAD1AncEHr
+         WuF8EudWOH/+uFrXv4EaPUU1YGA9VsPoa8ZhBX4lyInF5ekxB7/5ko0/fMNeJV5YpZdz
+         20jLYaI4X8DM1GMfuDWlErfK6CYVn3oCOsgouHBHFGNcXc7/yKrucnha8mgvYpTwZLKl
+         VwwQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784550045; x=1785154845;
+        d=1e100.net; s=20251104; t=1784550551; x=1785155351;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=D8U09JkI+qh3oDtYU7S+Vscm7hpN1EVy9G0mqPyD1pc=;
-        b=LXezZXfLBLUmQ79SbttxRd7x2+VZ2kXSS6qVjbKIatiUCAfFSuZAal126B4fXukb/C
-         GXBivrSxXv8Pt2TMmS8KAY+X/saesg1dl5yk7j0JxwUvqp2xByEFkA4yRbLi1CYvL8wi
-         4lKO5NLCQFXZ7Q+HDzxRyIaX8t3wH9oNXJYqjezONcV1lyp17kL1t52w4Nl7uB4ZohtS
-         jh2g+I1jSquRAwBwuatdKCV4dKdD+YOEFATIC+0sA+3kNOhvhdUeXlToJLXsOocj2P7u
-         jzgaIdmfAH4sCUkhgaUNRjNvRmljyK/E35LHIqw4vaihMAEujlGWkO0oUdI0XgfIGN26
-         9Ulg==
-X-Gm-Message-State: AOJu0Ywe+AkTn7Z8zL7Gsn0MgO2aZcagASy/b+rMZZ/khfVctpBG71vX
-	3L1wNLkABqqWSXYuoXoiKisrt3dE3f0YpGt6qChNWxPnVIp5NEZ9CO88L7/fsJda3ZYCD+YWFu3
-	79c+g+jix33yu8KCJT4fM0sgU/gHZj+29eA==
-X-Gm-Gg: AfdE7ckZ9i9TqDkBoEs2rn+806wTUmJZ8OibtY3DEjZOlzEN+Fhp4H+Qg/KRYEDAJmS
-	mK/p2YCXyPsXhX0Lyr8cTv5kplNQRFOV9pXhERfCzeU+Bqs4KuV+R+npbZlXsyz2PDIiMheN1HG
-	gdGqd2LB6CVnPZqmX3MWm7AHTvnk6vlVUggleXRi4RzJxnbk2/hIVS1bXJ7/18CoZNWRP5dPogR
-	7oTiJO7/M6szcSh6T+PtN8RADgCYVuusy423OVwuatGT02OpOMPIcpFE1acXw==
-X-Received: by 2002:a05:6a00:348b:b0:848:8715:c2cd with SMTP id
- d2e1a72fcca58-84c2948b105mr14910270b3a.47.1784550045092; Mon, 20 Jul 2026
- 05:20:45 -0700 (PDT)
+        bh=tJMCL/2lFjJ2czKue5/zwjHUjMCugTvCwmJYGKhiMbU=;
+        b=Jja+9seH+X7ODKjfh1lLkkmYPY69lVmfilz80vylEkPI588RnyyD4bfLiB+BFI1Gue
+         r8VrsMI3y1uzzaU/jG+syVyTudC/acUWHSIKX6nLkITyOUA186EJ+r42RcZnA3MSTlhw
+         GeDBh7X7wZGBzvJt91kQvnI2LRBe3Wxm8E5UN0+bdMnfwTLcwEwAHtl1DWuOQGIoahAO
+         16ICvVD21DatlC+yawagkOrp5ltAa4kbr5h1aIZ5+3YfSb8YW+vgurpsdkxAUN+hWKyI
+         geDNV0lcuv6cX/rLRV1vCD2W6HQvfpzn+VOHyTvvy0UYV7mFThW5QXGde9Q6thJODuEH
+         yoqA==
+X-Gm-Message-State: AOJu0Yznlv6xWC18BdZ0945hP4lD3+hkACxieD2xdxvagAcrGnihfW/x
+	aKdlodme28qgv0R4frjVZYpyLupqZQJHeL7jKnrxgix9Z/xGikAXEoJZ2hICKcWt4CLKzoRWJkv
+	xSMyJXd/q44L574qhBkC1inQf1vVbFoo=
+X-Gm-Gg: AfdE7ck9AGdv//cC56gGuHACD3H2+hPeuRpkpwV49JF5mrY7ez/638AvX0vDwBr+b8P
+	4C8dFAm1P/pp+/u3g4RTWeNgxpbbW9Vh8oHNUxfQ/btF/rG3ExV7f80S7MEpp6ueUc/EMkg8nh4
+	JRYtEirSvxWGBWNgwsQOp+lzj3sJ/y1BqPbpoTpmtQLhknu6Wr5PPB0edqHwvn8aa7BtCZXLOhb
+	ZZPVqbivgYfcEDy0D0ACqyl2NxpVOarPhFRiiAE6dwfRwIvI0ecq4kF2xQllQ==
+X-Received: by 2002:a05:6a00:1d87:b0:848:6dd5:f61 with SMTP id
+ d2e1a72fcca58-84c2946f01cmr12817646b3a.44.1784550551379; Mon, 20 Jul 2026
+ 05:29:11 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260717173544.15801-1-jwcart2@gmail.com>
-In-Reply-To: <20260717173544.15801-1-jwcart2@gmail.com>
+References: <20260706143155.36629-1-stephen.smalley.work@gmail.com>
+ <20260706143155.36629-2-stephen.smalley.work@gmail.com> <CAP+JOzRA48R83Bb6=OXMCqjizYftiRbdGbZKFWbYPuS3+YtFNw@mail.gmail.com>
+In-Reply-To: <CAP+JOzRA48R83Bb6=OXMCqjizYftiRbdGbZKFWbYPuS3+YtFNw@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 20 Jul 2026 08:20:33 -0400
-X-Gm-Features: AUfX_mw0nSFUujZH9bQjaJD9TrBSjFhmCfUmObdYvomj4rAypjO7klrNH58djCc
-Message-ID: <CAEjxPJ5Mcz8ECLWS6mmjfbx+YsBF2tPNZVVyeGRjhQFMN-VN4w@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: Prevent OOB access of array when copying scope information
+Date: Mon, 20 Jul 2026 08:29:00 -0400
+X-Gm-Features: AUfX_mxkylNsqE5KhTWziEKdXf_EcaD_KaiK6NFLuQeC1eFQ8teg8VXqxRU35Eo
+Message-ID: <CAEjxPJ4sG=8sp2HSKeSw4MzJHX7ULfLS8WE8hkdJK0xyCaZNRg@mail.gmail.com>
+Subject: Re: [PATCH v3 1/5] libselinux: avc: use pthread mutexes by default
+ when no lock callbacks set
 To: James Carter <jwcart2@gmail.com>
-Cc: selinux@vger.kernel.org
+Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
+	Seth Moore <sethmo@google.com>, 
+	Purushottam Choudhary <purushottamchoudhary29@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jul 17, 2026 at 1:35=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
+On Wed, Jul 15, 2026 at 2:59=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
 ote:
 >
-> The function copy_scope_index() in link.c copies information about
-> what declarations are in scope for the current block. This is tracked
-> in the "scope" field of the scope_index struct in an array of ebitmaps.
-> A second field called "class_perms_map" is used to track which
-> permissions are in scope for each class. The "class_perms_len" field is
-> the length of the permissions array. As the function is copying scoping
-> information from the module to the base policy, the index values are
-> translated as well. When the information for classes is translated and
-> copied the largest new index value for a class is determined. This value
-> is used to allocate the class_perms_map array. For each source class in
-> that array, the bits in the source ebitmap are translated and set in the
-> destination bitmap.
+> On Mon, Jul 6, 2026 at 10:32=E2=80=AFAM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > The AVC has a set of locking calls but defaults to no locking, and
+> > only the deprecated avc_init() allowed applications to set their own
+> > locking callbacks. Since selinux_check_access() is now commonly used
+> > by applications implementing userspace SELinux permission checks and
+> > it uses avc_open() internally, such calls are currently not
+> > thread-safe.  Provide fallbacks to using pthread mutexes by
+> > default. Single-threaded programs that do not link -lpthread will be
+> > unaffected due to the existing __pthread_mutex() helpers. Applications
+> > that explicitly specify locking callbacks via the deprecated
+> > avc_init() will also be unaffected.
+> >
+> > This is the first step toward a thread-safe selinux_check_access();
+> > the class-string cache and status-page transition handling are
+> > addressed in follow-up changes.
+> >
+> > Fixes: #287 #335 #336
+> > Link: https://lore.kernel.org/selinux/CAJsHiNx1E7x1jaBkS0i4L1nBWXp8YXLH=
+RWcCaDaH4LOn=3Dzm+Zw@mail.gmail.com/
+> > Link: https://lore.kernel.org/selinux/20220120073329.15234-1-purushotta=
+mchoudhary29@gmail.com/
+> > Reported-by: Seth Moore <sethmo@google.com>
+> > Reported-by: Purushottam Choudhary <purushottamchoudhary29@gmail.com>
+> >
+> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 >
-> A maliciously crafted policy could set permissions in the module's
-> class_perms_map for a class that is not in scope. If that class has
-> a new index that is greater than the largest index of a valid class,
-> then there will be an OOB write when copying the class_perms_map.
->
-> When copying the class_perms_map, check that the index is not going to
-> result in an OOB write when converting. In addition, if there were no
-> classes, then just set class_perms_map to NULL and return. Also, don't
-> bother trying to copy permissions if the ebitmap is empty. Finally,
-> just use array notation when copying the scope and class_perms_map
-> data since they are both arrays of ebitmaps.
->
-> Signed-off-by: James Carter <jwcart2@gmail.com>
+> For these five patches:
+> Acked-by: James Carter <jwcart2@gmail.com>
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-
-> ---
->  libsepol/src/link.c | 27 +++++++++++++++++++--------
->  1 file changed, 19 insertions(+), 8 deletions(-)
->
-> diff --git a/libsepol/src/link.c b/libsepol/src/link.c
-> index 70742fc8..868e0a7a 100644
-> --- a/libsepol/src/link.c
-> +++ b/libsepol/src/link.c
-> @@ -1652,8 +1652,9 @@ static int copy_scope_index(scope_index_t *src, sco=
-pe_index_t *dest,
->         ebitmap_node_t *node;
->         /* copy the scoping information for this avrule decl block */
->         for (i =3D 0; i < SYM_NUM; i++) {
-> -               ebitmap_t *srcmap =3D src->scope + i;
-> -               ebitmap_t *destmap =3D dest->scope + i;
-> +               ebitmap_t *srcmap =3D &src->scope[i];
-> +               ebitmap_t *destmap =3D &dest->scope[i];
-> +
->                 if (copy_callback_f[i] =3D=3D NULL) {
->                         continue;
->                 }
-> @@ -1672,18 +1673,28 @@ static int copy_scope_index(scope_index_t *src, s=
-cope_index_t *dest,
->                 }
->         }
->
-> +       dest->class_perms_len =3D largest_mapped_class_value;
-> +       if (largest_mapped_class_value =3D=3D 0) {
-> +               dest->class_perms_map =3D NULL;
-> +               return 0;
-> +       }
-> +
->         /* next copy the enabled permissions data  */
->         if ((dest->class_perms_map =3D calloc(largest_mapped_class_value,
->                                             sizeof(*dest->class_perms_map=
-))) =3D=3D
->             NULL) {
->                 goto cleanup;
->         }
-> -       dest->class_perms_len =3D largest_mapped_class_value;
-> -       for (i =3D 0; i < src->class_perms_len; i++) {
-> -               const ebitmap_t *srcmap =3D src->class_perms_map + i;
-> -               ebitmap_t *destmap =3D
-> -                       dest->class_perms_map + module->map[SYM_CLASSES][=
-i] - 1;
->
-> +       for (i =3D 0; i < src->class_perms_len; i++) {
-> +               const ebitmap_t *srcmap =3D &src->class_perms_map[i];
-> +               ebitmap_t *destmap;
-> +               if (ebitmap_is_empty(srcmap))
-> +                       continue;
-> +               j =3D module->map[SYM_CLASSES][i] - 1;
-> +               if (j >=3D largest_mapped_class_value)
-> +                       goto cleanup;
-> +               destmap =3D &dest->class_perms_map[j];
->                 if (ebitmap_convert(srcmap, destmap, module->perm_map[i])=
-)
->                         goto cleanup;
->         }
-> @@ -1691,7 +1702,7 @@ static int copy_scope_index(scope_index_t *src, sco=
-pe_index_t *dest,
->         return 0;
->
->  cleanup:
-> -       ERR(state->handle, "Out of memory!");
-> +       ERR(state->handle, "Error copying scope index");
->         return -1;
->  }
->
-> --
-> 2.55.0
->
+All five merged.
