@@ -1,500 +1,234 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 466603998BE
-	for <selinux@vger.kernel.org>; Mon, 20 Jul 2026 13:49:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784555399; cv=none; b=bYZp7X9yRxZnesMvPyDjNYjoOmtG2CsB5qFJLXyQoV89GFAClsREAt7IK3oL0n3HOvzw/clOEt3dJY3tG/MP+lpuLcq08drE86FI48LVG7b+P7j2NzrLC5v+JH0wUa5KY4cYrG4DjLvHzKoVJVFHaOfc7uqebrt+8v0L2rGVrqc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784555399; c=relaxed/simple;
-	bh=EA5d/4A2l5wLgBk3SH06walSUOrhxLiDQrmc0QmtdGg=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=tlxOj67anDEnuMbGMy0U2zzwWMTqPJC3UnXCBVgzogeUzCJptR3ajo7MClU4A69YiIB4+WU45bpJq82jvy1G8RZSP78vxzfuz1RBJXXTxoFETRTZhZlpf0vn9MAHcaxPPR5G1GW+nRKiQn+EOIItsLTEik7V6WFwRWGywubgT+c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ih1XZfxy; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E753435519
+	for <selinux@vger.kernel.org>; Mon, 20 Jul 2026 18:06:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.46
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784570785; cv=pass; b=L/FJm4uq17kb4m1VJCXmcZPU9JorGu9jt1DNInKBFyMNBUASkVYkgRD6ycSTWOmsyOWBWfZulYafENcsC/A3+Ygz+pVkztwkYMx0KvW5gk3IL3GrXMhx/DxTBe3Txk8G14EJRqePG1hrrgVPaQM9RfIKBmuylpzy5DBI0ufAzNA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784570785; c=relaxed/simple;
+	bh=6sJy9PZJ/5uu+uq4/s91e/0S+srBf6fkJM0yl1tesOY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=LU8+GfLvczhAIoduD33peCR3VxL7+g78EyHV2A6nTwTrfkoERf7I7DYhYjwmBhKqcbvJ6vO0eo/bCN/XljihiiCAA3leFPm8WjQYHlaS/Z2bpWZ+9g+/Bxas0GgHPpInzn4jQWX1caWZsCiH2hZ9HNI+jXeeyb7LomFHLqzvKfI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qVuGv4D9; arc=pass smtp.client-ip=209.85.219.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ih1XZfxy"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1784555395;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=yL0zPmhiHRQNY/x400PGejjC8Zi7QJ9Np7M4CdFUkJs=;
-	b=ih1XZfxyP20XxEXU5EqG6b1G/V0533TXfH1FNsgLQllCAfMzr8c3jrvyoB54Z5gMH/5msb
-	tvg4i4amgGf7ptFOSnPHN7xqTkflDzDVD6ZSTg0r5269C0zwd9c9Jf3P4yeqKOgHLZC0uQ
-	1bOKBebqOcXTLZQTB8m3r/0oyxXBg1E=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-59-Ohg-RQtdML2Dg3OGDGd8xg-1; Mon,
- 20 Jul 2026 09:49:44 -0400
-X-MC-Unique: Ohg-RQtdML2Dg3OGDGd8xg-1
-X-Mimecast-MFC-AGG-ID: Ohg-RQtdML2Dg3OGDGd8xg_1784555383
-Received: from mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.95])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 6F42E1955F03
-	for <selinux@vger.kernel.org>; Mon, 20 Jul 2026 13:49:43 +0000 (UTC)
-Received: from akkohli-thinkpadt14sgen2i.rmtde.csb (unknown [10.44.33.215])
-	by mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 97076158C
-	for <selinux@vger.kernel.org>; Mon, 20 Jul 2026 13:49:42 +0000 (UTC)
-From: Akhil Kohli <akkohli@redhat.com>
-To: selinux@vger.kernel.org
-Subject: [PATCH] semodule-utils: add bad-data tests for semodule_package
-Date: Mon, 20 Jul 2026 15:49:40 +0200
-Message-ID: <20260720134940.2192826-1-akkohli@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qVuGv4D9"
+Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-907ae240ac3so1248226d6.0
+        for <selinux@vger.kernel.org>; Mon, 20 Jul 2026 11:06:23 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784570782; cv=none;
+        d=google.com; s=arc-20260327;
+        b=LKe76doiEk4kllmnhbdMHNHpcbFdJqjgLoT2zB06b6zpL4c2IQ+pMgWcqbpcXWVPrO
+         v0rIhmST2E1EtgBp4LxWtHLXDI4fIQAngnHZt1/QpqrEztO9xlOxYLrxDUWQcfpuj0ut
+         SVzO4yT6KU8VzX2fcH+pX8F8NaeDjVzd/Be9sXTtE5m/5xFwvs2BDs18LOidgtgM6/1M
+         gmwP0p/LxUl+S6LPdOGEAdLHSlNZuzzTlDUebeRPP2nAwiVx3b0e91GPUV8NVsC+43Hn
+         99ZOEBH86E2k/3hkfwLPq7XIIUmhvGipkan/FLzlUnyx4ua+C/L/aKywZdgq3rjDswuS
+         WbwA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=erJxJKjIQYxuuAmQPSRTtK2LRA4+7u38hsE5ISZDX4o=;
+        fh=Sbg4wl8e4jVEC5t1kf8izLDdeUBXKuSuUot5KellFT8=;
+        b=pR3wfX/F6tnByLIRM1mfMBjr6wl+96OgiqJ+xLnZMsoNfrk1zgTKnvnp1l4+OCi/rB
+         YfGyC7TGlh/w0uBpRXPsiu0+kVAkkv91lOEEMVxQQMrW1JQE1K9baABSYO4ZAqGALRep
+         4DASmdymQBTd1eGlFipFpie4o/ar9kDIm9jtRBt3s9ViVZ1MoZkYKH0n3Jb6XijSxKpW
+         LtEpP7dbm9l2D/xX74C6O4y8jhNm8/K4SH0y5P5/zHunc8eQ8vYBYG65XtWbYqOVRFku
+         +TLJp0T+t35In5qzVCaQxlyBxem374lObreAyHcSCDHhRl9u/hJr/AC852XH0eo0CAlH
+         X7BQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784570782; x=1785175582; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=erJxJKjIQYxuuAmQPSRTtK2LRA4+7u38hsE5ISZDX4o=;
+        b=qVuGv4D92AgPHJeaD8GZFiyzv+DT7Rd0tbKf9FpNpK9JWGWh8yNPZ+dDFAOJpgSQlf
+         dKkN9HCTovfUqy5M/xL9HKeA4CTVm1ovHTIyUsA1AklqzmcsMZ1X8gz+isn+c+ZWvNWc
+         y1h12Otum0BRnlX2KQ24j47IRyDiGGThUZbNz+aBVTEypmsZan1aTXjs4xSL4f6qpMJX
+         bx6j3Dgjv6AnSRHoQhc9ufDQE3/BsFxokH9nK2DwRV8dE9WJYQAU18uTa+xQFLKAttqK
+         yBtERcaagBEo8O0jmMC8JMB2v5xsws2OTAzXuO+A7xbna373zvvhR+GFxYCO4hkKD2nP
+         hAzg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784570782; x=1785175582;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=erJxJKjIQYxuuAmQPSRTtK2LRA4+7u38hsE5ISZDX4o=;
+        b=InvCHLN1msbsOXrnRgz8n9wAqAsI4MjAZUnNzmZpjag8CpEeycGXdIme+djF9TdZ2c
+         YpcY5mvnNKoNXiRygjTZY09GImwOGHwEOoq3izZPNSmkvIKypfEb5PxuYaTHjNN3r/4T
+         nZ+JEZZbxGAiMuuu43AcCWVBVR9PKoriax1W0GBMFrVRd314IfG30voNXOG+YdYIdrhm
+         ah3irYOZPhWuqfB7Ez3jEYK87tNCgpEFZAxjwSdFfOmVV4XAdXB01KF/dFQ52xReCOqs
+         wxbsceSulCCrLb4tLynCWoc2X5wLiOb7WwNl5G8O8uv7qA+qv7nkf/j2t0bqM0jljbRG
+         cV9Q==
+X-Forwarded-Encrypted: i=1; AHgh+RogFM9mtR0umuLSD62vV4yt6KeOjU9w8AyIlQXf5KVeGp4Yr/XCdeiL0HcS03MBsQz4fyNXZWlD@vger.kernel.org
+X-Gm-Message-State: AOJu0YwTHeB5TBxca+/MhWssH9JRQSw5Xp5iKBuwC4YvZboagSvuUGFr
+	1F6fDwfepbGIa8bm486gy8Wi5wPqsJ7B/p7xUZrYwtdj0PEEICFE64bCJFS74748HNX3oGDS+ss
+	vCqdxXgj3EIfR2mSxIXmW9Nv4g/9sj4A=
+X-Gm-Gg: AR+sD11oIKy2jA1rgubDBaB7IMnqbT56zKGGMFLMoShSas5ZRwMbMrVafAwsT15pDEh
+	iKzi9R1LjlcnpD8vk5a1w7H8/pRhXyBpU6F31Z7hCCyNYOcu7FKsFrM7eE+Iw/dSba3uIFkUNP3
+	FcqB4Jt+2AzwRcWUD5k82StU+E4ehjhoR3KVYMewMhU5gT6FohgZ4u3g+bOWzuLwK906sCZ0sgI
+	M8p8lFiaZRtBFUJZn17nHIFtIGIPmOJLdgXfTycaIL2vbxkutQ3zfmcNQRAs7uUtS50ydBLcnYL
+	TXS/iCyvdQNXxHL1
+X-Received: by 2002:a05:6214:e45:b0:8ef:ddf7:3135 with SMTP id
+ 6a1803df08f44-907783b38cdmr173632066d6.38.1784570782095; Mon, 20 Jul 2026
+ 11:06:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.6 on 10.30.177.95
+References: <20260708000956.46138-2-dwindsor@gmail.com> <cb9f84292a7f1d41ff8388d8c0c8c3d0@paul-moore.com>
+In-Reply-To: <cb9f84292a7f1d41ff8388d8c0c8c3d0@paul-moore.com>
+From: David Windsor <dwindsor@gmail.com>
+Date: Mon, 20 Jul 2026 14:06:07 -0400
+X-Gm-Features: AUfX_mxzIpBrzcPTV9KeowoimwOb7WQA9GzVVHyfVuwu0lx2Q8xYaxFF_5bIdv8
+Message-ID: <CAEXv5_i_iHmF8n6Qf1NiVOhm2cCnVLgmwXK-b8M+hvmdO3aQdA@mail.gmail.com>
+Subject: Re: [PATCH v5 1/3] security: rework inode_init_security xattr handling
+To: Paul Moore <paul@paul-moore.com>
+Cc: Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Andrii Nakryiko <andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>, 
+	Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
+	Yonghong Song <yonghong.song@linux.dev>, John Fastabend <john.fastabend@gmail.com>, 
+	KP Singh <kpsingh@kernel.org>, Jiri Olsa <jolsa@kernel.org>, 
+	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Emil Tsalapatis <emil@etsalapatis.com>, 
+	Matt Bobrowski <mattbobrowski@google.com>, James Morris <jmorris@namei.org>, 
+	"Serge E . Hallyn" <serge@hallyn.com>, Casey Schaufler <casey@schaufler-ca.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, 
+	Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, Eric Snowberg <eric.snowberg@oracle.com>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+	Shuah Khan <shuah@kernel.org>, bpf@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-integrity@vger.kernel.org, selinux@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Add tests/bad-data/run.sh and fixtures for semodule_package bad-data
-protection: input path validation for -m and -f (missing paths, directories,
-broken symlinks, unreadable files, empty arguments) and malformed .mod.fc
-content at packaging time. Wire the driver into semodule-utils make test.
-Semantic validation of bad file contexts is deferred to sefcontext_compile.
+On Thu, Jul 16, 2026 at 5:55=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+>
+> > +struct lsm_xattrs {
+> > +     struct xattr *xattrs;
+> > +     unsigned int xattr_count;
+> > +};
+>
+> Please separate out the 'struct lsm_xattrs' related changes into a
+> separate patch from the security_lsmxattr_add() changes.  I know they
+> are related, but they are different things.
+>
 
-Run the harness as a non-root user in GitHub Actions so unreadable -m/-f
-inputs are exercised in CI. Semantic validation of bad file contexts is
-deferred to sefcontext_compile
+Will do.
 
-Signed-off-by: Akhil Kohli <akkohli@redhat.com>
----
- .github/workflows/run_tests.yml               |  10 +
- semodule-utils/Makefile                       |   1 +
- .../fixtures/file_contexts/bad_context.mod.fc |   1 +
- .../fixtures/file_contexts/bad_fields.mod.fc  |   1 +
- .../fixtures/file_contexts/good.mod.fc        |   1 +
- .../tests/bad-data/fixtures/modules/good.te   |   8 +
- semodule-utils/tests/bad-data/run.sh          | 344 ++++++++++++++++++
- 7 files changed, 366 insertions(+)
- create mode 100644 semodule-utils/tests/bad-data/fixtures/file_contexts/bad_context.mod.fc
- create mode 100644 semodule-utils/tests/bad-data/fixtures/file_contexts/bad_fields.mod.fc
- create mode 100644 semodule-utils/tests/bad-data/fixtures/file_contexts/good.mod.fc
- create mode 100644 semodule-utils/tests/bad-data/fixtures/modules/good.te
- create mode 100755 semodule-utils/tests/bad-data/run.sh
+> > +#ifdef CONFIG_BPF_LSM
+> > +static unsigned int lsm_xattrs_used(const struct lsm_xattrs *xattrs,
+> > +                                 const char *prefix)
+> > +{
+> > +     size_t prefix_len =3D strlen(prefix);
+> > +     unsigned int i, n =3D 0;
+> > +
+> > +     for (i =3D 0; i < xattrs->xattr_count; i++) {
+> > +             const char *name =3D xattrs->xattrs[i].name;
+> > +
+> > +             if (name && !strncmp(name, prefix, prefix_len))
+> > +                     n++;
+> > +     }
+> > +     return n;
+> > +}
+> > +#endif /* CONFIG_BPF_LSM */
+>
+> More on this below, but this function isn't strictly BPF LSM related so
+> let's drop the CONFIG_BPF_LSM macro bracketing.
+>
 
-diff --git a/.github/workflows/run_tests.yml b/.github/workflows/run_tests.yml
-index f4aa1a4c..11b95a9c 100644
---- a/.github/workflows/run_tests.yml
-+++ b/.github/workflows/run_tests.yml
-@@ -82,6 +82,16 @@ jobs:
-         eval make test $EXPLICIT_MAKE_VARS
-         echo "::endgroup::"
- 
-+        # semodule_package bad-data: unreadable -m/-f inputs need non-root (root reads mode 000).
-+        if [ "${{ matrix.python-ruby-version.other }}" != "sanitizers" ] ; then
-+          echo "::group::semodule-utils bad-data (non-root)"
-+          sudo useradd -m -s /usr/sbin/nologin bad-data-test 2>/dev/null || true
-+          sudo runuser -u bad-data-test -- env PATH="$PATH" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
-+            ./semodule-utils/tests/bad-data/run.sh
-+          sudo userdel -r bad-data-test 2>/dev/null || true
-+          echo "::endgroup::"
-+        fi
-+
-         if [ "${{ matrix.python-ruby-version.other }}" != "sanitizers" ] ; then
-             # Test Python and Ruby wrappers
-             echo "::group::Test Python and Ruby wrappers"
-diff --git a/semodule-utils/Makefile b/semodule-utils/Makefile
-index 81c97af0..4a902146 100644
---- a/semodule-utils/Makefile
-+++ b/semodule-utils/Makefile
-@@ -6,3 +6,4 @@ all install relabel clean:
- 	done
- 
- test:
-+	./tests/bad-data/run.sh
-diff --git a/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_context.mod.fc b/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_context.mod.fc
-new file mode 100644
-index 00000000..06aec43e
---- /dev/null
-+++ b/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_context.mod.fc
-@@ -0,0 +1 @@
-+/usr/bin/bad	not_a_valid_selinux_context
-diff --git a/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_fields.mod.fc b/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_fields.mod.fc
-new file mode 100644
-index 00000000..13821d61
---- /dev/null
-+++ b/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_fields.mod.fc
-@@ -0,0 +1 @@
-+only_one_field_on_this_line
-diff --git a/semodule-utils/tests/bad-data/fixtures/file_contexts/good.mod.fc b/semodule-utils/tests/bad-data/fixtures/file_contexts/good.mod.fc
-new file mode 100644
-index 00000000..12b26cae
---- /dev/null
-+++ b/semodule-utils/tests/bad-data/fixtures/file_contexts/good.mod.fc
-@@ -0,0 +1 @@
-+/usr/bin/test_good	--	system_u:object_r:test_good_exec_t:s0
-diff --git a/semodule-utils/tests/bad-data/fixtures/modules/good.te b/semodule-utils/tests/bad-data/fixtures/modules/good.te
-new file mode 100644
-index 00000000..a079aed6
---- /dev/null
-+++ b/semodule-utils/tests/bad-data/fixtures/modules/good.te
-@@ -0,0 +1,8 @@
-+module test_good 1.0;
-+
-+require {
-+	type test_good_t;
-+	class file { read };
-+}
-+
-+allow test_good_t self:file read;
-diff --git a/semodule-utils/tests/bad-data/run.sh b/semodule-utils/tests/bad-data/run.sh
-new file mode 100755
-index 00000000..0456bb4f
---- /dev/null
-+++ b/semodule-utils/tests/bad-data/run.sh
-@@ -0,0 +1,344 @@
-+#!/bin/sh
-+#
-+# Bad-data tests for semodule_package in the modular policy packaging pipeline.
-+# Covers packaging path edge cases (-m/-f) and documents deferred rejection of bad
-+# .mod.fc content (enforced later by sefcontext_compile on the Bucket D branch).
-+# Unreadable -m/-f cases skip when run as root; CI runs this script as non-root.
-+#
-+
-+set -u
-+
-+BASEDIR=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
-+FIXTURES="${BASEDIR}/fixtures"
-+OUTDIR=$(mktemp -d "${TMPDIR:-/tmp}/semodule-package-bad-data.XXXXXX")
-+PASS=0
-+FAIL=0
-+
-+CHECKMODULE=${CHECKMODULE:-checkmodule}
-+# Modular TE for MCS/MLS builds (matches RHIVOS checkmodule -M -m).
-+CHECKMODULE_MOD_FLAGS=${CHECKMODULE_MOD_FLAGS:--M -m}
-+SEMODULE_PACKAGE=${SEMODULE_PACKAGE:-semodule_package}
-+
-+GOOD_TE="${FIXTURES}/modules/good.te"
-+GOOD_MOD="${OUTDIR}/test_good.mod"
-+
-+cleanup() {
-+	rm -rf "${OUTDIR}"
-+}
-+trap cleanup EXIT
-+
-+die() {
-+	echo "FAIL: $*" >&2
-+	FAIL=$((FAIL + 1))
-+}
-+
-+pass() {
-+	echo "==== $*"
-+	PASS=$((PASS + 1))
-+	echo ""
-+}
-+
-+build_good_mod() {
-+	echo "==== Setup: build control module ${GOOD_MOD} from good.te"
-+	rm -f "${GOOD_MOD}"
-+
-+	set +e
-+	# shellcheck disable=SC2086
-+	"${CHECKMODULE}" ${CHECKMODULE_MOD_FLAGS} -o "${GOOD_MOD}" "${GOOD_TE}" \
-+		2>"${OUTDIR}/build_good.err"
-+	rc=$?
-+	set -e
-+
-+	if [ "${rc}" -ne 0 ]; then
-+		echo "FAIL: could not build control module from ${GOOD_TE}" >&2
-+		cat "${OUTDIR}/build_good.err" >&2
-+		exit 1
-+	fi
-+	if [ ! -s "${GOOD_MOD}" ]; then
-+		echo "FAIL: ${GOOD_MOD} is empty" >&2
-+		exit 1
-+	fi
-+	echo ""
-+}
-+
-+expect_package_pass() {
-+	desc="$1"
-+	outname="$2"
-+	shift 2
-+
-+	outpp="${OUTDIR}/${outname}.pp"
-+	stderr="${OUTDIR}/${outname}.err"
-+
-+	echo "==== POSITIVE (expect semodule_package success): ${desc}"
-+	rm -f "${outpp}"
-+
-+	set +e
-+	"${SEMODULE_PACKAGE}" -o "${outpp}" "$@" 2>"${stderr}"
-+	rc=$?
-+	set -e
-+
-+	if [ "${rc}" -ne 0 ]; then
-+		echo "stderr:" >&2
-+		cat "${stderr}" >&2
-+		die "${desc}: expected exit 0, got rc=${rc}"
-+		return 0
-+	fi
-+	if [ ! -s "${outpp}" ]; then
-+		die "${desc}: expected non-empty ${outpp}"
-+		return 0
-+	fi
-+
-+	pass "${desc} (exit 0, .pp created)"
-+}
-+
-+expect_package_pass_deferred() {
-+	desc="$1"
-+	outname="$2"
-+	shift 2
-+
-+	outpp="${OUTDIR}/${outname}.pp"
-+	stderr="${OUTDIR}/${outname}.err"
-+
-+	echo "==== DOCUMENT (semodule_package accepts input; validate in sefcontext_compile): ${desc}"
-+	rm -f "${outpp}"
-+
-+	set +e
-+	"${SEMODULE_PACKAGE}" -o "${outpp}" "$@" 2>"${stderr}"
-+	rc=$?
-+	set -e
-+
-+	if [ "${rc}" -ne 0 ]; then
-+		echo "stderr:" >&2
-+		cat "${stderr}" >&2
-+		die "${desc}: expected exit 0 at packaging stage, got rc=${rc}"
-+		return 0
-+	fi
-+	if [ ! -s "${outpp}" ]; then
-+		die "${desc}: expected non-empty ${outpp} at packaging stage"
-+		return 0
-+	fi
-+
-+	pass "${desc} (packaging exit 0; labeling validation deferred to sefcontext_compile)"
-+}
-+
-+expect_package_fail() {
-+	desc="$1"
-+	pattern="$2"
-+	outname="$3"
-+	shift 3
-+
-+	outpp="${OUTDIR}/${outname}.pp"
-+	stderr="${OUTDIR}/${outname}.err"
-+
-+	echo "==== NEGATIVE (expect semodule_package failure): ${desc}"
-+	rm -f "${outpp}"
-+
-+	set +e
-+	"${SEMODULE_PACKAGE}" -o "${outpp}" "$@" 2>"${stderr}"
-+	rc=$?
-+	set -e
-+
-+	if [ "${rc}" -eq 0 ]; then
-+		die "${desc}: expected non-zero exit, got rc=0"
-+		return 0
-+	fi
-+	if [ -f "${outpp}" ]; then
-+		die "${desc}: did not expect output ${outpp}"
-+		return 0
-+	fi
-+	if ! grep -Eq "${pattern}" "${stderr}"; then
-+		echo "FAIL: stderr did not match /${pattern}/" >&2
-+		cat "${stderr}" >&2
-+		FAIL=$((FAIL + 1))
-+		return 0
-+	fi
-+
-+	pass "${desc} (rejected as expected, rc=${rc})"
-+}
-+
-+expect_package_fail_unreadable() {
-+	desc="unreadable -m file"
-+	mod="${OUTDIR}/unreadable.mod"
-+	outpp="${OUTDIR}/unreadable.pp"
-+	stderr="${OUTDIR}/unreadable.err"
-+
-+	echo "==== NEGATIVE (expect semodule_package failure): ${desc}"
-+	if [ "$(id -u)" -eq 0 ]; then
-+		echo "SKIP: root can read mode 000 files; unreadable check is non-root only"
-+		PASS=$((PASS + 1))
-+		echo ""
-+		return 0
-+	fi
-+
-+	rm -f "${outpp}"
-+	cp "${GOOD_MOD}" "${mod}"
-+	chmod 000 "${mod}"
-+
-+	set +e
-+	"${SEMODULE_PACKAGE}" -o "${outpp}" -m "${mod}" 2>"${stderr}"
-+	rc=$?
-+	set -e
-+
-+	if [ "${rc}" -eq 0 ]; then
-+		die "${desc}: expected non-zero exit, got rc=0"
-+		return 0
-+	fi
-+	if [ -f "${outpp}" ]; then
-+		die "${desc}: did not expect output ${outpp}"
-+		return 0
-+	fi
-+	if ! grep -Eq 'Permission denied|Could not open|Failed to open' "${stderr}"; then
-+		echo "FAIL: stderr did not mention permission or open failure" >&2
-+		cat "${stderr}" >&2
-+		FAIL=$((FAIL + 1))
-+		return 0
-+	fi
-+
-+	pass "${desc} (rejected as expected, rc=${rc})"
-+}
-+
-+expect_package_fail_unreadable_fc() {
-+	desc="unreadable -f file"
-+	fc="${OUTDIR}/unreadable.mod.fc"
-+	outpp="${OUTDIR}/unreadable_fc.pp"
-+	stderr="${OUTDIR}/unreadable_fc.err"
-+
-+	echo "==== NEGATIVE (expect semodule_package failure): ${desc}"
-+	if [ "$(id -u)" -eq 0 ]; then
-+		echo "SKIP: root can read mode 000 files; unreadable check is non-root only"
-+		PASS=$((PASS + 1))
-+		echo ""
-+		return 0
-+	fi
-+
-+	rm -f "${outpp}"
-+	cp "${GOOD_FC}" "${fc}"
-+	chmod 000 "${fc}"
-+
-+	set +e
-+	"${SEMODULE_PACKAGE}" -o "${outpp}" -m "${GOOD_MOD}" -f "${fc}" \
-+		2>"${stderr}"
-+	rc=$?
-+	set -e
-+
-+	if [ "${rc}" -eq 0 ]; then
-+		die "${desc}: expected non-zero exit, got rc=0"
-+		return 0
-+	fi
-+	if [ -f "${outpp}" ]; then
-+		die "${desc}: did not expect output ${outpp}"
-+		return 0
-+	fi
-+	if ! grep -Eq 'Permission denied|Could not open|Failed to open' "${stderr}"; then
-+		echo "FAIL: stderr did not mention permission or open failure" >&2
-+		cat "${stderr}" >&2
-+		FAIL=$((FAIL + 1))
-+		return 0
-+	fi
-+
-+	pass "${desc} (rejected as expected, rc=${rc})"
-+}
-+
-+build_good_mod
-+
-+# Ephemeral path fixtures for packaging path tests.
-+ln -sf /nonexistent/test_good.mod "${OUTDIR}/broken_symlink.mod"
-+ln -sf /nonexistent/test_good.mod.fc "${OUTDIR}/broken_symlink.mod.fc"
-+printf '' > "${OUTDIR}/empty.mod.fc"
-+
-+# NUL byte inside path column (packaging accepts; sefcontext_compile rejects).
-+printf '/bin/foo\x00bar\t--\tsystem_u:object_r:test_good_exec_t:s0\n' \
-+	> "${OUTDIR}/nul_bytes.mod.fc"
-+
-+GOOD_FC="${FIXTURES}/file_contexts/good.mod.fc"
-+
-+# --- semodule_package input paths ---
-+expect_package_pass \
-+	"control good .mod without file contexts" \
-+	good_mod \
-+	-m "${GOOD_MOD}"
-+
-+expect_package_pass \
-+	"control good .mod with good .mod.fc" \
-+	good_mod_fc \
-+	-m "${GOOD_MOD}" -f "${GOOD_FC}"
-+
-+expect_package_fail \
-+	"missing -m path" \
-+	"Could not open|Failed to open" \
-+	missing_mod \
-+	-m "${OUTDIR}/does_not_exist.mod"
-+
-+expect_package_fail \
-+	"missing -f path" \
-+	"Failed to open|Could not open" \
-+	missing_fc \
-+	-m "${GOOD_MOD}" -f "${OUTDIR}/does_not_exist.mod.fc"
-+
-+expect_package_fail \
-+	"directory instead of -m file" \
-+	"Error while reading policy module|Could not open" \
-+	directory_mod \
-+	-m "${BASEDIR}"
-+
-+expect_package_fail \
-+	"broken symlink for -m" \
-+	"Could not open|Failed to open|No such file" \
-+	symlink_mod \
-+	-m "${OUTDIR}/broken_symlink.mod"
-+
-+expect_package_fail_unreadable
-+
-+expect_package_fail \
-+	"empty -m path argument" \
-+	"Could not open|Failed to open" \
-+	empty_mod \
-+	-m ""
-+
-+expect_package_fail \
-+	"directory instead of -f file" \
-+	"Permission denied|Failed to mmap|Failed to open|Could not open" \
-+	directory_fc \
-+	-m "${GOOD_MOD}" -f "${BASEDIR}"
-+
-+expect_package_fail \
-+	"broken symlink for -f" \
-+	"Could not open|Failed to open|No such file" \
-+	symlink_fc \
-+	-m "${GOOD_MOD}" -f "${OUTDIR}/broken_symlink.mod.fc"
-+
-+expect_package_fail_unreadable_fc
-+
-+expect_package_fail \
-+	"empty -f path argument" \
-+	"Could not open|Failed to open" \
-+	empty_fc_arg \
-+	-m "${GOOD_MOD}" -f ""
-+
-+# --- bad .mod.fc at packaging time ---
-+expect_package_pass_deferred \
-+	"invalid SELinux context in .mod.fc" \
-+	bad_context \
-+	-m "${GOOD_MOD}" -f "${FIXTURES}/file_contexts/bad_context.mod.fc"
-+
-+expect_package_pass_deferred \
-+	"wrong field count in .mod.fc" \
-+	bad_fields \
-+	-m "${GOOD_MOD}" -f "${FIXTURES}/file_contexts/bad_fields.mod.fc"
-+
-+expect_package_pass_deferred \
-+	"NUL byte in .mod.fc path field" \
-+	nul_bytes \
-+	-m "${GOOD_MOD}" -f "${OUTDIR}/nul_bytes.mod.fc"
-+
-+expect_package_pass_deferred \
-+	"empty .mod.fc file" \
-+	empty_fc \
-+	-m "${GOOD_MOD}" -f "${OUTDIR}/empty.mod.fc"
-+
-+echo "========================================"
-+echo "Results: ${PASS} passed, ${FAIL} failed"
-+if [ "${FAIL}" -ne 0 ]; then
-+	exit 1
-+fi
-+exit 0
--- 
-2.55.0
+Ack
 
+> > +int security_lsmxattr_add(struct lsm_xattrs *xattrs, u64 lsm_id,
+> > +                       const char *name, const void *value,
+> > +                       size_t value_len)
+> > +{
+> > +     struct xattr *xattr;
+> > +     void *xattr_value;
+> > +     size_t name_len;
+> > +
+> > +     if (!xattrs || !xattrs->xattrs || !name || !value)
+> > +             return -EINVAL;
+>
+> Sashiko raised a good point about xattrs->xattrs being NULL not
+> necessarily being a good reason for -EINVAL.  If xattrs is NULL, yes,
+> something has gone wrong and -EINVAL seems reasonable, but the
+> xattr->xattrs NULL case does seem like it should simply return early
+> with a value of 0 (see SELinux's handling of this case as an example).
+>
+
+The problem is, SELinux has already set the sid by before calling
+lsm_get_xattr_slot, so we do indeed get an in-core label for the inode
+before returning early here. Returning early here from BPF would not
+mean the same thing: there is no label anywhere, in memory or on disk.
+
+> > +     name_len =3D strlen(name);
+> > +     if (name_len =3D=3D 0 || name_len > XATTR_NAME_MAX)
+> > +             return -EINVAL;
+> > +     if (value_len =3D=3D 0 || value_len > XATTR_SIZE_MAX)
+> > +             return -EINVAL;
+> > +
+> > +     switch (lsm_id) {
+> > +#ifdef CONFIG_BPF_LSM
+> > +     case LSM_ID_BPF:
+> > +             if (lsm_xattrs_used(xattrs, XATTR_BPF_LSM_SUFFIX) >=3D
+> > +                 BPF_LSM_INODE_INIT_XATTRS)
+> > +                     return -ENOSPC;
+> > +             break;
+> > +#endif /* CONFIG_BPF_LSM */
+>
+> I like to avoid macro conditional code inside functions whenever
+> possible, and I think this is a case where we could avoid the conditional
+> block with a little work.
+>
+> The LSM_ID_BPF macro is already defined as part of the UAPI so that will
+> always be available.  While BPF_LSM_INODE_INIT_XATTRS is dependent on
+> CONFIG_BPF_LSM in this revision, that should be easy enough to move
+> outside the CONFIG_BPF_LSM conditional in bpf_lsm.h.  Eventually we
+> should probably expand the lsm_id struct to carry this info, likely just
+> a permanent/local copy of the LSM's lsm_blob_sizes passed during
+> registration, but I can take care of that later; just make the
+> BPF_LSM_INODE_INIT_XATTRS macro always accessible now.
+>
+> We should also probably record the xattr suffix/length when the LSM is
+> registered, but that can also be done later with the other lsm_id
+> additions.
+>
+
+Sounds good, will refactor to remove the conditional.
+
+> > +     default:
+> > +             return -EINVAL;
+> > +     }
+> > +
+> > +     /* Combine xattr value + name into one allocation. */
+> > +     xattr_value =3D kmalloc(value_len + name_len + 1, GFP_NOWAIT);
+> > +     if (!xattr_value)
+> > +             return -ENOMEM;
+> > +
+> > +     memcpy(xattr_value, value, value_len);
+> > +     memcpy(xattr_value + value_len, name, name_len);
+> > +     ((char *)xattr_value)[value_len + name_len] =3D '\0';
+>
+> You'll need to add an additional memcpy() here, likely in a switch
+> statement to handle the different LSMs, to copy over the LSM specific
+> prefix.  It's a little ugly, but when we have things captured in the
+> lsm_id struct it will get a lot cleaner.
+>
+
+Yup
+
+>
+> --
+> paul-moore.com
+
+Thanks,
+David
