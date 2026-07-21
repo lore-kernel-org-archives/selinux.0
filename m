@@ -1,592 +1,223 @@
-Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
+Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2CC646F4BA
-	for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 19:02:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3A39470135
+	for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 19:42:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.173
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784660573; cv=pass; b=dHD1h8wI6BqroSIAruVBbRJ2sR2OAR6gWjy7Fe4GYYAJ2Xw/FnABNmGUDOgjF3VUAuVdGX2RdCBc7nEJPpSwescj4y0ansF3Au6q0ZokQt+9vZSrMh2t0etGd3Q41ZOTP516w66Kp9gwhbd+MA2oXMHUh6ZbktPEjAE3BeEU6is=
+	t=1784662931; cv=pass; b=UEPhqyuYh7oo3W5lFHG02csEFTdzbFf8eLrHiD+qulFr0GuCqXtusAd4qcMTo1sAxDegN9g1qI0Y1KoskaAOWUbOEzJZ10Y0KHlfcAYNBChufz0vdN7Wsaz/0fWsXTvtzjJAUNZ9+FXacQ1vjUsQpaSpZSImDrIvCcKTBhoQYtI=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784660573; c=relaxed/simple;
-	bh=gFWPGS9ByYa8ypd0rSnVXZ1fGF+Y/LB0JIpeVIVJs2o=;
+	s=arc-20240116; t=1784662931; c=relaxed/simple;
+	bh=diE1whOjkH0bFyv2mngPR7d0WHSuyf1mh2P0sqK0PsM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=XA4HNYoQsCCL749d+/XCx0Wb5S06PAktdp2z4zdcR+7UAaQE0LvptL176Xl9Uecta5Y84VELKTHt0iMf/UIkCd417Qdv/KfjJoOn/SjgpzN/CzNr1RPpriNkyK3TRYQ0Al01n442ZaFPmdLS+v+Nlg+uPZybPKivc0OMvgQWgiY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Cotyzocr; arc=pass smtp.client-ip=209.85.214.172
+	 To:Cc:Content-Type; b=sztfzvSwCvewyi50jE3CmME6lG+Ijh+rs//bY0KUMcCsEelRdpqf44D9qiN3NFbVanDyazYU2lOxg/poc4Xxgyz895W6JVs5kdZGgIMUE9uE03WLP0lJmEubCg6NJ67JN6o2IXEUxEUG4w0/H1nXD+3U/8GI7Ui9Mdoj/k3NUSw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gR/ukDGi; arc=pass smtp.client-ip=209.85.215.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Cotyzocr"
-Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2cce6a0c9c3so106693715ad.1
-        for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 12:02:48 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784660568; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gR/ukDGi"
+Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-c9e7391839cso7465458a12.0
+        for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 12:42:09 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784662929; cv=none;
         d=google.com; s=arc-20260327;
-        b=Qx/KB/XSAr4VEK8PpLFQoslx8buCxRL9hwNpMifhKxqBota8vDuxHcgU6fdZmy49ie
-         PlY/XgYXyF3FYtQZQs49bA/O4zYA39gT3jNttsns2iAenbgu9r1PJKOyWR2ZZH4+rmov
-         X7NbJUezNI/TDGqO9hwmyafnp8AZpNt5MgVzHp1ODjRfw4Qm9rbJH4hKSA0ECgH9YlCH
-         EHyYwCk2QE6mtD65TbmaP1ELpIRFj7datE7yVghHRMDtZTS3VMVdWXchPTx0TakQAaO0
-         6qwRuQNjdO8TN+XyaZp4t7OMUBrkpB6HAAYGPuVzr3hxkomcBiOUYNBbGdIJNbNxVEMm
-         as9Q==
+        b=iv0fdlJJR6LllbNTOggre6wO58aqiI+rwqOzL5PNYlGH8OJFRMn4NvnNyk0xtHCBVB
+         tYmjVIz+PNkCgxbbaISVxahIUhIp8VYoCgFE3Y3iIyF6CkC3wA/GotTuOxCBjeUjc9Se
+         53DblGGu5+AiXYqRmZdTikUeGke9FpMiHDcLAQqZ7VVv5TcX6bm5h2AmXdfqZjP8MVr/
+         1QO1SaowmwJb//c5vOws3fF7DFyxpjvOO/xjKziQmRjCY/SRB3+MRO7crvDsSBjCcTLk
+         02hr3hKaq78ojxjsxtZbOZfk0uD2KnoUy4Yug38hKgbS4LCHtbFxRAGcSBaDBJ6wKQH/
+         rxaQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=rzMKDYHB7RNB5vQsEx2mOXKWjSWTKN/fKIlZGntE7tw=;
-        fh=J61V3OUGMbPg9PEhaVOaAjeaFLNhlaRAyHIlP9GupwM=;
-        b=s38nWTmz61482mGrIdM+Dj5uFAipCu9tWkG33VH9qB4f7wey31vSPpKN5SPS/GxM1k
-         mEpir/QZy3MukwuiHLnMvrJl1YTDbftdb+Cq5hhaIEVi3DySKcweTeFxlQDV6/M/7l4l
-         nx8A9GZL5Z6Mnc2x6H9wAaVPuyP21fm7HAbxMgVneDb3TWo+YzBjEA1O5By9XzcGZLQI
-         swY0cgSzqp/FqRMGlGzakJdhKcddPHNFA3wPvolCuSFR7afqjY6IYeudebgzvvXfD8Gw
-         +xEX67fvqmte6cHyrQnOwqoKLfDEsb2vyYaLpffO3YBrze+/I7j5eNj9oaYbk+wPupWU
-         LQXg==;
+        bh=bQgdgXuohWCBmTIQhuZGp6mXcVkcYSfhjCspOTO8eLE=;
+        fh=o4EWA82M+vtfNglaTzMFhY8rIYTLnPpjxHW+AHnzuHs=;
+        b=hgGQLbhLLMFh3jUC6E5tgltOYdr1q6fjUF8JUBHdQEPImNI0JgCtyjkp53ZNLf8Oya
+         fOzOkw2Lg6Ww0d7qPAYoWPPwTg7BUXElZnvoXrOWked2D438perN4xtFW9dNHeGJRllo
+         1dvq54G/Tto/B4Z6945WCmOS7iwXfKU5Xgt9qRHpZK8VSNBlljn4Hlj5qizU5JKp0XUT
+         LxceIBkCv2eBzhYUGjSjJk74s1/vFDcsTCqh4MBkCTmhzwmfOpCwQlQXFCY+ssnFRnA5
+         2Q8xjI9cOuO90NuZfPnT6+sxajEtSCiNGtn4WVR2MR98TVeFyjn2IkyHAgi1dziyjh2E
+         87kw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784660568; x=1785265368; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784662929; x=1785267729; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=rzMKDYHB7RNB5vQsEx2mOXKWjSWTKN/fKIlZGntE7tw=;
-        b=CotyzocrlcY3g7o6+Z2QEgZYprCxNqGGaqPuZmjN+yheMT2strvPXh1NtcedPQQNcl
-         Inzmglz8mbDQMcjPk7Je0wOAx7T65/3qCeSdELQYD23yWev4+xu5mt0AhNzRmfOwXmf0
-         xo4u3Sb8505HiLrZ32CVcC9KlJe5qCdTNk9veSoEcj/rrLOlG2GQ/YDoNNsfzeXY13Kq
-         u3mSZefMviN5njfiwqrcYr30sijn+g1v42CuM8l3dxowMoux9+yAuQB+IRHcN5mCaiQs
-         ByShxR5jw6tauBtxeyQEWcbbO8EWzme8OjvwNPOM0krCze3IwfIm0cuZ4Tf/VXE4HYMY
-         BEKw==
+        bh=bQgdgXuohWCBmTIQhuZGp6mXcVkcYSfhjCspOTO8eLE=;
+        b=gR/ukDGi5A1hJyzKP8OmZp7G+eLRduHfa3dx83MukMynwzAD6z3CZh0wFVqrTrOYeD
+         kTbFAQhm8C3TGnsDb3GbcFzw1sm4JERvNBmwJ58IO0PR1i782M+gIagvfGy6sA0ID3z3
+         m6D8Cz05VcgjeoA/QMMaIsubR2kasXwuis3TVQL83MWCVzsY9df0omZEYVBSoJaHdfOX
+         wnCS+PT/J5trZb7RrjSAELOVkrwoeK4NWtiegQmhkb5S1ay9iuAjaD58AFSltYIwiJp/
+         MiVaPJPofSDV8DflR50Sx00FpDMeCM8yS67DVprhc+vXhGZ6g2WRq8a2HF18breZK/Jw
+         tDcg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784660568; x=1785265368;
+        d=1e100.net; s=20251104; t=1784662929; x=1785267729;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=rzMKDYHB7RNB5vQsEx2mOXKWjSWTKN/fKIlZGntE7tw=;
-        b=J2PC0hg7/wNWZfLvOBgIrjeDdYziSWgBe+ohJRY2ZdatYZMHsR6RQsvgMg+X6E7waS
-         jJFchRTGi3zo/7az3XA/X8IDSiFoxJjT5hAWe+NwK0Jwt23P756Fj4vt1scES/sH3LBV
-         hs8VrrD0f23Mrs/2h0RPzazcvGJGEBbSlerPKcYwmHoF6MV6OxMFZQWGpM8cg5wGTrJY
-         eBdNhL2R10O7KstW1C+Lam9bPJvUE5+urQjRRR0ejW3+BVWpdNUcWicmKBL41NZ80rFq
-         K3/E4DDuzB3Ji/lDkWS3dXIHdHtYrx0inOUiNsRZTgSl8iD8qykhNILq10q6k9PHAyVQ
-         otcg==
-X-Gm-Message-State: AOJu0YzzLZ3+9AUOpAJjk2KfFP4fcsC10fGC64iBu4bAEKE3JoxpxWoL
-	eNiW23jXdwgpT7PWgP8DggMjoqXKnRpmbzRy8Gb+zscrFGd6cREO6yD11uXisQcCQ+yj6X68HwL
-	R81W8vlWAUWdYm0TcK+R81eehghytKQAqdsj3
-X-Gm-Gg: AR+sD12Vu2F69cDAuMNuXlC7WBvYZDFuniigU3ejNSPfjJ8nQdP3L+TlcNt6lrVRbFn
-	N3Cz5XwQM+rMvo4zGjtseZedB6FXWn38ZhlS9vgcZwhLt0nSKG4EcA7RikFRE0W0itsVwaTzv3C
-	PfJ6gkdfWSebD6Pqo/8/r3Uvn8E2favQEVMAR9ZHqkbYL1qUYoOcJP8YUXvYPlnuomrH8FBJukv
-	eIs/o+ukwOdyUr1i1Xv6JXB2xwA2si3wKmfQe7TAdPJgvrU60f+8a5KPoxe2Q==
-X-Received: by 2002:a17:903:41d0:b0:2ce:6d4a:5b8a with SMTP id
- d9443c01a7336-2cf34a4c2b5mr201789265ad.38.1784660568061; Tue, 21 Jul 2026
- 12:02:48 -0700 (PDT)
+        bh=bQgdgXuohWCBmTIQhuZGp6mXcVkcYSfhjCspOTO8eLE=;
+        b=sIiu77JYDPgB1Mhy+4BcQrazk5uuUERv8YGB1+7dLCZcfXJdGtiHNV/bIqLY+40J0T
+         /GvTQ001HNKE1WCHP6ccneYh19qkie16MnECm8zAoABfPhRTS0c2aVFvdXYMcGSR/3JZ
+         qisIpks+TKG0tl4F5+lJol/xuVw2SZvpVna1qJ6q0dmIw71pu2dFTSq3G4XNSXodQ9D+
+         H5wuvLv1h7bZDgiXUrzinMZQ8DFfW7l4Et3Owc/XM2DH70JNqR+lcL3JGIj1q4pOO2G7
+         smrV9/HkZ3K77Rwz/X4M8RQDtIivddYSGS2ARyaUXwinYuQ8mAvxeQBkUawUo0wzqcEw
+         0H8w==
+X-Gm-Message-State: AOJu0YwK/cMUPPsQw2xNsMjknw9cBZfMNAIs3EzWod1FZrcwI7+uotkF
+	bTBjR8/qVrYXYLpG3AzrbRfLx1tryIV1syxGIux8z9DxvF5AQCye18/SGHxcq9GL4hSO5ArZndr
+	n5aD47cKq+2rHYOtHG+4CHBF9IRTrqo8=
+X-Gm-Gg: AR+sD11J6ZJcPxwBl1Tx+PMTVcTG0uSEl5jLy1XGln/f18LIp3aUPTld+RRHjrv5OAk
+	BsRZkIcietkKUvV2XcSu44uNvEWpCyYQ/6aXDHX8/aHiCkqMpxwgcv7HnZAfpqbNTH0ihUvLsJy
+	6wsE1bYyOgk4D3/VcdPNjUnpXf+wg1IYmU7Sy55umHkUMlp/3H49A+AGoU7P5AEe0cY1dLocDBM
+	64n1o5VrxiZ/1Hl07SYGwsNiJyFHl79GIn2apKC72MR5ldURPgyeba3sjQF5Q==
+X-Received: by 2002:a05:6a21:7105:b0:3c3:6ea3:f3d9 with SMTP id
+ adf61e73a8af0-3c3ad9ec20dmr22477495637.70.1784662928865; Tue, 21 Jul 2026
+ 12:42:08 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260720134940.2192826-1-akkohli@redhat.com>
-In-Reply-To: <20260720134940.2192826-1-akkohli@redhat.com>
+References: <20260720105606.305073-1-pmatyas@redhat.com> <20260721110839.431114-1-pmatyas@redhat.com>
+In-Reply-To: <20260721110839.431114-1-pmatyas@redhat.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 21 Jul 2026 15:02:36 -0400
-X-Gm-Features: AUfX_mx0kC9mWOLruaFGceLWdPI_OdIaEpTO8xaClhPL3uMstj4-EVLY3PNNFXE
-Message-ID: <CAEjxPJ5e9bRmf_DAxEcwDc_h1wN1KVL2-VXESuHO=sUWE1MDsQ@mail.gmail.com>
-Subject: Re: [PATCH] semodule-utils: add bad-data tests for semodule_package
-To: Akhil Kohli <akkohli@redhat.com>
-Cc: selinux@vger.kernel.org
+Date: Tue, 21 Jul 2026 15:41:57 -0400
+X-Gm-Features: AUfX_mztILYBhm3zH24AHOpdwY0Dfsa9HHwX2WmiYc-NvcrpykrgLxNNW9TAU3k
+Message-ID: <CAEjxPJ7Bg8FV12YqHxOzHr+Z3za6M1hoCOV_OL68PJ1Jf23G+A@mail.gmail.com>
+Subject: Re: [PATCH v2] libsepol: add module package fuzzer
+To: Petr Matyas <p.matyas13@gmail.com>
+Cc: selinux@vger.kernel.org, Petr Matyas <pmatyas@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 20, 2026 at 10:01=E2=80=AFAM Akhil Kohli <akkohli@redhat.com> w=
-rote:
+On Tue, Jul 21, 2026 at 7:16=E2=80=AFAM Petr Matyas <p.matyas13@gmail.com> =
+wrote:
 >
-> Add tests/bad-data/run.sh and fixtures for semodule_package bad-data
-> protection: input path validation for -m and -f (missing paths, directori=
-es,
-> broken symlinks, unreadable files, empty arguments) and malformed .mod.fc
-> content at packaging time. Wire the driver into semodule-utils make test.
-> Semantic validation of bad file contexts is deferred to sefcontext_compil=
-e.
+> Add a libFuzzer target for the binary module package format
+> (.mod/.pp) read by sepol_module_package_read(). On a valid package,
+> also exercises sepol_module_package_to_cil() to cover the CIL
+> conversion path for module policies.
 >
-> Run the harness as a non-root user in GitHub Actions so unreadable -m/-f
-> inputs are exercised in CI. Semantic validation of bad file contexts is
-> deferred to sefcontext_compile
+> The seed corpus contains a minimal module package produced by
+> checkmodule + semodule_package to give the fuzzer a structurally
+> correct starting point.
 >
-> Signed-off-by: Akhil Kohli <akkohli@redhat.com>
+> Wire the new fuzzer into scripts/oss-fuzz.sh alongside the existing
+> libsepol and checkpolicy fuzzers.
+>
+> Signed-off-by: Petr Matyas <pmatyas@redhat.com>
 
-This seemingly breaks the CI,
-https://github.com/stephensmalley/selinux/actions/runs/29755661204/job/8839=
-7213138
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 > ---
->  .github/workflows/run_tests.yml               |  10 +
->  semodule-utils/Makefile                       |   1 +
->  .../fixtures/file_contexts/bad_context.mod.fc |   1 +
->  .../fixtures/file_contexts/bad_fields.mod.fc  |   1 +
->  .../fixtures/file_contexts/good.mod.fc        |   1 +
->  .../tests/bad-data/fixtures/modules/good.te   |   8 +
->  semodule-utils/tests/bad-data/run.sh          | 344 ++++++++++++++++++
->  7 files changed, 366 insertions(+)
->  create mode 100644 semodule-utils/tests/bad-data/fixtures/file_contexts/=
-bad_context.mod.fc
->  create mode 100644 semodule-utils/tests/bad-data/fixtures/file_contexts/=
-bad_fields.mod.fc
->  create mode 100644 semodule-utils/tests/bad-data/fixtures/file_contexts/=
-good.mod.fc
->  create mode 100644 semodule-utils/tests/bad-data/fixtures/modules/good.t=
-e
->  create mode 100755 semodule-utils/tests/bad-data/run.sh
+>  libsepol/fuzz/min_mod.pp              | Bin 0 -> 859 bytes
+>  libsepol/fuzz/module-package-fuzzer.c |  47 ++++++++++++++++++++++++++
+>  scripts/oss-fuzz.sh                   |  11 ++++++
+>  3 files changed, 58 insertions(+)
+>  create mode 100644 libsepol/fuzz/min_mod.pp
+>  create mode 100644 libsepol/fuzz/module-package-fuzzer.c
 >
-> diff --git a/.github/workflows/run_tests.yml b/.github/workflows/run_test=
-s.yml
-> index f4aa1a4c..11b95a9c 100644
-> --- a/.github/workflows/run_tests.yml
-> +++ b/.github/workflows/run_tests.yml
-> @@ -82,6 +82,16 @@ jobs:
->          eval make test $EXPLICIT_MAKE_VARS
->          echo "::endgroup::"
+> diff --git a/libsepol/fuzz/min_mod.pp b/libsepol/fuzz/min_mod.pp
+> new file mode 100644
+> index 0000000000000000000000000000000000000000..264bd4406bf94b1c0044d46d0=
+ca82fcdc4716f88
+> GIT binary patch
+> literal 859
+> zcmb`FOA5k35Jbxl=3DuVd|J%Q*A+_=3D+~2MCyq;4dTjfQwu~Jg+OIFa^zEK*a~mbWhh*
+> zC(yS?b#DP+3;|pp)qMb9y%;ZdX?Yp1d{Q1=3D8^EZR_3@$y;IvDllTSJTW|Qf>?pS0_
+> zHBrrzoHHN0Jnz=3D6t<MgUaFAqvvv+Y3Wp+eUE^I&aR86ez;Ih;mqe31{=3D)Jy=3D*gJYM
+> z)YoZe5nJ0l^b4_C<_yiy`HMz`Zw0+SohO>SzP<k!{0FXMy?QKdaP72i-21Sn6|wj4
+> Fcmk%9EE)g+
 >
-> +        # semodule_package bad-data: unreadable -m/-f inputs need non-ro=
-ot (root reads mode 000).
-> +        if [ "${{ matrix.python-ruby-version.other }}" !=3D "sanitizers"=
- ] ; then
-> +          echo "::group::semodule-utils bad-data (non-root)"
-> +          sudo useradd -m -s /usr/sbin/nologin bad-data-test 2>/dev/null=
- || true
-> +          sudo runuser -u bad-data-test -- env PATH=3D"$PATH" LD_LIBRARY=
-_PATH=3D"$LD_LIBRARY_PATH" \
-> +            ./semodule-utils/tests/bad-data/run.sh
-> +          sudo userdel -r bad-data-test 2>/dev/null || true
-> +          echo "::endgroup::"
-> +        fi
-> +
->          if [ "${{ matrix.python-ruby-version.other }}" !=3D "sanitizers"=
- ] ; then
->              # Test Python and Ruby wrappers
->              echo "::group::Test Python and Ruby wrappers"
-> diff --git a/semodule-utils/Makefile b/semodule-utils/Makefile
-> index 81c97af0..4a902146 100644
-> --- a/semodule-utils/Makefile
-> +++ b/semodule-utils/Makefile
-> @@ -6,3 +6,4 @@ all install relabel clean:
->         done
+> literal 0
+> HcmV?d00001
 >
->  test:
-> +       ./tests/bad-data/run.sh
-> diff --git a/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_con=
-text.mod.fc b/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_cont=
-ext.mod.fc
+> diff --git a/libsepol/fuzz/module-package-fuzzer.c b/libsepol/fuzz/module=
+-package-fuzzer.c
 > new file mode 100644
-> index 00000000..06aec43e
+> index 00000000..2516970b
 > --- /dev/null
-> +++ b/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_context.mo=
-d.fc
-> @@ -0,0 +1 @@
-> +/usr/bin/bad   not_a_valid_selinux_context
-> diff --git a/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_fie=
-lds.mod.fc b/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_field=
-s.mod.fc
-> new file mode 100644
-> index 00000000..13821d61
-> --- /dev/null
-> +++ b/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_fields.mod=
-.fc
-> @@ -0,0 +1 @@
-> +only_one_field_on_this_line
-> diff --git a/semodule-utils/tests/bad-data/fixtures/file_contexts/good.mo=
-d.fc b/semodule-utils/tests/bad-data/fixtures/file_contexts/good.mod.fc
-> new file mode 100644
-> index 00000000..12b26cae
-> --- /dev/null
-> +++ b/semodule-utils/tests/bad-data/fixtures/file_contexts/good.mod.fc
-> @@ -0,0 +1 @@
-> +/usr/bin/test_good     --      system_u:object_r:test_good_exec_t:s0
-> diff --git a/semodule-utils/tests/bad-data/fixtures/modules/good.te b/sem=
-odule-utils/tests/bad-data/fixtures/modules/good.te
-> new file mode 100644
-> index 00000000..a079aed6
-> --- /dev/null
-> +++ b/semodule-utils/tests/bad-data/fixtures/modules/good.te
-> @@ -0,0 +1,8 @@
-> +module test_good 1.0;
+> +++ b/libsepol/fuzz/module-package-fuzzer.c
+> @@ -0,0 +1,47 @@
+> +#include <sepol/debug.h>
+> +#include <sepol/module.h>
+> +#include <sepol/module_to_cil.h>
 > +
-> +require {
-> +       type test_good_t;
-> +       class file { read };
+> +extern int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
+> +
+> +// set to 1 to enable more verbose libsepol logging
+> +#define VERBOSE 0
+> +
+> +int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+> +{
+> +       sepol_module_package_t *mod =3D NULL;
+> +       struct sepol_policy_file *spf =3D NULL;
+> +       FILE *devnull =3D NULL;
+> +
+> +       sepol_debug(VERBOSE);
+> +
+> +       if (sepol_policy_file_create(&spf))
+> +               goto exit;
+> +
+> +       sepol_policy_file_set_mem(spf, (char *)data, size);
+> +
+> +       if (sepol_module_package_create(&mod))
+> +               goto exit;
+> +
+> +       if (sepol_module_package_read(mod, spf, VERBOSE))
+> +               goto exit;
+> +
+> +       devnull =3D fopen("/dev/null", "we");
+> +       if (!devnull)
+> +               goto exit;
+> +
+> +       /* sepol_module_package_read() stores contexts sections as raw bl=
+obs
+> +        * without validating their text syntax; sepol_module_package_to_=
+cil()
+> +        * is the first place that parses them, so a graceful error retur=
+n here
+> +        * is expected behaviour for malformed input, not a bug. */
+> +       (void)sepol_module_package_to_cil(devnull, mod);
+> +
+> +exit:
+> +       if (devnull)
+> +               fclose(devnull);
+> +       sepol_module_package_free(mod);
+> +       sepol_policy_file_free(spf);
+> +
+> +       /* Non-zero return values are reserved for future use. */
+> +       return 0;
 > +}
+> diff --git a/scripts/oss-fuzz.sh b/scripts/oss-fuzz.sh
+> index 9376b6e4..08e06975 100755
+> --- a/scripts/oss-fuzz.sh
+> +++ b/scripts/oss-fuzz.sh
+> @@ -74,6 +74,17 @@ $CXX $CXXFLAGS $LIB_FUZZING_ENGINE binpolicy-fuzzer.o =
+"$DESTDIR/usr/lib/libsepol
+>
+>  zip -j "$OUT/binpolicy-fuzzer_seed_corpus.zip" libsepol/fuzz/policy.bin
+>
+> +## module package fuzzer ##
 > +
-> +allow test_good_t self:file read;
-> diff --git a/semodule-utils/tests/bad-data/run.sh b/semodule-utils/tests/=
-bad-data/run.sh
-> new file mode 100755
-> index 00000000..0456bb4f
-> --- /dev/null
-> +++ b/semodule-utils/tests/bad-data/run.sh
-> @@ -0,0 +1,344 @@
-> +#!/bin/sh
-> +#
-> +# Bad-data tests for semodule_package in the modular policy packaging pi=
-peline.
-> +# Covers packaging path edge cases (-m/-f) and documents deferred reject=
-ion of bad
-> +# .mod.fc content (enforced later by sefcontext_compile on the Bucket D =
-branch).
-> +# Unreadable -m/-f cases skip when run as root; CI runs this script as n=
-on-root.
-> +#
+> +# CFLAGS, CXXFLAGS and LIB_FUZZING_ENGINE have to be split to be accepte=
+d by
+> +# the compiler/linker so they shouldn't be quoted
+> +# shellcheck disable=3DSC2086
+> +$CC $CFLAGS -c -o module-package-fuzzer.o libsepol/fuzz/module-package-f=
+uzzer.c
+> +# shellcheck disable=3DSC2086
+> +$CXX $CXXFLAGS $LIB_FUZZING_ENGINE module-package-fuzzer.o "$DESTDIR/usr=
+/lib/libsepol.a" -o "$OUT/module-package-fuzzer"
 > +
-> +set -u
+> +zip -j "$OUT/module-package-fuzzer_seed_corpus.zip" libsepol/fuzz/min_mo=
+d.pp
 > +
-> +BASEDIR=3D$(CDPATH=3D cd -- "$(dirname "$0")" && pwd)
-> +FIXTURES=3D"${BASEDIR}/fixtures"
-> +OUTDIR=3D$(mktemp -d "${TMPDIR:-/tmp}/semodule-package-bad-data.XXXXXX")
-> +PASS=3D0
-> +FAIL=3D0
-> +
-> +CHECKMODULE=3D${CHECKMODULE:-checkmodule}
-> +# Modular TE for MCS/MLS builds (matches RHIVOS checkmodule -M -m).
-> +CHECKMODULE_MOD_FLAGS=3D${CHECKMODULE_MOD_FLAGS:--M -m}
-> +SEMODULE_PACKAGE=3D${SEMODULE_PACKAGE:-semodule_package}
-> +
-> +GOOD_TE=3D"${FIXTURES}/modules/good.te"
-> +GOOD_MOD=3D"${OUTDIR}/test_good.mod"
-> +
-> +cleanup() {
-> +       rm -rf "${OUTDIR}"
-> +}
-> +trap cleanup EXIT
-> +
-> +die() {
-> +       echo "FAIL: $*" >&2
-> +       FAIL=3D$((FAIL + 1))
-> +}
-> +
-> +pass() {
-> +       echo "=3D=3D=3D=3D $*"
-> +       PASS=3D$((PASS + 1))
-> +       echo ""
-> +}
-> +
-> +build_good_mod() {
-> +       echo "=3D=3D=3D=3D Setup: build control module ${GOOD_MOD} from g=
-ood.te"
-> +       rm -f "${GOOD_MOD}"
-> +
-> +       set +e
-> +       # shellcheck disable=3DSC2086
-> +       "${CHECKMODULE}" ${CHECKMODULE_MOD_FLAGS} -o "${GOOD_MOD}" "${GOO=
-D_TE}" \
-> +               2>"${OUTDIR}/build_good.err"
-> +       rc=3D$?
-> +       set -e
-> +
-> +       if [ "${rc}" -ne 0 ]; then
-> +               echo "FAIL: could not build control module from ${GOOD_TE=
-}" >&2
-> +               cat "${OUTDIR}/build_good.err" >&2
-> +               exit 1
-> +       fi
-> +       if [ ! -s "${GOOD_MOD}" ]; then
-> +               echo "FAIL: ${GOOD_MOD} is empty" >&2
-> +               exit 1
-> +       fi
-> +       echo ""
-> +}
-> +
-> +expect_package_pass() {
-> +       desc=3D"$1"
-> +       outname=3D"$2"
-> +       shift 2
-> +
-> +       outpp=3D"${OUTDIR}/${outname}.pp"
-> +       stderr=3D"${OUTDIR}/${outname}.err"
-> +
-> +       echo "=3D=3D=3D=3D POSITIVE (expect semodule_package success): ${=
-desc}"
-> +       rm -f "${outpp}"
-> +
-> +       set +e
-> +       "${SEMODULE_PACKAGE}" -o "${outpp}" "$@" 2>"${stderr}"
-> +       rc=3D$?
-> +       set -e
-> +
-> +       if [ "${rc}" -ne 0 ]; then
-> +               echo "stderr:" >&2
-> +               cat "${stderr}" >&2
-> +               die "${desc}: expected exit 0, got rc=3D${rc}"
-> +               return 0
-> +       fi
-> +       if [ ! -s "${outpp}" ]; then
-> +               die "${desc}: expected non-empty ${outpp}"
-> +               return 0
-> +       fi
-> +
-> +       pass "${desc} (exit 0, .pp created)"
-> +}
-> +
-> +expect_package_pass_deferred() {
-> +       desc=3D"$1"
-> +       outname=3D"$2"
-> +       shift 2
-> +
-> +       outpp=3D"${OUTDIR}/${outname}.pp"
-> +       stderr=3D"${OUTDIR}/${outname}.err"
-> +
-> +       echo "=3D=3D=3D=3D DOCUMENT (semodule_package accepts input; vali=
-date in sefcontext_compile): ${desc}"
-> +       rm -f "${outpp}"
-> +
-> +       set +e
-> +       "${SEMODULE_PACKAGE}" -o "${outpp}" "$@" 2>"${stderr}"
-> +       rc=3D$?
-> +       set -e
-> +
-> +       if [ "${rc}" -ne 0 ]; then
-> +               echo "stderr:" >&2
-> +               cat "${stderr}" >&2
-> +               die "${desc}: expected exit 0 at packaging stage, got rc=
-=3D${rc}"
-> +               return 0
-> +       fi
-> +       if [ ! -s "${outpp}" ]; then
-> +               die "${desc}: expected non-empty ${outpp} at packaging st=
-age"
-> +               return 0
-> +       fi
-> +
-> +       pass "${desc} (packaging exit 0; labeling validation deferred to =
-sefcontext_compile)"
-> +}
-> +
-> +expect_package_fail() {
-> +       desc=3D"$1"
-> +       pattern=3D"$2"
-> +       outname=3D"$3"
-> +       shift 3
-> +
-> +       outpp=3D"${OUTDIR}/${outname}.pp"
-> +       stderr=3D"${OUTDIR}/${outname}.err"
-> +
-> +       echo "=3D=3D=3D=3D NEGATIVE (expect semodule_package failure): ${=
-desc}"
-> +       rm -f "${outpp}"
-> +
-> +       set +e
-> +       "${SEMODULE_PACKAGE}" -o "${outpp}" "$@" 2>"${stderr}"
-> +       rc=3D$?
-> +       set -e
-> +
-> +       if [ "${rc}" -eq 0 ]; then
-> +               die "${desc}: expected non-zero exit, got rc=3D0"
-> +               return 0
-> +       fi
-> +       if [ -f "${outpp}" ]; then
-> +               die "${desc}: did not expect output ${outpp}"
-> +               return 0
-> +       fi
-> +       if ! grep -Eq "${pattern}" "${stderr}"; then
-> +               echo "FAIL: stderr did not match /${pattern}/" >&2
-> +               cat "${stderr}" >&2
-> +               FAIL=3D$((FAIL + 1))
-> +               return 0
-> +       fi
-> +
-> +       pass "${desc} (rejected as expected, rc=3D${rc})"
-> +}
-> +
-> +expect_package_fail_unreadable() {
-> +       desc=3D"unreadable -m file"
-> +       mod=3D"${OUTDIR}/unreadable.mod"
-> +       outpp=3D"${OUTDIR}/unreadable.pp"
-> +       stderr=3D"${OUTDIR}/unreadable.err"
-> +
-> +       echo "=3D=3D=3D=3D NEGATIVE (expect semodule_package failure): ${=
-desc}"
-> +       if [ "$(id -u)" -eq 0 ]; then
-> +               echo "SKIP: root can read mode 000 files; unreadable chec=
-k is non-root only"
-> +               PASS=3D$((PASS + 1))
-> +               echo ""
-> +               return 0
-> +       fi
-> +
-> +       rm -f "${outpp}"
-> +       cp "${GOOD_MOD}" "${mod}"
-> +       chmod 000 "${mod}"
-> +
-> +       set +e
-> +       "${SEMODULE_PACKAGE}" -o "${outpp}" -m "${mod}" 2>"${stderr}"
-> +       rc=3D$?
-> +       set -e
-> +
-> +       if [ "${rc}" -eq 0 ]; then
-> +               die "${desc}: expected non-zero exit, got rc=3D0"
-> +               return 0
-> +       fi
-> +       if [ -f "${outpp}" ]; then
-> +               die "${desc}: did not expect output ${outpp}"
-> +               return 0
-> +       fi
-> +       if ! grep -Eq 'Permission denied|Could not open|Failed to open' "=
-${stderr}"; then
-> +               echo "FAIL: stderr did not mention permission or open fai=
-lure" >&2
-> +               cat "${stderr}" >&2
-> +               FAIL=3D$((FAIL + 1))
-> +               return 0
-> +       fi
-> +
-> +       pass "${desc} (rejected as expected, rc=3D${rc})"
-> +}
-> +
-> +expect_package_fail_unreadable_fc() {
-> +       desc=3D"unreadable -f file"
-> +       fc=3D"${OUTDIR}/unreadable.mod.fc"
-> +       outpp=3D"${OUTDIR}/unreadable_fc.pp"
-> +       stderr=3D"${OUTDIR}/unreadable_fc.err"
-> +
-> +       echo "=3D=3D=3D=3D NEGATIVE (expect semodule_package failure): ${=
-desc}"
-> +       if [ "$(id -u)" -eq 0 ]; then
-> +               echo "SKIP: root can read mode 000 files; unreadable chec=
-k is non-root only"
-> +               PASS=3D$((PASS + 1))
-> +               echo ""
-> +               return 0
-> +       fi
-> +
-> +       rm -f "${outpp}"
-> +       cp "${GOOD_FC}" "${fc}"
-> +       chmod 000 "${fc}"
-> +
-> +       set +e
-> +       "${SEMODULE_PACKAGE}" -o "${outpp}" -m "${GOOD_MOD}" -f "${fc}" \
-> +               2>"${stderr}"
-> +       rc=3D$?
-> +       set -e
-> +
-> +       if [ "${rc}" -eq 0 ]; then
-> +               die "${desc}: expected non-zero exit, got rc=3D0"
-> +               return 0
-> +       fi
-> +       if [ -f "${outpp}" ]; then
-> +               die "${desc}: did not expect output ${outpp}"
-> +               return 0
-> +       fi
-> +       if ! grep -Eq 'Permission denied|Could not open|Failed to open' "=
-${stderr}"; then
-> +               echo "FAIL: stderr did not mention permission or open fai=
-lure" >&2
-> +               cat "${stderr}" >&2
-> +               FAIL=3D$((FAIL + 1))
-> +               return 0
-> +       fi
-> +
-> +       pass "${desc} (rejected as expected, rc=3D${rc})"
-> +}
-> +
-> +build_good_mod
-> +
-> +# Ephemeral path fixtures for packaging path tests.
-> +ln -sf /nonexistent/test_good.mod "${OUTDIR}/broken_symlink.mod"
-> +ln -sf /nonexistent/test_good.mod.fc "${OUTDIR}/broken_symlink.mod.fc"
-> +printf '' > "${OUTDIR}/empty.mod.fc"
-> +
-> +# NUL byte inside path column (packaging accepts; sefcontext_compile rej=
-ects).
-> +printf '/bin/foo\x00bar\t--\tsystem_u:object_r:test_good_exec_t:s0\n' \
-> +       > "${OUTDIR}/nul_bytes.mod.fc"
-> +
-> +GOOD_FC=3D"${FIXTURES}/file_contexts/good.mod.fc"
-> +
-> +# --- semodule_package input paths ---
-> +expect_package_pass \
-> +       "control good .mod without file contexts" \
-> +       good_mod \
-> +       -m "${GOOD_MOD}"
-> +
-> +expect_package_pass \
-> +       "control good .mod with good .mod.fc" \
-> +       good_mod_fc \
-> +       -m "${GOOD_MOD}" -f "${GOOD_FC}"
-> +
-> +expect_package_fail \
-> +       "missing -m path" \
-> +       "Could not open|Failed to open" \
-> +       missing_mod \
-> +       -m "${OUTDIR}/does_not_exist.mod"
-> +
-> +expect_package_fail \
-> +       "missing -f path" \
-> +       "Failed to open|Could not open" \
-> +       missing_fc \
-> +       -m "${GOOD_MOD}" -f "${OUTDIR}/does_not_exist.mod.fc"
-> +
-> +expect_package_fail \
-> +       "directory instead of -m file" \
-> +       "Error while reading policy module|Could not open" \
-> +       directory_mod \
-> +       -m "${BASEDIR}"
-> +
-> +expect_package_fail \
-> +       "broken symlink for -m" \
-> +       "Could not open|Failed to open|No such file" \
-> +       symlink_mod \
-> +       -m "${OUTDIR}/broken_symlink.mod"
-> +
-> +expect_package_fail_unreadable
-> +
-> +expect_package_fail \
-> +       "empty -m path argument" \
-> +       "Could not open|Failed to open" \
-> +       empty_mod \
-> +       -m ""
-> +
-> +expect_package_fail \
-> +       "directory instead of -f file" \
-> +       "Permission denied|Failed to mmap|Failed to open|Could not open" =
-\
-> +       directory_fc \
-> +       -m "${GOOD_MOD}" -f "${BASEDIR}"
-> +
-> +expect_package_fail \
-> +       "broken symlink for -f" \
-> +       "Could not open|Failed to open|No such file" \
-> +       symlink_fc \
-> +       -m "${GOOD_MOD}" -f "${OUTDIR}/broken_symlink.mod.fc"
-> +
-> +expect_package_fail_unreadable_fc
-> +
-> +expect_package_fail \
-> +       "empty -f path argument" \
-> +       "Could not open|Failed to open" \
-> +       empty_fc_arg \
-> +       -m "${GOOD_MOD}" -f ""
-> +
-> +# --- bad .mod.fc at packaging time ---
-> +expect_package_pass_deferred \
-> +       "invalid SELinux context in .mod.fc" \
-> +       bad_context \
-> +       -m "${GOOD_MOD}" -f "${FIXTURES}/file_contexts/bad_context.mod.fc=
-"
-> +
-> +expect_package_pass_deferred \
-> +       "wrong field count in .mod.fc" \
-> +       bad_fields \
-> +       -m "${GOOD_MOD}" -f "${FIXTURES}/file_contexts/bad_fields.mod.fc"
-> +
-> +expect_package_pass_deferred \
-> +       "NUL byte in .mod.fc path field" \
-> +       nul_bytes \
-> +       -m "${GOOD_MOD}" -f "${OUTDIR}/nul_bytes.mod.fc"
-> +
-> +expect_package_pass_deferred \
-> +       "empty .mod.fc file" \
-> +       empty_fc \
-> +       -m "${GOOD_MOD}" -f "${OUTDIR}/empty.mod.fc"
-> +
-> +echo "=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D"
-> +echo "Results: ${PASS} passed, ${FAIL} failed"
-> +if [ "${FAIL}" -ne 0 ]; then
-> +       exit 1
-> +fi
-> +exit 0
+>  ## checkpolicy fuzzer ##
+>
+>  make -C checkpolicy clean
 > --
 > 2.55.0
 >
