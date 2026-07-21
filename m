@@ -1,178 +1,331 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B02794D98FC
-	for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 15:15:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784646911; cv=none; b=sxFV943h1s2U2BN96zLKTBSrNADZFKu8Zu07J/w6p2866R0RTLf8DhA4Ekd1LRFuU9GKD71+uH0mi7de5RyF8DfOqZd35vCL4z2gZx6/G3eJUM+8r+salQMEy2JP8PN1CK26OzLcpx4qcdCnGm1ByCHJQKxIe9sXDDJ5k6HDXAE=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784646911; c=relaxed/simple;
-	bh=KI6Ns9kW2sQ36lKMoQwzQkq0fKkAHF24P3aFRT2riBE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=I4GKlxv6RGe//CpGTRlVawFjJpXFek2PR40cjUrGsO26fgh/itMQVvn+Trn16fnA5J5GfnnD5OfVrrM6hP5BsMih11+nIF0EZ69jRFj8n/ICd6sB4nJHhJAT94c6BRfYj4WpjH06NPEBDXHaamPfMGU1uCoCW6tUqM3xVQ+Sl7c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=HHcck9xX; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=tBUWIFfV; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=HHcck9xX; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=tBUWIFfV; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C508C4DC54F
+	for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 15:21:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.182
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784647295; cv=pass; b=GqQ7BCOSdiPT85fKvdPeTJxuj1qqzAbQpIHkgpnFA0IC4HZ8+DI0rYut+iMTGE0eZ6Ji/aWawwUVcf5du0Ayv7cWyw/mSyb3LBrcJvOAnTwKHJmpP1Cz1ZtG7Qu7IXv0pfRMvCGGneUdfP9ITaM2Nk0e5KqCorcxqB0mw7U3OQI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784647295; c=relaxed/simple;
+	bh=6SC2XNPMxUZFqx4jfY4RCgZws0bdRwJ1miCwmDkptd4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=JPypPIzDyFU1bknC8fKO0qzFosVC1ss/2wQrBrRQ7mR0YD00fSi+94DAXAChfWg70iWSG02j0+FqDD4p2RZMQWGG8iYclkWZwMnXr32dpJrSJS4fdpBsDlAE5pnOPr7r1Q9EHcLre9LntTgtxSOL5qV0cp9VEWHlGcD9gb3p5JA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VK/Xdu6O; arc=pass smtp.client-ip=209.85.210.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="HHcck9xX";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="tBUWIFfV";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="HHcck9xX";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="tBUWIFfV"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 8F2657A5AC;
-	Tue, 21 Jul 2026 15:15:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1784646907; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=++Nv4tPxP1g3bVytNARpCFQQJ/hn7aZ+e/rTa2m65j8=;
-	b=HHcck9xXTlxJ0nAV15gm5QfMmgj3loYvyVR/GzJCHIcoeBJ50s+/BXjjqVwv0RYeDs6AVE
-	hxMet3Ohv0PrhBQ1fx11OQUqIcIR0HkoHiEx4FgLWAbWwFkVxOnqOWg7h+iZ395Y37UXX0
-	VzwpfhPq8mveggmLonyF4JS4Ruuh0rA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1784646907;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=++Nv4tPxP1g3bVytNARpCFQQJ/hn7aZ+e/rTa2m65j8=;
-	b=tBUWIFfVFzVIbOYejT2gUb3D85K+5sE8QdNDjj7n5DHi9KXH14zXTCiqpqKjz/tYPSB3r9
-	qRxoBgarwPcxSmAg==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=HHcck9xX;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=tBUWIFfV
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1784646907; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=++Nv4tPxP1g3bVytNARpCFQQJ/hn7aZ+e/rTa2m65j8=;
-	b=HHcck9xXTlxJ0nAV15gm5QfMmgj3loYvyVR/GzJCHIcoeBJ50s+/BXjjqVwv0RYeDs6AVE
-	hxMet3Ohv0PrhBQ1fx11OQUqIcIR0HkoHiEx4FgLWAbWwFkVxOnqOWg7h+iZ395Y37UXX0
-	VzwpfhPq8mveggmLonyF4JS4Ruuh0rA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1784646907;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=++Nv4tPxP1g3bVytNARpCFQQJ/hn7aZ+e/rTa2m65j8=;
-	b=tBUWIFfVFzVIbOYejT2gUb3D85K+5sE8QdNDjj7n5DHi9KXH14zXTCiqpqKjz/tYPSB3r9
-	qRxoBgarwPcxSmAg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 74445779AA;
-	Tue, 21 Jul 2026 15:15:07 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id T6oIG/uMX2oldgAAD6G6ig
-	(envelope-from <jsegitz@suse.de>); Tue, 21 Jul 2026 15:15:07 +0000
-Date: Tue, 21 Jul 2026 17:15:06 +0200
-From: Johannes Segitz <jsegitz@suse.de>
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org
-Subject: Re: [PATCH] selinux_restorecon: Do not exit on directory cycles
-Message-ID: <al-M-kE18Q7okHxy@suse.com>
-References: <al8dIlPQqf4eHINW@suse.com>
- <CAEjxPJ7+=671kRb2fxSgZsyDuysDatMamUZT_vtFkug6_5x2nQ@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VK/Xdu6O"
+Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-84864086bfeso12188151b3a.1
+        for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 08:21:33 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784647293; cv=none;
+        d=google.com; s=arc-20260327;
+        b=ef7IidFmrW6I5cp+uUrSNoa2UnU5Agl2iTjP8qD+FlNnaqfgkRnw5puxL0S5+iYdmc
+         SgQZOVN0NyJ8Ggg9vOIr0jTxfEr/dqrYRBuO73YBu3ihW6f77pyl4cFz9QQ3ESVm4OZK
+         hu7Hrmu9JwNwLPzXQMIOSB22rsGZFkHTZlfJYQ5uUlZryIo46auKNnZkxUntcS6XkhcD
+         yUZUvat44OfCQZXIbMf5K6ObDjzrkxxxgZ5yOEP5rtPESHdnxiTrDlqY5tRDiknM73pU
+         ENRRh8auxo+g+9YzknApWb3jp42nzXKMnCukeNV4G+YoeYPGJVeoKwBnMkFiw9D697eV
+         7IFg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=44qAkjoqtxnL0pjQAibLestcERLzYLK7ESDSUQUEBcQ=;
+        fh=mMDxYY5wtlIekXoYIfjt6lvMWgTaMUwdwgsYDQ6qy3A=;
+        b=lynGVeHsqSYh71i2OcGi48UTyGRfE80ZBPycOzlrD5VCpOoOQlj2gFRGvcD6kRXGI5
+         FVwQOsC3asSLgMQKhjxFBtJB1sZfpZM8fmrLjXPD/xvkYsijfTmOFDw5+JKzHXsB4MEe
+         edBxN8eCMEp6LQca36/UUpj6ODXfHEs6bzbeMIYEJ5iOM8Tdb1YqmO6C5uS6hJk7TGO0
+         fPmN2kL+P6w9cxHb9EosTr0Gk/4GxxiYM6UyVM3Xwzf+2EtxhPnw5FwabQIIqyTTWX8t
+         DG2OANlXwv6F1nF/RE74FHifGAy28/OfBQknZ+RCJCxunNQ0DRvVYnTSUh9twPJfbylc
+         bpgA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784647293; x=1785252093; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=44qAkjoqtxnL0pjQAibLestcERLzYLK7ESDSUQUEBcQ=;
+        b=VK/Xdu6ODOUO8ELYxS5QhWiY2+mkRgRzkBBH7CvvGMpeRTs5P5A2AN09SOKXinQGIO
+         ZerjWGG90ymxYu8qo+MirF1NaaXEjiyYOHSmBTkMguXW4bLOtbmkkar+KbusratSukcz
+         AnDOqr7+HqLr8ccwIJoYyiJ8z7pJd3eexmMSMjmcSjPft+alF1NWH10ocA6WCfUFfqEd
+         BXxez7UBjUS84ubIBCfyZD9tMWgssmOEM1amjRIc70F/OFqro8loJdatp1PXaaU2OyjO
+         4UjblqwYlh75g1NEMb6Lt9bCjsavG2eBKzwFpNqy4OXjmk8K2vRskuNuZSJ9kq4mPvs0
+         8EdA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784647293; x=1785252093;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=44qAkjoqtxnL0pjQAibLestcERLzYLK7ESDSUQUEBcQ=;
+        b=WU5ZmlwkmXCGRBunstafYbPNci15hZmVTDY8zyanXXpVEG+x+izpibVFCT4hqkGhqc
+         /H4716CZICA2Pi4U+FqI6hXgz4p1sgaMqEK7TMLDODfeaRBjmSKbiOya20w+kNNF5JOR
+         ghUSZUQ9QXpyjk1knNBL0I9GDEtcKvuJsrNawhxYN1D3a2FecNx6Et6IzkSVHWbLisUT
+         h1X9bAWaR754KwZvuJXbFS1fvWuIuqZdaRuVbJqr4LtXc/fysqDTPKRchswPHhmVGkQ1
+         m7017BT8oLShtPxTYaqLGRi+SNAqKfNndEs/IqvOo5oxfHK7bWct4yBCZKJPylQsy/ZN
+         Xu4w==
+X-Gm-Message-State: AOJu0YxuBPY5P4HcmEFMjIPUqqcRoIoJIWdLOqmPPaMzeN7yJOc7tGEa
+	E3s6X86PYQmGP1bwa6LU43VZkSJcnT0I13lhNabt6ghCqdto3lijBFwyl6LyxTuHFhWEH6nDpDH
+	SJqM6MAPVrfGAsTfCygYERPnXGAy45DNE/A==
+X-Gm-Gg: AR+sD12LD72ficQ4WKejnXPvVUlkPcUvltcvS4o8iGI51rtww6+VambBT0pz5phXi94
+	xsC96i9jl29DWt0xoKI3JjIkyEAKHAL2rE2tJgkPVrbh5kz1lNdCbMeRX1SHiqkUGmBYb8QxNZQ
+	ctnkz8k08fRAjMUb98lq6jKLRP3fuPAkrk0znUR9iiTKKm5nc0n4Vk8MpCWzpt+YKNedLt8ya3i
+	2jjP48FIrMJ0YC/F6IclqHhUqWBuuKBvNa0xk2E50SXGSAwA4I/tfbo0PYmZQ==
+X-Received: by 2002:a05:6a00:94d3:b0:848:67ca:c03 with SMTP id
+ d2e1a72fcca58-84c294bbb07mr18948514b3a.58.1784647292852; Tue, 21 Jul 2026
+ 08:21:32 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="dYgyMg3amqf5faLq"
-Content-Disposition: inline
-In-Reply-To: <CAEjxPJ7+=671kRb2fxSgZsyDuysDatMamUZT_vtFkug6_5x2nQ@mail.gmail.com>
-X-Rspamd-Action: no action
-X-Rspamd-Queue-Id: 8F2657A5AC
-X-Spam-Flag: NO
-X-Spam-Score: -6.61
-X-Spam-Level: 
-X-Spamd-Result: default: False [-6.61 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	SIGNED_PGP(-2.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MIME_GOOD(-0.20)[multipart/signed,text/plain];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MX_GOOD(-0.01)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	RCPT_COUNT_TWO(0.00)[2];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	FREEMAIL_TO(0.00)[gmail.com];
-	MIME_TRACE(0.00)[0:+,1:+,2:~];
-	ARC_NA(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	TAGGED_RCPT(0.00)[];
-	MISSING_XM_UA(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:dkim,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.com:mid,suse.com:url]
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-
-
---dYgyMg3amqf5faLq
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+References: <20260721021127.1313453-1-tweek@google.com> <20260721021127.1313453-2-tweek@google.com>
+In-Reply-To: <20260721021127.1313453-2-tweek@google.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Tue, 21 Jul 2026 11:21:21 -0400
+X-Gm-Features: AUfX_myv1-IclOaberxvHnzbJYm8_HvOrowlKHCxMm5ykHnAlEm6rQ5DH9yDxFI
+Message-ID: <CAEjxPJ5pG_QaFZPgj5_3hKPhF6+xMYfwLnjpXSuR_RA=WmkJzA@mail.gmail.com>
+Subject: Re: [PATCH 2/2] libselinux: support multiple contexts for the file backend
+To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Cc: selinux@vger.kernel.org, James Carter <jwcart2@gmail.com>, 
+	=?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>, 
+	Ondrej Mosnacek <omosnace@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jul 21, 2026 at 09:54:28AM -0400, Stephen Smalley wrote:
-> On Tue, Jul 21, 2026 at 3:23=E2=80=AFAM Johannes Segitz <jsegitz@suse.de>=
- wrote:
-> >
-> > All other failures are handled gracefully. Directory cycles can e.g.
-> > happen on BTRFS filesystems with subvolumes. Skip them and continue
-> > instead of exiting
-> >
-> > Signed-off-by: Johannes Segitz <jsegitz@suse.de>
->=20
-> This doesn't apply on selinux/main.
+On Mon, Jul 20, 2026 at 10:11=E2=80=AFPM Thi=C3=A9baud Weksteen <tweek@goog=
+le.com> wrote:
+>
+> Update the file labeling backend to support specifying multiple
+> SELABEL_OPT_PATH options in selabel_open().
+>
+> All provided paths are stored in rec->spec_files and processed during
+> initialization. Derived files, such as substitutions (.subs, .subs_dist)
+> and auxiliary contexts (.homedirs, .local), continue to be based on the
+> first path (or default selinux_file_context_path()) when enabled.
+>
+> Duplicate checking logic is refactored into a helper function
+> report_dups(). A duplicate with the same specification result is not
+> fatal anymore, but a warning is still logged.
+>
+> Additionally, duplicate validation is moved after all files (including
+> .homedirs and .local) are loaded and sorted. For single file context setu=
+ps,
+> the only difference in behavior is that duplicate validation now extends =
+to
+> fc.homedirs and fc.local.
+>
+> A similar multiple files setup has been used in Android for 9+ years.
+>
+> Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+> ---
+>  libselinux/src/label_file.c | 216 ++++++++++++++++++++++--------------
+>  1 file changed, 132 insertions(+), 84 deletions(-)
+>
+> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+> index eb2e66da..902c9a25 100644
+> --- a/libselinux/src/label_file.c
+> +++ b/libselinux/src/label_file.c
+> @@ -1484,22 +1503,27 @@ static int init(struct selabel_handle *rec, const=
+ struct selinux_opt *opts,
+>                 unsigned n)
+>  {
+>         struct saved_data *data =3D rec->data;
+> -       const char *path =3D NULL;
+> +       size_t num_paths =3D 0, i;
+> +       char **paths =3D NULL;
+>         const char *prefix =3D NULL;
+> -       int status =3D -1, baseonly =3D 0;
+> +       int status =3D -1;
+> +       bool baseonly =3D false, path_provided =3D false;
+>
+>         /* Process arguments */
+> -       while (n) {
+> -               n--;
+> -               switch (opts[n].type) {
+> +       i =3D n;
+> +       while (i--) {
+> +               switch (opts[i].type) {
+>                 case SELABEL_OPT_PATH:
+> -                       path =3D opts[n].value;
+> +                       if (opts[i].value) {
+> +                               num_paths++;
+> +                               path_provided =3D true;
+> +                       }
 
-Sorry, had a repo still with branch "master", will send both again tomorrow
+Here we count only non-NULL values, counting from the end.
 
-Johannes
---=20
-GPG Key                EE16 6BCE AD56 E034 BFB3  3ADD 7BF7 29D5 E7C8 1FA0
-Subkey fingerprint:    250F 43F5 F7CE 6F1E 9C59  4F95 BC27 DD9D 2CC4 FD66
-SUSE Software Solutions Germany GmbH, Frankenstr. 146, 90461 N=C3=BCrnberg,=
- Germany
-www.suse.com, Gesch=C3=A4ftsf=C3=BChrer: Jochen Jaser, Andrew McDonald, Abh=
-inav Puri, (HRB 36809, AG N=C3=BCrnberg)
+>                         break;
+>                 case SELABEL_OPT_SUBSET:
+> -                       prefix =3D opts[n].value;
+> +                       prefix =3D opts[i].value;
+>                         break;
+>                 case SELABEL_OPT_BASEONLY:
+> -                       baseonly =3D !!opts[n].value;
+> +                       baseonly =3D !!opts[i].value;
+>                         break;
+>                 case SELABEL_OPT_UNUSED:
+>                 case SELABEL_OPT_VALIDATE:
+> @@ -1511,10 +1535,44 @@ static int init(struct selabel_handle *rec, const=
+ struct selinux_opt *opts,
+>                 }
+>         }
+>
+> +       /* If no paths were provided, we will use the default path or fai=
+l, depending on the target. */
+> +       if (!path_provided) {
+> +#if !defined(BUILD_HOST) && !defined(ANDROID)
+> +               num_paths =3D 1;
+> +#else
+> +               selinux_log(SELINUX_ERROR,
+> +                           "No path given to file labeling backend\n");
+> +               goto finish;
+> +#endif
 
+Do we really need/want differing behavior here for different build configs?
+Effectively it means a different user-visible API?
 
---dYgyMg3amqf5faLq
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Digital signature
+> +       }
+> +
+> +       /* Allocate the paths */
+> +       paths =3D calloc(num_paths, sizeof(*paths));
+> +       if (paths =3D=3D NULL) {
+> +               goto finish;
+> +       }
+> +       rec->spec_files =3D paths;
+> +       rec->spec_files_len =3D num_paths;
+> +
+> +       if (path_provided) {
+> +               for (i =3D 0; i < n; i++) {
+> +                       switch (opts[i].type) {
+> +                       case SELABEL_OPT_PATH:
+> +                               *paths =3D strdup(opts[i].value);
+> +                               if (*paths =3D=3D NULL)
+> +                                       goto finish;
+> +                               paths++;
+> +                               break;
 
------BEGIN PGP SIGNATURE-----
+Here we would end up calling strdup(NULL) if any of the opts[i].value are N=
+ULL
+instead of skipping them as above.
 
-iQJPBAEBCgA5FiEEJQ9D9ffObx6cWU+VvCfdnSzE/WYFAmpfjPobFIAAAAAABAAO
-bWFudTIsMi41KzEuMTIsMiwyAAoJELwn3Z0sxP1mx14P/iiGoPDFsSJXOj/6BPBK
-IyWY12lvmHuJLz/7Cj1q3VabhDlQBOgOPnNmArQpoa/Wdf/NiuKC9sPQEjifOOin
-BPN1LMQmBFGs37Ovxngps6n8Umsmora2bIvfRANFmUekIXAYlsPKp6inRZEC1uWv
-Y4ur6Ljh9QHxOxkVp+hHDwaJ/s+YxkiOhp9YAV0x9VeIWeP0NnEPdVUtvjDachbM
-dAzYlABojZ5vdQoPTEXoxFUSxmFmc4MNdhy2wOuJMz6ABW5hxBVfnLqfRCONOzsz
-Iuff+NhWDwPehYaf7OSe4TNvekbL1/vvBqLPxr9MpnEbQ5JnOMhUXxI2qsjKcjU6
-guaYyb4IXWb6AlVn0odkODYTYrTGSCYslW+ebcstROhmiHtttKBueyPjThgZM4D7
-ZiPGaR/W90dmGx0mc1wSpB+/1VlH3xTINoUq54MShFa6EZ0ijtU0Mkyq/0sBzo/M
-d23oPgYJIEkLhyoVmzl+ohNJDNVMdnTaq8b7IQSO+jD9dFdPjFKHw+ya7SVCAgHj
-WLiM+QG5mxXvbfXEKNu4Yt3cVhNjg3zEkMlWlEkwbq+4WwTSa7iZ6N2mMfDgYKzm
-FRDXq9bpn86YYfG92iNvmhJeMpJ8RdAjHlpZ/ph+r5poZ/t7XPJ8R9l8eXncsHmd
-r2aWnABYW1ywV/ufOcdSI1AQ
-=WpD/
------END PGP SIGNATURE-----
-
---dYgyMg3amqf5faLq--
+> +                       default:
+> +                               break;
+> +                       }
+> +               }
+> +       }
+> +
+>  #if !defined(BUILD_HOST) && !defined(ANDROID)
+>         char subs_file[PATH_MAX + 1];
+>         /* Process local and distribution substitution files */
+> -       if (!path) {
+> +       if (!path_provided) {
+>                 status =3D selabel_subs_init(
+>                         selinux_file_context_subs_dist_path(), rec->diges=
+t,
+>                         &data->dist_subs, &data->dist_subs_num,
+> @@ -1526,66 +1584,56 @@ static int init(struct selabel_handle *rec, const=
+ struct selinux_opt *opts,
+>                                            &data->subs_num, &data->subs_a=
+lloc);
+>                 if (status)
+>                         goto finish;
+> -               path =3D selinux_file_context_path();
+> +               rec->spec_files[0] =3D strdup(selinux_file_context_path()=
+);
+> +               if (rec->spec_files[0] =3D=3D NULL)
+> +                       goto finish;
+>         } else {
+> -               snprintf(subs_file, sizeof(subs_file), "%s.subs_dist", pa=
+th);
+> +               snprintf(subs_file, sizeof(subs_file), "%s.subs_dist",
+> +                        rec->spec_files[0]);
+>                 status =3D selabel_subs_init(subs_file, rec->digest,
+>                                            &data->dist_subs,
+>                                            &data->dist_subs_num,
+>                                            &data->dist_subs_alloc);
+>                 if (status)
+>                         goto finish;
+> -               snprintf(subs_file, sizeof(subs_file), "%s.subs", path);
+> +               snprintf(subs_file, sizeof(subs_file), "%s.subs",
+> +                        rec->spec_files[0]);
+>                 status =3D selabel_subs_init(subs_file, rec->digest, &dat=
+a->subs,
+>                                            &data->subs_num, &data->subs_a=
+lloc);
+>                 if (status)
+>                         goto finish;
+>         }
+> -
+>  #endif
+>
+> -       if (!path) {
+> -               errno =3D EINVAL;
+> -               goto finish;
+> -       }
+> -
+> -       rec->spec_files =3D calloc(1, sizeof(path));
+> -       if (!rec->spec_files)
+> -               goto finish;
+> -       rec->spec_files[0] =3D strdup(path);
+> -       if (!rec->spec_files[0])
+> -               goto finish;
+> -       rec->spec_files_len =3D 1;
+> -
+>         /*
+> -        * The do detailed validation of the input and fill the spec arra=
+y
+> +        * Process each input file.
+>          */
+> -       status =3D process_file(path, NULL, rec, prefix, rec->digest, 0);
+> -       if (status)
+> -               goto finish;
+> -
+> -       if (rec->validating) {
+> -               sort_specs(data);
+> -
+> -               status =3D nodups_spec_node(data->root, path);
+> +       for (i =3D 0; i < num_paths; i++) {
+> +               status =3D process_file(rec->spec_files[i], NULL, rec, pr=
+efix,
+> +                                     rec->digest, i);
+>                 if (status)
+>                         goto finish;
+>         }
+>
+>         if (!baseonly) {
+> -               status =3D process_file(path, "homedirs", rec, prefix,
+> -                                     rec->digest, 1);
+> +               status =3D process_file(rec->spec_files[0], "homedirs", r=
+ec,
+> +                                     prefix, rec->digest, num_paths + 1)=
+;
+>                 if (status && errno !=3D ENOENT)
+>                         goto finish;
+>
+> -               status =3D process_file(path, "local", rec, prefix, rec->=
+digest,
+> -                                     2);
+> +               status =3D process_file(rec->spec_files[0], "local", rec,=
+ prefix,
+> +                                     rec->digest, num_paths + 2);
+>                 if (status && errno !=3D ENOENT)
+>                         goto finish;
+>         }
+>
+> -       if (!rec->validating || !baseonly)
+> -               sort_specs(data);
+> +       sort_specs(data);
+> +
+> +       if (rec->validating) {
+> +               status =3D nodups_spec_node(rec, data->root);
+> +               if (status)
+> +                       goto finish;
+> +       }
+>
+>         digest_gen_hash(rec->digest);
+>
+> --
+> 2.55.0.229.g6434b31f56-goog
+>
