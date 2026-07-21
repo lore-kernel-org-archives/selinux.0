@@ -1,64 +1,68 @@
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com [209.85.216.69])
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com [209.85.214.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B124010F1
-	for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 02:11:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.69
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F09010F1
+	for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 02:11:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784599909; cv=none; b=sdgArSGCITqloGOSp9FVStMoLbM+ZHVeThOrWRg4bgZY+oMErM+6P+YFGZo0W5zV+JtUrwm1WC9WtfCyshTQS+TAFGW5G0Kdio7CXBBfO4tNuhPZok8XNnmH9InxY7QznokVWoqoxpTOALarng8WKmt8737IVuckSfa+DWWJVvY=
+	t=1784599915; cv=none; b=Cnm76eu5J1tgq1/BOXxgD5+lYetgxOXQWcGgrfuxQHG3sMazfBInOAY0v8BffqDZVVb+McV9oxlT8ft/JyLBk/YC3F7VpoXzte3EiGEBWVVSPNCOLa9UVT+gcy7dsG+SgVult43Q4I0+rbkkDqtyF60t9MzqXK+uz0wuEuAp50M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784599909; c=relaxed/simple;
-	bh=CaWe4iuriv3+pU6n9cnkArsTaquxm8mAC+8QZEZUUM4=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=ciIpKbcqeZH6th8WDeIlzBsAHomehgYrRlyYBUaN48pqY64Cj+7wEWIe1HKr49lOslF4QIhMANtWurpPoMUS8Xu1MfKT8QM30OWOMXPoiLRir3BUC5LxUatVwE7a+WALaRE48jVADp6ox8Pi/grUtJXzfIPLSlQvV5EU7G1zGj4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=PlnhaYpf; arc=none smtp.client-ip=209.85.216.69
+	s=arc-20240116; t=1784599915; c=relaxed/simple;
+	bh=WxGhmFIHAwUV2RT2MM3EBcFHbJiVXIrlCpdhWfbQ0Tg=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=TU085o/HeQ2Lzq9q1eCQndam3OTw7MfWfVZ2kGwsvJzOcNtxkriHNnWm2oKfxzLRUawtSZx/QsGujP/T/Ge4mK0NmuTD6h+qfhW6UdrHK7Cm5gA927Ffn9OsFWCJb5ZLyFCEAhsxZoaZOz3xvn4EzGajFiBtWd5wTbyBI7npJmg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=gkXEY2Ar; arc=none smtp.client-ip=209.85.214.199
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="PlnhaYpf"
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-38e11baa66eso7939807a91.2
-        for <selinux@vger.kernel.org>; Mon, 20 Jul 2026 19:11:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="gkXEY2Ar"
+Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2cacd6d37edso145981835ad.0
+        for <selinux@vger.kernel.org>; Mon, 20 Jul 2026 19:11:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1784599906; x=1785204706; darn=vger.kernel.org;
+        d=google.com; s=20251104; t=1784599913; x=1785204713; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:from:subject
-         :message-id:mime-version:date:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=yf2r7RbieGJv9UTOKmipPScNngck1ABYrHmm6ujmWn4=;
-        b=PlnhaYpfnKVN/4PrAUVQLJv7+5jYotNOD3835AtstlC0h+a2dm23c8sGms6H38at3V
-         ISiosUMV7dnKM8WJcDyQ9iGWsu9o6tclIADQYe4OgoCqez5pISVHoUtjeSDTMaZHW7Cg
-         TfbkBoLeOIxz+KreQzbu5HL6q5/7e+BB/J1w1LUIZFOWBaL4uVIk3vBJ2d95ebvh2Jz2
-         dpLHh883UPcGw0Oh00ZjSFFXScMpkmd7f0wTT8sBLWra5u1EUv99KmhT2SM27w2xUlIO
-         +ky9Gsk/SqinMo1ApsqWy6tezX2uQGISwebZtXfGR28PQCyHKOAnCPxk1S0ozQk7vx3X
-         zjFw==
+         :message-id:references:mime-version:in-reply-to:date:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=p+woLGICDA6D7e7XK/xnuvSZ08Ul7uyO4FdEkZHFPx8=;
+        b=gkXEY2ArMe6CEpsXeMM6vkKJLkwVipOeMmvWcxFhjCr1qRvzwXISUl5IhCfDmmXg12
+         gGEEu4rNNOWAC+vhHbJ6RBFaL0CavLe20vTaV0EVD6wN1tVXHk3P1vvPgGTUBePOzKsS
+         37uXX0eqLsO2ykEscQLssfIpKk9CJnZyH4cXsybq3epJKE85GCzFV4tuyb5QB5KhxnJ0
+         lKbwF8A+qHgGojsQZbrSjRPMgxaxcOgBLczY0eqybzgZRzapH1KqUkY7tGUdBaAml733
+         vJuiffUPDCHDaqzCGJMF9rEH8/zFw896KgQvwUSdXLo5sXCX9sO9b8NQf/eBC5DpL7k/
+         Hwjg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784599906; x=1785204706;
+        d=1e100.net; s=20251104; t=1784599913; x=1785204713;
         h=content-transfer-encoding:content-type:cc:to:from:subject
-         :message-id:mime-version:date:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=yf2r7RbieGJv9UTOKmipPScNngck1ABYrHmm6ujmWn4=;
-        b=ktujf2PZEv3I9oAq9R+7MGsRUhMESP+0eYSqM5w9G+JnlDjawWZTDwV6XbyXkBcIu+
-         +zg3Nqg7DoiqWhIYs/QRHUGDHfk+qUnujgwI3RJHnTDkZdG2Hi8wbUKzd32ZbA09o4w9
-         J/Hc3uPU191irnmti45WhZoSmX/2CiXpTF6EC/O4eY++Y+WYL3gwUhuT9VgAj+CRykG5
-         h72MN3VKRg/BcWxFNAdciP7bqLnjhqArz3qeg3uvIn+T9V3BJo7vDVrIlluws5sSgnH6
-         +W5/t3LHusu0QoqU9aWHYq8j6UEz57pSFCFZrfEtMfvop7qqVBPI/NXA6tbzTif4MK89
-         QNjw==
-X-Gm-Message-State: AOJu0YxkbHHOAhAlAJxzVGzUTPpX4w8oycfaErhoBzPb9JItq1rgWVAf
-	CcuMLORB4qAv1ie1CIMJlZuKFzjo+FQAaQw1YtXdiaGW8haHzms5eSofqLLw2M9QmKyuNnKtiK9
-	mUSZ7gWt8vGL/+lCcX6kD42+5jmDZGowzaPOMHieSMUdkWMzplGlh+5pyuiQ9Q19fWWlH6BZDui
-	HREeMs8HzLKbe0C/pmtYrSjMswiQjmo2WC
-X-Received: from dlzz33.prod.google.com ([2002:a05:7022:4a1:b0:137:f9fd:ecf0])
- (user=tweek job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:586f:b0:38e:6b76:f0a4
- with SMTP id 98e67ed59e1d1-38e6b76f1bcmr10395199a91.2.1784599906100; Mon, 20
- Jul 2026 19:11:46 -0700 (PDT)
-Date: Tue, 21 Jul 2026 12:11:26 +1000
+         :message-id:references:mime-version:in-reply-to:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=p+woLGICDA6D7e7XK/xnuvSZ08Ul7uyO4FdEkZHFPx8=;
+        b=WjaaECrIQkkqeqCr6EprOAd5MmkuAvnzFvv2A47a3ZW+gvvWIlHML0oz4ktppEOcTy
+         bRSdNcsKlceFfAI2/ynHZlfzuvCgw+pwRM/D1t+KFt5v6IkpPeq2nSff9z9wo+uY5NHk
+         4AocYI62C3yU00aYEVQXhmLyrxlLPIbz8FoiNIbNiIuxSjQiVYHZX5PR7KYyudfZxCiL
+         uG93ukkp9MPrPuGJRuyaPMJiStTspm18RhYly6gmlaIF28yrKHx5DGUypWGQbVsMoFow
+         ab84biLyqqchPE+Cp/WApOomrgbViq27qym5wist0YscVsyMTrBfu8V/Pjsu8xoeSRBa
+         nvfg==
+X-Gm-Message-State: AOJu0YzC14GFWTv1Og9+PjOpdBatUad7exsEZP7x1+/Sm0+Ly/MG3O87
+	lLHKgZR5xO6sgF3FX/vQaUU/u5X3+LgcfwVcwcRIu5nCq3N052jYq7pr6OxGnswPHflzhA7HvFt
+	zfxlVyyyVQZPVtTv32DkSO2TOfGIH0TuMektKy7W7OSYkQr88zz+E3FI/gaCcGg0/Cu8vB726vl
+	SV7/tNKRJ7jdf+A9L1c+tWvB2moakI7eOM
+X-Received: from plcq19.prod.google.com ([2002:a17:902:e313:b0:2ce:6df9:bda5])
+ (user=tweek job=prod-delivery.src-stubby-dispatcher) by 2002:a17:903:1aaf:b0:2ca:c4a5:84bb
+ with SMTP id d9443c01a7336-2cf349c97b5mr181381155ad.38.1784599912495; Mon, 20
+ Jul 2026 19:11:52 -0700 (PDT)
+Date: Tue, 21 Jul 2026 12:11:27 +1000
+In-Reply-To: <20260721021127.1313453-1-tweek@google.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
+References: <20260721021127.1313453-1-tweek@google.com>
 X-Mailer: git-send-email 2.55.0.229.g6434b31f56-goog
-Message-ID: <20260721021127.1313453-1-tweek@google.com>
-Subject: [PATCH 1/2] libselinux: support multiple spec_files
+Message-ID: <20260721021127.1313453-2-tweek@google.com>
+Subject: [PATCH 2/2] libselinux: support multiple contexts for the file backend
 From: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
 To: selinux@vger.kernel.org
 Cc: James Carter <jwcart2@gmail.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
@@ -67,167 +71,351 @@ Cc: James Carter <jwcart2@gmail.com>, Stephen Smalley <stephen.smalley.work@gmai
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Update the existing backends to potentially allocate multiple
-spec_files. This commit simply adds a level of indirection but does not
-change any current behaviour. It will facilitate the gradual migration
-of backends to multiple context files.
+Update the file labeling backend to support specifying multiple
+SELABEL_OPT_PATH options in selabel_open().
 
-In selabel_fini(), compat_validate() is updated to use the first
-spec_file only, for legacy validation error reporting. selabel_open() is
-already performing context validation if requested against individual
-file paths (see insert_spec).
+All provided paths are stored in rec->spec_files and processed during
+initialization. Derived files, such as substitutions (.subs, .subs_dist)
+and auxiliary contexts (.homedirs, .local), continue to be based on the
+first path (or default selinux_file_context_path()) when enabled.
+
+Duplicate checking logic is refactored into a helper function
+report_dups(). A duplicate with the same specification result is not
+fatal anymore, but a warning is still logged.
+
+Additionally, duplicate validation is moved after all files (including
+.homedirs and .local) are loaded and sorted. For single file context setups=
+,
+the only difference in behavior is that duplicate validation now extends to
+fc.homedirs and fc.local.
+
+A similar multiple files setup has been used in Android for 9+ years.
 
 Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
 ---
- libselinux/src/label.c          | 10 ++++++++--
- libselinux/src/label_db.c       | 11 +++++++++--
- libselinux/src/label_file.c     |  8 ++++++--
- libselinux/src/label_internal.h |  5 +++--
- libselinux/src/label_media.c    |  8 +++++++-
- libselinux/src/label_x.c        |  8 +++++++-
- 6 files changed, 40 insertions(+), 10 deletions(-)
+ libselinux/src/label_file.c | 216 ++++++++++++++++++++++--------------
+ 1 file changed, 132 insertions(+), 84 deletions(-)
 
-diff --git a/libselinux/src/label.c b/libselinux/src/label.c
-index 991b9769..4a97d3bc 100644
---- a/libselinux/src/label.c
-+++ b/libselinux/src/label.c
-@@ -162,7 +162,7 @@ static int selabel_fini(const struct selabel_handle *re=
-c,
- 	char *ctx_trans;
- 	int rc;
-=20
--	if (compat_validate(rec, lr, rec->spec_file, lr->lineno))
-+	if (compat_validate(rec, lr, rec->spec_files[0], lr->lineno))
- 		return -1;
-=20
- 	if (!translating)
-@@ -398,11 +398,17 @@ int selabel_digest(struct selabel_handle *rec, unsign=
-ed char **digest,
-=20
- void selabel_close(struct selabel_handle *rec)
- {
-+	size_t i;
-+
- 	if (rec->digest)
- 		selabel_digest_fini(rec->digest);
- 	if (rec->func_close)
- 		rec->func_close(rec);
--	free(rec->spec_file);
-+	if (rec->spec_files) {
-+		for (i =3D 0; i < rec->spec_files_len; i++)
-+			free(rec->spec_files[i]);
-+		free(rec->spec_files);
-+	}
- 	free(rec);
- }
-=20
-diff --git a/libselinux/src/label_db.c b/libselinux/src/label_db.c
-index bafa9328..59a291e8 100644
---- a/libselinux/src/label_db.c
-+++ b/libselinux/src/label_db.c
-@@ -302,12 +302,19 @@ static catalog_t *db_init(const struct selinux_opt *o=
-pts, unsigned nopts,
- 		errno =3D EINVAL;
- 		return NULL;
- 	}
--	rec->spec_file =3D strdup(path);
--	if (!rec->spec_file) {
-+	rec->spec_files =3D calloc(1, sizeof(path));
-+	if (!rec->spec_files) {
- 		free(catalog);
- 		fclose(filp);
- 		return NULL;
- 	}
-+	rec->spec_files[0] =3D strdup(path);
-+	if (!rec->spec_files[0]) {
-+		free(catalog);
-+		fclose(filp);
-+		return NULL;
-+	}
-+	rec->spec_files_len =3D 1;
-=20
- 	/*
- 	 * Parse for each lines
 diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index 0c0499eb..eb2e66da 100644
+index eb2e66da..902c9a25 100644
 --- a/libselinux/src/label_file.c
 +++ b/libselinux/src/label_file.c
-@@ -1549,9 +1549,13 @@ static int init(struct selabel_handle *rec, const st=
-ruct selinux_opt *opts,
- 		goto finish;
+@@ -104,9 +104,59 @@ void sort_spec_node(struct spec_node *node, struct spe=
+c_node *parent)
+ }
+=20
+ /*
+- * Warn about duplicate specifications.
++ * Report a duplicate in the log.
++ *
++ * If the duplicate is considered fatal (i.e., if the specifications of bo=
+th
++ * entries do not match), return -1 and set errno to EINVAL.
++ */
++static int report_dups(struct selabel_handle *rec, uint8_t inputno1,
++		       uint8_t inputno2, const char *ctx_raw1,
++		       const char *ctx_raw2, const char *match,
++		       const char *file_kind)
++{
++	if (inputno1 >=3D rec->spec_files_len)
++		inputno1 =3D 0;
++	if (inputno2 >=3D rec->spec_files_len)
++		inputno2 =3D 0;
++
++	const char *path1 =3D rec->spec_files[inputno1];
++	const char *path2 =3D rec->spec_files[inputno2];
++
++	if (strcmp(ctx_raw1, ctx_raw2) !=3D 0) {
++		if (inputno1 =3D=3D inputno2)
++			COMPAT_LOG(
++				SELINUX_ERROR,
++				"Multiple different specifications for %s %s in %s (%s and %s).\n",
++				file_kind, match, path1, ctx_raw1, ctx_raw2);
++		else
++			COMPAT_LOG(
++				SELINUX_ERROR,
++				"Multiple different specifications for %s %s in %s and %s (%s and %s).=
+\n",
++				file_kind, match, path1, path2, ctx_raw1,
++				ctx_raw2);
++		errno =3D EINVAL;
++		return -1;
++
++	} else {
++		if (inputno1 =3D=3D inputno2)
++			COMPAT_LOG(
++				SELINUX_WARNING,
++				"Multiple same specifications for %s %s in %s.\n",
++				file_kind, match, path1);
++		else
++			COMPAT_LOG(
++				SELINUX_WARNING,
++				"Multiple same specifications for %s %s in %s and %s.\n",
++				file_kind, match, path1, path2);
++	}
++	return 0;
++}
++
++/*
++ * Find duplicate specifications.
+  */
+-static int nodups_spec_node(const struct spec_node *node, const char *path=
+)
++static int nodups_spec_node(struct selabel_handle *rec,
++			    const struct spec_node *node)
+ {
+ 	int rc =3D 0;
+=20
+@@ -126,24 +176,10 @@ static int nodups_spec_node(const struct spec_node *n=
+ode, const char *path)
+ 			    node1->file_kind !=3D node2->file_kind)
+ 				continue;
+=20
+-			rc =3D -1;
+-			errno =3D EINVAL;
+-			if (strcmp(node1->lr.ctx_raw, node2->lr.ctx_raw) !=3D 0) {
+-				COMPAT_LOG(
+-					SELINUX_ERROR,
+-					"%s: Multiple different specifications for %s %s  (%s and %s).\n",
+-					path,
+-					file_kind_to_string(node1->file_kind),
+-					node1->literal_match, node1->lr.ctx_raw,
+-					node2->lr.ctx_raw);
+-			} else {
+-				COMPAT_LOG(
+-					SELINUX_ERROR,
+-					"%s: Multiple same specifications for %s %s.\n",
+-					path,
+-					file_kind_to_string(node1->file_kind),
+-					node1->literal_match);
+-			}
++			rc =3D report_dups(rec, node1->inputno, node2->inputno,
++					 node1->lr.ctx_raw, node2->lr.ctx_raw,
++					 node1->literal_match,
++					 file_kind_to_string(node1->file_kind));
+ 		}
  	}
 =20
--	rec->spec_file =3D strdup(path);
--	if (!rec->spec_file)
-+	rec->spec_files =3D calloc(1, sizeof(path));
-+	if (!rec->spec_files)
- 		goto finish;
-+	rec->spec_files[0] =3D strdup(path);
-+	if (!rec->spec_files[0])
+@@ -168,28 +204,11 @@ static int nodups_spec_node(const struct spec_node *n=
+ode, const char *path)
+ 				    node1->file_kind !=3D node2->file_kind)
+ 					continue;
+=20
+-				rc =3D -1;
+-				errno =3D EINVAL;
+-				if (strcmp(node1->lr.ctx_raw,
+-					   node2->lr.ctx_raw) !=3D 0) {
+-					COMPAT_LOG(
+-						SELINUX_ERROR,
+-						"%s: Multiple different specifications for %s %s  (%s and %s).\n",
+-						path,
+-						file_kind_to_string(
+-							node1->file_kind),
+-						node1->regex_str,
+-						node1->lr.ctx_raw,
+-						node2->lr.ctx_raw);
+-				} else {
+-					COMPAT_LOG(
+-						SELINUX_ERROR,
+-						"%s: Multiple same specifications for %s %s.\n",
+-						path,
+-						file_kind_to_string(
+-							node1->file_kind),
+-						node1->regex_str);
+-				}
++				rc =3D report_dups(
++					rec, node1->inputno, node2->inputno,
++					node1->lr.ctx_raw, node2->lr.ctx_raw,
++					node1->regex_str,
++					file_kind_to_string(node1->file_kind));
+ 			}
+ 		}
+ 	}
+@@ -197,7 +216,7 @@ static int nodups_spec_node(const struct spec_node *nod=
+e, const char *path)
+ 	for (uint32_t i =3D 0; i < node->children_num; i++) {
+ 		int rc2;
+=20
+-		rc2 =3D nodups_spec_node(&node->children[i], path);
++		rc2 =3D nodups_spec_node(rec, &node->children[i]);
+ 		if (rc2)
+ 			rc =3D rc2;
+ 	}
+@@ -1484,22 +1503,27 @@ static int init(struct selabel_handle *rec, const s=
+truct selinux_opt *opts,
+ 		unsigned n)
+ {
+ 	struct saved_data *data =3D rec->data;
+-	const char *path =3D NULL;
++	size_t num_paths =3D 0, i;
++	char **paths =3D NULL;
+ 	const char *prefix =3D NULL;
+-	int status =3D -1, baseonly =3D 0;
++	int status =3D -1;
++	bool baseonly =3D false, path_provided =3D false;
+=20
+ 	/* Process arguments */
+-	while (n) {
+-		n--;
+-		switch (opts[n].type) {
++	i =3D n;
++	while (i--) {
++		switch (opts[i].type) {
+ 		case SELABEL_OPT_PATH:
+-			path =3D opts[n].value;
++			if (opts[i].value) {
++				num_paths++;
++				path_provided =3D true;
++			}
+ 			break;
+ 		case SELABEL_OPT_SUBSET:
+-			prefix =3D opts[n].value;
++			prefix =3D opts[i].value;
+ 			break;
+ 		case SELABEL_OPT_BASEONLY:
+-			baseonly =3D !!opts[n].value;
++			baseonly =3D !!opts[i].value;
+ 			break;
+ 		case SELABEL_OPT_UNUSED:
+ 		case SELABEL_OPT_VALIDATE:
+@@ -1511,10 +1535,44 @@ static int init(struct selabel_handle *rec, const s=
+truct selinux_opt *opts,
+ 		}
+ 	}
+=20
++	/* If no paths were provided, we will use the default path or fail, depen=
+ding on the target. */
++	if (!path_provided) {
++#if !defined(BUILD_HOST) && !defined(ANDROID)
++		num_paths =3D 1;
++#else
++		selinux_log(SELINUX_ERROR,
++			    "No path given to file labeling backend\n");
 +		goto finish;
-+	rec->spec_files_len =3D 1;
++#endif
++	}
++
++	/* Allocate the paths */
++	paths =3D calloc(num_paths, sizeof(*paths));
++	if (paths =3D=3D NULL) {
++		goto finish;
++	}
++	rec->spec_files =3D paths;
++	rec->spec_files_len =3D num_paths;
++
++	if (path_provided) {
++		for (i =3D 0; i < n; i++) {
++			switch (opts[i].type) {
++			case SELABEL_OPT_PATH:
++				*paths =3D strdup(opts[i].value);
++				if (*paths =3D=3D NULL)
++					goto finish;
++				paths++;
++				break;
++			default:
++				break;
++			}
++		}
++	}
++
+ #if !defined(BUILD_HOST) && !defined(ANDROID)
+ 	char subs_file[PATH_MAX + 1];
+ 	/* Process local and distribution substitution files */
+-	if (!path) {
++	if (!path_provided) {
+ 		status =3D selabel_subs_init(
+ 			selinux_file_context_subs_dist_path(), rec->digest,
+ 			&data->dist_subs, &data->dist_subs_num,
+@@ -1526,66 +1584,56 @@ static int init(struct selabel_handle *rec, const s=
+truct selinux_opt *opts,
+ 					   &data->subs_num, &data->subs_alloc);
+ 		if (status)
+ 			goto finish;
+-		path =3D selinux_file_context_path();
++		rec->spec_files[0] =3D strdup(selinux_file_context_path());
++		if (rec->spec_files[0] =3D=3D NULL)
++			goto finish;
+ 	} else {
+-		snprintf(subs_file, sizeof(subs_file), "%s.subs_dist", path);
++		snprintf(subs_file, sizeof(subs_file), "%s.subs_dist",
++			 rec->spec_files[0]);
+ 		status =3D selabel_subs_init(subs_file, rec->digest,
+ 					   &data->dist_subs,
+ 					   &data->dist_subs_num,
+ 					   &data->dist_subs_alloc);
+ 		if (status)
+ 			goto finish;
+-		snprintf(subs_file, sizeof(subs_file), "%s.subs", path);
++		snprintf(subs_file, sizeof(subs_file), "%s.subs",
++			 rec->spec_files[0]);
+ 		status =3D selabel_subs_init(subs_file, rec->digest, &data->subs,
+ 					   &data->subs_num, &data->subs_alloc);
+ 		if (status)
+ 			goto finish;
+ 	}
+-
+ #endif
 =20
+-	if (!path) {
+-		errno =3D EINVAL;
+-		goto finish;
+-	}
+-
+-	rec->spec_files =3D calloc(1, sizeof(path));
+-	if (!rec->spec_files)
+-		goto finish;
+-	rec->spec_files[0] =3D strdup(path);
+-	if (!rec->spec_files[0])
+-		goto finish;
+-	rec->spec_files_len =3D 1;
+-
  	/*
- 	 * The do detailed validation of the input and fill the spec array
-diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_interna=
-l.h
-index 4ff39d96..d54053df 100644
---- a/libselinux/src/label_internal.h
-+++ b/libselinux/src/label_internal.h
-@@ -96,10 +96,11 @@ struct selabel_handle {
- 	void *data;
-=20
- 	/*
--	 * The main spec file used. Note for file contexts the local and/or
-+	 * The spec files used. Note for file contexts the local and/or
- 	 * homedirs could also have been used to resolve a context.
+-	 * The do detailed validation of the input and fill the spec array
++	 * Process each input file.
  	 */
--	char *spec_file;
-+	size_t spec_files_len;
-+	char **spec_files;
-=20
- 	/* ptr to SHA1 hash information if SELABEL_OPT_DIGEST set */
- 	struct selabel_digest *digest;
-diff --git a/libselinux/src/label_media.c b/libselinux/src/label_media.c
-index 957fcfd3..35f3cc16 100644
---- a/libselinux/src/label_media.c
-+++ b/libselinux/src/label_media.c
-@@ -109,7 +109,13 @@ static int init(struct selabel_handle *rec, const stru=
-ct selinux_opt *opts,
- 		errno =3D EINVAL;
- 		goto finish;
+-	status =3D process_file(path, NULL, rec, prefix, rec->digest, 0);
+-	if (status)
+-		goto finish;
+-
+-	if (rec->validating) {
+-		sort_specs(data);
+-
+-		status =3D nodups_spec_node(data->root, path);
++	for (i =3D 0; i < num_paths; i++) {
++		status =3D process_file(rec->spec_files[i], NULL, rec, prefix,
++				      rec->digest, i);
+ 		if (status)
+ 			goto finish;
  	}
--	rec->spec_file =3D strdup(path);
-+	rec->spec_files =3D calloc(1, sizeof(path));
-+	if (!rec->spec_files)
-+		goto finish;
-+	rec->spec_files[0] =3D strdup(path);
-+	if (!rec->spec_files[0])
-+		goto finish;
-+	rec->spec_files_len =3D 1;
 =20
- 	/*=20
- 	 * Perform two passes over the specification file.
-diff --git a/libselinux/src/label_x.c b/libselinux/src/label_x.c
-index 0c525bfc..33a64a6a 100644
---- a/libselinux/src/label_x.c
-+++ b/libselinux/src/label_x.c
-@@ -139,7 +139,13 @@ static int init(struct selabel_handle *rec, const stru=
-ct selinux_opt *opts,
- 		errno =3D EINVAL;
- 		goto finish;
+ 	if (!baseonly) {
+-		status =3D process_file(path, "homedirs", rec, prefix,
+-				      rec->digest, 1);
++		status =3D process_file(rec->spec_files[0], "homedirs", rec,
++				      prefix, rec->digest, num_paths + 1);
+ 		if (status && errno !=3D ENOENT)
+ 			goto finish;
+=20
+-		status =3D process_file(path, "local", rec, prefix, rec->digest,
+-				      2);
++		status =3D process_file(rec->spec_files[0], "local", rec, prefix,
++				      rec->digest, num_paths + 2);
+ 		if (status && errno !=3D ENOENT)
+ 			goto finish;
  	}
--	rec->spec_file =3D strdup(path);
-+	rec->spec_files =3D calloc(1, sizeof(path));
-+	if (!rec->spec_files)
-+		goto finish;
-+	rec->spec_files[0] =3D strdup(path);
-+	if (!rec->spec_files[0])
-+		goto finish;
-+	rec->spec_files_len =3D 1;
 =20
- 	/*=20
- 	 * Perform two passes over the specification file.
+-	if (!rec->validating || !baseonly)
+-		sort_specs(data);
++	sort_specs(data);
++
++	if (rec->validating) {
++		status =3D nodups_spec_node(rec, data->root);
++		if (status)
++			goto finish;
++	}
+=20
+ 	digest_gen_hash(rec->digest);
+=20
 --=20
 2.55.0.229.g6434b31f56-goog
 
