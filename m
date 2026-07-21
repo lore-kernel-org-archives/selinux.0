@@ -1,132 +1,99 @@
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+Received: from mail-qt1-f178.google.com (mail-qt1-f178.google.com [209.85.160.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC2EF31F999
-	for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 12:57:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.53
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784638642; cv=pass; b=bq1LQztx+ZWEwZ7gh1FdwZiLBLOEkK1PdPtejvJXkbx5NT2bHMAVolQV5jFSWVeBmdmI4RATXJ8aKMh3ABI7kKx2WMcU3VXcfaM9jJKt0WjUDKrn6xb1I+vhv9dUKpkB6CKcjJBOAO6CIoqg7xy8mWF6SxaebEHqgNZYaUO4St0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784638642; c=relaxed/simple;
-	bh=CHd2agh0v8CPmqFlOVhOQQu7zDnTukbWTZSWAVyXvM0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KkHDy7MljRPBczQ6ZPdWLA6xX4JuPtXPGmCSeoibeSdQTOfXgB429SrlFGf1IxS30o9HrVljP4HNWFe73QDLOscVEAQ80ag5ld+HOo7JMwnLY2gaQsTKgLNpBebOIoslM2gxx7L53WT0lTIM8hHpGfDRCbkHfCA80cYaZrn4X7w=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HCs/mThK; arc=pass smtp.client-ip=209.85.216.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 779A033F597
+	for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 13:33:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.178
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784640804; cv=none; b=TieMOdatkg2bTnjNtOo6poKCe7y4xgxd8Q5mjxM3Ob3VyRUDOgqn/mSOCmK+seG8parKI5fMMqXtVnphR3Jp+cx5bbKmmh/halHwZCy832hznraN7iVCQPNQD3B8syl/qVcIDH4KwZOccKVTcdlFIi4QauXwVao5ZAb3EZSZjGQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784640804; c=relaxed/simple;
+	bh=dBPGz3tbfK4XopNFRwHyKmyEBpbJ1QDqWTbZ5Lv/xBQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Pe89Ft4BrjH5y3todBj9kd/hhQItnA8bILPP/q7+/Dwi9fuBhIBmLWlSNerL6y3n6zN7BY8b40FeBUbH87aJ6P0KQD/vybuKz9Or8awlZTSaPxwL11GUSHM/NtFTFPg+M9w2ejiB756hvMmja7DAbeInTpfXGSlGnZ3n/aykjss=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YV+a2hzS; arc=none smtp.client-ip=209.85.160.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HCs/mThK"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-38e69bdb0fcso2015382a91.1
-        for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 05:57:20 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784638640; cv=none;
-        d=google.com; s=arc-20260327;
-        b=SmDp8f5v3MEhnRjFLRXHD7dghpKEyUrXKfuGPafrzRil620fDw6MgFKB/znsv5u1mU
-         Goxl7QwZnAaV0ukB0qGs5C4XKi1a0ORb9hzzzlHVoAGL8W1du5GJ1vP6kO+4d2ccBNUN
-         e48WxE7QJ9x1kztc9BWXqmTPlHb66oCIrLJeSSKJyq18gApBLcyCJjFaAb+S6JDNg89M
-         JCDH21we6V4aodP/gxqexc+q1JusNAsrf2SIEpdWz0Rlrj6JBRyuVXamFGYyVljyO4+f
-         Q7g83VHRtzRhhlFDQCbQ8qqFAFrZrBdRXErEAv2BsplXejBmaTVIB/Ij+ngnc5CEnzqc
-         TRxw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=CHd2agh0v8CPmqFlOVhOQQu7zDnTukbWTZSWAVyXvM0=;
-        fh=FsXghBnyoYbEc42Idnie0oh5A6i9FUng5ntOLhqXIRs=;
-        b=WV9fCSEmPJreuRhQbdfQBfziHjscRNk175oeIoRqUdIkJV4W85CX1Y2Fc6k631WCIA
-         xRumDz3CvpVjKHk2u+AeD6SReEDy4cTY8iX4PqdZAnYhMc+ROzvfYX0YTUARkYC/e2gx
-         MGaxWwJu3xeBuKiFQ6GJ64bRi4ehLEtboZkBBDmIiscu7wwjsUb5Bxwhorw/EEpnEUrg
-         5vzr+3qcUn97rCM/TH3AJnZ3kw+inNsxEXtHdL2JV/lQxSNIuCCFDe1ZSDtuLZ6TLjBh
-         osKKF/0k/r0erLvYlqzZ0DvUjElqsmkYLwsi0D6l1/OVcHX/9bUxVlE7kbCAkcq4ERSH
-         jaKA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YV+a2hzS"
+Received: by mail-qt1-f178.google.com with SMTP id d75a77b69052e-51c2149571dso67248491cf.3
+        for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 06:33:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784638640; x=1785243440; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=CHd2agh0v8CPmqFlOVhOQQu7zDnTukbWTZSWAVyXvM0=;
-        b=HCs/mThKqWYJtGViegP3sGkp+f4DOgADNuOnRlC5q9iWSVReltfu97JAn6Dh1+drgs
-         7DX22Ecvr/++zCS1MrLR9Bc4LL4XTJ/hGfHcV8O3sdNrRKXxmXQLjZYAd1KgFBPuJCdp
-         LEtis6Ys2D5GYicjDmQ7tgaWjFvlmQOQLU/6Vg8JXphzrJx68O6y5EpEST+svxpvUVaR
-         DwCh0WrQo3Tvv0K81NPbllteXEhe8kDWcGSI0rG7WDMQkkCgg0K2IypZuqAQ9dZaC2Lk
-         yoBZ/3ICDqIBXkoBq4POgyweAF0oKcmk9Lk/Cxm6wxJPk9/xsvm4TXer04jYbNh5UkgE
-         mBkA==
+        d=gmail.com; s=20251104; t=1784640802; x=1785245602; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=7rgBVfna4wZf8fUqUFLRDHvyD+PY+0E/Wj356rRZVug=;
+        b=YV+a2hzSTCikAwp32sfOc3RMKGoasM8c2VSRN9aPD+BApf9dOHld2qdQMo/YsD1h9t
+         y+NZclIyb5WpAewOeTSow8cGEqC7tWdBByyu6Wdsgy3AFdfYbrNEZ8PdIunRSHRCmTPr
+         Q/RDqbrdixxTFJ3DuVgdgSkNCxxnl27tDvymZ5TIvBlNQiPaiE3Iw3zFZW3v4+8iUhm+
+         vx0Og6+lA4ztgQI3pV2KHNmm/t3WB+2w04oXdXu/Nwz5qpkP5ucymgDnqK6qWPtsf2CZ
+         YQ1RqrsrlKAFw5Bjt5iqiS/I7cxiPEr9b3URYmflO/Zd5/N6ZjqJSiG4+kS+Lh58efEB
+         uaxg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784638640; x=1785243440;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=CHd2agh0v8CPmqFlOVhOQQu7zDnTukbWTZSWAVyXvM0=;
-        b=otW6NZa21m46smaOgSPgz3w2TdlGUK0djEyRK2ANd9Yq2Kg0x04q4LUEz6xjM3SdX5
-         fZgEMCbnjNZ71O8JJzqTmG9tAQhYNMtbIohvLVgaAsy2goPtCZtQxGs3sj84U6rFJjfm
-         rWzkKAmddtKel70xmkXmYhJoYd4gnWqcBmiFx8+oBIgCwV168m/mxJzACIz103X6B0X2
-         /SGQF/1Xuq91QJC35h2ZAm2ruf/aQ8KNqD94HVT0OdmUEtqTkQZlN5YsMeZ7P5NuqgUM
-         9BsFPWPlXYheMHEmELwFtABi4KbF6aaqqFMLuCEw/gIN7HvHwXsNpuTVferY0GjhQ0XQ
-         9cGw==
-X-Gm-Message-State: AOJu0Yyi9diLQN2W0qZtsFtang8LFjOwf5iGN831tjtzc1dL1UgxxaYk
-	NE14mMZp6DJxuDA+poUxjFjqG6ZzDzSgGZXbTzb5DCwx/S8CGpJUyBa7xZC2tZcMsZ+MVW19J/L
-	OV+WdfwByWQlbKoQd/n2li+bwzcj8u7E=
-X-Gm-Gg: AR+sD13KCjfYUfyfeL+uYSRSL4uwMH67oTu39mI+ORXBF5BC5Dsl3sAy2XXPVD8fBTI
-	CHfXtbid99pYxR2CJ2RhVnUDIE1Um7+WARxFpYUwyipTKtALquCoNhWUI4z+CUN97VznSHOfXTM
-	6OBn7We7TLEVMHMhS3lOLxSf1S232s4pxws/OZlhjqFNN0skGg0sz3KNssAIk1qr+yvhBNJ0z0J
-	Nw0TLUawbti24a4+IbAMrRUzOvg+z2ArBglpuQExjvH8lvAHwo0jGpQkubaqtgG32iie6I4
-X-Received: by 2002:a17:90b:3c09:b0:37c:607b:2cd9 with SMTP id
- 98e67ed59e1d1-38e4b29a892mr18314909a91.0.1784638640360; Tue, 21 Jul 2026
- 05:57:20 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1784640802; x=1785245602;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=7rgBVfna4wZf8fUqUFLRDHvyD+PY+0E/Wj356rRZVug=;
+        b=KPq1Cl1a1HUpAsdubIwb7bCrZuuPjtuUlBdmoUlhau0PQUZhpBx6WMUDLyXBZ0RW/5
+         RxYoXdrmhPciyf7XzJpjhxpsiFp8dnmwB0WQtmdEz5ufvYbdK4fIsA5jv5o4IzssYKMd
+         TxmKjm3Wyhdfcb+lpIuRDZYKX0Q6m70D+PjC1+/WMGBLd+sP0sCJV3pn1b1vbus2eOiv
+         Ff+13UQO31Hr/7sh5m3GZiZkhxsDh8IOgNZz9nP7sgKmjE7vOVMfBMXtRZG3ijsS7Yca
+         zXB7aHmbf0eYcQyI5besEdLq2nfuVADngUpH0LoNAueBpBc6bgjHXfgZuxnxeX+KuL3A
+         JuqA==
+X-Gm-Message-State: AOJu0YycHVEROUOdyA3Fg6arhrE3PUG6tvebdT19GDfPJy6MoB/Avpya
+	hbP3rWi8nfFT7Y92BGVQYgCeUpR5D2FScH1M4ilw4xRnq1AhBkhVQ5FqGKQJ1w==
+X-Gm-Gg: AfdE7cmAg7FJkuBGJq7YaGcktXLmLGbPObFgea8rxr1PePy/JU3ZCfa4p/Ai0RvOHpT
+	EDFwUQTahEVVHh8+l5KcFsYfLtUfIk+ruLKpCUVM7YhM79NdbaA4HZLLOZxjg3aQZOAg8KmSnMG
+	Xn1fm+9irjiRMXLxe5GdtqHb9P+JNGEjwYn5pP+J7O//H24yusAGcpT3F6TClKKPKs5ReHzYTi9
+	AQbP8ssSgcCtyyTDSbmUv0rCdDZIOrcSDsB1GPQVxtEJ8ctq+UV84i5OI6jXiUj5AMxhpZ/jdW0
+	YOyl/Ncnl31SO0AD+6IZRVDauEBdkXzA4s/YEJYyesXooYTJ4qaRJJqhhV13ydxgeNC0/mwoVIN
+	87GBchbMQrDEcG+IqIrZ07zxWptFf98j4x3zSWSJzLeoTnZh5yv33JJkwzGpS++hyYQKgdRSU9d
+	lGnn1aV937skeZPi/gnuzQA5swnj5Z8TM4EY4dEpa+Mu/BO3samFkrm5mj0+yFxS1iPglw7xm1/
+	gHmEA==
+X-Received: by 2002:ac8:6f0a:0:b0:51a:8c97:fb9c with SMTP id d75a77b69052e-5213fc584a3mr170593151cf.69.1784640802325;
+        Tue, 21 Jul 2026 06:33:22 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-5214f016aa5sm95848861cf.17.2026.07.21.06.33.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Jul 2026 06:33:21 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] sandbox/seunshare.8: Fix typo
+Date: Tue, 21 Jul 2026 09:32:51 -0400
+Message-ID: <20260721133250.55931-2-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260717173544.15801-1-jwcart2@gmail.com> <CAEjxPJ5Mcz8ECLWS6mmjfbx+YsBF2tPNZVVyeGRjhQFMN-VN4w@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5Mcz8ECLWS6mmjfbx+YsBF2tPNZVVyeGRjhQFMN-VN4w@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 21 Jul 2026 08:57:07 -0400
-X-Gm-Features: AUfX_mzNBaxoW4FDd-69Zb1LhKRVgld_917S0ApZMmzdJO_3Be_yR-m9t13UZPM
-Message-ID: <CAEjxPJ6QJfuzDMvy7VJxKWj8mjd-0bnhPALX96DHXZfU+LBhcQ@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: Prevent OOB access of array when copying scope information
-To: James Carter <jwcart2@gmail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, Jul 20, 2026 at 8:20=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Fri, Jul 17, 2026 at 1:35=E2=80=AFPM James Carter <jwcart2@gmail.com> =
-wrote:
-> >
-> > The function copy_scope_index() in link.c copies information about
-> > what declarations are in scope for the current block. This is tracked
-> > in the "scope" field of the scope_index struct in an array of ebitmaps.
-> > A second field called "class_perms_map" is used to track which
-> > permissions are in scope for each class. The "class_perms_len" field is
-> > the length of the permissions array. As the function is copying scoping
-> > information from the module to the base policy, the index values are
-> > translated as well. When the information for classes is translated and
-> > copied the largest new index value for a class is determined. This valu=
-e
-> > is used to allocate the class_perms_map array. For each source class in
-> > that array, the bits in the source ebitmap are translated and set in th=
-e
-> > destination bitmap.
-> >
-> > A maliciously crafted policy could set permissions in the module's
-> > class_perms_map for a class that is not in scope. If that class has
-> > a new index that is greater than the largest index of a valid class,
-> > then there will be an OOB write when copying the class_perms_map.
-> >
-> > When copying the class_perms_map, check that the index is not going to
-> > result in an OOB write when converting. In addition, if there were no
-> > classes, then just set class_perms_map to NULL and return. Also, don't
-> > bother trying to copy permissions if the ebitmap is empty. Finally,
-> > just use array notation when copying the scope and class_perms_map
-> > data since they are both arrays of ebitmaps.
-> >
-> > Signed-off-by: James Carter <jwcart2@gmail.com>
->
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+NB This is already merged, just posting it for the record.
 
-Merged.
+ sandbox/seunshare.8 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/sandbox/seunshare.8 b/sandbox/seunshare.8
+index bad7e1dc..95eb9c88 100644
+--- a/sandbox/seunshare.8
++++ b/sandbox/seunshare.8
+@@ -23,7 +23,7 @@ Use alternate temporary directory to mount on XDG_RUNTIME_DIR (/run/user/$UID).
+ .TP
+ \fB\-C --capabilities\fR
+ Retained for compatibility; has no effect. seunshare always drops all
+-capabilities and sets the no-root seecurebits so setuid-root programs
++capabilities and sets the no-root securebits so setuid-root programs
+ run without capabilities, but leaves the bounding set intact so
+ programs with file capabilities continue to work.
+ .TP
+-- 
+2.55.0
+
