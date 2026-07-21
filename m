@@ -1,79 +1,79 @@
-Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A397C46D2A5
-	for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 16:36:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F18E437FF46
+	for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 16:58:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.175
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784651813; cv=pass; b=F35Doq1NXA28anNQBTTf0CdilGmb04V8SiTVB9gZ+N+pTyFt92lwpaxct0v6r7xr4+Sl+38U+GmDD5612+k8Q27LZTtRANPOqo5IISw76nmOnBD2cEv8qGJD1O97h8l/kzGY6KI6zxfjte14QAmU22Gb2NVCJbixSKG0TNMluxw=
+	t=1784653104; cv=pass; b=tEeRxpVSxEOUlbUJ5zA+O4AvnyXShM6a9Qjd+5ae1l5GfV4N4XRU3jPxBVTBWOoI7J3xZaBZhpsv8ln/3/0yGWhzrCVxYq9DvC+jXD5IO+xU+HL11vm4ZjKVpgpxdfyWiEOENMZrjPRd3cjh1e6ZYSkT10CXDWRQ7glPX/G51zY=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784651813; c=relaxed/simple;
-	bh=k+rnNh4k9nnPwA2trn8Vhn7/U7IMjU1jsYsVzUf1w9s=;
+	s=arc-20240116; t=1784653104; c=relaxed/simple;
+	bh=PM5DOke797BOlyG2p30Rtnc9A5QAWI7PqQT+VOPZkgs=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pfwtvS3mlChbUX3JzHdbvzgR3TD4T2rw8izGj+PLiolqHLzbxbQXYsizAFVBOL/MZGNmHcezJ6BJ3OKCTzEOqQTXXqoGqQJN5z1guoX13l7JIYQQl9F9shnN0tKK+yr+Gm7d2WMSwwVET+aLwIh1MWDdieofNHn5Z0MReoper9A=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WrTuAwLg; arc=pass smtp.client-ip=209.85.215.172
+	 To:Cc:Content-Type; b=hqSLcEMDxq2HKLTJgEDS+af2S4/i7BwK/asgMoZQyIOqZES31014/07GyfIgdAlEHT0x/uSQVURK8qEmbElcIXIEjhTCr2mhbg6YvKnR11PJIbOEZ05moIHNt6L9FnVr38p7qCmqrNl5UhylHGFAj2zVdFVrHxD2Y5c8SwzbFEo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LV8F1sew; arc=pass smtp.client-ip=209.85.214.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WrTuAwLg"
-Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-c96c92c0980so5409014a12.3
-        for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 09:36:51 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784651811; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LV8F1sew"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2cc97653887so126548925ad.1
+        for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 09:58:19 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784653097; cv=none;
         d=google.com; s=arc-20260327;
-        b=WEIHvwRLWHWraw4qfI7MlNJWOXxu2G7v+9iC2iVW877YHRIRzwhzB9XntUE59Etlks
-         960BlgWFADkASwwyrW0Wb3xUZGrqYo7b9br/s1mSzgUPoTMXAQ0v/EDVjyC7y34dNJ/I
-         deO1jeLLKtbmbSTVPbJKnSFTwJ8HQrc8FviV1G7I5Vqmgj1KxuB6c7jcbonVJs9gpFAi
-         WLPmWehER4kRzrN0k0xt0zmBuABmBIOMYkfbO0QrNCyACc+q0r+U5B36vmMiOp+mQqVN
-         8j5LUvhX/XI0x/0fxUqu+LHt3C2wxRUGSXnqemmFuw//ZPnXjFjIjApN2nZM3hyzDgpy
-         pIsw==
+        b=bMl0hPPuazdw9EnO+IorLlKDDBpXB6Lyu93rwhxmjfzi6tmVV3z2UVTCm3pXEYx/6N
+         3aGmRZe45orVrcY8nGWp9V1i23Iou0w5i8RVpkr//en4t+druyLHS7VwUpwjVys8bvxg
+         CBhyMj3Hedyg8pNzOoJr4sNP1ov9hIFxhGJgbxHQxeaLLESxRfhjhwT4QD/wNDAFfMAy
+         S0/rMMr/90IAr4jGz2FJTunzyhWOiud51JYH6LafbcNHwo7fxiyHBDINwKmstRPlMUa9
+         d6MHf7gRkx5TjD9y1KpsNsSlc7rUzhPTVb9nCe+w+1t+/VInrX/AlNeMAomwhPd93Ugv
+         h9sA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=x4Vcm5Byxd39U+h+a0TditSmP3afDO+9dfnVBnN2RTM=;
-        fh=mMDxYY5wtlIekXoYIfjt6lvMWgTaMUwdwgsYDQ6qy3A=;
-        b=Xwhiej1dnuf3nocxBSTqFWRgpkKggnsIy9QeL37eHFeAdv5sJ19cdyB+DeP6r3n7Fv
-         YXoXSYWzUI7UCQHT7DlilyCp1ZPpypvEmJqtuOmB3jmalBuDi3NJwt/RIMwZ/SyQ7nC3
-         OMYDZ9xIfq3AO+R/d4RXV3aoTVxKOR/pOYckwFx5gWLskQfM7xFCInGpg847YlDb1k/4
-         HQq30MSZXMo9HCM0U2/OP3+EufDQ46FFIQcanJr6xac8XZJaYlGmlGuOK8YeQ1uMenOl
-         4WSYZa5GB8bRt87QEgDwODFIjXh0nAHVACPkF/gmr/Tg7Qdg8CpZwQRaj95dbMOr5ahS
-         bLNw==;
+        bh=tyDrF4z0BxUHc6iZda6NVOeuYTfnWULjmZ/WczIvI68=;
+        fh=D/KQB4URPwWHblWqYL2gyhW/Myo+Pdi77+q8cnPSdWE=;
+        b=WKEDlA6F3jVs+HBgeyi+CLEiN/kNtTobq9LSHhd5eAtkosGIiPn5nCAImo2mW49ltz
+         cnPinm5EBbnXleF2jTtDpb96WH1qChaFQRj3JDd45qveK+mL6pYqSNnMfRc6pGEDDgpK
+         74+SPt2lZqEPqrWyh7RtzPtTOBnHxFcbcXLGrs8c5EOdkw5TmPZIS1zDf2tD0n777jrW
+         FZT7DlLrxUEby71eRywz5DdeTTBDl98Z259uY0rfthvrrQYh5YlewSo+HW0rW2IHOdJW
+         ZKNXKCze5qO1kBy+95ik7TDf+uFU3cB1uFoEGJXNIUYrNtrKIk/6ynXOD1XYkFafN8yy
+         mxRQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784651811; x=1785256611; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784653097; x=1785257897; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=x4Vcm5Byxd39U+h+a0TditSmP3afDO+9dfnVBnN2RTM=;
-        b=WrTuAwLgZ6D7ZOHeC+uAEALeCL8CfrZ1Ls39zg+NDUcxa+hx7BsPOpytDgJl2QYLBu
-         v0XUegjL7zSFY3+yl91SG3W3TcOcdFAdaeiODlGielr8ibdZ+WDSy9hFsDook8VHw9S2
-         G4l8WEkF8WGVOGzIPp5g/5gFsUDdARu5J/F8m//4ydUKyxzyJehrLxnWOmk8BcLWHyuq
-         xaTJUPclIS92+tmyMTT3KcSV0j2KyTSq60CIq1ORoNwEFJTrBydATlwUDTYJ/FYOjtEk
-         Xs3Ix3GOgjRGyG4kIuzoM3TR+H7XPQRkdCVAJOfJ0EUsXA9LoeTzQDUw8IdWhR4PAlVE
-         suig==
+        bh=tyDrF4z0BxUHc6iZda6NVOeuYTfnWULjmZ/WczIvI68=;
+        b=LV8F1sewKXK/wTOTMbrP5Moirp87q2UQ1WyqFD8FsbDmMIG51ua/3pZdwsTMS/3Fxm
+         Fc3tG7VNWQFfTqI+OkWxBWTWFh0GDoyjfmT37M1lYPiwcOHH3/1gWVY2JiSp6loPLviB
+         zf876cXO2FPRDRKv+I822WmHHU60/C0l12wLxFy7oTTo9/5fEEINrmcbKo5yaBSh0uhj
+         Ij4MjpC6pBbvdnptU61LxjtfKE8yj/uTMAVD4ytK6CW451KYGyY35Qxuq77leo4M/eAo
+         SbAuEyeQsZVHP8TrnEszwqxTEihG9p/9CucjOptvn6Lj3OjhkHP5spfMmM5eWQFpmv+V
+         QDfQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784651811; x=1785256611;
+        d=1e100.net; s=20251104; t=1784653097; x=1785257897;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=x4Vcm5Byxd39U+h+a0TditSmP3afDO+9dfnVBnN2RTM=;
-        b=M5C0fayde3zi6cHTzx3dRAVXych9SSifQAwsbixHCu6i8rh7Nm3kw16R2c1PQSjUWQ
-         dfc1mfbMbx9B1A5Zp8KGE43qotQuDqyyzlBj2BYvy6EyXzzuVHf714Co6mdCTFExkGLk
-         XMrSSc1LnBPcH6l4QzLuQfZANiqTctLNR7CWemxn8Zb2D+bCY3Jntgqc+lU/IeeYf/Cg
-         Op1r5OLozOhbBlA8BQEb48DgILDqkRBOdXIL53yUfvhhXhcO9uDR2lYocAHDufSQmPPy
-         S/SNMm0R7MXdZo54MKl37w8Wg1fhbtvp7Mat33nCrFs3Rdrdvu/x35l/Yg4X1HNIQT1C
-         bPqA==
-X-Gm-Message-State: AOJu0YwgQRGfRJBJ41ovSGT9NzjNdAlctgsCwS27hRwIrDD/cCO/YIcd
-	OgSM4rfDiAWHlUTFtQUH5i7qoz3qh45S8HrEzWR8Ku/fP8suWAru28JnxHbD6KUXrjtFmgvDilY
-	2rsHzXSDCZhrjrfJgwN1B7vAe5piaKi4=
-X-Gm-Gg: AfdE7ckCZOPayBYPY42cC5h6N/WCckZBRi22Yv+10N3NKsnuy9mWFrvj/c89p2hXxpf
-	8sEaq4fWgNFbUdaY8VfThHocAbDjIUAYb4v01DYvAq/uLCokv3AfujLqb/ReB5B07RcETIB1AT2
-	aOCXImFHNX0iEoQeR8kzMt6mlKvTtkPyi+mtONBP1R18TPtIAV0/y9ujIOhm+GB2ZOel0Ffdl3m
-	Salu0aTpOP+OYMnZlOvMiIdeh9FnZcmqdSuH6Uzr95uwGxgOk1a+vGQawIxMQ==
-X-Received: by 2002:a05:6a21:a382:b0:3c3:a17c:1f77 with SMTP id
- adf61e73a8af0-3c3ada7d283mr20231165637.51.1784651810840; Tue, 21 Jul 2026
- 09:36:50 -0700 (PDT)
+        bh=tyDrF4z0BxUHc6iZda6NVOeuYTfnWULjmZ/WczIvI68=;
+        b=UiKeD4mtofL04YrPv4j7FrrlT+UBSDWxfeqSYZWaNrACrBEZ0+ANNabJE09BinQRPn
+         jgI0NZwCW0juscHL+YcBkFCZcyMHc8QVL5FHIzxDuINkWlqf9c9H99sIUq1MGc2g/ieP
+         Ekk/wRsuv9Q0oVo8QEbrJwFH0rhT19tu3aD5FkxPbFV9+hjkoh2DMdDWdK+2l0SWNT5H
+         SzySWFr9YJgWHhUuYpZq3jSSNjne0c7ouM2uzKKLkivvZBLZ4F5jqdwwM0/ibDOBl6uv
+         FgcFw3Wprkc5rhfWzRVl1LvY+hoYngcg85CczGBadV6WbScl9VzoGyeP+lBOz2/lY+uz
+         zFZQ==
+X-Gm-Message-State: AOJu0YwcuvWsImXvhS06EeadyNWcvXPAj3JKcTdtG4tfwAIjb1Q35LDC
+	ZfNSWCKSTwDTxTB6raMIVTxXP+S/1j1N645n4jZcsS5sl2GqMQRFhfgpaaz6Jobu39pspD2Qnz4
+	IdzE7ufNvJCo41dVKEw2R/ychwTkfvqc=
+X-Gm-Gg: AR+sD11QYOnzCw8FrSL3wkFjYIL+JCfdOsU2KhslrNupcSESpqXGKfUkDV8/5pARD+W
+	PDofn95ixoKZZbAA1jxi89fSAHFGXm/G3Xxh5gRDWDr4BaMUwM9n8V5uIdwxZABHanJd+HUqJAY
+	pnRYdP8SDehX7I41tLXmHG7cuUyEccEHi/vCItq0av95gnH6Hsygh8/NyBan7RYC89Uz+J28YP3
+	TeRosFh/NLdgePMFbPdx4YIxTB+FOyGvArlIslpEuvIxj2/o3fyAmAgOryyGA==
+X-Received: by 2002:a17:902:f710:b0:2cf:7d44:e14f with SMTP id
+ d9443c01a7336-2cf7d44f558mr61524395ad.26.1784653097046; Tue, 21 Jul 2026
+ 09:58:17 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -81,175 +81,80 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20260721021127.1313453-1-tweek@google.com> <20260721021127.1313453-2-tweek@google.com>
- <CAEjxPJ6zcYW7_mGPhnTNV5oq-8uxsmDJxnXFoZjxyYYg7ce76A@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6zcYW7_mGPhnTNV5oq-8uxsmDJxnXFoZjxyYYg7ce76A@mail.gmail.com>
+In-Reply-To: <20260721021127.1313453-2-tweek@google.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 21 Jul 2026 12:36:39 -0400
-X-Gm-Features: AUfX_mzveRVCBAdbc0ae0qUQIQDfGECglD2wpteojud1kv8qGD21CacknrYUecE
-Message-ID: <CAEjxPJ7OXC8MjBN_o6jm9W6Ewm6u9gj+sxKfy_wYaxt1+qW6=Q@mail.gmail.com>
+Date: Tue, 21 Jul 2026 12:58:05 -0400
+X-Gm-Features: AUfX_mybD8l9d1cmuVL0TPPUdGDRGG2RtZeixfTzB4Sv-Th-6Ef45xm1JG9_42M
+Message-ID: <CAEjxPJ7pfTxcZ=DRO4WaW9J3Twrttc0LiK1RsEj_HMtUPDv00g@mail.gmail.com>
 Subject: Re: [PATCH 2/2] libselinux: support multiple contexts for the file backend
 To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
 Cc: selinux@vger.kernel.org, James Carter <jwcart2@gmail.com>, 
 	=?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>
+	Ondrej Mosnacek <omosnace@redhat.com>, Petr Lautrbach <lautrbach@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jul 21, 2026 at 11:45=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Mon, Jul 20, 2026 at 10:11=E2=80=AFPM Thi=C3=A9baud Weksteen <tweek@goog=
+le.com> wrote:
 >
-> On Mon, Jul 20, 2026 at 10:11=E2=80=AFPM Thi=C3=A9baud Weksteen <tweek@go=
-ogle.com> wrote:
-> >
-> > Update the file labeling backend to support specifying multiple
-> > SELABEL_OPT_PATH options in selabel_open().
-> >
-> > All provided paths are stored in rec->spec_files and processed during
-> > initialization. Derived files, such as substitutions (.subs, .subs_dist=
-)
-> > and auxiliary contexts (.homedirs, .local), continue to be based on the
-> > first path (or default selinux_file_context_path()) when enabled.
-> >
-> > Duplicate checking logic is refactored into a helper function
-> > report_dups(). A duplicate with the same specification result is not
-> > fatal anymore, but a warning is still logged.
-> >
-> > Additionally, duplicate validation is moved after all files (including
-> > .homedirs and .local) are loaded and sorted. For single file context se=
-tups,
-> > the only difference in behavior is that duplicate validation now extend=
-s to
-> > fc.homedirs and fc.local.
-> >
-> > A similar multiple files setup has been used in Android for 9+ years.
-> >
-> > Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
-> > ---
-> >  libselinux/src/label_file.c | 216 ++++++++++++++++++++++--------------
-> >  1 file changed, 132 insertions(+), 84 deletions(-)
-> >
-> > diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-> > index eb2e66da..902c9a25 100644
-> > --- a/libselinux/src/label_file.c
-> > +++ b/libselinux/src/label_file.c
-> > @@ -1526,66 +1584,56 @@ static int init(struct selabel_handle *rec, con=
-st struct selinux_opt *opts,
-> >                                            &data->subs_num, &data->subs=
-_alloc);
-> >                 if (status)
-> >                         goto finish;
-> > -               path =3D selinux_file_context_path();
-> > +               rec->spec_files[0] =3D strdup(selinux_file_context_path=
-());
-> > +               if (rec->spec_files[0] =3D=3D NULL)
-> > +                       goto finish;
-> >         } else {
-> > -               snprintf(subs_file, sizeof(subs_file), "%s.subs_dist", =
-path);
-> > +               snprintf(subs_file, sizeof(subs_file), "%s.subs_dist",
-> > +                        rec->spec_files[0]);
-> >                 status =3D selabel_subs_init(subs_file, rec->digest,
-> >                                            &data->dist_subs,
-> >                                            &data->dist_subs_num,
-> >                                            &data->dist_subs_alloc);
-> >                 if (status)
-> >                         goto finish;
-> > -               snprintf(subs_file, sizeof(subs_file), "%s.subs", path)=
-;
-> > +               snprintf(subs_file, sizeof(subs_file), "%s.subs",
-> > +                        rec->spec_files[0]);
-> >                 status =3D selabel_subs_init(subs_file, rec->digest, &d=
-ata->subs,
-> >                                            &data->subs_num, &data->subs=
-_alloc);
-> >                 if (status)
-> >                         goto finish;
-> >         }
-> > -
-> >  #endif
-> >
-> > -       if (!path) {
-> > -               errno =3D EINVAL;
-> > -               goto finish;
-> > -       }
-> > -
-> > -       rec->spec_files =3D calloc(1, sizeof(path));
-> > -       if (!rec->spec_files)
-> > -               goto finish;
-> > -       rec->spec_files[0] =3D strdup(path);
-> > -       if (!rec->spec_files[0])
-> > -               goto finish;
-> > -       rec->spec_files_len =3D 1;
-> > -
-> >         /*
-> > -        * The do detailed validation of the input and fill the spec ar=
-ray
-> > +        * Process each input file.
-> >          */
-> > -       status =3D process_file(path, NULL, rec, prefix, rec->digest, 0=
-);
-> > -       if (status)
-> > -               goto finish;
-> > -
-> > -       if (rec->validating) {
-> > -               sort_specs(data);
-> > -
-> > -               status =3D nodups_spec_node(data->root, path);
-> > +       for (i =3D 0; i < num_paths; i++) {
-> > +               status =3D process_file(rec->spec_files[i], NULL, rec, =
-prefix,
-> > +                                     rec->digest, i);
+> Update the file labeling backend to support specifying multiple
+> SELABEL_OPT_PATH options in selabel_open().
 >
-> process_file() last argument is uint8_t; i and num_paths are size_t.
-> Need to cap the max num_paths somewhere or change the type.
+> All provided paths are stored in rec->spec_files and processed during
+> initialization. Derived files, such as substitutions (.subs, .subs_dist)
+> and auxiliary contexts (.homedirs, .local), continue to be based on the
+> first path (or default selinux_file_context_path()) when enabled.
 >
-> >                 if (status)
-> >                         goto finish;
-> >         }
-> >
-> >         if (!baseonly) {
-> > -               status =3D process_file(path, "homedirs", rec, prefix,
-> > -                                     rec->digest, 1);
-> > +               status =3D process_file(rec->spec_files[0], "homedirs",=
- rec,
-> > +                                     prefix, rec->digest, num_paths + =
-1);
+> Duplicate checking logic is refactored into a helper function
+> report_dups(). A duplicate with the same specification result is not
+> fatal anymore, but a warning is still logged.
 >
-> Ditto.
+> Additionally, duplicate validation is moved after all files (including
+> .homedirs and .local) are loaded and sorted. For single file context setu=
+ps,
+> the only difference in behavior is that duplicate validation now extends =
+to
+> fc.homedirs and fc.local.
 
-Also, could use num_paths here since i ends at num_paths - 1.
+Not sure if this change in behavior is desired - it seemingly
+precludes .local from intentionally overriding an entry's context.
+Defer to distro maintainers.
 
 >
-> >                 if (status && errno !=3D ENOENT)
-> >                         goto finish;
-> >
-> > -               status =3D process_file(path, "local", rec, prefix, rec=
-->digest,
-> > -                                     2);
-> > +               status =3D process_file(rec->spec_files[0], "local", re=
-c, prefix,
-> > +                                     rec->digest, num_paths + 2);
+> A similar multiple files setup has been used in Android for 9+ years.
 >
-> Ditto
+> Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+> ---
+>  libselinux/src/label_file.c | 216 ++++++++++++++++++++++--------------
+>  1 file changed, 132 insertions(+), 84 deletions(-)
+>
+> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+> index eb2e66da..902c9a25 100644
+> --- a/libselinux/src/label_file.c
+> +++ b/libselinux/src/label_file.c
+> @@ -104,9 +104,59 @@ void sort_spec_node(struct spec_node *node, struct s=
+pec_node *parent)
+>  }
+>
+>  /*
+> - * Warn about duplicate specifications.
+> + * Report a duplicate in the log.
+> + *
+> + * If the duplicate is considered fatal (i.e., if the specifications of =
+both
+> + * entries do not match), return -1 and set errno to EINVAL.
+> + */
+> +static int report_dups(struct selabel_handle *rec, uint8_t inputno1,
+> +                      uint8_t inputno2, const char *ctx_raw1,
+> +                      const char *ctx_raw2, const char *match,
+> +                      const char *file_kind)
+> +{
+> +       if (inputno1 >=3D rec->spec_files_len)
+> +               inputno1 =3D 0;
+> +       if (inputno2 >=3D rec->spec_files_len)
+> +               inputno2 =3D 0;
 
-And this could be num_path + 1.
->
-> >                 if (status && errno !=3D ENOENT)
-> >                         goto finish;
-> >         }
-> >
-> > -       if (!rec->validating || !baseonly)
-> > -               sort_specs(data);
-> > +       sort_specs(data);
-> > +
-> > +       if (rec->validating) {
-> > +               status =3D nodups_spec_node(rec, data->root);
-> > +               if (status)
-> > +                       goto finish;
-> > +       }
-> >
-> >         digest_gen_hash(rec->digest);
-> >
-> > --
-> > 2.55.0.229.g6434b31f56-goog
-> >
+Since you are intentionally passing in num_paths + 1 and num_paths + 2
+for the homedirs and local files, this will incorrectly attribute any
+duplicates to the wrong file. Not sure we want cross-file duplicate
+checking anyway.
