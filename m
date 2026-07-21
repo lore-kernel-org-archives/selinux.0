@@ -1,162 +1,157 @@
-Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
+Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C8DE2D8DC4
-	for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 12:48:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63DD22FE56A
+	for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 12:48:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.170
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784638086; cv=pass; b=sj0uskfM3x2DimpiEdFwpbx5tfSETJwNcnTvUUlkxEf0hdsGQH+WwcnyooeIJNK0uCgcXl4v3DhZI73VKxZxavv7kY86zLV+AQeprk8fKlq6hMR5Vum6mfx01g09Hd+PogAmVAa0eq+/3c3fs/wXpAOnBSBNiK57uE2FsWs0WoI=
+	t=1784638116; cv=pass; b=McRyO7PQ7pFp1lSR8rXkBGgXoKrJEpALcgQu3a6WD7X08/RiaGm/JTxwaZudllbkXsSbjOiNMmlFy5W+lHKLHS9lvl7DD3+wx8FylzqF9QoKtrAlmZsKY7BBKJXwfDow/qEOc5kPkA5os7ZIh8Hf1lfNSM5PJZDR1/gt+EIW1lg=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784638086; c=relaxed/simple;
-	bh=Rr0nhqgkpYfWgda+y5VK0+LuHJf8nWYzgPGOQ1gpp5k=;
+	s=arc-20240116; t=1784638116; c=relaxed/simple;
+	bh=FGT6LcbFQik9SgDrrBLcA4KIjDNy5EOIAesxTP1Nl0Y=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=dSLFHxUqZuIn6LOmLc9ZIfNOSeQxxTTulQgWXErg5sjd4BO+wFK3aPzBeWaCdkt8QAEAJDsTevOH3OMppYQP+KeYTUSmXajxTNKY84pRUgQ+hofEwxRXKDU/Wu3jPDO0pFE8KvHtKaJ37C69I0RCN1dNGED0iykA6JLXbaptths=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=I0OTs8xD; arc=pass smtp.client-ip=209.85.210.171
+	 To:Cc:Content-Type; b=PyZ7dHC/isM1+DGI5oI8GaRqI7zu9VLsHqERQVMnnGJMlRPsqfmSk8yWyVPixz9+jXpNqCNp3ZQhW60IJECkJEmUE96p6ODLqKiP2WFabLlTD8yRDlCC38IHpD1FcRkdn0WN7tzWMsYcbOa97mdEX9/g/wCHiLRQcGbe5Ql5ckc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=tN34fPTx; arc=pass smtp.client-ip=209.85.214.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="I0OTs8xD"
-Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-84a4d8fd6ecso7520087b3a.1
-        for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 05:48:05 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784638084; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tN34fPTx"
+Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2ccdb73f0e1so73100575ad.3
+        for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 05:48:34 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784638114; cv=none;
         d=google.com; s=arc-20260327;
-        b=HgGkssSiHw0+y5Y2rsD81aeq2sFCU/HFkTx+uOiyLs/2Qd9S/Xoxwd/xg6V51kcRUM
-         bXm71bLZQVBGJZ9IRLMKsMVd59Sha5YsYcY1X7neIaw0LQ7HGjv3jJrclOCbEYnkCtpY
-         ScT6IIbvLbzXG/QbXYFJyDwoKw2qLG6Er/jY3+tPJqh2qaPIqlU46B7iOaB2vxjmvF2C
-         G+ZgHU4Ja2QYR36xywuILtalo409vIBM9+7VQLzh7/2e28pQczcC7Q05pZLwZLjvGiU0
-         dLiLHFhwEfEmF0jHVA8JfX9APTHpKAZDu3St2GuqaZ8AfKGdXQ0hvbpXSiI2s0Ia5iO9
-         FGAQ==
+        b=GwAc8vOxX5L8oh8A6bVhHDen530fhf7Pml/smGO1WuZW6sI1YKFmobTM8uwe+EeWzC
+         S13ySR/8a43Pd8v6FeD4XDWPaUC595diMj/ImED23MkGPH3BwwcHlhTpe/SYarxEmZsb
+         LXh2lLa6CMWxMB3uj/zVStLRmPfDpL5I7HxTZoYCJ5mYlThl9XVAWHcOVsSgq8TIMCME
+         jHCOBpAG8256XmLm8pPFLhjjoqeAdEEWM8jv+OpOgEEC5XAGrpHliIbeCzgOkbQQADob
+         aPqKgAmR4tI/J7IGWvoLi0mggzW5MBHNOK24nO97m1k7fskE+8Rc9reaBByUWsVYyEPx
+         DWpQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=8fWO7Yu2R7r/+U4Fpoi2090wUEb881HE/h87W34i2r8=;
+        bh=4vzlWwNm9QIfyK7dVflQjFgeCpu+aD+5q+oVUSeRMCw=;
         fh=gfzHzywM79Llzpb3oUi4mMfwpHTHBNavmzg+APAH/VE=;
-        b=s4LJDaqu3iOGlpm28cQl8IKR/dN6VSvFhbxXyvglS3dgQt0zSYp0aHg+aeNXfeKI4X
-         X3HC/5epQf4hES1aXuPoQVKehTCHSAX3Nhqs+spWJEgXNVkHZWvxbDC/FclX3Z1o8dNl
-         qM8OJCrXKXywK4ibtjM3O5r+CRYsF2mBjGT4FceLiUXgysNF4I5PUtcLhrfYuyHvfitK
-         Kn0br6cEsRsMT74chqzxeS5emYOIBh+ZKynGFrXRbM5HaxPEcXnhbwRzpaet0DhBnYiQ
-         QRwJsi/SO8VHnSwY27J46JDWSZAFmErFO7DTDrex8zA464DU5kZKyCTjGkV/SkjwDTY/
-         eoPA==;
+        b=MoNJg6cPjU9PJLYktUsbm00ozP4t/XQzv13hpIsxMtKJnBk2ZAZ667OtMJknvQ4H4p
+         QaDC6o38n9y31zDBWFpiTT0v24LcsfxsmNzLO1c1FzzGdce9pXpSJsd0T8Ncbvh99EFQ
+         wcosQg76cf8UR1wQGpcbW6sKZu2w6tEqdE/vphYX24j/V8LhliVPbCrtF8yKmQqslM5T
+         ueiPGXOKknHrr9yXGWJo8PiiJK2ymtj+c0DZmcZQmpVPCoGurBghPeT6hASTDy3rSB7H
+         n85jDcJx8UjcWkzM24woVRdYdbWjbw+Z/tKjKR7ppP+pOMsRoDYoXIvqpl8bXIBjDHTi
+         xO6Q==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784638084; x=1785242884; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784638114; x=1785242914; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=8fWO7Yu2R7r/+U4Fpoi2090wUEb881HE/h87W34i2r8=;
-        b=I0OTs8xDzhLRM7d2cBkM7qMHL9Pt4CFR37YEmnIp5+c/ng4q3MHQj9yEYFNYWL7eIa
-         Z4gTNGWEQGaKraKBILzz0VpJ1DlErAe8eLnl0Ptm6MxkCrM1unkh2rxz/FbOV1w+81qF
-         HROKV0zzQqO5coznQ/znwBX5m8bYMeY+gFUIR2GL4XmhdS0g/3HdgddRRhkiWorFLKOz
-         Hup3C4lHFAwni7guqymAZ1TWHm2bIhAqyU/GgCnmcO2EkczAsEkoaDldrOlK8og8ErXw
-         bWUe5epkiiXNb55tasd6LcvFrcc1YF7Yykdawy8bdvHKU3MgmXA7bm4uG16EJLO/gK9I
-         mb6w==
+        bh=4vzlWwNm9QIfyK7dVflQjFgeCpu+aD+5q+oVUSeRMCw=;
+        b=tN34fPTxrYIFo73s+DpmBSmS0rQ9tizwstRBfnuDGJ2QS/XHKYzr7IxwXOeB904PKz
+         SkAUJ29SRhTD0jjjRrke1MNIifYn6MUpdFSZj0N6W890+r9Ur988azoxAtLKiTIh5MOK
+         op3oB+z/Ae762Xchm6X+uTStCYZrVqYNngzKlUCt/nT8TaRN+TXQWFj83cZYCa5tmPRH
+         eYTtuQ2ANxsS1XrkJ5ykoy7eIE4jUCsnflHlTcbVnTCKzRjhS/etJFJU4WQkr7c67ASk
+         gu0uCF/nCZ2HOZpJqgM3PbUNimkTtPnzSzTIKhZHSdkdg2mnyqtj8ahHiZR7mFOTMppZ
+         /AKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784638084; x=1785242884;
+        d=1e100.net; s=20251104; t=1784638114; x=1785242914;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=8fWO7Yu2R7r/+U4Fpoi2090wUEb881HE/h87W34i2r8=;
-        b=kduKyritrA+nImf3XhGfe2+Y/Aj6NoQs1nQ8r/o6KMiGFCr7FEcjO6NLxq/6+VNtMb
-         HxxUXUCaZbRW2si2YJpL4yBWSRlSiZjo63NPMpjC7ZDNdo5tecuGDo9Rc1TO0lNzPu9f
-         32vNiak3cTVaq3MoyuZ5vjzSF2Hftn6ltyKDX5nBmyun/5GX/YD4du02kwQ8swOtsam9
-         TlLwaA2YO2rNSIGVSQQoTy1IXVXnjhG5XaDgFXQq0cJyKdX0io/IRG+hJXkrNbH75Z1Q
-         s3mWuwBJRGD0S2/NMVp3jsUY6Hz/2XJRaIkBvPHDUQgxPL7Nq+XYnGu36IdVnP4dpTgW
-         /0ww==
-X-Gm-Message-State: AOJu0YwmAeM+w3p4uWhnPhHiYIbq7Tz2JysnJlN5CKMWNL414sdeCPVY
-	9VbnYh/w27XuajXiuozZ24GQCQCCKVr5kawLNhMQGfWX4/0/wBy7F25a+Xv8XVqT17Mh8kIPugn
-	PGut8PPTISEG9QSJ7HxEFMvAYwN3O+Pqiuw==
-X-Gm-Gg: AR+sD13otW91iY9vw+EmpriH5b4pT2FXyEVYR7cQ3CaujjkwMnsfS3n1sHB/0krQ2g2
-	HWrKD7+1RY0BjK4YW2IGOp7C//CSEXtnPgF1GjtCTMn3G6K7TvWNk+VmKM1Az0AgZfg1Sxc8mCl
-	J+ocawI3kRJuPL+pTyqo8oThZCBBIfP4G75ap7YwWhBc5B9C0hkY3pQuGRpaSrpDwrPynxl2n4J
-	PFyLydz2as9tj1Rl8JXJxi6d9y7PptTgMhrL46Lz9byI0Zdx1N3FSrTDPZoW0plUunDfeIq
-X-Received: by 2002:a05:6a00:b95:b0:845:dffa:3740 with SMTP id
- d2e1a72fcca58-84c292391c1mr16813000b3a.4.1784638084518; Tue, 21 Jul 2026
- 05:48:04 -0700 (PDT)
+        bh=4vzlWwNm9QIfyK7dVflQjFgeCpu+aD+5q+oVUSeRMCw=;
+        b=bEAgrloxxHiIIcAdwSJixJWIyntY4P7Lhek4CCrNRxHcOrzHVi1wHhL4kq3ZIpMJ/e
+         qv33fcm7b/7wgx4cpQM2DkyEWG5S5ztJkL+7vo0yPST/FysX/91hIXW+3RJUngaw6vhN
+         wMFMgRhK2Z7mBz2sZ5diU2mB7jsXf6wP7Bhrrshje5a/trQ6CwKmsEoQBK0jMdbHEw0g
+         gwxYrQ0ScyLUkJlZllzG+9CDAsOKGNnnIJxYuKPUCZbHCTy0RhZYjnjYkfWk5PWD7i4C
+         4YM6H0Cwj03UmJ8umFvIGtmU3XriwpxaZjdHs8+xH4D+eGicgzK5XdXSDdAxcdzR7KOD
+         5Wkg==
+X-Gm-Message-State: AOJu0YzVDOOAktJ8NbiLiYmS35n8kqWA4YlPUPVIGPxCpm/3pyb72/MJ
+	7vHszJb7CYRXKz+r9MIeXu2tVFKG/aGuq6jIvErMMEt13EK+1nkDuv1W4W3JJipYWxHH7C9PVc/
+	jIzzcOTj5tVeKXKCiysjvZG9LSe+U205BeQ==
+X-Gm-Gg: AR+sD10LXT4Am99I+tXdaxjKVeiyZcz8K/EvL2NbVuGLgbzoZ594E0cqKh57Gp1u7Mz
+	feDHBiXLdZDmckKnJYmUoHEdOEV4wRROancsRj27WwAK4vm7ABlkAqY7sXX5BdCBCeLOL+5Ecka
+	a5vBGrQVwuoq3S+BibFLim9E1xdirwxIFNfyBTSjEF+6zwalQzo6knXgtEf4fwktmL9P+68lqiK
+	9kRFtk85FFjubxtLa5P6EvWDmFN4/i6k35m1nILvQ0IqjDe4Mxqs26ReeE/yYVYKuR7oH6F
+X-Received: by 2002:a17:902:ce04:b0:2ca:52ce:6f91 with SMTP id
+ d9443c01a7336-2cf3496b2ffmr221283505ad.27.1784638114360; Tue, 21 Jul 2026
+ 05:48:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260715192309.46442-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260715192309.46442-1-stephen.smalley.work@gmail.com>
+References: <20260716125249.6872-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260716125249.6872-1-stephen.smalley.work@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 21 Jul 2026 08:47:53 -0400
-X-Gm-Features: AUfX_mz9wGNcQ3J-gxrbvNG1UFMgdTCs_8FvZe10wwQSzergE_GMBbnzVHV1-dI
-Message-ID: <CAEjxPJ7tpdcw1XPFX7XM8hLzwYrghJQV6HsaanDDPptyo_FkaQ@mail.gmail.com>
-Subject: Re: [PATCH] libsemanage: direct_api: clamp write length in ERR_CHLD_STDERR()
+Date: Tue, 21 Jul 2026 08:48:22 -0400
+X-Gm-Features: AUfX_mzw3dys5DC-LbiSEjeJcqgAuZbyaQMfLGgHwVxPxZh4Eypf2cWuJQH37Ps
+Message-ID: <CAEjxPJ5CF8kFFvMzdk1G-uAfRnXgRfXkPnEUkNBnGzfFs3C2GQ@mail.gmail.com>
+Subject: Re: [PATCH 1/2] mcstrans: defer SIGTERM cleanup to the main loop
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 15, 2026 at 3:23=E2=80=AFPM Stephen Smalley
+On Thu, Jul 16, 2026 at 8:53=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> snprintf() returns the number of bytes it would have written on
-> truncation, which can exceed the buffer size, and can potentially
-> return < 0 on other error conditions. Clamp the write length to the
-> buffer size less the terminator and only write if snprintf() actually
-> wrote bytes to the buffer.
+> sigterm_handler() calls cleanup_exit(), which walks and frees the
+> translation and color tables and unlinks the socket. None of that is
+> async-signal-safe; a SIGTERM arriving while the main loop is inside
+> malloc/free or inside finish_context_translations() during a SIGHUP
+> reload can deadlock or corrupt the heap.
+>
+> Set a flag from the handler and let the top of the poll loop call
+> cleanup_exit() from normal context, matching the existing SIGHUP
+> restart_daemon pattern. poll() is not restarted (SA_RESTART is not
+> set) so a signal delivered during the blocking poll returns EINTR and
+> the loop rechecks the flag. The narrow check then poll window matches
+> the existing SIGHUP handling.
 >
 > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Merged.
+This series has been merged.
 
 > ---
->  libsemanage/src/direct_api.c | 12 ++++++++++--
->  1 file changed, 10 insertions(+), 2 deletions(-)
+>  mcstrans/src/mcstransd.c | 9 ++++++---
+>  1 file changed, 6 insertions(+), 3 deletions(-)
 >
-> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-> index b87b87e7..6c84b23c 100644
-> --- a/libsemanage/src/direct_api.c
-> +++ b/libsemanage/src/direct_api.c
-> @@ -618,11 +618,19 @@ static int read_from_pipe_to_data(semanage_handle_t=
- *sh, size_t initial_len,
->                                   "libsemanage.semanage_pipe_data: ",    =
-      \
->                                   strlen("libsemanage.semanage_pipe_data:=
- ")); \
->                 n =3D snprintf(buf, sizeof(buf), __VA_ARGS__);           =
-        \
-> -               (void)!write_full(err_fd[PIPE_WRITE], buf, n);           =
-      \
-> +               if (n > 0) {                                             =
-      \
-> +                       if ((size_t)n >=3D sizeof(buf))                  =
-        \
-> +                               n =3D sizeof(buf) - 1;                   =
-        \
-> +                       (void)!write_full(err_fd[PIPE_WRITE], buf, (size_=
-t)n); \
-> +               }                                                        =
-      \
->                 if (errsv) {                                             =
-      \
->                         errno =3D errsv;                                 =
-        \
->                         n =3D snprintf(buf, sizeof(buf), " (%m).");      =
-        \
-> -                       (void)!write_full(err_fd[PIPE_WRITE], buf, n);   =
-      \
-> +                       if (n > 0) {                                     =
-      \
-> +                               if ((size_t)n >=3D sizeof(buf))          =
-        \
-> +                                       n =3D sizeof(buf) - 1;           =
-        \
-> +                               (void)!write_full(err_fd[PIPE_WRITE], buf=
-, n); \
-> +                       }                                                =
-      \
->                 }                                                        =
-      \
->                 (void)!write_full(err_fd[PIPE_WRITE], "\n", strlen("\n"))=
-;     \
->                 (void)!fsync(err_fd[PIPE_WRITE]);                        =
-      \
+> diff --git a/mcstrans/src/mcstransd.c b/mcstrans/src/mcstransd.c
+> index 5bdaadb7..3db58a17 100644
+> --- a/mcstrans/src/mcstransd.c
+> +++ b/mcstrans/src/mcstransd.c
+> @@ -58,6 +58,7 @@
+>  static int sockfd =3D -1; /* socket we are listening on */
+>
+>  static volatile sig_atomic_t restart_daemon =3D false;
+> +static volatile sig_atomic_t terminate =3D false;
+>  static void cleanup_exit(int ret) __attribute__((noreturn));
+>  static void cleanup_exit(int ret)
+>  {
+> @@ -407,6 +408,10 @@ static void process_connections(void)
+>         ufds[0].revents =3D 0;
+>
+>         while (1) {
+> +               if (terminate) {
+> +                       free(ufds);
+> +                       cleanup_exit(0);
+> +               }
+>                 if (restart_daemon) {
+>                         syslog(LOG_NOTICE, "Reload Translations");
+>                         finish_context_colors();
+> @@ -442,11 +447,9 @@ static void process_connections(void)
+>         }
+>  }
+>
+> -static void sigterm_handler(int sig) __attribute__((noreturn));
+> -
+>  static void sigterm_handler(int UNUSED(sig))
+>  {
+> -       cleanup_exit(0);
+> +       terminate =3D true;
+>  }
+>
+>  static void sighup_handler(int UNUSED(sig))
 > --
 > 2.55.0
 >
