@@ -1,270 +1,178 @@
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF9E53845D8
-	for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 15:08:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.179
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784646540; cv=pass; b=KyUJ0RxOF8zDJzV16Esc2iOFfKahYt90m+aGjupj6H1GMfw4YCdTroc4+sd8qUDdW+8IggRkptLgSBdmOVIM9GOtvtocbdHFsHHgl2F9STEUbMFahRo5hX0E3BoDNwuJPd/FbpQVYkqKe8CMfWso5ZMBKhy5yJ21+YjxLSsRoSU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784646540; c=relaxed/simple;
-	bh=e37Ady7XeXhHUYWxsr3GtjRkyMutG+8HdSaqU9Y4kM4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Esmwcrp64OLLGg8UMdSNYr+/6rMugFleZ3TZW/rPn/Mg5dG+VdO88VLTkC6Ji1HK39rGPtMPjfebgxrdB3L5SlL1DEcHY810oYRYiiapTx//FxWyaxvijzkqLtzhjV8QS1uO23WCjhVlrxdDP+ymZFybrG3G4V6pasPsEAdpG3U=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BYdvlkaa; arc=pass smtp.client-ip=209.85.214.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B02794D98FC
+	for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 15:15:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784646911; cv=none; b=sxFV943h1s2U2BN96zLKTBSrNADZFKu8Zu07J/w6p2866R0RTLf8DhA4Ekd1LRFuU9GKD71+uH0mi7de5RyF8DfOqZd35vCL4z2gZx6/G3eJUM+8r+salQMEy2JP8PN1CK26OzLcpx4qcdCnGm1ByCHJQKxIe9sXDDJ5k6HDXAE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784646911; c=relaxed/simple;
+	bh=KI6Ns9kW2sQ36lKMoQwzQkq0fKkAHF24P3aFRT2riBE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=I4GKlxv6RGe//CpGTRlVawFjJpXFek2PR40cjUrGsO26fgh/itMQVvn+Trn16fnA5J5GfnnD5OfVrrM6hP5BsMih11+nIF0EZ69jRFj8n/ICd6sB4nJHhJAT94c6BRfYj4WpjH06NPEBDXHaamPfMGU1uCoCW6tUqM3xVQ+Sl7c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=HHcck9xX; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=tBUWIFfV; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=HHcck9xX; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=tBUWIFfV; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BYdvlkaa"
-Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2caced6038eso69160645ad.0
-        for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 08:08:58 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784646538; cv=none;
-        d=google.com; s=arc-20260327;
-        b=lfpsd7OoU+pnQe0QcmZCgVWQdoS4ZPbJ0LOy2kZLpwl4cw+13RKFlIXvToETT7efA4
-         WSztHRf1lzusc06Hjw+gqYiRLvEHZvPqsBUhGt84ODett/Z88jqJQYD4IftW3v179liU
-         FvRviywDewPTySg1xvuEVh9EEQnK0qUvvK5ebKyI/Dici28qMBdtmzUEt3ALXORFRW8I
-         GJ6zpPUHArWImRbcoSGQ3fNAR9ZW25Lcztb/5Xq0EP0DESadkO60MnGnVUxkJqe42VUn
-         UUIfJhE9kD7uEleiCFfNSfXsHaVtmy3oR5mcGYPNn/8KEEpl4sbkRYTS5eriV2dkeX4r
-         Xqtw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=bsfPWUVznHpq39lhOG8PWBj3hPMglCphbSmKf990Vjo=;
-        fh=mMDxYY5wtlIekXoYIfjt6lvMWgTaMUwdwgsYDQ6qy3A=;
-        b=XIKIS+9NwRpAeyEVquP0zWddgR2NDbvHxY8rEORodO5pSB1QvjqnBihPAZbnhia9VK
-         wRg1UfF3nGm6ktt2OBIRHktSXfs/LCJujLZ1ycPTWq+wBem7tVGujHpAqQuaImlM2AhG
-         ogHKKFaqsDkrBD41kZz7MVTYbGoQyH1LFicyKzQCoDwxP/fINNHaEIKk8CYybOM4pFXs
-         BBTAx/M9fgj8ek0bIEy9S+qDG9fg84N7hoAGrcShhR7IzDBa8bHSWejvBleOi0G94c6d
-         4PY9MWkS/LcAH5sNTeJhS+NDZ6JBQTNyVDCt2J9mNcJEq9odP+uFllciB45t0C8v3/nH
-         FKGQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784646538; x=1785251338; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=bsfPWUVznHpq39lhOG8PWBj3hPMglCphbSmKf990Vjo=;
-        b=BYdvlkaaSu5EiLzPNrWF2fBoP2n/MbdOk+WchCxo7GRmMCsqMyQZd4E3qYkPsFd2LT
-         mGmEVYvUDSgWzWrOY6ySpYL6MYZOHqj8e9VZz8xdUD2qeOrrD2VuSqPlm21eip2hi8Xt
-         VXpaq7cbGIwh0Ux+OXrLPhIXzElFKX6aBuBEa9kaaG8yhmRyUYZDTHBm0PFQuwZfDhEg
-         bxFL3dYlkDaAYnQugAiO4u/LDbcxMmVp8MBDbHXnvxpiil4zaxJpp6i/Ne+j8TTFVqml
-         27w6LZwGvczYdXJnozSCobzY2b13oAM/khp08+nnmmGSxGXKbN26U38mAXD43+k3ia0+
-         ocZg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784646538; x=1785251338;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=bsfPWUVznHpq39lhOG8PWBj3hPMglCphbSmKf990Vjo=;
-        b=oEnil14Tn6aJMWe8A1qQsJzIDUVSqAdWZ3yN37I8Fjg4lSiEsBjmHbWxqiUSw6zb8V
-         LDacGEf8Q1rwDX4X+TLqxvQR87Rj2vrzp7dcdCB2nwdwTeXcYAsdr6zBUeH3E23KO6dL
-         0NWEHzQ3kXJyVe7KjJvn3FR7/2/YfnVvhfhu/im4mStELU8f9JjrUzuVfytDfujNAaCw
-         /zyiGGWKR+7gTYejcBz5n7b4JnOsGYckDUhK+5WofSn/LVzQO/UK8I7xrUMn3BWzMru4
-         1+goTYJPP850uXZPkmLCcH5QeAibvd4jIjA12sA6SylbXjtwkWLJkhzsTNZxSaLVxXuL
-         QZiQ==
-X-Gm-Message-State: AOJu0Yx9zfS/NqK0lK3kIYFfe0JRyFAleNoyy91Fr7LfncTiVsobMTyR
-	97Bjp7VTOs0wnWuFUlVJs4poDvbOlzenbaOJJUk63ozx8xMdAWDoZB7fep8oAIo0uf1X3tdzsr/
-	0UT+avljj8znyahzpE7/Le0C/Jh2/h1o=
-X-Gm-Gg: AR+sD106wbj2Or+8Qk40w/Yr1dS8SuTTfoa2Gs2lotVcFpaOuY3FqxLQ4uqSwl366EC
-	9BmYckAbUw6P2ef6sRCDmT5rRS4xp+QZOUsohFvy4WM5UiAM5d96NYOeBlzHIBSpH/9uYyVLc5n
-	9XRxxqiH0SvlR0Q9I48vYW/sOvR9o4VIS0GnEW2/K+FGIXj4zjgsnFmja2rwqwameHa8xkt1Vo6
-	v+qfZ0aaLfgYYXrR/1v1sepLnuqO2+QVKIfA03yb/xiGfegijv0tOSspSxdbQ==
-X-Received: by 2002:a17:902:d50e:b0:2c9:d8c5:d55d with SMTP id
- d9443c01a7336-2cf8ddaa575mr62905ad.16.1784646537913; Tue, 21 Jul 2026
- 08:08:57 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="HHcck9xX";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="tBUWIFfV";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="HHcck9xX";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="tBUWIFfV"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 8F2657A5AC;
+	Tue, 21 Jul 2026 15:15:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1784646907; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=++Nv4tPxP1g3bVytNARpCFQQJ/hn7aZ+e/rTa2m65j8=;
+	b=HHcck9xXTlxJ0nAV15gm5QfMmgj3loYvyVR/GzJCHIcoeBJ50s+/BXjjqVwv0RYeDs6AVE
+	hxMet3Ohv0PrhBQ1fx11OQUqIcIR0HkoHiEx4FgLWAbWwFkVxOnqOWg7h+iZ395Y37UXX0
+	VzwpfhPq8mveggmLonyF4JS4Ruuh0rA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1784646907;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=++Nv4tPxP1g3bVytNARpCFQQJ/hn7aZ+e/rTa2m65j8=;
+	b=tBUWIFfVFzVIbOYejT2gUb3D85K+5sE8QdNDjj7n5DHi9KXH14zXTCiqpqKjz/tYPSB3r9
+	qRxoBgarwPcxSmAg==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=HHcck9xX;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=tBUWIFfV
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1784646907; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=++Nv4tPxP1g3bVytNARpCFQQJ/hn7aZ+e/rTa2m65j8=;
+	b=HHcck9xXTlxJ0nAV15gm5QfMmgj3loYvyVR/GzJCHIcoeBJ50s+/BXjjqVwv0RYeDs6AVE
+	hxMet3Ohv0PrhBQ1fx11OQUqIcIR0HkoHiEx4FgLWAbWwFkVxOnqOWg7h+iZ395Y37UXX0
+	VzwpfhPq8mveggmLonyF4JS4Ruuh0rA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1784646907;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=++Nv4tPxP1g3bVytNARpCFQQJ/hn7aZ+e/rTa2m65j8=;
+	b=tBUWIFfVFzVIbOYejT2gUb3D85K+5sE8QdNDjj7n5DHi9KXH14zXTCiqpqKjz/tYPSB3r9
+	qRxoBgarwPcxSmAg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 74445779AA;
+	Tue, 21 Jul 2026 15:15:07 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id T6oIG/uMX2oldgAAD6G6ig
+	(envelope-from <jsegitz@suse.de>); Tue, 21 Jul 2026 15:15:07 +0000
+Date: Tue, 21 Jul 2026 17:15:06 +0200
+From: Johannes Segitz <jsegitz@suse.de>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org
+Subject: Re: [PATCH] selinux_restorecon: Do not exit on directory cycles
+Message-ID: <al-M-kE18Q7okHxy@suse.com>
+References: <al8dIlPQqf4eHINW@suse.com>
+ <CAEjxPJ7+=671kRb2fxSgZsyDuysDatMamUZT_vtFkug6_5x2nQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260721021127.1313453-1-tweek@google.com>
-In-Reply-To: <20260721021127.1313453-1-tweek@google.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 21 Jul 2026 11:08:45 -0400
-X-Gm-Features: AUfX_mzozpPsg-rumXvoc1DLnRhKBMp2oRfD6ipsN-CoHuAPHQmrSOYtQU23bEs
-Message-ID: <CAEjxPJ4rpm0v2NPEyw+9+OUcsVgW6Q-ut5D8KXey+_Jbj2AKTw@mail.gmail.com>
-Subject: Re: [PATCH 1/2] libselinux: support multiple spec_files
-To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Cc: selinux@vger.kernel.org, James Carter <jwcart2@gmail.com>, 
-	=?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="dYgyMg3amqf5faLq"
+Content-Disposition: inline
+In-Reply-To: <CAEjxPJ7+=671kRb2fxSgZsyDuysDatMamUZT_vtFkug6_5x2nQ@mail.gmail.com>
+X-Rspamd-Action: no action
+X-Rspamd-Queue-Id: 8F2657A5AC
+X-Spam-Flag: NO
+X-Spam-Score: -6.61
+X-Spam-Level: 
+X-Spamd-Result: default: False [-6.61 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	SIGNED_PGP(-2.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MIME_GOOD(-0.20)[multipart/signed,text/plain];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MX_GOOD(-0.01)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	RCPT_COUNT_TWO(0.00)[2];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	FREEMAIL_TO(0.00)[gmail.com];
+	MIME_TRACE(0.00)[0:+,1:+,2:~];
+	ARC_NA(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TAGGED_RCPT(0.00)[];
+	MISSING_XM_UA(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:dkim,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.com:mid,suse.com:url]
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+
+
+--dYgyMg3amqf5faLq
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 20, 2026 at 10:11=E2=80=AFPM Thi=C3=A9baud Weksteen <tweek@goog=
-le.com> wrote:
->
-> Update the existing backends to potentially allocate multiple
-> spec_files. This commit simply adds a level of indirection but does not
-> change any current behaviour. It will facilitate the gradual migration
-> of backends to multiple context files.
->
-> In selabel_fini(), compat_validate() is updated to use the first
-> spec_file only, for legacy validation error reporting. selabel_open() is
-> already performing context validation if requested against individual
-> file paths (see insert_spec).
->
-> Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
-> ---
->  libselinux/src/label.c          | 10 ++++++++--
->  libselinux/src/label_db.c       | 11 +++++++++--
->  libselinux/src/label_file.c     |  8 ++++++--
->  libselinux/src/label_internal.h |  5 +++--
->  libselinux/src/label_media.c    |  8 +++++++-
->  libselinux/src/label_x.c        |  8 +++++++-
->  6 files changed, 40 insertions(+), 10 deletions(-)
->
-> diff --git a/libselinux/src/label.c b/libselinux/src/label.c
-> index 991b9769..4a97d3bc 100644
-> --- a/libselinux/src/label.c
-> +++ b/libselinux/src/label.c
-> @@ -162,7 +162,7 @@ static int selabel_fini(const struct selabel_handle *=
-rec,
->         char *ctx_trans;
->         int rc;
->
-> -       if (compat_validate(rec, lr, rec->spec_file, lr->lineno))
-> +       if (compat_validate(rec, lr, rec->spec_files[0], lr->lineno))
->                 return -1;
->
->         if (!translating)
-> @@ -398,11 +398,17 @@ int selabel_digest(struct selabel_handle *rec, unsi=
-gned char **digest,
->
->  void selabel_close(struct selabel_handle *rec)
->  {
-> +       size_t i;
-> +
->         if (rec->digest)
->                 selabel_digest_fini(rec->digest);
->         if (rec->func_close)
->                 rec->func_close(rec);
-> -       free(rec->spec_file);
-> +       if (rec->spec_files) {
-> +               for (i =3D 0; i < rec->spec_files_len; i++)
-> +                       free(rec->spec_files[i]);
-> +               free(rec->spec_files);
-> +       }
->         free(rec);
->  }
->
-> diff --git a/libselinux/src/label_db.c b/libselinux/src/label_db.c
-> index bafa9328..59a291e8 100644
-> --- a/libselinux/src/label_db.c
-> +++ b/libselinux/src/label_db.c
-> @@ -302,12 +302,19 @@ static catalog_t *db_init(const struct selinux_opt =
-*opts, unsigned nopts,
->                 errno =3D EINVAL;
->                 return NULL;
->         }
-> -       rec->spec_file =3D strdup(path);
-> -       if (!rec->spec_file) {
-> +       rec->spec_files =3D calloc(1, sizeof(path));
+On Tue, Jul 21, 2026 at 09:54:28AM -0400, Stephen Smalley wrote:
+> On Tue, Jul 21, 2026 at 3:23=E2=80=AFAM Johannes Segitz <jsegitz@suse.de>=
+ wrote:
+> >
+> > All other failures are handled gracefully. Directory cycles can e.g.
+> > happen on BTRFS filesystems with subvolumes. Skip them and continue
+> > instead of exiting
+> >
+> > Signed-off-by: Johannes Segitz <jsegitz@suse.de>
+>=20
+> This doesn't apply on selinux/main.
 
-Here and below, any particular reason you didn't use
-sizeof(*rec->spec_files) instead of sizeof(path)?
-It's not wrong, just not what I usually see.
+Sorry, had a repo still with branch "master", will send both again tomorrow
 
-> +       if (!rec->spec_files) {
->                 free(catalog);
->                 fclose(filp);
->                 return NULL;
->         }
-> +       rec->spec_files[0] =3D strdup(path);
-> +       if (!rec->spec_files[0]) {
-> +               free(catalog);
-> +               fclose(filp);
-> +               return NULL;
-> +       }
-> +       rec->spec_files_len =3D 1;
->
->         /*
->          * Parse for each lines
-> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-> index 0c0499eb..eb2e66da 100644
-> --- a/libselinux/src/label_file.c
-> +++ b/libselinux/src/label_file.c
-> @@ -1549,9 +1549,13 @@ static int init(struct selabel_handle *rec, const =
-struct selinux_opt *opts,
->                 goto finish;
->         }
->
-> -       rec->spec_file =3D strdup(path);
-> -       if (!rec->spec_file)
-> +       rec->spec_files =3D calloc(1, sizeof(path));
-> +       if (!rec->spec_files)
->                 goto finish;
-> +       rec->spec_files[0] =3D strdup(path);
-> +       if (!rec->spec_files[0])
-> +               goto finish;
-> +       rec->spec_files_len =3D 1;
->
->         /*
->          * The do detailed validation of the input and fill the spec arra=
-y
-> diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_inter=
-nal.h
-> index 4ff39d96..d54053df 100644
-> --- a/libselinux/src/label_internal.h
-> +++ b/libselinux/src/label_internal.h
-> @@ -96,10 +96,11 @@ struct selabel_handle {
->         void *data;
->
->         /*
-> -        * The main spec file used. Note for file contexts the local and/=
-or
-> +        * The spec files used. Note for file contexts the local and/or
->          * homedirs could also have been used to resolve a context.
->          */
-> -       char *spec_file;
-> +       size_t spec_files_len;
-> +       char **spec_files;
->
->         /* ptr to SHA1 hash information if SELABEL_OPT_DIGEST set */
->         struct selabel_digest *digest;
-> diff --git a/libselinux/src/label_media.c b/libselinux/src/label_media.c
-> index 957fcfd3..35f3cc16 100644
-> --- a/libselinux/src/label_media.c
-> +++ b/libselinux/src/label_media.c
-> @@ -109,7 +109,13 @@ static int init(struct selabel_handle *rec, const st=
-ruct selinux_opt *opts,
->                 errno =3D EINVAL;
->                 goto finish;
->         }
-> -       rec->spec_file =3D strdup(path);
-> +       rec->spec_files =3D calloc(1, sizeof(path));
-> +       if (!rec->spec_files)
-> +               goto finish;
-> +       rec->spec_files[0] =3D strdup(path);
-> +       if (!rec->spec_files[0])
-> +               goto finish;
-> +       rec->spec_files_len =3D 1;
->
->         /*
->          * Perform two passes over the specification file.
-> diff --git a/libselinux/src/label_x.c b/libselinux/src/label_x.c
-> index 0c525bfc..33a64a6a 100644
-> --- a/libselinux/src/label_x.c
-> +++ b/libselinux/src/label_x.c
-> @@ -139,7 +139,13 @@ static int init(struct selabel_handle *rec, const st=
-ruct selinux_opt *opts,
->                 errno =3D EINVAL;
->                 goto finish;
->         }
-> -       rec->spec_file =3D strdup(path);
-> +       rec->spec_files =3D calloc(1, sizeof(path));
-> +       if (!rec->spec_files)
-> +               goto finish;
-> +       rec->spec_files[0] =3D strdup(path);
-> +       if (!rec->spec_files[0])
-> +               goto finish;
-> +       rec->spec_files_len =3D 1;
->
->         /*
->          * Perform two passes over the specification file.
-> --
-> 2.55.0.229.g6434b31f56-goog
->
+Johannes
+--=20
+GPG Key                EE16 6BCE AD56 E034 BFB3  3ADD 7BF7 29D5 E7C8 1FA0
+Subkey fingerprint:    250F 43F5 F7CE 6F1E 9C59  4F95 BC27 DD9D 2CC4 FD66
+SUSE Software Solutions Germany GmbH, Frankenstr. 146, 90461 N=C3=BCrnberg,=
+ Germany
+www.suse.com, Gesch=C3=A4ftsf=C3=BChrer: Jochen Jaser, Andrew McDonald, Abh=
+inav Puri, (HRB 36809, AG N=C3=BCrnberg)
+
+
+--dYgyMg3amqf5faLq
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQJPBAEBCgA5FiEEJQ9D9ffObx6cWU+VvCfdnSzE/WYFAmpfjPobFIAAAAAABAAO
+bWFudTIsMi41KzEuMTIsMiwyAAoJELwn3Z0sxP1mx14P/iiGoPDFsSJXOj/6BPBK
+IyWY12lvmHuJLz/7Cj1q3VabhDlQBOgOPnNmArQpoa/Wdf/NiuKC9sPQEjifOOin
+BPN1LMQmBFGs37Ovxngps6n8Umsmora2bIvfRANFmUekIXAYlsPKp6inRZEC1uWv
+Y4ur6Ljh9QHxOxkVp+hHDwaJ/s+YxkiOhp9YAV0x9VeIWeP0NnEPdVUtvjDachbM
+dAzYlABojZ5vdQoPTEXoxFUSxmFmc4MNdhy2wOuJMz6ABW5hxBVfnLqfRCONOzsz
+Iuff+NhWDwPehYaf7OSe4TNvekbL1/vvBqLPxr9MpnEbQ5JnOMhUXxI2qsjKcjU6
+guaYyb4IXWb6AlVn0odkODYTYrTGSCYslW+ebcstROhmiHtttKBueyPjThgZM4D7
+ZiPGaR/W90dmGx0mc1wSpB+/1VlH3xTINoUq54MShFa6EZ0ijtU0Mkyq/0sBzo/M
+d23oPgYJIEkLhyoVmzl+ohNJDNVMdnTaq8b7IQSO+jD9dFdPjFKHw+ya7SVCAgHj
+WLiM+QG5mxXvbfXEKNu4Yt3cVhNjg3zEkMlWlEkwbq+4WwTSa7iZ6N2mMfDgYKzm
+FRDXq9bpn86YYfG92iNvmhJeMpJ8RdAjHlpZ/ph+r5poZ/t7XPJ8R9l8eXncsHmd
+r2aWnABYW1ywV/ufOcdSI1AQ
+=WpD/
+-----END PGP SIGNATURE-----
+
+--dYgyMg3amqf5faLq--
