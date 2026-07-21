@@ -1,193 +1,233 @@
-Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com [209.85.216.69])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C093F39DBFC
-	for <selinux@vger.kernel.org>; Mon, 20 Jul 2026 22:47:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.173
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784587679; cv=pass; b=HQKjfaYnuKjPEb6zvBMPm48nVrjiVPU19Hy4z0+/mtStFIxWbH+gMbBVQAtkWwecktApMnl//JbFaIerlgUUlZNdp8GA3PjaeL7M6RrYYOQ0CDx/yB5S4ciQJuqi3oyYzXNm5AafA20yMP9FWa1XcJZdTAHT9RI4c7/j/LA130w=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784587679; c=relaxed/simple;
-	bh=j218zC175OIjPULuI/NKHO7aTKDJQ2ZX3WjZYu5fHhQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=IlJt2QMINI/aBxH6/i+PKQY73F6TOZUVw4kYYxiRr4db3M1XxbRYdOvdP5dRNT88oi2N7Gm2xl1qhNItwR7Yb8JRVVtYwCkhG7ruhHd2rqtRStvcyNWtv6a/PyzeTDmsrWYpoYbCF8NChgcZHSsT3ONet2UO6QmaZsa2pOysZ60=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=YnExVDM/; arc=pass smtp.client-ip=209.85.214.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B124010F1
+	for <selinux@vger.kernel.org>; Tue, 21 Jul 2026 02:11:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.69
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784599909; cv=none; b=sdgArSGCITqloGOSp9FVStMoLbM+ZHVeThOrWRg4bgZY+oMErM+6P+YFGZo0W5zV+JtUrwm1WC9WtfCyshTQS+TAFGW5G0Kdio7CXBBfO4tNuhPZok8XNnmH9InxY7QznokVWoqoxpTOALarng8WKmt8737IVuckSfa+DWWJVvY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784599909; c=relaxed/simple;
+	bh=CaWe4iuriv3+pU6n9cnkArsTaquxm8mAC+8QZEZUUM4=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=ciIpKbcqeZH6th8WDeIlzBsAHomehgYrRlyYBUaN48pqY64Cj+7wEWIe1HKr49lOslF4QIhMANtWurpPoMUS8Xu1MfKT8QM30OWOMXPoiLRir3BUC5LxUatVwE7a+WALaRE48jVADp6ox8Pi/grUtJXzfIPLSlQvV5EU7G1zGj4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=PlnhaYpf; arc=none smtp.client-ip=209.85.216.69
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="YnExVDM/"
-Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-2cf41bab353so42848345ad.0
-        for <selinux@vger.kernel.org>; Mon, 20 Jul 2026 15:47:57 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784587677; cv=none;
-        d=google.com; s=arc-20260327;
-        b=MefWPgf/9ovc9mTC/zfV9uPkCQq2ZUFGBiIQ759jBNVLED/1sEyCqAQ6erEPF2AAkv
-         H4qPyvSspaPmnUdIXuXyrVWTczwzWd5DLNsipVpnMcRLzlGoRwpLBUBTqBEA9OoCiIxt
-         SQXi57tiqo6RBZwGrV6RjCJZNFx41wndZs0iom0nt0cb9OGuYsBdmQzLuoGG1aD1qlwu
-         dhinCK1ENJTES5YrNUVWc4YxrW+AMUvUg3lyeZj1tqZp5f0uKCCrTo/FmoTy0b4/GOKT
-         /eI4gLrIDB1X4PNkx44E5Tw/U7aNxsSQ8EO2zxZPMuX/liabUKDauhlkEOOanx4ku4Tb
-         wmQw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=jBcBCCBCmHLnCiyc438pf1e9jEwlaZNqcasfh2fW7yI=;
-        fh=YwinEAPtWwMgFN4G8WAgoyY6syvM8sT5t+tuFd7pjIs=;
-        b=XEzBl0TGJYBJZ3qAd0gsa1I+X+2gfXsbXmRlQ6Klu1u5Kh+ry/lyWIQ1mw6pevS3hp
-         i0C2ox/7KxpOtBGhr/pILfJdfxIgRZ06sW/uInwSXY4P/u8H94Ba5F4Txo7B7PxteN4U
-         khykK/+8S8ECINlE0fc5gXq2iwE7hrjXWLnF/NkBLK+W+i3tOrX/vs78dmJKUgsyLh/J
-         UE4eHUj50o8BscgITeJuZ2ZEGKLNVfjs4Alyn82vbAHrt+rnym9HmvcuTNkV5V3KpUNZ
-         G+FtSHbFotkQ9tevtntOL9qeLTZHc040MuRKlj6IJi02XiUw4Q/abzc4FN9FnBXjm0XO
-         77GA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="PlnhaYpf"
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-38e11baa66eso7939807a91.2
+        for <selinux@vger.kernel.org>; Mon, 20 Jul 2026 19:11:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1784587677; x=1785192477; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=jBcBCCBCmHLnCiyc438pf1e9jEwlaZNqcasfh2fW7yI=;
-        b=YnExVDM/uQ21So2D/O2JFPZsYtJk6EyXiuoaMh3FGKl7eZTm4eRapKhI00hRmUqjUd
-         xsdhU+t8BznC/UG8ct79OBVA5eXMZPPXQwu2Mi1st4891ApwoXn8zvpO1FCXwgOYfhMa
-         q4yB6fjg0KM6w3NcmXkaj6AX5/qZr+v1QHvcPHWAKbeG5DcM2WWVx7L79/duSWExk44j
-         kt3uoGtnmC1mZiixh1X4K1211xFoLPM8stfZjmFjpOF+FYf1HZyjYQWM/7z6dMRMZryv
-         B5eHv2D3InPcnQSxZRctubJx6HgAGl0hA2paZfI1EiZV3eLpatcUleQwGe2Oe2/qsDIg
-         io6w==
+        d=google.com; s=20251104; t=1784599906; x=1785204706; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:from:subject
+         :message-id:mime-version:date:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=yf2r7RbieGJv9UTOKmipPScNngck1ABYrHmm6ujmWn4=;
+        b=PlnhaYpfnKVN/4PrAUVQLJv7+5jYotNOD3835AtstlC0h+a2dm23c8sGms6H38at3V
+         ISiosUMV7dnKM8WJcDyQ9iGWsu9o6tclIADQYe4OgoCqez5pISVHoUtjeSDTMaZHW7Cg
+         TfbkBoLeOIxz+KreQzbu5HL6q5/7e+BB/J1w1LUIZFOWBaL4uVIk3vBJ2d95ebvh2Jz2
+         dpLHh883UPcGw0Oh00ZjSFFXScMpkmd7f0wTT8sBLWra5u1EUv99KmhT2SM27w2xUlIO
+         +ky9Gsk/SqinMo1ApsqWy6tezX2uQGISwebZtXfGR28PQCyHKOAnCPxk1S0ozQk7vx3X
+         zjFw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784587677; x=1785192477;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=jBcBCCBCmHLnCiyc438pf1e9jEwlaZNqcasfh2fW7yI=;
-        b=ObKlAuvA6Y9WDjnnyzw7zStc9Hz/5uRYLgiNMYm+DaddOEvebEyQ8oP4I61Bbww0Z6
-         ElVBdSe2J+viviNBTxQ7wZrYeyTb3wHbz9/xWiRj5Kcahzn5y+C9gD/px6rw5F5iXr/x
-         kRrUJcm1t5C3R/EmDqEjQCF2VTaRycOKiOOkCY6poCw3XUecOM2FFVGaRGRp0YvH/ZN5
-         flgcgJYRNJXckjh7PWw7sm1Qmc6ud8827woIGsvV1yXe/CDZt6lT6LjS/Yhpq8++Y3/R
-         VExb8st8lkjvRXbL9EhNFKJUjLeSXZosdE5LZdDzoWmpfygL5KJKJWbBFjmy9LaqJZkF
-         qRVg==
-X-Forwarded-Encrypted: i=1; AHgh+RoCzUNR/KQkjq/4d9lRO7/UAzmg8LdnNBnNPPGVUAVCslSfMSO/r1vvYPLjM8FQQGiJNfDlXYRF@vger.kernel.org
-X-Gm-Message-State: AOJu0YwJNemHrjCByzzu3UD+lDBqcWPiB2Gz/zWdveYXU1Bt1w3NmMJP
-	4OMexqb6osGCSPRw5tB3n1WzYePLxSsnXA8LWtedq8Ir9oHTgEbIdYGhhUJJ8vz7DV+a3dojW/8
-	19iNyo9iHOqTo/Y2dWortqbnB7Hrxe/i1nXLfWAAH
-X-Gm-Gg: AfdE7cl5QMoKcIuL0SzIvE/pVmX5moNJVMKkHjnqRud50RVPS1muZ3IzTntJwJtP/xK
-	mPEu+doDVRp3YiS18yJ04CGXd3Jlgd/0stjI2FKuxOSIAg2+sBwLPsVlZ7Unylv3ZJikpEqu3Ix
-	Y9P+5hqAg8t2UYO0WJWI2FNP7Ha4RW+DEumlMcgGXdigVLMHz5Bn+8/JGf6bUUg2KSWf6LYK/gU
-	HIH03GSoT1FeehPerP6FOAdDcpOndXwJ6YCHo1pCd3uGAft4ojuYr4SDqxcdg==
-X-Received: by 2002:a05:6a20:c70b:b0:3bf:7c02:c46f with SMTP id
- adf61e73a8af0-3c3ad5ffb90mr16486972637.14.1784587677211; Mon, 20 Jul 2026
- 15:47:57 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1784599906; x=1785204706;
+        h=content-transfer-encoding:content-type:cc:to:from:subject
+         :message-id:mime-version:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=yf2r7RbieGJv9UTOKmipPScNngck1ABYrHmm6ujmWn4=;
+        b=ktujf2PZEv3I9oAq9R+7MGsRUhMESP+0eYSqM5w9G+JnlDjawWZTDwV6XbyXkBcIu+
+         +zg3Nqg7DoiqWhIYs/QRHUGDHfk+qUnujgwI3RJHnTDkZdG2Hi8wbUKzd32ZbA09o4w9
+         J/Hc3uPU191irnmti45WhZoSmX/2CiXpTF6EC/O4eY++Y+WYL3gwUhuT9VgAj+CRykG5
+         h72MN3VKRg/BcWxFNAdciP7bqLnjhqArz3qeg3uvIn+T9V3BJo7vDVrIlluws5sSgnH6
+         +W5/t3LHusu0QoqU9aWHYq8j6UEz57pSFCFZrfEtMfvop7qqVBPI/NXA6tbzTif4MK89
+         QNjw==
+X-Gm-Message-State: AOJu0YxkbHHOAhAlAJxzVGzUTPpX4w8oycfaErhoBzPb9JItq1rgWVAf
+	CcuMLORB4qAv1ie1CIMJlZuKFzjo+FQAaQw1YtXdiaGW8haHzms5eSofqLLw2M9QmKyuNnKtiK9
+	mUSZ7gWt8vGL/+lCcX6kD42+5jmDZGowzaPOMHieSMUdkWMzplGlh+5pyuiQ9Q19fWWlH6BZDui
+	HREeMs8HzLKbe0C/pmtYrSjMswiQjmo2WC
+X-Received: from dlzz33.prod.google.com ([2002:a05:7022:4a1:b0:137:f9fd:ecf0])
+ (user=tweek job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:586f:b0:38e:6b76:f0a4
+ with SMTP id 98e67ed59e1d1-38e6b76f1bcmr10395199a91.2.1784599906100; Mon, 20
+ Jul 2026 19:11:46 -0700 (PDT)
+Date: Tue, 21 Jul 2026 12:11:26 +1000
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260708000956.46138-3-dwindsor@gmail.com> <a3a376bce713ac38ce6746508239c1af@paul-moore.com>
- <CAEXv5_gt7BPWvdR4D1_3XJ0_XpBXWN52jeAOf1K2QJ7LL6CtPQ@mail.gmail.com>
- <DK3LZOFOVG5L.3F34IKOCO1I04@gmail.com> <CAHC9VhR8n_TBPGLGq-Pray+mHrUCdcmqGXi9wTXyeGa2Dc4m4g@mail.gmail.com>
- <DK3PRLXZFGKN.GES64J05HY6B@gmail.com>
-In-Reply-To: <DK3PRLXZFGKN.GES64J05HY6B@gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 20 Jul 2026 18:47:44 -0400
-X-Gm-Features: AUfX_myc5k3-eepFI8wiBLb8aQXZE1oN-cQyoKyDkS4G7UoPqGpzL4qDyO8o5wU
-Message-ID: <CAHC9VhSLMf4vzWduSfA67DDqB+s2wrAZ5AMr=0A08uybQpuRxg@mail.gmail.com>
-Subject: Re: [PATCH v5 2/3] bpf: add bpf_init_inode_xattr kfunc for atomic
- inode labeling
-To: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Cc: David Windsor <dwindsor@gmail.com>, Alexei Starovoitov <ast@kernel.org>, 
-	Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko <andrii@kernel.org>, 
-	Martin KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
-	Yonghong Song <yonghong.song@linux.dev>, John Fastabend <john.fastabend@gmail.com>, 
-	KP Singh <kpsingh@kernel.org>, Jiri Olsa <jolsa@kernel.org>, 
-	Emil Tsalapatis <emil@etsalapatis.com>, Matt Bobrowski <mattbobrowski@google.com>, 
-	James Morris <jmorris@namei.org>, "Serge E . Hallyn" <serge@hallyn.com>, 
-	Casey Schaufler <casey@schaufler-ca.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, Mimi Zohar <zohar@linux.ibm.com>, 
-	Roberto Sassu <roberto.sassu@huawei.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, 
-	Eric Snowberg <eric.snowberg@oracle.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, Shuah Khan <shuah@kernel.org>, 
-	bpf@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-integrity@vger.kernel.org, 
-	selinux@vger.kernel.org, linux-kselftest@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.55.0.229.g6434b31f56-goog
+Message-ID: <20260721021127.1313453-1-tweek@google.com>
+Subject: [PATCH 1/2] libselinux: support multiple spec_files
+From: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+To: selinux@vger.kernel.org
+Cc: James Carter <jwcart2@gmail.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	"=?UTF-8?q?Christian=20G=C3=B6ttsche?=" <cgzones@googlemail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	"=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 20, 2026 at 5:24=E2=80=AFPM Kumar Kartikeya Dwivedi
-<memxor@gmail.com> wrote:
-> On Mon Jul 20, 2026 at 10:15 PM CEST, Paul Moore wrote:
-> > On Mon, Jul 20, 2026 at 2:27=E2=80=AFPM Kumar Kartikeya Dwivedi
-> > <memxor@gmail.com> wrote:
-> >> On Mon Jul 20, 2026 at 8:12 PM CEST, David Windsor wrote:
-> >> > On Thu, Jul 16, 2026 at 5:55=E2=80=AFPM Paul Moore <paul@paul-moore.=
-com> wrote:
-> >> >>
-> >> >>
-> >> >> I'm sorry David, now that I'm seeing this function again, especiall=
-y
-> >> >> with the LSM specific bits extracted into a LSM function, this abso=
-lutely
-> >> >> belongs somewhere under security/.  It's only callable from within =
-a
-> >> >> BPF LSM callback and all it does outside of some BPF pointer boiler=
-plate
-> >> >> is call right back into a LSM helper function.
-> >> >>
-> >> >> If the BPF maintainers aren't willing to accept that, then we will =
-all
-> >> >> need to find another way.
-> >> >
-> >> > Where this code lands doesn't matter to me, so I'll stay out of the
-> >> > decision of where it lives.
-> >
-> > Yes, you're caught up in some territorial wrangling that goes a fair
-> > bit beyond what you're looking to accomplish.  My apologies for my
-> > half of that, it is an unfortunate part of upstream kernel
-> > development.
-> >
-> >> > If this kfunc goes to security/, would we also want to move eg
-> >> > bpf_set_dentry_xattr similarly?
-> >> >
-> >> > I'll roll v6 of this series meanwhile and we'll see what the BPF
-> >> > maintainers say.
-> >
-> > Thanks.  Fortunately, it should be easy enough to move the kfunc
-> > around, that's likely one of the smaller changes needed in v6.
-> >
-> >> I don't think there was any preference expressed from the BPF side.
-> >
-> > Look at the second patch in the v4 patchset, you'll see a preference.
-> >
-> >> Logically,
-> >> one cannot be faulted for adding a kfunc to set the xattr for inode in=
- the same
-> >> file where similar kfuncs to set xattr on other FS objects / entities =
-exist.
-> >
-> > First off, I can't say that the existing BPF kfuncs intended for use
-> > within a BPF LSM program are in a good location.  Unlike every other
-> > LSM which locates its code under security, the BPF LSM devs have
-> > chosen to locate their associated code all over the place.  Some of
-> > that happened before I was responsible for the LSM framework, and some
-> > of that which has happened afterwards has likely intentionally avoided
-> > traditional LSM review.  Unfortunately, this has muddied things with
-> > respect to what is possible generally in BPF versus what is possible
-> > only when the BPF LSM is enabled; we just recently saw where this was
-> > arguably the root cause of an exploitable vulnerability.
-> >
-> >> The question about bpf_set_dentry_xattr is thus valid.
-> >
-> > It's a very valid question.  It is my opinion that kfuncs which are
-> > only intended to be called from within BPF LSMs should be located
-> > under security/, just like every other LSM.  If there is a kfunc that
-> > is generally useful from other contexts, that is a different story,
-> > but in the bpf_set_dentry_xattr() case, it is explicitly only useful
-> > for setting 'security.bpf.*' xattrs.
->
-> I don't think we should do that in v6 though.
+Update the existing backends to potentially allocate multiple
+spec_files. This commit simply adds a level of indirection but does not
+change any current behaviour. It will facilitate the gradual migration
+of backends to multiple context files.
 
-Yes, that would be a separate effort and it's one of the reasons I
-didn't bring it up in my review comments, I was simply responding to
-those who raised it as a question.
+In selabel_fini(), compat_validate() is updated to use the first
+spec_file only, for legacy validation error reporting. selabel_open() is
+already performing context validation if requested against individual
+file paths (see insert_spec).
 
+Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+---
+ libselinux/src/label.c          | 10 ++++++++--
+ libselinux/src/label_db.c       | 11 +++++++++--
+ libselinux/src/label_file.c     |  8 ++++++--
+ libselinux/src/label_internal.h |  5 +++--
+ libselinux/src/label_media.c    |  8 +++++++-
+ libselinux/src/label_x.c        |  8 +++++++-
+ 6 files changed, 40 insertions(+), 10 deletions(-)
+
+diff --git a/libselinux/src/label.c b/libselinux/src/label.c
+index 991b9769..4a97d3bc 100644
+--- a/libselinux/src/label.c
++++ b/libselinux/src/label.c
+@@ -162,7 +162,7 @@ static int selabel_fini(const struct selabel_handle *re=
+c,
+ 	char *ctx_trans;
+ 	int rc;
+=20
+-	if (compat_validate(rec, lr, rec->spec_file, lr->lineno))
++	if (compat_validate(rec, lr, rec->spec_files[0], lr->lineno))
+ 		return -1;
+=20
+ 	if (!translating)
+@@ -398,11 +398,17 @@ int selabel_digest(struct selabel_handle *rec, unsign=
+ed char **digest,
+=20
+ void selabel_close(struct selabel_handle *rec)
+ {
++	size_t i;
++
+ 	if (rec->digest)
+ 		selabel_digest_fini(rec->digest);
+ 	if (rec->func_close)
+ 		rec->func_close(rec);
+-	free(rec->spec_file);
++	if (rec->spec_files) {
++		for (i =3D 0; i < rec->spec_files_len; i++)
++			free(rec->spec_files[i]);
++		free(rec->spec_files);
++	}
+ 	free(rec);
+ }
+=20
+diff --git a/libselinux/src/label_db.c b/libselinux/src/label_db.c
+index bafa9328..59a291e8 100644
+--- a/libselinux/src/label_db.c
++++ b/libselinux/src/label_db.c
+@@ -302,12 +302,19 @@ static catalog_t *db_init(const struct selinux_opt *o=
+pts, unsigned nopts,
+ 		errno =3D EINVAL;
+ 		return NULL;
+ 	}
+-	rec->spec_file =3D strdup(path);
+-	if (!rec->spec_file) {
++	rec->spec_files =3D calloc(1, sizeof(path));
++	if (!rec->spec_files) {
+ 		free(catalog);
+ 		fclose(filp);
+ 		return NULL;
+ 	}
++	rec->spec_files[0] =3D strdup(path);
++	if (!rec->spec_files[0]) {
++		free(catalog);
++		fclose(filp);
++		return NULL;
++	}
++	rec->spec_files_len =3D 1;
+=20
+ 	/*
+ 	 * Parse for each lines
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index 0c0499eb..eb2e66da 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -1549,9 +1549,13 @@ static int init(struct selabel_handle *rec, const st=
+ruct selinux_opt *opts,
+ 		goto finish;
+ 	}
+=20
+-	rec->spec_file =3D strdup(path);
+-	if (!rec->spec_file)
++	rec->spec_files =3D calloc(1, sizeof(path));
++	if (!rec->spec_files)
+ 		goto finish;
++	rec->spec_files[0] =3D strdup(path);
++	if (!rec->spec_files[0])
++		goto finish;
++	rec->spec_files_len =3D 1;
+=20
+ 	/*
+ 	 * The do detailed validation of the input and fill the spec array
+diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_interna=
+l.h
+index 4ff39d96..d54053df 100644
+--- a/libselinux/src/label_internal.h
++++ b/libselinux/src/label_internal.h
+@@ -96,10 +96,11 @@ struct selabel_handle {
+ 	void *data;
+=20
+ 	/*
+-	 * The main spec file used. Note for file contexts the local and/or
++	 * The spec files used. Note for file contexts the local and/or
+ 	 * homedirs could also have been used to resolve a context.
+ 	 */
+-	char *spec_file;
++	size_t spec_files_len;
++	char **spec_files;
+=20
+ 	/* ptr to SHA1 hash information if SELABEL_OPT_DIGEST set */
+ 	struct selabel_digest *digest;
+diff --git a/libselinux/src/label_media.c b/libselinux/src/label_media.c
+index 957fcfd3..35f3cc16 100644
+--- a/libselinux/src/label_media.c
++++ b/libselinux/src/label_media.c
+@@ -109,7 +109,13 @@ static int init(struct selabel_handle *rec, const stru=
+ct selinux_opt *opts,
+ 		errno =3D EINVAL;
+ 		goto finish;
+ 	}
+-	rec->spec_file =3D strdup(path);
++	rec->spec_files =3D calloc(1, sizeof(path));
++	if (!rec->spec_files)
++		goto finish;
++	rec->spec_files[0] =3D strdup(path);
++	if (!rec->spec_files[0])
++		goto finish;
++	rec->spec_files_len =3D 1;
+=20
+ 	/*=20
+ 	 * Perform two passes over the specification file.
+diff --git a/libselinux/src/label_x.c b/libselinux/src/label_x.c
+index 0c525bfc..33a64a6a 100644
+--- a/libselinux/src/label_x.c
++++ b/libselinux/src/label_x.c
+@@ -139,7 +139,13 @@ static int init(struct selabel_handle *rec, const stru=
+ct selinux_opt *opts,
+ 		errno =3D EINVAL;
+ 		goto finish;
+ 	}
+-	rec->spec_file =3D strdup(path);
++	rec->spec_files =3D calloc(1, sizeof(path));
++	if (!rec->spec_files)
++		goto finish;
++	rec->spec_files[0] =3D strdup(path);
++	if (!rec->spec_files[0])
++		goto finish;
++	rec->spec_files_len =3D 1;
+=20
+ 	/*=20
+ 	 * Perform two passes over the specification file.
 --=20
-paul-moore.com
+2.55.0.229.g6434b31f56-goog
+
