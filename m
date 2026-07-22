@@ -1,135 +1,230 @@
-Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
+Received: from mail-qv1-f54.google.com (mail-qv1-f54.google.com [209.85.219.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF9CB1448E0
-	for <selinux@vger.kernel.org>; Wed, 22 Jul 2026 14:29:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.174
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784730560; cv=pass; b=UJ3AC2q25g/CRFr4+uw3gozypklzAaZPlhbvVlTqqZ9trc8PVq3FwlSgKwXEGMP5a8TFtK0yhLJYCVyFhsaCLu8WP7EPiwLwqBVMfZxQVeB82f3gd3IAijhToGakTxcfync8j053pmYftrGpFfXQVxmg74BYra0+e7zWlHDlCo0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784730560; c=relaxed/simple;
-	bh=1wNMElBo+AliEYpZFgBJN4pFdLNVkIwBbEXel7MQLb8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Tx98j41wX3CQXWtoIXfOLFXvmEFP0ciyoSLRzmtEEmCAI8tmmhG58kfzSC8FuNpGLUzeZxbHgGsI8gqPuQW6lPN+OclsfsqSGpXgnsfI/khcdS/7y83JgHVCH/fTQxlVjcs/WaYZofihuf+3IzjNRPVPYTTYuXmPWH9DYW9lEQk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=W10GSPcz; arc=pass smtp.client-ip=209.85.215.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AFEB369D6E
+	for <selinux@vger.kernel.org>; Wed, 22 Jul 2026 14:50:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.54
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784731802; cv=none; b=dqQ7VHdaKgvzSOu4SEigbYjTx5C/04Ny+QTbsRFmEzQFg9hfD4TUyUDhO7ERK7Ag865Kv/4XyU5dfHxagk6mTlojoz/6BfSc22FpVjH7V/+G6nC1zY4O/oDygi1qpiMwM0pyXKf/gHuCKaCrL/IcsLu6yyIYRaPS+ANVc06V/mQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784731802; c=relaxed/simple;
+	bh=YPS8Gcyaz+EOs3zyOMJwHElmL1m1egTugG4biAbAiVw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MDcnwRxobFTWDy7nK/bSjhWpN5DGUQas2PsUFohBvOye8dhS34ekehztXG+UW4OvfZ2KnmA641TkpuOSLjDf7+jOV/qRxZMAiInrCZlnI+9GZxrXXT9VDCdEclJVT89afn08cxifmRodxcRD0m+v/B3+vxmyjzfMgxe+UMjRuZ4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gwr6PU71; arc=none smtp.client-ip=209.85.219.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="W10GSPcz"
-Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-c9fe3c9bd5fso3980789a12.0
-        for <selinux@vger.kernel.org>; Wed, 22 Jul 2026 07:29:18 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784730558; cv=none;
-        d=google.com; s=arc-20260327;
-        b=RSAD3KWZG5NCMDWTBdmjrWEFSqHHLUj5ZkAs55OpvhOgPIbLTjvTQH+BebovZhEzA+
-         TKJcEo7eZ4GcPWpnb23VC4eXMoxU6EsrgA/wT0o95H717lrMdH05Oq4CCqe8PO/Xste3
-         r2mmqWrrKiWDe2POgpLcqjchH4dMSPj7wADXwDRKYwxAbajidIxFLfvm4vHWWn3SvoME
-         z8fJg0asG+56eMJf0AZPJafIQZYIPurNrr4XsV3Tjv+TKGxef+uYtmxVCgdpspCrwpbo
-         ai4Om9Zn0iQanxcEmPIIkFObZcqJUP/iIrCw0mGgk07GJioJgMJCMdwfCf7Ot02VseGR
-         Pz+g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=5lc8RCxKLaF2IzHjUyNtx29wO+xOlWK+b6lz8l7LenM=;
-        fh=E51Jjr8Bz9WzQ+Ik80n9UcoRPIh3NakEhV8l9xr/qbM=;
-        b=iJuheyrnA17mhtRCAUTjsn7y81xnFaAePBWldrlw2v3MLi1rOlf0DLArcKMl8XZeEx
-         8dirELJE/PwI4x3SU6Y8B5C5LeWfsB6iWBNJBZ7O0ol9n4HedueYscwDqUTj5uUfRHJH
-         vdYibVgtmeU3A4zvbPwHzXu3HtFSNBve4YHX7TmSxq8e07OCgqtJ/fURVV98JvsV6f4i
-         HCWzs3IaLBI8Ep5kXDHv2/mu/oGx46yuuUDgERzZkdVAPF8zXg9uf8uReL1+x1DgNPZS
-         V1gZI7bVvsvSEOHH09ILbSsXqfFjYsmxm3jYpRAR1VoBEdYU7Q7xtU0D4PPF0p+pkk2e
-         5JIA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gwr6PU71"
+Received: by mail-qv1-f54.google.com with SMTP id 6a1803df08f44-8fcc43c48f7so127723926d6.2
+        for <selinux@vger.kernel.org>; Wed, 22 Jul 2026 07:50:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784730558; x=1785335358; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=5lc8RCxKLaF2IzHjUyNtx29wO+xOlWK+b6lz8l7LenM=;
-        b=W10GSPcz7K7rH/Em+IQd1yZEkHMUcj8SM5gR4RhUb3X+u+DmWuyBebeLe9KiyHsys1
-         4hlEcPeoxkc16F9yu49PK3aLgdmOqGnqA21wa5RNfCPajAtItSM5fSxJlMgQaXCxNXWL
-         bOICXyoYfYblAok06jeNbIDueNkPu6XvjBQbADKKa7P+J761yYUJTi4wBhpEPLsy9DDH
-         2AJ8PN2zubtsJ/fECqvZtq0Hr+NrrhpFGX8AzuZmBO84q4D/dKcIQ/fRyE6UXQ69UwFA
-         F8on8HX4QXRibE8p/OlDitSK6o6E4nKTBmV5bdSHiftPtf9DHaekgp2tFv8F0cFbdMMz
-         pm5Q==
+        d=gmail.com; s=20251104; t=1784731799; x=1785336599; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=vxZKYQ5YIQLzaXYFGFBWxzp4wY6MFn5BxXRvlrXob9s=;
+        b=gwr6PU71HwyITHR5FdbtFbULq2/KRvV8qmcjRTg9j4ikMksBdwWcfw7U/kRmO52zCd
+         J9bELeGSsquT7lCDW+IJM+ZFhw+rUys/5C4FiKC+/cFzR5SAMRi80AFJGJehpl+C97Pf
+         /meYqd4kfIZ1zHljaFT5Mz7U31O1s4nkEUnUvJVY/ZXaXsZLDJncPTn1ilpuUWnpejNp
+         K30pVz1zA0qHAft/SRkdkSqK4XmuW2LWbIJog/Yy0+97I24cnnqC0JFNtygOWQen0tX4
+         Mh7Mo2UWc6mtEim8exMx3nVAuxCG9mA2uhxq0/UGLAUlFR0zhwPybJiZW6+dJOjlbxIx
+         nnSQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784730558; x=1785335358;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=5lc8RCxKLaF2IzHjUyNtx29wO+xOlWK+b6lz8l7LenM=;
-        b=M2h/OpJhJXDt2vlF1+u39odZzHcrXqDmRpjdRU2KmKMNcMPrNGBUSCle48IGXvtGwX
-         Hw+jhD2R0aYksssawz46BOURFF0c++hcm8qMujOSqCDe3mxOkkyHUZNx1XMcFJSCsDj0
-         zoiWOlgyxRlHdlj4IiW3UdgnxeAAc5zGIPYWQMe8+nxnxgsA94L/CTny3cQf1JRv6WFH
-         w7PLH//l2xWXq6arWCajMCHLNoSCx0zyFfEqeJPqVPlB/eRtxZclPeuwpyE9KVWDfPoW
-         qjSX2UaQHmW75VOVySnBFqsz7JRhaHiI+M6wsWzFpL8lckIKVbXEecixBI2W1haKfeS8
-         tQpA==
-X-Gm-Message-State: AOJu0YwonxbYLe/rgNmeUyyeJSmQMDuQO3IoYGjFIDdcdD9x3ctWEnr4
-	SCZw8BG3JCUt9zye1mW1J8ZfTr7ujsDDW7Rz1cTApSa1zfaTEF4BjKgaSnUyidrh0Lb7VWAoY13
-	RY7on1d45xjP3PDyfmR3GdVsJyWWN2UjYTw==
-X-Gm-Gg: AR+sD13j8Nf10RdY5GUEJvEQuCUEiuoOBhx2bs5h8Z5+cC+i2hMk5MjMk7N+tQwohYa
-	IO1Jrf+PYjr1Cw2FQ3f2WoAbvpkj/C6XYKkYd98xQut26Aj++Clt+nBvMgyFG93ETMTRhdHzNvt
-	wC2UgaxdFmzrUI+IevlypVxpEwfvQ8xxpIH3EqgrXdkt1VyrJ5Sh9goH/5iBG0dR7izjoUMdDuS
-	G2XDD5PWHISeUO9C5ob38ax6jrVpvAVBARoQ6CCrkeCc8Wu7e74kgKOPLzGig==
-X-Received: by 2002:a05:6a21:d83:b0:3c4:3750:2c03 with SMTP id
- adf61e73a8af0-3c437502cd4mr2577071637.9.1784730558032; Wed, 22 Jul 2026
- 07:29:18 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1784731799; x=1785336599;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=vxZKYQ5YIQLzaXYFGFBWxzp4wY6MFn5BxXRvlrXob9s=;
+        b=sP6C5z5hH5zFqdw61ttz7QSQR2q7myTuiXrSajslpeesRnbaX8JJSXdOOfc1XielAw
+         tpfrYVMEHnvolkT8vAjj/pOPxF3iBZcmWEzZb2t6tSL/1WOXHzq3yVy/rK4+NRtec+Ch
+         iRSxH8LOGr+lEWvfPk5yy0R0CU/t3M3lem0O5ZN9Vk8j84/a056ORK6KTQkKJq/nIHZJ
+         an0ZwnqCTRicKfMuwE9+tOMLyji+MZeJYXLrkRS2RkUgaDQzrhw1ShBC5RxAhLWHIL4X
+         EYoVgkbn80QuY/Kjif1feXvYomL+iaAqxaRoD9jDpBuWrI9CkHw0odv2uBQymzisnkwf
+         VNyA==
+X-Gm-Message-State: AOJu0YxzpAdz7HpfSgZSos67+eWLNnxj4ebwIknx+e4dCaLajjXl1ze6
+	3g72qG65etyNC0t5+3FK+N1LiSprxgT+z4oeYS0xjS3rA7PekJhVwwab/64sEQ==
+X-Gm-Gg: AR+sD10943igdOfaJ08kWY2hSEaBkYGSzrL5tG3RSrhNCCdU4/DdPYM5iI6Sc3aUBB+
+	yu8yyOcNObA3GaSBjBr559zEjIt4rjh8P2QnMBf9XjrTyoUSAO1CWkPNSg6ZmyPD7/2afxDUL1U
+	PP0aW77K2Vj5Q49V5hAjbtvkDQS90xCVxsrRbbMlqkedBg+xz4FQpEn7FTNfv93+6nXsEKS6y4t
+	LXkjVhP0Jfzag1vaOq15o/2msIDBfR+WG9qz2IDSg0NH99CxKzV9WSphF7FYdn4L1E9dubD3Wz4
+	eP5SuzH54NMm1RowFATdG6snCeYw6FH9xq3ZP+qoaubWQmJBJMq75zH88pi3rEzTmHCQJclhX/F
+	YW5rJl72l3ePeVd7Qp4kKrlA0R+o2A9xss9RmzaRONzRNPN7swFz3hCjDpzn8G9m3vgczzEawDe
+	SUEetoVwN4+5JzhlWca+IBOXQJppY5rotxebcFOIAzCqvvEF8VqTay9tDzqRGtbwv53SEGlU+wU
+	Wrrvg==
+X-Received: by 2002:a05:620a:4887:b0:92e:e2fc:26d3 with SMTP id af79cd13be357-930b41cf282mr2253708385a.46.1784731799135;
+        Wed, 22 Jul 2026 07:49:59 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-930f6a0371asm179775385a.27.2026.07.22.07.49.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Jul 2026 07:49:58 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH v3] libsemanage: block on store lock by default
+Date: Wed, 22 Jul 2026 10:49:19 -0400
+Message-ID: <20260722144918.73394-2-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <al8eYnGraP-hoCCm@suse.com>
-In-Reply-To: <al8eYnGraP-hoCCm@suse.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 22 Jul 2026 10:29:06 -0400
-X-Gm-Features: AUfX_mz7_cB8sjw-VasSuQ4_J5UM3rMERqJlZEHOTRnMURDztDAbW2byKDW9d0s
-Message-ID: <CAEjxPJ5-WxJou91SZZf0L-B0LmsToqgdq9OupgY4w1UX4QvgxA@mail.gmail.com>
-Subject: Re: [PATCH] selinux(8): note on conflicting configurations
-To: Johannes Segitz <jsegitz@suse.de>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, Jul 21, 2026 at 3:23=E2=80=AFAM Johannes Segitz <jsegitz@suse.de> w=
-rote:
->
-> setting SELINUX=3Ddisabled while having selinux=3D1
-> results in a non-booting system. Document this
-> here in a note
->
-> Signed-off-by: Johannes Segitz <jsegitz@suse.de>
+semanage_get_lock() polls the store lock once per second and gives up
+after sh->timeout seconds, which is hard-coded to 5 with no
+configuration setting to control it. A single semodule transaction on
+a real policy routinely takes more than 5 seconds, so any overlap
+makes the second caller fail. This makes rpm scriptlets, ansible,
+or other scripted usage of semodule fragile.
 
-The patch is fine but wondering if we want to change the libselinux
-behavior in this situation.
+Change the default timeout to -1 (wait indefinitely) and in that case
+use a blocking flock() instead of polling. Try a non-blocking flock()
+first for the common case where the lock is not held and if it is
+held, inform the user so they know why it may be taking longer than
+normal. Retain the timeout logic in case we decide to re-introduce
+other configurable settings in the future.
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Several other minor cleanups are included as well, e.g. there is no
+need to pass O_TRUNC for the lock file, and there is no need to set
+O_CLOEXEC a second time via fcntl() since open() already passed it.
 
-> ---
->  libselinux/man/man8/selinux.8 | 9 +++++++++
->  1 file changed, 9 insertions(+)
->
-> diff --git a/libselinux/man/man8/selinux.8 b/libselinux/man/man8/selinux.=
-8
-> index 5842150b..17df2a99 100644
-> --- a/libselinux/man/man8/selinux.8
-> +++ b/libselinux/man/man8/selinux.8
-> @@ -50,6 +50,15 @@ regardless of what is set in the
->  .I /etc/selinux/config
->  file.
->
-> +.B NOTE:
-> +When setting a conflicting configuration like
-> +.B SELINUX=3Ddisabled
-> +in
-> +.I /etc/selinux/config
-> +while having
-> +.B selinux=3D1
-> +on the kernel boot options will result in a non-bootable system.
-> +
->  The
->  .I /etc/selinux/config
->  configuration file also controls what policy
-> --
-> 2.55.0
+Fixes: https://github.com/SELinuxProject/selinux/issues/181
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+v3 fixes the description (s/requires/makes/).
+
+ libsemanage/src/handle.c         |  2 +-
+ libsemanage/src/semanage_store.c | 81 +++++++++++++++-----------------
+ 2 files changed, 39 insertions(+), 44 deletions(-)
+
+diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
+index 77d0ed8a..1ff86e60 100644
+--- a/libsemanage/src/handle.c
++++ b/libsemanage/src/handle.c
+@@ -37,7 +37,7 @@
+ #include "semanage_conf.h"
+ #include "semanage_store.h"
+ 
+-#define SEMANAGE_COMMIT_READ_WAIT 5
++#define SEMANAGE_COMMIT_READ_WAIT -1
+ 
+ static char *private_semanage_root = NULL;
+ 
+diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+index f14ebe97..f6ca1afb 100644
+--- a/libsemanage/src/semanage_store.c
++++ b/libsemanage/src/semanage_store.c
+@@ -50,6 +50,7 @@ typedef struct dbase_policydb dbase_t;
+ #include <stdio_ext.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <time.h>
+ #include <unistd.h>
+ #include <sys/file.h>
+ #include <sys/stat.h>
+@@ -1944,61 +1945,55 @@ static int semanage_get_lock(semanage_handle_t *sh, const char *lock_name,
+ 			     const char *lock_file)
+ {
+ 	int fd;
+-	struct timeval origtime, curtime;
+-	int got_lock = 0;
++	int left;
+ 
+-	if ((fd = open(lock_file, O_RDWR | O_CREAT | O_TRUNC | O_CLOEXEC,
++	if ((fd = open(lock_file, O_RDWR | O_CREAT | O_CLOEXEC,
+ 		       S_IRUSR | S_IWUSR)) == -1) {
+ 		ERR(sh, "Could not open direct %s at %s.", lock_name,
+ 		    lock_file);
+ 		return -1;
+ 	}
+-	if (fcntl(fd, F_SETFD, FD_CLOEXEC) < 0) {
+-		ERR(sh, "Could not set close-on-exec for %s at %s.", lock_name,
+-		    lock_file);
+-		close(fd);
+-		return -1;
+-	}
++
++	if (flock(fd, LOCK_EX | LOCK_NB) == 0)
++		return fd;
++	if (errno != EAGAIN && errno != EWOULDBLOCK)
++		goto err;
+ 
+ 	if (sh->timeout == 0) {
+-		/* return immediately */
+-		origtime.tv_sec = 0;
+-	} else {
+-		origtime.tv_sec = sh->timeout;
+-	}
+-	origtime.tv_usec = 0;
+-	do {
+-		curtime.tv_sec = 1;
+-		curtime.tv_usec = 0;
+-		if (flock(fd, LOCK_EX | LOCK_NB) == 0) {
+-			got_lock = 1;
+-			break;
+-		} else if (errno != EAGAIN) {
+-			ERR(sh, "Error obtaining direct %s at %s.", lock_name,
+-			    lock_file);
+-			close(fd);
+-			return -1;
+-		}
+-		if (origtime.tv_sec > 0 || sh->timeout == -1) {
+-			if (select(0, NULL, NULL, NULL, &curtime) == -1) {
+-				if (errno == EINTR) {
+-					continue;
+-				}
+-				ERR(sh,
+-				    "Error while waiting to get direct %s at %s.",
+-				    lock_name, lock_file);
+-				close(fd);
+-				return -1;
+-			}
+-			origtime.tv_sec--;
+-		}
+-	} while (origtime.tv_sec > 0 || sh->timeout == -1);
+-	if (!got_lock) {
+ 		ERR(sh, "Could not get direct %s at %s.", lock_name, lock_file);
+ 		close(fd);
+ 		return -1;
+ 	}
+-	return fd;
++
++	INFO(sh, "Waiting for semanage %s at %s (held by another process).",
++	     lock_name, lock_file);
++
++	if (sh->timeout < 0) {
++		while (flock(fd, LOCK_EX) != 0) {
++			if (errno != EINTR)
++				goto err;
++		}
++		return fd;
++	}
++
++	for (left = sh->timeout; left > 0; left--) {
++		const struct timespec ts = { 1, 0 };
++
++		nanosleep(&ts, NULL);
++		if (flock(fd, LOCK_EX | LOCK_NB) == 0)
++			return fd;
++		if (errno != EAGAIN && errno != EWOULDBLOCK)
++			goto err;
++	}
++
++	ERR(sh, "Could not get direct %s at %s after %d seconds.", lock_name,
++	    lock_file, sh->timeout);
++	close(fd);
++	return -1;
++err:
++	ERR(sh, "Error obtaining direct %s at %s.", lock_name, lock_file);
++	close(fd);
++	return -1;
+ }
+ 
+ /* Locking for the module store for transactions.  This is very basic
+-- 
+2.55.0
+
