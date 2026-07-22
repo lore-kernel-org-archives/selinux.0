@@ -1,67 +1,67 @@
-Received: from mail-qv1-f54.google.com (mail-qv1-f54.google.com [209.85.219.54])
+Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2718442B07
-	for <selinux@vger.kernel.org>; Wed, 22 Jul 2026 17:46:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DD583AFB0C
+	for <selinux@vger.kernel.org>; Wed, 22 Jul 2026 18:13:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784742368; cv=none; b=RGe3p2E1LwqXdJflg0e26T/nvgU+I6veZr7BXtVD2htDQhoTUb83cnU37EkXUfo6k8m1TAPMaeTQ6Jc8RVyFdJcA2oioRlZYD6y5mu47C9SyBWaDjR3sjBbjwALvQA9B0XaPhJNqffavacQU0FHB/QzVyPzl4ZVPQrkWqmgY7U8=
+	t=1784744022; cv=none; b=hSNRBWjk7Pl+vBKzUYDXYWkCzinHkF/SN97QguEeuODr7Mv2yQaA8raUdw2chY5ouC/ryqeortPSwnPlHmB6e1PyFPA7OytA5asrmCKxIJmUXHAe9ZFWr2A6j1gWDS5fa6Jwe1EqexFutCd+5YeWwlINCVq3KJeBaKnx7F3O/HU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784742368; c=relaxed/simple;
-	bh=LWHhTO1CJnLidSil1Gov62kNsr8peMdXulUy8ClPO7Q=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YaWaNRdUiYnf60X6oyt28c/hUtYPkfk7k1ZRHDfgr1EagIL26FPdEskonaxnxnIH260jHi9vXIQjyf3LWTzsPVqGjd1fLa0Tb6Ps8XDFeO5ButCBLQbMC0tjHFCuNAl/eq/5m0IiGBjO+KJAsBoNweEE/J41vGI539TWrhmdLfI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Bh1hWJXN; arc=none smtp.client-ip=209.85.219.54
+	s=arc-20240116; t=1784744022; c=relaxed/simple;
+	bh=m3bvMov3E84fJ885oXC+HhKUrCHVJLja0afwruffShE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=D5ekbcjovRMX4QWHhZFAC0nzaI0GiZ+1v4oXsF7eXC5M2rLCdO7W7KgNWtaAhNdJvzzwKH2fio5nvYnx0Cbcxo5DvA6v3RDx0Jw8+0wEhj8mt0Qiwnd/dHTsIlNzFGcGgwIYmHlM7mC1Ly/suYb0pf21CjwoikJpjJoflX2OYaQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Y9RXOdWA; arc=none smtp.client-ip=209.85.160.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Bh1hWJXN"
-Received: by mail-qv1-f54.google.com with SMTP id 6a1803df08f44-8ff20870ac7so104671246d6.1
-        for <selinux@vger.kernel.org>; Wed, 22 Jul 2026 10:46:04 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y9RXOdWA"
+Received: by mail-qt1-f172.google.com with SMTP id d75a77b69052e-51c2a818fc4so108814511cf.2
+        for <selinux@vger.kernel.org>; Wed, 22 Jul 2026 11:13:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784742362; x=1785347162; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784744020; x=1785348820; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=lPKgl5Kv1esM4sKHyWGh7U+0v96ZcqDHHZemaL1tz3A=;
-        b=Bh1hWJXNOMt8i1xKM+6rRqmlmh8y+ypdwC8IB5xXwfpRHQ9qDYl1d9etskqx3eDn+H
-         WvQZ2MHfKh55tOSWwZ1ZWW5idCgI/ScLBhsMgxKjGI+2k6kMjT2hGj0CUkmFKCcOz6n7
-         O3MupHkwcLyVDNrHpYwfSn/9w1tDqR2V0yEmnirmVFJE3IPtER3EW/jpwdstllp4nAgX
-         bqeq28oPoT6k3zh+DIq+3yeztxY35C+hHy98Kavt9864xlABKtDOejyy/qfQ1i6xGDA/
-         1clTdbd2mX40d9CFvrTann5mDtwkQS0Y+Pl1+wgvQvnlgE8rwJ2rC5L7G54Q/l9qlpxZ
-         4aMg==
+        bh=92+UHldOdPbU8p7vnSXGMT7VGGd4IQTuPHry1nsyO/c=;
+        b=Y9RXOdWAHfjjFOU0rURUoJnSK7B1cKKM5FR8j4svFmFDZ5V++U/v3auqWjT5Zo45Ud
+         owNm5lMdjzN2G6U1N5OgTwdPl7ZLBwUPKbOAIp4N+HrJZbqh3E8YEpouh/RtAOrA2Sd3
+         ERbDQNO2echKAhotLvsqXoGNid4unzZby7ooBDBaT7QYmGe86TLCEbzK0dbyhX7wiyJv
+         bCZgU72RdFwHDEaHfu6Rlo2pa3kHlgeCg9MbJSISUt7weE8yz8SSv83ehevdTPuHHd/U
+         YZZAPfcuMou16zYHk3h2nfrxJHd2iyykQHWwPYTiaJE66CMI4cRh/Ak2kcPn5e4PeKRW
+         9bRg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784742362; x=1785347162;
+        d=1e100.net; s=20251104; t=1784744020; x=1785348820;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=lPKgl5Kv1esM4sKHyWGh7U+0v96ZcqDHHZemaL1tz3A=;
-        b=sG+0p8aprKn5C6t8rt3QJ5ZPv6Nd6qL+a3D7Hm7dbOjoMwSq+i5GQX96723m7ttcm+
-         odpWm29E+1wX3cFnzJtmPkVK9N0CHRLSKeVB5jD0Eh1Ag55X5iMTUfMR+fWx8yqPxKOq
-         isUwMQjbnI/T8P8CWRC0SmqIblXgOJ98/YlEjhsu6573PLxxPZBGXWPH/YaK6a6bO/xV
-         dseIHBDACgKU46mJvQo6evsf7X+j08GxOFSx5OLMizN8bY5cpXWQscmgHN2gJKvkUkrQ
-         mpLdkeP4/DJoQ8Re0nxUMS0iw5Sq4OSsSPCnXbjk+G7Hy0A2k9fM11Y9EueR1+7G3Sko
-         7JBA==
-X-Gm-Message-State: AOJu0YyD7EP6BHHcgMQ41vwBsBiK6p30RoYtbQ+NI5RjtSymtmcwWwOL
-	tPpOMteLu7Hh2kZoXEH6Zid7AW/V4cx41Koz2Yw1bF+8fgyVz2LBXrNTt0e1ig==
-X-Gm-Gg: AR+sD11qx4PtfQqH0JX8e647ibYQs4BCl0dtTtcGju8lB/jcE4QDHESgJTFiif4NUJk
-	lLzquitW5FR41KXHpXPwEYd0QYvJuh98WV6+LffsMQVQEv4EsFTxP6Rw2Gzweu0/AEzreRMqst9
-	RURl83fTMu2AOCSO8NYziMk63SC2kavK1hgoN1hqV5h8a/oC/Dg5lb3g1wknwIK1l4H6G4vULJz
-	+FgORGTXfUEwcZnlwshZHqm9IgbtKa0ZZE3csgmzy3cv29nOtFKH8mPQwTD+GNDira1bgNH6e3e
-	ouNcHhSu6km3126RlOAHeX9GuQGvnIqMTaKEZ3e7SRTz7uMt7GrnpV6SMciZBygxPtPMnmtkt6Y
-	8rP/IS1zrqrGLEOb4HP6uG/Y71JQDA9CPB0Ic8QUGhs/qe4ppJ9v5mba2oD5nETpyYVa/ck8cmG
-	+/w92L9Lgs+VmIgr+qdqeRxuWQ
-X-Received: by 2002:ad4:5d42:0:b0:8ef:a9ed:5e9b with SMTP id 6a1803df08f44-90778518b27mr255778856d6.55.1784742362222;
-        Wed, 22 Jul 2026 10:46:02 -0700 (PDT)
+        bh=92+UHldOdPbU8p7vnSXGMT7VGGd4IQTuPHry1nsyO/c=;
+        b=OX5MM7hj99U66hhxDAEKa0DrysWjVGYMNwMIJVnxoG5TAMqyLRZogDUFnX24Ki2NZ7
+         vVVrgO5PP+mCK+NLkCWtzwam3DDgtsXFgy5xBUucdcGaqe57O/bZXabJoLuB90lLtv+t
+         bGO6eofeUOIhfCoa1K1AvXQs4ozf48qWFJdxPy4ydf9I1IqhtLuLkTgEYbuKZ21INf2U
+         5X81Fd4wIt3WFzj1HMn/rH3O0X1BTatB5PSbd69IjfzmpdZA2cUU4acXVucAsXZYhSbT
+         PYn/ed36qpxc4cjvJTCYgEF7mvx+K6oTvIJh+OZASOY3nvMOA2fXauM1A0DrGy+ziflI
+         Gnxw==
+X-Gm-Message-State: AOJu0YzR+PlEc1BmKAz5nbDqIsaa+dk4T8Q4tptR72Jk6zpZnTLwunpg
+	gYYUejCs9Z7YdoD5Mc3bJPxeFj1m226dSunJG1qt/cspF78XLbHPugU4+zE+Ow==
+X-Gm-Gg: AR+sD11UVdvHtw4HnF5wJaYH0gR++oMpu/8tta8vQRvuvYc4y8C/Jq9Rw5VTW4nZpe8
+	1eTXqJO2AcC/OUKlXx85XQ+v7e1/FHkqW23LJc0MNjHq2l69huvjmIqZaFF40nzMIOYsj28XeeG
+	YqD2fel8uys20PZ4BHZMS7ZTuvGc2Z+GYfe+fYvLeZ3ZFnj3wHJSyKq9PKZ0c6scOCzEvJ1aKCm
+	bn1KrHG+TfRqncxOV2skVW9jkGSCp39skHQLlTvBqgJr+q6N5xL0ggH+M/YL7KMgy/3OqyjapY1
+	Pwff5vM9kGzZpnpxqX09KvtkRMnD7kMMr1AspoSy3yxLBu4qNiMTXuTAsnvK5L7yOkq69OJbate
+	YCRCHFjL5ILzXxLB41+crS+rxpWb9zSQy+y8inqSkcxWria2hI3Uio4PU9uoJZWx+EjeljY5M5+
+	LOD4+Llr43R5Ex49ROV9mfTa8T
+X-Received: by 2002:ac8:5f0d:0:b0:51b:f8b3:3d4a with SMTP id d75a77b69052e-5213daa2112mr258081171cf.50.1784744019910;
+        Wed, 22 Jul 2026 11:13:39 -0700 (PDT)
 Received: from Fedora43-SELinux ([144.51.8.27])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-907baa0b7a0sm25587116d6.36.2026.07.22.10.46.01
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-907baa27cfcsm26147206d6.44.2026.07.22.11.13.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Jul 2026 10:46:01 -0700 (PDT)
+        Wed, 22 Jul 2026 11:13:39 -0700 (PDT)
 From: James Carter <jwcart2@gmail.com>
 To: selinux@vger.kernel.org
 Cc: stephen.smalley.work@gmail.com,
 	James Carter <jwcart2@gmail.com>
-Subject: [PATCH 1/2] libsepol: Validate more access vector permissions
-Date: Wed, 22 Jul 2026 13:45:50 -0400
-Message-ID: <20260722174551.100020-1-jwcart2@gmail.com>
+Subject: [PATCH] libsepol: Check for embedded NUL when reading from policy file
+Date: Wed, 22 Jul 2026 14:13:25 -0400
+Message-ID: <20260722181325.107755-1-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -71,90 +71,31 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The commit 8c64e5bb6fe7 ("libsepol: validate access vector
-permissions") added a check that at least one permission of an
-access vector is valid. Add a macro to simplify the check and
-add a check for av rules in conditional blocks.
+Check that data read from a policy file does not have an
+embedded NUL to protect against maliciously crafted polcies.
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- libsepol/src/policydb_validate.c | 36 +++++++++++++++++++++-----------
- 1 file changed, 24 insertions(+), 12 deletions(-)
+ libsepol/src/services.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
-index cde0b8d6..166e20a5 100644
---- a/libsepol/src/policydb_validate.c
-+++ b/libsepol/src/policydb_validate.c
-@@ -11,9 +11,15 @@
+diff --git a/libsepol/src/services.c b/libsepol/src/services.c
+index e8f0e622..3e8bd38b 100644
+--- a/libsepol/src/services.c
++++ b/libsepol/src/services.c
+@@ -1799,6 +1799,12 @@ int str_read(char **strp, struct policy_file *fp, size_t len)
+ 	if (rc)
+ 		return rc;
  
- #define bool_xor(a, b) (!(a) != !(b))
- #define bool_xnor(a, b) (!bool_xor(a, b))
++	/* Check for an embedded NUL character */
++	if (memchr(str, '\0', len)) {
++		errno = EINVAL;
++		return -1;
++	}
 +
-+/*
-+ * Check that at least one permission bit is valid.
-+ * Older compilers might set invalid bits for the wildcard permission.
-+ */
- #define PERMISSION_MASK(nprim)                          \
- 	((nprim) == PERM_SYMTAB_SIZE ? (~UINT32_C(0)) : \
- 				       ((UINT32_C(1) << (nprim)) - 1))
-+#define NO_VALID_PERMS(av, nprim) (!((av) & PERMISSION_MASK(nprim)))
- 
- typedef struct validate {
- 	uint32_t nprim;
-@@ -265,10 +271,8 @@ static int validate_constraint_nodes(sepol_handle_t *handle, uint32_t nperms,
- 	for (; cons; cons = cons->next) {
- 		if (is_validatetrans && cons->permissions != 0)
- 			goto bad;
--		if (!is_validatetrans && cons->permissions == 0)
--			goto bad;
--		if (!is_validatetrans && nperms != PERM_SYMTAB_SIZE &&
--		    cons->permissions >= (UINT32_C(1) << nperms))
-+		if (!is_validatetrans &&
-+		    NO_VALID_PERMS(cons->permissions, nperms))
- 			goto bad;
- 
- 		if (!cons->expr)
-@@ -1091,11 +1095,7 @@ static int validate_access_vector(sepol_handle_t *handle, const policydb_t *p,
- {
- 	const class_datum_t *cladatum = p->class_val_to_struct[tclass - 1];
- 
--	/*
--	 * Check that at least one permission bit is valid.
--	 * Older compilers might set invalid bits for the wildcard permission.
--	 */
--	if (!(av & PERMISSION_MASK(cladatum->permissions.nprim)))
-+	if (NO_VALID_PERMS(av, cladatum->permissions.nprim))
- 		goto bad;
- 
+ 	str[len] = '\0';
  	return 0;
-@@ -1214,12 +1214,24 @@ static int validate_avrules(sepol_handle_t *handle, const avrule_t *avrule,
- 
- 		for (classperm = avrule->perms; classperm;
- 		     classperm = classperm->next) {
-+			class_datum_t *cladatum;
- 			if (validate_value(classperm->tclass,
- 					   &flavors[SYM_CLASSES]))
- 				goto bad;
--			if ((avrule->specified & AVRULE_TYPE) &&
--			    validate_simpletype(classperm->data, p, flavors))
--				goto bad;
-+			cladatum =
-+				p->class_val_to_struct[classperm->tclass - 1];
-+			if (avrule->specified & AVRULE_AV) {
-+				if (NO_VALID_PERMS(
-+					    classperm->data,
-+					    cladatum->permissions.nprim)) {
-+					goto bad;
-+				}
-+			} else if (avrule->specified & AVRULE_TYPE) {
-+				if (validate_simpletype(classperm->data, p,
-+							flavors)) {
-+					goto bad;
-+				}
-+			}
- 		}
- 
- 		if (avrule->specified & AVRULE_XPERMS) {
+ }
 -- 
 2.55.0
 
