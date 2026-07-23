@@ -1,133 +1,197 @@
-Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
+Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F480383C85
-	for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 18:39:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97FD7322A2E
+	for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 18:41:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.180
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784831960; cv=pass; b=Q5100CFK4CGHuwcOfKOQA+LrgbZPTBYXNPd/YDjRD3CY5UC4771ZFd30HsDhIf6k2/pUNfOdN5CD8dz2kvCCpxOyk6ba1AKNtPX0uKWAA0EUZ0QclDKWI4p3BcRdKkH7Ha/AalMeyFA8zhRmOpyrLl38MEa8iwd5+bcUNNO1pJE=
+	t=1784832063; cv=pass; b=Rk6c8leM/JGHNXorOJKAwWnbge34QGWxcSaeujkeYQsQ9QcvjCXuODKHCNZ8qOB13Um3rOwdWFu59J3dduCoSBOtlDuG9fXRiU+nc589N77iUBkyINFP35uR3W9Ok0KiSd+EkASnHPol/VvGyMLKIqJRovsk002zAR8CiY2dOyA=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784831960; c=relaxed/simple;
-	bh=vd5dZD2UaDp2K63E5QWMZCEDfVIb7SU14WjlWu3K/vQ=;
+	s=arc-20240116; t=1784832063; c=relaxed/simple;
+	bh=Pz+h7jgVHaoJ/AE65ji76QK9AaURVO8wKiVGcqoLPeQ=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=CtuPm/3gLAes5w0GzSiBpmaLSoXvTMpyAeNb2oTerQ/2H4Y/1rFbhpe/O9M5/JzOgmzCtYJewokmTiawG9UIBNmRYnVJyL56afHe6QOcuVVN0ZqJyPOfRWRQggCIpal5s/eVh6UYjQOOsISblXYZ8zySSEWyzyG24vDGBVJEWVk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=c0xMJm/y; arc=pass smtp.client-ip=209.85.216.52
+	 To:Cc:Content-Type; b=oJRZA2nGQAe5IkXKh/rGeieTdheirXH9Yg/N2gdzefcbxZGrVK+sq3TX3IPg0nDtPFcP5XxsrWDOk/8HepP9dhO84/APfbG9vjlRIPzkkoepJf/qoSJhbGXweFyO5N2a9hKV+grHZ9Xm9yNx+i0aNytCdF6L1rc1YYxOTzOhnFM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qFNWiEaZ; arc=pass smtp.client-ip=209.85.214.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c0xMJm/y"
-Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-38dfe910e9dso848492a91.3
-        for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 11:39:19 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784831958; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qFNWiEaZ"
+Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2cace91f112so12493835ad.0
+        for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 11:41:02 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784832062; cv=none;
         d=google.com; s=arc-20260327;
-        b=gFxNm++drxTVuw/mY6WSldi7bgLXRrsJKCfZ6AX6m7zKJJvW6ERFTHETvDnzPtGm2K
-         K0anJ5Qg7nFyKqWghzbNirjnOn/KIFmyPGJP5+9QjNmlZvnc9xbqSGGo25Hmg22u6Y6H
-         Ny/SgEmsIBAyC/gqVYr4qrBtHRyROJ14j5fj3TZwEUlt0PI4B0OpIFxfok5eEewUvsfy
-         0F0R01GO0H0unP7sZq7EFkLZ48mAXgPzdsG/Lit3CKFWEItxi/4VMfjHSV6n6BmpsCc2
-         6MiAWrzhnUYov+h1YLzGNj0mEy5Q4v2B0fMix+I7Oegkwig57vluTP3+iwOcXiEBLlDq
-         v44Q==
+        b=pS9YBi7xQYOtwY4dBa/pLNA0cKYFrCEqchu2IjJ8PKxCLj8P6HmtR2Yccb6Wj94V7C
+         Ie1VtLM2eZAPjWTACZzbXA7/Pdn9cCpdO0N4OAVbu9M0iZaLQoYQfzdj/jm7vuy3ySZb
+         bCuJal1PraFJYraNO7qrQ7p3PXfi11NuTvGotlAtSU6NOy/pDd+E0Kk46KVVVSsjT97X
+         ttn66aoMDYQr28T1DPlfJXF6+gUpuHqVCZM3fbeXzugaPpczoxZsRYEd3J3I0cJVemB8
+         RnIsk9PbX/Nc3tBlr+5YcI/nEKdE93m0bkTseTa0JTiVjRlAl6aUq5dwoRcy3vHviVX6
+         OsLg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=Zr39lJ2tw/jp/GJhbBFJ2659QhuK2/5eL64Ftt4/UEc=;
+        bh=qsAU320Oy04ue+9pC7dNzkRyYsWlEJIbixtzaspCZ4c=;
         fh=FsXghBnyoYbEc42Idnie0oh5A6i9FUng5ntOLhqXIRs=;
-        b=FGwMQB/ePwA85hYy41fUZZUUodohtLAN6Mk0IeBXN20QmhoYoZ9yxissMPQuSPF2R5
-         0d6dRsauCtHPPozf5oOmDUhht4V7mhZOe0ZPGxWgBvTBmjgMOiEDvMVWr/W+ypnO7S7c
-         ZpxmU+u9Iq2W0jikEsS2YetX2f0VJLkM1Kc5jqi86DvkqrKs/FzWYg7sBKF8dtU49hx+
-         1j8odDZuDgbCYxEVF/LQdMMNTkVz6J9v6Uxrq9RsXKYPss4BapsNdQjKQ1S4v7LJmKWI
-         jUJBH5MXdKtxNQiRFt5GzwS//foMwo61cyR/xwjkASZPfztKtzJqquU0NLstgTJnib9+
-         Xjsw==;
+        b=Z6t8d5xBPGfK3xsLDHEHxlR+IVsRRgpjkVCwACpjO4wBwI7tdGU8eqcsGjDM+iOCvS
+         lIgMR+LmVBGiaNpAGLN6eOu9jDyVZ4ltlV307CQ0x/fE4KHsFapN3ECOifGH4KyTjk05
+         OY1sv20E5dMFCK5vo2AjhUGmW46bML2j27piv26ah+GO38eyTelQRsppaCXF3dJP1SuZ
+         0ty+p1ErJbCbBciGj8nvSnfBkxM6ooPtlqydqlcK1bQUPWS0LN1/o2o700WbmrdnYQjc
+         FW23CUpt40xyVP7gkneVVOHXT8vBU3686BudaqycDjoPa1kSi++GNEG1zKkYRsK/9SI1
+         YThw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784831958; x=1785436758; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784832062; x=1785436862; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=Zr39lJ2tw/jp/GJhbBFJ2659QhuK2/5eL64Ftt4/UEc=;
-        b=c0xMJm/yCx636OANJBOHNdU2dCxOZwELO4Ejm5yW+NIs19fbM4CafynRXkFXMaZChy
-         b/P83U+vHYLk2rTcRl5GKcaQSETAkdVOKzmNieBG3AZDmZRAGMstFeh4jBgetLvKtlxy
-         meN6LtCvuSxR/XsNiHHhqncO7vTaW71eVwMGHMRvPRoT7qvbIdVElzRsljPI1ttWwFCw
-         K3DAWrDabmqorNFzgOsFj8molwANwi1mN7Z/ZZ00EiasxIIMVWsEjMsNXjDlB4TLTtRk
-         14ekNOpMqO6Ud5yHBIrq4jjFwvYwthgwkB/rTGyYXEQaP61XQ3mMWbLWqV7vX6pE52eQ
-         MQCg==
+        bh=qsAU320Oy04ue+9pC7dNzkRyYsWlEJIbixtzaspCZ4c=;
+        b=qFNWiEaZqCe1DQ8JwXEy8Ygf6+/fhDgIhZoWRuXCmC24hbgJ1JIu/FcIJx+MuVSlIi
+         wL9O+IWOVkeBY59xhMANxyKcKRBfSwBxJgDqR6T0TYi71dByTeNfPrwhHRW8aQS2WNmM
+         rp6sdKeXO19AjZNlIs0dInPVylfoEjcn1ZJ7GOZbpdusseeAo8YTgPMO03ZpFK/vtXIJ
+         8DWi7N4uiL9bHBuFuhuHy44K2xN2LTkTrY8XPSYg2MfV3WoQ8beRZWTTKqhJV4QOr7C5
+         nx2FGLf4rPgZWbV26Q321dIuy3azRGwhYSp6k5aIs9PAvhTAjNwYRjlCk0vHAsdOZcjg
+         uF5Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784831958; x=1785436758;
+        d=1e100.net; s=20251104; t=1784832062; x=1785436862;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=Zr39lJ2tw/jp/GJhbBFJ2659QhuK2/5eL64Ftt4/UEc=;
-        b=K6H3p1MD4N5Nhmv2zhlfi4K+yL2iT3XScntrd5ZtkmavojYzpMwyDSh0IvLHUMoC/d
-         Zo/Rspl2iS1NsQLrslBWEC1uUUwIi7GCpXyzR4JJyY+edCZW6xxzEBQxDZMDlj07nQaH
-         ZluafiZ+wJ9c8QVoHPjs70cBLc5QUls/16W5e/OlHcy20Ysnld3TGYacCRUJQlDYIoEQ
-         9zl7XMe4MFzkW/B/t2qxpmFd+O2f4YVAjNZYaa5y4UKaabaesA4YxRv//FGv5xJLhLI+
-         qxOVNuS3hn1+m8Vu4NV+W8dwnfh0WZ7kf2FFISvygwEWZHg5xmwJGIT6DpJ1AiTE3qiB
-         YVDg==
-X-Gm-Message-State: AOJu0Yz5Z/oJ3p1AzS7uXAfGFwJb6YZEsqOY25ASdklIhy/kZGWJBxoo
-	ZyV9jH2gRLXIVdRyYo0yeI3oed5/8R4DHiPGPLklAypsuELTNIO/tyLnY0K0UyqsfM1c+ET+9We
-	0KmxtsGNrGKYOmIa4jRFdQVhEnwVyagU=
-X-Gm-Gg: AR+sD12LD+eHV8luRDHxwPST2vP4anXqGXiWmT0g4d+Fvgo9zgcbTa8TB0DRpfPyWvN
-	xfotSvJliJzGj0GZawH4uA7KInfCFQDyVYxeVNc3z0SvjKORAZdWzMY+iZezTeYGqNJB251P+PJ
-	508jeJtYb6LL98vj9Xa84q6hBWCHlgNtjhtEQdYEkEcV02WOaba/pqy/EUcfc3rZs8xQvR+v6gH
-	7snXGK7ApsLwTcOjzdN9j4+CWJyRAkPnMroxS6txQY1jZTZ0Sshf3sFryGrKw==
-X-Received: by 2002:a17:90b:586c:b0:38e:7446:d2b8 with SMTP id
- 98e67ed59e1d1-38ec6890685mr4720213a91.41.1784831958412; Thu, 23 Jul 2026
- 11:39:18 -0700 (PDT)
+        bh=qsAU320Oy04ue+9pC7dNzkRyYsWlEJIbixtzaspCZ4c=;
+        b=ZAgaeVrpD7yao8nfNItuVFz08rNGdV8Fbuu7kVtTaXsITlqicpvn3lvsumhdTsPrQa
+         7UQOqkI3Xq2PohGYCrx2GPg6nwnIeSbQ3mFCyWLHERcxaLv9w50XKFS0ar2cxVa0Y6j9
+         RGj2BqX8BBGA1EV1fXqL4gBy0QzTcytp4ok9simFq4JRPmvlM47N6xrtseMvyHXdxyRn
+         UTSy++GHS16UT2rNZDnpyo7LYajsc103a/r5FgvxAjdQFRW/nxZ35gJ3q6uFLwp6apXF
+         6u5VT92KsUjUOOfESA9N1dL/uU5eTkDg6xZLZGZ7PrqVlMZ9TOIjhE7ZouUID+4toMqj
+         791A==
+X-Gm-Message-State: AOJu0Yw2gPmJ2hKVlaOxtKXR4gxcu46oT0/rly+YwJI/MkFlePxfuNVz
+	fHHdhUKo9u3VT5WCpe6WMSnNU17lMPmhUwgK9loNX+ZTR4gjHNzA2MTeD5ttBMpgmNSk3UiIY8n
+	D+FhNKF+Gz+BbD8pX2vUlRCztmxoPG7IL12eg
+X-Gm-Gg: AR+sD12ft722JkyGET29EsgNfU5xilb5eB9aUUEXpOxxIY57nXg2/sjIovl/l0N6cLg
+	GTEw9vybFuZy+6qqG94QlkyPvP9QUyelNyn2I+8BXbidn5bfC3vyPyViKj9UE3oEmprS6ys9Okz
+	bbeESHNvwUgTDcXTEh8+P4RVF8LrZdgC6BrkQDm8qOCu/8gOneyQ0RcSP8LYd91xSHuVGkHl1Gv
+	W9pksXabK07fVSi9tnENDP6morsYn1PcAtCOTqS160uJ1oYfWB9XrMbLdbKng==
+X-Received: by 2002:a17:902:dac7:b0:2c7:ebfb:618f with SMTP id
+ d9443c01a7336-2cfa6b73a76mr50110305ad.14.1784832061895; Thu, 23 Jul 2026
+ 11:41:01 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260722181325.107755-1-jwcart2@gmail.com>
-In-Reply-To: <20260722181325.107755-1-jwcart2@gmail.com>
+References: <20260722174551.100020-1-jwcart2@gmail.com>
+In-Reply-To: <20260722174551.100020-1-jwcart2@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 23 Jul 2026 14:39:07 -0400
-X-Gm-Features: AUfX_mykkMBQ8I_VO_QvVWRapba-CjQSas3SY6SHFop_rl7IbEuC78p_b6mS3ak
-Message-ID: <CAEjxPJ4yGX0joHcb4kajTozQS6jM2ddVckZB4VeeVUzmCw9PBQ@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: Check for embedded NUL when reading from policy file
+Date: Thu, 23 Jul 2026 14:40:49 -0400
+X-Gm-Features: AUfX_mwOi5skaPo5NUFLNsrgecuJd__Oqxj6oPDjV4wVQ6PRASMl7c1pcl8QKfo
+Message-ID: <CAEjxPJ4gbw1VUCtAL6EUt_1kbyuL9MsorV-KUYd-feX6ymb5-g@mail.gmail.com>
+Subject: Re: [PATCH 1/2] libsepol: Validate more access vector permissions
 To: James Carter <jwcart2@gmail.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 22, 2026 at 2:13=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
+On Wed, Jul 22, 2026 at 1:46=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
 ote:
 >
-> Check that data read from a policy file does not have an
-> embedded NUL to protect against maliciously crafted polcies.
-
-policies
-
+> The commit 8c64e5bb6fe7 ("libsepol: validate access vector
+> permissions") added a check that at least one permission of an
+> access vector is valid. Add a macro to simplify the check and
+> add a check for av rules in conditional blocks.
 >
 > Signed-off-by: James Carter <jwcart2@gmail.com>
 
-Otherwise,
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 > ---
->  libsepol/src/services.c | 6 ++++++
->  1 file changed, 6 insertions(+)
+>  libsepol/src/policydb_validate.c | 36 +++++++++++++++++++++-----------
+>  1 file changed, 24 insertions(+), 12 deletions(-)
 >
-> diff --git a/libsepol/src/services.c b/libsepol/src/services.c
-> index e8f0e622..3e8bd38b 100644
-> --- a/libsepol/src/services.c
-> +++ b/libsepol/src/services.c
-> @@ -1799,6 +1799,12 @@ int str_read(char **strp, struct policy_file *fp, =
-size_t len)
->         if (rc)
->                 return rc;
+> diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_val=
+idate.c
+> index cde0b8d6..166e20a5 100644
+> --- a/libsepol/src/policydb_validate.c
+> +++ b/libsepol/src/policydb_validate.c
+> @@ -11,9 +11,15 @@
 >
-> +       /* Check for an embedded NUL character */
-> +       if (memchr(str, '\0', len)) {
-> +               errno =3D EINVAL;
-> +               return -1;
-> +       }
+>  #define bool_xor(a, b) (!(a) !=3D !(b))
+>  #define bool_xnor(a, b) (!bool_xor(a, b))
 > +
->         str[len] =3D '\0';
+> +/*
+> + * Check that at least one permission bit is valid.
+> + * Older compilers might set invalid bits for the wildcard permission.
+> + */
+>  #define PERMISSION_MASK(nprim)                          \
+>         ((nprim) =3D=3D PERM_SYMTAB_SIZE ? (~UINT32_C(0)) : \
+>                                        ((UINT32_C(1) << (nprim)) - 1))
+> +#define NO_VALID_PERMS(av, nprim) (!((av) & PERMISSION_MASK(nprim)))
+>
+>  typedef struct validate {
+>         uint32_t nprim;
+> @@ -265,10 +271,8 @@ static int validate_constraint_nodes(sepol_handle_t =
+*handle, uint32_t nperms,
+>         for (; cons; cons =3D cons->next) {
+>                 if (is_validatetrans && cons->permissions !=3D 0)
+>                         goto bad;
+> -               if (!is_validatetrans && cons->permissions =3D=3D 0)
+> -                       goto bad;
+> -               if (!is_validatetrans && nperms !=3D PERM_SYMTAB_SIZE &&
+> -                   cons->permissions >=3D (UINT32_C(1) << nperms))
+> +               if (!is_validatetrans &&
+> +                   NO_VALID_PERMS(cons->permissions, nperms))
+>                         goto bad;
+>
+>                 if (!cons->expr)
+> @@ -1091,11 +1095,7 @@ static int validate_access_vector(sepol_handle_t *=
+handle, const policydb_t *p,
+>  {
+>         const class_datum_t *cladatum =3D p->class_val_to_struct[tclass -=
+ 1];
+>
+> -       /*
+> -        * Check that at least one permission bit is valid.
+> -        * Older compilers might set invalid bits for the wildcard permis=
+sion.
+> -        */
+> -       if (!(av & PERMISSION_MASK(cladatum->permissions.nprim)))
+> +       if (NO_VALID_PERMS(av, cladatum->permissions.nprim))
+>                 goto bad;
+>
 >         return 0;
->  }
+> @@ -1214,12 +1214,24 @@ static int validate_avrules(sepol_handle_t *handl=
+e, const avrule_t *avrule,
+>
+>                 for (classperm =3D avrule->perms; classperm;
+>                      classperm =3D classperm->next) {
+> +                       class_datum_t *cladatum;
+>                         if (validate_value(classperm->tclass,
+>                                            &flavors[SYM_CLASSES]))
+>                                 goto bad;
+> -                       if ((avrule->specified & AVRULE_TYPE) &&
+> -                           validate_simpletype(classperm->data, p, flavo=
+rs))
+> -                               goto bad;
+> +                       cladatum =3D
+> +                               p->class_val_to_struct[classperm->tclass =
+- 1];
+> +                       if (avrule->specified & AVRULE_AV) {
+> +                               if (NO_VALID_PERMS(
+> +                                           classperm->data,
+> +                                           cladatum->permissions.nprim))=
+ {
+> +                                       goto bad;
+> +                               }
+> +                       } else if (avrule->specified & AVRULE_TYPE) {
+> +                               if (validate_simpletype(classperm->data, =
+p,
+> +                                                       flavors)) {
+> +                                       goto bad;
+> +                               }
+> +                       }
+>                 }
+>
+>                 if (avrule->specified & AVRULE_XPERMS) {
 > --
 > 2.55.0
 >
