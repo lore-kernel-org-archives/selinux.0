@@ -1,370 +1,108 @@
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com [209.85.216.69])
+Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08FB5282F05
-	for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 03:13:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.69
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C128230D41E
+	for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 06:24:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784776430; cv=none; b=s0B/uZprG8mBp5OMhNDunux0/ICcgP3b3bS3EjUDt0tit7yBtZb9MA+OwlICyHJEcbqfHwug3EV/WOwu66ptZgSejIEe8hiyL2cs3C7zlJS1GiMWRTjhFrzji/NieWWbvaMYh5uyu4M8wKNYIrXUZFjg2hECRUBWI7Oed6Sn5F4=
+	t=1784787847; cv=none; b=WV7dOA9NGDhFrUpqJHutMRPoa+WBVLhg/3EBvuVL8ZlzcXOdROiqotBJt5lLNiVsfvwYHMzTjpkTqsMZh0dv6WuWMgPow2Qw2qex+2WgUyWNTkCDUrd5WDHbHv3g+cU77mm5BRIYcEBYlOnA99whKk+7thrrTxTBRgVW3d5qw5U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784776430; c=relaxed/simple;
-	bh=olIlvGjfCyeH2+n8lc+PxVppfb+n3vxM9PFkRxcfSeY=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=iSXaefaBLa/4hMg5KdGj9tZYr9qh7Qfpx7we/LToCLngC8p09iV8XeqKNtPnta/+eldNWCZXG5B7Ql9Tjuq6x2pmErZgWJS82SjU6r4yoUD0BAbxlmBKoIyAFUxWQl4GZTRpfnAAe8ZwDoEI5H8KtmPShOzR3/J0UMFFAm6g23U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=mglDmgcm; arc=none smtp.client-ip=209.85.216.69
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com
+	s=arc-20240116; t=1784787847; c=relaxed/simple;
+	bh=BSJoAXUrW8+atVDp+K1KPlC3b40rN52b0qh6QSKbifU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=D6GU1eyiAdTVewnDzddYNiS88VxdSpNk7ypCJDTCYYlgIWBnXCoHn7g5htCMuicd/wP8XklFNF5B0irJu0dlbznzyxmvGyD4d/mXThO1HxhPTOQuYWE2wS+V7IvRr2IxEJcdVRjYFKP+CD4R01xLx+8aWqbKkgQHetJpVoxEfac=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=perfinion.com; spf=none smtp.mailfrom=perfinion.com; dkim=pass (2048-bit key) header.d=perfinion-com.20251104.gappssmtp.com header.i=@perfinion-com.20251104.gappssmtp.com header.b=BqfG5Yme; arc=none smtp.client-ip=209.85.215.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=perfinion.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=perfinion.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="mglDmgcm"
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-381250979d5so223205a91.0
-        for <selinux@vger.kernel.org>; Wed, 22 Jul 2026 20:13:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=perfinion-com.20251104.gappssmtp.com header.i=@perfinion-com.20251104.gappssmtp.com header.b="BqfG5Yme"
+Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-cbb7926836eso216153a12.3
+        for <selinux@vger.kernel.org>; Wed, 22 Jul 2026 23:24:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1784776428; x=1785381228; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:from:subject
-         :message-id:references:mime-version:in-reply-to:date:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=1kyA+HAt81BIQAhFsSMRhf+ju5gssRcc2EZaqlyT4WA=;
-        b=mglDmgcmkL0hxljr7CgQurTHRV94yWoV55x+K/iplVCLjaJQQI5M1ScdcQymV13i4L
-         3kAQ4ME+5jWpmKCSYitKhbaXIvkeJFpl2ay39pCnPwl4HzWP/yu+QjxqbzTm43WOrKzO
-         JBUeHLG6Jeox7dv1RoO7Fc1jw1hDfTLg1vO1lOGHKmGYZKRfxusKmOCOzeW4WXNoRwbQ
-         tShan9rZzcYnwfIK/8vbEV+XH8e1AqbAJ/nEkJh0i0YtA10RwzPOvpce/smUNUs9ZHsd
-         I3ujFBKgbg0FaB3jZjG/88iE2AuMewiPaiisiTIo1+bcJpwI/fEbVFbUqIeezXzt3kWc
-         7ZtQ==
+        d=perfinion-com.20251104.gappssmtp.com; s=20251104; t=1784787841; x=1785392641; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=nTUpoBnujzYrtKeKZT8aRPy7+D9nMam8A6AhSW9oYjw=;
+        b=BqfG5YmeNXQArdDuM43F2wvFEugO8/321jyMwoJV2HOG/CYNvFUJld4ZvheyIF0ceH
+         wpHm6QClCgGHf4FAXS9ODMCPhCdQK64mPw11csCHtaJJDaK8Xtmhie93tQ24VlqgA57R
+         021yU8Ing/q587H8HiekmLz5p4gDqFadamDIIkrBDgqQYSCyYnEKD8d/stpNHK6lGpwO
+         tnd+4fdLDBvfXV3rPkZxT1G5cfC4pKplM5yO/wjDzog7LlJOtlua7DaWKxcexFs0tRA1
+         pO75e+E3wUHixziWoht577i/b/l+uYKh8ftmsGHrzYWCwFefZwIldfkxPopzEdYevfYc
+         +Jcw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784776428; x=1785381228;
-        h=content-transfer-encoding:content-type:cc:to:from:subject
-         :message-id:references:mime-version:in-reply-to:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=1kyA+HAt81BIQAhFsSMRhf+ju5gssRcc2EZaqlyT4WA=;
-        b=OiqjW3rEvFoY7e1oZsU6aYx6mbfpjI3uNNStZQMK0NvKBOhdZi6JSufUWEQaUwaLjG
-         ylOsdkNL3siTvDfRvQZdxv/1PSMuTIQ4kLHdORTAiUs1wz3Fe2kQGOChkYw/nR2LZ5Fc
-         0/a+4OKv+VO9koD2Sg+Y5e4idJB5g0b8pizF5clI5ukTPdJXJWKPAOZKQkiNbH6zORsi
-         9wG6HPOSzPHyzHZ2B/ELvBE3yfNMGj1Y6XWSTv+rYvPwqXemZLLdvUd0w9M9UudFQ4W0
-         Hr4AchvDxsBHOOMsfThBYEoZj9tjqSmwethAc2vyT5Du4fmDr9kezB7FcoEI5tpcvQXm
-         ncrQ==
-X-Gm-Message-State: AOJu0YyIiw9zrM6S4zoZlLy3npH6JlgR9atsUAHzWnH5mtmx7EqNxfWE
-	bFzmpOnqseR2mW6ZCHtCTtZgOfyJXJF7sf/Btv5vRBoJFz7BN7YJFJwdBpVzyGfkCYq1/eyKEC2
-	ALjdgy1Z9MwQjVFIID9Vla2j5X5OvDVCywhuEwe7/YTh3IJKC7AzWTQn7FXRKAHnft9ZyYVvJzy
-	kwaXk6HkEifWZ/Ix58beaInSUonYm10UU2
-X-Received: from pjyr15.prod.google.com ([2002:a17:90a:e18f:b0:38e:b851:fec5])
- (user=tweek job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:4c07:b0:38e:7168:281
- with SMTP id 98e67ed59e1d1-38ec64e2bd8mr1450604a91.10.1784776427801; Wed, 22
- Jul 2026 20:13:47 -0700 (PDT)
-Date: Thu, 23 Jul 2026 13:13:16 +1000
-In-Reply-To: <20260723031316.2720083-1-tweek@google.com>
+        d=1e100.net; s=20251104; t=1784787841; x=1785392641;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=nTUpoBnujzYrtKeKZT8aRPy7+D9nMam8A6AhSW9oYjw=;
+        b=qxnXuf3S9fD8stKOY2+pkE+n5enaAFRbye+ZZbuY3Lep7XgfyEXT6zuEdbhRaZ5dGT
+         +VQ40ldNkszkd9Erpg1ZVIxjK/QmrFeGSZKTHcK7wb2G3zIDJyK8uCplRRukqQjf6QGx
+         ubI9j5V/lXcm2n8VAExqRP1JVKrRpceNv7SoCpmsMAouysv4UZzQzBd4GZZkfbhRXt/z
+         G9PRFShmDxM0bEKIomsV8OwQNO695kTmYfGZXs1G/Yba8AchW2BdjEkfFsF1u+0pAR+E
+         jaMHo7ehAtXClLY+VrzlC0QXCaNiDStNXRZAxpq5kuhSFcvDypaevUO+tnWbFM8aiL4d
+         YvLw==
+X-Gm-Message-State: AOJu0Yw1CmhuX4uej9U/ZbIZhc+S9yQf6B7hE6FYu+ASB1+n0aXyv5eX
+	Vcp1ro/26nWTBOjByJWRPYG63KYPHKc3plXC5bm3QZ8cfkDNdH0dRedl7DFcHSEVe8GpqHTj8ep
+	xGsoN
+X-Gm-Gg: AR+sD13nuPtPv2uuofMfrUyaaFRDmGAjdkEw/EjxBma6+weaXmO2yxRZDdPGSb7ZLrT
+	sNVpVAcMWXqCCenEmYUXlI4kC3vwhpmcXN8nQ5GJ1ewwYZrVIAJDrpk5dFkg0raDuZEtR/N+DNr
+	LJlrixdsVhNy9WPOm5bN0Y26/taJL5peCBIhZXN7BHNGRBhfPLSLB1DyrEsQR6Jk3NogABULJfh
+	l71W1NkM0aQbDrRcrKcrhbH5Uy62V1KeF0J5TyBo5C9nhfCk6GNa33hNHQ3+JDVZwUi+SQCwzgy
+	LevNUqV22lwL6OeTRP1S46TA7YxL6yNFgpS1yrSBXLnHvpCvIyL1eW1syUXZvY/oAN/ukiuXIjo
+	IBd7Y0sJnoizY9FYINbJz0zJ7ogCYIRyoNa3v20U/sf/cZgCX2I64rLOyzPoPkqhdYaXT6H0/gt
+	c3xnror3DTRUDWwnx4CARsLWZPLpGpqoBh3DKh5u4=
+X-Received: by 2002:a05:6a20:160a:b0:3c3:7a0a:18a6 with SMTP id adf61e73a8af0-3c44b013273mr1833168637.18.1784787840492;
+        Wed, 22 Jul 2026 23:24:00 -0700 (PDT)
+Received: from localhost (142-254-17-81.fiber.dynamic.sonic.net. [142.254.17.81])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3147df097e0sm16654332eec.17.2026.07.22.23.23.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Jul 2026 23:23:59 -0700 (PDT)
+From: Jason Zaman <jason@perfinion.com>
+To: selinux@vger.kernel.org
+Cc: Jason Zaman <jason@perfinion.com>
+Subject: [PATCH 1/3] SECURITY.md: Update security contacts
+Date: Wed, 22 Jul 2026 23:23:53 -0700
+Message-ID: <20260723062355.3096648-1-jason@perfinion.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20260723031316.2720083-1-tweek@google.com>
-X-Mailer: git-send-email 2.55.0.229.g6434b31f56-goog
-Message-ID: <20260723031316.2720083-2-tweek@google.com>
-Subject: [PATCH testsuite v2 2/2] tests/file_contexts: add tests for multiple SELABEL_OPT_PATH
-From: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
-To: selinux@vger.kernel.org, Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: James Carter <jwcart2@gmail.com>, 
-	"=?UTF-8?q?Christian=20G=C3=B6ttsche?=" <cgzones@googlemail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	"=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Add unit tests in test_multiple.c to exercise opening the file contexts
-backend with multiple SELABEL_OPT_PATH options under various validation
-and path configuration scenarios.
+Part of the annual cleanup of security contacts, drop people that are
+not as active committers currently. Thanks for all the work over the
+years!
 
-The following test functions were added:
-- Verifies opening multiple file contexts without validation.
-- Verifies validation failure when contexts contain undefined types.
-- Verifies extra files (.subs, .local, .homedirs) are processed only for
-  the primary path.
-- Verifies multiple files with the same definition, no error is raised.
-- Verifies context lookups when providing three distinct
-  SELABEL_OPT_PATH options.
-
-Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+Signed-off-by: Jason Zaman <jason@perfinion.com>
 ---
- tests/file_contexts/Makefile        |   2 +-
- tests/file_contexts/test            |   5 +-
- tests/file_contexts/test_multiple.c | 233 ++++++++++++++++++++++++++++
- 3 files changed, 238 insertions(+), 2 deletions(-)
- create mode 100644 tests/file_contexts/test_multiple.c
+ SECURITY.md | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/tests/file_contexts/Makefile b/tests/file_contexts/Makefile
-index 592a65f..083ef25 100644
---- a/tests/file_contexts/Makefile
-+++ b/tests/file_contexts/Makefile
-@@ -1,4 +1,4 @@
--TARGETS=3Dtest_open test_lookup test_open_base test_validate
-+TARGETS=3Dtest_open test_lookup test_open_base test_validate test_multiple
- CFLAGS +=3D -O2 -Werror -Wall
- LDLIBS +=3D -lselinux
-=20
-diff --git a/tests/file_contexts/test b/tests/file_contexts/test
-index 1534925..cd7849b 100755
---- a/tests/file_contexts/test
-+++ b/tests/file_contexts/test
-@@ -5,7 +5,7 @@
-=20
- use Test;
-=20
--BEGIN { plan tests =3D> 4; }
-+BEGIN { plan tests =3D> 5; }
-=20
- $basedir =3D $0;
- $basedir =3D~ s|(.*)/[^/]*|$1|;
-@@ -22,4 +22,7 @@ ok( $result, 0 );
- $result =3D system "$basedir/test_validate $basedir 2>&1";
- ok( $result, 0 );
-=20
-+$result =3D system "$basedir/test_multiple $basedir 2>&1";
-+ok( $result, 0 );
-+
- exit;
-diff --git a/tests/file_contexts/test_multiple.c b/tests/file_contexts/test=
-_multiple.c
-new file mode 100644
-index 0000000..65fb726
---- /dev/null
-+++ b/tests/file_contexts/test_multiple.c
-@@ -0,0 +1,233 @@
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <sys/stat.h>
-+#include <sys/types.h>
-+#include <unistd.h>
-+
-+#include <selinux/label.h>
-+#include <selinux/selinux.h>
-+
-+#include "internal.h"
-+
-+void test_multiple_no_validation(const char *basedir)
-+{
-+	struct selabel_handle *hnd;
-+
-+	/* f1.fc and f2.fc file */
-+	char *f1_path, *f2_path;
-+	asprintf(&f1_path, "%s/f1.fc", basedir);
-+	asprintf(&f2_path, "%s/f2.fc", basedir);
-+	struct selinux_opt opts[] =3D {
-+		{ .type =3D SELABEL_OPT_PATH, .value =3D f1_path },
-+		{ .type =3D SELABEL_OPT_PATH, .value =3D f2_path }
-+	};
-+
-+	hnd =3D selabel_open(SELABEL_CTX_FILE, opts, ARRAY_SIZE(opts));
-+	free(f1_path);
-+	free(f2_path);
-+
-+	if (!hnd) {
-+		log_errno("Unable to open file backend");
-+		exit(2);
-+	}
-+
-+	struct test_t tests[] =3D {
-+		{ .path =3D "/", .context =3D "system_u:object_r:rootfs:s0" },
-+		{
-+			.path =3D "/base",
-+			.context =3D "system_u:object_r:test_base_t:s0"
-+		},
-+	};
-+	assertContextsMatch(hnd, __func__, tests, ARRAY_SIZE(tests));
-+
-+	selabel_close(hnd);
-+}
-+
-+void test_multiple_with_validation(const char *basedir)
-+{
-+	struct selabel_handle *hnd;
-+
-+	/* f1.fc and f2.fc file - f1 has undefined type rootfs in test policy */
-+	char *f1_path, *f2_path;
-+	asprintf(&f1_path, "%s/f1.fc", basedir);
-+	asprintf(&f2_path, "%s/f2.fc", basedir);
-+	struct selinux_opt opts[] =3D {
-+		{ .type =3D SELABEL_OPT_PATH, .value =3D f1_path },
-+		{ .type =3D SELABEL_OPT_PATH, .value =3D f2_path },
-+		{ .type =3D SELABEL_OPT_VALIDATE, .value =3D "1" }
-+	};
-+
-+	hnd =3D selabel_open(SELABEL_CTX_FILE, opts, ARRAY_SIZE(opts));
-+	free(f1_path);
-+	free(f2_path);
-+
-+	if (hnd) {
-+		log_err("Validation of f1 and f2 should have failed");
-+		selabel_close(hnd);
-+		exit(2);
-+	}
-+}
-+
-+void test_multiple_with_extras(const char *basedir)
-+{
-+	struct selabel_handle *hnd;
-+	char *f2_path, *f3_path;
-+	asprintf(&f2_path, "%s/f2.fc", basedir);
-+	asprintf(&f3_path, "%s/f3.fc", basedir);
-+
-+	/* 1. f3.fc is the first path: extras (.subs, .local, .homedirs) of f3 AR=
-E processed */
-+	struct selinux_opt opts_f3_first[] =3D {
-+		{ .type =3D SELABEL_OPT_PATH, .value =3D f3_path },
-+		{ .type =3D SELABEL_OPT_PATH, .value =3D f2_path }
-+	};
-+	hnd =3D selabel_open(SELABEL_CTX_FILE, opts_f3_first,
-+			   ARRAY_SIZE(opts_f3_first));
-+	if (!hnd) {
-+		log_errno("Unable to open file backend");
-+		exit(2);
-+	}
-+
-+	struct test_t tests_f3_first[] =3D {
-+		{ .path =3D "/", .context =3D "system_u:object_r:rootfs:s0" },
-+		{
-+			.path =3D "/sub",
-+			.context =3D "system_u:object_r:test_subbed:s0"
-+		},
-+		{
-+			.path =3D "/local",
-+			.context =3D "system_u:object_r:test_local:s0"
-+		},
-+		{
-+			.path =3D "/homedirs",
-+			.context =3D "system_u:object_r:test_homedirs:s0"
-+		},
-+		{
-+			.path =3D "/base",
-+			.context =3D "system_u:object_r:test_base_t:s0"
-+		},
-+	};
-+	assertContextsMatch(hnd, __func__, tests_f3_first,
-+			    ARRAY_SIZE(tests_f3_first));
-+	selabel_close(hnd);
-+
-+	/* 2. f2.fc is the first path, f3.fc is second: extras from f3 are NOT pr=
-ocessed */
-+	struct selinux_opt opts_f2_first[] =3D {
-+		{ .type =3D SELABEL_OPT_PATH, .value =3D f2_path },
-+		{ .type =3D SELABEL_OPT_PATH, .value =3D f3_path }
-+	};
-+	hnd =3D selabel_open(SELABEL_CTX_FILE, opts_f2_first,
-+			   ARRAY_SIZE(opts_f2_first));
-+	if (!hnd) {
-+		log_errno("Unable to open file backend");
-+		exit(2);
-+	}
-+
-+	struct test_t tests_f2_first[] =3D {
-+		{
-+			.path =3D "/base",
-+			.context =3D "system_u:object_r:test_base_t:s0"
-+		},
-+		{ .path =3D "/", .context =3D "system_u:object_r:rootfs:s0" },
-+		{
-+			.path =3D "/subbed",
-+			.context =3D "system_u:object_r:test_subbed:s0"
-+		},
-+		/* /sub, /local, /homedirs should NOT match the f3 extra contexts */
-+		{ .path =3D "/sub", .context =3D NULL },
-+		{ .path =3D "/local", .context =3D NULL },
-+		{ .path =3D "/homedirs", .context =3D NULL },
-+	};
-+	assertContextsMatch(hnd, __func__, tests_f2_first,
-+			    ARRAY_SIZE(tests_f2_first));
-+	selabel_close(hnd);
-+
-+	free(f2_path);
-+	free(f3_path);
-+}
-+
-+void test_multiple_three_paths(const char *basedir)
-+{
-+	struct selabel_handle *hnd;
-+	char *f1_path, *f2_path, *f3_path;
-+	asprintf(&f1_path, "%s/f1.fc", basedir);
-+	asprintf(&f2_path, "%s/f2.fc", basedir);
-+	asprintf(&f3_path, "%s/f3.fc", basedir);
-+
-+	struct selinux_opt opts[] =3D {
-+		{ .type =3D SELABEL_OPT_PATH, .value =3D f1_path },
-+		{ .type =3D SELABEL_OPT_PATH, .value =3D f2_path },
-+		{ .type =3D SELABEL_OPT_PATH, .value =3D f3_path }
-+	};
-+
-+	hnd =3D selabel_open(SELABEL_CTX_FILE, opts, ARRAY_SIZE(opts));
-+	free(f1_path);
-+	free(f2_path);
-+	free(f3_path);
-+
-+	if (!hnd) {
-+		log_errno("Unable to open file backend");
-+		exit(2);
-+	}
-+
-+	struct test_t tests[] =3D {
-+		{ .path =3D "/", .context =3D "system_u:object_r:rootfs:s0" },
-+		{
-+			.path =3D "/base",
-+			.context =3D "system_u:object_r:test_base_t:s0"
-+		},
-+		{
-+			.path =3D "/subbed",
-+			.context =3D "system_u:object_r:test_subbed:s0"
-+		},
-+	};
-+	assertContextsMatch(hnd, __func__, tests, ARRAY_SIZE(tests));
-+	selabel_close(hnd);
-+}
-+
-+void test_multiple_duplicate_validation(const char *basedir)
-+{
-+	struct selabel_handle *hnd;
-+
-+	/* Two copies of f2.fc to provide duplicate specifications */
-+	char *f2_path;
-+	asprintf(&f2_path, "%s/f2.fc", basedir);
-+	struct selinux_opt opts[] =3D {
-+		{ .type =3D SELABEL_OPT_PATH, .value =3D f2_path },
-+		{ .type =3D SELABEL_OPT_PATH, .value =3D f2_path },
-+		{ .type =3D SELABEL_OPT_VALIDATE, .value =3D "1" }
-+	};
-+
-+	hnd =3D selabel_open(SELABEL_CTX_FILE, opts, ARRAY_SIZE(opts));
-+	free(f2_path);
-+
-+	if (!hnd) {
-+		log_errno("Unable to open file backend");
-+		exit(2);
-+	}
-+
-+	struct test_t tests[] =3D {
-+		{
-+			.path =3D "/base",
-+			.context =3D "system_u:object_r:test_base_t:s0"
-+		},
-+	};
-+	assertContextsMatch(hnd, __func__, tests, ARRAY_SIZE(tests));
-+
-+	selabel_close(hnd);
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	if (argc !=3D 2) {
-+		log_err("basedir not provided");
-+		exit(1);
-+	}
-+
-+	test_multiple_no_validation(argv[1]);
-+	test_multiple_with_validation(argv[1]);
-+	test_multiple_duplicate_validation(argv[1]);
-+	test_multiple_with_extras(argv[1]);
-+	test_multiple_three_paths(argv[1]);
-+
-+	return 0;
-+}
---=20
-2.55.0.229.g6434b31f56-goog
+diff --git a/SECURITY.md b/SECURITY.md
+index a1d02c4d..49c40e97 100644
+--- a/SECURITY.md
++++ b/SECURITY.md
+@@ -25,10 +25,6 @@ the issue before it is made public, but we will make every effort to address
+ the issue as quickly as possible and shorten the disclosure window.
+ 
+ * Petr Lautrbach, plautrba@redhat.com
+-* Nicolas Iooss, nicolas.iooss@m4x.org
+-  *  (GPG fingerprint) E25E 254C 8EE4 D303 554B  F5AF EC70 1A1D A494 C5EB
+-* Jeffrey Vander Stoep, jeffv@google.com
+-* Joshua Brindle, brindle@gmail.com
+ * James Carter, jwcart2@gmail.com
+   *  (GPG fingerprint) 4568 1128 449B 65F8 80C6  1797 3A84 A946 B4BA 62AE
+ * Paul Moore, paul@paul-moore.com
+@@ -37,7 +33,6 @@ the issue as quickly as possible and shorten the disclosure window.
+   *  (GPG fingerprint) 578C 4211 832F 0A7E A2C5  A7C2 21A4 6E60 3F74 4ECF
+ * Jason Zaman, perfinion@gentoo.org
+   *  (GPG fingerprint) 6319 1CE9 4183 0986 89CA  B8DB 7EF1 37EC 935B 0EAF
+-* Steve Lawrence, slawrence@tresys.com
+ * Ondrej Mosnacek, omosnace@redhat.com
+ 
+ ### Resolving Sensitive Security Issues
+-- 
+2.54.0
 
