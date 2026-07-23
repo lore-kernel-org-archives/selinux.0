@@ -1,614 +1,333 @@
-Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
+Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FC7E448B9E
-	for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 15:46:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1DFF47124B
+	for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 16:07:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.179
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784821621; cv=pass; b=BbKp2LPq/tfxwYGJQunOrR4WwMBUCt3ntJKqENpx5bInO3Hd1S/dR8PqipDrdTxV7GBW+KF2ZVcBzC3yTwNwCkIravUxeoyDb236NBpGgbZXWdJr12Rh9z/3Dpx2SYJhF2g7bwYpsu+6eyQ81p5FAYd/ptN7xpq7vsfEv7ywkxw=
+	t=1784822831; cv=pass; b=DlKFRPJZKjAYFYN25ND6VO98tVeJ6jy5JkJhtSC/POfbGoDK1qN5ZJNo9ry5Y5kkYhJ4kTad2U4ajTX2ubBVVNNInls+EpIjrYtksfGhB+8/dx6LLLFhwIXKbRs4AoHmZVCmJhoQPAj6xr9LS8YVgFd0qrSiBAYDswGVV4Wx7gg=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784821621; c=relaxed/simple;
-	bh=iEw3tGjViuqI+xE+7feWo8CISuQc33i1w2DshzOiZ9o=;
+	s=arc-20240116; t=1784822831; c=relaxed/simple;
+	bh=d6HS2eAH47XEC3BGpz32i57etEUDsdH51rruAE1rsZo=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=sacUX4RkvhuwNifYcqyYgbVVlxMQQNE0j0C2wfy33jYQcwns33S6nA038SpJEdXQCd8HHmeIFo6qNJ9jy//ofL9hXLBcwtudoNSyMrvPqvDI8WxgBrYl7TVmvvvgR0nSpqxvUA6igrgN4Fb/c/uQqpeVkjmnvgixMAfRr1/LkPM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=S3F81SrO; arc=pass smtp.client-ip=209.85.215.171
+	 To:Cc:Content-Type; b=cR1i1gbREfxW25+7RCd6LCbXedrrb+h74RitPWXVu2+Gl3x3OGLwrbLXiUEC72ZoPUDuXFx4PPV5b810Em361K8f6V2Hv08kB+H894Hk4rDEgwrY6gC1zmnb5i4GJVDxDmxkI8gC3vLZUZtQlMC1j0v0mgjDEyLSz+s3pzVNehA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JKejEodw; arc=pass smtp.client-ip=209.85.210.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="S3F81SrO"
-Received: by mail-pg1-f171.google.com with SMTP id 41be03b00d2f7-ca766c1c9ccso557580a12.0
-        for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 08:46:53 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784821608; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JKejEodw"
+Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-84e3007a2b7so683829b3a.0
+        for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 09:07:07 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784822826; cv=none;
         d=google.com; s=arc-20260327;
-        b=Er6AGyVzYt2OziVBW0imF4MdopcRAY/ZI8rFTrjw7rCdBtgM+p7H0//7fKAKx3GFl9
-         SiT3AfaXRXeGWDhOssYii4qPI3tYJgSoBIj4hgxOPRXqv8FpoK/VDEXmG7VqYh0E1xFo
-         IvX9WjS26w3tDkdNgQ+nC0foEoFNQXdjn5pJLanNGzB35wehP+kfWXjv7c/lqhYBR5bW
-         xvFb4o7Mi6J0RpfePUKqtDX7TWAiCV/cBrHuq4/aAy/K1SO0IP5B4Izlc3u0H/puBg2O
-         cUZAvAwW+iaSp5EYtH6g4TElciR0fvdJ9zM2o2jHplCcZd+jsT1S7MJ6ObzpTaA+DLZL
-         SxMQ==
+        b=dFEgypE/f/1F7jIe1RlUe6DTPfSIOhI91509VPsJeE3gIWlNc5XDHUC94c9SIIccnz
+         c5+4cFyAe7fbQQLOksZhW31NhE5MlWOf/ZW5vVLK2taMvr2roinf+HDxKajZWRIzj7ZK
+         93nF0+9j29c275D6+sa0htMs+Mwdr+Ecyp6iVYMksJYdKmqbn50LOTqqV1RsGQ//AkMj
+         P2U3lkii9vdHBuqBd0X3n70+240xfsn0NWcWAFIz5/d6iEzGzmYO933+0f5upY0jVn4j
+         oEZWwopmo97auqysGflzjlb9/j3A/gNNU9v6QsyPhwr4HHoBRW7A7ZTZk5GFtnuo2tTx
+         047w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=fzc2TGfZhVnDFOuugzqt2fW7st8znOY0n0GiWdpLhGI=;
-        fh=fLF9pLxcv4hKKFgN0sJhPMZd0Elw3Mux3O6VcDqhGB8=;
-        b=hDGcxKgNv6j0jX8NaWIyaggjOJ2h6qko4GB1Zg6jQexSmVW2TUTtEsx7KzAptW3OZE
-         7HMC+Gl73IphUQLsSHhDTE1Kktg/GRX0wmddIPlXBCFZAqYUC43EHZ6rAQ7XPkeSzIrL
-         SmH3Rs7CKQRUCauC3oY+Ad8O5eayc4c7yL8gvz9+0LdhDhOBMxlFNl6V0Au1Wk2UXZwk
-         tMjX5pfd1s/46TrQWSA/Qi1CtBYjLDlNXjivf3Ln9hRmPzCKwKXtnjM1FZV+69/5R3n8
-         XidsKncjjGgfRn3SURq2HM4XeoFmMvx1OkUqsG3ceaumPplAAoF8O2OrMcTU1KVjLxgJ
-         wyuA==;
+        bh=NmC1xEMYIWM4ikprDNl5lMcqgI6hE0skZBxq19J2RVU=;
+        fh=mMDxYY5wtlIekXoYIfjt6lvMWgTaMUwdwgsYDQ6qy3A=;
+        b=Zzy1bb5BnTZiHP9NUxDV/6EahKUOky82j5Oxjw2xrvvO/J8JUno0f839mbyBFB6YH/
+         X88m/9gWVJqUHkNOS01FiuUwiy1UE5+S/zey4OgFsbTUkAwzBWcDOqn6DOs1f4lJmJpF
+         z/BJpmY5RpIlXZCUyr1JRKRryUPGg14w+EEwja+XBwzJedtdwHBv2ad2Z3GHDxScy54B
+         R8Am+2ku1yr+FhrnIl469fND0j3IP1vodX/hN4IF9tBhFyB4lEhWeTzSuyAwF9CXskA3
+         +Sta0eOjdYfVG69talYj9v5Sq9R9Pu8zGmeY5I+OKVaNbZaanjaguPouNNoGVeMgNRNX
+         hh0g==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784821608; x=1785426408; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784822826; x=1785427626; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=fzc2TGfZhVnDFOuugzqt2fW7st8znOY0n0GiWdpLhGI=;
-        b=S3F81SrOOrgSdLKvgF4M8ghAR7JezInAsDoqNMTPE9NJmwiQ4EAdVnWzUMWXjKF1fX
-         HjvBuUVMWhfM27n4EVubMsmZ9LkqbXyNx15dBTbD/NNnnurRqRCV5DjArmFaxgRaBmxq
-         Yam3Q1ulq9OYZPxnsIrWMFCHK+ULmJcRi5QQe73Ar444Q9Dzvy9jTUHjUCkVAHZeEn3e
-         g3liZvieHmHr/l/J8yWWRdUr2QQCvNgvFQyq5HRf1sq+LZgVd2/JxO9vTBjXiFm69v9e
-         JWJNZTuQAgmZ3OcUUsPaTBNDK3mxqjTZHxMLtiSy7yRaip09sW2rNoso1YYb4OaGjx9k
-         ItTg==
+        bh=NmC1xEMYIWM4ikprDNl5lMcqgI6hE0skZBxq19J2RVU=;
+        b=JKejEodwUlrJ12ZzU00+5XxeQwO0Xz9p0bf8UmBJSGFHXOzDzIIkbO1Pexki7TqK8K
+         qkk6KONRmL+4r9i/7RspcwfYbUjHzCbcNzZZnPA/NFo2JNiuj11dFofNGr4ppIyOlXj3
+         sz5xw8r+wtezw9XB+50jQD4+UHOL5o0lPeb4eMx47nN2ZfeQab2G7dZcCg2NzvsH0czL
+         PSm5QQ5Y8RkxihW34cyWbfqobbACnpRj9j61/7OszrcjGRbZiNxuGAjwvaOkyb8QlR3O
+         f2OOhiv8L/XgPuglaCLhpr2VQLfy2/LO9QM8RykF/H/D1e76nXd6GAjgdT+DTs/+J9gy
+         FTXQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784821608; x=1785426408;
+        d=1e100.net; s=20251104; t=1784822826; x=1785427626;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=fzc2TGfZhVnDFOuugzqt2fW7st8znOY0n0GiWdpLhGI=;
-        b=jx5dEYHs11Pm0jDL/S53XkBLxB8opJEYsmI0a2atQVSfznDpJW4NZfdGo91lZSWjba
-         YIrRxyENq7tjOkFWHUp1PvSD7m79s1hdHBoDkN0PxGURkB9USGL6k00qQMiCsw3PfFCT
-         biU28ALqIIbNJMmghNBSE3MJNSiwdcytvG+7VdzEpYminbEDopbC5X5RJ2pwuRPxVMft
-         elIEkugLgcTSLYEDPHdugUE3Ij7sw5pqnihV1hxHs8Re+bqb3UT2YKXCGErudg9CuhpB
-         WMHDK6C4+58EZmD6te33lh40vVmSAe4oThSlCQr2ImfUgaWYYiYGy13fVXL0OBF4a/qZ
-         voxA==
-X-Gm-Message-State: AOJu0YzMvecm1WOVzxMjq7gFOFou4En5y1/a5fROLls3R1B/mhP6KbVf
-	BMhjsHzjcidMZQpsX+xkXo0ke/s9X0Crf7YkJmd9VP2UXj2bYhnLsZT3FVvAWYUpMCjXisXhwG6
-	3zpiStjPkWcT0NgXyzDyfR7u1Xbzqmj4=
-X-Gm-Gg: AR+sD11J8MNiCZDt9xGATpKAtD/FhM9UqQUOLPLydc7oKr23s9aIaEjP2Z9RiUZ+5JQ
-	1EkG08RNl4eFhidimVby4nLSRjjBcxZ31r+yiwih76yS4RSTYmoYiduw5UBuwBRE3fkJ9+fOLjj
-	tusaXzPmjNFsCB2mox7LDdBTxF/FSul9XJ1qP6ZJaWB15wfkhNqmKQ/PJLcvWeOInP0oRFGshms
-	3tzbl38dYF0UeYQ21qY2q9e8JZNESanSteqsrII8fvo5Lb+++Mj9CTIUDCfgQ==
-X-Received: by 2002:a05:6a00:228f:b0:848:700d:c950 with SMTP id
- d2e1a72fcca58-84e2bb22dafmr4446637b3a.37.1784821607918; Thu, 23 Jul 2026
- 08:46:47 -0700 (PDT)
+        bh=NmC1xEMYIWM4ikprDNl5lMcqgI6hE0skZBxq19J2RVU=;
+        b=es1u8dhgFGrhBEcLi7WFgdTqZWV8DfvXmkU6fV+yXQGsxMOGv+ZTItruzYgo2eYJXx
+         GpTgP2xQZEZHyZKWOOnJcFBLwDCbkXUyz7Pdh/5VBYLwd+7WsLtQtMB0/ukeF2xIcRmI
+         CdruNEubRAtJ5jYJtHTFoN9dOwyIqIxPG4xAl82otfDmcB00aHNmQSGRzYPeEam/fcMm
+         vaB7af0vdE3jrzGdaL6WuRC8d/8aEmaaOSgwD9d+UZnzDVdjZYWWLyJkXRaULadaO1eT
+         el4CzQ90AJhfN2E/KLgzG6lHyXefU5jPGA3YyVVoAkOZw+Ru8lOvmYBACrJiVrA2SoH6
+         zXNw==
+X-Gm-Message-State: AOJu0YzE3qIpUxa9II0owsx3EJldDqJSbSZmvXEvnyFNbgAUSoQR8Mxt
+	vcA/bU/GMdqwymwQfPfdfDNWYfwjgnUabBTLcdQRVNb/iYdR+kTtW6UT3cWz+s5GXhz6/KKnyYf
+	EFGtxYDyWEVEMphZuVSANKcRgl+6Njcw=
+X-Gm-Gg: AR+sD11XCMYIxTKLqNM4LGe+0MvsGUvy43TrUictHW2F4tF6/iTAwAvjVZwLUEUwvnR
+	rr6KPDpR40O4FTsWvfYa3nWfl3/euGRQekjPpsF96U42FV0loEC/ab0qD8SbdDbacWMX3b/LZIt
+	zC1kEUIOVk/gF+/CoJ+odHc6Ocuor+BPYbJ1Mn/eNJMOjUzrevXiP4xQetEX3fSI1yzNn/3jXp1
+	QLlxyzvFJqpSHaRPKPEjZkzfkTDxn4cQGD+kIrwd8X+515S6KHe9zaYpVJyfg==
+X-Received: by 2002:a05:6a00:1913:b0:847:8b1d:230d with SMTP id
+ d2e1a72fcca58-84e2b7e5dcfmr4422457b3a.3.1784822826270; Thu, 23 Jul 2026
+ 09:07:06 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260723130943.2346775-1-akkohli@redhat.com>
-In-Reply-To: <20260723130943.2346775-1-akkohli@redhat.com>
+References: <20260723031102.2718093-1-tweek@google.com> <20260723031102.2718093-2-tweek@google.com>
+In-Reply-To: <20260723031102.2718093-2-tweek@google.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 23 Jul 2026 11:46:36 -0400
-X-Gm-Features: AUfX_mx5c4_rRNC-5OhhWqkNlqyDABxIbPdJ42yiX07mO36kC_k9bwd7VOfMocw
-Message-ID: <CAEjxPJ77sv_bX0B9vhKnZKay9xnu-TOvA0LZW3f04avLdTK3uA@mail.gmail.com>
-Subject: Re: [PATCH v3] semodule-utils: add bad-data tests for semodule_package
-To: Akhil Kohli <akkohli@redhat.com>, Petr Lautrbach <lautrbach@redhat.com>, 
+Date: Thu, 23 Jul 2026 12:06:54 -0400
+X-Gm-Features: AUfX_mxXJVMuuwPBhgoY4zJ5usEiLYDuRDUOoj9EfxAX1XfzkX_hE3Lh8JWf2sw
+Message-ID: <CAEjxPJ6qSMAHv9=KfM=-AybsWWoE3E+jG7JTgfuFjSgJ3hLgcA@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] libselinux: support multiple context files for the
+ file backend
+To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Cc: selinux@vger.kernel.org, James Carter <jwcart2@gmail.com>, 
+	=?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>, 
 	Ondrej Mosnacek <omosnace@redhat.com>
-Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 23, 2026 at 9:16=E2=80=AFAM Akhil Kohli <akkohli@redhat.com> wr=
-ote:
+On Wed, Jul 22, 2026 at 11:11=E2=80=AFPM Thi=C3=A9baud Weksteen <tweek@goog=
+le.com> wrote:
 >
-> Add tests/bad-data/run.sh and fixtures for semodule_package bad-data
-> protection: input path validation for -m and -f (missing paths, directori=
-es,
-> broken symlinks, unreadable files, empty arguments) and malformed .mod.fc
-> content at packaging time. Wire the driver into semodule-utils make test.
-> Semantic validation of bad file contexts is deferred to sefcontext_compil=
-e.
+> Update the file labeling backend to support specifying multiple
+> SELABEL_OPT_PATH options in selabel_open().
 >
-> Run the harness as a non-root user in GitHub Actions so unreadable -m/-f
-> inputs are exercised in CI. Semantic validation of bad file contexts is
-> deferred to sefcontext_compile
+> All provided paths are stored in rec->spec_files and processed during
+> initialization. Derived files, such as substitutions (.subs, .subs_dist)
+> and auxiliary contexts (.homedirs, .local), continue to be based on the
+> first path (or default selinux_file_context_path()) when enabled.
 >
-> Signed-off-by: Akhil Kohli <akkohli@redhat.com>
-
-Looks good to me but would appreciate review by those more familiar
-with the GitHub CI.
-
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-
-
+> Duplicate checking is only performed within each context file. The curren=
+t
+> behavior expects the ability for a later file to overwrite a previous
+> declaration (e.g., .local).
+>
+> Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
 > ---
->  .github/workflows/run_tests.yml               |  13 +
->  semodule-utils/Makefile                       |   1 +
->  .../fixtures/file_contexts/bad_context.mod.fc |   1 +
->  .../fixtures/file_contexts/bad_fields.mod.fc  |   1 +
->  .../fixtures/file_contexts/good.mod.fc        |   1 +
->  .../tests/bad-data/fixtures/modules/good.te   |   8 +
->  semodule-utils/tests/bad-data/run.sh          | 355 ++++++++++++++++++
->  7 files changed, 380 insertions(+)
->  create mode 100644 semodule-utils/tests/bad-data/fixtures/file_contexts/=
-bad_context.mod.fc
->  create mode 100644 semodule-utils/tests/bad-data/fixtures/file_contexts/=
-bad_fields.mod.fc
->  create mode 100644 semodule-utils/tests/bad-data/fixtures/file_contexts/=
-good.mod.fc
->  create mode 100644 semodule-utils/tests/bad-data/fixtures/modules/good.t=
-e
->  create mode 100755 semodule-utils/tests/bad-data/run.sh
+> Changes since v1:
+> - Restore nodups_spec_node, ignore duplicates across files.
+> - Change num_paths type to uint8_t and check for overflow.
+> - Check for NULL before strdup any path.
+> - Use num_paths and num_paths+1 for homedirs and local.
 >
-> diff --git a/.github/workflows/run_tests.yml b/.github/workflows/run_test=
-s.yml
-> index f4aa1a4c..4322ddff 100644
-> --- a/.github/workflows/run_tests.yml
-> +++ b/.github/workflows/run_tests.yml
-> @@ -82,6 +82,19 @@ jobs:
->          eval make test $EXPLICIT_MAKE_VARS
->          echo "::endgroup::"
+>  libselinux/src/label_file.c | 139 ++++++++++++++++++++++++------------
+>  1 file changed, 92 insertions(+), 47 deletions(-)
 >
-> +        # semodule_package bad-data: unreadable -m/-f inputs need non-ro=
-ot (root reads mode 000).
-> +        if [ "${{ matrix.python-ruby-version.other }}" !=3D "sanitizers"=
- ] ; then
-> +          echo "::group::semodule-utils bad-data (non-root)"
-> +          sudo useradd -m -s /usr/sbin/nologin bad-data-test 2>/dev/null=
- || true
-> +          # World-readable checkout; run via relative path (inherited CW=
-D). Do not
-> +          # cd to $PWD =E2=80=94 bad-data-test cannot traverse /home/run=
-ner/work/... .
-> +          chmod -R a+rX .
-> +          sudo runuser -u bad-data-test -- env PATH=3D"$PATH" LD_LIBRARY=
-_PATH=3D"$LD_LIBRARY_PATH" \
-> +            ./semodule-utils/tests/bad-data/run.sh
-> +          sudo userdel -r bad-data-test 2>/dev/null || true
-> +          echo "::endgroup::"
-> +        fi
-> +
->          if [ "${{ matrix.python-ruby-version.other }}" !=3D "sanitizers"=
- ] ; then
->              # Test Python and Ruby wrappers
->              echo "::group::Test Python and Ruby wrappers"
-> diff --git a/semodule-utils/Makefile b/semodule-utils/Makefile
-> index 81c97af0..4a902146 100644
-> --- a/semodule-utils/Makefile
-> +++ b/semodule-utils/Makefile
-> @@ -6,3 +6,4 @@ all install relabel clean:
->         done
+> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+> index d91e1462..02bd6f5d 100644
+> --- a/libselinux/src/label_file.c
+> +++ b/libselinux/src/label_file.c-
+> @@ -1484,22 +1491,30 @@ static int init(struct selabel_handle *rec, const=
+ struct selinux_opt *opts,
+>                 unsigned n)
+>  {
+>         struct saved_data *data =3D rec->data;
+> -       const char *path =3D NULL;
+> +       uint8_t num_paths =3D 0, i;
+> +       char **paths =3D NULL;
+>         const char *prefix =3D NULL;
+> -       int status =3D -1, baseonly =3D 0;
+> +       int status =3D -1;
+> +       bool baseonly =3D false, path_provided =3D false;
 >
->  test:
-> +       ./tests/bad-data/run.sh
-> diff --git a/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_con=
-text.mod.fc b/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_cont=
-ext.mod.fc
-> new file mode 100644
-> index 00000000..06aec43e
-> --- /dev/null
-> +++ b/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_context.mo=
-d.fc
-> @@ -0,0 +1 @@
-> +/usr/bin/bad   not_a_valid_selinux_context
-> diff --git a/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_fie=
-lds.mod.fc b/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_field=
-s.mod.fc
-> new file mode 100644
-> index 00000000..13821d61
-> --- /dev/null
-> +++ b/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_fields.mod=
-.fc
-> @@ -0,0 +1 @@
-> +only_one_field_on_this_line
-> diff --git a/semodule-utils/tests/bad-data/fixtures/file_contexts/good.mo=
-d.fc b/semodule-utils/tests/bad-data/fixtures/file_contexts/good.mod.fc
-> new file mode 100644
-> index 00000000..12b26cae
-> --- /dev/null
-> +++ b/semodule-utils/tests/bad-data/fixtures/file_contexts/good.mod.fc
-> @@ -0,0 +1 @@
-> +/usr/bin/test_good     --      system_u:object_r:test_good_exec_t:s0
-> diff --git a/semodule-utils/tests/bad-data/fixtures/modules/good.te b/sem=
-odule-utils/tests/bad-data/fixtures/modules/good.te
-> new file mode 100644
-> index 00000000..a079aed6
-> --- /dev/null
-> +++ b/semodule-utils/tests/bad-data/fixtures/modules/good.te
-> @@ -0,0 +1,8 @@
-> +module test_good 1.0;
+>         /* Process arguments */
+> -       while (n) {
+> -               n--;
+> -               switch (opts[n].type) {
+> +       for (i =3D 0; i < n; i++) {
+
+uint8_t i versus unsigned n; if n >=3D 256, i will wrap and we'll loop fore=
+ver.
+Unlikely I know but should either use unsigned for i or cap n up front.
+
+> +               switch (opts[i].type) {
+>                 case SELABEL_OPT_PATH:
+> -                       path =3D opts[n].value;
+> +                       if (opts[i].value) {
+> +                               num_paths++;
+> +                               if (num_paths =3D=3D UINT8_MAX) {
+> +                                       errno =3D EINVAL;
+> +                                       return -1;
+> +                               }
+> +                               path_provided =3D true;
+> +                       }
+>                         break;
+>                 case SELABEL_OPT_SUBSET:
+> -                       prefix =3D opts[n].value;
+> +                       prefix =3D opts[i].value;
+>                         break;
+>                 case SELABEL_OPT_BASEONLY:
+> -                       baseonly =3D !!opts[n].value;
+> +                       baseonly =3D !!opts[i].value;
+>                         break;
+>                 case SELABEL_OPT_UNUSED:
+>                 case SELABEL_OPT_VALIDATE:
+> @@ -1511,10 +1526,50 @@ static int init(struct selabel_handle *rec, const=
+ struct selinux_opt *opts,
+>                 }
+>         }
+>
+> +       /* If no paths were provided, we will use the default path or fai=
+l,
+> +        * depending on the target. */
+> +       if (!path_provided) {
+> +#if !defined(BUILD_HOST) && !defined(ANDROID)
+> +               num_paths =3D 1;
+> +#else
+> +               selinux_log(SELINUX_ERROR,
+> +                           "No path given to file labeling backend\n");
+> +               errno =3D EINVAL;
+> +               return -1;
+> +#endif
+> +       }
 > +
-> +require {
-> +       type test_good_t;
-> +       class file { read };
-> +}
+> +       /* If !baseonly, we reserve the last 2 indexes for homedirs and l=
+ocal.
+> +        * Let's make sure we don't wrap */
+> +       if (!baseonly && num_paths > UINT8_MAX - 1) {
+> +               errno =3D EINVAL;
+> +               return -1;
+> +       }
 > +
-> +allow test_good_t self:file read;
-> diff --git a/semodule-utils/tests/bad-data/run.sh b/semodule-utils/tests/=
-bad-data/run.sh
-> new file mode 100755
-> index 00000000..7c9f7c7d
-> --- /dev/null
-> +++ b/semodule-utils/tests/bad-data/run.sh
-> @@ -0,0 +1,355 @@
-> +#!/bin/sh
-> +#
-> +# Bad-data tests for semodule_package in the modular policy packaging pi=
-peline.
-> +# Covers packaging path edge cases (-m/-f) and documents deferred reject=
-ion of bad
-> +# .mod.fc content (enforced later by sefcontext_compile).
-> +# Unreadable -m/-f cases skip when run as root; CI runs this script as n=
-on-root.
-> +#
+> +       /* Allocate the paths. */
+> +       paths =3D calloc(num_paths, sizeof(*paths));
+> +       if (paths =3D=3D NULL)
+> +               goto finish;
 > +
-> +set -u
+> +       rec->spec_files =3D paths;
+> +       rec->spec_files_len =3D num_paths;
 > +
-> +# Prefer an absolute script dir, but keep a relative dirname when cd fai=
-ls.
-> +# Non-root CI can inherit the repo as CWD without being able to traverse
-> +# /home/runner/work/...; relative paths from that CWD still work.
-> +BASEDIR=3D$(dirname -- "$0")
-> +ABS_BASEDIR=3D$(CDPATH=3D cd -- "${BASEDIR}" 2>/dev/null && pwd) || ABS_=
-BASEDIR=3D
-> +if [ -n "${ABS_BASEDIR}" ]; then
-> +       BASEDIR=3D"${ABS_BASEDIR}"
-> +fi
-> +FIXTURES=3D"${BASEDIR}/fixtures"
-> +if [ ! -d "${FIXTURES}" ]; then
-> +       echo "FAIL: cannot resolve fixtures directory (\$0=3D$0 BASEDIR=
-=3D${BASEDIR})" >&2
-> +       exit 1
-> +fi
-> +OUTDIR=3D$(mktemp -d "${TMPDIR:-/tmp}/semodule-package-bad-data.XXXXXX")
-> +PASS=3D0
-> +FAIL=3D0
+> +       /* Copy all the paths given. */
+> +       if (path_provided) {
+> +               for (i =3D 0; i < n; i++) {
+> +                       if (opts[i].type =3D=3D SELABEL_OPT_PATH && opts[=
+i].value) {
+> +                               *paths =3D strdup(opts[i].value);
+> +                               if (*paths =3D=3D NULL)
+> +                                       goto finish;
+> +                               paths++;
+> +                       }
+> +               }
+> +       }
 > +
-> +CHECKMODULE=3D${CHECKMODULE:-checkmodule}
-> +# Modular TE for MCS/MLS builds (checkmodule -M -m).
-> +CHECKMODULE_MOD_FLAGS=3D${CHECKMODULE_MOD_FLAGS:--M -m}
-> +SEMODULE_PACKAGE=3D${SEMODULE_PACKAGE:-semodule_package}
+>  #if !defined(BUILD_HOST) && !defined(ANDROID)
+>         char subs_file[PATH_MAX + 1];
+>         /* Process local and distribution substitution files */
+> -       if (!path) {
+> +       if (!path_provided) {
+>                 status =3D selabel_subs_init(
+>                         selinux_file_context_subs_dist_path(), rec->diges=
+t,
+>                         &data->dist_subs, &data->dist_subs_num,
+> @@ -1526,66 +1581,56 @@ static int init(struct selabel_handle *rec, const=
+ struct selinux_opt *opts,
+>                                            &data->subs_num, &data->subs_a=
+lloc);
+>                 if (status)
+>                         goto finish;
+> -               path =3D selinux_file_context_path();
+> +               rec->spec_files[0] =3D strdup(selinux_file_context_path()=
+);
+> +               if (rec->spec_files[0] =3D=3D NULL)
+> +                       goto finish;
+>         } else {
+> -               snprintf(subs_file, sizeof(subs_file), "%s.subs_dist", pa=
+th);
+> +               snprintf(subs_file, sizeof(subs_file), "%s.subs_dist",
+> +                        rec->spec_files[0]);
+>                 status =3D selabel_subs_init(subs_file, rec->digest,
+>                                            &data->dist_subs,
+>                                            &data->dist_subs_num,
+>                                            &data->dist_subs_alloc);
+>                 if (status)
+>                         goto finish;
+> -               snprintf(subs_file, sizeof(subs_file), "%s.subs", path);
+> +               snprintf(subs_file, sizeof(subs_file), "%s.subs",
+> +                        rec->spec_files[0]);
+>                 status =3D selabel_subs_init(subs_file, rec->digest, &dat=
+a->subs,
+>                                            &data->subs_num, &data->subs_a=
+lloc);
+>                 if (status)
+>                         goto finish;
+>         }
+> -
+>  #endif
+>
+> -       if (!path) {
+> -               errno =3D EINVAL;
+> -               goto finish;
+> -       }
+> -
+> -       rec->spec_files =3D calloc(1, sizeof(*rec->spec_files));
+> -       if (!rec->spec_files)
+> -               goto finish;
+> -       rec->spec_files[0] =3D strdup(path);
+> -       if (!rec->spec_files[0])
+> -               goto finish;
+> -       rec->spec_files_len =3D 1;
+> -
+>         /*
+> -        * The do detailed validation of the input and fill the spec arra=
+y
+> +        * Process each input file.
+>          */
+> -       status =3D process_file(path, NULL, rec, prefix, rec->digest, 0);
+> -       if (status)
+> -               goto finish;
+> -
+> -       if (rec->validating) {
+> -               sort_specs(data);
+> -
+> -               status =3D nodups_spec_node(data->root, path);
+> +       for (i =3D 0; i < num_paths; i++) {
+> +               status =3D process_file(rec->spec_files[i], NULL, rec, pr=
+efix,
+> +                                     rec->digest, i);
+>                 if (status)
+>                         goto finish;
+>         }
+>
+>         if (!baseonly) {
+> -               status =3D process_file(path, "homedirs", rec, prefix,
+> -                                     rec->digest, 1);
+> +               status =3D process_file(rec->spec_files[0], "homedirs", r=
+ec,
+> +                                     prefix, rec->digest, num_paths);
+>                 if (status && errno !=3D ENOENT)
+>                         goto finish;
+>
+> -               status =3D process_file(path, "local", rec, prefix, rec->=
+digest,
+> -                                     2);
+> +               status =3D process_file(rec->spec_files[0], "local", rec,=
+ prefix,
+> +                                     rec->digest, num_paths + 1);
+>                 if (status && errno !=3D ENOENT)
+>                         goto finish;
+>         }
+>
+> -       if (!rec->validating || !baseonly)
+> -               sort_specs(data);
+> +       sort_specs(data);
 > +
-> +GOOD_TE=3D"${FIXTURES}/modules/good.te"
-> +GOOD_MOD=3D"${OUTDIR}/test_good.mod"
-> +
-> +cleanup() {
-> +       rm -rf "${OUTDIR}"
-> +}
-> +trap cleanup EXIT
-> +
-> +die() {
-> +       echo "FAIL: $*" >&2
-> +       FAIL=3D$((FAIL + 1))
-> +}
-> +
-> +pass() {
-> +       echo "=3D=3D=3D=3D $*"
-> +       PASS=3D$((PASS + 1))
-> +       echo ""
-> +}
-> +
-> +build_good_mod() {
-> +       echo "=3D=3D=3D=3D Setup: build control module ${GOOD_MOD} from g=
-ood.te"
-> +       rm -f "${GOOD_MOD}"
-> +
-> +       set +e
-> +       # shellcheck disable=3DSC2086
-> +       "${CHECKMODULE}" ${CHECKMODULE_MOD_FLAGS} -o "${GOOD_MOD}" "${GOO=
-D_TE}" \
-> +               2>"${OUTDIR}/build_good.err"
-> +       rc=3D$?
-> +       set -e
-> +
-> +       if [ "${rc}" -ne 0 ]; then
-> +               echo "FAIL: could not build control module from ${GOOD_TE=
-}" >&2
-> +               cat "${OUTDIR}/build_good.err" >&2
-> +               exit 1
-> +       fi
-> +       if [ ! -s "${GOOD_MOD}" ]; then
-> +               echo "FAIL: ${GOOD_MOD} is empty" >&2
-> +               exit 1
-> +       fi
-> +       echo ""
-> +}
-> +
-> +expect_package_pass() {
-> +       desc=3D"$1"
-> +       outname=3D"$2"
-> +       shift 2
-> +
-> +       outpp=3D"${OUTDIR}/${outname}.pp"
-> +       stderr=3D"${OUTDIR}/${outname}.err"
-> +
-> +       echo "=3D=3D=3D=3D POSITIVE (expect semodule_package success): ${=
-desc}"
-> +       rm -f "${outpp}"
-> +
-> +       set +e
-> +       "${SEMODULE_PACKAGE}" -o "${outpp}" "$@" 2>"${stderr}"
-> +       rc=3D$?
-> +       set -e
-> +
-> +       if [ "${rc}" -ne 0 ]; then
-> +               echo "stderr:" >&2
-> +               cat "${stderr}" >&2
-> +               die "${desc}: expected exit 0, got rc=3D${rc}"
-> +               return 0
-> +       fi
-> +       if [ ! -s "${outpp}" ]; then
-> +               die "${desc}: expected non-empty ${outpp}"
-> +               return 0
-> +       fi
-> +
-> +       pass "${desc} (exit 0, .pp created)"
-> +}
-> +
-> +expect_package_pass_deferred() {
-> +       desc=3D"$1"
-> +       outname=3D"$2"
-> +       shift 2
-> +
-> +       outpp=3D"${OUTDIR}/${outname}.pp"
-> +       stderr=3D"${OUTDIR}/${outname}.err"
-> +
-> +       echo "=3D=3D=3D=3D DOCUMENT (semodule_package accepts input; vali=
-date in sefcontext_compile): ${desc}"
-> +       rm -f "${outpp}"
-> +
-> +       set +e
-> +       "${SEMODULE_PACKAGE}" -o "${outpp}" "$@" 2>"${stderr}"
-> +       rc=3D$?
-> +       set -e
-> +
-> +       if [ "${rc}" -ne 0 ]; then
-> +               echo "stderr:" >&2
-> +               cat "${stderr}" >&2
-> +               die "${desc}: expected exit 0 at packaging stage, got rc=
-=3D${rc}"
-> +               return 0
-> +       fi
-> +       if [ ! -s "${outpp}" ]; then
-> +               die "${desc}: expected non-empty ${outpp} at packaging st=
-age"
-> +               return 0
-> +       fi
-> +
-> +       pass "${desc} (packaging exit 0; labeling validation deferred to =
-sefcontext_compile)"
-> +}
-> +
-> +expect_package_fail() {
-> +       desc=3D"$1"
-> +       pattern=3D"$2"
-> +       outname=3D"$3"
-> +       shift 3
-> +
-> +       outpp=3D"${OUTDIR}/${outname}.pp"
-> +       stderr=3D"${OUTDIR}/${outname}.err"
-> +
-> +       echo "=3D=3D=3D=3D NEGATIVE (expect semodule_package failure): ${=
-desc}"
-> +       rm -f "${outpp}"
-> +
-> +       set +e
-> +       "${SEMODULE_PACKAGE}" -o "${outpp}" "$@" 2>"${stderr}"
-> +       rc=3D$?
-> +       set -e
-> +
-> +       if [ "${rc}" -eq 0 ]; then
-> +               die "${desc}: expected non-zero exit, got rc=3D0"
-> +               return 0
-> +       fi
-> +       if [ -f "${outpp}" ]; then
-> +               die "${desc}: did not expect output ${outpp}"
-> +               return 0
-> +       fi
-> +       if ! grep -Eq "${pattern}" "${stderr}"; then
-> +               echo "FAIL: stderr did not match /${pattern}/" >&2
-> +               cat "${stderr}" >&2
-> +               FAIL=3D$((FAIL + 1))
-> +               return 0
-> +       fi
-> +
-> +       pass "${desc} (rejected as expected, rc=3D${rc})"
-> +}
-> +
-> +expect_package_fail_unreadable() {
-> +       desc=3D"unreadable -m file"
-> +       mod=3D"${OUTDIR}/unreadable.mod"
-> +       outpp=3D"${OUTDIR}/unreadable.pp"
-> +       stderr=3D"${OUTDIR}/unreadable.err"
-> +
-> +       echo "=3D=3D=3D=3D NEGATIVE (expect semodule_package failure): ${=
-desc}"
-> +       if [ "$(id -u)" -eq 0 ]; then
-> +               echo "SKIP: root can read mode 000 files; unreadable chec=
-k is non-root only"
-> +               PASS=3D$((PASS + 1))
-> +               echo ""
-> +               return 0
-> +       fi
-> +
-> +       rm -f "${outpp}"
-> +       cp "${GOOD_MOD}" "${mod}"
-> +       chmod 000 "${mod}"
-> +
-> +       set +e
-> +       "${SEMODULE_PACKAGE}" -o "${outpp}" -m "${mod}" 2>"${stderr}"
-> +       rc=3D$?
-> +       set -e
-> +
-> +       if [ "${rc}" -eq 0 ]; then
-> +               die "${desc}: expected non-zero exit, got rc=3D0"
-> +               return 0
-> +       fi
-> +       if [ -f "${outpp}" ]; then
-> +               die "${desc}: did not expect output ${outpp}"
-> +               return 0
-> +       fi
-> +       if ! grep -Eq 'Permission denied|Could not open|Failed to open' "=
-${stderr}"; then
-> +               echo "FAIL: stderr did not mention permission or open fai=
-lure" >&2
-> +               cat "${stderr}" >&2
-> +               FAIL=3D$((FAIL + 1))
-> +               return 0
-> +       fi
-> +
-> +       pass "${desc} (rejected as expected, rc=3D${rc})"
-> +}
-> +
-> +expect_package_fail_unreadable_fc() {
-> +       desc=3D"unreadable -f file"
-> +       fc=3D"${OUTDIR}/unreadable.mod.fc"
-> +       outpp=3D"${OUTDIR}/unreadable_fc.pp"
-> +       stderr=3D"${OUTDIR}/unreadable_fc.err"
-> +
-> +       echo "=3D=3D=3D=3D NEGATIVE (expect semodule_package failure): ${=
-desc}"
-> +       if [ "$(id -u)" -eq 0 ]; then
-> +               echo "SKIP: root can read mode 000 files; unreadable chec=
-k is non-root only"
-> +               PASS=3D$((PASS + 1))
-> +               echo ""
-> +               return 0
-> +       fi
-> +
-> +       rm -f "${outpp}"
-> +       cp "${GOOD_FC}" "${fc}"
-> +       chmod 000 "${fc}"
-> +
-> +       set +e
-> +       "${SEMODULE_PACKAGE}" -o "${outpp}" -m "${GOOD_MOD}" -f "${fc}" \
-> +               2>"${stderr}"
-> +       rc=3D$?
-> +       set -e
-> +
-> +       if [ "${rc}" -eq 0 ]; then
-> +               die "${desc}: expected non-zero exit, got rc=3D0"
-> +               return 0
-> +       fi
-> +       if [ -f "${outpp}" ]; then
-> +               die "${desc}: did not expect output ${outpp}"
-> +               return 0
-> +       fi
-> +       if ! grep -Eq 'Permission denied|Could not open|Failed to open' "=
-${stderr}"; then
-> +               echo "FAIL: stderr did not mention permission or open fai=
-lure" >&2
-> +               cat "${stderr}" >&2
-> +               FAIL=3D$((FAIL + 1))
-> +               return 0
-> +       fi
-> +
-> +       pass "${desc} (rejected as expected, rc=3D${rc})"
-> +}
-> +
-> +build_good_mod
-> +
-> +# Ephemeral path fixtures for packaging path tests.
-> +ln -sf /nonexistent/test_good.mod "${OUTDIR}/broken_symlink.mod"
-> +ln -sf /nonexistent/test_good.mod.fc "${OUTDIR}/broken_symlink.mod.fc"
-> +printf '' > "${OUTDIR}/empty.mod.fc"
-> +
-> +# NUL byte inside path column (packaging accepts; sefcontext_compile rej=
-ects).
-> +printf '/bin/foo\x00bar\t--\tsystem_u:object_r:test_good_exec_t:s0\n' \
-> +       > "${OUTDIR}/nul_bytes.mod.fc"
-> +
-> +GOOD_FC=3D"${FIXTURES}/file_contexts/good.mod.fc"
-> +
-> +# --- semodule_package input paths ---
-> +expect_package_pass \
-> +       "control good .mod without file contexts" \
-> +       good_mod \
-> +       -m "${GOOD_MOD}"
-> +
-> +expect_package_pass \
-> +       "control good .mod with good .mod.fc" \
-> +       good_mod_fc \
-> +       -m "${GOOD_MOD}" -f "${GOOD_FC}"
-> +
-> +expect_package_fail \
-> +       "missing -m path" \
-> +       "Could not open|Failed to open" \
-> +       missing_mod \
-> +       -m "${OUTDIR}/does_not_exist.mod"
-> +
-> +expect_package_fail \
-> +       "missing -f path" \
-> +       "Failed to open|Could not open" \
-> +       missing_fc \
-> +       -m "${GOOD_MOD}" -f "${OUTDIR}/does_not_exist.mod.fc"
-> +
-> +expect_package_fail \
-> +       "directory instead of -m file" \
-> +       "Error while reading policy module|Could not open" \
-> +       directory_mod \
-> +       -m "${BASEDIR}"
-> +
-> +expect_package_fail \
-> +       "broken symlink for -m" \
-> +       "Could not open|Failed to open|No such file" \
-> +       symlink_mod \
-> +       -m "${OUTDIR}/broken_symlink.mod"
-> +
-> +expect_package_fail_unreadable
-> +
-> +expect_package_fail \
-> +       "empty -m path argument" \
-> +       "Could not open|Failed to open" \
-> +       empty_mod \
-> +       -m ""
-> +
-> +expect_package_fail \
-> +       "directory instead of -f file" \
-> +       "Permission denied|Failed to mmap|Failed to open|Could not open" =
-\
-> +       directory_fc \
-> +       -m "${GOOD_MOD}" -f "${BASEDIR}"
-> +
-> +expect_package_fail \
-> +       "broken symlink for -f" \
-> +       "Could not open|Failed to open|No such file" \
-> +       symlink_fc \
-> +       -m "${GOOD_MOD}" -f "${OUTDIR}/broken_symlink.mod.fc"
-> +
-> +expect_package_fail_unreadable_fc
-> +
-> +expect_package_fail \
-> +       "empty -f path argument" \
-> +       "Could not open|Failed to open" \
-> +       empty_fc_arg \
-> +       -m "${GOOD_MOD}" -f ""
-> +
-> +# --- bad .mod.fc at packaging time ---
-> +expect_package_pass_deferred \
-> +       "invalid SELinux context in .mod.fc" \
-> +       bad_context \
-> +       -m "${GOOD_MOD}" -f "${FIXTURES}/file_contexts/bad_context.mod.fc=
-"
-> +
-> +expect_package_pass_deferred \
-> +       "wrong field count in .mod.fc" \
-> +       bad_fields \
-> +       -m "${GOOD_MOD}" -f "${FIXTURES}/file_contexts/bad_fields.mod.fc"
-> +
-> +expect_package_pass_deferred \
-> +       "NUL byte in .mod.fc path field" \
-> +       nul_bytes \
-> +       -m "${GOOD_MOD}" -f "${OUTDIR}/nul_bytes.mod.fc"
-> +
-> +expect_package_pass_deferred \
-> +       "empty .mod.fc file" \
-> +       empty_fc \
-> +       -m "${GOOD_MOD}" -f "${OUTDIR}/empty.mod.fc"
-> +
-> +echo "=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D"
-> +echo "Results: ${PASS} passed, ${FAIL} failed"
-> +if [ "${FAIL}" -ne 0 ]; then
-> +       exit 1
-> +fi
-> +exit 0
+> +       if (rec->validating) {
+> +               status =3D nodups_spec_node(rec, data->root);
+> +               if (status)
+> +                       goto finish;
+> +       }
+>
+>         digest_gen_hash(rec->digest);
+>
 > --
-> 2.55.0
->
+> 2.55.0.229.g6434b31f56-goog
 >
