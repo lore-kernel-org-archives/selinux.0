@@ -1,168 +1,176 @@
-Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCC5F41D213
-	for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 13:46:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57B1B274B46
+	for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 14:03:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.45
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784814390; cv=pass; b=EI+DYGAvLplKITeJz5028sV9OZbpAuFwpz1u6gdSaN712SxqiDQfJeZD6shQ8FYBI61k3HvWZBtiiSk4aVHDNsYSTl/hQOGfbmDmKENT0UwvBLU/jhsU8O3vby8TuVm9choCSgIBOWwwhT9yExVrTgk1l00TWTUnA/FsTi8y49A=
+	t=1784815434; cv=pass; b=Fp0hJZlr2JccGFQHgKyKbtDBypTav6j8r4oT25DfEX3DRuBOQuKuaLAJv+2kxSm7m9Fk57+LC3E3tb8CYIVu4iW7QYPTOMQq4ZhT2VCufIy9E/7VAI7FaU9TaTHxo0zWf667E0EKDishvzdCW3KSNI/t88VQ6KpLuPey+UoQKi4=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784814390; c=relaxed/simple;
-	bh=0U4W9pihCzv95NHWuOy54FNjSBtMI6VjiqRA9QfUn0I=;
+	s=arc-20240116; t=1784815434; c=relaxed/simple;
+	bh=JTfo2MVrSIEhO8oW+z5elUO7JAyP0cWs7oTBbf2wcZs=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=awbT08MbepLwg/kpj43+8LqM2e+7nOtuAXM0KChsgrHrx7i/Z240KSuAJm9uZvj8insQNBTJEK6VCRKi6SVTU582RYtHJ3f7XyHTJk3ZnFPfWOcWnkpptZ8U7T4rOF+4KTSH7XoJTE6PoUXecYBn5zTlz28XNiqXWDGY4x3tyrg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e6nOLNrG; arc=pass smtp.client-ip=209.85.214.177
+	 To:Cc:Content-Type; b=UD2Qa7uVhZfbO0pDz2bsavH1vkWt2JLJTzkfjNSCCIU3w/XSSLWiHt3osn8W7jkXircPv78J1SL+RDS9G4r91XsnskTMluGL043EwgyDpS1TmrV55GEr9Kcw3/Cfn7UkeMS/aK56bjQxAwMaFEh0J1qQCY6P4wFqTOF/xAchidE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LUknQRbP; arc=pass smtp.client-ip=209.85.216.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e6nOLNrG"
-Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2cca0c5799eso6794355ad.0
-        for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 06:46:28 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784814388; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LUknQRbP"
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-38e3efab7e0so417100a91.0
+        for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 07:03:51 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784815431; cv=none;
         d=google.com; s=arc-20260327;
-        b=eub9f7a1aHPU8bOOR8z2SgEMuaWhcHlJoNGJlpAfBIX6MI0oL14dNK//ct4pAT76J7
-         6xbJMq/qngLxDucHPb/es87s4hHvvtRpN2XuWxRyzV4RbyAmgKsmvVlkBStioJb4J2l4
-         +CQ+oTY5FDD+h+PpZFNwy44MzPyXLV0Fdk6ppHOQN4dCV6QoR1MPhPLY3gxdW2Fztyqv
-         +uDDHi+FMCluprZ2pnME6Okk8SfOu9fWEkfhF+qOk19eqjH83cxdLoEH7TRm8V8TdJIB
-         mzSnrurZkqE0P+w7W5J/o/CCTnfyIx8K0qeMGM8wEnveIpUTlTC/gZLRQVXVeUlsAH92
-         WWMw==
+        b=ZxW6UVgPBuD/3cp94afY1RB6ICSXRZLZm+5Rdk1lOR/z6ywysCMwxCh7Fpu7t2u0FR
+         pKTgINCKUI0z7e8F071R4NwDJxUkeY2xdv5F7zBOaPgfl4D6+EU99ou7SLB2uJhEneZM
+         LdiqcP1w9kjPVYfQXCv5iTzwQNq+FO1lcyvqpD9EHpC/hBIfBNeD8qTNBcaL++hLpvEs
+         WpKPSp6yqjq+Y+sS6IxHzXmKe2rdtYySiYLK6nrXY5pnwLAdq1wXF0+Y+gv73BKuIIfO
+         CPyNKWMTsDJC/IT5Bj3zdjAgEtwLOMnRWOsipaj61vQa6eCbAQiwjU43k2GQxKjX12bk
+         Fifg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=M/svyfQNNA4BhtmVZ322oJy67JoR8TJkgzma2xbHK1Y=;
-        fh=sEXXZHHOaetdSxeivqdrIFtWFCVaxn+K18VHEkjIQmI=;
-        b=GPtCZUFWNSi6zJDJvegFUi4AQ8sl1JFy9MJI8y4Kjx8lsAvmqq4z41Gur7vMEsTMRE
-         FyrEcMLhJzKy+YwemGt+9NJa7qGxuzkG9E61CQuud3A3heELi9S3CEt6F8qbqKmtzQVo
-         H2BlrL5AuOZo4pgJvJPHJ1gmT3r+wIvy/5yjl1hZ+xU89i3oJyPDW4j5gyEV3Lp8S60S
-         gfaQZsQmJYfnyKB1d7N06r/7arS0NWziDDR14XB8GIKXJ2yBzPavGd9mIZkKYoM4W34w
-         B/Btj7GYJgXgudpVby45vHaj2MUO/CAsgxUfyBtb2qLPSwLsSL/kpDVsNuLHjYXqyaBG
-         oS9Q==;
+        bh=wvPjSViAfJTtvNaTdtvHZbNLJNuT0b/pUjN1Ww0wv1Y=;
+        fh=mMDxYY5wtlIekXoYIfjt6lvMWgTaMUwdwgsYDQ6qy3A=;
+        b=Jsv8leP4e+NwzJt+wDOyJov7X39XwaX4E8WgBqln17mLBQY7LALC4dCcdBxyJrFIPH
+         xACBXjqB25WTvxL9GicU16EAfyCnOClVV5wuq73SNvj2Oq4Vpn40Fmfxlc7/7dXXwKwQ
+         95YgEhhLzaeF7W3pcYHJ+xH/zEIRNlDUan/nLK+/dO/sK59BU0GvwAxHcE+NcnojovfW
+         iHHJV9bnGkekBn5XdZ7/S6rQViRgJg0PJkVw/W24w42oRBZYxTEbJlL3EdkBpuzNzW4J
+         tHPavptIYg40mvo+IYQdUG/GfPFJeOxCEc6k7Jd6aTcG8TPyY6erHAgplu0vq0HXrn1I
+         rmWw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784814388; x=1785419188; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784815431; x=1785420231; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=M/svyfQNNA4BhtmVZ322oJy67JoR8TJkgzma2xbHK1Y=;
-        b=e6nOLNrGrrlKKJ4PBWEzNqBPyRbslj4IWsxxVIPBgfT2mAdYiPXI+azZETU4tTboHj
-         crQyx4rZ/2KBlNN6jBMQ3uwlgHs9EnYU3M1cp9WyLXSulOLVBmbfJ+rGLgyJGHKrn9GI
-         6Vxv6auu10CjfJ8X961BS6se64SWfVXv7GQWVwJj18qT/aEIO4IBtZJvQc8+YAKC3Qdc
-         CiS1ZH/ZwbGr8z3UzS5nYM4cHRNnrBkMqrJ3Vp9G5g7n4okuryUDaQkc5E2obKZreeFD
-         w4KsdG7LVXcV3wiznFyv20nvVbzmliKiDZFMUz+uOGSdMobf7TD/PFT/40H+TWx1eSt8
-         Ts8w==
+        bh=wvPjSViAfJTtvNaTdtvHZbNLJNuT0b/pUjN1Ww0wv1Y=;
+        b=LUknQRbPScnxI4x9wL+0HwjEP59nbjeaojFYUQIsnli4rrCYrdnuxWrHbHC6nJ0cmH
+         zKSxxm1vRKFcefaiTNd9k1PRAHvYH+3kg259bMQt1mmO5HKj3zo0leNoECbFYIwaqCum
+         AgHNzi3bD6L2EX4Hl73/Fl3rJaTTFbp2YLjWvkqqWuxiTJRTC8zHxwV+zJz10C6WxzvN
+         XpdQjcbpMIViItVQNrTDG3KUVOvjKGci/quIKoMmUGruxXFQcZlw4c/rKDvbLbzIxcyc
+         xKJhdGB0+vOqPii6zgwtj9eWaALMd2b2b7rIvbbEhJ77kB39sAzy09mqdRJhY02IQ5cW
+         bAkA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784814388; x=1785419188;
+        d=1e100.net; s=20251104; t=1784815431; x=1785420231;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=M/svyfQNNA4BhtmVZ322oJy67JoR8TJkgzma2xbHK1Y=;
-        b=S02EVP7j6VE+1LSdIqOCjrDp7nbyLhmQL6/eO9CoEueSZEGYmGUyjvVsXfhACeYbrX
-         8vjR/Pd5pgTngcUoA7RHTCj1NU4220sV9nDnKZ3JNe2+wrbIPT3b4Iu0HEtVbUmfTSXu
-         mD5AhHEMuBWHuF7BfUWb524Z0wGIhQbFHkjvf+zXxWrIftNJTbJiATf6mS1F4stZ1fTL
-         dYBxmus1IHaI101jYoTAd69ZIjdMz4n8+pf+UnhcFfBdbNNnUBqHMq89TEGCrN9mLrQ+
-         efIKKWCixuiBVoRAXAU2VOlXlj0rMP/fgslnsjgd3FApKRCWt6pgWhDT5W9bit5oNi6v
-         3Uqg==
-X-Gm-Message-State: AOJu0YzJpIDdx7ZZmcdjSXwue5pwxyBvRmoNHUJKf19fdofvVpZ/8ERa
-	bQbgs/12PZ3fuBMnkU6x4Z0SuRVhNfdAgesiCu4NP6tVt91n9ejS57jarVek//0EU+Xmp6n3gzE
-	gMCQZhfBGHTCSKICoi3KTwLqt0ykOSPCVcg==
-X-Gm-Gg: AR+sD11lubdUzNqT6D6Okoe4jp+SNQtlM6N1jwHHrgkXjZ3leuRnlQ62OgIT4WOOURP
-	/b02tJzUyy4CHHl9CJt96jjODPVQQmGSNOCsPA4Win73wrrE+amta+VwzIoX9U0i1uDgiawnAqp
-	QIGCTg/ADUzw+wfSoxDdxewTSE2XXk4INi11psy+3BCkf7cAIamSrsDUN3SWDNq4N2smhPEMCx5
-	pP6VDrvbVtLuo0oAtlL04uWob2niMLZ9ZqS4ByZXbNkon5GtPJyC5MqC0ByXg==
-X-Received: by 2002:a05:6a21:3390:b0:3c3:daa2:2b7 with SMTP id
- adf61e73a8af0-3c44b14e8ecmr3440709637.44.1784814387933; Thu, 23 Jul 2026
- 06:46:27 -0700 (PDT)
+        bh=wvPjSViAfJTtvNaTdtvHZbNLJNuT0b/pUjN1Ww0wv1Y=;
+        b=swAzXYk5fm951Sxue0C7SugO19JMdjtKpYohMciq6zBntN8egTHp6yGAWcDbtR6M0A
+         VCoAQDZVvboOEhPf+mt3QIK7vpkq5aWUu3vJPWIbOXb53fuDcDdr81bQQ7Wl0SBrW2+x
+         lEn3Ydjkzpb3zqDpI5loTmUtxsKqHbiZdKHjADjwLSd07EuVMqODSVF59ITZgtOEPu6J
+         aBAwnbLNCIxM8/JBYLpybgjHaFNNn/Al9ldXhY3QfEzInKUOjYVgCzh82nk/x+eOmUAY
+         4j5KjK0+yaetAtD/45pLjxgWnN6D2XW3FHPa2mYi8ngz2UsL5Zdwte9FY9RXRr6wom6d
+         uBRg==
+X-Gm-Message-State: AOJu0Yx8cVPhoDsJixsunkkzGfhWJZ7VJw5yoXJ94em2KmdvpFwGT2Fi
+	eRohYiq34/DdT5MqhqyU3t9AueMuY24CEp2GyriLlBhmNm+5CpbnyZmGy+p7O+upAmsoOc+g+ko
+	LEjhEGE9h2rtTzz46BReDh5H2sBM/3eA=
+X-Gm-Gg: AR+sD11uat5iRDASVUd91zQcBUbW76WAmBxeKYQEw46fMEorwj4Y+iY1gNjZKL9tWPm
+	lFVYJ+oxHCL6qEiRt66m2VrtJZ6l0++omVdqr4C/EsLKt36wdIR/qZ3v/4m3pQw5dXGl2ndLW+s
+	5pnUS0BgSDXxfSb36LZ3kLchXq/t/evqQBI7prq1nsvjmUULm90Q4Lt+wbjIeSve+8Ic0kDqj94
+	3IDzdo3cTzZOHS20vCtUoZODHWIZ3mRnKRYRGZwfdLePS1cqKuYP2TTQLAE1w==
+X-Received: by 2002:a17:90b:1d11:b0:385:3ab:fecb with SMTP id
+ 98e67ed59e1d1-38ec8389f0cmr1591149a91.4.1784815430426; Thu, 23 Jul 2026
+ 07:03:50 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260723062355.3096648-1-jason@perfinion.com> <20260723062355.3096648-2-jason@perfinion.com>
-In-Reply-To: <20260723062355.3096648-2-jason@perfinion.com>
+References: <20260723031102.2718093-1-tweek@google.com> <20260723031102.2718093-2-tweek@google.com>
+In-Reply-To: <20260723031102.2718093-2-tweek@google.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 23 Jul 2026 09:46:15 -0400
-X-Gm-Features: AUfX_mxne4zOw-UB9Rt__OXFuv_s1SgxYXQChRhB4giCNP0a43xuLovFMkQjxI0
-Message-ID: <CAEjxPJ5cdX3vZZmE3tLfY7Bk_YapnVU3erzeXUtGsy3wbK2BLw@mail.gmail.com>
-Subject: Re: [PATCH 2/3] ci: Drop circleci config
-To: Jason Zaman <jason@perfinion.com>
-Cc: selinux@vger.kernel.org
+Date: Thu, 23 Jul 2026 10:03:38 -0400
+X-Gm-Features: AUfX_mw3na1nN_ji2_qSTFY7Rxta58cYpFy0zjaZrqMyTzl6a8G3VuP_oTT-e5s
+Message-ID: <CAEjxPJ6_ZBTP=wVnF3=cW1NNQAAsnDLFG7FiA0rv0r_-nLCZUA@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] libselinux: support multiple context files for the
+ file backend
+To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Cc: selinux@vger.kernel.org, James Carter <jwcart2@gmail.com>, 
+	=?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>, 
+	Ondrej Mosnacek <omosnace@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 23, 2026 at 2:25=E2=80=AFAM Jason Zaman <jason@perfinion.com> w=
-rote:
+On Wed, Jul 22, 2026 at 11:11=E2=80=AFPM Thi=C3=A9baud Weksteen <tweek@goog=
+le.com> wrote:
 >
-> We have not used circleci in many years, the configs are very out of
-> date compared to the github actions so need to get cleaned up.
+> Update the file labeling backend to support specifying multiple
+> SELABEL_OPT_PATH options in selabel_open().
 >
-> Signed-off-by: Jason Zaman <jason@perfinion.com>
-
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-
+> All provided paths are stored in rec->spec_files and processed during
+> initialization. Derived files, such as substitutions (.subs, .subs_dist)
+> and auxiliary contexts (.homedirs, .local), continue to be based on the
+> first path (or default selinux_file_context_path()) when enabled.
+>
+> Duplicate checking is only performed within each context file. The curren=
+t
+> behavior expects the ability for a later file to overwrite a previous
+> declaration (e.g., .local).
+>
+> Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
 > ---
->  .circleci/config.yml | 41 -----------------------------------------
->  1 file changed, 41 deletions(-)
->  delete mode 100644 .circleci/config.yml
+> Changes since v1:
+> - Restore nodups_spec_node, ignore duplicates across files.
+> - Change num_paths type to uint8_t and check for overflow.
+> - Check for NULL before strdup any path.
+> - Use num_paths and num_paths+1 for homedirs and local.
 >
-> diff --git a/.circleci/config.yml b/.circleci/config.yml
-> deleted file mode 100644
-> index a75d34c2..00000000
-> --- a/.circleci/config.yml
-> +++ /dev/null
-> @@ -1,41 +0,0 @@
-> -# Configuration file for https://circleci.com/
-> -
-> -version: 2
-> -
-> -jobs:
-> -  build:
-> -    docker:
-> -      # Use a Python image from https://hub.docker.com/r/circleci/python=
-/tags/
-> -      - image: circleci/python:3.6
-> -
-> -    steps:
-> -    - checkout
-> -
-> -    # Install dependencies
-> -    - run: sudo apt-get update -qq
-> -    - run: sudo apt-get install -qq bison clang clang-tools flex gawk ge=
-ttext libaudit-dev libcap-dev libcap-ng-dev libcunit1-dev libdbus-glib-1-de=
-v libpcre2-dev python3-dev python-dev ruby-dev swig xmlto
-> -
-> -    - run:
-> -        name: Setup environment variables
-> -        command: |
-> -          echo 'export DESTDIR=3D$HOME/destdir' >> "$BASH_ENV"
-> -          echo 'export IS_CIRCLE_CI=3D1' >> "$BASH_ENV"
-> -
-> -    # Download and install refpolicy headers for sepolgen tests
-> -    - run:
-> -        name: Download refpolicy Makefile
-> -        command: |
-> -          curl --location --retry 10 -o refpolicy.tar.bz2 https://github=
-.com/SELinuxProject/refpolicy/releases/download/RELEASE_2_20180701/refpolic=
-y-2.20180701.tar.bz2
-> -          tar -xvjf refpolicy.tar.bz2
-> -          sed -e "s,^PREFIX :=3D.*,PREFIX :=3D $DESTDIR/usr," -i refpoli=
-cy/support/Makefile.devel
-> -          sudo make -C refpolicy install-headers
-> -          sudo mkdir -p /etc/selinux
-> -          echo 'SELINUXTYPE=3Drefpolicy' | sudo tee /etc/selinux/config
-> -          echo 'SELINUX_DEVEL_PATH =3D /usr/share/selinux/refpolicy' | s=
-udo tee /etc/selinux/sepolgen.conf
-> -          sed -e "s,\"\(/usr/bin/[cs]\),\"$DESTDIR\1," -i python/sepolge=
-n/src/sepolgen/module.py
-> -
-> -    # Run clang's scan-build and store the result as artifacts
-> -    - run: ./scripts/run-scan-build
-> -    - store_artifacts:
-> -        path: scripts/output-scan-build
-> -        destination: output-scan-build
-> --
-> 2.54.0
+>  libselinux/src/label_file.c | 139 ++++++++++++++++++++++++------------
+>  1 file changed, 92 insertions(+), 47 deletions(-)
 >
+> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+> index d91e1462..02bd6f5d 100644
+> --- a/libselinux/src/label_file.c
+> +++ b/libselinux/src/label_file.c
+> @@ -126,13 +127,16 @@ static int nodups_spec_node(const struct spec_node =
+*node, const char *path)
+>                             node1->file_kind !=3D node2->file_kind)
+>                                 continue;
 >
+> +                       if (node1->inputno !=3D node2->inputno)
+> +                               continue;
+> +
+>                         rc =3D -1;
+>                         errno =3D EINVAL;
+>                         if (strcmp(node1->lr.ctx_raw, node2->lr.ctx_raw) =
+!=3D 0) {
+>                                 COMPAT_LOG(
+>                                         SELINUX_ERROR,
+>                                         "%s: Multiple different specifica=
+tions for %s %s  (%s and %s).\n",
+> -                                       path,
+> +                                       rec->spec_files[node1->inputno],
+
+Here and below if we hit this error within .local or .homedirs we will
+have an OOB read on rec->spec_files.
+
+> @@ -1511,10 +1526,50 @@ static int init(struct selabel_handle *rec, const=
+ struct selinux_opt *opts,
+>                 }
+>         }
+>
+> +       /* If no paths were provided, we will use the default path or fai=
+l,
+> +        * depending on the target. */
+> +       if (!path_provided) {
+> +#if !defined(BUILD_HOST) && !defined(ANDROID)
+> +               num_paths =3D 1;
+> +#else
+> +               selinux_log(SELINUX_ERROR,
+> +                           "No path given to file labeling backend\n");
+> +               errno =3D EINVAL;
+> +               return -1;
+> +#endif
+> +       }
+> +
+> +       /* If !baseonly, we reserve the last 2 indexes for homedirs and l=
+ocal.
+> +        * Let's make sure we don't wrap */
+> +       if (!baseonly && num_paths > UINT8_MAX - 1) {
+
+This is never true since you capped num_paths at 254 above (return on
+UINT8_MAX).
