@@ -1,69 +1,69 @@
-Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
+Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4597D242D7B
-	for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 06:24:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17D1B3002A0
+	for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 06:24:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784787847; cv=none; b=txy8pMIIt1v/lx9/u7SifK35l2+i4L+P4r0wf9GspVPBfnHSPtu6cdwfAvIGeDuW/wCxvZkGmudW8IXZ+uTp50ZsftoUPqRI/GGrQTcDedloq9Y4U6tFsTxUf+uX0+97JJvECOT2eX6rvd3VHj58eW8KaPWxzYhDaLieB0zRWXM=
+	t=1784787852; cv=none; b=UbpKX9wn3/uyRn1ucEBznlahBOAvcuhaQ72wIKsznzH1Z8afQ5q0gfkJmmo16JcHPpQahxCpVJudvS7nDl7l/tXPNe9iXhKE7TA9deetvHMjY9W9XZiSkxX+hRNaE89o5P3dP1Hf/Y24HuwGi1Z8OUicqpVBVr0lqGePy2jgQGw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784787847; c=relaxed/simple;
-	bh=Vk58mGpuqGJLJazJUwTBWY06P8DC3uOisQe+6wxosnk=;
+	s=arc-20240116; t=1784787852; c=relaxed/simple;
+	bh=OJIdvfmtWWhanCvarrwqhoEFmG//+TcJBhg7coKRQIQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Bf+Z79BxXMFDvRzLJYcXNgiG0aRUOshDcYiIL4bnMRmsILos0oKjhW4thf8akwYSFIuTq4pu9NO32tH8OmLZP5OrNWIjOBdJQm8yl6lOBpaO30cT11860eS1RcD2h6pra/BxRBiv7671cb+lcPg0QWl8Ihxb4ZZaoGZEe8Um4qo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=perfinion.com; spf=none smtp.mailfrom=perfinion.com; dkim=pass (2048-bit key) header.d=perfinion-com.20251104.gappssmtp.com header.i=@perfinion-com.20251104.gappssmtp.com header.b=yImMF9+b; arc=none smtp.client-ip=209.85.214.182
+	 MIME-Version; b=H/cwyJMZJc40KtmXGt6XTSp981Nkf46eQnyzr5hNe2op4ke7EYxsRuNFdUovA3wuGTR43lhLOg5LYwVR/rnJrHgFPE5v6S2WvH5ofFsUOHhK6a6cnooNh2BxqPjQqjmkj9XeTGGj/OVrgthZEW+JXFRbKBk5yI2k37OG/DzDu18=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=perfinion.com; spf=none smtp.mailfrom=perfinion.com; dkim=pass (2048-bit key) header.d=perfinion-com.20251104.gappssmtp.com header.i=@perfinion-com.20251104.gappssmtp.com header.b=MMwqnkIr; arc=none smtp.client-ip=209.85.215.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=perfinion.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=perfinion.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=perfinion-com.20251104.gappssmtp.com header.i=@perfinion-com.20251104.gappssmtp.com header.b="yImMF9+b"
-Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2cce6a0c9c3so3113705ad.1
-        for <selinux@vger.kernel.org>; Wed, 22 Jul 2026 23:24:04 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=perfinion-com.20251104.gappssmtp.com header.i=@perfinion-com.20251104.gappssmtp.com header.b="MMwqnkIr"
+Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-ca2fad0ae38so211980a12.3
+        for <selinux@vger.kernel.org>; Wed, 22 Jul 2026 23:24:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=perfinion-com.20251104.gappssmtp.com; s=20251104; t=1784787844; x=1785392644; darn=vger.kernel.org;
+        d=perfinion-com.20251104.gappssmtp.com; s=20251104; t=1784787849; x=1785392649; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=5OvQEf8gVnlaBCCOOAIOwAO1p8C6qxULDuRb7Z2BVYI=;
-        b=yImMF9+bOYSiQSPdSgFCxVwnVPeOHdtXlXINqW0iyy4BfEsn5RicFPZ3G7AHzfB5sB
-         DzFTQ2CcrTt7lIT4Q6X+Bd58p8tcBYpkpTUjl44EauOogF9R4kuBGv/N5JvI5pSoL8Ss
-         pWie82EGy+/Agg/L2pI67Xk5nx2EVVOr0I5t9kVVwogGgBdpiDnG6SV7fN6pOwRLuIA3
-         0HUrZTkFJ0YDviyVK1rnCMIejjYeFjyC28b9YslJDp62dxOd6zz7jH7XDalT0G94pN1J
-         XNN2kjG3AIbQNk8JZTPfoO8JE0/QrbqQttCP4zvV0Yb8MLKiMUmhcFK11jJnBQrahpvV
-         accA==
+        bh=0dhe2TF1VZT1n4RkwDevSNz8VhgF3Lp6jID3ipbk0Cg=;
+        b=MMwqnkIrcpqGNOLg1ii1umoFtEQF5e3/3ZhNUPV+2XvM3fu4YgcVhkiNbfhDuE4j6l
+         E0thsPx6qAstdm6csb8kfwp89D2l12wLoS492dLcvZyvGiyd/dWZ3oPllTzs/7rRXobJ
+         WU0L+U25bgqa0GLmq3mS7FHA/Rlvr7o+WQvtClOSqeDKLKo/8aT9UXnDcZsoW9W71JPm
+         SK6VdZtUqIqV9F4ZDmR/z8Zzw5cXvwxkHJWXflrw5e29kfnKt7SJOnk0rTjXwZmDxw0B
+         TXsXiJbvHegs/KbfuWFxt5++wH/pZSDSWh5TVvfa2wQbMT+XNlrvn1nrwzzZtb9lPqtH
+         ME/A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784787844; x=1785392644;
+        d=1e100.net; s=20251104; t=1784787849; x=1785392649;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=5OvQEf8gVnlaBCCOOAIOwAO1p8C6qxULDuRb7Z2BVYI=;
-        b=PoL0HJ8E7V23xSkUdsmwjNf7X3iLsLq6E1n7XZbMZ70GuvY+tqIAWqOKXKdWvW+Jig
-         2lx6189vjBqvX62zrQQZG2tpnJ4hpygmnO77KS3enUMa99ZVSrX8OQHa4dpjZ/Hq92zP
-         zXr31BOZ/L0xE1fWv5MfIzpuXgemlYie25QzfWEtbZ9CJK9rEbqm88ZA/Jr0VmVKkIre
-         4TU7Z4iF0+825YfEkOBEpynT+4X43ligfSMizD2QUp3XlOor2Y/+80jU3AOJxx4wttXr
-         G+hrs7StARHKeO6kPHb0a3AQOlxSScxF8BzhclaE/e86QpJtExE+tSt+OSq6T7YcLMxv
-         9I9Q==
-X-Gm-Message-State: AOJu0YzPNXV8creTxhSDMZ5xQizWaHJFL66PI1BCyzKaU09ENsNwOWZo
-	PZjVrWwb6UFj3qqdv17qTp+BnTjusMThuTTdC39Z9oLasTIvQpNPiip3vKoxTwfKcnAFhivXkUd
-	q3i4R
-X-Gm-Gg: AR+sD12sWQ4KAbJabsKy80Mirjx7QcLECSOQ9kFjoWRh8O/SKhkiHX50joQZn1688U3
-	tL1U+d/puLlpBp/zQ1d3f0PX1lwNdoa9wpqzNTBnx171BV4yUJz6B7M+2ma7NPkb8kNmA+cVP8f
-	t1iNvDG1HMxtxQxqpftBqXP6giCJHdALJD343BoowC7Ox+9GzeRkGFurMBADtszab1U7t3/YWlu
-	bafKyUu19e2UQm4CNbORVyPDFiB6Admin8mImXYrzP9nxQsI5HO2Ec8jrRRy38Vw726o1grNxi8
-	OMDMHbAmRCWBWFlNd3AaY+kXcBKwnu8NM+YHiOnwoGenMZevwopljS9Vcv2B5bO+rx0KhmnoQWo
-	m3B6o31qp4RDpn7CtHXPCesNYNw93QJ37P0ChqcGhPgNcq0j88isdeNzDF6J7bjvMuYDFQG8bdy
-	a4vJ3SWEI3w7rZLzqEq2u5oerLg1/kxj7Z33reBxk=
-X-Received: by 2002:a17:902:cf42:b0:2c9:d298:6c06 with SMTP id d9443c01a7336-2cfa7091618mr23837345ad.25.1784787843685;
-        Wed, 22 Jul 2026 23:24:03 -0700 (PDT)
+        bh=0dhe2TF1VZT1n4RkwDevSNz8VhgF3Lp6jID3ipbk0Cg=;
+        b=enc7LkIZSzJyddX6OimOLhQBPH+cwGRRtygfzRKl99DRwlq4BVNM7wDdY2uWu/1+qp
+         JkV76iWILEJ4NlVWAHUVTSHZ0KA6hD/rszhlhd3BPkYPAmT8npDwAYu1w1gEomxx+n5q
+         m2Iyb/QeQT/69O76HKak2vABUobHG9119Oe6qxvfhO81g3YW+s9Br9NPrFkpa4xoS8fI
+         zSEgD+TEVqitVRWHzWjfR5oxmCgMFvoC8b/crYv/tJzMASS7rcYdsnbPJ8xriONk1ZYs
+         jIRgQnxV0uSOcX1HcRhzxYa4xYbFGe4/aCoiVO0iqQML/WuIUeSwL5M4ERryXXhBPVKh
+         15Rw==
+X-Gm-Message-State: AOJu0YyS735DWFjdxgUKz3aztXYRTtJIvzIBf6dQdMNqCuisjUXV733U
+	ANQQgE8yITixHmdhm/8Za66aSPLPXxm7reuwUoGmqy75Vz4Ah7yPMsfV/WBJhNoNX04MW2AHfwe
+	SdvNz
+X-Gm-Gg: AR+sD138EPg/Fm9IolYnPve73icR32ht7xYda31K+r0PWXDYQ4mAFfbYMFoBXtpW+hz
+	ZqZ0rMlFWYyz6qtgUjhWOi3u89tiEu2Gx8anlL9jWyx9v/fdtYDqfYb9mTJ2HYN0J8/5rKtD2dy
+	tjajSiq6ioDEz5HtK1CeN0hDf1GVf2OM1zEIKY136GvKWQexWOnJPwhtCqTYj4bDyqvnackadaB
+	v/apYz7Bf/o7nb5ksORdxCOkfyNpi7kRIi+a7/utSyxM+kXPsHWwxXeChmqzlMv5qoYOCNSiZ78
+	n0xbWAaHIydeVz4okJwARIp1rhXCteNRPXdCWVddqI+PfwD+jkdo6vp3bUIoM15M7lveolNFRgK
+	LSAgLGeE71skcmyEkfPGBIc5694QbTK2auvwQ3idjqudz+X9wLRxwmuO43iyN1YAN4p+hq3FTxJ
+	vOsWBUfXjETz37qtXI4KMw3Qfg1QZf/K6kaDsvSKM=
+X-Received: by 2002:a05:6a21:4cc1:b0:3c3:8255:8c4a with SMTP id adf61e73a8af0-3c44aff5387mr1990078637.17.1784787849307;
+        Wed, 22 Jul 2026 23:24:09 -0700 (PDT)
 Received: from localhost (142-254-17-81.fiber.dynamic.sonic.net. [142.254.17.81])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3147e088d3fsm16494643eec.25.2026.07.22.23.24.02
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13d130cc5ebsm16128862c88.12.2026.07.22.23.24.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Jul 2026 23:24:03 -0700 (PDT)
+        Wed, 22 Jul 2026 23:24:08 -0700 (PDT)
 From: Jason Zaman <jason@perfinion.com>
 To: selinux@vger.kernel.org
 Cc: Jason Zaman <jason@perfinion.com>
-Subject: [PATCH 2/3] ci: Drop circleci config
-Date: Wed, 22 Jul 2026 23:23:54 -0700
-Message-ID: <20260723062355.3096648-2-jason@perfinion.com>
+Subject: [PATCH 3/3] RFC: SECURITY.md: Rough draft of codifying the maintainer process
+Date: Wed, 22 Jul 2026 23:23:55 -0700
+Message-ID: <20260723062355.3096648-3-jason@perfinion.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260723062355.3096648-1-jason@perfinion.com>
 References: <20260723062355.3096648-1-jason@perfinion.com>
@@ -75,62 +75,55 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-We have not used circleci in many years, the configs are very out of
-date compared to the github actions so need to get cleaned up.
+Since security issues are quite rare, best to codify the processes so
+when they come along we can fall back to this and dont forget any steps.
 
 Signed-off-by: Jason Zaman <jason@perfinion.com>
 ---
- .circleci/config.yml | 41 -----------------------------------------
- 1 file changed, 41 deletions(-)
- delete mode 100644 .circleci/config.yml
+ SECURITY.md | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
-diff --git a/.circleci/config.yml b/.circleci/config.yml
-deleted file mode 100644
-index a75d34c2..00000000
---- a/.circleci/config.yml
-+++ /dev/null
-@@ -1,41 +0,0 @@
--# Configuration file for https://circleci.com/
--
--version: 2
--
--jobs:
--  build:
--    docker:
--      # Use a Python image from https://hub.docker.com/r/circleci/python/tags/
--      - image: circleci/python:3.6
--
--    steps:
--    - checkout
--
--    # Install dependencies
--    - run: sudo apt-get update -qq
--    - run: sudo apt-get install -qq bison clang clang-tools flex gawk gettext libaudit-dev libcap-dev libcap-ng-dev libcunit1-dev libdbus-glib-1-dev libpcre2-dev python3-dev python-dev ruby-dev swig xmlto
--
--    - run:
--        name: Setup environment variables
--        command: |
--          echo 'export DESTDIR=$HOME/destdir' >> "$BASH_ENV"
--          echo 'export IS_CIRCLE_CI=1' >> "$BASH_ENV"
--
--    # Download and install refpolicy headers for sepolgen tests
--    - run:
--        name: Download refpolicy Makefile
--        command: |
--          curl --location --retry 10 -o refpolicy.tar.bz2 https://github.com/SELinuxProject/refpolicy/releases/download/RELEASE_2_20180701/refpolicy-2.20180701.tar.bz2
--          tar -xvjf refpolicy.tar.bz2
--          sed -e "s,^PREFIX :=.*,PREFIX := $DESTDIR/usr," -i refpolicy/support/Makefile.devel
--          sudo make -C refpolicy install-headers
--          sudo mkdir -p /etc/selinux
--          echo 'SELINUXTYPE=refpolicy' | sudo tee /etc/selinux/config
--          echo 'SELINUX_DEVEL_PATH = /usr/share/selinux/refpolicy' | sudo tee /etc/selinux/sepolgen.conf
--          sed -e "s,\"\(/usr/bin/[cs]\),\"$DESTDIR\1," -i python/sepolgen/src/sepolgen/module.py
--
--    # Run clang's scan-build and store the result as artifacts
--    - run: ./scripts/run-scan-build
--    - store_artifacts:
--        path: scripts/output-scan-build
--        destination: output-scan-build
+diff --git a/SECURITY.md b/SECURITY.md
+index 49c40e97..145a2714 100644
+--- a/SECURITY.md
++++ b/SECURITY.md
+@@ -35,6 +35,9 @@ the issue as quickly as possible and shorten the disclosure window.
+   *  (GPG fingerprint) 6319 1CE9 4183 0986 89CA  B8DB 7EF1 37EC 935B 0EAF
+ * Ondrej Mosnacek, omosnace@redhat.com
+ 
++If unsure about whether an issue is in kernel or userspace, feel free to send
++to any and the maintainers will handle it internally.
++
+ ### Resolving Sensitive Security Issues
+ 
+ Upon disclosure of a bug, the maintainers should work together to investigate
+@@ -57,3 +60,26 @@ lists.
+ 
+ * https://oss-security.openwall.org/wiki/mailing-lists/distros
+ * https://oss-security.openwall.org/wiki/mailing-lists/oss-security
++
++### Maintainer Process
++
++This is the process maintainers will follow upon receiving a security notification.
++
++1. Make sure all appropriate SELinux maintainers are notified. Regardless of
++   which maintainer was initially contacted, others should be looped in. This
++   may also include the kernel maintainers if relevant to the issue.
++2. After an initial review of the issue, maintainers will agree on one person
++   to be main point of contact. The response to the initial mail may come from a
++   different maintainer. If the initial mail was PGP signed/encrypted, the
++   replies will also be PGP signed/encrypted with one of the above keys.
++3. Maintainers will work together in private to verify and fix the issue. For
++   larger fixes, this might involve a github private fork within a draft github
++   security advisory.
++4. Maintainers will prepare the fix as soon as reasonable. Maintainers may
++   invite the reporter to the draft security advisory or private fork to help
++   verifying the fix.
++5. We will aim to release the fix publicly quickly, but may request an embargo
++   period up to 90 days if the complexity of the issue requires it or if
++   severity of the issue requires coordinated rollout amongst distros.
++6. Public disclosure will involve pushing the fix to the public repo and
++   publishing the security advisory on Github and to the mailing list.
 -- 
 2.54.0
 
