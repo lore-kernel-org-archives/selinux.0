@@ -1,233 +1,154 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEA0341D234
-	for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 15:42:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784821373; cv=none; b=PFJlHI0MP9RVBfgiwcxSKgz8IUOnvBsVNENF9ZWwK3qrt0OcIeEbJvcKR8kwap49mJBvY17Vr5Xv/tRAY1kvuxie2DkaII+pzpKdE5viwXZ4ajr71sLb2NKtQCpnLLGwF4I7uohP4WVWs/RhhyrdmvXByuFInCl9Nf08mcrts/o=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784821373; c=relaxed/simple;
-	bh=+byBLPaJgL1GJdX+JpcmjcWQcc1o/3cAcP8vfddcVus=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Fzhy1nuwLkIs9RV01Ln3NMoLStlFWjI7UM6Qm8WbXYaUE3ebIX7v/4n2Mrrm8JC4hBzdHJJSp7j+eNsJFZ0F5MFCgg51c7GER7OOkXoTUV6ZwFfxD6L3q0v6LmCZtGwuGuXacMHqMVSfNuB/eFCZnT79Yhrj0/Ok5tz1OmEPEDk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=w8SRtH3l; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=4mG+aC/F; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=w8SRtH3l; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=4mG+aC/F; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF96414883F
+	for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 15:44:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.179
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784821478; cv=pass; b=J7jp+pnLKwADjDyQ4xBuTY5npEvkITP5wPFaQOg1iccBhad9AUsTwc8DDSLRhVhPOFpkLarSZdNlDkhVs+sS2Bv/OOT8f8lL6CCv0TfFrDMv2QmENzZnBbyXGa2QyoKbEr19Xsvf6MYoQ4IMURQMpdAXG5PD7kolGNLiMgdI9b0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784821478; c=relaxed/simple;
+	bh=Jm0ncxmOfnNcPuAMKHL2C1SXD3+sA2tNi69n1mLMMFs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Hmq0RIYmHhbbxskDt/hrf89An1menGFlStw0Tnp94Hw0Ihov8UOTce0/ynHfSgiDSZK2dcaePqUN3accRT0sSAXCrMfHgAF9LUqWbJkrl3g8NxsiTSdWTBgU1bZoWpU82OieHBqRwmRpLEL/SUutB+IXywaFeQABmhBJyXpKijo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dkRP+X82; arc=pass smtp.client-ip=209.85.214.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="w8SRtH3l";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="4mG+aC/F";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="w8SRtH3l";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="4mG+aC/F"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 47C483E83;
-	Thu, 23 Jul 2026 15:42:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1784821367; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=sGnGDws65kYK4KN3qMbXBPTWjXYcf0eDRnY/iC5zxEk=;
-	b=w8SRtH3lgmDX8i8+/9v+Vv2uPoBV+fPMQ7hlNY9TUj4T+4KoluWjbBSw+3LVAhZuCVar/D
-	UgsZyqwWYm7iBOzwq0QD87sofIgKDAREYMeFwY2UlBA7nuIKwr4kx3O+0z+qD5WIn4p+HJ
-	6SVepQiZrHPgV5/NiSJ8U9E9NUe78fY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1784821367;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=sGnGDws65kYK4KN3qMbXBPTWjXYcf0eDRnY/iC5zxEk=;
-	b=4mG+aC/F8dlrGaQ4RtevIUVFVk4APsdPbK9H8iXMsqlUAzS18Vg5YN59T69YYK+E1sK1Dp
-	S4NTI/HhnLS20VCg==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=w8SRtH3l;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b="4mG+aC/F"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1784821367; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=sGnGDws65kYK4KN3qMbXBPTWjXYcf0eDRnY/iC5zxEk=;
-	b=w8SRtH3lgmDX8i8+/9v+Vv2uPoBV+fPMQ7hlNY9TUj4T+4KoluWjbBSw+3LVAhZuCVar/D
-	UgsZyqwWYm7iBOzwq0QD87sofIgKDAREYMeFwY2UlBA7nuIKwr4kx3O+0z+qD5WIn4p+HJ
-	6SVepQiZrHPgV5/NiSJ8U9E9NUe78fY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1784821367;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=sGnGDws65kYK4KN3qMbXBPTWjXYcf0eDRnY/iC5zxEk=;
-	b=4mG+aC/F8dlrGaQ4RtevIUVFVk4APsdPbK9H8iXMsqlUAzS18Vg5YN59T69YYK+E1sK1Dp
-	S4NTI/HhnLS20VCg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 17BA0779B5;
-	Thu, 23 Jul 2026 15:42:47 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id Hx9+BHc2YmpgMwAAD6G6ig
-	(envelope-from <jsegitz@suse.de>); Thu, 23 Jul 2026 15:42:47 +0000
-Date: Thu, 23 Jul 2026 17:42:45 +0200
-From: Johannes Segitz <jsegitz@suse.de>
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Petr Lautrbach <lautrbach@redhat.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>,
-	Jason Zaman <jason@perfinion.com>, James Carter <jwcart2@gmail.com>,
-	selinux@vger.kernel.org
-Subject: Re: [PATCH] selinux_restorecon: Do not exit on directory cycles
-Message-ID: <amI2denYr02e5TKA@suse.com>
-References: <amHW-fFHM3pw-g3y@suse.com>
- <CAEjxPJ5KfidbsqrUe07F8sdssdqEtEUsBUDgGqn4dm4RZUcyOw@mail.gmail.com>
- <amIxkNuNJcxhtkOR@suse.com>
- <CAEjxPJ6oS-W+5e6G-KqSr60CP+GTU3G_A6d0nLpFHQMPnqccGg@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dkRP+X82"
+Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2cf41bab353so10989725ad.0
+        for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 08:44:36 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784821476; cv=none;
+        d=google.com; s=arc-20260327;
+        b=Oq/AhfpGnSdNkzPXsXT39tHiVDdYmn7+QvrZ/+gEFQFAuhkUQ/u+Wu2D5xdxXcDQyJ
+         IPFYX2CZbX6kgaN+z7AsNhxNokGTzIrJHsQW3Sr0czOrHVs00hy71KjldUy2Lbfkjn/4
+         toxQ69i8Q0nJlCWg7pvKZusmM794IBKE1/cBDkW2F2Sh3KDPux7x5dmLteWfILJgpbhm
+         tSrSV38Qi5xTvvRMD1Q7cYK8hKDBH1E7szFIg8KDIYJWD8bXlpGytvSbFy+z5NqR3sab
+         PAlzDr4fZHRZG62VO8K/lvTpW8q6/F8O/K2G0FUOE97+Om72DWy+iKJz8otOZJuYBczl
+         Y/xg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=aOBG63OAJZMtVVBWoyxNwgPr6Fo3Y3WspNU3sQmqdgQ=;
+        fh=JsrRvKH9zDWSQo/ocMDcDF7TXemqKX2q7s6wLCPWz4s=;
+        b=CsLAUmb93ctGoPzIRARRuSiB8rPmswY9hNoMuk5bnC8wj6owLubmJyB6sBiv1b13pu
+         FWpMmedCuX+DHWcWUGZ/jSVtvTh6tw9UlTkYqHj8cno7x4zGBIhbB0CZ8nYjjrtHbsgK
+         97NluI3ByaGt8dg0hXdXApUFCfGKpQVDl1nynpKRQe/Rroy/TJK/XLS9bsxX6usW/ox4
+         sdb/tRNgHNkCP0K45aHxb+xp7I1VnBFrVx4PwquVcxTVt0lgOzO2RhLA61sS780lKnVK
+         /9S7bkFb0iZ87fMuOo2OawWbwuZyMGYWQu72CLY5E3o8AxsKYtw58hXsnFKp9gARvOpR
+         s5aA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784821476; x=1785426276; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=aOBG63OAJZMtVVBWoyxNwgPr6Fo3Y3WspNU3sQmqdgQ=;
+        b=dkRP+X82TZ7sLmPyRVvSEol+9zyYxe6W76vSpZI3cbuzQs4wZqQuNCvDVvrzQVAZPY
+         ZOnWO9bZpX+qfu5YGfT0SVf5ou9CNe78EyCtOpUlV+D2nNq3yF3QPBFlUYHND4Fd01mt
+         Bq+CT+0h94RGNLvNMWOzla/EWlmsd9VuMyVAnVufAfVB4h8HMaBx0UNPBQ7w0r7yxhwJ
+         obcGadlwN/hQs1aaMegeK4psxLJdyoeZ/noj4k8UKpbXA7uBbIYD7QAityU+cJuzW/Cz
+         83fgUqGZNI93jsM35rkmZgkZs0HsIrUaI5t5qI2QBq2Da2CnJ067R3N5iMIDn2FHLye0
+         DeNQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784821476; x=1785426276;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=aOBG63OAJZMtVVBWoyxNwgPr6Fo3Y3WspNU3sQmqdgQ=;
+        b=hvZL9wetza4JFvPOp/3YLt1BuwlM8OxAJJro2rxA7+tC1HqxyFOaoBsx7+QhxeIHDi
+         VxIDbWVyPwtGmpIyJpGYEdiFVK8wtUH2E6u517UsNXkWGJdorJYM/3hrN3s3DbQXxEze
+         /IZNdsQjjyTTg8auwQE7xSrDpizLY1QfiGMyFLdpn2oQEWYaH8/le/x7Hh9GE3GfN0oP
+         eSBU46QAe8JIPnztnMKOFe3NHebitLOhhiEcU5wORxsL0V+ArtjMZW0WiKlJJV5+F492
+         BQ5K7BPdH/t5DNPq+Sfd9neU16viKYqvHwecQxPhfS80CiqA/9DXgIX8tRTn69YVmKnZ
+         joSQ==
+X-Gm-Message-State: AOJu0YxSj/8dmeGGGcOzUMOgUzauvvzqxmXmsoo3DnjcXWhuype6q0CJ
+	774CMxeOrB3iZ7bsDjlDXiRsf+fTL8i68E5SHXv03hfH3FGcZO6r+GQpLfLp7YuKAR+HWs5Q4MJ
+	5U2ec7Pk5PctZHxu2CKn8YXty/2hpR1UmPw==
+X-Gm-Gg: AR+sD137zYLYgylWmVXQIGiG5CTAmCZWk/rNWtepPSBlyXyZowIKHH7K7J+ezUH1bmb
+	kVAh92UnDSLC/KQXFmt9mDe19jFn8F7e//hzWIDcBmvwyszC/T6zsX1An+/wuKP8yO0Jn2USxrM
+	joq8cs0AJzdOFl7E5Izb4s1Co0WaWogEqQ7At7Qt5GUsNO/SCrL3v5INL3RFQdeDg7FevRfVR51
+	xIqwaO4iizI9uHoXQORdNqGgYlY7wx6KboYxwN0HAjON0a/NpuVIb8LvSC3uw==
+X-Received: by 2002:a17:902:e850:b0:2c9:9a19:df with SMTP id
+ d9443c01a7336-2cfa71dc761mr42240195ad.18.1784821476100; Thu, 23 Jul 2026
+ 08:44:36 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="dobOPCdRNDQ5OzAK"
-Content-Disposition: inline
-In-Reply-To: <CAEjxPJ6oS-W+5e6G-KqSr60CP+GTU3G_A6d0nLpFHQMPnqccGg@mail.gmail.com>
-X-Spam-Score: -5.11
-X-Spam-Level: 
-X-Rspamd-Action: no action
-X-Rspamd-Queue-Id: 47C483E83
-X-Spamd-Result: default: False [-5.11 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SIGNED_PGP(-2.00)[];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MIME_GOOD(-0.20)[multipart/signed,text/plain];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MX_GOOD(-0.01)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	TO_DN_SOME(0.00)[];
-	FREEMAIL_TO(0.00)[gmail.com];
-	MIME_TRACE(0.00)[0:+,1:+,2:~];
-	ARC_NA(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	RCVD_TLS_ALL(0.00)[];
-	RCPT_COUNT_FIVE(0.00)[6];
-	RCVD_COUNT_TWO(0.00)[2];
-	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[redhat.com,perfinion.com,gmail.com,vger.kernel.org];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	TAGGED_RCPT(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	MISSING_XM_UA(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:dkim,suse.com:mid,suse.com:url,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spam-Flag: NO
-
-
---dobOPCdRNDQ5OzAK
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+References: <20260723085829.318778-1-inseob@google.com>
+In-Reply-To: <20260723085829.318778-1-inseob@google.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 23 Jul 2026 11:44:25 -0400
+X-Gm-Features: AUfX_mwr5nsWqRtvv-hRxgGZDPsgXVa2qPcA6L1Nr_9dktBXIwMxLzm8CWZRu_Y
+Message-ID: <CAEjxPJ5pux18BCR4FoQ38LsWHz4faXhsQvPQCGyC-YsqVzibRw@mail.gmail.com>
+Subject: Re: [PATCH v2] libselinux: improve performance with pcre matches
+To: Inseob Kim <inseob@google.com>
+Cc: selinux@vger.kernel.org, tweek@google.com, 
+	Eric Biggers <ebiggers@kernel.org>, =?UTF-8?Q?Carlo_Marcelo_Arenas_Bel=C3=B3n?= <carenas@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 23, 2026 at 11:38:24AM -0400, Stephen Smalley wrote:
-> On Thu, Jul 23, 2026 at 11:21=E2=80=AFAM Johannes Segitz <jsegitz@suse.de=
-> wrote:
-> >
-> > On Thu, Jul 23, 2026 at 10:55:48AM -0400, Stephen Smalley wrote:
-> > > On Thu, Jul 23, 2026 at 4:56=E2=80=AFAM Johannes Segitz <jsegitz@suse=
-=2Ede> wrote:
-> > > >
-> > > > All other failures are handled gracefully. Directory cycles can e.g.
-> > > > happen on BTRFS filesystems with subvolumes. Skip them and continue
-> > > > instead of exiting
-> > >
-> > > This is a user-visible behavior change so we should note it; restorec=
-on -R
-> > > on a tree with a bind mount of an ancestor will now complete with rc =
-0 and
-> > > only a WARNING rather than aborting with ELOOP.
-> >
-> > Okay, I can write something up. But in general you would be fine with t=
-he
-> > behavior change?
->=20
-> I am (although other maintainers are free to disagree).
+On Thu, Jul 23, 2026 at 4:58=E2=80=AFAM Inseob Kim <inseob@google.com> wrot=
+e:
+>
+> From: Carlo Marcelo Arenas Bel=C3=B3n <carenas@gmail.com>
+>
+> Since 30b3e9d2 (libselinux: Workaround for heap overhead of pcre,
+> 2023-01-12), performance of PCRE2 matches has been affected due to
+> excesive recreation of the match_data in an attempt to reduce memory
 
-okay, I'll prepare an updated version with wording that addresses this and
-=2E..
+spelling /excessive/
 
-> > > Missing Signed-off-by line and the patch still doesn't apply for me
-> > > (did you send it using git send-email and against current selinux/mai=
-n?)
-> > > but also see comment below on the code.
-> >
-> > I start feel like an idiot. The first time I used this old repo with the
-> > wrong branch, but this time I made sure it applies, but didn't use
-> > git send-mail.
-> >
-> > I did
-> > # git format-patch -1 HEAD
-> > 0001-selinux_restorecon-Do-not-exit-on-directory-cycles.patch
-> >
-> > which for me then applies:
-> > # git checkout main
-> > Already on 'main'
-> > Your branch is up to date with 'origin/main'.
-> > # git rev-parse --short HEAD
-> > 84d424b8
-> > # git am 0001-selinux_restorecon-Do-not-exit-on-directory-cycles.patch
-> > Applying: selinux_restorecon: Do not exit on directory cycles
-> >
-> > Maybe my manual inclusion in the mail breaks it? I attach it now to the
-> > mail
->=20
-> Yes, unfortunately mail clients are unforgiving of inline patches
-> these days so we recommend
-> using git send-email,
-> https://github.com/SELinuxProject/selinux/wiki/Contributing#contributing-=
-code
+> utilization; instead of a workaround, it would be better to address
+> the problem and maybe even improve performance in the process.
+>
+> The issue is that currently the structure that holds PCRE state has
+> both a pcre2_code (which is per pattern) and a pcre2_match_data (which
+> is per match), forcing us to add a mutex to prevent multiple matches to
+> step on each other.
+>
+> Lets remove the match_data and the mutex and instead allocate one once
+> in a thread independent way that could be used and reused, by extending
+> our pthread interface to not only store TLS variables but also retrieve
+> them, and then use one of those.
+>
+> Since we are not interested on the capture groups (if any) lets only
+> allocate 1 pair which is all that will be needed and change the logic
+> so that a return of 0 (which means the pattern matched but there were
+> not enough capture spots) is also considered a match.
+>
+> This will ensure that the memory use would be bound to the number of
+> concurrent matches instead of the number of patterns and therefore
+> reduce the impact that recent changes on the way that the frames used
+> for matching are allocated might had brough since 10.41 was released.
 
-=2E.. will set this up. My mail setup is bit unusual, because of this I
-avoided it until now, but I agree that it makes reviewing easier
+should this be "have brought"? And is 10.41 the pcre version?
 
-Johannes
---=20
-GPG Key                EE16 6BCE AD56 E034 BFB3  3ADD 7BF7 29D5 E7C8 1FA0
-Subkey fingerprint:    250F 43F5 F7CE 6F1E 9C59  4F95 BC27 DD9D 2CC4 FD66
-SUSE Software Solutions Germany GmbH, Frankenstr. 146, 90461 N=C3=BCrnberg,=
- Germany
-www.suse.com, Gesch=C3=A4ftsf=C3=BChrer: Jochen Jaser, Andrew McDonald, Abh=
-inav Puri, (HRB 36809, AG N=C3=BCrnberg)
+>
+> For cases where threads are not available, just keep it working in slow
+> mode as done before the workaround was reverted.
+>
+> Signed-off-by: Carlo Marcelo Arenas Bel=C3=B3n <carenas@gmail.com>
+> Signed-off-by: Inseob Kim <inseob@google.com>
+> ---
+> v2:
+>  - Fix the dual destructor antipattern by separating the thread-exit
+>    destructor (match_data_thread_free) from the library-unload key cleanu=
+p
+>    (match_data_key_destroy, annotated with __attribute__((destructor))).
 
+This won't free the data on dlclose() of libselinux, right? Not sure if we =
+care.
 
---dobOPCdRNDQ5OzAK
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-
-iQJPBAEBCgA5FiEEJQ9D9ffObx6cWU+VvCfdnSzE/WYFAmpiNnUbFIAAAAAABAAO
-bWFudTIsMi41KzEuMTIsMiwyAAoJELwn3Z0sxP1mXygQAJn8r75k4WxNK8fc/9Vy
-6xB4i7rtrtT4rUfPfnB7bUrLgVWDKUMgjW07Bb7caUsoAbiyWGBdACRl8+Heytcp
-sSS4ijAs/8KEfrbGNBcHU5QLmMjJSZw3svZmavemJFSiZ/0LYI3U84p92Lr8dJmr
-YT5wok2L1rSax8TOwUigeYmhuM9UbiinSVHoe3MBpDUucSpjvkk7MTVeN46Zzq57
-2859mwMsxmQmufE2YEjeRFNyPBnhcs1KKPcTzJ7AXE3Ft7vitoEjEdHB04kS7Vqb
-JTkcaAdurw66L0JJFkluHT4IfWpgtXJTqwDsFmFgKRQ6qbxdEYU5XLktIlMV4SR2
-OZKH/NRs1WON3gT9RM1ynqj28iEQbr8uTsvTs3Upm2RIAZRBH0tfg4/MgUhz7ly9
-6/RbW9erZu0nUbt+LJZugJzhpdO99fMmrDSnJDLMIjH2w4wwydFx+iHYXt90/15F
-Nr/hLsTOG7r44x013klZJEIQXW86Zt1O5/yW94LWMRXXLZUkSJB9+Tt4C6CRw104
-mhd8jlHR8Vt8En3N9O3NEAHJBHUEE5wqIkn4OVWSGOYoohsLKlug7Nllh9xkmb/+
-4FWWE+cIxd48afJEi9WzlJX1K0A9FSaAVTPl2FLJc293sxM0aJ0xgSg5wNiczovM
-qOgsSsS6ntM96CBE1j/R9FEI
-=wneA
------END PGP SIGNATURE-----
-
---dobOPCdRNDQ5OzAK--
+>  - Eliminate the data race on match_data_key_initialized by using pthread=
+_once
+>    (via __selinux_once) for safe, race-free initialization of match_data_=
+key.
+>  - Remove redundant match_data_initialized thread-local variable, making
+>    lookups purely based on __selinux_getspecific().
+> ---
