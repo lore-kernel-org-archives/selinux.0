@@ -1,515 +1,177 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D07F44D2EF8
-	for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 13:09:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784812191; cv=none; b=avZUe2vTOU63+54nhlt6hwEs/+oHchXxmpuLuva2/QX1WQbrx6hHT9NprvTOeC3g3HGqoHQiE2j6Au4KrI37uu5HWlwIsWTiV5Cu5CrNWK6dJGVodVhLxS7Oc/jnv+km5ZwxZNY3Is9NBmNDW2z1Z0gyTEw2K44fcMUq6z58kuk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784812191; c=relaxed/simple;
-	bh=xuN/e9hz12kO/q4ltfba2CZXmkHkWGO7Nnp3OwnRMt0=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=c4R+myH5Qd3dtMdiEzL1keggTDESw2rc16epLUUU4NWD65agRLZq5f8n1m6lt2cJW2YfgpejeAGANSW6TYAENa9vHXfQNT9YMjCwgLccJoon52JeAVON5UBSpYZLo8IxOMBcC51+7MyuR58A0uBahtjBxQDEwzVVZ0WdzJH4rkg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KBjW3clY; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1107141379E
+	for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 13:30:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.48
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784813442; cv=pass; b=hPeJhRqSCsFHh53OJnXmHzyzeNrslQlzQWgRNW+9nmwRiKdLIotffaIN8sWTsV8ve+IyOz3qa6OLTEfsyI+2dDdmBoHuNYPUqJqtx3GaEzZGCu9Saiwm1vBJqiAJu6+pkni5rwp1CePNr2AW+rUYzA358bVmnMU4Z9EvuDibysY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784813442; c=relaxed/simple;
+	bh=NCvmQEUqPANjs9/6CVOdGMxpy6j/R7FQZr18wytvb20=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=hF5BpFN0Wwg/qIeKki+LxLu0OSj1TEsuAnSYtfv4EpQDlxIRCJUrf/l9588VQ2QsPdnjpeBMoVn7eH3HDItDiZtbUv6Vi0cmq4Oh8ei1y09rvzEKWNmiholsvEzgk3MzDem8IsBLc4DJLFzUZICPNADGegDkv3lroqFqWWkANCk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jADeZSmk; arc=pass smtp.client-ip=209.85.216.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KBjW3clY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1784812188;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=koxbl0+ymmDik7HTImEqS8LTlKr0AxmdpS1L0duJZEQ=;
-	b=KBjW3clYEE3S1ILV6BnOIqs21UA71THZhlC38oQomvAKuxdhH/2Ou4vnrmXEIabG+cVRix
-	iz6wXk5b8Crl6ApFlt6d1aZWWXfL5Wn6f3jGo9AYC+3htZ6zWIG5QKNrKjKBs7Ham6uBiC
-	KFQlbAtGteW0MVUG3ts3beWjX8vN+vk=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-520-J4kw5sgDNzqLEscXAk8qXw-1; Thu,
- 23 Jul 2026 09:09:47 -0400
-X-MC-Unique: J4kw5sgDNzqLEscXAk8qXw-1
-X-Mimecast-MFC-AGG-ID: J4kw5sgDNzqLEscXAk8qXw_1784812186
-Received: from mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.95])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 63F70195FE2B
-	for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 13:09:46 +0000 (UTC)
-Received: from akkohli-thinkpadt14sgen2i.rmtde.csb (unknown [10.44.33.215])
-	by mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 829EE1589
-	for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 13:09:45 +0000 (UTC)
-From: Akhil Kohli <akkohli@redhat.com>
-To: selinux@vger.kernel.org
-Subject: [PATCH v3] semodule-utils: add bad-data tests for semodule_package
-Date: Thu, 23 Jul 2026 15:09:42 +0200
-Message-ID: <20260723130943.2346775-1-akkohli@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jADeZSmk"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-38dcbade417so633581a91.1
+        for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 06:30:39 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784813439; cv=none;
+        d=google.com; s=arc-20260327;
+        b=dDGBZrUWQndj7RugmYx4hoCelua9XMQVml18vyI0BNUwxpYiLWGR7SSvBpIZfEw4/i
+         LkqVwqenB1D0SbKNv8oSlyZJyGddg6gLELnbfNQ1dewW/NI1VEAAf40t98FYhY1iVlce
+         8vEy/RoJbzdp0ER6yA+b2wYbXjn+gXg95yvtQIfXdsCrkCtKdM4DTTGs7USnhg4SlzIK
+         3z5xKrimSCI+ZyAR3b3HWlArouYXQ7fjeXXLFjWjY/4NadegXyvDlEJ7Hx5Nz6cSxYfO
+         lTzAGicUcqkjYtbURk+vheUE1f0jri8IqtN5SxRhYAMDZGoPm8k8uhH3oxjmlggHsqZk
+         65FQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=pbsTCHDvGgXO6J1/GCYI4oRMCElv8HkgCnl9ZqI8bQI=;
+        fh=sEXXZHHOaetdSxeivqdrIFtWFCVaxn+K18VHEkjIQmI=;
+        b=ZTkvoypEDGg4z2JWfOUpMOERU95ymhYaQJaC70by+AdcOl3Qwm8M0jHfrK9iJ4JvrN
+         sXJzp9vP6Eui9bOL7CWlCeMKdjwg9/BUjmlhJZuP5FmgPAL+kihFSFBdnNskmnAAwsW2
+         aPuHorsj4tb8CuImfTM9amb9YNQJGyydJbNgl2LwXrO3CFKc7N2eUOjTuc/0S9LR5Lc6
+         KXRUMslcZ/I8tzHzixyETT2u/mQKGIYdR/3SJN3hIvowSty0tYrHG7SZOtfbaYb1vZBQ
+         UUpP14mziu8swtZhuiMe5c8rK6S1YSl6Z8aXrbuQDZlcglWvZ5QmSUel7zIW344vuWQk
+         ncnA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784813439; x=1785418239; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=pbsTCHDvGgXO6J1/GCYI4oRMCElv8HkgCnl9ZqI8bQI=;
+        b=jADeZSmk2ro3PAqeEQzWLsw6sSVegvhDrDOqsD6wmcJ7BOADI6T/F5YLHZcaLpBOhN
+         m2hBfnIc63xnk4gZ5e3HoEkLQMFpBKdGD6auZT8fps1i9Pv8iefjpsEAufycibnAYmt5
+         10uDT71pDMOHIKP1oxt+9ebajZJrZr/zBoS81nDGOBYbypbgFa3YXVaQMgkbRUigzNGw
+         7ImcilLdYBx9jabynhlPyL9pI23zN4z47PAlRqnLrwz3rcqrn+fct2H/VI/iHjHUk49v
+         q3bxWOuDYfi9ccre5bYkop9tpj2MmhYKR2H6q48/aSSbxIeXGMzdC+ZmesCayYmjnL8x
+         sMSA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784813439; x=1785418239;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=pbsTCHDvGgXO6J1/GCYI4oRMCElv8HkgCnl9ZqI8bQI=;
+        b=mu/ZY2A/X9tgCERopHWCb1fr+2awnVdyXLpMcHE9gNhfAPN306p8ftWOejokpeX8ZZ
+         +2g4JYersT09HMNN74/9GbV7l0urZMj7vnzxpARd3PK/2N2rneuOgEJp6+fQ0kp0Puj8
+         rAbD7mS7X+sQojaQRnS8eXWtPWAOy0IOlvz6BYmlRnHmjPMcOPsH5bzeHCOwXT0vtDOW
+         pRDkus/ovydIIQbSB2py4URkpMk/cacmjMguuEKJzDx0wDIiZwesTCfzmhkDuW7PHwnM
+         djGaXDZLmc3dO44yLpsA6s2SYvJ2xl5JIMMKy9gucwBkGOY5FEVU4O3XfP6f6QHN+zBT
+         4qVw==
+X-Gm-Message-State: AOJu0YxIY1FJsBGzgCXijRbeMcT1KiKhT5wtkwlufvgtxoNR3aaVue0X
+	aReRlESXw8EbV86yprzUmDSmVxm0SuAfj7+nUe+ADfnsCGTCO5HtXnDQk/vJrWEzVJVD98tsbHc
+	0+4Nc2TALRBD1uvyq/20VmZ+Ue0bPUSI=
+X-Gm-Gg: AR+sD12fXhXLQKmL3B2ViZde9JE9pTak6nEQ2uxf3VAaJNhvvGnJyvapkpTwdH0lz0i
+	uvazf1z5PNi3uOKVDtEXytbU+m0CiUfLxSN4jUBhahM+EmBwhA1tGCWhFRaQW5GbV8nov8O4Uhw
+	1nu+hBuXlO+ryqkQmIpIrmsPWTCSSkkzajw4EDydbHHRPXnoctPKPNoE6dfoJostuhXWIRObljQ
+	17whzN1w/fuknFnVCX1hf9/5yUX26v+/ej5GOMEDobJHezw9/RSVkBdqxeKIg==
+X-Received: by 2002:a17:90b:2401:b0:38e:c7b0:84ad with SMTP id
+ 98e67ed59e1d1-38ec7b09639mr1813101a91.0.1784813439289; Thu, 23 Jul 2026
+ 06:30:39 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.6 on 10.30.177.95
+References: <20260723062355.3096648-1-jason@perfinion.com> <20260723062355.3096648-3-jason@perfinion.com>
+In-Reply-To: <20260723062355.3096648-3-jason@perfinion.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 23 Jul 2026 09:30:28 -0400
+X-Gm-Features: AUfX_mxCrjyqcsbWa27NJvHOGliYT8HeHyBtsH923zCUMPM7U0qfhJLpUAj5T64
+Message-ID: <CAEjxPJ7RsJoivrD+xr9qaC2znKkG2NxZCuMqNRRHVah6h2BwJg@mail.gmail.com>
+Subject: Re: [PATCH 3/3] RFC: SECURITY.md: Rough draft of codifying the
+ maintainer process
+To: Jason Zaman <jason@perfinion.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Add tests/bad-data/run.sh and fixtures for semodule_package bad-data
-protection: input path validation for -m and -f (missing paths, directories,
-broken symlinks, unreadable files, empty arguments) and malformed .mod.fc
-content at packaging time. Wire the driver into semodule-utils make test.
-Semantic validation of bad file contexts is deferred to sefcontext_compile.
+On Thu, Jul 23, 2026 at 2:25=E2=80=AFAM Jason Zaman <jason@perfinion.com> w=
+rote:
+>
+> Since security issues are quite rare, best to codify the processes so
+> when they come along we can fall back to this and dont forget any steps.
 
-Run the harness as a non-root user in GitHub Actions so unreadable -m/-f
-inputs are exercised in CI. Semantic validation of bad file contexts is
-deferred to sefcontext_compile
+don't or do not
 
-Signed-off-by: Akhil Kohli <akkohli@redhat.com>
----
- .github/workflows/run_tests.yml               |  13 +
- semodule-utils/Makefile                       |   1 +
- .../fixtures/file_contexts/bad_context.mod.fc |   1 +
- .../fixtures/file_contexts/bad_fields.mod.fc  |   1 +
- .../fixtures/file_contexts/good.mod.fc        |   1 +
- .../tests/bad-data/fixtures/modules/good.te   |   8 +
- semodule-utils/tests/bad-data/run.sh          | 355 ++++++++++++++++++
- 7 files changed, 380 insertions(+)
- create mode 100644 semodule-utils/tests/bad-data/fixtures/file_contexts/bad_context.mod.fc
- create mode 100644 semodule-utils/tests/bad-data/fixtures/file_contexts/bad_fields.mod.fc
- create mode 100644 semodule-utils/tests/bad-data/fixtures/file_contexts/good.mod.fc
- create mode 100644 semodule-utils/tests/bad-data/fixtures/modules/good.te
- create mode 100755 semodule-utils/tests/bad-data/run.sh
+>
+> Signed-off-by: Jason Zaman <jason@perfinion.com>
+> ---
+>  SECURITY.md | 26 ++++++++++++++++++++++++++
+>  1 file changed, 26 insertions(+)
+>
+> diff --git a/SECURITY.md b/SECURITY.md
+> index 49c40e97..145a2714 100644
+> --- a/SECURITY.md
+> +++ b/SECURITY.md
+> @@ -35,6 +35,9 @@ the issue as quickly as possible and shorten the disclo=
+sure window.
+>    *  (GPG fingerprint) 6319 1CE9 4183 0986 89CA  B8DB 7EF1 37EC 935B 0EA=
+F
+>  * Ondrej Mosnacek, omosnace@redhat.com
+>
+> +If unsure about whether an issue is in kernel or userspace, feel free to=
+ send
+> +to any and the maintainers will handle it internally.
 
-diff --git a/.github/workflows/run_tests.yml b/.github/workflows/run_tests.yml
-index f4aa1a4c..4322ddff 100644
---- a/.github/workflows/run_tests.yml
-+++ b/.github/workflows/run_tests.yml
-@@ -82,6 +82,19 @@ jobs:
-         eval make test $EXPLICIT_MAKE_VARS
-         echo "::endgroup::"
- 
-+        # semodule_package bad-data: unreadable -m/-f inputs need non-root (root reads mode 000).
-+        if [ "${{ matrix.python-ruby-version.other }}" != "sanitizers" ] ; then
-+          echo "::group::semodule-utils bad-data (non-root)"
-+          sudo useradd -m -s /usr/sbin/nologin bad-data-test 2>/dev/null || true
-+          # World-readable checkout; run via relative path (inherited CWD). Do not
-+          # cd to $PWD — bad-data-test cannot traverse /home/runner/work/... .
-+          chmod -R a+rX .
-+          sudo runuser -u bad-data-test -- env PATH="$PATH" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
-+            ./semodule-utils/tests/bad-data/run.sh
-+          sudo userdel -r bad-data-test 2>/dev/null || true
-+          echo "::endgroup::"
-+        fi
-+
-         if [ "${{ matrix.python-ruby-version.other }}" != "sanitizers" ] ; then
-             # Test Python and Ruby wrappers
-             echo "::group::Test Python and Ruby wrappers"
-diff --git a/semodule-utils/Makefile b/semodule-utils/Makefile
-index 81c97af0..4a902146 100644
---- a/semodule-utils/Makefile
-+++ b/semodule-utils/Makefile
-@@ -6,3 +6,4 @@ all install relabel clean:
- 	done
- 
- test:
-+	./tests/bad-data/run.sh
-diff --git a/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_context.mod.fc b/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_context.mod.fc
-new file mode 100644
-index 00000000..06aec43e
---- /dev/null
-+++ b/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_context.mod.fc
-@@ -0,0 +1 @@
-+/usr/bin/bad	not_a_valid_selinux_context
-diff --git a/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_fields.mod.fc b/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_fields.mod.fc
-new file mode 100644
-index 00000000..13821d61
---- /dev/null
-+++ b/semodule-utils/tests/bad-data/fixtures/file_contexts/bad_fields.mod.fc
-@@ -0,0 +1 @@
-+only_one_field_on_this_line
-diff --git a/semodule-utils/tests/bad-data/fixtures/file_contexts/good.mod.fc b/semodule-utils/tests/bad-data/fixtures/file_contexts/good.mod.fc
-new file mode 100644
-index 00000000..12b26cae
---- /dev/null
-+++ b/semodule-utils/tests/bad-data/fixtures/file_contexts/good.mod.fc
-@@ -0,0 +1 @@
-+/usr/bin/test_good	--	system_u:object_r:test_good_exec_t:s0
-diff --git a/semodule-utils/tests/bad-data/fixtures/modules/good.te b/semodule-utils/tests/bad-data/fixtures/modules/good.te
-new file mode 100644
-index 00000000..a079aed6
---- /dev/null
-+++ b/semodule-utils/tests/bad-data/fixtures/modules/good.te
-@@ -0,0 +1,8 @@
-+module test_good 1.0;
-+
-+require {
-+	type test_good_t;
-+	class file { read };
-+}
-+
-+allow test_good_t self:file read;
-diff --git a/semodule-utils/tests/bad-data/run.sh b/semodule-utils/tests/bad-data/run.sh
-new file mode 100755
-index 00000000..7c9f7c7d
---- /dev/null
-+++ b/semodule-utils/tests/bad-data/run.sh
-@@ -0,0 +1,355 @@
-+#!/bin/sh
-+#
-+# Bad-data tests for semodule_package in the modular policy packaging pipeline.
-+# Covers packaging path edge cases (-m/-f) and documents deferred rejection of bad
-+# .mod.fc content (enforced later by sefcontext_compile).
-+# Unreadable -m/-f cases skip when run as root; CI runs this script as non-root.
-+#
-+
-+set -u
-+
-+# Prefer an absolute script dir, but keep a relative dirname when cd fails.
-+# Non-root CI can inherit the repo as CWD without being able to traverse
-+# /home/runner/work/...; relative paths from that CWD still work.
-+BASEDIR=$(dirname -- "$0")
-+ABS_BASEDIR=$(CDPATH= cd -- "${BASEDIR}" 2>/dev/null && pwd) || ABS_BASEDIR=
-+if [ -n "${ABS_BASEDIR}" ]; then
-+	BASEDIR="${ABS_BASEDIR}"
-+fi
-+FIXTURES="${BASEDIR}/fixtures"
-+if [ ! -d "${FIXTURES}" ]; then
-+	echo "FAIL: cannot resolve fixtures directory (\$0=$0 BASEDIR=${BASEDIR})" >&2
-+	exit 1
-+fi
-+OUTDIR=$(mktemp -d "${TMPDIR:-/tmp}/semodule-package-bad-data.XXXXXX")
-+PASS=0
-+FAIL=0
-+
-+CHECKMODULE=${CHECKMODULE:-checkmodule}
-+# Modular TE for MCS/MLS builds (checkmodule -M -m).
-+CHECKMODULE_MOD_FLAGS=${CHECKMODULE_MOD_FLAGS:--M -m}
-+SEMODULE_PACKAGE=${SEMODULE_PACKAGE:-semodule_package}
-+
-+GOOD_TE="${FIXTURES}/modules/good.te"
-+GOOD_MOD="${OUTDIR}/test_good.mod"
-+
-+cleanup() {
-+	rm -rf "${OUTDIR}"
-+}
-+trap cleanup EXIT
-+
-+die() {
-+	echo "FAIL: $*" >&2
-+	FAIL=$((FAIL + 1))
-+}
-+
-+pass() {
-+	echo "==== $*"
-+	PASS=$((PASS + 1))
-+	echo ""
-+}
-+
-+build_good_mod() {
-+	echo "==== Setup: build control module ${GOOD_MOD} from good.te"
-+	rm -f "${GOOD_MOD}"
-+
-+	set +e
-+	# shellcheck disable=SC2086
-+	"${CHECKMODULE}" ${CHECKMODULE_MOD_FLAGS} -o "${GOOD_MOD}" "${GOOD_TE}" \
-+		2>"${OUTDIR}/build_good.err"
-+	rc=$?
-+	set -e
-+
-+	if [ "${rc}" -ne 0 ]; then
-+		echo "FAIL: could not build control module from ${GOOD_TE}" >&2
-+		cat "${OUTDIR}/build_good.err" >&2
-+		exit 1
-+	fi
-+	if [ ! -s "${GOOD_MOD}" ]; then
-+		echo "FAIL: ${GOOD_MOD} is empty" >&2
-+		exit 1
-+	fi
-+	echo ""
-+}
-+
-+expect_package_pass() {
-+	desc="$1"
-+	outname="$2"
-+	shift 2
-+
-+	outpp="${OUTDIR}/${outname}.pp"
-+	stderr="${OUTDIR}/${outname}.err"
-+
-+	echo "==== POSITIVE (expect semodule_package success): ${desc}"
-+	rm -f "${outpp}"
-+
-+	set +e
-+	"${SEMODULE_PACKAGE}" -o "${outpp}" "$@" 2>"${stderr}"
-+	rc=$?
-+	set -e
-+
-+	if [ "${rc}" -ne 0 ]; then
-+		echo "stderr:" >&2
-+		cat "${stderr}" >&2
-+		die "${desc}: expected exit 0, got rc=${rc}"
-+		return 0
-+	fi
-+	if [ ! -s "${outpp}" ]; then
-+		die "${desc}: expected non-empty ${outpp}"
-+		return 0
-+	fi
-+
-+	pass "${desc} (exit 0, .pp created)"
-+}
-+
-+expect_package_pass_deferred() {
-+	desc="$1"
-+	outname="$2"
-+	shift 2
-+
-+	outpp="${OUTDIR}/${outname}.pp"
-+	stderr="${OUTDIR}/${outname}.err"
-+
-+	echo "==== DOCUMENT (semodule_package accepts input; validate in sefcontext_compile): ${desc}"
-+	rm -f "${outpp}"
-+
-+	set +e
-+	"${SEMODULE_PACKAGE}" -o "${outpp}" "$@" 2>"${stderr}"
-+	rc=$?
-+	set -e
-+
-+	if [ "${rc}" -ne 0 ]; then
-+		echo "stderr:" >&2
-+		cat "${stderr}" >&2
-+		die "${desc}: expected exit 0 at packaging stage, got rc=${rc}"
-+		return 0
-+	fi
-+	if [ ! -s "${outpp}" ]; then
-+		die "${desc}: expected non-empty ${outpp} at packaging stage"
-+		return 0
-+	fi
-+
-+	pass "${desc} (packaging exit 0; labeling validation deferred to sefcontext_compile)"
-+}
-+
-+expect_package_fail() {
-+	desc="$1"
-+	pattern="$2"
-+	outname="$3"
-+	shift 3
-+
-+	outpp="${OUTDIR}/${outname}.pp"
-+	stderr="${OUTDIR}/${outname}.err"
-+
-+	echo "==== NEGATIVE (expect semodule_package failure): ${desc}"
-+	rm -f "${outpp}"
-+
-+	set +e
-+	"${SEMODULE_PACKAGE}" -o "${outpp}" "$@" 2>"${stderr}"
-+	rc=$?
-+	set -e
-+
-+	if [ "${rc}" -eq 0 ]; then
-+		die "${desc}: expected non-zero exit, got rc=0"
-+		return 0
-+	fi
-+	if [ -f "${outpp}" ]; then
-+		die "${desc}: did not expect output ${outpp}"
-+		return 0
-+	fi
-+	if ! grep -Eq "${pattern}" "${stderr}"; then
-+		echo "FAIL: stderr did not match /${pattern}/" >&2
-+		cat "${stderr}" >&2
-+		FAIL=$((FAIL + 1))
-+		return 0
-+	fi
-+
-+	pass "${desc} (rejected as expected, rc=${rc})"
-+}
-+
-+expect_package_fail_unreadable() {
-+	desc="unreadable -m file"
-+	mod="${OUTDIR}/unreadable.mod"
-+	outpp="${OUTDIR}/unreadable.pp"
-+	stderr="${OUTDIR}/unreadable.err"
-+
-+	echo "==== NEGATIVE (expect semodule_package failure): ${desc}"
-+	if [ "$(id -u)" -eq 0 ]; then
-+		echo "SKIP: root can read mode 000 files; unreadable check is non-root only"
-+		PASS=$((PASS + 1))
-+		echo ""
-+		return 0
-+	fi
-+
-+	rm -f "${outpp}"
-+	cp "${GOOD_MOD}" "${mod}"
-+	chmod 000 "${mod}"
-+
-+	set +e
-+	"${SEMODULE_PACKAGE}" -o "${outpp}" -m "${mod}" 2>"${stderr}"
-+	rc=$?
-+	set -e
-+
-+	if [ "${rc}" -eq 0 ]; then
-+		die "${desc}: expected non-zero exit, got rc=0"
-+		return 0
-+	fi
-+	if [ -f "${outpp}" ]; then
-+		die "${desc}: did not expect output ${outpp}"
-+		return 0
-+	fi
-+	if ! grep -Eq 'Permission denied|Could not open|Failed to open' "${stderr}"; then
-+		echo "FAIL: stderr did not mention permission or open failure" >&2
-+		cat "${stderr}" >&2
-+		FAIL=$((FAIL + 1))
-+		return 0
-+	fi
-+
-+	pass "${desc} (rejected as expected, rc=${rc})"
-+}
-+
-+expect_package_fail_unreadable_fc() {
-+	desc="unreadable -f file"
-+	fc="${OUTDIR}/unreadable.mod.fc"
-+	outpp="${OUTDIR}/unreadable_fc.pp"
-+	stderr="${OUTDIR}/unreadable_fc.err"
-+
-+	echo "==== NEGATIVE (expect semodule_package failure): ${desc}"
-+	if [ "$(id -u)" -eq 0 ]; then
-+		echo "SKIP: root can read mode 000 files; unreadable check is non-root only"
-+		PASS=$((PASS + 1))
-+		echo ""
-+		return 0
-+	fi
-+
-+	rm -f "${outpp}"
-+	cp "${GOOD_FC}" "${fc}"
-+	chmod 000 "${fc}"
-+
-+	set +e
-+	"${SEMODULE_PACKAGE}" -o "${outpp}" -m "${GOOD_MOD}" -f "${fc}" \
-+		2>"${stderr}"
-+	rc=$?
-+	set -e
-+
-+	if [ "${rc}" -eq 0 ]; then
-+		die "${desc}: expected non-zero exit, got rc=0"
-+		return 0
-+	fi
-+	if [ -f "${outpp}" ]; then
-+		die "${desc}: did not expect output ${outpp}"
-+		return 0
-+	fi
-+	if ! grep -Eq 'Permission denied|Could not open|Failed to open' "${stderr}"; then
-+		echo "FAIL: stderr did not mention permission or open failure" >&2
-+		cat "${stderr}" >&2
-+		FAIL=$((FAIL + 1))
-+		return 0
-+	fi
-+
-+	pass "${desc} (rejected as expected, rc=${rc})"
-+}
-+
-+build_good_mod
-+
-+# Ephemeral path fixtures for packaging path tests.
-+ln -sf /nonexistent/test_good.mod "${OUTDIR}/broken_symlink.mod"
-+ln -sf /nonexistent/test_good.mod.fc "${OUTDIR}/broken_symlink.mod.fc"
-+printf '' > "${OUTDIR}/empty.mod.fc"
-+
-+# NUL byte inside path column (packaging accepts; sefcontext_compile rejects).
-+printf '/bin/foo\x00bar\t--\tsystem_u:object_r:test_good_exec_t:s0\n' \
-+	> "${OUTDIR}/nul_bytes.mod.fc"
-+
-+GOOD_FC="${FIXTURES}/file_contexts/good.mod.fc"
-+
-+# --- semodule_package input paths ---
-+expect_package_pass \
-+	"control good .mod without file contexts" \
-+	good_mod \
-+	-m "${GOOD_MOD}"
-+
-+expect_package_pass \
-+	"control good .mod with good .mod.fc" \
-+	good_mod_fc \
-+	-m "${GOOD_MOD}" -f "${GOOD_FC}"
-+
-+expect_package_fail \
-+	"missing -m path" \
-+	"Could not open|Failed to open" \
-+	missing_mod \
-+	-m "${OUTDIR}/does_not_exist.mod"
-+
-+expect_package_fail \
-+	"missing -f path" \
-+	"Failed to open|Could not open" \
-+	missing_fc \
-+	-m "${GOOD_MOD}" -f "${OUTDIR}/does_not_exist.mod.fc"
-+
-+expect_package_fail \
-+	"directory instead of -m file" \
-+	"Error while reading policy module|Could not open" \
-+	directory_mod \
-+	-m "${BASEDIR}"
-+
-+expect_package_fail \
-+	"broken symlink for -m" \
-+	"Could not open|Failed to open|No such file" \
-+	symlink_mod \
-+	-m "${OUTDIR}/broken_symlink.mod"
-+
-+expect_package_fail_unreadable
-+
-+expect_package_fail \
-+	"empty -m path argument" \
-+	"Could not open|Failed to open" \
-+	empty_mod \
-+	-m ""
-+
-+expect_package_fail \
-+	"directory instead of -f file" \
-+	"Permission denied|Failed to mmap|Failed to open|Could not open" \
-+	directory_fc \
-+	-m "${GOOD_MOD}" -f "${BASEDIR}"
-+
-+expect_package_fail \
-+	"broken symlink for -f" \
-+	"Could not open|Failed to open|No such file" \
-+	symlink_fc \
-+	-m "${GOOD_MOD}" -f "${OUTDIR}/broken_symlink.mod.fc"
-+
-+expect_package_fail_unreadable_fc
-+
-+expect_package_fail \
-+	"empty -f path argument" \
-+	"Could not open|Failed to open" \
-+	empty_fc_arg \
-+	-m "${GOOD_MOD}" -f ""
-+
-+# --- bad .mod.fc at packaging time ---
-+expect_package_pass_deferred \
-+	"invalid SELinux context in .mod.fc" \
-+	bad_context \
-+	-m "${GOOD_MOD}" -f "${FIXTURES}/file_contexts/bad_context.mod.fc"
-+
-+expect_package_pass_deferred \
-+	"wrong field count in .mod.fc" \
-+	bad_fields \
-+	-m "${GOOD_MOD}" -f "${FIXTURES}/file_contexts/bad_fields.mod.fc"
-+
-+expect_package_pass_deferred \
-+	"NUL byte in .mod.fc path field" \
-+	nul_bytes \
-+	-m "${GOOD_MOD}" -f "${OUTDIR}/nul_bytes.mod.fc"
-+
-+expect_package_pass_deferred \
-+	"empty .mod.fc file" \
-+	empty_fc \
-+	-m "${GOOD_MOD}" -f "${OUTDIR}/empty.mod.fc"
-+
-+echo "========================================"
-+echo "Results: ${PASS} passed, ${FAIL} failed"
-+if [ "${FAIL}" -ne 0 ]; then
-+	exit 1
-+fi
-+exit 0
--- 
-2.55.0
+I'd recommend sending to both rather than any to avoid potential loss/delay=
+.
+We should also mention that private vulnerability reporting is now
+enabled on GitHub,
+so another option is to submit via:
+https://github.com/SELinuxProject/selinux/security/advisories
 
+> +
+>  ### Resolving Sensitive Security Issues
+>
+>  Upon disclosure of a bug, the maintainers should work together to invest=
+igate
+> @@ -57,3 +60,26 @@ lists.
+>
+>  * https://oss-security.openwall.org/wiki/mailing-lists/distros
+>  * https://oss-security.openwall.org/wiki/mailing-lists/oss-security
+> +
+> +### Maintainer Process
+> +
+> +This is the process maintainers will follow upon receiving a security no=
+tification.
+> +
+> +1. Make sure all appropriate SELinux maintainers are notified. Regardles=
+s of
+> +   which maintainer was initially contacted, others should be looped in.=
+ This
+> +   may also include the kernel maintainers if relevant to the issue.
+> +2. After an initial review of the issue, maintainers will agree on one p=
+erson
+> +   to be main point of contact. The response to the initial mail may com=
+e from a
+> +   different maintainer. If the initial mail was PGP signed/encrypted, t=
+he
+> +   replies will also be PGP signed/encrypted with one of the above keys.
+> +3. Maintainers will work together in private to verify and fix the issue=
+. For
+> +   larger fixes, this might involve a github private fork within a draft=
+ github
+> +   security advisory.
+> +4. Maintainers will prepare the fix as soon as reasonable. Maintainers m=
+ay
+> +   invite the reporter to the draft security advisory or private fork to=
+ help
+> +   verifying the fix.
+> +5. We will aim to release the fix publicly quickly, but may request an e=
+mbargo
+> +   period up to 90 days if the complexity of the issue requires it or if
+> +   severity of the issue requires coordinated rollout amongst distros.
+> +6. Public disclosure will involve pushing the fix to the public repo and
+> +   publishing the security advisory on Github and to the mailing list.
+> --
+> 2.54.0
+>
+>
