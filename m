@@ -1,129 +1,202 @@
-Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17D1B3002A0
-	for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 06:24:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A25833689A
+	for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 08:02:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784787852; cv=none; b=UbpKX9wn3/uyRn1ucEBznlahBOAvcuhaQ72wIKsznzH1Z8afQ5q0gfkJmmo16JcHPpQahxCpVJudvS7nDl7l/tXPNe9iXhKE7TA9deetvHMjY9W9XZiSkxX+hRNaE89o5P3dP1Hf/Y24HuwGi1Z8OUicqpVBVr0lqGePy2jgQGw=
+	t=1784793770; cv=none; b=qsqmC1n1DlYnaSwiK4ta71YUYN/t4A+IPFhxBi/3uyvMuITRYm7F5mN5ogox71YUYnsyblOW4gL2GIzX9EEzbvLnIThOv17YyfagPRWqPAHiNObdkUQ/laYclu5o0RdFYuTzDNkNigjcywsYP4kIp+XqECxPHt2G/TbDZ6SFgc8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784787852; c=relaxed/simple;
-	bh=OJIdvfmtWWhanCvarrwqhoEFmG//+TcJBhg7coKRQIQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=H/cwyJMZJc40KtmXGt6XTSp981Nkf46eQnyzr5hNe2op4ke7EYxsRuNFdUovA3wuGTR43lhLOg5LYwVR/rnJrHgFPE5v6S2WvH5ofFsUOHhK6a6cnooNh2BxqPjQqjmkj9XeTGGj/OVrgthZEW+JXFRbKBk5yI2k37OG/DzDu18=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=perfinion.com; spf=none smtp.mailfrom=perfinion.com; dkim=pass (2048-bit key) header.d=perfinion-com.20251104.gappssmtp.com header.i=@perfinion-com.20251104.gappssmtp.com header.b=MMwqnkIr; arc=none smtp.client-ip=209.85.215.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=perfinion.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=perfinion.com
+	s=arc-20240116; t=1784793770; c=relaxed/simple;
+	bh=skSbXLO0TNb+JTQusHIhoHMpHpAC2Gm1NDj34T7b+RM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=HF3GLH27X3WkF46Ihjy6r5gfBm7Z+jLt/T52ZcvhWL/1FpKlfSUPAY1jZjbsnV4fAEK1Ok0goFZLNmWM6DlGDXJHIiTOzooM2Fwt3nzI41WdajKgOi9ddADbWz0PLF0tNK4HAWGqejzCaPFGkQS9cS8Rv2hf32zTrayb/02gk7I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=02axbpsd; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=E2DQXc0U; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=CSgG4HjZ; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=/qZqpL54; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=perfinion-com.20251104.gappssmtp.com header.i=@perfinion-com.20251104.gappssmtp.com header.b="MMwqnkIr"
-Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-ca2fad0ae38so211980a12.3
-        for <selinux@vger.kernel.org>; Wed, 22 Jul 2026 23:24:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=perfinion-com.20251104.gappssmtp.com; s=20251104; t=1784787849; x=1785392649; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=0dhe2TF1VZT1n4RkwDevSNz8VhgF3Lp6jID3ipbk0Cg=;
-        b=MMwqnkIrcpqGNOLg1ii1umoFtEQF5e3/3ZhNUPV+2XvM3fu4YgcVhkiNbfhDuE4j6l
-         E0thsPx6qAstdm6csb8kfwp89D2l12wLoS492dLcvZyvGiyd/dWZ3oPllTzs/7rRXobJ
-         WU0L+U25bgqa0GLmq3mS7FHA/Rlvr7o+WQvtClOSqeDKLKo/8aT9UXnDcZsoW9W71JPm
-         SK6VdZtUqIqV9F4ZDmR/z8Zzw5cXvwxkHJWXflrw5e29kfnKt7SJOnk0rTjXwZmDxw0B
-         TXsXiJbvHegs/KbfuWFxt5++wH/pZSDSWh5TVvfa2wQbMT+XNlrvn1nrwzzZtb9lPqtH
-         ME/A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784787849; x=1785392649;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=0dhe2TF1VZT1n4RkwDevSNz8VhgF3Lp6jID3ipbk0Cg=;
-        b=enc7LkIZSzJyddX6OimOLhQBPH+cwGRRtygfzRKl99DRwlq4BVNM7wDdY2uWu/1+qp
-         JkV76iWILEJ4NlVWAHUVTSHZ0KA6hD/rszhlhd3BPkYPAmT8npDwAYu1w1gEomxx+n5q
-         m2Iyb/QeQT/69O76HKak2vABUobHG9119Oe6qxvfhO81g3YW+s9Br9NPrFkpa4xoS8fI
-         zSEgD+TEVqitVRWHzWjfR5oxmCgMFvoC8b/crYv/tJzMASS7rcYdsnbPJ8xriONk1ZYs
-         jIRgQnxV0uSOcX1HcRhzxYa4xYbFGe4/aCoiVO0iqQML/WuIUeSwL5M4ERryXXhBPVKh
-         15Rw==
-X-Gm-Message-State: AOJu0YyS735DWFjdxgUKz3aztXYRTtJIvzIBf6dQdMNqCuisjUXV733U
-	ANQQgE8yITixHmdhm/8Za66aSPLPXxm7reuwUoGmqy75Vz4Ah7yPMsfV/WBJhNoNX04MW2AHfwe
-	SdvNz
-X-Gm-Gg: AR+sD138EPg/Fm9IolYnPve73icR32ht7xYda31K+r0PWXDYQ4mAFfbYMFoBXtpW+hz
-	ZqZ0rMlFWYyz6qtgUjhWOi3u89tiEu2Gx8anlL9jWyx9v/fdtYDqfYb9mTJ2HYN0J8/5rKtD2dy
-	tjajSiq6ioDEz5HtK1CeN0hDf1GVf2OM1zEIKY136GvKWQexWOnJPwhtCqTYj4bDyqvnackadaB
-	v/apYz7Bf/o7nb5ksORdxCOkfyNpi7kRIi+a7/utSyxM+kXPsHWwxXeChmqzlMv5qoYOCNSiZ78
-	n0xbWAaHIydeVz4okJwARIp1rhXCteNRPXdCWVddqI+PfwD+jkdo6vp3bUIoM15M7lveolNFRgK
-	LSAgLGeE71skcmyEkfPGBIc5694QbTK2auvwQ3idjqudz+X9wLRxwmuO43iyN1YAN4p+hq3FTxJ
-	vOsWBUfXjETz37qtXI4KMw3Qfg1QZf/K6kaDsvSKM=
-X-Received: by 2002:a05:6a21:4cc1:b0:3c3:8255:8c4a with SMTP id adf61e73a8af0-3c44aff5387mr1990078637.17.1784787849307;
-        Wed, 22 Jul 2026 23:24:09 -0700 (PDT)
-Received: from localhost (142-254-17-81.fiber.dynamic.sonic.net. [142.254.17.81])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13d130cc5ebsm16128862c88.12.2026.07.22.23.24.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Jul 2026 23:24:08 -0700 (PDT)
-From: Jason Zaman <jason@perfinion.com>
-To: selinux@vger.kernel.org
-Cc: Jason Zaman <jason@perfinion.com>
-Subject: [PATCH 3/3] RFC: SECURITY.md: Rough draft of codifying the maintainer process
-Date: Wed, 22 Jul 2026 23:23:55 -0700
-Message-ID: <20260723062355.3096648-3-jason@perfinion.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260723062355.3096648-1-jason@perfinion.com>
-References: <20260723062355.3096648-1-jason@perfinion.com>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="02axbpsd";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="E2DQXc0U";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="CSgG4HjZ";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="/qZqpL54"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 332C63E09;
+	Thu, 23 Jul 2026 08:02:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1784793766; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=2SmK1vzj2uc3nyI/tpUoDSvC8uln6mmd39tjQWCd3J4=;
+	b=02axbpsdnAPasQqfGcsox4Cv/kZLAb3G48EVMANjqqtfDhhxHWMgsD4WL2szxweGBQJ95V
+	rljgXXiS2nIfXQw0zoivuK9zZmFiVYuzbhdrKebOzweaSv6E+3s/BFqIBWRt/vkLasIVyo
+	ahujeTT8L6XYPqste1iIYseIMqztOb0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1784793766;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=2SmK1vzj2uc3nyI/tpUoDSvC8uln6mmd39tjQWCd3J4=;
+	b=E2DQXc0UDPJ5WCUxXrHMn0WMHaV36qrXDTh7N/X7YGqrxolARm3bJtruvndrVfMNC8zHtm
+	sanhw28EWX9m+TBA==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=CSgG4HjZ;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b="/qZqpL54"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1784793764; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=2SmK1vzj2uc3nyI/tpUoDSvC8uln6mmd39tjQWCd3J4=;
+	b=CSgG4HjZCni4HfWOX8WD2CrF6w8T1cdb6aMx7EhNuM0v62ND4ETpeFzr35mvPCPe73yNgE
+	5vPIvNFJ/sLp3Na39pka1R0sWRZ7HL98aPUJQLsqPXZoVA3dYD49cb1h7czyF8ywA+XUey
+	WD9OAB/AwCNlan1UlejUCAKDgBznuus=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1784793764;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=2SmK1vzj2uc3nyI/tpUoDSvC8uln6mmd39tjQWCd3J4=;
+	b=/qZqpL54wqaUW1MhXt9sXs3rwZ01WlLRPXPTSfbMnSo3VsDWJ8hZixew/6Ci5Ze+Yzxw6t
+	OWLBwyr0hZEbyPAg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 19B3A779B5;
+	Thu, 23 Jul 2026 08:02:44 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id J6D3BKTKYWoUaQAAD6G6ig
+	(envelope-from <jsegitz@suse.de>); Thu, 23 Jul 2026 08:02:44 +0000
+Date: Thu, 23 Jul 2026 10:02:38 +0200
+From: Johannes Segitz <jsegitz@suse.de>
+To: Petr Lautrbach <lautrbach@redhat.com>
+Cc: selinux@vger.kernel.org
+Subject: Re: [PATCH] selinux(8): note on conflicting configurations
+Message-ID: <amHKntgLQ83bbQUi@suse.com>
+References: <al8eYnGraP-hoCCm@suse.com>
+ <87mrvj9gd0.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="F/Vdx/7dy7wPQUg1"
+Content-Disposition: inline
+In-Reply-To: <87mrvj9gd0.fsf@redhat.com>
+X-Spamd-Result: default: False [-6.61 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SIGNED_PGP(-2.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	MIME_GOOD(-0.20)[multipart/signed,text/plain];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MX_GOOD(-0.01)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+,1:+,2:~];
+	MISSING_XM_UA(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	RCPT_COUNT_TWO(0.00)[2];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:mid,suse.com:url,suse.de:email,suse.de:dkim,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo];
+	DKIM_TRACE(0.00)[suse.de:+]
+X-Spam-Flag: NO
+X-Spam-Score: -6.61
+X-Spam-Level: 
+X-Rspamd-Queue-Id: 332C63E09
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Action: no action
 
-Since security issues are quite rare, best to codify the processes so
-when they come along we can fall back to this and dont forget any steps.
 
-Signed-off-by: Jason Zaman <jason@perfinion.com>
----
- SECURITY.md | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+--F/Vdx/7dy7wPQUg1
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/SECURITY.md b/SECURITY.md
-index 49c40e97..145a2714 100644
---- a/SECURITY.md
-+++ b/SECURITY.md
-@@ -35,6 +35,9 @@ the issue as quickly as possible and shorten the disclosure window.
-   *  (GPG fingerprint) 6319 1CE9 4183 0986 89CA  B8DB 7EF1 37EC 935B 0EAF
- * Ondrej Mosnacek, omosnace@redhat.com
- 
-+If unsure about whether an issue is in kernel or userspace, feel free to send
-+to any and the maintainers will handle it internally.
-+
- ### Resolving Sensitive Security Issues
- 
- Upon disclosure of a bug, the maintainers should work together to investigate
-@@ -57,3 +60,26 @@ lists.
- 
- * https://oss-security.openwall.org/wiki/mailing-lists/distros
- * https://oss-security.openwall.org/wiki/mailing-lists/oss-security
-+
-+### Maintainer Process
-+
-+This is the process maintainers will follow upon receiving a security notification.
-+
-+1. Make sure all appropriate SELinux maintainers are notified. Regardless of
-+   which maintainer was initially contacted, others should be looped in. This
-+   may also include the kernel maintainers if relevant to the issue.
-+2. After an initial review of the issue, maintainers will agree on one person
-+   to be main point of contact. The response to the initial mail may come from a
-+   different maintainer. If the initial mail was PGP signed/encrypted, the
-+   replies will also be PGP signed/encrypted with one of the above keys.
-+3. Maintainers will work together in private to verify and fix the issue. For
-+   larger fixes, this might involve a github private fork within a draft github
-+   security advisory.
-+4. Maintainers will prepare the fix as soon as reasonable. Maintainers may
-+   invite the reporter to the draft security advisory or private fork to help
-+   verifying the fix.
-+5. We will aim to release the fix publicly quickly, but may request an embargo
-+   period up to 90 days if the complexity of the issue requires it or if
-+   severity of the issue requires coordinated rollout amongst distros.
-+6. Public disclosure will involve pushing the fix to the public repo and
-+   publishing the security advisory on Github and to the mailing list.
--- 
-2.54.0
+On Wed, Jul 22, 2026 at 05:46:51PM +0200, Petr Lautrbach wrote:
+> Johannes Segitz <jsegitz@suse.de> writes:
+>=20
+> > setting SELINUX=3Ddisabled while having selinux=3D1
+> > results in a non-booting system. Document this
+> > here in a note
+> >
+> > Signed-off-by: Johannes Segitz <jsegitz@suse.de>
+> > ---
+> >  libselinux/man/man8/selinux.8 | 9 +++++++++
+> >  1 file changed, 9 insertions(+)
+> >
+> > diff --git a/libselinux/man/man8/selinux.8 b/libselinux/man/man8/selinu=
+x.8
+> > index 5842150b..17df2a99 100644
+> > --- a/libselinux/man/man8/selinux.8
+> > +++ b/libselinux/man/man8/selinux.8
+> > @@ -50,6 +50,15 @@ regardless of what is set in the
+> >  .I /etc/selinux/config
+> >  file.
+> >
+> > +.B NOTE:
+> > +When setting a conflicting configuration like
+> > +.B SELINUX=3Ddisabled
+> > +in
+> > +.I /etc/selinux/config
+> > +while having
+> > +.B selinux=3D1
+> > +on the kernel boot options will result in a non-bootable system.
+> > +
+> >  The
+> >  .I /etc/selinux/config
+> >  configuration file also controls what policy
+> > --
+> > 2.55.0
+>=20
+> It seems to work for me on CentOS Stream 10:
 
+Interesting. We got this reported on an older SLES and carried the patch
+since then. I just reproduced on a current system and there it also doesn't
+happen, so please disregard this patch
+
+Johannes
+--=20
+GPG Key                EE16 6BCE AD56 E034 BFB3  3ADD 7BF7 29D5 E7C8 1FA0
+Subkey fingerprint:    250F 43F5 F7CE 6F1E 9C59  4F95 BC27 DD9D 2CC4 FD66
+SUSE Software Solutions Germany GmbH, Frankenstr. 146, 90461 N=FCrnberg, Ge=
+rmany
+www.suse.com, Gesch=E4ftsf=FChrer: Jochen Jaser, Andrew McDonald, Abhinav P=
+uri, (HRB 36809, AG N=FCrnberg)
+
+
+--F/Vdx/7dy7wPQUg1
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQJPBAEBCgA5FiEEJQ9D9ffObx6cWU+VvCfdnSzE/WYFAmphyp4bFIAAAAAABAAO
+bWFudTIsMi41KzEuMTIsMiwyAAoJELwn3Z0sxP1mzgoQAMATf+CjE03MIdN+45Mt
+BTh16g22dZJIqvgdXdztzK5t/D1cYP6xQGMzr6X/Lf1j6TpasM8pSl5yd/T+kF/o
+eD55Xn4AdOT+B19K7uUkVFYFc1Fs/tWwoNoCuBFWsJumVXOxZhUSOlYTcTHOfn2X
+/5LYssqbCQ4972dTlrEw0c8DHZs9TbRzp37sMf4MQL674pDjWfAsWu7VjPCNcHRD
+O2ON5uOaYos7ncM18rMTkEYj7L8HKTxlgC64Y6p5VZ98bjIWhtB6eokkN+TuyhUA
+goR/dcLegWvs1XCAt1Ob1T3nOgKlfq2P+SF2f+x01KW4OgZORf8LNoUz63n9tapZ
+NBBJ9N9Pv+Iivfg5lDF4GetKiEI7evd7weDLaUZKGDBVr1oaaEi4V16lpv3jTETq
+19UgfP8mdGv9oOJgSmBxbz60/tslmTsZd4SgLo+NnKAuAaBnR/gzGBlcvJZQVdRf
+hAPqssjorG3wt1uShdpY41k22r/Sf+X1eT1f1ke6hXCwA04o3ybjUmpSa+SOAUZX
+7NKKxvBHuzh5wbiEaaOq5kwkpU2iQGkYjRu/opnArO9rVijcBD/M+jxPd+Q5/EkD
+grABCe0fqaaCOoKaowK9QRAWNSe/qa+5nlBoqwVpX6tfpY5kVCsdWaYxNKK0E56u
+EDFoGpb/h+FpLGrbexQ8Zep4
+=9SY6
+-----END PGP SIGNATURE-----
+
+--F/Vdx/7dy7wPQUg1--
