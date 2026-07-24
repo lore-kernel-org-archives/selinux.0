@@ -1,209 +1,234 @@
-Received: from mail-oa1-f41.google.com (mail-oa1-f41.google.com [209.85.160.41])
+Received: from mail-oo1-f54.google.com (mail-oo1-f54.google.com [209.85.161.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C2ED435EFE
-	for <selinux@vger.kernel.org>; Fri, 24 Jul 2026 14:19:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4E2641D655
+	for <selinux@vger.kernel.org>; Fri, 24 Jul 2026 14:21:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.54
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784902775; cv=pass; b=hlQS0QIYrnHrS1pHYY1pakmDG7LfxXymUvQ/5X35gh6hyh8+5Y5S5V0f4fhrNBF4wwfUQhDrUnetFBkS+IunvBsv1CmkDXNtQUlM3S2AKSAZQlhzmdhql5q8dLI3lxN5ulgmeDAx34mqXOoF+2hHr91alsbzyrSDRRqb/QvnxY4=
+	t=1784902896; cv=pass; b=TOP6WFMgVzUVNhmr21sb4BTgeBU0BuIH1ngAl6Nt1/A2rSOswnP6FaCKzN4HUSgsJSdokkoMgZUcU/CIOpRIcsRGhKHeDBJDDNcuf+RNNBI31A8ptcF+XbRfzmzR+Pmg4VA3b6biWGfk7pTrSMb9gEx7Jk+wXVmufCV3pfVKJKs=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784902775; c=relaxed/simple;
-	bh=vIDV9Lln3PXjvGKif0cXQkqy90TwrlhktLb1tk576dg=;
+	s=arc-20240116; t=1784902896; c=relaxed/simple;
+	bh=/iFzdwoO+3274JQ63nzAebyIT6RqGvxPN3nU7X5jw3g=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ZEC/stDNLkc+UNcuzEhqw4ZfY7fqjf2KuqUhNoezmSFxtP3Ek6IGbv28wMp7WTqIKAi/3dEDTkz+eJpMz6BlWzDD/AxkdE7pjRJiWdWvETK8v+h1O2qU7ojCZWUtpz2W8xJnyjQtcIKjrJzE+nK+zDe7c+QodxLhzN44tZyqk00=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bcvjfp/+; arc=pass smtp.client-ip=209.85.160.41
+	 To:Cc:Content-Type; b=rjXzw8RbZZ3NfNySopC0ggtKr2w/H3iaJUvOYG/tsuJHYHmps1/+lUwrleJgMHAoyEptHS0eEpg+NqKlLWv8r8YZr4HBI7A/B2R+pP91fmRLPzUICgmA593KQH5p/WLkW84pydkIQdyruuujDzYqex5SowGy1uVjEAOD4zhmd4M=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OcwiIPjW; arc=pass smtp.client-ip=209.85.161.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bcvjfp/+"
-Received: by mail-oa1-f41.google.com with SMTP id 586e51a60fabf-44cedfaab6bso128929fac.3
-        for <selinux@vger.kernel.org>; Fri, 24 Jul 2026 07:19:33 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784902773; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OcwiIPjW"
+Received: by mail-oo1-f54.google.com with SMTP id 006d021491bc7-6aae244ef49so219409eaf.2
+        for <selinux@vger.kernel.org>; Fri, 24 Jul 2026 07:21:34 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784902893; cv=none;
         d=google.com; s=arc-20260327;
-        b=Ox4QXJMucAjGdzbuA91x76S/Ex86eFyU2huPlMN1mH2DPRNUsD4SOrRcMgMhEu+30v
-         Bam/pJaTpmLU27A1hlDliP+oobXUP6TIpwnbmImq9WyeE/XV2ydWuEPNjbT9nqtLryjY
-         8j9UXgERUPjsZ4xlfRr6nN7PpNc/WgrPPDZ7sYqjvhY3JnYMwKh/C2FfWP/Ole0nXeWK
-         NfHdqWCn7cevPEnow9xhsk/5S9FMaYrVcCoNNqAs3K6cxnXql/mq86GPfA226c9uLY6c
-         JmVeDRhbVa3dAsvvzLhyisIDSGS7PEwwPT/FM4EhIQhA2k9UyIWkLlHb6B1Wb/oQIOsa
-         jPcQ==
+        b=gbmG7l2gI9XVqeMu4R/V7u+uSoevN/ULAa06y0NGptzrdPDfEqZcBqU27ixUqDLyum
+         Meyz8FDzGGmtbdD0uzFISguln9RMp6etPzSA0sriqG6NPvPvK6w+PL66V7lBpxfrZvvt
+         rk8KjRN2OswLd9jQA2wbWlbsq06WwpiSrnnZX/R/I6AMUWyBEFyHVKI+G7AIUyrC5tPw
+         DMMKwZ/GnltIzlK99gxs5KTU+k1QgvA4ipON0FVhQ3W5A4kIqvZJy5n1d358dOmg1G8i
+         PKQ+IDCJSEZChal3jEE5nj2XLHY5C0bXg0zjr9FD3JMTPfNXkto3pn5NDvn7VBkc/xBd
+         HK8w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=fgyeMgJlmyxI1H3XGdIpsXUXGWKDZFTq6UgFy52KWtk=;
-        fh=S5wxpk3pG7MFU7YHMJ3Ymnn6cB3pS1/Aa/gbpiVu6iU=;
-        b=qipt+Hudm3IiT4zEZgQG8WNMlO+/ZRVuUdCeu+4ovDTdbXTQGLuMbpvqkLikiLbJmG
-         q/PZAdqVbDWd5I13rV5Olh155YcasIYJIOcxXYpWHA815gEUD5kDl11I3wDdLrZaKpnC
-         EnpnoH42E5aNUxqoUq/assKV3PjqeJz5gsGMM9l+o1dLxNbRcQIINxog9QsOxYWyNuXx
-         SeJsjYaLSYkYrrgb/4asD2EC6y/BXlm3fXYYWzRaLwHC9x2u+gCXwjRffpBsEicqzna3
-         hIRxJjnPZr1eAR2YzCoZrcMUI4Xz+getOegHEDJWTx3xyObRxLYfOz6WJqitCJACm07q
-         /vfw==;
+        bh=ZlM5pgmpSW5NASekt1my/KuIdgPne7oM1T1n5ayTu3Q=;
+        fh=o4EWA82M+vtfNglaTzMFhY8rIYTLnPpjxHW+AHnzuHs=;
+        b=itsurw5iytoUOddYyOA6mVZq2C+TG2BAKjH1fPEbJC6uZ24WR3ZFmnJUomi787NGS6
+         9i7sJ7z+1ZIISgY0ClWPAez3Xcu4kxke60QrTqG2vj4v2OT0gX7NZ71nsHFKsSZcoIAR
+         7u1tobVNCw9R8zby/pV8757pfpVXH8e9cIdK/4TD8JFCD3CZ/K4pHjZbqVKH3uiZlTSM
+         jryMKsa+1cLpClSqqwrIEq/15OI0rpPS4joSs40YB/5evhs96wEIMJpMaGOA7KXN6/p8
+         lVuOjTuVJ0aq+iyj/HE4QBnSNTc5fGPHdLItpoTopD1QaM2CkhTRzE6sGElrzl/EKpVX
+         7J3w==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784902773; x=1785507573; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784902893; x=1785507693; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=fgyeMgJlmyxI1H3XGdIpsXUXGWKDZFTq6UgFy52KWtk=;
-        b=bcvjfp/+Cby9bVqan1A3+E3dFh867DjpBAo3a6KdooDPzb/ARGWfbZ/JiPuR/CydJp
-         mTu5DpvNa5yFg5snfmh9qeUeC+3E9CQsdPlPnuO7dIYfBoRfaDYNQoV5SubKDrNp5vw2
-         F2A9XScfvo8otF8PIDdOzgBkS2H1zYbimnowRPwrCCtVq5i4BocdjyrztiIuji5Ft1ER
-         hiXZ1XPqwDFKM7qSyBDZUJ6jP/td2te0SBLEyMxw78RG9HyEuXv7M1juxyZPBqFRhtFd
-         QJuxbfn86YextYdcgxDydAc6IUBNxE11Nfx2yPkcNHvlwdDwlM6Nc8OHQWPfKw9ROChz
-         w6gA==
+        bh=ZlM5pgmpSW5NASekt1my/KuIdgPne7oM1T1n5ayTu3Q=;
+        b=OcwiIPjWwMaLI0itoM/mCfShW/ThYUCBEjodxh1mi1E1GilXWtEcSTMSRVh6BiUFiW
+         QeuRUzaU3Ls93UEhcHBYrJjvztjp4G0McmL2GqcJT8FqKFgYnLv8klmRMF4JodTovoTv
+         anf0yjBdQVi0NToRNWgt/eqeH0+PGV/7VasnK8Fw7+hu4KzLInZ1l6BmVI1DJKNYw6Gu
+         BVfCikcCWbEbs35GVDl//TnV3DN0zDeOXuzr5uDJI93rMBMeN37JVIt8XJjpkkqPEFOI
+         09OxlhvWaNmIUl7P+7ybpyt69LyXOA6Dy0osvs82QYfgceNo0wIPnSXZiFZtVuiC4XJ/
+         zE5w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784902773; x=1785507573;
+        d=1e100.net; s=20251104; t=1784902893; x=1785507693;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=fgyeMgJlmyxI1H3XGdIpsXUXGWKDZFTq6UgFy52KWtk=;
-        b=ZqMelWd26G2mpfiXD/VCvYQY0qCEyQjuvxfjb1+3486negtMH51wnw6ZWiVR97BMuV
-         c9FwdMJrOP3IC6mDv2ynX/BU4riFHC2YpXwTkWgjJBxRctLJ72iw2AhTaPr1a+Z6yPnt
-         B6hBFDWIx9RBwGtKlkfKcwfc3Q/tbULs2OzLkq0W0x73iZUTklqPrgmR6uBWVsw0WV+3
-         qWgOQ3UCt+DfnXYtXq1ERmrBsyaRuC+MJIWwIOIk+Pq4PCLCi/3/rb6KDuEPA2CjrdkF
-         evjb2JTGYUUUGYRhVvXEXy5OZSDQg57AeYBjA9AHj0ohCYRNDjLKLNNw6Dp4uO/dsbXl
-         olwA==
-X-Gm-Message-State: AOJu0Yx32FiyAYCVMaVX4Pd3LuEiWG4Wf1vgg6NFt0eIkc8KzpKapQfp
-	QTMjZGfYxKjcL6OkAZXOrUvaIi/dZL6sK7IuOTvdf22ExZihD6vWSJY8NSGNpjsF5AiOoGVF0pj
-	zWWSEZWWYoRZVhD064fMG6G3pMqrShJFMyw==
-X-Gm-Gg: AR+sD13p0xGYx/MayEkJA523j7aj6aUIzi2pEt7tBIB0cnw+9J5A+XjFI8mqhZf3tqv
-	rbPYrRivZ/TbyoUitfO1gaeRCfUpXoXYzfan8E6o9imv8gedKgZzJ76uGMWvU2VInVc/ewAzd2e
-	yunTEfGo972nbtBNGrWPzCO5F23/tni7vNyPV/o5ymOk+1I27PusOVaNS6Nop5orzPk9KlikUAX
-	N+BKXLh5TF7WGgeW/aYTfgx7VvS17bw/E6iSeWGb+qcTkSNy/LGzBKmmzekEQ==
-X-Received: by 2002:a05:6870:1692:b0:457:8166:ba36 with SMTP id
- 586e51a60fabf-457a10d78f6mr4352488fac.29.1784902772798; Fri, 24 Jul 2026
- 07:19:32 -0700 (PDT)
+        bh=ZlM5pgmpSW5NASekt1my/KuIdgPne7oM1T1n5ayTu3Q=;
+        b=UQBRt0at5y9uJGS6bRy9YCVOfEf5SAh4lLHaVP3W6Hyn+hoPiG6PvLiMxvg1mtm9Z/
+         E6yBHFm7CuLlkix1pHBBhoxJhmeyySLhHWXovL6/L/DWtjaMR0qO2EKi50qtiJ9O7yXE
+         /ATsuR+ghjFe++dwTjZ6RhPUCfZk32N2Yw1OZDhc9Y9KvvdU5oOstyCYc/76FCVGONlw
+         YcSt4rin7y8v5iRPmYsYp8iIouRzSCJG+8y1+ruIlOB/rgQRU8PRIl55PnDhsea7yDAs
+         7LBKDl+G63Qqi91bLBgwuDliqSuuPEuCLbpumFFKfUv1AH6Yupq4Gl6t/NH4UAfy/CG2
+         K7uw==
+X-Gm-Message-State: AOJu0Ywz4u5Ck6ZCStz8nfQTZo1jjsWcJPAG3p8Gg6vkzyhszeK1qHFR
+	y4Y001lN8BwD1Bi+5g9uFXi+2iO6wpuOayEaN45xfIUskeWbvLP6HfdElqMyYvtqi3C0VNJEUN1
+	+7HY4sTB37zYjF4seX71ALeDYRr+HIN0=
+X-Gm-Gg: AR+sD13uyQlUlqvJS/I52LkA2SqrLo7zMyVOJVbkkK3AhQObfLWgvLJHgN3ANtNiVcH
+	L6sKqoRs/fqryj1ysxoThXoZJCUj3B+bX53JJth484V6VYptTRt/tgyj/MEl3GncHcp0ugwjG0s
+	BweuvLpIm5IcrzzbAGMNdzqJkCVZ3E6yrG42ttQIeta5f/c1oK1AQk+uCse4QLq1PT5YQeOqCtM
+	Aq+AvT5QDcO5/n43Jcdn7pkvA8e7aFtENn1ay77ktE9XwRlna6eApUmifkqqQ==
+X-Received: by 2002:a05:6820:4c16:b0:6a1:8386:e2f3 with SMTP id
+ 006d021491bc7-6aad41a8592mr3973558eaf.52.1784902893370; Fri, 24 Jul 2026
+ 07:21:33 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260720195247.49762-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260720195247.49762-1-stephen.smalley.work@gmail.com>
+References: <20260720105606.305073-1-pmatyas@redhat.com> <20260721110839.431114-1-pmatyas@redhat.com>
+ <CAEjxPJ7Bg8FV12YqHxOzHr+Z3za6M1hoCOV_OL68PJ1Jf23G+A@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7Bg8FV12YqHxOzHr+Z3za6M1hoCOV_OL68PJ1Jf23G+A@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 24 Jul 2026 10:19:21 -0400
-X-Gm-Features: AUfX_mxDrI0ZjWZajbfBCEZrqKZay49sYcMrUOQ92mUH0QL7yOt3Po4vho5krXc
-Message-ID: <CAEjxPJ6RJQAymiPCF5OTr2cT86PeNbwzs9ZA=+OnEb3AWD=UrQ@mail.gmail.com>
-Subject: Re: [PATCH v2] python/sepolgen: port policygen.py to setools 4 API
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com, 
-	pebenito@ieee.org
+Date: Fri, 24 Jul 2026 10:21:22 -0400
+X-Gm-Features: AUfX_mwkLZ8tZaSUX0UG8Ibmhc_yTvOXslZwu6PNLsuCTm-EB0zyP8JK0s_pdUA
+Message-ID: <CAEjxPJ7oZ-t4g7f+mkBBFyWvU1i1fDCe3AN+ATnOMrTpuDDGgQ@mail.gmail.com>
+Subject: Re: [PATCH v2] libsepol: add module package fuzzer
+To: Petr Matyas <p.matyas13@gmail.com>
+Cc: selinux@vger.kernel.org, Petr Matyas <pmatyas@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 20, 2026 at 3:53=E2=80=AFPM Stephen Smalley
+On Tue, Jul 21, 2026 at 3:41=E2=80=AFPM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> policygen.py still called seinfo() and sesearch(), the setools 3
-> python bindings that were removed years ago. The calls only survived
-> because they sat inside a bare "try/except: pass", so the "source type
-> can write to..."  hint in audit2allow output has been silently dead.
+> On Tue, Jul 21, 2026 at 7:16=E2=80=AFAM Petr Matyas <p.matyas13@gmail.com=
+> wrote:
+> >
+> > Add a libFuzzer target for the binary module package format
+> > (.mod/.pp) read by sepol_module_package_read(). On a valid package,
+> > also exercises sepol_module_package_to_cil() to cover the CIL
+> > conversion path for module policies.
+> >
+> > The seed corpus contains a minimal module package produced by
+> > checkmodule + semodule_package to give the fuzzer a structurally
+> > correct starting point.
+> >
+> > Wire the new fuzzer into scripts/oss-fuzz.sh alongside the existing
+> > libsepol and checkpolicy fuzzers.
+> >
+> > Signed-off-by: Petr Matyas <pmatyas@redhat.com>
 >
-> Replace them with the setools 4 equivalents:
-> - SELinuxPolicy().lookup_typeattr("domain").expand() for the
-> domain attribute member set.
-> - TERuleQuery(ruletype=3D[allow], source=3D..., tclass=3D[...], perms=3D.=
-..,
-> perms_subset=3DTrue) for the allow rule search, expanding rule.target
-> so attribute targets are resolved to concrete types
->
-> While here, cache the loaded policy on the PolicyGenerator instance so
-> it is not reparsed for every access vector, drop the wildcard import,
-> narrow the bare except to setools exceptions, and dedupe/sort the
-> resulting type list for stable output.
->
-> Fixes: https://github.com/SELinuxProject/selinux/issues/332
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Merged.
+Merged. Would also suggest having it call sepol_module_package_info()
+to exercise that code path.
 
-> ---
->  python/sepolgen/src/sepolgen/policygen.py | 41 ++++++++++++++---------
->  1 file changed, 25 insertions(+), 16 deletions(-)
 >
-> diff --git a/python/sepolgen/src/sepolgen/policygen.py b/python/sepolgen/=
-src/sepolgen/policygen.py
-> index 7715bed5..a5af521a 100644
-> --- a/python/sepolgen/src/sepolgen/policygen.py
-> +++ b/python/sepolgen/src/sepolgen/policygen.py
-> @@ -26,9 +26,9 @@ import textwrap
->
->  import selinux.audit2why as audit2why
->  try:
-> -    from setools import *
-> -except:
-> -    pass
-> +    import setools
-> +except ImportError:
-> +    setools =3D None
->
->  from . import refpolicy
->  from . import objectmodel
-> @@ -85,6 +85,7 @@ class PolicyGenerator:
->          self.dontaudit =3D False
->          self.xperms =3D False
->
-> +        self.policy =3D None
->          self.domains =3D None
->          self.gen_cil =3D False
->          self.comment_start =3D '#'
-> @@ -206,23 +207,31 @@ class PolicyGenerator:
->                  rule.comment +=3D "\n%s" % self.comment_start
->                  rule.comment +=3D "\tPossible cause is the source %s and=
- target %s are different." % reason
->
-> -        try:
-> -            if ( av.type =3D=3D audit2why.TERULE and
-> -                 "write" in av.perms and
-> -                 ( "dir" in av.obj_class or "open" in av.perms )):
-> -                if not self.domains:
-> -                    self.domains =3D seinfo(ATTRIBUTE, name=3D"domain")[=
-0]["types"]
-> -                types=3D[]
-> -
-> -                for i in [x[TCONTEXT] for x in sesearch([ALLOW], {SCONTE=
-XT: av.src_type, CLASS: av.obj_class, PERMS: av.perms})]:
-> -                    if i not in self.domains:
-> -                        types.append(i)
-> +        if ( setools and
-> +             av.type =3D=3D audit2why.TERULE and
-> +             "write" in av.perms and
-> +             ( "dir" in av.obj_class or "open" in av.perms )):
-> +            try:
-> +                if not self.policy:
-> +                    self.policy =3D setools.SELinuxPolicy()
-> +                    self.domains =3D set(str(t) for t in
-> +                                       self.policy.lookup_typeattr("doma=
-in").expand())
-> +                q =3D setools.TERuleQuery(self.policy,
-> +                                        ruletype=3D[setools.TERuletype.a=
-llow],
-> +                                        source=3Dav.src_type,
-> +                                        tclass=3D[av.obj_class],
-> +                                        perms=3Dav.perms, perms_subset=
-=3DTrue)
-> +                types =3D set()
-> +                for r in q.results():
-> +                    types.update(str(t) for t in r.target.expand())
-> +                types -=3D self.domains
-> +                types =3D sorted(types)
->                  if len(types) =3D=3D 1:
->                      rule.comment +=3D "\n%s!!!! The source type '%s' can=
- write to a '%s' of the following type:\n%s %s\n" % (self.comment_start, av=
-.src_type, av.obj_class, self.comment_start, ", ".join(types))
->                  elif len(types) >=3D 1:
->                      rule.comment +=3D "\n%s!!!! The source type '%s' can=
- write to a '%s' of the following types:\n%s %s\n" % (self.comment_start, a=
-v.src_type, av.obj_class, self.comment_start, ", ".join(types))
-> -        except:
-> -            pass
-> +            except setools.exception.SEToolsException:
-> +                pass
->
->          self.module.children.append(rule)
->
-> --
-> 2.55.0
->
+> > ---
+> >  libsepol/fuzz/min_mod.pp              | Bin 0 -> 859 bytes
+> >  libsepol/fuzz/module-package-fuzzer.c |  47 ++++++++++++++++++++++++++
+> >  scripts/oss-fuzz.sh                   |  11 ++++++
+> >  3 files changed, 58 insertions(+)
+> >  create mode 100644 libsepol/fuzz/min_mod.pp
+> >  create mode 100644 libsepol/fuzz/module-package-fuzzer.c
+> >
+> > diff --git a/libsepol/fuzz/min_mod.pp b/libsepol/fuzz/min_mod.pp
+> > new file mode 100644
+> > index 0000000000000000000000000000000000000000..264bd4406bf94b1c0044d46=
+d0ca82fcdc4716f88
+> > GIT binary patch
+> > literal 859
+> > zcmb`FOA5k35Jbxl=3DuVd|J%Q*A+_=3D+~2MCyq;4dTjfQwu~Jg+OIFa^zEK*a~mbWhh*
+> > zC(yS?b#DP+3;|pp)qMb9y%;ZdX?Yp1d{Q1=3D8^EZR_3@$y;IvDllTSJTW|Qf>?pS0_
+> > zHBrrzoHHN0Jnz=3D6t<MgUaFAqvvv+Y3Wp+eUE^I&aR86ez;Ih;mqe31{=3D)Jy=3D*gJY=
+M
+> > z)YoZe5nJ0l^b4_C<_yiy`HMz`Zw0+SohO>SzP<k!{0FXMy?QKdaP72i-21Sn6|wj4
+> > Fcmk%9EE)g+
+> >
+> > literal 0
+> > HcmV?d00001
+> >
+> > diff --git a/libsepol/fuzz/module-package-fuzzer.c b/libsepol/fuzz/modu=
+le-package-fuzzer.c
+> > new file mode 100644
+> > index 00000000..2516970b
+> > --- /dev/null
+> > +++ b/libsepol/fuzz/module-package-fuzzer.c
+> > @@ -0,0 +1,47 @@
+> > +#include <sepol/debug.h>
+> > +#include <sepol/module.h>
+> > +#include <sepol/module_to_cil.h>
+> > +
+> > +extern int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
+> > +
+> > +// set to 1 to enable more verbose libsepol logging
+> > +#define VERBOSE 0
+> > +
+> > +int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+> > +{
+> > +       sepol_module_package_t *mod =3D NULL;
+> > +       struct sepol_policy_file *spf =3D NULL;
+> > +       FILE *devnull =3D NULL;
+> > +
+> > +       sepol_debug(VERBOSE);
+> > +
+> > +       if (sepol_policy_file_create(&spf))
+> > +               goto exit;
+> > +
+> > +       sepol_policy_file_set_mem(spf, (char *)data, size);
+> > +
+> > +       if (sepol_module_package_create(&mod))
+> > +               goto exit;
+> > +
+> > +       if (sepol_module_package_read(mod, spf, VERBOSE))
+> > +               goto exit;
+> > +
+> > +       devnull =3D fopen("/dev/null", "we");
+> > +       if (!devnull)
+> > +               goto exit;
+> > +
+> > +       /* sepol_module_package_read() stores contexts sections as raw =
+blobs
+> > +        * without validating their text syntax; sepol_module_package_t=
+o_cil()
+> > +        * is the first place that parses them, so a graceful error ret=
+urn here
+> > +        * is expected behaviour for malformed input, not a bug. */
+> > +       (void)sepol_module_package_to_cil(devnull, mod);
+> > +
+> > +exit:
+> > +       if (devnull)
+> > +               fclose(devnull);
+> > +       sepol_module_package_free(mod);
+> > +       sepol_policy_file_free(spf);
+> > +
+> > +       /* Non-zero return values are reserved for future use. */
+> > +       return 0;
+> > +}
+> > diff --git a/scripts/oss-fuzz.sh b/scripts/oss-fuzz.sh
+> > index 9376b6e4..08e06975 100755
+> > --- a/scripts/oss-fuzz.sh
+> > +++ b/scripts/oss-fuzz.sh
+> > @@ -74,6 +74,17 @@ $CXX $CXXFLAGS $LIB_FUZZING_ENGINE binpolicy-fuzzer.=
+o "$DESTDIR/usr/lib/libsepol
+> >
+> >  zip -j "$OUT/binpolicy-fuzzer_seed_corpus.zip" libsepol/fuzz/policy.bi=
+n
+> >
+> > +## module package fuzzer ##
+> > +
+> > +# CFLAGS, CXXFLAGS and LIB_FUZZING_ENGINE have to be split to be accep=
+ted by
+> > +# the compiler/linker so they shouldn't be quoted
+> > +# shellcheck disable=3DSC2086
+> > +$CC $CFLAGS -c -o module-package-fuzzer.o libsepol/fuzz/module-package=
+-fuzzer.c
+> > +# shellcheck disable=3DSC2086
+> > +$CXX $CXXFLAGS $LIB_FUZZING_ENGINE module-package-fuzzer.o "$DESTDIR/u=
+sr/lib/libsepol.a" -o "$OUT/module-package-fuzzer"
+> > +
+> > +zip -j "$OUT/module-package-fuzzer_seed_corpus.zip" libsepol/fuzz/min_=
+mod.pp
+> > +
+> >  ## checkpolicy fuzzer ##
+> >
+> >  make -C checkpolicy clean
+> > --
+> > 2.55.0
+> >
+> >
