@@ -1,200 +1,132 @@
-Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F83543E4A3
-	for <selinux@vger.kernel.org>; Fri, 24 Jul 2026 14:45:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.169
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784904350; cv=pass; b=fbRDZhypz2mslwxbkcajJ1q608bbBL8G5/8jC0x3sozUIHZspcBlFrRFKdnlHKYYWGIgaaEDEuynXkJPgeZkxeMrjz/0fOC2O2JDwbZ5DliTWOsGw8Ea/2jSeD0jeySe39dwSjBmP+m1mpAaoOGloJkynjaVOkP5/GWG3YpI10g=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784904350; c=relaxed/simple;
-	bh=ueiXz5cy0dOB33Zvuvyel8Jnctn63BC1mdUxiW0HgYk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=TzNw9ut0MgZOpVCDVc9U2Y8T7o10cVF0YU2N9j+d3utA9ZXTCtH9p3lml2g0RNvHqKVMyuwh2KakEH/pA03frsN20oHrtcmV8UhOUG0dFhtxw0YJaSfDKAaBpIj2uGWEKE+8vSAePmiQ52YgUV/eaZIAAZfEX0a03eNokzuFvgA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bBOfvryN; arc=pass smtp.client-ip=209.85.160.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A44D442B38;
+	Fri, 24 Jul 2026 14:47:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784904474; cv=none; b=RwzcFkkQ6vqSW9Op+2YAxeuQ5IB96rJ9PDnOWcl6GsGiQNKnRov9dcPIOCy8GOlwu0Y3By7fD8GT0MJG4BN5I1A4P19rl1U03aG1cvhx8+XfV19qY0n4MdU0HUrb0+pihLtrcHPdaJfcMahFWsy9ffwPXyHUgmu1zJrwwFljaCo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784904474; c=relaxed/simple;
+	bh=7G24fX5TzUc8Tve1qsdLsuH+gW8Sg9Dt6BCAQCeEFlM=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=kO0SVfYwJV0wy9piicXaseML3DOrqOFIMsiySxhnBExIVp1c6o/rMNIaKR6F8bEwXn5fhPSU8+QoJA38FQyvrdM8g48O7TnZZ+EW/0VblxR7XjO3EcK2fIRYaiMUgf8iS+expUQf6t5UJwx0rd2eIYorn+K331/r+roWTJQPo1s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G4A0E1Vk; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bBOfvryN"
-Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-51c2a76536bso5818311cf.1
-        for <selinux@vger.kernel.org>; Fri, 24 Jul 2026 07:45:41 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784904339; cv=none;
-        d=google.com; s=arc-20260327;
-        b=bXjaXnLqBJZX9kXoUji+AKzKnZTjB38nMKCSc+ZfuBXI3C6veoGhDMl+aprGqfYhED
-         hZjul4rqIXcroTSDXc9VC3dPVrwep4/y1GfcP9ySKmRQQfL17ebmI57QphqAelreFK6X
-         jx8qDJY4qi9aeakim8fum36QRGp0UGTFwGJmscPsNcMeNIoBDKfNsep10ck3qNSrA9V+
-         uJJ1ZwMLk6ZrPv6c29XOy8dof+eHav22i4/LtHmi618s1CcHFYBt4uj5s0//0NdA5rD2
-         gs1tFkwKsr+Rywfy+Uomsz98udF40qS/bjlTeblRfYPjsBx6R0K1vWTFzSBXRw+xtVTp
-         IVDQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=vFDQAg0zMj86BlFVazEeBdgeMxvwVjSjRZrQdHsrm1Y=;
-        fh=FsXghBnyoYbEc42Idnie0oh5A6i9FUng5ntOLhqXIRs=;
-        b=nHRyX6xN5cQsZEjgPSPXiTppVHq4qNRuqNLaovR5fi4RAkESseRwHWt6sbdRXoxSMF
-         y/oEKbii6NrIitrm4mgY21fBmsL1ag1IjjgZMfRyaJcuvzt+olzaWvgMbT2xpZEzeHwv
-         pgVo6XXkNe3Ax1MrjAsUfuIftqnH+l/U73c39jct32mRQWMAmNhMqups83QYBCodGirB
-         QOsebRfKWz7ROqkHrTWSaj+/00zgI8ZYhANVByEBkrKwJvik6aU9F0piM7aHmuDmnwTR
-         kZdWY9HXqa01qGShbjgvS4SGflYoKQQCkue9HtQHnTAEGCbDvPYzrsKcf49p5nGgXQI5
-         Nmjg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784904339; x=1785509139; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=vFDQAg0zMj86BlFVazEeBdgeMxvwVjSjRZrQdHsrm1Y=;
-        b=bBOfvryNV1M3sQuM8cdIO/2d9IqJ0vl+jM+avGdUkZP5fYnAIS2QcsYNzXp6+ZCnuz
-         lfgMF25biBvAkWkgSU2pn9scgbxmEoX4gX0XmJK6AnXFTkyTsDxMc1B44i4Mr6cjGfv8
-         V4Q2LrBoBU9k1e6guE32QD81xfwfPi1ERtvqcimt2wJOIuNFdOQKZDyITIGtNMkQfgzu
-         ZqkSScPXrmJ6kf4CETR0QFJhzvQPJyI9Sk5uk7MkdXMI6lOu57KpnCQMKdrzqcbpVKrT
-         3bh1d6scB4CemKg4HmvL1jUKATtjn7Cl1cLXkbu+M5Uw7ciCH5CYGr/pqMSJ1Pwzus0z
-         xj8A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784904339; x=1785509139;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=vFDQAg0zMj86BlFVazEeBdgeMxvwVjSjRZrQdHsrm1Y=;
-        b=mfO8O/0q7KJ4ar7GNVeenD2FFCWHPGIEwfKKNUwnf381pAlT8aRhedhJBcLCH/QN9H
-         F0CfAqWyZKhQHMMLqXzpSajbKNgfM+9f5rV2pmZJ0kAeL+kuwNJp+Lov+92DrbcLC0RH
-         MnQ6Ub1IBSD6Mo93HZHh3MLtdxj8QXGduXiOAWtwZXDBGtcmh8mFbXM2iB2HQl5k06AI
-         +7e2iz5xgr0QG/3W1+gh0n7pR1cpBEBfLx7Jvh5FXllpU4ex7KCVQeuW1E7HB16hebpb
-         fXzwWV/OBtKHIMptOXcB1FrilLqV3V3MXh0R19U5lXOdMM3rCfDqSrOzEULt159FE+xL
-         /62g==
-X-Gm-Message-State: AOJu0Yzqv/MiXmmOutkOGsRvCZH1y3ac7IwXyGj2MxSUdLf2qoWUhyUh
-	haEttNiFuauzN4er0MqFtBI5UNPguYDQvAu5cgkwQWVKksBvoh8TQv+FTlH68UkvjEaXEWqYlT3
-	t7a+l+FdNri/G30SBoRjzOR3KoEtdI4I=
-X-Gm-Gg: AR+sD13B8kP0yM23c5pxcuarpFHn3qpTfrtrb5LWo7tmyYfwGkgdRPceYznCGd2plo2
-	RztWfQ+cJA6h+W2Lvibu7RZNdyCuSwsJbookAqoy1mRIKpqc7gzM6mhRsbEiG7iWAntkchBbWlJ
-	l2BD2gHlcitr+2EjUWA6oiH/zexQ4ADKzEEuCv1xGn1J+mDQHcnE3NiDCnZoHzMQhpYyv7P1mJg
-	3j9ZQyR+b1bq6tzpgBmu+eOzkfHSchRdM0NjJCjRBSC+Pyh6IsKQkHiDtfoCg==
-X-Received: by 2002:ac8:5a11:0:b0:527:8651:7f7a with SMTP id
- d75a77b69052e-5283de0b007mr71491011cf.26.1784904338538; Fri, 24 Jul 2026
- 07:45:38 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G4A0E1Vk"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id AF2A0C2BCB3;
+	Fri, 24 Jul 2026 14:47:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1784904473;
+	bh=7G24fX5TzUc8Tve1qsdLsuH+gW8Sg9Dt6BCAQCeEFlM=;
+	h=From:Date:Subject:To:Cc:Reply-To:From;
+	b=G4A0E1VkvzAFdkfJ9I2DavUAzeM4U5Gwj9cQOLAYwgdH/yp+EhEzxFP/15HPUwZrs
+	 XdIJMubiXY8tx3r7bTSFAnkOfy5VIC5qwhwf0CzC3gJszm327YAZtTgfql4k6jd7T2
+	 FO4LArwn1nSoolnxsSewjCeeYCx5XVgdQQ7RlyNxmQng6M1bz+O+B0JyBFrrdCiDE1
+	 vhiIRWCYh5gCy78j894m828FBhe+H6K6xJSbwL9pUTsJ04btQdHp9sLf9UYb+YLfft
+	 IuXHD/KTQIADnk+JIOeItxSRp5L6KndoY9sNgMfIrOosw0/CMm20nX+1hr6HxEibHZ
+	 ZuASbjVqIEa6w==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BCB5C531FA;
+	Fri, 24 Jul 2026 14:47:53 +0000 (UTC)
+From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
+Date: Fri, 24 Jul 2026 09:47:53 -0500
+Subject: [PATCH] selinux: reject a permission value exceeding the class
+ permission count
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260723191805.28568-1-jwcart2@gmail.com>
-In-Reply-To: <20260723191805.28568-1-jwcart2@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 24 Jul 2026 10:45:26 -0400
-X-Gm-Features: AUfX_mzwKqO9Ehj_BahB_m_Rb8DTzBzpDZVu6E1Q6JpCLv7J4CRH4x14Sh_x8Qg
-Message-ID: <CAEjxPJ4dCbMTX2p7x=wGdBGSZY3So+xjrEx5DX9KQeMxOoLvhQ@mail.gmail.com>
-Subject: Re: [PATCH 1/2 v2] libsepol: Validate more access vector permissions
-To: James Carter <jwcart2@gmail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260724-b4-disp-ec8ac9f6-v1-1-d76d51a69b9d@proton.me>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMQQ6CMBBA0auQWTtJqbUFr2JclGGqwwJIR4gJ4
+ e4WXL7F/xsoZ2GFe7VB5lVUprGgvlRA7zi+GKUvBmusN8E67Bz2ojMyNZHa5PEWPF1THUI0Dko
+ 2Z07yPZeP59+6dAPT5/jAvv8AJSDY/3QAAAA=
+X-Change-ID: 20260724-b4-disp-ec8ac9f6-576c3f177a04
+To: Paul Moore <paul@paul-moore.com>, 
+ Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org, 
+ =?utf-8?q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>, 
+ Kees Cook <kees@kernel.org>, linux-kernel@vger.kernel.org
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1784904472; l=2709;
+ i=hexlabsecurity@proton.me; s=default; h=from:subject:message-id;
+ bh=x09qCOc67iye83BfdnhVgxWmQx/htHDGaJ30yFzOV2w=;
+ b=lM6mKKeMGO+1H2Ju7gB8MHLYyN971H+gqYdlwgwpwhbj1gcPJFDLYRGbWlvOYA2j8eqqATZ1X
+ PlkZ+/nL+KVAq/GAgAfRyj3SLKiiO9N3yjZc6fR76qDtGPHm54XBj2A
+X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
+ pk=xw1AhCtQdvuoQc+bOQIYy9o8G++cp4/VniI2G/tc3G8=
+X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/default with
+ auth_id=893
+X-Original-From: Bryam Vargas <hexlabsecurity@proton.me>
+Reply-To: hexlabsecurity@proton.me
 
-On Thu, Jul 23, 2026 at 3:18=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
-ote:
->
-> The commit 8c64e5bb6fe7 ("libsepol: validate access vector
-> permissions") added a check that at least one permission of an
-> access vector is valid. Add a macro to simplify the check and
-> add a check for av rules in conditional blocks.
->
-> Signed-off-by: James Carter <jwcart2@gmail.com>
+From: Bryam Vargas <hexlabsecurity@proton.me>
 
-Already acked the previous one, but:
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+perm_read() bounds a permission value by SEL_VEC_MAX but never by the
+owning class or common's nprim, which is taken verbatim from the policy
+image.  security_get_permissions() then writes perms[value - 1] into an
+nprim-sized kcalloc() array, so a class declaring fewer permissions than
+its largest permission value drives an out-of-bounds heap write.  The
+top-level symbol tables are validated this way; the nested per-class
+permission table is not.
 
-> ---
-> v2: No changes
->
->  libsepol/src/policydb_validate.c | 36 +++++++++++++++++++++-----------
->  1 file changed, 24 insertions(+), 12 deletions(-)
->
-> diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_val=
-idate.c
-> index cde0b8d6..166e20a5 100644
-> --- a/libsepol/src/policydb_validate.c
-> +++ b/libsepol/src/policydb_validate.c
-> @@ -11,9 +11,15 @@
->
->  #define bool_xor(a, b) (!(a) !=3D !(b))
->  #define bool_xnor(a, b) (!bool_xor(a, b))
-> +
-> +/*
-> + * Check that at least one permission bit is valid.
-> + * Older compilers might set invalid bits for the wildcard permission.
-> + */
->  #define PERMISSION_MASK(nprim)                          \
->         ((nprim) =3D=3D PERM_SYMTAB_SIZE ? (~UINT32_C(0)) : \
->                                        ((UINT32_C(1) << (nprim)) - 1))
-> +#define NO_VALID_PERMS(av, nprim) (!((av) & PERMISSION_MASK(nprim)))
->
->  typedef struct validate {
->         uint32_t nprim;
-> @@ -265,10 +271,8 @@ static int validate_constraint_nodes(sepol_handle_t =
-*handle, uint32_t nperms,
->         for (; cons; cons =3D cons->next) {
->                 if (is_validatetrans && cons->permissions !=3D 0)
->                         goto bad;
-> -               if (!is_validatetrans && cons->permissions =3D=3D 0)
-> -                       goto bad;
-> -               if (!is_validatetrans && nperms !=3D PERM_SYMTAB_SIZE &&
-> -                   cons->permissions >=3D (UINT32_C(1) << nperms))
-> +               if (!is_validatetrans &&
-> +                   NO_VALID_PERMS(cons->permissions, nperms))
->                         goto bad;
->
->                 if (!cons->expr)
-> @@ -1091,11 +1095,7 @@ static int validate_access_vector(sepol_handle_t *=
-handle, const policydb_t *p,
->  {
->         const class_datum_t *cladatum =3D p->class_val_to_struct[tclass -=
- 1];
->
-> -       /*
-> -        * Check that at least one permission bit is valid.
-> -        * Older compilers might set invalid bits for the wildcard permis=
-sion.
-> -        */
-> -       if (!(av & PERMISSION_MASK(cladatum->permissions.nprim)))
-> +       if (NO_VALID_PERMS(av, cladatum->permissions.nprim))
->                 goto bad;
->
->         return 0;
-> @@ -1214,12 +1214,24 @@ static int validate_avrules(sepol_handle_t *handl=
-e, const avrule_t *avrule,
->
->                 for (classperm =3D avrule->perms; classperm;
->                      classperm =3D classperm->next) {
-> +                       class_datum_t *cladatum;
->                         if (validate_value(classperm->tclass,
->                                            &flavors[SYM_CLASSES]))
->                                 goto bad;
-> -                       if ((avrule->specified & AVRULE_TYPE) &&
-> -                           validate_simpletype(classperm->data, p, flavo=
-rs))
-> -                               goto bad;
-> +                       cladatum =3D
-> +                               p->class_val_to_struct[classperm->tclass =
-- 1];
-> +                       if (avrule->specified & AVRULE_AV) {
-> +                               if (NO_VALID_PERMS(
-> +                                           classperm->data,
-> +                                           cladatum->permissions.nprim))=
- {
-> +                                       goto bad;
-> +                               }
-> +                       } else if (avrule->specified & AVRULE_TYPE) {
-> +                               if (validate_simpletype(classperm->data, =
-p,
-> +                                                       flavors)) {
-> +                                       goto bad;
-> +                               }
-> +                       }
->                 }
->
->                 if (avrule->specified & AVRULE_XPERMS) {
-> --
-> 2.55.0
->
+Reject a permission whose value exceeds nprim, which is already set when
+perm_read() runs.  Well-formed policies are unaffected.
+
+Fixes: 55fcf09b3fe4 ("selinux: add support for querying object classes and permissions from the running policy")
+Cc: stable@vger.kernel.org
+Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
+---
+Reproducer and A/B verification (below the --- so git am drops it):
+
+A binary policy whose "process" class carries permissions.nprim = 1 while
+keeping its 31 permissions (values 1..31) is accepted by the parser.  On
+load, security_get_permissions() allocates a one-entry array and writes
+perms[value - 1] for each permission -- a heap slab-out-of-bounds write.
+
+Tested on a KASAN kernel, loading via /sys/fs/selinux/load:
+
+  Build A (without this patch): loading the malformed policy ->
+    BUG: KASAN: slab-out-of-bounds in get_permissions_callback
+    Write of size 8 ... security_get_permissions()
+    (followed by a GPF once an adjacent object's pointer is overwritten)
+
+  Build B (with this patch): the same policy is rejected at parse time
+    (-EINVAL); no KASAN report.
+
+  Control (without this patch): a well-formed policy (nprim = 31) loads
+    cleanly, no KASAN report -- the fault is specific to nprim < value.
+
+Reachable by a process with CAP_MAC_ADMIN writing a crafted policy to
+/sys/fs/selinux/load; SELinux policy load is not namespaced.
+---
+ security/selinux/ss/policydb.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index ead504a639e3..6973b68d9782 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -1175,6 +1175,9 @@ static int perm_read(struct policydb *p, struct symtab *s, struct policy_file *f
+ 	rc = -EINVAL;
+ 	if (perdatum->value < 1 || perdatum->value > SEL_VEC_MAX)
+ 		goto bad;
++	/* the value indexes an nprim-sized array in security_get_permissions() */
++	if (perdatum->value > s->nprim)
++		goto bad;
+ 
+ 	rc = str_read(&key, GFP_KERNEL, fp, len);
+ 	if (rc)
+
+---
+base-commit: 48a5a7ab8d6ab7090564339e039c421f315de912
+change-id: 20260724-b4-disp-ec8ac9f6-576c3f177a04
+
+Best regards,
+--  
+Bryam Vargas <hexlabsecurity@proton.me>
+
+
