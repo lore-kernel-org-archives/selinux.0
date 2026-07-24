@@ -1,234 +1,160 @@
-Received: from mail-oo1-f54.google.com (mail-oo1-f54.google.com [209.85.161.54])
+Received: from mail-oo1-f41.google.com (mail-oo1-f41.google.com [209.85.161.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4E2641D655
-	for <selinux@vger.kernel.org>; Fri, 24 Jul 2026 14:21:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FDBF2F99B8
+	for <selinux@vger.kernel.org>; Fri, 24 Jul 2026 14:23:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.41
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784902896; cv=pass; b=TOP6WFMgVzUVNhmr21sb4BTgeBU0BuIH1ngAl6Nt1/A2rSOswnP6FaCKzN4HUSgsJSdokkoMgZUcU/CIOpRIcsRGhKHeDBJDDNcuf+RNNBI31A8ptcF+XbRfzmzR+Pmg4VA3b6biWGfk7pTrSMb9gEx7Jk+wXVmufCV3pfVKJKs=
+	t=1784902985; cv=pass; b=K2E/4sf4X+3Ugacx2QlenBU1JTab/zsoyoc6WRIIVIA0LkoMp21e1+MEbX/WTEuqYfkVhedDYNSCO1tBYBpJ+Khy2Ub7UOmRQ44GJYTz3qtfR/36pYYf6SSZHwSG8+ZRPpgUA+5g59er8l1RzEd9qNdJwQW/gMlm09R5X57gYkI=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784902896; c=relaxed/simple;
-	bh=/iFzdwoO+3274JQ63nzAebyIT6RqGvxPN3nU7X5jw3g=;
+	s=arc-20240116; t=1784902985; c=relaxed/simple;
+	bh=/+gSWUS99doYZt0VSZlFLg1rb+sXYOEtiNPtPRiDy7M=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=rjXzw8RbZZ3NfNySopC0ggtKr2w/H3iaJUvOYG/tsuJHYHmps1/+lUwrleJgMHAoyEptHS0eEpg+NqKlLWv8r8YZr4HBI7A/B2R+pP91fmRLPzUICgmA593KQH5p/WLkW84pydkIQdyruuujDzYqex5SowGy1uVjEAOD4zhmd4M=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OcwiIPjW; arc=pass smtp.client-ip=209.85.161.54
+	 To:Cc:Content-Type; b=rW4SEOzp+oRAQokM+AwdjPkCtEacmPlBe2jJqdRaGj6htd+49ysYtckbEs7dfzessAkn+wRC8sE02mgUzb/dPHnzYj2SezD/XvRnvWZ3gkazW2YiijO4FKm8jdo3uLtplwWrxp4IoXaAw0WwmJFoXvczNo+S0y7F/Ezf+SzDcvs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ncuYHWcX; arc=pass smtp.client-ip=209.85.161.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OcwiIPjW"
-Received: by mail-oo1-f54.google.com with SMTP id 006d021491bc7-6aae244ef49so219409eaf.2
-        for <selinux@vger.kernel.org>; Fri, 24 Jul 2026 07:21:34 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784902893; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ncuYHWcX"
+Received: by mail-oo1-f41.google.com with SMTP id 006d021491bc7-6a620eca7a5so275735eaf.1
+        for <selinux@vger.kernel.org>; Fri, 24 Jul 2026 07:23:04 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784902983; cv=none;
         d=google.com; s=arc-20260327;
-        b=gbmG7l2gI9XVqeMu4R/V7u+uSoevN/ULAa06y0NGptzrdPDfEqZcBqU27ixUqDLyum
-         Meyz8FDzGGmtbdD0uzFISguln9RMp6etPzSA0sriqG6NPvPvK6w+PL66V7lBpxfrZvvt
-         rk8KjRN2OswLd9jQA2wbWlbsq06WwpiSrnnZX/R/I6AMUWyBEFyHVKI+G7AIUyrC5tPw
-         DMMKwZ/GnltIzlK99gxs5KTU+k1QgvA4ipON0FVhQ3W5A4kIqvZJy5n1d358dOmg1G8i
-         PKQ+IDCJSEZChal3jEE5nj2XLHY5C0bXg0zjr9FD3JMTPfNXkto3pn5NDvn7VBkc/xBd
-         HK8w==
+        b=Dv/hX2WRHIddsiIrcOiL0h8BCfNwCS/EI9JUXTR5KmxiFs7X+Ah1b8Lvz538/AqiQA
+         RR1nnTPH2WwjVYuo5A2a0MdT3wM0eA54N58VyMZkGVESO1DdA3Q9MnyGclZ2KelfaNxH
+         i/oKQJQey0zr7x5QvCB9nJOUFl0bsw1zfPcVB3m72hXPeJVckH8qi0n32GBCWAQso7xB
+         8f5wFUdsLdxSkwZqGlxGIt3HFMF1RiWF5XIAuGHR3m00w7CujFId3tsnH3vtzEXSIwNB
+         +6OlR7BDkABBqQAzK/8RHOnvktRsTs6ASUgMFNNsy/joe5ndA/zGtwcjzbYgcfGumwor
+         Cz8Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=ZlM5pgmpSW5NASekt1my/KuIdgPne7oM1T1n5ayTu3Q=;
-        fh=o4EWA82M+vtfNglaTzMFhY8rIYTLnPpjxHW+AHnzuHs=;
-        b=itsurw5iytoUOddYyOA6mVZq2C+TG2BAKjH1fPEbJC6uZ24WR3ZFmnJUomi787NGS6
-         9i7sJ7z+1ZIISgY0ClWPAez3Xcu4kxke60QrTqG2vj4v2OT0gX7NZ71nsHFKsSZcoIAR
-         7u1tobVNCw9R8zby/pV8757pfpVXH8e9cIdK/4TD8JFCD3CZ/K4pHjZbqVKH3uiZlTSM
-         jryMKsa+1cLpClSqqwrIEq/15OI0rpPS4joSs40YB/5evhs96wEIMJpMaGOA7KXN6/p8
-         lVuOjTuVJ0aq+iyj/HE4QBnSNTc5fGPHdLItpoTopD1QaM2CkhTRzE6sGElrzl/EKpVX
-         7J3w==;
+        bh=RYw1kAQPayLsSDI17glIoTPkiT4bclhmhsRtsQRmuow=;
+        fh=gfzHzywM79Llzpb3oUi4mMfwpHTHBNavmzg+APAH/VE=;
+        b=AAVu72QMQ1fAcp6eu6p6KHNyl7XvUkIow5wkzq5SlVtKm/2EvQpNm/lWPz7es+v6Jp
+         paC73fokCroJz6n9Zw4cdd61ORhFLTQjiX+WapmeQl7eE7ULf//HMa/2l5kwgAQ2OCs1
+         8VY+E6a2Ad9YYRG3fx4KP0Tm4/1u+KztI1WOdhj+8mjRX16+mHBZ2lqPkoTMdcQGoVd9
+         SMAOdtYAmA+3J/7fKYwnDW0BIdK8OO09mJvEkweyaaTgBbdsaJDeYA/sFTzoTQjFWpky
+         E425V7ERWw2RZDumP22vJTeyufWeMKLCcvOOHG+SP40rwIBKyspHdhM+mjfdLXniUToF
+         KeMw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784902893; x=1785507693; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784902983; x=1785507783; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=ZlM5pgmpSW5NASekt1my/KuIdgPne7oM1T1n5ayTu3Q=;
-        b=OcwiIPjWwMaLI0itoM/mCfShW/ThYUCBEjodxh1mi1E1GilXWtEcSTMSRVh6BiUFiW
-         QeuRUzaU3Ls93UEhcHBYrJjvztjp4G0McmL2GqcJT8FqKFgYnLv8klmRMF4JodTovoTv
-         anf0yjBdQVi0NToRNWgt/eqeH0+PGV/7VasnK8Fw7+hu4KzLInZ1l6BmVI1DJKNYw6Gu
-         BVfCikcCWbEbs35GVDl//TnV3DN0zDeOXuzr5uDJI93rMBMeN37JVIt8XJjpkkqPEFOI
-         09OxlhvWaNmIUl7P+7ybpyt69LyXOA6Dy0osvs82QYfgceNo0wIPnSXZiFZtVuiC4XJ/
-         zE5w==
+        bh=RYw1kAQPayLsSDI17glIoTPkiT4bclhmhsRtsQRmuow=;
+        b=ncuYHWcXUNdTNJTiXkU2HchUJdvw0NZchvv9nqmZf0UwvBG2YmQWbWMYHRMT7dDHfG
+         sm83Wse1JVh+7qKDfaA82/JwlUxNHu7huik2qIWfp2viGdnVOseVRfjyw4bu0krAuhE6
+         2O9z3CVvTUEG2yxYPgXIP+CYTetBqL0nIoxr7gT7YQ/TqG1X7TEQH0J87epgTH5RoGUe
+         BWMchMq+UOnMgngnmH1Ll/mTjBnICKSI9gTx1SRh/4YRj7YM+YSIyWoZBaZSB0N0hluP
+         jP6eZWs7bzE4EhYcnGK5t8uef+rVq489aOGwBRqRUyNmzyw1x01j0C9LmFVdj5Y+sKmf
+         FbfA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784902893; x=1785507693;
+        d=1e100.net; s=20251104; t=1784902983; x=1785507783;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=ZlM5pgmpSW5NASekt1my/KuIdgPne7oM1T1n5ayTu3Q=;
-        b=UQBRt0at5y9uJGS6bRy9YCVOfEf5SAh4lLHaVP3W6Hyn+hoPiG6PvLiMxvg1mtm9Z/
-         E6yBHFm7CuLlkix1pHBBhoxJhmeyySLhHWXovL6/L/DWtjaMR0qO2EKi50qtiJ9O7yXE
-         /ATsuR+ghjFe++dwTjZ6RhPUCfZk32N2Yw1OZDhc9Y9KvvdU5oOstyCYc/76FCVGONlw
-         YcSt4rin7y8v5iRPmYsYp8iIouRzSCJG+8y1+ruIlOB/rgQRU8PRIl55PnDhsea7yDAs
-         7LBKDl+G63Qqi91bLBgwuDliqSuuPEuCLbpumFFKfUv1AH6Yupq4Gl6t/NH4UAfy/CG2
-         K7uw==
-X-Gm-Message-State: AOJu0Ywz4u5Ck6ZCStz8nfQTZo1jjsWcJPAG3p8Gg6vkzyhszeK1qHFR
-	y4Y001lN8BwD1Bi+5g9uFXi+2iO6wpuOayEaN45xfIUskeWbvLP6HfdElqMyYvtqi3C0VNJEUN1
-	+7HY4sTB37zYjF4seX71ALeDYRr+HIN0=
-X-Gm-Gg: AR+sD13uyQlUlqvJS/I52LkA2SqrLo7zMyVOJVbkkK3AhQObfLWgvLJHgN3ANtNiVcH
-	L6sKqoRs/fqryj1ysxoThXoZJCUj3B+bX53JJth484V6VYptTRt/tgyj/MEl3GncHcp0ugwjG0s
-	BweuvLpIm5IcrzzbAGMNdzqJkCVZ3E6yrG42ttQIeta5f/c1oK1AQk+uCse4QLq1PT5YQeOqCtM
-	Aq+AvT5QDcO5/n43Jcdn7pkvA8e7aFtENn1ay77ktE9XwRlna6eApUmifkqqQ==
-X-Received: by 2002:a05:6820:4c16:b0:6a1:8386:e2f3 with SMTP id
- 006d021491bc7-6aad41a8592mr3973558eaf.52.1784902893370; Fri, 24 Jul 2026
- 07:21:33 -0700 (PDT)
+        bh=RYw1kAQPayLsSDI17glIoTPkiT4bclhmhsRtsQRmuow=;
+        b=ivWIpxpwcQjncPlgpYbXBE50kF/ImEuzzEoxTQyrP3HaNipfurcyTEOAgo9FiE2kLF
+         euhuKI7+gAXa11w66znMgGylHHX1MFrGyik2/d81HIdXAtpDwxpcEYAQjE+7RE9xB5GV
+         84xoKH99CunzIyeRvTB55Lwgc5FFEHSb7/a31hv7JP2dPWNQrE0UqB5QCf+uARp643E3
+         YtRQue7Gy0mLjpkqr2HKobjlBi/1QyVsnDLO/9gO1NJsz9QftINV8c7v4tfTBSt5uFFk
+         aLQjKfuHpA/hato5voPdG8N45O/Q2IEMnWzv+dECR5SO7sOax1rbQ6sL7eQiAGe849JW
+         vfHw==
+X-Gm-Message-State: AOJu0Yx+/g/9Xohce7DNPSr//tl1tqg05sKf/vXJcOjgj2CKMYRty6lM
+	jeit4/S+J9uXRTy9phueQhdMf4BzxcHQmsIa8G89DNNLwgUlQQWH60z0V+44CkJ46EWHBsYIwQM
+	sV5y3tNMag8zx8E/v50cT+OAfB0lxGU344Q==
+X-Gm-Gg: AR+sD11EUTikza8M7vS8+jVMmAGdPXRb3dsot7k9ccMt0g/bgbssebg/z4eWi0e/Ymc
+	90ORsViWBidNv9Uo4lRWVzU5OjGfvfdwt0lLhaq2rvCdkuS/jaceIKf0SLMNSCijXB4bZeYMgKT
+	4gEHPiEa32dLavsPzuJ1s88Qha5/BAqsBlbZCRSXY0tiCELkcNVpz+wIxuHms8czNGk16pm4AEV
+	S5UkPV6ezaCTpcRoev2vrgqylB5qYON7zEkRxe24Yejy/LFGUFAMC6iP3JuKg==
+X-Received: by 2002:a05:6820:4c09:b0:6aa:8917:2215 with SMTP id
+ 006d021491bc7-6aad4030609mr4183362eaf.30.1784902983161; Fri, 24 Jul 2026
+ 07:23:03 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260720105606.305073-1-pmatyas@redhat.com> <20260721110839.431114-1-pmatyas@redhat.com>
- <CAEjxPJ7Bg8FV12YqHxOzHr+Z3za6M1hoCOV_OL68PJ1Jf23G+A@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7Bg8FV12YqHxOzHr+Z3za6M1hoCOV_OL68PJ1Jf23G+A@mail.gmail.com>
+References: <20260721171607.61110-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260721171607.61110-1-stephen.smalley.work@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 24 Jul 2026 10:21:22 -0400
-X-Gm-Features: AUfX_mwkLZ8tZaSUX0UG8Ibmhc_yTvOXslZwu6PNLsuCTm-EB0zyP8JK0s_pdUA
-Message-ID: <CAEjxPJ7oZ-t4g7f+mkBBFyWvU1i1fDCe3AN+ATnOMrTpuDDGgQ@mail.gmail.com>
-Subject: Re: [PATCH v2] libsepol: add module package fuzzer
-To: Petr Matyas <p.matyas13@gmail.com>
-Cc: selinux@vger.kernel.org, Petr Matyas <pmatyas@redhat.com>
+Date: Fri, 24 Jul 2026 10:22:52 -0400
+X-Gm-Features: AUfX_myD6GvrrE6y59WWB8B_V5T4_sDJWPW2Wpsk1DuuuoOnORdcak0sa__Bhek
+Message-ID: <CAEjxPJ7ZwBQ7A1-2qr-FB2pWKJdu45O7vyx+jvGtQ4jCFP==xQ@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: fix Python binding for security_load_policy()
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jul 21, 2026 at 3:41=E2=80=AFPM Stephen Smalley
+On Tue, Jul 21, 2026 at 1:16=E2=80=AFPM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> On Tue, Jul 21, 2026 at 7:16=E2=80=AFAM Petr Matyas <p.matyas13@gmail.com=
-> wrote:
-> >
-> > Add a libFuzzer target for the binary module package format
-> > (.mod/.pp) read by sepol_module_package_read(). On a valid package,
-> > also exercises sepol_module_package_to_cil() to cover the CIL
-> > conversion path for module policies.
-> >
-> > The seed corpus contains a minimal module package produced by
-> > checkmodule + semodule_package to give the fuzzer a structurally
-> > correct starting point.
-> >
-> > Wire the new fuzzer into scripts/oss-fuzz.sh alongside the existing
-> > libsepol and checkpolicy fuzzers.
-> >
-> > Signed-off-by: Petr Matyas <pmatyas@redhat.com>
+> Commit 9639f5d ("Add decent constants for python for return of
+> getenforce call") also added a global typemap that forces every void *
+> parameter to NULL from Python. This was intended to auto-supply NULL
+> for the opaque auditdata parameter of avc_has_perm(), avc_audit(), and
+> selinux_check_access(), but also matched the void *data parameter of
+> security_load_policy(), forcing it to NULL and preventing its
+> use. Restrict the auto-NULL typemap to only the auditdata parameters
+> and provide a typemap for security_load_policy that supports passing
+> any bytes-like object (bytes, bytearray, mmap) that can be handled.
 >
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Fixes: https://github.com/SELinuxProject/selinux/issues/354
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Merged. Would also suggest having it call sepol_module_package_info()
-to exercise that code path.
+Merged.
 
+> ---
+>  libselinux/src/selinuxswig_python.i | 25 +++++++++++++++++++++++--
+>  1 file changed, 23 insertions(+), 2 deletions(-)
 >
-> > ---
-> >  libsepol/fuzz/min_mod.pp              | Bin 0 -> 859 bytes
-> >  libsepol/fuzz/module-package-fuzzer.c |  47 ++++++++++++++++++++++++++
-> >  scripts/oss-fuzz.sh                   |  11 ++++++
-> >  3 files changed, 58 insertions(+)
-> >  create mode 100644 libsepol/fuzz/min_mod.pp
-> >  create mode 100644 libsepol/fuzz/module-package-fuzzer.c
-> >
-> > diff --git a/libsepol/fuzz/min_mod.pp b/libsepol/fuzz/min_mod.pp
-> > new file mode 100644
-> > index 0000000000000000000000000000000000000000..264bd4406bf94b1c0044d46=
-d0ca82fcdc4716f88
-> > GIT binary patch
-> > literal 859
-> > zcmb`FOA5k35Jbxl=3DuVd|J%Q*A+_=3D+~2MCyq;4dTjfQwu~Jg+OIFa^zEK*a~mbWhh*
-> > zC(yS?b#DP+3;|pp)qMb9y%;ZdX?Yp1d{Q1=3D8^EZR_3@$y;IvDllTSJTW|Qf>?pS0_
-> > zHBrrzoHHN0Jnz=3D6t<MgUaFAqvvv+Y3Wp+eUE^I&aR86ez;Ih;mqe31{=3D)Jy=3D*gJY=
-M
-> > z)YoZe5nJ0l^b4_C<_yiy`HMz`Zw0+SohO>SzP<k!{0FXMy?QKdaP72i-21Sn6|wj4
-> > Fcmk%9EE)g+
-> >
-> > literal 0
-> > HcmV?d00001
-> >
-> > diff --git a/libsepol/fuzz/module-package-fuzzer.c b/libsepol/fuzz/modu=
-le-package-fuzzer.c
-> > new file mode 100644
-> > index 00000000..2516970b
-> > --- /dev/null
-> > +++ b/libsepol/fuzz/module-package-fuzzer.c
-> > @@ -0,0 +1,47 @@
-> > +#include <sepol/debug.h>
-> > +#include <sepol/module.h>
-> > +#include <sepol/module_to_cil.h>
-> > +
-> > +extern int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
-> > +
-> > +// set to 1 to enable more verbose libsepol logging
-> > +#define VERBOSE 0
-> > +
-> > +int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
-> > +{
-> > +       sepol_module_package_t *mod =3D NULL;
-> > +       struct sepol_policy_file *spf =3D NULL;
-> > +       FILE *devnull =3D NULL;
-> > +
-> > +       sepol_debug(VERBOSE);
-> > +
-> > +       if (sepol_policy_file_create(&spf))
-> > +               goto exit;
-> > +
-> > +       sepol_policy_file_set_mem(spf, (char *)data, size);
-> > +
-> > +       if (sepol_module_package_create(&mod))
-> > +               goto exit;
-> > +
-> > +       if (sepol_module_package_read(mod, spf, VERBOSE))
-> > +               goto exit;
-> > +
-> > +       devnull =3D fopen("/dev/null", "we");
-> > +       if (!devnull)
-> > +               goto exit;
-> > +
-> > +       /* sepol_module_package_read() stores contexts sections as raw =
-blobs
-> > +        * without validating their text syntax; sepol_module_package_t=
-o_cil()
-> > +        * is the first place that parses them, so a graceful error ret=
-urn here
-> > +        * is expected behaviour for malformed input, not a bug. */
-> > +       (void)sepol_module_package_to_cil(devnull, mod);
-> > +
-> > +exit:
-> > +       if (devnull)
-> > +               fclose(devnull);
-> > +       sepol_module_package_free(mod);
-> > +       sepol_policy_file_free(spf);
-> > +
-> > +       /* Non-zero return values are reserved for future use. */
-> > +       return 0;
-> > +}
-> > diff --git a/scripts/oss-fuzz.sh b/scripts/oss-fuzz.sh
-> > index 9376b6e4..08e06975 100755
-> > --- a/scripts/oss-fuzz.sh
-> > +++ b/scripts/oss-fuzz.sh
-> > @@ -74,6 +74,17 @@ $CXX $CXXFLAGS $LIB_FUZZING_ENGINE binpolicy-fuzzer.=
-o "$DESTDIR/usr/lib/libsepol
-> >
-> >  zip -j "$OUT/binpolicy-fuzzer_seed_corpus.zip" libsepol/fuzz/policy.bi=
-n
-> >
-> > +## module package fuzzer ##
-> > +
-> > +# CFLAGS, CXXFLAGS and LIB_FUZZING_ENGINE have to be split to be accep=
-ted by
-> > +# the compiler/linker so they shouldn't be quoted
-> > +# shellcheck disable=3DSC2086
-> > +$CC $CFLAGS -c -o module-package-fuzzer.o libsepol/fuzz/module-package=
--fuzzer.c
-> > +# shellcheck disable=3DSC2086
-> > +$CXX $CXXFLAGS $LIB_FUZZING_ENGINE module-package-fuzzer.o "$DESTDIR/u=
-sr/lib/libsepol.a" -o "$OUT/module-package-fuzzer"
-> > +
-> > +zip -j "$OUT/module-package-fuzzer_seed_corpus.zip" libsepol/fuzz/min_=
-mod.pp
-> > +
-> >  ## checkpolicy fuzzer ##
-> >
-> >  make -C checkpolicy clean
-> > --
-> > 2.55.0
-> >
-> >
+> diff --git a/libselinux/src/selinuxswig_python.i b/libselinux/src/selinux=
+swig_python.i
+> index 03ed296d..c8c08a40 100644
+> --- a/libselinux/src/selinuxswig_python.i
+> +++ b/libselinux/src/selinuxswig_python.i
+> @@ -88,9 +88,30 @@ def install(src, dest):
+>    $1 =3D &temp;
+>  }
+>
+> -%typemap(in, numinputs=3D0) void *(char *temp=3DNULL) {
+> -       $1 =3D temp;
+> +/*
+> + * Auto-supply NULL for the opaque auditdata parameter on avc_has_perm()=
+,
+> + * avc_audit(), and selinux_check_access(); it is not usable from Python=
+.
+> + * Restricted by parameter name so that it does not swallow other void *=
+ args.
+> + */
+> +%typemap(in, numinputs=3D0) void *auditdata {
+> +       $1 =3D NULL;
+> +}
+> +
+> +/*
+> + * security_load_policy(const void *data, size_t len) accept any
+> + * object exposing the buffer protocol (bytes, bytearray, mmap, ...)
+> + * as a single Python argument.
+> + */
+> +%typemap(in) (const void *data, size_t len)(Py_buffer view) {
+> +       view.obj =3D NULL;
+> +       if (PyObject_GetBuffer($input, &view, PyBUF_SIMPLE) < 0)
+> +               SWIG_fail;
+> +       $1 =3D view.buf;
+> +       $2 =3D (size_t)view.len;
+>  }
+> +%typemap(freearg) (const void *data, size_t len) {
+> +       PyBuffer_Release(&view$argnum);
+> + }
+>
+>  /* Makes security_compute_user() return a Python list of contexts */
+>  %typemap(argout) (char ***con) {
+> --
+> 2.55.0
+>
