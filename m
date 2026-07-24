@@ -1,139 +1,245 @@
-Received: from mail-qv1-f53.google.com (mail-qv1-f53.google.com [209.85.219.53])
+Received: from mail-qt1-f177.google.com (mail-qt1-f177.google.com [209.85.160.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44A2B356A37
-	for <selinux@vger.kernel.org>; Fri, 24 Jul 2026 14:28:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A666843C041
+	for <selinux@vger.kernel.org>; Fri, 24 Jul 2026 14:33:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.177
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784903307; cv=pass; b=L6DKLU3fpoYSd3Ur7jZDAPwxUYIztrxr93Slx/P9JLZ0INBCeDKYCwUR/zkCSjTTv4No9913iZdVXRiSDcP9FIUEMpWN8dd8OjOOAesUS6JtGhs9qA0OrzcR002RhqPwBZ63DygOeLfM3KLX0MEUyunzedT1INML2cj6dINYCNA=
+	t=1784903634; cv=pass; b=BQ6sXyVtd85MjcK1Ev3g+LVAKM7RysmS0IObLXf0oDyA4/x4rUsIWoL5H51gemaipOMtyGHwga9Rm+ac0OiRnnQrRDeSgfSuyjfv3clJppS8o3blKG2O8EFlWw2rqYRTVjETGgpl36WKba1IdjsxyHPAN5n71Y1wJ9q/jkCKgAo=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784903307; c=relaxed/simple;
-	bh=WqSLcUP/WLaFznF6ijwZZZbq2UvgJ44SV2pXxVL1HeI=;
+	s=arc-20240116; t=1784903634; c=relaxed/simple;
+	bh=VCfOwu0w0Xv5v0JU5uZTRG72Kah3wzxnKQUq7coVQiA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=GDHcX5wOwa2YtP7ileCY+rf1EVjpPgQVyKCg8FmpiYTkjpXUk3hNT1YTaZjS/H1N4hfQo7BuG0p7kCBeTlk3+WCxF0hS3HMCU2HbdXNZWUo/o2eLT+J+KCZv5EvlCTJFGcbfZBF8AXgH7C9BJfp3n1fPQcSgg/Q0nGu6B3OOTHg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FgdLz42/; arc=pass smtp.client-ip=209.85.219.53
+	 To:Cc:Content-Type; b=YjTkdbRjx/vCjqWFaGkl3c4jJtBLIS42u57baPiOSkT2wzucUek6XtsqUfETZZriAzBY6QQJnY64/9MdhKyOW2HWh7w7UaXUt2uV4Qt7juD3LIpPgYBK9PmQJbdvf+R4nEDtq00UrKvAfUO7VtKM+yQg4D5qVyI0wCemi8INN3M=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Rj0kLlYp; arc=pass smtp.client-ip=209.85.160.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FgdLz42/"
-Received: by mail-qv1-f53.google.com with SMTP id 6a1803df08f44-9030f8ea3b3so5280316d6.1
-        for <selinux@vger.kernel.org>; Fri, 24 Jul 2026 07:28:25 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784903305; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Rj0kLlYp"
+Received: by mail-qt1-f177.google.com with SMTP id d75a77b69052e-51c2808dbc3so4421971cf.1
+        for <selinux@vger.kernel.org>; Fri, 24 Jul 2026 07:33:52 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784903631; cv=none;
         d=google.com; s=arc-20260327;
-        b=U/XAdPmLKaepPvnzIAF5boUEA9plQodkM/NcUQ++Mm7n5eJ+vvC26gRvinfrDspL4+
-         IOj3IJHnlbtKUa1kJSgXerRObYUJtoi65zLLNVaiMMv8bwj476R3oaC3SahlSVbfjrXp
-         fOwRltAPXdCyHm9vgv/qXUIELS2wNAkofudxu+zyFt8WPo9ti711kY0QNLMnvPkM1YkW
-         nRQ0NR7F8qyUgUg4dSvMrBoIQ9DcszmfUK2Q/YrAHUk8NPAGsZlpcgy/LMGz/mR+Vyzx
-         ox+O4+57rWhxp03yZaZOlAE0gUnkg3pOC+1pMp0LjqW0uQ2Vk3VDZggCpxxejGn+VIgX
-         Ob5Q==
+        b=Jp/txPFtjNAoXeRaUMVtb+nM232ehFg5ddiAgOMQOYjz8Zv8Fakl1875iKH1jvFsWk
+         UKRE7+3OucVdC/i/FImW4jpG/eJ40zotDU5m8+SINC3ziJaD7uHs0G9UQQWqnMMi1unM
+         gc5mPOHlUBZIgASgCllx7b2pfiUw6Edxj7D3muG66PIzzqEQJE5i2Jr+BRIgVrEAv2FV
+         ig0o5fjnhhvWSpoi7cTOZ+rvHW3xGWgdidniRA3tkl/4eupo5wgO3yfIxg4mbRZW+8NZ
+         oMM6AOETPuR1UtPy09aK6b6kitvkwxz4fGTrCM/PB5ZEUz1VixWD3wugdyp9qK8Hqmlw
+         0Aaw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=o/fFvO/pCUGtFw8oJkKBJO5I/SntOy8Hf5FE+fjQLrg=;
+        bh=ThKe9AI4s+Vo182mqFmgFtsRizFAnKmkKo3zIeJxMFY=;
         fh=FsXghBnyoYbEc42Idnie0oh5A6i9FUng5ntOLhqXIRs=;
-        b=ZHpFGVOs0deH5dzTrpbDqSooEugZyLxvTJcu3P26/9shmqh7U2/9/87bO3ojbdTvzC
-         V2ykpearW2VMixMtsODQov60umttONErfscSmTUgjBx91qUVA2rQvjLsRuKEOw4bNTzd
-         MzDIr+CyxfM6aVXWtkIaQRsAWsvDZ1B9inarrT37rBWb7R4k1fnm+fGbDIUfZN2grAvi
-         GSqhH13XDsnM0l4F2eMEcAGV5NREv2PaSMzDEjTIaVtFHzGyJ9eEmx/xu/Gjd6VUtkSD
-         lnD/WxilKn7yflO2gciCClNzJSVw4k6dbqKFFEU/ovbKz0L/Fcl1/VwrXA/pLyOUJqO2
-         zXMg==;
+        b=cav0gSeM7KSd7+kcISzJy9IlJOAfxQ5UjZzeEExwqkF5DbEQA4PhUt9adZsLSlcfEz
+         KygG3ny9x6nv7AGVK/jlg29r22A14/tSuoGex9wBK6xgYeIFgYXfRcNPkIQh4MN2xIpe
+         D9/66cLTZOD/hM+awUXlYbrIdrHEhWnzHKKamlOuQdKudDmjel+lM8xRtB67gqh88NyD
+         SlREEtfnSKeELZ+keZhAjxAUoio9pG2PtrhN8bZkx/hFulMyNtveqc72gYC8TiQVUWKN
+         hQNlHq0xNhWC6PiKB5MdrXIssitBXoouupWLy8VhjCHihm9qGa8nlY4kB5xiyAKHDB3p
+         hRDg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784903305; x=1785508105; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784903631; x=1785508431; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=o/fFvO/pCUGtFw8oJkKBJO5I/SntOy8Hf5FE+fjQLrg=;
-        b=FgdLz42/grXuPS0LvIpy7IvOwBEA5Ply0y2WxWpr3+gz8qEy6rNyt9AvtOuiAfR4Ra
-         Z9g+2IWtKqGog35luZhqvvqt1sPeT6WX7vRRAAzwYulpPfugdDszNIiXaE9BDpgMFj7d
-         ID9Yi0hxYMHhTETv2qBB0p4ZWmgOH6VtKeo6ziN80P8icXFRdFxy0xfyBbGUoHcoqkAs
-         PKFUkfx/KSanxnH2U2XbvYjU1NX72v0lf2+RGI9fX+2WLPewtH6Bb7ksmi2ON3i2QBkJ
-         9ukonQKM+EnvnZN+yp9R3YkPVbWUOrzu5KQ+TN0PEOgSYyd3gXtxKbOHcyPLZOTDX6AU
-         aYDQ==
+        bh=ThKe9AI4s+Vo182mqFmgFtsRizFAnKmkKo3zIeJxMFY=;
+        b=Rj0kLlYpyRoYNKg97GryxpNzTQFonRAqICQLzv9+VKomgN8hu7qMet6gWAOnwW7qAi
+         RiQ/zraGsngoMkNKY+3xChZQLlHb+Rl/nowlqRW1fZ3QdNTu/3sW7HYhucPXOv8vfnyI
+         X6hSVF0F5wRk704or+wOyZnCrbiQQe+3xCVhwAhCiEIugfdF58c4Z7gZodDHuc0VxaCP
+         wpR7APy7tlzzZkM/+dwiNpYWLegtRyFFNKBrxl+HR1qV9zpYdbk3cprQu1uuKkFqGUi0
+         aaaBbJSoknEEIkTIrecAr3FVE7wgNiT+B7xDI91/Jm8Z+Ylb/uLfmKLucRHdiBA/L0Yz
+         kyUQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784903305; x=1785508105;
+        d=1e100.net; s=20251104; t=1784903631; x=1785508431;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=o/fFvO/pCUGtFw8oJkKBJO5I/SntOy8Hf5FE+fjQLrg=;
-        b=Anzs7w/6wwSQvKbXgjPZ4DLjk9+k6msTC+EMT1E7BLSVgdP2o8MlfZVc/RbCRD4A91
-         2KIE+LhnDubTJWiYqMDnPV0hhwwB/+SP3wtZjeCaKNmRtPWxqUgOFt5D18PhKdF0i4hf
-         GnrszJU+Nxs2DfVanCwucPMgIRHfGfB84xtIaktoaHlXm/0eQeycJZfdJjmpFkeO9Dvi
-         G+27OSfHtbokXThIFLRXEanuUN7gOHiGFKSLXZfaTXTwEw1jMDzyNdHOpAvOkT3KJnSZ
-         zZsHQaOUTcsOQ+EQVYEBysJoIG7AocQzSWfCh63gG1dvpRVX45o5bB+URggX5uaeNNjA
-         zpCg==
-X-Gm-Message-State: AOJu0YyQU/ABo5USx+HSIpYoN3dQ2Pcx1zLaE2noWnh+b6Vp6+jDc2uk
-	H6CPMsRV/6l1nLqpab3F+DCf+NELLV6X8byBltWWhhDjUHMUPkwf/+7SJYaqh+70B6lulysxKou
-	CAc8v0eJkYrXfs2O/hoc2BKQbncPtUZI=
-X-Gm-Gg: AR+sD12mz1Rm4JpTKtfFdhvKNfjVwKFp+GVRMIbvV0Auk9Jfp5ciBl6nmtStFPv26Kn
-	3Cq4H5A146DBl721hPR5GuPAU0xbwZUqbofObY12jzf7hfJmeuYXzPlKwGDBj7oqmlFEEr+lgUd
-	4hZIeNpfqfYe6kOf5Jx7EUul6YlSwiHtTRB4D45oR+5d/+JvYqR6kyDwIw2lSToxyvTJnT/ZM1R
-	Pd+OlHu2Ox8SVzh7HpNz9QoW5BU9toIKQBDiC1MF90A00xpqHBi7h5Juk1PhA==
-X-Received: by 2002:a05:6214:3a06:b0:907:c6bb:5cef with SMTP id
- 6a1803df08f44-907ca567aa5mr90954616d6.56.1784903304945; Fri, 24 Jul 2026
- 07:28:24 -0700 (PDT)
+        bh=ThKe9AI4s+Vo182mqFmgFtsRizFAnKmkKo3zIeJxMFY=;
+        b=IyRNHOKYq6u59BakJbB+zi5fn/+PFUZv2UU+j8o0bU7JQHmfbaVVniUasQ/4/YZTSI
+         XhzjOtns5nzpMBUeW5wg4p+Ki4lnn/lKjAvWrshmmm+HMuLxg80G590d6rp/L2WvJUND
+         IwN4sCeJhjYHZmCyjwkN9aU3Xp3wja7dsm7tqLdxOeyRgZXehkHDId7eOA9jFr3bBQZW
+         OFi4gwn9OHSqSl51/jCqgU0SQXeB9dctPV05AkaGCIMz4SiNjxg5WqoBoJH1jcDB8MEB
+         F7V5IrOknMK/WOsix4vGUXVPDVY4/94E2+kJr1YmMZyxej/jj68bb+8DeKT4KGg2JPrL
+         oxAA==
+X-Gm-Message-State: AOJu0YwbNZaqIYRsddw5go1/paPzNGkR4Q0ZYkZnj5mZgxOpJJUdsdyU
+	HbXY5AIlSQHivKsswbarFpMp3MSDgNmHIKfr/X1cgrI4xv3BViyDNgpvU1hMlwDZznOSCeXLkoA
+	fouPIUQCFZFdQt6JXjnZuWlB3vJRVHlfb6A==
+X-Gm-Gg: AR+sD10EhPw3YsR8TUcreQBJIrVpK8UNjVUOKU006vswIT4B9Bn8qtu4z6nYMMsIuW+
+	SfTmJe9BIpmGwElhCITzFx2dAdya27HgHUevTC7bP+AmT+e9By0blPlqK7nHwQdVCqPmTHHuZlJ
+	e0mO5021IgqzLMxP4MVwFjdBKrqzFXccArS7EAgxz8lp7ya2u4H3sI90+P7Wrl4jbVReVBYrX1I
+	xL/yuRKhlZgL4l9V7er3U6z9LG6LO7D+ShvZOF4qaD7xESP7jdv2sY+r8n3Trxrp1y0RY1r
+X-Received: by 2002:a05:622a:4106:b0:51b:fca2:af71 with SMTP id
+ d75a77b69052e-5283df106bdmr73514381cf.42.1784903631297; Fri, 24 Jul 2026
+ 07:33:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260722181325.107755-1-jwcart2@gmail.com> <CAEjxPJ4yGX0joHcb4kajTozQS6jM2ddVckZB4VeeVUzmCw9PBQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4yGX0joHcb4kajTozQS6jM2ddVckZB4VeeVUzmCw9PBQ@mail.gmail.com>
+References: <20260723165436.10978-1-jwcart2@gmail.com> <CAEjxPJ52heUU276fCsy20fsKi5YLV4QZci6hnnS6c3c1uFbWiA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ52heUU276fCsy20fsKi5YLV4QZci6hnnS6c3c1uFbWiA@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 24 Jul 2026 10:28:12 -0400
-X-Gm-Features: AUfX_mxZw1DV2EzSLcjQ3bWNb-o1WVr8jD0vz0-48lQUajgtCB2g6ZgIYtyDQ2A
-Message-ID: <CAEjxPJ5fG5tVCaMmw5DUNNSUXEnt8w7wEevuhHziGZCVqeAnEQ@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: Check for embedded NUL when reading from policy file
+Date: Fri, 24 Jul 2026 10:33:39 -0400
+X-Gm-Features: AUfX_myw_obOp4J13lojSY6rkcHR_NwFGzAU_Aj-bdIxUHFJVYm6FDO-8297qkk
+Message-ID: <CAEjxPJ7V9k8gMvut=wURfbDMUXMw358equJKip_MoJSyMrDO9w@mail.gmail.com>
+Subject: Re: [PATCH v2] libsepol: Validate string fields used in various
+ labeling rules
 To: James Carter <jwcart2@gmail.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 23, 2026 at 2:39=E2=80=AFPM Stephen Smalley
+On Thu, Jul 23, 2026 at 2:37=E2=80=AFPM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> On Wed, Jul 22, 2026 at 2:13=E2=80=AFPM James Carter <jwcart2@gmail.com> =
-wrote:
+> On Thu, Jul 23, 2026 at 12:54=E2=80=AFPM James Carter <jwcart2@gmail.com>=
+ wrote:
 > >
-> > Check that data read from a policy file does not have an
-> > embedded NUL to protect against maliciously crafted polcies.
->
-> policies
->
+> > Filename transitions and the ocontexts fs, netif, fs_use,
+> > ibendport, Xen devicetree, and genfs use strings in a name or type
+> > field used to identify what to label.
+> >
+> > Check that these strings do not contain any control characters to
+> > protect against maliciously crafted policies.
 > >
 > > Signed-off-by: James Carter <jwcart2@gmail.com>
 >
-> Otherwise,
 > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 Merged.
 
 >
 > > ---
-> >  libsepol/src/services.c | 6 ++++++
-> >  1 file changed, 6 insertions(+)
+> > v2: Added another check in validate_genfs() and a check in
+> >      validate_filename_trans_rules
 > >
-> > diff --git a/libsepol/src/services.c b/libsepol/src/services.c
-> > index e8f0e622..3e8bd38b 100644
-> > --- a/libsepol/src/services.c
-> > +++ b/libsepol/src/services.c
-> > @@ -1799,6 +1799,12 @@ int str_read(char **strp, struct policy_file *fp=
-, size_t len)
-> >         if (rc)
-> >                 return rc;
+> >  libsepol/src/policydb_validate.c | 35 +++++++++++++++++++++++++++-----
+> >  1 file changed, 30 insertions(+), 5 deletions(-)
 > >
-> > +       /* Check for an embedded NUL character */
-> > +       if (memchr(str, '\0', len)) {
-> > +               errno =3D EINVAL;
-> > +               return -1;
+> > diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_v=
+alidate.c
+> > index cde0b8d6..e7d79871 100644
+> > --- a/libsepol/src/policydb_validate.c
+> > +++ b/libsepol/src/policydb_validate.c
+> > @@ -1,4 +1,5 @@
+> >
+> > +#include <ctype.h>
+> >  #include <sepol/policydb/conditional.h>
+> >  #include <sepol/policydb/ebitmap.h>
+> >  #include <sepol/policydb/polcaps.h>
+> > @@ -129,6 +130,23 @@ bad:
+> >         return -1;
+> >  }
+> >
+> > +static int validate_string_field(const char *s)
+> > +{
+> > +       if (!s || !*s)
+> > +               goto bad;
+> > +
+> > +       while (*s) {
+> > +               if (iscntrl((unsigned char)*s))
+> > +                       goto bad;
+> > +               s++;
 > > +       }
 > > +
-> >         str[len] =3D '\0';
-> >         return 0;
-> >  }
+> > +       return 0;
+> > +
+> > +bad:
+> > +       return -1;
+> > +}
+> > +
+> >  static int validate_ebitmap(const ebitmap_t *map, const validate_t *fl=
+avor)
+> >  {
+> >         if (ebitmap_length(map) > 0 &&
+> > @@ -1436,6 +1454,8 @@ static int validate_filename_trans(hashtab_key_t =
+k, hashtab_datum_t d,
+> >                 goto bad;
+> >         if (validate_value(ftk->tclass, &flavors[SYM_CLASSES]))
+> >                 goto bad;
+> > +       if (validate_string_field(ftk->name))
+> > +               goto bad;
+> >         if (!ftd)
+> >                 goto bad;
+> >         for (; ftd; ftd =3D ftd->next) {
+> > @@ -1505,7 +1525,7 @@ static int validate_ocontexts(sepol_handle_t *han=
+dle, const policydb_t *p,
+> >                                         if (validate_context(&octx->con=
+text[1],
+> >                                                              flavors, p=
+->mls))
+> >                                                 goto bad;
+> > -                                       if (!octx->u.name)
+> > +                                       if (validate_string_field(octx-=
+>u.name))
+> >                                                 goto bad;
+> >                                         break;
+> >                                 case OCON_PORT:
+> > @@ -1522,7 +1542,7 @@ static int validate_ocontexts(sepol_handle_t *han=
+dle, const policydb_t *p,
+> >                                         default:
+> >                                                 goto bad;
+> >                                         }
+> > -                                       if (!octx->u.name)
+> > +                                       if (validate_string_field(octx-=
+>u.name))
+> >                                                 goto bad;
+> >                                         break;
+> >                                 case OCON_IBPKEY:
+> > @@ -1533,7 +1553,8 @@ static int validate_ocontexts(sepol_handle_t *han=
+dle, const policydb_t *p,
+> >                                 case OCON_IBENDPORT:
+> >                                         if (octx->u.ibendport.port =3D=
+=3D 0)
+> >                                                 goto bad;
+> > -                                       if (!octx->u.ibendport.dev_name=
+)
+> > +                                       if (validate_string_field(
+> > +                                                   octx->u.ibendport.d=
+ev_name))
+> >                                                 goto bad;
+> >                                         break;
+> >                                 }
+> > @@ -1560,7 +1581,7 @@ static int validate_ocontexts(sepol_handle_t *han=
+dle, const policydb_t *p,
+> >                                                 goto bad;
+> >                                         break;
+> >                                 case OCON_XEN_DEVICETREE:
+> > -                                       if (!octx->u.name)
+> > +                                       if (validate_string_field(octx-=
+>u.name))
+> >                                                 goto bad;
+> >                                         break;
+> >                                 }
+> > @@ -1590,9 +1611,11 @@ static int validate_genfs(sepol_handle_t *handle=
+, const policydb_t *p,
+> >                             validate_value(octx->v.sclass,
+> >                                            &flavors[SYM_CLASSES]))
+> >                                 goto bad;
+> > +                       if (validate_string_field(octx->u.name))
+> > +                               goto bad;
+> >                 }
+> >
+> > -               if (!genfs->fstype)
+> > +               if (validate_string_field(genfs->fstype))
+> >                         goto bad;
+> >         }
+> >
+> > @@ -1728,6 +1751,8 @@ validate_filename_trans_rules(sepol_handle_t *han=
+dle,
+> >                         goto bad;
+> >                 if (validate_simpletype(filename_trans->otype, p, flavo=
+rs))
+> >                         goto bad;
+> > +               if (validate_string_field(filename_trans->name))
+> > +                       goto bad;
+> >
+> >                 /* currently only the RULE_SELF flag can be set */
+> >                 switch (filename_trans->flags) {
 > > --
 > > 2.55.0
 > >
