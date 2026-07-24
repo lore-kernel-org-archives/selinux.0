@@ -1,177 +1,119 @@
-Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
+Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90B424908AB
-	for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 19:18:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.181
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784834302; cv=none; b=k+kAp2XwsJg/UShPr1VLKAf5xDw/fKZto8XrmOdsmusyga/jBlsiWmoBvXWXBC7WIbW78HLKulvY4LvvM9ccFTyt+D6wsE4YSAOUQTxBNzPSpKZABqqUBZB4JopOGhS81Qh9NKBBJWo0x1/VGsqfUBYABkxtb4Ots2R+fUDxJOQ=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784834302; c=relaxed/simple;
-	bh=svbxfI6vvEumisLeuMCJrIKQvxGLNxZ9Z7FIog4RYpA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Uxr73NlLtRkAqm7YSlGyyUsT8mghJ5f29ulo0THoKELzgdEeld7oZtr1cpYgapHghiKxcGeVNGSPFPVo9FDg8ev/XC9uOE2dz89wGraozXDdrytXvURYIRKSxnfo55jYISPu0IOp5mRAIjTFeks7B0OP9bEBKZvXde89diWsAsk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pYHwF2by; arc=none smtp.client-ip=209.85.222.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2A886BB5B
+	for <selinux@vger.kernel.org>; Fri, 24 Jul 2026 00:24:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.169
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784852657; cv=pass; b=CGSt2/Om9vCJt6zcri8ustc9FOdLESBb8wqUabPRZjIOEIAECXquYCt4g2B3xXJLUwmz5yIE/n9Ct0NvJZ2hv2N/OYUK14ge4gz1bvoCtu4mOiuiL0JInOLO7kq3SHaAAec6zW2m1RD1td3R7Z1TQ6Jm4dtjaXnC2FDOfkR5T4Y=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784852657; c=relaxed/simple;
+	bh=rAVozhzSrd5UJMrQDEsjLNmra/5ADL7/PfARkvnc9q8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=HzP7Humv2ZTjmJ09c+Ciq164R3Ue0fipF/EobRhWV9StULgS/pu3Jr1r1q4E6ESrNM+2r+zH0BDLuEZiySruZ2nURG/LxVGJPAOLsDCeFrCrpcVRklfEjrYTnmkbvCAo02OonrBIcQaW3APIuG8l8Mz6NKM9lw1/NaHXoRACeCY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=L0xJz1hp; arc=pass smtp.client-ip=209.85.160.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pYHwF2by"
-Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-92ea24a2dbfso97580585a.0
-        for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 12:18:21 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="L0xJz1hp"
+Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-51c10ed63c0so22541cf.1
+        for <selinux@vger.kernel.org>; Thu, 23 Jul 2026 17:24:15 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784852655; cv=none;
+        d=google.com; s=arc-20260327;
+        b=hu0Mcnh0aBlNu6djO47Yx1TgDQV70o9XTX9MIaex0JaIVfp0fAeNeWdYaMO0TTUsdw
+         YcJpVkGJCfpvLDGY4dBkgMiwwNTqHgdeJ3TkGBHi0bKV/izjg9XQJ0AH8PKF80KQMoh0
+         o0pBYr3t3JKYU7gOqKlWLYe7rQDxvzf5507uSxJTd9bZ0jdz+IVdQ1oLAAT03L0VSTAQ
+         CIg+NPnSpCXOd2Nfm7Uh0UD9IxHBvTCp7c6n9x/cDkS3TxU4nuEstXQfkbSKCGR5031r
+         UNrLJQKGZmvbvjBG6ysghRRwGLPOv17XssAdoy7SwnxzF9ri/AFJA+WzWt6h0zhi7Bq8
+         /GQw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=rAVozhzSrd5UJMrQDEsjLNmra/5ADL7/PfARkvnc9q8=;
+        fh=3rucfQrEJsdE6jJbU8xBFozXGlWc9mO3Wy7QMXFxP/0=;
+        b=R3+77Y2pCECnPlDJAs2rwEGVF2bc/Q0Z7wIC0w5iiSqxgLjggy8PuraAjh6BWi2x3F
+         9Q++YUquacZRrfTf8SKsSKr11+aOo2qh0hgvbdmU5Qyb2dfRD2VjqQKiorzKki22DSjR
+         SX9M/WC0bSTK+7Vruz+8cvIW5NScJPBJnO5pd3V6L7fT4RUZnbSxX9P0y+wcyi3YRbCo
+         brnTnQ7CRL/xyLVcenV7wAaJn6GoqgAhEgplElYQ7mhnUvlJ+xFkSc6u/Y1k+Doe3ZoA
+         9x3tRcpLFKms7ZuIxCYrm7B6gQZoGy69EV8cUvMCdgvKfzxvhNNjeBAgHMy4IgXYQwlo
+         IVvA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784834300; x=1785439100; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=BcvXkwTjKav3IdrM5jGfGlNr8r14yLwxdc1cV4/w9eE=;
-        b=pYHwF2bykKsMRY8zSpbhf/FtQs81rUQrgQ4lPiSoGFJq8u1KSJx7TQ+QYJVEkOvQo8
-         RVoFJi4Rp0KaNz/GRivWYHNbP/sXPBl0cZK1Gz/zvUADEWyR8IWKjpoHhquRIfxAjlPy
-         9YqXYOD4PUdMXdBhiSnbrtuV8YSPdcqIfmrYwyaXXekh03Cd3EmqqZl2RmlHstnzazuL
-         2aH0CC3aC+ek2CW2ffRmaCqC5G26R+WXhyT9KeHR86YtegULFpuZIu2WjH/Eyf//HwCF
-         vaT1FTdvDMy9YosOduRkl/Nc29OPTM3qPpbbkOxhu5wCeI589pwcVK/eEMRMwA36amET
-         8dfQ==
+        d=google.com; s=20251104; t=1784852655; x=1785457455; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=rAVozhzSrd5UJMrQDEsjLNmra/5ADL7/PfARkvnc9q8=;
+        b=L0xJz1hprJ/d7N9/jkWx6rbZ1EJuYc646jswV/qoajcYJzgOrMxA/KGTxt5gXhhlYH
+         jszKQRML7X3U1z4/WlQE8aydn5hJE5H4NwZWqgDWYQIZyqjsNiBowErNmdjUUB1J3OTX
+         y95Cim/n4nbFbN4CSdmCq0DmNKTcQb/kPoHaLYaWFyCs9Gkchm4t48ghw1GkW0q1DwBG
+         vlZ10rgtklAKiBShbDjdjndrZFbqf07rgFFDmVSiDFXowaQ7s+dAT3D7BfVaPS5bkgE4
+         ZDG0ExUvLH/+Hqt3vU0Qk5e1TtbBoqPLrgET3fu0VYbY+ZCEVEjuC7VoJmzMMm9tZ59B
+         5hcg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784834300; x=1785439100;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=BcvXkwTjKav3IdrM5jGfGlNr8r14yLwxdc1cV4/w9eE=;
-        b=RmCHPVFiZ/muJtSqf1GPIbn5j8VIenXi4LMmEtKXYRKHMKASVSb/0Mla8EEc2Nl31S
-         VdOa3aT8AGL1/mDVLJciNWcFlRrSeJyXTqpb8b0gL5R86BOxApbaV6HC3JaIu0LkKOZS
-         FlOs3dzJ/y6w4zmCK0QOR7TOOjD082Rif4qmNCF8oBRB+puHdjL3AB8KM4mobAJrXuk2
-         UhfkPXPkxWJKk4mXH1sDIbblbZEo3yX0Hqr2noQkWk92ERQa1Zg79tHXKdSIwHyQzdhy
-         /PBA5l6flhpXpVygtvm5HlIO/kPyQR2dxBS9A4L9WgxEMGKf2cenqPX2qiJYZL80kwCx
-         14ew==
-X-Gm-Message-State: AOJu0YwNAPB7JGq2EwgBMQiTpCFA1AqH5JVn4uS22A55XuZ01nAqzd+3
-	fY856a66UpvZ5hQ2enOVj93Fz/B82y2E7vQzPVcF0HYa9hzxcxX6CGWmAHt6ZA==
-X-Gm-Gg: AR+sD11vOM1EnfotSEUBIBTOAqW3FoqLabe+/aueWXqOi6OXoUs+CPW9dQt0iF3lpUQ
-	XQcpasE1jc1RAWrx4/y4lzJwhClimywhucoLsjcKYqZnetzzNIncupcf8gC9X2vnuTWsBgc2F+y
-	zXPwiU8iprhIEwgLdqBL8B+/P0tLjtaLzGoMxL53uZFcFVxFiR4BP5PJ+bHglhFXPGbXBgw3tEf
-	ovmQI2gAFzxnWyjGkqjtx3/KhOlwPHglW9cxpC9iuMwdp/UD4kTFucb1yrne406nI5RbCR6ie59
-	+mccLgN32veOd/Dpdb7QxmMmYz/G6UxvrDPqOJE4gcqZM1czUQu1x5UVsJMFufW2mZ58X215ht8
-	l4016rjkUnvDgOoNgkWhteB6JqJSoHILjo0JPM2wn9AbyAbFOcy8Njq9gYPPJa9ySpg26oAFQUc
-	qz3wqviVds1NYKBeIOwzOty5xj9JVLarfun6k=
-X-Received: by 2002:a05:620a:4486:b0:92e:fe10:3339 with SMTP id af79cd13be357-93103ad652emr472766685a.47.1784834300018;
-        Thu, 23 Jul 2026 12:18:20 -0700 (PDT)
-Received: from Fedora43-SELinux ([144.51.8.27])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-930f6a7f937sm480017285a.40.2026.07.23.12.18.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jul 2026 12:18:19 -0700 (PDT)
-From: James Carter <jwcart2@gmail.com>
-To: selinux@vger.kernel.org
-Cc: stephen.smalley.work@gmail.com,
-	James Carter <jwcart2@gmail.com>
-Subject: [PATCH 2/2 v2] libsepol: Validate scope index class_perm_map array
-Date: Thu, 23 Jul 2026 15:18:05 -0400
-Message-ID: <20260723191805.28568-2-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260723191805.28568-1-jwcart2@gmail.com>
-References: <20260723191805.28568-1-jwcart2@gmail.com>
+        d=1e100.net; s=20251104; t=1784852655; x=1785457455;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=rAVozhzSrd5UJMrQDEsjLNmra/5ADL7/PfARkvnc9q8=;
+        b=NwSGyXqSvbMPYMmWENTXMLb25KYU3YTaHJbHyXQ6Da0J3HlQjylnduw6vDmtLVJt/N
+         zB1FRr7cvb52xxdWnERYrAtByzuEcAc5UO4ZHa/a+nkMf9wEDfE+JjgEm5GwSoKASZq1
+         B7M6mZIE8CTj8pgxtzFrymneouaXXBY5IUVXNjkpbMFhWLvy4pu42MFCrviwZ2i4hFLW
+         L1twAF7Q/pO2LLjr8NNqpRh3uuy+1FHO4CS/RgWNxOMCknSLzHh3R2rNKUsJdqHNpzOn
+         qdxwa4iMt6OO/VxOIlRgRtRWREcL2YndIvVBgc/Ipp+aIQaOYf1JyKD5Punh5DjCu6j7
+         sCEg==
+X-Forwarded-Encrypted: i=1; AHgh+Rp6FqKs+It0ZByfDUfvK1E/ZwoKUHF3TDrvxU3hxUmWIocf7lIDxj9Nk8NYGSO2LBK+v55Q/uF0@vger.kernel.org
+X-Gm-Message-State: AOJu0YxECiV20uI+KPvTmemdzzBiFY8OYwo2LijbrkJPODoqjpnGhaBO
+	qEVwYuW6CM6Gw+gYcl4RhaUUVZSk15pAgWnwIjp1uEIObX//iXHDxbe9E59K8XgC1uENlejeECR
+	EBNpEZkBqsSPYQIi3JoxQj46PZGRyGqZTiGRQQGCc
+X-Gm-Gg: AR+sD128m+v3ahuryUVHPg0lPVmddsPYFDcPlHHC61dgCRXeXEley+T+Yj5QuyfkO5F
+	EhPlC64+YSKs3qDi7okZ3pWjlZc+MOgI1cWzny9M1aPCGK3vGqyTqqj1IcbrI+pkMgB7fibN4AZ
+	KSDn+GDl2WP4U675BmotZXJt5zaT5fHhGTAv7Q2144n58bDp4MaqnaWwFiwthRONXN9qJsa98H3
+	r7HDYpiEGF1zdur83whGZwu5ceRYzYOFoi3qi6SGwFBGKwL3PIL0nyVV6bJy6AQTZEgJhyT1/CV
+	fIe7E+/V9OBND4+LOwhQUr9bMveUppYi+mukuWyj4WXtkA==
+X-Received: by 2002:a05:622a:1448:b0:528:38d6:71b4 with SMTP id
+ d75a77b69052e-5284d0af45emr2636201cf.11.1784852654333; Thu, 23 Jul 2026
+ 17:24:14 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260723062355.3096648-1-jason@perfinion.com> <CAEjxPJ4cexAeJbQdDWzD=NiyukP_THb9PHhTYi=n8ww+3bwrCw@mail.gmail.com>
+ <CAHC9VhTpaqdbd4NOZO=2G-OneFTnoi4BtA-JeB_o=hQO6kCUWw@mail.gmail.com>
+In-Reply-To: <CAHC9VhTpaqdbd4NOZO=2G-OneFTnoi4BtA-JeB_o=hQO6kCUWw@mail.gmail.com>
+From: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Date: Fri, 24 Jul 2026 10:23:57 +1000
+X-Gm-Features: AUfX_mxUR1vliK3hUvGoEFvQ5HugIluvuj-6bvAXwxOcG8J3ks_zVCgh5FTNWQg
+Message-ID: <CA+zpnLdz-s+yQg4EnpFXZA5XGxN4mF66cuXLFXu7AB8Bie2tHg@mail.gmail.com>
+Subject: Re: [PATCH 1/3] SECURITY.md: Update security contacts
+To: Jason Zaman <jason@perfinion.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, Paul Moore <paul@paul-moore.com>, 
+	selinux@vger.kernel.org, Jeffrey Vander Stoep <jeffv@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-In addtion to the array of ebitmaps that shows which declarations
-are in scope for a given block, the scope index also contains an
-array of ebitmaps, class_perms_map, that shows which permissions
-are in scope for each class and it contains the length of that
-array.
+On Fri, Jul 24, 2026 at 3:41=E2=80=AFAM Paul Moore <paul@paul-moore.com> wr=
+ote:
+>
+> On Thu, Jul 23, 2026 at 9:42=E2=80=AFAM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> > On Thu, Jul 23, 2026 at 2:24=E2=80=AFAM Jason Zaman <jason@perfinion.co=
+m> wrote:
+> > >
+> > > Part of the annual cleanup of security contacts, drop people that are
+> > > not as active committers currently. Thanks for all the work over the
+> > > years!
+> > >
+> > > Signed-off-by: Jason Zaman <jason@perfinion.com>
+> >
+> > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+>
+> Reviewed-by: Paul Moore <paul@paul-moore.com>
+>
 
-An optional block has a required scope. For a required scope validate
-that the array is long enough to contain all of the classes that
-are in scope for the block and that for each class in the array
-either the permission ebitmap is empty (the class is not required
-in the block) or contains at least one valid permission. [Older
-compilers could set all the bits if "*" was used.]
-
-For declared scopes, verify that the length of the class permissions
-ebitmap array is 0 and the array itself is NULL.
-
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
-v2: Move assignment of class and map to after the validate_value() check
-    to make sanitizers happy.
-
- libsepol/src/policydb_validate.c | 45 +++++++++++++++++++++++++-------
- 1 file changed, 36 insertions(+), 9 deletions(-)
-
-diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
-index 166e20a5..2d7c3e71 100644
---- a/libsepol/src/policydb_validate.c
-+++ b/libsepol/src/policydb_validate.c
-@@ -1690,10 +1690,9 @@ bad:
- 
- static int validate_scope_index(sepol_handle_t *handle,
- 				const scope_index_t *scope_index,
--				validate_t flavors[])
-+				const policydb_t *p, validate_t flavors[],
-+				bool required)
- {
--	uint32_t i;
--
- 	if (!ebitmap_is_empty(&scope_index->scope[SYM_COMMONS]))
- 		goto bad;
- 	if (validate_ebitmap(&scope_index->p_classes_scope,
-@@ -1712,9 +1711,37 @@ static int validate_scope_index(sepol_handle_t *handle,
- 	if (validate_ebitmap(&scope_index->p_cat_scope, &flavors[SYM_CATS]))
- 		goto bad;
- 
--	for (i = 0; i < scope_index->class_perms_len; i++)
--		if (validate_value(i + 1, &flavors[SYM_CLASSES]))
-+	if (required) {
-+		uint32_t i;
-+		if (ebitmap_highest_set_bit(&scope_index->p_classes_scope) >=
-+		    scope_index->class_perms_len)
-+			goto bad;
-+		for (i = 0; i < scope_index->class_perms_len; i++) {
-+			const ebitmap_t *map;
-+			class_datum_t *class;
-+			ebitmap_node_t *node;
-+			unsigned int bit = 0;
-+			if (validate_value(i + 1, &flavors[SYM_CLASSES]))
-+				goto bad;
-+			map = &scope_index->class_perms_map[i];
-+			class = p->class_val_to_struct[i];
-+			/* Either there are no perms */
-+			if (ebitmap_is_empty(map))
-+				continue;
-+			/* Or at least one valid perm */
-+			ebitmap_for_each_positive_bit(map, node, bit) {
-+				if (bit < class->permissions.nprim)
-+					break;
-+			}
-+			if (bit >= class->permissions.nprim)
-+				goto bad;
-+		}
-+	} else {
-+		if (scope_index->class_perms_len != 0)
-+			goto bad;
-+		if (scope_index->class_perms_map != NULL)
- 			goto bad;
-+	}
- 
- 	return 0;
- 
-@@ -1786,11 +1813,11 @@ static int validate_avrule_blocks(sepol_handle_t *handle,
- 			if (validate_range_trans_rules(
- 				    handle, decl->range_tr_rules, flavors))
- 				goto bad;
--			if (validate_scope_index(handle, &decl->required,
--						 flavors))
-+			if (validate_scope_index(handle, &decl->required, p,
-+						 flavors, true))
- 				goto bad;
--			if (validate_scope_index(handle, &decl->declared,
--						 flavors))
-+			if (validate_scope_index(handle, &decl->declared, p,
-+						 flavors, false))
- 				goto bad;
- 			if (validate_filename_trans_rules(
- 				    handle, decl->filename_trans_rules, p,
--- 
-2.55.0
-
+It would be great if Android could still be included here. I'd like to
+propose myself for inclusion, if that's possible. Thanks.
