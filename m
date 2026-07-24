@@ -1,133 +1,247 @@
-Received: from mail-ot1-f48.google.com (mail-ot1-f48.google.com [209.85.210.48])
+Received: from mail-oa1-f44.google.com (mail-oa1-f44.google.com [209.85.160.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51C8E40683F
-	for <selinux@vger.kernel.org>; Fri, 24 Jul 2026 15:56:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDC9F3AD50A
+	for <selinux@vger.kernel.org>; Fri, 24 Jul 2026 16:07:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.44
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784908584; cv=pass; b=dEj3QruRJCWR6ss7l1Iq6IHViQOKd9BSlUviY1XE6unvvs+PRaQ9l/bp7VJgI3RDnesdGAZxg9soD2kVJ6RERceICbSwgayGRL/Ajw2Gy2AA3BnhLxaGWSSM3j31JrAbB/EgboKDwOe0Hb0zT/egG0hYrrsAJl7vNDSn2sUh0bA=
+	t=1784909239; cv=pass; b=W5iirK37Gv/3IGPCDABFo1ah2hB5QClDoAWOgFivzLWM3UI5uZ430ssUE0PMHUZ+5owly7HnA6z8vnE7m7DGo/aD3WPoV/KuPq85ouAv20D//xfV4iApHoXLn2L77lv796YuUGyh9cFBkRmTimGiRkxalbYsKbDtEIgyyBADMCA=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784908584; c=relaxed/simple;
-	bh=LHhfGLH6Iv2IxP8Jqz4NTm8fcT9rHVxek3YqgnHDeHU=;
+	s=arc-20240116; t=1784909239; c=relaxed/simple;
+	bh=vdiQs24C3uJT8t7dTZYmfCpnVl5zUn3hUj8VQv3idpo=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=n+GpMSbjPUHOEyJfzHGuQXQBg4FQ/qsl/JVLiJDb4K59OkjNAhv7h6OKHp/47gVjOeGlSmSUAmgXrddCoMaaFGzwBE6qod6BDQ9mcgWbk7l8VdPgF5ssd1qsbjt6Q7ZOPnBwMnGwnTIeXi7iujB7+Jq5AbVJaiUwasdFiLAFydI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bikW6Ufc; arc=pass smtp.client-ip=209.85.210.48
+	 To:Cc:Content-Type; b=RjHSGXI2Px2E+W7yRXDUa3qrPfXvpK6uJ3ps+UwcFJtQ8FN8adiWtHMWwa7dy5rnBYysvzjC4rSUmuv4a3HruNZ5rp4ByQMaHFPWERo1C3P9t9msQwuPAmzMGrx4hhqRUBl6S3XzE+yZI0veOinwsO2zuEEAGVV8HpYgmd6JCb8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iGlZ27op; arc=pass smtp.client-ip=209.85.160.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bikW6Ufc"
-Received: by mail-ot1-f48.google.com with SMTP id 46e09a7af769-7e9ecd7216cso252392a34.3
-        for <selinux@vger.kernel.org>; Fri, 24 Jul 2026 08:56:23 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784908582; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iGlZ27op"
+Received: by mail-oa1-f44.google.com with SMTP id 586e51a60fabf-448b69cfc6dso463247fac.3
+        for <selinux@vger.kernel.org>; Fri, 24 Jul 2026 09:07:17 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784909236; cv=none;
         d=google.com; s=arc-20260327;
-        b=c0eXqTl8K5pU9uRk12AW9LSx9+vPT9sB5393GlYUU8ewpbvD5eB3JzzReZ341HwByV
-         XgJ4noiPTBvEfFjdpDWqrF3p4nTbioSXpmcSj1gqpkJDTI+7YH3px+N4Lk/SEAw0sEe+
-         vETOmD1LwNLkOOxFZozwuX1m9mOx0hK7izT8zqvrGIFMsNbWrxacQyI7eRQ9PuEcS+ul
-         sVvBbY18hTpoVUu+qNTnWKFdHDJ9qzUcH/TWC4CWUnTyF6wIjIZPSrs/9EeT4+JfdsYJ
-         zEvYMqjbzAbPO9kYUowps2xjGxOZzaiFLqOBSegZ7R347yMpkCpoQMNKSjZQtEXY5ibO
-         UsBw==
+        b=mMrd573hQwtQ/P+ZsHWGLwPSb9S+1my7qnd77W8T9Lyp7BbB39h+ow+7jPdXivFXPA
+         cdGQauIIeWuLYId0PFkqsSR8WRwGShA0y27KbrBBV1Jh+1OSqdmFxek8XBixF5IFL4Gm
+         7j/HoXSfOIzxIors9HcNZO8/OxvSoilFgFXYEIlFphTxwyFc6dOyiqOVgFYcrG0P4fpC
+         sVV6zI+I/eEU9asfP9nXsNFzvQsErRjCP8kxLjZxAEq0+sd99wGWenJ7ob4Fz1HHMa0f
+         tX91Mubc+DCXyqzciyK7aJ6fpT/Ds2RuxtL3Lm2LnaJVNeV5l39S30AkUMehTEaFm/Hx
+         Ulfg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=4QJXtymRrPbskIjCJAsm436RbhtTeB/HbmQAABsH8Z4=;
-        fh=zSau4nOy5XQ6OJNiIGCXmcqwqVhuG0A0YtAnSegVMQY=;
-        b=A8LW+EuJkXunKc9kBLOdfOFjQsh9eUR8wnp8p5E/W4fMY1ttEIV8setOMJhqO1UWiJ
-         N1bwwA3FMSGhqQx/3nwJrcca+o8s3eLTLXJ5ew+ZWxNHgMFEVt6pudWNZc+HguRZPx6i
-         LhhnHNjHBSA9NcG8gbs2Dbz2zWDpnep66TH96gpgsf87iJyl67+icyWBJiPMIwR8ZeoU
-         VvPHNDat7+0H7F9HOJqRTSa2hoOngQVyOh+t3ByjEbBWNJD9X6xqIYnXJrsTeW11sC1I
-         GQC2H1gOxFOLnHhulChun4QN/UuH9P4tgfr3bGsflMrIoeCMspW3PE40dkelodPqDJ0K
-         pTXQ==;
+        bh=/y0gJAxGJQj12m/paa8kVhuLriyIySR3ifcn30h5gTE=;
+        fh=FsXghBnyoYbEc42Idnie0oh5A6i9FUng5ntOLhqXIRs=;
+        b=lByTneaQN4LaNqjRcyqWWB6qIkWwTYCAo/8am15Tq7e3DwFM0R42ieHI73fI8MH22g
+         TBWP5wy+Q8PI/mD2XEW6aiQ4FeeyhqyBqSHtIkoNpsu/ewiZXtm18ResMKQZff5MRuDy
+         wv8mupkwIytrzHv8GS7q+DH93WNHBamv4rb53v6K5pqPc7QwIpt1Y/e0uCQdD/B4wuQF
+         RLoFJTlGmwtA0clLo6SKxRQZe7mSmKKlovgZvTvXtdEBXty7pLQ/wEaS5ww83lvFY5BJ
+         C52e9m+b1rhwX2M7tvdvCZGwbVT+vaFJINVU+ip9vNYu0hlski1GThpwPPIILX3FQOjP
+         Nq2A==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784908582; x=1785513382; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784909236; x=1785514036; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=4QJXtymRrPbskIjCJAsm436RbhtTeB/HbmQAABsH8Z4=;
-        b=bikW6UfcqijNr+q6poUXwIyTBPcWC7Uk0LleIT9ugSv7wsyOEL5RX97d4DOC5TVnTq
-         xBcLM6SGib8WD5DNm5KVkfsg4mZY3nP2n8l04OGRY8ct2PHkqJu/qp0KbvtahyU4FGX3
-         RWA7qmfsdMPnZtvu5kJsiogLA1o9kTW/omwfrvHJLYH6xnY5mMpFf94PmofBmXLHdKwp
-         3HeaG4D7zQMsqdH+YO6ApqWFfkQDWdG3GPugkfd0PIqwUQoTgXWvuEkzg4+vdAm2FTGO
-         ZB2Ozdi7nDktgZySh+OVcXSVSyB+oubjpa0CVXmE+fJsi8x3UrC2JcFGmsNgdHyhDflk
-         RlRg==
+        bh=/y0gJAxGJQj12m/paa8kVhuLriyIySR3ifcn30h5gTE=;
+        b=iGlZ27opw9Ea1+h74zpWJP8lXV+4OpgRUYbPkbUqzhNzhkiaU85rHm7u4BqLTEGNJP
+         5K2EcKExUkvwSzUgf+xyY/ihBpA5fqNGH0ivcFuPGUR6V+mdzDKXH6sFk03lf5hPL5Ah
+         h0U+Sf7Hiv37qpCIADzafBfeKYv0P8NLkKf9ALQCByZJqdGcAPsYavZi3XuumK0YdKa9
+         AsdalkLmGVWez6fW72jjzI5HbXBzA/Qkj4x2fqeKtog/Dkzd88Kl2/DAAnLu5+Qcbrij
+         /0RTxXIEtR71fgE4ddQXMFvrJbvvR4D9Bxmc+lwamO56qpJ3ZPUJTauprRlNk2T/gMjO
+         ILcg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784908582; x=1785513382;
+        d=1e100.net; s=20251104; t=1784909236; x=1785514036;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=4QJXtymRrPbskIjCJAsm436RbhtTeB/HbmQAABsH8Z4=;
-        b=iIznWPcLmr+Bfc7Lh5T+nuRlQ0t6dZ6vaimD9Mz+rQVvqmmkcoVpF6nATPCQ1b9uCh
-         FSgfleeH3l5bDJcwudYmtwCHVhFW3SLp8FN+KZJ2zkRhmajbLPVP9TrOkLEqRfYR0TLR
-         76nt2i7m/zOdj7PCT/ym7B6n53Rk0q2hVecATPIQUYy/gqUG3xL9I9PONN3OGiEl7gFr
-         1i3iDGJSeraJLLPS99m4mvbp3USfcmNazMUS4MbgWGm+qGTpUUU8AxW9xC3bP9xT0c9G
-         X6Gh74t5l1orgVMrEYE3V/HM9RzYbnZ9/XtoCHNFpmJLw0baNPVTZYQrtQ1hqTEL55Ty
-         fb1Q==
-X-Forwarded-Encrypted: i=1; AHgh+RrtHSl0MMwSblUYi5C6Fcx9b/qI22QTeeIVnlKQxHCB42uCKbRvWB8DMLllp+zv6uSmwzyRW64j@vger.kernel.org
-X-Gm-Message-State: AOJu0YxWkrgodtp63q9eXEy1tD1OAumyfFS3FsgGsi+TiCRLG9kdNhcs
-	lWrakJDgVQ/C6BLGb6i7foZjAtWncoSMx4AwVDDRjggcLZ0O10f7agd5kzRw+9oZCyy+mAcK3Y4
-	l4+VdJPRwltRPsFIEn1eSExDwWOcrfJcChfkO
-X-Gm-Gg: AR+sD139Nr6hrjiiLBnYPjOzBB2h9V4J1UT2s47ynLJ9/w3Avov4KkvMovhXq9nJcYE
-	v8avkN22Am/MK4F26Nt+Hr/VNKHBYfqMzQuzkAcbmDfVdpxW2CtRJtIrRqIhC4IgZAuv+lpCwqm
-	57tsiqOSwD7rp7v7RQ4hmNsgj6lbIFJwDoblY9ToBpkcrKdJjZkMyFkXA2W3rHAZUpjWZfgdIeW
-	+0jTK+QNAb4EPJdTgzBGobbf91OOLrNWEXyCLahiE7LJZUmZD0MRGONHRA3gg==
-X-Received: by 2002:a05:6820:2904:b0:6aa:8fb6:b951 with SMTP id
- 006d021491bc7-6aad3fe940dmr4775161eaf.19.1784908582201; Fri, 24 Jul 2026
- 08:56:22 -0700 (PDT)
+        bh=/y0gJAxGJQj12m/paa8kVhuLriyIySR3ifcn30h5gTE=;
+        b=CE6w/M5SIC2QoaBgDqSLT38crNu4oaeA/fNmLAN8fB/AOP08CLVF1JHmOYOCaFtJmu
+         bgAb7J3RL6jRJzYAiu1b6sNM+UxD6Tq3y00D9IXPsq+UYk+CmAvNQGH63oc9YradQ2Dq
+         sn4DxhAm5Z+HoE89vmlvZNX6jtTtYZGKJqWstDzfPkZmIEFewbqHNm+D7y9EmLmzAJMm
+         SUsQKqyMZ2vGHc2ojS6AQnRQYnAvNURQy2KwSilARELtFkeqi/lpU32NniU8YQqWhRGj
+         zas/MFuOjPo07Nb5OjbRPfU6NO7+JGAcLrs+GqkrDLCZWI6FoAFQ54jYTNohkdnihsFR
+         jrgQ==
+X-Gm-Message-State: AOJu0Yx8hvyKjzHAIt8DemiRbALUQCnz7rP0R/7ZOSBTPDNjhOlEPAkx
+	GYzAgH7Q4LXrA5ZPhtTJ7Cq+n7CneWCUN9lxB/p0Oizyh1q6Ju5Fb2g0gQVMZXn9erxOsN90x8/
+	eTgud5DUxeElNkIj0DoOy1gkbWlPgi13krQ==
+X-Gm-Gg: AR+sD13TeevACyjG9mOaVC2IA9gZfmJNFLmvfJq08w4G9YK1yk9HE6VFka3peq7IUHM
+	mD+0EkxNFb/nJqygB2sP6exupudVYUEP7NRiSB5vEFjzb/ph1K1WeiwZBDpjpU52oNEXYFsCN8c
+	iIbAr9CeHr9e+57JDPvqt3sNkYNTtKGGdHql6Yfdvrp0x4wVcRXy/Q5UWGBcFdAcG3omKrkOdoI
+	5H/E+ke8iCgFV1nKatr0HRl7SVat9ZGnOkRIDsdXVGiNo5iGHqri96UXGIpzQ==
+X-Received: by 2002:a05:6870:c26f:b0:451:b9ed:5684 with SMTP id
+ 586e51a60fabf-457a1023312mr4850013fac.34.1784909236486; Fri, 24 Jul 2026
+ 09:07:16 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260724-b4-disp-ec8ac9f6-v1-1-d76d51a69b9d@proton.me> <CAEjxPJ4_chAbtJa4obgN+QSjMnCwk9XQ-4bnyOFxgFoFxTsV9A@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4_chAbtJa4obgN+QSjMnCwk9XQ-4bnyOFxgFoFxTsV9A@mail.gmail.com>
+References: <20260724150916.48989-1-jwcart2@gmail.com>
+In-Reply-To: <20260724150916.48989-1-jwcart2@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 24 Jul 2026 11:56:11 -0400
-X-Gm-Features: AUfX_mx_-mGYLnOr7d6rKxhbPBiioAJ_XuztJJ3AqDPObjSwX0Nh0bu445RiyQA
-Message-ID: <CAEjxPJ6pTrKAdhGFVO72x5117RkXCn9xKeqW9NTHfgi-6eaywA@mail.gmail.com>
-Subject: Re: [PATCH] selinux: reject a permission value exceeding the class
- permission count
-To: hexlabsecurity@proton.me
-Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org, 
-	=?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>, 
-	Kees Cook <kees@kernel.org>, linux-kernel@vger.kernel.org
+Date: Fri, 24 Jul 2026 12:07:05 -0400
+X-Gm-Features: AUfX_myDqHe-Xlv9qdfxxD5Y21WRQtcgUv6HJg5IUS6WMluGzdO_zg1YZp7RuEk
+Message-ID: <CAEjxPJ6nvhWaWmXHW4O_kV+dSa0svnki6xh75qW_=9rH+9fLHw@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: Fix double free in cil_deny.c
+To: James Carter <jwcart2@gmail.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jul 24, 2026 at 11:48=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Fri, Jul 24, 2026 at 11:09=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
+rote:
 >
-> On Fri, Jul 24, 2026 at 10:47=E2=80=AFAM Bryam Vargas via B4 Relay
-> <devnull+hexlabsecurity.proton.me@kernel.org> wrote:
-> >
-> > From: Bryam Vargas <hexlabsecurity@proton.me>
-> >
-> > perm_read() bounds a permission value by SEL_VEC_MAX but never by the
-> > owning class or common's nprim, which is taken verbatim from the policy
-> > image.  security_get_permissions() then writes perms[value - 1] into an
-> > nprim-sized kcalloc() array, so a class declaring fewer permissions tha=
-n
-> > its largest permission value drives an out-of-bounds heap write.  The
-> > top-level symbol tables are validated this way; the nested per-class
-> > permission table is not.
-> >
-> > Reject a permission whose value exceeds nprim, which is already set whe=
-n
-> > perm_read() runs.  Well-formed policies are unaffected.
-> >
-> > Fixes: 55fcf09b3fe4 ("selinux: add support for querying object classes =
-and permissions from the running policy")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
+> The function cil_create_attribute_d1_and_not_d2() (let's call this
+> f1) mallocs an ebitmap named types. This ebitmap is passed to the
+> function cil_create_and_insert_attribute_and_set() (let's call this
+> f2) which will create a new typeattribute which has its types field
+> point to the types ebitmap passed in by f1. If there is an error in
+> getting a symtab or inserting the new attribute into the symtab,
+> then cil_destroy_typeattribute() is called during cleanup. This will
+> free the ebitmap pointed to by the types field. After f2 exits with
+> an error, f1 will perform cleanup and try to free the types ebitmap
+> again.
 >
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> but also see:
-> https://lore.kernel.org/selinux/CAEjxPJ7YRgtOXrbPYar0qXAq=3DwNbOTTMS-EsU=
-=3D9HKR1NQ3qA1g@mail.gmail.com/T/#me98ec932b314ae94242ed3af7ab74445d273cc7d
+> Move the calls to cil_get_symtab() and cil_symtab_insert() to
+> earlier in f2 to make it easier to clean up in the case of an error.
+> When cleaning up from an error do the cleanup manually instead of
+> calling cil_destroy_typeattribute() and do not free the passed in
+> types ebitmap. Function f1 needs to call ebitmap_destroy() (which
+> is safe to call more than once on a ebitmap) and free the ebitmap.
+>
+> Also add ebitmap_destroy() calls to
+> cil_create_attribute_all_and_not_d() and
+> cil_create_attribute_d1_and_d2()
+>
+> Reported-by: oss-fuzz (issue 500754862)
+> Signed-off-by: James Carter <jwcart2@gmail.com>
 
-Also wondering to what extent this may overlap with this series that
-was never fully merged:
-https://lore.kernel.org/selinux/20250511173055.406906-15-cgoettsche@seltend=
-oof.de/
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+
+> ---
+>  libsepol/cil/src/cil_deny.c | 44 ++++++++++++++++++-------------------
+>  1 file changed, 22 insertions(+), 22 deletions(-)
+>
+> diff --git a/libsepol/cil/src/cil_deny.c b/libsepol/cil/src/cil_deny.c
+> index c81b8beb..dc0f4ae9 100644
+> --- a/libsepol/cil/src/cil_deny.c
+> +++ b/libsepol/cil/src/cil_deny.c
+> @@ -870,7 +870,6 @@ static int cil_create_and_insert_attribute_and_set(st=
+ruct cil_db *db,
+>         struct cil_tree_node *attr_node =3D NULL;
+>         char *name;
+>         struct cil_typeattribute *attr =3D NULL;
+> -       struct cil_tree_node *attrset_node =3D NULL;
+>         struct cil_typeattributeset *attrset =3D NULL;
+>         symtab_t *symtab =3D NULL;
+>         int rc =3D SEPOL_ERR;
+> @@ -880,12 +879,25 @@ static int cil_create_and_insert_attribute_and_set(=
+struct cil_db *db,
+>                 goto exit;
+>         }
+>
+> +       rc =3D cil_get_symtab(prev->parent, &symtab, CIL_SYM_TYPES);
+> +       if (rc !=3D SEPOL_OK) {
+> +               goto exit;
+> +       }
+> +
+> +       cil_typeattribute_init(&attr);
+> +       attr_node =3D cil_create_and_insert_node(prev, CIL_TYPEATTRIBUTE,=
+ attr);
+> +
+> +       rc =3D cil_symtab_insert(symtab, name, &attr->datum, attr_node);
+> +       if (rc !=3D SEPOL_OK) {
+> +               goto exit;
+> +       }
+> +
+>         cil_typeattributeset_init(&attrset);
+>         attrset->attr_str =3D name;
+>         attrset->str_expr =3D str_expr;
+>         attrset->datum_expr =3D datum_expr;
+> +       cil_create_and_insert_node(attr_node, CIL_TYPEATTRIBUTESET, attrs=
+et);
+>
+> -       cil_typeattribute_init(&attr);
+>         cil_list_init(&attr->expr_list, CIL_TYPE);
+>         cil_list_append(attr->expr_list, CIL_LIST, datum_expr);
+>         attr->types =3D types;
+> @@ -894,20 +906,6 @@ static int cil_create_and_insert_attribute_and_set(s=
+truct cil_db *db,
+>                              CIL_FALSE :
+>                              CIL_TRUE;
+>
+> -       attr_node =3D cil_create_and_insert_node(prev, CIL_TYPEATTRIBUTE,=
+ attr);
+> -       attrset_node =3D cil_create_and_insert_node(
+> -               attr_node, CIL_TYPEATTRIBUTESET, attrset);
+> -
+> -       rc =3D cil_get_symtab(prev->parent, &symtab, CIL_SYM_TYPES);
+> -       if (rc !=3D SEPOL_OK) {
+> -               goto exit;
+> -       }
+> -
+> -       rc =3D cil_symtab_insert(symtab, name, &attr->datum, attr_node);
+> -       if (rc !=3D SEPOL_OK) {
+> -               goto exit;
+> -       }
+> -
+>         db->num_types_and_attrs++;
+>
+>         *d =3D &attr->datum;
+> @@ -915,15 +913,14 @@ static int cil_create_and_insert_attribute_and_set(=
+struct cil_db *db,
+>         return SEPOL_OK;
+>
+>  exit:
+> +       if (attr) {
+> +               cil_symtab_datum_destroy(&attr->datum);
+> +               free(attr);
+> +       }
+>         if (attr_node) {
+> -               cil_destroy_typeattribute(
+> -                       attr_node->data); // This will not destroy datum_=
+expr
+> +               prev->next =3D attr_node->next;
+>                 free(attr_node);
+>         }
+> -       if (attrset_node) {
+> -               prev->next =3D attrset_node->next;
+> -               free(attrset_node);
+> -       }
+>         return rc;
+>  }
+>
+> @@ -1038,6 +1035,7 @@ static int cil_create_attribute_all_and_not_d(struc=
+t cil_db *db,
+>  exit:
+>         cil_list_destroy(&str_expr, CIL_FALSE);
+>         cil_list_destroy(&datum_expr, CIL_FALSE);
+> +       ebitmap_destroy(types);
+>         free(types);
+>         return rc;
+>  }
+> @@ -1103,6 +1101,7 @@ static int cil_create_attribute_d1_and_not_d2(struc=
+t cil_db *db,
+>  exit:
+>         cil_list_destroy(&str_expr, CIL_FALSE);
+>         cil_list_destroy(&datum_expr, CIL_FALSE);
+> +       ebitmap_destroy(types);
+>         free(types);
+>         return rc;
+>  }
+> @@ -1168,6 +1167,7 @@ static int cil_create_attribute_d1_and_d2(struct ci=
+l_db *db,
+>  exit:
+>         cil_list_destroy(&str_expr, CIL_FALSE);
+>         cil_list_destroy(&datum_expr, CIL_FALSE);
+> +       ebitmap_destroy(types);
+>         free(types);
+>         return rc;
+>  }
+> --
+> 2.55.0
+>
