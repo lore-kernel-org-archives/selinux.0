@@ -1,143 +1,124 @@
-Received: from mail-oo1-f44.google.com (mail-oo1-f44.google.com [209.85.161.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B106ADF59
-	for <selinux@vger.kernel.org>; Fri, 24 Jul 2026 20:20:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.44
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784924413; cv=pass; b=kVy6PT0O8wcSKFX95yLVwKZWeGguTd9N+X2XW3VrnpCh2MsALH/Es+wCWUl9D4+AfcrmT/YNnkuNlRndJS2WYiQzI4Bo8Xr+udK4T5k8SsKLnlEozA5/EKdx5ZesboNAE4BRfYCUrLCVrquQwgSHu9tMVkYIpYnNV7piO3lIIjo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784924413; c=relaxed/simple;
-	bh=WiHZPzaCDX4P9ovybvxKHpXorze34BVNLn2721MSv+c=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qbiBci329QJQhv6K8cv4K0VAqA3VMB3d8hIMmUZWWu9QYSOJQ9lydh/FdHqNoFByGpvethCp7JSNm15jgiFdWEXsXJvKue+02/wmk1a1W30FonpqWeB4ZmnFkufYMVVhDqy/zxVvFfkwPx2KzQukbOf6kB3+bud+l8zTInvwVOQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XN89TO0u; arc=pass smtp.client-ip=209.85.161.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A368540E8FA;
+	Sat, 25 Jul 2026 20:14:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785010501; cv=none; b=tkInkUNAYU/6xoxfYvqloOuNugJTcc1mlYg4aGS2RS416TCGvdcdyTMUIV2t3NY8nYQ1ZoR0E7O+AQGhkwSFIS+rtWZ3BvprG/JnbhWuEFR6Y118feEvqGLvwhp0YazHw2cZmD2Kpk16t49uUQMY2JTckwW4IjaBVNKTAD79KwI=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785010501; c=relaxed/simple;
+	bh=Db3f9Hkbr1czRMuS6sEqyNruq5sN9vgK788hDrtE69w=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=pfmjZ/qT8C+vTXpGa+qwQceAN5G3cLoQmu17WGH7rizOb4UWk85oX2KVsHN9krkqPTsfkqG9i7j6IPOPfqzlDcmfeycNI32LHILL/GAO5+9tDsBNZNg0YDZt2w5yxOQj1ANK93+covYMB0OSRQCh8udqYdA8vYLMHwK0n/nLDSc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LOb7WuPP; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XN89TO0u"
-Received: by mail-oo1-f44.google.com with SMTP id 006d021491bc7-6a620eca7a5so543508eaf.1
-        for <selinux@vger.kernel.org>; Fri, 24 Jul 2026 13:20:11 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784924410; cv=none;
-        d=google.com; s=arc-20260327;
-        b=QqEfbFjTA+RBLhcAZG8eoUaTDFMLsmNN+abSOmogZvX9rV6y2n17HiVz1DbDiWt2jT
-         EwRnvN1rZ75PRhRiEQ2kIe7YNT9UXzRk5LJXkKa7+OQBEso8LeUtqn3pTkCE9AybYkkL
-         UUzWhm8EvTe1ueD9a1asEvV8L7E0hcNYDb6axScnSMWkrkNYoV859wZqxp4mvOCWZaMZ
-         IBuw7b0nKeQhKgBSRwtToZNnRrtLDUKx/mpx3vmhphO3mlCx+3gQQycbX55xXOHuBHW9
-         4nDk4qFp/k/wvDPmz/7dc5o/29ag05A6cqoxc0VoQSlQ50nnXiMaPgLKZ+TrahD0WQtB
-         2vcg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=5xlYVeQSNRV7yBukx0zi3PB3ib09lQI+Y/JUZZYo1Lg=;
-        fh=FsXghBnyoYbEc42Idnie0oh5A6i9FUng5ntOLhqXIRs=;
-        b=i4mSLlXdSXcttUELgf4ufpvMWM4n0GeLVQqGUgkXCSN4G/ywXXF9b7PVmZHw4u9bCH
-         J80gL1tBYvJgWXvhWc0WaZQJvG/GZMIy97x3WEZobszBdLhxsG86ovOogMUQsgQ7cnjB
-         ATaCWaqyXB0sy/GjX/UsMqsIXFhiLiINMkSiUltjzczAensUyvD4Bxkgl+I8ONL65mWD
-         N+voUhpgqRSzLBf8i4LDjj1i21L4CdUyAYjNmTrZrGFCPQXGYYH5jVyTjJOgq5ggUmNN
-         ZFmhvlVrs5HgeMe9HohF/BZE5ciabSoh1gC9VlYn655VKQYSche7xcMpwUoIYf5BIw8t
-         cuMA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784924410; x=1785529210; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=5xlYVeQSNRV7yBukx0zi3PB3ib09lQI+Y/JUZZYo1Lg=;
-        b=XN89TO0uwfAQDVlc5vCrfqkWIrzx/ZUoCVDVx6EcnFH2Ldy2ZC9KChtZLOkti/yod0
-         Ttoyvrk2mhLSH7AJo8OZjie1WAYHMOWMIMLWEZstW+YTbovudyIHQHS071cZtDMJoOsR
-         +BUw7lxhReJZNTQzhakfMmm1EgdLlA6Yqa6oPaUpSzpjbz22pdw9DwnlT8jouwjV6gu4
-         p/GfFaoAYZxMF/SL0X9YGxo7iQo8Kt+b4s2+Hs9kI+l84xR47xsxhQGETgKJzYjBSWin
-         PebT1Ags2fyrcKry07unalDnxtilCvdyGLzhyYC+2YqhdkuLYK5atdTo4Li/+AbDup14
-         GTLA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784924410; x=1785529210;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=5xlYVeQSNRV7yBukx0zi3PB3ib09lQI+Y/JUZZYo1Lg=;
-        b=qgdaevq9UlF8ya5Fg3PcdRFDxChLbZCHc9rR2oBWRjX+ET+rrMmhvHfBS5/i0AUmV1
-         0uA34Tkw8hKiYMhWjWeCyrnp7KkBSJigbDDeP9b7iKEShjS/bcwBMeOp/q4d74+uBVib
-         9ES/hoeaL/Du2bPtCcV+2N+hNPjRvk6tMflgM73G+35gIcQlPmgtAjyDm5oWzg3jGrmT
-         BIKZA1cFrE/CuDrTJEwZ5+5NBkJIFYHFcsZqUdU96zWOkh9SbwZDxA2NE/+HDLZwO9WR
-         865OgYxg4YIN5r/UULHIOTDkLo1IT40dFz/HogCX416ESqzVWFU7U68AmqJHU7xzwdbr
-         ArDw==
-X-Gm-Message-State: AOJu0YxbBjTM7B+VmgfEchtPi1K0myNhu0AAOeKbW1lL5yYepm16d69J
-	LODyGCKhdsvmYVnMagYxZD+xzJLaZwGFmZF0tIbkVBVnKp0oGQhcIgRlJlDfVOGJ/bqECvxYo6Z
-	NVgsTG4I7GWrD4ZzYlM3l1mK8zZAo3xeX8g==
-X-Gm-Gg: AR+sD13kK9axykqElz6iEtWBARJgLOGD2mlKIL7QIQ/rWHgIn55f0Hijg6eXhkoNcyG
-	9yZE+M5rDeBCzt1FYVfmtAae85tu1e6thOJlzHAjpAyoIzCzeI5NX01caw6hRq3TjyPQlRBdehm
-	gh+iut83jzms3R8dKrNwDK+ljzXG8sTwSClfps5NHwO5UsccLsf+Hhtft7UK0Bij9CajP4mbN1o
-	dw+XPgwftvxTxT3o1B3pDMdfUMzXelK/9aE5jqLOJhZS023YyVfbGQT/YSR1g==
-X-Received: by 2002:a05:6820:812:b0:6aa:e13e:ba39 with SMTP id
- 006d021491bc7-6aae13ebb62mr4149991eaf.43.1784924410297; Fri, 24 Jul 2026
- 13:20:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LOb7WuPP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 231BC1F000E9;
+	Sat, 25 Jul 2026 20:14:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785010492;
+	bh=RTyMHzE0NoKBxtjm0Pr5tmlD2a81LRHCxcfNNyoc3PI=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=LOb7WuPPFMZoBJ8pvZS2vIzbus1m/mggu4XTTwJkwxY0aFDfcnPL3Och1dcPKQTYR
+	 Pr5ZHzRwGWAiUw/MALqbJn2JqH3x9+HFbWPaYYvx4kALhmDdQmGf3kWQ5GfzGppFVR
+	 sBjVV1aJOF7BH+MhXizPMZm5aKBTZVXKMOXNS4zJTJdJQOFwinOY8/htG0C0+XqIr9
+	 z9RgvU2NhvEIaX6nPRDHtIPVZRGJYwQ4wVG7NHyUHjcF2t/dsCywjdNEZEiNke+rKP
+	 5/Z0ZVQ9QeyJzy5ekdC6LWhm8QoYcWvh0xyAp/ps1DfjVQDePQ1sie8Fi5FaSH8eiV
+	 8QNvxS2LPANAA==
+From: Chuck Lever <cel@kernel.org>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Paul Moore <paul@paul-moore.com>,
+	Anna Schumaker <anna@kernel.org>
+Cc: Achilles Gaikwad <achillesgaikwad@gmail.com>,
+	Trond Myklebust <trondmy@kernel.org>,
+	Casey Schaufler <casey@schaufler-ca.com>,
+	Christian Brauner <brauner@kernel.org>,
+	linux-nfs@vger.kernel.org,
+	linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org
+Subject: Re: [PATCH v2] security,fs,nfs,net: update security_inode_listsecurity() interface
+Date: Sat, 25 Jul 2026 16:14:48 -0400
+Message-ID: <20260725200958.4471-1-cel@kernel.org>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20250428195022.24587-2-stephen.smalley.work@gmail.com>
+References: <20250428195022.24587-2-stephen.smalley.work@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260724192831.106384-1-jwcart2@gmail.com> <20260724192831.106384-2-jwcart2@gmail.com>
- <CAEjxPJ55VNg3fc58+mBk4zSFcu98b0nx4YY5dO23a1_vnMjAJA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ55VNg3fc58+mBk4zSFcu98b0nx4YY5dO23a1_vnMjAJA@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 24 Jul 2026 16:19:58 -0400
-X-Gm-Features: AUfX_myYbu4Iqk5IzvnnJM6TRs-S9ClpEBvJeNdvgaaH2LxldYAaxRDWh92j15k
-Message-ID: <CAEjxPJ7+uSNGYMORxwROD7rJUMW1_PZNpk=yBgVr2jVf7GGQ2g@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: Use size_t for counting bytes in module.c
-To: James Carter <jwcart2@gmail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Fri, Jul 24, 2026 at 3:56=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Fri, Jul 24, 2026 at 3:28=E2=80=AFPM James Carter <jwcart2@gmail.com> =
-wrote:
-> >
-> > Use size_t for variables used to count bytes in the functions
-> > read_helper() and write_helper().
-> >
-> > Signed-off-by: James Carter <jwcart2@gmail.com>
->
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+On Mon, Apr 28, 2025 at 03:50:19PM -0400, Stephen Smalley wrote:
+> Update the security_inode_listsecurity() interface to allow
+> use of the xattr_list_one() helper and update the hook
+> implementations.
 
-Merged up through this one.
+This commit wedges an NFSv4.2 client running fstests.
 
->
-> > ---
-> >  libsepol/src/module.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/libsepol/src/module.c b/libsepol/src/module.c
-> > index 5fcf5870..fdf05f12 100644
-> > --- a/libsepol/src/module.c
-> > +++ b/libsepol/src/module.c
-> > @@ -345,7 +345,7 @@ int sepol_link_packages(sepol_handle_t *handle, sep=
-ol_module_package_t *base,
-> >  #define _read_helper_bufsize BUFSIZ
-> >  static int read_helper(char *buf, struct policy_file *file, uint32_t b=
-ytes)
-> >  {
-> > -       uint32_t offset, nel, read_len;
-> > +       size_t offset, nel, read_len;
-> >         int rc;
-> >
-> >         offset =3D 0;
-> > @@ -842,7 +842,7 @@ cleanup:
-> >
-> >  static int write_helper(char *data, size_t len, struct policy_file *fi=
-le)
-> >  {
-> > -       int idx =3D 0;
-> > +       size_t idx =3D 0;
-> >         size_t len2;
-> >
-> >         while (len) {
-> > --
-> > 2.55.0
-> >
+A kdevops fstests run against nfsd-next hangs at generic/086.  The
+client stops making progress and never recovers:
+
+  watchdog: BUG: soft lockup - CPU#3 stuck for 250s! [086:60396]
+  Comm: 086 Tainted: G  D  L  7.2.0-rc4
+    __pv_queued_spin_lock_slowpath
+    _raw_spin_lock
+    nfs4_xattr_set_listcache [nfsv4]
+    nfs4_xattr_discard_cache [nfsv4]
+    nfs4_xattr_cache_scan [nfsv4]
+    do_shrink_slab
+    drop_caches_sysctl_handler
+
+The D taint says something died earlier.  It did: by the time the
+lockup fires, the client has already taken two dozen NULL pointer
+dereferences, all of them in the same place:
+
+  BUG: kernel NULL pointer dereference, address: 0000000000000000
+  RIP: _copy_from_pages+0x44/0xd0 [sunrpc]
+    nfs4_xattr_cache_list [nfsv4]
+    nfs4_listxattr [nfsv4]
+    vfs_listxattr
+    __x64_sys_listxattr
+
+The two stages are connected.  nfs4_listxattr() declares its
+remaining-size accumulator as an unsigned size_t.  On a size query,
+where listxattr(2) passes a NULL buffer and a length of zero,
+xattr_list_one() decrements that accumulator for the SELinux label
+without regard to the NULL buffer, so it wraps to a very large
+value.  nfs4_xattr_cache_list() then sees a NULL buffer paired with
+a buffer length large enough to pass its own bounds check, and
+copies into it.  The fault happens while the xattr listcache
+spinlock is held.  Task exit does not release spinlocks, so the
+lock is orphaned, and the next shrinker pass spins on it until the
+watchdog fires.
+
+The reproducer is a plain getfattr on a file on an NFSv4.2 mount
+with SELinux enforcing, which is what fstests generic/086 arrives
+at by way of a drop_caches write.  No fstests machinery is needed
+to see the oops.
+
+An audit of the listxattr path pointed here, so I built nfsd-next
+with this commit reverted and reran the full fstests nfs_v42
+section on the same pair of guests.  745 tests, no soft lockup, no
+oops, and generic/086 passes.  The two failures that remain,
+generic/033 and generic/258, are unrelated to xattrs.
+
+I am not proposing the revert as the fix.  Achilles Gaikwad has
+already posted a targeted patch for the accounting itself:
+
+  https://lore.kernel.org/linux-nfs/20260707152305.15324-1-achillesgaikwad@gmail.com/
+
+Whether the right answer is that patch, a change to
+xattr_list_one() so it leaves the remaining size alone when the
+buffer is NULL, or hardening nfs4_xattr_cache_list() against a NULL
+buffer, is for the three of you to settle.  I am reporting the
+severity, because the accounting bug is not confined to a short
+size query: on a filesystem that caches xattrs behind a lock, it
+takes the whole machine down.
+
+I can test whatever you settle on against the same setup.
+
+--
+Chuck Lever
