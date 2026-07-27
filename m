@@ -1,84 +1,75 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 772202F7F00
-	for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 11:52:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EF023176EE
+	for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 12:48:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785153179; cv=none; b=kC6OAQZccqNW2l/A4IjQ0cVzFEZqT2I+/Dlr8FGFNMzOoZnueUxa/JgXQEIvwcCVt0KNtadhwOI/YaYHXTY8O+pgwG523dLHKJoHhpoOg/QCcPyHTM2ANHqUPxLK6X9L+xKcdIJqj+jsaimVVtj3YiueE/5KTVSkAVz4RpPHajs=
+	t=1785156511; cv=none; b=AYkPdmrAoGGbAgJwITIQgrEuWNdhDFYTKsl9RZCoeUnKsp9p6zaqV1wuxv/oUWahxGppRTF/m2xcCq8Gicghn56hCDd9Rb9DKS4u0UeDkV3v7EAxJtPQa4ad9C5x/GC/jgiClng0JwDvh3+hn1KGsgHpe8p7IHyPqFM8qdHUaNY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785153179; c=relaxed/simple;
-	bh=yAYtOucJ0rIXPBCqqV/MQCF6f++xnSJG9BbJdRR9UN0=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=kY2LpYusY5cNF8OwK4lzaQcFIL/pByiOmP6PLSXt8sK04xav1mrnjhKvGHj9pIdZjjBGvPP5ltLClMYPioMjCduQOhpq2eQqPEKXwbWAqkEp8mNgdieHzYX6bBPeeG52mffJYPxOqPHtimCOsydqm3bNcWoTLb+gBHbwMH71T5k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VYmGGUG5; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=FayRGzbl; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1785156511; c=relaxed/simple;
+	bh=tCWJ+vfrA0l2mVJ8a4TgSHYtcuSjL6hi0v0nv2aKDPU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZCF2vrtL1XzZgW6WJsNmGt7inzGKC7F/zJOz51CkgrFB7WAdSp8+ZPn9WCbrh0tfIptFtyCw4MgSgtNQWSzGktNFUDnXr7XwK+4ec1PmF4D0Owc/vxth+nz3oJeTA90gVqSCCZi5igmb0U2XNNukPM5gzlLp4aRoT+8qwkCVp58=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=h9+3zCXD; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=x4kJSiTu; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Im5qq9zy; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=nry8haaa; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VYmGGUG5";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="FayRGzbl"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1785153177;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=dT2pZru7DhE+FIRyt/8RsNPGIuwOkcBH6IziAfBaEQY=;
-	b=VYmGGUG57b0afNU6yUI5B8Yve1IXYrkPgPwEhXLuz7GeQrVChv3LvS/M+DLt0Vn0LyX+CJ
-	t/B6j8+jiVcb1xt/3EWowRHXjwZWc2WPhtBQtEz/2K+AslVfT7rQsGCKqgiHDxmRO7LqHH
-	P9agN6ZKbQhqFRbmfM8po3Ls6TtYyqw=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-228-0RCA5faCNv-zofkwXdvodw-1; Mon, 27 Jul 2026 07:52:55 -0400
-X-MC-Unique: 0RCA5faCNv-zofkwXdvodw-1
-X-Mimecast-MFC-AGG-ID: 0RCA5faCNv-zofkwXdvodw_1785153174
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-c1c25c44d15so372035866b.1
-        for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 04:52:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1785153174; x=1785757974; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=dT2pZru7DhE+FIRyt/8RsNPGIuwOkcBH6IziAfBaEQY=;
-        b=FayRGzblUCc7irIOK/zyXBCQ4t2HTajheYOwxRLvFgjOHU/JxPQ3r9k/cEXGFElgWv
-         +3uOrAtPLeip7bG8PNg1a+76wDdRrZTX57bvas3tR7hTKOkLJiIitQ11WKS9HqsjRyqh
-         ezyH8t/qVPcgYI2EGwfyNrQJDZnPJaUKoFVYL4g+vfG67KNnNNWBQFWT9rNIw5MssWgO
-         BzhcPHIqfqtVMF9D/XdJdgDpX/U7P8B9XaOD1VNLfYQvlgOYo9n9lHGXF1YGOOXWWcdl
-         sla/J+LZRhlS4HEtQ+ZL5aJx2o78yTGOwAj0m4ub8sEfydcaA9onbXF6gJMrXx94U5Ej
-         Tkgg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785153174; x=1785757974;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=dT2pZru7DhE+FIRyt/8RsNPGIuwOkcBH6IziAfBaEQY=;
-        b=HQopg34O+3CqcnjYa4pICcFsgLsqZRm9EXic6cl4qlzWSRKSreZpO9l/n9OBHhiPeo
-         3v7vv6GyQgiAY9yrlk/vx21mRpqGvmpo06JMjnFhReECPLIwYfzE5UjOIdTqzllR8rVc
-         U5gEVv/FbjEAp6H9xOkiRQZNWIkODq/QKMY6VmTPOZoCGZPvOez5NKTZKuL2GonKXjGY
-         NwVBBZ3Qv1oIa6s/8k4kRt611HwYLHE8Am9ziZwPGdBj/YIkYJqbYttb8H1PhFCgS8uc
-         JU4D9LvNvu8JPmiQ+bNIXApo5sTlTaQVIz0id+gtiPzL9x07WYGWBxDUnthqDIXVILIp
-         U49Q==
-X-Gm-Message-State: AOJu0YzmkGtFZEBfY+untLNzBFijIoIQbjk8OURFiMDUlm3pg8jszSvV
-	bE13+uzByPRzfc7rYDnfXov4hkwAcSOzZR1/c75eDe2exnaNLWSl8YItA8zofoc2XCSmtkn8x+o
-	BVbhjOUnZVuEHrzrqwy2IDs+T6ChTn3uMDxaNucCRDXo9KQoZ+rKV7UntLYlf9tYnAT0WTjzrkJ
-	jYlBx1YqNIxjmTCzLWQPZFcL4+jUuFrOpV1lOh/e9C2QM=
-X-Gm-Gg: AR+sD12IViP71VpPJNikCHFhbUv2wArB6+m0I2/60sFG8F8QSPYwzkmhHrvoNnQCpHO
-	/slTOa4yD44akD5oxETYFlBs/jeLA1Eoj+q7Z9+W1jZu6hnDF4Hb5bM9AtHaDG21v+qJ6J3qOLA
-	6ASbGZJtdPlwNFWBoUvuIgnTvvKPFNpi5D3fwDN+Q/btak5tp/LKKD+jEAP9iPt/L0Wdfq6tYUI
-	KoJx4LF77sfd/C2vaJFXcEkgEOM4KUbdsNz2rTTciwr1oYv7nPBUCscsXnplKbYy71dbhAEp+lC
-	9qihJhLO3hbYmSb8odsDs7quPQkHebRDl1GctrI0517KMRxFhJRDpZiLtw==
-X-Received: by 2002:a17:906:9fca:b0:c1c:1e4e:f911 with SMTP id a640c23a62f3a-c1f1f0ab15amr357114066b.30.1785153174512;
-        Mon, 27 Jul 2026 04:52:54 -0700 (PDT)
-X-Received: by 2002:a17:906:9fca:b0:c1c:1e4e:f911 with SMTP id a640c23a62f3a-c1f1f0ab15amr357112866b.30.1785153174013;
-        Mon, 27 Jul 2026 04:52:54 -0700 (PDT)
-Received: from fedora ([213.175.46.86])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c1c32ac6ff3sm629489166b.19.2026.07.27.04.52.53
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Jul 2026 04:52:53 -0700 (PDT)
-From: Ondrej Mosnacek <omosnace@redhat.com>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="h9+3zCXD";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="x4kJSiTu";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Im5qq9zy";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="nry8haaa"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 405E07DB69;
+	Mon, 27 Jul 2026 12:48:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1785156503; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=YfJvErFnAJ1GpOmRhl88YyLW+JWExLrIfIt95v65TxY=;
+	b=h9+3zCXDmmfCfeOmG7SkmmSVwDMGYyqw/0LeVZDVKgW9qYCx8PxrC21PxQgUv8wb22YX7T
+	qL3HxXl4A6SFczViZYh+4wwybmrypxdTLOP/VLiknUPnDmSX/q4h+CQEO3uW7+GV14IWYU
+	ksMUo/4Rwul9NNzSwScyw5Qc+p68jyU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1785156503;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=YfJvErFnAJ1GpOmRhl88YyLW+JWExLrIfIt95v65TxY=;
+	b=x4kJSiTuwL1lA3oz3L1sxhEuPlYmI4i3EiV19oRYQD4+kveQxe1Wqf1LfmOzG4PJvbPWOw
+	Ulae4fSyZXxqA0Cg==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1785156499; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=YfJvErFnAJ1GpOmRhl88YyLW+JWExLrIfIt95v65TxY=;
+	b=Im5qq9zyqkfFWg63BhI7lPq5sqgUPYELO0FGdTA7p1oqiVqnvCT2LGiq8KU+s+YNdAfWr4
+	dwGgTedTPYPsg43HSBOnaz4hg4rh+2UMQ/vg3xl2CpzPzFepBAC7jRIyGb7cklW2cvPzAR
+	hHMtYiaoxqLSvg6G6PIOVXZZQ7n9WdM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1785156499;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=YfJvErFnAJ1GpOmRhl88YyLW+JWExLrIfIt95v65TxY=;
+	b=nry8haaady6/ridTgkVxU90Q49ZS7eoOSAl7B+1o6aM4X9NYqDBuhn0FPD6Qcxxsf25Q5u
+	iX6gQZtu5GLu+2Cw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 26B9F779B9;
+	Mon, 27 Jul 2026 12:48:19 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 4OggCJNTZ2qJYgAAD6G6ig
+	(envelope-from <jsegitz@suse.de>); Mon, 27 Jul 2026 12:48:19 +0000
+From: Johannes Segitz <jsegitz@suse.de>
 To: selinux@vger.kernel.org
-Subject: [PATCH testsuite] tests/file_contexts: avoid using a C99-style for loop
-Date: Mon, 27 Jul 2026 13:52:47 +0200
-Message-ID: <20260727115247.365341-1-omosnace@redhat.com>
+Cc: Johannes Segitz <jsegitz@suse.de>
+Subject: [PATCH v3] selinux_restorecon: Do not exit on directory cycles
+Date: Mon, 27 Jul 2026 14:47:57 +0200
+Message-ID: <20260727124757.787026-1-jsegitz@suse.de>
 X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -87,39 +78,63 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Spam-Score: -2.80
+X-Spam-Level: 
+X-Spam-Flag: NO
+X-Spamd-Result: default: False [-2.80 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_MISSING_CHARSET(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	RCPT_COUNT_TWO(0.00)[2];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:mid,imap1.dmz-prg2.suse.org:helo];
+	RCVD_COUNT_TWO(0.00)[2];
+	RCVD_TLS_ALL(0.00)[]
 
-The for loop in assertContextsMatch() seems to be the only code that
-makes use of C99 features, which means that it fails to build with older
-compilers, such as GCC on RHEL-7. Avoid this by moving the declaration
-out of the for loop.
+All other failures are handled gracefully. Directory cycles can e.g.
+happen on BTRFS filesystems with subvolumes. Skip them and continue
+instead of exiting
 
-An alternative would be to instead add -std=c99 to CFLAGS, but it seems
-simpler to just revert to the C90 status quo ante.
-
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: Johannes Segitz <jsegitz@suse.de>
 ---
+ libselinux/src/selinux_restorecon.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-If someone strongly prefers the -std=c99 solution, feel free to submit
-an alternative patch. I don't have a strong preference here.
-
- tests/file_contexts/internal.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/tests/file_contexts/internal.c b/tests/file_contexts/internal.c
-index 22b5790..20ab428 100644
---- a/tests/file_contexts/internal.c
-+++ b/tests/file_contexts/internal.c
-@@ -13,7 +13,9 @@
- void assertContextsMatch(struct selabel_handle *hnd, struct test_t *tests,
- 			 size_t n)
- {
--	for (int i = 0; i < n; i++) {
-+	int i;
-+
-+	for (i = 0; i < n; i++) {
- 		char *context = NULL;
- 		struct test_t test = tests[i];
+diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
+index 30f1b836..fdefc92c 100644
+--- a/libselinux/src/selinux_restorecon.c
++++ b/libselinux/src/selinux_restorecon.c
+@@ -1393,15 +1393,14 @@ static void *selinux_restorecon_thread(void *arg)
+ 		if (is_dir) {
+ 			if (descend && walk_is_cycle(state, ent_sb.st_dev,
+ 						     ent_sb.st_ino)) {
+-				selinux_log(SELINUX_ERROR,
++				selinux_log(SELINUX_WARNING,
+ 					    "Directory cycle on %s.\n",
+ 					    ent_path);
+ 				close(ent_fd);
+-				close(rd_fd);
+-				errno = ELOOP;
+-				state->error = -1;
+-				state->abort = true;
+-				goto finish;
++				if (rd_fd >= 0)
++					close(rd_fd);
++				prune_pathbuf(state);
++				continue;
+ 			}
  
+ 			if (state->sfsb.f_type == SYSFS_MAGIC &&
 -- 
 2.55.0
 
