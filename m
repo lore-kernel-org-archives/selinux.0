@@ -1,129 +1,139 @@
-Received: from mail-oa1-f44.google.com (mail-oa1-f44.google.com [209.85.160.44])
+Received: from mail-oo1-f51.google.com (mail-oo1-f51.google.com [209.85.161.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3160041A797
-	for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 13:33:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB3352C158A
+	for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 13:33:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.51
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785159189; cv=pass; b=sEBloYDC9D+6TMYXkx6cr0UxZI7Rz/5GhHZoe2tYzZIhz8udpbPBBJsxDSLSbw/06EPu3nV7MjkZDYDcWYV8Hkj2UFv0l2ul7bt+FMKZKwP6UbOUvR7+8HoBRzT87x4om3Y8iZcy+j9oVhUKi0OrfBKFkCCk/h3rrbv8hR06TH4=
+	t=1785159239; cv=pass; b=ZRk10xF/2BrNgTsOawTR2Vlm8b9dSO3nCvmGsL++8rryyOTrfpnf/xepaDWKzr+c9A1mHVd9isvmNQ0gDqcDA7ja2GVY/QYTZjLAbjFncyiL5DsdZp+EBXSLp+6MExZkF/VGNyD8cyb6uz3SHkz+suXnTCqdfLcwBt1Jko9S3ew=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785159189; c=relaxed/simple;
-	bh=gWXTsX7cceQMk33jkjaViwGtO8kOH0OhUpQMnRsiNhY=;
+	s=arc-20240116; t=1785159239; c=relaxed/simple;
+	bh=ORbtDUzsf8EXtRMQPDR53Pd0aTV2OJBHdOKE9zn3aH8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=QT4P55cIzxFNFzP45ZmTVtWMsZcUaZJv1XALLjj0WazBNI+BxOwTqxPR/Kz37fqk7AsnPpGr77ZsAN+k2Y5e7THuNgyxyDD/UooZ2f+3OfFi3FlIqYqd7lW9hsJEVuQmtxf+Js7I98x0HTcWvJap7UjU0xEv9HihQJwxQtYboMw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KlI0fZP2; arc=pass smtp.client-ip=209.85.160.44
+	 To:Cc:Content-Type; b=N8/PbQLtMDcE2i2vMZC7LPbeE4sGKGl4AvwaYLS/7e/d3RJbAYvHBF1COICbVOYs2uzpXRH0mq5E8gAbi78ie/um4BiiLIOTJhRkH7YR4cunG32eoDGHzILVovu2OpaFAQCAokiiG7zsMZfJiGagWP10xrHPP+f1BwXMwqc+kAY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KJpodScA; arc=pass smtp.client-ip=209.85.161.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KlI0fZP2"
-Received: by mail-oa1-f44.google.com with SMTP id 586e51a60fabf-455ca262ccbso1469700fac.1
-        for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 06:33:06 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785159185; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KJpodScA"
+Received: by mail-oo1-f51.google.com with SMTP id 006d021491bc7-6aaf3f54dbeso1429558eaf.2
+        for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 06:33:57 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785159237; cv=none;
         d=google.com; s=arc-20260327;
-        b=OrSr7bafC6esMTuLZe/g/A227Yxf8MagZ/h2h6ma/DXtE3JCxvJW1ptePoJZkCY2bD
-         /ytrfVF1cXH5HrIGZlEvGgJYX4CfTQ1K7Nj6nmNLFjG0Y3Rcu8pHCbzs2ERot+vWKlj8
-         L3rITqtPibvtgy1dfEgqtGC92n6UaxG465zUdNgaLr2OOD3VVe65ZaYcAiSBAh4dFfYA
-         NgW9R6zOlhFZOff6WAGq4+ocvLuLKXzl9pK1p9mGBvzqLRKVPB7xX9wF74MYqa399cVE
-         7wXkw8BxQ+QV0KBlHx3jMxEucLHZKx93WIgLM5uJkD1U4ljUzBAOSXb2EsyHTqB2Yu+R
-         u9eg==
+        b=I9GgwfwxuWNvGxq4a7zE4v3MuOEGcVdZfsq0EV6iUb9hkXHRNJqkzordsrcBvHcE1N
+         riDJmI2/bgp+8NPsjUvsDBX/b4+Vsdp9aLCR3xk8sYd02soygeFJa94XZlP9EqKpagDU
+         ZkGJfUt3T9t/K1d+QjTIk+6+WufAMX2wsUguA74zb5x23Gnx8m1PbUdGsx93vsCjTmOc
+         YFiwqMvUUPu73Kmck9RcK8+Aq1BqGO9SwZlI1z58+ZG9aRdnXyTHEqg4XN9j36glWOBs
+         DEsqGZ4upbdovAcCivirqXfgCDmOg3PkvV7yqdrYTI/TafroiB+2co85MpMrtYszDeE3
+         IQkQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=7X2/6IFRlqe5jpIo+qdqs7P9bg2x4dLtPAOAoNlDkLo=;
+        bh=ix0OLcBKaqNms1MfHIg4+rpT9yZn6akTejcO82c2S6M=;
         fh=ctNnd7rEgrNGVRcNYAD2iHPqnd+GFVudQHEzcgGqyZE=;
-        b=clFH9+SVuyy/6zVikU0OInGMJ7SRX7DrRbtn3XGMAFsu6O6T66qpEzsVWVTEToy+f0
-         33XYuthKUTOmT1En4JyrCqrJLvsW70b4c2Ak3PsrwDS5cswmu26E06z/Mt2pkly5h31B
-         /C3PLOLaTQDL//CqnSNvZkiYWtvs5SU3LzwwIUXFZtCqi8azA+gmDh09JEotLMH1DLVV
-         RTiXTZneyXGSWlvRZpyuA7fFaLIeZIE07uYa4RBZQNhu5bRnLBHzcNCFL1rnB/6eeLj7
-         LiSUzsd7zejxCMjyOHhxEHmPCEW2be1szHOY8GcWrjrHnzw06F1r6JXIDslJA/iGolz2
-         NbUg==;
+        b=GObAszC4mIoMcOQTZLGk7rMPy+ziaaAkHxr0+oLaz2OtDoWMmGAiLjUJAHr0dlah5B
+         bdkBw3mcS8i2GG2zUuGKmEmES41kU4IevCtodldguQ8OgQ5rb5bDtxccignm4ebv7YWK
+         DOTnOMT5/LLVcmh+tIkZpAwkx6rlwckwP+QFr9cIsZoc4XEQp+IwSI8BPM20H59oOSFe
+         1rELOiuIdbYAh/zq9JefjB4/uJBKwbYaEdMFfCvQ6cggpooGRr0SxD5ZAAL/xF7nsBth
+         uHaDn+PYIY/DuRSm/S8xdB9ARDBJ5k08EUtyt2lirxI3an0M1AMKKvPW0RSnHrwiB7Oa
+         qnkw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785159185; x=1785763985; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785159237; x=1785764037; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=7X2/6IFRlqe5jpIo+qdqs7P9bg2x4dLtPAOAoNlDkLo=;
-        b=KlI0fZP2e4f9tSwSHjP2Kl/Y0mNH+dZuRHggoCQMEAGapla5a5NV6qLsW+wIVfGjLk
-         Z9CHA/jt8uEB8nISVW87AeixmXHJbejxkKIwXUVqDlrmR972ag1SqOCEaoOQA9iI5SId
-         NBn2ty4uXwpaihkcvjbnA3eFtoyrsZaBR8FwL7QasNWRXhtqa3Kx88xP5D4IBLd29SUA
-         gaw0eNtvStZ+OYaeEvCIhKok2sOw9T4SoVfQXKfaX0wAQ9oWqXAey8cuVQIp7CrUPyTC
-         fJ/yOVjG35Rlfzv+aW28COhTWrVJOymvF/mkdRHQb5j9zfXuk+HSU4sZXAvjD86QnnqV
-         QlCg==
+        bh=ix0OLcBKaqNms1MfHIg4+rpT9yZn6akTejcO82c2S6M=;
+        b=KJpodScAaCkUjZH/RmpPle6dO032tdAwEH0Wkuhnzh1YscL9awKRofxoJ704MJf1+q
+         Nf7+Zi3vS585Mo54jI47U+Dnf3HTC4UEh7miTjRDw2mshHDzNHowdyeaOHPGE1jrF3uW
+         kivwq4ercTidsHO8YPsq7G6W+2Uyspt+xNU1xn/zUmIZOFP5DhM7r7aE0n+gEj859BN9
+         kdVUM9xivqG1iC0oLhefCla4Vt5K6Sp1nnRacXMveLHjvvBBWKHOQUMaaDhX0x94zx9D
+         AzcyuxyFtDFrn6289A3x9tVYMVaOkjfUZL3nlR18UToB1tdkKjsI2INI+0L6tC+KBRgp
+         UlXw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785159185; x=1785763985;
+        d=1e100.net; s=20251104; t=1785159237; x=1785764037;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=7X2/6IFRlqe5jpIo+qdqs7P9bg2x4dLtPAOAoNlDkLo=;
-        b=P124Y5mj00znlbOykN25YYAEYd9IebZwcjUAEJ5yd1NMYd4NnorQTGDOcZ4dTUUy7R
-         5VgGKUaIkcDmFriV8Z++mMjdI0kRywEhh0Ka32eiG1W9tNUpW53ML+TxOAOy/hAnVIKQ
-         hmvsOqZ6OwK4dN+/EIvDSP4V/bkhgo8AhVdRYqGBY+dPyTOSEuNccQ7sSBYtVmO6aG7D
-         /hMvEhsXNnPKxlyLU2vvHkWDDermuxYLI0Qilpaexztw3LYbPpVZk5ys4+3nQ+Lg+YdA
-         ZSyGd0Kbi+j9Axf6ocL9pA26EhM8/BOnEMlpuhnalyD6QtfU6k5Z/ayrWnDPZNxkomhM
-         jzeg==
-X-Gm-Message-State: AOJu0Yy9tmd6Ep2U8a0VXadqNn+ZmmZOo1P44a8a07PS8Ifdwvh6J/Nl
-	GYWdUma/7SkvY7anqXt/woNnkFQocKbnJv3OdLDqQBaPq0VxfBPMHpiWNg4F2FTlxfBBZu4o5KH
-	gr4Z1e5IlwosTExA/KYBsSWU0aPMWdeg=
-X-Gm-Gg: AR+sD12MCMz9ZbrktmK+YF265P3sSBQPq9jv9I2jCniZGHV35tDjIGVUxQP7oITswMa
-	RJOqbQULEUS68XvisxKc6EON7guk0YkqcwoNR9BEYPdgoWtuLvecVpCivlgRUvpQ2VjmDcOgyBj
-	zlPPFjQssQwP9qUBviZlUII/knuPPfXc6YE7mn/KnbOsXgJqBcJxQ0r5pCfZbqc8J6MZomwYctR
-	xAcrOezzkfK+ynhzboQs4QsRrEcqqV7148FXtwzYZssrhT23owRD7CGBrGq5g==
-X-Received: by 2002:a05:6820:4c84:b0:6aa:ecfc:2ebd with SMTP id
- 006d021491bc7-6aaffa1da1emr6706155eaf.55.1785159184935; Mon, 27 Jul 2026
- 06:33:04 -0700 (PDT)
+        bh=ix0OLcBKaqNms1MfHIg4+rpT9yZn6akTejcO82c2S6M=;
+        b=PGqls4raF7+HEcqHVRGZu+i5wEwuzL1XboPiblXnmhJ++1q45tZgL1ytAKd08b1V8R
+         oVvwV7XYKfjmLKtzczdPjSd3tRlndsQXMmBhqfEHy91/X6eXr4iiaZppc/EgvUQD+E0l
+         YwAsR03AQldq6zzw65wCLDNoVPOYIkt/2M5ndI3K5SuwjyZvhRPI3yYdmSoWPyIwWE1X
+         xO+XGGjPqwzk6dEH06ZgCDG+B1cuiobyeUOOH2cR5zmyj2Qn0teUTn5CRIeP6gQT6fBr
+         Ee4hqGOQcpz7T1qahm+kxT4y7DM+UyVjxTob5D4mhuAXQ/uMzv9uqKuxK3/9vUAGQ7WB
+         GrKQ==
+X-Gm-Message-State: AOJu0Yw7S3YdoFk0eaDwKwgw8/PPWRv7tBp8CVk/AN4o3CsbbrXyzRVx
+	Btj9lw9/jBleEoUHJWFtMtKe/1cZWKuAVzZ/kQJeY5sTqFQjbhR85/JE/KTebPxeQlDvDq0qiMS
+	jbGgVDgeEvFix+eX42Ty0FPdpiiQUQg8=
+X-Gm-Gg: AR+sD11SeMal1+umZyd0JjOYYYcPU+NAHAW60rSb5Qvf5i44RM5TleE2p2SjKkRL6Ps
+	7xC6m/fVwf+yArLJg0rOJl7ypfYBHlUkTFxjYnOAWKcPvhrRbGgnNYIWx8AFL2+O+15YjI4FE8N
+	bepbsEJYyCmvuXH8aAjg/AVlKBmBi5HoB0Z3BihceoX01+gXRNx6NM30QO04G1mFI52rrxSrD86
+	44sl19jAXusdDN+kUkD2BuSVpea3S6K8BzqLxKnnkBGz0tcl4wDv+WMyLrHWA==
+X-Received: by 2002:a05:6820:2016:b0:6ab:480:7172 with SMTP id
+ 006d021491bc7-6ab048087ffmr5695883eaf.4.1785159236691; Mon, 27 Jul 2026
+ 06:33:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260727073852.283623-1-omosnace@redhat.com>
-In-Reply-To: <20260727073852.283623-1-omosnace@redhat.com>
+References: <20260727115247.365341-1-omosnace@redhat.com>
+In-Reply-To: <20260727115247.365341-1-omosnace@redhat.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 27 Jul 2026 09:32:53 -0400
-X-Gm-Features: AUfX_mxM9KGvMkpITtqrv1MFMJLbLgVjK7gVsZqYv75McnEYoscSGoK1NpiT3yU
-Message-ID: <CAEjxPJ6JJWbRtw=fQvydOy5QqGLh5ZGZKCnJB4rXaxqzEddJ-Q@mail.gmail.com>
-Subject: Re: [PATCH testsuite] tmt: allow nlmsg also to the ssh_server attribute
+Date: Mon, 27 Jul 2026 09:33:45 -0400
+X-Gm-Features: AUfX_mxoI2fgUDSFH9Kmwd6o5cFHoDwZv27k7lPusifGfmznbSvXPtMrXd6j8fY
+Message-ID: <CAEjxPJ7WpL2N7ZJ=jkNFNKpvFtWga+Ub8ufFwaPFZWzMQ=LqYg@mail.gmail.com>
+Subject: Re: [PATCH testsuite] tests/file_contexts: avoid using a C99-style
+ for loop
 To: Ondrej Mosnacek <omosnace@redhat.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 27, 2026 at 3:42=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.co=
+On Mon, Jul 27, 2026 at 7:54=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.co=
 m> wrote:
 >
-> Without this SSH doesn't work under the latest Rawhide policy and the
-> test run fails to complete successfully.
+> The for loop in assertContextsMatch() seems to be the only code that
+> makes use of C99 features, which means that it fails to build with older
+> compilers, such as GCC on RHEL-7. Avoid this by moving the declaration
+> out of the for loop.
+>
+> An alternative would be to instead add -std=3Dc99 to CFLAGS, but it seems
+> simpler to just revert to the C90 status quo ante.
 >
 > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 
+It makes me sad that there are still people using RHEL-7 but:
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 > ---
->  tmt/tests.fmf | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> diff --git a/tmt/tests.fmf b/tmt/tests.fmf
-> index fe90c69..08bd129 100644
-> --- a/tmt/tests.fmf
-> +++ b/tmt/tests.fmf
-> @@ -48,7 +48,7 @@
->          echo "(policycap netlink_xperm)" >>base.cil
->          echo "(policycap bpf_token_perms)" >>base.cil
->          # allow nlmsg to some system domains so that the system can boot
-> -        for source in daemon initrc_domain systemprocess unconfined_doma=
-in_type sysadm_t; do
-> +        for source in daemon initrc_domain systemprocess ssh_server unco=
-nfined_domain_type sysadm_t; do
->            echo "(allow $source self (netlink_route_socket (nlmsg)))" >>b=
-ase.cil
->            echo "(allow $source self (netlink_tcpdiag_socket (nlmsg)))" >=
->base.cil
->            echo "(allow $source self (netlink_xfrm_socket (nlmsg)))" >>ba=
-se.cil
+> If someone strongly prefers the -std=3Dc99 solution, feel free to submit
+> an alternative patch. I don't have a strong preference here.
+>
+>  tests/file_contexts/internal.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+>
+> diff --git a/tests/file_contexts/internal.c b/tests/file_contexts/interna=
+l.c
+> index 22b5790..20ab428 100644
+> --- a/tests/file_contexts/internal.c
+> +++ b/tests/file_contexts/internal.c
+> @@ -13,7 +13,9 @@
+>  void assertContextsMatch(struct selabel_handle *hnd, struct test_t *test=
+s,
+>                          size_t n)
+>  {
+> -       for (int i =3D 0; i < n; i++) {
+> +       int i;
+> +
+> +       for (i =3D 0; i < n; i++) {
+>                 char *context =3D NULL;
+>                 struct test_t test =3D tests[i];
+>
 > --
 > 2.55.0
 >
