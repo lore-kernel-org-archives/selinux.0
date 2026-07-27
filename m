@@ -1,110 +1,119 @@
-Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
+Received: from mail-oa1-f48.google.com (mail-oa1-f48.google.com [209.85.160.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF61941F5F9
-	for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 17:39:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.175
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785173947; cv=none; b=DjRAesUhCqDq97qSNf5kXqAqe4cG6BiSbbBqz+F+uYsjzzO9tX7/kck5WFpIpvO1sZly4E/uIpiXFNj9h8ZCRv5TXu6mXfQfE5u9U7QsXyUGOEP5FdyaBgqm5gDdYiYQ1IFTD3mXRDOaOj0ijuZOJqcXINN4yMJGYt9Wp8GlKoo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785173947; c=relaxed/simple;
-	bh=i3sBZfRSsQVUMuxMCz71OJ9v1wXO7r5shBesr1zbaO0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dS+3mplwEchaOsHzD41SNJN4O/0/UzfYog05a7NpVi2ERg3tXw7kZA1VYTW4YJfSewy9HWi8GC9wLUW8opylXP2Bj6qeoMg2Eaaq8aVnyU4ct9Hp9ix3EbnAXZuA3EGGF+XJEbzDMcJSVmwF29Mbv/2BvHkZCGbv/OQABUKUfQk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pXHnM26y; arc=none smtp.client-ip=209.85.160.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91D7037755C
+	for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 17:49:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.48
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785174565; cv=pass; b=cgK9ZKfY8jTVOvtqv5CUZgOjZCORl62KTQKRcszDXjrS7YaglInZocIy8My4PiTaCfCkWSlvBFyvvbNtUqGULiXyhvSDgAUvQlWBSS2bA5mciDS4NHISvPq2XnVPJdJh4Oa0Y7saf+E2Oa81yvDf8BOFHKq8GCS9PFbAAddl1aw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785174565; c=relaxed/simple;
+	bh=TaRoa8HU8ix8MSD+Un6tQsnPjt4AovfdTkGeCCEJJZw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=TK6aON30bEOWOsPWTYLQzGFiAnGSNm5QEzdBg8HXlRUWaRXAMyqTvlHGC90LI11rzHMTI8i0IDjbtbM24PQriN3790/cqUyru9jHhEmJA/Q17RyZoBtOl0i1M8Y2UC69yEjZoIlR0VjQnQ/mV+hccTxl3j8XRNIWweBzhQn5xUE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ISgqfBrY; arc=pass smtp.client-ip=209.85.160.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pXHnM26y"
-Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-51c2cce930cso28941461cf.0
-        for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 10:39:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ISgqfBrY"
+Received: by mail-oa1-f48.google.com with SMTP id 586e51a60fabf-455a61c53d3so1580734fac.2
+        for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 10:49:20 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785174558; cv=none;
+        d=google.com; s=arc-20260327;
+        b=d7AuGq1Fh5E5x+NF9Wr2REDJ6OwFYERD2rdehKdIqxDxgqJR+4EpoWIpKmaaZSAKBt
+         doN+Rt63iJZ2mhBshYmUiRtPy46LH/NtC49xDo2Vul19ksZwEIUhCxfdKjw5sz3M48C2
+         vtTMzF8gkpeknVKzIBVRFuj8dmEffgkXQ0G+HHwQAZbBnyx3sUWXtW4diBbU5AmA2wj1
+         6tM6sppqDIQnC/mt+IsmmRybI0LtUJqm2sD+fi4XN1SR9T77zOvyOObhJw8eqlhioi6n
+         KtN7y8gfKjd96XYt9xmz0gFz4QVZPSpb0qkYOUNB1fCRaF6CHAjqy5stGUQEYHf7sL86
+         4lyw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=TaRoa8HU8ix8MSD+Un6tQsnPjt4AovfdTkGeCCEJJZw=;
+        fh=J61V3OUGMbPg9PEhaVOaAjeaFLNhlaRAyHIlP9GupwM=;
+        b=DvrCmPvPQyUN9OqvQbWTnXgN6LU/6mDGZDJQhWYiYxCy9lYLnxGTQQLJoKpkBZvhBp
+         AdCqytrVTHube1YznnejxwWOLnJxK7Rj2JEp6GpXOOn9GETpvkx5wCrHtcw8BrvhqbzQ
+         Rze5P5Q4v1dIiHvRJfBOXrca4ivRt8Eyp8U1Luu99FGozeQSXVBsXTfeaIEd1UmfKXF4
+         NDDcZ/1R3W1REzQbuU9badVw4ZKcaemGSMw39mtAT5jh4vFYHIfhQe8eRE51vYt7dF5h
+         QLgnSU9Z3VVwS3YHFAwcnhdXgjD2hs8IsF/1hErxEmyhzL2ltOloS2+AG5QQ1fuiGozT
+         cWwA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785173945; x=1785778745; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=qw7rUif3A3TBu1Se+oZ+N2Ec39nvuKsjfTuQHQTjQyQ=;
-        b=pXHnM26yiKmPdK4VgBEiQeZUYV++xanBzO/X5DcrDqFEwSZzzDk6xNC8+FI7vFAGEw
-         BA7JJSnuuS6IzL+MWEY3gmibRbnyXD1Z2YgG1a2jPnLNl2Sk18HA2N6WQ02spz1ggEBy
-         jL2X+ntNuuioOQDvI9mfTg/Nw2YPEtHfiBsvepRBWTbupHWyjmKd5//Bh4SgUmurDBfE
-         8SDid53ZQ2HYXcKQkN/uUJPpPfuLWOZpd0gUjp5vQjvCTjHOHQ27wJgvTYuiMuv2PnBy
-         gfckj0qEL+Zyf/1C+5WiOtpgVoO7/cjC72CtAPsT4dB4I8hKXP94eNJrd4enzVgjV8VA
-         NTZw==
+        d=gmail.com; s=20251104; t=1785174558; x=1785779358; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=TaRoa8HU8ix8MSD+Un6tQsnPjt4AovfdTkGeCCEJJZw=;
+        b=ISgqfBrY1lNu1s1BdS6ri1nS9wRIaxAg+evnEhMMZagBhKEgL7V6aGZkjQQqDqaCRE
+         0Uu1XFWY8MOdKwYBA0BC7t6XWYzuB50ewsVblnUfhdsQVVg4f9rVYEVl7+HnLotGaQJB
+         0aw1XKtxEjaM3h6H6/9IQvJiitDQ+N/U8avovDWv0SsCnDmqY5EKPh24r4uQUbVZvqqE
+         dURu3oYYuOInKRw4xJ8LDRtDhDO8JB42nOOnxvSH5Q1XWVoJdIAbDj5BN7uf62xQxUR9
+         pQMsiEDh5iFKxaGN3VwFLg+qp1OHOsZWv8My8zKQVlkpGmQAoXWie3DJurkiEGLLSGAB
+         ORQw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785173945; x=1785778745;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=qw7rUif3A3TBu1Se+oZ+N2Ec39nvuKsjfTuQHQTjQyQ=;
-        b=VkQgJAGIDj5X3Mz+r7uxDNTBKaDxWksby4iEfyS2x5rh3l/kxIescPsuQ8qN6bNEct
-         3L3XREJu9YzEvWIUHtyPIV0eGhIFhHEzRpLiwsqdrO8MJGN8RW1eWM3v6E5HACgS97xT
-         3o8AuVKrFCclIHZ1sWeCLShfgvmhmc3SrTwGgKurl8+IMXWtMdxWJKYhNDL7GvEXlob3
-         PNfVM2fif93K6y4jISFjt3S+2Zp1wpw3Goo3xBkmqWnpwAL5/GyQT0Fxs0n//X5tlDVT
-         HdX1O+6Ec6+b0WuTAcCjcfo+UHOwNdh8qADHCU5TqGAcUKp2eVsfLe3q3/v65dL5/3Pb
-         vEOw==
-X-Gm-Message-State: AOJu0YzAkUeBijUKxWu9mi+7MfxhHlhHPDVG+nn3BRSiSDymjz8ddqga
-	PiNpn3yf59OQai1s95zs3iYetghMLjugkrSfBcqxBP08re7k0urJRj1CAxeijA==
-X-Gm-Gg: AR+sD12jP5hqBPMepaod6fnt8w4m3OTt7ZtcPEhw8Q+B1aIljSKGH0V+1zIbaIgLHbk
-	WZ1Vy0roqlRjNfdpFa0mcER3QR580YeGtZZPLKIVDkhBiZA9GV1QoJjvt8uN4x9IVeD+Md54STM
-	0XrL28D3qFnKES6nhIgBsCu0EyBb/6gBJKZeny1LpjHD2/x/JHwvhMW/3iW5g2YijkSI1caVThn
-	QRYUFboCkqTUZTMhQLlRObAPVkvfz5mtSyix8yxfBrhz0XKnR+0c17VHFDUfnaP5zv7OhXbYUIn
-	r9ZDqYQH5LifAMIVpwaodOANUNO1GGVpTHiHv84iwSLnSyNpOuuQIff42Ivxj4Di8bw5AsRPtIP
-	b9nFlVSn7WGBoc6/2cLzh7/GpIKeU03+Dqc3JZW5Lp81okQsrXhxMd3d+9Jtvr6Wdn0xLkODRnO
-	llTtKrwfWdrJOJ184Ri0H8UdAyhED9YFlJb/NXg7NrlTZNcXOVq82BE6sx/iWn7o4LQ28CWA1kx
-	6mFYH9dsC0=
-X-Received: by 2002:a05:622a:4b08:b0:51c:2149:52db with SMTP id d75a77b69052e-529a86d7b1fmr90341111cf.59.1785173944820;
-        Mon, 27 Jul 2026 10:39:04 -0700 (PDT)
-Received: from Fedora43-SELinux ([144.51.8.27])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-529a2a0a7ffsm58203981cf.26.2026.07.27.10.39.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Jul 2026 10:39:04 -0700 (PDT)
-From: James Carter <jwcart2@gmail.com>
-To: selinux@vger.kernel.org
-Cc: stephen.smalley.work@gmail.com,
-	James Carter <jwcart2@gmail.com>
-Subject: [PATCH] libsepol/cil: Return SEPOL_ERR on failure to set bit
-Date: Mon, 27 Jul 2026 13:38:54 -0400
-Message-ID: <20260727173854.10810-1-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.55.0
+        d=1e100.net; s=20251104; t=1785174558; x=1785779358;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=TaRoa8HU8ix8MSD+Un6tQsnPjt4AovfdTkGeCCEJJZw=;
+        b=UCcH0+Vr4oQjqKhcpV1ixMjllmMenmXJW9rUqIvQQUdhRlWaOyYyk/DqyHSMf6Fqji
+         nHS9bJtQmuys+BOzqnYkmYPwl9f7CpWIMdSQNxh6aolFPB88ElWATIMDZTL2GdnOTZXu
+         k0wtKPUvpzwv0CfwPcbbELyg6O4F2f65aK1bgIoA9tW0Vhnw7RTXhBME0E64PShFQ5X7
+         vzK/Py/VVxSjiQJZJcuQqLlxBL/Z+NkrNbGFyazJX4ZbJRx2XnZy4T+MEog7cxCfR0fG
+         +wvRYkOI2WKlSFU5plPwwcLkXyxsnbg7haLoRuDbkxtyS+PBuBZe+tr8HvZohZfei3re
+         d4pA==
+X-Gm-Message-State: AOJu0YzDOeSMLYFk7CvdOe8DeVLCgB0dn15SS5X9BZU8Sa9cuRoRFWHB
+	RiuxJhmKn3uSLwFFP4T7ebLwwGfZBakurJ5Y8YmdnEpiZySj+cAu7b63M02fOtBvNMDIlvYx4Kx
+	zj8EBzlKzhtIP9DzXXghaPKd1KAFjSPUICw==
+X-Gm-Gg: AR+sD12m050tSEhWdo6iV4vcVghW4fFvtjB/ijA9DtJNJUY34dZ4pa4J/Kss8T88JHB
+	o92utlxRBXajFUnlUoZXAzcTqCs3atK+K5v+CV82ACXvK1wZ89JwSd4DhtbtDE9AdqrAtYv+bJD
+	6q0F/Ma94AhfFoUn932bBgDuxG3PmguC9+bo7tm6t3QDAqPgjGQyqxCYD9cOGmqG7HsyGEv5XGf
+	dJOf3M8uJ3gePUYbk2bfV3pzuFwe4UqMGHf4q4gMn0vmEUquE4JYZcsKypumg==
+X-Received: by 2002:a05:6871:6916:b0:447:2ca4:918 with SMTP id
+ 586e51a60fabf-4585e48a271mr377261fac.33.1785174558218; Mon, 27 Jul 2026
+ 10:49:18 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260727152518.2495266-1-akkohli@redhat.com> <20260727152518.2495266-2-akkohli@redhat.com>
+In-Reply-To: <20260727152518.2495266-2-akkohli@redhat.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 27 Jul 2026 13:49:07 -0400
+X-Gm-Features: AUfX_mxlbwbqbGjCorrKZlj8zqN7-Y1xR2pc3PQ4fACe_O0PIOvh5jlLPa_8Lt8
+Message-ID: <CAEjxPJ7pQjCk9vv+p6uT6j82w+ybw+78WcAyJUv2ZYm=ki+9hA@mail.gmail.com>
+Subject: Re: [PATCH 1/2] checkpolicy: extend bad-data tests for type, role,
+ and user errors
+To: Akhil Kohli <akkohli@redhat.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The functions cil_typepermissive_to_policydb() and
-cil_typeneveraudit_to_policydb() return rc when ebitmap_set_bit()
-fails, but the rc value at the point is SEPOL_OK.
+On Mon, Jul 27, 2026 at 11:44=E2=80=AFAM Akhil Kohli <akkohli@redhat.com> w=
+rote:
+>
+> Add negative .te fixtures for duplicate type/attribute declarations,
+> type/attribute name conflicts, invalid type names, and malformed role
+> and user stanzas. Run checkmodule negative tests as non-root in CI so
+> the unreadable .te case is exercised outside root-only skips.
+>
+> Signed-off-by: Akhil Kohli <akkohli@redhat.com>
+> ---
+> diff --git a/checkpolicy/tests/negative/bad_user.te b/checkpolicy/tests/n=
+egative/bad_user.te
+> new file mode 100644
+> index 00000000..e7460dd7
+> --- /dev/null
+> +++ b/checkpolicy/tests/negative/bad_user.te
+> @@ -0,0 +1,3 @@
+> +module bad_user 1.0;
+> +
+> +user bad_user_u garbage_token;
 
-Return SEPOL_ERR instead of rc when ebitmap_set_bit() fails.
-
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
- libsepol/cil/src/cil_binary.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-index caf2d987..7ec3e781 100644
---- a/libsepol/cil/src/cil_binary.c
-+++ b/libsepol/cil/src/cil_binary.c
-@@ -614,7 +614,7 @@ int cil_typepermissive_to_policydb(policydb_t *pdb,
- 		return rc;
- 
- 	if (ebitmap_set_bit(&pdb->permissive_map, sepol_type->s.value, 1)) {
--		return rc;
-+		return SEPOL_ERR;
- 	}
- 
- 	return SEPOL_OK;
-@@ -632,7 +632,7 @@ int cil_typeneveraudit_to_policydb(policydb_t *pdb,
- 		return rc;
- 
- 	if (ebitmap_set_bit(&pdb->neveraudit_map, sepol_type->s.value, 1)) {
--		return rc;
-+		return SEPOL_ERR;
- 	}
- 
- 	return SEPOL_OK;
--- 
-2.55.0
-
+This won't reach the garbage_token because it fails on token "user"
+due to lacking any avrule_decls, e.g. require { }.
+Not sure if that was your intent.
