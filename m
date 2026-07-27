@@ -1,92 +1,93 @@
-Received: from mail-oa1-f50.google.com (mail-oa1-f50.google.com [209.85.160.50])
+Received: from mail-oa1-f41.google.com (mail-oa1-f41.google.com [209.85.160.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89D4141A930
-	for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 13:31:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFF2C41BA9B
+	for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 13:31:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.41
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785159098; cv=pass; b=gMypg1chd6FWI2zP5uAq2uQXbRCbUNUFIWULh3O7IT5OvRrVnTevd9hasvr8nxHY4IqTdcZKvwKl2AfIxUJlR5uzJg1yavMFHC/SneRGFIeLaIW9Xv8+EmMNyK8ikkjgUZSTTfFUkXWC1tXNokEoKd1bdsahOek7CtoRV9RsHUE=
+	t=1785159121; cv=pass; b=ko3quQ+vkgBle7Po+bslXO9Kz2SmaKrX8dk5luF6+pCHZw7SWZ0fbXAmuuc88NBYA+fWlKGMikBnBai0AqR61C9dxaefQhJCXvxoZyXker6MXFeuaQlRjz1tsBbq/xS6ncCQjK+zS17bCGgj7JZ7crS5FSNBr5U20OtdMI6vjWM=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785159098; c=relaxed/simple;
-	bh=AnMfxMVC3rzBB6Ztxf80C795LVZGq0K5bFN8RgVSBSY=;
+	s=arc-20240116; t=1785159121; c=relaxed/simple;
+	bh=mOj0/AbYkl7adnep4wOdQRbi+0V1EMc25We4w5ygxi4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Bso9XhJKraeU2IrYJm6Y+3yiD3km8UfYhALeFQ1282oG88tGkBgaTgWrctOgwDWriiZUiCPpigKxuD0gKcV9dRg+tTb8CBhKQ6aChnZobYIRNwTDEHPcIyOuyyqlqmud/wl2K3FCJd1z6kl9DnPxfcJVYRge9VNsVIck3nt7Uqw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YtfEspnp; arc=pass smtp.client-ip=209.85.160.50
+	 To:Cc:Content-Type; b=WahGPWGOJn2zw5J6PICkO+0/3aqx8DFS4VlegcGAykEz93tM1rnFKbTiQdngfrxJlSz6VHTvzDkxwBc4F4wD5S8nqa3DbtGbsmIGvTCJgChFUhju/X7cLbrcpjNOIQKdTXUGoSq4vk7xshzyYVih53BAjWpYoInK4rsknMz6Blk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rw2w5/5R; arc=pass smtp.client-ip=209.85.160.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YtfEspnp"
-Received: by mail-oa1-f50.google.com with SMTP id 586e51a60fabf-44aeefa1c00so2138437fac.0
-        for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 06:31:36 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785159095; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rw2w5/5R"
+Received: by mail-oa1-f41.google.com with SMTP id 586e51a60fabf-446f87b6de1so1373433fac.3
+        for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 06:31:59 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785159119; cv=none;
         d=google.com; s=arc-20260327;
-        b=Rptl61Y0UAZgqhSESFD7L6Avxhg9kgnp2wBxNvVfm8/cmykYdeaq1S4h21Oqxe4/Tt
-         BanKwr6eZ33v0V8Q5sGksw8PHqY25tMe4ZIfredlK5TWkg/s3EkbEJnvKSJ+cejFnsp2
-         1c6tOWZUub3QZnGt/bLoyeIROH4+5gkscxDCV+KiXj6XdemPuQ3c7of0hOZO6HB9deO1
-         z71MV4J8q2ZyYMZ9r9d3Uufoe84J4Odqi9NxKJe/YyvfSLhKlsofBjltxRCUyaKh+bRU
-         9X73TxmJEL+Oscz11eBmXTvl35MjQzpR3jfh1gRLLtVSEf2MCPU9lPk4NSKUZwY7LO3c
-         40JA==
+        b=JAqO3fu27d3QWQPZ39kxkDCuzeVUFC0P34MguKhSa4tPKguRtZywX85Rzmn1WxSqU9
+         PnFF3y0sJIxRoBl56dvN1YcxsdErP3d2IUY/VJNpuNeNL0tQlAw+worucRxKxc8GEyuc
+         250ESm8AGKiuUF3zttfsOimcEYDXxDoKk0Yvli2A+qDE/DBNi+ekzRnGKZr0OrZ8BPW4
+         RVyydOJuCc+R+KE55OtCWkcdzGKnaQBi9ZXGjrGzvn1yBOoqxLhYM2lprCWK2GphRGd8
+         yTGAQV5NayJ2MHYG2qdkrrtzm2SItC86T/ZzLaIxGZzzYGI4yetmrQS91lFt/CZnMq6H
+         JDeA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=mDImc1KgB1JMns0zAlkksCZQhOEr9FnKaAbKeUjNu9M=;
+        bh=En5uIKpXdNw48ndPyxZqRPTpSWO/G7rDzomScRv8Hl8=;
         fh=mMDxYY5wtlIekXoYIfjt6lvMWgTaMUwdwgsYDQ6qy3A=;
-        b=kaKY8LK2JVqw43x5kCJojlqbDbtwJr/03eXdl0cTjmDe13DNT5pudyIIKdnARzBw/M
-         +omKyeQySI6/bRbS4ueQpB2SPcapmp/lK47m+AVuI/HWrfXAyYvvy7tweQFL2X1eczjo
-         Cd46NqPz0M3KZq+SM0D/XnuNyOeSR+4Y3jW8Wanp7tot9dbAS1/a4Bv2xekOsa/gvPAa
-         FmWxqn39pb8FQU1fMom5w+wLU9u8KFgJ7pA9LjywpWhQth2qVMFRNLP+8pTJ5gy+hlBG
-         Pb0iVyjtzjGMJmxxVMPGOpWxPX/VALbLIEFKbrpg+jTXz1EwsWJd3G1MwoGdKhiMe7//
-         zZTg==;
+        b=CVNj3yfBkSPhpAL7UBiSJ5glMAXq5gwqmcJ6Lv4/X2R5/7wDDr9tDR010V/STX47Sr
+         GALY8Z2vgK4KxI3jVclxhQ+sacJJz3nBK2GkZdTI8Fngbr7FXRVKIzA3CTOyQXN2s5yb
+         Fe/HtC8cuetOXgPBBNAyZyLHdJmFNHMoJM2VxcaZbMOXlf0r9lxbZmVkVGUc1jQUnVFj
+         w/GNdb8sDe6QSs9DJJf4CMXG4Hjvxdui8hW2L3gGP4/p8zhHR0oS4dPkeUxj+Brop644
+         /VPJyfPPTXM+djqKZEKnDbLCl6QO1jVr548rM3dmi/SGCp2WrHQ8lTgiVO13BjBWtRIg
+         XCgg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785159095; x=1785763895; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785159119; x=1785763919; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=mDImc1KgB1JMns0zAlkksCZQhOEr9FnKaAbKeUjNu9M=;
-        b=YtfEspnpeTWtFLKP8OtAmaPXo3fgWz8uK59i3vDbXEiVr0cvXxhldDgNWWx2THtRoU
-         vCjC4lcxsdPKqtUr5rV7glCZCep1zOarDZwe9F9Zzz5dkV7VCEwPY85ixkld5FeBtnaV
-         ZkDoHqPanUV5Xfpv+j9xXaGTvIVT4y43XrhO9KTYxYIcA/tlDvy8EZ5158NVvhufYNT4
-         45lABFsHapJV+Rpj5flpErv/YbP5ukXSs76DbtwnvIUxA+oumDyr6i0Uw+g9DL9nymMJ
-         nMtWE/XFKINaDLupTu2vOhl6boJHsBxmK+HEWi3S5f8kEncmxuvsas1B2N4l4vkUE1uK
-         scdw==
+        bh=En5uIKpXdNw48ndPyxZqRPTpSWO/G7rDzomScRv8Hl8=;
+        b=rw2w5/5R+gYLW6pgTBEsSl/kAxkoznRZ2cNoMmaqA1vNL/JZv1zuc4me6SVl5eVSjB
+         uLQItI4ts1wFItnvPj/O/HtESaMCjby/aa2x5CSIazJoxgDtIXzByPtBx6Ou04pebLcC
+         b9XNw2UrdxPYxHOP5x5ZDrP7/OFDJazWWiPGuQmWS5MAMMWqCvQAEjmAvVD4aBAHq0ib
+         UmyutS9DihnvBgSXzU1BTos6thVegsZvdoT9cz3G9mGrhOu9CdyWU0Wbu+jfApv94WTx
+         rtvAVdTNbbExbCLo/EK5B9Dl4T8ljNQtUFJcWKFPLy8wH6RaTlR07sNWVJCxw5eVLzbt
+         ZfmA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785159095; x=1785763895;
+        d=1e100.net; s=20251104; t=1785159119; x=1785763919;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=mDImc1KgB1JMns0zAlkksCZQhOEr9FnKaAbKeUjNu9M=;
-        b=IKt4aB2GRCnvlyetqBJR+jSTEHVTKsTMwnyl/r3rpK/YxUUIXAqVj+F+GV4nWk7zRe
-         imxiTA6CWeH2bd7CZJaME4tk4vKYkv/A3n2T8VBWfmg4XSZkofiyM5qgUYngBFAEMIj6
-         xNUe7VaShRvZ10Gz7Qwii1+9JxblOVU4VEmlcunaAPg/hueIkxpvAc9CU+nFj5Uheou0
-         UfU3J0+vJtCvMwUule9Kyf0HWxoj6A4KyfEi9bJ2jMUwIEW1a0RhYEmaOdgHW7h9R6/I
-         /E1eDiMkhSmHyATiu2eoYGy9YcZhiXGKl0CAHjY/zAWOEYxHOTB2gCjtdP4EbwgE+aWt
-         hhSg==
-X-Gm-Message-State: AOJu0YzpkzNhrBX2f8BMSefb1Hqb72gcWtUzQakYf5vIBRXgjp76UqSm
-	T+rDGsB7LrNwH/pOtJ7SbWGYUNYsJMAbJ9UfoWBQL7nsENbUOJJGHsgT7gfiU3nqRNG/uMcQvam
-	1XHb8ZbFCxiU8FJJqd29LSKE5j3OyUZM=
-X-Gm-Gg: AR+sD12IBvGI93RAjND1RRrE0v5PhUmFz/rGOGzt5CRQ993U4mvdFsH0P4BkcFJg69L
-	0uSHDspJq1o+2b6Y4lU6VMoAj584TRy10dDGreKUuYO9sw+FuOA4mLFjaaKtIA2XMphlw7H7xwW
-	L20tnANppo9XrMgRuX7r6u7Fa2aaGeeKebrBbfwJTnQo++/bpHi7KPXN5ZWnFWwU9f1iWf2gXHS
-	vhzks0AqOcADNL60WK2bJrzYX2yf2Jx8vsZKJ1I7M3+QD5a+r9/7jYWN+t3xf9aL+bgYc9M
-X-Received: by 2002:a05:6870:e6cc:b0:451:cbb6:fc45 with SMTP id
- 586e51a60fabf-457f592ba81mr6199145fac.19.1785159095109; Mon, 27 Jul 2026
- 06:31:35 -0700 (PDT)
+        bh=En5uIKpXdNw48ndPyxZqRPTpSWO/G7rDzomScRv8Hl8=;
+        b=PUt3gFejgis6vb36eVlRNvgUxv+6QElho3cmCtPXIkAmBFAc5x+zDOcZ0NyRkqR9Bu
+         A9KNPyH5W665pQBKGswTy31mmOcJ+mH3DuB7QPy0NmhLOHUhVuvOLBOPwyJ/0z4WGVib
+         jDl6kO1ZjDSHcoNSe3/Q7bFPbmxH/IQIUFqeT3j6uadchsS1mm2xslJ9UiW6q2IV9C3B
+         aQ6MM1NCDpTX7s5D1TauYEvpQDgnDa/Pff09vPFty2IPmd/uoWZjnXsaawGcrRiI1W3Q
+         p+kWFYCQUnqB+4lH8aGLRXz+88o2ghlyTUp77ycBK4PB5NvaY6ZVhhxxT18UBUqq2tpV
+         Sskg==
+X-Gm-Message-State: AOJu0YzLedv1HwhjEYQL14IMj7Uzkfp7zWwtXLXJ/bXaFBFaujGtik8c
+	x9Ecre29lWLf1pKB4O7ipdmq9yQa7HFSCrIRljCciV8yVjmIkZrtdITAVNsJKYS44t6iMp6277P
+	1ThHtZqtBGnlH6YKqQlSBu7d4FzOZPeE=
+X-Gm-Gg: AR+sD12IXeLeZsr6JyBJhQcRJyrLDIW6bneQ22Wng1oJwt+W/WHzB61H9cbxu/KUzvH
+	BPFQoBhKacMWn8RRaueEaNTxFKuJG8BZC+CTgJ212zUIR8Kf3AK7kPRZwL0BUi14HY8z34g/6JX
+	1bjavKYDBDsysEUBP2lv5pvpsRfrrUNHzQFhbvNc6arz8VfPmrAqaGRKzS5BcxQ1ftE7/DNkhJR
+	yXlfompsc7LBLEvMzQb2x6nlh+/Jv4RKbzNIaZxaDgPHO7PNc5iZRWgCwVp8A==
+X-Received: by 2002:a05:6870:140c:b0:44c:a4cf:ccde with SMTP id
+ 586e51a60fabf-457f27e2fd9mr6261391fac.38.1785159118483; Mon, 27 Jul 2026
+ 06:31:58 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260727025214.2534071-1-tweek@google.com>
-In-Reply-To: <20260727025214.2534071-1-tweek@google.com>
+References: <20260727025214.2534071-1-tweek@google.com> <20260727025214.2534071-2-tweek@google.com>
+In-Reply-To: <20260727025214.2534071-2-tweek@google.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 27 Jul 2026 09:31:23 -0400
-X-Gm-Features: AUfX_mzhWmSg6xvyptDSlZ8wj5XPNfso2TdQJqYWeJSilRTunhO5RNtyNB21ESk
-Message-ID: <CAEjxPJ6bZRx02r_vMqENRdvw0uoBOz+5D+qw3zfeB6+1V+2Rhw@mail.gmail.com>
-Subject: Re: [PATCH testsuite v3 1/2] tests/file_contexts: refactor existing tests
+Date: Mon, 27 Jul 2026 09:31:47 -0400
+X-Gm-Features: AUfX_myYFtDwNJUVx9EuhFZ4OiFs6TO_rJHH3ANww23uTBCNwZMS9TWzCwFlZ3M
+Message-ID: <CAEjxPJ69dbMJsyJYuSsfqt6CUz+YUND4weBteEwxzrJ_R3F-ZQ@mail.gmail.com>
+Subject: Re: [PATCH testsuite v3 2/2] tests/file_contexts: add tests for
+ multiple SELABEL_OPT_PATH
 To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
 Cc: selinux@vger.kernel.org, James Carter <jwcart2@gmail.com>, 
 	=?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>, 
@@ -97,10 +98,20 @@ Content-Transfer-Encoding: quoted-printable
 On Sun, Jul 26, 2026 at 10:52=E2=80=AFPM Thi=C3=A9baud Weksteen <tweek@goog=
 le.com> wrote:
 >
-> Change the logging format when reporting an error to better capture the
-> location and context of the error.
+> Add unit tests in test_multiple.c to exercise opening the file contexts
+> backend with multiple SELABEL_OPT_PATH options under various validation
+> and path configuration scenarios.
 >
-> Split tests into functions to better isolate the tested behaviour.
+> The following test functions were added:
+> - Verifies opening multiple file contexts without validation.
+> - Verifies validation failure when contexts contain undefined types.
+> - Verifies extra files (.subs, .local, .homedirs) are processed only for
+>   the primary path.
+> - Verifies multiple files with the same definition, no error is raised.
+> - Verifies context lookups when providing three distinct
+>   SELABEL_OPT_PATH options.
+>
+> These tests are skipped if libselinux does not support that feature.
 >
 > Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
 
@@ -108,399 +119,186 @@ Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 > ---
 > Changes since v2:
-> - Call test functions in test_validate.c
+> - Add subcommand "check" to skip test_multiple when not supported by
+>   libselinux.
 >
->  tests/file_contexts/internal.c       | 16 ++---
->  tests/file_contexts/internal.h       | 20 +++++-
->  tests/file_contexts/test_lookup.c    | 60 ++++++++++++------
->  tests/file_contexts/test_open.c      | 94 +++++++++++++++++-----------
->  tests/file_contexts/test_open_base.c | 46 ++++++++++----
->  tests/file_contexts/test_validate.c  | 40 +++++++-----
->  6 files changed, 181 insertions(+), 95 deletions(-)
+>  tests/file_contexts/Makefile        |   2 +-
+>  tests/file_contexts/test            |  35 +++-
+>  tests/file_contexts/test_multiple.c | 275 ++++++++++++++++++++++++++++
+>  3 files changed, 301 insertions(+), 11 deletions(-)
+>  create mode 100644 tests/file_contexts/test_multiple.c
 >
-> diff --git a/tests/file_contexts/internal.c b/tests/file_contexts/interna=
-l.c
-> index 22b5790..ba45dd6 100644
-> --- a/tests/file_contexts/internal.c
-> +++ b/tests/file_contexts/internal.c
-> @@ -10,8 +10,8 @@
+> diff --git a/tests/file_contexts/Makefile b/tests/file_contexts/Makefile
+> index 592a65f..083ef25 100644
+> --- a/tests/file_contexts/Makefile
+> +++ b/tests/file_contexts/Makefile
+> @@ -1,4 +1,4 @@
+> -TARGETS=3Dtest_open test_lookup test_open_base test_validate
+> +TARGETS=3Dtest_open test_lookup test_open_base test_validate test_multip=
+le
+>  CFLAGS +=3D -O2 -Werror -Wall
+>  LDLIBS +=3D -lselinux
 >
->  #include "internal.h"
+> diff --git a/tests/file_contexts/test b/tests/file_contexts/test
+> index 1534925..6d97597 100755
+> --- a/tests/file_contexts/test
+> +++ b/tests/file_contexts/test
+> @@ -3,23 +3,38 @@
+>  # This test validates the parsing of file_contexts.
+>  #
 >
-> -void assertContextsMatch(struct selabel_handle *hnd, struct test_t *test=
-s,
-> -                        size_t n)
-> +void assertContextsMatch(struct selabel_handle *hnd, const char *log_pre=
-fix,
-> +                        struct test_t *tests, size_t n)
->  {
->         for (int i =3D 0; i < n; i++) {
->                 char *context =3D NULL;
-> @@ -19,20 +19,22 @@ void assertContextsMatch(struct selabel_handle *hnd, =
-struct test_t *tests,
->
->                 if (selabel_lookup(hnd, &context, test.path, S_IFREG)) {
->                         if (test.context) {
-> -                               perror("file_contexts:selabel_lookup");
-> -                               fprintf(stderr, "Lookup for %s failed\n",=
- test.path);
-> +                               log_errno("Lookup for %s from %s failed",
-> +                                         test.path, log_prefix);
->                                 exit(2);
->                         }
->                         // Expected failure. Continue to the next test.
->                         continue;
->                 } else if (!test.context) {
-> -                       fprintf(stderr, "Lookup for %s was supposed to fa=
-iled\n", test.path);
-> +                       log_err("Lookup for %s from %s was supposed to fa=
-iled but got %s",
-> +                               test.path, log_prefix, context);
->                         exit(2);
->                 }
->
->                 if (strcmp(context, tests[i].context)) {
-> -                       fprintf(stderr, "Lookup for %s returned %s, expec=
-ted %s\n",
-> -                               tests[i].path, context, tests[i].context)=
-;
-> +                       log_err("Lookup for %s from %s returned %s, expec=
-ted %s",
-> +                               tests[i].path, log_prefix, context,
-> +                               tests[i].context);
->                         exit(2);
->                 }
->
-> diff --git a/tests/file_contexts/internal.h b/tests/file_contexts/interna=
-l.h
-> index a07548f..c51bbc6 100644
-> --- a/tests/file_contexts/internal.h
-> +++ b/tests/file_contexts/internal.h
-> @@ -1,8 +1,21 @@
-> +#include <errno.h>
-> +#include <string.h>
-> +
->  #include <selinux/label.h>
->  #include <selinux/selinux.h>
->
->  #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
->
-> +/* Log an error message with the file name, function name and line */
-> +#define log_err(fmt, ...)                                               =
-     \
-> +       fprintf(stderr, "%s:%s:%d: " fmt "\n", __FILE__, __func__, __LINE=
-__, \
-> +               ##__VA_ARGS__)
-> +
-> +/* Log an error message as well as errno */
-> +#define log_errno(fmt, ...)                                            \
-> +       fprintf(stderr, "%s:%s:%d " fmt " (%s)\n", __FILE__, __func__, \
-> +               __LINE__, ##__VA_ARGS__, strerror(errno))
-> +
->  /* Structure to capture a test. The |path| will be resolved and expected=
- to
->   * match the |context|. If |context| is NULL, the lookup is expected to =
-fail. */
->  struct test_t {
-> @@ -11,6 +24,7 @@ struct test_t {
->  };
->
->  /* Assert that all paths described in |tests| resolve appropriately. |hn=
-d| must
-> - * be opened. |n| is the number of tests in |tests|. */
-> -void assertContextsMatch(struct selabel_handle *hnd, struct test_t *test=
-s,
-> -                        size_t n);
-> + * be opened. |n| is the number of tests in |tests|. |log_prefix| is add=
-ed to
-> + * any log message */
-> +void assertContextsMatch(struct selabel_handle *hnd, const char *log_pre=
-fix,
-> +                        struct test_t *tests, size_t n);
-> diff --git a/tests/file_contexts/test_lookup.c b/tests/file_contexts/test=
-_lookup.c
-> index 9a54d1d..5957db4 100644
-> --- a/tests/file_contexts/test_lookup.c
-> +++ b/tests/file_contexts/test_lookup.c
-> @@ -9,38 +9,58 @@
->
->  #include "internal.h"
->
-> -int main(int argc, char **argv)
-> +void test_lookup(const char *basedir)
->  {
-> -       struct selabel_handle *hnd;
+> -use Test;
 > -
-> -       if (argc !=3D 2) {
-> -               fprintf(stderr, "basedir not provided\n");
-> -               exit(1);
-> -       }
+> -BEGIN { plan tests =3D> 4; }
 > -
->         char *path;
-> -       asprintf(&path, "%s/f2.fc", argv[1]);
-> -       struct selinux_opt f2_opts[] =3D {
-> -               { .type =3D SELABEL_OPT_PATH, .value =3D path }
-> +       asprintf(&path, "%s/f2.fc", basedir);
-> +       struct selinux_opt f2_opts[] =3D { {
-> +                       .type =3D SELABEL_OPT_PATH,
-> +                       .value =3D path
-> +               }
->         };
+> -$basedir =3D $0;
+> -$basedir =3D~ s|(.*)/[^/]*|$1|;
+> +use Test::More;
+> +
+> +BEGIN {
+> +    $basedir =3D $0;
+> +    $basedir =3D~ s|(.*)/[^/]*|$1|;
+> +
+> +    $test_multiple =3D 0;
+> +    $result        =3D system "$basedir/test_multiple $basedir check 2>/=
+dev/null";
+> +    if ( $result eq 0 ) {
+> +        $test_multiple =3D 1;
+> +        plan tests =3D> 5;
+> +    }
+> +    else {
+> +        plan tests =3D> 4;
+> +    }
+> +}
 >
-> -       hnd =3D selabel_open(SELABEL_CTX_FILE, f2_opts, ARRAY_SIZE(f2_opt=
-s));
-> -
-> +       struct selabel_handle *hnd =3D
-> +               selabel_open(SELABEL_CTX_FILE, f2_opts, ARRAY_SIZE(f2_opt=
-s));
->         free(path);
+>  $result =3D system "$basedir/test_open $basedir 2>&1";
+> -ok( $result, 0 );
+> +ok( $result eq 0 );
 >
->         if (!hnd) {
-> -               perror("file_context:f2_options");
+>  $result =3D system "$basedir/test_lookup $basedir 2>&1";
+> -ok( $result, 0 );
+> +ok( $result eq 0 );
+>
+>  $result =3D system "$basedir/test_open_base $basedir 2>&1";
+> -ok( $result, 0 );
+> +ok( $result eq 0 );
+>
+>  $result =3D system "$basedir/test_validate $basedir 2>&1";
+> -ok( $result, 0 );
+> +ok( $result eq 0 );
+> +
+> +if ($test_multiple) {
+> +    $result =3D system "$basedir/test_multiple $basedir 2>&1";
+> +    ok( $result eq 0 );
+> +}
+>
+>  exit;
+> diff --git a/tests/file_contexts/test_multiple.c b/tests/file_contexts/te=
+st_multiple.c
+> new file mode 100644
+> index 0000000..88b4cc8
+> --- /dev/null
+> +++ b/tests/file_contexts/test_multiple.c
+> @@ -0,0 +1,275 @@
+> +#include <stdio.h>
+> +#include <stdlib.h>
+> +#include <sys/stat.h>
+> +#include <sys/types.h>
+> +#include <unistd.h>
+> +
+> +#include <selinux/label.h>
+> +#include <selinux/selinux.h>
+> +
+> +#include "internal.h"
+> +
+> +void test_multiple_no_validation(const char *basedir)
+> +{
+> +       struct selabel_handle *hnd;
+> +
+> +       /* f1.fc and f2.fc file */
+> +       char *f1_path, *f2_path;
+> +       asprintf(&f1_path, "%s/f1.fc", basedir);
+> +       asprintf(&f2_path, "%s/f2.fc", basedir);
+> +       struct selinux_opt opts[] =3D {
+> +               { .type =3D SELABEL_OPT_PATH, .value =3D f1_path },
+> +               { .type =3D SELABEL_OPT_PATH, .value =3D f2_path }
+> +       };
+> +
+> +       hnd =3D selabel_open(SELABEL_CTX_FILE, opts, ARRAY_SIZE(opts));
+> +       free(f1_path);
+> +       free(f2_path);
+> +
+> +       if (!hnd) {
 > +               log_errno("Unable to open file backend");
->                 exit(2);
->         }
->
->         struct test_t tests[] =3D {
-> -               { .path =3D "/base", .context =3D "system_u:object_r:test=
-_base_t:s0" },
-> -               { .path =3D "/base/unkown", .context =3D "system_u:object=
-_r:test_base_wildcard_t:s0" },
-> -               { .path =3D "/base/sub", .context =3D "system_u:object_r:=
-test_base_sub_t:s0" },
-> -               { .path =3D "/base/file.list", .context =3D "system_u:obj=
-ect_r:test_file_list_t:s0" },
-> -               { .path =3D "/base/file_list", .context =3D "system_u:obj=
-ect_r:test_base_wildcard_t:s0" },
+> +               exit(2);
+> +       }
+> +
+> +       struct test_t tests[] =3D {
+> +               { .path =3D "/", .context =3D "system_u:object_r:rootfs:s=
+0" },
 > +               {
 > +                       .path =3D "/base",
 > +                       .context =3D "system_u:object_r:test_base_t:s0"
 > +               },
-> +               {
-> +                       .path =3D "/base/unkown",
-> +                       .context =3D "system_u:object_r:test_base_wildcar=
-d_t:s0"
-> +               },
-> +               {
-> +                       .path =3D "/base/sub",
-> +                       .context =3D "system_u:object_r:test_base_sub_t:s=
-0"
-> +               },
-> +               {
-> +                       .path =3D "/base/file.list",
-> +                       .context =3D "system_u:object_r:test_file_list_t:=
-s0"
-> +               },
-> +               {
-> +                       .path =3D "/base/file_list",
-> +                       .context =3D "system_u:object_r:test_base_wildcar=
-d_t:s0"
-> +               },
->         };
-> -       assertContextsMatch(hnd, tests, ARRAY_SIZE(tests));
-> +       assertContextsMatch(hnd, __func__, tests, ARRAY_SIZE(tests));
-> +}
-> +
-> +int main(int argc, char **argv)
-> +{
-> +       if (argc !=3D 2) {
-> +               log_err("basedir not provided");
-> +               exit(1);
-> +       }
-> +
-> +       test_lookup(argv[1]);
->
->         return 0;
->  }
-> diff --git a/tests/file_contexts/test_open.c b/tests/file_contexts/test_o=
-pen.c
-> index eae5691..4dd3300 100644
-> --- a/tests/file_contexts/test_open.c
-> +++ b/tests/file_contexts/test_open.c
-> @@ -1,6 +1,5 @@
->  #include <stdio.h>
->  #include <stdlib.h>
-> -#include <string.h>
->  #include <sys/stat.h>
->  #include <sys/types.h>
->  #include <unistd.h>
-> @@ -8,75 +7,96 @@
->  #include <selinux/label.h>
->  #include <selinux/selinux.h>
->
-> -int main(int argc, char **argv)
-> +#include "internal.h"
-> +
-> +void test_no_options(void)
->  {
-> -       bool has_default_path =3D false;
-> -       struct selabel_handle *hnd;
->         struct stat default_stat;
-> +       if (stat(selinux_file_context_path(), &default_stat))
-> +               return;
->
-> -       if (argc !=3D 2) {
-> -               fprintf(stderr, "basedir not provided\n");
-> -               exit(1);
-> -       }
-> +       /* Empty options */
-> +       struct selabel_handle *hnd =3D selabel_open(
-> +                                            SELABEL_CTX_FILE, /* options=
-=3D */ NULL, /* nopt=3D */ 0);
->
-> -       const char *default_path =3D selinux_file_context_path();
-> -       if (!stat(default_path, &default_stat)) {
-> -               has_default_path =3D true;
-> +       if (!hnd) {
-> +               log_errno("Unable to open default content file");
-> +               exit(2);
->         }
-> +       selabel_close(hnd);
-> +}
->
-> -       if (has_default_path) {
-> -               /* Empty options */
-> -               hnd =3D selabel_open(SELABEL_CTX_FILE, /* options=3D */ N=
-ULL, /* nopt=3D */ 0);
-> +void test_null_path(void)
-> +{
-> +       struct stat default_stat;
-> +       if (stat(selinux_file_context_path(), &default_stat))
-> +               return;
->
-> -               if (!hnd) {
-> -                       perror("file_context:no_options");
-> -                       exit(2);
-> +       /* Default options */
-> +       struct selinux_opt null_opts[] =3D { {
-> +                       .type =3D SELABEL_OPT_PATH,
-> +                       .value =3D NULL
->                 }
-> -               selabel_close(hnd);
-> -
-> -               /* Default options */
-> -               struct selinux_opt null_opts[] =3D {
-> -                       { .type =3D SELABEL_OPT_PATH, .value =3D NULL }
-> -               };
 > +       };
->
-> -               hnd =3D selabel_open(SELABEL_CTX_FILE, /* options=3D */ n=
-ull_opts, /* nopt=3D */ 1);
-> +       struct selabel_handle *hnd =3D selabel_open(SELABEL_CTX_FILE, nul=
-l_opts,
-> +                                                 ARRAY_SIZE(null_opts));
->
-> -               if (!hnd) {
-> -                       perror("file_context:default_options");
-> -                       exit(2);
-> -               }
-> -               selabel_close(hnd);
-> +       if (!hnd) {
-> +               log_errno("Unable to open default content file");
-> +               exit(2);
->         }
+> +       assertContextsMatch(hnd, __func__, tests, ARRAY_SIZE(tests));
+> +
 > +       selabel_close(hnd);
 > +}
->
-> +void test_valid_path(const char *basedir)
+> +
+> +void test_multiple_with_validation(const char *basedir)
 > +{
->         /* f1.fc file */
->         char *path;
-> -       asprintf(&path, "%s/f1.fc", argv[1]);
-> -       struct selinux_opt f1_opts[] =3D {
-> -               { .type =3D SELABEL_OPT_PATH, .value =3D path }
-> +       asprintf(&path, "%s/f1.fc", basedir);
-> +       struct selinux_opt f1_opts[] =3D { {
-> +                       .type =3D SELABEL_OPT_PATH,
-> +                       .value =3D path
-> +               }
->         };
->
-> -       hnd =3D selabel_open(SELABEL_CTX_FILE, /* options=3D */ f1_opts, =
-/* nopt=3D */ 1);
-> +       struct selabel_handle *hnd =3D
-> +               selabel_open(SELABEL_CTX_FILE, f1_opts, ARRAY_SIZE(f1_opt=
-s));
->         free(path);
->
->         if (!hnd) {
-> -               perror("file_context:f1_options");
-> +               log_errno("Unable to open file backend");
->                 exit(2);
->         }
->
->         char *context =3D NULL;
->         if (selabel_lookup(hnd, &context, "/", S_IFREG)) {
-> -               perror("file_contexts:f1_lookup");
-> +               log_errno("Unable to lookup \"/\"");
->                 exit(2);
->         }
->
-> -       if (strcmp(context, "system_u:object_r:rootfs:s0")) {
-> -               perror("file_contexts:f1_strcmp");
-> +       const char *expected =3D "system_u:object_r:rootfs:s0";
-> +       if (strcmp(context, expected)) {
-> +               log_err("Incorrect context returned, expected %s got %s",
-> +                       expected, context);
->                 exit(2);
->         }
->
->         free(context);
->
->         selabel_close(hnd);
+> +       struct selabel_handle *hnd;
+> +
+> +       /* f1.fc and f2.fc file - f1 has undefined type rootfs in test po=
+licy */
+> +       char *f1_path, *f2_path;
+> +       asprintf(&f1_path, "%s/f1.fc", basedir);
+> +       asprintf(&f2_path, "%s/f2.fc", basedir);
+> +       struct selinux_opt opts[] =3D {
+> +               { .type =3D SELABEL_OPT_PATH, .value =3D f1_path },
+> +               { .type =3D SELABEL_OPT_PATH, .value =3D f2_path },
+> +               { .type =3D SELABEL_OPT_VALIDATE, .value =3D "1" }
+> +       };
+> +
+> +       hnd =3D selabel_open(SELABEL_CTX_FILE, opts, ARRAY_SIZE(opts));
+> +       free(f1_path);
+> +       free(f2_path);
+> +
+> +       if (hnd) {
+> +               log_err("Validation of f1 and f2 should have failed");
+> +               selabel_close(hnd);
+> +               exit(2);
+> +       }
 > +}
 > +
-> +int main(int argc, char **argv)
+> +void test_multiple_with_extras(const char *basedir)
 > +{
-> +       if (argc !=3D 2) {
-> +               log_err("basedir not provided");
-> +               exit(1);
+> +       struct selabel_handle *hnd;
+> +       char *f2_path, *f3_path;
+> +       asprintf(&f2_path, "%s/f2.fc", basedir);
+> +       asprintf(&f3_path, "%s/f3.fc", basedir);
+> +
+> +       /* 1. f3.fc is the first path: extras (.subs, .local, .homedirs) =
+of f3 ARE processed */
+> +       struct selinux_opt opts_f3_first[] =3D {
+> +               { .type =3D SELABEL_OPT_PATH, .value =3D f3_path },
+> +               { .type =3D SELABEL_OPT_PATH, .value =3D f2_path }
+> +       };
+> +       hnd =3D selabel_open(SELABEL_CTX_FILE, opts_f3_first,
+> +                          ARRAY_SIZE(opts_f3_first));
+> +       if (!hnd) {
+> +               log_errno("Unable to open file backend");
+> +               exit(2);
 > +       }
 > +
-> +       test_no_options();
-> +       test_null_path();
-> +       test_valid_path(argv[1]);
->
->         return 0;
->  }
-> diff --git a/tests/file_contexts/test_open_base.c b/tests/file_contexts/t=
-est_open_base.c
-> index 33b0cac..3e4b4c6 100644
-> --- a/tests/file_contexts/test_open_base.c
-> +++ b/tests/file_contexts/test_open_base.c
-> @@ -22,26 +22,40 @@ void test_default_options(const char *basedir)
->
->         char *path;
->         asprintf(&path, "%s/f3.fc", basedir);
-> -       struct selinux_opt f3_opts[] =3D {
-> -               { .type =3D SELABEL_OPT_PATH, .value =3D path }
-> +       struct selinux_opt f3_opts[] =3D { {
-> +                       .type =3D SELABEL_OPT_PATH,
-> +                       .value =3D path
-> +               }
->         };
->
->         hnd =3D selabel_open(SELABEL_CTX_FILE, f3_opts, ARRAY_SIZE(f3_opt=
-s));
->         free(path);
->
->         if (!hnd) {
-> -               perror("file_context:f3_default_options");
-> +               log_errno("Unable to open file backend");
->                 exit(2);
->         }
->
->         struct test_t tests[] =3D {
->                 { .path =3D "/", .context =3D "system_u:object_r:rootfs:s=
+> +       struct test_t tests_f3_first[] =3D {
+> +               { .path =3D "/", .context =3D "system_u:object_r:rootfs:s=
 0" },
-> -               { .path =3D "/local", .context =3D "system_u:object_r:tes=
-t_local:s0" },
-> -               { .path =3D "/homedirs", .context =3D "system_u:object_r:=
-test_homedirs:s0" },
-> -               { .path =3D "/sub", .context =3D "system_u:object_r:test_=
-subbed:s0" },
-> -               { .path =3D "/sub_dist", .context =3D "system_u:object_r:=
-test_subbed:s0" },
+> +               {
+> +                       .path =3D "/sub",
+> +                       .context =3D "system_u:object_r:test_subbed:s0"
+> +               },
 > +               {
 > +                       .path =3D "/local",
 > +                       .context =3D "system_u:object_r:test_local:s0"
@@ -510,150 +308,183 @@ test_subbed:s0" },
 > +                       .context =3D "system_u:object_r:test_homedirs:s0"
 > +               },
 > +               {
-> +                       .path =3D "/sub",
-> +                       .context =3D "system_u:object_r:test_subbed:s0"
+> +                       .path =3D "/base",
+> +                       .context =3D "system_u:object_r:test_base_t:s0"
 > +               },
-> +               {
-> +                       .path =3D "/sub_dist",
-> +                       .context =3D "system_u:object_r:test_subbed:s0"
-> +               },
->         };
-> -       assertContextsMatch(hnd, tests, ARRAY_SIZE(tests));
-> +       assertContextsMatch(hnd, __func__, tests, ARRAY_SIZE(tests));
->
->         selabel_close(hnd);
->  }
-> @@ -62,7 +76,7 @@ void test_base_only_option(const char *basedir)
->         free(path);
->
->         if (!hnd) {
-> -               perror("file_context:f3_base_only_options");
+> +       };
+> +       assertContextsMatch(hnd, __func__, tests_f3_first,
+> +                           ARRAY_SIZE(tests_f3_first));
+> +       selabel_close(hnd);
+> +
+> +       /* 2. f2.fc is the first path, f3.fc is second: extras from f3 ar=
+e NOT processed */
+> +       struct selinux_opt opts_f2_first[] =3D {
+> +               { .type =3D SELABEL_OPT_PATH, .value =3D f2_path },
+> +               { .type =3D SELABEL_OPT_PATH, .value =3D f3_path }
+> +       };
+> +       hnd =3D selabel_open(SELABEL_CTX_FILE, opts_f2_first,
+> +                          ARRAY_SIZE(opts_f2_first));
+> +       if (!hnd) {
 > +               log_errno("Unable to open file backend");
->                 exit(2);
->         }
->
-> @@ -70,10 +84,16 @@ void test_base_only_option(const char *basedir)
->                 { .path =3D "/", .context =3D "system_u:object_r:rootfs:s=
+> +               exit(2);
+> +       }
+> +
+> +       struct test_t tests_f2_first[] =3D {
+> +               {
+> +                       .path =3D "/base",
+> +                       .context =3D "system_u:object_r:test_base_t:s0"
+> +               },
+> +               { .path =3D "/", .context =3D "system_u:object_r:rootfs:s=
 0" },
->                 { .path =3D "/local", .context =3D NULL },
->                 { .path =3D "/homedirs", .context =3D NULL },
-> -               { .path =3D "/sub", .context =3D "system_u:object_r:test_=
-subbed:s0" },
-> -               { .path =3D "/sub_dist", .context =3D "system_u:object_r:=
-test_subbed:s0" },
 > +               {
-> +                       .path =3D "/sub",
+> +                       .path =3D "/subbed",
 > +                       .context =3D "system_u:object_r:test_subbed:s0"
 > +               },
-> +               {
-> +                       .path =3D "/sub_dist",
-> +                       .context =3D "system_u:object_r:test_subbed:s0"
-> +               },
->         };
-> -       assertContextsMatch(hnd, tests, ARRAY_SIZE(tests));
-> +       assertContextsMatch(hnd, __func__, tests, ARRAY_SIZE(tests));
->
->         selabel_close(hnd);
->  }
-> @@ -81,7 +101,7 @@ void test_base_only_option(const char *basedir)
->  int main(int argc, char **argv)
->  {
->         if (argc !=3D 2) {
-> -               fprintf(stderr, "basedir not provided\n");
-> +               log_err("basedir not provided");
->                 exit(1);
->         }
->
-> diff --git a/tests/file_contexts/test_validate.c b/tests/file_contexts/te=
-st_validate.c
-> index 8abefed..4d9e920 100644
-> --- a/tests/file_contexts/test_validate.c
-> +++ b/tests/file_contexts/test_validate.c
-> @@ -1,6 +1,5 @@
->  #include <stdio.h>
->  #include <stdlib.h>
-> -#include <string.h>
->  #include <sys/stat.h>
->  #include <sys/types.h>
->  #include <unistd.h>
-> @@ -10,47 +9,58 @@
->
->  #include "internal.h"
->
-> -int main(int argc, char **argv)
-> +void test_validate_unknown_fails(const char *basedir)
->  {
->         char *path;
-> -       struct selabel_handle *hnd;
-> -
-> -       if (argc !=3D 2) {
-> -               fprintf(stderr, "basedir not provided\n");
-> -               exit(1);
-> -       }
-> -
-> -       asprintf(&path, "%s/f1.fc", argv[1]);
-> +       asprintf(&path, "%s/f1.fc", basedir);
->         struct selinux_opt f1_opts[] =3D {
->                 { .type =3D SELABEL_OPT_PATH, .value =3D path },
->                 { .type =3D SELABEL_OPT_VALIDATE, .value =3D "1" }
->         };
->
->         /* f1 types are not defined in the test policy. */
-> -       hnd =3D selabel_open(SELABEL_CTX_FILE, f1_opts, ARRAY_SIZE(f1_opt=
-s));
-> +       struct selabel_handle *hnd =3D
-> +               selabel_open(SELABEL_CTX_FILE, f1_opts, ARRAY_SIZE(f1_opt=
-s));
->         free(path);
->
->         if (hnd) {
-> -               fprintf(stderr, "The validation of f1 should have failed.=
-\n");
-> +               log_err("The validation of f1 should have failed");
-> +               selabel_close(hnd);
->                 exit(2);
->         }
+> +               /* /sub, /local, /homedirs should NOT match the f3 extra =
+contexts */
+> +               { .path =3D "/sub", .context =3D NULL },
+> +               { .path =3D "/local", .context =3D NULL },
+> +               { .path =3D "/homedirs", .context =3D NULL },
+> +       };
+> +       assertContextsMatch(hnd, __func__, tests_f2_first,
+> +                           ARRAY_SIZE(tests_f2_first));
+> +       selabel_close(hnd);
+> +
+> +       free(f2_path);
+> +       free(f3_path);
 > +}
->
-> -       asprintf(&path, "%s/f2.fc", argv[1]);
-> +void test_validate_known_succeeds(const char *basedir)
+> +
+> +void test_multiple_three_paths(const char *basedir)
 > +{
-> +       char *path;
-> +       asprintf(&path, "%s/f2.fc", basedir);
->         struct selinux_opt f2_opts[] =3D {
->                 { .type =3D SELABEL_OPT_PATH, .value =3D path },
->                 { .type =3D SELABEL_OPT_VALIDATE, .value =3D "1" }
->         };
->
->         /* f2 types are defined in the test policy. */
-> -       hnd =3D selabel_open(SELABEL_CTX_FILE, f2_opts, ARRAY_SIZE(f2_opt=
-s));
-> +       struct selabel_handle *hnd =3D
-> +               selabel_open(SELABEL_CTX_FILE, f2_opts, ARRAY_SIZE(f2_opt=
-s));
->         free(path);
->
->         if (!hnd) {
-> -               perror("Unable to read valid file_contexts");
-> +               log_errno("Unable to read valid file_contexts");
->                 exit(2);
->         }
->
->         selabel_close(hnd);
+> +       struct selabel_handle *hnd;
+> +       char *f1_path, *f2_path, *f3_path;
+> +       asprintf(&f1_path, "%s/f1.fc", basedir);
+> +       asprintf(&f2_path, "%s/f2.fc", basedir);
+> +       asprintf(&f3_path, "%s/f3.fc", basedir);
+> +
+> +       struct selinux_opt opts[] =3D {
+> +               { .type =3D SELABEL_OPT_PATH, .value =3D f1_path },
+> +               { .type =3D SELABEL_OPT_PATH, .value =3D f2_path },
+> +               { .type =3D SELABEL_OPT_PATH, .value =3D f3_path }
+> +       };
+> +
+> +       hnd =3D selabel_open(SELABEL_CTX_FILE, opts, ARRAY_SIZE(opts));
+> +       free(f1_path);
+> +       free(f2_path);
+> +       free(f3_path);
+> +
+> +       if (!hnd) {
+> +               log_errno("Unable to open file backend");
+> +               exit(2);
+> +       }
+> +
+> +       struct test_t tests[] =3D {
+> +               { .path =3D "/", .context =3D "system_u:object_r:rootfs:s=
+0" },
+> +               {
+> +                       .path =3D "/base",
+> +                       .context =3D "system_u:object_r:test_base_t:s0"
+> +               },
+> +               {
+> +                       .path =3D "/subbed",
+> +                       .context =3D "system_u:object_r:test_subbed:s0"
+> +               },
+> +       };
+> +       assertContextsMatch(hnd, __func__, tests, ARRAY_SIZE(tests));
+> +       selabel_close(hnd);
+> +}
+> +
+> +void test_multiple_duplicate_validation(const char *basedir)
+> +{
+> +       struct selabel_handle *hnd;
+> +
+> +       /* Two copies of f2.fc to provide duplicate specifications */
+> +       char *f2_path;
+> +       asprintf(&f2_path, "%s/f2.fc", basedir);
+> +       struct selinux_opt opts[] =3D {
+> +               { .type =3D SELABEL_OPT_PATH, .value =3D f2_path },
+> +               { .type =3D SELABEL_OPT_PATH, .value =3D f2_path },
+> +               { .type =3D SELABEL_OPT_VALIDATE, .value =3D "1" }
+> +       };
+> +
+> +       hnd =3D selabel_open(SELABEL_CTX_FILE, opts, ARRAY_SIZE(opts));
+> +       free(f2_path);
+> +
+> +       if (!hnd) {
+> +               log_errno("Unable to open file backend");
+> +               exit(2);
+> +       }
+> +
+> +       struct test_t tests[] =3D {
+> +               {
+> +                       .path =3D "/base",
+> +                       .context =3D "system_u:object_r:test_base_t:s0"
+> +               },
+> +       };
+> +       assertContextsMatch(hnd, __func__, tests, ARRAY_SIZE(tests));
+> +
+> +       selabel_close(hnd);
+> +}
+> +
+> +/* Check if multiple paths are supported. Returns 0 if they are; 1 other=
+wise */
+> +static int check_multiple_path_support(const char *basedir)
+> +{
+> +       struct selabel_handle *hnd;
+> +       char *f1_path, *f2_path;
+> +       char *context1 =3D NULL, *context2 =3D NULL;
+> +       bool supported =3D false;
+> +
+> +       asprintf(&f1_path, "%s/f1.fc", basedir);
+> +       asprintf(&f2_path, "%s/f2.fc", basedir);
+> +
+> +       struct selinux_opt opts[] =3D {
+> +               { .type =3D SELABEL_OPT_PATH, .value =3D f1_path },
+> +               { .type =3D SELABEL_OPT_PATH, .value =3D f2_path }
+> +       };
+> +
+> +       hnd =3D selabel_open(SELABEL_CTX_FILE, opts, ARRAY_SIZE(opts));
+> +       free(f1_path);
+> +       free(f2_path);
+> +
+> +       if (!hnd) {
+> +               /* On older libselinux releases, the second file_context =
+would
+> +                * be ignored but selabel_open should not fail. */
+> +               log_err("Unable to open file backend");
+> +               exit(2);
+> +       }
+> +
+> +       if (selabel_lookup(hnd, &context1, "/", S_IFREG) =3D=3D 0 &&
+> +           selabel_lookup(hnd, &context2, "/base", S_IFREG) =3D=3D 0) {
+> +               supported =3D true;
+> +       }
+> +
+> +       free(context1);
+> +       free(context2);
+> +       selabel_close(hnd);
+> +       return supported ? 0 : 1;
 > +}
 > +
 > +int main(int argc, char **argv)
 > +{
-> +       if (argc !=3D 2) {
-> +               log_err("basedir not provided");
+> +       if (argc < 2 || argc > 3) {
+> +               log_err("usage: %s <basedir> [check]", argv[0]);
 > +               exit(1);
 > +       }
 > +
-> +       test_validate_unknown_fails(argv[1]);
-> +       test_validate_known_succeeds(argv[1]);
->
->         return 0;
->  }
+> +       if (argc =3D=3D 3 && strcmp(argv[2], "check") =3D=3D 0) {
+> +               return check_multiple_path_support(argv[1]);
+> +       }
+> +
+> +       test_multiple_no_validation(argv[1]);
+> +       test_multiple_with_validation(argv[1]);
+> +       test_multiple_duplicate_validation(argv[1]);
+> +       test_multiple_with_extras(argv[1]);
+> +       test_multiple_three_paths(argv[1]);
+> +
+> +       return 0;
+> +}
 > --
 > 2.55.0.229.g6434b31f56-goog
 >
