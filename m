@@ -1,216 +1,110 @@
-Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com [209.85.167.44])
+Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA73F23D283
-	for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 16:53:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.44
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785171193; cv=pass; b=XUVgHCJVfvzaGg5zmPDvKc3eaEt5FtaN7IX816JLErEREMM0bJXgq2G/DtXCbfkDdTlKwXrAHkMCjG6Tr5Sr8CGDnGfkjBj636bHnZCzpkQJM+iDJZpZkLYLsrOso37OLoL5DMT6dNrMEWQO7XdDrsyUQXP4dM8ubySCi/bXQhU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785171193; c=relaxed/simple;
-	bh=DddMHJnP+BZD8e6AuSuqah9K4acYrCpfvrJYdyCPiqw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tu5akDPz4Ja7P80OszUNDy0isxR+oBAOggQLt82xWhYD9F4e87me5fIWsDpv3u/2SNZh/Zn0Ck9lVcZLBCOrRE7XrtrxGQF2S+pZPlHAX8sZW8YfeTV7BuaTIRuMk3wRrJw/Ag2y1Ea1synNDjGeLG3KQmDDDgqz4LW+o3usFrw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZqfGxkTj; arc=pass smtp.client-ip=209.85.167.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF61941F5F9
+	for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 17:39:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.175
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785173947; cv=none; b=DjRAesUhCqDq97qSNf5kXqAqe4cG6BiSbbBqz+F+uYsjzzO9tX7/kck5WFpIpvO1sZly4E/uIpiXFNj9h8ZCRv5TXu6mXfQfE5u9U7QsXyUGOEP5FdyaBgqm5gDdYiYQ1IFTD3mXRDOaOj0ijuZOJqcXINN4yMJGYt9Wp8GlKoo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785173947; c=relaxed/simple;
+	bh=i3sBZfRSsQVUMuxMCz71OJ9v1wXO7r5shBesr1zbaO0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dS+3mplwEchaOsHzD41SNJN4O/0/UzfYog05a7NpVi2ERg3tXw7kZA1VYTW4YJfSewy9HWi8GC9wLUW8opylXP2Bj6qeoMg2Eaaq8aVnyU4ct9Hp9ix3EbnAXZuA3EGGF+XJEbzDMcJSVmwF29Mbv/2BvHkZCGbv/OQABUKUfQk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pXHnM26y; arc=none smtp.client-ip=209.85.160.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZqfGxkTj"
-Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-5b01cb18515so2497247e87.2
-        for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 09:53:09 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785171187; cv=none;
-        d=google.com; s=arc-20260327;
-        b=rRcZMNhi7bnwF6PDu51HzLLjkvieQANQG2FMSxPz6rRrg947Zaw7+GCEKH7BKFwS7V
-         97xj3o31wkMWv5CnwaD0ndl/GnSazoR2ICD+7M7XEFFrjhXpH9iCSeZbbXPmLhxQ3n80
-         StYCel88pRg2E+13bGrAbZOtrhrhuWO2ltWp+3LPx23aCZQf0KtcnF36BGdQmOb98i/2
-         x0S7hmmONiEvSgvs3icr5s3Nirp57y0RuL7Ze+/agiOPr8+4VEn4Anjfel95FBteDJS/
-         61VKh9a2hVvUdm30m/RMZCszBbfvXWrreA3Rj75v2Am2MEdgwmGljGOU0dABBxNe6P7E
-         0Cmw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=BKvd9OLuydZl9TjODFsy+OUXItPBUiE/c7RHpHhxlNY=;
-        fh=iWU6EMthgWNLSYoyCnZUFfTmFYJzGz6VSgGmuJwkex4=;
-        b=GsGKD072u3YhbJaCsjmKcMgp/ROKgxEHJI1nxNH67bhzzm51dM5h6TqNYJ5Mj6P6W2
-         qQIN6mvqxE5Zu+LHILbFqGIoFuJipjxf1SkPga1ab3jhsWmjsLe/cAALF2eO/3dKQeGk
-         zR2I619uP5hvSI09yD4A7QANl6m7YXAk+ZQF+oYW1G4e/LqRzWKgtr7BSVmYw8plI5Io
-         sVZBUbtYyp0KcgwYaoXLlgbm3K5yopTfLN8JWtnDXxkEHPYPWbdVc2h7Wj5bS61jNz1D
-         ggHTGcfYhMz2nNyBff2MlIY381M9qF0N29mzPR4hfM0xiUf8suBOnySoBillPOPfsObR
-         Sr7Q==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pXHnM26y"
+Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-51c2cce930cso28941461cf.0
+        for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 10:39:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785171187; x=1785775987; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=BKvd9OLuydZl9TjODFsy+OUXItPBUiE/c7RHpHhxlNY=;
-        b=ZqfGxkTjwCJhBqgwVj3Tb6cwjIGFEPx0mTntxP8FmTfa71rdAjnyB0ik9eZKwckwMu
-         mDiPHwU++UaP3/4uksbVV2SYPko8qufDlXWbuOo5NWpjF8b2j8NSWGkubKwI7NkbE6vS
-         AL8Y1syrk/G4NOVTRFBQAlfM5dvKxsdWle2MQal4s30a0u/RBg6yyJsfbzeNibWnp/N8
-         IQ3hyWm8MAIGGazkggUeBed0q0GISvfREMe4M4ZhPqrqUJOgvznGY6dhSOS9Scic+cYI
-         7gFzVeLRqA1ny/JA/CFLQxWKjyAXMsOFdip9Ls00ALCm14wlDw92klxlUaM3uVpUMQN7
-         r+gQ==
+        d=gmail.com; s=20251104; t=1785173945; x=1785778745; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=qw7rUif3A3TBu1Se+oZ+N2Ec39nvuKsjfTuQHQTjQyQ=;
+        b=pXHnM26yiKmPdK4VgBEiQeZUYV++xanBzO/X5DcrDqFEwSZzzDk6xNC8+FI7vFAGEw
+         BA7JJSnuuS6IzL+MWEY3gmibRbnyXD1Z2YgG1a2jPnLNl2Sk18HA2N6WQ02spz1ggEBy
+         jL2X+ntNuuioOQDvI9mfTg/Nw2YPEtHfiBsvepRBWTbupHWyjmKd5//Bh4SgUmurDBfE
+         8SDid53ZQ2HYXcKQkN/uUJPpPfuLWOZpd0gUjp5vQjvCTjHOHQ27wJgvTYuiMuv2PnBy
+         gfckj0qEL+Zyf/1C+5WiOtpgVoO7/cjC72CtAPsT4dB4I8hKXP94eNJrd4enzVgjV8VA
+         NTZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785171187; x=1785775987;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=BKvd9OLuydZl9TjODFsy+OUXItPBUiE/c7RHpHhxlNY=;
-        b=JN1XcopEqvc8sWYfSPqfbCG2EJWp/HYn6l+CRoc7pHgcv926zWvpmuzmrqQDzZM2Wg
-         OAOBgwO86fRiUtNXeeWOxKlCqTWQVuNqnczZeev9K/baMUNdV4p5NyehgVgP15ieGn2F
-         dwKmHl+WfFB4a9ymLAewJM4UpM8OqudHQVYaqd+451R4wUMR3nPK5umVXoGNtIg7v1yy
-         ED4lFUs7CFTxtkwUpYUwAfEpGHCjmxVd1He7I1Ud2L1psNrfHkx2wfg6BG2oGR2nnO3b
-         /6ox9UTdeZydBcl1zyENWAZ/v/F0vnoAMOXe4dXZzUz4W79jOexHcNqgDC/Oq2suypKD
-         yakQ==
-X-Gm-Message-State: AOJu0YzndeRsgm5G8FdMoDWKvFoajHJSBJ5TWrXOVk+1ggypoaVt7pMR
-	XYqJAFh71B/NItagHajs6H02LhGvEcZwjJXn8NomoqxSezTqFjQ2xJYK2WIiESfIuXGngcNkJZz
-	KbupTmvaC66PpS3DVRStmmX+yd3PZX+A=
-X-Gm-Gg: AR+sD12/hFA1Awe0KakM2ExYDAC6qx/C3+IAy1LEjdruZsINygD5muh16YeW4TB9CqH
-	VlGUaEfiWIfhXnVrR2nZUn1bZbQeeHfqRi8LrQ0ZR66SgAiDz0TcUCxbL2XyngsjUjKuD9YJcKG
-	Swzew68OxmPNWc6oV/Y9g77CbPDMwMogrPmAk3QIoebgGh3+nIqi82i3J2wBu/DQhiT/FtoMl0q
-	WHZHAAHKWETa51R99MQ0K1Q+z9hc6YIDfk/Ko4FFcZrVOHZ8/lUWZd9nTzXEOaGvPOuAg==
-X-Received: by 2002:a05:6512:3c87:b0:5ae:b36c:81c7 with SMTP id
- 2adb3069b0e04-5b2c1b2ef79mr1831374e87.35.1785171186725; Mon, 27 Jul 2026
- 09:53:06 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1785173945; x=1785778745;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=qw7rUif3A3TBu1Se+oZ+N2Ec39nvuKsjfTuQHQTjQyQ=;
+        b=VkQgJAGIDj5X3Mz+r7uxDNTBKaDxWksby4iEfyS2x5rh3l/kxIescPsuQ8qN6bNEct
+         3L3XREJu9YzEvWIUHtyPIV0eGhIFhHEzRpLiwsqdrO8MJGN8RW1eWM3v6E5HACgS97xT
+         3o8AuVKrFCclIHZ1sWeCLShfgvmhmc3SrTwGgKurl8+IMXWtMdxWJKYhNDL7GvEXlob3
+         PNfVM2fif93K6y4jISFjt3S+2Zp1wpw3Goo3xBkmqWnpwAL5/GyQT0Fxs0n//X5tlDVT
+         HdX1O+6Ec6+b0WuTAcCjcfo+UHOwNdh8qADHCU5TqGAcUKp2eVsfLe3q3/v65dL5/3Pb
+         vEOw==
+X-Gm-Message-State: AOJu0YzAkUeBijUKxWu9mi+7MfxhHlhHPDVG+nn3BRSiSDymjz8ddqga
+	PiNpn3yf59OQai1s95zs3iYetghMLjugkrSfBcqxBP08re7k0urJRj1CAxeijA==
+X-Gm-Gg: AR+sD12jP5hqBPMepaod6fnt8w4m3OTt7ZtcPEhw8Q+B1aIljSKGH0V+1zIbaIgLHbk
+	WZ1Vy0roqlRjNfdpFa0mcER3QR580YeGtZZPLKIVDkhBiZA9GV1QoJjvt8uN4x9IVeD+Md54STM
+	0XrL28D3qFnKES6nhIgBsCu0EyBb/6gBJKZeny1LpjHD2/x/JHwvhMW/3iW5g2YijkSI1caVThn
+	QRYUFboCkqTUZTMhQLlRObAPVkvfz5mtSyix8yxfBrhz0XKnR+0c17VHFDUfnaP5zv7OhXbYUIn
+	r9ZDqYQH5LifAMIVpwaodOANUNO1GGVpTHiHv84iwSLnSyNpOuuQIff42Ivxj4Di8bw5AsRPtIP
+	b9nFlVSn7WGBoc6/2cLzh7/GpIKeU03+Dqc3JZW5Lp81okQsrXhxMd3d+9Jtvr6Wdn0xLkODRnO
+	llTtKrwfWdrJOJ184Ri0H8UdAyhED9YFlJb/NXg7NrlTZNcXOVq82BE6sx/iWn7o4LQ28CWA1kx
+	6mFYH9dsC0=
+X-Received: by 2002:a05:622a:4b08:b0:51c:2149:52db with SMTP id d75a77b69052e-529a86d7b1fmr90341111cf.59.1785173944820;
+        Mon, 27 Jul 2026 10:39:04 -0700 (PDT)
+Received: from Fedora43-SELinux ([144.51.8.27])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-529a2a0a7ffsm58203981cf.26.2026.07.27.10.39.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Jul 2026 10:39:04 -0700 (PDT)
+From: James Carter <jwcart2@gmail.com>
+To: selinux@vger.kernel.org
+Cc: stephen.smalley.work@gmail.com,
+	James Carter <jwcart2@gmail.com>
+Subject: [PATCH] libsepol/cil: Return SEPOL_ERR on failure to set bit
+Date: Mon, 27 Jul 2026 13:38:54 -0400
+Message-ID: <20260727173854.10810-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260727135957.85523-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260727135957.85523-1-stephen.smalley.work@gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Mon, 27 Jul 2026 12:52:55 -0400
-X-Gm-Features: AUfX_mwIAsZqCQtfvhN9agvtrp3XuBFwBcD63t3QhsrPH204p6FbZHeb2x6gTTg
-Message-ID: <CAP+JOzQ5nqo=ZuO0KogwH-+ez1UZpF4oOmPWYRmSPcOZpxwEGg@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: cap max depth for __evaluate_classperms_list()
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, Jul 27, 2026 at 10:00=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> __evaluate_classperms_list() is called recursively without
-> a depth limit, which can overflow the stack. Cap the depth
-> to avoid such overflows.
->
-> Reported-by: oss-fuzz (issue 479899924)
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+The functions cil_typepermissive_to_policydb() and
+cil_typeneveraudit_to_policydb() return rc when ebitmap_set_bit()
+fails, but the rc value at the point is SEPOL_OK.
 
-Acked-by: James Carter <jwcart2@gmail.com>
+Return SEPOL_ERR instead of rc when ebitmap_set_bit() fails.
 
-> ---
->  libsepol/cil/src/cil_post.c | 21 +++++++++++++--------
->  1 file changed, 13 insertions(+), 8 deletions(-)
->
-> diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
-> index 8845faed..183b0d49 100644
-> --- a/libsepol/cil/src/cil_post.c
-> +++ b/libsepol/cil/src/cil_post.c
-> @@ -2291,11 +2291,14 @@ exit:
->  }
->
->  static int __evaluate_classperms_list(struct cil_list *classperms,
-> -                                     struct cil_db *db)
-> +                                     struct cil_db *db, int depth)
->  {
->         int rc =3D SEPOL_ERR;
->         struct cil_list_item *curr;
->
-> +       if (depth > 32)
-> +               return SEPOL_ERR;
-> +
->         cil_list_for_each(curr, classperms) {
->                 if (curr->flavor =3D=3D CIL_CLASSPERMS) {
->                         struct cil_classperms *cp =3D curr->data;
-> @@ -2313,7 +2316,7 @@ static int __evaluate_classperms_list(struct cil_li=
-st *classperms,
->                                 cil_list_for_each(i, cp->perms) {
->                                         struct cil_perm *cmp =3D i->data;
->                                         rc =3D __evaluate_classperms_list=
-(
-> -                                               cmp->classperms, db);
-> +                                               cmp->classperms, db, dept=
-h + 1);
->                                         if (rc !=3D SEPOL_OK) {
->                                                 goto exit;
->                                         }
-> @@ -2322,7 +2325,8 @@ static int __evaluate_classperms_list(struct cil_li=
-st *classperms,
->                 } else { /* SET */
->                         struct cil_classperms_set *cp_set =3D curr->data;
->                         struct cil_classpermission *cp =3D cp_set->set;
-> -                       rc =3D __evaluate_classperms_list(cp->classperms,=
- db);
-> +                       rc =3D __evaluate_classperms_list(cp->classperms,=
- db,
-> +                                                       depth + 1);
->                         if (rc !=3D SEPOL_OK) {
->                                 goto exit;
->                         }
-> @@ -2347,7 +2351,7 @@ __evaluate_map_perm_classperms(__attribute__((unuse=
-d)) hashtab_key_t k,
->         struct class_map_args *map_args =3D args;
->         struct cil_perm *cmp =3D (struct cil_perm *)d;
->
-> -       int rc =3D __evaluate_classperms_list(cmp->classperms, map_args->=
-db);
-> +       int rc =3D __evaluate_classperms_list(cmp->classperms, map_args->=
-db, 0);
->
->         if (rc !=3D SEPOL_OK) {
->                 map_args->rc =3D rc;
-> @@ -2393,7 +2397,7 @@ static int __cil_post_db_classperms_helper(struct c=
-il_tree_node *node,
->         }
->         case CIL_CLASSPERMISSION: {
->                 struct cil_classpermission *cp =3D node->data;
-> -               rc =3D __evaluate_classperms_list(cp->classperms, db);
-> +               rc =3D __evaluate_classperms_list(cp->classperms, db, 0);
->                 if (rc !=3D SEPOL_OK) {
->                         goto exit;
->                 }
-> @@ -2401,7 +2405,8 @@ static int __cil_post_db_classperms_helper(struct c=
-il_tree_node *node,
->         }
->         case CIL_AVRULE: {
->                 struct cil_avrule *avrule =3D node->data;
-> -               rc =3D __evaluate_classperms_list(avrule->perms.classperm=
-s, db);
-> +               rc =3D __evaluate_classperms_list(avrule->perms.classperm=
-s, db,
-> +                                               0);
->                 if (rc !=3D SEPOL_OK) {
->                         goto exit;
->                 }
-> @@ -2409,7 +2414,7 @@ static int __cil_post_db_classperms_helper(struct c=
-il_tree_node *node,
->         }
->         case CIL_DENY_RULE: {
->                 struct cil_deny_rule *deny =3D node->data;
-> -               rc =3D __evaluate_classperms_list(deny->classperms, db);
-> +               rc =3D __evaluate_classperms_list(deny->classperms, db, 0=
-);
->                 if (rc !=3D SEPOL_OK) {
->                         goto exit;
->                 }
-> @@ -2418,7 +2423,7 @@ static int __cil_post_db_classperms_helper(struct c=
-il_tree_node *node,
->         case CIL_CONSTRAIN:
->         case CIL_MLSCONSTRAIN: {
->                 struct cil_constrain *constrain =3D node->data;
-> -               rc =3D __evaluate_classperms_list(constrain->classperms, =
-db);
-> +               rc =3D __evaluate_classperms_list(constrain->classperms, =
-db, 0);
->                 if (rc !=3D SEPOL_OK) {
->                         goto exit;
->                 }
-> --
-> 2.55.0
->
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libsepol/cil/src/cil_binary.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+index caf2d987..7ec3e781 100644
+--- a/libsepol/cil/src/cil_binary.c
++++ b/libsepol/cil/src/cil_binary.c
+@@ -614,7 +614,7 @@ int cil_typepermissive_to_policydb(policydb_t *pdb,
+ 		return rc;
+ 
+ 	if (ebitmap_set_bit(&pdb->permissive_map, sepol_type->s.value, 1)) {
+-		return rc;
++		return SEPOL_ERR;
+ 	}
+ 
+ 	return SEPOL_OK;
+@@ -632,7 +632,7 @@ int cil_typeneveraudit_to_policydb(policydb_t *pdb,
+ 		return rc;
+ 
+ 	if (ebitmap_set_bit(&pdb->neveraudit_map, sepol_type->s.value, 1)) {
+-		return rc;
++		return SEPOL_ERR;
+ 	}
+ 
+ 	return SEPOL_OK;
+-- 
+2.55.0
+
