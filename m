@@ -1,101 +1,121 @@
-Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04D403E5EFD
-	for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 21:17:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCEDE3EC684
+	for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 22:32:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785187055; cv=none; b=Yl8kX16C2wslw2EqckQwp7xgj5XqaJ2ZyYlOeAepBLrLp++sWJfkk9eZfuMVQ1JleFS6WVtUGpwJ0r1Ptu0SxeRNzrqQEksYjmHHE3xNyMtxn8B5+BJSXSVCNWcQokvG/Wqrzh8PKk3BSaulaIHYiPSDd753gV2wb4RqeGi4Kvo=
+	t=1785191570; cv=none; b=jZM7dObHLmPrDoDbYyEKpizyFai6lfWwBDurQvBq+QRd38UdUyMV9HfOSWIE232o1giBfhVNt/PGlTtprGpg1kU7g0NTWOWFDWViy1F2kWVCai9ODdEKsR585xtR+VTxDMpn/EWAZx1ByBWcqgSQrJ1+WEf7bS2NgvQCVTL9CTc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785187055; c=relaxed/simple;
-	bh=BjFCKW6xM1dcdGXxwBCbkXnJG0K4b+mRruwE4bbzyLM=;
-	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=h97+XtOlRAsJo23z3VunxCKit7XsBFxwhxU7kUOKLr0EAfjWnXhpR02232PEgRhFuvqkOOou9LzG6x02DbefR7qrneJoQ/VrXr8zQTYzenWbuGeNQlVZbTBYXy8Wml4bibG64+w/w1dLE11AEv4DzVQQZSapAZI4Fis8bEXAGxU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=PlwiI8IS; arc=none smtp.client-ip=209.85.222.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1785191570; c=relaxed/simple;
+	bh=mBRBKWLI+qVuODZC9sKTg1Ul+T7rGzC47DdfCguvS54=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=mTCz+cUefdrPDhbfpRDA/Kk5oQXGcNyhcFM+ZMN9bSI824U918m1js2Hi9zKe/bXTk2auQpxDSVp8KF83WQrvfG2+kYbaYDKGzj7Fb74pIfUHzWgMru+9cL8zfcQ+WbFuO09nxFg1Bg/GGyfjfMAvHuuPpkxnBXpvYLauG2fvPw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=V45s3y4f; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="PlwiI8IS"
-Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-92e512a9a6bso171959785a.2
-        for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 14:17:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1785187053; x=1785791853; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-type:mime-version:message-id:date:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=hMK1Tnl5b2znZW2CRfc412BmLPfosF2sTUrTddCKPYU=;
-        b=PlwiI8ISEpuFnfWQeufcfWs1r4xKXPQo6mDZorW7kLLFIOuId4zuB3+g3vcHxXxqFw
-         F9CMGVKRAcyjSBkiqt36lCGVgcoOf24KvPGe/Agl4X0/Pig+h+qzP9BIquYx2aVPs3Ow
-         lZFTUIEV74M1Qe8FJKyd+qEopbJU/SzUE5RmDx0pjm9VZ4VTs93OfiVYzC3ipanm0x7x
-         Jh7b4CrLf2vz00pj2sA4NNmFY3vH7UxJdWK9+3sFCVyjVo9jljXtdqOh61vwL4SiPcXz
-         Nyu27mcUILXieBFdfEgQI60A+5U1C/GH+uNoRFoeq6Kq53bxtAq2pdxoZJiNGIi5j+8L
-         Mcqg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785187053; x=1785791853;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-type:mime-version:message-id:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=hMK1Tnl5b2znZW2CRfc412BmLPfosF2sTUrTddCKPYU=;
-        b=mg+SNe4cl86jUtyWyjIRIPywGmt7+EaVLVJMhklwrSe7LW+yrsiQRx/IKaYhPOs8ra
-         72ElsZeGnlWVvaC177HB80vuSLB/8sV50Hb5SnAE/U0xYveniIRDJMZRML+2of4PD5jG
-         yzlOkbvfmpOi90coMeqCLg7kR5EGNTZehHxZBN55BMiW03kXQbbSpz+FPfKEe2kpbYgP
-         eUigMxr7jMjrx+MV92fIWsy0o34Az/CA5N9YZf7WL7h+aZfd3+1HiBwhb0ly9FfYWbtm
-         oK0fdvnRoVu96tEpvacLpTbG73XcRKo5w8BUBkF20xd010ubQ71XxnnZFPFwdJZ6IPV3
-         elcA==
-X-Forwarded-Encrypted: i=1; AHgh+RpLyWl7AirSCLufIpBIKwsdLAzoWbJCqeOT6Qm7NnrGxQlOKA25R9qSILzAvy/Xg4OnIL8g64lm@vger.kernel.org
-X-Gm-Message-State: AOJu0YzcloRNd+Y3Y6FfNAXumTrpMhhLYwunB7mFQtFuOZ5NaVaYP27y
-	MufmFVlpAQKTJ5v1OQeanpPXSKQJp6unkOpMs6f4B+cEbGUYqyxoYSEGW/G5OMzTww==
-X-Gm-Gg: AR+sD11B58892JP9uyQimPoORsd5NoSf91iFU/7lIBZwUl2CYZSSSiZ0kmiIWWIn30F
-	WxPHkhdhM6sQgvpK7V1wq5z/Wm/e5NQbtt9bqXpSXZepEARoigOd8r1aIa35996nJweW0L2/Jx1
-	o4GxotnY3mKe53x+FARCn8NPT2ewQHhySKzWbeIr+C0TQcLB1MEVfYWV1T0u1T5puGmSSU2gvdY
-	LftMqcLJXuht4QhR7jaQfbNRALCpbq5YvdQUw/duFgnXEaCtR2yRed9zFHF1HtNJTieCyULUZrP
-	dZD9NREYfqnDqEaBqrxkZgVLAIw+DHmOi2rQNr8fm4iGf+Sb5XmAqvydnQ/Att8CvRdIYlPT+51
-	pQ4V3/IMk7hqJ1ZDwoEjZAplhZbF8MpCEmTb1la2rzFZLLKr13nfzzUkY6ntcYNHXVbhu13DfPp
-	FFkWd7bPbM2dCmQalIX9xCO1tzid+XKAR2cWoCsjAwy193jitxFN67mzW4WQ==
-X-Received: by 2002:a05:620a:4713:b0:92e:73fc:154c with SMTP id af79cd13be357-932fe27c486mr104485185a.7.1785187052679;
-        Mon, 27 Jul 2026 14:17:32 -0700 (PDT)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-932de515602sm697965885a.2.2026.07.27.14.17.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Jul 2026 14:17:31 -0700 (PDT)
-Date: Mon, 27 Jul 2026 17:17:30 -0400
-Message-ID: <ff870cc3a6c0bdd9b0f8176b0e03afba@paul-moore.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="V45s3y4f"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1785191567;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=dSOstToXW5mYsue1dWRF3tmWIVp+ALKcpUbM4dtXOwI=;
+	b=V45s3y4fpL7c7DDoojK1veHgO+d+UBOdxrGM4SjrhGaqCJP/6A/b9B0VDSHqfOh1T9sVdu
+	x7aE1hy8IyTD/JVYSql6kXKa70074hY551oQjTZ4nwT/U/Rm8ARjMFR3noB9hJ0XJoL+jA
+	DSOAcDaRvxrzB4vZcI3LHcMvsQ6O5KE=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-407-ooeGMMp1Nhu-88-5hpUVaA-1; Mon,
+ 27 Jul 2026 18:32:46 -0400
+X-MC-Unique: ooeGMMp1Nhu-88-5hpUVaA-1
+X-Mimecast-MFC-AGG-ID: ooeGMMp1Nhu-88-5hpUVaA_1785191565
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 44CB71956056
+	for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 22:32:45 +0000 (UTC)
+Received: from akkohli-thinkpadt14sgen2i.rmtde.csb (unknown [10.44.33.215])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 6829E30010D1
+	for <selinux@vger.kernel.org>; Mon, 27 Jul 2026 22:32:44 +0000 (UTC)
+From: Akhil Kohli <akkohli@redhat.com>
+To: selinux@vger.kernel.org
+Subject: [PATCH v2 0/2] checkpolicy: extend bad-data and robustness tests
+Date: Tue, 28 Jul 2026 00:32:40 +0200
+Message-ID: <20260727223242.2507658-1-akkohli@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=UTF-8 
-Content-Transfer-Encoding: 8bit 
-X-Mailer: pstg-pwork:20260727_1648/pstg-lib:20260727_1105/pstg-pwork:20260727_1648
-From: Paul Moore <paul@paul-moore.com>
-To: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org
-Cc: omosnace@redhat.com, Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: Re: [PATCH] selinux: validate constraint expression attr and op at  load time
-References: <20260727144439.6270-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260727144439.6270-1-stephen.smalley.work@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-On Jul 27, 2026 Stephen Smalley <stephen.smalley.work@gmail.com> wrote:
-> 
-> read_cons_helper() validates the expression type and stack depth
-> of each constraint node but leaves e->attr and e->op unchecked,
-> so a policy with an invalid operator or attribute value is
-> accepted at load and only detected when the constraint is evaluated.
-> constraint_expr_eval() handles such unrecognized cases with BUG()
-> so the first permission check that reaches such a node oopses in
-> the context of the checking process or panics with panic_on_oops.
-> 
-> Reject these expresssions when the policy is loaded, matching what
-> the libsepol validator already does.
-> 
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
->  security/selinux/ss/policydb.c | 35 ++++++++++++++++++++++++++++++++++
->  1 file changed, 35 insertions(+)
+This is a follow-up to the checkmodule bad-data harness already merged:
 
-Merged into selinux/dev, thanks.
+  checkpolicy: add bad data protection tests
+  https://lore.kernel.org/selinux/20260710102906.3059833-1-akkohli@redhat.com/
 
---
-paul-moore.com
+Patch 1 adds negative .te fixtures for duplicate type/attribute
+declarations, type/attribute name conflicts, invalid type names, and
+malformed role/user stanzas. It also runs the negative suite as
+non-root in CI so the unreadable .te case is exercised (root can still
+read mode 000 files).
+
+Patch 2 adds expect_robust coverage for oversized generated .te/.conf
+inputs and a large attribute membership set, with tunable sizes. It
+also fixes expect_* helpers to return 0 after counting a failure so
+set -e does not abort the suite early; the script exit status is still
+non-zero when FAIL != 0.
+
+Together these bring the harness from 16 to 25 tests
+(1 positive + 21 negative + 3 robust).
+
+Changes since v1:
+- Fix non-root CI BASEDIR resolution when cd to the script dir fails
+  under /home/runner/work (Actions failure).
+- Treat exit 137 (SIGKILL, including OOM-kill) as a crash in
+  expect_robust.
+- Drop internal section/PDF markers from comments and test labels.
+- Keep both semodule-utils and checkpolicy non-root CI blocks in
+  run_tests.yml when applying onto current main.
+
+Tested with:
+  cd checkpolicy
+  make checkmodule checkpolicy LIBSEPOLA=../libsepol/src/libsepol.a \
+    CPPFLAGS='-I../libsepol/include'
+  make test LIBSEPOLA=../libsepol/src/libsepol.a \
+    CPPFLAGS='-I../libsepol/include'
+
+Result: roundtrip tests pass; checkmodule negative tests:
+25 passed, 0 failed.
+
+Also verified via GitHub Actions on the fork branch (full matrix green),
+including the checkpolicy bad-data (non-root) step.
+
+Akhil Kohli (2):
+  checkpolicy: extend bad-data tests for type, role, and user errors
+  checkpolicy: add robustness tests for large policy inputs
+
+ .github/workflows/run_tests.yml               |  11 +
+ checkpolicy/tests/negative/bad_role.te        |  12 +
+ checkpolicy/tests/negative/bad_user.te        |   3 +
+ checkpolicy/tests/negative/dup_attribute.te   |  13 ++
+ checkpolicy/tests/negative/dup_type.te        |  11 +
+ .../tests/negative/invalid_type_name.te       |   9 +
+ .../tests/negative/type_attr_conflict.te      |  10 +
+ .../tests/test_checkmodule_negative.sh        | 205 +++++++++++++++++-
+ 8 files changed, 263 insertions(+), 11 deletions(-)
+ create mode 100644 checkpolicy/tests/negative/bad_role.te
+ create mode 100644 checkpolicy/tests/negative/bad_user.te
+ create mode 100644 checkpolicy/tests/negative/dup_attribute.te
+ create mode 100644 checkpolicy/tests/negative/dup_type.te
+ create mode 100644 checkpolicy/tests/negative/invalid_type_name.te
+ create mode 100644 checkpolicy/tests/negative/type_attr_conflict.te
+
+-- 
+2.55.0
+
