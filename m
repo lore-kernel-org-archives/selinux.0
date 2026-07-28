@@ -1,119 +1,95 @@
-Received: from mail-oo1-f50.google.com (mail-oo1-f50.google.com [209.85.161.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx1.polytechnique.org (mx1.polytechnique.org [129.104.30.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5B9D3AA510
-	for <selinux@vger.kernel.org>; Tue, 28 Jul 2026 20:15:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.50
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785269744; cv=pass; b=GRbHBeqNuKEe6GcySK3Y6ziMh/ggyweQhXkWuHYKL337ibkBSelWrWYI6gYIL1xElM5iSgMa6qO3tNtSzXVtiXNltiozR1ti7Gg98zB5tZnp4R+DPTalL+ltc0pgbcp7/yZcgbxHbeOofTH1e7sBMB4CAVd4qlvzmuAvjPJAttQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785269744; c=relaxed/simple;
-	bh=IayndIsN7A+Fe8jJG4sbK0dysUuwebg74uiy2zWcppw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qMMollcbiPQmM6+vn3qaxmwLo83Comy55uDXYqbwe6pToI7h2ej5hn6emLNwz8aG1vQjn/Ybm+wfMq7ds2DoGwe4YYbVCgTzQ9rH1MKWJFnXkgBkdYs9a7648YeUXFaW4gyjFKAPlPsNriesxfjDkY+wUHYx9kjhvWxK+GooNl8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QAt/SSQc; arc=pass smtp.client-ip=209.85.161.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0679B2EEE90
+	for <selinux@vger.kernel.org>; Tue, 28 Jul 2026 20:34:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.104.30.34
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785270855; cv=none; b=lr02AK6J11C0Xf7ry//Z5AOXtmphW5dIJ7LSZ6YlT0TP4cZe+j7Pq+sS422a0BmyqV6EOm+dtI1lV20wMyEkaloWFj9NdUvb6HtStBI9o9KzPOstiWoE1v9hCD1Y4kptmJ5pAa5HMmnRCfe+fZAGghSRzVInMSC++HudFtvDG5w=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785270855; c=relaxed/simple;
+	bh=jNBaGO1/+YVuvmPu5c79lcCC+jX7VscrqKqlTQ1z9BQ=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=VvTPB7K7+eTlq6hTxAfql+mZQED+S6jIQchzGrVUK4edy2Pb2uIgFm5A4ZY20qAU+h4zYceiRgyxTIVSJxWPzWU83lu50K/BBeJG0YDUsKpk5RlD+jxnvmgsb09oN9c/c5iw0d6KSScTourNDN+wz5ccu+lV9cEdPwcQRDP4g1k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=m4x.org; spf=pass smtp.mailfrom=bounces.m4x.org; dkim=pass (4096-bit key) header.d=m4x.org header.i=@m4x.org header.b=O/wO2yYk; dkim=pass (4096-bit key) header.d=m4x.org header.i=@m4x.org header.b=NHrwR4nL; arc=none smtp.client-ip=129.104.30.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=m4x.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bounces.m4x.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QAt/SSQc"
-Received: by mail-oo1-f50.google.com with SMTP id 006d021491bc7-6aaea785032so185170eaf.2
-        for <selinux@vger.kernel.org>; Tue, 28 Jul 2026 13:15:41 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785269740; cv=none;
-        d=google.com; s=arc-20260327;
-        b=U10JeixyLWY2+rZ2nUlhpbvCgg0p4G3MOs2Np8Km4M11m36BrfbCU7xT0xgmnIDboK
-         6olCqVAreiRg/arfHf7mqB+5zyUy5q9bG8psYj/eVm2P53UE/1gx3PhMn5hfAcIurxEu
-         6Ng8FwQxXuF9cL4MhUmrKVeugIA+q6WxuxlOf+4zYmVanyZl31nf+KIsREnFyZJQoPf4
-         /WUAcEI6eWbtTUVQlVxpPJNeWfOKh7lXxlIAPuZfc9h6pLwwCbxdPJL9LggTf2pJv6GA
-         xO7Ma/7cHyASfhZ9v+5fVkQtAMlmODSmvUmzVxluWGZL4z8VLKBcGl0z60o0TrDUrjrP
-         S2vw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=IayndIsN7A+Fe8jJG4sbK0dysUuwebg74uiy2zWcppw=;
-        fh=E51Jjr8Bz9WzQ+Ik80n9UcoRPIh3NakEhV8l9xr/qbM=;
-        b=a6gMn9/At95axcZ5B9m7C/CcRcXIEq+6WyPcZJitFyL/APDkpIQWFwgeVGellXt2a/
-         ZicCFaP2uS6sRlcPgdcDrM5hNkH38KAgFeKIatFVUM1sEg9RUGjR4nc7gXBD0vpV27IT
-         oM06u303EEHTf24LHisRGc2f0Pl2jVQ9m4HgqwF/8TqWtF00Ve9MTSHAYkttQNtyAzgI
-         ErujPOQyqoJ5NARINYC3m3pwb8hrQ7V+9AXWEknQXNsNsf9snE2LCEHJ9x/ePBabrSmQ
-         mp3US6SMl7HhafwRydd9B2K5dry8vt82kKPwaLTLgJ/PU2kw9WypuCUsyprxW7l5qsSA
-         MxJg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785269740; x=1785874540; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=IayndIsN7A+Fe8jJG4sbK0dysUuwebg74uiy2zWcppw=;
-        b=QAt/SSQc81XCCSf9/3zREFC2fJQCdmiV3LwBQzll5rRb/UaKHVORxaoLXvhC3+ehp6
-         P/7rAxXZ4GIBbKZ2hYwIBiRcKXxbD+KN23/O/f8R8HLbcL2hl1/6/BtNA6N+zW62AoU8
-         2Beqae3D3azKPlveDaUz8YsByyEkIYLaLsIqtCXV9y/Hd2kqLYnJDpe+D/533zkar582
-         YTC8iPGIgLvVTsvkNMRyOHyI4nablCplsm/1UK++5FKhwwqs70ZWBPWp6clH0IAkSIHC
-         SsUto7aZRU2xQWOx1V0WCKuc6CZNgsW50MyoCo5luqb7fxGCPOmSLQeJrxGh7rL9Awua
-         Rc9A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785269740; x=1785874540;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=IayndIsN7A+Fe8jJG4sbK0dysUuwebg74uiy2zWcppw=;
-        b=O003sAMTIMH57hkIXveWb361uNvrmu8F8kmHLy7nn0UAQaKJK/EYiQOI7Frd/f7l+q
-         8uNywB3Hyn7IgzuW92s9HMhE6Ava9KWilhw9Awl8YpHCT7dBx4V7W2Kk13OKgbu2Iq9+
-         I2WEskw6Nd1DUDRPywIRlJkC3rspxqid0Q4K94daLb8F2KwHxcGP0fOzDBUysEP2eKmj
-         kOrN2Z7xtk+S9iYmRxax/L3grRfEO85FjePp1QtyL7ftQALzuHSMZq2V9JFAab6HmVww
-         w12stbAK8ht+0gPodCGchiXlLmtBlwyfwHk9JggJW0DqMowYFYkBgBSRbUb3ZdInA9+5
-         CyzQ==
-X-Gm-Message-State: AOJu0YwIaJUoNmTAp4yhA6lxF4H4RaK3Az27lG7kHrtiDKhQR+bRYs54
-	TjL1OKn27agccWcgjFfk52TAMD6HbukiaRL9cK7m72BjKtdmakxgmkddS1gkEA9+gAwGMaShMXZ
-	SGe9PHUr9FN9rSLPeVW/kSfiBNAa8tvx73g==
-X-Gm-Gg: AR+sD121JX1c0Aqyg90Th0eFqbyegYNr9SV+ugbuctXkPuOoq6z/my5eHEo34OoXoYx
-	i6m0v0OMyru1+41ktMiZmBE3QmjEIgSuKyOJFfheOMtO1dJA69bel/TrVf0hQsK5VaSDFP0yAQu
-	67ynjQxzig1OVM+7e6TiQBY1VkehAuVUuVte5gA/eCLYYWfvXb1UAbb6VCpQbpRJD3zHEzCnuAQ
-	wunWy052jNfraaQeR0RdUJLbDfq1EYtQfnZgFzJEqj7HtjeMjK3/ls2C65+7A==
-X-Received: by 2002:a05:6820:3089:b0:6a3:1e40:6332 with SMTP id
- 006d021491bc7-6ac96c89a9dmr1777383eaf.59.1785269740126; Tue, 28 Jul 2026
- 13:15:40 -0700 (PDT)
+	dkim=pass (4096-bit key) header.d=m4x.org header.i=@m4x.org header.b="O/wO2yYk";
+	dkim=pass (4096-bit key) header.d=m4x.org header.i=@m4x.org header.b="NHrwR4nL"
+Received: from localhost.localdomain (xdsl-188-155-163-252.adslplus.ch [188.155.163.252])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by ssl.polytechnique.org (Postfix) with ESMTPSA id C3A4B1A38B
+	for <selinux@vger.kernel.org>; Tue, 28 Jul 2026 22:27:01 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=m4x.org; s=svoboda;
+	t=1785270422; bh=jNBaGO1/+YVuvmPu5c79lcCC+jX7VscrqKqlTQ1z9BQ=;
+	h=From:To:Subject:Date:Message-ID:From;
+	b=O/wO2yYkukN9xLAIy75RkIFa52dxk4vvknwRabtGOm1UmsRfFdIGscCDsX9DPuEYF
+	 4AgKD2TKstbglxm1jKVZjV2Hx8SZzaWP7WY9RoNJGD986l/6MnFImJkF82h/uWYGkf
+	 fszRozP0q0++xcCfsjQp9uRVb1FZ+zVjntmge52jYmbDCpLsRSTWRQWLs0AzsbTUGS
+	 Z+C/OLs4GWH5E+GsPZPbOTkgEza74LAKCoGdMFWUpOQ0v5/SRUiFNH7Vus1NkXpPMt
+	 RAIuiyDIMRvRVphPgEkpYK+/FnvbJfyn7IsOwVUYY5QYwin86Q4gDZ/rlMeyFuD/ZS
+	 ut8cCniMqWCCwCHMYj8NKTu6n32GutiIYRgPne84z2ywEwmSx5AB/eMOc4X7d2QWAl
+	 AX4f7cqrruLja34nJj6/K7XYiE1mf/WcIADjJRTS/TjKuRDm9gv72MRqgvkAR+PRax
+	 Uu+Cptr3t9lA/w4VtzgZ20CX42Xul3Kq5UdFIj8KZolHLNu9aAuqSW/sl7yRvcwj2n
+	 gvFMgWe5TOcRcyzWv+mgFrakYlHpY0919eBzjvmRAGwWB1XGiVs1Lj/B6UBVNoy2Sz
+	 aXSZBja1eAUk7y7XvVj6/RddwRTa/3UrDnKN+WU2VluIZMzy2pBlkU5DfkY8MjuscU
+	 5dV0/jYw/XRa7xDGQzMZsjxw=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=m4x.org; s=svoboda;
+	t=1785270421; bh=jNBaGO1/+YVuvmPu5c79lcCC+jX7VscrqKqlTQ1z9BQ=;
+	h=From:To:Subject:Date:Message-ID:From;
+	b=NHrwR4nLZYqQWqFTYFtJr3bjTIgoKTrJltvwdefIBzCCp1FOaimxeku2frDKHAG3y
+	 +ONbH81hYdmH+P3tJONCDo1vJO3qA9tggIx0O4ci4je6Wk7IikbpJ5/0SWhxUQNtez
+	 YE7lE2F8qvISp/8KGJHwpti+RFxNKIVD3c8aRTTVtZmvlWR3QRoig2SvIvsSVf6pz7
+	 Wo4zF7JEZovrSW38HfFpMiCVWLfRM5RNQXb6MZJ1D0KJb2J/HOoerVMv5RRnKOTUhj
+	 96/i9UQD5Pbs7mHIV5TWOi/1yfhUjdGF8qsIaNS8jknShugnwdS3odVJRcPuDQGlGP
+	 sdtZMSODcbSNySd9GlMAKYmabr0seDfX+cJWsBwk4rSG7Et6sbpwVkCjVZgHrXw373
+	 LeWP0ppUO25LEood3njaRjxHpXMTOsQ5nYFtGv+YJ3k3FCBY0EYskyTB/pw/Bb9JYs
+	 c/K99GVUvw7RDaDdI2je4LRPF8JWpbp90zgAHuGzUw9y6/nFADjgQC6QkTLMlrHYsx
+	 ccCXXfrsicKCLxRO//Bvi86lRecTjJ4Prh70VRXAuQZ/MJH4GDWL6BHMS0bL7WARCd
+	 suFBhexn0GYezvsjhoQUysTWfDISGHFgcrtM85FDd+xA+FGG2cMoeJwJpJ3jXbnp2R
+	 XRn2fNi5/Q+1iQnTgKbkfp0w=
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+To: selinux@vger.kernel.org
+Subject: [PATCH 1/1] SECURITY.md: Nicolas Iooss is stepping down
+Date: Tue, 28 Jul 2026 22:26:32 +0200
+Message-ID: <20260728202632.4784-1-nicolas.iooss@m4x.org>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260728065917.1343947-1-jsegitz@suse.de> <20260728065917.1343947-2-jsegitz@suse.de>
- <CAEjxPJ529Be7_1Pw1LRFsUtABDa3yVo_-wD=mT0QxiuA0sKfsA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ529Be7_1Pw1LRFsUtABDa3yVo_-wD=mT0QxiuA0sKfsA@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 28 Jul 2026 16:15:29 -0400
-X-Gm-Features: AUfX_mxWvOTlyI8Ut0_QUXpbtPiom1ISpGu4uAE8erczoK9t4nHm0FxlgeRbOpw
-Message-ID: <CAEjxPJ77Vt0vGDy5PZXtFjYwjQNsx8KTtk5d10L=sWS4vWY8kg@mail.gmail.com>
-Subject: Re: [PATCH v4 2/2] man: Document directory cycle handling of selinux_restorecon
-To: Johannes Segitz <jsegitz@suse.de>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Jul 28 22:27:01 2026 +0200 (CEST))
+X-Spam-Flag: No, tests=bogofilter, spamicity=0.037605, queueID=E6C531A4A2
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 
-On Tue, Jul 28, 2026 at 10:50=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Tue, Jul 28, 2026 at 3:09=E2=80=AFAM Johannes Segitz <jsegitz@suse.de>=
- wrote:
-> >
-> > Skipping directory cycles instead of aborting the file tree walk is a
-> > user visible behavior change: restorecon -R over a tree containing e.g.
-> > a bind mount of an ancestor directory now logs a warning, skips the
-> > cycle and completes successfully, instead of failing with ELOOP.
-> >
-> > Document the new behavior for the flag SELINUX_RESTORECON_RECURSE,
-> > including that a cycle is not an error and therefore is neither
-> > affected by SELINUX_RESTORECON_ABORT_ON_ERROR nor counted by
-> > SELINUX_RESTORECON_COUNT_ERRORS, and note the previous behavior in the
-> > selinux_restorecon(3), restorecon(8) and setfiles(8) man pages.
-> >
-> > Signed-off-by: Johannes Segitz <jsegitz@suse.de>
->
-> Thank you for doing this!
->
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Since I am no longer able to spend much time working on SELinux
+userspace tools and libraries, I would like to leave the maintainers
+team.
 
-This series is merged.
+Update the set of people receiving security reports.
+
+Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+---
+ SECURITY.md | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/SECURITY.md b/SECURITY.md
+index a1d02c4d093a..9ef2e4d9c08c 100644
+--- a/SECURITY.md
++++ b/SECURITY.md
+@@ -25,8 +25,6 @@ the issue before it is made public, but we will make every effort to address
+ the issue as quickly as possible and shorten the disclosure window.
+ 
+ * Petr Lautrbach, plautrba@redhat.com
+-* Nicolas Iooss, nicolas.iooss@m4x.org
+-  *  (GPG fingerprint) E25E 254C 8EE4 D303 554B  F5AF EC70 1A1D A494 C5EB
+ * Jeffrey Vander Stoep, jeffv@google.com
+ * Joshua Brindle, brindle@gmail.com
+ * James Carter, jwcart2@gmail.com
+-- 
+2.48.1
+
