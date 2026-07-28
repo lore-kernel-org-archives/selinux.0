@@ -1,95 +1,116 @@
-Received: from mx1.polytechnique.org (mx1.polytechnique.org [129.104.30.34])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0679B2EEE90
-	for <selinux@vger.kernel.org>; Tue, 28 Jul 2026 20:34:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.104.30.34
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785270855; cv=none; b=lr02AK6J11C0Xf7ry//Z5AOXtmphW5dIJ7LSZ6YlT0TP4cZe+j7Pq+sS422a0BmyqV6EOm+dtI1lV20wMyEkaloWFj9NdUvb6HtStBI9o9KzPOstiWoE1v9hCD1Y4kptmJ5pAa5HMmnRCfe+fZAGghSRzVInMSC++HudFtvDG5w=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785270855; c=relaxed/simple;
-	bh=jNBaGO1/+YVuvmPu5c79lcCC+jX7VscrqKqlTQ1z9BQ=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=VvTPB7K7+eTlq6hTxAfql+mZQED+S6jIQchzGrVUK4edy2Pb2uIgFm5A4ZY20qAU+h4zYceiRgyxTIVSJxWPzWU83lu50K/BBeJG0YDUsKpk5RlD+jxnvmgsb09oN9c/c5iw0d6KSScTourNDN+wz5ccu+lV9cEdPwcQRDP4g1k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=m4x.org; spf=pass smtp.mailfrom=bounces.m4x.org; dkim=pass (4096-bit key) header.d=m4x.org header.i=@m4x.org header.b=O/wO2yYk; dkim=pass (4096-bit key) header.d=m4x.org header.i=@m4x.org header.b=NHrwR4nL; arc=none smtp.client-ip=129.104.30.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=m4x.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bounces.m4x.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42CED12CDA5
+	for <selinux@vger.kernel.org>; Tue, 28 Jul 2026 22:29:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.44
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785277752; cv=pass; b=XIyU4QRHoY01ye0PBe0RkRlTCmp1b7BP/LyQSHxoOEFu6s0Lh1dEv2UsXSJhvb50U9Z9GUyAXmViOEmFUszRKnlk+JVHdC3PwugBWCirv2/Km5A0XEGnxiAQDFQVTt2UeG2L6UKl8Yio2wSUBS/RbYyLlSHz1z7CiZSl5XVNbsE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785277752; c=relaxed/simple;
+	bh=S1XqISWOX6OYbO6jXnSbBXl+DIrSlZf1O/NWu84DERU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=J9zt+L2mVZI0fGUTvXLawV4mIBvIAOm/UgZUx1f8jhD9PRatdrUNt0tfjSJ5gIlEsRaIUsIQxh9LBYTqlaxqin7daZkb2rLEX+0+Ojl5s56zVV+yGHpEhHBUeGKU7E3YEnmvT78nlPCjKLRmtUbBrYnS3owaeEOCzP4Sz7XK/9M=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=arNfd7km; arc=pass smtp.client-ip=209.85.216.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=m4x.org header.i=@m4x.org header.b="O/wO2yYk";
-	dkim=pass (4096-bit key) header.d=m4x.org header.i=@m4x.org header.b="NHrwR4nL"
-Received: from localhost.localdomain (xdsl-188-155-163-252.adslplus.ch [188.155.163.252])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by ssl.polytechnique.org (Postfix) with ESMTPSA id C3A4B1A38B
-	for <selinux@vger.kernel.org>; Tue, 28 Jul 2026 22:27:01 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=m4x.org; s=svoboda;
-	t=1785270422; bh=jNBaGO1/+YVuvmPu5c79lcCC+jX7VscrqKqlTQ1z9BQ=;
-	h=From:To:Subject:Date:Message-ID:From;
-	b=O/wO2yYkukN9xLAIy75RkIFa52dxk4vvknwRabtGOm1UmsRfFdIGscCDsX9DPuEYF
-	 4AgKD2TKstbglxm1jKVZjV2Hx8SZzaWP7WY9RoNJGD986l/6MnFImJkF82h/uWYGkf
-	 fszRozP0q0++xcCfsjQp9uRVb1FZ+zVjntmge52jYmbDCpLsRSTWRQWLs0AzsbTUGS
-	 Z+C/OLs4GWH5E+GsPZPbOTkgEza74LAKCoGdMFWUpOQ0v5/SRUiFNH7Vus1NkXpPMt
-	 RAIuiyDIMRvRVphPgEkpYK+/FnvbJfyn7IsOwVUYY5QYwin86Q4gDZ/rlMeyFuD/ZS
-	 ut8cCniMqWCCwCHMYj8NKTu6n32GutiIYRgPne84z2ywEwmSx5AB/eMOc4X7d2QWAl
-	 AX4f7cqrruLja34nJj6/K7XYiE1mf/WcIADjJRTS/TjKuRDm9gv72MRqgvkAR+PRax
-	 Uu+Cptr3t9lA/w4VtzgZ20CX42Xul3Kq5UdFIj8KZolHLNu9aAuqSW/sl7yRvcwj2n
-	 gvFMgWe5TOcRcyzWv+mgFrakYlHpY0919eBzjvmRAGwWB1XGiVs1Lj/B6UBVNoy2Sz
-	 aXSZBja1eAUk7y7XvVj6/RddwRTa/3UrDnKN+WU2VluIZMzy2pBlkU5DfkY8MjuscU
-	 5dV0/jYw/XRa7xDGQzMZsjxw=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=m4x.org; s=svoboda;
-	t=1785270421; bh=jNBaGO1/+YVuvmPu5c79lcCC+jX7VscrqKqlTQ1z9BQ=;
-	h=From:To:Subject:Date:Message-ID:From;
-	b=NHrwR4nLZYqQWqFTYFtJr3bjTIgoKTrJltvwdefIBzCCp1FOaimxeku2frDKHAG3y
-	 +ONbH81hYdmH+P3tJONCDo1vJO3qA9tggIx0O4ci4je6Wk7IikbpJ5/0SWhxUQNtez
-	 YE7lE2F8qvISp/8KGJHwpti+RFxNKIVD3c8aRTTVtZmvlWR3QRoig2SvIvsSVf6pz7
-	 Wo4zF7JEZovrSW38HfFpMiCVWLfRM5RNQXb6MZJ1D0KJb2J/HOoerVMv5RRnKOTUhj
-	 96/i9UQD5Pbs7mHIV5TWOi/1yfhUjdGF8qsIaNS8jknShugnwdS3odVJRcPuDQGlGP
-	 sdtZMSODcbSNySd9GlMAKYmabr0seDfX+cJWsBwk4rSG7Et6sbpwVkCjVZgHrXw373
-	 LeWP0ppUO25LEood3njaRjxHpXMTOsQ5nYFtGv+YJ3k3FCBY0EYskyTB/pw/Bb9JYs
-	 c/K99GVUvw7RDaDdI2je4LRPF8JWpbp90zgAHuGzUw9y6/nFADjgQC6QkTLMlrHYsx
-	 ccCXXfrsicKCLxRO//Bvi86lRecTjJ4Prh70VRXAuQZ/MJH4GDWL6BHMS0bL7WARCd
-	 suFBhexn0GYezvsjhoQUysTWfDISGHFgcrtM85FDd+xA+FGG2cMoeJwJpJ3jXbnp2R
-	 XRn2fNi5/Q+1iQnTgKbkfp0w=
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-To: selinux@vger.kernel.org
-Subject: [PATCH 1/1] SECURITY.md: Nicolas Iooss is stepping down
-Date: Tue, 28 Jul 2026 22:26:32 +0200
-Message-ID: <20260728202632.4784-1-nicolas.iooss@m4x.org>
-X-Mailer: git-send-email 2.48.1
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="arNfd7km"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-38f0f132f56so1070782a91.0
+        for <selinux@vger.kernel.org>; Tue, 28 Jul 2026 15:29:10 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785277750; cv=none;
+        d=google.com; s=arc-20260327;
+        b=TUa0o+TX2f2NfQHur41PYG6btjcw4JBP9ynsjctFcz9xijcpGwN4bAKZbPLQnq8RFY
+         w+cLrspLpu8NhhNeSEe/zkN9wDmHiTU/J+qzvSb0a1EwK0hcLNsPXP1OioNgROTFyKH5
+         8nW6Qpx4+c07OaYao2Yrq0XIoxKfgqZn5FZEXGpBCDM99idlPbmXr5ORsJwswEzJ0Lw3
+         b92k3wg9Kl0qpnnflXMsm1LKd1MF+2Rv3OpYYwO+LJgLC6VOoxpB0CrJDi5+GPszayYP
+         jqJAAW5wswjWUPocrZfMtH3OuMAha+vVYUqKpJqN7lqdcdhywMtEkbJ7TkOYZGrlanhP
+         mqIg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=bPov0M0CO8Rz4/k8oGeIS9HQbcezaRyfv1qhAZQ//pQ=;
+        fh=TxEax/h1lKQlM22bF36EEML1zDSZqnZB5Sxye9/dLQs=;
+        b=U0/npogbzC4uCmbXeUUlpEt7dKMPCgol31f7lIhDDRQIHyE5fsTnOviyPVLGAoNkKV
+         7b81qWeWeT7q3QJh4i79mndxAjvVawz0LFZzFOXaec9NHxKExepgSXsZANY8TDm2wUTD
+         EPwydhW3GiRgYnF2TW7O6hcUutncDFLWNtFqCcC5BRvqyDQKAvy7GRfTlaez5KvjcA77
+         oPw+KaZs3eXkWoR1B20NDznfYroXt7Uf1IEciNEgVJDdDTeRa5rV26akxI0faCdPMeBv
+         XynL/ILPNTAG4MZcTHqYajUqHxk2UVRbUAtENAkKtEyQ3sPC5PkDALOYaXB7GqOBXn+K
+         UudQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1785277750; x=1785882550; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=bPov0M0CO8Rz4/k8oGeIS9HQbcezaRyfv1qhAZQ//pQ=;
+        b=arNfd7kmHcc3fpPiisHKuwnlBmZwo83tSMDlQ5Xqa7EzdtvIq+nfI841b+VGDX5s7d
+         okTRmttTH/DQR7AITI+RcqrhXmo3plwxNrr69d59bRjN8R+EYumyKqoHSTnmSHqLSjA/
+         TUtvK/rA5Gglri1AxXVbXwkez+a3vuR8sxwexumA+57JrHhkF5MNuKP6UE4RLCZn/6xr
+         OBcb0AtLvfUeNt7gn2eCBNub2eHONxiEaehLp6A8mPZrsnszlbeTNlXqoRAHKiEjR6nt
+         bhQRNevznSPKyxgQhjL7qi+pg2AWLrtwEJBnMe5eyoq1KaPMTkn9qrW5h4nMjYWdpfgM
+         muiQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785277750; x=1785882550;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=bPov0M0CO8Rz4/k8oGeIS9HQbcezaRyfv1qhAZQ//pQ=;
+        b=qtg8TKrsiiKsvgvI1dv11JcWbOfjEGjYDWBm0qth16S1V/eGdjYFq2ntzdvEW6mPjD
+         drnT4VyM6SwHOu1dBzgJ89cIObgK8x686TzpRjBIZ0zNj8sa6ysigqcyfCazMl2o20cS
+         aMyo7SHmXFADnVeGY/f2w1lea/mxbEcHQ4pnzN4Lo8IljGaMnsKp6XQuzEp+zuERYu3y
+         faQe0dZZ6opDwBDoOF0E4+NRy/wDwXC0mM0MIthQxUSavQtAmJfJzh047mKyZhlBh7oc
+         0cwTJjbKTf+Zp77Vozz1ORyzXAzuH0x3Jcg4OG3rIJPxniI6PLH5eBCrc+bzDEI6HFRF
+         qj+g==
+X-Gm-Message-State: AOJu0YztSVc63ftkMYiKY2FIPXCZLLhISfWmTZNw/QAPh5Sdh9zdaxNh
+	p5CdhNOm20FSiMiEvihJeUurZ6ChoxLaEmqYNmiSVjm7h+tUB8jnv+PjyEFyBtKXKUdEhNNpaTz
+	3qc833RJjVGQiz/EQYq5YDh0wW9IaziRmyy605plCMZYK/YjjO+m+1Q==
+X-Gm-Gg: AR+sD122DRJljz0njupKoUrAzVesyBKcCzwhGf0imNBmm3W+JAl1JLr4CAeEGkXVAXR
+	Q+UsiEc9JDh3qUJ0ORbUPquV4eTxUrsbNmO9P+akSN7sB1+KCpG5OrzAak2J2rzby9wBriRy/Q/
+	zKip6YTB4XaVUqe6KM5jwx4HUE3PGpl/14xjcZvWqpLInRFNDE/UMOdZPSyhJYOBztXNGmiS14Q
+	UefSwPQdqiKlrjLpnMyosrp/+wmjG4bUVgzxg1TIjrWvWQYtEMrb7FgS771FNjP0QszdiNqhep0
+	o46fOXKdKjFSn62FA35s07ij9wKGopYpOYycw+BxFfj+j2q2tJZQgiAJ
+X-Received: by 2002:a17:90b:3b41:b0:38e:4f42:d0d6 with SMTP id
+ 98e67ed59e1d1-38f6a30e409mr4133624a91.12.1785277750304; Tue, 28 Jul 2026
+ 15:29:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Jul 28 22:27:01 2026 +0200 (CEST))
-X-Spam-Flag: No, tests=bogofilter, spamicity=0.037605, queueID=E6C531A4A2
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+References: <20260728202632.4784-1-nicolas.iooss@m4x.org>
+In-Reply-To: <20260728202632.4784-1-nicolas.iooss@m4x.org>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 28 Jul 2026 18:28:58 -0400
+X-Gm-Features: AUfX_myFr2EUhFkQyTPJElzAJJYzfIYxrMrCVyN3NQx-9Jt9pP9p5dCaIMaU2_I
+Message-ID: <CAHC9VhQUrfH85GNLTDYp0Z+KYmpqyVzs7HAr78+J+QM0p511OA@mail.gmail.com>
+Subject: Re: [PATCH 1/1] SECURITY.md: Nicolas Iooss is stepping down
+To: Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Since I am no longer able to spend much time working on SELinux
-userspace tools and libraries, I would like to leave the maintainers
-team.
+On Tue, Jul 28, 2026 at 4:34=E2=80=AFPM Nicolas Iooss <nicolas.iooss@m4x.or=
+g> wrote:
+>
+> Since I am no longer able to spend much time working on SELinux
+> userspace tools and libraries, I would like to leave the maintainers
+> team.
+>
+> Update the set of people receiving security reports.
+>
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> ---
+>  SECURITY.md | 2 --
+>  1 file changed, 2 deletions(-)
 
-Update the set of people receiving security reports.
+Sorry to see you step away, but I appreciate all that you have done.
+You're welcome back anytime :)
 
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
- SECURITY.md | 2 --
- 1 file changed, 2 deletions(-)
+Acked-by: Paul Moore <paul@paul-moore.com>
 
-diff --git a/SECURITY.md b/SECURITY.md
-index a1d02c4d093a..9ef2e4d9c08c 100644
---- a/SECURITY.md
-+++ b/SECURITY.md
-@@ -25,8 +25,6 @@ the issue before it is made public, but we will make every effort to address
- the issue as quickly as possible and shorten the disclosure window.
- 
- * Petr Lautrbach, plautrba@redhat.com
--* Nicolas Iooss, nicolas.iooss@m4x.org
--  *  (GPG fingerprint) E25E 254C 8EE4 D303 554B  F5AF EC70 1A1D A494 C5EB
- * Jeffrey Vander Stoep, jeffv@google.com
- * Joshua Brindle, brindle@gmail.com
- * James Carter, jwcart2@gmail.com
--- 
-2.48.1
-
+--=20
+paul-moore.com
