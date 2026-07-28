@@ -1,137 +1,254 @@
-Received: from mail-oo1-f50.google.com (mail-oo1-f50.google.com [209.85.161.50])
+Received: from mail-ot1-f51.google.com (mail-ot1-f51.google.com [209.85.210.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 671B442BC3D
-	for <selinux@vger.kernel.org>; Tue, 28 Jul 2026 14:48:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 952512EC0A2
+	for <selinux@vger.kernel.org>; Tue, 28 Jul 2026 14:51:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.51
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785250128; cv=pass; b=ZZbzPJHQNpfNzubmITkFDU3krA48krZPjMrsuo3WqnK7N0PDfZZ2Ac3uK5BqSz+Nyq8gXeKW6YBSOMvk6i6ZK5kGxReF704EhbLG/HNHzYDGISkJ8PQkTvecabIRJoVzaOxO5RvlHirc8Ps+0oa/eUfPPrh0B+eQpwJzbQE85VU=
+	t=1785250269; cv=pass; b=ElDVv4mSRCd8rGfgO/ncPBTeB/ckf9qnQjobA3GYrUgAelq8qzTUeMbICB9DchKwtRhXz/X9I71hJp4ZjnHVLPubS4yuIVIUlc5o5NnDyygkYdVZneBLHXQrvHdXYZd47FrH7a53JrZJ6vz8TLp9Wv6pctcFViuig+dWjbiiNzg=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785250128; c=relaxed/simple;
-	bh=KSyI7RwyXM5yIIxzQcpO2iJ6gN3jI0RPSQ6K1i9va08=;
+	s=arc-20240116; t=1785250269; c=relaxed/simple;
+	bh=SBPbMPXfBLI/3mVKdq89R8RVbDNxPDLMoLYiSWiy5OA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nJGlmLGkDz60CoXNxqFj7odqqMSNBHZpmqVNo2/57gD8VTacrT9+pzFnTBjwH4/h6JQxGZ1iQR1wSADnWEuVn8z5/CwjBzQgyzPny2osVEmkmjraXSMukkLQ0KhPV+Xvif+pn3BXUxQT4YP4vnO4zUEHG0r3qmQHvzJcrG+API8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UqpFMeHj; arc=pass smtp.client-ip=209.85.161.50
+	 To:Cc:Content-Type; b=fV7WNop5lszYAuu7RRjT+asSY0eeZXlvtxc/R9zXCpfqUPQ3XCUBCGvz3ainEY1jgU0e0xgLNmHEFmRXzOrt3S9FOCIDcoUBvrrrxAkySIYdyffaPcKaKJ0lEuuY2uUocc/EkVtFO7M+JlGgWmt4odr5P2QrhGa7BGItcsMHcYc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZYyGTxMs; arc=pass smtp.client-ip=209.85.210.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UqpFMeHj"
-Received: by mail-oo1-f50.google.com with SMTP id 006d021491bc7-6ab015de764so1244121eaf.3
-        for <selinux@vger.kernel.org>; Tue, 28 Jul 2026 07:48:47 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785250126; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZYyGTxMs"
+Received: by mail-ot1-f51.google.com with SMTP id 46e09a7af769-7eb64371a2aso2389288a34.0
+        for <selinux@vger.kernel.org>; Tue, 28 Jul 2026 07:51:07 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785250266; cv=none;
         d=google.com; s=arc-20260327;
-        b=AzwDFF7dWafHv46E9Qpap5hnUUUrhzD08j4bPPk4rjpvYkwfOLQKH6K089AiKWczRI
-         S6dbtAsMCIEL/IxyEg6GBERhUpts4J34XDwA0QlH+3KLpgrO7pJ3UQ3bATl+dI1vVsFf
-         517ZR7+TnnlXH78D2j206TXMQgY9X+wtbr3xkclFcedl0hhpT/EcYTSnC/f8tw1n1vnv
-         nkBfsVh3Vk/MSyMa/0trl0qJp7i98pe1JlOf97Bw3Y65M1qbKcUGPk7hVnRjQVkYBi2z
-         8wzhNaNSzqUMVosLULWvg3Cq+olru19tcW0kUBN5g6TPFAr8WGiElJpWP6pIdWljH9r/
-         qa5g==
+        b=oGFPphERS3q2x7VO9bDt2rzZRuMVsj62KuMcPa6sx7moIj9t+ATASfjNkRcC1gXmUF
+         DhghvrRx1IgXbm0R5YrU6SeqyASGBENBDdK75OJY5B3sevAtBCYhvrFTCVvdhfzN5a1Z
+         9KFIO+oDCSkTP7hl2VEl+0TQt7KAe1ZhnkddoXkl3Yi4/Thr1I7vg9PIKNlmJlYqqo6p
+         JkA6GHLWpmhgpZLfqdJ0ePQd6NXK/yu/e+x+0J1d5nO/E8BMfULMEF6Owpk3xPAIYZJV
+         OMIClVFoWGW58ClDz8qeu4fPGhg5qNO/H67/eouFliiM4RJ+NstphSyLy5M0PcjM6iOH
+         1w8g==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=rRYxR7Dlt9zXmRSrN6wuJUBS+iPNMth0/lRtQzk4sy0=;
+        bh=MNYdphumDNBHwBWI9ok86emctjSMl+JVrJgINu9rmGU=;
         fh=E51Jjr8Bz9WzQ+Ik80n9UcoRPIh3NakEhV8l9xr/qbM=;
-        b=N2121RjD/hZXXsrmWM56VkAZT/V1bchqy1sy9hqQql3iJ8OXG5uOWClYXb56iwNSbc
-         /YJsTw9VfBeBCDBXQR6WWnNF53pNtURxZxwPeV3V+wnc2WiFtIgJWWuKM55kTQqwVS9B
-         btU07kvuao0zFbxFpBDZw0b/z6A+LJprCBQDZNfFvIcuEB792CykRMgDNBAtXmdLk/Cf
-         ba0ATSYi1biYWwHu9UghwY8mn5/cps04SUINHrGZt+SjQO6q/K9QbBl4CfSe1VaRANKW
-         Pav5cctRl6pPlRf8dgKa1p6m5CIDEPdRk2S/pasIrivJpXYmOk3N6lcY+2BuhiwpFy0Z
-         LNxw==;
+        b=V3FwOC2tVCR5PYRbo+iqMajHzPjczsNgQKmBx1L3XnhkYjBrn2wZJLhtnxcE50GUFO
+         LynJewtm6xYi61+CzLuBcrRber0UdDlEzUFII61N1TiPia+GxqprO4kZgX6TrBGBg6Ho
+         R4LtNFkR6vADrULJLlmFS6S3PDAmRjt+7KuxwCDqMiyCTFUa3Z1d3S1CawS6lp0tFr9v
+         P6WCqHUK5+m2nv0KsZdIZouOcCAdKsVbYdFv+e0PLHc2KLJZZZO6F58AGt+j0s5vhsjb
+         4NvvFitVrJhHGxgQW+9FYHn7Qec2tmLcjYzokrLz5wtRvHbyzxhByGxqibtyRifVJSMN
+         q86g==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785250126; x=1785854926; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785250266; x=1785855066; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=rRYxR7Dlt9zXmRSrN6wuJUBS+iPNMth0/lRtQzk4sy0=;
-        b=UqpFMeHjvcdKLQwFqeY0AOzXd9IOyIVCmJYPN7EOQa0CP2xbCH+KbfmRvLqmfnJShm
-         7wiQy7ap08/1k9bbhWV21pKUD7QEIwK75zH5zu1PtvxZ7LFO4/UGfPA3E2e0uaSFJ0Sf
-         BIOb7HgJ1oW9wbdGYWQOtGNNHz9I6RFVgwLqIvuh6NHStmRI479+PAu2mrVUexOK0tTP
-         0Jp8WCdwmqUwg47NpKXS+P9fBrbiomb80ZpVULwl0cNO2MdO537WVzZiyrMYCq5XVluX
-         AtO9KPLHJu95IC24AtvlWknVhbJ7TUP3/wCboRoeBvNqJiBnJ03Y1ByZT58ldp8pgVct
-         zAFQ==
+        bh=MNYdphumDNBHwBWI9ok86emctjSMl+JVrJgINu9rmGU=;
+        b=ZYyGTxMsPyyUcchp4rjhrYCmNizxRdybeR7WgqLkf9HLeGiibagRqGpNSJD8MXVjAP
+         Qht1t5i4PGXj2xajP2OlFR7qZTW7b5zkE/wDTPIj5BTI73k/enik+07N7c1wTcYzTvVu
+         r6AeHMfxlLOB7neor0wxisJZW3cs067Wpiq63asah5gsQb/EwdVV6QVr4n/rqK8JNhi1
+         9LlByWrFIlNY96UZCmAwuL15gTdJiO5SxfizzIqf2p66gYoIoTZFB9MH1zZxE/dvwXEc
+         JocLyFzvnMrm/AoU8soJaIrhc98BfWgJxSXhhcupIE0nauR9MS95SlB6VKzbAlYBo8xL
+         fZFQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785250126; x=1785854926;
+        d=1e100.net; s=20251104; t=1785250266; x=1785855066;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=rRYxR7Dlt9zXmRSrN6wuJUBS+iPNMth0/lRtQzk4sy0=;
-        b=DODW258zGv8LLtmPBmmR8WX/goU2nAKNVoADa8c64K+4jY92p2H4JghAPYi/HS8Ql8
-         v5oG9+xCIw+ttMZ7O0O+cgbdQ9603M1HnbL9fcVZ2Un1gmm6VZ7TMaOYxXcJM263YzvF
-         1qIhu+hfucud+V8JPbGE3+9L2VzEMgtZIs4/4Ol4aM4HuHsm6fHZUDd3z4ZStNrRYgnC
-         69kK02O4GOcowXeSyek9BbOaVR19i7fS1BG0dDVadHX4SA3qFSLeNob5+DhCF3QikpT+
-         qXSb0Ra+sD4GI8Egy77VqSLPuvZ7Tq6pEqjVWHP+N1c8IRdgCaf2bjOc8/tT4FommODw
-         hd2Q==
-X-Gm-Message-State: AOJu0YwSqmFZodyVE9Puy7oKtquQG6oEZEF93YJmNk/agbebEZmG+OGu
-	GwVSi7XovhbdCLomFD8HoJMKFwXYvjfvUs9IJZe6t0j2eZsLz+aGMSsc/bqU2tZdlcqJPM4Dmvf
-	NrQMe6WUbvfIMt7uenIvfkPeea2sx5nE=
-X-Gm-Gg: AR+sD10yKY86BE6T5SZJrh7Wm/9PSdQn+O5C0d8eQfqGooNCJq7MDqnzdCm/YBk4xw+
-	Kg6CkvUICIVaeBKqyZ973QOf4CShxGkbM10VX9esEg+R9aSKWfa/VKeqNUbccC3v99uLjnSssIg
-	WtFB9wkJEdGT2SBEypUeIsH4HNBQJbFqfy08NxiCQU4f6SeWwXftuyqksiK0FuV7CkmYt/nanJl
-	dzg1gVezRmwEZGSjx3wj1G5OVWMlrs8Qte4RF51ltQw9poI04DiTVz/VZsE6yCcmzsM8dBt
-X-Received: by 2002:a05:6820:184c:b0:6aa:f295:1d63 with SMTP id
- 006d021491bc7-6ac96c97bc6mr1081677eaf.42.1785250126239; Tue, 28 Jul 2026
- 07:48:46 -0700 (PDT)
+        bh=MNYdphumDNBHwBWI9ok86emctjSMl+JVrJgINu9rmGU=;
+        b=Mn7IVJgpjgtbeZ8poMa8ohs3plTyhCVC0cU1kcxP1m11gBnqdIHk5nfqCHzEBdnOCu
+         g8mkh4RrTGVw5B+PiYl3cMe1g+3LED6zVneJ96OgDWbkXMOT26jgwRBpLPEt5j3nXf9j
+         EeZAJITpdDzKTe/u2QJBzALmxRIky6JZcP+huEOlJFzuRTf2RiknW85ydVoaj2z//VBt
+         sfKE2hYWtNxeVR47uBJmZRoKcuoHQxrfNKkmh3c3n5quXa8fZvu72mzPWn+7qOLBtzpo
+         hQ/i+JKo4DVpRn50EMxCJ2+RsL5q5LwyJBkBuULqogTEmyLWQgEUJxJ1bcxEfJO/Qjzz
+         slBw==
+X-Gm-Message-State: AOJu0YwNlMMLJ5RMG8Q1iVWIbKAOpJz//sfwqjCr0uydCBkcGUlPi+rU
+	mL3z1o9VkBCX+QUSCDLiDcQ9BC+mOFEa6kiS2YDf7NvBN+aAQGyw23YuVjXzJor84vUJgRQzVgZ
+	z+zo6f0slLlgXpSm3RnVlJSKQ4CN3wWc=
+X-Gm-Gg: AR+sD12JbJAwXAxhkma+kr9kK7mnzAFDt9zzcbjyYc25/gNia1SdfNQMN9qPoi+M+GM
+	fI+q2Ptm6zsuVTufxuori9QCOAYQ8Yf3L9sNaJQwBR79LoZ3vLcxbkCAWTexn/Q5w4qEzjOtgfr
+	8OM4skuP+4iwe20yP8F5UJLZMDG5dHQ49meIMVqBkmLU0Do3SGLmlbzbomu8V58eDdUjI8HpyjZ
+	DVk09t8XUpiGIoImhM/12MoN88cbNn8gr9aQTBTwx2oE5GPvAIPCa+fIbCQIg==
+X-Received: by 2002:a05:6820:5602:b0:6a3:74ad:fb35 with SMTP id
+ 006d021491bc7-6ac96d767b3mr988842eaf.53.1785250266416; Tue, 28 Jul 2026
+ 07:51:06 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260728065917.1343947-1-jsegitz@suse.de>
-In-Reply-To: <20260728065917.1343947-1-jsegitz@suse.de>
+References: <20260728065917.1343947-1-jsegitz@suse.de> <20260728065917.1343947-2-jsegitz@suse.de>
+In-Reply-To: <20260728065917.1343947-2-jsegitz@suse.de>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 28 Jul 2026 10:48:34 -0400
-X-Gm-Features: AUfX_mwA_Xz2nvU9WUuhsF0FiC2P_S9CfV81houN1mr9qrBhi-oIX-KxLPyk8JU
-Message-ID: <CAEjxPJ4Q0Ki0sFWZKx78eSsjdOmTsECeFYNd4x++PLhL0473Sw@mail.gmail.com>
-Subject: Re: [PATCH v4 1/2] selinux_restorecon: Do not exit on directory cycles
+Date: Tue, 28 Jul 2026 10:50:55 -0400
+X-Gm-Features: AUfX_mzgmz-C-YhiM6VI5RJLq3QAWfrthx3erH3yE5mzR3XE1Z2CbXmMubN6dPc
+Message-ID: <CAEjxPJ529Be7_1Pw1LRFsUtABDa3yVo_-wD=mT0QxiuA0sKfsA@mail.gmail.com>
+Subject: Re: [PATCH v4 2/2] man: Document directory cycle handling of selinux_restorecon
 To: Johannes Segitz <jsegitz@suse.de>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jul 28, 2026 at 3:06=E2=80=AFAM Johannes Segitz <jsegitz@suse.de> w=
+On Tue, Jul 28, 2026 at 3:09=E2=80=AFAM Johannes Segitz <jsegitz@suse.de> w=
 rote:
 >
-> All other failures are handled gracefully. Directory cycles can e.g.
-> happen on BTRFS filesystems with subvolumes. Skip them and continue
-> instead of exiting
+> Skipping directory cycles instead of aborting the file tree walk is a
+> user visible behavior change: restorecon -R over a tree containing e.g.
+> a bind mount of an ancestor directory now logs a warning, skips the
+> cycle and completes successfully, instead of failing with ELOOP.
+>
+> Document the new behavior for the flag SELINUX_RESTORECON_RECURSE,
+> including that a cycle is not an error and therefore is neither
+> affected by SELINUX_RESTORECON_ABORT_ON_ERROR nor counted by
+> SELINUX_RESTORECON_COUNT_ERRORS, and note the previous behavior in the
+> selinux_restorecon(3), restorecon(8) and setfiles(8) man pages.
 >
 > Signed-off-by: Johannes Segitz <jsegitz@suse.de>
+
+Thank you for doing this!
 
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 > ---
->  libselinux/src/selinux_restorecon.c | 8 +++-----
->  1 file changed, 3 insertions(+), 5 deletions(-)
+>  libselinux/man/man3/selinux_restorecon.3 | 28 ++++++++++++++++++++++++
+>  policycoreutils/setfiles/restorecon.8    | 20 +++++++++++++++++
+>  policycoreutils/setfiles/setfiles.8      | 14 ++++++++++++
+>  3 files changed, 62 insertions(+)
 >
-> diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux=
-_restorecon.c
-> index 30f1b836..4233ba65 100644
-> --- a/libselinux/src/selinux_restorecon.c
-> +++ b/libselinux/src/selinux_restorecon.c
-> @@ -1393,15 +1393,13 @@ static void *selinux_restorecon_thread(void *arg)
->                 if (is_dir) {
->                         if (descend && walk_is_cycle(state, ent_sb.st_dev=
-,
->                                                      ent_sb.st_ino)) {
-> -                               selinux_log(SELINUX_ERROR,
-> +                               selinux_log(SELINUX_WARNING,
->                                             "Directory cycle on %s.\n",
->                                             ent_path);
->                                 close(ent_fd);
->                                 close(rd_fd);
-> -                               errno =3D ELOOP;
-> -                               state->error =3D -1;
-> -                               state->abort =3D true;
-> -                               goto finish;
-> +                               prune_pathbuf(state);
-> +                               continue;
->                         }
+> diff --git a/libselinux/man/man3/selinux_restorecon.3 b/libselinux/man/ma=
+n3/selinux_restorecon.3
+> index 9bcd3d42..bafa86a2 100644
+> --- a/libselinux/man/man3/selinux_restorecon.3
+> +++ b/libselinux/man/man3/selinux_restorecon.3
+> @@ -99,6 +99,21 @@ and if successful write an SHA1 digest of the specfile=
+ entries to an
+>  extended attribute as described in the
+>  .B NOTES
+>  section.
+> +.RS
+> +Note that directory cycles encountered while descending, for example a b=
+ind
+> +mount of an ancestor directory or nested BTRFS subvolumes, are not follo=
+wed.
+> +A warning is logged, the offending directory is not descended into and t=
+he
+> +file tree walk continues with the remaining entries. Such cycles are not
+> +treated as errors, therefore they neither abort the file tree walk when
+> +.B SELINUX_RESTORECON_ABORT_ON_ERROR
+> +is set, nor are they included in the count returned by
+> +.BR selinux_restorecon_get_skipped_errors (3)
+> +when
+> +.B SELINUX_RESTORECON_COUNT_ERRORS
+> +is set. See the
+> +.B NOTES
+> +section for details of the previous behavior.
+> +.RE
+>  .sp
+>  .B SELINUX_RESTORECON_VERBOSE
+>  log file label changes.
+> @@ -302,6 +317,19 @@ with the
+>  .B SELINUX_CB_LOG
+>  .I type
+>  option.
+> +.IP "6." 4
+> +Up to and including libselinux 3.11 a directory cycle was fatal:
+> +.BR selinux_restorecon ()
+> +logged an error, stopped the file tree walk and returned \-1 with
+> +.I errno
+> +set to
+> +.BR ELOOP ,
+> +regardless of the
+> +.B SELINUX_RESTORECON_ABORT_ON_ERROR
+> +and
+> +.B SELINUX_RESTORECON_COUNT_ERRORS
+> +flags. Since then the cycle is skipped as described above, so a file tre=
+e
+> +walk over a directory tree containing a cycle can complete successfully.
+>  .
+>  .SH "SEE ALSO"
+>  .BR selabel_get_digests_all_partial_matches (3),
+> diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setf=
+iles/restorecon.8
+> index 982701c2..443f29ab 100644
+> --- a/policycoreutils/setfiles/restorecon.8
+> +++ b/policycoreutils/setfiles/restorecon.8
+> @@ -145,6 +145,9 @@ options are mutually exclusive.
+>  .TP
+>  .B \-R, \-r
+>  change files and directories file labels recursively (descend directorie=
+s).
+> +Directory cycles are skipped, see the
+> +.B NOTES
+> +section for details.
+>  .br
+>  .TP
+>  .B \-v
+> @@ -240,6 +243,23 @@ and provided the
+>  .B \-n
+>  option is NOT set and recursive mode is set, files will be relabeled as
+>  required with the digests then being updated provided there are no error=
+s.
+> +.IP "4." 4
+> +When descending directories (i.e. the
+> +.B \-R
+> +or
+> +.B \-r
+> +option is set)
+> +.B restorecon
+> +detects directory cycles, for example a bind mount of an ancestor direct=
+ory or
+> +nested BTRFS subvolumes. A cycle is reported as a warning and the offend=
+ing
+> +directory is not descended into, the remaining entries are still relabel=
+ed.
+> +A directory cycle is not counted as a relabeling error, so it does not a=
+ffect
+> +the exit status and does not stop the file tree walk. Up to and includin=
+g
+> +version 3.11 a directory cycle was instead treated as a fatal
+> +.B ELOOP
+> +error, terminating
+> +.B restorecon
+> +with a non-zero exit status.
 >
->                         if (state->sfsb.f_type =3D=3D SYSFS_MAGIC &&
+>  .SH EXAMPLE
+>  .nf
+> diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfil=
+es/setfiles.8
+> index d55b42db..17cabe37 100644
+> --- a/policycoreutils/setfiles/setfiles.8
+> +++ b/policycoreutils/setfiles/setfiles.8
+> @@ -307,6 +307,20 @@ and provided the
+>  .B \-n
+>  option is NOT set, files will be relabeled as required with the digests =
+then
+>  being updated provided there are no errors.
+> +.IP "4." 4
+> +.B setfiles
+> +detects directory cycles while descending directories, for example a bin=
+d
+> +mount of an ancestor directory or nested BTRFS subvolumes. A cycle is re=
+ported
+> +as a warning and the offending directory is not descended into, the rema=
+ining
+> +entries are still relabeled. A directory cycle is not counted as a relab=
+eling
+> +error, so it does not affect the exit status and does not stop the file =
+tree
+> +walk. Up to and including version 3.11 a directory cycle was instead tre=
+ated
+> +as a fatal
+> +.B ELOOP
+> +error, terminating
+> +.B setfiles
+> +with exit status
+> +.BR 255 .
+>
+>  .SH EXAMPLE
+>  .nf
 > --
 > 2.55.0
 >
