@@ -1,50 +1,54 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A49B38AC72
-	for <selinux@vger.kernel.org>; Tue, 28 Jul 2026 16:45:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF51E38C2DB
+	for <selinux@vger.kernel.org>; Tue, 28 Jul 2026 16:45:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785257160; cv=none; b=VBMJwNGmKMs/v5aw7vW1zP8gNnM4jXPdk+8WIg5hWiPvQY0IuqXU66xQ/LPWk6mvduaqe2vFWRuBJ8btXNnuWXqVcfU9HnOiHj0hHFMWdeKxWRgNLbuvK++owHhfQBkykKXf4OGq7iFr8zDJxMx0SMlOnQm/JP67ZGSEK2RPcss=
+	t=1785257161; cv=none; b=IaWGvhCFCfcd6QP0igZrpKw15gHWFtDIQtXsnEnrx19HTkkPPJFdOaFqq5fKy1ECeWgmG559ue8GP6ue4Ze5fQixJ/7af9eYgnvD3RNaseKvz5h/9o6FA8GSBj7reFnWKG8WQh/hXWvCiWnJbJwjDzzsLIf57fTUdmZPSo8GuSM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785257160; c=relaxed/simple;
-	bh=vnb0Cjfp8j7IkYWtNvtLBuMi7SdZPfatILPDA7n7Wtg=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=NjpuzwSFQ6JGdEhXDM7Ed+eFl6pBUtJh+Kny0mk4bB52X4v7pc90W7FP7IrU/eJdmPjzQSOYGFtRVwUExvX/v0/HUjYP3ALHq2hwQTF439D9m7YzpRhbXPMLmT2SKZSYf264I4O6tWS2/eQabBZSWYD0nZqDGlU18WI7m9Pu4N0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DX5iXUHJ; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1785257161; c=relaxed/simple;
+	bh=0ZiTrT/LX5u5PHheWzvM+qG7bjlfsix2iEEbX21cYl8=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Pz4DGQk2qeK7WDHDq6H88O7WjCS9n6y8ArxoisGuhPmNEkBQxUOHsT5bKo1gY4BoQrFb4kJPRF+E82zIj39S3nUS5ac2eLtidadwA5FOtK1CXWASo7JSB5H1/T2ytKc8C3aMeVABHPRMGhyXK1gyQOtsw+dWVXF4dI9AAbT4kfs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=E+fXA3A2; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DX5iXUHJ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="E+fXA3A2"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1785257157;
+	s=mimecast20190719; t=1785257158;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=gGGGj3/D/lIjE4TWuFXw5AL7t4YJsan7+tjkfL3txhk=;
-	b=DX5iXUHJSysWFDeUylN3jdMuEx8sWBJjGl0U6/2s4YmiH3w+CeysI9/xE1Ai8vSmvDwdPC
-	UMyaP9jia4JsFU0XzkVJKv1nqwu4/JDpv2rUiwxGLPq2c3dGd9TB6bQ7zOHhMbyV8p4Wm9
-	6lMUuB0STrQENc/BOlAdMJQ3lbNb9U0=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=tdZoTiDI9f5lEgUQXcA0ADR2QTHPFd8j4iMv/znwu50=;
+	b=E+fXA3A2sogbBStfrARAsqG//JYbCOG5NxbzAGp66EhcmdRgnbhM7tBB4CQ4FkZn03IEPb
+	/lC697KFQpTAViDyO/uLxR5Sez24Efa1+VrbXGl/gSWT2TvWeZG2Stpx2fNbhnlazq4iSn
+	mh9eXfnjv5xPYopkdbhW/ZF2inoR6+Y=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-426-aFxES7ylPxuY2r_pOMMN3g-1; Tue,
- 28 Jul 2026 12:45:56 -0400
-X-MC-Unique: aFxES7ylPxuY2r_pOMMN3g-1
-X-Mimecast-MFC-AGG-ID: aFxES7ylPxuY2r_pOMMN3g_1785257155
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-464-LQOQYnFGNYKa4A3iHkP8zQ-1; Tue,
+ 28 Jul 2026 12:45:57 -0400
+X-MC-Unique: LQOQYnFGNYKa4A3iHkP8zQ-1
+X-Mimecast-MFC-AGG-ID: LQOQYnFGNYKa4A3iHkP8zQ_1785257156
 Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 42D3D195609F
-	for <selinux@vger.kernel.org>; Tue, 28 Jul 2026 16:45:55 +0000 (UTC)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 8472A19560A3
+	for <selinux@vger.kernel.org>; Tue, 28 Jul 2026 16:45:56 +0000 (UTC)
 Received: from akkohli-thinkpadt14sgen2i.rmtde.csb (unknown [10.44.33.215])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 7EA34180049F
-	for <selinux@vger.kernel.org>; Tue, 28 Jul 2026 16:45:54 +0000 (UTC)
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id BABEA180044F
+	for <selinux@vger.kernel.org>; Tue, 28 Jul 2026 16:45:55 +0000 (UTC)
 From: Akhil Kohli <akkohli@redhat.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH v3 0/2] checkpolicy: extend bad-data and robustness tests
-Date: Tue, 28 Jul 2026 18:45:50 +0200
-Message-ID: <20260728164552.2646227-1-akkohli@redhat.com>
+Subject: [PATCH v3 1/2] checkpolicy: extend bad-data tests for type, role, and user errors
+Date: Tue, 28 Jul 2026 18:45:51 +0200
+Message-ID: <20260728164552.2646227-2-akkohli@redhat.com>
+In-Reply-To: <20260728164552.2646227-1-akkohli@redhat.com>
+References: <20260728164552.2646227-1-akkohli@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -54,51 +58,22 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-This is a follow-up to the checkmodule bad-data harness already merged:
-  checkpolicy: add bad data protection tests
-  https://lore.kernel.org/selinux/20260710102906.3059833-1-akkohli@redhat.com/
-Patch 1 adds negative .te fixtures for duplicate type/attribute
-declarations, type/attribute name conflicts, invalid type names, and
-malformed role/user stanzas. It also runs the negative suite as
-non-root in CI so the unreadable .te case is exercised (root can still
-read mode 000 files).
-Patch 2 adds expect_robust coverage for oversized generated .te/.conf
-inputs and a large attribute membership set, with tunable sizes. It
-also fixes expect_* helpers to return 0 after counting a failure so
-set -e does not abort the suite early; the script exit status is still
-non-zero when FAIL != 0.
-Together these bring the harness from 16 to 25 tests
-(1 positive + 21 negative + 3 robust).
-Changes since v2:
-- bad_user.te: add a require block and scaffolding so checkmodule fails
-  on garbage_token rather than on the bare "user" keyword (missing
-  avrule_decls / require).
-- Move non-root CI BASEDIR soft-resolve into patch 1 so each patch
-  passes CI on its own.
-- Brief comments on bad_user.te / bad_role.te clarifying the intended
-  failure.
-Tested with:
-  cd checkpolicy
-  make checkmodule checkpolicy LIBSEPOLA=../libsepol/src/libsepol.a \
-    CPPFLAGS='-I../libsepol/include'
-  make test LIBSEPOLA=../libsepol/src/libsepol.a \
-    CPPFLAGS='-I../libsepol/include'
-Result: roundtrip tests pass; checkmodule negative tests:
-25 passed, 0 failed.
+Add negative .te fixtures for duplicate type/attribute declarations,
+type/attribute name conflicts, invalid type names, and malformed role
+and user stanzas. Run checkmodule negative tests as non-root in CI so
+the unreadable .te case is exercised outside root-only skips.
 
-Akhil Kohli (2):
-  checkpolicy: extend bad-data tests for type, role, and user errors
-  checkpolicy: add robustness tests for large policy inputs
-
- .github/workflows/run_tests.yml               |  11 +
- checkpolicy/tests/negative/bad_role.te        |  13 ++
- checkpolicy/tests/negative/bad_user.te        |  15 ++
- checkpolicy/tests/negative/dup_attribute.te   |  13 ++
- checkpolicy/tests/negative/dup_type.te        |  11 +
- .../tests/negative/invalid_type_name.te       |   9 +
- .../tests/negative/type_attr_conflict.te      |  10 +
- .../tests/test_checkmodule_negative.sh        | 205 +++++++++++++++++-
- 8 files changed, 276 insertions(+), 11 deletions(-)
+Signed-off-by: Akhil Kohli <akkohli@redhat.com>
+---
+ .github/workflows/run_tests.yml               | 11 ++++++++++
+ checkpolicy/tests/negative/bad_role.te        | 13 +++++++++++
+ checkpolicy/tests/negative/bad_user.te        | 15 +++++++++++++
+ checkpolicy/tests/negative/dup_attribute.te   | 13 +++++++++++
+ checkpolicy/tests/negative/dup_type.te        | 11 ++++++++++
+ .../tests/negative/invalid_type_name.te       |  9 ++++++++
+ .../tests/negative/type_attr_conflict.te      | 10 +++++++++
+ .../tests/test_checkmodule_negative.sh        | 22 ++++++++++++++++++-
+ 8 files changed, 103 insertions(+), 1 deletion(-)
  create mode 100644 checkpolicy/tests/negative/bad_role.te
  create mode 100644 checkpolicy/tests/negative/bad_user.te
  create mode 100644 checkpolicy/tests/negative/dup_attribute.te
@@ -106,6 +81,176 @@ Akhil Kohli (2):
  create mode 100644 checkpolicy/tests/negative/invalid_type_name.te
  create mode 100644 checkpolicy/tests/negative/type_attr_conflict.te
 
+diff --git a/.github/workflows/run_tests.yml b/.github/workflows/run_tests.yml
+index 4322ddff..fd78969f 100644
+--- a/.github/workflows/run_tests.yml
++++ b/.github/workflows/run_tests.yml
+@@ -94,6 +94,17 @@ jobs:
+           sudo userdel -r bad-data-test 2>/dev/null || true
+           echo "::endgroup::"
+         fi
++          
++        # checkmodule bad-data: unreadable .te needs non-root (root reads mode 000).
++        if [ "${{ matrix.python-ruby-version.other }}" != "sanitizers" ] ; then
++          echo "::group::checkpolicy bad-data (non-root)"
++          sudo useradd -m -s /usr/sbin/nologin bad-data-test 2>/dev/null || true
++          chmod -R a+rX .
++          sudo runuser -u bad-data-test -- env PATH="$PATH" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
++            ./checkpolicy/tests/test_checkmodule_negative.sh
++          sudo userdel -r bad-data-test 2>/dev/null || true
++          echo "::endgroup::"
++        fi
+ 
+         if [ "${{ matrix.python-ruby-version.other }}" != "sanitizers" ] ; then
+             # Test Python and Ruby wrappers
+diff --git a/checkpolicy/tests/negative/bad_role.te b/checkpolicy/tests/negative/bad_role.te
+new file mode 100644
+index 00000000..90a2c8c6
+--- /dev/null
++++ b/checkpolicy/tests/negative/bad_role.te
+@@ -0,0 +1,13 @@
++module bad_role 1.0;
++
++require {
++	type foo_t;
++	class file { read };
++}
++
++# Empty type list after "types" (fails at ';').
++role bad_role_r types ;
++
++type foo_t;
++
++allow foo_t foo_t:file read;
+diff --git a/checkpolicy/tests/negative/bad_user.te b/checkpolicy/tests/negative/bad_user.te
+new file mode 100644
+index 00000000..b0ee8648
+--- /dev/null
++++ b/checkpolicy/tests/negative/bad_user.te
+@@ -0,0 +1,15 @@
++module bad_user 1.0;
++
++# Modular .te needs require before decls like user/role; without it
++# checkmodule fails at "user" instead of the garbage_token below.
++require {
++	type foo_t;
++	class file { read };
++}
++
++# Junk where "roles { ... }" should be.
++user bad_user_u garbage_token;
++
++type foo_t;
++
++allow foo_t foo_t:file read;
+diff --git a/checkpolicy/tests/negative/dup_attribute.te b/checkpolicy/tests/negative/dup_attribute.te
+new file mode 100644
+index 00000000..24014d0b
+--- /dev/null
++++ b/checkpolicy/tests/negative/dup_attribute.te
+@@ -0,0 +1,13 @@
++module dup_attribute 1.0;
++
++require {
++	type foo_t;
++	class file { read };
++}
++
++attribute bar_attr;
++attribute bar_attr;
++
++type foo_t;
++
++allow foo_t foo_t:file read;
+diff --git a/checkpolicy/tests/negative/dup_type.te b/checkpolicy/tests/negative/dup_type.te
+new file mode 100644
+index 00000000..2961dd0a
+--- /dev/null
++++ b/checkpolicy/tests/negative/dup_type.te
+@@ -0,0 +1,11 @@
++module dup_type 1.0;
++
++require {
++	type foo_t;
++	class file { read };
++}
++
++type foo_t;
++type foo_t;
++
++allow foo_t foo_t:file read;
+diff --git a/checkpolicy/tests/negative/invalid_type_name.te b/checkpolicy/tests/negative/invalid_type_name.te
+new file mode 100644
+index 00000000..6fe14fbb
+--- /dev/null
++++ b/checkpolicy/tests/negative/invalid_type_name.te
+@@ -0,0 +1,9 @@
++module invalid_type_name 1.0;
++
++require {
++	class file { read };
++}
++
++type 1bad;
++
++allow 1bad 1bad:file read;
+diff --git a/checkpolicy/tests/negative/type_attr_conflict.te b/checkpolicy/tests/negative/type_attr_conflict.te
+new file mode 100644
+index 00000000..160cd386
+--- /dev/null
++++ b/checkpolicy/tests/negative/type_attr_conflict.te
+@@ -0,0 +1,10 @@
++module type_attr_conflict 1.0;
++
++require {
++	class file { read };
++}
++
++type shared_id;
++attribute shared_id;
++
++allow shared_id shared_id:file read;
+diff --git a/checkpolicy/tests/test_checkmodule_negative.sh b/checkpolicy/tests/test_checkmodule_negative.sh
+index a5f49f3b..dcbb3f04 100755
+--- a/checkpolicy/tests/test_checkmodule_negative.sh
++++ b/checkpolicy/tests/test_checkmodule_negative.sh
+@@ -6,8 +6,19 @@
+ 
+ set -eu
+ 
+-BASEDIR=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
++# Prefer an absolute script dir, but keep a relative dirname when cd fails.
++# Non-root CI inherits the repo as CWD; absolute cd under /home/runner/work
++# can fail for bad-data-test even when relative paths work.
++BASEDIR=$(dirname -- "$0")
++ABS_BASEDIR=$(CDPATH= cd -- "${BASEDIR}" 2>/dev/null && pwd) || ABS_BASEDIR=
++if [ -n "${ABS_BASEDIR}" ]; then
++	BASEDIR="${ABS_BASEDIR}"
++fi
+ NEGDIR="${BASEDIR}/negative"
++if [ ! -d "${NEGDIR}" ]; then
++	echo "FAIL: cannot resolve negative fixtures (\$0=$0 BASEDIR=${BASEDIR})" >&2
++	exit 1
++fi
+ CHECKMODULE="${BASEDIR}/../checkmodule"
+ OUTDIR=$(mktemp -d "${TMPDIR:-/tmp}/checkmodule-negative.XXXXXX")
+ PASS=0
+@@ -159,6 +170,15 @@ expect_fail "bad_module_line.te" "syntax error" "bad_module_line" "${NEGDIR}/bad
+ expect_fail "bad_require.te" "syntax error" "bad_require" "${NEGDIR}/bad_require.te"
+ expect_fail "invalid_module_version.te" "syntax error" "invalid_module_version" "${NEGDIR}/invalid_module_version.te"
+ expect_fail "dup_module.te" "syntax error" "dup_module" "${NEGDIR}/dup_module.te"
++expect_fail "dup_type.te" "Duplicate declaration of type" "dup_type" "${NEGDIR}/dup_type.te"
++expect_fail "dup_attribute.te" "Duplicate declaration of type" "dup_attribute" \
++	"${NEGDIR}/dup_attribute.te"
++expect_fail "type_attr_conflict.te" "Duplicate declaration of type" "type_attr_conflict" \
++	"${NEGDIR}/type_attr_conflict.te"
++expect_fail "invalid_type_name.te" "syntax error" "invalid_type_name" \
++	"${NEGDIR}/invalid_type_name.te"
++expect_fail "bad_role.te" "syntax error" "bad_role" "${NEGDIR}/bad_role.te"
++expect_fail "bad_user.te" "garbage_token" "bad_user" "${NEGDIR}/bad_user.te"
+ 
+ # Missing / bad-path .te inputs (PDF #1).
+ expect_fail "missing .te path" "unable to open" "missing_path" "${OUTDIR}/does_not_exist.te"
 -- 
 2.55.0
 
