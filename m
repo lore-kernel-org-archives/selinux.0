@@ -1,76 +1,87 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A34643C1D4D
-	for <selinux@vger.kernel.org>; Wed, 29 Jul 2026 15:26:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C6BD3C1D78
+	for <selinux@vger.kernel.org>; Wed, 29 Jul 2026 15:26:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785338783; cv=none; b=PhcTYMtLCHkxfkCJPnCsLI6zwPQ0+GUHPUVPE5Oo6f/QeONvb2Ba+Nr4H4OKacghpKciVO5xG1tBOm7FboatISVASSn7fJ4VlSSHqGOAkYyeKYlkQm5BpFTrLCm6ETq2Bva6W2j80oPVhGNgefnnQ1Wuct2jytFNCiSj071k2fw=
+	t=1785338814; cv=none; b=apAH+ytwHK10rlmC91yXlk3TlHn8FcqE21aiL3VCbOy0E2Wi4QEFYx13dwiiiYdxDyChZHXa9sP1D/cqXEIlItVySPu1WTlvwyEldD1+lTxwC7ARRhOSm975lUvUxdHBjbP41fPuxX9ROS+XhFemzTwwysfe3WFqDhuf44KYoyY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785338783; c=relaxed/simple;
-	bh=cuQZv+rJ4uDyeLSFCmJBol65pVC394drdcrzDxyXzo4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=G0FvvngzC1MOAivg3r6A13p+kKlt/jWHlWRHQIW4USbl9Mz98wOIi32sddRc9eTfwZz8Q7GpzTOoXLzu89RYjbqvgbpvNUHX2/FpkTLAfmK9Dq8Y6+rMGmcYU4zAaj4dpsVuCVxDxAnaRnb+hwW4GPV0qhkyUjDYG/zQ6U2Qzcw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=sqZKqKh7; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=b70myQHI; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=COB8TXT0; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=cFLu8Diu; arc=none smtp.client-ip=195.135.223.130
+	s=arc-20240116; t=1785338814; c=relaxed/simple;
+	bh=94AvwOA+YOximRU/eJKomgSo21aE34XrVUnD//SrSJ8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=HvaMVRQ5Mn/cZ1pIap0hFYIVKEKfWjS8b+3Q09QDV3SsfB876sv7MlE2JQvPjZHmVwEj5RM/7isiji+MoF7PZnX4wVoBKy6Gt92FTXIlYaVQQa3cD/XIZPz1XOUXc1QV2DYh6IOq8je+Nv6nNJaCRjIRl8BcbQt4aworqpbhg9s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=ckBILzbk; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=MLAY4uEk; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=bLDDWWyl; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Ex7Kt/kb; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="sqZKqKh7";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="b70myQHI";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="COB8TXT0";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="cFLu8Diu"
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="ckBILzbk";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="MLAY4uEk";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="bLDDWWyl";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Ex7Kt/kb"
 Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 62FE07B91A;
-	Wed, 29 Jul 2026 15:26:11 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 4D66C3E0F;
+	Wed, 29 Jul 2026 15:26:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1785338775; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=4dkrzt1uJlWwa0sCWA3bNMgbSl1KeMKn/90XfyPKbCE=;
-	b=sqZKqKh7IU5ZUJeD6e1t7HBxVTa9Kd9i+9kiRLCRzqIjsHTicQCvA6jI1ngFOsbDJdWB2b
-	3tXMtQwjTP2ODzs+5QyMvTy3p124o4ITdzTLF2ue8Y0Wgt2OIMv5xjndTeDKypluYHfOcK
-	X1KrCzIl86iOI4WIb9+TAXqqNT1Xu14=
+	t=1785338807; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=qkPOIHaGsnPbBVAt27OteQidkPiy0peXEG5+/0a4DwM=;
+	b=ckBILzbk2TStetv58+MXXPa3yc1KaNX+UcCxS5+X7r6TopWtU4kcu90QF36TEwMyORjObn
+	x92TcbotYWsdqEJlbNaukxWJRDlMnT/oW5EacW7owUXnlPpqchE8rTcAdTi05B1t292mDo
+	dCIvtc3z7W+4RXXcCOSVB2wvYOia4pA=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1785338775;
+	s=susede2_ed25519; t=1785338807;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=4dkrzt1uJlWwa0sCWA3bNMgbSl1KeMKn/90XfyPKbCE=;
-	b=b70myQHI+FdlRSfu9qy4PBxi9xzmNXpbTCAtSMqwh3lFTsFJR9j82LqCveWxckHfB8/E3g
-	dnL/Pd7OehU8Z+Cw==
-Authentication-Results: smtp-out1.suse.de;
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=qkPOIHaGsnPbBVAt27OteQidkPiy0peXEG5+/0a4DwM=;
+	b=MLAY4uEk87uVPz2pUkZxfdMif7/INTI+qrri8Bb6A2mvR2jvhcE9EWAdWWPPk2RmA77tuy
+	BqRn7fhV7dD8WeDw==
+Authentication-Results: smtp-out2.suse.de;
 	none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1785338771; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=4dkrzt1uJlWwa0sCWA3bNMgbSl1KeMKn/90XfyPKbCE=;
-	b=COB8TXT0BeRevSPgGq6yGxNyv48BRw9GqyHjesf/edDEn7ntnJG0cNn7eDoWh0J4R8ynlw
-	s+Kknl8GgR6UGoxmcNJq5o+FkvVh4YQyziv4BNXjNWVVxIBJ71gkqXn+ubB8LctXw7kNAE
-	DdJKW1A+GZaNFG2yYyYGys7a0yKOOMY=
+	t=1785338803; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=qkPOIHaGsnPbBVAt27OteQidkPiy0peXEG5+/0a4DwM=;
+	b=bLDDWWylasB8EsJOrP2pn9DZKd6gFr3X0USW1/ofeJHqR2slT5rP1l2eIILRyIZ5+jOJoZ
+	gmHh8hTV14P0DrAXbG8CVnN+pzhsQhRTmXfB8DnRttQPJ4xdGw7ilWog13rUbCGh8P9/U7
+	lJVDR/eme80mLFJfaVI2/m/UqRp/5Sw=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1785338771;
+	s=susede2_ed25519; t=1785338803;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=4dkrzt1uJlWwa0sCWA3bNMgbSl1KeMKn/90XfyPKbCE=;
-	b=cFLu8Diu5ip5nbjTbEKuGXge7dD7GSdP8ZTuKTsipSgwbRQzRFdnjR4kcnvX0WBUcHOMJM
-	PMPdBe0dG4Be55CQ==
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=qkPOIHaGsnPbBVAt27OteQidkPiy0peXEG5+/0a4DwM=;
+	b=Ex7Kt/kbj5I8fo8MxQkW4mtzhfau1wnyhs8nbOvC+FsL57FRk+9F7cMOTjpmFSQvUPbCGd
+	4HaXMVKN8SHRJnCQ==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 55BCD779B1;
-	Wed, 29 Jul 2026 15:26:11 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id D50AA779A1;
+	Wed, 29 Jul 2026 15:26:42 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id ghpjFJMbamqfbwAAD6G6ig
-	(envelope-from <cahu@suse.de>); Wed, 29 Jul 2026 15:26:11 +0000
+	id 2Kp2M7IbamqfbwAAD6G6ig
+	(envelope-from <cahu@suse.de>); Wed, 29 Jul 2026 15:26:42 +0000
 From: Cathy Hu <cahu@suse.de>
 To: selinux@vger.kernel.org
 Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v3 1/2] libselinux: add pyproject.toml file
-Date: Wed, 29 Jul 2026 17:19:17 +0200
-Message-ID: <20260729152415.1606580-2-cahu@suse.de>
+Subject: [PATCH v3 2/2] python/sepolicy: add a pyproject.toml file
+Date: Wed, 29 Jul 2026 17:19:19 +0200
+Message-ID: <20260729152415.1606580-4-cahu@suse.de>
 X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260729152415.1606580-2-cahu@suse.de>
+References: <20260729152415.1606580-2-cahu@suse.de>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -78,6 +89,9 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Spam-Score: -2.80
+X-Spam-Level: 
+X-Spam-Flag: NO
 X-Spamd-Result: default: False [-2.80 / 50.00];
 	BAYES_HAM(-3.00)[99.99%];
 	MID_CONTAINS_FROM(1.00)[];
@@ -100,52 +114,54 @@ X-Spamd-Result: default: False [-2.80 / 50.00];
 	TO_DN_SOME(0.00)[];
 	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
 	FREEMAIL_ENVRCPT(0.00)[gmail.com]
-X-Spam-Flag: NO
-X-Spam-Score: -2.80
-X-Spam-Level: 
 
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Add a pyproject.toml file for the libselinux python bindings.
+Add a pyproject.toml file for the sepolicy python module.  This
+required also updating setup.py to avoid defining author outside of
+pyproject.toml, and I further updated the authors to refer to the list
+like libselinux since Dan is enjoying retirement.
 
 Fixes: https://github.com/SELinuxProject/selinux/issues/505
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
-same as v2
- libselinux/src/pyproject.toml | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
- create mode 100644 libselinux/src/pyproject.toml
+dropped scripts section
+ python/sepolicy/pyproject.toml | 12 ++++++++++++
+ python/sepolicy/setup.py       |  2 --
+ 2 files changed, 12 insertions(+), 2 deletions(-)
+ create mode 100644 python/sepolicy/pyproject.toml
 
-diff --git a/libselinux/src/pyproject.toml b/libselinux/src/pyproject.toml
+diff --git a/python/sepolicy/pyproject.toml b/python/sepolicy/pyproject.toml
 new file mode 100644
-index 00000000..dfc44e81
+index 00000000..3dafd35f
 --- /dev/null
-+++ b/libselinux/src/pyproject.toml
-@@ -0,0 +1,24 @@
++++ b/python/sepolicy/pyproject.toml
+@@ -0,0 +1,12 @@
 +[build-system]
 +requires = ["setuptools", "wheel"]
 +build-backend = "setuptools.build_meta"
 +
 +[project]
-+name = "selinux"
++name = "sepolicy"
 +version = "3.11"
-+description = "Python bindings for libselinux (SELinux userspace library)"
-+readme = "../README.md"
-+license = "libselinux-1.0"
++description = "Python tools for SELinux policy analysis (sepolicy, sepolgen)"
++license = "GPL-2.0-or-later"
 +authors = [
 +    { name = "SELinux Project", email = "selinux@vger.kernel.org" }
 +]
-+classifiers = [
-+    "Programming Language :: Python :: 3",
-+    "Operating System :: POSIX :: Linux",
-+    "Topic :: Security",
-+]
-+
-+[project.urls]
-+Homepage = "https://github.com/SELinuxProject/selinux"
-+
-+# The actual .so is produced by a custom build_ext (SWIG + libselinux.so),
-+# driven from setup.py.
+diff --git a/python/sepolicy/setup.py b/python/sepolicy/setup.py
+index ca0396b5..5c4f2e5d 100644
+--- a/python/sepolicy/setup.py
++++ b/python/sepolicy/setup.py
+@@ -8,8 +8,6 @@ setup(
+     name="sepolicy",
+     version="3.11",
+     description="Python SELinux Policy Analyses bindings",
+-    author="Daniel Walsh",
+-    author_email="dwalsh@redhat.com",
+     packages=[
+         "sepolicy",
+         "sepolicy.templates",
 -- 
 2.54.0
 
