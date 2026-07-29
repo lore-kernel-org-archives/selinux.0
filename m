@@ -1,95 +1,120 @@
-Received: from mail-qt1-f171.google.com (mail-qt1-f171.google.com [209.85.160.171])
+Received: from mail-oo1-f48.google.com (mail-oo1-f48.google.com [209.85.161.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B74974398F0
-	for <selinux@vger.kernel.org>; Wed, 29 Jul 2026 12:12:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.171
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785327179; cv=none; b=MemX7PprfCQA06X/Nhjcmh1ePkGp94rnnVmD5gvja10LPV9BZP4f9kNI0p84rcWV+PRxnEzfKGILAC9XBo15zr0xjaAhW03CWYGBu0iMmOA9myxD5R8UELlz2CmKjCrTGZZDPCgQkwLW2LDHRrvJDVR2DY0hyRI38kopjpXj378=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785327179; c=relaxed/simple;
-	bh=GrMTffPSe2oWz+H07vTWvo5XYA/Vl5toz+wz7ViG2fs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nS11RWE2dT+dlxDBfvljCB49w/Ra+OcJfieQObL82gtpLfvWgBXA2XSvWDvd6/OaAWL+oTGgTMEdFBIeKhZHIjsU0SQiG8InvF6sGvBGshg2n5IV0ptyhMKkO8tIb46Z9hj8cCEvQ/yHnI31oPcWZC/SCM9ADyfLVY+Ti+lxPhc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nB1XFWLP; arc=none smtp.client-ip=209.85.160.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFB074314BD
+	for <selinux@vger.kernel.org>; Wed, 29 Jul 2026 12:37:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.48
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785328656; cv=pass; b=RN+5MYfqzePSLMCu0MVL8/Y7C7451kV0qT55UGg4l9r9Z4oT+MEpS85bPhl1UTkwWsjpEjw3gKtnrpoXkoTVPgqgHYqoqCQEv3jx1f2Jwq4TEZ+vx4/5H6QAqJIHtcgQXLIj42EJuqgNvHtjoHMDo6KFpa+9dnw6enPZr54a3lQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785328656; c=relaxed/simple;
+	bh=w1nzDO0gcrm6XuA4B3lnDXlhwS9n+E3ZIn6uZxeCJk0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Hjs7NR0gSN0glB+My11Cam71vNFgElOM5XqJnmVJzV6cckOwMXSQxYwNUTPrq20KPLOaPiJrVRE4vxnf2l3I4S6DqmHockllL5P0HuwC1ioGLWNilIjXlawjruXNlg+jDuBCylWqguMXUaYoNeEYNHGVbLKHOgcDLL4rcuzwtro=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VT48DAud; arc=pass smtp.client-ip=209.85.161.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nB1XFWLP"
-Received: by mail-qt1-f171.google.com with SMTP id d75a77b69052e-526f963372aso5972981cf.1
-        for <selinux@vger.kernel.org>; Wed, 29 Jul 2026 05:12:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VT48DAud"
+Received: by mail-oo1-f48.google.com with SMTP id 006d021491bc7-6aca539de11so333761eaf.0
+        for <selinux@vger.kernel.org>; Wed, 29 Jul 2026 05:37:26 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785328643; cv=none;
+        d=google.com; s=arc-20260327;
+        b=DhoZFByB1GNmUwio+ZMZX5EYvoH0NhVdXm/UkmI8MWVrzQCUmMCS6wuDWQ0OAmFVzo
+         yqWLqBnUFF6x1CrbNaXwqPLFB34gWnzW2lHs25ZRk5/J16YMauXEvk/JzWhRbhLe6SKr
+         4TES8LK0sX9uzkkO+xrbwVixNl12a1BfsawMOKqvYfg7Jpt9We0jvE4uK53winM8UnI9
+         kkE16vtKggMYHkpNc+ZAd4phcvy4cNIiYGu1jiL9aXTQutp/OG7JdgtuBmO+XYJ68bHh
+         RS9W9mBh6AY9StrC2xXMFOCm+M6fWyuQYjrkMGDbEFIT2LIWi9hrcSVjPRi+1c9Tvqhk
+         p8Zw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=gL2+pNIuKvwsR2MeEYPR0866Hd2FoTouu57sBxpbXnQ=;
+        fh=J2aejDNMt8rqF1JAirW1WlPggzDaZeZAAAG5y/9rBOA=;
+        b=ZKOS1bNRyKlczvIJnJ8u37vWtYeODsSYn+rfz/wJXEpwoX/dCKkJjOknb/NTlUi8+Z
+         sqbAys7as8Uc889VYUraEBOn8Jq1dWcvfcgs/m5dHoN5f9OZHTvlb11wdJkQkccC3S2N
+         mzv9jhl3oh7aPg60d9EbHj/q4KHAdu+5Yk7uGFp86cO6SOswW1z4jKrOxoPk3CIJcCU5
+         WXKD5uuOt6pFnQX6LrCS2MqkyvsChB9zRkjxbVtX6P+i0qcAjU9LxFm8Z+wSzcGNoa1f
+         ZTvjm8u9r9eRAsk5W6hsT7ooo6VQIMiQn+Ybt+z8Hs0DTPIkSGLCzRFMLGtEu7q00Bv/
+         Xgqg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785327176; x=1785931976; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=okcGtyvm9o5TATucyRgC0asbFDFhoLEnXjxq54S68wU=;
-        b=nB1XFWLP35I2DLGmRPpOMh2tXjhJPVI7dOxpyA6Wm0qrcP8FgNAuL9v+oSPfrYJBU8
-         Q9eTataO7M2owYd+GUadaA7CU8n5fTrdnSEtmIUEo0HwENkJjI45OrWJ5ifxY2qtQIBE
-         fDahhYCmZxcYVnHYZ2/mpNQBomQJyxL/EJgWtwCPdaY2j15+vLO/WDQfSvZGCyVikXDX
-         vKli50JW0R90T+mAw6IhTzVUnHtmraqapEjXx6XWPGAVQksfA7C0887yjF4n0WlZFCR/
-         E/MyUMGFk5Grmg7mCeng6a8nEb/yJlMENX3GWLVlhvEV+FoILPlMnZmgW/LLvEPFSZgp
-         8BRQ==
+        d=gmail.com; s=20251104; t=1785328643; x=1785933443; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=gL2+pNIuKvwsR2MeEYPR0866Hd2FoTouu57sBxpbXnQ=;
+        b=VT48DAudwZBjI8aq2pX1ZF2J/tp1WgfQG4heyfD9LR70aK5bV4D/GXvQg3Zd529+iT
+         UisVEDUspAaorY76wKsX1MSmDXLnBHTML+i8OUYSb2vkF5zlt654q61+6+eD+I9GAByI
+         QjoN8ZWuqgADY9N3zjdus9T1T6LtW32vyQ64IIghjKGdDOZfsACbtcegFFFrefezvW2n
+         NXW6Oqwz++m2SR0HbyhuS9zQIOAD0Wrbw8IQy0h5ak0CA3/MfOLiEsoLlO9DroaW+f4T
+         wIvuht2nrlm4OHcjgFJ0W2DA4L34VEEFJiuiBO7RzHIwiIqz2lZ7QT/+eyPg17HinbTt
+         Rprg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785327176; x=1785931976;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=okcGtyvm9o5TATucyRgC0asbFDFhoLEnXjxq54S68wU=;
-        b=Bx/dFV6++pgdeUVxOQE95VoZlf8sSxxfVJ0etluJ2pHj19xcfqAVL471G/1PoGk9f7
-         qAoHIYfCLONG+fdEiIHPaFBS+p+dHHyC5+K+7Hr8U2gG1qRr1kdkC/7B7UIjN6fg5yIZ
-         YvHDUVQXpTmtXqAdEZRsx9GiUuQauxqrHm/v8eKnwR/H2onyRatybaCd87mTG7mqw9Bz
-         u2wUgH5zzGdnb0QF4DCbrV539AUx2nDm5PculMeNIYbTBvscu0KRaWcsGoGGDPY+RqU6
-         Hu5NFO/afJ6VIlkI9GQ0TYh1qArLmw5BXj5Qlj31ZwwdIyA7akwXKfT/Df0iFU+YiQom
-         nYPA==
-X-Gm-Message-State: AOJu0YwHFHEqTY3gwz3QvLVssJ8nPaMgLUMl8MS3Mn4YKh0Vr5dRFE/+
-	XLk9Ktvojip3ffGCJw+HzxMpnVO++9fLieDe4U2kAQ5I7GRRMBoVjAfnyLcFpA==
-X-Gm-Gg: AR+sD10qpagOVzXkvI6QuiFN8gT+unZznUIp3UgGnJVcctjX5u4GAwWOdAh9oHT4Mu5
-	+FxAY7Aukt2DzX3Q5475LQZN/kSz2CWzSzhlfE90NL5ACMC+YBS7IJEzl6OyKLxlKiSxxW3m/S+
-	KqWhLVFH0aMxkck63YBZ3dkEHHGVz8N0Y4qggQQ6dcj4cKrINGy/A7iqwcAUvbEaAZ7rGqf1UA/
-	YGk5GrD/1VrC+TfU7sZkGcUl2Na3mlyNADRAvQnJf0uYY4BdFJtThTVEOzUaNzGiVYswY20ouis
-	CF6UK4IdK0SE/ds/WtE1sH92eUEaEMbKSgr5hsOXN3TrKWEBBJ/t55QOiXZdOxDCT//Zzdps2eh
-	JS7ilChBS9GXaDYBZKx0paQBaSjJ5GeNf5hS6/lPW0yTqCEU0RhQbZ2yZums3ST5UFqpyG0uHdM
-	9D0LdvA2oUtEmtsJ1HDUzDf0ucEbjv1uSX6FqNBsa5fNepUk5WpR+GEZpc42rb1ZyLbl55G5NGo
-	HB538ROuWEbseLCY4tRVwqL8UTtTqbkA0iD5HDie+jpq2JA+NZDNUpP+jE/DOUE
-X-Received: by 2002:a05:622a:588c:b0:51b:ff45:bc82 with SMTP id d75a77b69052e-529d70d6b88mr58697491cf.54.1785327176402;
-        Wed, 29 Jul 2026 05:12:56 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-529e2db86dasm16888731cf.20.2026.07.29.05.12.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Jul 2026 05:12:55 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com,
-	omosnace@redhat.com,
-	tweek@google.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH testsuite] tests/file_contexts: update .gitignore
-Date: Wed, 29 Jul 2026 08:12:33 -0400
-Message-ID: <20260729121232.53444-2-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.55.0
+        d=1e100.net; s=20251104; t=1785328643; x=1785933443;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=gL2+pNIuKvwsR2MeEYPR0866Hd2FoTouu57sBxpbXnQ=;
+        b=K2+RPQs2+P3KyoayJDwFlSv7pW7lBHs+FfjUXa2ote7T1vzLXNAlX5gICU8g2JmTIM
+         Gjphc7TxdvqrQ+V3qFVRY5DS9L07+UUNYgeLKpPN+zSS/qg6m+6/TP8jxGDtpPAGdHyA
+         9ZEosyR00kG1Dn+DmOrvTpOJd8Jnv3+4neIRsEYDp4UW9skXdJMHDuhwNZQyLc1/uRX5
+         lzCMUOKKFsl9n32hFUH1WAks+vp3KPW3UEokHIOBpo6Dt5NOZcVvC7t2IooB4ISwumRZ
+         zXnfRgTQeFpFYpN6EbjbWhA7eaKoWdaoFCQNmbNTdtm0nbkxnLEL22SpvORSOEoVUllz
+         pAwQ==
+X-Forwarded-Encrypted: i=1; AHgh+Ro8fFzD2gTRVAEgMtAHDZq/88K61MBqhl1pfXBW3IOBhbfX4TvR/fpv3lw8SEMHPVqjzt38JNFg@vger.kernel.org
+X-Gm-Message-State: AOJu0YzmRLX4KxvrlT2imuWOj3SS3EWdD4nGzzuI0Ez1/mk+q1UzS+io
+	ZaFyPuhRRflmaSEElCp0uyBjLGEpzoFbpHIfJ9gfDx0be6/yIG8K2hw2OwtHLwH2/+tVoSgsY0V
+	V7PsjBAYFx54Ta0cpv8QDKYWsc4kJj/t+6A==
+X-Gm-Gg: AR+sD12KCjyAYup9pVHxzwZaY0ANmV5IyVW7QE1HuAb/SglSoNQ9/o3UkcA2r+sxeTY
+	yvZF5cRy4SZitSI3zQ/xqC9Nj7wZjvxYcGEJEciq0E/ZWuWJ9N2bcXAxCQJBu3h1NQ/C2n15nnJ
+	+3vI74J2KDaleepE5XQy2tfQqbtPY3bCD0yDjin9/nDVimdBraYBYs8G/sjbfnpf8LiJ18iURx3
+	EQoGZCdSjdhQR9HtlxpSrxWTORObUjmqS7uftEExsq210X7MyxsB71E8sEti9ETzulw2j0QOEkW
+	WXLSnSkpaTYPMETsWsQEoRDQOnp0xnm5b8+QFRRgGHOD
+X-Received: by 2002:a05:6820:4b05:b0:6aa:ec37:e539 with SMTP id
+ 006d021491bc7-6ac96d265a7mr3275549eaf.66.1785328642641; Wed, 29 Jul 2026
+ 05:37:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260728202632.4784-1-nicolas.iooss@m4x.org> <CAHC9VhQUrfH85GNLTDYp0Z+KYmpqyVzs7HAr78+J+QM0p511OA@mail.gmail.com>
+In-Reply-To: <CAHC9VhQUrfH85GNLTDYp0Z+KYmpqyVzs7HAr78+J+QM0p511OA@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Wed, 29 Jul 2026 08:37:11 -0400
+X-Gm-Features: AUfX_myqXjdcqcpa3JuqBK4jBSmcJagvdVO-hn6O9xZymvFYfVO-opr-aDaAoc0
+Message-ID: <CAEjxPJ6D3sdFDHi2DxtBSzVQ=69ffyZRS2d8om1fOrj9Da28bQ@mail.gmail.com>
+Subject: Re: [PATCH 1/1] SECURITY.md: Nicolas Iooss is stepping down
+To: Paul Moore <paul@paul-moore.com>
+Cc: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Add test_multiple to .gitignore.
+On Tue, Jul 28, 2026 at 6:32=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+>
+> On Tue, Jul 28, 2026 at 4:34=E2=80=AFPM Nicolas Iooss <nicolas.iooss@m4x.=
+org> wrote:
+> >
+> > Since I am no longer able to spend much time working on SELinux
+> > userspace tools and libraries, I would like to leave the maintainers
+> > team.
+> >
+> > Update the set of people receiving security reports.
+> >
+> > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> > ---
+> >  SECURITY.md | 2 --
+> >  1 file changed, 2 deletions(-)
+>
+> Sorry to see you step away, but I appreciate all that you have done.
+> You're welcome back anytime :)
+>
+> Acked-by: Paul Moore <paul@paul-moore.com>
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- tests/file_contexts/.gitignore | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/tests/file_contexts/.gitignore b/tests/file_contexts/.gitignore
-index dd877b4..8b95fcb 100644
---- a/tests/file_contexts/.gitignore
-+++ b/tests/file_contexts/.gitignore
-@@ -3,3 +3,4 @@ test_lookup
- test_open
- test_open_base
- test_validate
-+test_multiple
--- 
-2.55.0
-
+Likewise, thank you and feel free to come back any time.
+Merged.
