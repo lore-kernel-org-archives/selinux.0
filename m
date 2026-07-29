@@ -1,144 +1,273 @@
-Received: from mail-oa1-f54.google.com (mail-oa1-f54.google.com [209.85.160.54])
+Received: from mail-oo1-f53.google.com (mail-oo1-f53.google.com [209.85.161.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C93948986F
-	for <selinux@vger.kernel.org>; Wed, 29 Jul 2026 20:19:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97EF93DD85A
+	for <selinux@vger.kernel.org>; Wed, 29 Jul 2026 20:20:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.53
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785356353; cv=pass; b=J2xE9Apu/ayvzUNLuNJq1MdsW7kvyjff3sL1Dyg+2f6TLaW4sfJLLcr9ge+S5HQKpH6Bws7eNZpQhdxjD8CXFLISoIn0FMDjOejupyj7TN3KKzvoKPT/g2WekV3K/m0nJg0lD6GLD8agMNIL5hMeFBGyhVSrTJbPIM9ppj1eHF4=
+	t=1785356453; cv=pass; b=TrbnQLP5Hl9oFyJe3FsGmitZ3kc5V6bRDw+U3XrEXVE+BPWiK9VwiUZk5UCTtauL6HEUQl71uDeefF/p5MjGTyS6KdqcWZs879tqkO3eObUr28RaQb85mpMFFA3z/A7/bXUifyuiHRNrBEX1Rh3haf/J3AOtKNt7V7Q7jHMSZLI=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785356353; c=relaxed/simple;
-	bh=KyHjwuH2YdC0SzZHWAWuXV8Iig4P7WUh8Ry3NQxmmJg=;
+	s=arc-20240116; t=1785356453; c=relaxed/simple;
+	bh=YnZYVJ1x+XpxgJeKheo4kH34Z4OrtSgF0A32cix8EgY=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=fjPlum18B9jNfQqJabCIZy7xZW8Jb1KC11uomjdmVOKXI5aw1KNF4bMZG3xEuPOo/U3+aLSq2lp+BEBKJkUkfta317maKie5wZ9edHuDegbW5XiCV9exUtGVrD9pRFVkcazHgTlbEC9yJtbf1qk6I2HZbk/U0khCa3ckVmh49sQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=r+Y1RvWb; arc=pass smtp.client-ip=209.85.160.54
+	 To:Cc:Content-Type; b=QF94c7q97MQhAmYKp9j8SpT5Gh4spwf34yaeH6VsRxpnIdv6doRc6FlQrvPFY9gtXBzTyze6RQi0bLJg6c/4LRP+6ZiY8ay1wvjPDhGzz7lKs5NGwHKX4uNkZqmeonJgkSzAAxbGZA0CzL2zlKn2pAcBu7JmYkbb+BmV2nkcSwM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LaKrDG5i; arc=pass smtp.client-ip=209.85.161.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="r+Y1RvWb"
-Received: by mail-oa1-f54.google.com with SMTP id 586e51a60fabf-44aeefa1c00so64530fac.0
-        for <selinux@vger.kernel.org>; Wed, 29 Jul 2026 13:19:10 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785356350; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LaKrDG5i"
+Received: by mail-oo1-f53.google.com with SMTP id 006d021491bc7-6aca105971eso927473eaf.0
+        for <selinux@vger.kernel.org>; Wed, 29 Jul 2026 13:20:48 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785356446; cv=none;
         d=google.com; s=arc-20260327;
-        b=kMNu4CuCyG3asbT8nBbrgqwPyV79R/5soh/8pvQZMZCLzSbJsMKwMaMDXPVyp1xGiU
-         0xoQr++b7RqaMRLKN4wLRF5R9Z7sdD4nokMUa0qZ0YTCMgy9D3BsGZF3vy2ju1lk5Ja6
-         XEqHn+FWyc8tOAx6XTiTqpu36wRz+rmiI7zXyctVcqv96xyWXciRUAHLyZFx421gDeoL
-         AfwxYFWhT8gD2Dqkw7pIlPkAyjn6ErGCr5oB4NJWNWCa//B+zwkS2saEFAy81C8XdtG6
-         /R5HHKAmG8xvtM0A8YrkTq+nysoktP6Idx0kbpIlZqQx4zExlMWSnXgWwqlFv9FJvdKa
-         +xhQ==
+        b=Egn76k6vWl3Mx0AfZAurub2BM8LNS52Cop1bsSpX08NoXUArV5YYF8vlC4SUu7E6RE
+         q+UX4NonxKERQjQxJTsgt6HuoLrHuVuXiNkNlHKW05QsPqNNMB1YkDoJJyOyHNj8Nkuo
+         35aj9SOtHZJW5mqyiv4faOUqgDx21vKV9e2go79dslznW6UjsbB9IDe5v4BseyK35dpv
+         Rk+KAVq5VUiPO7uTj7uw0kS/5wbDsCWB1zRMbIvkb6fI8OzPvpXmeR3rc3PH0fkA24wo
+         qEVoY1GU1h7OwrMrhOJaDEImdeyVVo+PG9YjxmvtwDzX0e6Odtmyc93JGfc6zVbhcX4p
+         ja4g==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=yo7ka7rS57LXEp+/66AMFngf3y/VFgC7Jx8BnL4/oXk=;
-        fh=gfzHzywM79Llzpb3oUi4mMfwpHTHBNavmzg+APAH/VE=;
-        b=b3NcJKjglGhT57v55CB/CA13bnxXNhdqd3NcYDlrYGad10GCRpuUYrykKRJe9gQ1DK
-         nDptIZ/gRmidADRkvug3IMx5GhWWr9zAL0eqRarn1TLmn9EDJTzvGGIOgPZ1oqn8DL+N
-         gXgwx+IQ3gqfoafYE5OwhPaKC6L31kgak22cDHNVyPDuqC8pwMkBFdghejaKIBRffgvu
-         4ilYHYfxLf6DO2BYwaFwDIjpNodZfulDoc2A7P3gowzUsrC4Vxqchfz7KxL/f3QbkFf7
-         o8BaRcN3cLYwCRCOpIHx3MHVprIi33DOkPaaPMP3Kjnc1AOh4JZXLyR2fjstsMotK3IS
-         Noug==;
+        bh=MpYuThHdqP3g6U25qambCYPLQtD/X+//jyciXrf8Ar4=;
+        fh=GnlzdOva2/24iZruv/FPyM+Hu4ivhszAUEBd6LhuMlw=;
+        b=C6x10IzVBQVo+Vee9qgCPOmqsaWt5O9tlKzJohyrPCngvja995BbHNAS5DAkKIKZYC
+         NK37Po9kNCaOfOGLtNNyhYR8ZT2H/dzIIDHn9MwJtbJJdnxfs7C9+hNrvPdbKMo+UIq9
+         ZFJfatKnbkqDtUvHfNL0eqQEDcFtzdd2s9OQIL/cCWxgq5rj2YuoVnxuIGe+3frpWOp0
+         pScFGhynPCE7ojdtzmwDUNac30yxacVFSSYw2CdFffCgqWtE0/cxiSUXsohOVrnr852Q
+         5V/dJJ+BjjHq0iBEjcjGI4mkTSPqMBHAwMyRD6o09F8ngYPRz2IYg3BSYpPMmX7m+WWw
+         1oyA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785356349; x=1785961149; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785356446; x=1785961246; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=yo7ka7rS57LXEp+/66AMFngf3y/VFgC7Jx8BnL4/oXk=;
-        b=r+Y1RvWbzDamuIAv3hnio2SYkZ/FdFCFf+Bhl00aOypGtfqL7bSDEaTLERCHmKeAL3
-         CoTOxFXQySZdggZ9l/AqxsdahamBaWyZdUJFYG/7rqoF73aZqfsz1QroDFIEVZ6ULTgJ
-         ojlNCM2U+rGpOjPZaAfD//WKod2iKV8HyjNLYKWUjxiYEGs5H+rbHeBLF1IK4gId+zsU
-         tlkmroe9Z3bOkcGk0A0NvTOogJ8zftqiAlPg4w3UyLyukdjQoKNuGmWqP1ZrN1Ucf/Tc
-         BEwajSxtW7usTjKEni+JAYR9lxFQrMuAqTltQ6BFDyNe9VBe9Pmeb+nM06JZVkdSdQSu
-         LN/A==
+        bh=MpYuThHdqP3g6U25qambCYPLQtD/X+//jyciXrf8Ar4=;
+        b=LaKrDG5izR7qXg/AubgQNw60XC0wA3aQ63jdglXpf9EKxzZ9I9QYRndE5GAWR2+O3i
+         cPXRqCesYLJ/X8aCa71ML3cHuofHKGySVX8B4UiWF5a5CdmQ2C+t7ock8vSzVwPAAT8m
+         UaeCylohSKXkGZWPHnuepWScl7gWEnYJi3RH0B99qMgEDrAIUlZXc+Acj56c9ZqPCbmw
+         DcBCa1XmLQFQOejace3iD4IQoHfab+Wv3TS3LXxWn+lCTJQcq7txQg4nd1sYr3FtUjd5
+         XEfVqEgUOAs5tbRueq5n6gEFOY9VYVbK2b22uxCkimyAesrBSk2GAgWVOPzQE9nolPvC
+         U7Qg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785356350; x=1785961150;
+        d=1e100.net; s=20251104; t=1785356446; x=1785961246;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=yo7ka7rS57LXEp+/66AMFngf3y/VFgC7Jx8BnL4/oXk=;
-        b=YjJ21JyILU/pTyq7j+NvJQmackknrvSJggfBdhHpK9rfV7/BcxEJPaB9RDhyMlZDfm
-         sK27YQshIBhm78gCh+z52ZsF7lybTNSxVmdrxuxXa+k8BdJB5YDjiDWAoD/JKQmZ17TD
-         vgaBBsxiHHlSSxS66YwSdbhOXRyvSYiKQd7yZNURG/BRFR/e0DanUgDGyNkQpnH6FjOJ
-         cqJex4f81UQhqdmSm5rxqMY5EA3QKr6GI2OwX4QNBtOsNJmOzxTACci0q+P/AEZCfTdS
-         +I9yPzjhF2DMRVmAQ6N78KnVCqwBM6gPFNuuulUYAz7iTQ/YXVsOxZHp8jCb3US/ExAI
-         EZ2g==
-X-Gm-Message-State: AOJu0YwWiyd7bhHAOnyYj34/fXPIRwfeLDLSQiLFlOU1WZmXeeuuKWg4
-	ZQIBWBGZibRJ5SFZjvt2cWu4BKWzxcuIiEGl7smNpjGRmiz+2sY9yCXC/h3RT5sHRtG3+gQJzu0
-	jbUw7tiL84yKBsxx4jJzVGi9qIUQXw0Lu4Q==
-X-Gm-Gg: AR+sD13UUxwulvtaE7dchlnEVD97grBhWqceTSKWAuCED3KTeCAT2u1J+VbLKcD7guV
-	xsqFYMPwqUHBeGyzprBJn+YNTgkGA39eeaJYfegnncnNWTjWNx7fQqQ2lFnUJz19S/Cl43DbwYQ
-	FzkJ25Co4ugHnooRxEIu8AYj/TgrKGNyGNhHzaP5C+/Qyh9f7ETo5eUdkM/LWayqsM5LepcakLZ
-	WuhGM4fyo5NiwTr12a3MUEUl5EoMcXo+VFtB96LQOFeO0WvQODyygTujvko5DMoHyK4mkraJHWg
-	7UALYm649W5Ns9Sulmwist/4+WVEDmHyY8sWUg+75gGY
-X-Received: by 2002:a05:6870:535b:20b0:448:9a00:4ec3 with SMTP id
- 586e51a60fabf-458962fed01mr1251938fac.26.1785356349668; Wed, 29 Jul 2026
- 13:19:09 -0700 (PDT)
+        bh=MpYuThHdqP3g6U25qambCYPLQtD/X+//jyciXrf8Ar4=;
+        b=ISRhWAXfRgVpGXnUrBqo/ArSgNkCTidIquBACOAoUfXWZQ5Clh0e2sx5sDm1nFX/eS
+         NuwvnDH5RVQUT4BF6nH+sKJIjxLKng8CpSg+YrVvuVD6wlilbZ571RxXMJAH9FvhJBRE
+         2PB39o62XAg6dMNqLpsCqbd3/HPoip9kg/t1UvdVIw+UB2iguRG5TGMa2tjCSXyi2VLh
+         o4ilDsjZJNzkfrMQvb/lfBK2mYOwZVB7crWMNSkEJcuyRisF9quJn9xeX5u8vJlarFtn
+         MFOEy8fhf8L5mUxKSYSoMW9vJSyBEW90XzQmdlOL1Y61jNzZQSWk701WYcNWctPpFPGx
+         S8Cg==
+X-Gm-Message-State: AOJu0YxrFNMapM2OY4Iu5M9SxQbtJCKhFufP1JHl4XcCyfecj3BaR0IC
+	14iekyCL0Ph+cfq4+z6WoWz4sC7fFfZ64v5WoHQOkPv0EqUxRHZDQDC41uYj0dvfvpNLAvbDcWh
+	kbPCuVb9KtfeCejSE9xTHK/466JpmzEw=
+X-Gm-Gg: AR+sD11y2ztCuxkFJ4adn9J1O0rnacqTAUzhqKxI2Ru/tcC2qFjWeIfVnth096Z+634
+	XBM1E6ctNGw9Al02tXysFeB++M2pBXD977hoj8WdFwTMpPWsHPyfPxrlLXQyhWz50sn9UoNzw5J
+	nLEWpk2Zc/HGLRNIgs05rKe+kDETkeU69GhZTBJ39eh1PypSBsO+u+frvwrBWbB5gtvl/xFQFh/
+	7inx6Og5aEzNK7K/wkc5ny7S1CERXhUYZ48uiuvJ44QBOVTEnbH/EqIdQ++luAR123HG91LZeBR
+	MtwvXeY3YnwJhgT0NShO2vhHOb2M8Lgdta3Fbf+seNt9b2XbYYWm2fk=
+X-Received: by 2002:a05:6820:16a7:b0:6a3:81a2:746b with SMTP id
+ 006d021491bc7-6acbb584a3bmr34727eaf.21.1785356446543; Wed, 29 Jul 2026
+ 13:20:46 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260727191748.24108-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260727191748.24108-1-stephen.smalley.work@gmail.com>
+References: <20260728091632.1673214-1-jsegitz@suse.de> <CAEjxPJ5rX1t+rj7fWb6QfkZSH=VneZ503gYWvTzp9ZhVYYUpaA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5rX1t+rj7fWb6QfkZSH=VneZ503gYWvTzp9ZhVYYUpaA@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 29 Jul 2026 16:18:57 -0400
-X-Gm-Features: AUfX_mwZOP7yQj3jj14W0JmlXQvCeN_GYkfH8Njuwiz8hok0QAZ8qP8gintYpYQ
-Message-ID: <CAEjxPJ61MT5kstaRSSjMq7OfAf6Vr-jdMvBrSL2tti7yNBYbwQ@mail.gmail.com>
-Subject: Re: [PATCH] checkpolicy/fuzz: ignore invalid policy versions for the
- Xen target
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com
+Date: Wed, 29 Jul 2026 16:20:35 -0400
+X-Gm-Features: AUfX_myRqweUoyAq19icZ25-2OIecaOcvqdVuZqsFn4wTdWPrEx4d7_4lzTodNY
+Message-ID: <CAEjxPJ5+v8=WxxhstnQ+DZLcCUpzz-MgWPjKj8mY2RUrO_VSuA@mail.gmail.com>
+Subject: Re: [PATCH] policycoreutils: Using vendor defined directories for
+ configuration files
+To: Johannes Segitz <jsegitz@suse.de>
+Cc: selinux@vger.kernel.org, Stefan Schubert <schubi@suse.de>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 27, 2026 at 3:18=E2=80=AFPM Stephen Smalley
+On Wed, Jul 29, 2026 at 10:06=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> Xen only supports specific policy versions (see policydb_compat[] in
-> libsepol/src/policydb.c); the fuzzer will always fail on the
-> policydb_write() call if given a version not listed in that array with
-> a .target_platform of SEPOL_TARGET_XEN.
+> On Tue, Jul 28, 2026 at 5:27=E2=80=AFAM Johannes Segitz <jsegitz@suse.de>=
+ wrote:
+> >
+> > Besides user/admin defined configuration files. Useful for systems
+> > that have config files in /usr/etc
+> >
+> > Signed-off-by: Stefan Schubert <schubi@suse.de>
 >
-> Reported-by: oss-fuzz (issue 539336382)
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Will reformat on merge.
+>
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 Merged.
 
-> ---
->  checkpolicy/fuzz/checkpolicy-fuzzer.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
 >
-> diff --git a/checkpolicy/fuzz/checkpolicy-fuzzer.c b/checkpolicy/fuzz/che=
-ckpolicy-fuzzer.c
-> index 7db0d4c8..c58d10e9 100644
-> --- a/checkpolicy/fuzz/checkpolicy-fuzzer.c
-> +++ b/checkpolicy/fuzz/checkpolicy-fuzzer.c
-> @@ -159,7 +159,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_=
-t size)
->         /*
->          * Take the first byte whether to generate a SELinux or Xen polic=
-y,
->          * the second byte whether to parse as MLS policy,
-> -        * and the second byte as policy version.
-> +        * and the third byte as policy version.
->          */
->         if (size < 3)
->                 return 0;
-> @@ -189,6 +189,10 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size=
-_t size)
->         if (policyvers < POLICYDB_VERSION_MIN ||
->             policyvers > POLICYDB_VERSION_MAX)
->                 return 0;
-> +       if (platform =3D=3D SEPOL_TARGET_XEN &&
-> +           policyvers !=3D POLICYDB_VERSION_XEN_DEVICETREE &&
-> +           policyvers !=3D POLICYDB_VERSION_BOUNDARY)
-> +               return 0;
->         data +=3D 3;
->         size -=3D 3;
->
-> --
-> 2.55.0
->
+> > ---
+> >  policycoreutils/sestatus/Makefile        |  8 +++
+> >  policycoreutils/sestatus/sestatus.c      | 78 +++++++++++++++++++++++-
+> >  policycoreutils/sestatus/sestatus.conf.5 |  2 +-
+> >  3 files changed, 84 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/policycoreutils/sestatus/Makefile b/policycoreutils/sestat=
+us/Makefile
+> > index 70f46956..6f8db774 100644
+> > --- a/policycoreutils/sestatus/Makefile
+> > +++ b/policycoreutils/sestatus/Makefile
+> > @@ -5,6 +5,7 @@ BINDIR ?=3D $(PREFIX)/bin
+> >  SBINDIR ?=3D $(PREFIX)/sbin
+> >  MANDIR =3D $(PREFIX)/share/man
+> >  ETCDIR ?=3D /etc
+> > +LIBECONFH ?=3D $(shell test -f /usr/include/libeconf.h && echo y)
+> >
+> >  CFLAGS ?=3D -Werror -Wall -W
+> >  override CFLAGS +=3D -I../../libselinux/include -D_FILE_OFFSET_BITS=3D=
+64
+> > @@ -14,6 +15,13 @@ override LDLIBS +=3D $(LIBSELINUX_LDLIBS)
+> >  all: sestatus
+> >
+> >  sestatus: sestatus.o
+> > +ifdef VENDORDIR
+> > +ifneq ($(LIBECONFH), y)
+> > +       (echo "VENDORDIR defined but libeconf not available."; exit 1)
+> > +endif
+> > +override CFLAGS +=3D -DVENDORDIR=3D'"${VENDORDIR}"'
+> > +override LDLIBS +=3D -leconf
+> > +endif
+> >
+> >  install: all
+> >         [ -d $(DESTDIR)$(MANDIR)/man8 ] || mkdir -p $(DESTDIR)$(MANDIR)=
+/man8
+> > diff --git a/policycoreutils/sestatus/sestatus.c b/policycoreutils/sest=
+atus/sestatus.c
+> > index a719f0b3..528a81ae 100644
+> > --- a/policycoreutils/sestatus/sestatus.c
+> > +++ b/policycoreutils/sestatus/sestatus.c
+> > @@ -21,11 +21,16 @@
+> >
+> >  #define PROC_BASE "/proc"
+> >  #define MAX_CHECK 50
+> > -#define CONF "/etc/sestatus.conf"
+> > +#define CONFDIR "/etc"
+> > +#define CONFNAME "sestatus"
+> > +#define CONFPOST "conf"
+> > +#define CONF CONFDIR "/" CONFNAME "." CONFPOST
+> >
+> >  /* conf file sections */
+> > -#define PROCS "[process]"
+> > -#define FILES "[files]"
+> > +#define SECTIONPROCS "process"
+> > +#define SECTIONFILES "files"
+> > +#define PROCS "[" SECTIONPROCS "]"
+> > +#define FILES "[" SECTIONFILES "]"
+> >
+> >  /* buffer size for cmp_cmdline */
+> >  #define BUFSIZE 255
+> > @@ -91,8 +96,75 @@ static int pidof(const char *command)
+> >         return ret;
+> >  }
+> >
+> > +#ifdef VENDORDIR
+> > +#include <libeconf.h>
+> > +
+> > +static void load_checks_with_vendor_settings(char *pc[], int *npc, cha=
+r *fc[], int *nfc)
+> > +{
+> > +       econf_file *key_file =3D NULL;
+> > +       econf_err error;
+> > +       char **keys;
+> > +       size_t key_number;
+> > +
+> > +       error =3D econf_readDirs (&key_file,
+> > +                               VENDORDIR,
+> > +                               CONFDIR,
+> > +                               CONFNAME,
+> > +                               CONFPOST,
+> > +                               "", "#");
+> > +       if (error !=3D ECONF_SUCCESS) {
+> > +               printf("\nCannot read settings %s.%s: %s\n",
+> > +                      CONFNAME,
+> > +                      CONFPOST,
+> > +                      econf_errString( error ));
+> > +               return;
+> > +       }
+> > +
+> > +       error =3D econf_getKeys(key_file, SECTIONPROCS, &key_number, &k=
+eys);
+> > +       if (error !=3D ECONF_SUCCESS) {
+> > +               printf("\nCannot read group %s: %s\n",
+> > +                      SECTIONPROCS,
+> > +                      econf_errString( error ));
+> > +       } else {
+> > +               for (size_t i =3D 0; i < key_number; i++) {
+> > +                       if (*npc >=3D MAX_CHECK)
+> > +                               break;
+> > +                       pc[*npc] =3D strdup(keys[i]);
+> > +                       if (!pc[*npc])
+> > +                               break;
+> > +                       (*npc)++;
+> > +               }
+> > +               econf_free (keys);
+> > +       }
+> > +
+> > +       error =3D econf_getKeys(key_file, SECTIONFILES, &key_number, &k=
+eys);
+> > +       if (error !=3D ECONF_SUCCESS) {
+> > +               printf("\nCannot read group %s: %s\n",
+> > +                      SECTIONFILES,
+> > +                      econf_errString( error ));
+> > +       } else {
+> > +               for (size_t i =3D 0; i < key_number; i++) {
+> > +                       if (*nfc >=3D MAX_CHECK)
+> > +                               break;
+> > +                       fc[*nfc] =3D strdup(keys[i]);
+> > +                       if (!fc[*nfc])
+> > +                               break;
+> > +                       (*nfc)++;
+> > +               }
+> > +               econf_free (keys);
+> > +       }
+> > +
+> > +       econf_free (key_file);
+> > +       return;
+> > +}
+> > +#endif
+> > +
+> >  static void load_checks(char *pc[], int *npc, char *fc[], int *nfc)
+> >  {
+> > +#ifdef VENDORDIR
+> > +       load_checks_with_vendor_settings(pc, npc, fc, nfc);
+> > +       return;
+> > +#endif
+> >         FILE *fp =3D fopen(CONF, "r");
+> >         char buf[255], *bufp;
+> >         int buf_len, section =3D -1;
+> > diff --git a/policycoreutils/sestatus/sestatus.conf.5 b/policycoreutils=
+/sestatus/sestatus.conf.5
+> > index acfedf6f..01f8051d 100644
+> > --- a/policycoreutils/sestatus/sestatus.conf.5
+> > +++ b/policycoreutils/sestatus/sestatus.conf.5
+> > @@ -8,7 +8,7 @@ The \fIsestatus.conf\fR file is used by the \fBsestatus=
+\fR(8) command with the \
+> >  .sp
+> >  The fully qualified path name of the configuration file is:
+> >  .RS
+> > -\fI/etc/sestatus.conf\fR
+> > +\fI/etc/sestatus.conf\fR or \fI<vendordir>/sestatus.conf\fR if it is n=
+ot available
+> >  .RE
+> >  .RE
+> >  .sp
+> > --
+> > 2.55.0
+> >
+> >
