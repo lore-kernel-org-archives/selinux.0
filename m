@@ -1,356 +1,148 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CC363AFD0A
-	for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 10:18:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785406732; cv=none; b=kasJqXZnhuwX/cZABKN/NzecS9i67xSVCtKiYj11ixEGAiLSA6E2eOhSnVokkwXjsYxO7alMjXpYjQCbSVltt/5672ftUzOEfRVMB3lYwc0n+78xUHdDfevP/Lps8CLde84aTXRVYwVONU3Q0OKvlJjVZKm+n09Al4zZHiLLzFc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785406732; c=relaxed/simple;
-	bh=xm9uSC2Kc9AK4vYsRanzlx8gSaBs28aihjoI/89xXRQ=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=cmTX94Tco83h2tRYdI/M2RHu4qqe20p9i/covBBqzTouSYQ/6uQnScsn2LJZrxoHuuqgpgFeqzIuziSbn2P94FCrf4lK9Q/1FUBFxRGCg6MLD3p/DWrT+al2dJBqNiCAmNKCWpMs2mOEg3vG8gFhjLGXH5FH4ZgIPIblrocCBN0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AO9wyvmE; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91EF83FBB5A
+	for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 10:26:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.129.124
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785407203; cv=pass; b=TqYnfj0YsRbOZ456CJIa5UnYvM4vaBMN3hai//BlOTeb/YjBpm5YJxIXYg4NtJNTRt8s3Ks/W4TW4tWEMQgwpMMpJPax1WPTmEojrl/wOwKeOy7L+ITXouV5Ejnm0wJ1OQO5HHEwbKManGenIvsxrnDwCl2RpeVAybJLRjbWv9Y=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785407203; c=relaxed/simple;
+	bh=shXGVyUwDxFITgwTWL88/8Mcz8vujzumuGwX0dv8tgk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=EG+KN3GlgrKrrVerGOBbCJr2zQK7ggBoo90LGms2KU1KgG2Rrocqe/uLQuFGPsyJXH3+eeuzRH2cig/1sdxg6ZGE1tnJn1ZZpGQXdNkEsuIYxJt2nc5OztlQn4OSfi5jsBC+apkSv96j3B5d5QeW3BCYDAcOwqUzRvnM/t04Ibs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QWGGJLW+; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=oNts2aNl; arc=pass smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AO9wyvmE"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QWGGJLW+";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="oNts2aNl"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1785406729;
+	s=mimecast20190719; t=1785407200;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Sk5hOASL5NmxKn6YBZuHJaV9i82d7LEYnBBEqz+mTWw=;
-	b=AO9wyvmE0l3aFCWBwiVdyJZySmAN6C8y2njTIT+0XSzyl0FbH2aChT9p/XGBs4L/1q7GI6
-	IOh4FwcZbb6v7pX5vmUnfCklAOZHEZU0imOg/46C1NyDihS7f2EUU0+no4ZYwBsBa9kVCQ
-	rEVKwKaT4w7VRfSlr9CDrQXjxTlcKDs=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-515-BIWKWj7ZMlmaYCcJ6-7tcA-1; Thu,
- 30 Jul 2026 06:18:47 -0400
-X-MC-Unique: BIWKWj7ZMlmaYCcJ6-7tcA-1
-X-Mimecast-MFC-AGG-ID: BIWKWj7ZMlmaYCcJ6-7tcA_1785406727
-Received: from mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.95])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id D66DC1956044
-	for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 10:18:46 +0000 (UTC)
-Received: from akkohli-thinkpadt14sgen2i.rmtde.csb (unknown [10.44.33.215])
-	by mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 2E1AE423
-	for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 10:18:45 +0000 (UTC)
-From: Akhil Kohli <akkohli@redhat.com>
-To: selinux@vger.kernel.org
-Subject: [PATCH v4 2/2] checkpolicy: add robustness tests for large policy inputs
-Date: Thu, 30 Jul 2026 12:18:40 +0200
-Message-ID: <20260730101840.3224405-3-akkohli@redhat.com>
-In-Reply-To: <20260730101840.3224405-1-akkohli@redhat.com>
-References: <20260730101840.3224405-1-akkohli@redhat.com>
+	bh=ZPsNokbNDyDMt0Qqk4hYFiNomW2jjYe3bV5GSNGboPM=;
+	b=QWGGJLW+fX8zqTStsmYoOElGrNw4zc/PsgpXagWGSKrYogfIlwxKysagj4ShwMLQyCmbhs
+	eoQPfUBwX+7l0pvj5smNfW24omCV4s78pqG3dBcMSnxs6fx/LZfltiewDVQHUS/QAuuZqP
+	hrgCItiImYMpedE1C/LwOkJlsDOaXho=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-389-zj-y6efBNniHm7M1Tg1p6Q-1; Thu, 30 Jul 2026 06:26:38 -0400
+X-MC-Unique: zj-y6efBNniHm7M1Tg1p6Q-1
+X-Mimecast-MFC-AGG-ID: zj-y6efBNniHm7M1Tg1p6Q_1785407197
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-38e7621655eso3167938a91.0
+        for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 03:26:38 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785407197; cv=none;
+        d=google.com; s=arc-20260327;
+        b=SgmfGRzLBKmnSSVbqTsG8Jz4eI74OGz1oHF9jBykJ2i2pnpYlTHitefZc5TFcDuJ2E
+         qzWqiTyIvuQLn+z8AqU68fioolFiFB9Ns4TwUYWmGP1kIfGkxa8yR9YOVVX+a/gFw3iR
+         XfCReagE7EE0PwgY3gI3qChx0OkFwnPjhh2TFECPM5qnwmj8ixQQaxxgLDTQOoRD2cY2
+         OpiSBDN1UEKXTxG2NVaLaISqV8OsVs1wL2LUAeVTgfMAbB5rra9p/kEvOERoJmvvON6A
+         jVXm9Fk00WnDRrBrdY9Y7pVgRglLRTHaisfJe6JOXsRlHSN+aKdhRMWpv1521xPxozCD
+         4Gww==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=ZPsNokbNDyDMt0Qqk4hYFiNomW2jjYe3bV5GSNGboPM=;
+        fh=nOcPTm+jzSpUJDDJhvsoEQt/GcMQFmPB1BDsWNtwPZ8=;
+        b=r13OcLUQKRf5fjLRPByDtNwgEMtjOjBFxnxfTLjo0GzS2+oOSVjHbc0k0035VZYNce
+         HPzggkcvJByPvzbzafn4Xk0BliBhfcrfYudAS9gzYCBXI+ESRtKMw3c/59hufxxgZ6DM
+         e32bvL6OrCN6h+RE81/pdeeuOlPc5G1eut3DNCgSB9tgk4dba7Ifhs3+HispF3yH01FB
+         /8NiImf3iEfHGBw72tGhX0EZlkKpA8BmDV+jBvRf4WPuD2IXeVgVqCCFCHCSPpodBJdP
+         HsImfkzlbLEBwN/Cv5yCT1adEHFvJQyr0+oxubwj2jQBHFyxbZooRekxAkTgjsjBLYYS
+         idAQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=redhat.com; s=google; t=1785407197; x=1786011997; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=ZPsNokbNDyDMt0Qqk4hYFiNomW2jjYe3bV5GSNGboPM=;
+        b=oNts2aNlkQaxj8BGHgQTqznMf2wP0PS0XFS/OA/IspMxbn1tulpyPaBuefkXwt5Q0C
+         YQ7nL+pqvb1TrZEItGsvXp748coIZ3G5L4G/cYbyF9+W0w8o5izvqDie0S3jSWq6rm5i
+         mTGRDSZNqoUwH2x2wue8QmcKKa2XEnAqG76Bip4nfcHZzMFVPehI7bmDtVamZrNJsLA0
+         yDrKOGyW7B6J70xZzXjAIg9/hg0tfq1mKwp2uAHI0GUnygkacpP7uXVt2d0W9JI8Vhl+
+         NhSNkrngZ7sSXzrdrAzwfBzkrDeX4eV95drRxrnD23IlTBDL3wPAfynM0fmGaEGBu1vx
+         2IKA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785407197; x=1786011997;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=ZPsNokbNDyDMt0Qqk4hYFiNomW2jjYe3bV5GSNGboPM=;
+        b=MZiUZYHXbU3zo7rLwsTD55JXeSV2IRUL76WDALQN7q12CBp7oVPWwWeLTpLQAr0kg3
+         WracQmQPWJi/QFP/UgThBPW0Ba2NtcPIizTkoHd4fSljEWVuG51v5VTKq63UThoKjLpg
+         cO/0sQg8bixroV0YojPYNDbIm8I7CY80Wet8UzdFjpVcLGyNMzZLylCATNgyCx2Uzigy
+         xolRS9ZmdXvNEqy34fz+kU4r7oyYRQbreSyQXghDu2edGZBuVOr23BhlsHyBCoSnUUJh
+         7AA2epWSYFCpR0zQiN3HiutUI922kYs8d/p3IloBztw3EAAoCPTtmE/P+QShKz8WK4Lu
+         so5g==
+X-Gm-Message-State: AOJu0YzUgQp+/KZlBgTBDzVGaUvxi2b+deCr8tYRIeGt4PsGmcm5OhZZ
+	d5qbn28pyjQ/WrEvNAlv1TegNERr4YjY8RI3NPTCag9QLPPb9e3P9LkNqWIPT8YP+ClNaBGxuha
+	4uigfttw9LlveGww7PdwbF//+48UqYn1+YIwYd8YbEDqJAtdLPO+ICbVylIs2scksabQAq2rXGA
+	UKKClavJROf6q4z+dYzbZzfKymseXTVzzJmhPseHP9yYLO
+X-Gm-Gg: AR+sD10SU5rvGZQIz9SydqDhvadiX7+6R4ye67iVFlEcdaVBae8fIYOIE3FegebnH3I
+	um3fpY8nUl3FfJiWcV8rvukRr73/iN9PIkWI7tzDn4iCJ5CU1Kr3LMb+ACC+/Qt0q5242bZR/88
+	dEFO1Mwx7TBuYj7tNupj1tqPCK7LTzha5t9HnqqFPuoO94Yy/AjwGoYr5q0GnKN7xL3+p9virTA
+	9M0sHKHtM6miUv4
+X-Received: by 2002:a17:90b:17c4:b0:38e:63de:730d with SMTP id 98e67ed59e1d1-38f9bd692d6mr1547099a91.3.1785407197272;
+        Thu, 30 Jul 2026 03:26:37 -0700 (PDT)
+X-Received: by 2002:a17:90b:17c4:b0:38e:63de:730d with SMTP id
+ 98e67ed59e1d1-38f9bd692d6mr1547083a91.3.1785407196701; Thu, 30 Jul 2026
+ 03:26:36 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.6 on 10.30.177.95
+References: <20260728164552.2646227-1-akkohli@redhat.com> <20260728164552.2646227-2-akkohli@redhat.com>
+ <CAEjxPJ5Ddd=-X2vKA7oHzDF-ZZ-_GZyfc_z_XEwXuxePZWb29A@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5Ddd=-X2vKA7oHzDF-ZZ-_GZyfc_z_XEwXuxePZWb29A@mail.gmail.com>
+From: Akhil Kohli <akkohli@redhat.com>
+Date: Thu, 30 Jul 2026 12:26:24 +0200
+X-Gm-Features: AUfX_mytgIEe-AMr91GorAIBc7Pnkp32WycTzDbXUD5f8XfjI5FWGuIRvdekV8E
+Message-ID: <CANu4e6PYkZ8--vBPskdhcFtij6T2dZvxu+MX4gb2KcNRaNxV=w@mail.gmail.com>
+Subject: Re: [PATCH v3 1/2] checkpolicy: extend bad-data tests for type, role,
+ and user errors
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Add expect_robust to the checkmodule negative harness so oversized
-generated .te and .conf sources are exercised without crashing or
-hanging. Also cover a module with a large attribute membership set.
+Thanks for catching that. Fixed in v4:
+https://lore.kernel.org/selinux/20260730101840.3224405-1-akkohli@redhat.com=
+/
 
-Fixtures are generated at runtime to keep the repository small. Test
-size is tunable via LARGE_TE_ALLOWS, LARGE_CONF_ALLOWS,
-HUGE_ATTR_TYPES, and BAD_DATA_STRESS.
-
-Also fix expect_* to return 0 after counting a failure so set -e
-does not stop the suite early. Same bug affected the older cases;
-exit status is still non-zero when FAIL != 0.
-
-Signed-off-by: Akhil Kohli <akkohli@redhat.com>
----
- .../tests/test_checkmodule_negative.sh        | 183 +++++++++++++++++-
- 1 file changed, 173 insertions(+), 10 deletions(-)
-
-diff --git a/checkpolicy/tests/test_checkmodule_negative.sh b/checkpolicy/tests/test_checkmodule_negative.sh
-index dcbb3f04..5e35b1ae 100755
---- a/checkpolicy/tests/test_checkmodule_negative.sh
-+++ b/checkpolicy/tests/test_checkmodule_negative.sh
-@@ -3,6 +3,9 @@
- # Negative / bad-data tests for checkmodule on module (.te) inputs.
- # Matches the modular policy compile path: checkmodule -M -m <input> -o <module>.mod
- #
-+# Size / resource robustness: generated fixtures; scale via LARGE_TE_ALLOWS,
-+# LARGE_CONF_ALLOWS, HUGE_ATTR_TYPES, or BAD_DATA_STRESS=1 for heavier runs.
-+#
- 
- set -eu
- 
-@@ -20,10 +23,21 @@ if [ ! -d "${NEGDIR}" ]; then
- 	exit 1
- fi
- CHECKMODULE="${BASEDIR}/../checkmodule"
-+CHECKPOLICY="${BASEDIR}/../checkpolicy"
- OUTDIR=$(mktemp -d "${TMPDIR:-/tmp}/checkmodule-negative.XXXXXX")
- PASS=0
- FAIL=0
- 
-+LARGE_TE_ALLOWS="${LARGE_TE_ALLOWS:-5000}"
-+LARGE_CONF_ALLOWS="${LARGE_CONF_ALLOWS:-5000}"
-+HUGE_ATTR_TYPES="${HUGE_ATTR_TYPES:-2000}"
-+
-+if [ "${BAD_DATA_STRESS:-0}" = "1" ]; then
-+	LARGE_TE_ALLOWS=10000
-+	LARGE_CONF_ALLOWS=10000
-+	HUGE_ATTR_TYPES=5000
-+fi
-+
- cleanup() {
- 	rm -rf "${OUTDIR}"
- }
-@@ -52,12 +66,12 @@ expect_pass() {
- 		echo "FAIL: expected success (rc=0), got rc=${rc}" >&2
- 		cat "${stderr}" >&2
- 		FAIL=$((FAIL + 1))
--		return 1
-+		return 0
- 	fi
- 	if [ ! -s "${outmod}" ]; then
- 		echo "FAIL: expected non-empty ${outmod}" >&2
- 		FAIL=$((FAIL + 1))
--		return 1
-+		return 0
- 	fi
- 
- 	echo "==== ${desc} success"
-@@ -85,18 +99,18 @@ expect_fail() {
- 	if [ "${rc}" -eq 0 ]; then
- 		echo "FAIL: expected non-zero exit, got rc=0" >&2
- 		FAIL=$((FAIL + 1))
--		return 1
-+		return 0
- 	fi
- 	if [ -f "${outmod}" ]; then
- 		echo "FAIL: did not expect output module ${outmod}" >&2
- 		FAIL=$((FAIL + 1))
--		return 1
-+		return 0
- 	fi
- 	if ! grep -Eq "${pattern}" "${stderr}"; then
- 		echo "FAIL: stderr did not match /${pattern}/" >&2
- 		cat "${stderr}" >&2
- 		FAIL=$((FAIL + 1))
--		return 1
-+		return 0
- 	fi
- 
- 	echo "==== ${desc}: rejected as expected"
-@@ -128,18 +142,18 @@ expect_fail_unreadable() {
- 	if [ "${rc}" -eq 0 ]; then
- 		echo "FAIL: expected non-zero exit, got rc=0" >&2
- 		FAIL=$((FAIL + 1))
--		return 1
-+		return 0
- 	fi
- 	if [ -f "${outmod}" ]; then
- 		echo "FAIL: did not expect output module ${outmod}" >&2
- 		FAIL=$((FAIL + 1))
--		return 1
-+		return 0
- 	fi
- 	if ! grep -Eq 'unable to open|Permission denied' "${stderr}"; then
- 		echo "FAIL: stderr did not mention unable to open or Permission denied" >&2
- 		cat "${stderr}" >&2
- 		FAIL=$((FAIL + 1))
--		return 1
-+		return 0
- 	fi
- 
- 	echo "==== ${desc}: rejected as expected"
-@@ -147,6 +161,139 @@ expect_fail_unreadable() {
- 	echo ""
- }
- 
-+robust_exit_is_crash() {
-+	rc="$1"
-+
-+	# Fatal signals (128+N): ILL(132), ABRT(134), BUS(135), FPE(136),
-+	# KILL(137, includes OOM-kill), SEGV(139).
-+	case "${rc}" in
-+	132|134|135|136|137|139)
-+		return 0
-+		;;
-+	esac
-+	return 1
-+}
-+
-+expect_robust() {
-+	desc="$1"
-+	timeout_sec="$2"
-+	outartifact="$3"
-+	shift 3
-+
-+	tag=$(echo "${desc}" | tr ' /.' '___')
-+	stderr="${OUTDIR}/${tag}.err"
-+
-+	echo "==== ROBUST (expect no crash/hang): ${desc}"
-+	rm -f "${outartifact}"
-+
-+	if ! command -v timeout >/dev/null 2>&1; then
-+		echo "FAIL: timeout(1) required for robustness tests" >&2
-+		FAIL=$((FAIL + 1))
-+		return 0
-+	fi
-+
-+	set +e
-+	timeout "${timeout_sec}" "$@" 2>"${stderr}"
-+	rc=$?
-+	set -e
-+
-+	if [ "${rc}" -eq 124 ]; then
-+		echo "FAIL: timed out after ${timeout_sec}s" >&2
-+		FAIL=$((FAIL + 1))
-+		return 0
-+	fi
-+	if robust_exit_is_crash "${rc}"; then
-+		echo "FAIL: crashed with rc=${rc}" >&2
-+		cat "${stderr}" >&2
-+		FAIL=$((FAIL + 1))
-+		return 0
-+	fi
-+	if [ "${rc}" -eq 0 ]; then
-+		if [ ! -s "${outartifact}" ]; then
-+			echo "FAIL: expected non-empty ${outartifact} on success" >&2
-+			cat "${stderr}" >&2
-+			FAIL=$((FAIL + 1))
-+			return 0
-+		fi
-+		echo "==== ${desc}: finished (rc=0, output produced)"
-+	else
-+		if [ -f "${outartifact}" ]; then
-+			echo "FAIL: did not expect output ${outartifact} on rc=${rc}" >&2
-+			cat "${stderr}" >&2
-+			FAIL=$((FAIL + 1))
-+			return 0
-+		fi
-+		echo "==== ${desc}: finished safely (rc=${rc}, no output)"
-+	fi
-+	PASS=$((PASS + 1))
-+	echo ""
-+}
-+
-+generate_large_module_te() {
-+	outte="$1"
-+	count="$2"
-+
-+	{
-+		echo 'module large_module 1.0;'
-+		echo 'require {'
-+		echo '	type a_t, b_t;'
-+		echo '	class file { read };'
-+		echo '}'
-+		i=0
-+		while [ "${i}" -lt "${count}" ]; do
-+			echo 'allow a_t b_t:file read;'
-+			i=$((i + 1))
-+		done
-+	} > "${outte}"
-+}
-+
-+generate_large_conf() {
-+	outconf="$1"
-+	count="$2"
-+
-+	{
-+		echo '# handle_unknown deny'
-+		echo 'class CLASS1'
-+		echo 'sid kernel'
-+		echo 'class CLASS1 { PERM1 }'
-+		echo 'type TYPE1;'
-+		echo 'type TYPE2;'
-+		i=0
-+		while [ "${i}" -lt "${count}" ]; do
-+			echo 'allow TYPE1 TYPE2:CLASS1 { PERM1 };'
-+			i=$((i + 1))
-+		done
-+		echo 'role ROLE1;'
-+		echo 'role ROLE1 types { TYPE1 };'
-+		echo 'user USER1 roles { ROLE1 };'
-+		echo 'sid kernel USER1:ROLE1:TYPE1'
-+	} > "${outconf}"
-+}
-+
-+generate_huge_attr_te() {
-+	outte="$1"
-+	count="$2"
-+
-+	{
-+		echo 'module huge_attr 1.0;'
-+		echo 'require {'
-+		echo '	class file { read };'
-+		i=0
-+		while [ "${i}" -lt "${count}" ]; do
-+			echo "	type a${i}_t;"
-+			i=$((i + 1))
-+		done
-+		echo '}'
-+		echo 'attribute big_attr;'
-+		i=0
-+		while [ "${i}" -lt "${count}" ]; do
-+			echo "typeattribute a${i}_t big_attr;"
-+			i=$((i + 1))
-+		done
-+		echo 'allow a0_t a1_t:file read;'
-+	} > "${outte}"
-+}
-+
- # Ephemeral fixtures for path-based cases.
- ln -sf /nonexistent/path "${OUTDIR}/broken_symlink.te"
- cat > "${OUTDIR}/unreadable.te" <<'EOF'
-@@ -161,7 +308,7 @@ chmod 000 "${OUTDIR}/unreadable.te"
- # Control fixture: valid module compiles and produces .mod output.
- expect_pass "good_module.te" "good_module.te"
- 
--# Corrupted .te sections (PDF #2).
-+# Corrupted .te content.
- expect_fail "bad_syntax.te" "syntax error" "bad_syntax" "${NEGDIR}/bad_syntax.te"
- expect_fail "unknown_perm.te" "permission circular_ref is not defined" "unknown_perm" "${NEGDIR}/unknown_perm.te"
- expect_fail "unknown_type.te" "unknown type undeclared_t" "unknown_type" "${NEGDIR}/unknown_type.te"
-@@ -180,7 +327,7 @@ expect_fail "invalid_type_name.te" "syntax error" "invalid_type_name" \
- expect_fail "bad_role.te" "syntax error" "bad_role" "${NEGDIR}/bad_role.te"
- expect_fail "bad_user.te" "garbage_token" "bad_user" "${NEGDIR}/bad_user.te"
- 
--# Missing / bad-path .te inputs (PDF #1).
-+# Missing / bad-path .te inputs.
- expect_fail "missing .te path" "unable to open" "missing_path" "${OUTDIR}/does_not_exist.te"
- expect_fail "directory instead of .te file" "input in flex scanner failed" "directory_input" "${NEGDIR}"
- expect_fail "broken symlink to .te" "unable to open" "broken_symlink" "${OUTDIR}/broken_symlink.te"
-@@ -192,6 +339,22 @@ expect_fail "checkmodule with no input file" "unable to open policy.conf" "no_in
- expect_fail "checkmodule -o name mismatch" "Module name good_module is different" "name_mismatch" \
- 	-o "${OUTDIR}/wrong_name.mod" "${NEGDIR}/good_module.te"
- 
-+# Size / resource robustness (generated fixtures).
-+generate_large_module_te "${OUTDIR}/large_module.te" "${LARGE_TE_ALLOWS}"
-+expect_robust "very large .te module (${LARGE_TE_ALLOWS} allow rules)" 120 \
-+	"${OUTDIR}/large_module.mod" \
-+	"${CHECKMODULE}" -M -m -o "${OUTDIR}/large_module.mod" "${OUTDIR}/large_module.te"
-+
-+generate_large_conf "${OUTDIR}/large.conf" "${LARGE_CONF_ALLOWS}"
-+expect_robust "very large .conf policy (${LARGE_CONF_ALLOWS} allow rules)" 120 \
-+	"${OUTDIR}/large.bin" \
-+	"${CHECKPOLICY}" -E -o "${OUTDIR}/large.bin" "${OUTDIR}/large.conf"
-+
-+generate_huge_attr_te "${OUTDIR}/huge_attr.te" "${HUGE_ATTR_TYPES}"
-+expect_robust "huge attribute set (${HUGE_ATTR_TYPES} types)" 120 \
-+	"${OUTDIR}/huge_attr.mod" \
-+	"${CHECKMODULE}" -M -m -o "${OUTDIR}/huge_attr.mod" "${OUTDIR}/huge_attr.te"
-+
- echo "checkmodule negative tests: ${PASS} passed, ${FAIL} failed"
- if [ "${FAIL}" -ne 0 ]; then
- 	exit 1
--- 
-2.55.0
+On Wed, Jul 29, 2026 at 3:24=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Tue, Jul 28, 2026 at 12:47=E2=80=AFPM Akhil Kohli <akkohli@redhat.com>=
+ wrote:
+> >
+> > Add negative .te fixtures for duplicate type/attribute declarations,
+> > type/attribute name conflicts, invalid type names, and malformed role
+> > and user stanzas. Run checkmodule negative tests as non-root in CI so
+> > the unreadable .te case is exercised outside root-only skips.
+> >
+> > Signed-off-by: Akhil Kohli <akkohli@redhat.com>
+> > ---
+>
+> > diff --git a/.github/workflows/run_tests.yml b/.github/workflows/run_te=
+sts.yml
+> > index 4322ddff..fd78969f 100644
+> > --- a/.github/workflows/run_tests.yml
+> > +++ b/.github/workflows/run_tests.yml
+> > @@ -94,6 +94,17 @@ jobs:
+> >            sudo userdel -r bad-data-test 2>/dev/null || true
+> >            echo "::endgroup::"
+> >          fi
+> > +
+>
+> Trailing whitespace here, git should have warned you about it.
+>
 
