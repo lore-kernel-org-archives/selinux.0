@@ -1,106 +1,172 @@
-Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FF3C3B994F
-	for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 20:14:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.180
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785442498; cv=none; b=jGmguVJHgPqlIZsKgZTseWFE1195XsmmdRJhDH/LY5PcbjrWU7WQotmfE0v/e5WHY0ULXcUEkh4x5z2w3JsXHyfs3VTwDIFOr1SSFH3LV+uJ9mod4bz42hKhnK6BPJinQ0T1+AVMlLch7yYXVFYtQFeGravM4bCOLFLhbyCSM+0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785442498; c=relaxed/simple;
-	bh=vHcDygPqhdBtu2zJ4o5xxqMzLlUyOEqyaHvavKPGr7U=;
-	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=QOgGYQfq36eIVhg2+Qf0t2PjnkyHZwSH8+ZCH9tltkcLVqH3FnPXJ3Dm1nOqeY3kyyIKwgLxb/qgaGgTVvqlZyrjcTZuuqKUma5FGidV/9mzrA/oghY5nvdmQQUNFDyzJzS2+rmM/q/BbRz4oR1P35rSonjdxe8DKXqIZkDIU2w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=YeCTy7OQ; arc=none smtp.client-ip=209.85.160.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C0D835B632
+	for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 20:24:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.179
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785443088; cv=pass; b=RlTEGb7Gzy0G7EPfJ0Horp4JFTvtAUsBLrEV99Qgk9Gq4zTK/jauQ6hmb2fYVg5fBxB+YF6Bodky5Daoq3yMKWjgCVa4l8eKIkDCeSpgE/KbpklaMLhnodBbHp3PjgJ+K8rkLorNnP7N7hwBGngLD+E/gDIpey3Bx+nz+LP3taw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785443088; c=relaxed/simple;
+	bh=zjg05IjQ9d/nwUS7L+AhHLSH0onzGA8XK8yQCiNLpIg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=RJVRdsIBkYpGLNGlbGGNhe3eie82KJV2qExyqymShzCjs8n9M1BceTtJqUapjlgxP0KnxEFlvInkWVBqcBgwfupd2tZFQkpOfUb+1EL+hiV2iuz9465dbZqYQCYQrKDCuavacxnav2DyYYECCNqVUKVVgG0r/jE1Uex9ZvntHAg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=CjQAf7y0; arc=pass smtp.client-ip=209.85.214.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="YeCTy7OQ"
-Received: by mail-qt1-f180.google.com with SMTP id d75a77b69052e-51c01089e8aso1197361cf.2
-        for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 13:14:50 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="CjQAf7y0"
+Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2ceae1ed204so2752595ad.0
+        for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 13:24:42 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785443081; cv=none;
+        d=google.com; s=arc-20260327;
+        b=Mf9Y7DqQgj9yHHH18g9+hRjEn5Oq4ydqP9ZfhWndVvpW8fXXvabU5OtV8IU8xEGc2y
+         LNx6cktTMqJQbgpbxln2bLsFIWV8R2fktutMK0wVlAjGv21PsFlsvYKOlpS3IZv4u1Ym
+         K+BcWl6JhFfKG8u16Wo8Kea0RXrsOyFAg0ac1FC+TcfOWdJr5mtA1ZSDsC0zzAFsSxuQ
+         Pif1qy4WGMlxzu1YWG+98cLoWIAd1qvUg/ob9UNtpZgZt5CPwpGzEjINIaV6P96EQh8O
+         90R0hD8jjZIdk8QO6X7rCCrajlC7yIokgJrkeZQv34Vii3OdnwrZwZetWfl/DaHSUPyu
+         d8iQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=U6aPBpdB3jxdcLUgu9/FJ49H0AFBhM2ebJvHl6QhDAM=;
+        fh=gIapZp1KAmuSly6oKonmwSg8au0t4RyAw9vEyI5LWVU=;
+        b=MU18d7mO2HiCbktYVxMuvMTtjrA/a9ihYwHOsm4P7OJJ2Ht1UkhAOA2UXVnKykmDnk
+         2ITsF1/5y5zB+/UiawOowDPtB2mc/7zHFYE+Lbor9Zmy6phSkAKSCkULkKGr6/WEXGu5
+         0mZ3j1bMIUMWhjznPLstz6HPaziMU0bgAW3fuCdoWil/r1Yjy2cwgF6ewh0Ooenf0oIN
+         2T0Ku0jPSjyCa9WyE37SjU4IFzhHmnLXyZaoliOHDLHCo7tTARKPJsugqZDB2jbP+HZJ
+         pJ3CwiviWUIjHo2H0v9Cm4E5eEERB//9gczaw7Syh5p4pQql4y+PkbZm0lOnuNb6R/SJ
+         +kmQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1785442489; x=1786047289; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-type:mime-version:message-id:date:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=jNzYWcuApQUfPM28AwNebBubGci2ntfBO/GAHnoi8nc=;
-        b=YeCTy7OQMJznhFU/5UC+rAB1urv9eeCkTTqi3ZiY422RYDyxRfVIq0l27lLx6YK5SB
-         nPyoro37vUkGpTuxIem4gRamvsfOmQVkMkcnxRbu74jHcaFDzlV74khrofr5plXhj7IH
-         nQcpq5BsKqBpFaOmerVQ9dZHefOZlfEXVTXEY1g/KMqs/GXACUkvSvq1jBAhu7136kIN
-         3cNhxVJD2CvNm5tcENiAbonfZOXycKc6232IabJyb1dhvpdTV+bfuXTGB1XhUsKdCcBm
-         tXpAzpdex0TqttjT6V1S9V6MBfs1X+4RNWbRhVbWQT7RDKwK1DkxpvAZp7yZGilJJP1h
-         8reg==
+        d=paul-moore.com; s=google; t=1785443081; x=1786047881; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=U6aPBpdB3jxdcLUgu9/FJ49H0AFBhM2ebJvHl6QhDAM=;
+        b=CjQAf7y0T9VuwE5qWX4nWqVN+98/JuA0s3wDNVNfHrO4BTQ263yJIA2n83RZY/+E5x
+         EUnkW9kYfENFcp2Bf9YxyafhxerFlmMMv83fEwTme9ln6T7OsVVL4Q1EWK/5U3JAwz/V
+         y0204iKwe0dFl72FkGQrNgN6dkIkbQmYUcUKFVuO99q4c+aViU5QZmkENY7tbsuQhJQr
+         6CSNl20NCowJTNJC2rTe6HBrbo1Osp7SoJa84TLBo19yos0PvxHPMHjuWEEKJCI30wfj
+         MalY8U1+wq/s+HPmoVXAnxtlo6H2T3mIdfGO67DFb+UcBlDl1F+abjnCRoLNDN/OSvGy
+         Tkbw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785442489; x=1786047289;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-type:mime-version:message-id:date:x-gm-gg
+        d=1e100.net; s=20251104; t=1785443081; x=1786047881;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=jNzYWcuApQUfPM28AwNebBubGci2ntfBO/GAHnoi8nc=;
-        b=AAY1NXRNUY/HFpwXj0fJibTO5EOeXlH7fms1KoInqV1lIWbwnEiqleD2cLY5tsNK9Q
-         X6CSMuMMRRnTV01aliQLPJXM39UY6ik//DhomWS7RtZKopPyS/txO1FQ5EeQsMm4wd1m
-         idE4pq2ZIldPGbxLTgf9nspadqFZt8/0w3KEgVmnEXxOz48svYssNaN133KkBsaNFRCo
-         tffNSNiSLi0A5AXvT7gPvFrmfNulGP1y47tOfmkwZaK8uPMsibGnc9hCU74gIHOa4KWj
-         oE1NFD1+OEhPSoRrVFRi0XQ7ALk0ZEo4N3iiCbjFhCWODeeAqGvex3ESCIvfivHFcfsH
-         DTaw==
-X-Forwarded-Encrypted: i=1; AHgh+RpE1er6IAVBz/LQLkfV6HNYvQrVHRWi843a8CiAbBM0Mwm60stTuQCx1h5HD8tCoZy+qY7n75Vu@vger.kernel.org
-X-Gm-Message-State: AOJu0YzqavuYg+5hfGupB3kGAi2v8nyaBBOKw2BWHmUxxn16N8VB6FcB
-	PueC0YuMXOvm9rTqYuW9HqNj1tjqsch0bbcTqFYf8W70IcuoRJBTr4uEGbPnTt419Q==
-X-Gm-Gg: AR+sD13ZxSk0Gkt4CbZNROfudc/LM7u5Kf87qD+KXykUZXizBcjVqK+EQMdY7u99sZu
-	OHkJ3T4YMDoGyf4gCWkG7eOoqKn8V+AwIwTheiITA76wc8c2dZ1DayPLBoOAv/AcpWYOcR39J8T
-	2t4/kfLGYIdxv67NuKMiVj4sHjt0HWBiY557/p3IgoJK4U/Fb4S5pTrF0MgCsm1w3PzQMLgrBGQ
-	+IJ8dDWStlQfZlTSgZkZ0s0+tEoU3q7dU8jHV9ub7Qucn76c6iZfSlILycLPHFM3xJS+DLJsrCi
-	gbb6BpQhitY/EU5h9hDiNSIYzORwNHAjvT4UhFVljnRxoeFJkjtr0AL9wtfqo3BtEU1xAf8qNqA
-	+ZYgzk2qsrXTeMv2hsUGCj4l+LFlWQMZzxaBAf9cSzJbdoVefWcPb0eP4PWlIyIDWf9hVF1S0Jg
-	8wpqj2IoMOEavJIece3D7LtJA73F815k5yddrXwvJQYYHhqEj9rf8pxcxaoutFwkFd1+O+Ddpd2
-	3u5RQaCsUDHoUqTs6a4HzwArqt1bcDsxg==
-X-Received: by 2002:a05:622a:5c1b:b0:51c:12bf:d4a6 with SMTP id d75a77b69052e-52b38661f9dmr44260311cf.48.1785442489527;
-        Thu, 30 Jul 2026 13:14:49 -0700 (PDT)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-529e2d826fbsm47640891cf.14.2026.07.30.13.14.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Jul 2026 13:14:48 -0700 (PDT)
-Date: Thu, 30 Jul 2026 16:14:48 -0400
-Message-ID: <0e717a3fd2a6e59b91aa4d15efde7caf@paul-moore.com>
+        bh=U6aPBpdB3jxdcLUgu9/FJ49H0AFBhM2ebJvHl6QhDAM=;
+        b=SrZqEp/PUI4MJ7+nvhP6gGMa3yU9kDevyNTCRjtDiIsyv7Zgx+tjNxCOEhfn8/dmjh
+         v9xYo8WbaOMp75Vy+MnPGqLtSBhYG9cAafmiyYGZ9cihPSAEKBWxdaWfhMB8dGvgorA2
+         ij/BMwRTTxV9MisdGkQly9yqx7ZBfSmooxgTnV4rWBixcgYNyrsDke9eGvlYguOjSJaA
+         jn4YQMZginOYSqZnR/dYyaRuhc+Kk4+OwLkO65IqSuJWtUO0EP8sBjdaXMxhC89dbEAg
+         1StNfOyVZ2SCCCA6iLU5XFoiuLqFGroddOZnoSG+BOOn3e2T6lpZ67ERhQSijkSfouMA
+         xl2w==
+X-Forwarded-Encrypted: i=1; AHgh+RrWT9tXKr69XEInd1+P6NUkmzDCAa/6dItp6tliYbMyX6SgdqUQSDcc05Z3yuV9tMWD3Uk2Gsqy@vger.kernel.org
+X-Gm-Message-State: AOJu0YxfxXgm9vcBnO5bxPkjBRFyxQpKr6PcIbUsiNMmaqYPukxzvOYd
+	4C9t0Bolp79UJLlSvnx3X89lWXZB3JRUG8/t5Srlx8VZ8qa2b9J1n+yAGdl6j0U3XzwaVKZF9TI
+	Le2FSRva5bvQQiUDF9VBN6EvI56df4S4dlYj0Tbmg
+X-Gm-Gg: AR+sD11nnok5VsjJgzdUfQONp+5vGowAnbfL7mXlm63LZJ5wDQvAcu87p0M/xmwil8d
+	QWb4+wXqR21png57ZhLYfh8SnW7+Rk3s13PSqpQC0ui6RRsz0xHz3ULD3Oz5sUW3JaZwq7pC/2R
+	9W6mryPhjZmbWxTqP1CskRp1gQEa3oEOE6Zs7BiOJ/j9Gr5JjDRv5jVBUKK3Wn6RceGm+8qrkLB
+	SGoXQ46w1oZYag/UncHkz3ADJVc/f8Dc6qT4OWsseMNlF5j9MtsnNjRHuUIP4qr4dudBy+EwC/S
+	QQdYbEcM6VFTJf5EkaFj45/qPt2Pbp3/vSkS2ZIjNZY5
+X-Received: by 2002:a17:902:ea0c:b0:2c2:cf20:213 with SMTP id
+ d9443c01a7336-2d035ca49f3mr33283765ad.29.1785443080906; Thu, 30 Jul 2026
+ 13:24:40 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=UTF-8 
-Content-Transfer-Encoding: 8bit 
-X-Mailer: pstg-pwork:20260729_1758/pstg-lib:20260730_1437/pstg-pwork:20260729_1758
+MIME-Version: 1.0
+References: <20260727-b4-disp-eed1276a-v2-0-82d58cf5f882@proton.me>
+ <20260727-b4-disp-eed1276a-v2-2-82d58cf5f882@proton.me> <CAEjxPJ4X_p6Qpebe9cV=eruOVM2HXHMDWsWJpQA3QoBc+W1kXA@mail.gmail.com>
+ <20260728174158.70827-1-hexlabsecurity@proton.me>
+In-Reply-To: <20260728174158.70827-1-hexlabsecurity@proton.me>
 From: Paul Moore <paul@paul-moore.com>
-To: Bryam Vargas <hexlabsecurity@proton.me>, Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Kees Cook <kees@kernel.org>, Ondrej Mosnacek <omosnace@redhat.com>, =?utf-8?q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>, selinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 2/2] selinux: reject a class permission count below its  inherited common
-References: <20260727-b4-disp-eed1276a-v2-2-82d58cf5f882@proton.me>
-In-Reply-To: <20260727-b4-disp-eed1276a-v2-2-82d58cf5f882@proton.me>
+Date: Thu, 30 Jul 2026 16:24:27 -0400
+X-Gm-Features: AUfX_myUj78KlwKVSPxO4zXMnrlwPg287sCG9tloNK3eQEvTe-Du-r25hOyKwls
+Message-ID: <CAHC9VhRt96xoRi9EcmU9cvBUiCJfrG=FBZPz92JyKmvQvesgvQ@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] selinux: reject a class permission count below its
+ inherited common
+To: Bryam Vargas <hexlabsecurity@proton.me>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	=?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>, 
+	Kees Cook <kees@kernel.org>, selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Jul 27, 2026 Bryam Vargas <hexlabsecurity@proton.me> wrote:
-> 
-> security_get_permissions() maps an inherited common's permissions into
-> an array sized by the class's own permissions.nprim, but class_read()
-> takes that nprim verbatim from the policy image and never checks that it
-> covers the common.  A class that inherits a common of N permissions while
-> declaring a smaller nprim is accepted, and on load the common's
-> permissions are written past the class-sized array -- an out-of-bounds
-> heap write.
-> 
-> Reject a class whose permission count is below its inherited common's.
-> Well-formed policies, where the class count already includes the
-> inherited permissions, are unaffected.
-> 
-> Fixes: 55fcf09b3fe4 ("selinux: add support for querying object classes and permissions from the running policy")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
->  security/selinux/ss/policydb.c | 12 ++++++++++++
->  1 file changed, 12 insertions(+)
+On Tue, Jul 28, 2026 at 1:42=E2=80=AFPM Bryam Vargas <hexlabsecurity@proton=
+.me> wrote:
+> On Tue, 28 Jul 2026 10:43:39 -0400, Stephen Smalley wrote:
+> > Sashiko again made some interesting observations but not about your pat=
+ch per se,
+> > https://lore.kernel.org/selinux/20260728014625.C7A391F000E9@smtp.kernel=
+.org/T/#u
+>
+> The first one reproduces. security_get_permissions() sizes the array by t=
+he
+> class's permissions.nprim and fills it by value, so any index no perm dat=
+um
+> claims stays NULL, and sel_make_perm_files() passes every entry to
+> sel_attach_file() -> d_alloc_name() -> hashlen_string(). One u32 in the p=
+olicy
+> image is enough: on the policy I tested, class process has nel =3D=3D npr=
+im =3D=3D 31
+> and inherits no common, so raising its nprim to 39 leaves slots 31..38
+> unwritten.
+>
+>   BUG: kernel NULL pointer dereference, address: 0000000000000000
+>   RIP: 0010:hashlen_string+0xa/0xc0
+>   Call Trace:
+>    d_alloc_name+0x61/0xa0
+>    sel_make_policy_nodes+0xb35/0x1310
+>    sel_write_load+0x2a5/0x490
+>
+> load_unaligned_zeropad() doesn't absorb it: ex_handler_zeropad() rounds t=
+he
+> address down and bails unless fault_addr =3D=3D addr + sizeof(long), so a=
+ NULL
+> base takes the ordinary fault.
+>
+> It doesn't stop at the loading task. sel_make_policy_nodes() runs under
+> selinux_state.policy_mutex and the only unlock is the out_unlock label th=
+e
+> oops never reaches, so every later load blocks in D state; SIGKILL doesn'=
+t
+> clear it and only a reboot recovers. Under panic_on_oops it is a panic at
+> step one.
+>
+> The second observation is real as stated: get_permissions_callback() does
+> overwrite perms[value - 1], and the cleanup loop walks i < nperms freeing
+> whichever pointer survived, so the first kstrdup() leaks. What makes it w=
+orth
+> more than its severity is that it also defeats the obvious fix for the fi=
+rst
+> one. Requiring the counts to add up -- nel plus the inherited nprim equal=
+s
+> permissions.nprim -- doesn't close the gap, because symtab_insert() hashe=
+s
+> and compares the name only, so two perms may carry the same value: the co=
+unt
+> still matches and one slot is still never written. The property that hold=
+s is
+> that the values present are exactly {1..nprim}, onto and injective, where=
+ the
+> two patches on the list establish only "into".
+>
+> The classes side has the same shape: get_classes_callback() also writes a=
+t
+> value - 1, and sel_make_classes() passes classes[i] to sel_make_dir(). By
+> inspection; I have not reproduced that one.
+>
+> Policy crafter and the full log on request.
 
-Merged into selinux/stable-7.2, thanks!
+Thanks for looking into this, Bryam.  Are you interested in working on
+a patchset to fix these issues?  We could always use the help :)
 
---
+--=20
 paul-moore.com
