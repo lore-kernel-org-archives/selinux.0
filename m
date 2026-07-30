@@ -1,137 +1,590 @@
-Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com [209.85.167.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7545242A14D
-	for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 12:25:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.47
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785414339; cv=pass; b=VmHGYXT29LtB17q8lVbENs1+EsDIe6HHXfhm5UqLwGZtxZGjv6jfucNsStsHH+Fuf2dzQuhqUzwtCli52ARdBavxixnmyZVfnZSK3gU2jj2WlM9/wRlSZu9qLY+EAxDi+0j1HofRwyWNSGhjdgdWOIUNckKqbYNSCT6r9LcgAwU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785414339; c=relaxed/simple;
-	bh=+u4PSXWnQMBc6V1mLArUtNrtp9pcRIebquopTbBtvt8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=aiAoootk69nUsgqgu4e6PfBQedk8Y0y06eAq0Lx8lIqhhFJFS86BOFgfOVxK58kXFs53UhTojQXeG9TZEWcjQ9ncY8KZSPCj4q+9MdNolVMv9W801wTuiRTq09/pCEX7DZKPwZEeQTNAbYOAjOp9WpFyaKPHYmnNAgQHuG9r328=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FGqwHmvZ; arc=pass smtp.client-ip=209.85.167.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46A041643B
+	for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 12:42:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785415381; cv=none; b=LtVqi+B8ptvGJmcPNyICt7NiIMhanbuUqaSsWVolsmC/c+qh6PYJXXI+PouEKoIDWTQc/KgkNFULjWpbIw5263FQPbvW4wCFs0qJaPqAL6OHW1uebCdNJOq06wdbfHPW/PURuVwhoyZ4KYfF3CJCudZ//qPm6TmKo9v64KccAC8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785415381; c=relaxed/simple;
+	bh=xMWhgcPT3kvZpk6AY+UyEbhwP6pGLxGus03D7BK9Dog=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=A9E70XEKt8JluAtsR03ztztvMAVIh9UsEBiOBZ325NpjBRls2IPXIwaFzR2R14ojj+4B32opguiuglqAiRnPmwZHHF3TZWV9ZFCUqhF6k0xjGhZlgjUz4Z9skscDSvy++PvkanAhsYrQ4kSG0aVKE+Oj4ZuEbNT3RORhaaNRt/I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DVE56CB+; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FGqwHmvZ"
-Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-5b015b2d792so2079398e87.3
-        for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 05:25:36 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785414335; cv=none;
-        d=google.com; s=arc-20260327;
-        b=atlICxGoe9FIMtgIbA2fN69famiHvD+CjgyNonWUDqQOxWYAl3VxTs6J2JNJn8mu0Y
-         owQqa2Z2/StKCRCUaB+dW0ng/VtMIaje1mtMs97Uyz1uHGcrNYPs4hW0ui9m9TxnFPXY
-         j7NE+U2KrnmqsSTFiN7SjnCcN0oZa76u8kcEChPUmLckWirA2z4+moZyWOMozmEEsKLm
-         9tOcfa1MGZTUiZlJM+tJQa86MUcUDGMjBzGP+r2i2GcZSgj2BnS71jM0uYkTHEzNkLkg
-         p7uNCLqz5qZ86H7sVEVVp4n8eJydr56eP35yhm5h+6YACdHqDCij4YJti0oWM8Gdk1Ws
-         oeZg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=+iG5mkPVpw70TtFs9lDAi95WI0NF2OO96DIxssEyE1g=;
-        fh=nOcPTm+jzSpUJDDJhvsoEQt/GcMQFmPB1BDsWNtwPZ8=;
-        b=mkRCvEzmr+vNTAR6sMct6lM87FGRSunAVQcnoIHsnbXcp/G1RoeLEmDFMlCHQdOQyC
-         Zs3yRbJ4mWoar+zQbisTEwpZHC0hb1pp8/4MLiVVgfrKB38BXskwTNe+KTsZUm+YAUoa
-         osbBk74cgotuQ71cyUujgU+ehCyTfWYhHnop4Mm2ucMRz1Zl1mMYSsZ1hHDNtvJ1B4hu
-         qwz9jV2lgGcHowzKXjnXbYZQq4CwI2VMiPIKeJpmnVcRrF6q2P3t6uCOHnW48NCJuZRp
-         fLoQsHXxX1DDz0Ek72rPOJ7fPTHCvMRIwLxSU26iHWKvFWCZKdU6axO2OtpeIQG+iwMX
-         pR7w==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785414335; x=1786019135; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=+iG5mkPVpw70TtFs9lDAi95WI0NF2OO96DIxssEyE1g=;
-        b=FGqwHmvZH1LkyXLQanSJmz1cc5w2ULfB0ktAbRArD0WfE645w2BEDhdp3/v2miSehF
-         ZEOFOvqqp5cbCG5iLNYzrw8HPIpqO5AblOwiiE754wxkWSdEG0UtlNXu0y84u/KTAbfi
-         pyoEB2UGV7iL5ZZmNRy3RZM9IyhzaSwHk/inmOuoILNEiRT0orNM3OkFMlnUROjSasjg
-         G88keUKBlc8d9CRrwuMCWS9UIdyoMSR2Q7engVvLlkXJVA4NA7D+oYEWMyHbFv4hXv1e
-         JKWXXEt44dTCWDGlUITQ33h/NdWpXbpDkbnW2C9U3MKvCi0+uq96BR0Q2g5TaMmYQ2GX
-         /Cjg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785414335; x=1786019135;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=+iG5mkPVpw70TtFs9lDAi95WI0NF2OO96DIxssEyE1g=;
-        b=qo7xT5M7PLXw6bUL0dBY5G6ut6bKq8A7lFGBMIVxr1nMdBeWn3wZf2oeSpUPDywinR
-         L3ZIEZxyMDER6tgNV4kBTQi2xBJ7uFKKUE67E7hU1gF8La5T9ZnmIA6aDMkvEwky7cFj
-         GBg/eMvqa8ZPOQd6Uc+R6h4OTJ3F+ok2KdpWARMy+J8it5Kymzaiffn2bksyV3qDHwdM
-         2vjnPHI/jbY4QhAwx96bnDt79LKUa8MrFM3myFWF/ESKGurT/Q1dst1sPhAeK8HlMOCX
-         uTGq4k6bEiXcMGX4CyVnX4FPCwO14cxZL6YyM9pIT1uLaqFUUGjDvFTizpG7c1UXlGAs
-         VN8Q==
-X-Gm-Message-State: AOJu0YxsF/AYSZaOaEAtasweNJIJRcdh39xjFkc9872znI1kwczfKagq
-	LL+4vZ4ioysYwG2+nmM3joDi9c/mtkrMPyIhfxtETFHLrN0GXecMGDvv4aZMzK/G4db1qcY1GM+
-	q0UkZmPCkHtxeTFmdtWjeiuLRhVGKVSE=
-X-Gm-Gg: AR+sD12+xoAh6FiTLLvkwBydOrXgtH0awoAOwwpcbJa9sIMGI4y7qR4VqNEsKe8NzYS
-	YapvBwCnrZJdxDa04yIfR2En0gR6G9kTsPa1gjgp7+z0Kqunsp8Va6QISFvRlCLBOZLsKMYJrmi
-	kpZ5/jGVfGEN+d/AHYf5zBkWsnu8yzjXBnGDrHMdR0k6QPA/tpgp0VrQeb0Pje3vuBwoiNqxDwU
-	IKnQrXRwvrqF8jsQyqruxEnBusnuC6foxKHnn6CYwUYzmORDQ0el8nL++pAdlfGcM5rBVNIdtqn
-	yolHSVbwIDoMLBm45ecXyjChGT1QzQnBCUZWKjIj3Q==
-X-Received: by 2002:a05:6512:669a:10b0:5b1:568d:971 with SMTP id
- 2adb3069b0e04-5b2db37f0a3mr292396e87.49.1785414334882; Thu, 30 Jul 2026
- 05:25:34 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DVE56CB+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1785415378;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=0iXZAo5NgDdckQMxBHenlr7jlIpTsEIDEd1IZbRmCL0=;
+	b=DVE56CB+kZ0TEAuWQ4Ri8eqeVbE5dSf2BPG4M12AchkeqgX8n5ReTi22vPdah20zFjWP/P
+	8RokbXNFlTeQ9lVzIsxAa3UmXYghLuefVyTGakvTi+HFcOVOd9XQ9HangrcCz0QqTtOjt2
+	vgqbNmaw01bLRBqx+mKAGA7vIROStUU=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-626-BVBZcp2GNZq_Fx8-7fggKA-1; Thu,
+ 30 Jul 2026 08:42:56 -0400
+X-MC-Unique: BVBZcp2GNZq_Fx8-7fggKA-1
+X-Mimecast-MFC-AGG-ID: BVBZcp2GNZq_Fx8-7fggKA_1785415376
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E0BCC1944D31
+	for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 12:42:55 +0000 (UTC)
+Received: from akkohli-thinkpadt14sgen2i.rmtde.csb (unknown [10.44.33.215])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 3ACAC180049F
+	for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 12:42:54 +0000 (UTC)
+From: Akhil Kohli <akkohli@redhat.com>
+To: selinux@vger.kernel.org
+Subject: [PATCH] semodule-utils: add bad-data tests for link/expand neverallow
+Date: Thu, 30 Jul 2026 14:42:51 +0200
+Message-ID: <20260730124253.3282686-1-akkohli@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260729193713.23187-1-jwcart2@gmail.com> <CAEjxPJ6J=ArpCwLAaCed7Gn2K4nDJODLcSwZ5orJT7zw4HyiQg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6J=ArpCwLAaCed7Gn2K4nDJODLcSwZ5orJT7zw4HyiQg@mail.gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Thu, 30 Jul 2026 08:25:22 -0400
-X-Gm-Features: AUfX_mx3KIbsCUWoVLuQsub-tSJ12RhUsykwqrhfzkG8G_UMGMxZtGhXLMswCP0
-Message-ID: <CAP+JOzSQibGghmGu8bDdxXiGO5zR9DXW2nLZNwUc594tCvVD0A@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: Turn assert into error in type_set_expand()
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-On Wed, Jul 29, 2026 at 4:00=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Wed, Jul 29, 2026 at 3:37=E2=80=AFPM James Carter <jwcart2@gmail.com> =
-wrote:
-> >
-> > The assertion in function type_set_expand() can only be violated by
-> > a malformed policy. Since it is called before the policy has been
-> > validated just return an error.
-> >
-> > Signed-off-by: James Carter <jwcart2@gmail.com>
-> > ---
-> >  libsepol/src/expand.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-> > index 8d7fe519..19b5fdcc 100644
-> > --- a/libsepol/src/expand.c
-> > +++ b/libsepol/src/expand.c
-> > @@ -2827,8 +2827,8 @@ int type_set_expand(type_set_t *set, ebitmap_t *t=
-, policydb_t *p,
-> >                 for (i =3D 0; i < p->p_types.nprim; i++) {
-> >                         if (p->type_val_to_struct[i] &&
-> >                             p->type_val_to_struct[i]->flavor =3D=3D TYP=
-E_ATTRIB) {
-> > -                               assert(!ebitmap_get_bit(t, i));
-> > -                               continue;
-> > +                               if (ebitmap_get_bit(t, i))
-> > +                                       goto err_neg;
->
-> Why did you drop the continue; in the non-error path?
+Add link/expand bad-data tests for neverallow and neverallowxperm
+enforcement at semodule_expand: cross-module base violations, same-module
+neverallow conflicts, and checkmodule deferral document tests.
 
-That was a mistake. I'll send out a correction.
-Jim
+Adapt same-module neverallowxperm for libsepol 3.11 (enforced at expand)
+while still passing on older userspace where enforcement is deferred.
+Refactor link/expand helpers through run_link_expand().
 
->
-> >                         }
-> >                         if (ebitmap_get_bit(t, i)) {
-> >                                 if (ebitmap_set_bit(t, i, 0))
-> > --
-> > 2.55.0
-> >
+Add a cross-module require test: link rejects a consumer module when a
+required type is only declared in a separate provider module.
+
+Signed-off-by: Akhil Kohli <akkohli@redhat.com>
+---
+ .../bad-data/fixtures/base/minimal_base.conf  |  15 +
+ .../bad-data/fixtures/modules/module_a.te     |   8 +
+ .../bad-data/fixtures/modules/module_b.te     |   8 +
+ .../fixtures/modules/neverallow_good.te       |   8 +
+ .../fixtures/modules/neverallow_self.te       |  10 +
+ .../fixtures/modules/neverallow_violator.te   |   8 +
+ .../fixtures/modules/neverallow_xperm_self.te |  11 +
+ .../modules/neverallow_xperm_violator.te      |   9 +
+ semodule-utils/tests/bad-data/run.sh          | 342 +++++++++++++++++-
+ 9 files changed, 414 insertions(+), 5 deletions(-)
+ create mode 100644 semodule-utils/tests/bad-data/fixtures/base/minimal_base.conf
+ create mode 100644 semodule-utils/tests/bad-data/fixtures/modules/module_a.te
+ create mode 100644 semodule-utils/tests/bad-data/fixtures/modules/module_b.te
+ create mode 100644 semodule-utils/tests/bad-data/fixtures/modules/neverallow_good.te
+ create mode 100644 semodule-utils/tests/bad-data/fixtures/modules/neverallow_self.te
+ create mode 100644 semodule-utils/tests/bad-data/fixtures/modules/neverallow_violator.te
+ create mode 100644 semodule-utils/tests/bad-data/fixtures/modules/neverallow_xperm_self.te
+ create mode 100644 semodule-utils/tests/bad-data/fixtures/modules/neverallow_xperm_violator.te
+
+diff --git a/semodule-utils/tests/bad-data/fixtures/base/minimal_base.conf b/semodule-utils/tests/bad-data/fixtures/base/minimal_base.conf
+new file mode 100644
+index 00000000..4e058c77
+--- /dev/null
++++ b/semodule-utils/tests/bad-data/fixtures/base/minimal_base.conf
+@@ -0,0 +1,15 @@
++# Base .conf: bare class declaration, then permission block (checkmodule requires both).
++class file
++sid kernel
++class file { read write ioctl }
++
++type base_t;
++
++allow base_t base_t : file read;
++neverallow base_t base_t : file write;
++neverallowxperm base_t base_t : file ioctl 0x1000;
++
++role object_r;
++role object_r types { base_t };
++user user_u roles { object_r };
++sid kernel user_u:object_r:base_t
+diff --git a/semodule-utils/tests/bad-data/fixtures/modules/module_a.te b/semodule-utils/tests/bad-data/fixtures/modules/module_a.te
+new file mode 100644
+index 00000000..04d16238
+--- /dev/null
++++ b/semodule-utils/tests/bad-data/fixtures/modules/module_a.te
+@@ -0,0 +1,8 @@
++module module_a 1.0;
++
++require {
++	type other_t;
++	class file { read };
++}
++
++allow other_t other_t : file read;
+diff --git a/semodule-utils/tests/bad-data/fixtures/modules/module_b.te b/semodule-utils/tests/bad-data/fixtures/modules/module_b.te
+new file mode 100644
+index 00000000..2b8caed7
+--- /dev/null
++++ b/semodule-utils/tests/bad-data/fixtures/modules/module_b.te
+@@ -0,0 +1,8 @@
++module module_b 1.0;
++
++require {
++	class file { read };
++}
++
++type other_t;
++allow other_t other_t : file read;
+diff --git a/semodule-utils/tests/bad-data/fixtures/modules/neverallow_good.te b/semodule-utils/tests/bad-data/fixtures/modules/neverallow_good.te
+new file mode 100644
+index 00000000..f9850b8b
+--- /dev/null
++++ b/semodule-utils/tests/bad-data/fixtures/modules/neverallow_good.te
+@@ -0,0 +1,8 @@
++module neverallow_good 1.0;
++
++require {
++	type base_t;
++	class file { read };
++}
++
++allow base_t base_t : file read;
+diff --git a/semodule-utils/tests/bad-data/fixtures/modules/neverallow_self.te b/semodule-utils/tests/bad-data/fixtures/modules/neverallow_self.te
+new file mode 100644
+index 00000000..255fb391
+--- /dev/null
++++ b/semodule-utils/tests/bad-data/fixtures/modules/neverallow_self.te
+@@ -0,0 +1,10 @@
++module neverallow_self 1.0;
++
++require {
++	class file { read write };
++}
++
++type foo_t;
++
++allow foo_t foo_t : file { read write };
++neverallow foo_t foo_t : file write;
+diff --git a/semodule-utils/tests/bad-data/fixtures/modules/neverallow_violator.te b/semodule-utils/tests/bad-data/fixtures/modules/neverallow_violator.te
+new file mode 100644
+index 00000000..fb8aade4
+--- /dev/null
++++ b/semodule-utils/tests/bad-data/fixtures/modules/neverallow_violator.te
+@@ -0,0 +1,8 @@
++module neverallow_violator 1.0;
++
++require {
++	type base_t;
++	class file { read write };
++}
++
++allow base_t base_t : file write;
+diff --git a/semodule-utils/tests/bad-data/fixtures/modules/neverallow_xperm_self.te b/semodule-utils/tests/bad-data/fixtures/modules/neverallow_xperm_self.te
+new file mode 100644
+index 00000000..965f86af
+--- /dev/null
++++ b/semodule-utils/tests/bad-data/fixtures/modules/neverallow_xperm_self.te
+@@ -0,0 +1,11 @@
++module neverallow_xperm_self 1.0;
++
++require {
++	class file { read write ioctl };
++}
++
++type foo_t;
++
++allow foo_t foo_t : file ioctl;
++allowxperm foo_t foo_t : file ioctl 0x2000;
++neverallowxperm foo_t foo_t : file ioctl 0x2000;
+diff --git a/semodule-utils/tests/bad-data/fixtures/modules/neverallow_xperm_violator.te b/semodule-utils/tests/bad-data/fixtures/modules/neverallow_xperm_violator.te
+new file mode 100644
+index 00000000..7dbf889f
+--- /dev/null
++++ b/semodule-utils/tests/bad-data/fixtures/modules/neverallow_xperm_violator.te
+@@ -0,0 +1,9 @@
++module neverallow_xperm_violator 1.0;
++
++require {
++	type base_t;
++	class file { read write ioctl };
++}
++
++allow base_t base_t : file ioctl;
++allowxperm base_t base_t : file ioctl 0x1000;
+diff --git a/semodule-utils/tests/bad-data/run.sh b/semodule-utils/tests/bad-data/run.sh
+index 1c7d8f51..d3f89691 100755
+--- a/semodule-utils/tests/bad-data/run.sh
++++ b/semodule-utils/tests/bad-data/run.sh
+@@ -1,10 +1,11 @@
+ #!/bin/sh
+ #
+-# Bad-data tests for semodule_package and sefcontext_compile in the modular
+-# policy packaging pipeline. Covers packaging path edge cases (-m/-f), documents
+-# deferred rejection of bad .mod.fc content at packaging time, and validates
+-# labeling through sefcontext_compile. Unreadable -m/-f cases skip when run as
+-# root; CI runs this script as non-root.
++# Bad-data tests for semodule_package, sefcontext_compile, and
++# semodule_link/semodule_expand in the modular policy packaging pipeline.
++# Covers packaging path edge cases (-m/-f), documents deferred rejection of bad
++# .mod.fc content at packaging time, validates labeling through sefcontext_compile,
++# and exercises neverallow enforcement at link/expand. Unreadable -m/-f cases skip
++# when run as root; CI runs this script as non-root.
+ #
+ 
+ set -u
+@@ -32,6 +33,8 @@ CHECKMODULE_MOD_FLAGS=${CHECKMODULE_MOD_FLAGS:--M -m}
+ SEMODULE_PACKAGE=${SEMODULE_PACKAGE:-semodule_package}
+ SEMODULE_UNPACKAGE=${SEMODULE_UNPACKAGE:-semodule_unpackage}
+ SEFCONTEXT_COMPILE=${SEFCONTEXT_COMPILE:-sefcontext_compile}
++SEMODULE_LINK=${SEMODULE_LINK:-semodule_link}
++SEMODULE_EXPAND=${SEMODULE_EXPAND:-semodule_expand}
+ 
+ GOOD_TE="${FIXTURES}/modules/good.te"
+ GOOD_MOD="${OUTDIR}/test_good.mod"
+@@ -408,6 +411,229 @@ expect_sefcontext_pass_deferred() {
+ 	pass "${desc} (sefcontext_compile exit 0; complements packaging deferral)"
+ }
+ 
++build_loadable_package() {
++	te="$1"
++	mod="$2"
++	pp="$3"
++
++	set +e
++	# Non-MLS modular build to match fixtures/base/minimal_base.conf.
++	"${CHECKMODULE}" -m -o "${mod}" "${te}" 2>"${mod}.err"
++	rc=$?
++	set -e
++	if [ "${rc}" -ne 0 ]; then
++		echo "FAIL: checkmodule could not build ${te}" >&2
++		cat "${mod}.err" >&2
++		exit 1
++	fi
++
++	set +e
++	"${SEMODULE_PACKAGE}" -o "${pp}" -m "${mod}" 2>"${pp}.err"
++	rc=$?
++	set -e
++	if [ "${rc}" -ne 0 ]; then
++		echo "FAIL: semodule_package could not build ${pp}" >&2
++		cat "${pp}.err" >&2
++		exit 1
++	fi
++}
++
++expect_checkmodule_pass() {
++	desc="$1"
++	te="$2"
++	mod="${OUTDIR}/$(basename "${te}" .te).mod"
++
++	echo "==== DOCUMENT (checkmodule accepts module; enforcement deferred to expand): ${desc}"
++	rm -f "${mod}" "${mod}.err"
++
++	set +e
++	"${CHECKMODULE}" -m -o "${mod}" "${te}" 2>"${mod}.err"
++	rc=$?
++	set -e
++	if [ "${rc}" -ne 0 ]; then
++		cat "${mod}.err" >&2
++		die "${desc}: expected checkmodule success, got rc=${rc}"
++		return 0
++	fi
++	if [ ! -s "${mod}" ]; then
++		die "${desc}: expected non-empty ${mod}"
++		return 0
++	fi
++
++	pass "${desc} (checkmodule exit 0, .mod created)"
++}
++
++# Sets LINK_EXPAND_LINK_RC and LINK_EXPAND_EXPAND_RC (-1 if expand not run).
++run_link_expand() {
++	link_out="$1"
++	expand_out="$2"
++	base_pp="$3"
++	shift 3
++
++	rm -f "${link_out}" "${expand_out}" "${link_out}.err" "${expand_out}.err"
++
++	set +e
++	"${SEMODULE_LINK}" -o "${link_out}" "${base_pp}" "$@" \
++		2>"${link_out}.err"
++	LINK_EXPAND_LINK_RC=$?
++	set -e
++	if [ "${LINK_EXPAND_LINK_RC}" -ne 0 ]; then
++		cat "${link_out}.err" >&2
++		LINK_EXPAND_EXPAND_RC=-1
++		return 0
++	fi
++
++	set +e
++	"${SEMODULE_EXPAND}" "${link_out}" "${expand_out}" \
++		2>"${expand_out}.err"
++	LINK_EXPAND_EXPAND_RC=$?
++	set -e
++	if [ "${LINK_EXPAND_EXPAND_RC}" -ne 0 ]; then
++		cat "${expand_out}.err" >&2
++	fi
++}
++
++expect_link_expand_pass() {
++	desc="$1"
++	link_out="$2"
++	expand_out="$3"
++	base_pp="$4"
++	shift 4
++
++	echo "==== POSITIVE (expect link + expand success): ${desc}"
++	run_link_expand "${link_out}" "${expand_out}" "${base_pp}" "$@"
++	if [ "${LINK_EXPAND_LINK_RC}" -ne 0 ]; then
++		die "${desc}: semodule_link failed, rc=${LINK_EXPAND_LINK_RC}"
++		return 0
++	fi
++	if [ "${LINK_EXPAND_EXPAND_RC}" -ne 0 ]; then
++		die "${desc}: semodule_expand failed, rc=${LINK_EXPAND_EXPAND_RC}"
++		return 0
++	fi
++	if [ ! -s "${expand_out}" ]; then
++		die "${desc}: expected non-empty ${expand_out}"
++		return 0
++	fi
++
++	pass "${desc} (link and expand succeeded)"
++}
++
++expect_link_expand_fail() {
++	desc="$1"
++	pattern="$2"
++	link_out="$3"
++	expand_out="$4"
++	base_pp="$5"
++	shift 5
++
++	echo "==== NEGATIVE (expect neverallow failure at expand): ${desc}"
++	run_link_expand "${link_out}" "${expand_out}" "${base_pp}" "$@"
++	if [ "${LINK_EXPAND_LINK_RC}" -ne 0 ]; then
++		die "${desc}: expected semodule_link success before expand, rc=${LINK_EXPAND_LINK_RC}"
++		return 0
++	fi
++	if [ "${LINK_EXPAND_EXPAND_RC}" -eq 0 ]; then
++		die "${desc}: expected semodule_expand failure, got rc=0"
++		return 0
++	fi
++	if ! grep -Eq "${pattern}" "${expand_out}.err"; then
++		echo "FAIL: stderr did not match /${pattern}/" >&2
++		cat "${expand_out}.err" >&2
++		FAIL=$((FAIL + 1))
++		return 0
++	fi
++
++	pass "${desc} (expand failed on neverallow as expected, rc=${LINK_EXPAND_EXPAND_RC})"
++}
++
++# Same-module neverallowxperm: enforced at expand on libsepol 3.11+, deferred on older userspace.
++expect_link_expand_fail_or_deferred() {
++	desc="$1"
++	pattern="$2"
++	link_out="$3"
++	expand_out="$4"
++	base_pp="$5"
++	shift 5
++
++	echo "==== NEGATIVE or DOCUMENT (same-module neverallowxperm at expand): ${desc}"
++	run_link_expand "${link_out}" "${expand_out}" "${base_pp}" "$@"
++	if [ "${LINK_EXPAND_LINK_RC}" -ne 0 ]; then
++		die "${desc}: expected semodule_link success, rc=${LINK_EXPAND_LINK_RC}"
++		return 0
++	fi
++	if [ "${LINK_EXPAND_EXPAND_RC}" -eq 0 ]; then
++		if [ ! -s "${expand_out}" ]; then
++			die "${desc}: expected non-empty ${expand_out} when expand deferred"
++			return 0
++		fi
++		pass "${desc} (link and expand succeeded; enforcement deferred on this userspace)"
++		return 0
++	fi
++	if ! grep -Eq "${pattern}" "${expand_out}.err"; then
++		echo "FAIL: stderr did not match /${pattern}/" >&2
++		cat "${expand_out}.err" >&2
++		FAIL=$((FAIL + 1))
++		return 0
++	fi
++
++	pass "${desc} (expand failed on neverallowxperm as expected, rc=${LINK_EXPAND_EXPAND_RC})"
++}
++
++build_base_package() {
++	base_conf="$1"
++	base_mod="$2"
++	base_pp="$3"
++
++	set +e
++	"${CHECKMODULE}" -o "${base_mod}" "${base_conf}" 2>"${base_mod}.err"
++	rc=$?
++	set -e
++	if [ "${rc}" -ne 0 ]; then
++		echo "FAIL: checkmodule could not build base from ${base_conf}" >&2
++		cat "${base_mod}.err" >&2
++		exit 1
++	fi
++
++	set +e
++	"${SEMODULE_PACKAGE}" -o "${base_pp}" -m "${base_mod}" 2>"${base_pp}.err"
++	rc=$?
++	set -e
++	if [ "${rc}" -ne 0 ]; then
++		echo "FAIL: semodule_package could not build ${base_pp}" >&2
++		cat "${base_pp}.err" >&2
++		exit 1
++	fi
++}
++
++expect_link_fail() {
++	desc="$1"
++	pattern="$2"
++	link_out="$3"
++	base_pp="$4"
++	shift 4
++
++	echo "==== NEGATIVE (expect semodule_link failure): ${desc}"
++	rm -f "${link_out}" "${link_out}.err"
++
++	set +e
++	"${SEMODULE_LINK}" -o "${link_out}" "${base_pp}" "$@" \
++		2>"${link_out}.err"
++	rc=$?
++	set -e
++	if [ "${rc}" -eq 0 ]; then
++		die "${desc}: expected semodule_link failure, got rc=0"
++		return 0
++	fi
++	if ! grep -Eq "${pattern}" "${link_out}.err"; then
++		echo "FAIL: stderr did not match /${pattern}/" >&2
++		cat "${link_out}.err" >&2
++		FAIL=$((FAIL + 1))
++		return 0
++	fi
++
++	pass "${desc} (link failed on unmet require as expected, rc=${rc})"
++}
++
+ build_good_mod
+ 
+ # Ephemeral path fixtures for packaging path tests.
+@@ -564,6 +790,112 @@ else
+ 		"${EXTRACTED_FC}"
+ fi
+ 
++# --- semodule_link / semodule_expand neverallow ---
++BASE_CONF="${FIXTURES}/base/minimal_base.conf"
++BASE_MOD="${OUTDIR}/minimal_base.mod"
++BASE_PP="${OUTDIR}/minimal_base.pp"
++GOOD_LOADABLE_MOD="${OUTDIR}/neverallow_good.mod"
++GOOD_LOADABLE_PP="${OUTDIR}/neverallow_good.pp"
++VIOLATOR_MOD="${OUTDIR}/neverallow_violator.mod"
++VIOLATOR_PP="${OUTDIR}/neverallow_violator.pp"
++SELF_MOD="${OUTDIR}/neverallow_self.mod"
++SELF_PP="${OUTDIR}/neverallow_self.pp"
++XPERM_VIOLATOR_MOD="${OUTDIR}/neverallow_xperm_violator.mod"
++XPERM_VIOLATOR_PP="${OUTDIR}/neverallow_xperm_violator.pp"
++XPERM_SELF_MOD="${OUTDIR}/neverallow_xperm_self.mod"
++XPERM_SELF_PP="${OUTDIR}/neverallow_xperm_self.pp"
++
++echo "==== Setup: build minimal base and loadable module packages (non-MLS)"
++build_base_package "${BASE_CONF}" "${BASE_MOD}" "${BASE_PP}"
++build_loadable_package "${FIXTURES}/modules/neverallow_good.te" \
++	"${GOOD_LOADABLE_MOD}" "${GOOD_LOADABLE_PP}"
++build_loadable_package "${FIXTURES}/modules/neverallow_violator.te" \
++	"${VIOLATOR_MOD}" "${VIOLATOR_PP}"
++build_loadable_package "${FIXTURES}/modules/neverallow_self.te" \
++	"${SELF_MOD}" "${SELF_PP}"
++build_loadable_package "${FIXTURES}/modules/neverallow_xperm_violator.te" \
++	"${XPERM_VIOLATOR_MOD}" "${XPERM_VIOLATOR_PP}"
++build_loadable_package "${FIXTURES}/modules/neverallow_xperm_self.te" \
++	"${XPERM_SELF_MOD}" "${XPERM_SELF_PP}"
++echo ""
++
++expect_checkmodule_pass \
++	"neverallow module passes checkmodule before expand rejects it" \
++	"${FIXTURES}/modules/neverallow_self.te"
++
++expect_checkmodule_pass \
++	"neverallowxperm module passes checkmodule before link/expand" \
++	"${FIXTURES}/modules/neverallow_xperm_self.te"
++
++expect_link_expand_pass \
++	"control base + good module link and expand" \
++	"${OUTDIR}/link_good.pp" \
++	"${OUTDIR}/expand_good.bin" \
++	"${BASE_PP}" \
++	"${GOOD_LOADABLE_PP}"
++
++expect_link_expand_fail \
++	"loadable module violates base neverallow on expand" \
++	"neverallow violated|neverallow failures occurred" \
++	"${OUTDIR}/link_violator.pp" \
++	"${OUTDIR}/expand_violator.bin" \
++	"${BASE_PP}" \
++	"${VIOLATOR_PP}"
++
++expect_link_expand_fail \
++	"same-module neverallow violated on expand" \
++	"neverallow violated|neverallow failures occurred" \
++	"${OUTDIR}/link_self.pp" \
++	"${OUTDIR}/expand_self.bin" \
++	"${BASE_PP}" \
++	"${SELF_PP}"
++
++expect_link_expand_fail \
++	"loadable module violates base neverallowxperm on expand" \
++	"neverallowxperm|neverallow failures occurred" \
++	"${OUTDIR}/link_xperm_violator.pp" \
++	"${OUTDIR}/expand_xperm_violator.bin" \
++	"${BASE_PP}" \
++	"${XPERM_VIOLATOR_PP}"
++
++expect_link_expand_fail_or_deferred \
++	"same-module neverallowxperm violated on expand" \
++	"neverallowxperm|neverallow failures occurred" \
++	"${OUTDIR}/link_xperm_self.pp" \
++	"${OUTDIR}/expand_xperm_self.bin" \
++	"${BASE_PP}" \
++	"${XPERM_SELF_PP}"
++
++# --- cross-module require (§2c.9) ---
++REQUIRE_CONSUMER_MOD="${OUTDIR}/module_a.mod"
++REQUIRE_CONSUMER_PP="${OUTDIR}/module_a.pp"
++REQUIRE_PROVIDER_MOD="${OUTDIR}/module_b.mod"
++REQUIRE_PROVIDER_PP="${OUTDIR}/module_b.pp"
++
++build_loadable_package "${FIXTURES}/modules/module_a.te" \
++	"${REQUIRE_CONSUMER_MOD}" "${REQUIRE_CONSUMER_PP}"
++build_loadable_package "${FIXTURES}/modules/module_b.te" \
++	"${REQUIRE_PROVIDER_MOD}" "${REQUIRE_PROVIDER_PP}"
++
++expect_checkmodule_pass \
++	"consumer module passes checkmodule before link rejects missing require" \
++	"${FIXTURES}/modules/module_a.te"
++
++expect_link_fail \
++	"module requires type only declared in another module" \
++	"requirements were not met|global requirements" \
++	"${OUTDIR}/link_require_consumer.pp" \
++	"${BASE_PP}" \
++	"${REQUIRE_CONSUMER_PP}"
++
++expect_link_expand_pass \
++	"consumer and provider modules link and expand together" \
++	"${OUTDIR}/link_require_both.pp" \
++	"${OUTDIR}/expand_require_both.bin" \
++	"${BASE_PP}" \
++	"${REQUIRE_CONSUMER_PP}" \
++	"${REQUIRE_PROVIDER_PP}"
++
+ echo "========================================"
+ echo "Results: ${PASS} passed, ${FAIL} failed"
+ if [ "${FAIL}" -ne 0 ]; then
+-- 
+2.55.0
+
