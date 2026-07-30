@@ -1,105 +1,76 @@
-Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from cloud35.hostingpalvelu.fi (mail35.hostingpalvelu.fi [31.217.192.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 917693630BE
-	for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 14:39:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0413232B116
+	for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 15:01:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=31.217.192.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785422366; cv=none; b=iUbE/waS0irTCPzApVWKVvj+CAooBu1PzzWcZ29rwhP63okfNWP4rJn7CaQ+c2AiTD7za2aX8pevQf3X9Ht/b8FctOZpUpHqmAKz+1sBU2j0x+OBIGpZkrw9e/qYtJ6H0fSsf6wYMWAzjbT+jwl7+CfkAaqYH/n7Ww3HUblEgLs=
+	t=1785423698; cv=none; b=Qq3rcediJ5gKeW1KUFIPj9E6fOokIr67bvceTH5y2fVhKQhlNje2QcbOMi55xwIO61IbNmlF2Pys9qV/PuedL8JkuD9J26hABGZtwBmi/DpkN275rPV47fyVjnH3RGfadFFrzIGTycZp3AnaJaLQvsvB03EJAiTf4YQCQU/kM58=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785422366; c=relaxed/simple;
-	bh=vtOVb7fBPFtI9tIK2KfmMCIAk/cSkWwlIBeizXjGKSQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fA42wmYTM7hrSusf/OhBx4QnVQXvgC2gXYkQRj6isO5O1xViohwQjF1QuE6m6cEktmdGJKHXRbdmXya4miU4KGTMvvTwCNnPfQ2Ffdx2q9bB/4KwqFh6ILHWyJWiftB/j7+LYLTR33Rwkw5oyHfghhaGvkpRCj7wFv5daaNLKyI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=W78OytLq; arc=none smtp.client-ip=209.85.222.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1785423698; c=relaxed/simple;
+	bh=xPIyp8yMMbTvKMCswtlr8O0J0cidSHHTKhAPyhpP+28=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=lJJXsXLk4eC0dRTDi+p4q9An2IM8caHmtUvmzXiZ5UhPCIgqFDjhbUh/gMJfSMUhj6RYD1RNir6g/ZGk2EXy1l+FHy7aDaW0RNT4QIVjFwrVZGw1Rbpv7Gq9V+6jIjkJcVRkqle8vNdTFNoCD/Ay7dWuuD/efoQTQKcnhOwtxm0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=QGSdzDEG; arc=none smtp.client-ip=31.217.192.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kolttonen.fi
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="W78OytLq"
-Received: by mail-qk1-f175.google.com with SMTP id af79cd13be357-92e85499ffbso183506685a.0
-        for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 07:39:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785422364; x=1786027164; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=UIcSzyE+xYriQpUcYW/NngcmZde5BCmuoS6NsjfoDtk=;
-        b=W78OytLqQwrAiXPSIEwX/ioZN8CG0x060vjtIsJQ2B7fq7DB+HHtCFNBAwKT46BK76
-         GEFhDRHsq97ockQ4iqGi8VT5dOPQrnBNdaeIxpO8mOOT8iCE2fQmIk6TfSvk8+uyZee4
-         NXktkuM/bCkesU+O0mOdWyFPxKB2qID0r3kg+Ew4AtTlhD+aKgYYgf3ORUcaF4BgGPwd
-         YXr9CwDYM2frW0B9qdBWuL7nyx84xjYT+3sfXzMW6xzAqoSYv0SVtmjXPlFwPjFhY1l1
-         +EUHdevFJr+iZG+unx4eqG127fv/4oY42tX7XUqzRqFyXG8m/jV1ptT+//9UkJEdHVo9
-         g9gg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785422364; x=1786027164;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=UIcSzyE+xYriQpUcYW/NngcmZde5BCmuoS6NsjfoDtk=;
-        b=IiSNqPbN9i6/+ct+lTzp7i0pZijy7fGbf1MbPgJ7KzBvX5lw8Nn7y/bW7c8zf+IG0h
-         8L69cg+PIh7bjXYrGsD5Cvy0uQYSBEpOX0SUv2OPcK8oXsQJkH/akBe+ZZcw1WitGPHT
-         OQFTcjR7GYLWWSmwA7Df5i2UNkbUG4Zv31UHkbr7r+7oCzOTojA7fbobSAb7w9AAxGHY
-         t7aMm/GpLNwQyfdX5dSo1JvqX4ew6mzLC6BlwBPQEhtbsjDJecgsgzZYXlsiMju6QARq
-         VyhgRoskBJ61mv/Wka5WfnMMiVWcos2rX93ezrbVF7JSswfrka/uV4IjQG/l1VIzYl57
-         ZvMA==
-X-Gm-Message-State: AOJu0YxyR82ipKgeMZazrGT+YJOP+H/qXZbXiU0AMSBiLBYK/GLDGabR
-	StQfTXXMhlER5cAAAbScUVlfatwFmBmw3VqmDRKQk4B552TUTcCRCiTZQCSslg==
-X-Gm-Gg: AR+sD10vZy465aLO8PQ8VX+X0Tx3fnpVJE4oFcSpu9WN51i1JCk2wwmB1d0aLcWkmbc
-	phVxUFYYVrUjuEnEMZYqOq67/m0jQJZ9iQIWK7TIT+7sTV555/VtFZUBnUtZWUjpasJB4M6CkqA
-	0OaqqsBkXkr4Sc0eCLl7I/9U96lyRZ+PGYmB13/L0VcMolj1xeSgUXCXkeqJ6gtIBx4bsIYONlt
-	71IYqns2GT+ptp6t5Q3xFxxoAZ36Lktcj9BmKPQ6ckJetUPFupJTUSsHbSyhwufSrissJbLjIda
-	IZI/gNxoAZ8mlexdZjuc6kxw1TI73LSG/u3I8SVRZbsltnRZzAaZ+vBXdYPYEiDl6DPuWkR5TiA
-	0jTk0xmk+/MLf98v6kHQMI2JGZiNA9JmCc+a4uLaGVGV2HJTKLOyh/S9WAk9dK8cF304gB2Q3ZW
-	Z2ZstFfmkHLXbIsroUBpBLEzKDCCU//FBRXupj9aaeP/MlPhnUwxGyMOlcxoijo2y/4j0v93O9A
-	diY0mwR534=
-X-Received: by 2002:a05:620a:a414:20b0:92f:196:209c with SMTP id af79cd13be357-93486ee9652mr219616085a.71.1785422364321;
-        Thu, 30 Jul 2026 07:39:24 -0700 (PDT)
-Received: from Fedora43-SELinux ([144.51.8.27])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-933d3275216sm427801485a.18.2026.07.30.07.39.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Jul 2026 07:39:23 -0700 (PDT)
-From: James Carter <jwcart2@gmail.com>
-To: selinux@vger.kernel.org
-Cc: stephen.smalley.work@gmail.com,
-	James Carter <jwcart2@gmail.com>
-Subject: [PATCH] libsepol/fuzz: Exercise module to CIL code when fuzzing
-Date: Thu, 30 Jul 2026 10:39:11 -0400
-Message-ID: <20260730143911.34320-1-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="QGSdzDEG"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=kolttonen.fi; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
+	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
+	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=xPIyp8yMMbTvKMCswtlr8O0J0cidSHHTKhAPyhpP+28=; b=QGSdzDEGkQj0pOCh8GRNfrPWXW
+	cDWYAM6TmMjiNwGzpmCKmY39Wx7uuSFD4r3EcVFESDSwjA/09XjPt8sWwxwIBbMofT4saOd/gSYJj
+	LgcWEFX5FYLmOGPtgazyM+rlwUeSF6X2Qz91oa2KoiAOVLFwKDVLDmbtwASMgBi/dWIZPZw86bBcE
+	PSIUscE08XYZ+EqaqKt4wOr8/L/nYBy1x/t3JYDe2WOcBaoYQ0IrNAdyWBRZqATts2yDeiwTbEfTK
+	tvrUdjuJHuKM9FZrhz3qsQEluoiXJHoDeEw8V+LfiXZ+bhr1j6ZA4Tez2tZuvv5HgcoNDuDw0SSYR
+	mTxc1wAw==;
+Received: from [87.95.68.238] (port=36895 helo=AA-94-54-42-0F-E2.local)
+	by cloud35.hostingpalvelu.fi with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.99.5)
+	(envelope-from <kalevi@kolttonen.fi>)
+	id 1wpRzF-00000007j1b-2Bd1;
+	Thu, 30 Jul 2026 17:43:52 +0300
+Date: Thu, 30 Jul 2026 17:43:50 +0300
+From: Kalevi Kolttonen <kalevi@kolttonen.fi>
+To: Petr Matyas <p.matyas13@gmail.com>
+Cc: selinux@vger.kernel.org, Petr Matyas <pmatyas@redhat.com>
+Subject: Re: [PATCH v2] libselinux: prevent ReDoS in file context regex
+ matching
+Message-ID: <amtjJhSP2HxalEj9@AA-94-54-42-0F-E2.local>
+References: <20260729131413.1390890-1-pmatyas@redhat.com>
+ <20260730085713.1484927-1-pmatyas@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260730085713.1484927-1-pmatyas@redhat.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - cloud35.hostingpalvelu.fi
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - kolttonen.fi
+X-Get-Message-Sender-Via: cloud35.hostingpalvelu.fi: authenticated_id: kalevi@kolttonen.fi
+X-Authenticated-Sender: cloud35.hostingpalvelu.fi: kalevi@kolttonen.fi
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 
-When fuzzing a kernel policy both sepol_kernel_policydb_to_conf()
-and sepol_kernel_policydb_to_cil() are called to test those parts
-of the code base. Call sepol_module_policydb_to_cil() for base and
-module policies to test that part of the code base.
+On Thu, Jul 30, 2026 at 10:57:13AM +0200, Petr Matyas wrote:
+> The vulnerability was reproduced and confirmed fixed on:
+> - RHIVOS 2.0 / aarch64
+> - RHEL 10.3 / x86_64
+> - Fedora 44 / x86_64
 
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
- libsepol/fuzz/binpolicy-fuzzer.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+RHEL 10.3? Did you mean 10.2? I got RHEL 10 VM and
+there is no upgrade path to 10.3.
 
-diff --git a/libsepol/fuzz/binpolicy-fuzzer.c b/libsepol/fuzz/binpolicy-fuzzer.c
-index c0d96d8f..fd9dec91 100644
---- a/libsepol/fuzz/binpolicy-fuzzer.c
-+++ b/libsepol/fuzz/binpolicy-fuzzer.c
-@@ -72,8 +72,12 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
- 
- 		if (sepol_kernel_policydb_to_cil(devnull, &policydb))
- 			abort();
-+	} else {
-+		if (sepol_module_policydb_to_cil(devnull, &policydb, 0))
-+			abort();
-+	}
- 
--	} else if (policydb.policy_type == POLICY_BASE) {
-+	if (policydb.policy_type == POLICY_BASE) {
- 		if (link_modules(NULL, &policydb, NULL, 0, VERBOSE))
- 			goto exit;
- 
--- 
-2.55.0
-
+br,
+KK
