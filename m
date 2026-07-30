@@ -1,112 +1,214 @@
-Received: from mail-oa1-f47.google.com (mail-oa1-f47.google.com [209.85.160.47])
+Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78BD93DD86F
-	for <selinux@vger.kernel.org>; Wed, 29 Jul 2026 20:24:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.47
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785356648; cv=pass; b=DLJZ0PBPaOznQj/LolEGViuzgG+HcoiUubDkeoe0l+EKXlxQI046Q/y7AMk6EX9rmlnCz33O4w0hphqF1wLv2g/gJaxLccHCUNeY6HWa0FjOD/QItymTv7ex2JsrhLtmKtbD0IjipLgddkuL4a+tNiRIham18tjvWiX4iwNKQFE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785356648; c=relaxed/simple;
-	bh=jzl3701BxbyLEZNQBXjKpyOzgwLCKkrgTD2roSfUOP4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=CQDkISNF+viTr2o1eHRSw4qCOax2P/6kok/iR9e8Xc4I6zytjVDf5y9xB6wgT9d35uUIVqixa4PV47hQeJNfsvmW9z3o/kBc50fPPcDVeUbKqiGPiZa1FNLJRSnPVx/vXpAK5P1IDE8vtSaREXsMZtdawEjcrFDfFma0kZc/1wk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HBZvLyIb; arc=pass smtp.client-ip=209.85.160.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8AD3489881
+	for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 08:57:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.172
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785401839; cv=none; b=oitNSD4Q5BCVSYljgf7YVS11IMHZ4wJMBhEjmeMOiXOLgrbhBcERqHFVk6NrJS/Rh5lWFL9btZMIBb6a+6HOSPFHYulUtQVoM1fO9YPlWtl39raF7kclX9gHWskUXV1AORMa6gtQGSryI1xlg2iJ4o3cUCMh1nZYXfex0P8rWCw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785401839; c=relaxed/simple;
+	bh=da32SrVr3de/upq6a4EzKQdRJUkXG9mIls/tr8W4hQw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=cxLByTTp8enQUlvYUGdjHsfSp0X8lJndpGBJ9fx3zh8Ii28GOAfZUamJBpSqTe2O0Bole4a5C2F9xYiSlhCHDeK1bP8cwTRMdqgE7HUiQd33Z5VSgpm37wgrLlNeX5UP1h2JfN/zOPO38L7y5Vq4yV2wJtCjjCI8ZameZpDxMHw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=emmKqEF9; arc=none smtp.client-ip=209.85.160.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HBZvLyIb"
-Received: by mail-oa1-f47.google.com with SMTP id 586e51a60fabf-456395f4e7bso1044984fac.0
-        for <selinux@vger.kernel.org>; Wed, 29 Jul 2026 13:24:03 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785356642; cv=none;
-        d=google.com; s=arc-20260327;
-        b=lkuZqhklCa9RdVVDNuuMgM2trqh2Hgdp0nh2mZvFu4u3HYN3Rm5HXLCHLu4ucNAr46
-         ocM8FHPnjDfUIsGMJUFvIzB9bcSesLMLZFq/q2rGInaE/h7+szUm7vcDkGEDK9OQExFP
-         jTLcYc3Pr91rKXKD6G7y2us8b5tvq3jlVR54OOBPN9dWLiKeZWrZkJqP9H4JSZz4u7U1
-         hZbO6dZVAdL5ZX0wFXGScKzO3VdvqevzyEK3+qChZkv//pLMlv5tvWmclGb8fGzkX47s
-         RjLo3+zn2wo4t/+XySQhCLijiZaFLyNHWR7u3VQUoLFUk/NkhZpULwAepYic/lur1+hL
-         ygJQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=jzl3701BxbyLEZNQBXjKpyOzgwLCKkrgTD2roSfUOP4=;
-        fh=FsXghBnyoYbEc42Idnie0oh5A6i9FUng5ntOLhqXIRs=;
-        b=jS9GHreaC9SzkSmqxR2WBy7kBZfcx38ggPJDsLkdhv1i/Bt73Jdjn17gpwrNLJbI64
-         QaLESdzK5ULKcTr7LS5Iys6aFVqxUl2eFMW3pi0m+ZW7atGAbKT2WhDE7q50V0RT9M9d
-         PjwowpdzaVq+OLpN6H8L40LxuJrRmwJqtmjT+iWDRtn0mjXoqTryqqyUEJ+110U9pHk8
-         T4rOnLRKy5xOTGw7fjMqJlLkMUyk8tVW8VrNMEcta2fJ6n3CHQ2+vq3lKk0OPk3miGHd
-         eitWBhAGZ/HssjpTuCV0NRwn9oaCo1cvbpTt8Nd+m0R6xtjSYoAKLyo2MSuHQEEOzekx
-         3HCg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="emmKqEF9"
+Received: by mail-qt1-f172.google.com with SMTP id d75a77b69052e-51e4ba1cfb4so10851811cf.0
+        for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 01:57:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785356642; x=1785961442; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=jzl3701BxbyLEZNQBXjKpyOzgwLCKkrgTD2roSfUOP4=;
-        b=HBZvLyIbZjA/nOqwVdWi342Zxv7c0t5FY5GiOdgJ0D0fdgg9lUpTu6Yl7RcN6qYhmP
-         tJux37lWP/Qhd0sDW9cOoT0sxSUmfb3NZbC/qSKVnBWJm9XWiCE/hRoTAvqEPNyUWAqn
-         EIuekNn8gpZKTsLbTzl0k4nOaLvBZpseAyYuPVN1tit5p3/vgeN9jl9OnQM2ovsVzzqJ
-         F6KvFOah8o2aHbY+HC6H4EeWmuyMgsVg+DehA6gz0Jr//6b/bqHfxncdrSL6+1vU31Zk
-         L1E9i4GQTzwTDt5VqP3zpKuLha38cbiAUxP8GSpWTcO/HppPll5cOm3TaQaEvVFTWVk8
-         1Gig==
+        d=gmail.com; s=20251104; t=1785401836; x=1786006636; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=n0k72AiPdJyQPYparRRo7nFEl9PrLLjozH0QUidNvJo=;
+        b=emmKqEF9jb5lurDq1tSfE2wzMMsY17vfh+E6LAv/3/5WmLgkshcMxlvRMsyB4QRJ4e
+         uVv6ua7BYe/LWmT54NNLzVnf+2rphwG7arNF7U+tx6ydI3fjuvkCCvEqZoEouJwcMiJr
+         f3UffCVJnR8zb93Xa9g39VfRrzNgvTD8ZwwZpFyFOR3jxw/gV+HjLrOueEXQc6xuVXxB
+         /L7ZihHLFM3vHMfF1U1S22imsrmUXKhxyc4WahWcfQY3NMyF44NMsrKYC6oLXcuURdVI
+         SfZbet7ag0yCtKrllVE1bWHSfi56mh0FYWamthSbUZSG9qEtv2WFUm7Rfa5G0XHvNhNi
+         E//w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785356642; x=1785961442;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=jzl3701BxbyLEZNQBXjKpyOzgwLCKkrgTD2roSfUOP4=;
-        b=ALdMtS98Y2CESWaX3ST01Sx3QHdfSn4y8EAZpQyG7WuYiZQRRaBoywmdy3EWx34M1j
-         V4NxsF1f2tuXGBk71YQgco4v4xlDH3DlAIboRSfPcu3sLNwkM6kvIsTBY1jxET+nCs7N
-         4/1PbfLmGvlAdtWNDl9is8eEyDvJhOJWktyGe7OIgnogx+89Cw1Q6VCrlIIZ3Fcifxwi
-         6Nx0qAyP7+p7JnV3H/D0KcAl0Qn4s5o2/CHAMUgrUNeRw38skMBhY9IXc9SQlcglAgMl
-         o3Ax/n439bDQPquzzQMqzPiDBV63/q2CnocgeRO+zTriNrtO3UoSUIR9PC8VxzsyqE+9
-         NIlQ==
-X-Gm-Message-State: AOJu0Yww6owqGeQhAiqidmYcFXjEDLKqP170rhlEPpH13GJF+9vCAnOi
-	F3yaXMeCTh2t5sHQBryb4R9TJ0PePVFGygMxFQIqeV4n+dsxmn379RzUNiE5aFw2grnKVnvZuuZ
-	JVPxY+vOr0fHsneYCL73WpOngTFmfgmCYfQ==
-X-Gm-Gg: AR+sD11tGI/NciCjOVoQKiODHfGvD+gFFbMZtz9AFo5npzlxO8q6oxV5ErvXEgUVOd4
-	D5DjiXvDJ9qKrSGF6qOrdflqn5YfITWK7FXB6qJBefUJhZybQCZFugznDeNKy579mkj6VpIOxHa
-	pFKcbMOPr6nE5qykUTW/L4vvW1R0fIExew/5g5SAc+MJkeihzdjHGdddelHAQC7N7XNjzdn8iJD
-	vNL1X4wtg3zet4WewhtgPM2+vvYPx5tQpmIQmtycEKA6vVY2LHX9N/FHBrFpBc+utHdYczgt4cL
-	CGYYRQVN8izm1SqCyXdtZPoomfXPitSWhgwJzUtwzq5b
-X-Received: by 2002:a05:6870:b4a1:b0:448:ac35:605f with SMTP id
- 586e51a60fabf-458bc1df2e3mr169433fac.7.1785356641868; Wed, 29 Jul 2026
- 13:24:01 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1785401836; x=1786006636;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=n0k72AiPdJyQPYparRRo7nFEl9PrLLjozH0QUidNvJo=;
+        b=My/fNCnq6+e5SF71bMnSjW10VVaWZokexVMOUugJpWo4MGDr2z1vSDDGvVwaFHRJAF
+         0OLQpFytWyg1Bs4+Kb2x23bZ+jTf7NYx11PsoTu/LCgkP1JH/la0K+S9AZ6e5lWZUZAF
+         mVPEpfNZk0Ccm39duYfz3UaUANkdsLvIyK3Y8xsge16QKWqk204C5EKgmyf+MGyccp1T
+         xpPBjhh0ih83U4u4ELbhw+DfZktN3Xd9hiu7d5dFdonutOHHL5hY1+cuStImBMOOsnRX
+         H9F6T3qDeTWXE1dFqd7Z80thIVp9k5jAJdz9psyBLDQ+el0SokRQtxbHtYXQ2hwky3yn
+         9Qqg==
+X-Gm-Message-State: AOJu0Yx+2YAdVCUGKEkxaVSFhSrSa7He6XyuspbUTgjWCiGiiCYbIHDi
+	B2Y5HPhIE01hZHf6Z0u6OdTUOp9ju8QDOotU3xCGNMPrq/FgYsqy+tI6OoXcFA==
+X-Gm-Gg: AR+sD10DKiqdEWL7c7Mb/1DUUDWH1SRyCxK4KQQ9lm0EAAaix8FxwhHHS4wW2qgfnBn
+	2T7UxZQ9oGEYV5YGdm1T2zsCtqgUAIRy+RicDRgOy371Oif8veEdGbB5UfwcTp1J5GYzUzNlt/3
+	K/xQXlSNkM5DkvWcKbYAIxWH4VWcFWRJIEkPhIilZco0dqSsbMmZcIA+munNuddxrI9Mk8Xp/YD
+	uaPlwcnd9KUh2uTWaP58HLSa+M5zyNbSd+ewvsPMw14zRvnu+o7JulwU2NmJX74SBCfZQ5OVd4n
+	vy2J8Gtlu649QCQGo3OMLyVxn+WYrIM32rJ0NZnqtBzROw0hayNh7SNnGviq5KunWvzdkm6H0t0
+	HDpMPiizKsBa1BYJvMcv56SdLmdlufhxpmByQub8ckwRMa1RpkA1yeDybG0paexskAaBSRSzcpA
+	U3fOYc+55teNFlXwLeEqxSyu7CQeNezcI9p8of77dU0CmFslfYhd7KZEeuIbNynJpYQvyBBvEtR
+	oBPeZszZ+9R+mDhJDelpi4hWSU/
+X-Received: by 2002:a05:622a:230d:b0:51c:bb79:a52d with SMTP id d75a77b69052e-52b385fe051mr18568491cf.14.1785401836443;
+        Thu, 30 Jul 2026 01:57:16 -0700 (PDT)
+Received: from pmatyas-fedora.rhev.lab.eng.brq2.redhat.com ([85.93.121.125])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-529e31f25c1sm38289261cf.31.2026.07.30.01.57.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 30 Jul 2026 01:57:16 -0700 (PDT)
+From: Petr Matyas <p.matyas13@gmail.com>
+X-Google-Original-From: Petr Matyas <pmatyas@redhat.com>
+To: selinux@vger.kernel.org
+Cc: Petr Matyas <pmatyas@redhat.com>
+Subject: [PATCH v2] libselinux: prevent ReDoS in file context regex matching
+Date: Thu, 30 Jul 2026 10:57:13 +0200
+Message-ID: <20260730085713.1484927-1-pmatyas@redhat.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260729131413.1390890-1-pmatyas@redhat.com>
+References: <20260729131413.1390890-1-pmatyas@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260729154323.14694-1-jwcart2@gmail.com> <CAEjxPJ4H1z2EZWN2hp3E0ff7HMQZRvpgRfE8yNgFkdpeM4A2Bw@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4H1z2EZWN2hp3E0ff7HMQZRvpgRfE8yNgFkdpeM4A2Bw@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 29 Jul 2026 16:23:51 -0400
-X-Gm-Features: AUfX_mzZ6jywrONs-0CV9naLgTJ7tbjBCc3I_rX_Yd0lI1wFGzTS4l_py3D2n_Y
-Message-ID: <CAEjxPJ4DzDD65qb485L29v_eZRi6YZLR-oB8TPQMRrzfpZYfcA@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: Check for invalid categories when expanding
- semantic levels
-To: James Carter <jwcart2@gmail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jul 29, 2026 at 12:28=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Wed, Jul 29, 2026 at 11:43=E2=80=AFAM James Carter <jwcart2@gmail.com>=
- wrote:
-> >
-> > The function mls_semantic_level_expand() is used before the policy
-> > has been validated. A maliciously crafted policy might have gaps in
-> > the categories, so a check must be done to verify that the categories
-> > referred to actually exist.
-> >
-> > Signed-off-by: James Carter <jwcart2@gmail.com>
->
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+The PCRE2 interpreter is susceptible to catastrophic backtracking on
+crafted file context patterns or lookup keys. Since libselinux never
+called pcre2_jit_compile(3) or pcre2_jit_match(3), the JIT was
+available but unused, leaving the interpreter exposed on all platforms.
 
-Merged.
+Fix with two complementary mitigations:
+
+1. Call pcre2_jit_compile() after every pattern compilation (including
+   mmap deserialization) to engage JIT for both complete and partial
+   matching. regex_match() now calls pcre2_jit_match() and falls back to
+   pcre2_match() only on PCRE2_ERROR_JIT_BADOPTION (JIT unavailable or
+   not compiled for the requested mode).
+
+2. Create a shared pcre2_match_context with a backtrack step limit of
+   10 000 000 and pass it to both pcre2_jit_match() and the fallback
+   pcre2_match(). PCRE2_ERROR_MATCHLIMIT is treated as no-match to keep
+   the lookup safe rather than failing noisily. This bounds worst-case
+   matching time to milliseconds for any pattern/subject combination,
+   regardless of JIT availability.
+
+The vulnerability was reproduced and confirmed fixed on:
+- RHIVOS 2.0 / aarch64
+- RHEL 10.3 / x86_64
+- Fedora 44 / x86_64
+
+Reproducer (149 bytes, base64):
+AwovMi0GLy8GCygKeAYGKwYLKAoKCgAAAPpXKgsoCi8vBgs8PG5vbmU+PgovMi0GLy8GCygKeAYG
+KwYLKAoKCiNXLy8wCwsoCgojV1dXClcqCygKLy8vV1cueHhXV1d4eHgveCsGCygKCgonVy9XV3cy
+eHgveAcGJAsoCi8tLwYvMi0GLy8GCzw8bm9uZT4+3q2+7y8=
+
+Signed-off-by: Petr Matyas <pmatyas@redhat.com>
+
+libsepol/cil: Return SEPOL_ERR on failure to set bit
+
+The functions cil_typepermissive_to_policydb() and
+cil_typeneveraudit_to_policydb() return rc when ebitmap_set_bit()
+fails, but the rc value at the point is SEPOL_OK.
+---
+ libselinux/src/regex.c | 40 +++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 37 insertions(+), 3 deletions(-)
+
+diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
+index 7a4c5ecc..af4c4328 100644
+--- a/libselinux/src/regex.c
++++ b/libselinux/src/regex.c
+@@ -41,8 +41,17 @@ static pthread_once_t match_data_key_once = PTHREAD_ONCE_INIT;
+ static int match_data_key_alloc_failed = 0;
+ static int match_data_key_created = 0;
+ static pthread_once_t once = PTHREAD_ONCE_INIT;
++static pcre2_match_context *match_context;
+ static char arch_string_buffer[32];
+ 
++/*
++ * Limit the number of backtrack steps to prevent catastrophic backtracking
++ * (ReDoS) from crafted file context patterns or lookup keys. 10 million steps
++ * is generous for legitimate file context patterns while bounding worst-case
++ * matching time to milliseconds.
++ */
++#define REGEX_MATCH_LIMIT 10000000U
++
+ static void regex_arch_string_init(void)
+ {
+ 	char const *endianness;
+@@ -94,6 +103,12 @@ int regex_prepare_data(struct regex_data **regex, char const *pattern_string,
+ 		goto err;
+ 	}
+ 
++	/* JIT-compile for complete and partial matching to avoid catastrophic
++	 * backtracking in the PCRE2 interpreter. Failures are non-fatal:
++	 * regex_match() falls back to pcre2_match() on PCRE2_ERROR_JIT_BADOPTION. */
++	(void)pcre2_jit_compile((*regex)->regex,
++				PCRE2_JIT_COMPLETE | PCRE2_JIT_PARTIAL_SOFT);
++
+ 	return 0;
+ 
+ err:
+@@ -148,6 +163,10 @@ int regex_load_mmap(struct mmap_area *mmap_area, struct regex_data **regex,
+ 		if (rc != 1)
+ 			goto err;
+ 
++		(void)pcre2_jit_compile((*regex)->regex,
++					PCRE2_JIT_COMPLETE |
++						PCRE2_JIT_PARTIAL_SOFT);
++
+ 		*regex_compiled = true;
+ 	}
+ 
+@@ -212,10 +231,18 @@ static void match_data_thread_free(void *ptr)
+ 
+ static void match_data_key_init(void)
+ {
++	pcre2_match_context *mctx;
++
+ 	if (__selinux_key_create(&match_data_key, match_data_thread_free) == 0)
+ 		match_data_key_created = 1;
+ 	else
+ 		match_data_key_alloc_failed = 1;
++
++	mctx = pcre2_match_context_create(NULL);
++	if (mctx) {
++		pcre2_set_match_limit(mctx, REGEX_MATCH_LIMIT);
++		match_context = mctx;
++	}
+ }
+ 
+ static void __attribute__((destructor)) match_data_key_destroy(void)
+@@ -262,9 +289,15 @@ int regex_match(struct regex_data *regex, char const *subject, int partial)
+ 			return REGEX_ERROR;
+ 	}
+ 
+-	rc = pcre2_match(regex->regex, (PCRE2_SPTR)subject,
+-			 PCRE2_ZERO_TERMINATED, 0,
+-			 partial ? PCRE2_PARTIAL_SOFT : 0, match_data, NULL);
++	rc = pcre2_jit_match(regex->regex, (PCRE2_SPTR)subject,
++			     PCRE2_ZERO_TERMINATED, 0,
++			     partial ? PCRE2_PARTIAL_SOFT : 0, match_data,
++			     match_context);
++	if (rc == PCRE2_ERROR_JIT_BADOPTION || rc == PCRE2_ERROR_JIT_STACKLIMIT)
++		rc = pcre2_match(regex->regex, (PCRE2_SPTR)subject,
++				 PCRE2_ZERO_TERMINATED, 0,
++				 partial ? PCRE2_PARTIAL_SOFT : 0, match_data,
++				 match_context);
+ 
+ 	if (slow)
+ 		pcre2_match_data_free(match_data);
+@@ -275,6 +308,7 @@ int regex_match(struct regex_data *regex, char const *subject, int partial)
+ 	case PCRE2_ERROR_PARTIAL:
+ 		return REGEX_MATCH_PARTIAL;
+ 	case PCRE2_ERROR_NOMATCH:
++	case PCRE2_ERROR_MATCHLIMIT:
+ 		return REGEX_NO_MATCH;
+ 	default:
+ 		return REGEX_ERROR;
+-- 
+2.55.0
+
