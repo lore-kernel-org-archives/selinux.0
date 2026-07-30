@@ -1,148 +1,137 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com [209.85.167.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91EF83FBB5A
-	for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 10:26:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7545242A14D
+	for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 12:25:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.47
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785407203; cv=pass; b=TqYnfj0YsRbOZ456CJIa5UnYvM4vaBMN3hai//BlOTeb/YjBpm5YJxIXYg4NtJNTRt8s3Ks/W4TW4tWEMQgwpMMpJPax1WPTmEojrl/wOwKeOy7L+ITXouV5Ejnm0wJ1OQO5HHEwbKManGenIvsxrnDwCl2RpeVAybJLRjbWv9Y=
+	t=1785414339; cv=pass; b=VmHGYXT29LtB17q8lVbENs1+EsDIe6HHXfhm5UqLwGZtxZGjv6jfucNsStsHH+Fuf2dzQuhqUzwtCli52ARdBavxixnmyZVfnZSK3gU2jj2WlM9/wRlSZu9qLY+EAxDi+0j1HofRwyWNSGhjdgdWOIUNckKqbYNSCT6r9LcgAwU=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785407203; c=relaxed/simple;
-	bh=shXGVyUwDxFITgwTWL88/8Mcz8vujzumuGwX0dv8tgk=;
+	s=arc-20240116; t=1785414339; c=relaxed/simple;
+	bh=+u4PSXWnQMBc6V1mLArUtNrtp9pcRIebquopTbBtvt8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=EG+KN3GlgrKrrVerGOBbCJr2zQK7ggBoo90LGms2KU1KgG2Rrocqe/uLQuFGPsyJXH3+eeuzRH2cig/1sdxg6ZGE1tnJn1ZZpGQXdNkEsuIYxJt2nc5OztlQn4OSfi5jsBC+apkSv96j3B5d5QeW3BCYDAcOwqUzRvnM/t04Ibs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QWGGJLW+; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=oNts2aNl; arc=pass smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 To:Cc:Content-Type; b=aiAoootk69nUsgqgu4e6PfBQedk8Y0y06eAq0Lx8lIqhhFJFS86BOFgfOVxK58kXFs53UhTojQXeG9TZEWcjQ9ncY8KZSPCj4q+9MdNolVMv9W801wTuiRTq09/pCEX7DZKPwZEeQTNAbYOAjOp9WpFyaKPHYmnNAgQHuG9r328=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FGqwHmvZ; arc=pass smtp.client-ip=209.85.167.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QWGGJLW+";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="oNts2aNl"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1785407200;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ZPsNokbNDyDMt0Qqk4hYFiNomW2jjYe3bV5GSNGboPM=;
-	b=QWGGJLW+fX8zqTStsmYoOElGrNw4zc/PsgpXagWGSKrYogfIlwxKysagj4ShwMLQyCmbhs
-	eoQPfUBwX+7l0pvj5smNfW24omCV4s78pqG3dBcMSnxs6fx/LZfltiewDVQHUS/QAuuZqP
-	hrgCItiImYMpedE1C/LwOkJlsDOaXho=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-389-zj-y6efBNniHm7M1Tg1p6Q-1; Thu, 30 Jul 2026 06:26:38 -0400
-X-MC-Unique: zj-y6efBNniHm7M1Tg1p6Q-1
-X-Mimecast-MFC-AGG-ID: zj-y6efBNniHm7M1Tg1p6Q_1785407197
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-38e7621655eso3167938a91.0
-        for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 03:26:38 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785407197; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FGqwHmvZ"
+Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-5b015b2d792so2079398e87.3
+        for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 05:25:36 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785414335; cv=none;
         d=google.com; s=arc-20260327;
-        b=SgmfGRzLBKmnSSVbqTsG8Jz4eI74OGz1oHF9jBykJ2i2pnpYlTHitefZc5TFcDuJ2E
-         qzWqiTyIvuQLn+z8AqU68fioolFiFB9Ns4TwUYWmGP1kIfGkxa8yR9YOVVX+a/gFw3iR
-         XfCReagE7EE0PwgY3gI3qChx0OkFwnPjhh2TFECPM5qnwmj8ixQQaxxgLDTQOoRD2cY2
-         OpiSBDN1UEKXTxG2NVaLaISqV8OsVs1wL2LUAeVTgfMAbB5rra9p/kEvOERoJmvvON6A
-         jVXm9Fk00WnDRrBrdY9Y7pVgRglLRTHaisfJe6JOXsRlHSN+aKdhRMWpv1521xPxozCD
-         4Gww==
+        b=atlICxGoe9FIMtgIbA2fN69famiHvD+CjgyNonWUDqQOxWYAl3VxTs6J2JNJn8mu0Y
+         owQqa2Z2/StKCRCUaB+dW0ng/VtMIaje1mtMs97Uyz1uHGcrNYPs4hW0ui9m9TxnFPXY
+         j7NE+U2KrnmqsSTFiN7SjnCcN0oZa76u8kcEChPUmLckWirA2z4+moZyWOMozmEEsKLm
+         9tOcfa1MGZTUiZlJM+tJQa86MUcUDGMjBzGP+r2i2GcZSgj2BnS71jM0uYkTHEzNkLkg
+         p7uNCLqz5qZ86H7sVEVVp4n8eJydr56eP35yhm5h+6YACdHqDCij4YJti0oWM8Gdk1Ws
+         oeZg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=ZPsNokbNDyDMt0Qqk4hYFiNomW2jjYe3bV5GSNGboPM=;
+        bh=+iG5mkPVpw70TtFs9lDAi95WI0NF2OO96DIxssEyE1g=;
         fh=nOcPTm+jzSpUJDDJhvsoEQt/GcMQFmPB1BDsWNtwPZ8=;
-        b=r13OcLUQKRf5fjLRPByDtNwgEMtjOjBFxnxfTLjo0GzS2+oOSVjHbc0k0035VZYNce
-         HPzggkcvJByPvzbzafn4Xk0BliBhfcrfYudAS9gzYCBXI+ESRtKMw3c/59hufxxgZ6DM
-         e32bvL6OrCN6h+RE81/pdeeuOlPc5G1eut3DNCgSB9tgk4dba7Ifhs3+HispF3yH01FB
-         /8NiImf3iEfHGBw72tGhX0EZlkKpA8BmDV+jBvRf4WPuD2IXeVgVqCCFCHCSPpodBJdP
-         HsImfkzlbLEBwN/Cv5yCT1adEHFvJQyr0+oxubwj2jQBHFyxbZooRekxAkTgjsjBLYYS
-         idAQ==;
+        b=mkRCvEzmr+vNTAR6sMct6lM87FGRSunAVQcnoIHsnbXcp/G1RoeLEmDFMlCHQdOQyC
+         Zs3yRbJ4mWoar+zQbisTEwpZHC0hb1pp8/4MLiVVgfrKB38BXskwTNe+KTsZUm+YAUoa
+         osbBk74cgotuQ71cyUujgU+ehCyTfWYhHnop4Mm2ucMRz1Zl1mMYSsZ1hHDNtvJ1B4hu
+         qwz9jV2lgGcHowzKXjnXbYZQq4CwI2VMiPIKeJpmnVcRrF6q2P3t6uCOHnW48NCJuZRp
+         fLoQsHXxX1DDz0Ek72rPOJ7fPTHCvMRIwLxSU26iHWKvFWCZKdU6axO2OtpeIQG+iwMX
+         pR7w==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1785407197; x=1786011997; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785414335; x=1786019135; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=ZPsNokbNDyDMt0Qqk4hYFiNomW2jjYe3bV5GSNGboPM=;
-        b=oNts2aNlkQaxj8BGHgQTqznMf2wP0PS0XFS/OA/IspMxbn1tulpyPaBuefkXwt5Q0C
-         YQ7nL+pqvb1TrZEItGsvXp748coIZ3G5L4G/cYbyF9+W0w8o5izvqDie0S3jSWq6rm5i
-         mTGRDSZNqoUwH2x2wue8QmcKKa2XEnAqG76Bip4nfcHZzMFVPehI7bmDtVamZrNJsLA0
-         yDrKOGyW7B6J70xZzXjAIg9/hg0tfq1mKwp2uAHI0GUnygkacpP7uXVt2d0W9JI8Vhl+
-         NhSNkrngZ7sSXzrdrAzwfBzkrDeX4eV95drRxrnD23IlTBDL3wPAfynM0fmGaEGBu1vx
-         2IKA==
+        bh=+iG5mkPVpw70TtFs9lDAi95WI0NF2OO96DIxssEyE1g=;
+        b=FGqwHmvZH1LkyXLQanSJmz1cc5w2ULfB0ktAbRArD0WfE645w2BEDhdp3/v2miSehF
+         ZEOFOvqqp5cbCG5iLNYzrw8HPIpqO5AblOwiiE754wxkWSdEG0UtlNXu0y84u/KTAbfi
+         pyoEB2UGV7iL5ZZmNRy3RZM9IyhzaSwHk/inmOuoILNEiRT0orNM3OkFMlnUROjSasjg
+         G88keUKBlc8d9CRrwuMCWS9UIdyoMSR2Q7engVvLlkXJVA4NA7D+oYEWMyHbFv4hXv1e
+         JKWXXEt44dTCWDGlUITQ33h/NdWpXbpDkbnW2C9U3MKvCi0+uq96BR0Q2g5TaMmYQ2GX
+         /Cjg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785407197; x=1786011997;
+        d=1e100.net; s=20251104; t=1785414335; x=1786019135;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=ZPsNokbNDyDMt0Qqk4hYFiNomW2jjYe3bV5GSNGboPM=;
-        b=MZiUZYHXbU3zo7rLwsTD55JXeSV2IRUL76WDALQN7q12CBp7oVPWwWeLTpLQAr0kg3
-         WracQmQPWJi/QFP/UgThBPW0Ba2NtcPIizTkoHd4fSljEWVuG51v5VTKq63UThoKjLpg
-         cO/0sQg8bixroV0YojPYNDbIm8I7CY80Wet8UzdFjpVcLGyNMzZLylCATNgyCx2Uzigy
-         xolRS9ZmdXvNEqy34fz+kU4r7oyYRQbreSyQXghDu2edGZBuVOr23BhlsHyBCoSnUUJh
-         7AA2epWSYFCpR0zQiN3HiutUI922kYs8d/p3IloBztw3EAAoCPTtmE/P+QShKz8WK4Lu
-         so5g==
-X-Gm-Message-State: AOJu0YzUgQp+/KZlBgTBDzVGaUvxi2b+deCr8tYRIeGt4PsGmcm5OhZZ
-	d5qbn28pyjQ/WrEvNAlv1TegNERr4YjY8RI3NPTCag9QLPPb9e3P9LkNqWIPT8YP+ClNaBGxuha
-	4uigfttw9LlveGww7PdwbF//+48UqYn1+YIwYd8YbEDqJAtdLPO+ICbVylIs2scksabQAq2rXGA
-	UKKClavJROf6q4z+dYzbZzfKymseXTVzzJmhPseHP9yYLO
-X-Gm-Gg: AR+sD10SU5rvGZQIz9SydqDhvadiX7+6R4ye67iVFlEcdaVBae8fIYOIE3FegebnH3I
-	um3fpY8nUl3FfJiWcV8rvukRr73/iN9PIkWI7tzDn4iCJ5CU1Kr3LMb+ACC+/Qt0q5242bZR/88
-	dEFO1Mwx7TBuYj7tNupj1tqPCK7LTzha5t9HnqqFPuoO94Yy/AjwGoYr5q0GnKN7xL3+p9virTA
-	9M0sHKHtM6miUv4
-X-Received: by 2002:a17:90b:17c4:b0:38e:63de:730d with SMTP id 98e67ed59e1d1-38f9bd692d6mr1547099a91.3.1785407197272;
-        Thu, 30 Jul 2026 03:26:37 -0700 (PDT)
-X-Received: by 2002:a17:90b:17c4:b0:38e:63de:730d with SMTP id
- 98e67ed59e1d1-38f9bd692d6mr1547083a91.3.1785407196701; Thu, 30 Jul 2026
- 03:26:36 -0700 (PDT)
+        bh=+iG5mkPVpw70TtFs9lDAi95WI0NF2OO96DIxssEyE1g=;
+        b=qo7xT5M7PLXw6bUL0dBY5G6ut6bKq8A7lFGBMIVxr1nMdBeWn3wZf2oeSpUPDywinR
+         L3ZIEZxyMDER6tgNV4kBTQi2xBJ7uFKKUE67E7hU1gF8La5T9ZnmIA6aDMkvEwky7cFj
+         GBg/eMvqa8ZPOQd6Uc+R6h4OTJ3F+ok2KdpWARMy+J8it5Kymzaiffn2bksyV3qDHwdM
+         2vjnPHI/jbY4QhAwx96bnDt79LKUa8MrFM3myFWF/ESKGurT/Q1dst1sPhAeK8HlMOCX
+         uTGq4k6bEiXcMGX4CyVnX4FPCwO14cxZL6YyM9pIT1uLaqFUUGjDvFTizpG7c1UXlGAs
+         VN8Q==
+X-Gm-Message-State: AOJu0YxsF/AYSZaOaEAtasweNJIJRcdh39xjFkc9872znI1kwczfKagq
+	LL+4vZ4ioysYwG2+nmM3joDi9c/mtkrMPyIhfxtETFHLrN0GXecMGDvv4aZMzK/G4db1qcY1GM+
+	q0UkZmPCkHtxeTFmdtWjeiuLRhVGKVSE=
+X-Gm-Gg: AR+sD12+xoAh6FiTLLvkwBydOrXgtH0awoAOwwpcbJa9sIMGI4y7qR4VqNEsKe8NzYS
+	YapvBwCnrZJdxDa04yIfR2En0gR6G9kTsPa1gjgp7+z0Kqunsp8Va6QISFvRlCLBOZLsKMYJrmi
+	kpZ5/jGVfGEN+d/AHYf5zBkWsnu8yzjXBnGDrHMdR0k6QPA/tpgp0VrQeb0Pje3vuBwoiNqxDwU
+	IKnQrXRwvrqF8jsQyqruxEnBusnuC6foxKHnn6CYwUYzmORDQ0el8nL++pAdlfGcM5rBVNIdtqn
+	yolHSVbwIDoMLBm45ecXyjChGT1QzQnBCUZWKjIj3Q==
+X-Received: by 2002:a05:6512:669a:10b0:5b1:568d:971 with SMTP id
+ 2adb3069b0e04-5b2db37f0a3mr292396e87.49.1785414334882; Thu, 30 Jul 2026
+ 05:25:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260728164552.2646227-1-akkohli@redhat.com> <20260728164552.2646227-2-akkohli@redhat.com>
- <CAEjxPJ5Ddd=-X2vKA7oHzDF-ZZ-_GZyfc_z_XEwXuxePZWb29A@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5Ddd=-X2vKA7oHzDF-ZZ-_GZyfc_z_XEwXuxePZWb29A@mail.gmail.com>
-From: Akhil Kohli <akkohli@redhat.com>
-Date: Thu, 30 Jul 2026 12:26:24 +0200
-X-Gm-Features: AUfX_mytgIEe-AMr91GorAIBc7Pnkp32WycTzDbXUD5f8XfjI5FWGuIRvdekV8E
-Message-ID: <CANu4e6PYkZ8--vBPskdhcFtij6T2dZvxu+MX4gb2KcNRaNxV=w@mail.gmail.com>
-Subject: Re: [PATCH v3 1/2] checkpolicy: extend bad-data tests for type, role,
- and user errors
+References: <20260729193713.23187-1-jwcart2@gmail.com> <CAEjxPJ6J=ArpCwLAaCed7Gn2K4nDJODLcSwZ5orJT7zw4HyiQg@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6J=ArpCwLAaCed7Gn2K4nDJODLcSwZ5orJT7zw4HyiQg@mail.gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Thu, 30 Jul 2026 08:25:22 -0400
+X-Gm-Features: AUfX_mx3KIbsCUWoVLuQsub-tSJ12RhUsykwqrhfzkG8G_UMGMxZtGhXLMswCP0
+Message-ID: <CAP+JOzSQibGghmGu8bDdxXiGO5zR9DXW2nLZNwUc594tCvVD0A@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: Turn assert into error in type_set_expand()
 To: Stephen Smalley <stephen.smalley.work@gmail.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Thanks for catching that. Fixed in v4:
-https://lore.kernel.org/selinux/20260730101840.3224405-1-akkohli@redhat.com=
-/
-
-On Wed, Jul 29, 2026 at 3:24=E2=80=AFPM Stephen Smalley
+On Wed, Jul 29, 2026 at 4:00=E2=80=AFPM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> On Tue, Jul 28, 2026 at 12:47=E2=80=AFPM Akhil Kohli <akkohli@redhat.com>=
- wrote:
+> On Wed, Jul 29, 2026 at 3:37=E2=80=AFPM James Carter <jwcart2@gmail.com> =
+wrote:
 > >
-> > Add negative .te fixtures for duplicate type/attribute declarations,
-> > type/attribute name conflicts, invalid type names, and malformed role
-> > and user stanzas. Run checkmodule negative tests as non-root in CI so
-> > the unreadable .te case is exercised outside root-only skips.
+> > The assertion in function type_set_expand() can only be violated by
+> > a malformed policy. Since it is called before the policy has been
+> > validated just return an error.
 > >
-> > Signed-off-by: Akhil Kohli <akkohli@redhat.com>
+> > Signed-off-by: James Carter <jwcart2@gmail.com>
 > > ---
+> >  libsepol/src/expand.c | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+> > index 8d7fe519..19b5fdcc 100644
+> > --- a/libsepol/src/expand.c
+> > +++ b/libsepol/src/expand.c
+> > @@ -2827,8 +2827,8 @@ int type_set_expand(type_set_t *set, ebitmap_t *t=
+, policydb_t *p,
+> >                 for (i =3D 0; i < p->p_types.nprim; i++) {
+> >                         if (p->type_val_to_struct[i] &&
+> >                             p->type_val_to_struct[i]->flavor =3D=3D TYP=
+E_ATTRIB) {
+> > -                               assert(!ebitmap_get_bit(t, i));
+> > -                               continue;
+> > +                               if (ebitmap_get_bit(t, i))
+> > +                                       goto err_neg;
 >
-> > diff --git a/.github/workflows/run_tests.yml b/.github/workflows/run_te=
-sts.yml
-> > index 4322ddff..fd78969f 100644
-> > --- a/.github/workflows/run_tests.yml
-> > +++ b/.github/workflows/run_tests.yml
-> > @@ -94,6 +94,17 @@ jobs:
-> >            sudo userdel -r bad-data-test 2>/dev/null || true
-> >            echo "::endgroup::"
-> >          fi
-> > +
->
-> Trailing whitespace here, git should have warned you about it.
->
+> Why did you drop the continue; in the non-error path?
 
+That was a mistake. I'll send out a correction.
+Jim
+
+>
+> >                         }
+> >                         if (ebitmap_get_bit(t, i)) {
+> >                                 if (ebitmap_set_bit(t, i, 0))
+> > --
+> > 2.55.0
+> >
