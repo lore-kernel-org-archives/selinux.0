@@ -1,76 +1,124 @@
-Received: from cloud35.hostingpalvelu.fi (mail35.hostingpalvelu.fi [31.217.192.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oo1-f53.google.com (mail-oo1-f53.google.com [209.85.161.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0413232B116
-	for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 15:01:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=31.217.192.49
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785423698; cv=none; b=Qq3rcediJ5gKeW1KUFIPj9E6fOokIr67bvceTH5y2fVhKQhlNje2QcbOMi55xwIO61IbNmlF2Pys9qV/PuedL8JkuD9J26hABGZtwBmi/DpkN275rPV47fyVjnH3RGfadFFrzIGTycZp3AnaJaLQvsvB03EJAiTf4YQCQU/kM58=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785423698; c=relaxed/simple;
-	bh=xPIyp8yMMbTvKMCswtlr8O0J0cidSHHTKhAPyhpP+28=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lJJXsXLk4eC0dRTDi+p4q9An2IM8caHmtUvmzXiZ5UhPCIgqFDjhbUh/gMJfSMUhj6RYD1RNir6g/ZGk2EXy1l+FHy7aDaW0RNT4QIVjFwrVZGw1Rbpv7Gq9V+6jIjkJcVRkqle8vNdTFNoCD/Ay7dWuuD/efoQTQKcnhOwtxm0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi; spf=pass smtp.mailfrom=kolttonen.fi; dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b=QGSdzDEG; arc=none smtp.client-ip=31.217.192.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kolttonen.fi
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kolttonen.fi
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98A5C38DC46
+	for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 16:22:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.53
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785428573; cv=pass; b=KOPDXmwEQ42bTVjTNc22CGLYWSnE3H7dgUfuc0kCFhhfY/6osmDBe7IgnVlnZ/PhoXbkwhsMVqcdBjfBHiVEQLOI1KdLeqkeGHomW6zPgJfuo88mg/rXObow3AKer5wLWP2LNjBPxnVNR+xdOww8g8iL93dJjB5nBJFsQg3qFs4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785428573; c=relaxed/simple;
+	bh=A/vNY4N4jm9QY0DtK4oFTSnA8UCDt4H8s6kf12A0sqw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=rpMbpddn8fRDxk3f/nhcySOP7xea5YkAzIH5zc/MzmU4g0lJiIzfa27LUgu78I8q6hijTRrso3rSKmcrY+f+3cv9MrI+2L6UcBVx1+nBECFgFR3BttFrKniEfxue8SIoecsgvQUaFt7A+t3YOTI78byMwwM555Bk9Uus7l0rXGA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=S/Tt3yaE; arc=pass smtp.client-ip=209.85.161.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="QGSdzDEG"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=kolttonen.fi; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
-	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
-	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=xPIyp8yMMbTvKMCswtlr8O0J0cidSHHTKhAPyhpP+28=; b=QGSdzDEGkQj0pOCh8GRNfrPWXW
-	cDWYAM6TmMjiNwGzpmCKmY39Wx7uuSFD4r3EcVFESDSwjA/09XjPt8sWwxwIBbMofT4saOd/gSYJj
-	LgcWEFX5FYLmOGPtgazyM+rlwUeSF6X2Qz91oa2KoiAOVLFwKDVLDmbtwASMgBi/dWIZPZw86bBcE
-	PSIUscE08XYZ+EqaqKt4wOr8/L/nYBy1x/t3JYDe2WOcBaoYQ0IrNAdyWBRZqATts2yDeiwTbEfTK
-	tvrUdjuJHuKM9FZrhz3qsQEluoiXJHoDeEw8V+LfiXZ+bhr1j6ZA4Tez2tZuvv5HgcoNDuDw0SSYR
-	mTxc1wAw==;
-Received: from [87.95.68.238] (port=36895 helo=AA-94-54-42-0F-E2.local)
-	by cloud35.hostingpalvelu.fi with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.99.5)
-	(envelope-from <kalevi@kolttonen.fi>)
-	id 1wpRzF-00000007j1b-2Bd1;
-	Thu, 30 Jul 2026 17:43:52 +0300
-Date: Thu, 30 Jul 2026 17:43:50 +0300
-From: Kalevi Kolttonen <kalevi@kolttonen.fi>
-To: Petr Matyas <p.matyas13@gmail.com>
-Cc: selinux@vger.kernel.org, Petr Matyas <pmatyas@redhat.com>
-Subject: Re: [PATCH v2] libselinux: prevent ReDoS in file context regex
- matching
-Message-ID: <amtjJhSP2HxalEj9@AA-94-54-42-0F-E2.local>
-References: <20260729131413.1390890-1-pmatyas@redhat.com>
- <20260730085713.1484927-1-pmatyas@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="S/Tt3yaE"
+Received: by mail-oo1-f53.google.com with SMTP id 006d021491bc7-6a168dc590cso1488222eaf.0
+        for <selinux@vger.kernel.org>; Thu, 30 Jul 2026 09:22:52 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785428571; cv=none;
+        d=google.com; s=arc-20260327;
+        b=V+PO3OMBtTi2+hXGY3TS7taYzICYf9XTms/r5JDKPImwr2wtjjpFU8B6SsXHymbkQ5
+         EKNF8INX5NmmEz6ANVPltsoDxeLil+RuHrXZHpKATbIcRUnvNHe4Rr4u2VFaoGQ5nWF2
+         35083XDz7HXSitpDhZPw4q/8MD2H2SVjmpwZhgmWhtnf029paMfhdcz1CucOy2WPEu5k
+         6ejh3y4ze99swiXyWsG5OizdenZsrI0RnEnr+h6ybc7voBMFy71wKUDkICDzXh3YHwmB
+         yh1wHnG///zaR3gFG20WSh10Pstq/xC1calOq4U9330eFgy91cycTwjfHlmPHVCpxxpM
+         lZBA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=A/vNY4N4jm9QY0DtK4oFTSnA8UCDt4H8s6kf12A0sqw=;
+        fh=o4EWA82M+vtfNglaTzMFhY8rIYTLnPpjxHW+AHnzuHs=;
+        b=V7Hn4R2rT3psMs0ZDtDkbUcB35fdBxgMpzaj2yZPKrciwILuppHTM+MQx1VbRi2OXc
+         iNVY5/QMe8XYe8/OSaJpJKDiv/3BzeJTBqEvxBFROKTyl9sa0v68plTPBHg+krLkbh+X
+         usGMjSKr/Pn4APaXkwtEzzQDMxh7IAvFfs0nJCMpjiv2RRLrFZF8SzxnkxXBRXLleSux
+         pKbI6dhrBEAqzwlbceGj5BRMwFwjCDKR0iQq5tAxu6IPES5ysuBaN4spuJwTi9QfX3m5
+         2SwY2c7A6jloHlL7856VvsbCOdHlj648TtB0Tue47/yEqmGx3GHPYZmjImUnxVaq7W8j
+         I+VQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785428571; x=1786033371; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=A/vNY4N4jm9QY0DtK4oFTSnA8UCDt4H8s6kf12A0sqw=;
+        b=S/Tt3yaEavuhGB9noJWc33cY4I22o+GheTUJCrPqpiRPyIBoWkgVozRiTWjfy9yvUX
+         GmmyUbFKY1CMLC20hOJCo9VdEbyIqoSHgO9k4VX9bmc3TJ09bTPOB4Ne8nopr18QIgs6
+         EIuAaiAGasCdow/+V7jnvYu/Wv2rqvJzuizxzAcjooOxsD6XGdUHQpUNlDGXiRa7iFoB
+         GrhFF5D2K7rox50SQ2TfPB1S+qI55UTaUe4oOo+vQIg9pKsI1Z+2kLyJoZLFLwU57xOU
+         UoYv+2mSQ7tVa7/tWqHqEW+/Ac8+Xrp0f/djnC1TuhlwklpW7rDjTC4qW5oy+PWLVnXB
+         nhfA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785428571; x=1786033371;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=A/vNY4N4jm9QY0DtK4oFTSnA8UCDt4H8s6kf12A0sqw=;
+        b=XmxdU+p+VOXhYlUwNQlQFHjhwPHVwouBMbsbF41OtIkFiO3xFo4aS+ngDyxeJgmgco
+         kPF58Z6m/esHXFrJuj/rVseb/0LXrY6XRS21RBfYfawX4nTGN1PdZ+Z5ceFc3YaXLazS
+         C32yzkTF+jMBJGhsSCfy/8dM+vzF1p1LP7pLesiy85zgV6sMc9/R+L3ry1AB+nQkvtXg
+         wMRNGi/IvpjknkwLS0hmAk+nnz0ZuXaTyKNBI4qo8Ya+G7C1XvzcHgU4QbQkuBG/MOHd
+         eKuN/uu+hCELgEIBtaEddPI7ojQOyy6X8EfXyUxU5MjjnGB9kNcvWRamN6p9IWtgnpD+
+         jIdA==
+X-Gm-Message-State: AOJu0YzmSVd/hew2NX0y9yB5e+t+Govw5QS1kqkwl0p7uBk6Pnr1IxHc
+	EENy+g+SWBEfGLG8IbklE36yPjvzDAnWigW4m16EyiUVfYtnIByN8AG+VdVaoeRtDxSXYZIbkYe
+	o6FzORCY+WVT2Qcusr22GLTCx9bqPDiY=
+X-Gm-Gg: AR+sD10Bx/72VF1qEKh0gIN22fiP3wxa9jLmsI1G6GXsq5DGJ5wD8wpIj86zYegGmdc
+	YVP3lnsM3IVLEUEEbs8KwYfvD0y8wTiTChkHrGuiyHUUB351FJ0Up//lKbhv2f52oSDs4q3M+PV
+	iZjtDY9RKhBcZD+iiibh/z8WoXzsX5aJ2qmrAef5Ot1CxJqb9omNQnhEi+rHJZ/l92r2l5gcCYM
+	6cUrXu8Is1APVvnU7YLF8QjxtEFtr6ce1y2i3OGAnTI0dnSz4/ot1Q4P9zUKDTRHYlav+j2SQrh
+	v/aISy4wsIB0NQztyEI9R+w2+eyJ1CtKuVS0oyUk8q7L8jLg2iyXf0c=
+X-Received: by 2002:a05:6820:4a8f:b0:6a1:77ce:1b09 with SMTP id
+ 006d021491bc7-6acf828cc54mr515114eaf.6.1785428571462; Thu, 30 Jul 2026
+ 09:22:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260730085713.1484927-1-pmatyas@redhat.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - cloud35.hostingpalvelu.fi
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - kolttonen.fi
-X-Get-Message-Sender-Via: cloud35.hostingpalvelu.fi: authenticated_id: kalevi@kolttonen.fi
-X-Authenticated-Sender: cloud35.hostingpalvelu.fi: kalevi@kolttonen.fi
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+References: <20260729131413.1390890-1-pmatyas@redhat.com> <20260729131413.1390890-2-pmatyas@redhat.com>
+ <CAEjxPJ5HrRc1k7U9dRBLb4mHbipxigrAsySxov=UncHndpmKpQ@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5HrRc1k7U9dRBLb4mHbipxigrAsySxov=UncHndpmKpQ@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 30 Jul 2026 12:22:37 -0400
+X-Gm-Features: AUfX_myeruIF3QESZg2Ur5u_XbxHoeBQcZ5iUcRzGUZtL2IL330yl5G2t86mZzI
+Message-ID: <CAEjxPJ7J17x42hiG=58dm7cSEedxK_k0nJqst-_zuZFb8XGC0A@mail.gmail.com>
+Subject: Re: [PATCH 2/2] libselinux: fix infinite loop and missing errno in
+ partial <<none>> lookup
+To: Petr Matyas <p.matyas13@gmail.com>
+Cc: selinux@vger.kernel.org, Petr Matyas <pmatyas@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 30, 2026 at 10:57:13AM +0200, Petr Matyas wrote:
-> The vulnerability was reproduced and confirmed fixed on:
-> - RHIVOS 2.0 / aarch64
-> - RHEL 10.3 / x86_64
-> - Fedora 44 / x86_64
+On Wed, Jul 29, 2026 at 11:55=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Wed, Jul 29, 2026 at 9:40=E2=80=AFAM Petr Matyas <p.matyas13@gmail.com=
+> wrote:
+> >
+> > lookup_check_node() has a do-while loop that iterates over matching
+> > literal specs. When partial=3Dtrue and a matching spec has <<none>>
+> > context the loop body used `continue` to skip to the next entry.
+> > In a do-while, `continue` jumps to the condition rather than the
+> > loop increment, so `literal_idx` was never advanced and the loop
+> > spun forever.
+> >
+> > Fix by explicitly incrementing literal_idx before the continue so
+> > the loop moves to the next literal spec as intended.
+> >
+> > Additionally, set errno =3D ENOENT before continuing so that callers
+> > which test errno after a NULL return (such as the selabel_file_text
+> > fuzzer) see a valid error code. Without this, lookup_all() returned
+> > NULL with errno still 0, violating the expected contract that a NULL
+> > result is always accompanied by a non-zero errno.
+> >
+> > Signed-off-by: Petr Matyas <pmatyas@redhat.com>
+>
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-RHEL 10.3? Did you mean 10.2? I got RHEL 10 VM and
-there is no upgrade path to 10.3.
-
-br,
-KK
+This patch is merged.
