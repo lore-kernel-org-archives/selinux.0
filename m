@@ -1,153 +1,143 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B4B93AFCE3;
-	Thu, 30 Jul 2026 23:55:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFAA4415F1D;
+	Fri, 31 Jul 2026 00:00:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785455734; cv=none; b=JXwrJrRI4yUjxI6GL+nMlkyGBemFnHIT4Kzo+sN0yzAe3wFVgPeB5fRzDA5v7nNmdCT4jJy0wDNuiqi/6Ubu3TDHBmHFF9mO3l4TEqPb6ObAfADn/yTgfjVAxIZyiEh5aB6F0vb2MrfUaqGNqk8MmZbafHWd2GOrQiS0vieOTRQ=
+	t=1785456003; cv=none; b=ToZJJEM0KkalGBCyQ8ziJLGmDSh2QzzYuEMvoEJXXz7S+vmxXVO8m+6KJnXGUqUriccIj2xFO4gBFzQoDO+sbUGfky/WsiL0oRLWg0faUxNxJpIsJsDnUEW9/xktNJY31qjHpN17nkHyy7Od/LBakDHziHxVR2HNo5n4AwFMTO0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785455734; c=relaxed/simple;
-	bh=SHi8hrGUVMlXpUQThGcl02Kp25AXCrQA3skq36nYaNw=;
+	s=arc-20240116; t=1785456003; c=relaxed/simple;
+	bh=XWZfmUqBlmZIv+Cc4+NkDTwkqL0Bl67aH8g6GVZ5ShI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=nx0VmoTbR5tFanPSHvjwLuS/04B7PX6uRI9+Y4GMGPs7SWQhzjotyUrqBnYGa56J6DPouitu1xvP9iNVxiWRBH/KmHjNuUjJ5LhEyd1QXk58zZ6Jr0CC0cpO+SRtWGlQQR3V+TKsaz68cUvxWHDwIH/8nRqTmexxHLPUQHgjbgw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eDLKaG8l; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Wy0aVLPfgQAwOGZpJxIydD0ECMhXElmF7m8gzNNHlpDJNapkPuyQYRfv66Cnq9/H25wzfYCniZE8GmoGGyExUif1d6tdSORezpyExVJE4rCRAG8oI8RNyx3Jjm2Ooi1e5Wx3GBzZHZ4OYy0pYO9dO8YuVcxEGIs4WavIBjezqGw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LkKtQ27L; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eDLKaG8l"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B02691F000E9;
-	Thu, 30 Jul 2026 23:55:32 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LkKtQ27L"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 576791F000E9;
+	Fri, 31 Jul 2026 00:00:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785455732;
-	bh=enAXmSOcZALStM88krp1E0Bemr2SIz+zXReAN6uGbt4=;
+	s=k20260515; t=1785456002;
+	bh=973DWxHnldpIeidO3QnYB0kn6LB8ZXOP+kfVfsDlnKY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=eDLKaG8lWRAEDtU9loukW/gsRMvzKbo8TXu8cG3OXRbTigJvL8sG9+OQJrLodvUKn
-	 RdCDhKXgmMKVAEefvOHkNEScUof+vmD45v4aaJby1yKPjfP7fXvkYwr3cSlqYit8NB
-	 bLVlDpoz9rf8+5Y4tAFhOsCHbR3AmliZMXCIaIrr6AeqtSaEnEPn5HXEcT6LtAFC4V
-	 xvuzumsT2kfr7xOAZM5Cimp7lttItwKyDN7L4h28w3jKIWsWUy/U5loFOrT1vTCbYx
-	 3wCLVthCeGdwZkiXZ3V1WpjL+Bg5LbxKk3p5mKzm+ikveTuwnpdwQrKNPLbA1jwFiX
-	 nM7xowUxg7zgg==
+	b=LkKtQ27LOFzJpgMFDUrBzZBh5aAFfgbcVhxehaglJqFVNOO/Y8p/YoQdlAD9LLelj
+	 DH6JTHv0kgzHULQAZvxhEQhg71WixYTvUNIS5Oys3Ndvp7JvvAUcfcG9LjrP4Wv8vM
+	 2JJ4Y5cgRDY3U6bhsb856mW4VPd+dVwv9hK5JXRFgxtwA1DOE5zwJ0ioYrQvXyETTb
+	 UVWWc5vZrFxA3C+zQ4gOpEGjVCzmCFl2omlmCkld3TcKcjodfFfDAZhHVzaSS18ATr
+	 VFoALddERNRqIbBjaCXHpksAJDXjt7/dgfYpHI04Wt3s0jI4BCqa900Ibvhm8Lu9ee
+	 NU8XFPwkJ3hRQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 bpf-next 4/4] selftests/bpf: add tests for
- bpf_init_inode_xattr kfunc
+Subject: Re: [PATCH v6 bpf-next 2/4] security: add security_lsmxattr_add()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "David Windsor" <dwindsor@gmail.com>
-Cc: selinux@vger.kernel.org, bpf@vger.kernel.org
-In-Reply-To: <20260730234533.1912709-5-dwindsor@gmail.com>
+Cc: bpf@vger.kernel.org, selinux@vger.kernel.org
+In-Reply-To: <20260730234533.1912709-3-dwindsor@gmail.com>
 References: <20260730234533.1912709-1-dwindsor@gmail.com>
- <20260730234533.1912709-5-dwindsor@gmail.com>
+ <20260730234533.1912709-3-dwindsor@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 30 Jul 2026 23:55:32 +0000
-Message-Id: <20260730235532.B02691F000E9@smtp.kernel.org>
+Date: Fri, 31 Jul 2026 00:00:01 +0000
+Message-Id: <20260731000002.576791F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] Silent test skipping if the testfile exists from a previous abor=
-ted run.
-- [Low] Multi-line comment does not follow the required BPF subsystem style.
+- [High] The dynamically allocated `xattr->name` pointer is used after bein=
+g freed by `security_inode_init_security()` in the ocfs2 filesystem.
 --
 
---- Patch [4]: [PATCH v6 bpf-next 4/4] selftests/bpf: add tests for bpf_ini=
-t_inode_xattr kfunc ---
-commit a299ac47c44a77d98dbdf43f3ba7c981f13fd930
+--- Patch [2]: [PATCH v6 bpf-next 2/4] security: add security_lsmxattr_add(=
+) ---
+commit cefa37d110516b84cf53133f4f60bba93ba53641
 Author: David Windsor <dwindsor@gmail.com>
 
-selftests/bpf: add tests for bpf_init_inode_xattr kfunc
+security: add security_lsmxattr_add()
+   =20
+This commit adds security_lsmxattr_add(), which claims a slot in the
+inode_init_security xattr array on behalf of the calling LSM. It fills the
+slot with a dynamically allocated copy of the given name and value.
 
-This commit adds selftests for BPF atomic inode xattr labeling in
-the inode_init_security hook.
-
-> --- a/tools/testing/selftests/bpf/prog_tests/fs_kfuncs.c
-> +++ b/tools/testing/selftests/bpf/prog_tests/fs_kfuncs.c
-
+> diff --git a/security/security.c b/security/security.c
+> index 2ad7f09c1a611..ae72102cd29b8 100644
+> --- a/security/security.c
+> +++ b/security/security.c
 [ ... ]
-
-> @@ -268,6 +269,155 @@ static void test_fsverity(void)
->  	remove(testfile);
->  }
-> =20
-> +static void test_init_inode_xattr(void)
+> @@ -1376,6 +1377,101 @@ int security_inode_init_security(struct inode *in=
+ode, struct inode *dir,
+[ ... ]
+> +int security_lsmxattr_add(struct lsm_xattrs *xattrs, u64 lsm_id,
+> +			  const char *name_extra, const void *value,
+> +			  size_t value_len)
 > +{
-> +	struct test_init_inode_xattr *skel =3D NULL;
-> +	int fd =3D -1, err;
-> +	char value_out[64];
+[ ... ]
+> +	/* Combine xattr value + name into one allocation. */
+> +	xattr_value =3D kmalloc(value_len + name_len + 1, GFP_NOWAIT);
+> +	if (!xattr_value)
+> +		return -ENOMEM;
 > +
-> +	/* This test must be run from a fs that calls
-> +	 * security_inode_init_security().
-> +	 */
-
-[Severity: Low]
-This isn't a bug, but does this multi-line comment violate the BPF subsystem
-style guidelines? The guidelines prefer the opening /* on its own line:
-
-	/*
-	 * This test must be run from a fs that calls
-	 * security_inode_init_security().
-	 */
-
-> +	const char *testfile_new =3D "/dev/shm/test_progs_fs_kfuncs_new";
+> +	memcpy(xattr_value, value, value_len);
+> +	memcpy(xattr_value + value_len, suffix, suffix_len);
+> +	if (extra_len)
+> +		memcpy(xattr_value + value_len + suffix_len, name_extra,
+> +		       extra_len);
+> +	((char *)xattr_value)[value_len + name_len] =3D '\0';
 > +
-> +	skel =3D test_init_inode_xattr__open_and_load();
-> +	if (!ASSERT_OK_PTR(skel, "test_init_inode_xattr__open_and_load"))
-> +		return;
-> +
-> +	skel->bss->monitored_pid =3D getpid();
-> +	err =3D test_init_inode_xattr__attach(skel);
-> +	if (!ASSERT_OK(err, "test_init_inode_xattr__attach"))
-> +		goto out;
-> +
-> +	/* Trigger inode_init_security */
-> +	fd =3D open(testfile_new, O_CREAT | O_RDWR, 0644);
-
-[Severity: Medium]
-Could this result in silently skipping the test if the file already exists
-from a previous aborted run?
-
-By omitting O_EXCL, if the test file is already present, open() will not
-create a new inode. This means the inode_init_security hook won't trigger,
-and the test will hit the skip condition below. Should we use
-O_CREAT | O_EXCL | O_RDWR here to ensure we always create a new inode?
-
-> +	if (!ASSERT_GE(fd, 0, "create_file"))
-> +		goto out;
-> +
-> +	/*
-> +	 * Probably should not be needed as we will be labeling a file
-> +	 * in /dev/shm, but just in case we check if the hook was actually
-> +	 * called.
-> +	 */
-> +	if (!skel->bss->hook_ran) {
-> +		printf("%s:SKIP:inode_init_security hook was not invoked\n",
-> +		       __func__);
-> +		test__skip();
-> +		goto out;
+> +	xattr =3D lsm_get_xattr_slot(xattrs);
+> +	if (!xattr) {
+> +		kfree(xattr_value);
+> +		return -ENOSPC;
 > +	}
+> +
+> +	xattr->value =3D xattr_value;
+> +	xattr->name =3D (const char *)xattr_value + value_len;
 
-[ ... ]
+[Severity: High]
+Does this code cause a use-after-free for filesystems like ocfs2?
 
-> +static void test_init_inode_xattr_slot_limit(void)
-> +{
+Looking at ocfs2, the ocfs2_initxattrs() callback saves the xattr->name
+pointer directly into si->name, assuming it has a static lifetime (which
+was true for SELinux and Smack):
 
-[ ... ]
+fs/ocfs2/xattr.c:ocfs2_initxattrs() {
+    ...
+    si->name =3D xattr_array->name;
+    ...
+}
 
-> +	/* Trigger inode_init_security once with all programs attached. */
-> +	fd =3D open(testfile_slot, O_CREAT | O_RDWR, 0644);
+But here xattr->name points inside the dynamically allocated xattr->value
+block. When security_inode_init_security() completes, it frees
+xattr->value:
 
-[Severity: Medium]
-Does this face the same issue where a pre-existing file from a previous
-aborted run could cause the test to silently skip?=20
+security/security.c:security_inode_init_security() {
+    ...
+    ret =3D initxattrs(inode, xattrs.xattrs, fs_data);
+out:
+    for (; xattrs.xattr_count > 0; xattrs.xattr_count--)
+        kfree(xattrs.xattrs[xattrs.xattr_count - 1].value);
+    ...
+}
 
-Adding O_EXCL would guarantee the inode is created and the hook is
-triggered.
+After this free, ocfs2_mknod() will call ocfs2_calc_xattr_init(), which
+dereferences the now-dangling si->name pointer:
 
-> +	if (!ASSERT_GE(fd, 0, "create_file"))
-> +		goto out;
+fs/ocfs2/xattr.c:ocfs2_calc_xattr_init() {
+    ...
+    s_size =3D ocfs2_xattr_entry_real_size(strlen(si->name),
+                                         si->value_len);
+    ...
+}
+
+Could the dynamically allocated name trigger a use-after-free here?
+
+> +	xattr->value_len =3D value_len;
+> +
+> +	return 0;
+> +}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260730234533.1912=
-709-1-dwindsor@gmail.com?part=3D4
+709-1-dwindsor@gmail.com?part=3D2
