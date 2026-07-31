@@ -1,108 +1,121 @@
-Received: from mail-oa1-f45.google.com (mail-oa1-f45.google.com [209.85.160.45])
+Received: from mail-oa1-f42.google.com (mail-oa1-f42.google.com [209.85.160.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E4B04503FF
-	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 19:26:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 530203290BD
+	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 19:41:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.42
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785526005; cv=pass; b=XyBoKMAAlliOVrm2BgP1HOobshzV0PYRpZ1sHbPoOue0fJS1Jl0m7/Ftd1O7SojMdwliCo6c1tWLDXEouHNJZh1VSP7pgCtEsWbSTASTSDkRN/HC7FUI2UkmA7Ct6jdnR8Y4K129bZ74XNW450iH4cYPXTNdaph4p9YqmYAgIcs=
+	t=1785526866; cv=pass; b=T5/SoG0ktQHxu4WxNrKBonOUpGMfde8170G52YSQkvqOvzOABmgmhPDRHHUYZ+lQuZ0UzD451Ka01dN9dGnJasE+aDokKv/XtFwFH1ADCMQzJjUeFYX1B3GisfNECMUIuFE9uV3CeZM5Jqub1aPyJwDZCb9ki0igpf7zqKt8bEE=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785526005; c=relaxed/simple;
-	bh=3tnZJF0J4FIVh2V4hNGiHlt0N6WOS3+qKRNWMuI0vpw=;
+	s=arc-20240116; t=1785526866; c=relaxed/simple;
+	bh=uWtGDUOqqF9SyTAWAfXQ3EeCb5m6TKJz6ZnoFQMgkyE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=rAWJh00t7jbh5TCG9KEA9fa1ww0aDJFWg8s+V5f0r5sROiPNzIFxFzURFQXEthwQZR8mwe8W1da2n4RxqVbQC1BtIe1EE0cdyfA5poOoqsCbPy6C6F/jaAh9vo+ExvioUF3vKL4AUL0gREIhyPSCObI7cA5scE45fpuBg4EiRfk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YCy+FBf1; arc=pass smtp.client-ip=209.85.160.45
+	 To:Cc:Content-Type; b=YZBkVymd5k7StzqXEfgTz7QPT4S18n4PDOm1mkWIMr1vh4qzVsNtBND8dsuKJ7I4PPeFRMo1sQ2drzpOTUkLjd/UkXxKFb7hyWGRHV03ZKxAI+DzmeHDxEw0doJinL5eRxYVVQftn+imTvyaH0+8qHnLXrwhm37GflQ2p/3I90Q=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R2al/S41; arc=pass smtp.client-ip=209.85.160.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YCy+FBf1"
-Received: by mail-oa1-f45.google.com with SMTP id 586e51a60fabf-448de0cc236so1072075fac.2
-        for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 12:26:44 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785526003; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R2al/S41"
+Received: by mail-oa1-f42.google.com with SMTP id 586e51a60fabf-451fd21113cso1143639fac.1
+        for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 12:41:05 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785526864; cv=none;
         d=google.com; s=arc-20260327;
-        b=HWG3QgkcOxxbn4hDXHjWbPWtvdSpuZielY2h8wG1Evv45GQ3vXVNCwmBdCvkbWP6f5
-         1WSHJao//vvC7O/GiEDbAOEJGMW/OBVuPYCddSkFAlnHt6sogSdHHhCS3cQlkwykhQCS
-         QmUlDkJeXv2AxGRV+pcQ6q2Q+BlUJmOuqJSyevVVludQ1JKUFLC5CK3iJbf2qTWqpLrB
-         bXwcABv/xxXD/NCB/UP2MV6qwgu6cuUIOhi/uYMvxaTsXQL3ApRU7+ShKP9pRlCzrvh1
-         COORmz28Oh/URrBM68E5YiJscfIbq1ccAjvGcnNdnmhU5bA7XNkEkff6QUfYDO32sLzC
-         O40Q==
+        b=nrEIF2zf2VXaBiDn5JIjm4TZ69VNUyGdBasZ2ZxeJG+65rsqz1EbSAZlPzyuTTorJY
+         ddDM+KFSx1t3o7shW7XVSnag+c4r8Ia9OYAMWQLjQTLzfJuEHN4Bhg/9PvCg9QCo0QV4
+         +ZdeccaQTtqh8mqjmSTpG1y78d44e3iLhVsh/kMLaJZ7Dd+WSQzHUG+lfSaKRQ7i1Hw9
+         giJWKyGPPKsK7IqlrEU16Fh6QGiS/PUbml7ciJDzRYJGr+ujVP1plhhk4xiNRxhef7YE
+         S8u4dL5264S8gXapWeDUOgttm8t4nfkwq3ICbAr4byF6xknY67QpPYYz5cNmTsT3g2zx
+         meJA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=3tnZJF0J4FIVh2V4hNGiHlt0N6WOS3+qKRNWMuI0vpw=;
-        fh=FsXghBnyoYbEc42Idnie0oh5A6i9FUng5ntOLhqXIRs=;
-        b=Qup+ZqS06lNKSYFIEXfKbAIXXmqWyB/vdkoHrWmARc31/IEAgRc4IDYkgukaTPmcrA
-         B3/+vi34qtX1Yy4+By2wkG3KAsmUGVUucVqQBdxDo9lngvlpCZsSw76SGqxBuvHK+rny
-         SDKbGlyyafpef8yGxTf+iC0ay8siRiTPFhkU1IM+EMH5/DxQDYb90lC3G5gvdMzEmQrn
-         lK9q2iN3Ib3vTWEDjT4DR0UxVtPZcxCKvoof9465L2e2gBLDg9sI/OGWpTqWoZFOHNXv
-         drLvUDSEsu+ih5Evbljsn0ni0Nnl6iMW+mW0MNziF9EiEsHRgxxeRUCbDp+pj9dXSjPF
-         eh8g==;
+        bh=uWtGDUOqqF9SyTAWAfXQ3EeCb5m6TKJz6ZnoFQMgkyE=;
+        fh=Ey5igX6L51rQCUw5Y6brZKzpoCJtIwHvj8fDaqqBf8A=;
+        b=LsF7XOvaLTYVLjRVh0om2n3nRz7MkyYQLdp3i4qQGS/lR4TcCi78vuIXkvWXp29Z0B
+         hsYbw8miK5mEFqST0JE7XD7TYQ9/peEW72fZMGL2+6ol6mcmSUHfGUOo9k9dypr/rD/j
+         C5QzmNt+mn+DwZWLItEF356qYklXruFLYFUS6f+6LkpZTWOeIhCshczpz8a3ut79qXEM
+         TBT7+xZ8u6tKj95pP7hfLNfyH9wqs+6rJnphg50e/XdveuHPNFy0PqhY4ay2Ajrxwu0d
+         c8TEBzgHpKQDUEoJPONpiR6k2eTg0ur/DwyiRFnTq9ifbFQ+RfTo18UDKmpfyQjNK0e1
+         bQ0A==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785526003; x=1786130803; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785526864; x=1786131664; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=3tnZJF0J4FIVh2V4hNGiHlt0N6WOS3+qKRNWMuI0vpw=;
-        b=YCy+FBf1vFU3pFAdm4r5Sdptd47K1ouEKWto6zN3jmMHKwFCkB7yJKIeUj2LbyuAwM
-         QP38It8+NqjSZoc1+A0mTa1ovvkkR1PMQzOJM7B4Qdsn8Z7pS2LoJIAsaBC66cvZaArt
-         H6AUYEjK47lKQx8+WL26RUJK3+o18/0W2uaPp9Hau6KKU0UjQJmw9SJBQOCsSQ71ZH6g
-         vTlpbSkxz/utzhNb2XqbLxbb3ju7PvvduUkTm+zGyJTiGjf92OGX+8lVx/ur6YZP2ckw
-         10qu7CaZ/96SPyzeZ4iEffygCFR/9CS1L+Nt0g3ttY6MTRg+sX5XKBSnU88noNLIRSEr
-         8CAw==
+        bh=uWtGDUOqqF9SyTAWAfXQ3EeCb5m6TKJz6ZnoFQMgkyE=;
+        b=R2al/S41NB9aSvFicN1U7rxETjQGs/hwaeH/DC2t86yElgH1IRH1Fb/mLIQlgg1iVV
+         Wd7uJibRUbXfUs774Njh5Dg9BDgy9a7ko5JjeZlgJ6PP4NhBSdHbpUzynwnAOTtshP4k
+         mSuSsG+F8jUjHgklTwgZpw22OK1X86heWhTj3XPGKWW3gttEcgYdk/33Mpu4U2hLMgfA
+         BwKlYoCPae/CVjyoggtgEepex5CD1gjJHaj4XRJ0s4R9zyts/Yh43eMWvIW2UEuPnaZA
+         bjkPk15UCSde+8QW+u7WHtTh40YgOp5uIsDfKET9iJbaQVrHjx59ypWh3q7X4ZgZ/GRq
+         XxWg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785526003; x=1786130803;
+        d=1e100.net; s=20251104; t=1785526864; x=1786131664;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=3tnZJF0J4FIVh2V4hNGiHlt0N6WOS3+qKRNWMuI0vpw=;
-        b=arjzIGB7nmIFvcAFIyvNq5Z2wVosJcxkXoaSP8hsr1AkcZ7CX6DuwzG5JpuOvH8ejM
-         k2zR8bJK+l9oGzUA8cOE0VaWGZfDkkLLF1Ve+qDD5shwAM7NLE4533a/TGa4TWVKOMTP
-         bqFbRx00ZPD7k1+xWEH6EuvBKSMAY8PCUrTKuY++e+wAAhW5CaL50AVfT0GI3uJnOij3
-         QyU38ktxVGs0jVnCs0vso0QPsFsAfxCQP9pPsR+yoDy9m6L1e1UCkCRhY7y+l1ZCJOGg
-         1HX39+olRICxbFyhjlzcEEt7xVWEMJoi2dBGcjZPwWoJdpzAIVTuGZDppZAgpaZdwLz/
-         9mlg==
-X-Gm-Message-State: AOJu0YxgTBe9GWcOeBeYnhAbcinbmT85h93vrl7/Mi8DttWFw8UyscQZ
-	PtO5I+DLAQ/DjtXfI6g+Qz/YEy2B9dAHxI3Gv6wuaEAXCiuRiqcF4UKwWVl6VouidphpcI2svf5
-	D11V2CIRpKaKwqdass3n7i9Wqr14XgniBow==
-X-Gm-Gg: AR+sD12kx1Jt2dIveogvIDEDSNp9r8Fgk2tp9dsLnHUeBcSUnvPrhjebBJdZ+FOseKE
-	PFuoW/mYW8VwErwrNyO3jKVOPEreSA0HmwDfttkAL3jSWRx7CVauTet8l65uQH4dW0c4ZIfLqCM
-	/XjHHR0DOxIsENGaxS3uIHkbLZ50HD/1+YcMhXJvuxZxGsIMnKOlpbchEwuLnxKJU6SFRki2vki
-	DiYAfbHO8PZs3th+ze7VtH36CPQ5PeAhJA8gL5zhIvHJCu6oHyRUZJofVMbJxdTS045LnasTWkP
-	Y4x1v1/e7LXxjLFN+RC7OxcfS3p9SYWhDylIKvevdRTd
-X-Received: by 2002:a05:6870:ad0b:b0:448:c946:9ae1 with SMTP id
- 586e51a60fabf-45905d7f837mr2671048fac.18.1785526003117; Fri, 31 Jul 2026
- 12:26:43 -0700 (PDT)
+        bh=uWtGDUOqqF9SyTAWAfXQ3EeCb5m6TKJz6ZnoFQMgkyE=;
+        b=Ybhds0e/fxqBFMjXFmUe8PdcewCa2od51QGwxrczRfTTkxwREkUtjOnP1v1gxeaNde
+         /egQSFqPivwj8tWdtjtfxB2sqCJad0IfkjmqetBOQAzp+s+dMNBgKT4bM5l1ZaG9OfJp
+         aUD8MPcQTllJZ0qDcy8pkwlPfwQNPhYHleLDlb9UXtADvN+H2LcPHxZoqXk46IPNuoxW
+         pqTzc5TaZDhmtOrQH99A+KDk8ZF6Rd1poCxiDfGrjHxOUfyKOxfLp+kKlmseDxPo/C7l
+         8KqiJ7xafP2Ayk725UvYtgZh3tnyE22l/KsUeMI23TuHxBbQLQxM0J25DgQcG+bwqub2
+         A8fQ==
+X-Forwarded-Encrypted: i=1; AHgh+RqYhviqgzYdfhMPpRpDc1/bcZU9/MvoHFFCpZMiwpdlVfonnBZqgPc39D1IkRs6++ikwnlO4qOW@vger.kernel.org
+X-Gm-Message-State: AOJu0YybATI/j6PbMiWVvOTT9Mgap0QXvUU42OEo6yus/BER6dnQ5gE6
+	vxKfTBYj4hz5CUG1sOdiTmiiaJacybpw9139pwk+HNUcEo4AMrA/R0R2mepIxz5EwO4g5drWutW
+	qdOb1Twok4g3OSK7onOubU/GtWekimdw=
+X-Gm-Gg: AR+sD13gonjvJzCg02frBaP2FIExJfdJMFQXRtMk9EbYp7wbxkHrwMgbP1jOaOr5g1i
+	H6WCxTzaF9OSTpRyF9ncmT72gpDyP1ripvoc8yMb0Otue9ch6SulOPuqAjBk3lhE4ZBPQoiNPTE
+	/dsjjVHSSiegx5s/pProeOk+PYx7+/9MgedYeyIsr9vrOBJ+THqSIshsXWZrkk6Bn17F7YC6A00
+	bLflL6Mtz4QMtCFRnEXrEyw6LBkqsYPeyCD9Bih0lirlAbe1T7Mq5hbI7otgKsl199btmhJreYW
+	mjSuvlf9i5TX8XTi+NJFDWfY71CYGoL3dSf252w/JkK4
+X-Received: by 2002:a05:6870:61d2:b0:451:ca58:626e with SMTP id
+ 586e51a60fabf-458f1409f3fmr4959221fac.8.1785526864021; Fri, 31 Jul 2026
+ 12:41:04 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260731175123.52557-1-jwcart2@gmail.com>
-In-Reply-To: <20260731175123.52557-1-jwcart2@gmail.com>
+References: <20260731-b4-disp-d32e997b-v1-0-0341d038ee47@proton.me> <20260731-b4-disp-d32e997b-v1-1-0341d038ee47@proton.me>
+In-Reply-To: <20260731-b4-disp-d32e997b-v1-1-0341d038ee47@proton.me>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 31 Jul 2026 15:26:31 -0400
-X-Gm-Features: AUfX_mzyxxZuZvbXBg6imfz9vT4Z2ybpW5IRlcuQKoTILM5skKTp_ajOY7myPGg
-Message-ID: <CAEjxPJ4sSm_jEd5MvziAqVGLMZCv91BLnwdGTpKEvACko8BMgQ@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: Check for zero when mapping identifier values
-To: James Carter <jwcart2@gmail.com>
-Cc: selinux@vger.kernel.org
+Date: Fri, 31 Jul 2026 15:40:52 -0400
+X-Gm-Features: AUfX_mz8AM8ipWjKDfZGobnb3q4e68FCpZm5jqrAs7FgxMJWC1-ORqnOqFU1rXQ
+Message-ID: <CAEjxPJ7dbZx8tKuR0L4=7dxqVi=mvbf16y3n4X=mVSx+DfhxUw@mail.gmail.com>
+Subject: Re: [PATCH 1/4] selinux: do not cancel a policy conversion that never started
+To: hexlabsecurity@proton.me
+Cc: Paul Moore <paul@paul-moore.com>, linux-kernel@vger.kernel.org, 
+	Ondrej Mosnacek <omosnace@redhat.com>, Kees Cook <kees@kernel.org>, selinux@vger.kernel.org, 
+	=?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jul 31, 2026 at 1:51=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
-ote:
+On Fri, Jul 31, 2026 at 1:44=E2=80=AFPM Bryam Vargas via B4 Relay
+<devnull+hexlabsecurity.proton.me@kernel.org> wrote:
 >
-> When expanding a base along with its modules, the identifier values
-> of declarations are mapped from their values in the module to their
-> values in the kernel policy. A maliciously crafted policy could
-> create a situation where there is no mapping. This would leave the
-> new identifier value as zero. Identifier values must start at 1
-> because "value - 1" is used to reference zero-based arrays.
+> From: Bryam Vargas <hexlabsecurity@proton.me>
 >
-> Signed-off-by: James Carter <jwcart2@gmail.com>
+> sel_write_load() calls selinux_policy_cancel() when sel_make_policy_nodes=
+()
+> fails, and that helper dereferences the outgoing policy to cancel its
+> sidtab conversion. On the first policy load there is no outgoing policy:
+> security_load_policy() returns early for that case, before it converts
+> anything, and state->policy is still NULL. A first load that fails while
+> building the selinuxfs tree therefore takes a NULL dereference in
+> selinux_policy_cancel(), reached from a write(2) to /sys/fs/selinux/load.
+>
+> Skip the cancel when there is no old policy, mirroring the check
+> security_load_policy() already makes before it converts.
+>
+> Fixes: 02a52c5c8c3b ("selinux: move policy commit after updating selinuxf=
+s")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
 
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
