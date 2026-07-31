@@ -1,111 +1,167 @@
-Received: from mail-oa1-f41.google.com (mail-oa1-f41.google.com [209.85.160.41])
+Received: from mail-oo1-f49.google.com (mail-oo1-f49.google.com [209.85.161.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3333C3BD647
-	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 12:14:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EEFB40F75B
+	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 12:35:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.49
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785500060; cv=pass; b=rT6aKsvMUxrwIkFGfrHNDagIXfk0JUfyNlFUBuxS8SO+UIFNy7AlRwvs5SD45jigaWq7N0G7XM9iHesNKvo7D7om8UcUESp48X3WWsnXy8kGXuEPi+Se4o6OjeClM4ZbZyryNwq8Rnf6f8Lv2iaHRwJlCpZY2WgvB7mKBo+hqNE=
+	t=1785501325; cv=pass; b=jUeWIh3hhGo02wlw0U0SM9BC7mztK0bEfECO0pfbYS+hHGTvqKcp4IjETzO1icL//QiFUpXGxmz1J2rD7P+JjOsD3IcwH9fDPJN9WFJ/k+ijawsI76YMAHx7fgLVqL73yRbILsmFcrShjcRc/F7zCh9i5ZEM5xTfuG+gQGxrcJU=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785500060; c=relaxed/simple;
-	bh=Kdr7spei71E4ABVc7zYdVgOYlxNz/2prdZclGxboLUM=;
+	s=arc-20240116; t=1785501325; c=relaxed/simple;
+	bh=UEXA2jz7/8V+cAKqn+ecsYKqLFIMPeiztSrq0J+wmAw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=iXfaGk1H3qpqdxdSJ2KLFOhQcvU8sCuljKYWquGElAnd2tL7UaS6VlvYKMZUnI4RsEp801gWXvAXTG6/vx526T+qTq2zlF7uTTCYu+r4mUIlDUpYfCUmBFdukOXQqsFcEk9ECk04kgQJCbOE2ScfxwesxqMWyxnKKe1LjOUEqBQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Pigrs/pY; arc=pass smtp.client-ip=209.85.160.41
+	 To:Cc:Content-Type; b=H5ePKsxAPCnJvce7PR29tCH/Ldu0oFZ236YhbqKdVGzM/5G2yUnJg5ZwQDcw8eRna/SFrzeU0AX5b+U5zRC/asuLWHOw5YUaEQXsY6rzr6FlpYSy0Zq1tKupWh+QRioVrQRKXUZHQgfNcqq0i+aWrP4Inc7VOTKzXbEOnEXuvRk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=REXVkRy3; arc=pass smtp.client-ip=209.85.161.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Pigrs/pY"
-Received: by mail-oa1-f41.google.com with SMTP id 586e51a60fabf-448b89f700fso756337fac.2
-        for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 05:14:17 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785500056; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="REXVkRy3"
+Received: by mail-oo1-f49.google.com with SMTP id 006d021491bc7-6aa9606ddadso618413eaf.0
+        for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 05:35:24 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785501323; cv=none;
         d=google.com; s=arc-20260327;
-        b=IE24KuhdbnA+g7Utpvw+ZoMHz8s4jEhp9CKxXMXgBUpEiJo0xvUqRBagLLDkNmecH0
-         ge1um6MRfvPl1S78fM59MS8+++v0V/R+tnKcKv2Lh3RMAYC4Ciz/vpAXeZDe8hjKaX9/
-         efDzcr0xq7Lq15j31uIypML5A+IPpjZUBV0n33kIbsXR8aEtn/qZNSsKNzxkZ/rxknK8
-         n1v1c63VYPG/n0LpcAhkQgN0BansJuoNnw+rs0fry5H8uKNFMvulkHlBPBTazz7HrFGO
-         m9MnGbk2iJV3A5DD/vVRspdSMjylBXy/Uit4wKaBU5frGM7vNlWT8HJQ7tX6oLTn2vEq
-         N9cg==
+        b=YkatpFhESeglLWHfjR+PdXlaYmYacBmhCUgG+kthBNtUVi2FiIyQHcm94wdWQ0LYlb
+         BSt+CKqoI62T0ce9b9V+qV4tR8AKGVfauxOunFAYsidpaMGS5Me6qUolVlv9AUkgkOm9
+         yMP0FIyM+Y+dUn+suP6viF1jRL67436nA7+2h1DqRA6N8t9irZAnK98PjfFkp5DkxCPL
+         8nZ+L8BcYY98pXoZvkXuRC41sPxNPhXMNh2TWAXliL3fqIPeXldBlbOnzyJ10zFb1tZ4
+         8SHVv0c8tWTjR/ThGC6Dp4ZAtIk/i6L4dhgcR4hyzLZggtxOVkwPzCeA83uJ2y6nfSPv
+         aTKA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=ntWohwwOOKrgqSGcId454aZsbJpiArtTvgcz/m4xepk=;
-        fh=ctNnd7rEgrNGVRcNYAD2iHPqnd+GFVudQHEzcgGqyZE=;
-        b=MBXx13RWCFp3C9aM8UH2ICU3ZcGtY6NyKaoF4wQfNcLFXfEvVCZCUUa7shIj/49ypK
-         N/D94FDm/Bnl3kY5sFM+w2s0CqdSfWnZPocsTlb/qC5f1jmWqXMttot4T6Iutf7eaVLa
-         vEgMVccu30ztnlHx+Zw4RTK6P9G102Un4c0poGXOck5Q95/sqEGBEG2JO2xC6MucggCe
-         GQYzXF8fOu5aHW4o6Xrrm4L+z2s4K+3d+zuqfb30aew2xsDLnQSwcgun8iz3aMtCrNyr
-         3BJOt2qeWIlITIjaj84Y3XcQjHTN4rgIWsxCgk6VXs9S7Cuc5eVOWVt6Yf+sJKrXHox9
-         oXDA==;
+        bh=YFAI/9+RvNlaopRe0SqCEvXX6CBi05C4fAg0TyUNeEU=;
+        fh=DMQgHh3KCgCiT9Q+vADFVWIpQ7sVwsss2USiMTAUi9A=;
+        b=Kefm79S6Rui2VB3DCcry4OuN8LCc0q/8quaa4Xr/X8CA5W1CA8avKFFTaVnYCQTEDC
+         z4/UJDWUxWvz8hj/YzHYkEcez4iiMhjwYzBs2VUAwtGM+DD/C/RaRQOsoOjYmscnV0x1
+         98Xs7UaG4tQiUbRmiwT7KB/yUoffu8fdu1aRkExhsTTTwesQWOFZAEuUN694iLVamcrY
+         T1j4EnHeWsjxwpMcUt/ynHix9LVOqrRK4U1NWRcQDztyUPsbuugHS4SBakSZPQn2A5GS
+         tYP1AkYL4egRcvSzb1ATjJ6TJEeIGImo+mydI3TyHgBg9kj2pKy3gypVBYjpHrCMrVxg
+         WV3Q==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785500056; x=1786104856; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785501323; x=1786106123; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=ntWohwwOOKrgqSGcId454aZsbJpiArtTvgcz/m4xepk=;
-        b=Pigrs/pY8qkLeaTx+2eWPo+nPnOhbyzA0eUf76C5QVAOkjmSqXF993D3z72yT8BPf4
-         1f8wVP+bfr6hmhjpBsMogroRVuAxztiFvkgH6bkL4fll30lLZXS8IwTEzXvNfI1uCMoV
-         xi/e4LXr99bH0d44Suj573/ljEDDBHhIQ+VcIMbCaQzbPtGBfQ6cTDCQbjoRx0Rvc7Bd
-         ILzWs1AXr35U7to595zqzc3ZqDnrr4y/ZFOtcXge6au2goGS7zPulT2BsNin3PuLxgkh
-         V1Y3IxU21y5wfHjsuX9hLbiJ9JUHCw4EASACwdTt1LuSJylCeIs1RJ70EsglUsVkxdno
-         oqdg==
+        bh=YFAI/9+RvNlaopRe0SqCEvXX6CBi05C4fAg0TyUNeEU=;
+        b=REXVkRy3KxPSPr+1PvDbz53nE/VdaLuOmJyFOcwmV9/GnhNCzeZ+LKuWgCI1kLGTzz
+         sA8noSXGop1VRy5mJv/qmiWYoURK89NTQQLd3e8h7t5tyCNKWx9c9b4aMDqIYPu7Ov6j
+         w0PXfFUz70YrS2zcA6g05R8Ck+Pllf97q9vn+wbtNLoq48MOhER6RrH62c9Go9fA2Hc9
+         IHdp/Kkxh2dsQYLJS7R5ebo3N8cABHgcasxljvAgQD3MMjQgxb19FSEkSnsoXoV4R+ql
+         MJu/vwTHzM7ho03qU1J1SCjmcXrtJQ3tXsejZdwt9Jm7K5gw5nQFvzxaykrZr2VZ5sy0
+         rnDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785500056; x=1786104856;
+        d=1e100.net; s=20251104; t=1785501323; x=1786106123;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=ntWohwwOOKrgqSGcId454aZsbJpiArtTvgcz/m4xepk=;
-        b=C/c6YVaL+Wj+SJtj6cYRCE46QcAn89p34DaUlxYfOE3npkY1AFVzfcFUK0IEOnvqrF
-         zb0xZx/F4slDzkWaLv11P0WKWgiF5wckjcQR9/YjoVcAHH+VHgjWb4QKuVJ258cDzgCH
-         PoFaorfyCjA38bUv1Dzz7UZQqPIh9Ao8Rrkd0KprkjUS9Ep8iVkqGHylAPXPoKANdTfF
-         c60Vs0Tfn2xK+64wolA5pYb5Zv0IDXDQw2wuoJ84NaJm0uGk5U3KY491Vm01N9Ms5QcT
-         GEme94N839oAN1762azHljf8oLLhf+7PE5gsrosyI/tlR3uGpfkM7VqdKuHzUwRMN8Zp
-         zIOQ==
-X-Gm-Message-State: AOJu0YwMxvSKAPsjDUJ57mEHjq34PWLrb1kbKJ7pybF+EPTuw00uU82q
-	4XUO6smQ8bSGxsUYMCIBYlaGDqHUI2YoIE0eaPZiLAuyGNV7Zfi2F5v8XL06OQQH/GsIN9ylEP3
-	oSBpxwBymT2WyvVJMIwILOzt04W3p6nXdJA==
-X-Gm-Gg: AR+sD13E2OSI9bOZzz5KDeXXuLJTj6HZSNxhlZ/8S0Ya3MiUvCWMU1K6tqr8vhcVw4H
-	UCGjvULgnbPKy4NU52eTdh/IUNR2hXSS3Ex+NBdcjxYAgfm+LCXdBZQngFIxVgqfmfBQhIlpsit
-	Popa3f1PlTgp4s7Ng7DCGYgabsdLb8wyIj4uBewaWXqJ8X4F6t4RaNDdwUpw0W69fmX/k5IA891
-	0/xdWqLrKZm5g0bO22DzUr95XPMTrmhfL2aW5y4CLyvBayLmQKmOl+0TcAhYMcZDgSj/EQYxGxM
-	VxrnLGB9W0ws51f0B0JKYrHzd5LOcfoE1dkYRop8bDZs
-X-Received: by 2002:a05:6870:3d97:b0:448:888d:225e with SMTP id
- 586e51a60fabf-458f2fca6a8mr1985019fac.9.1785500056551; Fri, 31 Jul 2026
- 05:14:16 -0700 (PDT)
+        bh=YFAI/9+RvNlaopRe0SqCEvXX6CBi05C4fAg0TyUNeEU=;
+        b=Y1UN1+g8u+6LStjar37LL3T+g1TehXGOm4qCeyywqbOiHbtjOUei9j3bMcrG0CfzuE
+         lVgjAO9s7Mj/rzcP4c3Sw++A9K7d4B9LmsKUHTbNXYhjs49yJvZxpXrLXjLOtM8iFkx0
+         clynzA4SXx0OC78Fv4DdzkbMXY7nFgSbtnO/qsrT7yCHzwUSsXMtcmIw0h7iOvctL9j5
+         TiSpbDydDXMStpxrzm8uVndWw3mcU1jeORWUtouI5U/KHuZn0KJoD+8MuZ56jZOuym5L
+         sT5tRWdhkTqzrdCXrai6fMn+qu/kxsGcouPBZy1avbheCGSy2DjlqxuKKIcTT3KAZ6Qk
+         LUUg==
+X-Forwarded-Encrypted: i=1; AHgh+Rq2AaeqtOM98GDmWGlrFpqMfA+u+oq5feTGzRwPXGDZYYUwvtz0CAnuN+AcM3byNqgULJrrLXdx@vger.kernel.org
+X-Gm-Message-State: AOJu0YwWIDZF6FZjKvDz7jSBncbsQjjVD4WQsVaxiBQt5TI1eVOLQUC6
+	a1z5I42N7OvoSzVFc1wRPeuZdRZyDp7WB3WB2Xz1lN41XYjfhEmUqQGw7hs+bS0558BJ6367H7x
+	9kBDRv3q9jU1zrnCVdwXuFDFutqMv4Ck=
+X-Gm-Gg: AR+sD10dhHGczgr9wZHO9RlqwR3D/rwcAAJyg6rwYkHZCed5KdyHv1beHiYjCzAlR9Y
+	cCDf27w8yD/q4RmWo/lfvmN5wbEAGlfd4jQcTJDvYutuLESVUO+TwYMan76sqmZT7DnFZ36gJZi
+	88sV7h5+u2Fuq95Mbc3gkwMD8rVGK6ajW8VOqTu0/3nPbg/IhNedBDcsHY+UaRQ/LOYFPWkQC2Q
+	5dZfotfYyetyDJ85vT9mUhk0cU1U57vt4W/K0yBi9srtPkXw4xVCpoztVmHLN+w9sep4a8/O+cs
+	bwciJ+YajHCWy9nbWp0TIO2+ttqz2aoR7C75Ow0zB3BB
+X-Received: by 2002:a05:6820:c0c9:20b0:6aa:e252:dc59 with SMTP id
+ 006d021491bc7-6ae37cf9c54mr1615552eaf.5.1785501323220; Fri, 31 Jul 2026
+ 05:35:23 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260731084009.1285103-1-omosnace@redhat.com>
-In-Reply-To: <20260731084009.1285103-1-omosnace@redhat.com>
+References: <db6fe5d2d4081f20f85abc6020b831fd@paul-moore.com> <20260730221508.3846409-1-cmllamas@google.com>
+In-Reply-To: <20260730221508.3846409-1-cmllamas@google.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 31 Jul 2026 08:14:05 -0400
-X-Gm-Features: AUfX_mxG8CbJBm5b7kyNp2vAkoKQ4JjtePpvCbozBiC8ZOqVvMl4FjkoazW7W5A
-Message-ID: <CAEjxPJ7eetwgk1UGjASvesqK5NCUWEnm=vHWLKhymx0sy+1FQw@mail.gmail.com>
-Subject: Re: [PATCH testsuite] tests: disable testing of f2fs when PAGE_SIZE
- != 4096
-To: Ondrej Mosnacek <omosnace@redhat.com>
-Cc: selinux@vger.kernel.org
+Date: Fri, 31 Jul 2026 08:35:11 -0400
+X-Gm-Features: AUfX_mwlKgyb6AEn20yiXH-27f3TnQmpcyFREg2qUfV_pjvNieyaRo-vjnWDeh8
+Message-ID: <CAEjxPJ5PPyM+fkMnLj+FATHtoyYg4TK+tthGpudWnq52GSF6MA@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: bpf: check SBLABEL_MNT before isec init
+To: Carlos Llamas <cmllamas@google.com>
+Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	"Christian Brauner (Amutable)" <brauner@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, kernel-team@android.com, 
+	linux-kernel@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>, 
+	linux-fsdevel@vger.kernel.org, stable@vger.kernel.org, 
+	"open list:SELINUX SECURITY MODULE" <selinux@vger.kernel.org>, 
+	"open list:BPF [MISC]:Keyword:(?:b|_)bpf(?:b|_)" <bpf@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jul 31, 2026 at 4:45=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.co=
-m> wrote:
+On Thu, Jul 30, 2026 at 6:15=E2=80=AFPM Carlos Llamas <cmllamas@google.com>=
+ wrote:
 >
-> Current latest f2fs-tools release (1.16.0) doesn't work with it, so just
-> disable the test in such case. See the added comment for more details.
+> selinux_inode_init_security() marks the isec as initialized before
+> checking if mount labeling is supported (SBLABEL_MNT). This was fine
+> until commit 9722955b5430 ("bpf: Add simple xattr support to bpffs"),
+> where genfscon bpffs mounts fail the SBLABEL_MNT check as expected (no
+> xattrs) and yet leave the isec->initialized. This breaks subsequent
+> calls to inode_doinit_with_dentry().
 >
-> The issue can be reproduced for example:
-> * on a ppc64le machine with Fedora
-> * on an aarch64 machine with Fedora ELN or CentOS Stream 10 after
->   running `dnf install -y kernel-64k kernel-64k-devel
->   kernel-64k-modules-extra` and rebooting
+> Do the SBLABEL_MNT check before the inode security is initialized.
 >
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> Cc: stable@vger.kernel.org
+> Closes: https://lore.kernel.org/all/akWdcp6P0FkNDzBk@google.com/
+> Fixes: 9722955b5430 ("bpf: Add simple xattr support to bpffs")
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Signed-off-by: Carlos Llamas <cmllamas@google.com>
+
+Just re-affirming my Ack since the patch did change slightly.
 
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+
+> ---
+> v2:
+>   - Move the check further at the top per Paul's feedback.
+>   - Collect Stephen's Ack.
+>
+> v1:
+>   https://lore.kernel.org/all/20260730181008.3654413-1-cmllamas@google.co=
+m/
+>
+>  security/selinux/hooks.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 8d6945edae7a..18dd28b2bb13 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -2974,6 +2974,10 @@ static int selinux_inode_init_security(struct inod=
+e *inode, struct inode *dir,
+>
+>         sbsec =3D selinux_superblock(dir->i_sb);
+>
+> +       if (!selinux_initialized() ||
+> +           !(sbsec->flags & SBLABEL_MNT))
+> +               return -EOPNOTSUPP;
+> +
+>         newsid =3D crsec->create_sid;
+>         newsclass =3D inode_mode_to_security_class(inode->i_mode);
+>         rc =3D selinux_determine_inode_label(crsec, dir, qstr, newsclass,=
+ &newsid);
+> @@ -2988,10 +2992,6 @@ static int selinux_inode_init_security(struct inod=
+e *inode, struct inode *dir,
+>                 isec->initialized =3D LABEL_INITIALIZED;
+>         }
+>
+> -       if (!selinux_initialized() ||
+> -           !(sbsec->flags & SBLABEL_MNT))
+> -               return -EOPNOTSUPP;
+> -
+>         xattr =3D lsm_get_xattr_slot(xattrs, xattr_count);
+>         if (xattr) {
+>                 rc =3D security_sid_to_context_force(newsid,
+> --
+> 2.55.0.508.g3f0d502094-goog
+>
