@@ -1,171 +1,201 @@
-Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5247B414A34
-	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 16:03:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72E04446821
+	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 16:09:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.41
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785513795; cv=pass; b=dWe0zqTebr4dyD+FQwU/HsZ4Q+harU+cr9QUcd5+aM3ylx5eVPwPRqgV0Y4GKKYlx8escb/Z8L1gvf7pbQU4LJy64tBaKQbhKR9+j/HA/7ybTX2ekGxpETOOFsVlGp/8zdR5wihP0si8t+4GEth7T5pc6ZUOGgxhuJEU8rfLXgs=
+	t=1785514192; cv=pass; b=Nmr4MC3CSGJqjJGm95xSIf2K3L8SjvVYEnHbJJkzrjOQsCIx6ZJSSRyhTPJpb3BIRu59GJ7MQSGQEhLeiuMXYetoIpX/B8eNnsyHmGx3hWa92uPvUJh5eWBPmcirHn+GsqtoXX+DP8eH5cT7unzXEPPJUhxRf65+zwgK4EgzEAk=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785513795; c=relaxed/simple;
-	bh=n+9aQXVCyI5+nq4dxhlKhYIzN+km1UKy1fzyENReD5g=;
+	s=arc-20240116; t=1785514192; c=relaxed/simple;
+	bh=E2RVSRIXeuAo+5wfQpBk4zmpUN/FQ1MtmGDwrYQP8YA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bobTIHXbBtDaADKQEpYcSUuk5Ut+Mb4npIExUEY/ilbuzoCmxVGIEQSuOD7Llb4tuNyPPri46FQipnTn4rlR+S/aMGagrtBGaZZeD2Iv0ArBkSA5xTT93da5wgRjyfF+HqaxhjvpQhvTC1jxf17C5TxnPb6xvZCds9sLL9HROUM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=a0OcVIF1; arc=pass smtp.client-ip=209.85.210.179
+	 To:Cc:Content-Type; b=S3kaNiXQg/AQ/3u3Y2XQ88N2SMNL9dQksI7AJ7t6VZd/iwrtJC/Vdz+cSKuSYJwNODfO5CD+ed22c8wkfjeHKeSqt4liqvvXM7uCxp3sy3TGk5gcuNk7Frw12CwJdGEhDWX5dUCDCqCTS7cCsk4dGagT/GEeLhj6tXrAowstaFY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=cqM73njM; arc=pass smtp.client-ip=209.85.216.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="a0OcVIF1"
-Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-84830c774a0so1224730b3a.1
-        for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 09:03:13 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785513793; cv=none;
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="cqM73njM"
+Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-38f620399a0so998086a91.2
+        for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 09:09:50 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785514190; cv=none;
         d=google.com; s=arc-20260327;
-        b=nWSHvj10Jpr3+wE3P1tmuMoTpU3qyAh7aFaVt3rie/yEjErV3Pz/cRIA4AwS21R17J
-         J6eupur00hcDDaYZBNPx2lwoYxI+GNH/46qtCpnhUVOal/uDpemZw+2KZXzK5BJsLXia
-         7MM86GfdPfxVxKAwvHI18TrhQLC2L95fpF3KEZU/DcP5Uo6B7ecvoTf2ocfM59YYyEWu
-         0/JAz9iB/BpVAAPQUVqIQglufP/I7Jo+s+4M8pLmF3vWrYtlb4BQmvyBnFwg0WIwosEo
-         +fS3hMht8rNfaT1fbhSbToEOdaxuJF4/lsgtmic4zswL90CqRgxaw/LM2QGdRUU1Ef1F
-         Kl+g==
+        b=JAl62yMZnjVKJNSS/+HjDkNoa3GPmDrJIEhp+h9i14xir3QBH9ZEkipZgzNggWTmzD
+         TdrwdwDRrQqyP0GejN2vOmV17hNvCV1ZUpvqoM8UmHTshRsinPBXaGIa/aOlYUKwsqwt
+         +PQkUUuEBAeOJy3N46aWh0XwVzRAMnqvFyWiD9hfibnZ35FP1PD/qwqv22z7Dlo7pLfA
+         bA8OrFAVlLocd4Ukrg6UP4xMyxs3BtpO5V56Q2h9kkBsPGyj0jpZkhmItjrws3waFb2m
+         aSzhYlTWUq1Wdhu2auxtGHDh41SE7mtWGtevnJjIi6omrxc6Ny2zp/zeQUw5+MmPRxIh
+         Pg6Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=CFI/kEWUQrMOVwbdW9xBPQDb5xYR+l3PWasJ1nDKXvg=;
-        fh=mCS1Oo7CPUgGHTwA5WT4h6BBsN7PoTYhqHEZf9581Rk=;
-        b=qphs1NV0OdCJFiNtQ5xQbuMjIltmM/eFhDdeZsRnyeFl41c1x3aAngfx3UvP4Nmqhx
-         ZIK34PGlJPhY8MxnWNvSYNrgVL7Ohoho3WoIw84eqR8vTO0Q6wogMGRV+MXbD8Algtsa
-         yOjMmsdw0Dq9qwr+QDBg569MGvCVS6bxB/zfPDpYfUFxUnTqx0euaQ2BBN+BGG0DN84I
-         3djyNBBJmmEyHCGrFMz0jI/QOoqVbtycGZvFbB+ZKyv4EC3uywC3zvlnmJup4aqulX0H
-         tiapwH10ehTd17jB4W/tmqjnzB6epOkDvF3Mt/d5UEMdJ4QieOzwjqUWKDJj0UAxYa3k
-         ENAQ==;
+        bh=MLQBHce5Rf/yizV53vOxCocZN1WkAdEkQ9OKlG+s1GA=;
+        fh=JWvC0lehAPg8SWVpgV7JJl3GMIFzid8KDELaceFyB1U=;
+        b=c8VmGsYkqRnode7jAXVmGgCKPnEAnch/xppcZ/OjgzkrOdcDF6Rdf2sn2XSeZbuX7c
+         +6UHbWIwLCfXT0x+QJP89Nw6/Svsy8KwbERZ7kfQFYk5HCkXjZ6BmN9aamUsGpX47Xa5
+         ggSgZ3obgazw94yFZfb+Uj6lB0csDVgCPg1nUVEdTgIGzVt4Pq/Dxr393em8GWzCqPLF
+         g5Br+7QOPpfsa9X7Yt74EKxJViiovUN6Yv+WP2sPMXD/MB313XY3loYjOmzAgEeHDW2Y
+         Addsa4dTEGwS/NTRBsNgi+Lzzz91fznWM+9+TtjBbWT25uHh+33AB32jM/VAr63pK2le
+         mYiA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1785513793; x=1786118593; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1785514190; x=1786118990; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=CFI/kEWUQrMOVwbdW9xBPQDb5xYR+l3PWasJ1nDKXvg=;
-        b=a0OcVIF12lLVGVOtIfSx1+TKTqNpVgrze1/CLf/w6WuIFAMe8TWbyywpKFz+IZwAGT
-         GrA01XVdi6CufaR3E0uq/uXmW+n1tSatdNMF/vxIUisQIQ5W9UmNNseOEq0FvYN0u4GN
-         85UibeJSYrH/nIP+P/U5JaIssnF7hOGj7/TDIv3+RyTtovCjHe+vrY50MEBB/c1BRmKo
-         U9dt/BvOvjv50PJTJEunlFw0dQvoszF3GjUco86M7dpGhBQsOQ6n2X+j3346ZEB6/Jz3
-         shBQ/2418NTPr2DgGAmPzEvTOlUPQZtNU6hktOdQgM1MMra+4+UZJylVnTYHxiQCU14R
-         QzFg==
+        bh=MLQBHce5Rf/yizV53vOxCocZN1WkAdEkQ9OKlG+s1GA=;
+        b=cqM73njMXUadFgHefsHny48QLdlchgsJq03UlTMklOD16QGYAl29Px8XNxCgk+687Z
+         I5uPB1A0WfenSXZAc02HEiRyVfr87keZ4Oa5kylnaceiSp/Fq7sKpWwBscc4c88j4Qdk
+         pPsyTXxzX8O4jtPYCi6jMH9zEmTU+N0iad7WQR0o+Oatq2Fh2LALVyXENkRdLTJ9nyWz
+         AgLi+nRgEtzRD15QvrrUQub3uV2OqAtJFL5e89/i5pdLpKTFiMoZqfzDqbLxid9HthTu
+         tTW8ibqpUEsxWidbIJJrHuCXlKCzAwSdtj73g6yzSh8AW6YC9sEuHwtV3H3kadvkPVkH
+         miEg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785513793; x=1786118593;
+        d=1e100.net; s=20251104; t=1785514190; x=1786118990;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=CFI/kEWUQrMOVwbdW9xBPQDb5xYR+l3PWasJ1nDKXvg=;
-        b=sOn+mxWhNAyrXJqkD/AXZUsfJYKH13HrE80r4A6tcHrTyBy7pz5TvB/JTlkv6ljxCU
-         fmea0iYLIxG7sjRz5NhftQJep08yzNKoETa8jfPK1L6wSX+UvGXRR3a0yYQSHse4w5Kx
-         29znyXVceWHzrvX21VExISzv6tn6AJqWEOcyXlOcpx0fuIUIRyVR7SSOeO/MgKZ3MZ9j
-         VvyZmJwaqQUMLVBWQ81XL47fXPYM+0mMZ/7a225hIbsT0lpNOnRAxrHAsLKiNI945o8y
-         YRZPcvGWEjuGNAK/5ppTo1nTb8hngMjTWVw2/7rhLPSBD7YHvx3HBEuMyJknTlBNo8Q+
-         9q6w==
-X-Forwarded-Encrypted: i=1; AHgh+RpUOYioaxSFkB7OQkXZuwaXKq71/jhUAE3PWjeAiqaZlUODfKBKpxvcvwHfNgCj6YDBKS5Omx/H@vger.kernel.org
-X-Gm-Message-State: AOJu0YwWeZ1mCDTwSUSBQSqqwpXssKRI4xKC1jWhc117ZZjVm6c+dFt4
-	VY+WHwVJB+PA2eDjR4yg4weiTcTnFb0YoeVw/M0zIJswgm7hkHEcSqnnyDuN0EJU4Rgq5LReL8V
-	q/zDgtggYT1rX4PSYdzuscjhFqEUXQVjbN9xI82Bj
-X-Gm-Gg: AR+sD102qFEUkIadxPEl2S81200dwYrmy7c7qdSl5iuIKDfqXHTVGB0njl+qFBp5NyD
-	S9pYqjFeOwznlq26/CCYI6qArWBetX5WJ3pJcQmGzapVi74Zhl2rvOgzrgtypRqoEugEn4NOnOd
-	iXpyON84icBmZNBZknk5MNLPA7/Zxih6qAE6qXbLWDF6Rf1Om960FUz8/PH710eLmhKIYnyKXx6
-	+XSas4eqKR0mCHCcYvjcR7+1qCdbyFT8+LxHhtPo02phvmSnaCr0mAFl7fXZ76XsvDqvXLhHhsR
-	WPgaDMGjz9iAQQFQiagmiruiu+OoSIhTgX3cIqrXQCSx
-X-Received: by 2002:a05:6a00:1956:b0:84e:223b:98c2 with SMTP id
- d2e1a72fcca58-84ee494dff0mr165281b3a.77.1785513791519; Fri, 31 Jul 2026
- 09:03:11 -0700 (PDT)
+        bh=MLQBHce5Rf/yizV53vOxCocZN1WkAdEkQ9OKlG+s1GA=;
+        b=WvGAcpddmCjq6q24EGGFg1MhCkNZdw7y8vWFZlrYGppHpDwMWQqQU3BmoJ/dstNU8s
+         KuVQTRVgwWE7XPvFGVfPUFPdYat7Dfkwn/y8FgbiUbHX2G71ph7g67wge3eFd6ixafPR
+         glAVJMWmuVx4erocyYvkXpLQ57eeu7RABDgWxAO9BRXnn3Aq+ssFsKV4ukgvr9EBxoYm
+         v/jH5KOHCRNCTR7v1tNW1+pcsBtVWxwK8ukCsHZmFYxDXa0KbB9deXVknuM8JRrgGG5m
+         mMaVZflAijMg+gXUGUxUp8c7Wz7bU2ACJDO4dP0Vz2ZpdCHpsF3GsgMD6TNoojJdRpBm
+         5PDg==
+X-Forwarded-Encrypted: i=1; AHgh+RqNstUxPdoqF1ZE5fs61ri/0GXlbp8/ncjTS13kovZrgZstfewv+i8sla53Nm1HP3oYnr9tssu3@vger.kernel.org
+X-Gm-Message-State: AOJu0YwIWelorBBctoiudFrJg23BvCYyQgO+FRsprwJCwtARulNe2BCO
+	UCAmL7Bnet/PNK9OJFI1xRC1gZpQFih/Anu8kp81KtumOlobRRLlZYAnsSJExV61p20wZGNclCs
+	n4ttYQZQEhGFo1geUxtVVbV7kFlpouAgVwdNw0XONnbRr3jr4U8t8bw==
+X-Gm-Gg: AR+sD13pyCWN7uuBW6h0monOtn7BarKpR5rMWgUOZFn2xi+8QcDjDmsUIedhHPkbFpw
+	qCdUAnrGwo7nvlu+dqCcKGG18noYvDwfWaT9CZXxuzDuk2b18h48JLiyJwTfWGdYb5onUpAoiGl
+	ovco8FNrukO/8dlbq5vPgNRJsspm6VgLI+EGe9kWKV5lF/9E4bZ/neDzN74xK1PwuTOV8DIQ952
+	WUa2fW/T06aB4lIhWU0Co+Zn1Pr5G5lhGNW5SyJOA6BLHzAKsVFtxbQLhVUf4FYipsjLAeGeRBx
+	WFTw+Yu359/a1OT6rNJag0aRBtb4GGIjZSRQzDEldJGs
+X-Received: by 2002:a17:90b:4c42:b0:37f:9cdf:f0ac with SMTP id
+ 98e67ed59e1d1-38fbc4cf1b2mr463861a91.27.1785514189775; Fri, 31 Jul 2026
+ 09:09:49 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260730234533.1912709-1-dwindsor@gmail.com> <20260730234533.1912709-4-dwindsor@gmail.com>
- <CAHC9VhT=m-GtOZx2AHym7uN1CNx94arKBiXeVC7LTEJ-b=1EVQ@mail.gmail.com>
- <CAEXv5_iiNspub=qE1YW-01sV_bxxFUrrcAR4KV4Ec5i_mePtHw@mail.gmail.com>
- <CAHC9VhTS7rSnBqg00ZxNkcZyh_=EeJmn_4z3CTCCxreEEDtTtg@mail.gmail.com>
- <CAEXv5_iHLmzPT3Jj+qZsdt1Nk_5OD4Up3GGV0S9G7KyQshFhDA@mail.gmail.com> <DKCVF3KRQSOJ.1WKITMP369I0R@gmail.com>
-In-Reply-To: <DKCVF3KRQSOJ.1WKITMP369I0R@gmail.com>
+References: <20250428195022.24587-2-stephen.smalley.work@gmail.com>
+ <20260725200958.4471-1-cel@kernel.org> <CAHC9VhSGn6UQ1__HtqjKWD1KgyMOhHYYKny5HnVuPAuvqZR9aw@mail.gmail.com>
+In-Reply-To: <CAHC9VhSGn6UQ1__HtqjKWD1KgyMOhHYYKny5HnVuPAuvqZR9aw@mail.gmail.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 31 Jul 2026 12:02:59 -0400
-X-Gm-Features: AUfX_mxjC65mK_RgbRznYtgcxw-6qcPS9DZ0388yJaipWl41dn8qJKId3QYgWYo
-Message-ID: <CAHC9VhR5yfw+sMfrYpy8Qm2uNoxqsTweh=KhDRZsU1CioHRDDQ@mail.gmail.com>
-Subject: Re: [PATCH v6 bpf-next 3/4] bpf: add bpf_init_inode_xattr kfunc for
- atomic inode labeling
-To: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Cc: David Windsor <dwindsor@gmail.com>, Alexei Starovoitov <ast@kernel.org>, 
-	Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko <andrii@kernel.org>, 
-	Martin KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
-	Yonghong Song <yonghong.song@linux.dev>, John Fastabend <john.fastabend@gmail.com>, 
-	KP Singh <kpsingh@kernel.org>, Jiri Olsa <jolsa@kernel.org>, 
-	Emil Tsalapatis <emil@etsalapatis.com>, Matt Bobrowski <mattbobrowski@google.com>, 
-	James Morris <jmorris@namei.org>, "Serge E . Hallyn" <serge@hallyn.com>, 
-	Casey Schaufler <casey@schaufler-ca.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, Mimi Zohar <zohar@linux.ibm.com>, 
-	Roberto Sassu <roberto.sassu@huawei.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, 
-	Eric Snowberg <eric.snowberg@oracle.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, Shuah Khan <shuah@kernel.org>, 
-	bpf@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-integrity@vger.kernel.org, 
-	selinux@vger.kernel.org, linux-kselftest@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
+Date: Fri, 31 Jul 2026 12:09:36 -0400
+X-Gm-Features: AUfX_mzgQGB2mMZ1ML9jDaE9s_9fzccqwz-sP-5nGT2rz4DpCr8cGB7c5pnPRjI
+Message-ID: <CAHC9VhS6B1yW+8G9Biqit5CAmcg4CwCaWbq1B+Qpo2n6a=yqnw@mail.gmail.com>
+Subject: Re: [PATCH v2] security,fs,nfs,net: update security_inode_listsecurity()
+ interface
+To: Chuck Lever <cel@kernel.org>, Anna Schumaker <anna@kernel.org>, 
+	Trond Myklebust <trondmy@kernel.org>, jlayton@kernel.org
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Achilles Gaikwad <achillesgaikwad@gmail.com>, Casey Schaufler <casey@schaufler-ca.com>, 
+	Christian Brauner <brauner@kernel.org>, linux-nfs@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jul 31, 2026 at 11:44=E2=80=AFAM Kumar Kartikeya Dwivedi
-<memxor@gmail.com> wrote:
-> On Fri Jul 31, 2026 at 5:30 PM CEST, David Windsor wrote:
-> > On Fri, Jul 31, 2026 at 11:17=E2=80=AFAM Paul Moore <paul@paul-moore.co=
-m> wrote:
-> >>
-> >>
-> >> Okay, it looks like there was some confusion/misunderstanding.
-> >>
-> >> My understanding of Kumar's comments was that he was referring to the
-> >> exisiting LSM related kfuncs that are located in fs/bpf_fs_kfuncs.c,
-> >> not necessarily the new kfunc you are proposing in this patchset.
-> >> Kumar is welcome to correct either one or both of us, if we read that
-> >> wrong :)
-> >>
+On Sun, Jul 26, 2026 at 11:03=E2=80=AFAM Paul Moore <paul@paul-moore.com> w=
+rote:
+> On Sat, Jul 25, 2026 at 4:14=E2=80=AFPM Chuck Lever <cel@kernel.org> wrot=
+e:
 > >
-> > Yes, after another reading, that does appear to be the case =3D).
+> > On Mon, Apr 28, 2025 at 03:50:19PM -0400, Stephen Smalley wrote:
+> > > Update the security_inode_listsecurity() interface to allow
+> > > use of the xattr_list_one() helper and update the hook
+> > > implementations.
 > >
-> > We'll need v7 anyway to fix the ocfs-related UAF the bot found.
+> > This commit wedges an NFSv4.2 client running fstests.
 > >
+> > A kdevops fstests run against nfsd-next hangs at generic/086.  The
+> > client stops making progress and never recovers:
+> >
+> >   watchdog: BUG: soft lockup - CPU#3 stuck for 250s! [086:60396]
+> >   Comm: 086 Tainted: G  D  L  7.2.0-rc4
+> >     __pv_queued_spin_lock_slowpath
+> >     _raw_spin_lock
+> >     nfs4_xattr_set_listcache [nfsv4]
+> >     nfs4_xattr_discard_cache [nfsv4]
+> >     nfs4_xattr_cache_scan [nfsv4]
+> >     do_shrink_slab
+> >     drop_caches_sysctl_handler
+> >
+> > The D taint says something died earlier.  It did: by the time the
+> > lockup fires, the client has already taken two dozen NULL pointer
+> > dereferences, all of them in the same place:
+> >
+> >   BUG: kernel NULL pointer dereference, address: 0000000000000000
+> >   RIP: _copy_from_pages+0x44/0xd0 [sunrpc]
+> >     nfs4_xattr_cache_list [nfsv4]
+> >     nfs4_listxattr [nfsv4]
+> >     vfs_listxattr
+> >     __x64_sys_listxattr
+> >
+> > The two stages are connected.  nfs4_listxattr() declares its
+> > remaining-size accumulator as an unsigned size_t.  On a size query,
+> > where listxattr(2) passes a NULL buffer and a length of zero,
+> > xattr_list_one() decrements that accumulator for the SELinux label
+> > without regard to the NULL buffer, so it wraps to a very large
+> > value.  nfs4_xattr_cache_list() then sees a NULL buffer paired with
+> > a buffer length large enough to pass its own bounds check, and
+> > copies into it.  The fault happens while the xattr listcache
+> > spinlock is held.  Task exit does not release spinlocks, so the
+> > lock is orphaned, and the next shrinker pass spins on it until the
+> > watchdog fires.
+> >
+> > The reproducer is a plain getfattr on a file on an NFSv4.2 mount
+> > with SELinux enforcing, which is what fstests generic/086 arrives
+> > at by way of a drop_caches write.  No fstests machinery is needed
+> > to see the oops.
+> >
+> > An audit of the listxattr path pointed here, so I built nfsd-next
+> > with this commit reverted and reran the full fstests nfs_v42
+> > section on the same pair of guests.  745 tests, no soft lockup, no
+> > oops, and generic/086 passes.  The two failures that remain,
+> > generic/033 and generic/258, are unrelated to xattrs.
+> >
+> > I am not proposing the revert as the fix.  Achilles Gaikwad has
+> > already posted a targeted patch for the accounting itself:
+> >
+> >   https://lore.kernel.org/linux-nfs/20260707152305.15324-1-achillesgaik=
+wad@gmail.com/
+> >
+> > Whether the right answer is that patch, a change to
+> > xattr_list_one() so it leaves the remaining size alone when the
+> > buffer is NULL, or hardening nfs4_xattr_cache_list() against a NULL
+> > buffer, is for the three of you to settle.  I am reporting the
+> > severity, because the accounting bug is not confined to a short
+> > size query: on a filesystem that caches xattrs behind a lock, it
+> > takes the whole machine down.
+> >
+> > I can test whatever you settle on against the same setup.
 >
-> Since there is confusion, let me clear it up.
+> I reviewed Achilles's patch back in early July and it looked okay to
+> me (see my tag in my email in that thread from July 7th).  I had
+> figured that the NFS folks would have wanted to pull that via the NFS
+> tree since it only touches NFS code.  If they would prefer I send it
+> up to Linus via the LSM tree I can do that, but I would appreciate an
+> ACK and Tested-by from someone on the NFS side.
 >
-> I meant it for all of them. I don't think it makes sense to keep this one=
- in
-> security/ when others are in fs/bpf_fs_kfuncs.c. That confusing limbo sta=
-te is
-> worse than just placing it where others already are.
->
-> As I already said, the discussion around whether all of them they should =
-go in
-> security/ is orthogonal and should be done separately; it isn't productiv=
-e to
-> repeatedly bring it up in the context of this patch set.
->
-> I honestly don't get the urgency; it will be a mechanical change if we ne=
-ed to
-> make such changes. The worst outcome would be stalling David's work over =
-it.
->
-> As for landing this stuff, we can let Paul take the patches touching secu=
-rity/
-> and route the rest (3-4) through bpf-next after the merge window. We need=
- them
-> to go through BPF CI anyway to ensure nothing breaks.
+> While I don't suspect it will be very interesting, I just started
+> building a test kernel with Achilles's patch that I'll run through the
+> normal selinux-testsuite automated testing.
 
-Some existing LSM kfuncs are located in the wrong files.  I'm not
-suggesting that David needs to fix the existing problems, but there is
-no reason to keep making the same mistakes.  The new LSM kfunc must go
-in security/bpf_lsm_kfuncs.c; if that isn't acceptable to the BPF
-developers then David will need to find a new way that doesn't involve
-kfuncs.
+Chuck, Anna, Trond, Jeff - can someone ACK Achilles's patch below or
+suggest what changes might be necessary?  There is a known regression
+(see the existing mails) and we need to fix this before v7.2 ships.
+I'm happy to send this up to Linus if you would prefer, but I would
+*really* like to see an ACK from someone on the NFS side.  If I don't
+see any comments be early next week I'll send this up to Linus via the
+LSM tree.
+
+https://lore.kernel.org/linux-nfs/20260707152305.15324-1-achillesgaikwad@gm=
+ail.com/
 
 --=20
 paul-moore.com
