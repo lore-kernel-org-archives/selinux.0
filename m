@@ -1,129 +1,166 @@
-Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com [209.85.160.181])
+Received: from mail-wr2-f2.google.com (mail-wr2-f2.google.com [74.125.225.66])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FB9B4418EC
-	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 15:36:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.181
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785512205; cv=pass; b=m+bbIhErI6zfssQsEyqgxQFEmjVZiYAnSskbU6ihRxbiLiCXiT9JsuzyABCiO/+6MKQd7lXBfNU/sfSELK/z0ctWxyJqPUXMdLzgYmOJMzW28zCSc/syURLYHVZ8fp6BDqBL02BZoCoqNRTPLfW5s/YnWOBX+NQAp9+7weP3z6o=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785512205; c=relaxed/simple;
-	bh=kPzEtdgmgmrhfEvclMUzFEFQMW3YYfNU1BZsWa7XSjg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=NGowC/O1oXnOdfDV0/zwjtwJ+osNGFNSREpr+hMWK6opS5WsDYwfPoLzRETgQQfExsqTLwIazlUU8MrOiIrEjqlSCl9LHmjy2B3SZ5FJGH2RHctO5Rmar9TOtmv72RJ8sc6oMyeM2Zds4q7/h9LVtAlxVOYNg8wNjEf03XppfjI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IFc/OdTg; arc=pass smtp.client-ip=209.85.160.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FF124418EC
+	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 15:44:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.66
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785512680; cv=none; b=nsS01GQcmTFlgda7tDm4zi+m2/6fO3542xaOjRJL77QxeI1HIuj5p8k0ck0zSFvY4zCpSN0mg9EsH44tVRSVVgvWC0+nBN+vVI6rbGUsIXogS/2Xp93yVQcSB1Gu9HDnAB7a1upyhmFrPQyWdDPxqVggnI7uVlICaIxS6VKsGME=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785512680; c=relaxed/simple;
+	bh=3TMU74QWZoDLOURmJXG/MdRKhkJLQUmMeQBO4XyQ9QI=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=Ir0A6oRaUtPaz0OpMGaTwI+r64eXFyLD+arQ7AkJoP9R/6YZVo6kEwNWs9vtzOr+2NNyOAh8KBUxo9+TmdD/WJpvryoMsfwIhniIUDI878nCwBaJ9YOI2rp9DlZzOWnJEcg4ZhJHx613DoRGDOwcePNcmn3SvQnRfZHrqKv8238=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BUAjuzik; arc=none smtp.client-ip=74.125.225.66
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IFc/OdTg"
-Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-51c08df8513so6398561cf.3
-        for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 08:36:44 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785512203; cv=none;
-        d=google.com; s=arc-20260327;
-        b=BgXe3D/ldBJtJcObM73WM6fOTEGnnSNjRCPlSv3AUJm8E6XlHSVgfKoSE/ySuugeMI
-         ZRiDoEDf/UwEXeA0+BcWjoDHdwtvuSLtfEg2Ka97vg744NAa+Dugj7g5u2KQcWEJgs4n
-         13NGFEr7OUMkJHJRjyG599iBWGhUjSQgzBB+Fmq6spGm1i9ouK3YHNDdofZf4oMgL1qA
-         WdV8K38dwUxF01Iiw3mAA0aTa+yT+ibRSp3FC0xEIDRI/CHsRGnexusQSfWhESMO+VMc
-         3LyOeEOZX91DSvcV97mNKtSU3fALFy0yhpUV+CpXDnbxF5JtgrGSLFhhBW0KDswgQJYv
-         PAbQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=X2Of4jWCRo/X6Jl6mIPChW/S8CvY8JmNULo7wwzgn90=;
-        fh=YZ/pBJEWt9r5tKPZncU4g31CGjfGnlk35QwDhNgL/OE=;
-        b=cvMGRArQuqSdE6SWsQ0akGwnR/JqgcOozdHgJ7zs8rO/vMSlS3EfJ1typCpjF2M6yG
-         jsnUZpSQ9ImLzB1lcEjR9Cc52hAM5g/TA83cSgRosRyeKWDXvzK1Ows6YIwpDe0iX4hl
-         DeyT95D66nVOUyvIhc/GXdQablOZu/VQTo43ZLFN9ahrYsMK+k+1YVIWaeVTTtIZ2sVm
-         8zIMoeXZI6meSz/OmiE5AlU6YzT8MQVKzPfs+imIjke7CJ4rGEKtbRQFCrOXWTZNwQKP
-         An/aK7i22AFh+YP0nGlZUurjEniuMS6h7cOTdDDeRqzRMu/mBSPlGPcAKFD5h5rPBSDn
-         eWxA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BUAjuzik"
+Received: by mail-wr2-f2.google.com with SMTP id ffacd0b85a97d-47f7f93b3d4so338929f8f.1
+        for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 08:44:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785512203; x=1786117003; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=X2Of4jWCRo/X6Jl6mIPChW/S8CvY8JmNULo7wwzgn90=;
-        b=IFc/OdTggyxdx71WMUkmunfFJv/VBdRsML2egv3SAZWPQsqAefG+GCW5wF/exbuiTa
-         QR7uGfe2g2p08Fxi7cbO7yEIIN8XKQYDgkRTTzsgAQkPuO3SGaSSiGhnwIgPexrOySZa
-         +pZ+yNZlpxVkvSZoEM6zMPBqP0Vph8OkXnbLafOl4HbYSB/gXqgS0me72Dh31n5iZk+V
-         2TfcgprOH90j2Y/h/YyQJmhoWqYtQXHojL9LdYazVTSYgmVIeG3kvXXY655TfaDon/Hm
-         OOzMc1jTW2zPFrgbpFNTk0g5clcA9sqMzcETIeySBrsKVqu/NoYYyuQ5t9XCId0uEIcl
-         kJlQ==
+        d=gmail.com; s=20251104; t=1785512677; x=1786117477; darn=vger.kernel.org;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-type:content-transfer-encoding:mime-version:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=3TMU74QWZoDLOURmJXG/MdRKhkJLQUmMeQBO4XyQ9QI=;
+        b=BUAjuziks1o6IcLjjnCNTj5ZPOZq1/j9neEAYN+xFL8YvZJ0GabVQuFG+cbmrX1GkQ
+         /HD7ej+ToDjie5K4/X3LT7FTVDTBUetjvyHN2PELc2rOSvdxHOFR7oGdotXmCpZI5SVt
+         NJiNy4ozrOkKt28Ma8f+6NI11frL1BRQMPC63a9yclHwLR8PnVA/tQrLAp89RWTGAi/X
+         dfXdGUA57Rq+lVKKu7SLl4hvArDlAsmwa5AVfNSzepQFd/0fJp1mrELZSKJ6M8U0A3FM
+         iSPSp8HSZ6MYbAkuQejlwnvCUKRRk9c0wG5kEXDwR/h0fAfnPe271m5pmCOQ/p9kqsV+
+         JtwQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785512203; x=1786117003;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
+        d=1e100.net; s=20251104; t=1785512677; x=1786117477;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-type:content-transfer-encoding:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=X2Of4jWCRo/X6Jl6mIPChW/S8CvY8JmNULo7wwzgn90=;
-        b=W04NT6N0e3Q0Kf+Lh0fDttAwclEW7NShanMLZXlzFwToX7CEQ6OQmaR1zQ1t1j9LWt
-         8EeclEug4Y6N6okgr2tVKD8JH6cRrNZgonzXEXZFW6ULSMPFooNTpBOzEUrfJ1wtcVMt
-         eLpHSPgseHpMrkLMZAYF4TEZtt13GEF3HW0nBYV9oVjJ0NtpQ8IRlCPZyUpNl347mq9N
-         UhRdQJ4sZjnIrCwM9Or5DFlXsc45pUC5iJK316+AiJo3tsnDhXFXkUz9Mp7LDh8LCK1o
-         R60B4ukf3WKMS6UW0b6Gb8KEz9hT/6Y3w9wFJwMJSrEOWFKRZYFGsrPgp8fCQydauBen
-         k5ew==
-X-Forwarded-Encrypted: i=1; AHgh+RpIZNGeMR+W7RMIMUTr6wNa7kTV7NGo7EScHs41ofwiU5hTA6n0f+m1JYqUwoKW9uGA559r/jiN@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy8oQB0cQQj8hAGHDV+tIpEl/4Zh4XxC3iRlzAktdnG3CvjAxVr
-	kPI3rOwHJZYdzej831euSgLUTmdYNcjwZSsa/5hRzbb6Y6/RRJDc9kcze+6zFFt3DFgknp0gnQH
-	IEgsC+JoFFJ9m5Bg1FKKsWRQNCqftFe0=
-X-Gm-Gg: AR+sD11DPW+hNVWEw6Xegw4m5VD2/a6fvujoc0PPcYOfGf8UAfXlru0OMAYOXRTLIPs
-	YIgpiklGoq/ctRgaVItxIPvyXPbDXz+0N3cQiB0XRvj9KNpPTYuwiRHArCpeJDbD4gDQbpb1OHj
-	19GXb+pdPfqgPunSdoLb4bRKsDLjAEAUtX1aMJHiVxbqITqnjrhMYhPW3Cj/PUGA+fHcQn0CQwi
-	dHBynGtY6q5eySRi+4WFm5Lyhu3I+wXmR60/nrJTS6OKM4d7qTzuhqWqbVHEisXkqC462v0E43I
-	m9J0Rh87Cq37tU3uCD+d1UXqBxXs+5uQNEmuMTiVCR6rqX6mIEb2FiOrEhpWIdLRgDucPWOSCAQ
-	=
-X-Received: by 2002:a05:622a:1e0e:b0:528:3c2c:5c72 with SMTP id
- d75a77b69052e-52b5679527amr12582491cf.32.1785512202948; Fri, 31 Jul 2026
- 08:36:42 -0700 (PDT)
+        bh=3TMU74QWZoDLOURmJXG/MdRKhkJLQUmMeQBO4XyQ9QI=;
+        b=CV6TtSJgQ3tv0WURqCA533rqg6w6Dzjk6jY774eUnz8/zovhkpo9NGUCWTA+FsTosw
+         K9N8DCJcICQwrLQtKwm66JFBqIXiXgej5BgsAoOVRhnefAuQGjrxWViIF+PWNtHE+t0L
+         n+BkT92iv+1nZIcigyevRjQOJH1LAo/rEtq8HN6/79QAQJY9Xm1EpYh10Re88kO58P0e
+         p7+kkY812q2hchcJ/0nanDdNQwkffrj1dt7zPuFyXBMacnJGM8gVdN3FElf6NOvqXvPy
+         0DojtWZVZ61hwQJVP7UiAIhtZkVUl2WbmBVV64QoiibjTaJIfzaDVngMNMY6JDJZSVbM
+         eoOA==
+X-Forwarded-Encrypted: i=1; AHgh+RqnL+Sqv8ULM9Gp8Mx1mduMKtAFiPUBycExA7iJ2Tx1VJ6QD3Mvr5WY8pw5Cy1+3JIEQ3pXcsjQ@vger.kernel.org
+X-Gm-Message-State: AOJu0YyDcUKy/PWYQypEztLOwLzJOJqcbVl+OjG9eFlujhnBpVhJt9LS
+	pqr3ybp8MSK1GOp0Gs+1TIejUgknc+CFcD/eh2HTWn58Y8ApgAPu1h/tTY9xf5ji
+X-Gm-Gg: AR+sD12hmrG29+YSCCHHRrWanxODOdzumOnWAjllwQSTd2LQHFELMstjn7RVkl4XF93
+	7aW6wP+OaYi8i5l4vfvIgH95DHQhGjmyXX2FD3CVkyK4JkC4qT/dSSVq+mPfI2dIR3Nt6tJxQap
+	/2nhkBjaZhE4LJyWlOl89rcvWUR5B/mXt+gqQ81awD1CJIiJOVFGGPeSOrxCuWzn0FLvw+gxt8+
+	tkhH1zhxWbSR40Yyz8CoW5yp81M/eGRrtlpGgIpov9Ou+MWp4YqkY3fX484ZR/2ErSD+mXQMSFi
+	uzdvBMHBhyMwAxBjK/WhYDvUK+hFmnI9BMLyWqaYEkDMTJse595zPEGvUfgaOEKbm731qsxpVSA
+	fwvZ0R78FrOrDEQVQsiULX8ZH31ci/iIVv08XuxxxjR7suV1tiEkD0cDe1oJEgoYC1P+RgjgEg9
+	ix2WkktQH3qz/W18D8zI2kIuUR2Fwbvh4yL1ZT1P2JRYVmoHFmHxF3mONNNlqGMiOtvIW/WY7rk
+	yAWCvkrlIORZbIa1xcQVMfqnPSR2OSyOgL4RRHuF2mQF2SIY38QX9O+dLTklH8zNBKjd6zs4+EM
+	wKe4Cd/wY654FlqeUvljaNhqn6s=
+X-Received: by 2002:a05:6000:4615:b0:47f:918b:fa07 with SMTP id ffacd0b85a97d-47fd72d4500mr253409f8f.22.1785512676702;
+        Fri, 31 Jul 2026 08:44:36 -0700 (PDT)
+Received: from localhost (nat-icclus-192-26-29-3.epfl.ch. [192.26.29.3])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47fd456a5a4sm6264702f8f.20.2026.07.31.08.44.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 31 Jul 2026 08:44:36 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260730234533.1912709-1-dwindsor@gmail.com> <20260730234533.1912709-4-dwindsor@gmail.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Fri, 31 Jul 2026 17:44:35 +0200
+Message-Id: <DKCVF3KRQSOJ.1WKITMP369I0R@gmail.com>
+Cc: "Alexei Starovoitov" <ast@kernel.org>, "Daniel Borkmann"
+ <daniel@iogearbox.net>, "Andrii Nakryiko" <andrii@kernel.org>, "Martin
+ KaFai Lau" <martin.lau@linux.dev>, "Eduard Zingerman" <eddyz87@gmail.com>,
+ "Song Liu" <song@kernel.org>, "Yonghong Song" <yonghong.song@linux.dev>,
+ "John Fastabend" <john.fastabend@gmail.com>, "KP Singh"
+ <kpsingh@kernel.org>, "Jiri Olsa" <jolsa@kernel.org>, "Emil Tsalapatis"
+ <emil@etsalapatis.com>, "Matt Bobrowski" <mattbobrowski@google.com>, "James
+ Morris" <jmorris@namei.org>, "Serge E . Hallyn" <serge@hallyn.com>, "Casey
+ Schaufler" <casey@schaufler-ca.com>, "Stephen Smalley"
+ <stephen.smalley.work@gmail.com>, "Ondrej Mosnacek" <omosnace@redhat.com>,
+ "Mimi Zohar" <zohar@linux.ibm.com>, "Roberto Sassu"
+ <roberto.sassu@huawei.com>, "Dmitry Kasatkin" <dmitry.kasatkin@gmail.com>,
+ "Eric Snowberg" <eric.snowberg@oracle.com>, "Alexander Viro"
+ <viro@zeniv.linux.org.uk>, "Christian Brauner" <brauner@kernel.org>, "Jan
+ Kara" <jack@suse.cz>, "Shuah Khan" <shuah@kernel.org>,
+ <bpf@vger.kernel.org>, <linux-security-module@vger.kernel.org>,
+ <linux-fsdevel@vger.kernel.org>, <linux-integrity@vger.kernel.org>,
+ <selinux@vger.kernel.org>, <linux-kselftest@vger.kernel.org>,
+ <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v6 bpf-next 3/4] bpf: add bpf_init_inode_xattr kfunc for
+ atomic inode labeling
+From: "Kumar Kartikeya Dwivedi" <memxor@gmail.com>
+To: "David Windsor" <dwindsor@gmail.com>, "Paul Moore" <paul@paul-moore.com>
+X-Mailer: aerc 0.21.0
+References: <20260730234533.1912709-1-dwindsor@gmail.com>
+ <20260730234533.1912709-4-dwindsor@gmail.com>
  <CAHC9VhT=m-GtOZx2AHym7uN1CNx94arKBiXeVC7LTEJ-b=1EVQ@mail.gmail.com>
  <CAEXv5_iiNspub=qE1YW-01sV_bxxFUrrcAR4KV4Ec5i_mePtHw@mail.gmail.com>
  <CAHC9VhTS7rSnBqg00ZxNkcZyh_=EeJmn_4z3CTCCxreEEDtTtg@mail.gmail.com>
- <CAEXv5_iHLmzPT3Jj+qZsdt1Nk_5OD4Up3GGV0S9G7KyQshFhDA@mail.gmail.com> <CAHC9VhQXtV_dGt_b5oD_LFNOygfx=37u6P_S32xo3A5aHvnj-g@mail.gmail.com>
-In-Reply-To: <CAHC9VhQXtV_dGt_b5oD_LFNOygfx=37u6P_S32xo3A5aHvnj-g@mail.gmail.com>
-From: David Windsor <dwindsor@gmail.com>
-Date: Fri, 31 Jul 2026 11:36:31 -0400
-X-Gm-Features: AUfX_myF-Fa2Dx12J7XG4FMqMoM3YLOYocj4Wcd15kosvCgWFWfK34tns1g5ePo
-Message-ID: <CAEXv5_i+OOJqr7xb02=5JMR2O8soLJARckG2CK7yvcv2Ycj+eg@mail.gmail.com>
-Subject: Re: [PATCH v6 bpf-next 3/4] bpf: add bpf_init_inode_xattr kfunc for
- atomic inode labeling
-To: Paul Moore <paul@paul-moore.com>
-Cc: Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Andrii Nakryiko <andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>, 
-	Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
-	Yonghong Song <yonghong.song@linux.dev>, John Fastabend <john.fastabend@gmail.com>, 
-	KP Singh <kpsingh@kernel.org>, Jiri Olsa <jolsa@kernel.org>, 
-	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Emil Tsalapatis <emil@etsalapatis.com>, 
-	Matt Bobrowski <mattbobrowski@google.com>, James Morris <jmorris@namei.org>, 
-	"Serge E . Hallyn" <serge@hallyn.com>, Casey Schaufler <casey@schaufler-ca.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, 
-	Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, Eric Snowberg <eric.snowberg@oracle.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
-	Shuah Khan <shuah@kernel.org>, bpf@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-integrity@vger.kernel.org, selinux@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+ <CAEXv5_iHLmzPT3Jj+qZsdt1Nk_5OD4Up3GGV0S9G7KyQshFhDA@mail.gmail.com>
+In-Reply-To: <CAEXv5_iHLmzPT3Jj+qZsdt1Nk_5OD4Up3GGV0S9G7KyQshFhDA@mail.gmail.com>
 
-On Fri, Jul 31, 2026 at 11:33=E2=80=AFAM Paul Moore <paul@paul-moore.com> w=
-rote:
+On Fri Jul 31, 2026 at 5:30 PM CEST, David Windsor wrote:
+> On Fri, Jul 31, 2026 at 11:17=E2=80=AFAM Paul Moore <paul@paul-moore.com>=
+ wrote:
+>>
+>>
+>> Okay, it looks like there was some confusion/misunderstanding.
+>>
+>> My understanding of Kumar's comments was that he was referring to the
+>> exisiting LSM related kfuncs that are located in fs/bpf_fs_kfuncs.c,
+>> not necessarily the new kfunc you are proposing in this patchset.
+>> Kumar is welcome to correct either one or both of us, if we read that
+>> wrong :)
+>>
 >
-> Nope.  That patchset has its own issues, one of which is the location
-> of the kfuncs outside of security/; I simply haven't had the time to
-> review that in full and reply.
+> Yes, after another reading, that does appear to be the case =3D).
+>
+> We'll need v7 anyway to fix the ocfs-related UAF the bot found.
 >
 
-Makes sense, thanks, just wanted to avoid churn if possible.
+Since there is confusion, let me clear it up.
 
-> --
-> paul-moore.com
+I meant it for all of them. I don't think it makes sense to keep this one i=
+n
+security/ when others are in fs/bpf_fs_kfuncs.c. That confusing limbo state=
+ is
+worse than just placing it where others already are.
+
+As I already said, the discussion around whether all of them they should go=
+ in
+security/ is orthogonal and should be done separately; it isn't productive =
+to
+repeatedly bring it up in the context of this patch set.
+
+I honestly don't get the urgency; it will be a mechanical change if we need=
+ to
+make such changes. The worst outcome would be stalling David's work over it=
+.
+
+As for landing this stuff, we can let Paul take the patches touching securi=
+ty/
+and route the rest (3-4) through bpf-next after the merge window. We need t=
+hem
+to go through BPF CI anyway to ensure nothing breaks.
+
+>> However, regardless of Kumar's intent, speaking as the LSM maintainer,
+>> my stance on this is that the kfunc you are proposing must live in
+>> security/bpf_lsm_kfuncs.c to be acceptable.
+>>
+>
+> Ack, will do this in v7.
+>
+> The Landlock series currently up for discussion [1] is proposing
+> placing its kfuncs in a new kernel/bpf/bpf_lsm.c. Should these maybe
+> go there?
+>
+> [1] https://lore.kernel.org/bpf/20260731022047.189137-1-utilityemal77@gma=
+il.com/
+>
+>> --
+>> paul-moore.com
+
