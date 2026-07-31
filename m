@@ -1,38 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF5AD449B3C;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C47C243B486;
 	Fri, 31 Jul 2026 17:44:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785519850; cv=none; b=MRRRj3a4v21/WPb5FgaXfDEdqUdfnsfZyQn+zt1YpQBOKFtv0d2zB9fmQm4vR2qKG5rGUssQjm9fuV3Og1lPLvpvdPQp+RoWsZzNrokxoSMfZZ4Li83qTnOGECJtgIU8ImnZSEC8WUGkY9GhuXz742E1jEWELmXQcQQNvQDfr90=
+	t=1785519850; cv=none; b=R0P6a7NaQvv2L5MM6906LOzSaAsoVtDxJSaHBqXc7dfmHK54np3tF/8isfGkIPJt84jQuSrKKtY3a7StNh3wG1OJ8fHjf0oD0WRdAmAC6MSmGllt1wL9IcN24EqS17T07DTESFNh8NNH56+lyChqb1+38uoiaRn3wlRIMAN1unI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785519850; c=relaxed/simple;
-	bh=ImwqTOGTJQJMsLawFHNrKEQOeVF1OAhdccY27ZoGqns=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ERDi3fKGjjWXnbmS33m3aphvGoQQiWvTnJgTE3P9YoPOLhBLnD8BORt4rgErWcJs0GjrPRnOHpB61ko/DpJqupiRHqwca3QYQ/ETizzGuWFFaGqSMweww2oorHuQ9ovG6MHlHTGRYG5ZmaD3iy9M/zRZWr6/4rMBPntirGytYpQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Dox+y90x; arc=none smtp.client-ip=10.30.226.201
+	bh=0MzpL5lmGqP9qsSiOAUrftQ+v6PfBDDK6GoC2AfslY0=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=d6sNZ4Ms18ilPdoxsv2beDqWxi7SmuFRxmRofyqvl6oKYlWF0QByOQz8Igcc+hM5g6D6tEUjb3lG2YwV1IilTxq4esX6craO1u8HRkYu1C6pb+feR4wLfdCTVA+WRxvRL/7zG4IMmamjUHZhGAdukYhNbQTI/ynx8IHD/A5exdI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WPcfMXgI; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Dox+y90x"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 137BDC2BCFA;
-	Fri, 31 Jul 2026 17:44:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WPcfMXgI"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id EE35AC2BCB9;
+	Fri, 31 Jul 2026 17:44:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1785519850;
-	bh=ImwqTOGTJQJMsLawFHNrKEQOeVF1OAhdccY27ZoGqns=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=Dox+y90xeuGTtUl0UPL1Kh6fnMahYG0i+i0RuocQPqzm58jfk57rAhqDHEhiSdkKo
-	 Lx3F/vF7qfdOZrJ/hnNlc0j5Vsu4vD4v+pk0/3IEJNwRH4yVsPrZbSGjZHccBEaBdQ
-	 H5vE5yjDeG0X+9sprB6E+jmsgDQBgqn4hP9NrqYI8pwcpaz2ZrPgQU8lgnsnsrsSUX
-	 f+bimCdhjCeEdvy8T9TGI505ojh4bC/B3tE+PKCTTqRLgfLfNBssMIZJt1BTLBbT3N
-	 /UOi5/dYsNuBUrZWdFAK/l2B+wLIvFKBBScDBVmD3E2F+uGnJVJ0Zna5J/lzCEc3TQ
-	 nyoXcwPnimovg==
+	bh=0MzpL5lmGqP9qsSiOAUrftQ+v6PfBDDK6GoC2AfslY0=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=WPcfMXgIUvVI5nCDKiE7T0k1nZeE9OWg150cqJ6+QcnKBStbiJZ9PZI7W6jv0hRyr
+	 CoDGRchrm2jFeP66UHWjSTvkSlzsN7cG2c0kWV2eM94n+UkeMPPE0Q7FJTSkj2VC9b
+	 OASzFZQP3Nn79p/wmOUWGoc/RMXpzybTYOmmDt8mdJkv2CIkfo1c1jcWzyNsVNHnJk
+	 IL3tP3+CYeFOecXRTf+KngrMmSJmNXoHj4ikw5aAYv/qr7QRSdGE//MkHguDt4WSM8
+	 aqnxheYwJ6QaFOGKZBHPKmEpFfm+Cb32pF0A2NrPiW/Yb3RB+jic90TT/OLJGDmcbm
+	 cFf5nGA+nlX8w==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7A21C5516D;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB927C55173;
 	Fri, 31 Jul 2026 17:44:09 +0000 (UTC)
 From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
-Date: Fri, 31 Jul 2026 12:44:10 -0500
-Subject: [PATCH 2/4] selinux: require a class's permission values to cover
- its permission count
+Subject: [PATCH 0/4] selinux: make declared counts account for the values
+Date: Fri, 31 Jul 2026 12:44:08 -0500
+Message-Id: <20260731-b4-disp-d32e997b-v1-0-0341d038ee47@proton.me>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -41,20 +40,21 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260731-b4-disp-d32e997b-v1-2-0341d038ee47@proton.me>
-References: <20260731-b4-disp-d32e997b-v1-0-0341d038ee47@proton.me>
-In-Reply-To: <20260731-b4-disp-d32e997b-v1-0-0341d038ee47@proton.me>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMPQ6DMAxA4asgz7XkhD/BVSoGkhhwB0AxICTE3
+ Unb8Rveu0A5Ciu02QWRD1FZ5gTzysBP/TwySkgGS7aiOjfoCgyiK4bcctPUDj2RZe9MWVAJKVs
+ jD3L+lu/ub93dh/32/cB9P4rY49Z0AAAA
+X-Change-ID: 20260731-b4-disp-d32e997b-c002ecb15405
 To: Paul Moore <paul@paul-moore.com>, 
  Stephen Smalley <stephen.smalley.work@gmail.com>
 Cc: linux-kernel@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>, 
  Kees Cook <kees@kernel.org>, selinux@vger.kernel.org, 
  =?utf-8?q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1785519848; l=5224;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1785519848; l=5998;
  i=hexlabsecurity@proton.me; s=default; h=from:subject:message-id;
- bh=sQJ2gqN49C5jQUs9/rBGsVRQJs8Us0KlqrG3XBJiK64=;
- b=DTEfkF+Wqf4CV60SwDLmyG1JP4QEkvoncAf2i4m9jvfHWyzAVP/lJ8I5ii93ou5beevfp9xSv
- EtCLbS5VKbMBAH6+aleT0Qh3g7vpqdzMWc32rCmyPg1DK5ZVReV5iF6
+ bh=0MzpL5lmGqP9qsSiOAUrftQ+v6PfBDDK6GoC2AfslY0=;
+ b=CwCb33z1lKnN07Rv3C3CB37OMolpuWMWGdnSMW6BvsKvxwGpjSTqAsgSDsBUezAUMH8mF/HOV
+ nlGJH0QTjRrB7VK9LjnARlZKXl+ep1KGZKLRWNqjWc/+js9yd88ncIH
 X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
  pk=xw1AhCtQdvuoQc+bOQIYy9o8G++cp4/VniI2G/tc3G8=
 X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/default with
@@ -62,149 +62,121 @@ X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/default with
 X-Original-From: Bryam Vargas <hexlabsecurity@proton.me>
 Reply-To: hexlabsecurity@proton.me
 
-From: Bryam Vargas <hexlabsecurity@proton.me>
+The two patches just merged [1] bound each permission value by the count
+that sizes the array it indexes. That is half of what those arrays need:
+they are filled by value, so every slot also has to be claimed, and claimed
+once. 2/4 closes both halves for the permission array. 3/4 and 4/4 do the
+same one layer up, for the class and boolean arrays, which have the same
+shape and are reached from the same policy load. 1/4 is a prerequisite --
+the error path 3/4 newly makes reachable already has a NULL dereference in
+it.
 
-security_get_permissions() sizes an array by the class's permissions.nprim
-and fills it at value - 1, from the inherited common's permission table and
-then the class's own. A value no permission defines leaves a NULL that
-sel_make_perm_files() passes to d_alloc_name(), an oops inside
-sel_write_load() that strands selinux_state.policy_mutex and leaves every
-later load in uninterruptible sleep; two permissions sharing a value
-overwrite the first kstrdup(). Bounding each value by nprim catches
-neither, and neither would a count: the symbol table is keyed on the
-permission name, so duplicates pass.
+A count check is not enough for 2/4, which is worth saying because it is the
+obvious fix. symtab_insert() keys on the permission name, so two
+differently-named permissions may carry one value: nel still equals nprim,
+the count agrees, and one slot is written twice while another is never
+written at all. What holds for a well-formed policy is that the values
+present are exactly {1..nprim} -- onto and injective -- so that is what 2/4
+enforces.
 
-Track the values each permission table claims and require them to cover
-exactly what its count declares, rejecting a count no value can reach.
-Conforming policies are unaffected.
+3/4 and 4/4 fix the same defect at different layers, deliberately. A sparse
+class value is tolerated: policydb_class_isvalid() and its siblings exist to
+absorb it, so rejecting one at load would undo that, and only
+security_get_classes() is at fault -- it builds its own array straight from
+the hash table and never picked up a predicate. Booleans have no predicate,
+and no consumer that could use one: cond_evaluate_expr(),
+security_get_bools(), security_get_bool_value() and security_set_bools() all
+walk bool_val_to_struct[] by index and dereference every entry. Density is
+already an unstated requirement of that array, so 4/4 states it once, where
+the array is built, rather than adding four guards.
 
-Fixes: 55fcf09b3fe4 ("selinux: add support for querying object classes and permissions from the running policy")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
+A/B on a KASAN build of v7.2-rc1. Arms A, B and C carry the two merged
+patches, so each reproduces on top of what is already applied; D ran on the
+stock build, since the merged patches are in perm_read() and class_read()
+and the boolean path does not go near them. Every policy is the stock
+refpolicy image (135 classes, 324 booleans) with one u32 changed, written to
+/sys/fs/selinux/load in a single write:
+
+  A -- "process" permissions.nprim 31 -> 39, leaving slots 31..38 unwritten:
+    without the series, NULL dereference; with it, -EINVAL at parse.
+  B -- "process" permission "getrlimit" value 31 -> 1, colliding with
+    "fork". nel and nprim both stay 31, so a count check accepts it. Same
+    dereference; with the series, -EINVAL.
+  C -- p_classes.nprim 135 -> 139: the class array rather than a permission
+    array. With the series, security_get_classes() fails the lookup.
+  D -- p_bools.nprim 324 -> 328: with the series, rejected at load with
+    "boolean 325 is declared but not defined".
+  Control: a well-formed policy loads on the patched kernel exactly as it
+    does without the series. With timestamps stripped the two control arms
+    are 33 lines each and the diff between them is empty.
+
+A, B and C give:
+
+  BUG: kernel NULL pointer dereference, address: 0000000000000000
+  RIP: 0010:hashlen_string+0xa/0xc0
+  Call Trace:
+   d_alloc_name+0x61/0xa0
+   sel_make_policy_nodes+0xb35/0x1310   <- A and B, via sel_make_perm_files
+   sel_make_policy_nodes+0x8d5/0x1310   <- C, via sel_make_classes
+   sel_write_load+0x2a5/0x490
+
+and D faults earlier in the same function, on the array itself rather than
+on a name derived from it:
+
+  KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+  RIP: 0010:security_get_bools+0x287/0x790
+  Call Trace:
+   sel_make_policy_nodes+0x42f/0x1310   <- via sel_make_bools
+   sel_write_load+0x2a5/0x490
+
+Three distinct call sites in sel_make_policy_nodes(), which is what makes
+these separate holes rather than one reached three times. D is first in that
+function, so it is the one a sparse policy hits soonest.
+
+1/4 came out of that A/B rather than from reading. The first build carrying
+3/4 turned arm C into a general protection fault instead of a clean
+rejection:
+
+  RIP: 0010:selinux_policy_cancel+0x40/0x180
+  Call Trace: sel_write_load+0x3c0/0x490 -> vfs_write -> ksys_write
+
+sel_write_load() cancels the load when sel_make_policy_nodes() fails, and
+the cancel dereferences the outgoing policy. On a first load there is none,
+and sidtab is the first member of struct selinux_policy, hence the read at
+offset 0. selinux_policy_commit(), which does the same
+rcu_dereference_protected() a few lines away, guards with if (oldpolicy);
+the cancel does not. It is reachable today through any -ENOMEM inside
+sel_make_policy_nodes(); 3/4 would have made it policy-controlled, so it
+goes first.
+
+Two limits. The double-kstrdup leak 2/4 also closes is stated from the code,
+not measured -- this rig has no CONFIG_DEBUG_KMEMLEAK, and the same crafted
+policy oopses, which is the stronger oracle. And "conforming policies are
+unaffected" rests on the patched control arm plus four classes checked by
+hand, one of which is "capability": it has nprim == SEL_VEC_MAX exactly,
+which is why the new rejection in 2/4 is a strict > rather than >=.
+
+Based on selinux/stable-7.2 (9a82dcd98b6e), since 2/4 touches the functions
+the merged series changed. Crafters and full logs on request.
+
+[1] https://lore.kernel.org/selinux/CAHC9VhRt96xoRi9EcmU9cvBUiCJfrG=FBZPz92JyKmvQvesgvQ@mail.gmail.com/
+
 ---
- security/selinux/ss/policydb.c | 51 +++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 46 insertions(+), 5 deletions(-)
+Bryam Vargas (4):
+      selinux: do not cancel a policy conversion that never started
+      selinux: require a class's permission values to cover its permission count
+      selinux: reject an unclaimed class value in security_get_classes()
+      selinux: require every boolean value to be defined
 
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 69777e885ae7..d358200817bd 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -1154,7 +1154,18 @@ int str_read(char **strp, gfp_t flags, struct policy_file *fp, u32 len)
- 	return 0;
- }
- 
--static int perm_read(struct policydb *p, struct symtab *s, struct policy_file *fp)
-+/*
-+ * Bitmap of the permission values a symtab has claimed.  Values are 1-based
-+ * and bounded by SEL_VEC_MAX, the width of an access vector, so the whole set
-+ * fits in a u32 and the callers reject an nprim past that width.
-+ */
-+static u32 perm_claimed_mask(u32 nprim)
-+{
-+	return nprim ? U32_MAX >> (SEL_VEC_MAX - nprim) : 0;
-+}
-+
-+static int perm_read(struct policydb *p, struct symtab *s,
-+		     struct policy_file *fp, u32 *claimed)
- {
- 	char *key = NULL;
- 	struct perm_datum *perdatum;
-@@ -1178,6 +1189,10 @@ static int perm_read(struct policydb *p, struct symtab *s, struct policy_file *f
- 	/* indexes an nprim-sized array in security_get_permissions() */
- 	if (perdatum->value > s->nprim)
- 		goto bad;
-+	/* two permissions cannot share one slot of that array */
-+	if (*claimed & (1U << (perdatum->value - 1)))
-+		goto bad;
-+	*claimed |= 1U << (perdatum->value - 1);
- 
- 	rc = str_read(&key, GFP_KERNEL, fp, len);
- 	if (rc)
-@@ -1198,7 +1213,7 @@ static int common_read(struct policydb *p, struct symtab *s, struct policy_file
- 	char *key = NULL;
- 	struct common_datum *comdatum;
- 	__le32 buf[4];
--	u32 i, len, nel;
-+	u32 i, len, nel, claimed = 0;
- 	int rc;
- 
- 	comdatum = kzalloc_obj(*comdatum);
-@@ -1225,17 +1240,28 @@ static int common_read(struct policydb *p, struct symtab *s, struct policy_file
- 	if (rc)
- 		goto bad;
- 	comdatum->permissions.nprim = le32_to_cpu(buf[2]);
-+	/* no permission value can reach a slot past SEL_VEC_MAX */
-+	rc = -EINVAL;
-+	if (comdatum->permissions.nprim > SEL_VEC_MAX)
-+		goto bad;
- 
- 	rc = str_read(&key, GFP_KERNEL, fp, len);
- 	if (rc)
- 		goto bad;
- 
- 	for (i = 0; i < nel; i++) {
--		rc = perm_read(p, &comdatum->permissions, fp);
-+		rc = perm_read(p, &comdatum->permissions, fp, &claimed);
- 		if (rc)
- 			goto bad;
- 	}
- 
-+	rc = -EINVAL;
-+	if (claimed != perm_claimed_mask(comdatum->permissions.nprim)) {
-+		pr_err("SELinux:  common %s does not define every permission it declares\n",
-+		       key);
-+		goto bad;
-+	}
-+
- 	hash_eval(&comdatum->permissions.table, "common_permissions", key);
- 
- 	rc = symtab_insert(s, key, comdatum);
-@@ -1369,7 +1395,7 @@ static int class_read(struct policydb *p, struct symtab *s, struct policy_file *
- 	char *key = NULL;
- 	struct class_datum *cladatum;
- 	__le32 buf[6];
--	u32 i, len, len2, ncons, nel, val;
-+	u32 i, len, len2, ncons, nel, val, claimed = 0, inherited = 0;
- 	int rc;
- 
- 	cladatum = kzalloc_obj(*cladatum);
-@@ -1402,6 +1428,10 @@ static int class_read(struct policydb *p, struct symtab *s, struct policy_file *
- 	if (rc)
- 		goto bad;
- 	cladatum->permissions.nprim = le32_to_cpu(buf[3]);
-+	/* no permission value can reach a slot past SEL_VEC_MAX */
-+	rc = -EINVAL;
-+	if (cladatum->permissions.nprim > SEL_VEC_MAX)
-+		goto bad;
- 
- 	ncons = le32_to_cpu(buf[5]);
- 
-@@ -1436,11 +1466,22 @@ static int class_read(struct policydb *p, struct symtab *s, struct policy_file *
- 		}
- 	}
- 	for (i = 0; i < nel; i++) {
--		rc = perm_read(p, &cladatum->permissions, fp);
-+		rc = perm_read(p, &cladatum->permissions, fp, &claimed);
- 		if (rc)
- 			goto bad;
- 	}
- 
-+	/* the class's own permissions must claim the slots the common leaves */
-+	if (cladatum->comdatum)
-+		inherited = cladatum->comdatum->permissions.nprim;
-+	rc = -EINVAL;
-+	if (claimed != (perm_claimed_mask(cladatum->permissions.nprim) &
-+			~perm_claimed_mask(inherited))) {
-+		pr_err("SELinux:  class %s does not define every permission it declares\n",
-+		       key);
-+		goto bad;
-+	}
-+
- 	hash_eval(&cladatum->permissions.table, "class_permissions", key);
- 
- 	rc = read_cons_helper(p, &cladatum->constraints, ncons, 0, fp);
+ security/selinux/ss/policydb.c | 70 +++++++++++++++++++++++++++++++++++++++---
+ security/selinux/ss/services.c | 28 +++++++++++++----
+ 2 files changed, 87 insertions(+), 11 deletions(-)
+---
+base-commit: 9a82dcd98b6e6e11cfd162410967951f12152528
+change-id: 20260731-b4-disp-d32e997b-c002ecb15405
 
--- 
-2.55.0
+Best regards,
+--  
+Bryam Vargas <hexlabsecurity@proton.me>
 
 
