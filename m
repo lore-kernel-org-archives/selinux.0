@@ -1,166 +1,187 @@
-Received: from mail-wr2-f2.google.com (mail-wr2-f2.google.com [74.125.225.66])
+Received: from mail-oi1-f170.google.com (mail-oi1-f170.google.com [209.85.167.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FF124418EC
-	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 15:44:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.66
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785512680; cv=none; b=nsS01GQcmTFlgda7tDm4zi+m2/6fO3542xaOjRJL77QxeI1HIuj5p8k0ck0zSFvY4zCpSN0mg9EsH44tVRSVVgvWC0+nBN+vVI6rbGUsIXogS/2Xp93yVQcSB1Gu9HDnAB7a1upyhmFrPQyWdDPxqVggnI7uVlICaIxS6VKsGME=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785512680; c=relaxed/simple;
-	bh=3TMU74QWZoDLOURmJXG/MdRKhkJLQUmMeQBO4XyQ9QI=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=Ir0A6oRaUtPaz0OpMGaTwI+r64eXFyLD+arQ7AkJoP9R/6YZVo6kEwNWs9vtzOr+2NNyOAh8KBUxo9+TmdD/WJpvryoMsfwIhniIUDI878nCwBaJ9YOI2rp9DlZzOWnJEcg4ZhJHx613DoRGDOwcePNcmn3SvQnRfZHrqKv8238=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BUAjuzik; arc=none smtp.client-ip=74.125.225.66
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D51B7443AB6
+	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 15:54:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.170
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785513270; cv=pass; b=gR5zxdHeJmHWWtEZXL30cLHvlq8kUHgl3WLl9tmH7iddBKrGWpiBY57pf0ipI4d5mdD2fxtM5fOVwz76fSTr5qOya31Z6hv7qkD4bpyE0g/QcuC8CLIadKkwm4lDa2iOm8+L53OKs9GBNq6TwUxORgMK9IHa5Nbx5t1eBXay+xg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785513270; c=relaxed/simple;
+	bh=0YvLxt2QWt2EwAJ7CY+bF5SKpodyZD6hTuPUT44is/M=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=BXx0RxpIxUFwLmFAlEsuwEbS3XEjlx5x17tulhkKlWQmglld3Cc8pfgsokBjrPWYOLlYkMIUopeT+8YC6Lj9LquyVg97HJy4gVIsRutpQqFja+bioP6t6O9DXgMtTdrFMO5XADh9DQFzN7PB/yHiz61eJI7cocy5wrMQmIuiPvo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jcA1FRha; arc=pass smtp.client-ip=209.85.167.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BUAjuzik"
-Received: by mail-wr2-f2.google.com with SMTP id ffacd0b85a97d-47f7f93b3d4so338929f8f.1
-        for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 08:44:38 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jcA1FRha"
+Received: by mail-oi1-f170.google.com with SMTP id 5614622812f47-4a427e628a9so469976b6e.0
+        for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 08:54:28 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785513268; cv=none;
+        d=google.com; s=arc-20260327;
+        b=dvez2EQk34w39eG2LzHRrFBe7FEcWNKFADQNEti+6CjM53RSfQsYuw+TElWZzaEj//
+         tx1TdhSNBTVaqTLjpjCqbSW8P8AOIhp+UNIlArRA6PoGJqTtI/6WsHCQ4CBMAbPhaNug
+         FQZINnsfqx/p9Dr/V1bhmA78ukRAEmQiERoVlOvIIYuXbSfLJKJPw5VaiavWMRmwAOkD
+         Qdkys+TejFgTvx13SBCVmPwSz/goW6EVfUIfMo3n8Y3lhGSWjfnE17t3GKrDBo693Fs7
+         g/w46BMCxgot/lS8PXTGG8KAU+wNoOdZIPpMomaai1orYVKPI0C+pZFdSWd+GVxQh6eE
+         6GWA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=TfO7VHPXAQUV3NOKXpt4wHtOlytCMU8U0aJpQqSv2Wk=;
+        fh=FsXghBnyoYbEc42Idnie0oh5A6i9FUng5ntOLhqXIRs=;
+        b=czw0ukm8XqSb5zkRzS19qm5wkIy6BL7Uv3mKjYgwiCBtvtWJW0xAMj1UpJG0FBQ94n
+         OJ48l521bxkTvNgwPs1R1BPy3p/rVzu4E+XxU2hddLwOcw4JklAUtVwOIzdCVtdI/etA
+         MA1VumgKS6xi8E2LrHh1ANV2hpxGb2MgvoM5vVlyRmMv25JBA6f6kCogVTvJEAmSuoVH
+         GQGmDhjM7k+HsnoQz2Ap5jXuSE609YTmO+z0KMfSUbqX7YcRk53THjas897yV4GkcACS
+         dkfZnER6SpjJ6n5w2oif8e/Q9zFqHi23FBIzkkLvkmhUQFdrNFfjlaUH6CGmSJiBrWeF
+         9hug==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785512677; x=1786117477; darn=vger.kernel.org;
-        h=in-reply-to:references:to:from:subject:cc:message-id:date
-         :content-type:content-transfer-encoding:mime-version:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=3TMU74QWZoDLOURmJXG/MdRKhkJLQUmMeQBO4XyQ9QI=;
-        b=BUAjuziks1o6IcLjjnCNTj5ZPOZq1/j9neEAYN+xFL8YvZJ0GabVQuFG+cbmrX1GkQ
-         /HD7ej+ToDjie5K4/X3LT7FTVDTBUetjvyHN2PELc2rOSvdxHOFR7oGdotXmCpZI5SVt
-         NJiNy4ozrOkKt28Ma8f+6NI11frL1BRQMPC63a9yclHwLR8PnVA/tQrLAp89RWTGAi/X
-         dfXdGUA57Rq+lVKKu7SLl4hvArDlAsmwa5AVfNSzepQFd/0fJp1mrELZSKJ6M8U0A3FM
-         iSPSp8HSZ6MYbAkuQejlwnvCUKRRk9c0wG5kEXDwR/h0fAfnPe271m5pmCOQ/p9kqsV+
-         JtwQ==
+        d=gmail.com; s=20251104; t=1785513268; x=1786118068; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=TfO7VHPXAQUV3NOKXpt4wHtOlytCMU8U0aJpQqSv2Wk=;
+        b=jcA1FRhaRp23KzEJBFOUdYJ3uyFIRSm61RyWl7DVJR0M0sR2O7IRh5jHhpFF3+PpSb
+         nMUE3RDOFWIIUhbc2UFg8XheKHWd119K5+doWxTlHSfRWJBfJnVipo9PPPb8PVg5kklc
+         p2FErpb7jtviqrR7TQ4d93ltjRfcrhi5Xet4Ra6hrgcx2s0AHroBTP9hmf3xusMNopa5
+         M9UacHSU84hzWSc+OWjB/77Jq3cDL4mCKjR6s2kkQ51SRC8okMCjyYk5IU7yRkkFWIJ6
+         fcSohxF/JQ0SU2qLBaUbVNEejxKyKRMKGxS2OUEEPueu8j4b3r8WFdUo8QFurIgPO3wb
+         eb8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785512677; x=1786117477;
-        h=in-reply-to:references:to:from:subject:cc:message-id:date
-         :content-type:content-transfer-encoding:mime-version:x-gm-gg
+        d=1e100.net; s=20251104; t=1785513268; x=1786118068;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=3TMU74QWZoDLOURmJXG/MdRKhkJLQUmMeQBO4XyQ9QI=;
-        b=CV6TtSJgQ3tv0WURqCA533rqg6w6Dzjk6jY774eUnz8/zovhkpo9NGUCWTA+FsTosw
-         K9N8DCJcICQwrLQtKwm66JFBqIXiXgej5BgsAoOVRhnefAuQGjrxWViIF+PWNtHE+t0L
-         n+BkT92iv+1nZIcigyevRjQOJH1LAo/rEtq8HN6/79QAQJY9Xm1EpYh10Re88kO58P0e
-         p7+kkY812q2hchcJ/0nanDdNQwkffrj1dt7zPuFyXBMacnJGM8gVdN3FElf6NOvqXvPy
-         0DojtWZVZ61hwQJVP7UiAIhtZkVUl2WbmBVV64QoiibjTaJIfzaDVngMNMY6JDJZSVbM
-         eoOA==
-X-Forwarded-Encrypted: i=1; AHgh+RqnL+Sqv8ULM9Gp8Mx1mduMKtAFiPUBycExA7iJ2Tx1VJ6QD3Mvr5WY8pw5Cy1+3JIEQ3pXcsjQ@vger.kernel.org
-X-Gm-Message-State: AOJu0YyDcUKy/PWYQypEztLOwLzJOJqcbVl+OjG9eFlujhnBpVhJt9LS
-	pqr3ybp8MSK1GOp0Gs+1TIejUgknc+CFcD/eh2HTWn58Y8ApgAPu1h/tTY9xf5ji
-X-Gm-Gg: AR+sD12hmrG29+YSCCHHRrWanxODOdzumOnWAjllwQSTd2LQHFELMstjn7RVkl4XF93
-	7aW6wP+OaYi8i5l4vfvIgH95DHQhGjmyXX2FD3CVkyK4JkC4qT/dSSVq+mPfI2dIR3Nt6tJxQap
-	/2nhkBjaZhE4LJyWlOl89rcvWUR5B/mXt+gqQ81awD1CJIiJOVFGGPeSOrxCuWzn0FLvw+gxt8+
-	tkhH1zhxWbSR40Yyz8CoW5yp81M/eGRrtlpGgIpov9Ou+MWp4YqkY3fX484ZR/2ErSD+mXQMSFi
-	uzdvBMHBhyMwAxBjK/WhYDvUK+hFmnI9BMLyWqaYEkDMTJse595zPEGvUfgaOEKbm731qsxpVSA
-	fwvZ0R78FrOrDEQVQsiULX8ZH31ci/iIVv08XuxxxjR7suV1tiEkD0cDe1oJEgoYC1P+RgjgEg9
-	ix2WkktQH3qz/W18D8zI2kIuUR2Fwbvh4yL1ZT1P2JRYVmoHFmHxF3mONNNlqGMiOtvIW/WY7rk
-	yAWCvkrlIORZbIa1xcQVMfqnPSR2OSyOgL4RRHuF2mQF2SIY38QX9O+dLTklH8zNBKjd6zs4+EM
-	wKe4Cd/wY654FlqeUvljaNhqn6s=
-X-Received: by 2002:a05:6000:4615:b0:47f:918b:fa07 with SMTP id ffacd0b85a97d-47fd72d4500mr253409f8f.22.1785512676702;
-        Fri, 31 Jul 2026 08:44:36 -0700 (PDT)
-Received: from localhost (nat-icclus-192-26-29-3.epfl.ch. [192.26.29.3])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47fd456a5a4sm6264702f8f.20.2026.07.31.08.44.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 31 Jul 2026 08:44:36 -0700 (PDT)
+        bh=TfO7VHPXAQUV3NOKXpt4wHtOlytCMU8U0aJpQqSv2Wk=;
+        b=CpsBVIJ7pFLgfKnHo9/nf1V+Vc10/22ctewhcRiZ0zEtnfmk2xjQXfK3LHjkpSWd7V
+         0CqVn8s0cfx83qaWj1unpzRG2iLTQNDNb302yzQ9GNvS+R5+zZL7vzWa7UrbG+eWs8DN
+         goXcK4Ju1koAuGJ4pfBLK/SkTdeiHarBKMpGgxF3MTyycUQI0BXXFW+kX/uhlI0QrRmA
+         qgmOR19T5kGNw4nphhwwGXZvH1iZbfXoJbMRTjUDU/8EwKh+Tfeps4dYMpO4TvcSB1j9
+         IOfFt2ejIsmHnTQ0rjAJidFUTl7bBrBEsLr8S9kHe8k9kr/emFm0fbnfD7NuUcwYAYMS
+         GP1A==
+X-Gm-Message-State: AOJu0YwzNXCN+PKt67iDxKmEYvb5kCNQ6RoFqV2tsRSaZT988UstRcRa
+	ghSzytYq6GkEUtYpbJjp7Dz/ocCFWXVg8LEYTez8Z7XGJYKWvH+RsjQ8MuOkJ/Xd7tA+UqtgAzA
+	66cAeqGmg5KTTtS3zjdSy53VqwE4WZuc=
+X-Gm-Gg: AR+sD11chr5S4jxyXNwpuBDuHb2xHIYty6FKHieq3HDZRWGfDIBuq439no86thTGGMr
+	maE3UEgJiDtzPDoO0YHTVsLKkggCt8qJM9Hg1c2rWbGOfX08vH9UbJTZNL8t5l0LG4Cnza99GI4
+	3NqcpBqxss7sTZO/6OKTGNR+nC9lfCu6Her7WEwdYSsI8l9j917YKgOn6JBUVKJahS/GQQbA0Rn
+	rzTAzST1RxYGKWVwAfW+3XXLA7sj8njTbfIWWFEl/5Hqzs83u19bqAhbnCK26rrebsC7zCP+CKF
+	eFP/USk3Pr58pmaiTqZSsU9/aNcz1KacPEcHpa8jgIgJ
+X-Received: by 2002:a05:6808:15a9:b0:4ae:f5be:fe29 with SMTP id
+ 5614622812f47-4af5e0519c0mr923956b6e.5.1785513267626; Fri, 31 Jul 2026
+ 08:54:27 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
+MIME-Version: 1.0
+References: <20260731152609.47168-1-jwcart2@gmail.com>
+In-Reply-To: <20260731152609.47168-1-jwcart2@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Fri, 31 Jul 2026 11:54:16 -0400
+X-Gm-Features: AUfX_mxgTjZJEdnYnfSD2sFJtQ2ZXPZLVXfPmMJyuMVZA4DxKswiEBQ_KMD_-zI
+Message-ID: <CAEjxPJ4kRvrt77OLNRh9fcR=U3MQx1tpUr5sT695C3_heqpo+g@mail.gmail.com>
+Subject: Re: [PATCH v2] libsepol/fuzz: Exercise module to CIL code when fuzzing
+To: James Carter <jwcart2@gmail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Fri, 31 Jul 2026 17:44:35 +0200
-Message-Id: <DKCVF3KRQSOJ.1WKITMP369I0R@gmail.com>
-Cc: "Alexei Starovoitov" <ast@kernel.org>, "Daniel Borkmann"
- <daniel@iogearbox.net>, "Andrii Nakryiko" <andrii@kernel.org>, "Martin
- KaFai Lau" <martin.lau@linux.dev>, "Eduard Zingerman" <eddyz87@gmail.com>,
- "Song Liu" <song@kernel.org>, "Yonghong Song" <yonghong.song@linux.dev>,
- "John Fastabend" <john.fastabend@gmail.com>, "KP Singh"
- <kpsingh@kernel.org>, "Jiri Olsa" <jolsa@kernel.org>, "Emil Tsalapatis"
- <emil@etsalapatis.com>, "Matt Bobrowski" <mattbobrowski@google.com>, "James
- Morris" <jmorris@namei.org>, "Serge E . Hallyn" <serge@hallyn.com>, "Casey
- Schaufler" <casey@schaufler-ca.com>, "Stephen Smalley"
- <stephen.smalley.work@gmail.com>, "Ondrej Mosnacek" <omosnace@redhat.com>,
- "Mimi Zohar" <zohar@linux.ibm.com>, "Roberto Sassu"
- <roberto.sassu@huawei.com>, "Dmitry Kasatkin" <dmitry.kasatkin@gmail.com>,
- "Eric Snowberg" <eric.snowberg@oracle.com>, "Alexander Viro"
- <viro@zeniv.linux.org.uk>, "Christian Brauner" <brauner@kernel.org>, "Jan
- Kara" <jack@suse.cz>, "Shuah Khan" <shuah@kernel.org>,
- <bpf@vger.kernel.org>, <linux-security-module@vger.kernel.org>,
- <linux-fsdevel@vger.kernel.org>, <linux-integrity@vger.kernel.org>,
- <selinux@vger.kernel.org>, <linux-kselftest@vger.kernel.org>,
- <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v6 bpf-next 3/4] bpf: add bpf_init_inode_xattr kfunc for
- atomic inode labeling
-From: "Kumar Kartikeya Dwivedi" <memxor@gmail.com>
-To: "David Windsor" <dwindsor@gmail.com>, "Paul Moore" <paul@paul-moore.com>
-X-Mailer: aerc 0.21.0
-References: <20260730234533.1912709-1-dwindsor@gmail.com>
- <20260730234533.1912709-4-dwindsor@gmail.com>
- <CAHC9VhT=m-GtOZx2AHym7uN1CNx94arKBiXeVC7LTEJ-b=1EVQ@mail.gmail.com>
- <CAEXv5_iiNspub=qE1YW-01sV_bxxFUrrcAR4KV4Ec5i_mePtHw@mail.gmail.com>
- <CAHC9VhTS7rSnBqg00ZxNkcZyh_=EeJmn_4z3CTCCxreEEDtTtg@mail.gmail.com>
- <CAEXv5_iHLmzPT3Jj+qZsdt1Nk_5OD4Up3GGV0S9G7KyQshFhDA@mail.gmail.com>
-In-Reply-To: <CAEXv5_iHLmzPT3Jj+qZsdt1Nk_5OD4Up3GGV0S9G7KyQshFhDA@mail.gmail.com>
 
-On Fri Jul 31, 2026 at 5:30 PM CEST, David Windsor wrote:
-> On Fri, Jul 31, 2026 at 11:17=E2=80=AFAM Paul Moore <paul@paul-moore.com>=
- wrote:
->>
->>
->> Okay, it looks like there was some confusion/misunderstanding.
->>
->> My understanding of Kumar's comments was that he was referring to the
->> exisiting LSM related kfuncs that are located in fs/bpf_fs_kfuncs.c,
->> not necessarily the new kfunc you are proposing in this patchset.
->> Kumar is welcome to correct either one or both of us, if we read that
->> wrong :)
->>
+On Fri, Jul 31, 2026 at 11:26=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
+rote:
 >
-> Yes, after another reading, that does appear to be the case =3D).
+> When fuzzing a kernel policy both sepol_kernel_policydb_to_conf()
+> and sepol_kernel_policydb_to_cil() are called to test those parts
+> of the code base. Call sepol_module_policydb_to_cil() for base and
+> module policies to test that part of the code base.
 >
-> We'll need v7 anyway to fix the ocfs-related UAF the bot found.
+> Signed-off-by: James Carter <jwcart2@gmail.com>
+
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+
+> ---
+> v2: Add include for module_to_cil.h
+>     Move the whole if statement for POLICY_BASE into the else block with
+>       the sepol_module_policydb_to_cil() call to make it clearer what is
+>       being done for kernel, base, and module policies.
 >
-
-Since there is confusion, let me clear it up.
-
-I meant it for all of them. I don't think it makes sense to keep this one i=
-n
-security/ when others are in fs/bpf_fs_kfuncs.c. That confusing limbo state=
- is
-worse than just placing it where others already are.
-
-As I already said, the discussion around whether all of them they should go=
- in
-security/ is orthogonal and should be done separately; it isn't productive =
-to
-repeatedly bring it up in the context of this patch set.
-
-I honestly don't get the urgency; it will be a mechanical change if we need=
- to
-make such changes. The worst outcome would be stalling David's work over it=
-.
-
-As for landing this stuff, we can let Paul take the patches touching securi=
-ty/
-and route the rest (3-4) through bpf-next after the merge window. We need t=
-hem
-to go through BPF CI anyway to ensure nothing breaks.
-
->> However, regardless of Kumar's intent, speaking as the LSM maintainer,
->> my stance on this is that the kfunc you are proposing must live in
->> security/bpf_lsm_kfuncs.c to be acceptable.
->>
+>  libsepol/fuzz/binpolicy-fuzzer.c | 39 ++++++++++++++++++--------------
+>  1 file changed, 22 insertions(+), 17 deletions(-)
 >
-> Ack, will do this in v7.
+> diff --git a/libsepol/fuzz/binpolicy-fuzzer.c b/libsepol/fuzz/binpolicy-f=
+uzzer.c
+> index c0d96d8f..017f996e 100644
+> --- a/libsepol/fuzz/binpolicy-fuzzer.c
+> +++ b/libsepol/fuzz/binpolicy-fuzzer.c
+> @@ -1,6 +1,7 @@
+>  #include <sepol/debug.h>
+>  #include <sepol/kernel_to_cil.h>
+>  #include <sepol/kernel_to_conf.h>
+> +#include <sepol/module_to_cil.h>
+>  #include <sepol/policydb/expand.h>
+>  #include <sepol/policydb/hierarchy.h>
+>  #include <sepol/policydb/link.h>
+> @@ -72,30 +73,34 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_=
+t size)
 >
-> The Landlock series currently up for discussion [1] is proposing
-> placing its kfuncs in a new kernel/bpf/bpf_lsm.c. Should these maybe
-> go there?
+>                 if (sepol_kernel_policydb_to_cil(devnull, &policydb))
+>                         abort();
+> +       } else {
+> +               if (sepol_module_policydb_to_cil(devnull, &policydb, 0))
+> +                       abort();
 >
-> [1] https://lore.kernel.org/bpf/20260731022047.189137-1-utilityemal77@gma=
-il.com/
+> -       } else if (policydb.policy_type =3D=3D POLICY_BASE) {
+> -               if (link_modules(NULL, &policydb, NULL, 0, VERBOSE))
+> -                       goto exit;
+> +               if (policydb.policy_type =3D=3D POLICY_BASE) {
+> +                       if (link_modules(NULL, &policydb, NULL, 0, VERBOS=
+E))
+> +                               goto exit;
 >
->> --
->> paul-moore.com
-
+> -               if (policydb_init(&out))
+> -                       goto exit;
+> +                       if (policydb_init(&out))
+> +                               goto exit;
+>
+> -               if (expand_module(NULL, &policydb, &out, VERBOSE,
+> -                                 /*check_assertions=3D*/0))
+> -                       goto exit;
+> +                       if (expand_module(NULL, &policydb, &out, VERBOSE,
+> +                                         /*check_assertions=3D*/0))
+> +                               goto exit;
+>
+> -               (void)check_assertions(NULL, &out,
+> -                                      out.global->branch_list->avrules);
+> -               (void)hierarchy_check_constraints(NULL, &out);
+> +                       (void)check_assertions(
+> +                               NULL, &out, out.global->branch_list->avru=
+les);
+> +                       (void)hierarchy_check_constraints(NULL, &out);
+>
+> -               if (write_binary_policy(&out, devnull))
+> -                       abort();
+> +                       if (write_binary_policy(&out, devnull))
+> +                               abort();
+>
+> -               if (sepol_kernel_policydb_to_conf(devnull, &out))
+> -                       abort();
+> +                       if (sepol_kernel_policydb_to_conf(devnull, &out))
+> +                               abort();
+>
+> -               if (sepol_kernel_policydb_to_cil(devnull, &out))
+> -                       abort();
+> +                       if (sepol_kernel_policydb_to_cil(devnull, &out))
+> +                               abort();
+> +               }
+>         }
+>
+>  exit:
+> --
+> 2.55.0
+>
