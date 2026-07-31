@@ -1,94 +1,95 @@
-Received: from mail-oa1-f42.google.com (mail-oa1-f42.google.com [209.85.160.42])
+Received: from mail-oa1-f53.google.com (mail-oa1-f53.google.com [209.85.160.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 530203290BD
-	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 19:41:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15523359A9B
+	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 19:44:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.53
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785526866; cv=pass; b=T5/SoG0ktQHxu4WxNrKBonOUpGMfde8170G52YSQkvqOvzOABmgmhPDRHHUYZ+lQuZ0UzD451Ka01dN9dGnJasE+aDokKv/XtFwFH1ADCMQzJjUeFYX1B3GisfNECMUIuFE9uV3CeZM5Jqub1aPyJwDZCb9ki0igpf7zqKt8bEE=
+	t=1785527060; cv=pass; b=MHj5w4jzXYXEqab52avwWl3ukxGvEw4twOhujeJCg0y4t2kKZvp5A8Rqnmr3CDL/+k5B+S1IpopR1isLe4TKQt28tR6M8/eknP105I1zcsYl5kxsV8tLF1JA4+0am1qxDKqEdOqW3wdl2wAus1QefTng5OMPtPDTUjludezply0=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785526866; c=relaxed/simple;
-	bh=uWtGDUOqqF9SyTAWAfXQ3EeCb5m6TKJz6ZnoFQMgkyE=;
+	s=arc-20240116; t=1785527060; c=relaxed/simple;
+	bh=w7fPfNuJMN0u9A+ZrOWogiZD1thU5nQhJQD7KpSmS6s=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YZBkVymd5k7StzqXEfgTz7QPT4S18n4PDOm1mkWIMr1vh4qzVsNtBND8dsuKJ7I4PPeFRMo1sQ2drzpOTUkLjd/UkXxKFb7hyWGRHV03ZKxAI+DzmeHDxEw0doJinL5eRxYVVQftn+imTvyaH0+8qHnLXrwhm37GflQ2p/3I90Q=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R2al/S41; arc=pass smtp.client-ip=209.85.160.42
+	 To:Cc:Content-Type; b=rO1d9ln1e1ZUEt6AT8HtHpwkiijjXgfK5hbNMZPv4VINhq59QvpUqwqRejQFud78xPVQAag2Fj5HwfLpi/VWfjGOt+TnH52z1rbSHgEqRMSVZ34/Wmt5ZmKiNSGcNqUaS0sDfsgRTOVqTtgokmubvjFAIg81CM14c+jNE7ekNBM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XJvxP6di; arc=pass smtp.client-ip=209.85.160.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R2al/S41"
-Received: by mail-oa1-f42.google.com with SMTP id 586e51a60fabf-451fd21113cso1143639fac.1
-        for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 12:41:05 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785526864; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XJvxP6di"
+Received: by mail-oa1-f53.google.com with SMTP id 586e51a60fabf-44cf70de986so583124fac.0
+        for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 12:44:18 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785527058; cv=none;
         d=google.com; s=arc-20260327;
-        b=nrEIF2zf2VXaBiDn5JIjm4TZ69VNUyGdBasZ2ZxeJG+65rsqz1EbSAZlPzyuTTorJY
-         ddDM+KFSx1t3o7shW7XVSnag+c4r8Ia9OYAMWQLjQTLzfJuEHN4Bhg/9PvCg9QCo0QV4
-         +ZdeccaQTtqh8mqjmSTpG1y78d44e3iLhVsh/kMLaJZ7Dd+WSQzHUG+lfSaKRQ7i1Hw9
-         giJWKyGPPKsK7IqlrEU16Fh6QGiS/PUbml7ciJDzRYJGr+ujVP1plhhk4xiNRxhef7YE
-         S8u4dL5264S8gXapWeDUOgttm8t4nfkwq3ICbAr4byF6xknY67QpPYYz5cNmTsT3g2zx
-         meJA==
+        b=l1tdBA2wLFNoetAdw/s4XfDQ4Bc7yCe9onTXsL/roDnb05WMx1TQtL2RgadUuA1WDT
+         xjacV8yA+URRd4As7TIWtgUj5Y77rV/W2qHj2VFPuvOnY7N05LjWFt8+MZxzDXZK4lwA
+         kKkKpAtHIIQfuHvQabVtEIvJ4BSJt07kYGQZh1fUCOH9H3aQhoe+NWSZ4yk2uZAiN2Qu
+         UX7bNH+zzSyiE+KOXjyFD1K2hENCsIFzPICC5AadoE3dQ6vbyjcvIPCCkq1VQhVIGrui
+         yOanXhtaCzexjYmo4GcdLw3urjg8rVbRcMa5hkAPaerZ2mCT40fvQQyE6/jlzGLL3/Xf
+         kihA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=uWtGDUOqqF9SyTAWAfXQ3EeCb5m6TKJz6ZnoFQMgkyE=;
-        fh=Ey5igX6L51rQCUw5Y6brZKzpoCJtIwHvj8fDaqqBf8A=;
-        b=LsF7XOvaLTYVLjRVh0om2n3nRz7MkyYQLdp3i4qQGS/lR4TcCi78vuIXkvWXp29Z0B
-         hsYbw8miK5mEFqST0JE7XD7TYQ9/peEW72fZMGL2+6ol6mcmSUHfGUOo9k9dypr/rD/j
-         C5QzmNt+mn+DwZWLItEF356qYklXruFLYFUS6f+6LkpZTWOeIhCshczpz8a3ut79qXEM
-         TBT7+xZ8u6tKj95pP7hfLNfyH9wqs+6rJnphg50e/XdveuHPNFy0PqhY4ay2Ajrxwu0d
-         c8TEBzgHpKQDUEoJPONpiR6k2eTg0ur/DwyiRFnTq9ifbFQ+RfTo18UDKmpfyQjNK0e1
-         bQ0A==;
+        bh=w7fPfNuJMN0u9A+ZrOWogiZD1thU5nQhJQD7KpSmS6s=;
+        fh=SlWqAsY8k2HP2YzqEY9xSaBjnQsHgRx4qhP3O8ljNFc=;
+        b=AQbTlDRgR3uyVHUaW9xt8eLMaHSTY7LuxZxBXDyAJ3qhhyyG3d1R8KbDhZNrPdB0xm
+         LTYopPLQIG1CWDhBMZ2wVY388EOhj4rDpmSIPf28iBtlfbNWFLmQ4MCK6pNT5bvo8gBk
+         6waoS1jAa5eHeznTky/moxPYNJrcdrlIlyJYvdpQbkx9WDAnmBHuvQyyW+H2c6oviKGg
+         W3M1s6bzyY3eIC4rzLmeFfZ8eV/Ryyeb+at+28fIzGeFmI8Zwi3X3+xCZRCamm1eebUJ
+         k+MkaptbI5wEV2cKCNxmD/ykymyDiS9IVK4CHqqS9yPizFCjT99YTZESc5TusVEqpdEi
+         vFDg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785526864; x=1786131664; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785527058; x=1786131858; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=uWtGDUOqqF9SyTAWAfXQ3EeCb5m6TKJz6ZnoFQMgkyE=;
-        b=R2al/S41NB9aSvFicN1U7rxETjQGs/hwaeH/DC2t86yElgH1IRH1Fb/mLIQlgg1iVV
-         Wd7uJibRUbXfUs774Njh5Dg9BDgy9a7ko5JjeZlgJ6PP4NhBSdHbpUzynwnAOTtshP4k
-         mSuSsG+F8jUjHgklTwgZpw22OK1X86heWhTj3XPGKWW3gttEcgYdk/33Mpu4U2hLMgfA
-         BwKlYoCPae/CVjyoggtgEepex5CD1gjJHaj4XRJ0s4R9zyts/Yh43eMWvIW2UEuPnaZA
-         bjkPk15UCSde+8QW+u7WHtTh40YgOp5uIsDfKET9iJbaQVrHjx59ypWh3q7X4ZgZ/GRq
-         XxWg==
+        bh=w7fPfNuJMN0u9A+ZrOWogiZD1thU5nQhJQD7KpSmS6s=;
+        b=XJvxP6dibK6VYEs6SQV5mpetax3s3uPZJUx3X+3c3FwLubxGyAZGU7gFfKPY1RKKLu
+         EX+hlTW4jPzOsnmRf3jVGXnM/JgnMSoNs8Mfjom/pCUVCZJbERyGcH2TRcdGtG8m7x6G
+         itX7mef0MFndoYmySrU1b8fK3e5eUflJTm7VkZA8fE54xW9/SxoQ1porv6/6rV91MjIX
+         UF2GahdxnUKPVS/uHYyajwOLKQO+X26/+JaeZJfeaYtRsIjjujXrlVRlhxSPANGdLpaf
+         Lv6d72/1ciXBd1j1nxkJ9mr/J5zpSmog4FOBj8REOmXhx1rzHxEMbX6WKYLQUzW2oNP5
+         hziQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785526864; x=1786131664;
+        d=1e100.net; s=20251104; t=1785527058; x=1786131858;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=uWtGDUOqqF9SyTAWAfXQ3EeCb5m6TKJz6ZnoFQMgkyE=;
-        b=Ybhds0e/fxqBFMjXFmUe8PdcewCa2od51QGwxrczRfTTkxwREkUtjOnP1v1gxeaNde
-         /egQSFqPivwj8tWdtjtfxB2sqCJad0IfkjmqetBOQAzp+s+dMNBgKT4bM5l1ZaG9OfJp
-         aUD8MPcQTllJZ0qDcy8pkwlPfwQNPhYHleLDlb9UXtADvN+H2LcPHxZoqXk46IPNuoxW
-         pqTzc5TaZDhmtOrQH99A+KDk8ZF6Rd1poCxiDfGrjHxOUfyKOxfLp+kKlmseDxPo/C7l
-         8KqiJ7xafP2Ayk725UvYtgZh3tnyE22l/KsUeMI23TuHxBbQLQxM0J25DgQcG+bwqub2
-         A8fQ==
-X-Forwarded-Encrypted: i=1; AHgh+RqYhviqgzYdfhMPpRpDc1/bcZU9/MvoHFFCpZMiwpdlVfonnBZqgPc39D1IkRs6++ikwnlO4qOW@vger.kernel.org
-X-Gm-Message-State: AOJu0YybATI/j6PbMiWVvOTT9Mgap0QXvUU42OEo6yus/BER6dnQ5gE6
-	vxKfTBYj4hz5CUG1sOdiTmiiaJacybpw9139pwk+HNUcEo4AMrA/R0R2mepIxz5EwO4g5drWutW
-	qdOb1Twok4g3OSK7onOubU/GtWekimdw=
-X-Gm-Gg: AR+sD13gonjvJzCg02frBaP2FIExJfdJMFQXRtMk9EbYp7wbxkHrwMgbP1jOaOr5g1i
-	H6WCxTzaF9OSTpRyF9ncmT72gpDyP1ripvoc8yMb0Otue9ch6SulOPuqAjBk3lhE4ZBPQoiNPTE
-	/dsjjVHSSiegx5s/pProeOk+PYx7+/9MgedYeyIsr9vrOBJ+THqSIshsXWZrkk6Bn17F7YC6A00
-	bLflL6Mtz4QMtCFRnEXrEyw6LBkqsYPeyCD9Bih0lirlAbe1T7Mq5hbI7otgKsl199btmhJreYW
-	mjSuvlf9i5TX8XTi+NJFDWfY71CYGoL3dSf252w/JkK4
-X-Received: by 2002:a05:6870:61d2:b0:451:ca58:626e with SMTP id
- 586e51a60fabf-458f1409f3fmr4959221fac.8.1785526864021; Fri, 31 Jul 2026
- 12:41:04 -0700 (PDT)
+        bh=w7fPfNuJMN0u9A+ZrOWogiZD1thU5nQhJQD7KpSmS6s=;
+        b=nNfP6+jP8Ig8PyxRT3CtrpBGNYTsOzOfWLDXXErd7K8qoIX8o+/VQa9DwX6yKeQ1p6
+         hsfm/QzwnqpmL2K4jNSc2HT474kvyulfdxucOO69ReZOYt/n5fD5Bpkj7DE8FKcfivYk
+         J2XfWvPwpB1K78ybNykZiODuhK3XlPbrrdKuBl1HEYtkbRVnJe0fv1vyBg1FUyzmIFli
+         EiEis6kVQ0fM3pfg1VfJmX0TB6pnr5yK8ZvLa4elbbEo4u5SNYtVpHATuKniDXx9fd2I
+         U2aBuPtMXgHWispwaLsiHvU+8C4gw2IpGQmuu/JRG3KKBrhuJZTG4OUpdAujauBYYUv/
+         jQ6g==
+X-Forwarded-Encrypted: i=1; AHgh+RoPIQKG1GxkKueliPpktHMp59/9GPlB6YAd6XLEq+qw3JzuHgiSzJvMYKhpYKywDkCeIm5oZjN7@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxfl0Sw0bIBoP6oqU9YcE0M7B/DRcyQWRVjIg9fO61wsbo0s4is
+	2LATF5ywFDSDc+zbdEiSSvSTZGhpY3TYj0bzOhnE4LIhie1v3cz24TAIcEFM8hR2TCa1yzVXy6J
+	+T/h09E+W5Rpl08P6UlE+TU7je8wshI0=
+X-Gm-Gg: AR+sD132UYJoPhbAnS60VzIMuet6zT5usW8zHK02G1HzGBJHSYkTZ++FGD/EckL6nzJ
+	U0CFQbVD2elzose/Be/9Cxq3BWXNmGXh+SNyXwglNFgVkJwz0pXechtyZ56vciKugY3H5Y/zVsF
+	vlttfrCE6tAIyIMGQsJwcwsqGYVKTsJVZBJy6GzBIHma/xbTA8dkiSgJeMPadl2WU2yLYQQu7tc
+	W6al38E+8OsXx/Hmbjrqo0DyAZZJyiId7ZWSWsLFjGaFjNOsX8oC2OIc735L+lHZloznHuKhFMa
+	bwOPyerkBNowxKDDy6iS3QGQb01mu/P40rTL5prqcn77iWjVY4m7NFg=
+X-Received: by 2002:a05:6870:d181:b0:43d:1689:ed9c with SMTP id
+ 586e51a60fabf-45905ad6a3emr2479446fac.18.1785527057849; Fri, 31 Jul 2026
+ 12:44:17 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260731-b4-disp-d32e997b-v1-0-0341d038ee47@proton.me> <20260731-b4-disp-d32e997b-v1-1-0341d038ee47@proton.me>
-In-Reply-To: <20260731-b4-disp-d32e997b-v1-1-0341d038ee47@proton.me>
+References: <20260731-b4-disp-d32e997b-v1-0-0341d038ee47@proton.me> <20260731-b4-disp-d32e997b-v1-2-0341d038ee47@proton.me>
+In-Reply-To: <20260731-b4-disp-d32e997b-v1-2-0341d038ee47@proton.me>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 31 Jul 2026 15:40:52 -0400
-X-Gm-Features: AUfX_mz8AM8ipWjKDfZGobnb3q4e68FCpZm5jqrAs7FgxMJWC1-ORqnOqFU1rXQ
-Message-ID: <CAEjxPJ7dbZx8tKuR0L4=7dxqVi=mvbf16y3n4X=mVSx+DfhxUw@mail.gmail.com>
-Subject: Re: [PATCH 1/4] selinux: do not cancel a policy conversion that never started
+Date: Fri, 31 Jul 2026 15:44:06 -0400
+X-Gm-Features: AUfX_mzoqFoNu6fFQ2Cl3B2D0h1dEonw57JGumt6zmxBNns6K4LY5u4mtuq-Ur4
+Message-ID: <CAEjxPJ61_5ctF2OPRDS1fWeX1UapAF6iAn1DTY4RiySZswaqmw@mail.gmail.com>
+Subject: Re: [PATCH 2/4] selinux: require a class's permission values to cover
+ its permission count
 To: hexlabsecurity@proton.me
 Cc: Paul Moore <paul@paul-moore.com>, linux-kernel@vger.kernel.org, 
 	Ondrej Mosnacek <omosnace@redhat.com>, Kees Cook <kees@kernel.org>, selinux@vger.kernel.org, 
@@ -101,20 +102,24 @@ On Fri, Jul 31, 2026 at 1:44=E2=80=AFPM Bryam Vargas via B4 Relay
 >
 > From: Bryam Vargas <hexlabsecurity@proton.me>
 >
-> sel_write_load() calls selinux_policy_cancel() when sel_make_policy_nodes=
-()
-> fails, and that helper dereferences the outgoing policy to cancel its
-> sidtab conversion. On the first policy load there is no outgoing policy:
-> security_load_policy() returns early for that case, before it converts
-> anything, and state->policy is still NULL. A first load that fails while
-> building the selinuxfs tree therefore takes a NULL dereference in
-> selinux_policy_cancel(), reached from a write(2) to /sys/fs/selinux/load.
+> security_get_permissions() sizes an array by the class's permissions.npri=
+m
+> and fills it at value - 1, from the inherited common's permission table a=
+nd
+> then the class's own. A value no permission defines leaves a NULL that
+> sel_make_perm_files() passes to d_alloc_name(), an oops inside
+> sel_write_load() that strands selinux_state.policy_mutex and leaves every
+> later load in uninterruptible sleep; two permissions sharing a value
+> overwrite the first kstrdup(). Bounding each value by nprim catches
+> neither, and neither would a count: the symbol table is keyed on the
+> permission name, so duplicates pass.
 >
-> Skip the cancel when there is no old policy, mirroring the check
-> security_load_policy() already makes before it converts.
+> Track the values each permission table claims and require them to cover
+> exactly what its count declares, rejecting a count no value can reach.
+> Conforming policies are unaffected.
 >
-> Fixes: 02a52c5c8c3b ("selinux: move policy commit after updating selinuxf=
-s")
+> Fixes: 55fcf09b3fe4 ("selinux: add support for querying object classes an=
+d permissions from the running policy")
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
 
