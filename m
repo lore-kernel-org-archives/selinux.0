@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0AA244AB92;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4653416125;
 	Fri, 31 Jul 2026 17:44:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785519851; cv=none; b=mSRHNBLA9QnHrSiazbaIl/MQ0X5mw3q6J9QVpVluqDgGX5x2ACzQQ1Ep4/Cj7z7/eDbUwYcQXB+SflmSxeT7WiQPxUPZMRRdCnmeKfsgHIkwqZYv3FRBAksBz4blAOyAU41CHE839yhaZiYJAJ1H8HHN2VRDuZyu34lu6M5/ynU=
+	t=1785519850; cv=none; b=giuN9t8t3UWh075lP09AIhqcHjh63uhG1l2GGbFquDo/nywSgMKozhyqSx0ayIejhKoSfFkRsP+iAtYCgEqMb1yK/0r0OrL5xZkjz8Oh9ghxALhP3aJQkGG7xLqcUvlgdpaFEexcKDLojfclc+GSpRnInHdyHd7OAnxk8ybHgWo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785519851; c=relaxed/simple;
-	bh=jdHeH42NJK+sRNHUhRFHxkP9qChVfte4gNDC1Rcw0i4=;
+	s=arc-20240116; t=1785519850; c=relaxed/simple;
+	bh=PLkkmGRA1MvUV3Aj1xQ20xyb2Y/W9NXMEoXlMvEX9cw=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=BDx5w/MsAeY/NEynSdXvKWZJG6TOFc/jiMVxIUCxpoSxF4kSnaN5n+TbdVYzFeuwJfPBtX4YdWmrSA3JS8WIeS+lubb9gE0cIL3Blhanv2COKBmrkuDmgQviCzrY3+epJFutaA0YqdnF9mk5Q5bxbi1mFaBhLx2FPJ/a5O5RoWI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BdTcBwGC; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=HvAuLn+th7jSWXZ/aVJvVcZMrNgavMiYAGLX/w0YE4bifk+4ZHJV4sDg16qYWKWokSa7vjTa4WLpHtqHs69JLYRiQVwn5vrzUt7iXpKjTpWHqWGWgiUB/cUJw/Ko/nhjs53a3GhHDJMIb5KDYK9KH9lIROYAsWGK9gQdyDpOwrc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CfuMPBT+; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BdTcBwGC"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 1D6FCC2BCFB;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CfuMPBT+"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 0305FC2BCF4;
 	Fri, 31 Jul 2026 17:44:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1785519850;
-	bh=jdHeH42NJK+sRNHUhRFHxkP9qChVfte4gNDC1Rcw0i4=;
+	bh=PLkkmGRA1MvUV3Aj1xQ20xyb2Y/W9NXMEoXlMvEX9cw=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=BdTcBwGClXbwYxtNZmkECny1/nRGdATKk/AMMjvKGzQW/9ANHw1mqjpz71Y0fNpVh
-	 QzT26XXQ9yA6nbzTzNotDse31KuULwjyPB6+N8o8IiYoFi5Xi0QRtgzfnF+GWI/saH
-	 CJiv1CqGn9O8WgkAufRkWVTHNIFqiJHEMJhx6QkOUchpfArwlF8ubY7Y6jGMpIOGJI
-	 kwGj3dRkTRE1jzSqHFBpX7VavT8wap00XF8ubYTRJqJrCeZr5+PMXlqjUWNW7Z+5i0
-	 uCYtI1B5/FViYCnusTOFa6S8xeU52lWqtDSKDR8jQq4vtRpjv3ZtFvha6QHm29Xdi4
-	 ZIEKBErQI711A==
+	b=CfuMPBT+RB6JrztQEnBIBLel5Jc5ViipV9D7BvG7xPu+wddbh5UVXnWRimZj0dLQL
+	 dropNh731s3ciEIw5rRThxDd79nP+G26sEm9y7rj0vWEn2jE1MKxpY/nEtyTQnam6N
+	 fF2KDyYqCQceFWAcA4YMF0MfsBqzKmdmq06Cr3oHH9ID3FwYzki+p2aLJaV10125b2
+	 uk6NgjVa0eBoJ7ixpjpgu5zIFfzzwNZscdgcq+6lde4jRE/F2ahYRVDXc8UFtiJw3L
+	 nX0I8mtBemEclNfoQO+O2UHCivupZDDQgFoJi40Y75GU8eG3eTIEX7VOdpDv6y4Irk
+	 2T1OWMIVzW7tw==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 009F5C55175;
-	Fri, 31 Jul 2026 17:44:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D996CC5516F;
+	Fri, 31 Jul 2026 17:44:09 +0000 (UTC)
 From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
-Date: Fri, 31 Jul 2026 12:44:11 -0500
-Subject: [PATCH 3/4] selinux: reject an unclaimed class value in
- security_get_classes()
+Date: Fri, 31 Jul 2026 12:44:09 -0500
+Subject: [PATCH 1/4] selinux: do not cancel a policy conversion that never
+ started
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260731-b4-disp-d32e997b-v1-3-0341d038ee47@proton.me>
+Message-Id: <20260731-b4-disp-d32e997b-v1-1-0341d038ee47@proton.me>
 References: <20260731-b4-disp-d32e997b-v1-0-0341d038ee47@proton.me>
 In-Reply-To: <20260731-b4-disp-d32e997b-v1-0-0341d038ee47@proton.me>
 To: Paul Moore <paul@paul-moore.com>, 
@@ -50,11 +50,11 @@ Cc: linux-kernel@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
  Kees Cook <kees@kernel.org>, selinux@vger.kernel.org, 
  =?utf-8?q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1785519848; l=2212;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1785519848; l=1563;
  i=hexlabsecurity@proton.me; s=default; h=from:subject:message-id;
- bh=146rmnAfLEvFW4uw+zlgvifpJzRkQBhtNeevcrvrVxY=;
- b=75DlDjNX2pjUbExZ1Kf+vXP0AyfZVSOzdMKlZr7wbTah/wLkZaJIMQ5BcA7uc31mfFZ5/h4zP
- W17KLxQSHlHCGW3Cb3d6NgzU0UimsXtm8tWZQH6NZ8rdP9d4vfS44UI
+ bh=9Qq8XJedLiodysrUmiyu10hH6TBgjvkDd7Iu7+OmmI4=;
+ b=NUCyDDPzA4NIDI3YaWpAh9+dO4rxlHCk0xPk72BtxXUpO72Odon7DAmg7Z7bg1req4rRK7fHx
+ gQPQrKcumabCK6mMKbFuwvFY1n1AgvcLuY1JBX/FOLjXmjDEpf1gQH5
 X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
  pk=xw1AhCtQdvuoQc+bOQIYy9o8G++cp4/VniI2G/tc3G8=
 X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/default with
@@ -64,72 +64,39 @@ Reply-To: hexlabsecurity@proton.me
 
 From: Bryam Vargas <hexlabsecurity@proton.me>
 
-security_get_classes() sizes an array by p_classes.nprim and fills it at
-value - 1, so a class value the policy never defines leaves a NULL.
-sel_make_classes() passes every entry to sel_make_dir(), reaching the same
-d_alloc_name() dereference as the permission array. The class symbol table
-is allowed to be sparse (policydb_class_isvalid() exists to absorb that),
-but this getter builds its own array straight from the hash table and has
-no such predicate.
+sel_write_load() calls selinux_policy_cancel() when sel_make_policy_nodes()
+fails, and that helper dereferences the outgoing policy to cancel its
+sidtab conversion. On the first policy load there is no outgoing policy:
+security_load_policy() returns early for that case, before it converts
+anything, and state->policy is still NULL. A first load that fails while
+building the selinuxfs tree therefore takes a NULL dereference in
+selinux_policy_cancel(), reached from a write(2) to /sys/fs/selinux/load.
 
-Fail the lookup when a value went unclaimed instead of handing out the
-NULL. Conforming policies define every class they declare and are
-unaffected.
+Skip the cancel when there is no old policy, mirroring the check
+security_load_policy() already makes before it converts.
 
-Fixes: 55fcf09b3fe4 ("selinux: add support for querying object classes and permissions from the running policy")
+Fixes: 02a52c5c8c3b ("selinux: move policy commit after updating selinuxfs")
 Cc: stable@vger.kernel.org
 Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
 ---
- security/selinux/ss/services.c | 24 +++++++++++++++++++-----
- 1 file changed, 19 insertions(+), 5 deletions(-)
+ security/selinux/ss/services.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 90e81186cb2e..7afce975436e 100644
+index 2d828548f3db..90e81186cb2e 100644
 --- a/security/selinux/ss/services.c
 +++ b/security/selinux/ss/services.c
-@@ -3304,6 +3304,7 @@ int security_get_classes(struct selinux_policy *policy,
- 			 char ***classes, u32 *nclasses)
- {
- 	struct policydb *policydb;
-+	u32 i;
- 	int rc;
+@@ -2221,7 +2221,9 @@ void selinux_policy_cancel(struct selinux_load_state *load_state)
+ 	oldpolicy = rcu_dereference_protected(state->policy,
+ 					lockdep_is_held(&state->policy_mutex));
  
- 	policydb = &policy->policydb;
-@@ -3316,16 +3317,29 @@ int security_get_classes(struct selinux_policy *policy,
- 
- 	rc = hashtab_map(&policydb->p_classes.table, get_classes_callback,
- 			 *classes);
--	if (rc) {
--		u32 i;
-+	if (rc)
-+		goto err;
- 
--		for (i = 0; i < *nclasses; i++)
--			kfree((*classes)[i]);
--		kfree(*classes);
-+	/*
-+	 * The class symtab may be sparse, which policydb_class_isvalid() exists
-+	 * to absorb; the callback fills this array by value, so an unclaimed
-+	 * one leaves a NULL that sel_make_classes() hands to sel_make_dir().
-+	 */
-+	for (i = 0; i < *nclasses; i++) {
-+		if (!(*classes)[i]) {
-+			rc = -EINVAL;
-+			goto err;
-+		}
- 	}
- 
- out:
- 	return rc;
-+
-+err:
-+	for (i = 0; i < *nclasses; i++)
-+		kfree((*classes)[i]);
-+	kfree(*classes);
-+	return rc;
+-	sidtab_cancel_convert(oldpolicy->sidtab);
++	/* a first load has no outgoing policy and converted nothing */
++	if (oldpolicy)
++		sidtab_cancel_convert(oldpolicy->sidtab);
+ 	selinux_policy_free(load_state->policy);
+ 	kfree(load_state->convert_data);
  }
- 
- static int get_permissions_callback(void *k, void *d, void *args)
 
 -- 
 2.55.0
