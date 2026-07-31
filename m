@@ -1,126 +1,145 @@
-Received: from mail-lj1-f170.google.com (mail-lj1-f170.google.com [209.85.208.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 206322D738A
-	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 17:59:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.170
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785520767; cv=pass; b=ZUIUlKryP8DFFkVgTljB6xsOjAWF1MO1mGqGO+jfi4gsbZ+lPImVV+ZuKLk2m/62icN1b84Y0/Wkb47Ztyh+wx23F1DbOwXwqgIGCal4XBbvbWL7NYXmFikIVTT8QGBmdBOw+MIRkIPL1AtrcdZ5XhYuCSdx/8W8RHux4MqXRMA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785520767; c=relaxed/simple;
-	bh=kDfgYT9mORR40unlpLxt3YyPJlOl5lqP0ZZ5dMJTsDw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=PwA6PHSuF8s5zlhseshBHLij2MuHtQeKGbbrpYEDcqUAUePA9EUtQ66KhY9lq1V6VM1F1v3Dywxb9WAnzhqsPN0K4uW1rSYF3W37n1NGP59IPx9yhPg9P8R4rHKEIGmQpf4+WC1afzW0efYxu8c+HJjg/YBx22QSsaVz1v5wAaw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=smhl8lbk; arc=pass smtp.client-ip=209.85.208.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49A0F4457BA
+	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 18:01:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785520889; cv=none; b=CPqRYE/Y52vsVxIz4SAKiMUQH51YbyHNIhyO73AuwFTMlRvNldlEgHdxoG/BOAE3JV0Vxzkch/yk3SRCIwYokwHmdvDYMWlD7hEEGbyPoQdUeAbYtFieV27SIxCM4otYrJRE3p1iiPWS9+jrDCkgQIXg/H5jbOMOXW705D0+tsQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785520889; c=relaxed/simple;
+	bh=Y8FIqPr+UsrwQ/ex7mUldzJfIh8d3K/7pUuZTg7e3Ss=;
+	h=From:Subject:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=i9NDgdEAJpBSp4MfwI9ZtcjGllfHry/MAKAsD1oLJi4DXpOefgzWyA4eci/CBl6QAmN13oUrlJQ6x68SRe1tPF9pVACCLwnC8v5KpZM7TOl6/96GKM33dtRREzdDfshHszeWoROQAYN2suVGF/J3n/1Fn4/emIeXTBX/pnel+78=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Rl7RgwUT; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="smhl8lbk"
-Received: by mail-lj1-f170.google.com with SMTP id 38308e7fff4ca-39ee96f8047so9380711fa.1
-        for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 10:59:25 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785520764; cv=none;
-        d=google.com; s=arc-20260327;
-        b=FvNGX//J6SBzxcNklrFgiUy1etJhsXSeLESzTqgQh9A+/f5eOOuYDXrfHwAGQHGjIQ
-         dcm+KYFblFriHftrtu+ZejnntVLlUIuadwMHx3PzIucCc7CLEg7rZWV0xo95FZtRqmc+
-         EZEdcSgYKb5r+kFQSo+8GMZpN9K5ktdasXzwPP2wuCuI3PDYl1zMNQrDxPdzcUmT5Qb4
-         oYCHKCcLzL1ikvXrpdqYNx2pjPb3/nDJGHlzGUMIOEruVN9hdZzGxjQwbYnmrN8jCorl
-         RHuC7/MDgaQG9FToncRZwPNLvMpcH98KkxMFaoXr4QAqIEP2yf5vsLEOWcZbWZj214kM
-         QwnA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=MK9YFTiRHCseqA+FoD5siahMc2QzAs5NJIffFbBj+VE=;
-        fh=9qqehjuxnn2X0mJ7hQbZg99PSLTxs4BCAql4/69ZoU8=;
-        b=VStyX7tyd2zYbSx2sr0n5vN1C0WF5OrH3IlsK3IsItjQQmoyVHqmsqzTCpiXVecPJJ
-         tJF3cCOkjSL1nxJL+tfeDR58IMtVvCMAc5Qb5QdOUPuxS1qkiRd8vdlsGVPgv7p3KmCO
-         XGS0XFBr+9ttBFrZ/ItD7Y6bs5qCLbtO3ZAddn3dY0mbU1dvL5ZmkKHeL7euDiYB5Xb9
-         oOkuRu3PvuIV4YIbWEg0Pu3SaATz2ulApUiOe6NzZuOXD2E3SouWygcfGq7kpVhQpCXz
-         MSmlZTdIWc8Fvxv3LzrXFZzsf9JwlbYMUWKf+K1c2UP/whKo+My077a/vO0OEGFOP/ya
-         SPcQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785520764; x=1786125564; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=MK9YFTiRHCseqA+FoD5siahMc2QzAs5NJIffFbBj+VE=;
-        b=smhl8lbkDfeoQ4SeA8gRxt8AEvao2APhEM4A78Np8+38WWD6ufHZC5U02zC8w0oY23
-         kqdhWa4yoaa8ayAgPWyxo2PcVO162IFZCA7C5mM+xlaXdRDe979+KceqpW/vV3r+/w1g
-         ew6zbz9GsJEbpLuO7xW51xNRbrasolfKlf78NeZsBIRQPrSJbA/kXm7/0xzS0R6wXIJP
-         FhRSw54RCQAfDhq2928gN+PCKj8syJPitnbMc8TwH+hW3C0HYhXgVP7FDgcHS4CfKafZ
-         LTX5YuO/lFskzTkRpKp06T8NseCHkfVnZSxs567up6DmECfv6nkWGQ+fLaAOmCR320Mj
-         0+ew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785520764; x=1786125564;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=MK9YFTiRHCseqA+FoD5siahMc2QzAs5NJIffFbBj+VE=;
-        b=CNB6xqQxmjoOnG/p6/2eTPQT793EpgqIrgg2NVPx/0Ai8PDywA/GPsExMff6sAhRz5
-         7nUgyzPj/O3ktElat+J0u2FWoV+b41DsMMWRXaa8xALY8in1OOGCWR8GkJ3kj3mQgbvE
-         gls6uJYVIqL81+tbOB1xSLCrjPIiiZeGypwvYmPgnkLxEsEFB7X+2mjyAINf4ThLicvx
-         h8laeClxy9rXAX/hi96DqKJ6Jko+D1amYh18UliRqMi2DCtPSJTRV4dFydZxsbq11msk
-         /OF1fYckOtQ03i8LwLcukAZeuFVQBwPpTRWVBFlfXX5PbBZ6o+oQhdG1h/foC2jsoBFZ
-         0emQ==
-X-Gm-Message-State: AOJu0Yx3mTQ/HxH1B4+GY0NPJKCpZ+dV+8ZlaDfvSA+cyoAS7r38ThJI
-	pZKMbX5KaAFvy7ytKj9MJCtXoZgiq2Z6FtXASejv1S3YqdVEINT52UulLxwklgmU5G5Gnxat+b0
-	BEo00r/xcbLk2q6wrJviA5utUiogVrbs=
-X-Gm-Gg: AR+sD13RlwgHISXMP7Ju2l02PHnxnbxY491weLeLFfuS6/um/HnnDQb+eLBr4FQkMUO
-	xua+z+cbOojEHJM4gWlzsDVCV/YyWvwK1/qYAEiRN7+JR5pvbegCeUGYsZyvXe4odqnaJEGNCvA
-	K/4wrkR9DX5Xn88Rm5ieAe1h3S2zruY0Pfxdf5qgXmcCqV/mQLfBB7vtxjYqkL2cp6aoNAap8z5
-	bG5DSRYgW7O5dZO1Hl7YWhZo+/nBCivIkhaYRDw8jiXA6xzZHTQdze98zeqvMha6KHyVuQuf70S
-	H3LIPMNUVCRWHXCMrB5FeoiKlxRswtz3794o5it6B7iI1Y6khTcHfyuhmFBSOlWm
-X-Received: by 2002:a05:651c:222a:b0:39f:8299:ed78 with SMTP id
- 38308e7fff4ca-39f861a6ca1mr915221fa.18.1785520763938; Fri, 31 Jul 2026
- 10:59:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Rl7RgwUT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D92F21F00AC4
+	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 18:01:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785520888;
+	bh=SEvmVMWCxutnbbwvUX2Cq+3RrWqz3vagl/rhGg50Tk0=;
+	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
+	b=Rl7RgwUTTswVV5t0Ary9Nu1gT12n1hJBb4B45QtpdP5KdMNgI+SlfQw93n3BNwvZu
+	 zLZDboW0FQea7lVJiQhNqkvCyVCeaFGYF5knUtBX75y5S502UX/AUJ0+wDXt9DPnVM
+	 CaNH58L26k1UInWpHVkLz0NZxx7gXqqWCP3yV4gven56AamCpd0tdlyl2dGF3z5qE3
+	 GqriBOkDQmUqWj2U1HDvY/mwSR8hIY/Ba+KpeS2T6PzyZRdRzM1PW716Bci4InhnJ7
+	 bpXflQ41FwOcYbGxhX315tglj68tBfzx411EIMhmZmw759gnGW1Y5tNx35kHcBCD/Y
+	 avSbTlMBCOBXg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 4/4] selinux: require every boolean value to be defined
+Reply-To: sashiko-reviews@lists.linux.dev
+Cc: selinux@vger.kernel.org
+In-Reply-To: <20260731-b4-disp-d32e997b-v1-4-0341d038ee47@proton.me>
+References: <20260731-b4-disp-d32e997b-v1-0-0341d038ee47@proton.me>
+ <20260731-b4-disp-d32e997b-v1-4-0341d038ee47@proton.me>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 31 Jul 2026 18:01:27 +0000
+Message-Id: <20260731180127.D92F21F00AC4@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260731162033.19084-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260731162033.19084-1-stephen.smalley.work@gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Fri, 31 Jul 2026 13:59:12 -0400
-X-Gm-Features: AUfX_mwfzH5_9hbBVgF8jr5a1_2x6V4Af5JBN2-0Hzfvz0oFSvb0cdOzZICM_6Y
-Message-ID: <CAP+JOzSGULoBDEv9unxpF8V7uj+DgJndA3Fsxi5e8=m_Z5Z6jA@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: fix direct leak in user_extra_to_cil()
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
-	jason@perfinion.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jul 31, 2026 at 12:20=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> Free all the strings on the exit path.
->
-> Reported-by: oss-fuzz (issue 539257834)
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-Acked-by: James Carter <jwcart2@gmail.com>
+Pre-existing issues:
+- [High] Missing validation for sparse types and users in `policydb_context=
+_isvalid()` allows a crafted SELinux policy to trigger kernel panics.
+--
 
-> ---
->  libsepol/src/module_to_cil.c | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-> index 2aaf4feb..06fbdc30 100644
-> --- a/libsepol/src/module_to_cil.c
-> +++ b/libsepol/src/module_to_cil.c
-> @@ -3680,6 +3680,8 @@ exit:
->         free(line);
->         free(user);
->         free(prefix);
-> +       free(user_str);
-> +       free(prefix_str);
->
->         return rc;
->  }
-> --
-> 2.55.0
->
+--- Patch [4]: [PATCH 4/4] selinux: require every boolean value to be defin=
+ed ---
+commit 44c8d8193cd1a1c62c2bebd114870d7131ceb5ab
+Author: Bryam Vargas <hexlabsecurity@proton.me>
+
+selinux: require every boolean value to be defined
+
+This commit adds validation during SELinux policy loading to ensure every
+declared boolean is defined. This prevents NULL pointer dereferences when
+consumers iterate over the bool_val_to_struct array.
+
+Cc: stable@vger.kernel.org
+
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policyd=
+b.c
+> index d358200817bd9..d88713201be92 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+
+[ ... ]
+
+> @@ -769,6 +770,24 @@ static int policydb_index(struct policydb *p)
+>  		if (rc)
+>  			goto out;
+>  	}
+> +
+> +	/*
+> +	 * A sparse class value is absorbed by policydb_class_isvalid() and
+> +	 * its siblings, but no such predicate exists for booleans: every
+> +	 * user of bool_val_to_struct[] walks it by index and dereferences
+> +	 * each entry -- cond_evaluate_expr(), the two getters and
+> +	 * security_set_bools() -- so an unclaimed one has no consumer that
+> +	 * can tolerate it.
+> +	 */
+> +	for (v =3D 0; v < p->p_bools.nprim; v++) {
+> +		if (!p->bool_val_to_struct[v]) {
+> +			pr_err("SELinux:  boolean %u is declared but not defined\n",
+> +			       v + 1);
+> +			rc =3D -EINVAL;
+> +			goto out;
+> +		}
+> +	}
+> +
+
+[Severity: High]
+This is a pre-existing issue, but since this patch adds validation for
+sparse booleans, is it necessary to add similar validation for sparse types
+and users?
+
+Context validation skips checking if the type is actually defined when
+c->role =3D=3D OBJECT_R_VAL:
+
+security/selinux/ss/policydb.c:policydb_context_isvalid() {
+    ...
+    if (!c->type || c->type > p->p_types.nprim)
+        return false;
+
+    if (c->role !=3D OBJECT_R_VAL) {
+    ...
+}
+
+If a crafted policy assigns a sparse type to an object context, it is
+accepted. Later, when the context is evaluated, does this trigger a kernel
+panic when fetching the NULL struct?
+
+security/selinux/ss/services.c:type_attribute_bounds_av() {
+    ...
+    target =3D policydb->type_val_to_struct[tcontext->type - 1];
+    BUG_ON(!target);
+    ...
+}
+
+It also looks like this could cause a NULL pointer dereference during string
+conversion (such as in audit logs) because sym_name() returns NULL:
+
+security/selinux/ss/services.c:context_struct_to_string() {
+    ...
+    *scontext_len +=3D strlen(sym_name(p, SYM_TYPES, context->type - 1)) + =
+1;
+    ...
+}
+
+Could a malicious container policy exploit this missing type validation to
+crash the host system?
+
+>  	rc =3D 0;
+>  out:
+>  	return rc;
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731-b4-disp-d3=
+2e997b-v1-0-0341d038ee47@proton.me?part=3D4
