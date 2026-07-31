@@ -1,227 +1,191 @@
-Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84DF741F35C
-	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 16:59:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.50
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785517174; cv=pass; b=iAUuaMu3vseB8J6gaYnZ7+CkuSQVTGNXakJrk/RiXe2QrD1qW036VJQ3071XUgigED9+EbIB8Su3cTVhB2UCDW/XjYy5wUEb37bYn+nCKDrefk7prR6t5oJEKSfZix+wTxtqTSDiz0xYyz6/gyAQF2+ujLW+xgb+bDH2fEAtLlI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785517174; c=relaxed/simple;
-	bh=QRsMcHmTFVFh22BHxXQg21CAvxZvm8fj0rIAcVM2X2k=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=CYYGUOxTPdoNjuvkxpiMv+XtHtXm7L4qlJkqXCTogY4S9hbqDuNzuJUsXWT1MKwN/5zcJ7sQyIZ5ES8yEHtIMS9mXUGC2xEPU5qxwk5hys6Lyb1ePHpT15qCKUQe35gIgimojFKkL9jmCQDW3yriEztkk+GDOzflXPlsWor1f/g=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=RK/ffCL+; arc=pass smtp.client-ip=209.85.216.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7C114499AD
+	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 17:07:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785517680; cv=none; b=NhQazz3SlzOZXQSl3nJ3bpuAaDY+6TjMIlUgD241MKXeOpwqZ331V9vR9e5MYMx0aW7Y/z62bLKgGbtoRUjiMMi2eytW7qti8lZwsxs5iZN7xP4zWQnYBGVkmlQ7KrSTFZ/ckERrdDVuQrsM/90cSe28onVjOu5saeNP4AEdQeA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785517680; c=relaxed/simple;
+	bh=S8fSGliVXVVir45f14wKNX7a8oqezVQ/Gxda8CGGb+g=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=E9InBPZICO3w2x1GpqD2m61hZHlxJhgx0sxt6Y11XdXrEY5tg2YiptenFepW4CL8DzGeTllcb9nr9tnIabCnauhdT8eoGHFr9siWcTDRgaM6Axxr73nK0wY/aiN7ZyIo6Fhl1ntQN+9njBEPct47qivdlQn6lmPuqizPXIUdWPQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=B0a36GEv; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="RK/ffCL+"
-Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-38dfe910e9dso1194760a91.3
-        for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 09:59:32 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785517172; cv=none;
-        d=google.com; s=arc-20260327;
-        b=Dz0/KnAoy5FOPw3MW3kEo05GWyaFk+2t7hTDw/K9mDTv9Q+FEZtfVMcp0bxL+PwftD
-         1d1DgoGAw0AC3cev+53+IbXikRIjeTR8hKd5rcDfCt9xP9HS1xO7MChw7jail6XQip/g
-         xAIIIg4Hw6Todo9UGju0YjAH99hthSY12Fc9+T4o5PBEQ2GU79SiH/5mQzr9H7myThOE
-         7Qcvc0hRER6HiYtZb/Za5CNlTQQdG1a/yQCRyKdMJ3dMSXvxWgNtcyELyIHKqKjdi7Cg
-         H/20c8Tyi2kwFhoFPD87WcuSJohQlhS0nBj8c1Rs06hHs97mwL7qrZDgOTrhpn3/Su3s
-         AqMA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=zOKR/PjmyeeQ5AAj59WkFZ8/Hg/6PfssbyNnrg+0nMg=;
-        fh=suW051RIkNMTvQ91ksCDg9de1Xze9/bJ337cDpF2uqA=;
-        b=FtCmmYkBIKGh+7Pcvl0nW95/qwAerYmWZFJ//+WyJebg4mFFucTAlbFSqm5jENBlsk
-         f80ck8OUxYshZj8mMeCKpGzVWRWeJZgU2tOTYRFNPaQZzvriK8KUJkpu41lXIzhTK23F
-         mXXZTo6iJV3mqhkCSIGi1QRGLgwoK1bhBYFH/zHGAO2uTit/SERDKkXUD6tKXGBFp++X
-         DXnFG37MdyDxZUrEdEKkidsTXohQXZZkgNfnj0SyHuRY6e7/3W78SEqp4FNgZlNLKkj2
-         dpEP7sCiY/FVadhW//keKc8xFwyh+f++5TGwlMzXiw6BSPKi4/aLR+xp07FnHnNh+JOZ
-         0EKQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1785517172; x=1786121972; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=zOKR/PjmyeeQ5AAj59WkFZ8/Hg/6PfssbyNnrg+0nMg=;
-        b=RK/ffCL+62C/EbBLkUR5vfyVH831xrlHLmfwSa4rgWJIe6oagWgsKcMZm6SsdGdYCt
-         DYBESgUCY5oodjuf1puuRv62UVDRSa15X0LOEzot/yRH7EFy8Jh6U8VxSvZIrZLfidYy
-         bunxAGK0hH58Ai6xQ/gY9rR5RFumpoUDEr4kYFLuv1N3o0DyFjRWwfYDg2rVbdYsWoPY
-         C3rIFlOxwWxo3gshS5IiYFc/ic/XSohJ8q0qJUGqWKjm2y4jRoy+SXZLz9cSv5JBqv0q
-         oEINlI0axA/2NEhGQ5Vm/NbEkD63MjbQmGlqIAlswCIB6ruNh2Oek7pnZFfrXZxd537k
-         k8lA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785517172; x=1786121972;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=zOKR/PjmyeeQ5AAj59WkFZ8/Hg/6PfssbyNnrg+0nMg=;
-        b=jwi2oWtxAaEQZRXUzqz4tHGrxFa83YPRqd/tWN27PP5a+C2jEyLSLm+wYZYrnF4b24
-         XY6SvsswHTBA1CubX8ao8cWNyiglIdciUUvtMzTVs1r5sd99+M7vhwzgAWvfzgq6YfdY
-         Q5RwLGEZKXMmwbBDUfEc91ynOoATiPag9URZ6IaVG10//XDGEducusn+dtbdyKESize6
-         mk2swfk1ARdeOmtWe4Z4saN49/CYXPIctr35oJYNqIHa+FMhYmZg/IVHHYrhiRpC6W8l
-         hrSjpZ8NgigPQVFCQNVr/q0mQIarmg7zBeLo8RrrJOm56jdeupAUkdgOGAz/gj8hWX3u
-         2+kw==
-X-Forwarded-Encrypted: i=1; AHgh+RoZEuh5hyP3YxqP32DYrCE8ylVe28k2J/ohiBWMVeGKSxhr6/60zaWutr6m3t7V14+Qsspibhxh@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzp1f+Brda2azWNcrhbFgrBQ2WAACnwNh+rhy7gddPKNgjxFtNB
-	j42cEeqoDoloy9GF2KEUONQ4VQjg9KB53PeM671klGI7RqaFqloYi7SwoQImZ1ZmUG8u/0Ki+LH
-	XiQHcyOiG0/RakH1/2DpmCnxrQ9wmZzWFmdvstuMc
-X-Gm-Gg: AR+sD137D61Mg4HLG2w7pHNyFfkEScUjdjls4wazrAWq3NY5Ne9w47GzwtIL6CJTy1G
-	peUKEvs0Yg4M/xb9KiwhYRmZYBD0boxQmFyAkPF3vyRvANrI3H0pI1EElh+7D0kdEy2L3Ibv+s3
-	5UdNb5CC/ia9EiZe6MwicVhGG7/0SPkIhHI4W/OtA2BE6GvH08cTFL7tWsw5o5amUp7+KKxp3rf
-	U1pGtZ7BRoiMLt6uGvMyebnJT296fa5s7YYzaS5L7xgOc4JwnduSHn/WA3T/DRUMmTS5f+p51nP
-	B5R34LLvC9s9cT3xOf0yyVI94N24q9/qcdU9uvYIFfrV
-X-Received: by 2002:a17:90b:564c:b0:380:9f17:6df3 with SMTP id
- 98e67ed59e1d1-38fbc3e5947mr633869a91.4.1785517171698; Fri, 31 Jul 2026
- 09:59:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="B0a36GEv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66F511F00ACA
+	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 17:07:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785517678;
+	bh=76n8ogS5bvh6Aa57NAwJg5S8lZ4dDrIJZvLJprm/my0=;
+	h=Date:From:To:Cc:In-Reply-To:References:Subject;
+	b=B0a36GEvLbpn9QVan3laky6gn3aQVi1ciZdIQo4Dl7zYLIES2DCgmbWx5Pdw+5PqA
+	 RTmK2ZfVEmgi0FN+5jCIAx8MDLL7w8x+UqNj1hWrNQC8cBOxFG5cjo/tWAQr8uusU7
+	 Q+DepdEQzOkkPDUemceVbRwYWo8U1bixyrE/xOlGxb6pssTT3Hi1mSYFFlHdI2AGTZ
+	 L9g9PsqZCIk3QQFZXHympTanBHbKWY4ZGBmro1OqB0OQh9rFBuf9/+xh1nl/pX82tP
+	 1VYjpbXLaKX81tsMuQIGdwgy1l7U80D7i9VvTK/xpgkDyhK+Zzkoz3NZ/7ZOPLHgmA
+	 ZfexqMxe2KmBw==
+Received: from phl-compute-10.internal (phl-compute-10.internal [10.202.2.50])
+	by mailfauth.phl.internal (Postfix) with ESMTP id 6D784F40081;
+	Fri, 31 Jul 2026 13:07:57 -0400 (EDT)
+Received: from phl-imap-15 ([10.202.2.104])
+  by phl-compute-10.internal (MEProxy); Fri, 31 Jul 2026 13:07:57 -0400
+X-ME-Sender: <xms:bdZsauAIFW7vgjpZ2A-fyU99zZH-jRtKAdYphCSSEJhiw2lGGzQPoQ>
+    <xme:bdZsajXb_A6vot4t_e48GEOndvWf1Dh5WEi8VfAlR8rIn5sEA_95j5NB4n1a_HhDV
+    i8aM_H0eEe34yuxSCwtjLRzYvee8D5TXyBZ3O8ykRlGmTOz7iwlo_4>
+X-ME-Proxy-Cause: dmFkZTFHoUK65Pa5sEOsC3lqPKqH2cP5ocLcMGuNPDYjcvwbrpjxIA6UBdBOCLlQh0j4H1
+    Pj9gSMi9Gu8CW2l8dItkL7a1blLpRhHhl/SVr7fC4BZYYI5pp/ObpsHiDIUWplOdKLtswB
+    8GGRPdXlxG5bDDzyuzVCMUXZeBO8ViVS0u42khjjz/YnUrs3WfCoRIJ6yi2KMxzVwrXKQj
+    nzS5aBdA3CY6jxHNCdvhAksqH9isagevY/wvw4FZ8VMJyLvZl43V0bbNoN7ZZjG4nfwcmF
+    8SAtSCH39yoSQIJy9awye0z8ozqs1MI9bW2Kkcz752X919vjHUwsKu5RLPJSB6SGLLLKIC
+    n/gsAQGSVHStLQZX+iqgO6gyA36eXyPmxP05GsGvIHOkMe1DHQhTG8BKEmLgFUcZtVY5u8
+    Inpqu83Qxo3K8sW4ROueMCv6gV00YKNEiwL2P2IodsHDOZUJT8DygVlwLS/4zp779IOpRd
+    +iKFW1Tb1heSVVeqByYtjbWYODGP0iP4Q40vuhHdfDwHFUQ2zwYFRywAhTFH3Gy/YpUrBB
+    tFH4JcXf09fHQdUfm29twHNp/vRR+VAdVaOD+yXhyoyQL+wps6sNWhA6XmSOX8IMeYm5yk
+    OLZi7q/WSRfAmtDpKC5GKvf9DzqLIm1NJzALoObxwZTT5IyLgZUCEgaCR5fQ
+X-ME-Proxy: <xmx:bdZsaupZJ0A0lZ6JUInjYKht0q7uonDcs0GqTC3950sgq2Jq3tF4FQ>
+    <xmx:bdZsaofvcjixd7PFgzqkxwIpScbO19Qm8zvIpUMCgf6WRe0WcmKsWQ>
+    <xmx:bdZsaul_6Pa45Sm9zYZ94v1IYQHAe3EuqwNv-SD9qusiZZ-7w-NYGg>
+    <xmx:bdZsanYJZC9Lur66LtiN_3Nc-hrEG_53zkL6I51ExvYkQcquPTYTmw>
+    <xmx:bdZsar6hamFu5h8yFoYxzYnz51rNRLQ-U-hqeLb3mTxiVECQmFg5WYNi>
+Feedback-ID: ifa6e4810:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id 4917C780070; Fri, 31 Jul 2026 13:07:57 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260730234533.1912709-1-dwindsor@gmail.com> <20260730234533.1912709-4-dwindsor@gmail.com>
- <CAHC9VhT=m-GtOZx2AHym7uN1CNx94arKBiXeVC7LTEJ-b=1EVQ@mail.gmail.com>
- <CAEXv5_iiNspub=qE1YW-01sV_bxxFUrrcAR4KV4Ec5i_mePtHw@mail.gmail.com>
- <CAHC9VhTS7rSnBqg00ZxNkcZyh_=EeJmn_4z3CTCCxreEEDtTtg@mail.gmail.com>
- <CAEXv5_iHLmzPT3Jj+qZsdt1Nk_5OD4Up3GGV0S9G7KyQshFhDA@mail.gmail.com>
- <DKCVF3KRQSOJ.1WKITMP369I0R@gmail.com> <CAHC9VhR5yfw+sMfrYpy8Qm2uNoxqsTweh=KhDRZsU1CioHRDDQ@mail.gmail.com>
- <DKCWFKAD79IU.TMCNT9RUAJAU@gmail.com>
-In-Reply-To: <DKCWFKAD79IU.TMCNT9RUAJAU@gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 31 Jul 2026 12:59:19 -0400
-X-Gm-Features: AUfX_mxiTF4CmakubyzcMYYVqWjlKYkApVmZz3ybbsziujIkCqg8Z2kjrrbozIE
-Message-ID: <CAHC9VhRQWRKHi-hdtvSnYPD_dqgP7Q8RB_X4PEDLwPUe6EegYA@mail.gmail.com>
-Subject: Re: [PATCH v6 bpf-next 3/4] bpf: add bpf_init_inode_xattr kfunc for
- atomic inode labeling
-To: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Cc: David Windsor <dwindsor@gmail.com>, Alexei Starovoitov <ast@kernel.org>, 
-	Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko <andrii@kernel.org>, 
-	Martin KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
-	Yonghong Song <yonghong.song@linux.dev>, John Fastabend <john.fastabend@gmail.com>, 
-	KP Singh <kpsingh@kernel.org>, Jiri Olsa <jolsa@kernel.org>, 
-	Emil Tsalapatis <emil@etsalapatis.com>, Matt Bobrowski <mattbobrowski@google.com>, 
-	James Morris <jmorris@namei.org>, "Serge E . Hallyn" <serge@hallyn.com>, 
-	Casey Schaufler <casey@schaufler-ca.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, Mimi Zohar <zohar@linux.ibm.com>, 
-	Roberto Sassu <roberto.sassu@huawei.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, 
-	Eric Snowberg <eric.snowberg@oracle.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, Shuah Khan <shuah@kernel.org>, 
-	bpf@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-integrity@vger.kernel.org, 
-	selinux@vger.kernel.org, linux-kselftest@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+X-ThreadId: AcdnrL9JmIuZ
+Date: Fri, 31 Jul 2026 13:07:37 -0400
+From: "Chuck Lever" <cel@kernel.org>
+To: "Paul Moore" <paul@paul-moore.com>, "Anna Schumaker" <anna@kernel.org>,
+ "Trond Myklebust" <trondmy@kernel.org>, "Jeff Layton" <jlayton@kernel.org>
+Cc: "Stephen Smalley" <stephen.smalley.work@gmail.com>,
+ "Achilles Gaikwad" <achillesgaikwad@gmail.com>,
+ "Casey Schaufler" <casey@schaufler-ca.com>,
+ "Christian Brauner" <brauner@kernel.org>, linux-nfs@vger.kernel.org,
+ linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Message-Id: <8df686c5-f1cd-4298-97de-14c2c4638496@app.fastmail.com>
+In-Reply-To: 
+ <CAHC9VhS6B1yW+8G9Biqit5CAmcg4CwCaWbq1B+Qpo2n6a=yqnw@mail.gmail.com>
+References: <20250428195022.24587-2-stephen.smalley.work@gmail.com>
+ <20260725200958.4471-1-cel@kernel.org>
+ <CAHC9VhSGn6UQ1__HtqjKWD1KgyMOhHYYKny5HnVuPAuvqZR9aw@mail.gmail.com>
+ <CAHC9VhS6B1yW+8G9Biqit5CAmcg4CwCaWbq1B+Qpo2n6a=yqnw@mail.gmail.com>
+Subject: Re: [PATCH v2] security,fs,nfs,net: update security_inode_listsecurity()
+ interface
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jul 31, 2026 at 12:32=E2=80=AFPM Kumar Kartikeya Dwivedi
-<memxor@gmail.com> wrote:
-> On Fri Jul 31, 2026 at 6:02 PM CEST, Paul Moore wrote:
-> > On Fri, Jul 31, 2026 at 11:44=E2=80=AFAM Kumar Kartikeya Dwivedi
-> > <memxor@gmail.com> wrote:
-> >> On Fri Jul 31, 2026 at 5:30 PM CEST, David Windsor wrote:
-> >> > On Fri, Jul 31, 2026 at 11:17=E2=80=AFAM Paul Moore <paul@paul-moore=
-.com> wrote:
-> >> >>
-> >> >>
-> >> >> Okay, it looks like there was some confusion/misunderstanding.
-> >> >>
-> >> >> My understanding of Kumar's comments was that he was referring to t=
-he
-> >> >> exisiting LSM related kfuncs that are located in fs/bpf_fs_kfuncs.c=
-,
-> >> >> not necessarily the new kfunc you are proposing in this patchset.
-> >> >> Kumar is welcome to correct either one or both of us, if we read th=
-at
-> >> >> wrong :)
-> >> >>
-> >> >
-> >> > Yes, after another reading, that does appear to be the case =3D).
-> >> >
-> >> > We'll need v7 anyway to fix the ocfs-related UAF the bot found.
-> >> >
-> >>
-> >> Since there is confusion, let me clear it up.
-> >>
-> >> I meant it for all of them. I don't think it makes sense to keep this =
-one in
-> >> security/ when others are in fs/bpf_fs_kfuncs.c. That confusing limbo =
-state is
-> >> worse than just placing it where others already are.
-> >>
-> >> As I already said, the discussion around whether all of them they shou=
-ld go in
-> >> security/ is orthogonal and should be done separately; it isn't produc=
-tive to
-> >> repeatedly bring it up in the context of this patch set.
-> >>
-> >> I honestly don't get the urgency; it will be a mechanical change if we=
- need to
-> >> make such changes. The worst outcome would be stalling David's work ov=
-er it.
-> >>
-> >> As for landing this stuff, we can let Paul take the patches touching s=
-ecurity/
-> >> and route the rest (3-4) through bpf-next after the merge window. We n=
-eed them
-> >> to go through BPF CI anyway to ensure nothing breaks.
-> >
-> > Some existing LSM kfuncs are located in the wrong files.  I'm not
-> > suggesting that David needs to fix the existing problems, but there is
-> > no reason to keep making the same mistakes.  The new LSM kfunc must go
-> > in security/bpf_lsm_kfuncs.c; if that isn't acceptable to the BPF
-> > developers then David will need to find a new way that doesn't involve
-> > kfuncs.
+
+
+On Fri, Jul 31, 2026, at 12:09 PM, Paul Moore wrote:
+> On Sun, Jul 26, 2026 at 11:03=E2=80=AFAM Paul Moore <paul@paul-moore.c=
+om> wrote:
+>> On Sat, Jul 25, 2026 at 4:14=E2=80=AFPM Chuck Lever <cel@kernel.org> =
+wrote:
+>> >
+>> > On Mon, Apr 28, 2025 at 03:50:19PM -0400, Stephen Smalley wrote:
+>> > > Update the security_inode_listsecurity() interface to allow
+>> > > use of the xattr_list_one() helper and update the hook
+>> > > implementations.
+>> >
+>> > This commit wedges an NFSv4.2 client running fstests.
+>> >
+>> > A kdevops fstests run against nfsd-next hangs at generic/086.  The
+>> > client stops making progress and never recovers:
+>> >
+>> >   watchdog: BUG: soft lockup - CPU#3 stuck for 250s! [086:60396]
+>> >   Comm: 086 Tainted: G  D  L  7.2.0-rc4
+>> >     __pv_queued_spin_lock_slowpath
+>> >     _raw_spin_lock
+>> >     nfs4_xattr_set_listcache [nfsv4]
+>> >     nfs4_xattr_discard_cache [nfsv4]
+>> >     nfs4_xattr_cache_scan [nfsv4]
+>> >     do_shrink_slab
+>> >     drop_caches_sysctl_handler
+>> >
+>> > The D taint says something died earlier.  It did: by the time the
+>> > lockup fires, the client has already taken two dozen NULL pointer
+>> > dereferences, all of them in the same place:
+>> >
+>> >   BUG: kernel NULL pointer dereference, address: 0000000000000000
+>> >   RIP: _copy_from_pages+0x44/0xd0 [sunrpc]
+>> >     nfs4_xattr_cache_list [nfsv4]
+>> >     nfs4_listxattr [nfsv4]
+>> >     vfs_listxattr
+>> >     __x64_sys_listxattr
+>> >
+>> > The two stages are connected.  nfs4_listxattr() declares its
+>> > remaining-size accumulator as an unsigned size_t.  On a size query,
+>> > where listxattr(2) passes a NULL buffer and a length of zero,
+>> > xattr_list_one() decrements that accumulator for the SELinux label
+>> > without regard to the NULL buffer, so it wraps to a very large
+>> > value.  nfs4_xattr_cache_list() then sees a NULL buffer paired with
+>> > a buffer length large enough to pass its own bounds check, and
+>> > copies into it.  The fault happens while the xattr listcache
+>> > spinlock is held.  Task exit does not release spinlocks, so the
+>> > lock is orphaned, and the next shrinker pass spins on it until the
+>> > watchdog fires.
+>> >
+>> > The reproducer is a plain getfattr on a file on an NFSv4.2 mount
+>> > with SELinux enforcing, which is what fstests generic/086 arrives
+>> > at by way of a drop_caches write.  No fstests machinery is needed
+>> > to see the oops.
+>> >
+>> > An audit of the listxattr path pointed here, so I built nfsd-next
+>> > with this commit reverted and reran the full fstests nfs_v42
+>> > section on the same pair of guests.  745 tests, no soft lockup, no
+>> > oops, and generic/086 passes.  The two failures that remain,
+>> > generic/033 and generic/258, are unrelated to xattrs.
+>> >
+>> > I am not proposing the revert as the fix.  Achilles Gaikwad has
+>> > already posted a targeted patch for the accounting itself:
+>> >
+>> >   https://lore.kernel.org/linux-nfs/20260707152305.15324-1-achilles=
+gaikwad@gmail.com/
+>> >
+>> > Whether the right answer is that patch, a change to
+>> > xattr_list_one() so it leaves the remaining size alone when the
+>> > buffer is NULL, or hardening nfs4_xattr_cache_list() against a NULL
+>> > buffer, is for the three of you to settle.  I am reporting the
+>> > severity, because the accounting bug is not confined to a short
+>> > size query: on a filesystem that caches xattrs behind a lock, it
+>> > takes the whole machine down.
+>> >
+>> > I can test whatever you settle on against the same setup.
+>>
+>> I reviewed Achilles's patch back in early July and it looked okay to
+>> me (see my tag in my email in that thread from July 7th).  I had
+>> figured that the NFS folks would have wanted to pull that via the NFS
+>> tree since it only touches NFS code.  If they would prefer I send it
+>> up to Linus via the LSM tree I can do that, but I would appreciate an
+>> ACK and Tested-by from someone on the NFS side.
+>>
+>> While I don't suspect it will be very interesting, I just started
+>> building a test kernel with Achilles's patch that I'll run through the
+>> normal selinux-testsuite automated testing.
 >
-> What "mistakes"? Really? It's just code organization bureaucracy. Calling=
- it a
-> mistake is just blowing things out of proportion.
+> Chuck, Anna, Trond, Jeff - can someone ACK Achilles's patch below or
+> suggest what changes might be necessary?  There is a known regression
+> (see the existing mails) and we need to fix this before v7.2 ships.
+> I'm happy to send this up to Linus if you would prefer, but I would
+> *really* like to see an ACK from someone on the NFS side.  If I don't
+> see any comments be early next week I'll send this up to Linus via the
+> LSM tree.
+>
+> https://lore.kernel.org/linux-nfs/20260707152305.15324-1-achillesgaikw=
+ad@gmail.com/
 
- :D
+Since Achilles' patch is client-side, I shouldn't Ack it.
 
-You've no doubt seen the challenging interactions between some of the
-BPF and LSM developers over the past several years.  A recent BPF LSM
-bug/vulnerability as well as these interactions between the BPF/LSM
-devs, has caused me to take a much closer look at how things have been
-done regarding the BPF LSM and there are a number of things that
-should be addressed.  Not all of those things will be addressed now,
-but I won't support patches that continue to do things the wrong way
-because I currently have very little faith in our ability to correct
-them later.  I do hope that at some time in the future we can reach a
-point where there is more cooperation between the two communities, but
-given the recent difficulties over even the small things, we are not
-there yet.
+I don't see this patch in Anna's tree either. A response from the
+NFS maintainers would be helpful.
 
-> I don't think you can simply decide this unilaterally either. Do you take=
- full
-> responsibility that kfuncs going there won't introduce BPF side regressio=
-ns? Who
-> makes sure patches touching the new location run through BPF CI? All of t=
-his
-> needs to be thought through before we decide upon anything.
-
-I would expect, and require, that patch submitters perform the
-necessary testing for the patches they submit; this is no different
-from any other patch today that is submitted for the LSM framework.
-Patch submitters would also be required to CC the BPF mailing list and
-I would encourage interested BPF community members to offer their
-feedback and review; once again, this is no different from any other
-cross-subsystem patch today submitted for the LSM framework.
-
-> Thus, I am simply asking you to be reasonable: let's help David make prog=
-ress,
-> and get the changes landed. FS, BPF, and LSM folks can then decide on whe=
-re to
-> copy paste the existing kfuncs later.
-
-I view my position as both entirely reasonable and consistent with the
-current LSM approach to cross-subsystem patches.  The location of the
-kfunc David is proposing is dictated largely by the kfunc's contents
-and interactions; it is only legal to be called from an LSM hook
-callback, it manipulates LSM-only data structures, and aside from some
-BPF kfunc boilerplate, it only calls into LSM hooks/functions.
 
 --=20
-paul-moore.com
+Chuck Lever
