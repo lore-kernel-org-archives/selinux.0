@@ -1,61 +1,62 @@
-Received: from sonic312-30.consmr.mail.ne1.yahoo.com (sonic312-30.consmr.mail.ne1.yahoo.com [66.163.191.211])
+Received: from sonic313-15.consmr.mail.ne1.yahoo.com (sonic313-15.consmr.mail.ne1.yahoo.com [66.163.185.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D49BA371D01
-	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 22:48:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.191.211
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8843729DB9A
+	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 23:01:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.185.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785538102; cv=none; b=aDkSeJCh/pjx/VVjaY7csfBoHvYLM+5x5yPtKRuTLPdx1iOCS91jSZ4NUoD5AVf7gPVMyuDMwKE4nqtUtgN1BtdCzYtNymahhsPkr5v6+gqjJt04Sd5zADLb24C6tkUjEbLTg3qg7n5UZAMi5fZKBnq4QjbOB94NxC20IqFFeFY=
+	t=1785538881; cv=none; b=P1xMnbXArm3vnJTVnJJEv6OaN67LRyIvYKSKgdcommajx6kYPSV8IQkZl/uq2ntD/uMibpvCAGfAAjvuvhKSMOhlza70US0rQMcZ3oN/qFKEZ3FusgF+At2tPdOO7qRL6sD492jbJMl75aeIgT79+5vexyZUYNZicfemQBq7xls=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785538102; c=relaxed/simple;
-	bh=YAt9eFIIe3D3n5l6qZabScoWy3yuTrRj2itu8f37lrE=;
+	s=arc-20240116; t=1785538881; c=relaxed/simple;
+	bh=v8IrvUSBK/tb7So/oYB3Jwrpq8RTn6YGZPkMBlse4zw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=J9Tv2UVgjLLVBFpU92I961z+y98lXaPWszHU/SRQNP8DAYvAp94k2NoJ7Qj5NJrpHiUN4PMVn1jEK+94aDslC7o0ZBh9yW7ZWlcGiEmuUV6PgTVmnNBz78atLpTiXL+27amv5FpOrOFhfDYjXHnFuHDmS29Q2YjVts2uwu7hVec=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=TXuNGcHW; arc=none smtp.client-ip=66.163.191.211
+	 In-Reply-To:Content-Type; b=arch7meIQfuRraebxQkooWOnaCHuoJPf42WCwiqYYIfw3NU9bTvj4y72ovIp1TUrdx3JL4rtbrna4nonHPZNRwT49JeeYG6V+pkU+bCC4naQChX/ICRHfq5XCb10TJ0KEPja5cCJVUvAEHeoR+wCP57iBqthbnhQdG4tlXRKMms=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=EkpkwbJQ; arc=none smtp.client-ip=66.163.185.38
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="TXuNGcHW"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1785538100; bh=YAt9eFIIe3D3n5l6qZabScoWy3yuTrRj2itu8f37lrE=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=TXuNGcHWAw+SGYqH/xIb9+SSDOLerMhureZSfMjykJuW3Ysxp6ObjuL2kzo13YdIzq5UtMrowjQIuM9l/jz89ytXUWI5E9GlL+1EkM6+v610creb3EgyZcQQ4SMaAuEvXjuTqAZ6F+rWO1z89bzX76scqJ/ly5U2I9o0ub8uA3uBuBSPH0Og28iCj48+jtHEeMx/yAYiIkjJgm+1IsWDSvjcrnpSHAHNTGhpEVi+lkt/QpL824kwzxwR/Ym9emwaVwaowL+hTt2SE5DkHKvFXimTQ7YgAgfjwyI5MfUaGRp7uOqwx59vUh2te+e3TBA1t+7Oyi2pqeeIHBm8YN8WOQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1785538100; bh=96AoV5phOK55RBC9/9PzdNzgWwmCX0qSHzrrrjO10U/=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=IJ6KtVwiUEK1cD6ZqBxi5Lncc5EwoPs5Y9CWiW22lUhnGsok+kSnce+kG9Y9xuNELuNsCAiNkMtwxrLLfkGicKGl6XZmRgOt1Xyg+Bf0l08cochIqCSSsEYpF7fQ35gDQp9SEjs9PJ/o7RVM6IGdv+7IeIYo81thkYh7pWTz4CK+4ZQ2Fcz4UU5ksaiGaNNpxSQnKe044HQEblEsnUWRwfhQBsZyd+RnLnN8GoCTcHF8cSglEaXrdrRK2zFUOX/kOXBpZNf18H812zCk8R9xiuAk4h3gVJrxzAo7QwuWUJN3Pnzmm8TfedimujAFlSSzuG1KRJuHM3LTnH9IWNOfNg==
-X-YMail-OSG: YHJjAkoVM1nbExbT1WhaofDuzzQwMyU89QRdv7cR2RIQJCwn6DPP9ZTUIKkRQdF
- xT_Oz_UlCSAw7c1vgqD0uLC0pF_sk0_vJdvgpTMOtDTuni5H3xnsH_S.fc.Ilv6S8QQYAKpLmEmU
- ydA21HbC2I1ItCn5q3LZU8qCLEWokbEeM5E0KEriu3cdpo3LC70.37bziH1Bd5NcQQ0shoAz_UlE
- PsBRawdr0n8OVh4uINhNO9eDtAI.hDtnYstENakSS9mqkVtuuAXfHjRlPzw_9.0w6p6uAXefcXw6
- XhQswurRqoXC2mVocE3yfPp15hpCG7C8ejviSoZTH5GGDjt0SKLpdvLxqiNBHSFVRKFwZIoCIsLo
- b6P9G1vH8PoYXP.gFS9BQ3X3vWJhKoJ1Ep6C...EI1nwf2vi0uViuJL0EpN4dmuD0L5vLRu5uWUW
- SzJBvo1oaO_8hTBrbN1wFfRq_UVqj_DLIHQPXU65OnvjWR7ngPTCS0h5lW2ETwHDPDr4D_OHZzOV
- a7tU52eS4wipUErgx0nMVxs9SwMEb_dTrFA.eflJbPNRTeGr6PFiSRWk.dus3dwFESU.vbjFnBh0
- a4nNvBGbTrWOJhnOyGLAObaaF3p_BmjoQYD1qEg18bMIjudW0NJLIRW10qIXNuQUJ9gePrGVBYHw
- afVdAfBOs5HUp6aHLAJTnX.TCga7OYYHVYX8j2GO3Zpph2WQg8.q9s80FtvnscAALmaQGA7AW7_4
- 9rI6kZV8R2Ur.WcSRyMjOHQPyF2RiOSw556obSFeEAz0hOK_pXnGFLM.s7mwpl5ImLoEzUL4TTXu
- 7LbsId4wgrSO9Ychch6rQlC_w2UY390vPo9l2KAUSvOTi3kCrdFelb8.tiV317_GhX3j6Wz.okY1
- mnSvPzqFDjaPgkGSYXiJsFSiX8XtkwML7azKdl8.H5MLhQpgdUagfb2Mh_3A.1_rSnVmoh0OmAGI
- ti1j0cz4RBl_HPjiztuxBiAy1gSpIayk1ys.4TaLcPRksl5cagXIS7MYh.KzrqJeT._wlem6M28h
- xlY2Y6yFpZ8Mgm7JuHrdXkrA3DM01XBAMCorDIv4ONtt49N8Sj9S6ckvXciF15rO5ctxa2a9pSQR
- w_InH_U.r62YJNMfZ5pBGAUImcjE0YMfDK0y7bVXWXZjlDrN_8kl2sJIgynSbWb8h0ZLE1QywtXG
- pTSqiWOTFFNcXrDrJKUnxrWkJLadP8qdQJP5PNxPmLY0IWWtyBTRt_CrI8NBF9lUo4nBIXQ18C7u
- 79qHIN8W_pChGYyiLpG7aQdCJVdfMVsX4zbxV1Z7m7T0zYNm8y_IhvW4EgwFFNfC77MLefLvCdsf
- fYu8KU6x3.JGWh5vgrebsq_x3NO1k27U1CcUGSZo2C633eajxXPUasJoisG2vBg1c4otYIG732w8
- LuMp7Bpi_TYmLIFEDoU55fejyc2IYbCQ4ABBVE8vsEuD36y3XuAjiOvShHr4H6pnoOEDG8QxRila
- i_fqx8p1eZMvs.PHt._hHR9GryyGIx48ofEWXU_wPWXL8FEQFdTMHX.y7GtUx2zWXYzaUktZSxsp
- jMDW.eDzTyP_0aeUjqExGH6Hll27nX9qJzhuBwWgUIYAv6QVuyQvKXndKIAHO5MyGc834jurXI3k
- EdO.9vhrCunIP8izzOFq03c6vIiAHZspfi0f19atmMBM.S.c._HV1jgQ.7nuFt13AR0.R7J0JPi0
- s8s.WxzQurLtukSYyAWruJbdfu9xS4adpRjcsxAHLntfNqpUYTfOkGaXlaZJtXxZCEWvat_m5u5j
- OFYwx3OK3L71iPrrP26AuWcGNU0G3haguQF_sJ1E2Tyad7DP.eaeV0wUnxmRuwn3nEORS2ngPXXm
- Jf.PjWF9cX63wR5vLi2A2OJ_4ZzA05yeJXxrMQgDiy33._KHfkNhCMar13YpHMgdwjxW0a1Vjvl_
- waO8O_B4qMVVrzrcStZQA9OtZhAv4.hqEEyC.AmaOgwuUp1c0.TN7iepWCGHqpfygk.RDzi3uci8
- epIHhMGYvkgmrNJSXfPh97LRTZFjZT23i6TpU9BEaTmEXT7ub9nmDnsRNYPHWYzmf7CRmNXTUvIX
- xNpY1aMmOdjKiLpyzgMMgZewKktMgM3czgli1RebJZMklJx9XXlPV.7NO04YVjLXBqToEiGTi8b4
- IX159.23JZ1lJdf0r6ElxNK.Ut75K_J0bBV6Rei0GgxZZnRL7HpDbC45SHxOVudsF2B9.BCt7Dd1
- WIbMQpdn8cTyM6gdCt5E4XOGY08pPGnu8qDhloApOEDNLKWdXVVrRblNdF4gpYR6iCzoJug--
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="EkpkwbJQ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1785538878; bh=v8IrvUSBK/tb7So/oYB3Jwrpq8RTn6YGZPkMBlse4zw=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=EkpkwbJQvXXx+1ehfeTKqbZNuLZWaj+auxVQo9Hj6jba8pEUOxCg7jZj1uQWlTx2vvkbgw3xu3TARjjI9gVf2XRXXX9F1CvLUlAaz/bEJhFPL5TXVvLgSqQCEqzUG7ELY6+WJMfQKw4GwsblsVP6Pi5BmPsUWfjpCtZth5/SZTmxFjeOv5oRMqXKGFQcXBwm6nI1ijQ0JJNo4wmOR30HjOubqzoMikhu78VvsKmFGLr3UgLr7q5rWhSne5RB+dYLYfBAgVq/2E7OPrGQt5qEOV6+HcY+/iCDRrwsc6Zqy0Ns3s3ttIGkAJWQkNvicxDSZ8nH8skioe7+1h7pJ/QWEg==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1785538878; bh=ZEtVhP2UTzyhq8dq43lf+Ah1y2Q4FK7EW2e4v1OOWai=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=aOBRhnlt131PN0/fleZZnJlVaG6eyJMD7I+7zArWL9k51TrEV35pYCgfpNI2H5j94bEA51fVitwzOJ6Ck3joI1RNKAjqN+n6nB+HmSjq9oXP4lj3EtXNYnpHVHj7zX5q6Bw5hiYObZEiGXi//rlIbpFHzqmxukjY8mrS8H41w8BgSBb7QecLhx+oxD67/flvr/m92UpA7I3VAwSbtWbQMlkcH7RsHBliJqtJ1IU06oBTUTJaUMzMmpHEMvWr2f5ic8NlIgH5w4nw/UOFwAGJ/ewOPRmxUK5eOCt+JJo2e+nUoeSDDKWa9a8tFpRk3X7LYHO2bY8MC6j4TeHi9QKBFw==
+X-YMail-OSG: 4ZmCc84VM1kiVeo4LsqzH82HiFhHiRVefB3_yBPtXuuvdJSn6RCpIs4Am7pMDDi
+ PnZnlPWOK_tWXg37o9LjQuWZjmyIYp6pOGY6Vu6tMQZeEi5oz2CucCP6Q0GRzaxr6wJt0GJm1e3k
+ WBmqDXONsBrdQ7esh2lePfCwtsL0xblYSd7RwzM2rTgFykcIzqxWx2bndyZV3A51guzlgx5zGj8B
+ lFjXf3wHGG97P6lP8C_jyUNAMweZlDCEuE6_T9HAo2i1HJbWM3azgB_zeCsdCDg3twcPnQFMBU.d
+ Xtpr2WgJoladBAjJfNN.2k9u_uWUN7v3xfo2AuCF42q22xHHUO7ovempqo1gdbRqL_j7LfjuhBQq
+ K5vU4OZ.ER_NUQ3ldj16R_E6VCRrdhIK71TPVHuR34oTBlHABxgwuWWkBeGDI6mi9WUECfCWXnah
+ tlOx4DPDPM3aNpOAWIazHg64E4NjOY6V3VupN.x4.wU0emitH7gwguWKMscopiRRHqd4u0Vfavaz
+ 35WnCLcQPz03SnmhgHk06YI6_VanOS5P6oFi2uX6faDfD9yDtl16FLyuH.QQbi7AL5rqQ3ZdPGaK
+ v.wb4CSVW.zvsMw2i8L0k7yPHCrRohplYrOSxaarnekWmOrHD0UIOIjxunP09LWd.U58YSjLe1fY
+ R28ClnWXpFrfVmRp7T6ancAJQ_5yRTRgO158K_wCl6CHEpgyizeGn3.ARfB_jYhHsIw4ltqyLt3o
+ SBa9igoKGg9gvyN_GlF8IbadkLoF9chLzGJKpVhalk3YpFwOXsdXoBW64zyNTXAlH.4ANcZfmzgx
+ 6aAE.A88dR1zd1EckmRT4j80gSDfWqaH8E.pmDK4n.dAo374Kp3qO8lHUUaxxXg8p4ObZpz0LGYF
+ c1P4F5yN_t5F66TR7j0enuVdu9icdNBBIDmQgWI6CsnxBktv6tj6tgHJ5T0OUWFJrTXlKXVLTmxP
+ QLjcD4OEBDvcVh_F.yUSVNCDfg54ZwWKsZTIXI.n7eMN0QuaMeSnQCCrN5tS5FX99uxUcQcDNSkK
+ hUAD_l4ga_Pv3nPp2zK_n1quRBqy0M5gJrcH6o9KbPL_0TTjNUITCpDP6PeN1MM4f_pJWbyQlzGb
+ a1LQm8NBkgwZE5mMoCxKS5rN7RqBmxyICkbTP_TItpmva4YGjAgRkG7_OmHODqBowU.P_4rKu2Xc
+ dZOJAasgjRBbBmIU95G8gwXbxD9FE9SUuHYuvvGfDc0WI4i1LZYrb1jwFSHR5Mg7iPsejd_LNDc3
+ 2W7Ea5QqSPkLET5A7HvBypWd9NO_KBSL3WtI8qnjbGmVi.mmt_N7yJSSKXfNwTmafgUufnjT.Txr
+ HUtlLl35UVdMpP2REq4EAsnBrscG2CcpxmfdHdkwOcNpZdoO5w2XGuLJ03mD9XuAfR1gUwtu1WnJ
+ nDcE5NbDP0XGs4ET0IPOlQPc1hHheg3XU1al4JpQEmf4qCFe1FvUiGmXrBIc4G9MmAhGVzjEB9mR
+ MYHIz_TurTaeoVVkKZCRY3cicusZFZvPwFfjQOBcE7XWJt6PLs_Vtl0zW7OVQBMBDUNIdCqeVg39
+ ph_U1wuR4JLDu_iANoNFrL3wQ9DzxyS5cEsRFy1lu0ox9u1shwhWsi8rwwqIenXul12g_rrwoINm
+ 3rDF.TE0CWORqsXMK42tojexEdDYW2P1PiFqpNxiafYACHcPSM4vIuqlhy4CX3twpkWYtxQuL4Mv
+ CsYJ6AF6TCrqZEF0_8FqK8x8ulB_y0sYjzukp9Sacbvkop0WiubJlSBu6wE0T1g9O4UwIeixxHCX
+ zMJSBawqIpDGKprpKoc2..VVw6Fihv.iZd3oQrXU7AT531.rS1NL9izZtf_xlj73Nzr3j8NimJp4
+ t9TRDN5Anl26oeZr7QUCKtHoig7hkFop1xvWXr3PN4DlOUr3.2IgKInIqhKbgHNUlq2hvE.1Q_G_
+ R5hbCdbGgMmy9mfK6kNBIKY.dO8_qiggkHmpfZJPi.bvfSq1sWeI4VjIuQeWqT9K90munk.W5K4A
+ qGkoSB9IQRgWxTb3vuOAD.q9fXW4OPf45_C2_swJoo86Yrb9jmcbISS6RrEfVdLR04aygw0Lt.g2
+ ePgmOOV94faFDEv1kewPFqzqR0B.qftwXPpUWKPBaEByAxylnwCDlzKDfgxauME6d1t0IA1e8KH8
+ 9lOe3BTO.vna.iWPBXsci4Drzp40roweu7roTlWHbE.jshM9hz3i4xuL7hxbyPN.yWCNNizK3E00
+ 5AmBoAMwDgPWxun3TLMmEjzZVdH6y4ZVSxkUr.O72pRBMFgDP2LEGnW5HaqSzr3AwoBf99yBzc.6
+ iIPOtLBQ-
 X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 58773052-9edc-4e5b-b181-54767b6ce249
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic312.consmr.mail.ne1.yahoo.com with HTTP; Fri, 31 Jul 2026 22:48:20 +0000
-Received: by hermes--production-gq1-7749664df-wnjhm (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID af5aeb6cb25895ee9689066a9446e5bc;
-          Fri, 31 Jul 2026 22:27:38 +0000 (UTC)
-Message-ID: <45d2738f-de04-43cb-b37f-4370e6232678@schaufler-ca.com>
-Date: Fri, 31 Jul 2026 15:27:35 -0700
+X-Sonic-ID: 9e3c6041-f268-492c-9fad-0786b1fb7757
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic313.consmr.mail.ne1.yahoo.com with HTTP; Fri, 31 Jul 2026 23:01:18 +0000
+Received: by hermes--production-gq1-7749664df-9tl79 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID f195f9b565c01b03e935f9ceced077b6;
+          Fri, 31 Jul 2026 23:01:16 +0000 (UTC)
+Message-ID: <53a2d62c-fad0-438d-91de-a17b5921d61e@schaufler-ca.com>
+Date: Fri, 31 Jul 2026 16:01:13 -0700
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -87,8 +88,6 @@ Cc: David Windsor <dwindsor@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
  linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
  linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
 References: <20260730234533.1912709-1-dwindsor@gmail.com>
- <CAHC9VhTS7rSnBqg00ZxNkcZyh_=EeJmn_4z3CTCCxreEEDtTtg@mail.gmail.com>
- <CAEXv5_iHLmzPT3Jj+qZsdt1Nk_5OD4Up3GGV0S9G7KyQshFhDA@mail.gmail.com>
  <DKCVF3KRQSOJ.1WKITMP369I0R@gmail.com>
  <CAHC9VhR5yfw+sMfrYpy8Qm2uNoxqsTweh=KhDRZsU1CioHRDDQ@mail.gmail.com>
  <DKCWFKAD79IU.TMCNT9RUAJAU@gmail.com>
@@ -104,81 +103,82 @@ References: <20260730234533.1912709-1-dwindsor@gmail.com>
  <DKD2R5268G2C.TPLR4XMTZ91R@gmail.com>
  <CAHC9VhQNozNGH4o=8D6wxks4deZ2eVOHmxFK=fvjhkCC0JSCkw@mail.gmail.com>
  <DKD3I17NPS96.3G49BTZ4ZVUVV@gmail.com>
+ <45d2738f-de04-43cb-b37f-4370e6232678@schaufler-ca.com>
+ <DKD4DITNPLI4.3FIHRN0PC58RW@gmail.com>
 Content-Language: en-US
 From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <DKD3I17NPS96.3G49BTZ4ZVUVV@gmail.com>
+In-Reply-To: <DKD4DITNPLI4.3FIHRN0PC58RW@gmail.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Mailer: WebService/1.1.26180 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-On 7/31/2026 3:04 PM, Kumar Kartikeya Dwivedi wrote:
-> On Fri Jul 31, 2026 at 11:49 PM CEST, Paul Moore wrote:
->> On Fri, Jul 31, 2026 at 5:29 PM Kumar Kartikeya Dwivedi
->> <memxor@gmail.com> wrote:
->>> On Fri Jul 31, 2026 at 10:48 PM CEST, Paul Moore wrote:
->>>> On Fri, Jul 31, 2026 at 4:16 PM Kumar Kartikeya Dwivedi
+On 7/31/2026 3:45 PM, Kumar Kartikeya Dwivedi wrote:
+> On Sat Aug 1, 2026 at 12:27 AM CEST, Casey Schaufler wrote:
+>> On 7/31/2026 3:04 PM, Kumar Kartikeya Dwivedi wrote:
+>>> On Fri Jul 31, 2026 at 11:49 PM CEST, Paul Moore wrote:
+>>>> On Fri, Jul 31, 2026 at 5:29 PM Kumar Kartikeya Dwivedi
 >>>> <memxor@gmail.com> wrote:
->>>>> On Fri Jul 31, 2026 at 10:01 PM CEST, Paul Moore wrote:
->>>>>> On Fri, Jul 31, 2026 at 3:20 PM Kumar Kartikeya Dwivedi
+>>>>> On Fri Jul 31, 2026 at 10:48 PM CEST, Paul Moore wrote:
+>>>>>> On Fri, Jul 31, 2026 at 4:16 PM Kumar Kartikeya Dwivedi
 >>>>>> <memxor@gmail.com> wrote:
->>>>>>> On Fri Jul 31, 2026 at 9:05 PM CEST, Paul Moore wrote:
->>>>>>>> On Fri, Jul 31, 2026 at 2:50 PM Kumar Kartikeya Dwivedi
+>>>>>>> On Fri Jul 31, 2026 at 10:01 PM CEST, Paul Moore wrote:
+>>>>>>>> On Fri, Jul 31, 2026 at 3:20 PM Kumar Kartikeya Dwivedi
 >>>>>>>> <memxor@gmail.com> wrote:
->>>>>>>>> On Fri Jul 31, 2026 at 8:42 PM CEST, Paul Moore wrote:
->>>>>>>>>> On Fri, Jul 31, 2026 at 2:18 PM Kumar Kartikeya Dwivedi
+>>>>>>>>> On Fri Jul 31, 2026 at 9:05 PM CEST, Paul Moore wrote:
+>>>>>>>>>> On Fri, Jul 31, 2026 at 2:50 PM Kumar Kartikeya Dwivedi
 >>>>>>>>>> <memxor@gmail.com> wrote:
->>>>>>>>>>> On Fri Jul 31, 2026 at 6:59 PM CEST, Paul Moore wrote:
->>>>>>>>>>>> On Fri, Jul 31, 2026 at 12:32 PM Kumar Kartikeya Dwivedi
+>>>>>>>>>>> On Fri Jul 31, 2026 at 8:42 PM CEST, Paul Moore wrote:
+>>>>>>>>>>>> On Fri, Jul 31, 2026 at 2:18 PM Kumar Kartikeya Dwivedi
 >>>>>>>>>>>> <memxor@gmail.com> wrote:
->>>>>>>>>>>>> On Fri Jul 31, 2026 at 6:02 PM CEST, Paul Moore wrote:
->>>>>>>>>>>>>> On Fri, Jul 31, 2026 at 11:44 AM Kumar Kartikeya Dwivedi
+>>>>>>>>>>>>> On Fri Jul 31, 2026 at 6:59 PM CEST, Paul Moore wrote:
+>>>>>>>>>>>>>> On Fri, Jul 31, 2026 at 12:32 PM Kumar Kartikeya Dwivedi
 >>>>>>>>>>>>>> <memxor@gmail.com> wrote:
->>>>>>>>>>>>>>> On Fri Jul 31, 2026 at 5:30 PM CEST, David Windsor wrote:
->>>>>>>>>>>>>>>> On Fri, Jul 31, 2026 at 11:17 AM Paul Moore <paul@paul-moore.com> wrote:
->> ...
+>>>>>>>>>>>>>>> On Fri Jul 31, 2026 at 6:02 PM CEST, Paul Moore wrote:
+>>>>>>>>>>>>>>>> On Fri, Jul 31, 2026 at 11:44 AM Kumar Kartikeya Dwivedi
+>>>>>>>>>>>>>>>> <memxor@gmail.com> wrote:
+>>>>>>>>>>>>>>>>> On Fri Jul 31, 2026 at 5:30 PM CEST, David Windsor wrote:
+>>>>>>>>>>>>>>>>>> On Fri, Jul 31, 2026 at 11:17 AM Paul Moore <paul@paul-moore.com> wrote:
+>>>> ...
+>>>>
+>>>>> I think you keep forgetting that you cannot unilaterally decide this. Both VFS
+>>>>> and BPF people have told you that it does not make sense. What was clearly LSM
+>>>>> specific code has been moved under security/ already.
+>>>> I'm charged with doing the Right Thing for the LSM framework, and in
+>>>> my opinion it is in the best interest of the LSM framework that the
+>>>> kfunc being proposed lives in security/bpf_lsm_kfuncs.c, just as the
+>>>> VFS kfuncs live in fs/bpf_fs_kfuncs.c.
+>>>>
+>>> I think the "Right Thing" would be caring about your users and the project
+>>> moving forward, who want this functionality, and figuring out the best way to
+>>> make it happen while working collaboratively with others. Life is full of
+>>> tradeoffs.
+>> It certainly is. Paul has taken a stance that supports the ongoing maintenance
+>> of the LSM subsystem. It does not have a stable API in support of the rapid
+>> development of Linux kernel features *outside of* the LSM infrastructure. That is,
+>> people like you. If LSM hook implementations were spread throughout the kernel
+>> code it would be much more difficult for poor hobbyist LSM developers like me
+>> to track them down when making changes. Changes like the ones you require.
+> I would recommend reading the patches before commenting. All LSM code is under
+> security/ (patch 2), as it should be.
+
+Pa-lease. I have in fact read the patch. I disagree with you assessment.
+
+>> This is about being able to continue supporting the latest and greatest additions
+>> to the system. Like yours, io_uring and the network protocol d'jour.
 >>
->>> I think you keep forgetting that you cannot unilaterally decide this. Both VFS
->>> and BPF people have told you that it does not make sense. What was clearly LSM
->>> specific code has been moved under security/ already.
->> I'm charged with doing the Right Thing for the LSM framework, and in
->> my opinion it is in the best interest of the LSM framework that the
->> kfunc being proposed lives in security/bpf_lsm_kfuncs.c, just as the
->> VFS kfuncs live in fs/bpf_fs_kfuncs.c.
+> I don't know what you're on about.
+>
+>> Please don't lecture us on collaboration and trade-offs. We live and breath that.
 >>
-> I think the "Right Thing" would be caring about your users and the project
-> moving forward, who want this functionality, and figuring out the best way to
-> make it happen while working collaboratively with others. Life is full of
-> tradeoffs.
+> Paul is free to take a stance for LSM code, just like the BPF maintainers get to
+> decide on where BPF related code should live. I'm sure you know that.
+>
+> Thus, please avoid justifying his overreach on where others maintainers should
+> keep their code.
 
-It certainly is. Paul has taken a stance that supports the ongoing maintenance
-of the LSM subsystem. It does not have a stable API in support of the rapid
-development of Linux kernel features *outside of* the LSM infrastructure. That is,
-people like you. If LSM hook implementations were spread throughout the kernel
-code it would be much more difficult for poor hobbyist LSM developers like me
-to track them down when making changes. Changes like the ones you require.
-This is about being able to continue supporting the latest and greatest additions
-to the system. Like yours, io_uring and the network protocol d'jour.
+I have been developing kernel code since the 1970's (UNIX and Linux) and have
+a fair bit of understanding about source code organization. Without rational
+layering and co-location chaos ensues. The BPF developers are newbies relative
+to the security maintainers, and would do well to pay some attention to the
+wisdom of the aged.
 
-Please don't lecture us on collaboration and trade-offs. We live and breath that.
-
->
-> Instead of dictating how others should bend over backwards to agree to your
-> arbitrary rules on code organization, which they don't agree with.
->
-> Everyone you've pitched your idea on code organization to disagrees with you.
-> Yet, you remain adamant that it's the only way forward.
->
-> Materially, both you and I know nothing of consequence would happen if the kfunc
-> stays where it is.
->
-> As a consequence, everyone suffers because they first need to satisfy your whims
-> on how all code and kfuncs written thus far are wrong, and need to be moved
-> around ASAP, including the one being proposed.
->
-> Not only is that a disservice to your users, but also people who've reviewed
-> code (apart from you), and more importantly the person who worked on this patch
-> set for several months.
->
-> At least a month ago, you had the good sense of not dying over this hill.
->
->> [...]
