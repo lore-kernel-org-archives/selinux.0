@@ -1,42 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49A0F4457BA
-	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 18:01:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81E0B411FA5
+	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 18:03:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785520889; cv=none; b=CPqRYE/Y52vsVxIz4SAKiMUQH51YbyHNIhyO73AuwFTMlRvNldlEgHdxoG/BOAE3JV0Vxzkch/yk3SRCIwYokwHmdvDYMWlD7hEEGbyPoQdUeAbYtFieV27SIxCM4otYrJRE3p1iiPWS9+jrDCkgQIXg/H5jbOMOXW705D0+tsQ=
+	t=1785521014; cv=none; b=CN3jQ0RWJpkaLdyrw4/Vhgw3Fk6Bdszf8PKesAuqYhDRQ3OvSI3k1aauXEUyoMu7/WoWG6WI0Y5TDUONNJFHi1Nmz1DOEwKFmHoW8Lp7Efyqt2G4KbMgbo3PanqhjWKZet/higA+KF2geripzqNMPxdajolHCEPbV3nEJz9GV68=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785520889; c=relaxed/simple;
-	bh=Y8FIqPr+UsrwQ/ex7mUldzJfIh8d3K/7pUuZTg7e3Ss=;
+	s=arc-20240116; t=1785521014; c=relaxed/simple;
+	bh=WLKImL5e5YsLp1JtRikfAvgxCVdjcOR/DY8mbnOYDHY=;
 	h=From:Subject:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=i9NDgdEAJpBSp4MfwI9ZtcjGllfHry/MAKAsD1oLJi4DXpOefgzWyA4eci/CBl6QAmN13oUrlJQ6x68SRe1tPF9pVACCLwnC8v5KpZM7TOl6/96GKM33dtRREzdDfshHszeWoROQAYN2suVGF/J3n/1Fn4/emIeXTBX/pnel+78=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Rl7RgwUT; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=tqPvVddmvQYqSkpmtYqtrfViAZqdjuCVjKPIOIXNX0rPJYWRJsAdN44eWXR8sRIEdlx0JqbvRw6MM8S12APiiXivgQkyD/s/XRFHwhlZBK/TWCdWXPYG91BNE6b2T3SJ2RdS7pacYoWvi2j7xE77ObdC2At+WQkvo56XcP8RdZg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CyiyxuAZ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Rl7RgwUT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D92F21F00AC4
-	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 18:01:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CyiyxuAZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20FF81F00AC4
+	for <selinux@vger.kernel.org>; Fri, 31 Jul 2026 18:03:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785520888;
-	bh=SEvmVMWCxutnbbwvUX2Cq+3RrWqz3vagl/rhGg50Tk0=;
+	s=k20260515; t=1785521012;
+	bh=CGkauW1SXkd9SPw8Xpsqm5U9dBfgG/G1YceEzsE5A0s=;
 	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
-	b=Rl7RgwUTTswVV5t0Ary9Nu1gT12n1hJBb4B45QtpdP5KdMNgI+SlfQw93n3BNwvZu
-	 zLZDboW0FQea7lVJiQhNqkvCyVCeaFGYF5knUtBX75y5S502UX/AUJ0+wDXt9DPnVM
-	 CaNH58L26k1UInWpHVkLz0NZxx7gXqqWCP3yV4gven56AamCpd0tdlyl2dGF3z5qE3
-	 GqriBOkDQmUqWj2U1HDvY/mwSR8hIY/Ba+KpeS2T6PzyZRdRzM1PW716Bci4InhnJ7
-	 bpXflQ41FwOcYbGxhX315tglj68tBfzx411EIMhmZmw759gnGW1Y5tNx35kHcBCD/Y
-	 avSbTlMBCOBXg==
+	b=CyiyxuAZktE6eXryn+zUUR+fjxCN6kJ7tKA5aDGXM8wHQIzr3IoB7AamIFBIsaxsy
+	 Jesx70tqWtV8zB8z98lKl988GXWnhQkp5GkEf79Bkrt9aKQmVf9zVOD0IIn+sCKchU
+	 2iMDFvnLHjQqOu0AgA+EegP27qeDxcjPnsCqrEgSs90+3Td4rP3n/vOMrkJ584K7QD
+	 2xQvLeXa8KwBLHtrDqnRFE1U6FxuKsShVKZsEQGTe9/cEiCUMqkjpD34P9FeW8YzB5
+	 9wrYAJltkcRRB1DqpF6e1lYXKDSgJ6IiuIa3NnlGxbAWPvZm6kIEx28uF5GzI222BV
+	 je5ufjvYEsG4A==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 4/4] selinux: require every boolean value to be defined
+Subject: Re: [PATCH 3/4] selinux: reject an unclaimed class value in
+ security_get_classes()
 Reply-To: sashiko-reviews@lists.linux.dev
 Cc: selinux@vger.kernel.org
-In-Reply-To: <20260731-b4-disp-d32e997b-v1-4-0341d038ee47@proton.me>
+In-Reply-To: <20260731-b4-disp-d32e997b-v1-3-0341d038ee47@proton.me>
 References: <20260731-b4-disp-d32e997b-v1-0-0341d038ee47@proton.me>
- <20260731-b4-disp-d32e997b-v1-4-0341d038ee47@proton.me>
+ <20260731-b4-disp-d32e997b-v1-3-0341d038ee47@proton.me>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 31 Jul 2026 18:01:27 +0000
-Message-Id: <20260731180127.D92F21F00AC4@smtp.kernel.org>
+Date: Fri, 31 Jul 2026 18:03:31 +0000
+Message-Id: <20260731180332.20FF81F00AC4@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -47,99 +48,95 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Missing validation for sparse types and users in `policydb_context=
-_isvalid()` allows a crafted SELinux policy to trigger kernel panics.
+- [High] The boolean symbol table can be sparse, leading to unconditional N=
+ULL pointer dereferences in `security_get_bools()`, `security_set_bools()`,=
+ and `cond_evaluate_expr()`.
 --
 
---- Patch [4]: [PATCH 4/4] selinux: require every boolean value to be defin=
-ed ---
-commit 44c8d8193cd1a1c62c2bebd114870d7131ceb5ab
+--- Patch [3]: [PATCH 3/4] selinux: reject an unclaimed class value in secu=
+rity_get_classes() ---
+commit 8c3d50aa472cc225281a590fe76e7aab43766da5
 Author: Bryam Vargas <hexlabsecurity@proton.me>
 
-selinux: require every boolean value to be defined
+selinux: reject an unclaimed class value in security_get_classes()
 
-This commit adds validation during SELinux policy loading to ensure every
-declared boolean is defined. This prevents NULL pointer dereferences when
-consumers iterate over the bool_val_to_struct array.
+This commit updates security_get_classes() to fail the lookup if a class
+value went unclaimed. This prevents a NULL pointer dereference in
+sel_make_classes() when the policy defines a sparse class symbol table.
 
-Cc: stable@vger.kernel.org
-
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policyd=
-b.c
-> index d358200817bd9..d88713201be92 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/service=
+s.c
+> index 90e81186cb2ee..7afce975436e9 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
 [ ... ]
-
-> @@ -769,6 +770,24 @@ static int policydb_index(struct policydb *p)
->  		if (rc)
->  			goto out;
->  	}
-> +
+> @@ -3316,16 +3317,29 @@ int security_get_classes(struct selinux_policy *p=
+olicy,
+> =20
+>  	rc =3D hashtab_map(&policydb->p_classes.table, get_classes_callback,
+>  			 *classes);
+> -	if (rc) {
+> -		u32 i;
+> +	if (rc)
+> +		goto err;
+> =20
+> -		for (i =3D 0; i < *nclasses; i++)
+> -			kfree((*classes)[i]);
+> -		kfree(*classes);
 > +	/*
-> +	 * A sparse class value is absorbed by policydb_class_isvalid() and
-> +	 * its siblings, but no such predicate exists for booleans: every
-> +	 * user of bool_val_to_struct[] walks it by index and dereferences
-> +	 * each entry -- cond_evaluate_expr(), the two getters and
-> +	 * security_set_bools() -- so an unclaimed one has no consumer that
-> +	 * can tolerate it.
+> +	 * The class symtab may be sparse, which policydb_class_isvalid() exists
+> +	 * to absorb; the callback fills this array by value, so an unclaimed
+> +	 * one leaves a NULL that sel_make_classes() hands to sel_make_dir().
 > +	 */
-> +	for (v =3D 0; v < p->p_bools.nprim; v++) {
-> +		if (!p->bool_val_to_struct[v]) {
-> +			pr_err("SELinux:  boolean %u is declared but not defined\n",
-> +			       v + 1);
+> +	for (i =3D 0; i < *nclasses; i++) {
+> +		if (!(*classes)[i]) {
 > +			rc =3D -EINVAL;
-> +			goto out;
+> +			goto err;
 > +		}
-> +	}
-> +
+>  	}
 
 [Severity: High]
-This is a pre-existing issue, but since this patch adds validation for
-sparse booleans, is it necessary to add similar validation for sparse types
-and users?
+This is a pre-existing issue, but since this patch handles sparse class
+symbol tables, does the boolean symbol table have a similar vulnerability?
 
-Context validation skips checking if the type is actually defined when
-c->role =3D=3D OBJECT_R_VAL:
+In security/selinux/ss/services.c:security_get_bools(), there is an
+unconditional dereference of bool_val_to_struct:
 
-security/selinux/ss/policydb.c:policydb_context_isvalid() {
+security_get_bools() {
     ...
-    if (!c->type || c->type > p->p_types.nprim)
-        return false;
-
-    if (c->role !=3D OBJECT_R_VAL) {
+        (*values)[i] =3D policydb->bool_val_to_struct[i]->state;
     ...
 }
 
-If a crafted policy assigns a sparse type to an object context, it is
-accepted. Later, when the context is evaluated, does this trigger a kernel
-panic when fetching the NULL struct?
+Similarly in security/selinux/ss/services.c:security_set_bools():
 
-security/selinux/ss/services.c:type_attribute_bounds_av() {
+security_set_bools() {
     ...
-    target =3D policydb->type_val_to_struct[tcontext->type - 1];
-    BUG_ON(!target);
+        int old_state =3D newpolicy->policydb.bool_val_to_struct[i]->state;
     ...
 }
 
-It also looks like this could cause a NULL pointer dereference during string
-conversion (such as in audit logs) because sym_name() returns NULL:
+And in security/selinux/ss/conditional.c:cond_evaluate_expr():
 
-security/selinux/ss/services.c:context_struct_to_string() {
+cond_evaluate_expr() {
     ...
-    *scontext_len +=3D strlen(sym_name(p, SYM_TYPES, context->type - 1)) + =
-1;
+        s[sp] =3D p->bool_val_to_struct[node->boolean - 1]->state;
     ...
 }
 
-Could a malicious container policy exploit this missing type validation to
-crash the host system?
+Can a malformed policy with a sparse boolean symbol table cause a NULL
+pointer dereference in these locations?
 
->  	rc =3D 0;
 >  out:
 >  	return rc;
+> +
+> +err:
+> +	for (i =3D 0; i < *nclasses; i++)
+> +		kfree((*classes)[i]);
+> +	kfree(*classes);
+> +	return rc;
+>  }
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731-b4-disp-d3=
-2e997b-v1-0-0341d038ee47@proton.me?part=3D4
+2e997b-v1-0-0341d038ee47@proton.me?part=3D3
