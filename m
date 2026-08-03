@@ -1,67 +1,67 @@
-Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
+Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 626EE3AB26D
-	for <selinux@vger.kernel.org>; Mon,  3 Aug 2026 20:03:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0F403ACF10
+	for <selinux@vger.kernel.org>; Mon,  3 Aug 2026 20:03:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785787430; cv=none; b=lrYiC/ei9IwgHffnHDRpEoEv9Lx2ecM/9MkQiLsiwottnJ7pLlwTtb9KcqkUyeLlUM5O6dUSBc3PEreuNQce2ccqhdCboY5LwYRtOPXclgxCGI1IwoIoquy5FdoEt0woSbmT/5uZTJN5NvYoJJ0gJdmnwr5Zpu7KczK3jdk1dc8=
+	t=1785787435; cv=none; b=ulA1X1oiealzfD+beRLjGmrNMWhimNe5bRDsPYm3T6kX3FaGcAL1fppFK4HthgW8bfGXB9ayBpoIpus7TjO2P8AuL6lHXdmZzrB0VGDCRvlzxHE6i7UY+TN1oeE/YG+MxMhmG/2TkeAWlpzHcLF1rXeNoT7yd/aF4iiRJPLVpzA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785787430; c=relaxed/simple;
-	bh=aT49OffwABkWVv4EIBGwYpySJxRUFX9qeA7/ajUZryI=;
+	s=arc-20240116; t=1785787435; c=relaxed/simple;
+	bh=D516SGOh5LEe2YDu7Tzxgp/6hoEADOVnMzuWwzJQFro=;
 	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=buH8UqCYVl63mjm0zR2G3YlowXIfLsgFamP1Rbip3PqqN8c7pPGcBuFSEFhv/6LIDNCzmkai+LoF45cdjEtnE9geLNyM4T8+VacKn+H3173+qSaBufn8DvNuXr24/dfeD+KdMNr+M1Sf/fZdOt3LM7r7hIeuk+A0y+oJrY9DUM4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=VIefU4hD; arc=none smtp.client-ip=209.85.222.169
+	 References:In-Reply-To; b=B1RJJZgE5HIrOsCog6Zd09Onhr+mbaWHEQdXmdhuKJL9RIIBmUHwxyNnSzD/mXyvqZ+Did0b+4iZvNF2RMV+ZXuHi6vI96T8PJyERHO8IVTZZ8qjgQajR/dJzeHyY0ucYvPDMIrZE2fk6ga4wNLHKMPPANphYXmeZN8GRy3/fgE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=DrH1XR2H; arc=none smtp.client-ip=209.85.219.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="VIefU4hD"
-Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-934956bee57so330463485a.2
-        for <selinux@vger.kernel.org>; Mon, 03 Aug 2026 13:03:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="DrH1XR2H"
+Received: by mail-qv1-f50.google.com with SMTP id 6a1803df08f44-9061a795d76so33568806d6.3
+        for <selinux@vger.kernel.org>; Mon, 03 Aug 2026 13:03:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1785787428; x=1786392228; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1785787433; x=1786392233; darn=vger.kernel.org;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :content-type:mime-version:message-id:date:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=GrM8OuNgXXrb+t+iBt1N92EV6KvYbox2YuCkBhGF2R0=;
-        b=VIefU4hDDYdnnjJHjHBmwMqSbSTY7fFydOuP2yjxGzNZq/8nYLhebD0vyBFxU1w6Hl
-         ATh+LKzItUSdI+9NxpX6MlBcpY9ndzILmyjeJ+CUZISXU7vMVQ6eDNmrQtiO4IvWg4RO
-         efXDSvOPnkpspjwjLq52Qj54d+gP3KFG4qdy3S4tpcPMCZ3gcWD2KcLAUqfSON7pVkJg
-         wE7u6pHvIPsmmxY+fyeO4n8EhM1RSd/by+31suDDEJ26WY7/FfUfkIv3pUQOwVCXTpdq
-         dHVRrURJfI1zPdtUupALkDqM5/0M5HzaXNnlpilsHeBTzkKtv538DGxNZgYEbnaTUl31
-         g82Q==
+        bh=DA7FRPW6SbI40IUIoqyw1m2eYtidoQail71J/7sr0aA=;
+        b=DrH1XR2HEKyZHmL5SpRLYD+0/7Wd9ps8nkCV9SagHttOsKa3ENa0moHvAjU7iNPEOV
+         +E8rRDshgIyuY+Qa4RGKEXXpLK4T348AZvnPqOvGiluHvx3Yyl29Kl2sNB3ewjgIHlH5
+         6UmfGT4cLoY9F48vZ7cM+T06L+r9VjUVRWlRu6f+w59zJ/1ezIELKjqU/oGpydK3DiK0
+         rjH6hIJ+gpTEavssLTbuhv/geKOoIWhXUSRpvmNld0FbeASr2qILxV6bMicE1iV+DmXn
+         koM25ZxA5FRTIBGhSiiGDrlCRGBoweJFgj1zN918vrbxtyrQplHtVyn6vNOWyq2bNlfE
+         3aYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785787428; x=1786392228;
+        d=1e100.net; s=20251104; t=1785787433; x=1786392233;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :content-type:mime-version:message-id:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=GrM8OuNgXXrb+t+iBt1N92EV6KvYbox2YuCkBhGF2R0=;
-        b=faMEO1tmWJ7RAPWeukUhDnCjAIvGGd3gkojug7d7+WTnwAZrCGUf3p6MxaPq9N3XaI
-         dnH/ZrJXsom8aB2RJeRcDiHDXCDZzuOYwsFR970E4TJfsSs1HtfYN9Gij7yQ/UhlU53h
-         aNJB848lBav5fxw0GP72HRUO5OIayipdkWjtT633GtfqSl/qMkKM4t/LDNElnIQD1DWz
-         U+66Y0rynF5Ilyj1ZXb7Tzw5YmR8NRDvQrPCUHVCyAT++/qoza/OQVq37i8TLHWoYmRs
-         IlYM0p2ZlJY871NL0G9bBzBU42N5pOaCc6b4R0QFEQUWROXy173jounxoJ3D2eYlHtZr
-         fjiw==
-X-Forwarded-Encrypted: i=1; AHgh+RrhnnoZs/UiXQV/8Wp3zMkgXZ/xznkmUEALAb0SsQNPuPdczBe5icPm1EjxM0Rsx0Lvc6lf/dYG@vger.kernel.org
-X-Gm-Message-State: AOJu0YxiijL4Jm+cPXW6IsaKyi/D//aQIAUm17jAcSYpPSV51w3isRSr
-	oBA6/fpHSdp+B2tx+m3RRD87s7O7CjqJGKSYdtppVCDkPDkuNdOXL2Z6Y6mG6V/6yQ==
-X-Gm-Gg: AR+sD12aEweus8Nhebtcgr+c6UMqjUN5xqZ7zsf0LfEUgt5HWHXhPBCXtFr3wHeYgBf
-	CwEiV3Cw/6ITwPdT5a7GJgp7oQxoyIL3JrLXz5YIO/dn2zoNMNS/Bx+6zxXLKSs5F3bUb8Z0jpX
-	LjskGb8QjJ/xBYWE1K7UmVVQd4LJ0sLtQPiWhRu0VrnKphn2+5xPTHMf+TCxP479nRyWLWATh6l
-	y5QtWsZDRgV7tIimjPRoqgiBJ+oA4AgINKDYvqQwssRCL/dJQ3tD/qo/dp/T3l5Mi0VlXmYsi6E
-	lCrKibDPPAjt2jQCkXqOOlOIs0iHMy4VZsEpoZdsGHtbkFvbhs+M0WmF26S+5cNvYIR0hMWjdT9
-	1erIr/puSJ2K/46Ue4F34AvWyt+mslLgfnI/PxQuyjY2qDUlpVsi5Ia5Wh6uVpB0zPbosUYkYH5
-	BpLi7C6vL9f/wTGCkkM2oaGBZSz8g0FrsobqNOct8BmaEKiJTqEgY8SdiFYGtV7dVdKI7edAb4O
-	g1QFoRZVHNq+g5Bm8HrXv9l3ASa2P15WQ==
-X-Received: by 2002:a05:620a:a407:20b0:914:bd27:2d1 with SMTP id af79cd13be357-934a0783490mr1787176385a.11.1785787428305;
-        Mon, 03 Aug 2026 13:03:48 -0700 (PDT)
+        bh=DA7FRPW6SbI40IUIoqyw1m2eYtidoQail71J/7sr0aA=;
+        b=p6XhK0hqc8ZpWQerk9czb5iwu1IdT3NoUFLucl9JXQkaQgwyKWBgHzK5V08bXaAYwN
+         DLZ619PkyjSETvnNeMItptoIBumexCKlY5Zbj2nQ+XmRTVxbFCp3/9lwElaz9z/4d9YK
+         qUDx/utf2as8mr7RMOZ6BPkdKwPnhU4QnFdr/S4fTkgpzIs0r+XzA8Uo0NvflW2EVyP0
+         FSpKBvNFTZOj61IIURt4h2lDnHh7+I9mZJQahmX4pXNx9KGIGqEpMcqf0Or2fiGu714k
+         JanZ7FluIlGze9Ty03E60K3APLan4Q4Hue87B90P73+kU/kSctjG6sWj32wmoHg5Ap72
+         f+WA==
+X-Forwarded-Encrypted: i=1; AHgh+RqwGuYn/ivCIpLodb1a1GUU+vTZHv/JVnOEIIBoP+JG8len0/hIUqbTYNV/GSb6xOsIaFxiHSKY@vger.kernel.org
+X-Gm-Message-State: AOJu0YygYXrdySzjmocKklPayjysz1wRoSGnjVYe0pnn6IrnWBtgg3Xc
+	q/C+q2vOCQavuDX7/OF5iLpbvZwBTJmdmLedJru2lccIhY+UOtOtHNd2YndaXsgWyQ==
+X-Gm-Gg: AR+sD13xf60ADaStI7jpLN+67OaA1VVVYVCMxkb+n7PgNNbUUtyl45Dg+kH7ypnfhVH
+	avftl7tZn1dGeSt7M5x0TvmD+IXdgksllIc2jY/xh+XU7awJ/tYI8qJ+920h2j31UqiIETA3wD1
+	LkfQLY6xupyfCRUeemhk5L3O/nGZ2ukQcT9nGNh8TmXjiUQ+i3LIUnA7TDVlC+2PQ1m4Z1VKCYb
+	TYcxirvqBr1xPO92zmoL7laS+b+llh10W15S2tCgpWn4KlibAfTiI1fBUhs8zT7TkBMd8PUIRLP
+	e8jWUYcJGf1jkkU4upg9VbAjmBWKiyJdQWBSIRtOBfrNkkpMbNKxLo0G5NuD2UM+CpHzszYh7Qy
+	ycDPiW545BjOE/PaQkz2xBVILehgq72guNZ2EhX0Wp+FVwRHt/lsCXMAjflpaHNfQyXUaenfw/a
+	mKX+uNv0WEKD1JdjTl53ElO8PGBtpuzvW4rJDAV5UlyI8bltpQBUAfOPkmvyZOt3wFjGRPHCkmU
+	ml90VVYtHbxSDzLuZyoB42bjn//rqo2Cw==
+X-Received: by 2002:a05:6214:2aa4:b0:905:6e01:b9a3 with SMTP id 6a1803df08f44-90849712a51mr189306596d6.31.1785787432714;
+        Mon, 03 Aug 2026 13:03:52 -0700 (PDT)
 Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9349c199b76sm735839985a.24.2026.08.03.13.03.46
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-908432a0ddfsm82522546d6.10.2026.08.03.13.03.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Aug 2026 13:03:47 -0700 (PDT)
-Date: Mon, 03 Aug 2026 16:03:46 -0400
-Message-ID: <e56c9e8eccdade4c8ecd078412b0cada@paul-moore.com>
+        Mon, 03 Aug 2026 13:03:49 -0700 (PDT)
+Date: Mon, 03 Aug 2026 16:03:48 -0400
+Message-ID: <b2121f481ef5f88b2dbd2a6070a91598@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -74,33 +74,31 @@ X-Mailer: pstg-pwork:20260803_1511/pstg-lib:20260803_1500/pstg-pwork:20260803_15
 From: Paul Moore <paul@paul-moore.com>
 To: Bryam Vargas <hexlabsecurity@proton.me>, Stephen Smalley <stephen.smalley.work@gmail.com>
 Cc: linux-kernel@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>, Kees Cook <kees@kernel.org>, selinux@vger.kernel.org, =?utf-8?q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: Re: [PATCH 2/4] selinux: require a class's permission values to cover  its permission count
-References: <20260731-b4-disp-d32e997b-v1-2-0341d038ee47@proton.me>
-In-Reply-To: <20260731-b4-disp-d32e997b-v1-2-0341d038ee47@proton.me>
+Subject: Re: [PATCH 3/4] selinux: reject an unclaimed class value in  security_get_classes()
+References: <20260731-b4-disp-d32e997b-v1-3-0341d038ee47@proton.me>
+In-Reply-To: <20260731-b4-disp-d32e997b-v1-3-0341d038ee47@proton.me>
 
 On Jul 31, 2026 Bryam Vargas <hexlabsecurity@proton.me> wrote:
 > 
-> security_get_permissions() sizes an array by the class's permissions.nprim
-> and fills it at value - 1, from the inherited common's permission table and
-> then the class's own. A value no permission defines leaves a NULL that
-> sel_make_perm_files() passes to d_alloc_name(), an oops inside
-> sel_write_load() that strands selinux_state.policy_mutex and leaves every
-> later load in uninterruptible sleep; two permissions sharing a value
-> overwrite the first kstrdup(). Bounding each value by nprim catches
-> neither, and neither would a count: the symbol table is keyed on the
-> permission name, so duplicates pass.
+> security_get_classes() sizes an array by p_classes.nprim and fills it at
+> value - 1, so a class value the policy never defines leaves a NULL.
+> sel_make_classes() passes every entry to sel_make_dir(), reaching the same
+> d_alloc_name() dereference as the permission array. The class symbol table
+> is allowed to be sparse (policydb_class_isvalid() exists to absorb that),
+> but this getter builds its own array straight from the hash table and has
+> no such predicate.
 > 
-> Track the values each permission table claims and require them to cover
-> exactly what its count declares, rejecting a count no value can reach.
-> Conforming policies are unaffected.
+> Fail the lookup when a value went unclaimed instead of handing out the
+> NULL. Conforming policies define every class they declare and are
+> unaffected.
 > 
 > Fixes: 55fcf09b3fe4 ("selinux: add support for querying object classes and permissions from the running policy")
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
 > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 > ---
->  security/selinux/ss/policydb.c | 51 +++++++++++++++++++++++++++++++++++++-----
->  1 file changed, 46 insertions(+), 5 deletions(-)
+>  security/selinux/ss/services.c | 24 +++++++++++++++++++-----
+>  1 file changed, 19 insertions(+), 5 deletions(-)
 
 Merged into selinux/stable-7.2, thanks.
 
