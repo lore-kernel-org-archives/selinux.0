@@ -1,140 +1,116 @@
-Received: from mail-oa1-f45.google.com (mail-oa1-f45.google.com [209.85.160.45])
+Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B97642C4ED
-	for <selinux@vger.kernel.org>; Mon,  3 Aug 2026 18:13:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.45
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785780818; cv=pass; b=G2ZP/vo5uaJQWhzM8vJs0liuTm+3AKfWLk01lpKSJhA/EWfIsB+fxMACc+R8jTqn8zS107fxDtSLJNaf5QnCT9t9JgIjqZYGRclZVt/uTDJ/ibIKC2UC4F5fLFNON1ppnP6MN6y0K+ShwSWBMvi6RT17vI3NTVDa4DnHX9y8Vvg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785780818; c=relaxed/simple;
-	bh=nvc8/KLeKTIVRH74ejOgKK7eB/pim5gBD+2p2DdqqkI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=TJ216Ou9pXKK62LsOXil+AWEHi8rTtOEwKVSlE61bGMsJx4B0K+hs1PMllFTaRZ1plvOAWAQNtYQYXsS98A8gIFcKvlSZm0fgARl+kE63BHJgag8BUXGmzXEvtYm9WR59SlVlBeUfl8w96hVNc2aKG9EtMacjCCzkp68KNkE8Pw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JlFgWH+m; arc=pass smtp.client-ip=209.85.160.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20E483A838A
+	for <selinux@vger.kernel.org>; Mon,  3 Aug 2026 19:57:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.169
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785787031; cv=none; b=lPmjbHUOIxw5z4JWNhGFxMnjurXkhTKIXXBQ3PADPlztBB4Ys5VF268Ao4Vq4AsMy/SvLPMD9EvRsDIlxhLBMVqlNA9aoM8B0hMSd8kxlRpAHJ+X6RAw/YyUaVjLWfJYNj1gLmmvULh6gLJ0/LGGnvrWk+KjMYASde7d539LIjg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785787031; c=relaxed/simple;
+	bh=gE0cfp0pBi+wnlwITgBcPdGfuCh2vR0EovSYfLFFsGQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=S1uJpoTqOzbQ1hxHlde7AUqBpgBWKmvmEsReNWvC5WHdJKBqDhrkqwapfIXSLcDqxLTAuJg0mlPxJbs94drcCERgYQ4hkhRHa3Lylr0BdLbcXU2D+oQxTCG+/OR3tnb4emkG/VSO1GSnyiZOqL/GQArWjSNgTVUJHuHm/vJ3IfI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KVOMEO32; arc=none smtp.client-ip=209.85.222.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JlFgWH+m"
-Received: by mail-oa1-f45.google.com with SMTP id 586e51a60fabf-448cf99c133so219923fac.1
-        for <selinux@vger.kernel.org>; Mon, 03 Aug 2026 11:13:36 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785780816; cv=none;
-        d=google.com; s=arc-20260327;
-        b=hrWxiZMCb9GsQ68JG5DcYzUlgr/r2F9Dy/XCGu2dz/V785cyc1SIaL1zrtZVqxlrd/
-         47XFVRhjaP3qS2lyriA0AGvNJP2BwceYO8rkGbDqXUCkVuU+bPL5JyoBy2507u+2XxqV
-         ELGLLqDj2w0ywwkgJRU+gpLjyW3i+jvY1xCdz9kqMeMSRVadWv6py11rJ+eAfo0lAsHH
-         ZK8BYP0yMgiIkbjEUBlzxUypq0oN8EyFn6UZMuEMg8RJzGLm+KRUa12V+K9JTRLAk3nV
-         8W89dHeLwthPIBzO56uSGlDNfcvarFE1n92NlRkOjuYFyVE9no1ZYu02H3MH4xM8Z+GK
-         tAGg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=8zjXowrHLH4MpXiWzu7KTO5rZ07JLvRm0kpkUmLmU5I=;
-        fh=wY5cFNIrFxocNXn8dhXLjCWtx2mX+LDI2hsGzEtklkU=;
-        b=KOcvU1udxaoliliI1mTp/MIIsTDqowObETb7roE8tM9/xAyFFl00MTs2wsPKfaEhYf
-         sj9lgr5nNEGJZU3lwoDJwF5LdXWeI8ZOQ/eJ9K2sqWZyTBqnKMHVx2ZWIm55AMUc1JeC
-         g5ZfReOV1K7bPVYYAmizgNDUPdlNWJftFUgLKk6UVkqSWgPj1ZKz+dvSSTbTzBrEfpcS
-         LyIlnWTZXCNvxIukKGDYi3ppl6EPOt0+OgFOKPvd07JqlG80jj/ZvNEnaln1DjmO/emv
-         IYcC15DEzGCCsl0wqKFzi0wi1Dq1cRluAfko6hxgXaASJvqrdyy6zGO2aDKCXpy/PzLG
-         Mo3g==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KVOMEO32"
+Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-92ed3993c1eso195014685a.1
+        for <selinux@vger.kernel.org>; Mon, 03 Aug 2026 12:57:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785780816; x=1786385616; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=8zjXowrHLH4MpXiWzu7KTO5rZ07JLvRm0kpkUmLmU5I=;
-        b=JlFgWH+mQlsqeRmbpFnJ533kNmkvqIxrUR2oyxDt9ku+Ixz1g3nqDW0HRcM+RF6BZV
-         iPrm4gfhoAmHtRttomRCnyLcVCTtG7uWKtnb/H3fg9R0R+p0AT7z/FXYIKJGEhKf2FVA
-         kOrizDqbt9x6/SIzxE6jK6rHxy8vGf/dAawvqiL82V4JotywHZZ7UgoyatTY5HouXpMY
-         01r5FBS3OnJBS9aMvhiSNtVElZS9WFjm4bzyjYeQK4lcKbD8gsBg38fpB0oz5QH0J07s
-         aRrgUQqeyFRNS2mbvw03qMqshFoGY+3dfFryxN22QmCBqT2ZAzqtzifa/GmQ7MhhWIzM
-         z1oA==
+        d=gmail.com; s=20251104; t=1785787029; x=1786391829; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=NFygcJKd41P6ExJ8vK1TN54NRsJP2WoXgmov1Jz/pGc=;
+        b=KVOMEO324DvXJSuY/m4qyb4eCDKslEPj1EvSDjZDFONdpeXh2WnO3aOMjYUld2UXXi
+         KFosnai9ecZ3t15E58Fu7Y4PIXgZgP6YY1CaL8zqw9YKD1K1565xRIkw2qtrWcosAQ76
+         BbLYjL4Dqnvro9qKte4Rlsz7isSLQzPQ59GpTMFVEbRfmSnx6rLcSKf68KxCXcoG1H1v
+         60fqIDOGOVdeeOZ4fS44H+gvuS2c8vmP03EbYf5VuaIyXDUG0FfvtAgWZJdUjeXVF+qq
+         1lX1Xg2JeJrQCwciD2guh95n5P8sMp6hoVt6W/gd/mYjmD4Ak4iWZz2zgCIlytrb/D2q
+         Xr0w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785780816; x=1786385616;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=8zjXowrHLH4MpXiWzu7KTO5rZ07JLvRm0kpkUmLmU5I=;
-        b=hQ/UDxFxWzEdy4hX2o8ToI784sQ4se4YJYOpWOAMDcdvMSQTIjsZAK+2T/0SMwZz6h
-         G6peEEr3GSSHgv0D5GioIicY9kPEiT9483ZaFGL7vqlQdqPchQl19wVBgBP+ntGAiTq+
-         e/O1oZYk/tNCFoeMXjk3Ajde8gXU3MlEbaW58DjdscdL2s5f6iMW5q2siSR62e/Xaa+R
-         KjMTh+Cz/G/ihzhpdtajQDC58sgNX0bwV0XZF5360+YGW5w9b6fqpkxcrxs0M9LG1XLc
-         mgn6nlIRbvhDZL0RJ7ve/vIfhwkIrxBxGWL7ZHDhNb7fYuILXvdWZoBlPF++78010JD9
-         V1/Q==
-X-Gm-Message-State: AOJu0Yze0rH3NegVyxzAbHdKe12tXtpF+89F0EaoVDqXOYBKKGaEr2f8
-	G3hdPtVTYcI/GqtLMweMy2KTmWzmYTnoAWj9wfqvSw97xlDyW7WWSEmLZPqSUewwgxhrG/cp344
-	kpL1YX2XuFDy4O7AY/5MIBS87LWkQxQ8cKg==
-X-Gm-Gg: AR+sD10zb6KvIsQXkfHdsumrOBr8tX6oJ3GmoxV7fTyxPkEwji3SeF8gYOnTXHHLKvG
-	eaY7Vs7AJhbByMf3UiJzLQv39RA7WZAjhAiuI17nu5vnZdj0vmQhNXSVh3sVs3wBXA5lOgnEo54
-	EFO07NnS6gC60UHTekIsd3mAYsgJCPeMaNejQTo/14O96SagKVhYMa+MUcimb+RPPW8bpkmi9Ei
-	gYdFtX/ksuw2QTuqDk6jC0wqd5KJ/x+dP+vL1ZvcfVONwEzrEHx8Pb96Y6MVUD0OoVhR0UwH/ou
-	Md3REI/vV5se8A2Gvkrxfg7JwZfkVMZ+jQ2rS40uaw+7t30CsrADCT3N
-X-Received: by 2002:a05:6870:a24c:b0:424:801:49fe with SMTP id
- 586e51a60fabf-45978b86172mr466938fac.8.1785780815911; Mon, 03 Aug 2026
- 11:13:35 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1785787029; x=1786391829;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=NFygcJKd41P6ExJ8vK1TN54NRsJP2WoXgmov1Jz/pGc=;
+        b=J138KWDW8Ui7KKFQ/ifZ2Q2DT6I2G6zcR55rxeD1bWHFFbDmgd72YLC7AGHTFP6WLc
+         0CoU2asmli3EPu07hplwWcssvPdFubJZqUf/ZM3Ha9OnH9azAnsMg5QTfzWQ0DKXXEeh
+         Iqinhi8GxD+sISd298TW7Z8KsVmod5f+Eq7zFBNnNvV40SLKzTm1pn5vHy8+K6Imw/aX
+         vsPFr681eSUZ2j6+T6FA8GjsgqEtlxSYlwJcWGiXF5qbVGoPwTtgnV2c5p9SnMRCjBn6
+         1ccCfzsx8pHbGoMG2zUttD1ArQ7oVL9uAvYSNUwc7bHLv78bk/07wUn9qTeoWUvbvFi2
+         M4zQ==
+X-Gm-Message-State: AOJu0YwKIx3CI8KJo6Onti25tjyuY3rRj12moBx5AGV8JHy4Zj2e+TmG
+	NHBXSiUzsjXjzrcPeJO9fiRyCcltvAIZJASiwq81k3lABbY4gAsWLsjurzINbg==
+X-Gm-Gg: AR+sD11Du8wR9OQ+jEJ0mdIKs7ckn7j54+rjH0KI3tCMLl88S4mMM9Y7SYJJ38dgTIk
+	BemJ/45dtNsVeh6/5PslRENAIvjVUb78bog5tLUn1mrEXEnmEsLSP9VjQdY0Sf61UGMGK8gCsxm
+	n3sdMKSWTnD5Z1I/p3mj0PpnX/3FbbgQLSOl2tt+R76WXYnRbtNoIhUOle/nIabEI1u0TIwMh/8
+	ItUOZor1sCHmQRXooSAiGFalXaq8emIph992sq9ym+iL5+xsHh75p9ogzXL379SlIfCvta7Ss9f
+	VCak/lf8/S0F5/tJxjO+E3rawJY+DKdX8mTUaXz/e4xXBRBX3Dsc/WlmhOvydCWyYuIwCvsSR1A
+	Km1BNtTc06oMmgoXjTjkjaN++Acuo4OscDTd32OfBn3lPxTtceDbqW3WJ/vBNhiVBHX3oxevv2Z
+	T73dlIE6CMtykB5lM0eT9wgLTTdwyZxEAl2E/mYn8rQnANnGEOR9hwqdLWe0XGrL/qXH38SMolj
+	vXqGxcPBgQwyqR626aBhUezZBWmvtEKIsB3a8SWlS6GoXvbo+n08ozwG7jYzLIX
+X-Received: by 2002:a05:620a:72cc:10b0:92a:a400:df70 with SMTP id af79cd13be357-934a0acd4ecmr1674527085a.47.1785787028809;
+        Mon, 03 Aug 2026 12:57:08 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9349bc6d810sm746941985a.21.2026.08.03.12.57.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 03 Aug 2026 12:57:08 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	jason@perfinion.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] libsepol: log an error if we hit the max depth for __evaluate_classperms_list()
+Date: Mon,  3 Aug 2026 15:56:51 -0400
+Message-ID: <20260803195652.49116-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260803140007.41237-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260803140007.41237-1-stephen.smalley.work@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 3 Aug 2026 14:13:24 -0400
-X-Gm-Features: AUfX_myWe0pZyvgcCpB_quRkp-tplD5nHwfeL0kw5Qfxx7X0OlhVggiHt5DMIV0
-Message-ID: <CAEjxPJ6choPWCKXV2k-Fv4_SAuZ43HfBBd2q_=1ryoPegemDvQ@mail.gmail.com>
-Subject: Re: [PATCH v2] README.md: fix CIFuzz badge link to refer to a
- specific workflow
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com, 
-	jason@perfinion.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, Aug 3, 2026 at 10:00=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> We already had separate links for the other CIFuzz actions, so
-> just make this one reference the check format workflow.
->
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Add a cil_log() statement so that we do not fail silently if we hit
+the max depth. While we are here, introduce a #define for the max
+depth and use it, and fix the comparison so that we fail immediately
+when the depth has already reached the limit.
 
-Disregard - there is a cifuzz.yml workflow but it wasn't running
-anymore since master was deleted.
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ libsepol/cil/src/cil_post.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-> ---
->  README.md | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/README.md b/README.md
-> index 08e82d0c..6f1bfcc8 100644
-> --- a/README.md
-> +++ b/README.md
-> @@ -5,7 +5,7 @@ SELinux Userspace
->  [![Run Tests](https://github.com/SELinuxProject/selinux/actions/workflow=
-s/run_tests.yml/badge.svg)](https://github.com/SELinuxProject/selinux/actio=
-ns/workflows/run_tests.yml)
->  [![Run SELinux testsuite in Testing Farm](https://github.com/SELinuxProj=
-ect/selinux/actions/workflows/tf_testsuite.yml/badge.svg)](https://github.c=
-om/SELinuxProject/selinux/actions/workflows/tf_testsuite.yml)
->  [![OSS-Fuzz Status](https://oss-fuzz-build-logs.storage.googleapis.com/b=
-adges/selinux.svg)](https://oss-fuzz-build-logs.storage.googleapis.com/inde=
-x.html#selinux)
-> -[![CIFuzz Status](https://github.com/SELinuxProject/selinux/actions/work=
-flows/cifuzz.yml/badge.svg)](https://github.com/SELinuxProject/selinux/acti=
-ons/workflows/cifuzz.yml)
-> +[![Check Format](https://github.com/SELinuxProject/selinux/actions/workf=
-lows/check_format.yml/badge.svg)](https://github.com/SELinuxProject/selinux=
-/actions/workflows/check_format.yml)
->
->  SELinux is a flexible Mandatory Access Control (MAC) system built into t=
-he
->  Linux Kernel. SELinux provides administrators with a comprehensive acces=
-s
-> --
-> 2.55.0
->
+diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
+index 183b0d49..35c14fae 100644
+--- a/libsepol/cil/src/cil_post.c
++++ b/libsepol/cil/src/cil_post.c
+@@ -49,6 +49,8 @@
+ #include "cil_symtab.h"
+ #include "cil_deny.h"
+ 
++#define MAX_CLASSPERMS_DEPTH (32)
++
+ #define GEN_REQUIRE_ATTR \
+ 	"cil_gen_require" /* Also in libsepol/src/module_to_cil.c */
+ #define TYPEATTR_INFIX "_typeattr_" /* Also in libsepol/src/module_to_cil.c */
+@@ -2296,8 +2298,11 @@ static int __evaluate_classperms_list(struct cil_list *classperms,
+ 	int rc = SEPOL_ERR;
+ 	struct cil_list_item *curr;
+ 
+-	if (depth > 32)
++	if (depth >= MAX_CLASSPERMS_DEPTH) {
++		cil_log(CIL_ERR, "Exceeded max classperms depth (%u)",
++			MAX_CLASSPERMS_DEPTH);
+ 		return SEPOL_ERR;
++	}
+ 
+ 	cil_list_for_each(curr, classperms) {
+ 		if (curr->flavor == CIL_CLASSPERMS) {
+-- 
+2.55.0
+
