@@ -1,132 +1,122 @@
-Received: from mail-oa1-f52.google.com (mail-oa1-f52.google.com [209.85.160.52])
+Received: from mail-oa1-f43.google.com (mail-oa1-f43.google.com [209.85.160.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49494369D55
-	for <selinux@vger.kernel.org>; Mon,  3 Aug 2026 12:19:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 025A63750D7
+	for <selinux@vger.kernel.org>; Mon,  3 Aug 2026 12:22:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.43
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785759577; cv=pass; b=NR4gn22An525Uc+weZAxSx/X1rRbfSfR6hkY1jDDab+8m0b+W/82LQJeZLtPankgPDZP3w/6pkMxcRocsuLZgyu/Tw04t2HjGPaGKPv3bia+RUKrAdZjMBZDZh5AXzlolg80YviemWE0x3PdMIzCyxGdZv35g3k7RKJakPP5BHQ=
+	t=1785759778; cv=pass; b=iH5whUxqMLy2XGNeLrVNlt1R/sB35Zu4mxsmBnGbZp67/ULAfkxJ8nFYaWhBY6CsNkN4tgKYqrQOYhHuQEH9C9UITRemDMcYGSvzc8Cf6vv6gS69aVBH84eFozT+uyIDRZ0Xo/ZrmkYLIeUOeogv//rXTUsTwXwP+LrCvL9Weoc=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785759577; c=relaxed/simple;
-	bh=2FVnObuP0aXrppl1weQZQJ8yN6k/iC50IPfu8q6MsnE=;
+	s=arc-20240116; t=1785759778; c=relaxed/simple;
+	bh=mbsSY0UI1GB+1GizwZ26RMacx57FMZVK+w0bq7lz5Ws=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kDIflwcyGc6l6ad4XsM+xB/b2KB1jKQbNm30IPWNUqpfjsg3Ad7zcFEq+0pBhwfvKVyiRK5NWbgm5KLz4g53KyYyerOwQ72Wy/vA3MY0LQNmKzyVli2ofW+xxT6gwEPepEuruol1OWz4U163JgXsuktavBaKoq9gmvn6SmK1Ws8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Y/PXI/Me; arc=pass smtp.client-ip=209.85.160.52
+	 To:Cc:Content-Type; b=XQzppTs4T3X0EsFjn5/KISQmN6xuL7fAN57ikkdGJtxE/lLpy8j9o2Qtp4/OMHSGL8Hmf3DK619PVb4R0TexHHage2MIsJAcW2eIddPjTzE3CN0xlXk4inwBver7SwBsLI55IYg7/jSWfzBu2y3roohF7IEuJyBPW1Qb3K7gLiU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G/dx5TqT; arc=pass smtp.client-ip=209.85.160.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y/PXI/Me"
-Received: by mail-oa1-f52.google.com with SMTP id 586e51a60fabf-45837e52d8aso1167786fac.0
-        for <selinux@vger.kernel.org>; Mon, 03 Aug 2026 05:19:35 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785759574; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G/dx5TqT"
+Received: by mail-oa1-f43.google.com with SMTP id 586e51a60fabf-45837e52d8aso1169649fac.0
+        for <selinux@vger.kernel.org>; Mon, 03 Aug 2026 05:22:56 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785759776; cv=none;
         d=google.com; s=arc-20260327;
-        b=hyleMsKkvQCAR+kLKUhzNBNTKNIa4LbhHtVkPPEgdLpM0yeTsBVXhbWrYKSErc5v72
-         k5rzQFGj4QJJvqy8FlQ/smBsmYVDH8VGZntyXaOyw6dD+IZfTp8e1AVzUsom3uiNbFCT
-         vg0NlwFwSo7hiduVFXaqkx5waoq43Et2OPyCtQ7yD/O6pVodJUNwLEPiM+JQXYORt39A
-         gESrUKtg8Z1UttY6JPoUQbZhKyPkoIvguFLlV/D2Mcmb+jQWOonNAyJYrIy2SKiJR2EL
-         /VJ3jyIXL9DtQ1xQkWhsowAReocchqvGPyN6QWxzdRzxmAZyHfjjnzbtH1w2JnItPEMY
-         fbmw==
+        b=bMnxIvQ1p9Ye2Sfc53Evhw2xO/kfi+dT51CTzu4lXf6jC2qo+0u+avowYAjB/7Nvww
+         Ja7SBk+Ylw6oibSJkqgYE7Ve1tqPA101S2l1Rm/SnkgLCFmmzJsvFCnSc+oSX6nQYGry
+         48S3/M0QHnsjHi+sWzOn3dnwlJAe8b3tlGQYV62G+K9pvtTXefFWjAfV8OYQSD4h980o
+         /NgkdgxElbE5cmibd+xSYcIDBo0QMiEDMWWftMmkEdcOQmQlj2rOl8SUL1RZUKicbGl9
+         RvA3iDqOI5+hcUEUuqFXjZLfWxCDz4NL4WxyKPSOC/AMuuw1wl7f/gUxHrIsx14NOdAP
+         9brg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=YQXm0UY+nRhuAFe3Fy18h0FGFXXj5HAunMsBXKjpuoM=;
-        fh=ctNnd7rEgrNGVRcNYAD2iHPqnd+GFVudQHEzcgGqyZE=;
-        b=F/9wA9My/06cvRu0wMXWULYLkbDTD4teAXga6mPNyww3Z5pR8exBCGdfTOpipbWIXz
-         22E7e3S8B/NlxTPqqUQo9/2zBPv21PQ+X+eRPG09AOEuC8jQK/EWqT1P5fu/ZXK2MgQS
-         vjc7rMS6SUrSColQY4x8huOKPutKdWYsxaNCAMIVs9fTjKaZXKNlkVmH1hnZd3tXRZeX
-         7JRCf7jGhBbwq+aa3YcOdtPk3i78BSkWXDNLOmvQ5cTCBPl6c/zL/qFG2+d3YnSzVFvp
-         dzAslIkBNB5q8VJuedKMisAgvLPR0O/2XVMccUEq55btVq3Dew2D/Ep12CK1BY2wGzms
-         b+OQ==;
+        bh=mbsSY0UI1GB+1GizwZ26RMacx57FMZVK+w0bq7lz5Ws=;
+        fh=FPVddkpCKUhMOQC7O6qEDLGG4L+ef01SC4VRbxG/8XY=;
+        b=pBjRgXlXZgnbGD7sEr59soTKa9WtDwcQZo6RpeIsOTJsdmNpMleccEWoLTRLtTwqry
+         4HvGrVfb7K81RrmWuYbXZZhL0YJMncgoTTlpJcFg+6PMyv842Saowm6Se66Bdm+08upL
+         MTh+j6WnXyGdy9Bc3mAikjFIAKrviiEiT73r4LvfwbX20zxC37LHlMQ4B1A7WSOkx98N
+         v5yYrJyq2vj+KHWfIGBPU2dDpCNTMPY0mb9c7CSXfdYk+Uv1tLWbyuVyLt8+t+3y1Vms
+         WK/vt3NFHEOtznH6yiVxRMNUbQJaApNX3KCua/CcsYYJiyTZ/DXdtfuOz0DvNMVsRCUi
+         m7/g==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785759574; x=1786364374; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785759776; x=1786364576; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=YQXm0UY+nRhuAFe3Fy18h0FGFXXj5HAunMsBXKjpuoM=;
-        b=Y/PXI/Me+S37xyxcbcznFqjc/3opNS/+iBWYqPZ5fpaQkuN+e2ziRO5WaytxXIAXW7
-         o/grgosvf9XvrEr/i9TDe4cpg4lCfk3ZyaOd9FdqvkCTscuIFafjChfb8AMr2YolfUV/
-         tKIy7ziW4VRhiBR2vLLhuP1avO736y0hcil++ZO0yk+ckJVWyvRdUIF9n3hsKv1V4I2O
-         wTKbKCBbmoGyssRAFeeLnbM5hOPgptsFHYk4dc5m+isC90w10G9Bu8KfzyL99KBfE0V8
-         35QNdXadR/tTz1DS74vGkk5Pzxbhd38A3Na+IRnjzwyZyNoSyA65U//a3kElPLOkkCS3
-         kdgg==
+        bh=mbsSY0UI1GB+1GizwZ26RMacx57FMZVK+w0bq7lz5Ws=;
+        b=G/dx5TqTFl0j/ZZBoh+g7ackzsmYZULy8+gNRBpvBsbL9TK2j/TfIGMa3aOyltp4cW
+         MgT6yZtIgssRA0BFoPoYb9zfqsIHxRMhfveCyRhpZSFU7uPut9ZMR9LEAAJId1w3/q/W
+         fO53FJrV88b6CoAPVCW5qz67lFgaPEvbyIu351xZQi4st/t6HyYTDCyxkJDsZgUIyH1b
+         rePB1cD7vmoXXNf9O7nEPiXwCd09fZg3VT5kZtDYU7FJSgc7CRhuyzeu86yf6CFTRG3u
+         +TI+8E8y1fVV1jB0oxWYh1k7ETGCfQMowhIcXw/yOROtE7XAyCvCevL7aIupKJBYAipy
+         eF+g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785759574; x=1786364374;
+        d=1e100.net; s=20251104; t=1785759776; x=1786364576;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=YQXm0UY+nRhuAFe3Fy18h0FGFXXj5HAunMsBXKjpuoM=;
-        b=edlr7SjPeJrGmly20rg0eQfUSIn+rx8todG1M+UY3eyE/kPNEia3/YZYTTGgWAyZcL
-         MndQNPTWfkLAbUncESUFI8p6OmS20nVr0SvhuM4/fcOyV+XpWRDGvM2FwUdq2PzOdwSD
-         BZv4O9Vzk69SLSXKTsWBIqv8g7VwZ45ibKF0bEyS/vApV/bzZ6IcFWYhN772fNyDk5xa
-         bgWlwQBmmva52UXXwxEVxx9K1L93vIj1Jr/8qhiY8CKkPKo2p/Vab4yUV0C1jzE4tgkY
-         lVuzS4IxERZrR8ufxPLQX+mIyXTu/Tl/Zc5+0mtWZrd1pYg5FioHQGnW+/uOjTnHec4h
-         so/g==
-X-Gm-Message-State: AOJu0YwDDOrAdHwZGzAFOqA92pw3Ew73KVHlCAeBElmCtMq3jf5QI9/W
-	0wfvzGisez9o8Pdjaqb+gmnnSPby62eWeJgrg9uLwH3odXAXwRLooWogkcJU9c3gs0iVy2FhMgi
-	SiMRApPJvRvn1y8tbIBQ5Bj59rEy1oByjQg==
-X-Gm-Gg: AR+sD114LZ84D3AuRHLBUfSW5DPkwUlBs3Grbo4WpuE3wT2C9QCcDQpsmi6VrHIb1H1
-	Wi76z4+K0UZXZoMf0CMT3ZnfoEBHQk802BKG+Liq2hlocruf+YR8apINATcDahwUPqes8mPLX6O
-	klazI9Xw5C5gYfTEW713jOxzA1vEYObpB+UsnaJJsA9YCCX95+YxhTdkEVd8UKOD5rfVl42IlRc
-	oPMsvrDfCPnD4EIx0bOFjjQA6yhMigPzeGF+Y7Fv31CBdzlLnLuqcScmPwozqzo6qoEJii+k3dk
-	aVjM3eKBhV+F3X6bvuZevIlN2UQcwG/usKqwD7u+JoP/
-X-Received: by 2002:a05:6870:20c:b0:43d:2e43:9e4e with SMTP id
- 586e51a60fabf-45905a6dd6fmr13812998fac.17.1785759573837; Mon, 03 Aug 2026
- 05:19:33 -0700 (PDT)
+        bh=mbsSY0UI1GB+1GizwZ26RMacx57FMZVK+w0bq7lz5Ws=;
+        b=DGGUVz2pkVgGzSjOTzrNTBB/Yf6NYat94ZohlpJAkjvIWxk8bDNTOkR5u1m+9LncEb
+         Y83FVKog67+d87CrRkovi1okRhWx7ytqIa3mI3VJqB8cQnjkp1+woOgCo+Ut1yznhWsV
+         bTPA+lw3fpAgxNiuAYCsmf28qJpM8JBAyGwzGeWkpEQVtQiIZpKjCFTLHQLMADNfXapj
+         XXEIu4sgCYwTb2r5RXQlY4StipypztlRQLkthMgWwXQ2Tt8XalqPh0sSKWIswYtdWXxl
+         zIBvdjG27SDJXQregNBk+rRXO9m0/P8o9M3GUjHsvja3o6abvS9nEpbo1Nl0N3Y9lSk7
+         v0Vg==
+X-Forwarded-Encrypted: i=1; AHgh+Ro0zoye0KzBYYPY3tccTDYjupsETtN1eT6MY6FyGqdA2hnTGwIro0Wn/XBm/x8EK8VEnxtU52SN@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxhsaf+1JFSdgwGmWElyMAq4fyGS+uRTQ13NhXOxHMOdGOEKzv5
+	z9VbDaNrFaDsH7FKdjXvboyEfox/itnpHcQenGMDrUKS/Fm0ZuZ8zIB6tw5MMxboZKuqN545C51
+	et2693saJbrpBU80POTcD+LjDrjFobB4=
+X-Gm-Gg: AR+sD10+Hw85xLh2Pb11d7LCXfua7AHHD/+GXr3ZaFR/1voLb3QsL0tgiSOjdHPU+hW
+	oZZkL2b8PvX0ZBUuLusX4ZOvmKrZWMNKZewdLDE4z/Dm8Yvlhh1F6iOADpsYNQ8xq3ilfATpU4z
+	IIdmEWfmW0uLwpZ46ukdAIwgn+moiwUmxzOk+fU/tWQ27ruAxEbttDBUR1XHUMhdbuHXgUWbQET
+	ILLgyMXU4gIS9vPiFP5ra5kSO74Ys+c56ev45s+2LSzrKcMndyzmLuRbDmykv9bPc0E8fDktWY+
+	z7zjT0xs6ZxSId3RYnE9QI99ibcx3EicTDGk8dj+PIkov1ztueCWuBg=
+X-Received: by 2002:a05:6870:910b:b0:456:cdf2:ae66 with SMTP id
+ 586e51a60fabf-45905ae1288mr15320639fac.20.1785759771079; Mon, 03 Aug 2026
+ 05:22:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260803090152.1456176-1-omosnace@redhat.com>
-In-Reply-To: <20260803090152.1456176-1-omosnace@redhat.com>
+References: <20260731-b4-disp-d32e997b-v1-0-0341d038ee47@proton.me> <20260731-b4-disp-d32e997b-v1-4-0341d038ee47@proton.me>
+In-Reply-To: <20260731-b4-disp-d32e997b-v1-4-0341d038ee47@proton.me>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 3 Aug 2026 08:19:22 -0400
-X-Gm-Features: AUfX_mzzlWJUCoBXSJbaL2ifapfdocIs71cBdIfa36FEn4tTTN0q8SEgEhOMFsg
-Message-ID: <CAEjxPJ4ny0BcpcYT03xwy6JKdj3sd1y8GgBa9-Fbur1jD3BJ_A@mail.gmail.com>
-Subject: Re: [PATCH testsuite] tests/inet_socket/connect.c: add missing
- include for bool
-To: Ondrej Mosnacek <omosnace@redhat.com>
-Cc: selinux@vger.kernel.org
+Date: Mon, 3 Aug 2026 08:22:39 -0400
+X-Gm-Features: AUfX_mxHd5TERbD_Knbx4lduZVYzurnUC_9UFuhGmxrt5AuCUI1ydi2CZUldcQ4
+Message-ID: <CAEjxPJ7UGAww2WC_kvhsg6nhN+rhFMfrj=EVgbJb7KsBOA_1wA@mail.gmail.com>
+Subject: Re: [PATCH 4/4] selinux: require every boolean value to be defined
+To: hexlabsecurity@proton.me
+Cc: Paul Moore <paul@paul-moore.com>, linux-kernel@vger.kernel.org, 
+	Ondrej Mosnacek <omosnace@redhat.com>, Kees Cook <kees@kernel.org>, selinux@vger.kernel.org, 
+	=?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Aug 3, 2026 at 5:11=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.com=
-> wrote:
+On Fri, Jul 31, 2026 at 1:44=E2=80=AFPM Bryam Vargas via B4 Relay
+<devnull+hexlabsecurity.proton.me@kernel.org> wrote:
 >
-> The below commit added a usage of the bool type to
-> tests/inet_socket/connect.c, but didn't add the corresponding stdlib
-> include (<stdbool.h>). This problem seems to be masked on Fedora (likely
-> some other header file includes <stdbool.h> internally), but for example
-> on CentOS 10 or 9 the compilation fails because of it.
+> From: Bryam Vargas <hexlabsecurity@proton.me>
 >
-> Fix it by adding the missing include.
+> p_bools.nprim comes from the policy image independently of how many
+> booleans follow it, and cond_index_bool() fills bool_val_to_struct[] at
+> value - 1, so a count larger than the values present leaves NULL entries.
+> Every user of that array then walks it by index and dereferences each
+> entry: cond_evaluate_expr() on the access-vector path,
+> security_get_bools() and security_get_bool_value() behind selinuxfs, and
+> security_set_bools(). A sparse class value is absorbed by
+> policydb_class_isvalid() and its siblings; booleans have no such
+> predicate, and no consumer that could use one.
 >
-> Fixes: 433c597a6a9a ("tests/inet_socket: add tests for TCP Fast Open")
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> Reject a boolean value that no boolean defines, once, where the array is
+> built. Conforming policies define every boolean they declare and are
+> unaffected.
+>
+> Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
 
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-
-> ---
->  tests/inet_socket/connect.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/tests/inet_socket/connect.c b/tests/inet_socket/connect.c
-> index 067d196..89e85ef 100644
-> --- a/tests/inet_socket/connect.c
-> +++ b/tests/inet_socket/connect.c
-> @@ -3,6 +3,7 @@
->  #include <netinet/in.h>
->  #include <arpa/inet.h>
->  #include <stdlib.h>
-> +#include <stdbool.h>
->  #include <stdio.h>
->  #include <stddef.h>
->  #include <string.h>
-> --
-> 2.55.0
->
->
