@@ -1,109 +1,119 @@
-Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
+Received: from mail-qt1-f174.google.com (mail-qt1-f174.google.com [209.85.160.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 969293AB27F
-	for <selinux@vger.kernel.org>; Mon,  3 Aug 2026 20:03:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5ABA13AE704
+	for <selinux@vger.kernel.org>; Mon,  3 Aug 2026 20:10:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785787437; cv=none; b=L0se3HD9IcOUgUu1EcEV9A4vIz3NTEqfDQEoNHgz0xwiMglnhqfWGRPLMo02Fj3d7CAsGf6nsykxLVNU15HGbfEtBNUEeJ1obh9QNmpLKQRwKUqfVjFgiL+HS3sIcYVSQcF2FailZVidE18UXP49FfKMCCTO1Js863blsi1vUNk=
+	t=1785787826; cv=none; b=rL8tayVRg66Fd+Q5SjV42z0Eh2yIMZzTwIXIy+f7lPZ1FMqKag9UARXRht6oQVT8Wqf5TpaoJsBDRosLuZnWfZZWStatDJkkKAd+jR+EIdHNGG9p9s3x81KCghb+idqHqA2u4jKmaIqGqOeZWA5BR1CRNHXx1+jAL/iwA2TWcns=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785787437; c=relaxed/simple;
-	bh=UocPPSy64iVBry4L1IRP5elr7tlVgUQYhuZ5TiyZ0QA=;
-	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=XjHsKNUWBcu1fA2nIz6XdDcvEgxxjLhkvkFrcQwc+HGJ/p/JowR6rSR1j8SROd6WdqHghORpygIhEBRclV2p9ukPVCYRNKRx/iH6yo0aUvdzTpJtnH0JHIH+xx9XnQO76wqcLZ6YspYw927Nx/kw+GYV5EqQrdL09yq3au8Bax4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=fshmK3fa; arc=none smtp.client-ip=209.85.160.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1785787826; c=relaxed/simple;
+	bh=N/cg4aryy1YKRG967FneYNr61fD9VcTmMYXjQXh9Z4w=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=k49LS+WLQxTokE3K5Woi8r4a9Kp33ReZ/M8C3yGN4wcntVJ6a80v2jACBDRMfrW5ssE3ckjAhwak9/fp0sQCMrtlreGLVaSSuZfqDdxIXGF1frE9ur5uKPTAS+ezXLbeTP4MQmR5vNHbMeMzbNosNYW4QAxXTbRFkp0Aan1uOkI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=B14JfDDa; arc=none smtp.client-ip=209.85.160.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="fshmK3fa"
-Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-51c05dcdf49so40482351cf.0
-        for <selinux@vger.kernel.org>; Mon, 03 Aug 2026 13:03:56 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="B14JfDDa"
+Received: by mail-qt1-f174.google.com with SMTP id d75a77b69052e-51c0cea8883so2497501cf.1
+        for <selinux@vger.kernel.org>; Mon, 03 Aug 2026 13:10:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1785787435; x=1786392235; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-type:mime-version:message-id:date:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=jQnkkq3ZYIQjsF1ZWL94ik6EYBuBLNxIxpOXmwtwvfo=;
-        b=fshmK3faAenUBezq4tOxI6yZR5eZHGB3P8inhRRoGsVQmWTfR3dW2szHlHP3/uStX4
-         xQc3+COQDmKhPDzLZ+vNw8lUjNu7WSnJXwGTpFUbzbJNfztcsCz+0t8suu7e2/NpAzNt
-         6GPPsS6P6NWRKkDpE7AWMzJ9ynixjczrROgFN3rJ62x3vKQRblyvQvjRPqrVkcQOjo3F
-         /APOTro8aqak7+4gQWpbqRWxmLQ6qvMNVd93f7uENmgKIQu7Q31QWM0eCwXyyK2Xr4NB
-         xpEkO+PZ0Kveq0uIMq6ymKCq4gZiVNw4sMlSI3GlMdsNfXbp0Qh97H/FnvAqEXTqoCl9
-         AoWg==
+        d=gmail.com; s=20251104; t=1785787824; x=1786392624; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=p18jJUn2jBzTyE81wFeeE9bYQh0ijlFQJl3k0jIZXPU=;
+        b=B14JfDDa1RGXPx8dz1HFc6t5p9v57ndxlR4v0BdtO8Oy5PgWaTNTbGlAqrJutXQ5hF
+         TekelCb1k0Q0IW2L9dUf3aGwZY4sKpZUC+JSR5qpe9fYqZppwHkEvTcOpxGJZsXwB+8d
+         4loS2h4JGtp1cB6683x+fc4HQG6Zbhu4issyGPFNC8x8q5lzMhW4lt4uqo+8gag0BSTj
+         fyHClnZD3k4FUtclMbGXISny+d08mPHAvfvy8feqDUkcmofwmOSsWggHLIOESou6Iuyg
+         dLZmD4rrD6BcdNtmNrEOLG0Qq49oGq/cXTRQ7mvcCa8om25HhSLa7g7pfvJzjBa5eTJ5
+         Qqtw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785787435; x=1786392235;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-type:mime-version:message-id:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=jQnkkq3ZYIQjsF1ZWL94ik6EYBuBLNxIxpOXmwtwvfo=;
-        b=hivzRd+QqGoRoCOgHJFhWMsvDXlcvcq/F0Ku3wG9CzKJITS3yRlso3GiS2N9NFmJDF
-         RcQlSu0Lvg/8fdvcJza09H1F6WcKPYBfckvAm9vQjgeo+wgPezzY6un4QRY7GPLnIEJR
-         NKzMy6GMwWpWe8WSM8mawwpXGJeDKxlO6SMb+k4jI0cDCwoyNfEKngJ8adLxtNJi7ZUL
-         zXl0HeznRa3VipY3ONcVWW2phdjhsPXLG/TCyp/Fu3NjqQ9ZxepG7/xtNJSR5vbTivFa
-         I3CPpo/6SrNqyvma/AqfphMDe8kvzife98XOtLy6F5SUeBUzDENEPilmT94RsoMY4fGr
-         RiPg==
-X-Forwarded-Encrypted: i=1; AHgh+RrfFE+RLMbFD7H287UrB1+HzOOLDinxlF7NIQWsRjHgvUMvhjnsxs9HZH7S36E8EOnQ8PdWuSxW@vger.kernel.org
-X-Gm-Message-State: AOJu0YxeFs64HBcJv115MhrN202gbSHL8fcbXYdr7fBxb+H18gDHsCYr
-	xTLLe39zho9d17b9G1bGHdTr1MxadSkKlzzdhWxNIyN3B6saDkBtNnlEjhr8PBOeTJALaH4WITX
-	MoMG3Rg==
-X-Gm-Gg: AR+sD11ixnEP4OkY/5zCXi/ie90y2tbYxKB7Ceu/Fff3TJa5cUmtuQyWGNRGEuhLrIh
-	w3XXSQKXONWXvSpK9uZXQm8Ukr+mhcWLdyTn9srTdaZyEfIDMIa7GUWTFU+9vzdB6BNMGlKbums
-	bgQMZoCyNGxB+CKycSZNbAO5It3JWY1acnk0CdAAMvPcyf1eQz22BnPK2ACaJGW3Kpy5Tw0l/WA
-	o7Ct0TCVAX1WA4InXpziIUESAWQ18MCNLda/KErHUHe49qeyKWkA5l2CQUV3vVUT3NP6ffm2O6U
-	YRy2+77E1u8KZmkAb8MsY+BAo0jkMHKp0qalsDzHnwtmxTJG8+wm8bol8H63GilXinciw6A2vRq
-	8TvL3tOufNWddaA5EpBGvzj+vGR01npYpXd0mOGUKndpLUWkP4Sa2gcWbDTvPUQTaEviNNbZgE1
-	Y4EdU7ctsBvux0Z95UDeg5+zVvFWAwTukS+G82GaenRJsMcBupehM2VXQsL5QoJ1Oq6zvAg/aSQ
-	CKXBZpBZIcy0Mr4aK3hjoFnHd1DAoZ9GQ==
-X-Received: by 2002:a05:622a:103:b0:51a:6feb:dc8a with SMTP id d75a77b69052e-52b566ae942mr216625471cf.18.1785787435406;
-        Mon, 03 Aug 2026 13:03:55 -0700 (PDT)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52b4ebe0c1fsm67016781cf.28.2026.08.03.13.03.53
+        d=1e100.net; s=20251104; t=1785787824; x=1786392624;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=p18jJUn2jBzTyE81wFeeE9bYQh0ijlFQJl3k0jIZXPU=;
+        b=ok7xKxX3p/L5VTydtftNJ5IDZhDDel9nXn0MRqNgHNSJWFRpn2qtcFTWYKJ7GEjvY1
+         adnhv2OPlm2QVtCj3s9Gn+R1SXdKcPBUkPJI2Bhfj+WiDNHMJyJUtDOOIf9O74QpfMAc
+         iBH/XNs6PhecyTsm/E+Z/jOJ4idpmLHYlcJWCTFl+NFFJEgkVmwLHNITW4fQ7RgSd93u
+         4qrorcjCLXXRQFTEk41h8YXFaqPh/J+5pofn4SoKtTffW1xNN/l4qm4IFnDDeD7m7IyW
+         rdVPzTQtHsGrr7zPvoU/CgXvLfittUUi30DXo2nB4ssSvjDpk3VcpTGNry89ESNG1Gee
+         U37Q==
+X-Gm-Message-State: AOJu0YxiNHO9ZJVqABSQzicURpE3DNudQlyBHDvWbiaE3k8FB4IBXbYM
+	pQoUIg1EqMdFRRuv74B4+cg1eKeB7tc0TC3zJFLqnML0u8vT8npF+VyodIQ4Jw==
+X-Gm-Gg: AR+sD10PiVhhbkvizI8yj/R0bR06dTDSIHVhf+zB4UCLOA7kAbTkIq2+U7Xmn2Woucy
+	3m9i9vnfnn6nB86+IoRqc9SK0neunY+YRxVy/pLh6Fi8Cq3sQ1xXyRuWgG2aVVTbYhbZdzPuFWf
+	ZIk0Q/F/dBY2HKqdOMg89dvf9w4S+uw4R3cErCL7jnBAGE+g4V4wpK7MTJtp2gmI60iuWPU1wst
+	0EOrUX5LIJjSAnWKDT/d15vFgtUgLI+HX32GyRyC6OmH3N9UkIOvnuCIZr3KOLS0KnRcFTR5T92
+	1B68zhMD8Bylo3oulP8vCQf0t9t+QACq4bboP1Iloc+yNo5ISF3DWZziJCPnPN1ifJIv+VgRFQk
+	Fw2QXjp3FEDt160TamO4S/gQb75nxAuvdx4e+Jt8j/BRSOcByZSgmuabw0Fd6IBeYfAq1E5Gekq
+	+oLpttPwOdsOjNx43iSkBbCU+5usdERzxQ72qE3mjh2WCkQhVN2G/uHA8PcFoFSxOIxVlT0LK+s
+	eaSL8q2Fi3Q8PKvzOZrZx8ynb6YMARKQ6cJkpL2K2bay1/yZ7DvfRyDXG/J1hFt
+X-Received: by 2002:a05:622a:5b94:b0:517:87a9:6a89 with SMTP id d75a77b69052e-52cd34c91f1mr16746551cf.6.1785787824101;
+        Mon, 03 Aug 2026 13:10:24 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52b4e64df9bsm68680641cf.0.2026.08.03.13.10.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Aug 2026 13:03:54 -0700 (PDT)
-Date: Mon, 03 Aug 2026 16:03:52 -0400
-Message-ID: <f07bba9a6608ce54879149d91c152e1f@paul-moore.com>
+        Mon, 03 Aug 2026 13:10:23 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	jason@perfinion.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH v2] libsepol: log an error if we hit the max depth for __evaluate_classperms_list()
+Date: Mon,  3 Aug 2026 16:09:36 -0400
+Message-ID: <20260803200935.49341-2-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=UTF-8 
-Content-Transfer-Encoding: 8bit 
-X-Mailer: pstg-pwork:20260803_1511/pstg-lib:20260803_1500/pstg-pwork:20260803_1511
-From: Paul Moore <paul@paul-moore.com>
-To: Bryam Vargas <hexlabsecurity@proton.me>, Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>, Kees Cook <kees@kernel.org>, selinux@vger.kernel.org, =?utf-8?q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: Re: [PATCH 4/4] selinux: require every boolean value to be defined
-References: <20260731-b4-disp-d32e997b-v1-4-0341d038ee47@proton.me>
-In-Reply-To: <20260731-b4-disp-d32e997b-v1-4-0341d038ee47@proton.me>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Jul 31, 2026 Bryam Vargas <hexlabsecurity@proton.me> wrote:
-> 
-> p_bools.nprim comes from the policy image independently of how many
-> booleans follow it, and cond_index_bool() fills bool_val_to_struct[] at
-> value - 1, so a count larger than the values present leaves NULL entries.
-> Every user of that array then walks it by index and dereferences each
-> entry: cond_evaluate_expr() on the access-vector path,
-> security_get_bools() and security_get_bool_value() behind selinuxfs, and
-> security_set_bools(). A sparse class value is absorbed by
-> policydb_class_isvalid() and its siblings; booleans have no such
-> predicate, and no consumer that could use one.
-> 
-> Reject a boolean value that no boolean defines, once, where the array is
-> built. Conforming policies define every boolean they declare and are
-> unaffected.
-> 
-> Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
->  security/selinux/ss/policydb.c | 19 +++++++++++++++++++
->  1 file changed, 19 insertions(+)
+Add a cil_log() statement so that we do not fail silently if we hit
+the max depth. While we are here, introduce a #define for the max
+depth and use it, and fix the comparison so that we fail immediately
+when the depth has already reached the limit.
 
-Merged into selinux/stable-7.2, thanks!
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+v2 adds the missing newline to cil_log(); was confused by the
+fact that cil_tree_log() doesn't want one but cil_log() does.
 
---
-paul-moore.com
+ libsepol/cil/src/cil_post.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
+index 183b0d49..b9d5696f 100644
+--- a/libsepol/cil/src/cil_post.c
++++ b/libsepol/cil/src/cil_post.c
+@@ -49,6 +49,8 @@
+ #include "cil_symtab.h"
+ #include "cil_deny.h"
+ 
++#define MAX_CLASSPERMS_DEPTH (32)
++
+ #define GEN_REQUIRE_ATTR \
+ 	"cil_gen_require" /* Also in libsepol/src/module_to_cil.c */
+ #define TYPEATTR_INFIX "_typeattr_" /* Also in libsepol/src/module_to_cil.c */
+@@ -2296,8 +2298,11 @@ static int __evaluate_classperms_list(struct cil_list *classperms,
+ 	int rc = SEPOL_ERR;
+ 	struct cil_list_item *curr;
+ 
+-	if (depth > 32)
++	if (depth >= MAX_CLASSPERMS_DEPTH) {
++		cil_log(CIL_ERR, "Exceeded max classperms depth (%u)\n",
++			MAX_CLASSPERMS_DEPTH);
+ 		return SEPOL_ERR;
++	}
+ 
+ 	cil_list_for_each(curr, classperms) {
+ 		if (curr->flavor == CIL_CLASSPERMS) {
+-- 
+2.55.0
+
