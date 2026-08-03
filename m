@@ -1,67 +1,67 @@
-Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
+Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7447039B947
-	for <selinux@vger.kernel.org>; Mon,  3 Aug 2026 20:03:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 626EE3AB26D
+	for <selinux@vger.kernel.org>; Mon,  3 Aug 2026 20:03:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785787428; cv=none; b=DiDt2Fr01l6hezlh1UvO3bjX+iIxHlafR0OfSB6JKFH2OFeUpvu+LE/EA4sqTZlWVcwMlvY7gngZxk/ia1tbpvBrJnH31igNTMrNJmh0A3LuQhn3tMRaxHuxYOow8vFiHhqNncemp+EAaGqtkbhRx1itPyLh35gHqUAtlugWBo0=
+	t=1785787430; cv=none; b=lrYiC/ei9IwgHffnHDRpEoEv9Lx2ecM/9MkQiLsiwottnJ7pLlwTtb9KcqkUyeLlUM5O6dUSBc3PEreuNQce2ccqhdCboY5LwYRtOPXclgxCGI1IwoIoquy5FdoEt0woSbmT/5uZTJN5NvYoJJ0gJdmnwr5Zpu7KczK3jdk1dc8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785787428; c=relaxed/simple;
-	bh=J3wWI5ZhIe5OGxI7L++zHjpDG2Y7zUd/pFsciW5nANo=;
+	s=arc-20240116; t=1785787430; c=relaxed/simple;
+	bh=aT49OffwABkWVv4EIBGwYpySJxRUFX9qeA7/ajUZryI=;
 	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=FBxzs7/j8+ukrDstjScZsWR9Tv139Dt4aF2600G8HfXf6LdKfIpaRPtfztg4RMKgH/igSiCfDe/7cUu6cNY+Eefsa0RicRZZ7e15XjhuXHM5jpUElfE4NsP5ARVzyNxCtPFhunlqJUO4ivgumYM8UBg7anG8to/X4iKdrjdKZVI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=DvcsAwD5; arc=none smtp.client-ip=209.85.219.46
+	 References:In-Reply-To; b=buH8UqCYVl63mjm0zR2G3YlowXIfLsgFamP1Rbip3PqqN8c7pPGcBuFSEFhv/6LIDNCzmkai+LoF45cdjEtnE9geLNyM4T8+VacKn+H3173+qSaBufn8DvNuXr24/dfeD+KdMNr+M1Sf/fZdOt3LM7r7hIeuk+A0y+oJrY9DUM4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=VIefU4hD; arc=none smtp.client-ip=209.85.222.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="DvcsAwD5"
-Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-8ef1dc934d1so2468456d6.0
-        for <selinux@vger.kernel.org>; Mon, 03 Aug 2026 13:03:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="VIefU4hD"
+Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-934956bee57so330463485a.2
+        for <selinux@vger.kernel.org>; Mon, 03 Aug 2026 13:03:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1785787426; x=1786392226; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1785787428; x=1786392228; darn=vger.kernel.org;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :content-type:mime-version:message-id:date:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=ST3v5aTWdJwcDuFgrd1Vx7Nc3MqcrV9H4KCytqnQotM=;
-        b=DvcsAwD5WXzBdd+MHeJgHnrA8nEdlRmHB1rpPdtCNxfHdY8B45Hokf3WIGL6PDJsnn
-         MPfYbmTsUkA2gAfC8xNf3yQGOct3d/54qw2Sr3reWMAxhHwX7jpuEofQXf72MG2CeQEK
-         FqDXDBUjDA3CtUDASjDJznWn7ma9HggeSlVrEoJ3whdsi2mAxoAcd94fPMEmz2bnrsL7
-         O//iYS9prNHE64Gj2bYZW8Hc2X8u2iCfb7fOXHNOMCXaUM40fWwlu+0X5ZqN1IOKH/0a
-         1ukJfZBOWnYm5YMPCJlOosusOiKf5PTwLJsW1Wg/cPnnjaUZRLOW0bS6y7su4VrCi1cW
-         ITPA==
+        bh=GrM8OuNgXXrb+t+iBt1N92EV6KvYbox2YuCkBhGF2R0=;
+        b=VIefU4hDDYdnnjJHjHBmwMqSbSTY7fFydOuP2yjxGzNZq/8nYLhebD0vyBFxU1w6Hl
+         ATh+LKzItUSdI+9NxpX6MlBcpY9ndzILmyjeJ+CUZISXU7vMVQ6eDNmrQtiO4IvWg4RO
+         efXDSvOPnkpspjwjLq52Qj54d+gP3KFG4qdy3S4tpcPMCZ3gcWD2KcLAUqfSON7pVkJg
+         wE7u6pHvIPsmmxY+fyeO4n8EhM1RSd/by+31suDDEJ26WY7/FfUfkIv3pUQOwVCXTpdq
+         dHVRrURJfI1zPdtUupALkDqM5/0M5HzaXNnlpilsHeBTzkKtv538DGxNZgYEbnaTUl31
+         g82Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785787426; x=1786392226;
+        d=1e100.net; s=20251104; t=1785787428; x=1786392228;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :content-type:mime-version:message-id:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=ST3v5aTWdJwcDuFgrd1Vx7Nc3MqcrV9H4KCytqnQotM=;
-        b=CtKaQPFwI8Leeg66JeqkN+6BeUG6BB884v8kA2h16hpf2K9JNyrbdBlzuDflKirDIq
-         EyAFVABHpVFDScrpZTsUbFjv0pkMf9w1orM3csWzN+OOlF6wqhgjZE6vpTsaZwPYtNJR
-         rrZ3C1O5xwQYSsvqKVKUDcVHfERTJuMK1eHDAPD21VLEs9UJD0rTYe0ZrK4Ti3PjuHL1
-         lWHJVgKz+vJFQhTV30+zIeqj9Ymf+TmkBRUU3SdVEM3IBabKlcG/TdE5dRq0a3QLJTqi
-         rQD1ghuvo7ns8SMeGWBCDgrXUDvLbE+FuZGxWvetY9EC8RAV6ign9WyUOp0PYcmQ7Uqu
-         +3sg==
-X-Forwarded-Encrypted: i=1; AHgh+RqPNpZIg5dSx0TEO/bSjCXQ5tI1aKX0QPgeL1qxC7GrsFGV/NgH6Zr8L5/f+fv+NvVm6YKaOFi1@vger.kernel.org
-X-Gm-Message-State: AOJu0YwQ/nLmeYUJREjfDZ8ErpwxJAw8sb1o8heAIAEzBhZGii7Y6N8j
-	+DhsRSIiJ2mdzdqu3k7noZX1SyiRBKUGx5T41DhCXTShvOADQnabEB3Rz1/NJKn+TQ==
-X-Gm-Gg: AR+sD12BLxCVO6qQ9ToUeinIInOXqo9VSYjy/Cp3o7qNnAIyRVpv7ioUtqrPBganpd9
-	tmw0KSmJOkrSqbNFjS799GewWi7av38WZVsiPNoGWD2VvGveTLvMJ6gEz5lHlL94GJ7uCDsjzV2
-	phHhQErX7JpLQPXjyzHInfDqW+xgf7FMvfB0BY0Lb7Tdf6DKUMSzOw547GBkrdmtxDUBCCJZKsm
-	UFcZQFWyX1EUJLp2LDnAk+vfMuxuBgxUs+eSLxkTIqoiPrEAR0FJdLLscApiYY0gjFsfXhB1016
-	NaeOuMz2GCVfKRzhIZu9Vf5Sv2WADwrRmFoWTGyKf15ADb440QDAwkRZ8lmlousHu4becajmZzn
-	CN0Qsr+OIx/z7FXUk/yCUcNGQ6KzT5fS2u6M5Zq4heFzhjxYOUdt6S8KeIzxJ6vAHEFhbQi/caF
-	G/8fQzjHIjX1QDQnyU+RC0VAGSxLV2lX7powQpnBkk6luxEP27jNsMJYI4gXNno6tZbvrjkPkNa
-	vENamXORAXHM/HT4jj8SKl0Is9LmZLQ3w==
-X-Received: by 2002:a05:6214:3d8c:b0:8f1:5e32:9b06 with SMTP id 6a1803df08f44-90872c2aabbmr22837856d6.13.1785787426262;
-        Mon, 03 Aug 2026 13:03:46 -0700 (PDT)
+        bh=GrM8OuNgXXrb+t+iBt1N92EV6KvYbox2YuCkBhGF2R0=;
+        b=faMEO1tmWJ7RAPWeukUhDnCjAIvGGd3gkojug7d7+WTnwAZrCGUf3p6MxaPq9N3XaI
+         dnH/ZrJXsom8aB2RJeRcDiHDXCDZzuOYwsFR970E4TJfsSs1HtfYN9Gij7yQ/UhlU53h
+         aNJB848lBav5fxw0GP72HRUO5OIayipdkWjtT633GtfqSl/qMkKM4t/LDNElnIQD1DWz
+         U+66Y0rynF5Ilyj1ZXb7Tzw5YmR8NRDvQrPCUHVCyAT++/qoza/OQVq37i8TLHWoYmRs
+         IlYM0p2ZlJY871NL0G9bBzBU42N5pOaCc6b4R0QFEQUWROXy173jounxoJ3D2eYlHtZr
+         fjiw==
+X-Forwarded-Encrypted: i=1; AHgh+RrhnnoZs/UiXQV/8Wp3zMkgXZ/xznkmUEALAb0SsQNPuPdczBe5icPm1EjxM0Rsx0Lvc6lf/dYG@vger.kernel.org
+X-Gm-Message-State: AOJu0YxiijL4Jm+cPXW6IsaKyi/D//aQIAUm17jAcSYpPSV51w3isRSr
+	oBA6/fpHSdp+B2tx+m3RRD87s7O7CjqJGKSYdtppVCDkPDkuNdOXL2Z6Y6mG6V/6yQ==
+X-Gm-Gg: AR+sD12aEweus8Nhebtcgr+c6UMqjUN5xqZ7zsf0LfEUgt5HWHXhPBCXtFr3wHeYgBf
+	CwEiV3Cw/6ITwPdT5a7GJgp7oQxoyIL3JrLXz5YIO/dn2zoNMNS/Bx+6zxXLKSs5F3bUb8Z0jpX
+	LjskGb8QjJ/xBYWE1K7UmVVQd4LJ0sLtQPiWhRu0VrnKphn2+5xPTHMf+TCxP479nRyWLWATh6l
+	y5QtWsZDRgV7tIimjPRoqgiBJ+oA4AgINKDYvqQwssRCL/dJQ3tD/qo/dp/T3l5Mi0VlXmYsi6E
+	lCrKibDPPAjt2jQCkXqOOlOIs0iHMy4VZsEpoZdsGHtbkFvbhs+M0WmF26S+5cNvYIR0hMWjdT9
+	1erIr/puSJ2K/46Ue4F34AvWyt+mslLgfnI/PxQuyjY2qDUlpVsi5Ia5Wh6uVpB0zPbosUYkYH5
+	BpLi7C6vL9f/wTGCkkM2oaGBZSz8g0FrsobqNOct8BmaEKiJTqEgY8SdiFYGtV7dVdKI7edAb4O
+	g1QFoRZVHNq+g5Bm8HrXv9l3ASa2P15WQ==
+X-Received: by 2002:a05:620a:a407:20b0:914:bd27:2d1 with SMTP id af79cd13be357-934a0783490mr1787176385a.11.1785787428305;
+        Mon, 03 Aug 2026 13:03:48 -0700 (PDT)
 Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-908434a2852sm83188576d6.16.2026.08.03.13.03.44
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9349c199b76sm735839985a.24.2026.08.03.13.03.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Aug 2026 13:03:44 -0700 (PDT)
-Date: Mon, 03 Aug 2026 16:03:43 -0400
-Message-ID: <2c8fd481b3855784165a43b2174d4652@paul-moore.com>
+        Mon, 03 Aug 2026 13:03:47 -0700 (PDT)
+Date: Mon, 03 Aug 2026 16:03:46 -0400
+Message-ID: <e56c9e8eccdade4c8ecd078412b0cada@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -74,30 +74,33 @@ X-Mailer: pstg-pwork:20260803_1511/pstg-lib:20260803_1500/pstg-pwork:20260803_15
 From: Paul Moore <paul@paul-moore.com>
 To: Bryam Vargas <hexlabsecurity@proton.me>, Stephen Smalley <stephen.smalley.work@gmail.com>
 Cc: linux-kernel@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>, Kees Cook <kees@kernel.org>, selinux@vger.kernel.org, =?utf-8?q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: Re: [PATCH 1/4] selinux: do not cancel a policy conversion that never  started
-References: <20260731-b4-disp-d32e997b-v1-1-0341d038ee47@proton.me>
-In-Reply-To: <20260731-b4-disp-d32e997b-v1-1-0341d038ee47@proton.me>
+Subject: Re: [PATCH 2/4] selinux: require a class's permission values to cover  its permission count
+References: <20260731-b4-disp-d32e997b-v1-2-0341d038ee47@proton.me>
+In-Reply-To: <20260731-b4-disp-d32e997b-v1-2-0341d038ee47@proton.me>
 
 On Jul 31, 2026 Bryam Vargas <hexlabsecurity@proton.me> wrote:
 > 
-> sel_write_load() calls selinux_policy_cancel() when sel_make_policy_nodes()
-> fails, and that helper dereferences the outgoing policy to cancel its
-> sidtab conversion. On the first policy load there is no outgoing policy:
-> security_load_policy() returns early for that case, before it converts
-> anything, and state->policy is still NULL. A first load that fails while
-> building the selinuxfs tree therefore takes a NULL dereference in
-> selinux_policy_cancel(), reached from a write(2) to /sys/fs/selinux/load.
+> security_get_permissions() sizes an array by the class's permissions.nprim
+> and fills it at value - 1, from the inherited common's permission table and
+> then the class's own. A value no permission defines leaves a NULL that
+> sel_make_perm_files() passes to d_alloc_name(), an oops inside
+> sel_write_load() that strands selinux_state.policy_mutex and leaves every
+> later load in uninterruptible sleep; two permissions sharing a value
+> overwrite the first kstrdup(). Bounding each value by nprim catches
+> neither, and neither would a count: the symbol table is keyed on the
+> permission name, so duplicates pass.
 > 
-> Skip the cancel when there is no old policy, mirroring the check
-> security_load_policy() already makes before it converts.
+> Track the values each permission table claims and require them to cover
+> exactly what its count declares, rejecting a count no value can reach.
+> Conforming policies are unaffected.
 > 
-> Fixes: 02a52c5c8c3b ("selinux: move policy commit after updating selinuxfs")
+> Fixes: 55fcf09b3fe4 ("selinux: add support for querying object classes and permissions from the running policy")
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
 > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 > ---
->  security/selinux/ss/services.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+>  security/selinux/ss/policydb.c | 51 +++++++++++++++++++++++++++++++++++++-----
+>  1 file changed, 46 insertions(+), 5 deletions(-)
 
 Merged into selinux/stable-7.2, thanks.
 
