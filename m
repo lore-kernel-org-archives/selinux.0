@@ -1,143 +1,120 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E99682F49F6
-	for <selinux@vger.kernel.org>; Mon,  3 Aug 2026 06:27:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.129.124
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785738471; cv=pass; b=aIDlwE/FQDX3FQpHkMZ+rjgbSBiwv6Ork4pIemO4o4G0yMkizSEeWQkz+S6tmDYXC4KlVphbgrOqXtRzULSSd+LSOheaZeI+QS2gtR41UF86v/F17QTx46aPha9g3jkec7UvP0agen2BBHKO5zhk2SStjDG9UIw/8dqcBS/nlhc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785738471; c=relaxed/simple;
-	bh=vUa/Nosf/UG/W3XH/uqPw9LE4paB7T2IaYFqhq2PqKw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=IF7lO6jyNYUC3WMyQrEuocVhCb4yC2Z93qVfiR9w0lNX/GZKrZdlzvluOGlf04gLdci3JmG0GGYOs/lfSLaoZmxdyYGAIyyaf7wpS9yDgYHHisndr6hUrgNHjymQSPTFQ8GAszSwlyQkoNNkTwKH9YCv2inYsR5SFdgRZfsVmAw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WUVv7BCe; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=SSFAqrja; arc=pass smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C58EE3AFD19
+	for <selinux@vger.kernel.org>; Mon,  3 Aug 2026 09:01:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785747725; cv=none; b=K5POIXU8dAnBzYjk9xkrd77/dFD074vHM6TRFki+Ac0s8faUvbyV+j6quzAKCjomeIt7KHJmR8nyDFzq5oscH0La5t3tAH2gX2UFDiF5lvJTPGCzrzdZyCbPNbd5n9QzJFowOoHlnTuXSbx2w6sZyY13PjHQ7/3QcfUiObdlqiM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785747725; c=relaxed/simple;
+	bh=NkHPkVjag0YxcBY8j4EiieUSZG0254bWoLRPU6Gz4o4=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=L8gn1ZwBwo4KCbwKZmZgd6VDIOoGslwlHsp3E7W/BWCdGyNqDTiTwjs8bMcP4qCN1f4PP1X4SC//WVVQYgEP8Hxy/A1bI0KUXR6zBg1MyptuIAUoTt+Pb7csbxE9ypShfPq5Vs/SuIQpoSLVMECnLyLPZI9orIwkHsVXxf45s9w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=F8G37LGY; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=ov8/h2u+; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WUVv7BCe";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="SSFAqrja"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="F8G37LGY";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="ov8/h2u+"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1785738468;
+	s=mimecast20190719; t=1785747718;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=0Sjd0ZtKnFH3quOwnAN9rdzVg0iKOEW1uLJyoe17l98=;
-	b=WUVv7BCeFzEB3YBk5mhsX+N7u5MWtf+Xf+F0vKiidZmkl0FwD7Cfx9fcLQG8vr9zLHEOCK
-	Xd5BtvgludS38M+LW71dJccGRqOSVvD+eb12Rv7q2vDeYirqCZnQY8UmlimL1PGFOuGkYr
-	3MGGzxKzkVcUixac74Se0r9SRMFvtuM=
-Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
- [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=ZzSBCRe+WfMCg+D+LZ8/VAHYLVXu0WIoWbVlrBRM25A=;
+	b=F8G37LGYUCIQDwFYl4xqHgSxkQNvQbnN6CeHaFyIScOVrbIfU6XqVizsPNX+MmucihX/LQ
+	bmc8vPnsrOJ6hcZyIP6WlOQxsXMayW3ZO++LpiSK3aOW1UkVDiFSx0c+d9ZNqPPId0PPpO
+	u95zguCRerLmiPKdWIajS1KbsNiIofE=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-371-JCLPzNBBPliAHDYXXbVqCw-1; Mon, 03 Aug 2026 02:27:47 -0400
-X-MC-Unique: JCLPzNBBPliAHDYXXbVqCw-1
-X-Mimecast-MFC-AGG-ID: JCLPzNBBPliAHDYXXbVqCw_1785738466
-Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-ca6bd8a190cso3826208a12.0
-        for <selinux@vger.kernel.org>; Sun, 02 Aug 2026 23:27:47 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785738466; cv=none;
-        d=google.com; s=arc-20260327;
-        b=C747n0BCicWaF7pG+l1W+XIb42oDeZ5W1+zblOt6/hI0Hd3lMG2xaAeJGUG14musIS
-         k2jfE3SKu8muguCEXRNjy2jWmwoUcPJK40CcvFcc/pw6w/1wFlpoKIIg+FngCHGKWl8C
-         nVIj2F3FEK/YMciFBhVfyzYDffGU4bOjUY6kgncUvIL/UouTUfKfPCdGoCoiR+IkiaHN
-         KeFjGQpfxjrxhYjxhSC4NcJDv6lXbuw3RI5ApSTQBrcusvyFtx2/76Q8qb+BxD1eE6yL
-         KixYj9Vw0I6fGjthZahPH+c6keyaLDjDv1Ico/yybmv8/jx0HaHfaO1wPSoPPqNrmo06
-         nkPQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=0Sjd0ZtKnFH3quOwnAN9rdzVg0iKOEW1uLJyoe17l98=;
-        fh=nOcPTm+jzSpUJDDJhvsoEQt/GcMQFmPB1BDsWNtwPZ8=;
-        b=V1g/6A0Zh7wskpptr481oPpdnV9Ux81GQiWS2JqjfjU4fDm+eJWJYGcIerOPl/aDd+
-         RQ5vrvoGvuy2Z0cTp5XA+7wNRi5htYXGGo/jt08sWXXcJgj14/TUVEq7BZSIaAYmL18i
-         yjkIccB8BT6iGXvQ3DcLuqQvRAGT2SlluJYrsGBC7hZRqRNhXeCd3MNsMxBLhBjGerbg
-         4jMto9rRJJJnleKANNlnEEmRy/KiNkSRahQswBFtAR509z+1/zQ+o/HgvgRUN1O2zhTQ
-         TccEr36/cOwt4jQ3nivEXWa7imuFSHTN03fE7dAeGvEoUG3X4Dzq/E2lC/8+Y9EMHEIQ
-         TGUQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+ us-mta-517-lfZNij3mNPWSam_GVhidPA-1; Mon, 03 Aug 2026 05:01:57 -0400
+X-MC-Unique: lfZNij3mNPWSam_GVhidPA-1
+X-Mimecast-MFC-AGG-ID: lfZNij3mNPWSam_GVhidPA_1785747716
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-47162f83c75so2204830f8f.1
+        for <selinux@vger.kernel.org>; Mon, 03 Aug 2026 02:01:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1785738466; x=1786343266; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=0Sjd0ZtKnFH3quOwnAN9rdzVg0iKOEW1uLJyoe17l98=;
-        b=SSFAqrjagO/W1jiDjrrkr+0zI4qJHHFLCK4qjwMO9PsA3Ys6kDX2y5+6K31K2k3pb3
-         hEhb4lsHtLvb6+PCzAtNrjcrb+hx8gEr86j8+7ZuNJXHX1yyAtckXoKtzVDongB1OQrr
-         ZnwPBjbaHOuU+Nf8Ew3MAvoB6nnB31dmlKaAyV94yGXyzcWBayhPpAGAPrW8XRsmkVoJ
-         lm+LCqVBVPARrIMomMalsp9Uziomeo6gwJj+KqcWNybCPoc1JhvjpwFIfHq3D1HWpl4c
-         dVG4VbUzlvEQVL+AlPsaUEhFNambB/OnU/8+rytF6ogtbbvKBkpNpu7/ZxyPUv7eTvpj
-         q70A==
+        d=redhat.com; s=google; t=1785747716; x=1786352516; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=ZzSBCRe+WfMCg+D+LZ8/VAHYLVXu0WIoWbVlrBRM25A=;
+        b=ov8/h2u+iU/Cf19tvgKU3fI3giouEOUSXbgdllixo+gc8uVEexxLzAD6kSnOMNiaL1
+         T+VxLR5VGXFCj0yelKe9F5biWDajJRhN9Ngv3zPJl1QEx1bUEBkgklzq/mx2DuVbOoKd
+         hIDSOZIFJKFBA1qiD4+3wIlwXXoK5+0izM6qB0p/JSzvArpDLczbWuAjpTPh1gMEbbEZ
+         a16MvaPkoPYsfclc6K5g3ae9N9mGU/Iyl4PGDX5VRHPQxtvMqtGLUwGWoMgXTMsrwrTH
+         7SaH4dbBU3Ln6/XmwzWsglSj39FVExbdl0rkxQNOoytKsSOfi4JnweKZ4bW3svcGN3cA
+         UJ9Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785738466; x=1786343266;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=0Sjd0ZtKnFH3quOwnAN9rdzVg0iKOEW1uLJyoe17l98=;
-        b=lPj6NJCkm75Cf2Pcf8oaHhA6pFESobYKWzVWJx5WvZUMSUaIRde/iD4xtcfF2vVm7S
-         EeW3XN18/I1GwC5Sdlj82tXKgIDakCoLCuC4PY8K7w/3chDsEznR4y19CL1526LwtROH
-         l6EuMdRRRGkKv83PoIKPnCekTcKYKdJzI8RilvBIwg6R+s/F4XLBxftVMqNr3VrQy6AP
-         9MX4/eMyp9wGGPgnRxslG81e9hxDv9l8psYMxhFG80CiHhSAbbKJxyw6hUuTJsXqlQuk
-         Hq8k4jofU6DoTpaJUmpfSaeWxAdlOZ4y8i8nkJPf+YjjVy7DjBI4d/GoZNttb0wPG4rE
-         lt4Q==
-X-Gm-Message-State: AOJu0Yw+Xzdz00o2HctFhMFJNVBX6oJssMIokkxI7+Ws3Fp2txkhjzXy
-	4L2Yjv+c2wzZHtRYaMEGM6h+z/UOs3Ei2mosSMyF6Icl/LptC+2bYpHqklVFElXi4sHrVgfkiaB
-	1KjrjIaQqS3051c5O/0UzMQD48StqjaQeBsFnxLEURdP4t+jY8effYG9BP+NmJ1AK+ZIGKcYoiD
-	t50zDWwCox/eCKUbgRft030at+falK8LmfURH9T/CW67bG
-X-Gm-Gg: AR+sD12z9Sefg4AST7yMNzfGlPAev9J4AAwVRfm8NXuJMLNTErQITzCOGc37f2/bTPU
-	2pTedW9vP/iGDc5vOuPNFDo5bUL+YuE06U/Ink8+Jtvosn7HavNKkDdPUG2nwwVjZBrGHhhl2WK
-	w8ttngykAfpK8sUX+WsxavSRXC409aLPlXLuGCCDlnauAbZo263WVkTn4=
-X-Received: by 2002:a05:6a00:2d8f:b0:848:76af:db37 with SMTP id d2e1a72fcca58-84ee482ad48mr8672247b3a.7.1785738466458;
-        Sun, 02 Aug 2026 23:27:46 -0700 (PDT)
-X-Received: by 2002:a05:6a00:2d8f:b0:848:76af:db37 with SMTP id
- d2e1a72fcca58-84ee482ad48mr8672231b3a.7.1785738465998; Sun, 02 Aug 2026
- 23:27:45 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1785747716; x=1786352516;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=ZzSBCRe+WfMCg+D+LZ8/VAHYLVXu0WIoWbVlrBRM25A=;
+        b=pwt2mg4DYMmV0J45PPY/WMIsksoKY0UUkTHkkUYcdawoP3LwBY8QvDEcD3rWo6/yOe
+         UdAzTB6qqySZiDJyE4L/yB93FUMpDY3NAR2QZrj41r7qxkX/imYPDMPaZhOoUyCWiN2L
+         Bnsle+rwyBJH6fr3ZRORH5YxOLOExTnsNB7fF1YDeaFEOHU3IxUznh2KK464q8Eh/JQa
+         KFVyGuk42gfMhhdcgK2Ljicy/9jL/rRX4Nnn6NmtYQ7+IMCDxDJf0mO8iDGSfaUDtffp
+         nCKmYlARVoA/qFxrdiSh8bsDnA2XyzVPbRwJ1HS9jEM/fVk7TCnCF3BGlvvAfR1Salkp
+         sIyg==
+X-Gm-Message-State: AOJu0Yx+RGwBDlxjk1ILw+mi1tCvUnKyR9RCNnLbGu7MpTSPAT0nkXfu
+	HSqSh/LLRZExKnAWbqk+cwkaUslksNFduCxj6DNvJ//lFsd9YPmHRyMjNNXz+CyZ0yg7+kuI50W
+	vQIwAyD3dIlDKE+fL1ePZbvmDx1SwGQvIqz/W+1MpkDMOQ8rB0Y+QxXf79uwfi5BAjfnQGbsWP7
+	rRNSUBZIjSXOFzMyb9neY9fysjZs3OkIcvUjDaRreogjE=
+X-Gm-Gg: AR+sD12YukTxxQONTtgZm+/+zWGLu8vWYWXpXmfzwDx0wEddUNRcGulYwgyUurB11y8
+	/B0o877lct1EkAa2xBIqDDkkeLbbZj9mRg6uFEN5vd/X6yfmrNLMXygI1n6L9JKg/XRhsEk7Tey
+	/K9ve5f9BQpLPoUpPaOqMZeodmVLFFHa2no8bj7fDQYh5XHipR86Vc1C7MU+dcEtyCtt+JABCCh
+	r0SzwgkMk6dYupLUfVYRgRHmKPC1UqM40P4iyP81CwFCCaHFRZZbyjjO26yJh0AklLyWnQMS4Bj
+	V91zSdVHeT3gXnyYKKQEuBtUo3I0rcAe4A6LI6E3jT37k6jcBPb32fVE/pIX/cay/CLCqhUront
+	Oi/XpPp21jNFIl8VISSzLF1FUQeE=
+X-Received: by 2002:a05:6000:41d3:b0:47d:f508:3364 with SMTP id ffacd0b85a97d-47fd32e1a5amr28016943f8f.15.1785747716169;
+        Mon, 03 Aug 2026 02:01:56 -0700 (PDT)
+X-Received: by 2002:a05:6000:41d3:b0:47d:f508:3364 with SMTP id ffacd0b85a97d-47fd32e1a5amr28016826f8f.15.1785747715634;
+        Mon, 03 Aug 2026 02:01:55 -0700 (PDT)
+Received: from fedora.redhat.com (109-81-82-77.rct.o2.cz. [109.81.82.77])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47fd458bf7csm32370263f8f.32.2026.08.03.02.01.53
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 03 Aug 2026 02:01:54 -0700 (PDT)
+From: Ondrej Mosnacek <omosnace@redhat.com>
+To: selinux@vger.kernel.org
+Subject: [PATCH testsuite] tests/inet_socket/connect.c: add missing include for bool
+Date: Mon,  3 Aug 2026 11:01:52 +0200
+Message-ID: <20260803090152.1456176-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260731084009.1285103-1-omosnace@redhat.com> <CAEjxPJ7eetwgk1UGjASvesqK5NCUWEnm=vHWLKhymx0sy+1FQw@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7eetwgk1UGjASvesqK5NCUWEnm=vHWLKhymx0sy+1FQw@mail.gmail.com>
-From: Ondrej Mosnacek <omosnace@redhat.com>
-Date: Mon, 3 Aug 2026 08:27:34 +0200
-X-Gm-Features: AUfX_mwlemq3yl7nO1MG3Wl9NM71wM88-UKSJhl2JRgsbZ_BAFM3ViYDw67X61k
-Message-ID: <CAFqZXNsz3MAAxghUcHJc33S06_h_a8kCKue3fGD9c493MCNnUQ@mail.gmail.com>
-Subject: Re: [PATCH testsuite] tests: disable testing of f2fs when PAGE_SIZE
- != 4096
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Fri, Jul 31, 2026 at 2:14=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Fri, Jul 31, 2026 at 4:45=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.=
-com> wrote:
-> >
-> > Current latest f2fs-tools release (1.16.0) doesn't work with it, so jus=
-t
-> > disable the test in such case. See the added comment for more details.
-> >
-> > The issue can be reproduced for example:
-> > * on a ppc64le machine with Fedora
-> > * on an aarch64 machine with Fedora ELN or CentOS Stream 10 after
-> >   running `dnf install -y kernel-64k kernel-64k-devel
-> >   kernel-64k-modules-extra` and rebooting
-> >
-> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
->
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+The below commit added a usage of the bool type to
+tests/inet_socket/connect.c, but didn't add the corresponding stdlib
+include (<stdbool.h>). This problem seems to be masked on Fedora (likely
+some other header file includes <stdbool.h> internally), but for example
+on CentOS 10 or 9 the compilation fails because of it.
 
-Thanks, applied:
-https://github.com/SELinuxProject/selinux-testsuite/commit/0e15952d664f86f1=
-936cc2a4c11ce1f1729fd22d
+Fix it by adding the missing include.
 
---=20
-Ondrej Mosnacek
-Senior Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+Fixes: 433c597a6a9a ("tests/inet_socket: add tests for TCP Fast Open")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ tests/inet_socket/connect.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/tests/inet_socket/connect.c b/tests/inet_socket/connect.c
+index 067d196..89e85ef 100644
+--- a/tests/inet_socket/connect.c
++++ b/tests/inet_socket/connect.c
+@@ -3,6 +3,7 @@
+ #include <netinet/in.h>
+ #include <arpa/inet.h>
+ #include <stdlib.h>
++#include <stdbool.h>
+ #include <stdio.h>
+ #include <stddef.h>
+ #include <string.h>
+-- 
+2.55.0
 
