@@ -1,61 +1,61 @@
-Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
+Received: from mail-qt1-f182.google.com (mail-qt1-f182.google.com [209.85.160.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBEE91F1537
-	for <selinux@vger.kernel.org>; Mon,  3 Aug 2026 14:00:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FAF930C14E
+	for <selinux@vger.kernel.org>; Mon,  3 Aug 2026 14:24:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785765623; cv=none; b=I5PL243IJzXw3C8ZR05lSZGyZ9JX0E2aFZupQF9l5TTK8NX2noltjg5iKAAmlnY2FuSHziUoPfr22pSwnS59I/JE3purz+IDTljVTHmS/lII1Bh3rDFwhSZicSGaQ9cb6byyTtTI46DO7o5sVhhAhcUny+cDY9NWYnldIWaJW5c=
+	t=1785767057; cv=none; b=AatdilP2lCxzb+2whDw/jvP//Lbp3/lpdwuGS4tHG99XmFvKEjCGRDdLE7GzIajmAIlm6gRJNB+sCVmiT5OYTwHyQrAFYpBtYhr2/pvkzN5JP7s5TbAnOKiDbnDcrYPtcudB/b+qG0LxkNiCCewVnPZjSpJZ84vprmcstUmD+XM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785765623; c=relaxed/simple;
-	bh=6/bjWQQ/RcIspxV1E8OXcoTNGdHOTtEtfwW2kGCNRqY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Q3t7RrBiA5aeDV7DSWCqup5D/xjV5mAYkWsnSxvKYYuSdPjrV/uaTFKhaG8AYgnXfx4sSvxnWbGAsQcUr4D52Jml0XT7qqljohjAh3y3CRf/HAMKuBMRutphTKKDtRBuFFRkXNzRoTUg63I1xtLWcb2oni9mEMkwxgntFhUEv1k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=haqmwxrh; arc=none smtp.client-ip=209.85.160.170
+	s=arc-20240116; t=1785767057; c=relaxed/simple;
+	bh=GvXuMcWFi7bC6vJj97VbrN1gcpg6ApKWlr34ApLFD6k=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZpKgux4Ot0EeppzGLpabJh7jY6XlJrtYJAiq38PX153/TlzZCyHDElhuvecqvK1I1de4Tl8aTf5yN7MCK8AB8AmQ5jLeNBSA97ogfEsLiCwSqEv3h4KOgvTVI82uSwkZ+R/kql11cP1a4KyZiCHZ/rYymx72oZBwUCFXFTZx3Vw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RL3UmIDA; arc=none smtp.client-ip=209.85.160.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="haqmwxrh"
-Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-51c04bf4711so29665211cf.2
-        for <selinux@vger.kernel.org>; Mon, 03 Aug 2026 07:00:21 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RL3UmIDA"
+Received: by mail-qt1-f182.google.com with SMTP id d75a77b69052e-52b4e988c77so14408581cf.3
+        for <selinux@vger.kernel.org>; Mon, 03 Aug 2026 07:24:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785765621; x=1786370421; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785767055; x=1786371855; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=ssYbuUIwNhPMKp9ZVTpg8heoAIQSBJudC/ri2JWrNgA=;
-        b=haqmwxrh+KpQ9uvdbHLHwgxpoeAdJ1TAsG8LeRiEjb9EXxK75YSktugeOVvQszfs3E
-         yJcu9XV8sk9Q3Swv0FyGQX5onUmIlR9DFnkcQnMD7QqMN48VPSY8fr/lIT6WZ9Efj2dB
-         5siBhcEiFGCv/oXy2tDJeJQR/AQyLQgGkJDQLBLA5ZtNo6SuFwFcVi+9Xh97y99YHCxM
-         DZXq/T6VvKyIiWyqp+uaaXFkUA+YWAsPx+S907PPGZptlEk3yo8wPNfJG01UUD3KZzdM
-         8H8F3ISLprgI7MBYBI4nrOjfjRHb39RG8F7Tm8vgAOiXEfNf1lZVNVODWtBYABnWaSaM
-         ILzg==
+        bh=kL9RNowLXftHemxTN7dzDeiq+ZqEF0a12E8Ypd06dRg=;
+        b=RL3UmIDAQ3HQBjXqNQdhm1ZwO/m3kUmuV8aA5pYwuXre6ZLSsCQWLfDpkT7f25+EmL
+         W+VyMxQeATbGZoB0IHg42laHUwB4YP0CJhE2bCQJm4ujJ/9UuwdoUlXJgN22e8eycmbg
+         8Lv53ScQQxq2FcTr8omJ6QacqoGaBwENoQ5TqyGoPz0e/XaGBB2jDy36MeuuPpGGIIuq
+         da7KVi5IcjTIIt7syEo36bXcXZ75uZHNV3HUc2SoGn8Ex/0VY3/X8X8GnxSaZNIHoqaX
+         3R2bc9v/qaxyMGz/p3bShKAmSI8j8x4z6rfbTi8tvnHtuib+0jOU9MV9ffdYhFro8wMx
+         myTQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785765621; x=1786370421;
+        d=1e100.net; s=20251104; t=1785767055; x=1786371855;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=ssYbuUIwNhPMKp9ZVTpg8heoAIQSBJudC/ri2JWrNgA=;
-        b=MWPDMu2jNvRN6dRTQ3lVVoG1zxXigYV/7bnzLCbQhEvDy/17T4Bs+8yL/3SZswbapR
-         FdoS7vhHpe7S2nrX3kzahZUhVV/5pG8QYoskqc54IKyjjyFR4UDof35K61v37ciKeOTe
-         LU3qUaU+/l6z25ci+K7LjRlayZDLRQnQPBRESOuZhVTbqRl22ECd+fNf8wScMQOHFMUe
-         s5cVaxhcVWfUN58xDK05mwbcUPti+XYcGGuZC2ckezZbhacvM8XuVBaqxWpIdt6rTTX7
-         LVThaihADaHldsVgqm160saT9tPlxRK9ddT14zsW4vcHLPtyIeHB5oz48j9RA7HI/KdB
-         of9Q==
-X-Gm-Message-State: AOJu0YxYsv4Y7QXkJ+omPcmKQQOqoieLcAFNWBb3MVja95Finj5YWmNG
-	39cbIP2WQmUJPwyn3J3cjtyqrWpeLbw2Dm4bcCnESAeCGu8xTmLkOwY5V6dZPQ==
-X-Gm-Gg: AR+sD13eM+LpeP+enusuelwxfZqcHvQIdTMM7sZ45YP+Wa6X72jiOAb7JOnY6WLR84U
-	eQM0R43P80dThib2XiXrqyysT6u9OKcu9Oj+11drJgIBJbUoawjTsh61Lf8WePNhptNRJ+yI3H0
-	Vce1VjgV4CaRiifhZIuu0EdW56pQh3h9XJpEKcSje7q8wULo1EQ3RsHw6YSRkPzyVThgXyp8ozU
-	WNGa99tTRPLdGLtA7H4OvVgAXpP0TFobd/AbRoISK0y04Xvbg1F6so/00WXZn4V7PdDIKpacc/q
-	JYz9dsQPN6JUoKDMllcM5oA0RF9A0qBkxRmzurXI7PBQ5iHEJoLlsHsFS4VNXiNh/YZrZ7l4D0x
-	K6XbUtadPbo8LIDYKKfdt1cAwXp6WwB77KjiiICaEs/waCvRkSS9x0w909pO4vZNCkc1L0Yc49Z
-	9AzmDz3axjT+/rBhA0IQRV2qwjxNXwE/vqoML2EZlW7RzIPxEXxr/WCMu8a4tRL0Ny5WMvEdXdM
-	SQ/ts+tTnn17nxqWxCOmHR/Uo5f1OSKF5PIH/yzDwd82pEBxkXzQXc51z5bJ/asMvep6cuMSy8=
-X-Received: by 2002:a05:622a:40ce:b0:51c:1a46:9148 with SMTP id d75a77b69052e-52b5678f975mr201629661cf.34.1785765618934;
-        Mon, 03 Aug 2026 07:00:18 -0700 (PDT)
+        bh=kL9RNowLXftHemxTN7dzDeiq+ZqEF0a12E8Ypd06dRg=;
+        b=JDEAUD+fXsLOn7DY49kZgQdaCWdUiNIAe3xNB6i9fsgb3GT3RC5BS+IUJAQtK6fzy+
+         HTHmIJBF24IE3hsQpEcUs97TsDjZL9cJNRn1LCswDQAUgMpCBzfQpz7T7WakfVCqEp8N
+         RlOVt0u8wGazCq0/7DNUno/bKnwSvSHHokTbXX+utVSGXcRIIK2l2BsCqIY2oOGp4yD9
+         jWWuS3125bcAX6Ab2Z4+hdwCpijCU1s5Yru6KDF8bZf6d7s447PgWimqDkye3XdqUOPG
+         3c34ZLDtCZsexXJv/1HGGlkHmJGwKqYRBp/TmmjTwFBTrxfWZ2LtffagzXr2YjB6ZVqT
+         4KWA==
+X-Gm-Message-State: AOJu0Yy1iODRGetq4C+0t/bpC00L78QOZ77PSbldzfwbKD8iZiRUpexW
+	YH0YC1U7P+RceM+FcGUCgYPr5Z0GvrKQ6+5Jfg0uvdmkbIOtNePaO2/Nf9eANg==
+X-Gm-Gg: AR+sD12my8zf+YcspKDuaBHqzcSJxi76uBrjQqzpGX2AOgSiz8ndnelHoq3zbnSBzhp
+	rf+7e2Go23Ysr+AfU2BUiwpdB0Ux49sXiG8BKJmngt0bdu0G8G+n+QEuGB9D+uRYFpVHR606xd3
+	HLPH8wRBpsARFd7RV3tphDoJGnKmEYYAGrq2DDG9sqMx4UuQeuZmgn7kUyheP8HQ660KVh390kq
+	GooUWa6e5YCh/UMd2pq3lPF2LeY60Cw+S66w9V2VVjkUp60YN+CTWkfQ6XGWn/MDC1FFwBKt0hv
+	7Ni3I8D7OGWAg1Kw87wYHYFAG8NPIDTgTVCHDlWcQ1EMOBjfoUobS0tEnasrDW58AL2sa3sHk2x
+	ocCNKNel54QWTSqW5fQowfP4Gy5nDwe0wKtnKqTBw1ozMMZ2gbubZIvp+zIi8zA7OdSDs0j/TtY
+	qyiK9TA4zVLVD8CKBj7L/Nuy9kqtBisKyYtscEzT/PxrCc8cIJm//iWxNgXgI712/HCHC5pEone
+	cST0r3Qpq21hd+4MNqh9e5hk26LCI2/Ot5s1HbiHfdd3tquT97G4zvoHzHXyfNr
+X-Received: by 2002:a05:622a:1e09:b0:527:7d0f:863b with SMTP id d75a77b69052e-52b566b1503mr202156901cf.12.1785767055159;
+        Mon, 03 Aug 2026 07:24:15 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52b4ec01d54sm63178741cf.31.2026.08.03.07.00.18
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52b4e7ee6fasm62695531cf.3.2026.08.03.07.24.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Aug 2026 07:00:18 -0700 (PDT)
+        Mon, 03 Aug 2026 07:24:14 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -63,9 +63,9 @@ Cc: jwcart2@gmail.com,
 	omosnace@redhat.com,
 	jason@perfinion.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2] README.md: fix CIFuzz badge link to refer to a specific workflow
-Date: Mon,  3 Aug 2026 10:00:07 -0400
-Message-ID: <20260803140007.41237-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH] libsepol: Cap max depth and processed nodes for cil_tree_walk()
+Date: Mon,  3 Aug 2026 10:23:59 -0400
+Message-ID: <20260803142359.44099-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -75,27 +75,144 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-We already had separate links for the other CIFuzz actions, so
-just make this one reference the check format workflow.
+Cap the max tree depth and number of processed nodes for
+cil_tree_walk() to avoid stack overflows and OOM conditions.
 
+Reported-by: oss-fuzz (issue 471608794)
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- README.md | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ libsepol/cil/src/cil_tree.c | 65 ++++++++++++++++++++++++++++++-------
+ 1 file changed, 53 insertions(+), 12 deletions(-)
 
-diff --git a/README.md b/README.md
-index 08e82d0c..6f1bfcc8 100644
---- a/README.md
-+++ b/README.md
-@@ -5,7 +5,7 @@ SELinux Userspace
- [![Run Tests](https://github.com/SELinuxProject/selinux/actions/workflows/run_tests.yml/badge.svg)](https://github.com/SELinuxProject/selinux/actions/workflows/run_tests.yml)
- [![Run SELinux testsuite in Testing Farm](https://github.com/SELinuxProject/selinux/actions/workflows/tf_testsuite.yml/badge.svg)](https://github.com/SELinuxProject/selinux/actions/workflows/tf_testsuite.yml)
- [![OSS-Fuzz Status](https://oss-fuzz-build-logs.storage.googleapis.com/badges/selinux.svg)](https://oss-fuzz-build-logs.storage.googleapis.com/index.html#selinux)
--[![CIFuzz Status](https://github.com/SELinuxProject/selinux/actions/workflows/cifuzz.yml/badge.svg)](https://github.com/SELinuxProject/selinux/actions/workflows/cifuzz.yml)
-+[![Check Format](https://github.com/SELinuxProject/selinux/actions/workflows/check_format.yml/badge.svg)](https://github.com/SELinuxProject/selinux/actions/workflows/check_format.yml)
+diff --git a/libsepol/cil/src/cil_tree.c b/libsepol/cil/src/cil_tree.c
+index 63dd33dd..17f19256 100644
+--- a/libsepol/cil/src/cil_tree.c
++++ b/libsepol/cil/src/cil_tree.c
+@@ -41,6 +41,9 @@
+ #include "cil_parser.h"
+ #include "cil_strpool.h"
  
- SELinux is a flexible Mandatory Access Control (MAC) system built into the
- Linux Kernel. SELinux provides administrators with a comprehensive access
++#define MAX_DEPTH (256)
++#define MAX_NODES (1U << 20)
++
+ struct cil_tree_node *cil_tree_get_next_path(struct cil_tree_node *node,
+ 					     char **info_kind,
+ 					     uint32_t *hll_line, char **path)
+@@ -311,25 +314,41 @@ void cil_tree_node_remove(struct cil_tree_node *node)
+    extra_args:               any additional data to be passed to the helper functions
+ */
+ 
++static int cil_tree_walk_helper(
++	struct cil_tree_node *node,
++	int (*process_node)(struct cil_tree_node *node, uint32_t *finished,
++			    void *extra_args),
++	int (*first_child)(struct cil_tree_node *node, void *extra_args),
++	int (*last_child)(struct cil_tree_node *node, void *extra_args),
++	void *extra_args, unsigned depth, unsigned *processed);
++
+ static int cil_tree_walk_core(
+ 	struct cil_tree_node *node,
+ 	int (*process_node)(struct cil_tree_node *node, uint32_t *finished,
+ 			    void *extra_args),
+ 	int (*first_child)(struct cil_tree_node *node, void *extra_args),
+ 	int (*last_child)(struct cil_tree_node *node, void *extra_args),
+-	void *extra_args)
++	void *extra_args, unsigned depth, unsigned *processed)
+ {
+ 	int rc = SEPOL_ERR;
+ 
+ 	while (node) {
+ 		uint32_t finished = CIL_TREE_SKIP_NOTHING;
+ 
++		if (*processed >= MAX_NODES) {
++			cil_tree_log(node, CIL_ERR,
++				     "Exceeded max tree processed nodes (%u)",
++				     MAX_NODES);
++			return SEPOL_ERR;
++		}
++
+ 		if (process_node != NULL) {
+ 			rc = (*process_node)(node, &finished, extra_args);
+ 			if (rc != SEPOL_OK) {
+ 				cil_tree_log(node, CIL_INFO, "Problem");
+ 				return rc;
+ 			}
++			(*processed)++;
+ 		}
+ 
+ 		if (finished & CIL_TREE_SKIP_NEXT) {
+@@ -337,8 +356,10 @@ static int cil_tree_walk_core(
+ 		}
+ 
+ 		if (node->cl_head != NULL && !(finished & CIL_TREE_SKIP_HEAD)) {
+-			rc = cil_tree_walk(node, process_node, first_child,
+-					   last_child, extra_args);
++			rc = cil_tree_walk_helper(node, process_node,
++						  first_child, last_child,
++						  extra_args, depth + 1,
++						  processed);
+ 			if (rc != SEPOL_OK) {
+ 				return rc;
+ 			}
+@@ -350,17 +371,22 @@ static int cil_tree_walk_core(
+ 	return SEPOL_OK;
+ }
+ 
+-int cil_tree_walk(struct cil_tree_node *node,
+-		  int (*process_node)(struct cil_tree_node *node,
+-				      uint32_t *finished, void *extra_args),
+-		  int (*first_child)(struct cil_tree_node *node,
+-				     void *extra_args),
+-		  int (*last_child)(struct cil_tree_node *node,
+-				    void *extra_args),
+-		  void *extra_args)
++static int cil_tree_walk_helper(
++	struct cil_tree_node *node,
++	int (*process_node)(struct cil_tree_node *node, uint32_t *finished,
++			    void *extra_args),
++	int (*first_child)(struct cil_tree_node *node, void *extra_args),
++	int (*last_child)(struct cil_tree_node *node, void *extra_args),
++	void *extra_args, unsigned depth, unsigned *processed)
+ {
+ 	int rc = SEPOL_ERR;
+ 
++	if (depth >= MAX_DEPTH) {
++		cil_tree_log(node, CIL_ERR, "Exceeded max tree depth (%u)",
++			     MAX_DEPTH);
++		return SEPOL_ERR;
++	}
++
+ 	if (!node || !node->cl_head) {
+ 		return SEPOL_OK;
+ 	}
+@@ -374,7 +400,7 @@ int cil_tree_walk(struct cil_tree_node *node,
+ 	}
+ 
+ 	rc = cil_tree_walk_core(node->cl_head, process_node, first_child,
+-				last_child, extra_args);
++				last_child, extra_args, depth, processed);
+ 	if (rc != SEPOL_OK) {
+ 		return rc;
+ 	}
+@@ -389,3 +415,18 @@ int cil_tree_walk(struct cil_tree_node *node,
+ 
+ 	return SEPOL_OK;
+ }
++
++int cil_tree_walk(struct cil_tree_node *node,
++		  int (*process_node)(struct cil_tree_node *node,
++				      uint32_t *finished, void *extra_args),
++		  int (*first_child)(struct cil_tree_node *node,
++				     void *extra_args),
++		  int (*last_child)(struct cil_tree_node *node,
++				    void *extra_args),
++		  void *extra_args)
++{
++	unsigned processed = 0;
++
++	return cil_tree_walk_helper(node, process_node, first_child, last_child,
++				    extra_args, 0, &processed);
++}
 -- 
 2.55.0
 
