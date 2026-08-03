@@ -1,211 +1,143 @@
-Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B78E3B3C15
-	for <selinux@vger.kernel.org>; Sun,  2 Aug 2026 14:50:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E99682F49F6
+	for <selinux@vger.kernel.org>; Mon,  3 Aug 2026 06:27:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.129.124
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785682215; cv=pass; b=HGatbcbYL9Vm9w58eiz8JT+LLa6HgSKda7/Im1aRHaRXh70BlgR7vyzRbFYpfbYPaXmpKbzzvs98bua2F7XLvk8U6aZBnAkD6S2uqiooJfJnK2fKmu07qM0dhBOiACzah2znPK49Sffzr2jB8POFxyXB6qMzILLmWJQQ4Qlr0PA=
+	t=1785738471; cv=pass; b=aIDlwE/FQDX3FQpHkMZ+rjgbSBiwv6Ork4pIemO4o4G0yMkizSEeWQkz+S6tmDYXC4KlVphbgrOqXtRzULSSd+LSOheaZeI+QS2gtR41UF86v/F17QTx46aPha9g3jkec7UvP0agen2BBHKO5zhk2SStjDG9UIw/8dqcBS/nlhc=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785682215; c=relaxed/simple;
-	bh=7kkcp+wOorntAb3DNadH0Q8Sg1yGSgKiD+TONbs7qUE=;
+	s=arc-20240116; t=1785738471; c=relaxed/simple;
+	bh=vUa/Nosf/UG/W3XH/uqPw9LE4paB7T2IaYFqhq2PqKw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=plBvqhWutP3LSs0v+wpCKGnM08QrCgBFEbkLBygKYFTODsSPgeJZCR/KXSTMjAzetqebbNIPdnYB2C0M1deRkBuOpEEZ++wGgkZZnR92QeAMGK4IZmHBQUPX2JzQsl72GAmQ2rgzwxCV7xW+nH060EuhTNHX9qiHPeAwMQ8e/0U=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=d3TmUEmD; arc=pass smtp.client-ip=209.85.210.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=IF7lO6jyNYUC3WMyQrEuocVhCb4yC2Z93qVfiR9w0lNX/GZKrZdlzvluOGlf04gLdci3JmG0GGYOs/lfSLaoZmxdyYGAIyyaf7wpS9yDgYHHisndr6hUrgNHjymQSPTFQ8GAszSwlyQkoNNkTwKH9YCv2inYsR5SFdgRZfsVmAw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WUVv7BCe; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=SSFAqrja; arc=pass smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="d3TmUEmD"
-Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-848643382fcso2253224b3a.1
-        for <selinux@vger.kernel.org>; Sun, 02 Aug 2026 07:50:14 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785682213; cv=none;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WUVv7BCe";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="SSFAqrja"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1785738468;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0Sjd0ZtKnFH3quOwnAN9rdzVg0iKOEW1uLJyoe17l98=;
+	b=WUVv7BCeFzEB3YBk5mhsX+N7u5MWtf+Xf+F0vKiidZmkl0FwD7Cfx9fcLQG8vr9zLHEOCK
+	Xd5BtvgludS38M+LW71dJccGRqOSVvD+eb12Rv7q2vDeYirqCZnQY8UmlimL1PGFOuGkYr
+	3MGGzxKzkVcUixac74Se0r9SRMFvtuM=
+Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
+ [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-371-JCLPzNBBPliAHDYXXbVqCw-1; Mon, 03 Aug 2026 02:27:47 -0400
+X-MC-Unique: JCLPzNBBPliAHDYXXbVqCw-1
+X-Mimecast-MFC-AGG-ID: JCLPzNBBPliAHDYXXbVqCw_1785738466
+Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-ca6bd8a190cso3826208a12.0
+        for <selinux@vger.kernel.org>; Sun, 02 Aug 2026 23:27:47 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785738466; cv=none;
         d=google.com; s=arc-20260327;
-        b=NHc8IiHTf3yIrQzljF8N0Wrjm0H7wWd7wPL2yMcttxmUMFWjXER/BLz34cBClLtuRd
-         bVO4oldJiNIHF5ies7XX1/lsKW5VCK1uq0QCWyqX9JHaNuyTSaThZBYBSCgQEJMHX1Z8
-         FKsa3LIsaELroFzPIj3QivWd1DS4VQjygxx/L3Yzoomx0E5f2dQoZaAF0eZwNzI5CMBA
-         FKsoEkpe8TynE/1MI/N7C+sbuObvvnF1YLB2FkuJZ44raDTegUhz2YTPwJBQkKnGSiPd
-         0fOBjo1fK0LH62UGGzGe11n8ZBS4BsruAuuZFt8pi56Zii/6R1QLi6ylWDLxIHyfF8Iq
-         qeew==
+        b=C747n0BCicWaF7pG+l1W+XIb42oDeZ5W1+zblOt6/hI0Hd3lMG2xaAeJGUG14musIS
+         k2jfE3SKu8muguCEXRNjy2jWmwoUcPJK40CcvFcc/pw6w/1wFlpoKIIg+FngCHGKWl8C
+         nVIj2F3FEK/YMciFBhVfyzYDffGU4bOjUY6kgncUvIL/UouTUfKfPCdGoCoiR+IkiaHN
+         KeFjGQpfxjrxhYjxhSC4NcJDv6lXbuw3RI5ApSTQBrcusvyFtx2/76Q8qb+BxD1eE6yL
+         KixYj9Vw0I6fGjthZahPH+c6keyaLDjDv1Ico/yybmv8/jx0HaHfaO1wPSoPPqNrmo06
+         nkPQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=OmgWl/f4uXW4AQpzfCn2lxP5muAJ5BUlRpvNvDKBVgs=;
-        fh=9+iiMwg2UOFdDcHvfCx7vEzmVotscG3Mf9Kl7RDjg6w=;
-        b=boy3cholMgyGxQliBhbwEnvhNu2AeKq9fNyt/FDIwqoS9D2uiEOSEPKO3S+KHL9wPv
-         4S6ntZUKS5yvuZZHixN2s3L8DIBOoIX7RrkMchygNkV45l9NOl/+Fs+BB6QH4LVNEGcf
-         1FtSajAir4vD13Zn/9WpXHDEsUxac//myqUB7hhPdVMV3PpnBEEmQuW7sl3qLCbh0Ray
-         odNpNLkr9Al85ZAcfERhGGDYKkU7Eb39i5UZw+m/cgFPuF8/l5ZJcU2VA9Ipw/1lXat+
-         /BUqC5AE7tl79sSjWE2pCMZdAWYWRhrxvhwU+9546wWplhspXZvphmnfd/17e3HfYVhD
-         i6yA==;
+        bh=0Sjd0ZtKnFH3quOwnAN9rdzVg0iKOEW1uLJyoe17l98=;
+        fh=nOcPTm+jzSpUJDDJhvsoEQt/GcMQFmPB1BDsWNtwPZ8=;
+        b=V1g/6A0Zh7wskpptr481oPpdnV9Ux81GQiWS2JqjfjU4fDm+eJWJYGcIerOPl/aDd+
+         RQ5vrvoGvuy2Z0cTp5XA+7wNRi5htYXGGo/jt08sWXXcJgj14/TUVEq7BZSIaAYmL18i
+         yjkIccB8BT6iGXvQ3DcLuqQvRAGT2SlluJYrsGBC7hZRqRNhXeCd3MNsMxBLhBjGerbg
+         4jMto9rRJJJnleKANNlnEEmRy/KiNkSRahQswBFtAR509z+1/zQ+o/HgvgRUN1O2zhTQ
+         TccEr36/cOwt4jQ3nivEXWa7imuFSHTN03fE7dAeGvEoUG3X4Dzq/E2lC/8+Y9EMHEIQ
+         TGUQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1785682213; x=1786287013; darn=vger.kernel.org;
+        d=redhat.com; s=google; t=1785738466; x=1786343266; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=OmgWl/f4uXW4AQpzfCn2lxP5muAJ5BUlRpvNvDKBVgs=;
-        b=d3TmUEmDewxJT2GJJ7flVa7AXI99c0jYB/Vci5U63n3USKpC5+LDvLpUnz4on+ypxi
-         a/iyVr7JUa0NIzulDnSprmnZdyTmouYpUiDDFC5wel/7jkvzaPLhR46rOzF/X9RAu6AT
-         1g1BZaRSKENCDMGTi7RlE1Xu++pjSkF0+9myK99aZTDszaTD7vn9SH4p5xWpeUJ0kzcu
-         ln9n1Ye7sIwrY0SUdzj58jQBwZbVu9ffhcJeJlsjiJCt6oKF0Nmoz7uMUf9iOQRkl6Kf
-         abDInXlm5RnSjfJ3IH5DV0+J4Z8YI317/4LJ1/KC3fEioyR0GHlcv+b8ZtLGH36/6mqk
-         cf5g==
+        bh=0Sjd0ZtKnFH3quOwnAN9rdzVg0iKOEW1uLJyoe17l98=;
+        b=SSFAqrjagO/W1jiDjrrkr+0zI4qJHHFLCK4qjwMO9PsA3Ys6kDX2y5+6K31K2k3pb3
+         hEhb4lsHtLvb6+PCzAtNrjcrb+hx8gEr86j8+7ZuNJXHX1yyAtckXoKtzVDongB1OQrr
+         ZnwPBjbaHOuU+Nf8Ew3MAvoB6nnB31dmlKaAyV94yGXyzcWBayhPpAGAPrW8XRsmkVoJ
+         lm+LCqVBVPARrIMomMalsp9Uziomeo6gwJj+KqcWNybCPoc1JhvjpwFIfHq3D1HWpl4c
+         dVG4VbUzlvEQVL+AlPsaUEhFNambB/OnU/8+rytF6ogtbbvKBkpNpu7/ZxyPUv7eTvpj
+         q70A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785682213; x=1786287013;
+        d=1e100.net; s=20251104; t=1785738466; x=1786343266;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=OmgWl/f4uXW4AQpzfCn2lxP5muAJ5BUlRpvNvDKBVgs=;
-        b=De12qYmTYeMYviIwvNWLnNw1cK3ZZr5eUnZ/IUGQU0A/PbedRWRBpUsyv7/PBXj84i
-         DQNlrZzDNlJ/LZbDKTcvVA71YRNknQe9lJI8dpAWm+vc2xputup1bzeIZHKdNAubOift
-         nR9s870jH+rbOEtYRuDpzral6ulqc9tHyrx6RgU0YAAK5OG/AJMXRngO2DCGxicFGuPm
-         kohCL0yGMQOxgMzxFK/1yrPXDRJPIySmQ7NtItj7IGkJDBMr+nn0Gl3LPu6SqVVjww4Q
-         dQk8ECGFNEKnrVpJhc6XsJZCeWTe81X4LQujZqRhd93YsyKfagvilsfPjxufbyBjzq/4
-         tNYQ==
-X-Forwarded-Encrypted: i=1; AHgh+RoBhGBkiHY87Gq77PD/29y0oEYXHczPz3KfLf85JgtES+Zu7tE1FgqBNSw0uxWdVSyPuzfA8gMV@vger.kernel.org
-X-Gm-Message-State: AOJu0YxJZlVYglLi/c5BsNHuTXseTbtDWpxW/tpT3Ox6cD5m1b6Aj63+
-	UwRPAFVlgmyLTBU+yzLRBY9zyt+dHD0onF3/XgCVw6KO3UKC4+BomU+dow+Qh4IDACHw9S+J2pi
-	n+fHKxD9ulEmb+8ssZ4Gytz7yU/bjk59vbTLn0Up/
-X-Gm-Gg: AR+sD12P8hZEPuaVxDV/nfs9f9r9mrai5tqsBISbCoA69ZNGDo1wjFP6P5Z7V7rVriZ
-	6tcaOEES37imo6gkFSu5+fnz0zUc/hV76lMa1xSJayGXAegjvHNawBSRuT8EyEsn5boCFFH4G3x
-	2Pzypg3GnD8I4sw/s6uGZV0jWAGSKCbzt6fhfaQFApiejgBZFbz8ZXHWQMuZO9tAQdsopIIhk2j
-	wWc9gfGgUpDRDGXMgwtjbTho7N16W0E6RvyLvvlOxMfbahE3fj2lEFYPmodKgHadIgC+DpRgzNn
-	++EU/IdlZ7iz+jHEjGbB2oqa2bftG5iTR3ZLXC4kVKaS
-X-Received: by 2002:a05:6a00:9289:b0:848:6c1c:17c0 with SMTP id
- d2e1a72fcca58-84ee47c7dbbmr6238656b3a.19.1785682213526; Sun, 02 Aug 2026
- 07:50:13 -0700 (PDT)
+        bh=0Sjd0ZtKnFH3quOwnAN9rdzVg0iKOEW1uLJyoe17l98=;
+        b=lPj6NJCkm75Cf2Pcf8oaHhA6pFESobYKWzVWJx5WvZUMSUaIRde/iD4xtcfF2vVm7S
+         EeW3XN18/I1GwC5Sdlj82tXKgIDakCoLCuC4PY8K7w/3chDsEznR4y19CL1526LwtROH
+         l6EuMdRRRGkKv83PoIKPnCekTcKYKdJzI8RilvBIwg6R+s/F4XLBxftVMqNr3VrQy6AP
+         9MX4/eMyp9wGGPgnRxslG81e9hxDv9l8psYMxhFG80CiHhSAbbKJxyw6hUuTJsXqlQuk
+         Hq8k4jofU6DoTpaJUmpfSaeWxAdlOZ4y8i8nkJPf+YjjVy7DjBI4d/GoZNttb0wPG4rE
+         lt4Q==
+X-Gm-Message-State: AOJu0Yw+Xzdz00o2HctFhMFJNVBX6oJssMIokkxI7+Ws3Fp2txkhjzXy
+	4L2Yjv+c2wzZHtRYaMEGM6h+z/UOs3Ei2mosSMyF6Icl/LptC+2bYpHqklVFElXi4sHrVgfkiaB
+	1KjrjIaQqS3051c5O/0UzMQD48StqjaQeBsFnxLEURdP4t+jY8effYG9BP+NmJ1AK+ZIGKcYoiD
+	t50zDWwCox/eCKUbgRft030at+falK8LmfURH9T/CW67bG
+X-Gm-Gg: AR+sD12z9Sefg4AST7yMNzfGlPAev9J4AAwVRfm8NXuJMLNTErQITzCOGc37f2/bTPU
+	2pTedW9vP/iGDc5vOuPNFDo5bUL+YuE06U/Ink8+Jtvosn7HavNKkDdPUG2nwwVjZBrGHhhl2WK
+	w8ttngykAfpK8sUX+WsxavSRXC409aLPlXLuGCCDlnauAbZo263WVkTn4=
+X-Received: by 2002:a05:6a00:2d8f:b0:848:76af:db37 with SMTP id d2e1a72fcca58-84ee482ad48mr8672247b3a.7.1785738466458;
+        Sun, 02 Aug 2026 23:27:46 -0700 (PDT)
+X-Received: by 2002:a05:6a00:2d8f:b0:848:76af:db37 with SMTP id
+ d2e1a72fcca58-84ee482ad48mr8672231b3a.7.1785738465998; Sun, 02 Aug 2026
+ 23:27:45 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260730234533.1912709-1-dwindsor@gmail.com> <20260730234533.1912709-4-dwindsor@gmail.com>
- <CAHC9VhT=m-GtOZx2AHym7uN1CNx94arKBiXeVC7LTEJ-b=1EVQ@mail.gmail.com>
- <CAEXv5_iiNspub=qE1YW-01sV_bxxFUrrcAR4KV4Ec5i_mePtHw@mail.gmail.com>
- <CAHC9VhTS7rSnBqg00ZxNkcZyh_=EeJmn_4z3CTCCxreEEDtTtg@mail.gmail.com>
- <CAEXv5_iHLmzPT3Jj+qZsdt1Nk_5OD4Up3GGV0S9G7KyQshFhDA@mail.gmail.com>
- <DKCVF3KRQSOJ.1WKITMP369I0R@gmail.com> <CAHC9VhR5yfw+sMfrYpy8Qm2uNoxqsTweh=KhDRZsU1CioHRDDQ@mail.gmail.com>
- <DKCWFKAD79IU.TMCNT9RUAJAU@gmail.com> <CAHC9VhRQWRKHi-hdtvSnYPD_dqgP7Q8RB_X4PEDLwPUe6EegYA@mail.gmail.com>
- <DKCYOLBUWJBZ.1N8JAXJ3QJYCE@gmail.com> <CAHC9VhRK38bVU5+rYxwLsvVt0oBBSWs4xKsjexbvc3TuA9LVNQ@mail.gmail.com>
- <DKCZDM2G8VHO.38SPG4I4JZTJI@gmail.com> <CAHC9VhR3AK4r4_0eqWxDmrA8UKOsbyQh6ZRRie99Pe6cW0EL8Q@mail.gmail.com>
- <DKD00NYVQQC9.OK8JEWHH1NUV@gmail.com> <CAHC9VhQ5vSr6JK0xtNnP2cre+3bbW9GUT7kXwLAcctwNpPzwrA@mail.gmail.com>
- <DKD17D5H7N95.2VI5IOQBNTHGX@gmail.com> <CAHC9VhQ24fp7_sy1=NiWkfzPLSM35ugSCOKDKxnm6H9W-pDa6Q@mail.gmail.com>
- <DKD2R5268G2C.TPLR4XMTZ91R@gmail.com> <CAHC9VhQNozNGH4o=8D6wxks4deZ2eVOHmxFK=fvjhkCC0JSCkw@mail.gmail.com>
- <DKD3I17NPS96.3G49BTZ4ZVUVV@gmail.com> <CAHC9VhQmb=v3-T5HZUzfr_me6S7bo6sX0Vs4nDFQZnMe+SQOMQ@mail.gmail.com>
- <CAEXv5_huGfd7u0tKW5Eq5bSH+rzkB=ThKOTLnfnxepqTmgcUPA@mail.gmail.com> <CAHC9VhQxeNJ1U_cUX=4mdJT17jG2ZFY27YM2CXK8wcuRPQYtrQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhQxeNJ1U_cUX=4mdJT17jG2ZFY27YM2CXK8wcuRPQYtrQ@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Sun, 2 Aug 2026 10:50:03 -0400
-X-Gm-Features: AUfX_myOurolkOWbQTM-uf1kAESEJT0FADttjcAMdHsh5yOJTC09VeSrydmRClc
-Message-ID: <CAHC9VhSRbwLD_yxEPKx38X59KcjZWKPQj2QnGupP4NFC6zu66A@mail.gmail.com>
-Subject: Re: [PATCH v6 bpf-next 3/4] bpf: add bpf_init_inode_xattr kfunc for
- atomic inode labeling
-To: David Windsor <dwindsor@gmail.com>
-Cc: Kumar Kartikeya Dwivedi <memxor@gmail.com>, Alexei Starovoitov <ast@kernel.org>, 
-	Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko <andrii@kernel.org>, 
-	Martin KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
-	Yonghong Song <yonghong.song@linux.dev>, John Fastabend <john.fastabend@gmail.com>, 
-	KP Singh <kpsingh@kernel.org>, Jiri Olsa <jolsa@kernel.org>, 
-	Emil Tsalapatis <emil@etsalapatis.com>, James Morris <jmorris@namei.org>, 
-	"Serge E . Hallyn" <serge@hallyn.com>, Casey Schaufler <casey@schaufler-ca.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, 
-	Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, Eric Snowberg <eric.snowberg@oracle.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
-	Shuah Khan <shuah@kernel.org>, bpf@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-integrity@vger.kernel.org, selinux@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20260731084009.1285103-1-omosnace@redhat.com> <CAEjxPJ7eetwgk1UGjASvesqK5NCUWEnm=vHWLKhymx0sy+1FQw@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7eetwgk1UGjASvesqK5NCUWEnm=vHWLKhymx0sy+1FQw@mail.gmail.com>
+From: Ondrej Mosnacek <omosnace@redhat.com>
+Date: Mon, 3 Aug 2026 08:27:34 +0200
+X-Gm-Features: AUfX_mwlemq3yl7nO1MG3Wl9NM71wM88-UKSJhl2JRgsbZ_BAFM3ViYDw67X61k
+Message-ID: <CAFqZXNsz3MAAxghUcHJc33S06_h_a8kCKue3fGD9c493MCNnUQ@mail.gmail.com>
+Subject: Re: [PATCH testsuite] tests: disable testing of f2fs when PAGE_SIZE
+ != 4096
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Aug 2, 2026 at 10:46=E2=80=AFAM Paul Moore <paul@paul-moore.com> wr=
-ote:
-> On Fri, Jul 31, 2026 at 7:11=E2=80=AFPM David Windsor <dwindsor@gmail.com=
-> wrote:
-> > On Fri, Jul 31, 2026 at 6:23=E2=80=AFPM Paul Moore <paul@paul-moore.com=
-> wrote:
-> > > On Fri, Jul 31, 2026 at 6:04=E2=80=AFPM Kumar Kartikeya Dwivedi
-> > > <memxor@gmail.com> wrote:
-> > > > On Fri Jul 31, 2026 at 11:49 PM CEST, Paul Moore wrote:
-> > > > > On Fri, Jul 31, 2026 at 5:29=E2=80=AFPM Kumar Kartikeya Dwivedi
-> > > > > <memxor@gmail.com> wrote:
-> > > > >> On Fri Jul 31, 2026 at 10:48 PM CEST, Paul Moore wrote:
-> > > > >> > On Fri, Jul 31, 2026 at 4:16=E2=80=AFPM Kumar Kartikeya Dwived=
-i
-> > > > >> > <memxor@gmail.com> wrote:
-> > > > >> >> On Fri Jul 31, 2026 at 10:01 PM CEST, Paul Moore wrote:
-> > > > >> >> > On Fri, Jul 31, 2026 at 3:20=E2=80=AFPM Kumar Kartikeya Dwi=
-vedi
-> > > > >> >> > <memxor@gmail.com> wrote:
-> > > > >> >> >> On Fri Jul 31, 2026 at 9:05 PM CEST, Paul Moore wrote:
-> > > > >> >> >> > On Fri, Jul 31, 2026 at 2:50=E2=80=AFPM Kumar Kartikeya =
-Dwivedi
-> > > > >> >> >> > <memxor@gmail.com> wrote:
-> > > > >> >> >> >> On Fri Jul 31, 2026 at 8:42 PM CEST, Paul Moore wrote:
-> > > > >> >> >> >> > On Fri, Jul 31, 2026 at 2:18=E2=80=AFPM Kumar Kartike=
-ya Dwivedi
-> > > > >> >> >> >> > <memxor@gmail.com> wrote:
-> > > > >> >> >> >> >> On Fri Jul 31, 2026 at 6:59 PM CEST, Paul Moore wrot=
-e:
-> > > > >> >> >> >> >> > On Fri, Jul 31, 2026 at 12:32=E2=80=AFPM Kumar Kar=
-tikeya Dwivedi
-> > > > >> >> >> >> >> > <memxor@gmail.com> wrote:
-> > > > >> >> >> >> >> >> On Fri Jul 31, 2026 at 6:02 PM CEST, Paul Moore w=
-rote:
-> > > > >> >> >> >> >> >> > On Fri, Jul 31, 2026 at 11:44=E2=80=AFAM Kumar =
-Kartikeya Dwivedi
-> > > > >> >> >> >> >> >> > <memxor@gmail.com> wrote:
-> > > > >> >> >> >> >> >> >> On Fri Jul 31, 2026 at 5:30 PM CEST, David Win=
-dsor wrote:
-> > > > >> >> >> >> >> >> >> > On Fri, Jul 31, 2026 at 11:17=E2=80=AFAM Pau=
-l Moore <paul@paul-moore.com> wrote:
-> > >
-> > > ...
-> > >
-> > > > As a consequence, everyone suffers because they first need to satis=
-fy your whims
-> > > > on how all code and kfuncs written thus far are wrong, and need to =
-be moved
-> > > > around ASAP, including the one being proposed.
-> > >
-> > > That's not a reasonble or truthful summary of things, I've only
-> > > requested that David locate his proposed kfunc in
-> > > security/bpf_lsm_kfuncs.c, I never suggested he move any others.
-> >
-> > Looking at what's left of the kfunc itself, it's basically nothing.
-> > Everything meaningful has been moved into security/ already.
-> >
-> > Aside from bpf dynptr ops, what's left is:
-> >
-> > if (!name__str)
-> >     return -EINVAL;
-> >
-> > if (strncmp(name__str, XATTR_BPF_LSM_SUFFIX, sizeof(XATTR_BPF_LSM_SUFFI=
-X) - 1))
-> >     return -EPERM;
-> >
-> > if (!xattrs->xattrs)
-> >     return -EOPNOTSUPP;
-> >
-> > ... then a call to security_lsmxattr_add. Why not move this chunk into
-> > security_lsmxattr_add, and leave the remaining bits, which are pure
-> > bpf, in fs/ for now, and litigate the total placement of all of them
-> > once v7 lands?
+On Fri, Jul 31, 2026 at 2:14=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> Thanks David, but my comments and decision are based on the kfunc as a
-> whole, not necessarily how the work is divided between the kfunc and
-> the LSM hook it calls; shuffling bits of code between the two doesn't
-> change the character of the function.
+> On Fri, Jul 31, 2026 at 4:45=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.=
+com> wrote:
+> >
+> > Current latest f2fs-tools release (1.16.0) doesn't work with it, so jus=
+t
+> > disable the test in such case. See the added comment for more details.
+> >
+> > The issue can be reproduced for example:
+> > * on a ppc64le machine with Fedora
+> > * on an aarch64 machine with Fedora ELN or CentOS Stream 10 after
+> >   running `dnf install -y kernel-64k kernel-64k-devel
+> >   kernel-64k-modules-extra` and rebooting
+> >
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+>
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-To be clear, this means I would still need to see the proposed kfunc
-in security/bpf_lsm_kfuncs.c to be deemed acceptable.  Also to be
-clear, I'm not suggesting, or even requiring, that you move any of the
-other existing kfuncs in your patchset; I never suggested that as a
-requirement for your work.
+Thanks, applied:
+https://github.com/SELinuxProject/selinux-testsuite/commit/0e15952d664f86f1=
+936cc2a4c11ce1f1729fd22d
 
 --=20
-paul-moore.com
+Ondrej Mosnacek
+Senior Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
+
