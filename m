@@ -1,165 +1,119 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8F3B40DB45
-	for <selinux@vger.kernel.org>; Tue,  4 Aug 2026 06:50:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.133.124
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785826250; cv=pass; b=pF87/JOB8YxF8KgyxIq2YvJICpZxbD53lbPvjgbz0D5OoFpeXKqwLPfcbsGcj9lHRufPKURG5bLiQDv/FEtECzw2VoLjHJQi5peQAifCPOwxQOobj9+IkeqvUX8+oHDwVgmg5hZ/pPn9XVU/yn0trh8KtAkm0C3GML9jxf0PXDc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785826250; c=relaxed/simple;
-	bh=GzcQWZAoyu2EaK5/t+8fY2QTwGeo/TIe0l/ZyAvdJf4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=sWXmU4EFjfv9M8lnpTmPx2cBeC8OtpgNimydlaFVssPUIFUiAyeJh4EAWsWRJfGcdman1I/2662UpxGSgKo1IUxBo1qPrhId501HVdxhFqbli/29v+lSZ2vzNNH26FIvzeuRPPTH9Nv9rDvMjzIjjDRszWcK5C9iHxbMbaIa/Pc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BqCRTv+b; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=gIRTcBmd; arc=pass smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6031C41E6DA
+	for <selinux@vger.kernel.org>; Tue,  4 Aug 2026 07:15:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785827706; cv=none; b=QqLaMjPO6pbD3/iw91q9ZwBEm0BbwQr5oRsj/9bA8VMC4Bbyj4m6an5u2LUkuaWgt+q2PKic7jArL+1PHd2TYJVihKopYAEBUfkJBmqPr/rtygAy/1sZjnLzd4aXxo4NK311Hvr+C5sZm+CycivTsTV/WPyzMeGj1XTEvZHdVM8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785827706; c=relaxed/simple;
+	bh=5SjCoQ3h3N9tVpxoKsGCWCS6QP1x1dou3q2i7SPMwHw=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=FAOsazxuD8yYKm5MP+oxm0Pn/YK8G/Y8HrdT1oqWQwW9iVyUZCC0jQ40uPwgcCWT68aRugucwhBW1bKL49paw7lQM5i8hyPqEjl9vgnPTtpkY7gMYFmO4bTNXQCk7Tup3DCJqFCiaqmi3N5QQSOzNwTIrtqpfkkgaGy4TS/fNDw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dFJbDMlu; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=iIFwyM30; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BqCRTv+b";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="gIRTcBmd"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dFJbDMlu";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="iIFwyM30"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1785826247;
+	s=mimecast20190719; t=1785827703;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=yQLsrMLUGP18h/QUpGPIMaEY/r0YXN0IU+NDINnAw04=;
-	b=BqCRTv+bE9dKoB3dMIIV+6+7peKQ/c/lST+VeJBtw00w4cdI2fJPSyg0OyesbXcA7d5yH8
-	KvQhyHEv1vDRnvNpK7sE54xaPznO/AYwg7Yzq4NFQRPzWVuDCUlFXv0f06M06ucU00V1VC
-	Te7AXsn+MDXcORWPFfG2Q6C74Q+EXqw=
-Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
- [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=HGRuNrOZJLGjPgyJcTq9PCn8zCdqI+t9HvJj92sOlsU=;
+	b=dFJbDMlurABqvkFs8zwxgNxQTUy7mvTKM3kOHeCFI2uXSzwgysl7KynKKgUbOjyXbQcYSD
+	nN9CxWD0vxREwKVlQ2n3ir5kj5hdCC+AkxrWelDPS9i1rSc6+dJrOsYwpa6SssTMOgOnkc
+	isaSG9B8iDNw2LrhWaiMObCaiiY9nSY=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-526-VGUnoJvANgaNIZWVDhxiDw-1; Tue, 04 Aug 2026 02:50:46 -0400
-X-MC-Unique: VGUnoJvANgaNIZWVDhxiDw-1
-X-Mimecast-MFC-AGG-ID: VGUnoJvANgaNIZWVDhxiDw_1785826245
-Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2ccb687f82eso8394985ad.3
-        for <selinux@vger.kernel.org>; Mon, 03 Aug 2026 23:50:46 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785826245; cv=none;
-        d=google.com; s=arc-20260327;
-        b=kuk7X6YBnbbIi8OGqPujupyujayPb9CUDOhIMg71epoPEvYAgLV8MkVG1jJ/mzcbck
-         hFyZj5UDDQe6aS9roODxUlrX0RbJrJ8YJFdWLz05cCjB16JDebj4wjOtikCQOgYHSpWd
-         phoxfU61kZXlg/T6rOvzqDLVcMVIfcR5m6llLokCAgr2kj6Tu9QZuZ/t1nOUokOovZH/
-         +6OdrfR6D6OQRaztH+OrVZOpXB/5kBsnqzS9vz5sc3e/GeJcYFDr7WBFPCp1OVRSA/nX
-         SRokEItfQwfZGoPMj/9/kEkmmNowausHHg0ZraEOpmBZzGJyMtm+i2c7TVqWflc4rxqP
-         XUlg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=yQLsrMLUGP18h/QUpGPIMaEY/r0YXN0IU+NDINnAw04=;
-        fh=nOcPTm+jzSpUJDDJhvsoEQt/GcMQFmPB1BDsWNtwPZ8=;
-        b=iv/ioP7XvuFRYYr6T4imRL62xWVOkODDPcV5JBsdtin+C1NAwSvIEjsugHLHT756pd
-         nyNPBffibeL29OMxYYwO8XuVQ/wbBiSnh5QarfGUgT2gmjrlDJdXoHbYMaUFS4/4CLqF
-         1gid3k8DFCCzrN2lL5XDJXxZVshPxwtMzeEaE9uVVcy5gbkBQXw1po0cHDVEbjEY1lfA
-         7hk35NGvCufEr4n0rhX8YbO8jtXPSkAYMgfkntKsbWQpgV9LoQgOv/drBEX7H0RloJcx
-         Gn0WFKX/kLI6T/riHaLz+JxNxgQxTdOTqJljstQ3wp9U+xCQNSsBnE6Z4hx9bqr/tvO2
-         wn3Q==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+ us-mta-119-7L13aOEVMBKVUXLpgDftJg-1; Tue, 04 Aug 2026 03:15:02 -0400
+X-MC-Unique: 7L13aOEVMBKVUXLpgDftJg-1
+X-Mimecast-MFC-AGG-ID: 7L13aOEVMBKVUXLpgDftJg_1785827701
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-47fe85684b9so493509f8f.3
+        for <selinux@vger.kernel.org>; Tue, 04 Aug 2026 00:15:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1785826245; x=1786431045; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=yQLsrMLUGP18h/QUpGPIMaEY/r0YXN0IU+NDINnAw04=;
-        b=gIRTcBmdE/ltkXJBrZCgtDnKJa53pjp9I+bFXBqVwjUzbZDSLdYDs9/dSGgP/zni8S
-         2D7i973VmkmoSBAbcILM7dLHJA/KaEU0XNXDUtWWm/SKl9iyhBdfFnNSe6UfkQDJKFMV
-         cHqn6fdicSFzE2EFb7vu1X2qYQ6i8tf8Iq8aMd8AGxGlfYdX3/1OqLcSU7angUAVvkbn
-         ste9a6154n7hr/bjsgvX3Tk1NOUZGRvIZctusatYXkSpqJ97UgOjo9dDBGP2hZV4kwRG
-         X3LacdIzncVEg9CNN+mbrPoiP3MdQ10Fq+t/LxDOjCAoDWrn2eH72wtO+JbaKEZ6tY3y
-         c+zQ==
+        d=redhat.com; s=google; t=1785827701; x=1786432501; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=HGRuNrOZJLGjPgyJcTq9PCn8zCdqI+t9HvJj92sOlsU=;
+        b=iIFwyM30OqAtUD6ZzrrViP1tc2//QFZi2J5lOtaJ3cug8yfEIGPeqiEx5QK1Rh3ei6
+         vGVmNRb7w8/uhPKrGLDKsP/zUpJAc6yzpVadczNUoKMlm7FD3xhox/nFOh6zfUk8fDbT
+         dulhUInkOC64VF0IESJHjN/MA5VsIGSpezNV1MeoM7VXuSSjmXwcX+tPCfXuaLEIZTos
+         AALeCB5pMu49KGcVwxluoa9B+wSZHbouPjZ0cfPt06A5Fww1nHn1pzlJGqqWoqa7X/fH
+         SVbT3OGE9Wlq0MjoD3cQ/v9/wJztyWW12A1RJjUXDWt4/Fd5KbSZkzSx35hkuw0XgJOF
+         uTOg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785826245; x=1786431045;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=yQLsrMLUGP18h/QUpGPIMaEY/r0YXN0IU+NDINnAw04=;
-        b=fwdsd5cqLuHTwkrztg/v8kUBERD+HKw1dYRYyMQ6fzV8mh3MQ6cYQbIHw6X+SgmMh4
-         CMktaxEashG4PyCLkkdYVmGjyAVKlinZev1FDQNOZyfUaCtT8AxglsWPW625O+LvOAjD
-         cJBgQeFvOnUGLRQjSuhfRy35bf67hYIKcgYPanKgroFojHrT3WHSf/OvmZQISS1LiNDB
-         Dm8VzyYhRFAw9dfL9EBX1in8Kbawi8b4QWfZi+koN3WAr8TCv+xDB9YlXp4jrMq099P8
-         AgWaiygHlVuHMaZjYiap2tVHdak98OMRpHNaQ8Q0A9TThqDJ8FyPh2KwOMQ134kBjnE1
-         26Vw==
-X-Gm-Message-State: AOJu0YyHqsLIdco/Gbqfl8/6MzxQhtT9LVA/vflDvSdeOpeTkebNmDIX
-	VhApZSF9ibpAmbplFRHJ/E9DlB9pYYlZLBrasl5C2dy7vfrLB/doFAX7X/HGvThRg7KPSpylvAk
-	7OzvEiEL+Eb783hm+vpijwZt/1LZGa7iF1UF30ZCBwpIpwMs12dQ2Hj3H5R74CV650EcgSwOFVQ
-	fXd7ZFlA/j0EI4swmhSVvU8h37xzebtS36A7dnzqg5A+4p
-X-Gm-Gg: AR+sD12XtFzwp0or5NAyvGpsEYbi0KJl3buDC203zRHDgYa/sU+udm87YFZ7lNzm0k+
-	zux4JOGOfzKztEVU62ZAXapHyxfq7o6H5DBOXTt5xE+jvW8CBwaZV4GOUW0eZbZHm2fty47JRVp
-	LJSeL+W6uB+0oMJe1ltYqSS5f8MlLIGDLgyWJywVdAnsYr/uOtJI5Icfd3
-X-Received: by 2002:a17:902:ce8a:b0:2cf:47c4:3d1a with SMTP id d9443c01a7336-2d05221f97amr131330405ad.3.1785826245266;
-        Mon, 03 Aug 2026 23:50:45 -0700 (PDT)
-X-Received: by 2002:a17:902:ce8a:b0:2cf:47c4:3d1a with SMTP id
- d9443c01a7336-2d05221f97amr131330175ad.3.1785826244860; Mon, 03 Aug 2026
- 23:50:44 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1785827701; x=1786432501;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=HGRuNrOZJLGjPgyJcTq9PCn8zCdqI+t9HvJj92sOlsU=;
+        b=kpY33vyDJnFsdj4a3PZypTwBwjOuxAtYAa4+aVPeaJ0zHWHqWJWONctOOLcpLfqC+y
+         CIYLV2PJa3I1PMwxCOzzbZZp7dsSYrTURPHxNJzL1SbiaZaEdAOgoq1wYFmr5ESHGi9m
+         P7CSoUXEhm1aODoEI//iOs0g8SpKZdbGsSl29uwvOEv6x8DSLhNdq2cUF3W2rZXOGvPZ
+         CHtn1s7Hsq27rbG7QFVHLfPs+4pyrhxGS8rrs8oi8lwY31gPQVBVh5zN6IrMBemXFrX9
+         zD+1498bVxgpzQOtlD/zF8yKVx+ADlqfmxCFEdYv4/YOCjZ3ySKA//u6ATo4w4Wj/MKW
+         DkpQ==
+X-Gm-Message-State: AOJu0Yweis5UBp0/eZujj/ytkn3GOQ10E1gkeIC0ni1Kq9ppjk2UpSke
+	0rvoOjw6D6kqfxLCoo+l5tNrzRXDSCEUdiGEPf1tRhJx+D+oiow3AwEX5zt8JNbeOvhI7sj1nre
+	EBQknjb1Jlm2M99Vria1WPjidQ4NK5bZOALS4hmukJjQX3itzqlhDNG2takVv8F0g+ytuSKSnll
+	4lcb1Nj8cUmDebdVGglM/89EMGIkhrfRHzZu1azfdox+w=
+X-Gm-Gg: AR+sD12BHgZG8PIY/yxj/NCJBvG1qKIwxJU77fFyW7iGHsDZuKnRCPH8VrSVHyenutd
+	VNEJvo1cTKRu2H0YTPuBnDa/mc37bGwY+M9uDe0F86YRnadZvBnUMivbg3D/2WNSWY9j+1vocJs
+	jKSCHIMcCTCHwehh2eFVe9q8cFQqMkWuqqzYcXED22rM21YWQ6kpUigcUlmtc7m6/3loNBJlPL1
+	AaQO+oD93lLHAQa/3cyyQzXm2yym5hTh3qSSp1WAJxw9fHUmTamA33kefkkdyy32ud4Y38L3vXM
+	mZvT3Mbyd2yeG/mUFcU3KQ66U2MQ/oprqy8UWP962OIBgReNE8wjLBpC+Q==
+X-Received: by 2002:a05:6000:188f:b0:47f:c62e:9cca with SMTP id ffacd0b85a97d-47fd9cfd167mr33583555f8f.22.1785827701459;
+        Tue, 04 Aug 2026 00:15:01 -0700 (PDT)
+X-Received: by 2002:a05:6000:188f:b0:47f:c62e:9cca with SMTP id ffacd0b85a97d-47fd9cfd167mr33583473f8f.22.1785827701033;
+        Tue, 04 Aug 2026 00:15:01 -0700 (PDT)
+Received: from fedora ([213.175.46.86])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47fd41e2abbsm41292923f8f.9.2026.08.04.00.15.00
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Aug 2026 00:15:00 -0700 (PDT)
+From: Ondrej Mosnacek <omosnace@redhat.com>
+To: selinux@vger.kernel.org
+Subject: [PATCH testsuite] policy: allow all test domains to inherit limits
+Date: Tue,  4 Aug 2026 09:14:54 +0200
+Message-ID: <20260804071454.2122438-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260803090152.1456176-1-omosnace@redhat.com> <CAEjxPJ4ny0BcpcYT03xwy6JKdj3sd1y8GgBa9-Fbur1jD3BJ_A@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4ny0BcpcYT03xwy6JKdj3sd1y8GgBa9-Fbur1jD3BJ_A@mail.gmail.com>
-From: Ondrej Mosnacek <omosnace@redhat.com>
-Date: Tue, 4 Aug 2026 08:50:31 +0200
-X-Gm-Features: AUfX_mzmd30r4tLck5rdXYcQaDqkqPuB8wJbM7wOjfpSZPuY44MaH5qnPoGOPkM
-Message-ID: <CAFqZXNtSWbBTNPZG6uG5g4UNNnYrO2wYhMHO7ZAvbgTnv3X3_A@mail.gmail.com>
-Subject: Re: [PATCH testsuite] tests/inet_socket/connect.c: add missing
- include for bool
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, Aug 3, 2026 at 2:20=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Mon, Aug 3, 2026 at 5:11=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.c=
-om> wrote:
-> >
-> > The below commit added a usage of the bool type to
-> > tests/inet_socket/connect.c, but didn't add the corresponding stdlib
-> > include (<stdbool.h>). This problem seems to be masked on Fedora (likel=
-y
-> > some other header file includes <stdbool.h> internally), but for exampl=
-e
-> > on CentOS 10 or 9 the compilation fails because of it.
-> >
-> > Fix it by adding the missing include.
-> >
-> > Fixes: 433c597a6a9a ("tests/inet_socket: add tests for TCP Fast Open")
-> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
->
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
->
-> > ---
-> >  tests/inet_socket/connect.c | 1 +
-> >  1 file changed, 1 insertion(+)
-> >
-> > diff --git a/tests/inet_socket/connect.c b/tests/inet_socket/connect.c
-> > index 067d196..89e85ef 100644
-> > --- a/tests/inet_socket/connect.c
-> > +++ b/tests/inet_socket/connect.c
-> > @@ -3,6 +3,7 @@
-> >  #include <netinet/in.h>
-> >  #include <arpa/inet.h>
-> >  #include <stdlib.h>
-> > +#include <stdbool.h>
-> >  #include <stdio.h>
-> >  #include <stddef.h>
-> >  #include <string.h>
-> > --
-> > 2.55.0
-> >
-> >
->
+Currently the "minimal" test domains aren't allowed to inherit resource
+limits from other domains. However, that means that their resource
+limits get reset to at most the init task's limits, which on some
+distros and platforms (e.g. CentOS Stream 9 / RHEL 9 + ppc64le) isn't
+enough to run the io_uring tests.
 
-Applied: https://github.com/SELinuxProject/selinux-testsuite/commit/665bcda=
-2e11f18c342653b0f497eee0444962d4b
+Since the rlimitinh permission isn't tested by the testsuite, it can be
+safely granted even to the minimal domains, so do just that.
 
---=20
-Ondrej Mosnacek
-Senior Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ policy/test_policy.if | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/policy/test_policy.if b/policy/test_policy.if
+index ea15ca6..2a1a575 100644
+--- a/policy/test_policy.if
++++ b/policy/test_policy.if
+@@ -42,6 +42,7 @@ interface(`testsuite_domain_type_minimal',`
+ 	testsuite_domain_type_common($1)
+ 
+ 	# minimal set of rules to substitute missing domain_type()
++	allow { domain testsuite_domain } $1:process { rlimitinh };
+ 	allow $1 proc_t:dir { search };
+ 	allow $1 proc_t:lnk_file { read };
+ 	allow $1 self:dir { search };
+-- 
+2.55.0
 
