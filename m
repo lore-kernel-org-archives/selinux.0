@@ -1,170 +1,171 @@
-Received: from mail-qv1-f54.google.com (mail-qv1-f54.google.com [209.85.219.54])
+Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C2B947A0BA
-	for <selinux@vger.kernel.org>; Tue,  4 Aug 2026 16:53:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.54
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785862433; cv=none; b=fMK/sBRzPRC95H7ctBB1jVCjUx/f3I5mzWr+Fp6qh82sVskbbmQZKva/JOovUCMIuUfKpvUyCXaZbqJMN+g3IrRdj3CnaW+bEY/jorB/yrRt/xpWVHZ6hVFDPANh8QmIofe52iaxcc6ZTqZwHiYc4aXFKFYCjl58xYb5AAPX0c8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785862433; c=relaxed/simple;
-	bh=bs3CUNAkd2ZZY2V1yxw5M6h8dahTrDfuN+C8dfYHvNA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=JoGv6E/exoSwmwzl3u/0mjuogYXt2TcvTdDq0fjVu/qZvDo5WeOB2GfR1FqwJ2HD+RNhvyhGzMuVqtPGYytG7WdiZ43ram15pd0vRyAgoxqkCaa2SoLLc5nCvGKDGGxGCTcMsb/yQSgKzTKxoHkIrnTufOJrXx7TXM9au2SDWLs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TPFzrFKp; arc=none smtp.client-ip=209.85.219.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43FD042E8F1
+	for <selinux@vger.kernel.org>; Tue,  4 Aug 2026 17:00:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.176
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785862869; cv=pass; b=n0TC2HBAu9jfdFaKxZZiEk65nqYVjOIJTqgLdtfWSdiBa+R+DTJkgYTnzh2sA8fui/tdYsDzM5uuGHcu2f9CdbUeil739c0+srdx4tGESoCcj39lt72cE6/tOUropr2y2jJuFk8WqlZzIv98LmOpqj5DdMbfrjfYDhVkgNhJ14w=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785862869; c=relaxed/simple;
+	bh=NN7RQwZEWIcd3u0Kef8iTQYndBZrEjQokV6obVKC/Dc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=OcdqSxzgvNpHqe9Snu2SR8OUpZmrbeewPiurmfdZ2gdcKx8JfJOl10yWVasft8m3xyym5SxapjrlRtlZjGd+Uufs3/kchM1qe5edhn1HUlaoflO5QjJGT5CFF9zR6EVXKIaGGqNpENKkeeTEI38YAbDO15YQMjzS9EySXp62QMc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=SZHhjSu+; arc=pass smtp.client-ip=209.85.215.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TPFzrFKp"
-Received: by mail-qv1-f54.google.com with SMTP id 6a1803df08f44-8f1a8e914a9so179286d6.1
-        for <selinux@vger.kernel.org>; Tue, 04 Aug 2026 09:53:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="SZHhjSu+"
+Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-ca957432c7fso3504298a12.1
+        for <selinux@vger.kernel.org>; Tue, 04 Aug 2026 10:00:56 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785862855; cv=none;
+        d=google.com; s=arc-20260327;
+        b=iLPzqFwPgAiqlh1jp3GZ7va5GZhFS2m1+07cfhFdr1g1/l9fC2wU5uXr4KdiFA8s4K
+         rkWJt+CIEZJPOxirNyw6YuzQqbt38aVJiJYGj91moeL/7rClGaA4hTtkYcslo2OveaoJ
+         +8Q/VUIcPyixMxRu50Cu492SeqzpZnhvd0+W68G5KtziHgv28dydesVrG9EQU9rhloN/
+         U2UO2+LS0fm3Uf2JpHBVnEMUsU6AoDk4ZHwu10aU/flo6+iGzmamBLhHDXNLUuF/vbGo
+         NuCbsPbKiv39bk9zOykmGi3IqKTquHdOQC/UKDxD/iSOB4PPvE/0gQyW7TsAORqFxSBL
+         Gx3w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=d0whWseHxQspZUWpMNteiPZ9cq9DmnQxMjSfFcf9OVs=;
+        fh=tyR9Eegq69BnpMcjE+XItohVs/CAOC4uOSMcm1RFEmk=;
+        b=LIqbOw3SAKnHpqnMEU/Zxtd3GJvNONGcChQ4/3TH+aoxrn5yn5YxkDZcJSptDNKA25
+         HeVuWJUqOiIkKJOdqhZ1l96lDd6FyHQ6/peCi5B03E6h9N6KJAGKls/HVIlf0rTMqxxD
+         mdIpd1gM8PxozU9BdekQ5lGJAM6EzmghHniupWA6lNJarkrMoJ0hs4x5+elFdpaTB8bT
+         idLBab4E0bOm+OAjUFcbbdGYQtZ30nf7xZWC+FXnETOAnhni3oRA329xLZS4ZHWyhbZR
+         gL5NsOO5EYeOM71TGxntX5EtW1dAX/wZqfNKkJBT6RV2IC9Xky5yqB3NtvG8q2sr4o1F
+         3BzA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785862413; x=1786467213; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=ccNVN8OsiUbuT7HaN0yORFAVLs/1tSkVCWxThG5/Bzk=;
-        b=TPFzrFKp/kDdCP+YIl5A11I75BbuJzdvWaeX7NZSJs8h8fXXqvSp59oRncNSvWkRSH
-         8yV9lZxGbKYVru+I5ZaWU7Bwh462cocV46WohrEy8MKuzqkBgQZpSJjYspMZ+jbbTrJc
-         /WULl6l17Htu373ptaIAwYs6Rjjw/c9XDOCcXhIn8XbNV+yF/18wtS+9Sp0OJdgI9564
-         vEGS7c1vhe5tTR5+FI5lj6pCgw+g3WIdo5UstwBHiW4d6qjkiRUXlEZjwy/DjD+9+2n4
-         +NpowJUQ0xL7eNLhwwbiWzONnk/g0rasPd2H59Pdj3tY81uoJ4W9a1yyV/tSgYsL3pUi
-         4TGw==
+        d=paul-moore.com; s=google; t=1785862855; x=1786467655; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=d0whWseHxQspZUWpMNteiPZ9cq9DmnQxMjSfFcf9OVs=;
+        b=SZHhjSu+914kO7qex0mPblU4m6opNNQ8SYzai3bSARLJLgxVPtp34YzgW7oNbu+Fuq
+         4k48OU3THdvgN3jqv+jM8b9hg4IuP4x5ZijnVcsu409eI/9qvBshVlFF9iR0I16pcYE9
+         8EkVEiEQ0LZ4BthS/SlV0K0QhtVk8no3npBUgkYyjDuhrbnahz6Q6mEKaxT+xuEvfw+O
+         HGBFPVy/uByJ5rIO9oNE0+N946LUW2e2Kdacwu07ETwulGTTUCTxb1+jZ4znPHIPIpVC
+         FB1jraJdPJh9m/LBOHcBHjtCTxZu8G794pvx/MD3enegq88zBZWC0w0rApfKO0ybDjfA
+         3Bnw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785862413; x=1786467213;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=ccNVN8OsiUbuT7HaN0yORFAVLs/1tSkVCWxThG5/Bzk=;
-        b=QZOP3cimnpS+BJ8oQTLIxBfpX01ezYWOBXPoy+thkPrOf66iSf6OEC+2APaemqw0Wp
-         53ykDNfDOwqetMmK3CUfPodZ6jnoRd1XbT1TGrbl16UPS6YoTx8R8RmJuU1aKMgqXejq
-         sy3WNTFo+/EQimVOSkYY9WyiYY0w4gijnfJse/GVKbWCgZT4cgSwqoTY2TD7s1qbkS2A
-         lx12Ooep4AURFKSQf2aTCPSe9PY5jM+5pPd2HEI07rY2NiG+yW1vU9t0RsVsgwkW5FmT
-         OkStz+7WKlHzRRC67nl1ETx2kypGvkX57Jc5/ZVvZsHJ6NFfriuv+v3nHgsDdRWpIG2q
-         YEtw==
-X-Gm-Message-State: AOJu0YyRnuDXLtfkqX4ssfkOz1IEFrAs5P3e3DaTy0dbl9tILDGxFPF3
-	wPQ1K9qLvGYVp+twEn7wQ+5qXfMJsy2t/gJnh3GfenxlulxbZY8nUaVq7iU0kw==
-X-Gm-Gg: AR+sD10IC2RbFL/KCswNQmsLnPEXJibTgjN2QjfT/yxPAqk3u2dkwJK7PAMMKFuYMRW
-	1XurSAvuxYSNgqX+OigpZOLDpZAP6IsPqXa7jl+hV/90avrvwR762apbF/110KFQ1tvdkGmu5UI
-	d8zW8mdjLrpRtj5inYwJAlsCxsTTn1hgUuzFU1+M4cOg+X3YrGuTufIxsMhM9dWeNXgmxo/gZMa
-	XMkqKuRwXnVHlU793ThD5ZBnNvXuQQt8//Vro2T0Mu8l+SdzdmGUlUeIF1Qn8ugOAzxICZ/CW0E
-	5a65gJ/y37/4c7GXX49EQXOVlscmDnOHna4o/4Ni/yjoNqoqZTKMapdBIS/N/5BRpXUbIalbuLj
-	Eg0j3SheGOkKPqu2VwYCjxiTgdvrWq6lSBsgOKjqdZDpO/WFo4rp8hyKsZ+CmcTbWdykf2OoLTY
-	XzWeQGzXQtG16ek0saW+iher2Peo53a8WcjU8g/74krSJj0YIuaszCEETKc2s7htjlwtfxAHtfX
-	axkzA/SBg+haCda9Xa060mrUshWIv+pWEw4SLIu9lCH1c0sKjdguCcQi1RAxuNO
-X-Received: by 2002:a05:6214:3116:b0:8f1:1081:a950 with SMTP id 6a1803df08f44-90881398d9fmr7274386d6.22.1785862412666;
-        Tue, 04 Aug 2026 09:53:32 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9088008e8cdsm5381536d6.23.2026.08.04.09.53.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 04 Aug 2026 09:53:32 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	plautrba@redhat.com,
-	omosnace@redhat.com,
-	jason@perfinion.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2] libsepol: reject policies with no avtab entries in expand_module()
-Date: Tue,  4 Aug 2026 12:53:18 -0400
-Message-ID: <20260804165318.22973-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.55.0
+        d=1e100.net; s=20251104; t=1785862855; x=1786467655;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=d0whWseHxQspZUWpMNteiPZ9cq9DmnQxMjSfFcf9OVs=;
+        b=E/tPGqwWaQgq4SyRmR9PuwEAyHg7DfSS6XMR5O6cgdm8mufUnj4qjSCOQaRUWML7md
+         6ket5AFcLtCv/1O9MHQyzrtKNLkbfANu9EPLKsUfUAdo9oAVB/iI9ImVQIDJ6+/M1Yy5
+         g1KQNgLWRWnBG9M5NHfD2dcfVHYpreHvVbMMftMNt0wc5wG6sZHgZX6/igPGgj2hw8HH
+         BDNFn5KkOlUnAe7kKqB5IBLXTIM2OLJtrUyJ74h9cHV251p6mjIAYj6qLSOEkPLNGcfr
+         EWS+HRFL69XJK0H34+7EGGt+YsDQzjH3ywvFMAu95wbqAvjcrPf9fGFM/xYoTs4EpHcN
+         luSA==
+X-Forwarded-Encrypted: i=1; AHgh+RqBF82esXdKXfn2gFQ3gEVy4m1WrzZtrv6G4dH9uJhRlpNG9zxiZMhOJmaHaieE2ZjPd5IwcXrc@vger.kernel.org
+X-Gm-Message-State: AOJu0YyYWEuep0YtBaIPnqRPvU9V5PkItZxb/HBM9RYaOwcR4JHiCfb/
+	hko/G+/Owscxdua14jjkFvHmGYyHJ07fS3r8k8eGJSj+4T9O6fo8iBaqy/4IHcPANFfl4LutcA9
+	SXqZq3wMqwFZfRw7xRSP1yG/kZeBAdnSyfgmm+Aeg
+X-Gm-Gg: AR+sD13mc5rptO7p7LPcJdvTxK73kj0V2Ry59Sw5iaEcut95tWrVnaDpXkwv1IeT9ir
+	zzsAXN0I5Nyql04KnqyTKBBoakgloN7BiSX92OR0cuPjMfVQM/5slhAkgAqR2NBTpeQpzuK/yIf
+	vQ4plzjtKCMz3aahS4+8ZsQrXGzdn52onatni/4DzWPywd85NPikd5Dynt73CvcG4KJuh4hHWgP
+	37e2jPvefDoYYxe4bRe94X8n0knPdJfSL9itri9f0lVQ0/X9MuEwQQhJCL2Xzm/u+P1vuUwvYIy
+	49L3vFVK/xqkLIXkOd0hKJyaqAysiT2AkPhHfQJr5/Ua
+X-Received: by 2002:a05:6a21:3204:b0:3c3:834e:89b9 with SMTP id
+ adf61e73a8af0-3cb85e7370emr306570637.17.1785862855065; Tue, 04 Aug 2026
+ 10:00:55 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260804034204.3487077-1-libaokun@linux.alibaba.com>
+In-Reply-To: <20260804034204.3487077-1-libaokun@linux.alibaba.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 4 Aug 2026 13:00:43 -0400
+X-Gm-Features: AUfX_my2GHODSgWpz7u9PLF5sftBX1mO9fjStT4uqGF3r0dq7sFB5ilyjzEJ3cE
+Message-ID: <CAHC9VhTWuX6D0yeBKr0bPbJ_mKUdiLYRtQpcwq-jJgovY_akDA@mail.gmail.com>
+Subject: Re: [PATCH] fs: fix user path of nested backing files
+To: Baokun Li <libaokun@linux.alibaba.com>
+Cc: linux-fsdevel@vger.kernel.org, miklos@szeredi.hu, amir73il@gmail.com, 
+	viro@zeniv.linux.org.uk, brauner@kernel.org, jack@suse.cz, serge@hallyn.com, 
+	linux-unionfs@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	stable@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-avtab_read() already rejects policies that have no avtab entries in
-both libsepol and the kernel, but expand_module() can produce a
-policydb that has none. Check and reject such policies in
-expand_module() so that checkpolicy (and its fuzzer) will fail rather
-than writing out an invalid binary policy.
+On Mon, Aug 3, 2026 at 11:42=E2=80=AFPM Baokun Li <libaokun@linux.alibaba.c=
+om> wrote:
+>
+> backing_file_open() derives the path to be stored in the new backing
+> file from user_file->f_path.  This is incorrect when user_file itself
+> is a backing file, which is the case for nested stacking filesystems,
+> e.g. overlayfs mounts where the lowerdir of one overlayfs is the merged
+> directory of another.  Since commit def3ae83da02 ("fs: store real path
+> instead of fake path in backing file f_path") the f_path of a backing
+> file holds the real path of the intermediate layer, not the path that
+> the user opened.
+>
+> Commit 924577e4f6ca ("ovl: Fix nested backing file paths") fixed this
+> for such configurations by passing file_user_path() from
+> ovl_open_realfile().  However, commit 6af36aeb147a ("lsm: add
+> backing_file LSM hooks") changed the first argument of
+> backing_file_open() from the user path back to the user file and
+> derived the path from user_file->f_path again, silently re-introducing
+> the problem.
+>
+> As a result, files mapped through a nested overlayfs show the wrong
+> path in /proc/<pid>/maps and in perf/ftrace mmap records.  For example,
+> with two nested overlayfs mounts:
+>
+>   mkdir -p /ovl/{lower,upper,work,merged} /ovl/nested
+>   echo hello > /ovl/lower/foo
+>   mount -t overlay overlay \
+>         -o lowerdir=3D/ovl/lower,upperdir=3D/ovl/upper,workdir=3D/ovl/wor=
+k \
+>         /ovl/merged
+>   # at least two lowerdirs are needed when upperdir is nonexistent
+>   mount -t overlay overlay \
+>         -o lowerdir=3D/ovl/merged:/ovl/lower /ovl/nested
+>
+> mapping /ovl/nested/foo shows a disconnected path instead of the user
+> path:
+>
+>   # readlink /proc/self/fd/3
+>   /ovl/nested/foo
+>   # grep foo /proc/self/maps
+>   7f6e2c100000-7f6e2c101000 r--s 00000000 00:24 15813027 /foo
+>
+> The bogus path is derived from the f_path of the intermediate backing
+> file, whose mount is a private clone that d_path() cannot resolve.
+>
+> Fix this by using file_user_path(), which returns the outermost
+> user-visible path for backing files and falls back to
+> &user_file->f_path for regular files.  This restores the behavior of
+> commit 924577e4f6ca ("ovl: Fix nested backing file paths") for
+> overlayfs and also fixes the same problem for the other
+> backing_file_open() callers, fuse passthrough and erofs ishare, when
+> their user file is itself a backing file.
+>
+> backing_tmpfile_open() has the same pattern but is not affected: it is
+> only called by ovl_create_tmpfile() for the upper layer, and another
+> overlayfs is rejected as upperdir by the DCACHE_OP_REAL check in
+> ovl_mount_dir_check(), so its user_file can never be a backing file.
+>
+> Fixes: 6af36aeb147a ("lsm: add backing_file LSM hooks")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Baokun Li <libaokun@linux.alibaba.com>
+> ---
+>  fs/backing-file.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Update the libsepol test-expander policies to include at least one av
-rule so that they produce at least one avtab entry.
+The selinux-testsuite runs clean with this patch applied.
 
-Reported-by: oss-fuzz (issue 541553475)
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- libsepol/src/expand.c                                     | 5 +++++
- libsepol/tests/policies/test-expander/alias-base.conf     | 3 +++
- libsepol/tests/policies/test-expander/base-base-only.conf | 2 ++
- libsepol/tests/policies/test-expander/role-base.conf      | 3 +++
- libsepol/tests/policies/test-expander/user-base.conf      | 3 +++
- 5 files changed, 16 insertions(+)
+Tested-by: Paul Moore <paul@paul-moore.com>
 
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 8cb62d82..466d5bc1 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -3494,6 +3494,11 @@ int expand_module(sepol_handle_t *handle, policydb_t *base, policydb_t *out,
- 		goto cleanup;
- 	}
- 
-+	if (out->te_avtab.nel == 0) {
-+		ERR(handle, "avtab must contain at least one entry");
-+		goto cleanup;
-+	}
-+
- 	/* copy constraints */
- 	if (hashtab_map(state.base->p_classes.table, constraint_copy_callback,
- 			&state)) {
-diff --git a/libsepol/tests/policies/test-expander/alias-base.conf b/libsepol/tests/policies/test-expander/alias-base.conf
-index 34955924..36016e64 100644
---- a/libsepol/tests/policies/test-expander/alias-base.conf
-+++ b/libsepol/tests/policies/test-expander/alias-base.conf
-@@ -420,6 +420,9 @@ type alias_check_1_t;
- type alias_check_2_t;
- type alias_check_3_t;
- 
-+# Need at least one av rule
-+allow alias_check_1_t self:process fork;
-+
- typealias alias_check_1_t alias alias_check_1_a;
- 
- optional {
-diff --git a/libsepol/tests/policies/test-expander/base-base-only.conf b/libsepol/tests/policies/test-expander/base-base-only.conf
-index 4eae73ea..6657c532 100644
---- a/libsepol/tests/policies/test-expander/base-base-only.conf
-+++ b/libsepol/tests/policies/test-expander/base-base-only.conf
-@@ -34,6 +34,8 @@ mlsconstrain file { read }
- 
- attribute myattr;
- type mytype_t;
-+# Need at least one av rule
-+allow mytype_t self:file read;
- role myrole_r;
- role myrole_r types mytype_t;
- bool mybool true;
-diff --git a/libsepol/tests/policies/test-expander/role-base.conf b/libsepol/tests/policies/test-expander/role-base.conf
-index a387c8c0..57efe2c5 100644
---- a/libsepol/tests/policies/test-expander/role-base.conf
-+++ b/libsepol/tests/policies/test-expander/role-base.conf
-@@ -418,6 +418,9 @@ type role_check_1_1_t;
- role role_check_1;
- role role_check_1 types role_check_1_1_t;
- 
-+# Need at least one av rule
-+allow role_check_1_1_t self:process fork;
-+
- ########
- type fs_t;
- type system_t;
-diff --git a/libsepol/tests/policies/test-expander/user-base.conf b/libsepol/tests/policies/test-expander/user-base.conf
-index 789a59a2..05827b09 100644
---- a/libsepol/tests/policies/test-expander/user-base.conf
-+++ b/libsepol/tests/policies/test-expander/user-base.conf
-@@ -421,6 +421,9 @@ role user_check_1_2_r;
- role user_check_1_1_r types user_check_1_1_t;
- role user_check_1_2_r types user_check_1_2_t;
- 
-+# Need at least one av rule
-+allow user_check_1_1_t self:process fork;
-+
- ########
- type fs_t;
- type system_t;
--- 
-2.55.0
-
+--=20
+paul-moore.com
