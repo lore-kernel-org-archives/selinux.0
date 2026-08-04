@@ -1,171 +1,111 @@
-Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
+Received: from mail-qv1-f53.google.com (mail-qv1-f53.google.com [209.85.219.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43FD042E8F1
-	for <selinux@vger.kernel.org>; Tue,  4 Aug 2026 17:00:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.176
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785862869; cv=pass; b=n0TC2HBAu9jfdFaKxZZiEk65nqYVjOIJTqgLdtfWSdiBa+R+DTJkgYTnzh2sA8fui/tdYsDzM5uuGHcu2f9CdbUeil739c0+srdx4tGESoCcj39lt72cE6/tOUropr2y2jJuFk8WqlZzIv98LmOpqj5DdMbfrjfYDhVkgNhJ14w=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785862869; c=relaxed/simple;
-	bh=NN7RQwZEWIcd3u0Kef8iTQYndBZrEjQokV6obVKC/Dc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=OcdqSxzgvNpHqe9Snu2SR8OUpZmrbeewPiurmfdZ2gdcKx8JfJOl10yWVasft8m3xyym5SxapjrlRtlZjGd+Uufs3/kchM1qe5edhn1HUlaoflO5QjJGT5CFF9zR6EVXKIaGGqNpENKkeeTEI38YAbDO15YQMjzS9EySXp62QMc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=SZHhjSu+; arc=pass smtp.client-ip=209.85.215.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A8FC34F46D
+	for <selinux@vger.kernel.org>; Tue,  4 Aug 2026 18:25:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.53
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785867924; cv=none; b=dQ4Q4JQttj9OHuo03R+w0qJcXQ3EIVyuUhHvJgxkfIeqJWqWDNxf/iWXxHhkcSv6j+HWAVXWkT9BJtw6G9yZzwO8WQR6v8vwPShbV5o86zfecgvhQjYJFDbo0A9ffUvb4S3WtpnRHG5ApakyuJpAq6myTwZ0oAZf6wDbNq0d4cU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785867924; c=relaxed/simple;
+	bh=J02ULk01gHVvl90OZRBWcDcOqViSd+3f8HBxz5ECkaM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Z24Q+J7Er0uIvjImVPJt5CdVA+XQBDaLSG75eEgbQXti2ec9JNA5YL/xLi03i8dVhsN9CklrktNNThXPkDLJvFwthxzeOMa5etgVI0CqQeNWhjGZzg9lagjUXXsDaeedwXotQLF/R1Qyfq76SD56w/kjxMlxx2RFamt/ta8NUCA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pPpa3Z49; arc=none smtp.client-ip=209.85.219.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="SZHhjSu+"
-Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-ca957432c7fso3504298a12.1
-        for <selinux@vger.kernel.org>; Tue, 04 Aug 2026 10:00:56 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785862855; cv=none;
-        d=google.com; s=arc-20260327;
-        b=iLPzqFwPgAiqlh1jp3GZ7va5GZhFS2m1+07cfhFdr1g1/l9fC2wU5uXr4KdiFA8s4K
-         rkWJt+CIEZJPOxirNyw6YuzQqbt38aVJiJYGj91moeL/7rClGaA4hTtkYcslo2OveaoJ
-         +8Q/VUIcPyixMxRu50Cu492SeqzpZnhvd0+W68G5KtziHgv28dydesVrG9EQU9rhloN/
-         U2UO2+LS0fm3Uf2JpHBVnEMUsU6AoDk4ZHwu10aU/flo6+iGzmamBLhHDXNLUuF/vbGo
-         NuCbsPbKiv39bk9zOykmGi3IqKTquHdOQC/UKDxD/iSOB4PPvE/0gQyW7TsAORqFxSBL
-         Gx3w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=d0whWseHxQspZUWpMNteiPZ9cq9DmnQxMjSfFcf9OVs=;
-        fh=tyR9Eegq69BnpMcjE+XItohVs/CAOC4uOSMcm1RFEmk=;
-        b=LIqbOw3SAKnHpqnMEU/Zxtd3GJvNONGcChQ4/3TH+aoxrn5yn5YxkDZcJSptDNKA25
-         HeVuWJUqOiIkKJOdqhZ1l96lDd6FyHQ6/peCi5B03E6h9N6KJAGKls/HVIlf0rTMqxxD
-         mdIpd1gM8PxozU9BdekQ5lGJAM6EzmghHniupWA6lNJarkrMoJ0hs4x5+elFdpaTB8bT
-         idLBab4E0bOm+OAjUFcbbdGYQtZ30nf7xZWC+FXnETOAnhni3oRA329xLZS4ZHWyhbZR
-         gL5NsOO5EYeOM71TGxntX5EtW1dAX/wZqfNKkJBT6RV2IC9Xky5yqB3NtvG8q2sr4o1F
-         3BzA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pPpa3Z49"
+Received: by mail-qv1-f53.google.com with SMTP id 6a1803df08f44-8fcc43c48f7so1392006d6.2
+        for <selinux@vger.kernel.org>; Tue, 04 Aug 2026 11:25:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1785862855; x=1786467655; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=d0whWseHxQspZUWpMNteiPZ9cq9DmnQxMjSfFcf9OVs=;
-        b=SZHhjSu+914kO7qex0mPblU4m6opNNQ8SYzai3bSARLJLgxVPtp34YzgW7oNbu+Fuq
-         4k48OU3THdvgN3jqv+jM8b9hg4IuP4x5ZijnVcsu409eI/9qvBshVlFF9iR0I16pcYE9
-         8EkVEiEQ0LZ4BthS/SlV0K0QhtVk8no3npBUgkYyjDuhrbnahz6Q6mEKaxT+xuEvfw+O
-         HGBFPVy/uByJ5rIO9oNE0+N946LUW2e2Kdacwu07ETwulGTTUCTxb1+jZ4znPHIPIpVC
-         FB1jraJdPJh9m/LBOHcBHjtCTxZu8G794pvx/MD3enegq88zBZWC0w0rApfKO0ybDjfA
-         3Bnw==
+        d=gmail.com; s=20251104; t=1785867920; x=1786472720; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=SZGpJc6c1BkjF/xUqR7rf1w6WRSi/QfhsrOxeXpbKLE=;
+        b=pPpa3Z49/t60exqzPSTWZ+2mmfsEZRqdqkcDcDvE598xQ3gV0pGWiUCqbz8Vex33RH
+         T5b28H4gYyJau6ABklPK4uLr2Nc5TuiRH2fDJa+xLTXZDjPr1oNfYa4TBGc33Y9c/xCV
+         G5HmZ9IDaHba/WVyJY+bkSbJmZDAAKzRfvOjn7VUq7/k6RoTJwQPAlahgEySMpOJdHat
+         Yl6G5ed6YCy6mXzHEv+aQMJLXo/RmDiqzGXEV5BV1B5FJCEP4mEPus7gceu0X2OVzQjH
+         38SX5jAQkkb2hf4RGOjqiWFe5MO3IlwL/YL63IuHBypDiddZnnybPXnRkZBgnRL/r0+x
+         m+Lw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785862855; x=1786467655;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=d0whWseHxQspZUWpMNteiPZ9cq9DmnQxMjSfFcf9OVs=;
-        b=E/tPGqwWaQgq4SyRmR9PuwEAyHg7DfSS6XMR5O6cgdm8mufUnj4qjSCOQaRUWML7md
-         6ket5AFcLtCv/1O9MHQyzrtKNLkbfANu9EPLKsUfUAdo9oAVB/iI9ImVQIDJ6+/M1Yy5
-         g1KQNgLWRWnBG9M5NHfD2dcfVHYpreHvVbMMftMNt0wc5wG6sZHgZX6/igPGgj2hw8HH
-         BDNFn5KkOlUnAe7kKqB5IBLXTIM2OLJtrUyJ74h9cHV251p6mjIAYj6qLSOEkPLNGcfr
-         EWS+HRFL69XJK0H34+7EGGt+YsDQzjH3ywvFMAu95wbqAvjcrPf9fGFM/xYoTs4EpHcN
-         luSA==
-X-Forwarded-Encrypted: i=1; AHgh+RqBF82esXdKXfn2gFQ3gEVy4m1WrzZtrv6G4dH9uJhRlpNG9zxiZMhOJmaHaieE2ZjPd5IwcXrc@vger.kernel.org
-X-Gm-Message-State: AOJu0YyYWEuep0YtBaIPnqRPvU9V5PkItZxb/HBM9RYaOwcR4JHiCfb/
-	hko/G+/Owscxdua14jjkFvHmGYyHJ07fS3r8k8eGJSj+4T9O6fo8iBaqy/4IHcPANFfl4LutcA9
-	SXqZq3wMqwFZfRw7xRSP1yG/kZeBAdnSyfgmm+Aeg
-X-Gm-Gg: AR+sD13mc5rptO7p7LPcJdvTxK73kj0V2Ry59Sw5iaEcut95tWrVnaDpXkwv1IeT9ir
-	zzsAXN0I5Nyql04KnqyTKBBoakgloN7BiSX92OR0cuPjMfVQM/5slhAkgAqR2NBTpeQpzuK/yIf
-	vQ4plzjtKCMz3aahS4+8ZsQrXGzdn52onatni/4DzWPywd85NPikd5Dynt73CvcG4KJuh4hHWgP
-	37e2jPvefDoYYxe4bRe94X8n0knPdJfSL9itri9f0lVQ0/X9MuEwQQhJCL2Xzm/u+P1vuUwvYIy
-	49L3vFVK/xqkLIXkOd0hKJyaqAysiT2AkPhHfQJr5/Ua
-X-Received: by 2002:a05:6a21:3204:b0:3c3:834e:89b9 with SMTP id
- adf61e73a8af0-3cb85e7370emr306570637.17.1785862855065; Tue, 04 Aug 2026
- 10:00:55 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1785867920; x=1786472720;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=SZGpJc6c1BkjF/xUqR7rf1w6WRSi/QfhsrOxeXpbKLE=;
+        b=QaP3DEuDvYVYEeNzHxE0aG6Vtp93UxdmwuglOHZ87lzFNmeboTImPFTIIIL6CPg3kD
+         LHcHPwKQixDUwadPe0W+ko3dWqf2G87AbxQXDeLj0pdIpEWZvBXfRxaSturrF1fjm2Fl
+         CMgoQWAuU4tuTjzh8gmRhLckx2rv1L2kcOLzYIewQbRkZ7IOpY3xuqhTx73PPNQ2e1/D
+         F3Kb2ouTJpAAspWB6DRyytC+aXXclctDheEmuZEEsmTo/5ntVEyr3gnJBbu+hhM2uym+
+         m7lqeiTTX7vO16szQNoOcY5yeISVLEO95T/vdAjTFh0YDBHkUj/gOuZRx6+x1NqS9VuD
+         19Ww==
+X-Gm-Message-State: AOJu0YyU0uLS1/To6emZ604+nzEV9wpBLtjLUyy3z5BPbRdceTXMJXTT
+	5tO+dmQymPqAkqsUJiNaMZTcRFrt3vhqTIo9Pwry3xiF9nOWF+9NiAGV8I2T1Q==
+X-Gm-Gg: AR+sD12oaIAj3hzmwB+uGNBWITTEKQtRmkf4bju7SyZ9aIU71+h8his6Sb/sPk8rja3
+	FPeCVnyc6ypw7jXOL3S+PNcLFViKJ1wbcETH6TubN5aVqCOoPYGBq++270sfS5aeR7m00Ihh2BK
+	4W2j+/64ZNO//pwsnU1wDQlp2OCIdVhRLwzkTfqxgfWXMyafYXQqdM6N6rQJg5CGpPQynP1Cky7
+	RhUJZf5Clux349+vk/AnKOoVl/FOE8hUID+RIfaEsSoL/mfVTP8wAdZhS9wjCaAcrb7oqPGplgi
+	zCJBSVWPa+3OS61KAPv2iRbBj4n0QPPEFg4Zi2y4Wv/Uby9RiYJthAW1yXxe5wi1XPPa9S+skvM
+	pHcePQi2ty8+jaf8hyVOwr4JpKOSk7+Rb49p803kAt1SFM9lM8dw35zuGosHoCsoAQVKLcEFvXI
+	zWBcTkbxSKUQHKYqse9MWxLV1lc3lNHDh5HSGOhecmE+cgxxSSU616hk8l56Fpwzgg4oZPED7U+
+	l1bY5D1eJI=
+X-Received: by 2002:a05:6214:2685:b0:8f1:8737:d794 with SMTP id 6a1803df08f44-9088126d7e3mr14208156d6.16.1785867920141;
+        Tue, 04 Aug 2026 11:25:20 -0700 (PDT)
+Received: from Fedora43-SELinux ([144.51.8.27])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9088008e6basm7463976d6.26.2026.08.04.11.25.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Aug 2026 11:25:19 -0700 (PDT)
+From: James Carter <jwcart2@gmail.com>
+To: selinux@vger.kernel.org
+Cc: stephen.smalley.work@gmail.com,
+	James Carter <jwcart2@gmail.com>
+Subject: [PATCH] libsepol: Non-mls polcies should not have any levels
+Date: Tue,  4 Aug 2026 14:25:10 -0400
+Message-ID: <20260804182510.27921-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260804034204.3487077-1-libaokun@linux.alibaba.com>
-In-Reply-To: <20260804034204.3487077-1-libaokun@linux.alibaba.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 4 Aug 2026 13:00:43 -0400
-X-Gm-Features: AUfX_my2GHODSgWpz7u9PLF5sftBX1mO9fjStT4uqGF3r0dq7sFB5ilyjzEJ3cE
-Message-ID: <CAHC9VhTWuX6D0yeBKr0bPbJ_mKUdiLYRtQpcwq-jJgovY_akDA@mail.gmail.com>
-Subject: Re: [PATCH] fs: fix user path of nested backing files
-To: Baokun Li <libaokun@linux.alibaba.com>
-Cc: linux-fsdevel@vger.kernel.org, miklos@szeredi.hu, amir73il@gmail.com, 
-	viro@zeniv.linux.org.uk, brauner@kernel.org, jack@suse.cz, serge@hallyn.com, 
-	linux-unionfs@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	stable@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, Aug 3, 2026 at 11:42=E2=80=AFPM Baokun Li <libaokun@linux.alibaba.c=
-om> wrote:
->
-> backing_file_open() derives the path to be stored in the new backing
-> file from user_file->f_path.  This is incorrect when user_file itself
-> is a backing file, which is the case for nested stacking filesystems,
-> e.g. overlayfs mounts where the lowerdir of one overlayfs is the merged
-> directory of another.  Since commit def3ae83da02 ("fs: store real path
-> instead of fake path in backing file f_path") the f_path of a backing
-> file holds the real path of the intermediate layer, not the path that
-> the user opened.
->
-> Commit 924577e4f6ca ("ovl: Fix nested backing file paths") fixed this
-> for such configurations by passing file_user_path() from
-> ovl_open_realfile().  However, commit 6af36aeb147a ("lsm: add
-> backing_file LSM hooks") changed the first argument of
-> backing_file_open() from the user path back to the user file and
-> derived the path from user_file->f_path again, silently re-introducing
-> the problem.
->
-> As a result, files mapped through a nested overlayfs show the wrong
-> path in /proc/<pid>/maps and in perf/ftrace mmap records.  For example,
-> with two nested overlayfs mounts:
->
->   mkdir -p /ovl/{lower,upper,work,merged} /ovl/nested
->   echo hello > /ovl/lower/foo
->   mount -t overlay overlay \
->         -o lowerdir=3D/ovl/lower,upperdir=3D/ovl/upper,workdir=3D/ovl/wor=
-k \
->         /ovl/merged
->   # at least two lowerdirs are needed when upperdir is nonexistent
->   mount -t overlay overlay \
->         -o lowerdir=3D/ovl/merged:/ovl/lower /ovl/nested
->
-> mapping /ovl/nested/foo shows a disconnected path instead of the user
-> path:
->
->   # readlink /proc/self/fd/3
->   /ovl/nested/foo
->   # grep foo /proc/self/maps
->   7f6e2c100000-7f6e2c101000 r--s 00000000 00:24 15813027 /foo
->
-> The bogus path is derived from the f_path of the intermediate backing
-> file, whose mount is a private clone that d_path() cannot resolve.
->
-> Fix this by using file_user_path(), which returns the outermost
-> user-visible path for backing files and falls back to
-> &user_file->f_path for regular files.  This restores the behavior of
-> commit 924577e4f6ca ("ovl: Fix nested backing file paths") for
-> overlayfs and also fixes the same problem for the other
-> backing_file_open() callers, fuse passthrough and erofs ishare, when
-> their user file is itself a backing file.
->
-> backing_tmpfile_open() has the same pattern but is not affected: it is
-> only called by ovl_create_tmpfile() for the upper layer, and another
-> overlayfs is rejected as upperdir by the DCACHE_OP_REAL check in
-> ovl_mount_dir_check(), so its user_file can never be a backing file.
->
-> Fixes: 6af36aeb147a ("lsm: add backing_file LSM hooks")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Baokun Li <libaokun@linux.alibaba.com>
-> ---
->  fs/backing-file.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+A maliciously crafted non-mls policy could still have levels in it.
+There is no validation of levels for a non-mls policy which could
+cause a problem if those levels are processed somewhere in libsepol.
 
-The selinux-testsuite runs clean with this patch applied.
+A non-mls policy should have no entries in the level symbol table,
+so check that the symbol table is empty when validating and return
+an error if it is not.
 
-Tested-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libsepol/src/policydb_validate.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---=20
-paul-moore.com
+diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
+index fc66a4c7..fa36950e 100644
+--- a/libsepol/src/policydb_validate.c
++++ b/libsepol/src/policydb_validate.c
+@@ -1024,9 +1024,14 @@ static int validate_datum_array_entries(sepol_handle_t *handle,
+ 			&margs))
+ 		goto bad;
+ 
+-	if (p->mls && hashtab_map(symtabs[SYM_LEVELS].table,
++	if (p->mls) {
++		if (hashtab_map(symtabs[SYM_LEVELS].table,
+ 				  validate_level_datum_wrapper, &margs))
+-		goto bad;
++			goto bad;
++	} else {
++		if (symtabs[SYM_LEVELS].table->nel != 0)
++			goto bad;
++	}
+ 
+ 	if (hashtab_map(symtabs[SYM_CATS].table, validate_datum,
+ 			&flavors[SYM_CATS]))
+-- 
+2.55.0
+
