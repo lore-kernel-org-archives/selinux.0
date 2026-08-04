@@ -1,99 +1,150 @@
-Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
+Received: from mail-lj1-f178.google.com (mail-lj1-f178.google.com [209.85.208.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FD584756AD
-	for <selinux@vger.kernel.org>; Tue,  4 Aug 2026 16:08:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785859708; cv=none; b=j96+IuWp/8z8tGH2i7LLG5B+OEj3Rs123U0TaLGbWD/pgNEzbonSYC3R8YOWNNteEplClvNeWm98oqYhwfBXIEmb2xBDK77+NTra/eqdG0IL+nPk2w9d/ArgsJfexOqFxStN76yplyAISb4XQhfjes+5GBK6YapPic9K1iuHVg0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785859708; c=relaxed/simple;
-	bh=zmFCAkc0fsbPHcEYvsOUZAOhKnTIo3++PH2wlmtbc+I=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=K39ni1xUMebUmc0UDfLS83uwHkWzI50yyCBVUXQR/L6NHFhQ4sSpe6qwB5W72CUwdk0l49GnIuIEQZgxCEMVKuYEattsS0NHKxFAJA8PlvxjTf+F3ZubYarwglxpQTcSBSegzY8EX68qgOvlAM3m4HF5tUUUneGXmBcNnwhdHqs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=U6P/YU6c; arc=none smtp.client-ip=209.85.222.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C2AB4766AF
+	for <selinux@vger.kernel.org>; Tue,  4 Aug 2026 16:35:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.178
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785861307; cv=pass; b=pgkWSyNhDIWdqqj8Uw3MOMYc/M/Gz6/x4k6JF+4VHBbHeGK9uaogkXpArz0yJctTKVfA4CYBJCz+XLgq2WQNy51q3qkqq+8ZNKgFrG3popipTbqzE/sN0SgWpd25EFeAnUU8Zb/AKoxadP8nuUSn5msRgStg1SnLIL2R2GJTeUY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785861307; c=relaxed/simple;
+	bh=xRvc6x+8vsLAs7Z9mNxKlZ4gAAz9ZHVSVz0zBWwv+Ek=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Uxn4iGfmfngLRB5hC6zrpD+Qzlc/aHSfCi9W3tqV8cH3nCzFOPXimSKNCKIj3czdjv0g+R0NmOWgMsnZBBbBcc44wrDopIT21JgkP6vpi+Fyv7643AmGApxmD/IEImIAbetcVUYXEwCO/BhgW28T6zNZQV/gx/y9ALiRywD1mO8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XFwq54O3; arc=pass smtp.client-ip=209.85.208.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U6P/YU6c"
-Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-92e7632b193so850285a.2
-        for <selinux@vger.kernel.org>; Tue, 04 Aug 2026 09:08:24 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XFwq54O3"
+Received: by mail-lj1-f178.google.com with SMTP id 38308e7fff4ca-39c7ce122c7so444411fa.2
+        for <selinux@vger.kernel.org>; Tue, 04 Aug 2026 09:35:03 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785861299; cv=none;
+        d=google.com; s=arc-20260327;
+        b=ZCPPTx0aHxw6c+5Pf9HGSTyjG46p4iUD4t9MjJ4BvlSlwn1ziRjEITlzIQk5pg2yuW
+         4GI3EKfVCAo+LbRLCEXvbsdye2vX/7a7lMD0SyAyBqrJA4OFvaPgURg4bpNX9lo7SRkd
+         /0LePka+tXV9qnuH47AvWOAwxtoL3rVHdQIyiQWxOpzAnTG+3f73UzpZ00A+JKnExfqK
+         ALhiyJkV5OBmMndrNyMkytvkhSOChd3BMPGmTsf1m9oMJXldn7ggude7WHuax+ESR4Tf
+         RGtfI+UgrcQQxjnxR/82wBVAjQqsqCktIP7Q5zKr+CoINy0wrQc2n2Kx3tlsGvNXr6ad
+         qEeg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=xxVTIzhAqd/0otMnkRRZ0Ub2KVlpQEIj4STfde7oLMQ=;
+        fh=9qqehjuxnn2X0mJ7hQbZg99PSLTxs4BCAql4/69ZoU8=;
+        b=d6UQ7VDk+KXwuW7djy0Rb3IgeqLZl6m5v6ldai3ifBvfK+qV6TInG/HEfuVwvXDwbP
+         RkqqH5/4gpnVAzxLP6Aa6mS3wcCFZJA5aBw85BBKhkky9pObFovH20vi5h08x+FGBLcj
+         2YAKKIGtNNb8hAvNtRyjRYBWvINAjCSzBU13GxMhO/MpEz9gbgxnFoxqnnyQ73d5wAgE
+         dr/s4DxzhPQuy2pppwgC7f9c41Pdcr1pRSAvll0dRGq7N+UU4QURd/FQbG4M4kxGXVTj
+         IHV9P/hqSYRD+V14zE+9dyp2/iXKRqOw8AIb7gqh+1KDUL1QncOWJC4Q6YmeXq0pUTAF
+         yagw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785859701; x=1786464501; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Um0Ck4lTHndUbiRX3LoBOrbvRjuAvikL3pcCM/Oe5XA=;
-        b=U6P/YU6cIKaJUgQW1aBbnd7/FpDsUrNPBvEFjjEJsj4umeb3ynRB4UqcMWFAmvgt2h
-         oCcaroE8wP6sb3CsApeujfVfMimqmvvQK+o/0eMof8PfoWcDqq2IIQeTHhDN5Eur8frM
-         Or/7bQwkMU6ZaE9o22JTCcrjtmFpM5rIhi/H2EbmmstVALkleztoR0lrR7QtMC4Xh2JJ
-         fCnJWAWjXNFIlsTEHYQagATnh8jPx0SwnU1Qa3XTBV8sFHDa8Bo569voyd5L75ASAGuc
-         8GEtD3zByLGr+69lCCB35DnIzr/UD7+28VWLDhPQEY8wbLvDNGQj0Kf0CvYEkS6Mccan
-         XFQw==
+        d=gmail.com; s=20251104; t=1785861299; x=1786466099; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=xxVTIzhAqd/0otMnkRRZ0Ub2KVlpQEIj4STfde7oLMQ=;
+        b=XFwq54O3r81KO1bbh7g9kUQNx9kVC1aCr4bZNEjcoRMnO9/5feDUJb8RhHp6l1OJmx
+         /eWmfQlr50zkuau0sVc0etcCdX9apliT+kYdF6hWfIfupe5MT54HSElZrrrRHBPECcbi
+         k9LvROgZq3gTsaUCJhI76VR/d+dk+03vrmRRxVkaBcXS1OtTZQZ9CqQ0kMMNhSDIOLXv
+         oGqzA0W/P/d/eYYImhSjOkbdwX1ZZi5+g7fuoU6egGN8tvhY36dB2pk+/6girClHFTz6
+         Kp/zIUowsTsP2L/JEX7j/SMdVXvE48zszP1bLiACPoNFa0lq1+y4OtGPMFUKzZyFMZS+
+         wPxg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785859701; x=1786464501;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Um0Ck4lTHndUbiRX3LoBOrbvRjuAvikL3pcCM/Oe5XA=;
-        b=B0NWlIHysbG85C94zi0qVOEjN17kcI3ZqE8C5q6qhEN0fEuj5H+aLXHRtHiMF/Tu3K
-         bWNZdfqGltk35X1+9WdJb9557YhaYwYDSWVGa8LBAYxp1WJQ32pFJqLEg7kED1UYg4W6
-         Ufy8vkPyPvebSyvDwqxaj5fzoZAbU+NaFp+nLDZxGswdC7a7jxpdK/tfkcBE/4R1boka
-         Jld4dsHwTpw0IafYfWZdZj/fXXZnpA8rixeFvB/9BgK+nd+p1gdCMF0IKyXSH/t1ivUn
-         jJzpxfhLpw/4SzSDXLUmauoSMUFk7iHehP6rnLBSyxNUzXqF++ilf3I9s4OzxKbVFVWT
-         4pOA==
-X-Gm-Message-State: AOJu0YxLmTKSjiqVlMfDGTr3mQkdW/2FT7BK95S0LbKOj1E7HUw6QKy2
-	vHefok6fyi/rg+mUhgdYohNegdi0TkjcF0qFgTAnc9L4PTjv3DREQRUYS0sbVQ==
-X-Gm-Gg: AR+sD12ThZ1pDaVfdnkM2YYw7zn0oBLn1JqvYzpMmtn+9kFtG7wqX8Lon76/4klR2LO
-	c6TS+1Ys8revHSAmRFvkKblgfdFWA3X4UwtfUK7ZOrDizjDT+BKZomyCklDkbKh/R8tagRxGTWi
-	Pc3vjYPqnW7PWcwh1c+KnEtTIFZrYmTaauJ6sx8dXlt+xygfMFBHkrHLZLK/94pMKQRMK4mG0mg
-	gOaVpHSLbLDdxUlpOpjGkqAYM6c99YHTzw6uaCNpjda6Hft5YH071A/WHmJcHg8LW5DNba7NfRd
-	3h2kdENkeqUjJDdQ0mRmJ2wTildkJiN8R2aEI1UaOffD2FB6MnzhjoPRFFfP9g7nlb2Ug8hpXmC
-	BDElbpnYZIWrA374fs1ZOm+5drS3na8yExHmljgWrXNsXOp5CVzUcd2YT1toZxEpOtcgNGLWcWV
-	jn+Nh0/YXN3p0KCelO/vbcr9aI4XiGOQpOyKMi35sUgxhNmNFAM+JzLGXeIQ9QRkHiSiCyWsybV
-	u2hGpFUEIfiAbbQxqVZ3VFxPCDBWvLnzoQrrq7z7jIIYwP1RROGYWCOclK3vMgb
-X-Received: by 2002:a05:620a:9142:b0:92e:e1d1:49dd with SMTP id af79cd13be357-934a078e741mr2219294485a.21.1785859701002;
-        Tue, 04 Aug 2026 09:08:21 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-93641703383sm112001685a.7.2026.08.04.09.08.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 04 Aug 2026 09:08:20 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	plautrba@redhat.com,
-	omosnace@redhat.com,
-	jason@perfinion.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] README.md: add Check format badge and link
-Date: Tue,  4 Aug 2026 12:08:06 -0400
-Message-ID: <20260804160806.21979-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.55.0
+        d=1e100.net; s=20251104; t=1785861299; x=1786466099;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=xxVTIzhAqd/0otMnkRRZ0Ub2KVlpQEIj4STfde7oLMQ=;
+        b=YV9rDjhLX1NITfbB6YEO/nih9sYEUl6FDi2AooNF3d9CNE8xtBTiAzbOH5DF2Haf9D
+         35zXYw9fFXEaIFWi7REZr5fE7Om/YP+kdJWMHijd8OQQAZxNcfKcv9XBockbmPwFzMW7
+         GYVlaXUaZpynqWBjK6UB5ddGw+xwbKwXYu5+jTZV+leAPjtvFTCbddv17uw5gtsh8TMV
+         dCIt5dcHef3RVkUQY/iHmmr8jddYOHtEfDaV4PaP0sf9beBKIVZ4Gwbssp7LG/peuajK
+         INlbgZjp9ZgBdnG0J0DkXiKR3LIylBsXPjLuCv1FreFsagC+kPZe5oAtYyWRHgNptJHB
+         pYJw==
+X-Gm-Message-State: AOJu0YyMXgNJWgu/MUt8LcDFbVPNz7eWIer6tlQs6NaRBFYGLBuJ5hre
+	L6cw6Kod2p8CgPqIVD0uB0CYYBTFpwj90E/t0sJufu80j5CjGsgEYIRL7Oqbz1uRpDJpQ49DBmN
+	yEJovII/zQCT9vchoxrqgKYAM/FsQjFA=
+X-Gm-Gg: AR+sD12IvcwBDMiF+mk1md009D1e33pm+A7wEUeaCtopZSzZlwN0qKX3l1fmIsRmVe7
+	+NHN7Vp+54cHy1hNj86mvg78mVCI/eBkomYhX3w5yWFuXCuLiJ61BSoppMCvFgW/1xx0D0geiX1
+	tPGU9z2JZ7xeibXJ5VW3Ph8I1ckiGEqNs/2++DRwT9TBCAmQo1QOcf3yXIa3Qj52sO8i9nzvpBw
+	Po01zBzizTUfY/Ylu0uJGyL86kDGWTpdjXp9rfdQ41pPftLj9N7x3ZdiPo7y/qga5uJKDD6I0I/
+	g6yE1WTqM9Ham+GCOS3WEzuIwOn6cFE16B+VhGkndNk=
+X-Received: by 2002:a05:651c:1145:b0:39c:9452:15e4 with SMTP id
+ 38308e7fff4ca-39f862d6e62mr33562961fa.19.1785861299212; Tue, 04 Aug 2026
+ 09:34:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260804150419.20254-1-stephen.smalley.work@gmail.com> <CAEjxPJ42hQhx66icUnDzhgHhe62xbKKEzNRNAoCBHpRouyixeg@mail.gmail.com>
+In-Reply-To: <CAEjxPJ42hQhx66icUnDzhgHhe62xbKKEzNRNAoCBHpRouyixeg@mail.gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Tue, 4 Aug 2026 12:34:47 -0400
+X-Gm-Features: AUfX_mwA-N552mE8zLVNLTcvJKrmKf1VRFZ4-pOnCfd-6PPwuVJAgim6UjKXbqk
+Message-ID: <CAP+JOzSZ1psCgy4FYYyeOip7Fjk35yKE9QptE5Cm7yLuXUqp6A@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: reject policies with no avtab entries in expand_module()
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
+	jason@perfinion.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Add a Check format badge and link for the Check format workflow.
+On Tue, Aug 4, 2026 at 11:47=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Tue, Aug 4, 2026 at 11:04=E2=80=AFAM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > avtab_read() already rejects policies that have no avtab entries in
+> > both libsepol and the kernel, but expand_module() can produce a
+> > policydb that has none. Check and reject such policies in
+> > expand_module() so that checkpolicy (and its fuzzer) will fail rather
+> > than writing out an invalid binary policy.
+> >
+> > Reported-by: oss-fuzz (issue 541553475)
+> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+>
+> This breaks test-expander in libsepol; apparently some of the test
+> policies there lack any avrules.
+> Should I fix the test policies, or is this change incorrect?
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- README.md | 1 +
- 1 file changed, 1 insertion(+)
+In cil_binary.c there is a check that the te_avtab has at least one
+rule and an error is returned if there is not.
+In libsepol, avtab_read() also gives an error for an empty table.
 
-diff --git a/README.md b/README.md
-index 08e82d0c..fa135a22 100644
---- a/README.md
-+++ b/README.md
-@@ -6,6 +6,7 @@ SELinux Userspace
- [![Run SELinux testsuite in Testing Farm](https://github.com/SELinuxProject/selinux/actions/workflows/tf_testsuite.yml/badge.svg)](https://github.com/SELinuxProject/selinux/actions/workflows/tf_testsuite.yml)
- [![OSS-Fuzz Status](https://oss-fuzz-build-logs.storage.googleapis.com/badges/selinux.svg)](https://oss-fuzz-build-logs.storage.googleapis.com/index.html#selinux)
- [![CIFuzz Status](https://github.com/SELinuxProject/selinux/actions/workflows/cifuzz.yml/badge.svg)](https://github.com/SELinuxProject/selinux/actions/workflows/cifuzz.yml)
-+[![Check Format](https://github.com/SELinuxProject/selinux/actions/workflows/check_format.yml/badge.svg)](https://github.com/SELinuxProject/selinux/actions/workflows/check_format.yml)
- 
- SELinux is a flexible Mandatory Access Control (MAC) system built into the
- Linux Kernel. SELinux provides administrators with a comprehensive access
--- 
-2.55.0
+I think the test policies are wrong.
+Jim
 
+> Also seems to run afoul of sanitizers due to memory leak on failed
+> expand_modules().
+>
+> > ---
+> >  libsepol/src/expand.c | 5 +++++
+> >  1 file changed, 5 insertions(+)
+> >
+> > diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+> > index 8cb62d82..466d5bc1 100644
+> > --- a/libsepol/src/expand.c
+> > +++ b/libsepol/src/expand.c
+> > @@ -3494,6 +3494,11 @@ int expand_module(sepol_handle_t *handle, policy=
+db_t *base, policydb_t *out,
+> >                 goto cleanup;
+> >         }
+> >
+> > +       if (out->te_avtab.nel =3D=3D 0) {
+> > +               ERR(handle, "avtab must contain at least one entry");
+> > +               goto cleanup;
+> > +       }
+> > +
+> >         /* copy constraints */
+> >         if (hashtab_map(state.base->p_classes.table, constraint_copy_ca=
+llback,
+> >                         &state)) {
+> > --
+> > 2.55.0
+> >
