@@ -1,61 +1,61 @@
-Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
+Received: from mail-qv1-f45.google.com (mail-qv1-f45.google.com [209.85.219.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39AC03D3CF6
-	for <selinux@vger.kernel.org>; Wed,  5 Aug 2026 18:37:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E81773CB57D
+	for <selinux@vger.kernel.org>; Wed,  5 Aug 2026 19:15:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785955029; cv=none; b=HVhivnwUrZz29EKnnDQhM6w3NjrjWdjkYbYvTLib8tJ6QytYhHqfLk0j2qLkB/SpIDGVnmX9ABEPf3UL7gNYc1dvWx7sO07Q6g0rZ231JfuhYDypycizNS80l6y9KRX/TmmqX4N+J94+kLZyNx9JLWwwGYVLRbfuk5nrUt7X/gg=
+	t=1785957353; cv=none; b=k4fELhA14U1VKQ8jFK/inwzMmrw7l6fI6fNM9+aMaQIjEv7TYP4MMLXBTc2v+QNN1Nu5qxOdWrAZsEbOyAutyYHwrXVWrRgo1AmBQigMUmNuSoMZVxzeyNc7iygePi2hFEI0GAVEH6fLL10Diskhv7zvx+EY+3H2dqLRsRLdOgU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785955029; c=relaxed/simple;
-	bh=02eGdbKTo9QgJLLUmXGH+XT+r/36WoXN+3IDt89prUI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=C4j6sfchb2soDE5eROPX1JTTooLDrbKaTDlJktQ2aOk045yMi4ZnDUPXMGohBYstkUJ9zyuLyA+JjhAhZIUipe3YNRIZ10cAlccJenpVSikcdCTNqWfzB7EWyDp/IZ+RwN3017RxOt6uFxIOxxVcoAqY13+e04z0w8AMpNJV1hg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BlZxHzGZ; arc=none smtp.client-ip=209.85.160.170
+	s=arc-20240116; t=1785957353; c=relaxed/simple;
+	bh=IxneZPxien09W134g5COYpTmlNoLP9F0GdAVJqtsn7A=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=UxCRZg6t6lc4o2Z3P4/vfnOEnuDKxcZI0zT/FnHe+CrXH3YoFNDo6GZtz2g0pSLXQTiEPUdDWB3lTWfkfMQxTOQsACkr/3T9yagmMjXtnBPSs/Jle6omArrR+MgR2PHm+WeflnIgRbG5lqBFuizX3en+UTQezIQCEjCfnh4q/lQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jP8hxjy0; arc=none smtp.client-ip=209.85.219.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BlZxHzGZ"
-Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-51c0ecfaee7so8572541cf.0
-        for <selinux@vger.kernel.org>; Wed, 05 Aug 2026 11:37:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jP8hxjy0"
+Received: by mail-qv1-f45.google.com with SMTP id 6a1803df08f44-8ee43b3e5abso9552756d6.3
+        for <selinux@vger.kernel.org>; Wed, 05 Aug 2026 12:15:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785955026; x=1786559826; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785957341; x=1786562141; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=JRktvV+yQF20jYJKaamMy02VXSqcEHwESQ6O0ChtfIU=;
-        b=BlZxHzGZsC9MzpFzUjl9z5vUgoPhVSNyE0Tln9X5c5sgqdPmjvV/+jNBmcaQEU7Wdt
-         +lHcfBq+DqzrdtazhqrmbQdrDvoOccj58WCcQcBM38Dl/L92kHbitSlemOJyuk7m910F
-         WEWJ9Zg+i4zxUCmZ6ll8bbQpgQqhs/eq112Rq9bz1VSYokpLsnJD+phrESd0DGU11ED4
-         DPiwal+svwGLEAinBIGKdAnkGCo1EtWCZmmRXH5dLIK3y2MP4vqgzvz+3FaJxKjqL/6G
-         l+qnLOM2YIi8Lz2AxfgdfIIKtXcfT5uSNePm6FW4RQ6uDWG6nJ1F4vq4C7ryOiG03bzh
-         tq3w==
+        bh=JzoZflJdEjZs3ZSuVVB/1WAA4CldduzKAQaRNIgR8xA=;
+        b=jP8hxjy0eavou/CAZRISfTjeIMhBb9Eksd6f7kei0YR2RBjNXkG7zSat6GMrKPyPXg
+         s/xBwMlUgKNa/4ocJWwghk1zFMiCqWs7o4KK9yAgF7kYyoaqEPAPVpMTTQlk5ZnoHROe
+         nvOkJl+dtzJOLzt/XWmeFxXi+lFk+Y+/oRT31ESFyy1huDEDngvbb+JM1Lf99v/bSR4M
+         lUT3dTZ12zZAL+PPf0PHqlFdz2bO+xWyiTizE8Qq83GpK1LKCXoSkckk2dF/MHQO29xB
+         eho7PEVL+SNLq80xOllqgbj+jrLPJlc55gpshQIX4TnhpcvK9fH2B9F3RDyetQUrqjGd
+         urqA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785955026; x=1786559826;
+        d=1e100.net; s=20251104; t=1785957341; x=1786562141;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=JRktvV+yQF20jYJKaamMy02VXSqcEHwESQ6O0ChtfIU=;
-        b=m5AIL6RIgF5zDc5vWZxeRJtvrQ/ETsWUxxvTQfB7S5tcLYg6jcdsUbYZ0wCChj/+Lb
-         I7uBOxJ+JCK6buK0JWWlmGLpQLr2LTqjhCZqmN0rsHk9mDJqgCpM4Bfi005HV6PgTG8r
-         fIno2L8RD0GRatr6Vkby9Crry0obJjoKbd0+S6YL3LgiRmL6I6VDk8dCvK3yPOVHTJqQ
-         N8KGIrVlUX68fUiDPeDT8kTJq0cH/aBHAPgyt+VCa7MJHwAzIDK5i6fe80mI+qPnNjfj
-         iBLWyY1GcgXyFtvATAnvYt6YfaRdgxB3hs5uW76G/ybvKHmeEZWyiFu6fYXjimU8TgTJ
-         fRMg==
-X-Gm-Message-State: AOJu0YxySwvs/wJw7L92SFmlmb/uNAlsFBIxc/ODhkh0u9Zwd1Oof8Q1
-	l1yrfSvfdb4Ag/BPR2m76/AhtYY82bwTjZRmt3M3sZ+W10f4I8DV4jSc8mHuQg==
-X-Gm-Gg: AR+sD13t7k3vIqASpsaDefbMKDtYlIKhKAe9ozNi10/jpoQeXxECcyVgRI4Yw753I3g
-	B17kShO99LXCGbJjPSneAJYxH6cBHMK5FVZ4IMbKuvtPT84DRmEDzsq2D7POCETqSSvm/YsFLNs
-	CQ4aRH/r/x6A6slrENQVF/BF/MZnw8swx/C4AWV4yp4MZ6GTa6CcLlH+2PeQGAK6Ohc4ohS/cEn
-	V8YOKEfF//J+MTfWiZDtS1bND9TYLZDpWrXzfNn0/HVVxknTibfU15dlLJJGDYFSmRTxrTFUxpt
-	KP0ePkEovOGVWw10SqtbJTQd+JwnpLz/XlR25AvJIRN2Mi0SrmP2CHpgLWuwPxbbQ2NRQhuFnMS
-	ogunwfL+uwfgLlA0ffzElb/UcyBwdckS1ydsExaT7PQTQ9Zs0GBFjwiAApKkRPFTb8cRJbcMaK3
-	jBKCRQRmadAvbt8nK5A0x4N0Bib4Ofcq3YSvWyN2X71+Z9taZrMM0JKNwR4+mMGtL+LeCRDYkZs
-	qQijb337hFMagp6h/KkfmaLmVb5A8Lc8iIMRGekS4AmQW0aGGBd4iMV42ybqgFZ+76K4iHaFPE=
-X-Received: by 2002:a05:622a:1f8e:b0:51b:f40b:2fb3 with SMTP id d75a77b69052e-52ce5f82391mr95757131cf.9.1785955025739;
-        Wed, 05 Aug 2026 11:37:05 -0700 (PDT)
+        bh=JzoZflJdEjZs3ZSuVVB/1WAA4CldduzKAQaRNIgR8xA=;
+        b=ps/9OLGJ2K+7YoblfOYoaL/Af+zjtYRVu9hQCPoeNcwMgT24fsNkUozYLr3uy2p8s8
+         EGTjHez4OhwgtU3udouv5u3akqi2EqfiRifBLPI87iN/ygBT13W1ZhKNrzBLj9PbZwzd
+         t0myjKXBx+7E1OwujmscGQtMvDhkeh5dkIfmwqU2v+CeGgic+t4WCkQYirh5DvuHRBW5
+         yQcwpnGSW7xkQzuAnw0aUuf3TRA+ezwEF1+PakIderpIg4DuPh7dm+CWbXS6Ot6/qahN
+         5QCBk2zd7pKf18ms2z6tvbOHoMikiOVriT/SfZgIns6rZUVjVMeWxMtCEMm29GYAZ6eJ
+         04Fg==
+X-Gm-Message-State: AOJu0Ywi5ddDi3J1gCxEWYHkERRyOfIJx5uo1iQADMx2kDortC9qb8IV
+	ZY4qvC251RNJz8L8Fz0FiTDfzN4FwB7gltDzEV7mmGmL7Q5N6fhZtR8oBVEDow==
+X-Gm-Gg: AR+sD13QIjdkN05NK6VFN9gaP6EYAUHw4HyFi1nWBjiAqNf06pUcF9AvuuOpn2lTWwi
+	iDowS7VNSqOrsc+Tq5CUvr0f6cLhtJEHR1MTVjzt89oOAROPUjlqIFPOR9qcHjVChOTbf63WLD8
+	QBATL8ZMIlijTR4Pb5454aFt1Q8e8dL17hKug+XjwNadF0tnTyzBjG05+TJq4+HmzSpaxa99MRC
+	0Ap4tr2hKXoWZ+lLmc3d8IKP1V9WVsfKV0VsiZXdyV6l5LOwhoG79itozLMdQjU/P5QXXLDcxA0
+	s5mBUcevsKbTJT+M54wQZws2KYXp7/ZU+5PAtXt4/VD3sW2Mcmv4T/sfv8shm2JEIbgqKzXxImu
+	yudmG9SnChMJKoeers38Rh/pK3thtwwmTUhrQiTHsxc7gMWIfqzTfNAVga76Q21dNkuZuuPqRvC
+	sbUxLM+QvM82DrWeH8hiroRYKfv1alD4vIqOW8i7dmg2AyC3ahLsdQnRdlxD/ohmtHOxozpzrC7
+	JKaHMC4HCMo7XvtRU3rFyvnOxCTw8ouHZXlrKQvpEEi0ANE9iB+swUwpjxAdkAk
+X-Received: by 2002:a05:6214:29c7:b0:907:c6bb:5ce4 with SMTP id 6a1803df08f44-908813abaa3mr96016936d6.32.1785957340873;
+        Wed, 05 Aug 2026 12:15:40 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52ce87aa78asm26267041cf.1.2026.08.05.11.37.05
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-908800ab3fasm31952976d6.34.2026.08.05.12.15.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Aug 2026 11:37:05 -0700 (PDT)
+        Wed, 05 Aug 2026 12:15:40 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -64,9 +64,9 @@ Cc: jwcart2@gmail.com,
 	jason@perfinion.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>,
 	Chen Gong <reister@ruc.edu.cn>
-Subject: [PATCH] libsepol,checkpolicy: drop support for kernel policy versions < 24
-Date: Wed,  5 Aug 2026 14:36:47 -0400
-Message-ID: <20260805183647.65573-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH v2] libsepol,checkpolicy: drop support for kernel policy versions < 24
+Date: Wed,  5 Aug 2026 15:14:38 -0400
+Message-ID: <20260805191438.77935-2-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -86,16 +86,19 @@ we already set for libselinux.
 Reported-by: Chen Gong <reister@ruc.edu.cn>
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
+v2 fixes up a duplicated validate_filename_trans_hashtab() call and
+an incorrectly removed mls check for binary modules.
+
  checkpolicy/checkpolicy.c                  |  14 +-
  libsepol/include/sepol/policydb/policydb.h |  12 +-
  libsepol/src/avtab.c                       |  92 +------
  libsepol/src/kernel_to_common.c            |  13 -
  libsepol/src/optimize.c                    |  13 -
  libsepol/src/policydb.c                    | 129 ++-------
- libsepol/src/policydb_validate.c           |  47 +---
+ libsepol/src/policydb_validate.c           |  43 +--
  libsepol/src/write.c                       | 290 ++-------------------
  libsepol/tests/test-downgrade.c            |   7 -
- 9 files changed, 66 insertions(+), 551 deletions(-)
+ 9 files changed, 64 insertions(+), 549 deletions(-)
 
 diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
 index c1b33869..b5a6da3a 100644
@@ -522,7 +525,7 @@ index 44e26f4f..84b7ac1e 100644
  			if (p->type_val_to_struct[i] &&
  			    ebitmap_set_bit(&p->type_attr_map[i], i, 1))
 diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
-index 4cdf0b78..14c427e2 100644
+index 4cdf0b78..5687c82b 100644
 --- a/libsepol/src/policydb_validate.c
 +++ b/libsepol/src/policydb_validate.c
 @@ -77,21 +77,9 @@ static int validate_array_init(const policydb_t *p, validate_t flavors[])
@@ -574,7 +577,7 @@ index 4cdf0b78..14c427e2 100644
  	}
  
  	for (i = 0; i < p->p_users.nprim; i++) {
-@@ -1994,16 +1973,12 @@ static int validate_properties(sepol_handle_t *handle, const policydb_t *p)
+@@ -1994,8 +1973,6 @@ static int validate_properties(sepol_handle_t *handle, const policydb_t *p)
  		if (p->policyvers < POLICYDB_VERSION_MIN ||
  		    p->policyvers > POLICYDB_VERSION_MAX)
  			goto bad;
@@ -583,15 +586,7 @@ index 4cdf0b78..14c427e2 100644
  		break;
  	case POLICY_BASE:
  	case POLICY_MOD:
- 		if (p->policyvers < MOD_POLICYDB_VERSION_MIN ||
- 		    p->policyvers > MOD_POLICYDB_VERSION_MAX)
- 			goto bad;
--		if (p->mls && p->policyvers < MOD_POLICYDB_VERSION_MLS)
--			goto bad;
- 		break;
- 	default:
- 		goto bad;
-@@ -2086,10 +2061,8 @@ int policydb_validate(sepol_handle_t *handle, const policydb_t *p)
+@@ -2086,10 +2063,8 @@ int policydb_validate(sepol_handle_t *handle, const policydb_t *p)
  	if (p->policy_type == POLICY_KERN) {
  		if (validate_avtab(handle, &p->te_avtab, p, flavors))
  			goto bad;
@@ -604,15 +599,6 @@ index 4cdf0b78..14c427e2 100644
  		if (validate_role_transes(handle, p->role_tr, flavors))
  			goto bad;
  		if (validate_role_allows(handle, p->role_allow, flavors))
-@@ -2097,6 +2070,8 @@ int policydb_validate(sepol_handle_t *handle, const policydb_t *p)
- 		if (p->policyvers >= POLICYDB_VERSION_FILENAME_TRANS)
- 			if (validate_filename_trans_hashtab(handle, p, flavors))
- 				goto bad;
-+		if (validate_filename_trans_hashtab(handle, p, flavors))
-+			goto bad;
- 	} else {
- 		if (validate_avrule_blocks(handle, p->global, p, flavors))
- 			goto bad;
 diff --git a/libsepol/src/write.c b/libsepol/src/write.c
 index adec6caf..4e180ef3 100644
 --- a/libsepol/src/write.c
