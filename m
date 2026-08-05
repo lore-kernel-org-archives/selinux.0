@@ -1,156 +1,158 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BB383E0754
-	for <selinux@vger.kernel.org>; Wed,  5 Aug 2026 06:53:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.133.124
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785912797; cv=pass; b=GjTDlgbLz+Mtn7ynWtuQ4ZmkDKfJJxsEnauyLNJEy3nu6oDCDoF/WfFrdu27vxzNuGGlPq93cxBsAKJRYWpgAvu/fjy7tXvSaZ6E9+GMW4CglCE83OqFxBsASWIYgE2Zl+4VT7KhqWa5wK3SmbG6grE6q+DBL51JF1SkXE7MrFs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785912797; c=relaxed/simple;
-	bh=6er01vrRwkuX0+XeICrjDcghTg/CRnNxJstpHhA0JLo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pDg2lkVp8hHClf0vJKNthne0CnvK3Za1Ms3qfWKyQx/0KlXxbiE4/xAnpe2auTMf8glimYgzwIoQl8it6MLyk4gC2JcF1XzgFmd5PRvxL1NiZI6PtPnTgXEbHSRkoRE3ZG8NsbJcdF92fvMDiU04b0+0wljFKSXETZBdN0cmjnI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BFIPgoe2; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=BQSkaSI5; arc=pass smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 574B841D12E
+	for <selinux@vger.kernel.org>; Wed,  5 Aug 2026 10:18:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785925110; cv=none; b=DWpmE7o972fCyn5edIQCZbNn2Z78xICBDoorL1417cSJDdPCW2t44XeFXOzwxj4Vr20oQp3Q+BYnfWzFYMZUBaKRjwBr39Vnn4iMVda6yvWSDuYhZ6nl1Y01LjGtTFB+xhQ7DFqNIqErN0ic+LPfshh45h3dZF8fAr5p65AJpYM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785925110; c=relaxed/simple;
+	bh=UfFrHGYVSM3/rnCnZDoaFcPoLAH4s2oGZugDSllkcfw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=btv9bkUK3m0hx0c+6w/foFZqzABdIVOJqWC6Of7no13z65hYzzlOYGU7jdABHuzgKQYmQieiyqyNLpMfMC22GikHa0x41+RZ3ODcXn6QWoKldtnMe40lsbL+3Hiocx4lf2890VFJTWox42yNL6ZK7Vnu2unb06vEsG1Xx5RyhFQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LEnLD85a; arc=none smtp.client-ip=209.85.160.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BFIPgoe2";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="BQSkaSI5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1785912786;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=2xA6QCYq8hKaevbVi89k0Wm55hqDhXG/ZM69zxsx54w=;
-	b=BFIPgoe2VLy4DXYbPFIRQKhk+p+TiJKVve+p+ZjNhmUTkHjNJelb0SusEHvgfSo2a48wVE
-	ZG3dNl7rBfZJXllwJ4cf7ITMlYl5oodMvMu4mDBopzqCAmrdlX+PcOQ1nqauetC0Y5vPVl
-	Eze9EJXXh5tL/odCnzHt+5fHzlIlEio=
-Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
- [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-582-Hs7gi8l7NZuFbUPmJFuEqw-1; Wed, 05 Aug 2026 02:52:54 -0400
-X-MC-Unique: Hs7gi8l7NZuFbUPmJFuEqw-1
-X-Mimecast-MFC-AGG-ID: Hs7gi8l7NZuFbUPmJFuEqw_1785912774
-Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-2ccd1958e8fso12172625ad.2
-        for <selinux@vger.kernel.org>; Tue, 04 Aug 2026 23:52:54 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785912773; cv=none;
-        d=google.com; s=arc-20260327;
-        b=fHO/1NYvlfXwRsZ4YuqepEmVtPDrSMZoAL7ZeO5VgfRUsGHpKhUBHMYKJ88LFhaNuu
-         yr5jEfM7SEPSWUHlKwvswh0MSM78wBs4Zzv7ikwuHK5ubm7LQumOZzOQXUm4AiXzOk83
-         XnHXctzByVbKNVAL2YM7KLQzJZrEDzwxjrg1sRzSNV3Jjth+ZqNGQN7YqYiH3YluHDBi
-         SB2poEs8xV7JpSXcyHmHKQpHYrt7DEaHPSSbPT7/ERCn+yVlXxLacSqap8UsWcpCsdgx
-         AGZ2BPOGBzpqrLlmoDJAWtjx+kpxOvogfkl+zbJoyZgGa56oDutOyKUB00J/oEp0QN4W
-         Tkew==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=2xA6QCYq8hKaevbVi89k0Wm55hqDhXG/ZM69zxsx54w=;
-        fh=kNXlBPu8BwQweijrLTw6/7CJlHRJ1+zBhAXh/3D3I9w=;
-        b=ao0kfW5DFMPBqzESNLReE4+nVGGXc5SO9Z4UjA7bMuSyFIWmKLc7bYkaQTuvxpcI57
-         W+QAlBykUfPwFfZ0Dm5lL11TS+UkeW711CrssgguqRXkAJk6RIXNb6ntoz97AkjTC3PB
-         5kS6cMLAfvXaCEpeMNInsjRNtPsMPpcn/wwh/eoV/23DirVGxbX4MIa7dpraUoTY7Tll
-         l4EoUBRVknJrA+2+8qoAoe4Q7rCh9Q/GzDPlovL4yVUVE5A3eOJLk9BQ9TKAuKN//HAg
-         wx/8EkUGxapq5+/oKbsqvt/QPeoQw/+VsAJz11juH0UyFxzADrD4QXV3rdc0u/AeVowx
-         DxxQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LEnLD85a"
+Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-51c4436d02cso3723311cf.1
+        for <selinux@vger.kernel.org>; Wed, 05 Aug 2026 03:18:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1785912773; x=1786517573; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=2xA6QCYq8hKaevbVi89k0Wm55hqDhXG/ZM69zxsx54w=;
-        b=BQSkaSI5cAl/ta23zT8DZ5023Dctdu9N+Gu8q12DFODc+gu+h6/YcNL7NMO4hshwV+
-         UFcl5HZh5jrN+w+RzO+5GldMB7s4MwGexZin1Da3obekPeDvIKbN8+M+ssXc/ONIZmun
-         gy1+EMfeBp+v8jL8Pgt1RtYVug/f7ACDNYkQ36KUpviM9fBNXdIp2LeGBP9LRUjMMdCN
-         gd+uoasmUJXobQUAsXqIBCqL4L2OAgiVFigvgLaLRljvJNNbnxwYOZOlj3qHPWo+wIJt
-         uuNogsn9JA7pDvlEOQ5Qm0OPl+kOkavuBWqO7OnTWfSNbEo9m0KZU8ZGWv84xYxdJf67
-         tkkw==
+        d=gmail.com; s=20251104; t=1785925101; x=1786529901; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=ujpHs3PfRJjFFZCbSqMCngYpk4iOIUD/fatI+7nY3g8=;
+        b=LEnLD85a9f9f+aNit46InpH+8yoo1pGrkJVkpwvEGRF/K2gEr67I7qsRxOAUNfPiX/
+         Pqr2SUNZHG2WRq2vxm/x55zyxw7wQXERzwZkdnmUEHNeP6W5i1DKWnqDqi2R27HdQUAm
+         Rg9ePjuque1IMmptKr8FpASul33Otl8XYilfOVUTg6oHEpg24kQBKkwIeH3pl7uRX/+5
+         zQMJrBFIQLIyb/erbecqY8CixdRI6tVM/zjygPwAyk3UuGMBkwi/6IzolPq9VH6CfG+I
+         pGt5S+/Fj6A5PduY+facASb7Rw9XuqXZpZ+Zq3N4HCGn2qG4iuu/LwbKlSMUnmtL1zJS
+         fY5Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785912773; x=1786517573;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=2xA6QCYq8hKaevbVi89k0Wm55hqDhXG/ZM69zxsx54w=;
-        b=bqmANX1oRzZJ4Q9dzVkCacsOv24we/bCOxpjnwyGU4jtDA9Lj+dCICGocSROItknNP
-         ceujXzwr7zgpObFGlbuaJb4tH9BDgOlh7ZwGraEVlJ48MheltNMbacSenb+Z27UZldnE
-         0knmKTx5xSD8MWzf/j70rEKBal7MRQGM1RVw/+Od+Ik8A0coGmggP1MSC6fW82mTXyi2
-         9nVDYzIXX1oWz3bd6+diWKHLMGLy49YpaMQ7YLxNMmEdxD2lSqweGij3AxRzHWrgK9lq
-         xEUgHA4Exr79uOL+yMpa9oVTz67tI8lpCUKfjHYGF7RVKUzXtiLS8gF/I6gEdM9S4J29
-         jqWw==
-X-Gm-Message-State: AOJu0YwUS214twwBQPckoOfBfDDlUhntPLm3FioDouNUGmA5lzkhUUJX
-	gyTyQ0PHywCaXlzMBBObXjCTXvsB72QOAhOJvf1K94A3/zbgLSmvE4eXzI59HrmRNI+vJtmNHLI
-	41JhdsVRXT1f3GFug6te2r0WOCW84TVgEv+/8vN8cQaIjnCsysEv8EcNnvcalOnLuNnBZBptUKq
-	erlrpE3s/piQvPX0l7w27SSkZsL3X5tDEzUQ==
-X-Gm-Gg: AR+sD13+p4A9Zr6ieMnqfCkCh0nrF47j7hKAM3l7DFmHsROUkj4WHJaSRz3DaG8MAvg
-	Blc5y3Sn7Ue+5ykI0cnbsJxZpKCet+tWOcTEwhmXDK2wwjL7PC0wlcPJSuNC0RyCI0iKy7ZTTvd
-	e5htoFCYpvGDdhkJXriZQxFMXQzoel5HM7U23/n5cZaTeG68G8CgNBvZEJSpOwtOKG+Tz+/8Kr+
-	ohldMZ6abIhI2d5Pw==
-X-Received: by 2002:a17:903:2f46:b0:2d0:cc92:f7a9 with SMTP id d9443c01a7336-2d0cc93025amr49198735ad.4.1785912773540;
-        Tue, 04 Aug 2026 23:52:53 -0700 (PDT)
-X-Received: by 2002:a17:903:2f46:b0:2d0:cc92:f7a9 with SMTP id
- d9443c01a7336-2d0cc93025amr49198345ad.4.1785912773041; Tue, 04 Aug 2026
- 23:52:53 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1785925101; x=1786529901;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=ujpHs3PfRJjFFZCbSqMCngYpk4iOIUD/fatI+7nY3g8=;
+        b=H+MIcIw8UtpUcOSoanwLSOGnmfjwTOR0y6aYqXFLE0ph4yTT4Sb/Xa1SOrY2CCOF96
+         guZMX1H7xYC4rM+QcnnSuGMVmJjV8Wzk/0twYcNfZhCOxTDfJ8VSn9JDSzyORh6C1hGP
+         zt5D3bpYrQ5E77nhzG3APkwK7cqRJJ+oOeVQJMYHoW58z/TPQ1OyOJQ4NHwomkV6mdik
+         FnSY8je/y974tQx2apiEqVERReNbh5lLPHR6s5oO8MTzHpJc5c91OmA1AlLB8Whu+uM2
+         qxroyqNgG1Aanh018hXxWviyCZhH0St5cUilNQMJ/RhpRRacdfWa281wg+Ot79qKh5+5
+         YhAg==
+X-Gm-Message-State: AOJu0YwNxl24yd3uQK+Q10Cr2FbnC+/yYxWPfXlwEzmsekDHY8AeKvBz
+	TkH84jY7YdjsfsLGxBE9H4dtEabFfg9PNPzQolfoFSLwAXsV5lLck7u2SoS21g==
+X-Gm-Gg: AR+sD13wdav8Vz+a5LTJ97rU5ToirYHUQ0utGALA/O+OpxnnZ8L313bcQN5lYFBqnrx
+	IvA23tEosa7Sr30AElLCP99Q3LTHCwNqnR2loM2cRY3MgTHFEj4OcEseXrvzPmWu9jQ8PJe8qqz
+	NXuGbj+bNAAibC7FO7WSc13kGSFYuJRb1fg6itaWBnTuLG0Sjk+b59lamkrioZbhvgh0KiUbgTw
+	tnUukn8VXiDU2bPdSN0MBK9o2C41gPQQvJZYRk3/bpxJpx+pC7YmBVX9Q0z08HIg+VMa1L0aTHI
+	quGhD0qj1zKPCIWqvRR2+jtgixlDeaZFwmeRqjcWj8VRdE6dZalTZcBLR/T4rt7kg9QAqhdVi2u
+	QpCdIwnt/bm7BuXHCNrvWfCmPx7EeqLImJg781Q/DkcJAKp9r0NjyATmHgJF6q26VWsyopoXWfB
+	ox5MXyGjHuVFycJ4O4QX288huf/UczmDAUSEOb+j/s2lUaJuVNw6FlzZoIHau9A6jm4JtTuiMdq
+	FYIhGifC/uwN1/cSjzazyNU4huE+YfTdIoGIww=
+X-Received: by 2002:a05:622a:60a:b0:52c:e0bf:dd79 with SMTP id d75a77b69052e-52ce5f7f999mr54221801cf.16.1785925100736;
+        Wed, 05 Aug 2026 03:18:20 -0700 (PDT)
+Received: from pmatyas-fedora.rhev.lab.eng.brq2.redhat.com ([85.93.121.125])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52ce9b0743dsm14393241cf.29.2026.08.05.03.18.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Aug 2026 03:18:20 -0700 (PDT)
+From: Petr Matyas <p.matyas13@gmail.com>
+X-Google-Original-From: Petr Matyas <pmatyas@redhat.com>
+To: selinux@vger.kernel.org
+Cc: Petr Matyas <pmatyas@redhat.com>
+Subject: [PATCH] scripts/oss-fuzz: build PCRE2 from source with sanitizer instrumentation
+Date: Wed,  5 Aug 2026 12:18:17 +0200
+Message-ID: <20260805101817.2195037-1-pmatyas@redhat.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260804183911.23819-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260804183911.23819-1-stephen.smalley.work@gmail.com>
-From: Ondrej Mosnacek <omosnace@redhat.com>
-Date: Wed, 5 Aug 2026 08:52:41 +0200
-X-Gm-Features: AUfX_mxMaoPKw0Cn2dcwq03UZpjXfY7cVVdQsgISrgpTrAWzF6tEyB2QSGrP2EM
-Message-ID: <CAFqZXNvGzqF2JYdYqkcC=8XRuS8iZ=XdPMYg0BAW295txtrNXg@mail.gmail.com>
-Subject: Re: [PATCH] .github/workflows/tf_testsuite.yml: only run on SELinuxProject/selinux
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, jwcart2@gmail.com, plautrba@redhat.com, 
-	jason@perfinion.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, Aug 4, 2026 at 8:39=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> Only try to run the testfarm tests on SELinuxProject/selinux; anything
-> else will fail due to lacking access to the API key.
->
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
->  .github/workflows/tf_testsuite.yml | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/.github/workflows/tf_testsuite.yml b/.github/workflows/tf_te=
-stsuite.yml
-> index 7e3993d3..48484496 100644
-> --- a/.github/workflows/tf_testsuite.yml
-> +++ b/.github/workflows/tf_testsuite.yml
-> @@ -5,6 +5,7 @@ on: [push, pull_request]
->  jobs:
->    tf_testsuite:
->      runs-on: ubuntu-latest
-> +    if: github.repository =3D=3D 'SELinuxProject/selinux'
->      strategy:
->        fail-fast: false
->        matrix:
-> --
-> 2.55.0
->
+The selabel_file fuzzers link against the system libpcre2, which is not
+instrumented when building with -fsanitize=memory.  MSan requires all
+libraries to be instrumented; uninstrumented libraries can produce false
+positives because their writes do not update the sanitizer's shadow memory.
 
-IMHO this is overly restrictive - a contributor may have a TF token
-set up in their fork and this would prevent the test from running when
-they push a branch there (they would have to commit a revert of this
-patch and leave it out when submitting upstream). I think it's better
-to let it always try to run and suffer the failure when there's no
-token. We could disable it at least for pull requests, though, where
-sadly having a token set up in either repo doesn't help.
+In practice this causes a spurious use-of-uninitialized-value report:
+pcre2_compile() writes literal character bytes via direct assignment (not
+through memset/memcpy), so MSan's shadow memory does not reflect those
+writes.  pcre2_jit_compile() then calls memcmp() in detect_repeat() over
+compiled bytecode containing those character bytes, and MSan flags the
+comparison as reading uninitialized memory.
 
---=20
-Ondrej Mosnacek
-Senior Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+The PCRE2 maintainers confirmed this is a false positive per MSan
+documentation and declined to change the library [1].
+
+Fix by building PCRE2 from source with the same -fsanitize= flags as the
+rest of the fuzzer build.  With instrumentation, all pcre2_compile()
+writes are tracked, detect_repeat()'s memcmp() sees properly initialized
+bytes, and the false positive disappears.  Both selabel_file fuzzers are
+now linked against the resulting static libpcre2-8.a from DESTDIR instead
+of the system shared library.
+
+[1] https://github.com/KwisatzHaderach/pcre2/pull/1
+
+Signed-off-by: Petr Matyas <pmatyas@redhat.com>
+---
+ scripts/oss-fuzz.sh | 28 ++++++++++++++++++++++++++--
+ 1 file changed, 26 insertions(+), 2 deletions(-)
+
+diff --git a/scripts/oss-fuzz.sh b/scripts/oss-fuzz.sh
+index 08e06975..57ac5c2d 100755
+--- a/scripts/oss-fuzz.sh
++++ b/scripts/oss-fuzz.sh
+@@ -43,6 +43,30 @@ mkdir -p "$OUT"
+ export LIB_FUZZING_ENGINE=${LIB_FUZZING_ENGINE:--fsanitize=fuzzer}
+ 
+ rm -rf "$DESTDIR"
++
++## Build PCRE2 from source so it is instrumented with the same sanitizer
++## as the fuzzer targets.  Using the system libpcre2 (uninstrumented) causes
++## MSan to report use-of-uninitialized-value false positives: pcre2_compile()
++## writes character bytes via direct assignment that the sanitizer cannot
++## track in uninstrumented code, so pcre2_jit_compile()'s memcmp()-based
++## repeat-detection reads them as "uninitialized".  Building from source
++## with the same -fsanitize= flags ensures all writes are properly tracked.
++PCRE2_SRC=/tmp/pcre2-src
++if [ ! -d "$PCRE2_SRC" ]; then
++    git clone --depth 1 https://github.com/PCRE2Project/pcre2.git "$PCRE2_SRC"
++    git -C "$PCRE2_SRC" submodule update --init
++fi
++cmake -S "$PCRE2_SRC" -B "$PCRE2_SRC/build" \
++    -DCMAKE_C_COMPILER="$CC" \
++    -DCMAKE_C_FLAGS="$flags" \
++    -DPCRE2_SUPPORT_JIT=ON \
++    -DPCRE2_BUILD_TESTS=OFF \
++    -DBUILD_SHARED_LIBS=OFF \
++    -DCMAKE_INSTALL_PREFIX=/usr \
++    -DCMAKE_INSTALL_LIBDIR=lib
++cmake --build "$PCRE2_SRC/build" -j"$(nproc)"
++cmake --install "$PCRE2_SRC/build"
++
+ make -C libsepol clean
+ make -C libselinux clean
+ # LIBSO and LIBMAP shouldn't be expanded here because their values are unknown until Makefile
+@@ -106,7 +130,7 @@ cp checkpolicy/fuzz/checkpolicy-fuzzer.dict "$OUT/"
+ # shellcheck disable=SC2086
+ $CC $CFLAGS -DUSE_PCRE2 -DPCRE2_CODE_UNIT_WIDTH=8 -c -o selabel_file_text-fuzzer.o libselinux/fuzz/selabel_file_text-fuzzer.c
+ # shellcheck disable=SC2086
+-$CXX $CXXFLAGS $LIB_FUZZING_ENGINE selabel_file_text-fuzzer.o "$DESTDIR/usr/lib/libselinux.a" -lpcre2-8 -o "$OUT/selabel_file_text-fuzzer"
++$CXX $CXXFLAGS $LIB_FUZZING_ENGINE selabel_file_text-fuzzer.o "$DESTDIR/usr/lib/libselinux.a" "$DESTDIR/usr/lib/libpcre2-8.a" -o "$OUT/selabel_file_text-fuzzer"
+ 
+ zip -j "$OUT/selabel_file_text-fuzzer_seed_corpus.zip" libselinux/fuzz/input
+ 
+@@ -117,6 +141,6 @@ zip -j "$OUT/selabel_file_text-fuzzer_seed_corpus.zip" libselinux/fuzz/input
+ # shellcheck disable=SC2086
+ $CC $CFLAGS -DUSE_PCRE2 -DPCRE2_CODE_UNIT_WIDTH=8 -c -o selabel_file_compiled-fuzzer.o libselinux/fuzz/selabel_file_compiled-fuzzer.c
+ # shellcheck disable=SC2086
+-$CXX $CXXFLAGS $LIB_FUZZING_ENGINE selabel_file_compiled-fuzzer.o "$DESTDIR/usr/lib/libselinux.a" -lpcre2-8 -o "$OUT/selabel_file_compiled-fuzzer"
++$CXX $CXXFLAGS $LIB_FUZZING_ENGINE selabel_file_compiled-fuzzer.o "$DESTDIR/usr/lib/libselinux.a" "$DESTDIR/usr/lib/libpcre2-8.a" -o "$OUT/selabel_file_compiled-fuzzer"
+ 
+ zip -j "$OUT/selabel_file_compiled-fuzzer_seed_corpus.zip" libselinux/fuzz/input
+-- 
+2.55.0
 
