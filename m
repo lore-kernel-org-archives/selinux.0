@@ -1,156 +1,249 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from CWXP265CU009.outbound.protection.outlook.com (mail-ukwestazon11021128.outbound.protection.outlook.com [52.101.100.128])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 485F1442B2B
-	for <selinux@vger.kernel.org>; Wed,  5 Aug 2026 11:07:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785928056; cv=none; b=NMNLcQkuXDDCdyFfTgSSwRphidbjGH6JQWJizL2Ahj8cH8GtD8jP0F9VJDwjEQDHmT3fn9ykly5PuBZ/XuNxGDzozJRtbN+O8NjKkMRvmLwOpEELnk0OxscoeERj3diWxwBkJ6hSrpV4L8bpdJwo/OV2BR83wSJlFfquM4VmyGk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785928056; c=relaxed/simple;
-	bh=r6jY4CynhAj15fk2uerljIqT1nydzqWmpcFt8/7veRo=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=XDeCm1/viH+iAUlUY6oFvRxGVMn0ohwRRpdJDls340wR541gZi9myOH4EDNAPwO30OcA2OrkWvKZH54RlFIFkywnNai/yznLh5dc2Y9u3lrn1Xah1C20+WojN7TemKsVtBs7b5Rqvt1SxjNZlkA6U6EBCvjXa12NIhXx4oInjvs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LsadPMyU; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=mIRbXsxG; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LsadPMyU";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="mIRbXsxG"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1785928050;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=s15wJic66O/3Ry+l8pO1dYHCPVVHD3M9zZvYwofku5I=;
-	b=LsadPMyU0fTa/PpNQGnG9/wG7s4ShGmTjYMYMk0dlPbLv/K7rLjVm+EI1EbRnX2TGzRdVU
-	NTs40NBSmNYL3Bf44X1bEB3y3OR+/9rhV5Lan0isn5CXFFKJXbR9TY065knXhDspZ75i6D
-	9np60M7gHJ0SDFBvX1kz4BBNxdTICqU=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-488-iK7G6_-zNSWiCS5wkOv4Zw-1; Wed, 05 Aug 2026 07:07:23 -0400
-X-MC-Unique: iK7G6_-zNSWiCS5wkOv4Zw-1
-X-Mimecast-MFC-AGG-ID: iK7G6_-zNSWiCS5wkOv4Zw_1785928042
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-47485fde05aso518675f8f.0
-        for <selinux@vger.kernel.org>; Wed, 05 Aug 2026 04:07:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1785928042; x=1786532842; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=s15wJic66O/3Ry+l8pO1dYHCPVVHD3M9zZvYwofku5I=;
-        b=mIRbXsxGacDwew2NLiFZU/AVfo8UWKqFXSrnn8cap0kwF+rDKA9d9+xNUfNaVq3PhO
-         rzfaR6wmOAzpyOAbjYQcgmtn3Zo2lPSMc0scCrfzXCJhlzPXrnDOAshHCO8kLeaMIajS
-         IhZqJOY4twLIsYa6Yhztv02HSYSOijQSBwmaVVNCftc4+miexk+W92GSv1DyrHsJ4hLA
-         T6TfwFqT7KhPCPFNl66/l+WCp79/Ycc5rcbVwpPZ7NnT6cDy3WIjaB85ZpaFPemKYHjd
-         DV8jdq9mpAK7h1LP6BM25IyZfU4Nm/LdauJSr/PRUat7hjz91x+oh/Ed+lm0L0Y9HgrZ
-         zxYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785928042; x=1786532842;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=s15wJic66O/3Ry+l8pO1dYHCPVVHD3M9zZvYwofku5I=;
-        b=ffSUGVz0nuJwChUo9GBtMyqv3IqaMf+0pDPg61jIgMffjVV12a0lEKIKAAn47o+lOc
-         aS4tmRAwo4HSH5kUInI85Zb+TSUMt3QrrXGg0ZhQFc/tChnNlOn4Si08bfHsCZeojn4D
-         mVYlgmv6YjmPFJakebgR2bGw5fE7QbsZbT/gcnLUrkWhHuoFPNqtQx4zTKxLViT1Fd4O
-         yyU34LxuEgA0yPTkMISK5NhgzSnDBB/rN20FwgIkPqp104CNQaxRf4/axNSWpqfHpKUd
-         j7RSGFXcEpczt2g07lN4w+y+M5217fNGefGWZh0HGxfi8i49oOFN/WUJoDxpkV29fV0G
-         7+cQ==
-X-Gm-Message-State: AOJu0Yxb4mBklw3tybGG/F8lHEPhk+itZugc88OKbKKnlXtxf1utNMd9
-	YeDpJXDTmFGneW8Yl9CbRtrVHUyLxZIJJEBIkRi7Eu4Osw5k28g0niuUVm+sBj94s2nsJyjgEvi
-	bSqPugQ6iHos0iFm1iNxnzDMAGC8/Bn2D4wqkjGHgcTcbLVgfnroRNgI5XfFpwhyQcZEqhOWEEz
-	BLhVSUmM7MRvMJyDG9YUWrFB2AznUbhM6S9AYwVPhhDK0=
-X-Gm-Gg: AR+sD10zbyhqCv8dhnFu31UgfOChRIc5IzYFyW9Rt5O4ReHdx9X8K54b9K459Eq8LlX
-	t/sahDNsJB7HTML34DoReuA4KaMNKfkpZrPwzXwOr6CmBbpInMEaoTsu+0zvnBbz8cdF/G6owu1
-	wK1wTEI8DwCoFaaIlH4H4rozNN2VUu995Ozvc1/zYhCN88ii7ZLGluxBsOdK2oSU7HLEEluF+tx
-	OohPteYyFzZ8qQphZBmAcW1Vl1aMh2cRTH4ZbzPT5dd8TULP/pt4mSrHjrJSHDkUjocSNCwfeGm
-	iJ71/j2Hve1JGsn7aA3N44HfqDOwfjHjm9rEs1Y3Zruu3AOrEeCkN25XtKeDYl6GT3X4SMaoJQ=
-	=
-X-Received: by 2002:a5d:5e01:0:b0:47f:97a4:f121 with SMTP id ffacd0b85a97d-47fec635c89mr9087252f8f.30.1785928042333;
-        Wed, 05 Aug 2026 04:07:22 -0700 (PDT)
-X-Received: by 2002:a5d:5e01:0:b0:47f:97a4:f121 with SMTP id ffacd0b85a97d-47fec635c89mr9087152f8f.30.1785928041780;
-        Wed, 05 Aug 2026 04:07:21 -0700 (PDT)
-Received: from fedora ([2a00:102b:4001:f01:854d:6fd6:b880:4a14])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47febfda0d7sm7619569f8f.2.2026.08.05.04.07.20
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Aug 2026 04:07:20 -0700 (PDT)
-From: Ondrej Mosnacek <omosnace@redhat.com>
-To: selinux@vger.kernel.org
-Subject: [PATCH testsuite v2] tests/io_uring/iouring.c: bump RLIMIT_MEMLOCK up to hard limit
-Date: Wed,  5 Aug 2026 13:07:14 +0200
-Message-ID: <20260805110714.17403-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.55.0
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5C2C2F39B5;
+	Wed,  5 Aug 2026 12:32:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.100.128
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785933134; cv=fail; b=u62cpa1qy5peK19k1rx7Xn1MJolYkfuMShVgu8z5GnSVraXWLfW+a94VlaWo/gK8NatM9k+PArvIZDlvwaRb+tqKva3loVytbS33anXKq9IrgB3hEitYRdkK7t1COVNJChb0+vNPLPKLLohJCQ0MG/eZFFtzg41uvelsIPvxm5Q=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785933134; c=relaxed/simple;
+	bh=oUq+bo+cs5nh7XvIKF0gJdaniJsgBr3JU+NswiA19GI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=Ybgo1/j1DZIUN0y60Txq0QEtOql9rnx6FaFK+whJ7NIIw5xVsOuwuAY9vQ91EHK6Aa73jj0CiEcvgWgd+kIt2OCzHPMXdt7wn9cE7KIqyUc1SuvBB8IOIdtveb4U69OqRPNm55bWXcb4mqxAy2leGXszWwG3C+CPwogk/Q8dc4s=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com; spf=pass smtp.mailfrom=atomlin.com; arc=fail smtp.client-ip=52.101.100.128
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=atomlin.com
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=QdksIoxjvH39qgBejqG6FIeuN6heUkewsTn/E/nonKL4JsUml5HD/OoPyBBlHii2gAwWmWSbkjnywCJNtmciHfdb/9f43G2MlbAdsrvNRBuOJPgYu5apWNi25l3dTwr55Lv3kzxU4c8xCSx/RtZfrlk/DW9C81Y0wMEmox0OG5/L6cMbLRc/YRn3AVet8jJDvwi+VVHl/soxPn14Lsp1ZyTUQgoFPSHUX0NUlWa0/NG4DTm71QpipcUZaxiu7hFyphy6LfbkucmGcou+DxQY5YlWP3NfRILOGHERtHpX38jkegqRYzxhwFC9rmd9FJA/BvdZZMtUjbTWAGQjfmyYTg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001; h=From:Date:Subject:Message-ID:MIME-Version;
+ bh=yi7HyvGfE3jXsYrDAwrDvO8o6eCMyOMk/u1PCKznEyc=;
+ b=GPluhXoG9M0+73DSajGjutw1rMDfumquYJXQgK9DZpj/vMHxkYYDrzJNeDEdrIEnr/77Sdfe3O+LyQyUGvOdth/WEtYX0dZZeM+19U3yUM05GOeu8C0IVsm/Va8YRLJHWf1y6Yf1w96bDu1mKkWpnex7nrReRf4yF1lUH1qF3mDidvSZp2tNHH3lMrTCXaLaAgnhQK17d8x+ya/PrP6Ydge9ucga+L0eMUvc50ehncthapFy1KUJcKGwaJwRNVrMGKmNn7pBW1S4h0YeY/74tq8+MkBMcttangNdBlXn4TLFjB/zqAnDVd/CIScgeQPyScTuQMCoZ/3yaPM9Fp1vPg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=atomlin.com; dmarc=pass action=none header.from=atomlin.com;
+ dkim=pass header.d=atomlin.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=atomlin.com;
+Received: from CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM (2603:10a6:400:183::5)
+ by CWLP123MB5915.GBRP123.PROD.OUTLOOK.COM (2603:10a6:400:1c3::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.270.19; Wed, 5 Aug
+ 2026 12:32:07 +0000
+Received: from CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM
+ ([fe80::cec4:77ab:262e:d230]) by CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM
+ ([fe80::cec4:77ab:262e:d230%4]) with mapi id 15.21.0292.018; Wed, 5 Aug 2026
+ 12:32:07 +0000
+Date: Wed, 5 Aug 2026 08:32:03 -0400
+From: Aaron Tomlin <atomlin@atomlin.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: tsbogend@alpha.franken.de, paul@paul-moore.com, jmorris@namei.org, 
+	serge@hallyn.com, mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com, 
+	vincent.guittot@linaro.org, stephen.smalley.work@gmail.com, longman@redhat.com, 
+	tj@kernel.org, hannes@cmpxchg.org, mkoutny@suse.com, chenridong@huaweicloud.com, 
+	dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com, mgorman@suse.de, 
+	vschneid@redhat.com, kprateek.nayak@amd.com, omosnace@redhat.com, kees@kernel.org, 
+	neelx@suse.com, sean@ashe.io, chjohnst@gmail.com, steve@abita.co, 
+	mproche@gmail.com, nick.lange@gmail.com, cgroups@vger.kernel.org, 
+	linux-mips@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4] security: Expand task_setscheduler LSM hook
+Message-ID: <j3ybir7lqphxvep2tvmgqhmb6hzufmat7lcxonwkamagpjiwdc@n4cpxxdhqxm6>
+References: <20260720014156.459386-1-atomlin@atomlin.com>
+ <31679bf5-a0cb-41b6-bc1d-7833c4fc9744@schaufler-ca.com>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="figpxhk5rpxgi2te"
+Content-Disposition: inline
+In-Reply-To: <31679bf5-a0cb-41b6-bc1d-7833c4fc9744@schaufler-ca.com>
+X-ClientProxiedBy: BL1P221CA0012.NAMP221.PROD.OUTLOOK.COM
+ (2603:10b6:208:2c5::6) To CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM
+ (2603:10a6:400:183::5)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CWLP123MB6607:EE_|CWLP123MB5915:EE_
+X-MS-Office365-Filtering-Correlation-Id: faa1beb8-e12a-45ac-16ee-08def2ed8fed
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|1800799024|376014|7416014|23010399003|6133799003|56012099006|4143699003|5023799004|18002099003|22082099003|10067099003;
+X-Microsoft-Antispam-Message-Info:
+	IE3IahC04rIuNVLX62AWipifIFCfd55uDKMgEQqZsn1H06BWRZyjB4k2g1RhdK54QB48fLL65vHa+R4wJd0RtqEIfR+MM2uZQsbSMnmKvrch+yM9rJqzQUyoYZAS3NMfEn6rDrnmH732Wu62I/ndF7ZzRYLOdJiyVfW4bFaCjDV1uyMebc9Cy9/DR92LzSEY8iJ3RhkQvBP31DyL1I3kXg3vvENbAZ3pZV5HW53decJ2x1Px8W3XQale0YjHRiAH2k/zvM/bqjXE6sFTliInNVHNWlEmEweOmuOezo/mThPz0KV43me9Ga9c3pMimLFqesUhwS8ThRD8NKdBRk6AplX1wj1WTPfQaRaNr0FiAy5NAFPfme+P9gdh10zBunBmL3SsPLHrDEhXrzNf+XuUnR4eAxstC9c/qiy3QtcgAdV/wKUHDIpacRWqx5975sOPQLu0y6BlTaygykLFZ4PlRJEdF5oZS+Ugk/2eIzNL9eDjf4gcaJFQZetE2Nii7ap3aW+T0jR6N8Tl1AeZJ0+zg2V0uFFAVTkZww9QuYZK30f8xtYIKejkzjQe9lVWiNLVG4K9ao7rwL58uS9L8esSG2hSK0B8x4up9MtdrO1jnxNdNZb91lcJEAkzXAGDszTFszN5osfQFZiwXn78Ww3IWTZmOx+MYvlHvWJAjqUM40w=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(7416014)(23010399003)(6133799003)(56012099006)(4143699003)(5023799004)(18002099003)(22082099003)(10067099003);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?eUtqQXNlNlFvTi8xWERqK21TbXkwTllCeTIwTnY2b0FwK1ByNE9idGdQU2gz?=
+ =?utf-8?B?dHkxUmFVWEpQOFBLRldMRUxxY0lsQUNwSkZHbzZDenlZTjRBNUVQNTQ4MDA3?=
+ =?utf-8?B?RGdGVGZNK1UwbTVTaTU2TTNkbUoxYmttWmhSQlkrejVGOHhyYVJhUDlJRU5I?=
+ =?utf-8?B?dHVVcDBkUDFKRWhrRVlwMDcxN0FHTFFQUE5WdEh2cUVTZkduSU5qVm1qb2Mw?=
+ =?utf-8?B?amZXYzJGMGZ0ZE5aMGVVQ0JGdVd1RGdDMzdDMHhDMSt4ZDlVdm9VU2VsTVFB?=
+ =?utf-8?B?aWxwQVZ0SUl1UGZmM05PT21FeVMxQnAvcC9uUlZ6dlBBTWZTZTZ4dFloZnk0?=
+ =?utf-8?B?RTVFdElKRVZzYzFVeVFSRjZzK1pMT2RhVXZpTUJDWTk2cGM1WTRRcEcrcXJy?=
+ =?utf-8?B?UEVFbkNUZTZ1a055WHFlTS9GUnVrallLdVNFQjFJLyt4SkkzUkxVMldZM3BH?=
+ =?utf-8?B?VFoweWcyVGhaSU5VS1orUHVQNmU0QUlSeWhWVWNMSVJXZDAvZjdFc0ZpZDVs?=
+ =?utf-8?B?ZXlTWnRnb3EySTBQUFMwSEpvK1B6UElvbnoyTTVCYkQ3YXFac3czVDJ1QzUz?=
+ =?utf-8?B?YTNGcDVEWnk2RklRQ09qVldCY1lDOENlSkx3L3UwbmV2eTBEeWNMQm5kMWZO?=
+ =?utf-8?B?K3NOcEsvQ1Y4NnpnTExtZ2JraUgxall0WjAvRk9tUjdaSUdWWklRUktPQU9m?=
+ =?utf-8?B?Qm11NzYxZ0Z2dDAwMDBZNnllWEhZOUFiOU1iOFRtWkNNcktqblRUMlYrbk5J?=
+ =?utf-8?B?MVhtSUhQcURncThCQnlhSm5JVEp1dXZQbUJ6V2o3MTNYTkJsS3Q2Tk9jSStS?=
+ =?utf-8?B?Z21Wbm1qdGxnQVU2VCtSbEJWZ20rV1FQdmpEbTdSb1h4YytJMkdqbTdTQjlB?=
+ =?utf-8?B?bnlLRWRvRzRsVmlLUGpuYWdMTmxGNkQ2Sko1WFdwVU9Qc3ErS0NWK0dwQlpF?=
+ =?utf-8?B?R3hEcjVlMTkzUVpHUGM2dnU5Zkx6MExKclpIVFh6djRrNW45eVdxZGJqcFJr?=
+ =?utf-8?B?ZGUrdmgyR1Z3ZGZIVnpRdUpwcTQvRDRBdzNJVlVWR1lwSDEvZFIrRzZWYXI2?=
+ =?utf-8?B?eWJMOVJpMmxQb1Q1eDRsVGRmMGQ2UEF1SGo4OW9CTityanpndU04cWVSdnV1?=
+ =?utf-8?B?N1NQYU9HaXNUQmRWcmtlV1k5NUp0N2lKVXJhSGU2bWVuRjVoN0huaHlVdlQ3?=
+ =?utf-8?B?YVdRclozY3lSL2xTeEd3azRodVZ4NWE3cXVlNVhMbHpaZ0VFMG5GWEhMRGJq?=
+ =?utf-8?B?WlhnOVFtaHViVEgwOTV6TnZnR29RRkdOMFZpS1dRdVB2VGxJL2RBVXdETFJ6?=
+ =?utf-8?B?QjRKalc1YUs4dmtnMTlZems0VlNxRXYvWk1QaDlMR1NuclltZTkvc1NmUmVq?=
+ =?utf-8?B?dlVsZlo2ekk0WnpnTFhOa1F6S1R1dzZjdGUzZExadzFqOEhmTms2UVVISlcx?=
+ =?utf-8?B?dysvQ1FvZFo4bGlWU2NiQUUyMDVrRDhCQzhJWi9RUi8yTVRDSmpDVHFWQ2xS?=
+ =?utf-8?B?TFh0R055b0dVaFluSFRzNmt1WUhiVFk4aGxEcm9DSXBLeGIydlJCZ2hiNHlh?=
+ =?utf-8?B?M2VUTWJFTkVSbllQSzZhYXFpdXdrTm40NlUwaGxwTnBNWEZhZTNVbG9WVmdE?=
+ =?utf-8?B?STJzVmZOS0VtTm9qQVdTL29ZYmw5NUpncnlIUHBYZVZIbUdTRHlBbFhhTEkz?=
+ =?utf-8?B?SjI0YmxJRGJzUHI3eGxuV2kxejV0TWo0Mms4OFZPSWpaRVlBMjZNVjdsakJE?=
+ =?utf-8?B?VXpUUUNLY0N1bytEUXFYdFBtYllHeWthS2tWQmdRSjMrc3ptd2JqbGJ5cTZF?=
+ =?utf-8?B?Mm1sZ3c0Q0h2cWVZbHJNTTNLUHU5ZUt1cmdHMEZZeVFjbmlVREkrajhVeEF2?=
+ =?utf-8?B?RWVzSFFQbHpvY0dkZFozL3ZwN0cxVU9FOVdBUHBUK2J4UG1vWUVWcmlZd1NF?=
+ =?utf-8?B?UE4vZlJ0bWd2Y3ZoNzNoS1VsV0hkb2FqdzhMdWtLcWhycW91UXVhd0pvQlNI?=
+ =?utf-8?B?TUlheWYzY1lCS3RLc0pGZm9ibXhERDlCNXBYUzFYdjVqcXdnSmUxQisvdzZm?=
+ =?utf-8?B?UXhqK3BuZDRJbDJ5UWVqWDZGUVVrcy8xTTE3eVNmRExySXloZE5rdE1HRitY?=
+ =?utf-8?B?Sml5Tmk0NjhKUTdUSmgrd1JJU1NjdTV4Q0JYcHZMYmJFSEovUkxnM0YvaG00?=
+ =?utf-8?B?elNTZ3hLWnRYV1BWSXUvSFFTbFlRZmxacGZYZ2x2VS9abEFkcGlvTWF2QWZw?=
+ =?utf-8?B?bEdVSGtFbnJaeFR6cGYyQjVhR1JCK1FDcjJsYTRZUlNDSllZWXdpWGNWODBq?=
+ =?utf-8?B?T2VZeGtWL09nSWM2Ti9QSitQUUtXeUUvWFhsenQwdnNENXFwL2Fldz09?=
+X-OriginatorOrg: atomlin.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: faa1beb8-e12a-45ac-16ee-08def2ed8fed
+X-MS-Exchange-CrossTenant-AuthSource: CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Aug 2026 12:32:07.1801
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: e6a32402-7d7b-4830-9a2b-76945bbbcb57
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: xTxb2UpkJOECGwikZz1vQ8loFPYMHqpNLNih2VJeWj5vN0/0tNFVusoLAnheJqtdwrlceqOghKHCDMHfqO4WWg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CWLP123MB5915
 
-Test domains may get their soft resource limits lowered on transition
-due to the typically denied rlimitinh permission. However, the resulting
-RLIMIT_MEMLOCK limit may not be enough to run the io_uring test program
-in some cases (low init task's limit + large page size, for example).
-Ensure that io_uring tests can run successfully in such environments as
-well by bumping the soft limit to the hard limit (which should be
-sufficient everywhere) in iouring.c.
+--figpxhk5rpxgi2te
+Content-Type: text/plain; protected-headers=v1; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v4] security: Expand task_setscheduler LSM hook
+MIME-Version: 1.0
 
-The issue can be observed for example on CentOS Stream 9 on aarch64 or
-ppc64le.
+On Tue, Jul 21, 2026 at 07:45:41AM -0700, Casey Schaufler wrote:
+> On 7/19/2026 6:41 PM, Aaron Tomlin wrote:
+> > At present, the task_setscheduler LSM hook provides security modules
+> > with the opportunity to mediate changes to a task's scheduling policy by
+> > inspecting the requested sched_attr. However, when invoked via
+> > sched_setaffinity(), the hook lacks visibility into the actual CPU
+> > affinity mask being requested. Consequently, security modules are
+> > entirely blind to the target CPUs and cannot make granular access
+> > control decisions based on spatial isolation.
+> >
+> > In modern multi-tenant and real-time environments, CPU isolation is a
+> > critical boundary. The inability to audit or restrict specific CPU
+> > pinning requests limits the effectiveness of security policies,
+> > particularly when attempting to shield isolated or cryptographic cores
+> > from unprivileged or compromised tasks.
+> >
+> > This patch expands the security_task_setscheduler() hook signature to
+> > include a pointer to the requested cpumask alongside the existing
+> > sched_attr. Because this is a shared hook used for multiple scheduling
+> > attribute changes, call sites that do not modify CPU affinity are
+> > updated to safely pass NULL for the mask. To protect against unverified
+> > dereferences, the parameter is annotated with __nullable in the LSM hook
+> > definition, ensuring the BPF verifier mandates explicit NULL checks for
+> > attached eBPF programs.
+> >
+> > Historically, SELinux has governed all scheduling alterations under a
+> > single, monolithic PROCESS__SETSCHED access vector. However, by
+> > inspecting fields such as attr->sched_policy or attr->sched_priority, a
+> > security module can introduce granular access controls. For instance,
+> > differentiating between standard time-sharing policies and
+> > latency-sensitive real-time policies.
+> >
+> > This change updates all in-tree security modules (SELinux and Smack) to
+> > accommodate the new parameter mechanically, while providing LSMs with
+> > the necessary context to enforce strict affinity policies.
+> >
+> > Signed-off-by: Aaron Tomlin <atomlin@atomlin.com>
+> > ---
+> > Changes since v3:
+> >
+> >  - Expanded the task_setscheduler LSM hook to accept the 'sched_attr'
+> >    payload, enabling BPF and other LSMs to inspect scheduling attributes
+> >    (Peter Zijlstra)
+> >
+> >  - Updated all call sites for security_task_setscheduler() to correctly
+> >    pass the attr structure when available, or NULL otherwise
+> >    (Peter Zijlstra)
+> >
+> >  - Added the necessary forward declaration for struct sched_attr to
+> >    include/linux/security.h
+> >
+> >  - Linked to v3: https://lore.kernel.org/lkml/20260526142838.774711-1-a=
+tomlin@atomlin.com/
+> >
+> > Changes since v2:
+> >
+> >  - Dropped patch 1. This is to be addressed by the cgroup cpuset
+> >    maintainer (Waiman Long)
+> >
+> >  - Dropped patch 3. Will be submitted as a separate patch (Paul Moore)
+> >
+> >  - Linked to v2: https://lore.kernel.org/lkml/20260509213803.968464-1-a=
+tomlin@atomlin.com/
+> >
+> > Changes since v1:
+> >
+> >  - Reordered the allocation and user-copy of new_mask in the MIPS
+> >    architecture's mipsmt_sys_sched_setaffinity() to occur before the
+> >    LSM hook is invoked. This ensures the security modules evaluate a fu=
+lly
+> >    populated mask rather than uninitialised memory, while cleanly handl=
+ing
+> >    error unwinding
+> >
+> >  - Updated cpuset_can_fork() to pass the destination cpuset's effective=
+ CPU
+> >    mask instead of NULL
+> >
+> >  - Linked to v1: https://lore.kernel.org/lkml/20260509164847.939294-1-a=
+tomlin@atomlin.com/
+> >
+> > Signed-off-by: Aaron Tomlin <atomlin@atomlin.com>
+>=20
+> For the (trivial) Smack changes:
+> Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
 
-Fixes: 3b4e44eb3243 ("Add tests for io_uring")
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
+Thank you Casey.
 
-This is an alternative (better) approach to fix the problem described
-in the v1 patch:
-https://lore.kernel.org/selinux/20260804071454.2122438-1-omosnace@redhat.com/
+--=20
+Aaron Tomlin
 
- tests/io_uring/iouring.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+--figpxhk5rpxgi2te
+Content-Type: application/pgp-signature; name="signature.asc"
 
-diff --git a/tests/io_uring/iouring.c b/tests/io_uring/iouring.c
-index d5f9cbc..36b014f 100644
---- a/tests/io_uring/iouring.c
-+++ b/tests/io_uring/iouring.c
-@@ -68,6 +68,7 @@
- #include <fcntl.h>
- #include <unistd.h>
- #include <sys/mman.h>
-+#include <sys/resource.h>
- #include <sys/stat.h>
- #include <sys/wait.h>
- 
-@@ -475,6 +476,7 @@ int main(int argc, char *argv[])
- 	struct urt_config *cfg_p;
- 	char *progname;
- 	char *progdir;
-+	struct rlimit rlim;
- 
- 	enum { TST_UNKNOWN,
- 	       TST_SQPOLL,
-@@ -500,6 +502,19 @@ int main(int argc, char *argv[])
- 	progname = strdup(argv[0]);
- 	progdir = dirname(progname);
- 
-+	/*
-+	 * bump RLIMIT_MEMLOCK up to hard limit (some operations may need it,
-+	 * especially if PAGE_SIZE is big)
-+	 */
-+	if (getrlimit(RLIMIT_MEMLOCK, &rlim))
-+		fatal("getrlimit");
-+
-+	if (rlim.rlim_cur < rlim.rlim_max) {
-+		rlim.rlim_cur = rlim.rlim_max;
-+		if (setrlimit(RLIMIT_MEMLOCK, &rlim))
-+			fatal("setrlimit");
-+	}
-+
- 	snprintf(uring_path, sizeof(uring_path), "%s/iouring.out", progdir);
- 
- 	/* simple header */
--- 
-2.55.0
+-----BEGIN PGP SIGNATURE-----
 
+iQIzBAEBCgAdFiEEeQaE6/qKljiNHm6b4t6WWBnMd9YFAmpzLUMACgkQ4t6WWBnM
+d9Zf+w/+ILuBMrjK1tRpjLojddWCTDkzwwS7/zPizufqmhj4yGKKUfg1/af/xh3d
+pGG58y3DqEkHldjWX4JzlKCkH6B2mZUpOLF84Kj+XHNF5e9RhVaRAalmW9sS26X+
+9L10XGY1hMNOp88fZl6Az3w+4n89d0C0XRkTsU5mL4sdKQPflwMDFiy9mcEAxs8T
+qYzYFAuc5y7QLCSUPrUefi1nbHXDDtorDt+ohFCwhjxSZvcNJiXSVGMJPWCI9iNZ
+FotLk4J/my7TKxsoQJxyFIp3A+OkNHgwrPp/usmEREtk7qq1nvvYGLB5PpjBdWw1
+OuGJu9vwTK8Qvcn3pGHOGO2MG21p6PFdGQjg6f2gtD2bjxte/aom6sRHq3W3BXbm
+kTuljDJJKdSWskU7WCw2XncO6h+qThorjAC9BGOntHZG1qJLOl0UYP5CK8rulJD4
+cQYmKQATuLp64Ehs+KmGJ6i79j01+hq0BOhd3GMrkjm6FAb0UXJqyWjoGcrNdKmO
+z860bY85hm9RN1LdVxcPg0YjGRaSocRxQYdkqkBsTrFwO9TErS/GGwkf/XoIPjOY
+K9Qmxn7ZeS3cMrwY+2kmR6xnz9AY55uvNRqgIvM2tDjYyjzRoZrPUUOZjFb5JjDj
+U81XsUl1bYnlu6YxMR5jWL/FAtcKYV996Wst/szmmeGtJZwIPI8=
+=ghWr
+-----END PGP SIGNATURE-----
+
+--figpxhk5rpxgi2te--
