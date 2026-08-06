@@ -1,155 +1,116 @@
-Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
+Received: from mail-oa1-f46.google.com (mail-oa1-f46.google.com [209.85.160.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B1C13546D7
-	for <selinux@vger.kernel.org>; Thu,  6 Aug 2026 16:31:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1632386C0A
+	for <selinux@vger.kernel.org>; Thu,  6 Aug 2026 16:56:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.46
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786033874; cv=pass; b=JmvmluntxK2j8ZstsLIS7TchxKBAZl838pkxGK6Na8M+Xolgk2eWZaeash1Zsrju9uyCLsWtUMCk8ihhu2hFHPk+BSYxXntT3fnK9JMoTUf8vv5JFm8K8zSUjESLVFYm8k1IKiCKqURRm8SVwj4tEYaIFJRNx28SBlvaLt2vGjM=
+	t=1786035418; cv=pass; b=XN7ORmxT201j6hhsVt5QnDtrohG3h9yGm+iVuJeeIgQt8zgEYLA75ee0jV3V24dvJVYD/aqctxkBHQgJ5oeDIM/73zdxJdVx23CLb/1muB3dHiAUSlSqd5OaSz75HfnvQ7J2zmJzemRNMr1Oww10daWHbPy6EiM8UnBK3dpsAfk=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786033874; c=relaxed/simple;
-	bh=XW9nIiuOffgkQzOT4+cg5AS20jwqr+1AcaDyspcDDSY=;
+	s=arc-20240116; t=1786035418; c=relaxed/simple;
+	bh=9tOwQqIAdyjghJMjTm6oUIxKO9dFwJzcIPT3HUguBcg=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pW3aENkClkGmGjtRo02SHOe3FkW0HVseIHsBVow09sZCmgshGM4Dub+PwMHw09KgAMm1pnSlHlJDfk1XVQtFxtrkmf65IypDR3KyCnXUzbw0dMAtTuhp2m5JU7p/NLNky43bKZvSrptWdvExL9XFp6oGqcsMUCbmClCR/cZlMhw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Gm53DjQ8; arc=pass smtp.client-ip=209.85.214.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=m3FnLjxx5EwuhrtLiEsQOY4RF8mtPX/qEEPwe9fylK4tSBbaWlJ3g7/dYf1dYyiWqB9bKMwICxk9W9y0oCcZF71YEt7Otw8mTExM/pDk8KtADM1wcizANyCLQVJa/aTt4mhEyYlwTY/C2w8Eu/vU+nTQtPc5x0m5wIAwP5vsiVo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kYaHFPEh; arc=pass smtp.client-ip=209.85.160.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Gm53DjQ8"
-Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2caf228a910so20014075ad.2
-        for <selinux@vger.kernel.org>; Thu, 06 Aug 2026 09:31:12 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1786033872; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kYaHFPEh"
+Received: by mail-oa1-f46.google.com with SMTP id 586e51a60fabf-4560d6f82edso1605591fac.3
+        for <selinux@vger.kernel.org>; Thu, 06 Aug 2026 09:56:54 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1786035413; cv=none;
         d=google.com; s=arc-20260327;
-        b=KR7oVj3dVv0TSBVCrPlJKn8K1InrxzzshpNxt/3fEcsDSmaWzk9Ch+sdOJCYvHyIkr
-         26UFtcTMefWgpXuxNfZlj8o7gzVPA/6zXyocHadf8g3tn2NEaks9gZ+WqtE+7E/4NrGF
-         NODOpnNq7V4OmThlXv7bawwRo+n9jc/65LrwgrMkvlO1UhkUDONRPf2VvFVW1DcNNaBo
-         lOIy47jwHQ/Cy9WPhMV0yv5YgRh4/FVaCWve/efTXeouDIx8OZO0kivOgEGzul+mwMJm
-         j9tqGJXLCsG7N+IjJevLD2ZiHcZ/XvYE1G3GVBNM2BiJnDTmeWLvbMnyn1UcU3G794BV
-         CrRw==
+        b=eWFGGBxS37XTmhQXVNIm75QKun5L5GwJB6ckqHkf1SWzob57LiUDZ9PsU4rWa5hR6k
+         wR4wMBRzyFdh2SoyY+0NoeyWRC7z0520gjTVV+O0iFR8Io4uEbjaYJsP7BcUCN6pU9w0
+         nIJMv0HxX5KkS/OCp1aGyEH8C09uBZU4rqBxS4swU9e7d1ki6fZ0Rw//UfW9fUL1G/2g
+         /gtCcO6+TryIm8JTRKNzDBvhrpkIQoexz2wY/gCGjhExDel1vZYKDeYcxxnKOzYIYyH0
+         OAFXq+aPvuifth6nxqnX0YUKbIvEOvM5gB4BXtmrykslRkNJeqwTeozTog4LXZ6SOGW3
+         aPrQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=7LdnVM4OW43IupFVnK7dTDn/Au7HTQaZEjANHiIkPXc=;
-        fh=+0Cswg/Tdx45wOstFT3Z9aBTy524b2HL4I10iSxQQxE=;
-        b=o+s9GGQbid0d048viIQbGRk4metW1dct+NjUrjxgD298548lyGWj6a3kelFsQXkoPL
-         8P/PSAaFH4aI0HMhqWXgJR82hLfGTuMgjLDOKVjTJK1TxyoU+cRxk8wGVWJ1Da/0Ue2I
-         1Y9UfP5D7rWeioRauhwzJF4pqpW8v79P9aLUemU5yCHD3twuvViD+z7sHbxzQtePZFt6
-         iOZsxzb0CU7vhZtFdR38P7Pw0iHDxG62D6IDAEHNGTQttRAIcPYpubSP+Q1hKrQ8uLa7
-         RakaCt60SlTVg+5iWPBxa1g4PYSxmKBHru5gjc12w/tJz2mbZfWAabpQBMx++Si/I6w6
-         h3kw==;
+        bh=9tOwQqIAdyjghJMjTm6oUIxKO9dFwJzcIPT3HUguBcg=;
+        fh=hHxFmmuaOLzT2FSSyyQP8hIOa5fDwpRUH/2LlLaXh+E=;
+        b=qYQXZOkOY3f+tNfmOA4aAj3mk6sp52wSwFi4SiphF5vyWkP10Can9i8MZr8T3ur2yV
+         i8K9omuKRg1xiaH6bbBKm9UqeJpSI5B9hmHr3FqQZSyQtSPiCVGO5l/4WW9qZ9JHcS1o
+         n3jox+V43Do+5w6bzY5fB/BWTPpkrBAVKuoSHD2qPh13nraS9LXDUFymg9aDmJhAMYV6
+         BnRPA39zaECtVirfDHETOOtMOB7eP2oAWw1H6gzlzZGQIJ9EbC3abvl5eLS8Cz4XiW2j
+         zg32LV+OfBkWHdlNMWgLkeXBbh5CFPUQyI18jljC4hvB9NPdQnuFLyYe9bLGa5h3aEjF
+         MTrQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1786033872; x=1786638672; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1786035413; x=1786640213; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=7LdnVM4OW43IupFVnK7dTDn/Au7HTQaZEjANHiIkPXc=;
-        b=Gm53DjQ8v916TgOaA3kAppcRx2ucQXUQh/RE2AaROccaa97JApxUbsXUaOQaaoRFQ/
-         bAGrUrIBgnM7bqd/iMhxRXKQywfuCGJgpyZfnV5tZrif/ngdeek4k62LeSbcO2/cFnGH
-         RTb5XqZedn7Wqz9CgyCoKWu0rqU9xC3nTc3axSg5QNe5kDwA3rttMLmCI20UaJNN/FRM
-         XTEVOSjVvCCASxSiw1SOKh+gln98B07+d0fKoZiteKehj2CmwPrBvUz7vfxkXFG+4+7l
-         2dcq80K+fjVe0c4XZmjkZ3GC3HpmZXrDHkJZF2EmZ+t16HSlkJUIcfS226io6aJjYQf+
-         Ky4Q==
+        bh=9tOwQqIAdyjghJMjTm6oUIxKO9dFwJzcIPT3HUguBcg=;
+        b=kYaHFPEhFuLRslM6vaEXNLgh5VGjW+EsTr5Ixaj9XJgHanuxQdHgRBNt0xJXXNSfR/
+         pr14Nazu4oKXQN+z1zkBWRtqnrOu2/oS42EGM8k4OgN99rKFEEKvIZMooMXciBS233Ct
+         P7L2l9MmSpPAOFejkVsKYBRYdrkxI6bL+l4whahPkswVZlPDIJppFuxzJeyBpqfp1k7O
+         A6H6BXh3L71ZNPE8ZSylaTLNqU99kiRPR3+Xtwpw75E2hL1E/YfZXist0/fVnhGxEMio
+         fuLIbethlQijX6YN3uVgysYoFxH7f/ZQID5P47MePympSMv17++dHOexDraWBrZ4ExJU
+         KPUA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786033872; x=1786638672;
+        d=1e100.net; s=20251104; t=1786035413; x=1786640213;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=7LdnVM4OW43IupFVnK7dTDn/Au7HTQaZEjANHiIkPXc=;
-        b=BktBMt3/NhEI9SYBjs5Sq5eAxzk91cyAm27Hz6Fk6sbxXln4feS7EEYOFX6SHxZEyo
-         h4+jt2IKTxRKdzvwvmA0DH6is8u+5E2v2pvU3WLAMspM8hksnMstkYz/z68RfVhfvZ/K
-         uELNo+vU9AKWl08NLIZHM592meW/xkVDvV9YvHORcIEWxqx+fM2T1cTkuyl+j66QY1+r
-         4egKLTjHQrSoWTxejnetXUHzHu6l8sgR5rQ1GE0X3d5BY1jITMJ8OtY8kESPRkD4t9f7
-         OHCDrbiMOqqJa4p5hmAD600uWYDjc2Ku60xJIUE48PNTqGjTk8h+9IwQWIkd/BTicSg9
-         Tybw==
-X-Forwarded-Encrypted: i=1; AHgh+RrURVwJ03+huOuPlXp3uuPFvrB+uP5qXsn5vMnXp6oop/NtcSUgQg6n7hlZv5o2NFvuFN7CdMn4@vger.kernel.org
-X-Gm-Message-State: AOJu0YxB61wUzozJijsJWsf2v5+iP5oNsJaiANYS+XccFAONdJIE/Ta3
-	Lzm4GLXGvrUbXXeA4+JveKn4zdH/YFq7vdn3zHBTPsTYU4DFE5bMZcb8VUBU3DkQAcCDRbPunkt
-	otjk6fD8t9TepfkzL+illKFwriUh8wVjqWnzOBCVn
-X-Gm-Gg: AR+sD122pJ2qSpZAllU+mHzI50Pmeo+DbbDM4m/Ri9r+eoHDRMPE2a6KSro92cM5QkW
-	HyFvYqboWosGC9Itdj7uzKmxYjp4oxSv+C78BR+kSbYJLvNQtNyBlIA+iDqUenzA3wqouhWMVp7
-	QooXRwq9IG5sSZRVwQKVNLuAUNAtzRuqOEcxrdDQ6KvjnSMZcrJb0gKE+zAcqoEyPmENeahKghV
-	PkDxRWXdSGIe3Kyj8JRZXOCHrJF2QuLesNw42MV8vGEDWH+Z6DBCONMAhqcGaTjg8u9TshrgzAL
-	43l6SmACIWAKst5RSAgifCbLTYHn3Dyfjq6Fapuybd2BQQ==
-X-Received: by 2002:a17:903:3d0d:b0:2d0:4021:bb6b with SMTP id
- d9443c01a7336-2d0ca15c87amr195151295ad.0.1786033871690; Thu, 06 Aug 2026
- 09:31:11 -0700 (PDT)
+        bh=9tOwQqIAdyjghJMjTm6oUIxKO9dFwJzcIPT3HUguBcg=;
+        b=fpXLZWC/pb1biPNJfqfUKm9DwynAazGWrUa80UdDZbrMpxoNaCLafdyh8k1K749N1r
+         JAK2okvrXK9EkS2QcqA3Updi1d8Ksk07IehrIsACJb56XrsArHdGE65zkCn7UZvpOgAI
+         Bezvy8HUo8i0AQwN2sKVpLt9CPUQTB+HjZxuFUvMoi162ziHshPFax5rxaeqDb9QGC7/
+         UEwRl8H2dxpjKmOqVYsXX9DAlVuVyBfcZs0Q+NArwCRv+mW/LgYnmZwCXdk6dVHpBtOz
+         puKfnYbG9vHdiGJFjd2T+F7Jsd9Svs6Q6qrMipaT2N0PCyUpMDctZEobOFoLG4ceihTu
+         YY5g==
+X-Gm-Message-State: AOJu0Yw8lgMWp4gLaxYJGPXSn+IfKXZivjzXJ9ra4QByBMWutyk47ILx
+	g9OOakGOeDcVFUvpzF9ch1z15KMFv3AoPKw76wWdpfvlcjnEQOZrnVV2LZZKJa7qztBuayyTWdr
+	WjR9GiKnTSlwQ/OeORHWBFrjZjbNHw9Q=
+X-Gm-Gg: AR+sD11CXQoNbAOvwTZg6k7CLuUNZYIAYw0hEuKxH1YyPu21PQ4aolvc3A75P902eVu
+	I2tEY0/0TKiwQPlRObppJT6ypPT4hqtq2zBr8nOXRipqo8rfLkk2Q9e6b/c0kdAMztof3dyP7vI
+	g5nE3durF106KlPH5cb0EVEc4wlbCVcdq1m0IXreVwKotK0Rjwnhyn/jU7FXmMpEQvIQmAn9exq
+	4HMWaRqXqWUdRLOxClVTF0JC7tAS7I26wHZGWo9AA0FngqaPVMVheP+oQWKZMVO3uf+ZCrZ9EC5
+	FbBEhoAZWuhkFrmsHEhg2a4j3+8/yOb3nDBQJfDSUyUu
+X-Received: by 2002:a05:6871:60f:b0:448:9052:f436 with SMTP id
+ 586e51a60fabf-4599eb81df6mr8367067fac.8.1786035413206; Thu, 06 Aug 2026
+ 09:56:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260804135700.3713-1-stephen.smalley.work@gmail.com>
- <8335d7b97813e178446e4e8b37e8e961@paul-moore.com> <CAMgFczBaRgj=aH4A-Bd9Zw12Kmt2ymtMQwpaUW7rOk3FpDJenQ@mail.gmail.com>
- <CAHC9VhQmEkeN+ZwApXnbak_w-TUJA53o1EEhtCSf56dDi8OvpQ@mail.gmail.com> <CAMgFczB05ig+Fpe1bpaWQQguOVycTa+Y+Zt=oiag3Ot8i2f3QA@mail.gmail.com>
-In-Reply-To: <CAMgFczB05ig+Fpe1bpaWQQguOVycTa+Y+Zt=oiag3Ot8i2f3QA@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 6 Aug 2026 12:30:58 -0400
-X-Gm-Features: AUfX_mz7RWobGlpJo4jmQ8ZchuGj_n84K4PHFeQJSpizmaMv5kACRkc9o0Zvu1k
-Message-ID: <CAHC9VhSrij5h7RHS0CjfdzdREs_DkDMX4rwt=JL4FZ+Ed98gUA@mail.gmail.com>
-Subject: Re: [PATCH] selinux: check level category sets once at load time
-To: Jiri Vozar <jvozar@redhat.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org, 
-	omosnace@redhat.com, jhladky@redhat.com
+References: <20260805191438.77935-2-stephen.smalley.work@gmail.com> <CAP+JOzTTwarKFCiaOmKfcT+M6V_uShJuD3EMfNCWNgfxcsDLag@mail.gmail.com>
+In-Reply-To: <CAP+JOzTTwarKFCiaOmKfcT+M6V_uShJuD3EMfNCWNgfxcsDLag@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 6 Aug 2026 12:56:41 -0400
+X-Gm-Features: AUfX_mx_l2R_w_u4JcvgLNVLtmJbDTDvmBgRs3VZf9frTm2pKzXQ_zH-SvZqOhI
+Message-ID: <CAEjxPJ6oRxoS7Gm3uFN-gGerPpmV1MPxb6jCcHfgTKGkq0YASw@mail.gmail.com>
+Subject: Re: [PATCH v2] libsepol,checkpolicy: drop support for kernel policy
+ versions < 24
+To: James Carter <jwcart2@gmail.com>
+Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
+	jason@perfinion.com, Chen Gong <reister@ruc.edu.cn>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 6, 2026 at 4:20=E2=80=AFAM Jiri Vozar <jvozar@redhat.com> wrote=
-:
->
-> Yes, you can.
-
-My apologies, I sent this up to Linus yesterday so was not able to
-include your tested by tag, but you do have reporter and suggested
-credit.  I also just saw that Linus has merged the fix and it should
-be part of Linux v7.2 when it is released in a couple of weeks.
-
-Thanks again for your help!
-
-> st 5. 8. 2026 v 17:31 odes=C3=ADlatel Paul Moore <paul@paul-moore.com> na=
-psal:
-> >
-> > On Wed, Aug 5, 2026 at 10:56=E2=80=AFAM Jiri Vozar <jvozar@redhat.com> =
-wrote:
-> > >
-> > > Hi,
-> > > thank you for the quick patching. I tried the patch and the
-> > > performance fully recovered.
-> >
-> > Thanks for the verification.  Can I add your 'Tested-by:' tag to the co=
-mmit?
-> >
-> > > =C3=BAt 4. 8. 2026 v 16:57 odes=C3=ADlatel Paul Moore <paul@paul-moor=
-e.com> napsal:
-> > > > On Aug  4, 2026 Stephen Smalley <stephen.smalley.work@gmail.com> wr=
+On Thu, Aug 6, 2026 at 11:29=E2=80=AFAM James Carter <jwcart2@gmail.com> wr=
 ote:
-> > > > >
-> > > > > As reported by Jiri Vozar, commit 7edea6e8c8e8 ("selinux: beef up
-> > > > > isvalid checks") introduces a new loop in mls_level_isvalid() tha=
-t
-> > > > > causes ~89-94% throughput regression in System V IPC message queu=
-e
-> > > > > operations (msgsnd/msgrcv).
-> > > > >
-> > > > > Move the expensive part of the ebitmap checking to policy load ti=
-me
-> > > > > instead as the reporter suggested.
-> > > > >
-> > > > > Reported-by: Jiri Vozar <jvozar@redhat.com>
-> > > > > Link: https://lore.kernel.org/selinux/CAMgFczCi2Z011dNf84Amc0Q-qn=
-Tt0+VUjWY+Y7zPyXdaH35Jvw@mail.gmail.com/
-> > > > > Fixes: 7edea6e8c8e8 ("selinux: beef up isvalid checks")
-> > > > > Suggested-by: Jiri Vozar <jvozar@redhat.com>
-> > > > > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > > > > ---
-> > > > >  security/selinux/ss/mls.c      | 24 +++++++-----------------
-> > > > >  security/selinux/ss/policydb.c | 23 +++++++++++++++++++++++
-> > > > >  2 files changed, 30 insertions(+), 17 deletions(-)
-> > > >
-> > > > Merged into selinux/stable-7.2, thanks everyone!
+>
+> On Wed, Aug 5, 2026 at 3:15=E2=80=AFPM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > Given the recently reported bugs in libsepol's support for policy
+> > versions 20 through 23, let's drop support for kernel policy versions
+> > < 24. This also aligns the minimum SELinux kernel policy version with
+> > the minimum Xen policy version. This makes libsepol's minimum
+> > supported kernel version v2.6.28 which is older than the v3.0 minimum
+> > we already set for libselinux.
+> >
+> > Reported-by: Chen Gong <reister@ruc.edu.cn>
+> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+>
+> Acked-by: James Carter <jwcart2@gmail.com>
 
---=20
-paul-moore.com
+Thanks, merged.
