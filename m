@@ -1,149 +1,104 @@
-Received: from mail-ot1-f49.google.com (mail-ot1-f49.google.com [209.85.210.49])
+Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12874447807
-	for <selinux@vger.kernel.org>; Thu,  6 Aug 2026 12:27:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.49
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786019257; cv=pass; b=U7ntXMt5Hx70Gerj0DgYCcUAlIQwVrZJEi5fMc5xnaTjUBVl0Nb5PF39cMKlpGQDRjmihPW9U0lFzUdwuhe7tzkX1eF9kHQyrjIB5Dtjt1rN23UJ77QyPKYnOE1/hD2/mAnMkTrtEAmk/tc4KUnhIx8//cR7MCIYgQnyh+dQ7AM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786019257; c=relaxed/simple;
-	bh=Kugym0YvilalSCIXnJnUawX32PNtHzgiRK4R5BSrxBQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=IyjHDrVGGh+si6np1dlep3VuqWzQ2FAuJ54QLgyq0sHtJ8FRWFxiKTTkkaSY1VSWqpy9kwYBiaihfAmzAXTGg2gyHBAygyCVyRLiA7hiXiAuMZWBuQZsUNv1h8bQvulwGgDCNeW07udKCbAae50mtg2pBy/uPiriF1oGaCGoja8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hZd8TvQg; arc=pass smtp.client-ip=209.85.210.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28748377006
+	for <selinux@vger.kernel.org>; Thu,  6 Aug 2026 14:13:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786025627; cv=none; b=qq8FrjyYBaQGQh6yii1wxhWyiV0zapkAS2I6wsDOSyLjCB/oUs/J8r1U2AhmwhxEFP15eO72jmQXifdEXT967yXqBlc0MtKTaTv23CLYCKI1AER482eeU0S/1bWPZjAlxzvr4HP+iqTbeg4syDzFIntNL9L43/BY/kELqkxK8mI=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786025627; c=relaxed/simple;
+	bh=2Iyitj+ynI76P9Lh8rtxbBOUZsOAZ1Cp8VsfVSVDxfY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Dc8fH6f9PiL2IeMywtyLaAGNTY2wNTbRNcLD2NL0PPx1rvhD7fiSnjfEMcf7+ep/3PURM817Q4RheZ5K2qxjjmB96dJ875HHTBOxD3V/bchcJPobk6bF82U4xR6ddSr04Q83fxNxwINdI+VANRE4lBsfMtrwtSk1hwuh86B0Afk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jY72TGsY; arc=none smtp.client-ip=209.85.222.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hZd8TvQg"
-Received: by mail-ot1-f49.google.com with SMTP id 46e09a7af769-7eb63dbd229so653288a34.1
-        for <selinux@vger.kernel.org>; Thu, 06 Aug 2026 05:27:35 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1786019255; cv=none;
-        d=google.com; s=arc-20260327;
-        b=Sbaixu8h3hjWYNHg7Qk2erxjKVUqA5Srhvg4gjyeaGAmuwAH3oFtQfOhv2A1gtmzlv
-         xkcoX4+Q300oFhWO4eKS3rWsbkCp/URvHIUvk8MwDPfbfX2zucdsjZLXT0EqBpTh6gXo
-         7lYTWTbZ5t7IL+oDHeTBS1XfEIWiMNNcEfcJqvOxQhP3WACV/Hi8Ecztwv3xOmVyD+CN
-         U6w+sNCqZH+CMbMTTnRLyGig9tz8Wcbs9nXkFV2DIGnbvpFF7/YGK5ctHcyHiCwkHorY
-         tuOX1Y5JjCpo54y+WGkwYh449oH+OCvpIyz+FfHgFsLAT6mAGze0T/BNXW9Xeu2e4G3m
-         Kg8w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=PGLV4axFEtQvcLVBgHfhsvnUEG7mv0CuNXLx73QrF/I=;
-        fh=o4EWA82M+vtfNglaTzMFhY8rIYTLnPpjxHW+AHnzuHs=;
-        b=BIeOfzeuklm3i6NPfVtqOTJDynOEvxGOEWQ+97oAjfmFqRQ/dQq+I6Rk0GHRJ1fGR9
-         s1nQ5masG+YpgHtSoy/0tNmxMMjlwS/TkkL9YC3axfygxaCchWY5plTzqI7xFzorKRDR
-         a3HKzGrIJOT2mh5v7krm7rDpB5Ap9NRg3EfHwFx0c4SQT4+h7JKZ6NTpqf9DWSQleyxn
-         I57yqwnwIwQfc/E1FhDCbMnMUXY9ZN5PyZcC26dHRwiN61yGAP7XnfCjIknsOKOD+d5h
-         Ua3SaL1065dEjvlQvie1J0unr86eGYaYGF0jeJ/cfFWazxnnVplgWqgk6q87HqJMvUSZ
-         7uJQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jY72TGsY"
+Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-92e6a434cabso107357985a.1
+        for <selinux@vger.kernel.org>; Thu, 06 Aug 2026 07:13:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786019255; x=1786624055; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=PGLV4axFEtQvcLVBgHfhsvnUEG7mv0CuNXLx73QrF/I=;
-        b=hZd8TvQgdVTC/7j0Fax2tNctqe7BEQMc/rnc8LLXtWCv04cXojjBKdH3AkywUJMDbC
-         tWkllbhOFRkJSuD/hTwD3nMchfwDXS14OSc+4bkv/hnIQ1koRc3avrtSsIivk9NbfLYN
-         s0/YgXn+i2xY1SAPArpPHE18XMRRdeQ1k0MJ9WTvSLdcMJYrC3VytDSuCqicYYnVnq2+
-         BzJY/QSXUXXCv4mcMfLj5TOlUkmmkTOtXHwcmkLQmfrqbOEIqxXttwYNPpD1nBJ4bULo
-         bGiL7CU07OkMzMS9oIrq1DTQTeKorrf/evO6sPLjVva4DjmSBBEGoMsYiUlFg6lfoL2U
-         SYGA==
+        d=gmail.com; s=20251104; t=1786025622; x=1786630422; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=H/ywjtaajsj+3J8+i1dVA4+1nAhGQKDQZERMC2ZX+uI=;
+        b=jY72TGsYQhW+jY2jVCVnniMvYLULTpI2DqI/T8HPfvnbN0OQ7WlUwFmOouU1dGQfYn
+         890HZOXGSllPQmlBgm52PTE/DyiRXl1PVEMj3G9aEMjgR9l3ZMuwPLgwLISFWBg6SdcH
+         K3HU8rxnFMkGZNEf6gTIkN9zb4TfngTwDsPmDyxD37lzD3SYOve/v8jFocAA9aVvDYGB
+         rK460zN7SUaJhpXb11FYkGQldGOPkBVeB+RKaKFf3D9eVJbp99vs2zN8/WQai48GUSZt
+         crFL+KFXGtq0Jm4dpJRHgfcjYj14zfjm+htXqaoE3BxBEHO2YFmjreuW1VBNFl25Twqu
+         5XVg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786019255; x=1786624055;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=PGLV4axFEtQvcLVBgHfhsvnUEG7mv0CuNXLx73QrF/I=;
-        b=GzGJtUVE52XSCBTLaUi3oz/u8iP8tMVQ8xCxW12EtG9BXRZq8cptldcDbsQJa18/ty
-         EQNoTv5GAxs1xdVPtErR70GrBp7T/gaO2iGxDlNLT/nGYDQ0oIiZmD2ZSnxJySYpQzzB
-         BdVzCW75P3IBFiIzzgGlt2XNm8HhYH9uPKKh5lQbgQaSNiyjfFFdsLN1hb5m93cwMFBa
-         89Tz+Ao6IJGnjwejXAqBQCdIov+FY1erdQqgMfoH9s17R1s84hr9iIpB2zpT2Negc5zc
-         P/EhHBoAgFgp+28ntiHUybWlZE8WDCK5aHNNshY03MyywRayomV0KoSZ9EiyC58U0wAk
-         iX3A==
-X-Gm-Message-State: AOJu0YwvUkG86X5S847ZogtWyOQXDVeRGcn2EpwuGozXVOctH+sDKeFP
-	XVAx6xPH712rirOGaIwe18zXBXleSceg5SerOBmWQeypQc9sacVELgJG4j7Z/xlh1YUQf8a1U8v
-	Y0TmFrv2eL3GF4kvgDnRZiVXuLC0A5LM=
-X-Gm-Gg: AR+sD10p0suuV1gq8z41X9k9FFaZmnLR5eyIe0ugJoKKlGqC7McnLYHBfDupE+Jk722
-	VaZIgBDWRa9aTFZlI8MloFqXkONW94h1A9jZdWOtD7EN0oIgrTBtHU5kRPEmuvuFluT28XCqsQu
-	iT5TpYB3Yw2TfUQQQ/hiCpEPIUrldRJpUjrmWbkDAbTgauVKnET1+TBESSJzizGWpBV/CQBdYLu
-	x60gqKBwJYurdX+BtaVud1blfdAlD1CcelOJYIoxinTWbPHwPTveEjj36Bfw66oE1tCosJU26Yn
-	PFtU9j0K8hWNyNID+kfIhQ/VYFirVEy1Z4qJJ0DE6Q3z0OEBOEvF23F+wrApVoKWqmU=
-X-Received: by 2002:a05:6820:4cc1:b0:694:85da:3f92 with SMTP id
- 006d021491bc7-6aeb24b4535mr3559717eaf.17.1786019254894; Thu, 06 Aug 2026
- 05:27:34 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1786025622; x=1786630422;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=H/ywjtaajsj+3J8+i1dVA4+1nAhGQKDQZERMC2ZX+uI=;
+        b=JCuE6bX9PXj91z5AlDCy2bTRGt8SwVF4vY60lOH1QoBsZvU/cf2tMAhYG0GJxbgP6o
+         z7UDD9eYTDlBtKHbFZ3FcEvBLpTxWFLYuGr/sSPzttg+HfH0UuzqaoNg2CncV/VJVPal
+         mmdrI6V7b7VxPNpdGUw+FwAd8Sd+5+k57P+58nypv6ly8dG4WaIkWGgArnZBNPNIdxJe
+         3Z7+LBaCbqOUzPWxl8/vmMFaIIKMg70dxkwxYLKJb1nLwgUtj1gIKgM2p4VtVpPc9Yf9
+         K8t4/QaVynhQ6pqT5KGCUVJoUlnACcRj2qNA2m//GthOyexFY8shoyGqTt3dtZIaWUsx
+         V+9g==
+X-Gm-Message-State: AOJu0YwvnxNF1pY10QBSCXbx4AHaNXGGM1Knobnwv67yQO8cDVcvIQSg
+	S9E5aXpnGIesjAfx0Hk8d1i9NFP0fG8i3v4TlPmLuE825+Wt8QYeoNTmONg6yQ==
+X-Gm-Gg: AR+sD10Kf5AgfMjlsmQdwaSxQQ/wnBlG5haNxgvOoQloGnvuGlowFL3fuHt8ayxZZy2
+	GRXEgaLdnCtGHKHVmPJlCd5Xz2rkq3Zn8n8rH8TJtbYruDc6ynx9zzTXVaBHxLCsRBKXz9y0ORK
+	sgh58M/BdV3lqb92hDbNgxsqryVYjmpqB4tJP+3Y8kolwwdKVLbB/ylFVNO8kQP8Jlthgu5yHPU
+	1vIj9BDboii6YQGZ7+kz7R0zJ5NSxfxZEElFHpo2iyQWasxlHtIPUdJjUWejN+9jmBRt1wO5uVX
+	vOz5SvElvevWL8hK7o3UavNPHe+AhKNXmWlZ8j13c+QQIEW6LX2Nueu1FBjW3vJBs3xIc4Wrjq+
+	iFOI78M1GZZr6MxFIuzdi7s3HM27qt5QQ3sXUWVfruFFefqdiEs6G9DbwIQhu6+lzv9SV727tTM
+	hLn4rgDz7kBLhl2t/Pj/oJEscVwOqqOEB4TwXhvSmKS1p0ZLHW65kVBXT2GUNRp70BdBLPX4+iH
+	5mq55nOa//wl2XXB5dgsUW/58UNc7JSmRlRXu9jK5JaGSy93P5gPk9ubwCFZQ7F
+X-Received: by 2002:a05:6214:5910:b0:8ee:756a:f1cb with SMTP id 6a1803df08f44-908813f725cmr195379296d6.28.1786025621639;
+        Thu, 06 Aug 2026 07:13:41 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9088eb7e978sm26638136d6.42.2026.08.06.07.13.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 06 Aug 2026 07:13:41 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	jason@perfinion.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] checkpolicy-fuzzer: drop invalid assertion
+Date: Thu,  6 Aug 2026 10:13:27 -0400
+Message-ID: <20260806141327.101661-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260805101817.2195037-1-pmatyas@redhat.com> <CAEjxPJ5-tmkUfL53LAtg9=2_LgcB3BB875D0T4JdW5K7c-AnCA@mail.gmail.com>
- <CAEjxPJ4L9QL_HbQgtFOMxNo1RrOtaFXVjZUNGA0x=oKQ2uihcA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4L9QL_HbQgtFOMxNo1RrOtaFXVjZUNGA0x=oKQ2uihcA@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 6 Aug 2026 08:27:23 -0400
-X-Gm-Features: AUfX_mw71Q7SaFXbOeDnQ3wtGWy79WY1SxB8mtyGqlMnhyw_oEvOvw4gBX2kfhM
-Message-ID: <CAEjxPJ4w8NHXYTuwr4=oz8yEhDf8LAwiTOwx_VhMGqX65q0BpQ@mail.gmail.com>
-Subject: Re: [PATCH] scripts/oss-fuzz: build PCRE2 from source with sanitizer instrumentation
-To: Petr Matyas <p.matyas13@gmail.com>
-Cc: selinux@vger.kernel.org, Petr Matyas <pmatyas@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Wed, Aug 5, 2026 at 12:17=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Wed, Aug 5, 2026 at 9:29=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > On Wed, Aug 5, 2026 at 6:18=E2=80=AFAM Petr Matyas <p.matyas13@gmail.co=
-m> wrote:
-> > >
-> > > The selabel_file fuzzers link against the system libpcre2, which is n=
-ot
-> > > instrumented when building with -fsanitize=3Dmemory.  MSan requires a=
-ll
-> > > libraries to be instrumented; uninstrumented libraries can produce fa=
-lse
-> > > positives because their writes do not update the sanitizer's shadow m=
-emory.
-> > >
-> > > In practice this causes a spurious use-of-uninitialized-value report:
-> > > pcre2_compile() writes literal character bytes via direct assignment =
-(not
-> > > through memset/memcpy), so MSan's shadow memory does not reflect thos=
-e
-> > > writes.  pcre2_jit_compile() then calls memcmp() in detect_repeat() o=
-ver
-> > > compiled bytecode containing those character bytes, and MSan flags th=
-e
-> > > comparison as reading uninitialized memory.
-> > >
-> > > The PCRE2 maintainers confirmed this is a false positive per MSan
-> > > documentation and declined to change the library [1].
-> > >
-> > > Fix by building PCRE2 from source with the same -fsanitize=3D flags a=
-s the
-> > > rest of the fuzzer build.  With instrumentation, all pcre2_compile()
-> > > writes are tracked, detect_repeat()'s memcmp() sees properly initiali=
-zed
-> > > bytes, and the false positive disappears.  Both selabel_file fuzzers =
-are
-> > > now linked against the resulting static libpcre2-8.a from DESTDIR ins=
-tead
-> > > of the system shared library.
-> > >
-> > > [1] https://github.com/KwisatzHaderach/pcre2/pull/1
-> > >
-> > > Signed-off-by: Petr Matyas <pmatyas@redhat.com>
-> >
-> > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
->
-> Merged.
+The checkpolicy-fuzzer has an invalid assertion; checkpolicy
+intentionally tracks errors via policydb_errors and does not always
+return non-zero from yyparse() if there were any errors during the
+compilation.
 
-This resolved the issue with oss-fuzz. Thank you for investigating and
-fixing it!
+Reported-by: oss-fuzz (issue 471491765)
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ checkpolicy/fuzz/checkpolicy-fuzzer.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/checkpolicy/fuzz/checkpolicy-fuzzer.c b/checkpolicy/fuzz/checkpolicy-fuzzer.c
+index c58d10e9..771b52f5 100644
+--- a/checkpolicy/fuzz/checkpolicy-fuzzer.c
++++ b/checkpolicy/fuzz/checkpolicy-fuzzer.c
+@@ -106,8 +106,6 @@ static int read_source_policy(policydb_t *p, const uint8_t *data, size_t size)
+ 	}
+ 
+ 	rc = yyparse();
+-	// TODO: drop global variable policydb_errors if proven to be redundant
+-	assert(rc || !policydb_errors);
+ 	if (rc || policydb_errors) {
+ 		queue_destroy(id_queue);
+ 		fclose(yyin);
+-- 
+2.55.0
+
