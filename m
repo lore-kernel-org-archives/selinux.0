@@ -1,113 +1,120 @@
-Received: from mail-oa1-f45.google.com (mail-oa1-f45.google.com [209.85.160.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77D84175A6C
-	for <selinux@vger.kernel.org>; Thu,  6 Aug 2026 16:57:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.45
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786035456; cv=pass; b=XY5B5sgXTYRgb9vQMHh1cO7vEujfzT+oqTxPvqniOItkcopaOE2kGLlAXW96XEswI21M2gKgBi51N9f32FUjbpJKTmyHEvwsPEBSftHSTGz+6cFKJsSkeAQBhT/SNEBgFM9YSSWysAwlJb3vWDvac5G/KWzQmZwG+VuUoP2gRZI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786035456; c=relaxed/simple;
-	bh=6O3cI6jJ5g0ksWTM3fEBqCAZTJkmOxpFLTxzfWBHUBI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bFDMdHKoh8+CgqWAvg1GXk7dJXs/tN5E8wEoA185pjWLKWDNnolOzjEqoBZRAltGvtdw5CUua067r8IVAlF/btyTGlrBtm9hcw48Dm/h8CVY2PLlsdY2a3DyXoH+S/zj8gKx7srwfRDQnoAKReK9ATmh9jyq6wnuD6iqHWx4HjI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=l5OhWgCr; arc=pass smtp.client-ip=209.85.160.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93D4F494821
+	for <selinux@vger.kernel.org>; Thu,  6 Aug 2026 19:41:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786045299; cv=none; b=SxU7e45VK/BO1hW6HnEa7TWEKIhJOo3Rivnj/hQdwrrRaDCSqB2Y+CeI5nVljMO81AykoJjXLSHqNV2qSWjyqMQiGqwBKLxkRMXio3VTZK0/Vp5ZamHwc2Pdh+wEwNCRynI3R09Vq3elHJhc7wD74m9akmA+6A6/q+owp8ngJVA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786045299; c=relaxed/simple;
+	bh=kpJvYdWzAvw7Zp24i0YQohIzrSofV+GPKH/HOYhselA=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=Jm6Ii9wdAF4tDAPzklhy1uiezu9ZJ5uZ8sM/mY44F44jxAZ7zWymlGgYbq43WGWnRMfqHDv21wP85kGFlZeCQLwJdxeSqOk7SkVKqO05H5SaxRYPhlUFE0xFPF/rOvAdoivlenST46ukGUE0NlsQo/G8DYnry+rHXEM8idm+qaY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hd1V2Tkb; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l5OhWgCr"
-Received: by mail-oa1-f45.google.com with SMTP id 586e51a60fabf-43b7e186a0cso885072fac.0
-        for <selinux@vger.kernel.org>; Thu, 06 Aug 2026 09:57:32 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1786035452; cv=none;
-        d=google.com; s=arc-20260327;
-        b=Ksz7H3KL5RgbXcYmWOPpXYS4hUNxZ2UoRPeYnY/tEbdh8AplmAA2TAAy87Dnycah66
-         95MSTU4xRIraPEFok2zlIVKUT8TJlIKcphd6oChaP/K/+olZqXhFtnBWyJwy+ThAMM/O
-         WE8IEDpn3UtKZELuq4jJc/evR4ZqEBB55Wuf3aLvLLP3Z8qr4IUKPDMgid7cqrvs/tAk
-         /oEk3WFsWfyTRsfCoz1sB7WyLMPxwwC/HvE8/rmbKpD64y7HvoiETKUPMvFEKGg6cEGB
-         HHc4nr4BrgqBndIKeSTMAEmraHpd/L9QxPnoOTqCWzLzdOB7pm0y2lD/9H0iAQ1jDLSH
-         uevQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=6O3cI6jJ5g0ksWTM3fEBqCAZTJkmOxpFLTxzfWBHUBI=;
-        fh=7+QOJrX0reqoTSCiDyCe+ResJzkpTNgCkbawPxCyrOc=;
-        b=YQe1S5mDdr5/qDmp353ibhYm0F624jysGfDJEvwOpzLf/iAubMEFa8/TerBuLx94lF
-         vEeELcHNYwiewWGmIMRFHvv00tVZztTu8BKc3SiwbqaUGCvMhPbRZ96reKvpBNmGUkc8
-         jOYzkHCRIvt+4Pz3atHEqNNT4YL+DnOBPKpcDFWv150olKhE0y49qXiNpM25yj0k59nW
-         Xs8HvFwwHrpZ3Jn684WF1vY6g4QNsN5zCFZsQEm8BLKiFzUPqhDODgPVIO0hp08cJ3o2
-         vITOz6hrQLl6PWYFk+7S8vKEImV/HdZxKJF9hF6GrKPQO6L7O698HXO3+plMl0bqTc0v
-         l1YA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786035451; x=1786640251; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=6O3cI6jJ5g0ksWTM3fEBqCAZTJkmOxpFLTxzfWBHUBI=;
-        b=l5OhWgCrE1DDgJ+8LhwLPL1+WrY0Dv/x461x1dgNJFUhXPmbi+IgDGoT9xAR9zc6S8
-         g6eARXIk+6Fgs2O/pGBfeTG4Qemhscaej5y3feFZHv4GY7XeU6gBXB1bl6piSiOIr+fM
-         24GhxiGDtUZ6LjSboGAOKYQWBdUb/o232IEa8lFhmZBDBmNfVo7HRCzyddP9BdNFAjZS
-         WAtl/7lilXg8xUo4TwTbiSe6opxz+P3pfSPe6k+CBR+wxTgL4gc05+ZO5clkv5usm759
-         zWIXV88BWBeMPsnnbw1wEz9qvyxzyFCztHXaDifM8A6LwLa79SQJ9g1tHgOSsi9EzE25
-         aNpg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786035451; x=1786640251;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=6O3cI6jJ5g0ksWTM3fEBqCAZTJkmOxpFLTxzfWBHUBI=;
-        b=Fj1nfEvPGdJMitYfClQbX3yvM6rMRGRyMx1Y9Nu9NP++UU/0VziRIZmnumNDDz9xSR
-         4sLgqiieTDeMlofcLfWnJeKCizUvR7EEyRnmxqLp48gijQTIone8EB+NL+O+ujwISDDk
-         20WtaUkQPgIbIHQALaSnLFpYH0CXnAkEmfxlNB7XCB1PDIrOxcmM70/8YfJl1B9ar37l
-         kFuDLeKtZvSgQOIKsKVCHRApt5JY/CUU7Qb8wyWFmKeM1j40oPAKbVpNbnD8GtzwJIfW
-         /bVfS9tKrra1Z5nEh/w/DzqS2+QNCNjq0uD4nPlvt7RgFu05zrpZ6c/uUJ+1DkqL/QJO
-         IUng==
-X-Gm-Message-State: AOJu0YxyGXwEJbZEybVnL0gQ3OqC9vdXjbOii+RwtugpFFdCdSxUDqT4
-	eSOr75tWlAjKoakkDcCga34fXIyzaDDS8ImOWojyK5NFvCSQLXhvwB0XrzR52StVit02NWwHYDt
-	Lj5aqQeVXhruKASI7qXb7mhHqLZ8FsD4=
-X-Gm-Gg: AR+sD130J6nDg0fbrjp2ZZUuEgPBnstus6KXXLCqu5bsw4d8onQxdrSRU9nXwjBUAMV
-	T6ktqW9GDwYfCCPLoivXLZ8n/jyUJTivCjpYkz9FrEJ6MHAlWxCDWfabdV7alYW3W/jA+BoYafu
-	t5z8bny2i8Fyx+w+Y0gvZQZdyMqtuCOI830nmIE65R6O8cvUZs1ZiLmgf6UvPkrM25TYwVKTsgQ
-	Pru/lYesEEOrnRg0jUPIy2cxW0ia5Pilv9Q1TaBvYvDDWNIrF4f1T73/h32KxLBEm6WuNUaWXvN
-	5/pm3TF8OxGTcPC4KnrK1L82+s5kJ/FVXJgJzLxWhpU5
-X-Received: by 2002:a05:6870:56a9:b0:455:d4ba:1dc6 with SMTP id
- 586e51a60fabf-4599ed5a251mr8405242fac.5.1786035451602; Thu, 06 Aug 2026
- 09:57:31 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hd1V2Tkb"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1786045296;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=f+t3uqJ9oLNR3QYZCYgYjX63SbvTvT6MlLLGQ/kH3hY=;
+	b=hd1V2TkbBqG3dG4vESiWKwnUlEa6ba3CdtKaRosXi9ritNHGjtOt4ekSAhGQPaMNI8zvto
+	wEPeCY1c/fbD0jPkfKnnM7fI6hjqT7zfvSgCmWfUBDCtX3IpKAyGlZFgsHD+LV5RH0OoPk
+	TpNzIG/sU28d4RaMn/3uSWDBRYVq8tY=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-166-uTDsWrFWNRq5OnVQoAIWUw-1; Thu,
+ 06 Aug 2026 15:41:30 -0400
+X-MC-Unique: uTDsWrFWNRq5OnVQoAIWUw-1
+X-Mimecast-MFC-AGG-ID: uTDsWrFWNRq5OnVQoAIWUw_1786045289
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 47FD718001E2
+	for <selinux@vger.kernel.org>; Thu,  6 Aug 2026 19:41:29 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.44.32.195])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 931F8180059E
+	for <selinux@vger.kernel.org>; Thu,  6 Aug 2026 19:41:28 +0000 (UTC)
+From: Vit Mojzis <vmojzis@redhat.com>
+To: selinux@vger.kernel.org
+Subject: [PATCH] libselinux: restorecon_xattr: reset dir_xattr_list on every call
+Date: Thu,  6 Aug 2026 21:37:35 +0200
+Message-ID: <20260806194125.371718-1-vmojzis@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260806141514.101723-2-stephen.smalley.work@gmail.com> <CAP+JOzQ-yqb7KBVABmZic8A1qCZ+6SQAbjT64St04Q=U8uFPRw@mail.gmail.com>
-In-Reply-To: <CAP+JOzQ-yqb7KBVABmZic8A1qCZ+6SQAbjT64St04Q=U8uFPRw@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 6 Aug 2026 12:57:20 -0400
-X-Gm-Features: AUfX_mzE3i0_HC4Aro9xmo22pzbquYZ0o-9AUo4-NSCjA4HUGX9bCBvP7uuX6gc
-Message-ID: <CAEjxPJ6Fpe45o1hBTVAgYiO8QwvJQEBK97dKSNqtNnHHXAsLKQ@mail.gmail.com>
-Subject: Re: [PATCH v2] checkpolicy-fuzzer: drop invalid assertion
-To: James Carter <jwcart2@gmail.com>
-Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
-	jason@perfinion.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-On Thu, Aug 6, 2026 at 11:35=E2=80=AFAM James Carter <jwcart2@gmail.com> wr=
-ote:
->
-> On Thu, Aug 6, 2026 at 10:15=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > The checkpolicy-fuzzer has an invalid assertion; checkpolicy
-> > intentionally tracks errors via policydb_errors and does not always
-> > return non-zero from yyparse() if there were any errors during the
-> > compilation.
-> >
-> > Reported-by: oss-fuzz (issue 471491765)
-> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
->
-> Acked-by: James Carter <jwcart2@gmail.com>
+selinux_restorecon_xattr(3) documents that "xattr_list must be set to
+NULL before calling selinux_restorecon_xattr(3). The caller is
+responsible for freeing the returned xattr_list entries." Commit
+b5a23d7f30c1 ("libselinux: restorecon_xattr: clear dir_xattr_* after
+freeing") reset the dir_xattr_list/dir_xattr_last statics after
+freeing them on the internal error-cleanup path of the recursive
+walk, but not on the normal success path.
 
-Thanks, merged.
+After a successful call, dir_xattr_list/dir_xattr_last are left
+pointing at the just-returned, now caller-owned list. Once the caller
+frees it as required and calls the function again, add_xattr_entry()
+finds dir_xattr_list non-NULL and appends the next entry through
+dir_xattr_last->next, a dangling pointer into memory the caller has
+already freed - a use-after-free write.
+
+Reset both pointers to NULL at the top of every call instead of only
+in the error path: by the API description, any list from a prior call
+is not valid.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+---
+
+Verified with an AddressSanitizer harness that calls 
+selinux_restorecon_xattr() on one directory, frees the result,
+then calls it again on a second directory: reliably crashes
+with a heap-use-after-free (when compiled with -fsanitize=address)
+before this fix (reproduced on libselinux-3.10 and libselinux-3.11)
+and runs clean after rebuilding with this change applied.
+
+https://github.com/vmojzis/selinuxproject_selinux/blob/libselinux_AISLE/reproducers/RHEL-217622/reproduce.c
+
+
+
+ libselinux/src/selinux_restorecon.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
+index 4233ba65..49b8ff7e 100644
+--- a/libselinux/src/selinux_restorecon.c
++++ b/libselinux/src/selinux_restorecon.c
+@@ -1968,6 +1968,18 @@ int selinux_restorecon_xattr(const char *pathname, unsigned int xattr_flags,
+ 	if (!fc_sehandle)
+ 		return -1;
+ 
++	/*
++	 * The API contract requires the caller to have already freed any
++	 * xattr_list returned by a previous call before calling again.
++	 * Forget our own head/tail pointers to that now caller-owned memory
++	 * here instead of carrying them over: leaving them set would make
++	 * the next add_xattr_entry() append a new entry through
++	 * dir_xattr_last, which would be dangling once the caller has freed
++	 * it, resulting in a use-after-free.
++	 */
++	dir_xattr_list = NULL;
++	dir_xattr_last = NULL;
++
+ 	if (lstat(pathname, &sb) < 0) {
+ 		if (errno == ENOENT)
+ 			return 0;
+-- 
+2.53.0
+
