@@ -1,69 +1,73 @@
-Received: from mail-qt1-f171.google.com (mail-qt1-f171.google.com [209.85.160.171])
+Received: from mail-qt1-f177.google.com (mail-qt1-f177.google.com [209.85.160.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E44131A07F
-	for <selinux@vger.kernel.org>; Tue, 11 Aug 2026 15:17:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67D71390601
+	for <selinux@vger.kernel.org>; Tue, 11 Aug 2026 15:17:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786461439; cv=none; b=kQaGdEO5Lt673oOWMNXPWJTjlEeaHSQ/HKYC42AV42QGek0AqChROPPzNcCnYqiECl/CA+UPC+81BMpc+21p+x+VtkYIa5XZv5D3WZLM0FdYrVuQqKIAfTrBG+bvn5dhVaMeXP+rFoP8c6NdsHZvFvENs+RcBbfgxAUagX0FZIU=
+	t=1786461440; cv=none; b=QdTO3rUrGK4bT/IDxFY9vlz7N5YSRVLzB2w/lv3SjhRqYJuoBkRCOtyQI2chVOJwHPOzd9IO/QvfSgkdQaym8BNI1cLIbQKIJiL7QtnYabNxRD0uuP963OP2wT8SR9/5l28gcKnynqbuHTQwggdCy49pboCzb1W4eUQE/FCxzok=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786461439; c=relaxed/simple;
-	bh=uCiam+XT4Pv/O11kY4FpS23Nmw1qMKc5Fvc+x7OcDEk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=AgeatMLw+jnEkLdeTdaYYOLmILyLPO/s35BmvZEkHetfr8/RVgd77lw8phJXkE63k93K7e+txR3Vi9QtWSmNH9gKLmBKPnm1095H5/ZGD3How2PwMEnHBRglmSZno153h/+VoDUd3tsPBrGm20RIx6V2a8z376r5j4LLRf6wNwU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lYJtIQbr; arc=none smtp.client-ip=209.85.160.171
+	s=arc-20240116; t=1786461440; c=relaxed/simple;
+	bh=0OBK7gJIlOZU4M9OCEqDy4b5gdaeWobzQc6SHvmyZnI=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=LXybVJia4IYA98JMdZopfsvWSNlUFrGRbIwDek2txWU5d+w8oIrM0FKiDxADwI7VU/nfC5/6ny8WKI4SrWzeOnUYrE7Xy8oWMs3LQBmw2qeuOU4l0fjPplHJmesmtRj4vi4AZNrIljI5ZQhsZbBi32PCHHTxvuEIfSy1Qzvs3OU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dZ4BiwPN; arc=none smtp.client-ip=209.85.160.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lYJtIQbr"
-Received: by mail-qt1-f171.google.com with SMTP id d75a77b69052e-52d37b65926so180861cf.2
-        for <selinux@vger.kernel.org>; Tue, 11 Aug 2026 08:17:18 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dZ4BiwPN"
+Received: by mail-qt1-f177.google.com with SMTP id d75a77b69052e-5218927884fso195491cf.3
+        for <selinux@vger.kernel.org>; Tue, 11 Aug 2026 08:17:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786461437; x=1787066237; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=UKtA+OIy4lhxAtG9OBO67Sou5x1Y+qj0nSUNPv+FV1Q=;
-        b=lYJtIQbrbVOXY98ZacOpzYv8+2WUo6L67I8UtDKdytMWJvFfYDyUsZfvtGF2EuCOMg
-         XrtWcQAgbn+/tcdOKb56c8lSaoj4VeJTqQaY7LL3FaP66miDC6IL7E3p+UgF2+0RImB0
-         wPg6luO3Pf739nyTDOwy2wq5E/rWWST6FqZooeb4LS3IfQNSdLun7P4SXLlldk2WrJkh
-         OMAtsvGqlp2KiTyZOyJ7apffC6qUloMml6sFeSWWifA+V+fMRdBMHXyTUrE3YU8lvGVS
-         n9cP6WiXsb6F/WtNoIKP6VdFVn5kwUAgtIrdoNmOUc8bgUkRxVVlgwuP8jRTrMSaxY7Y
-         XM0A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786461437; x=1787066237;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1786461438; x=1787066238; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=UKtA+OIy4lhxAtG9OBO67Sou5x1Y+qj0nSUNPv+FV1Q=;
-        b=OXvVtlkTZR5FQ3YNdH1Y3FJ9EvTNqXrdwcDqMIH49uC7CXjKNYYunQXs/o2tphpf4C
-         M10471qcLnN+zDO/M7kWLTdNbUW3asbV7aE28VPIYBoYk/IMOFqa8xAE0CYZNoPdSXq6
-         BeyVQiGMrr59HUUUYLFXsn9E5va9BpFsDbpsr4XpwDAVLEfXrl3Evj0ilkmpDaA/O6at
-         KIqzPuUGelGJArO95v7uSopmDujrZtolzz/7j/hGxY5e9z5pol7SNygT/5KKLqeFikLy
-         aY9XVvWPVtbhA0IussaNFQ9h7dP/iixbtWqoFyl2hyxnmmnpoZ1JitpcL51fw3hGDFYg
-         QotQ==
-X-Gm-Message-State: AOJu0Yzh6cKOlHc/5O6+yAUj18xBbcMfuiIC5w9UvNoiMi1IfWeUTXtl
-	wED0p5OuhME6vXcqZA3NGNWKNEwkmlk38HcA0NgfgUaN3rj980Fo9wxG9KeIog==
-X-Gm-Gg: AR+sD10ISMFhy8izYEQb10wyR3OM1ELmSlf5Syg4HiEo0K1H/hGwUcQUBrPgHUFiv4f
-	G6OWSzYC3B2IzT+J/ZQg+QtpzM2n0epr0YWXfR30NhKzyZWczP+YVgy+bskJTWjp7nMDdLjlvkE
-	PTpEJ4axDlG5DFpm1sA1u/IZn0pv3lkLzgJzNi7SVr0Qjs8EQVZwFSuOl0myM7x9wbnuwl2VZfj
-	/Lc1OZucqNQ8Om4x0sM71zdJi2npci08Q2cBi/ue4hEv+f31ckwGKFsF23tLUuvPii+os0j3CUZ
-	XngOL+0cIyhsLxKsACa8BRCbKh6psEqs+nM3JTUJmgvPG8CmbxRvn/+M40M19fKPUkz/dNoqzl+
-	QVw1zlVJhnGLjAL8MTf3fAz7GnCMAk/qvIeva6aswegFQnSc8uLgirLtaVgfsGOA5WCgJblRpdG
-	sEKKfCW79DO8ZcGRhRpJtlP7hOnxdsnLq4SzK2liZoZ07hJuEsPoEJoN/ebwojYVceHrQ1pSPVx
-	w302aYTIJM=
-X-Received: by 2002:a05:622a:491:b0:51c:1e69:bcc9 with SMTP id d75a77b69052e-52d600e6aa5mr9301471cf.12.1786461437153;
-        Tue, 11 Aug 2026 08:17:17 -0700 (PDT)
+        bh=RN/hHxtQGu4pJqCBzFsST5baybZXZ66F3UYKINvlmOU=;
+        b=dZ4BiwPNQMEyPlUOFe0EtGh0yU86pnGXyN4W30m9r8mcG7IxwtZNs2hMoAcR1/00Pp
+         m/jd7g/WRF4DFoyj7yJwhgTOFMNTwmuNz1Aed4lQJxkDorRrieD+P1hUHN/XDGinoxz9
+         MH4XlJ09rL6hn72OuEthIiEKg8k2uzn/RwmwDFODwcqL8lZQtDSuO+3gqfmDR8QeEdqt
+         jQ9tyCLriiyw3OqhGTUz0ud2armXJHMxlLBMnTUowj17aVm1ZIP1wNYbgU0v7Sm6SJmM
+         uVPOtNa9FJiluYzTNw1cH4j3DgKp/uQxgwXDKH1WTvMqYsRxKimnkpO1rez3LyET1yLe
+         b7kw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786461438; x=1787066238;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=RN/hHxtQGu4pJqCBzFsST5baybZXZ66F3UYKINvlmOU=;
+        b=iCPVMyWJwAcCtxg4EXnvh3bl1cYOiSIhmvluVqSwxzUH7Gv+UquPiX9qPQ01lIC+DG
+         zdvIAaSvGAKAph3cOaf+92zBwDS8gvqtXYmwEYxVM5V1+rDJNPBFEvE8/J7SUB3C2tem
+         19SbaAXGoSJwlb6ZsP2CC+wpw5gt5cvR/LHfytTE1IbYeJ25b0fRGxSge4UiYXpp+QiX
+         Ll0YwexJl5llx/UtXiiV8m7rlBIyUOwR+etPvHQezqcLQyZbUMl2kgmnrJyjearj6wj4
+         9o2fVNX9MVtkj62unIcG4b2dfS1X+9/rhEkBKAMbM10UHNKn9NZd3LG2vxkOi/uH40Ec
+         7xuQ==
+X-Gm-Message-State: AOJu0YzIAo3YqOLxraDI530Kad0wiA0d61dp2eYJLfeMx1Q+BMwbyoZx
+	jkSTgps3dlzsLUDjnLyU3OcyNms2bmn54d20jOxJwpAg83xp54t+UhU39/6Rzg==
+X-Gm-Gg: AR+sD13r9JqkdbW00u6x2y8U0Fra1B09O+JnaCRKqMdfnmcDWnGOhv8d6uNLKlG9f8o
+	yPYDVx3bJlSWX3G0BUJ+z5ktqR1xOTDNYFfxhYmrU5rIFYq1xZeQD486OzcSr+RjPgrQOHyxImP
+	M+bkMSezRJzE9ka/U9lKbFNChhsq/aG1a7jH65D+fqXvwY2pxEBT3XiklK+M55ztYHnVUNXAY3t
+	jYEByhj1SRC0ZO8xdnMmI5kNhd6gQwW1+9K3LVqOofpuEjP/hob1KVwyuS/J+/2vGjKmrKng4wM
+	ttbtN6lRjZ08r5Mz5vfpCwI9M6eV4Q2dlFv/X0709mYwUgpS22wgZjt6dsWEjpimhTuDCUmZtD0
+	ro59wyLBrzilDpDgljLA998IvrV67Z70fiZW/HonHUTeY4bHoQstpfOjtmwAcV7OwvB2lypBQDd
+	2bmTL8gm2bnF6S0HIeaRV5DqdL7zcsL4gVEFsYlgXmBYkVBAh4d2hITkuRmnDyBOpD1Y9UcCI2Q
+	AoELT8p+Ls=
+X-Received: by 2002:a05:622a:995:b0:51c:404:af7a with SMTP id d75a77b69052e-52d58638b35mr37570471cf.31.1786461438154;
+        Tue, 11 Aug 2026 08:17:18 -0700 (PDT)
 Received: from Fedora43-SELinux ([144.51.8.27])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52d578f7d54sm13669111cf.5.2026.08.11.08.17.16
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52d578f7d54sm13669111cf.5.2026.08.11.08.17.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Aug 2026 08:17:16 -0700 (PDT)
+        Tue, 11 Aug 2026 08:17:17 -0700 (PDT)
 From: James Carter <jwcart2@gmail.com>
 To: selinux@vger.kernel.org
 Cc: stephen.smalley.work@gmail.com,
 	James Carter <jwcart2@gmail.com>
-Subject: [PATCH 1/2] libsepol: Copy a chain of type alias references
-Date: Tue, 11 Aug 2026 11:17:04 -0400
-Message-ID: <20260811151705.109129-1-jwcart2@gmail.com>
+Subject: [PATCH 2/2] libsepol: Improve the validation of type aliases
+Date: Tue, 11 Aug 2026 11:17:05 -0400
+Message-ID: <20260811151705.109129-2-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260811151705.109129-1-jwcart2@gmail.com>
+References: <20260811151705.109129-1-jwcart2@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -72,119 +76,118 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-For a policy with multiple modules it is possible for there to be
-a chain of type alias references where an alias in one module refers
-to an alias in another module which refers an alias in a third
-module and so on. When expanding a policy with this sort of chain,
-a situation can arise where an alias being copied references an
-alias that has yet to be copied. Since the value of an alias is set
-to the typemap of its primary and the typemap of its primary has not
-been set yet, this alias will end up with an invalid value of 0 and
-return an error.
+A maliciously crafted binary policy could have a type alias that
+refers to an attribute or that ultimately refers back to itself
+in a loop.
 
-When copying aliases, skip over aliases that refer to an alias that
-has yet to be copied and keep repeating the copying of aliases until
-none have been skipped or the maximum number of repeats has been
-exceeded.
+Validate that type aliases ultimately refer to a primary type
+and not to an attribute or themselves.
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- libsepol/src/expand.c | 47 ++++++++++++++++++++++++++++---------------
- 1 file changed, 31 insertions(+), 16 deletions(-)
+ libsepol/src/policydb_validate.c | 72 +++++++++++++++++++++-----------
+ 1 file changed, 47 insertions(+), 25 deletions(-)
 
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 466d5bc1..96d7b332 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -39,6 +39,8 @@
- #include "debug.h"
- #include "private.h"
+diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
+index 5687c82b..5178a2b4 100644
+--- a/libsepol/src/policydb_validate.c
++++ b/libsepol/src/policydb_validate.c
+@@ -13,6 +13,8 @@
+ #define bool_xor(a, b) (!(a) != !(b))
+ #define bool_xnor(a, b) (!bool_xor(a, b))
  
 +#define MAX_ALIAS_REPEATS 32
 +
- typedef struct expand_state {
- 	int verbose;
- 	uint32_t *typemap;
-@@ -49,6 +51,7 @@ typedef struct expand_state {
- 	policydb_t *out;
- 	sepol_handle_t *handle;
- 	int expand_neverallow;
-+	int aliases_skipped;
- } expand_state_t;
- 
- static void expand_state_init(expand_state_t *state)
-@@ -771,6 +774,19 @@ static int alias_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
- 		return 0;
- 	}
- 
-+	if (state->typemap[prival - 1] == 0) {
-+		/* The primary is another alias that has yet to be copied.
-+		 * Skip this alias for now and come back to it later. */
-+		state->aliases_skipped++;
-+		return 0;
-+	}
+ /*
+  * Check that at least one permission bit is valid.
+  * Older compilers might set invalid bits for the wildcard permission.
+@@ -660,19 +662,23 @@ static int validate_type_datum(sepol_handle_t *handle, const type_datum_t *type,
+ {
+ 	if (validate_value(type->s.value, &flavors[SYM_TYPES]))
+ 		goto bad;
+-	if (type->primary && validate_value(type->primary, &flavors[SYM_TYPES]))
 +
-+	new_alias = hashtab_search(state->out->p_types.table, key);
-+	if (new_alias) {
-+		/* This alias has already been copied */
-+		return 0;
++	switch (type->flags) {
++	case 0:
++	case TYPE_FLAGS_NEVERAUDIT:
++	case TYPE_FLAGS_PERMISSIVE:
++	case TYPE_FLAGS_NEVERAUDIT | TYPE_FLAGS_PERMISSIVE:
++	case TYPE_FLAGS_EXPAND_ATTR_TRUE:
++	case TYPE_FLAGS_EXPAND_ATTR_FALSE:
++	case TYPE_FLAGS_EXPAND_ATTR:
++		break;
++	default:
+ 		goto bad;
 +	}
-+
- 	if (state->verbose)
- 		INFO(state->handle, "copying alias %s", id);
  
-@@ -787,20 +803,7 @@ static int alias_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
- 		return SEPOL_ENOMEM;
- 	}
- 	memset(new_alias, 0, sizeof(type_datum_t));
--	if (alias->flavor == TYPE_TYPE)
--		new_alias->s.value = state->typemap[alias->s.value - 1];
--	else if (alias->flavor == TYPE_ALIAS)
--		new_alias->s.value = state->typemap[alias->primary - 1];
--	else
--		assert(0); /* unreachable */
--
--	if (!new_alias->s.value) {
--		ERR(state->handle, "No type mapping for %s", new_id);
--		free(new_alias);
--		free(new_id);
--		return -1;
+-	switch (type->flavor) {
+-	case TYPE_TYPE:
+-	case TYPE_ALIAS:
+-		if (!ebitmap_is_empty(&type->types))
+-			goto bad;
+-		if (type->bounds &&
+-		    validate_simpletype(type->bounds, p, flavors))
++	if (type->flavor == TYPE_ATTRIB) {
++		if (type->primary != 1)
+ 			goto bad;
+-		break;
+-	case TYPE_ATTRIB:
+ 		if (p->policy_type == POLICY_KERN) {
+ 			if (!ebitmap_is_empty(&type->types))
+ 				goto bad;
+@@ -683,21 +689,37 @@ static int validate_type_datum(sepol_handle_t *handle, const type_datum_t *type,
+ 		}
+ 		if (type->bounds)
+ 			goto bad;
+-		break;
+-	default:
+-		goto bad;
 -	}
 -
-+	new_alias->s.value = state->typemap[prival - 1];
- 	new_alias->flags = alias->flags;
- 
- 	ret = hashtab_insert(state->out->p_types.table, (hashtab_key_t)new_id,
-@@ -3266,6 +3269,7 @@ int expand_module(sepol_handle_t *handle, policydb_t *base, policydb_t *out,
- 	unsigned int i;
- 	expand_state_t state;
- 	avrule_block_t *curblock;
-+	int repeats = 0;
- 
- 	/* Append tunable's avtrue_list or avfalse_list to the avrules list
- 	 * of its home decl depending on its state value, so that the effect
-@@ -3348,8 +3352,19 @@ int expand_module(sepol_handle_t *handle, policydb_t *base, policydb_t *out,
- 	/* Needed for processing aliases */
- 	if (policydb_index_others(handle, out, verbose))
- 		goto cleanup;
--	if (hashtab_map(state.base->p_types.table, alias_copy_callback, &state))
--		goto cleanup;
-+
-+	do {
-+		if (repeats >= MAX_ALIAS_REPEATS) {
-+			ERR(handle, "Failed to resolve alias references");
-+			goto cleanup;
+-	switch (type->flags) {
+-	case 0:
+-	case TYPE_FLAGS_NEVERAUDIT:
+-	case TYPE_FLAGS_PERMISSIVE:
+-	case TYPE_FLAGS_NEVERAUDIT | TYPE_FLAGS_PERMISSIVE:
+-	case TYPE_FLAGS_EXPAND_ATTR_TRUE:
+-	case TYPE_FLAGS_EXPAND_ATTR_FALSE:
+-	case TYPE_FLAGS_EXPAND_ATTR:
+-		break;
+-	default:
++	} else if ((type->flavor == TYPE_TYPE) ||
++		   (type->flavor == TYPE_ALIAS)) {
++		if (!ebitmap_is_empty(&type->types))
++			goto bad;
++		if (type->bounds &&
++		    validate_simpletype(type->bounds, p, flavors))
++			goto bad;
++		if ((type->flavor == TYPE_TYPE) && type->primary) {
++			if (type->primary > 1)
++				goto bad;
++		} else {
++			const type_datum_t *t = type;
++			uint32_t v;
++			int repeats = 0;
++			while ((t->flavor == TYPE_ALIAS) || (t->primary == 0)) {
++				if (repeats >= MAX_ALIAS_REPEATS)
++					break;
++				v = (t->primary) ? t->primary : t->s.value;
++				if (validate_value(v, &flavors[SYM_TYPES]))
++					break;
++				t = p->type_val_to_struct[v - 1];
++				if (t == type)
++					break;
++				repeats++;
++			}
++			if ((t->flavor != TYPE_TYPE) || (t->primary != 1)) {
++				ERR(handle, "Alias validation failed");
++				goto bad;
++			}
 +		}
-+		state.aliases_skipped = 0;
-+		if (hashtab_map(state.base->p_types.table, alias_copy_callback,
-+				&state))
-+			goto cleanup;
-+		repeats++;
-+	} while (state.aliases_skipped > 0);
-+
- 	if (hashtab_map(state.base->p_types.table, type_bounds_copy_callback,
- 			&state))
- 		goto cleanup;
++	} else {
+ 		goto bad;
+ 	}
+ 
 -- 
 2.55.0
 
