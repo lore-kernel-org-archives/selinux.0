@@ -1,103 +1,138 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 477BB2594BD;
-	Thu, 13 Aug 2026 01:25:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E02232E757;
+	Thu, 13 Aug 2026 01:25:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786584319; cv=none; b=GzQObVJdOv/SudMOOCS4UzFXGTuKjbcOJptXz8F5FJHw7k37NOxcB1/i5mQto8OL3Llz5dqmGM8dea5KrzSY6QG9xTJ0OYh08ghzX/q4M/UGmxAqW5ww3w4PYq3AsS1irEvxXkFaxOuUbAaZ+bJeBUSGDry8f3MrXR4jzoE1f3o=
+	t=1786584321; cv=none; b=SRfdDKxk86RHAqPGihGDxan28ymlZo+shg86IAYFNmnx9p7E2t+FTr9uQoeudGDqlZfK+UorENX9AlS91BXykictuTX10USvyvgWMxzCQBUfwkt75YOZPXLufgFraUJuXAB5IBvbOSLGH/FCEztD8HZLjqYK58kcvylnKHcAoZI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786584319; c=relaxed/simple;
-	bh=ffjzIM4VOUuxg2z0BX8xbj/e/suPdRb4/b32lXRqYXE=;
+	s=arc-20240116; t=1786584321; c=relaxed/simple;
+	bh=7RHUJjd5Ei1BYkDShazRCFw3IS3wGOiyP1f/r4OR23k=;
 	h=Content-Type:MIME-Version:Message-Id:In-Reply-To:References:
-	 Subject:From:To:Cc:Date; b=hZLHScQViu5Gi+/yez2PAb2FKaDBUid4fCCm1c3xw4vRpkg/6YZ2baw2CL5cLJmkB8DK1+QHDlTy9btBrDHT/SYwFki90azdjfT9qgUc46UGsj45nPpIqbSmKQBH9PT9kzppIU1OyR/FKxzB33NwFmcyb3OIvcOnfBqfKDc6qew=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gAFKszN5; arc=none smtp.client-ip=100.103.45.18
+	 Subject:From:To:Cc:Date; b=L0O27Yrhkhdh+Kt+BZotRb9irexkFyb5UowyHg+dKWBEcuJNiYMFzFfjfAgtSwVf812QWBkQQfIpDztzyvPiJdKISpNUOuXtiMQNM9wfMsKLJlSWEwZY/SP3iNVr9J9yoUJOlDYWaxQV6JgMS1AzD9/0TD4ucPV93Y/cyCGo0O8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KdXm+Qaa; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gAFKszN5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCFCA1F000E9;
-	Thu, 13 Aug 2026 01:25:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KdXm+Qaa"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2501F1F00A3A;
+	Thu, 13 Aug 2026 01:25:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786584318;
-	bh=bH58GWkEgLcNVmwDwoe+hqYS/apmOia5ySQkkhB4t/A=;
+	s=k20260515; t=1786584320;
+	bh=7RHUJjd5Ei1BYkDShazRCFw3IS3wGOiyP1f/r4OR23k=;
 	h=In-Reply-To:References:Subject:From:To:Cc:Date;
-	b=gAFKszN5a11yeBavCmrodH0rYwhUTrObyxUVUOsx3VdOeSzoHW3DL1SZrlwsUzFCc
-	 z2smcYe/S8kPYnvTgvVAqmXyrhFPwRG4OFcGbC6S4SSpQIs5gP0HOAxXhJRbSLsrC9
-	 kSs0A7qBWZBtkq6CGW+pMlUyGi6wpF7fEy2Cz05Zg/+QJrbKi5G40k51/HFi4PSczp
-	 3KDHWwoIUH2DahXmGe62zCgot+hZbMsArgpEMX1A5nrAgjE3QN9WTyq68VPkgwBzgo
-	 S0FKuYmCDNfumFU2sulg8CWmLy50v+PVLNQnr096Q6SxN0mBv+jxRT+2c1UkQ+o63K
-	 aeLziEgkBB/9g==
-Content-Type: multipart/mixed; boundary="===============0888297971716850754=="
+	b=KdXm+QaaEwyyZsacxVkQL27spHB4pn5I4UzyIJCSCgqo+y/FStV/UBOvWafh7uRa9
+	 2ncWlN2Ue/FJR9Vk1ipHuoBeI9w9dVSKkyYmT99ZbJm/IZ9o0pPRUSdB2J1YY2BT5n
+	 W801V1E/0I0SNdQikElIT002p6N08mBf1cOaqrYwCPL/c+5nhGpSyzQW1xQt7sV/EV
+	 D+vFy+p+QKWmYc0wnUoikrp0iFchDzo9m+rZrkL5CUW4ZMPNAUgQvoSDMBkYtjIfc4
+	 mZkctUIB1ms7Tx4rcPBc0RYe3EYz50fu9CKTFE/QiIt+mIsTfcCp5oiBUUdAp5H7nP
+	 pEG4tJBnkkroQ==
+Content-Type: multipart/mixed; boundary="===============0869274827343138227=="
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <07102b1e6c5c45285463c936dd651626c381b2fea32726dc8d4fc76385e83db4@mail.kernel.org>
-In-Reply-To: <20260813002618.3755631-2-tweek@google.com>
-References: <20260813002618.3755631-2-tweek@google.com>
-Subject: Re: [PATCH bpf-next 1/5] fs/kernel_read_file,selinux: Add BPF_LOADER constant
+Message-Id: <2a9059dfe35fac8b6858379dab6c2e2c37b7856bf657fb1c13d414750b5460be@mail.kernel.org>
+In-Reply-To: <20260813002618.3755631-4-tweek@google.com>
+References: <20260813002618.3755631-4-tweek@google.com>
+Subject: Re: [PATCH bpf-next 3/5] selinux: use kernel sid in security_bpf_*
 From: bot+bpf-ci@kernel.org
 To: tweek@google.com,paul@paul-moore.com,stephen.smalley.work@gmail.com,ast@kernel.org,daniel@iogearbox.net,andrii@kernel.org,jeffv@google.com
 Cc: tweek@google.com,omosnace@redhat.com,ericsu@linux.microsoft.com,bboscaccy@linux.microsoft.com,sidnayyar@google.com,nkapron@google.com,ebiggers@google.com,gregkh@linuxfoundation.org,kpsingh@kernel.org,bpf@vger.kernel.org,selinux@vger.kernel.org,linux-kernel@vger.kernel.org,ast@kernel.org,andrii@kernel.org,daniel@iogearbox.net,martin.lau@kernel.org,eddyz87@gmail.com,yonghong.song@linux.dev,clm@meta.com,ihor.solodrai@linux.dev
-Date: Thu, 13 Aug 2026 01:25:16 +0000 (UTC)
+Date: Thu, 13 Aug 2026 01:25:19 +0000 (UTC)
 
---===============0888297971716850754==
-Content-Type: text/plain; charset="us-ascii"
+--===============0869274827343138227==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
 
-> diff --git a/include/linux/kernel_read_file.h b/include/linux/kernel_read_file.h
-> index d613a7b4dd35a..fbcaf41c1b734 100644
-> --- a/include/linux/kernel_read_file.h
-> +++ b/include/linux/kernel_read_file.h
-> @@ -15,6 +15,7 @@
->  	id(POLICY, security-policy)		\
->  	id(X509_CERTIFICATE, x509-certificate)	\
->  	id(MODULE_COMPRESSED, kernel-module-compressed) \
-> +	id(BPF_LOADER, bpf-loader) \
->  	id(MAX_ID, )
+PiBUaGUgc2VjdXJpdHlfYnBmIGhvb2tzIHByb3ZpZGVzIGEgYm9vbGVhbiB0byBpbmRpY2F0ZSBp
+ZiB0aGUgY2FsbCBpcwo+IGNvbWluZyBmcm9tIHdpdGhpbiB0aGUga2VybmVsIG9yIG5vdC4gSWYg
+dHJ1ZSwgdXNlIHRoZSBrZXJuZWwgU0lECj4gaW5zdGVhZCBvZiByZWx5aW5nIG9uIHRoZSBjdXJy
+ZW50IHByb2Nlc3MgU0lELgo+Cj4gRm9yIHRoZSB0b2tlbi1hd2FyZSBmdW5jdGlvbnMsIHRoZSBr
+ZXJuZWwgc2lkIGlzIHVzZWQgdG8gZGVjaWRlIG9uIHRoZQo+IGFjY2VzcywgYnV0IHRoZSBjYWxs
+ZXIgcmVtYWlucyBvd25lciBvZiB0aGUgb2JqZWN0IChwcm9ncmFtIG9yIG1hcCkuCj4KPiBTaWdu
+ZWQtb2ZmLWJ5OiBUaGnDqWJhdWQgV2Vrc3RlZW4gPHR3ZWVrQGdvb2dsZS5jb20+CgpUaGUgY2hh
+bmdlbG9nIGNsYWltcyB0aGF0IGZvciB0aGUgdG9rZW4tYXdhcmUgaG9va3MgInRoZSBrZXJuZWwg
+c2lkIGlzCnVzZWQgdG8gZGVjaWRlIG9uIHRoZSBhY2Nlc3MiLiBJcyB0aGF0IGFjY3VyYXRlIHdo
+ZW4gYSB0b2tlbiBpcyBwcmVzZW50PwoKTG9va2luZyBhdCBzZWxpbnV4X2JwZl9tYXBfY3JlYXRl
+KCk6CgogICAgaWYgKCF0b2tlbikKICAgICAgICAgICAgc3NpZCA9IGtlcm5lbCA/IFNFQ0lOSVRT
+SURfS0VSTkVMIDogYnBmc2VjLT5zaWQ7CiAgICBlbHNlCiAgICAgICAgICAgIHNzaWQgPSBzZWxp
+bnV4X2JwZmZzX2NyZWF0b3Jfc2lkKGF0dHItPm1hcF90b2tlbl9mZCk7CgpUaGUgc2FtZSBwYXR0
+ZXJuIGFwcGVhcnMgaW4gc2VsaW51eF9icGZfcHJvZ19sb2FkKCkuIFdoZW4gYSB0b2tlbiBpcwpz
+dXBwbGllZCwgdGhlIGtlcm5lbCBhcmd1bWVudCBoYXMgbm8gZWZmZWN0IC0gdGhlIFNJRCBjb21l
+cyBmcm9tCnNlbGludXhfYnBmZnNfY3JlYXRvcl9zaWQoKSByZWdhcmRsZXNzLiBTaG91bGQgdGhl
+IGNvbW1pdCBtZXNzYWdlIGNsYXJpZnkKdGhhdCB0aGUga2VybmVsIFNJRCBhcHBsaWVzIG9ubHkg
+d2hlbiBubyB0b2tlbiBpcyBwcmVzZW50PwoKVGhpcyBsb29rcyBsaWtlIGEgYnVnIGZpeCBmb3Ig
+dGhlIGtlcm5lbCBwYXJhbWV0ZXIgc3VwcG9ydCBhZGRlZCBpbgowODJmMWRiMDJjODAuIFNob3Vs
+ZCB0aGlzIGluY2x1ZGU6CgogIEZpeGVzOiAwODJmMWRiMDJjODAgKCJzZWN1cml0eTogUHJvcGFn
+YXRlIGNhbGxlciBpbmZvcm1hdGlvbiBpbiBicGYgaG9va3MiKQoKPiBkaWZmIC0tZ2l0IGEvc2Vj
+dXJpdHkvc2VsaW51eC9ob29rcy5jIGIvc2VjdXJpdHkvc2VsaW51eC9ob29rcy5jCj4gaW5kZXgg
+ZjE5N2NmNDc2MTkwZC4uZTdjNTk5M2Y2OTU0NSAxMDA2NDQKPiAtLS0gYS9zZWN1cml0eS9zZWxp
+bnV4L2hvb2tzLmMKPiArKysgYi9zZWN1cml0eS9zZWxpbnV4L2hvb2tzLmMKPiBAQCAtNzE4MSw3
+ICs3MTgxLDcgQEAgc3RhdGljIGludCBzZWxpbnV4X2liX2FsbG9jX3NlY3VyaXR5KHZvaWQgKmli
+X3NlYykKPiAgc3RhdGljIGludCBzZWxpbnV4X2JwZihpbnQgY21kLCB1bmlvbiBicGZfYXR0ciAq
+YXR0ciwKPiAgCQkgICAgICAgdW5zaWduZWQgaW50IHNpemUsIGJvb2wga2VybmVsKQo+ICB7Cj4g
+LQl1MzIgc2lkID0gY3VycmVudF9zaWQoKTsKPiArCXUzMiBzaWQgPSBrZXJuZWwgPyBTRUNJTklU
+U0lEX0tFUk5FTCA6IGN1cnJlbnRfc2lkKCk7Cj4gIAlpbnQgcmV0Owo+Cj4gIAlpZiAoc2VsaW51
+eF9wb2xpY3ljYXBfYnBmX3Rva2VuX3Blcm1zKCkpCj4gQEAgLTcyOTYsNyArNzI5Niw3IEBAIHN0
+YXRpYyBpbnQgc2VsaW51eF9icGZfbWFwX2NyZWF0ZShzdHJ1Y3QgYnBmX21hcCAqbWFwLCB1bmlv
+biBicGZfYXR0ciAqYXR0ciwKPiAgCWJwZnNlYy0+c2lkID0gY3VycmVudF9zaWQoKTsKPgo+ICAJ
+aWYgKCF0b2tlbikKPiAtCQlzc2lkID0gYnBmc2VjLT5zaWQ7Cj4gKwkJc3NpZCA9IGtlcm5lbCA/
+IFNFQ0lOSVRTSURfS0VSTkVMIDogYnBmc2VjLT5zaWQ7Cj4gIAllbHNlCj4gIAkJc3NpZCA9IHNl
+bGludXhfYnBmZnNfY3JlYXRvcl9zaWQoYXR0ci0+bWFwX3Rva2VuX2ZkKTsKClRoZSBrZXJuZWwg
+YXJndW1lbnQgb2YgdGhlIHNlY3VyaXR5X2JwZiBob29rcyBpcyBub3QgYSAidHJ1c3RlZCBrZXJu
+ZWwKb3JpZ2luIiBpbmRpY2F0b3IgLSBpdCBpcyB1YXR0ci5pc19rZXJuZWwsIHdoaWNoIG9ubHkg
+aW5kaWNhdGVzIHdoZXRoZXIKdGhlIGJwZl9hdHRyIGJ1ZmZlciBsaXZlcyBpbiBrZXJuZWwgb3Ig
+dXNlciBhZGRyZXNzIHNwYWNlLiBDYW4Kc3Vic3RpdHV0aW5nIFNFQ0lOSVRTSURfS0VSTkVMIGJh
+c2VkIG9uIHRoYXQgZmxhZyBjaGFuZ2UgdGhlIFNFTGludXgKZGVjaXNpb24gZm9yIGEgcHJlLWV4
+aXN0aW5nIHVzZXJzcGFjZSBjb2RlIHBhdGg/CgpUaGlzIHBhdGggaXMgcmVhY2hhYmxlIHdpdGhv
+dXQgQlBGX0xPQURFUl9MT0FEX0ZELiBMb29raW5nIGF0Cmtlcm5lbC9icGYvc3lzY2FsbC5jLCBz
+eXNjYWxsX3Byb2dfZnVuY19wcm90bygpIGV4cG9zZXMgYnBmX3N5c19icGYoKSB0bwphbnkgQlBG
+X1BST0dfVFlQRV9TWVNDQUxMIHByb2dyYW0gdGhhdCBwYXNzZXMgYnBmX3Rva2VuX2NhcGFibGUo
+dG9rZW4sCkNBUF9QRVJGTU9OKS4gQlBGX0NBTExfMyhicGZfc3lzX2JwZiwgLi4uKSBhY2NlcHRz
+IEJQRl9NQVBfQ1JFQVRFIGFuZApCUEZfUFJPR19MT0FEIGFuZCBjYWxsczoKCiAgICByZXR1cm4g
+X19zeXNfYnBmKGNtZCwgS0VSTkVMX0JQRlBUUihhdHRyKSwgYXR0cl9zaXplLAogICAgICAgICAg
+ICAgICAgICAgICBLRVJORUxfQlBGUFRSKE5VTEwpLCAwKTsKCndoaWNoIHRyaWdnZXJzOgoKICAg
+IHNlY3VyaXR5X2JwZihjbWQsICZhdHRyLCBzaXplLCB1YXR0ci5pc19rZXJuZWwpOyAgICAgICAg
+ICAgICAgLyogdHJ1ZSAqLwogICAgc2VjdXJpdHlfYnBmX21hcF9jcmVhdGUobWFwLCBhdHRyLCB0
+b2tlbiwgdWF0dHIuaXNfa2VybmVsKTsgICAvKiB0cnVlICovCiAgICBzZWN1cml0eV9icGZfcHJv
+Z19sb2FkKHByb2csIGF0dHIsIHRva2VuLCB1YXR0ci5pc19rZXJuZWwpOyAgIC8qIHRydWUgKi8K
+ClN1Y2ggYSBwcm9ncmFtIGlzIGxvYWRlZCBhbmQgZXhlY3V0ZWQgZW50aXJlbHkgYXQgdXNlcnNw
+YWNlIHJlcXVlc3QgdmlhCkJQRl9QUk9HX1RFU1RfUlVOLiBUaGlzIGlzIHRoZSBsaWJicGYgbGln
+aHQtc2tlbGV0b24gbG9hZGVyCih0b29scy9saWIvYnBmL3NrZWxfaW50ZXJuYWwuaCBkZWNsYXJl
+cyBrZXJuX3N5c19icGYoKSwgdXNlZCBieQpicGZfbG9hZF9hbmRfcnVuKCkpLCB3aGljaCBwcmVk
+YXRlcyB0aGlzIHNlcmllcy4KCkZvciBhIGNhbGxlciBpbiBkb21haW4gWCB1c2luZyBhIGxpZ2h0
+IHNrZWxldG9uOgoKQmVmb3JlIHRoaXMgcGF0Y2g6CiAgc2VsaW51eF9icGYoKSAgICAgICAgICAg
+IGNoZWNrcyBhdmNfaGFzX3Blcm0oWCwgWCwgQlBGLCBtYXBfY3JlYXRlKQogIHNlbGludXhfYnBm
+X21hcF9jcmVhdGUoKSBjaGVja3MgYXZjX2hhc19wZXJtKFgsIFgsIEJQRiwgbWFwX2NyZWF0ZSkK
+CkFmdGVyIHRoaXMgcGF0Y2g6CiAgc2VsaW51eF9icGYoKSAgICAgICAgICAgIGNoZWNrcyBhdmNf
+aGFzX3Blcm0oa2VybmVsX3QsIGtlcm5lbF90LCBCUEYsCiAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIG1hcF9jcmVhdGUpCiAgc2VsaW51eF9icGZfbWFwX2Ny
+ZWF0ZSgpIGNoZWNrcyBhdmNfaGFzX3Blcm0oa2VybmVsX3QsIFgsIEJQRiwKICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbWFwX2NyZWF0ZSkKICBzZWxpbnV4
+X2JwZl9wcm9nX2xvYWQoKSAgY2hlY2tzIGF2Y19oYXNfcGVybShrZXJuZWxfdCwgWCwgQlBGLAog
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBwcm9nX2xvYWQp
+CgpUaGUgcnVsZSB0aGF0IHVzZWQgdG8gYXV0aG9yaXplIHRoaXMgKGFsbG93IFggc2VsZjpicGYg
+bWFwX2NyZWF0ZSkgbm8KbG9uZ2VyIGFwcGxpZXMsIHNvIGV4aXN0aW5nIHBvbGljaWVzIGdldCBu
+ZXcgQVZDIGRlbmlhbHMgb24gYSBwYXRoIHRoYXQKd29ya2VkIGJlZm9yZS4gQ29udmVyc2VseSwg
+aW4gcG9saWNpZXMgd2hlcmUga2VybmVsX3QgaXMgYnJvYWRseQpwcml2aWxlZ2VkLCBkb21haW4g
+WCBnYWlucyBtYXBfY3JlYXRlIGFuZCBwcm9nX2xvYWQgcGVybWlzc2lvbnMgaXQgd2FzCm5ldmVy
+IGdyYW50ZWQuCgpUaGlzIGJlaGF2aW9yIGNoYW5nZSBpcyBub3QgZ2F0ZWQuIFRoZSBpbW1lZGlh
+dGVseSBwcmVjZWRpbmcgYmVoYXZpb3IKY2hhbmdlIGluIHRoZSBzYW1lIGZ1bmN0aW9uIGlzIGdh
+dGVkIG9uIHNlbGludXhfcG9saWN5Y2FwX2JwZl90b2tlbl9wZXJtcygpLAp3aGljaCBpcyB0aGUg
+ZXN0YWJsaXNoZWQgU0VMaW51eCBjb252ZW50aW9uIGZvciB0aGlzIGtpbmQgb2YgZGVjaXNpb24K
+Y2hhbmdlLiBTaG91bGQgdGhpcyBuZXcgU0lEIHN1YnN0aXR1dGlvbiBhbHNvIGJlIGdhdGVkIG9u
+IGEgcG9saWN5CmNhcGFiaWxpdHk/Cgo+IEBAIC03MzE0LDcgKzczMTQsNyBAQCBzdGF0aWMgaW50
+IHNlbGludXhfYnBmX3Byb2dfbG9hZChzdHJ1Y3QgYnBmX3Byb2cgKnByb2csIHVuaW9uIGJwZl9h
+dHRyICphdHRyLAo+ICAJYnBmc2VjLT5zaWQgPSBjdXJyZW50X3NpZCgpOwo+Cj4gIAlpZiAoIXRv
+a2VuKQo+IC0JCXNzaWQgPSBicGZzZWMtPnNpZDsKPiArCQlzc2lkID0ga2VybmVsID8gU0VDSU5J
+VFNJRF9LRVJORUwgOiBicGZzZWMtPnNpZDsKPiAgCWVsc2UKPiAgCQlzc2lkID0gc2VsaW51eF9i
+cGZmc19jcmVhdG9yX3NpZChhdHRyLT5wcm9nX3Rva2VuX2ZkKTsKCgotLS0KQUkgcmV2aWV3ZWQg
+eW91ciBwYXRjaC4gUGxlYXNlIGZpeCB0aGUgYnVnIG9yIGVtYWlsIHJlcGx5IHdoeSBpdCdzIG5v
+dCBhIGJ1Zy4KU2VlOiBodHRwczovL2dpdGh1Yi5jb20va2VybmVsLXBhdGNoZXMvdm10ZXN0L2Js
+b2IvbWFzdGVyL2NpL2NsYXVkZS9SRUFETUUubWQKCkNJIHJ1biBzdW1tYXJ5OiBodHRwczovL2dp
+dGh1Yi5jb20va2VybmVsLXBhdGNoZXMvYnBmL2FjdGlvbnMvcnVucy8zMTY1NTI5NTI5NA==
 
-[ ... ]
-
-> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-> index 90cb61b164256..453522ca87df8 100644
-> --- a/security/selinux/include/classmap.h
-> +++ b/security/selinux/include/classmap.h
-> @@ -65,7 +65,7 @@ const struct security_class_mapping secclass_map[] = {
->  	  { "ipc_info", "syslog_read", "syslog_mod", "syslog_console",
->  	    "module_request", "module_load", "firmware_load",
->  	    "kexec_image_load", "kexec_initramfs_load", "policy_load",
-> -	    "x509_certificate_load", NULL } },
-> +	    "x509_certificate_load", "bpf_load", NULL } },
->  	{ "capability", { COMMON_CAP_PERMS, NULL } },
-
-Does "bpf_load" match the pattern the rest of class 'system' follows?
-
-Every other kernel_read_file-derived permission follows the pattern
-<lowercase_id>_load:
-
-  id(MODULE, ...)           -> "module_load"
-  id(FIRMWARE, ...)         -> "firmware_load"
-  id(KEXEC_IMAGE, ...)      -> "kexec_image_load"
-  id(KEXEC_INITRAMFS, ...)  -> "kexec_initramfs_load"
-  id(POLICY, ...)           -> "policy_load"
-  id(X509_CERTIFICATE, ...) -> "x509_certificate_load"
-  id(BPF_LOADER, ...)       -> "bpf_load"  <-- drops "loader"
-
-Following that pattern, wouldn't "bpf_loader_load" read more consistently
-here - especially since the 'bpf' class separately gains "loader_load_fd"
-later in the series (commit f0d1e716f1dc8)?
-
-The shortened name is also ambiguous: the 'bpf' class already has
-"prog_load" for loading BPF programs, and this permission specifically
-gates kernel_read_file() operations on loader ELF files, not BPF in
-general. SELinux permission names become policy ABI once merged.
-
-
----
-AI reviewed your patch. Please fix the bug or email reply why it's not a bug.
-See: https://github.com/kernel-patches/vmtest/blob/master/ci/claude/README.md
-
-CI run summary: https://github.com/kernel-patches/bpf/actions/runs/31655295294
---===============0888297971716850754==--
+--===============0869274827343138227==--
