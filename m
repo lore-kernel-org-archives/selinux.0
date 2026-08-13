@@ -1,61 +1,61 @@
-Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
+Received: from mail-qt1-f178.google.com (mail-qt1-f178.google.com [209.85.160.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36025403E96
-	for <selinux@vger.kernel.org>; Thu, 13 Aug 2026 18:41:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8139D403E96
+	for <selinux@vger.kernel.org>; Thu, 13 Aug 2026 18:41:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786646491; cv=none; b=EhMuU29acO8yxNrnGNqPQKfJcva1i66U8BejiJiiZE3RI+nYT42ZwRENsKfZr0DCC9XRnBBtyb6hYjHkhkr+tA84Rgy91sTJ0V5ffkjx5MXTwadEnzYuq+HpUN1dS/0lm7lV0QwQxn2/et544NN4j7fE6ADvNpGXrCu9UkqLdQY=
+	t=1786646507; cv=none; b=R+NcgiUBANXj2PIzcZMZat/Fs/pLfGnq5GSPSz8TX/VcvzX8sSVCSzQo3PKV2H+6JVFhDOSKO9hoPNdXe2iQIGLuJK8YXOIHr5xv8mlZLmtgGcCFLIf8wDyFjnHCkD6m4C/xfV3Xc0FJTy4vrFcuarlLWa0wJcFDeZiXDwK3MEw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786646491; c=relaxed/simple;
-	bh=6ul1smau2CkNLvnpghd8W1DQgwxBL8M5Evhda4ouLvM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YxkDi7dJPPl7+RybmHrHj1UbIovIenmTVLwOxHYuBNTb9cU1B38cVVVPlIYNEy4nC0oFFVewV1rKfUiMl8YYj/FNL4priYH6+Mzj6rkJm/MngE12g+d1LQwv8n42l/7v8j2+QDiAihiFEvnr7gqzDrdCsHF0ktvcF/w1KT8z4sE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DMI7SxWT; arc=none smtp.client-ip=209.85.222.177
+	s=arc-20240116; t=1786646507; c=relaxed/simple;
+	bh=lLFK64aB4RGY0mNy+0w+0lw6g8kjpZDTW9Qw++1ulQg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=mqATmcx4IWLJd+MZM4tV2R3av2Q4Q3j730euWM3KSGOfssT19VxnX7TFxdy4HUAvoxdoS5JIEgJ1C0wY/XgMbfZK2AO6FKFDjD1PCQ9RZ1Y16idZmIQAcuJaPVEdtsy1mRxMcVVDUpSepgNu+FYuz+LcuSlB+SLLujJePFlz8ow=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A57EwNQU; arc=none smtp.client-ip=209.85.160.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DMI7SxWT"
-Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-92f03daaa97so13881885a.2
-        for <selinux@vger.kernel.org>; Thu, 13 Aug 2026 11:41:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A57EwNQU"
+Received: by mail-qt1-f178.google.com with SMTP id d75a77b69052e-52d7ef16f91so1575191cf.3
+        for <selinux@vger.kernel.org>; Thu, 13 Aug 2026 11:41:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786646489; x=1787251289; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1786646504; x=1787251304; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Wa6IHymr3zoWUOt2WoGtvJ3GFs+PQu01c/KYDIApwJU=;
-        b=DMI7SxWTPLgRV9f73SpNgZDu8icF9YOK7J/0b4573MhL/r1YuvVRIzt4r5dCCvWcFl
-         XcA2HHqk7KHj1FbL1avOjLCssq7zpi9TxF00K2cgfg8ooiEqV7W9dN4g32rStmw0ZsBl
-         0aYJmTz0x1A5umlHDP0JDjYWwVKPC2Mcysh0aFsJ+qV9dfwIxUmlXxHqNT7RU82cWElX
-         iIUFd2/w9GCbQEZrgxqX2YasD1ZFKkbd6qzmNRfpa7eL5fxIuiVUN+IvzxsHh2boXumx
-         bI9CFBjULi47IwJb8Z3WnP1trcDLfKL6TkUsDV5AvyAkE00GPfU9ImZo7LpXHgf5tKcj
-         KfaQ==
+        bh=3BNCsF24Iep4byXrJgZXjJBZ+Pt7pMHIvq+AmksIkeA=;
+        b=A57EwNQU7DU6EOf45b3TEFuqcE2cTzFCimCWXs4v0tLYmf7l+vUqAIrFrNmUapEbqf
+         toEEkmDaEHJP7geGRvwwt/RZaonLGy4j/Zvyo6ejbrVD8XJcTXamU52H+3YaAqfGuS17
+         4nERtioPFvCZWO4PlPXQDMjwsQy5Lgzca7jjMyrbK/Kkxy5XHeX2qaqaCYIcuaSRZAvH
+         Bh1r3KsgNYI7KMt4/+qXewYYTaxTJB9H8zIFWi3aQks0yHL99HhZ+VJ/l6AO4a3fndgo
+         LVjDptU2VmMnBQZzqBo5cKkTQkf0yJpiEJWkKPT5zyNWeK26+NwNJ7gub/Ha4gGqnqC7
+         x8zA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786646489; x=1787251289;
+        d=1e100.net; s=20251104; t=1786646504; x=1787251304;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=Wa6IHymr3zoWUOt2WoGtvJ3GFs+PQu01c/KYDIApwJU=;
-        b=ns54DokCXUj/O7KQfjlGXzm6shzuFHKO3FYTpCLdM/VomRwmG2HsN9vo9k8jJp1D2g
-         FiCyWqHcALo+BwNPa2Nu/mmFEm9o0WYA0Iuoo2FCHOpouFpMjYWjF0Ahjw6f+r/zydSa
-         JJC0rgoivzpR9vpnfXE7sRCIOkXQ0Mz8htTlNk/f5z5/mNX1UBV81JPFFrccwHSN2bqb
-         jikJcyppP72TBsO7eDvri22pxMTPFgf7c1pAA1oWvWK/eRo54ql3lhWZBssOL+x11cnK
-         roATAJqx1NCc04BM0yTzqEiv4Uoz3uzJQtLRWxt4P++Stzmu9mitfKNYt82dt5mWA/Db
-         zzTQ==
-X-Gm-Message-State: AOJu0Yzay8uLoMevYBsVfsNXZQtbo1+iHr5OeAGRc0oTAuQF4xzyF3Ng
-	HYF1gPHUNrNQZ8YtYr1Y13rFPCnFLEwJVEd4rLkPcFmyGkGbcHZH+hyQF/11sw==
-X-Gm-Gg: AR+sD11uGqjR6wGsu4BW/fl0u6ZpbngR8JCVsQPEKiTZcedWipNbv708ylmFCmh1eIu
-	CXv/D/a2vBOKIwKoNTV9QIB1NeS/vcl9eot3NLhoSqT2y8xKsgr+RJ2CIZBIyzUrcXBHVXwhyNP
-	SWEfcvfKDIeZsYdOWblYdQagnj+nDN764LWFOmXLFj/0HiYrTYt2kFAJPOLAp5ZR5q+tKi0HWCe
-	1gCjl4SiIFzJWWVGDlBwCbRuLIwjcd8esAiBvwddVzKVyFcv3DExw7hKqM7X1GOWl6DKQ8TmHhE
-	OjjSXzQX8dIjNaY3Z4NbgI09XvOyqnLceBWSk1BfiyvR11Edsjw5DS/V/QT4PZ0xtiS07PLbV+I
-	v8bHl7FUbrth395dNJV173qOJycthLQMP/zgD90V7lo/oX15EQVIu8ZLPcwYsV1ISjxFPozJMvD
-	I7zD/4P3VG4bG7DBclGZWTiQbNAxQ5QFGhkGhQmwUytlAgx5sFlSPNDSwhhFHEshGsKB55IbnFw
-	ZXHhMJeLtKgnvTSnXvF3tHGjfMRqFmCXx6U3ppoQrHFLbtxFHWcK8mfCufgEVYJ
-X-Received: by 2002:a05:620a:440f:b0:92e:fc42:2c1d with SMTP id af79cd13be357-936bf94d904mr897782485a.20.1786646488781;
-        Thu, 13 Aug 2026 11:41:28 -0700 (PDT)
+        bh=3BNCsF24Iep4byXrJgZXjJBZ+Pt7pMHIvq+AmksIkeA=;
+        b=Ibw+B9gu3f//aj7uL8/fC4bJ4ny3M7WobcRvMNAdBRKjh2NCKAP3+kTPAGluc451hF
+         4X6cTPTv71ZyYy9O9vgMcXbJdNrUCpOoxC4D/MGinewrvuc/5FRw1uoFXhzuWM3eug9D
+         YgH9f77oFUB/x2rZCWb2QxAz/+Kmjk5vlKqq6T38vsvmSMXoizXLIchXjCGprKSQMHzC
+         jeeJCH93LDrSwfbFJn+PBlOS1zTzqBVCpR9rzuR6v3nmMZlLPRZKbmJEcmOOT68JCgCz
+         DN7J7lX3qC0KCrnVFr2zkFRoxIx5qdGvKxs98HKlBzOtB1gVoGMK40dcLV8NPMhs/XdH
+         EfPw==
+X-Gm-Message-State: AOJu0YzBM7c6lWeiJ3XfydXsQAqyUsxZoOLEMnaOd6kX88Xxt0J0OVE4
+	LwE3P2aGYerLvCPHzpX2UOMx4RFz2kxzWEU2mJJLR5BBkU+Zgv3cpekLc1zHaQ==
+X-Gm-Gg: AR+sD108CsbTmficu0cwMyaoHWdnr+v/QWxWR6Alcu2trZtIwbW+YtiaPOVj/fk0M5E
+	glWdvhEyrcGLJ+HZthuCxPY74g4zR+YpHBC0rsMXziSC5Xt9b7Yxx7jDaGkvKVtEqK9j9yl3PMa
+	Jt5hNkadqccyPNHMaerPeTliCYVGCkJpJuSvQwqY05q7gGxndtVBjef1lpTnY9AsNW7FVhGKshe
+	in2u5tRGlfBUnBluTT+JE6Yfoui1vy7dHw7NfplNNLf51KuQxzlkXouBXs5Ks4c6Hoz7Z6Xh35R
+	ALcISLdtuG68q98QYVz6y5iDNyAp88gNqqNW79zEtbHd/CyXUaDhOYFqGjP93/wOlV6yDOzWb9I
+	kT7xWRFbq7XZGsiuCqpNkISTgt67JvrSlNcWfaw3z/Y6ToqsuiDcHOwFXXKSLllUz/Sme7uymZQ
+	Zs0JIkgCcUume38J3M09dbtKh10indciAw3/UGHYlkrp2hKCP37PtPcTY9+sO1u97JeqX0wHmpM
+	J5XAPzOhEq8FFP99VpBj8TJvWYYlAWgv1d/XdiStKLCtQ+K4MYTeLiLWqyLmBGK
+X-Received: by 2002:ac8:5949:0:b0:516:e0eb:d7d with SMTP id d75a77b69052e-52d85439fc5mr143611cf.27.1786646504180;
+        Thu, 13 Aug 2026 11:41:44 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-936ce21a9b6sm46091385a.34.2026.08.13.11.41.28
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52d83ece7e8sm2535931cf.2.2026.08.13.11.41.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Aug 2026 11:41:28 -0700 (PDT)
+        Thu, 13 Aug 2026 11:41:43 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -63,9 +63,9 @@ Cc: jwcart2@gmail.com,
 	omosnace@redhat.com,
 	jason@perfinion.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] libsemanage: treat module data as bytes in the Python bindings
-Date: Thu, 13 Aug 2026 14:41:13 -0400
-Message-ID: <20260813184113.186092-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH] python/sepolicy: add missing socket template attributes
+Date: Thu, 13 Aug 2026 14:41:29 -0400
+Message-ID: <20260813184129.186476-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -75,101 +75,146 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-semanage_module_install() / semanage_module_install_info() take a
-(char *data, size_t data_len) pair, and semanage_module_extract()
-returns (void **mapped_data, size_t *data_len). In both directions
-the payload is an opaque module blob (.pp / bzip2 / CIL / HLL), not a
-NUL-terminated C string.
+generate_fc() unconditionally reads template.fc_sock_file for any
+path that stat()s as a socket, but only var_run, var_lib and rw
+define it, so selecting a socket under /tmp, /etc, /var/cache,
+/var/spool, /var/log or a systemd unit directory in the GUI raises
 
-On Python 3 the current SWIG bindings get this wrong on both sides:
+  AttributeError: module 'sepolicy.templates.tmp' has no
+  attribute 'fc_sock_file'
 
-- install()/install_info(): the SWIG default for a bare "char *"
-  only accepts str objects and UTF-8-encodes them, so a .pp blob
-  cannot be passed at all, and even for CIL text the separately
-  supplied data_len is wrong for any non-ASCII content since
-  Python len(str) counts code points, not UTF-8 bytes.
+The tmp template has no fc_* attributes at all, so any explicitly
+added file or directory under /tmp fails the same way on fc_file /
+fc_dir.  generate_te() and generate_if() likewise read
+te_stream_rules / if_stream_rules for a socket path, which var_log
+and unit_file lack.
 
-- extract(): %cstring_output_allocate_size turns the mapped buffer
-  into a str via UTF-8 decoding, which for a binary module either
-  raises UnicodeDecodeError or (with surrogateescape) yields a str
-  that cannot be fed straight back into install().
+Add fc_sock_file to every template that already has fc_file (using
+the -s file class), give tmp a full fc_file / fc_sock_file / fc_dir
+set for TEMPLATETYPE_tmp_t, and add empty stream-rule strings to
+var_log and unit_file so a stray socket there no longer takes the
+whole generator down.
 
-Add a (char *module_data, size_t data_len) input typemap that
-accepts any object exposing the buffer protocol (bytes, bytearray,
-mmap, ...) as a single argument and derives the length from it, and
-apply it to the (char *data, size_t data_len) pair of
-semanage_module_install_info() as well.
-
-Replace the extract() output typemap with an explicit multi-argument
-typemap that returns a bytes object built from the mapped buffer and
-then unmaps it, so extract() -> install() round-trips.  Drop the
-now-unused <cstring.i> include.
-
-The Python signatures become
-  semanage_module_install(sh, data, name, ext_lang)
-  semanage_module_install_info(sh, modinfo, data)
-There are no in-tree Python callers.
-
-Fixes: https://github.com/SELinuxProject/selinux/issues/502
+Fixes: https://github.com/SELinuxProject/selinux/issues/379
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libsemanage/src/semanageswig_python.i | 43 +++++++++++++++++++++++++--
- 1 file changed, 40 insertions(+), 3 deletions(-)
+ python/sepolicy/sepolicy/templates/etc_rw.py    |  4 ++++
+ python/sepolicy/sepolicy/templates/tmp.py       | 13 +++++++++++++
+ python/sepolicy/sepolicy/templates/unit_file.py |  6 ++++++
+ python/sepolicy/sepolicy/templates/var_cache.py |  4 ++++
+ python/sepolicy/sepolicy/templates/var_log.py   |  8 ++++++++
+ python/sepolicy/sepolicy/templates/var_spool.py |  4 ++++
+ 6 files changed, 39 insertions(+)
 
-diff --git a/libsemanage/src/semanageswig_python.i b/libsemanage/src/semanageswig_python.i
-index 0ca09763..1729e965 100644
---- a/libsemanage/src/semanageswig_python.i
-+++ b/libsemanage/src/semanageswig_python.i
-@@ -102,9 +102,46 @@
- %apply int *OUTPUT { unsigned int * };
- %apply int *OUTPUT { uint16_t * };
+diff --git a/python/sepolicy/sepolicy/templates/etc_rw.py b/python/sepolicy/sepolicy/templates/etc_rw.py
+index dcf445e0..c78d64a2 100644
+--- a/python/sepolicy/sepolicy/templates/etc_rw.py
++++ b/python/sepolicy/sepolicy/templates/etc_rw.py
+@@ -134,6 +134,10 @@ fc_file="""\
+ FILENAME		--	gen_context(system_u:object_r:TEMPLATETYPE_etc_rw_t,s0)
+ """
  
--%include <cstring.i>
--/* This is needed to properly mmap binary data in SWIG */
--%cstring_output_allocate_size(void **mapped_data, size_t *data_len, munmap(*$1, *$2));
-+/*
-+ * semanage_module_extract(): the (void **mapped_data, size_t *data_len) pair
-+ * is an opaque module blob (.pp / bzip2 / CIL / HLL).  Return it to Python
-+ * as a bytes object; %cstring_output_allocate_size would UTF-8-decode it
-+ * into a str, which corrupts binary modules.
-+ */
-+%typemap(in, numinputs=0) (void **mapped_data, size_t *data_len)
-+	(void *temp_data = NULL, size_t temp_len = 0) {
-+	$1 = &temp_data;
-+	$2 = &temp_len;
-+}
-+%typemap(argout) (void **mapped_data, size_t *data_len) {
-+	if (*$1) {
-+		$result = SWIG_AppendOutput(
-+			$result,
-+			PyBytes_FromStringAndSize((const char *)*$1, *$2));
-+		munmap(*$1, *$2);
-+	} else {
-+		$result = SWIG_AppendOutput($result, SWIG_Py_Void());
-+	}
-+}
++fc_sock_file="""\
++FILENAME		-s	gen_context(system_u:object_r:TEMPLATETYPE_etc_rw_t,s0)
++"""
 +
-+/*
-+ * semanage_module_install() and semanage_module_install_info() take a
-+ * (char *data, size_t data_len) pair that is an opaque module blob
-+ * (.pp / bzip2 / CIL / HLL), not a NUL-terminated C string.  Accept any
-+ * Python object exposing the buffer protocol (bytes, bytearray, mmap, ...)
-+ * as a single argument and derive the length from it.
-+ */
-+%typemap(in) (char *module_data, size_t data_len) (Py_buffer view) {
-+	view.obj = NULL;
-+	if (PyObject_GetBuffer($input, &view, PyBUF_SIMPLE) < 0)
-+		SWIG_fail;
-+	$1 = (char *)view.buf;
-+	$2 = (size_t)view.len;
-+}
-+%typemap(freearg) (char *module_data, size_t data_len) {
-+	PyBuffer_Release(&view$argnum);
-+}
-+%apply (char *module_data, size_t data_len) { (char *data, size_t data_len) };
+ fc_dir="""\
+ FILENAME(/.*)?		gen_context(system_u:object_r:TEMPLATETYPE_etc_rw_t,s0)
+ """
+diff --git a/python/sepolicy/sepolicy/templates/tmp.py b/python/sepolicy/sepolicy/templates/tmp.py
+index c000a75e..54ed1803 100644
+--- a/python/sepolicy/sepolicy/templates/tmp.py
++++ b/python/sepolicy/sepolicy/templates/tmp.py
+@@ -127,3 +127,16 @@ if_admin_rules="""
+ 	files_search_tmp($1)
+ 	admin_pattern($1, TEMPLATETYPE_tmp_t)
+ """
++
++########################### File Context ##################################
++fc_file="""\
++FILENAME		--	gen_context(system_u:object_r:TEMPLATETYPE_tmp_t,s0)
++"""
++
++fc_sock_file="""\
++FILENAME		-s	gen_context(system_u:object_r:TEMPLATETYPE_tmp_t,s0)
++"""
++
++fc_dir="""\
++FILENAME(/.*)?		gen_context(system_u:object_r:TEMPLATETYPE_tmp_t,s0)
++"""
+diff --git a/python/sepolicy/sepolicy/templates/unit_file.py b/python/sepolicy/sepolicy/templates/unit_file.py
+index e26f5e2a..1504dabd 100644
+--- a/python/sepolicy/sepolicy/templates/unit_file.py
++++ b/python/sepolicy/sepolicy/templates/unit_file.py
+@@ -66,9 +66,15 @@ if_admin_rules="""
+ 	allow $1 TEMPLATETYPE_unit_file_t:service all_service_perms;
+ """
  
- %typemap(in, numinputs=0) char **(char *temp=NULL) {
- 	$1 = &temp;
++te_stream_rules = ""
++
++if_stream_rules = ""
++
+ ########################### File Context ##################################
+ fc_file="""\
+ FILENAME		--	gen_context(system_u:object_r:TEMPLATETYPE_unit_file_t,s0)
+ """
+ 
++fc_sock_file = fc_file
++
+ fc_dir=""
+diff --git a/python/sepolicy/sepolicy/templates/var_cache.py b/python/sepolicy/sepolicy/templates/var_cache.py
+index 37897231..5a147896 100644
+--- a/python/sepolicy/sepolicy/templates/var_cache.py
++++ b/python/sepolicy/sepolicy/templates/var_cache.py
+@@ -152,6 +152,10 @@ fc_file="""\
+ FILENAME		--	gen_context(system_u:object_r:TEMPLATETYPE_cache_t,s0)
+ """
+ 
++fc_sock_file="""\
++FILENAME		-s	gen_context(system_u:object_r:TEMPLATETYPE_cache_t,s0)
++"""
++
+ fc_dir="""\
+ FILENAME(/.*)?		gen_context(system_u:object_r:TEMPLATETYPE_cache_t,s0)
+ """
+diff --git a/python/sepolicy/sepolicy/templates/var_log.py b/python/sepolicy/sepolicy/templates/var_log.py
+index 371dd7e4..051a0f1e 100644
+--- a/python/sepolicy/sepolicy/templates/var_log.py
++++ b/python/sepolicy/sepolicy/templates/var_log.py
+@@ -106,10 +106,18 @@ if_admin_rules="""
+ """
+ 
+ ########################### File Context ##################################
++te_stream_rules = ""
++
++if_stream_rules = ""
++
+ fc_file="""\
+ FILENAME		--	gen_context(system_u:object_r:TEMPLATETYPE_log_t,s0)
+ """
+ 
++fc_sock_file="""\
++FILENAME		-s	gen_context(system_u:object_r:TEMPLATETYPE_log_t,s0)
++"""
++
+ fc_dir="""\
+ FILENAME(/.*)?		gen_context(system_u:object_r:TEMPLATETYPE_log_t,s0)
+ """
+diff --git a/python/sepolicy/sepolicy/templates/var_spool.py b/python/sepolicy/sepolicy/templates/var_spool.py
+index dccb5f16..84933f50 100644
+--- a/python/sepolicy/sepolicy/templates/var_spool.py
++++ b/python/sepolicy/sepolicy/templates/var_spool.py
+@@ -151,6 +151,10 @@ fc_file="""\
+ FILENAME		--	gen_context(system_u:object_r:TEMPLATETYPE_spool_t,s0)
+ """
+ 
++fc_sock_file="""\
++FILENAME		-s	gen_context(system_u:object_r:TEMPLATETYPE_spool_t,s0)
++"""
++
+ fc_dir="""\
+ FILENAME(/.*)?		gen_context(system_u:object_r:TEMPLATETYPE_spool_t,s0)
+ """
 -- 
 2.55.0
 
