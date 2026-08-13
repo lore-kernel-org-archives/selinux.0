@@ -1,61 +1,61 @@
-Received: from mail-qt1-f178.google.com (mail-qt1-f178.google.com [209.85.160.178])
+Received: from mail-qt1-f174.google.com (mail-qt1-f174.google.com [209.85.160.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8139D403E96
-	for <selinux@vger.kernel.org>; Thu, 13 Aug 2026 18:41:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8628B3EB7F1
+	for <selinux@vger.kernel.org>; Thu, 13 Aug 2026 19:13:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786646507; cv=none; b=R+NcgiUBANXj2PIzcZMZat/Fs/pLfGnq5GSPSz8TX/VcvzX8sSVCSzQo3PKV2H+6JVFhDOSKO9hoPNdXe2iQIGLuJK8YXOIHr5xv8mlZLmtgGcCFLIf8wDyFjnHCkD6m4C/xfV3Xc0FJTy4vrFcuarlLWa0wJcFDeZiXDwK3MEw=
+	t=1786648385; cv=none; b=YysJoVWMESsDenb8rEs8ItwBmrgdeg3piC/Y/FPgGKdGD2ATlyJfXBA1UaMA5GVuqCje9+6aY2+u3XzIPZqU1GsDkKMuX6cEwdNzEGUULVfrFlJ+MtHIlCj4A3DJmStjQ2FGHpgpP2pykyNB8eeH6gN7FXb4OudiI8YuOEIINdk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786646507; c=relaxed/simple;
-	bh=lLFK64aB4RGY0mNy+0w+0lw6g8kjpZDTW9Qw++1ulQg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=mqATmcx4IWLJd+MZM4tV2R3av2Q4Q3j730euWM3KSGOfssT19VxnX7TFxdy4HUAvoxdoS5JIEgJ1C0wY/XgMbfZK2AO6FKFDjD1PCQ9RZ1Y16idZmIQAcuJaPVEdtsy1mRxMcVVDUpSepgNu+FYuz+LcuSlB+SLLujJePFlz8ow=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A57EwNQU; arc=none smtp.client-ip=209.85.160.178
+	s=arc-20240116; t=1786648385; c=relaxed/simple;
+	bh=FKfjjneH/1Zz0MrBGaaKiwoyTcYaTcXdFwMnqhWkffY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=l4K+k2wZrqGf92n9UE4Rxa/0C7Jb3Hh1KLdcZZHW9jlyCZ1Ys/SD4CkzWCCLcn+DC9Qzrc8g0Os0lfqWYnMVAW+oDOfYHIs0CTcW5onxvIRHHxHgRp262fx/exVAFkHYANiTjLa2NyReL85XjcyhSXNa8MBCEuGVHgqzYU0VFrg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Fhauc1o5; arc=none smtp.client-ip=209.85.160.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A57EwNQU"
-Received: by mail-qt1-f178.google.com with SMTP id d75a77b69052e-52d7ef16f91so1575191cf.3
-        for <selinux@vger.kernel.org>; Thu, 13 Aug 2026 11:41:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Fhauc1o5"
+Received: by mail-qt1-f174.google.com with SMTP id d75a77b69052e-51bfa429aa6so8519211cf.0
+        for <selinux@vger.kernel.org>; Thu, 13 Aug 2026 12:13:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786646504; x=1787251304; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1786648383; x=1787253183; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=3BNCsF24Iep4byXrJgZXjJBZ+Pt7pMHIvq+AmksIkeA=;
-        b=A57EwNQU7DU6EOf45b3TEFuqcE2cTzFCimCWXs4v0tLYmf7l+vUqAIrFrNmUapEbqf
-         toEEkmDaEHJP7geGRvwwt/RZaonLGy4j/Zvyo6ejbrVD8XJcTXamU52H+3YaAqfGuS17
-         4nERtioPFvCZWO4PlPXQDMjwsQy5Lgzca7jjMyrbK/Kkxy5XHeX2qaqaCYIcuaSRZAvH
-         Bh1r3KsgNYI7KMt4/+qXewYYTaxTJB9H8zIFWi3aQks0yHL99HhZ+VJ/l6AO4a3fndgo
-         LVjDptU2VmMnBQZzqBo5cKkTQkf0yJpiEJWkKPT5zyNWeK26+NwNJ7gub/Ha4gGqnqC7
-         x8zA==
+        bh=MhGltPvFlSf1FwjltOtZnxGfLT3VbYSf+MNqZGRh0q8=;
+        b=Fhauc1o5Obb5u1EOv5+GNX2rO47L1g/vFUBZ9RaLSXnyg+60QcH4Jc1Xujx3IPKvC2
+         arVneOXiAzIB3hfLRq5P67ylcOlwcCHmWlHaB+Zht/8DhZ/nZjRqvSQVYX7BiqVbjNKj
+         JlrKmoHmMYsaPGZLtq4S6VUdlejUsq8843tNNA+dN/66nHBAFJ4SSJVCHaEhsBX24Lzg
+         MO56gfVPKP3lFoQcI1nas4d2T1QbMC0Vd4FiFut41C5EcmV2uAPkl3Fo7ighxh8+M+yY
+         z4AMdQVLzuWtDAwOejbwZ1bOrzUZ/oXKCjzRitYm1Sh1B0Cri4UC8ke0avbfuNSK/hHc
+         V6KQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786646504; x=1787251304;
+        d=1e100.net; s=20251104; t=1786648383; x=1787253183;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=3BNCsF24Iep4byXrJgZXjJBZ+Pt7pMHIvq+AmksIkeA=;
-        b=Ibw+B9gu3f//aj7uL8/fC4bJ4ny3M7WobcRvMNAdBRKjh2NCKAP3+kTPAGluc451hF
-         4X6cTPTv71ZyYy9O9vgMcXbJdNrUCpOoxC4D/MGinewrvuc/5FRw1uoFXhzuWM3eug9D
-         YgH9f77oFUB/x2rZCWb2QxAz/+Kmjk5vlKqq6T38vsvmSMXoizXLIchXjCGprKSQMHzC
-         jeeJCH93LDrSwfbFJn+PBlOS1zTzqBVCpR9rzuR6v3nmMZlLPRZKbmJEcmOOT68JCgCz
-         DN7J7lX3qC0KCrnVFr2zkFRoxIx5qdGvKxs98HKlBzOtB1gVoGMK40dcLV8NPMhs/XdH
-         EfPw==
-X-Gm-Message-State: AOJu0YzBM7c6lWeiJ3XfydXsQAqyUsxZoOLEMnaOd6kX88Xxt0J0OVE4
-	LwE3P2aGYerLvCPHzpX2UOMx4RFz2kxzWEU2mJJLR5BBkU+Zgv3cpekLc1zHaQ==
-X-Gm-Gg: AR+sD108CsbTmficu0cwMyaoHWdnr+v/QWxWR6Alcu2trZtIwbW+YtiaPOVj/fk0M5E
-	glWdvhEyrcGLJ+HZthuCxPY74g4zR+YpHBC0rsMXziSC5Xt9b7Yxx7jDaGkvKVtEqK9j9yl3PMa
-	Jt5hNkadqccyPNHMaerPeTliCYVGCkJpJuSvQwqY05q7gGxndtVBjef1lpTnY9AsNW7FVhGKshe
-	in2u5tRGlfBUnBluTT+JE6Yfoui1vy7dHw7NfplNNLf51KuQxzlkXouBXs5Ks4c6Hoz7Z6Xh35R
-	ALcISLdtuG68q98QYVz6y5iDNyAp88gNqqNW79zEtbHd/CyXUaDhOYFqGjP93/wOlV6yDOzWb9I
-	kT7xWRFbq7XZGsiuCqpNkISTgt67JvrSlNcWfaw3z/Y6ToqsuiDcHOwFXXKSLllUz/Sme7uymZQ
-	Zs0JIkgCcUume38J3M09dbtKh10indciAw3/UGHYlkrp2hKCP37PtPcTY9+sO1u97JeqX0wHmpM
-	J5XAPzOhEq8FFP99VpBj8TJvWYYlAWgv1d/XdiStKLCtQ+K4MYTeLiLWqyLmBGK
-X-Received: by 2002:ac8:5949:0:b0:516:e0eb:d7d with SMTP id d75a77b69052e-52d85439fc5mr143611cf.27.1786646504180;
-        Thu, 13 Aug 2026 11:41:44 -0700 (PDT)
+        bh=MhGltPvFlSf1FwjltOtZnxGfLT3VbYSf+MNqZGRh0q8=;
+        b=FzcwlnTeKtld4FUWG8wgIKGmsEGrEmJ6dMGfG2xLQlvZDOnrWl+k88FjEaGAiiGlM8
+         k52CV+yJoN8VRP4wuh90/8PhmzZ94ZwVEdQ96l8QTPCFOq5qNEeHS6VdQTP6ZQ4gECXu
+         NNByrKHR7zc/fofjljIEpHbFDT6z1lGGC2BnPVVCtOOnV4GsHt59tvR7LbCkNhmQAPEn
+         c4ECF4SUc/9dIIJVQo1AFvsEO+9sywI8f5ykHnLQkUIIZmTDtQKceuTB/FDqijSXqmcp
+         2kAnSYl826f+3UhLhbCwGcOMOUbMTwnh9RvtvAm6kNCDs/1jOkkNN1jU7JpH9Tasqoh4
+         x5fA==
+X-Gm-Message-State: AOJu0YwWcsZFhEn4APJWjYCVepivNHG123+c8fAyaGoO892s845b6m1d
+	EUFQCLHgSmw5Iam+MTeQ/hG9aSUevYJKNw1KX29eLukwzZF/pLXbP5S+yZkMAg==
+X-Gm-Gg: AR+sD126Ix4CGWOPOfWIblUw4aO5uZ3AtXlvLyBXAiAHXez7i9iJEKQScikKr3Rm2Mb
+	2UoVi980tpW43kRm/hEMPL27VmE8kbQ4JEkzM1nMyIxGyI+LD0Z1uVbXj2V0gZMa+WLLr66FRGw
+	unvjaN45LvDDjXQECMx3L0Lf45sbilQjtRbqUuSbmJjmtoEZJQ+MzFfJCr4GX2n/BJI8On5627o
+	zDuQO4UvFwO3x04BFMbH27ANMyGVMnngfYgYsKlNuVpjZ4hm/lMV9T2eBTl608G90ecl+g6Pfg/
+	2nVMEStQGZHJK5+fDPk/Sd0ImSmk0xPi3X1Ro6NQPZR54wkvBesubHoJWQ6FokXOYDFipXRYyOR
+	U/rk5yVUu/nue2rLwiTR6XpCJBwYM0Fi81XjwS33UT0ntPq3psx78p6VRvO4iOl0JFhkHdlYsGj
+	3UGPRS567Vr42MK5VcZ/c0czD5eL5t9Z1wqJeotH6IneEAYJDmB6iJvLFYy1U3+hLj67AIbhORB
+	p9CEnd7gJzJmIBVqWl5FPlXSxXYqIVYoMyP2eOIMMoPYrKFzkqc1xHNHe/95jke
+X-Received: by 2002:ac8:5cd6:0:b0:51b:ef78:4062 with SMTP id d75a77b69052e-52d84ff2ac8mr5224771cf.10.1786648383211;
+        Thu, 13 Aug 2026 12:13:03 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52d83ece7e8sm2535931cf.2.2026.08.13.11.41.43
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52d84071799sm2797801cf.20.2026.08.13.12.13.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Aug 2026 11:41:43 -0700 (PDT)
+        Thu, 13 Aug 2026 12:13:02 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -63,9 +63,9 @@ Cc: jwcart2@gmail.com,
 	omosnace@redhat.com,
 	jason@perfinion.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] python/sepolicy: add missing socket template attributes
-Date: Thu, 13 Aug 2026 14:41:29 -0400
-Message-ID: <20260813184129.186476-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH] .github/workflows/tf_testsuite.yml: skip testing farm on pull requests
+Date: Thu, 13 Aug 2026 15:12:48 -0400
+Message-ID: <20260813191248.196973-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -75,146 +75,29 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-generate_fc() unconditionally reads template.fc_sock_file for any
-path that stat()s as a socket, but only var_run, var_lib and rw
-define it, so selecting a socket under /tmp, /etc, /var/cache,
-/var/spool, /var/log or a systemd unit directory in the GUI raises
+The testing farm requires a repository secret that is not exposed to
+pull request runs from a fork, causing these checks to fail on every
+pull request from a fork. Skip these checks instead in that case.
 
-  AttributeError: module 'sepolicy.templates.tmp' has no
-  attribute 'fc_sock_file'
-
-The tmp template has no fc_* attributes at all, so any explicitly
-added file or directory under /tmp fails the same way on fc_file /
-fc_dir.  generate_te() and generate_if() likewise read
-te_stream_rules / if_stream_rules for a socket path, which var_log
-and unit_file lack.
-
-Add fc_sock_file to every template that already has fc_file (using
-the -s file class), give tmp a full fc_file / fc_sock_file / fc_dir
-set for TEMPLATETYPE_tmp_t, and add empty stream-rule strings to
-var_log and unit_file so a stray socket there no longer takes the
-whole generator down.
-
-Fixes: https://github.com/SELinuxProject/selinux/issues/379
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- python/sepolicy/sepolicy/templates/etc_rw.py    |  4 ++++
- python/sepolicy/sepolicy/templates/tmp.py       | 13 +++++++++++++
- python/sepolicy/sepolicy/templates/unit_file.py |  6 ++++++
- python/sepolicy/sepolicy/templates/var_cache.py |  4 ++++
- python/sepolicy/sepolicy/templates/var_log.py   |  8 ++++++++
- python/sepolicy/sepolicy/templates/var_spool.py |  4 ++++
- 6 files changed, 39 insertions(+)
+ .github/workflows/tf_testsuite.yml | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/python/sepolicy/sepolicy/templates/etc_rw.py b/python/sepolicy/sepolicy/templates/etc_rw.py
-index dcf445e0..c78d64a2 100644
---- a/python/sepolicy/sepolicy/templates/etc_rw.py
-+++ b/python/sepolicy/sepolicy/templates/etc_rw.py
-@@ -134,6 +134,10 @@ fc_file="""\
- FILENAME		--	gen_context(system_u:object_r:TEMPLATETYPE_etc_rw_t,s0)
- """
- 
-+fc_sock_file="""\
-+FILENAME		-s	gen_context(system_u:object_r:TEMPLATETYPE_etc_rw_t,s0)
-+"""
-+
- fc_dir="""\
- FILENAME(/.*)?		gen_context(system_u:object_r:TEMPLATETYPE_etc_rw_t,s0)
- """
-diff --git a/python/sepolicy/sepolicy/templates/tmp.py b/python/sepolicy/sepolicy/templates/tmp.py
-index c000a75e..54ed1803 100644
---- a/python/sepolicy/sepolicy/templates/tmp.py
-+++ b/python/sepolicy/sepolicy/templates/tmp.py
-@@ -127,3 +127,16 @@ if_admin_rules="""
- 	files_search_tmp($1)
- 	admin_pattern($1, TEMPLATETYPE_tmp_t)
- """
-+
-+########################### File Context ##################################
-+fc_file="""\
-+FILENAME		--	gen_context(system_u:object_r:TEMPLATETYPE_tmp_t,s0)
-+"""
-+
-+fc_sock_file="""\
-+FILENAME		-s	gen_context(system_u:object_r:TEMPLATETYPE_tmp_t,s0)
-+"""
-+
-+fc_dir="""\
-+FILENAME(/.*)?		gen_context(system_u:object_r:TEMPLATETYPE_tmp_t,s0)
-+"""
-diff --git a/python/sepolicy/sepolicy/templates/unit_file.py b/python/sepolicy/sepolicy/templates/unit_file.py
-index e26f5e2a..1504dabd 100644
---- a/python/sepolicy/sepolicy/templates/unit_file.py
-+++ b/python/sepolicy/sepolicy/templates/unit_file.py
-@@ -66,9 +66,15 @@ if_admin_rules="""
- 	allow $1 TEMPLATETYPE_unit_file_t:service all_service_perms;
- """
- 
-+te_stream_rules = ""
-+
-+if_stream_rules = ""
-+
- ########################### File Context ##################################
- fc_file="""\
- FILENAME		--	gen_context(system_u:object_r:TEMPLATETYPE_unit_file_t,s0)
- """
- 
-+fc_sock_file = fc_file
-+
- fc_dir=""
-diff --git a/python/sepolicy/sepolicy/templates/var_cache.py b/python/sepolicy/sepolicy/templates/var_cache.py
-index 37897231..5a147896 100644
---- a/python/sepolicy/sepolicy/templates/var_cache.py
-+++ b/python/sepolicy/sepolicy/templates/var_cache.py
-@@ -152,6 +152,10 @@ fc_file="""\
- FILENAME		--	gen_context(system_u:object_r:TEMPLATETYPE_cache_t,s0)
- """
- 
-+fc_sock_file="""\
-+FILENAME		-s	gen_context(system_u:object_r:TEMPLATETYPE_cache_t,s0)
-+"""
-+
- fc_dir="""\
- FILENAME(/.*)?		gen_context(system_u:object_r:TEMPLATETYPE_cache_t,s0)
- """
-diff --git a/python/sepolicy/sepolicy/templates/var_log.py b/python/sepolicy/sepolicy/templates/var_log.py
-index 371dd7e4..051a0f1e 100644
---- a/python/sepolicy/sepolicy/templates/var_log.py
-+++ b/python/sepolicy/sepolicy/templates/var_log.py
-@@ -106,10 +106,18 @@ if_admin_rules="""
- """
- 
- ########################### File Context ##################################
-+te_stream_rules = ""
-+
-+if_stream_rules = ""
-+
- fc_file="""\
- FILENAME		--	gen_context(system_u:object_r:TEMPLATETYPE_log_t,s0)
- """
- 
-+fc_sock_file="""\
-+FILENAME		-s	gen_context(system_u:object_r:TEMPLATETYPE_log_t,s0)
-+"""
-+
- fc_dir="""\
- FILENAME(/.*)?		gen_context(system_u:object_r:TEMPLATETYPE_log_t,s0)
- """
-diff --git a/python/sepolicy/sepolicy/templates/var_spool.py b/python/sepolicy/sepolicy/templates/var_spool.py
-index dccb5f16..84933f50 100644
---- a/python/sepolicy/sepolicy/templates/var_spool.py
-+++ b/python/sepolicy/sepolicy/templates/var_spool.py
-@@ -151,6 +151,10 @@ fc_file="""\
- FILENAME		--	gen_context(system_u:object_r:TEMPLATETYPE_spool_t,s0)
- """
- 
-+fc_sock_file="""\
-+FILENAME		-s	gen_context(system_u:object_r:TEMPLATETYPE_spool_t,s0)
-+"""
-+
- fc_dir="""\
- FILENAME(/.*)?		gen_context(system_u:object_r:TEMPLATETYPE_spool_t,s0)
- """
+diff --git a/.github/workflows/tf_testsuite.yml b/.github/workflows/tf_testsuite.yml
+index 7e3993d3..3d7cf081 100644
+--- a/.github/workflows/tf_testsuite.yml
++++ b/.github/workflows/tf_testsuite.yml
+@@ -5,6 +5,9 @@ on: [push, pull_request]
+ jobs:
+   tf_testsuite:
+     runs-on: ubuntu-latest
++    # TESTING_FARM_API_TOKEN is a repository secret, which GitHub does not
++    # expose on pull_request runs from forks; skip those rather than fail.
++    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+     strategy:
+       fail-fast: false
+       matrix:
 -- 
 2.55.0
 
