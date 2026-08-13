@@ -1,137 +1,242 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0050299943;
-	Thu, 13 Aug 2026 00:41:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D1112E8B64;
+	Thu, 13 Aug 2026 00:42:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786581697; cv=none; b=pzRqOr+o3sF5nsnugcybLSWLwt0eEGOhu0pAqWrPpCKnNCgVAHIidI7ARh9mt88d9To3l+fSjQSmiQp9smcT6BeKulI35PjnGBMk3Gc5EJNYvgQqnF7IlItwnQoGpVKNphXyhGCq2EY6647bwTzyLiVGZWCajOjHggpsa/uqvnM=
+	t=1786581743; cv=none; b=GHU2PTWuC33F++Qy2ZZZdgCws1mzWF6OLsKGDutDgerUiOZUTMexJImGfUko5EGIAhJ1uprz8UUebhkhos11hUbZLun207iaU44Rd9TRjiC1TrzjY5Qo9U1oslWwuesCyROYOBD1LMPt2jivVpTTks/vB4dxp1pfXuS8wz+iuWc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786581697; c=relaxed/simple;
-	bh=NTlHIfLmcN1rD2SS4lRcmYmfN4ou96so+CLAxMYwv4o=;
+	s=arc-20240116; t=1786581743; c=relaxed/simple;
+	bh=mVlhbSwScQ7Y96WUPp6JDK7vKCc74GM3UItx6exWSOM=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=MpA67/x84rEEQMGG5lu8KU/IfWBPUUUnUbJGLtRHKyi9mZwEN2auTbt/hDhO4Ecr6rqS4W8is1Oxu/1SKtfBccZOx9ipR6ORZns9S8AYPcnGz5hUfc9Iwu6JWNRImphgAaj8rYXrGviph4cWt5OtyAS25t2oHq0DYMmlcKfoAQM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jPkrHXa9; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=b30vK/I80R42Xsp5wNcARrWHOMhpZqYz81r4Vqn3t3AIGFsUMW+A2K1dIvVEMLqamPZVUNv4BJnOU3bKlmslGMBU8Hz7Atmq68LTsXc64E1AxJ7RfVDmw2WiRi5SLbqixXHeDq2NdoDENC40Roh5zZlv4w3yhM9cnsAzyY7/t9I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iJFZLEiD; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jPkrHXa9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A2E01F00A3F;
-	Thu, 13 Aug 2026 00:41:36 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iJFZLEiD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6D0B1F000E9;
+	Thu, 13 Aug 2026 00:42:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786581696;
-	bh=l7Kc3MixeizTkHNQBxFkTelPI1LJYXzxl6McHwZXqUg=;
+	s=k20260515; t=1786581742;
+	bh=QExoHw/dynKZ+Pu/ZSgB68rR2S2T7P5NpZ0C5l/X8F8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jPkrHXa9n1sELkAiQ2KxFOdlXhnVx9M/3RjbfL6ggxQ26cwAaurI/9Qp/gvsez704
-	 720XTigt64cw1NztR7bf6qRXv1b/thYw6qAermHKdMfU4GsNuW2IOIizueP2xIOI3l
-	 rN5BB0LPv2E/paSjbekgM0wV2tk/spoCyHiBtlcn5n9Lf6VC9p3oEWYKBhciZUqDqz
-	 K4EUXfe0BgC1US132arVSSIFllqpHDJ0pA2grXrQ3p2GKT0jz7hTw3+nMcGMn7w7Lm
-	 AiBAWClwikDQP11u/9b87LLxxB4r3YD5BaRJrKYfx60Hpuam74PzGfplZewnIOt/vf
-	 o+PIz43l3CH/A==
+	b=iJFZLEiDwnkrA6sbGPLwi68KCocnH6rWJ+n0AbRScN4eruAiw2WskyMG+xCpkBxsI
+	 UnVWXMwjxw3D+KMoL1iNH2Ijhs8+FlCzj8nshNa4GtIap8f/tnf2mFySoCRSNuIKW5
+	 ujFqGhhMmMVdDvcmQsQb95JZsEJvZJ3EHC2ldDzKOW/g1imH44eZb61MY2S+nQZz4v
+	 ofcbMm39vRoMSF/vH6Yu2/RukKckiMpmBcaSnzYMYssV8gXDf+aBbxJTrBMDLVF3Ab
+	 IO1OXMUP9S6MlV3XKw2Ck45S1I92xtlJx0lT1x7mcCElv9vlBo/8nKWYg22yKdDIHj
+	 WA3EscuuTHTHQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH bpf-next 4/5] selinux: Add BPF_LOADER_LOAD_FD syscall
- permission
+Subject: Re: [PATCH bpf-next 2/5] bpf: Introduce BPF_LOADER_LOAD_FD command
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?VGhpw6liYXVkIFdla3N0ZWVu?= <tweek@google.com>
-Cc: bpf@vger.kernel.org, selinux@vger.kernel.org
-In-Reply-To: <20260813002618.3755631-5-tweek@google.com>
+Cc: selinux@vger.kernel.org, bpf@vger.kernel.org
+In-Reply-To: <20260813002618.3755631-3-tweek@google.com>
 References: <20260813002618.3755631-1-tweek@google.com>
- <20260813002618.3755631-5-tweek@google.com>
+ <20260813002618.3755631-3-tweek@google.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 13 Aug 2026 00:41:35 +0000
-Message-Id: <20260813004136.2A2E01F00A3F@smtp.kernel.org>
+Date: Thu, 13 Aug 2026 00:42:21 +0000
+Message-Id: <20260813004221.D6D0B1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
-
-New issues:
-- [High] The SELinux access control check for BPF_LOADER_LOAD_FD is complet=
-ely bypassed if the bpf_token_perms policy capability is enabled, leading t=
-o Privilege Escalation.
-
-Pre-existing issues:
-- [High] BPF_LOADER_LOAD_FD fails unconditionally with -EINVAL if CONFIG_BP=
-F_JIT is disabled.
+- [Critical] Information Leak / Out-of-Bounds Read in BPF verifier via load=
+er_load_fd
+- [High] Out-of-bounds Read / Denial of Service in ELF header validation
+- [Medium] File Descriptor Hijacking Race Condition (TOCTOU)
+- [Medium] API Misuse / Broken functionality on non-JIT configurations
+- [Low] Direct cast of `__aligned_u64` to `void *` for `copy_to_user`
 --
 
---- Patch [4]: [PATCH bpf-next 4/5] selinux: Add BPF_LOADER_LOAD_FD syscall=
- permission ---
-commit aa42284da62cb224bfd501dfd4306e6584b6a8e1
+--- Patch [2]: [PATCH bpf-next 2/5] bpf: Introduce BPF_LOADER_LOAD_FD comma=
+nd ---
+commit f9a928bc7f89cffc836753c26236211ed8039c51
 Author: Thi=C3=A9baud Weksteen <tweek@google.com>
 
-selinux: Add BPF_LOADER_LOAD_FD syscall permission
+bpf: Introduce BPF_LOADER_LOAD_FD command
 
-Add the BPF_LOADER_LOAD_FD permission to gate the bpf syscall command of
-the same name.
+This commit introduces the BPF_LOADER_LOAD_FD command to allow loading
+and executing loader BPF programs directly from an ELF file.
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index e7c5993f69545..b4ff5ea5306df 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -7196,6 +7196,10 @@ static int selinux_bpf(int cmd, union bpf_attr *at=
-tr,
->  		ret =3D avc_has_perm(sid, sid, SECCLASS_BPF, BPF__PROG_LOAD,
->  				   NULL);
->  		break;
-> +	case BPF_LOADER_LOAD_FD:
-> +		ret =3D avc_has_perm(sid, sid, SECCLASS_BPF, BPF__LOADER_LOAD_FD,
-> +				   NULL);
-> +		break;
+> diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
+> index 8d111da886553..d79cd63f9f7cd 100644
+> --- a/kernel/bpf/syscall.c
+> +++ b/kernel/bpf/syscall.c
+
+[ ... ]
+
+> @@ -6291,6 +6292,336 @@ static int prog_assoc_struct_ops(union bpf_attr *=
+attr)
+
+[ ... ]
+
+> +static int bpf_elf_validity_cache_sechdrs(struct elf_info *info)
+> +{
+> +	Elf64_Shdr *sechdrs;
+> +	Elf64_Shdr *shdr;
+> +	int i;
+> +	int err;
+> +
+> +	err =3D bpf_elf_validity_ehdr(info);
+> +	if (err < 0)
+> +		return err;
+> +
+> +	if (info->hdr->e_shentsize !=3D sizeof(Elf64_Shdr)) {
+> +		pr_err("Invalid ELF section header size\n");
+> +		return -ENOEXEC;
+> +	}
+> +
+> +	/*
+> +	 * e_shnum is 16 bits, and sizeof(Elf64_Shdr) is
+> +	 * known and small. So e_shnum * sizeof(Elf64_Shdr)
+> +	 * will not overflow unsigned long on any platform.
+> +	 */
+> +	if (info->hdr->e_shoff >=3D info->len
+> +	    || (info->hdr->e_shnum * sizeof(Elf64_Shdr) >
+> +		info->len - info->hdr->e_shoff)) {
+> +		pr_err("Invalid ELF section header overflow\n");
+> +		return -ENOEXEC;
+> +	}
+> +
+> +	sechdrs =3D (void *)info->hdr + info->hdr->e_shoff;
+> +
+> +	/*
+> +	 * The code assumes that section 0 has a length of zero and
+> +	 * an addr of zero, so check for it.
+> +	 */
+> +	if (sechdrs[0].sh_type !=3D SHT_NULL
 
 [Severity: High]
-Is it possible this check can be completely bypassed if the bpf_token_perms
-policy capability is enabled?
+Does this bounds check properly handle the case where info->hdr->e_shnum
+is 0?
 
-Looking at selinux_bpf() earlier in this file, there is an early return:
+If an attacker provides an ELF file with e_shnum set to 0 and e_shoff set
+near the end of the file (e.g., info->len - 1), the size check evaluates
+0 > 1, which is false. The code will then proceed to access sechdrs[0]
+unconditionally.
 
-	if (selinux_policycap_bpf_token_perms())
-		return 0;
+Since info->hdr is backed by a vmalloc buffer, could this read past the
+buffer boundary into the unmapped guard page and cause a panic?
 
-Because BPF_LOADER_LOAD_FD doesn't have a fine-grained SELinux hook later o=
-n,
-this early return skips the access control check.
+[ ... ]
 
-Furthermore, loader_load_fd() internally calls kern_sys_bpf() which executes
-the inner map creations and program loads with is_kernel =3D true:
+> +static int loader_load_fd(union bpf_attr *attr)
+> +{
 
-	return __sys_bpf(cmd, KERNEL_BPFPTR(attr), attr_size, KERNEL_BPFPTR(NULL),=
- 0);
+[ ... ]
 
-This passes the kernel SID (SECINITSID_KERNEL) to the fine-grained hooks
-instead of the user's SID:
+> +	memset(&sattr, 0, sizeof(sattr));
+> +	sattr.prog_type =3D BPF_PROG_TYPE_SYSCALL;
+> +	sattr.license =3D (unsigned long) license;
+> +	sattr.insns =3D (unsigned long) insns;
+> +	sattr.insn_cnt =3D insns_sz / sizeof(struct bpf_insn);
+> +	sattr.fd_array =3D (unsigned long) &map_fd;
 
-	ssid =3D kernel ? SECINITSID_KERNEL : bpfsec->sid;
+[Severity: Critical]
+Is it safe to pass a kernel stack pointer (&map_fd) via sattr.fd_array
+while leaving fd_array_cnt implicitly as 0?
 
-Will this allow a user with CAP_BPF to bypass their SELinux constraints and
-load arbitrary programs as the kernel?
+When fd_array_cnt is 0, the BPF verifier falls back to the legacy sparse
+array resolution path in fd_array_get_map_idx_sparse(). In this path, the
+verifier extracts an immediate value from a BPF_PSEUDO_MAP_FD instruction
+and uses it as an index.
 
-[Severity: High]
-This isn't a bug introduced by this patch, but will BPF_LOADER_LOAD_FD fail
-unconditionally if CONFIG_BPF_JIT is disabled?
+Since fd_array is treated as a kernel pointer, copy_from_bpfptr_offset()
+expands directly to a memory copy:
 
-Looking at loader_load_fd() in kernel/bpf/syscall.c, it unconditionally cal=
-ls:
+    memcpy(&fd, &map_fd + idx, sizeof(int));
 
-	err =3D kern_sys_bpf(BPF_PROG_TEST_RUN, &sattr, sizeof(sattr));
+Because the index is attacker-controlled and lacks bounds checking, could
+this allow an unprivileged user to reliably read arbitrary memory from the
+kernel stack?
 
-However, in kern_sys_bpf(), the BPF_PROG_TEST_RUN case is compiled out when
-CONFIG_BPF_JIT is disabled:
+> +	sattr.prog_flags =3D BPF_F_SLEEPABLE;
+> +	strscpy(sattr.prog_name, BPF_LOADER_PROG_SEC, sizeof(BPF_LOADER_PROG_SE=
+C));
+> +	prog_fd =3D kern_sys_bpf(BPF_PROG_LOAD, &sattr, sizeof(sattr));
+> +	if (prog_fd < 0) {
+> +		err =3D prog_fd;
+> +		goto close_map_err;
+> +	}
+> +
+> +	memset(&sattr, 0, sizeof(sattr));
+> +	ctx_sz =3D attr->load_fd.ctx_size;
+> +	kctx =3D kzalloc(ctx_sz, GFP_KERNEL);
+> +	if (kctx =3D=3D NULL) {
+> +		err =3D -ENOMEM;
+> +		goto close_prog_err;
+> +	}
+> +	sattr.test.prog_fd =3D prog_fd;
+> +	sattr.test.ctx_in =3D (unsigned long) kctx;
+> +	sattr.test.ctx_size_in =3D ctx_sz;
+> +	err =3D kern_sys_bpf(BPF_PROG_TEST_RUN, &sattr, sizeof(sattr));
 
-	#ifdef CONFIG_BPF_JIT
-	case BPF_PROG_TEST_RUN:
+[Severity: Medium]
+Does kern_sys_bpf() support BPF_PROG_TEST_RUN when CONFIG_BPF_JIT is
+disabled?
 
-This causes it to fall through to the default handler which returns -EINVAL=
- for
-BPF_PROG_TEST_RUN, breaking the feature entirely on non-JIT configurations.
+Looking at kern_sys_bpf(), it only intercepts BPF_PROG_TEST_RUN when
+CONFIG_BPF_JIT is enabled. Without JIT, it falls through to ____bpf_sys_bpf=
+()
+which explicitly rejects BPF_PROG_TEST_RUN and returns -EINVAL.
 
->  	default:
->  		ret =3D 0;
->  		break;
+Could this cause the BPF_LOADER_LOAD_FD command to be completely broken on
+non-JIT kernel configurations?
+
+> +	if (err < 0)
+> +		goto free_ctx;
+> +	err =3D sattr.test.retval;
+> +	if (err < 0)
+> +		goto free_ctx;
+> +
+> +	if (copy_to_user((void *) attr->load_fd.ctx, kctx, ctx_sz) !=3D 0)
+
+[Severity: Low]
+Is it correct to directly cast __aligned_u64 to a void pointer here?
+
+Directly casting attr->load_fd.ctx to (void *) bypasses Sparse address space
+annotations for __user memory. On 32-bit architectures, this can also cause
+pointer truncation warnings.
+
+Should this use the u64_to_user_ptr() macro instead?
+
+> +		err =3D -EFAULT;
+> +
+> +free_ctx:
+> +	kfree(kctx);
+> +close_prog_err:
+> +	close_fd(prog_fd);
+> +close_map_err:
+> +	close_fd(map_fd);
+
+[Severity: Medium]
+Could unconditionally closing these file descriptors introduce a race
+condition?
+
+The kern_sys_bpf() function allocates file descriptors and installs them,
+making them temporarily visible in the calling process's file descriptor
+table.
+
+If a concurrent thread blocks copy_to_user() (for instance, by passing a
+userfaultfd-backed memory region for attr->load_fd.ctx), it could close
+these exposed file descriptors and open new ones.
+
+When the page fault resolves, would loader_load_fd() resume and inadvertent=
+ly
+close the newly opened files that now occupy those descriptor slots?
+
+> +out_free_buf:
+> +	vfree(buf);
+> +out:
+> +	return err;
+> +}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260813002618.3755=
-631-1-tweek@google.com?part=3D4
+631-1-tweek@google.com?part=3D2
