@@ -1,138 +1,440 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E02232E757;
-	Thu, 13 Aug 2026 01:25:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B196A328B7B;
+	Thu, 13 Aug 2026 01:25:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786584321; cv=none; b=SRfdDKxk86RHAqPGihGDxan28ymlZo+shg86IAYFNmnx9p7E2t+FTr9uQoeudGDqlZfK+UorENX9AlS91BXykictuTX10USvyvgWMxzCQBUfwkt75YOZPXLufgFraUJuXAB5IBvbOSLGH/FCEztD8HZLjqYK58kcvylnKHcAoZI=
+	t=1786584324; cv=none; b=NfrwPUfWoQC4tlcxTBpl47kPYXIFApnZnt3k0J+mjcK3seWsEm+C0eCnWYIRpK7LHZnx4OJm62jNdPKkcGZ11tpViPOvzkVcF98EbQaQA+W9rgj29byD1LErCGVLDo1wBp5uZ6QwjXRK35rdYmNkXfzO3DV5vPQk9YcX7aclHgQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786584321; c=relaxed/simple;
-	bh=7RHUJjd5Ei1BYkDShazRCFw3IS3wGOiyP1f/r4OR23k=;
+	s=arc-20240116; t=1786584324; c=relaxed/simple;
+	bh=V8QjiYyjZJSJPtDMTJIF3lAgXLrjnyq0YJac8qpTtP0=;
 	h=Content-Type:MIME-Version:Message-Id:In-Reply-To:References:
-	 Subject:From:To:Cc:Date; b=L0O27Yrhkhdh+Kt+BZotRb9irexkFyb5UowyHg+dKWBEcuJNiYMFzFfjfAgtSwVf812QWBkQQfIpDztzyvPiJdKISpNUOuXtiMQNM9wfMsKLJlSWEwZY/SP3iNVr9J9yoUJOlDYWaxQV6JgMS1AzD9/0TD4ucPV93Y/cyCGo0O8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KdXm+Qaa; arc=none smtp.client-ip=100.103.45.18
+	 Subject:From:To:Cc:Date; b=iFNv5Zst+iJsM830rVOTTBNvF7Di4M2ZW/HW6Fc7/SNTpf3sN9ixTmODcOg9Hy01ygKJ7QpFKFYcMwTzF4p2GD14vExVnL6sX3ipjOs3xU+SgHzpl8QBqrxrhCyION6dHK+w7ZIciN3Muk8mFeKJAxRtWikfxGr6T/H/XSEV3ho=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZIdPjNQL; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KdXm+Qaa"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2501F1F00A3A;
-	Thu, 13 Aug 2026 01:25:19 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZIdPjNQL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F24B1F000E9;
+	Thu, 13 Aug 2026 01:25:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786584320;
-	bh=7RHUJjd5Ei1BYkDShazRCFw3IS3wGOiyP1f/r4OR23k=;
+	s=k20260515; t=1786584322;
+	bh=zwn+VeHDfLFGdLX/+Sf8Stf93zux/4iZdFx/CRW3xjA=;
 	h=In-Reply-To:References:Subject:From:To:Cc:Date;
-	b=KdXm+QaaEwyyZsacxVkQL27spHB4pn5I4UzyIJCSCgqo+y/FStV/UBOvWafh7uRa9
-	 2ncWlN2Ue/FJR9Vk1ipHuoBeI9w9dVSKkyYmT99ZbJm/IZ9o0pPRUSdB2J1YY2BT5n
-	 W801V1E/0I0SNdQikElIT002p6N08mBf1cOaqrYwCPL/c+5nhGpSyzQW1xQt7sV/EV
-	 D+vFy+p+QKWmYc0wnUoikrp0iFchDzo9m+rZrkL5CUW4ZMPNAUgQvoSDMBkYtjIfc4
-	 mZkctUIB1ms7Tx4rcPBc0RYe3EYz50fu9CKTFE/QiIt+mIsTfcCp5oiBUUdAp5H7nP
-	 pEG4tJBnkkroQ==
-Content-Type: multipart/mixed; boundary="===============0869274827343138227=="
+	b=ZIdPjNQLLcpayx/WHsDYiZCfIfb0AWV3xFH7nXLDK9cF4rcNpdfcXJCA08pmy2vm9
+	 oeuH/gKrhdXz6uN5lZu1GKE3Zb5KynH7KEInRFRKkuAp8ldqf3LD3mNrevISAAhC/y
+	 Xxr9RrbmqLLyS4ZxbtBQQGK+HsWM23BEpgPuTakfoZpajBJ3OXNi9V39AY3EBF8eWc
+	 UlONoyp0lB0rGCgCxKkyaJfMh7UKxdbZLrpN+CO8sA+k5B7J6gWzhbgtLKhAFShaI3
+	 VEseK8FPdwYEK9MFnRcLJlodn71N/xsDfGdkLpCKXbIA52COpZ7xSEl/T3uM5qzoSH
+	 7aLies0sv6JLw==
+Content-Type: multipart/mixed; boundary="===============8749948781067238914=="
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <2a9059dfe35fac8b6858379dab6c2e2c37b7856bf657fb1c13d414750b5460be@mail.kernel.org>
-In-Reply-To: <20260813002618.3755631-4-tweek@google.com>
-References: <20260813002618.3755631-4-tweek@google.com>
-Subject: Re: [PATCH bpf-next 3/5] selinux: use kernel sid in security_bpf_*
+Message-Id: <b8b60c3d613617b1053002d7cd5f0bbbc2d1a18f195ddd8bfdb239b3770cdf84@mail.kernel.org>
+In-Reply-To: <20260813002618.3755631-6-tweek@google.com>
+References: <20260813002618.3755631-6-tweek@google.com>
+Subject: Re: [PATCH bpf-next 5/5] selftests/bpf: add loader_load_fd tests
 From: bot+bpf-ci@kernel.org
 To: tweek@google.com,paul@paul-moore.com,stephen.smalley.work@gmail.com,ast@kernel.org,daniel@iogearbox.net,andrii@kernel.org,jeffv@google.com
 Cc: tweek@google.com,omosnace@redhat.com,ericsu@linux.microsoft.com,bboscaccy@linux.microsoft.com,sidnayyar@google.com,nkapron@google.com,ebiggers@google.com,gregkh@linuxfoundation.org,kpsingh@kernel.org,bpf@vger.kernel.org,selinux@vger.kernel.org,linux-kernel@vger.kernel.org,ast@kernel.org,andrii@kernel.org,daniel@iogearbox.net,martin.lau@kernel.org,eddyz87@gmail.com,yonghong.song@linux.dev,clm@meta.com,ihor.solodrai@linux.dev
-Date: Thu, 13 Aug 2026 01:25:19 +0000 (UTC)
+Date: Thu, 13 Aug 2026 01:25:21 +0000 (UTC)
 
---===============0869274827343138227==
-Content-Type: text/plain; charset="utf-8"
+--===============8749948781067238914==
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
 
-PiBUaGUgc2VjdXJpdHlfYnBmIGhvb2tzIHByb3ZpZGVzIGEgYm9vbGVhbiB0byBpbmRpY2F0ZSBp
-ZiB0aGUgY2FsbCBpcwo+IGNvbWluZyBmcm9tIHdpdGhpbiB0aGUga2VybmVsIG9yIG5vdC4gSWYg
-dHJ1ZSwgdXNlIHRoZSBrZXJuZWwgU0lECj4gaW5zdGVhZCBvZiByZWx5aW5nIG9uIHRoZSBjdXJy
-ZW50IHByb2Nlc3MgU0lELgo+Cj4gRm9yIHRoZSB0b2tlbi1hd2FyZSBmdW5jdGlvbnMsIHRoZSBr
-ZXJuZWwgc2lkIGlzIHVzZWQgdG8gZGVjaWRlIG9uIHRoZQo+IGFjY2VzcywgYnV0IHRoZSBjYWxs
-ZXIgcmVtYWlucyBvd25lciBvZiB0aGUgb2JqZWN0IChwcm9ncmFtIG9yIG1hcCkuCj4KPiBTaWdu
-ZWQtb2ZmLWJ5OiBUaGnDqWJhdWQgV2Vrc3RlZW4gPHR3ZWVrQGdvb2dsZS5jb20+CgpUaGUgY2hh
-bmdlbG9nIGNsYWltcyB0aGF0IGZvciB0aGUgdG9rZW4tYXdhcmUgaG9va3MgInRoZSBrZXJuZWwg
-c2lkIGlzCnVzZWQgdG8gZGVjaWRlIG9uIHRoZSBhY2Nlc3MiLiBJcyB0aGF0IGFjY3VyYXRlIHdo
-ZW4gYSB0b2tlbiBpcyBwcmVzZW50PwoKTG9va2luZyBhdCBzZWxpbnV4X2JwZl9tYXBfY3JlYXRl
-KCk6CgogICAgaWYgKCF0b2tlbikKICAgICAgICAgICAgc3NpZCA9IGtlcm5lbCA/IFNFQ0lOSVRT
-SURfS0VSTkVMIDogYnBmc2VjLT5zaWQ7CiAgICBlbHNlCiAgICAgICAgICAgIHNzaWQgPSBzZWxp
-bnV4X2JwZmZzX2NyZWF0b3Jfc2lkKGF0dHItPm1hcF90b2tlbl9mZCk7CgpUaGUgc2FtZSBwYXR0
-ZXJuIGFwcGVhcnMgaW4gc2VsaW51eF9icGZfcHJvZ19sb2FkKCkuIFdoZW4gYSB0b2tlbiBpcwpz
-dXBwbGllZCwgdGhlIGtlcm5lbCBhcmd1bWVudCBoYXMgbm8gZWZmZWN0IC0gdGhlIFNJRCBjb21l
-cyBmcm9tCnNlbGludXhfYnBmZnNfY3JlYXRvcl9zaWQoKSByZWdhcmRsZXNzLiBTaG91bGQgdGhl
-IGNvbW1pdCBtZXNzYWdlIGNsYXJpZnkKdGhhdCB0aGUga2VybmVsIFNJRCBhcHBsaWVzIG9ubHkg
-d2hlbiBubyB0b2tlbiBpcyBwcmVzZW50PwoKVGhpcyBsb29rcyBsaWtlIGEgYnVnIGZpeCBmb3Ig
-dGhlIGtlcm5lbCBwYXJhbWV0ZXIgc3VwcG9ydCBhZGRlZCBpbgowODJmMWRiMDJjODAuIFNob3Vs
-ZCB0aGlzIGluY2x1ZGU6CgogIEZpeGVzOiAwODJmMWRiMDJjODAgKCJzZWN1cml0eTogUHJvcGFn
-YXRlIGNhbGxlciBpbmZvcm1hdGlvbiBpbiBicGYgaG9va3MiKQoKPiBkaWZmIC0tZ2l0IGEvc2Vj
-dXJpdHkvc2VsaW51eC9ob29rcy5jIGIvc2VjdXJpdHkvc2VsaW51eC9ob29rcy5jCj4gaW5kZXgg
-ZjE5N2NmNDc2MTkwZC4uZTdjNTk5M2Y2OTU0NSAxMDA2NDQKPiAtLS0gYS9zZWN1cml0eS9zZWxp
-bnV4L2hvb2tzLmMKPiArKysgYi9zZWN1cml0eS9zZWxpbnV4L2hvb2tzLmMKPiBAQCAtNzE4MSw3
-ICs3MTgxLDcgQEAgc3RhdGljIGludCBzZWxpbnV4X2liX2FsbG9jX3NlY3VyaXR5KHZvaWQgKmli
-X3NlYykKPiAgc3RhdGljIGludCBzZWxpbnV4X2JwZihpbnQgY21kLCB1bmlvbiBicGZfYXR0ciAq
-YXR0ciwKPiAgCQkgICAgICAgdW5zaWduZWQgaW50IHNpemUsIGJvb2wga2VybmVsKQo+ICB7Cj4g
-LQl1MzIgc2lkID0gY3VycmVudF9zaWQoKTsKPiArCXUzMiBzaWQgPSBrZXJuZWwgPyBTRUNJTklU
-U0lEX0tFUk5FTCA6IGN1cnJlbnRfc2lkKCk7Cj4gIAlpbnQgcmV0Owo+Cj4gIAlpZiAoc2VsaW51
-eF9wb2xpY3ljYXBfYnBmX3Rva2VuX3Blcm1zKCkpCj4gQEAgLTcyOTYsNyArNzI5Niw3IEBAIHN0
-YXRpYyBpbnQgc2VsaW51eF9icGZfbWFwX2NyZWF0ZShzdHJ1Y3QgYnBmX21hcCAqbWFwLCB1bmlv
-biBicGZfYXR0ciAqYXR0ciwKPiAgCWJwZnNlYy0+c2lkID0gY3VycmVudF9zaWQoKTsKPgo+ICAJ
-aWYgKCF0b2tlbikKPiAtCQlzc2lkID0gYnBmc2VjLT5zaWQ7Cj4gKwkJc3NpZCA9IGtlcm5lbCA/
-IFNFQ0lOSVRTSURfS0VSTkVMIDogYnBmc2VjLT5zaWQ7Cj4gIAllbHNlCj4gIAkJc3NpZCA9IHNl
-bGludXhfYnBmZnNfY3JlYXRvcl9zaWQoYXR0ci0+bWFwX3Rva2VuX2ZkKTsKClRoZSBrZXJuZWwg
-YXJndW1lbnQgb2YgdGhlIHNlY3VyaXR5X2JwZiBob29rcyBpcyBub3QgYSAidHJ1c3RlZCBrZXJu
-ZWwKb3JpZ2luIiBpbmRpY2F0b3IgLSBpdCBpcyB1YXR0ci5pc19rZXJuZWwsIHdoaWNoIG9ubHkg
-aW5kaWNhdGVzIHdoZXRoZXIKdGhlIGJwZl9hdHRyIGJ1ZmZlciBsaXZlcyBpbiBrZXJuZWwgb3Ig
-dXNlciBhZGRyZXNzIHNwYWNlLiBDYW4Kc3Vic3RpdHV0aW5nIFNFQ0lOSVRTSURfS0VSTkVMIGJh
-c2VkIG9uIHRoYXQgZmxhZyBjaGFuZ2UgdGhlIFNFTGludXgKZGVjaXNpb24gZm9yIGEgcHJlLWV4
-aXN0aW5nIHVzZXJzcGFjZSBjb2RlIHBhdGg/CgpUaGlzIHBhdGggaXMgcmVhY2hhYmxlIHdpdGhv
-dXQgQlBGX0xPQURFUl9MT0FEX0ZELiBMb29raW5nIGF0Cmtlcm5lbC9icGYvc3lzY2FsbC5jLCBz
-eXNjYWxsX3Byb2dfZnVuY19wcm90bygpIGV4cG9zZXMgYnBmX3N5c19icGYoKSB0bwphbnkgQlBG
-X1BST0dfVFlQRV9TWVNDQUxMIHByb2dyYW0gdGhhdCBwYXNzZXMgYnBmX3Rva2VuX2NhcGFibGUo
-dG9rZW4sCkNBUF9QRVJGTU9OKS4gQlBGX0NBTExfMyhicGZfc3lzX2JwZiwgLi4uKSBhY2NlcHRz
-IEJQRl9NQVBfQ1JFQVRFIGFuZApCUEZfUFJPR19MT0FEIGFuZCBjYWxsczoKCiAgICByZXR1cm4g
-X19zeXNfYnBmKGNtZCwgS0VSTkVMX0JQRlBUUihhdHRyKSwgYXR0cl9zaXplLAogICAgICAgICAg
-ICAgICAgICAgICBLRVJORUxfQlBGUFRSKE5VTEwpLCAwKTsKCndoaWNoIHRyaWdnZXJzOgoKICAg
-IHNlY3VyaXR5X2JwZihjbWQsICZhdHRyLCBzaXplLCB1YXR0ci5pc19rZXJuZWwpOyAgICAgICAg
-ICAgICAgLyogdHJ1ZSAqLwogICAgc2VjdXJpdHlfYnBmX21hcF9jcmVhdGUobWFwLCBhdHRyLCB0
-b2tlbiwgdWF0dHIuaXNfa2VybmVsKTsgICAvKiB0cnVlICovCiAgICBzZWN1cml0eV9icGZfcHJv
-Z19sb2FkKHByb2csIGF0dHIsIHRva2VuLCB1YXR0ci5pc19rZXJuZWwpOyAgIC8qIHRydWUgKi8K
-ClN1Y2ggYSBwcm9ncmFtIGlzIGxvYWRlZCBhbmQgZXhlY3V0ZWQgZW50aXJlbHkgYXQgdXNlcnNw
-YWNlIHJlcXVlc3QgdmlhCkJQRl9QUk9HX1RFU1RfUlVOLiBUaGlzIGlzIHRoZSBsaWJicGYgbGln
-aHQtc2tlbGV0b24gbG9hZGVyCih0b29scy9saWIvYnBmL3NrZWxfaW50ZXJuYWwuaCBkZWNsYXJl
-cyBrZXJuX3N5c19icGYoKSwgdXNlZCBieQpicGZfbG9hZF9hbmRfcnVuKCkpLCB3aGljaCBwcmVk
-YXRlcyB0aGlzIHNlcmllcy4KCkZvciBhIGNhbGxlciBpbiBkb21haW4gWCB1c2luZyBhIGxpZ2h0
-IHNrZWxldG9uOgoKQmVmb3JlIHRoaXMgcGF0Y2g6CiAgc2VsaW51eF9icGYoKSAgICAgICAgICAg
-IGNoZWNrcyBhdmNfaGFzX3Blcm0oWCwgWCwgQlBGLCBtYXBfY3JlYXRlKQogIHNlbGludXhfYnBm
-X21hcF9jcmVhdGUoKSBjaGVja3MgYXZjX2hhc19wZXJtKFgsIFgsIEJQRiwgbWFwX2NyZWF0ZSkK
-CkFmdGVyIHRoaXMgcGF0Y2g6CiAgc2VsaW51eF9icGYoKSAgICAgICAgICAgIGNoZWNrcyBhdmNf
-aGFzX3Blcm0oa2VybmVsX3QsIGtlcm5lbF90LCBCUEYsCiAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgIG1hcF9jcmVhdGUpCiAgc2VsaW51eF9icGZfbWFwX2Ny
-ZWF0ZSgpIGNoZWNrcyBhdmNfaGFzX3Blcm0oa2VybmVsX3QsIFgsIEJQRiwKICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbWFwX2NyZWF0ZSkKICBzZWxpbnV4
-X2JwZl9wcm9nX2xvYWQoKSAgY2hlY2tzIGF2Y19oYXNfcGVybShrZXJuZWxfdCwgWCwgQlBGLAog
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBwcm9nX2xvYWQp
-CgpUaGUgcnVsZSB0aGF0IHVzZWQgdG8gYXV0aG9yaXplIHRoaXMgKGFsbG93IFggc2VsZjpicGYg
-bWFwX2NyZWF0ZSkgbm8KbG9uZ2VyIGFwcGxpZXMsIHNvIGV4aXN0aW5nIHBvbGljaWVzIGdldCBu
-ZXcgQVZDIGRlbmlhbHMgb24gYSBwYXRoIHRoYXQKd29ya2VkIGJlZm9yZS4gQ29udmVyc2VseSwg
-aW4gcG9saWNpZXMgd2hlcmUga2VybmVsX3QgaXMgYnJvYWRseQpwcml2aWxlZ2VkLCBkb21haW4g
-WCBnYWlucyBtYXBfY3JlYXRlIGFuZCBwcm9nX2xvYWQgcGVybWlzc2lvbnMgaXQgd2FzCm5ldmVy
-IGdyYW50ZWQuCgpUaGlzIGJlaGF2aW9yIGNoYW5nZSBpcyBub3QgZ2F0ZWQuIFRoZSBpbW1lZGlh
-dGVseSBwcmVjZWRpbmcgYmVoYXZpb3IKY2hhbmdlIGluIHRoZSBzYW1lIGZ1bmN0aW9uIGlzIGdh
-dGVkIG9uIHNlbGludXhfcG9saWN5Y2FwX2JwZl90b2tlbl9wZXJtcygpLAp3aGljaCBpcyB0aGUg
-ZXN0YWJsaXNoZWQgU0VMaW51eCBjb252ZW50aW9uIGZvciB0aGlzIGtpbmQgb2YgZGVjaXNpb24K
-Y2hhbmdlLiBTaG91bGQgdGhpcyBuZXcgU0lEIHN1YnN0aXR1dGlvbiBhbHNvIGJlIGdhdGVkIG9u
-IGEgcG9saWN5CmNhcGFiaWxpdHk/Cgo+IEBAIC03MzE0LDcgKzczMTQsNyBAQCBzdGF0aWMgaW50
-IHNlbGludXhfYnBmX3Byb2dfbG9hZChzdHJ1Y3QgYnBmX3Byb2cgKnByb2csIHVuaW9uIGJwZl9h
-dHRyICphdHRyLAo+ICAJYnBmc2VjLT5zaWQgPSBjdXJyZW50X3NpZCgpOwo+Cj4gIAlpZiAoIXRv
-a2VuKQo+IC0JCXNzaWQgPSBicGZzZWMtPnNpZDsKPiArCQlzc2lkID0ga2VybmVsID8gU0VDSU5J
-VFNJRF9LRVJORUwgOiBicGZzZWMtPnNpZDsKPiAgCWVsc2UKPiAgCQlzc2lkID0gc2VsaW51eF9i
-cGZmc19jcmVhdG9yX3NpZChhdHRyLT5wcm9nX3Rva2VuX2ZkKTsKCgotLS0KQUkgcmV2aWV3ZWQg
-eW91ciBwYXRjaC4gUGxlYXNlIGZpeCB0aGUgYnVnIG9yIGVtYWlsIHJlcGx5IHdoeSBpdCdzIG5v
-dCBhIGJ1Zy4KU2VlOiBodHRwczovL2dpdGh1Yi5jb20va2VybmVsLXBhdGNoZXMvdm10ZXN0L2Js
-b2IvbWFzdGVyL2NpL2NsYXVkZS9SRUFETUUubWQKCkNJIHJ1biBzdW1tYXJ5OiBodHRwczovL2dp
-dGh1Yi5jb20va2VybmVsLXBhdGNoZXMvYnBmL2FjdGlvbnMvcnVucy8zMTY1NTI5NTI5NA==
+> diff --git a/tools/testing/selftests/bpf/loader_setup.sh b/tools/testing/selftests/bpf/loader_setup.sh
+> new file mode 100755
+> index 0000000000000..f86651b0718f6
+> --- /dev/null
+> +++ b/tools/testing/selftests/bpf/loader_setup.sh
+> @@ -0,0 +1,68 @@
+> +#!/bin/sh
+> +# SPDX-License-Identifier: GPL-2.0
+> +# Copyright (c) 2026 Google LLC
+> +#
+> +# loader_setup.sh - Light skeleton data extraction helper for selftests/bpf
+> +#
+> +# This script parses an autogenerated light skeleton header (.lskel.h) produced
+> +# by bpftool ('bpftool gen skeleton -L'). It extracts the embedded loader data
+> +# ('opts_data') and loader BPF instructions ('opts_insn') string literals and
+> +# generates a C header file containing:
+> +#   - loader_test_opts_data[]: Data for the '__loader.map' section.
+> +#   - loader_test_opts_data_sz: Size of opts_data.
+> +#   - loader_test_opts_insn[]: Instructions for the '__loader.prog' section.
+> +#   - loader_test_opts_insn_sz: Size of opts_insn.
 
---===============0869274827343138227==--
+The comment documents loader_test_opts_data[], loader_test_opts_data_sz,
+loader_test_opts_insn[], and loader_test_opts_insn_sz, but the awk body
+below emits test_loader_opts_data, test_loader_opts_data_sz,
+test_loader_opts_insn and test_loader_opts_insn_sz. Could the comment use
+the actual symbol names?
+
+[ ... ]
+
+> +/opts_data\[\]/ {
+> +	in_data = 1
+> +	sub(/^.*opts_data\[\][^="]*=\s*"/, "")
+> +	printf "static const char test_loader_opts_data[] __attribute__((__aligned__(8))) = \""
+> +}
+
+Does the awk sub() regex work with mawk or busybox awk? mawk is the
+default awk on Debian and Ubuntu, and Documentation/process/changes.rst
+lists GNU awk as optional. The \s escape (here and again below in the
+opts_insn block) is a GNU awk extension that mawk does not implement.
+
+In mawk, \s matches a literal 's', so the regex =\s*" cannot match
+bpftool's output = ", and the sub() fails silently. When the prefix is
+not stripped, the emitted line becomes two adjacent string literals
+followed by a bare hex-escape token outside any string:
+
+  static const char test_loader_opts_data[] = "<TAB>static const char opts_data[] = "\
+  \x7f\x45\x4c\x46...";"
+
+That is not valid C. This breaks the entire `make -C
+tools/testing/selftests/bpf` build because Makefile:580 adds
+test_loader_processed.lskel.h to TRUNNER_EXTRA_HDRS for every runner, not
+just the loader_load_fd test.
+
+The portable form used across the kernel tree is [[:space:]] - see
+scripts/syscallnr.sh, scripts/syscalltbl.sh, scripts/headers_install.sh,
+and scripts/tags.sh. Code that genuinely needs GNU awk calls gawk
+explicitly.
+
+> +/opts_insn\[\]/ {
+> +	in_insn = 1
+> +	sub(/^.*opts_insn\[\][^="]*=\s*"/, "")
+> +	printf "static const char test_loader_opts_insn[] __attribute__((__aligned__(8))) = \""
+> +}
+
+Same \s issue here.
+
+> diff --git a/tools/testing/selftests/bpf/prog_tests/loader_load_fd.c b/tools/testing/selftests/bpf/prog_tests/loader_load_fd.c
+> new file mode 100644
+> index 0000000000000..ab971662dd047
+> --- /dev/null
+> +++ b/tools/testing/selftests/bpf/prog_tests/loader_load_fd.c
+
+[ ... ]
+
+> +static int create_loader_elf(const void *insns, size_t insns_sz,
+> +			     const void *map_data, size_t map_data_sz,
+> +			     const char *license, size_t license_sz,
+> +			     bool omit_prog, bool omit_map, bool omit_license)
+> +{
+
+[ ... ]
+
+> +	ehdr->e_ident[EI_MAG0] = ELFMAG0;
+> +	ehdr->e_ident[EI_MAG1] = ELFMAG1;
+> +	ehdr->e_ident[EI_MAG2] = ELFMAG2;
+> +	ehdr->e_ident[EI_MAG3] = ELFMAG3;
+> +	ehdr->e_ident[EI_CLASS] = ELFCLASS64;
+> +	ehdr->e_ident[EI_DATA] = ELFDATA2LSB;
+> +	ehdr->e_ident[EI_VERSION] = EV_CURRENT;
+> +	ehdr->e_machine = EM_BPF;
+> +	ehdr->e_type = ET_REL;
+
+Does hardcoding ELFDATA2LSB work on big-endian hosts?
+
+libelf converts the in-memory structures to the encoding named in
+e_ident[EI_DATA] when elf_update() writes the file. With EI_DATA forced
+to ELFDATA2LSB, a big-endian host emits byte-swapped headers.
+
+The kernel side parses those headers with native loads and never inspects
+e_ident[EI_DATA]:
+
+  static int bpf_elf_validity_ehdr(const struct elf_info *info)
+  {
+          ...
+          if (info->hdr->e_type != ET_REL) {
+                  pr_err("Invalid ELF header type: %u != %u\n", ...);
+                  return -ENOEXEC;
+          }
+
+On s390x, ET_REL (1) stored little-endian reads back as 0x0100 == 256, so
+loader_load_fd() returns -ENOEXEC. The missing_prog_sec and
+missing_map_sec subtests assert EINVAL (not ENOEXEC), so they would fail
+against a correct kernel on big-endian hardware.
+
+The section payloads are handed to elf_newdata() as ELF_T_BYTE and copied
+in host order, while the headers around them get swapped to LSB. Since the
+kernel consumes the file in host byte order, does EI_DATA need to come
+from __BYTE_ORDER__? tools/lib/bpf/linker.c and usdt.c use this pattern:
+
+  #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+          const unsigned char host_byteorder = ELFDATA2LSB;
+  #elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+          const unsigned char host_byteorder = ELFDATA2MSB;
+  #else
+  #error "Unknown __BYTE_ORDER__"
+  #endif
+
+[ ... ]
+
+> +static void test_loader_load_fd_oversized_ctx(void)
+> +{
+> +	struct bpf_insn insns[] = {
+> +		BPF_MOV64_IMM(BPF_REG_0, 0),
+> +		BPF_EXIT_INSN(),
+> +	};
+> +	char map_data[] = "data";
+> +	char license[] = "GPL";
+> +	struct bpf_loader_ctx ctx = {};
+> +	int elf_fd, err;
+> +
+> +	elf_fd = create_loader_elf(insns, sizeof(insns),
+> +				   map_data, sizeof(map_data),
+> +				   license, sizeof(license),
+> +				   false, false, false);
+> +
+> +	if (!ASSERT_GE(elf_fd, 0, "create_loader_elf"))
+> +		return;
+> +
+> +	err = sys_bpf_loader_load_fd(elf_fd, &ctx, 65536U);
+> +	ASSERT_EQ(err, -1, "oversized ctx sys_bpf return");
+> +	ASSERT_EQ(errno, EINVAL, "oversized ctx errno");
+
+A subsystem pattern flags this as potentially concerning: the subtest
+asserts EINVAL for ctx_size == 65536, targeting loader_load_fd()'s guard
+
+  if (attr->load_fd.ctx_size > U16_MAX)
+          return -EINVAL;
+
+but EINVAL is also produced further down the same path. With the guard
+removed, the request reaches bpf_prog_test_run_syscall(), which
+independently rejects the same value:
+
+  if (ctx_size_in < prog->aux->max_ctx_offset ||
+      ctx_size_in > U16_MAX)
+          return -EINVAL;
+
+errno is EINVAL either way, so the subtest passes whether or not
+loader_load_fd() validates ctx_size. Could the test assert on a value that
+only loader_load_fd() rejects, or check the ordering explicitly (e.g. pass
+an oversized ctx_size together with an invalid loader_fd and confirm
+EINVAL still comes back before any ELF is read)?
+
+Also: ctx is a 24-byte struct on the stack, and ctx_size is 65536.
+loader_load_fd() copies ctx_size bytes back on success:
+
+  if (copy_to_user((void *) attr->load_fd.ctx, kctx, ctx_sz) != 0)
+          err = -EFAULT;
+
+The only thing standing between this and a 64 KiB stack overwrite is the
+check the subtest is meant to verify. If that check regresses, the
+subtest's failure mode is stack corruption in test_progs instead of a
+clean assertion failure. Would a 65536-byte heap buffer make the bad-kernel
+case report cleanly?
+
+> +static void test_loader_load_fd_invalid_elf(void)
+> +{
+> +	char garbage[] = "not_an_elf_file_content";
+> +	struct bpf_loader_ctx ctx = {};
+> +	int fd, err;
+> +
+> +	fd = memfd_create("garbage_file", 0);
+> +	if (!ASSERT_GE(fd, 0, "memfd_create"))
+> +		return;
+> +
+> +	if (!ASSERT_EQ(write(fd, garbage, sizeof(garbage)), sizeof(garbage), "write garbage")) {
+> +		close(fd);
+> +		return;
+> +	}
+> +	lseek(fd, 0, SEEK_SET);
+> +
+> +	err = sys_bpf_loader_load_fd(fd, &ctx, sizeof(ctx));
+> +	ASSERT_EQ(err, -1, "invalid elf sys_bpf return");
+> +	ASSERT_EQ(errno, ENOEXEC, "invalid elf errno");
+
+A subsystem pattern flags this as potentially concerning: the subtest
+writes 24 bytes and asserts ENOEXEC, but that input never reaches the
+magic-number check it appears to target. bpf_elf_validity_ehdr() bails out
+on the length test first:
+
+  if (info->len < sizeof(*(info->hdr))) {
+          pr_err("Invalid ELF header len %lu\n", info->len);
+          return -ENOEXEC;
+  }
+  if (memcmp(info->hdr->e_ident, ELFMAG, SELFMAG) != 0) {
+          pr_err("Invalid ELF header magic: != %s\n", ELFMAG);
+          return -ENOEXEC;
+  }
+
+sizeof(Elf64_Ehdr) is 64, so with 24 bytes the memcmp() is unreachable.
+Would padding the input to at least 64 bytes make the subtest exercise the
+magic check as its name implies?
+
+> +static void test_loader_load_fd_missing_license_sec(void)
+> +{
+> +	struct bpf_insn insns[] = {
+> +		BPF_MOV64_IMM(BPF_REG_0, 0),
+> +		BPF_EXIT_INSN(),
+> +	};
+> +	char map_data[] = "data";
+> +	char license[] = "GPL";
+> +	struct bpf_loader_ctx ctx = {};
+> +	int elf_fd, err;
+> +
+> +	elf_fd = create_loader_elf(insns, sizeof(insns),
+> +				   map_data, sizeof(map_data),
+> +				   license, sizeof(license),
+> +				   false, false, true);
+> +	if (!ASSERT_GE(elf_fd, 0, "create_loader_elf"))
+> +		return;
+> +
+> +	err = sys_bpf_loader_load_fd(elf_fd, &ctx, sizeof(ctx));
+> +	ASSERT_EQ(err, -1, "missing license sec sys_bpf return");
+> +	ASSERT_EQ(errno, EINVAL, "missing license sec errno");
+
+A subsystem pattern flags this as potentially concerning: the subtest
+asserts errno == EINVAL for an ELF that has no license section. EINVAL is
+also what the bpf(2) syscall returns for a command it does not know - in
+__sys_bpf() the switch ends with `default: err = -EINVAL;`. So this
+assertion is satisfied both by a kernel that correctly rejects the
+malformed loader ELF and by a kernel that has never heard of
+BPF_LOADER_LOAD_FD at all.
+
+The same is true of invalid_fd, oversized_ctx, missing_prog_sec, and
+missing_map_sec, so 5 of the 8 subtests pass unchanged on a kernel without
+this patch series. Only invalid_elf (ENOEXEC) and lskel genuinely
+discriminate. Could a feature probe up front (e.g. issue one
+BPF_LOADER_LOAD_FD call that must not fail with EINVAL-for-unknown-command,
+or test__skip() when the well-formed lskel path returns EINVAL) keep
+unknown-command kernels from silently passing?
+
+> +static void test_loader_load_fd_loader_failure(void)
+> +{
+> +	struct bpf_insn insns[] = {
+> +		BPF_MOV64_IMM(BPF_REG_0, -EPERM),
+> +		BPF_EXIT_INSN(),
+> +	};
+> +	char map_data[] = "data";
+> +	char license[] = "GPL";
+> +	struct bpf_loader_ctx ctx = {};
+> +	int elf_fd, err;
+> +
+> +	elf_fd = create_loader_elf(insns, sizeof(insns),
+> +				   map_data, sizeof(map_data),
+> +				   license, sizeof(license),
+> +				   false, false, false);
+> +	if (!ASSERT_GE(elf_fd, 0, "create_loader_elf"))
+> +		return;
+> +
+> +	err = sys_bpf_loader_load_fd(elf_fd, &ctx, sizeof(ctx));
+> +	ASSERT_EQ(err, -1, "loader failure sys_bpf return");
+> +	ASSERT_EQ(errno, EPERM, "loader failure errno");
+
+A subsystem pattern flags this as potentially concerning: the subtest
+builds a loader program that returns -EPERM and asserts errno == EPERM to
+prove that loader_load_fd() propagates the loader program's return value.
+But EPERM is also the first thing loader_load_fd() can return:
+
+  if (!capable(CAP_BPF))
+          return -EPERM;
+
+That fires before the fd is even resolved. So the assertion is equally
+satisfied by a kernel that never ran the loader program at all. Would using
+a distinctive errno for the loader's return value (e.g. -E2BIG or
+-EBADMSG, something loader_load_fd() itself never produces) make the check
+discriminating?
+
+[ ... ]
+
+> +struct test_loader_lskel {
+> +	struct bpf_loader_ctx ctx;
+> +	struct {
+> +		struct bpf_map_desc test_map;
+> +	} maps;
+> +	struct {
+> +		struct bpf_prog_desc probe;
+> +	} progs;
+> +	struct {
+> +		int probe_fd;
+> +	} links;
+> +};
+> +
+> +static void test_loader_load_fd_lskel(void)
+> +{
+> +	struct test_loader_lskel skel = {};
+> +	int elf_fd, err;
+> +
+> +	skel.ctx.sz = (char *)&skel.links - (char *)&skel;
+> +
+> +	/* Build fake ELF using extracted opts_insn (__loader.prog) and opts_data (__loader.map) */
+> +	elf_fd = create_loader_elf(test_loader_opts_insn, test_loader_opts_insn_sz,
+> +				   test_loader_opts_data, test_loader_opts_data_sz,
+> +				   "GPL", sizeof("GPL"),
+> +				   false, false, false);
+> +	if (!ASSERT_GE(elf_fd, 0, "create_loader_elf_lskel"))
+> +		return;
+> +
+> +	err = sys_bpf_loader_load_fd(elf_fd, &skel.ctx, skel.ctx.sz);
+> +	ASSERT_OK(err, "sys_bpf_loader_load_fd lskel");
+
+Does this cover loader context copy-in?
+
+progs/test_loader.c is the only BPF object the lskel subtest exercises,
+and it is deliberately minimal: one ARRAY map with a compile-time
+max_entries and no global variables, so the generated object has no
+.rodata/.data/.bss map.
+
+That makes the subtest blind to the place where the kernel-side
+loader_load_fd() diverges from userspace bpf_load_and_run(): the kernel
+does not copy the caller's loader context in, it allocates a fresh zeroed
+one:
+
+  kctx = kzalloc(ctx_sz, GFP_KERNEL);
+  ...
+  sattr.test.ctx_in = (unsigned long) kctx;
+
+There is no copy_from_user() of attr->load_fd.ctx. The generated loader
+program reads two caller-supplied ctx inputs per map via move_ctx2blob():
+struct bpf_map_desc::max_entries and struct bpf_map_desc::initial_value.
+With a zeroed ctx, initial_value is 0 and the copy is silently skipped, so
+any real light skeleton with global/const data would come up with an
+all-zero .rodata/.data map instead of its initialised contents. Because
+test_loader.c has no such map, the subtest passes either way.
+
+Would adding a global variable to progs/test_loader.c (e.g. const volatile
+__u64 expected = 0x1234; plus a check on it) turn this into a covered case?
+
+> diff --git a/tools/testing/selftests/bpf/progs/test_loader.c b/tools/testing/selftests/bpf/progs/test_loader.c
+> new file mode 100644
+> index 0000000000000..515e15ca042ec
+> --- /dev/null
+> +++ b/tools/testing/selftests/bpf/progs/test_loader.c
+> @@ -0,0 +1,21 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +#include "vmlinux.h"
+> +#include <bpf/bpf_helpers.h>
+> +
+> +struct {
+> +	__uint(type, BPF_MAP_TYPE_ARRAY);
+> +	__uint(max_entries, 4);
+> +	__type(key, __u32);
+> +	__type(value, __u64);
+> +} test_map SEC(".maps");
+> +
+> +SEC("socket")
+> +int probe(void *ctx)
+> +{
+> +	__u32 key = 0;
+> +	__u64 *val = bpf_map_lookup_elem(&test_map, &key);
+> +
+> +	return val ? (int)*val : 0;
+> +}
+> +
+> +char _license[] SEC("license") = "GPL";
+
+
+---
+AI reviewed your patch. Please fix the bug or email reply why it's not a bug.
+See: https://github.com/kernel-patches/vmtest/blob/master/ci/claude/README.md
+
+CI run summary: https://github.com/kernel-patches/bpf/actions/runs/31655295294
+--===============8749948781067238914==--
