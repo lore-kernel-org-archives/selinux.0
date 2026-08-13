@@ -1,435 +1,268 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B196A328B7B;
-	Thu, 13 Aug 2026 01:25:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8335C1DA62E;
+	Thu, 13 Aug 2026 01:40:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786584324; cv=none; b=NfrwPUfWoQC4tlcxTBpl47kPYXIFApnZnt3k0J+mjcK3seWsEm+C0eCnWYIRpK7LHZnx4OJm62jNdPKkcGZ11tpViPOvzkVcF98EbQaQA+W9rgj29byD1LErCGVLDo1wBp5uZ6QwjXRK35rdYmNkXfzO3DV5vPQk9YcX7aclHgQ=
+	t=1786585244; cv=none; b=kYqtTH6NxDIRfwsJtA5Ro4VAdcUyX0aGgp7sYTj1XulbAHqC+zWxybaqZuFs+kEmC9iy9sp8MltXRpnhH+XKhrgyoo4toVDJWvX6okZrlGnN3xDOyeCkTjTvvBPJin+15epXNaYjPh4ikkYf7saUYH6DoFLHtoqIDakacIwMhmg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786584324; c=relaxed/simple;
-	bh=V8QjiYyjZJSJPtDMTJIF3lAgXLrjnyq0YJac8qpTtP0=;
+	s=arc-20240116; t=1786585244; c=relaxed/simple;
+	bh=m7Te/YczoRGmilo7HL07eq3N4vDaQWIsO4f1FiUqCfQ=;
 	h=Content-Type:MIME-Version:Message-Id:In-Reply-To:References:
-	 Subject:From:To:Cc:Date; b=iFNv5Zst+iJsM830rVOTTBNvF7Di4M2ZW/HW6Fc7/SNTpf3sN9ixTmODcOg9Hy01ygKJ7QpFKFYcMwTzF4p2GD14vExVnL6sX3ipjOs3xU+SgHzpl8QBqrxrhCyION6dHK+w7ZIciN3Muk8mFeKJAxRtWikfxGr6T/H/XSEV3ho=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZIdPjNQL; arc=none smtp.client-ip=100.103.45.18
+	 Subject:From:To:Cc:Date; b=d3Pxeh2Pna+A6Io3q8kXlNx9jtLHaX+gcQdufOzuLombCrYHE1bQfjsmO/Em271pRQzws6fbUa08Y4P5DDZ6NbAPSEiKwzSbTumVyM57VD8/A8oITUd6rBcCQ0SxFN0uYaxelRsag9a2hPttpJO3INmGJhcvh5EmwO8cn5kJxPc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=O1sUN4pV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZIdPjNQL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F24B1F000E9;
-	Thu, 13 Aug 2026 01:25:21 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="O1sUN4pV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C60E1F000E9;
+	Thu, 13 Aug 2026 01:40:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786584322;
-	bh=zwn+VeHDfLFGdLX/+Sf8Stf93zux/4iZdFx/CRW3xjA=;
+	s=k20260515; t=1786585243;
+	bh=mXf0ZJW7ZXDLKPnzpwkp4QXkXFkxiNB4I5GNtEEMI7E=;
 	h=In-Reply-To:References:Subject:From:To:Cc:Date;
-	b=ZIdPjNQLLcpayx/WHsDYiZCfIfb0AWV3xFH7nXLDK9cF4rcNpdfcXJCA08pmy2vm9
-	 oeuH/gKrhdXz6uN5lZu1GKE3Zb5KynH7KEInRFRKkuAp8ldqf3LD3mNrevISAAhC/y
-	 Xxr9RrbmqLLyS4ZxbtBQQGK+HsWM23BEpgPuTakfoZpajBJ3OXNi9V39AY3EBF8eWc
-	 UlONoyp0lB0rGCgCxKkyaJfMh7UKxdbZLrpN+CO8sA+k5B7J6gWzhbgtLKhAFShaI3
-	 VEseK8FPdwYEK9MFnRcLJlodn71N/xsDfGdkLpCKXbIA52COpZ7xSEl/T3uM5qzoSH
-	 7aLies0sv6JLw==
-Content-Type: multipart/mixed; boundary="===============8749948781067238914=="
+	b=O1sUN4pVRx0k2lx9d1y9CF78CDJUTHoKOv9Wugg0RwC/SOmoax71TTUNYwEV2aI9n
+	 fEXcR9OnaptaysaN5MppBuPHoe0X28X7+Sh5+6So69AcWgJuhJLVjhF/ciXRQUa20+
+	 /2kGzlnR7LOKJi0V969VFkzx/KlmNcrgSFkwn0jASkaGPtUNcak7E6RmOHK/aTg5Jr
+	 bMga6GXe8SJLUYkqZ6ilLZ7undFdzr3h4vhd8umNuT1vdwmhikoY3i2jL1ITc9gtYD
+	 21odE1KBiPi+bU3Xv4cD/DbElRvsVE/WGIYX2c9mC8FvDTX7INvUE9yKLDQxgjWl5N
+	 b7WZxk5ytJAGA==
+Content-Type: multipart/mixed; boundary="===============8644008455691499072=="
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <b8b60c3d613617b1053002d7cd5f0bbbc2d1a18f195ddd8bfdb239b3770cdf84@mail.kernel.org>
-In-Reply-To: <20260813002618.3755631-6-tweek@google.com>
-References: <20260813002618.3755631-6-tweek@google.com>
-Subject: Re: [PATCH bpf-next 5/5] selftests/bpf: add loader_load_fd tests
+Message-Id: <3abcd8cbdfaaf30f62976f1aa38b182f82ed49a3c63bad64a757f0ce08f92d05@mail.kernel.org>
+In-Reply-To: <20260813002618.3755631-3-tweek@google.com>
+References: <20260813002618.3755631-3-tweek@google.com>
+Subject: Re: [PATCH bpf-next 2/5] bpf: Introduce BPF_LOADER_LOAD_FD command
 From: bot+bpf-ci@kernel.org
 To: tweek@google.com,paul@paul-moore.com,stephen.smalley.work@gmail.com,ast@kernel.org,daniel@iogearbox.net,andrii@kernel.org,jeffv@google.com
 Cc: tweek@google.com,omosnace@redhat.com,ericsu@linux.microsoft.com,bboscaccy@linux.microsoft.com,sidnayyar@google.com,nkapron@google.com,ebiggers@google.com,gregkh@linuxfoundation.org,kpsingh@kernel.org,bpf@vger.kernel.org,selinux@vger.kernel.org,linux-kernel@vger.kernel.org,ast@kernel.org,andrii@kernel.org,daniel@iogearbox.net,martin.lau@kernel.org,eddyz87@gmail.com,yonghong.song@linux.dev,clm@meta.com,ihor.solodrai@linux.dev
-Date: Thu, 13 Aug 2026 01:25:21 +0000 (UTC)
+Date: Thu, 13 Aug 2026 01:40:42 +0000 (UTC)
 
---===============8749948781067238914==
+--===============8644008455691499072==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 
-> diff --git a/tools/testing/selftests/bpf/loader_setup.sh b/tools/testing/selftests/bpf/loader_setup.sh
-> new file mode 100755
-> index 0000000000000..f86651b0718f6
-> --- /dev/null
-> +++ b/tools/testing/selftests/bpf/loader_setup.sh
-> @@ -0,0 +1,68 @@
-> +#!/bin/sh
-> +# SPDX-License-Identifier: GPL-2.0
-> +# Copyright (c) 2026 Google LLC
-> +#
-> +# loader_setup.sh - Light skeleton data extraction helper for selftests/bpf
-> +#
-> +# This script parses an autogenerated light skeleton header (.lskel.h) produced
-> +# by bpftool ('bpftool gen skeleton -L'). It extracts the embedded loader data
-> +# ('opts_data') and loader BPF instructions ('opts_insn') string literals and
-> +# generates a C header file containing:
-> +#   - loader_test_opts_data[]: Data for the '__loader.map' section.
-> +#   - loader_test_opts_data_sz: Size of opts_data.
-> +#   - loader_test_opts_insn[]: Instructions for the '__loader.prog' section.
-> +#   - loader_test_opts_insn_sz: Size of opts_insn.
+> diff --git a/include/uapi/linux/bpf.h b/include/uapi/linux/bpf.h
+> index ffd96e8b920bd..05b070a489fc2 100644
+> --- a/include/uapi/linux/bpf.h
+> +++ b/include/uapi/linux/bpf.h
+> @@ -993,6 +993,7 @@ enum bpf_cmd {
+>  	BPF_TOKEN_CREATE,
+>  	BPF_PROG_STREAM_READ_BY_FD,
+>  	BPF_PROG_ASSOC_STRUCT_OPS,
+> +	BPF_LOADER_LOAD_FD,
+>  	__MAX_BPF_CMD,
+>  	BPF_COMMON_ATTRS = 1 << 16, /* Indicate carrying syscall common attrs. */
+>  };
+> @@ -1950,6 +1951,12 @@ union bpf_attr {
+>  		__u32		flags;
+>  	} prog_assoc_struct_ops;
+>
+> +	struct { /* struct used by BPF_LOADER_LOAD_FD command */
+> +		__u32           loader_fd;
+> +		__aligned_u64   ctx;
+> +		__u32           ctx_size;
+> +	} load_fd;
+                 ^^^^
 
-The comment documents loader_test_opts_data[], loader_test_opts_data_sz,
-loader_test_opts_insn[], and loader_test_opts_insn_sz, but the awk body
-below emits test_loader_opts_data, test_loader_opts_data_sz,
-test_loader_opts_insn and test_loader_opts_insn_sz. Could the comment use
-the actual symbol names?
+The new load_fd member has an implicit 4-byte padding hole between
+loader_fd and ctx that CHECK_ATTR() cannot validate. The compiler inserts
+padding at offset 4..7 because __aligned_u64 enforces 8-byte alignment,
+but CHECK_ATTR uses BPF_LOADER_LOAD_FD_LAST_FIELD = load_fd.ctx_size,
+which only checks from offset 20 onward. This means bytes 4..7 can contain
+arbitrary garbage, and a future kernel can never add a field there (like a
+flags word) because existing kernels accept non-zero values in that region.
 
-[ ... ]
+Every other similar member in this union explicitly reserves the hole with
+the __u32 :32; bitfield idiom. Could the same pattern be used here?
 
-> +/opts_data\[\]/ {
-> +	in_data = 1
-> +	sub(/^.*opts_data\[\][^="]*=\s*"/, "")
-> +	printf "static const char test_loader_opts_data[] __attribute__((__aligned__(8))) = \""
-> +}
+Also, the three field declarations use spaces after the type name instead
+of tabs, while every other member of union bpf_attr uses tabs. Should these
+match the surrounding style?
 
-Does the awk sub() regex work with mawk or busybox awk? mawk is the
-default awk on Debian and Ubuntu, and Documentation/process/changes.rst
-lists GNU awk as optional. The \s escape (here and again below in the
-opts_insn block) is a GNU awk extension that mawk does not implement.
+> diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
+> index 8d111da886553..d79cd63f9f7cd 100644
+> --- a/kernel/bpf/syscall.c
+> +++ b/kernel/bpf/syscall.c
+> @@ -41,6 +41,7 @@
+>  #include <linux/overflow.h>
+>  #include <linux/cookie.h>
+>  #include <linux/btf_ids.h>
+> +#include <linux/kernel_read_file.h>
 
-In mawk, \s matches a literal 's', so the regex =\s*" cannot match
-bpftool's output = ", and the sub() fails silently. When the prefix is
-not stripped, the emitted line becomes two adjacent string literals
-followed by a bare hex-escape token outside any string:
-
-  static const char test_loader_opts_data[] = "<TAB>static const char opts_data[] = "\
-  \x7f\x45\x4c\x46...";"
-
-That is not valid C. This breaks the entire `make -C
-tools/testing/selftests/bpf` build because Makefile:580 adds
-test_loader_processed.lskel.h to TRUNNER_EXTRA_HDRS for every runner, not
-just the loader_load_fd test.
-
-The portable form used across the kernel tree is [[:space:]] - see
-scripts/syscallnr.sh, scripts/syscalltbl.sh, scripts/headers_install.sh,
-and scripts/tags.sh. Code that genuinely needs GNU awk calls gawk
-explicitly.
-
-> +/opts_insn\[\]/ {
-> +	in_insn = 1
-> +	sub(/^.*opts_insn\[\][^="]*=\s*"/, "")
-> +	printf "static const char test_loader_opts_insn[] __attribute__((__aligned__(8))) = \""
-> +}
-
-Same \s issue here.
-
-> diff --git a/tools/testing/selftests/bpf/prog_tests/loader_load_fd.c b/tools/testing/selftests/bpf/prog_tests/loader_load_fd.c
-> new file mode 100644
-> index 0000000000000..ab971662dd047
-> --- /dev/null
-> +++ b/tools/testing/selftests/bpf/prog_tests/loader_load_fd.c
+The patch adds substantial ELF-parsing code that uses Elf64_Ehdr,
+Elf64_Shdr, ELFMAG, SELFMAG, EI_CLASS, ELFCLASS64, ET_REL, EM_BPF,
+SHT_NULL, SHT_NOBITS, SHT_STRTAB, and SHN_UNDEF, but does not add
+#include <linux/elf.h>. The code compiles only because linux/bpf.h
+transitively includes linux/module.h, which includes linux/elf.h.
+Should this file directly include what it uses?
 
 [ ... ]
 
-> +static int create_loader_elf(const void *insns, size_t insns_sz,
-> +			     const void *map_data, size_t map_data_sz,
-> +			     const char *license, size_t license_sz,
-> +			     bool omit_prog, bool omit_map, bool omit_license)
+> +static int bpf_elf_validity_ehdr(const struct elf_info *info)
 > +{
-
-[ ... ]
-
-> +	ehdr->e_ident[EI_MAG0] = ELFMAG0;
-> +	ehdr->e_ident[EI_MAG1] = ELFMAG1;
-> +	ehdr->e_ident[EI_MAG2] = ELFMAG2;
-> +	ehdr->e_ident[EI_MAG3] = ELFMAG3;
-> +	ehdr->e_ident[EI_CLASS] = ELFCLASS64;
-> +	ehdr->e_ident[EI_DATA] = ELFDATA2LSB;
-> +	ehdr->e_ident[EI_VERSION] = EV_CURRENT;
-> +	ehdr->e_machine = EM_BPF;
-> +	ehdr->e_type = ET_REL;
-
-Does hardcoding ELFDATA2LSB work on big-endian hosts?
-
-libelf converts the in-memory structures to the encoding named in
-e_ident[EI_DATA] when elf_update() writes the file. With EI_DATA forced
-to ELFDATA2LSB, a big-endian host emits byte-swapped headers.
-
-The kernel side parses those headers with native loads and never inspects
-e_ident[EI_DATA]:
-
-  static int bpf_elf_validity_ehdr(const struct elf_info *info)
-  {
-          ...
-          if (info->hdr->e_type != ET_REL) {
-                  pr_err("Invalid ELF header type: %u != %u\n", ...);
-                  return -ENOEXEC;
-          }
-
-On s390x, ET_REL (1) stored little-endian reads back as 0x0100 == 256, so
-loader_load_fd() returns -ENOEXEC. The missing_prog_sec and
-missing_map_sec subtests assert EINVAL (not ENOEXEC), so they would fail
-against a correct kernel on big-endian hardware.
-
-The section payloads are handed to elf_newdata() as ELF_T_BYTE and copied
-in host order, while the headers around them get swapped to LSB. Since the
-kernel consumes the file in host byte order, does EI_DATA need to come
-from __BYTE_ORDER__? tools/lib/bpf/linker.c and usdt.c use this pattern:
-
-  #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-          const unsigned char host_byteorder = ELFDATA2LSB;
-  #elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-          const unsigned char host_byteorder = ELFDATA2MSB;
-  #else
-  #error "Unknown __BYTE_ORDER__"
-  #endif
-
-[ ... ]
-
-> +static void test_loader_load_fd_oversized_ctx(void)
-> +{
-> +	struct bpf_insn insns[] = {
-> +		BPF_MOV64_IMM(BPF_REG_0, 0),
-> +		BPF_EXIT_INSN(),
-> +	};
-> +	char map_data[] = "data";
-> +	char license[] = "GPL";
-> +	struct bpf_loader_ctx ctx = {};
-> +	int elf_fd, err;
-> +
-> +	elf_fd = create_loader_elf(insns, sizeof(insns),
-> +				   map_data, sizeof(map_data),
-> +				   license, sizeof(license),
-> +				   false, false, false);
-> +
-> +	if (!ASSERT_GE(elf_fd, 0, "create_loader_elf"))
-> +		return;
-> +
-> +	err = sys_bpf_loader_load_fd(elf_fd, &ctx, 65536U);
-> +	ASSERT_EQ(err, -1, "oversized ctx sys_bpf return");
-> +	ASSERT_EQ(errno, EINVAL, "oversized ctx errno");
-
-A subsystem pattern flags this as potentially concerning: the subtest
-asserts EINVAL for ctx_size == 65536, targeting loader_load_fd()'s guard
-
-  if (attr->load_fd.ctx_size > U16_MAX)
-          return -EINVAL;
-
-but EINVAL is also produced further down the same path. With the guard
-removed, the request reaches bpf_prog_test_run_syscall(), which
-independently rejects the same value:
-
-  if (ctx_size_in < prog->aux->max_ctx_offset ||
-      ctx_size_in > U16_MAX)
-          return -EINVAL;
-
-errno is EINVAL either way, so the subtest passes whether or not
-loader_load_fd() validates ctx_size. Could the test assert on a value that
-only loader_load_fd() rejects, or check the ordering explicitly (e.g. pass
-an oversized ctx_size together with an invalid loader_fd and confirm
-EINVAL still comes back before any ELF is read)?
-
-Also: ctx is a 24-byte struct on the stack, and ctx_size is 65536.
-loader_load_fd() copies ctx_size bytes back on success:
-
-  if (copy_to_user((void *) attr->load_fd.ctx, kctx, ctx_sz) != 0)
-          err = -EFAULT;
-
-The only thing standing between this and a 64 KiB stack overwrite is the
-check the subtest is meant to verify. If that check regresses, the
-subtest's failure mode is stack corruption in test_progs instead of a
-clean assertion failure. Would a 65536-byte heap buffer make the bad-kernel
-case report cleanly?
-
-> +static void test_loader_load_fd_invalid_elf(void)
-> +{
-> +	char garbage[] = "not_an_elf_file_content";
-> +	struct bpf_loader_ctx ctx = {};
-> +	int fd, err;
-> +
-> +	fd = memfd_create("garbage_file", 0);
-> +	if (!ASSERT_GE(fd, 0, "memfd_create"))
-> +		return;
-> +
-> +	if (!ASSERT_EQ(write(fd, garbage, sizeof(garbage)), sizeof(garbage), "write garbage")) {
-> +		close(fd);
-> +		return;
+> +	if (info->len < sizeof(*(info->hdr))) {
+> +		pr_err("Invalid ELF header len %lu\n", info->len);
+> +		return -ENOEXEC;
 > +	}
-> +	lseek(fd, 0, SEEK_SET);
-> +
-> +	err = sys_bpf_loader_load_fd(fd, &ctx, sizeof(ctx));
-> +	ASSERT_EQ(err, -1, "invalid elf sys_bpf return");
-> +	ASSERT_EQ(errno, ENOEXEC, "invalid elf errno");
+> +	if (memcmp(info->hdr->e_ident, ELFMAG, SELFMAG) != 0) {
+> +		pr_err("Invalid ELF header magic: != %s\n", ELFMAG);
+> +		return -ENOEXEC;
+> +	}
+> +	if (info->hdr->e_ident[EI_CLASS] != ELFCLASS64) {
+> +		pr_err("Only 64-bit ELF is supported\n");
+> +		return -ENOEXEC;
+> +	}
+> +	if (info->hdr->e_type != ET_REL) {
+> +		pr_err("Invalid ELF header type: %u != %u\n",
+> +		       info->hdr->e_type, ET_REL);
+> +		return -ENOEXEC;
+> +	}
+> +	if (info->hdr->e_machine != EM_BPF) {
+> +		pr_err("Invalid ELF machine type: %u != %u\n",
+> +		       info->hdr->e_machine, EM_BPF);
+> +		return -ENOEXEC;
+> +	}
+> +	return 0;
+> +}
 
-A subsystem pattern flags this as potentially concerning: the subtest
-writes 24 bytes and asserts ENOEXEC, but that input never reaches the
-magic-number check it appears to target. bpf_elf_validity_ehdr() bails out
-on the length test first:
+The validation path adds 15 unratelimited pr_err() calls on a path that
+userspace can drive in a loop with only CAP_BPF. A trivial loop over
+bpf(BPF_LOADER_LOAD_FD, ...) with a malformed ELF floods dmesg and evicts
+unrelated log data. Additionally, no pr_fmt is defined in this file, so
+the messages appear in dmesg with no subsystem prefix, and several strings
+are byte-identical to the module loader's messages, making it impossible to
+tell which subsystem emitted the line.
 
-  if (info->len < sizeof(*(info->hdr))) {
-          pr_err("Invalid ELF header len %lu\n", info->len);
-          return -ENOEXEC;
-  }
-  if (memcmp(info->hdr->e_ident, ELFMAG, SELFMAG) != 0) {
-          pr_err("Invalid ELF header magic: != %s\n", ELFMAG);
-          return -ENOEXEC;
-  }
-
-sizeof(Elf64_Ehdr) is 64, so with 24 bytes the memcmp() is unreachable.
-Would padding the input to at least 64 bytes make the subtest exercise the
-magic check as its name implies?
-
-> +static void test_loader_load_fd_missing_license_sec(void)
-> +{
-> +	struct bpf_insn insns[] = {
-> +		BPF_MOV64_IMM(BPF_REG_0, 0),
-> +		BPF_EXIT_INSN(),
-> +	};
-> +	char map_data[] = "data";
-> +	char license[] = "GPL";
-> +	struct bpf_loader_ctx ctx = {};
-> +	int elf_fd, err;
-> +
-> +	elf_fd = create_loader_elf(insns, sizeof(insns),
-> +				   map_data, sizeof(map_data),
-> +				   license, sizeof(license),
-> +				   false, false, true);
-> +	if (!ASSERT_GE(elf_fd, 0, "create_loader_elf"))
-> +		return;
-> +
-> +	err = sys_bpf_loader_load_fd(elf_fd, &ctx, sizeof(ctx));
-> +	ASSERT_EQ(err, -1, "missing license sec sys_bpf return");
-> +	ASSERT_EQ(errno, EINVAL, "missing license sec errno");
-
-A subsystem pattern flags this as potentially concerning: the subtest
-asserts errno == EINVAL for an ELF that has no license section. EINVAL is
-also what the bpf(2) syscall returns for a command it does not know - in
-__sys_bpf() the switch ends with `default: err = -EINVAL;`. So this
-assertion is satisfied both by a kernel that correctly rejects the
-malformed loader ELF and by a kernel that has never heard of
-BPF_LOADER_LOAD_FD at all.
-
-The same is true of invalid_fd, oversized_ctx, missing_prog_sec, and
-missing_map_sec, so 5 of the 8 subtests pass unchanged on a kernel without
-this patch series. Only invalid_elf (ENOEXEC) and lskel genuinely
-discriminate. Could a feature probe up front (e.g. issue one
-BPF_LOADER_LOAD_FD call that must not fail with EINVAL-for-unknown-command,
-or test__skip() when the well-formed lskel path returns EINVAL) keep
-unknown-command kernels from silently passing?
-
-> +static void test_loader_load_fd_loader_failure(void)
-> +{
-> +	struct bpf_insn insns[] = {
-> +		BPF_MOV64_IMM(BPF_REG_0, -EPERM),
-> +		BPF_EXIT_INSN(),
-> +	};
-> +	char map_data[] = "data";
-> +	char license[] = "GPL";
-> +	struct bpf_loader_ctx ctx = {};
-> +	int elf_fd, err;
-> +
-> +	elf_fd = create_loader_elf(insns, sizeof(insns),
-> +				   map_data, sizeof(map_data),
-> +				   license, sizeof(license),
-> +				   false, false, false);
-> +	if (!ASSERT_GE(elf_fd, 0, "create_loader_elf"))
-> +		return;
-> +
-> +	err = sys_bpf_loader_load_fd(elf_fd, &ctx, sizeof(ctx));
-> +	ASSERT_EQ(err, -1, "loader failure sys_bpf return");
-> +	ASSERT_EQ(errno, EPERM, "loader failure errno");
-
-A subsystem pattern flags this as potentially concerning: the subtest
-builds a loader program that returns -EPERM and asserts errno == EPERM to
-prove that loader_load_fd() propagates the loader program's return value.
-But EPERM is also the first thing loader_load_fd() can return:
-
-  if (!capable(CAP_BPF))
-          return -EPERM;
-
-That fires before the fd is even resolved. So the assertion is equally
-satisfied by a kernel that never ran the loader program at all. Would using
-a distinctive errno for the loader's return value (e.g. -E2BIG or
--EBADMSG, something loader_load_fd() itself never produces) make the check
-discriminating?
+Should these use pr_err_ratelimited(), or could they be routed through the
+verifier log mechanism that the caller already receives?
 
 [ ... ]
 
-> +struct test_loader_lskel {
-> +	struct bpf_loader_ctx ctx;
-> +	struct {
-> +		struct bpf_map_desc test_map;
-> +	} maps;
-> +	struct {
-> +		struct bpf_prog_desc probe;
-> +	} progs;
-> +	struct {
-> +		int probe_fd;
-> +	} links;
-> +};
-> +
-> +static void test_loader_load_fd_lskel(void)
+> +static int loader_load_fd(union bpf_attr *attr)
 > +{
-> +	struct test_loader_lskel skel = {};
-> +	int elf_fd, err;
+> +	void *buf = NULL, *insns = NULL, *data = NULL, *license = NULL;
+> +	void *kctx = NULL;
+> +	int len, err = 0;
+> +	int insns_sz = 0, data_sz = 0, license_sz = 0;
+> +	int map_fd, prog_fd;
+> +	size_t ctx_sz;
+> +	union bpf_attr sattr = { 0 };
+> +	unsigned int zero = 0;
 > +
-> +	skel.ctx.sz = (char *)&skel.links - (char *)&skel;
-> +
-> +	/* Build fake ELF using extracted opts_insn (__loader.prog) and opts_data (__loader.map) */
-> +	elf_fd = create_loader_elf(test_loader_opts_insn, test_loader_opts_insn_sz,
-> +				   test_loader_opts_data, test_loader_opts_data_sz,
-> +				   "GPL", sizeof("GPL"),
-> +				   false, false, false);
-> +	if (!ASSERT_GE(elf_fd, 0, "create_loader_elf_lskel"))
-> +		return;
-> +
-> +	err = sys_bpf_loader_load_fd(elf_fd, &skel.ctx, skel.ctx.sz);
-> +	ASSERT_OK(err, "sys_bpf_loader_load_fd lskel");
+> +	if (!capable(CAP_BPF))
+> +		return -EPERM;
 
-Does this cover loader context copy-in?
+This uses capable(CAP_BPF) where the rest of the bpf() syscall uses
+bpf_capable(). bpf_capable() is defined as capable(CAP_BPF) ||
+capable(CAP_SYS_ADMIN), so a CAP_SYS_ADMIN-only caller is rejected here
+with -EPERM, even though they can already issue BPF_MAP_CREATE,
+BPF_PROG_LOAD, and BPF_PROG_TEST_RUN by hand. This is also the only
+capable(CAP_BPF) call in this file; every other privileged command uses
+bpf_capable() or capable(CAP_SYS_ADMIN).
 
-progs/test_loader.c is the only BPF object the lskel subtest exercises,
-and it is deliberately minimal: one ARRAY map with a compile-time
-max_entries and no global variables, so the generated object has no
-.rodata/.data/.bss map.
+Should this use bpf_capable() instead?
 
-That makes the subtest blind to the place where the kernel-side
-loader_load_fd() diverges from userspace bpf_load_and_run(): the kernel
-does not copy the caller's loader context in, it allocates a fresh zeroed
-one:
+[ ... ]
 
-  kctx = kzalloc(ctx_sz, GFP_KERNEL);
-  ...
-  sattr.test.ctx_in = (unsigned long) kctx;
+> +	CLASS(fd, f)(attr->load_fd.loader_fd);
+> +	if (fd_empty(f))
+> +		return -EINVAL;
 
-There is no copy_from_user() of attr->load_fd.ctx. The generated loader
-program reads two caller-supplied ctx inputs per map via move_ctx2blob():
-struct bpf_map_desc::max_entries and struct bpf_map_desc::initial_value.
-With a zeroed ctx, initial_value is 0 and the copy is silently skipped, so
-any real light skeleton with global/const data would come up with an
-all-zero .rodata/.data map instead of its initialised contents. Because
-test_loader.c has no such map, the subtest passes either way.
+[ ... ]
 
-Would adding a global variable to progs/test_loader.c (e.g. const volatile
-__u64 expected = 0x1234; plus a check on it) turn this into a covered case?
+> +free_ctx:
+> +	kfree(kctx);
+> +close_prog_err:
+> +	close_fd(prog_fd);
+> +close_map_err:
+> +	close_fd(map_fd);
+> +out_free_buf:
+> +	vfree(buf);
+> +out:
+> +	return err;
 
-> diff --git a/tools/testing/selftests/bpf/progs/test_loader.c b/tools/testing/selftests/bpf/progs/test_loader.c
-> new file mode 100644
-> index 0000000000000..515e15ca042ec
-> --- /dev/null
-> +++ b/tools/testing/selftests/bpf/progs/test_loader.c
-> @@ -0,0 +1,21 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +#include "vmlinux.h"
-> +#include <bpf/bpf_helpers.h>
-> +
-> +struct {
-> +	__uint(type, BPF_MAP_TYPE_ARRAY);
-> +	__uint(max_entries, 4);
-> +	__type(key, __u32);
-> +	__type(value, __u64);
-> +} test_map SEC(".maps");
-> +
-> +SEC("socket")
-> +int probe(void *ctx)
-> +{
-> +	__u32 key = 0;
-> +	__u64 *val = bpf_map_lookup_elem(&test_map, &key);
-> +
-> +	return val ? (int)*val : 0;
-> +}
-> +
-> +char _license[] SEC("license") = "GPL";
+A subsystem pattern flags this as potentially concerning: the function
+mixes scope-based cleanup (CLASS(fd, f) at the top) with goto-based cleanup
+(the five-label ladder at the bottom). include/linux/cleanup.h expects
+that a routine converts all resources to scope-based cleanup or none.
+
+I traced every exit path and found no functional defect: the CLASS(fd, f)
+destructor is at function scope and runs on all goto paths and all three
+early returns; the goto ladder correctly skips close_fd(map_fd) and
+close_fd(prog_fd) for descriptors that were not yet installed; and
+vfree(NULL) / kfree(NULL) are no-ops. Is this interleaving intentional, or
+would it be worth converting the remaining resources to scope-based cleanup
+to keep the style consistent?
+
+[ ... ]
+
+> +	memset(&sattr, 0, sizeof(sattr));
+> +	sattr.prog_type = BPF_PROG_TYPE_SYSCALL;
+> +	sattr.license = (unsigned long) license;
+> +	sattr.insns = (unsigned long) insns;
+> +	sattr.insn_cnt = insns_sz / sizeof(struct bpf_insn);
+> +	sattr.fd_array = (unsigned long) &map_fd;
+> +	sattr.prog_flags = BPF_F_SLEEPABLE;
+> +	strscpy(sattr.prog_name, BPF_LOADER_PROG_SEC, sizeof(BPF_LOADER_PROG_SEC));
+                                                      ^^^^^^^^^^^^^^^^^^^^^^^
+The strscpy() size argument is the size of the source string, not the
+destination. sattr.prog_name is BPF_OBJ_NAME_LEN (16) bytes, and
+sizeof("__loader.prog") is 14, so it fits today, but the bound no longer
+describes the destination. Would sizeof(sattr.prog_name) or the two-
+argument form be more appropriate here?
+
+[ ... ]
+
+> +	memset(&sattr, 0, sizeof(sattr));
+> +	ctx_sz = attr->load_fd.ctx_size;
+> +	kctx = kzalloc(ctx_sz, GFP_KERNEL);
+
+The commit message states "BPF_LOADER_LOAD_FD takes 3 arguments, ... a
+context and its size which are passed to BPF_PROG_TEST_RUN" and "returns
+the updated context," but the implementation kzalloc()s a fresh zero-filled
+buffer and never copies the caller's context in. Only the copy_to_user() at
+the end happens. This means attr->load_fd.ctx is write-only, and the input
+half of struct bpf_loader_ctx is silently discarded: log_level, log_size,
+log_buf, and flags are all forced to zero.
+
+A practical consequence is that the loader program can never emit a
+verifier log, so a failing BPF_LOADER_LOAD_FD gives userspace an errno and
+nothing else. Is this behavior intentional, or should the caller's ctx be
+copied in?
+
+> diff --git a/tools/include/uapi/linux/bpf.h b/tools/include/uapi/linux/bpf.h
+> index ffd96e8b920bd..470e3b575497d 100644
+> --- a/tools/include/uapi/linux/bpf.h
+> +++ b/tools/include/uapi/linux/bpf.h
+> @@ -993,6 +993,7 @@ enum bpf_cmd {
+>  	BPF_TOKEN_CREATE,
+>  	BPF_PROG_STREAM_READ_BY_FD,
+>  	BPF_PROG_ASSOC_STRUCT_OPS,
+> +	BPF_LOADER_LOAD_FD,
+>  	__MAX_BPF_CMD,
+>  	BPF_COMMON_ATTRS = 1 << 16, /* Indicate carrying syscall common attrs. */
+>  };
+> @@ -1950,6 +1951,12 @@ union bpf_attr {
+>  		__u32		flags;
+>  	} prog_assoc_struct_ops;
+>
+> +	struct { /* struct used by BPF_LOADER_LOAD_FD command */
+> +		__u32		loader_fd;
+> +		__aligned_u64	ctx;
+> +		__u32		ctx_size;
+> +	} load_fd;
+
+The tools/ copy of the header uses tabs for field alignment, while the
+kernel copy in include/uapi/linux/bpf.h uses spaces. This makes diff -u
+include/uapi/linux/bpf.h tools/include/uapi/linux/bpf.h report three
+differing lines after this commit. The tools/ copy is expected to be a
+byte-for-byte mirror of the kernel header. Should both use tabs?
 
 
 ---
@@ -437,4 +270,4 @@ AI reviewed your patch. Please fix the bug or email reply why it's not a bug.
 See: https://github.com/kernel-patches/vmtest/blob/master/ci/claude/README.md
 
 CI run summary: https://github.com/kernel-patches/bpf/actions/runs/31655295294
---===============8749948781067238914==--
+--===============8644008455691499072==--
