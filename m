@@ -1,258 +1,193 @@
-Received: from mail-oa1-f46.google.com (mail-oa1-f46.google.com [209.85.160.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70E6343DA26
-	for <selinux@vger.kernel.org>; Thu, 13 Aug 2026 12:50:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4BDF472F73
+	for <selinux@vger.kernel.org>; Thu, 13 Aug 2026 13:10:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.129.124
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786625445; cv=pass; b=Px9R8hU7XBfVFHnTCkIxAkmvLv68W4rPG6iGgPaPXM92N5qqBZydJLRG0qlwpQRlALoyyqwTdUrZIgMPLvkWgD8Mi3vQT0Ss/hzZk6TvOFntoj6FOu4ywKVxtoxKTU19lr96pdizdp9njEMcrgHlkZuz8WSCkMUADIDH931o4ng=
+	t=1786626625; cv=pass; b=fHU2HL0V+/rd1n38OLdhniEYDsaA2cK52biwItoXg+xiy4bLEKjHuT+hyNbDo4fZZGif7Q8pZeUkkM4qbVboPhjpyHIKDZUXQg/KMkXY6H6RCDopXEjPIj1sIqkXgQRMn7v+0aiT167baiMXodIt0lwsQEcS+ZCwkkCEe3yfVjk=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786625445; c=relaxed/simple;
-	bh=kt3OsXGLIA6R0akLtnYItnHrWjmuOkzMttRCBOzOXkM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=jlcxvGuUzpPEmKCGpKMWr4qfvHxpuE9cg1HlbMx3yRPQePepRbguk3mms0sFqTrCwXJI3zfxMRAcfdz3Kl4vGRW5lkq+0Dlj8t9YPO19o4pBPZvoSooVCxxcXRfW52Q/UezMmtW1M2Eqs565ILwuHIkxiZ5Yiip/fnJ6AIuG10c=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JtsCJLzp; arc=pass smtp.client-ip=209.85.160.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1786626625; c=relaxed/simple;
+	bh=cQyxbzgPk9QZHRfUcesSAAiYXg+KUU5XAs2zJ+yDFzo=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=SIlisQkX+2Sk+qKN3L78e5t3O2LOPmkmHjLAxZnUM/bBpTRR7Mgjm+VOcgXZIW5CUGyZSoRNak0rw4Cw9Hk7DbuDuUiYaau3s82lkJXc0koh7wKjIemDbNfC7MxQkil2iMKzdWMaA3TydQ0hsyRNBJuV5bA57Kdk/UvAqdTvX7M=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SvQ6AyNz; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=A+ClTbbv; arc=pass smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JtsCJLzp"
-Received: by mail-oa1-f46.google.com with SMTP id 586e51a60fabf-458de93b53fso958117fac.2
-        for <selinux@vger.kernel.org>; Thu, 13 Aug 2026 05:50:43 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1786625442; cv=none;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SvQ6AyNz";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="A+ClTbbv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1786626622;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=FD14+IbdkWWeNKsMZjsWHu/ThWRsPTzX6upwstYE+eM=;
+	b=SvQ6AyNz5AjYAARikZqH4qQ8FQmeKMg5bC9OXetK1mq2NF+exoWtCuxBhkHGf2/rrjoXBE
+	h4IgxXb/dX95Uk8wx8fuVfPBJ5vQB0VL0sQ3d+0kZl9MjIm8f2N2R+zEwMtztNIWAbQEhl
+	+A6G9k3X/VDO3udOJ5tlONG90Odmyhk=
+Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
+ [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-447-29P61CdJPv23TAShMnjHWg-1; Thu, 13 Aug 2026 09:10:12 -0400
+X-MC-Unique: 29P61CdJPv23TAShMnjHWg-1
+X-Mimecast-MFC-AGG-ID: 29P61CdJPv23TAShMnjHWg_1786626612
+Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-2cfa4e4684bso58394135ad.2
+        for <selinux@vger.kernel.org>; Thu, 13 Aug 2026 06:10:12 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1786626611; cv=none;
         d=google.com; s=arc-20260327;
-        b=DXtsffXx7GjVA5kh1hizvT2RhqJ8WySkd+tSibxtsAolGWrRhatEjarxSos5TCGyNh
-         qrwQFF815Fz7lYsvg4hRHIEF8m/a7vzqg3XNMzHUg3aH3w/4Ksqo0B2hDjhLIHwB/XsN
-         LrHG69vvHhuqATdFV/Uar/gbX6qjUy8Cym9JMZUA8kXQw3vl/3GyQ+g1BICwDa9UHyaR
-         Q9NqxoVaxZRWw1UvCEnBtX/tvUCcr1t+B6GC6X8gBZSe0Y0FWVF1ws8REfUFy6H3h/bL
-         vOaLXoUfxCj0SB5br3LUzxfDBIS+G67YwFlSVq3G9Tt2bBg3mOCoGfQ9KQfzFrx0d5KT
-         dh8g==
+        b=ozqMrWs7AbI+gkY5SynzJm5REbNEcnvdYmOxuxSR6utqpt7B6Mo+kRo5qrWpcZxubh
+         irHzXevFck9SyxVQ3MGSdAplepm+J22w/peWeAqgWMrEBq58U97raoxi/hP6fU3TdZV+
+         B2qCzdlKyzlb390HAmZB4VfHW1iUWsNpPX0eagsgHwW5YrxoqSRM7O25yhD3FXeTZz2k
+         K6NTl/aevUvtmWm3uf2qt+FvnC/YfRjKXpFeZOXyA5K/paDogPMnkT2JBwV2tattuDLV
+         cweCBXhJo7ZfxApjtXGrCwYOaWr2pNnGVc44I4LT45pRnBrS4o0QzKOZVJtZsXhKDhSF
+         oxqA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
+        h=content-transfer-encoding:to:subject:message-id:date:from
          :mime-version:dkim-signature;
-        bh=L+7EolQpCDf+CDeEekvn/ZPhUfdpf9q0pVfX+Zg9F5c=;
-        fh=cVZI269ioQuwKzLGwbELyMvF9+q8sQJU42mbMSjvW4U=;
-        b=JOC5keBppO5cscdJEz80rLfpsGBT+w4NQeN8gQPmt3JVacElO4I6GhA/NYfNtH8tps
-         KC19m9pjk6sh6Yjb6nd5JdZG0mdGHuPI5ZTivalFbPdsPx8mz6WJWQxphMRh4gUP9iLh
-         X66mcp+si9emB1z/b7XN1byZSZ4q6SxdIdJita9korU7a1I/z9DqsHaDph5bYsd8wXXg
-         yvg8+Io3owb1eN0P7kp/DyCl/S4dKjB7eo5pNlJDjioWWjaO3AUrRaMI9Cb9CmxMpfH4
-         hZ4jl6tV+ix6hBq5qzQfAavUyVZzoZky1HF17PdEJcIHr1i+kepDnXkUaUVWMA3GpPWZ
-         KT2Q==;
+        bh=FD14+IbdkWWeNKsMZjsWHu/ThWRsPTzX6upwstYE+eM=;
+        fh=l2l+BKIhep14i9a5yxIzwDvgNRHYkyJlbYDDp8LiW6o=;
+        b=exR+gVexqGcGGf0c3mWz5P1LTIq9mrlQhnawTlOG0UPWbFf8WCVgSRHb02lPllMboL
+         Akbq7uT9JxbdOX/q0QDY32wqVah/aVayGulug+nlZKqHyLYp9DD+Ftpdrv8q48UEJe67
+         fDjx7RRUefsM4+m+YcCYdjLWlNAghSHUIG4hfXwbWIaIzkc6h+wWgOvCBPLp4arWAvuP
+         j98U73agV3eslu48OWEc/vIwtnoybHjlIyy+EnzUZrWHt8+9ssrfVVFp12lK7e4k2F9g
+         VifvcnloV9dneS5898RaZOODcKe2CuYd0XKWP5+0en9qToQoc75yxOURMJpeFBwGcBYu
+         Af8w==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786625442; x=1787230242; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+        d=redhat.com; s=google; t=1786626611; x=1787231411; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:to:subject:message-id:date
+         :from:mime-version:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=L+7EolQpCDf+CDeEekvn/ZPhUfdpf9q0pVfX+Zg9F5c=;
-        b=JtsCJLzpE+8HIzQXHUUmeIaE78l+1sczeX7gNBhPjpwLMmFTRZae7QymOPg+XDJ0I+
-         eEVCHhI+2xyloUVpuwRRfKUU5AUKYHV9vDkl2gbYHwpbwp2FaJeno8zzBQ65TS0lcdE8
-         uj3lqDWsKrC5OUDz8OgA7x7bjfDb3FnO9VmleH9yqTeE3M0LcTw5lynhAfEFeUWCn+Kr
-         CUUL+zPqBqGwlRpULpAbDNcwXVObBkpAnFEq2sKyM4PxzErWczbqzIO4PvUA2AoE2fKF
-         dai9J87piMaUulMl5ztYcpyIxB4fRtJdeLuBZOASG0q7pyW8tDH8A4YIdDROKoPPQ9oM
-         ATbw==
+        bh=FD14+IbdkWWeNKsMZjsWHu/ThWRsPTzX6upwstYE+eM=;
+        b=A+ClTbbvwH4zAujP3Dlmsj32Df2y/05cHEGKKK5C93/9LlTVVeypXgvUlxBBEeYazB
+         xp36+FhwekcIe0/mRzQRRinmtXNTzVwPdy5l+JRKEmWdETYUATPIoAoacWpvZ/w5dO8E
+         rxwuGklzRcLfo/sLlkPvm2WqBex+SnzDGuJDzKkVAD/e4BbDNVJUH/WWSeC+mv3KL3sw
+         IyijeP2ImzfYZ2ihF6PMgb0HkIvldFJ8A/twM5mZLJ7dtkCiGzLv2ZaTTyY7hE3q6FVr
+         xMxY6w4Mo5bcI2BlnlVwU15+36oN9y8ukolDuvE9YkG11tWswWPftE2FAuXRuQN/bXVK
+         xM5A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786625442; x=1787230242;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=L+7EolQpCDf+CDeEekvn/ZPhUfdpf9q0pVfX+Zg9F5c=;
-        b=QJdU14a/tleb2qqJXlRKsqevDsYui1DULSjDcXzCo0rAI+GoRx6EwI0tZ1kO9aVqR/
-         YHiwMCMs/zIFzkDFw+FFARqTIsJj0MSz7rszlWvww1dWr/BFifSmfUpHTwjZXw7uqlOS
-         SbU7GnJXieejNBCqYQ+aM1EPQL89T70zfTlch+3oM7UsNnKnd+rRnBKFAXebK6v5QgIU
-         y7K0+rnaG402v976ovJcPDDS7q02ZiuYMRzwi8JateFSwcEUFh6Pqm8SALxV5yqHv0O2
-         3QaL1B/rj8qW/lSESHOsQGRqF5bSpwvDOTvEnUhPWGCVOxhp1CGyBKl6ATu+CL52XwK6
-         fqiw==
-X-Gm-Message-State: AOJu0Yye8Sw/ZVgW56WYNqY3M9VVfoOYUnbeERlrvaAsN2XvFMGsxDnG
-	i6KNdTCC3sxzFAzaIeAOY+Np5hY0lkdld7lRLf1p3atykjdSAblUZmLbGXnyfOtWvAq9VmvrW0U
-	g1iq+ZQJsDtRgcSCN1tLfu+LN06Oj6xwjrO1X
-X-Gm-Gg: AR+sD12ay0mpgasLVGaryr5lK7qJj74fOP7KCFNHrryddJBNo7dXePqCE2EYfA1bDoj
-	DmqJjkfF/w66OTxkx9W6aqlrvvtftLERbivyREX5u4gCM08u1NsZKGhTIeUrVFsDKfTSVP4FLf6
-	PCopJMUaP0nkvSHP6xWTxpchwcAGE4NtmdEJPLE9yI5McImkigoIH5tl9T+JO5/g/rIFlwQBmn4
-	FmNCl9ByBTPHBk6OwNmJK1hSLrkaCg9U3BLfnFmeR6mXk4lFU3rOP3hYOlK2aFDk2ryxMyxowh8
-	k+U4DNHLsirF88OPiG/6xRKu68AyyWJnmwCHtAtx+Afm
-X-Received: by 2002:a05:6871:1cd:b0:456:b6b3:5b64 with SMTP id
- 586e51a60fabf-45e621d99b1mr5063931fac.1.1786625442201; Thu, 13 Aug 2026
- 05:50:42 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1786626611; x=1787231411;
+        h=content-transfer-encoding:content-type:to:subject:message-id:date
+         :from:mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=FD14+IbdkWWeNKsMZjsWHu/ThWRsPTzX6upwstYE+eM=;
+        b=Wu4akHOh0EorS0KqXGPXb8JoqOsPiCqcKq/whY021O3KGhkwoV+NAdmTOtEjHij9jF
+         sVud/LBJBOTh9nf+Ubw8KDABXfX9oyF0/QHDUq1wuBDTMF8/OCBXF+L+B/RAFA2eaEs7
+         WNpCwNTL98RT1yyqVO3kU/amQTrdJFsHehXTjyO07XJC9NGfVZYcI/4xhddrAEyyQjQH
+         S9+W5mUqUOADuKfSxib3OatMgkmANH7lpRCXEDXGMftmpr/0pWEojKdDGoB883oumGjw
+         yhR7dhcICryyovIFsCgRBhmnI4unbTWFqtAdlIww1D+m3vI51vuBLijYSsfbYHBPv0vX
+         l2FQ==
+X-Gm-Message-State: AOJu0YwjbC6jfsODZ9wiBBGILgzCH+Z8VAgHyOe7jdACyYv10gZBZ8nE
+	E0drsjNo1w5o+ywELDCnR6DDRtIdsp1nj/KES5MkXgfMrmEToM7bpMSfe+eAemgwSA0GNh5monN
+	90pQ8lXayi2NQkK/4h8bXmfbIPLttDJDitBE9Z149k+zuglDwiePOQswyp/zSDN2c8PWuzOMgQD
+	WonSM0W4o/q6t6F2rCbYZtuTkeuWLjCXS6dZMswUDL/qWY
+X-Gm-Gg: AR+sD13RseeBMqa8gjp6EsnKavXzk3VS34WF8w89cXt4RmGrg4lysikKPwobKVoUUCS
+	sYmj9qgXUw4EECRZ4zMyUpqVNLnGxIbWNzdS5dBtiBRFHjnwIcg+uxBcfXySqly2kZhLaVpfV2o
+	68a6zKCFaF7ig24CI/UJUWNHVHZ3qLGmBYlgtJ1svNWgFH6ytCaWPE/1b/p98OLv6dkgx9VX80f
+	psYbCmqnqX9SF5ADYU=
+X-Received: by 2002:a17:903:22d1:b0:2ca:6d87:cda0 with SMTP id d9443c01a7336-2d37d581fbbmr60958225ad.6.1786626611464;
+        Thu, 13 Aug 2026 06:10:11 -0700 (PDT)
+X-Received: by 2002:a17:903:22d1:b0:2ca:6d87:cda0 with SMTP id
+ d9443c01a7336-2d37d581fbbmr60956855ad.6.1786626610714; Thu, 13 Aug 2026
+ 06:10:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260813073533.3253251-1-pmatyas@redhat.com>
-In-Reply-To: <20260813073533.3253251-1-pmatyas@redhat.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 13 Aug 2026 08:50:31 -0400
-X-Gm-Features: AUfX_my9Oj_fjB7J_NuVR3XgAxmTdgs7CcuHa3gX4muMLLjp8y1bN-qFu__iVPM
-Message-ID: <CAEjxPJ4yW94x_DLSe=zdmfKB95aagFmydTKsBnWGfjc6efr4hA@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: fix SEGV in JIT matching of recursive
- patterns in partial mode
-To: Petr Matyas <p.matyas13@gmail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: multipart/mixed; boundary="000000000000d47df40658ed2662"
-
---000000000000d47df40658ed2662
+From: Jan Janasek <jjanasek@redhat.com>
+Date: Thu, 13 Aug 2026 15:09:58 +0200
+X-Gm-Features: AUfX_mysZrvjl7xXZ2mELtv5lTae9AKQTbCjB4c7996S2pLP0fnIhODLjP0_tBA
+Message-ID: <CABd7YBF9zHnkjxbRsLZeVRSNNYqPV5z6eE8o+H_s5DzC+cW0Cw@mail.gmail.com>
+Subject: [Discussion] systemd-run0 policy issue
+To: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 13, 2026 at 3:35=E2=80=AFAM Petr Matyas <p.matyas13@gmail.com> =
-wrote:
->
-> The PCRE2 JIT compiler has a bug in its PCRE2_JIT_PARTIAL_SOFT code
-> path: patterns containing recursive subroutine calls (the (?1...)
-> syntax) cause the generated native code to dereference a null pointer
-> at match time. pcre2_jit_compile() returns 0 (success) and the
-> compiled JIT size is non-zero, so the bug is undetectable at compile
-> time and only manifests when pcre2_match() executes the JIT code.
->
-> The root cause is an interaction between OP_RECURSE backtracking and
-> the hit_start tracking mechanism that the partial-soft JIT uses to
-> remember the earliest position at which a partial match was seen.
-> No fix is currently available in PCRE2.
->
-> Commit 92af7f1b61db ("libselinux: prevent ReDoS in file context regex
-> matching") introduced pcre2_jit_compile() calls with both
-> PCRE2_JIT_COMPLETE and PCRE2_JIT_PARTIAL_SOFT. ClusterFuzz
-> subsequently reported a SEGV in selabel_file_compiled-fuzzer via a
-> crafted compiled file_contexts input that triggers the bug through
-> the lazy text-compilation fallback path (version/arch mismatch causes
-> the pre-compiled PCRE2 data to be skipped, so the embedded regex
-> string is compiled on demand via regex_prepare_data()).
->
-> Fix by dropping PCRE2_JIT_PARTIAL_SOFT. Per the PCRE2 documentation,
-> when partial-soft JIT code has not been compiled, pcre2_match()
-> automatically falls back to the interpreter for partial matches.
-> Partial matches remain protected against ReDoS by the 10 000 000-step
-> backtrack limit that was introduced in the same commit. Full matches
-> continue to use PCRE2_JIT_COMPLETE and are unaffected.
->
-> Reported-by: ClusterFuzz (testcase 5660382656790528)
-> Fixes: 92af7f1b61db ("libselinux: prevent ReDoS in file context regex mat=
-ching")
-> Signed-off-by: Petr Matyas <pmatyas@redhat.com>
+Hi everyone,
 
-Thank you! This also appears to fix another new oss-fuzz report
-(selinux:selabel_file_text-fuzzer: Heap-buffer-overflow in _pcre2_script_ru=
-n_8)
-that just showed up (reproducer attached and output below).
+(I originally posted this to the fedora selinux list, but was advised
+that this is the proper ML for such architectural discussions.)
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+We=E2=80=99ve been analyzing the integration of systemd-run0 with SELinux a=
+nd
+hit a fundamental architectural roadblock, related to bug
+https://bugzilla.redhat.com/show_bug.cgi?id=3D2359828. Unlike sudo,
+where the parent process is the user's shell (allowing PAM to easily
+calculate and transition the context), run0 delegates execution via
+D-Bus to PID 1 (init_t). This breaks standard SELinux PAM transitions
+and creates a severe design challenge for maintaining user isolation.
+(Currently, wrapping commands via run0 --via-shell acts as a temporary
+workaround, but we are looking for a robust architectural fix.)
 
- =3D=3D250=3D=3DERROR: AddressSanitizer: heap-buffer-overflow on address
-0x7bf4d87e0032 at pc 0x591ed94e7dd5 bp 0x7ffd3265e3f0 sp
-0x7ffd3265e3e8
-READ of size 1 at 0x7bf4d87e0032 thread T0
-    #0 0x591ed94e7dd4 in _pcre2_script_run_8
-/tmp/pcre2-src/src/pcre2_script_run.c:332:3
-    #1 0x591ed9437b56 in do_script_run
-/tmp/pcre2-src/src/pcre2_jit_compile.c:9599:7
-    #2 0x7fd4d942cc0c  (<unknown module>)
-0x7bf4d87e0032 is located 0 bytes after 2-byte region
-[0x7bf4d87e0030,0x7bf4d87e0032)
-allocated by thread T0 here:
-    #0 0x591ed90f70e4 in __interceptor_malloc
-/src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:67:3
-    #1 0x591ed913b958 in LLVMFuzzerTestOneInput
-selinux/libselinux/fuzz/selabel_file_text-fuzzer.c:137:8
-    #2 0x591ed913b5a9 in ExecuteFilesOnyByOne
-/src/aflplusplus/utils/aflpp_driver/aflpp_driver.c:267:7
-SUMMARY: AddressSanitizer: heap-buffer-overflow
-(/mnt/scratch0/clusterfuzz/bot/builds/clusterfuzz-builds-afl_selinux_32ddf7=
-8d9f476617df7a8f4cf22b4d9340aef874/revisions/selabel_file_text-fuzzer+0x57f=
-dd4)
-Shadow bytes around the buggy address:
-  0x7bf4d87dfd80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  0x7bf4d87dfe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  0x7bf4d87dfe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  0x7bf4d87dff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  0x7bf4d87dff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-=3D>0x7bf4d87e0000: fa fa 00 05 fa fa[02]fa fa fa 00 04 fa fa 02 fa
-  0x7bf4d87e0080: fa fa fd fd fa fa 00 fa fa fa fa fa fa fa fa fa
-  0x7bf4d87e0100: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
-  0x7bf4d87e0180: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
-  0x7bf4d87e0200: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
-  0x7bf4d87e0280: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
-Shadow byte legend (one shadow byte represents 8 application bytes):
-  Addressable:           00
-  Partially addressable: 01 02 03 04 05 06 07
-  Heap left redzone:       fa
-  Freed heap region:       fd
-  Stack left redzone:      f1
-  Stack mid redzone:       f2
-  Stack right redzone:     f3
-  Stack after return:      f5
-  Stack use after scope:   f8
-  Global redzone:          f9
-  Global init order:       f6
-  Poisoned by user:        f7
-  Container overflow:      fc
-  Array cookie:            ac
-  Intra object redzone:    bb
-  ASan internal:           fe
-  Left alloca redzone:     ca
-  Right alloca redzone:    cb
-=3D=3D250=3D=3DABORTING
+When pam_selinux.so attempts to transition the user directly into
+their target domain over a specific binary, it immediately triggers
+strict policy conflicts. To demonstrate the exact mechanics of what
+happens when PAM forces this transition, I wrote a Python reproducer
+(labeled as bin_t and running in the unconfined_t domain) that uses
+setexeccon to simulate a transition (e.g., to staff_t) and then calls
+os.execl("/usr/bin/dnf5", ...). It triggers these distinct SELinux
+denials:
 
+# 1. The Transition Denial: The kernel blocks the domain transition
+type=3DAVC msg=3Daudit(07/23/2026 09:23:00.584:636) : avc:  denied  {
+transition } for  pid=3D4945 comm=3Dpython3 path=3D/usr/bin/dnf5
+dev=3D"nvme0n1p2" ino=3D146474
+scontext=3Dunconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+tcontext=3Dstaff_u:staff_r:staff_t:s0-s0:c0.c1023 tclass=3Dprocess
+permissive=3D1
 
-> ---
->  libselinux/src/regex.c | 15 +++++++--------
->  1 file changed, 7 insertions(+), 8 deletions(-)
->
-> diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
-> index 3f7df4c7..017647b4 100644
-> --- a/libselinux/src/regex.c
-> +++ b/libselinux/src/regex.c
-> @@ -103,11 +103,12 @@ int regex_prepare_data(struct regex_data **regex, c=
-har const *pattern_string,
->                 goto err;
->         }
->
-> -       /* JIT-compile for complete and partial matching. pcre2_match() u=
-ses the
-> -        * JIT automatically when available, avoiding the interpreter's
-> -        * susceptibility to catastrophic backtracking. Failures are non-=
-fatal. */
-> -       (void)pcre2_jit_compile((*regex)->regex,
-> -                               PCRE2_JIT_COMPLETE | PCRE2_JIT_PARTIAL_SO=
-FT);
-> +       /* JIT-compile for complete matching only. pcre2_match() uses the=
- JIT
-> +        * automatically when available, avoiding the interpreter's
-> +        * susceptibility to catastrophic backtracking. Partial matches f=
-all
-> +        * back to the interpreter, protected by the match limit. Failure=
-s
-> +        * are non-fatal. */
-> +       (void)pcre2_jit_compile((*regex)->regex, PCRE2_JIT_COMPLETE);
->
->         return 0;
->
-> @@ -163,9 +164,7 @@ int regex_load_mmap(struct mmap_area *mmap_area, stru=
-ct regex_data **regex,
->                 if (rc !=3D 1)
->                         goto err;
->
-> -               (void)pcre2_jit_compile((*regex)->regex,
-> -                                       PCRE2_JIT_COMPLETE |
-> -                                               PCRE2_JIT_PARTIAL_SOFT);
-> +               (void)pcre2_jit_compile((*regex)->regex, PCRE2_JIT_COMPLE=
-TE);
->
->                 *regex_compiled =3D true;
->         }
-> --
-> 2.55.0
->
+# 2. The Entrypoint Denial: The target domain lacks entrypoint
+permissions on the binary
+type=3DAVC msg=3Daudit(07/23/2026 09:23:00.584:637) : avc:  denied  {
+entrypoint } for  pid=3D4945 comm=3Dpython3 path=3D/usr/bin/dnf5
+dev=3D"nvme0n1p2" ino=3D146474
+scontext=3Dstaff_u:staff_r:staff_t:s0-s0:c0.c1023
+tcontext=3Dsystem_u:object_r:rpm_exec_t:s0 tclass=3Dfile permissive=3D1
 
---000000000000d47df40658ed2662
-Content-Type: application/octet-stream; 
-	name=clusterfuzz-testcase-minimized-selabel_file_text-fuzzer-4919041035403264
-Content-Disposition: attachment; 
-	filename=clusterfuzz-testcase-minimized-selabel_file_text-fuzzer-4919041035403264
-Content-Transfer-Encoding: base64
-Content-ID: <f_msridjb70>
-X-Attachment-Id: f_msridjb70
+Fixing this purely in the Base Policy would require writing transition
+and entrypoint rules for every single interactive tool a user might
+run. This is unmaintainable, massively expands the attack surface, and
+breaks the principle of least privilege.
 
-Aygqc3I6LnssOH0pIC/erb7vIA==
---000000000000d47df40658ed2662--
+We explored a few potential ways to handle this and would like the
+community's input:
+
+1. SELinux-aware run0 (Upstream fix). Modify run0/systemd to be
+natively SELinux-aware. Instead of relying blindly on pam_selinux.so
+(which only sees init_t as the caller), run0 could dynamically
+calculate the correct target context based on the originating user's
+session and explicitly set it for the execution (e.g., via the
+SELinuxContext=3D property of the transient unit).
+2. Leave pam_selinux.so commented out in /lib/pam.d/systemd-run0. If
+we leave pam_selinux.so disabled in the run0 PAM stack, processes
+simply inherit init_t. This means we would have to write static
+type_transition rules into the base policy for every single
+interactive binary users might run. (For example, run0 dnf only works
+right now because an init_t -> rpm_exec_t transition historically
+exists).
+3. Enable PAM + Explicit Default Contexts (A Flawed PoC). We tried
+keeping pam_selinux.so enabled and explicitly defining the transition
+path in /etc/selinux/targeted/contexts/users/unconfined_u:
+system_r:init_t:s0 unconfined_r:systemd_run_t:s0
+unconfined_r:unconfined_t:s0 While this correctly routes run0 payloads
+into an isolated domain (systemd_run_t) without polluting init_t, it
+causes unacceptable collateral damage. The SELinux get_default_context
+API only sees the caller (init_t) and the user (unconfined_u). Because
+run0 sessions and systemd --user sessions share these exact same
+inputs, this global mapping breaks systemd --user instances by
+throwing them into systemd_run_t instead of unconfined_t.
+
+Given that we cannot safely rely on global policy rules (which expands
+PID 1's attack surface) or PAM default contexts (which breaks user
+sessions), we'd love to hear your thoughts. Are there other approaches
+or configuration options we might have missed? Or is pushing for run0
+to become natively SELinux-aware the most viable path forward?
+
+Any thoughts or guidance would be greatly appreciated.
+
+Best regards,
+Jan Janasek
+
