@@ -1,101 +1,52 @@
-Received: from mail-oa1-f50.google.com (mail-oa1-f50.google.com [209.85.160.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from markus.defensec.nl (markus.defensec.nl [45.80.168.93])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B76B74756CA
-	for <selinux@vger.kernel.org>; Thu, 13 Aug 2026 13:23:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.50
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786627396; cv=pass; b=sMlsVlmg5MvWTQeiHDSFxNMJ0iLaM7of95WalWhBnpYiNrj+xRAaKVOTjfNQAgfcTpeksbMjTg6pv0oIZtEJocsgbqHSuj2yNkuHmlR+m7mlya+fkn3tfGBzRA2vSyzMV2/Isggj/fdBCK7nnPJFwEWmN1mm1NxRKzRYHdAQXxo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786627396; c=relaxed/simple;
-	bh=NfgO+NiKbQMh04hB/kwv77G3FXPhFJCSZbJnA6il/4A=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tzLgYybVMsR32GbaM7BxsVC+OZApOuUnbGPDSYKLi41xfx0NiZWDeDpLUQtFimDXdjqGApEuv9rUQWtOhCTlW/gEvhsyxXuFOjKFHrt1Vb+Zl30Y8++/KzFrp5Ej5G0xEwwkpLAiBdzGakEitBqlY7p5iKnSi+oj/UdrTEJjFbM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=owdAi/90; arc=pass smtp.client-ip=209.85.160.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 067573955D8
+	for <selinux@vger.kernel.org>; Thu, 13 Aug 2026 13:27:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.80.168.93
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786627624; cv=none; b=Z3QI1qm4T0TjzJ5X3Rr9l/RRbNkYiIWarts2neoMOzXKuT3BcnFhCF4ApvvDy8Vyg5SAgAYuJcyhxsca5JDh/ZDSGSdhEkKgg8vyeC+Dn8UggjgwoAQdw1qe0yBgA4QFF4gFIBQQextVAiDMKR1xfQhifh9p9tdhkElTSuXqoVU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786627624; c=relaxed/simple;
+	bh=Z+TcMjmIXafsKq2XQ6sIE0QIeVc3ReARr0L8L/jtK0g=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=IESvbCq2lcKlCYqIwVibvFkUv9goj8C0xVKW7Myp2pH0olQrVdfXYseD6pR53Eeo/JNixOPexU1ZX7AmNUO+vAcXpjNlPFXA+vm+u9yQ7VDBBGCrbZ0k094wl4L3AzdIInTL9c7s2AQifaasexvbcgoTEUX9mTLsblBmA56dIiI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=defensec.nl; spf=pass smtp.mailfrom=defensec.nl; dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b=Kucxi6dd; arc=none smtp.client-ip=45.80.168.93
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=defensec.nl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=defensec.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="owdAi/90"
-Received: by mail-oa1-f50.google.com with SMTP id 586e51a60fabf-4513435cdd2so1280869fac.2
-        for <selinux@vger.kernel.org>; Thu, 13 Aug 2026 06:23:14 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1786627393; cv=none;
-        d=google.com; s=arc-20260327;
-        b=EmxJT6qLqBZP30M2UEkTPwhKH0i4EbncpKO9Maox5MuyF8XmtBnns3q/aOrvA9CwUD
-         xpgUOhsfeNab9rac5nRndMFS3PMYF963jhgkmAXNWRDTUoV3sEGP62+hsYiWm/pAxP/q
-         1YQbiyXoESvS37tht2gQbU5mKzvJZ6x5ynqRoaMCEvDzzhH49ensbtbHwDlz/zLbElIR
-         YT7xJjYPvZkBkr+/aUKFU3WnbduBcwpFGcVmF5DjBmcTRknPLkgrQVHPnUEVsOcgo3rP
-         FuaKyyXaHj8yPYxeJ9ZamN3TKpg0jN6Z4m5DGBngcULg8/ds5ovyJzBtw+zOp6V0AROC
-         KAUA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=+g0TY9y9rmuai2evf6Bf+PPHmLDkaLNBHxxuC+FJlLM=;
-        fh=5+QJzvROxDCOLyqLZu15Mecc6E6RMVWMDE7QEnHFDSI=;
-        b=p/AyFvrwCYg296En9BD+6bsxhvWLM4GHXHnYes4e8QPJkX2FZwYMmwMLvqAZJzkKLE
-         jLZTO89URzLB6c7dDPHJIJHfWJaQt27/0aMFAxhhhY+QoNb8JL4wfQwhDJhL3Pb2oZgN
-         JPc9zMSI7VbLu0uINjxhDZdll/Hip6HeLHdA4QD8lZckLFGq+Lzg5jscvPQsbWOZui8l
-         /mpiBWESoLLIu2/bqXu9Acs2bTILrSGs4mk9Jn2HAamVyaBGON/o/KmWYB0athw6MHlS
-         Nns3ZM8k/R6oyi0ylt8Q8pvqh72FKudNUZAkV7OVczeL+J+I/YAWBFxDZZg0vp6GH9kf
-         100w==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786627393; x=1787232193; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=+g0TY9y9rmuai2evf6Bf+PPHmLDkaLNBHxxuC+FJlLM=;
-        b=owdAi/906e96XlDLANQYg4I1Fp58d1qr5VmIVcM899nxnDA5fu3Wg/t2z9VvASkwtW
-         HgeST7TMU33bCX6MY4nD2Bjzz+laHmOcXbG+cjwHfEaevw8qRHtWbC4WxTKDEmPN57Vb
-         JHYoG7dGcB62TAQY+LU9CvurgL24zw77/R4OFfPleAGxj95GoNf0WzoP8KqBP75Hqz98
-         3tbdBRV2Tc1015jkCiTbnO1pzXrSjPo1FXIz4Vevm7fZbRn+wkvz3cT346rLTaAEvYgF
-         IXQAOXP+MZiCpgo1Swz4MsR+Ym6FdeydYk18gkP35MqCqCY+J1cSZqYUQ4J/Iow+YItv
-         uBYg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786627393; x=1787232193;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=+g0TY9y9rmuai2evf6Bf+PPHmLDkaLNBHxxuC+FJlLM=;
-        b=qvCqlxoIt+11Tz5NxU4zoWf+fSxYV/zGziYzLyLZ/pRwcZhqAqprEugTloOWtANzPC
-         80fReUSI1OaRSLixuPKSU1yNSAPSwzdRJlg/hFH5GRV+JzIeSO2ugtiIT9VwV+YT7pJW
-         X6SaJPeh5dCWE0FT6zFMmyogOKQ498dJ/1Qoc+a55DEESKUoc43XKMLY1tSBwjO+3c/1
-         VyHZeFc77b2k852IFzI8+lQ44Cncu9Pn1k6IIheDdxFuV5Vo/yXcdiyMX5qxlEm0+qW6
-         wsCuSG7LAVqyZZmfZlVHTpBThNVWLqSnRmIlZeUyVHjK7EQsz80ILwRynVhGkl07ykDw
-         WXnA==
-X-Gm-Message-State: AOJu0Yz73YGflD59xRmxTHcmgJN0mDS8b+llXQ1BFLCanMuDN5MVTxuN
-	0U/CpqcNtt3lIXi2S0TPu1MzNc/3dgmzghfQ1TI2xzKuZ8xIPl7Z28l7UW7nSlUtEjC3iQFsCf3
-	m+gEOV4lDsZfRRB+auLkSkAYTjTGCLiF9uSgu
-X-Gm-Gg: AR+sD10Obb6ozLrAZAmhxFPtR/DeNG2Ao6f7sZpm5uKAp4Tj/sWFanJp8BTN1CPpK65
-	CKqs7d1ofSBsV4epTczbHNE1SOB6i+650hBPIi+LP9mXD02O6CnrgHc2ta1fmgVqqZ2TpVPLOUq
-	lidIO2HKe/EgeOXfztzbA7v7Oil0TNFLdkXRV0d/txxP4Ir29C3YrVuI5pOh0XlmlfHL1sn561A
-	dMmoH4F8iFbncRqSyfKGOOp3VlwnMz8NRPMg5Zl8iiqJvMxF8xz1T8oKcMV/Bo9iMb8ScLvXz1m
-	pwGZowzEq0xR4tjgPBg+z15E/rqCKTO4Pj7w7hPmOSz8DQ==
-X-Received: by 2002:a05:6870:799a:b0:451:d77d:f2d5 with SMTP id
- 586e51a60fabf-45e6263a6b8mr5263212fac.13.1786627393380; Thu, 13 Aug 2026
- 06:23:13 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="Kucxi6dd"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=defensec.nl;
+	s=default; t=1786627611;
+	bh=Z+TcMjmIXafsKq2XQ6sIE0QIeVc3ReARr0L8L/jtK0g=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+	b=Kucxi6ddzQGHH90/euHKYjnYMkkjP93GPt8E9wQJMoHiqiMbAEUN4NFiqx8duF9D9
+	 VOpLzbwqQYPr3fQb45h0bageTwpPwxWZTU+Om3GHm5bIoltAjgenaYsA/6U166lODj
+	 2JNwdrI3ZMZP9oxsnpayaRCjfyJvosU8EI9G7qTg=
+Received: from nimbus (nimbus.defensec.nl [IPv6:2a10:3781:2099::514])
+	by markus.defensec.nl (Postfix) with ESMTPSA id E22282E0F5C;
+	Thu, 13 Aug 2026 15:26:51 +0200 (CEST)
+From: Dominick Grift <dominick.grift@defensec.nl>
+To: Jan Janasek <jjanasek@redhat.com>
+Cc: selinux@vger.kernel.org
+Subject: Re: [Discussion] systemd-run0 policy issue
+In-Reply-To: <CABd7YBF9zHnkjxbRsLZeVRSNNYqPV5z6eE8o+H_s5DzC+cW0Cw@mail.gmail.com>
+	(Jan Janasek's message of "Thu, 13 Aug 2026 15:09:58 +0200")
+References: <CABd7YBF9zHnkjxbRsLZeVRSNNYqPV5z6eE8o+H_s5DzC+cW0Cw@mail.gmail.com>
+Date: Thu, 13 Aug 2026 15:26:51 +0200
+Message-ID: <871pc2qhgk.fsf@defensec.nl>
+User-Agent: Gnus/5.13 (Gnus v5.13)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CABd7YBF9zHnkjxbRsLZeVRSNNYqPV5z6eE8o+H_s5DzC+cW0Cw@mail.gmail.com>
-In-Reply-To: <CABd7YBF9zHnkjxbRsLZeVRSNNYqPV5z6eE8o+H_s5DzC+cW0Cw@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 13 Aug 2026 09:23:02 -0400
-X-Gm-Features: AUfX_my2gEacruUw4pdBjV6q9bd0GJtRynJz_5iCN8mi2tVW96yo1OD4LyV5WEo
-Message-ID: <CAEjxPJ5-r1yNBJeVV6ouby5kCUVU6KQitv50bw=NLYEMJa9A+A@mail.gmail.com>
-Subject: Re: [Discussion] systemd-run0 policy issue
-To: Jan Janasek <jjanasek@redhat.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 13, 2026 at 9:11=E2=80=AFAM Jan Janasek <jjanasek@redhat.com> w=
-rote:
->
+Jan Janasek <jjanasek@redhat.com> writes:
+
 > Hi everyone,
 >
 > (I originally posted this to the fedora selinux list, but was advised
@@ -178,5 +129,31 @@ rote:
 >
 > Any thoughts or guidance would be greatly appreciated.
 
-Option 1 seems best to me, but this issue might also be related:
+I brought this up before too:
 https://github.com/SELinuxProject/selinux/issues/485
+
+My idea was to extend pam_selinux context configuration with a optional
+"pamname" field. As far as I know that can be retrieved by libpam and then
+be associated with a context based on a combination of source, target and
+now also optionally pamname.
+
+system_u:system_r:init_t:s0 user_r:user_systemd_t:s0 "systemd-user"
+system_u:system_r:init_t:s0 user_r:user_t:s0 "systemd-run0"
+
+This could then also nicely work natively with systemd's PAMName=3D
+functionality.
+
+... In theory at least and that is all that is.
+
+>
+> Best regards,
+> Jan Janasek
+>
+>
+
+--=20
+gpg --auto-key-locate clear,nodefault,wkd --locate-external-keys dominick.g=
+rift@defensec.nl
+Key fingerprint =3D FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
+Dominick Grift
+Mastodon: @kcinimod@defensec.nl
