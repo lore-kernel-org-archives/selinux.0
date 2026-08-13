@@ -1,43 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF9312D23BC;
-	Thu, 13 Aug 2026 00:36:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A8E118872A;
+	Thu, 13 Aug 2026 00:40:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786581399; cv=none; b=K/8yy/30oZfNz0UIJuspAOdDSbP2cge8U2jz20hg4vku5o5huCRWzd9wioQ6AzJR/BVz0HJWKAK4+atfKz3RskZZtHLuWhCAPpAG5hNFB9EklWiHHFwim7iPSi/qRJDHc+4E83eyzyvXBxYKK3UTktT3j7LGt+M9KG/vaBOeEwE=
+	t=1786581626; cv=none; b=LJPeClttp+I4gTZOG5cfpfP+mrtPaHhSSPPtxd5oi/TmgnMgLSn2Jf/OUT8Nkf0WM5oZ6sSRt/oeZWL78mdTfoa7fYzksyvpdZIAEL0vl1utq/SPLxFljYTWtsPd2dMOBBS6M0iXKIUtB6GvSIKp/nU3cnsamnmwhy+lYBdGEGs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786581399; c=relaxed/simple;
-	bh=q/ZFSActgJYqAEUHhAmbaYwZ5QLHaxQ67NZDLRBCZqc=;
+	s=arc-20240116; t=1786581626; c=relaxed/simple;
+	bh=vpCXxWlT5UjWN29iFv0w+ryU2rGbBM+kglfjdOU+J18=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=qNfuSau8c5wp0Yj8RMT2h+xjinfjFva33WGVN7B2IR0bdlzrm+3H1mRGH3P79TlHFJEY4fYKyzHkhNwaFjtmaJp0gVOeQZ2aNSwzJu9E+xJltJc9daiIHgPU5Ti8A61noH8mi1Ad1nrN9QLdTieEuTwlI707MRRobm6f4KRGZRw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cz70iHMT; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=mKDyGDB5Y1GPSiytzY7gm+dd2B9Lv0e0s2416LLQ2oj4g5U8QPO8CGZmrr/ciGtdf1xqVUo1CVt0ExW0/fCluxNxyBxdfM9TX0UcaPL3qOjAGC+qeNQ3IEpZObi2U7T5Bj+I/K9fMxvd2jRnp58OvqErQlqKDaJ1AeSVxnNpuLI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eEaCt/Jm; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cz70iHMT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E52D1F000E9;
-	Thu, 13 Aug 2026 00:36:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eEaCt/Jm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4417F1F000E9;
+	Thu, 13 Aug 2026 00:40:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786581398;
-	bh=KfyE//Cou5yAU10w4ncKQGMqqg6lHdgwdTSUS2DXxQM=;
+	s=k20260515; t=1786581625;
+	bh=hAjo03//TB0kPqKM3i9p2rkUzHUeE2JS7fBj74JhaMY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=cz70iHMTJZ3CYbN6xjSFK1ygjttnesn74QRKJQ93swIx27y0JqsEv4i77loWK+dYv
-	 M0Q/S7uD/XYJl8Y9Rg+67rkO3V5H3QwvDKssGq1GRNSyUS2GMnujr+eMhIdn9jZDw9
-	 VCVY6uOFyu40A8ahV6itOcEcZiDToQDxv/HIzcYrkCR9SnY0/eOVZGPQFuhqJjl3Zq
-	 OOifOZjkawe3eru6jrwKaoC6qEss//3V1V0UBQQe97CCWUL9SNTuvijBX+arMCo86h
-	 DKQtftStNsOAEPMq04Rp8LfbLUQe6LwGFMJPpF79FsSyyg4FjoJoHxsR8G8o0O7spt
-	 E6RmCG7bxNUPA==
+	b=eEaCt/JmB5Yp2wavUTISI40bhxpj91bbMLj9FltmI9L6rIQIkR4g0drsYJxj/vM4T
+	 5KjDBURNN50nDpaYCj0Mk881gntGilF1b17FUda4Pr7++pMloIASOjexkyP689RjP6
+	 RDR2DXNsWRaxD3vnxy8DB/ZgU5/1bQmabbK2nFHEylzAFfvyljjgEDS3MSMH7vFDnl
+	 xMGyxCRg4lfGc8vNf4r75aeNCpbndjmzAWI84+bW+ja33d0RUM9MhbsVUuZnnLTPWv
+	 fQ1K4Xh1wuIq1K+EFxAN1qdYq/U7VR0yk6LEIpaw4zflbmWx1Yo5oDY3aY5Xx5JQ4L
+	 cx25moby7NNUQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH bpf-next 5/5] selftests/bpf: add loader_load_fd tests
+Subject: Re: [PATCH bpf-next 3/5] selinux: use kernel sid in security_bpf_*
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?VGhpw6liYXVkIFdla3N0ZWVu?= <tweek@google.com>
 Cc: selinux@vger.kernel.org, bpf@vger.kernel.org
-In-Reply-To: <20260813002618.3755631-6-tweek@google.com>
+In-Reply-To: <20260813002618.3755631-4-tweek@google.com>
 References: <20260813002618.3755631-1-tweek@google.com>
- <20260813002618.3755631-6-tweek@google.com>
+ <20260813002618.3755631-4-tweek@google.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 13 Aug 2026 00:36:37 +0000
-Message-Id: <20260813003638.4E52D1F000E9@smtp.kernel.org>
+Date: Thu, 13 Aug 2026 00:40:24 +0000
+Message-Id: <20260813004025.4417F1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -46,56 +46,72 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] Unchecked pointer returns from libelf functions in `create_loade=
-r_elf` will cause a SIGSEGV upon allocation failure.
+
+Pre-existing issues:
+- [Critical] A Time-of-Check to Time-of-Use (TOCTOU) race condition in SELi=
+nux BPF hooks allows unprivileged users to steal the `creator_sid` of a hig=
+hly-privileged file (e.g., on procfs), bypassing SELinux policy restriction=
+s for BPF operations.
 --
 
---- Patch [5]: [PATCH bpf-next 5/5] selftests/bpf: add loader_load_fd tests=
- ---
-commit b9a0b98c13acbc44d106f86733ac4cdd18481ce7
+--- Patch [3]: [PATCH bpf-next 3/5] selinux: use kernel sid in security_bpf=
+_* ---
+commit 74fdd38ce08ed06b1a82fae50df139cbd161c51e
 Author: Thi=C3=A9baud Weksteen <tweek@google.com>
 
-selftests/bpf: add loader_load_fd tests
+selinux: use kernel sid in security_bpf_*
 
-This commit adds user-space selftests for the BPF_LOADER_LOAD_FD command.
-The test ELF is generated based on the existing light skeleton generator,
-using an awk script to extract the loader program and map.
+The security_bpf hooks provides a boolean to indicate if the call is
+coming from within the kernel or not. If true, use the kernel SID
+instead of relying on the current process SID. For the token-aware
+functions, the kernel sid is used to decide on the access, but the caller
+remains owner of the object (program or map).
 
-> diff --git a/tools/testing/selftests/bpf/prog_tests/loader_load_fd.c b/to=
-ols/testing/selftests/bpf/prog_tests/loader_load_fd.c
-> new file mode 100644
-> index 0000000000000..ab971662dd047
-> --- /dev/null
-> +++ b/tools/testing/selftests/bpf/prog_tests/loader_load_fd.c
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index f197cf476190d..e7c5993f69545 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+
 [ ... ]
-> +	ehdr->e_ident[EI_VERSION] =3D EV_CURRENT;
-> +	ehdr->e_machine =3D EM_BPF;
-> +	ehdr->e_type =3D ET_REL;
-> +	ehdr->e_version =3D EV_CURRENT;
-> +
-> +	shstr_scn =3D elf_newscn(elf);
-> +	shstr_shdr =3D elf64_getshdr(shstr_scn);
-> +	shstr_shdr->sh_name =3D shstr_off;
-> +	shstr_shdr->sh_type =3D SHT_STRTAB;
-> +	shstr_shdr->sh_flags =3D 0;
-> +
-> +	shstr_data =3D elf_newdata(shstr_scn);
-> +	shstr_data->d_buf =3D shstrtab;
 
-[Severity: Medium]
-Could this crash the test runner if libelf fails to allocate memory?
+> @@ -7296,7 +7296,7 @@ static int selinux_bpf_map_create(struct bpf_map *m=
+ap, union bpf_attr *attr,
+>  	bpfsec->sid =3D current_sid();
+> =20
+>  	if (!token)
+> -		ssid =3D bpfsec->sid;
+> +		ssid =3D kernel ? SECINITSID_KERNEL : bpfsec->sid;
+>  	else
+>  		ssid =3D selinux_bpffs_creator_sid(attr->map_token_fd);
 
-Earlier in create_loader_elf(), ASSERT_OK_PTR is used to check the return
-values of elf_begin() and elf64_newehdr(). However, the pointers returned
-by elf_newscn(), elf64_getshdr(), and elf_newdata() are dereferenced here
-without prior validation.
+[Severity: Critical]
+This is a pre-existing issue, but does using selinux_bpffs_creator_sid()
+with the raw attr->map_token_fd here expose a Time-of-Check to Time-of-Use
+(TOCTOU) race condition?
 
-If these functions return NULL, the test will abort with a segmentation
-fault, preventing subsequent tests from running. This pattern also appears
-to be repeated for the .prog, .map, and license sections below.
+Since this performs a secondary file descriptor lookup, could a concurrent
+thread replace the file descriptor (e.g., via dup3()) with a highly
+privileged file before this SELinux hook runs?
 
-Would it be better to add ASSERT_OK_PTR checks for these allocations?
+If the core kernel has already safely resolved the token object, would it be
+safer to use the token's security struct directly instead of performing a
+completely new FD table lookup?
+
+> @@ -7314,7 +7314,7 @@ static int selinux_bpf_prog_load(struct bpf_prog *p=
+rog, union bpf_attr *attr,
+>  	bpfsec->sid =3D current_sid();
+> =20
+>  	if (!token)
+> -		ssid =3D bpfsec->sid;
+> +		ssid =3D kernel ? SECINITSID_KERNEL : bpfsec->sid;
+>  	else
+>  		ssid =3D selinux_bpffs_creator_sid(attr->prog_token_fd);
+
+[Severity: Critical]
+This is a pre-existing issue, but similar to selinux_bpf_map_create() above,
+does this secondary lookup of attr->prog_token_fd allow an attacker to
+swap the file descriptor mid-syscall and bypass SELinux restrictions?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260813002618.3755=
-631-1-tweek@google.com?part=3D5
+631-1-tweek@google.com?part=3D3
