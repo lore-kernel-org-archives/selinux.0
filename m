@@ -1,162 +1,111 @@
-Received: from sonic306-27.consmr.mail.ne1.yahoo.com (sonic306-27.consmr.mail.ne1.yahoo.com [66.163.189.89])
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF50C437135
-	for <selinux@vger.kernel.org>; Thu, 13 Aug 2026 20:59:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.189.89
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786654777; cv=none; b=LtfOhMywld4GCA2ZVhaZQBZPfWsl2ZN29K4ikvIavZ5rE+wEmfAqAOLOhi4YzH1IWVyHJxQTd/enKoQBVE4nOti2brN2BuNs91p5AMFf0BBelkdGbM/3q07yexMNZifJ0dRXht7kKjIcvaxoIzjxP8b9eWZ0lYSP7Hvb1979JBA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786654777; c=relaxed/simple;
-	bh=iplEOpAuewoDbtmO5Bgo946/rCYzlrvNkYvSo61Gg+0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=N7Zbx0demiDwu7kF8oeTdw72KV1lYOQ8zkXJhwV5E1RQ6mD6cqrsYS5XYxh11KA9KLnKeDbG725WhDVT6wyAop71xPa4WerePrhlL3lNOyA1Bb+7w9nzdyEz3+8m/+sZ2P7fK9UgK4jCri6hpWKzVkOvK+ok2SAMrch1By9E/RY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=c3Mn0nRj; arc=none smtp.client-ip=66.163.189.89
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E11381BD9C9
+	for <selinux@vger.kernel.org>; Fri, 14 Aug 2026 00:31:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.172
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786667514; cv=pass; b=jcgJeUeWF2rNij/SXoK4SSm36vsb2xHByns52AARnOzq/NWGb5ljappgxq3wu4pOzFOlVKJN7nFTzzheIfrEkvA/rZtI2/r88OvN15AQdSLBXMG3wZMu1fRUlE0e5NuPPQRUC7PKxwSj+4UN1Yp/sNWwJb29AAFtyldZ1YsjnwA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786667514; c=relaxed/simple;
+	bh=kdM3dopFXZxGjlCh/H3x7WTOT7z22vgCY9kveUjjVik=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=Z5SXp0jV96QScvMhwu80or1/DGDJI2q61k2vTgbju9MK2rhy4NDygwL12fC3dGRtVPMI/25pNeVjBxbS+QrBXiLymLdiKMttFqF+lLDmzBWcjnST6aCPQPEGdqr99WHUFvDs0WYqun+dS4YpIquFCn9rkSUS0J5YfV0N577TmDU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dLoWUoar; arc=pass smtp.client-ip=209.85.214.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="c3Mn0nRj"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1786654775; bh=L8gF9lbb3/GdM063c/AqJxtVF10JcTPk+9Ii0LVaols=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=c3Mn0nRjddd37T/EP2WpMG9zFCl00+SHVRYe+X9IKJdPYG83mnP3ATutvQf0q4KqwcT5WLpjlNUsUHXD3FKbcT0fGbN+pSkiulkBRD1Xlh1NBwuV2FOoWvxIKYxDJxbR27Oa3eVkwZntKRZ5MrAgG4ckSGZGO6vZ9cxJ0e7b2mULFSglAvdiWaugVQpwXgYBOMQNHUxqAneJ9RD8Cv9NtxmfEIvAIhJdp0bL3/xmBjAWxAqZJHy4ZZDrHfN/VPdyYd0XZH827KWbEAUTkz0qdZUV4n7c/i1SYXlriQXyw/QNAcvIsx55BRiLk0ymRhBM0vIKqDNI1oIjSbrkKib/eg==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1786654775; bh=847y619GwBkSSakWtoJZCkbNbuiteHcIN+zVhkxdhh2=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=HZOertF5HqyrmFBS+Txg3pMytFeQmvTzLwo7DCjhgvfyLrK2fhaDoGBBVRPGtnRIF1Bx5GyCQvMPPuGVxIeKPneZ6LrSjn44OjTpA7qUP2b44efc9CLOVJo8teeU5t5JcANBdTclE/9Rk41QOAWv5gnw45POgX1QROtKS7P5+q+T9AWUdYvdYOc7Krg8hKremuruinN61Y3LWvYId3KsxUB8GmagnKG/C27N0BcaRBFl096ZlJXLTvuqSJDHTrEUBMYS8TJiO0Herpz79EhnQYQQbBdQgh5JIwAae/Yh5fZjevbVZZlLsCTQOeT0JtdtvEzWgC09UsI6xihsngD6gw==
-X-YMail-OSG: v.aM1UEVM1mRwhXWuoIVtQjgLTChcQQxIObiZted9Av0P_KoQiCW.xehYlBLl4A
- PLwehYS3vk8PER1Xh0xS1.yuwDmZYiTxyHZuTVmkM159P3eBPxHZP5zrkrBoKD3rb0yphLvwGBFw
- 3oY6IMYZaDc768E4yXc0kAgWZ.CrLCaVxqNicV70IETUJCWPTUW8dVm9IQ_mPY6g3MoyUmsNVbcA
- Hsx_WfkBco_j.Ruv5oRn08NQS2Wfz1ZOjNwFfIIZ0i0w3DNHjpBx1T9mWZd0sxRJ9dqgGpdUuTx8
- rVYZF9F.Xm6ZU6Vw6MF4rvQBUZ9nAacp6UOJDoxVdHiUNB_Xg6mXMfNXaec8M2x4aCstqwRpNjPy
- c7E6AbQkOtiOK9OEyBFKGlxmOFs9QxJ8tNK0_.r8EkqII2DX3FL2hwLKxBBPxGo._nVaPA7SM7tM
- NKx4iACoecExmdLp3AJcrl69dpQqNuyFIfejqSdD.zcBdnERZrkSGCkZAhHbdMJ1CZ_o6qSmvqwJ
- bnndJdun2GlyI27OixsCL4zzoYtnjoJoCkjxU7FL_6GvaoWnd.qqzBL8x8AxXBqt5RgkYBeMXOom
- ESNLKjH4rQGYzPyB0QKqMc30DJaVzzHHj8kWcPLKr1DZrhoUzdaR_wjv4MJ4reyFQHqE8Q5IRt06
- vkPs_aRho2szOvPOEACcP1ZIoCgegXkKkwX3oLDj7o.sss.u9Uxu2G92HtMkoez5xxsxEwAD3Vc_
- C7kRDfirVII3KUFrObh7kcWjiAzq36POX16zxRT61wTB5Ot07LQz0zeIpmd2hVsGmJ5_ujZ8HTOn
- I2z3AwRqtgHVYfpciOqJbvobJ3gXeQ3.387L_44bzjhVHovykA8OouPd3sN.UnmKYvadQnRw3kTn
- FJjSUr932.a1nbXEDCfbk0kCrOgQ327edZhNmnZIaA1S43ULRdmslw9FieM.YgyB6oFYwnZFm79.
- Xt2ZgoBZ.8qoulNYdynHD1LPSet70qNK9fMfYYVRC_cfXiedCXC5l5hVaRxH6YBXKqSv7HubvAGJ
- Eo1Nk5vwRsgix54M6xX3geqBcQ8AHeXu7CBetfsh_LHXRfh_b4fQZDu8_jy0xZJ.qjr.cYCMaCpD
- MunEwUo0RQ.boGMOWNmFBUHXh3ckOaksrSde5Jo9SgFNLVzpQRmAAeOBCHcwpx9nTUWOFH54UmxV
- tBOdB9leo_z2hXT9AhyK6Odrd0unf7lQvFsVB.76KmYdcohJ0wNOfrkMUxFZ35PVeA_7S.atGbil
- M56LNxShuCbFJ_Ne2fZYnpwoTqwgY1DYbonSzk0hL9HuZjWu_e9oUdgSqucItfEOeZu_vhsnco4_
- pTBnVVWiXmiOR8yB_0D6j7yGBCoilC4FlxK4z8JjMSStXl.CYYYq.q1T89x24csVxQjP5i760O_T
- gB.WGcCGEPUaZV3fh95ExKK3e7qcp3kTeBzCdyKUwVlhtYXHHF9FWhkx8f0dfoh31zFz7CpkHeyv
- rv1VUbiTJ6RGQbb3azj5D6uF0mzs1d93MDQPcKRU9L4TpX..XS6E2Uvny8RWpm4gmaU9OENjQH67
- TQDucHVDQbVqsVE3IHg9NTp5uqe1GQbJEtaFUTQpp5AezAWGjZ0oZvYkmBW1iwZ0YKwAJPIoxQfV
- seggGTamasoVAs8fLQhb_bqtcQ8qDyDMRPGErj.ujm__rPfeeXbF26LrAfZ_q1M1wMAdRoCpnsSS
- ECBsI7emrRmKIno_jOICb1xF7urBEH89cBY._0YnBOiv_OgKV0hLBB5TjsfcKeSmNWaN_LfGtiMM
- OQaOxEq15AG_dLHd9Zf9qEkeRnXVE2KyvaNQXlTm1laZdie9db9v9qS.oAvivvkBy.V9ILnUIQRc
- HBTkSlGo_mIPpOlfzeXw3vXUBG3aHa6T2TIa8KkGnFLoykwpqjfAAMSOr4Tw0kr1sJ6lbaL4uU.6
- 3g0Luj4Qz6D.fongKWk9dE1GX_UF03E69N0WMHG3jaWdbXnRBrlJkFMIlpwrIVVbWelUuu0n86Xe
- SBJ8aqwfGjNiPSNntx_pHWLUvGEK4SZwf1HOe85hg799WAYnme.YODkYUmvD4PeFdr1UkCLlv3DW
- H_7UILBPn4AfHAL._V9MYUZHzc776s18rNPtlkDotIP1q1VpeYsFasx9FPdFcUZqC38UEVS4UjwI
- UZvoz6F_7dv_jALSvix_fR2AFmsGvSL3DPk2dpm72fNvmTUsfMLrtPFtOZ.dofufu23RYIkBGJm7
- D9xgKAe4RX6DHO.XmAdYs2dcn6bojntgT0mITsok9RP83SB_fxjSotKwQGQZpkJ5pyt7emKlfW25
- .A.4uBYRKRo93gfKviGaKhsvUks7g
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: b6a70a9e-8261-4e33-811a-1e77ff204f88
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Thu, 13 Aug 2026 20:59:35 +0000
-Received: by hermes--production-gq1-678d9dd684-6hkng (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID afc5ff34d004487469fb59f8ce77dff6;
-          Thu, 13 Aug 2026 20:49:16 +0000 (UTC)
-From: Casey Schaufler <casey@schaufler-ca.com>
-To: casey@schaufler-ca.com,
-	paul@paul-moore.com,
-	linux-security-module@vger.kernel.org,
-	pablo@netfilter.org,
-	fw@strlen.de,
-	phil@nwl.cc
-Cc: linux-kernel@vger.kernel.org,
-	netfilter-devel@vger.kernel.org,
-	coreteam@netfilter.org,
-	jmorris@namei.org,
-	serge@hallyn.com,
-	keescook@chromium.org,
-	john.johansen@canonical.com,
-	penguin-kernel@i-love.sakura.ne.jp,
-	stephen.smalley.work@gmail.com,
-	selinux@vger.kernel.org
-Subject: [PATCH 6/7] Apparmor: hooks for secctx_to_lsmprop and update_lsmprop
-Date: Thu, 13 Aug 2026 13:48:53 -0700
-Message-ID: <20260813204854.19211-7-casey@schaufler-ca.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260813204854.19211-1-casey@schaufler-ca.com>
-References: <20260813204854.19211-1-casey@schaufler-ca.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dLoWUoar"
+Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2cf6d65d8a7so6928835ad.0
+        for <selinux@vger.kernel.org>; Thu, 13 Aug 2026 17:31:52 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1786667512; cv=none;
+        d=google.com; s=arc-20260327;
+        b=GfT/PStGzTLN4TEp7hers8KwuHJEpDpucd0qQPF1OjMIA3NxV0l54po5APdZyhVeYL
+         AUvnX234c9wfoDioiLmQ6A96sHUIYFhezO5a76Tp36MsPxbKMn/+grqEHL5rEL7giYHb
+         fgWaId3SvVHSEqRNBfjicmAHGng/RRupRap47XwKQkG3SqaOHGaUjMHvvYN/VIUi+Pi2
+         WCfynMhymbOdXtIiX7HidmgegGWFz0l+aZAxhF9DmxGpsWmnuIuUdhWQquhlfHFE9dgR
+         mPL5jXVwP1GdT4eThIdFYYYPwfLTKldmVg6q3qmxqPjv/oDFWDVMiqo1YBbizBZbTpuB
+         z5LA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :mime-version:dkim-signature;
+        bh=kdM3dopFXZxGjlCh/H3x7WTOT7z22vgCY9kveUjjVik=;
+        fh=l2l+BKIhep14i9a5yxIzwDvgNRHYkyJlbYDDp8LiW6o=;
+        b=H35RottmeJi5o7ieMqEx68UWCsdg3aoyjpBRxEFKQAyeUuRIxQM0DEiAgRzchDqkL6
+         gcBMpY6Nr5dtgM0RnbNZdin66gqIkacs7K6QuRwliKSB+GaygMlqJCe1cgVLbWTo6UvV
+         RXTJknZ6xDRbnP4r0SvMT/LbRG1tc0hfDxDkNZ/hwFEeGCsuXpb+SeGSVJsJ5Wufvanw
+         ZQlsDRKRkSPntk5RLgvlw4J6qSotTmnKL4qtLGoaZ5G4bqsn0Wmo1hLzkdMfAWWFxT+f
+         mcWG4+2P+JYM1Agxin0Axji5vbA+Ox/d9crgKCq+OzJz/lSw4vqWLOJbC1Kq2lpqI53r
+         2EHw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786667512; x=1787272312; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:to:subject:message-id:date
+         :from:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=kdM3dopFXZxGjlCh/H3x7WTOT7z22vgCY9kveUjjVik=;
+        b=dLoWUoarv5upiilxUBFZm30N2I3GBZNBRVWrlTAI2lSoLI/e/xp627L+0XzYI40sTT
+         j6GvuFloE5AoVIE1CqIAlUkc6gEEGVGuwR7uyQo8EEDmHf1jyuHvNQMIlKxJAe47LwjT
+         e2oYjhiaEzMG/8gXaEw4OXBkmVQjFjEA4buKgbQ/fO3YuBoPTUDO96O8ijPK5sB4QKTF
+         656AXvDPWobNKlv7Gq3pbVFnjJc9hqCzSMsTW4nfpRwPZe/D+exuVIHHpsLTYjMJE7pm
+         eTZMakvjDenVicgNkWJqyTltNAAVWPO4imFxfQv5O2u7oTYVE50SrbtREY+xa4pFPcj4
+         QKmw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786667512; x=1787272312;
+        h=content-transfer-encoding:content-type:to:subject:message-id:date
+         :from:mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=kdM3dopFXZxGjlCh/H3x7WTOT7z22vgCY9kveUjjVik=;
+        b=TWt3xuTYQUnP8Rwu2ALFzgGz/BILnsBfJJnRwSPGwTTrX0SWITO8f9Oj1zFZP/Lklb
+         tKHQPDgj4ubJyZne2WWpgjVTDW8DZNra1scpSnl9rF0+lSdOSwKzYtCO1oiy75vcFUBQ
+         xLL2USObFwQvGqJmORDcQTGRKsqoHro1edqXVuuopW3mJ8LoW0z8DlUFYiuPHXYFOr2r
+         ruvOaw3omClagFpF0EYQdLKbLGn32ApJ3UpPDDsipSAvxZZtoy0ZPlNvRx3oLNQ6jGo7
+         e1WR8QAQ97DjgDaHaUhDJh81dcTPjjdmplNK9xn8Hb9Gqx4boaEtf76lQRHAJrfm4pOS
+         YB2A==
+X-Gm-Message-State: AOJu0Yy/x5EVlq0SSGT7oYqOmquJmmhu1CTAuaWpr6tHC+zCPbcU1WX6
+	ZTUXvHxCTyPzcpRtAsjBgsdhQlKGX5bXoWYyXXfPxJgLo9r4CBmzb5lo5M39ueeeY0VYSI8ch3t
+	3Xqci+OdbS8WLbQ5KL68av3ULRbnHp2Dx3+ae6MQ=
+X-Gm-Gg: AR+sD13xuS+qzd0EBIPeqd/aCnGimsDNMg55CeSq3scs0Sq3wA6IrpIzyEXFja4ePSd
+	YEchJg4y5Bc//ea3qmOT6HWlG+gxqpWSY9jAJt/UgNfPGpB4Y1ZKEBP169l55WKSeFtS1Xer3+q
+	nyb/d1TpPxlLSfKd9IKNY3F/uKBbBkRAdVVftzOrzKIQr4zn5b39JRPgWQ0FEPF/GceKQQljpm6
+	M66SrpNbWoIk8bT10t91LcpJAnFnzfAeI3G5cAPvDumg0pCjrKC8ysZi8Z7dGcQe2Ss5SM1qOhW
+	hxp9mh/a/QMOApqdq46fE45CPgYW1+sJKFHkcY48Q9uk5U4WGcMoeAkb879YjOK45RJk1OqrrUV
+	6dTKMsl6ci+89Fp1CASKYYa/H8JOffiiqqxUhdX/trAAcftrpz7kUtmrgk6rMgnBSx8Rb3IQVtu
+	wNbAE5eCP56yKFeLqWzj/HbkQIRFLd736joCJQfJPk6dijUZKWgCBBxLtF/NWjoE0KY112lTI=
+X-Received: by 2002:a17:90b:2e90:b0:392:c80c:9202 with SMTP id
+ 98e67ed59e1d1-3933b8a399dmr2003000a91.14.1786667512267; Thu, 13 Aug 2026
+ 17:31:52 -0700 (PDT)
+Received: from 869137188232 named unknown by gmailapi.google.com with
+ HTTPREST; Fri, 14 Aug 2026 00:31:51 +0000
+Received: from 869137188232 named unknown by gmailapi.google.com with
+ HTTPREST; Fri, 14 Aug 2026 00:31:51 +0000
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: ylialuke@gmail.com
+Date: Fri, 14 Aug 2026 00:31:51 +0000
+X-Gm-Features: AUfX_mzA11K5ZNCosnaQNXQrc73UedYjB3JNftNyzjt0pnVx53uu601gxgfOZUA
+Message-ID: <CAKvDjUMZUx0RQc2ETfcdzLEcdXdXyb2K_wTha4fgYGk7y0_vCA@mail.gmail.com>
+Subject: Cloud & AI grants for startups
+To: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Implement these hooks.
+Hi,
 
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
----
- security/apparmor/include/secid.h |  4 ++++
- security/apparmor/lsm.c           |  2 ++
- security/apparmor/secid.c         | 23 +++++++++++++++++++++++
- 3 files changed, 29 insertions(+)
+I'm Yana from StackCredits.
 
-diff --git a/security/apparmor/include/secid.h b/security/apparmor/include/secid.h
-index 6025d3849cf8..b290ae8f9b01 100644
---- a/security/apparmor/include/secid.h
-+++ b/security/apparmor/include/secid.h
-@@ -28,6 +28,10 @@ struct aa_label *aa_secid_to_label(u32 secid);
- int apparmor_secid_to_secctx(u32 secid, struct lsm_context *cp);
- int apparmor_lsmprop_to_secctx(struct lsm_prop *prop, struct lsm_context *cp);
- int apparmor_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
-+int apparmor_secctx_to_lsmprop(const char *secdata, u32 seclen,
-+			       struct lsm_prop *prop);
-+int apparmor_update_lsmprop(struct lsm_prop *dest, struct lsm_prop *src,
-+			    int lsmid);
- void apparmor_release_secctx(struct lsm_context *cp);
- 
- 
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index 88d12e89d115..1f304b88eaf9 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -1766,6 +1766,8 @@ static struct security_hook_list apparmor_hooks[] __ro_after_init = {
- 	LSM_HOOK_INIT(secid_to_secctx, apparmor_secid_to_secctx),
- 	LSM_HOOK_INIT(lsmprop_to_secctx, apparmor_lsmprop_to_secctx),
- 	LSM_HOOK_INIT(secctx_to_secid, apparmor_secctx_to_secid),
-+	LSM_HOOK_INIT(secctx_to_lsmprop, apparmor_secctx_to_lsmprop),
-+	LSM_HOOK_INIT(update_lsmprop, apparmor_update_lsmprop),
- 	LSM_HOOK_INIT(release_secctx, apparmor_release_secctx),
- 
- #ifdef CONFIG_IO_URING
-diff --git a/security/apparmor/secid.c b/security/apparmor/secid.c
-index 28caf66b9033..51f3e4ab053e 100644
---- a/security/apparmor/secid.c
-+++ b/security/apparmor/secid.c
-@@ -106,6 +106,29 @@ int apparmor_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
- 	return 0;
- }
- 
-+int apparmor_secctx_to_lsmprop(const char *secdata, u32 seclen,
-+			       struct lsm_prop *prop)
-+{
-+	struct aa_label *label;
-+
-+	label = aa_label_strn_parse(&root_ns->unconfined->label, secdata,
-+				    seclen, GFP_KERNEL, false, false);
-+	if (IS_ERR(label))
-+		return PTR_ERR(label);
-+	prop->apparmor.label = label;
-+
-+	return 0;
-+}
-+
-+int apparmor_update_lsmprop(struct lsm_prop *dest, struct lsm_prop *src,
-+			    int lsmid)
-+{
-+	if (lsmid == LSM_ID_APPARMOR || lsmid == LSM_ID_UNDEF)
-+		dest->apparmor.label = src->apparmor.label;
-+
-+	return 0;
-+}
-+
- void apparmor_release_secctx(struct lsm_context *cp)
- {
- 	if (cp->id == LSM_ID_APPARMOR) {
--- 
-2.54.0
+We help startups get cloud & AI grants / credits: AWS Activate,
+Microsoft for Startups, Google for Startups, and NVIDIA Inception.
 
+Azathothas looks like a strong fit =E2=80=94 if useful, I can walk you thro=
+ugh
+what you can realistically unlock in about 2 minutes.
+
+Website: https://stackcredits.com
+
+Yana
+StackCredits
