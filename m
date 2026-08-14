@@ -1,152 +1,173 @@
-Received: from mail-oo1-f43.google.com (mail-oo1-f43.google.com [209.85.161.43])
+Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5E6D202C48
-	for <selinux@vger.kernel.org>; Fri, 14 Aug 2026 12:24:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.43
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786710276; cv=pass; b=GRZXFqNADWRdFGxYxH05hCtIK4SWlNjAAcS3TxeAjL9zmie8JcI+ikRGOaMG3UxH6ygwSoyu/b8HzrnjOXoA1lD1p/g5hoe42s1JN1u8XjNsnMFQkfkNkhioI/yvDDkR0iTk8+ZSexc6DQLJkR/VdXFwFPrGUYlQsTLeSHl5f9k=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786710276; c=relaxed/simple;
-	bh=mtu5IjwyTKABbucVfucWA4B8Ib5j93b1aaX3z3Jwctw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mnFSCn+FLDYdF3CNexXSQyWTu5M1DA9L+OIUz93zzymZ7XEG3/hPfbJMryqhD1hRriINB1CpH+3S+sxAiVP4QWFCRKuJ5HndIqSu0zy869NJqmmn3eNyVGdJ3Gu0WJKmZRuQF0fJwdP/5t0SfajOipv4G83xDFvnYzugkUUDe8M=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TW2OD9Oa; arc=pass smtp.client-ip=209.85.161.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4A7346E005
+	for <selinux@vger.kernel.org>; Fri, 14 Aug 2026 12:44:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.170
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786711486; cv=none; b=Veg8Z9HIJblipK3R7lsAZOuVit/TnmGpcC9b2GdeURmIF/ETf6+idqFxbcXR0eb8owwvcjjTKDayAgVt9QiZYkMWilOY5bBUs6nucHmIodzyfFTpI8/r7e2fQQiCuMTgIoCWfyhTjhcPwAO5mw8kaJ6E+EgUEfD5aVx+9zTichg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786711486; c=relaxed/simple;
+	bh=YkO25xXa/BmBv7moCijKmzl/RIBMzaq9ZMfTGtuXWdc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Dro0a/HhbILFGscV8dS59xUGUfA5SqTKSVkkxgzqQgU33Q5j8JNiWDEQl6ut4V99AK33wgiAnlrv5A60GZe/v7v01LhvnOaSqoC27MwcJydjhsB42a28guk40qhtIPuTb9RrmWjQTmth4H7Mpi1mEtesF4CSZ3QrWCEyKboytpk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TEPrzaoA; arc=none smtp.client-ip=209.85.160.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TW2OD9Oa"
-Received: by mail-oo1-f43.google.com with SMTP id 006d021491bc7-6b049ea7a4fso344449eaf.2
-        for <selinux@vger.kernel.org>; Fri, 14 Aug 2026 05:24:34 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1786710273; cv=none;
-        d=google.com; s=arc-20260327;
-        b=I8qRwR5l6Ka9KcMP7wi9y58zNUu7IoVTCVZXP70xrP0IDqNVnzNXJUTe3FJ0I4rEyC
-         sMrDcH6m8GkNscihgx8WmnuKwT9tG5+C9PRxfStuIam/j8iOW2YNR6Tpo9MyEuYRA5zp
-         bkbSKtJFmB5kgaTaJz7EssFa3OP5QHQu+AK4pO7KH799A1vn9XZzJrqit5HnhGMMYbey
-         8+qIiG/RuS+JSYUusNPh5b/3byrgEgGP4rE1EtmzyehU/zk+m/RzaKH3J/FnYuKTDEso
-         VoXknuA0mEG+NzyWPwRjY3QEhwr3Kv0JB/46il5iZ1HyV0LV/OgCAGlsPSo9RQHM5tkD
-         Rxmg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=mtu5IjwyTKABbucVfucWA4B8Ib5j93b1aaX3z3Jwctw=;
-        fh=cVZI269ioQuwKzLGwbELyMvF9+q8sQJU42mbMSjvW4U=;
-        b=gPy/flNWhetvF+A5s0rqlHMPfmfOjkvhimi7jo2kLC4or9DfzolrkzUe09n+IOV8an
-         JmiWW661fG8d/QcSHDQl0+Wna70w1Z5VkWM3dy2Uzd0SOndeFdgGxkUUGTWjgzAQUSvp
-         cd+0fdRNXR2YGhBJ1sjCyusTDHuwm/SF90K+Y1VuOqCjlCYLkOpPkmcQfyAJVxiY9iGL
-         cb8b37U1wTCcqubjNgFMNxnGf8SHFlgDk95YUqHfY7IV9ha9OWC6YPshwBMIpdM/cjJR
-         UWYZo0E5VnlGy2gE6BZxn9lqS9fumDentbOeVYUHbYQrnzhcdoxQOvzCO000zaHbHMLL
-         KE3Q==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TEPrzaoA"
+Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-52d590ce5cdso8413611cf.1
+        for <selinux@vger.kernel.org>; Fri, 14 Aug 2026 05:44:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786710273; x=1787315073; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=mtu5IjwyTKABbucVfucWA4B8Ib5j93b1aaX3z3Jwctw=;
-        b=TW2OD9OaiMPsfzLepTDKHxAd8tjKtclEVkXswV57u0WA1So0wppUUHNTR+W1S6QTyO
-         MsJoo6SQu7SlEq/BNoRWumomsV6Qf+nWVFYkPoNH9TGo48ffOobMjZh+xpLlD4yenAcK
-         MEXAMrKlaViDezwezSDVRNtdR4BmSJAIw2axKj+0qjdXP93zmHGAK0VXkPy33K/lAy0H
-         8shSe2UWXglUl6uBrwSuPSQGy8DiKyg6yi7xwiCEdNjFcGAsWidE6eJlOgf2fen0dtyh
-         PaKVoxvvDtWduq1umhvPItVOoml6BDge8GNSx6AChsXD+veOWRZIynDeCN3Q20L7Jtmn
-         1d+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786710273; x=1787315073;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=gmail.com; s=20251104; t=1786711480; x=1787316280; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=mtu5IjwyTKABbucVfucWA4B8Ib5j93b1aaX3z3Jwctw=;
-        b=XNl9oKo2kPcrFP5a5FYGh1/KbSHbJ3pvtYnzmJXuH4YvBlgGQ3gbgcHctj0EVj2wNx
-         3ojn6ZrtXm7E/fon1SQH3uAkpjQVDPQhepqfvjOET0D3e0X1HASyBZLYehWuYczhxQBN
-         Ru209jYbitBgzuYiBExCj5SYvU3fpoKJUxAZXJhQgJWPEdM9xMb1lJGGS5WznSXF86Ni
-         es4ICl99Hz+9xrj/119QGPka7eAgg+i2h/wO++cFMDSIu5fPOiFIYqM8hjY8dy5OHnx6
-         C/MayZLHSdSLSn4ARRcAFvGv9p0D/uLW+th2I3lYXVd/0IQHAwvUJx0qscoBgbiGZQBy
-         L/Wg==
-X-Gm-Message-State: AOJu0YyJRsyb/l68m8+fwvv6X0sdskt1PpYLvSCM1G8Y3RRI/joW+/yj
-	eXrVOmVZvOaJ/wg9KPTOdF94/8vCSxzNc8TnHFYFZqR8gNGpiG8nAxR2Jip7BsHQmyAwRipB+uv
-	KcMnmm/IjRMegoO6u1O6yYUl3O03alaL5jg==
-X-Gm-Gg: AR+sD12hWnTiFZVR9EAdjlBEQVMsIJejxfaPgSKInLxW/PWgi2EiG0lU/6+qvml8H6J
-	LAAHfKZPWeLBt9K6j6RS1VnandP72abHzPajCoCKp5/JKr4Z4fI4XY0iDQCA7Ly7hbQ7pMCqXGl
-	yS/zEEqRs3qztBOi43VxGm/G8bYG0ZKbtllpwlW9gQybjfAS0x1vPl/1R92Y/cB8qPaZnd6qIBb
-	rNsmYkI+PY7nTIO0+5/eKPsgyT1m5YqDQvSR3ArGVWcBvMf9XD+oq+4EIWHG9dy/hUvUsGehnM8
-	nML9ZZpY5jvxMa3XvQgy1JhP23iiL5R1cQFJJ0mnMtOa
-X-Received: by 2002:a05:6820:f07:b0:6ae:55f6:2cdb with SMTP id
- 006d021491bc7-6b0d5fca98bmr4328015eaf.1.1786710273313; Fri, 14 Aug 2026
- 05:24:33 -0700 (PDT)
+        bh=PVoDeTLhzFTtSW0Vo3EWmiqKUCstv0B71QL1AShHSt8=;
+        b=TEPrzaoA8i65/e4DdWqJLPvJlI8trmRphNDdex/ez2DR+gfl2CXwExv+CBzLgcLhTn
+         h34MTz8nWYPxAdKZbrQWz0RAZfJFUMXO7T+syVnx7AhFslfQWUQEaUrkqWjkl7h6gg18
+         7ymy8u2Oj7q2CRAggGsk7z/0SQiBKpQnm5K/ee1Wcm6wHo/TnqUhg2fFSkvI7sVH0NOS
+         YpsJMeRk9cSOQzXE8HH2h3XIpWxQZfqCffNZJdxaQgVgSwe5ZuIqXG4axGmdDodGeJqC
+         YlFqOvPpLH49D+Hste0v6NojGhvxCUw/s8x56YvmibA1oW1y3H/6lrWeCZMa7Jwqv6XU
+         YjBw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786711480; x=1787316280;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=PVoDeTLhzFTtSW0Vo3EWmiqKUCstv0B71QL1AShHSt8=;
+        b=P6vBcr1Z7dicQC4A5EMHqtbhbxqipXVgYT1Ays28NV5RQzk2MuXLqyI4d+2oxQKy8x
+         vOIweI09+GxRDnlbgYauVf8K2sXR0lzfxCaNfRmGcMaKh39zn7LHyUmInYC99f2men/P
+         kxL1H1Lkb5NQhoZ3bZkzyeLnypp/41NwPYJmhCGWMKZUqjLnRoiW0n5O82/x6UjWn8cz
+         ZtJXnWmiEeToalZ2FtQcJ3pHDfAHr7SiULx+XoZEhkhQCpxztGmAtQ5Fi9KqhkVE31qK
+         XkBTXwnozkEMifDOY/NGii4l75uaElWdevl9JcxJOaMymARjW12udoPCpxYttgChItVh
+         L4kA==
+X-Gm-Message-State: AOJu0YylGMksWPcl1/2zQpF6JEiSW0IMjfX1pNC0NEanhTJovjVs1J9M
+	if7dC242AJ3a2ecNFkNwGqUADo4oyzdcAeHNizwFAj89O5NYJsW2kyzQQTKcHg==
+X-Gm-Gg: AR+sD1248ON4pkbhY6S1uXcCehJIXz53FgyXnGKusMfq4RgLA4wes+OG5A6jD/Pjw/B
+	gThq+H2F9onmHjpONuPpUn6YAdeF++oub1XTdEvjBlxphpolyaFyGrCjcg4kjorXvFVhCouhnMV
+	zDgiVniQ3QkUIWNCgthYvYK91Cj/64VS9IyLkamTD05y0i79WuRlAljrWLAJ7d3sMWfL0Nmh5va
+	V7AgDx+REOGFN4Yg+VWDVP1dg87rT3D8I9kPbrTVBwd40w3CAjrb09i6Q3pn85kt4gyUanbvoiV
+	NYbEprOOpHYc6+BzwOYUFy1oSnAPjbWrc9I53Bkj9lEyg8QI+BC/ln8RHB510Q/EfN8+/eye5eQ
+	p5jHBYdxoTEBF1/a1ZSjpm+I2t9bFc3g1sLsHT3zKzGUuPX+THsP0ciVqYYMi992ubvR7UDIB3K
+	nubqDGtb1HZbROFZYIM76av+eiKbZ0JJaiO6u2Kf92nHDGz7vWst373vK32qUsfKZJlhKzYAAHc
+	jG6x6fpC4b7OxzmawcKRYyiOWFf8+RrZ2ioOyJ/IetKGG6Pg5IJbSH9SKPB46BXz1MXeZqlfdA=
+X-Received: by 2002:a05:622a:a1a:b0:52b:4c5a:5844 with SMTP id d75a77b69052e-52d85420e07mr65401751cf.20.1786711480141;
+        Fri, 14 Aug 2026 05:44:40 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52d840e1749sm21032901cf.28.2026.08.14.05.44.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 14 Aug 2026 05:44:39 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	jason@perfinion.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	=?UTF-8?q?Thi=C3=A9baud=20Weksteen?= <tweek@google.com>
+Subject: [PATCH v2] README.md: Further elaboration on minimum policy versions
+Date: Fri, 14 Aug 2026 08:44:25 -0400
+Message-ID: <20260814124425.202855-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260813073533.3253251-1-pmatyas@redhat.com> <CAEjxPJ4yW94x_DLSe=zdmfKB95aagFmydTKsBnWGfjc6efr4hA@mail.gmail.com>
- <CAEjxPJ6uL5L=hMc3Gz0B20e=UhDcnWL2WyK-_xbM6Gv5KruDRA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6uL5L=hMc3Gz0B20e=UhDcnWL2WyK-_xbM6Gv5KruDRA@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 14 Aug 2026 08:24:21 -0400
-X-Gm-Features: AcwNN1V51SmyMAhRwLljnAwjWgtoKCuHAnXifBRCkXk70_THWB3EEqKK10cbahI
-Message-ID: <CAEjxPJ50Stiwx49xS4rkvcRjuzGsEYhAyECCAckw1g0EWvZpOA@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: fix SEGV in JIT matching of recursive
- patterns in partial mode
-To: Petr Matyas <p.matyas13@gmail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Thu, Aug 13, 2026 at 11:35=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Thu, Aug 13, 2026 at 8:50=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > On Thu, Aug 13, 2026 at 3:35=E2=80=AFAM Petr Matyas <p.matyas13@gmail.c=
-om> wrote:
-> > >
-> > > The PCRE2 JIT compiler has a bug in its PCRE2_JIT_PARTIAL_SOFT code
-> > > path: patterns containing recursive subroutine calls (the (?1...)
-> > > syntax) cause the generated native code to dereference a null pointer
-> > > at match time. pcre2_jit_compile() returns 0 (success) and the
-> > > compiled JIT size is non-zero, so the bug is undetectable at compile
-> > > time and only manifests when pcre2_match() executes the JIT code.
-> > >
-> > > The root cause is an interaction between OP_RECURSE backtracking and
-> > > the hit_start tracking mechanism that the partial-soft JIT uses to
-> > > remember the earliest position at which a partial match was seen.
-> > > No fix is currently available in PCRE2.
-> > >
-> > > Commit 92af7f1b61db ("libselinux: prevent ReDoS in file context regex
-> > > matching") introduced pcre2_jit_compile() calls with both
-> > > PCRE2_JIT_COMPLETE and PCRE2_JIT_PARTIAL_SOFT. ClusterFuzz
-> > > subsequently reported a SEGV in selabel_file_compiled-fuzzer via a
-> > > crafted compiled file_contexts input that triggers the bug through
-> > > the lazy text-compilation fallback path (version/arch mismatch causes
-> > > the pre-compiled PCRE2 data to be skipped, so the embedded regex
-> > > string is compiled on demand via regex_prepare_data()).
-> > >
-> > > Fix by dropping PCRE2_JIT_PARTIAL_SOFT. Per the PCRE2 documentation,
-> > > when partial-soft JIT code has not been compiled, pcre2_match()
-> > > automatically falls back to the interpreter for partial matches.
-> > > Partial matches remain protected against ReDoS by the 10 000 000-step
-> > > backtrack limit that was introduced in the same commit. Full matches
-> > > continue to use PCRE2_JIT_COMPLETE and are unaffected.
-> > >
-> > > Reported-by: ClusterFuzz (testcase 5660382656790528)
-> > > Fixes: 92af7f1b61db ("libselinux: prevent ReDoS in file context regex=
- matching")
-> > > Signed-off-by: Petr Matyas <pmatyas@redhat.com>
-> >
-> > Thank you! This also appears to fix another new oss-fuzz report
-> > (selinux:selabel_file_text-fuzzer: Heap-buffer-overflow in _pcre2_scrip=
-t_run_8)
-> > that just showed up (reproducer attached and output below).
-> >
-> > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
->
-> This is merged now. oss-fuzz should let us know whether it fixed both
-> of the recent reports.
+Provide further elaboration on minimum policy versions and
+considerations when updating them.
 
-Just to close the loop on this, oss-fuzz confirmed both as fixed by this co=
-mmit.
-Thanks again!
+Acked-by: Thiébaud Weksteen <tweek@google.com>
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ README.md | 59 +++++++++++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 49 insertions(+), 10 deletions(-)
+
+diff --git a/README.md b/README.md
+index bfd32b89..3069e1a5 100644
+--- a/README.md
++++ b/README.md
+@@ -25,8 +25,9 @@ for more information.
+ 
+ Minimum Supported Kernel Version
+ --------------------------------
+-Linux v3.0 (for /sys/fs/selinux mount point directory) for libselinux
+-and anything that uses libselinux to access selinuxfs.
++The minimum supported kernel version is Linux v3.0 (for the
++/sys/fs/selinux mount point directory) for libselinux and anything
++that uses libselinux to access selinuxfs.
+ 
+ Note that the policy build toolchain (e.g. libsepol, checkpolicy,
+ checkmodule, secilc, semodule_package/expand/link) does not link with
+@@ -35,18 +36,56 @@ Linux kernel version. The policy build toolchain has in the past
+ successfully been built and run on non-Linux platforms as well
+ (e.g. macOS), although this is not officially supported.
+ 
+-Minimum Supported Policy Version
+---------------------------------
+-Kernel policy version 24 (boundary) for the SELinux and Xen
+-targets. Support for this policy version first shipped in libsepol
++Minimum Supported Policy Versions
++---------------------------------
++The minimum kernel policy version is 24 (boundary) for the SELinux and
++Xen targets. Support for this policy version first shipped in libsepol
+ 2.0.34 (userspace release 20090403), Linux v2.6.28, and Xen
+ 4.0.0. libsepol dropped support for kernel policy versions older than
+ 24 starting with libsepol 3.12.
+ 
+-Modular policy version 10 (boundary alias). Support for this modular
+-policy version first shipped in libsepol 2.0.35 (userspace release
+-20090403). libsepol dropped support for modular policies older than 10
+-starting with libsepol 3.12
++The minimum modular policy version is 10 (boundary alias). Support for
++this modular policy version first shipped in libsepol 2.0.35
++(userspace release 20090403). libsepol dropped support for modular
++policies older than 10 starting with libsepol 3.12
++
++These minimum policy versions in libsepol affect:
++1. The policy build toolchain. For example, checkpolicy, checkmodule,
++and secilc cannot generate a policy with a version less than the
++minimum.
++2. libselinux and its users. For example, libselinux cannot downgrade a
++policy file to a version less than the minimum, and libsemanage cannot
++read a binary policy module that was compiled with a version less than
++the minimum.
++3. SELinux policy analysis tools. For example, setools cannot read a
++policy with a version less the minimum.
++4. The Xen hypervisor, which compiles its XSM/Flask policies using
++checkpolicy, and only currently supports kernel policy versions 24 and
++30 for the Xen target. Xen does not use binary policy modules so it is
++unaffected by changes to the minimum modular policy version.
++5. Android, which is on kernel policy version 30. There has not been
++any need for newer policy version features yet. Android does not use
++binary policy modules so it is unaffected by changes to the minimum
++modular policy version.
++
++Increasing the minimum kernel policy version for libsepol therefore
++prevents generating, loading, or analyzing policies for Linux kernels
++or Xen hypervisors that only support a kernel policy version lower
++than the new minimum. The minimum kernel policy version should only
++be increased when there are no still-supported versions of the Linux
++kernel and Xen hypervisor that require a lower kernel policy version.
++
++Increasing the minimum modular policy version for libsepol prevents
++generating binary modules for distribution releases that only support
++a modular policy version lower than the new minimum, and also prevents
++reading and hence using binary modules that were built with a version
++lower than the new minimum. This could affect modules originally built
++under an older release and carried forward through system upgrades.
++The minimum modular policy version should only be increased when there
++are no still-supported Linux distributions that require a lower
++modular policy version _and_ any binary modules carried forward
++through system upgrades can reasonably be assumed to have required a
++rebuild anyway due to major changes to the system policy headers.
+ 
+ Installation
+ ------------
+-- 
+2.55.0
+
