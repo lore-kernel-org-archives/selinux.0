@@ -1,111 +1,110 @@
-Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E11381BD9C9
-	for <selinux@vger.kernel.org>; Fri, 14 Aug 2026 00:31:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.172
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786667514; cv=pass; b=jcgJeUeWF2rNij/SXoK4SSm36vsb2xHByns52AARnOzq/NWGb5ljappgxq3wu4pOzFOlVKJN7nFTzzheIfrEkvA/rZtI2/r88OvN15AQdSLBXMG3wZMu1fRUlE0e5NuPPQRUC7PKxwSj+4UN1Yp/sNWwJb29AAFtyldZ1YsjnwA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786667514; c=relaxed/simple;
-	bh=kdM3dopFXZxGjlCh/H3x7WTOT7z22vgCY9kveUjjVik=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=Z5SXp0jV96QScvMhwu80or1/DGDJI2q61k2vTgbju9MK2rhy4NDygwL12fC3dGRtVPMI/25pNeVjBxbS+QrBXiLymLdiKMttFqF+lLDmzBWcjnST6aCPQPEGdqr99WHUFvDs0WYqun+dS4YpIquFCn9rkSUS0J5YfV0N577TmDU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dLoWUoar; arc=pass smtp.client-ip=209.85.214.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0093225B092
+	for <selinux@vger.kernel.org>; Fri, 14 Aug 2026 01:06:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786669589; cv=none; b=tOE/Npv7v7+16EI0Pu3qDBiQlhgEuRnk+24GOB/A417K5pms2r+Phr+iDrOUDOURCuFjD0Ao2QGF+MtqwmYUA6pel5XVAf5JgSTUrXEhH9NO33obFaHjA58M2uIo1H4sgW40hfgeFCxrDdv3r6fDeUP7eEAzZb3PESNOvSZSiMY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786669589; c=relaxed/simple;
+	bh=LCawfRGCiZ7hCYVXuqAVRobR9wxgLA6WwfjJGGsVZp4=;
+	h=From:Subject:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=arh8W703/Y+0N6SVXIMTjKGxdGu1c1zAhPK7qQkEpIdB17vDiNQa1wjzCuW0MNr41VDA6exyQ/Vi5CnEXd/N+bjHiWA2l1jOH31/E7h5OO1D826rzzAki4ZJK/s8lD7dgH4s31/Y02PzW8kXwmfj+i4S/prMmpZ6upXusYZ90JI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=csoKLqPQ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dLoWUoar"
-Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2cf6d65d8a7so6928835ad.0
-        for <selinux@vger.kernel.org>; Thu, 13 Aug 2026 17:31:52 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1786667512; cv=none;
-        d=google.com; s=arc-20260327;
-        b=GfT/PStGzTLN4TEp7hers8KwuHJEpDpucd0qQPF1OjMIA3NxV0l54po5APdZyhVeYL
-         AUvnX234c9wfoDioiLmQ6A96sHUIYFhezO5a76Tp36MsPxbKMn/+grqEHL5rEL7giYHb
-         fgWaId3SvVHSEqRNBfjicmAHGng/RRupRap47XwKQkG3SqaOHGaUjMHvvYN/VIUi+Pi2
-         WCfynMhymbOdXtIiX7HidmgegGWFz0l+aZAxhF9DmxGpsWmnuIuUdhWQquhlfHFE9dgR
-         mPL5jXVwP1GdT4eThIdFYYYPwfLTKldmVg6q3qmxqPjv/oDFWDVMiqo1YBbizBZbTpuB
-         z5LA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :mime-version:dkim-signature;
-        bh=kdM3dopFXZxGjlCh/H3x7WTOT7z22vgCY9kveUjjVik=;
-        fh=l2l+BKIhep14i9a5yxIzwDvgNRHYkyJlbYDDp8LiW6o=;
-        b=H35RottmeJi5o7ieMqEx68UWCsdg3aoyjpBRxEFKQAyeUuRIxQM0DEiAgRzchDqkL6
-         gcBMpY6Nr5dtgM0RnbNZdin66gqIkacs7K6QuRwliKSB+GaygMlqJCe1cgVLbWTo6UvV
-         RXTJknZ6xDRbnP4r0SvMT/LbRG1tc0hfDxDkNZ/hwFEeGCsuXpb+SeGSVJsJ5Wufvanw
-         ZQlsDRKRkSPntk5RLgvlw4J6qSotTmnKL4qtLGoaZ5G4bqsn0Wmo1hLzkdMfAWWFxT+f
-         mcWG4+2P+JYM1Agxin0Axji5vbA+Ox/d9crgKCq+OzJz/lSw4vqWLOJbC1Kq2lpqI53r
-         2EHw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786667512; x=1787272312; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:to:subject:message-id:date
-         :from:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=kdM3dopFXZxGjlCh/H3x7WTOT7z22vgCY9kveUjjVik=;
-        b=dLoWUoarv5upiilxUBFZm30N2I3GBZNBRVWrlTAI2lSoLI/e/xp627L+0XzYI40sTT
-         j6GvuFloE5AoVIE1CqIAlUkc6gEEGVGuwR7uyQo8EEDmHf1jyuHvNQMIlKxJAe47LwjT
-         e2oYjhiaEzMG/8gXaEw4OXBkmVQjFjEA4buKgbQ/fO3YuBoPTUDO96O8ijPK5sB4QKTF
-         656AXvDPWobNKlv7Gq3pbVFnjJc9hqCzSMsTW4nfpRwPZe/D+exuVIHHpsLTYjMJE7pm
-         eTZMakvjDenVicgNkWJqyTltNAAVWPO4imFxfQv5O2u7oTYVE50SrbtREY+xa4pFPcj4
-         QKmw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786667512; x=1787272312;
-        h=content-transfer-encoding:content-type:to:subject:message-id:date
-         :from:mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=kdM3dopFXZxGjlCh/H3x7WTOT7z22vgCY9kveUjjVik=;
-        b=TWt3xuTYQUnP8Rwu2ALFzgGz/BILnsBfJJnRwSPGwTTrX0SWITO8f9Oj1zFZP/Lklb
-         tKHQPDgj4ubJyZne2WWpgjVTDW8DZNra1scpSnl9rF0+lSdOSwKzYtCO1oiy75vcFUBQ
-         xLL2USObFwQvGqJmORDcQTGRKsqoHro1edqXVuuopW3mJ8LoW0z8DlUFYiuPHXYFOr2r
-         ruvOaw3omClagFpF0EYQdLKbLGn32ApJ3UpPDDsipSAvxZZtoy0ZPlNvRx3oLNQ6jGo7
-         e1WR8QAQ97DjgDaHaUhDJh81dcTPjjdmplNK9xn8Hb9Gqx4boaEtf76lQRHAJrfm4pOS
-         YB2A==
-X-Gm-Message-State: AOJu0Yy/x5EVlq0SSGT7oYqOmquJmmhu1CTAuaWpr6tHC+zCPbcU1WX6
-	ZTUXvHxCTyPzcpRtAsjBgsdhQlKGX5bXoWYyXXfPxJgLo9r4CBmzb5lo5M39ueeeY0VYSI8ch3t
-	3Xqci+OdbS8WLbQ5KL68av3ULRbnHp2Dx3+ae6MQ=
-X-Gm-Gg: AR+sD13xuS+qzd0EBIPeqd/aCnGimsDNMg55CeSq3scs0Sq3wA6IrpIzyEXFja4ePSd
-	YEchJg4y5Bc//ea3qmOT6HWlG+gxqpWSY9jAJt/UgNfPGpB4Y1ZKEBP169l55WKSeFtS1Xer3+q
-	nyb/d1TpPxlLSfKd9IKNY3F/uKBbBkRAdVVftzOrzKIQr4zn5b39JRPgWQ0FEPF/GceKQQljpm6
-	M66SrpNbWoIk8bT10t91LcpJAnFnzfAeI3G5cAPvDumg0pCjrKC8ysZi8Z7dGcQe2Ss5SM1qOhW
-	hxp9mh/a/QMOApqdq46fE45CPgYW1+sJKFHkcY48Q9uk5U4WGcMoeAkb879YjOK45RJk1OqrrUV
-	6dTKMsl6ci+89Fp1CASKYYa/H8JOffiiqqxUhdX/trAAcftrpz7kUtmrgk6rMgnBSx8Rb3IQVtu
-	wNbAE5eCP56yKFeLqWzj/HbkQIRFLd736joCJQfJPk6dijUZKWgCBBxLtF/NWjoE0KY112lTI=
-X-Received: by 2002:a17:90b:2e90:b0:392:c80c:9202 with SMTP id
- 98e67ed59e1d1-3933b8a399dmr2003000a91.14.1786667512267; Thu, 13 Aug 2026
- 17:31:52 -0700 (PDT)
-Received: from 869137188232 named unknown by gmailapi.google.com with
- HTTPREST; Fri, 14 Aug 2026 00:31:51 +0000
-Received: from 869137188232 named unknown by gmailapi.google.com with
- HTTPREST; Fri, 14 Aug 2026 00:31:51 +0000
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="csoKLqPQ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54AE21F000E9
+	for <selinux@vger.kernel.org>; Fri, 14 Aug 2026 01:06:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786669587;
+	bh=576vpelqxFx8hr/wpaiYoc/UAFlHGSglv7qtCFyvdoA=;
+	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
+	b=csoKLqPQj9QpF7DsnH/PVgMHH/NE5CzO1vJnCTROc1zK3DzFuhnzSK+GItUzwIGtA
+	 IWWhOpjG4lCK5d4NKhk7wSONXL+PF0I9qBMaDnSpOP9EhxOYO9Ea2l+sneCTC6yXuQ
+	 0Lnd1WUDwspBfsTcsgzphMJ4j2dc5gF/qGDjB7Vlhn3EA6mMqhte6UxBkb19waZi8w
+	 2sChuoxtwvuqHDctAI0nGydY6NrFSS2BsvOO+T5mnAFfJq78szIQOodXzvR6kNYED3
+	 YUYC9PBNRYaABJUJy2W4XB+lK7fsb7eLWQh4zAYvZ62dxq4pAvh0F0MkZFVdAsf4ed
+	 39dzhgSC2eZlQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/7] net, smack: Create a function to set secmarks
+Reply-To: sashiko-reviews@lists.linux.dev
+Cc: selinux@vger.kernel.org
+In-Reply-To: <20260813204854.19211-2-casey@schaufler-ca.com>
+References: <20260813204854.19211-1-casey@schaufler-ca.com>
+ <20260813204854.19211-2-casey@schaufler-ca.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 14 Aug 2026 01:06:26 +0000
+Message-Id: <20260814010627.54AE21F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-From: ylialuke@gmail.com
-Date: Fri, 14 Aug 2026 00:31:51 +0000
-X-Gm-Features: AUfX_mzA11K5ZNCosnaQNXQrc73UedYjB3JNftNyzjt0pnVx53uu601gxgfOZUA
-Message-ID: <CAKvDjUMZUx0RQc2ETfcdzLEcdXdXyb2K_wTha4fgYGk7y0_vCA@mail.gmail.com>
-Subject: Cloud & AI grants for startups
-To: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-Hi,
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] The helper `secxa_set_secmark` causes build failures under two vali=
+d kernel configurations: when `CONFIG_SECURITY=3Dy` with `CONFIG_NETWORK_SE=
+CMARK=3Dn` (invalid struct member access), and when `CONFIG_SECURITY=3Dn` w=
+ith `CONFIG_NETWORK_SECMARK=3Dy` (implicit function declaration).
+--
 
-I'm Yana from StackCredits.
+--- Patch [1]: [PATCH 1/7] net, smack: Create a function to set secmarks ---
+commit e74441b7e906ce8624528752b177a2d903d76f44
+Author: Casey Schaufler <casey@schaufler-ca.com>
 
-We help startups get cloud & AI grants / credits: AWS Activate,
-Microsoft for Startups, Google for Startups, and NVIDIA Inception.
+net, smack: Create a function to set secmarks
 
-Azathothas looks like a strong fit =E2=80=94 if useful, I can walk you thro=
-ugh
-what you can realistically unlock in about 2 minutes.
+This patch creates a helper function secxa_set_secmark() to assign a secmark
+to an skb, replacing direct assignments to skb->secmark. This allows for
+cases where assigning a secmark is more complex.
 
-Website: https://stackcredits.com
+> diff --git a/include/linux/lsm_secxa.h b/include/linux/lsm_secxa.h
+> new file mode 100644
+> index 0000000000000..f4c732d26680c
+> --- /dev/null
+> +++ b/include/linux/lsm_secxa.h
+> @@ -0,0 +1,22 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +
+> +/*
+> + * Copyright (C) 2026 Casey Schaufler <casey@schaufler-ca.com>
+> + */
+> +
+> +#ifndef __LINUX_LSM_SECXA_H
+> +#define __LINUX_LSM_SECXA_H
+> +
+> +#ifdef CONFIG_SECURITY
+> +
+> +#include <linux/security.h>
+> +#include <linux/skbuff.h>
+> +
+> +static inline void secxa_set_secmark(struct sk_buff *skb, u32 secxa)
+> +{
+> +	skb->secmark =3D secxa;
 
-Yana
-StackCredits
+[Severity: Low]
+Could this cause build failures under certain configurations?
+
+If CONFIG_SECURITY is enabled but CONFIG_NETWORK_SECMARK is disabled,
+skb->secmark won't exist in struct sk_buff, which would result in an invalid
+member access error here.
+
+Additionally, if CONFIG_SECURITY is disabled but CONFIG_NETWORK_SECMARK is
+enabled, this function won't be declared. This would cause implicit function
+declaration errors in modules like xt_CONNSECMARK.c that call it.
+
+Should this helper be guarded by CONFIG_NETWORK_SECMARK instead of
+CONFIG_SECURITY, or perhaps both?
+
+> +}
+> +
+> +#endif /* CONFIG_SECURITY */
+> +
+> +#endif  /* __LINUX_LSM_SECXA_H */
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260813204854.1921=
+1-1-casey@schaufler-ca.com?part=3D1
