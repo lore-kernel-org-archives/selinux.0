@@ -1,349 +1,180 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EAD118FDDE
-	for <selinux@vger.kernel.org>; Fri, 14 Aug 2026 02:39:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786675147; cv=none; b=Ag7S1DBgOqD/ynF92rQ4CM+nQ6T7y4k3fGTxhuXiWuCF5m1FTRknqzzip4AiJRQD5quCf/xiIhJMRmhZ32AnBu0xMMrxwsUBpb1Rh/UTiZeyGzqoLvYR2Bp5gQWvH7tB7uSK5Jum4MeS/2I4+u91hq37S6w5q6EaVQEll+NJV/I=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786675147; c=relaxed/simple;
-	bh=lTKSLxp7EESD5AwLIQ72DniqW8jjRDlMo8WJF4g/Ros=;
-	h=From:Subject:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=nvk1/jXuj7rkXyGljy9wxtpb+PVRMu+4SAWdm93Ey2r50SWG+Cht/EhblBa+gS5adCladmp5tNjOyZfw19w50nR5vyhNyKmtnI1jILPg9XxEIlV+IWlL1irdaYdH8s7KSY3ozwLjbmV5f4oBv+yCNewxTb1/CR6K9cJu8DSKvsI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ludxAZud; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16429353A82
+	for <selinux@vger.kernel.org>; Fri, 14 Aug 2026 02:39:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.169
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786675186; cv=pass; b=R1rv13XjOjJ3ojIxbG6daZjL8jzLY3Dx0H7Cn66sH3RHru2Z7YZIk2MoCfnY6XlS4alcbAXHvmxKzkKbZECN60V74tNMG/uoVFrlSX4r6BOdUZOSL01XYyOU0XlDT7G/AFkwu6Yqc5J4xoCTI/6cme5m7CdcTx0MnQUwcA7StAI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786675186; c=relaxed/simple;
+	bh=e7GDZuZq4XH1GHVz2EUb/xqxBiAsPOx7DRBEqWgDGBI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=dP1Whg4vaBMm6qBhTNapSHUL+lHQJ3nepTO2GD2IDzT2PJkR7t5ARZIGY2WLcrz7RZP1EgRh0uZd3utFC6fAlNhhdBF+sdXucSQEk+1Pgabe+uLM1mKyIxSxdM6Kw43x5hu/MnsE5dl4zZvpe3BBk58N2h9UOgKpGDNtV4flNHE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ESYTMAEx; arc=pass smtp.client-ip=209.85.160.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ludxAZud"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A2161F000E9
-	for <selinux@vger.kernel.org>; Fri, 14 Aug 2026 02:39:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786675145;
-	bh=LdvPKdYL/p05SFziqYTw/kVzigVLWCpo1XaTjPAuYdM=;
-	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
-	b=ludxAZud0WAj8yQ+0/UTww+0XS4a2K6/SFEpqoJL47fBEPQnBZUTwW2T6DOqQjfNM
-	 kLRLIs0+L3Tal/O4uL0pQVDUoy1LwooBGZ4ikE2AC0gfRSrVdtGznObKxeJcJtN0+r
-	 pzYtHIk5ECAF+HDOKbkp4vAmnc4DskiUPUyCYZisn15bQrEHcURxO4G2xT+YgNSF6t
-	 wuwDlQvz8qz/kYxEnBJrlHzB1HdXE7S+T51/dp0RcEtugc7z5+NqaJSU4n3rrLfU4f
-	 U2VwpCjh1K53tc4s1hXIrORVuo62KOa1ieQH2nH/lY8vj/B7SpnhXiVtF6otjTJMYX
-	 EK59C3skD/ZXg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 7/7] net, lsm: Change skb secmarks to x-array indexes
-Reply-To: sashiko-reviews@lists.linux.dev
-Cc: selinux@vger.kernel.org
-In-Reply-To: <20260813204854.19211-8-casey@schaufler-ca.com>
-References: <20260813204854.19211-1-casey@schaufler-ca.com>
- <20260813204854.19211-8-casey@schaufler-ca.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 14 Aug 2026 02:39:05 +0000
-Message-Id: <20260814023905.7A2161F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ESYTMAEx"
+Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-51c10e86e52so70781cf.1
+        for <selinux@vger.kernel.org>; Thu, 13 Aug 2026 19:39:44 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1786675184; cv=none;
+        d=google.com; s=arc-20260327;
+        b=RuZ5NCZwszWNglFztcU1/bvpZBl56/g7guwtx0H2QqxDSPw5l+RDYiQB1/ySPKLfR9
+         LVQBbcLJ7CFWjm2OnNT9zBeOJggucYQ5qg9C2WOLRGKaLkL/4XDnsvWOcEqFW61ONa46
+         rXmdT/JHTj3Zuah2eTfxTlx6rR/jfUtzp/hA1TdlThjzpYUxuiQUgsfh5mr63wgJY1rA
+         uPMKrBQkCNE/JOCf+EKgO7YK7MMh4IqQRAfseeJxAwUjAku8p18UGDgDIL6deJM4u4AR
+         Cvp6CSsXgMitrvkn5Jd/m5JNFBX+kAzBbNn3pqc+ElfnbF5zHURpFx8pVwtXpmvgQ3Hk
+         wIpQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=apV1Fy4BVlFMGCNcXXiVKBIiYAex4zPqpD7SYa0z2p4=;
+        fh=T7KHZ77fNjtq8z9QKw8SKNTKKvtfhK5kUIAxKJPklZw=;
+        b=SaaxTwGcPZoT9gl/c57TIqmd9GYPDqugmVOcgym2ZAy8XDEh1RGY2F6J2ZNfepo2N9
+         80XFgTnhTZkU8cRXVJ6YkFS5U+Vx4yqK5sUILNVgmwO2GsK8toGzvqg2ryYCMBxDHu3D
+         C64dmadmI2GiKliL08dxbGwlkQw2sTnjtlQYg8MGv9tO8GvbnyEFoVzZGsby6wqOyi5y
+         pL0cysneHqpGNQ5L5eeZtMW6SGdCwFMGQ9o1KSMSzDTZWj741gIgtepg+E0FpDXH/7VN
+         Sp1ZRxcz9hkJruLQKLF7kWIKTSYQN8dnpRS/RZHf8kHsOzrBZVqwy2XmHNiWYcLOmT5T
+         GuPQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1786675184; x=1787279984; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=apV1Fy4BVlFMGCNcXXiVKBIiYAex4zPqpD7SYa0z2p4=;
+        b=ESYTMAExKDJCy8MtU390n99vzFsI1W84pcLurNbSGn04lUJZzGmrx4pQKc7l/VwsX/
+         V1pslc3QGcn4eAiXKYLNc1lwZCflMoCsDHIK1TBXR7PzjQ/BthCouyz9GwoZePlIkDO9
+         Q5dyJC+7cqrIhK8fZ0TyKJ3w220pvoThS89WAZ2lX8hfDK5ZhsGixD7GTsWd3JRx7NGc
+         8PCM1ssAiDBHpIui9MhOM953MEM8nbLP6S5NM2AnTYsrc5l0o+WbbxxWwY/1EUW/o4pe
+         K5OlU39E8qTwti1OlO1dH1Ar6yZ5VtM6KUfIYS6OG8WvOaeaElOqbV/ouQBCeU72Bpuw
+         fAUw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786675184; x=1787279984;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=apV1Fy4BVlFMGCNcXXiVKBIiYAex4zPqpD7SYa0z2p4=;
+        b=HpP0aoQAtV/GdfmA9jICoQuM+1Cz13LR3EMcOuYAOY2+Zu+3BcCaeMM1rts+N5VD4d
+         F6xwSArWcX3vJuwSA5RMqsogWms64eNeWfTCMxnsHRARBcud0CnJteNVAypHpf8+TYDc
+         I3QyrbQq5AOPdG4kjoAtQCBIkIsO/o97fUPWB839aHhoNAOMVugEsVYD6UAsivsIYAlb
+         +O9oep3SBSiNbVS32yXPM2pAzq6ZbhQFY4vqaFjhsr2VQSzk7pwo7gWHim2szeRcFH3R
+         5PMNIXlxsSyDkOfghxqFzO4gCb4J1jXqbMIZXeqGUPdhGHugRCasedj2lMgpxa+3yBHF
+         iTTQ==
+X-Gm-Message-State: AOJu0YxRWA812OYkO89oRNmtUpdCY2mMqEao3C3MLER7EzNSo+tJe5rz
+	hy54YZrMxR42StjMc0sISf0bEcIYqeCEzYZ5AwAeS8bcd38GWjvJBq57sQ9pI3w4hujGaBa0gJK
+	zwBtXwJTQyldcrric/XHJTTBRC5L/LJlH9LheG19V
+X-Gm-Gg: AR+sD10ubxTbmy3WJGxgl/UT313YOK2YMfHsM/QbD1efqSB56gUe0GWdeBnnQ+vG0xX
+	caSrPqZpP3od1MGjGuE5wxycMUWHzfvv83noqX1yG+Zoczoss1+AgZUy4FKKOsBaGxR1AYKyWp4
+	z8iqRlUiyQfG5fronwI4zdFAxqI9U9rZrM+7wEO6oJSPubTT8/ZdJiGzG/tuCmb9xx7qBDqKwZG
+	aq1v7tN1OMVTDJoKXCfOlIoFJxQaWSXR0BxCQIh/5LrQuo1lWklHM7YSqascAUMqwbbq1WyH+8J
+	Pwk7S9rCoWuYsMvHo65LPQS/D8HxPCbaTjb3RMXmzQnod4443k/7yCNr6uduj1BE5qr7EozqNFx
+	9v/BOja3S+znwgdo/mw8wNqNI9BQu
+X-Received: by 2002:a05:622a:591:b0:52b:4ec6:52ba with SMTP id
+ d75a77b69052e-52d845c0170mr9874351cf.6.1786675183260; Thu, 13 Aug 2026
+ 19:39:43 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260813195956.197456-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260813195956.197456-1-stephen.smalley.work@gmail.com>
+From: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Date: Fri, 14 Aug 2026 12:39:25 +1000
+X-Gm-Features: AUfX_mwRbYnIGOfEFeLWUPWs0KVM1nRXJN4GFCqSAaLXOmUgS6PRNsJYnY3jZF4
+Message-ID: <CA+zpnLcjJcEAUJJcHT9euu266WE++dFmC7-ukGisPTfa4nb04w@mail.gmail.com>
+Subject: Re: [PATCH] README.md: Further elaboration on minimum policy versions
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, jwcart2@gmail.com, plautrba@redhat.com, 
+	omosnace@redhat.com, jason@perfinion.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 10 potential issue=
-(s) to consider:
-- [Critical] Missing NULL checks on the results of `xa_load()` in `secxa_se=
-t_secmark()` causes unconditional kernel panics.
-- [Critical] In `smack_from_skb()`, failure from `secxa_get_lsmprop()` leav=
-es a stack pointer uninitialized, leading to a wild pointer dereference.
-- [High] Uninitialized stack memory causes XArray deduplication failures an=
-d leaks kernel stack data.
-- [High] Negative error codes from `secxa_from_lsmprop()` are truncated to =
-unsigned 32-bit integers, bypassing error checks.
-- [High] The XArray is allowed to allocate index 0, breaking the `skb->secm=
-ark =3D=3D 0` universal sentinel for unlabeled packets.
-- [High] A newly allocated `struct lsm_prop` is inserted into the global XA=
-rray before its contents are initialized, leading to a race condition that =
-corrupts packet labels.
-- [High] AppArmor unconditionally dereferences `prop->apparmor.label`, lead=
-ing to a crash if the secmark was created by another LSM.
-- [Medium] The XArray allocation limit `xa_limit_32b` exceeds the maximum p=
-ositive value representable by the `int` return type.
-- [Medium] Missing synchronization around the read-allocate-insert sequence=
- in `secxa_from_lsmprop()` allows concurrent threads to insert duplicate en=
-tries.
-- [Medium] SELinux hooks evaluate packets as unlabeled when `secxa_get_lsmp=
-rop()` fails, potentially bypassing security policies.
---
-
---- Patch [7]: [PATCH 7/7] net, lsm: Change skb secmarks to x-array indexes=
- ---
-commit 4d10524e4c6ddab86481df7f6394707d0a6f8278
-Author: Casey Schaufler <casey@schaufler-ca.com>
-
-net, lsm: Change skb secmarks to x-array indexes
-
-This commit shifts the skb secmark infrastructure to maintain an xarray of
-lsm_prop structures. It replaces the LSM-specific secid with an xarray
-index representing the security information.
-
-> diff --git a/net/netfilter/nft_meta.c b/net/netfilter/nft_meta.c
-> index bd9a9377919cf..0ce662ec3de06 100644
-> --- a/net/netfilter/nft_meta.c
-> +++ b/net/netfilter/nft_meta.c
-> @@ -926,17 +926,20 @@ static const struct nla_policy nft_secmark_policy[N=
-FTA_SECMARK_MAX + 1] =3D {
-> =20
->  static int nft_secmark_compute_secid(struct nft_secmark *priv)
->  {
-> +	struct lsm_prop tmp_prop;
->  	u32 tmp_secid =3D 0;
->  	int err;
-> =20
-> -	err =3D security_secctx_to_secid(priv->ctx, strlen(priv->ctx), &tmp_sec=
-id);
-> +	err =3D security_secctx_to_lsmprop(priv->ctx, strlen(priv->ctx),
-> +					 &tmp_prop, LSM_ID_UNDEF);
-
-[Severity: High]
-Does this leave the tmp_prop structure partially uninitialized on the stack?
-
-Since security_secctx_to_lsmprop() only initializes fields for the active
-LSM, the rest of the struct might contain stack garbage. When passed to
-secxa_from_lsmprop(), memcmp() is used on the entire struct, which can fail
-to match due to garbage bytes, breaking XArray deduplication and leaking
-kernel stack data.
-
-Is it necessary to initialize this with an empty struct assignment?
-
->  	if (err)
->  		return err;
-> =20
-> -	if (!tmp_secid)
-> -		return -ENOENT;
-> +	tmp_secid =3D secxa_from_lsmprop(&tmp_prop);
-> +	if (tmp_secid < 0)
-> +		return tmp_secid;
-
-[Severity: High]
-Can the tmp_secid < 0 check ever be true here?
-
-Since tmp_secid is declared as a u32, a negative error code from
-secxa_from_lsmprop() (like -ENOMEM) will be truncated to a large unsigned
-integer, bypassing the error check. This could store an invalid secmark that
-causes guaranteed lookup failures and crashes later.
-
-> diff --git a/net/netfilter/xt_SECMARK.c b/net/netfilter/xt_SECMARK.c
-> index ea67aa92ddc2f..5a7b83c674305 100644
-> --- a/net/netfilter/xt_SECMARK.c
-> +++ b/net/netfilter/xt_SECMARK.c
-> @@ -43,13 +43,15 @@ secmark_tg(struct sk_buff *skb, const struct xt_secma=
-rk_target_info_v1 *info)
-> =20
->  static int checkentry_lsm(struct xt_secmark_target_info_v1 *info)
->  {
-> +	struct lsm_prop prop;
->  	int err;
-> =20
->  	info->secctx[SECMARK_SECCTX_MAX - 1] =3D '\0';
->  	info->secid =3D 0;
-> =20
-> -	err =3D security_secctx_to_secid(info->secctx, strlen(info->secctx),
-> -				       &info->secid);
-> +	err =3D security_secctx_to_lsmprop(info->secctx, strlen(info->secctx),
-> +					 &prop, LSM_ID_UNDEF);
+On Fri, Aug 14, 2026 at 6:01=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> Provide further elaboration on minimum policy versions and
+> considerations when updating them.
+>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+>  README.md | 59 +++++++++++++++++++++++++++++++++++++++++++++----------
+>  1 file changed, 49 insertions(+), 10 deletions(-)
+>
+> diff --git a/README.md b/README.md
+> index bfd32b89..a2427bb4 100644
+> --- a/README.md
+> +++ b/README.md
+> @@ -25,8 +25,9 @@ for more information.
+>
+>  Minimum Supported Kernel Version
+>  --------------------------------
+> -Linux v3.0 (for /sys/fs/selinux mount point directory) for libselinux
+> -and anything that uses libselinux to access selinuxfs.
+> +The minimum supported kernel version is Linux v3.0 (for the
+> +/sys/fs/selinux mount point directory) for libselinux and anything
+> +that uses libselinux to access selinuxfs.
+>
+>  Note that the policy build toolchain (e.g. libsepol, checkpolicy,
+>  checkmodule, secilc, semodule_package/expand/link) does not link with
+> @@ -35,18 +36,56 @@ Linux kernel version. The policy build toolchain has =
+in the past
+>  successfully been built and run on non-Linux platforms as well
+>  (e.g. macOS), although this is not officially supported.
+>
+> -Minimum Supported Policy Version
+> ---------------------------------
+> -Kernel policy version 24 (boundary) for the SELinux and Xen
+> -targets. Support for this policy version first shipped in libsepol
+> +Minimum Supported Policy Versions
+> +---------------------------------
+> +The minimum kernel policy version is 24 (boundary) for the SELinux and
+> +Xen targets. Support for this policy version first shipped in libsepol
+>  2.0.34 (userspace release 20090403), Linux v2.6.28, and Xen
+>  4.0.0. libsepol dropped support for kernel policy versions older than
+>  24 starting with libsepol 3.12.
+>
+> -Modular policy version 10 (boundary alias). Support for this modular
+> -policy version first shipped in libsepol 2.0.35 (userspace release
+> -20090403). libsepol dropped support for modular policies older than 10
+> -starting with libsepol 3.12
+> +The minimum modular policy version is 10 (boundary alias). Support for
+> +this modular policy version first shipped in libsepol 2.0.35
+> +(userspace release 20090403). libsepol dropped support for modular
+> +policies older than 10 starting with libsepol 3.12
 > +
+> +These minimum policy versions in libsepol affect:
+> +1. The policy build toolchain. For example, checkpolicy, checkmodule,
+> +and secilc cannot generate a policy with a version less than the
+> +minimum.
+> +2. libselinux and its users. For example, libselinux cannot downgrade a
+> +policy file to a version less than the minimum, and libsemanage cannot
+> +read a binary policy module that was compiled with a version less than
+> +the minimum.
+> +3. SELinux policy analysis tools. For example, setools cannot read a
+> +policy with a version less the minimum.
+> +4. The Xen hypervisor, which compiles its XSM/Flask policies using
+> +checkpolicy, and only currently supports kernel policy versions 24 and
+> +30 for the Xen target. Xen does not use binary policy modules so it is
+> +unaffected by changes to the minimum modular policy version.
+> +5. Android, which has remained on kernel policy version 30 since
+> +moving to it since it has not needed any of the newer policy version
 
-[Severity: High]
-Similar to the issue in nft_meta.c, does this leave the prop variable
-partially uninitialized on the stack?
+nit: double "since" here. Maybe something like:
 
-[ ... ]
+Android, which is on kernel policy version 30. There has not been any
+need for newer policy version features yet.
 
-> -	err =3D security_secmark_relabel_packet(info->secid);
-> +	err =3D security_secmark_relabel_packet(&prop);
->  	if (err) {
->  		pr_info_ratelimited("unable to obtain relabeling permission\n");
->  		return err;
->  	}
-> =20
-> +	info->secid =3D secxa_from_lsmprop(&prop);
+Link to our build configuration, if that helps:
+https://cs.android.com/android/platform/superproject/+/android-latest-relea=
+se:system/sepolicy/build/soong/policy.go;l=3D31
 
-[Severity: High]
-Does this directly assign a potential negative error code to info->secid
-without any error checking?
+> +features yet. Android does not use binary policy modules so it is
+> +unaffected by changes to the minimum modular policy version.
 
-> diff --git a/security/apparmor/net.c b/security/apparmor/net.c
-> index 44c04102062f3..1d33734d15594 100644
-> --- a/security/apparmor/net.c
-> +++ b/security/apparmor/net.c
-> @@ -362,12 +363,17 @@ static int aa_secmark_perm(struct aa_profile *profi=
-le, u32 request, u32 secid,
->  			   struct apparmor_audit_data *ad)
->  {
->  	int i, ret;
-> +	struct lsm_prop *prop;
->  	struct aa_perms perms =3D { };
->  	struct aa_ruleset *rules =3D profile->label.rules[0];
-> =20
->  	if (rules->secmark_count =3D=3D 0)
->  		return 0;
-> =20
-> +	ret =3D secxa_get_lsmprop(&prop, secid);
-> +	if (ret)
-> +		return ret;
-> +
->  	for (i =3D 0; i < rules->secmark_count; i++) {
->  		if (!rules->secmark[i].secid) {
->  			ret =3D apparmor_secmark_init(&rules->secmark[i]);
-> @@ -375,7 +381,7 @@ static int aa_secmark_perm(struct aa_profile *profile=
-, u32 request, u32 secid,
->  				return ret;
->  		}
-> =20
-> -		if (rules->secmark[i].secid =3D=3D secid ||
-> +		if (rules->secmark[i].secid =3D=3D prop->apparmor.label->secid ||
-
-[Severity: High]
-Does this unconditionally dereference prop->apparmor.label?
-
-If the packet's secmark was generated by a different LSM (like SELinux
-setting iptables rules), the apparmor.label field might be NULL. Could this
-cause a NULL pointer dereference crash?
-
-> diff --git a/security/lsm_secxa.c b/security/lsm_secxa.c
-> index 5b67d8218fd25..2015dab01bdf4 100644
-> --- a/security/lsm_secxa.c
-> +++ b/security/lsm_secxa.c
-> @@ -71,8 +71,6 @@ int secxa_from_lsmprop(struct lsm_prop *prop)
->  	int rc;
-> =20
->  	xa_for_each(&secxa_xa, il, lp) {
-> -		if (!memcmp(prop, lp, sizeof(*prop)))
-> -			pr_info("%s found at index %lu\n", __func__, il);
->  		if (!memcmp(prop, lp, sizeof(*prop)))
->  			return il;
->  	}
-> @@ -101,7 +99,21 @@ EXPORT_SYMBOL(secxa_from_lsmprop);
-
-[Severity: Medium]
-Is this read-allocate-insert sequence safe from concurrent updates?
-
-Since there is no lock protecting this check-then-act block, multiple
-threads processing packets with identical security contexts could
-simultaneously fail the search phase and insert duplicate entries.
-
-> +	rc =3D xa_alloc(&secxa_xa, &index, lp, xa_limit_32b, GFP_ATOMIC);
-
-[Severity: High]
-Could xa_alloc assign index 0 here?
-
-The networking core across subsystems uses skb->secmark =3D=3D 0 as a unive=
-rsal
-sentinel for unlabeled packets. If index 0 is allocated to a valid context,
-will those labeled packets be incorrectly evaluated as unlabeled?
-
-[Severity: Medium]
-Because xa_limit_32b allows indices up to U32_MAX, could an index larger
-than INT_MAX be returned here as a negative integer, causing callers to
-treat it as an error code since the function returns an int?
-
-> +	if (rc) {
-> +		kfree(lp);
-> +		return -EINVAL;
-> +	}
-> +	*lp =3D *prop;
-> +
-> +	return index;
-> +}
-
-[Severity: High]
-Does this introduce a race condition by assigning *lp =3D *prop after
-xa_alloc() has made the pointer globally visible in the XArray?
-
-Another thread doing a lookup might see the fully zeroed memory and use it
-to label its packets before the memory is fully initialized here, leading to
-incorrect policy application.
-
->  void secxa_set_secmark(struct sk_buff *skb, u32 secxa)
->  {
-> -	if (!skb->secmark)
-> +	struct lsm_prop *olp;
-> +	struct lsm_prop *nlp;
-> +	struct lsm_prop prop;
-> +
-> +	if (!skb->secmark) {
->  		skb->secmark =3D secxa;
-> +		return;
-> +	}
-> +
-> +	olp =3D xa_load(&secxa_xa, skb->secmark);
-> +	nlp =3D xa_load(&secxa_xa, secxa);
-> +
-> +	prop =3D *olp;
-> +	security_update_lsmprop(&prop, nlp, LSM_ID_UNDEF);
-
-[Severity: Critical]
-Does this safely handle xa_load() returning NULL?
-
-If the secmark index does not exist, olp or nlp will be NULL, and the
-subsequent prop =3D *olp assignment or security_update_lsmprop() call would
-cause a panic.
-
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 66f32dfadf9b3..1739dd2eb0779 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -5996,10 +6014,21 @@ static unsigned int selinux_ip_forward(void *priv=
-, struct sk_buff *skb,
->  		}
->  	}
-> =20
-> -	if (secmark_active)
-> -		if (avc_has_perm(peer_sid, skb->secmark,
-> +	if (secmark_active) {
-> +		struct lsm_prop *prop;
-> +		u32 secmark =3D 0;
-> +		int err;
-> +
-> +		if (skb->secmark) {
-> +			err =3D secxa_get_lsmprop(&prop, skb->secmark);
-> +			if (!err)
-> +				secmark =3D prop->selinux.secid;
-> +		}
-> +
-> +		if (avc_has_perm(peer_sid, secmark,
->  				 SECCLASS_PACKET, PACKET__FORWARD_IN, &ad))
->  			return NF_DROP;
-> +	}
-
-[Severity: Medium]
-If secxa_get_lsmprop() fails, secmark retains its default value of 0.
-Will this cause the packet to be evaluated as unlabeled instead of being
-dropped? This looks like it might act as a fallback that could bypass
-restrictive policies. Similar logic applies to selinux_ip_postroute().
-
-> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> index cd9f5765979ff..2eddd47556c79 100644
-> --- a/security/smack/smack_lsm.c
-> +++ b/security/smack/smack_lsm.c
-> @@ -4194,10 +4195,17 @@ static int smk_skb_to_addr_ipv6(struct sk_buff *s=
-kb, struct sockaddr_in6 *sip)
->  #ifdef CONFIG_NETWORK_SECMARK
->  static struct smack_known *smack_from_skb(struct sk_buff *skb)
->  {
-> +	struct lsm_prop *prop;
-> +	int rc;
-> +
->  	if (skb =3D=3D NULL || skb->secmark =3D=3D 0)
->  		return NULL;
-> =20
-> -	return smack_from_secid(skb->secmark);
-> +	rc =3D secxa_get_lsmprop(&prop, skb->secmark);
-> +	if (prop)
-> +		return prop->smack.skp;
-
-[Severity: Critical]
-If secxa_get_lsmprop() returns an error, could prop remain uninitialized on
-the stack?
-
-The if (prop) check evaluates this uninitialized stack memory, which might
-evaluate to true and lead to a wild pointer dereference when accessing
-prop->smack.skp.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260813204854.1921=
-1-1-casey@schaufler-ca.com?part=3D7
+Acked-by: Thi=C3=A9baud Weksteen <tweek@google.com>
