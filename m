@@ -1,62 +1,62 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 532C03A63FB;
-	Sat, 15 Aug 2026 14:29:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23EA4318EF4;
+	Sun, 16 Aug 2026 18:21:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786804188; cv=none; b=fiYj+g4/swFinHyrcDgWJt9qWRSvMLY8tCBDYQxUJY+oAxNbhxhy1Hha4yKnDTtZYCdj6xVeLEn2Pj091EEokVZMk174CQNcpZFOD2ylj7ubxxCcf/RX+Oky6kROfcH3dVwamH7aB2h5bQP52M3YWGHeI9ATSdQjixSDLpmKmWk=
+	t=1786904466; cv=none; b=ZwNvyzGtqzF0TOx6I7MnY+73eNK3YWTst4MfMRNTi0if9WnBR/r9P0Wyvv3mA7pKh8iBMFcpN/Ege4gYMnel2H3F61zrsxb/GRY2G8UvdCKi+Q3/07c18Vi1Wdvu7dsXlY/fVT3WBThcECVdqBQ1LnhkcS14A5nu8sKpYO3FYb8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786804188; c=relaxed/simple;
-	bh=6y8Gr/WlB6mLCbCAdElve4bMuKDDKbBLVCv2aCN/XBs=;
+	s=arc-20240116; t=1786904466; c=relaxed/simple;
+	bh=EuHVefwtjg53ScVh3sYMU/Te2KnENN8lApsA4bRFlDk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UxOz2wIsE3xkpk1mhlNZu4gj+K5DoBErLQBHYz84BvvA/8V7iFQJCX25OvLxBV8yEarLdVAtVyavZjEmrGktCF+RqNDW+plOi7/sqxxesHkQPY7kQOlhkaPyaj1wWXl7eOMxbhZzTqxMdUOk55B/+4ErkTq6NNjPHBXJ8F9OTzc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=lx2kEsrH; arc=none smtp.client-ip=192.198.163.14
+	 Content-Type:Content-Disposition:In-Reply-To; b=V73tfwt6kw4fDM49+ru+YZ/kkKISox2fl4qoV4+pHFGkCyFZhPqWoDfM8xMJqiqKtO6KD/suNLTQ+DJAF5FmC9CkP1fYue6WWsRAT9eFU0BDXId3NYjZjVVWi6re/KnsUUPpBlAXliWbrrqvocPA8qfOpY80aCMhdAsP7tQ0f2I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=RKUoCiO+; arc=none smtp.client-ip=192.198.163.7
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="lx2kEsrH"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="RKUoCiO+"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1786804185; x=1818340185;
+  t=1786904464; x=1818440464;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=6y8Gr/WlB6mLCbCAdElve4bMuKDDKbBLVCv2aCN/XBs=;
-  b=lx2kEsrHFfhqYQ9j7baj4t0J8lS23uFrei3VyGa+L+yyerXxPtEGsK4B
-   q1CRNXEqQ5xKtZU09/Fmuf2Q1YtwsnZbJqw6dg6EZEgff566/C3fb3HfA
-   Rdh0wuzNzCHR9m4uAd3pYaeYXE/3Z8Pgp01SeRCVsryWRoPB/ljo3sWa+
-   RT9ne2N3OGU6OUP44dAK00lNCq2U1ADff6XQ0kuHEqv0XBS2CAT596q8X
-   bCTBTg6oKolHFv37npiJ9Xm6Apaus+osQlm7QZMi4D+zJyFa0WdlVL5Ud
-   n6+A0qOFj+m8mdFUyfUoEMnzpeDLCBatRQPd+qLmDs3c4aCjAIRF241wq
-   w==;
-X-CSE-ConnectionGUID: Inx5mECNTl2py+buyk57VQ==
-X-CSE-MsgGUID: bu2P6WmeS16HJ6syxIZJgw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11876"; a="87372559"
-X-IronPort-AV: E=Sophos;i="6.25,225,1779174000"; 
-   d="scan'208";a="87372559"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Aug 2026 07:29:44 -0700
-X-CSE-ConnectionGUID: fKLPjuKEQkSDM8hLCVZNSA==
-X-CSE-MsgGUID: +mqvG+yESUWpUf86fNtqpA==
+  bh=EuHVefwtjg53ScVh3sYMU/Te2KnENN8lApsA4bRFlDk=;
+  b=RKUoCiO+3e31sA9zwewqVHAAX7dGpvwTc/Z8qjCi0eMNp32kTQP/VO9g
+   BDwd0Md1geDK/Z8V8GkKm2B1K28q92UpWcMT9Sdzah1EHqoY6tRU2lhjh
+   izMi2MZzdqYhbp0A5lCEMw+gj+v08m7b6VUlljHL+ioqmG57iLo7NEoDL
+   z5A8vhnIMioGN8AfWJ74HZF3eITudrJAAQePriN9nhQdMkMUcZw6YguFv
+   UMvWeLSmPu1fKVU0NnlhXnWSlJakP7lWSIuAfN+TFOptbixglJJrHlH+Q
+   4aDjkxYALz8f80vJhpVQ5755oFFvXDGFZj6F2YeKGD9d/W9DQoPolGk/m
+   g==;
+X-CSE-ConnectionGUID: Qvp27kjOSXew+oGF/o4UEw==
+X-CSE-MsgGUID: PFF5yIOySgSJh50DOjBzog==
+X-IronPort-AV: E=McAfee;i="6800,10657,11877"; a="112937094"
+X-IronPort-AV: E=Sophos;i="6.25,227,1779174000"; 
+   d="scan'208";a="112937094"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Aug 2026 11:21:03 -0700
+X-CSE-ConnectionGUID: 1YN10mGgT5OHw+PZJ2mrzQ==
+X-CSE-MsgGUID: CHTrOzLMQDStzYHihkUBSQ==
 X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,225,1779174000"; 
-   d="scan'208";a="265095324"
+X-IronPort-AV: E=Sophos;i="6.25,227,1779174000"; 
+   d="scan'208";a="294628037"
 Received: from lkp-server01.sh.intel.com (HELO 6eda058d650d) ([10.239.97.150])
-  by orviesa009.jf.intel.com with ESMTP; 15 Aug 2026 07:29:43 -0700
+  by orviesa002.jf.intel.com with ESMTP; 16 Aug 2026 11:21:02 -0700
 Received: from kbuild by 6eda058d650d with local (Exim 4.98.2)
 	(envelope-from <lkp@intel.com>)
-	id 1wvFOG-00000000cCk-2LD3;
-	Sat, 15 Aug 2026 14:29:40 +0000
-Date: Sat, 15 Aug 2026 22:23:52 +0800
+	id 1wvfTf-00000000d2c-0hAT;
+	Sun, 16 Aug 2026 18:20:59 +0000
+Date: Mon, 17 Aug 2026 02:20:47 +0800
 From: kernel test robot <lkp@intel.com>
 To: Yugansh Mittal <mittalyugansh1@gmail.com>, paul@paul-moore.com,
 	selinux@vger.kernel.org, stephen.smalley.work@gmail.com,
 	omosnace@redhat.com, linux-kernel@vger.kernel.org
-Cc: oe-kbuild-all@lists.linux.dev,
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
 	Yugansh Mittal <mittalyugansh1@gmail.com>
 Subject: Re: [PATCH v2] [V2] selinux: restore sleepable revalidation; keep
  fast no-sleep check
-Message-ID: <202608152259.U1jKjeeX-lkp@intel.com>
+Message-ID: <202608170230.r0g7wOIb-lkp@intel.com>
 References: <20250826172330.44006-1-mittalyugansh1@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -82,27 +82,21 @@ url:    https://github.com/intel-lab-lkp/linux/commits/Yugansh-Mittal/selinux-re
 base:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git next
 patch link:    https://lore.kernel.org/r/20250826172330.44006-1-mittalyugansh1%40gmail.com
 patch subject: [PATCH v2] [V2] selinux: restore sleepable revalidation; keep fast no-sleep check
-config: alpha-allmodconfig (https://download.01.org/0day-ci/archive/20260815/202608152259.U1jKjeeX-lkp@intel.com/config)
-compiler: alpha-linux-gcc (GCC) 16.1.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260815/202608152259.U1jKjeeX-lkp@intel.com/reproduce)
+config: loongarch-defconfig (https://download.01.org/0day-ci/archive/20260817/202608170230.r0g7wOIb-lkp@intel.com/config)
+compiler: clang version 24.0.0git (https://github.com/llvm/llvm-project 844a18e753e822736c9805ab779144b647a2c186)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260817/202608170230.r0g7wOIb-lkp@intel.com/reproduce)
 
 If you fix the issue in a separate patch/commit (i.e. not just a new version of
 the same patch/commit), kindly add following tags
 | Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202608152259.U1jKjeeX-lkp@intel.com/
+| Closes: https://lore.kernel.org/oe-kbuild-all/202608170230.r0g7wOIb-lkp@intel.com/
 
 All errors (new ones prefixed by >>):
 
-   In file included from include/linux/build_bug.h:5,
-                    from include/linux/init.h:5,
-                    from security/selinux/hooks.c:24:
-   security/selinux/hooks.c: In function '__inode_security_revalidate':
->> security/selinux/hooks.c:294:29: error: implicit declaration of function 'is_label_invalid' [-Wimplicit-function-declaration]
+>> security/selinux/hooks.c:294:22: error: call to undeclared function 'is_label_invalid'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
      294 |         if (likely(isec && !is_label_invalid(isec))) {
-         |                             ^~~~~~~~~~~~~~~~
-   include/linux/compiler.h:76:45: note: in definition of macro 'likely'
-      76 | # define likely(x)      __builtin_expect(!!(x), 1)
-         |                                             ^
+         |                             ^
+   1 error generated.
 
 
 vim +/is_label_invalid +294 security/selinux/hooks.c
