@@ -1,270 +1,192 @@
-Received: from mail-lj1-f170.google.com (mail-lj1-f170.google.com [209.85.208.170])
+Received: from mail-lj1-f177.google.com (mail-lj1-f177.google.com [209.85.208.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF925429CCF
-	for <selinux@vger.kernel.org>; Mon, 17 Aug 2026 14:50:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DA932F5337
+	for <selinux@vger.kernel.org>; Mon, 17 Aug 2026 15:04:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.177
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786978249; cv=pass; b=Mc1PO9wG+M8l1Zpv4P6eanDbI2CJPuEhHtRhc5exWAmp6YzGLK2B6mgRK/knGfNTI+/lXIS2oGwyww4LUB432l2cfuSeLVQWORJypOq9pg3gsQQSuIyspCTP2Zn3UFLiA10jbAreK1b+2mSMxq/VX+sU4EIYDfV3JExA72M1Ugk=
+	t=1786979078; cv=pass; b=USMZcrojI+ChuxkeZOqs5jbc09vupzKBnM+x+UDGV6hDVJQwakJCY4PXsN9g8vroYvHzP8PKpHmN5/2aWz3x+g1C9yy109KExzv3FoFaBYRfCdurevkt53NiCbZYIn1mbFI5DkoayIE2tIXplFs4ODUATzIS6ECwtcyjFdwSc4k=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786978249; c=relaxed/simple;
-	bh=ivQceJIfWQDFnVHRB8300tfQ6LyIPoXaytOwlrqmWCk=;
+	s=arc-20240116; t=1786979078; c=relaxed/simple;
+	bh=Ct/ojxO7RoCFKdjpm4pZOfjf64ofn3FG7B8NARjWeAw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Ed2wc/8+TmKrX+U+qKqIgj/A89ZROBp9gyVhgS6dHrg/AljELJz4r0apoCAesrKe+BI1osiXHiQPMTjShC02BWXQmiiP9h2TC7p46sUv9TX33VV9FFGzZ2+QK5MlDYXdzpGUxpPBAEJFdgXFzmFqnd2qD3osJMgJk4pZX8AEPvI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=is5tWU8o; arc=pass smtp.client-ip=209.85.208.170
+	 To:Cc:Content-Type; b=pivOolIRbXdqK0FM0Q+eo3MBdlseoZpxEUU6Nap8/z5/mef/g4Z15nQfbFDIW1MUZQINkk4LHGoyr2olLH4h4zBM2jxplDLsUkfQgRVcCDsyr/Uk2gkVUl5ObOMpKld9eeysRVxGZUG1DZS+yfvja8G/EnqoMawxi6ZkIY0LpYU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=p4u6q7+I; arc=pass smtp.client-ip=209.85.208.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="is5tWU8o"
-Received: by mail-lj1-f170.google.com with SMTP id 38308e7fff4ca-39c9452244aso27294881fa.3
-        for <selinux@vger.kernel.org>; Mon, 17 Aug 2026 07:50:47 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1786978246; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="p4u6q7+I"
+Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-39db07589caso27107211fa.2
+        for <selinux@vger.kernel.org>; Mon, 17 Aug 2026 08:04:35 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1786979074; cv=none;
         d=google.com; s=arc-20260327;
-        b=UU9R85xi+yWyJNQFTiNVPjgFSyxn0PKewTDwDB2r/HxIM3MqbZp/3VI8DT+mZgr0Y6
-         Q9EJIFe5IpQYFmZCy8KonOQpaV6t5G9icCChGyh/as4qZC5oV/3fR6aC8Lt1k6QDNlG1
-         1r3aO6G/VqaAbV8jJ7Ny0bd/nJx8EFh688+lex9QVGdjht8h/fA099a2KkOtCzu46/aP
-         Al3aa0ApKcs9PQ9eKtiuGwthtG9uHgMaVLYyXg++XqDW0vDDg/AnT+0Z+OXwZoSXwUdt
-         Kt6Y1mOTCkZHXzmMWXkO0HpHt6oJLc8WJpZxYV7ePhN0DeZ44a8oRtIeTUYzwUWdubkS
-         /SCQ==
+        b=Ni4hTZqV6xoXKeCq0yhF9Troerja9IJh/XOrwW1It0jCyxQ5Jpxo5jMSL/0S6/iFN4
+         MLUYVD60tpebZFB72Kabsnt4zhMteVEyBATDqvAzWNonazRDyszGnyKZxbARA9MpeQgg
+         vMvPUUxYKWEcCSvlVBwj6y2iyJg7qptapVsMUXxQBqZCV0qN0KMO3OyM1XOd6i5JrhNT
+         9Rz5vpkpcFB8JRvI1oGEgILEQPChHVm+cIzCE3+uS9jjUkSogSxKGWZacSgi7g+MvYHA
+         05IgWMubflGt4aVOV8zmptZgYhJhPD+ciuw0F/EZY3K17b02mcrI7TM22N9e175Pj2tf
+         MREA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=n9kgps7QMLwpRImWJDA4PS5vPzprqmS9DBCq7impMVI=;
-        fh=9qqehjuxnn2X0mJ7hQbZg99PSLTxs4BCAql4/69ZoU8=;
-        b=L4ta02NNxmk2Cqw3bcW1dYvq71dQeOPu3mNduXbcTCAKoxahbQ4+H1Y0yHSJGynrh+
-         5xY/yWdA/BC8pJAjoSY6JMQdYsM2uY6hAGtCsZUR6Cl0vq/bCH6GmHtM9BqvKXcB7xdW
-         UF0DXrbVkGih5NcLmez5VJwT07zUAYV7PsCPeuAybtIg2JlCt8+YDtnR0r8WmoOapiVb
-         UudI+n/bRKSvrv+z2wwEP0ULkskmQqfL18v8UwKJHecNQ9sWUfsGC68Qn+sqQTMVTOKx
-         BCHpIzdtfs6Twbh0KvSdWU7zYGDLlNxv6btMdzSk9ho4sH7c4KIg1ocAqPx72y+BzLA0
-         6V5Q==;
+        bh=RvE78KN6XMVnLADkj5N+pIqRp8mxm3puJE3e8+XMAms=;
+        fh=axRoY9vCckR1BMylL6Yj0fucVOYx8YrXkrMB2J6BasI=;
+        b=izPbYKFppuExqWuDBJ6t4IvhljLKSRnpObz1LwnhDY0PLwhfZ0VWIfwKbtpE7JjorK
+         L0yqSF3S3Rh2azNBE5ipNguI2S8l3FrVzMcpFL3bsOwBY7uxBZO5LhHIRRdHhfSCDPAn
+         ngBt8nc5hL2wuxMXqzzyxWrYrYORzBmsAtKghAQjHvNThhuPjHBqTQ3lZttwXGMg3yA5
+         sgc59o/X2KsUSTThinYW6wIzL7EwhO57fI4RJcrqZH+TrmtbAvaRvNq3Bxi3IxENIgP/
+         gO6NOOqXxcHKe5hTqFjmwHiBYayiS7CvSSTL6d+xeXirlxzTblt/ryV+Jv5Ls/JIKnJV
+         HUAw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786978246; x=1787583046; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1786979074; x=1787583874; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=n9kgps7QMLwpRImWJDA4PS5vPzprqmS9DBCq7impMVI=;
-        b=is5tWU8oMUXxlbwPSc26Bm14/DwHx/b+2gLWP89kPzvCyhnaA4Qg1mjYta0S/PQ+8S
-         cRh2yih0Drjr9NQSHQihjDwf6EjMa1uke2p2ufqkkKQfaO1JMiDHrmFdlWB9dVJrdzg+
-         0Hg/qtnryadDEo/1Tvy61NsdWgB39tW3T/Nq/rzzSoGzDn3g3djlHD79ItA4WwwEKcmP
-         LljJeVWXgnMlqVJd7WXGaL8Dw2bB/D3bCOoFhTttrQsA7mHuWDRuvGQ24FCC1E3ekP6j
-         TLBnfn4unuJe7IKzXu8YX6bPvjf0BiWQd1VPxA6CsDKC0qQTPiVMQVE0i5hxj+9FvzPq
-         S2eA==
+        bh=RvE78KN6XMVnLADkj5N+pIqRp8mxm3puJE3e8+XMAms=;
+        b=p4u6q7+IK7NoCD4j5Ta7OKIj0PmGHJptTZCXl/4YW55Kd0ZPFh6eWDaCBDjJNOFN42
+         V+4dVgDqNE7qNblApjKSYBBYNtuntD/0zy6sjhQCC8GYGsU9KejsU4TUsnGGZTHnsxc1
+         cBhr2bzPZpfqBijb8yg0QgBPOImP3P9qKiILUpGcYvplgQmMbY+eO4hbMWfV92FGxuzo
+         xfGT2xPBXWR2P+i85icIOrDHyagpLc0rXK1XkcTCs+ObGhqI/6WsJ5L5S8zL5/zw84Sj
+         KlcQxnXT3gpmCkQMj3iDmhA4buMH57oC09PRw3tnIssI5iaeV2RyvKAlQTXcn59rb6GD
+         qEug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786978246; x=1787583046;
+        d=1e100.net; s=20251104; t=1786979074; x=1787583874;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=n9kgps7QMLwpRImWJDA4PS5vPzprqmS9DBCq7impMVI=;
-        b=WIxxm+P8n0dqG43Zy+JPy1K7uF8fbv2So9CtwwWatnVrieSMZUji+117C6zjT3zlFy
-         jpBqtlBSTpVBWq3ORv3d+gc9rFXwJdrmL9khH7CYORq4wVSFy2S2/b/KKnDJBwaMf8Mq
-         T1ZDCcIKEeupWAX9T4tK5lfGCycJ3oNg9L6gDh0ONkIWdiqBCISEN6e42D7exxbUpAf9
-         wgR41xP875Lsj14MKf5zRyoF3KtMBggAOtEpNrISTTZ6KgKt+zgEw6l+zf3QmV5mDAj9
-         ER9tRupTXZy6l1yjlU5Uc+hvAoomPfoR/N4dJ50FCjyjbEiAEuVnZPVFJDhW0iDhKCD4
-         SCIg==
-X-Gm-Message-State: AOJu0YxxWvLbKJYVU8gKdT1OaQBpkSULgEkJ5UNPH1nogT0VJcv8AmlP
-	4NVZSRqdMDQs/br9h3gDJYhHJdPMTzIbYeDSh42OUULIEoSfNfvQ4Eqiotus0w0D4iMpGh+LZl/
-	bURn38DdD7zQEW/KWVqacoPmjrT8O8DK5rY1H
-X-Gm-Gg: AR+sD13zlcHpqods70QpislkGXlh63pA/IZPhdPfl+v2cskKgpFu0Xz6AX+9hT2KtAX
-	zFS3P48BPOSyH8kgvIVOoTfhX2ZsFAFpcfr3H055R8AkOfc9w0RhIsR2BESgGd07PGn1jKormB5
-	20JhDp4lgVkHk8rZfq80uaKL281pEvaCxUrcK5zDvRdwpwQivicwlXMaoXXFEjjOqELgh8H4vKE
-	bjWyy50q92Bqd0KRr3zRqFViVgzaizg5+m9hJilsD14I8CVhI8AknG/oSEvlVi8oDNanmoTafmO
-	JbK9oNzCGBjNh8cIILEgnsVqg0d1oDaLD664il73uA==
-X-Received: by 2002:a2e:a99c:0:b0:39c:828a:ec34 with SMTP id
- 38308e7fff4ca-3a1752683b0mr658561fa.17.1786978245599; Mon, 17 Aug 2026
- 07:50:45 -0700 (PDT)
+        bh=RvE78KN6XMVnLADkj5N+pIqRp8mxm3puJE3e8+XMAms=;
+        b=e8r4C+V0QWY6BdLem9YbZqMOlJwXFMS5FjbdCSmFYOd/xyBD5uIQLMG7yMHBCEiqdX
+         b9Jfte5XSdznX1hqJbxshZ7EqtFPJPVS9g/HTCFDiUGUnO2qYwFxFxpo29hc+UQw67ou
+         6i035uhyXwG8VPbiEGkl4NniVMMKZgfwOtkyz4e1waWKhTULAojmAL6G/3zZeIlFrUhC
+         NFMcLFTw/kXZoRTyNzhUytXwOIe5mpFUbxzdyKcSC9PbJ4ZUTNMEfNn6ACrsqos61INk
+         3u0t9VIw8Lyz7hZibrZW0pQ9agTVvFMlgmbsb+Lg/XvGemLCkHhYrQ7SurPi39rdiEIU
+         KqFQ==
+X-Gm-Message-State: AOJu0Yw1vPWiUdXjjEGShn8L6mc30/84g8RgMPzHpsqHXq0sUhy5Xqj9
+	MephovufIMUKE0ioqx7HOaP6xV9ic9PLVVntsCs8trYXCCzmTj/IPUQvqFdli5q+OZ4/WoTqQlS
+	1ThKPt04KE+GsZeCpqnrdxXmOk375V98=
+X-Gm-Gg: AR+sD100bm6PgsCNJkOUTXtL+hpr1kDlWV7Q5b+8wuJXNCCDNT8u/VIcqZMHKIAzPsq
+	9uOcHHsoR595yOLkQAXRSYNJR7aNA9fvUVBVaSipWDKd8mx7u1OuuVw9RSg8jO5FV5wZxNckQdV
+	afz0hejz0bxGo+dry+p4xEdcntTcGLEYkEZ6eGg/YmdJHpkUnuB6NeplbMLGCC12gzGUlT+06Qb
+	xrIyQJvACgBYaDVcf0xZ2teJV2IIj7/y4Nvrb1+Rh7dhZapXuPPPHnKO3nVU/ralV8mfoAA9ghB
+	GhmDRMULFGtZcgqgdoN9EhchltGtaBvTuFiChGGrrd+D/kanFVIq
+X-Received: by 2002:a2e:be03:0:b0:39f:f175:bd23 with SMTP id
+ 38308e7fff4ca-3a1324b3c7bmr25026571fa.15.1786979073752; Mon, 17 Aug 2026
+ 08:04:33 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260813184129.186476-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260813184129.186476-1-stephen.smalley.work@gmail.com>
+References: <20260814133456.203958-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260814133456.203958-1-stephen.smalley.work@gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Mon, 17 Aug 2026 10:50:34 -0400
-X-Gm-Features: AcwNN1WsKTjYgGYiEVtbcxFWRO_pWqdr0rPTL1KYrchAGCl8nnhWUc0vEEx1WxA
-Message-ID: <CAP+JOzRMP0V5GeiFjUgwRAGzPn_3UO+3FDQyCpwFE+msAoRaYg@mail.gmail.com>
-Subject: Re: [PATCH] python/sepolicy: add missing socket template attributes
+Date: Mon, 17 Aug 2026 11:04:22 -0400
+X-Gm-Features: AcwNN1XDZZCLEGhmwIe8vPExMYcVg3mG3M0DUqHBAmthuybNNP0yKeG2STbdQqc
+Message-ID: <CAP+JOzQjGEDuxcS8BAzbCvUNzisDUF9KMsQv=Ay99DB8_NQTLg@mail.gmail.com>
+Subject: Re: [PATCH 1/2] libselinux: selinux_restorecon: fix error message on
+ intermediate symlinks
 To: Stephen Smalley <stephen.smalley.work@gmail.com>
 Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
-	jason@perfinion.com
+	jason@perfinion.com, Krzesimir Nowak <qdlacz@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 13, 2026 at 2:41=E2=80=AFPM Stephen Smalley
+On Fri, Aug 14, 2026 at 9:35=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> generate_fc() unconditionally reads template.fc_sock_file for any
-> path that stat()s as a socket, but only var_run, var_lib and rw
-> define it, so selecting a socket under /tmp, /etc, /var/cache,
-> /var/spool, /var/log or a systemd unit directory in the GUI raises
+> selinux_restorecon(3) was changed by commit 67bc978bfaf9 ("libselinux:
+> restorecon: revisit pinning files to avoid TOCTOU issues") to avoid
+> following intermediate symlinks on the caller-supplied pathname unless
+> the SELINUX_RESTORECON_REALPATH flag was set in the restorecon_flags
+> parameter. However, because it calls openat(2) with both O_NOFOLLOW
+> and O_DIRECTORY, the errno was being set to ENOTDIR and a message was
+> logged with the pathname being "Not a directory" even if the terminal
+> node of the path was in fact a directory. Fix the error handling logic
+> and log message to correctly reflect the intermediate symlink-induced
+> failure.
 >
->   AttributeError: module 'sepolicy.templates.tmp' has no
->   attribute 'fc_sock_file'
->
-> The tmp template has no fc_* attributes at all, so any explicitly
-> added file or directory under /tmp fails the same way on fc_file /
-> fc_dir.  generate_te() and generate_if() likewise read
-> te_stream_rules / if_stream_rules for a socket path, which var_log
-> and unit_file lack.
->
-> Add fc_sock_file to every template that already has fc_file (using
-> the -s file class), give tmp a full fc_file / fc_sock_file / fc_dir
-> set for TEMPLATETYPE_tmp_t, and add empty stream-rule strings to
-> var_log and unit_file so a stray socket there no longer takes the
-> whole generator down.
->
-> Fixes: https://github.com/SELinuxProject/selinux/issues/379
+> Reported-by: Krzesimir Nowak <qdlacz@gmail.com>
+> Fixes: 67bc978bfaf9 ("libselinux: restorecon: revisit pinning files to av=
+oid TOCTOU issues")
+> Fixes: https://github.com/SELinuxProject/selinux/issues/540
 > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
+For these two patches:
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  python/sepolicy/sepolicy/templates/etc_rw.py    |  4 ++++
->  python/sepolicy/sepolicy/templates/tmp.py       | 13 +++++++++++++
->  python/sepolicy/sepolicy/templates/unit_file.py |  6 ++++++
->  python/sepolicy/sepolicy/templates/var_cache.py |  4 ++++
->  python/sepolicy/sepolicy/templates/var_log.py   |  8 ++++++++
->  python/sepolicy/sepolicy/templates/var_spool.py |  4 ++++
->  6 files changed, 39 insertions(+)
+>  libselinux/src/selinux_restorecon.c | 31 ++++++++++++++++++++++++++---
+>  1 file changed, 28 insertions(+), 3 deletions(-)
 >
-> diff --git a/python/sepolicy/sepolicy/templates/etc_rw.py b/python/sepoli=
-cy/sepolicy/templates/etc_rw.py
-> index dcf445e0..c78d64a2 100644
-> --- a/python/sepolicy/sepolicy/templates/etc_rw.py
-> +++ b/python/sepolicy/sepolicy/templates/etc_rw.py
-> @@ -134,6 +134,10 @@ fc_file=3D"""\
->  FILENAME               --      gen_context(system_u:object_r:TEMPLATETYP=
-E_etc_rw_t,s0)
->  """
->
-> +fc_sock_file=3D"""\
-> +FILENAME               -s      gen_context(system_u:object_r:TEMPLATETYP=
-E_etc_rw_t,s0)
-> +"""
+> diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux=
+_restorecon.c
+> index 49b8ff7e..fbadf367 100644
+> --- a/libselinux/src/selinux_restorecon.c
+> +++ b/libselinux/src/selinux_restorecon.c
+> @@ -1167,11 +1167,30 @@ static int safe_open(const char *path, struct sta=
+t *sb)
+>                                 nfd =3D openat(dfd, cur,
+>                                              O_PATH | O_NOFOLLOW | O_DIRE=
+CTORY |
+>                                                      O_CLOEXEC);
+> -                               close(dfd);
+>                                 if (nfd < 0) {
+> +                                       int err =3D errno;
+> +                                       struct stat st;
 > +
->  fc_dir=3D"""\
->  FILENAME(/.*)?         gen_context(system_u:object_r:TEMPLATETYPE_etc_rw=
-_t,s0)
->  """
-> diff --git a/python/sepolicy/sepolicy/templates/tmp.py b/python/sepolicy/=
-sepolicy/templates/tmp.py
-> index c000a75e..54ed1803 100644
-> --- a/python/sepolicy/sepolicy/templates/tmp.py
-> +++ b/python/sepolicy/sepolicy/templates/tmp.py
-> @@ -127,3 +127,16 @@ if_admin_rules=3D"""
->         files_search_tmp($1)
->         admin_pattern($1, TEMPLATETYPE_tmp_t)
->  """
-> +
-> +########################### File Context ###############################=
-###
-> +fc_file=3D"""\
-> +FILENAME               --      gen_context(system_u:object_r:TEMPLATETYP=
-E_tmp_t,s0)
-> +"""
-> +
-> +fc_sock_file=3D"""\
-> +FILENAME               -s      gen_context(system_u:object_r:TEMPLATETYP=
-E_tmp_t,s0)
-> +"""
-> +
-> +fc_dir=3D"""\
-> +FILENAME(/.*)?         gen_context(system_u:object_r:TEMPLATETYPE_tmp_t,=
-s0)
-> +"""
-> diff --git a/python/sepolicy/sepolicy/templates/unit_file.py b/python/sep=
-olicy/sepolicy/templates/unit_file.py
-> index e26f5e2a..1504dabd 100644
-> --- a/python/sepolicy/sepolicy/templates/unit_file.py
-> +++ b/python/sepolicy/sepolicy/templates/unit_file.py
-> @@ -66,9 +66,15 @@ if_admin_rules=3D"""
->         allow $1 TEMPLATETYPE_unit_file_t:service all_service_perms;
->  """
->
-> +te_stream_rules =3D ""
-> +
-> +if_stream_rules =3D ""
-> +
->  ########################### File Context ###############################=
-###
->  fc_file=3D"""\
->  FILENAME               --      gen_context(system_u:object_r:TEMPLATETYP=
-E_unit_file_t,s0)
->  """
->
-> +fc_sock_file =3D fc_file
-> +
->  fc_dir=3D""
-> diff --git a/python/sepolicy/sepolicy/templates/var_cache.py b/python/sep=
-olicy/sepolicy/templates/var_cache.py
-> index 37897231..5a147896 100644
-> --- a/python/sepolicy/sepolicy/templates/var_cache.py
-> +++ b/python/sepolicy/sepolicy/templates/var_cache.py
-> @@ -152,6 +152,10 @@ fc_file=3D"""\
->  FILENAME               --      gen_context(system_u:object_r:TEMPLATETYP=
-E_cache_t,s0)
->  """
->
-> +fc_sock_file=3D"""\
-> +FILENAME               -s      gen_context(system_u:object_r:TEMPLATETYP=
-E_cache_t,s0)
-> +"""
-> +
->  fc_dir=3D"""\
->  FILENAME(/.*)?         gen_context(system_u:object_r:TEMPLATETYPE_cache_=
-t,s0)
->  """
-> diff --git a/python/sepolicy/sepolicy/templates/var_log.py b/python/sepol=
-icy/sepolicy/templates/var_log.py
-> index 371dd7e4..051a0f1e 100644
-> --- a/python/sepolicy/sepolicy/templates/var_log.py
-> +++ b/python/sepolicy/sepolicy/templates/var_log.py
-> @@ -106,10 +106,18 @@ if_admin_rules=3D"""
->  """
->
->  ########################### File Context ###############################=
-###
-> +te_stream_rules =3D ""
-> +
-> +if_stream_rules =3D ""
-> +
->  fc_file=3D"""\
->  FILENAME               --      gen_context(system_u:object_r:TEMPLATETYP=
-E_log_t,s0)
->  """
->
-> +fc_sock_file=3D"""\
-> +FILENAME               -s      gen_context(system_u:object_r:TEMPLATETYP=
-E_log_t,s0)
-> +"""
-> +
->  fc_dir=3D"""\
->  FILENAME(/.*)?         gen_context(system_u:object_r:TEMPLATETYPE_log_t,=
-s0)
->  """
-> diff --git a/python/sepolicy/sepolicy/templates/var_spool.py b/python/sep=
-olicy/sepolicy/templates/var_spool.py
-> index dccb5f16..84933f50 100644
-> --- a/python/sepolicy/sepolicy/templates/var_spool.py
-> +++ b/python/sepolicy/sepolicy/templates/var_spool.py
-> @@ -151,6 +151,10 @@ fc_file=3D"""\
->  FILENAME               --      gen_context(system_u:object_r:TEMPLATETYP=
-E_spool_t,s0)
->  """
->
-> +fc_sock_file=3D"""\
-> +FILENAME               -s      gen_context(system_u:object_r:TEMPLATETYP=
-E_spool_t,s0)
-> +"""
-> +
->  fc_dir=3D"""\
->  FILENAME(/.*)?         gen_context(system_u:object_r:TEMPLATETYPE_spool_=
-t,s0)
->  """
+> +                                       /*
+> +                                        * O_NOFOLLOW | O_DIRECTORY on a
+> +                                        * symlink yields ENOTDIR; report
+> +                                        * ELOOP so the caller can tell a=
+n
+> +                                        * unfollowed intermediate symlin=
+k
+> +                                        * from a genuine non-directory, =
+and
+> +                                        * so the fallback matches openat=
+2's
+> +                                        * RESOLVE_NO_SYMLINKS.
+> +                                        */
+> +                                       if (err =3D=3D ENOTDIR &&
+> +                                           fstatat(dfd, cur, &st,
+> +                                                   AT_SYMLINK_NOFOLLOW) =
+=3D=3D 0 &&
+> +                                           S_ISLNK(st.st_mode))
+> +                                               err =3D ELOOP;
+> +                                       close(dfd);
+>                                         free(copy);
+> +                                       errno =3D err;
+>                                         return -1;
+>                                 }
+> +                               close(dfd);
+>                                 dfd =3D nfd;
+>                                 cur =3D next;
+>                                 continue;
+> @@ -1680,8 +1699,14 @@ static int selinux_restorecon_common(const char *p=
+athname_orig,
+>                         free(pathname);
+>                         return 0;
+>                 } else {
+> -                       selinux_log(SELINUX_ERROR, "open(%s) failed: %m\n=
+",
+> -                                   pathname);
+> +                       if (errno =3D=3D ELOOP)
+> +                               selinux_log(
+> +                                       SELINUX_ERROR,
+> +                                       "%s: an intermediate path compone=
+nt is a symbolic link (not followed)\n",
+> +                                       pathname);
+> +                       else
+> +                               selinux_log(SELINUX_ERROR,
+> +                                           "open(%s) failed: %m\n", path=
+name);
+>                         error =3D -1;
+>                         goto cleanup;
+>                 }
 > --
 > 2.55.0
 >
