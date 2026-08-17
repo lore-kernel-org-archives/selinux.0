@@ -1,138 +1,155 @@
-Received: from mail-oa1-f46.google.com (mail-oa1-f46.google.com [209.85.160.46])
+Received: from mail-lj1-f179.google.com (mail-lj1-f179.google.com [209.85.208.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21EDB3DC4D8
-	for <selinux@vger.kernel.org>; Mon, 17 Aug 2026 13:58:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6788431E76
+	for <selinux@vger.kernel.org>; Mon, 17 Aug 2026 13:59:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.179
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786975120; cv=pass; b=nKeKkDUCaSBbRRx1Hd3XJVr2f8LeTGz60D0K3HQewKkMONsBhwdYrrjueRdKKWpKyJG5/Ywmv4th8OHB/MGUB91BHusLSae5V15QL1mxUqHj7oRrD45MpSSycr03dM+DmuTDQ7STrO5A/9/XuQpF+lN4iAaelrtXQ+Z+ob7qCM4=
+	t=1786975177; cv=pass; b=VHlJhiAjhubJA4CDUCNi+nLbHtbMwfxfTPyatfX3id7fLJcGYDrcWMVBXx8fPVQGyIDPgzdlP+injAAiIu+gTcIhKvYNwvW4QJBUWZ9tzjZALzzux9eNEPWa5K/Eg+I/tNuKvkfWojQAq0TkEhbwzz9U2cF8VzIXAK2mT/XNLEw=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786975120; c=relaxed/simple;
-	bh=vwBy2s+S/oVuWSQFCOAaYf9dasg9P4SMGGN3EYJKv8I=;
+	s=arc-20240116; t=1786975177; c=relaxed/simple;
+	bh=Cgtx3O1VLk8YCSFiHhqNSUOJH+89CcOnuoclbt4zUoE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=SSI80504cu9ihk9RQxU0t6K4jDMlWzyYwTYhIfFSbHyShXaMTvezJzcj5gmb+9PHqV78ZN3IkKNuwtCrUNBRykUVKPxx+JVWVQkywTeRAiYakCd/Yaatb9VnwvoK5UmJ3bIhgmkkvukdJT9mo8rqxmUbVJ6SLsWcBO2M6lLsSs4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BI0nMWcA; arc=pass smtp.client-ip=209.85.160.46
+	 To:Cc:Content-Type; b=rivMzG2igqSoAoffPWuxOKTj79N/6qha3jPKbcbxPCbcPe6XkmYwRPVvuqgob5VV7t9aRgg5Swit85nM7JT2wyn92z7ZYaSnIBZ/pusmyginkSix+x8wKzuqgtI7pNV0tgbyewMxaYJLv4DkGNbGw4CeUx7U7iDrnyPfKIe3zrg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DPXycQkn; arc=pass smtp.client-ip=209.85.208.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BI0nMWcA"
-Received: by mail-oa1-f46.google.com with SMTP id 586e51a60fabf-446f87b6de1so3404966fac.3
-        for <selinux@vger.kernel.org>; Mon, 17 Aug 2026 06:58:38 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1786975118; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DPXycQkn"
+Received: by mail-lj1-f179.google.com with SMTP id 38308e7fff4ca-39f927721f2so21492491fa.0
+        for <selinux@vger.kernel.org>; Mon, 17 Aug 2026 06:59:35 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1786975174; cv=none;
         d=google.com; s=arc-20260327;
-        b=bXu8NFDh0doGr5dlXPi+ReUpstnatYF9m/4OPWty2u57Q/0hgPkFhM5tvDISUB1+XU
-         8J1gOFEPdn+hQExF+gpCslF6IyyQJ58yUYQ8eIO3M2+TO++0wnlb7CZbZBF4IsV/r3Gh
-         Y8yzSUzI7dOGYNCVFpyguNjTdhOVvU0QLX5KQHtRy/UZLzkCvTwvXEwidpUUwcQ0R/gu
-         ZfxXhTpD0XZhsgu/dBXsKrpte45PUbYkbOehYKv/2TIAsGikS7BOaJ16h1bKvtkYL+qe
-         QtP9GKSWc7z/D72sSvuP0oGuquGWv83AoYhx5v5/7xmvzm0bYgsYG0qriJUBHFZhAyt8
-         rOgg==
+        b=JnivMKGKIpr5AutMSQw9o02+DOS1vERtLasZALXHLXJ8QKk1YW2FGb3HQgP0DycMM3
+         UARPj+A88KrwS85P2NJUsH79iYmd1Eq2ahwrB9U7kZG5AmtwtNjcBF6g21vyCnvElEs2
+         L3UKJrvlBZjFQ9eUnOoq5yrH/Z8D1Dy5ZnGaDz6ru9Gek5PQubQsH9OfeQ2DDIjCj+Mc
+         7btaU9KPEoO8/+WF8cFYut3KysL0q+RGYQMVM5/Hu2lLHQZmX+9zwiCiDtwNZatJFALg
+         3D1kpfEKaccdK1m4TdaqgKTufpUEEeBkQsBDBZ4+4QBK07jmaX65HSdrNzcZV5VvtbKL
+         C5KQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=vwBy2s+S/oVuWSQFCOAaYf9dasg9P4SMGGN3EYJKv8I=;
-        fh=jKypAQsinffTBS4PaCHk3Yr1oHjcu9N+jEMdzGkSCq0=;
-        b=PoHTwt/VPy6vTGeJyoMHdQUFFqlMhnq/D5JLumAxchB0gRH/q6YER/6JH6jq+oTrFC
-         tFwZGbAG60NV4OxPW/65P6HZWNNPVM69iKruDqHsCHTqRd2O7dBBrG9tuTRrmNMcv8vY
-         GgX1jRb9kDhvpuAkQSq0/+iEGrqFVzm75pNopiFm35WWDbXDU/4DitubSiV+hfDISMzs
-         LaqMHFBGQBsJLwz2djgL2t7m1YLfRlGCIE1dDwkZNewBdWOON7YN0mSpUnEYWcaQ9P+Q
-         wCrsRc8nUQe+qTLLZKdUGtM76+gvYuwtHomqspnbdKOYZmRmIpYjdJMbkRRD+bwsae9P
-         uQUg==;
+        bh=GgaOWdt8NjTl7b6qNQwatX1bwpfDKxCosbQVvwNvIn8=;
+        fh=9qqehjuxnn2X0mJ7hQbZg99PSLTxs4BCAql4/69ZoU8=;
+        b=l/KyOK5s1EI0JvLGoXYTOs3KDVH9qpFRFprKoCszxdj2dt7uyl5vNnxyOmaG7mwhV9
+         /y4Sd3Y6kRz8lIT8/6H9vfdsyYKe3J1KTLAub5E9hrFdOgaelpWHFu/rcM5iHOyQiuzV
+         DDneS6V5BlO2bnm6xNSbp1DGdggXicxEANI7iQ6wVzPxsteVLn2Qy2/5q/7c99PPtQE8
+         EsdgP7dKptHxRhHFiRv8iis0ZFvRPaVEPB/GQglavMlfXUiBXJHGmYwySGGsdmN9ROzH
+         ubc9/pgU97S63Ek9oFJ3S0bu2aJFxNNvYp6jtlv/ieKdzTs/rRZFdhPF3zJhdyBqcUw2
+         qyMg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786975118; x=1787579918; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1786975174; x=1787579974; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=vwBy2s+S/oVuWSQFCOAaYf9dasg9P4SMGGN3EYJKv8I=;
-        b=BI0nMWcAQ8Cgep5JHFE+9VKwyTmOD8jKH2hjRoofpJmGbuVSH1F7WEsGQKsjHDgR25
-         IFsjEWycRHYMi2sZCpZj3IkLUD3HqyUTGqfsR0Lflh09G9IVS562sBNV/8ElhJnJUztI
-         UD+yI5R3SyUotXaQknW9XWJeJmoHGrD7H/CBhlheIzsP9ZyvsyAOMdxjKk5+Shl0wXuw
-         BZEgCFKvM+CBJktLUE63o3CsyV0ir++idgF0O9aC7np0Y1WZEziGxEwcf8n9JQgrcxYJ
-         IaQ7A4D4Ys+cl/VL7MAU88mCFXKdr72h3PNWvVhiG2757C1alThgOUTQQxcHDe/GCHEJ
-         c7QA==
+        bh=GgaOWdt8NjTl7b6qNQwatX1bwpfDKxCosbQVvwNvIn8=;
+        b=DPXycQknOqFPD6GQXtjO7ZFZaBoHVB+dQmexujsfWI76y+lg5mO+yVWAoasMFpU0Oo
+         uXEMAdakYZR+Gz7qjt9Tp99Ax9jnkyXWFV14vl3/+Ps1F8ZaHIk8J+Ff7ZSJyhxX9Jp9
+         QBnssg+cdPm++RC/GkgkE17ilzHnc53aE27W9iEu8shI0ectolIuDQHdRWifQK0iXn9g
+         +/OsnEkrnBVts/3t2aYx8c2p1Peluj6OeLGKZbKgioWE2o6a7ghthS3ws74AArT991L0
+         702f8TJekp3ES4qcRE+NOAV7zKgGXHCcKSzoMsgaXf6D1AKaLCer7OTUEqYD2xezzsVz
+         +VNg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786975118; x=1787579918;
+        d=1e100.net; s=20251104; t=1786975174; x=1787579974;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=vwBy2s+S/oVuWSQFCOAaYf9dasg9P4SMGGN3EYJKv8I=;
-        b=PD4t7PsrM+9lOAV/ZrWDs41PEc4kU22F4g0wL66ZsH8HQ3SHQR+ih+Hq229kj4tZzR
-         2/rC4Lc/xMOgl6GZPHYnSr5DR1DlGKobHXXeGZeD8vKyf+vHKxsvtp3Qp1FVucS+D7Pc
-         tk6OnuIe/YM4d5Dp4FdHoOwDOPJtBGsRth7aJ7F0jac6wfTyyfhLZuEYX3irj6aVyuT1
-         cDTstycVrgY5fZDfUdgMlfork1W08oFjrUbXXTHP5+afcp4BWOKbWhEVEaXyec9Wx/oe
-         X/E2JpU0Wa1aMKiHw+LwQoE9q2MEulfiRwIaVyKT99GoONStjES9vh51D9MhN0EiHzK6
-         dCiw==
-X-Gm-Message-State: AOJu0YxVGDIEcYPTFshfaioWT9ecO8lv4LS4KkbvskE1H687FviXV21o
-	DHbdWGmC7xvg88xT0uWAKtO4yCRXXQ90s8ksqqG9M3ZZ/8zA3/Lt8tawWz89m2ZHmh8wVy2sHpG
-	uxTCLAuBU4qXf+raGIr7grwa65vnQX2RB1g==
-X-Gm-Gg: AR+sD10mzyp7qk4RzctxBdOIMDwOmEWoDTKEm8RvVGkdfWotRVijWVsCuyR5PZmac79
-	PthAmsgJuaXG6XIV8JGwHxUgtn3RaNLpBlFU6oyeZMUbbIt2s4dlTq1NTwZzzb8TeHI+wP0pnO0
-	AqSowbc7qe0rY8OM97uEuDmvNtEdMArCIyObLllNruoQ1qn6zRE5d9MfGMD8LYLETUPsRBcI5o1
-	QlKqHcLt7cNhSfet+tUnmpLXzE5HETJwWLPGLH4M61uOC/7GkK0PZTS/oRGQjwJf+5hZUxVQv27
-	oddIYQyUOf+DPlQa2LcrQf+UwAvj5aEywCVODQNh6568
-X-Received: by 2002:a05:6871:c949:b0:456:cdf2:ae66 with SMTP id
- 586e51a60fabf-45f3782c89bmr480353fac.20.1786975117937; Mon, 17 Aug 2026
- 06:58:37 -0700 (PDT)
+        bh=GgaOWdt8NjTl7b6qNQwatX1bwpfDKxCosbQVvwNvIn8=;
+        b=ogEDYaogmOoAfn+nHTSQ67s472oysyO0CyxkAPuHxkGH0Z9l2QkXWyPWaE1flRJKLk
+         zBGZCscPvdBIvmIzKPEwJdZxgrjShqfJJemXWqfK5xz9zPktDKvL3Fh7rh+9b+DKDdql
+         wXnbour/GgGJHZSlkvhUDwNMERv6FWFByiEqPQmwNDVAllZAxXTogEa2fuu0zdmMXlxm
+         8MbHtQ67DC/JoQ7At6Svfz0i31jcFKI7btULu1X7JmEprxQtAg4CanQOU/OnZNCSzyIw
+         EhorMWFuJ/rag9ALTMFFFfcuCRU9RlHdc1XOxgX6jxlv9/9Jf1+ml+rEns5KZIMRrXwQ
+         kp/g==
+X-Gm-Message-State: AOJu0YzOcMKdpTA6rFj80PmNXIRf4xcMO/WgHa3NrIdUotT1SFeTsvAA
+	9LQJiMRTQ0JhvRvQMLvROULlgsv6v2IUaaVsJ73kEX10JFRVlK/Eh+wu+1jNqN+19oyM/ZaQTUi
+	K8XIE+46ZlbP5l7Voz1z9eX6ysYwu5S0=
+X-Gm-Gg: AR+sD10Gzv7uH3E3+9/NwtCzxL5asB+H809i9dYVi0oi3f4YL7Iuk+1QoGwFM9XOUby
+	PZHn/vu24NENrRbiUd/f6OogRRvzbA+eH5qcDT0G4hFhqouayuuQfRZnF3HVebHaTM3AGdEfEK1
+	lif/+v7+PGgmduUjdzn7Duo9a9j1SJgEzFAYd5bVXt17JYe0XPN1gBzrL1az9KhDGSsym1lMY65
+	qe/4usq3R2S4dexIkd6ky69PHwbxY6dH+B6UgYL67t5/FG3LB9GMKQadiggFa4LA4ls1xp6ZhGz
+	FxH6NwDp9tDIFmg97wP655opPOzz2idd5cfNvmXFHw==
+X-Received: by 2002:a05:651c:a205:10b0:3a1:4b92:76b8 with SMTP id
+ 38308e7fff4ca-3a14b927e42mr9904061fa.4.1786975173406; Mon, 17 Aug 2026
+ 06:59:33 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260814230432.53831-1-kalevi@kolttonen.fi> <CAEjxPJ7diECpC9H+ceKZwZzDVXQ9bbn5R37P+uD8JnpBe3jVyQ@mail.gmail.com>
- <CAEjxPJ6AH+PyS5v80_Q6v3Gx3AOmb3r1X=hnGf5pan=wGHbygQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6AH+PyS5v80_Q6v3Gx3AOmb3r1X=hnGf5pan=wGHbygQ@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 17 Aug 2026 09:58:27 -0400
-X-Gm-Features: AcwNN1WO-DTBiXbGKP4mPu6WHS80z3qBMZmYf6RQD64_jB4K5N7Lh_xpkk7uylY
-Message-ID: <CAEjxPJ6NGxMic8PVrHZX6OtUMewp+WSfqsc2KDLso5=nKdUHng@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: use bool instead of int in validation functions
-To: Kalevi Kolttonen <kalevi@kolttonen.fi>, James Carter <jwcart2@gmail.com>, 
-	Petr Lautrbach <lautrbach@redhat.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	Jason Zaman <jason@perfinion.com>
-Cc: selinux@vger.kernel.org
+References: <20260813184042.185689-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260813184042.185689-1-stephen.smalley.work@gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Mon, 17 Aug 2026 09:59:22 -0400
+X-Gm-Features: AcwNN1UbfRQGiIoTgU9u6ZupnNq4ke5FrGQI7MfLoPjbvOEY1Cc5zeD6q0zg-NA
+Message-ID: <CAP+JOzTUaOSwBfiEmCf-9aB9qZsSXknbGKqr31M6=vWj+NvVoQ@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: selinux_check_access: fail cleanly if
+ avc_open() failed
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
+	jason@perfinion.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Aug 17, 2026 at 9:35=E2=80=AFAM Stephen Smalley
+On Thu, Aug 13, 2026 at 2:40=E2=80=AFPM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> On Mon, Aug 17, 2026 at 8:43=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > On Fri, Aug 14, 2026 at 7:32=E2=80=AFPM Kalevi Kolttonen <kalevi@koltto=
-nen.fi> wrote:
-> > >
-> > > This is an effort to use boolean return values instead of
-> > > int in as many libsepol validation functions as possible.
-> > > The functions passed to hashtab_map() have been kept as is
-> > > to avoid excessive reworking of the codebase.
-> > >
-> > > The change from int to bool requires adjusting the callers
-> > > to invert their return value checking logic. The caller
-> > > conversion has been performed to keep the existing logic
-> > > intact.
-> > >
-> > > Signed-off-by: Kalevi Kolttonen <kalevi@kolttonen.fi>
-> >
-> > I am hesitant to apply this patch for the following reasons:
-> > 1. It changes the semantics of the return type of a function that is
-> > exposed to multiple source files,
-> > 2. It does not rename the functions to make the change in return type
-> > explicit and ensure all
-> > callers are updated.
-> > 3. It doesn't provide any runtime or memory benefit.
-> >
-> > Other SELinux userspace maintainers are free to disagree with me and
-> > merge it if they desire.
+> avc_init_once() calls avc_open() but discards a failure result, and a
+> subsequent selinux_check_access() proceeds to avc_context_to_sid()
+> which now hits assert(avc_running) and aborts the caller.
 >
-> Also, your patch breaks building the fuzzers due to missing #include
-> <stdbool.h>;
-> to reproduce, run ./scripts/oss-fuzz.sh to build the fuzzers.
+> Latch the initializer outcome and have selinux_check_access() return
+> -1/EINVAL when the AVC never came up, so callers see an error rather
+> than a SIGABRT.
+>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-One last reason to not apply this patch: it makes the code less
-consistent, not more, since as you said, you don't convert all the
-functions to reduce the scope of the change. I'd rather keep it
-consistent.
+Acked-by: James Carter <jwcart2@gmail.com>
+
+> ---
+>  libselinux/src/checkAccess.c | 12 ++++++++----
+>  1 file changed, 8 insertions(+), 4 deletions(-)
+>
+> diff --git a/libselinux/src/checkAccess.c b/libselinux/src/checkAccess.c
+> index d8f485e9..3cdd2413 100644
+> --- a/libselinux/src/checkAccess.c
+> +++ b/libselinux/src/checkAccess.c
+> @@ -9,14 +9,13 @@
+>
+>  static pthread_once_t once =3D PTHREAD_ONCE_INIT;
+>  static int selinux_enabled;
+> +static int avc_ok;
+>
+>  static void avc_init_once(void)
+>  {
+>         selinux_enabled =3D is_selinux_enabled();
+> -       if (selinux_enabled =3D=3D 1) {
+> -               if (avc_open(NULL, 0))
+> -                       return;
+> -       }
+> +       if (selinux_enabled =3D=3D 1 && avc_open(NULL, 0) =3D=3D 0)
+> +               avc_ok =3D 1;
+>  }
+>
+>  int selinux_check_access(const char *scon, const char *tcon, const char =
+*class,
+> @@ -33,6 +32,11 @@ int selinux_check_access(const char *scon, const char =
+*tcon, const char *class,
+>         if (selinux_enabled !=3D 1)
+>                 return 0;
+>
+> +       if (!avc_ok) {
+> +               errno =3D EINVAL;
+> +               return -1;
+> +       }
+> +
+>         rc =3D avc_context_to_sid(scon, &scon_id);
+>         if (rc < 0)
+>                 return rc;
+> --
+> 2.55.0
+>
