@@ -1,196 +1,183 @@
-Received: from mail-oo1-f53.google.com (mail-oo1-f53.google.com [209.85.161.53])
+Received: from mail-yw1-f179.google.com (mail-yw1-f179.google.com [209.85.128.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3971237AA6A
-	for <selinux@vger.kernel.org>; Tue, 18 Aug 2026 20:10:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 380B237AA8B
+	for <selinux@vger.kernel.org>; Tue, 18 Aug 2026 22:52:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.179
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787083851; cv=pass; b=ezPfYuT454mUnSUEhHKbYHfDdHzAPEf/Q7t7Uu/YnGyLm78XefNvJ9L5qCTeJEBfObjleikcq0fjpJFkS9z8b/rVsBqaIRdP0UREIiYnC4ltmd1FPnVojoP26lGeUFGOUtR2hZSfSexRih2x5xiWojrRG/uQMqvTYr/Bd4q2tGc=
+	t=1787093564; cv=pass; b=QHe065co21cDi4T/dYny7P65es9eR/85oM84psU/qHVrrHXIJvhOSWkTJRBnelZraFBdb6PKee5MVNkUzfH2AYluLotD8y5k5CcZeA56gxZGi5Y/t20VSdW1HWTgXYhpCO177Qjvhj8Nqbv1PEPvDthNZJIKt+tIcWlG5SSRfmQ=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787083851; c=relaxed/simple;
-	bh=juAuNf/icvJkyQj0yi0JbeCtT9Q3p2xr0QOM4XngpdQ=;
+	s=arc-20240116; t=1787093564; c=relaxed/simple;
+	bh=oZEVUFGghPOKJGwiaBYS9UkXUIx0/8qBLFMArfsLvw4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MzYmSaiG2H9FZiqxPb3mgGOghC480TAjBiNVh6MNY7p9NVW/0WeShkl4nq6ACfBKZBUA8S+2+N9d2CAhVwIvY1iEgytN5z5ICtekeFbx0gfG8hWYlY3doUVKJgPxUX5lGCLlQeXdDaEeaQ9Fun6ht052697tuyoiRRMCUeaNNsQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hFxr4gN1; arc=pass smtp.client-ip=209.85.161.53
+	 To:Cc:Content-Type; b=RGp9PVwVIq7tM5UJa1MCs6VCp2kRKW7+xsO0haNw7Vv3rDKdAETxvQYRqSKkPfh2K3urIp65LUOZWdNnkBtKWB6+Hi/aflZxbm2+mGh0vs+zpbPXoTJ9N2D7GTuO5MHmsGEWwOfs7nII2qeIHILbWiXF7XMNcq2o+RtrnS75C7E=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UphuHZpv; arc=pass smtp.client-ip=209.85.128.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hFxr4gN1"
-Received: by mail-oo1-f53.google.com with SMTP id 006d021491bc7-6b12ada8befso235244eaf.0
-        for <selinux@vger.kernel.org>; Tue, 18 Aug 2026 13:10:49 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1787083849; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UphuHZpv"
+Received: by mail-yw1-f179.google.com with SMTP id 00721157ae682-836ce6cbe1eso7068697b3.1
+        for <selinux@vger.kernel.org>; Tue, 18 Aug 2026 15:52:42 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787093562; cv=none;
         d=google.com; s=arc-20260327;
-        b=BgmZcPL0eEEvRytIFTkgHEL2N9BWMiJljZqjTXqtJj7Ui2ssoFJyntW1M2F3a3goZ7
-         eiYlZAGv5+bCbmF+YsoXmSnPJvbT81kOtvKXSHyDiltCmRMiOr9ExbtyxKg8z1/0tnbl
-         ijgbimgTNivJ6J3rgf3Ji7EHhXhb/I1eYY8a7tXmqWNU/Q7Rm9QpYPp5E96Iis/gvqI7
-         c3lIiHkMElXERBpVXELcD0L2OW4pUzrsQbpl4cL9+Y/09Vfpzh2If4ZCNnMPxZjckstP
-         j0fwbu/jhMvuJaM+cjTfV4sTE3mgeVy0DK5gcP1F2LW3KgIH4geUieko9uye90xv/ASL
-         /+EQ==
+        b=cLX+1FDBPQLpIerw8XJPNw0AePnleJ+g+7743yp0hhWW8H23YY5kiQlO/VI6+tmOTl
+         B4ZHB0Ibl0HVYdaFH2X/GBit94JyMbqYx6dTnDZ0QV1X3KZSN6kCYrG28JfYDgBSTJZk
+         DkCyDW7XBJjDDNXUidTSRTddc5UMfYRonDb+o80CPetQ4jy6dPPbJDwUThwuAgeoYWoj
+         qfUjujY63tsAEGNMC9kKpYNOZ11fBY/6pWyyE11C3HMoLZ0H+aN+Y4jIEmwXWRJ8zl7i
+         GxP+9hfpsok0qHxJi5EbHZOW4YjGQtK9FpaSYTTlg5OYYhlKg7cPvJc/WoFWzjFNuTYY
+         njFg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=ROhb7dEdl64Vp1NYzsnReXV6d4Ztl5SBFhUhwRsC7yQ=;
-        fh=Vdc608U6fmQnkK4Pj/GsEOPoO5XtlZs1Z9K2hPCnM4c=;
-        b=haAqOGjmb80eBbgd5n5jdtdC0UROX5ivWRdMVXtrCnd2dXyGPeYhRbkhBaT6gqJZst
-         tqCYQtzqw3QOvqL1SVVHuxt2MnIqMe+IZJeok+vm4MkAjHrhCVq0XMZjrJdm9S7Uxmsy
-         crweOZe4fdUgHvuuglYr4Gb8de7E+5jK27zR0EYJIbk2PvWOx4VbBf7H1kyKRhvWtsWM
-         vQhOHZbs17tSP3HujoI+3iC3Y60nrRu1xEeKDLXFucCxl1cuWaBG7PMmBx9/KWCAXrqO
-         phVKWPIb9dSVdxZ0SNZE1kNb9zPd+9BYdd6j7s3ENa1fRee1pboIKrelGxGs7abiV3XA
-         2Ijg==;
+        bh=oZEVUFGghPOKJGwiaBYS9UkXUIx0/8qBLFMArfsLvw4=;
+        fh=nOcPTm+jzSpUJDDJhvsoEQt/GcMQFmPB1BDsWNtwPZ8=;
+        b=LCtTdCIKI2dv47h7SeX67eLMFZq7Ev6F5k33z80R2ZcuTYLop17YUy5Le6tIvQv94I
+         LMF9lkqM6L8BuH36lJcspNvs+UcMLBZwWWImpMeQ7YxxY0rFXNnfkRLhFksw9uC8hBGl
+         Rxdpl7ht6+H23l7CHDhRFJWOgz8b+KrqGOriUyXH8ppz0CaTA6MAm3IM0Y5gDIaLn590
+         2ndRfHbcjHf0vAOmwt4biBQg9l/IUFkqHJNPEmjD+bCEQzqDyRU79NZASLk5hkCYXkyF
+         Kv5xwq5ZGgoUrE/9BqO2BcWBG6vaGqIC8SHnRUv+ETM1TyqL4R4DeBCt3PcfW+U5bgnq
+         WKNQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787083849; x=1787688649; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1787093562; x=1787698362; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=ROhb7dEdl64Vp1NYzsnReXV6d4Ztl5SBFhUhwRsC7yQ=;
-        b=hFxr4gN1lPAW7SB1OE+wrF6GDN/3fm5DmMjBKrK2cJ0G85MnoQe0TjJWJl5Cm3qodF
-         3yDUQaExFo6gN6Mrgfe0bwE9MYVblwCqD46DPrWopA8LH25qXpbIw10l3H0ad5aq/o+A
-         gx22lNOXW2/FQvH+cXI2oOzgGb8+CxAnG/9UVfZNowI7aJfrSwMDAl7vw0sCPPeEUMN2
-         FFo+5V6N4ioPTr6kpb2cOgXv0WHQrNuiUAxKfBc4CqMVydwbZbuMABevniNvPK2NP5qz
-         kKVJ0+ydX95ZMwj9uIQu07hqRX67ln1YfYpULB5krlzC5Npm68rDoYmXgyHlIqnfNnkN
-         VZug==
+        bh=oZEVUFGghPOKJGwiaBYS9UkXUIx0/8qBLFMArfsLvw4=;
+        b=UphuHZpv+a86cCYusyQstHVBWX7Jwa6V/y4XKu37+XHgvmgshZ/vD4Yr5RHXCiHHd5
+         FaVJdnwu1NYdwyZp7cYI3+Kb6EZE/aZveJKzRnhvWJL7cNJQo1pv24ontguT6PmbeA1L
+         LB0LQsBNJ599bTfCU+8RJRXcuIEVxP+TNE6lCzSTIT3/wgy60PqeyvYvZnTO+5i6b/bI
+         NIAEGZUt/GmBZBGkHgg6S/BvGaIcoIYrbsQvRV2jXvEeFiUndP0oUPbGzH+KqhYtAlOZ
+         wUPfkCXy1xCqP99AY0YLR0q+2FkIZS5DwXFhUeCjSiEBUCfsmTj9ATKc4C27tvS8Cmh9
+         DBGw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787083849; x=1787688649;
+        d=1e100.net; s=20251104; t=1787093562; x=1787698362;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=ROhb7dEdl64Vp1NYzsnReXV6d4Ztl5SBFhUhwRsC7yQ=;
-        b=Q16JpCTBiMcRudtzPExS25+kCvy+0Ic2yaYsE7vz/hCI6ursk2G64GTGgk8AgQ8Y3H
-         OZMMFrdlHqUsa649OFotw36pi684tcM5OYfm9g8pzlJTGtbjpchSnuTjYlT8P9qQHLQ7
-         sXauFR8rr1GSPQhZGSgQoDcjZC2/vtgSofEGNnZAAAX2sMv1Yb/epGsAYzUTSuUNIeEx
-         kV9FocWEzFoHxiFPYlbdXkJZVtCxYX0cxzZiYWWUT82UDOttokSVUC9yETB3rhLQsjmc
-         noeYsGBWqoNp7czb/KASoQ7LADOORjhdxkRqcUg/P54QCfd+Va26a9NhHtT1qdr+ZorQ
-         ZuTw==
-X-Gm-Message-State: AOJu0YyGOagPvSKyTBNWEgZhzzvcbqnwZbCVa5Vuk99N0n9CD9PcJswS
-	ZmOESqU4bdyHA/rvbPtoe47CJK0BdOAFCkIzBpclNOPTAxCKQDphyLciHzHX79h3YHp6tuuAUbe
-	bGxs6SIO0fuSqgEJBSSF+QHLlReWv/lE=
-X-Gm-Gg: AR+sD122eUSIPyLqrqpdBW7JGDnJpITBlim/4mfUIi21AdnADxgI6i3oxJgJXyCGB4N
-	EMjod/C+uZ//S6HrUjoUH3xpE8ywtyChYfQYs/Y2yd8HP2ZNQPxBSGvjWJVQ9fOWNhjSFpaizWz
-	VvBbQEQIa54z28L02fHjlitEDqz40ZagvXS5tYhOOjBXaAji/z2V+6YyJo9KZHGdbIz9QCKBI8Q
-	bwPWhdiuX/VvMmQdOCyvgv051HA7YNsfB7Z+yIpSYEUE9mPV3KLXkzptaMFitvx9E5xnJqcSOyJ
-	nL1h6R1cm5BFxTgOUns3Hz9Dfz5pEx/he6QtUBjOjK3k
-X-Received: by 2002:a4a:e90d:0:b0:6a1:5acb:e954 with SMTP id
- 006d021491bc7-6b13adb2d42mr88036eaf.19.1787083848932; Tue, 18 Aug 2026
- 13:10:48 -0700 (PDT)
+        bh=oZEVUFGghPOKJGwiaBYS9UkXUIx0/8qBLFMArfsLvw4=;
+        b=FWLPFVrW0OQKJRHRsEa+mFsbMgsSsJhSx9Mz5Q+EW32PHiKSpQxM0OYdhxd08o8YuY
+         q7fQcbEDJ4xklryQpB3Yp+Y7NECMo3fcizSsRduKklPAm10NwlbusnGnWWbiltL8rYX1
+         s61gLZekLM3Smkz2gnweIeYhgdYTOz7pDPB5cmBj7j8GrHAKcjTsan7KgeHYy9u8iURB
+         OF+JoPhNEdm+mFHg3Wp1MQMKrtwsDSYvLHjVXXNQSQEf50kNf5Pd4ysZ4ZRCpeD6LP5t
+         C1E4iZXL4CCXhs0dqc/YU+zFU57A+a45n6n9VbhasQka6Df+mMTYQQui7K96oW6qqcW8
+         4srg==
+X-Gm-Message-State: AOJu0YyKBsWubZxy319mV34va0npJEOyS8aWo4qIM9wI7eSNV4y5tkBp
+	Q/E/E8A+kGyaIVf6F9mJkQKYSSZlahhT55JXZMXQkzYxAFDiTD9MCtmEZenWtzyEILfJRfvudjT
+	xI8oZilwMn2r4Zsxy42kqmmKL85knFpq3xqE=
+X-Gm-Gg: AR+sD134PD8pHx8pSFoThsQbJMzxi7R/5sNA+8MiupzjBA/sgwBAQ/QByrrm/9nrDUG
+	dg4PcygrRCMMifNvN/N/URlIf6Gr7WjUr4ZzWZzXwX9A4FjAxeu9TpSVcxF0MwpKLGSmewcaEO4
+	JEveKcaRjTjy9HOq5Sp2XK9eBEEFe8YKSvn+4jOnTgt9zkEZ2bq/xdFvzafEDuwy753bBJIVGU5
+	3xEY232XLfnLlsNF/4XUJxvG+AUWEnT1FNyBOoacC6MVj9wTPwLWgr+6NQEs6+1jUvS7XR5wIt3
+	T/lPQq6oOTBazei2DfFk1ILrZ9oKmtjepZPvmmQf0e191enmRsqLMJjIzwvjkCKQPJTe+RCBOQ=
+	=
+X-Received: by 2002:a05:690c:6c8e:b0:7ff:1a93:be35 with SMTP id
+ 00721157ae682-844df158a81mr3351927b3.16.1787093562011; Tue, 18 Aug 2026
+ 15:52:42 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260818192340.119297-1-boeroboy@gmail.com> <20260818192340.119297-4-boeroboy@gmail.com>
-In-Reply-To: <20260818192340.119297-4-boeroboy@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 18 Aug 2026 16:10:37 -0400
-X-Gm-Features: AcwNN1W2Kl5DInBAadfOZSOWiiXwYpS8FZj6LIJ1tRYOJbJoUwP0l7Mdfwu74sI
-Message-ID: <CAEjxPJ5sPNEC39ZQevKoCZROiONZmz-g56Pp6O9wQF_3mTxcbg@mail.gmail.com>
-Subject: Re: [PATCH v1 3/3] policycoreutils/setfiles: honor RESTORECON_THREADS
-To: jboero <boeroboy@gmail.com>
-Cc: selinux@vger.kernel.org, cgzones@googlemail.com
+References: <CAG94myvwFz_f2K8SLsfFv1xKDkdm_t6z0s75BLcE5Dn7OV2LBw@mail.gmail.com>
+ <CAEjxPJ4DjSrYfDG5V2U8SYk+t_hQXLuytuwP04X-jLd0DMd4og@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4DjSrYfDG5V2U8SYk+t_hQXLuytuwP04X-jLd0DMd4og@mail.gmail.com>
+From: rushikesh ghatpande <rushikesh.ghatpande@gmail.com>
+Date: Tue, 18 Aug 2026 15:52:30 -0700
+X-Gm-Features: AcwNN1UOIbZ7BkginNvKsu9-7kCfRyy75QeJM5IZuZ18fqaA0hNGRIh5peFLm8s
+Message-ID: <CAG94myvBHohDtG4kNdMNYzYOBYAZ9-tcKPpiJb_T7bb1fuE0_Q@mail.gmail.com>
+Subject: Re: [RFC/Discussion] eBPF-based runtime permission auditing tool for
+ SELinux policies
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 18, 2026 at 3:24=E2=80=AFPM jboero <boeroboy@gmail.com> wrote:
->
-> From: Johnny Boero <boeroboy@gmail.com>
->
-> Relabeling is invoked from places that cannot reasonably be given a -T
-> option.  On a Fedora 44 system, 10 installed packages run restorecon
-> from their scriptlets -- filesystem, kernel-core, container-selinux and
-> selinux-policy-targeted among them -- and not one of them passes -T:
->
->   restorecon -R /usr/bin /usr/sbin
->   restorecon -e /run/media -R /root /var/log /var/run /etc/passwd* ...
->   restorecon -R /var/lib/containers
->
-> Influencing those means patching every spec file in the distribution,
-> one merge request at a time, and only covers the packages one happens to
-> have installed.  The environment is the only knob that reaches them all
-> at once.
->
-> Add RESTORECON_THREADS, with the same meaning as -T, which takes
-> precedence when both are given:
->
->   RESTORECON_THREADS=3D1 dnf update  # keep relabeling on a single core
->   RESTORECON_THREADS=3D8 dnf update  # cap parallelism during application=
- load
->
-> An invalid value is reported and ignored rather than being fatal, since
-> the variable is inherited by every child process and should not be able
-> to break an unrelated caller.
->
-> This patch stands on its own: it is the brake for the new default in the
-> preceding patch, and equally the accelerator if the default is left at a
-> single thread.
+Hi Stephen,
 
-It actually depends on patch 2/3, see below.
+Thank you for taking a look, and for the context on the
+auditallow/Android precedent. It is a helpful confirmation that the
+runtime-observation angle is worth pursuing via a different mechanism.
 
->
-> Link: https://github.com/SELinuxProject/selinux/issues/489
-> Signed-off-by: Johnny Boero <boeroboy@gmail.com>
-> ---
->
-> diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfil=
-es/setfiles.c
-> index 4c860755..ee0930b7 100644
-> --- a/policycoreutils/setfiles/setfiles.c
-> +++ b/policycoreutils/setfiles/setfiles.c
-> @@ -65,8 +65,8 @@ static void set_rootpath(const char *arg)
->  }
->
->  /*
-> - * Parse a thread count, as given by the -T option.  Returns -1 on inval=
-id
-> - * input.
-> + * Parse a thread count, as given by the -T option or the
-> + * RESTORECON_THREADS environment variable.  Returns -1 on invalid input=
-.
->   */
->  static int parse_nthreads(const char *str, size_t *nthreads)
->  {
-> @@ -166,6 +166,7 @@ int main(int argc, char **argv)
->         struct stat sb;
->         int opt, i =3D 0;
->         const char *input_filename =3D NULL;
-> +       const char *env_nthreads;
->         int use_input_file =3D 0;
->         char *buf =3D NULL;
->         size_t buf_len =3D 0, nthreads =3D 0;
-> @@ -246,6 +247,20 @@ int main(int argc, char **argv)
->                         exit(0);
->         }
->
-> +       /*
-> +        * An explicit -T option takes precedence over the environment.  =
-An
-> +        * invalid value is not fatal, so that a bogus setting inherited =
-by
-> +        * every child process does not break unrelated callers.
-> +        */
-> +       env_nthreads =3D getenv("RESTORECON_THREADS");
-> +       if (env_nthreads && env_nthreads[0] !=3D '\0' &&
-> +           parse_nthreads(env_nthreads, &nthreads) < 0) {
-> +               fprintf(stderr,
-> +                       "%s:  invalid RESTORECON_THREADS value \"%s\", ig=
-noring\n",
-> +                       r_opts.progname, env_nthreads);
-> +               nthreads =3D 0;
+It would be an honor to have this considered for the SELinuxProject
+GitHub. I'd also like to be an active contributor to the SELinux space
+more broadly, not just with this one tool. I see this as a starting
+point.
 
-parse_nthreads() doesn't write nthreads on error so nthreads always
-retains the compiled default.
-With patch 2 applied first, that default is 0 and this line is a
-no-op; without patch 2, an invalid RESTORECON_THREADS would flip the
-default from 1 to all-cores instead of being ignored.
-Drop this line and re-submit please.
+On coupling: the eBPF side hooks avc_has_perm(), plus a few more
+targeted LSM hooks (selinux_file_open, selinux_mmap_file,
+selinux_inode_getattr). This is done via BCC. There's no dependency on
+libselinux, libsepol, or policycoreutils here.
 
-> +       }
-> +
->         /* Process any options. */
->         while ((opt =3D getopt(argc, argv, opts)) > 0) {
->                 switch (opt) {
-> --
-> 2.55.0
+On the policy side, it currently shells out to sesearch (setools) to
+extract allow rules for a given context. So there is a dependency on
+setools, but not on the core userspace tree itself.
+
+Given that, I'd lean toward a standalone repo for now. It sits next to
+the existing tree, not inside it. I'm open to your view on where the
+right boundary is.
+
+I'm happy to keep improving it based on feedback. If there's anything
+specific you'd like me to change or look at, let me know.
+
+Thanks & Regards,
+Rushikesh Ghatpande
+
+On Tue, Aug 18, 2026 at 9:01=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
+> On Mon, Aug 17, 2026 at 3:18=E2=80=AFPM rushikesh ghatpande
+> <rushikesh.ghatpande@gmail.com> wrote:
+> >
+> > Hi all,
+> >
+> > I've been working on a small tool that uses eBPF to observe SELinux
+> > AVC decisions at runtime and flag unused permissions within existing
+> > allow rules. The idea is to help identify over-permissive policy that
+> > audit2allow-style workflows tend to leave behind, since they only ever
+> > add permissions and rarely surface which granted permissions are
+> > actually exercised.
+> >
+> > Repo:
+> > https://github.com/rushigerrard8/selinux-policy-auditor
+> >
+> > Briefly, how it works:
+> >
+> > - Hooks into the LSM layer via eBPF (BCC) to observe AVC checks for a
+> > given context, without modifying the running policy (no auditallow
+> > needed)
+> > - Aggregates observed permission usage over a monitoring window
+> > against the policy's existing allow rules
+> > - Reports the unused subset per rule, e.g. an app granted { read write
+> > append create unlink open } on a file class where only { read open }
+> > were ever exercised
+> >
+> > I built this mainly to solve a problem I kept hitting in my own work
+> > on distributed systems/networking (permission creep in service
+> > policies over time), and it's been useful enough that I wanted to
+> > bring it to this list for feedback, rather than just leave it as a
+> > personal tool.
+> >
+> > A few things I'd appreciate input on:
+> >
+> > 1. Whether this overlaps with existing tooling I'm not aware of (I
+> > know setroubleshoot/audit2why cover related but not identical ground)
+> > 2. Whether there's interest in something like this living closer to
+> > the userspace toolchain, or if it's better as a standalone project
+> > 3. Any gaps in my approach. I'm relying on kernel-level PID filtering
+> > to keep overhead low, but I haven't stress-tested it against
+> > high-throughput services yet
+>
+> Thanks for sharing this. I'm not aware of existing tooling that
+> overlaps with this.
+> We have in the past discussed doing this kind of thing via auditallow
+> rules and Android has used those at times for a very selective form of
+> this, but that approach doesn't scale well.
+> If others find it to be useful and it is well-maintained, we could
+> consider adding it to the SELinuxProject GitHub in the future, either
+> as its own repo or as an addition to the selinux userspace tree.
+> Whether or not the latter would be best likely depends on how tightly
+> coupled it is to other components in the selinux userspace.
