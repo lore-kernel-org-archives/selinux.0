@@ -1,143 +1,152 @@
-Received: from mail-qt1-f171.google.com (mail-qt1-f171.google.com [209.85.160.171])
+Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C474334D91F
-	for <selinux@vger.kernel.org>; Tue, 18 Aug 2026 19:23:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09344346E43
+	for <selinux@vger.kernel.org>; Tue, 18 Aug 2026 19:24:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787081037; cv=none; b=sPPS0qYm/JU7HgJaDmiy/h1inKgraTqlFDpVmuAjwuYv4OrPtvYBdpLtcUAZxKEgxFOUQNTlYrJNBPCBcmkGESJcAxGRX6+3Fsh88RqgkwwpLY01w4oAeANRh+rato7+sz6zWrxj8aF7XNfNv0ReASUs3kkMyqOfdtaArb++zic=
+	t=1787081043; cv=none; b=aJ3cy+DaCXGzVqZzo0MZVVnzdtIpLAuYHqYQb8XQnEMv2M1PpxY885zyuoS46kDrrQMJ7l8/lPPZxL7ej8NvkibHueybl+EdNFKpoGWhFllcDyinNMuywpRcccdL+9rp0CxIdMDW1R27qViLzFtTiVCMx8cYr3UITINPjAz8PsI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787081037; c=relaxed/simple;
-	bh=9HMY0+IHxCfsCFBkJyy1XXn2SWo//VXx7kSK4s6oWic=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=jbHnh02vv1DPaYzsZFztIPeK6zC90wjVxfl2vD78yG9svaZzYbJOGGdALUYn+HjentFO5AnQIqMlySM9onPRNryNXCJC48wAkCfk5kYsQOCDXQEOD0qcEDeRKr0x9Gyr9D23zZK5pwWtIw9CyNUogR2038hGcmiC1aVf0BVUfNA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=npQIIaDY; arc=none smtp.client-ip=209.85.160.171
+	s=arc-20240116; t=1787081043; c=relaxed/simple;
+	bh=37LFf9GXnwV0pOzRD4gt9hhQE3blKzRczjRksRa85BU=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=jQl3qRDY7pHW9nM6caSOkLQqjDv9EZIbj0eBdNdmjGE7dDeyoHtUquqCKopF4os+mBYXnjMBhBvRqg+wI+tdPxDn1NFrfE8KGM07HH6OjASo5ViodH+g1mlu5kOG416rAfpiYqIuGEK5S4WOQGbv65vAkzdicfLwNh336rQ/I5A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OphzmeZL; arc=none smtp.client-ip=209.85.160.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="npQIIaDY"
-Received: by mail-qt1-f171.google.com with SMTP id d75a77b69052e-51c1372f84dso1371601cf.2
-        for <selinux@vger.kernel.org>; Tue, 18 Aug 2026 12:23:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OphzmeZL"
+Received: by mail-qt1-f172.google.com with SMTP id d75a77b69052e-52d7a3defe8so1393901cf.0
+        for <selinux@vger.kernel.org>; Tue, 18 Aug 2026 12:24:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787081035; x=1787685835; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=aAcLZmGaR7r/xIkeqkTnzoyNkJUobR+lxn+xvbNUeEU=;
-        b=npQIIaDYxyj2+5qdAkBVcHNCB16TuD0ydBseghLoS/jBLhR+1Libu72O1mAL/JWaq/
-         vfhAeM+NPfKBbiYIj9in/OfSwpeYMppVfc4XRX+CpDvER6rC0J+NHcMjmtsuv9H9xBQ9
-         +GLNuqsNML+P+Xt3r0mNt1B5efS7OXQ16OevAvvKjc6v/8IAVM+iEa0bLxA+GKkAk+ZZ
-         uqvfY9brC8IsJH03LNsRvfOdJO5iZGGlxpXp1acH2l6YbnuJJ2JzADryWI1gtGYSUoAP
-         duqwjswE9ji53vlnvDRCH8zSEzyDiXXE/T5nBpA6IdFnfWnlih4MYaGuH9FObCSeLHti
-         5tcQ==
+        d=gmail.com; s=20251104; t=1787081041; x=1787685841; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=IFXYDLTNJO1jLxsiZBfc/vX1r+vnUg9g9B6MYM5wfFk=;
+        b=OphzmeZLFQnj3tIAY61fpvOWvVmdtWLQctiecEGwO4dJhK1LhJOwcCHd8oqxrfMme9
+         Pbq2AhjtnKurKZswRrcv8Swq7A7YI1cz7QdyKHquFJ6K7Zy983GWKy1PEJreaOFRd9bN
+         nJWe6/n3p+csRofCgGJR7g+uZdBx6X5vxfa8zrr1s3xHknx85q27FNat54jSuRnV6kHC
+         +8noZGce83YITbNUQ9xKcgWswP10EY1m4B20Uv3TlDCnW+16hriJ3UrhsOeq1YQ8KW43
+         cvEYVtjDpOio+vuF6rUQpkOKuTcaGEBIPAuOPAuk7NpBMZnEWo0PQMOpg6jCw1Dl3j4w
+         FZLQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787081035; x=1787685835;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=aAcLZmGaR7r/xIkeqkTnzoyNkJUobR+lxn+xvbNUeEU=;
-        b=gZHQeu7tdoZBKoqJ8HPqH/CRntv6h20iSPTj3ZYQ6JyFQmOWxtsD6qyAMq+Ti2HMJK
-         gHnvAfqbDU6r2+5VPYwu+JXdeiAwx7IyuEqx1aAu+nOXry7XalEpBtZL8WlQfEnIPbXt
-         zq5IE2loN1557c6SLX4ZT5cBwml6w5BflIIey5fnYtWLy2XxkLNTy0PNYrvSwPT52j97
-         I7DLJWKJvdykEZXjyPTu6K6d3LmHl70/K/aT3NulCw4xa54T6FR9IutN39Cx0hcZ9PcE
-         LKGVa8EJ/m8IIkzWxzS/dfEVxd5iDR7xowcoSJLkyJnz5qEjTq/IKDmM0EvAh3KaKGFc
-         Op5g==
-X-Gm-Message-State: AOJu0Yx7JGHsTfWNpIf91ENgibMxcabWEyWnDKS3FXuM82o1mP9LaheX
-	LMUeYgIugTtDUQQ6AhyJezIX5xqcZ3eFOa/napupRccpxHC2iOd64PCke70sFA==
-X-Gm-Gg: AR+sD118CYtdqjB76+fqpIj3Mpi7efHMcZiJMKJlTIPy253nUujt+LbzaR0EvxIdVK0
-	IUOdlVSAfF7Z4B7xh69eZ0jQS9Ln4s5a+Z2hcjqEDVH0ve8IIVPyT7zIhuSdGLu1u2NUlsjwGn5
-	EWgkfC2RbXz01DYcyNal1kBD6qXPe1CJdl5je2Rc33fu5MsdyV/vTPPrBrmgBJorrGTcvYdSGzL
-	CPgVAbYccp6trXAmWxUGP5MBawXcgIAqzDDtSUn5PN5A/Osm9ZLcOY001hm99AWynFYXmTtuo5G
-	7MSX8+6Dgmg8Zq6pIbVIzMJfJuOpfT5P01FiERJZ4VToXeNihopRHDRWsl6kH/DQ6zWNw9lnDnQ
-	MRXIGI6nLJk4BevlWulQqfHn1+iSJlykHHooDtjHhvm+tcLx4IuqADom5d7cm7x7pComrD0MkZB
-	WEGvr0wy0CHOp5lWeYpMHAEO6oUxZC7gMxm+7Au+T2t3yC1+rdj1Y5YnD1pRUS8rHuFj0vnA==
-X-Received: by 2002:a05:622a:261b:b0:52d:9c11:8938 with SMTP id d75a77b69052e-52dd32a8cd6mr3940961cf.29.1787081034361;
-        Tue, 18 Aug 2026 12:23:54 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1787081041; x=1787685841;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=IFXYDLTNJO1jLxsiZBfc/vX1r+vnUg9g9B6MYM5wfFk=;
+        b=UFqd3PMwewdOND42couewF9rr7eMiuK+RTM2GuWPRKiLcgHt4mbt/OtslKo5lFczpH
+         O0tmNNUSLelJ9I6MXx9s5ChgjTLgl2UpJWHIsA97bloyUsebCZhcT9HSYxOjBup8PGdk
+         g0LDrp8GA4ftJycZvn5GNjfsw3LqP7FMPjHH9HOAXYM137Uk+Xnjb531OE535wEmGgJS
+         R+iNrTgMKGNG9S1l6CCnHNi2FZM+3dBltMKLKrPMyYE3XZycg3jCg/CjuucPgBnEo3RX
+         ZtPzp2VUIXv4XmKDc8/bY+dBUxxqAqAEhtZlnouj65eXMDGm5GOtpezXX24ffmmB/jAq
+         25wQ==
+X-Gm-Message-State: AOJu0YzYowvSQiMVb9xptrRP/TBeKzb/Y+KRoReQjk87Wr7mwo+2nUOL
+	hfCXENvUn8Gqx3SmgwIEF7nEc/WCoF4UaJxgOlo26vaifLte01d9vJXGlqhFMw==
+X-Gm-Gg: AR+sD13SRYQlhW5+ER2PoVflTNI5KViwNi09f8rnvzKSu5D/RmJZWK/QI+E3XEQnf+K
+	IsHHY5J908HKKmElDNoBTq/YgmcWLi4GfCLjsbopSqnBxwPSpnD653Kvtpfxt52HEoctMbfl4cJ
+	Qtf4lBsas03yBtecHp1+PdrMMckRnRM5Nr2yA3tM/1nU2t4iAzScG+NLqEvseZmpX531epzqd5n
+	huZ0M+U3bjQ1uOscWELz642yS2qcQCJbC9TfavmzEoenIitNfOn9ihNu9hqctdx4M0M6p8+W9V9
+	uGkW2PeFG895+66dr6U+FCdc7+D4qZ0MaS/FA2gQHbXf4/N3Gjn7CiwZNeAObq3rPVNdEbrQggH
+	EcLNv3whFG3hKjozqZFeOYqlRzN369AAZ2oPYF9FtCqw9I8CTsvur5Sz+wjKKy9S7BSmhaTgfMt
+	4EK27bGIAx7y2MBNn/NydlMFcMh7iToFzCGjqQjEgx3cXY+0KJA/pxOeq+KA==
+X-Received: by 2002:a05:622a:1805:b0:51c:1132:c80d with SMTP id d75a77b69052e-52dd325fbfamr2916641cf.28.1787081040594;
+        Tue, 18 Aug 2026 12:24:00 -0700 (PDT)
 Received: from z840.flat.mawenzy.com ([2603:6000:acf0:3410::10d7])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52db62175b1sm48784351cf.19.2026.08.18.12.23.52
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52db62175b1sm48784351cf.19.2026.08.18.12.23.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Aug 2026 12:23:53 -0700 (PDT)
+        Tue, 18 Aug 2026 12:23:59 -0700 (PDT)
 From: jboero <boeroboy@gmail.com>
 To: selinux@vger.kernel.org
 Cc: stephen.smalley.work@gmail.com,
 	cgzones@googlemail.com,
 	Johnny Boero <boeroboy@gmail.com>
-Subject: [PATCH v1 0/3] setfiles: control relabeling parallelism from the environment
-Date: Tue, 18 Aug 2026 14:23:30 -0500
-Message-ID: <20260818192340.119297-1-boeroboy@gmail.com>
+Subject: [PATCH v1 1/3] policycoreutils/setfiles: reject invalid -T arguments
+Date: Tue, 18 Aug 2026 14:23:31 -0500
+Message-ID: <20260818192340.119297-2-boeroboy@gmail.com>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260818192340.119297-1-boeroboy@gmail.com>
+References: <20260818192340.119297-1-boeroboy@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
 From: Johnny Boero <boeroboy@gmail.com>
 
-Hi,
+The -T option is parsed with strtoull(3), which happily accepts leading
+whitespace, a sign and, in particular, negative values: "-T -1" wraps
+around to SIZE_MAX threads, which then fails a calloc(3) of SIZE_MAX
+pthread_t entries rather than reporting a usage error.
 
-This is the patch for the RFE at
-https://github.com/SELinuxProject/selinux/issues/489, where a package
-upgrade on an 88 core machine spent hours in restorecon with 87 cores
-idle.  Stephen Smalley and Christian Göttsche both indicated on the
-issue that switching the default thread count to 0 would be acceptable;
-patch 2 does that, and patch 3 adds the environment variable the RFE
-originally asked for.
+Factor the parsing out into a helper and reject anything that is not a
+plain decimal thread count.
 
-Patches 2 and 3 are independent and either can be taken without the
-other.
+Signed-off-by: Johnny Boero <boeroboy@gmail.com>
+---
+ policycoreutils/setfiles/setfiles.c | 31 ++++++++++++++++++++++++++---
+ 1 file changed, 28 insertions(+), 3 deletions(-)
 
-Patch 1 is a small fix noticed while touching the same code: "-T -1" is
-currently accepted by strtoull(3) and wraps around to SIZE_MAX threads
-instead of producing a usage error.
-
-Patch 2 changes the setfiles(8)/restorecon(8) default from 1 thread to 0,
-i.e. one thread per available CPU core.  Only the tools change; the
-selinux_restorecon_parallel(3) default is untouched, so library callers
-are unaffected.
-
-Patch 3 adds RESTORECON_THREADS, with the same meaning as -T, which takes
-precedence.  The motivation is reach: relabeling is driven from package
-scriptlets and init scripts that a user cannot edit.  On the Fedora 44
-system used for testing, 10 installed packages run restorecon from their
-scriptlets and none of them pass -T, so the environment is the only way
-to influence them without patching every spec file in the distribution.
-An invalid value warns and is ignored rather than being fatal, since the
-variable is inherited by every child process.
-
-Measured with a dry run relabel of /usr/share (~588k files) on an 88 core
-system:
-
-  -T 1 / RESTORECON_THREADS=1   ~24s, 99% CPU
-  default after this series     ~16s, ~1000% CPU
-
-The speedup here is bounded by the directory walk and the syscall mix of
-a dry run; a real relabel that writes contexts benefits more.
-
-Two things I would like feedback on:
-
-- Whether RESTORECON_THREADS is the right name, given the same binary is
-  also setfiles(8).
-- Whether an invalid value should warn and continue, as it does here, or
-  be fatal.
-
-Note that this series does not reach libsemanage, which calls
-selinux_restorecon(3) single threaded on the policy store, or rpm's
-selinux plugin, which labels each file inline with lsetfilecon(3) and
-never goes through restorecon at all.  Both looked out of scope here.
-
-Johnny Boero (3):
-  policycoreutils/setfiles: reject invalid -T arguments
-  policycoreutils/setfiles: use all CPU cores by default
-  policycoreutils/setfiles: honor RESTORECON_THREADS
-
- policycoreutils/setfiles/restorecon.8 | 19 +++++++++--
- policycoreutils/setfiles/setfiles.8   | 20 +++++++++--
- policycoreutils/setfiles/setfiles.c   | 48 ++++++++++++++++++++++++---
- 3 files changed, 79 insertions(+), 8 deletions(-)
-
+diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
+index da5d2024..c86cc0c9 100644
+--- a/policycoreutils/setfiles/setfiles.c
++++ b/policycoreutils/setfiles/setfiles.c
+@@ -64,6 +64,32 @@ static void set_rootpath(const char *arg)
+ 	}
+ }
+ 
++/*
++ * Parse a thread count, as given by the -T option.  Returns -1 on invalid
++ * input.
++ */
++static int parse_nthreads(const char *str, size_t *nthreads)
++{
++	unsigned long long value;
++	char *endptr;
++
++	/*
++	 * Reject anything strtoull(3) would silently accept but that is not
++	 * a plain thread count, most notably negative values, which would
++	 * otherwise wrap around to a huge number of threads.
++	 */
++	if (!isdigit((unsigned char)*str))
++		return -1;
++
++	errno = 0;
++	value = strtoull(str, &endptr, 10);
++	if (errno != 0 || *endptr != '\0' || value > SIZE_MAX)
++		return -1;
++
++	*nthreads = value;
++	return 0;
++}
++
+ static int canoncon(char **contextp)
+ {
+ 	char *context = *contextp, *tmpcon;
+@@ -141,7 +167,7 @@ int main(int argc, char **argv)
+ 	int opt, i = 0;
+ 	const char *input_filename = NULL;
+ 	int use_input_file = 0;
+-	char *buf = NULL, *endptr;
++	char *buf = NULL;
+ 	size_t buf_len = 0, nthreads = 1;
+ 	const char *base;
+ 	int errors = 0;
+@@ -376,8 +402,7 @@ int main(int argc, char **argv)
+ 			r_opts.xdev = SELINUX_RESTORECON_XDEV;
+ 			break;
+ 		case 'T':
+-			nthreads = strtoull(optarg, &endptr, 10);
+-			if (*optarg == '\0' || *endptr != '\0')
++			if (parse_nthreads(optarg, &nthreads) < 0)
+ 				usage(argv[0]);
+ 			break;
+ 		case 'A':
 -- 
 2.55.0
 
