@@ -1,102 +1,149 @@
-Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DE38369217
-	for <selinux@vger.kernel.org>; Tue, 18 Aug 2026 19:48:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05B85379981
+	for <selinux@vger.kernel.org>; Tue, 18 Aug 2026 19:51:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787082528; cv=none; b=YLZfyNMRGFuVgdjbAtW1PVcQK9FwsxZuRv5hh6QvmyRC3binM29wRjUT+n18ubH92PzGQXG7y/GC7ht0Dm1jUpJvOYmr1OBfABRUBYmMI+z6OUrlaKlkPJPncIX/ytW1KD0+RNBbNuwoX7gcrPcJ2Nhl6XnaM9Cbkj1XN/Yv75M=
+	t=1787082702; cv=none; b=WNOs2JVZILQbCQQcY1OGw7vezGRQqw+jjp3gYzUnbajlQeUoeeJc4AnjtyG7n4sOzdPG7fPR/gE43gdk48DefqI7G6B0SNlWqRq6/WWhnPcBGh6pxmFTQXAOqqKR2oK4ZL6OpHDccqNMZJjkEaoT1q1KLJePJDvbDYF6DPHT0zw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787082528; c=relaxed/simple;
-	bh=wM+1P4MHyGWN/m1ijj+5drZW1TzZlEBZ6sII9PBh58E=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=etekMaVh9Z9J1ZCyK1mvVk1R/pdEBEchkTPlEy1kZd9bW46gOs4JJvWyIBVJO7ZVN1thhYj2uI/z8JqLWyGQhOWqXjPi7X5/X/Dxy7PIImRG38nGph4K1SZSygMKq1FBLJ7c+AZnMK1AD+6Z4FWFHML4gmrVojvdvr4EZBrkLCA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=s4JUMWBJ; arc=none smtp.client-ip=209.85.160.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787082702; c=relaxed/simple;
+	bh=tzzbnGcfHutO0vdB1fh0UMZvNK7uVy3ulgec3GLoLDg=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=OgaOpKHe7xZpVfmFkNTEBWBeGYlM6+tQlUsAhheRlUxsJtlDy4de2C8zlIlLmXIaqlqcLfH25dbImbVhMWyhWaOeeUdg5UdtvHQG3KJzgqPvCzbjXve3iGhUvihDnL2l3n9rVUuayW6t2ep2IypuBE+uJxwo+5nux+qfPFg7qEA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=k7buk6ZH; arc=none smtp.client-ip=209.85.128.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="s4JUMWBJ"
-Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-51c0c45c580so1378191cf.0
-        for <selinux@vger.kernel.org>; Tue, 18 Aug 2026 12:48:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="k7buk6ZH"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-4996e2575dbso2815e9.0
+        for <selinux@vger.kernel.org>; Tue, 18 Aug 2026 12:51:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787082526; x=1787687326; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=OEPij6N9E3IVebs6EqBCkRVKoik7LNuZ/uDNtcEZn5w=;
-        b=s4JUMWBJfYK0Q4F97A8dJ596DKyan78Y7KePNbhqcxfAN1yffydlywwZJtSPCTzgVx
-         Qy1ieZanMaVa4kOvIvleOGWb9yAJYgBpZPTWHhOd7aEKPtiFPzW/8w/Te87PNNwBfGzQ
-         HMHqG6dOZcISBcJF9TzX8IOKtde93PeoRcnRlO/w/iS7u9YjMpH/kjYhmxWQwKNwfoOB
-         z/vP/TBWYKRuOITXCGS617ikwUgGCzx57mcPAHrcVOe6OV9w2GgMh7xv0rbf8Nt5VQCw
-         eY2W4zL6g4YwCmfOthJgu+QwCMGjIlicKcbHSRAJqh/NYpVBBL9mx835pBi0JqvUjUN1
-         pjrg==
+        d=google.com; s=20251104; t=1787082699; x=1787687499; darn=vger.kernel.org;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=drSOm1ixDHQGlI3smzn5LxemApeC9uWCJGzFJcvqnEk=;
+        b=k7buk6ZHMiUo0C4sH80VKl4ZnXa/OuRc+LCuAINTApGJJTxcB4gyhWoZM6vmCF1TkP
+         DlfIBoNPE63jv5nAi0579D1HNKVVdiuKrHXASR9F97Q1NW7GQMJKn2G9TEn21I/qIxyL
+         x4yDcSozUEfBUrWq/zmNiEDpXLAJ0a5tCHAAzHcry4z3JE2F4EFhzLOrns41uHqJFX4V
+         veDm/g36hkRPKbQlpRTKUPXPpObtvrmXpvqG5ugmUk4oIBucKo8pVkkWiokjmmqg4qNK
+         b0dogfozf1I96qd4h6fpgT072Le3y3ndcBY/OdTvrorH5TYXi3SQj/umAAJtMbNRqJm1
+         uQzA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787082526; x=1787687326;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=OEPij6N9E3IVebs6EqBCkRVKoik7LNuZ/uDNtcEZn5w=;
-        b=FEjn3PFBlblQ1STMGwDS3PVC+yUNXhpYuupQdkedfirndQlnCx9M790LFPb7S9RSrK
-         VuN/LDe+3TxXK/Tinhqw7hqj1h3mVv6uVvaJpLed08mDgvm7l+dL5sLkcK+lLgZ4s0xc
-         se9/NmC5FHhPxFg/T8c0wcV3BEFSvCmyewgDtXTvNrusG1e61mKn0a2+qgCZN5SutJHx
-         e0FG0L7EfTt3tqbQXMvNWmZlzgA9Ol9BYFDB1cKXAn2nyKXTmRMQZoS/B/wW5MvEydNu
-         unbjk7nF0ebwfd4abOtJ3aLqlIVui6k1YuXpWlf73spwv08XNXCQHPt425Z8aDUHLw/Y
-         qVAg==
-X-Gm-Message-State: AOJu0YydXmAtSScevGIpwctrQYk8ZGpCHp/VoUx5svK5DjT3MB+EHESq
-	qlqK8XjdhgA060yVWUqo08X3oWh7kFhBgDynjBN5GACHbP8cXn8YThXqgeMPPg==
-X-Gm-Gg: AR+sD107OKscPgX9hirRDsQXM70MCpBGB/Yo5ZISpmN0l17TuGH5WycMFWOQkdOBTGW
-	QLJ9xx9WbdG37QdHvEm/OavzV02evd1qyFUjo52mdh0/e5n8gcLHyDlP/4tdzE6an9Bu34dhjNi
-	54N0xLpO7WueOffLKQSEJyCo1Rui0Lhuoi9SJOwKHGBSop0Gq8dt/QR09jZEZcOjkFYudTLSbYy
-	ba0NH3HXKMVrJxz/WjrLGxMHPzAsVZUNDk0RJ89dXhY448GSKU3D0arz0e2qpoDram3RMHyyynC
-	JHyixtkFjKhHbRU+ujuiyC4fNJVWygERFSBMka/ryBJSnWmYzBoIvC9oaktx0ld1bt/nfGvj2Bp
-	5tQWVP8SUmGIWUCin5L2WPzvMc+bZriKnbeaG5QReSZ25JHLBJtp/h0oVOi7mCzcjnKhUlQJ97a
-	ne/8UnCuKFW4r8tJvvU9/Ajpp5hpuRKSF04vM5qvZuY4vWTZV/FyXVN+h3EI2Yi6N5Etq9Q5keD
-	+Tvi0HJylA=
-X-Received: by 2002:ac8:5716:0:b0:528:162e:29d3 with SMTP id d75a77b69052e-52dd32cbfecmr4205501cf.32.1787082526412;
-        Tue, 18 Aug 2026 12:48:46 -0700 (PDT)
-Received: from Fedora43-SELinux ([144.51.8.27])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52db612c2bfsm46638141cf.11.2026.08.18.12.48.44
+        d=1e100.net; s=20251104; t=1787082699; x=1787687499;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=drSOm1ixDHQGlI3smzn5LxemApeC9uWCJGzFJcvqnEk=;
+        b=Hi90eUmBPJ95C8/fXGM7sa1PO36y9hYVV59FRTvScZq9Rl0riXi6Z5atboKdSH9JTP
+         mOsiSrgVT5zuuCzMhXCEJ+B0bQnNbeE4X+YjfTXfyNKS6HQlJK2u4EHrauP0StKF7vv9
+         fyMWHU8Uo7c827znJwtAuwHuO5UTBmkU4tSknvVow9u47mTAcp6WjSSp4Jg397tUUvAI
+         IcdoSPnotzXts7vm8GrDQASijKRAW4CS588MQeoDGgRXBbTjZKcOcDgvwaORzQ+dDDcE
+         +6j7lseNAQbb5WpNtNi/ZV0AxpZEPC9/+glGkykNMneg+xSZSsuOg1KuDPZnxvoRYnbD
+         fnyg==
+X-Forwarded-Encrypted: i=1; AHgh+RpyHcUdL7JOtKce8DaDNA2pEsRVCtA1GMbLX6YFhGaQl8BFvkSJTRrS23O7goPtXJLIdwIZPdRu@vger.kernel.org
+X-Gm-Message-State: AOJu0YwBwXIQjx/UM3ZyTzMG7frwTfX66EJPG+lDwzO2e9Bi78tLxFoo
+	CoAalD47sxEIpoSC2PuIpfvWgqz1IDn3gX8tmRKoPI1ZOhbFd/DVyRjZfm5wSGdAhKV2HQ5aoPd
+	rOSauNhkw
+X-Gm-Gg: AR+sD13ioGCZBWd8MPONihLLK6wZ/fQum/s1xikuOpMWLqnHkI59RFW9f/cbCf2jfz2
+	XGuBQ3+KUq0GtDbkFqamErrVoIvU9iTT6TxL8QjSWiNR7IPhd2Bv+elqA7tG6x2tfwboodc/twS
+	czpVihbW8m+/Qr6/z8RF1ASOqkKqJXDH3mn1bfKy+9/u4+5xuCp+u1V8XprEHsBEpcLtESuc7w0
+	CEda1BlrXqDcsr+prtsQj+fp/xtPbDsQ4Cvc5Ex1y98k9QljEkdGhLbzWm0MstyVAw0JrRD4qt0
+	WmX+gTmfbYcA63aOCAwlSxFMWi0zLrSlejG9M07KX1jbknKHlnWxWlny2AnVjmiZbWIiTx1T/SQ
+	8LdQa/TMgtxWUwfcdyYZNOxC52XF+gPDTmuOfbUl0FGTdkLhBbuwIfuSwWFJ8xh/Y1Bmg4sQYxB
+	7FFZKeBB/hMHhP5gH9PvwMBN6suabyOTFtYx78YpLyHZ0zrVvzeQJ2d0jiVfxqqfLghXHHGiduW
+	JLt0/HKMp4rnX4UnBZH7/097Srgf7a3oYNHbfj/eTtNg7R2NUV2Fw==
+X-Received: by 2002:a05:600c:254:b0:499:7da3:dd0c with SMTP id 5b1f17b1804b1-499a94ed422mr57545e9.0.1787082698942;
+        Tue, 18 Aug 2026 12:51:38 -0700 (PDT)
+Received: from localhost ([2a00:79e0:288a:8:f466:5a15:1301:318d])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4999d0fb85csm210096385e9.11.2026.08.18.12.51.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Aug 2026 12:48:45 -0700 (PDT)
-From: James Carter <jwcart2@gmail.com>
-To: selinux@vger.kernel.org
-Cc: stephen.smalley.work@gmail.com,
-	James Carter <jwcart2@gmail.com>
-Subject: [PATCH] libsepol: Use matching integer types in scope_write()
-Date: Tue, 18 Aug 2026 15:48:27 -0400
-Message-ID: <20260818194827.64744-1-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.55.0
+        Tue, 18 Aug 2026 12:51:37 -0700 (PDT)
+From: Jann Horn <jannh@google.com>
+Subject: [PATCH 0/3] proc,security,selinux: let SELinux block FOLL_FORCE
+ for /proc/self/mem
+Date: Tue, 18 Aug 2026 21:51:04 +0200
+Message-Id: <20260818-selinux-pokemem-v1-0-90cd2357ee05@google.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAKi3hGoC/yXMQQ6CMBBG4auQWdsEmikQr2JcYPmFASmkA4aEc
+ HerLr/FewcpokDpmh0U8RaVOSQUl4x834QORtpksrkt87pgo3hJ2HazzCMmTIa5tM65ynPLlKo
+ l4in773i7/63bY4Bfvxs6zw9radgVcwAAAA==
+X-Change-ID: 20260814-selinux-pokemem-44625557c4d4
+To: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
+ "Serge E. Hallyn" <serge@hallyn.com>, 
+ Stephen Smalley <stephen.smalley.work@gmail.com>, 
+ Jeff Xu <jeffxu@google.com>, 
+ =?utf-8?q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>, 
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+ linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org, 
+ Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org, 
+ Andrew Morton <akpm@linux-foundation.org>, 
+ "Liam R. Howlett" <liam@infradead.org>, Lorenzo Stoakes <ljs@kernel.org>, 
+ Vlastimil Babka <vbabka@kernel.org>, Pedro Falcato <pfalcato@suse.de>, 
+ David Hildenbrand <david@kernel.org>, linux-mm@kvack.org, 
+ Jann Horn <jannh@google.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1787082693; l=1964;
+ i=jannh@google.com; s=20240730; h=from:subject:message-id;
+ bh=tzzbnGcfHutO0vdB1fh0UMZvNK7uVy3ulgec3GLoLDg=;
+ b=HhNdXV2fub0RF+OgbExoBb2DXb+eAiN7VBv2jprX6UnhpvnrUS2oTrBxlzDBG1Smiw3tvds7u
+ /RA3CIJ29a5DZBSqk1r0aeUsB+aTrR6g2NeP2huXaOBXrPr7EzT7TP2
+X-Developer-Key: i=jannh@google.com; a=ed25519;
+ pk=AljNtGOzXeF6khBXDJVVvwSEkVDGnnZZYqfWhP1V+C8=
 
-Since the variable "items" is used where a size_t is expected,
-just make it a size_t.
+The goal of this series is to let SELinux prevent the use of FOLL_FORCE
+when a process writes into /proc/self/mem and the system is configured
+with PROC_MEM_FORCE_ALWAYS (which used to be the default behavior, and
+is still used by current Android devices).
 
-Since the variable "i" is compared to an uint32_t, just make it a
-uint32_t.
+Android has SELinux policy that attempts to ensure that only trusted
+code can be mapped as executable in several system processes, but this
+protection can currently be bypassed by writing into /proc/self/mem.
 
-Signed-off-by: James Carter <jwcart2@gmail.com>
+I wrote this series after discussion with Android security folks about
+the state of proc_mem_foll_force() restrictions on Android.
+
+I'm sending this to:
+
+ - maintainers for LSM hooks
+ - maintainers for SELinux
+ - maintainers for VFS (because I think they generally own procfs?)
+ - some MM folks just as FYI since this touches GUP usage
+ - the Android folks I talked to about this
+
+I think this should probably go through either the VFS tree or the
+LSM tree.
+
+The motivation for this series is that Project Zero managed to write a
+remote exploit for Google Pixel partly because of /proc/self/mem, see
+<https://projectzero.google/2026/01/pixel-0-click-part-1.html#whats-the-plan-seth-and-jann>.
+
+Signed-off-by: Jann Horn <jannh@google.com>
 ---
- libsepol/src/write.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Jann Horn (3):
+      proc: refactor /proc/$pid/mem to use struct as private_data
+      proc: query LSMs for introspective mem access (if PROC_MEM_FORCE_ALWAYS)
+      selinux: require EXECMEM or PTRACE for FOLL_FORCE introspection
 
-diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-index 4bb39f99..a0c9af85 100644
---- a/libsepol/src/write.c
-+++ b/libsepol/src/write.c
-@@ -1947,7 +1947,8 @@ static int scope_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
- 	struct policy_file *fp = pd->fp;
- 	uint32_t static_buf[32], *dyn_buf = NULL, *buf;
- 	size_t key_len = strlen(key);
--	unsigned int items = 2 + scope->decl_ids_len, i;
-+	size_t items = 2 + scope->decl_ids_len;
-+	uint32_t i;
- 	int rc;
- 
- 	buf = static_buf;
--- 
-2.55.0
+ fs/proc/base.c                | 35 ++++++++++++++++++++++++++++++++---
+ include/linux/lsm_hook_defs.h |  1 +
+ include/linux/security.h      |  6 ++++++
+ security/security.c           | 15 +++++++++++++++
+ security/selinux/hooks.c      | 27 +++++++++++++++++++++++++++
+ 5 files changed, 81 insertions(+), 3 deletions(-)
+---
+base-commit: 2f1baf1fc8929e6c48370be543ad028ac7ad4131
+change-id: 20260814-selinux-pokemem-44625557c4d4
+
+Best regards,
+--  
+Jann Horn <jannh@google.com>
 
