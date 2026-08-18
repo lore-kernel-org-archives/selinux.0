@@ -1,226 +1,175 @@
-Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
+Received: from mail-oa1-f43.google.com (mail-oa1-f43.google.com [209.85.160.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6888A34E741
-	for <selinux@vger.kernel.org>; Tue, 18 Aug 2026 19:24:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.180
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787081055; cv=none; b=ulXSLEUDIiQNtQd4Kw5kxEq0mSUAb+oAH0nSv53VHiBZW4YqH7mHjddioPXdv05pyKcLxfEyaOedMcuAfzYmYrMEEchaylIc9U4aYQ8Ddbr461T0aQhuwdYcvesOteCE7xeRNIBWUpgyKSP7+bKC5KD6dcjawGUCSIRyFom890s=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787081055; c=relaxed/simple;
-	bh=usaLGPFImwFUH9ljH5wkDPmsIZwhYJkLEDXWT/hpHBY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dyzk6B8LFEvSL+XSEshpHyYTwXInN3FBpgy/yV3nFP/VBPq7104z6UuTonXTH2OrJSdkucdaU059Q3Ra1tSZ2vHFBniRoO0PWBt78bv9vaB6pFU5INh0HgDlE6ggh74zF7iODga/jEE71qQOR4fEHAYMB8uJ8H8dC4qNhq7L4SM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AEbLHICJ; arc=none smtp.client-ip=209.85.160.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1279C374A04
+	for <selinux@vger.kernel.org>; Tue, 18 Aug 2026 19:45:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.43
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787082335; cv=pass; b=Wdc7+yguKLZ+xQ1d6RrR9jRQe2dzRGE6sS/4NvZoCV5QctMIBHGimYtPF0egTDGXdnLfHiwaZ2mt+WP0ltr6g+cXZV/OCINLN13+xvz9jGVCLr/GgZT6MapNB/yr09WCdLZgCsz66z1kGnTMVOq2jzVxsthDsxPj5TF3AP5hDtg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787082335; c=relaxed/simple;
+	bh=lFpdGSEhE0lnJFUVdxx0M7u56QizqwNvTh6Vy9AebIo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=cQ/lrMZ4uJfrj1SXH/qQ75kIhfCREHlxuk7MX+zGOp04Db1UdNinbrcIzuo9EAUV1yJuz7wFFXUiDkEUUPOiS5XHwtf3oKAQb7qe8SLYTW8wiYmac5JMVvlKSlWn/hhEEZmYrGosJfiX7lwZclsTfZHE+A5nQ059W2yp3cCmNxo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=M7SfERMU; arc=pass smtp.client-ip=209.85.160.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AEbLHICJ"
-Received: by mail-qt1-f180.google.com with SMTP id d75a77b69052e-51c0006ea8eso1458171cf.1
-        for <selinux@vger.kernel.org>; Tue, 18 Aug 2026 12:24:13 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="M7SfERMU"
+Received: by mail-oa1-f43.google.com with SMTP id 586e51a60fabf-44cb057311bso248761fac.0
+        for <selinux@vger.kernel.org>; Tue, 18 Aug 2026 12:45:32 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787082331; cv=none;
+        d=google.com; s=arc-20260327;
+        b=bCjIkOqi1jJ7r0jzEKvdiMCMZLg+JmnuKGvR7UQ3d4QMC0P7MFA0u4Zw+x64FuG++i
+         vm1K4xI6qk5/+3rdWobK7a+EuRsp21OjqwiBe5NVffWtUS7RuSjwU+0RZd+RDqOiRiQM
+         d06YrWLDot5ZgJYCkXg98Wrbi2quP+woqaArmNdwD388u31ygaWzvJkZIU9XNbfBg8Pu
+         VnAZAmckDuBaBiewskYhiA+CD7iKsdoSxIrCP7vtY1LFFrhFmK3Ph9qSTnC/XkySt68M
+         mb6vTpJviuJ1VPy7Glw7kNM1IMBEqCjyV7XQg2kpdoW+/cXSMX42azLIhY1NScOd6Y8f
+         Mrmw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=xuCVAix7RCgGxWkp0fJsEvgOpjQoI/o00xgHbZYmt00=;
+        fh=FsXghBnyoYbEc42Idnie0oh5A6i9FUng5ntOLhqXIRs=;
+        b=NNTWoBLhq7EwpcT1WmLf4NSlMSHVOCTTrUCR0xvjojJW2R3okAXf396rQawKVDmG4y
+         lEl1OAQWO3EUprzLxIE6KBBKMdT/yw4zKZv8hhQWre1Bf/BiyGWZxcY6H3s+v4W7G6NO
+         3a/uiNZy3e7ug+ye2jWpvnyWHM+ahs6Jt4A1yKWFa1ynJ8uRGQRXM8TouyQPW/f8tfTT
+         X0XornI4WebwkKaOl83zmHNb3qTwalLo4hUNktkkSZs/fc6jTfjmra0rTRTDDNQkYc8L
+         u4CCD2k92RmYjeWgPw93KyjKQT10nPemh3eAwJYi/0WyejXkJ3g0BDeUKNpeEOUqRlQn
+         ej5A==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787081052; x=1787685852; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=tx10CxSwoI7XVhCse+pS+1Zx3caR7MsdiDa8+7dhsl0=;
-        b=AEbLHICJtgYCgddNJ+EbKJK2o8I3q5/gSVQDQkA7SlxGKa9/hBvZzFa3Iz1SazKizd
-         G7dAVNpHVhmrJROEVnI/yBxEv0RmrcpdEstvd3J4o/uG5Xk1x+mckQYMOtTE0nj3yc+G
-         /K85kynW08ljPMLfwYyTITO4tMKsfaWrR/SeWwOEOkC4Ct8dSv+cUaECLR12HqjekSuT
-         lY6te1v24pRfubWj7AyF5iRkPKda0ipz8My+TtO3iOgTI0rEw+Apa3ef2vCjlVe4XGiJ
-         GUyLEGP52oY/o+wI4/3KNTp4MCvoei7tMh/LUIdD4blJjoKp8o9Ett/e2Skm1iZmZTqq
-         Q76Q==
+        d=gmail.com; s=20251104; t=1787082331; x=1787687131; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=xuCVAix7RCgGxWkp0fJsEvgOpjQoI/o00xgHbZYmt00=;
+        b=M7SfERMUUqMqgKAH1YENL6fXHto4CP9UETyptzZMbGm445quYg47vqQSxLA/Y0M18f
+         slec3J1kt3jcsNWLlrQEaD9h+naurASIjXqxdigZsHYXA02kWJ+Bc7XoLKPuPaWIpduU
+         1xJoUjAWTo5eOnRGqG1xyz/4tOHfOKh98WMtlDysFbkDizQETnmRnNNg26VzvGGM0Pti
+         vaIn+d/JtwgBb8pxz9o2KXroiZUjeNuh2Qh/FpfGVdogYKSnRfc/IOTLEUA1Qugp6Cmm
+         xl4RbPK7RhXUDdEcdNkBgy6+HTYVCEsWc3EnCiVxLdnrHQWwOo9qSGD6zAgjwfHkneEf
+         qFfQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787081052; x=1787685852;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=tx10CxSwoI7XVhCse+pS+1Zx3caR7MsdiDa8+7dhsl0=;
-        b=UOaTwk4tiA6ChXutEf65gxUqImZfrfE6n5yTROBQZm9wtX1cHx08TuaOLFoTYB73Kv
-         /rHhoAtpOrgKqF+6zm15f8XcIo4dR/H3PgY/QQaWjUJh/dj5K0065Icmyd6XPSCJUsm9
-         B02UoYT0DsasjkR0g0hpegjo9Y/53jQqAl3Mz4BsOpPKr6UGCnx64o0mhKAYeENPOn7c
-         QML+x0AJ+eEPzIBu7CXU6tJVE5a1Jtv3+FD+qWJYjMaLECumgrX2otacuPOch6/2Duk6
-         BzaHFX64eNub1jYBaMTXP8RPlKw2ZQO0Q4M+L+WvHPeGmOnBysJS/7orQMVF9effQdHb
-         lbyw==
-X-Gm-Message-State: AOJu0Yw6U6BLyUM81PbA5xI1A1OiZ9CXyq0FSGbt/qSAVI6Ytq/5IHif
-	FOeBvkUXC8IqXGTrbXSElHDbfa4EbfxslVAqAKlz+fHxvTPWtYs6stIthnBC4w==
-X-Gm-Gg: AR+sD12OcXwJeBCURoeKnBmUk0+jESyxfj41cHXJMLiNLxcGZQ7ARepkDigkqt+HH3o
-	OGX+4ESSL7fbrZwnJD5bC4S2EIeXxba97pBaNe80NhgJOFHzqjaG31I9JWtmSpyJNUIU4Mhhl2v
-	cVp4Kb9FoXNpuem4EUe7wg6BvUm62H+Uuxq1/1rH65ysFdZs2HhrnhIgTDnpf1eVW3L7Bc9vxe7
-	/rOftYELwYjb4J2TTr0umjsHAefxouVp6SgiVhI7eLxlcBVLFjVPmP23Si6kQLOTFSNRed0FegZ
-	moqvHGlCONYITQh33EqDehz1u3YuAhmoAyjSz7nlxXwTjTfSLZjkHVKv0VBkMv/RKwC7peAOMXg
-	icOJbP7AZqwJ04f4u1cW/V60AZIBIA6+o4pF0pFRvrRSKN7YI+Ixzu87geZq2UYgR7RI08E39D5
-	jTbsYkiLx0sO+y+fJGg6I666lfDCV+08AhuPRDn6da/LBNUgbSYpXIbBHXeg==
-X-Received: by 2002:a05:622a:11cd:b0:52d:3352:f7ac with SMTP id d75a77b69052e-52dd32241cemr3757631cf.28.1787081051879;
-        Tue, 18 Aug 2026 12:24:11 -0700 (PDT)
-Received: from z840.flat.mawenzy.com ([2603:6000:acf0:3410::10d7])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52db62175b1sm48784351cf.19.2026.08.18.12.24.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Aug 2026 12:24:11 -0700 (PDT)
-From: jboero <boeroboy@gmail.com>
-To: selinux@vger.kernel.org
-Cc: stephen.smalley.work@gmail.com,
-	cgzones@googlemail.com,
-	Johnny Boero <boeroboy@gmail.com>
-Subject: [PATCH v1 3/3] policycoreutils/setfiles: honor RESTORECON_THREADS
-Date: Tue, 18 Aug 2026 14:23:33 -0500
-Message-ID: <20260818192340.119297-4-boeroboy@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260818192340.119297-1-boeroboy@gmail.com>
-References: <20260818192340.119297-1-boeroboy@gmail.com>
+        d=1e100.net; s=20251104; t=1787082331; x=1787687131;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=xuCVAix7RCgGxWkp0fJsEvgOpjQoI/o00xgHbZYmt00=;
+        b=EQCki9Uc33vTR8OuXwR7WjmgGtBYCZAyXkl7lGv8m32mVKvz+K5hskeIbJJGE+ud7z
+         Aq/0nXApYEuQPXWW8E4bvGSnxgOdcyHHbZedKybJwa/b747w/uN9jeN7ofjyK87gXrPF
+         dyjGPniyi1ZMYvW11bYY0U4svySQGf1g3mcZl1J8aAicpciDdfDkHNuymDPLxdzFAIIt
+         Kscqywz1zixaf/8SDwC/GAbU/wjDJ68b0f3mvGqJE1WRqEfWH5Yl2OX1gdAcJkM3Tmxh
+         8pgMYbBr4RayNG/4/6d38GMDZt77qn/AQA5onfhAfa7ZWt8z9Z79w5Q5DDMXKQqs1+n5
+         LANw==
+X-Gm-Message-State: AOJu0YwbKG9S2mkCwY/RcEbK4TTfSgUkNN76W3eS762I39tqOMX9NgX1
+	8rWS30NKkTjTX/lM2fx4E+dm8wWKyavhAQEhWARQ3GcbdYfFSd68/B18cZDN+clAPdz7rAD+WGw
+	Z6aMsfsU9L9H2m8ZXxPb/vlsM5L3gOlg=
+X-Gm-Gg: AR+sD11TtWnn30fJ9Ueu2eOO7cHX3yWzL3pSPBlcVSrHWVvTDbdCzWscWiQI2aghZX0
+	v7ZZBCH7DEosvC+Nol8iiXkPQtOpx/P7mFse3Wn4npGVYuMVLyC5oTcbYWrkQ2BfOGuGS0anP/I
+	vpoLbQsvliGVmYeP4L1W9iWixyqetrLrnSNuB9Yi8cFx1VSRdjSscja0Ovlq0Vz5ohYxpdg01BF
+	VTJv6EA4VPD4UX06Cp6zVELMQRYMsEM76YZnzq3gj83fiuHgSO+elGeQ13p6F+7az+FO7DXRoGW
+	NI6pzkf5OPxjURdJH/Nwa1p3tRWks+N2+Fe3fbsa5H/I
+X-Received: by 2002:a05:6871:7418:b0:455:a590:7ff1 with SMTP id
+ 586e51a60fabf-45f377d4497mr8274006fac.15.1787082331516; Tue, 18 Aug 2026
+ 12:45:31 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260818192203.60432-1-jwcart2@gmail.com>
+In-Reply-To: <20260818192203.60432-1-jwcart2@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Tue, 18 Aug 2026 15:45:19 -0400
+X-Gm-Features: AcwNN1V85HeCycYhSz6QlheVg5GIckyU6fOubahYDDHwf4YaxD8N6zgue9Z1BHs
+Message-ID: <CAEjxPJ6mNfMisiUiuabEpEDennzz+=p5PQxkxn7dWVGwhqg5cg@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: Check all the permissions in sepol_check_access()
+To: James Carter <jwcart2@gmail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Johnny Boero <boeroboy@gmail.com>
+On Tue, Aug 18, 2026 at 3:22=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
+ote:
+>
+> The function sepol_check_access() takes five arguments: a path to
 
-Relabeling is invoked from places that cannot reasonably be given a -T
-option.  On a Fedora 44 system, 10 installed packages run restorecon
-from their scriptlets -- filesystem, kernel-core, container-selinux and
-selinux-policy-targeted among them -- and not one of them passes -T:
+technically it's the program sepol_check_access, not the function
 
-  restorecon -R /usr/bin /usr/sbin
-  restorecon -e /run/media -R /root /var/log /var/run /etc/passwd* ...
-  restorecon -R /var/lib/containers
+> a policy, a source context string, a target context string, a
+> security class string, and a comma-separated list of permissions.
+> It calls functions to turn all the strings into structs that can
 
-Influencing those means patching every spec file in the distribution,
-one merge request at a time, and only covers the packages one happens to
-have installed.  The environment is the only knob that reaches them all
-at once.
+technically it is into values (SIDs, classes, or access vectors)
+rather than struts
 
-Add RESTORECON_THREADS, with the same meaning as -T, which takes
-precedence when both are given:
+> be passed to sepol_compute_av_reason_buffer(). Unfortunately, as
+> each permission in the permission list is converted to an access
+> vector, the previous access vector value is overwritten, so only
+> the last permisison is used in the access check.
 
-  RESTORECON_THREADS=1 dnf update  # keep relabeling on a single core
-  RESTORECON_THREADS=8 dnf update  # cap parallelism during application load
+Typo: permission
 
-An invalid value is reported and ignored rather than being fatal, since
-the variable is inherited by every child process and should not be able
-to break an unrelated caller.
+>
+> Use a temporary access vector when converting each permission
+> string to an access vector and "or" it to the final access
+> vector before processing the next permission string.
+>
+> Signed-off-by: James Carter <jwcart2@gmail.com>
 
-This patch stands on its own: it is the brake for the new default in the
-preceding patch, and equally the accelerator if the default is left at a
-single thread.
+Otherwise,
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Link: https://github.com/SELinuxProject/selinux/issues/489
-Signed-off-by: Johnny Boero <boeroboy@gmail.com>
----
- policycoreutils/setfiles/restorecon.8 | 17 ++++++++++++++++-
- policycoreutils/setfiles/setfiles.8   | 18 +++++++++++++++++-
- policycoreutils/setfiles/setfiles.c   | 19 +++++++++++++++++--
- 3 files changed, 50 insertions(+), 4 deletions(-)
-
-diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setfiles/restorecon.8
-index 8d7b46f0..001039b7 100644
---- a/policycoreutils/setfiles/restorecon.8
-+++ b/policycoreutils/setfiles/restorecon.8
-@@ -187,8 +187,23 @@ use up to
- .I nthreads
- threads.  Specify 0 to create as many threads as there are available
- CPU cores (default); 1 to use only a single thread; or any positive
--number to use the given number of threads (if possible).
-+number to use the given number of threads (if possible).  This option
-+overrides the
-+.B RESTORECON_THREADS
-+environment variable.
-+.SH "ENVIRONMENT"
- .TP
-+.B RESTORECON_THREADS
-+Sets the default number of threads to use, with the same meaning as the
-+.B \-T
-+option.  This allows the amount of parallelism to be controlled for
-+callers that do not pass
-+.B \-T
-+themselves, such as package installation scripts.  Setting it to 1
-+restores the historic single threaded behaviour.  An invalid value is
-+ignored with a warning.  The
-+.B \-T
-+option takes precedence.
- .SH "ARGUMENTS"
- .IR pathname \ ...
- The pathname for the file(s) to be relabeled.
-diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfiles/setfiles.8
-index 53cb97cc..101556a9 100644
---- a/policycoreutils/setfiles/setfiles.8
-+++ b/policycoreutils/setfiles/setfiles.8
-@@ -192,12 +192,28 @@ use up to
- .I nthreads
- threads.  Specify 0 to create as many threads as there are available
- CPU cores (default); 1 to use only a single thread; or any positive
--number to use the given number of threads (if possible).
-+number to use the given number of threads (if possible).  This option
-+overrides the
-+.B RESTORECON_THREADS
-+environment variable.
- .TP
- .B \-A
- do not track inodes with multiple hard links or bind mounts that would
- match different contexts (saves memory)
- 
-+.SH "ENVIRONMENT"
-+.TP
-+.B RESTORECON_THREADS
-+Sets the default number of threads to use, with the same meaning as the
-+.B \-T
-+option.  This allows the amount of parallelism to be controlled for
-+callers that do not pass
-+.B \-T
-+themselves, such as package installation scripts.  Setting it to 1
-+restores the historic single threaded behaviour.  An invalid value is
-+ignored with a warning.  The
-+.B \-T
-+option takes precedence.
- .SH "ARGUMENTS"
- .TP
- .I spec_file
-diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-index 4c860755..ee0930b7 100644
---- a/policycoreutils/setfiles/setfiles.c
-+++ b/policycoreutils/setfiles/setfiles.c
-@@ -65,8 +65,8 @@ static void set_rootpath(const char *arg)
- }
- 
- /*
-- * Parse a thread count, as given by the -T option.  Returns -1 on invalid
-- * input.
-+ * Parse a thread count, as given by the -T option or the
-+ * RESTORECON_THREADS environment variable.  Returns -1 on invalid input.
-  */
- static int parse_nthreads(const char *str, size_t *nthreads)
- {
-@@ -166,6 +166,7 @@ int main(int argc, char **argv)
- 	struct stat sb;
- 	int opt, i = 0;
- 	const char *input_filename = NULL;
-+	const char *env_nthreads;
- 	int use_input_file = 0;
- 	char *buf = NULL;
- 	size_t buf_len = 0, nthreads = 0;
-@@ -246,6 +247,20 @@ int main(int argc, char **argv)
- 			exit(0);
- 	}
- 
-+	/*
-+	 * An explicit -T option takes precedence over the environment.  An
-+	 * invalid value is not fatal, so that a bogus setting inherited by
-+	 * every child process does not break unrelated callers.
-+	 */
-+	env_nthreads = getenv("RESTORECON_THREADS");
-+	if (env_nthreads && env_nthreads[0] != '\0' &&
-+	    parse_nthreads(env_nthreads, &nthreads) < 0) {
-+		fprintf(stderr,
-+			"%s:  invalid RESTORECON_THREADS value \"%s\", ignoring\n",
-+			r_opts.progname, env_nthreads);
-+		nthreads = 0;
-+	}
-+
- 	/* Process any options. */
- 	while ((opt = getopt(argc, argv, opts)) > 0) {
- 		switch (opt) {
--- 
-2.55.0
-
+> ---
+>  libsepol/utils/sepol_check_access.c | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
+>
+> diff --git a/libsepol/utils/sepol_check_access.c b/libsepol/utils/sepol_c=
+heck_access.c
+> index fb3b7edd..e80d6464 100644
+> --- a/libsepol/utils/sepol_check_access.c
+> +++ b/libsepol/utils/sepol_check_access.c
+> @@ -12,7 +12,7 @@ int main(int argc, char *argv[])
+>         sepol_security_id_t ssid, tsid;
+>         sepol_security_class_t tclass;
+>         const char *permlist;
+> -       sepol_access_vector_t av;
+> +       sepol_access_vector_t av =3D 0;
+>         struct sepol_av_decision avd;
+>         unsigned int reason;
+>         char *reason_buf;
+> @@ -58,6 +58,7 @@ int main(int argc, char *argv[])
+>                 char *tmp =3D NULL;
+>                 const char *perm;
+>                 const char *delim =3D strchr(permlist, ',');
+> +               sepol_access_vector_t perm_av;
+>
+>                 if (delim) {
+>                         tmp =3D strndup(permlist, delim - permlist);
+> @@ -71,7 +72,7 @@ int main(int argc, char *argv[])
+>
+>                 perm =3D tmp ? tmp : permlist;
+>
+> -               if (sepol_string_to_av_perm(tclass, perm, &av) < 0) {
+> +               if (sepol_string_to_av_perm(tclass, perm, &perm_av) < 0) =
+{
+>                         fprintf(stderr,
+>                                 "Invalid permission %s for security class=
+ %s:  %s\n",
+>                                 perm, argv[4], strerror(errno));
+> @@ -79,6 +80,8 @@ int main(int argc, char *argv[])
+>                         return 1;
+>                 }
+>
+> +               av |=3D perm_av;
+> +
+>                 free(tmp);
+>
+>                 permlist =3D strchr(permlist, ',');
+> --
+> 2.55.0
+>
