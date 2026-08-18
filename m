@@ -1,148 +1,134 @@
-Received: from mail-oo1-f51.google.com (mail-oo1-f51.google.com [209.85.161.51])
+Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 183A83A6407
-	for <selinux@vger.kernel.org>; Tue, 18 Aug 2026 16:01:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.51
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787068864; cv=pass; b=e+zEAbfUDO3ckJpOAPU2zhGtC/XJGw9uiKJ3K59R1k0MRmJRlnuUquJJ0PWReA4lMPUqOXNoxBLlf2qD8SP9qO6EFhK3GG5axFwMgRzeWibh9wzsxloVHUXQr/+JUP740x8TtWsW54s8HZ8TuyEl2Mz0jIiP7Jc6SVc6MmgzSio=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787068864; c=relaxed/simple;
-	bh=Dxf06kIXMwRZCdLiqRYzetuznN8IpSv4p3Wemc9kj+g=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=t0WcjNFwyfNHv2i2QSs57FyoulNsoo1XJpJIMbj5udjJ9ZUjAVtVYFMc/mfUmANd5wPuo9y+fMmJP5LtsS8pxseH6zotq4xXBKJrUEQuLVRZPFZbuYDEiiC1I5Yv4juGs54gQ0YT8A24f84FvCglwaNqrPg8x4rDH5DsjFGAG9I=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=miW7moDC; arc=pass smtp.client-ip=209.85.161.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CC4D3164B4
+	for <selinux@vger.kernel.org>; Tue, 18 Aug 2026 19:22:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.44
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787080938; cv=none; b=sA1faN7UgCvjanvJTF5tLkb9TwD32Lr9vW2HZ3Sf4yJyVsVnvo2wvIKjbuwg0QfraFuCBEEiDtySjrTwxcL6bGE67ckjYsu140Iaybarco5/qx6TKe4qzqxCnXfvXdbKeXsub1Lx2Qd1i2Cx+5u00OPVjoYbstjW/LRkuSr7ke0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787080938; c=relaxed/simple;
+	bh=eDCBFWarbXS8OlzoDMBxBV6OrzOYu/9OA9aYub/xWKM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=j++WwZLqTQZONBMB7jig53ci/se39/IZ0A0uQXLbOyJYLWJyucxaX36D+Q5lNDm/0Gk9wtUISBhNpwh+XdedrncC4e1/lzycSq1m5bV1aEGI4F51MoG/p2GljEtCkpnRISw/Jl++DwPEFX16h/hB3I/aXHGpp8uo2zaEaU5QSWk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FHS3ZVoR; arc=none smtp.client-ip=209.85.219.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="miW7moDC"
-Received: by mail-oo1-f51.google.com with SMTP id 006d021491bc7-6aaf3f54dbeso41350eaf.2
-        for <selinux@vger.kernel.org>; Tue, 18 Aug 2026 09:01:02 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1787068862; cv=none;
-        d=google.com; s=arc-20260327;
-        b=C1I9HHUxhYWb6Rsk7gIJN115R1qu8GmJEuINRYGRecTkRB4+/Rih8/6gOaiQpnybMS
-         7W2F/ciHJn7nwEJ2aebDF07Z0H+upziHj8tmlhl9XQKWsqmiiamSG766DuFVhcUi7pjy
-         VGjX+A04rZ83LeW3a/uDg3pgJBA1i450yHPYEP7PTk5wROF+shykJtKNkJ7O9YIbHwW/
-         rvkSB8EmdBv+j7rmh9QT/Xl5cE8Wnypa9FSxvNiL3Nkd0ClfU78Ph5ZvvxLGlu4tA1Ts
-         gUG6cPYekzpmFUOAZAiSAiHx9edk5lNUPBizAxUTKs6uSEJrtTryF/eESiZScnPnyXs+
-         0rYw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=Dxf06kIXMwRZCdLiqRYzetuznN8IpSv4p3Wemc9kj+g=;
-        fh=KolfM19aEBLsLdlv7CvfZRTH7eSK0t/BZQIdPfHABmU=;
-        b=M5IJJRQfI/b4llQqYeK0JygRP1tGFPXNXJGaUYvS6D7851stXoHsl3wCvezVIifOgS
-         VSgTZQk0tQE4h+3lgL0jg5z5Btg7eoi3kTB+trfSlrW7udNk519T629yIkHyU2dpA96f
-         BIQIdOptDLBjEBlwKEk9yg68kWwwL7ulqyFD5nuTK5ki4astGHwGacFrVgZBC6p4go9S
-         4/x19f7jJNt91KTtw9DsoKC/HU/XuScMcrnxTODO+t3zZO41Ym5P0h4AgnA8jiyLEzXk
-         4XXlNmYBBycXFlYNJ8B1H8MZNBPsYFlqaRg6eTuu98GlUAJ641maQ2RWIfVMbwlaJ10X
-         dQWQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FHS3ZVoR"
+Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-90a80860d35so3324036d6.2
+        for <selinux@vger.kernel.org>; Tue, 18 Aug 2026 12:22:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787068862; x=1787673662; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=Dxf06kIXMwRZCdLiqRYzetuznN8IpSv4p3Wemc9kj+g=;
-        b=miW7moDCu3TFz4xskHIJ4CRnEBE0JJklnCMmU3S5oPuASrwfTkF4HrR+XKK8AHGqah
-         rHLca+0qun3mGNzHOy15df8kQI0Dc99fZWXtK6b1i6nEaHQYl/K2v7g/EvzDANrrfdK3
-         alHPaeWzNhT9KeAlWZnXYe8o2VyU2qN/MbNuOAku7SKrOtyoUFOBSKBL02LoNyumazpf
-         lowunnjBuIqofbmpp7zcAEhe4Fipbkp3AWj/yCM80maizx9nve6J7OMCzSU6sJT6/AJd
-         2a+jeD/32CejhkNp4/0NgQ9Gnqp0UeAKSiv5Q59B8v5nCGp/2vyWRdhlqxFfup+dyufg
-         NqCQ==
+        d=gmail.com; s=20251104; t=1787080936; x=1787685736; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=snycSIc4gih+GG7UcWARiHR7GPBPRmnJmxmMxrOAoq8=;
+        b=FHS3ZVoRpo4pGCfaPLAlNmJ1+HxqY4rr2ftCkyIWBHjGhFGnqR18ssF+CmVHHEI07+
+         F/VmMiue3RQ/+FCsl4PiSCk+rJHtkKpTJgWrk9SWayNvmxaZici+jhisWWTdMCl82tVM
+         ovXWHFhY3nNVY9x2zFpYBgyLYWRxvB2p65Vmpa1WgbJDZzsxwx1bM/wc12Yr4dSP0qSV
+         3YnQBBlJCeLEZkRhr77Q84qXWZ1h2qDPjm3zKrGY6RPGIpl5A1CqU7o4gtB9HGoKhpDW
+         M5waNRWLhZVhDW20s7PLSXy4ETpj7OvkCl7AzJX2t1gncoaOJhWQ+GTu9+kTWnftJdMH
+         lykA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787068862; x=1787673662;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=Dxf06kIXMwRZCdLiqRYzetuznN8IpSv4p3Wemc9kj+g=;
-        b=Lwf3rtMu8TOyfAHxym61OenVrq2lghY65BKWiwy4aUTgoel94YKNoVNRzdbX4S+t8P
-         3tSbqvT8FsJ4wILVKGNZaUJS2E7SsT8gxE7OTsQlFXTvxEFYfhGCPpvw3HhKVPPyIH0d
-         lhxdnT8yaIAB5md2kbjGXcFM0pFFIXBgYvgGo2ITC++QaX+qkxkcly4JsmGwoGxKDLF+
-         +OFAEaYBjYIiandPFqjT1X5ng9WX6pgC8+XQHzhKhHawcbCSH/+E9GMtMJNNcxXVtHWa
-         H7lGb1c0wApczXriSOTTzG11ZXZh21sLCqA7iBR3WHmDd2E///odOveSr2/C0P5fSXbF
-         53+w==
-X-Gm-Message-State: AOJu0Yy8IK+qkCBgwocvvIjhdTBKsjx8g8peB+yi8OvM/2Ulk5AtzKTs
-	f0gNJGyT5JK+2kD6RwS0bsLofL8MVxcmBUkrBRNtzL6WvNrveR0k+SSknpsPi/HmpR36pa42BuO
-	uH6iGB2ozceiWMZZUzcqPe4E21IrSxdkzBQ==
-X-Gm-Gg: AR+sD11uPVaHYPqihOO+QbEpYCYvc6BIkvSQSrcbqX3WePvb4V4whO3FvI1KYXMwPgv
-	HdH7K+g1zsyXreS22coU4j7sRbRYhDtE5zB7wUKcbyGMxxGxXb/LeJ829zXtN3gfgy9Un0m9Ke0
-	sdF9jHiNWe5fzIP/lgO9kLP68GPvOTtss/l0UWgstbjfUzoYF5whYPdtbAnNeZpDfNIYLDrxqPr
-	Af6vOwNyVxZWP5Zzcc/pb/LeVxkjjlrFfPGYGFRkWx7gxgZvORGfIsFG1qXKyK/+xUMG972vjxH
-	kYCkC8JEN/rgwqLrTpt9VSzUjJDlx8II7h8MOUtZnOOO
-X-Received: by 2002:a05:6820:4c81:b0:6ae:46cd:e901 with SMTP id
- 006d021491bc7-6b0d6259683mr29095283eaf.17.1787068861789; Tue, 18 Aug 2026
- 09:01:01 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1787080936; x=1787685736;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=snycSIc4gih+GG7UcWARiHR7GPBPRmnJmxmMxrOAoq8=;
+        b=IkQFj2XoB8tcDd7bSEB5ccG8BDAKHR6JDqylNQDP1HbEVg0U1ugfRiUERfK8xh7Xib
+         Nt6sKdYUhxufTrWdRUTjDOehmoJvRkBtAAGBk8bWL0dWJ1GDq53qSrTRgkwJhhWeEdpx
+         6+Yc40HlnIcnhpL5zoqrRdYhTGW0Si0tOT2kp86bOtZRkmVCHgI6yG1K5lHpNWLFA/a4
+         RYll83ctuLRs+hUdOeVvsTBWW2KoF0J8FMSjeL6S3rh0yBWQDD9G2/q0x5kw1K4yo+4N
+         NGE2zzbhl1xCYlbKGAOGgGFNNoy4OjwtcZpUYJwqw1oBsMIdr1hn+A7jTUHCa4BdtHcf
+         ZPzQ==
+X-Gm-Message-State: AOJu0Yxi3EIx2RwmprwTUqlw86OxvoLpvVsuQwtA6rCfySt3+xzqK9TI
+	KUuK+CzjdvJI/QQsgzdFn3lycGDhnAfjBTkLkOroMWpS+n2Q2g9dfvjPOGDDXQ==
+X-Gm-Gg: AR+sD118UKo7kk/U+GtKI4+56u6in2dgJ9R4c8oo6jT6M6zuqm2N3eALyjqJFwYF4nY
+	XrijXwBGrcNU0imdrA9YvyNc6Kr4jTwho7r7N52Z0RxdfZZLg68pWVobWayLSOPUOWJqdseb//L
+	S94MsQdo+r2lPHuJmHwb2+vogjNiVqO41ctDSXoDABVLun7+bb94M1YHSMsHYdhcDRVt49HxW5c
+	1gKN9U1LDG+enqqKb/LGCTxPaZ0zmPlKcf7s5lF09+bX4bDVkLjKhAS4eSCX3pKErpAl99lC7dI
+	cyTIB0Zg7HQ2BGav7gnelfhIlOygQicsuSbTaOh30/f2eirLYvcIjrw1DfuY3dti9xOLP8XA9n+
+	QOiFxcy2hvxVOgkvWQpL068ukT5UKoBoU61+E3lDtaw3SaGINC++cNSaUPLW5ZSpvYQnwBsH+p+
+	QsTuQcKn7JVoxLFs8iexMGnlRgimRF+kQ7httgv3Vq0WynVyRly2y9dEt0yMLNJA9U9s9eFYRyS
+	MU6/nQViQo=
+X-Received: by 2002:a05:6214:498f:b0:900:6ec7:19d9 with SMTP id 6a1803df08f44-90c5bfb807emr12319036d6.3.1787080935879;
+        Tue, 18 Aug 2026 12:22:15 -0700 (PDT)
+Received: from Fedora43-SELinux ([144.51.8.27])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-90c45934adbsm39124816d6.31.2026.08.18.12.22.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Aug 2026 12:22:15 -0700 (PDT)
+From: James Carter <jwcart2@gmail.com>
+To: selinux@vger.kernel.org
+Cc: stephen.smalley.work@gmail.com,
+	James Carter <jwcart2@gmail.com>
+Subject: [PATCH] libsepol: Check all the permissions in sepol_check_access()
+Date: Tue, 18 Aug 2026 15:22:03 -0400
+Message-ID: <20260818192203.60432-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAG94myvwFz_f2K8SLsfFv1xKDkdm_t6z0s75BLcE5Dn7OV2LBw@mail.gmail.com>
-In-Reply-To: <CAG94myvwFz_f2K8SLsfFv1xKDkdm_t6z0s75BLcE5Dn7OV2LBw@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 18 Aug 2026 12:00:50 -0400
-X-Gm-Features: AcwNN1WBmc7ljGRxQbxgzgipMQA6oPavtMOpghHTj_IzmfK-i94beKVBDKV0EE0
-Message-ID: <CAEjxPJ4DjSrYfDG5V2U8SYk+t_hQXLuytuwP04X-jLd0DMd4og@mail.gmail.com>
-Subject: Re: [RFC/Discussion] eBPF-based runtime permission auditing tool for
- SELinux policies
-To: rushikesh ghatpande <rushikesh.ghatpande@gmail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, Aug 17, 2026 at 3:18=E2=80=AFPM rushikesh ghatpande
-<rushikesh.ghatpande@gmail.com> wrote:
->
-> Hi all,
->
-> I've been working on a small tool that uses eBPF to observe SELinux
-> AVC decisions at runtime and flag unused permissions within existing
-> allow rules. The idea is to help identify over-permissive policy that
-> audit2allow-style workflows tend to leave behind, since they only ever
-> add permissions and rarely surface which granted permissions are
-> actually exercised.
->
-> Repo:
-> https://github.com/rushigerrard8/selinux-policy-auditor
->
-> Briefly, how it works:
->
-> - Hooks into the LSM layer via eBPF (BCC) to observe AVC checks for a
-> given context, without modifying the running policy (no auditallow
-> needed)
-> - Aggregates observed permission usage over a monitoring window
-> against the policy's existing allow rules
-> - Reports the unused subset per rule, e.g. an app granted { read write
-> append create unlink open } on a file class where only { read open }
-> were ever exercised
->
-> I built this mainly to solve a problem I kept hitting in my own work
-> on distributed systems/networking (permission creep in service
-> policies over time), and it's been useful enough that I wanted to
-> bring it to this list for feedback, rather than just leave it as a
-> personal tool.
->
-> A few things I'd appreciate input on:
->
-> 1. Whether this overlaps with existing tooling I'm not aware of (I
-> know setroubleshoot/audit2why cover related but not identical ground)
-> 2. Whether there's interest in something like this living closer to
-> the userspace toolchain, or if it's better as a standalone project
-> 3. Any gaps in my approach. I'm relying on kernel-level PID filtering
-> to keep overhead low, but I haven't stress-tested it against
-> high-throughput services yet
+The function sepol_check_access() takes five arguments: a path to
+a policy, a source context string, a target context string, a
+security class string, and a comma-separated list of permissions.
+It calls functions to turn all the strings into structs that can
+be passed to sepol_compute_av_reason_buffer(). Unfortunately, as
+each permission in the permission list is converted to an access
+vector, the previous access vector value is overwritten, so only
+the last permisison is used in the access check.
 
-Thanks for sharing this. I'm not aware of existing tooling that
-overlaps with this.
-We have in the past discussed doing this kind of thing via auditallow
-rules and Android has used those at times for a very selective form of
-this, but that approach doesn't scale well.
-If others find it to be useful and it is well-maintained, we could
-consider adding it to the SELinuxProject GitHub in the future, either
-as its own repo or as an addition to the selinux userspace tree.
-Whether or not the latter would be best likely depends on how tightly
-coupled it is to other components in the selinux userspace.
+Use a temporary access vector when converting each permission
+string to an access vector and "or" it to the final access
+vector before processing the next permission string.
+
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libsepol/utils/sepol_check_access.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/libsepol/utils/sepol_check_access.c b/libsepol/utils/sepol_check_access.c
+index fb3b7edd..e80d6464 100644
+--- a/libsepol/utils/sepol_check_access.c
++++ b/libsepol/utils/sepol_check_access.c
+@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
+ 	sepol_security_id_t ssid, tsid;
+ 	sepol_security_class_t tclass;
+ 	const char *permlist;
+-	sepol_access_vector_t av;
++	sepol_access_vector_t av = 0;
+ 	struct sepol_av_decision avd;
+ 	unsigned int reason;
+ 	char *reason_buf;
+@@ -58,6 +58,7 @@ int main(int argc, char *argv[])
+ 		char *tmp = NULL;
+ 		const char *perm;
+ 		const char *delim = strchr(permlist, ',');
++		sepol_access_vector_t perm_av;
+ 
+ 		if (delim) {
+ 			tmp = strndup(permlist, delim - permlist);
+@@ -71,7 +72,7 @@ int main(int argc, char *argv[])
+ 
+ 		perm = tmp ? tmp : permlist;
+ 
+-		if (sepol_string_to_av_perm(tclass, perm, &av) < 0) {
++		if (sepol_string_to_av_perm(tclass, perm, &perm_av) < 0) {
+ 			fprintf(stderr,
+ 				"Invalid permission %s for security class %s:  %s\n",
+ 				perm, argv[4], strerror(errno));
+@@ -79,6 +80,8 @@ int main(int argc, char *argv[])
+ 			return 1;
+ 		}
+ 
++		av |= perm_av;
++
+ 		free(tmp);
+ 
+ 		permlist = strchr(permlist, ',');
+-- 
+2.55.0
+
