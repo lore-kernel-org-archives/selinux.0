@@ -1,265 +1,194 @@
-Received: from mail-oa1-f43.google.com (mail-oa1-f43.google.com [209.85.160.43])
+Received: from mail-oa1-f51.google.com (mail-oa1-f51.google.com [209.85.160.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A81883AA1A6
-	for <selinux@vger.kernel.org>; Wed, 19 Aug 2026 14:41:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA76B476CF5
+	for <selinux@vger.kernel.org>; Wed, 19 Aug 2026 14:54:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.51
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787150496; cv=pass; b=FlWZdm7Ke6olQ0I2wc1rVA7ZmFmlft4J4P3enXHqYLRk/0zpC+I226sKBNhiZSVU/TC+2hUEqU9RvGUG0dLG/geu9b3aNnTvDgq87xcErQgqGwRHWQZDHtLqeR5p+ewTpdvcmIzJRkimkCkTGi9Llr2u/jaDvhFajg6Vv10Vtyw=
+	t=1787151256; cv=pass; b=obzICIGjQvK4T5IcjqB50Srv0/Coozo0QrEjCx4XWBUw1+GcqnJCOY9bcoVhsxIU9UeV8nVU2zQqcW7tXRDAU9e3a837vhAn3Rt+87Ou2YCriOdMdBtB4dVb8dpxdcW4Aou9LFLOq4ea99PSFrOn9JIZaoqEgbvUx6YQv/LmnX0=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787150496; c=relaxed/simple;
-	bh=2A6IlZRPaZgCCt/5ye3lWUSYW6f521UA9SJRAn6Ypkk=;
+	s=arc-20240116; t=1787151256; c=relaxed/simple;
+	bh=clj9gVhyrc3C/LsH68MWAJPwJ+bILDAgRbfld8wd5YU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hK69xGM0La5nlbdxGEwsmezHhnwOImXzj5eQwcCWYL+MclytKv3iuOU2Q/Aqv3wSbbH6mj4UxrWSi9wNfCCh8xHDIFPIUL8gwxZeI1YydrDydmyL86WiLAjTn0RjoKIfw+p6YJ42qBnWh/KGRCVJ7cvASHly3jH9O2g7XrOcIZc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gnEY2OlE; arc=pass smtp.client-ip=209.85.160.43
+	 To:Cc:Content-Type; b=XQoTy5VKj4csxnrueYJrI3AP2AzhGxeF4NfsIn3V6k5/x/JxbDuvtW/LHVIqfd2hjWQhLfHzjn/op4fp4CPiY5CT7EEf3TU7RvAyLKUKuafv04JZePYZ3/nlG+z/LvZS9FOj9IdgHA7qbkmTgGohOCtD8B4Sz/Dt/arOdBPSOPs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kEJnXZ+p; arc=pass smtp.client-ip=209.85.160.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gnEY2OlE"
-Received: by mail-oa1-f43.google.com with SMTP id 586e51a60fabf-451a49abd8aso842052fac.3
-        for <selinux@vger.kernel.org>; Wed, 19 Aug 2026 07:41:34 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1787150493; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kEJnXZ+p"
+Received: by mail-oa1-f51.google.com with SMTP id 586e51a60fabf-456395f4e7bso644824fac.0
+        for <selinux@vger.kernel.org>; Wed, 19 Aug 2026 07:54:13 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787151253; cv=none;
         d=google.com; s=arc-20260327;
-        b=PCBytBnlT0g6b53ScJQEl3nsCj1B3mDMF0gGQY2OSCqRvgSvF5q9c52EV/hjAfPmR/
-         qcVVsPGROoyIyxtSKYj489vvoUUKm+i7vbCXykCkkbR1EotTUlZ+xAgor4Bxhn5esIYA
-         HMbjkO/D8uGkfltZfms3BGam/rhwVS46dTqzDOMRuPFuBFndP1MGAALkbjxD1MMXDGiF
-         KIKsV3472F2xaN/1Z+5Gpna/QoNileibqrpmD3fT/dp/yW2IuomTDjU5c9nCy2Q6qnZv
-         Crk60m4iDNLS9UewxA4fFF6So58amTJ/6JmH2CcT2lBsca9hm8fcq90vS/U0RvmIBQ3Q
-         4xxA==
+        b=BehWxrWUpiOxOhCgIjGCt4mCUYZ6Lar3sQwxVT4ACJA0Pmd+4C86Wg2SMH8VZ6/+ZE
+         QMuqbd6YhdXXcZ17MBtEHBrEuv3xmlWtsq2EMm7rtFaBYDMrFtWvCCKPBz5opV6K1x5T
+         djF48F9Zewl2medbo4pPE68hY1WPL4g86tR+szFiPQA+Vt3vtmq8LN4jZ5urnJB+9JWF
+         wb4snSn7u9xd9oVjbyWmCHSHNhFjpjtsqDOm1/sXh4Cm4P695jiqFkYMojEc1Dc8zbEB
+         JFODDLoS87h42iiVRex9te6EViJWxHKXXCgOhBeWdtd2sVqb7BsLGH2LCPaQRto1AZ2l
+         SW5A==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=b0SGLbrGV/BWnpBu1QpBnwRUfeOxbEq3r/fkIt4hva4=;
-        fh=Vdc608U6fmQnkK4Pj/GsEOPoO5XtlZs1Z9K2hPCnM4c=;
-        b=BCNzIcQemCDliduBue7mcVRHHe3YvdAUvthhSiphYLUy9MG+4XhwivdEaTKTHVl3ZR
-         kTjhzJfjuiHZqNIIJGN85bPUQ2QhJsLf0oNeACQJFJIQUpycb6YNUkh1OlhXbYqhmkO+
-         d1Os5l95NN8l8q47g4V00BME+HiP4bhTS+cfSb04iNKsPGLyYeU4fneqDFHWMu3IC5Zq
-         eekJAwgs60/+gRftm501In0+e++NCEVv/Oy+MUlnPLbnBSDHnI9SjrGAOAjHwlmu6Ol7
-         YR/RPy7ByeyxpeG0CQtabZqyyKiMKOweQwaUJsCQlPEKLD5xWSGOAqB0HS+hk6kaFOXe
-         4ggA==;
+        bh=mhvw/FgE5+XsocfZbB7wjswP5NddcYAmLYZePhCxoG4=;
+        fh=xoxIIyheempzhFZ6DTqUboEb5IaEB3eAu1Uxv59ZTxw=;
+        b=J1mznm8NLg52sLoO/7dMHCY/XLiUNNmZ9/LwnaqZgA7MojPsnz1FSFc8HTw/Ft4Io2
+         /ODM3VJYTm9MoHSMW5LsoTIKdl/iIYAryObwE1YbpW8y/I20g+1fAYX50ZVLe1GaFigQ
+         m+1Dcx9K7RISLm0ZKGHXswXwNkJjdPd5MPvSQPYjBYfUJcxnWaba8omkPDThxPvuS6v9
+         OHHWwHGZQrnhSN3TO1ZGpl1iyPYVziEqZzEzDagMgluj0p5VNg+22+yzGJpHMVsfOO5s
+         7Pv4DFPmyxRIFToXP0sidZpnMoEr2d6T1Ph1UnrGlsCLiZ/FM+TBhw1JCLdJu1CF7hiq
+         6Cbg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787150493; x=1787755293; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1787151253; x=1787756053; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=b0SGLbrGV/BWnpBu1QpBnwRUfeOxbEq3r/fkIt4hva4=;
-        b=gnEY2OlEF6XIAtJbwZIDw//2P/8i/MIXS9nY4boohraL/PyaoLKCdTZiMz7YZ6JxAW
-         VGKbafDZPny6CsmPHS5BIUe+qrgCVvQsUS1YBf4U6lZSxmTSjxosc+t3iRpGxQ3URvc+
-         Gp1Tby0Id2J4u7Xe0d2QfsX//TM8puw98S85QSw/qPZ/nKEVaT3soBBCkBDDEmC7/MUM
-         O/PcM5eeHbkNMEMkQKETZY9pYD4ylSdoZOmjsWku2svZvh8Ivo24//+GUWFD2fJke5+9
-         70NoQi+fY1b/4TFHNA7YsDLPP1incZuGb7cAXVErfRl4vO53/eJPTSA/JOUGakmvODK6
-         74Xw==
+        bh=mhvw/FgE5+XsocfZbB7wjswP5NddcYAmLYZePhCxoG4=;
+        b=kEJnXZ+p3aEgGtxvkXqv241S8crYaqUSvDgZ2N/hyIR1C3FR45l9KF7LYgaHvla85S
+         eRTQ3bMK1JZubAirYheCrnIrQz5suHLxyMhenkXL+NBeXVjxLgHBrZyWgVjgOQZJ3mI8
+         /9G+7Vt3bXl8JpFELV8SDHAg2gXHhFyJTkJAZv0v1pojM7q2NEUQmgT+P0/wLDUx+MNr
+         h4mfdWI5Ren3y3bMnCNzqZUIBIzRrviC9bFe0axEgesJ5umEa9F/+aFZpJg6hpEE02Ju
+         1Jy9Jk1wewUStOCxGyep7fKyeNh93rrFR7/7bS/V9OYNiqyH6hyo0jx/NVUSJymB0i8G
+         3jog==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787150493; x=1787755293;
+        d=1e100.net; s=20251104; t=1787151253; x=1787756053;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=b0SGLbrGV/BWnpBu1QpBnwRUfeOxbEq3r/fkIt4hva4=;
-        b=ErjQFhH52Q1hTY123XlVG4gLJmNRJltjNMPzVpTiC8+IFbx88oOS270JEYomf5BpLD
-         IZwdqwIKUuUF5BvCuSa92Y4fGi0nWAJXEVhtN9IKiauEtZop195KfiQejuLVXXURWXPU
-         S9Pemyrt6zhWCwraf/Wlcq3ZOIFquCjD4ZTewxNat+C3OfU8Hi9Gk5nwPqr9smKu+9SO
-         2kHBCWOqZKOyTu4LtQiuvB0Zmld6n9PDJpgV2j8EL7j1XoQ3lWDbf2K1joiMXXU65Gsn
-         uaKY2FB7xbcONbxTGcFWymzSRFU+41hMGTkv4dCRymOXAR+d79KSAUt/SAQjNGoLk0pf
-         HWOg==
-X-Gm-Message-State: AOJu0YxrWdw19tUqeroOBzPaxnDWWFrWi89faIF4PO1w2QfecrZEoLsW
-	3j220oK7E4UpiX6/WR/MfA53ohf7zVr26gqen3AF0Yq+S5ecrfVvBBTNiZcUl8nrV7CeUlVQ4h/
-	YnloouNXzLjd8ysrYI59PR74HJWDyVOU=
-X-Gm-Gg: AR+sD10dRIJ1ow3jeloSYRQa1zO31J6bsG44t82fi1k72TjIuNVJ/KlCGsEtvx1EYMb
-	yPd4oz0/XvM7nVD4xu49uq75vXryCnIMod8gpxSdDboVsxYhL9dz15XCpN7zjt58cbT09selnMV
-	2Al3kjOSHjfUSGrl32H87HShykd+1AaLcDZINMAPxkPtBuSaOvNZ9Kp8Md5nfgaHGK4zJUgQVfs
-	0edxqv7xmSpRtZ+0HANhiS/PWfuijlQ2KzlgVec2fewe1VDKimJ8EN2r+80TQGQrlNCAnjw5Xit
-	kuxId1B41hOj7ja+zu083O5BQaG9MsENdNTR8hIihWlPrXDMoumk/Nk=
-X-Received: by 2002:a05:6871:2e9a:b0:456:8f0d:4fb3 with SMTP id
- 586e51a60fabf-462f682c2b9mr4911421fac.12.1787150493297; Wed, 19 Aug 2026
- 07:41:33 -0700 (PDT)
+        bh=mhvw/FgE5+XsocfZbB7wjswP5NddcYAmLYZePhCxoG4=;
+        b=kDLhv2RHopx6sJJGxUZl1Zynru2iwkaASj7ULvyQTTswBidel1kH3v2uIPPIvpiaXJ
+         nnaXtOLHS/KuCIQ+ReuKQNLmDfUUuMBxF+bcepV1BE6OhcG+EE6ad8/1cBSlSZa/UJSi
+         3H873vnTyx7omgFQ9YtVnrzeXtvmLMG6u82o/XyIb2MbzbtFs3+Qo63M/rpvwT35adTM
+         BYUnBrp5zN8tPu1ib7W8mvKOhx9T2e4TZFQmC86vpAYPby5Z7zHMFHUx0zqWKTGdSggD
+         EcKHZJsNX0vbXQfeFRcwhRwsJB6zImKDUU6q4cq9JMsuToucTCNF1gq4j4eUBXeSb35p
+         03Qg==
+X-Forwarded-Encrypted: i=1; AHgh+RryhKlIWjqt5G2fbPj7oAyJFE9DqCfQ9bgpq78yUxdePyMiy3+zFPebhdVcILk0M2YStRZN+pQb@vger.kernel.org
+X-Gm-Message-State: AOJu0YzizCdF9jhD17FRLrtSHadS81todixGzOseKYXb7SCJkJ0eDkLO
+	pwZAISGpoks/cyPCb7Wiw8/oxSh4pThkg9KR1HjvKlMC+mLxOERqBLMoG/e/nozsgo/ys+sWpoP
+	o17rfEfCBYNgFE0eJZfT7/7aY1ABZ16A=
+X-Gm-Gg: AR+sD10u8IrC5RmJFa5dVFlZhxVHzN+tlUz6zep4LiHCv4osJvTijwiIl8ypfMGbj0c
+	SnxDHLCCkt/I7M3+VznZDQNaLo8mQ1tNDB1rYWAPFQJM3s9LSfgR0h++RqZpvFzjmLxR0sFioeW
+	XEgeO+wFBkVU2+HZ6qlHUaPZKyvIPS4MyYrtozweLu2UtHrX69LjLcPoEA39MJ8alnSR73tk7QZ
+	dkmnMMlnkKqgw6/mCwaGj15Z9IiwbSU2PbOVCyeC3SgYgLlUvRWKwqoz2K0iAycyW3eMjnI7S+G
+	mgwCGGic+ovU9pr4oh4Fn0BIfJe6ifHQBIhkT1ZpgERR
+X-Received: by 2002:a05:6871:287:b0:447:a201:4a5a with SMTP id
+ 586e51a60fabf-462f64be287mr5194131fac.8.1787151252623; Wed, 19 Aug 2026
+ 07:54:12 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260819143027.574025-1-boeroboy@gmail.com>
-In-Reply-To: <20260819143027.574025-1-boeroboy@gmail.com>
+References: <20260818-selinux-pokemem-v1-0-90cd2357ee05@google.com> <20260818-selinux-pokemem-v1-3-90cd2357ee05@google.com>
+In-Reply-To: <20260818-selinux-pokemem-v1-3-90cd2357ee05@google.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 19 Aug 2026 10:41:22 -0400
-X-Gm-Features: AcwNN1Uw9PkD5ZpSrtWCR9XMKeFUedY2rfBB87mwIdB3Zy3DQhyvLtEeD-mMwUA
-Message-ID: <CAEjxPJ4vzaopfLB87QHvPBsFB6BrinGhX6-Xn5MnatLhkaxf+A@mail.gmail.com>
-Subject: Re: [PATCH v2 3/3] policycoreutils/setfiles: honor RESTORECON_THREADS
-To: jboero <boeroboy@gmail.com>
-Cc: selinux@vger.kernel.org, cgzones@googlemail.com
+Date: Wed, 19 Aug 2026 10:54:01 -0400
+X-Gm-Features: AcwNN1Vv0YORuTgO6puZkVyho68XY6ndF-y47mMS-AkDlVErDtFxI6gIHPST0Qw
+Message-ID: <CAEjxPJ714iCMiQRVAN6MQoOyNx998MS5Xfhbhmugcwz+gWYAuQ@mail.gmail.com>
+Subject: Re: [PATCH 3/3] selinux: require EXECMEM or PTRACE for FOLL_FORCE introspection
+To: Jann Horn <jannh@google.com>
+Cc: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
+	"Serge E. Hallyn" <serge@hallyn.com>, Jeff Xu <jeffxu@google.com>, 
+	=?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+	linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org, 
+	Andrew Morton <akpm@linux-foundation.org>, "Liam R. Howlett" <liam@infradead.org>, 
+	Lorenzo Stoakes <ljs@kernel.org>, Vlastimil Babka <vbabka@kernel.org>, Pedro Falcato <pfalcato@suse.de>, 
+	David Hildenbrand <david@kernel.org>, linux-mm@kvack.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 19, 2026 at 10:30=E2=80=AFAM jboero <boeroboy@gmail.com> wrote:
+On Tue, Aug 18, 2026 at 3:51=E2=80=AFPM Jann Horn <jannh@google.com> wrote:
 >
-> From: Johnny Boero <boeroboy@gmail.com>
+> On systems configured with PROC_MEM_FORCE_ALWAYS, ensure that a process c=
+an
+> only create anonymous executable memory via /proc/self/mem if it has one
+> of:
 >
-> Relabeling is invoked from places that cannot reasonably be given a -T
-> option.  On a Fedora 44 system, 10 installed packages run restorecon
-> from their scriptlets -- filesystem, kernel-core, container-selinux and
-> selinux-policy-targeted among them -- and not one of them passes -T:
->
->   restorecon -R /usr/bin /usr/sbin
->   restorecon -e /run/media -R /root /var/log /var/run /etc/passwd* ...
->   restorecon -R /var/lib/containers
->
-> Influencing those means patching every spec file in the distribution,
-> one merge request at a time, and only covers the packages one happens to
-> have installed.  The environment is the only knob that reaches them all
-> at once.
->
-> Add RESTORECON_THREADS, with the same meaning as -T, which takes
-> precedence when both are given:
->
->   RESTORECON_THREADS=3D1 dnf update  # keep relabeling on a single core
->   RESTORECON_THREADS=3D8 dnf update  # cap parallelism during application=
- load
->
-> An invalid value is reported and ignored rather than being fatal, since
-> the variable is inherited by every child process and should not be able
-> to break an unrelated caller.  parse_nthreads() does not touch nthreads
-> on error, so whichever default is compiled in stays in effect.
->
-> Link: https://github.com/SELinuxProject/selinux/issues/489
-> Signed-off-by: Johnny Boero <boeroboy@gmail.com>
+>  - EXECMEM (like for other methods of creating anonymous executable pages=
+)
+>  - PTRACE (like when using /proc/$pid/mem of another process)
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Allowing it if _either_ permission is allowed is unusual in SELinux
+and seems prone to errors.
+Is there a reason to not just require PTRACE always?
 
+>
+> This closes a hole in EXECMEM enforcement that Project Zero has used in a
+> remote Android exploit chain:
+> It was possible to use a memory corruption bug in a service without EXECM=
+EM
+> permission to overwrite executable code via /proc/self/mem, which made it
+> possible to load and run shellcode with a kernel exploit.
+>
+> Signed-off-by: Jann Horn <jannh@google.com>
 > ---
+>  security/selinux/hooks.c | 27 +++++++++++++++++++++++++++
+>  1 file changed, 27 insertions(+)
 >
-> This replaces 3/3 of the v1 series; 1/3 and 2/3 are unchanged and still
-> apply as sent.
->
-> v2: drop the "nthreads =3D 0" reset on an invalid value, as Stephen
->     Smalley pointed out.  parse_nthreads() does not write nthreads on err=
-or, so the
->     reset was a no-op with 2/3 applied and turned an invalid value into
->     all-cores without it.  Verified by building 1/3 + 3/3 without 2/3:
->     before the fix an invalid value ran at ~1000% CPU, after it stays
->     single threaded at 99%.  Commit message reworded accordingly.
->
->  policycoreutils/setfiles/restorecon.8 | 17 ++++++++++++++++-
->  policycoreutils/setfiles/setfiles.8   | 18 +++++++++++++++++-
->  policycoreutils/setfiles/setfiles.c   | 18 ++++++++++++++++--
->  3 files changed, 49 insertions(+), 4 deletions(-)
->
-> diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setf=
-iles/restorecon.8
-> index 8d7b46f0..001039b7 100644
-> --- a/policycoreutils/setfiles/restorecon.8
-> +++ b/policycoreutils/setfiles/restorecon.8
-> @@ -187,8 +187,23 @@ use up to
->  .I nthreads
->  threads.  Specify 0 to create as many threads as there are available
->  CPU cores (default); 1 to use only a single thread; or any positive
-> -number to use the given number of threads (if possible).
-> +number to use the given number of threads (if possible).  This option
-> +overrides the
-> +.B RESTORECON_THREADS
-> +environment variable.
-> +.SH "ENVIRONMENT"
->  .TP
-> +.B RESTORECON_THREADS
-> +Sets the default number of threads to use, with the same meaning as the
-> +.B \-T
-> +option.  This allows the amount of parallelism to be controlled for
-> +callers that do not pass
-> +.B \-T
-> +themselves, such as package installation scripts.  Setting it to 1
-> +restores the historic single threaded behaviour.  An invalid value is
-> +ignored with a warning.  The
-> +.B \-T
-> +option takes precedence.
->  .SH "ARGUMENTS"
->  .IR pathname \ ...
->  The pathname for the file(s) to be relabeled.
-> diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfil=
-es/setfiles.8
-> index 53cb97cc..101556a9 100644
-> --- a/policycoreutils/setfiles/setfiles.8
-> +++ b/policycoreutils/setfiles/setfiles.8
-> @@ -192,12 +192,28 @@ use up to
->  .I nthreads
->  threads.  Specify 0 to create as many threads as there are available
->  CPU cores (default); 1 to use only a single thread; or any positive
-> -number to use the given number of threads (if possible).
-> +number to use the given number of threads (if possible).  This option
-> +overrides the
-> +.B RESTORECON_THREADS
-> +environment variable.
->  .TP
->  .B \-A
->  do not track inodes with multiple hard links or bind mounts that would
->  match different contexts (saves memory)
->
-> +.SH "ENVIRONMENT"
-> +.TP
-> +.B RESTORECON_THREADS
-> +Sets the default number of threads to use, with the same meaning as the
-> +.B \-T
-> +option.  This allows the amount of parallelism to be controlled for
-> +callers that do not pass
-> +.B \-T
-> +themselves, such as package installation scripts.  Setting it to 1
-> +restores the historic single threaded behaviour.  An invalid value is
-> +ignored with a warning.  The
-> +.B \-T
-> +option takes precedence.
->  .SH "ARGUMENTS"
->  .TP
->  .I spec_file
-> diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfil=
-es/setfiles.c
-> index 4c860755..7f1c0a31 100644
-> --- a/policycoreutils/setfiles/setfiles.c
-> +++ b/policycoreutils/setfiles/setfiles.c
-> @@ -65,8 +65,8 @@ static void set_rootpath(const char *arg)
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 18dd28b2bb13..905137c47321 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -2157,6 +2157,32 @@ static int selinux_ptrace_traceme(struct task_stru=
+ct *parent)
+>                             SECCLASS_PROCESS, PROCESS__PTRACE, NULL);
 >  }
 >
->  /*
-> - * Parse a thread count, as given by the -T option.  Returns -1 on inval=
-id
-> - * input.
-> + * Parse a thread count, as given by the -T option or the
-> + * RESTORECON_THREADS environment variable.  Returns -1 on invalid input=
-.
->   */
->  static int parse_nthreads(const char *str, size_t *nthreads)
->  {
-> @@ -166,6 +166,7 @@ int main(int argc, char **argv)
->         struct stat sb;
->         int opt, i =3D 0;
->         const char *input_filename =3D NULL;
-> +       const char *env_nthreads;
->         int use_input_file =3D 0;
->         char *buf =3D NULL;
->         size_t buf_len =3D 0, nthreads =3D 0;
-> @@ -246,6 +247,19 @@ int main(int argc, char **argv)
->                         exit(0);
->         }
->
-> +       /*
-> +        * An explicit -T option takes precedence over the environment.  =
-An
-> +        * invalid value is not fatal, so that a bogus setting inherited =
-by
-> +        * every child process does not break unrelated callers;
-> +        * parse_nthreads() leaves nthreads alone in that case.
-> +        */
-> +       env_nthreads =3D getenv("RESTORECON_THREADS");
-> +       if (env_nthreads && env_nthreads[0] !=3D '\0' &&
-> +           parse_nthreads(env_nthreads, &nthreads) < 0)
-> +               fprintf(stderr,
-> +                       "%s:  invalid RESTORECON_THREADS value \"%s\", ig=
-noring\n",
-> +                       r_opts.progname, env_nthreads);
+> +/*
+> + * Decide whether it should be possible to read non-readable VMAs and wr=
+ite
+> + * non-writable VMAs via /proc/self/mem.
+> + * This only applies to systems configured with PROC_MEM_FORCE_ALWAYS, a=
+nd only
+> + * triggers on accesses that are not visible to selinux_ptrace_access_ch=
+eck().
+> + *
+> + * This allows a process to overwrite read-only code in its own address =
+space.
+> + *
+> + * Creating an audit record on denial doesn't make sense here, since we =
+can't
+> + * tell whether FOLL_FORCE matters for the accessed VMAs.
+> + */
+> +static int selinux_introspect_mem_foll_force(const struct cred *subject)
+> +{
+> +       struct av_decision avd;
+> +       int rc;
+> +       u32 sid =3D cred_sid(subject);
 > +
->         /* Process any options. */
->         while ((opt =3D getopt(argc, argv, opts)) > 0) {
->                 switch (opt) {
+> +       /* Allow if the process is generally allowed to have executable a=
+nonymous memory. */
+> +       rc =3D avc_has_perm_noaudit(sid, sid, SECCLASS_PROCESS, PROCESS__=
+EXECMEM, 0, &avd);
+> +
+> +       /* Also allow if selinux_ptrace_access_check() would allow it. */
+> +       if (rc)
+> +               rc =3D avc_has_perm_noaudit(sid, sid, SECCLASS_PROCESS, P=
+ROCESS__PTRACE, 0, &avd);
+> +       return rc;
+> +}
+> +
+>  static int selinux_capget(const struct task_struct *target, kernel_cap_t=
+ *effective,
+>                           kernel_cap_t *inheritable, kernel_cap_t *permit=
+ted)
+>  {
+> @@ -7558,6 +7584,7 @@ static struct security_hook_list selinux_hooks[] __=
+ro_after_init =3D {
+>
+>         LSM_HOOK_INIT(ptrace_access_check, selinux_ptrace_access_check),
+>         LSM_HOOK_INIT(ptrace_traceme, selinux_ptrace_traceme),
+> +       LSM_HOOK_INIT(introspect_mem_foll_force, selinux_introspect_mem_f=
+oll_force),
+>         LSM_HOOK_INIT(capget, selinux_capget),
+>         LSM_HOOK_INIT(capset, selinux_capset),
+>         LSM_HOOK_INIT(capable, selinux_capable),
+>
 > --
-> 2.55.0
+> 2.55.0.737.g08866a6d13-goog
 >
