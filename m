@@ -1,172 +1,129 @@
-Received: from mail-oa1-f42.google.com (mail-oa1-f42.google.com [209.85.160.42])
+Received: from mail-oo1-f48.google.com (mail-oo1-f48.google.com [209.85.161.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43833440659
-	for <selinux@vger.kernel.org>; Wed, 19 Aug 2026 18:18:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D151440623
+	for <selinux@vger.kernel.org>; Wed, 19 Aug 2026 18:26:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.48
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787163501; cv=pass; b=SDEV+F1UrpmtLSKW695J2Le9P0RgnepuiutKQXS4cnoaqFg/HyNhbZBET6goPtMhz4il1ogZxt0p9tdJGfgTusNdWukbkBahpXl+txGy37PqRP7fxR3VPhLTKZqsBS4HpyPikjMLpRaRYUcB+5dz2Fuh3X3P6IzfFgaYFjnSvD4=
+	t=1787164020; cv=pass; b=ACWAsyLHlDcrjiSTiEizjh5bCT7pDINelPdD8N8Yibg7sfnkx0A9iddujN26eXy8TIZvAubR55IMatgJhQvF0UCiWgmc3oFvUmG6FI87d6lfaB6OSpj2jRhY+X/wTKgqDU4WbqC7oFRwD9EGUAmD/OZlm2c1+WCfZZcqkad8cIk=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787163501; c=relaxed/simple;
-	bh=84Pv0c2fUBeXVvMCpTChl1c621/b0xPopTLZk3Xj9/Q=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=bgRwM9AV0SpbFBFOloYBcgUkHckYDhXcYYQAqHlbV+Zvx471368oSROyWDE/fTYCzzEfodTL3m0ZxnvAItJiSNaWT3Oz6pJTIy+j218ihRk88xPauAvnr+UkL6qvCCiuTL3MYOYVLpyvn4tBZ+CHOOjJjAibR6//XwDiFwgL2Mw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZaKwau4h; arc=pass smtp.client-ip=209.85.160.42
+	s=arc-20240116; t=1787164020; c=relaxed/simple;
+	bh=9sWVOYUVOxdvzX7+BTvj+cFJyPJwOXnGkPF6EMI0yTM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Content-Type; b=lq/Denqc5ITMNj1gmKhBRlpkY/OE6lk0io9SKGdQHWV365nf6JLeiwlOJoY8t32ppyL02ch9bSPmi96U2hbLGfKtk4CTWPubDgYR4XkuQR6vUBvJwydXEfSEp5XSR13xfWEiNpX1c78RnWl7zlxt20Z9BcmxL4Ow0Xx597szcFE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=es4hS5Dn; arc=pass smtp.client-ip=209.85.161.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZaKwau4h"
-Received: by mail-oa1-f42.google.com with SMTP id 586e51a60fabf-448de0cc236so976163fac.2
-        for <selinux@vger.kernel.org>; Wed, 19 Aug 2026 11:18:20 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1787163499; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="es4hS5Dn"
+Received: by mail-oo1-f48.google.com with SMTP id 006d021491bc7-6b0ab918216so886669eaf.3
+        for <selinux@vger.kernel.org>; Wed, 19 Aug 2026 11:26:58 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787164018; cv=none;
         d=google.com; s=arc-20260327;
-        b=ElY9qQSArqpfHFkoTsmzVhA4+hT8XaHbXOFXzZqZcg8ErKrk+XS0LSGxNDqB6YDKiA
-         MvCPUC+d5BUUDNgsZgcCrNaHk0b5nmVx+aXR5tuLDGru63YZgx4nqbq9cRU1LAIShczl
-         5Sp8G+YVvPuJ9n+n0UjpjPwnxvJwe8VNqd9sVy8NjIq9vY8bDnoOQM4nOIFHgAzBW3HS
-         axWQVzfQVvekC6ulGQuXa5gm4Js6RIfkGpZbZ9fP00UcqbhfQtowAOh05pkH+2fD2g6m
-         4/+8yLOwKGtff/ZpmF9RDNIg48nXdFYSi+cjM8RBIKwGyqx5aVSQFlSPmfOdlPTp10To
-         A5qw==
+        b=GE3WpNy2R9fokE9ytYsmFfRcz84xVtqycExwYI1XnDgFKVrMmJCkpsegxRvSIlQTyh
+         44ouC2b4wO+1egaxHYcsnhpyOsK4Rcvx6SWPzqt+pmFcrI8NGT81pOReVkKwjNZCXNB+
+         ZiQN9Ztfq6ZLVjdGDfanEncVEuLw62910KUfNFeU4K1NZHPMSHMGITvgfREAaLIaDu08
+         EAg5W8m0eJlShMoxaH/DMIUGhFEOPotnJRV+G08Wr5yGfa9UCXmYQ404T2X/dhdXgess
+         cRNJv2hnjHaUI5PHDsqYAR2HEoA3Eg03xakumXsQ7I321Cp9mXXhhs7ufuQ3objP4kFa
+         0VXQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=to:subject:message-id:date:from:mime-version:dkim-signature;
-        bh=JtJOxrHUCY6UwpZfZIAUykMhkxkGVkqEL4Yi1x/wFek=;
-        fh=3TiWXtFdwe5yukVw6OixALhXYfDtjbp6PLxueakgLUs=;
-        b=EesxHnElXNKWfvdJBZBfTFn85MPqV8uRv82qPc6s8mbKv8cd9fpM80MK96goYhIUMj
-         NENgbJp/+YAXJainOLomgvJ9yBTOS2SCnP5b2Q7s/nlybMB+dBOa+SG65p8ytBok108Q
-         9YbLO19jQGF/JMpnnx01uYA8iIXyAGihcXs82juGbu9XuWwEMDl3Eqi19DC1OfVKjbyj
-         Guicz7oXGT0eG7wmZCtaVkXWZyun+xVVpGhEGCMAbtVSn4CsRE4Nzmgpfy5m92OPnw05
-         fj2d/7Xr8uj4ArhbE1udUD8eZjcpLK663Bgnekf1P5SaHiXTFypasL9gUBrl4RanJPk4
-         SI/g==;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=wIEWfdzEhrBsO61h2U16+112QKHgVVZkwtHOyj2Rs3A=;
+        fh=dZX3gADy6vUDwkYNwBGOKqxp1EPx2k+E5XAsnXMckxU=;
+        b=XEGZmJJAhPeKUTThdo42gZK+2w3dZ5TuldhtBL5A3Tz1lvQcIsnjF1X5FaQ8iG746J
+         Au3ZO2hWGhrfW4WhAfXq+wuc9mrEjYSPFqi7sef8bfijQsvXTTwwN/ar/EhTO2CLimAi
+         cPlaY5Qaj98DgrZzOL4Y0XJiJlHdioay62/1jtktpKMccUJYT+uYPUUCn84WnJm2Vhhe
+         gAqy7/p2VPIKGfL8nX3D4djy4QFuwWyzayEOfwys2any8J+pSZ/gHxT0bCOl8ydaNzne
+         t8SQ4w8fId4s266bB1cN+KImZGTHam0gaVntZv4XoPHaRKvtVPDE2JOGWwDbrjfa1BTT
+         oXyA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787163499; x=1787768299; darn=vger.kernel.org;
-        h=content-type:to:subject:message-id:date:from:mime-version:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=JtJOxrHUCY6UwpZfZIAUykMhkxkGVkqEL4Yi1x/wFek=;
-        b=ZaKwau4hStC9PZPX8tj5ZIrLvM9SsL25fSX/eQj7/lOKN5DPkYMGRYBQlsatewx3Ik
-         +cgSZu8CFSm9frvfXu2g9VlodnIZnvJGow48zMjEcugmRIV/gWPjnWuGB4VONDMaZA4H
-         TXz7dW47ZnqjLUFiNqx9ow2PkbdNNxIgkk9RG1BA4T+H/8xdXC76DpadN6aDOUrj3BPk
-         zGo8U03T5nQ9urSH5srPbHBP070xL8q0IgwM8T3TUSA7NvWWgu3zPi8Cxhs4pPg1WVha
-         FCX0b9suUxAMdNBuvlWJ48NrgLny4/8TajH9/+XxFAU24G3mF4oE10JF3GLzFy0Vdatz
-         fxsA==
+        d=gmail.com; s=20251104; t=1787164018; x=1787768818; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:to:subject:message-id:date
+         :from:in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=wIEWfdzEhrBsO61h2U16+112QKHgVVZkwtHOyj2Rs3A=;
+        b=es4hS5Dne7zYBtJYwp84ZKVjUFIKZkHoA4M0C2pebarZ/Ub3e+MA/3gg/CGIuMrf0a
+         toX95EN8PGr6IQzjlgwUqUVzCmaZlEpJBJfCxQxrhnbBpt43+1sCFCSaxkeHFsMF0jAy
+         xz5dM9KxUMVWoy+Ojjdid718L++YBcud2QCrSTzE+L1PoQH6Iwq/wtovjkwQmxoKrZ7r
+         TU+t56GwYlJrLP9cIFGTU5S6i8rA+pj8ZsejETGrqlIGU4k/4LAoGgZ1RSBOK/9gsBf7
+         4WiuL/rKyqz9Pjh63522RAr3JDAYKp/pGjSBD/DDFxId7dnkln1WU/jTQH/ClNgoVmwT
+         xssQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787163499; x=1787768299;
-        h=content-type:to:subject:message-id:date:from:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=JtJOxrHUCY6UwpZfZIAUykMhkxkGVkqEL4Yi1x/wFek=;
-        b=SQO+AhauiNDwDblBrOw8/8JJYotoaue9GawRGRnKmF1qFRKyyQlOVBw+4WSpqp0X20
-         kpX2URwrlXDr3h2AVqBshuuIv4NFh3vYN/wkuEWfv2AiTHt9PB+uQEl3SDEXHDyCiGhP
-         hm4qM13DQy8ivFE5y3S4Rn0QyNoEx5i02/16alaav2G49ED8iUlqQGBvQ+fGEJ0O7tzd
-         /azseNa+TIw0p7JNUCCxh2nE+ykk1H7k4Dmdj8Wuf9/wTPUMw5bjrKN7ZrZ7pCa9o7tE
-         ex+brS2wruejrI1r1HoYhF8UYetw++WkqQOxRncGH2JIvzcBYaKVFFDS+2mA58a9ax0r
-         vJQw==
-X-Forwarded-Encrypted: i=1; AHgh+RrEZN5G0lViyNGEd8Xuqs6D3Hak42HwauqzjohBz4q2GBemMScEEy3eTkzcqECTNrXBIIphBmE2@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxyxt4DyOoLYrk1mlQNu/+doIKoia12ZuSo6VFM9hkpariInsdv
-	YgE7d+rM4vPV/BGzZjghk8MDEglHAg2benYgdFuLX+3HVoDu7b4wt/xGdDx8mT4EUktzkB2YiEn
-	HKtpCkd77qW75dR2Q03FU4aPXPNO7LzXz9fbF
-X-Gm-Gg: AR+sD11QpIhIQY6fva0hKxKxqYY4dSvtTRmgTa/HuwmdFSdOpH2Mnuy/q3ts8q+f/oq
-	+RqbcTZZQwI0RajVf1PDyF2CmmcPs2gk1DlzvhHGfwt33GwHudmUZISnw4z+gyEZ0Div/m+aVgD
-	zz0Gf+VF71ORYZ5DonlxAHJjUVh/BL9Ou8VJBg1Kr2KxmxLY0dDanGXSOu7OHuefCYR37OTJwoO
-	f1H+okWj/b00Zr1GQuUvwOQ081ZOK2wgpZ5bWCi0KPM7IBljuMdZMt5cFlwFum8OGk38w8HwBvY
-	hayclOSd9Us/d9xbhTkDeZHVgh/JxwKhItA1mnIgms+G
-X-Received: by 2002:a05:6870:6281:b0:455:e2d8:179b with SMTP id
- 586e51a60fabf-462f68367a6mr6305958fac.7.1787163498959; Wed, 19 Aug 2026
- 11:18:18 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1787164018; x=1787768818;
+        h=content-transfer-encoding:content-type:to:subject:message-id:date
+         :from:in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=wIEWfdzEhrBsO61h2U16+112QKHgVVZkwtHOyj2Rs3A=;
+        b=gimJ2+7wUfbiPy3yFz7SYZudHGR/ohzbGOmkjWFXVHuFjzw+dyjc3UzLJPCCoNTEbG
+         UkEhjV7to05dFEUEGbEWD4KXapLxn5IAZJefYpODZnBhpdcuhWJbg5ftc9ZSMfuudmNk
+         ckaGfGw8y6EweC5RO7u4ZTP8IO8KOk3+Pf2xPaOCQn3MKZMss4sV3P2YT1lvEyGXO3b1
+         C7uAfIuuAukUGmRSJ/XhA0IWN2ruS1+l7Qpgu/9p54odbzUS2MYc/3MYGeWPznaDRB7G
+         42Oq56xau4PzPWD4fjjI+zYVSdVY9un6aEEIJ2f3Ak4FsTJtghjJ1O0w5onw7z/xRiLy
+         sOiA==
+X-Forwarded-Encrypted: i=1; AHgh+RrRdhqlNTl7I3SVO84OW28klP3r7us/caXz+liqi6zi3pxDWJnJCipdEqaPrcfgZ6TeEvfxBxBE@vger.kernel.org
+X-Gm-Message-State: AOJu0YwUPf8VMuxwM0dWSbvupOKXyDUp7+NgeqNkGzVVJwQ9AVrUB2hA
+	hj+oj3/+VjqkBLuvO66WX3LPtYH0RxZOElSWvCvRzW/YU54P3QN/7SCDtoI9IN6I6k2ttmvEu2U
+	3cKrB1tw2Q0RUU2WeP3ryTMYzoWVFB1M=
+X-Gm-Gg: AR+sD10N1qrNpUtobHeJLpgwUTokfGSU7pmLeERANHPR8y9ed8IofJxeUrqDH3CFqZ8
+	sr5KJlxorrbb+om/JZblVmAM1K/DnKn9yhQX029JzmHKXFoKB/94SWtHFhjCFpFDJMf7zrKRhup
+	N65+/uCicsrnzRo5snq4J4ApWkDy8cV5Z6inLeP5ElWbhwYAx0qnuNccyt3XgWcvGpnjlln07Ea
+	VNuRdy1V9tXUP8duvH0ritIRYcj7x9H+rB2YBTpPQPzPnvTD5fXhU9E09WzAvVUlAW8FgcFGrMm
+	h18Rf8M3fLcpnGoJdtJZr8O0aS9xclhqmJbEb4ijP7lR
+X-Received: by 2002:a05:6820:6aea:b0:6ae:42c7:ef88 with SMTP id
+ 006d021491bc7-6b13c2b8758mr7056109eaf.7.1787164017735; Wed, 19 Aug 2026
+ 11:26:57 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+References: <CAEjxPJ5i7G79aw6d7L_fnvr8zgsxPnmW8bFEJ6NCXWerrSvvYA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5i7G79aw6d7L_fnvr8zgsxPnmW8bFEJ6NCXWerrSvvYA@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 19 Aug 2026 14:18:08 -0400
-X-Gm-Features: AcwNN1UI62etHM7hGEbPXnNo_DSswCz4gM_P_vSBX6D_BmFtV2Oofvi54j6QVmM
-Message-ID: <CAEjxPJ5i7G79aw6d7L_fnvr8zgsxPnmW8bFEJ6NCXWerrSvvYA@mail.gmail.com>
-Subject: selinux:selabel_file_text-fuzzer: Null-dereference READ in selabel_file_text-fuzzer
+Date: Wed, 19 Aug 2026 14:26:46 -0400
+X-Gm-Features: AcwNN1V4kqdv5f7ZztYjyNoQRqrxSMP-8ZOK5WlF04j7GEg_0iXEymze_SLpapE
+Message-ID: <CAEjxPJ4cvbu-JRQX+zivNX5i++guHGcwLBbvL-gCrVpSgZ1k3A@mail.gmail.com>
+Subject: Re: selinux:selabel_file_text-fuzzer: Null-dereference READ in selabel_file_text-fuzzer
 To: Petr Matyas <p.matyas13@gmail.com>, Petr Lautrbach <lautrbach@redhat.com>, 
 	Ondrej Mosnacek <omosnace@redhat.com>, James Carter <jwcart2@gmail.com>, 
 	Jason Zaman <jason@perfinion.com>, SElinux list <selinux@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="0000000000008319bf06596a6d60"
-
---0000000000008319bf06596a6d60
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-This is oss-fuzz issue 547975134. Crash stacktrace below and
-reproducer attached.
+On Wed, Aug 19, 2026 at 2:18=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> This is oss-fuzz issue 547975134. Crash stacktrace below and
+> reproducer attached.
 
-Last Tested Stacktrace on revision
-728eab370eb3b9fea0ac577f0cca18efac29d238 (19 lines)
-+----------------------------------------Release Build
-Stacktrace----------------------------------------+
-Command: /mnt/scratch0/clusterfuzz/resources/platform/linux/unshare -c
--n /mnt/scratch0/clusterfuzz/bot/builds/clusterfuzz-builds-afl_selinux_32ddf78d9f476617df7a8f4cf22b4d9340aef874/revisions/selabel_file_text-fuzzer
-/mnt/scratch0/clusterfuzz/bot/inputs/fuzzer-testcases/crash
-Time ran: 0.021557331085205078
-AddressSanitizer:DEADLYSIGNAL
-=================================================================
-==250==ERROR: AddressSanitizer: SEGV on unknown address 0x000000000000
-(pc 0x79f00f1efc0b bp 0x75f00d5d0920 sp 0x7ffe4c7c1e30 T0)
-==250==The signal is caused by a READ memory access.
-==250==Hint: address points to the zero page.
-    #0 0x79f00f1efc0b  (<unknown module>)
-==250==Register values:
-rax = 0x00007ffe4c7c1e30  rbx = 0x000076100e6e0031  rcx =
-0x0000000000000001  rdx = 0x0000000000000000
-rdi = 0x000076100e6e002f  rsi = 0x0000000000000000  rbp =
-0x000075f00d5d0920  rsp = 0x00007ffe4c7c1e30
- r8 = 0x000079f00f1efbe3   r9 = 0x00007fffffffff01  r10 =
-0x00007fffffffff01  r11 = 0x00000ed881cd4001
-r12 = 0x000075f00d5d0920  r13 = 0x0000000000989680  r14 =
-0x000075f00ddd0020  r15 = 0x000075f00ddd8030
-AddressSanitizer can not provide additional info.
-SUMMARY: AddressSanitizer: SEGV (<unknown module>)
-==250==ABORTING
-Original Stacktrace on revision
-eeebedb36cfe60837e6e81d28a346510fdca1541 (26 lines)
-[Environment] ASAN_OPTIONS=exitcode=77
-+----------------------------------------Release Build
-Stacktrace----------------------------------------+
-Command: /mnt/scratch0/clusterfuzz/resources/platform/linux/unshare -c
--n /mnt/scratch0/clusterfuzz/bot/builds/clusterfuzz-builds_selinux_32ddf78d9f476617df7a8f4cf22b4d9340aef874/revisions/selabel_file_text-fuzzer
--runs=100 /mnt/scratch0/clusterfuzz/bot/inputs/fuzzer-testcases/871230c698ec205c1c7a8f90fc46ae5a6de6d92db2c1dd129429d61e78dcrash
-Time ran: 0.040129899978637695
-INFO: Running with entropic power schedule (0xFF, 100).
-INFO: Seed: 4049782056
-INFO: Loaded 1 modules   (32641 inline 8-bit counters): 32641
-[0x5ca6bf693fe0, 0x5ca6bf69bf61),
-INFO: Loaded 1 PC tables (32641 PCs): 32641 [0x5ca6bf69bf68,0x5ca6bf71b778),
-/mnt/scratch0/clusterfuzz/bot/builds/clusterfuzz-builds_selinux_32ddf78d9f476617df7a8f4cf22b4d9340aef874/revisions/selabel_file_text-fuzzer:
-Running 1 inputs 100 time(s) each.
-Running: /mnt/scratch0/clusterfuzz/bot/inputs/fuzzer-testcases/871230c698ec205c1c7a8f90fc46ae5a6de6d92db2c1dd129429d61e78dcrash
-AddressSanitizer:DEADLYSIGNAL
-=================================================================
-==1228==ERROR: AddressSanitizer: SEGV on unknown address
-0x000000000000 (pc 0x7b2302c42c0b bp 0x7723010d0920 sp 0x7ffd3a6f1390
-T0)
-==1228==The signal is caused by a READ memory access.
-==1228==Hint: address points to the zero page.
-    #0 0x7b2302c42c0b  (<unknown module>)
-==1228==Register values:
-rax = 0x00007ffd3a6f1390  rbx = 0x00007743021e00b1  rcx =
-0x0000000000000001  rdx = 0x0000000000000000
-rdi = 0x00007743021e00af  rsi = 0x0000000000000000  rbp =
-0x00007723010d0920  rsp = 0x00007ffd3a6f1390
- r8 = 0x00007b2302c42be3   r9 = 0x00007fffffffff01  r10 =
-0x00007fffffffff01  r11 = 0x00000efee0434001
-r12 = 0x00007723010d0920  r13 = 0x0000000000989680  r14 =
-0x00007723018d0020  r15 = 0x00007723018d8030
-AddressSanitizer can not provide additional info.
-SUMMARY: AddressSanitizer: SEGV (<unknown module>)
-==1228==ABORTING
-
---0000000000008319bf06596a6d60
-Content-Type: application/octet-stream; 
-	name=clusterfuzz-testcase-minimized-selabel_file_text-fuzzer-5721256067137536
-Content-Disposition: attachment; 
-	filename=clusterfuzz-testcase-minimized-selabel_file_text-fuzzer-5721256067137536
-Content-Transfer-Encoding: base64
-Content-ID: <f_mt0ez8tx0>
-X-Attachment-Id: f_mt0ez8tx0
-
-Bih8KD8wKDEpKSkrK2N8ID/erb7vIA==
---0000000000008319bf06596a6d60--
+Here is a more useful stack trace along with the fuzzer input header
+information decoded (\s is a whitespace character of some form):
+find_all
+mode
+fcontext_data_len=3D16 fcontext=3D(|(?0(1)))++c|\s?
+len=3D1 key=3D\s
+*** stack smashing detected ***: terminated
+=3D=3D4287=3D=3D
+=3D=3D4287=3D=3D Process terminating with default action of signal 6
+(SIGABRT): dumping core
+=3D=3D4287=3D=3D    at 0x48E3CCC: __pthread_kill_implementation (pthread_ki=
+ll.c:44)
+=3D=3D4287=3D=3D    by 0x4888E8D: raise (raise.c:26)
+=3D=3D4287=3D=3D    by 0x48707B2: abort (abort.c:77)
+=3D=3D4287=3D=3D    by 0x4871803: __libc_message_impl.cold (libc_fatal.c:13=
+8)
+=3D=3D4287=3D=3D    by 0x4970F8F: __libc_message_wrapper (stdio.h:203)
+=3D=3D4287=3D=3D    by 0x4970F8F: __fortify_fail (fortify_fail.c:24)
+=3D=3D4287=3D=3D    by 0x4972343: __stack_chk_fail (stack_chk_fail.c:24)
+=3D=3D4287=3D=3D    by 0x42E1BA: jit_machine_stack_exec (pcre2_jit_match_in=
+c.h:64)
+=3D=3D4287=3D=3D    by 0x46772F: pcre2_jit_match_8 (pcre2_jit_match_inc.h:1=
+73)
+=3D=3D4287=3D=3D    by 0x47D034: pcre2_match_8 (pcre2_match.c:7204)
+=3D=3D4287=3D=3D    by 0x40FA51: regex_match (regex.c:295)
+=3D=3D4287=3D=3D    by 0x409D52: lookup_check_node (label_file.c:2013)
+=3D=3D4287=3D=3D    by 0x40A4FA: lookup_all (label_file.c:2278)
