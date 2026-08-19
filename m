@@ -1,144 +1,229 @@
-Received: from mail-oo1-f41.google.com (mail-oo1-f41.google.com [209.85.161.41])
+Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75637332629
-	for <selinux@vger.kernel.org>; Wed, 19 Aug 2026 13:15:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.41
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787145326; cv=pass; b=uNiVwDMYLvEF/RjeJcO6rBI+yt9xWc19O+Rl3UDeIPPnOmL7HpLXAN7sdDtHKo4ZCrWoyo9ynnQ3PWmUUT1jkPzjs4mSnGYTfSTvoYWFZ8bvHUjoRE3bG4kJJN/2Js13BN/8v9mMWzgVsw5NTapVlbCZi2pHHfX288ez6hjMs0A=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787145326; c=relaxed/simple;
-	bh=chEv920SAIUSWmpUEHydiPva72wWhy/vsGaxeO5dC18=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=dRRGCz/JSV+eyYIlPZWo9JPe9XclOlZeaB8U5NK2ARg7ofKeDE/X878UB+675eQL/VwNL3igj9mBLOdBtKlVdeEjbPQNS6iE0BgKe3EDMXiYvAp1hMbOXTybvXPcA4xsxFR02YwHqode34LAd8iFyAA6hyHD45jtlmeJcpLLVcE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rJ0bR36P; arc=pass smtp.client-ip=209.85.161.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 636DC3A759D
+	for <selinux@vger.kernel.org>; Wed, 19 Aug 2026 14:30:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787149860; cv=none; b=GCWp6DX/6P3lREYP/zEHAkum/y1uYFCnPYjVuCpYAeFNGDxiw7cyQinR/xjuVJ2oAkFxXsJl71z3wV+yThl0IRX9zSNX/uZkQ28jl6JE3PdIfrBBpvZf5fH5jzS/HxR7hAmLWnGdVihnsvxGrMgvn3yJFIoK6ea9mfEPkkC/BI8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787149860; c=relaxed/simple;
+	bh=PzOiuasOiUNv9uQhdbvxQtNHuBnqcN+QI7TOzThZtCM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=uqTscm2YJA6A5rHcSMMByxDUs1j8NgBgZittRpFV6Oaj9KNCLNRSLUhIK6VPKUJVykP7Dx/eDVPE1xf/XEVPW5JAxa+yqsbkkJqIN5G2kwFZ3jGI4n7MwozoKWbkocjXKgY/Lq5d+yutYJ0hHmeqRd5EFEdCcSHTT8+Jt2jmMAU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BaKTeXJ5; arc=none smtp.client-ip=209.85.160.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rJ0bR36P"
-Received: by mail-oo1-f41.google.com with SMTP id 006d021491bc7-6b057877851so780445eaf.0
-        for <selinux@vger.kernel.org>; Wed, 19 Aug 2026 06:15:24 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1787145323; cv=none;
-        d=google.com; s=arc-20260327;
-        b=V/GYwdUWuLNWCefPdKJOkY4ycHtKWg+BIuYynlfz+MFxHu0ItNNZt1s6R7w7t50vA7
-         zoVFfJzJGza8t1ashcHQEiq+jA7iLbPAVlL1pks4oYWEc+tHzHdpq/3iE+BF+IcYHPAi
-         mWUjIqxi1GLnj1Y55OjEBamQt+t5FuJJAtq5idTZeOemaywtl0ui/BaW0GHovUwGFkF8
-         U8gqEdwlV4+grlGcwaK3SXJ+uW8QUG0WskihwtzYIXUpNbn9LB+WveIdSEEZqlCvnSX/
-         z5ptyU9kl2TcPOtE5/QkjONScLq0dflOLJUhxnbhi2hS+demTcOhIEWsQFAMRJyqHHbR
-         VwIA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=chEv920SAIUSWmpUEHydiPva72wWhy/vsGaxeO5dC18=;
-        fh=KolfM19aEBLsLdlv7CvfZRTH7eSK0t/BZQIdPfHABmU=;
-        b=iBarQk5b2QJuuzTC7cBZhK6Z8pmwm937J2+jbl/TQzXMPceRrtbzt0sNqYL5sw2HDG
-         sCRkr5wbdt2Da5Z1z/GlBG4wZymfFpmUKo/LQfXCkhXBbHf0UbtaqEMFHojTvvpFyWYC
-         Ypzy0XkD3V/3wTCu9jlgXBEC0PuYt2mbEW+JZK+TPUJDQRUJuaHcsOdwO6QUdUlWUOS7
-         AcG1qzaD1GWvBPPNFyaLzEK6jFQGj/nc1EF96yWad3gSKGVEKoSXcLLoKBnbqRgy0wXA
-         YbKV4rDYM3mTwu8W9hwrmRPAsLgyX2SPzylahcnaad6iVp9nLAVN/qQ67WECS0x68euR
-         2DgQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BaKTeXJ5"
+Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-51c0cea8883so8348511cf.1
+        for <selinux@vger.kernel.org>; Wed, 19 Aug 2026 07:30:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787145323; x=1787750123; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=chEv920SAIUSWmpUEHydiPva72wWhy/vsGaxeO5dC18=;
-        b=rJ0bR36PqlYeATOdQ+oSlj4Zq1ckaFQkehu+exeSeKwBXyoSyVF48vY1AWvGu1y1K8
-         mtzpTumJ18xPNHvMIkdCLFnHn1u7FFciPC0qizKWHxD8R0IAsySzMDl7u3pf+7uZ9h6J
-         8REFezE6kytdpYrwI93DX9g/NVTAU9t+xiKClqsJri2Ha4cIYoZ3PmjEX8npi68ARalA
-         WLQSSIkgruTlVwMBZTYXXKPyP3uDGLZj5sSLLsVALkfvZ8IqerryVmuLFV+sWcSHgYjo
-         4sHR14j7enLA7MhjWFiLV9U8cJWupd9gzsEnxFRxR7nfsief3cXc0N3XudxQira2b1+E
-         hrpA==
+        d=gmail.com; s=20251104; t=1787149856; x=1787754656; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=6DSEzj31OW3Eirc9fYxaMyTaPLZW6Z9IDX0lxTXs5SI=;
+        b=BaKTeXJ5P/hHoduQJf5f6ycHeMQcyCkfqVXlX2pLzMFdzqTAA1Zx6jiiC+EoS9ITn8
+         PGz8JJ4DmtrKVbHWFbqclytHmJO3jhO0fZ7n7qe8wj5vMP7ZNqKTABXca8H5vQQYD6nC
+         YDVuqnmE4P4d5z8Ci9O+375cxYA6C4aDnK0DKuinx/gymJ3ETyuUEQKkxvNKI0FktIEe
+         93Ryz9rV3PQMpE8VIz5ejxoRNlac8Jvv+kjUSQLJDq5SEbFsW63diq2E/8oKG9UgGdVi
+         1zbHgIQWXLxXXxyQFX0cLqorPtRZNUf2ZWBjpvZIIKn40ELyQcjqTP6Azu2q5G108OSr
+         8qEA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787145323; x=1787750123;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=chEv920SAIUSWmpUEHydiPva72wWhy/vsGaxeO5dC18=;
-        b=XypDYB2dbYWZc9V9A9frMTmwojixHDOr9e2SgefjUXqbcA5dEfsKtaoqlj9Vp79to4
-         NxMarxEM5IIl9qxmpxk1EXvHJ8f74C7EP0QYVGNh3rx1dJzXa+gpVYoJobyBzi4yJeY3
-         muSbCB5vz336Xqurg0FpTZ+XVSFL1Mnl2f0xsa+c59VAK32lwWE4rhUb3Vgtdg/j1cBK
-         BH+8aGP/4j+h3cBPHaey87fxv7fZIOX4EJQvkDk8fL6fe51ntHwlm40eIA64IZUVNhwI
-         kEpnTK8FQH+zDmEpAFjW6b6SKK34FHnxncbOADsy64+e+aVswLMIRV7JcgA0rzfwIDty
-         eGbA==
-X-Gm-Message-State: AOJu0YxudPXgQ3QZGGQ0/BwUFli3se224N0ZJ/FyjunlnDbvrV6aPSHM
-	s/34W24TE3x6Kxsl+YlUIWAHiO1cUCg6rtEXIq4OIG4rmHnGwtPs/TK1YQY9hI1cGujyjLkHdx9
-	Zn1Fb3aCD4olvcd2kXaB8RsAMFl+rUMF/9Q==
-X-Gm-Gg: AR+sD123jV4hFmj5SqVH6Q/cwkxvBGx3k/fQaJwTkwpAS/NWpLmENOdI6sPnvAhRJNF
-	6FVVLIN78Yw8/ZDEAV0FYOf7Mtq5W0/Wb+Ycq1OgG44z/nMRlcN5Du33fDyJ+bHhRgraNtmBNYL
-	6AwEW8Jlmhupjunln55bgMJ0duuEAqClKwZlP52asefpn4yFEQ7/Y1teGlkSupDxg+5fTc7z3LO
-	ODhITBqOAa0hQqpNCNqlCiKC+PpY9u9+huipQeDWCUaS9qgEuMj18DK1YluemSCUUynQTGliLxG
-	vkw/KU03aSUVxu3WykK/n5RzFCfShPQOaPh+NF3nvqKQ
-X-Received: by 2002:a05:6820:a290:10b0:6a1:363d:bc42 with SMTP id
- 006d021491bc7-6b13c3900e1mr3306414eaf.15.1787145322670; Wed, 19 Aug 2026
- 06:15:22 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1787149856; x=1787754656;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=6DSEzj31OW3Eirc9fYxaMyTaPLZW6Z9IDX0lxTXs5SI=;
+        b=Bfdk2UhT/1D44lx2RnsoXzZOCg7cRylOmxKBF1W9ZALw6l+icI2cKw+3ruS1+G2gD/
+         FkIWYjG7BKkyUvzq6ZWoFGp4BMry/41GkHDPn1HWjEiY+d0Epl3kWPub8vBKudy14U4+
+         s3VHHWHzj6jkkyfk+8pnLPFISVf3WfOc89udM2aMYwqCu1bH6XkDBNI1pKO8/6t11zla
+         4xi/dGqdlzLd6sIZfD7pjz/SD6OfCxzSVejcqQ4r9MWsl0uzaVT/FzZ8jGaiIMSj+5nG
+         8JkQD3g7rZMCtGRkh4c0DZQEpF+75fqoXkfLAN8uLZMgzY8//wjAbqAd0cwTH6r2md8V
+         TUYA==
+X-Gm-Message-State: AOJu0YzBsg3Z7z5wQRaCGCtMsvZb3qbNX7+HFb4sNJxXFeOc7uTVD2sM
+	vEfhmyc8udVMiaIHF28rx2hdW9+XkaZwXmFkyyppp8J5mCOs7Y5xpu3wIN+8FSBu
+X-Gm-Gg: AR+sD13qxPHcLc9+TS3SdKlkH/ufZ0yEAxj8OJPquwVCTBcaWCWUFvesYS2wQtAmx7Z
+	4qJzx4IOQLpbDy+tWhfNPcfgnaGmty0u39SZ4PZarrteduJq7mhZC8RK4CNFts6ElnayVY7gRGX
+	tsnBtjR/68rkt66LtFg4ryuFkHwanwKMDuEKhrlppL/7VQqntwmzkiimj9DDzRlNxkt6iNzYjOO
+	MgaMubt9TFQjzs/+8PH47LS31DSt/W2B3aI5r1lWqyWrwQyDWW3vcsiG2EOmUCRdEkKpGHFWc4m
+	AOdr9BUS4cRUGAM3enqwvLQwXxVrZT6xMs9IzrYvOT8uZjR/HGE5sVA9dqT6IDdv+g2JG2sk3Rs
+	CUKuwn4TM7DZfy55DdlFant3fdPOCs8XkyTGNqtnv84JBHMNDeZPb6wbRmgtyoF6+xZNmh0u6Nn
+	An5Ma5yV/BGTcMW1vj/u4lB4hh+7z6QA2freQRbqxhQeQQtaYhC7C8mu1sD747tu2mszLL
+X-Received: by 2002:a05:622a:4d47:b0:51c:b91a:33f9 with SMTP id d75a77b69052e-52dd4919725mr53108371cf.13.1787149855336;
+        Wed, 19 Aug 2026 07:30:55 -0700 (PDT)
+Received: from z840.flat.mawenzy.com ([2603:6000:acf0:3410::10d7])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-90c5edb45besm15731856d6.2.2026.08.19.07.30.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Aug 2026 07:30:54 -0700 (PDT)
+From: jboero <boeroboy@gmail.com>
+To: selinux@vger.kernel.org
+Cc: stephen.smalley.work@gmail.com,
+	cgzones@googlemail.com,
+	Johnny Boero <boeroboy@gmail.com>
+Subject: [PATCH v2 3/3] policycoreutils/setfiles: honor RESTORECON_THREADS
+Date: Wed, 19 Aug 2026 09:30:27 -0500
+Message-ID: <20260819143027.574025-1-boeroboy@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAG94myvwFz_f2K8SLsfFv1xKDkdm_t6z0s75BLcE5Dn7OV2LBw@mail.gmail.com>
- <CAEjxPJ4DjSrYfDG5V2U8SYk+t_hQXLuytuwP04X-jLd0DMd4og@mail.gmail.com> <CAG94myvBHohDtG4kNdMNYzYOBYAZ9-tcKPpiJb_T7bb1fuE0_Q@mail.gmail.com>
-In-Reply-To: <CAG94myvBHohDtG4kNdMNYzYOBYAZ9-tcKPpiJb_T7bb1fuE0_Q@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 19 Aug 2026 09:15:11 -0400
-X-Gm-Features: AcwNN1Vkv9f4yIhQCr8OkI3mrKWnYK2bHoK51Y7b4Ln1brXZnuycHTfvjNxonnM
-Message-ID: <CAEjxPJ5bCF=PgwBsaiv96M5=5GnoMZc7s3u=kU9xsXY+MEN6eQ@mail.gmail.com>
-Subject: Re: [RFC/Discussion] eBPF-based runtime permission auditing tool for
- SELinux policies
-To: rushikesh ghatpande <rushikesh.ghatpande@gmail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, Aug 18, 2026 at 6:52=E2=80=AFPM rushikesh ghatpande
-<rushikesh.ghatpande@gmail.com> wrote:
->
-> Hi Stephen,
->
-> Thank you for taking a look, and for the context on the
-> auditallow/Android precedent. It is a helpful confirmation that the
-> runtime-observation angle is worth pursuing via a different mechanism.
->
-> It would be an honor to have this considered for the SELinuxProject
-> GitHub. I'd also like to be an active contributor to the SELinux space
-> more broadly, not just with this one tool. I see this as a starting
-> point.
->
-> On coupling: the eBPF side hooks avc_has_perm(), plus a few more
-> targeted LSM hooks (selinux_file_open, selinux_mmap_file,
-> selinux_inode_getattr). This is done via BCC. There's no dependency on
-> libselinux, libsepol, or policycoreutils here.
->
-> On the policy side, it currently shells out to sesearch (setools) to
-> extract allow rules for a given context. So there is a dependency on
-> setools, but not on the core userspace tree itself.
->
-> Given that, I'd lean toward a standalone repo for now. It sits next to
-> the existing tree, not inside it. I'm open to your view on where the
-> right boundary is.
->
-> I'm happy to keep improving it based on feedback. If there's anything
-> specific you'd like me to change or look at, let me know.
+From: Johnny Boero <boeroboy@gmail.com>
 
-Just for future reference - for public mailing lists the convention is
-to post your reply after the
-message to which you are responding (interleaving your responses with snipp=
-ets
-to which you replying and pruning any part of the previous message
-that isn't relevant to
-your reply). Not a big deal for this thread so far but helps ensure
-that people can read comments
-in context and avoid wasting space for the complete previous email
-since it is already in the
-archive.
+Relabeling is invoked from places that cannot reasonably be given a -T
+option.  On a Fedora 44 system, 10 installed packages run restorecon
+from their scriptlets -- filesystem, kernel-core, container-selinux and
+selinux-policy-targeted among them -- and not one of them passes -T:
 
-Sounds like keeping it as a separate repo is the right move and we can
-see whether other
-developers and users find it to be helpful for their workflows. If so,
-happy to consider it for
-SELinuxProject in the future. Thanks again for sharing it.
+  restorecon -R /usr/bin /usr/sbin
+  restorecon -e /run/media -R /root /var/log /var/run /etc/passwd* ...
+  restorecon -R /var/lib/containers
+
+Influencing those means patching every spec file in the distribution,
+one merge request at a time, and only covers the packages one happens to
+have installed.  The environment is the only knob that reaches them all
+at once.
+
+Add RESTORECON_THREADS, with the same meaning as -T, which takes
+precedence when both are given:
+
+  RESTORECON_THREADS=1 dnf update  # keep relabeling on a single core
+  RESTORECON_THREADS=8 dnf update  # cap parallelism during application load
+
+An invalid value is reported and ignored rather than being fatal, since
+the variable is inherited by every child process and should not be able
+to break an unrelated caller.  parse_nthreads() does not touch nthreads
+on error, so whichever default is compiled in stays in effect.
+
+Link: https://github.com/SELinuxProject/selinux/issues/489
+Signed-off-by: Johnny Boero <boeroboy@gmail.com>
+---
+
+This replaces 3/3 of the v1 series; 1/3 and 2/3 are unchanged and still
+apply as sent.
+
+v2: drop the "nthreads = 0" reset on an invalid value, as Stephen
+    Smalley pointed out.  parse_nthreads() does not write nthreads on error, so the
+    reset was a no-op with 2/3 applied and turned an invalid value into
+    all-cores without it.  Verified by building 1/3 + 3/3 without 2/3:
+    before the fix an invalid value ran at ~1000% CPU, after it stays
+    single threaded at 99%.  Commit message reworded accordingly.
+
+ policycoreutils/setfiles/restorecon.8 | 17 ++++++++++++++++-
+ policycoreutils/setfiles/setfiles.8   | 18 +++++++++++++++++-
+ policycoreutils/setfiles/setfiles.c   | 18 ++++++++++++++++--
+ 3 files changed, 49 insertions(+), 4 deletions(-)
+
+diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setfiles/restorecon.8
+index 8d7b46f0..001039b7 100644
+--- a/policycoreutils/setfiles/restorecon.8
++++ b/policycoreutils/setfiles/restorecon.8
+@@ -187,8 +187,23 @@ use up to
+ .I nthreads
+ threads.  Specify 0 to create as many threads as there are available
+ CPU cores (default); 1 to use only a single thread; or any positive
+-number to use the given number of threads (if possible).
++number to use the given number of threads (if possible).  This option
++overrides the
++.B RESTORECON_THREADS
++environment variable.
++.SH "ENVIRONMENT"
+ .TP
++.B RESTORECON_THREADS
++Sets the default number of threads to use, with the same meaning as the
++.B \-T
++option.  This allows the amount of parallelism to be controlled for
++callers that do not pass
++.B \-T
++themselves, such as package installation scripts.  Setting it to 1
++restores the historic single threaded behaviour.  An invalid value is
++ignored with a warning.  The
++.B \-T
++option takes precedence.
+ .SH "ARGUMENTS"
+ .IR pathname \ ...
+ The pathname for the file(s) to be relabeled.
+diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfiles/setfiles.8
+index 53cb97cc..101556a9 100644
+--- a/policycoreutils/setfiles/setfiles.8
++++ b/policycoreutils/setfiles/setfiles.8
+@@ -192,12 +192,28 @@ use up to
+ .I nthreads
+ threads.  Specify 0 to create as many threads as there are available
+ CPU cores (default); 1 to use only a single thread; or any positive
+-number to use the given number of threads (if possible).
++number to use the given number of threads (if possible).  This option
++overrides the
++.B RESTORECON_THREADS
++environment variable.
+ .TP
+ .B \-A
+ do not track inodes with multiple hard links or bind mounts that would
+ match different contexts (saves memory)
+ 
++.SH "ENVIRONMENT"
++.TP
++.B RESTORECON_THREADS
++Sets the default number of threads to use, with the same meaning as the
++.B \-T
++option.  This allows the amount of parallelism to be controlled for
++callers that do not pass
++.B \-T
++themselves, such as package installation scripts.  Setting it to 1
++restores the historic single threaded behaviour.  An invalid value is
++ignored with a warning.  The
++.B \-T
++option takes precedence.
+ .SH "ARGUMENTS"
+ .TP
+ .I spec_file
+diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
+index 4c860755..7f1c0a31 100644
+--- a/policycoreutils/setfiles/setfiles.c
++++ b/policycoreutils/setfiles/setfiles.c
+@@ -65,8 +65,8 @@ static void set_rootpath(const char *arg)
+ }
+ 
+ /*
+- * Parse a thread count, as given by the -T option.  Returns -1 on invalid
+- * input.
++ * Parse a thread count, as given by the -T option or the
++ * RESTORECON_THREADS environment variable.  Returns -1 on invalid input.
+  */
+ static int parse_nthreads(const char *str, size_t *nthreads)
+ {
+@@ -166,6 +166,7 @@ int main(int argc, char **argv)
+ 	struct stat sb;
+ 	int opt, i = 0;
+ 	const char *input_filename = NULL;
++	const char *env_nthreads;
+ 	int use_input_file = 0;
+ 	char *buf = NULL;
+ 	size_t buf_len = 0, nthreads = 0;
+@@ -246,6 +247,19 @@ int main(int argc, char **argv)
+ 			exit(0);
+ 	}
+ 
++	/*
++	 * An explicit -T option takes precedence over the environment.  An
++	 * invalid value is not fatal, so that a bogus setting inherited by
++	 * every child process does not break unrelated callers;
++	 * parse_nthreads() leaves nthreads alone in that case.
++	 */
++	env_nthreads = getenv("RESTORECON_THREADS");
++	if (env_nthreads && env_nthreads[0] != '\0' &&
++	    parse_nthreads(env_nthreads, &nthreads) < 0)
++		fprintf(stderr,
++			"%s:  invalid RESTORECON_THREADS value \"%s\", ignoring\n",
++			r_opts.progname, env_nthreads);
++
+ 	/* Process any options. */
+ 	while ((opt = getopt(argc, argv, opts)) > 0) {
+ 		switch (opt) {
+-- 
+2.55.0
+
