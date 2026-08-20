@@ -1,172 +1,126 @@
-Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F357A47F2FA
-	for <selinux@vger.kernel.org>; Thu, 20 Aug 2026 17:58:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 598E337CD5A
+	for <selinux@vger.kernel.org>; Thu, 20 Aug 2026 18:11:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787248724; cv=none; b=fE5t2d7ojB064ioARqDSlYKGvI8HwQ5uOeAbVaKVl5/ORv4G8bxqYdZieNokC8X+K/SJjcONHoGOCR8WJ8r0eLhwJKBEBMS66PeOwWIGXaFH1urOibxqZWyHRF0RjpKomdD6817vDS6MTGOyPQRzTT5udl6plKR4IFyCwLCS9SQ=
+	t=1787249499; cv=none; b=n0s5WBhVmaw7TxxYPkBorJHZnFASRbukmw5HCAz/ZbXYn9RIUeAMr1UgWPmxnBnqwEJF3VLnb97CEgPnYQbWDOvj+NUfcgnZKL5qNsuRQ0Pm5LvB1U2XrY4Bn2xjwG1rbo2KoUo2xUSgo/3qdnr11vbNJx8xgoewyV0xTippf4g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787248724; c=relaxed/simple;
-	bh=rRQ+k45Rzu1T02qBpX5CzRl8hfRPtWG1qRV4GQ3dh8A=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=srnoHRUFGz/0Q4tYWJbtlvXEB7MOoZSQtw/YXD+Uszdnt6nFHXnJorkJC+6vjLFHsib7ZokLOTvUvES8D15oPY9cRvSowwao0HF739XGl33ZoCW27gmk5us5/B8rTUg6zafUQfx54Q8jhp37qXoPVcwcTUGNMCwQN9p89jaeKiU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EXIMHYXK; arc=none smtp.client-ip=209.85.128.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787249499; c=relaxed/simple;
+	bh=5xZFtaM16bFTgwjiy81hKYysmIZ3AqLlIAMIkC4cwbE=;
+	h=From:Subject:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=gQ6wgZIGpZsu7zWbAODnBUzzQr5PuMRm2iDY7VGQ3VnicEfSqXGEA9TUTRj7giQtBCsU2mEPQebV6QcG3Mcl+MycGE4BL4nix7RzJFNVjEpi6LhsEAGYn00ISAxQ3YjiIYRVe9CCr2PFwonPBSZjUP0lIHydeAPLZKAThnVyuFw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jmFq+Rhd; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EXIMHYXK"
-Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-495590dde14so1555855e9.0
-        for <selinux@vger.kernel.org>; Thu, 20 Aug 2026 10:58:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787248721; x=1787853521; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=YYEsMKlE1hunKYKu1jEmmpknYRhAQx1ch1/5OXya0mo=;
-        b=EXIMHYXKtcMYV7Ri4p2slns48PJSlkPt9sYp06GVbIEv7XQEADPtUj/3XddT1RbmVP
-         Bw3kLCkgze5ufVH0tLZm80uCPnNO7zIQw0BjT6QdI8qiGG8oPIBhyeynfgqepXYk0rpi
-         AJvu1g+pWxEI1fEE3kuXrWeOBAmSV/S1cs/phtJ1QBAwq12wGg//H3ndYR8pUq8kjo8k
-         4dpAV8VvCuiaJYfAw/Ge/XENRiax6OTv5iw/zda7TQ8owXkRmwQbdlSFJzPWmp5jCAUu
-         E3P87CFlAZvhB6HOTgOQipXvkXIlJ9vW9UosPLufYlPePe87NoQu9EjkruR3RzuFc/AM
-         nVdQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787248721; x=1787853521;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=YYEsMKlE1hunKYKu1jEmmpknYRhAQx1ch1/5OXya0mo=;
-        b=oxPl+AjR66ztxLpD/nU4d6BGOfkauIvUe7WqO1pZIdWv16koQJZGbFhjyq/3G2jjdf
-         reEyVbrzXzMpSuKNm0PxTTa+wv96cyqhz28u3sc2sYDJxFF4B6S7nXgt0O+wBZwrcpQ1
-         Iv9tf8YP7rMszAfS8hhP+GE6y/m4FbtjExfGkg65NLZS/HElGeVo0RPwbZZNJF+26olY
-         NswoJTqM1SqsUXIluVPWhXll7rWR9cuyT/f1qjSH0ecvkFJsJ+WgBdV0iFgftFg21H6C
-         oWBN3CIsWzRpAiswcRHOzynv1GF+IPL1SFwiU4I4A9SzOuLs+TbAO87TZXJzjsmmn2i/
-         K7Qg==
-X-Gm-Message-State: AOJu0YxnFOtVDGTQbo+OeyjdYJHly8sgWQovQvjUnzt6npVDIox2aYUW
-	WlRrmhumbhGwQ9XM5eAKLlLPkUvcxNwpJwcQBx7Qo1qTmNHOR8Gh2KRC7BhYlkr8
-X-Gm-Gg: AR+sD13f+q3Skh5c96KZC0mfqXhIVn7ywlPn7PKDmhmUQ7FxHxvAFLn9kFJ6qZFoYw0
-	Zn0ezdzuodDkoMy6F448LNKONRnvMJGOlpCvlVIB3v+OmAFYyoEVWGP0gf3Y4LxA+PSojdj9Zc4
-	YOStWGSqWzscoP0nAAT6RzhR67wgcDsrjTx9B2DFKOUPJTk14/IdkUH+85z0oXJklGAi8oH6FnO
-	dF6NdE2jv3ZThVmn7pL89oJt1FQjO1K30L2JtGz91yu3JT86JQgSNVWOd9aRjFsRbnMV6xZT56O
-	omwh2IS/JoCGTEG19gBJEnoK9pbGBLIiRlH0L05e6SFPyv5WthVGdX4bA/jpT1fYExe3jYFyM2D
-	FChadfzGtHhrDlpzXklp6vtN8dZIvwcB5DZoSsCMNPLVWPly62jFU/UGfd4V1jTbqU8mom+Nk2u
-	+veBYpoOU0rrMpf1BIXhhshWgDUIgydhBzH0IYDfTKKqZHeJXb/mDgbSHEpZKeQxn8vRfMUaPJp
-	lZ8ON6FbczkwpO2EZSKUt6gW29suVYZognq3TFf/n0m8MwHTA3/sLaAW1FczYlrQ1VoJkkgbt2M
-	enjqi8ISnncJxbQk8Fj2ysurKff5CZqb5qYWkBvhrZku0EcN6JgF/VxmCKFPdY0lGPuLkImouQ=
-	=
-X-Received: by 2002:a05:600c:c494:b0:499:a5c8:c6f3 with SMTP id 5b1f17b1804b1-499b82f4d3bmr10160435e9.3.1787248720981;
-        Thu, 20 Aug 2026 10:58:40 -0700 (PDT)
-Received: from localhost.localdomain (dynamic-2a02-3100-a476-1a01-141e-2b69-987c-d72d.310.pool.telefonica.de. [2a02:3100:a476:1a01:141e:2b69:987c:d72d])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-499aa11f832sm152118355e9.7.2026.08.20.10.58.40
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Thu, 20 Aug 2026 10:58:40 -0700 (PDT)
-From: Karl Mehltretter <kmehltretter@gmail.com>
-To: selinux@vger.kernel.org
-Cc: Karl Mehltretter <kmehltretter@gmail.com>,
-	Paul Moore <paul@paul-moore.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>,
-	Miklos Szeredi <miklos@szeredi.hu>,
-	Amir Goldstein <amir73il@gmail.com>,
-	Christian Brauner <brauner@kernel.org>,
-	linux-fsdevel@vger.kernel.org,
-	linux-unionfs@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: [PATCH v2] selinux: preserve user SID across nested backing files
-Date: Thu, 20 Aug 2026 19:58:32 +0200
-Message-Id: <20260820175832.44512-1-kmehltretter@gmail.com>
-X-Mailer: git-send-email 2.39.5 (Apple Git-154)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jmFq+Rhd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20B761F000E9
+	for <selinux@vger.kernel.org>; Thu, 20 Aug 2026 18:11:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787249498;
+	bh=fYX3vTF2Am/Qr3XzHZMK9Lw4de79DqVSxbtXa9TqqSQ=;
+	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
+	b=jmFq+RhdwegxNkj2MhjaH2wDSbQBK5wDcKFapFJ0UhtxgSNB5oqNM0drsJhnV53dY
+	 8d+cJj0RvQBQtJaoDJd+t2NGY/hHw5k2ygesNixBbpoyQDEX/xBvvlyaj4ZGrz9X63
+	 BOsJc8FuWbkLD73+/hlBc6ifmanqS9DdIazSbdfJvv/VI81ulFiLeGbY8LKCcgJ1tB
+	 b4I3TOiyZ0ryp+g2VFc0gFGF/lA+JxEsV5A1g+Q2yC+dJV1xNwpGjvMsV8yOqrsKcu
+	 /dvbSyAuyeK1tEjv3mSDL/A6RhA02yrvm+BZrk7nJ3sDE6ZJngpWiYL/6uGBLUTJVi
+	 7ftYqLTKYccwA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] selinux: preserve user SID across nested backing
+ files
+Reply-To: sashiko-reviews@lists.linux.dev
+Cc: selinux@vger.kernel.org
+In-Reply-To: <20260820175832.44512-1-kmehltretter@gmail.com>
+References: <20260820175832.44512-1-kmehltretter@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 20 Aug 2026 18:11:37 +0000
+Message-Id: <20260820181138.20B761F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-SELinux saves the user file SID in a backing-file security blob so it
-remains available after mmap() replaces vma->vm_file with a backing file.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-For nested backing files (overlayfs over overlayfs, or FUSE passthrough
-backed by overlayfs), user_file may itself be a backing file.  Its
-fsec->sid is the SID of the mounter that opened it, rather than the user
-that opened the top-level file.  mprotect() then checks fd { use } against
-the mounter SID.  This can incorrectly deny access without a domain
-transition, or check the wrong target SID after one.
+Pre-existing issues:
+- [High] SELinux mmap/mprotect checks evaluate execute permissions against =
+the intermediate layer's inode instead of the top-level user file's inode i=
+n nested backing file setups, allowing a policy bypass.
+--
 
-Copy the saved user SID when user_file is a backing file.  Keep using the
-regular file SID for the first backing layer.
+--- Patch [1]: [PATCH v2] selinux: preserve user SID across nested backing =
+files ---
+commit 9cc55180a6ab3bcd9de427fe0ddf47951d8a72d6
+Author: Karl Mehltretter <kmehltretter@gmail.com>
 
-With two nested overlayfs mounts and SELinux enforcing,
-mprotect(PROT_READ) returns EACCES with an fd { use } denial against the
-mounter SID.  With this change, mprotect() succeeds.
+selinux: preserve user SID across nested backing files
 
-Fixes: 82544d36b172 ("selinux: fix overlayfs mmap() and mprotect() access checks")
-Cc: stable@vger.kernel.org
-Assisted-by: Codex:gpt-5.6-sol
-Signed-off-by: Karl Mehltretter <kmehltretter@gmail.com>
----
-Changes in v2:
-- Add selinux_file_user_sid() helper instead of open-coding the lookup
-  (Amir).
+This commit fixes SID propagation across nested backing files so the top-le=
+vel
+user SID is preserved in the security blob. It prevents mprotect() from
+incorrectly checking access against the mounter SID instead of the user SID.
+The fix handles nested overlayfs or FUSE passthrough by copying the saved u=
+ser
+SID when user_file is a backing file.
 
-Tested on arm64 QEMU at fd6e2388a3ea with SELinux enforcing and two
-nested overlayfs mounts. The policy omitted only
-base_t -> mounter_t:fd { use } among the relevant cross-domain allows:
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 1ead2eee1944d..171b90412ff1f 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -3843,13 +3843,20 @@ static int selinux_file_alloc_security(struct fil=
+e *file)
+>  	return 0;
+>  }
+> =20
+> +static inline u32 selinux_file_user_sid(const struct file *file)
+> +{
+> +	if (unlikely(file->f_mode & FMODE_BACKING))
+> +		return selinux_backing_file(file)->uf_sid;
+> +	return selinux_file(file)->sid;
+> +}
+> +
+>  static int selinux_backing_file_alloc(struct file *backing_file,
+>  				      const struct file *user_file)
+>  {
+>  	struct backing_file_security_struct *bfsec;
+> =20
+>  	bfsec =3D selinux_backing_file(backing_file);
+> -	bfsec->uf_sid =3D selinux_file(user_file)->sid;
+> +	bfsec->uf_sid =3D selinux_file_user_sid(user_file);
 
-  baseline: mprotect(PROT_READ) returned EACCES with that denial
-  patched:  mprotect(PROT_READ) succeeded; test exited 0
+[Severity: High]
+This is a pre-existing issue, but does evaluating the intermediate layer's
+inode instead of the top-level user file's inode allow a policy bypass?
 
-This patch fixes SID propagation only. backing_file_user_path() still
-resolves to the middle layer for a nested mapping, so the audit path and
-inode do not correspond to uf_sid, and that layer's mounter is not
-re-checked. Preserving the full user path likely needs a VFS-side change,
-such as having backing_file_open() store file_user_path(user_file).
+In security/selinux/hooks.c:__file_has_perm():
 
- security/selinux/hooks.c          | 9 ++++++++-
- security/selinux/include/objsec.h | 2 +-
- 2 files changed, 9 insertions(+), 2 deletions(-)
+    bfsec =3D selinux_backing_file(file);
+    path =3D backing_file_user_path(file);
+    tsid_fd =3D bfsec->uf_sid;
+    inode =3D d_inode(path->dentry);
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 1ead2eee1944..171b90412ff1 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3843,13 +3843,20 @@ static int selinux_file_alloc_security(struct file *file)
- 	return 0;
- }
- 
-+static inline u32 selinux_file_user_sid(const struct file *file)
-+{
-+	if (unlikely(file->f_mode & FMODE_BACKING))
-+		return selinux_backing_file(file)->uf_sid;
-+	return selinux_file(file)->sid;
-+}
-+
- static int selinux_backing_file_alloc(struct file *backing_file,
- 				      const struct file *user_file)
- {
- 	struct backing_file_security_struct *bfsec;
- 
- 	bfsec = selinux_backing_file(backing_file);
--	bfsec->uf_sid = selinux_file(user_file)->sid;
-+	bfsec->uf_sid = selinux_file_user_sid(user_file);
- 
- 	return 0;
- }
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index 3c0a16ec978b..853f7266ed18 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -87,7 +87,7 @@ struct file_security_struct {
- };
- 
- struct backing_file_security_struct {
--	u32 uf_sid; /* associated user file fsec->sid */
-+	u32 uf_sid; /* top-level user file fsec->sid */
- };
- 
- struct superblock_security_struct {
+When an attacker maps a file from a nested overlayfs (e.g., ovl1 over ovl2)
+with PROT_READ, the top-level read permissions are checked. If the attacker
+subsequently calls mprotect(PROT_EXEC), selinux_file_mprotect() invokes
+__file_map_prot_check() on the lowest-level backing file.=20
 
-base-commit: fd6e2388a3ea55e58cbbbef840c1d8aa2067dbb3
--- 
-2.39.5 (Apple Git-154)
+Because backing_file_open() assigns user_path to the immediate user_file's
+path directly without recursively unwrapping, backing_file_user_path() poin=
+ts
+to the intermediate overlayfs file.=20
 
+Does this mean FILE__EXECUTE is evaluated against the intermediate inode
+rather than the top-level inode, which could bypass a restrictive execute
+policy on the top-level mount if the intermediate mount allows execution?
+
+> =20
+>  	return 0;
+>  }
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260820175832.4451=
+2-1-kmehltretter@gmail.com?part=3D1
