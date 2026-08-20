@@ -1,217 +1,159 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from mail-oo1-f46.google.com (mail-oo1-f46.google.com [209.85.161.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3417418A48;
-	Thu, 20 Aug 2026 11:20:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787224849; cv=none; b=BTJtr6hGpFiz6QZn4zb7RwtfeqpPTSZPuJR4aAeF3jEnuBMqzC4SmDbetXTd4AZKOqsbmTvrxlGn2mJqa26gQd6cmRGq76R2vwfzSha+xgHR/J1lWE2T/kbZ908oK9UVm6t1KBI1X+w1z6dLKJmXJE4mFfc0HlTohhyQU5V/cdk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787224849; c=relaxed/simple;
-	bh=mNKo+VeGUQvoC3HvVzi9u54tvLkXnQ+9tpx5PWNNcQA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qITC7G9a50KFXY8b1CMLUhF33tdeLypQAFlGDTKim/g1qrFOLf3JudnIPnd/PXnpcfpwAmMPu3XupE3Q05RKvtzhatuKwZx1vfHtnSxzK96lLmwLFA9vm5WvMXPmBm5YIP1ibjgZVUr/2nqsFSyzs1dN6NoCDBzqk2KBwUfrlgw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=ZF3erbxi; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=OfVmpSul; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=DT/kVxbG; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=paRH9hh0; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EC97442B2E
+	for <selinux@vger.kernel.org>; Thu, 20 Aug 2026 12:35:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.46
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787229338; cv=pass; b=DhuNi4IcRtEPZNqziccnWsvmvIx2P7z7KWiCliLmF0dALURIYABYVjkgTG+naYqikP6MFRtm0JRFgLdJ/2Aj5Z1u6rf241l96r7G33fxdGo1g1PKdzqdZ02mVHS8TTyWWvFXOfQ6k1jFN9a6jVZzh74mf3r5j9E7ddo3hMcJuxg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787229338; c=relaxed/simple;
+	bh=CzaVK+SQievluDDuXsCDo8XokIJeXdPaumgXu8sdWGo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Content-Type; b=EstV7Nuo7DiUcFOPoza7Pu+XcxsB9pSYoplZAP6U1Z1n7nRtHfstX2uOnoGg9aZbVINS1za15QtS6P+x1GUr58ftPdiKadOf1cDCJidjWdKhki1yTuc5gCcLUTxWsz3graczMkvwXNF8vbpJk7Hxv29Gee+E6OPU4X9IqvUoxAE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OTnqqkTI; arc=pass smtp.client-ip=209.85.161.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="ZF3erbxi";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="OfVmpSul";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="DT/kVxbG";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="paRH9hh0"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 33D3385041;
-	Thu, 20 Aug 2026 11:20:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1787224836; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tk8jiJdcjWsP4GhLOTgEUqckIP3KNVGr11ane1BhbCI=;
-	b=ZF3erbxirjWV5nK4xzrbZfVT2O07TlMViOfP300cWFayelaGeKLsNk8LnWhR0Ub7k9Qb0r
-	esXasTH/LcTKHRpHhiBDPkefP3+BiSJuymIMfBYJWFBrFTsWp6dMRjktRnWlTBBfA0lzyv
-	ABcue/sUx+mR+asrIVKnVEr9HXvR5gA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1787224836;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tk8jiJdcjWsP4GhLOTgEUqckIP3KNVGr11ane1BhbCI=;
-	b=OfVmpSul/tf1tTue3qzy23FO6thfCUnoi31375KiZboJV0+JrSzTGv9ZiTW9r5KZjK6MlF
-	8Ju7a+e/DDu4G2BQ==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1787224832; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tk8jiJdcjWsP4GhLOTgEUqckIP3KNVGr11ane1BhbCI=;
-	b=DT/kVxbGZ9DAq4jap/S4imDE9t9bAwAQIWRYYy2h9s22K3c+L9qQAioHE2McDQ2FMCPQTo
-	zQhroHvJMkycZODk3BZWf/D8izEYAb7d+3jrrqcUhUisGx7dq6nwBowXSA7ETEsaXuOVIN
-	xvNIQoA+rzKFVKJfwzIicxW/XwndYTA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1787224832;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tk8jiJdcjWsP4GhLOTgEUqckIP3KNVGr11ane1BhbCI=;
-	b=paRH9hh0L1JywzeFQYaxAykZpRkx60X7NaCFq9r4bRRR7t0I2YZz5z8TOP+nrnrNFb6FhF
-	xoY44CJ2ozOSn9Cw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 2336D27A8;
-	Thu, 20 Aug 2026 11:20:32 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id VUaWCADjhmq9MgAAD6G6ig
-	(envelope-from <jack@suse.cz>); Thu, 20 Aug 2026 11:20:32 +0000
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-	id BB7A8A13B9; Thu, 20 Aug 2026 13:20:16 +0200 (CEST)
-Date: Thu, 20 Aug 2026 13:20:16 +0200
-From: Jan Kara <jack@suse.cz>
-To: Jann Horn <jannh@google.com>
-Cc: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
-	"Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Jeff Xu <jeffxu@google.com>, =?utf-8?B?VGhpw6liYXVk?= Weksteen <tweek@google.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
-	linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org, 
-	Andrew Morton <akpm@linux-foundation.org>, "Liam R. Howlett" <liam@infradead.org>, 
-	Lorenzo Stoakes <ljs@kernel.org>, Vlastimil Babka <vbabka@kernel.org>, 
-	Pedro Falcato <pfalcato@suse.de>, David Hildenbrand <david@kernel.org>, linux-mm@kvack.org
-Subject: Re: [PATCH 1/3] proc: refactor /proc/$pid/mem to use struct as
- private_data
-Message-ID: <2vwbng2vmyvssphmthcuzuicpfv2e3oe6ybbakct4fcbachjdr@ixzg6tvsjccu>
-References: <20260818-selinux-pokemem-v1-0-90cd2357ee05@google.com>
- <20260818-selinux-pokemem-v1-1-90cd2357ee05@google.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OTnqqkTI"
+Received: by mail-oo1-f46.google.com with SMTP id 006d021491bc7-6b14971e862so430271eaf.0
+        for <selinux@vger.kernel.org>; Thu, 20 Aug 2026 05:35:37 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787229336; cv=none;
+        d=google.com; s=arc-20260327;
+        b=Y6HEQU8q5wT1Ory+fFr5xqhNUwNWafYnKwMVUvYR3JT+ALpRoEdlPNgG9fzmEMaYg1
+         2Ye5rmm+N0WEC/kQvRzEWvazNTSKDA+Ev9/HtBIUscN9Rc1mlnVvASkmeKvO16SM1bpD
+         M43MhZaoGb/EIaY7tthI77TG+qjAGn674eg70WtAQxz1fst6v8/bKI5ydLRw0z2mLTHG
+         PHQAUgjQkvr92au9KbF6Q4zqjy4lXXguIqPrcwV7rM7Qu6+Z0az4tOz3GFtSqFCvNJ6z
+         2O+8kLDSMgpSv4I/eell9CFDCkDAAHKNvHZiMfMALEAgyf2UM8xuexTCZ4CjIjxo8HLB
+         jkHw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=IP3rPD90LGXq8spLotWCGsXxH9/MD4Qwef4e3RRxIRc=;
+        fh=WW42/MS8KMBE30aHzgGYYqniQlOuMPH48LLj9zpa/lc=;
+        b=IGF3YUklTV8UIwAIw+wX2YbOHM8915s64YOx0MJiL3ezwErUqHR5kspB8Pfo2Vl7nA
+         /Qfeu26DgEzE8UB1g9ZokjX9wfzN9n3hEhEnmiNZyW2vUCb7OxTAYm//Z57UoZ9tw9FN
+         xQXhAhEDSEr+2U4DpVku8mQbTyPdUwPoyDMcfkASlgXLcDqcIvtp9npMuBoylPod9dAa
+         B5WxAKVQMsH4xxFocbd6IZ2V15j+PMaisvphM2zAVaQA3OGEoac7CxCNW7LwbLq1UakM
+         uasE0H3Gr49UcA2i8pfznBvWz97HaSnAbpTEKDIbUXCDvDZAMl0ZocMFppKvkFhY/NWn
+         CCQg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787229336; x=1787834136; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:to:subject:message-id:date
+         :from:in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=IP3rPD90LGXq8spLotWCGsXxH9/MD4Qwef4e3RRxIRc=;
+        b=OTnqqkTIR3x00Gpm98FEm+rMouiv6o0l9UXYoFe73+GxcqbrD2Br4+WbvIsM6qfc0m
+         arxqpnGCxaS/Qg4s/a7BFgHmRZcJ+Ck3yB4/qg4r4CpQbMBWRZ7VERJNaUBNrx/GTHwz
+         a57f4n5dkX8PmpW1cYmNQYLcKyt97aZUaxPkhYhww3T6ajhCl1Y+iRVxezGWKgICAhpd
+         GjCk28haZA57lTGrkoL8Gu5THtulZAFFMzxS2Ly44MPuBA5I4pzRVnmF0s6MiP7YWRpH
+         fNRJtbr7rKxIacIa04WPzMh4su5xXhyChQuMIJ4Wx1Xf3ucwLIFBU88GkSpWqAtph6Zp
+         zijQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787229336; x=1787834136;
+        h=content-transfer-encoding:content-type:to:subject:message-id:date
+         :from:in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=IP3rPD90LGXq8spLotWCGsXxH9/MD4Qwef4e3RRxIRc=;
+        b=nAnIxWReKnB9oqWXmsLCoooPBQwXu306KFJ3W/qj0/C7ILcFiQQBOYCYoH+tM5VQtW
+         Kpal8tg2CR32xTna20ODNEYMQbY6QCM9ehjQPD8FCFHQTmIPb0MAH2OqI+EmUJpCGRBs
+         g49cqGFwAeT09641HdpirwDRT1KQzpTQ1idTDh4W1ZVMuyDByTUi9HTkfiSV/5WBq4Mf
+         U6UDbnlDPxggbP7lBH9GZ1USOxRgUT2KQf99GbwEipUR5HL9SDjZcXNV/Uhglp5i53sK
+         XunUqLt8ydLKITgDixgTrfZTUdEcyhjrihBSSxKDf5xGxKZBVplF/E4Bikp015E1K3dZ
+         4zhA==
+X-Forwarded-Encrypted: i=1; AHgh+RrwWcxO16FGeB2VB3Z0kqKhaoAdTK4b+AwPUDTqpf7I3KJfwXnJxb6ZHxvD8lXOoRLGcubImV80@vger.kernel.org
+X-Gm-Message-State: AOJu0YxZDgGvk0bfRifpZq0zR8g24aSfkMqSPbfm8zOSv8nsG32Wo2RO
+	yYRqY4yt65fqLv9d7LW1SWo+8jUBXak9dHFG9/0/3ZApXHLsiD0LkNLmuezD/AhHUVa7KYTL34j
+	fd4SLUVSxFlHDpeQ9xqPeEn9tAy0gtXI=
+X-Gm-Gg: AR+sD10xUTmQRr275tJkrlb1GsF8bLDaE/RWYQf69huYue5J6C1IVanTFPuIUKBYwbx
+	I0Gs+U+nrvBnUHrXsCyB0NuoBKcmg7bNty23ieVN/nY+MTpzP6P91W+0iNMxC+ebL2RiIxhEH52
+	Nj/0nUkJM3a7TObc5YMaTbWME65yUfqDav162UedVKFEPFQ+VRYHwDoXQOqF3Eiu76qWCrBO4KY
+	W2L7wxDMDrBICW4Ivh1iSDEfYePzioQo/0ISn3DvQQaBLqh2Rl/tS+EOmFPQBt7LVbxAReSgDj2
+	sytfaYwKD8gchZgVwT2ySUvNu7+IzAOFk+cg6MZvTomo
+X-Received: by 2002:a05:6820:2e81:b0:6b0:31d0:5fc9 with SMTP id
+ 006d021491bc7-6b148ed461cmr3798272eaf.7.1787229336293; Thu, 20 Aug 2026
+ 05:35:36 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260818-selinux-pokemem-v1-1-90cd2357ee05@google.com>
-X-Spam-Score: -1.30
-X-Spam-Level: 
-X-Spam-Flag: NO
-X-Spamd-Result: default: False [-1.30 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	SUBJECT_HAS_CURRENCY(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_RHS_NOT_FQDN(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MISSING_XM_UA(0.00)[];
-	ARC_NA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[21];
-	MIME_TRACE(0.00)[0:+];
-	TAGGED_RCPT(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	TO_DN_SOME(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[paul-moore.com,namei.org,hallyn.com,gmail.com,google.com,zeniv.linux.org.uk,kernel.org,suse.cz,vger.kernel.org,redhat.com,linux-foundation.org,infradead.org,suse.de,kvack.org];
-	RCVD_COUNT_THREE(0.00)[3];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_TLS_LAST(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.com:email,suse.cz:email]
+References: <CAEjxPJ5i7G79aw6d7L_fnvr8zgsxPnmW8bFEJ6NCXWerrSvvYA@mail.gmail.com>
+ <CAEjxPJ4cvbu-JRQX+zivNX5i++guHGcwLBbvL-gCrVpSgZ1k3A@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4cvbu-JRQX+zivNX5i++guHGcwLBbvL-gCrVpSgZ1k3A@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 20 Aug 2026 08:35:24 -0400
+X-Gm-Features: AcwNN1Vto-Zp2mmP35TQGXQhiRnBzoxoorO57q-yAItRhovyfZ82doiuSCeOwd0
+Message-ID: <CAEjxPJ6-b4KmkgSgO7hXf+8ZGgRtR_JkS1ZQU-ULVk0aex5zCw@mail.gmail.com>
+Subject: Re: selinux:selabel_file_text-fuzzer: Null-dereference READ in selabel_file_text-fuzzer
+To: Petr Matyas <p.matyas13@gmail.com>, Petr Lautrbach <lautrbach@redhat.com>, 
+	Ondrej Mosnacek <omosnace@redhat.com>, James Carter <jwcart2@gmail.com>, 
+	Jason Zaman <jason@perfinion.com>, SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue 18-08-26 21:51:05, Jann Horn wrote:
-> Refactor the handlers for proc_mem_operations to use the new struct
-> mem_private as ->private_data, rather than directly storing an mm_struct*
-> in ->private_data.
-> 
-> This is in preparation for adding more state in mem_private in the next
-> commit.
-> 
-> Signed-off-by: Jann Horn <jannh@google.com>
+On Wed, Aug 19, 2026 at 2:26=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Wed, Aug 19, 2026 at 2:18=E2=80=AFPM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > This is oss-fuzz issue 547975134. Crash stacktrace below and
+> > reproducer attached.
+>
+> Here is a more useful stack trace along with the fuzzer input header
+> information decoded (\s is a whitespace character of some form):
+> find_all
+> mode
+> fcontext_data_len=3D16 fcontext=3D(|(?0(1)))++c|\s?
+> len=3D1 key=3D\s
+> *** stack smashing detected ***: terminated
+> =3D=3D4287=3D=3D
+> =3D=3D4287=3D=3D Process terminating with default action of signal 6
+> (SIGABRT): dumping core
+> =3D=3D4287=3D=3D    at 0x48E3CCC: __pthread_kill_implementation (pthread_=
+kill.c:44)
+> =3D=3D4287=3D=3D    by 0x4888E8D: raise (raise.c:26)
+> =3D=3D4287=3D=3D    by 0x48707B2: abort (abort.c:77)
+> =3D=3D4287=3D=3D    by 0x4871803: __libc_message_impl.cold (libc_fatal.c:=
+138)
+> =3D=3D4287=3D=3D    by 0x4970F8F: __libc_message_wrapper (stdio.h:203)
+> =3D=3D4287=3D=3D    by 0x4970F8F: __fortify_fail (fortify_fail.c:24)
+> =3D=3D4287=3D=3D    by 0x4972343: __stack_chk_fail (stack_chk_fail.c:24)
+> =3D=3D4287=3D=3D    by 0x42E1BA: jit_machine_stack_exec (pcre2_jit_match_=
+inc.h:64)
+> =3D=3D4287=3D=3D    by 0x46772F: pcre2_jit_match_8 (pcre2_jit_match_inc.h=
+:173)
+> =3D=3D4287=3D=3D    by 0x47D034: pcre2_match_8 (pcre2_match.c:7204)
+> =3D=3D4287=3D=3D    by 0x40FA51: regex_match (regex.c:295)
+> =3D=3D4287=3D=3D    by 0x409D52: lookup_check_node (label_file.c:2013)
+> =3D=3D4287=3D=3D    by 0x40A4FA: lookup_all (label_file.c:2278)
 
-Looks good to me. Feel free to add:
+To clarify, the \s above is a single space character in both the regex
+and the key.
+My decoder for the fuzzing input just prints it as \s.
 
-Reviewed-by: Jan Kara <jack@suse.cz>
+My friendly neighborhood AI suggests that the pattern (|(?0(1)))++c| ?
+triggers a stack overflow on a single space because it creates a
+catastrophic combination of possessive quantifiers, zero-length
+matches, and infinite recursion. Standard interpreted PCRE2 tracks
+recursion depth and will gracefully abort with a
+PCRE2_ERROR_MATCHLIMIT or PCRE2_ERROR_DEPTHLIMIT. However, the JIT
+compiler generates optimized native machine code that relies on a
+dedicated, fixed-size memory stack for its execution. Because this
+zero-length infinite recursion rapidly cascades without consuming any
+input, it instantly exhausts the JIT's memory block, resulting in a
+fatal stack overflow (or a PCRE2_ERROR_JIT_STACKLIMIT crash depending
+on your environment).
 
-								Honza
-
-> ---
->  fs/proc/base.c | 29 ++++++++++++++++++++++++++---
->  1 file changed, 26 insertions(+), 3 deletions(-)
-> 
-> diff --git a/fs/proc/base.c b/fs/proc/base.c
-> index 780f81259052..bec6197329dc 100644
-> --- a/fs/proc/base.c
-> +++ b/fs/proc/base.c
-> @@ -848,11 +848,24 @@ static int __mem_open(struct inode *inode, struct file *file, unsigned int mode)
->  	return 0;
->  }
->  
-> +/* private_data for proc_mem_operations */
-> +struct mem_private {
-> +	struct mm_struct *mm;
-> +};
-> +
->  static int mem_open(struct inode *inode, struct file *file)
->  {
-> +	struct mem_private *priv __free(kfree) = kmalloc_obj(struct mem_private);
-> +
-> +	if (!priv)
-> +		return -ENOMEM;
->  	if (WARN_ON_ONCE(!(file->f_op->fop_flags & FOP_UNSIGNED_OFFSET)))
->  		return -EINVAL;
-> -	return __mem_open(inode, file, PTRACE_MODE_ATTACH);
-> +	priv->mm = proc_mem_open(inode, PTRACE_MODE_ATTACH);
-> +	if (IS_ERR_OR_NULL(priv->mm))
-> +		return priv->mm ? PTR_ERR(priv->mm) : -ESRCH;
-> +	file->private_data = no_free_ptr(priv);
-> +	return 0;
->  }
->  
->  static bool proc_mem_foll_force(struct file *file, struct mm_struct *mm)
-> @@ -880,7 +893,8 @@ static bool proc_mem_foll_force(struct file *file, struct mm_struct *mm)
->  static ssize_t mem_rw(struct file *file, char __user *buf,
->  			size_t count, loff_t *ppos, int write)
->  {
-> -	struct mm_struct *mm = file->private_data;
-> +	struct mem_private *priv = file->private_data;
-> +	struct mm_struct *mm = priv->mm;
->  	unsigned long addr = *ppos;
->  	ssize_t copied;
->  	char *page;
-> @@ -970,12 +984,21 @@ static int mem_release(struct inode *inode, struct file *file)
->  	return 0;
->  }
->  
-> +static int mem_release_with_private(struct inode *inode, struct file *file)
-> +{
-> +	struct mem_private *priv = file->private_data;
-> +
-> +	mmdrop(priv->mm);
-> +	kfree(priv);
-> +	return 0;
-> +}
-> +
->  static const struct file_operations proc_mem_operations = {
->  	.llseek		= mem_lseek,
->  	.read		= mem_read,
->  	.write		= mem_write,
->  	.open		= mem_open,
-> -	.release	= mem_release,
-> +	.release	= mem_release_with_private,
->  	.fop_flags	= FOP_UNSIGNED_OFFSET,
->  };
->  
-> 
-> -- 
-> 2.55.0.737.g08866a6d13-goog
-> 
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+It suggests doing one of the following:
+1. Bounded Limits: Ensure libselinux sets strict match limits and
+bounds the JIT stack size explicitly using pcre2_jit_stack_create.
+-or-
+2. Fuzzer Fallbacks: Maintainers sometimes conditionally disable JIT
+compilation inside the fuzzer harness itself. This forces PCRE2 to use
+its interpreter, which gracefully handles the recursion limit and
+returns a PCRE2_ERROR_DEPTHLIMIT rather than crashing the process.
