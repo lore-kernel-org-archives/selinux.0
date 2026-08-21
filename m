@@ -1,146 +1,155 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36F802701B6;
-	Fri, 21 Aug 2026 18:34:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80021353A94;
+	Fri, 21 Aug 2026 18:52:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787337290; cv=none; b=SrffF0IxUwmk7+v9rnBQg3wm0ISLCdz4V2Nsy2IbNryOW+imbPd7eEIQ9LOPU5od4Jv0r0jNNIL6j/3nt0tk3QrolVtv31AvTyZ02mrPqGRrmJaSabfhXXkqYasSsp0cZH05kMklWWV9Opx7WPhMmod7hr+ecdZBywNrb2MR9qQ=
+	t=1787338340; cv=none; b=APPXUQakv9c6f1CPAiHY3yawbgjyKWqYV3J1d6Qn6qQtFP72Io5ve39gSEDZ2ZFM6o/4nKHnPGwehMcTSJRDc8T/R3wkbGWvirLxLsWPQDDnZ1NHRGN7Jw5QzacHNER4iLYqojq6mRhZvt8p5+0NX3qRprn8F5jkDaUVXqjBLTU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787337290; c=relaxed/simple;
-	bh=fVr+wxu9Ixq/fMW3AgVfjo3ZziXDIROe48bL5m3NI14=;
+	s=arc-20240116; t=1787338340; c=relaxed/simple;
+	bh=0IWfNo1+XuQTGbNEsw1+XMJXWhiirRyaeGwj6vWcv7U=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hoEPW8b3Jg/yzL6u0vBpzECnfzQD3ddaFYgWEmCWSpbjPh1uofvzY9Hpo6esMobejuDlgRJy+fgf+jwuSHwby7wPd7vCQXrxWjFC9gFqirOYb/iJ95fSv+fWZp83wDoIObXBbIUiXif8Gjx94Z7vCFG4Gr+w6syRei86hrfjF5w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VE6JOs5Z; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=qjAYw9tB3uDfaymXX36tk2uYMfiM9+78Oyg5bG1An8Ko5DZs2SZGGH8Q8RrytYEjpWNMIjDQJkVXRqcFiQhs25hUqcURDab3aSLbar9ewaKuRUvIWLuWtZCkoAdQBSp0P3mHMEVFSdgvvG9PR2Z5jaIk2gi3HnDHaMtFxEefdc4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Rk6QCGUz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VE6JOs5Z"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1F3C1F000E9;
-	Fri, 21 Aug 2026 18:34:43 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Rk6QCGUz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54FDB1F000E9;
+	Fri, 21 Aug 2026 18:52:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787337288;
-	bh=oMBCnKRxKdS8Q3i2Mwvd1NJnQGm8tP9hnWkr5qGiIIk=;
+	s=k20260515; t=1787338339;
+	bh=b1BHtoNef4td6Og2iN6g1HbZL10mPM2Ly/XyYiAnVCg=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=VE6JOs5ZJj3dEjBzNPO4iPDfwuEjv0FsIv+vdc8KAnBGDN/QyXvPtzibDYbgCaNB+
-	 0qKQDP7MVhwfGi4k8B3e5K3OgNolhxfJ4A6wZnnTYQFzqZrel/QFBM7QcLzRON1VA2
-	 LazEpVjV6bJmbfnO2imsIZUM0mqHw4kD6blPmx+UpT1lUA2lqkJRbDWFZ5Umqd56/S
-	 LlNgcQcce4ULiYlUhok3cGbtugaiJxEgWRfzd+HqDvXBBRk47VVPvUYd7I4Gq/4PJt
-	 aWDJcrVOZbmLbUu5lbHdTfLcpSOkTNZmfg1nD1l0OAGtiGJgcy4cWISjaFOf0C7k4X
-	 bmw4bpPl83HUA==
-Date: Fri, 21 Aug 2026 19:34:41 +0100
+	b=Rk6QCGUzCZBsasCr/5vVPikhT1k7x2I/nEl+6mwH3QqZ1LsZqAktAG9teYTJW/0Yf
+	 rQgob+ZL0jX4pwL7soVlD0N6QpwSGKyD/ixmIP/zx274iknFX2G+3qo1r1ekFrsPnz
+	 IThkxrEQPLRhMukqYrxLSenuQ3iWYu2HZ+PW97vI8/Ar6c2HoWQfaTsTX62UAv9348
+	 u1FoWSqxGLWXqPtmc0ncBX6onVTxn04mHQNzkB/r2zrJ4joBxRduJPW1rdt4J5hOwn
+	 KmRIWkYTD+3PRbVlx0NdK9o5eUgVGbl0a62Ev+k78ABMvBtZwY8p+YpcKo+1GbSdX0
+	 XEecZhcBdhdnw==
+Date: Fri, 21 Aug 2026 19:52:11 +0100
 From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
 To: Jann Horn <jannh@google.com>
-Cc: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
+Cc: "David Hildenbrand (Arm)" <david@kernel.org>, 
+	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
 	"Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
 	Jeff Xu <jeffxu@google.com>, =?utf-8?B?VGhpw6liYXVk?= Weksteen <tweek@google.com>, 
 	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
 	linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org, 
 	Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org, 
 	Andrew Morton <akpm@linux-foundation.org>, "Liam R. Howlett" <liam@infradead.org>, 
-	Vlastimil Babka <vbabka@kernel.org>, Pedro Falcato <pfalcato@suse.de>, 
-	David Hildenbrand <david@kernel.org>, linux-mm@kvack.org
-Subject: Re: [PATCH 1/3] proc: refactor /proc/$pid/mem to use struct as
- private_data
-Message-ID: <aoiXvKXQK__0cSWL@gremlin>
+	Vlastimil Babka <vbabka@kernel.org>, Pedro Falcato <pfalcato@suse.de>, linux-mm@kvack.org
+Subject: Re: [PATCH 2/3] proc: query LSMs for introspective mem access (if
+ PROC_MEM_FORCE_ALWAYS)
+Message-ID: <aoibvf6CY99IXynk@gremlin>
 References: <20260818-selinux-pokemem-v1-0-90cd2357ee05@google.com>
- <20260818-selinux-pokemem-v1-1-90cd2357ee05@google.com>
+ <20260818-selinux-pokemem-v1-2-90cd2357ee05@google.com>
+ <741a833d-6889-4ee6-9322-d6a3a8b95893@kernel.org>
+ <CAG48ez2Ngo3=VtyykXY6ynVzGwA8px-p4zV3V6U=YfgV-Hy4BA@mail.gmail.com>
+ <dd8c34a9-0e09-453b-88e1-0a5511816627@kernel.org>
+ <CAG48ez2bZEV+3ww2x9XV_5vRPZ_3jU_zg6+h=BDKQ94Xrd3Tqg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260818-selinux-pokemem-v1-1-90cd2357ee05@google.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAG48ez2bZEV+3ww2x9XV_5vRPZ_3jU_zg6+h=BDKQ94Xrd3Tqg@mail.gmail.com>
 
-On Tue, Aug 18, 2026 at 09:51:05PM +0200, Jann Horn wrote:
-> Refactor the handlers for proc_mem_operations to use the new struct
-> mem_private as ->private_data, rather than directly storing an mm_struct*
-> in ->private_data.
+On Fri, Aug 21, 2026 at 04:48:32PM +0200, Jann Horn wrote:
+> On Fri, Aug 21, 2026 at 4:19 PM David Hildenbrand (Arm)
+> <david@kernel.org> wrote:
+> > On 8/20/26 20:44, Jann Horn wrote:
+> > > On Thu, Aug 20, 2026 at 7:22 PM David Hildenbrand (Arm)
+> > > <david@kernel.org> wrote:
+> > >> On 8/18/26 21:51, Jann Horn wrote:
+> > >>> If the system is running with PROC_MEM_FORCE_ALWAYS, LSMs currently have no
+> > >>> good opportunity to block a process from overwriting read-only code in its
+> > >>> own address space through FOLL_FORCE writes via /proc/self/mem.
+> > >>> The security_ptrace_access_check() LSM hook is bypassed when a process
+> > >>> opens /proc/self/mem because this is considered "introspection".
+> > >>>
+> > >>> This causes a hole in SELinux EXECMEM enforcement, which tries to ensure
+> > >>> that a process cannot create executable anonymous pages.
+> > >>>
+> > >>> PROC_MEM_FORCE_PTRACE prevents that and ensures that such FOLL_FORCE
+> > >>> accesses are only possible when the LSM allows ptrace() attachment; but it
+> > >>> is unclear how quickly PROC_MEM_FORCE_PTRACE can be deployed in
+> > >>> environments running lots of third-party code, such as Android.
+> > >>>
+> > >>> So, introduce a new LSM hook that can forbid FOLL_FORCE specifically for
+> > >>> such "introspective" accesses.
+> > >>>
+> > >>> Signed-off-by: Jann Horn <jannh@google.com>
+> > >>> ---
+> > >>>  fs/proc/base.c                |  6 ++++++
+> > >>>  include/linux/lsm_hook_defs.h |  1 +
+> > >>>  include/linux/security.h      |  6 ++++++
+> > >>>  security/security.c           | 15 +++++++++++++++
+> > >>>  4 files changed, 28 insertions(+)
+> > >>>
+> > >>> diff --git a/fs/proc/base.c b/fs/proc/base.c
+> > >>> index bec6197329dc..3dfaef49bb70 100644
+> > >>> --- a/fs/proc/base.c
+> > >>> +++ b/fs/proc/base.c
+> > >>> @@ -851,6 +851,8 @@ static int __mem_open(struct inode *inode, struct file *file, unsigned int mode)
+> > >>>  /* private_data for proc_mem_operations */
+> > >>>  struct mem_private {
+> > >>>       struct mm_struct *mm;
+> > >>> +     /* Was the ptrace access check bypassed due to introspection? */
+> > >>> +     bool introspection;
+> > >>>  };
+> > >>>
+> > >>>  static int mem_open(struct inode *inode, struct file *file)
+> > >>> @@ -864,12 +866,14 @@ static int mem_open(struct inode *inode, struct file *file)
+> > >>>       priv->mm = proc_mem_open(inode, PTRACE_MODE_ATTACH);
+> > >>>       if (IS_ERR_OR_NULL(priv->mm))
+> > >>>               return priv->mm ? PTR_ERR(priv->mm) : -ESRCH;
+> > >>> +     priv->introspection = priv->mm == current->mm;
+> > >>
+> > >> Is the feat that the fd could be passed to someone else that would then not be
+> > >> detected as introspection?
+> > >
+> > > Yes, exactly, that's the primary reason why I did it this way.
+> >
+> > Okay, would "opened_by_owner" or something like that be clearer? At least
+> > "introspection" is less intuitive for me.
 >
-> This is in preparation for adding more state in mem_private in the next
-> commit.
->
-> Signed-off-by: Jann Horn <jannh@google.com>
+> Ack, I'll rename it to something like that for the next version.
 
-You had me at helper struct Jann, you had me at helper struct :)
+I agree the naming is confusing.
 
-Reviewed-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+OK so the whole thing is:
 
-> ---
->  fs/proc/base.c | 29 ++++++++++++++++++++++++++---
->  1 file changed, 26 insertions(+), 3 deletions(-)
->
-> diff --git a/fs/proc/base.c b/fs/proc/base.c
-> index 780f81259052..bec6197329dc 100644
-> --- a/fs/proc/base.c
-> +++ b/fs/proc/base.c
-> @@ -848,11 +848,24 @@ static int __mem_open(struct inode *inode, struct file *file, unsigned int mode)
->  	return 0;
->  }
->
-> +/* private_data for proc_mem_operations */
-> +struct mem_private {
-> +	struct mm_struct *mm;
-> +};
-> +
->  static int mem_open(struct inode *inode, struct file *file)
->  {
-> +	struct mem_private *priv __free(kfree) = kmalloc_obj(struct mem_private);
-> +
-> +	if (!priv)
-> +		return -ENOMEM;
->  	if (WARN_ON_ONCE(!(file->f_op->fop_flags & FOP_UNSIGNED_OFFSET)))
->  		return -EINVAL;
-> -	return __mem_open(inode, file, PTRACE_MODE_ATTACH);
-> +	priv->mm = proc_mem_open(inode, PTRACE_MODE_ATTACH);
-> +	if (IS_ERR_OR_NULL(priv->mm))
-> +		return priv->mm ? PTR_ERR(priv->mm) : -ESRCH;
-> +	file->private_data = no_free_ptr(priv);
-> +	return 0;
->  }
->
->  static bool proc_mem_foll_force(struct file *file, struct mm_struct *mm)
-> @@ -880,7 +893,8 @@ static bool proc_mem_foll_force(struct file *file, struct mm_struct *mm)
->  static ssize_t mem_rw(struct file *file, char __user *buf,
->  			size_t count, loff_t *ppos, int write)
->  {
-> -	struct mm_struct *mm = file->private_data;
-> +	struct mem_private *priv = file->private_data;
-> +	struct mm_struct *mm = priv->mm;
->  	unsigned long addr = *ppos;
->  	ssize_t copied;
->  	char *page;
-> @@ -970,12 +984,21 @@ static int mem_release(struct inode *inode, struct file *file)
->  	return 0;
->  }
->
-> +static int mem_release_with_private(struct inode *inode, struct file *file)
-> +{
-> +	struct mem_private *priv = file->private_data;
-> +
-> +	mmdrop(priv->mm);
-> +	kfree(priv);
-> +	return 0;
-> +}
+mem_open()
+  -> __mem_open()
+    -> proc_mem_open()
+      -> mm_access()
+        -> may_access_mm()
 
-OK I see that we mm_grab() in proc_mem_open().
+And:
 
-> +
->  static const struct file_operations proc_mem_operations = {
->  	.llseek		= mem_lseek,
->  	.read		= mem_read,
->  	.write		= mem_write,
->  	.open		= mem_open,
-> -	.release	= mem_release,
-> +	.release	= mem_release_with_private,
->  	.fop_flags	= FOP_UNSIGNED_OFFSET,
->  };
->
->
-> --
-> 2.55.0.737.g08866a6d13-goog
->
+static bool may_access_mm(struct mm_struct *mm, struct task_struct *task, unsigned int mode)
+{
+	if (mm == current->mm)
+		return true;
+	...
+}
+
+And what this flag is carrying is 'hey the reason we allowed the _open_ is
+because it's looking at its own address space'.
+
+I did wonder if what you're protecting against is even a process updating
+execmem _it_ owns, no fd shared anywhere, as something LSM might want to
+prevent even so?
+
+The sharing a /proc/mem fd seems like that's a pretty dumb thing to do in
+general :) but I guess you have to protect against that.
+
+But TL;DR I agree with David on the naming, opened_by_owner is probably the
+least-worst way of saying it very plainly and covers both cases.
 
 --
 Cheers, Lorenzo
