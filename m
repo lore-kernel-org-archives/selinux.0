@@ -1,167 +1,176 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34E8C3254AE;
-	Fri, 21 Aug 2026 14:19:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787321943; cv=none; b=UoVpf4/5kmwYXESvZ2AWZ6DdU5IWw21y2ybVRd/GeVeEDm/aGVr7tfV9kBP6bAhlpvL/Q3ZbqZRxEeImTlG3uDWxgamVdAEpzTHcU+qKPqjfXP8telCOy7zhfI9zmwwaILkyztN6OgTNvohRn1jH8q2A+23sx9xMdW1/9555pNY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787321943; c=relaxed/simple;
-	bh=uaR2slDwXXVEKiUuo0ZKpphtjqVaIdsfB7EpkceTycE=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=EqPE1cmty4ZQaQwF69Mltr7RRoXpzP8ULEgZT4f/+iYmUAJynQTYl9qj6J4TLtBGw06D1WoN44NMh8n18HDVhfC61nB9Rb3Ea0lN2pXr5WRFz13Ap80uQOQb417rdKiQ/feea4PbQJlZeq5kH9+3OjjPJqcx8q6F+hj3cqFSZ+c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EjZSYAWO; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61D6735676A
+	for <selinux@vger.kernel.org>; Fri, 21 Aug 2026 14:49:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.179
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787323752; cv=pass; b=WGhHP1Sx44n01gKXS2vvMcq0uxvrgAdsnWWowEWc/Og9lFn6WA/6XuvlbJwcRxmI8U8mU1lMD+TljJNO8HKrNcEru0BS6zcj6VCdOAIPwgPtxbYO/nzLKGjz42z/aBlBJMvkw+QXV5ozvrCb7LJI8TzNmm1skS1xJ2RtXHAtIMI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787323752; c=relaxed/simple;
+	bh=e7lZBlf4BQjKWZ7FXBRUvZEHvETpn0y3fvgbNkdPxwQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=AL1q9llnPFITYjonq4Iw/Tq5V3f5sn1m3HF8HH3QZ64Gomym5f5friqwMhHNnUiuV46z9bjooG0UnTlNkgOl2e4zDWqgp8hpLkM/tGq6jKkKoZnKMlQ0I9X64ljzlpPP/Rsxh3nbvBUSPwR+ZE8KHGAqPZIkxUc+5lQ1Wm44xSc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=nfjl0MYN; arc=pass smtp.client-ip=209.85.214.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EjZSYAWO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 841651F000E9;
-	Fri, 21 Aug 2026 14:18:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787321941;
-	bh=u2XbnGzR4oklypPgE+Viv5JNUn/D8iY5cwkY2Kqvw4E=;
-	h=Date:From:Subject:To:Cc:References:In-Reply-To;
-	b=EjZSYAWO28454RqSV7v89nBk8+YcOGyf5apbjjM7L2GvqAzQasrzCMMMPrPqh6tN2
-	 kRkIwcYM3KXd4a+eGEgaAWwNlI2c8Y/h0qkgIHqXQpCSlALAxzpd0dvHnfUQMALz9G
-	 Ru6tS0xXakGh3n3iyyQu9LPwr0J3OsSMOLtLQMOlDhR1sNYJRUWUQcBDQ8gNrGZAax
-	 ILBqWcxTxG9RrLGzzIIAaUFx5QDCqQn8LBEJIBTzQLpdUcdLNhT+sUmmzLFINod50N
-	 uHQSN1V8PHPDs2C3P8ltB4+y8NhkRl3G1uNFasRFtBVjD6wXe1GDFLFCotx11glIuO
-	 KpEGF8Pbq8DDA==
-Message-ID: <dd8c34a9-0e09-453b-88e1-0a5511816627@kernel.org>
-Date: Fri, 21 Aug 2026 16:18:53 +0200
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="nfjl0MYN"
+Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2cede6375caso101115ad.0
+        for <selinux@vger.kernel.org>; Fri, 21 Aug 2026 07:49:11 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787323751; cv=none;
+        d=google.com; s=arc-20260327;
+        b=bf/yG0xttGSPCbxpyU1BR4f98RBTr1yPWM39gqdty05DgAgpPcBfOXcrVYjtMKq2H7
+         cVYylRJ0e+16bTPJssxT94EMleFRtHBjY/dAjEf4jlPh7ZJmAKoeFTlJqyN1LO6mmSCC
+         KafhV20hIvXhZUlFJGAVKdgT6vUJrmGDcFV9tXumEQQ3S+aWGEJS0/6IWj/NGVTsJDCs
+         DVnQPTPEXrwzCbbShyLuRu/Yp3xv0QxGPVGjrsCjdYkUXgHhFY2pHYGJy/POyvYSIknu
+         HZtcMqjsCL44emWCIb4TYRUgeaqm6m7p6rn1ambauykw+gP3U9tK7/g3miNoyQKRHCkl
+         pzpw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=Vlc/iU0BEBi/KNin4z6a2IXssoOeWKNQCCK9ZmekGRI=;
+        fh=b2fV3Fn7DMUyNTFPz+EY0RCKnX09FVNs7a+VjFyGSfk=;
+        b=aqphAMPmu0TKxkfkGNmM2AuHv7BfcwHOSeGoNxB+qoF42uMhK2LiV7YWP5VjGmyGOx
+         cs4it5iBl1sPWVHIn6xCCe/MWC6qbk1JVQUQ4/+PHKTa6wGATJrMfqomffmCFfmSaI1F
+         3BD8wW2jBrT39NVhiWBlGTnufZnJZQxrYTS5JUoEHApRKsoVMMH2pwf2sG8dXhgMy7eg
+         oKvtQfcOjuKpPYhnX/UEn40qYR/S29Mva6mOd24dtH5zE6FGIQVItbwFgr0yjluoM5RR
+         OQaH96ECKmxsutvARbyjQFLdxqS5WqJlX7vSA/N8hXhyZYMN4pm0kUvS6c5N284qyEDe
+         TTng==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1787323751; x=1787928551; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=Vlc/iU0BEBi/KNin4z6a2IXssoOeWKNQCCK9ZmekGRI=;
+        b=nfjl0MYNhwStfkYy8/CHTnFDsoMZ4CVqW2rtTKJlAbbemwhyF5xS6dd7yTgR2Q39q3
+         TTHgoVR6lZwYqmPkQNkUAKHsnwrgCrIjquDbQFjoSzQi2HLOU25WJWNe8bWtZEXr0++Q
+         n8ovWBvKdDvsuXSu3wT+AZqxDQ08QXVnnByhhvSbRd1uh1Hkawc+b2OmMOALI2ihZbsC
+         k8dDAXRNmB4+oOtmA4H9ul2iUAp9Wn5SI5pepMHPoYRoWIf9hMujbM0MuZoFCpqaPGSB
+         wVD3zj1ABw9iufj1HY6F2kmJXZFqR9/fMLme2LHClPCNKFv4K+pwEr1pOloFXf0MGCnr
+         1SuA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787323751; x=1787928551;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Vlc/iU0BEBi/KNin4z6a2IXssoOeWKNQCCK9ZmekGRI=;
+        b=G1A8zCpOfvwfFeFAbVWEY5gK3WZVzqARwreaTymyQ05vnAkCsJuILk10FTvnOaLYTa
+         TjubC/TyPOTT3GU3oJExuwCsBfiWhiuEBeVCYwx2RHIZmGLSAlTvEBvZc2PwtP9zq14b
+         +UQ95106WsrlRV0XINRYlmqtJQBBjrnjrqqmK4VM79xE7/5nf35NMYYNdhOC2tES7tyF
+         v1+L97hysCCYeYX+T75ONdGF5F2ISG/zlCQCzgb8MFqWPiNY8+z2dgLzlbKSKQ/a8ReR
+         aF/0dc+++OcyaybwAY/JWpY01zTSHQFYO+FN0Dwzepb2mVe6oaHqilKS8IZqKZXHgAtI
+         /zZw==
+X-Forwarded-Encrypted: i=1; AHgh+Rrhv7qnj57GLEJCOkobwDgeKhVygt8wzBGlbyBqOcADJDExrGWkw4LVTurpWgmiD0JON5hX1Sj7@vger.kernel.org
+X-Gm-Message-State: AFuF++mcEJBm5/KN1E3i28daZwA6PC4WFpklhp33yY34DO9yPMYC/Q5U
+	IBuVUH+ZGJm1UzhV7h6RaA+rU9bHVfT+13aurgBixwiYHXCuVmo/rxoKjk1GlcIcXb5lPPoXSXr
+	SJmUkc8wa4P+fxb1dVytakDBdgnqwBWj8xVWmzT5g
+X-Gm-Gg: AR+sD135BNDexoH5Il05oRsfkEs58DFVAHn9qCYoOS8c0ZCcLoGka1EGR505tvDEshv
+	cRSIkRcfJEJt2ClLFizqkxaVlnP138D1nJL3zISoPvKNRK1jdhPbzBiu+5A0blzS3Gp0a1oCbkU
+	pSd84ZDIYktt/LQFCPlcMgNI2gH5yLkkPi3uzpUE/zhKPEr3RbSJHynJLWWHr0i+s4PMzsI0xAs
+	0qfrhLxLZJuveWq0YUpl5aZlqK0CBPgDCKw4CFi7DmUd1MlegSa1adKBFCH+1Hs06dQLPUir5lC
+	rzcmGPFjS97XUb53F2nKlJofZu5XJbrFRJcm8zzGBV+q+DDRW4r+nFTCOacIiYrpIJEj97mUxIj
+	Zu4ta4Tk2JHTjlE6OwsdVgibPtF36w60gRs5145g=
+X-Received: by 2002:a17:902:d98d:b0:2bd:3bfd:74f1 with SMTP id
+ d9443c01a7336-2d64b0242damr7580045ad.2.1787323750012; Fri, 21 Aug 2026
+ 07:49:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Subject: Re: [PATCH 2/3] proc: query LSMs for introspective mem access (if
- PROC_MEM_FORCE_ALWAYS)
-To: Jann Horn <jannh@google.com>
-Cc: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
- "Serge E. Hallyn" <serge@hallyn.com>,
- Stephen Smalley <stephen.smalley.work@gmail.com>, Jeff Xu
- <jeffxu@google.com>, =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
- linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
- Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>,
- "Liam R. Howlett" <liam@infradead.org>, Lorenzo Stoakes <ljs@kernel.org>,
- Vlastimil Babka <vbabka@kernel.org>, Pedro Falcato <pfalcato@suse.de>,
- linux-mm@kvack.org
 References: <20260818-selinux-pokemem-v1-0-90cd2357ee05@google.com>
- <20260818-selinux-pokemem-v1-2-90cd2357ee05@google.com>
- <741a833d-6889-4ee6-9322-d6a3a8b95893@kernel.org>
- <CAG48ez2Ngo3=VtyykXY6ynVzGwA8px-p4zV3V6U=YfgV-Hy4BA@mail.gmail.com>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <CAG48ez2Ngo3=VtyykXY6ynVzGwA8px-p4zV3V6U=YfgV-Hy4BA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+ <20260818-selinux-pokemem-v1-2-90cd2357ee05@google.com> <741a833d-6889-4ee6-9322-d6a3a8b95893@kernel.org>
+ <CAG48ez2Ngo3=VtyykXY6ynVzGwA8px-p4zV3V6U=YfgV-Hy4BA@mail.gmail.com> <dd8c34a9-0e09-453b-88e1-0a5511816627@kernel.org>
+In-Reply-To: <dd8c34a9-0e09-453b-88e1-0a5511816627@kernel.org>
+From: Jann Horn <jannh@google.com>
+Date: Fri, 21 Aug 2026 16:48:32 +0200
+X-Gm-Features: AcwNN1XIz1KzlKUYbPV7VaC7KEh2VkyaYQONO-MSpK_iCwFkMVBjZQBPINMVB_Y
+Message-ID: <CAG48ez2bZEV+3ww2x9XV_5vRPZ_3jU_zg6+h=BDKQ94Xrd3Tqg@mail.gmail.com>
+Subject: Re: [PATCH 2/3] proc: query LSMs for introspective mem access (if PROC_MEM_FORCE_ALWAYS)
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
+	"Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Jeff Xu <jeffxu@google.com>, =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+	linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org, 
+	Andrew Morton <akpm@linux-foundation.org>, "Liam R. Howlett" <liam@infradead.org>, 
+	Lorenzo Stoakes <ljs@kernel.org>, Vlastimil Babka <vbabka@kernel.org>, Pedro Falcato <pfalcato@suse.de>, 
+	linux-mm@kvack.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 8/20/26 20:44, Jann Horn wrote:
-> On Thu, Aug 20, 2026 at 7:22 PM David Hildenbrand (Arm)
-> <david@kernel.org> wrote:
->> On 8/18/26 21:51, Jann Horn wrote:
->>> If the system is running with PROC_MEM_FORCE_ALWAYS, LSMs currently have no
->>> good opportunity to block a process from overwriting read-only code in its
->>> own address space through FOLL_FORCE writes via /proc/self/mem.
->>> The security_ptrace_access_check() LSM hook is bypassed when a process
->>> opens /proc/self/mem because this is considered "introspection".
->>>
->>> This causes a hole in SELinux EXECMEM enforcement, which tries to ensure
->>> that a process cannot create executable anonymous pages.
->>>
->>> PROC_MEM_FORCE_PTRACE prevents that and ensures that such FOLL_FORCE
->>> accesses are only possible when the LSM allows ptrace() attachment; but it
->>> is unclear how quickly PROC_MEM_FORCE_PTRACE can be deployed in
->>> environments running lots of third-party code, such as Android.
->>>
->>> So, introduce a new LSM hook that can forbid FOLL_FORCE specifically for
->>> such "introspective" accesses.
->>>
->>> Signed-off-by: Jann Horn <jannh@google.com>
->>> ---
->>>  fs/proc/base.c                |  6 ++++++
->>>  include/linux/lsm_hook_defs.h |  1 +
->>>  include/linux/security.h      |  6 ++++++
->>>  security/security.c           | 15 +++++++++++++++
->>>  4 files changed, 28 insertions(+)
->>>
->>> diff --git a/fs/proc/base.c b/fs/proc/base.c
->>> index bec6197329dc..3dfaef49bb70 100644
->>> --- a/fs/proc/base.c
->>> +++ b/fs/proc/base.c
->>> @@ -851,6 +851,8 @@ static int __mem_open(struct inode *inode, struct file *file, unsigned int mode)
->>>  /* private_data for proc_mem_operations */
->>>  struct mem_private {
->>>       struct mm_struct *mm;
->>> +     /* Was the ptrace access check bypassed due to introspection? */
->>> +     bool introspection;
->>>  };
->>>
->>>  static int mem_open(struct inode *inode, struct file *file)
->>> @@ -864,12 +866,14 @@ static int mem_open(struct inode *inode, struct file *file)
->>>       priv->mm = proc_mem_open(inode, PTRACE_MODE_ATTACH);
->>>       if (IS_ERR_OR_NULL(priv->mm))
->>>               return priv->mm ? PTR_ERR(priv->mm) : -ESRCH;
->>> +     priv->introspection = priv->mm == current->mm;
->>
->> Is the feat that the fd could be passed to someone else that would then not be
->> detected as introspection?
-> 
-> Yes, exactly, that's the primary reason why I did it this way.
+On Fri, Aug 21, 2026 at 4:19=E2=80=AFPM David Hildenbrand (Arm)
+<david@kernel.org> wrote:
+> On 8/20/26 20:44, Jann Horn wrote:
+> > On Thu, Aug 20, 2026 at 7:22=E2=80=AFPM David Hildenbrand (Arm)
+> > <david@kernel.org> wrote:
+> >> On 8/18/26 21:51, Jann Horn wrote:
+> >>> If the system is running with PROC_MEM_FORCE_ALWAYS, LSMs currently h=
+ave no
+> >>> good opportunity to block a process from overwriting read-only code i=
+n its
+> >>> own address space through FOLL_FORCE writes via /proc/self/mem.
+> >>> The security_ptrace_access_check() LSM hook is bypassed when a proces=
+s
+> >>> opens /proc/self/mem because this is considered "introspection".
+> >>>
+> >>> This causes a hole in SELinux EXECMEM enforcement, which tries to ens=
+ure
+> >>> that a process cannot create executable anonymous pages.
+> >>>
+> >>> PROC_MEM_FORCE_PTRACE prevents that and ensures that such FOLL_FORCE
+> >>> accesses are only possible when the LSM allows ptrace() attachment; b=
+ut it
+> >>> is unclear how quickly PROC_MEM_FORCE_PTRACE can be deployed in
+> >>> environments running lots of third-party code, such as Android.
+> >>>
+> >>> So, introduce a new LSM hook that can forbid FOLL_FORCE specifically =
+for
+> >>> such "introspective" accesses.
+> >>>
+> >>> Signed-off-by: Jann Horn <jannh@google.com>
+> >>> ---
+> >>>  fs/proc/base.c                |  6 ++++++
+> >>>  include/linux/lsm_hook_defs.h |  1 +
+> >>>  include/linux/security.h      |  6 ++++++
+> >>>  security/security.c           | 15 +++++++++++++++
+> >>>  4 files changed, 28 insertions(+)
+> >>>
+> >>> diff --git a/fs/proc/base.c b/fs/proc/base.c
+> >>> index bec6197329dc..3dfaef49bb70 100644
+> >>> --- a/fs/proc/base.c
+> >>> +++ b/fs/proc/base.c
+> >>> @@ -851,6 +851,8 @@ static int __mem_open(struct inode *inode, struct=
+ file *file, unsigned int mode)
+> >>>  /* private_data for proc_mem_operations */
+> >>>  struct mem_private {
+> >>>       struct mm_struct *mm;
+> >>> +     /* Was the ptrace access check bypassed due to introspection? *=
+/
+> >>> +     bool introspection;
+> >>>  };
+> >>>
+> >>>  static int mem_open(struct inode *inode, struct file *file)
+> >>> @@ -864,12 +866,14 @@ static int mem_open(struct inode *inode, struct=
+ file *file)
+> >>>       priv->mm =3D proc_mem_open(inode, PTRACE_MODE_ATTACH);
+> >>>       if (IS_ERR_OR_NULL(priv->mm))
+> >>>               return priv->mm ? PTR_ERR(priv->mm) : -ESRCH;
+> >>> +     priv->introspection =3D priv->mm =3D=3D current->mm;
+> >>
+> >> Is the feat that the fd could be passed to someone else that would the=
+n not be
+> >> detected as introspection?
+> >
+> > Yes, exactly, that's the primary reason why I did it this way.
+>
+> Okay, would "opened_by_owner" or something like that be clearer? At least
+> "introspection" is less intuitive for me.
 
-Okay, would "opened_by_owner" or something like that be clearer? At least
-"introspection" is less intuitive for me.
-
--- 
-Cheers,
-
-David
-
+Ack, I'll rename it to something like that for the next version.
