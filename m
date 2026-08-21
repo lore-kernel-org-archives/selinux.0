@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C62C638837A;
-	Fri, 21 Aug 2026 18:56:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C6AA389104;
+	Fri, 21 Aug 2026 19:00:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787338606; cv=none; b=WnO1Mc7CFt92Q68ZDRSQ2FjvRr9eYA99Qc3i3FY/d2bD8QST0t5nBBrAnJiYsONphLD9I92MrjCNmDdd7VMiPNSTOi3FAr4NIsdIBYE9yUZWubUC7/aAx6XhfE07/GPffH2VTDTSQTH4p6W83mcGoRJrCJZYf627m7TTPFKnQkI=
+	t=1787338846; cv=none; b=sUScS5hvhbIOS0mTb2kSnltMeD9m+y03videg8hemC821Wg0tST8iatoPncOhiSHXj66p3b83idpKAXviHP4lI72dgT4tU/CMDly2xABDlS9vOepw8/brfmWpr5vFo4SQ/JeqRw3O4SeZM9fkPBWmYXTFY5y4Xcx1rA+ZaGDNls=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787338606; c=relaxed/simple;
-	bh=1KpZmKEJQ7X5VZkSeRdiddTD36aoG3CXbYPnXDhvgn4=;
+	s=arc-20240116; t=1787338846; c=relaxed/simple;
+	bh=sJMt2+jcVX1k3HFVL2ohPOWYZ1ZC+u7VBGIFRLs38O4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EKrwZQ+0YS+NgOUEWKlSIYBcB7X3QF1aA8I4eHUH1OwSB60ksQJIp+gPDlwnR5elP9mdKJ6qTxWogtRID+1/uWWFvwRnoBcnaqgTKF4+LDao/LGyu3E9G7y/g0JhUmTlZtzW9Qq9N2VpDmOvfG2UL3hVqGqneUz9KwnaO7fyXAw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AkQCNnKS; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=c1jfuMi6dSxy/q3kei78f+4sCHozes3ZrHVebuu581In9NQcSfD6c2L4Qv6TWzmLKWomoZM2+DmtF2YpE9uCCNSoYXaW+SGid0vpTT1sUgdHcMgfGL8dWM0cSM0eyJM5v3SLnG3XumH/FzuCLZ8cfHb0q6+S7JGWryv04kDbrWo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PvGzyhO/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AkQCNnKS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 578281F000E9;
-	Fri, 21 Aug 2026 18:56:40 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PvGzyhO/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51E5C1F00A3D;
+	Fri, 21 Aug 2026 19:00:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787338605;
-	bh=ujt60NbqKdENBZQ77CfcHaeZZJdQN/p1Z76EsgS+bZg=;
+	s=k20260515; t=1787338844;
+	bh=IEagc8SPvaN9Oa8aVDhOR1OaWuRI/QhLc1rk2xR/OeI=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=AkQCNnKSYtat8UOrPuf3sJGUEh9Lh4vv8cbwauS2+Ujg9OR7NymCiidbW3iofdpqh
-	 2UTIvDx/sbK+DCcqDmnjJ0+dYnszaWEFLJZpba7EMR1VYBMV6sv9tU+fiqCmvLn9tC
-	 LH9DMx678+JdiqTYy+EYOXbMvxH4opD9EtFNKl8Yb4zD/TPGH+WAyk28xShPYxtIsF
-	 O9ssFux5L5RUDcGOW4BeljnVwHa4hlt8tYY2q1zhH2Om5asNwkbl6TqOEoLTdpRxsu
-	 ZzchuFaq5oc21qL4Bz1vZM8F1ud+eeWayItx+1N0O/b0xrBQASVryR+pvI35Sy1K03
-	 tCTJLEnmsG7mQ==
-Date: Fri, 21 Aug 2026 19:56:37 +0100
+	b=PvGzyhO/TCg78i4TiCwfMnJRwrKx7JYZd3h0Y7oeoimxcZzu3dVhDc9n3IV3Hxx5x
+	 wRuCEK/MZio1uqv0KZr8DYt9EI6twnrrm0D71OOF9CgvLRk0NWVDoJHUvN0YkHXlJK
+	 sCRdrQhAcH9dogaUc3//75WN6R9lMm/InG/xkGpiiCmcAJqdwZGtTp0Ev80CmflA4q
+	 ofmSK00z5G2iiA1fcljuDrSbJcoFhQX2LhkmvOyofNUYlfXehJD/fqUl/CS+jeYcIl
+	 4hzD/J0JgIZrP3oJdw68GrBwXNAgDrZzjs5+IkT9z4XX2Lb2SpRCgr39slcYaB0hpe
+	 hfx8qAZhxA2Lw==
+Date: Fri, 21 Aug 2026 20:00:36 +0100
 From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
 To: Jann Horn <jannh@google.com>
 Cc: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
@@ -38,11 +38,11 @@ Cc: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
 	Andrew Morton <akpm@linux-foundation.org>, "Liam R. Howlett" <liam@infradead.org>, 
 	Vlastimil Babka <vbabka@kernel.org>, Pedro Falcato <pfalcato@suse.de>, 
 	David Hildenbrand <david@kernel.org>, linux-mm@kvack.org
-Subject: Re: [PATCH 3/3] selinux: require EXECMEM or PTRACE for FOLL_FORCE
- introspection
-Message-ID: <aoie0oyojqdHciKM@gremlin>
+Subject: Re: [PATCH 2/3] proc: query LSMs for introspective mem access (if
+ PROC_MEM_FORCE_ALWAYS)
+Message-ID: <aoifijlkCRzeO4bj@gremlin>
 References: <20260818-selinux-pokemem-v1-0-90cd2357ee05@google.com>
- <20260818-selinux-pokemem-v1-3-90cd2357ee05@google.com>
+ <20260818-selinux-pokemem-v1-2-90cd2357ee05@google.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -51,83 +51,151 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260818-selinux-pokemem-v1-3-90cd2357ee05@google.com>
+In-Reply-To: <20260818-selinux-pokemem-v1-2-90cd2357ee05@google.com>
 
-On Tue, Aug 18, 2026 at 09:51:07PM +0200, Jann Horn wrote:
-> On systems configured with PROC_MEM_FORCE_ALWAYS, ensure that a process can
-> only create anonymous executable memory via /proc/self/mem if it has one
-> of:
+On Tue, Aug 18, 2026 at 09:51:06PM +0200, Jann Horn wrote:
+> If the system is running with PROC_MEM_FORCE_ALWAYS, LSMs currently have no
+> good opportunity to block a process from overwriting read-only code in its
+> own address space through FOLL_FORCE writes via /proc/self/mem.
+> The security_ptrace_access_check() LSM hook is bypassed when a process
+> opens /proc/self/mem because this is considered "introspection".
 >
->  - EXECMEM (like for other methods of creating anonymous executable pages)
->  - PTRACE (like when using /proc/$pid/mem of another process)
+> This causes a hole in SELinux EXECMEM enforcement, which tries to ensure
+> that a process cannot create executable anonymous pages.
 >
-> This closes a hole in EXECMEM enforcement that Project Zero has used in a
-> remote Android exploit chain:
-> It was possible to use a memory corruption bug in a service without EXECMEM
-> permission to overwrite executable code via /proc/self/mem, which made it
-> possible to load and run shellcode with a kernel exploit.
+> PROC_MEM_FORCE_PTRACE prevents that and ensures that such FOLL_FORCE
+> accesses are only possible when the LSM allows ptrace() attachment; but it
+> is unclear how quickly PROC_MEM_FORCE_PTRACE can be deployed in
+> environments running lots of third-party code, such as Android.
+>
+> So, introduce a new LSM hook that can forbid FOLL_FORCE specifically for
+> such "introspective" accesses.
 >
 > Signed-off-by: Jann Horn <jannh@google.com>
 > ---
->  security/selinux/hooks.c | 27 +++++++++++++++++++++++++++
->  1 file changed, 27 insertions(+)
+>  fs/proc/base.c                |  6 ++++++
+>  include/linux/lsm_hook_defs.h |  1 +
+>  include/linux/security.h      |  6 ++++++
+>  security/security.c           | 15 +++++++++++++++
+>  4 files changed, 28 insertions(+)
 >
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 18dd28b2bb13..905137c47321 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -2157,6 +2157,32 @@ static int selinux_ptrace_traceme(struct task_struct *parent)
->  			    SECCLASS_PROCESS, PROCESS__PTRACE, NULL);
+> diff --git a/fs/proc/base.c b/fs/proc/base.c
+> index bec6197329dc..3dfaef49bb70 100644
+> --- a/fs/proc/base.c
+> +++ b/fs/proc/base.c
+> @@ -851,6 +851,8 @@ static int __mem_open(struct inode *inode, struct file *file, unsigned int mode)
+>  /* private_data for proc_mem_operations */
+>  struct mem_private {
+>  	struct mm_struct *mm;
+> +	/* Was the ptrace access check bypassed due to introspection? */
+> +	bool introspection;
+>  };
+>
+>  static int mem_open(struct inode *inode, struct file *file)
+> @@ -864,12 +866,14 @@ static int mem_open(struct inode *inode, struct file *file)
+>  	priv->mm = proc_mem_open(inode, PTRACE_MODE_ATTACH);
+>  	if (IS_ERR_OR_NULL(priv->mm))
+>  		return priv->mm ? PTR_ERR(priv->mm) : -ESRCH;
+> +	priv->introspection = priv->mm == current->mm;
+>  	file->private_data = no_free_ptr(priv);
+>  	return 0;
 >  }
 >
-> +/*
-> + * Decide whether it should be possible to read non-readable VMAs and write
-> + * non-writable VMAs via /proc/self/mem.
-> + * This only applies to systems configured with PROC_MEM_FORCE_ALWAYS, and only
-> + * triggers on accesses that are not visible to selinux_ptrace_access_check().
+>  static bool proc_mem_foll_force(struct file *file, struct mm_struct *mm)
+>  {
+> +	struct mem_private *priv = file->private_data;
+>  	struct task_struct *task;
+>  	bool ptrace_active = false;
+>
+> @@ -886,6 +890,8 @@ static bool proc_mem_foll_force(struct file *file, struct mm_struct *mm)
+>  		}
+>  		return ptrace_active;
+>  	default:
+> +		if (priv->introspection)
+> +			return security_introspect_mem_foll_force(file->f_cred) == 0;
 
-It might be worth mentioning may_access_mm() here, and obviously propagate the
-suggested name change introspection -> opened_by_owner or fd_from_order maybe
-even?
+As per 3/3 I wonder if you need an additional parameter to cover the fd -> some
+other process case?
 
-> + *
-> + * This allows a process to overwrite read-only code in its own address space.
-> + *
-> + * Creating an audit record on denial doesn't make sense here, since we can't
-> + * tell whether FOLL_FORCE matters for the accessed VMAs.
-> + */
-> +static int selinux_introspect_mem_foll_force(const struct cred *subject)
+Like:
+	if (priv->owned_by_owner) {
+		const bool is_remote = current->mm != priv->mm;
+
+		return !security_fd_from_owner_mem_foll_force(file->f_cred,
+				is_remote);
+	}
+
+(I'm not sure how LSM hooks are supposed to look :)
+
+>  		return true;
+>  	}
+>  }
+> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+> index 65c9609ec207..67452f71bedf 100644
+> --- a/include/linux/lsm_hook_defs.h
+> +++ b/include/linux/lsm_hook_defs.h
+> @@ -36,6 +36,7 @@ LSM_HOOK(int, 0, binder_transfer_file, const struct cred *from,
+>  LSM_HOOK(int, 0, ptrace_access_check, struct task_struct *child,
+>  	 unsigned int mode)
+>  LSM_HOOK(int, 0, ptrace_traceme, struct task_struct *parent)
+> +LSM_HOOK(int, 0, introspect_mem_foll_force, const struct cred *subject)
+>  LSM_HOOK(int, 0, capget, const struct task_struct *target, kernel_cap_t *effective,
+>  	 kernel_cap_t *inheritable, kernel_cap_t *permitted)
+>  LSM_HOOK(int, 0, capset, struct cred *new, const struct cred *old,
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index 153e9043058f..f8483be58bc8 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -338,6 +338,7 @@ int security_binder_transfer_file(const struct cred *from,
+>  				  const struct cred *to, const struct file *file);
+>  int security_ptrace_access_check(struct task_struct *child, unsigned int mode);
+>  int security_ptrace_traceme(struct task_struct *parent);
+> +int security_introspect_mem_foll_force(const struct cred *subject);
+>  int security_capget(const struct task_struct *target,
+>  		    kernel_cap_t *effective,
+>  		    kernel_cap_t *inheritable,
+> @@ -676,6 +677,11 @@ static inline int security_ptrace_traceme(struct task_struct *parent)
+>  	return cap_ptrace_traceme(parent);
+>  }
+>
+> +static inline int security_introspect_mem_foll_force(const struct cred *subject)
 > +{
-> +	struct av_decision avd;
-> +	int rc;
-> +	u32 sid = cred_sid(subject);
-> +
-> +	/* Allow if the process is generally allowed to have executable anonymous memory. */
-> +	rc = avc_has_perm_noaudit(sid, sid, SECCLASS_PROCESS, PROCESS__EXECMEM, 0, &avd);
-
-But does it make sense for the shared-by-fd case? In that case you're now
-updating execmem for another process's memory right?
-
-
-
-> +
-> +	/* Also allow if selinux_ptrace_access_check() would allow it. */
-> +	if (rc)
-> +		rc = avc_has_perm_noaudit(sid, sid, SECCLASS_PROCESS, PROCESS__PTRACE, 0, &avd);
-> +	return rc;
+> +	return 0;
 > +}
 > +
->  static int selinux_capget(const struct task_struct *target, kernel_cap_t *effective,
->  			  kernel_cap_t *inheritable, kernel_cap_t *permitted)
->  {
-> @@ -7558,6 +7584,7 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
+>  static inline int security_capget(const struct task_struct *target,
+>  				   kernel_cap_t *effective,
+>  				   kernel_cap_t *inheritable,
+> diff --git a/security/security.c b/security/security.c
+> index 71aea8fdf014..d0f790a534eb 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -595,6 +595,21 @@ int security_ptrace_traceme(struct task_struct *parent)
+>  	return call_int_hook(ptrace_traceme, parent);
+>  }
 >
->  	LSM_HOOK_INIT(ptrace_access_check, selinux_ptrace_access_check),
->  	LSM_HOOK_INIT(ptrace_traceme, selinux_ptrace_traceme),
-> +	LSM_HOOK_INIT(introspect_mem_foll_force, selinux_introspect_mem_foll_force),
->  	LSM_HOOK_INIT(capget, selinux_capget),
->  	LSM_HOOK_INIT(capset, selinux_capset),
->  	LSM_HOOK_INIT(capable, selinux_capable),
+> +/**
+> + * security_introspect_mem_foll_force() - Check if introspective FOLL_FORCE is allowed
+> + * @subject: credentials of the process accessing its own memory
+> + *
+> + * Check if FOLL_FORCE is allowed for a process accessing its own memory, which
+> + * bypasses the security_ptrace_access_check() hook.
+
+This should be updated to also explicitly mention the fd case. As surely in that
+case this is not true? Unless I'm missing something.
+
+> + * This is only used when the system is configured with PROC_MEM_FORCE_ALWAYS.
+> + *
+> + * Return: Returns 0 if permission is granted.
+> + */
+> +int security_introspect_mem_foll_force(const struct cred *subject)
+> +{
+> +	return call_int_hook(introspect_mem_foll_force, subject);
+> +}
+> +
+>  /**
+>   * security_capget() - Get the capability sets for a process
+>   * @target: target process
 >
 > --
 > 2.55.0.737.g08866a6d13-goog
