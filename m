@@ -1,179 +1,146 @@
-Received: from mail-oa1-f47.google.com (mail-oa1-f47.google.com [209.85.160.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E8EC383994
-	for <selinux@vger.kernel.org>; Fri, 21 Aug 2026 18:20:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.47
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787336444; cv=pass; b=dmxiwOsQavr/yyiFI6OQyC9mqLHAOMzko07JpgKZTFOKJ9gOCz8mgwOscR6QI2Q/HTDG7m7sMH9FQMyJEFqnHc1VBic09K+t5pXLGMNJGSs3LBMzCyl5LDc9wJTzz3mPpbjTCIk56mpjNsTRkdR7Gvn12bFNZkilYKeVVCBwfv0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787336444; c=relaxed/simple;
-	bh=0jl6nI4TwrprIJeWhBr1CYQZqt57EJMbSePY6OM4ARY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bt0O6tjdX5T3NQxoFDkOnY4IXJxFEh4RDSHlsfvErOQn30nv5tlwRR83O0uYFwgMInB8XrkR9KJGszTtLmPiknbg5RT055wAZb3HFdrJZln+HiDWZM+bmmmYvLRhh4WfXbeDJqVCq5SLerD5VuIsr98hSPQBiUC5sJllE/3iRVY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aiM6sOw7; arc=pass smtp.client-ip=209.85.160.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36F802701B6;
+	Fri, 21 Aug 2026 18:34:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787337290; cv=none; b=SrffF0IxUwmk7+v9rnBQg3wm0ISLCdz4V2Nsy2IbNryOW+imbPd7eEIQ9LOPU5od4Jv0r0jNNIL6j/3nt0tk3QrolVtv31AvTyZ02mrPqGRrmJaSabfhXXkqYasSsp0cZH05kMklWWV9Opx7WPhMmod7hr+ecdZBywNrb2MR9qQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787337290; c=relaxed/simple;
+	bh=fVr+wxu9Ixq/fMW3AgVfjo3ZziXDIROe48bL5m3NI14=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hoEPW8b3Jg/yzL6u0vBpzECnfzQD3ddaFYgWEmCWSpbjPh1uofvzY9Hpo6esMobejuDlgRJy+fgf+jwuSHwby7wPd7vCQXrxWjFC9gFqirOYb/iJ95fSv+fWZp83wDoIObXBbIUiXif8Gjx94Z7vCFG4Gr+w6syRei86hrfjF5w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VE6JOs5Z; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aiM6sOw7"
-Received: by mail-oa1-f47.google.com with SMTP id 586e51a60fabf-455ee8f529dso453200fac.1
-        for <selinux@vger.kernel.org>; Fri, 21 Aug 2026 11:20:43 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1787336442; cv=none;
-        d=google.com; s=arc-20260327;
-        b=FekqB3npsxoOmm1cmRDbGoxSxyJQLa1Mq5e8NWC0fMrIrX1pw6nPFn6n/+HHI2zSWi
-         bLGaiNO6cDG04NnrW7VHpir68Z5pt5qs6Zsrjpmtd2bsgMXeJASnZyQlhybG/6w205u4
-         coHSAhhOhRa2aTIVYJVg3YkkTj58F11upitvrN8GCGaHYNj+ZSogHsgFpFTzXXPf/f+B
-         mR3MI5Hm3vtfpbI2pb5LiPu3WOFPQRgslS6wgnqv6t+G1YiGqXC25/5Wf7PvsVSY35ia
-         HfdHtEuk9YMQkW/O7JUnUty7R/Df9z5ER6OxWK81TdaiS/BNWxYdqnR8pKz5eQAoye66
-         T8NQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=T7Dv4TrPaoSXba2WCG6znATh5Fj8cQnvCq6iaJnQwe0=;
-        fh=zfDUEDhb3Au3NJI3MrDnWhPolJWjYyhfJ7v/XOCD7XQ=;
-        b=eXWuzspNWQamK8azjAoVjM9GiWGKcV8SYRpK312DQDDMjCNzSFB8zsb7FliKg1rY/L
-         3RexvYExXNEFJEgnYhnEvH20n5FybjrTbCdVi0cCTAflf3YqeSFHZLi0uKKxAQLdJsDc
-         jACeHMSgqcd38ERubEbUjetzgpBCvaRsJAT1P5oMARMQ7TU/GWOHmGYcAzutdMCw5Ny+
-         unRvl4VZYqdeiUg8VMr2OO87QFViF2gYEGL1/ySLC3eqjWzGkWJIymO2UmXTAQuLX+vQ
-         0HD0R8B2TDdmIl1wvghiC+IecciEaOCAeFTnL2CdepV7ZJffsTx8nlMCOk8iTmgaiH47
-         IiOg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787336442; x=1787941242; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=T7Dv4TrPaoSXba2WCG6znATh5Fj8cQnvCq6iaJnQwe0=;
-        b=aiM6sOw7Ig9mu12SCq5qAYx2S63Z2xubfGa1TAZXn8jcvz4TPad1nNSXP6ED2Hj/hZ
-         yoEKPpG+Tl8atGoSKMwM7SthYiaCO7BR2GhCS6YcsNukOUzjVsncr8/B+NLxiqUuDSEE
-         A/WFmDuiOANxSxdGHh2qmQS8wazdO0PoktS9LlecQxic2X2vmhY0xbiWP7K/0GsiVMXS
-         i6r9JPhqVy77XU4fZIxe8yOLO2GuPCwewSRpAgfgn04uSXqwNr/z46t73mha1Q9maMXA
-         Yk2LanweaGDqqNWmH8WZqtGm/47LPwMHucL7IucvH6FmfzFodnEsno1RF54v5ImHTV/w
-         lO2A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787336442; x=1787941242;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=T7Dv4TrPaoSXba2WCG6znATh5Fj8cQnvCq6iaJnQwe0=;
-        b=h60VRXXD9420Sr4BWYyqBHzX+ZfknvOk22QutEPTMTlcF8a/hi8PkuD5cXsG7CPkvl
-         9+u+0CDHlvVGrMnEpV7MNb0OPElKm4qwr26bhVLs0mJuHF/fJWUN6dtRm2Sq4QtnY5WI
-         ncegF9XfP4fyWeq8li2WNW/5BdcLlRAw3/ENC39P1JkXd8QFEQVAvKniOxenVUCRacC0
-         O9pnlrv8x3CQdu0IYcqxi5CFMId15PGfDWqEk1sTx8Ng87DWRK+o27340A+y9WoRwu12
-         K4jaC15/1nYTGNLJWIV1jtz1DghaEHRIvLgBMAimAsXfYBHYa4N/VWLlXtkTmvsU3SkH
-         L6uA==
-X-Gm-Message-State: AOJu0Yw7TglRITOyFN98R7YHbdjRVlqk3ADNdBhbiZLPEEIrCmC0pkNH
-	CRJITfnOoUwARJ7kPtNrfXGafrnL9ICtGaqDz+nrMBRgotkuxUTwE6GOGcNjYi0QIOkdKbuvpC4
-	5GKeA9ZtC8hcPLC5bxZMsuafdKVdqU4NAOQ==
-X-Gm-Gg: AR+sD100uos7pifEIX1s54/cPPtG8rwfbQy2oL6grdyQ58o6Fa3mlzPzXH8PM4JjXDq
-	3Ox8AifMtY3tcHUJLp/UKGKZsDvHYuRE6txpGzOyBS1f3Na+imhtbkRuB033DNMzoJIkcs0UG/d
-	92Xk4nVmM6+J1k4kiDInxmHv72uaJZHUFhxeYo1pyXcNXJtdoFS+2ctdoXE+24xQqu0hKPJblGh
-	2Y1oEQzzndJS4ILVdvvpCJWvVHWYYjNMk/7dg+Aa0WoX9IwDJp6S9cX/uywZ9keGBhG0VpYHTpf
-	kSiME/28FynLiyfZbLSfmTB0XGDnDsBq1coNXA4Y/vp4
-X-Received: by 2002:a05:6820:f02e:b0:6b1:28bc:c7c3 with SMTP id
- 006d021491bc7-6b16b4d7a25mr260118eaf.36.1787336441787; Fri, 21 Aug 2026
- 11:20:41 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VE6JOs5Z"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1F3C1F000E9;
+	Fri, 21 Aug 2026 18:34:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787337288;
+	bh=oMBCnKRxKdS8Q3i2Mwvd1NJnQGm8tP9hnWkr5qGiIIk=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=VE6JOs5ZJj3dEjBzNPO4iPDfwuEjv0FsIv+vdc8KAnBGDN/QyXvPtzibDYbgCaNB+
+	 0qKQDP7MVhwfGi4k8B3e5K3OgNolhxfJ4A6wZnnTYQFzqZrel/QFBM7QcLzRON1VA2
+	 LazEpVjV6bJmbfnO2imsIZUM0mqHw4kD6blPmx+UpT1lUA2lqkJRbDWFZ5Umqd56/S
+	 LlNgcQcce4ULiYlUhok3cGbtugaiJxEgWRfzd+HqDvXBBRk47VVPvUYd7I4Gq/4PJt
+	 aWDJcrVOZbmLbUu5lbHdTfLcpSOkTNZmfg1nD1l0OAGtiGJgcy4cWISjaFOf0C7k4X
+	 bmw4bpPl83HUA==
+Date: Fri, 21 Aug 2026 19:34:41 +0100
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+To: Jann Horn <jannh@google.com>
+Cc: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
+	"Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Jeff Xu <jeffxu@google.com>, =?utf-8?B?VGhpw6liYXVk?= Weksteen <tweek@google.com>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+	linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org, 
+	Andrew Morton <akpm@linux-foundation.org>, "Liam R. Howlett" <liam@infradead.org>, 
+	Vlastimil Babka <vbabka@kernel.org>, Pedro Falcato <pfalcato@suse.de>, 
+	David Hildenbrand <david@kernel.org>, linux-mm@kvack.org
+Subject: Re: [PATCH 1/3] proc: refactor /proc/$pid/mem to use struct as
+ private_data
+Message-ID: <aoiXvKXQK__0cSWL@gremlin>
+References: <20260818-selinux-pokemem-v1-0-90cd2357ee05@google.com>
+ <20260818-selinux-pokemem-v1-1-90cd2357ee05@google.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260729131413.1390890-1-pmatyas@redhat.com> <CAEjxPJ48Ov9pT6oZ6Q-OU5eJMObA1spPnFhdcKOOjmrSAD7pQg@mail.gmail.com>
- <CAEjxPJ7uiGT9VDg_dqG9Y=p_Ckrd6BFYQPKOrsMGpBuJVVTGwQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7uiGT9VDg_dqG9Y=p_Ckrd6BFYQPKOrsMGpBuJVVTGwQ@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 21 Aug 2026 14:20:30 -0400
-X-Gm-Features: AcwNN1Upzo99shjhSA36mKdnKylQOuMEynrlIxmaUn8Afjud6zGjOuoCITlx7tc
-Message-ID: <CAEjxPJ68QBO9TDBN26z3WGG_eJCUxrBbJGLxk_=Na4acipmvEA@mail.gmail.com>
-Subject: Re: [PATCH 1/2] libselinux: prevent ReDoS in file context regex matching
-To: Petr Matyas <p.matyas13@gmail.com>, =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
-	Jeffrey Vander Stoep <jeffv@google.com>, Paul Moore <paul@paul-moore.com>
-Cc: selinux@vger.kernel.org, Petr Matyas <pmatyas@redhat.com>, 
-	James Carter <jwcart2@gmail.com>, Petr Lautrbach <lautrbach@redhat.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260818-selinux-pokemem-v1-1-90cd2357ee05@google.com>
 
-On Fri, Aug 21, 2026 at 9:21=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Tue, Aug 18, 2026 at 09:51:05PM +0200, Jann Horn wrote:
+> Refactor the handlers for proc_mem_operations to use the new struct
+> mem_private as ->private_data, rather than directly storing an mm_struct*
+> in ->private_data.
 >
-> On Fri, Aug 21, 2026 at 8:55=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > On Wed, Jul 29, 2026 at 9:40=E2=80=AFAM Petr Matyas <p.matyas13@gmail.c=
-om> wrote:
-> > >
-> > > The PCRE2 interpreter is susceptible to catastrophic backtracking on
-> > > crafted file context patterns or lookup keys. Since libselinux never
-> > > called pcre2_jit_compile(3) or pcre2_jit_match(3), the JIT was
-> > > available but unused, leaving the interpreter exposed on all platform=
-s.
-> > >
-> > > Fix with two complementary mitigations:
-> > >
-> > > 1. Call pcre2_jit_compile() after every pattern compilation (includin=
-g
-> > >    mmap deserialization) to engage JIT for both complete and partial
-> > >    matching. regex_match() now calls pcre2_jit_match() and falls back=
- to
-> > >    pcre2_match() only on PCRE2_ERROR_JIT_BADOPTION (JIT unavailable o=
-r
-> > >    not compiled for the requested mode).
-> > >
-> > > 2. Create a shared pcre2_match_context with a backtrack step limit of
-> > >    10 000 000 and pass it to both pcre2_jit_match() and the fallback
-> > >    pcre2_match(). PCRE2_ERROR_MATCHLIMIT is treated as no-match to ke=
-ep
-> > >    the lookup safe rather than failing noisily. This bounds worst-cas=
-e
-> > >    matching time to milliseconds for any pattern/subject combination,
-> > >    regardless of JIT availability.
-> > >
-> > > The vulnerability was reproduced and confirmed fixed on:
-> > > - RHIVOS 2.0 / aarch64
-> > > - RHEL 10.3 / x86_64
-> > > - Fedora 44 / x86_64
-> > >
-> > > Reproducer (149 bytes, base64):
-> > > AwovMi0GLy8GCygKeAYGKwYLKAoKCgAAAPpXKgsoCi8vBgs8PG5vbmU+PgovMi0GLy8GC=
-ygKeAYG
-> > > KwYLKAoKCiNXLy8wCwsoCgojV1dXClcqCygKLy8vV1cueHhXV1d4eHgveCsGCygKCgonV=
-y9XV3cy
-> > > eHgveAcGJAsoCi8tLwYvMi0GLy8GCzw8bm9uZT4+3q2+7y8=3D
-> > >
-> > > Signed-off-by: Petr Matyas <pmatyas@redhat.com>
-> >
-> > It occurs to me belatedly that this change (which we already merged
-> > along with several follow-ups)
-> > likely triggers SELinux execmem checks on any process that uses
-> > selabel_open(SELABEL_CTX_FILE,...)
-> > due to the JIT compilation.
+> This is in preparation for adding more state in mem_private in the next
+> commit.
 >
-> I experimentally confirmed that this does trigger execmem denials on
-> Fedora if I setsebool deny_execmem=3DTrue. The denial is not fatal since
-> it falls back to the interpreter but it will show up in the audit logs
-> for any confined domain or if deny_execmem=3DTrue for all domains.
->
-> > Given that fact along with the fact that
-> > we are still seeing cases [1] where
-> > oss-fuzz can trigger stack smashing on pathological regexes and that
-> > this was originally motivated by
-> > concerns about such regexes and that the source of these regexes is
-> > always trusted (root-only config,
-> > and in the case of Android integrity-verified, I am starting to wonder
-> > if this change is harmful rather than
-> > beneficial. Open to others' thoughts. At the very least, I suspect
-> > Android might want to disable this.
+> Signed-off-by: Jann Horn <jannh@google.com>
 
-Barring objections or counter-proposals, I think we may want to revert
-the use of the PCRE2 JIT
-to avoid users of libselinux selabel_open(SELABEL_CTX_FILE, ...)
-suddenly triggering execmem denials.
-We can keep the other part of this change intact.
+You had me at helper struct Jann, you had me at helper struct :)
 
-> >
-> > [1] https://lore.kernel.org/selinux/CAEjxPJ6-b4KmkgSgO7hXf+8ZGgRtR_JkS1=
-ZQU-ULVk0aex5zCw@mail.gmail.com/T/#t
+Reviewed-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+
+> ---
+>  fs/proc/base.c | 29 ++++++++++++++++++++++++++---
+>  1 file changed, 26 insertions(+), 3 deletions(-)
+>
+> diff --git a/fs/proc/base.c b/fs/proc/base.c
+> index 780f81259052..bec6197329dc 100644
+> --- a/fs/proc/base.c
+> +++ b/fs/proc/base.c
+> @@ -848,11 +848,24 @@ static int __mem_open(struct inode *inode, struct file *file, unsigned int mode)
+>  	return 0;
+>  }
+>
+> +/* private_data for proc_mem_operations */
+> +struct mem_private {
+> +	struct mm_struct *mm;
+> +};
+> +
+>  static int mem_open(struct inode *inode, struct file *file)
+>  {
+> +	struct mem_private *priv __free(kfree) = kmalloc_obj(struct mem_private);
+> +
+> +	if (!priv)
+> +		return -ENOMEM;
+>  	if (WARN_ON_ONCE(!(file->f_op->fop_flags & FOP_UNSIGNED_OFFSET)))
+>  		return -EINVAL;
+> -	return __mem_open(inode, file, PTRACE_MODE_ATTACH);
+> +	priv->mm = proc_mem_open(inode, PTRACE_MODE_ATTACH);
+> +	if (IS_ERR_OR_NULL(priv->mm))
+> +		return priv->mm ? PTR_ERR(priv->mm) : -ESRCH;
+> +	file->private_data = no_free_ptr(priv);
+> +	return 0;
+>  }
+>
+>  static bool proc_mem_foll_force(struct file *file, struct mm_struct *mm)
+> @@ -880,7 +893,8 @@ static bool proc_mem_foll_force(struct file *file, struct mm_struct *mm)
+>  static ssize_t mem_rw(struct file *file, char __user *buf,
+>  			size_t count, loff_t *ppos, int write)
+>  {
+> -	struct mm_struct *mm = file->private_data;
+> +	struct mem_private *priv = file->private_data;
+> +	struct mm_struct *mm = priv->mm;
+>  	unsigned long addr = *ppos;
+>  	ssize_t copied;
+>  	char *page;
+> @@ -970,12 +984,21 @@ static int mem_release(struct inode *inode, struct file *file)
+>  	return 0;
+>  }
+>
+> +static int mem_release_with_private(struct inode *inode, struct file *file)
+> +{
+> +	struct mem_private *priv = file->private_data;
+> +
+> +	mmdrop(priv->mm);
+> +	kfree(priv);
+> +	return 0;
+> +}
+
+OK I see that we mm_grab() in proc_mem_open().
+
+> +
+>  static const struct file_operations proc_mem_operations = {
+>  	.llseek		= mem_lseek,
+>  	.read		= mem_read,
+>  	.write		= mem_write,
+>  	.open		= mem_open,
+> -	.release	= mem_release,
+> +	.release	= mem_release_with_private,
+>  	.fop_flags	= FOP_UNSIGNED_OFFSET,
+>  };
+>
+>
+> --
+> 2.55.0.737.g08866a6d13-goog
+>
+
+--
+Cheers, Lorenzo
