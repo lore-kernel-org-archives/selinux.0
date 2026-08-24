@@ -1,190 +1,158 @@
-Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A3CA1A6824
-	for <selinux@vger.kernel.org>; Mon, 24 Aug 2026 13:16:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA0D244C65B
+	for <selinux@vger.kernel.org>; Mon, 24 Aug 2026 17:06:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.175
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787577407; cv=pass; b=iHi/u4PSBHUpBhdUoJvL5iLs2SC5KuiSaJxkE0Kblxtuauw3g1xNQMQ6U+RWe6Yp63dFbNoQKrXbeeuF5ZarwmpIG/GWjIa4D2H3ifVos2ohJXwOM1FKR2ZbMnWKAqMBWfmkRVp3z+f0R5qrjfJ1/T0IlaAotjykUCx3vDqGncI=
+	t=1787591204; cv=pass; b=aSDvrsBzSJv4Ohgdk2pXaMmlWgonOHK7T0F44AHwOAFnTFXva1HmK13dGqzz5FttB0KXl1y6mSlxbYOVAvum1scZXdLlRHRzTx1THYW+uD1LwAeyzZVASIt4Ycpk34vc1TpjCAGEIGRNcLfg15CmtxRTE/Q/z+8zPuzA38XaYGc=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787577407; c=relaxed/simple;
-	bh=JwRCFU85ji/Ad80p7F/lSRyKmnJAtbJ5lMJnJj0Pt5c=;
+	s=arc-20240116; t=1787591204; c=relaxed/simple;
+	bh=RetglhChGs54xh+G4sIllqLQaZbHa84fR8ti4Eb52Y8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=agCJMcMxXXziqajXyKxVK9NKLhmEejg0O0JFE6rCUHg4F/Ivz0/LfHzae00Uu3H5It4i2eHtof82EyFNlg34bBvvbvd86E0KklbZqfj9DWqH7bjRkGotKEeW4kdTsISI/qCGtiPbhdj5WKUQqeNbw6bpdGKUEPHl5/jMeVhWDM4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BSOkebkh; arc=pass smtp.client-ip=209.85.219.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=AKb6+N4RRda/+xVrCC3HnEB7TNwPcaItDVWz4lSNbXZYdZT/5LDzIqt8Ccg2vLwOBWvp7/RrwBGBwopqbGtkw82hftBKlQYUhBb6dZEkQ6hos/uhKb9FN0JRsNQkM2A5nPZ31lGPMvxaD7Sk4goCtcMrMQIgxge0VE4pkPKigIM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=vo7CX6da; arc=pass smtp.client-ip=209.85.214.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BSOkebkh"
-Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-902fc790cd5so21180706d6.1
-        for <selinux@vger.kernel.org>; Mon, 24 Aug 2026 06:16:45 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1787577405; cv=none;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="vo7CX6da"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2cede6375caso5025ad.0
+        for <selinux@vger.kernel.org>; Mon, 24 Aug 2026 10:06:42 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787591202; cv=none;
         d=google.com; s=arc-20260327;
-        b=dDaaKE1LmEZ8hLO04CtvkRTkv/Qyo/uAZTMjYcbTjelxz2WL7fM5YZsbAryb7qA3AR
-         PBaiHBt4/uQHDls76zq4AwVvy2vyblwhKlso0hMp862VoMd9vT64fibtqTpbm9qSb/yU
-         hOeNDtMFqLZC66qzsNYiGVkPjsxv1Y6kGO5jtrOLzMKiF+DZzM/9BaOkbKHCGH5ls/eL
-         ku34KnrpaUXEAq04LDgv6Hk3sjLSfkRf0gtPk5AELHea+3Lxp6q2qvNSkuUrxOntuG8T
-         EPPFZp8NB3E/xotSNyAW0sYPmWjVyN/XLCxW/zS12O8vFffOkkZfiSKCDah+vq1yfwYW
-         6Bhg==
+        b=sKy/tSDdTLFAiDTOiow5WOySclQoI3yn0UknTUNSSc6CJYXouggX7UAAPtoC5cFMfg
+         IJD0J0LB6UnbN5deLXpYTmX5Hm2Zo80Z742/ZtYhO+8CcUd5FzYIopp1W3JKrA2h9BU+
+         ZwzqfPEqftdXqLQgtF1VBqfdt1yFjAk5RJTCRV0AVcRc13GtoAZQZsXORvRZznmQqHKj
+         3UuRbXCeQrATwbSPCyB4oSfbc8KTuRHaTGq024MqU5l7rsoAyig2b2RVGhH+pQpc+PaX
+         CPn0KtsUIJMriPVRJRqmvDRvz+j0kpHm1kBcT1Inv6VRpoLMMuYlOS9sag3yRdJMpSqg
+         M9Ng==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=Hk8o/iorhKRU62UTHY3YUz8eIwdIMzVx4Pnmv+8whFs=;
-        fh=zfDUEDhb3Au3NJI3MrDnWhPolJWjYyhfJ7v/XOCD7XQ=;
-        b=swV3i+c53FFbjvOKPMOyGfUaSdXdvXF09rua9rYkf5wW8pgtGBUvg6V/n0LxWSFyO8
-         FT3lXeM7s0fPdVNvxDn+JroQcar0PstC6njvpFwg9CYk6P0SJTVkDRVxCQJ0bflJN2vO
-         i+Zf2eAD89D9I4Z+u7ylG/9aYrkGeeFEa7qCbUnapEpWKVulT23rJTQbygDBN01Da/0S
-         xyGNOQb0YooZ86sBKklfQcqH+vqDoYQ7ChAg/1VnuJnPvhKXZ1P6TKHgjnrMxLp0/QG7
-         /joQhScFINVkfoWYOpI20GRU92AJvbCUC7sGoExmnkf9ko/kupdBZHQ44iI4tW/zNDrI
-         TNpw==;
+        bh=wBrui9oca87xmLJo5FCru/sywwEnBCWCZyUpBYfq9bA=;
+        fh=COY+CXKcdynicNuCxINSxNTX1gZel9RfOhhLr/vOpF8=;
+        b=qwxOGAa32nAI3wAa8WNGefomCmZMa76LBuRiCPU3EIBPClgn9PXiBOMtpqgAGOg+iI
+         9E2kQMPzxEXJUfrlrZGqGfK7hgTde/zEM5lwBJcz/egWaRrpEDktg4yxUmDPv3GmYQn4
+         BPCTyEqxPPBvCaGFA1kX6VjJ8OdQZEOW4zCDWYwg2D3noamybqvphOba94M5NSKSdNHn
+         ueocyyaMjCn7xdEiGg4l1wzgEwEJt3ZR8iTpACqLlG02ugMJ/2z81Hw+zcGFoslqXNSI
+         aJFPu1TID8fX9lKmK2ty2k8rlutU68vCNHsh/4lg4V9sQ+qYxXu0sO/Aie6+eqgcqjH3
+         zWjw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787577405; x=1788182205; darn=vger.kernel.org;
+        d=google.com; s=20251104; t=1787591202; x=1788196002; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=Hk8o/iorhKRU62UTHY3YUz8eIwdIMzVx4Pnmv+8whFs=;
-        b=BSOkebkhNQI9C1z3jzyqiSklJeOwhRZzYAzCpjAAAbpai58lSphFy5CkXqqlZxD0px
-         bbSPWkFbYXNKJcpDozJjlq0lPmSA9TQU1PD3rzUV2ldytOqrHD0gqc4ZKSb3MhLD+68q
-         UJRbMF6fYDw13rIPw+pKbRozd9VIbfOcIutcFBBz8c300p1rd5F5HjHyfRjGmP8l5kD4
-         s5EN1IcGTu/eFRqKpHcEG3lQYX62eR065cJO+Nj6oy9lwY/HgZ7dcxAyfk8v9nDDqyiF
-         Hgkgl64WrNSiEWzTJk6lvDQt6HcCBu3m5UUUQQGQwSyZVZBOuXOCZ3VNScBBaZMC4Xuj
-         Qzow==
+        bh=wBrui9oca87xmLJo5FCru/sywwEnBCWCZyUpBYfq9bA=;
+        b=vo7CX6dacDq3q2MBn4zKHTMEovNhzBuyfUC2ySAhPRikC6MgthlA3DcavDh0Du4RKb
+         vNhH+ry6oUFWzx5kDriVlQlsFp2awFoahbHruVN4841x5DU670ckNINOGk7vv2AsPCeh
+         alykxwXEN/RfBuR1EjJ6cz+3lYDIyIE9QC4z6QOM2AGpwXiHZt40a3Z3m4/E1sDcRDW0
+         15M55ELxms/ZwscMIDMmVi6vHmZfTtzu8VsHF1QzFn8lzT+6XO+FTdxpmK+6Lb2MuFEp
+         RqqBhFwJ42yPIJgd023xLdyyb0vD/PeLT90/WT+PajJWfDK9UmFvIP6UHkzqWPhMinlB
+         0sGQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787577405; x=1788182205;
+        d=1e100.net; s=20251104; t=1787591202; x=1788196002;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=Hk8o/iorhKRU62UTHY3YUz8eIwdIMzVx4Pnmv+8whFs=;
-        b=EuDcC200FZpnzuV/1IC2CY3zNhzKtEAquueuGNT+Ji6HalelK1e4lUEo31f2tVmKHk
-         4Bf40okvsGEgM8IlGncZW8SzqZ0tgXng746PkoxtgSkaPJ1gGnKLekWTrw1moQBvAx22
-         2MyrbUDJn8GraZetIuwp9V/kBjZb4VqkhqdI9yDyRIUa7dMSMTUqD+rsGSGzJ1+zaGeg
-         hCuYT23Ekj7UPAlneflZT5597DufviIha5McifLe0Bm918aO9H4ld8TWZ2p9UPbP00JA
-         RCTii7iYL4eOpABVD3LCb3/ay0M+Y3cIP2J3uJVedTRPOKPZN/I6sz03RF+8N48hwSQ2
-         qFnQ==
-X-Gm-Message-State: AFuF++khdBdzcZ+qY/jNxGiNC9YczPkuK/XGIsKb7JsRAx9Bn1ePckik
-	D8NA79oyIiQvr4eNRnfVYNanbnJIf7r6O2gX1U6bAz0SBv4/1STOewusd/5i6Tp3dGpTQAgTbkA
-	LsmieKEoTLRZ2YKUXzCTN4hYdTRigd2s=
-X-Gm-Gg: AR+sD13nGvZ4WA0N1idWLFGCibGOv8wEGuG5ceteZs9OJmQWNnfV3XwbmZ53y+fxBwm
-	h+ROAe+Gbfgy+3FHzZIpsldZFI8NITLvj2XpNE27xmi+IDkomQ+4GYKqWJcNS9jsTx0gaPThDd/
-	3HaRp+2Gzlbg6OYuMo1JU+gJgUyrDOf5PyFcjptADor7A2YsF5EV707gGKWrTmQvWYVPSYhOAJk
-	TgvwUUBHnpfTeh3T6qMaadw0QIwnfdlV6ouoaCw18pnM3FhqvwFyPjMxRx5d8JAegmQrqcor1K7
-	xL+33nEMsMGUzACWL7VZqJ1/2Nfnzg1Jwp7A0ibjyPnU
-X-Received: by 2002:a05:6214:3293:b0:908:a729:73a4 with SMTP id
- 6a1803df08f44-90c809c2b56mr287482336d6.5.1787577404673; Mon, 24 Aug 2026
- 06:16:44 -0700 (PDT)
+        bh=wBrui9oca87xmLJo5FCru/sywwEnBCWCZyUpBYfq9bA=;
+        b=LTqgIzoGmdVS7KafR3pw7E8q3XnFyP9+PveTLiXA2TiHVtRX5TQzD3VEbK1X2a7q3E
+         Ky39OYhZrEoESzh7fu1oeez5Rz8Dx+L0wH80HneY0+0LKljZ7RGqT8OYGNATqMHSgizU
+         ivWYJXIP0rf909JAXp1Xlgc+G2bURp26p67hcKa6KH66UqarFVe0CpfYV6cngJ0Yisep
+         aNjjsNnHfkD59S+TN//eBd8B+Dfr2dhqz7UE7QVZtGlmQPxhRVFVo7yLAUVLbJcVJNWb
+         hArhAbA//SiZ5ZITTb3Mx5IamjyWJwFH3iuqowkJfBLjLw+Hvix4mudpeKCpvMp4M4UP
+         fa7w==
+X-Forwarded-Encrypted: i=1; AHgh+RoSBgkKD2RB6CDbggLL41dWKiDvWvNl3RNh/FN2tzO6h5bdyyTa1ie5Isosb0cr73E4jTnLBHxu@vger.kernel.org
+X-Gm-Message-State: AFuF++k/RWtURkLrlplh2qBkNW9lQQ5vQi9NNx3mnntawxv0plSc3vJn
+	gE52oDnvYUMjqFqWQTASukyzWsOKtvlegn5JWSD+4dzAMsMonAszyljCLUJeoeiWkUHx7F5rfbG
+	gWnTx9rAOHft5RDacmQI3sJdRM03qyeB/pCvYpq6w
+X-Gm-Gg: AR+sD12KFeHlCBu8xGIO/JIenz5H52cDMPA9gAs710UH0Ke+oBSvuEVTxfY3APAgDc9
+	I7IBxGeUtoc9CLUzWpzZHqtQnApPQMFXlRJbSYdbaBXztQf8LIZhx7mA0LrPy3Cpw4V/euXJ6e+
+	BjtP69vZUW/zmIZiBOJJvVhmwsDI3iacaYxNch4GodVvbP+69RI83fIp4mvIybekd35Q82SeqLq
+	Zy+JK17Rm2OcLGP5h0wJNDFtibOn0a+p2i2XYGNsyGQ8/XlO9xw/3nhVvvlwiMCsC6z7lyWVxln
+	xS68kWgfmoMZIqGIy833CU/YXvOzGrLxz5C49IaT0+vCdhrKWIOtIhv9W6XRNfjwCtUzXnBG92q
+	0HWgFcF7sF7L4A9o8T1vOX7JM7BTvZmI=
+X-Received: by 2002:a17:902:ced1:b0:2d0:1aaf:daec with SMTP id
+ d9443c01a7336-2d673b9afe4mr10236935ad.9.1787591201205; Mon, 24 Aug 2026
+ 10:06:41 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260729131413.1390890-1-pmatyas@redhat.com> <CAEjxPJ48Ov9pT6oZ6Q-OU5eJMObA1spPnFhdcKOOjmrSAD7pQg@mail.gmail.com>
- <CAEjxPJ7uiGT9VDg_dqG9Y=p_Ckrd6BFYQPKOrsMGpBuJVVTGwQ@mail.gmail.com> <CAEjxPJ68QBO9TDBN26z3WGG_eJCUxrBbJGLxk_=Na4acipmvEA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ68QBO9TDBN26z3WGG_eJCUxrBbJGLxk_=Na4acipmvEA@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 24 Aug 2026 09:16:33 -0400
-X-Gm-Features: AcwNN1XillodDePfhlo7yMNSP8ruSceeOicuwYLBNoPwvuHfq3OHjAlmDsOJipM
-Message-ID: <CAEjxPJ6p2NoguEWWPJwaQeqanpwUnOFhGNWaSQc+GOVoSWPSpQ@mail.gmail.com>
-Subject: Re: [PATCH 1/2] libselinux: prevent ReDoS in file context regex matching
-To: Petr Matyas <p.matyas13@gmail.com>, =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
-	Jeffrey Vander Stoep <jeffv@google.com>, Paul Moore <paul@paul-moore.com>
-Cc: selinux@vger.kernel.org, Petr Matyas <pmatyas@redhat.com>, 
-	James Carter <jwcart2@gmail.com>, Petr Lautrbach <lautrbach@redhat.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>
+References: <20260818-selinux-pokemem-v1-0-90cd2357ee05@google.com>
+ <20260818-selinux-pokemem-v1-2-90cd2357ee05@google.com> <741a833d-6889-4ee6-9322-d6a3a8b95893@kernel.org>
+ <CAG48ez2Ngo3=VtyykXY6ynVzGwA8px-p4zV3V6U=YfgV-Hy4BA@mail.gmail.com>
+ <dd8c34a9-0e09-453b-88e1-0a5511816627@kernel.org> <CAG48ez2bZEV+3ww2x9XV_5vRPZ_3jU_zg6+h=BDKQ94Xrd3Tqg@mail.gmail.com>
+ <aoibvf6CY99IXynk@gremlin>
+In-Reply-To: <aoibvf6CY99IXynk@gremlin>
+From: Jann Horn <jannh@google.com>
+Date: Mon, 24 Aug 2026 19:06:04 +0200
+X-Gm-Features: AcwNN1XN1HjALO-7sEAr3yIwV5QVslvlMZpManf5842ZQgDGGQ6V_1u_W3SFNwE
+Message-ID: <CAG48ez0CX-PT5Yk5gYJuB6wPe26j0gHHXQqYoNtTA=iHe_5Wdw@mail.gmail.com>
+Subject: Re: [PATCH 2/3] proc: query LSMs for introspective mem access (if PROC_MEM_FORCE_ALWAYS)
+To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+Cc: "David Hildenbrand (Arm)" <david@kernel.org>, Paul Moore <paul@paul-moore.com>, 
+	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Jeff Xu <jeffxu@google.com>, 
+	=?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+	linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org, 
+	Andrew Morton <akpm@linux-foundation.org>, "Liam R. Howlett" <liam@infradead.org>, 
+	Vlastimil Babka <vbabka@kernel.org>, Pedro Falcato <pfalcato@suse.de>, linux-mm@kvack.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 21, 2026 at 2:20=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Fri, Aug 21, 2026 at 8:52=E2=80=AFPM Lorenzo Stoakes (ARM) <ljs@kernel.o=
+rg> wrote:
+> OK so the whole thing is:
 >
-> On Fri, Aug 21, 2026 at 9:21=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > On Fri, Aug 21, 2026 at 8:55=E2=80=AFAM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > >
-> > > On Wed, Jul 29, 2026 at 9:40=E2=80=AFAM Petr Matyas <p.matyas13@gmail=
-.com> wrote:
-> > > >
-> > > > The PCRE2 interpreter is susceptible to catastrophic backtracking o=
-n
-> > > > crafted file context patterns or lookup keys. Since libselinux neve=
-r
-> > > > called pcre2_jit_compile(3) or pcre2_jit_match(3), the JIT was
-> > > > available but unused, leaving the interpreter exposed on all platfo=
-rms.
-> > > >
-> > > > Fix with two complementary mitigations:
-> > > >
-> > > > 1. Call pcre2_jit_compile() after every pattern compilation (includ=
-ing
-> > > >    mmap deserialization) to engage JIT for both complete and partia=
-l
-> > > >    matching. regex_match() now calls pcre2_jit_match() and falls ba=
-ck to
-> > > >    pcre2_match() only on PCRE2_ERROR_JIT_BADOPTION (JIT unavailable=
- or
-> > > >    not compiled for the requested mode).
-> > > >
-> > > > 2. Create a shared pcre2_match_context with a backtrack step limit =
-of
-> > > >    10 000 000 and pass it to both pcre2_jit_match() and the fallbac=
-k
-> > > >    pcre2_match(). PCRE2_ERROR_MATCHLIMIT is treated as no-match to =
-keep
-> > > >    the lookup safe rather than failing noisily. This bounds worst-c=
-ase
-> > > >    matching time to milliseconds for any pattern/subject combinatio=
-n,
-> > > >    regardless of JIT availability.
-> > > >
-> > > > The vulnerability was reproduced and confirmed fixed on:
-> > > > - RHIVOS 2.0 / aarch64
-> > > > - RHEL 10.3 / x86_64
-> > > > - Fedora 44 / x86_64
-> > > >
-> > > > Reproducer (149 bytes, base64):
-> > > > AwovMi0GLy8GCygKeAYGKwYLKAoKCgAAAPpXKgsoCi8vBgs8PG5vbmU+PgovMi0GLy8=
-GCygKeAYG
-> > > > KwYLKAoKCiNXLy8wCwsoCgojV1dXClcqCygKLy8vV1cueHhXV1d4eHgveCsGCygKCgo=
-nVy9XV3cy
-> > > > eHgveAcGJAsoCi8tLwYvMi0GLy8GCzw8bm9uZT4+3q2+7y8=3D
-> > > >
-> > > > Signed-off-by: Petr Matyas <pmatyas@redhat.com>
-> > >
-> > > It occurs to me belatedly that this change (which we already merged
-> > > along with several follow-ups)
-> > > likely triggers SELinux execmem checks on any process that uses
-> > > selabel_open(SELABEL_CTX_FILE,...)
-> > > due to the JIT compilation.
-> >
-> > I experimentally confirmed that this does trigger execmem denials on
-> > Fedora if I setsebool deny_execmem=3DTrue. The denial is not fatal sinc=
-e
-> > it falls back to the interpreter but it will show up in the audit logs
-> > for any confined domain or if deny_execmem=3DTrue for all domains.
-> >
-> > > Given that fact along with the fact that
-> > > we are still seeing cases [1] where
-> > > oss-fuzz can trigger stack smashing on pathological regexes and that
-> > > this was originally motivated by
-> > > concerns about such regexes and that the source of these regexes is
-> > > always trusted (root-only config,
-> > > and in the case of Android integrity-verified, I am starting to wonde=
-r
-> > > if this change is harmful rather than
-> > > beneficial. Open to others' thoughts. At the very least, I suspect
-> > > Android might want to disable this.
+> mem_open()
+>   -> __mem_open()
+>     -> proc_mem_open()
+>       -> mm_access()
+>         -> may_access_mm()
 >
-> Barring objections or counter-proposals, I think we may want to revert
-> the use of the PCRE2 JIT
-> to avoid users of libselinux selabel_open(SELABEL_CTX_FILE, ...)
-> suddenly triggering execmem denials.
-> We can keep the other part of this change intact.
+> And:
+>
+> static bool may_access_mm(struct mm_struct *mm, struct task_struct *task,=
+ unsigned int mode)
+> {
+>         if (mm =3D=3D current->mm)
+>                 return true;
+>         ...
+> }
+>
+> And what this flag is carrying is 'hey the reason we allowed the _open_ i=
+s
+> because it's looking at its own address space'.
 
-Rather than revert it entirely, I submitted a patch making it opt-in via:
-https://lore.kernel.org/selinux/20260824131154.68022-1-stephen.smalley.work=
-@gmail.com/T/#u
+Yes.
+
+> I did wonder if what you're protecting against is even a process updating
+> execmem _it_ owns, no fd shared anywhere, as something LSM might want to
+> prevent even so?
+
+Sorry, can you rephrase that? My goal with this series is to let LSMs
+block a process that tries to modify its own non-writable executable
+memory using /proc/self/mem; I'm not sure if that answers your
+question.
+
+For context: In this series, I'm using "execmem" to refer to the
+SELinux permission PROCESS__EXECMEM, which essentially controls
+whether a process is allowed to create writable+executable mappings
+that can contain anonymous pages. Additionally, it blocks creating
+executable mappings of S_PRIVATE inodes. There are other SELinux
+permissions for things like making a VMA containing anonymous pages
+executable (FILE__EXECMOD and others) or mapping files as executable
+(FILE__EXECUTE). FILE__EXECUTE is granular, it can be granted based on
+the security labels of the process and the file that is mapped.
+
+> The sharing a /proc/mem fd seems like that's a pretty dumb thing to do in
+> general :) but I guess you have to protect against that.
+
+Yeah, it's a kinda weird thing to do...
