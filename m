@@ -1,181 +1,121 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ot1-f46.google.com (mail-ot1-f46.google.com [209.85.210.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85B4D403AEC
-	for <selinux@vger.kernel.org>; Wed, 26 Aug 2026 18:13:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787768002; cv=none; b=oCdUvqZhzNrD4xzIMhz+lutI6NvUxIDKVUX9sWO51zanKFucaqSvqOhSi2KzGjRQIz91aTatpSg0SiJJYhftlU1LXzbHDwoV+vwvFe0JKE/ZpxRi14/9/YvfSM1luZL/TVJuOwE7M8HiUFhI2wectfFgwZrZ2r0RuV+aoruvz4M=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787768002; c=relaxed/simple;
-	bh=rp7fakBqRF1kc4oxOMtgY3NrK1AAd0DtUZuDjR9zUl8=;
-	h=From:Subject:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=BtR/X2V85feL+DK1yQKfCcS7EzcbnHcVS6kRXuwg7osRcxm4F6JTBkCRqIGYC8lk5mwMT9Q+I1pqGYJwvCJWMNYGuXKMJ4KzFsxLGZpcTILgeQ13iBnpo+OKZSOiOoH+Zm4F2dCa/Sg8AHwlevraOwTi3j0tGVTM1+ctXI1m0EM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jcnqItMt; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACF6636195A
+	for <selinux@vger.kernel.org>; Wed, 26 Aug 2026 18:22:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.46
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787768581; cv=pass; b=AWGHD4YWPBaB+mEmwAd7DhhikRkEiipb0FgYEhZNXKYyXquad0h7Wyw3qErRuiPN7MH0vbGDEun3gjX+zKNzxhIAgoAboas1QzFpRNmIZMBnhblbobe2anrCxZP5b1hWV5tX1Vj4i5nnmh6vevcqQaL8e5mBLtyBWQWaVwbsXy0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787768581; c=relaxed/simple;
+	bh=qyl9vXLvBcM3XscoRgUXk8im0cMspVFyY8rIUOTVnh4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=js9+/VqC8AHJ5sXAk24ZRIRYQhIHxR/MtztbkvlJdjnFzABP2VMu2D/HTv1Ah9MY1AM6AL/g7KoPbBO3nYhXKUfGlHeT+TJ6zLcbBWPviG1wj7CjgJ/2EYEQzi+n4G4xQ07O0u29RMtDCk1abJSpqmkr9nxGcmzCDpvk6MwaT2E=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LGi26SHu; arc=pass smtp.client-ip=209.85.210.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jcnqItMt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E05FA1F000E9
-	for <selinux@vger.kernel.org>; Wed, 26 Aug 2026 18:13:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787767991;
-	bh=cVIoQ0xp6egoC8arXrS8MSPgGEdY/dI3LFBTXfXLCZo=;
-	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
-	b=jcnqItMthugN/g/YofP4fJQxAB3PIC+e4GFaKek+4MpTRs+YsszxHXcuuBpw2ENyp
-	 NoCICc8/5a9HSM+7CAC/cTootKlkLeIjts4/A8WWBT/KLGY2MmeiFDemPyD3XyTMZf
-	 9WxDZH4FQZYbc+Mmz78ueOdOY2U9BVIcnRZC1YTMygClrFudEggPu+PZxLWHxO7Jcn
-	 zvaVPAdDBfyuk9X2sdWyoyaL02gmKsbfp+7YinZ7ZFHdQUwdB8oTV+cmiP60M/UzxM
-	 wTkfhuZEipZYj891Re2TKx2ZQKKJjEW0sG9fWGNf/bxg8FbNbHdy/I3JzqnISHJcwA
-	 dDkaJ9fbHjcAw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] FUZZ.md,{checkpolicy,libselinux}/fuzz: document selinux
- fuzzing
-Reply-To: sashiko-reviews@lists.linux.dev
-Cc: selinux@vger.kernel.org
-In-Reply-To: <20260826180113.6262-2-stephen.smalley.work@gmail.com>
-References: <20260826180113.6262-2-stephen.smalley.work@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 26 Aug 2026 18:13:10 +0000
-Message-Id: <20260826181310.E05FA1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LGi26SHu"
+Received: by mail-ot1-f46.google.com with SMTP id 46e09a7af769-7eb34c17b96so1414706a34.2
+        for <selinux@vger.kernel.org>; Wed, 26 Aug 2026 11:22:50 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787768568; cv=none;
+        d=google.com; s=arc-20260327;
+        b=gUPVn5SaAfjMKUrr6Q+3bIQ2i+PWLENxCKokGQ7WVo6OHtBblAUMN8VvZFsuTcD/aK
+         BIRA/LV/IGTZw2uoeRz+jOBpj/WfAkCJB/fMa5KEZPR5QKa5aZz9+t3WNFMjd3T64O04
+         2BpcdH42kPVtELQ+RHwoDyidG1dlWpDbvet4zY2OaJgoMS3Bucfp3GILaJ9rUKgyg5ej
+         CuGnLMhFfyWhJeumddaV/WkbNAwh+6Z9dMUQNkheHGvdC4lfkTy0K8aCc54ee0b3yQd6
+         JG3aNOJfH/MMt6xNBZyecoB6L7HyQLYA9ax7t1+PSVBUHXUVI3pEv5rx9caXq97BwKK5
+         Kh+A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=qyl9vXLvBcM3XscoRgUXk8im0cMspVFyY8rIUOTVnh4=;
+        fh=8VGxBlUMc4oFu2whFFvkqj35KMT0awfo+JzjggYQvWw=;
+        b=kaHccYbUHkK+Q6YTT5hoWBg0mmMPzczcipWx5bYYAA+cIqzUXS+b1sNeU+ZRJdwHdQ
+         4PcxpjR5+pKaEfnuRQJi1NCMnr0ew5h4KJxk/1TumexrilPbgoIUmqEQNeeIhQf4CrrP
+         fmMS8YVgXNSfAcYEYHrIEeSnzgsjuwm2z7ZNUkV3ucQL6xtOvaS0LGF46pCawmCTlhze
+         CB/BU5Y+CVf0YcNwMiOCH1ZIULP23Utq4qK/RFaBs0/9v1VQXfDLiGPAZZGcpaQb1tFV
+         JCBxe2xFGliK6QzysikMdK8KloemYHK+y0MaKovCxCWC26SuhjwXzC2EuyC/8otvha7t
+         rKjA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787768568; x=1788373368; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=qyl9vXLvBcM3XscoRgUXk8im0cMspVFyY8rIUOTVnh4=;
+        b=LGi26SHuawX8BGBp2OHLFHuobNl59wm97StdWZfd6zNFCjf4s641ZD4kyhEGqa5NiL
+         ltuNZobJWm5RueoTbzfRb77wUhaN79liO+eGKq/Q6i/zNgQfLG+g9XPGLr2pqEUSybb7
+         +P5QJkjtae0oK1/S+NwA9Y4jQ+VO6Umri6X/0L8VzhYyFlmhLkvyuzhAhz0RQzCCzLsC
+         0+ME9o7zKC8z7y0M9kRu4V3+I8En39Hv4rVFjmYMf9Gl4zfIfkS6XMTrVKcMDLdx/f0x
+         T/Myzxl0ckruUh2xdoL/A7O+FMJVVYOX0c6VFxfzgrijkwhYuq6d1acRmw3QzU+GmLt/
+         iSXg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787768568; x=1788373368;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=qyl9vXLvBcM3XscoRgUXk8im0cMspVFyY8rIUOTVnh4=;
+        b=poBHB9D+QzxplhHxukTeDVAosHKX9iNJOJ7DJNzyF8Ykur0zT6lyMl1m1EB45PJ3Qy
+         tCnFEZyPsexDvjeXh6Ns3XkdJmpnKPHV33brCm0gNWFX4ZVwfcJ1IBwhgCm/y5iG1EU6
+         G5SUA/Dqo8dfm5Q5a5o3y7ghBSW+uFDAq9OjP7Vp+ORr0eKejuRLNhWbj8xyFYO0nGwT
+         UJWWKsW/SgN3CvmSdASSm8mQjLp0vaTFjWtD4cyaDz4/A48s2vpexofzw7KyQGvVIPJy
+         PH1HZzTK3AU0+JvcT6jx4/TGy7jG2WGRQv+1pWFmPPH3bQe4yqQQeewXo3ExSmhWyaNk
+         eAcA==
+X-Gm-Message-State: AFuF++l6IpLW82sHTZXkncgdG0mLOddYRVIeQCAdMyduFutdZWusDw4M
+	J781RBWa+N/gMZIRkSd/3p78LgA4FEJyne+ymiYB6jxmLH6lVDHxscSEYncNjTJ/mtBeneylQuj
+	993DMOens0tA2lCO1IxBWfjx6krPEvqOsFw==
+X-Gm-Gg: AR+sD12Ln1YVLdIRfDZLOBVVqYOBjt6rJAAll067VrXQXALgry5tTfz+GoE16AoFKwf
+	B2nZqUbPqHVhOnKdh2kn2bf/O7l1lul6GV++W1drvZrcPbLr55xh1cz/RVoVijMNGG7k+u83Ubo
+	y4ZKypF5WU/JuAtKyIcvHOALu7qCxTT2L5Z8q9V3/vs64oSo160wuuaEHv11JVEUunIm8nCarrk
+	IsyEIyk30GobqCYLGcmFHfZc40TIoYse6PrKNI7zdPdT2Yf9Ja4q5MexyLAaj9+2/kA2BGjGW+G
+	3iFvPWgIXJqvRHNZV260QKk6sb2ksZ9m/rxj05lbaVev
+X-Received: by 2002:a4a:e719:0:b0:6ae:9b39:68ce with SMTP id
+ 006d021491bc7-6b1a04cbf55mr6599220eaf.24.1787768567674; Wed, 26 Aug 2026
+ 11:22:47 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260826180113.6262-2-stephen.smalley.work@gmail.com>
+In-Reply-To: <20260826180113.6262-2-stephen.smalley.work@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Wed, 26 Aug 2026 14:22:36 -0400
+X-Gm-Features: AcwNN1WhQJQYWejebKUMepHo5R4xOvE3EzZqwPkkSnL23EtcG3BfDZauhtZ0ZK8
+Message-ID: <CAEjxPJ67kfo8sWPhCiHH1aNoiAAtdg3HccMiRZx06zEjEL4jig@mail.gmail.com>
+Subject: Re: [PATCH] FUZZ.md,{checkpolicy,libselinux}/fuzz: document selinux fuzzing
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com, 
+	jason@perfinion.com, nicolas.iooss@m4x.org, cgzones@googlemail.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [Medium] Memory leak of the first `lookup_all()` result because the `resu=
-lt` pointer is overwritten without being freed.
-- [Medium] Missing argc validation before accessing argv[1] causes a segmen=
-tation fault when the utilities are invoked without arguments.
---
+On Wed, Aug 26, 2026 at 2:04=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> Document the use of OSS-Fuzz and CIFuzz by the selinux userspace
+> project and provide some instructions and helpers for debugging
+> fuzzing failures.
+>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+> This is based on my experience thus far in handling OSS-Fuzz/CIFuzz;
+> for those who may be more familiar with them, feel free to correct
+> or suggest additions! The decode*.c programs are just copied from
+> the fuzzers themselves and then tweaked to display additional info;
+> I also found them useful for reproducing bugs in a manner more
+> amenable to using gdb/valgrind than the oss-fuzz.sh-produced build.
 
-commit 3407307096b8d3c23806a403bce9d2bd0c25cc80
-Author: Stephen Smalley <stephen.smalley.work@gmail.com>
-
-FUZZ.md,{checkpolicy,libselinux}/fuzz: document selinux fuzzing
-   =20
-This commit documents the use of OSS-Fuzz and CIFuzz for the selinux usersp=
-ace
-project. It also provides helper programs adapted from the fuzzers to assist
-in debugging fuzzing failures using tools like gdb and valgrind.
-
-> diff --git a/checkpolicy/fuzz/decodecheckpolicyfuzz.c b/checkpolicy/fuzz/=
-decodecheckpolicyfuzz.c
-> new file mode 100644
-> index 0000000000000..99ab150c03833
-> --- /dev/null
-> +++ b/checkpolicy/fuzz/decodecheckpolicyfuzz.c
-> @@ -0,0 +1,41 @@
-> +#include <stdio.h>
-> +#include <stdlib.h>
-> +
-> +int main(int argc, char **argv)
-> +{
-> +	FILE *fp =3D fopen(argv[1], "rb");
-
-[Severity: Medium]
-Could this cause a segmentation fault if the utility is invoked without
-arguments? Since there is no check to ensure argc >=3D 2 before accessing
-argv[1], passing a NULL pointer to fopen() could crash the tool and degrade
-the developer experience.
-
-> +	if (!fp) {
-> +		perror(argv[1]);
-> +		exit(1);
-> +	}
-
-[ ... ]
-
-> diff --git a/libselinux/fuzz/decodeselabelfilecompiledfuzz.c b/libselinux=
-/fuzz/decodeselabelfilecompiledfuzz.c
-> new file mode 100644
-> index 0000000000000..b5abd83022377
-> --- /dev/null
-> +++ b/libselinux/fuzz/decodeselabelfilecompiledfuzz.c
-
-[ ... ]
-
-> +int main(int argc, char **argv)
-> +{
-> +	FILE *fp =3D fopen(argv[1], "rb");
-
-[Severity: Medium]
-Similar to the checkpolicy fuzz utility, could this access to argv[1] also
-crash if the user forgets to provide a file path argument?
-
-> +	if (!fp) {
-> +		perror(argv[1]);
-> +		exit(1);
-> +	}
-
-[ ... ]
-
-> diff --git a/libselinux/fuzz/decodeselabelfiletextfuzz.c b/libselinux/fuz=
-z/decodeselabelfiletextfuzz.c
-> new file mode 100644
-> index 0000000000000..35f56761cf777
-> --- /dev/null
-> +++ b/libselinux/fuzz/decodeselabelfiletextfuzz.c
-
-[ ... ]
-
-> +	errno =3D 0;
-> +	result =3D lookup_all(&rec, key, mode, partial, find_all, NULL);
-> +
-> +	if (!result)
-> +		assert(errno !=3D 0);
-> +
-> +	for (const struct lookup_result *res =3D result; res; res =3D res->next=
-) {
-> +		assert(res->regex_str);
-
-[ ... ]
-
-> +		assert(res->lr->validated);
-> +		assert(res->prefix_len <=3D strlen(res->regex_str));
-> +	}
-> +
-> +	sort_specs(&sdata);
-> +
-> +	assert(cmp(&rec, &rec) =3D=3D SELABEL_EQUAL);
-> +
-> +	errno =3D 0;
-> +	result =3D lookup_all(&rec, key, mode, partial, find_all, NULL);
-
-[Severity: Medium]
-Does this second assignment to the result pointer overwrite the previous li=
-st
-without freeing it first?=20
-   =20
-Since the commit message notes these tools are explicitly designed to be run
-with Valgrind for debugging, an internal memory leak like this might genera=
-te
-false positives in the Valgrind output, obscuring the actual fuzzing bugs
-being investigated. Should free_lookup_result() be called before this second
-lookup?
-
-> +
-> +	if (!result)
-> +		assert(errno !=3D 0);
-
-[ ... ]
-
-> +int main(int argc, char **argv)
-> +{
-> +	FILE *fp =3D fopen(argv[1], "rb");
-
-[Severity: Medium]
-Is there a missing check for argc >=3D 2 here before accessing argv[1]?
-Invoking this utility without arguments will likely result in a crash when
-fopen() is called.
-
-> +	if (!fp) {
-> +		perror(argv[1]);
-> +		exit(1);
-> +	}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260826180113.6262=
--2-stephen.smalley.work@gmail.com?part=3D1
+I'm sure we can just fold the decode*.c contents into the existing
+fuzzer .c files with appropriate
+conditional guards around the main() function or similar. Also should
+likely make them actually
+split and write out the individual files rather than just the header
+info so you can have the .conf
+file for the checkpolicy-fuzzer and the file_contexts file or
+file_contexts.bin file for the selabel
+fuzzers.
