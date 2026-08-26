@@ -1,543 +1,904 @@
-Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com [209.85.167.42])
+Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4144B46EC8B
-	for <selinux@vger.kernel.org>; Wed, 26 Aug 2026 17:54:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.42
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787766870; cv=pass; b=ayGzHs2dUVpumapiUQW9bb/rWxMJ2LlkcKaw6IGYZO3FfpvRTdajwtBud3DjLGFoHWKKwMbNCh5lC7nf5PUlRY6qDfXI4B0NEbLN6x3bDHCT32vkrqykfqu8kiLe7voPEbdyCcVsOVWG3+zsAqn+ok6qpc0Db6Qh61vC7t84Hks=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787766870; c=relaxed/simple;
-	bh=4FkLuy9ScJjucdoQz26Xnd0IsoX3yntczhyE2O+tjmE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=XDXl/TQd3KmSZ6D4LbJXNTaaxFJ0bAcWYh8ftSFeRbU57bpgoMT2BpJxEWpWa7wb8NtdlTGfdFeyvTQjot0yokZ3Oq7cpagxjQh3NXaOqXwxkyAQoRGTtV4vlDp7/IGNpWXlFlJCJhiL5GZsndII9w0oKKT5ytIKkgvrgJKTNtE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lO6z3tqx; arc=pass smtp.client-ip=209.85.167.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85D47363C50
+	for <selinux@vger.kernel.org>; Wed, 26 Aug 2026 18:04:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.181
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787767463; cv=none; b=k31eB6oWJwT99zGftAdXdI31hQZFPasPzm3O/6D3fbAfDAd0ARu1kghZKPjl7BJcBD3f1nsDIBSymVb5hmtHbAD9Yo8TuwY5fzpUjsV5yfeHPZh1WLw6St/MiRSluREHvLWTYwHniGbAeXIeZznMQ8eexU538HIYOCG2KwFzTg8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787767463; c=relaxed/simple;
+	bh=AZxqgqv8V9CtEboaZwJjfce+JeKBaWA12QMRRs1BODs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=JTn+oEjv/kC1EcmeW8hilZ3uHs8EqqpITRwyS05mq3/Xm0pTOnnZsZ+lNokVgsHt9s4XqflRLd3P/KTW7zXSV/T6UBAbUJP2SLwSg2ipdIsHposHlyUD95R1QfQQvUvrh58aOfiVYnrgsKxDHV1sKgq2lNGSKlubm7QjZNVQp0Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SAcH1fUG; arc=none smtp.client-ip=209.85.222.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lO6z3tqx"
-Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-5b4afc8465eso295687e87.2
-        for <selinux@vger.kernel.org>; Wed, 26 Aug 2026 10:54:06 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1787766842; cv=none;
-        d=google.com; s=arc-20260327;
-        b=Rq0cJmDcwWpZmf7JfK6wukUA89rAWa2I22MgePCdWg3F6mr+rrhbF2ski9hXHyIfTE
-         wWHE6scTSHiF/q7idxlJ/10lRT6W71JCULnQjdT0Oj9+46/rTm3fjEwh0opo4wZkfIsN
-         uTPvgxCnDWEbDUREUIoH+Omwz4IYxp8KrPDtrKVBVMY+RXo3HL8oqlUBStg+5Y5kYgkd
-         D4HZXUBUAw8eZj/rKRJ/MXsOm6HPpP6IwASlJEl0fpWcJrF7gj9qUvVvveh5FVPzDXtR
-         EQP+B+f/R2ZgjQc49qYRuasts/QSoIUHLeqfEaZ9eN+68/wXVSAeIy7miyzsI3yGrmwI
-         xHVg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=wTCeuDiL2E0bHOLY3P9KMSQElejnq6pUhgDGaq1yVs8=;
-        fh=p/vpgII7nnWP4e09DvPdpCHWrNFIrvv7En2SfKVYZq8=;
-        b=PEGpvZjIvtqUkDbaJKGmiJHcsBF9aDQXoG2ziXifD12npTPV8aZft/7K2i0eQUbI+c
-         E7noWpggHfPiqBh37NoXKtGTVuRADkb201oF4G1ePfFlqfXCeSL3F905P4VTgM6Xy9sm
-         UXCWXibpfIgMfhVLXajRqnz7rl2z4pG+q7mna9YXcQs665Y65GuexQgdFFaejDbqc5QG
-         WApGafWnyiUKZfmUZ5DdLKQcMvA+oSs3M9lo3TUoNL5Y3VotaTiOsF/UJrGKH6nUTnGG
-         ptO+UgVMQzbhNfmeY+EPnR/QCYVzvDBU8hcpwntMoBs2XqnsdELRlmD5YOo46we9Zeob
-         KOuw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SAcH1fUG"
+Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-92ea24a2dbfso103383185a.0
+        for <selinux@vger.kernel.org>; Wed, 26 Aug 2026 11:04:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787766842; x=1788371642; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=wTCeuDiL2E0bHOLY3P9KMSQElejnq6pUhgDGaq1yVs8=;
-        b=lO6z3tqxus9TgW9HM0Q2yOTXSoQi52/QQrQ0p03dRJ7VpPoOLcqP85Yr9ay0IJhUIW
-         h6GtPT5oCvu71ZQ9TGldGh8nB7nPHnV+L9/qx43s2ZVugNoa8KvYVOJkdh3yTLyYbFIt
-         /Z8+JpGTrkhN/4Enjzpf5djtOE+vI5rIcj2PDz7Y06SMCA6f6PqPG/SJBU2R2Jzb7loy
-         SVdw/L1vTwRaxiM0O8OBPVvFaMga365PPM8RCjmVR+VhBpUEXA15fGLG9rUdJxRtC6m1
-         fKsGv7swupY9x9QRJBh63yr/1C++3oiFolL6lXjMHh6d6C+SmWe6UllATf9Woleiilea
-         mlSQ==
+        d=gmail.com; s=20251104; t=1787767452; x=1788372252; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=lkSwsE6/SXhStv+smFHGWRr/zMlBHyGjnJ2LsMbdOBY=;
+        b=SAcH1fUG9q3ylsZ5O9mvaK6OTA7IJHYUkDa9lTdZFswZrrVTLdC1cHaLBvTEHxaVe2
+         VFnFimBWS0fXptB/rcVf6aJe8qZ+fvP0xb8Gc/qbhPjoFhoV0s0TZ/ZhFlM4SXp+uh4l
+         uqHJlkPeP2+fkalnDQHKoFqId9JWfINpdKUc6wAO4wKEAotO7RIqNI/2z1CT2kXUAQop
+         a2fllBJHW38Z1IJAwqTbT5KP/zk/FDQve5MkLLi/RreT8pthE3v8MQPxPzqWt0xxel7u
+         iHHDq5Ysm6i08NVDS+jLRfMrHuLmUOwLSzfqtl92egAhTxzkPufgiP7wIfGMLHZGKFjc
+         iM9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787766842; x=1788371642;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=wTCeuDiL2E0bHOLY3P9KMSQElejnq6pUhgDGaq1yVs8=;
-        b=kiP17fplPl02TrDXaU9BDKQ0BkC+yhOIw4iWPzr9zYQuBGTvOVZQWHtacr6daw2fD7
-         heCj6SMRN7HE4W2JiDXB7lShQDKOGhFADKO3RBGO6rLjdDHl0oQELxs1QJTEwoXA9lY0
-         MeC+cXwuLxGn+1ok43E9lQeorOJxc6JX+3mikxf19lD3f5sMKFrvpczYWmhVBpQJxagv
-         QqdZ5We2KECiErT0d2Duu+r2rIWUB3Qwv9SLzxQceqp22iUwOePYbkEe5C3sVOJa4dae
-         +0YCr9B/HStFcr+bkLjGYTpzWSnE/xcKQCr34Ewyo0sVSvSmsLQzTdcIvpQvBNCwmDsh
-         1BTg==
-X-Gm-Message-State: AFuF++nDPtAboD8CWSTWUyJHcXthoHYIwoHOu41jXEomp575C0g71N0v
-	kNwsmUcF+0HT5m51KbyRQT1IMUPZIQY8l/DXW1s/Y2Ni7NIAnel5PQs49FdETanVn4HQvSIBs9J
-	M6A2hmTcjX4xtqLIScCJVIDAvwIRNwmCBpG1/
-X-Gm-Gg: AR+sD10MllbiUWb+CEG850UDbx3rerktsyPGxnS+XpyLTsyiqfE3u0aueU53Wcuc+wU
-	82GIasrvPQb04qzgErbDytoC3eNIs2K9YWCytNIAWmh0Xf71KqP5ZIOPWyM6dyl29Nt9RDDeBUg
-	6oW6naUP1hqYgqepoTFjgJ2nw2MBb2C3k53zexqxsqIcGxeTn1UGB6ZFJ41BEG2qDni4VYtnSZY
-	igKJ6w5TZXRPYkotwLMnJCXsDFyw8yJ014wYWhHxeHrNQPjCy6NSk8dc4/7gzji5QLGcMZY29LX
-	tzmr+CSiKQqakmKC5bq+fYdzZjQ+v0uGpfGWpsF/7A==
-X-Received: by 2002:a05:651c:2108:b0:39a:da70:2c77 with SMTP id
- 38308e7fff4ca-3a1fd5ab5a0mr22881291fa.3.1787766841602; Wed, 26 Aug 2026
- 10:54:01 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1787767452; x=1788372252;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=lkSwsE6/SXhStv+smFHGWRr/zMlBHyGjnJ2LsMbdOBY=;
+        b=rhjwR8QizgyA6p0qJ0z4qpb+OD62IuJVN/sb9Dfhx2BkoZ5J+t1obQ/rEoVaOUe+Gy
+         gw/AjC6iX2j/+2QcVsL0EUvvsEEqM7qCmkfZSXMXtzX4oY6ReaNfLB8wK77cuh2lG7ns
+         lFe85eapvieC0lNPgjlV3KYDHBKUG2lR6GsvWRnu8EA2o8BPDEZYfQWFqeIw0OtZt+tp
+         4HXlobumYtAnfCxgRAwjepdSmYyi2whP/FxYzXHC1bb9P5uxwiFBCw3FOXkAMZnRyrGZ
+         JiG1PfbOenLUFs+YR1GQNl6f8LK2PTh7iI5Az8AuSYJ9Bp96EbOuWE65Hq5fOFpP0Je1
+         Lmng==
+X-Gm-Message-State: AFuF++kq+jiykA1lm5V5V4c2hJX5itwsZZXtHDHVweW6zL1Z4LDQPpo4
+	Js9HSqCR3tQLXIzIgwDfxXzqaF07zi7v4NpvpLoqtFwV05l2+z/uQW5wthl5ig==
+X-Gm-Gg: AR+sD10TXQgfCLGNvu7gasqpty6E5+jhp0kkgDepjYao3N+NOWQs80GL+xctmIH0WTi
+	9hDwon5hIT0gGK3aMrobmlZAAbXdvbjdvl0ti6PSfadNjvbEWm+yOdFcP/91ud6k/txRd0MlqUM
+	8Fj6FaLHCioKgPo12VyBhHtZ7EBpJ9l/UroI7cVXXw0HfnHRBt2bVJidY4G4Q34FPFtLTF6gqsZ
+	MElv5R9jteFNBWKVjkQilJROgyJhN2vMprw7cp7ObZ7ovhFCMn3VxT25X4PP801rY/zXboY8lAf
+	IyG2PqQ6Q5vBX4h4XawIcRI7cX44j/6dzuu8wX9fYJTaoh8xVGzria9rYAOLF9a22kvAFvF9Kww
+	aixS+UVcz+BxJdruSO21ekMmWCZwpCIHZUG7E/SSAuKRuYW/Ljw80odZiLxERaHSHfLCP1rPXeY
+	nDkLpyA7V++PNa2K6DJl3PEBaqO8v2b6ESeifNyjkEkvEqzwjLHgHJK3XoIl+tMpITwK0YYVKPp
+	5ZXrMkFGGqFZus++58ohtQkJ4TXd9GPJ98/3HsISWybWjPlquiW0CCPA4XM+qNp
+X-Received: by 2002:a05:620a:2852:b0:92e:541e:632b with SMTP id af79cd13be357-9378010a43amr978918785a.2.1787767451523;
+        Wed, 26 Aug 2026 11:04:11 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9377e30f097sm268808385a.1.2026.08.26.11.04.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Aug 2026 11:04:10 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	jason@perfinion.com,
+	nicolas.iooss@m4x.org,
+	cgzones@googlemail.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] FUZZ.md,{checkpolicy,libselinux}/fuzz: document selinux fuzzing
+Date: Wed, 26 Aug 2026 14:01:14 -0400
+Message-ID: <20260826180113.6262-2-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260824191442.77835-2-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260824191442.77835-2-stephen.smalley.work@gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Wed, 26 Aug 2026 13:53:50 -0400
-X-Gm-Features: AcwNN1VoApRfAue0uKuqOUMY1M7eXf_iHMwUcWF-ndUdbNJ0Om0SZ4oopYLHjt8
-Message-ID: <CAP+JOzQnHp8Z5_jwjAe9eRFWKqR=UvfEzewyHKDdZYmduPHkGA@mail.gmail.com>
-Subject: Re: [PATCH v3] libselinux: label_file: make JIT compilation opt-in
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
-	jason@perfinion.com, p.matyas13@gmail.com, pmatyas@redhat.com, 
-	tweek@google.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, Aug 24, 2026 at 3:15=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> Commit 92af7f1b61db6e ("libselinux: prevent ReDoS in file context
-> regex matching") introduced the use of pcre2_jit_compile() after every
-> pattern compilation to leverage JIT for regex matching to help
-> mitigate catastrophic backtracking on crafted file context regexes or
-> lookup keys. This triggers SELinux execmem permission checks on every
-> caller of selabel_open(SELABEL_CTX_FILE, ..). Permission denial is
-> non-fatal in this case but allowing this permission may be undesirable
-> for some callers and will produce audit log noise for others. Further,
-> the JITed matching itself is subject to stack overflow on crafted
-> regexes. Make the JIT compilation opt-in rather than automatic via a
-> new SELABEL_OPT_JIT option for selabel_open() so that we do not impact
-> existing callers while allowing callers to selectively opt in when
-> they want this behavior and run in a context that can be allowed
-> execmem without concern.
->
-> Link: https://lore.kernel.org/selinux/20260729131413.1390890-1-pmatyas@re=
-dhat.com/
-> Link: https://lore.kernel.org/selinux/CAEjxPJ5i7G79aw6d7L_fnvr8zgsxPnmW8b=
-FEJ6NCXWerrSvvYA@mail.gmail.com/
-> Fixes: 92af7f1b61db ("libselinux: prevent ReDoS in file context regex mat=
-ching")
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Document the use of OSS-Fuzz and CIFuzz by the selinux userspace
+project and provide some instructions and helpers for debugging
+fuzzing failures.
 
-Acked-by: James Carter <jwcart2@gmail.com>
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+This is based on my experience thus far in handling OSS-Fuzz/CIFuzz;
+for those who may be more familiar with them, feel free to correct
+or suggest additions! The decode*.c programs are just copied from
+the fuzzers themselves and then tweaked to display additional info;
+I also found them useful for reproducing bugs in a manner more
+amenable to using gdb/valgrind than the oss-fuzz.sh-produced build.
 
-> ---
-> v3 fixes a missing trailing __ for __attribute and drops the unrelated ch=
-ange
-> to sefcontext_compile.c.
->
->  libselinux/include/selinux/label.h |  4 +++-
->  libselinux/man/man3/selabel_open.3 |  7 +++++++
->  libselinux/src/label.c             | 13 ++++++++++++
->  libselinux/src/label_file.c        | 32 ++++++++++++++++++------------
->  libselinux/src/label_file.h        |  6 +++---
->  libselinux/src/label_internal.h    |  2 ++
->  libselinux/src/regex.c             | 16 +++++++++------
->  libselinux/src/regex.h             |  6 ++++--
->  8 files changed, 61 insertions(+), 25 deletions(-)
->
-> diff --git a/libselinux/include/selinux/label.h b/libselinux/include/seli=
-nux/label.h
-> index bde2501f..10e3a718 100644
-> --- a/libselinux/include/selinux/label.h
-> +++ b/libselinux/include/selinux/label.h
-> @@ -59,8 +59,10 @@ struct selabel_handle;
->  #define SELABEL_OPT_SUBSET 4
->  /* require a hash calculation on spec files */
->  #define SELABEL_OPT_DIGEST 5
-> +/* enable JIT compilation of regexes */
-> +#define SELABEL_OPT_JIT 6
->  /* total number of options */
-> -#define SELABEL_NOPT 6
-> +#define SELABEL_NOPT 7
->
->  /*
->   * Label operations
-> diff --git a/libselinux/man/man3/selabel_open.3 b/libselinux/man/man3/sel=
-abel_open.3
-> index 0e03e1be..fa71d27c 100644
-> --- a/libselinux/man/man3/selabel_open.3
-> +++ b/libselinux/man/man3/selabel_open.3
-> @@ -73,6 +73,13 @@ A non-null value for this option enables the generatio=
-n of an SHA1 digest of
->  the spec files loaded as described in
->  .BR selabel_digest (3)
->  .
-> +.TP
-> +.B SELABEL_OPT_JIT
-> +A non-null value for this option enables the JIT compilation of regexes
-> +read from the spec files. This option is only currently supported with
-> +the
-> +.B SELABEL_CTX_FILE
-> +backend.
->  .SH "BACKENDS"
->  .TP
->  .B SELABEL_CTX_FILE
-> diff --git a/libselinux/src/label.c b/libselinux/src/label.c
-> index 4a97d3bc..93848bfe 100644
-> --- a/libselinux/src/label.c
-> +++ b/libselinux/src/label.c
-> @@ -155,6 +155,18 @@ int selabel_validate(struct selabel_lookup_rec *cont=
-exts)
->         return 0;
->  }
->
-> +/* Should we enable JIT compilation? */
-> +static inline int selabel_is_jit_set(const struct selinux_opt *opts, uns=
-igned n)
-> +{
-> +       while (n) {
-> +               n--;
-> +               if (opts[n].type =3D=3D SELABEL_OPT_JIT)
-> +                       return !!opts[n].value;
-> +       }
-> +
-> +       return 0;
-> +}
-> +
->  /* Public API helpers */
->  static int selabel_fini(const struct selabel_handle *rec,
->                         struct selabel_lookup_rec *lr, bool translating)
-> @@ -261,6 +273,7 @@ struct selabel_handle *selabel_open(unsigned int back=
-end,
->
->         rec->backend =3D backend;
->         rec->validating =3D selabel_is_validate_set(opts, nopts);
-> +       rec->jit =3D selabel_is_jit_set(opts, nopts);
->
->         rec->digest =3D selabel_is_digest_set(opts, nopts);
->
-> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-> index d716e0f1..ce14e63d 100644
-> --- a/libselinux/src/label_file.c
-> +++ b/libselinux/src/label_file.c
-> @@ -633,8 +633,8 @@ static int load_mmap_literal_spec(struct mmap_area *m=
-map_area, bool validating,
->  }
->
->  static int load_mmap_regex_spec(struct mmap_area *mmap_area, bool valida=
-ting,
-> -                               bool do_load_precompregex, uint8_t inputn=
-o,
-> -                               struct regex_spec *rspec,
-> +                               bool jit, bool do_load_precompregex,
-> +                               uint8_t inputno, struct regex_spec *rspec=
-,
->                                 const struct context_array *ctx_array)
->  {
->         uint32_t data_u32, ctx_id, lineno;
-> @@ -723,7 +723,7 @@ static int load_mmap_regex_spec(struct mmap_area *mma=
-p_area, bool validating,
->          * Read pcre regex related data
->          */
->         rc =3D regex_load_mmap(mmap_area, &rspec->regex, do_load_precompr=
-egex,
-> -                            &rspec->regex_compiled);
-> +                            jit, &rspec->regex_compiled);
->         if (rc < 0)
->                 return -1;
->
-> @@ -733,7 +733,8 @@ static int load_mmap_regex_spec(struct mmap_area *mma=
-p_area, bool validating,
->  }
->
->  static int load_mmap_spec_node(struct mmap_area *mmap_area, const char *=
-path,
-> -                              bool validating, bool do_load_precompregex=
-,
-> +                              bool validating, bool jit,
-> +                              bool do_load_precompregex,
->                                struct spec_node *node, const unsigned dep=
-th,
->                                uint8_t inputno,
->                                const struct context_array *ctx_array)
-> @@ -840,7 +841,7 @@ static int load_mmap_spec_node(struct mmap_area *mmap=
-_area, const char *path,
->                 node->regex_specs_alloc =3D rspec_num;
->
->                 for (uint32_t i =3D 0; i < rspec_num; i++) {
-> -                       rc =3D load_mmap_regex_spec(mmap_area, validating=
-,
-> +                       rc =3D load_mmap_regex_spec(mmap_area, validating=
-, jit,
->                                                   do_load_precompregex, i=
-nputno,
->                                                   &node->regex_specs[i],
->                                                   ctx_array);
-> @@ -876,7 +877,7 @@ static int load_mmap_spec_node(struct mmap_area *mmap=
-_area, const char *path,
->
->                 for (uint32_t i =3D 0; i < children_num; i++) {
->                         rc =3D load_mmap_spec_node(mmap_area, path, valid=
-ating,
-> -                                                do_load_precompregex,
-> +                                                jit, do_load_precomprege=
-x,
->                                                  &node->children[i], dept=
-h + 1,
->                                                  inputno, ctx_array);
->                         if (rc)
-> @@ -1064,7 +1065,7 @@ end_arch_check:
->         if (!root)
->                 goto err;
->
-> -       rc =3D load_mmap_spec_node(mmap_area, path, rec->validating,
-> +       rc =3D load_mmap_spec_node(mmap_area, path, rec->validating, rec-=
->jit,
->                                  reg_version_matches && reg_arch_matches,=
- root,
->                                  0, inputno, &ctx_array);
->         if (rc)
-> @@ -1538,6 +1539,7 @@ static int init(struct selabel_handle *rec, const s=
-truct selinux_opt *opts,
->                 case SELABEL_OPT_UNUSED:
->                 case SELABEL_OPT_VALIDATE:
->                 case SELABEL_OPT_DIGEST:
-> +               case SELABEL_OPT_JIT:
->                         break;
->                 default:
->                         errno =3D EINVAL;
-> @@ -1890,6 +1892,7 @@ fail:
->   * @file_kind: The kind of the file to look up (translated from file typ=
-e into LABEL_FILE_KIND_*).
->   * @partial:   Whether to partially match the given file path or complet=
-ely.
->   * @find_all:  Whether to find all file context definitions or just the =
-most specific.
-> + * @jit:       Whether to enable JIT compilation of regexes.
->   * @buf:       A pre-allocated buffer for a potential result to avoid al=
-locating it on the heap or
->   *             NULL. Mutual exclusive with @find_all.
->   *
-> @@ -1897,9 +1900,11 @@ fail:
->   *         its a linked list of all results. If @buf was specified it is=
- returned on a match found.
->   *         NULL is returned in case of no match found.
->   */
-> -static struct lookup_result *
-> -lookup_check_node(struct spec_node *node, const char *key, uint8_t file_=
-kind,
-> -                 bool partial, bool find_all, struct lookup_result *buf)
-> +static struct lookup_result *lookup_check_node(struct spec_node *node,
-> +                                              const char *key,
-> +                                              uint8_t file_kind, bool pa=
-rtial,
-> +                                              bool find_all, bool jit,
-> +                                              struct lookup_result *buf)
->  {
->         struct lookup_result *result =3D NULL;
->         struct lookup_result **next =3D &result;
-> @@ -2002,7 +2007,8 @@ lookup_check_node(struct spec_node *node, const cha=
-r *key, uint8_t file_kind,
->                             file_kind !=3D rspec->file_kind)
->                                 continue;
->
-> -                       if (compile_regex(rspec, errbuf, sizeof(errbuf)) =
-< 0) {
-> +                       if (compile_regex(rspec, errbuf, sizeof(errbuf), =
-jit) <
-> +                           0) {
->                                 COMPAT_LOG(
->                                         SELINUX_ERROR,
->                                         "Failed to compile regular expres=
-sion '%s':  %s\n",
-> @@ -2274,8 +2280,8 @@ FUZZ_EXTERN struct lookup_result *lookup_all(struct=
- selabel_handle *rec,
->
->         node =3D lookup_find_deepest_node(data->root, key, &rest_key);
->
-> -       result =3D
-> -               lookup_check_node(node, key, file_kind, partial, find_all=
-, buf);
-> +       result =3D lookup_check_node(node, key, file_kind, partial, find_=
-all,
-> +                                  rec->jit, buf);
->
->         /* For partial lookup if the key matches a child node, recursivel=
-y add all specs */
->         if (partial && rest_key) {
-> diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
-> index 3be15f25..acfe2e0d 100644
-> --- a/libselinux/src/label_file.h
-> +++ b/libselinux/src/label_file.h
-> @@ -398,7 +398,7 @@ static inline void sort_specs(struct saved_data *data=
-)
->  }
->
->  static int compile_regex(struct regex_spec *spec, char *errbuf,
-> -                        size_t errbuf_size)
-> +                        size_t errbuf_size, bool jit)
->  {
->         const char *reg_buf;
->         char *anchored_regex, *cp;
-> @@ -473,7 +473,7 @@ static int compile_regex(struct regex_spec *spec, cha=
-r *errbuf,
->         *cp =3D '\0';
->
->         /* Compile the regular expression. */
-> -       rc =3D regex_prepare_data(&spec->regex, anchored_regex, &error_da=
-ta);
-> +       rc =3D regex_prepare_data(&spec->regex, anchored_regex, &error_da=
-ta, jit);
->         free(anchored_regex);
->         if (rc < 0) {
->                 regex_format_error(&error_data, errbuf, errbuf_size);
-> @@ -655,7 +655,7 @@ static int insert_spec(const struct selabel_handle *r=
-ec,
->                         char errbuf[256];
->
->                         if (compile_regex(&node->regex_specs[id], errbuf,
-> -                                         sizeof(errbuf))) {
-> +                                         sizeof(errbuf), rec->jit)) {
->                                 COMPAT_LOG(
->                                         SELINUX_ERROR,
->                                         "%s:  line %u has invalid regex %=
-s:  %s\n",
-> diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_inter=
-nal.h
-> index 4279637e..47c5d3cb 100644
-> --- a/libselinux/src/label_internal.h
-> +++ b/libselinux/src/label_internal.h
-> @@ -11,6 +11,7 @@
->  #include <stdlib.h>
->  #include <stdarg.h>
->  #include <stdio.h>
-> +#include <stdbool.h>
->  #include <selinux/selinux.h>
->  #include <selinux/label.h>
->  #include "sha1.h"
-> @@ -73,6 +74,7 @@ struct selabel_handle {
->         /* arguments that were passed to selabel_open */
->         unsigned int backend;
->         int validating;
-> +       bool jit;
->
->         /* labeling operations */
->         struct selabel_lookup_rec *(*func_lookup)(struct selabel_handle *=
-h,
-> diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
-> index 017647b4..d6b5bf02 100644
-> --- a/libselinux/src/regex.c
-> +++ b/libselinux/src/regex.c
-> @@ -87,7 +87,7 @@ struct regex_data {
->  };
->
->  int regex_prepare_data(struct regex_data **regex, char const *pattern_st=
-ring,
-> -                      struct regex_error_data *errordata)
-> +                      struct regex_error_data *errordata, bool jit)
->  {
->         memset(errordata, 0, sizeof(struct regex_error_data));
->
-> @@ -108,7 +108,8 @@ int regex_prepare_data(struct regex_data **regex, cha=
-r const *pattern_string,
->          * susceptibility to catastrophic backtracking. Partial matches f=
-all
->          * back to the interpreter, protected by the match limit. Failure=
-s
->          * are non-fatal. */
-> -       (void)pcre2_jit_compile((*regex)->regex, PCRE2_JIT_COMPLETE);
-> +       if (jit)
-> +               (void)pcre2_jit_compile((*regex)->regex, PCRE2_JIT_COMPLE=
-TE);
->
->         return 0;
->
-> @@ -130,7 +131,7 @@ char const *regex_version(void)
->  }
->
->  int regex_load_mmap(struct mmap_area *mmap_area, struct regex_data **reg=
-ex,
-> -                   int do_load_precompregex, bool *regex_compiled)
-> +                   int do_load_precompregex, bool jit, bool *regex_compi=
-led)
->  {
->         int rc;
->         uint32_t data_u32, entry_len;
-> @@ -164,7 +165,9 @@ int regex_load_mmap(struct mmap_area *mmap_area, stru=
-ct regex_data **regex,
->                 if (rc !=3D 1)
->                         goto err;
->
-> -               (void)pcre2_jit_compile((*regex)->regex, PCRE2_JIT_COMPLE=
-TE);
-> +               if (jit)
-> +                       (void)pcre2_jit_compile((*regex)->regex,
-> +                                               PCRE2_JIT_COMPLETE);
->
->                 *regex_compiled =3D true;
->         }
-> @@ -367,7 +370,8 @@ struct regex_data {
->  };
->
->  int regex_prepare_data(struct regex_data **regex, char const *pattern_st=
-ring,
-> -                      struct regex_error_data *errordata)
-> +                      struct regex_error_data *errordata,
-> +                      bool jit __attribute__((unused)))
->  {
->         memset(errordata, 0, sizeof(struct regex_error_data));
->
-> @@ -402,7 +406,7 @@ char const *regex_version(void)
->
->  int regex_load_mmap(struct mmap_area *mmap_area, struct regex_data **reg=
-ex,
->                     int do_load_precompregex __attribute__((unused)),
-> -                   bool *regex_compiled)
-> +                   bool jit __attribute__((unused)), bool *regex_compile=
-d)
->  {
->         int rc;
->         uint32_t data_u32, entry_len;
-> diff --git a/libselinux/src/regex.h b/libselinux/src/regex.h
-> index 0eea2803..4cda7bfc 100644
-> --- a/libselinux/src/regex.h
-> +++ b/libselinux/src/regex.h
-> @@ -78,11 +78,12 @@ void regex_data_free(struct regex_data *regex);
->   *                to this function. This structure depends on the underl=
-ying
->   *                implementation. It can be passed to regex_format_error
->   *                to generate a human readable error message.
-> + * @arg jit A boolean indicating whether JIT compilation should be perfo=
-rmed.
->   * @retval 0 on success
->   * @retval -1 on error
->   */
->  int regex_prepare_data(struct regex_data **regex, char const *pattern_st=
-ring,
-> -                      struct regex_error_data *errordata);
-> +                      struct regex_error_data *errordata, bool jit);
->  /**
->   * This function loads a serialized precompiled pattern from a contiguou=
-s
->   * data region given by map_area.
-> @@ -93,6 +94,7 @@ int regex_prepare_data(struct regex_data **regex, char =
-const *pattern_string,
->   *            with regex_data_create and must be freed with regex_data_f=
-ree.
->   * @arg do_load_precompregex If non-zero precompiled patterns get loaded=
- from
->   *                          the mmap region (ignored by PCRE1 back-end).
-> + * @arg jit A boolean indicating whether JIT compilation should be perfo=
-rmed.
->   * @arg regex_compiled Set to true if a precompiled pattern was loaded
->   *                    into regex, otherwise set to false to indicate lat=
-er
->   *                    compilation must occur
-> @@ -101,7 +103,7 @@ int regex_prepare_data(struct regex_data **regex, cha=
-r const *pattern_string,
->   * @retval -1 on error
->   */
->  int regex_load_mmap(struct mmap_area *map_area, struct regex_data **rege=
-x,
-> -                   int do_load_precompregex, bool *regex_compiled);
-> +                   int do_load_precompregex, bool jit, bool *regex_compi=
-led);
->  /**
->   * This function stores a precompiled regular expression to a file.
->   * In the case of PCRE, it just dumps the binary representation of the
-> --
-> 2.55.0
->
+ FUZZ.md                                       |  86 +++++
+ checkpolicy/fuzz/decodecheckpolicyfuzz.c      |  41 +++
+ .../fuzz/decodeselabelfilecompiledfuzz.c      | 335 ++++++++++++++++++
+ libselinux/fuzz/decodeselabelfiletextfuzz.c   | 313 ++++++++++++++++
+ 4 files changed, 775 insertions(+)
+ create mode 100644 FUZZ.md
+ create mode 100644 checkpolicy/fuzz/decodecheckpolicyfuzz.c
+ create mode 100644 libselinux/fuzz/decodeselabelfilecompiledfuzz.c
+ create mode 100644 libselinux/fuzz/decodeselabelfiletextfuzz.c
+
+diff --git a/FUZZ.md b/FUZZ.md
+new file mode 100644
+index 00000000..405234b9
+--- /dev/null
++++ b/FUZZ.md
+@@ -0,0 +1,86 @@
++Fuzzing of the SELinux userspace
++================================
++
++OSS-Fuzz
++--------
++
++Portions of the SELinux userspace are regularly fuzzed by OSS-Fuzz based
++on the configuration at:
++https://github.com/google/oss-fuzz/blob/master/projects/selinux/project.yaml
++
++The fuzzers can be found under the fuzz subdirectories of various
++directories within the selinux repository, and can be built using the
++./scripts/oss-fuzz.sh script. OSS-Fuzz itself uses this script to
++build the fuzzers.
++
++See
++https://issues.oss-fuzz.com/issues?q=project:selinux
++for public OSS-Fuzz selinux issues. OSS-Fuzz automatically makes
++issues public once they are verified to be fixed or after a 90 day
++disclosure window. Issues are initially created private and
++sent via email to those listed in the configuration above.
++
++Not all issues will be fixed by the upstream SELinux project, e.g.
++small memory leaks on error paths for checkpolicy are not viewed as
++worth fixing since checkpolicy will exit shortly thereafter, and OSS
++Fuzz will create issues if it encounters a timeout during fuzzing even
++though the fuzzer would have completed if given more time.
++
++Items categorized as a vulnerability by OSS-Fuzz will not always be
++treated as security issues by the upstream SELinux project; in
++particular, issues that depend on attacker-controlled policy are not
++considered to be security issues and will just be handled as regular
++bugs. See
++[SECURITY.md](https://github.com/SELinuxProject/selinux/blob/main/SECURITY.md)
++for more information on the SELinux userspace security vulnerability
++handling process.
++
++CIFuzz
++------
++
++The selinux GitHub CI Actions include a CIFuzz workflow based on the
++configuration at:
++https://github.com/SELinuxProject/selinux/blob/main/.github/workflows/cifuzz.yml
++
++This action is invoked for pushes and pull requests targeting the main
++branch of the SELinuxProject/selinux repository to help detect
++regressions on new commits.
++
++The status of CIFuzz workflow runs can be viewed at:
++https://github.com/SELinuxProject/selinux/actions/workflows/cifuzz.yml
++as well as in the check status for each push or pull request and
++displayed in the banner at the top of the
++[README.md](https://github.com/SELinuxProject/selinux/blob/main/README.md)
++file.
++
++Debugging Fuzzing Failures
++--------------------------
++
++OSS-Fuzz provides a detailed report and, when possible, a reproducer
++testcase. If the cause cannot be determined from the report, the
++reproducer testcase can be downloaded locally, the fuzzer can be built
++using ./scripts/oss-fuzz.sh, and the fuzzer can be manually run on the
++reproducer testcase input.
++
++In some cases, it may be helpful to run one of the selinux userspace
++programs on the fuzzer input directly, potentially under gdb or
++valgrind, to better understand the issue and whether it is applicable
++to any production tool. This can be done when the fuzzer input is
++accepted directly as input to one of the selinux userspace programs,
++such as a CIL policy file to secilc or a binary policy file to
++checkpolicy -b. In other cases, the fuzzing input actually consists of
++a binary header and one or more concatenated files that must be
++decoded or split. Simple programs for decoding the fuzzer input can
++also be found under the fuzz/ subdirectories within the selinux
++repository, starting with the prefix "decode". These programs can be
++run on the reproducer testcase to extract and display information
++about the reproducer. To build these programs, one must compile the
++selinux userspace and the program with the
++-DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION flag to provide access to
++the necessary helper functions that would otherwise not be exposed in
++a production build, e.g.
++
++    make CFLAGS+='-DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION -g' clean all
++    gcc -g -o decodeselabelfiletextfuzz libselinux/fuzz/decodeselabelfiletextfuzz.c libselinux/src/libselinux.a /usr/lib64/libpcre2-8.a
++    valgrind ./decodeselabelfiletextfuzz clusterfuzz-testcase-minimized-selabel_file_text-fuzzer-5721256067137536
++
+diff --git a/checkpolicy/fuzz/decodecheckpolicyfuzz.c b/checkpolicy/fuzz/decodecheckpolicyfuzz.c
+new file mode 100644
+index 00000000..99ab150c
+--- /dev/null
++++ b/checkpolicy/fuzz/decodecheckpolicyfuzz.c
+@@ -0,0 +1,41 @@
++#include <stdio.h>
++#include <stdlib.h>
++
++int main(int argc, char **argv)
++{
++	FILE *fp = fopen(argv[1], "rb");
++	if (!fp) {
++		perror(argv[1]);
++		exit(1);
++	}
++	unsigned char buf[3];
++	size_t nread = fread(buf, 1, 3, fp);
++	if (nread != 3) {
++		perror("fread");
++		exit(1);
++	}
++	switch (buf[0]) {
++	case 'S':
++		printf("SELinux");
++		break;
++	case 'X':
++		printf("Xen");
++		break;
++	default:
++		printf("Unknown");
++	}
++	puts("\n");
++	switch (buf[1]) {
++	case '0':
++		printf("non-MLS");
++		break;
++	case '1':
++		printf("MLS");
++		break;
++	default:
++		printf("Unknown");
++	}
++	puts("\n");
++	printf("%d\n", buf[2] - 'A');
++	return 0;
++}
+diff --git a/libselinux/fuzz/decodeselabelfilecompiledfuzz.c b/libselinux/fuzz/decodeselabelfilecompiledfuzz.c
+new file mode 100644
+index 00000000..b5abd830
+--- /dev/null
++++ b/libselinux/fuzz/decodeselabelfilecompiledfuzz.c
+@@ -0,0 +1,335 @@
++#define _GNU_SOURCE
++#include <errno.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <sys/mman.h>
++#include <unistd.h>
++
++#include <selinux/label.h>
++
++#define FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
++#include "selinux/libselinux/src/label_file.h"
++
++#define MEMFD_FILE_NAME "file_contexts"
++#define CTRL_PARTIAL (1U << 0)
++#define CTRL_FIND_ALL (1U << 1)
++#define CTRL_MODE (1U << 2)
++
++__attribute__((format(printf, 2, 3))) static int
++null_log(int type __attribute__((unused)),
++	 const char *fmt __attribute__((unused)), ...)
++{
++	return 0;
++}
++
++static int validate_context(char **ctxp)
++{
++	assert(strcmp(*ctxp, "<<none>>") != 0);
++
++	if (*ctxp[0] == '\0') {
++		errno = EINVAL;
++		return -1;
++	}
++
++	return 0;
++}
++
++static int write_full(int fd, const void *data, size_t size)
++{
++	ssize_t rc;
++	const unsigned char *p = data;
++
++	while (size > 0) {
++		rc = write(fd, p, size);
++		if (rc == -1) {
++			if (errno == EINTR)
++				continue;
++
++			return -1;
++		}
++
++		p += rc;
++		size -= rc;
++	}
++
++	return 0;
++}
++
++static FILE *convert_data(const uint8_t *data, size_t size)
++{
++	FILE *stream;
++	int fd, rc;
++
++	fd = memfd_create(MEMFD_FILE_NAME, MFD_CLOEXEC);
++	if (fd == -1)
++		return NULL;
++
++	rc = write_full(fd, data, size);
++	if (rc == -1) {
++		close(fd);
++		return NULL;
++	}
++
++	stream = fdopen(fd, "r");
++	if (!stream) {
++		close(fd);
++		return NULL;
++	}
++
++	rc = fseek(stream, 0L, SEEK_SET);
++	if (rc == -1) {
++		fclose(stream);
++		return NULL;
++	}
++
++	return stream;
++}
++
++int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
++{
++	struct selabel_handle rec;
++	struct saved_data sdata = {};
++	struct spec_node *root = NULL;
++	FILE *fp = NULL;
++	struct lookup_result *result = NULL;
++	uint8_t control;
++	uint8_t *fcontext_data1 = NULL, *fcontext_data2 = NULL,
++		*fcontext_data3 = NULL;
++	char *key = NULL;
++	size_t fcontext_data1_len, fcontext_data2_len = 0,
++				   fcontext_data3_len = 0, key_len;
++	bool partial, find_all;
++	mode_t mode;
++	int rc;
++
++	/*
++	 * Treat first byte as control byte, whether to use partial mode, find all matches or mode to lookup
++	 */
++	if (size == 0)
++		return 0;
++
++	control = data[0];
++	data++;
++	size--;
++
++	if (control & ~(CTRL_PARTIAL | CTRL_FIND_ALL | CTRL_MODE))
++		return 0;
++
++	partial = control & CTRL_PARTIAL;
++	find_all = control & CTRL_FIND_ALL;
++	/* S_IFSOCK has the highest integer value */
++	mode = (control & CTRL_MODE) ? S_IFSOCK : 0;
++
++	if (partial)
++		printf("partial\n");
++	if (find_all)
++		printf("find_all\n");
++	if (mode)
++		printf("mode\n");
++
++	/*
++	 * Split the fuzzer input into up to four pieces: one to three compiled fcontext
++	 * definitions (to mimic file_contexts, file_contexts.homedirs and file_contexts.local,
++	 * and the lookup key
++	 */
++	const unsigned char separator[4] = { 0xde, 0xad, 0xbe, 0xef };
++	const uint8_t *sep = memmem(data, size, separator, 4);
++	if (!sep || sep == data)
++		return 0;
++
++	fcontext_data1_len = sep - data;
++	fcontext_data1 = malloc(fcontext_data1_len);
++	if (!fcontext_data1)
++		goto cleanup;
++
++	memcpy(fcontext_data1, data, fcontext_data1_len);
++	data += fcontext_data1_len + 4;
++	size -= fcontext_data1_len + 4;
++
++	sep = memmem(data, size, separator, 4);
++	if (sep) {
++		fcontext_data2_len = sep - data;
++		if (fcontext_data2_len) {
++			fcontext_data2 = malloc(fcontext_data2_len);
++			if (!fcontext_data2)
++				goto cleanup;
++
++			memcpy(fcontext_data2, data, fcontext_data2_len);
++		}
++
++		data += fcontext_data2_len + 4;
++		size -= fcontext_data2_len + 4;
++	}
++
++	sep = memmem(data, size, separator, 4);
++	if (sep) {
++		fcontext_data3_len = sep - data;
++		if (fcontext_data3_len) {
++			fcontext_data3 = malloc(fcontext_data3_len);
++			if (!fcontext_data3)
++				goto cleanup;
++
++			memcpy(fcontext_data3, data, fcontext_data3_len);
++		}
++
++		data += fcontext_data3_len + 4;
++		size -= fcontext_data3_len + 4;
++	}
++
++	key_len = size;
++	key = malloc(key_len + 1);
++	if (!key)
++		goto cleanup;
++
++	memcpy(key, data, key_len);
++	key[key_len] = '\0';
++
++	/*
++	 * Mock selabel handle
++	 */
++	rec = (struct selabel_handle){
++		.backend = SELABEL_CTX_FILE,
++		.validating = 1,
++		.data = &sdata,
++	};
++
++	selinux_set_callback(SELINUX_CB_LOG,
++			     (union selinux_callback){ .func_log = &null_log });
++	/* validate to pre-compile regular expressions */
++	selinux_set_callback(
++		SELINUX_CB_VALIDATE,
++		(union selinux_callback){ .func_validate = &validate_context });
++
++	root = calloc(1, sizeof(*root));
++	if (!root)
++		goto cleanup;
++
++	sdata.root = root;
++
++	fp = convert_data(fcontext_data1, fcontext_data1_len);
++	if (!fp)
++		goto cleanup;
++
++	errno = 0;
++	rc = load_mmap(fp, fcontext_data1_len, &rec, MEMFD_FILE_NAME, 0);
++	if (rc) {
++		assert(errno != 0);
++		goto cleanup;
++	}
++
++	fclose(fp);
++	fp = NULL;
++
++	if (fcontext_data2_len) {
++		fp = convert_data(fcontext_data2, fcontext_data2_len);
++		if (!fp)
++			goto cleanup;
++
++		errno = 0;
++		rc = load_mmap(fp, fcontext_data2_len, &rec, MEMFD_FILE_NAME,
++			       1);
++		if (rc) {
++			assert(errno != 0);
++			goto cleanup;
++		}
++
++		fclose(fp);
++		fp = NULL;
++	}
++
++	if (fcontext_data3_len) {
++		fp = convert_data(fcontext_data3, fcontext_data3_len);
++		if (!fp)
++			goto cleanup;
++
++		errno = 0;
++		rc = load_mmap(fp, fcontext_data3_len, &rec, MEMFD_FILE_NAME,
++			       2);
++		if (rc) {
++			assert(errno != 0);
++			goto cleanup;
++		}
++
++		fclose(fp);
++		fp = NULL;
++	}
++
++	sort_specs(&sdata);
++
++	assert(cmp(&rec, &rec) == SELABEL_EQUAL);
++
++	errno = 0;
++	result = lookup_all(&rec, key, mode, partial, find_all, NULL);
++
++	if (!result)
++		assert(errno != 0);
++
++	for (const struct lookup_result *res = result; res; res = res->next) {
++		assert(res->regex_str);
++		assert(res->regex_str[0] != '\0');
++		assert(res->lr->ctx_raw);
++		assert(res->lr->ctx_raw[0] != '\0');
++		assert(strcmp(res->lr->ctx_raw, "<<none>>") != 0);
++		assert(!res->lr->ctx_trans);
++		assert(res->lr->validated);
++		assert(res->prefix_len <= strlen(res->regex_str));
++	}
++
++cleanup:
++	free_lookup_result(result);
++	if (fp)
++		fclose(fp);
++	if (sdata.root) {
++		free_spec_node(sdata.root);
++		free(sdata.root);
++	}
++
++	{
++		struct mmap_area *area, *last_area;
++
++		area = sdata.mmap_areas;
++		while (area) {
++			rc = munmap(area->addr, area->len);
++			assert(rc == 0);
++			last_area = area;
++			area = area->next;
++			free(last_area);
++		}
++	}
++
++	free(key);
++	free(fcontext_data3);
++	free(fcontext_data2);
++	free(fcontext_data1);
++
++	/* Non-zero return values are reserved for future use. */
++	return 0;
++}
++
++int main(int argc, char **argv)
++{
++	FILE *fp = fopen(argv[1], "rb");
++	if (!fp) {
++		perror(argv[1]);
++		exit(1);
++	}
++
++	struct stat sb;
++	int rc;
++
++	rc = fstat(fileno(fp), &sb);
++	if (rc < 0) {
++		perror("fstat");
++		exit(1);
++	}
++
++	void *address = mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE,
++			     MAP_PRIVATE, fileno(fp), 0);
++	if (address == MAP_FAILED) {
++		perror("mmap");
++		exit(1);
++	}
++
++	return LLVMFuzzerTestOneInput(address, sb.st_size);
++}
+diff --git a/libselinux/fuzz/decodeselabelfiletextfuzz.c b/libselinux/fuzz/decodeselabelfiletextfuzz.c
+new file mode 100644
+index 00000000..35f56761
+--- /dev/null
++++ b/libselinux/fuzz/decodeselabelfiletextfuzz.c
+@@ -0,0 +1,313 @@
++#define _GNU_SOURCE
++#include <errno.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <sys/mman.h>
++#include <unistd.h>
++
++#include <selinux/label.h>
++
++#define FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
++#include "selinux/libselinux/src/label_file.h"
++
++#define MEMFD_FILE_NAME "file_contexts"
++#define CTRL_PARTIAL (1U << 0)
++#define CTRL_FIND_ALL (1U << 1)
++#define CTRL_MODE (1U << 2)
++
++__attribute__((format(printf, 2, 3))) static int
++null_log(int type __attribute__((unused)),
++	 const char *fmt __attribute__((unused)), ...)
++{
++	return 0;
++}
++
++static int validate_context(char **ctxp)
++{
++	assert(strcmp(*ctxp, "<<none>>") != 0);
++
++	if (*ctxp[0] == '\0') {
++		errno = EINVAL;
++		return -1;
++	}
++
++	return 0;
++}
++
++static int write_full(int fd, const void *data, size_t size)
++{
++	ssize_t rc;
++	const unsigned char *p = data;
++
++	while (size > 0) {
++		rc = write(fd, p, size);
++		if (rc == -1) {
++			if (errno == EINTR)
++				continue;
++
++			return -1;
++		}
++
++		p += rc;
++		size -= rc;
++	}
++
++	return 0;
++}
++
++static FILE *convert_data(const uint8_t *data, size_t size)
++{
++	FILE *stream;
++	int fd, rc;
++
++	fd = memfd_create(MEMFD_FILE_NAME, MFD_CLOEXEC);
++	if (fd == -1)
++		return NULL;
++
++	rc = write_full(fd, data, size);
++	if (rc == -1) {
++		close(fd);
++		return NULL;
++	}
++
++	stream = fdopen(fd, "r");
++	if (!stream) {
++		close(fd);
++		return NULL;
++	}
++
++	rc = fseek(stream, 0L, SEEK_SET);
++	if (rc == -1) {
++		fclose(stream);
++		return NULL;
++	}
++
++	return stream;
++}
++
++int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
++{
++	struct selabel_handle rec;
++	struct saved_data sdata = {};
++	struct spec_node *root = NULL;
++	FILE *fp = NULL;
++	struct lookup_result *result = NULL;
++	uint8_t control;
++	uint8_t *fcontext_data = NULL;
++	char *key = NULL;
++	size_t fcontext_data_len, key_len;
++	bool partial, find_all;
++	mode_t mode;
++	int rc;
++
++	/*
++	 * Treat first byte as control byte, whether to use partial mode, find all matches or mode to lookup
++	 */
++	if (size == 0)
++		return 0;
++
++	control = data[0];
++	data++;
++	size--;
++
++	if (control & ~(CTRL_PARTIAL | CTRL_FIND_ALL | CTRL_MODE))
++		return 0;
++
++	partial = control & CTRL_PARTIAL;
++	find_all = control & CTRL_FIND_ALL;
++	/* S_IFSOCK has the highest integer value */
++	mode = (control & CTRL_MODE) ? S_IFSOCK : 0;
++
++	if (partial)
++		printf("partial\n");
++	if (find_all)
++		printf("find_all\n");
++	if (mode)
++		printf("mode\n");
++
++	/*
++	 * Split the fuzzer input into two pieces: the textual fcontext definition and the lookup key
++	 */
++	const unsigned char separator[4] = { 0xde, 0xad, 0xbe, 0xef };
++	const uint8_t *sep = memmem(data, size, separator, 4);
++	if (!sep || sep == data)
++		return 0;
++
++	fcontext_data_len = sep - data;
++	fcontext_data = malloc(fcontext_data_len);
++	if (!fcontext_data)
++		goto cleanup;
++
++	memcpy(fcontext_data, data, fcontext_data_len);
++
++	printf("fcontext_data_len=%zu fcontext=", fcontext_data_len);
++	unsigned char *str = fcontext_data;
++	unsigned char *end = str + fcontext_data_len;
++	while (str < end) {
++		unsigned char c = *str;
++		if (isspace(c)) {
++			printf("\\s");
++		} else if (isprint(c)) {
++			putchar(c);
++		} else {
++			printf("\\x%02x", c);
++		}
++		str++;
++	}
++	printf("\n");
++
++	key_len = size - fcontext_data_len - 4;
++	key = malloc(key_len + 1);
++	if (!key)
++		goto cleanup;
++
++	memcpy(key, sep + 4, key_len);
++	key[key_len] = '\0';
++
++	printf("len=%zu key=", key_len);
++	str = key;
++	end = str + key_len;
++	while (str < end) {
++		unsigned char c = *str;
++		if (isspace(c)) {
++			printf("\\s");
++		} else if (isprint(c)) {
++			putchar(c);
++		} else {
++			printf("\\x%02x", c);
++		}
++		str++;
++	}
++	printf("\n");
++
++	/*
++	 * Mock selabel handle
++	 */
++	rec = (struct selabel_handle){
++		.backend = SELABEL_CTX_FILE,
++		.validating = 1,
++		.data = &sdata,
++	};
++
++	selinux_set_callback(SELINUX_CB_LOG,
++			     (union selinux_callback){ .func_log = &null_log });
++	/* validate to pre-compile regular expressions */
++	selinux_set_callback(
++		SELINUX_CB_VALIDATE,
++		(union selinux_callback){ .func_validate = &validate_context });
++
++	root = calloc(1, sizeof(*root));
++	if (!root)
++		goto cleanup;
++
++	sdata.root = root;
++
++	fp = convert_data(fcontext_data, fcontext_data_len);
++	if (!fp)
++		goto cleanup;
++
++	errno = 0;
++	rc = process_text_file(fp, /*prefix=*/NULL, &rec, MEMFD_FILE_NAME, 0);
++	if (rc) {
++		assert(errno != 0);
++		goto cleanup;
++	}
++
++	sort_specs(&sdata);
++
++	assert(cmp(&rec, &rec) == SELABEL_EQUAL);
++
++	errno = 0;
++	result = lookup_all(&rec, key, mode, partial, find_all, NULL);
++
++	if (!result)
++		assert(errno != 0);
++
++	for (const struct lookup_result *res = result; res; res = res->next) {
++		assert(res->regex_str);
++		assert(res->regex_str[0] != '\0');
++		assert(res->lr->ctx_raw);
++		assert(res->lr->ctx_raw[0] != '\0');
++		assert(strcmp(res->lr->ctx_raw, "<<none>>") != 0);
++		assert(!res->lr->ctx_trans);
++		assert(res->lr->validated);
++		assert(res->prefix_len <= strlen(res->regex_str));
++	}
++
++	sort_specs(&sdata);
++
++	assert(cmp(&rec, &rec) == SELABEL_EQUAL);
++
++	errno = 0;
++	result = lookup_all(&rec, key, mode, partial, find_all, NULL);
++
++	if (!result)
++		assert(errno != 0);
++
++	for (const struct lookup_result *res = result; res; res = res->next) {
++		assert(res->regex_str);
++		assert(res->regex_str[0] != '\0');
++		assert(res->lr->ctx_raw);
++		assert(res->lr->ctx_raw[0] != '\0');
++		assert(strcmp(res->lr->ctx_raw, "<<none>>") != 0);
++		assert(!res->lr->ctx_trans);
++		assert(res->lr->validated);
++		assert(res->prefix_len <= strlen(res->regex_str));
++	}
++
++cleanup:
++	free_lookup_result(result);
++	if (fp)
++		fclose(fp);
++	if (sdata.root) {
++		free_spec_node(sdata.root);
++		free(sdata.root);
++	}
++
++	{
++		struct mmap_area *area, *last_area;
++
++		area = sdata.mmap_areas;
++		while (area) {
++			rc = munmap(area->addr, area->len);
++			assert(rc == 0);
++			last_area = area;
++			area = area->next;
++			free(last_area);
++		}
++	}
++
++	free(key);
++	free(fcontext_data);
++
++	/* Non-zero return values are reserved for future use. */
++	return 0;
++}
++
++int main(int argc, char **argv)
++{
++	FILE *fp = fopen(argv[1], "rb");
++	if (!fp) {
++		perror(argv[1]);
++		exit(1);
++	}
++
++	struct stat sb;
++	int rc;
++
++	rc = fstat(fileno(fp), &sb);
++	if (rc < 0) {
++		perror("fstat");
++		exit(1);
++	}
++
++	void *address = mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE,
++			     MAP_PRIVATE, fileno(fp), 0);
++	if (address == MAP_FAILED) {
++		perror("mmap");
++		exit(1);
++	}
++
++	return LLVMFuzzerTestOneInput(address, sb.st_size);
++}
+-- 
+2.55.0
+
