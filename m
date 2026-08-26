@@ -1,73 +1,71 @@
-Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
+Received: from mail-qv1-f42.google.com (mail-qv1-f42.google.com [209.85.219.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C776A440A24
-	for <selinux@vger.kernel.org>; Wed, 26 Aug 2026 14:06:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D187424D59
+	for <selinux@vger.kernel.org>; Wed, 26 Aug 2026 14:24:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787753196; cv=none; b=rhJCXJ9fmvrvqbNFGJv/4Crkugm56DtH8Pxo720x0v1BpwxzKNVRNcG8QkgR8dXvEFuqbslBEvRhSBj+E/zfwKxYmq/fs11TGJILxASOzTpy8CPs/Dz52qb+r+LwZIh6zJEvk0wjfD8CmWsZDex6pQGmmrDUpqglIDp1E/X0lUM=
+	t=1787754247; cv=none; b=fOaxfw0QcI9Pa9NlArsfL8Pf0Pt4/evzqzEL/iYS2OLEwjhOR0hdcTw44J4Pea1uWdHma/6cet6ITWct0aVfq3aHbkcUR9DlrgHZ/Is5pOsAr4RnRYMn9JmSOP7ApJKcUj0Qvz+7wMoJe2O2tuVzxPX7nMVftdz5H0FnMn/czRU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787753196; c=relaxed/simple;
-	bh=qPMDNn8oFvFTk/i3JeBZgHY0WwcJ7jtEHLpiEcXN85I=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=TGvPbNyzMdhDWLqUgj0A5u6tx97PlnIUB5Q8yhNGwE/iry/rwDgGCd3mCjGMeWC/hbpDelJAisLGxmkcsDicf8AWXAl2NrAJ7u1e4kO6hYJ+GK6QFqNLg8id+FyeYug2P5Lqs0rkU+k2A9XovZi151r0tgaf2ZEdrgyXy52oI7I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KyCErK1V; arc=none smtp.client-ip=209.85.222.177
+	s=arc-20240116; t=1787754247; c=relaxed/simple;
+	bh=rtpPhLQ1mr3ZgbD5w4b420MP4pJsDBvLUsZFgYbApLs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=JF2yWaITG+FBIZBMKTZoyCzIrWYRxrKYXUgw5ZjIcb5PZcdrhTD48mMnw72gYFmxAy4lHV8dir+E99rfNBP9tPN/4kb9ddDJBfC9QNrrOhbv1bAjaH0cmoYQIX5Sl/l/MLKAVcN+5lAAb9T+g+cNlZyvNLQds8y15ct+f2oCXgI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rYKmjG0I; arc=none smtp.client-ip=209.85.219.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KyCErK1V"
-Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-92e5c9211d2so80258685a.1
-        for <selinux@vger.kernel.org>; Wed, 26 Aug 2026 07:06:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rYKmjG0I"
+Received: by mail-qv1-f42.google.com with SMTP id 6a1803df08f44-90cc372d6b2so8872186d6.3
+        for <selinux@vger.kernel.org>; Wed, 26 Aug 2026 07:24:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787753194; x=1788357994; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1787754237; x=1788359037; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=5ignQM7I6wpHjmg0x3pKm+pbyPC3kO/+h3mGgIkuewY=;
-        b=KyCErK1ViNZ8dOt8fImnSbUcB7ozIrsfpm6/WOZC8Vuk3LHj5jOlWMmzxIvHyO2DXk
-         VcnEuo5LGFc5t7EW8qR6PtHv01iiXb5A79hVLduSzu1kD9h5cllgxuUEmgBtEILcHQT6
-         DkpivOAf1V756wfH+PQT3abK/30tvIeU6JAc9LfU0K9MCfbrZ94xTS8q0lNya+NWIOr2
-         gsF9VOw7nfplqEHBdIElY0d8lCaVWdHznNW8OyOhDPjTgq/HFCy04v0yUxk3yq5VD8Nx
-         wvyQmMNGTQu90Vuk/u9MfpRP/oJul3UBAxBqKlSSSEtOEujuMnz03RVvoHsAImSZAMVN
-         pdxA==
+        bh=QvwoZrY2i4Lfk4tJiQZMwQSogjUSEaLkLwGkMvl+aSg=;
+        b=rYKmjG0I2dS301Q1j9+cIPDVY+NswXFHL4tCS9/ChCC8vH3i7EbGHvlsZC7h7/1EQp
+         MhghB7ScILaJfMge8Rz44+58F/jS8WWq6Q+cBDBzb/kYUsNa1d2O/M0jrD1hrHELXnbM
+         0ztq6xDWvmv3rhiVc63NGLbUsl781CClVihKGZmhtPtHVhzISnxUnxsNyE0u4q0HLyam
+         bniIzWhWj9Cnq3G/c6t36PBXUF/MPUNqQgRiEnwgprm95HOZ7JaQ69ZdoohNGlGG3uPt
+         too30SFp+SlwJ3r7Ip/ZEf8pcik9qFfAnJhH2wr6twwT5o98tllM2ElXdcKMqrxQ4cFL
+         XPXg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787753194; x=1788357994;
+        d=1e100.net; s=20251104; t=1787754237; x=1788359037;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=5ignQM7I6wpHjmg0x3pKm+pbyPC3kO/+h3mGgIkuewY=;
-        b=PNzqWfRav9Sn9lX7OF5VBaR8PbLc5GBfxaqqBfbWLs2SkdatuYs92U5bS3Zh/wBS5j
-         UzwPPV83+UDScwbaHDgwJhw01SG5x1X6LPpFgqhrt1GTlR1NnIcyuH6MLSmuu2IF07DY
-         pZXEQ28pV5m+avbzgxGVfoXhMUoSOI2HfwEPqAXsbl6IhbP2tVzMK85toRKvjakIzRVM
-         Km6STbavb+j1l2qIHC2CRZOoPIMwiV+kQ0KJjVKd+pORuzcskcIdStCs1i5ksIlSbE6z
-         0WRHRG6QK0DKrUmndfXAi9zHuPFJsCVGo262LRUZc9NfitAWMDR/3+3NN6817uCSfB38
-         mhLQ==
-X-Gm-Message-State: AFuF++k9yhA1TxUhRaPZpmqUlcdCso2++b9vIzwNrW4p8UkRt7QGRxvL
-	aD9VObrPTcUb7JuxhOdb7jr8ToPUXyR7RaiKVpkA4IZKD33FsYqaeK+BCPx53A==
-X-Gm-Gg: AR+sD11o5qcYtRZGwr2xU9AnpmnXTRtOv89+DdskJSIv+0RsYkcyhl7QM+QIhSeKGF8
-	HJ4ps5pvmcoXIXzCJY9y7nI2AsKYmizCiChUd+szAZEOg69TvBDZrV8h3bHOeT4/9NWYiESujZu
-	FSyYwROuqmM1KwqI7hxXJYU07xoGYvlEKLp5c5mPDKZWMcvUfYpMc9M634ZhI5asoa+WaukS5Ys
-	IK+CjnNMJ6hGaKeKS/osEIsjV6rs8EkFOZOVB1tSuuK+g8mq0D0AL7wpMuCm+Sq5QjXNbF+N4Kn
-	/YnrEZBao01PJJ29B1PkapZZSfiRGOs1HukgVWry9r76WJBtKkKooW2Bz9a43fshGoNMcKAJlh+
-	kCi01CYJQWBu5CRlXUcihiTLmHTwFS9hMc3wH4Em1wuOG91eCsPQzBIuvlvTiiOMks5ySZCN4ji
-	WJVw1v5LfI4c7Y4S45mr9IqG78JuDZh09e0EXNiJeXgUzFYhYfeZYVzDMLY6ygnST8Ypyd6VFrX
-	8qtsl66N1eFO9sIdmjSe+ZpopdstY09pfd3yxXijbSTO/TGk+oGslNwhfHew3yVUbboh9PUvO9r
-	BQYGxyR9r3+jSgUATLos0+9em0Y=
-X-Received: by 2002:a05:620a:29d2:b0:937:7836:14ff with SMTP id af79cd13be357-937804b39dbmr552443585a.33.1787753193083;
-        Wed, 26 Aug 2026 07:06:33 -0700 (PDT)
-Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9377e64fa07sm213624685a.34.2026.08.26.07.06.31
+        bh=QvwoZrY2i4Lfk4tJiQZMwQSogjUSEaLkLwGkMvl+aSg=;
+        b=WQfMHsBcbOmVEm7+Q0kP7q5QKr6B+4KLbAs5wLfPMe1u8ZT68zKUHDNNIb6rBZkNv6
+         oeXEE8ND2qSTtmMMdJH7LXjm2ctlwkDuKNlnijgEt1+XCQJQmcuGaxi7Mt8SLVw2hwqH
+         6JMdYhdFSLpuIj0J1ZWJlk4aVNogmFTl/uy4ktrRwrZ9PIQvOx6R5iBJrIQ2vrF17Pty
+         f0uxKlBH+Fo7k4xyzQEEQ3+MdXphiVcSP5La04fx3H9Mi6y54JzU1EuStpEt7X3dkuiU
+         HJoD2uXk1ZnYkZ1y1P1E+UlA0bhr3EMfZ/rxxj21ND1FymaqYdsv3G4k5Nn83wvuPdMk
+         bR9Q==
+X-Gm-Message-State: AFuF++m88q3ZCWAbWKoRXlVJrqWQkBmpQDN6ydXR8UcKciR9wdnXsTgC
+	gEqZFxiSFI4NixHzQMwiTjMGsVlBR84ehz9uPc5HXPkZ2nryKr9nbSL452LnJg==
+X-Gm-Gg: AR+sD11fMIy2NcEddImD0ANdGZhx7HmhjUvseGpWksUyxFpAlf+9T/dui7OxLu7YklM
+	BaAvYT/Jl06Md4YExjedTO4EBwrB21LwcfTaB7cDh6nhWPeR6sXmk9jqIbN6Uvj6vyGxrEhWuT5
+	pM1WaGyWMEBByBJh+dee6lB43zUjWHRbbFSPALvjxRVJAHtIJcnIf8qw+6KFdPRFLERgnP3s9CN
+	sViS9xHaTJmG/fFp4GC6LUg7cisATo+W55PcWK+FubqVK8V4nBn6RPIOGSc0S1jjB93zApBM5Vb
+	SFhyznsM2y/Zl44tKdK3rSlYWDi4QuRFesSwFNS1ES4A+RvTjBV3UqcZHIKuzCn+v0hK3gNftxl
+	n6wk0GnQIzapzzVv1Va/08TxAHaEWqVQEodLDFZDGC82ye4MDMSA1vD/PPwehLyN7c9yuGL/YIO
+	EKzyNJqUCJqI55bTowA3QF1rJL5VMVQYAW/TuxIJwD0DtQuN5Edua7QVpX/SHs/4M4YXCYCn8eJ
+	k9wtsDAXSk30EeogLtwkXmOY5JpHDJPR2bAad+YDMAbc0tx+nLOo17MfX5TcBq/
+X-Received: by 2002:a05:6214:3199:b0:908:951f:415 with SMTP id 6a1803df08f44-90cc78ad65emr84303256d6.13.1787754215458;
+        Wed, 26 Aug 2026 07:23:35 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-90cc652722csm26402726d6.36.2026.08.26.07.23.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Aug 2026 07:06:32 -0700 (PDT)
+        Wed, 26 Aug 2026 07:23:34 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
 	plautrba@redhat.com,
 	omosnace@redhat.com,
-	paul@paul-moore.com,
-	perfinion@gentoo.org,
+	jason@perfinion.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] libselinux: setrans_client: free daemon response on error
-Date: Wed, 26 Aug 2026 10:06:26 -0400
-Message-ID: <20260826140626.40798-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH] python/sepolicy: escape literal paths written to generated .fc files
+Date: Wed, 26 Aug 2026 10:23:22 -0400
+Message-ID: <20260826142323.2504-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -77,60 +75,51 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-receive_response() writes the allocated response buffer into *outp on
-any successful read, regardless of the ret_val the daemon reported.
-The static helpers then propagate ret_val as their own return, so on a
-translation failure the caller sees a non-zero return with *outp still
-pointing at the empty response, and selinux_raw_to_trans_context() or
-selinux_trans_to_raw_context() overwrite it with strdup() of the
-input (i.e. they fall back to the identity function for translations).
-
-Free and NULL the response on non-zero ret_val so the helpers hold the
-same *outp is NULL on any non-zero return invariant as their other
-error paths.
+sepolicy generate generates .fc files with user-supplied literal paths
+substituted directly into the path spec field. Path specs are regexes
+so a user-supplied path containing any regex characters would be
+incorrectly matched. Escape any regex characters before substitution.
+Use str.replace() instead of re.sub() so that any escape backslashes
+are not re-interpreted.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libselinux/src/setrans_client.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ python/sepolicy/sepolicy/generate.py | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/libselinux/src/setrans_client.c b/libselinux/src/setrans_client.c
-index b0adb308..46cbde79 100644
---- a/libselinux/src/setrans_client.c
-+++ b/libselinux/src/setrans_client.c
-@@ -218,6 +218,10 @@ static int raw_to_trans_context(const char *raw, char **transp)
- 		goto out;
+diff --git a/python/sepolicy/sepolicy/generate.py b/python/sepolicy/sepolicy/generate.py
+index f88d6852..78ba3f13 100644
+--- a/python/sepolicy/sepolicy/generate.py
++++ b/python/sepolicy/sepolicy/generate.py
+@@ -1092,12 +1092,12 @@ allow %s_t %s_t:%s_socket name_%s;
+                 t1 = re.sub("TEMPLATETYPE", self.name, self.files[i][2].fc_sock_file)
+             else:
+                 t1 = re.sub("TEMPLATETYPE", self.name, self.files[i][2].fc_file)
+-            t2 = re.sub("FILENAME", i, t1)
++            t2 = t1.replace("FILENAME", re.escape(i))
+             fclist.append(re.sub("FILETYPE", self.files[i][0], t2))
  
- 	ret = ret_val;
-+	if (ret) {
-+		free(*transp);
-+		*transp = NULL;
-+	}
- out:
- 	close(fd);
- 	return ret;
-@@ -243,6 +247,10 @@ static int trans_to_raw_context(const char *trans, char **rawp)
- 		goto out;
+         for i in self.dirs.keys():
+             t1 = re.sub("TEMPLATETYPE", self.name, self.dirs[i][2].fc_dir)
+-            t2 = re.sub("FILENAME", i, t1)
++            t2 = t1.replace("FILENAME", re.escape(i))
+             fclist.append(re.sub("FILETYPE", self.dirs[i][0], t2))
  
- 	ret = ret_val;
-+	if (ret) {
-+		free(*rawp);
-+		*rawp = NULL;
-+	}
- out:
- 	close(fd);
- 	return ret;
-@@ -269,6 +277,10 @@ static int raw_context_to_color(const char *raw, char **colors)
- 		goto out;
+         if self.type in USERS + [SANDBOX]:
+@@ -1108,11 +1108,11 @@ allow %s_t %s_t:%s_socket name_%s;
+             raise ValueError(_("You must enter the executable path for your confined process"))
  
- 	ret = ret_val;
-+	if (ret) {
-+		free(*colors);
-+		*colors = NULL;
-+	}
- out:
- 	close(fd);
- 	return ret;
+         if self.program:
+-            t1 = re.sub("EXECUTABLE", self.program, executable.fc_program)
++            t1 = executable.fc_program.replace("EXECUTABLE", re.escape(self.program))
+             fclist.append(re.sub("TEMPLATETYPE", self.name, t1))
+ 
+         if self.initscript != "":
+-            t1 = re.sub("EXECUTABLE", self.initscript, executable.fc_initscript)
++            t1 = executable.fc_initscript.replace("EXECUTABLE", re.escape(self.initscript))
+             fclist.append(re.sub("TEMPLATETYPE", self.name, t1))
+ 
+         fclist.sort()
 -- 
 2.55.0
 
