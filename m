@@ -1,206 +1,101 @@
-Received: from mail-ed1-f48.google.com (mail-ed1-f48.google.com [209.85.208.48])
+Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com [209.85.160.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 486DC44210C
-	for <selinux@vger.kernel.org>; Wed, 26 Aug 2026 14:28:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.48
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787754485; cv=pass; b=hVSPl5LTjDJPpcolcs5gDwxe/araNjF38vAvUQtMRe6al0ZIVPwlspHSN+t8KEzZZ5lMxTVIr9Sn4l7R/kAapDmfUqGP7WxJ8BuofwV1jyw5Fp4xAZHkocVEaHTKhG489Npxsl3ieAWwwrpfgc4QDCOhzn2psL4mMFw7Nnl/lSU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787754485; c=relaxed/simple;
-	bh=rfFhIsQ2bbJs9nJuRx7018Dbj2tAXBJwBCtPu+sPYic=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ImEH3e2Jhc3OTrlcIRMcuezLuugG+IKvT6hkK2pwfyM05qcsfbem6i68dlh596dqCOfwr8UVR+U+dS+ItnWEXD+BLI12oZDiGdP3Fumw5xnUgBhWzkVanhcYh/fes6NT01LPUIt1Q5FZzm6hgTyRNa8aG8eQgmVCav58CTEBcho=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KtvxVXa9; arc=pass smtp.client-ip=209.85.208.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82A933C1A
+	for <selinux@vger.kernel.org>; Wed, 26 Aug 2026 14:29:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.181
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787754585; cv=none; b=Uu+JA9kFXyKYeQYmLPU2Jjd8pjcvCkpANYcIRuH0DBIgJBNgiz/KEIge5TiQ0sWJ0e/QPhVG2EFiHF/7hfHJGFDxhQUsw0ZWYSvfkHqFYaT+uySAMIx/Y3oJ5f8jFs3KXUtYsUfgq6+A1y9OeNIEeknqjrYVj3mmu6bUXPSRVAA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787754585; c=relaxed/simple;
+	bh=4QAL1BhenX5qWuuKI5EMCFAh72bfZWTvtilG1necCQM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=B0wD0fzHAbXbeKbfLNrxk2JD6MHbVxwflUhO/NG4FbWRBU56Q819uGjxBCx5Q+9V2lLV9jpInH8jWHEpNYbjh0Pzqqt1xlugMnWqq8VqysV7mck2+NOeiQssetsKimVijIDqbtjWpIzfQAP8vm1SRJvfCXl9hbY439FK5Blvo6c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WY9flfKC; arc=none smtp.client-ip=209.85.160.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KtvxVXa9"
-Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-6a0de062db5so1817510a12.1
-        for <selinux@vger.kernel.org>; Wed, 26 Aug 2026 07:28:01 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1787754480; cv=none;
-        d=google.com; s=arc-20260327;
-        b=L8Pl1OTNrnFrs8h9PrDq6xEu1U2sSlPzaOlm+4jQ+2xzunQH/ft6OkX6bOtAnRxBir
-         8/jGWklQFSVoCRHp7r0JlODZ0EyPII7nZS9Dr1maGC0txNGLza5AhoAip6GAfD9GLwm7
-         tJEQ2oRNPJd9L7OIiw/CrENshCmOH/Ni4qG6XBC/cW0ryPpltMtV1a76eYuklZh/pqKh
-         1XsA9O0QB3VdmwwwWvhjNQiq+FCLq888/3ch1hkNsRaMomZCSwBq9ZQ0Ve29N0Y/cVGw
-         sObJ4ifR4yIqfY56jLs0D4YgyAFI7Gxm/o5hI5lHGy+zfdabw4SLeu54/8ZpCDesHH6P
-         a+uA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=Az6Wgq5Jf7hu+DVTeJuzFAcl1MVrvHQ+WRTWvnkft5Y=;
-        fh=9qqehjuxnn2X0mJ7hQbZg99PSLTxs4BCAql4/69ZoU8=;
-        b=I1CB0smFrh6AGZjrNWUdXmcMVx4IgmvHQ9tX1E3TrUnLSsd083F52WadBhZyj1KRvV
-         H8qDgcIuD0neQmbHLvFD7LiNZ3wvvxRViskhxdUPn0UZNS8pu8Sq5bGsc4xatCpI4Eh+
-         u6LAA/AwKfUo9jio71BDe6mKC19e9Z2eyILRjws+aTT0gBqr2kXLTSMvMkiGe0g8WLOn
-         ODWkQiOaqo037q1lV/F+dWeMwCi/bIyzgboNiq4/sbVzXGTQ9wnkwRNayv3BqROC2dFD
-         gzI/7ONktAdJYeOGMaCk+//uLs9BytameecFUYuSvFmfddmXyN2kAe2okMM6f0chNCz9
-         l8Mg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WY9flfKC"
+Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-52f9fc510e1so732411cf.0
+        for <selinux@vger.kernel.org>; Wed, 26 Aug 2026 07:29:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787754480; x=1788359280; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=Az6Wgq5Jf7hu+DVTeJuzFAcl1MVrvHQ+WRTWvnkft5Y=;
-        b=KtvxVXa9icDsV4TAAXAbYg0QzQhDaCEoYV5wUyI3s++2aRDK6bCEBicAJ+MepzvnQW
-         wOBy7Q6cINzu8zaHvpHLac8sAeWXQPUxCHvWOvflLIH3jtvyQhvCA1dcp+WTEwQMQIvf
-         1y+3lEjahJErv1JDDkuOwHON5j/E/lDnDLbH2fn8X5XG5wRdtbBTkGL7pFwz4RlQ+omG
-         hWvWehNgDaaPWIf9OR02nbuH0NsZPD5t6DOGF8M9B/htxDZvxKwcJDq2VBr16QisWEye
-         hD6ICCvUIRvOkGX7Met4zWOQa/O/PunI9IFzkYITKObcDlnADaQ+D5l0pM6jFxHl/Jta
-         nKOw==
+        d=gmail.com; s=20251104; t=1787754583; x=1788359383; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=bNDxFn3zoTTv6SDn7qwzNqf2tIFjlG8PJno7NEZdJHI=;
+        b=WY9flfKCsiSKm5HQUJuzB3MqFOvwb/DS30XEkPzxc8qX1e7h/lXffnlNylVrXHOhio
+         tXOL5O+AKdDzKhrhJ2x2pyLLNmZP6GCesfQea29/1O13MzdWBuOHBOK3KsBgY2F9Na0Q
+         CT30kUaBt7RUi/QPeAerCf5mLBdM8ffLeSZdVya3pTh+A8iHSw8HPxRvIE67DydMBO5j
+         LSogVKY5G5D9+EgcyrOFC4rTs+yhNHnv1q/VDZcWma+0C7fff7Lm+xS+TIxzZFcEyNd0
+         yboKuoBTwN7MNHNPbQHcNoL1SChTt6xNMehjMEOqisT5d5J6dV1BFULYYe6Q9KjKzrtq
+         rziA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787754480; x=1788359280;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=Az6Wgq5Jf7hu+DVTeJuzFAcl1MVrvHQ+WRTWvnkft5Y=;
-        b=W36fIFTY5/n/BNYdwAgCc3J01OADfYnHFM/mR2Qrxe1IhxPRzIg0P7M2Aafbat0g8v
-         Ubp2WIAJ54QEDYk5CvlToqkpSm7rhAMmB+6lbTG+ezNYTGdV/k+T7iyDie7Rdimn5QZE
-         Lt0hwVj7fn4FyguIrDw9RfJQJYvDQ0D+EE2hCTuLIuotcqD004Eb/V0EKf+98Elz9YBh
-         8otrGa6QPq+tBK40wpMSex3yfiic92+/t3YucoMzMiheF7NCWl5C35vcB1XsIG+rlNM/
-         wUNo7DYeSu6Lspdb/9nj0zyZQYragWhiU7zhCe67xJiMJfCNNL4MOWCORH7bDl4PuWie
-         GSGw==
-X-Gm-Message-State: AFuF++my3GX8vatmwqgwDmJ2CV4w7MlR6ffKOOGhrs7QK2L3U6y7/5+3
-	wgp3pbfUYUk9UeEWMsxgxcc6bvNJzAgSQDxXjidpzdp7U2dYxTaP8nOzLLDRd+bqTF+0DtmjX/y
-	oT7TFGf9HH/uEpjYAu72LYsBlyvD5Gto=
-X-Gm-Gg: AR+sD10sM/Y7wGodE8kIvIEgNTgAdjBZp7iW4AUD7v4vQIWcwgUVCo0z74wAfKVHSvo
-	fE1HAyQt4eBYT7XVF/+sCsvSwpcwZqNkt/D8PXWJGMScM1VSZsAhVtMykHJx4BLO+pRrKxQV+F4
-	ohe+rQI53eSfubSz9kxcXQ9jVj8QlNJrbzOk4ltkkXEVgzNpEaKAWdRgzHldwnO2e0qmdJoiVzu
-	o3iuiU/JzngMr+n/UhcM1aQvaH/txCHYXmQxidfQ3laWKN6QmplEvQIyci/UX6I3lQXKUpl/zwx
-	JWVk5mtk58w+CsjwU0G31vDrru9n0C3sRPAwA4yYJA==
-X-Received: by 2002:a05:6402:304c:b0:6a5:d8f0:dc10 with SMTP id
- 4fb4d7f45d1cf-6a5df63b144mr8725669a12.13.1787754479424; Wed, 26 Aug 2026
- 07:27:59 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1787754583; x=1788359383;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=bNDxFn3zoTTv6SDn7qwzNqf2tIFjlG8PJno7NEZdJHI=;
+        b=BeTI8wSRKxrKwLHy76BpK+OWyL8tZgqeSETVEQ+rx3Vz0lu2eWrZbivK03+Ias104F
+         3+dM+f0CNFL1YoHEqXKC3Py25m7N4f7E8JxaX47sP6PBV2OTrNNJJ6mly/ij/9P+ZtbA
+         CEIDz0GJWhcIgM0pGvsAEHdpIVyKI+IUX/GPZAJtjhCpkjTS1YI6u/FFSmouYo7QYk54
+         kXUYwdh3P7mOLMj1LBQ53ntMf2nvk9C4ZQfDYkDYpUyFmuiYLTTMps6L4jePgt9ffJzc
+         NX4De9xI8uNxcNvZbff9vQmvp//6jowi3rrRmvr2RsmY9JBbK4wfQpTy0UiPrJEdmaL2
+         Gvdg==
+X-Gm-Message-State: AFuF++nTssTwpFW5N/8O9bfkd1SaFljlopKiwVB3ACvMrYXiyR36EXqQ
+	p9IOT5m2vjYFMDhZ7i79rNozxHVSJZqcDFMyvJ1gOAOCMNHK7FT/xrfuSdp5aQ==
+X-Gm-Gg: AR+sD12/EYq+sANdaXIRmbQGKPKp3TMulT7OF8mIalbczRPTHCyIXj830UkMyaI2eep
+	iAxk5jgqdeVNuEf9ysAA6uyAh5c2Np3nWG00sOMARgn4hXIYFyucvnHJ+U+xKEdaCtReBUdSMAJ
+	3gw1Lb5OPMEGHa8hJvyQqk4twr6tM+HUxP477/Wtu2wHTcSYW8I9D4ISpiHmt7d3SGl3+dRwjcF
+	aZgJQuXD3QjPv9OEYhC1oVdkD7gQgmsqSidEMyEmZ2GuYS7/RxI+iTx+gnhH/6H0UQIWbRNHMdZ
+	057uDJYbezFlchHNZkN12cpEOX/DQ9sgKY6BKn5172Ik2hMCtG1xh3hrPKmazNoYwIcKz+eTKW9
+	oIeHg4T8yTHiNLTAf7Wgzfe4eDEFrPkO3cRFn/97jflawCMNX+cFPGsOhun7Z012r4zvysstDuv
+	hpohfQyV4gOqWCRUrL76sJ6C88ybYnOWJLXYxpRY1WaoqHGBai/54o/LJVqzKgoqJDc3wq/bRis
+	xEBaneXdlHXUpFdKiPBvi9bNfLpMxo/q1GGDcfZEc4NHF0jcuMun1PgpvD79N/ZUWxXNy6Zl6Q=
+X-Received: by 2002:a05:622a:5916:b0:51c:4f35:81b8 with SMTP id d75a77b69052e-52e41ae4f6fmr74404771cf.7.1787754583184;
+        Wed, 26 Aug 2026 07:29:43 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52e425704a4sm17721581cf.6.2026.08.26.07.29.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Aug 2026 07:29:42 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	jason@perfinion.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] libsemanage: semanage_list_sort: handle a NULL *l correctly
+Date: Wed, 26 Aug 2026 10:29:27 -0400
+Message-ID: <20260826142928.3091-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260825124629.84128-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260825124629.84128-1-stephen.smalley.work@gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Wed, 26 Aug 2026 10:27:47 -0400
-X-Gm-Features: AcwNN1V8Il5S9DcQ9Spw7HW7uS0TZwmaAWoRLdiFoefO8uCLU62FactqHG2GmaA
-Message-ID: <CAP+JOzRDnS5KxRUVJGAk6bS+aHdZa71EtyxOO=HovpgPtJ6T2g@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: do not infer name-based bounds for attributes
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, plautrba@redhat.com, omosnace@redhat.com, 
-	jason@perfinion.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, Aug 25, 2026 at 8:46=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> hierarchy_add_bounds() infers an implicit parent from a dotted name
-> for every entry in the type, role, and user symbol tables and stores
-> it in ->bounds. Type and role attributes live in the same symbol
-> tables as simple types, so an attribute with a dotted name whose
-> prefix names any existing entry has ->bounds set on it. For types this
-> produces a policydb that fails policydb_validate() on a TYPE_ATTRIB
-> with a non-zero bounds, which oss-fuzz hits via the checkpolicy
-> fuzzer's explicit call to hierarchy_check_constraints(). A minimal
-> reproducer is any policy containing:
->
-> attribute A;
->     attribute A.b;
->
-> or:
->
->     type T;
->     attribute T.b;
->
-> Skip attributes when inferring name-based bounds, and treat an
-> attribute-named parent like a missing parent, mirroring the flavor
-> checks the explicit typebounds code path already does.
->
-> Fixes: https://issues.oss-fuzz.com/issues/550672317
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+No existing caller passes semanage_list_sort() a NULL *l but
+we might as well check for future-proofing.
 
-Acked-by: James Carter <jwcart2@gmail.com>
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ libsemanage/src/utilities.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> ---
->  libsepol/src/hierarchy.c | 17 +++++++++++++++++
->  1 file changed, 17 insertions(+)
->
-> diff --git a/libsepol/src/hierarchy.c b/libsepol/src/hierarchy.c
-> index 0499bdfa..b87471ec 100644
-> --- a/libsepol/src/hierarchy.c
-> +++ b/libsepol/src/hierarchy.c
-> @@ -617,6 +617,10 @@ int bounds_check_users(sepol_handle_t *handle, polic=
-ydb_t *p)
->         return 0;
->  }
->
-> +#define type_datum_is_attr(d) ((d)->flavor =3D=3D TYPE_ATTRIB)
-> +#define role_datum_is_attr(d) ((d)->flavor =3D=3D ROLE_ATTRIB)
-> +#define user_datum_is_attr(d) (0)
-> +
->  #define add_hierarchy_callback_template(prefix)                         =
-         \
->         int hierarchy_add_##prefix##_callback(hashtab_key_t k            =
-        \
->                                               __attribute__((unused)),   =
-        \
-> @@ -629,6 +633,9 @@ int bounds_check_users(sepol_handle_t *handle, policy=
-db_t *p)
->                 prefix##_datum_t *parent;                                =
-        \
->                 char *parent_name, *datum_name, *tmp;                    =
-        \
->                                                                          =
-         \
-> +               if (prefix##_datum_is_attr(datum))                       =
-        \
-> +                       return 0;                                        =
-        \
-> +                                                                        =
-         \
->                 if (!datum->bounds) {                                    =
-        \
->                         datum_name =3D                                   =
-          \
->                                 p->p_##prefix##_val_to_name[datum->s.valu=
-e -     \
-> @@ -661,6 +668,16 @@ int bounds_check_users(sepol_handle_t *handle, polic=
-ydb_t *p)
->                                 a->numbad++;                             =
-        \
->                                 return 0;                                =
-        \
->                         }                                                =
-        \
-> +                       if (prefix##_datum_is_attr(parent)) {            =
-        \
-> +                               ERR(handle,                              =
-        \
-> +                                   "%s is an attribute, %s is an orphan"=
-,       \
-> +                                   parent_name,                         =
-        \
-> +                                   p->p_##prefix##_val_to_name[datum->s.=
-value - \
-> +                                                               1]);     =
-        \
-> +                               free(parent_name);                       =
-        \
-> +                               a->numbad++;                             =
-        \
-> +                               return 0;                                =
-        \
-> +                       }                                                =
-        \
->                         datum->bounds =3D parent->s.value;               =
-          \
->                         free(parent_name);                               =
-        \
->                 }                                                        =
-        \
-> --
-> 2.55.0
->
+diff --git a/libsemanage/src/utilities.c b/libsemanage/src/utilities.c
+index 678e1443..43851f8b 100644
+--- a/libsemanage/src/utilities.c
++++ b/libsemanage/src/utilities.c
+@@ -167,7 +167,7 @@ int semanage_list_sort(semanage_list_t **l)
+ 	size_t count = 0;
+ 	size_t i = 0;
+ 
+-	if (!l || !(*l)->next)
++	if (!l || !*l || !(*l)->next)
+ 		return 0;
+ 
+ 	for (temp = *l; temp; temp = temp->next)
+-- 
+2.55.0
+
