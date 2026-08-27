@@ -1,124 +1,945 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f182.google.com (mail-qt1-f182.google.com [209.85.160.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 805B85733E;
-	Thu, 27 Aug 2026 17:46:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21E85403E87
+	for <selinux@vger.kernel.org>; Thu, 27 Aug 2026 18:47:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787852805; cv=none; b=ZafL3cqfPgY02O1ZyAWziNetOJrH+gPhQrXijv9vHqQzl5h05IDua5Rc38GGryaCBlKw9CehrNJTC38MALEtfd3lx9GSXAJQSo80KEU3M5Eqabw+V0uQsZJ9sbc7iZNneWuEg9gqL4YYzovhDgEghZaL0KmDNAKUdS56eJVnXyY=
+	t=1787856426; cv=none; b=denMOoJFP5XVWYt/2WzkdpF8xMvkvF1YlnM2iDeho+cHvHTu6frzT9EWD4NhjdS7EYzD4hC42TL44rs6+ZYpRF+JWscVM1tQTS7pArGMoEOvRGftxcmr1bbA6GM4D6FV9eda+yd+p7mgYyFWiX10lhfxcmB/ZIAKjJSI2qlzmsM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787852805; c=relaxed/simple;
-	bh=ptA/xWbq8+SD+2Ch3QmBRQyO4sclv1PA/gFeSLbI0WU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RwxyBbolcMr+avm5jXYlWooUuBEC9mb4dNv/1l+KICCuVhFTmVFkyKpSQoxyy2HtPeNn3+qSD5nashGHkxg9fA2ljf5qK//M0HzVC/s/T60YvDLERXwKacWfMCURfZA6V8142hBwLzL2fp2FHkXW741jmg0Vp2rP1OaU5cpK5kk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CP+igfjs; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787856426; c=relaxed/simple;
+	bh=nEykZ5PdEsRTfY80yIuKY3fzB0NEnPnAb+LJ+G8co6Q=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=HnzUY5c8O/r5Im/oPCCoWEgUTuR8D8z2Tipoai/qiGtVg4eVVCQt3SVDLJzTPRrooSAIDPR1xRmndJhiU4l24PyhoqQFXCXsBC3CfBfm8s4PNav/oR66NKGux+ut8QxT94cHxfU6fmn4MekOCCWyae1vHgPDVq5b4CRrS5kwSH8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lh0IXf6/; arc=none smtp.client-ip=209.85.160.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CP+igfjs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B06371F000E9;
-	Thu, 27 Aug 2026 17:46:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787852804;
-	bh=kiHY7Snf377oa7VYd1mbKOFtc64xcuOE4VHGz2nzZeM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=CP+igfjszNlZbIUl7rnHGKc5raqEHjwLHnJe417BWX3yWF9HaM6DN85AdSyFdpafR
-	 Vs4wm/WpPGSXKAbNEA/53AhUN6oEC7hN4jHHCkhXbAMRBor1W42XhpsHhsVCbuN3sq
-	 pVqH7VlFQru3zOkJ+Ppn3rsCpseAJ9UL5iXp0XKdaag17hYjN16BifGsha9HFLe5yi
-	 BZgX0MQ4oBHg+iEv49WYDHIpSXDfDsIAYSmVkrrbaIS/k4FGHHw2vz/m2uDgtQS4P7
-	 H99s1MB3vgV9u2lVYfJL53d4tk59HUNmhpJDyasvRkRSVFKdr5TL1fJCmbDtuBesoW
-	 G4dI2uPeb2enQ==
-Date: Thu, 27 Aug 2026 18:46:37 +0100
-From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-To: Jann Horn <jannh@google.com>
-Cc: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
-	"Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Jeff Xu <jeffxu@google.com>, =?utf-8?B?VGhpw6liYXVk?= Weksteen <tweek@google.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
-	linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org, 
-	Andrew Morton <akpm@linux-foundation.org>, "Liam R. Howlett" <liam@infradead.org>, 
-	Vlastimil Babka <vbabka@kernel.org>, Pedro Falcato <pfalcato@suse.de>, 
-	David Hildenbrand <david@kernel.org>, linux-mm@kvack.org
-Subject: Re: [PATCH v2 3/3] selinux: require PROCESS__PTRACE for FOLL_FORCE
- introspection
-Message-ID: <apB32VUayqL37wyf@gremlin>
-References: <20260825-selinux-pokemem-v2-0-b46bc64916d8@google.com>
- <20260825-selinux-pokemem-v2-3-b46bc64916d8@google.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lh0IXf6/"
+Received: by mail-qt1-f182.google.com with SMTP id d75a77b69052e-52d8748cde5so1453451cf.0
+        for <selinux@vger.kernel.org>; Thu, 27 Aug 2026 11:47:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787856423; x=1788461223; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=NLDHiKHdq/qcn5oYpDB0QjWhDsL+DdG8YiVJUaLdWPM=;
+        b=lh0IXf6/abH5FkCuo6iKuOAWBljSL8pY3e8X1JxkODyaFHAkhrT+qsPOsY/5sZTL0x
+         hdkGwH78FU6YZZc+tkh004iVFtRYlgJN3JqftnxCYxDxaWbwl1AmH2m0FWYK1mzP+0RU
+         XwNjdHes68zhbil57bMsagXZyNTXfPkV+YcvXwJ1zi783LgJprQR9bCU4WeRRMh2T4SG
+         zQnkl28qgU4iy0A9RB/8OjRYmZCceQPtlcDP6QZj9mn5zdCC+o4xgB4BMBd6cxbwb0uf
+         p3tYrJIV5FLlEsdthwCKu5bEUCKXLMT19AgzieEr7m/GFUbhyyW2bX1o2KfT1LquhAyE
+         6GiQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787856423; x=1788461223;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=NLDHiKHdq/qcn5oYpDB0QjWhDsL+DdG8YiVJUaLdWPM=;
+        b=ZS0aahk7WEWysYgjQYAdwmqAEb5xKQJ2nnPSr7j6XzGzlT3H1WYIsaY5wiVzuSwKhw
+         EKjOcIu8Lor7DYhZ8a2ZlCtrYaIR9tQsTRUexZvNBVg7ZlFuTj57ZCb+D2nZ8aWu/dRd
+         i20wZwP0/TAsRbbGG2e3cGVxjILQLSdSlnUsZbiFWQEIutGGTy1r2qMGDpacRIlFw4v3
+         5ZfKE+ZTBV7Q26l0D6vPRNiTkmgivcEGhFaOABC2YxVhtrlcmE0dCQZwZeP7lHrwn5Wu
+         +Bqyw5AMFdTq7MWtJbM98WO2rL0W2fvzDliGPj7X+AhZsHgE7csNKGgrSaOWj4wat1hi
+         VXjA==
+X-Gm-Message-State: AFuF++nPaUWWdE2JEd1YKajOnqFgigTIF63okBcrHNQ1EB31k+uDSg/Y
+	34J06XEVH6lpEMVlm/JY45VbEk1uQ3tDFgYBlQmEVQNSj34cw1kyqwAaZS33pA==
+X-Gm-Gg: AR+sD12Q7gULZcFf74MabQ8Z0X5T6OYkhLQZ8o9diUh5sW4+7JMXYyqap4rpB/sudrB
+	YRze3f752quqyVGjWxQsbNkeG1roYDr7SKQbCtCJBxGe2yek+GybmPUg77rCcsc2UPWzUpZgp38
+	ax0DsxBo8a3VhL77Zk/kfaAAHuELhTqLcMJxF7viN/p2180+T8JSf0I9mI0PgNrWzr+QDUEj+Iw
+	BHE84J150Z5PKEDL2uO77OU9dSfZebg6Meppz4I77Yh7SJb4xE2cdXuYc7yWBwteYUtFfZfLF2U
+	Qzx1+GhRKdzAD/zMIjnGUuV7sSA+z+hb07B8xeK8qPni6oTsSfIoJwg0q8BtSUDlvFTc/fWB2cg
+	G5EX9NcU6eZ43RS82GkBan3bnoHszPoWfs5uuK+drZ9qmmqcE1VVrY3u3cltQj96yi/CUO07F2j
+	cEFaXEU3jCs0BCX5aUEjcGW/Kt0xALPXrt4rxDoM9AWB+0HvnIsNy8nhhF961biVVMMG7uP1LhO
+	dulQsdc2eMe5mddiEtfPK44Cc7uV7FPW5sNZMgR6djrXvhU5dmpvgWWeuqKabcEV9BOj1/27Rg=
+X-Received: by 2002:a05:620a:43a6:b0:936:eb7f:d2c7 with SMTP id af79cd13be357-9391385e865mr105943685a.27.1787856422553;
+        Thu, 27 Aug 2026 11:47:02 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-93913753f33sm25047485a.19.2026.08.27.11.47.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 27 Aug 2026 11:47:02 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	jason@perfinion.com,
+	nicolas.iooss@m4x.org,
+	cgzones@googlemail.com,
+	paul@paul-moore.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH v3] FUZZING.md,*/fuzz: document selinux fuzzing
+Date: Thu, 27 Aug 2026 14:43:37 -0400
+Message-ID: <20260827184336.21322-2-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260825-selinux-pokemem-v2-3-b46bc64916d8@google.com>
+Content-Transfer-Encoding: 8bit
 
-On Tue, Aug 25, 2026 at 08:39:19PM +0200, Jann Horn wrote:
-> On systems configured with PROC_MEM_FORCE_ALWAYS, ensure that a process can
-> only create anonymous executable memory via /proc/self/mem if it has
-> PROCESS__PTRACE (like when using /proc/$pid/mem of another process).
->
-> This closes a hole in code integrity enforcement that Project Zero has used
-> in a remote Android exploit chain:
-> It was possible to use a memory corruption bug in a service without
-> EXECMEM/EXECMOD/PTRACE permission to overwrite executable code via
-> /proc/self/mem, which made it possible to load and run shellcode containing
-> a kernel exploit.
->
-> Signed-off-by: Jann Horn <jannh@google.com>
+Document the use of OSS-Fuzz and CIFuzz by the selinux userspace
+project and provide some instructions and scaffolding for debugging
+fuzzing failures.
 
-Not really my area but in general looks reasonable so:
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+v3 adds support for building the libsepol fuzzers the same way, makes
+use of the pre-existing VERBOSE symbol to control verbose logging,
+migrates the Makefile rules to new fuzz/Makefiles, only recompiles the
+files that change when built for fuzzing, and builds private copies of
+those files so that normal builds never accidentally pick up the
+fuzzer variants.
 
-Acked-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+ FUZZING.md                                    | 84 +++++++++++++++++++
+ checkpolicy/Makefile                          |  3 +
+ checkpolicy/fuzz/.gitignore                   |  1 +
+ checkpolicy/fuzz/Makefile                     | 40 +++++++++
+ checkpolicy/fuzz/checkpolicy-fuzzer.c         | 53 ++++++++++++
+ libselinux/Makefile                           |  3 +
+ libselinux/fuzz/.gitignore                    |  2 +
+ libselinux/fuzz/Makefile                      | 32 +++++++
+ .../fuzz/selabel_file_compiled-fuzzer.c       | 47 +++++++++++
+ libselinux/fuzz/selabel_file_text-fuzzer.c    | 81 ++++++++++++++++++
+ libselinux/src/.gitignore                     |  2 +
+ libselinux/src/Makefile                       | 16 +++-
+ libsepol/Makefile                             |  3 +
+ libsepol/fuzz/.gitignore                      |  3 +
+ libsepol/fuzz/Makefile                        | 25 ++++++
+ libsepol/fuzz/binpolicy-fuzzer.c              | 39 +++++++++
+ libsepol/fuzz/module-package-fuzzer.c         | 39 +++++++++
+ libsepol/fuzz/secilc-fuzzer.c                 | 45 ++++++++++
+ libsepol/src/Makefile                         |  7 ++
+ 19 files changed, 524 insertions(+), 1 deletion(-)
+ create mode 100644 FUZZING.md
+ create mode 100644 checkpolicy/fuzz/.gitignore
+ create mode 100644 checkpolicy/fuzz/Makefile
+ create mode 100644 libselinux/fuzz/.gitignore
+ create mode 100644 libselinux/fuzz/Makefile
+ create mode 100644 libsepol/fuzz/.gitignore
+ create mode 100644 libsepol/fuzz/Makefile
 
-> ---
->  security/selinux/hooks.c | 22 ++++++++++++++++++++++
->  1 file changed, 22 insertions(+)
->
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 18dd28b2bb13..2c2c60e9e0fe 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -2157,6 +2157,27 @@ static int selinux_ptrace_traceme(struct task_struct *parent)
->  			    SECCLASS_PROCESS, PROCESS__PTRACE, NULL);
->  }
->
-> +/*
-> + * Decide whether it should be possible to read non-readable VMAs and write
-> + * non-writable VMAs via /proc/self/mem.
-> + * This only applies to systems configured with PROC_MEM_FORCE_ALWAYS, and only
-> + * triggers on accesses that are not visible to selinux_ptrace_access_check()
-> + * because of the introspection exceptions in may_access_mm() and
-> + * __ptrace_may_access().
-> + *
-> + * This allows a process to overwrite read-only code in its own address space.
-> + *
-> + * Creating an audit record on denial doesn't make sense here, since we can't
-> + * tell whether FOLL_FORCE matters for the accessed VMAs.
-> + */
-> +static int selinux_mem_foll_force_opened_by_owner(const struct cred *subject)
-> +{
-> +	struct av_decision avd;
-> +	u32 sid = cred_sid(subject);
-> +
-> +	return avc_has_perm_noaudit(sid, sid, SECCLASS_PROCESS, PROCESS__PTRACE, 0, &avd);
-> +}
-> +
->  static int selinux_capget(const struct task_struct *target, kernel_cap_t *effective,
->  			  kernel_cap_t *inheritable, kernel_cap_t *permitted)
->  {
-> @@ -7558,6 +7579,7 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
->
->  	LSM_HOOK_INIT(ptrace_access_check, selinux_ptrace_access_check),
->  	LSM_HOOK_INIT(ptrace_traceme, selinux_ptrace_traceme),
-> +	LSM_HOOK_INIT(mem_foll_force_opened_by_owner, selinux_mem_foll_force_opened_by_owner),
->  	LSM_HOOK_INIT(capget, selinux_capget),
->  	LSM_HOOK_INIT(capset, selinux_capset),
->  	LSM_HOOK_INIT(capable, selinux_capable),
->
-> --
-> 2.55.0.860.g4b6b3295ed-goog
->
+diff --git a/FUZZING.md b/FUZZING.md
+new file mode 100644
+index 00000000..cf454fd1
+--- /dev/null
++++ b/FUZZING.md
+@@ -0,0 +1,84 @@
++Fuzzing of the SELinux userspace
++================================
++
++OSS-Fuzz
++--------
++
++Portions of the SELinux userspace are regularly fuzzed by OSS-Fuzz based
++on the configuration at:
++https://github.com/google/oss-fuzz/blob/master/projects/selinux/project.yaml
++
++The fuzzers can be found under the fuzz subdirectories of various
++directories within the selinux repository, and can be built using the
++./scripts/oss-fuzz.sh script. OSS-Fuzz itself uses this script to
++build the fuzzers.
++
++See
++https://issues.oss-fuzz.com/issues?q=project:selinux
++for public OSS-Fuzz selinux issues. OSS-Fuzz automatically makes
++issues public once they are verified to be fixed or after a 90 day
++disclosure window. Issues are initially created private and
++sent via email to those listed in the configuration above.
++
++Not all issues will be fixed by the upstream SELinux project, e.g.
++small memory leaks on error paths for checkpolicy are not viewed as
++worth fixing since checkpolicy will exit shortly thereafter, and OSS
++Fuzz will create issues if it encounters a timeout during fuzzing even
++though the fuzzer would have completed if given more time.
++
++Items categorized as a vulnerability by OSS-Fuzz will not always be
++treated as security issues by the upstream SELinux project; in
++particular, issues that depend on attacker-controlled policy are not
++considered to be security issues and will just be handled as regular
++bugs. See
++[SECURITY.md](https://github.com/SELinuxProject/selinux/blob/main/SECURITY.md)
++for more information on the SELinux userspace security vulnerability
++handling process.
++
++CIFuzz
++------
++
++The selinux GitHub CI Actions include a CIFuzz workflow based on the
++configuration at:
++https://github.com/SELinuxProject/selinux/blob/main/.github/workflows/cifuzz.yml
++
++This action is invoked for pushes and pull requests targeting the main
++branch of the SELinuxProject/selinux repository to help detect
++regressions on new commits.
++
++The status of CIFuzz workflow runs can be viewed at:
++https://github.com/SELinuxProject/selinux/actions/workflows/cifuzz.yml
++as well as in the check status for each push or pull request and
++displayed in the banner at the top of the
++[README.md](https://github.com/SELinuxProject/selinux/blob/main/README.md)
++file.
++
++Debugging Fuzzing Failures
++--------------------------
++
++OSS-Fuzz provides a detailed report and, when possible, a reproducer
++testcase. If the cause cannot be determined from the report, the
++reproducer testcase can be downloaded locally, the fuzzer can be built
++using ./scripts/oss-fuzz.sh, and the fuzzer can be manually run on the
++reproducer testcase input.
++
++The fuzzers are built without debugging information and with verbose
++logging disabled when built using oss-fuzz.sh. You can recompile them
++with debugging, logging, and a trivial main() function as follows:
++
++    make -C libsepol fuzz
++    make -C checkpolicy fuzz
++    make -C libselinux fuzz
++
++These build into the fuzz/ directories and do not touch any object
++files or archives used by the normal build.
++
++In some cases, it may be helpful to run one of the selinux userspace
++programs on the fuzzer input directly, potentially under gdb or
++valgrind, to better understand the issue and whether it is applicable
++to any production tool. This can be done when the fuzzer input is
++accepted directly as input to one of the selinux userspace programs,
++such as a CIL policy file to secilc or a binary policy file to
++checkpolicy -b. In other cases you may need to split the fuzzer input
++into its parts and only feed one portion to a program like checkpolicy
++or selabel_lookup.
+diff --git a/checkpolicy/Makefile b/checkpolicy/Makefile
+index e59ad63a..b5a32e41 100644
+--- a/checkpolicy/Makefile
++++ b/checkpolicy/Makefile
+@@ -58,6 +58,9 @@ test: checkpolicy checkmodule
+ # helper target for fuzzing
+ checkobjects: $(CHECKOBJS)
+ 
++fuzz: all
++	$(MAKE) -C fuzz
++
+ install: all
+ 	-mkdir -p $(DESTDIR)$(BINDIR)
+ 	-mkdir -p $(DESTDIR)$(MANDIR)/man8
+diff --git a/checkpolicy/fuzz/.gitignore b/checkpolicy/fuzz/.gitignore
+new file mode 100644
+index 00000000..f9ba626f
+--- /dev/null
++++ b/checkpolicy/fuzz/.gitignore
+@@ -0,0 +1 @@
++checkpolicy-fuzzer
+diff --git a/checkpolicy/fuzz/Makefile b/checkpolicy/fuzz/Makefile
+new file mode 100644
+index 00000000..0c066831
+--- /dev/null
++++ b/checkpolicy/fuzz/Makefile
+@@ -0,0 +1,40 @@
++# Build the checkpolicy fuzzer as a standalone debug binary.
++# oss-fuzz.sh handles the sanitizer/libFuzzer build; this Makefile
++# only produces a plain binary suitable for gdb/valgrind on a single
++# reproducer input.
++
++CHECKPOLICY := ..
++LIBSEPOLA ?= ../../libsepol/src/libsepol.a
++CFLAGS ?= -g -O0 -Wall
++override CFLAGS += -I$(CHECKPOLICY) -I../../libsepol/include -D_GNU_SOURCE \
++	-DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION -DDEBUG -DVERBOSE=1
++
++# Parser objects - same set as $(CHECKOBJS) in ../Makefile, built
++# locally with the fuzzing defines so module_compiler_reset() and the
++# lexer's non-exit error paths are compiled in.
++CHECKOBJS = y.tab.o lex.yy.o queue.o module_compiler.o parse_util.o \
++	    policy_define.o
++
++vpath %.c $(CHECKPOLICY)
++
++all: checkpolicy-fuzzer
++
++checkpolicy-fuzzer: checkpolicy-fuzzer.o $(CHECKOBJS) $(LIBSEPOLA)
++	$(CC) $(LDFLAGS) -o $@ $^
++
++# Ensure the generated parser/lexer sources exist in the parent dir.
++$(CHECKPOLICY)/y.tab.c $(CHECKPOLICY)/y.tab.h $(CHECKPOLICY)/lex.yy.c:
++	$(MAKE) -C $(CHECKPOLICY) $(@F)
++
++y.tab.o: $(CHECKPOLICY)/y.tab.c $(CHECKPOLICY)/y.tab.h
++	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
++
++lex.yy.o: $(CHECKPOLICY)/lex.yy.c $(CHECKPOLICY)/y.tab.h
++	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
++
++clean:
++	rm -f checkpolicy-fuzzer *.o
++
++.PHONY: all clean
++
++
+diff --git a/checkpolicy/fuzz/checkpolicy-fuzzer.c b/checkpolicy/fuzz/checkpolicy-fuzzer.c
+index 401f24e3..a5548bd8 100644
+--- a/checkpolicy/fuzz/checkpolicy-fuzzer.c
++++ b/checkpolicy/fuzz/checkpolicy-fuzzer.c
+@@ -33,7 +33,9 @@ extern int yylex_destroy(void);
+ jmp_buf fuzzing_pre_parse_stack_state;
+ 
+ // Set to 1 for verbose libsepol logging
++#ifndef VERBOSE
+ #define VERBOSE 0
++#endif
+ 
+ static ssize_t full_write(int fd, const void *buf, size_t count)
+ {
+@@ -163,9 +165,15 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+ 	switch (data[0]) {
+ 	case 'S':
+ 		platform = SEPOL_TARGET_SELINUX;
++#ifdef DEBUG
++		printf("target: SELinux\n");
++#endif
+ 		break;
+ 	case 'X':
+ 		platform = SEPOL_TARGET_XEN;
++#ifdef DEBUG
++		printf("target: Xen\n");
++#endif
+ 		break;
+ 	default:
+ 		return 0;
+@@ -173,9 +181,15 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+ 	switch (data[1]) {
+ 	case '0':
+ 		mls = 0;
++#ifdef DEBUG
++		printf("MLS-disabled\n");
++#endif
+ 		break;
+ 	case '1':
+ 		mls = 1;
++#ifdef DEBUG
++		printf("MLS-enabled\n");
++#endif
+ 		break;
+ 	default:
+ 		return 0;
+@@ -190,6 +204,9 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+ 	    policyvers != POLICYDB_VERSION_XEN_DEVICETREE &&
+ 	    policyvers != POLICYDB_VERSION_BOUNDARY)
+ 		return 0;
++#ifdef DEBUG
++	printf("policyvers=%d\n", policyvers);
++#endif
+ 	data += 3;
+ 	size -= 3;
+ 
+@@ -286,3 +303,39 @@ exit:
+ 	/* Non-zero return values are reserved for future use. */
+ 	return 0;
+ }
++
++#ifdef DEBUG
++#include <sys/stat.h>
++
++int main(int argc, char **argv)
++{
++	if (argc < 2) {
++		fprintf(stderr, "usage: %s fuzzer-input-file\n", argv[0]);
++		exit(1);
++	}
++
++	FILE *fp = fopen(argv[1], "rb");
++	if (!fp) {
++		perror(argv[1]);
++		exit(1);
++	}
++
++	struct stat sb;
++	int rc;
++
++	rc = fstat(fileno(fp), &sb);
++	if (rc < 0) {
++		perror("fstat");
++		exit(1);
++	}
++
++	void *address = mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE,
++			     MAP_PRIVATE, fileno(fp), 0);
++	if (address == MAP_FAILED) {
++		perror("mmap");
++		exit(1);
++	}
++
++	return LLVMFuzzerTestOneInput(address, sb.st_size);
++}
++#endif
+diff --git a/libselinux/Makefile b/libselinux/Makefile
+index aeede2b5..2ba414d1 100644
+--- a/libselinux/Makefile
++++ b/libselinux/Makefile
+@@ -55,6 +55,9 @@ all install relabel clean distclean:
+ 		(cd $$subdir && $(MAKE) $@) || exit 1; \
+ 	done
+ 
++fuzz: all
++	$(MAKE) -C fuzz
++
+ swigify: all
+ 	$(MAKE) -C src $@
+ 
+diff --git a/libselinux/fuzz/.gitignore b/libselinux/fuzz/.gitignore
+new file mode 100644
+index 00000000..d3bf28ca
+--- /dev/null
++++ b/libselinux/fuzz/.gitignore
+@@ -0,0 +1,2 @@
++selabel_file_text-fuzzer
++selabel_file_compiled-fuzzer
+diff --git a/libselinux/fuzz/Makefile b/libselinux/fuzz/Makefile
+new file mode 100644
+index 00000000..9d291947
+--- /dev/null
++++ b/libselinux/fuzz/Makefile
+@@ -0,0 +1,32 @@
++# Build the libselinux fuzzers as standalone debug binaries.
++# oss-fuzz.sh handles the sanitizer/libFuzzer build; this Makefile
++# only produces plain binaries suitable for gdb/valgrind on a single
++# reproducer input.
++TARGETS := selabel_file_text-fuzzer selabel_file_compiled-fuzzer
++
++LIBSELINUXA := ../src/libselinux.a
++
++PCRE_CFLAGS ?= -DUSE_PCRE2 -DPCRE2_CODE_UNIT_WIDTH=8
++PCRE_LDLIBS ?= -lpcre2-8
++
++CFLAGS ?= -g -O0 -Wall
++override CFLAGS += -I../include -I../src -D_GNU_SOURCE -DNO_ANDROID_BACKEND \
++	$(PCRE_CFLAGS) -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION -DDEBUG -DVERBOSE=1
++
++all: $(TARGETS)
++
++# Only label_file.o changes behavior under
++# FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION. Compile a private copy
++# of it here and link the rest from the normally-built ../src/libselinux.a.
++label_file.o: ../src/label_file.c
++	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
++
++$(TARGETS): %: %.o label_file.o $(LIBSELINUXA)
++	$(CC) $(LDFLAGS) -o $@ $^ $(PCRE_LDLIBS)
++
++clean:
++	rm -f $(TARGETS) *.o
++
++.PHONY: all clean
++
++
+diff --git a/libselinux/fuzz/selabel_file_compiled-fuzzer.c b/libselinux/fuzz/selabel_file_compiled-fuzzer.c
+index 8466fed8..8cd5f8ac 100644
+--- a/libselinux/fuzz/selabel_file_compiled-fuzzer.c
++++ b/libselinux/fuzz/selabel_file_compiled-fuzzer.c
+@@ -15,12 +15,18 @@ extern int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
+ #define CTRL_FIND_ALL (1U << 1)
+ #define CTRL_MODE (1U << 2)
+ 
++#ifndef VERBOSE
++#define VERBOSE 0
++#endif
++
++#if !VERBOSE
+ __attribute__((format(printf, 2, 3))) static int
+ null_log(int type __attribute__((unused)),
+ 	 const char *fmt __attribute__((unused)), ...)
+ {
+ 	return 0;
+ }
++#endif
+ 
+ static int validate_context(char **ctxp)
+ {
+@@ -120,6 +126,11 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+ 	/* S_IFSOCK has the highest integer value */
+ 	mode = (control & CTRL_MODE) ? S_IFSOCK : 0;
+ 
++#ifdef DEBUG
++	printf("partial=%s, find_all=%s, mode=%s\n", partial ? "true" : "false",
++	       find_all ? "true" : "false", mode ? "true" : "false");
++#endif
++
+ 	/*
+ 	 * Split the fuzzer input into up to four pieces: one to three compiled fcontext
+ 	 * definitions (to mimic file_contexts, file_contexts.homedirs and file_contexts.local,
+@@ -186,8 +197,10 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+ 		.data = &sdata,
+ 	};
+ 
++#if !VERBOSE
+ 	selinux_set_callback(SELINUX_CB_LOG,
+ 			     (union selinux_callback){ .func_log = &null_log });
++#endif
+ 	/* validate to pre-compile regular expressions */
+ 	selinux_set_callback(
+ 		SELINUX_CB_VALIDATE,
+@@ -298,3 +311,37 @@ cleanup:
+ 	/* Non-zero return values are reserved for future use. */
+ 	return 0;
+ }
++
++#ifdef DEBUG
++int main(int argc, char **argv)
++{
++	if (argc < 2) {
++		fprintf(stderr, "usage: %s fuzzer-input-file\n", argv[0]);
++		exit(1);
++	}
++
++	FILE *fp = fopen(argv[1], "rb");
++	if (!fp) {
++		perror(argv[1]);
++		exit(1);
++	}
++
++	struct stat sb;
++	int rc;
++
++	rc = fstat(fileno(fp), &sb);
++	if (rc < 0) {
++		perror("fstat");
++		exit(1);
++	}
++
++	void *address = mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE,
++			     MAP_PRIVATE, fileno(fp), 0);
++	if (address == MAP_FAILED) {
++		perror("mmap");
++		exit(1);
++	}
++
++	return LLVMFuzzerTestOneInput(address, sb.st_size);
++}
++#endif
+diff --git a/libselinux/fuzz/selabel_file_text-fuzzer.c b/libselinux/fuzz/selabel_file_text-fuzzer.c
+index db2b4cee..52f15dc2 100644
+--- a/libselinux/fuzz/selabel_file_text-fuzzer.c
++++ b/libselinux/fuzz/selabel_file_text-fuzzer.c
+@@ -15,12 +15,18 @@ extern int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
+ #define CTRL_FIND_ALL (1U << 1)
+ #define CTRL_MODE (1U << 2)
+ 
++#ifndef VERBOSE
++#define VERBOSE 0
++#endif
++
++#if !VERBOSE
+ __attribute__((format(printf, 2, 3))) static int
+ null_log(int type __attribute__((unused)),
+ 	 const char *fmt __attribute__((unused)), ...)
+ {
+ 	return 0;
+ }
++#endif
+ 
+ static int validate_context(char **ctxp)
+ {
+@@ -118,6 +124,11 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+ 	/* S_IFSOCK has the highest integer value */
+ 	mode = (control & CTRL_MODE) ? S_IFSOCK : 0;
+ 
++#ifdef DEBUG
++	printf("partial=%s, find_all=%s, mode=%s\n", partial ? "true" : "false",
++	       find_all ? "true" : "false", mode ? "true" : "false");
++#endif
++
+ 	/*
+ 	 * Split the fuzzer input into two pieces: the textual fcontext definition and the lookup key
+ 	 */
+@@ -141,6 +152,40 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+ 	memcpy(key, sep + 4, key_len);
+ 	key[key_len] = '\0';
+ 
++#ifdef DEBUG
++	printf("fcontext_data_len=%zu fcontext=", fcontext_data_len);
++	unsigned char *str = fcontext_data;
++	unsigned char *end = str + fcontext_data_len;
++	while (str < end) {
++		unsigned char c = *str;
++		if (isspace(c)) {
++			printf("\\s");
++		} else if (isprint(c)) {
++			putchar(c);
++		} else {
++			printf("\\x%02x", c);
++		}
++		str++;
++	}
++	printf("\n");
++
++	printf("len=%zu key=", key_len);
++	str = (unsigned char *)key;
++	end = str + key_len;
++	while (str < end) {
++		unsigned char c = *str;
++		if (isspace(c)) {
++			printf("\\s");
++		} else if (isprint(c)) {
++			putchar(c);
++		} else {
++			printf("\\x%02x", c);
++		}
++		str++;
++	}
++	printf("\n");
++#endif
++
+ 	/*
+ 	 * Mock selabel handle
+ 	 */
+@@ -150,8 +195,10 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+ 		.data = &sdata,
+ 	};
+ 
++#if !VERBOSE
+ 	selinux_set_callback(SELINUX_CB_LOG,
+ 			     (union selinux_callback){ .func_log = &null_log });
++#endif
+ 	/* validate to pre-compile regular expressions */
+ 	selinux_set_callback(
+ 		SELINUX_CB_VALIDATE,
+@@ -223,3 +270,37 @@ cleanup:
+ 	/* Non-zero return values are reserved for future use. */
+ 	return 0;
+ }
++
++#ifdef DEBUG
++int main(int argc, char **argv)
++{
++	if (argc < 2) {
++		fprintf(stderr, "usage: %s fuzzer-input-file\n", argv[0]);
++		exit(1);
++	}
++
++	FILE *fp = fopen(argv[1], "rb");
++	if (!fp) {
++		perror(argv[1]);
++		exit(1);
++	}
++
++	struct stat sb;
++	int rc;
++
++	rc = fstat(fileno(fp), &sb);
++	if (rc < 0) {
++		perror("fstat");
++		exit(1);
++	}
++
++	void *address = mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE,
++			     MAP_PRIVATE, fileno(fp), 0);
++	if (address == MAP_FAILED) {
++		perror("mmap");
++		exit(1);
++	}
++
++	return LLVMFuzzerTestOneInput(address, sb.st_size);
++}
++#endif
+diff --git a/libselinux/src/.gitignore b/libselinux/src/.gitignore
+index 5413ccf0..5b7258dd 100644
+--- a/libselinux/src/.gitignore
++++ b/libselinux/src/.gitignore
+@@ -3,3 +3,5 @@ selinuxswig_python_wrap.c
+ selinuxswig_ruby_wrap.c
+ selinux.egg-info/
+ dist/
++selabel_file_text-fuzzer
++selabel_file_compiled-fuzzer
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index 9ecdbd4d..2e1bbd20 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -181,6 +181,20 @@ selinuxswig_python_exception.i: exception.sh ../include/selinux/selinux.h
+ %.lo:  %.c policy.h
+ 	$(CC) $(CPPFLAGS) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
+ 
++selabel_file_text-fuzzer.o: ../fuzz/selabel_file_text-fuzzer.c
++	$(CC) $(CPPFLAGS) $(CFLAGS) -g -I. -c -o $@ $^
++
++selabel_file_text-fuzzer: CFLAGS = -g -I../include -D_GNU_SOURCE -DNO_ANDROID_BACKEND $(PCRE_CFLAGS) -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION -DDEBUG
++selabel_file_text-fuzzer: selabel_file_text-fuzzer.o $(LIBA)
++	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(PCRE_LDLIBS)
++
++selabel_file_compiled-fuzzer.o: ../fuzz/selabel_file_compiled-fuzzer.c
++	$(CC) $(CPPFLAGS) $(CFLAGS) -g -I. -c -o $@ $^
++
++selabel_file_compiled-fuzzer: CFLAGS = -g -I../include -D_GNU_SOURCE -DNO_ANDROID_BACKEND $(PCRE_CFLAGS) -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION -DDEBUG
++selabel_file_compiled-fuzzer: selabel_file_compiled-fuzzer.o $(LIBA)
++	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(PCRE_LDLIBS)
++
+ $(SWIGRUBYCOUT): $(SWIGRUBYIF)
+ 	$(SWIGRUBY) $<
+ 
+@@ -215,7 +229,7 @@ clean-rubywrap:
+ 	-rm -f $(SWIGRUBYLOBJ) $(SWIGRUBYSO)
+ 
+ clean: clean-pywrap clean-rubywrap
+-	-rm -f $(LIBPC) $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(TARGET) *.o *.lo *~
++	-rm -f $(LIBPC) $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(TARGET) selabel_file_text-fuzzer selabel_file_compiled-fuzzer *.o *.lo *~
+ 
+ distclean: clean
+ 	rm -f $(GENERATED) $(SWIGFILES)
+diff --git a/libsepol/Makefile b/libsepol/Makefile
+index 223edcec..efa10d57 100644
+--- a/libsepol/Makefile
++++ b/libsepol/Makefile
+@@ -6,6 +6,9 @@ all:
+ 	$(MAKE) -C src 
+ 	$(MAKE) -C utils
+ 
++fuzz: all
++	$(MAKE) -C fuzz
++
+ install: 
+ 	$(MAKE) -C include install
+ 	$(MAKE) -C src install
+diff --git a/libsepol/fuzz/.gitignore b/libsepol/fuzz/.gitignore
+new file mode 100644
+index 00000000..88310076
+--- /dev/null
++++ b/libsepol/fuzz/.gitignore
+@@ -0,0 +1,3 @@
++binpolicy-fuzzer
++secilc-fuzzer
++module-package-fuzzer
+diff --git a/libsepol/fuzz/Makefile b/libsepol/fuzz/Makefile
+new file mode 100644
+index 00000000..0cffaf20
+--- /dev/null
++++ b/libsepol/fuzz/Makefile
+@@ -0,0 +1,25 @@
++# Build the libsepol fuzzers as standalone debug binaries.
++# oss-fuzz.sh handles the sanitizer/libFuzzer build; this Makefile
++# only produces plain binaries suitable for gdb/valgrind on a single
++# reproducer input.
++TARGETS := binpolicy-fuzzer secilc-fuzzer module-package-fuzzer
++
++# Nothing in libsepol itself is conditional on
++# FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION so the normally-built
++# ../src/libsepol.a can be used as-is.
++LIBSEPOLA := ../src/libsepol.a
++
++CFLAGS ?= -g -O0 -Wall
++override CFLAGS += -I../include -I../cil/include -D_GNU_SOURCE -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION -DDEBUG -DVERBOSE=1
++
++all: $(TARGETS)
++
++$(TARGETS): %: %.o $(LIBSEPOLA)
++	$(CC) $(LDFLAGS) -o $@ $^
++
++clean:
++	rm -f $(TARGETS) *.o
++
++.PHONY: all clean
++
++
+diff --git a/libsepol/fuzz/binpolicy-fuzzer.c b/libsepol/fuzz/binpolicy-fuzzer.c
+index f2379175..d9c27856 100644
+--- a/libsepol/fuzz/binpolicy-fuzzer.c
++++ b/libsepol/fuzz/binpolicy-fuzzer.c
+@@ -12,7 +12,9 @@ extern int policydb_validate(sepol_handle_t *handle, const policydb_t *p);
+ extern int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
+ 
+ // set to 1 to enable more verbose libsepol logging
++#ifndef VERBOSE
+ #define VERBOSE 0
++#endif
+ 
+ static int write_binary_policy(policydb_t *p, FILE *outfp)
+ {
+@@ -117,3 +119,40 @@ exit:
+ 	/* Non-zero return values are reserved for future use. */
+ 	return 0;
+ }
++
++#ifdef DEBUG
++#include <sys/stat.h>
++#include <sys/mman.h>
++
++int main(int argc, char **argv)
++{
++	if (argc < 2) {
++		fprintf(stderr, "usage: %s fuzzer-input-file\n", argv[0]);
++		exit(1);
++	}
++
++	FILE *fp = fopen(argv[1], "rb");
++	if (!fp) {
++		perror(argv[1]);
++		exit(1);
++	}
++
++	struct stat sb;
++	int rc;
++
++	rc = fstat(fileno(fp), &sb);
++	if (rc < 0) {
++		perror("fstat");
++		exit(1);
++	}
++
++	void *address = mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE,
++			     MAP_PRIVATE, fileno(fp), 0);
++	if (address == MAP_FAILED) {
++		perror("mmap");
++		exit(1);
++	}
++
++	return LLVMFuzzerTestOneInput(address, sb.st_size);
++}
++#endif
+diff --git a/libsepol/fuzz/module-package-fuzzer.c b/libsepol/fuzz/module-package-fuzzer.c
+index 2516970b..c097742c 100644
+--- a/libsepol/fuzz/module-package-fuzzer.c
++++ b/libsepol/fuzz/module-package-fuzzer.c
+@@ -5,7 +5,9 @@
+ extern int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
+ 
+ // set to 1 to enable more verbose libsepol logging
++#ifndef VERBOSE
+ #define VERBOSE 0
++#endif
+ 
+ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+ {
+@@ -45,3 +47,40 @@ exit:
+ 	/* Non-zero return values are reserved for future use. */
+ 	return 0;
+ }
++
++#ifdef DEBUG
++#include <sys/mman.h>
++#include <sys/stat.h>
++
++int main(int argc, char **argv)
++{
++	if (argc < 2) {
++		fprintf(stderr, "usage: %s fuzzer-input-file\n", argv[0]);
++		exit(1);
++	}
++
++	FILE *fp = fopen(argv[1], "rb");
++	if (!fp) {
++		perror(argv[1]);
++		exit(1);
++	}
++
++	struct stat sb;
++	int rc;
++
++	rc = fstat(fileno(fp), &sb);
++	if (rc < 0) {
++		perror("fstat");
++		exit(1);
++	}
++
++	void *address = mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE,
++			     MAP_PRIVATE, fileno(fp), 0);
++	if (address == MAP_FAILED) {
++		perror("mmap");
++		exit(1);
++	}
++
++	return LLVMFuzzerTestOneInput(address, sb.st_size);
++}
++#endif
+diff --git a/libsepol/fuzz/secilc-fuzzer.c b/libsepol/fuzz/secilc-fuzzer.c
+index 57a39f46..81e7db60 100644
+--- a/libsepol/fuzz/secilc-fuzzer.c
++++ b/libsepol/fuzz/secilc-fuzzer.c
+@@ -8,11 +8,17 @@
+ #include <sepol/cil/cil.h>
+ #include <sepol/policydb.h>
+ 
++#ifndef VERBOSE
++#define VERBOSE 0
++#endif
++
++#if !VERBOSE
+ static void log_handler(__attribute__((unused)) int lvl,
+ 			__attribute__((unused)) const char *msg)
+ {
+ 	/* be quiet */
+ }
++#endif
+ 
+ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+ {
+@@ -31,7 +37,9 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+ 	sepol_policydb_t *pdb = NULL;
+ 
+ 	cil_set_log_level(log_level);
++#if !VERBOSE
+ 	cil_set_log_handler(log_handler);
++#endif
+ 
+ 	cil_db_init(&db);
+ 	cil_set_disable_dontaudit(db, disable_dontaudit);
+@@ -75,3 +83,40 @@ exit:
+ 	sepol_policy_file_free(pf);
+ 	return 0;
+ }
++
++#ifdef DEBUG
++#include <sys/mman.h>
++#include <sys/stat.h>
++
++int main(int argc, char **argv)
++{
++	if (argc < 2) {
++		fprintf(stderr, "usage: %s fuzzer-input-file\n", argv[0]);
++		exit(1);
++	}
++
++	FILE *fp = fopen(argv[1], "rb");
++	if (!fp) {
++		perror(argv[1]);
++		exit(1);
++	}
++
++	struct stat sb;
++	int rc;
++
++	rc = fstat(fileno(fp), &sb);
++	if (rc < 0) {
++		perror("fstat");
++		exit(1);
++	}
++
++	void *address = mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE,
++			     MAP_PRIVATE, fileno(fp), 0);
++	if (address == MAP_FAILED) {
++		perror("mmap");
++		exit(1);
++	}
++
++	return LLVMFuzzerTestOneInput(address, sb.st_size);
++}
++#endif
+diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
+index c222a8fd..4a3dc384 100644
+--- a/libsepol/src/Makefile
++++ b/libsepol/src/Makefile
+@@ -89,6 +89,13 @@ endif
+ %.lo:  %.c
+ 	$(CC) $(CPPFLAGS) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
+ 
++binpolicy-fuzzer.o: ../fuzz/binpolicy-fuzzer.c
++	$(CC) $(CPPFLAGS) $(CFLAGS) -g -I. -c -o $@ $^
++
++binpolicy-fuzzer: CFLAGS = -g -I. -I../include -I$(CILDIR)/include -D_GNU_SOURCE -DDEBUG -DVERBOSE=1 -DHAVE_REALLOCARRAY
++binpolicy-fuzzer: binpolicy-fuzzer.o $(LIBA)
++	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
++
+ install: all
+ 	test -d $(DESTDIR)$(LIBDIR) || install -m 755 -d $(DESTDIR)$(LIBDIR)
+ 	install -m 644 $(LIBA) $(DESTDIR)$(LIBDIR)
+-- 
+2.55.0
 
---
-Cheers, Lorenzo
