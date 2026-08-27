@@ -1,68 +1,68 @@
-Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
+Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04A3D483802
-	for <selinux@vger.kernel.org>; Thu, 27 Aug 2026 15:11:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9B8243E06B
+	for <selinux@vger.kernel.org>; Thu, 27 Aug 2026 15:12:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787843501; cv=none; b=IBH7+z5XBbLuZ6vJC7GNyoh9Nf/wqVlFzRL1QVxLd6VQ3fqqwUK76l9TCEke1iy/uD6B7Bi6jzfUvpRJ2GyPsp97YcPOgN582bPGCtql47ihMWchRBMbpGHjTQnMJBtJ8X/Hg9S4v3iAigNIDhYnAG8t/gmBl8rpICyMZMH2z30=
+	t=1787843531; cv=none; b=hM0swp42CYfmT43EpX9M3yKd6htQlzQjsjvk3KIMIQWGfNnU4MurY0pwsAA3WQi0Y4gYLQg/qMS28xZLBOrRQFISNYHT5NYxNYnPvMa0MvqKmDv4CXFE9W4LMmcLByg1fW4oObL6mhqBApCUo0/LGtEL3V7uaYnkYHLPLBphYOg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787843501; c=relaxed/simple;
-	bh=6pdMZP6qFF2+B0N+2v2HuExIDmRVTe5O84Kznca+NYM=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=GIFrMhLVkTrPdqb5cOCT6SGVWZqStMSM3Ieh7xMIkZTZqktEW3Rus/F9IDsu8ThLIq8YgYfxLyh2oz2jQGL5EQDKlOoKt7bHEkb/EiVMDA5Wl7qiDggI0MyFWlDyWhpHow0cDruUIs/Of2q2NVbhEb4iq0BtWcWzFF9Fb+kdzyQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=AWYCcaj0; arc=none smtp.client-ip=209.85.222.180
+	s=arc-20240116; t=1787843531; c=relaxed/simple;
+	bh=CgkliXob0bU6VbUcRPQHmvChR0iaIuYG6nMKVSZpAgE=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=EnfcFH1EYyyD/wrrYkn058VPeG3OZBB8U9iXS/lwWjWvwx+LIkFFqa3IzrUV8VeOfYFPaFkzwLIX2gYFRtxNs/dv9iPheH5AW0ZzE9RCXx6y/fzLE6H8q6Yc3cUdmlG+2mkY29SJKoRKuPpoNJKDRenZ7oG7cbpAMvMwVrDfhcs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=UrpAPET8; arc=none smtp.client-ip=209.85.160.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="AWYCcaj0"
-Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-9387752a4d0so82127185a.2
-        for <selinux@vger.kernel.org>; Thu, 27 Aug 2026 08:11:38 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="UrpAPET8"
+Received: by mail-qt1-f172.google.com with SMTP id d75a77b69052e-517dc520840so19318891cf.3
+        for <selinux@vger.kernel.org>; Thu, 27 Aug 2026 08:12:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1787843497; x=1788448297; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1787843529; x=1788448329; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:to
          :from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=KYGMFCU8TuWd9R/BPMvAqU2px2NU9+5o33+qPDsvJ3A=;
-        b=AWYCcaj04nAygppWv+fvPi+DvAL4BDHt9fGuFv/c3up0XHQ2RXxtu4z6mUbb1mYC9k
-         iFAX2qfEKwl9hVUWeV5aAdb0fSJ1DJS0lxasc+DhA8V/cAPZ9fi05LcHUtBXqaH5uC51
-         1r6yPSSAVlWCVlSteWRt1QgmrIz0h4VFzrNE0TOQmyWlrwb/WnTPNdQxOCjzekFOH+77
-         Za2616eO7ctdEfagnW0EhCKmSfq0SD8W87X86HC00zUNojQQf6T/tbFD6CQrRVy6adnx
-         TNyRhCwTsRYvwsvKKxc6ZT+2gO/W1cSgGQjF+w2YadYo8VvegyuCylfB0+EKA4eQnrGD
-         4fWg==
+        bh=tgUWWkIU0CVtlRV3/6mSZB+EejhAKhSA6KedhPizEe0=;
+        b=UrpAPET8sQOTwE/eFO5ZtLr6DCb++pYkN2xmxKn8xcbc5sOl1Rzg7tZuXYf8RHKzou
+         F+uRlMJYorExmlw6hsOhCp6TTkWMSrwyr/eiZDY1lroFyZOfaa1XxHZHdzeuWhLE9UgC
+         YPvSfOuo81U+6U099igEpP/lq+UqEjDVPDRZT1jRCoDM+5yrUGh8qz0XS62U+gQ95W8s
+         ctB6nZxs2PXMZkgYgDq++e+eHwqsqJvP6YciJaRuk5uTKMkzq14b9xMeEFnnrp9lgSQx
+         dxa781qqmoc2x9Sf4shBei8ocABdmewgeQ891YVvwtYooXleYuyUhMmAVKUOdvHRxVlQ
+         fcXg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787843497; x=1788448297;
+        d=1e100.net; s=20251104; t=1787843529; x=1788448329;
         h=content-transfer-encoding:mime-version:message-id:date:subject:to
          :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to:content-type;
-        bh=KYGMFCU8TuWd9R/BPMvAqU2px2NU9+5o33+qPDsvJ3A=;
-        b=LqmMYN+tNOTxP2dC9Dtp/1HAT6wZkpr85mJsY5OchvvV0khP5YG5YkyHxbRNjqTgoq
-         bXU5KiQ+sbi+eGKBboZNvbzbZ2cseACCB8nKV61n1bZzBZhhhWtoEHAzykqcT4BNhPtt
-         Zv82Sdzy8PPpafEHeIy67ykGEs6kGlK1p8ajA4mjv1zDaxuKDYw2PRVON01Wa3BqiinL
-         1B4eAHI3Hl0W5oqklkQ8MOZDiEOxlf93t1N+pP2Jz16W+VYNuYN8wIlJLJ5Y4A//CJQ9
-         b0JgacAzhWxQp1XeggSQp0JFVzUPanRWu1wNKYd/ELbxradsx9c0Ivi22tyXp2bDGKFb
-         v04g==
-X-Gm-Message-State: AFuF++nyQkH/s9CMYWJmIkf8Sr6274B1Goz7SYNq80ujJe9Hm4utseiz
-	15LKYn/JANLCz/YENo9Uz9zqePTlCuLiQ3PtR7lDsBmM5sr56nt7hyOixo28sC0ApOBOXMuWkFl
-	QG9gwIA==
-X-Gm-Gg: AR+sD12ZHpHgvGG7nK0lWt6ztkbNog/AERyJ//1omvqVttBKpHhG0iq3DSZQgiEZ2oU
-	2LFHwoe3FzC9zpdU+xNGwKqg+5qhuFTPne3eGVH1pu/fxE6Elvy04eR4vNCfPbeb7w4w6NfXa5/
-	zszLMXSmyGyDX5DNG1cIESC+1XeqGLqLRQuKNc8DN8Z3037HBu1XVnfKRCdXalueqi2TzrcR/Ai
-	sgvqJ4FWfLE1YQ5b50VEa+H+lkG1/VJbiSknBK/SUTyMOplghGvmH8+8wXrz3M3OFRLhbPgh+m3
-	WhtoRIoq707Ikc+ce6It7BUubG7zRvwHGTsMcVkkiSCSIFlvox12R/Z5GonSjQdkJjY8hX8/SCT
-	G+qUYw7EC3gIWMca7ExyKSWXWOlpbYHr/6zOhvlleAEKzkTwtN6Ct3etsr2ZsWkWIEXH9xYbkVE
-	FDL6ck7aW1Sam/nrpIueTkoYPQHy2tlRP/T/J+UqzgQyZ2oK1u2CtnKz/B1j5Loj9s7VTRE8H55
-	N/tFXPSl/RvH5CSmL06dPmPRmuEFuNcULGbHSQHzUwP
-X-Received: by 2002:a05:620a:f0d:b0:930:f337:ebeb with SMTP id af79cd13be357-93780130181mr1512787285a.12.1787843497424;
-        Thu, 27 Aug 2026 08:11:37 -0700 (PDT)
+        bh=tgUWWkIU0CVtlRV3/6mSZB+EejhAKhSA6KedhPizEe0=;
+        b=Zic8mpRfUZ9Lc6Kua24XJTT7o/zB8EQWWPpKcbX3fqcxGcQdGDqwvgNFY25Scl1ULo
+         Apk6c84jy1ANpz7g11F32lcgi1+zPv2MHcvdPiwM2NIp8lb1OuJIc9ECfp8V3sVs+gcN
+         Sex1VwWEjb1R6nZpVWB4aRS3EGOJkMXEC1OXg64U5/OVkr79KFZ2rKUMuzF8l7VukxPJ
+         XTPPNbx5dwpEE+aI+sPIcK3aeyjw+7Ygv6EaAkaFOGjvcp6tPytpj8uR9iu3/arOcAQL
+         7pCemIwVTCNVUKBYXLWkro6SX6QnqKDtxEgpBWKNuu46EzGff2fbjZjMKgjYk/ExzrsI
+         WgcA==
+X-Gm-Message-State: AFuF++mE/xBja6wYCfhsRzMdEM1gXS55y7dN/Saa+KXsWkwy3Gvso6l2
+	HwtoWvTVJx2r9OM+T5egsK4+gPVU3SogV36sOEDgwaREbWnOLGO4KbJi+aoRhFB1t///+Tw0dHd
+	r25XK9g==
+X-Gm-Gg: AR+sD110qR+XastytAdVVfrM/3/z1ORS2hdXJNiJOLOs7zwMdr9fC2Bte695ieZjaH9
+	n6VqB1kuBkDP+MGPEQRcbMa8Dw01uN5vdi9VC2bw8tpBd3D44jH8iKrns7Ews03DyYU6s3KZ1n9
+	SLAqxJT/5ZBZMXmxwK550YNCGsC4wmyBjvQvIOKx9zqAjNSsYnpk5FxWDnpIyomznesO+9dWrJw
+	cji6kh7jCE4L7SITiLUQuBXj6XOcJjPd4inplk/16PAUtagnZ7lwTQNTi4OCd0o4ECnq8oLAZ+j
+	hM5VQSgHLaGfAig3KYS7018MpH+8Ek3d8zyQuM41kraJaKGTk4CD1nj+Tdj20cQMNxYXKXMozbS
+	HXVOIy3WyAdT9rkYLmVLswxaUZ7YbtkH8W3UlvWDo56uD51kIdX5YQFEl8lB5Zau5RziHx1LE/5
+	mpX+8PD086j0S2aJZb0KhVBDc+8zRP4CHmADMayBxI+VjABRg5tqQHJ5QMxOCQ2CotNzMvHd6OX
+	sCoikmBys8DcrmJpfz93q1jJw6wiSOzjw==
+X-Received: by 2002:a05:622a:3d4:b0:52d:7b2a:93f with SMTP id d75a77b69052e-52e422d73camr159701261cf.3.1787843528246;
+        Thu, 27 Aug 2026 08:12:08 -0700 (PDT)
 Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-90cd73e3dbesm18663846d6.30.2026.08.27.08.11.36
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52e424140ffsm39602561cf.0.2026.08.27.08.12.07
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 Aug 2026 08:11:36 -0700 (PDT)
+        Thu, 27 Aug 2026 08:12:07 -0700 (PDT)
 From: Paul Moore <paul@paul-moore.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH] selinux: fix BPF token permission checks
-Date: Thu, 27 Aug 2026 11:11:27 -0400
-Message-ID: <20260827151126.107545-2-paul@paul-moore.com>
+Subject: [PATCH] selinux: convert selinuxfs inode numbers from unsigned long to u64
+Date: Thu, 27 Aug 2026 11:12:04 -0400
+Message-ID: <20260827151203.108111-2-paul@paul-moore.com>
 X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -70,108 +70,146 @@ List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3468; i=paul@paul-moore.com; h=from:subject; bh=6pdMZP6qFF2+B0N+2v2HuExIDmRVTe5O84Kznca+NYM=; b=owEBbQKS/ZANAwAKAeog8tqXN4lzAcsmYgBqkFOenMB+VswgvorLi7sZfsyB5D6gXFJlfwKGb 9l5Asj0Sf2JAjMEAAEKAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCapBTngAKCRDqIPLalzeJ c5xlD/wLhiQ/RwWX0JBiGonszI6vhemsQcFtZMqkDFbnfLKafnhaysy6c7101IPVr7gvcLzhwlq i5Du+mjUoliADevFJW8+ClfGmSrtBTS+WfNQLg1kTL1Z6tdB/IS/YnJrnrQavhHbUMc/QF4oNdc DQIN4GziPwuegvmgkKbX9WXeoD3mwoSCBkqd+0EE1iqFBeXjqWQaYVkP6z67XvDcQmgDXwvr3JV w3fYX0P8DZABBusm5p9jFTLYf+4BasEEY+sQU/3B5v01OGD8jyZ5e/+R0RUDxw6BYlZdFKEFuTa kIMFJH84yGiJEAhLiXVjI6JbzbnwGYNx6QTqCeXKtOA2REKYMh6XIQZJYcw3Uy8eYoH2BaGkgi4 eoV7ySciBQ+0q62OInbUkkz+9HtC/G5rL54S5pHiKOe6tfaYTR0eJC2BREnnt30ZvW6EK3CcKWw 7qWTVTk2E2DZYnA1rGBR96mKWIdVXubMp5cgUWuVjG9hhbCQW8GNVohdhE7ZgLjvO/T0P6nyf9z BuHnkNWZYpDNbAmL9z+2etyZMUUD60l7S2cWG8xtYP/7TkTvbp6he81FKapXdf6JxDJjEUddkL5 IC0KM8yavytIsNnezCpf9e9u3ETqYtUs/amuYOffrPJMX2LWbtbn5Ty+dhWl2V583Pkb7GyiEsW 7k4ujWcmQNbguIw==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=5116; i=paul@paul-moore.com; h=from:subject; bh=CgkliXob0bU6VbUcRPQHmvChR0iaIuYG6nMKVSZpAgE=; b=owEBbQKS/ZANAwAKAeog8tqXN4lzAcsmYgBqkFPDnnskPAZE775O5kTVRYdKDoLkNC4OdCCjo GZIERiRz1+JAjMEAAEKAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCapBTwwAKCRDqIPLalzeJ c6SFEACamI0CHAOcKVc6cBv/giTCvX/2JifJtS2sDkYkXwRI/kkvLqqVj9hHA3r/XpMk9qtAKV1 xfiytwVk4Gv8D28VRrtTOKnnoE5twzJh9tT2Crkz1JYmw/8f4yyO+IQN7iZSgATtrclinxVR9kO l4nSaHxvGu8ioMgmuhHh6y7Zkgztg7bZ07jVmlnJw5mV7IX069gpXY0PFGQp+gNK4NtWQRhrc0G Z38u+f08gRQhdY2Nm7gr4Vv/05jY7r7JqbfUFFMgRrXOwnhyIgEvKpmvVLxksfBW++8vXRiFB18 qOE02PzzTpaG2vS6vRZqRqhi3W01IVc83ewSLKez0EqjekPjeZg7fjVfHyXcjJmvsglDKb5V9Gz cZ+PtZn+yU0ePuPisCpw/rX2NfrJCADyU13fsYF8jSt273rdFjmKNO+g6NQESbIJO9jwCpdkdk/ IHbn8AlhY5LfhnBTrtXa3l4G0oxtHTFrfsNvdngTRzJbbCDfTaUP3dlo12HAgRWxRONIHBLra43 pMcJu0f6k8prjloxJHFXpzUx7od0hdl3/xAd0TWgmbNc8/tdYmW5jO/GeOWT8RjuQhvBUk4PWk7 9P33BgGXoeuiL95yM+YrxPir09b0awBCymQZvMDwFvu52mhJNhXOk5uLi3qnr5FcUi2NT/6tndM oeY92DxOL2D9wbw==
 X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
 Content-Transfer-Encoding: 8bit
 
-Avoid multiple lookups of the bpffs creator SID using the token's file
-descriptor when the same information can be found via the resolved
-path/dentry (in selinux_bpf_token_create()) or the token itself (in
-selinux_bpf_map_create() and selinux_bpf_prog_load()).  Not only does
-this simplify the code, it avoids potential TOCTOU issues if the user
-changes the token file descriptor passed into the kernel.
+Starting with commit 0b2600f81cef ("treewide: change inode->i_ino from
+unsigned long to u64") inode numbers were changed from an 'unsigned long'
+type to a 'u64' but somehow selinuxfs was lost in the conversion.  This
+patch corrects this oversight and converts selinuxfs to 'u64' inode
+numbers.
 
-Cc: stable@vger.kernel.org
-Fixes: 5473a722f782 ("selinux: add support for BPF token access control")
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- security/selinux/hooks.c | 36 ++++++++++--------------------------
- 1 file changed, 10 insertions(+), 26 deletions(-)
+ security/selinux/selinuxfs.c | 34 ++++++++++++++++------------------
+ 1 file changed, 16 insertions(+), 18 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 035aaf113d1d..e5e17f100aae 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -7267,24 +7267,6 @@ static int selinux_bpf_prog(struct bpf_prog *prog)
- 			    BPF__PROG_RUN, NULL);
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index c7d91476971c..292302eb60f3 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -75,8 +75,8 @@ struct selinux_fs_info {
+ 	char **bool_pending_names;
+ 	int *bool_pending_values;
+ 	struct dentry *class_dir;
+-	unsigned long last_class_ino;
+-	unsigned long last_ino;
++	u64 last_class_ino;
++	u64 last_ino;
+ 	struct super_block *sb;
+ };
+ 
+@@ -304,15 +304,14 @@ static int sel_make_bools(struct selinux_policy *newpolicy, struct dentry *bool_
+ 			  int **bool_pending_values);
+ static int sel_make_classes(struct selinux_policy *newpolicy,
+ 			    struct dentry *class_dir,
+-			    unsigned long *last_class_ino);
++			    u64 *last_class_ino);
+ 
+ /* declaration for sel_make_class_dirs */
+ static struct dentry *sel_make_dir(struct dentry *dir, const char *name,
+-			unsigned long *ino);
++				   u64 *ino);
+ 
+ /* declaration for sel_make_policy_nodes */
+-static struct dentry *sel_make_swapover_dir(struct super_block *sb,
+-						unsigned long *ino);
++static struct dentry *sel_make_swapover_dir(struct super_block *sb, u64 *ino);
+ 
+ static ssize_t sel_read_mls(struct file *filp, char __user *buf,
+ 				size_t count, loff_t *ppos)
+@@ -467,7 +466,7 @@ static int sel_make_policy_nodes(struct selinux_fs_info *fsi,
+ 	unsigned int bool_num = 0;
+ 	char **bool_names = NULL;
+ 	int *bool_values = NULL;
+-	unsigned long tmp_ino = fsi->last_ino; /* Don't increment last_ino in this function */
++	u64 tmp_ino = fsi->last_ino; /* Don't increment last_ino in this function */
+ 
+ 	tmp_parent = sel_make_swapover_dir(fsi->sb, &tmp_ino);
+ 	if (IS_ERR(tmp_parent))
+@@ -1568,22 +1567,22 @@ static int sel_make_initcon_files(struct dentry *dir)
+ 	return err;
  }
  
--static u32 selinux_bpffs_creator_sid(u32 fd)
--{
--	struct path path;
--	struct super_block *sb;
--	struct superblock_security_struct *sbsec;
--
--	CLASS(fd, f)(fd);
--
--	if (fd_empty(f))
--		return SECSID_NULL;
--
--	path = fd_file(f)->f_path;
--	sb = path.dentry->d_sb;
--	sbsec = selinux_superblock(sb);
--
--	return sbsec->creator_sid;
--}
--
- static int selinux_bpf_map_create(struct bpf_map *map, union bpf_attr *attr,
- 				  struct bpf_token *token, bool kernel)
+-static inline unsigned long sel_class_to_ino(u16 class)
++static inline u64 sel_class_to_ino(u16 class)
  {
-@@ -7297,7 +7279,7 @@ static int selinux_bpf_map_create(struct bpf_map *map, union bpf_attr *attr,
- 	if (!token)
- 		ssid = bpfsec->sid;
- 	else
--		ssid = selinux_bpffs_creator_sid(attr->map_token_fd);
-+		ssid = selinux_bpf_token_security(token)->grantor_sid;
+ 	return (class * (SEL_VEC_MAX + 1)) | SEL_CLASS_INO_OFFSET;
+ }
  
- 	return avc_has_perm(ssid, bpfsec->sid, SECCLASS_BPF, BPF__MAP_CREATE,
- 			    NULL);
-@@ -7315,7 +7297,7 @@ static int selinux_bpf_prog_load(struct bpf_prog *prog, union bpf_attr *attr,
- 	if (!token)
- 		ssid = bpfsec->sid;
- 	else
--		ssid = selinux_bpffs_creator_sid(attr->prog_token_fd);
-+		ssid = selinux_bpf_token_security(token)->grantor_sid;
- 
- 	return avc_has_perm(ssid, bpfsec->sid, SECCLASS_BPF, BPF__PROG_LOAD,
- 			    NULL);
-@@ -7329,12 +7311,14 @@ static int selinux_bpf_token_create(struct bpf_token *token,
- 				    const struct path *path)
+-static inline u16 sel_ino_to_class(unsigned long ino)
++static inline u16 sel_ino_to_class(u64 ino)
  {
- 	struct bpf_security_struct *bpfsec;
--	u32 sid = selinux_bpffs_creator_sid(attr->token_create.bpffs_fd);
-+	struct superblock_security_struct *sbsec;
- 	int err;
+ 	return (ino & SEL_INO_MASK) / (SEL_VEC_MAX + 1);
+ }
  
-+	sbsec = selinux_superblock(path->dentry->d_sb);
-+
- 	bpfsec = selinux_bpf_token_security(token);
- 	bpfsec->sid = current_sid();
--	bpfsec->grantor_sid = sid;
-+	bpfsec->grantor_sid = sbsec->creator_sid;
+-static inline unsigned long sel_perm_to_ino(u16 class, u32 perm)
++static inline u64 sel_perm_to_ino(u16 class, u32 perm)
+ {
+ 	return (class * (SEL_VEC_MAX + 1) + perm) | SEL_CLASS_INO_OFFSET;
+ }
  
- 	bpfsec->perms = 0;
- 	/**
-@@ -7343,15 +7327,15 @@ static int selinux_bpf_token_create(struct bpf_token *token,
- 	 * in the allowed_cmds bitmap.
- 	 */
- 	if (bpf_token_cmd(token, BPF_MAP_CREATE)) {
--		err = avc_has_perm(bpfsec->sid, sid, SECCLASS_BPF,
--				   BPF__MAP_CREATE_AS, NULL);
-+		err = avc_has_perm(bpfsec->sid, bpfsec->grantor_sid,
-+				   SECCLASS_BPF, BPF__MAP_CREATE_AS, NULL);
- 		if (err)
- 			return err;
- 		bpfsec->perms |= BPF__MAP_CREATE;
- 	}
- 	if (bpf_token_cmd(token, BPF_PROG_LOAD)) {
--		err = avc_has_perm(bpfsec->sid, sid, SECCLASS_BPF,
--				   BPF__PROG_LOAD_AS, NULL);
-+		err = avc_has_perm(bpfsec->sid, bpfsec->grantor_sid,
-+				   SECCLASS_BPF, BPF__PROG_LOAD_AS, NULL);
- 		if (err)
- 			return err;
- 		bpfsec->perms |= BPF__PROG_LOAD;
+-static inline u32 sel_ino_to_perm(unsigned long ino)
++static inline u32 sel_ino_to_perm(u64 ino)
+ {
+ 	return (ino & SEL_INO_MASK) % (SEL_VEC_MAX + 1);
+ }
+@@ -1591,7 +1590,7 @@ static inline u32 sel_ino_to_perm(unsigned long ino)
+ static ssize_t sel_read_class(struct file *file, char __user *buf,
+ 				size_t count, loff_t *ppos)
+ {
+-	unsigned long ino = file_inode(file)->i_ino;
++	u64 ino = file_inode(file)->i_ino;
+ 	char res[TMPBUFLEN];
+ 	ssize_t len = scnprintf(res, sizeof(res), "%d", sel_ino_to_class(ino));
+ 	return simple_read_from_buffer(buf, count, ppos, res, len);
+@@ -1605,7 +1604,7 @@ static const struct file_operations sel_class_ops = {
+ static ssize_t sel_read_perm(struct file *file, char __user *buf,
+ 				size_t count, loff_t *ppos)
+ {
+-	unsigned long ino = file_inode(file)->i_ino;
++	u64 ino = file_inode(file)->i_ino;
+ 	char res[TMPBUFLEN];
+ 	ssize_t len = scnprintf(res, sizeof(res), "%d", sel_ino_to_perm(ino));
+ 	return simple_read_from_buffer(buf, count, ppos, res, len);
+@@ -1622,7 +1621,7 @@ static ssize_t sel_read_policycap(struct file *file, char __user *buf,
+ 	int value;
+ 	char tmpbuf[TMPBUFLEN];
+ 	ssize_t length;
+-	unsigned long i_ino = file_inode(file)->i_ino;
++	u64 i_ino = file_inode(file)->i_ino;
+ 
+ 	value = security_policycap_supported(i_ino & SEL_INO_MASK);
+ 	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", value);
+@@ -1698,7 +1697,7 @@ static int sel_make_class_dir_entries(struct selinux_policy *newpolicy,
+ 
+ static int sel_make_classes(struct selinux_policy *newpolicy,
+ 			    struct dentry *class_dir,
+-			    unsigned long *last_class_ino)
++			    u64 *last_class_ino)
+ {
+ 	u32 i, nclasses;
+ 	int rc;
+@@ -1763,7 +1762,7 @@ static int sel_make_policycap(struct dentry *dir)
+ }
+ 
+ static struct dentry *sel_make_dir(struct dentry *dir, const char *name,
+-			unsigned long *ino)
++				   u64 *ino)
+ {
+ 	struct inode *inode;
+ 
+@@ -1792,8 +1791,7 @@ static const struct inode_operations swapover_dir_inode_operations = {
+ 	.permission	= reject_all,
+ };
+ 
+-static struct dentry *sel_make_swapover_dir(struct super_block *sb,
+-						unsigned long *ino)
++static struct dentry *sel_make_swapover_dir(struct super_block *sb, u64 *ino)
+ {
+ 	struct dentry *dentry;
+ 	struct inode *inode;
 -- 
 2.55.0
 
