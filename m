@@ -1,119 +1,167 @@
-Received: from mail-oa1-f46.google.com (mail-oa1-f46.google.com [209.85.160.46])
+Received: from mail-qt1-f178.google.com (mail-qt1-f178.google.com [209.85.160.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1ADB13ABD8F
-	for <selinux@vger.kernel.org>; Fri, 28 Aug 2026 20:13:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.46
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787948022; cv=pass; b=Y3E+nqX86uS0dVesqROiSJuya538iojkeX4/dc0s/m/OwhmoHEeSTkAyQjKvKP9PjaIL+pqQPb6/PVKiGXk6CqBn6IbsowH5PtbUxG2BkCr1UljxT695CqemWSgd9HjWR9nUt0FBCs7E+dzUaZMAZ4UYSfBCLg3nhsyhRcjNbIw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787948022; c=relaxed/simple;
-	bh=sMwWeZAtm5Z1FwUN9BV4j39Xu9KHxMKs425TLvb5Ztg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=UvZv9ozs+YjlfJ65e7gBgWBBQylW1JPIrJ/rrxk1/0m+J0RF6WQhg2LCsUfbYVDrDTkbclGeS4XIjhCX9wGBG35QP5ls6iKN4/HwkorORhlmH59FjiT6U7eygzbMIPBtrUwtKTLSKir3kEDxFdvNyBAMuu24eFEsshDH5vWyDAg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WeDtAv24; arc=pass smtp.client-ip=209.85.160.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0096B346A14
+	for <selinux@vger.kernel.org>; Fri, 28 Aug 2026 20:24:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.178
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787948656; cv=none; b=FL2n1A1UTKyRBciuvyYgDzplQxd3htOZH7BdLW/GJyr0mg8ipEwhbMWizZEJSusZhNEK5BX61avTuG00f1gIhhWia8B4CW9DtPA1QVSsh69iervsf/k6zTVq0C3LeGuZT3no5SGk5100fYYT8klgmH0YI2UyughR/eFZFnmiWbY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787948656; c=relaxed/simple;
+	bh=bJ2qI8n8MRLuELujalm02jSraj/mYN/ggN4Ti8CdFC4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KsbYUD1FuaZYzBEB6xrO7DY1G6IkvhKU1WByuB2DM5ucJ/S5F3XwFyUxtGYuDMUldMkDsNVfYKXtQL8+mKpGFNaWg8wVHzJ5j2aKojUioDm81zkj2aUDc8Ej5jry014O8XrfnwwiNrRLLtFvTXz12tFqy7bvXPUxvZiGSyVnb8c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DzoI1I28; arc=none smtp.client-ip=209.85.160.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WeDtAv24"
-Received: by mail-oa1-f46.google.com with SMTP id 586e51a60fabf-448b69cfc6dso1585779fac.3
-        for <selinux@vger.kernel.org>; Fri, 28 Aug 2026 13:13:40 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1787948020; cv=none;
-        d=google.com; s=arc-20260327;
-        b=McFKcZKBui3Rt2HzpLC8BAlfdPoBB1V6d6i/6Nsp5ESScCCvz7bXcXM+pO+FCPKN02
-         ewCoi8zcNRdyKm1s7v869a6jPCN5LSyQcl6hsbEIlHou0Fia1ZkZbvqhsr/h5JBc+7XU
-         T0YWiWDV9uVFSar20nrRPJM3P2UsCvPcA40iT3IXKd3FBo1ov0wfoEFr4gOr8Vl2AnRX
-         ucfPT+33Xbtr1gjhaL3KYuYGBezz6NTKE8Y98JAcE6j9tfq6toZhZyG4uWNt/8rszrkA
-         vGnKA71x4kt8ernhbwXAkIJ7h8rx3H4mBuzo2H/hcbUp6Y2czg1RPPKM333k/jEAP4UI
-         6iaw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=sMwWeZAtm5Z1FwUN9BV4j39Xu9KHxMKs425TLvb5Ztg=;
-        fh=wY5cFNIrFxocNXn8dhXLjCWtx2mX+LDI2hsGzEtklkU=;
-        b=L4BpxqGpx9GRjpcpboLhacW0fvQ36emT36+jN8/hh9GCa5JuXSsyrLqROkvcg+kS4v
-         VrUNw7WGLy4lnUmSscuNvr0rMTkfgihFRByyOONMEof/KOpIg6IYVyKvtj4sqQ39CjLi
-         08mnvrvbeHcMFywfWAFH89A0/FsynM86lDiuKtQb5QgCfyvI8I1bcJHhLJfswXCnDTpO
-         hxeoHJ0SK5zuFyVYBGb3UBLcq+j3jbGJw9XrqOE6DjZVPj4ibxxMrj3nAT75WyGK8mmD
-         xd9MG+ZbYig9lQT3DkG0zTd9daAO512kk62lhNblIEk+bgx4vy6TnJEBHPFtETsdS2II
-         egsw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DzoI1I28"
+Received: by mail-qt1-f178.google.com with SMTP id d75a77b69052e-52fbb20c30eso9301901cf.1
+        for <selinux@vger.kernel.org>; Fri, 28 Aug 2026 13:24:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787948020; x=1788552820; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=sMwWeZAtm5Z1FwUN9BV4j39Xu9KHxMKs425TLvb5Ztg=;
-        b=WeDtAv24PRSvyTiJIbo5zGnR9ejWlgLGhnp/+1d3yC56+qM9mahRr5y0AHNl4tVAcN
-         7vCITdcDNOFVvuGvFVLHWCyWwgfhyj3IQmLcGn+IBQuCv5pVh1zqBW3J4WecqS2zWSGi
-         kxiA7m9q9ojzGuakrnFAveKL5wEdpvsLqX68M2Hq2YR1Nkvv/cDO972J75vNrOXol/cd
-         zPjhZNwAicpGe1wHPXUx6XLNea6oV5xgiQZHHIFEDZjFQZxm1RpK2LGbz1ViM6OhHj7t
-         cID0d16TUHVWEUqlNRPJn49IEA4K4/fyRnOvSw+Ds+5k0igbh7BipSwQGNivNR5DuGWM
-         llVQ==
+        d=gmail.com; s=20251104; t=1787948653; x=1788553453; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=qxwxB18lFGJQirPk4Gku/+LnY+cv8UnIU/Bbso2V9Vw=;
+        b=DzoI1I28iCyJWrjj6WmOATt797hcvZHVmiGhGAtfsFnSyS8rXCj4e8B4JsJkvlu3+h
+         IflksGH+LjXbLZVtyZq1FSiun9jEXhxqqqT95LKNptMXiVZcdeTBKBFFIIRKERNg6gyQ
+         3egMvs/59bne88slIZ/u0rR5w4wy5IwUQ57ot35z59Qx9B2448JOEwUKW/roD+1Pwh2z
+         FqPG8FjSodAsEDI0FncxkY4Gm4U7bevs7ku9OdX1Cs6klI/IFHIJ3+Qkhqe+ZkivYyHF
+         mFFxz0lG0eZmXEtmPAkG2cCfyaOemEK+ERMLmYdnzlfjr7yI985g76i+OEzQHtc1dY73
+         HnRw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787948020; x=1788552820;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=sMwWeZAtm5Z1FwUN9BV4j39Xu9KHxMKs425TLvb5Ztg=;
-        b=Dw6HuJmXxhVEu3nNtsG/G+VkIi4Gsqv67bmbkDJQRGk883x4Bgh1cve7vvAxWDXYo9
-         NpTOVP3nfkUjK8UYilR/StYToUKFVQ2DbOl+O0CHWM1LTt7Y/oUyc5ypto6kGplVnLCm
-         J0mwJ8fCpzRW2Z/1qEn+FqU3rytai56WLwRmIXLEEDpY+LsintU6LnB/qaZa2bRqIuls
-         iBUmmaKdeqBxNmbNZlJEvXySApwIpQ3VRDDcViJL9kMt07sj+nlQB+JI5qLxAAxswZSj
-         qnGUANHTIMvKQNOL6UlKdk7aETAfBnXKkqYwvJ7vYJq59mQ8ha8hOjJ8JjP7HVf3p1ge
-         lEFw==
-X-Gm-Message-State: AFuF++nMsdf0NMW0FcaYyo4pDldbNbpQUZ4BmtaS6zcnR0HaBO+d7rzZ
-	DUUWRFKYY1bQAIY0wsv87Hu+4gFsvWJHkoTb8HICghg50it0bC7GD8Ez6lq2wrheNgrZpAidrSM
-	fybwEFVtzy9DFiYrBxPLjGi4bc6acrhpCDw==
-X-Gm-Gg: AR+sD12zeYNEqhdLWtlo5p1+V1Nb4XGi9csI6eFI0iHiUCWsfKZch3d0JTNixcFogYH
-	dNti+NL0xWR2784GJ4w62O4Sq4aqf6s2HZxYnDGwZAEGHP+VbdfxgxS0PtmK7wDmTaDhpn8Ka8H
-	TpXEVgF+1uUp4FwzWMAUbU0DtN+/kBDtydKA9zD3wTs9rldTMzhz0UwbvcE/UFjsqkxKNFcOsUu
-	vZq52h7g5xNLPLVz3vr60OczSL6nIQ+HTfAdDOaEtI/nCEyV26bqPu0eydw5d/zKTKbpqFMhy0B
-	NcOWHEmnJW7XUTyuzPHuEpdYNoCvndUCGLOzhwLS/DbQ
-X-Received: by 2002:a05:6870:511a:b0:448:9a86:aff9 with SMTP id
- 586e51a60fabf-46837337502mr12610715fac.15.1787948019893; Fri, 28 Aug 2026
- 13:13:39 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1787948653; x=1788553453;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=qxwxB18lFGJQirPk4Gku/+LnY+cv8UnIU/Bbso2V9Vw=;
+        b=CynNxI0F8tlivBmrsPla11BOu4INlbmKe10SncG9mEqRUOpt+IrXqmz79SnLAz1+cK
+         r8OdkTZhfEByoFHSdv52eVdow9Cg3qBIRVKUe8T+SRBRadOCYyZ5P7ls2KA1PzqpWBGb
+         XPSAz9o6eEnMxv6GAQ5rVAadb7VekXm7NmxmxIQw3n5JnpKTnwLMYWIV5c4KpR+0NvND
+         a3VTD+SVniqK7cp8SdPN1B93DYTx3e31qOH1j+usuIIPx0czr8Z9+4oFXH6iXIrnqQe4
+         tvq0PDKqs0fTjyKQcXZ9usZRUV8lxMlT+b9VoY7lQ3afpJtCgvKKLaCJLVmY0wWOVV6O
+         JjRQ==
+X-Gm-Message-State: AFuF++khUr/RBaTVze2fL3n2ENbPdxnCfLI2AczrbAAw4JTQiJvc4mOr
+	bGhIIicWhZCZ0nak+I+3l6yn64GnRoTkXnjvkZleAN/A3tQAZjDa1ZFw3BHZ3A==
+X-Gm-Gg: AR+sD10d80vuCLC7T5BGpHfbsFvwP6GU+hPi115xn65KBpuJ9wPLMZSfm6xNQOy5NJ6
+	qskgMBCIQfQyTAxKm71o8FZylY4Y3rmJhHhfS6z7dihrrK+SctVDdtZZbxgHocK+Kf8uG0/rekW
+	OniDwRSWpUtxYT3Qm6nMOLJMYcB+lRuQuR1FwoUWJkfyACv6cBtRb70ja9PuxSEwFALnns/3LZk
+	u+D79NSb7QSdWGr40MJCXZAFHJqsaRL0lTYDDR9DkszG6BsSPg0lYcEsmv2dctpolql/fLJ86jq
+	mfEoTJSSaCrfGvKjDCjdvIsNEs7TYEjbDKIOryS9F1dSgfOwkdYxocAkZJ299HQOfPlrAKaE2nT
+	UH6nraHQCKIruFBBUHSRWcKxeU+yej55WKUPlzILkvf7vZJIgC9RMXu1Q7A5cyvsENmre0romU9
+	eVf2TxrXFV7lH/rxCWk+4ioAwb3Arxxwy5hNA2Sllu4cRT2wl3sesHGzm0fSKcno4QX1Vw8B/N8
+	4mFrHBcNpHN711FCedutigiEFy0RUgH+jJkBfrsKWJLBymACh2NR6gxkrHl0Cab
+X-Received: by 2002:a05:620a:a299:10b0:937:80a9:94b4 with SMTP id af79cd13be357-9391379488fmr878570885a.2.1787948652910;
+        Fri, 28 Aug 2026 13:24:12 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-939173a737dsm216538085a.23.2026.08.28.13.24.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 28 Aug 2026 13:24:12 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com,
+	omosnace@redhat.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] selinux: remove unused mls_setup_user_range()
+Date: Fri, 28 Aug 2026 16:23:50 -0400
+Message-ID: <20260828202350.110547-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260828175314.38256-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260828175314.38256-1-stephen.smalley.work@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 28 Aug 2026 16:13:28 -0400
-X-Gm-Features: AcwNN1Wep_XBs4HWcljWEL15SqbuClSaZcbH6jbOrx9vCe9bm693MmzVHypDr1A
-Message-ID: <CAEjxPJ459i7Q0UcFJQ8wYmg9ZaeASX_XXi7RL2fbBQUOwf+g=Q@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: add include/sepol/cil symlink for in-tree builds
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com, 
-	jason@perfinion.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Fri, Aug 28, 2026 at 1:53=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> secilc-fuzzer, secilc, libsemanage, and policycoreutils/semodule all
-> include <sepol/cil/cil.h>, which only exists in the installed header
-> layout. The source tree has libsepol/include/sepol and
-> libsepol/cil/include/cil, and the libsepol/include/Makefile installs
-> the latter to include/sepol/cil.
->
-> Add an include/sepol/cil symlink so that -Ilibsepol/include resolves
-> <sepol/cil/cil.h> against the source tree. This lets the standalone
-> libsepol/fuzz/Makefile build secilc-fuzzer without a system
-> libsepol-devel and against the source tree's header rather than the
-> system one, and more generally lets any in-tree consume of the CIL API
-> compile without a DESTDIR install first.
->
-> The install target is unaffected; it globs sepol/*.h which does not
-> match the symlink and copies cil/include/cil/*.h into $(INCDIR)/cil as
-> before.
->
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+mls_setup_user_range() was a helper for security_get_user_sids(),
+which was removed by commit ad1ac3d740cc6b8 ("selinux: prune
+/sys/fs/selinux/user"). Since mls_setup_user_range() has no remaining
+users, remove it too and any other helpers that only it was using.
 
-This is now merged.
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ security/selinux/ss/mls.c       | 38 ---------------------------------
+ security/selinux/ss/mls.h       |  3 ---
+ security/selinux/ss/mls_types.h |  3 ---
+ 3 files changed, 44 deletions(-)
+
+diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
+index 40c62600650e..b48f8256dd4c 100644
+--- a/security/selinux/ss/mls.c
++++ b/security/selinux/ss/mls.c
+@@ -400,44 +400,6 @@ int mls_range_set(struct context *context, struct mls_range *range)
+ 	return rc;
+ }
+ 
+-int mls_setup_user_range(struct policydb *p, struct context *fromcon,
+-			 struct user_datum *user, struct context *usercon)
+-{
+-	if (p->mls_enabled) {
+-		struct mls_level *fromcon_sen = &(fromcon->range.level[0]);
+-		struct mls_level *fromcon_clr = &(fromcon->range.level[1]);
+-		struct mls_level *user_low = &(user->range.level[0]);
+-		struct mls_level *user_clr = &(user->range.level[1]);
+-		struct mls_level *user_def = &(user->dfltlevel);
+-		struct mls_level *usercon_sen = &(usercon->range.level[0]);
+-		struct mls_level *usercon_clr = &(usercon->range.level[1]);
+-
+-		/* Honor the user's default level if we can */
+-		if (mls_level_between(user_def, fromcon_sen, fromcon_clr))
+-			*usercon_sen = *user_def;
+-		else if (mls_level_between(fromcon_sen, user_def, user_clr))
+-			*usercon_sen = *fromcon_sen;
+-		else if (mls_level_between(fromcon_clr, user_low, user_def))
+-			*usercon_sen = *user_low;
+-		else
+-			return -EINVAL;
+-
+-		/* Lower the clearance of available contexts
+-		   if the clearance of "fromcon" is lower than
+-		   that of the user's default clearance (but
+-		   only if the "fromcon" clearance dominates
+-		   the user's computed sensitivity level) */
+-		if (mls_level_dom(user_clr, fromcon_clr))
+-			*usercon_clr = *fromcon_clr;
+-		else if (mls_level_dom(fromcon_clr, user_clr))
+-			*usercon_clr = *user_clr;
+-		else
+-			return -EINVAL;
+-	}
+-
+-	return 0;
+-}
+-
+ /*
+  * Convert the MLS fields in the security context
+  * structure `oldc' from the values specified in the
+diff --git a/security/selinux/ss/mls.h b/security/selinux/ss/mls.h
+index 93cde1b22992..c107b5182fb7 100644
+--- a/security/selinux/ss/mls.h
++++ b/security/selinux/ss/mls.h
+@@ -46,9 +46,6 @@ int mls_compute_sid(struct policydb *p, struct context *scontext,
+ 		    struct context *tcontext, u16 tclass, u32 specified,
+ 		    struct context *newcontext, bool sock);
+ 
+-int mls_setup_user_range(struct policydb *p, struct context *fromcon,
+-			 struct user_datum *user, struct context *usercon);
+-
+ #ifdef CONFIG_NETLABEL
+ void mls_export_netlbl_lvl(struct policydb *p, struct context *context,
+ 			   struct netlbl_lsm_secattr *secattr);
+diff --git a/security/selinux/ss/mls_types.h b/security/selinux/ss/mls_types.h
+index 51df2ebd1211..d36a03f104c2 100644
+--- a/security/selinux/ss/mls_types.h
++++ b/security/selinux/ss/mls_types.h
+@@ -42,9 +42,6 @@ static inline int mls_level_dom(const struct mls_level *l1,
+ #define mls_level_incomp(l1, l2) \
+ 	(!mls_level_dom((l1), (l2)) && !mls_level_dom((l2), (l1)))
+ 
+-#define mls_level_between(l1, l2, l3) \
+-	(mls_level_dom((l1), (l2)) && mls_level_dom((l3), (l1)))
+-
+ #define mls_range_contains(r1, r2)                        \
+ 	(mls_level_dom(&(r2).level[0], &(r1).level[0]) && \
+ 	 mls_level_dom(&(r1).level[1], &(r2).level[1]))
+-- 
+2.55.0
+
