@@ -1,239 +1,216 @@
-Received: from mail-qt1-f171.google.com (mail-qt1-f171.google.com [209.85.160.171])
+Received: from mail-ed1-f48.google.com (mail-ed1-f48.google.com [209.85.208.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 274975B5AB
-	for <selinux@vger.kernel.org>; Fri, 28 Aug 2026 01:10:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.171
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787879454; cv=none; b=JPKwGOSTx4uxi0pMNjpLYavZOZv+SP2OphhOnKhRVhpKr4LR/WPcDu3GG1UZ2SXzZWjITLo5o37nElDXEc+Teg6IFUCpT1jdMfAQ4NdEIK571tpFXBST0/yO+Rqy0KwbVAWSVqSxaB1zNhj0hUUeLVVJ65BXmgl2fm1yXV2o8A8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787879454; c=relaxed/simple;
-	bh=wIEeS+LwYTnRIYj5ZqZqnhCJG8waLUCHcVYFZ62yyKY=;
-	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=h2aK1810qOfuP7ZzdmZrlVUro73l1NWkR9UMiJuoCGglFbcri93mZ7qGhcQ4hD9mogjYtAtUgMnC5lP+AzgmTk42C8qwS22kqW7G856DaetVH310TJmbH6/TbRSd2YovcY23TQM8DCFnDIlVb8mbleyekNC+zN5N+/aLCdqK+i0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=AHXcPHTq; arc=none smtp.client-ip=209.85.160.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26303362154
+	for <selinux@vger.kernel.org>; Fri, 28 Aug 2026 09:05:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.48
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787907935; cv=pass; b=nW6e05ahNOoDWV8LklEITxB1DPc0PTWepFgPnjpuencXrFKI0P5QAn9nwYOnOh16IyT+2m/xQ3jS2Zm4CfutWsUylk48OThki4N61iXR3QwcJP0AY2vlBFVpFnvG/pq64bfIuq7InYS+OsINgur2X4hGJ+L6Pwy9FOAxk/FMYnU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787907935; c=relaxed/simple;
+	bh=kcyY+NxYtD7T3O4Y9Nn6CHPlve9WbW1aHvF8C8OLgX8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=qfZSB6wC9qdDICt50dbLBOgYhBDGnuk1EbG0jfsgf/mkZ0HPK7NBON8ajno7XWVZOg9udf7KlQcz+L7DutcMFPQKr9llniXICOhmN/EgvU1DK8oVKE+fDOMDkFeDdrEkJkpylzl+yUNfZGYfA7Bkp88FPH8slLp507dLsMIUKfU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JWqB/sky; arc=pass smtp.client-ip=209.85.208.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="AHXcPHTq"
-Received: by mail-qt1-f171.google.com with SMTP id d75a77b69052e-52d8748cde5so3694301cf.0
-        for <selinux@vger.kernel.org>; Thu, 27 Aug 2026 18:10:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JWqB/sky"
+Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-6a173ad7cf4so1083722a12.3
+        for <selinux@vger.kernel.org>; Fri, 28 Aug 2026 02:05:32 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787907931; cv=none;
+        d=google.com; s=arc-20260327;
+        b=P1NnyZJU180Z60NVb3AOTtLjR2XF8d7V36p0DzYwAld9LYqKEBgi+8qcDVY0l6CK5z
+         /cA8aQksLI7ypO6WXRKAF0CLXOjwW2bMr6WkGFhFROucMFFFrb7aJhxCohMT/4/Lvlbd
+         PUiTvsIYfffHtjSN9+fGAkXRZYk0Ikc3piQY6MK6rvSfrr6qRnpwWR7nYYTFN1+aZlls
+         QxWsw/ZM2gHqNyq6VLIC8cegeKWDIupW9JnHgX74dt7cZ56yREA0Rgc2LHGiD+MAa1vs
+         lMgEW4PDd1InbhHYFtTrr1y6taN2u8jiTdiFAJmxKjldXlCqfJVtlTM+DXSKvQ98V6vF
+         VoDg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=iGb5RBnXDA+kbDx6QBFrMut47J0QFMd/GZl3kg+9bis=;
+        fh=0ErBlaSl5t+Th1zY6E25jeFBDoz1PwqzyYq64r/OViE=;
+        b=KV+JGEApnmwUh38FMkbRzJnj4hzdbexet/CRpXCA0Br8fKh+iGwn8PBVDvRmPD/gMX
+         hKcZRkCTSNIwEAMAjTWbLU+eHSnrXvTA2CiOq1BxhcefFXIIPomDLUO0ixgwgpcILN7e
+         kxjVPLkGtKP4lpf3nsssd5zUMPyGXveR88JVrBsBMIbPdopnjWhbE4QBR2SHibhmkDpL
+         B+6aZFO/aW8Ll72mmk+ZZnRdhSf+AKy2MpnmyPz/bxkYAgo2VDNjZUCEF0VM3K71lu6K
+         sRkyhAby0EiRqJi22bjwID5Oyd05uRMW86gJS2lWBmUIG5yNT9/Uj9vds2fylAN2Zpf1
+         k35A==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1787879447; x=1788484247; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-type:mime-version:message-id:date:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=F2FIz9UYX+IlSwKp5E5JXDBaBYS18bmjz6r6fwuVCck=;
-        b=AHXcPHTqnZa6w/ozGXcB1Zxb3/q9ETgZwzkXvBAvOTjJmsv3Ar+Ww2svNXRbKqwZQ2
-         /icLl2ujY6yGIpUFAyHQYKYUE5DvZIDMt18rtLRSPZZE7GneuT5TV4DgintgNE/UOtir
-         YVZBOpb/vu6tm9Zy1hCuIibYgC/bnX5W5gN3POQctMcsO/osj9TPWJ5PbPKmGNMp1v3T
-         YGGC3oF+linRv+RqM4XAvoiVh3Qlf2CyfYVGtla26sGtB+cQLTi+41OFbA7I8ULzpb/h
-         RK4JsdjSz5jcHAKOJdyVMQclGNbkM2PMn2IAMJ+aTyD2ZBqDzhltoIA4Gc8Rpyh3pjVn
-         LrAw==
+        d=gmail.com; s=20251104; t=1787907931; x=1788512731; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=iGb5RBnXDA+kbDx6QBFrMut47J0QFMd/GZl3kg+9bis=;
+        b=JWqB/skyHmfBvHnhrjw40ZDPyRfuh0PTuNhPCxIjWpIJ3pr/gcPIweFjwB7asklzhv
+         6DRM1tZEco41nUTMJd58pG0Tsin5CJx/YOJn8RX1FqFaF4iQtacc+rp9NejZE/t9oams
+         IURITUoHgHJ1Qqg0XD6LcOP4S7krazwj/6JB1Ju6xQDgaH92DFORSjZGXRe/nqqIe1ta
+         2i/kpfHnJzOJAlCMX31DVgvYIE32p9oODuLi3U4ehSn5vBFvrEhhCpQuFYIxyhr1tDGG
+         8S3teR7gAdys1LdmVXmY1xHN2mAK1g4GRU/XIcWtGC6AtHTJcm0rua+GqwjkC7C7luLu
+         AomQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787879447; x=1788484247;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-type:mime-version:message-id:date:x-gm-gg
+        d=1e100.net; s=20251104; t=1787907931; x=1788512731;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=F2FIz9UYX+IlSwKp5E5JXDBaBYS18bmjz6r6fwuVCck=;
-        b=gWuGG5A31B7GRXdmZwqc6GN/OVu6PAOb6sp+VyrzaHm9bmIcJvIh+pfjx8xGS034LT
-         D3dqI8QgOVBkc2qlPe8mfA0SPclUxQNYN5dp+yV9WI8RG35OVqY/NXzu4MrWBt/uUHzm
-         SMXxqoUZnEfaYVzn+8g2zgWvOBbtjcde83m+fJiqVukFML7TmZWKSlWCKCT6fE/u+wKC
-         Ung3KsyQ9R7VO8Hwa6CVNT/nHyVbqrYOHLFt1P/2pDC2WSHbqB2u+O0GV0QNLMX2IYQB
-         m+99f7eMbCjLhQ04v2DBJtz1/35aMHHYU+a5Os4XcY9SrbINRViE3Y6G8gy+RNhtl3IS
-         h9IQ==
-X-Forwarded-Encrypted: i=1; AHgh+RoMtm++8yZnnIDIqtgQysshEn0Kq5tlXIkh9wJ5g9Y+F6msXPI6U9W38+nEK9L9DNOEmaRWTUMk@vger.kernel.org
-X-Gm-Message-State: AFuF++knIof4/K8/zFHi59s+qVd6UzY1q2l0BHIa/fgpKGxfaRbVTFmR
-	0d2SGaYg/K4zcxu1R8S1Venoa/2Efa6DXasgQQBkEVeS+kYFJ1YGj7NxJQDUo4s1WA==
-X-Gm-Gg: AR+sD13VW+Oi2j0Ezu4tvcLhMBFsDa0A39AQdEJjWn4U2HMRCnaFfQAG8CLxmzZqtJ5
-	ZgTLAJsBAfDqe7fZYnaFgE6ZjC1b1eoyQ4HnXxN77nZsTLi6KmzyoTUt6SPqM1i9Lr8vzjg+6Tm
-	50Xlz9kJMD4AQzMMHpU6Z4j/7QpOITRDUd2IKkFSyG4QtkIJTcdrL5SoTduxWOtEeNRABERArln
-	Mw5ZNpsJGdPp2MyiGVzxiT2SiTNxWK3VdMP29MxcQBJaYAnKcSb0hCuBky1JeAzc8Jkj1Q21uu7
-	ZyHG2fnYvSio+L4Tqniv806RXOatlrGkMoYk0ikRcK4AnhMLn4MhcLIRGrD4axNTn/KFtR3Gsf7
-	M1+U5BoFmcVnqFna/ttpxEd3cDQvMcGHo5RL3BjwVzbNq4PupSrbiVPYxi3OqyNyOsd4Bd9gKT6
-	FHRkcjgmr3IKUKrt2Ns+O2Cb4tHa4jWQQsHd92TVFlJdp8qbtkNkO/r48CbUemvWkZKYenvfyuP
-	WWX5/Q/lOgiX60XsaqsDg4HYt49mKI3DA==
-X-Received: by 2002:a05:622a:6118:b0:52f:64c4:8094 with SMTP id d75a77b69052e-52fb965d4a1mr42496571cf.39.1787879446638;
-        Thu, 27 Aug 2026 18:10:46 -0700 (PDT)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52fbe7f9bafsm2634591cf.19.2026.08.27.18.10.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 Aug 2026 18:10:45 -0700 (PDT)
-Date: Thu, 27 Aug 2026 21:10:44 -0400
-Message-ID: <82929c994076d95f99560ecc67f6cfce@paul-moore.com>
+        bh=iGb5RBnXDA+kbDx6QBFrMut47J0QFMd/GZl3kg+9bis=;
+        b=koDS8E4L72sXAzn5U2iUvjFS1xwZmd4Wt/zVznskbodrvKx4kpbC0IVUyeBy9pNXYl
+         /kfgskyY1IobMoKMJSNOJJxaWJt45IYjD4JvVfuttEGz4E+iPPVnAu0tabKjUQmqFXRQ
+         xIOeohhyFzuzVXfK/TIVVnH7ibWx9b0P5aEHkezpW2YW9J8lU6rodIzc1vxl4hMUNJs1
+         EWfTNkFgMbWCfNV6sQKj+e/YE7RNYQM0J6AklkYfLbb5+de3rnHE+/NgnqJk+A7sqc6e
+         tmeWOYsOhyeFjH65URNw4o4qCetiXQ1wlgj3xIlaDT61dEHfutKu8HwAc9VGQj14tHCi
+         j5vQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rq9ObldC92q5HWzWdxvH0k+Om9JB8+T233UEb3AtguiKrV5KT/i1kQcfzrIo+MMn3HbT8STT/W2@vger.kernel.org
+X-Gm-Message-State: AFuF++m+hwkHfmWRlLOlOyOW9vdzlV+gOnp/Q3qPUD7Bdc5prXo96re/
+	ST6PdLrag+8z3AELLevKLOtIEn3dhhBT9CgHz3l/rKficNOc7HhbiJ9kxYKZ42No1eox1eiAIzG
+	HepUzqXJAX/HnB1dwtYo465faal+omuE=
+X-Gm-Gg: AR+sD12N4kT9mf2axNOVeypoww4tctRUVvy2ZU/BSXkuFWKOiwVVv4PcmIIwVvUp3ut
+	CFhrkB2PQFWnIssZ/aBuJVVce2odwkA6Axli+HOVTRT+VtguTUjCWEPDBigmbKgFODv3CHLkHog
+	OFr3hydbCR9f4OFZJpFM3XVw7S+6fViWZuTsLmi2KvFMws4XqbUTUNhkUbgZhzsMmX+xLDnDyDc
+	mwgOwPIqxct4agZVZ427lbTAJZfLBpBmtVicdCPlBLhoxjmIwZ75RrQyabm4yjs8WhXThnBCZPo
+	9/ycjdLNNLwbRjqwT2xpHzCKCMfzgNwJ5x/yDQ65tIjj3g==
+X-Received: by 2002:a05:6402:3812:b0:6a3:6d83:ba44 with SMTP id
+ 4fb4d7f45d1cf-6a60d2f3663mr3556066a12.2.1787907930829; Fri, 28 Aug 2026
+ 02:05:30 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=UTF-8 
-Content-Transfer-Encoding: 8bit 
-X-Mailer: pstg-pwork:20260827_1122/pstg-lib:20260827_1501/pstg-pwork:20260827_1122
-From: Paul Moore <paul@paul-moore.com>
-To: Jann Horn <jannh@google.com>, James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, Jeff Xu <jeffxu@google.com>, =?utf-8?q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, "Liam R. Howlett" <liam@infradead.org>, Lorenzo Stoakes <ljs@kernel.org>, Vlastimil Babka <vbabka@kernel.org>, Pedro Falcato <pfalcato@suse.de>, David Hildenbrand <david@kernel.org>, linux-mm@kvack.org, Jann Horn <jannh@google.com>
-Subject: Re: [PATCH v2 2/3] proc: query LSMs for introspective mem access (if  PROC_MEM_FORCE_ALWAYS)
-References: <20260825-selinux-pokemem-v2-2-b46bc64916d8@google.com>
-In-Reply-To: <20260825-selinux-pokemem-v2-2-b46bc64916d8@google.com>
+MIME-Version: 1.0
+References: <20260820175832.44512-1-kmehltretter@gmail.com> <5fa5ef078f41cd57d0e52ab2ab023094@paul-moore.com>
+In-Reply-To: <5fa5ef078f41cd57d0e52ab2ab023094@paul-moore.com>
+From: Amir Goldstein <amir73il@gmail.com>
+Date: Fri, 28 Aug 2026 11:05:19 +0200
+X-Gm-Features: AcwNN1W4dZ0jbuPGgh02j4F1QLJuW5SvC4XfY9m2qygWs-rWNLFgcF97xFGTv1w
+Message-ID: <CAOQ4uxjn3sWjkrV8KbA-V+eno3E4OskTnCznNBex6FOstEbJ-A@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: preserve user SID across nested backing files
+To: Paul Moore <paul@paul-moore.com>
+Cc: Karl Mehltretter <kmehltretter@gmail.com>, selinux@vger.kernel.org, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	Miklos Szeredi <miklos@szeredi.hu>, Christian Brauner <brauner@kernel.org>, linux-fsdevel@vger.kernel.org, 
+	linux-unionfs@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Aug 25, 2026 Jann Horn <jannh@google.com> wrote:
-> 
-> If the system is running with PROC_MEM_FORCE_ALWAYS, LSMs currently have no
-> good opportunity to block a process from overwriting read-only code in its
-> own address space through FOLL_FORCE writes via /proc/self/mem.
-> The security_ptrace_access_check() LSM hook is bypassed when a process
-> opens /proc/self/mem because this is considered "introspection".
-> 
-> This causes a hole in SELinux EXECMEM enforcement, which tries to ensure
-> that a process cannot create executable anonymous pages.
-> 
-> PROC_MEM_FORCE_PTRACE prevents that and ensures that such FOLL_FORCE
-> accesses are only possible when the LSM allows ptrace() attachment; but it
-> is unclear how quickly PROC_MEM_FORCE_PTRACE can be deployed in
-> environments running lots of third-party code, such as Android.
-> 
-> So, introduce a new LSM hook that can forbid FOLL_FORCE specifically for
-> such "introspective" accesses.
-> 
-> Signed-off-by: Jann Horn <jannh@google.com>
-> Acked-by: David Hildenbrand (Arm) <david@kernel.org>
-> Acked-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
-> ---
->  fs/proc/base.c                |  9 +++++++++
->  include/linux/lsm_hook_defs.h |  1 +
->  include/linux/security.h      |  6 ++++++
->  security/security.c           | 20 ++++++++++++++++++++
->  4 files changed, 36 insertions(+)
-> 
-> diff --git a/fs/proc/base.c b/fs/proc/base.c
-> index bec6197329dc..dc6fdcb47b79 100644
-> --- a/fs/proc/base.c
-> +++ b/fs/proc/base.c
-> @@ -851,6 +851,11 @@ static int __mem_open(struct inode *inode, struct file *file, unsigned int mode)
->  /* private_data for proc_mem_operations */
->  struct mem_private {
->  	struct mm_struct *mm;
-> +	/*
-> +	 * Was the ptrace access check on open bypassed because the opener used
-> +	 * the same MM (introspection)?
-> +	 */
-> +	bool opened_by_owner;
->  };
->  
->  static int mem_open(struct inode *inode, struct file *file)
-> @@ -864,12 +869,14 @@ static int mem_open(struct inode *inode, struct file *file)
->  	priv->mm = proc_mem_open(inode, PTRACE_MODE_ATTACH);
->  	if (IS_ERR_OR_NULL(priv->mm))
->  		return priv->mm ? PTR_ERR(priv->mm) : -ESRCH;
-> +	priv->opened_by_owner = priv->mm == current->mm;
->  	file->private_data = no_free_ptr(priv);
->  	return 0;
->  }
->  
->  static bool proc_mem_foll_force(struct file *file, struct mm_struct *mm)
->  {
-> +	struct mem_private *priv = file->private_data;
->  	struct task_struct *task;
->  	bool ptrace_active = false;
->  
-> @@ -886,6 +893,8 @@ static bool proc_mem_foll_force(struct file *file, struct mm_struct *mm)
->  		}
->  		return ptrace_active;
->  	default:
-> +		if (priv->opened_by_owner)
-> +			return security_mem_foll_force_opened_by_owner(file->f_cred) == 0;
->  		return true;
->  	}
->  }
+On Thu, Aug 27, 2026 at 9:39=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+>
+> On Aug 20, 2026 Karl Mehltretter <kmehltretter@gmail.com> wrote:
+> >
+> > SELinux saves the user file SID in a backing-file security blob so it
+> > remains available after mmap() replaces vma->vm_file with a backing fil=
+e.
+> >
+> > For nested backing files (overlayfs over overlayfs, or FUSE passthrough
+> > backed by overlayfs), user_file may itself be a backing file.  Its
+> > fsec->sid is the SID of the mounter that opened it, rather than the use=
+r
+> > that opened the top-level file.  mprotect() then checks fd { use } agai=
+nst
+> > the mounter SID.  This can incorrectly deny access without a domain
+> > transition, or check the wrong target SID after one.
+> >
+> > Copy the saved user SID when user_file is a backing file.  Keep using t=
+he
+> > regular file SID for the first backing layer.
+> >
+> > With two nested overlayfs mounts and SELinux enforcing,
+> > mprotect(PROT_READ) returns EACCES with an fd { use } denial against th=
+e
+> > mounter SID.  With this change, mprotect() succeeds.
+> >
+> > Fixes: 82544d36b172 ("selinux: fix overlayfs mmap() and mprotect() acce=
+ss checks")
+> > Cc: stable@vger.kernel.org
+> > Assisted-by: Codex:gpt-5.6-sol
+> > Signed-off-by: Karl Mehltretter <kmehltretter@gmail.com>
+> > Reviewed-by: Amir Goldstein <amir73il@gmail.com>
+> > ---
+> > Changes in v2:
+> > - Add selinux_file_user_sid() helper instead of open-coding the lookup
+> >   (Amir).
+> >
+> > Tested on arm64 QEMU at fd6e2388a3ea with SELinux enforcing and two
+> > nested overlayfs mounts. The policy omitted only
+> > base_t -> mounter_t:fd { use } among the relevant cross-domain allows:
+> >
+> >   baseline: mprotect(PROT_READ) returned EACCES with that denial
+> >   patched:  mprotect(PROT_READ) succeeded; test exited 0
+>
+> If you could share the distro and some more details on the testing
+> methodology that would be helpful.
+>
+> > This patch fixes SID propagation only. backing_file_user_path() still
+> > resolves to the middle layer for a nested mapping, so the audit path an=
+d
+> > inode do not correspond to uf_sid, and that layer's mounter is not
+> > re-checked. Preserving the full user path likely needs a VFS-side chang=
+e,
+> > such as having backing_file_open() store file_user_path(user_file).
+>
+> Additional comments below, and while this patch is useful in fixing some
+> of the problems (thank you!), we obviously need to fix the others as
+> well.  Is this something you think you will be able to work on?
+>
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 1ead2eee1944..171b90412ff1 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -3843,13 +3843,20 @@ static int selinux_file_alloc_security(struct f=
+ile *file)
+> >       return 0;
+> >  }
+> >
+> > +static inline u32 selinux_file_user_sid(const struct file *file)
+> > +{
+> > +     if (unlikely(file->f_mode & FMODE_BACKING))
+> > +             return selinux_backing_file(file)->uf_sid;
+> > +     return selinux_file(file)->sid;
+> > +}
+>
+> I'm a little concerned that this only works for one additional level of
+> filesystem stacking.  Yes, I know that OVL_MAX_NESTING and
+> FILESYSTEM_MAX_STACK_DEPTH are currently set at "2", but it's not an
+> unreasonable concern that at some point in the future that number will
+> increase without proper notification or testing and we will once again
+> have a problem.
+>
+> At the absolute minimum we should have a BUILD_BUG_ON() for the stacking
+> depth.  It would be good if we could watch both the overlayfs and vfs
+> constants, but the overlayfs constant isn't available outside
+> fs/overlayfs/inode.c (thankfully it is currently set to the vfs limit).
+>
+>   BUIILD_BUG_ON(FILESYSTEM_MAX_STACK_DEPTH > 2);
+>
+> Ideally, the code would be written to keep diving down the stack until
+> it hit the true backing file.  No one likes to see recursion, but at the
+> point where this function is called there should already be a reasonable
+> bound on the stacking depth and the work involved.
 
-First things first, we've got to shorten that hook name :)  What do you
-think of security_proc_mem_foll_force()?
+Unless I am missing something, stack depth should not matter.
+file_user_path() should hold the user visible path, for all the backing fil=
+es
+in all the depths of the backing files stack.
 
-Beyond that, we really try to avoid making LSM hook calls conditional.  It
-can limit what an LSM can enforce, it tends to be a bit more fragile, and
-it adds some unnecessary work in the case where CONFIG_SECURITY is
-disabled.  I would suggest passing 'opened_by_owner' flag as a second
-parameter to the LSM hook and calling the hook unconditionally in the
-default switch case as a replacement for the 'return true;' statement.  I
-understand it may seem a bit odd, but we try to make the LSM interface as
-generic as possible with respect to different models and this is one way
-we do that.  It also ensures we don't have to process the 'opened_by_owner'
-check in that case where the LSM is disabled.
+This is the issue that was fixed with commit
+f2381b546e7e6 fs: fix user path of nested backing files
 
-> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-> index 65c9609ec207..50e3f0abc676 100644
-> --- a/include/linux/lsm_hook_defs.h
-> +++ b/include/linux/lsm_hook_defs.h
-> @@ -36,6 +36,7 @@ LSM_HOOK(int, 0, binder_transfer_file, const struct cred *from,
->  LSM_HOOK(int, 0, ptrace_access_check, struct task_struct *child,
->  	 unsigned int mode)
->  LSM_HOOK(int, 0, ptrace_traceme, struct task_struct *parent)
-> +LSM_HOOK(int, 0, mem_foll_force_opened_by_owner, const struct cred *subject)
+This patch makes uf_sid behave the same way and also documents this:
 
-See the default/disabled return value discussion below.
+struct backing_file_security_struct {
+-       u32 uf_sid; /* associated user file fsec->sid */
++       u32 uf_sid; /* top-level user file fsec->sid */
+ };
 
->  LSM_HOOK(int, 0, capget, const struct task_struct *target, kernel_cap_t *effective,
->  	 kernel_cap_t *inheritable, kernel_cap_t *permitted)
->  LSM_HOOK(int, 0, capset, struct cred *new, const struct cred *old,
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index 153e9043058f..74eb876054b0 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -338,6 +338,7 @@ int security_binder_transfer_file(const struct cred *from,
->  				  const struct cred *to, const struct file *file);
->  int security_ptrace_access_check(struct task_struct *child, unsigned int mode);
->  int security_ptrace_traceme(struct task_struct *parent);
-> +int security_mem_foll_force_opened_by_owner(const struct cred *subject);
->  int security_capget(const struct task_struct *target,
->  		    kernel_cap_t *effective,
->  		    kernel_cap_t *inheritable,
-> @@ -676,6 +677,11 @@ static inline int security_ptrace_traceme(struct task_struct *parent)
->  	return cap_ptrace_traceme(parent);
->  }
->  
-> +static inline int security_mem_foll_force_opened_by_owner(const struct cred *subject)
-> +{
-> +	return 0;
-> +}
+[*] For me the "user" visible file is always the "top-level" but if
+this comnment
+    change helps others understand better it's fine by me.
 
-With proc_mem_foll_force() currently returning true/1 in this case,
-shouldn't the LSM hook return true/1 when disabled?
-
->  static inline int security_capget(const struct task_struct *target,
->  				   kernel_cap_t *effective,
->  				   kernel_cap_t *inheritable,
-> diff --git a/security/security.c b/security/security.c
-> index 71aea8fdf014..fff26ff65e07 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -595,6 +595,26 @@ int security_ptrace_traceme(struct task_struct *parent)
->  	return call_int_hook(ptrace_traceme, parent);
->  }
->  
-> +/**
-> + * security_mem_foll_force_opened_by_owner() - Check if introspective FOLL_FORCE is allowed
-> + * @subject: credentials of the process accessing its own memory
-> + *
-> + * Check if FOLL_FORCE is allowed for accessing process memory through
-> + * /proc/$pid/mem in the case where the opener's MM was the same as the target
-> + * MM, meaning the security_ptrace_access_check() hook was bypassed on open().
-> + * (current->mm does not matter for this; for example, if write() is called on
-> + * an FD that was received from another process which obtained it with
-> + * open("/proc/self/mem"), this hook still runs.)
-> + *
-> + * This is only used when the system is configured with PROC_MEM_FORCE_ALWAYS.
-> + *
-> + * Return: Returns 0 if permission is granted.
-> + */
-> +int security_mem_foll_force_opened_by_owner(const struct cred *subject)
-> +{
-> +	return call_int_hook(mem_foll_force_opened_by_owner, subject);
-> +}
-
-Please don't forget to change the LSM callback name when you are changing
-the LSM hook name.
-
---
-paul-moore.com
+Thanks,
+Amir.
