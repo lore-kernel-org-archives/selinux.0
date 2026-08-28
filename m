@@ -1,111 +1,81 @@
-Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com [209.85.222.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D64AE396579
-	for <selinux@vger.kernel.org>; Fri, 28 Aug 2026 17:53:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E88073A9DA2
+	for <selinux@vger.kernel.org>; Fri, 28 Aug 2026 17:58:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787939616; cv=none; b=lQDmutaGL+cBLWRKxuP66yVCuoiNdZY1/J41E5iAYwDqI5LdKj05pQivoA6EgKwywFTdv7NmDTf9AQo1fDkMNFTBWOAXhwzyj5HtlApVznw/VDHs4U5KYWIKnYo5anIYM8YrxcfEae8KO4Zg/qJCqm6NKPU6bNc3YNNyyTtFw6g=
+	t=1787939922; cv=none; b=a9+jbP4DJT+I3nDNHNWjn3STB+V9RcWPe2hw1M0bSRCe9aPZeKe4aSonmAA8q9NclqyA6o692HD9K+n8OD6tFrWQ+QoGU4uJmCaLq6kr7/pN5NFcNIgEaxe6Gy62oSLBozAkkkUSo+KcrHyfJzMHAebDupAbgepIsb8MJEnQ4HQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787939616; c=relaxed/simple;
-	bh=ITY6UQPQ7bLgs0r+akkFipVpdVJAKXFhsTAqK+4UY9o=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=epiZLo3swyLD9XOaT7EQSAzLZ/vRd+cMLMiamvcT7LUUH7Bx0ekaQy2FLbMCXpEl6I9sqIE19se62dVhCPtjwPAP2a7wmcH22sTuIoWihu7HGXm+D1t0Lj06hwNA54jkB37UWgMDNVmMS5pZGeVuK29eywggpFSaa3txm6/rZ9Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UOEZ/usn; arc=none smtp.client-ip=209.85.222.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787939922; c=relaxed/simple;
+	bh=L5SvM2Kc7PJI7zqw3D+i5ormkSIiwr+DJTltrv/jetg=;
+	h=From:Subject:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=J8JEWEAkxmX+v9V0gjzKHOzTTA0ksSHwxMRjlWhmk1xr+N8Tmcgs4Z7cF5VDhbnE5xKhd2f5wVikPOc13PYLqwWjEbxqsl9M/w6I3EBwhRLlyuQ8BC254J4k/4I8wv0OquPnyB0+5yQIIv5uuxOM0H9rPdzX2SvPiZoPkolI8+4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JuQ6z+/F; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UOEZ/usn"
-Received: by mail-qk1-f172.google.com with SMTP id af79cd13be357-93900ed2925so101559685a.0
-        for <selinux@vger.kernel.org>; Fri, 28 Aug 2026 10:53:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787939613; x=1788544413; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=VrDSw6jkMlFQNimd+2a6dVQdluzsUQS7uZ0wC6EZO8I=;
-        b=UOEZ/usnjkFGALwAnP5lIqyt0gPIdheZR/nm/JtHNl/2zVkQTVnR69QMR0+A+uDtki
-         O04fHMa5flecwIH4kdSFnB+wxVWWk/+9RS38QwxU5a1herDKXXVn9N/8Oc2tH/EEdeMf
-         bCp1kHBFbehTMW4JhkmPeMX4Rf5S5+JhKkezsf73sbwB9LWu9GLmb8j7DcgqdsBQiUXk
-         3H+rafUEgF4/ONQ3r+zGLbt2hX2T4tf0LAiXmOTTTZvKxSuqa/lyjuLDCcmjKwaty5+9
-         xwrNwNgE0mHBLu8/e198KlB9KdbVJuxrh5gCKMz/+aPTzkPdU1YyT6eanXBXe2j8um0d
-         wdWA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787939613; x=1788544413;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=VrDSw6jkMlFQNimd+2a6dVQdluzsUQS7uZ0wC6EZO8I=;
-        b=HY1vbakuqPX0qZsML0lWu2HXyM8BduarFQk5pO/FYFvaK6Ep8//Eu943UEjw3oL78q
-         cSkGSr9UCJQfuf3xgBSMEsmbD5X6v5zAZ1ZkwBgfeEbjCUfHdFXTnQpinkh1YtdCPuLI
-         Yzg7cFcvPIYxg/Mezeic6X37Vpkms1pOMnp914w2U5CL2MQ29MdrFiCPjiA0KepDNDd8
-         3/O7lO7P5+r4Z+mqZaQOmvYBDv4H/ZcRSpQ9+efWHHuiOk+Dy28m4cXTYAeEVo5TwrMK
-         qunwyRPbMkwZXcAqaM+dxfL51fw6glkv4QnK16x8bDr0OiTida4s407uWi5gPSPeguUS
-         hbjA==
-X-Gm-Message-State: AFuF++kuRCus5JFhSslSnjYq6/6xLtiobM4MYre04PPIe4eU8E84mf8R
-	bePDatp28huagrfO6LQGLgsN2uag8wVLlqPzwE5CKe89V7HVUsR4uQDt9006UA==
-X-Gm-Gg: AR+sD13uEvKebRqed308yywoGbCdNms/iT6ECadUuZAbjIIkrfXxfp320Wyd13B1Qd/
-	SrDwZp5KprB1xY2rVAC+G+T3Ijd6TTyLMW5KFNQS06qmTAS1VnO3V5HVpuqTA9vzl9TW+oI82Wx
-	yLHPAkX55cKclV4/WwCKf00YfeoSrgSgtNp7cIRG6VUSjviGSNXLCEzwxRJqzLhTTMpRMKXrPnO
-	MxTqx3IxO8vBwS84h6VvZt4tOdSC7FYOTSuwgmxx4u51vqAXD/SshvX5NNRbZcuspPS/qMxKHBY
-	MLZITVICHZLiCLB/OZlIL4Q+mTiAf0H8o+LJuQZz2Ys50EdamiJcDbICLU/Ozrfr2NtsUVcF/Wj
-	FmKiCQYMjl8EbD2SU8Qj2HTpF3j6CQpckzy5lrk8IcggRoiQ8bYysw7l/NX6sFWBU5OSQHyN2lU
-	kGGn9xYJNZ2J5Br0czcsfVBKLeNmuPAc0VJ+1PQothFUhZjTZ0vWUwjxwUHbr1OuRXap3eD1S3a
-	feWMWtbq54UZXLgybsBHtaKQQjLpzBfJ3WpBBKY9yupqb5ao2gb79Z3eYroFDgjuAduOnRMEhY=
-X-Received: by 2002:a05:620a:2985:b0:939:1976:8309 with SMTP id af79cd13be357-93919769636mr597103385a.4.1787939613547;
-        Fri, 28 Aug 2026 10:53:33 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-93916eb3d01sm198126085a.0.2026.08.28.10.53.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 28 Aug 2026 10:53:28 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	plautrba@redhat.com,
-	omosnace@redhat.com,
-	jason@perfinion.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] libsepol: add include/sepol/cil symlink for in-tree builds
-Date: Fri, 28 Aug 2026 13:53:14 -0400
-Message-ID: <20260828175314.38256-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JuQ6z+/F"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04E4B1F00ADF
+	for <selinux@vger.kernel.org>; Fri, 28 Aug 2026 17:58:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787939920;
+	bh=L5SvM2Kc7PJI7zqw3D+i5ormkSIiwr+DJTltrv/jetg=;
+	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
+	b=JuQ6z+/Fo5CVguiO/sPCAddtoQo76uYVvG5WYv3umMwFOitQC7G3GKKcM54wpejP0
+	 j8nvi2KPSBbVSG5trjjoRwZh5ckhwA0e/SFLMs7Emh9O8iToKDLAwM49WGfL+LNzj8
+	 xZEX90nmnTShzq6lDPTZA/pNhbV/0vFGDHOoA7sXcBukrbkEf+Av2AJDw56Gf4XQrF
+	 r5Q9COsoFHeadW0j7WlL01jYSG2VnAoRPULmk/QDy4U2qS8Yc7UVYza34vCsyu5XG4
+	 Lj7eCMGNPcHikTAZKngvyP0Kpm/Aj5trkcz3Xg3YUEl1OW3Qvwdx9zNHGEM7qYnmOV
+	 ESbOLVA+KwSow==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] libsepol: add include/sepol/cil symlink for in-tree
+ builds
+Reply-To: sashiko-reviews@lists.linux.dev
+Cc: selinux@vger.kernel.org
+In-Reply-To: <20260828175314.38256-1-stephen.smalley.work@gmail.com>
+References: <20260828175314.38256-1-stephen.smalley.work@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 28 Aug 2026 17:58:39 +0000
+Message-Id: <20260828175840.04E4B1F00ADF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-secilc-fuzzer, secilc, libsemanage, and policycoreutils/semodule all
-include <sepol/cil/cil.h>, which only exists in the installed header
-layout. The source tree has libsepol/include/sepol and
-libsepol/cil/include/cil, and the libsepol/include/Makefile installs
-the latter to include/sepol/cil.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] Invalid repository target. The patch is intended for the SELinux u=
+serspace repository (which contains `libsepol`, `secilc`, `libsemanage`) bu=
+t was mistakenly applied to the Linux kernel tree.
+--
 
-Add an include/sepol/cil symlink so that -Ilibsepol/include resolves
-<sepol/cil/cil.h> against the source tree. This lets the standalone
-libsepol/fuzz/Makefile build secilc-fuzzer without a system
-libsepol-devel and against the source tree's header rather than the
-system one, and more generally lets any in-tree consume of the CIL API
-compile without a DESTDIR install first.
+commit 38dcb6e7783a077514cbc09a9dbfdbd6ef4f7c1a
+Author: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-The install target is unaffected; it globs sepol/*.h which does not
-match the symlink and copies cil/include/cil/*.h into $(INCDIR)/cil as
-before.
+libsepol: add include/sepol/cil symlink for in-tree builds
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- libsepol/include/sepol/cil | 1 +
- 1 file changed, 1 insertion(+)
- create mode 120000 libsepol/include/sepol/cil
+This patch adds an include/sepol/cil symlink to allow in-tree builds of
+SELinux userspace tools to resolve <sepol/cil/cil.h> without a DESTDIR
+install.
 
-diff --git a/libsepol/include/sepol/cil b/libsepol/include/sepol/cil
-new file mode 120000
-index 00000000..a1b89f59
---- /dev/null
-+++ b/libsepol/include/sepol/cil
-@@ -0,0 +1 @@
-+../../cil/include/cil
-\ No newline at end of file
--- 
-2.55.0
+> diff --git a/libsepol/include/sepol/cil b/libsepol/include/sepol/cil
+> new file mode 120000
+> index 0000000000000..a1b89f5916832
+> --- /dev/null
+> +++ b/libsepol/include/sepol/cil
+> @@ -0,0 +1 @@
+> +../../cil/include/cil
 
+[Severity: High]
+Is this patch intended for the selinux userspace repository?
+
+Applying this patch creates a dangling symlink at the root of the kernel
+tree, because the target ../../cil/include/cil does not exist in the Linux
+kernel source. It appears this might have been mistakenly applied to the
+kernel tree instead of the userspace repository containing libsepol,
+secilc, and libsemanage.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260828175314.3825=
+6-1-stephen.smalley.work@gmail.com?part=3D1
