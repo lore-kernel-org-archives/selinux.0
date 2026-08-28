@@ -1,167 +1,176 @@
-Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
+Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D96D3E316D
-	for <selinux@vger.kernel.org>; Fri, 28 Aug 2026 21:10:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C69C6392803
+	for <selinux@vger.kernel.org>; Fri, 28 Aug 2026 22:05:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.181
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787951459; cv=pass; b=ZhIVvFYCYXTHcJNs9+XxEl+m6cqFni7DXQzmdt41z18/rWtuCJxOWekrKeqFlQArvL99DKT5g05EhefxbFiB/97XPFGVy9mBIvfCbQTSqRiSFgYTTwFgTGQ3jVB71gQ5cCv8LECF0bFxi2f9NITuwmPmXhd0FqRaOxZYx91uGeU=
+	t=1787954721; cv=pass; b=DKr+f5iAPpbfEXYuXatY04cbxrciyzwyF+VvmHkEPPJoTn72gA5WmEZv1FUQOsKq71cf6SGhUcjFIA6+tNoSs1ejN+tDEqa89lJ0OwznmnEXiKqHalzAFfEZwaszBY/aZvH5dOzGeVvlcwkMP21YCvwJGo0AJ3JdDCUvrVFp3b8=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787951459; c=relaxed/simple;
-	bh=mtCf7Axavx4JuRDXMpzt5yIYvFz1DJFkcnTltfwKTRI=;
+	s=arc-20240116; t=1787954721; c=relaxed/simple;
+	bh=ywb1KJ1Y2s6u3tEahxyzMtIqPZn9+T2wYc+dlk5oD7o=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=c5piH0G3DZha774e8PIZr+LUFjtCQQ8ETJo9fzH9pj88BPNonXJrOjjSb1vUzMGq5dTb5tNVBrFArJwzMZ6XKO4VzyJ9V+iC7G4bymrlTb3aUGqYI3qs3nW+fvzN6d8U9CojrnKnFbHaSphQfG+2gIhBkKDh+XHcQHRJRjnBuKU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=NZNj2bX6; arc=pass smtp.client-ip=209.85.214.174
+	 To:Cc:Content-Type; b=Br2iBVPT/DMoailmdYipf2U5YM4ro3EGEjUXu5QM0bPKyeDAp/7QElOliMBHDRiaeTRhJOsIjhu31wl2m9EPHZ4p4TuId2oVUK7TEDr0qxUGQa2ZWL+0MUmv7R2t4HJwVZeN6dM3o5ynDZeyDtnTdLY8qNFfTf1BYtPV6/3SdFo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=PX+Q3V/7; arc=pass smtp.client-ip=209.85.210.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="NZNj2bX6"
-Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2d6f55a7089so13658725ad.3
-        for <selinux@vger.kernel.org>; Fri, 28 Aug 2026 14:10:54 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1787951454; cv=none;
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="PX+Q3V/7"
+Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-853c947bfefso1290403b3a.0
+        for <selinux@vger.kernel.org>; Fri, 28 Aug 2026 15:05:19 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787954719; cv=none;
         d=google.com; s=arc-20260327;
-        b=DmmGOU0G7qIkPkSjNbt6nUuri0zdGFHAEudgz5bqRLiwGjATWy4wlJ3AxO5oJer7XO
-         +HQm9MO+Yq/+DlReSiw6kplIp1sANxgBnrj+YcDsGo10T8ryxTfsUTxdFJFmN9t5HRjO
-         c+SKiOIvcdkkf6i2C7wOQH+Hbe0n0aeRRaQCSKT52Ka4+AhY++6YOQYuNOik5DqWpmLP
-         ZLQ0r231H/1TuPTCLu2uvr6I1P9rJFTSzuFV20JdcnkXzH8z2ux0GVeNxjIi+51JBT9h
-         1lP/nzCcYA3RzbrT8gyXZox13DJZ2u4UXTjdjQlgAGQuwrdpnXVO0BJICkWOPo5Higoe
-         5k/w==
+        b=cn/56MzbzD3J2HsPF4dXrdxUbfJkGPPMGBgz/cf2NyGAzB0iP+uw5LNBrSBrxRo9+P
+         yqI+nr2yUWLeZlXUDNj2jj3q12PuSFmRsu7p6sBFF+Bg/xJEEhe2MEU0y9/4tvLeUKw4
+         BHPcpVr71/TUx7i2nKlnNXefHay1fDSYGNAmJZ/3IDbhGy1J21kOWMzAH0OSq6wzAwi5
+         nqA7gCany+HfecGr4fGLR/qsnYDmOF1tINujfYD8a7uvJLccqzhnWgy8jXyS3SLOqY92
+         n8WFlgiTPErnF4IF4nEjcGMRp9yte5McmaQIEMxUKwyfO/eMmItbXyrs501+OQUaOnYf
+         qdRw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=tScSPJONssrRk2WXz6/33ewRDUw0skQt8yglR8/KZoI=;
-        fh=TTZ/p6Blbw7pJNXqVPAWGwwWp9j6SQ+0FYmdtuYrLLI=;
-        b=S+m0tA2A7OUdcbvyULPRB4z8CZyWRd2Dc3PadA+Sn3S3dkhNHdocZbbVh20Ki07c9/
-         lnrCrBQu7oAO298RpT0enK8ZmXUpH7yIqsBZvx8u+uXCyBhBzzUFCcKIMctN7aJhm4An
-         o5ivjuTUu3O+aTcP50bDnWWqjh3xCibLurJlHG8SIJqSG6Zxu2aeowlAU5C22MovmNp0
-         7oerVHupDF/J3Vg2YNynHI+0oxfxPL2KNSljykiH831aAqKp29f2VDAnOlg5HV+IuZii
-         IN2DFz+SIudCim61p45ZwAxe2APlsx60jI9Qw3lXaSAIJjmcxtfGo/uB7nSYZRRBBlae
-         yJNQ==;
+        bh=4JU/PBBK6zKmaR3Ao9o2l7RAKkP3IvAVlF4SOyruE94=;
+        fh=MNz+zMIUT0J3X2uIptAYUiLMAGuVZ4WSvICJQnOnSV8=;
+        b=gPt1iOAn77pz0FRoGaT2H4+BZavRaH8vlT480wuEtPWiFiZLJQ+TeFkuuDSgQZpw0L
+         3oTvtMoJlOd3qKWKblnaPSmc3GL7KAQ1rvt5JJNPxdsP/C8Fo+MsciZ9d1qzkdMiysDV
+         gR4fomWSeLkbuXSNpvs00fJLDi0Jcp8GTyWPuywLB0THNcFNBA6gYNnLiFnvP1Uqi8Mc
+         2UJqSTsrpLYjiSdoDgGhcKzGtRU7U4JbwP+Qyo7R6l7inpkh6pq9pzkmpJj1CPRWsd2S
+         vePy1IwaTf5oncCNgRM9jRy9QHd4W3v3xL/CT8ROaUeTA3vWAk+eoDv3yj3IC9qhvRO7
+         QeJg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1787951454; x=1788556254; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1787954719; x=1788559519; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=tScSPJONssrRk2WXz6/33ewRDUw0skQt8yglR8/KZoI=;
-        b=NZNj2bX6xbKkjBScY8ghAre5fofb9cbsSoh+5RuNYI6yIIoTaMKNOa6qDa6644Op2F
-         QUCmKx0EaBdbau5hqBLcmYyiyaNZvbR5SV/bpw97WqPuPbc0OKsSoho6dQMZpG6w8BdO
-         Hfd9ptINnaKOciZkS25LPGo0ww8FLE5OGxoC5+IMkphaovKKrsXKq8n/9XGuykyzYnPs
-         TmA5M36fUYnN/S6KoTp7hgAwrHj9I1Pt1z4TLs+i7rmCowJnhHktBsbJllX4n19etVx8
-         /V1XG5K3R/FypX9MSe2rqlj5agtfCOz/XodCuWUY1YLOD3i6CyjfiILNgzfnVfjXXFO2
-         kFAA==
+        bh=4JU/PBBK6zKmaR3Ao9o2l7RAKkP3IvAVlF4SOyruE94=;
+        b=PX+Q3V/7J+jTHe5kPXf0pCwDFcvh8oFYK8FD46DS9WljLL9w5lQtDNbO+dYEv/MlCn
+         VYHR/+0xTCOePqIiCP0K/ubFqheBkfHe3LFHFgF3MEQkSdooG0OCjmPVtBlPNpXFfiq1
+         J496SkaZt3AOalbUBTgLysrVqZM/W9jftrOHy658bqwx2X0izBS1fBWlU/eSx9enPQnW
+         mtz/eooPLcSgm1GV9qBNoFKcuMRVOiZmLxfbahNmX889zGT6s6LOvWDPceNiFXW716rN
+         UcDyFd2RDL4x3R0QrOqNQQf/G2X6Ftcelx3lY+HQzwY1BEX2v/1y5k70Qru+oLYSh2cs
+         G9Lg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787951454; x=1788556254;
+        d=1e100.net; s=20251104; t=1787954719; x=1788559519;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=tScSPJONssrRk2WXz6/33ewRDUw0skQt8yglR8/KZoI=;
-        b=YZ+Uj4BBHWbP/maWsqIDmJC0l0iJeNRVYlpj7cLvKWtjrgN6hGZigZ5Mbt1P4gegJh
-         U6B7k3C0U/q2+AvSfx3Xf1xe4hv3be/jk7TcDExXl/3SJ/Ys+ZcAve1BjA5FqfgE2Bmp
-         yCbQFQCmV6XVKEoqWUi2hw/DUOWvaydr679qMFS/jkEAT1D+zN+whJbw/vEhqtJxPnoI
-         M+deFs4q0k++8p+YC/rAUHDmeLM7UXeS5axetde5vBtlZVAd21nBBD0PgOewF1VboDD6
-         wunNatbIafOO63+FcVAWy7Q/JM3OzmvLIhKykcwOQ2ZaVtbJ6zRSTUz21nXHWcMA1a4l
-         yWLA==
-X-Forwarded-Encrypted: i=1; AKwUvBwzdi+YEPB93+Cjk7PtPxgO3YogrvSIaNABIIdesckQgmINMM/iZLchR/A6gIpwhn2BJP2W8Hh1@vger.kernel.org
-X-Gm-Message-State: AFuF++lL9ITMKul14aZ7lv3RWbd8CZerj9i0nDFyv3ooUQmsXLjwVKHN
-	JfposRttHZkKl2PycwvoE472viNiT4E7Bk9flmPJfX3JG5YTrW806kohgEKp40Hoha/AjXoN/lA
-	LuT0FaBVzNkmwIADQOb1xB2V4bWnpszD+ZJFzrkPP
-X-Gm-Gg: AYBFou3Oy+dDMxwtiE26b1QVZ3GBpBgNrerVKVSn1H9TMlVWc/uD3KK0tEouez5xSJW
-	QjDQufpgIvdjK+dolizDq9xejx7jjnq1Gqn0eyJbsmu4KCREl4f+WQebKAIyFhp6x9rxkWNJa/x
-	8N89kF90+D3oGD91j+KBQWzHmWswJLba2bQTwQW2RfbVxaRkC+2kQqAuluriJLx69oLuXd7D/rh
-	F6+y4HCA1dy9qAwu37poVcwZ8pgY+81AJJ/TkrYMmIlJuhc/8gEhN3/XZ7ryQ/IAbUGldYT1DqN
-	E/FxwtQAiQeRUhOuKE/jJKJGrZ+161EJPb74Ewg2UPFH0SIMHoIhkGk=
-X-Received: by 2002:a17:903:b83:b0:2d8:d4d0:792e with SMTP id
- d9443c01a7336-2d8d4d079b2mr38565945ad.18.1787951453839; Fri, 28 Aug 2026
- 14:10:53 -0700 (PDT)
+        bh=4JU/PBBK6zKmaR3Ao9o2l7RAKkP3IvAVlF4SOyruE94=;
+        b=nYP9XRIYwLf0pg7Ca7HznFfPURk+Mi/PPSnSMy6eS7mlLXcjAcRpF1qI7jbJim6VDW
+         jIi9aWxNpVNeCEN1Xmdf5DmLMKagAPRYUf9DUgA1DFPrvPDeHFpr+t1+eEN6QcYPnjs1
+         C+h1YkhQ1azKdPwKPgZel0L4+e2Vd+d5Jiin0ZVulXyxskpfGvQAbGW0Q6Obc2WCwA9p
+         TyIYLK0RoDRRINYgZT6/SivvXui8sblzTb4S+mwXTSDSODfSRk5gvrtgf2DhrSZOJgno
+         W5Yekj/2YpeH7DDPLBew/vt+KiEJiySaKbhN46QeSd46A2p3+2HnSRyTwNOAhW7mHl4G
+         lwZQ==
+X-Forwarded-Encrypted: i=1; AHgh+RrUMkkcErRR7l9yET29NvD4w9lMn6DwoGivj177VHs8h87s9OoS7Om3spCWoX2BEE4tQJCm8Sxs@vger.kernel.org
+X-Gm-Message-State: AFuF++mvCtimxFiFXGtYbH/NknPo9nPZmXasxG0W9v5RJmG63Axd0iiP
+	JnK33fDPto9Y1MRK7gAkJ1NP7rQdzWeNrhEMFEu1u8MwNurnfbvcdDDPlTuJAB4F6XuE4oSR+Cm
+	BIhKdk81fl1oKaYxeLWay5M6g2isU7NY3Qr/uEzy3VusCVgePrBNi8E7B
+X-Gm-Gg: AR+sD11tB/z1Bg9PCNyq5l3sW1W2kn45PeVZnv2atHSOEVjEL+Ca3mAjToN84zOaf5U
+	uf6oenNcNU4GxGmGgAH8L2qXRb5hOdH/sEsKutpviBpl5cdDPDut+MlhF+4dUPEM0OwFgCgyzK4
+	8SRjhVVtUTUPRZfjuS2d0FP9Ss3EyjOSjls3Wg5y0pBx0V56BEDODU5fr7VV7aDBi195rxxwGey
+	v6n0Do77xENmz+YDqjluIsTtcRpgmOfMRnkJdKtMtQP7HEySkAE8Qsi18/Hr4QQVWI7X8SQzG7T
+	Rb9mXSeJmwqsypkS3EGvyq0DyE4Gx6Ni8Qpj5+Nb7nD6
+X-Received: by 2002:a05:6a00:8012:b0:84e:242:4bb2 with SMTP id
+ d2e1a72fcca58-8576e187183mr2599254b3a.4.1787954718985; Fri, 28 Aug 2026
+ 15:05:18 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260825-selinux-pokemem-v2-2-b46bc64916d8@google.com>
- <82929c994076d95f99560ecc67f6cfce@paul-moore.com> <CAG48ez1rd3cFhmGn7mWkaVvGqYg+cDiGUhuhH6r51dUm-QBXUA@mail.gmail.com>
- <CAG48ez2jgJHewZYK1SVccJmBa=bjoMW80SPNcbgW2XCtZaWhjg@mail.gmail.com>
-In-Reply-To: <CAG48ez2jgJHewZYK1SVccJmBa=bjoMW80SPNcbgW2XCtZaWhjg@mail.gmail.com>
+References: <20260820175832.44512-1-kmehltretter@gmail.com>
+ <5fa5ef078f41cd57d0e52ab2ab023094@paul-moore.com> <CAOQ4uxjn3sWjkrV8KbA-V+eno3E4OskTnCznNBex6FOstEbJ-A@mail.gmail.com>
+In-Reply-To: <CAOQ4uxjn3sWjkrV8KbA-V+eno3E4OskTnCznNBex6FOstEbJ-A@mail.gmail.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 28 Aug 2026 17:10:42 -0400
-X-Gm-Features: AcwNN1WNKsySMz2VwH2iqet3Ed_WMqL6Q3m5wfbte2R22sYcRFQ3wDSSX0w0dFo
-Message-ID: <CAHC9VhSHMmJn4bkRUodAnrVGTb57qZx3tL26g91jD_ocQCNLeQ@mail.gmail.com>
-Subject: Re: [PATCH v2 2/3] proc: query LSMs for introspective mem access (if PROC_MEM_FORCE_ALWAYS)
-To: Jann Horn <jannh@google.com>
-Cc: James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Jeff Xu <jeffxu@google.com>, 
-	=?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
-	linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org, 
-	Andrew Morton <akpm@linux-foundation.org>, "Liam R. Howlett" <liam@infradead.org>, 
-	Lorenzo Stoakes <ljs@kernel.org>, Vlastimil Babka <vbabka@kernel.org>, Pedro Falcato <pfalcato@suse.de>, 
-	David Hildenbrand <david@kernel.org>, linux-mm@kvack.org
+Date: Fri, 28 Aug 2026 18:05:06 -0400
+X-Gm-Features: AcwNN1XzAxZAeZ9YbWbmD6gATJOUq2kxB8OX1cUcN_SgCoVZnhreW3OY7Y6Acvs
+Message-ID: <CAHC9VhQ5oQWL7bj745U5UzSWm2OfyKMjHVeaEYXZvzO0Em0iZA@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: preserve user SID across nested backing files
+To: Amir Goldstein <amir73il@gmail.com>
+Cc: Karl Mehltretter <kmehltretter@gmail.com>, selinux@vger.kernel.org, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	Miklos Szeredi <miklos@szeredi.hu>, Christian Brauner <brauner@kernel.org>, linux-fsdevel@vger.kernel.org, 
+	linux-unionfs@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 28, 2026 at 9:21=E2=80=AFAM Jann Horn <jannh@google.com> wrote:
-> On Fri, Aug 28, 2026 at 3:03=E2=80=AFPM Jann Horn <jannh@google.com> wrot=
-e:
-> > On Fri, Aug 28, 2026 at 3:10=E2=80=AFAM Paul Moore <paul@paul-moore.com=
-> wrote:
-> > > Beyond that, we really try to avoid making LSM hook calls conditional=
-.  It
-> > > can limit what an LSM can enforce, it tends to be a bit more fragile,=
- and
-> > > it adds some unnecessary work in the case where CONFIG_SECURITY is
-> > > disabled.  I would suggest passing 'opened_by_owner' flag as a second
-> > > parameter to the LSM hook and calling the hook unconditionally in the
-> > > default switch case as a replacement for the 'return true;' statement=
-.  I
-> > > understand it may seem a bit odd, but we try to make the LSM interfac=
-e as
-> > > generic as possible with respect to different models and this is one =
-way
-> >
-> > I guess I can do that, but then the question becomes, what other modes
-> > of using the LSM hook that don't currently exist in the kernel should
-> > I be supporting with this? I can make this a parameter, but any LSM
-> > policy that actually uses the parameter in a different way would
-> > probably be buggy/inconsistent, unless other new LSM hooks are added.
-> >
-> > If your intent is to make the hook work for any /proc/$pid/mem access,
-> > including when the caller is ptrace-attached, then I guess I have to
-> > move around the security hook call in proc_mem_foll_force() a little
-> > bit. I guess I'll do that in v3, though I really don't like trying to
-> > come up with a reasonable in-kernel API contract for a scenario that
-> > currently has zero users.
->
-> I started thinking about how to implement this, and an annoying aspect
-> about this is:
->
-> Currently, I only have to look at the credentials of the opener of the
-> file - that is both the subject and object of the access. But if I
-> want to provide a hook that works for any /proc/$pid/mem access, and
-> want the hook to know what the object of the access is, and do it
-> race-free, then I would need to grab the creds of the target task in
-> mm_access(), bubble them up into proc_mem_open() and mem_open() (which
-> will require touching all the callers of mm_access() and
-> proc_mem_open()), store them into mem_private there, then let
-> proc_mem_foll_force() extract the creds from there. All that would be
-> unused code.
->
-> Do you think I should just not provide credentials for the target, and
-> document "if opened_by_owner is true, the subject credentials are also
-> the object credentials; if opened_by_owner is false, you don't get to
-> know what the object is"?
+On Fri, Aug 28, 2026 at 5:05=E2=80=AFAM Amir Goldstein <amir73il@gmail.com>=
+ wrote:
+> On Thu, Aug 27, 2026 at 9:39=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
+wrote:
+> > On Aug 20, 2026 Karl Mehltretter <kmehltretter@gmail.com> wrote:
 
-From my perspective there are good reasons for not making the LSM hook
-conditional (see previous emails), but I will happily admit that we
-don't have any (?) good reasons for attempting to generalize this hook
-beyond what it is at this point in time.  I would suggest documenting
-the limitations when opened_by_owner is false and leave it at that; if
-someone wants to implement something that requires more
-hooks/parameters we can always revisit this.
+...
+
+> > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > > index 1ead2eee1944..171b90412ff1 100644
+> > > --- a/security/selinux/hooks.c
+> > > +++ b/security/selinux/hooks.c
+> > > @@ -3843,13 +3843,20 @@ static int selinux_file_alloc_security(struct=
+ file *file)
+> > >       return 0;
+> > >  }
+> > >
+> > > +static inline u32 selinux_file_user_sid(const struct file *file)
+> > > +{
+> > > +     if (unlikely(file->f_mode & FMODE_BACKING))
+> > > +             return selinux_backing_file(file)->uf_sid;
+> > > +     return selinux_file(file)->sid;
+> > > +}
+> >
+> > I'm a little concerned that this only works for one additional level of
+> > filesystem stacking.  Yes, I know that OVL_MAX_NESTING and
+> > FILESYSTEM_MAX_STACK_DEPTH are currently set at "2", but it's not an
+> > unreasonable concern that at some point in the future that number will
+> > increase without proper notification or testing and we will once again
+> > have a problem.
+> >
+> > At the absolute minimum we should have a BUILD_BUG_ON() for the stackin=
+g
+> > depth.  It would be good if we could watch both the overlayfs and vfs
+> > constants, but the overlayfs constant isn't available outside
+> > fs/overlayfs/inode.c (thankfully it is currently set to the vfs limit).
+> >
+> >   BUIILD_BUG_ON(FILESYSTEM_MAX_STACK_DEPTH > 2);
+> >
+> > Ideally, the code would be written to keep diving down the stack until
+> > it hit the true backing file.  No one likes to see recursion, but at th=
+e
+> > point where this function is called there should already be a reasonabl=
+e
+> > bound on the stacking depth and the work involved.
+>
+> Unless I am missing something, stack depth should not matter.
+> file_user_path() should hold the user visible path, for all the backing f=
+iles
+> in all the depths of the backing files stack.
+>
+> This is the issue that was fixed with commit
+> f2381b546e7e6 fs: fix user path of nested backing files
+>
+> This patch makes uf_sid behave the same way and also documents this:
+>
+> struct backing_file_security_struct {
+> -       u32 uf_sid; /* associated user file fsec->sid */
+> +       u32 uf_sid; /* top-level user file fsec->sid */
+>  };
+
+Perhaps I'm not understanding your comment correctly (it's the end of
+a long week), but selinux_backing_file_alloc() and the newly created
+selinux_file_user_sid() functions don't operate on the
+file_user_path() path struct.  In fact the path which is resolved in
+backing_file_open() isn't even passed into the
+security_backing_file_alloc() LSM hook.
+
+Are you trying to explain that the way the backing files are allocated
+in a stacked filesystem, regardless of the number of layers, is that
+they will be allocated from the top down in such a way that the uf_sid
+will trickle down to the bottommost backing file?
 
 --=20
 paul-moore.com
