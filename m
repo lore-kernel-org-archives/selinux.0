@@ -1,63 +1,64 @@
-Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
+Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10FB520A5C4
-	for <selinux@vger.kernel.org>; Sat, 29 Aug 2026 21:33:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9962437467
+	for <selinux@vger.kernel.org>; Sat, 29 Aug 2026 21:33:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788039190; cv=none; b=LGQmPqmeFMqHJfojVRqtR0bKKnIw5qozQRyHdklCf/hTpMkpUC5k92dUCpf9yiC74D8ust83vTV14ViCwNzzkbx54/fi8EcUCUuB+ely0cfdHa3ql3WMQQJWDF1CQ3hJ28P/WGojbCKMyvXjv7riDm4z+6a+J6PZugWNCyz1a8k=
+	t=1788039193; cv=none; b=r66qJ9KvdZjoeRXaGV5OSCdCgBbYcnPSFgZ+/w0SxuPCkjdpxepszVW2YedI/LFvZZO7B3hNBPu3FijG+6Nibgyfk3IpMNrt9fTQoRoN4nXIJx/OnZv9/K+W4jESndCfOJmGIRDdD2MKj8FzIMVDspV4XqC6QwGw6eQLGrufNMw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788039190; c=relaxed/simple;
-	bh=Zt6xM5ByKMqjss0Ju9Pq8lrUfSmBQl0+BHJmcT0gcU4=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=FVbffdWMv1k/AiCFg0F6rV0JlvYzThQn2GMWXSdRNW3YXKdsdQRq40ftjkc1befBRrgzPun5RBaNZpNWFrLNaxclXXd7DfGYVcB/krcULkBuvcomfSmx9k9l4osEs5WidaMwv718hEzkPNLG31F33bt6WLYBt3TzvmfelPfRW/I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A1pRPMGO; arc=none smtp.client-ip=209.85.221.46
+	s=arc-20240116; t=1788039193; c=relaxed/simple;
+	bh=co+2fxzxIKsrqg4QHh3FK11V9lST4YMEzCqjZ1hMMe4=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=N5BQiJBi8Ci/8V5B/zmS/xTEMgbCb/fb7eBHDLiB7t4VIZOhWTYARcLV9uCHvI9hMp3Lc9RzLfDMrG612bJHfZHL7W9zx+ADjujBt1/tow4DV9ro7Ng39xvdFFBOxFxVwpEMISEL8IlV5aVxLAsTPYaZ7rUT+wcVTEPHchTqh1c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OI3OzQYj; arc=none smtp.client-ip=209.85.221.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A1pRPMGO"
-Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-47f633e6058so1612109f8f.0
-        for <selinux@vger.kernel.org>; Sat, 29 Aug 2026 14:33:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OI3OzQYj"
+Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-4815bce4652so1591136f8f.1
+        for <selinux@vger.kernel.org>; Sat, 29 Aug 2026 14:33:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788039185; x=1788643985; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=ucnD2vvZKQodkVcezxvV4KyyS73dxyfqz8xpesSWdQI=;
-        b=A1pRPMGONSvtnDEQSeM88hjsR4UhzcAQhj0khTIC7Kcg4ylw7Hs2Pp1ze0Wzml5xEY
-         vuEw+SVSZ/VOCZzx44S2OhfeEa97fyg++wvqcJ+h7khmMFjcxME3guYCom6RXQU2XX3v
-         TScKUqTfBJVT4IgbmJfe9G5pEfClUwmBXHlXLZTwtgnRhmGsgirYEHf6khLFQR1JnU3g
-         9X8Rtk5up1uqY+KmUDI1pXc7QLqp0I+sTCALkRSD3QZPa8kiXhJ3yffXwH06sl93+gcU
-         QnU57sOzivcNJ8juYFAMciOxBoJlyzZlFGKYTIrbMvpoq22mHXzt8bYXuIKTF4Zrmqgm
-         YgwA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788039185; x=1788643985;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1788039188; x=1788643988; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=ucnD2vvZKQodkVcezxvV4KyyS73dxyfqz8xpesSWdQI=;
-        b=lyWpqHDOaPtkVgjMJGKt+bLyw70BR7VbgRF2AGPMBvrcmtFDKV1K8GU9J8N13QoZ7C
-         /aCJ76Ld15OeXZpl3TfnT9fpost78fiCe9JBZZet9Her4C8GU/0qIvZ7Zb1g3jpEErMX
-         cSXpj8U760mSfKnwXwJPV7e1MKizw5pRmy3RpxLt07+XJdHllYfsiq5ukFsk+1Y7mZ1R
-         UaKk3vJaaoxVmrZ1cAFBG1UTn48H1mAy4pqcJzv5PCx2M2fDqVCDDE931K5dqUC4Pib1
-         cU5VWlB9ql1Yalfdep4R9MFQXwlVHOEj/pUKBmACnfxk+R27C8A7P+14ANit3hnugoRJ
-         DvVQ==
-X-Gm-Message-State: AFuF++mzjn7ElAsAVHjuF/kamy/MsgejoR6EnXo0Hp/UuDPpNiOYJaWM
-	lodkvFVAHlLxdgDtxVvQmMfpFPJnKqH+it79NVjA2LmfLQ/wGU5Ez5fcHO56a5Kv
-X-Gm-Gg: AYBFou3MWxEwIc9umC02lS3OrrS0rs91wuX6DHllXms/JUODVR0Jopw7qp723pgcy/m
-	838ZxzeEq9M1uh/SUQju8lAPyJKJtO8NoP/jlpAmN6v7qIEbo9DO0dJQf8GHSPCei5mEi0gZbn2
-	AOLzvpuVJhkc/VswGT1gessNk/Nw8WTITtkXARKjeYMC8ogSozNqNfohgmkIRCgjD3DBs7rWcOR
-	W9ZbCaRKIQHSQwwLyBSgUNlyGTqfurLQ+DDZTQ5VkgckPe79WuDcmN8HajymV4ABliRpcXPlRv/
-	+OSvcVZ11uKtW5EZPHqEZUjrA2FG3VOREFWqqCZNwfJ282lVZ8hZvBb2o6dGVhhSdniYgrwPI+u
-	iTFhR6eDeqUlkuFJqYI8J/WDcPUX+uAIeB3cBPWiAu6mnSMGk6Jj6Zhn0fTlgZfRyeNbAo4LMOF
-	hyaAeL0+kDWqZA0D9DXXw4/y7pNLXaOVDDuzFMEF94oCA9dq8wxdv8Cfv5NTI4T/3R/oD51Yghl
-	H3sdqWFBgAnbjMeA4EsH14RI8x6eMNd4kouBU3d6vH4jFg0VuybfEHzjHHOtWKlq+JpoEYBd9WX
-	SpRmemg4ZQi6mYY/BLyEtwEzp3LBPqI+u5M5wmcgYtbzanSNCpmMslR5svD8l+YOpp8A9sBvGPL
-	mIA==
-X-Received: by 2002:a05:6000:38f:b0:484:3315:1a38 with SMTP id ffacd0b85a97d-48433152785mr8141778f8f.28.1788039184984;
-        Sat, 29 Aug 2026 14:33:04 -0700 (PDT)
+        bh=Kgtzxw+fLI0xgDG63CMY9iJwpkHw7jAnoCmbSNosjoM=;
+        b=OI3OzQYjMJaScY9Nrt4ilDXIt8x6p9Q4tC4RBQgBhP59cHu7C5RuBq77vzRPPpcReh
+         EEyTwZpVEblQZcfv9Nnls1xaausUUCgGJgV6OvlrPmDIWFxOz1NO5VM9vq5U34BxcLFJ
+         bm2XuLp0Yzxd3ZsebduwI/tZBcpxTn7HO1Bkl4w4XW5EmBNjIrkJ0xpule2yT2ltgS/D
+         mmDaKU9KgMvhmRMx6t1UG7turKc0ODGrU0RLJ8CwZi/9ij7+qXw+Ol6/qoY+vimcwfwB
+         1g44DxI1L1PL3DnJ8P8BNooRQaMFEpFBNMQzzs3d19PJB5ghYxW7vsjDIYTNPhbDPndi
+         1GkA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788039188; x=1788643988;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Kgtzxw+fLI0xgDG63CMY9iJwpkHw7jAnoCmbSNosjoM=;
+        b=J1BK9RNicmD0ljPzNjfMdCyXoXTIhvSVU9M0RFm95Gn1JWBRwRdeQtbsNxz1dTGveQ
+         fvopP5HklWvh/HO51xEofdXbSLcdkouDMVPFn0KHRr0Pikfons7vYnyZEl3hHRONLdQq
+         qlnwMwm3QCxUwE7xDpOx0YLhPxTg/SGCLThCCc97jIqti8kTB7rSWFLwkSsov66pLwzC
+         Zh2ymsXH93uOOHNtc81erYOp92mp602wMUqMDG/n8dmeI2o612/ph+I8REZYK1tsKE1N
+         Aq0VgaCgLwX/smZ+qKL0QgRomuVBQpOYHUgTbmGRkqCe+0UXk/42y7pRvNTThxR2Laq5
+         jWYw==
+X-Gm-Message-State: AFuF++l2lxqgRG/ocaG23fPxTDqUMFQKCywNRF7PaMmWqrFRSlndmPMI
+	tZu/JICe0kkY0jIWlM1BGqzdiedxOYs45BHW87V+oetjKVWsruN81P7c+6OeiHiZ
+X-Gm-Gg: AYBFou2gVx6p51630gcblmWU/pjpDX2wWn4TuXQ+nCqmgoaVlOYT2BR6kCVd//drug/
+	EOXfyvlHD5aZeKEW9mrDkUG164gPUJB8cunZ886nlBHFpgkQRYd5toYNonPcV/qBWXR0DPBf2OE
+	k2La9knV6HZLSJqkjGdP+EqiyxwknLU84QJoq55uG3k255oWn0S90H1sM/DFO6cyF4PfDllKmUZ
+	jm7ae5sBs3/zG9tsKhbVV76s4Oc/rwJi3wk2SF7Hr6ARu+tP8lxnW63571qzVZFqR80gCWpxsVY
+	bshbaG4/k5vsWxomzD3RWwT9udKjCsXkv1Nk6ePd9dst76LmHe0D2/WHbAMDm/k5Y1X7N2XjizJ
+	QjFqiRCigFEb+ohuA+XCEnMzrBuX7KbfTesDkTeYwHKC5x+LoKItRu8zy3V8pySUeQaymxpXWBN
+	ZQh/eI0RCzBBgVyNlL3OJXthMzgrNTni+SB9wl/A1MgK8FZ06iDpwaS8FhYeK7sQ9TdJyUe3OB9
+	gXu04jhVKANr7+nK1dphNflWq7LvLlX4ejPDEHFhlY7ZDknfKQFLRrVAbEt8IGKf7YsbO6q6aGl
+	2aMpHx5KSK0yjqm6hlpz68uSor2zZQ+on0KRGKnErq+nlTnYb27hxaP8q3/zhKIbTKk=
+X-Received: by 2002:a05:6000:420b:b0:482:e10e:58df with SMTP id ffacd0b85a97d-482f7a03ba8mr20017068f8f.21.1788039187820;
+        Sat, 29 Aug 2026 14:33:07 -0700 (PDT)
 Received: from localhost.localdomain (dynamic-2a02-3100-ae86-1b01-80e2-8851-4221-68d8.310.pool.telefonica.de. [2a02:3100:ae86:1b01:80e2:8851:4221:68d8])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-482fbb33070sm12540616f8f.36.2026.08.29.14.33.03
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-482fbb33070sm12540616f8f.36.2026.08.29.14.33.06
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Sat, 29 Aug 2026 14:33:03 -0700 (PDT)
+        Sat, 29 Aug 2026 14:33:06 -0700 (PDT)
 From: Karl Mehltretter <kmehltretter@gmail.com>
 To: selinux@vger.kernel.org
 Cc: Karl Mehltretter <kmehltretter@gmail.com>,
@@ -72,10 +73,12 @@ Cc: Karl Mehltretter <kmehltretter@gmail.com>,
 	linux-unionfs@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH v3 0/2] selinux: fix nested backing-file mprotect checks
-Date: Sat, 29 Aug 2026 23:32:54 +0200
-Message-Id: <20260829213256.51527-1-kmehltretter@gmail.com>
+Subject: [PATCH v3 2/2] selinux: recheck intermediate backing files on mprotect
+Date: Sat, 29 Aug 2026 23:32:56 +0200
+Message-Id: <20260829213256.51527-3-kmehltretter@gmail.com>
 X-Mailer: git-send-email 2.39.5 (Apple Git-154)
+In-Reply-To: <20260829213256.51527-1-kmehltretter@gmail.com>
+References: <20260829213256.51527-1-kmehltretter@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -84,47 +87,288 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Patch 1 preserves the top-level user file SID across nested backing files.
-Patch 2 preserves and rechecks each intermediate path, mounter SID, and
-file-description SID during mprotect(), including execmod checks.
+mprotect() can be used to bypass the SELinux checks that mmap() performs
+against the intermediate layers of a stacked filesystem.
 
-The series is based on cf72cbb39da8, which contains
-commit f2381b546e7e ("fs: fix user path of nested backing files"). Neither
-patch needs that fix to apply or build, but without it the top-level check
-still resolves to the intermediate inode. It is already marked for stable.
+mmap() checks every backing layer as the request descends through the
+stack.  mprotect() only has the lowest backing file in vma->vm_file, so it
+rechecks the top-level user and the lowest mounter, but skips the mounters
+of every layer in between.  With two nested overlayfs mounts and a policy
+denying mounter_t -> middle_file_t:file { execute }, a direct
+mmap(PROT_EXEC) is denied:
 
-The intermediate list is allocated only for nested backing files. It is
-captured at backing-file allocation time and remains immutable afterwards.
-Capturing it in the mmap hook would require synchronization between
-concurrent mappings of the same file.
+  avc:  denied  { execute } for  pid=71 comm="nested_exec"
+    path="/payload" dev="overlay" ino=9
+    scontext=user_u:base_r:mounter_t
+    tcontext=user_u:object_r:middle_file_t tclass=file permissive=0
 
-Tested on arm64 QEMU with a small BusyBox initramfs, SELinux enforcing, and
-two nested overlayfs mounts. The original SID propagation test passes.
-Direct mmap(PROT_EXEC) and mmap(PROT_NONE) followed by mprotect(PROT_EXEC)
-are both denied against the intermediate inode when that permission is
-omitted. /proc/self/maps reports the top-level path.
+while mmap(PROT_NONE) followed by mprotect(PROT_EXEC) succeeds.
 
-Changes in v3:
-- Add the intermediate-mounter fix as patch 2.
-- Allocate intermediate state only for nested backing files.
-- Rebase and retest on mainline containing f2381b546e7e.
-- Document the BusyBox test environment.
+Preserve each intermediate path, mounter SID and file-description SID in
+the backing-file security blob, copying the saved entries when another
+backing layer is opened.  Allocate the array only for nested backing files,
+and release it and the path references in the backing_file_free hook.
 
-Changes in v2:
-- Add selinux_file_user_sid() instead of open-coding the lookup (Amir).
+During mprotect(), recheck fd { use } and the requested inode permissions
+for every saved mounter, and include the intermediate layers in the execmod
+checks.  Policy for nested stacking may then need to grant intermediate
+mounters what a direct mmap() already requires, and execmod on intermediate
+labels for binaries using text relocations.
 
-v2: https://lore.kernel.org/selinux/20260820175832.44512-1-kmehltretter@gmail.com/
+Tested on arm64 QEMU with a small BusyBox initramfs and a purpose-built
+SELinux policy, on a mainline tree containing
+commit f2381b546e7e ("fs: fix user path of nested backing files").
 
-Karl Mehltretter (2):
-  selinux: preserve user SID across nested backing files
-  selinux: recheck intermediate backing files on mprotect
+Fixes: 82544d36b172 ("selinux: fix overlayfs mmap() and mprotect() access checks")
+Cc: <stable@vger.kernel.org>
+Assisted-by: LLM
+Signed-off-by: Karl Mehltretter <kmehltretter@gmail.com>
+---
+ security/selinux/hooks.c          | 141 ++++++++++++++++++++++++++----
+ security/selinux/include/objsec.h |   8 ++
+ 2 files changed, 133 insertions(+), 16 deletions(-)
 
- security/selinux/hooks.c          | 150 ++++++++++++++++++++++++++----
- security/selinux/include/objsec.h |  10 +-
- 2 files changed, 142 insertions(+), 18 deletions(-)
-
-
-base-commit: cf72cbb39da84b6f02f90c07f33b102fc10b16f0
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 232b7e7bfcafd..b6750edcc4783 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1674,26 +1674,32 @@ static int cred_has_capability(const struct cred *cred,
+ 	return rc;
+ }
+ 
+-/* Check whether a task has a particular permission to an inode.
+-   The 'adp' parameter is optional and allows other audit
+-   data to be passed (e.g. the dentry). */
+-static int inode_has_perm(const struct cred *cred,
+-			  struct inode *inode,
+-			  u32 perms,
+-			  struct common_audit_data *adp)
++/*
++ * Check whether a SID has a particular permission to an inode.  The 'adp'
++ * parameter is optional and allows other audit data to be passed (e.g. the
++ * dentry).
++ */
++static int inode_sid_has_perm(u32 sid, struct inode *inode, u32 perms,
++			      struct common_audit_data *adp)
+ {
+ 	struct inode_security_struct *isec;
+-	u32 sid;
+ 
+ 	if (unlikely(IS_PRIVATE(inode)))
+ 		return 0;
+ 
+-	sid = cred_sid(cred);
+ 	isec = selinux_inode(inode);
+ 
+ 	return avc_has_perm(sid, isec->sid, isec->sclass, perms, adp);
+ }
+ 
++static int inode_has_perm(const struct cred *cred,
++			  struct inode *inode,
++			  u32 perms,
++			  struct common_audit_data *adp)
++{
++	return inode_sid_has_perm(cred_sid(cred), inode, perms, adp);
++}
++
+ /* Same as inode_has_perm, but pass explicit audit data containing
+    the dentry to help the auditing code to more easily generate the
+    pathname if needed. */
+@@ -3854,13 +3860,63 @@ static int selinux_backing_file_alloc(struct file *backing_file,
+ 				      const struct file *user_file)
+ {
+ 	struct backing_file_security_struct *bfsec;
++	const struct backing_file_security_struct *ubfsec;
++	struct backing_file_security_layer *layer;
++	u32 i;
+ 
+ 	bfsec = selinux_backing_file(backing_file);
+ 	bfsec->uf_sid = selinux_file_user_sid(user_file);
++	if (!(user_file->f_mode & FMODE_BACKING))
++		return 0;
++
++	ubfsec = selinux_backing_file(user_file);
++	/* a wrapped count would make kmalloc_array() return ZERO_SIZE_PTR */
++	if (unlikely(ubfsec->layer_count == U32_MAX))
++		return -EOVERFLOW;
++
++	/*
++	 * The final VMA only retains the lowest backing file, so record the
++	 * whole chain here rather than in the mmap hook, where concurrent
++	 * mappings would have to be serialized.  Size it dynamically: erofs
++	 * inode sharing adds a backing file without bumping s_stack_depth.
++	 */
++	bfsec->layers = kmalloc_array(ubfsec->layer_count + 1,
++				      sizeof(*bfsec->layers), GFP_KERNEL);
++	if (!bfsec->layers)
++		return -ENOMEM;
++
++	for (i = 0; i < ubfsec->layer_count; i++) {
++		layer = &bfsec->layers[i];
++		*layer = ubfsec->layers[i];
++		path_get(&layer->path);
++	}
++
++	/* f_path, not file_user_path(): this layer, not the top-level file */
++	layer = &bfsec->layers[i];
++	layer->path = user_file->f_path;
++	layer->mounter_sid = cred_sid(user_file->f_cred);
++	layer->fd_sid = selinux_file(user_file)->sid;
++	path_get(&layer->path);
++	bfsec->layer_count = ubfsec->layer_count + 1;
+ 
+ 	return 0;
+ }
+ 
++static void selinux_backing_file_free(struct file *backing_file)
++{
++	struct backing_file_security_struct *bfsec;
++
++	/* security_backing_file_free() may be called twice after an error */
++	if (!backing_file_security(backing_file))
++		return;
++
++	bfsec = selinux_backing_file(backing_file);
++	while (bfsec->layer_count)
++		path_put(&bfsec->layers[--bfsec->layer_count].path);
++	kfree(bfsec->layers);
++	bfsec->layers = NULL;
++}
++
+ /*
+  * Check whether a task has the ioctl permission and cmd
+  * operation to an inode.
+@@ -3978,6 +4034,53 @@ static int selinux_file_ioctl_compat(struct file *file, unsigned int cmd,
+ 
+ static int default_noexec __ro_after_init;
+ 
++static u32 file_map_prot_to_av(unsigned long prot, bool shared)
++{
++	u32 av = FILE__READ;
++
++	if (shared && (prot & PROT_WRITE))
++		av |= FILE__WRITE;
++	if (prot & PROT_EXEC)
++		av |= FILE__EXECUTE;
++
++	return av;
++}
++
++static int backing_mounters_has_perm(const struct file *file, u32 av)
++{
++	const struct backing_file_security_struct *bfsec;
++	const struct backing_file_security_layer *layer;
++	struct common_audit_data ad;
++	struct inode *inode;
++	u32 i;
++	int rc;
++
++	if (WARN_ON_ONCE(!(file->f_mode & FMODE_BACKING)))
++		return -EIO;
++
++	bfsec = selinux_backing_file(file);
++	for (i = 0; i < bfsec->layer_count; i++) {
++		layer = &bfsec->layers[i];
++		inode = d_inode(layer->path.dentry);
++
++		ad.type = LSM_AUDIT_DATA_PATH;
++		ad.u.path = layer->path;
++
++		if (layer->mounter_sid != layer->fd_sid) {
++			rc = avc_has_perm(layer->mounter_sid, layer->fd_sid,
++					  SECCLASS_FD, FD__USE, &ad);
++			if (rc)
++				return rc;
++		}
++
++		rc = inode_sid_has_perm(layer->mounter_sid, inode, av, &ad);
++		if (rc)
++			return rc;
++	}
++
++	return 0;
++}
++
+ static int __file_map_prot_check(const struct file *file, unsigned long prot,
+ 				 bool shared, bool mounter_check,
+ 				 bool bf_user_file)
+@@ -4011,14 +4114,10 @@ static int __file_map_prot_check(const struct file *file, unsigned long prot,
+ 	if (file) {
+ 		const struct cred *cred = mounter_check ?
+ 				file->f_cred : current_cred();
+-		/* "read" always possible, "write" only if shared */
+-		u32 av = FILE__READ;
+-		if (shared && prot_write)
+-			av |= FILE__WRITE;
+-		if (prot_exec)
+-			av |= FILE__EXECUTE;
+ 
+-		return __file_has_perm(cred, file, av, bf_user_file);
++		return __file_has_perm(cred, file,
++				       file_map_prot_to_av(prot, shared),
++				       bf_user_file);
+ 	}
+ 
+ 	return 0;
+@@ -4113,6 +4212,7 @@ static int selinux_file_mprotect(struct vm_area_struct *vma,
+ 	int rc;
+ 	const struct cred *cred = current_cred();
+ 	u32 sid = cred_sid(cred);
++	u32 av;
+ 	const struct file *file = vma->vm_file;
+ 	bool backing_file;
+ 	bool shared = vma->vm_flags & VM_SHARED;
+@@ -4156,6 +4256,10 @@ static int selinux_file_mprotect(struct vm_area_struct *vma,
+ 			if (rc)
+ 				return rc;
+ 			if (backing_file) {
++				rc = backing_mounters_has_perm(file,
++							       FILE__EXECMOD);
++				if (rc)
++					return rc;
+ 				rc = file_has_perm(file->f_cred, file,
+ 						   FILE__EXECMOD);
+ 				if (rc)
+@@ -4168,6 +4272,10 @@ static int selinux_file_mprotect(struct vm_area_struct *vma,
+ 	if (rc)
+ 		return rc;
+ 	if (backing_file) {
++		av = file_map_prot_to_av(prot, shared);
++		rc = backing_mounters_has_perm(file, av);
++		if (rc)
++			return rc;
+ 		rc = file_map_prot_check(file, prot, shared, true);
+ 		if (rc)
+ 			return rc;
+@@ -7642,6 +7750,7 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
+ 	LSM_HOOK_INIT(file_permission, selinux_file_permission),
+ 	LSM_HOOK_INIT(file_alloc_security, selinux_file_alloc_security),
+ 	LSM_HOOK_INIT(backing_file_alloc, selinux_backing_file_alloc),
++	LSM_HOOK_INIT(backing_file_free, selinux_backing_file_free),
+ 	LSM_HOOK_INIT(file_ioctl, selinux_file_ioctl),
+ 	LSM_HOOK_INIT(file_ioctl_compat, selinux_file_ioctl_compat),
+ 	LSM_HOOK_INIT(mmap_file, selinux_mmap_file),
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 853f7266ed189..2f21568251ffe 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -86,8 +86,16 @@ struct file_security_struct {
+ 	u32 pseqno; /* Policy seqno at the time of file open */
+ };
+ 
++struct backing_file_security_layer {
++	struct path path; /* this layer's real path */
++	u32 mounter_sid; /* SID of the mounter that opened it */
++	u32 fd_sid; /* SID of its open file description */
++};
++
+ struct backing_file_security_struct {
+ 	u32 uf_sid; /* top-level user file fsec->sid */
++	u32 layer_count; /* number of intermediate backing files */
++	struct backing_file_security_layer *layers;
+ };
+ 
+ struct superblock_security_struct {
 -- 
 2.53.0
 
