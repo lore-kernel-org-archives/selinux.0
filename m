@@ -1,123 +1,119 @@
-Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
+Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8165337207D
-	for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 19:42:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DEE12E5B2D
+	for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 19:43:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.177
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788205379; cv=pass; b=Cassebuqe/e896Kv7hWwh/pyp+SM7zy6o0OmfUPBonPHBQX9fcqL1OdOmRl558ahGfx9FEzH/hnfuR8OoBdQwpCKDTE7NzZqhizBYouryB7JOHi4RYk8l9vVz9f4403LFzGbh6a5J8lhjtsTW2FhhQQq/L1zKaTf6wA2xemoqSw=
+	t=1788205419; cv=pass; b=B0su9HJ/BbjVPSTfuJffbxX0D9vNQyJbZIadcGw/TbcXLg7DDvadoCpaYDRP7RWk7w+ilwKetU098/TduaZ/5RSpI1PWvuR46ebikSh2lnyT/4AZrXnXytdPFTOKzjir8pWS1dU7k0HZCz2kQ4USkaO7YfbQDXjxmH2uVaiBWmQ=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788205379; c=relaxed/simple;
-	bh=sr/eqOIX+Z9MB3/TpROL/v7EbPGXnEcmlsFfabUEQDc=;
+	s=arc-20240116; t=1788205419; c=relaxed/simple;
+	bh=MfZc/RC8whK5QAyOozfTUHmXgjKG6FtxR8s5gCfUkv4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MwHwOidTrQVPsSfjoxXzcgE4qaWQqydwcyjMZcujrG+zOyCRskcLjYm1ZxhXIraAsZXNaJ8pGzcVO1mxgAgaR7NJN76LG5IannFcLYRWuKNrnDlOQ421PFdTY3Z/3JaQuwHVG1ToN4AQhSLZWmY7MAUGhmKViYVapXQMyTHVUOE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=NtpU9GOn; arc=pass smtp.client-ip=209.85.214.181
+	 To:Cc:Content-Type; b=JJyOdyeAPvPPay4lD29+XpTL+G84cqHr4N57ztqpNBWeGEwjFFgId+88byLCRHv8uOGgy9ge/38oOb/kcyas+DTamhIAhkCOyrAAtR4JWG/TRIHLtD8ZFHCL5XiIqhC585QcEWB9eeBurz7c0g1lxtOyxZ1R0epVfBaKis2kRoA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Dh94UXdf; arc=pass smtp.client-ip=209.85.215.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="NtpU9GOn"
-Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2cc891373e0so35084345ad.2
-        for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 12:42:58 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1788205378; cv=none;
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Dh94UXdf"
+Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-cc149372c14so135181a12.1
+        for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 12:43:38 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1788205418; cv=none;
         d=google.com; s=arc-20260327;
-        b=Yi2/LqqUXwZDf4ekbhE9ntDcX0dMcdOI2D9xUbB+ZPmDTG3jUptxcbgWnVQ4Ontcob
-         3LLXDFkz5V68SS8K84nMrCBi9HyssX3EmNk2Kv5rLYNh8e+t/wYt97lS495DafBfF5Eg
-         KciTTu1yx4tdPP+B0YFckqfcfDygSf5D5g2Mng9jg7V+BCwiDYGVx0OGrEadokkTvaTc
-         CSIYBYaJjC2FbMuaIIuFyXx6pqwo3TLjEkGhC1XwL3xvN9Z9lCoixoVjNknpUTd2sl1J
-         m/8XPqxV01FBqi3chH1qznnvZfLj6VQnFvfRlQ5DKUQO2El1smjlpb2bt0rhTUmKm782
-         +q5g==
+        b=JCQIM2p9T1cp96ijV/nC7ByxwdyVpq5HiYuRAEB9jdKcRAJ+LGwTr3tsp8eBC1osvH
+         cHqPLPswP7wDunnQxNM3YPVOnzbAVcGj3x2VnpTs1kH6ypzRVFQmK9O7kQEpqq2kScRJ
+         8dlRouVzwSq/Sp6FeM9rDkZHVI9sxjAOH3isNBtA2E5hvQtxxoL2DVwc/UHhSsOxPcnn
+         NbZvp94DsXyfI/cozhzvR+UooTVU+/LO8UtR3d1G4uDhIA8wB4vKy/rAJO/nnJXWs5Z4
+         yxgKj6RAjV00k8Cf62YmeHRpClTiuSfxvAVfsmD9ak8vI0RjGQV54KqQfRrhIQeZB892
+         IlKA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=HHbz4BC4GAMuWvBa7024L+tDqIiPuF/BXtCWFjzaYSA=;
-        fh=nOcPTm+jzSpUJDDJhvsoEQt/GcMQFmPB1BDsWNtwPZ8=;
-        b=k7OLr05/U7pcWCQPBBerQLmhGjllHtBBB2trL8venOxsdLhVvjcQRd8hTAinA5AZmH
-         4YQtd0J7KED5crOMmvu3R2zPNF1477kUB/7xWYv+sAloOBftJywnewgEwfa7zpI6zpRB
-         8A2Sz//3VRuOsM8GTPXg8Yvel6sSg8bbLvWe41emwSrlwgwbfK3BPKfdA5EQg10yJtoN
-         Lpp7hWioIqgC9IGdQR1x3lCk1oiekdF05pJyLnzwW0QH0j7U8rvDTfkMXX5EeH5qwWsN
-         8g1dN2bxQxHjwEedO6swODkmtXYCrwdpG71gQx/8/DxoyZmsgRYcpR7UkPdKWrEBEPJe
-         gOSQ==;
+        bh=icJcpMQ0Zb+woDJPqUSvSRxhEckAm5xq+C/nVYSyZ5s=;
+        fh=o44F32nRPQXH9d1Ct4CmtoKpe1gNh6qYcpMzAKc726I=;
+        b=HQ6Si5cAi0gGjUTmN8Tlut7G20xpRPWTDRBPztxEf2dthnmz5Sd/fguNM0y2Ky3bb2
+         KhU5iLuktUAIBbpj1CGXXPp2RXkEXEK3VsrcNKxXq4Vs/1AGEsHtTyhnl0cS+fUk3UeI
+         2XYTqA2+xHdgJv2fg6dlLhHuu+CkVZoBVA6RN+FsyRDP9pfiwMAqEc7VYYh2OrsCZP7f
+         13PF/XHYMKRON2aIre+cZky8SPtQ3Ip3B+F7EJRfD6LaDJFo6bi28XRhMsudjtDjPpW5
+         aVf/q9Wpxe1ScCnJcwCWO4skKPSX9pRzymygdNNTFHKXFZL8iB1HkoxbulggDmvR3Wwj
+         zAVA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1788205378; x=1788810178; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1788205418; x=1788810218; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=HHbz4BC4GAMuWvBa7024L+tDqIiPuF/BXtCWFjzaYSA=;
-        b=NtpU9GOnkQeeIrp5a7Ggkx5PU8VDYdGrB0LxEEK82iZNEMCMKAi9Vi2CHSpRSKzN7D
-         +zTCQkztwlKAsvi5+NwtIup62bwVZFhSxqMyl7nu7jPoGu8ocUtPAxf/wdGToyTbu4xl
-         /bmmOWwy0ywH3Gii0KeJ7uJJHQs8sb/RwuA4Dbeh0ZMzo8/Ucf7A3sm12TtpX1c0mHox
-         0mWEfU5FX8x3az50Bj4v0yshIwQProZCEeQMH9p+II0dsbpahKjV5oqZdLtmYD1DmL7o
-         imqbXoh4FEdpkXHbgZnVKIz7MF3MkHWTqSAduOhYhHVu231Ejq8S7QSrNSkm9cdx9D/K
-         zVYg==
+        bh=icJcpMQ0Zb+woDJPqUSvSRxhEckAm5xq+C/nVYSyZ5s=;
+        b=Dh94UXdfL4cth4hXowS1Yxf8iJ3zRnPplX+P8u1R8Hw0QiIyxzqQf9RWfnGsx8EpOT
+         aPzEnnekPLJ6oupxiNmwqMR2Fm+cre+G+DkTBm/Af8H75qpzLUdSprqFiqm1RTgWkMo+
+         HmKbiwIzKZrNuHBXLBpo7mjVT9wNuMgSpxdYvu2ROrUJ1RHOw0aMTpvsosucz+DcDEw9
+         FkPUFSFEtHldHavgRxW8OlvVR7rPZhKZ7nyj+e9cQFt4E4yzMWpDVEjrjNcwgMPJeinJ
+         zcWB3XoqQCF5gMXdh3L6yON5RXU1f4cd3YegKzqHD/aBxfnzCC7CywjxMnGx0eJ4HEzN
+         /vZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788205378; x=1788810178;
+        d=1e100.net; s=20251104; t=1788205418; x=1788810218;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=HHbz4BC4GAMuWvBa7024L+tDqIiPuF/BXtCWFjzaYSA=;
-        b=M89I8A0yawFNQMkLyWOHf6zUuTb/1jkkDV63duxoomuk/l/CHXN8QcEjvrqmZjjg2y
-         dQZsKlvD82ywNqSNoW1pXHKPH1KIEIxa5EXL/MWhw5MKZoDgkLhBVYoPUgmvPq1zS0eN
-         BV4DF4PVyIlYe/EIE5nZAnKjpqAjSpN/rHavkc3ivONL9zY8mXxn7y/S4UcCjGCFzqHx
-         DP62vUa3/Ins62iwMi/lwtMRpjvGJ+mCBPw8lf1Dlrdis0dOA60sSNdOw8y4KpF88HtB
-         zxgsCcj5hwc9IeGb4FKkL6/718QGc0tcW0gCoNwK/4HhNuwprVUI2AdqNCjc8UhJhzaM
-         IICw==
-X-Gm-Message-State: AFuF++kraXssG6Gn11mXKEgkstsAsQV6C5+zTb6Jtp5pXEoUcNEBbJHC
-	/4EnzHpEaYY/VlqQKVrBVH4LHJHhmZn9WQek4MUbGAZgRUyWf6hBy5/rEeYepD6S05/BKa4jfpV
-	+wHXeJCn0YhDzbXTxD5tCxwLA2CaiWg58P6nZ1kLiKaJdPxsHlH2keA==
-X-Gm-Gg: AYBFou2nBBsfFm2ex40gKczlgKx/dArOLlye3Ab29skTmwjOdhAWouRCtsSlEE/W5jk
-	hayJcVjbFcs4wqUDcC1f8n+Aqw4NphqJqV/3NzuL0IFCttJb6OE97Ieujlec1g/x/TouePtT5QV
-	dVrN8Y0fPGiquCATYgBJAQycqIX4kiN6qoVXXCJsoTaB0fxJzv6mvlSI6pF7SFiGXnG1/7baeOC
-	AZJKOtynOER22ehD11ADkDyhCkl5+mxGbd2gIo+iT+IVg0Mmvhu2lFZPYymoBhsrkBVKLsIRAlv
-	tcqXnHwzEghIii75m/ZvJ6SVPuQxV06GotxVA1//rz0I
-X-Received: by 2002:a17:902:ce86:b0:2d7:2edd:d140 with SMTP id
- d9443c01a7336-2d74dbfd59amr401646805ad.3.1788205377742; Mon, 31 Aug 2026
- 12:42:57 -0700 (PDT)
+        bh=icJcpMQ0Zb+woDJPqUSvSRxhEckAm5xq+C/nVYSyZ5s=;
+        b=fVAqYHq7EPxniTyxZ6HljcIDNYyp1Zm+nNAvxQ3pdy8n2Kpp63l/csnSyPnmYCJ3or
+         12plYv49gzH3tvtSxdD4SJzcHnRHraJFMZwO35s4W573BEKsXcDQXpbJFX1vqHvoNk/u
+         Y+v7hfb+/Foo21zV1nTjR2v+myLsdE/rAhQ1Ck6+eYRaGc+8aX1mckGpT87P3Hkqumbr
+         jqlVro8EO0p+7iDLOSvK7S5ZTwYWkx7XcrLJM3KH/pMmPu7XtRmdJrhCnSQnj4pAQFV1
+         saWGDGYxBwZzQs2DSSx2CZd7162a1JpAi8KUiBnqkqMj7P6DJnvoMbBU/Uqs9lM+0u87
+         opIQ==
+X-Forwarded-Encrypted: i=1; AHgh+RrmWXQ1WbESehg2IC84m3XSeKGpGTjGhXCQup29YAz76Zgnd5tGXgD/wXYABQWUKQMwgEGYKacZ@vger.kernel.org
+X-Gm-Message-State: AFuF++kqLFsRWOgEIfgjcmkTx82cf+PmxdlF+y2un2+qMhl15VC6vS5S
+	81Mu6Wwyluj2idQBIJ/fSD0DsgFe6TpMqZIGOPtcQOO/iVpRuD2BGK6R7jmjt2bJ3Vgc4MkfJGf
+	p+siZTecxVUumInJtYabYMa0jMxT7tnOGtu7GBe1e
+X-Gm-Gg: AR+sD111WBXt/uDJuzVl4Or2oH8kNeblC9Fr1mkCgPLCjGS7xqNRozNobq8JP8yDcSW
+	iBuqwl0qqUIqjrLiikp72BFuoZ0Ds9q+1REnmIGUjUfN8jqgsZEPP/and4taeFVV0yC7Si8sW6e
+	XhmI+eCpGJU0B/p4nXlhphf8vGK7B47myZSrno9vm9LoMVSTTQTVy+FbEOCbczkizUfYpx96dJc
+	aKQhIL+K9MwaO4tGs6k1OAdi+0Gf6zpTu3vDPnMwryiPuFw+HEnWqX6g1inRj/IzK5fVPcRM395
+	0gHKgQRmGP3jwDvk8y2nXIfmrOqDr3yA2efCwyj7ZjxD
+X-Received: by 2002:a05:6a20:4322:b0:3d3:af85:eb98 with SMTP id
+ adf61e73a8af0-3d3af85fc5bmr25533812637.26.1788205417558; Mon, 31 Aug 2026
+ 12:43:37 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260827151203.108111-2-paul@paul-moore.com> <CAEjxPJ68+3+OJnm3Kwh06CN1dqO-9mWM6HDc5ufrN3gK3sG6jg@mail.gmail.com>
- <CAHC9VhRCQ5Y7C5R_jra28KUkwcWVgL+2+3qHzQnyt5Y3ZW-Y+Q@mail.gmail.com>
-In-Reply-To: <CAHC9VhRCQ5Y7C5R_jra28KUkwcWVgL+2+3qHzQnyt5Y3ZW-Y+Q@mail.gmail.com>
+References: <20260828202350.110547-1-stephen.smalley.work@gmail.com> <77960c774f1a659ca33efb7134e24162@paul-moore.com>
+In-Reply-To: <77960c774f1a659ca33efb7134e24162@paul-moore.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 31 Aug 2026 15:42:46 -0400
-X-Gm-Features: AcwNN1U-c4PVMr4C_XgEsbT9yKxVuLb-wdcx3JZc6lFq2LhwjLz2QBNNHuz02aE
-Message-ID: <CAHC9VhR3+UHKrWWVHWKhqWPBmzFxHWK2stz5duOetuqvaTqFZQ@mail.gmail.com>
-Subject: Re: [PATCH] selinux: convert selinuxfs inode numbers from unsigned
- long to u64
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org
+Date: Mon, 31 Aug 2026 15:43:25 -0400
+X-Gm-Features: AcwNN1Vjq11kQDWjA6dwHGrRStUth789GI0zIpIDBmnPfODXTFxsw8i76M0l1I8
+Message-ID: <CAHC9VhR4qpHQnxNJH48st30rW6-4Qq3dDdGQihHs7zVaB-3j+A@mail.gmail.com>
+Subject: Re: [PATCH] selinux: remove unused mls_setup_user_range()
+To: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org
+Cc: omosnace@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 27, 2026 at 3:45=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+On Fri, Aug 28, 2026 at 4:48=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
 ote:
-> On Thu, Aug 27, 2026 at 12:40=E2=80=AFPM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> > On Thu, Aug 27, 2026 at 11:15=E2=80=AFAM Paul Moore <paul@paul-moore.co=
-m> wrote:
-> > >
-> > > Starting with commit 0b2600f81cef ("treewide: change inode->i_ino fro=
-m
-> > > unsigned long to u64") inode numbers were changed from an 'unsigned l=
-ong'
-> > > type to a 'u64' but somehow selinuxfs was lost in the conversion.  Th=
-is
-> > > patch corrects this oversight and converts selinuxfs to 'u64' inode
-> > > numbers.
-> > >
-> > > Signed-off-by: Paul Moore <paul@paul-moore.com>
+> On Aug 28, 2026 Stephen Smalley <stephen.smalley.work@gmail.com> wrote:
 > >
-> > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > mls_setup_user_range() was a helper for security_get_user_sids(),
+> > which was removed by commit ad1ac3d740cc6b8 ("selinux: prune
+> > /sys/fs/selinux/user"). Since mls_setup_user_range() has no remaining
+> > users, remove it too and any other helpers that only it was using.
+> >
+> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > ---
+> >  security/selinux/ss/mls.c       | 38 ---------------------------------
+> >  security/selinux/ss/mls.h       |  3 ---
+> >  security/selinux/ss/mls_types.h |  3 ---
+> >  3 files changed, 44 deletions(-)
 >
-> Thanks.  Merged into selinux/dev-staging.
+> Nice catch.  Merged into selinux/dev-staging and will be moved to
+> selinux/dev next week after the merge window closes.
 
-... and now it is merged into selinux/dev, thanks!
+Merged into selinux/dev, thanks!
 
 --=20
 paul-moore.com
