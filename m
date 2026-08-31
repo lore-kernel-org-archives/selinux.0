@@ -1,109 +1,117 @@
-Received: from mail-oa1-f42.google.com (mail-oa1-f42.google.com [209.85.160.42])
+Received: from mail-oa1-f47.google.com (mail-oa1-f47.google.com [209.85.160.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D31C38644D
-	for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 20:15:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAEC53750BC
+	for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 20:15:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.47
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788207305; cv=pass; b=HCtkp/N311Ok2o4bMigAx9PaVPXwdBG8ZTYesMJ35up7p5NWMV4oWkQ9ddrZQtgR9OD/OWFTy0ePFRyAm9LIR3oHsVpN6YjBXDsj1OQyU7bk1J06bZzU22T0OPBq8d0eY6IAACSaqgBY+RLKUOQKzsZZeauPSEjJHRixJmtabcI=
+	t=1788207325; cv=pass; b=jrwWpsyUHhNVjT1DKx/f/2+M0+o5wwFhcjb4g2HfWvMMwE/O5R/cZfss+WloaZiIRINvAsg9lS06QqzcxuQ4gFk055xv6b7Te2flcMgkj1YKuhANCOXfz7MXqEANIuT+P3qtQQTfM9IahBuaaL/hf+XQPnGbN/9fwxslSRaaJco=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788207305; c=relaxed/simple;
-	bh=rc1kayeDO+zG9eJZu2hIJKT6rQQ3HKEy5PVi574R0z0=;
+	s=arc-20240116; t=1788207325; c=relaxed/simple;
+	bh=N6dHz3MC9BYdHx3xBvElb2JCTfrTAPgp/3hD2nsOaok=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HKxYPlSK3hAOUFtl7wcoLupz7vSI5VRTJgV+1RHQ1v6FVdSrLIQeH5L2UdlsUISX2Na1aJh6pxy734KOTK5KxHdMCBUFv+jj23p2vidJ30M6/r4q4zQTIJsKXtT40onHuA+9ftgbp7hzAJHrkQkb7NEzTs+niX8siAlSnKvrXnE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=d3dW9/Bt; arc=pass smtp.client-ip=209.85.160.42
+	 To:Cc:Content-Type; b=GRNOwojutm6ZTBB18Z5EWp1FeJQ0EmC/23Vq4K3Bsv6LjyZlXxlS4bDUiS54vjVBgUmaKkD6YDO2ddhdMNN8Xb4JTms1GwVCpudp/oQ0MjskrGr7K1KFliMxVWAnv6Mafm9wwRzto1lquargYcvNwwZO74jndvKdWdxfnUz7rlI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FN41uk7b; arc=pass smtp.client-ip=209.85.160.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="d3dW9/Bt"
-Received: by mail-oa1-f42.google.com with SMTP id 586e51a60fabf-46ac530b9ebso239297fac.0
-        for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 13:15:03 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1788207303; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FN41uk7b"
+Received: by mail-oa1-f47.google.com with SMTP id 586e51a60fabf-46a3a8001cfso744297fac.0
+        for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 13:15:23 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1788207322; cv=none;
         d=google.com; s=arc-20260327;
-        b=Tiido/5uuWqbEsWSv6XZhLgAgVt/KLQpuICPc/ls/Rryu3PQ8rBgfhyUrHSgOoOcqp
-         IjQIyidRBV43ETJPyeo6Zp1v/bXTLYPQwXCtXUa4NDt9Ysh1UKH77Ef3cSoxt21E6ikR
-         Dpd0Ydjo1Xg9jiRmTZpHrsTdUCUq7oD28dDkz30KwBop6IHN7uQ71/VZIdyV8TBHNl60
-         Fj7v3cBSKuoNuNL9Q7yNwvimzEDdx3EmZyTRwrhAZQXwf+uQOZEJJg+wf3I7b5p95AZe
-         tvjC+bSV+gns3xma6OPl7BSiAMq/Vm7AZovTQ+DpXMNZkOTVaPVsXF3URpb6Rr6Odtyh
-         EDsQ==
+        b=f0zu5g2PKHpl6zAsEBmlpUoiywtppi+Ac+jdXI1jXfocJ1osR0BMtbw576+2ANo0hX
+         bZwXqkxX6W0kQaFgEEZ+nIF4seoUiBFiK16KwJvode9jdkNbnk7bdbucucS5sG42XGX1
+         u3WzzVAN8kap15yr++hY/EmgK+GF9dGzAYyXtW0yzHSoQQxjhm+kJwoM/p8XM/PGtRbH
+         cjpU/QoXcmjh4FzVVc5zaHPrvIDZ4OlHsJTr3xF9SXokGyoqR9vg2Rmp5/GHgxGAlztP
+         OiO3Ulyvf07jkv7Gc3p0q05j0Vz3ZC3lhzOK5HVUvUHQxlcwM0fmI9eT1AWRgZSUrEVL
+         W+ZQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=RSyIGpFGM/rgEUuz0POEWdoLD4XAkLat0Vaxh8mIvy4=;
-        fh=eQaouqZSrQIAlDzRIrQq/aTJzazDySYLD2N+VW7naxU=;
-        b=kSCMq/2vOa0TyN0hFn40piWpBZomRWOTs2k8aq+x4ujj7YhxC3g3xM8k58edb7ouA+
-         F8lOjnhCShiLVSCCgaaGX9VsFnX5hifRkUosTKweS05cC9uJcZYr8bUmZU+AtEQA6uCV
-         7LdGe+PTY31WBu/JBH5DUINUS3Y7fV7c8fKDTlGjhIdQO1p3oGx9v39b9Gc8JtgoU9Iz
-         ZYIFMh0P4VxyHRVgTdnQqHuryGAnVW9Zy1AW4+J9hzzLyEmLWLBdFtkAfRaxHuMEz5sX
-         uIZUCvQWZNN1Dtm1C5VurWt49qqBxWhZKGwmaDggyrIdOw9m85nc09Kz7qwQuWuiMpq7
-         Ml6Q==;
+        bh=N6dHz3MC9BYdHx3xBvElb2JCTfrTAPgp/3hD2nsOaok=;
+        fh=FsXghBnyoYbEc42Idnie0oh5A6i9FUng5ntOLhqXIRs=;
+        b=RFUzw8AW83hvE+PjGHnLUg4TJqdKA6BvMmNFp1W5n7T3GRjfpjj6uaofnbXMC6DHwN
+         4R5TODtJw1PbfjTQ1z+N8fJv1im8DAGY7eGkzj4+XinJgkIGVzMhS+/0mPWrHOvOJ/6M
+         7HCM4uhLo7nn3OZK3xoMocCRVEOe3ObTgT/mzjTSavkWedS9wULpA7B9Iu7Fdh/J+/OS
+         6RqNkit38XY4/Wj7yG0uC1rbZGySuGzzGa4DjaYKPvXzwzZSgFDXXjYo/x6JzxI1QpqM
+         0gOmceJdnAgzs1ztu0YHhl6HR/7fcWDHYJdlclZhETZ7mAG3CyU2o67HdlsxspUReV+G
+         +C4w==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788207303; x=1788812103; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1788207322; x=1788812122; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=RSyIGpFGM/rgEUuz0POEWdoLD4XAkLat0Vaxh8mIvy4=;
-        b=d3dW9/BtVku/7l9ZbkC+7/zR8rbgwKradJMoG/lILpWIfJDd81SOlIkwvq3NfEuke6
-         rKaLQ2Olr5ewzX0b3Og+o0H+0Mgm/Ml+fujqT2rWtc/lL2ax1yN9MJ626H/135we2wB7
-         25K4R62oBrzUROGPg/KM09ekfetPkrnFmaYCfe7lvlw0VJABtwgDo7YN684FPbz1DQWP
-         CjTjzLfGGKXJGYjqHM7Ex02qr7+53EyVBZojmiJ1A++Kg4onCdLsaGOwYzNxYkzPInu0
-         CaQhxAMzY9VXIhCNn0WGiV2Op4WGjUMuKjaupniocT6XSR9gS8/Bzvg1hkT+af5+BWTp
-         vxPw==
+        bh=N6dHz3MC9BYdHx3xBvElb2JCTfrTAPgp/3hD2nsOaok=;
+        b=FN41uk7bF+EhBkggRIv2Z9VgjP8mhJTGhPLMPdctVbpyvVaFGvsSelHYVwxIvgMQQI
+         2eiP2kLmNbw04aYIIxLIepa8SCCVDTvcqQ6polFdRaDRviWj3hjQE7kfn2accXpxLamM
+         NZ3yA0p4mrJlbUM5ZO6iVg1D74yD6W1I1RLeaDlzDMrBcm04T9yJII7o8pbTczOFZQRK
+         I6VPEXsjOuhyVLO/TFVLNz2CiDCJfkKhjuw4uLfO+OW6yXP3hyIXSOWWOXF1KgfV5gnR
+         k4dX1OJuWXir2JWosPAKtJbYHIzn1EAGcyUIMX3f04HCp6wTjcNmjhdkyDw1ZjcM/2Oi
+         i6Kw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788207303; x=1788812103;
+        d=1e100.net; s=20251104; t=1788207322; x=1788812122;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=RSyIGpFGM/rgEUuz0POEWdoLD4XAkLat0Vaxh8mIvy4=;
-        b=hhMv1qzpkZnGN5xs3U3LKkzNDSUBFFnIlHLM3SZqw268tkBT+sgS/siRnMmzJovu3y
-         wzZHodGjjW60+Egpg8E0d3BlZpV1HXubtURMf9GsDMPIgda9M8Ft4kbJNYlQeC/L3f9B
-         V77xo8CNkPMyvO3oOco65vRDULzq3vzSUspABIjf4RyQcZ3zdl2LUmnJlvfjLwU5sfF5
-         OJ8YppLg01/lVShgkearxRppcKX+KPRnvHGUYE2EbcHl2VMt5La2ZUuKOf337O1W9sg0
-         EBjgNBfT4/1lrUdCcN8Uwoh/HRYwYMYeib9HK7NIAiYfM8gw7to4a2PISLPp2znIQHse
-         DRNw==
-X-Gm-Message-State: AFuF++n/0WCjeZbJczycSJ4RTE0qnvsjcNeymd0Bpta97z8wbSsU6Sht
-	IBmus+3yklvnL26v4WQkyMprjLXOCyhW4qCCZdbnQivNbaAdT+Ctjw14gD+zNJqAbYBfNjadyie
-	XKQ8Z1+chWzo9JHb94Ksjlr53p+HNszg=
-X-Gm-Gg: AYBFou29a9XqM1tiU0FlqdHRSqj8HLtOSWd4li9vuomOO2nLjYM7McGUNk2KxFYAdVR
-	U1DVcg0WYDHW/f+UUc/cURFyQC1qPExxQXKE8IZ6X5hgUX0zVsHXhCwqaH44PJJ50EAiqPEhvhR
-	jz7dOWCSYw0qt6SzZKxwUJdpoyKxOgi5rl27tWGS+D7pdq8kmscfQD6zAu/0vgBNBb7VLK8qoei
-	vPBJwpKHoNhtwAHEH2g7NcxTwSNIwut7h5U7spknlSTguE6X+nnrVOWCxD5UHmryitb2MKlud90
-	q36QR3We0r5KvgXzcdNzwsYctekgOL/AMJMWiOTlGAGn
-X-Received: by 2002:a05:6870:8108:b0:45e:d645:e03d with SMTP id
- 586e51a60fabf-46afef3cea4mr831443fac.11.1788207302690; Mon, 31 Aug 2026
- 13:15:02 -0700 (PDT)
+        bh=N6dHz3MC9BYdHx3xBvElb2JCTfrTAPgp/3hD2nsOaok=;
+        b=R0SM08DuHiyPdbx0G6A40rMO3RSJ/NMN3Lcr85UDkayVtUrVCOi5Zbb3Aj2+eSdOHc
+         9fPBJM7fUOdv5kl5+R3ddc5oBksolbesUaCnAq033BNT1RJ9BkY6cp4z9b+leIUEHEk0
+         1Lv6ObXO6aDTpAdKN8Ufjfu9aKBD9lfm3HOezypWuFqY5Qi8Es56kAsDkZTOAVZy88Xj
+         ojEAckoVExCDi/fv4t+d9xN2I2/cxUqWT32Z4EmjrpLiKmyc8D7q3pCaHgFZDN44AZUP
+         SI47lXhxjGkIVZXFu2oooBX3KWsS9kl/a4kqBX6pySEGsVnML2N1jlmPstTLwGtn25U3
+         4rfA==
+X-Gm-Message-State: AFuF++kyIV8DQgnB8FLUlW3r9QE7yIi3S3E/ao5BIp7kX8oEnZa8Qp18
+	RFndOMvbTYADb4d7asrmL3NrpHvm/1+EyNLMweAu1mbHmsLSNLJGU5786E8+83E1oQ90lp72E3U
+	Ibm5iL2gFA3azQ60MpebunwPdlgEvDbLTXQ==
+X-Gm-Gg: AYBFou3g+5JYkzN6OppLBeUSYB+vf/8zEMyfy3/lTaL2h58ToYdMvXcf2Y/+Pzry4VA
+	yU3GYiNoJMJISzRQGdjx3AQ4/ZFko6idmd3+OUqaefYg0I7tqGm7GZy6blzMBCNrYHNUC7dLlbm
+	hOk71ePltwFV9USQvDlXeZls3h2//jFhgMTmpuiyvSpSRywGqKAzNPs//P7YctxHVj2RguYaLxO
+	IpwY11M0Jcv1PdJCq3ZMUdudpisY57SAu/kQgkfEGNbkBoLSH9ITdUPg+nbfPeCrbMSemPI8fIw
+	Y63Dxpgw/IKsruICyhwne+SMgd3770po+FM3I4vP8c6s
+X-Received: by 2002:a05:6871:89d6:20b0:46a:c217:c56d with SMTP id
+ 586e51a60fabf-46ac217eb59mr8263938fac.2.1788207322537; Mon, 31 Aug 2026
+ 13:15:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260831133509.3287-1-dburgener@linux.microsoft.com> <CAEjxPJ7DeQkzeFTBGHoBaO63M_6i38qkqobQCz7-AZ4O=6dQiw@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7DeQkzeFTBGHoBaO63M_6i38qkqobQCz7-AZ4O=6dQiw@mail.gmail.com>
+References: <20260831141649.39561-1-jwcart2@gmail.com> <CAEjxPJ70a6MS+g7de_tYhiVxgME2cK6j-TC=LA3SsZkbTLixAA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ70a6MS+g7de_tYhiVxgME2cK6j-TC=LA3SsZkbTLixAA@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 31 Aug 2026 16:14:51 -0400
-X-Gm-Features: AcwNN1VLintkEUpReBOSZBtaK5BRwcvVy_mI8mE-6wONRc80-yF2_SCVaLjHfrY
-Message-ID: <CAEjxPJ6peSGOC1-+AAKHq+B00k2VhnRC4uk4z70TxXb3xDTuow@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: Use correct struct name in comments
-To: Daniel Burgener <dburgener@linux.microsoft.com>
-Cc: selinux@vger.kernel.org, jwcart2@gmail.com, plautrba@redhat.com, 
-	omosnace@redhat.com, jason@perfinion.com
+Date: Mon, 31 Aug 2026 16:15:09 -0400
+X-Gm-Features: AcwNN1W2gzcWKH2UrZBOcqnX-JGXcLN3JELTYS41_Bk1AOG-ZklMwr0XEeNAwqw
+Message-ID: <CAEjxPJ4gv-rXds7U=9_hBT1ouvPSe0GZFp14MXCtzXCfW0uYrg@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: Tighten validation of scope index
+ class_perm_map array
+To: James Carter <jwcart2@gmail.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Aug 31, 2026 at 12:26=E2=80=AFPM Stephen Smalley
+On Mon, Aug 31, 2026 at 12:25=E2=80=AFPM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> On Mon, Aug 31, 2026 at 9:35=E2=80=AFAM Daniel Burgener
-> <dburgener@linux.microsoft.com> wrote:
+> On Mon, Aug 31, 2026 at 10:17=E2=80=AFAM James Carter <jwcart2@gmail.com>=
+ wrote:
 > >
-> > The struct selabel_opt does not exist.  The correct struct name is
-> > selinux_opt.
+> > Commit 94e9e7cf ("libsepol: Validate scope index class_perm_map array")
+> > verified that for each class in the array either the permission bitmap
+> > was empty or that it contained at least one valid permission. This was
+> > based on the belief that older compilers would set bits higher than
+> > than the highest valid permission bit when "*" or "~" was used. But
+> > this is only true for AV and constraint rules and does not apply to
+> > declarations or requires. This means that stricter validation can be
+> > done.
 > >
-> > Signed-off-by: Daniel Burgener <dburgener@linux.microsoft.com>
+> > Fail validation if any invalid (junk) permissions are set.
+> >
+> > Signed-off-by: James Carter <jwcart2@gmail.com>
 >
 > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
