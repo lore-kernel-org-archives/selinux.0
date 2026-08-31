@@ -1,60 +1,60 @@
-Received: from sonic307-16.consmr.mail.ne1.yahoo.com (sonic307-16.consmr.mail.ne1.yahoo.com [66.163.190.39])
+Received: from sonic306-28.consmr.mail.ne1.yahoo.com (sonic306-28.consmr.mail.ne1.yahoo.com [66.163.189.90])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 842482DCBFA
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 848033C0A13
 	for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 22:58:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.190.39
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.189.90
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788217127; cv=none; b=VI9QPxKg9NApkh3s77dJkKqeeg+u8mW/ZSksKGRQ3t/MgWNTQuOs1e6yW06PQ1OcO3cI24Q3Qvt8/qT++auRZDe2OXrOREGQ6JfF6FHVA/kcuoTpemkK4kjdFULPsL6F5YNd+3zpaZyubj6MfSnyV7vTQzHKj+kqfcM+JRRZKRo=
+	t=1788217127; cv=none; b=aOUxfZ2HlvoD6B5eUq/6w81hHrfn6yRs/6uVODetuG9ryc51Myl1eCMaakAmGhdcULSJpiyR7UQD1wn2zETbfk/W4/ObX0UGuDCK9c+OhiCh/yYlVm9rxuPb2VwWQ83JnDzK5KC6/B3I6zvq2jcFb6y/e7Ji9xoHDo/mYS+rMII=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1788217127; c=relaxed/simple;
-	bh=YePZ51dlYmZ/cucTyw+gosn8F7f35BMcwjmeoZtY7Bw=;
+	bh=bcsih4BP082rlDrqXJcE7iTam1hxh1NuNkNWgcTrHLs=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dA/QSPszSU6SJ4Uk2MZsPxbhPfMw9crcITQ0oqbSVxcZpIksPJkHY9JxQpGqvHvGcVT2DlywGpxEQZWGZmcuQacS/b6bSv8D3p1O0Y7SqpjYjscMmgOvab/W4qLDBB249JbAinwT61LsOobYacQg8SnD94b62/XGYNqff+/tsT4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=ib/Ph4IY; arc=none smtp.client-ip=66.163.190.39
+	 MIME-Version; b=RBAYAak0oPuIa+ed/b+q8o8740XFSiP628afzuqW2HUUTuKCnX/uDysFVB1r4m864+8ctVKS3j7NQBtPgK9trN3GIO+5C5SN0o2xBe6mhvDyretFrrYKObNEc+Yfs5LUxRLgklWlRGMwAFSqzRw24T6B9A4tuKiay7etfwWZH7I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=K09RYBoB; arc=none smtp.client-ip=66.163.189.90
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="ib/Ph4IY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1788217124; bh=yHlrmN78oxAAQbX+BTQB5IQgb1bzCbKp9XLNwOjJhUs=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=ib/Ph4IY6H0ask1E08ubl3PKNZxAgeuZ7cfkOIu7ok3jPtNdyKjjZgd51CBnndIJ6GTpIE2NrhoSw0I5ym914VJagW8zQZbuS542P0bLlSavf3BcJDp9MVMXUxrAgQpxs4GJ3Xoe6+P22Re/wI3fXpRU7UOkMFIoGzflzig6feH52K53wd6YJgJESCp6vpeF9eukSPVprm1rWxJOq/zO9p3gSRYfHa6tqYivJCwLK5SBoFDEtd46WnWH+uC5IbS09q9DR0KDy+zzG2qORH/QwKi/MvxBgPfLoupldKmWnFzhJWp5uBoDmruvCqhbE0jwY0Njy2SE2mtw0IkW2AFo2A==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1788217124; bh=MbKbCQs7arOubHWujbvXTLGWCl4g2cjm3RpUEz44EUx=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=haL3tZoT2B5V87quCgaQlXO3/k5R5Eokctm3BHzSgVF+HF1RcbibJ3tqx8F1b5oYVdoCMN++YSqTBlREaPm73NdAzHp8MuUpyzxEHj6uXXUGaGCMEJT5gF4VC9g8XI2UvUqSEUPTASD79EhbzQMymLi9i2JHBFA6f3VgrWcmBNRQyNQV8qqfBZfwR9hq9sIyS8aC9Qb4DZVOTDOVPaNJxXPc7RhGqpuDKJNyq/Z33VeufRZXueX7cvNacQz9sYItu6UaGB313d+RXecgdBa7A8fukUql5hj0d3qaoqG3s4XBPg+T60Zbm/QD03boNYgQgj9/8m4eo3RRqwb1wfPN6Q==
-X-YMail-OSG: wkr1C6gVM1kY1wwk9eGxXd0VD2TzsIQPmYa4pt.AdCUxBSOgguKzbdXHZ1WZ0.6
- vcph3cb1d8AKu6soB4PLnJQ4MJv3uVnYDt6Svlqy06fi3sNEJg_o8qcTWlFgM.EXp7d6ewL_0epA
- .Zw5NkQ52bIQxFEA0Vff3X471.Zd0Orr7FlXMsGtv5sITzkTJ9RwUY1614vSkpN5Mmt0fliYcSdT
- CBwJlp7okGTvZ6cDonjA7K5nBQmYVXtfEHBgjH6VhKZVgImrk5HNHn6f.o8zdm_k49XLS5hW.dT0
- xz8LNfjpccV22pG66zCnEkfM7_4gNVhTNWJKPymPAzRIFCiWIeN8jJETvgVQIfcD0WqxUcMeOzTU
- BqtlqYBT_Ck_TQkuAPzCD7SDq9khQGq0hFOZki4Q3e7tNpm8o_uvhppAoJtRd3.CeVS62CGyDV_x
- MME_ASqUIqASRlH5JShfj00TfLXCHTrqDcThZ8xsxmr7fSfki7SL3lLCb1VYEqF_8M6vWZrE0XQr
- _qYunTAYErgJ2tULZxlZWo6qKrvqqGbKyKCTuTApROKJXZK.A_U9KWjgadVwSseICj2vUHNr3jfo
- stBpXGYT83zObGC8kLgyFOmbPdRMogjqMW_AN8tCMi53otsnyU5OUeaCnYPsjnCm7xQw6dSiFWUR
- Dpa6G9O9RsU1dDo9oVmg.CXAbO8npZBXVOL6LuOOtin5d2CBoIsEih31b3ox9fEM3vU8k7RKURrl
- pwIcbMGtcvq2Zg5jWlP6AViYV6_wIforel31rJaF7HXdKiJnXaWxxmhU3CNBZvpI4g8Fd6sRpEHA
- pr1k13FD.I13AAVtahKPlqFYez0.9HViFzfr1vCzKUlDG_cjSw0g1yZuO6RrUkJMPCmYz0MvU8Zx
- YqqOKLFp1NoW5M5XzXrywWMm.TIYHF0Js_nMJIQyZThvS4RKy7yjG8uprkM1as6kqKZQRU72Q6Tf
- m_0cYaJhvGgxojlen8d_wWbjeV8E0Ltuv4Dc.KoBhmDnYm3coqpcJsKYty0qck9XCS.v_mefS7Ib
- Hp.vAY6anLZAH7HBXxzBg5uEyUlLPW607zs6dkNdEbEixEpCioLVAVNxViYQozHBUvuuzY35lqW7
- UNh68PJNyOpmyu649LQDeTu7O_xaNC694gVWzgEJRtZM3hrUWVFpMZvMEBudP1HUziJlwC6nsS8D
- AozfVbCWUsU4uzU7ggpY6iQaDo7fDe7hAOC.wqZn_UwiftQYIqy.eo0Ed8UCD3kZAq_oTRlNi2cg
- L_46Cn.6UCGGkSviokUQVyufBy0Fau5A4LStfMqx1YUuvfw4Vuts5U_wYx4f.h7dSxTk3OxiQhCs
- j3zTsqahEK_FbQ_hWAvVV7_VAs34Oe6YsxsoszEZfhQvbjRlkJPSMU7lJkm5kS430xl2HcTSg3KC
- HUdBuBY2lCjJr92trnMXeLqwq3c76zes1e8D1tueQ9vq2qMvuEBa3gpmwdtoCLwoKr9IqyLlaeKe
- hor0VWx5WcZFJ_KoCST3bpeUhMfMD.Beiamm_ssbyAjzDwkiPgvDRiJ9CPy9r4hdPUq8JhaSvwun
- wowSwpq19M6Zim8FfFsbyazRPx7DCfO.8QpZTdr.oo7wEyTGs7diW3lqWGwKsPetHTIyIRfRa1yR
- G7G6wolWbiS58o4nOgYzoXt8MmKGyunFmzBCKbK2Er5mD5d3abPaPQvrsaF5OJAjSYraUNabNiYZ
- Jd..J3vlnbx3Xl_GoqqpEh_ra_7zYVUECqVYJUZUffVFr.hs7rWOJtuIwv7TRkOAmW8B8W5CpXak
- M3WGug32LVZthTwNzIhdzBHvpAHmZ08bfMRjXgWV0O6Z7V8w.Tv2HAsKSSvae_sm6razGAbgb6we
- 7plnSTP6Aad3tpBTp7RDK1nXTq9Xj_D.tNrfF2zv8.MZPwu36sQytXyv7nL3nkUAvftOGpWL7ow5
- XANumG9_9eCV76I8gEBy2YlXqiAiTHFjQRlIUbGxo5HrmePAxxIM.L.QnzW7DYr5sr4D_JgiiND_
- fmHz5pWJzbyLCRbFcaggSBShAR5.cALhakzYQ_3Pvh9pXYYalyRS2A4n5QOm2iN8x6rgo.p88Rq_
- ZIDiHEyC0VUIoO4r4CUd4ZCcb7ugPV8LM9IF85Ek9u9jLxCLGzLEqwxsp17INiwQpf7KcLxOX1Xn
- n1Z_YehxdWSV_i3pV_UAAIA01dVv_C3tdD3umrWUvgAW3E64vQDq7fYzVWkQ0DJlbId9yaCAD308
- ZINFg4L4iI1CpJNZr92bsGiRHOXbRsxpEGgnMJi8EtzAxgrtgXO9Vo7OC3eRW2pBmoIaxA4gPH3I
- _hbiVM6P.YEntmJJwTexB4CZt
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="K09RYBoB"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1788217124; bh=zAA4p9HWXZaBkM7aUTYtkxbtIbeYO06Idd07zx5BtSk=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=K09RYBoBx8lB/7N7x0louacV5dG9zpqeA2mT3/9mmjEDr3UPzmIxh6oY0q5QLrY1kc9StyetHVc6Sj/7F0yOOMHUKAGimygbnq+2TAZs3HposTK+y6jgDFOK8awK1FXZungr5W5Q1ZaG4aiRK70bpbWMA43AteMAg8ntZcpXHxSr8r7cTzvCAsfrlG6unBfyIyKw4wm3Uc3OWv8YoM1MxRy9Mi6XRWaibxIsSX7kWWBGvevU6ALDF/FolT5pVQlRie92OlZWACOiZzfIdDyYf3ESA5UN/WnsLymX5ZPpyuPtnTQ4GmcdIXWVMRLOhMU34KDH18zemQRqZNhB/vmyzQ==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1788217124; bh=IwtBInZUQzUqTKLnwNiV5tcEObG685qKrLy6QTGIoHs=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=BfOlGGwqTCNC1ePd/HfZ/3TPrVEg0vLXiYoDRpH7LI1mirL4U51hJdT09nVNhqXfqgxaGaRjMSWiZ6AsHY6laIBpZHwVDMGIEH0CtRSHFLBHbIDj+Jy+Nx3UlodJuFbEf55Uwu3yJCaA0Wqz35KlDhDZI7Uo4oUcMiND1VFs3LnEhTZJKMNfvWd6x3VnZaLqoClyB57oBmpjxjrtR3/OmouKuYBnwEQqR3E/ETgBi7bJ/iTQfu6LMK6gkkTabDHNG3g/I4/2Zznsx0wTwOOcmB/BeSO0V1gNvcbKyG932/Rantv8r+eLN2NucHOysUIETPuN0fjgbEmGiZI2nynpeQ==
+X-YMail-OSG: QOx3Zw8VM1k.P0Yr4C9fK4ehm8UpkJfD.O1V7iassadsfNj2Aykv1hQfa05djml
+ HBhTrimuZ9sdmuj1VNKE.tq7TybtuxYfRQqSN8l_sy7XHR9Zv2EJIuR1jfKJQIz_W8LqLzHpRs53
+ ckEsVgMmDYn69oPtT1C0Fn8ETuNOs1HLYxWwO8lktY1Jb2JlrUOOeY1m9U_NULshRgECKQx74JJl
+ nSRlcDUs9v_cug7S46sHLR6CT5JRYyD.5oVOjSus.144DHIJBMcQOIjpzD8191vtQuz1DB7rT80R
+ 44t4tJ0UAvyB4bs9o8jpdh.1sHKnOOis826GTR1Ui0lKk3oYuPu5hSAZh_NSBoJRI8hGIHnDiS9q
+ qczlOBtkvYRtG1WhFv9zFhvcjWhpUKxRJos3jLz5FuLXQ8J9_FYnpeXvQzZvT2HJW7tMbPx8fWhG
+ bNmnVNyD88TQPzXrt9MQ_xe6Dt9zZEeBQbJe41.tFtMLYZ2yecQcwHzVGMKGyoiS6h29IDkeP4Rf
+ gzhUo7v_skCrWK0E.acG293EeDeH0CBEt6kD4fky9RHTPJiHI2kklUxISFSyDSvKxEZCsMn39ucW
+ 9fvjSYdgw0YxIC60r.aOPeHQ3ASnSc3rivliB_bTxeoEkSCYfnIHOjxcjpwaWQFvfuXKow.9kjcF
+ ioGvvSK8MVQyPuXCXdEIRDTR88YHqj5n_2SFajA0Kbyi6nQ.BbBN5sb3o.GUXBIdeGCkbZnXKlzJ
+ WJWGlRPDIFaeMs.5G2wwkDLiwD3a5AanMPGdRuuaRTIc.SRe8dLsr_knDTLTzf3Z1nCBIlwppqsP
+ 2uXH4kgIIgwW0.ylzCdl9b8HhYf2WCaw.Dnhl09csqHdR.3o7s5DOce7WLW9Sis9aWSX1oQKco6.
+ e3asJJBl3AHoObQ.VrWAJW9s00KOitBxrVCubdm4afaK2egLKRSVOmwF3v1egqXDYIHcM629t6gM
+ 57pKD58UHkL9EZWNxusJeQFbS4S7lNlzi8Q7HahA7DZQzp2LDQF1G037GShquMrxXhvmz3Tx8Ip2
+ osRNgrURQrGBI7vSwlgILjRZ1qLDuF5KOoC7qwjhiqZ9inm8.ltKob.67y.xYcMFhyVhAUY93TM9
+ 9i42BFw5UuUWHKei_mwuEIgqrVi4SP.rddvo9LKvScgecZG2fggn4msx7D9HpTw21WJ8mg9WY0G2
+ C3ER3fAJOWUk8OIEzOAc1LIcwsALukPL0yh3uah2oFfm2EsvE1R4EQpUBzAvm0sR3ShctBMPWMqk
+ wIKE.UeOdGk3dnsIh_SsyWATC2XMZ0XowA9Le7Z5xZ8gumdw8cLby9eUq35vD2p99KqB4fiopxS5
+ lNTx0YNta6.mIcLYAb.Mx8hzFct6vFml8rWezfeK87V1OgdQxcUzboBQtbPSf0yVytHJ6zI1t10_
+ pTtCsxGFdxA9NznVE95PkQCw9w2po8hBLXtupUjCn6Z7H0Um724nFMldJ_uGv3nBIMAzSoXUoJgs
+ Lg1Sg4vkvyvsnm32wnYqBhMY9Db2exwsHUawiB.ADYK15pXXG5KQSPKWDz0inf9.3WRyO2LARKNn
+ Qw0KYmNc5ayMI5OS9Wqm93LNHBrMarIXw0p7UkYNHTt.eMEQiyVCwQ79oMVgrJmcyUhvIP3QgfrN
+ Q7rnSh7sZ66P8c1x_8.Q4it9hJW05DpIfGAZqD2.OFD6p2h3c3DXev5hW.SIRih7pL0wUE.ayHiX
+ ZmIek7agczv05770U4JEMTPzv6TbASm.X255N64nlzIva.8lQL8LJvthGPVaLO8lDgrHLsIJokPU
+ z76aE3KK8sL8tyZcLffKE_sWktY6pKJ3AFQEysqez41l4ytq87fi5RX2zddAYXwREkmAV__aSJ9I
+ G3aiWcCIjhBHuNSJp1J3Y1HZp7Axnw9Akpt8HLxyaLmq1ijcErJ7maXB3ipkRruH0o1xkBJBVf7O
+ d134gV_yLR_6JD1pbv7WNhX2P1Z8yb2GPBRkF1Qg3auN1KN458.5bdEBFBv1_APlKcjBH5pRKrkG
+ 2aR.gf3aFM5GBi6aodM5afNd6vAphcMwxI1yh3h2ZXC6udKuoFU1UCF_gpGLgwFIdGl7CzfFxJ16
+ 5aaixVHYJR6B6Izj0aK_ooikCopjaYmtFQaVHyr6opWkbyiTBMkMkRqO635GnEe4YJiNbBn_GeND
+ uZ0aTmwF2QJZJe2Q9yrng1Bb93dEu0_zoDJ7zuyzxsM0o4ufxX_grZ9Nis4Xq9wUS122Lpqbz7qJ
+ UrnPl7ar437_UHsb4U_KuXtj1DhFfq9w4q3U7G2dKb2eLvtgOlzjPoTGBRx5vWh1RrbkIyKApYxa
+ 9tshQUqWiGBO.E2T_Ihe_jb5_xII-
 X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 194f1d79-40cb-4ef1-811f-9399768b077c
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Mon, 31 Aug 2026 22:58:44 +0000
+X-Sonic-ID: 8c0ff2ea-88b5-4ec1-bcd0-193f0bc1706d
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Mon, 31 Aug 2026 22:58:44 +0000
 Received: by hermes--production-gq1-678d9dd684-vr75x (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 9afda7e456c775b6473ef75f34d3e2be;
-          Mon, 31 Aug 2026 22:38:01 +0000 (UTC)
+          Mon, 31 Aug 2026 22:38:03 +0000 (UTC)
 From: Casey Schaufler <casey@schaufler-ca.com>
 To: casey@schaufler-ca.com,
 	paul@paul-moore.com,
@@ -72,9 +72,9 @@ Cc: linux-kernel@vger.kernel.org,
 	penguin-kernel@i-love.sakura.ne.jp,
 	stephen.smalley.work@gmail.com,
 	selinux@vger.kernel.org
-Subject: [PATCH 1/7] net, smack: Create a function to set secmarks
-Date: Mon, 31 Aug 2026 15:37:42 -0700
-Message-ID: <20260831223748.4304-2-casey@schaufler-ca.com>
+Subject: [PATCH 2/7] LSM: Implement x array functions for secmarks
+Date: Mon, 31 Aug 2026 15:37:43 -0700
+Message-ID: <20260831223748.4304-3-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260831223748.4304-1-casey@schaufler-ca.com>
 References: <20260831223748.4304-1-casey@schaufler-ca.com>
@@ -86,151 +86,175 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Rather than open coding assignments to skb->secmark, use a helper function
-secxa_set_secmark(). This allows for a case where assigning a secmark
-is more complex than a simple assignment. The version of the function
-here does the legacy simple assignment.
-
-Change the functions that currently assign values to skb->secmark to
-use this function.
+Implement, but don't use (yet) the functions required to use
+xarray indexes in secmarks.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- include/linux/lsm_secxa.h        | 28 ++++++++++++++++++++++++++++
- net/netfilter/nft_meta.c         |  5 +++--
- net/netfilter/xt_CONNSECMARK.c   |  3 ++-
- net/netfilter/xt_SECMARK.c       |  3 ++-
- security/smack/smack_netfilter.c |  3 ++-
- 5 files changed, 37 insertions(+), 5 deletions(-)
- create mode 100644 include/linux/lsm_secxa.h
+ include/linux/lsm_secxa.h |  19 ++++---
+ security/Makefile         |   1 +
+ security/lsm_secxa.c      | 105 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 117 insertions(+), 8 deletions(-)
+ create mode 100644 security/lsm_secxa.c
 
 diff --git a/include/linux/lsm_secxa.h b/include/linux/lsm_secxa.h
-new file mode 100644
-index 000000000000..926257d4730c
---- /dev/null
+index 926257d4730c..569c7f242b78 100644
+--- a/include/linux/lsm_secxa.h
 +++ b/include/linux/lsm_secxa.h
-@@ -0,0 +1,28 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
+@@ -7,19 +7,22 @@
+ #ifndef __LINUX_LSM_SECXA_H
+ #define __LINUX_LSM_SECXA_H
+ 
+-#ifdef CONFIG_NETWORK_SECMARK
++#ifdef CONFIG_SECURITY
+ 
+-#include <linux/security.h>
+-#include <linux/skbuff.h>
++struct lsm_prop;
+ 
+-static inline void secxa_set_secmark(struct sk_buff *skb, u32 secxa)
+-{
+-	skb->secmark = secxa;
+-}
+-#else /* CONFIG_NETWORK_SECMARK */
++int secxa_from_lsmprop(struct lsm_prop *prop, u32 *secxa);
++int secxa_get_lsmprop(struct lsm_prop **pro, u32 secxa);
 +
-+/*
-+ * Copyright (C) 2026 Casey Schaufler <casey@schaufler-ca.com>
-+ */
-+
-+#ifndef __LINUX_LSM_SECXA_H
-+#define __LINUX_LSM_SECXA_H
++#endif /* CONFIG_SECURITY */
 +
 +#ifdef CONFIG_NETWORK_SECMARK
-+
-+#include <linux/security.h>
-+#include <linux/skbuff.h>
-+
-+static inline void secxa_set_secmark(struct sk_buff *skb, u32 secxa)
-+{
-+	skb->secmark = secxa;
-+}
+ 
+ struct sk_buff;
+ 
++void secxa_set_secmark(struct sk_buff *skb, u32 secxa);
 +#else /* CONFIG_NETWORK_SECMARK */
 +
-+struct sk_buff;
+ static inline void secxa_set_secmark(struct sk_buff *skb, u32 secxa)
+ {
+ }
+diff --git a/security/Makefile b/security/Makefile
+index 4601230ba442..e93be00bb6ae 100644
+--- a/security/Makefile
++++ b/security/Makefile
+@@ -8,6 +8,7 @@ obj-$(CONFIG_KEYS)			+= keys/
+ # always enable default capabilities
+ obj-y					+= commoncap.o
+ obj-$(CONFIG_SECURITY) 			+= lsm_syscalls.o
++obj-$(CONFIG_NETWORK_SECMARK)		+= lsm_secxa.o
+ obj-$(CONFIG_MMU)			+= min_addr.o
+ 
+ # Object file lists
+diff --git a/security/lsm_secxa.c b/security/lsm_secxa.c
+new file mode 100644
+index 000000000000..50ce613e35c0
+--- /dev/null
++++ b/security/lsm_secxa.c
+@@ -0,0 +1,105 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
 +
-+static inline void secxa_set_secmark(struct sk_buff *skb, u32 secxa)
++/*
++ * Implement functions supporting an x array for LSM properties.
++ *
++ * Copyright (C) 2026 Casey Schaufler <casey@schaufler-ca.com>
++ */
++#define pr_fmt(fmt) "secxa: "fmt
++
++#include <linux/xarray.h>
++#include <linux/export.h>
++#include <linux/security.h>
++#include <linux/lsm_secxa.h>
++#include <linux/skbuff.h>
++
++/*
++ * An Xarray of lsm_prop structures.
++ */
++struct xarray secxa_xa;
++
++/**
++ * secxa_init - initialize the xarry of lsm_prop structures.
++ */
++static int __init secxa_init(void)
 +{
-+}
-+#endif /* CONFIG_NETWORK_SECMARK */
++	xa_init_flags(&secxa_xa, XA_FLAGS_ALLOC1 | XA_FLAGS_LOCK_BH);
 +
-+#endif  /* __LINUX_LSM_SECXA_H */
-diff --git a/net/netfilter/nft_meta.c b/net/netfilter/nft_meta.c
-index 0a43e0787a68..bd0f7a0931f4 100644
---- a/net/netfilter/nft_meta.c
-+++ b/net/netfilter/nft_meta.c
-@@ -17,6 +17,7 @@
- #include <linux/random.h>
- #include <linux/smp.h>
- #include <linux/static_key.h>
-+#include <linux/lsm_secxa.h>
- #include <net/dst.h>
- #include <net/ip.h>
- #include <net/sock.h>
-@@ -502,7 +503,7 @@ void nft_meta_set_eval(const struct nft_expr *expr,
- 		break;
- #ifdef CONFIG_NETWORK_SECMARK
- 	case NFT_META_SECMARK:
--		skb->secmark = value;
-+		secxa_set_secmark(skb, value);
- 		break;
- #endif
- 	default:
-@@ -950,7 +951,7 @@ static void nft_secmark_obj_eval(struct nft_object *obj, struct nft_regs *regs,
- 	const struct nft_secmark *priv = nft_obj_data(obj);
- 	struct sk_buff *skb = pkt->skb;
- 
--	skb->secmark = priv->secid;
-+	secxa_set_secmark(skb, priv->secid);
- }
- 
- static int nft_secmark_obj_init(const struct nft_ctx *ctx,
-diff --git a/net/netfilter/xt_CONNSECMARK.c b/net/netfilter/xt_CONNSECMARK.c
-index 1494b3ee30e1..9d799d2459dc 100644
---- a/net/netfilter/xt_CONNSECMARK.c
-+++ b/net/netfilter/xt_CONNSECMARK.c
-@@ -14,6 +14,7 @@
- #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
- #include <linux/module.h>
- #include <linux/skbuff.h>
-+#include <linux/lsm_secxa.h>
- #include <linux/netfilter/x_tables.h>
- #include <linux/netfilter/xt_CONNSECMARK.h>
- #include <net/netfilter/nf_conntrack.h>
-@@ -55,7 +56,7 @@ static void secmark_restore(struct sk_buff *skb)
- 
- 		ct = nf_ct_get(skb, &ctinfo);
- 		if (ct && ct->secmark)
--			skb->secmark = ct->secmark;
-+			secxa_set_secmark(skb, ct->secmark);
- 	}
- }
- 
-diff --git a/net/netfilter/xt_SECMARK.c b/net/netfilter/xt_SECMARK.c
-index 5bc5ea505eb9..ea67aa92ddc2 100644
---- a/net/netfilter/xt_SECMARK.c
-+++ b/net/netfilter/xt_SECMARK.c
-@@ -11,6 +11,7 @@
- #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
- #include <linux/module.h>
- #include <linux/security.h>
-+#include <linux/lsm_secxa.h>
- #include <linux/skbuff.h>
- #include <linux/netfilter/x_tables.h>
- #include <linux/netfilter/xt_SECMARK.h>
-@@ -36,7 +37,7 @@ secmark_tg(struct sk_buff *skb, const struct xt_secmark_target_info_v1 *info)
- 		BUG();
- 	}
- 
--	skb->secmark = secmark;
-+	secxa_set_secmark(skb, secmark);
- 	return XT_CONTINUE;
- }
- 
-diff --git a/security/smack/smack_netfilter.c b/security/smack/smack_netfilter.c
-index 17ba578b1308..b363c42f252e 100644
---- a/security/smack/smack_netfilter.c
-+++ b/security/smack/smack_netfilter.c
-@@ -14,6 +14,7 @@
- #include <linux/netfilter_ipv4.h>
- #include <linux/netfilter_ipv6.h>
- #include <linux/netdevice.h>
-+#include <linux/lsm_secxa.h>
- #include <net/inet_sock.h>
- #include <net/net_namespace.h>
- #include "smack.h"
-@@ -29,7 +30,7 @@ static unsigned int smack_ip_output(void *priv,
- 	if (sk) {
- 		ssp = smack_sock(sk);
- 		skp = ssp->smk_out;
--		skb->secmark = skp->smk_secid;
-+		secxa_set_secmark(skb, skp->smk_secid);
- 	}
- 
- 	return NF_ACCEPT;
++	return 0;
++}
++core_initcall(secxa_init);
++
++/**
++ * secxa_get_lsmprop - get the lsm_prop associated with a secxa
++ * @pro: destination for the lsm_prop pointer
++ * @secxa: index to look up
++ *
++ * Find the lsm_prop associated with @secxa and place a pointer
++ * to it in @pro.
++ *
++ * Returns 0, or -EINVAL if the mapping can't be found.
++ */
++int secxa_get_lsmprop(struct lsm_prop **pro, u32 secxa)
++{
++	struct lsm_prop *lp;
++
++	if (!secxa)
++		return -EINVAL;
++
++	lp = xa_load(&secxa_xa, secxa);
++	if (!lp)
++		return -EINVAL;
++
++	*pro = lp;
++	return 0;
++}
++EXPORT_SYMBOL(secxa_get_lsmprop);
++
++/**
++ * secxa_from_lsmprop - get the secxa associated with a lsm_prop
++ * @prop: lsm_prop pointer CBS * @secxa: result
++ *
++ * Find the secxa associated with @prop. If there is none, create it.
++ *
++ * Returns 0, or an error if the mapping cannot be created
++ */
++int secxa_from_lsmprop(struct lsm_prop *prop, u32 *secxa)
++{
++	struct lsm_prop *lp;
++	unsigned long il;
++	u32 index = 0;
++	int rc;
++
++	xa_for_each(&secxa_xa, il, lp) {
++		if (!memcmp(prop, lp, sizeof(*prop))) {
++			*secxa = il; return 0; CBS }
++	}
++
++	lp = kzalloc(sizeof(*lp), GFP_ATOMIC);
++	if (!lp)
++		return -ENOMEM;
++	*lp = *prop;
++
++	rc = xa_alloc_bh(&secxa_xa, &index, lp, xa_limit_31b, GFP_ATOMIC);
++	if (rc) {
++		kfree(lp);
++		return -EINVAL;
++	}
++
++	*secxa = index; return 0; CBS
++}
++EXPORT_SYMBOL(secxa_from_lsmprop);
++
++/**
++ * secxa_set_secmark - add LSM information to a secmark
++ * @skb: buffer with the secmark
++ * @secxa: index of the information to add
++ *
++ * If the secmark in @skb is not set, set it to @secxa.
++ */
++void secxa_set_secmark(struct sk_buff *skb, u32 secxa)
++{
++	if (!skb->secmark)
++		skb->secmark = secxa;
++}
++EXPORT_SYMBOL(secxa_set_secmark);
 -- 
 2.54.0
 
