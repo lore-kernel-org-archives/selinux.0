@@ -1,136 +1,125 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24EDD3D5643
-	for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 23:01:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 159F53B9D8D
+	for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 23:03:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788217302; cv=none; b=ltcZ4oeBE4kwl7HMdawT+qiGTsKUG9OV0K2DD9FlJg9RALh9/ZOsvWtPrc++HxfJChEQX+Vv42PmRJHkgWN0XsDgEvxOZuy3/ss9lS0vdQlmnfVlfgk3Ri8nPooBmJg4AssR2Mh6vxbND7rss5V/e2LE+w7rRrYQhRwzUEHQc9I=
+	t=1788217416; cv=none; b=tKhfH1rK4/FLMv9QEKpl/ys8fH+5im38tJaAOmGxd1QGb71z/TKvSd23vdO8jem49DY71vdnx06qjq7zSmui6W0EZcLHtasO7TPk+EEYHUTs0pSMJVIsGp6Se6ik9S5oSrH4UoycdjffURol3BNBO9rwTZik7C3gUCmTcBCR9F4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788217302; c=relaxed/simple;
-	bh=mqVkAKKfRDrfbHLN130ygm10nUQWb8xRwFs+d8ANyAY=;
+	s=arc-20240116; t=1788217416; c=relaxed/simple;
+	bh=ae1Z5Jvjeqr7ZWysfmAK1R+zQrDczQqvD7HNJUpyxE0=;
 	h=From:Subject:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=K9Kf6X5yT0pprs1q8fDfwc7VFxRgyBcudmhRv8NXERG4yPZbrs9oRpoi2ynHOhWbfH5OB+2+yLSBeAYARTGJLadl+ykbOIAu2vZWXSZ6NXLhSj9TKrY0H0Pi6AkxUNX+LszO+0WPsf5MN49FpYLvOGGLbIKpH64Gi2B2P3Uzw8o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Q/f6QlQH; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=cBaCGgl7MJoihXtWQH4wmdxOIW7ldUKZSjB2uYEfS/AnUAdIih4r1Dm4HWb0FxWOA6Uq58B/OwNLLf9O6CRKR7v26pjigk8PMdcd6/Dmney6if2KyPKxQ2z+6ChjQymUYevN5k0Lc0YsPA0UvSGld8r0p22mQZ223CNgBP0b9iA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Zw844NGI; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Q/f6QlQH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A62AF1F000E9
-	for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 23:01:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Zw844NGI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D7C71F00A3D
+	for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 23:03:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788217297;
-	bh=kJur66WHUWM+nRNoA7SLT9PdhieXP9qcZtQ7/pPLavg=;
+	s=k20260515; t=1788217414;
+	bh=0RJqRhduBiNinYIjouwMdr0dCbzXyM4xwOYVodcLzyY=;
 	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
-	b=Q/f6QlQHeFgv+PgJ+oMEMNddMC09CR6Nw0ych9q3lTQyuGSf+3T0MP3kyT0fmvtL4
-	 3XMBYmYs6VWUfR7pUHOWnORmV6AyhhZpPj6nU/dQB25ZVzjvcHxU+b+9wlOfMvZeiI
-	 Q6pynptG3mkYaAvWWBtFkM+ye5FTAALw9Yskv/qIfCSMLb67bLvo5DQP/zr2WagdUX
-	 XXt0HMBLo1fQloiq34RdMiQBHqOCPikgn0YZlyAhcXzlVr4ZV/nbWjJC7hHY8IQqW+
-	 +aiMlY9dT3ALvsn/v9VqVqN4Z5hg7cUxsZrD4HYygDXJpqpsDWE379An4NMcGspnXV
-	 6g6xpV9XCfGng==
+	b=Zw844NGIovkG/6cyEV8q6xbynKdmW7TwU4QnrBHVEfkZKJfPAkiRKajVcYemsYSOA
+	 mY6UZZa6yDHQQBtDtB2OV7XzWkKpIO2eRA336h9DqsGF+c7fXdkK8XE22naSIRxsuI
+	 EqovxyErumDAlmhbpA0b6ZWY1HUZkJYib0NO4HBa/+k+WimdhmPKLrXpBvlYyeIxhF
+	 ylk0Unch2TVc5txpFQxtLZp8fodiXn0/3/PvsSz9EgtbKXN6s7RgtE39T1SQmZ0kbE
+	 1+5nrrtdesaof+x/zbhoTPhNAKqwi/nEf/ox8rKdbqSXwFOT9fjhOYPYEPepwa0H9P
+	 evu1DA/MUM9xw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 5/7] Smack: hooks for secctx_to_lsmprop and
- update_lsmprop
+Subject: Re: [PATCH 3/7] LSM: Two hooks for manipulating struct lsm_prop
 Reply-To: sashiko-reviews@lists.linux.dev
 Cc: selinux@vger.kernel.org
-In-Reply-To: <20260831223748.4304-6-casey@schaufler-ca.com>
+In-Reply-To: <20260831223748.4304-4-casey@schaufler-ca.com>
 References: <20260831223748.4304-1-casey@schaufler-ca.com>
- <20260831223748.4304-6-casey@schaufler-ca.com>
+ <20260831223748.4304-4-casey@schaufler-ca.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 31 Aug 2026 23:01:37 +0000
-Message-Id: <20260831230137.A62AF1F000E9@smtp.kernel.org>
+Date: Mon, 31 Aug 2026 23:03:34 +0000
+Message-Id: <20260831230334.8D7C71F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-New issues:
-- [High] `smack_secctx_to_lsmprop` sets `prop->smack.skp` to NULL for unkno=
-wn contexts but returns success, leading to a later NULL pointer dereferenc=
-e in `smack_lsmprop_to_secctx`.
-
-Pre-existing issues:
-- [High] The `smack_secctx_to_lsmprop` function ignores the `seclen` parame=
-ter and passes a potentially non-NUL-terminated buffer to `smk_find_entry()=
-`, resulting in an out-of-bounds read.
+- [High] security_secctx_to_lsmprop() fails to zero-initialize the output `=
+struct lsm_prop` before invoking the LSM hooks, leading to uninitialized me=
+mory usage, kernel stack leaks, and memory exhaustion.
 --
 
-commit 7c2ef4130b3b7eeea3057be8cb9283a398ff6cf7
+commit 13e7b169a884dc3bcbf465977a96e0509ce74a40
 Author: Casey Schaufler <casey@schaufler-ca.com>
 
-Smack: hooks for secctx_to_lsmprop and update_lsmprop
+LSM: Two hooks for manipulating struct lsm_prop
 
-This commit implements the secctx_to_lsmprop and update_lsmprop hooks for
-the Smack LSM module. These hooks provide conversions and updates between
-security contexts and lsm_prop structures.
+This commit introduces security_update_lsmprop() to update a destination
+LSM property from a source, and security_secctx_to_lsmprop() to set an
+LSM property based on a security context. LSM specific implementations
+will follow.
 
-> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> index ff115068c5c06..fcfadd5d99941 100644
-> --- a/security/smack/smack_lsm.c
-> +++ b/security/smack/smack_lsm.c
+> diff --git a/security/security.c b/security/security.c
+> index 71aea8fdf0142..1dec0037370ba 100644
+> --- a/security/security.c
+> +++ b/security/security.c
 [ ... ]
-> @@ -4909,6 +4909,37 @@ static int smack_lsmprop_to_secctx(struct lsm_prop=
- *prop,
->  	return smack_to_secctx(prop->smack.skp, cp);
+> @@ -3982,6 +3989,31 @@ int security_secctx_to_secid(const char *secdata, =
+u32 seclen, u32 *secid)
 >  }
+>  EXPORT_SYMBOL(security_secctx_to_secid);
 > =20
 > +/**
-> + * smack_secctx_to_lsmprop - add the smack label to an lsmprop
-> + * @secdata: smack label
-> + * @seclen: how long label is
-> + * @prop: where to put the result
+> + * security_secctx_to_lsmprop() - Convert a secctx to a lsmprop
+> + * @secdata: secctx
+> + * @seclen: length of secctx
+> + * @prop: prop
+> + * @lsmid: which LSM the context is appropriate to.
 > + *
-> + * Exists for audit and networking code.
+> + * Convert security context to an lsmprop.
+> + *
+> + * Return: Returns 0 on success, error on failure.
 > + */
-> +static int smack_secctx_to_lsmprop(const char *secdata, u32 seclen,
-> +				   struct lsm_prop *prop)
+> +int security_secctx_to_lsmprop(const char *secdata, u32 seclen,
+> +			       struct lsm_prop *prop, int lsmid)
 > +{
-> +	prop->smack.skp =3D smk_find_entry(secdata);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does this ignore the seclen
-parameter and pass a potentially non-NUL-terminated buffer to
-smk_find_entry()?
-
-If secdata comes from a netlink NLA_BINARY attribute and isn't inherently
-NUL-terminated, passing it directly to smk_find_entry() will trigger an
-out-of-bounds read, because smk_find_entry() in security/smack/smack_access=
-.c
-unconditionally calls strlen() on the string. This seems to duplicate a
-pre-existing flaw from smack_secctx_to_secid, but re-establishes it in this
-new API contract.
-
+> +	struct lsm_static_call *scall;
 > +
-> +	return 0;
+> +	lsm_for_each_hook(scall, secctx_to_lsmprop) {
 
 [Severity: High]
-Can smk_find_entry() return NULL for an unknown context, and if so, is it
-safe to return 0 (success) here?
+Does this code leave prop partially uninitialized?
 
-If an unknown context is passed in, prop->smack.skp becomes NULL. Because
-this returns 0, the caller (such as SECMARK via iptables) might assume the
-property is fully populated. Later, if the system tries to convert this
-property back to a security context string via smack_lsmprop_to_secctx(), it
-passes the NULL pointer to smack_to_secctx():
+If callers allocate struct lsm_prop on the stack without zeroing it (such as
+in nft_secmark_compute_secid or checkentry_lsm), failing to call
+lsmprop_init(prop) here before invoking the LSM hooks might leave stack
+garbage in untouched fields.
 
-security/smack/smack_lsm.c:smack_lsmprop_to_secctx() {
-    return smack_to_secctx(prop->smack.skp, cp);
-}
+When a single LSM populates its specific field, the remainder of the struct
+could retain this uninitialized data.
 
-security/smack/smack_lsm.c:smack_to_secctx() {
-    int len =3D strlen(skp->smk_known);
-    ...
-}
+Later on, if the caller passes this struct to secxa_from_lsmprop(), the
+memcmp used for deduplication will evaluate the entire struct. Because of t=
+he
+stack garbage, identical security contexts could fail the memcmp check.
 
-Will this cause a NULL pointer dereference and kernel panic when skp is NUL=
-L?
+This could lead to uninitialized kernel stack data being copied into new he=
+ap
+allocations in the xarray, and potentially cause unbounded memory consumpti=
+on
+since identical contexts wouldn't be deduplicated as expected.
 
+Should lsmprop_init(prop) be called before iterating over the hooks?
+
+> +		if (lsmid !=3D LSM_ID_UNDEF && lsmid !=3D scall->hl->lsmid->id)
+> +			continue;
+> +		return scall->hl->hook.secctx_to_lsmprop(secdata, seclen, prop);
+> +	}
+> +	return LSM_RET_DEFAULT(secctx_to_lsmprop);
 > +}
-[ ... ]
+> +EXPORT_SYMBOL(security_secctx_to_lsmprop);
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260831223748.4304=
--1-casey@schaufler-ca.com?part=3D5
+-1-casey@schaufler-ca.com?part=3D3
