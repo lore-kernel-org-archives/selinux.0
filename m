@@ -1,105 +1,102 @@
-Received: from mail-oa1-f51.google.com (mail-oa1-f51.google.com [209.85.160.51])
+Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00B07449B37
-	for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 16:26:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.51
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788193602; cv=pass; b=pSkGwAMLPew38NDegWJpIJsRybp51/UC87RQhr2jc9u2r5OCFK25xISw5qv++PeMYyeJfM2g/xA1fRa78mH0FBSp6GtU3lY2SD/gkHIkr4axHGvrFTrvTKZdzx2bgb4Bzftvj643VcD2gaoqk7XHTu0qZTBTWMMV8vi/7YSEQiU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788193602; c=relaxed/simple;
-	bh=TQEIuizKAeOocOS9Rvqv0GBMwlQfQLoQePnK2/FSFwQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=JpxL4fdNqSyi8XXh7Wq2O3+/jtzi69tLjv/8jo+xpj7VNUN/530vLDke+4+QGIzxqPaKFLsmss/gkN3IFhF2/n+V7OCTV1ghU6KuuRvN7lF4mNLBiUbomEnZMbjBqn4BKdmxmoLoJccfivJ+5zgd8ofNFUTxjAbAHeFEKLlf3IM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZbP/wJGJ; arc=pass smtp.client-ip=209.85.160.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5468E37BE8D
+	for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 16:50:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788195052; cv=none; b=olOdZAQk1xN90zTuItd0CNxNB6GGH1POjW1K42oaBxJec+vvEgYPQdwZgxC+aXrajTZ4F1cHlLToz0aiie1luZ6t2wiEw9AeTSfkBfweBmfS3D6zVM1MCo870s+o0Iine//FtvpiQho8Y/LBm0sBfIHoOEBuElKdEjh2Xj1PUnI=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788195052; c=relaxed/simple;
+	bh=PqRaPrXSwWA175D0ryd6i5hSWH5tUaAvGCDB82+LQzU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=FJ+rVo6GpBQ7CKgcRSUOgAO/DRVtxYNRQOIeyHNKvfef+lRsp0019jmBSEb8sObCglH8Z1IqC26P3BKqgxdBpZBuwpLa63nWKti9SCfc28LKmXyUMznODuJFPZQaqlZf2giouI1yIhRK2sheLw94ZRAh79bsvjZ2bMVeo2Kip98=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HjOz4oZ3; arc=none smtp.client-ip=209.85.160.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZbP/wJGJ"
-Received: by mail-oa1-f51.google.com with SMTP id 586e51a60fabf-46ac530ba95so840530fac.0
-        for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 09:26:40 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1788193600; cv=none;
-        d=google.com; s=arc-20260327;
-        b=qKzG+z800Jql0sQthR3NfWd8/esvNBk4Dse/YapIJLgr8g7ErDOBknsO4hDjITP7tX
-         VdVbizPt02FG5djQoPmHB/i39U/ZjD5NO5IgnpCqvMrAy6HCVWH9pUsrQmq1uC9U1/pP
-         r9IIM7IocEKpapsCSe7CuZKt/FhUQ/sdjOC993ioQVGItneRhryG5murfBHYyuPC+FO9
-         UURhBZJDuuywU4AGIIrvH+9nu9ztHAhxWekVfh+nGRj5hYK5QCWINjJKchNdbh0k7DmB
-         SJcw8JZ4LoNY6dwPX1GQcCRuKPNp2fwqTkowvA5hHX82LcykKs+PDz/61JNQx4fGO140
-         tHSA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=JcJrM5ajQEGaZas3s8eOCvsrz2ClqYsMcIbs7ID22ss=;
-        fh=eQaouqZSrQIAlDzRIrQq/aTJzazDySYLD2N+VW7naxU=;
-        b=IeU+xmnwXy8Z6B9mUW41NIny5h92iimg9uxfbcuIdY524gnt52GYJOlMTyKjR4v+hq
-         VUqfbxgdyEE9ISwaLVOpFkAeBLHC/s/5hSlyfCI2gkyIq+N61sb26zUxBDVfD86dIpqr
-         h0D+GrXoCXsghtXLrdLNCzggdrV6ZUxBWx3Ta3A15+TFfhYgjASVSHv/neQfDU6d/P5J
-         IOOUAwxqGRt+yWl/VO8ZU04+oJh0jGFGz0mpaQXf5z5ykIZk0SjCRg6HWq/51FBXCnsc
-         VWzg372TAXaF+VnJeyEVcT/rt2LOjMlX9REG3h3ywq/Mr6TGk3O6my83vHDg1JECZRH+
-         8fjA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HjOz4oZ3"
+Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-52fa223df07so30711451cf.3
+        for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 09:50:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788193600; x=1788798400; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=JcJrM5ajQEGaZas3s8eOCvsrz2ClqYsMcIbs7ID22ss=;
-        b=ZbP/wJGJFGE2SdNXoNW4Z+clfXzCmtRbdc69i1RmXr2b0cbQqjO907qPm9OJdPwB1X
-         2u16VmYdyYqeez6jsZcyOSQGr44jOowKSOGto8/cgBqAgAJCf803PLMeP8ZjsXQd8QCE
-         54HSjnNKYdpDJ/4IpixruiLCncdLSyMHG2uUSYdcpvja57Q9X9U3HilfSVBPOwJJHzF7
-         ntZyY2gHriLKYR5yIn7he8e0K4X8z297Pn2qFdDO6co1VRfegmeglQQMtHnHnG9UMpYS
-         iXkvbKy1e6zj07bZJOmANgzXWlKHTN5vvg9NRKvX7WsRYJOt230uC/RCSToMGIwO/Qi7
-         uT8Q==
+        d=gmail.com; s=20251104; t=1788195050; x=1788799850; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=BVmxRKFjyz8/FhMR8lQigg8HuCBZII99k+VSLwnMGus=;
+        b=HjOz4oZ3Vy0YWDK0Btc6G6u5k3cLbTt1c1KJz3t0HYUKa7hv8zB1E5gZK1znKGylzC
+         Drnfdk+phRWcHTg4DYUcgGSIu/pKR9XwAoUeqI7dIumV4py4uETQh2G/iynnvis7JAhJ
+         dTKZ81oL34XziMOaw8YlrVVSohAVKw0SmXdodKcGnqPJk/dtZrKFEjQwuFhzYD+8IC5o
+         7t1Oundg5+/jBo1NGdGJ6/y+hkYsqp71sTrIIoiVtEC50srwNfrTyf1cCgI1pFiSWUPf
+         Dyd3wQIVcHMzSLgLtOe1Q3CH4BPtYWrnFjQawinrQaA7wrVT/Bgs5rj1Fd6C5/af2RZ3
+         PhBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788193600; x=1788798400;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=JcJrM5ajQEGaZas3s8eOCvsrz2ClqYsMcIbs7ID22ss=;
-        b=q6Wixd7ZnwqyAEeGbQRdVjV4wS1euiuvAzOHg946lHA44MqhDDSmIJZt+q9LPZsH9r
-         EcKqoGhEUZZlhOe6rbLz0cCmiDHcUtBjnwPYi2dYjcHuBH/4DRtNE1egS8PqOCOGRxl2
-         h2Ar5TQJIpF2upCIvG0XLRqSpE1cb5n8WcIC/7yXbHbztPkN6twZAgj4ThNI86UpCPxE
-         p3g3hEMXP0kRSvdAGoxRbt8tdrpElr3JAJ+oeNrf78QfAZ4O7s4TkOA846mQE9K9TpVN
-         sVUezthr46H4t7QD7ozEqxJhfLhMDGXE5R7pwRsEb324dmxUDvjohXw3tWbxUmK5FGGh
-         euwQ==
-X-Gm-Message-State: AFuF++ltSpHEC60rNGP5yjH4U/ziUKLW+jiDusToC5QGn3rG4m9qJ/Bk
-	U5KdKXzPnWIhlhOWRXVHrELWzak+8I2wx0YJiZ++Jl36iS8fybpdhBVn5FXQANgLJdy+DDqOFSn
-	oQzyW942ztBFuHo8QCv2I3AdJKQhXOoQ=
-X-Gm-Gg: AR+sD11m5kdw2gFlgVtXZNQqGB16V+WQsFLn/Qo1LXej05qH2Wa58Tyt8r5/L7vbBg3
-	1O+l9gqaoS42Aaq+KPnN+7I7NCkLz/gLwB09+o6yOqmpBaGrSGMVygnJ5a6XpLaIjQhmKN3AbWd
-	dgPXs2qf5eQEhegrFCIfMPnzuEjGYlANWQh/QwzjlXJRa02/bW+C2d3T9cekkx4gCN80yEHXfWJ
-	aH4rpn1+MkWT4fV/p9V9fbvow1XopSFBELNLo0cGbFA0i8965ymYnVGJIgid7iwReahOPpqMQf4
-	+ItSFeemE1ZhlBGodbk/v5UnkFEVALB6dGdcCTE3274o
-X-Received: by 2002:a05:6870:a0a2:b0:46a:d6a3:8c22 with SMTP id
- 586e51a60fabf-46af568caa2mr2119011fac.12.1788193599716; Mon, 31 Aug 2026
- 09:26:39 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1788195050; x=1788799850;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=BVmxRKFjyz8/FhMR8lQigg8HuCBZII99k+VSLwnMGus=;
+        b=Jg2XKrh5NFxE2m00jCTNSLVoBmnXHkt/uvPd9e8P+TFc5Gij+/LLxTxyYGcr2hLRuz
+         C0j5vfABsZ3hRBG6sOkN/1Cj8EaAUjRK5CFNya95PdNb8fjNciynVc9Mbeypn8uAXG+f
+         bik+h0YytCLY0DXoRoPSQJLdDf6a8xzNYuKzpIjMc3yGldSHmrBvLBfpl/QYr+V2XxQH
+         ukZc0ricruG6KNQMjfdYjEMg9Cij0zPqqRcCv51hyYmqMZuxGL2ZDy4y9QkxaaX/93pW
+         lgrT1phzptCXQbmmC2tYEmms1YdboBszf5iB3UZz6oC/tckNrNNMPGRKpVvKEx6DgqiK
+         L0gw==
+X-Gm-Message-State: AFuF++kuxT61X34csjLThvf51IfAc7GY+ygNFLN3oua5bZ5lpSsE3QYt
+	sRnCA0HAA9Qefzapbdt808uOobFgpLG7JgKn9EWkArT0sLm6RtIbubNfcksokQ==
+X-Gm-Gg: AR+sD10ye5z8gayLFCWcboh2IMSa3ASWMHDGZDJI5b+FRTjK6WICiTa0npP6vF6tryI
+	6ZehhxYvcbI3T9f0UmumFh3PANU6zFUr/m4b+r38svNbz2nKWpPLIdvvwSzM/niOQcFE8C5NHol
+	EkNKXxSgt9q7gIOvcyJ4/VYj4JRUpbrdogk7tbZHKkMObC6qPGsKISXONyur3DlwrIxEWCmrWF3
+	1J/KG5fSWgJdELaQcOVbLQ/Ep56Gq+jRK58LEZ2FvAVNcsSwEVGw7SFJoZv0ZM4y6qn3xg6vw8M
+	BMwS1xadI/FNAfNY9L9wjUmqN8UIKYRHTQJRzZFVAFCIWKqhggsoZBgkAn9BMyEk1AOVR0Tw3NE
+	9OEqEv+H7Tf7zwYCyhO6g8xAWcwA1t9RE1b8jieJGNjkOoJ+pVFZSZkn30OytMZr42WETRr0nP8
+	AVinJA397LfOvrDosKHL+jZn9dsOhgwwC0lyZDqZWmXgt2/ASb5+W4QcBWGuWeFmbC7m+pwLzfQ
+	FQNWSYcViYDDtF5e5I0LyZvfQk/XxgQhe8pEC8CqijGsLxRVu2HrsNYbDZrJjsR
+X-Received: by 2002:a05:622a:1f19:b0:52d:742b:aa58 with SMTP id d75a77b69052e-53021b7e052mr28953631cf.6.1788195049874;
+        Mon, 31 Aug 2026 09:50:49 -0700 (PDT)
+Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-90ce415902dsm91883956d6.0.2026.08.31.09.50.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 31 Aug 2026 09:50:49 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	plautrba@redhat.com,
+	omosnace@redhat.com,
+	jason@perfinion.com,
+	pebenito@ieee.org,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] .github/workflows/run_tests.yml: use a modern refpolicy release
+Date: Mon, 31 Aug 2026 12:50:34 -0400
+Message-ID: <20260831165034.80872-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260831133509.3287-1-dburgener@linux.microsoft.com>
-In-Reply-To: <20260831133509.3287-1-dburgener@linux.microsoft.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 31 Aug 2026 12:26:28 -0400
-X-Gm-Features: AcwNN1U0YPXf4S98uTU3eqvN-pcJO2fdokksgJsFipnnquFCKTlwAOQpiFpqDxw
-Message-ID: <CAEjxPJ7DeQkzeFTBGHoBaO63M_6i38qkqobQCz7-AZ4O=6dQiw@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: Use correct struct name in comments
-To: Daniel Burgener <dburgener@linux.microsoft.com>
-Cc: selinux@vger.kernel.org, jwcart2@gmail.com, plautrba@redhat.com, 
-	omosnace@redhat.com, jason@perfinion.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, Aug 31, 2026 at 9:35=E2=80=AFAM Daniel Burgener
-<dburgener@linux.microsoft.com> wrote:
->
-> The struct selabel_opt does not exist.  The correct struct name is
-> selinux_opt.
->
-> Signed-off-by: Daniel Burgener <dburgener@linux.microsoft.com>
+The run_tests.yml workflow tries to download an ancient refpolicy
+release for the sepolgen tests. Update to the latest release.
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ .github/workflows/run_tests.yml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/.github/workflows/run_tests.yml b/.github/workflows/run_tests.yml
+index 8e9afa10..8ff1092f 100644
+--- a/.github/workflows/run_tests.yml
++++ b/.github/workflows/run_tests.yml
+@@ -51,7 +51,7 @@ jobs:
+ 
+     - name: Download and install refpolicy headers for sepolgen tests
+       run: |
+-        curl --location --retry 10 -o refpolicy.tar.bz2 https://github.com/SELinuxProject/refpolicy/releases/download/RELEASE_2_20220520/refpolicy-2.20220520.tar.bz2
++        curl --location --retry 10 -o refpolicy.tar.bz2 https://github.com/SELinuxProject/refpolicy/releases/download/RELEASE_2_20260616/refpolicy-2.20260616.tar.bz2
+         tar -xvjf refpolicy.tar.bz2
+         sed -e "s,^PREFIX :=.*,PREFIX := $DESTDIR/usr," -i refpolicy/support/Makefile.devel
+         sudo make -C refpolicy install-headers bare
+-- 
+2.55.0
+
