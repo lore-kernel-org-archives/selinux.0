@@ -1,83 +1,288 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 0932642AF9C
-	for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 13:35:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788183317; cv=none; b=aQ8S4N1BNUrZ7VhZ5CUmsAOfkGJlNmIkkFLkiF156hib1a2Nhei+Lh4SM7+T8s8sSaP33GttGXd2yRPp8AIUB+pQ8pggoeziA9Kg5Vi210e2qFQ72nGNWaqhXlVm8kTxjpRiINn2DHEjQDdWFVMKueNti5M+o3kbO7ULdwMsnQc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788183317; c=relaxed/simple;
-	bh=98jFFfaFglPqZrdvsI6XoU+VQsFUPo74lZ9MDX96Uk8=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=ICZIE1lWG9ntKlrmtSg4vMWqsVmR7lO7goW+mQcJ/ci4YpQZfm7Bn2uu1N8cDSWOUFiiA4fF4ERWeeyBY5AOtVpmvvdowfcgNDHsu/0fKIYqMe8vecNXuVjbd7C6nI8h55eCksdLQPEz7NrUa6kzpQhNAUJf/2QCDcNFDD0DFus=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=cNQGIZT+; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+Received: from mail-oo1-f48.google.com (mail-oo1-f48.google.com [209.85.161.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66D4F519908
+	for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 13:43:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.48
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788183814; cv=pass; b=S5SLkgW6SqB90gOOvgu/yia8COhRdR5dc5BUIHkiKR525b/ECLdRVWo4HwOLP9q0TFkXyDdOUR+YGhUlarWlk0C8PSf+e0Uvo6SRLy1MIusWfU9+dpXaZVbKfPelu1+33yT9Vqhpdi9CQSD21zC+JWYq+bK5ZDnD/LM5xCgBrmg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788183814; c=relaxed/simple;
+	bh=63jl8HUhN6UU5XZEP96vbdTWi8+bDVk7ytaLginym2Y=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=RVGyo8gc5wZHOousvwBcWPKHF7MNnXqU9kLQXlsYNmX9MjHW3rO/edrkxrh4Jm+VDZ13vvr7uqJOFZfPHaorhEGd5nTJrgpt3m0eruF3fWFnh1/LNw0uYXm7SFLhjJdL5bmjrrqZJ3NSpqG7HKNgSOCvnGZEEjsWLNDwrAaPqxY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fkBXdIoR; arc=pass smtp.client-ip=209.85.161.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="cNQGIZT+"
-Received: from DESKTOP-NVB873J.localdomain (unknown [52.167.112.163])
-	by linux.microsoft.com (Postfix) with ESMTPSA id 5D74F20B710C;
-	Mon, 31 Aug 2026 06:34:39 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 5D74F20B710C
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1788183280;
-	bh=jVrW33/Lf31t9aXxmyTG5pFeeX1YclpAa1Tt44FfaNs=;
-	h=From:To:Cc:Subject:Date:From;
-	b=cNQGIZT+IkciiFRTfyUMwcxw4cPr06DuZFltrmv9P6YoVMYpDyeQhmQDurUFaTyIj
-	 ayCDmEHA45DhYX9VKcduDJ3JfAD7+MeGDYVukcvjKRlNAOz6DiMqCTFR9ziwabMbxP
-	 csifJAfUDxasopaeTOa+NKXYu+3w/1UVOBccJlhU=
-From: Daniel Burgener <dburgener@linux.microsoft.com>
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	plautrba@redhat.com,
-	omosnace@redhat.com,
-	jason@perfinion.com,
-	stephen.smalley.work@gmail.com
-Subject: [PATCH] libselinux: Use correct struct name in comments
-Date: Mon, 31 Aug 2026 09:35:09 -0400
-Message-Id: <20260831133509.3287-1-dburgener@linux.microsoft.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fkBXdIoR"
+Received: by mail-oo1-f48.google.com with SMTP id 006d021491bc7-6b057877851so1204244eaf.0
+        for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 06:43:32 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1788183811; cv=none;
+        d=google.com; s=arc-20260327;
+        b=IVuNxSrhw6CSpBj9thV6HVO9zTBzSJAp/J717caw7emRui/YCmcp9fGA3YFD0eBRtp
+         RRtYJdswBc0I7H7RzdlvOElxTr5nuk2zkp/JXSL12QVcLl4sw2ovQn5HpRdDN9cYXTPJ
+         m0pnHZo9PBJ32eb7yqv9IKxd9Kquy5g7C60dnSVtbuPC41V7V+go/9HXk+96NXZShnsc
+         B/fdM5aMj2BcwhqM5kEBFB/zwffc/RCR2tG85GevHwqWLd3hjzHsWRi/D9NIdNIpeLDC
+         H0AfihfrK1l2JHgyrpBfBrQ7onbp+egEZR2aVGtgOuRXAmHBGZgK/ZdXlt6rXpKogpT3
+         UKag==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=b0QfUnx4HyE7jo0WaLyW7xEi+bweJvqIwr7CLSzJcWw=;
+        fh=SRyNz6SdlIpEMkMQZXGaZHubu2p2/0chMExM/PmZryU=;
+        b=VuEn8t7M8jSRPnzfmxJ2Y3i5o1RpbKB+wwkwaRJ640uIDOtFsQ37wOSO4+eOAS730J
+         1VYpqwPMJlc+oWodt88MtkBB/syMdBB+JeXEuY77sZj/2au5+bQDQdWVQ8D+q92uItl5
+         az13dX4mX5tH1+pve4DglpEtpl+sxnXTuXWxaArhmy9IapbXmQEo6pdblETqn4EKBf+O
+         dpaycwPuuuuoweP7g6yZ6BUYr4pPYiqqEIUHZ5q2gmz6qFYDVruCiAq1NSrtHsS7zDvg
+         E/Fc1tSCxD35Jt9Bt7BZy6CvrzUmdv8u5e7OqeL5ff0U6jccQkVgwkxRsOvDXm7+HkF8
+         4EAw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788183811; x=1788788611; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=b0QfUnx4HyE7jo0WaLyW7xEi+bweJvqIwr7CLSzJcWw=;
+        b=fkBXdIoRuGMOn/UJZu33Wv389cQ1PW0h41SY6HK30Ky1T5nTNs4cV3SyN1qd2ToB+O
+         DQBfnuMODWYBMVY3CCiEu39zYZuxPhK+tJwJWOHy8RkNOcjp0J7S0nXaQ9YQBi5h4QjR
+         5/tp0sRkPrc3c0f8IHVfwa0kP5cOU+x6im0WpCII9C+ZTBPPAqX1Xsl3AZy2psWLFiRU
+         PIIWBfjbzvnyuw6dzo8cm0tUPjCmsRacJT4jZuq+Mwocq5ot590rtBULIbKnCqMpfCfH
+         QzOpu/RBOaeOgCkGi2L2FCVlc9qPDDTXayQQjDSlgKuZ96+EJMP7SA2OxV2wdj02Y9dC
+         Fv7g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788183811; x=1788788611;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=b0QfUnx4HyE7jo0WaLyW7xEi+bweJvqIwr7CLSzJcWw=;
+        b=hVsJdBA4oQVoiicrKLjc7XkOjqdqeXRGcCwegdzXdIVy//8H4PVddtmNrsCJaehiEk
+         Wi2bKwFZmw30dAzA53BdYaprtW2Xwaw0ZJWOv2aFbnE7DfDOnzYv2oX5nLjk90gfoqEi
+         oNwtPmPKPnuLWLbyqdYGLgF1oZb2gEAQKzFI4yHXlYrr1xwyOmL7vFLLoCFoMt1CE2fD
+         FBOmov3o+AKYd5GXmS7kYWi9blFvFIJ+/Gg8bwPsZrGe6QAVKbY0rxUSpbqot9/6djqQ
+         db0PMLZM7Oiuhy66AXTR5k3d8648RBjcdv1evxCJ0fXkz9e1AEfI8Fbj0b31iAv9UnSH
+         D4Cg==
+X-Forwarded-Encrypted: i=1; AHgh+Ro4E5viDEY5hUAfHizTSwISvvOBAyIhYQDXksuTikdOMI9Pr2ViEhZd1VzNuqQsb5+9LFgpL/7y@vger.kernel.org
+X-Gm-Message-State: AFuF++k/OlZ+XcbueC1A5nZ7tpDSaaKDNNUHJXg0hXNjCpL/yoq0cX7w
+	63xW5BxaYiTrG/RukKTBdULxAlSVNaSxxmF7NgN4DseDpWHPPeHi0s/xRXTBR73HDAogWYGEr5Y
+	JRHsap5GpS/JmCAakcfJ6WYTfMpEwfI8=
+X-Gm-Gg: AR+sD13qlQWaM6b73X4rIJbt77zr4BeNyHe6CfMUUmmRSl6K1CFHKDTZoNoosWZ0/cz
+	N971FAVOtq9rl62Zrj5Lz8aVpQ+p6HLGnieuUFG3t2hTUxLe+mG5x3cz4cB48QD6Kt8nlkwtH1r
+	6ia62xSPuByf3W+lLkU2lE53w3QIGf42yHwZeO77YGNFQs5h9jZNHVz+JHtz9S5jEcydzT2aJHi
+	T7eXzNOmHbhszsREu07LCfBQG1WI/REv/tTkFUcAOHrBOggGBH7Hft81z5O3Ly1Vu18ovJNgMzG
+	jKubhM3GgVnSIq7HdU4nKBs3Ny8DXocbByNJra6xxCvyJw==
+X-Received: by 2002:a05:6820:4d04:b0:6b1:7289:fc89 with SMTP id
+ 006d021491bc7-6b1c659cf28mr23023099eaf.8.1788183810774; Mon, 31 Aug 2026
+ 06:43:30 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260830201157.2084730-1-tristmd@gmail.com>
+In-Reply-To: <20260830201157.2084730-1-tristmd@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 31 Aug 2026 09:43:19 -0400
+X-Gm-Features: AcwNN1VfSVhKpPcrG_OTElZpCYiyfwZnm2Zyppu-GmNvyyY3F714BGjKDE1UPxs
+Message-ID: <CAEjxPJ4mBLeed9hqf_miommqpLD9a=dDJ+=k0gRBSVT6DyHp-w@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: use socket SID for SCTP ASCONF permission checks
+To: Tristan Madani <tristmd@gmail.com>
+Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	Richard Haines <richard_c_haines@btinternet.com>, selinux@vger.kernel.org, 
+	stable@vger.kernel.org, Tristan Madani <tristan@talencesecurity.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The struct selabel_opt does not exist.  The correct struct name is
-selinux_opt.
+On Sun, Aug 30, 2026 at 4:12=E2=80=AFPM Tristan Madani <tristmd@gmail.com> =
+wrote:
+>
+> From: Tristan Madani <tristan@talencesecurity.com>
+>
+> __selinux_socket_bind() and selinux_socket_connect_helper() call
+> sock_has_perm() which uses current_sid() as the AVC subject.  When
+> selinux_sctp_bind_connect() is invoked from the ASCONF processing
+> path (sctp_process_asconf), current refers to whichever task was
+> interrupted, so the permission check evaluates an unrelated subject.
+>
+> Fix by extracting the sock_has_perm() call out of
+> __selinux_socket_bind() and selinux_socket_connect_helper() into
+> their callers.  The process-context wrappers (selinux_socket_bind,
+> selinux_socket_connect) call sock_has_perm() directly.
+>
+> For selinux_sctp_bind_connect(), determine the caller SID based on
+> the optname: SCTP_PARAM_SET_PRIMARY and SCTP_PARAM_ADD_IP are ASCONF
+> chunk parameter types only passed from the softirq processing path,
+> so use the socket own SID (sksec->sid), consistent with other
+> softirq-context hooks such as selinux_socket_sock_rcv_skb() and
+> selinux_sctp_assoc_request().  All other optnames originate from
+> process-context syscalls and use current_sid().
+>
+> Factor out __sock_has_perm() with an explicit subject SID parameter
+> so that sock_has_perm() remains unchanged for all other callers.
+>
+> Fixes: d452930fd3b9 ("selinux: Add SCTP support")
+> Cc: stable@vger.kernel.org
+> Suggested-by: Paul Moore <paul@paul-moore.com>
+> Signed-off-by: Tristan Madani <tristan@talencesecurity.com>
 
-Signed-off-by: Daniel Burgener <dburgener@linux.microsoft.com>
----
- libselinux/include/selinux/avc.h   | 2 +-
- libselinux/include/selinux/label.h | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-diff --git a/libselinux/include/selinux/avc.h b/libselinux/include/selinux/avc.h
-index 6d728ce0..e38eb4bd 100644
---- a/libselinux/include/selinux/avc.h
-+++ b/libselinux/include/selinux/avc.h
-@@ -208,7 +208,7 @@ extern int avc_init(const char *msgprefix,
- 
- /**
-  * avc_open - Initialize the AVC.
-- * @opts: array of selabel_opt structures specifying AVC options or NULL.
-+ * @opts: array of selinux_opt structures specifying AVC options or NULL.
-  * @nopts: number of elements in opts array or zero for no options.
-  *
-  * This function is identical to avc_init(), except the message prefix
-diff --git a/libselinux/include/selinux/label.h b/libselinux/include/selinux/label.h
-index 10e3a718..994b3c9c 100644
---- a/libselinux/include/selinux/label.h
-+++ b/libselinux/include/selinux/label.h
-@@ -71,7 +71,7 @@ struct selabel_handle;
- /**
-  * selabel_open - Create a labeling handle.
-  * @backend: one of the constants specifying a supported labeling backend.
-- * @opts: array of selabel_opt structures specifying label options or NULL.
-+ * @opts: array of selinux_opt structures specifying label options or NULL.
-  * @nopts: number of elements in opts array or zero for no options.
-  *
-  * Open a labeling backend for use.  The available backend identifiers are
--- 
-2.34.1
-
+> ---
+> Changes in v2:
+>   - Do not use sksec->sid unconditionally; determine the caller SID
+>     based on the optname so that process-context callers (bind, connect,
+>     connectx, sendmsg) still use current_sid()  [Paul Moore, Sashiko]
+>   - Factor out __sock_has_perm() with an explicit SID parameter and keep
+>     sock_has_perm() as a thin wrapper for all other callers
+>   - Move the sock_has_perm() call out of __selinux_socket_bind() and
+>     selinux_socket_connect_helper() into their respective callers
+>     (selinux_socket_bind, selinux_socket_connect, selinux_sctp_bind_conne=
+ct)
+>  security/selinux/hooks.c | 47 ++++++++++++++++++++++++++++++----------
+>  1 file changed, 35 insertions(+), 12 deletions(-)
+>
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 035aaf113d1da..ab9653ae06fc8 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -4918,7 +4918,7 @@ static bool sock_skip_has_perm(u32 sid)
+>  }
+>
+>
+> -static int sock_has_perm(struct sock *sk, u32 perms)
+> +static int __sock_has_perm(struct sock *sk, u32 sid, u32 perms)
+>  {
+>         struct sk_security_struct *sksec =3D selinux_sock(sk);
+>         struct common_audit_data ad;
+> @@ -4929,10 +4929,15 @@ static int sock_has_perm(struct sock *sk, u32 per=
+ms)
+>
+>         ad_net_init_from_sk(&ad, &net, sk);
+>
+> -       return avc_has_perm(current_sid(), sksec->sid, sksec->sclass, per=
+ms,
+> +       return avc_has_perm(sid, sksec->sid, sksec->sclass, perms,
+>                             &ad);
+>  }
+>
+> +static int sock_has_perm(struct sock *sk, u32 perms)
+> +{
+> +       return __sock_has_perm(sk, current_sid(), perms);
+> +}
+> +
+>  static int selinux_socket_create(int family, int type,
+>                                  int protocol, int kern)
+>  {
+> @@ -5006,11 +5011,7 @@ static int __selinux_socket_bind(struct sock *sk, =
+struct sockaddr *address, int
+>  {
+>         struct sk_security_struct *sksec =3D selinux_sock(sk);
+>         u16 family;
+> -       int err;
+> -
+> -       err =3D sock_has_perm(sk, SOCKET__BIND);
+> -       if (err)
+> -               goto out;
+> +       int err =3D 0;
+>
+>         /* If PF_INET or PF_INET6, check name_bind permission for the por=
+t. */
+>         family =3D sk->sk_family;
+> @@ -5135,6 +5136,11 @@ static int __selinux_socket_bind(struct sock *sk, =
+struct sockaddr *address, int
+>
+>  static int selinux_socket_bind(struct socket *sock, struct sockaddr *add=
+ress, int addrlen)
+>  {
+> +       int err;
+> +
+> +       err =3D sock_has_perm(sock->sk, SOCKET__BIND);
+> +       if (err)
+> +               return err;
+>         return __selinux_socket_bind(sock->sk, address, addrlen);
+>  }
+>
+> @@ -5145,11 +5151,8 @@ static int selinux_socket_connect_helper(struct so=
+ck *sk,
+>                                          struct sockaddr *address, int ad=
+drlen)
+>  {
+>         struct sk_security_struct *sksec =3D selinux_sock(sk);
+> -       int err;
+> +       int err =3D 0;
+>
+> -       err =3D sock_has_perm(sk, SOCKET__CONNECT);
+> -       if (err)
+> -               return err;
+>         if (addrlen < offsetofend(struct sockaddr, sa_family))
+>                 return -EINVAL;
+>
+> @@ -5232,6 +5235,9 @@ static int selinux_socket_connect(struct socket *so=
+ck,
+>         int err;
+>         struct sock *sk =3D sock->sk;
+>
+> +       err =3D sock_has_perm(sk, SOCKET__CONNECT);
+> +       if (err)
+> +               return err;
+>         err =3D selinux_socket_connect_helper(sk, address, addrlen);
+>         if (err)
+>                 return err;
+> @@ -5731,13 +5737,25 @@ static int selinux_sctp_bind_connect(struct sock =
+*sk, int optname,
+>                                      struct sockaddr *address,
+>                                      int addrlen)
+>  {
+> +       struct sk_security_struct *sksec =3D selinux_sock(sk);
+>         int len, err =3D 0, walk_size =3D 0;
+>         void *addr_buf;
+>         struct sockaddr *addr;
+> +       u32 caller_sid;
+>
+>         if (!selinux_policycap_extsockclass())
+>                 return 0;
+>
+> +       /* SCTP_PARAM_SET_PRIMARY and SCTP_PARAM_ADD_IP are ASCONF chunk
+> +        * parameter types passed from sctp_process_asconf() in softirq
+> +        * context where current is not meaningful. Use the socket own
+> +        * SID for permission checks in that case; all other optnames
+> +        * originate from process-context syscalls.
+> +        */
+> +       caller_sid =3D (optname =3D=3D SCTP_PARAM_SET_PRIMARY ||
+> +                     optname =3D=3D SCTP_PARAM_ADD_IP) ?
+> +                    sksec->sid : current_sid();
+> +
+>         /* Process one or more addresses that may be IPv4 or IPv6 */
+>         addr_buf =3D address;
+>
+> @@ -5767,13 +5785,18 @@ static int selinux_sctp_bind_connect(struct sock =
+*sk, int optname,
+>                 case SCTP_PRIMARY_ADDR:
+>                 case SCTP_SET_PEER_PRIMARY_ADDR:
+>                 case SCTP_SOCKOPT_BINDX_ADD:
+> -                       err =3D __selinux_socket_bind(sk, addr, len);
+> +                       err =3D __sock_has_perm(sk, caller_sid, SOCKET__B=
+IND);
+> +                       if (!err)
+> +                               err =3D __selinux_socket_bind(sk, addr, l=
+en);
+>                         break;
+>                 /* Connect checks */
+>                 case SCTP_SOCKOPT_CONNECTX:
+>                 case SCTP_PARAM_SET_PRIMARY:
+>                 case SCTP_PARAM_ADD_IP:
+>                 case SCTP_SENDMSG_CONNECT:
+> +                       err =3D __sock_has_perm(sk, caller_sid, SOCKET__C=
+ONNECT);
+> +                       if (err)
+> +                               return err;
+>                         err =3D selinux_socket_connect_helper(sk, addr, l=
+en);
+>                         if (err)
+>                                 return err;
+> --
+> 2.47.3
+>
