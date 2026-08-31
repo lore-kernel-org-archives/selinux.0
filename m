@@ -1,130 +1,205 @@
-Received: from mail-oo1-f45.google.com (mail-oo1-f45.google.com [209.85.161.45])
+Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com [209.85.222.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 878EA3769F6
-	for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 18:01:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.45
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788199279; cv=pass; b=errs3tN1cSYwiWThHIhCJ0tTIlwzLMu65K5V/EAA0z4XWeQo1FBUzEXVly/wfNtxEMOMvS78LpG3VOg5TIprl1FjlNPqQIBEXzFuAPCXb6IeRoFT0O6n9wBHgJhcWBuCFhtadZ0UF7E7n5p/cImm3lZ+lg/XgAK3FFoKYy5UnT4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788199279; c=relaxed/simple;
-	bh=e0cRrASXzY700Rn4voEaX6noZY7opvmpDBj/0WczwqE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Qnkh5k2xaIOyPFvOxxsHyws1HmrOQCpi4H5JUpTn6QK9HSjcxTpGau4jcds/AV+bY1D3xNUcpGn9YqkDLLT5MJVz3H1cWPAVIMRK7nAmkMjtvTTdVXwaHKlTbLc/U9HdMHL9eg6P1s7mgriTf5adykwcftLgPiv1izvVZX9M6pQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=L9oB8jHN; arc=pass smtp.client-ip=209.85.161.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD3CF379EC1
+	for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 18:59:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.172
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788202749; cv=none; b=V3U5QkhnKlnqXMycOIyUvJnl/hyOMwY4/v1MhsYmBtwwD1NZw56GGFSTxQNq/f/ftuLNj1yCIQom1iEMrLLIAZdAtXxij+slQWE+hQSVqtDQtZKHVaXFpw3cX/CcSm8hG8bbKhFWeKV068V8pESnzyHG/8a9lJhg5LuuScMmRTg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788202749; c=relaxed/simple;
+	bh=4iXZ99jUjj1KGky7k956RJEzlz1T9aKAugfqlt7ldEA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZPmc4pv6dh6q3eTZAQ+m4zUIPW5ym4E7uTrsUOvjxdrmMyx4MOphwUrP3kP06qoQ3KfZ4siEAJJfl9gu4zkGqBfz6rrDpBHDfeeMF0bMPgXz3bRwGg9L11oVikdM/9lPngMqqOjo07My8omDm7+rz6SF/A3uH65s//axL5ZhApI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Buj1h9jF; arc=none smtp.client-ip=209.85.222.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="L9oB8jHN"
-Received: by mail-oo1-f45.google.com with SMTP id 006d021491bc7-6b132a5009eso1328375eaf.1
-        for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 11:01:18 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1788199277; cv=none;
-        d=google.com; s=arc-20260327;
-        b=AJktOBHik363GPb5JxK8WuaKLGRD9rVxknluaHKv/57IdwfZY83iWGH/+46TFt2r27
-         y7j6eRplQpYBGWnfWuVa+/NJcKgHDVc2R043XY94aq1RauHA5mE3+r4Ojeobyzj2cCNA
-         w/mxVkxx/kKhIMfktNr+c2BcjB4UrFnvfH+qb0470uCP7POh27nKWo+s98qrKvoW87c6
-         3sZvqsTDsBiFofj3Z+hOmpo505etnFwaSdkqmvCFWbP/c5/4SIgToacWJ5leOWbQMVjT
-         gA9uMWf7fTEErlho1rjwQIl6gba9bKThRZgMinq5ILQMRxkPRP3EEMmG1br5ebAhX5gH
-         +0vQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=e0cRrASXzY700Rn4voEaX6noZY7opvmpDBj/0WczwqE=;
-        fh=0Fzwzs5SXlcauyZV10jYVdOWMMkLoCrud/LaC3xDChU=;
-        b=AurWEhmRGtoFo52N1Tdnl2yETU3t/Eq4cg/srMlw8Sp1r+AignEjrYICDDk841PZHH
-         p8A1ZurUM0rAb4EE7PifqwKygUDQEVVdFCcAIqFMq4E1Nc8xBPcWrhbCdgzwA/ipgwbn
-         qRUl1vWkkGQLzkNym92jiMTm9SzRIxtgR+5i0FH9JdRhzUwV7ez0JPMRtusxAcLR9q00
-         L964mAYJB/5IT0RMcbxPnbhytLmfd12p30Y7PbubXAMzH6qYmx3PvFpPFsppVruqANVn
-         gf0cWBP48voKwoXiI02+TOajAOexgev+xDw+pANnFUMWNW+2z1CkwoZk5AEWFiBOOo6v
-         CTWA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Buj1h9jF"
+Received: by mail-qk1-f172.google.com with SMTP id af79cd13be357-93900ed2925so290819085a.0
+        for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 11:59:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788199277; x=1788804077; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=e0cRrASXzY700Rn4voEaX6noZY7opvmpDBj/0WczwqE=;
-        b=L9oB8jHN39lXVeH/vqDcQ41k60jRr3YeMPnWNrSh0xSx8d635iZT6eFf7hF5svDA8M
-         Bdf58KGwxW4NlV4YmDpFFmJe65xIPOdEzt1LyM2UfTHPXKv2NiI0hOCMpZEfe/QIwz3A
-         HuvTKjIvpjLyFrXNuQ6aZJNBWxyx78srECV8/zvNC2NDrdeqwnN7Ct9H9x+hcekPtJBx
-         1qkOJkK7H+1L8WY2F8yyWNQ0CqbZjO4Rql7kH2L8fCVTaLiDWTCNQPXiaVK+OTNaVAae
-         HqEcjAzLRgzhg4YGK1y5CIiDJwmtL1MRaPBgWu7I5XfgPtBkFPkb1wmG5lIbA/ZDjCGa
-         kRFg==
+        d=gmail.com; s=20251104; t=1788202747; x=1788807547; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=+Famc6K5c6ZCVb/3JY9hyDzwr+s2NYVWAALCo5N21E8=;
+        b=Buj1h9jF1sxzqKzudY17RgRDl1wFuMBfHO4TPQzR5OwM8DW+NQfRTrj+zr9q8uG8Bc
+         LNJtJZDwvjm8PK4prG2kYbV/SE57XJbrcvWGNU6Eir7vwLbAgYYYyfIeB1u0k7WzTqDj
+         6s40bveyQ7lKr+JwD88Bw6ggbCXtS1UvIcWtPC2sCGcqFAuEm/e85AeeG/yhpyMK77Q6
+         Go53AP0dJmysW0NwZI4tzGU/Gm1ZxFnXw6oDHazsaGNpR636kWMpGc9NSsxQYQHRb0i3
+         gebR0Sz4fNuvzzwZ65KnaTWAtJeCXjNN2aBjWjrEf2OcrdWBqUzUGEHsUVnT3Cz33/0W
+         +UpQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788199277; x=1788804077;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=e0cRrASXzY700Rn4voEaX6noZY7opvmpDBj/0WczwqE=;
-        b=ADIPIQhnX+OkqfEr+jAP8BamPGAw8ycejqzyXTxolFvRd+6uhbSm/s87v24zu9po7o
-         K/KwH1pfolMWUw3tthgq2jwM4KRARZWxVtpbYkXuizZ65uaTb4P74MEdW6yacIlvVrVo
-         F/7AsIqEqdDdtVcvW8Nf5K22FPT4/Nau5QFJGEC5wlWWXy6hRGoH1120Bqg5eJQakIcu
-         Koj0uTISax4jjfGLQWhQf1IS7H4QH9k3MXiu8OEnitNnXKmad89NTx0cMt2Gkz0vFx7H
-         AaaQPwGH9Xfh7LhHuRv6kjYFNHqF6Jf36668Rq8zv+O240bpCcu/UGkrOGcjlO76YxlI
-         wXBw==
-X-Gm-Message-State: AFuF++nrc67v9Hg6XnJgul6P3AWr2l+rxHdbyIOzc/0D1zxqq5WEiCCW
-	CK7tUS+X7NNdigRAb6zfB+e2ArkFPD8a3TDI3aWfdZhrurASZGgOPQaTl6T0UIQSyf/HKl2rpWM
-	DiFvWkX2BfoAYGnX6foGWI08HynXAydj5XKi5
-X-Gm-Gg: AR+sD10ruW4HmzEaDM2L0oQ1AMDc+B1eENIdyW60Y52WXG6IDLIr1kTOW6eeYuH8oKu
-	R6M2l/6oNAsauxpPuz6N4hnlcDar+ns3q5vdhJddsP0sPztvDWqdHhQgRr6HqEu5D3zaovMRkM0
-	zz9CRKmGRbx3Zx4YA31FnTV1nyzlyYUI3CvH/SpD++I/hcnoktkouXpOZmdHO+3+piL2v5fH6r0
-	NjkvApAblZlf+Y0hDGysGZ4zBudsVbcQ9HY+vWY1EW6w6okJu7V2p3gBUTGR7trXJ4rbFXddkt5
-	oPLypPalz5GalSlxBwpPtf0X8t50WjuZCawTEnxwQryW
-X-Received: by 2002:a05:6820:99c:b0:6b3:4a99:bd87 with SMTP id
- 006d021491bc7-6b372f515bbmr2549049eaf.30.1788199277170; Mon, 31 Aug 2026
- 11:01:17 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1788202747; x=1788807547;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=+Famc6K5c6ZCVb/3JY9hyDzwr+s2NYVWAALCo5N21E8=;
+        b=Z9TAWMleUPL6sh44ZC1LIh+dFHdfofJYfG+ldfgfC4Rl1wEJOlWAMPwDeVSInwVbAy
+         8PhIyFeebCNA4ZRlbRfizr3gkSmZn2kSdD7C9NGwNNYABVvJO9EM6Aj6+l8+AddSu/GR
+         L8mn43+RcRrWi8u7yf0xb27B0n94NXpnSgJ6z0PSmeiV1QQzMPHT/a2X9Ap9YmjWQ52T
+         vsmkUZd3G7g+mIxKo25kETL1fPK3QSiDOvoilcjAmEy9wTUm6zacTE3rETb+kFKYu215
+         pWzTPwfhBQh/qj0yarOlflSlPDIZN2YHcvWkgSD7gD2SuJg1y8I6pRNm43810/nJbjyt
+         Jg4A==
+X-Gm-Message-State: AFuF++mlt4urLcAg8tvszEc2PIcOMxV83OW4jRJKlQeuj1EAc8mHvrAz
+	2RWqYK5PlSrgQwv0z46aoU05M1rQCQ6YXoy4wte/Ww00C1sindV2TVaUowWqPg==
+X-Gm-Gg: AR+sD12Mbs4POoTJ27wcS/ga3aTDR7DJNeaAaQpkAxvqyqFcDaXRZCYiY5KAJYLAi3O
+	y7K7s1vsZrYeF/noOnVLyo/zC56c1oYa+D8VGhpBuxlzPVlLFs5fqmL2Xhr4sTr62pQWq5NEP7U
+	X14iCPTebZz4oDUXYsaSCHIU9I3Irm78+kH8bIu1z50ofDEffwewlE/3k2e9SU5M0YdWfh0rxA5
+	RdkPb/CvuhslVYqd21demU3MfsxmJhObQmJYqCQMviOWk43Z4yzzqV+egejg0RwltBCmLa2uyNb
+	p+Akfdoiq4vGHQhWSxwZ7awJlyaoy5cla8K4woIkiagj/PLKsm0sGuoN2gAKZyFOEyJ2HbsIOGK
+	rQ3OcF2T7eebq72c1jaBZFxFRMsHfMqiWXoGMlNF+Z0aN6OKM+O1tdT95GWLpepwDEAlC7F6w/B
+	yxuXbpfAbowkfhQUMNRiwyv2adSWXC55XcP9xybpt8rPAPnzg6ww7iHGlYbcsj3ZvJqkauIsQcP
+	7HGNNE82sU=
+X-Received: by 2002:a05:620a:4086:b0:936:d360:2eb7 with SMTP id af79cd13be357-939480e7077mr385054285a.20.1788202746520;
+        Mon, 31 Aug 2026 11:59:06 -0700 (PDT)
+Received: from Fedora43-SELinux ([144.51.8.27])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9391740bb62sm862219185a.43.2026.08.31.11.59.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 31 Aug 2026 11:59:06 -0700 (PDT)
+From: James Carter <jwcart2@gmail.com>
+To: selinux@vger.kernel.org
+Cc: stephen.smalley.work@gmail.com,
+	James Carter <jwcart2@gmail.com>
+Subject: [PATCH 1/2] libsepol/tests: Remove non-MLS downgrade test
+Date: Mon, 31 Aug 2026 14:58:50 -0400
+Message-ID: <20260831185851.80078-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260827125511.19408-2-stephen.smalley.work@gmail.com>
-In-Reply-To: <20260827125511.19408-2-stephen.smalley.work@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 31 Aug 2026 14:01:05 -0400
-X-Gm-Features: AcwNN1XZqtQ2FQhdWYt_YkZxSgEVVYt2USfG-OBAHRYYhQ8gwUTH1n-k5qFx2Wg
-Message-ID: <CAEjxPJ6rfWUxzBgdKcAw-s_hrwK_xo-CAzvcTO4vAr7buVA+8g@mail.gmail.com>
-Subject: Re: [PATCH v5] libsepol: drop support for policy versions before xperms_ioctl/xen_devicetree
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com, plautrba@redhat.com, omosnace@redhat.com, 
-	jason@perfinion.com, paul@paul-moore.com, Johannes Segitz <jsegitz@suse.de>, 
-	Cathy Hu <cahu@suse.de>, Russell Coker <russell@coker.com.au>, 
-	Laurent Bigonville <bigon@debian.org>, =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Thu, Aug 27, 2026 at 9:49=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> Drop support for kernel and module policy versions before the
-> xperms_ioctl support (SELinux kernel policy version 30, modular policy
-> version 18) and xen_devicetree support (Xen policy version 30). Kernel
-> policy version 30 was first supported in Linux v4.3, Xen 4.6, and
-> libsepol 2.5 (20160223). Modular policy version 18 was first supported
-> in libsepol 2.7 (20170804).
->
-> RHEL >=3D 8, Debian >=3D 10, Ubuntu >=3D 18.04, and SUSE/SLES >=3D 15 hav=
-e
-> libsepol >=3D 2.7+.
+The non-MLS downgrade tests are done by reading in an MLS policy
+and then just setting the "mls" field to 0. This results in a policy
+that could never be created by checkpolicy or secilc. Changing the
+mls field does not change the fact that the policy has sensitivities,
+categories, levels, and mls constraint expressions. This has limited
+the checks that can be done during policy validation.
 
-Would appreciate any feedback from distro package maintainers on
-how/if this change would
-impact them. Link to the original patch for those who weren't cc'd on it:
-https://lore.kernel.org/selinux/20260827125511.19408-2-stephen.smalley.work=
-@gmail.com/T/#u
+Remove the downgrade test for the non-mls policy (that is really an
+mls policy) and just do it for the mls policy.
 
-This would break e.g. RHEL 7, Debian 9, Ubuntu 16.04, or SUSE/SLES 12
-if they ever updated to a version of libsepol with this change but I
-think that's unlikely.
-The greater risk is if you have any lingering binary modules compiled
-with versions < 18 inherited across multiple upgrades (e.g. RHEL-7 to
-RHEL-8), then those modules will break and probably in a not-very-nice
-way (libsepol suddenly won't be able to parse them and therefore any
-semodule/semanage operations will fail and you might have to delete
-them manually from the policy module store).
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libsepol/tests/test-downgrade.c | 26 ++++++++------------------
+ libsepol/tests/test-downgrade.h |  9 +++------
+ 2 files changed, 11 insertions(+), 24 deletions(-)
 
-I'm fine with deferring this change to a future libsepol release after
-3.12 (e.g. 3.13 or later) if that would be safer for the distros.
+diff --git a/libsepol/tests/test-downgrade.c b/libsepol/tests/test-downgrade.c
+index 5f879b39..82af6f39 100644
+--- a/libsepol/tests/test-downgrade.c
++++ b/libsepol/tests/test-downgrade.c
+@@ -97,15 +97,11 @@ int downgrade_add_tests(CU_pSuite suite)
+  * Output: None
+  *
+  * Description:
+- * Tests the backward compatibility of MLS and Non-MLS binary policy versions.
++ * Tests the backward compatibility of MLS binary policy versions.
+  */
+ void test_downgrade(void)
+ {
+-	if (do_downgrade_test(0) < 0)
+-		fprintf(stderr,
+-			"\nError during downgrade testing of Non-MLS policy\n");
+-
+-	if (do_downgrade_test(1) < 0)
++	if (do_downgrade_test() < 0)
+ 		fprintf(stderr,
+ 			"\nError during downgrade testing of MLS policy\n");
+ }
+@@ -113,8 +109,6 @@ void test_downgrade(void)
+ /*
+  * Function Name:  do_downgrade_test
+  *
+- * Input: 0 for Non-MLS policy and 1 for MLS policy downgrade testing
+- *
+  * Output: 0 on success, negative number upon failure
+  *
+  * Description: This function handles the downgrade testing.
+@@ -123,7 +117,7 @@ void test_downgrade(void)
+  *              back out and then read back in again.  The process is
+  *              repeated until the minimum policy version is reached.
+  */
+-int do_downgrade_test(int mls)
++int do_downgrade_test(void)
+ {
+ 	policydb_t policydb_tmp;
+ 	int hi, lo, version;
+@@ -134,15 +128,11 @@ int do_downgrade_test(int mls)
+ 
+ 	/* Read in the hi policy from file */
+ 	if (read_binary_policy(POLICY_BIN_HI, &policydb) != 0) {
+-		fprintf(stderr, "error reading %spolicy binary\n",
+-			mls ? "mls " : "");
++		fprintf(stderr, "error reading policy binary\n");
+ 		CU_FAIL("Unable to read the binary policy");
+ 		return -1;
+ 	}
+ 
+-	/* Change MLS value based on parameter */
+-	policydb.mls = mls ? 1 : 0;
+-
+ 	for (hi = policydb.policyvers; hi >= POLICYDB_VERSION_MIN; hi--) {
+ 		/* Stash old version number */
+ 		version = policydb.policyvers;
+@@ -156,8 +146,8 @@ int do_downgrade_test(int mls)
+ 			if (write_binary_policy(POLICY_BIN_LO, &policydb) !=
+ 			    0) {
+ 				fprintf(stderr,
+-					"error writing %spolicy binary, version %d (downgraded from %d)\n",
+-					mls ? "mls " : "", lo, hi);
++					"error writing policy binary, version %d (downgraded from %d)\n",
++					lo, hi);
+ 				CU_FAIL("Failed to write downgraded binary policy");
+ 				return -1;
+ 			}
+@@ -171,8 +161,8 @@ int do_downgrade_test(int mls)
+ 			if (read_binary_policy(POLICY_BIN_LO, &policydb_tmp) !=
+ 			    0) {
+ 				fprintf(stderr,
+-					"error reading %spolicy binary, version %d (downgraded from %d)\n",
+-					mls ? "mls " : "", lo, hi);
++					"error reading policy binary, version %d (downgraded from %d)\n",
++					lo, hi);
+ 				CU_FAIL("Unable to read downgraded binary policy");
+ 				return -1;
+ 			}
+diff --git a/libsepol/tests/test-downgrade.h b/libsepol/tests/test-downgrade.h
+index 4105defa..ea51c7d9 100644
+--- a/libsepol/tests/test-downgrade.h
++++ b/libsepol/tests/test-downgrade.h
+@@ -65,17 +65,14 @@ int downgrade_add_tests(CU_pSuite suite);
+  * 
+  * Output: None
+  * 
+- * Description: Tests the backward compatibility of MLS and Non-MLS binary
+- *		policy versions. 
++ * Description: Tests the backward compatibility of MLS binary policy
++ * versions. 
+  */
+ void test_downgrade(void);
+ 
+ /*
+  * Function Name:  do_downgrade_test
+  * 
+- * Input: int that represents a 0 for Non-MLS policy and a 
+- * 		 1 for MLS policy downgrade testing
+- * 
+  * Output: (int) 0 on success, negative number upon failure
+  * 
+  * Description: This function handles the downgrade testing.  A binary policy
+@@ -84,7 +81,7 @@ void test_downgrade(void);
+  *		back in again. The process is iterative until the minimum
+  *		policy version is reached. 
+  */
+-int do_downgrade_test(int mls);
++int do_downgrade_test(void);
+ 
+ /*
+  * Function Name: read_binary_policy
+-- 
+2.55.0
+
