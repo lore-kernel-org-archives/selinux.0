@@ -1,69 +1,73 @@
-Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com [209.85.222.172])
+Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD3CF379EC1
-	for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 18:59:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA2B037F32E
+	for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 18:59:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788202749; cv=none; b=V3U5QkhnKlnqXMycOIyUvJnl/hyOMwY4/v1MhsYmBtwwD1NZw56GGFSTxQNq/f/ftuLNj1yCIQom1iEMrLLIAZdAtXxij+slQWE+hQSVqtDQtZKHVaXFpw3cX/CcSm8hG8bbKhFWeKV068V8pESnzyHG/8a9lJhg5LuuScMmRTg=
+	t=1788202750; cv=none; b=IneW778kx4eahDaBf5jjKeWyjOAgsmxsTp5zkBWqZjHIxuHDuojd+bTw32MRInpnRL9UHT5oAyRO7WEP7bT2/D9/+gqSvAlNbUPoEJ6BeDgyVlOZp7EtT8GreMvzPC3kcCf3Ohaa6H3CI/HkN+Z1mX25uebhYxRW04rxRSXzBs4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788202749; c=relaxed/simple;
-	bh=4iXZ99jUjj1KGky7k956RJEzlz1T9aKAugfqlt7ldEA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZPmc4pv6dh6q3eTZAQ+m4zUIPW5ym4E7uTrsUOvjxdrmMyx4MOphwUrP3kP06qoQ3KfZ4siEAJJfl9gu4zkGqBfz6rrDpBHDfeeMF0bMPgXz3bRwGg9L11oVikdM/9lPngMqqOjo07My8omDm7+rz6SF/A3uH65s//axL5ZhApI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Buj1h9jF; arc=none smtp.client-ip=209.85.222.172
+	s=arc-20240116; t=1788202750; c=relaxed/simple;
+	bh=VPWVC+Ma1f9XHd6x4MCsn82YD4DEpjiXJb+4LQrYZuM=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=kViU0Z76Yz4xsxCOa0dFJaOmm1dwIALG8h8ADNr34+pyNFWODwc8o05EhP3ajUF2F2hIjrzjcPZ+kVwmHEQIPUiGDsdNazi6wxYdW4N0wvW8qzsXWLVNuD8dvXBql0tL+C+PI5i0N2EnYkV2nXiVfNNayTXEBnT4ksS1dH/9Gxc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DDme3Goc; arc=none smtp.client-ip=209.85.222.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Buj1h9jF"
-Received: by mail-qk1-f172.google.com with SMTP id af79cd13be357-93900ed2925so290819085a.0
-        for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 11:59:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DDme3Goc"
+Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-93905b1dc65so263865885a.1
+        for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 11:59:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20251104; t=1788202747; x=1788807547; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=+Famc6K5c6ZCVb/3JY9hyDzwr+s2NYVWAALCo5N21E8=;
-        b=Buj1h9jF1sxzqKzudY17RgRDl1wFuMBfHO4TPQzR5OwM8DW+NQfRTrj+zr9q8uG8Bc
-         LNJtJZDwvjm8PK4prG2kYbV/SE57XJbrcvWGNU6Eir7vwLbAgYYYyfIeB1u0k7WzTqDj
-         6s40bveyQ7lKr+JwD88Bw6ggbCXtS1UvIcWtPC2sCGcqFAuEm/e85AeeG/yhpyMK77Q6
-         Go53AP0dJmysW0NwZI4tzGU/Gm1ZxFnXw6oDHazsaGNpR636kWMpGc9NSsxQYQHRb0i3
-         gebR0Sz4fNuvzzwZ65KnaTWAtJeCXjNN2aBjWjrEf2OcrdWBqUzUGEHsUVnT3Cz33/0W
-         +UpQ==
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=NdxfR/6Mf4mxvnFyYWGY+qWOo5x4RAFsuaFWcmpDtgk=;
+        b=DDme3GocYT+anzBgQFEp84MPvGOj9/7fJD5uGkNgucBAeOrdY44XsAD+vDr3qaaVML
+         OfF8aFmcWYC+hx8hc3EFkds/EZDiLLcb0MEcRviUwVYrlYk5vH44Z0dNl0tPCEBYP9Az
+         E5wVMyjlI5KcEChQ1tr+UpqsaUQOtVgOZwY/yXQUhdeym6uGrLYvySBPu245bb1wMDRV
+         On9K5ecOzcJ86O4Sm/SErXq4mlhOuIQTkqU/QP5gvN0TxnUwqSonZRL0vHjbyXw44qCA
+         fjvHaWw8L5K0aXe+aj84IFiqDNuD7B3iVnfh1IOh+BpXYnVSf42DYUGPcAxPt00wNX90
+         BZLg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20251104; t=1788202747; x=1788807547;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=+Famc6K5c6ZCVb/3JY9hyDzwr+s2NYVWAALCo5N21E8=;
-        b=Z9TAWMleUPL6sh44ZC1LIh+dFHdfofJYfG+ldfgfC4Rl1wEJOlWAMPwDeVSInwVbAy
-         8PhIyFeebCNA4ZRlbRfizr3gkSmZn2kSdD7C9NGwNNYABVvJO9EM6Aj6+l8+AddSu/GR
-         L8mn43+RcRrWi8u7yf0xb27B0n94NXpnSgJ6z0PSmeiV1QQzMPHT/a2X9Ap9YmjWQ52T
-         vsmkUZd3G7g+mIxKo25kETL1fPK3QSiDOvoilcjAmEy9wTUm6zacTE3rETb+kFKYu215
-         pWzTPwfhBQh/qj0yarOlflSlPDIZN2YHcvWkgSD7gD2SuJg1y8I6pRNm43810/nJbjyt
-         Jg4A==
-X-Gm-Message-State: AFuF++mlt4urLcAg8tvszEc2PIcOMxV83OW4jRJKlQeuj1EAc8mHvrAz
-	2RWqYK5PlSrgQwv0z46aoU05M1rQCQ6YXoy4wte/Ww00C1sindV2TVaUowWqPg==
-X-Gm-Gg: AR+sD12Mbs4POoTJ27wcS/ga3aTDR7DJNeaAaQpkAxvqyqFcDaXRZCYiY5KAJYLAi3O
-	y7K7s1vsZrYeF/noOnVLyo/zC56c1oYa+D8VGhpBuxlzPVlLFs5fqmL2Xhr4sTr62pQWq5NEP7U
-	X14iCPTebZz4oDUXYsaSCHIU9I3Irm78+kH8bIu1z50ofDEffwewlE/3k2e9SU5M0YdWfh0rxA5
-	RdkPb/CvuhslVYqd21demU3MfsxmJhObQmJYqCQMviOWk43Z4yzzqV+egejg0RwltBCmLa2uyNb
-	p+Akfdoiq4vGHQhWSxwZ7awJlyaoy5cla8K4woIkiagj/PLKsm0sGuoN2gAKZyFOEyJ2HbsIOGK
-	rQ3OcF2T7eebq72c1jaBZFxFRMsHfMqiWXoGMlNF+Z0aN6OKM+O1tdT95GWLpepwDEAlC7F6w/B
-	yxuXbpfAbowkfhQUMNRiwyv2adSWXC55XcP9xybpt8rPAPnzg6ww7iHGlYbcsj3ZvJqkauIsQcP
-	7HGNNE82sU=
-X-Received: by 2002:a05:620a:4086:b0:936:d360:2eb7 with SMTP id af79cd13be357-939480e7077mr385054285a.20.1788202746520;
-        Mon, 31 Aug 2026 11:59:06 -0700 (PDT)
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=NdxfR/6Mf4mxvnFyYWGY+qWOo5x4RAFsuaFWcmpDtgk=;
+        b=r132L5Xd2rsfGY4G3ddt20AyuWlzGE0ZRt9hsu6AUS/0w6QbvJMkmCCjN2V3EfAQKn
+         3oAR/E7vZJ+0iXWZZZIGRpCth2Q7kzy3jIqDM4l9RwSIWIjWWmFKoKWOKcTLshiqZXjU
+         0DrNzdPHIjwnewOfrcWYWk0Aq9MbyQMu2TjBosF2CGC2Awa5JzFpmkmd7TNCRwvDd+Oz
+         NTpuhVD5guDKeCfE2rJmLaIxLYaHPjjsseq+LRym3jD7+gbxeZa4CvzFANISuW+8l5FP
+         1dTNUatzsVFrw4T7kS2XYlfi6iMXLsr0DAYKBdebv52IT9GLXOfUjghsVJJn2c6E/iXo
+         38Tw==
+X-Gm-Message-State: AFuF++kG4/c6SEQkQnfkik7FjPukLoPUg6Itr4tIs8nKjTwpYwIYVoAf
+	ENK2WCkyfc8AOez3Aek5dYbdL/ElYsKhUoTH/L6Axv1Duj0XJXYzkYWSGXhEbA==
+X-Gm-Gg: AR+sD10am94vUuja1Iw03MRgaxhu/dpqaCmE03gVlAcrKSxnN/QngmIv7bIRYOPcB26
+	KIS1JbKvr564oIC1Sn1XxLddf5s4lz6UZCxcS43ff9xfMeyf3EssWH11yejydRclb2E0H6Gk7I4
+	lBnZVcK4Ip/6jsh8+lVFOFyI1ypwupAzWjZuoLZiph6KNw3mFg8XmVt3dd5JHGe+ZxrLZPd/KVi
+	ojiTJJXes69UjVNiO6mePRjlO1a/STz9hNKyLl6diVQdI7SqKI6n+VvXY2VnA9BEpmswHITOM+i
+	StOfuZKxqnTXbRfvakcwnrNwiyEYeGl1MwxkuJgCzx6GyBcwmMKpIvPmKZJXuLdBU+jvZEx/1mb
+	3pyuUBiBqVZO3IbAZivr59n1jRL6yaqEYijQUmVZXsOa9d40u2uBBiU7taNJn5QKMDVrQArTqnZ
+	oFVoCRc4rDOar2+V+6TsEoHWiti7S3aF0gKBn+H8nvDM3+rhVaet5N6TVi5YEcs1v8wK+CJSklP
+	fFEHbYSGDNKQclDnYYw8A==
+X-Received: by 2002:a05:620a:319d:b0:937:45fb:6b95 with SMTP id af79cd13be357-93947fe52e2mr441610085a.17.1788202747340;
+        Mon, 31 Aug 2026 11:59:07 -0700 (PDT)
 Received: from Fedora43-SELinux ([144.51.8.27])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9391740bb62sm862219185a.43.2026.08.31.11.59.05
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9391740bb62sm862219185a.43.2026.08.31.11.59.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Mon, 31 Aug 2026 11:59:06 -0700 (PDT)
 From: James Carter <jwcart2@gmail.com>
 To: selinux@vger.kernel.org
 Cc: stephen.smalley.work@gmail.com,
 	James Carter <jwcart2@gmail.com>
-Subject: [PATCH 1/2] libsepol/tests: Remove non-MLS downgrade test
-Date: Mon, 31 Aug 2026 14:58:50 -0400
-Message-ID: <20260831185851.80078-1-jwcart2@gmail.com>
+Subject: [PATCH 2/2] libsepol: Check for mls components in non-mls policy during validation
+Date: Mon, 31 Aug 2026 14:58:51 -0400
+Message-ID: <20260831185851.80078-2-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260831185851.80078-1-jwcart2@gmail.com>
+References: <20260831185851.80078-1-jwcart2@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -72,134 +76,213 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The non-MLS downgrade tests are done by reading in an MLS policy
-and then just setting the "mls" field to 0. This results in a policy
-that could never be created by checkpolicy or secilc. Changing the
-mls field does not change the fact that the policy has sensitivities,
-categories, levels, and mls constraint expressions. This has limited
-the checks that can be done during policy validation.
+For non-mls policies:
+- Check that the level and category global symbol tables are empty.
+- Check that the level and category avrule block symbol tables are
+empty.
+- Check that the level and category scope bitmaps are empty.
+- Check that users range and default level (both semantic and
+expanded) are not set.
+- Check that constraints and validatetrans rules have no MLS
+expressions.
+- Check that there are no range transitions
 
-Remove the downgrade test for the non-mls policy (that is really an
-mls policy) and just do it for the mls policy.
+Fail validation if any of these checks fail.
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- libsepol/tests/test-downgrade.c | 26 ++++++++------------------
- libsepol/tests/test-downgrade.h |  9 +++------
- 2 files changed, 11 insertions(+), 24 deletions(-)
+ libsepol/src/policydb_validate.c | 99 +++++++++++++++++++++-----------
+ 1 file changed, 65 insertions(+), 34 deletions(-)
 
-diff --git a/libsepol/tests/test-downgrade.c b/libsepol/tests/test-downgrade.c
-index 5f879b39..82af6f39 100644
---- a/libsepol/tests/test-downgrade.c
-+++ b/libsepol/tests/test-downgrade.c
-@@ -97,15 +97,11 @@ int downgrade_add_tests(CU_pSuite suite)
-  * Output: None
-  *
-  * Description:
-- * Tests the backward compatibility of MLS and Non-MLS binary policy versions.
-+ * Tests the backward compatibility of MLS binary policy versions.
-  */
- void test_downgrade(void)
+diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
+index 99d27f88..7ef6eea2 100644
+--- a/libsepol/src/policydb_validate.c
++++ b/libsepol/src/policydb_validate.c
+@@ -263,7 +263,7 @@ bad:
+ 
+ static int validate_constraint_nodes(sepol_handle_t *handle, uint32_t nperms,
+ 				     const constraint_node_t *cons,
+-				     validate_t flavors[])
++				     const policydb_t *p, validate_t flavors[])
  {
--	if (do_downgrade_test(0) < 0)
--		fprintf(stderr,
--			"\nError during downgrade testing of Non-MLS policy\n");
--
--	if (do_downgrade_test(1) < 0)
-+	if (do_downgrade_test() < 0)
- 		fprintf(stderr,
- 			"\nError during downgrade testing of MLS policy\n");
+ 	const constraint_expr_t *cexp;
+ 	const int is_validatetrans = (nperms == UINT32_MAX);
+@@ -368,12 +368,15 @@ static int validate_constraint_nodes(sepol_handle_t *handle, uint32_t nperms,
+ 				case CEXPR_USER:
+ 				case CEXPR_ROLE:
+ 				case CEXPR_TYPE:
++					break;
+ 				case CEXPR_L1L2:
+ 				case CEXPR_L1H2:
+ 				case CEXPR_H1L2:
+ 				case CEXPR_H1H2:
+ 				case CEXPR_L1H1:
+ 				case CEXPR_L2H2:
++					if (!p->mls)
++						goto bad;
+ 					break;
+ 				default:
+ 					goto bad;
+@@ -487,7 +490,7 @@ validate_common_datum_wrapper(__attribute__((unused)) hashtab_key_t k,
  }
-@@ -113,8 +109,6 @@ void test_downgrade(void)
- /*
-  * Function Name:  do_downgrade_test
-  *
-- * Input: 0 for Non-MLS policy and 1 for MLS policy downgrade testing
-- *
-  * Output: 0 on success, negative number upon failure
-  *
-  * Description: This function handles the downgrade testing.
-@@ -123,7 +117,7 @@ void test_downgrade(void)
-  *              back out and then read back in again.  The process is
-  *              repeated until the minimum policy version is reached.
-  */
--int do_downgrade_test(int mls)
-+int do_downgrade_test(void)
+ 
+ static int validate_class_datum(sepol_handle_t *handle,
+-				const class_datum_t *class,
++				const class_datum_t *class, const policydb_t *p,
+ 				validate_t flavors[])
  {
- 	policydb_t policydb_tmp;
- 	int hi, lo, version;
-@@ -134,15 +128,11 @@ int do_downgrade_test(int mls)
+ 	if (class->s.value > UINT16_MAX ||
+@@ -509,10 +512,10 @@ static int validate_class_datum(sepol_handle_t *handle,
+ 		    class->comdatum ? class->comdatum->permissions.nprim : 0))
+ 		goto bad;
+ 	if (validate_constraint_nodes(handle, class->permissions.nprim,
+-				      class->constraints, flavors))
++				      class->constraints, p, flavors))
+ 		goto bad;
+ 	if (validate_constraint_nodes(handle, UINT32_MAX, class->validatetrans,
+-				      flavors))
++				      p, flavors))
+ 		goto bad;
  
- 	/* Read in the hi policy from file */
- 	if (read_binary_policy(POLICY_BIN_HI, &policydb) != 0) {
--		fprintf(stderr, "error reading %spolicy binary\n",
--			mls ? "mls " : "");
-+		fprintf(stderr, "error reading policy binary\n");
- 		CU_FAIL("Unable to read the binary policy");
- 		return -1;
- 	}
+ 	switch (class->default_user) {
+@@ -568,7 +571,8 @@ static int validate_class_datum_wrapper(__attribute__((unused)) hashtab_key_t k,
+ {
+ 	map_arg_t *margs = args;
  
--	/* Change MLS value based on parameter */
--	policydb.mls = mls ? 1 : 0;
--
- 	for (hi = policydb.policyvers; hi >= POLICYDB_VERSION_MIN; hi--) {
- 		/* Stash old version number */
- 		version = policydb.policyvers;
-@@ -156,8 +146,8 @@ int do_downgrade_test(int mls)
- 			if (write_binary_policy(POLICY_BIN_LO, &policydb) !=
- 			    0) {
- 				fprintf(stderr,
--					"error writing %spolicy binary, version %d (downgraded from %d)\n",
--					mls ? "mls " : "", lo, hi);
-+					"error writing policy binary, version %d (downgraded from %d)\n",
-+					lo, hi);
- 				CU_FAIL("Failed to write downgraded binary policy");
- 				return -1;
- 			}
-@@ -171,8 +161,8 @@ int do_downgrade_test(int mls)
- 			if (read_binary_policy(POLICY_BIN_LO, &policydb_tmp) !=
- 			    0) {
- 				fprintf(stderr,
--					"error reading %spolicy binary, version %d (downgraded from %d)\n",
--					mls ? "mls " : "", lo, hi);
-+					"error reading policy binary, version %d (downgraded from %d)\n",
-+					lo, hi);
- 				CU_FAIL("Unable to read downgraded binary policy");
- 				return -1;
- 			}
-diff --git a/libsepol/tests/test-downgrade.h b/libsepol/tests/test-downgrade.h
-index 4105defa..ea51c7d9 100644
---- a/libsepol/tests/test-downgrade.h
-+++ b/libsepol/tests/test-downgrade.h
-@@ -65,17 +65,14 @@ int downgrade_add_tests(CU_pSuite suite);
-  * 
-  * Output: None
-  * 
-- * Description: Tests the backward compatibility of MLS and Non-MLS binary
-- *		policy versions. 
-+ * Description: Tests the backward compatibility of MLS binary policy
-+ * versions. 
-  */
- void test_downgrade(void);
+-	return validate_class_datum(margs->handle, d, margs->flavors);
++	return validate_class_datum(margs->handle, d, margs->policy,
++				    margs->flavors);
+ }
  
- /*
-  * Function Name:  do_downgrade_test
-  * 
-- * Input: int that represents a 0 for Non-MLS policy and a 
-- * 		 1 for MLS policy downgrade testing
-- * 
-  * Output: (int) 0 on success, negative number upon failure
-  * 
-  * Description: This function handles the downgrade testing.  A binary policy
-@@ -84,7 +81,7 @@ void test_downgrade(void);
-  *		back in again. The process is iterative until the minimum
-  *		policy version is reached. 
-  */
--int do_downgrade_test(int mls);
-+int do_downgrade_test(void);
+ static int validate_role_datum(sepol_handle_t *handle, const role_datum_t *role,
+@@ -862,30 +866,29 @@ bad:
+ static int validate_user_datum(sepol_handle_t *handle, const user_datum_t *user,
+ 			       validate_t flavors[], const policydb_t *p)
+ {
++	int allow_unset;
++
+ 	if (validate_value(user->s.value, &flavors[SYM_USERS]))
+ 		goto bad;
+ 	if (validate_role_set(&user->roles, &flavors[SYM_ROLES]))
+ 		goto bad;
+-	if (p->mls) {
+-		int allow_unset = (p->policy_type != POLICY_MOD);
+-		if (validate_mls_semantic_range(
+-			    &user->range, &flavors[SYM_LEVELS],
+-			    &flavors[SYM_CATS], allow_unset))
+-			goto bad;
+-		if (validate_mls_semantic_level(
+-			    &user->dfltlevel, &flavors[SYM_LEVELS],
+-			    &flavors[SYM_CATS], allow_unset))
+-			goto bad;
  
- /*
-  * Function Name: read_binary_policy
+-		allow_unset = (p->policy_type != POLICY_KERN);
+-		if (validate_mls_range(&user->exp_range, &flavors[SYM_LEVELS],
+-				       &flavors[SYM_CATS], allow_unset))
+-			goto bad;
+-		if (validate_mls_level(&user->exp_dfltlevel,
+-				       &flavors[SYM_LEVELS], &flavors[SYM_CATS],
+-				       allow_unset))
+-			goto bad;
+-	}
++	allow_unset = (!p->mls) || (p->policy_type != POLICY_MOD);
++	if (validate_mls_semantic_range(&user->range, &flavors[SYM_LEVELS],
++					&flavors[SYM_CATS], allow_unset))
++		goto bad;
++	if (validate_mls_semantic_level(&user->dfltlevel, &flavors[SYM_LEVELS],
++					&flavors[SYM_CATS], allow_unset))
++		goto bad;
++
++	allow_unset = (!p->mls) || (p->policy_type != POLICY_KERN);
++	if (validate_mls_range(&user->exp_range, &flavors[SYM_LEVELS],
++			       &flavors[SYM_CATS], allow_unset))
++		goto bad;
++	if (validate_mls_level(&user->exp_dfltlevel, &flavors[SYM_LEVELS],
++			       &flavors[SYM_CATS], allow_unset))
++		goto bad;
++
+ 	if (user->bounds && validate_value(user->bounds, &flavors[SYM_USERS]))
+ 		goto bad;
+ 
+@@ -1021,13 +1024,20 @@ static int validate_datum_array_entries(sepol_handle_t *handle,
+ 			&margs))
+ 		goto bad;
+ 
+-	if (hashtab_map(symtabs[SYM_LEVELS].table, validate_level_datum_wrapper,
+-			&margs))
+-		goto bad;
++	if (p->mls) {
++		if (hashtab_map(symtabs[SYM_LEVELS].table,
++				validate_level_datum_wrapper, &margs))
++			goto bad;
+ 
+-	if (hashtab_map(symtabs[SYM_CATS].table, validate_datum,
+-			&flavors[SYM_CATS]))
+-		goto bad;
++		if (hashtab_map(symtabs[SYM_CATS].table, validate_datum,
++				&flavors[SYM_CATS]))
++			goto bad;
++	} else {
++		if (symtabs[SYM_LEVELS].table->nel != 0)
++			goto bad;
++		if (symtabs[SYM_CATS].table->nel != 0)
++			goto bad;
++	}
+ 
+ 	if (hashtab_map(symtabs[SYM_BOOLS].table, validate_bool_datum_wrapper,
+ 			&margs))
+@@ -1740,10 +1750,19 @@ static int validate_scope_index(sepol_handle_t *handle,
+ 		goto bad;
+ 	if (validate_ebitmap(&scope_index->p_bools_scope, &flavors[SYM_BOOLS]))
+ 		goto bad;
+-	if (validate_ebitmap(&scope_index->p_sens_scope, &flavors[SYM_LEVELS]))
+-		goto bad;
+-	if (validate_ebitmap(&scope_index->p_cat_scope, &flavors[SYM_CATS]))
+-		goto bad;
++	if (p->mls) {
++		if (validate_ebitmap(&scope_index->p_sens_scope,
++				     &flavors[SYM_LEVELS]))
++			goto bad;
++		if (validate_ebitmap(&scope_index->p_cat_scope,
++				     &flavors[SYM_CATS]))
++			goto bad;
++	} else {
++		if (!ebitmap_is_empty(&scope_index->p_sens_scope))
++			goto bad;
++		if (!ebitmap_is_empty(&scope_index->p_cat_scope))
++			goto bad;
++	}
+ 
+ 	if (scope_index->class_perms_map != NULL) {
+ 		uint32_t i;
+@@ -1927,8 +1946,13 @@ static int validate_range_transition(hashtab_key_t key, hashtab_datum_t data,
+ 	const range_trans_t *rt = (const range_trans_t *)key;
+ 	const mls_range_t *r = data;
+ 	const map_arg_t *margs = args;
++	const policydb_t *p = margs->policy;
+ 	const validate_t *flavors = margs->flavors;
+ 
++	if (!p->mls) {
++		ERR(margs->handle, "Range transition found in non-MLS policy");
++		goto bad;
++	}
+ 	if (validate_value(rt->source_type, &flavors[SYM_TYPES]))
+ 		goto bad;
+ 	if (validate_value(rt->target_type, &flavors[SYM_TYPES]))
+@@ -2091,6 +2115,13 @@ int policydb_validate(sepol_handle_t *handle, const policydb_t *p)
+ 	if (validate_policycaps(handle, p))
+ 		goto bad;
+ 
++	if (!p->mls) {
++		if (flavors[SYM_LEVELS].nprim != 0)
++			goto bad;
++		if (flavors[SYM_CATS].nprim != 0)
++			goto bad;
++	}
++
+ 	if (p->policy_type == POLICY_KERN) {
+ 		if (validate_avtab(handle, &p->te_avtab, p, flavors))
+ 			goto bad;
 -- 
 2.55.0
 
