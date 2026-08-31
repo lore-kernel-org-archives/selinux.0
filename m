@@ -1,288 +1,130 @@
-Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
+Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA2B037F32E
-	for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 18:59:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.180
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788202750; cv=none; b=IneW778kx4eahDaBf5jjKeWyjOAgsmxsTp5zkBWqZjHIxuHDuojd+bTw32MRInpnRL9UHT5oAyRO7WEP7bT2/D9/+gqSvAlNbUPoEJ6BeDgyVlOZp7EtT8GreMvzPC3kcCf3Ohaa6H3CI/HkN+Z1mX25uebhYxRW04rxRSXzBs4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788202750; c=relaxed/simple;
-	bh=VPWVC+Ma1f9XHd6x4MCsn82YD4DEpjiXJb+4LQrYZuM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=kViU0Z76Yz4xsxCOa0dFJaOmm1dwIALG8h8ADNr34+pyNFWODwc8o05EhP3ajUF2F2hIjrzjcPZ+kVwmHEQIPUiGDsdNazi6wxYdW4N0wvW8qzsXWLVNuD8dvXBql0tL+C+PI5i0N2EnYkV2nXiVfNNayTXEBnT4ksS1dH/9Gxc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DDme3Goc; arc=none smtp.client-ip=209.85.222.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 564E337DAC2
+	for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 19:41:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.172
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788205284; cv=pass; b=IwbQYcuH83PO8Vn7bqU9sPPJqDMmA0QRbC39yD1y7yZAdo7HDWrRvtD4QTbcW0oh2eWO6M8H6C1l6pNOK/fUnPjk6GoP9qsX8jw1S+bFCFoSg5NJzk6NWW863j08zFAZNM6O3a6zoQ5CnupQgV4xJEKi8GpXfKLUPArZgfl1p/I=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788205284; c=relaxed/simple;
+	bh=Kjoup4KDdutAD/AolEW3YIQKVgoqUEz1cobB2RPiE6s=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=r3+4ZzRoO6Ij/beRBsMqErGcMzgbv7RZjD61htsZrsSfC1ODjsPx4YKObsvTEpcYKnau7l/HyfWIP3kql336JMyYpdhbbWB/76nJrN5BgqXLD/4EAWtUQhVXAhwmE5RnUQrExB8MkUx4VQiS6WGvCXZ4QgLGN03Xft3ZP7VSJc8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=PytMdQNm; arc=pass smtp.client-ip=209.85.210.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DDme3Goc"
-Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-93905b1dc65so263865885a.1
-        for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 11:59:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="PytMdQNm"
+Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-84f38f3b36eso75961b3a.1
+        for <selinux@vger.kernel.org>; Mon, 31 Aug 2026 12:41:22 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1788205281; cv=none;
+        d=google.com; s=arc-20260327;
+        b=F+5BnzUqb3U3Dk+gunDrsoQFeHdeldVyYKjq4qQrsb7aSuDz3xWJibaAp3jFsW16qD
+         VvY3K35KOSnowlDQSu3DcC9c7kJx8fRoUALJ+nkg8wb5Gsar+9kTDZ1PqP/b/W79Z8x4
+         CAz1PvhSNfQRx1iiKrr9tIqfVstT1bInHWRacqTgzN7WwDkr1pS9vTkNKkDCH80GuGxW
+         wyGDoAenxhqkAx/i2YzLy8aOcRm4U+R4N4P4xfp12/KXoNZe9CcKEWQMEJcs8XDxSHwX
+         So3OKBX8UZbAIIKWe1DR0TZ1R3uW6k/vbmI1j5mhJCpg0Tf8GjUi3JjMDV/YMj1g3P4L
+         0qeA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=zoqoJxqU45eZFqkD0UaDO7HxA0/VF3RGvncekHzDg20=;
+        fh=nOcPTm+jzSpUJDDJhvsoEQt/GcMQFmPB1BDsWNtwPZ8=;
+        b=V5zb5+wbkT850GxGJGMztaTLDSM+ggGSULvIg7G6K4siDsk08ul9iuwvi9Y1iL89pR
+         EteWaF4QHCnbL8FygnX1nYhj+Uk9mA+5b23zlDEMUXdPVtqDRm23CaJrWPm49EtqDBVu
+         BrAMVDRCV0rneHuMxz1RLyWBqn6mtar9VzpovwKhSwofb9uZkyXHR8qrm/9aAF1zreL6
+         /IgDLjYRy1ILw0NnbX+7VA5C4N0GvuoQ0W58ZDe6HUM7UE5X8jImPOb0oBJ0GEZM4LAL
+         46pbIEz7Vol2V5dgp6qMMhqFKicPiBwqNjzOu72Jyaq+GKLwfp/iirL4F6pSeCqx1k+H
+         YUDQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788202747; x=1788807547; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=NdxfR/6Mf4mxvnFyYWGY+qWOo5x4RAFsuaFWcmpDtgk=;
-        b=DDme3GocYT+anzBgQFEp84MPvGOj9/7fJD5uGkNgucBAeOrdY44XsAD+vDr3qaaVML
-         OfF8aFmcWYC+hx8hc3EFkds/EZDiLLcb0MEcRviUwVYrlYk5vH44Z0dNl0tPCEBYP9Az
-         E5wVMyjlI5KcEChQ1tr+UpqsaUQOtVgOZwY/yXQUhdeym6uGrLYvySBPu245bb1wMDRV
-         On9K5ecOzcJ86O4Sm/SErXq4mlhOuIQTkqU/QP5gvN0TxnUwqSonZRL0vHjbyXw44qCA
-         fjvHaWw8L5K0aXe+aj84IFiqDNuD7B3iVnfh1IOh+BpXYnVSf42DYUGPcAxPt00wNX90
-         BZLg==
+        d=paul-moore.com; s=google; t=1788205281; x=1788810081; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=zoqoJxqU45eZFqkD0UaDO7HxA0/VF3RGvncekHzDg20=;
+        b=PytMdQNmUmsfTp0zVLAAIszIzFxEOCu/9gL4s02FB9hfdxqFSr7ja7+NkDgT8GO90I
+         OLpdjHanIOwn4+jhlBfWvMEKY/fx+qKRakL3LZ3SPQ9pLNftMX2QOJClPjIg58puzW0j
+         7lAZI4zFtg8MCXhfENSf7RH1JyzPmCpMFQuDHqfRQP45VWw18Rppy7VJG+dJ2eKz0PZX
+         W1Pi0umvQNn8k/+fdJP0M2LFyhExr6T9fTcxsO5FE6sp2lw3uBweSO9WTzVY9pvjWW3+
+         YNb45rSAAjy07u3MlPp0EDKNmRNDV0jv//m9wk3HOyCDKq/85pMiAOk1N6KUqqWVB0Wh
+         NeNA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788202747; x=1788807547;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=NdxfR/6Mf4mxvnFyYWGY+qWOo5x4RAFsuaFWcmpDtgk=;
-        b=r132L5Xd2rsfGY4G3ddt20AyuWlzGE0ZRt9hsu6AUS/0w6QbvJMkmCCjN2V3EfAQKn
-         3oAR/E7vZJ+0iXWZZZIGRpCth2Q7kzy3jIqDM4l9RwSIWIjWWmFKoKWOKcTLshiqZXjU
-         0DrNzdPHIjwnewOfrcWYWk0Aq9MbyQMu2TjBosF2CGC2Awa5JzFpmkmd7TNCRwvDd+Oz
-         NTpuhVD5guDKeCfE2rJmLaIxLYaHPjjsseq+LRym3jD7+gbxeZa4CvzFANISuW+8l5FP
-         1dTNUatzsVFrw4T7kS2XYlfi6iMXLsr0DAYKBdebv52IT9GLXOfUjghsVJJn2c6E/iXo
-         38Tw==
-X-Gm-Message-State: AFuF++kG4/c6SEQkQnfkik7FjPukLoPUg6Itr4tIs8nKjTwpYwIYVoAf
-	ENK2WCkyfc8AOez3Aek5dYbdL/ElYsKhUoTH/L6Axv1Duj0XJXYzkYWSGXhEbA==
-X-Gm-Gg: AR+sD10am94vUuja1Iw03MRgaxhu/dpqaCmE03gVlAcrKSxnN/QngmIv7bIRYOPcB26
-	KIS1JbKvr564oIC1Sn1XxLddf5s4lz6UZCxcS43ff9xfMeyf3EssWH11yejydRclb2E0H6Gk7I4
-	lBnZVcK4Ip/6jsh8+lVFOFyI1ypwupAzWjZuoLZiph6KNw3mFg8XmVt3dd5JHGe+ZxrLZPd/KVi
-	ojiTJJXes69UjVNiO6mePRjlO1a/STz9hNKyLl6diVQdI7SqKI6n+VvXY2VnA9BEpmswHITOM+i
-	StOfuZKxqnTXbRfvakcwnrNwiyEYeGl1MwxkuJgCzx6GyBcwmMKpIvPmKZJXuLdBU+jvZEx/1mb
-	3pyuUBiBqVZO3IbAZivr59n1jRL6yaqEYijQUmVZXsOa9d40u2uBBiU7taNJn5QKMDVrQArTqnZ
-	oFVoCRc4rDOar2+V+6TsEoHWiti7S3aF0gKBn+H8nvDM3+rhVaet5N6TVi5YEcs1v8wK+CJSklP
-	fFEHbYSGDNKQclDnYYw8A==
-X-Received: by 2002:a05:620a:319d:b0:937:45fb:6b95 with SMTP id af79cd13be357-93947fe52e2mr441610085a.17.1788202747340;
-        Mon, 31 Aug 2026 11:59:07 -0700 (PDT)
-Received: from Fedora43-SELinux ([144.51.8.27])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9391740bb62sm862219185a.43.2026.08.31.11.59.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 31 Aug 2026 11:59:06 -0700 (PDT)
-From: James Carter <jwcart2@gmail.com>
-To: selinux@vger.kernel.org
-Cc: stephen.smalley.work@gmail.com,
-	James Carter <jwcart2@gmail.com>
-Subject: [PATCH 2/2] libsepol: Check for mls components in non-mls policy during validation
-Date: Mon, 31 Aug 2026 14:58:51 -0400
-Message-ID: <20260831185851.80078-2-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260831185851.80078-1-jwcart2@gmail.com>
-References: <20260831185851.80078-1-jwcart2@gmail.com>
+        d=1e100.net; s=20251104; t=1788205281; x=1788810081;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=zoqoJxqU45eZFqkD0UaDO7HxA0/VF3RGvncekHzDg20=;
+        b=JcenD8xpTjBoRogNDdeS4wjY15+H19ft/32Vuud93O/Ldla9p/Na9Guw35RuNKIsuG
+         6qkT2+/E9/C/4LcVZeV/Lpx6gqDbR/Stu3pIWYw5DCCn+LHegPOyhp2KliEz/IohoKQL
+         jvGPAiRYnYG/fJK7kR4k8hf0mldiHe7vXCSuAj2CnPs+iq+FAToz2c3/pGDlek5t1TW/
+         wT5hr70pcQA4+quU8r5TNkrlBGXXr4zu4AigLPIac0gJV/GXgAW1SD7NBaIfEj861JOE
+         uO35iBnM+y1kVcjTAJ4q1+6Ah2SicgEV5OUPdjdBWKYdcgxYT46/JYER8PDjCCYWnlY0
+         KwIg==
+X-Gm-Message-State: AFuF++nMiBxcNxzr6q3+724TaNpYaG0C+7EJ5d6j/WINmz78CxivdWiR
+	Tu5z/Wc1Ndx+aArbvA3T+ZSyCSu2NGZj1BrL0otQSqnpnbZxgNgQGCQ00shJ4w/iUAOoTC9eFeg
+	Yt5qdRVZohV2ATrVhw31N3MpfY7VP+QLOyfj/K7Jekd1/AIOojj1EMQ==
+X-Gm-Gg: AR+sD13txPagfz25XqVaVjrb3uC9yGAXfYW9fT34J60/tpBlLHm2nHyAFFly8BPlSZ4
+	h5p7zDPdqRWLmsSt/hNnlRxLZONK4H0XXeQJapUf4D7wgcaMSSgxX6rlT8AF+7Rwu6a2vhNMTEM
+	ULfqWML+7g3HoixjnkbMZlZ8ZafiqHUJSO2U3Z5ipSg0N4cWXM6N0DlnG+2x4uxZUTQBDiJvjVH
+	Q4rnjftXkCL19KTVE84QPafOSz/vII+0hdo/m4qOof2dOxU8q7JVYIjIDhYIYsZViVtLDt/q68S
+	axeKKIcLrbVngKBCJj4aW2BsXspGTAMwT21sNy+8F6XLFA==
+X-Received: by 2002:a05:6a00:7616:b0:857:4dea:e1dd with SMTP id
+ d2e1a72fcca58-8574deaeb9dmr30050377b3a.14.1788205281432; Mon, 31 Aug 2026
+ 12:41:21 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260827151126.107545-2-paul@paul-moore.com> <CAEjxPJ5HeZ1P1XLs=EoG_F427hWhUphebVthr+MhnKPR5aWNTQ@mail.gmail.com>
+ <CAHC9VhTzeB_pVuu8hzbwbefw=Xz4DCg=t7WUTJXGtj-XP8sL4A@mail.gmail.com>
+In-Reply-To: <CAHC9VhTzeB_pVuu8hzbwbefw=Xz4DCg=t7WUTJXGtj-XP8sL4A@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 31 Aug 2026 15:41:08 -0400
+X-Gm-Features: AcwNN1UzoxEcCZnX3vC0x7LV3GToSTi8YWrnzqMT8VudwRODBfe_8JxkOynvZRo
+Message-ID: <CAHC9VhSmfqFJwkjCx9UWL6yTFRdYQyqoRb4YVNvuMFkg4H4U0Q@mail.gmail.com>
+Subject: Re: [PATCH] selinux: fix BPF token permission checks
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-For non-mls policies:
-- Check that the level and category global symbol tables are empty.
-- Check that the level and category avrule block symbol tables are
-empty.
-- Check that the level and category scope bitmaps are empty.
-- Check that users range and default level (both semantic and
-expanded) are not set.
-- Check that constraints and validatetrans rules have no MLS
-expressions.
-- Check that there are no range transitions
+On Thu, Aug 27, 2026 at 3:45=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+> On Thu, Aug 27, 2026 at 12:23=E2=80=AFPM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> > On Thu, Aug 27, 2026 at 11:13=E2=80=AFAM Paul Moore <paul@paul-moore.co=
+m> wrote:
+> > >
+> > > Avoid multiple lookups of the bpffs creator SID using the token's fil=
+e
+> > > descriptor when the same information can be found via the resolved
+> > > path/dentry (in selinux_bpf_token_create()) or the token itself (in
+> > > selinux_bpf_map_create() and selinux_bpf_prog_load()).  Not only does
+> > > this simplify the code, it avoids potential TOCTOU issues if the user
+> > > changes the token file descriptor passed into the kernel.
+> > >
+> > > Cc: stable@vger.kernel.org
+> > > Fixes: 5473a722f782 ("selinux: add support for BPF token access contr=
+ol")
+> > > Signed-off-by: Paul Moore <paul@paul-moore.com>
+> >
+> > Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > Tested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+>
+> Thanks.
+>
+> Given that v7.3-rc1 is due in a few days I'm going to merge this into
+> selinux/dev-staging for now and will move it to selinux/stable-7.3
+> once v7.3-rc1 is released.
 
-Fail validation if any of these checks fail.
+This is now in selinux/stable-7.3 and will be sent up to Linus later
+this week assuming no problems are found in linux-next.
 
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
- libsepol/src/policydb_validate.c | 99 +++++++++++++++++++++-----------
- 1 file changed, 65 insertions(+), 34 deletions(-)
-
-diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
-index 99d27f88..7ef6eea2 100644
---- a/libsepol/src/policydb_validate.c
-+++ b/libsepol/src/policydb_validate.c
-@@ -263,7 +263,7 @@ bad:
- 
- static int validate_constraint_nodes(sepol_handle_t *handle, uint32_t nperms,
- 				     const constraint_node_t *cons,
--				     validate_t flavors[])
-+				     const policydb_t *p, validate_t flavors[])
- {
- 	const constraint_expr_t *cexp;
- 	const int is_validatetrans = (nperms == UINT32_MAX);
-@@ -368,12 +368,15 @@ static int validate_constraint_nodes(sepol_handle_t *handle, uint32_t nperms,
- 				case CEXPR_USER:
- 				case CEXPR_ROLE:
- 				case CEXPR_TYPE:
-+					break;
- 				case CEXPR_L1L2:
- 				case CEXPR_L1H2:
- 				case CEXPR_H1L2:
- 				case CEXPR_H1H2:
- 				case CEXPR_L1H1:
- 				case CEXPR_L2H2:
-+					if (!p->mls)
-+						goto bad;
- 					break;
- 				default:
- 					goto bad;
-@@ -487,7 +490,7 @@ validate_common_datum_wrapper(__attribute__((unused)) hashtab_key_t k,
- }
- 
- static int validate_class_datum(sepol_handle_t *handle,
--				const class_datum_t *class,
-+				const class_datum_t *class, const policydb_t *p,
- 				validate_t flavors[])
- {
- 	if (class->s.value > UINT16_MAX ||
-@@ -509,10 +512,10 @@ static int validate_class_datum(sepol_handle_t *handle,
- 		    class->comdatum ? class->comdatum->permissions.nprim : 0))
- 		goto bad;
- 	if (validate_constraint_nodes(handle, class->permissions.nprim,
--				      class->constraints, flavors))
-+				      class->constraints, p, flavors))
- 		goto bad;
- 	if (validate_constraint_nodes(handle, UINT32_MAX, class->validatetrans,
--				      flavors))
-+				      p, flavors))
- 		goto bad;
- 
- 	switch (class->default_user) {
-@@ -568,7 +571,8 @@ static int validate_class_datum_wrapper(__attribute__((unused)) hashtab_key_t k,
- {
- 	map_arg_t *margs = args;
- 
--	return validate_class_datum(margs->handle, d, margs->flavors);
-+	return validate_class_datum(margs->handle, d, margs->policy,
-+				    margs->flavors);
- }
- 
- static int validate_role_datum(sepol_handle_t *handle, const role_datum_t *role,
-@@ -862,30 +866,29 @@ bad:
- static int validate_user_datum(sepol_handle_t *handle, const user_datum_t *user,
- 			       validate_t flavors[], const policydb_t *p)
- {
-+	int allow_unset;
-+
- 	if (validate_value(user->s.value, &flavors[SYM_USERS]))
- 		goto bad;
- 	if (validate_role_set(&user->roles, &flavors[SYM_ROLES]))
- 		goto bad;
--	if (p->mls) {
--		int allow_unset = (p->policy_type != POLICY_MOD);
--		if (validate_mls_semantic_range(
--			    &user->range, &flavors[SYM_LEVELS],
--			    &flavors[SYM_CATS], allow_unset))
--			goto bad;
--		if (validate_mls_semantic_level(
--			    &user->dfltlevel, &flavors[SYM_LEVELS],
--			    &flavors[SYM_CATS], allow_unset))
--			goto bad;
- 
--		allow_unset = (p->policy_type != POLICY_KERN);
--		if (validate_mls_range(&user->exp_range, &flavors[SYM_LEVELS],
--				       &flavors[SYM_CATS], allow_unset))
--			goto bad;
--		if (validate_mls_level(&user->exp_dfltlevel,
--				       &flavors[SYM_LEVELS], &flavors[SYM_CATS],
--				       allow_unset))
--			goto bad;
--	}
-+	allow_unset = (!p->mls) || (p->policy_type != POLICY_MOD);
-+	if (validate_mls_semantic_range(&user->range, &flavors[SYM_LEVELS],
-+					&flavors[SYM_CATS], allow_unset))
-+		goto bad;
-+	if (validate_mls_semantic_level(&user->dfltlevel, &flavors[SYM_LEVELS],
-+					&flavors[SYM_CATS], allow_unset))
-+		goto bad;
-+
-+	allow_unset = (!p->mls) || (p->policy_type != POLICY_KERN);
-+	if (validate_mls_range(&user->exp_range, &flavors[SYM_LEVELS],
-+			       &flavors[SYM_CATS], allow_unset))
-+		goto bad;
-+	if (validate_mls_level(&user->exp_dfltlevel, &flavors[SYM_LEVELS],
-+			       &flavors[SYM_CATS], allow_unset))
-+		goto bad;
-+
- 	if (user->bounds && validate_value(user->bounds, &flavors[SYM_USERS]))
- 		goto bad;
- 
-@@ -1021,13 +1024,20 @@ static int validate_datum_array_entries(sepol_handle_t *handle,
- 			&margs))
- 		goto bad;
- 
--	if (hashtab_map(symtabs[SYM_LEVELS].table, validate_level_datum_wrapper,
--			&margs))
--		goto bad;
-+	if (p->mls) {
-+		if (hashtab_map(symtabs[SYM_LEVELS].table,
-+				validate_level_datum_wrapper, &margs))
-+			goto bad;
- 
--	if (hashtab_map(symtabs[SYM_CATS].table, validate_datum,
--			&flavors[SYM_CATS]))
--		goto bad;
-+		if (hashtab_map(symtabs[SYM_CATS].table, validate_datum,
-+				&flavors[SYM_CATS]))
-+			goto bad;
-+	} else {
-+		if (symtabs[SYM_LEVELS].table->nel != 0)
-+			goto bad;
-+		if (symtabs[SYM_CATS].table->nel != 0)
-+			goto bad;
-+	}
- 
- 	if (hashtab_map(symtabs[SYM_BOOLS].table, validate_bool_datum_wrapper,
- 			&margs))
-@@ -1740,10 +1750,19 @@ static int validate_scope_index(sepol_handle_t *handle,
- 		goto bad;
- 	if (validate_ebitmap(&scope_index->p_bools_scope, &flavors[SYM_BOOLS]))
- 		goto bad;
--	if (validate_ebitmap(&scope_index->p_sens_scope, &flavors[SYM_LEVELS]))
--		goto bad;
--	if (validate_ebitmap(&scope_index->p_cat_scope, &flavors[SYM_CATS]))
--		goto bad;
-+	if (p->mls) {
-+		if (validate_ebitmap(&scope_index->p_sens_scope,
-+				     &flavors[SYM_LEVELS]))
-+			goto bad;
-+		if (validate_ebitmap(&scope_index->p_cat_scope,
-+				     &flavors[SYM_CATS]))
-+			goto bad;
-+	} else {
-+		if (!ebitmap_is_empty(&scope_index->p_sens_scope))
-+			goto bad;
-+		if (!ebitmap_is_empty(&scope_index->p_cat_scope))
-+			goto bad;
-+	}
- 
- 	if (scope_index->class_perms_map != NULL) {
- 		uint32_t i;
-@@ -1927,8 +1946,13 @@ static int validate_range_transition(hashtab_key_t key, hashtab_datum_t data,
- 	const range_trans_t *rt = (const range_trans_t *)key;
- 	const mls_range_t *r = data;
- 	const map_arg_t *margs = args;
-+	const policydb_t *p = margs->policy;
- 	const validate_t *flavors = margs->flavors;
- 
-+	if (!p->mls) {
-+		ERR(margs->handle, "Range transition found in non-MLS policy");
-+		goto bad;
-+	}
- 	if (validate_value(rt->source_type, &flavors[SYM_TYPES]))
- 		goto bad;
- 	if (validate_value(rt->target_type, &flavors[SYM_TYPES]))
-@@ -2091,6 +2115,13 @@ int policydb_validate(sepol_handle_t *handle, const policydb_t *p)
- 	if (validate_policycaps(handle, p))
- 		goto bad;
- 
-+	if (!p->mls) {
-+		if (flavors[SYM_LEVELS].nprim != 0)
-+			goto bad;
-+		if (flavors[SYM_CATS].nprim != 0)
-+			goto bad;
-+	}
-+
- 	if (p->policy_type == POLICY_KERN) {
- 		if (validate_avtab(handle, &p->te_avtab, p, flavors))
- 			goto bad;
--- 
-2.55.0
-
+--=20
+paul-moore.com
