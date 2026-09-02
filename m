@@ -1,63 +1,63 @@
-Received: from mail-qv1-f52.google.com (mail-qv1-f52.google.com [209.85.219.52])
+Received: from mail-qv1-f45.google.com (mail-qv1-f45.google.com [209.85.219.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 746F5385D61
-	for <selinux@vger.kernel.org>; Wed,  2 Sep 2026 14:03:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 543FA4A261C
+	for <selinux@vger.kernel.org>; Wed,  2 Sep 2026 14:03:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788357820; cv=none; b=lHBKU3kT3aWvikjVeTFGl0x8kvKfFl+rnoSJYZ1I5JspgnysTunhEgci7MV2O+PbHCKpp1rCpTFureOkHjgLi8dT3rG8R4wVTBLPx72ORc+7fEHkixNjgmp3celj95WsbcuXmXuIS2k/zQVBScyyTWhrccupJ8nqfrU+IbMPNMw=
+	t=1788357823; cv=none; b=o54v1/ZbfL0ASVWT09nLieZOuE3UqbLDdyxbXN72Guk1WEO+A5nRNoMt/plZnQ6qLeL4o78yQRT7PXaSLde4DQNOmzvtDhpiVrSMPo+3wtDqlbAku7slYJvzCWfX4jhjkH4REV6ejtOMTfg/MhOKF4ZKZmSyUtOWGfcVrNKMT6k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788357820; c=relaxed/simple;
-	bh=WxLH/FzWU7a5q2YIlv78HI1Y+8yxIhBJYoAEHbLthIA=;
+	s=arc-20240116; t=1788357823; c=relaxed/simple;
+	bh=mgGMCweOihgkjTgLyAt4KmpnshDFU7m/OorMZ/SzVZY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=VmMzGVMtamt39R8Ga3bnJxtLJyMBL/FLerP7pdrn5uhfXZNaQe9s6dOovtnol55DjAsGiO68rdkxRuZh0aEMZ4t9C7nEnNyJxswjajDZMaY+RMVtev/X29s1j1d1mXu4Co4k5NfVreCtFWDNZ3VlaTS3BD7KCFu5mhJLrumhdZI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VDzP9mXq; arc=none smtp.client-ip=209.85.219.52
+	 MIME-Version; b=G95w1mVXi3yyYD/Bh215Sp1zDa2Dtlz5MxtSZTj4pIZR0dZFdUlc0NhNE+eTcUguhjsGMLGj053gpFNOP+QfzcWMoS+WtG9EEQMGxZchtfibxyoAkesLBL0kJz4Nv2uFI/rJteFc5aTtSQMbftw9wTtKXyNCbM0doFf43txS5io=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Vs10h9QC; arc=none smtp.client-ip=209.85.219.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VDzP9mXq"
-Received: by mail-qv1-f52.google.com with SMTP id 6a1803df08f44-910317dc2e9so2095416d6.3
-        for <selinux@vger.kernel.org>; Wed, 02 Sep 2026 07:03:38 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Vs10h9QC"
+Received: by mail-qv1-f45.google.com with SMTP id 6a1803df08f44-90cbff85fa9so11908126d6.2
+        for <selinux@vger.kernel.org>; Wed, 02 Sep 2026 07:03:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788357817; x=1788962617; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1788357821; x=1788962621; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=LGtq8UTIxttpp6EceL/28ZTFjNZOF84gWrhgtj3mQog=;
-        b=VDzP9mXqaV9570eygxk088B03ET+Uti+xxcfxa3cYdVHksEDRACyzTRWQWB/AT2ozH
-         J710Em4gjM+gweNVzdVEI28knMmPwHAAKp1RyuEsg5fxrKkdIqt5ihkGCOyIwP1p3mlL
-         2laQ4CItB7WLwzx0MZ0pPdsHGtByaaXQHdo1Sh2UGD47DNfP3GiF2Y9S6nJ6fmBg7Pd+
-         nbJMgVlpgu/wbgOMDE5phofessLpGpm72g9zqSJTc2BLC27+rBipfa2oj0QtsNyomtXz
-         SXFZsd/BGmLEkGuPnZDB+gynOukXVbetOZNhFgRRYYpnJ7rWunYP60FVBSQ+eZaEQRyx
-         9www==
+        bh=ZdWc6ke6l3KoUZNpCaYiCFjpDw+Znod+SWnlCK8CL6k=;
+        b=Vs10h9QCH57Ap1i+07Z7q/3I39QDQ1NWXXTsgfz+gg3FzVzOPN6ndmjq3YG7HUK7fB
+         o7mYRR2vLzEimBAh6vBXuFiB+A987XJa6pnCK/upNVQMr8iBvxVjS4/rGNad/pQ1AnOY
+         ZdNpKnhHV3kbs+G7LaAHAqXeEkl//CQvolm/NBRUqQdqXmrDRIp+/34AozwLZ+VN496r
+         CQf5xtS06+hGjK0r2FLWNwdAxeLltwDTzsh9jxYdkKSNFTgkumdJrhMcunPEbxQILmiM
+         StKQ0B/SZzSFTO+4JpCQJn/C5r1hiFFVYMmG48VVGyLEpkIQZrkqQZnawAxuRkaxAEuz
+         YT6w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788357817; x=1788962617;
+        d=1e100.net; s=20251104; t=1788357821; x=1788962621;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=LGtq8UTIxttpp6EceL/28ZTFjNZOF84gWrhgtj3mQog=;
-        b=aSvZnSxH/BtPD5UJhJxXDeMVmFMCpz+Kfe33ytyVn1evim8MQdcNQSg7/b5HRs6M8X
-         NeTd6q2eE8XSPS3oHhupI/mhzL4IEz5hV7ItOR/RE77FD+muZCvB2usEjvjG7o90kPPz
-         bhfxIBLHvjwm7MK1mAb6Ke0VVTaj0ks6/xpFTudM7n02+IoYplPsAbfjUuEa1Qg0O1Ov
-         EblQ4UTnDTq4s2jBSHGflS3pyNZmHU4Pl44sszBwFB+pjjDvMOCCPt1Ft8AsMmbEQcEL
-         nxrHK6Zl4h+NhehElx62OIm+lEtZThq04f+KIEdbIdeuTgsZmUc/TS5eR+1WOI3pj1jo
-         CHBg==
-X-Gm-Message-State: AFuF++lI2f0GYLmaL4643Mo7L9I/8iDgNNh6nMQbqBRV8wVYCstmUOot
-	R/L3FCMQ+11X6DQ/GZKzNOzoXjVpilTywkyR+VjJR4MGLNBUeJYMhTfu3ettIA==
-X-Gm-Gg: AYBFou2PKpER+Nve4r6Q0or0/k/F0BVV6ifN3oTIngj/QXyBP2cKT6fK43/KwjWrAcW
-	XNKyBCXrBjf+ujOhoineSxkfVXSZN9pIyaVseeLfJJ+j0OtLvRqE7I8Erq9W8mrDvebpEtALwmX
-	mC1NGfoChilVY0qu20/Uo8pjHL0hGTxqlrliGPra2dTwvH9xiScrUtKKroNc8XjNMxxO4TtAMBk
-	H2zyL1DJ1gFxETipUO6BfPeIFnhTHvsw+4Y9PORRQ4KYtnLb5lC7KZuv2i01YHQk+8bF+W/+NgJ
-	Q93/x4hdXYIga2NZOfOggKhNt49vCR3MTJrgdZwFiM67+i46ZRGgYgqq9n7JpFbNp7L/WB/Fv4C
-	QtHf8WoJ0VRL19oz02MrFvSl4bvyKV8EmKXtggPuDGms4tDY/h4o+WrvZFHuRTxTka7kzaX2RM8
-	iWFfKNyhYOExC6aSYEPvsfczVQ6qCh2qnjocnoJLYAQtwnG2N9W2MWaLKD23FN6AADBeL871dUJ
-	Txdkl8Nr7uWS7QOhXVs4h63HfTQhBRbZBKB6CA6ppTuW17vPzEt0WWKgxu9u4z3
-X-Received: by 2002:a05:6214:5507:b0:90c:4fdd:c6ef with SMTP id 6a1803df08f44-90eab4476d2mr73648106d6.15.1788357812318;
-        Wed, 02 Sep 2026 07:03:32 -0700 (PDT)
+        bh=ZdWc6ke6l3KoUZNpCaYiCFjpDw+Znod+SWnlCK8CL6k=;
+        b=MbxMiwwE4KbaJEXU2v1GHCbroOMkR0ectd7Y40BMdwFg/TBUccZhuNytqdLNgoiPYr
+         gx0lzxrWqz3AaS90Bia8R5Y1MzsUFjiVUGNa8y15EzX2WTynHr7o2hhmW0Q2t4PO/RUa
+         JlxPEqJ/6BEUIbtLD/RjlbuRccR07PoSZ+pJtBoSI5W27f1RgQfY+NhyA2DEx8srFLxG
+         60mHeocQhxgz9cq9sBM9J7bFpQYLswnDdAGQZdgSoK9KxJQzCscLcz6n8W8FbMOCyTHr
+         oVECAz+Lel3yAseBrekMJ4mXdRiQ6jaLZ5CqZ6TMNStt/1Z7IDb3WE91b3yHNC+SgJK1
+         2cHQ==
+X-Gm-Message-State: AFuF++kTi3M27Hpf+X5JOAbb1yCUCNDXFrSgoyHlWNjfBzUJw8L4zkMd
+	SO+D3KjRZHbFMReDM0nepjjubqcnQsT6lN+EasXtVA4s0MQzj6NvVcB6FIztpg==
+X-Gm-Gg: AR+sD10x4QZ36RkcGZPdkVxtgv8JfQ+1MGE9tGh/DflbsQWnB4gfV8jmlNT7ErbdDgn
+	4ywf/iU8E3G9T0ZQL1ORufLLnDLuNFfrSGt38N2lG1LcGOkuLZc4Cn83vhJuNTlN+ekC7/nadRB
+	Ry/jIIb0+3YKKbMWQOgPkWoexzOMOzy0SRz3nuJCdTK0T7TtrXJkm00pwPD7Z18fy4hi/Ze3nak
+	FVcxJhUNo9w+J5SPzIBb+4MFQAGhIGlBi5xfPYwiv53fZWBfUoP4wC8yNIoUwaC84K8WFRrOeiC
+	F2dA9KxiXzHn2b6od0pX9o6HvrDgOexs3NUsEgjqybsHMYsQ8+DRi6If4zskxUxAzZieRHFOJpD
+	hDk55EEtEJ3Vfpe6n9yEQatzX/3iLsgSQqc6RVitVWjy8SJrNIfey/MWBb1WCcPPYEjXyML7we1
+	fWXhxoIwrAPGwEIyvNcZQ7ph+zVpTMkoE7dc1rB51oZZ2C25hveWgqI3KpHgxrRCdwx+geKwzD/
+	3uSAdxvyK0JCkLO4LukwF6O9kXF6aZJqVXbRub4Jg7tufdQThGNLh76sreU+m2k
+X-Received: by 2002:a05:6214:43c2:b0:90c:e3bd:dfe4 with SMTP id 6a1803df08f44-90eca403bf3mr66639066d6.21.1788357814206;
+        Wed, 02 Sep 2026 07:03:34 -0700 (PDT)
 Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-90e9ee316f7sm18790446d6.19.2026.09.02.07.03.31
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-90e9ee316f7sm18790446d6.19.2026.09.02.07.03.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Sep 2026 07:03:31 -0700 (PDT)
+        Wed, 02 Sep 2026 07:03:33 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
@@ -65,9 +65,9 @@ Cc: jwcart2@gmail.com,
 	omosnace@redhat.com,
 	jason@perfinion.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2 4/9] libsemanage: read the active store through the fallback list
-Date: Wed,  2 Sep 2026 10:02:06 -0400
-Message-ID: <20260902140211.53084-6-stephen.smalley.work@gmail.com>
+Subject: [PATCH v2 6/9] libsemanage: create the store root when taking a lock
+Date: Wed,  2 Sep 2026 10:02:08 -0400
+Message-ID: <20260902140211.53084-8-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260902140211.53084-2-stephen.smalley.work@gmail.com>
 References: <20260902140211.53084-2-stephen.smalley.work@gmail.com>
@@ -79,204 +79,85 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The file-backed dbase objects semanage_direct_connect() sets up take a
-read path (used by semanage <object> -l and by the modify path to seed
-the transaction) and a write path (always in the sandbox). Update the
-read side to use semanage_path_read() so a missing
-/var/lib/selinux/<type>/active/<file> falls back to the corresponding
-path in a ro-store-root.
+Both semanage_get_active_lock() and semanage_get_trans_lock() open
+their lock file with O_CREAT, but that fails with ENOENT when the
+<store-root>/type>/ parent has not yet been created. Writers now
+create the whole skeleton in begintrans() but a reader reaches
+enter_ro() -> semanage_get_active_lock() with no transaction and
+no create_store.
 
-Do the same for the disable_dontaudit check, semanage_read_policydb()
-(policydb-based dbases), the commit_num read in
-semanage_direct_get_serial(), and the read-access check in
-semanage_store_access_check(); the write-access and lock checks in the
-latter still target the writable store and are handled separately.
+On ENOENT, mkdir_recursive() the store root and retry the open once.
+A reader on a fresh /var/lib/selinux thus creates one directory and
+one empty lock file and can then serialize against a concurrent
+commit.
+
+Update semanage_store_access_check() to predict this: when the read
+lock does not exist, walk up from the store root to the first existing
+ancestor and check W_OK|X_OK there instead of on the missing store
+root itself, so the seobject.py >= SEMANAGE_CAN_READ check passes on
+a fresh writable store.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- libsemanage/src/direct_api.c     | 59 ++++++++++++++++++++------------
- libsemanage/src/semanage_store.c |  9 ++---
- 2 files changed, 42 insertions(+), 26 deletions(-)
+ libsemanage/src/semanage_store.c | 34 ++++++++++++++++++++++++++++----
+ 1 file changed, 30 insertions(+), 4 deletions(-)
 
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index dae9d003..a930dac1 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -163,14 +163,16 @@ int semanage_direct_connect(semanage_handle_t *sh)
- 	/* Object databases: local modifications */
- 	if (user_base_file_dbase_init(
- 		    sh,
--		    semanage_path(SEMANAGE_ACTIVE, SEMANAGE_USERS_BASE_LOCAL),
-+		    semanage_path_read(SEMANAGE_ACTIVE,
-+				       SEMANAGE_USERS_BASE_LOCAL),
- 		    semanage_path(SEMANAGE_TMP, SEMANAGE_USERS_BASE_LOCAL),
- 		    semanage_user_base_dbase_local(sh)) < 0)
- 		goto err;
- 
- 	if (user_extra_file_dbase_init(
- 		    sh,
--		    semanage_path(SEMANAGE_ACTIVE, SEMANAGE_USERS_EXTRA_LOCAL),
-+		    semanage_path_read(SEMANAGE_ACTIVE,
-+				       SEMANAGE_USERS_EXTRA_LOCAL),
- 		    semanage_path(SEMANAGE_TMP, SEMANAGE_USERS_EXTRA_LOCAL),
- 		    semanage_user_extra_dbase_local(sh)) < 0)
- 		goto err;
-@@ -181,58 +183,69 @@ int semanage_direct_connect(semanage_handle_t *sh)
- 		goto err;
- 
- 	if (port_file_dbase_init(
--		    sh, semanage_path(SEMANAGE_ACTIVE, SEMANAGE_PORTS_LOCAL),
-+		    sh,
-+		    semanage_path_read(SEMANAGE_ACTIVE, SEMANAGE_PORTS_LOCAL),
- 		    semanage_path(SEMANAGE_TMP, SEMANAGE_PORTS_LOCAL),
- 		    semanage_port_dbase_local(sh)) < 0)
- 		goto err;
- 
--	if (iface_file_dbase_init(
--		    sh,
--		    semanage_path(SEMANAGE_ACTIVE, SEMANAGE_INTERFACES_LOCAL),
--		    semanage_path(SEMANAGE_TMP, SEMANAGE_INTERFACES_LOCAL),
--		    semanage_iface_dbase_local(sh)) < 0)
-+	if (iface_file_dbase_init(sh,
-+				  semanage_path_read(SEMANAGE_ACTIVE,
-+						     SEMANAGE_INTERFACES_LOCAL),
-+				  semanage_path(SEMANAGE_TMP,
-+						SEMANAGE_INTERFACES_LOCAL),
-+				  semanage_iface_dbase_local(sh)) < 0)
- 		goto err;
- 
--	if (bool_file_dbase_init(
--		    sh, semanage_path(SEMANAGE_ACTIVE, SEMANAGE_BOOLEANS_LOCAL),
--		    semanage_path(SEMANAGE_TMP, SEMANAGE_BOOLEANS_LOCAL),
--		    semanage_bool_dbase_local(sh)) < 0)
-+	if (bool_file_dbase_init(sh,
-+				 semanage_path_read(SEMANAGE_ACTIVE,
-+						    SEMANAGE_BOOLEANS_LOCAL),
-+				 semanage_path(SEMANAGE_TMP,
-+					       SEMANAGE_BOOLEANS_LOCAL),
-+				 semanage_bool_dbase_local(sh)) < 0)
- 		goto err;
- 
- 	if (fcontext_file_dbase_init(
--		    sh, semanage_path(SEMANAGE_ACTIVE, SEMANAGE_STORE_FC_LOCAL),
-+		    sh,
-+		    semanage_path_read(SEMANAGE_ACTIVE,
-+				       SEMANAGE_STORE_FC_LOCAL),
- 		    semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_LOCAL),
- 		    semanage_fcontext_dbase_local(sh)) < 0)
- 		goto err;
- 
- 	if (fcontext_file_dbase_init(
- 		    sh,
--		    semanage_path(SEMANAGE_ACTIVE, SEMANAGE_STORE_FC_HOMEDIRS),
-+		    semanage_path_read(SEMANAGE_ACTIVE,
-+				       SEMANAGE_STORE_FC_HOMEDIRS),
- 		    semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_HOMEDIRS),
- 		    semanage_fcontext_dbase_homedirs(sh)) < 0)
- 		goto err;
- 
- 	if (seuser_file_dbase_init(
--		    sh, semanage_path(SEMANAGE_ACTIVE, SEMANAGE_SEUSERS_LOCAL),
-+		    sh,
-+		    semanage_path_read(SEMANAGE_ACTIVE, SEMANAGE_SEUSERS_LOCAL),
- 		    semanage_path(SEMANAGE_TMP, SEMANAGE_SEUSERS_LOCAL),
- 		    semanage_seuser_dbase_local(sh)) < 0)
- 		goto err;
- 
- 	if (node_file_dbase_init(
--		    sh, semanage_path(SEMANAGE_ACTIVE, SEMANAGE_NODES_LOCAL),
-+		    sh,
-+		    semanage_path_read(SEMANAGE_ACTIVE, SEMANAGE_NODES_LOCAL),
- 		    semanage_path(SEMANAGE_TMP, SEMANAGE_NODES_LOCAL),
- 		    semanage_node_dbase_local(sh)) < 0)
- 		goto err;
- 
- 	if (ibpkey_file_dbase_init(
--		    sh, semanage_path(SEMANAGE_ACTIVE, SEMANAGE_IBPKEYS_LOCAL),
-+		    sh,
-+		    semanage_path_read(SEMANAGE_ACTIVE, SEMANAGE_IBPKEYS_LOCAL),
- 		    semanage_path(SEMANAGE_TMP, SEMANAGE_IBPKEYS_LOCAL),
- 		    semanage_ibpkey_dbase_local(sh)) < 0)
- 		goto err;
- 
- 	if (ibendport_file_dbase_init(
- 		    sh,
--		    semanage_path(SEMANAGE_ACTIVE, SEMANAGE_IBENDPORTS_LOCAL),
-+		    semanage_path_read(SEMANAGE_ACTIVE,
-+				       SEMANAGE_IBENDPORTS_LOCAL),
- 		    semanage_path(SEMANAGE_TMP, SEMANAGE_IBENDPORTS_LOCAL),
- 		    semanage_ibendport_dbase_local(sh)) < 0)
- 		goto err;
-@@ -243,7 +256,8 @@ int semanage_direct_connect(semanage_handle_t *sh)
- 		goto err;
- 
- 	if (user_extra_file_dbase_init(
--		    sh, semanage_path(SEMANAGE_ACTIVE, SEMANAGE_USERS_EXTRA),
-+		    sh,
-+		    semanage_path_read(SEMANAGE_ACTIVE, SEMANAGE_USERS_EXTRA),
- 		    semanage_path(SEMANAGE_TMP, SEMANAGE_USERS_EXTRA),
- 		    semanage_user_extra_dbase_policy(sh)) < 0)
- 		goto err;
-@@ -271,13 +285,14 @@ int semanage_direct_connect(semanage_handle_t *sh)
- 		goto err;
- 
- 	if (fcontext_file_dbase_init(
--		    sh, semanage_path(SEMANAGE_ACTIVE, SEMANAGE_STORE_FC),
-+		    sh, semanage_path_read(SEMANAGE_ACTIVE, SEMANAGE_STORE_FC),
- 		    semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC),
- 		    semanage_fcontext_dbase_policy(sh)) < 0)
- 		goto err;
- 
- 	if (seuser_file_dbase_init(
--		    sh, semanage_path(SEMANAGE_ACTIVE, SEMANAGE_STORE_SEUSERS),
-+		    sh,
-+		    semanage_path_read(SEMANAGE_ACTIVE, SEMANAGE_STORE_SEUSERS),
- 		    semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS),
- 		    semanage_seuser_dbase_policy(sh)) < 0)
- 		goto err;
-@@ -290,7 +305,7 @@ int semanage_direct_connect(semanage_handle_t *sh)
- 		goto err;
- 
- 	/* set the disable dontaudit value */
--	path = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_DISABLE_DONTAUDIT);
-+	path = semanage_path_read(SEMANAGE_ACTIVE, SEMANAGE_DISABLE_DONTAUDIT);
- 
- 	if (stat(path, &sb) == 0)
- 		sepol_set_disable_dontaudit(sh->sepolh, 1);
 diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-index a9b471a2..7f7cd7d2 100644
+index 7f7cd7d2..cdf4cf17 100644
 --- a/libsemanage/src/semanage_store.c
 +++ b/libsemanage/src/semanage_store.c
-@@ -746,7 +746,7 @@ int semanage_store_access_check(void)
- 	int rc = -1;
+@@ -759,12 +759,25 @@ int semanage_store_access_check(void)
+ 	 */
+ 	path = semanage_files[SEMANAGE_READ_LOCK];
+ 	if (access(path, R_OK) != 0) {
++		char anc[PATH_MAX], *slash;
++
+ 		if (access(path, F_OK) == 0) {
+ 			goto out;
+ 		}
  
- 	/* read access on active store */
--	path = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_TOPLEVEL);
-+	path = semanage_path_read(SEMANAGE_ACTIVE, SEMANAGE_TOPLEVEL);
- 	if (access(path, R_OK | X_OK) != 0)
- 		goto out;
- 
-@@ -2158,8 +2158,8 @@ int semanage_direct_get_serial(semanage_handle_t *sh)
- 		commit_filename =
- 			semanage_path(SEMANAGE_TMP, SEMANAGE_COMMIT_NUM_FILE);
- 	} else {
--		commit_filename = semanage_path(SEMANAGE_ACTIVE,
--						SEMANAGE_COMMIT_NUM_FILE);
-+		commit_filename = semanage_path_read(SEMANAGE_ACTIVE,
-+						     SEMANAGE_COMMIT_NUM_FILE);
+-		path = semanage_files[SEMANAGE_ROOT];
+-		if (access(path, R_OK | W_OK | X_OK) != 0) {
++		/*
++		 * semanage_get_lock() will mkdir_recursive() the store
++		 * root on demand, so predict success if any existing
++		 * ancestor of <root>/<type> is writable.
++		 */
++		snprintf(anc, sizeof(anc), "%s", semanage_files[SEMANAGE_ROOT]);
++		while (access(anc, F_OK) != 0 &&
++		       (slash = strchr(anc, '/')) != NULL) {
++			if (slash == anc)
++				slash++;
++			*slash = '\0';
++		}
++		if (access(anc, R_OK | W_OK | X_OK) != 0) {
+ 			goto out;
+ 		}
  	}
+@@ -2023,8 +2036,21 @@ static int semanage_get_lock(semanage_handle_t *sh, const char *lock_name,
+ 	int fd;
+ 	int left;
  
- 	if ((fd = open(commit_filename, O_RDONLY | O_CLOEXEC)) == -1) {
-@@ -2239,7 +2239,8 @@ int semanage_read_policydb(semanage_handle_t *sh, sepol_policydb_t *in,
- 	struct sepol_policy_file *pf = NULL;
- 	FILE *infile = NULL;
- 
--	if ((kernel_filename = semanage_path(SEMANAGE_ACTIVE, file)) == NULL) {
-+	if ((kernel_filename = semanage_path_read(SEMANAGE_ACTIVE, file)) ==
-+	    NULL) {
- 		goto cleanup;
- 	}
- 	if ((infile = fopen(kernel_filename, "re")) == NULL) {
+-	if ((fd = open(lock_file, O_RDWR | O_CREAT | O_CLOEXEC,
+-		       S_IRUSR | S_IWUSR)) == -1) {
++	fd = open(lock_file, O_RDWR | O_CREAT | O_CLOEXEC, S_IRUSR | S_IWUSR);
++	if (fd == -1 && errno == ENOENT) {
++		/*
++		 * On a fresh writable store the <root>/<type>/ parent may
++		 * not exist yet for a reader (writers create it in
++		 * begintrans() via semanage_create_store()). Create it
++		 * here so a pure read can still take the lock and
++		 * serialize it against a concurrent commit.
++		 */
++		const char *root = semanage_files[SEMANAGE_ROOT];
++		if (mkdir_recursive(root, 0755) == 0 && chmod(root, 0700) == 0)
++			fd = open(lock_file, O_RDWR | O_CREAT | O_CLOEXEC,
++				  S_IRUSR | S_IWUSR);
++	}
++	if (fd == -1) {
+ 		ERR(sh, "Could not open direct %s at %s.", lock_name,
+ 		    lock_file);
+ 		return -1;
 -- 
 2.55.0
 
