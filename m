@@ -1,72 +1,83 @@
-Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
+Received: from sonic306-28.consmr.mail.ne1.yahoo.com (sonic306-28.consmr.mail.ne1.yahoo.com [66.163.189.90])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6CB33A48C5
-	for <selinux@vger.kernel.org>; Wed,  2 Sep 2026 19:50:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6593941D4F7
+	for <selinux@vger.kernel.org>; Wed,  2 Sep 2026 22:02:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.189.90
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788378627; cv=none; b=T8xDq2DB5g42/M5fQI3T/ZfaCVKGTBAgqYmTfn9ce0VLRHlKYkUHIl491xryrSNZ22DyNmSfFqztpSWuplzOOhNzj8Q22d+WLGmLc/aLqXTh9lyNNmhzRrv8NQ4QnNrmGR8Vnc4f8hd9mYol0s+Nzit3CP8NJeyOFAq9SFnuMw4=
+	t=1788386540; cv=none; b=gncFnBiZZbbR1x9QT0k0DP8foDpkggK1T+h/VvCE9da7ubAymxDdb6YcNSUp0VNKO9YuIch7DPoBNerH+yyt44j8KukwZBVf4H1nVnBj3LVI70TZ8msjHGYGksO4xliCihTs60jF0bQFCLJpprFqSdHVaxrVYT6wXqrzpLw8sZg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788378627; c=relaxed/simple;
-	bh=A6GEYNJFmoVnHyPgdufQmWKTg1ote0BnIpag9bxpFIA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=JBiNpev9TNjX/nWXj+eE1dCam/MIfVk8bjDOUwMSqjQzT3aqOxDlfcrnvNVhaJDv08WDvYYnOTbx9Jc4zRf/dvsfQjvY95u35OtQV8r3aQbsN3Z7XIna+7q782fk2s8AumCO+867EGt6bpWlI/mHS3sipQgfOKEpv3xBnEYrrzM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NjHcFhNm; arc=none smtp.client-ip=209.85.160.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788386540; c=relaxed/simple;
+	bh=YePZ51dlYmZ/cucTyw+gosn8F7f35BMcwjmeoZtY7Bw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=YCFAogsaU83DWLSKh4Ov2xwk47IVo0oO3PcXtTKNtD0f6jXbEhqDI20c+TDNIEh6nXpLZkBgRPx9yA1SZKKkl4o77h8+WsGUyXcmSIT5IWoJ8HRwNT4Z9SjtSJLhyOHUnfXel3FRnGFV1EwBwzRTcw/lQjUZMZfxrE6S7mC46Yo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=moyRBFJn; arc=none smtp.client-ip=66.163.189.90
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NjHcFhNm"
-Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-52ff0eea420so2919981cf.0
-        for <selinux@vger.kernel.org>; Wed, 02 Sep 2026 12:50:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788378620; x=1788983420; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=pzWUSczOi9yLOlL0klfd0lj8Xxw15DO6hhmCd6Et+Cc=;
-        b=NjHcFhNmq5n0s/WomdTbofLGHX4irNmK00OTOza+GG799AtdyaDcXW13DGpihgYgfE
-         7D21h/SaEGhlx6QfPqjpkgyZrfDOh91E//vV1AHDzPDjFPxeT/NxGjfIzCS7iCrm4VH6
-         xZoSEV9ueL7EFSme8ry04myze+OrHYPaoEhobYTvlFpwT6B/PA+Q/wvFrcAusrhgG+AN
-         7FAjoSb/nmM09qexoDKS+om9Olumo5VrXvCmKnt+MKI9q6gJvnhJtfQINb55XxNj4oAN
-         AtBF/8lrLrkJNtSsfrQlrt+a64fCXk7xV9Udb2UEcbEZVQjevPA6LWf8RBQ1rS1iERPc
-         zwEw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788378620; x=1788983420;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=pzWUSczOi9yLOlL0klfd0lj8Xxw15DO6hhmCd6Et+Cc=;
-        b=q+jiNdzbc9kTCuKcCrgZYzZHIax8Shz/hANauhmnFPRfJPgMYMsB6NhZFAO935u8bp
-         cnnlTiDhRVNLwHoKVtmNZGrgNk2SwI3VQInt4MQKfXsD01yAXiLNUGQPZM6RmE0ONbUf
-         PdHvV8rCr+2nbvAFYTQi/DQU2R6Wxol+yoqGis9ycjyp4KV9fVW//fjg9N8q9/Cs/+18
-         +XST0ObiRF8lYcU2AdSXTZ/q+4zS/9Dooxhj3AssqO54eqtxJvQSU9JVhkwT7u91MA1q
-         YhjtFLfe+R3Rd7MHmfd22LuNh58R6pKiiYFtJoBkLx2U9SFLNbXQkH2cZgm8V9Z92MT0
-         Pihg==
-X-Gm-Message-State: AFuF++mNRxuIgXMogWapZgDAn40H2HQlAo2OmAGUInUR4pUd3jBlpr6k
-	gCL+byUEhaohzXbK4lYUuBKPv2XCrusY06Hb0arLwhbczcUceScw5bn+h59n3A==
-X-Gm-Gg: AYBFou33Mt08jH2l+vYDIhpg21b700kJBMS+XmjCmS8LqRsnKVh09gfGeSe6BijzfMW
-	reLpl/PB+N/PJNR+jMbYnWHs0yFrEB1Ml65VV/XPS1ojQ8uuFNHVciGaFDQnjbKVJU+xceCZ9sU
-	LGTNaND3qO+AllmIRZ1lTKPX+8Z0MHPhSJ3vzIL3Z9zz/jCXOhWKqMk38WHd3VaI3KBrVW7C80S
-	0skVKno7pnYjvaeI617lZ/Q1fUtY3Mu6hgiNbjnng0q5nAaBVXLa1eAVx1Nfngv9AZVMlS6TV2x
-	VcrgMydQwgxnDfk2WvuLFZIG/Ky83O+w4aHLE4ISOr4D3ObKx/DtgSL18MynwqLLixEvdo2c8UI
-	kLRVZPYoEVgeOEkdDWEq1nVIpM+8bbbITAVlJ4JfsxSo5ZVzwtPvO+TXbIZ6jaZzHaY439+J01D
-	RnVZO7X+HdECqQNjP6XAivIjb2EPydbDVXHFFXyEK7BA/a8WAzFNHIFe9VZ7ID9Utqk84nQgTXC
-	iDz5gB4oF7Hqg6C45i4tCJROKBz1yuS1xu3w0V+NVLxPcdlhUrLQyYVWSwQ0O0r
-X-Received: by 2002:ac8:7d0b:0:b0:50e:474a:47e1 with SMTP id d75a77b69052e-530431af04fmr19433811cf.10.1788378620154;
-        Wed, 02 Sep 2026 12:50:20 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-90e9ef0ef6csm25330456d6.44.2026.09.02.12.50.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Sep 2026 12:50:19 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	plautrba@redhat.com,
-	omosnace@redhat.com,
-	jason@perfinion.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] libsemanage: optionally sort file_contexts.local by specificity
-Date: Wed,  2 Sep 2026 15:50:04 -0400
-Message-ID: <20260902195004.12254-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="moyRBFJn"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1788386526; bh=yHlrmN78oxAAQbX+BTQB5IQgb1bzCbKp9XLNwOjJhUs=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=moyRBFJnmjEOXp0cu0W0YXF51tTa/JKusHspmFEp1fCf88plxwqPUJ4YgU0txTeCf7IKmEWM5EqDiXJg0VUMVrFCpNpuDZiZqZelfEzF0RpycarI/wgiVvXYEyh4mbEB/9BjTkCFJNoJafg13BfHpA86c+sQN47Y7hhpKrVZwRFCMt9xVz9k6XpGici/umXBCkOSKOEaYADtGNrgV3f2iHg6mu+s2NeBvlTkzPgHErBEV3ndsGA2RPuAAqC0J4f10UFL7XmKq1VKAtCnWy+6r2kBKolryyogd7DC+qFwNxNCq9P3ozEZc62SYAtExq4Zwj0eK0k1XA0ZGd4HaUHw2g==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1788386526; bh=rHAuPVQSlNPBPD1AZj8DFXMRW5csewSbXSJoRErwmEK=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=UXyDgj/fThrxCWNpEAjyGPVXEYfN2zvC6X3Zsl67TzVL/7p+BQu+V50Zo398nPPFrJ7shLasldvyHywG/yudt0s/CC7/6m3la7M6NCKEyw0OawSVHkiOZMwLW7fs2m4CAr1pw5YMaYAOVsxup8VXFQALMXPp4rq9lB2hgXFFtOgaAieJdi+dQ67ggF/da7rOJWWBmFQTusEMZZTfktOklSFrcZ8kQK0sWlyxsnxUhVEdzU8y8z2yiq51xDeKCs3ZUQAcy/4wBalceSH9JoEQsINVYug3XiRtFQfTTEQs6sC8JvQ+p02xk4WtNRFxijh454kJ0sinJwtNp0GFVbEm+A==
+X-YMail-OSG: c2CNKksVM1nrISRBf2URQ6BWUvFkDkFeXETfEGOGpuAYHacV83L2Ib4DRZc7VyV
+ 5bA4P1tEFEy_j7_ek6i9n_zKnVTPfQO6pB.J8ksEX9xqJDBkhWs4dg_epQHazN5HhXhZIZxw8yQP
+ 7tyuGl1FBXfCwTaZrj2dxL5tK0i_LOuiNU_6NRXI89gSzEzsC7TnE.DbttsF0GHF5P6Jvrrn8_Om
+ nIXDfW3bleFkx8SxbmfAVfyl4bFIw5tVGJILFCv2Ivu4NihPDw.QJrbjh7EoBN3dlbkzKdZI8c5t
+ JaMu790XpWH73l3uvDsIy_Qe2nYxVCp68N7nrse5D3zcdQwTmgoE7OpEh9AuTlCJgu5Tyg24ThuF
+ pVwCxDLYLk0vo4VYanNSndoW0y.1IEARERia8Ce9qtUOLiLG5YenGDIySt4CiFzP6o34ZPziTbrK
+ 5o8EUOb.3jbn6w_pDiZ0.GJioFssWqosBB0.Slehod1adqnENqhvTY3uJ.1szVxgc7ir9V2CCbmm
+ kl0mdiflqFmiEVjZnVOQqUrX.OS3NHUHwqYNjgqFoiyGR06EQmKG79VayPIoBcpMLhcDL29zK21Y
+ WJnm3cfEyd1I_O6uuUtqpSMYdCkSK_hiCwqDC6wf67XQSYXkaCRUX0xF0lDN8sfmqup7jsRHfFQ4
+ hPDnroqIzO7tIQsrUSIBJBlx3pFiHdboEjULZKom1VJXLmrinbIZwoDDI_qaYmjekPjm_VvfW0Zm
+ EevRuSS4LKOVC7OP1kRQrx_fk6IJk.ml.uvwpciRbx5szX8UHBYKFyzF8rwIe5baSjgO98tj7UxI
+ 3QpMdoG5pokKNdNkHzSFHm9FBFy1ioat78hc3uSJ3YEHdYnaIA8TDZa0h9Od8K3mXg8Cf5YIUhVw
+ PYFwY1LYdDDL0iizAWwOjsiV.shpi8tPLe63RW8TCRgECmcI.Cry0SzacePbQUslQg2WWYRADFcY
+ FB5bs0MrI1KI3Xa7AsaPuN2SJT.qckgry8H_WH.Mbx1vwC2B_o49fSC4GYlYK4GSvxC8VWJuIM5d
+ _6g0Kpp7Aw60gc.kuquz0.xn.g77FgAqh8Zm5ndXm.5N6iicTkRfiISPkZ9iTt.P5_CGCAOpU_j8
+ h2_psp7nj0urwZXsDQ.zqTdu2eJEKanbz9R2n7EOHqggpGQGllzAdyyiwqbSSaxQhqQ7CeYoz1Q2
+ ydz4ty.DChasU2_qDw1uWGF2mvQPR13IhBy6_lQM3NkESmu2IuyFcqsOEbbw4juwwZpC5K1F2301
+ hThZJx1Wj2X_NNfteBQW8zY9Q_5dw579DwE1fLIBBa782i.3yWKXo685iq9X1wXRG1PHh9JsA4lT
+ zeqRWfxEjSzDhlWPjVQgqSnEGyrDlkF49roHbEjdohWIMdg8aUaGx4VNsDMpbOvqOr6JfDAPgQJg
+ qafcKqJd2NuELZdR36tXcMUcX8PDrwMlMX2QPd7m9VtJYJlEiVBK8wjURUgPVurqzeRI6R8D3hOc
+ 3.b1vmjCgTjdizyIL1o5AKXwgJ1rwtzKIWVZNlBI.Bnr18eikPJNVwMqGAZsRMWHRcWYkNbs91ts
+ kNW69_HUYod0ui7eDDdo7Jcf6FFN6bFQSF6oylzf31IfVcl69EVB6JZ7wzjS81ecYypY6oXnz6.U
+ FiTZ2dkSes7fgQT_rxeVjgrPQDXrQeylqr5fazLJnKHsrtQDDuR4I3uYgoWMP1lASpqmvY4IZwyp
+ 7FH46lTGjIA5tUFkw6GsstMKlqLcIZMlrzdb_5lulMMeB_MIsdaG124ptIrAbwGvs3g9FcRwE4cD
+ lORHwnDClZ7VHanZ2vQCWbxC6iA3Qx4iyYugFHVWJTH1AU4Gm1HWXcY7RbtXcUeTAWSorI7EIHfz
+ 1gWwaYAv62Ys0Waz3wIjpPNJyVAWsUXI2bwTREAy9M2Dk2X3ZFuStjGKgiYQUodJq.BREwLm8jU6
+ dKqXEMy4ITVQFvjvplSYF6l_3O6vraZpdzaD8t00nJYZqiZCV79yj1qOabdfMSaVD.KFhoz8GMcX
+ uB4MyGkmLzAJ9hR0mIeP_UwYLAX1QOjviE40H3aRy8UbL2sAPCUI0JwHEFKZPIYhHvGZGimDEErE
+ Dd6deAGHJvYuf6ApPjb1VkLA9AQ559Z0JsCx.oNacj39Mg4Kj04j6coLn5Z8MdsOCwaHdxo24S3_
+ zYifJUzJQscmHkPDIlm5rliBU7oYZWyBhX1N6cyav.PEvvnAN31wk_OGUw1j5UWjRkWgi5FLuzfc
+ 4rd3BJCDcCP8XvBSniiP6iWiEdPlq6qI1spsAomAAAhSlalM.ROirbuqBYtndXkioluVLvUn4ef8
+ w8UfY2dDVBGViqQkpLEftI_E-
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: 38997c78-a1ee-469c-a996-0309c53fa4f3
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Wed, 2 Sep 2026 22:02:06 +0000
+Received: by hermes--production-gq1-678d9dd684-dljdn (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 39a905a7360d4d1389754a332443770a;
+          Wed, 02 Sep 2026 22:02:04 +0000 (UTC)
+From: Casey Schaufler <casey@schaufler-ca.com>
+To: casey@schaufler-ca.com,
+	paul@paul-moore.com,
+	linux-security-module@vger.kernel.org,
+	pablo@netfilter.org,
+	fw@strlen.de,
+	phil@nwl.cc
+Cc: linux-kernel@vger.kernel.org,
+	netfilter-devel@vger.kernel.org,
+	coreteam@netfilter.org,
+	jmorris@namei.org,
+	serge@hallyn.com,
+	keescook@chromium.org,
+	john.johansen@canonical.com,
+	penguin-kernel@i-love.sakura.ne.jp,
+	stephen.smalley.work@gmail.com,
+	selinux@vger.kernel.org
+Subject: [PATCH v2 1/7] net, smack: Create a function to set secmarks
+Date: Wed,  2 Sep 2026 15:01:44 -0700
+Message-ID: <20260902220150.18586-2-casey@schaufler-ca.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260902220150.18586-1-casey@schaufler-ca.com>
+References: <20260902220150.18586-1-casey@schaufler-ca.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -75,251 +86,151 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The policy-supplied file_contexts is emitted by the CIL compiler in
-least-to-most-specific order (cil_post_filecon_compare()) so that the
-libselinux label_file backend, which returns last matching spec, picks
-the most specific match. file_contexts.local is written by libsemanage
-in the order the entriers were added with semanage fcontext -a, so a
-broad entry added after a narrow one overrides it, and callers cannot
-rely on "most specific wins" for local customizations.
+Rather than open coding assignments to skb->secmark, use a helper function
+secxa_set_secmark(). This allows for a case where assigning a secmark
+is more complex than a simple assignment. The version of the function
+here does the legacy simple assignment.
 
-Add a semanage.conf sort-local-fcontexts boolean. When set to true,
-the copy of file_contexts.local installed to the policy directory is
-run through semanage_fc_sort(), which uses the same heuristics as
-cil_post_filecon_compare(), with equally-specific entries retaining
-their insertion order. The module store copy is left in insertion
-order, so semanage fcontext -l -C still shows entries as they were
-added.
+Change the functions that currently assign values to skb->secmark to
+use this function.
 
-Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=678577
-Fixes: https://github.com/SELinuxProject/selinux/issues/40
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- libsemanage/man/man5/semanage.conf.5 | 13 ++++++
- libsemanage/src/conf-parse.y         | 15 +++++-
- libsemanage/src/conf-scan.l          |  1 +
- libsemanage/src/direct_api.c         | 16 +++++--
- libsemanage/src/semanage_conf.h      |  1 +
- libsemanage/src/semanage_store.c     | 70 ++++++++++++++++++++++++++++
- libsemanage/src/semanage_store.h     |  2 +
- 7 files changed, 113 insertions(+), 5 deletions(-)
+ include/linux/lsm_secxa.h        | 28 ++++++++++++++++++++++++++++
+ net/netfilter/nft_meta.c         |  5 +++--
+ net/netfilter/xt_CONNSECMARK.c   |  3 ++-
+ net/netfilter/xt_SECMARK.c       |  3 ++-
+ security/smack/smack_netfilter.c |  3 ++-
+ 5 files changed, 37 insertions(+), 5 deletions(-)
+ create mode 100644 include/linux/lsm_secxa.h
 
-diff --git a/libsemanage/man/man5/semanage.conf.5 b/libsemanage/man/man5/semanage.conf.5
-index 74f0d34f..336e02d0 100644
---- a/libsemanage/man/man5/semanage.conf.5
-+++ b/libsemanage/man/man5/semanage.conf.5
-@@ -131,6 +131,19 @@ It can be set to either "true" or "false" and by default it is set to "true".
- When set to "true", duplicate type, type attribute, and role declarations will be allowed.
- It can be set to either "true" or "false" and by default it is set to "true".
- 
-+.TP
-+.B sort-local-fcontexts
-+When set to "true", the installed
-+.I file_contexts.local
-+file is sorted from least to most specific using the same heuristic as the policy-supplied
-+.IR file_contexts ,
-+so the most specific local entry wins regardless of the order the entries were added with
-+.BR "semanage fcontext \-a" .
-+The module store copy (and thus
-+.BR "semanage fcontext \-l \-C" )
-+is unaffected.
-+It can be set to either "true" or "false" and by default it is set to "false", preserving insertion-order matching.
+diff --git a/include/linux/lsm_secxa.h b/include/linux/lsm_secxa.h
+new file mode 100644
+index 000000000000..926257d4730c
+--- /dev/null
++++ b/include/linux/lsm_secxa.h
+@@ -0,0 +1,28 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +
- .RE
- .PP
- For certain tasks the SELinux Management library resorts to running
-diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
-index dee17b2f..ba75a1ec 100644
---- a/libsemanage/src/conf-parse.y
-+++ b/libsemanage/src/conf-parse.y
-@@ -62,7 +62,7 @@ static int parse_errors;
-         char *s;
- }
- 
--%token MODULE_STORE VERSION EXPAND_CHECK FILE_MODE SAVE_PREVIOUS SAVE_LINKED TARGET_PLATFORM COMPILER_DIR IGNORE_MODULE_CACHE STORE_ROOT OPTIMIZE_POLICY MULTIPLE_DECLS
-+%token MODULE_STORE VERSION EXPAND_CHECK FILE_MODE SAVE_PREVIOUS SAVE_LINKED TARGET_PLATFORM COMPILER_DIR IGNORE_MODULE_CACHE STORE_ROOT OPTIMIZE_POLICY MULTIPLE_DECLS SORT_LOCAL_FCONTEXTS
- %token LOAD_POLICY_START SETFILES_START SEFCONTEXT_COMPILE_START DISABLE_GENHOMEDIRCON HANDLE_UNKNOWN USEPASSWD IGNOREDIRS
- %token BZIP_BLOCKSIZE BZIP_SMALL RELABEL_STORE REMOVE_HLL
- %token VERIFY_MOD_START VERIFY_LINKED_START VERIFY_KERNEL_START BLOCK_END
-@@ -101,6 +101,7 @@ single_opt:     module_store
- 	|	relabel_store
- 	|	optimize_policy
- 	|	multiple_decls
-+        |       sort_local_fcontexts
-         ;
- 
- module_store:   MODULE_STORE '=' ARG {
-@@ -329,6 +330,17 @@ multiple_decls:  MULTIPLE_DECLS '=' ARG {
- 	free($3);
- }
- 
-+sort_local_fcontexts: SORT_LOCAL_FCONTEXTS '=' ARG {
-+	if (strcasecmp($3, "false") == 0) {
-+		current_conf->sort_local_fcontexts = false;
-+	} else if (strcasecmp($3, "true") == 0) {
-+		current_conf->sort_local_fcontexts = true;
-+	} else {
-+		yyerror("sort-local-fcontexts can only be 'true' or 'false'");
-+	}
-+	free($3);
-+}
-+
- command_block:
-                 command_start external_opts BLOCK_END  {
-                         if (new_external->path == NULL) {
-@@ -425,6 +437,7 @@ static int semanage_conf_init(semanage_conf_t * conf)
- 	conf->relabel_store = true;
- 	conf->optimize_policy = true;
- 	conf->multiple_decls = true;
-+	conf->sort_local_fcontexts = false;
- 
- 	conf->save_previous = false;
- 	conf->save_linked = false;
-diff --git a/libsemanage/src/conf-scan.l b/libsemanage/src/conf-scan.l
-index c592fb63..8d1d56ac 100644
---- a/libsemanage/src/conf-scan.l
-+++ b/libsemanage/src/conf-scan.l
-@@ -57,6 +57,7 @@ remove-hll	return REMOVE_HLL;
- relabel_store	return RELABEL_STORE;
- optimize-policy return OPTIMIZE_POLICY;
- multiple-decls return MULTIPLE_DECLS;
-+sort-local-fcontexts return SORT_LOCAL_FCONTEXTS;
- "[load_policy]"   return LOAD_POLICY_START;
- "[setfiles]"      return SETFILES_START;
- "[sefcontext_compile]"      return SEFCONTEXT_COMPILE_START;
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index 132e2a2a..14880081 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -1675,10 +1675,18 @@ static int semanage_direct_commit(semanage_handle_t *sh)
- 		goto cleanup;
- 	}
- 
--	retval = copy_file_if_exists(
--		sh, semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_LOCAL),
--		semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC_LOCAL),
--		sh->conf->file_mode);
-+	if (sh->conf->sort_local_fcontexts) {
-+		retval = semanage_sort_fc_file(sh,
-+			semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_LOCAL),
-+			semanage_final_path(SEMANAGE_FINAL_TMP,
-+					SEMANAGE_FC_LOCAL),
-+					sh->conf->file_mode);
-+	} else {
-+		retval = copy_file_if_exists(
-+			sh, semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_LOCAL),
-+			semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC_LOCAL),
-+			sh->conf->file_mode);
-+	}
- 	if (retval < 0) {
- 		goto cleanup;
- 	}
-diff --git a/libsemanage/src/semanage_conf.h b/libsemanage/src/semanage_conf.h
-index 5a24ea87..d8544dc9 100644
---- a/libsemanage/src/semanage_conf.h
-+++ b/libsemanage/src/semanage_conf.h
-@@ -51,6 +51,7 @@ typedef struct semanage_conf {
- 	bool optimize_policy;
- 	bool multiple_decls;
- 	bool relabel_store;
-+	bool sort_local_fcontexts;
- 	char *ignoredirs; /* ";" separated of list for genhomedircon to ignore */
- 	struct external_prog *load_policy;
- 	struct external_prog *setfiles;
-diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-index f6ca1afb..5471abdd 100644
---- a/libsemanage/src/semanage_store.c
-+++ b/libsemanage/src/semanage_store.c
-@@ -1605,6 +1605,76 @@ cleanup:
- 	return retval;
- }
- 
 +/*
-+ * Read file-context specifications from @src, sort them from least
-+ * to most specific using the same heuristic as the policy-supplied
-+ * file_contexts (see semanage_fc_compare()), and write the result to
-+ * @dst. Comments in @src are dropped; the auto-generated header is
-+ * re-emitted. A missing @src is not an error.
++ * Copyright (C) 2026 Casey Schaufler <casey@schaufler-ca.com>
 + */
-+int semanage_sort_fc_file(semanage_handle_t *sh, const char *src,
-+			const char *dst, mode_t mode)
++
++#ifndef __LINUX_LSM_SECXA_H
++#define __LINUX_LSM_SECXA_H
++
++#ifdef CONFIG_NETWORK_SECMARK
++
++#include <linux/security.h>
++#include <linux/skbuff.h>
++
++static inline void secxa_set_secmark(struct sk_buff *skb, u32 secxa)
 +{
-+	const char *header = "# This file is auto-generated by libsemanage\n"
-+		"# Do not edit directly.\n\n";
-+	struct file_contents contents = {};
-+	char *sorted = NULL;
-+	size_t sorted_len = 0;
-+	int out = -1, retval = -1;
-+	mode_t mask;
-+
-+	if (access(src, F_OK) != 0)
-+		return (errno == ENOENT) ? 0 : -1;
-+
-+	if (map_compressed_file(sh, src, &contents) < 0) {
-+		ERR(sh, "Could not read %s.", src);
-+		return -1;
-+	}
-+
-+	if (contents.len > 0 &&
-+		semanage_fc_sort(sh, contents.data, contents.len,
-+				&sorted, &sorted_len) < 0) {
-+		ERR(sh, "Could not sort file contexts from %s.", src);
-+		goto cleanup;
-+	}
-+
-+	if (!mode)
-+		mode = S_IRUSR | S_IWUSR;
-+	mask = umask(0);
-+	out = open(dst, O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, mode);
-+	umask(mask);
-+	if (out < 0) {
-+		ERR(sh, "Could not open %s for writing.", dst);
-+		goto cleanup;
-+	}
-+	if (write_full(out, header, strlen(header)) < 0) {
-+		ERR(sh, "Write to %s failed.", dst);
-+		goto cleanup;
-+	}
-+
-+	if (sorted && sorted_len > 1 &&
-+		write_full(out, sorted, sorted_len - 1) < 0) {
-+		ERR(sh, "Write to %s failed.", dst);
-+		goto cleanup;
-+	}
-+
-+	if (close(out) < 0 && errno != EINTR) {
-+		out = -1;
-+		goto cleanup;
-+	}
-+	out = -1;
-+
-+	semanage_setfiles(sh, dst);
-+	retval = 0;
-+
-+cleanup:
-+	if (out >= 0)
-+		close(out);
-+	free(sorted);
-+	unmap_compressed_file(&contents);
-+	return retval;
++	skb->secmark = secxa;
 +}
++#else /* CONFIG_NETWORK_SECMARK */
 +
- static int sefcontext_compile(semanage_handle_t *sh, const char *path)
- {
- 	int r;
-diff --git a/libsemanage/src/semanage_store.h b/libsemanage/src/semanage_store.h
-index 86ae0936..1fe122ec 100644
---- a/libsemanage/src/semanage_store.h
-+++ b/libsemanage/src/semanage_store.h
-@@ -156,6 +156,8 @@ int semanage_split_fc(semanage_handle_t *sh);
- /* sort file context routines */
- int semanage_fc_sort(semanage_handle_t *sh, const char *buf, size_t buf_len,
- 		     char **sorted_buf, size_t *sorted_buf_len);
-+int semanage_sort_fc_file(semanage_handle_t *sh, const char *src,
-+			const char *dst, mode_t mode);
++struct sk_buff;
++
++static inline void secxa_set_secmark(struct sk_buff *skb, u32 secxa)
++{
++}
++#endif /* CONFIG_NETWORK_SECMARK */
++
++#endif  /* __LINUX_LSM_SECXA_H */
+diff --git a/net/netfilter/nft_meta.c b/net/netfilter/nft_meta.c
+index 0a43e0787a68..bd0f7a0931f4 100644
+--- a/net/netfilter/nft_meta.c
++++ b/net/netfilter/nft_meta.c
+@@ -17,6 +17,7 @@
+ #include <linux/random.h>
+ #include <linux/smp.h>
+ #include <linux/static_key.h>
++#include <linux/lsm_secxa.h>
+ #include <net/dst.h>
+ #include <net/ip.h>
+ #include <net/sock.h>
+@@ -502,7 +503,7 @@ void nft_meta_set_eval(const struct nft_expr *expr,
+ 		break;
+ #ifdef CONFIG_NETWORK_SECMARK
+ 	case NFT_META_SECMARK:
+-		skb->secmark = value;
++		secxa_set_secmark(skb, value);
+ 		break;
+ #endif
+ 	default:
+@@ -950,7 +951,7 @@ static void nft_secmark_obj_eval(struct nft_object *obj, struct nft_regs *regs,
+ 	const struct nft_secmark *priv = nft_obj_data(obj);
+ 	struct sk_buff *skb = pkt->skb;
  
- /* sort netfilter context routines */
- int semanage_nc_sort(semanage_handle_t *sh, const char *buf, size_t buf_len,
+-	skb->secmark = priv->secid;
++	secxa_set_secmark(skb, priv->secid);
+ }
+ 
+ static int nft_secmark_obj_init(const struct nft_ctx *ctx,
+diff --git a/net/netfilter/xt_CONNSECMARK.c b/net/netfilter/xt_CONNSECMARK.c
+index 1494b3ee30e1..9d799d2459dc 100644
+--- a/net/netfilter/xt_CONNSECMARK.c
++++ b/net/netfilter/xt_CONNSECMARK.c
+@@ -14,6 +14,7 @@
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+ #include <linux/module.h>
+ #include <linux/skbuff.h>
++#include <linux/lsm_secxa.h>
+ #include <linux/netfilter/x_tables.h>
+ #include <linux/netfilter/xt_CONNSECMARK.h>
+ #include <net/netfilter/nf_conntrack.h>
+@@ -55,7 +56,7 @@ static void secmark_restore(struct sk_buff *skb)
+ 
+ 		ct = nf_ct_get(skb, &ctinfo);
+ 		if (ct && ct->secmark)
+-			skb->secmark = ct->secmark;
++			secxa_set_secmark(skb, ct->secmark);
+ 	}
+ }
+ 
+diff --git a/net/netfilter/xt_SECMARK.c b/net/netfilter/xt_SECMARK.c
+index 5bc5ea505eb9..ea67aa92ddc2 100644
+--- a/net/netfilter/xt_SECMARK.c
++++ b/net/netfilter/xt_SECMARK.c
+@@ -11,6 +11,7 @@
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+ #include <linux/module.h>
+ #include <linux/security.h>
++#include <linux/lsm_secxa.h>
+ #include <linux/skbuff.h>
+ #include <linux/netfilter/x_tables.h>
+ #include <linux/netfilter/xt_SECMARK.h>
+@@ -36,7 +37,7 @@ secmark_tg(struct sk_buff *skb, const struct xt_secmark_target_info_v1 *info)
+ 		BUG();
+ 	}
+ 
+-	skb->secmark = secmark;
++	secxa_set_secmark(skb, secmark);
+ 	return XT_CONTINUE;
+ }
+ 
+diff --git a/security/smack/smack_netfilter.c b/security/smack/smack_netfilter.c
+index 17ba578b1308..b363c42f252e 100644
+--- a/security/smack/smack_netfilter.c
++++ b/security/smack/smack_netfilter.c
+@@ -14,6 +14,7 @@
+ #include <linux/netfilter_ipv4.h>
+ #include <linux/netfilter_ipv6.h>
+ #include <linux/netdevice.h>
++#include <linux/lsm_secxa.h>
+ #include <net/inet_sock.h>
+ #include <net/net_namespace.h>
+ #include "smack.h"
+@@ -29,7 +30,7 @@ static unsigned int smack_ip_output(void *priv,
+ 	if (sk) {
+ 		ssp = smack_sock(sk);
+ 		skp = ssp->smk_out;
+-		skb->secmark = skp->smk_secid;
++		secxa_set_secmark(skb, skp->smk_secid);
+ 	}
+ 
+ 	return NF_ACCEPT;
 -- 
-2.55.0
+2.54.0
 
