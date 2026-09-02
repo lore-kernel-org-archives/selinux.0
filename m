@@ -1,279 +1,164 @@
-Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
+Received: from sonic307-15.consmr.mail.ne1.yahoo.com (sonic307-15.consmr.mail.ne1.yahoo.com [66.163.190.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4205F357A25
-	for <selinux@vger.kernel.org>; Wed,  2 Sep 2026 18:29:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45D3A4AE104
+	for <selinux@vger.kernel.org>; Wed,  2 Sep 2026 19:38:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.190.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788373762; cv=none; b=IggqReZys99uJLqTUCcLJMI1Ak9aAaYgG26oF8D0w82aOFqH2HEU5Xv5+BxO2cMfAaVfCS40LppjAIzeyfTIu6sqE4GUP87jXEoX9P2eaxPvbWZPVyEKm8vouDC8wZXux/kaXkg4nUJEA15QetD6bjf2gRBCspsa9F02cazC1UY=
+	t=1788377901; cv=none; b=OlebtPyaRFDdo5X6Km8oSQ/RqJdd6DSilNHhIdugHSRocgt0TXFjyKkiUdbae8sHrT1qFr7XS2er+tKZVZDchtqtcEJ7MR5Gw31P6BZJz6EgRWGXQ+7g/fAj/Zr3lAL6BvTQQDQjDcCSz8L/+NO7bKcEwj3/5NudQioeWXUg9OQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788373762; c=relaxed/simple;
-	bh=1kWjAAMCWaCLntsSE5I57VdVMvqSxqttvsDrle+7AnI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=c5aMUw6zubYRh7DqtppOAVgfitR15ZWx33IsmbWXtJJQ9WjWXnyUZOdAJ0IpaDG6U1TVidxE/a96ze/ZbC/NO6o8tdCUU9B/K6m8VTGoDpYkIPI6ohBAj7xqZJj0rg5wB5x3/uw50e5BJR+OFpU2dqSSlk8S9f0YRMllLNUw30o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Sde6d+5u; arc=none smtp.client-ip=209.85.222.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788377901; c=relaxed/simple;
+	bh=FfVP7ZHwMUX4clPHqj3GfGEBM8rkDzr7WOneMyDb+LU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=iU5PTJaYEkvUpOxX8oo6BQKIyI+GOArAtezAx//HoBrilgFiSb1YWJRyRzhu71FMyr7BTUq5ueLuIiiuOIl5kScdq9j9SEYEtXj2aXRxcVNlzXPjxosvm81ueRV4MKEkSe0W204586jcTpL5Ty/IUL7p41xDa6DZaAiiJwbL2l4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=X8SVJI4g; arc=none smtp.client-ip=66.163.190.38
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Sde6d+5u"
-Received: by mail-qk1-f175.google.com with SMTP id af79cd13be357-9390f8a1c9eso117758385a.3
-        for <selinux@vger.kernel.org>; Wed, 02 Sep 2026 11:29:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788373760; x=1788978560; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=goJfuvtX+HavV+DfCisgfizj3tAZtoLjZF2CgZIIykk=;
-        b=Sde6d+5uDBNN1lgLl8fUludhr2TpAodTs2hsdW/9RdIVwcffD/Ccf9VC0vvhx9UQHN
-         0LsyGFDh5pNJ8eWFvOSNDEGDYX6uERTiAUi5q9+ICGzFoD+wFNQsBjHyjsQwROFaWc+y
-         WNks3VroBMheUwK0CPPGhfAqDQQHwe/x32/5++OQ7O2GGDk8/KnHtop6KtRa7+8Xx0A2
-         3uoc5/gMuH3weUl6A9tnXhnk7RlJSa7ixwfnvJmVJ5dBVfzS8AcelTF8v+fH/mMk2+FY
-         wkn8f0qN0ksz35QeehXlKa9CIpqnemZlA3+XGWKH80LHgdBdYiGjPCafSFypv8OoHIXs
-         WndQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788373760; x=1788978560;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=goJfuvtX+HavV+DfCisgfizj3tAZtoLjZF2CgZIIykk=;
-        b=E5Oq/SmI2tPcp/38lOT7o44aZTw4lGXsrkCeXOfZO7MuE7ufaLrc646g9gTNzyF9NC
-         +76U9EflW36pO5TyQp4xrFxK2j9IILoAJkP+JvB5X+m88TlSH8eqHKz2r3OvYpasixGp
-         NF4g8Cl06m7q8tWtwQNk8fhz9V32d1dH0p0OWG8b3Y+QhMIvLe10Z3gm6tfm88VM7i7X
-         Axw2wUysGjGdCvtq9EINQY0VoeMk6L1tayPwW2eJdZrdr3R5PYmTjsO5tfzQN+rlKE4v
-         P1eZr+2E3RC6lYo7xhOEt68yJLxjO3KFtnWE1AHk3KGvronlEDH1oUKEH4vPuRVPkpPA
-         wnwQ==
-X-Gm-Message-State: AFuF++mcwaQQDRvgUXvDpvNJg0iz/RiTcmmtlljXnZ2mPe4c0DT6yR3D
-	jNBXVdaUhljeUHXNyZXvJnkC2H4b21oUTrkmX7M7Z4jlUQKLDBvrBXRN0WU+dg==
-X-Gm-Gg: AYBFou1l5V75CRN6dAaH4+uUoZJlpJ45DLxu1DcA06MhTdSPYUQHz2konfG1nGmyt4e
-	dAGdEn58dmcShTsO6i73baEk8J91maVmM4rhhOldvu1+jofw8EggaRE1YPfFBTkut1rzrsPDsJ2
-	+coFNQXB4ohemdpYQNVJUE9ROD8DVZdE+oSEv4w3Cff4L4n30Cx1N0lpEw0QuUAiyMF0O58/X40
-	b3kQbIw+AkNKtGRs0aA9tm+QemI+prTPqdAERq5myUWRD29ZPsKxWGFNY3nYKQMbRh2IoufPKnv
-	jHu1vYXdL8JyUJUDKriv8o6jAZtlsd7BDOdr+fauFizQiyMs6j60aj6LJ7TIBeFRWr81vsuxyGk
-	mbEFETdfctlJ6pAlMptXaekKzjKFeb/Kv9HdjXTWWQi1LAXWuB1oK1E2co9S3j4NAMjtG7JGUdd
-	5xlRQntKvphPw95rkFivgnhAvenxm6rxghXVNqsdxmFsUOt95tind0qUuWU/RgJfG2ier6NwnY4
-	d1ZebM8Wk1QKGinB673Dh+lmonvkIczWbNgQif+lZ39DnpwyRn7SehIBcHHK2mBnMwkBDLZyXQ=
-X-Received: by 2002:a05:620a:2f7:b0:936:9525:e952 with SMTP id af79cd13be357-93961016c42mr608088385a.41.1788373759694;
-        Wed, 02 Sep 2026 11:29:19 -0700 (PDT)
-Received: from fedora (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9395f359ffbsm266830585a.28.2026.09.02.11.29.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Sep 2026 11:29:19 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	plautrba@redhat.com,
-	omosnace@redhat.com,
-	jason@perfinion.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v3] libsepol,checkpolicy: validate devicetree paths
-Date: Wed,  2 Sep 2026 14:28:04 -0400
-Message-ID: <20260902182803.9789-2-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="X8SVJI4g"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1788377880; bh=sDQ7o2SAAN5I3uv6IUKkmoXo37jnBtTL6EKFl3E8YMY=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=X8SVJI4gHO/jtd3biSMjkWAKGK2iDU2Kuicd+mUFs0uxXHGsz6CtmCwjb5heP3Lsh5jHSIRbRRCosrF2MDPbhh22Bah8huVuRtvWE8CalMg8Sg/xAi3en7n1PVm0VYGgVdnCucjygP4RvMpi7f9VbxXj20uAZnssJS9mDJpWOtbJB75niE/aNqCR/oAVlP7uZ6JwhjpC7odPwRYq5ucX9K1PYAonbKukaV8u++FJf8L10pOrZJq18Qz2qQITIl0wdZKmOVDnrHckLvESSCwQzxtV/72WcFpaChFZre45CITtu/QMzUh6nfUXREuHhlZHdIcxCWQsIcfMF1BGdZRHbQ==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1788377880; bh=Ghc8rbnAPdvUKco1Djk8Z/7/0itW+F8udaNnF0n4fBh=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=SFanMeCzZyuXXdFubVxFJgvmMWy7j2NWPNPZn3yac7lrigx1xFVoTILInvaTMNWaS4TX/QbkAPQHZHKrxJUWMuAC8skVumhLXDlu95Yxiu8gqasXY41Fh2EVUPjn1u42qXfU7AtEBme7hib2yEPbmkMmQaRGVE5omnUMHuorAqeb0lBnZ/ewubFQO8K0FjGpDTNiFzRxfNbTTfzABfd4BFcPwm3xwPZqzdPVh85Qda9kNf8Xiaz5YoTHhmb6hvX9G6Ov/Q2MsuxM32bFrlFhdUsEpJRNc09Nax0uYw0Y3qKhmhJLtclhRz72qsy8jr/D2YPx3ti5y+WWpOhRHmfunQ==
+X-YMail-OSG: fLZQ2OwVM1kV9VOfjqpHYlrxfGHKK7bj0TFwnsmPHRKj5gCI847u.yAj4JF5J.q
+ D6unKkX5tMCAuviOeg3ju2Ho.kdBrqGGs0vk_jQODM0fa1HWJDPQtKE41kOF6tdfO.3JEnCCq9DQ
+ 1MoS83VV3ir.Ze0vWUu9hL5LCkIzthGw2ebpbCBfUS0xEz9aK5lj0._0k.kkUu6THE3h2Jo68r18
+ vaSwKAO0tsTxcOKx6Em1FQ7K5WyTWYWSFHE5SFEXo2bK462klkdiAMUfwrzB7nuFNOI3B96iqhMD
+ 4q3XLsX72M8lCyqec88aIoQrklPyni1T707gl_JlNjIkz1glvkvGDsyJyEyDbOlRwIt_QhrYIt8g
+ W7nGHXFMaDD0sRs1M9hkKHDIwpdemBjX0GLdYcAtmNkoVQrdeDblbijabbdEX5YmlSKrtb3vJt8X
+ FF10DBVQcpvb8eV2It0ErWZQx8xFIr.6Qa4ANVszZWIAm8gjFgwG7bZKJ3TSud3oIe7V2zb_FLqx
+ fEGznQcm7HxrCkSKA8NK8ssMBfNHOWnz9BqqwrO_QFqeyxubU_4hpJlwUy9JvhdJNP4PBiD.Li7I
+ sZgNQoD5Gv5cc4.Qt2ZkZBPYpqLX4qi9Sdn_MPrc4XAsKrcGl83x37eppuzldxeQ.BFx_NPlH8OL
+ Jku37O9Jrpc.UvGYaqwydi5BaiVXoiQPrsqNIrVu7u.gfEDiUMgnEL26VLWBiKVL6RBw51H.Z1ye
+ d5DFcOsV1t8Ih7PiExkyRtEsZGU_32YWfA8445D9j1Y7IkiOot1scCEL1ElIKEpg1VD_qnmOskY0
+ S45ofWKoKts3nuz8l3BGyBAPwlKbwwlwCedpn7a7zJLDuKaG2DD28XxLsEJWIlVO3r.jqgMcWAeh
+ xxndwMQfSu7hjd6aodSh_t7mKdP9e5xaR5gg5z1mbhqDhn0Jr2ERXm8qqVRMFTaSW.WCEaNOyI0_
+ c8kPusksGcYXtrZdyJiOX.18VAUwcxK9L4XV.L5roZWLAqpuR8jB48zff5Ms1SC7RIg.dZOhsK4P
+ mq8Xk6yQHv8csNS10vVE.dRDwy4AQ_fofNDS5oYgJW6eARNZkoL6hZhVm63IRTLHcsB06HyLSHVj
+ _VucAC8tSc5YlX2DnA4P5Ra071Zr1ocRwOLmctT50oSVQTJlpn_3Ph.EdTkF0ciLzv3MJGd_gmiV
+ GpqiDwJCsMFdcRbdpcyG1OP89Kb2Lnh2RH27oX0IjByfUZmfpx0qZDwSD0jKRuv8w7_akD9aAaPE
+ 8hS33sMXXpI4shIZqbwdrbd0e.P4YgwNezxLO.r5XyWaf22AkNNRv0N95pXMxd1fAXN1rnJZPk6J
+ MTKn9f5x_Sk5EnyxD_SwSz6jLOEDrMjE3lu.YbekM8nXP9AJbxeFa_jfNsNwQdXpr487qYbdKHI0
+ RyLP8yxezlzgdDFVYTPsMArpynHAAQJsCEhJFL91Rhh2POJIArroM1J.4WZNOsNLG6GlQnwI4wf_
+ JAWpVMFwJAmitrRQepkQKM9QUfDyNINE8O33v1lmzyPPCtyIeGMghH.OvmYwViZA3Xetvc8ct.At
+ FPnyjc_AKMeB.te3mx1x0couFhoYckCBWaLcJ1LqG5bRseYN7EzICaypz3.y77iDsfX1mK5NtVGu
+ 3WhUolHDVL4JV5de2KRxH_9eGmJM8TLnR.GQp6AsIxK_t0tb_MqAq7QC_pxTNGAOlcR8eZl7XKK9
+ ANKWXk3TOurXaZlgIFt64U3Sy.ZgQomHZB0a4T8DcW3quZG96yQ7XDK5iNphUrXhMqh.V_W7Y8ZL
+ Xqqld6X12BWmQQdONqYLgWvAtqPuOydmPV_NPFDy380QAZkiiGOV826WJLzbQe_qyr6NIE5tVb3Z
+ inm5CJLAqV6ZJJpRX.eaxV9G7OeSPQviffi0mo7i4PJ79TV4K7lAq1lL4sGseXYGgXrO6FLZulVk
+ zx9dOfQ1ymwPbnoss6ojYwhPTKChpUsdDdgnmHo9ZHMsfxAxQmB.DOawhd5Z0EuSqUCVxtyqnG9O
+ rZnHoN.ey4slAomk5_vC5sB76awRRq.U85EgrtUY49kcXcN168W7ceg37cNQC20BxZpSL71BK3IE
+ C1cHFKzMS.DPGgblESftyBZblGn86ytEH9GUd0jNA0xUFV6EKRxp.Lul4lpcsqmfiPsk6Mx52a.A
+ Rya6cCpR4nLwDb0dcxL4fsUptK4ijB8my4BXhlKE2sH9qdNYo8gAwcYyFDvCxtjIOvllSHVLFX8d
+ Z9YIBwYwuD7yTxlx0jJLDVzxkTn8EsV1cGUDVG3HH8ehUwlXPv_uQcMLfKrhyn6Muc6Y3.7TEXXz
+ ._P9mRrDIlV2G8Qn3XxjIKc6VVuI-
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: 12003354-9909-46bf-b900-8bf8e4ec3d2f
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Wed, 2 Sep 2026 19:38:00 +0000
+Received: by hermes--production-gq1-678d9dd684-nh227 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 11e2868e9ee745b04b92bd2578e2b009;
+          Wed, 02 Sep 2026 19:37:57 +0000 (UTC)
+Message-ID: <8c4e0734-0775-4680-aa69-f6f35345c02d@schaufler-ca.com>
+Date: Wed, 2 Sep 2026 12:37:55 -0700
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/7] Change skb secmarks to x-array indexes
+To: paul@paul-moore.com, linux-security-module@vger.kernel.org,
+ pablo@netfilter.org, fw@strlen.de, phil@nwl.cc
+Cc: linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
+ coreteam@netfilter.org, jmorris@namei.org, serge@hallyn.com,
+ keescook@chromium.org, john.johansen@canonical.com,
+ penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com,
+ selinux@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>
+References: <20260831223748.4304-1-casey.ref@schaufler-ca.com>
+ <20260831223748.4304-1-casey@schaufler-ca.com>
+Content-Language: en-US
+From: Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <20260831223748.4304-1-casey@schaufler-ca.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebService/1.1.26460 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-devicetreecon paths have their own validity rules specified by:
-https://devicetree-specification.readthedocs.io/en/latest/index.html
+On 8/31/2026 3:37 PM, Casey Schaufler wrote:
 
-libsepol was (correctly) preventing them from embedding control
-characters but checkpolicy was not. Provide helpers for validating
-devicetree paths according to the specification and use them in
-checkpolicy and libsepol to reject invalid devicetree paths.
+This patch set was incorrectly sourced, and contains errors.
+Please ignore and accept my apologies for the noise.
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
-v3 makes the helper functions inline to avoid creating duplicates
-for source files that include the header, adds one more validity
-check to the helper, and fixes a memory leak on the error path.
-
- checkpolicy/policy_define.c              |  21 +++--
- libsepol/include/sepol/policydb/dtpath.h | 100 +++++++++++++++++++++++
- libsepol/src/policydb_validate.c         |   3 +-
- 3 files changed, 118 insertions(+), 6 deletions(-)
- create mode 100644 libsepol/include/sepol/policydb/dtpath.h
-
-diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index 1984c52f..c0f546a1 100644
---- a/checkpolicy/policy_define.c
-+++ b/checkpolicy/policy_define.c
-@@ -54,6 +54,7 @@
- #include <sepol/policydb/conditional.h>
- #include <sepol/policydb/hierarchy.h>
- #include <sepol/policydb/polcaps.h>
-+#include <sepol/policydb/dtpath.h>
- #include "queue.h"
- #include "module_compiler.h"
- #include "policy_define.h"
-@@ -5136,6 +5137,7 @@ bad:
- int define_devicetree_context(void)
- {
- 	ocontext_t *newc, *c, *l, *head;
-+	char *path;
- 
- 	if (policydbp->target_platform != SEPOL_TARGET_XEN) {
- 		yyerror("devicetreecon not supported for target");
-@@ -5148,17 +5150,26 @@ int define_devicetree_context(void)
- 		return 0;
- 	}
- 
-+	path = (char *)queue_remove(id_queue);
-+	if (!path) {
-+		yyerror("Missing devicetreepath");
-+		return -1;
-+	}
-+
-+	if (!is_valid_dt_path(path)) {
-+		yyerror2("invalid devicetreecon path \"%s\"", path);
-+		free(path);
-+		return -1;
-+	}
-+
- 	newc = calloc(1, sizeof(ocontext_t));
- 	if (!newc) {
- 		yyerror("out of memory");
-+		free(path);
- 		return -1;
- 	}
- 
--	newc->u.name = (char *)queue_remove(id_queue);
--	if (!newc->u.name) {
--		free(newc);
--		return -1;
--	}
-+	newc->u.name = path;
- 
- 	if (parse_security_context(&newc->context[0])) {
- 		free(newc->u.name);
-diff --git a/libsepol/include/sepol/policydb/dtpath.h b/libsepol/include/sepol/policydb/dtpath.h
-new file mode 100644
-index 00000000..a554412e
---- /dev/null
-+++ b/libsepol/include/sepol/policydb/dtpath.h
-@@ -0,0 +1,100 @@
-+#ifndef _SEPOL_POLICYDB_DTPATH_H_
-+#define _SEPOL_POLICYDB_DTPATH_H_
-+
-+#include <stdbool.h>
-+#include <ctype.h>
-+#include <string.h>
-+
-+/*
-+ * Allowed characters in a devicetree node-name / unit-address,
-+ * per the Devicetree Specification: [0-9a-zA-Z,._+-]
-+ */
-+static inline bool is_valid_dt_char(char c)
-+{
-+	return isalnum((unsigned char)c) || c == ',' || c == '.' || c == '_' ||
-+	       c == '+' || c == '-';
-+}
-+
-+/*
-+ * is_valid_devicetree_path - validate a devicetree node path
-+ * @path: NUL-terminated path string, e.g. "/soc/uart@10000000"
-+ *
-+ * Rules enforced (per the Devicetree Specification):
-+ *   - path must be non-NULL and non-empty
-+ *   - path must start with '/'
-+ *   - "/" (root) alone is valid
-+ *   - path must not end with '/' unless it is exactly "/"
-+ *   - no empty segments (i.e. "//" is invalid)
-+ *   - each segment is "node-name" or "node-name@unit-address"
-+ *   - node-name: 1-31 characters from [0-9a-zA-Z,._+-]
-+ *   - unit-address (if present): 1+ characters from [0-9a-zA-Z,._+-]
-+ *   - at most one '@' per segment
-+ *
-+ * Returns true if the path is well-formed, false otherwise.
-+ */
-+static inline bool is_valid_dt_path(const char *path)
-+{
-+	if (path == NULL || path[0] == '\0')
-+		return false;
-+
-+	if (path[0] != '/')
-+		return false;
-+
-+	/* Root node alone is valid */
-+	if (strcmp(path, "/") == 0)
-+		return true;
-+
-+	/* No trailing slash allowed (except for root, handled above) */
-+	size_t len = strlen(path);
-+	if (path[len - 1] == '/')
-+		return false;
-+
-+	const char *seg_start = path + 1; /* skip leading '/' */
-+
-+	while (*seg_start != '\0') {
-+		const char *seg_end = strchr(seg_start, '/');
-+		size_t seg_len = seg_end ? (size_t)(seg_end - seg_start) :
-+					   strlen(seg_start);
-+
-+		if (seg_len == 0)
-+			return false; /* empty segment, e.g. from "//" */
-+
-+		const char *at = memchr(seg_start, '@', seg_len);
-+		size_t name_len = at ? (size_t)(at - seg_start) : seg_len;
-+
-+		/* node-name must be 1-31 characters */
-+		if (name_len == 0 || name_len > 31)
-+			return false;
-+
-+		/* node-name must start with a lower or uppercase character */
-+		if (!isalpha((unsigned char)seg_start[0]))
-+			return false;
-+
-+		for (size_t i = 0; i < name_len; i++) {
-+			if (!is_valid_dt_char(seg_start[i]))
-+				return false;
-+		}
-+
-+		if (at) {
-+			const char *addr_start = at + 1;
-+			size_t addr_len = seg_len - name_len - 1;
-+
-+			if (addr_len == 0)
-+				return false; /* '@' with nothing after it */
-+
-+			for (size_t i = 0; i < addr_len; i++) {
-+				/* also rejects a second '@' in the same segment */
-+				if (!is_valid_dt_char(addr_start[i]))
-+					return false;
-+			}
-+		}
-+
-+		if (!seg_end)
-+			break;
-+		seg_start = seg_end + 1;
-+	}
-+
-+	return true;
-+}
-+
-+#endif /* _SEPOL_POLICYDB_DTPATH_H_ */
-diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
-index 34182e8e..c60001c9 100644
---- a/libsepol/src/policydb_validate.c
-+++ b/libsepol/src/policydb_validate.c
-@@ -5,6 +5,7 @@
- #include <sepol/policydb/polcaps.h>
- #include <sepol/policydb/policydb.h>
- #include <sepol/policydb/services.h>
-+#include <sepol/policydb/dtpath.h>
- 
- #include "debug.h"
- #include "private.h"
-@@ -1613,7 +1614,7 @@ static int validate_ocontexts(sepol_handle_t *handle, const policydb_t *p,
- 						goto bad;
- 					break;
- 				case OCON_XEN_DEVICETREE:
--					if (validate_string_field(octx->u.name))
-+					if (!is_valid_dt_path(octx->u.name))
- 						goto bad;
- 					break;
- 				}
--- 
-2.55.0
-
+> When security secmarks were added to the Linux network stack there was
+> only one Linux Security Module (LSM), SELinux.  SELinux already used the
+> concept of a security ID (secid) as the representation of the security
+> information about a system subject (active entity) or object (passive
+> entity). Adding a container for a secid, the secmark, to the sk_buff
+> structure allowed for efficient transmission of the SELinux secid for
+> socket based access controls.
+>
+> Subsequent LSMs have chosen to represent security information more
+> directly. Smack and AppArmor use pointers to structures containing
+> relevant information. Alas, these pointers do not fit in the u32 secmark
+> on most modern architectures. These LSMs are required to provide a secid
+> mapping to use secmarks.
+>
+> Even with all LSMs that use secmarks having a secid to reference the
+> security information the mechanism is imperfect. A system that wants
+> to use multiple LSMs that use secmarks is constrained by the size
+> of the secmark. There is no rational way to fit multiple secids in a
+> secmark. While it would be possible to allow one LSM to use the secmark
+> and any others to be told it is unavailable, this has been deemed an
+> unacceptable limitation.
+>
+> There is a lsm_prop structure available that contains security information
+> for any LSM that maintains it. The secmark cannot, unfortunately,
+> contain one. Instead, an x-array of lsm_prop structures is maintained,
+> and the index (secxa) is used in the secmark instead of the single LSM
+> restricted secid.
+>
+> Uses of security_secctx_to_secid() have been changed to
+> security_secctx_to_lsmprop() in the netfilter and iptables code.
+> The security_secmark_relabel_packet() function has been updated to accept
+> an lsm_prop pointer rather than a secid.
+> To support multiple LSMs using a secmark it is necessary to re-evaluate
+> which lsm_prop structure represents the current security information
+> at each step where the secmark can be set. Smack sets the secmark for
+> every packet.  Netfilter, used by SELinux, Smack and AppArmor, will set
+> the secmark on selected packets at a later time. If Smack and AppArmor
+> are active on a system Smack will set the secmark initially, and AppArmor
+> may reset it by netfilter rule.
+>
+> v2: Address issues raised by Sashiko
+>  - Configuration option insufficiencies
+>  - Locking issues
+>
+> https://github.com/cschaufler/lsm-stacking#secmark-xa-7.2-rc7-v2
+>
+> Casey Schaufler (7):
+>   net, smack: Create a function to set secmarks
+>   LSM: Implement x array functions for secmarks
+>   LSM: Two hooks for manipulating struct lsm_prop
+>   SELinux: hooks for secctx_to_lsmprop and update_lsmprop
+>   Smack: hooks for secctx_to_lsmprop and update_lsmprop
+>   Apparmor: hooks for secctx_to_lsmprop and update_lsmprop
+>   net, lsm: Change skb secmarks to x-array indexes
+>
+>  include/linux/lsm_hook_defs.h     |   6 +-
+>  include/linux/lsm_secxa.h         |  33 ++++++++
+>  include/linux/security.h          |  20 ++++-
+>  net/netfilter/nfnetlink_queue.c   |  12 ++-
+>  net/netfilter/nft_meta.c          |  20 +++--
+>  net/netfilter/xt_CONNSECMARK.c    |   3 +-
+>  net/netfilter/xt_SECMARK.c        |  19 +++--
+>  security/Makefile                 |   1 +
+>  security/apparmor/include/secid.h |   4 +
+>  security/apparmor/lsm.c           |   2 +
+>  security/apparmor/net.c           |   8 +-
+>  security/apparmor/secid.c         |  21 +++++
+>  security/lsm_secxa.c              | 128 ++++++++++++++++++++++++++++++
+>  security/security.c               |  38 ++++++++-
+>  security/selinux/hooks.c          |  87 +++++++++++++++++---
+>  security/smack/smack_lsm.c        |  43 +++++++++-
+>  security/smack/smack_netfilter.c  |  11 ++-
+>  17 files changed, 418 insertions(+), 38 deletions(-)
+>  create mode 100644 include/linux/lsm_secxa.h
+>  create mode 100644 security/lsm_secxa.c
+>
