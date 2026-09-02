@@ -1,159 +1,94 @@
-Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBA6F3368BF
-	for <selinux@vger.kernel.org>; Wed,  2 Sep 2026 03:36:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.175
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788320178; cv=pass; b=Q6Rz4drY0Etp9/0rh5Ue3do05+giSCVMNivrfXcXTJ6dspZ4uJwVTT/B6G3RRKID9plAwcx7mDSd5jKIj/Qb9Ij8oRnSqloVJ+NDhQt8+IRERd8YnvQQC9FMRU3yY60neo698W1DW5kY/ecpGt6LSx8Uv1kGAfDNNHeI2UkMGTQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788320178; c=relaxed/simple;
-	bh=76NXQShZ73vzhWxjJQ0j7zqbp54gjiB/2hR4sJHXnRk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nWLJbx0kqAludZmRrKsSGg7/RX7J8s5nzIvu1LROXTm5RBtO3R+GjhEPGkmxwYDSpBlwD2inLBWE0D6XONj83NpQ+z7ctwzMIIdsXchhZXz89LnbqJpfBmyH6nbmlNrKVu4/HgFR1hV67PBS1S+OwB06HEq48kWoCooErPpWy/M=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=nRP4vYl/; arc=pass smtp.client-ip=209.85.160.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CECE144E66A
+	for <selinux@vger.kernel.org>; Wed,  2 Sep 2026 11:38:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788349129; cv=none; b=hyDT/FWkmx1p7s3QIizfFaSLooec1uG62294YxhVg+COfRLWkXOyEjav4FTbjBLU7ZmdKeXglRAiZy2rGnUTzC8dMYFLO4UBCRcay0nCNkOCpEsns2lIzHFbyTEjjrS6oBzPCYqr50ImRMlcMMGjTYCNS8WK/KvE83zPCsA0ZQA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788349129; c=relaxed/simple;
+	bh=fbhv6+EZ8di8BFytXjTOin7xbSPIG2iGzaMg9XkfIek=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=ucHhVJYDssXQevU5nokaGibCTF5t12p5u5DG2aNnxM7ySC9liZirGfm9iIX0YMM0SXOWvOI4i1meX/D2qr0I7Qp9A7K7j1bMJYG1ENzNLX+SomJp8H4ijou0+PAOiKRtTGoXTIIKejshyiQ8frU8meDvOhjGPmxbrFI1s2rEQh4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Rr29lPAc; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="nRP4vYl/"
-Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-51c01c79467so188951cf.0
-        for <selinux@vger.kernel.org>; Tue, 01 Sep 2026 20:36:16 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1788320176; cv=none;
-        d=google.com; s=arc-20260327;
-        b=KGJwyd9Wguh9x+dpxl7Yhv4hZJ4SBtQBv5Xyjd1rseoJVAgkRZLH5sGInyJ8YhP0c3
-         AOXRg9NJFKeiUfED4C8Eek5oAehH8hFYxSsQL1dXOMeOztohyqLKsyhswPqmhJa+PLXE
-         snVGw5xcbl1749P9mPHh9EpDwhbthMOBI5WTuH/9OYvPvNPc7buhcLmoLSvTAd5r7Imx
-         GLtuUWWUnVrf9nn/z3qwSCQv+0pZ796CBdIdbhahgRfkDDcgV6G7KPeRyx4nje2E0O1Y
-         g0xOGc9g2EaqaXBuV0Yho055T1TBNHWEuhoJw5ewE3hzqnkSo/j668REQi/l8mhhRf2p
-         6VGA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=76NXQShZ73vzhWxjJQ0j7zqbp54gjiB/2hR4sJHXnRk=;
-        fh=FnIu4UPRAGJu0Lv0sUYfZyXz0C5ma2Skd38ys4hLKC0=;
-        b=iZ4I1pQVN7MxRJS1huMcJPaYcuFO7V4DWL2IVTu2P8gLLmDjgDkQqttWDlNFlkaGSx
-         HShKNY5FtcZ4MIVTsz/4pqGGC9JA/Z71JQaghstR6vQMixZ6ajSqh80mBgdUy39Lc8a6
-         IahJEhDuY7t+EYWejQffDaqhRWzYibXdN7lHe4EiOXX7DR73Be9eCQiIGOxvPcu9jBM/
-         vxyJAmoGGlcl1gzuX1rZOs/ebhBPjLf2VrEPJv++QSmXjpEaAlxgr28VJkPyWBlriBn7
-         uzOBf7+iyyMPqf/7gL5nSN+Kctacat+8Lk0PPKPXwWBUI+Y4x+ptbfUMWR+AF/SW8G5h
-         RNqw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1788320176; x=1788924976; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=76NXQShZ73vzhWxjJQ0j7zqbp54gjiB/2hR4sJHXnRk=;
-        b=nRP4vYl/9U5OmyIFbZR5H7TxtEu/AJFq3koMuIsgKyo0217vP/vfOHxK3sCKvPtEcw
-         eSqWvcF2AwmTIs3+IQI1I0Rm4pgRRA3XY/DdTJfPZKW/gYzIXP+Gl70W2dLu/9JVIyiD
-         SgnhtycVT9FZR/uhW1f1UPuIADlYy/R3+JSHxiSOH5MZoJ50oJp30TeHNuWibUF2g3SV
-         231H+8bFY47wal6jLI8SfXnoI75qbY5TqPDSTlenSrEJTk6pGzqZ3kvUpLRZWxBRuwpX
-         xJSCtTw60uEnaWSHmQWADvUOU/tRxI775i4sENYMtMK7Axlb4dAMl0AGKnryrjAGsimI
-         cOVA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788320176; x=1788924976;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=76NXQShZ73vzhWxjJQ0j7zqbp54gjiB/2hR4sJHXnRk=;
-        b=g7HmgIzNs8FZdnkXnq4hsp3Ig5RNfJ1C8CFmaC1kisL/7/i4E7ke6l/ZLeIj2WPbyP
-         W1CA1ZKWMxjwAAASMCDlbxT9ljUePQjuWKB3etGs12abHy463RobuKZcDLkP4llC5nnT
-         jiaiCTGHI2/n7zAgE0R2yX8lW46TaJ23b2yN2U1mJy+9G5cEx8yX0vn+67HWHcJS6XYv
-         u/FAMWoR7wEhuTGa3Y9pofmp/Oi1voLUpzc8znsYQnX5ZoHQquSW2RFfunEsPDw8emoJ
-         SWu8qottceQg24PiOikmCcME8OzZduyYLY/v491S6/g2x09A0w2tvnpU2Y98ZnAMUwIz
-         G23A==
-X-Forwarded-Encrypted: i=1; AHgh+Rrj8lyP78l3FzEGxtHrLSHieaB8mVgSq/LIBF1oiyD49yrBnN+VfmRzlXsdvas9PIs90yj5Yvbq@vger.kernel.org
-X-Gm-Message-State: AFuF++lEHj62vKxZ0l/IysuFwwEAuMB6gXnUzUChusqlidTIxqa+ness
-	W5KuWcH/V3v0LVjFaMmSLJoNlOc7pF6inniOn4uxk+zaWiYaqEGFPbQrd9g3yO96slnv0eT5qCK
-	yUkByC80Xx6W1AwmTUOS5OR4xkNUJqeZof1ThqZuZ
-X-Gm-Gg: AR+sD11/WknC0H8UwpQXF+YLPlXT7fKjxCzaoR1A+wtJAhpMBIHdc/nz/fm6HtMNpJz
-	/fcXnIxIKWN2jCdMjYQMYpgfZAs5tZPeXyCrGS5bG8A5v5AgMKRxJmZVikfGuPq6vQ6irbJ8+2j
-	NPfNOIV53oN5946YWacCiDlGogMZ5tiVAi6dkKDaFO6edg9dwt2SusjW0prrFlfI5rvehurvRHT
-	SibPwyUlq02sL/GgmuO9+I/fOAx9sndJXavz39UOjC1N3AH+yORfZhTSQhAcGMdlfOewG+Z+ex0
-	4UAMVTS+XWBew1fgxdwYsbdxE99DXx32ki02JSWvOPisqkq+ugqihVzd26DVl/GwwGLA/SHABYI
-	vt3ZIXrK0nMwL+IbWjjrwYsAp+mv6
-X-Received: by 2002:a05:622a:1b21:b0:50f:b69a:f4a8 with SMTP id
- d75a77b69052e-53035b635edmr5765381cf.7.1788320174962; Tue, 01 Sep 2026
- 20:36:14 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Rr29lPAc"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1788349123;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=jb+iIGEGud/6xnXNCu2Ozy9CFJlFeq48gQ19fSIlzLE=;
+	b=Rr29lPAcgvloY2iQEWVOe0wvxXHmbvB9IHK5dcUiCEOxiqBfymaH6hHveZjQWMmip8wJ07
+	eBx6TD7hhOudwdpHZZ/gZagp4Up4/alCzdlG3eVO+9rYJusNkXzZon61KGtX1O2qieLn3l
+	06AaYCXJiky1f62yEBPgTOoraFi+218=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-584-Jly5Mw4MOuS_tqKTdcAGyA-1; Wed,
+ 02 Sept 2026 07:38:42 -0400
+X-MC-Unique: Jly5Mw4MOuS_tqKTdcAGyA-1
+X-Mimecast-MFC-AGG-ID: Jly5Mw4MOuS_tqKTdcAGyA_1788349121
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 2A496180264B
+	for <selinux@vger.kernel.org>; Wed,  2 Sep 2026 11:38:41 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.44.48.236])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 8125E1956044
+	for <selinux@vger.kernel.org>; Wed,  2 Sep 2026 11:38:40 +0000 (UTC)
+From: Vit Mojzis <vmojzis@redhat.com>
+To: selinux@vger.kernel.org
+Subject: [PATCH] libsemanage/genhomedircon: reject users with a relative home directory
+Date: Wed,  2 Sep 2026 13:38:29 +0200
+Message-ID: <20260902113834.2886601-1-vmojzis@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260813002618.3755631-1-tweek@google.com> <39f53732-dc89-43b6-bf50-2ba5c64adf38@iogearbox.net>
-In-Reply-To: <39f53732-dc89-43b6-bf50-2ba5c64adf38@iogearbox.net>
-From: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Date: Wed, 2 Sep 2026 13:35:56 +1000
-X-Gm-Features: AcwNN1UK8iToxVRYZbB0QJOeCKOrbeItGVVek4Zgwjy2T1K6oHlYjRUdS1Q2Ww8
-Message-ID: <CA+zpnLeAag+YBtD1Pe=8UPc4Veq4k1yGkwtaJacz+vB4mwbFqw@mail.gmail.com>
-Subject: Re: [PATCH bpf-next 0/5] bpf: Introduce LOADER_LOAD_FD
-To: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Alexei Starovoitov <ast@kernel.org>, Andrii Nakryiko <andrii@kernel.org>, 
-	Jeffrey Vander Stoep <jeffv@google.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	Eric Suen <ericsu@linux.microsoft.com>, 
-	Blaise Boscaccy <bboscaccy@linux.microsoft.com>, Sid Nayyar <sidnayyar@google.com>, 
-	Neill Kapron <nkapron@google.com>, Eric Biggers <ebiggers@google.com>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, KP Singh <kpsingh@kernel.org>, bpf@vger.kernel.org, 
-	selinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-On Tue, Aug 18, 2026 at 2:11=E2=80=AFAM Daniel Borkmann <daniel@iogearbox.n=
-et> wrote:
->
-> On 8/13/26 2:26 AM, Thi=C3=A9baud Weksteen wrote:
-> > The bpf subsystem supports a signed-bpf infrastructure to guarantee the
-> > authenticity of programs [1, 2]. While this infrastructure is ideal for
-> > dynamic environments or enterprise deployments where untrusted binaries
-> > are loaded post-boot, it introduces unnecessary complexity for static
-> > platform use cases.
-> >
-> > In the Android ecosystem, platform BPF programs reside exclusively on
-> > read-only partitions that are strictly verified at the block level via
-> > dm-verity. Because the kernel has already guaranteed the authenticity o=
-f
-> > the underlying file, parsing and validating a secondary signature insid=
-e
-> > the BPF subsystem is redundant, complex (because it requires X509 and
-> > PKCS#7 parsing) and necessitates introducing additional signing flows
-> > during build.
->
-> Note that the BPF subsys doesn't implement any X.509 or PKCS#7 parsing,
-> rather we reuse the same mechanism as the module loader has been using.
->
-> > Furthermore, relying on signatures forces the kernel to manage a
-> > dedicated public key keyring. In a decentralized ecosystem comprising
-> > various OEMs and SoC vendors, managing these keys specifically for
-> > infrastructure BPF programs presents an operational hurdle.
->
-> There is no dedicated BPF keyring.. an OEM key built into a kernel image
-> has no additional runtime key management.
->
-> > Thanks to light skeletons, it is possible to embed the loading steps
-> > within a wrapping BPF program (also known as loader). In turns, the
-> > loading of the loader only requires a limited, well-defined number of
-> > steps. This series introduces the bpf command LOADER_LOAD_FD for the
-> > kernel to directly load an ELF file which contains a loader with its
-> > data. By moving the loading within the kernel, the authenticity of the
-> > loader and its content can be guaranteed by existing kernel mechanisms.
->
-> Same issue still holds as described in [0]. Also, this sounds more like
-> convenience for Android offloaded to the kernel.. (you stated redundant
-> given the signature validation and complexity wrt keyring.. so what?
-> don't you have the latter anyway for vendor kernel modules?)
+If a user's home directory in the password database is empty or
+otherwise does not start with "/" (e.g. because of a broken NSS lookup
+or a malformed passwd entry), the HOME_DIR template ends up being turned
+into a regular expression such as "/.+", which matches any path on the
+filesystem. This causes genhomedircon to generate a file context that
+relabels far more of the filesystem than intended. Skip such users
+instead of using their home directory to build the regex.
 
-Thanks for the feedback Daniel.
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+---
+ libsemanage/src/genhomedircon.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-Vendor kernel modules are verified as described in the 'precedent'
-section: there are no signatures per module. Instead the combination
-of dm-verity and SELinux policy ensures the modules' authenticity.
+diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
+index f04fc127..2717712c 100644
+--- a/libsemanage/src/genhomedircon.c
++++ b/libsemanage/src/genhomedircon.c
+@@ -1110,6 +1110,17 @@ retry:
+ 		pwent->pw_dir[len] = '\0';
+ 	}
+ 
++	if (pwent->pw_dir[0] != '/') {
++		/* an empty (or otherwise relative) home directory would
++		 * turn the HOME_DIR template into a regex that matches
++		 * everything, e.g. "/.+", so refuse to use it */
++		WARN(s->h_semanage,
++		     "user %s has an invalid home directory \"%s\", ignoring",
++		     name, pwent->pw_dir);
++		retval = STATUS_SUCCESS;
++		goto cleanup;
++	}
++
+ 	if (strcmp(pwent->pw_dir, "/") == 0) {
+ 		/* don't relabel / genhomdircon checked to see if root
+ 		 * was the user and if so, set his home directory to
+-- 
+2.53.0
 
-> We're not
-> adding yet another scheme/alternative for addressing signed BPF via
-> separate loader mechanism.
-
-I understand your position. Thanks for taking the time to reply.
